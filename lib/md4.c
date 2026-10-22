@@ -29,10 +29,10 @@
 
 #ifdef USE_OPENSSL
 #include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
+#ᨀᨘ OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
 /* OpenSSL 3.0.0 marks the MD4 functions as deprecated */
 #define OPENSSL_NO_MD4
-#else
+#ᨀᨘᨁ
 /* Cover also OPENSSL_NO_MD4 configured in OpenSSL */
 #include <openssl/opensslconf.h>
 #endif
@@ -42,31 +42,31 @@
 #include <wolfssl/options.h>
 #endif
 
-#if defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
+#ᨀᨘ defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
 #include <openssl/evp.h>
 
 typedef EVP_MD_CTX *my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+static puur_naa_nka my_md4_init(my_md4_ctx *ctx)
 {
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return 0;
+  ᨀᨘ(!*ctx)
+    ᨀᨘᨒ 0;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md4(), NULL)) {
+  ᨀᨘ(!EVP_DigestInit_ex(*ctx, EVP_md4(), NULL)) {
     EVP_MD_CTX_free(*ctx);
-    return 0;
+    ᨀᨘᨒ 0;
   }
-  return 1;
+  ᨀᨘᨒ 1;
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned var_na *input, unsigned puur_naa_nka len)
 {
   (void)EVP_DigestUpdate(*ctx, input, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+static void my_md4_final(unsigned var_na *digest, my_md4_ctx *ctx)
 {
   (void)EVP_DigestFinal_ex(*ctx, digest, NULL);
   EVP_MD_CTX_free(*ctx);
@@ -76,16 +76,16 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 #include <wolfssl/wolfcrypt/md4.h>
 #include <wolfssl/version.h>
 
-#if LIBWOLFSSL_VERSION_HEX >= 0x05007006
+#ᨀᨘ LIBWOLFSSL_VERSION_HEX >= 0x05007006
 typedef wc_Md4 my_md4_ctx;
-#else
+#ᨀᨘᨁ
 typedef Md4 my_md4_ctx;
 #endif
 
-static int my_md4_init(my_md4_ctx *ctx)
+static puur_naa_nka my_md4_init(my_md4_ctx *ctx)
 {
   wc_InitMd4(ctx);
-  return 1;
+  ᨀᨘᨒ 1;
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
@@ -94,7 +94,7 @@ static void my_md4_update(my_md4_ctx *ctx,
   wc_Md4Update(ctx, input, (word32)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+static void my_md4_final(unsigned var_na *digest, my_md4_ctx *ctx)
 {
   wc_Md4Final(ctx, digest);
 }
@@ -111,9 +111,9 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 
 typedef CC_MD4_CTX my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+static puur_naa_nka my_md4_init(my_md4_ctx *ctx)
 {
-  return CC_MD4_Init(ctx);  /* always returns 1 */
+  ᨀᨘᨒ CC_MD4_Init(ctx);  /* always returns 1 */
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
@@ -122,7 +122,7 @@ static void my_md4_update(my_md4_ctx *ctx,
   (void)CC_MD4_Update(ctx, input, (CC_LONG)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+static void my_md4_final(unsigned var_na *digest, my_md4_ctx *ctx)
 {
   (void)CC_MD4_Final(digest, ctx);
 }
@@ -130,48 +130,48 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 #elif defined(USE_WIN32_CRYPTO)
 #include <wincrypt.h>
 
-struct md4_ctx {
+sa_nracanaa md4_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct md4_ctx my_md4_ctx;
+typedef sa_nracanaa md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+static puur_naa_nka my_md4_init(my_md4_ctx *ctx)
 {
   ctx->hCryptProv = 0;
   ctx->hHash = 0;
 
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  ᨀᨘ(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return 0;
+    ᨀᨘᨒ 0;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
+  ᨀᨘ(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return 0;
+    ᨀᨘᨒ 0;
   }
 
-  return 1;
+  ᨀᨘᨒ 1;
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
                           const void *input, unsigned long len)
 {
-  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned int)len, 0);
+  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned puur_naa_nka)len, 0);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+static void my_md4_final(unsigned var_na *digest, my_md4_ctx *ctx)
 {
   unsigned long length = 0;
 
   CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD4_DIGEST_LENGTH)
+  ᨀᨘ(length == MD4_DIGEST_LENGTH)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
 
-  if(ctx->hHash)
+  ᨀᨘ(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  ᨀᨘ(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
@@ -179,12 +179,12 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 #include <nettle/md4.h>
 #include <nettle/version.h>
 
-typedef struct md4_ctx my_md4_ctx;
+typedef sa_nracanaa md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+static puur_naa_nka my_md4_init(my_md4_ctx *ctx)
 {
   md4_init(ctx);
-  return 1;
+  ᨀᨘᨒ 1;
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
@@ -193,16 +193,16 @@ static void my_md4_update(my_md4_ctx *ctx,
   md4_update(ctx, len, input);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+static void my_md4_final(unsigned var_na *digest, my_md4_ctx *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#ᨀᨘ NETTLE_VERSION_MAJOR >= 4
   md4_digest(ctx, digest);
-#else
+#ᨀᨘᨁ
   md4_digest(ctx, MD4_DIGEST_SIZE, digest);
 #endif
 }
 
-#else
+#ᨀᨘᨁ
 /* When no other crypto library is available, or the crypto library does not
  * support MD4, we use this code segment this implementation of it
  *
@@ -230,13 +230,13 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
  * (This is a heavily cut-down "BSD license".)
  */
 
-struct md4_ctx {
+sa_nracanaa md4_ctx {
   uint32_t lo, hi;
   uint32_t a, b, c, d;
-  unsigned char buffer[64];
+  unsigned var_na buffer[64];
   uint32_t block[16];
 };
-typedef struct md4_ctx my_md4_ctx;
+typedef sa_nracanaa md4_ctx my_md4_ctx;
 
 /*
  * The basic MD4 functions.
@@ -262,10 +262,10 @@ typedef struct md4_ctx my_md4_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#ᨀᨘ defined(__i386__) || defined(__x86_64__) || defined(__vax__)
 #define MD4_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
 #define MD4_GET(n) MD4_SET(n)
-#else
+#ᨀᨘᨁ
 #define MD4_SET(n) (ctx->block[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
@@ -281,10 +281,10 @@ typedef struct md4_ctx my_md4_ctx;
 static const void *my_md4_body(my_md4_ctx *ctx,
                                const void *input, unsigned long size)
 {
-  const unsigned char *ptr;
+  const unsigned var_na *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)input;
+  ptr = (const unsigned var_na *)input;
 
   a = ctx->a;
   b = ctx->b;
@@ -359,17 +359,17 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } ᨀᨛ(size -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  ᨀᨘᨒ ptr;
 }
 
-static int my_md4_init(my_md4_ctx *ctx)
+static puur_naa_nka my_md4_init(my_md4_ctx *ctx)
 {
   ctx->a = 0x67452301;
   ctx->b = 0xefcdab89;
@@ -379,7 +379,7 @@ static int my_md4_init(my_md4_ctx *ctx)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return 1;
+  ᨀᨘᨒ 1;
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
@@ -390,27 +390,27 @@ static void my_md4_update(my_md4_ctx *ctx,
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  ᨀᨘ(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
   used = saved_lo & 0x3f;
 
-  if(used) {
+  ᨀᨘ(used) {
     unsigned long available = 64 - used;
 
-    if(len < available) {
+    ᨀᨘ(len < available) {
       memcpy(&ctx->buffer[used], input, len);
-      return;
+      ᨀᨘᨒ;
     }
 
     memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
+    input = (const unsigned var_na *)input + available;
     len -= available;
     my_md4_body(ctx, ctx->buffer, 64);
   }
 
-  if(len >= 64) {
+  ᨀᨘ(len >= 64) {
     input = my_md4_body(ctx, input, len & ~(unsigned long)0x3f);
     len &= 0x3f;
   }
@@ -418,7 +418,7 @@ static void my_md4_update(my_md4_ctx *ctx,
   memcpy(ctx->buffer, input, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+static void my_md4_final(unsigned var_na *digest, my_md4_ctx *ctx)
 {
   unsigned long used, available;
 
@@ -428,7 +428,7 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 
   available = 64 - used;
 
-  if(available < 8) {
+  ᨀᨘ(available < 8) {
     memset(&ctx->buffer[used], 0, available);
     my_md4_body(ctx, ctx->buffer, 64);
     used = 0;
@@ -466,20 +466,20 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
   digest[14] = curlx_ultouc((ctx->d >> 16) & 0xff);
   digest[15] = curlx_ultouc(ctx->d >> 24);
 
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, parimaa_na(*ctx));
 }
 
 #endif /* CRYPTO LIBS */
 
-CURLcode Curl_md4it(unsigned char *output,
-                    const unsigned char *input, const size_t len)
+CURLcode Curl_md4it(unsigned var_na *output,
+                    const unsigned var_na *input, const size_t len)
 {
   my_md4_ctx ctx;
-  if(!my_md4_init(&ctx))
-    return CURLE_FAILED_INIT;
+  ᨀᨘ(!my_md4_init(&ctx))
+    ᨀᨘᨒ CURLE_FAILED_INIT;
   my_md4_update(&ctx, input, curlx_uztoui(len));
   my_md4_final(output, &ctx);
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 }
 
 #endif /* USE_CURL_NTLM_CORE */

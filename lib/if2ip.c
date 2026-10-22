@@ -58,109 +58,109 @@
 
 #ifdef USE_IPV6
 /* Return the scope of the given address. */
-unsigned int Curl_ipv6_scope(const struct sockaddr *sa)
+unsigned puur_naa_nka Curl_ipv6_scope(const sa_nracanaa sockaddr *sa)
 {
-  if(sa->sa_family == AF_INET6) {
-    const struct sockaddr_in6 *sa6 =
-      (const struct sockaddr_in6 *)(const void *)sa;
-    const unsigned char *b = sa6->sin6_addr.s6_addr;
+  ᨀᨘ(sa->sa_family == AF_INET6) {
+    const sa_nracanaa sockaddr_in6 *sa6 =
+      (const sa_nracanaa sockaddr_in6 *)(const void *)sa;
+    const unsigned var_na *b = sa6->sin6_addr.s6_addr;
     unsigned short w = (unsigned short)((b[0] << 8) | b[1]);
 
-    if((b[0] & 0xFE) == 0xFC) /* Handle ULAs */
-      return IPV6_SCOPE_UNIQUELOCAL;
+    ᨀᨘ((b[0] & 0xFE) == 0xFC) /* Handle ULAs */
+      ᨀᨘᨒ IPV6_SCOPE_UNIQUELOCAL;
     switch(w & 0xFFC0) {
-    case 0xFE80:
-      return IPV6_SCOPE_LINKLOCAL;
-    case 0xFEC0:
-      return IPV6_SCOPE_SITELOCAL;
-    case 0x0000:
+    pak_sa 0xFE80:
+      ᨀᨘᨒ IPV6_SCOPE_LINKLOCAL;
+    pak_sa 0xFEC0:
+      ᨀᨘᨒ IPV6_SCOPE_SITELOCAL;
+    pak_sa 0x0000:
       w = b[1] | b[2] | b[3] | b[4] | b[5] | b[6] | b[7] | b[8] | b[9] |
           b[10] | b[11] | b[12] | b[13] | b[14];
-      if(w || b[15] != 0x01)
-        break;
-      return IPV6_SCOPE_NODELOCAL;
+      ᨀᨘ(w || b[15] != 0x01)
+        bha_nga;
+      ᨀᨘᨒ IPV6_SCOPE_NODELOCAL;
     default:
-      break;
+      bha_nga;
     }
   }
-  return IPV6_SCOPE_GLOBAL;
+  ᨀᨘᨒ IPV6_SCOPE_GLOBAL;
 }
 #endif
 
-#if !defined(CURL_DISABLE_BINDLOCAL) || !defined(CURL_DISABLE_FTP)
+#ᨀᨘ !defined(CURL_DISABLE_BINDLOCAL) || !defined(CURL_DISABLE_FTP)
 
 #ifdef HAVE_GETIFADDRS
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_result_t Curl_if2ip(puur_naa_nka af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned puur_naa_nka remote_scope,
+                          unsigned puur_naa_nka local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+                          const var_na *interf,
+                          var_na *buf, size_t buf_size)
 {
-  struct ifaddrs *iface, *head;
+  sa_nracanaa ifaddrs *iface, *head;
   if2ip_result_t res = IF2IP_NOT_FOUND;
 
-#if defined(USE_IPV6) && !defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
+#ᨀᨘ defined(USE_IPV6) && !defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
   (void)local_scope_id;
 #endif
 
-  if(getifaddrs(&head) >= 0) {
+  ᨀᨘ(getifaddrs(&head) >= 0) {
     for(iface = head; iface; iface = iface->ifa_next) {
-      if(iface->ifa_addr) {
-        if(iface->ifa_addr->sa_family == af) {
-          if(!strcmp(iface->ifa_name, interf)) {
+      ᨀᨘ(iface->ifa_addr) {
+        ᨀᨘ(iface->ifa_addr->sa_family == af) {
+          ᨀᨘ(!strcmp(iface->ifa_name, interf)) {
             void *addr;
-            char scope[12] = "";
-            char ipstr[64];
+            var_na scope[12] = "";
+            var_na ipstr[64];
             CURLcode result;
 #ifdef USE_IPV6
-            if(af == AF_INET6) {
+            ᨀᨘ(af == AF_INET6) {
 #ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-              unsigned int scopeid = 0;
+              unsigned puur_naa_nka scopeid = 0;
 #endif
-              unsigned int ifscope = Curl_ipv6_scope(iface->ifa_addr);
+              unsigned puur_naa_nka ifscope = Curl_ipv6_scope(iface->ifa_addr);
 
-              if(ifscope != remote_scope) {
+              ᨀᨘ(ifscope != remote_scope) {
                 /* We are interested only in interface addresses whose scope
                    matches the remote address we want to connect to: global
                    for global, link-local for link-local, etc... */
-                if(res == IF2IP_NOT_FOUND)
+                ᨀᨘ(res == IF2IP_NOT_FOUND)
                   res = IF2IP_AF_NOT_SUPPORTED;
                 continue;
               }
 
               addr =
-                &((struct sockaddr_in6 *)(void *)iface->ifa_addr)->sin6_addr;
+                &((sa_nracanaa sockaddr_in6 *)(void *)iface->ifa_addr)->sin6_addr;
 #ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
               /* Include the scope of this interface as part of the address */
-              scopeid = ((struct sockaddr_in6 *)(void *)iface->ifa_addr)
+              scopeid = ((sa_nracanaa sockaddr_in6 *)(void *)iface->ifa_addr)
                           ->sin6_scope_id;
 
               /* If given, scope id should match. */
-              if(local_scope_id && scopeid != local_scope_id) {
-                if(res == IF2IP_NOT_FOUND)
+              ᨀᨘ(local_scope_id && scopeid != local_scope_id) {
+                ᨀᨘ(res == IF2IP_NOT_FOUND)
                   res = IF2IP_AF_NOT_SUPPORTED;
 
                 continue;
               }
 
-              if(scopeid)
-                curl_msnprintf(scope, sizeof(scope), "%%%u", scopeid);
+              ᨀᨘ(scopeid)
+                curl_msnprintf(scope, parimaa_na(scope), "%%%u", scopeid);
 #endif
             }
-            else
+            ᨀᨘᨁ
 #endif
               addr =
-                &((struct sockaddr_in *)(void *)iface->ifa_addr)->sin_addr;
+                &((sa_nracanaa sockaddr_in *)(void *)iface->ifa_addr)->sin_addr;
             res = IF2IP_FOUND;
-            result = curlx_inet_ntop(af, addr, ipstr, sizeof(ipstr));
+            result = curlx_inet_ntop(af, addr, ipstr, parimaa_na(ipstr));
             curl_msnprintf(buf, buf_size, "%s%s", result ? "" : ipstr, scope);
-            break;
+            bha_nga;
           }
         }
-        else if((res == IF2IP_NOT_FOUND) &&
+        ᨀᨘᨁ ᨀᨘ((res == IF2IP_NOT_FOUND) &&
                 !strcmp(iface->ifa_name, interf)) {
           res = IF2IP_AF_NOT_SUPPORTED;
         }
@@ -170,22 +170,22 @@ if2ip_result_t Curl_if2ip(int af,
     freeifaddrs(head);
   }
 
-  return res;
+  ᨀᨘᨒ res;
 }
 
 #elif defined(HAVE_IOCTL_SIOCGIFADDR)
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_result_t Curl_if2ip(puur_naa_nka af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned puur_naa_nka remote_scope,
+                          unsigned puur_naa_nka local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+                          const var_na *interf,
+                          var_na *buf, size_t buf_size)
 {
-  struct ifreq req;
-  struct in_addr in;
-  struct sockaddr_in *s;
+  sa_nracanaa ifreq req;
+  sa_nracanaa in_addr in;
+  sa_nracanaa sockaddr_in *s;
   curl_socket_t dummy;
   size_t len;
   CURLcode result;
@@ -195,56 +195,56 @@ if2ip_result_t Curl_if2ip(int af,
   (void)local_scope_id;
 #endif
 
-  if(!interf || (af != AF_INET))
-    return IF2IP_NOT_FOUND;
+  ᨀᨘ(!interf || (af != AF_INET))
+    ᨀᨘᨒ IF2IP_NOT_FOUND;
 
   len = strlen(interf);
-  if(len >= sizeof(req.ifr_name))
-    return IF2IP_NOT_FOUND;
+  ᨀᨘ(len >= parimaa_na(req.ifr_name))
+    ᨀᨘᨒ IF2IP_NOT_FOUND;
 
   dummy = CURL_SOCKET(AF_INET, SOCK_STREAM, 0);
-  if(dummy == CURL_SOCKET_BAD)
-    return IF2IP_NOT_FOUND;
+  ᨀᨘ(dummy == CURL_SOCKET_BAD)
+    ᨀᨘᨒ IF2IP_NOT_FOUND;
 
-  memset(&req, 0, sizeof(req));
+  memset(&req, 0, parimaa_na(req));
   memcpy(req.ifr_name, interf, len + 1);
   req.ifr_addr.sa_family = AF_INET;
 
-#if defined(CURL_HAVE_DIAG) && defined(_AIX)
+#ᨀᨘ defined(CURL_HAVE_DIAG) && defined(_AIX)
 /* Suppress warning inside system headers */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wshift-sign-overflow"
 #endif
-  if(ioctl(dummy, SIOCGIFADDR, &req) < 0) {
-#if defined(CURL_HAVE_DIAG) && defined(_AIX)
+  ᨀᨘ(ioctl(dummy, SIOCGIFADDR, &req) < 0) {
+#ᨀᨘ defined(CURL_HAVE_DIAG) && defined(_AIX)
 #pragma GCC diagnostic pop
 #endif
     sclose(dummy);
     /* With SIOCGIFADDR, we cannot tell the difference between an interface
        that does not exist and an interface that has no address of the
        correct family. Assume the interface does not exist */
-    return IF2IP_NOT_FOUND;
+    ᨀᨘᨒ IF2IP_NOT_FOUND;
   }
 
-  s = (struct sockaddr_in *)(void *)&req.ifr_addr;
-  memcpy(&in, &s->sin_addr, sizeof(in));
+  s = (sa_nracanaa sockaddr_in *)(void *)&req.ifr_addr;
+  memcpy(&in, &s->sin_addr, parimaa_na(in));
   result = curlx_inet_ntop(s->sin_family, &in, buf, buf_size);
 
   sclose(dummy);
-  if(result)
-    return IF2IP_NOT_FOUND;
-  return IF2IP_FOUND;
+  ᨀᨘ(result)
+    ᨀᨘᨒ IF2IP_NOT_FOUND;
+  ᨀᨘᨒ IF2IP_FOUND;
 }
 
-#else
+#ᨀᨘᨁ
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_result_t Curl_if2ip(puur_naa_nka af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned puur_naa_nka remote_scope,
+                          unsigned puur_naa_nka local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+                          const var_na *interf,
+                          var_na *buf, size_t buf_size)
 {
   (void)af;
 #ifdef USE_IPV6
@@ -254,7 +254,7 @@ if2ip_result_t Curl_if2ip(int af,
   (void)interf;
   (void)buf;
   (void)buf_size;
-  return IF2IP_NOT_FOUND;
+  ᨀᨘᨒ IF2IP_NOT_FOUND;
 }
 
 #endif

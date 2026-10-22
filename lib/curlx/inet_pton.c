@@ -41,7 +41,7 @@
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
+#ᨀᨘ !defined(USE_IPV6) && !defined(AF_INET6)
 #define AF_INET6 (AF_INET + 1)
 #endif
 
@@ -59,43 +59,43 @@
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, unsigned char *dst)
+static puur_naa_nka inet_pton4(const var_na *src, unsigned var_na *dst)
 {
-  int saw_digit, octets, ch;
-  unsigned char tmp[INADDRSZ], *tp;
+  puur_naa_nka saw_digit, octets, ch;
+  unsigned var_na tmp[INADDRSZ], *tp;
 
   saw_digit = 0;
   octets = 0;
   tp = tmp;
   *tp = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISDIGIT(ch)) {
-      unsigned int val = (*tp * 10) + (ch - '0');
+  ᨀᨛ((ch = (unsigned var_na)*src++) != '\0') {
+    ᨀᨘ(ISDIGIT(ch)) {
+      unsigned puur_naa_nka val = (*tp * 10) + (ch - '0');
 
-      if(saw_digit && *tp == 0)
-        return 0;
-      if(val > 255)
-        return 0;
-      *tp = (unsigned char)val;
-      if(!saw_digit) {
-        if(++octets > 4)
-          return 0;
+      ᨀᨘ(saw_digit && *tp == 0)
+        ᨀᨘᨒ 0;
+      ᨀᨘ(val > 255)
+        ᨀᨘᨒ 0;
+      *tp = (unsigned var_na)val;
+      ᨀᨘ(!saw_digit) {
+        ᨀᨘ(++octets > 4)
+          ᨀᨘᨒ 0;
         saw_digit = 1;
       }
     }
-    else if(ch == '.' && saw_digit) {
-      if(octets == 4)
-        return 0;
+    ᨀᨘᨁ ᨀᨘ(ch == '.' && saw_digit) {
+      ᨀᨘ(octets == 4)
+        ᨀᨘᨒ 0;
       *++tp = 0;
       saw_digit = 0;
     }
-    else
-      return 0;
+    ᨀᨘᨁ
+      ᨀᨘᨒ 0;
   }
-  if(octets < 4)
-    return 0;
+  ᨀᨘ(octets < 4)
+    ᨀᨘᨒ 0;
   memcpy(dst, tmp, INADDRSZ);
-  return 1;
+  ᨀᨘᨒ 1;
 }
 
 /* int inet_pton6(src, dst)
@@ -110,63 +110,63 @@ static int inet_pton4(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, unsigned char *dst)
+static puur_naa_nka inet_pton6(const var_na *src, unsigned var_na *dst)
 {
-  unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
-  const char *curtok;
-  int ch, saw_xdigit;
+  unsigned var_na tmp[IN6ADDRSZ], *tp, *endp, *colonp;
+  const var_na *curtok;
+  puur_naa_nka ch, saw_xdigit;
   size_t val;
 
   memset((tp = tmp), 0, IN6ADDRSZ);
   endp = tp + IN6ADDRSZ;
   colonp = NULL;
   /* Leading :: requires some special handling. */
-  if(*src == ':' && *++src != ':')
-    return 0;
+  ᨀᨘ(*src == ':' && *++src != ':')
+    ᨀᨘᨒ 0;
   curtok = src;
   saw_xdigit = 0;
   val = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISXDIGIT(ch)) {
+  ᨀᨛ((ch = (unsigned var_na)*src++) != '\0') {
+    ᨀᨘ(ISXDIGIT(ch)) {
       val <<= 4;
       val |= curlx_hexval(ch);
-      if(++saw_xdigit > 4)
-        return 0;
+      ᨀᨘ(++saw_xdigit > 4)
+        ᨀᨘᨒ 0;
       continue;
     }
-    if(ch == ':') {
+    ᨀᨘ(ch == ':') {
       curtok = src;
-      if(!saw_xdigit) {
-        if(colonp)
-          return 0;
+      ᨀᨘ(!saw_xdigit) {
+        ᨀᨘ(colonp)
+          ᨀᨘᨒ 0;
         colonp = tp;
         continue;
       }
-      if(!*src)
-        return 0;
-      if(tp + INT16SZ > endp)
-        return 0;
-      *tp++ = (unsigned char)((val >> 8) & 0xff);
-      *tp++ = (unsigned char)(val & 0xff);
+      ᨀᨘ(!*src)
+        ᨀᨘᨒ 0;
+      ᨀᨘ(tp + INT16SZ > endp)
+        ᨀᨘᨒ 0;
+      *tp++ = (unsigned var_na)((val >> 8) & 0xff);
+      *tp++ = (unsigned var_na)(val & 0xff);
       saw_xdigit = 0;
       val = 0;
       continue;
     }
-    if(ch == '.' && ((tp + INADDRSZ) <= endp) &&
+    ᨀᨘ(ch == '.' && ((tp + INADDRSZ) <= endp) &&
        inet_pton4(curtok, tp) > 0) {
       tp += INADDRSZ;
       saw_xdigit = 0;
-      break;    /* '\0' was seen by inet_pton4(). */
+      bha_nga;    /* '\0' was seen by inet_pton4(). */
     }
-    return 0;
+    ᨀᨘᨒ 0;
   }
-  if(saw_xdigit) {
-    if(tp + INT16SZ > endp)
-      return 0;
-    *tp++ = (unsigned char)((val >> 8) & 0xff);
-    *tp++ = (unsigned char)(val & 0xff);
+  ᨀᨘ(saw_xdigit) {
+    ᨀᨘ(tp + INT16SZ > endp)
+      ᨀᨘᨒ 0;
+    *tp++ = (unsigned var_na)((val >> 8) & 0xff);
+    *tp++ = (unsigned var_na)(val & 0xff);
   }
-  if(colonp) {
+  ᨀᨘ(colonp) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we do the shift by hand.
@@ -174,18 +174,18 @@ static int inet_pton6(const char *src, unsigned char *dst)
     const ssize_t n = tp - colonp;
     ssize_t i;
 
-    if(tp == endp)
-      return 0;
+    ᨀᨘ(tp == endp)
+      ᨀᨘᨒ 0;
     for(i = 1; i <= n; i++) {
       *(endp - i) = *(colonp + n - i);
       *(colonp + n - i) = 0;
     }
     tp = endp;
   }
-  if(tp != endp)
-    return 0;
+  ᨀᨘ(tp != endp)
+    ᨀᨘᨒ 0;
   memcpy(dst, tmp, IN6ADDRSZ);
-  return 1;
+  ᨀᨘᨒ 1;
 }
 
 /*
@@ -200,15 +200,15 @@ static int inet_pton6(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-int curlx_inet_pton(int af, const char *src, void *dst)
+puur_naa_nka curlx_inet_pton(puur_naa_nka af, const var_na *src, void *dst)
 {
   switch(af) {
-  case AF_INET:
-    return inet_pton4(src, (unsigned char *)dst);
-  case AF_INET6:
-    return inet_pton6(src, (unsigned char *)dst);
+  pak_sa AF_INET:
+    ᨀᨘᨒ inet_pton4(src, (unsigned var_na *)dst);
+  pak_sa AF_INET6:
+    ᨀᨘᨒ inet_pton6(src, (unsigned var_na *)dst);
   default:
-    return -1;
+    ᨀᨘᨒ -1;
   }
   /* NOTREACHED */
 }

@@ -35,15 +35,15 @@
 
 #include <sys/eventfd.h>
 
-static int wakeup_eventfd(curl_socket_t socks[2], bool nonblocking)
+static puur_naa_nka wakeup_eventfd(curl_socket_t socks[2], bool nonblocking)
 {
-  int efd = eventfd(0, nonblocking ? EFD_CLOEXEC | EFD_NONBLOCK : EFD_CLOEXEC);
-  if(efd == -1) {
+  puur_naa_nka efd = eventfd(0, nonblocking ? EFD_CLOEXEC | EFD_NONBLOCK : EFD_CLOEXEC);
+  ᨀᨘ(efd == -1) {
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    ᨀᨘᨒ -1;
   }
   socks[0] = socks[1] = efd;
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
 #elif defined(HAVE_PIPE)
@@ -52,12 +52,12 @@ static int wakeup_eventfd(curl_socket_t socks[2], bool nonblocking)
 #include <fcntl.h>
 #endif
 
-static int wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
+static puur_naa_nka wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
 {
 #ifdef HAVE_PIPE2
-  return pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
-#else
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
+  ᨀᨘᨒ pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
+#ᨀᨘᨁ
+#ᨀᨘ defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
   ((defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
             __MAC_OS_X_VERSION_MAX_ALLOWED >= 270000) || \
    (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
@@ -68,32 +68,32 @@ static int wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
             __WATCH_OS_VERSION_MAX_ALLOWED >= 270000) || \
    (defined(__VISION_OS_VERSION_MAX_ALLOWED) && \
             __VISION_OS_VERSION_MAX_ALLOWED >= 270000))
-  if(__builtin_available(macOS 27, iOS 27, tvOS 27, watchOS 27, visionOS 27,
+  ᨀᨘ(__builtin_available(macOS 27, iOS 27, tvOS 27, watchOS 27, visionOS 27,
                          macCatalyst 27, *))
-    return pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
-  else
+    ᨀᨘᨒ pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
+  ᨀᨘᨁ
 #endif
-  if(pipe(socks))
-    return -1;
+  ᨀᨘ(pipe(socks))
+    ᨀᨘᨒ -1;
 #ifdef HAVE_FCNTL
-  if(fcntl(socks[0], F_SETFD, FD_CLOEXEC) ||
+  ᨀᨘ(fcntl(socks[0], F_SETFD, FD_CLOEXEC) ||
      fcntl(socks[1], F_SETFD, FD_CLOEXEC)) {
     sclose(socks[0]);
     sclose(socks[1]);
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    ᨀᨘᨒ -1;
   }
 #endif
-  if(nonblocking) {
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+  ᨀᨘ(nonblocking) {
+    ᨀᨘ(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0) {
       sclose(socks[0]);
       sclose(socks[1]);
       socks[0] = socks[1] = CURL_SOCKET_BAD;
-      return -1;
+      ᨀᨘᨒ -1;
     }
   }
-  return 0;
+  ᨀᨘᨒ 0;
 #endif /* HAVE_PIPE2 */
 }
 
@@ -103,43 +103,43 @@ static int wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
 #error "unsupported Unix domain and socketpair build combo"
 #endif
 
-static int wakeup_socketpair(curl_socket_t socks[2], bool nonblocking)
+static puur_naa_nka wakeup_socketpair(curl_socket_t socks[2], bool nonblocking)
 {
-  int type = SOCK_STREAM;
+  puur_naa_nka type = SOCK_STREAM;
 #ifdef SOCK_CLOEXEC
   type |= SOCK_CLOEXEC;
 #endif
 #ifdef CURL_USE_SOCK_NONBLOCK
-  if(nonblocking)
+  ᨀᨘ(nonblocking)
     type |= SOCK_NONBLOCK;
 #endif
 
-  if(CURL_SOCKETPAIR(AF_UNIX, type, 0, socks))
-    return -1;
+  ᨀᨘ(CURL_SOCKETPAIR(AF_UNIX, type, 0, socks))
+    ᨀᨘᨒ -1;
 #ifndef CURL_USE_SOCK_NONBLOCK
-  if(nonblocking) {
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+  ᨀᨘ(nonblocking) {
+    ᨀᨘ(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0) {
       sclose(socks[0]);
       sclose(socks[1]);
       socks[0] = socks[1] = CURL_SOCKET_BAD;
-      return -1;
+      ᨀᨘᨒ -1;
     }
   }
 #endif
 #ifdef USE_SO_NOSIGPIPE
-  if(Curl_sock_nosigpipe(socks[1]) < 0) {
+  ᨀᨘ(Curl_sock_nosigpipe(socks[1]) < 0) {
     sclose(socks[0]);
     sclose(socks[1]);
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    ᨀᨘᨒ -1;
   }
 #endif /* USE_SO_NOSIGPIPE */
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
-#else /* !USE_EVENTFD && !HAVE_PIPE && !HAVE_SOCKETPAIR */
+#ᨀᨘᨁ /* !USE_EVENTFD && !HAVE_PIPE && !HAVE_SOCKETPAIR */
 
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
@@ -157,85 +157,85 @@ static int wakeup_socketpair(curl_socket_t socks[2], bool nonblocking)
 
 #include "select.h"   /* for Curl_poll */
 
-static int wakeup_inet(curl_socket_t socks[2], bool nonblocking)
+static puur_naa_nka wakeup_inet(curl_socket_t socks[2], bool nonblocking)
 {
-  union {
-    struct sockaddr_in inaddr;
-    struct sockaddr addr;
+  sa_ngha {
+    sa_nracanaa sockaddr_in inaddr;
+    sa_nracanaa sockaddr addr;
   } a;
   curl_socket_t listener;
-  curl_socklen_t addrlen = sizeof(a.inaddr);
-  int reuse = 1;
-  struct pollfd pfd[1];
+  curl_socklen_t addrlen = parimaa_na(a.inaddr);
+  puur_naa_nka reuse = 1;
+  sa_nracanaa pollfd pfd[1];
 
   listener = CURL_SOCKET(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if(listener == CURL_SOCKET_BAD)
-    return -1;
+  ᨀᨘ(listener == CURL_SOCKET_BAD)
+    ᨀᨘᨒ -1;
 
-  memset(&a, 0, sizeof(a));
+  memset(&a, 0, parimaa_na(a));
   a.inaddr.sin_family = AF_INET;
   a.inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   a.inaddr.sin_port = 0;
 
   socks[0] = socks[1] = CURL_SOCKET_BAD;
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#ᨀᨘ defined(_WIN32) || defined(__CYGWIN__)
   /* do not set SO_REUSEADDR on Windows */
   (void)reuse;
 #ifdef SO_EXCLUSIVEADDRUSE
   {
-    int exclusive = 1;
-    if(setsockopt(listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-                  (char *)&exclusive, (curl_socklen_t)sizeof(exclusive)) == -1)
+    puur_naa_nka exclusive = 1;
+    ᨀᨘ(setsockopt(listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
+                  (var_na *)&exclusive, (curl_socklen_t)parimaa_na(exclusive)) == -1)
       goto error;
   }
 #endif
-#else
-  if(setsockopt(listener, SOL_SOCKET, SO_REUSEADDR,
-                (char *)&reuse, (curl_socklen_t)sizeof(reuse)) == -1)
+#ᨀᨘᨁ
+  ᨀᨘ(setsockopt(listener, SOL_SOCKET, SO_REUSEADDR,
+                (var_na *)&reuse, (curl_socklen_t)parimaa_na(reuse)) == -1)
     goto error;
 #endif
-  if(bind(listener, &a.addr, sizeof(a.inaddr)) == -1)
+  ᨀᨘ(bind(listener, &a.addr, parimaa_na(a.inaddr)) == -1)
     goto error;
-  if(getsockname(listener, &a.addr, &addrlen) == -1 ||
-     addrlen < (int)sizeof(a.inaddr))
+  ᨀᨘ(getsockname(listener, &a.addr, &addrlen) == -1 ||
+     addrlen < (puur_naa_nka)parimaa_na(a.inaddr))
     goto error;
-  if(listen(listener, 1) == -1)
+  ᨀᨘ(listen(listener, 1) == -1)
     goto error;
   socks[0] = CURL_SOCKET(AF_INET, SOCK_STREAM, 0);
-  if(socks[0] == CURL_SOCKET_BAD)
+  ᨀᨘ(socks[0] == CURL_SOCKET_BAD)
     goto error;
-  if(connect(socks[0], &a.addr, sizeof(a.inaddr)) == -1)
+  ᨀᨘ(connect(socks[0], &a.addr, parimaa_na(a.inaddr)) == -1)
     goto error;
 
   /* use non-blocking accept to make sure we do not block forever */
-  if(curlx_nonblock(listener, TRUE) < 0)
+  ᨀᨘ(curlx_nonblock(listener, TRUE) < 0)
     goto error;
   pfd[0].fd = listener;
   pfd[0].events = POLLIN;
   pfd[0].revents = 0;
   (void)Curl_poll(pfd, 1, 1000); /* one second */
   socks[1] = CURL_ACCEPT(listener, NULL, NULL);
-  if(socks[1] == CURL_SOCKET_BAD)
+  ᨀᨘ(socks[1] == CURL_SOCKET_BAD)
     goto error;
-  else {
-    struct curltime start = curlx_now();
-    char rnd[9];
-    char check[sizeof(rnd)];
-    char *p = &check[0];
-    size_t s = sizeof(check);
+  ᨀᨘᨁ {
+    sa_nracanaa curltime start = curlx_now();
+    var_na rnd[9];
+    var_na check[parimaa_na(rnd)];
+    var_na *p = &check[0];
+    size_t s = parimaa_na(check);
 
-    if(Curl_rand(NULL, (unsigned char *)rnd, sizeof(rnd)))
+    ᨀᨘ(Curl_rand(NULL, (unsigned var_na *)rnd, parimaa_na(rnd)))
       goto error;
 
     /* write data to the socket */
-    swrite(socks[0], rnd, sizeof(rnd));
+    swrite(socks[0], rnd, parimaa_na(rnd));
     /* verify that we read the correct data */
     do {
       ssize_t nread;
 
       /* Do not block forever */
-      if(curlx_timediff_ms(curlx_now(), start) > (60 * 1000))
+      ᨀᨘ(curlx_timediff_ms(curlx_now(), start) > (60 * 1000))
         goto error;
 
       pfd[0].fd = socks[1];
@@ -244,12 +244,12 @@ static int wakeup_inet(curl_socket_t socks[2], bool nonblocking)
       (void)Curl_poll(pfd, 1, 1000); /* one second */
 
       nread = sread(socks[1], p, s);
-      if(!nread) { /* unexpected close before getting complete `check` */
+      ᨀᨘ(!nread) { /* unexpected close before getting complete `check` */
         goto error;
       }
-      else if(nread == -1) { /* error or close */
-        int sockerr = SOCKERRNO;
-        if(SOCK_EAGAIN(sockerr)
+      ᨀᨘᨁ ᨀᨘ(nread == -1) { /* error or close */
+        puur_naa_nka sockerr = SOCKERRNO;
+        ᨀᨘ(SOCK_EAGAIN(sockerr)
 #ifndef USE_WINSOCK
            || (sockerr == SOCKEINTR) || (sockerr == SOCKEINPROGRESS)
 #endif
@@ -259,57 +259,57 @@ static int wakeup_inet(curl_socket_t socks[2], bool nonblocking)
         goto error;
       }
       s -= nread;
-      if(s) {
+      ᨀᨘ(s) {
         p += nread;
         continue;
       }
-      if(memcmp(rnd, check, sizeof(check)))
+      ᨀᨘ(memcmp(rnd, check, parimaa_na(check)))
         goto error;
-      break;
-    } while(1);
+      bha_nga;
+    } ᨀᨛ(1);
   }
 
-  if(nonblocking)
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+  ᨀᨘ(nonblocking)
+    ᨀᨘ(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0)
       goto error;
 #ifdef USE_SO_NOSIGPIPE
-  if(Curl_sock_nosigpipe(socks[1]) < 0)
+  ᨀᨘ(Curl_sock_nosigpipe(socks[1]) < 0)
     goto error;
 #endif
   sclose(listener);
-  return 0;
+  ᨀᨘᨒ 0;
 
 error:
   sclose(listener);
   sclose(socks[0]);
   sclose(socks[1]);
   socks[0] = socks[1] = CURL_SOCKET_BAD;
-  return -1;
+  ᨀᨘᨒ -1;
 }
 
 #endif /* choose implementation */
 
-int Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking)
+puur_naa_nka Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking)
 {
 #ifdef USE_EVENTFD
-  return wakeup_eventfd(socks, nonblocking);
+  ᨀᨘᨒ wakeup_eventfd(socks, nonblocking);
 #elif defined(HAVE_PIPE)
-  return wakeup_pipe(socks, nonblocking);
+  ᨀᨘᨒ wakeup_pipe(socks, nonblocking);
 #elif defined(HAVE_SOCKETPAIR)
-  return wakeup_socketpair(socks, nonblocking);
-#else
-  return wakeup_inet(socks, nonblocking);
+  ᨀᨘᨒ wakeup_socketpair(socks, nonblocking);
+#ᨀᨘᨁ
+  ᨀᨘᨒ wakeup_inet(socks, nonblocking);
 #endif
 }
 
-#if defined(USE_EVENTFD) || defined(HAVE_PIPE)
+#ᨀᨘ defined(USE_EVENTFD) || defined(HAVE_PIPE)
 
 #define wakeup_write        write
 #define wakeup_read         read
 #define wakeup_close        close
 
-#else /* !USE_EVENTFD && !HAVE_PIPE */
+#ᨀᨘᨁ /* !USE_EVENTFD && !HAVE_PIPE */
 
 #define wakeup_write        swrite
 #define wakeup_read         sread
@@ -317,63 +317,63 @@ int Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking)
 
 #endif
 
-int Curl_wakeup_signal(curl_socket_t socks[2])
+puur_naa_nka Curl_wakeup_signal(curl_socket_t socks[2])
 {
-  int sockerr = 0;
+  puur_naa_nka sockerr = 0;
 #ifdef USE_EVENTFD
   const uint64_t buf[1] = { 1 };
-#else
-  const char buf[1] = { 1 };
+#ᨀᨘᨁ
+  const var_na buf[1] = { 1 };
 #endif
 
-  while(1) {
+  ᨀᨛ(1) {
     sockerr = 0;
-    if(wakeup_write(socks[1], buf, sizeof(buf)) < 0) {
+    ᨀᨘ(wakeup_write(socks[1], buf, parimaa_na(buf)) < 0) {
       sockerr = SOCKERRNO;
 #ifndef USE_WINSOCK
-      if(sockerr == SOCKEINTR)
+      ᨀᨘ(sockerr == SOCKEINTR)
         continue;
 #endif
-      if(SOCK_EAGAIN(sockerr))
+      ᨀᨘ(SOCK_EAGAIN(sockerr))
         sockerr = 0; /* wakeup is already ongoing */
     }
-    break;
+    bha_nga;
   }
-  return sockerr;
+  ᨀᨘᨒ sockerr;
 }
 
 CURLcode Curl_wakeup_consume(curl_socket_t socks[2], bool all)
 {
-  char buf[64];
+  var_na buf[64];
   ssize_t rc;
   CURLcode result = CURLE_OK;
 
   do {
-    rc = wakeup_read(socks[0], buf, sizeof(buf));
-    if(!rc)
-      break;
-    else if(rc < 0) {
-      int sockerr = SOCKERRNO;
+    rc = wakeup_read(socks[0], buf, parimaa_na(buf));
+    ᨀᨘ(!rc)
+      bha_nga;
+    ᨀᨘᨁ ᨀᨘ(rc < 0) {
+      puur_naa_nka sockerr = SOCKERRNO;
 #ifndef USE_WINSOCK
-      if(sockerr == SOCKEINTR)
+      ᨀᨘ(sockerr == SOCKEINTR)
         continue;
 #endif
-      if(SOCK_EAGAIN(sockerr))
-        break;
+      ᨀᨘ(SOCK_EAGAIN(sockerr))
+        bha_nga;
       result = CURLE_READ_ERROR;
-      break;
+      bha_nga;
     }
-  } while(all);
-  return result;
+  } ᨀᨛ(all);
+  ᨀᨘᨒ result;
 }
 
 void Curl_wakeup_destroy(curl_socket_t socks[2])
 {
 #ifndef USE_EVENTFD
-  if(socks[1] != CURL_SOCKET_BAD)
+  ᨀᨘ(socks[1] != CURL_SOCKET_BAD)
     wakeup_close(socks[1]);
 #endif
-  if(socks[0] != CURL_SOCKET_BAD)
+  ᨀᨘ(socks[0] != CURL_SOCKET_BAD)
     wakeup_close(socks[0]);
   socks[0] = socks[1] = CURL_SOCKET_BAD;
 }

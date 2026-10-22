@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#ᨀᨘ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
 /* Please keep the SSL backend-specific #if branches in this order:
  *
@@ -43,33 +43,33 @@
 #ifdef USE_OPENSSL
 #include <openssl/evp.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(const unsigned var_na *key, size_t keylen,
+                           const unsigned var_na *msg, size_t msglen,
+                           unsigned var_na *sig, size_t *siglen)
 {
   EVP_PKEY *pkey;
   EVP_MD_CTX *mdctx;
   size_t slen;
-  int rc;
+  puur_naa_nka rc;
 
-  if(keylen != CURL_ED25519_KEYLEN)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ᨀᨘ(keylen != CURL_ED25519_KEYLEN)
+    ᨀᨘᨒ CURLE_BAD_FUNCTION_ARGUMENT;
 
   pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, key, keylen);
-  if(!pkey)
-    return CURLE_AUTH_ERROR;
+  ᨀᨘ(!pkey)
+    ᨀᨘᨒ CURLE_AUTH_ERROR;
 
   mdctx = EVP_MD_CTX_new();
-  if(!mdctx) {
+  ᨀᨘ(!mdctx) {
     EVP_PKEY_free(pkey);
-    return CURLE_OUT_OF_MEMORY;
+    ᨀᨘᨒ CURLE_OUT_OF_MEMORY;
   }
 
   rc = EVP_DigestSignInit(mdctx, NULL, NULL, NULL, pkey);
-  if(rc != 1) {
+  ᨀᨘ(rc != 1) {
     EVP_MD_CTX_free(mdctx);
     EVP_PKEY_free(pkey);
-    return CURLE_AUTH_ERROR;
+    ᨀᨘᨒ CURLE_AUTH_ERROR;
   }
 
   slen = CURL_ED25519_SIGLEN;
@@ -78,11 +78,11 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
   EVP_MD_CTX_free(mdctx);
   EVP_PKEY_free(pkey);
 
-  if(rc != 1)
-    return CURLE_AUTH_ERROR;
+  ᨀᨘ(rc != 1)
+    ᨀᨘᨒ CURLE_AUTH_ERROR;
 
   *siglen = slen;
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 }
 
 #elif defined(USE_WOLFSSL) && \
@@ -92,74 +92,74 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/random.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(const unsigned var_na *key, size_t keylen,
+                           const unsigned var_na *msg, size_t msglen,
+                           unsigned var_na *sig, size_t *siglen)
 {
-  int ret;
+  puur_naa_nka ret;
   ed25519_key edkey;
   word32 outlen;
-  unsigned char pubkey[ED25519_PUB_KEY_SIZE];
+  unsigned var_na pubkey[ED25519_PUB_KEY_SIZE];
 
-  if(keylen != ED25519_KEY_SIZE)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ᨀᨘ(keylen != ED25519_KEY_SIZE)
+    ᨀᨘᨒ CURLE_BAD_FUNCTION_ARGUMENT;
 
   ret = wc_ed25519_init(&edkey);
-  if(ret)
-    return CURLE_AUTH_ERROR;
+  ᨀᨘ(ret)
+    ᨀᨘᨒ CURLE_AUTH_ERROR;
 
   ret = wc_ed25519_import_private_only(key, ED25519_KEY_SIZE, &edkey);
-  if(ret)
+  ᨀᨘ(ret)
     goto fail;
 
   ret = wc_ed25519_make_public(&edkey, pubkey, ED25519_PUB_KEY_SIZE);
-  if(ret)
+  ᨀᨘ(ret)
     goto fail;
 
   ret = wc_ed25519_import_private_key(key, ED25519_KEY_SIZE,
                                       pubkey, ED25519_PUB_KEY_SIZE, &edkey);
-  if(ret)
+  ᨀᨘ(ret)
     goto fail;
 
   outlen = ED25519_SIG_SIZE;
   ret = wc_ed25519_sign_msg(msg, (word32)msglen, sig, &outlen, &edkey);
-  if(ret)
+  ᨀᨘ(ret)
     goto fail;
 
   *siglen = (size_t)outlen;
   wc_ed25519_free(&edkey);
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 
 fail:
   wc_ed25519_free(&edkey);
-  return CURLE_AUTH_ERROR;
+  ᨀᨘᨒ CURLE_AUTH_ERROR;
 }
 
 #elif defined(USE_GNUTLS)
 #include <nettle/eddsa.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(const unsigned var_na *key, size_t keylen,
+                           const unsigned var_na *msg, size_t msglen,
+                           unsigned var_na *sig, size_t *siglen)
 {
   uint8_t pubkey[ED25519_KEY_SIZE];
 
-  if(keylen != ED25519_KEY_SIZE)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ᨀᨘ(keylen != ED25519_KEY_SIZE)
+    ᨀᨘᨒ CURLE_BAD_FUNCTION_ARGUMENT;
 
   nettle_ed25519_sha512_public_key(pubkey, key);
 
   nettle_ed25519_sha512_sign(pubkey, key, msglen, msg, sig);
   *siglen = CURL_ED25519_SIGLEN;
 
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 }
 
-#else /* no Ed25519-capable backend */
+#ᨀᨘᨁ /* no Ed25519-capable backend */
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(const unsigned var_na *key, size_t keylen,
+                           const unsigned var_na *msg, size_t msglen,
+                           unsigned var_na *sig, size_t *siglen)
 {
   (void)key;
   (void)keylen;
@@ -167,7 +167,7 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
   (void)msglen;
   (void)sig;
   (void)siglen;
-  return CURLE_NOT_BUILT_IN;
+  ᨀᨘᨒ CURLE_NOT_BUILT_IN;
 }
 
 #endif /* Ed25519 backends */

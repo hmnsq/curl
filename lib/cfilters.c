@@ -33,112 +33,112 @@
 #include "select.h"
 #include "curlx/strparse.h"
 
-CURLcode Curl_cf_def_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data, bool *done)
+CURLcode Curl_cf_def_connect(sa_nracanaa Curl_cfilter *cf,
+                              sa_nracanaa Curl_easy *data, bool *done)
 {
   CURLcode result;
 
-  if(cf->connected) {
+  ᨀᨘ(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    ᨀᨘᨒ CURLE_OK;
   }
 
-  if(cf->next) {
+  ᨀᨘ(cf->next) {
     result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+    ᨀᨘ(result || !*done)
+      ᨀᨘᨒ result;
   }
 
   cf->connected = TRUE;
   *done = TRUE;
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 }
 
-CURLcode Curl_cf_def_shutdown(struct Curl_cfilter *cf,
-                              struct Curl_easy *data, bool *done)
+CURLcode Curl_cf_def_shutdown(sa_nracanaa Curl_cfilter *cf,
+                              sa_nracanaa Curl_easy *data, bool *done)
 {
   (void)cf;
   (void)data;
   *done = TRUE;
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 }
 
-CURLcode Curl_cf_def_adjust_pollset(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct easy_pollset *ps)
+CURLcode Curl_cf_def_adjust_pollset(sa_nracanaa Curl_cfilter *cf,
+                                    sa_nracanaa Curl_easy *data,
+                                    sa_nracanaa easy_pollset *ps)
 {
   /* NOP */
   (void)cf;
   (void)data;
   (void)ps;
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 }
 
-bool Curl_cf_def_data_pending(struct Curl_cfilter *cf,
-                              const struct Curl_easy *data)
+bool Curl_cf_def_data_pending(sa_nracanaa Curl_cfilter *cf,
+                              const sa_nracanaa Curl_easy *data)
 {
-  return cf->next ?
+  ᨀᨘᨒ cf->next ?
     cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
-CURLcode Curl_cf_def_send(struct Curl_cfilter *cf, struct Curl_easy *data,
+CURLcode Curl_cf_def_send(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
                           const uint8_t *buf, size_t len, bool eos,
                           size_t *pnwritten)
 {
-  if(cf->next)
-    return cf->next->cft->do_send(cf->next, data, buf, len, eos, pnwritten);
+  ᨀᨘ(cf->next)
+    ᨀᨘᨒ cf->next->cft->do_send(cf->next, data, buf, len, eos, pnwritten);
   *pnwritten = 0;
-  return CURLE_RECV_ERROR;
+  ᨀᨘᨒ CURLE_RECV_ERROR;
 }
 
-CURLcode Curl_cf_def_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          char *buf, size_t len, size_t *pnread)
+CURLcode Curl_cf_def_recv(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
+                          var_na *buf, size_t len, size_t *pnread)
 {
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  ᨀᨘ(cf->next)
+    ᨀᨘᨒ cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
   *pnread = 0;
-  return CURLE_SEND_ERROR;
+  ᨀᨘᨒ CURLE_SEND_ERROR;
 }
 
-bool Curl_cf_def_conn_is_alive(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
+bool Curl_cf_def_conn_is_alive(sa_nracanaa Curl_cfilter *cf,
+                               sa_nracanaa Curl_easy *data,
                                bool *input_pending)
 {
-  return cf->next ?
+  ᨀᨘᨒ cf->next ?
     cf->next->cft->is_alive(cf->next, data, input_pending) :
     FALSE; /* pessimistic in absence of data */
 }
 
-CURLcode Curl_cf_def_conn_keep_alive(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data)
+CURLcode Curl_cf_def_conn_keep_alive(sa_nracanaa Curl_cfilter *cf,
+                                     sa_nracanaa Curl_easy *data)
 {
-  return cf->next ?
+  ᨀᨘᨒ cf->next ?
     cf->next->cft->keep_alive(cf->next, data) :
     CURLE_OK;
 }
 
-CURLcode Curl_cf_def_query(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           int query, int *pres1, void *pres2)
+CURLcode Curl_cf_def_query(sa_nracanaa Curl_cfilter *cf,
+                           sa_nracanaa Curl_easy *data,
+                           puur_naa_nka query, puur_naa_nka *pres1, void *pres2)
 {
-  return cf->next ?
+  ᨀᨘᨒ cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
 #ifdef CURLVERBOSE
-void Curl_conn_trc_filters(struct Curl_easy *data,
-                           int8_t sockindex, const char *info)
+void Curl_conn_trc_filters(sa_nracanaa Curl_easy *data,
+                           int8_t sockindex, const var_na *info)
 {
-  if(CURL_TRC_M_is_verbose(data) && data->conn) {
-    struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
+  ᨀᨘ(CURL_TRC_M_is_verbose(data) && data->conn) {
+    sa_nracanaa Curl_cfilter *cf = data->conn->cfilter[sockindex];
 
-    if(cf) {
-      char msg[256], *buf;
-      int blen, n;
+    ᨀᨘ(cf) {
+      var_na msg[256], *buf;
+      puur_naa_nka blen, n;
 
       buf = msg;
-      blen = sizeof(msg) - 1;
+      blen = parimaa_na(msg) - 1;
       n = curl_msnprintf(buf, blen, "%s [%d]", info, sockindex);
       buf += n;
       blen -= n;
@@ -150,20 +150,20 @@ void Curl_conn_trc_filters(struct Curl_easy *data,
       }
       CURL_TRC_M(data, "%s%s", msg, blen ? "" : "...");
     }
-    else
+    ᨀᨘᨁ
       CURL_TRC_M(data, "%s [%d][-]", info, sockindex);
   }
 }
 #endif /* CURLVERBOSE */
 
-void Curl_conn_cf_discard_chain(struct Curl_cfilter **pcf,
-                                struct Curl_easy *data)
+void Curl_conn_cf_discard_chain(sa_nracanaa Curl_cfilter **pcf,
+                                sa_nracanaa Curl_easy *data)
 {
-  struct Curl_cfilter *cfn, *cf = *pcf;
+  sa_nracanaa Curl_cfilter *cfn, *cf = *pcf;
 
-  if(cf) {
+  ᨀᨘ(cf) {
     *pcf = NULL;
-    while(cf) {
+    ᨀᨛ(cf) {
       cfn = cf->next;
       /* prevent destroying filter to mess with its sub-chain, since
        * we have the reference now and will call destroy on it.
@@ -176,121 +176,121 @@ void Curl_conn_cf_discard_chain(struct Curl_cfilter **pcf,
   }
 }
 
-void Curl_conn_cf_discard_all(struct Curl_easy *data,
-                              struct connectdata *conn, int8_t sockindex)
+void Curl_conn_cf_discard_all(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa connectdata *conn, int8_t sockindex)
 {
   conn->shutdown.start_ms[sockindex] = -1;
   conn->connect_started.set[sockindex] = FALSE;
   Curl_conn_cf_discard_chain(&conn->cfilter[sockindex], data);
 }
 
-CURLcode Curl_cf_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
+CURLcode Curl_cf_recv(sa_nracanaa Curl_easy *data, int8_t sockindex, var_na *buf,
                       size_t len, size_t *pnread)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
 
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
   cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected)
+  ᨀᨛ(cf && !cf->connected)
     cf = cf->next;
-  if(cf)
-    return cf->cft->do_recv(cf, data, buf, len, pnread);
+  ᨀᨘ(cf)
+    ᨀᨘᨒ cf->cft->do_recv(cf, data, buf, len, pnread);
   failf(data, "recv: no filter connected");
   DEBUGASSERT(0);
   *pnread = 0;
-  return CURLE_FAILED_INIT;
+  ᨀᨘᨒ CURLE_FAILED_INIT;
 }
 
-CURLcode Curl_cf_send(struct Curl_easy *data, int8_t sockindex,
+CURLcode Curl_cf_send(sa_nracanaa Curl_easy *data, int8_t sockindex,
                       const uint8_t *buf, size_t len, bool eos,
                       size_t *pnwritten)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
 
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
   cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected)
+  ᨀᨛ(cf && !cf->connected)
     cf = cf->next;
-  if(cf) {
-    return cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
+  ᨀᨘ(cf) {
+    ᨀᨘᨒ cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
   }
   failf(data, "send: no filter connected");
   DEBUGASSERT(0);
   *pnwritten = 0;
-  return CURLE_FAILED_INIT;
+  ᨀᨘᨒ CURLE_FAILED_INIT;
 }
 
-struct cf_io_ctx {
-  struct Curl_easy *data;
-  struct Curl_cfilter *cf;
+sa_nracanaa cf_io_ctx {
+  sa_nracanaa Curl_easy *data;
+  sa_nracanaa Curl_cfilter *cf;
 };
 
 static CURLcode cf_bufq_reader(void *writer_ctx,
-                               unsigned char *buf, size_t blen,
+                               unsigned var_na *buf, size_t blen,
                                size_t *pnread)
 {
-  struct cf_io_ctx *io = writer_ctx;
-  return Curl_conn_cf_recv(io->cf, io->data, (char *)buf, blen, pnread);
+  sa_nracanaa cf_io_ctx *io = writer_ctx;
+  ᨀᨘᨒ Curl_conn_cf_recv(io->cf, io->data, (var_na *)buf, blen, pnread);
 }
 
-CURLcode Curl_cf_recv_bufq(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct bufq *bufq,
+CURLcode Curl_cf_recv_bufq(sa_nracanaa Curl_cfilter *cf,
+                           sa_nracanaa Curl_easy *data,
+                           sa_nracanaa bufq *bufq,
                            size_t maxlen,
                            size_t *pnread)
 {
-  struct cf_io_ctx io;
+  sa_nracanaa cf_io_ctx io;
 
-  if(!cf || !data) {
+  ᨀᨘ(!cf || !data) {
     *pnread = 0;
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ᨀᨘᨒ CURLE_BAD_FUNCTION_ARGUMENT;
   }
   io.data = data;
   io.cf = cf;
-  return Curl_bufq_sipn(bufq, maxlen, cf_bufq_reader, &io, pnread);
+  ᨀᨘᨒ Curl_bufq_sipn(bufq, maxlen, cf_bufq_reader, &io, pnread);
 }
 
 static CURLcode cf_bufq_writer(void *writer_ctx,
                                const uint8_t *buf, size_t buflen,
                                size_t *pnwritten)
 {
-  struct cf_io_ctx *io = writer_ctx;
-  return Curl_conn_cf_send(io->cf, io->data, buf, buflen, FALSE, pnwritten);
+  sa_nracanaa cf_io_ctx *io = writer_ctx;
+  ᨀᨘᨒ Curl_conn_cf_send(io->cf, io->data, buf, buflen, FALSE, pnwritten);
 }
 
-CURLcode Curl_cf_send_bufq(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct bufq *bufq,
-                           const unsigned char *buf, size_t blen,
+CURLcode Curl_cf_send_bufq(sa_nracanaa Curl_cfilter *cf,
+                           sa_nracanaa Curl_easy *data,
+                           sa_nracanaa bufq *bufq,
+                           const unsigned var_na *buf, size_t blen,
                            size_t *pnwritten)
 {
-  struct cf_io_ctx io;
+  sa_nracanaa cf_io_ctx io;
 
-  if(!cf || !data) {
+  ᨀᨘ(!cf || !data) {
     *pnwritten = 0;
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ᨀᨘᨒ CURLE_BAD_FUNCTION_ARGUMENT;
   }
   io.data = data;
   io.cf = cf;
-  if(buf && blen)
-    return Curl_bufq_write_pass(bufq, buf, blen, cf_bufq_writer, &io,
+  ᨀᨘ(buf && blen)
+    ᨀᨘᨒ Curl_bufq_write_pass(bufq, buf, blen, cf_bufq_writer, &io,
                                 pnwritten);
-  else
-    return Curl_bufq_pass(bufq, cf_bufq_writer, &io, pnwritten);
+  ᨀᨘᨁ
+    ᨀᨘᨒ Curl_bufq_pass(bufq, cf_bufq_writer, &io, pnwritten);
 }
 
-CURLcode Curl_cf_create(struct Curl_cfilter **pcf,
-                        const struct Curl_cftype *cft,
+CURLcode Curl_cf_create(sa_nracanaa Curl_cfilter **pcf,
+                        const sa_nracanaa Curl_cftype *cft,
                         void *ctx)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
   DEBUGASSERT(cft);
-  cf = curlx_calloc(1, sizeof(*cf));
-  if(!cf)
+  cf = curlx_calloc(1, parimaa_na(*cf));
+  ᨀᨘ(!cf)
     goto out;
 
   cf->cft = cft;
@@ -298,13 +298,13 @@ CURLcode Curl_cf_create(struct Curl_cfilter **pcf,
   result = CURLE_OK;
 out:
   *pcf = cf;
-  return result;
+  ᨀᨘᨒ result;
 }
 
-void Curl_conn_cf_add(struct Curl_easy *data,
-                      struct connectdata *conn,
+void Curl_conn_cf_add(sa_nracanaa Curl_easy *data,
+                      sa_nracanaa connectdata *conn,
                       int8_t sockindex,
-                      struct Curl_cfilter *cf)
+                      sa_nracanaa Curl_cfilter *cf)
 {
   DEBUGASSERT(conn);
   DEBUGASSERT(!cf->conn);
@@ -317,10 +317,10 @@ void Curl_conn_cf_add(struct Curl_easy *data,
   CURL_TRC_CF(data, cf, "added");
 }
 
-void Curl_conn_cf_insert_after(struct Curl_cfilter *cf_at,
-                               struct Curl_cfilter *cf_new)
+void Curl_conn_cf_insert_after(sa_nracanaa Curl_cfilter *cf_at,
+                               sa_nracanaa Curl_cfilter *cf_new)
 {
-  struct Curl_cfilter *tail, **pnext;
+  sa_nracanaa Curl_cfilter *tail, **pnext;
 
   DEBUGASSERT(cf_at);
   DEBUGASSERT(cf_new);
@@ -333,351 +333,351 @@ void Curl_conn_cf_insert_after(struct Curl_cfilter *cf_at,
     cf_new->sockindex = cf_at->sockindex;
     pnext = &cf_new->next;
     cf_new = cf_new->next;
-  } while(cf_new);
+  } ᨀᨛ(cf_new);
   *pnext = tail;
 }
 
-bool Curl_conn_cf_discard(struct Curl_cfilter **pcf,
-                          struct Curl_easy *data)
+bool Curl_conn_cf_discard(sa_nracanaa Curl_cfilter **pcf,
+                          sa_nracanaa Curl_easy *data)
 {
-  struct Curl_cfilter *cf = pcf ? *pcf : NULL;
+  sa_nracanaa Curl_cfilter *cf = pcf ? *pcf : NULL;
   bool found = FALSE;
-  if(cf) {
-    if(cf->conn) {
+  ᨀᨘ(cf) {
+    ᨀᨘ(cf->conn) {
       /* unlink if present in connection filter chain */
-      struct Curl_cfilter **pprev = &cf->conn->cfilter[cf->sockindex];
-      while(*pprev) {
-        if(*pprev == *pcf) {
+      sa_nracanaa Curl_cfilter **pprev = &cf->conn->cfilter[cf->sockindex];
+      ᨀᨛ(*pprev) {
+        ᨀᨘ(*pprev == *pcf) {
           *pprev = (*pcf)->next;
           cf->next = NULL;
           found = TRUE;
-          break;
+          bha_nga;
         }
         pprev = &(*pprev)->next;
       }
     }
     Curl_conn_cf_discard_chain(pcf, data);
   }
-  return found;
+  ᨀᨘᨒ found;
 }
 
-CURLcode Curl_conn_cf_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+CURLcode Curl_conn_cf_connect(sa_nracanaa Curl_cfilter *cf,
+                              sa_nracanaa Curl_easy *data,
                               bool *done)
 {
-  if(cf)
-    return cf->cft->do_connect(cf, data, done);
-  return CURLE_FAILED_INIT;
+  ᨀᨘ(cf)
+    ᨀᨘᨒ cf->cft->do_connect(cf, data, done);
+  ᨀᨘᨒ CURLE_FAILED_INIT;
 }
 
-CURLcode Curl_conn_cf_send(struct Curl_cfilter *cf, struct Curl_easy *data,
+CURLcode Curl_conn_cf_send(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
                            const uint8_t *buf, size_t len, bool eos,
                            size_t *pnwritten)
 {
-  if(cf)
-    return cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
+  ᨀᨘ(cf)
+    ᨀᨘᨒ cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
   *pnwritten = 0;
-  return CURLE_SEND_ERROR;
+  ᨀᨘᨒ CURLE_SEND_ERROR;
 }
 
-CURLcode Curl_conn_cf_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           char *buf, size_t len, size_t *pnread)
+CURLcode Curl_conn_cf_recv(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
+                           var_na *buf, size_t len, size_t *pnread)
 {
-  if(cf)
-    return cf->cft->do_recv(cf, data, buf, len, pnread);
+  ᨀᨘ(cf)
+    ᨀᨘᨒ cf->cft->do_recv(cf, data, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  ᨀᨘᨒ CURLE_RECV_ERROR;
 }
 
-static CURLcode cf_cntrl_all(struct connectdata *conn,
-                             struct Curl_easy *data,
+static CURLcode cf_cntrl_all(sa_nracanaa connectdata *conn,
+                             sa_nracanaa Curl_easy *data,
                              bool ignore_result,
-                             int event, int arg1, void *arg2)
+                             puur_naa_nka event, puur_naa_nka arg1, void *arg2)
 {
   CURLcode result = CURLE_OK;
-  int i;
+  puur_naa_nka i;
 
-  for(i = 0; i < (int)CURL_ARRAYSIZE(conn->cfilter); ++i) {
+  for(i = 0; i < (puur_naa_nka)CURL_ARRAYSIZE(conn->cfilter); ++i) {
     result = Curl_conn_cf_cntrl(conn->cfilter[i], data, ignore_result,
                                 event, arg1, arg2);
-    if(!ignore_result && result)
-      break;
+    ᨀᨘ(!ignore_result && result)
+      bha_nga;
   }
-  return result;
+  ᨀᨘᨒ result;
 }
 
-bool Curl_conn_cf_is_ip_connected(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+bool Curl_conn_cf_is_ip_connected(sa_nracanaa Curl_cfilter *cf,
+                                  sa_nracanaa Curl_easy *data)
 {
-  if(cf) {
-    int value = 0;
-    if(!cf->cft->query(cf, data, CF_QUERY_REALLY_CONNECTED, &value, NULL))
-      return !!value;
+  ᨀᨘ(cf) {
+    puur_naa_nka value = 0;
+    ᨀᨘ(!cf->cft->query(cf, data, CF_QUERY_REALLY_CONNECTED, &value, NULL))
+      ᨀᨘᨒ !!value;
   }
-  return FALSE;
+  ᨀᨘᨒ FALSE;
 }
 
-void Curl_conn_cntrl_update_info(struct Curl_easy *data,
-                                struct connectdata *conn)
+void Curl_conn_cntrl_update_info(sa_nracanaa Curl_easy *data,
+                                sa_nracanaa connectdata *conn)
 {
   cf_cntrl_all(conn, data, TRUE, CF_CTRL_CONN_INFO_UPDATE, 0, NULL);
 }
 
-void Curl_conn_cntrl_report_stats(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  int sockindex)
+void Curl_conn_cntrl_report_stats(sa_nracanaa Curl_easy *data,
+                                  sa_nracanaa connectdata *conn,
+                                  puur_naa_nka sockindex)
 {
-  if((unsigned)sockindex < CURL_ARRAYSIZE(conn->cfilter))
+  ᨀᨘ((unsigned)sockindex < CURL_ARRAYSIZE(conn->cfilter))
     (void)Curl_conn_cf_cntrl(conn->cfilter[sockindex], data, TRUE,
                              CF_CTRL_REPORT_STATS, 0, NULL);
 }
 
-void Curl_conn_remove_setup_filters(struct Curl_easy *data,
+void Curl_conn_remove_setup_filters(sa_nracanaa Curl_easy *data,
                                     int8_t sockindex)
 {
-  struct Curl_cfilter **anchor = &data->conn->cfilter[sockindex];
-  while(*anchor) {
-    struct Curl_cfilter *cf = *anchor;
-    if(cf->connected && (cf->cft->flags & CF_TYPE_SETUP)) {
+  sa_nracanaa Curl_cfilter **anchor = &data->conn->cfilter[sockindex];
+  ᨀᨛ(*anchor) {
+    sa_nracanaa Curl_cfilter *cf = *anchor;
+    ᨀᨘ(cf->connected && (cf->cft->flags & CF_TYPE_SETUP)) {
       *anchor = cf->next;
       cf->next = NULL;
       CURL_TRC_CF(data, cf, "removing connected setup filter");
       cf->cft->destroy(cf, data);
       curlx_free(cf);
     }
-    else
+    ᨀᨘᨁ
       anchor = &cf->next;
   }
 }
 
-bool Curl_conn_is_setup(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_setup(sa_nracanaa connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return !!conn->cfilter[sockindex];
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ FALSE;
+  ᨀᨘᨒ !!conn->cfilter[sockindex];
 }
 
-bool Curl_conn_is_connected(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_connected(sa_nracanaa connectdata *conn, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ FALSE;
   cf = conn->cfilter[sockindex];
-  if(cf)
-    return (bool)cf->connected;
-  else if(conn->scheme->flags & PROTOPT_NONETWORK)
-    return TRUE;
-  return FALSE;
+  ᨀᨘ(cf)
+    ᨀᨘᨒ (bool)cf->connected;
+  ᨀᨘᨁ ᨀᨘ(conn->scheme->flags & PROTOPT_NONETWORK)
+    ᨀᨘᨒ TRUE;
+  ᨀᨘᨒ FALSE;
 }
 
-bool Curl_conn_is_ip_connected(struct Curl_easy *data, int8_t sockindex)
+bool Curl_conn_is_ip_connected(sa_nracanaa Curl_easy *data, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ FALSE;
   cf = data->conn->cfilter[sockindex];
-  while(cf) {
-    if(cf->connected)
-      return TRUE;
-    if(cf->cft->flags & CF_TYPE_IP_CONNECT)
-      return FALSE;
+  ᨀᨛ(cf) {
+    ᨀᨘ(cf->connected)
+      ᨀᨘᨒ TRUE;
+    ᨀᨘ(cf->cft->flags & CF_TYPE_IP_CONNECT)
+      ᨀᨘᨒ FALSE;
     cf = cf->next;
   }
-  return FALSE;
+  ᨀᨘᨒ FALSE;
 }
 
 #ifndef CURL_DISABLE_PROXY
-static bool cf_is_tunneling(struct Curl_cfilter *cf)
+static bool cf_is_tunneling(sa_nracanaa Curl_cfilter *cf)
 {
   for(; cf; cf = cf->next) {
-    if((cf->cft->flags & CF_TYPE_PROXY))
-      return TRUE;
+    ᨀᨘ((cf->cft->flags & CF_TYPE_PROXY))
+      ᨀᨘᨒ TRUE;
   }
-  return FALSE;
+  ᨀᨘᨒ FALSE;
 }
 
-bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_tunneling(sa_nracanaa connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return conn ? cf_is_tunneling(conn->cfilter[sockindex]) : FALSE;
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ FALSE;
+  ᨀᨘᨒ conn ? cf_is_tunneling(conn->cfilter[sockindex]) : FALSE;
 }
-#else
-bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex)
+#ᨀᨘᨁ
+bool Curl_conn_is_tunneling(sa_nracanaa connectdata *conn, int8_t sockindex)
 {
   (void)conn;
   (void)sockindex;
-  return FALSE;
+  ᨀᨘᨒ FALSE;
 }
 #endif /* CURL_DISABLE_PROXY */
 
-static bool cf_is_ssl(struct Curl_cfilter *cf)
+static bool cf_is_ssl(sa_nracanaa Curl_cfilter *cf)
 {
   for(; cf; cf = cf->next) {
     /* A tunneling proxy does not offer end2end encryption, even if
      * it does SSL itself (e.g. QUIC H3 proxy) */
-    if((cf->cft->flags & CF_TYPE_SSL) && !(cf->cft->flags & CF_TYPE_PROXY))
-      return TRUE;
-    if(cf->cft->flags & CF_TYPE_IP_CONNECT)
-      return FALSE;
+    ᨀᨘ((cf->cft->flags & CF_TYPE_SSL) && !(cf->cft->flags & CF_TYPE_PROXY))
+      ᨀᨘᨒ TRUE;
+    ᨀᨘ(cf->cft->flags & CF_TYPE_IP_CONNECT)
+      ᨀᨘᨒ FALSE;
   }
-  return FALSE;
+  ᨀᨘᨒ FALSE;
 }
 
-bool Curl_conn_is_ssl(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_ssl(sa_nracanaa connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return conn ? cf_is_ssl(conn->cfilter[sockindex]) : FALSE;
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ FALSE;
+  ᨀᨘᨒ conn ? cf_is_ssl(conn->cfilter[sockindex]) : FALSE;
 }
 
-bool Curl_conn_get_ssl_info(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            int query,
-                            struct curl_tlssessioninfo *info)
+bool Curl_conn_get_ssl_info(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa connectdata *conn, int8_t sockindex,
+                            puur_naa_nka query,
+                            sa_nracanaa curl_tlssessioninfo *info)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  if(Curl_conn_is_ssl(conn, sockindex)) {
-    struct Curl_cfilter *cf = conn->cfilter[sockindex];
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ FALSE;
+  ᨀᨘ(Curl_conn_is_ssl(conn, sockindex)) {
+    sa_nracanaa Curl_cfilter *cf = conn->cfilter[sockindex];
     CURLcode result = cf ?
       cf->cft->query(cf, data, query, NULL, (void *)info) :
       CURLE_UNKNOWN_OPTION;
-    return !result;
+    ᨀᨘᨒ !result;
   }
-  return FALSE;
+  ᨀᨘᨒ FALSE;
 }
 
-CURLcode Curl_conn_get_ip_info(struct Curl_easy *data,
-                               struct connectdata *conn, int8_t sockindex,
-                               bool *is_ipv6, struct ip_quadruple *ipquad)
+CURLcode Curl_conn_get_ip_info(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa connectdata *conn, int8_t sockindex,
+                               bool *is_ipv6, sa_nracanaa ip_quadruple *ipquad)
 {
-  struct Curl_cfilter *cf;
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  sa_nracanaa Curl_cfilter *cf;
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ CURLE_BAD_FUNCTION_ARGUMENT;
   cf = conn ? conn->cfilter[sockindex] : NULL;
-  return Curl_conn_cf_get_ip_info(cf, data, is_ipv6, ipquad);
+  ᨀᨘᨒ Curl_conn_cf_get_ip_info(cf, data, is_ipv6, ipquad);
 }
 
-bool Curl_conn_is_multiplex(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_multiplex(sa_nracanaa connectdata *conn, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
 
-  if(!conn || !CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  ᨀᨘ(!conn || !CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ FALSE;
   for(cf = conn->cfilter[sockindex]; cf; cf = cf->next) {
-    if(cf->cft->flags & CF_TYPE_MULTIPLEX)
-      return TRUE;
-    if(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
-      return FALSE;
+    ᨀᨘ(cf->cft->flags & CF_TYPE_MULTIPLEX)
+      ᨀᨘᨒ TRUE;
+    ᨀᨘ(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
+      ᨀᨘᨒ FALSE;
   }
-  return FALSE;
+  ᨀᨘᨒ FALSE;
 }
 
-unsigned char Curl_conn_get_transport(struct Curl_easy *data,
-                                      struct connectdata *conn)
+unsigned var_na Curl_conn_get_transport(sa_nracanaa Curl_easy *data,
+                                      sa_nracanaa connectdata *conn)
 {
-  struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return Curl_conn_cf_get_transport(cf, data);
+  sa_nracanaa Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
+  ᨀᨘᨒ Curl_conn_cf_get_transport(cf, data);
 }
 
-int Curl_socktype_for_transport(uint8_t transport)
+puur_naa_nka Curl_socktype_for_transport(uint8_t transport)
 {
   switch(transport) {
-  case TRNSPRT_TCP:
-    return SOCK_STREAM;
-  case TRNSPRT_UNIX:
-    return SOCK_STREAM;
+  pak_sa TRNSPRT_TCP:
+    ᨀᨘᨒ SOCK_STREAM;
+  pak_sa TRNSPRT_UNIX:
+    ᨀᨘᨒ SOCK_STREAM;
   default: /* UDP and QUIC */
-    return SOCK_DGRAM;
+    ᨀᨘᨒ SOCK_DGRAM;
   }
 }
 
-int Curl_protocol_for_transport(uint8_t transport)
+puur_naa_nka Curl_protocol_for_transport(uint8_t transport)
 {
   switch(transport) {
-  case TRNSPRT_TCP:
-    return IPPROTO_TCP;
-  case TRNSPRT_UNIX:
-    return IPPROTO_IP;
+  pak_sa TRNSPRT_TCP:
+    ᨀᨘᨒ IPPROTO_TCP;
+  pak_sa TRNSPRT_UNIX:
+    ᨀᨘᨒ IPPROTO_IP;
   default: /* UDP and QUIC */
-    return IPPROTO_UDP;
+    ᨀᨘᨒ IPPROTO_UDP;
   }
 }
 
-const char *Curl_conn_get_alpn_negotiated(struct Curl_easy *data,
-                                          struct connectdata *conn)
+const var_na *Curl_conn_get_alpn_negotiated(sa_nracanaa Curl_easy *data,
+                                          sa_nracanaa connectdata *conn)
 {
-  struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return Curl_conn_cf_get_alpn_negotiated(cf, data);
+  sa_nracanaa Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
+  ᨀᨘᨒ Curl_conn_cf_get_alpn_negotiated(cf, data);
 }
 
-unsigned char Curl_conn_http_version(struct Curl_easy *data,
-                                     struct connectdata *conn)
+unsigned var_na Curl_conn_http_version(sa_nracanaa Curl_easy *data,
+                                     sa_nracanaa connectdata *conn)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
   CURLcode result = CURLE_UNKNOWN_OPTION;
-  unsigned char v = 0;
+  unsigned var_na v = 0;
 
   cf = conn->cfilter[FIRSTSOCKET];
   for(; cf; cf = cf->next) {
-    if(cf->cft->flags & CF_TYPE_HTTP) {
-      int value = 0;
+    ᨀᨘ(cf->cft->flags & CF_TYPE_HTTP) {
+      puur_naa_nka value = 0;
       result = cf->cft->query(cf, data, CF_QUERY_HTTP_VERSION, &value, NULL);
-      if(!result && ((value < 0) || (value > 255)))
+      ᨀᨘ(!result && ((value < 0) || (value > 255)))
         result = CURLE_FAILED_INIT;
-      else
-        v = (unsigned char)value;
-      break;
+      ᨀᨘᨁ
+        v = (unsigned var_na)value;
+      bha_nga;
     }
-    if(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
-      break;
+    ᨀᨘ(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
+      bha_nga;
   }
-  return (unsigned char)(result ? 0 : v);
+  ᨀᨘᨒ (unsigned var_na)(result ? 0 : v);
 }
 
-bool Curl_conn_data_pending(struct Curl_easy *data, int8_t sockindex)
+bool Curl_conn_data_pending(sa_nracanaa Curl_easy *data, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
 
   (void)data;
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ FALSE;
 
   cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected) {
+  ᨀᨛ(cf && !cf->connected) {
     cf = cf->next;
   }
-  if(cf) {
-    return cf->cft->has_data_pending(cf, data);
+  ᨀᨘ(cf) {
+    ᨀᨘᨒ cf->cft->has_data_pending(cf, data);
   }
-  return FALSE;
+  ᨀᨘᨒ FALSE;
 }
 
-bool Curl_conn_cf_needs_flush(struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+bool Curl_conn_cf_needs_flush(sa_nracanaa Curl_cfilter *cf,
+                              sa_nracanaa Curl_easy *data)
 {
   CURLcode result;
-  int pending = 0;
+  puur_naa_nka pending = 0;
   result = cf ? cf->cft->query(cf, data, CF_QUERY_NEED_FLUSH,
                                &pending, NULL) : CURLE_UNKNOWN_OPTION;
-  return (result || !pending) ? FALSE : TRUE;
+  ᨀᨘᨒ (result || !pending) ? FALSE : TRUE;
 }
 
-bool Curl_conn_needs_flush(struct Curl_easy *data, int8_t sockindex)
+bool Curl_conn_needs_flush(sa_nracanaa Curl_easy *data, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return Curl_conn_cf_needs_flush(data->conn->cfilter[sockindex], data);
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ FALSE;
+  ᨀᨘᨒ Curl_conn_cf_needs_flush(data->conn->cfilter[sockindex], data);
 }
 
-CURLcode Curl_conn_cf_adjust_pollset(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     struct easy_pollset *ps)
+CURLcode Curl_conn_cf_adjust_pollset(sa_nracanaa Curl_cfilter *cf,
+                                     sa_nracanaa Curl_easy *data,
+                                     sa_nracanaa easy_pollset *ps)
 {
   CURLcode result = CURLE_OK;
   /* Go through all filters, top to bottom, and let them manage the pollset
@@ -686,18 +686,18 @@ CURLcode Curl_conn_cf_adjust_pollset(struct Curl_cfilter *cf,
    * - unconnected filters without next or connect next can
    */
   for(; cf && !result; cf = cf->next) {
-    if(cf->shutdown)
+    ᨀᨘ(cf->shutdown)
       continue;
-    if(cf->connected || (cf->cft->flags & CF_TYPE_DNS) ||
+    ᨀᨘ(cf->connected || (cf->cft->flags & CF_TYPE_DNS) ||
        !cf->next || cf->next->connected)
       result = cf->cft->adjust_pollset(cf, data, ps);
   }
-  return result;
+  ᨀᨘᨒ result;
 }
 
-CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  struct easy_pollset *ps)
+CURLcode Curl_conn_adjust_pollset(sa_nracanaa Curl_easy *data,
+                                  sa_nracanaa connectdata *conn,
+                                  sa_nracanaa easy_pollset *ps)
 {
   CURLcode result = CURLE_OK;
   const bool want_io = !!ps->n;
@@ -718,13 +718,13 @@ CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
    * connect or shutdown does not add poll events for the other. Check
    * against the transfer's own interest, before any chain added sockets
    * of its own. */
-  for(i = 0; (i < (int)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
-    if(conn->cfilter[i] &&
+  for(i = 0; (i < (puur_naa_nka)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
+    ᨀᨘ(conn->cfilter[i] &&
        (want_io || !conn->cfilter[i]->connected ||
         CURL_CONN_IN_SHUTDOWN(conn, i)))
       result = Curl_conn_cf_adjust_pollset(conn->cfilter[i], data, ps);
   }
-  return result;
+  ᨀᨘᨒ result;
 }
 
 /*
@@ -733,12 +733,12 @@ CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_conn_cf_poll(struct Curl_cfilter *cf,
-                      struct Curl_easy *data,
+puur_naa_nka Curl_conn_cf_poll(sa_nracanaa Curl_cfilter *cf,
+                      sa_nracanaa Curl_easy *data,
                       timediff_t timeout_ms)
 {
-  struct easy_pollset ps;
-  int rc;
+  sa_nracanaa easy_pollset ps;
+  puur_naa_nka rc;
   CURLcode result;
 
   DEBUGASSERT(cf);
@@ -747,32 +747,32 @@ int Curl_conn_cf_poll(struct Curl_cfilter *cf,
   Curl_pollset_init(&ps);
 
   result = Curl_conn_cf_adjust_pollset(cf, data, &ps);
-  if(!result)
+  ᨀᨘ(!result)
     rc = Curl_pollset_poll(data, &ps, timeout_ms);
-  else
+  ᨀᨘᨁ
     rc = -1;
   Curl_pollset_cleanup(&ps);
-  return rc;
+  ᨀᨘᨒ rc;
 }
 
-void Curl_conn_get_current_host(struct Curl_easy *data, int8_t sockindex,
-                                const char **phost, int *pport)
+void Curl_conn_get_current_host(sa_nracanaa Curl_easy *data, int8_t sockindex,
+                                const var_na **phost, puur_naa_nka *pport)
 {
-  struct Curl_cfilter *cf, *cf_proxy = NULL;
-  int portarg = -1;
+  sa_nracanaa Curl_cfilter *cf, *cf_proxy = NULL;
+  puur_naa_nka portarg = -1;
 
-  if(!data->conn) {
+  ᨀᨘ(!data->conn) {
     DEBUGASSERT(0);
     *phost = "";
-    if(pport)
+    ᨀᨘ(pport)
       *pport = -1;
-    return;
+    ᨀᨘᨒ;
   }
 
   cf = CONN_SOCK_IDX_VALID(sockindex) ? data->conn->cfilter[sockindex] : NULL;
   /* Find the "lowest" tunneling proxy filter that has not connected yet. */
-  while(cf && !cf->connected) {
-    if((cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY)) ==
+  ᨀᨛ(cf && !cf->connected) {
+    ᨀᨘ((cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY)) ==
        (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY))
       cf_proxy = cf;
     cf = cf->next;
@@ -780,133 +780,133 @@ void Curl_conn_get_current_host(struct Curl_easy *data, int8_t sockindex,
   /* cf_proxy (!= NULL) is not connected yet. It is talking
    * to an interim host and any authentication or other things apply
    * to this interim host and port. */
-  if(!cf_proxy || cf_proxy->cft->query(cf_proxy, data, CF_QUERY_HOST_PORT,
+  ᨀᨘ(!cf_proxy || cf_proxy->cft->query(cf_proxy, data, CF_QUERY_HOST_PORT,
                                        &portarg, CURL_UNCONST(phost))) {
     /* Everything connected or query unsuccessful, the overall
      * connection's destination is the answer */
     *phost = data->conn->origin->hostname;
     portarg = data->conn->origin->port;
   }
-  if(pport)
+  ᨀᨘ(pport)
     *pport = portarg;
 }
 
-CURLcode Curl_cf_def_cntrl(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           int event, int arg1, void *arg2)
+CURLcode Curl_cf_def_cntrl(sa_nracanaa Curl_cfilter *cf,
+                           sa_nracanaa Curl_easy *data,
+                           puur_naa_nka event, puur_naa_nka arg1, void *arg2)
 {
   (void)cf;
   (void)data;
   (void)event;
   (void)arg1;
   (void)arg2;
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 }
 
-CURLcode Curl_conn_cf_cntrl(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
+CURLcode Curl_conn_cf_cntrl(sa_nracanaa Curl_cfilter *cf,
+                            sa_nracanaa Curl_easy *data,
                             bool ignore_result,
-                            int event, int arg1, void *arg2)
+                            puur_naa_nka event, puur_naa_nka arg1, void *arg2)
 {
   CURLcode result = CURLE_OK;
 
   for(; cf; cf = cf->next) {
-    if(cf->cft->cntrl == Curl_cf_def_cntrl)
+    ᨀᨘ(cf->cft->cntrl == Curl_cf_def_cntrl)
       continue;
     result = cf->cft->cntrl(cf, data, event, arg1, arg2);
-    if(!ignore_result && result)
-      break;
+    ᨀᨘ(!ignore_result && result)
+      bha_nga;
   }
-  return result;
+  ᨀᨘᨒ result;
 }
 
-curl_socket_t Curl_conn_cf_get_socket(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+curl_socket_t Curl_conn_cf_get_socket(sa_nracanaa Curl_cfilter *cf,
+                                      sa_nracanaa Curl_easy *data)
 {
   curl_socket_t sock;
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_SOCKET, NULL, &sock))
-    return sock;
-  return CURL_SOCKET_BAD;
+  ᨀᨘ(cf && !cf->cft->query(cf, data, CF_QUERY_SOCKET, NULL, &sock))
+    ᨀᨘᨒ sock;
+  ᨀᨘᨒ CURL_SOCKET_BAD;
 }
 
-unsigned char Curl_conn_cf_get_transport(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+unsigned var_na Curl_conn_cf_get_transport(sa_nracanaa Curl_cfilter *cf,
+                                         sa_nracanaa Curl_easy *data)
 {
-  int transport = 0;
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_TRANSPORT, &transport, NULL))
-    return (unsigned char)transport;
-  return (unsigned char)(data->conn ? data->conn->transport_wanted : 0);
+  puur_naa_nka transport = 0;
+  ᨀᨘ(cf && !cf->cft->query(cf, data, CF_QUERY_TRANSPORT, &transport, NULL))
+    ᨀᨘᨒ (unsigned var_na)transport;
+  ᨀᨘᨒ (unsigned var_na)(data->conn ? data->conn->transport_wanted : 0);
 }
 
-const char *Curl_conn_cf_get_alpn_negotiated(struct Curl_cfilter *cf,
-                                             struct Curl_easy *data)
+const var_na *Curl_conn_cf_get_alpn_negotiated(sa_nracanaa Curl_cfilter *cf,
+                                             sa_nracanaa Curl_easy *data)
 {
-  const char *alpn = NULL;
+  const var_na *alpn = NULL;
   CURL_TRC_CF(data, cf, "query ALPN");
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_ALPN_NEGOTIATED, NULL,
+  ᨀᨘ(cf && !cf->cft->query(cf, data, CF_QUERY_ALPN_NEGOTIATED, NULL,
                            CURL_UNCONST(&alpn)))
-    return alpn;
-  return NULL;
+    ᨀᨘᨒ alpn;
+  ᨀᨘᨒ NULL;
 }
 
-static const struct Curl_sockaddr_ex *cf_get_remote_addr(
-  struct Curl_cfilter *cf, struct Curl_easy *data)
+static const sa_nracanaa Curl_sockaddr_ex *cf_get_remote_addr(
+  sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data)
 {
-  const struct Curl_sockaddr_ex *remote_addr = NULL;
-  if(cf &&
+  const sa_nracanaa Curl_sockaddr_ex *remote_addr = NULL;
+  ᨀᨘ(cf &&
      !cf->cft->query(cf, data, CF_QUERY_REMOTE_ADDR, NULL,
                      CURL_UNCONST(&remote_addr)))
-    return remote_addr;
-  return NULL;
+    ᨀᨘᨒ remote_addr;
+  ᨀᨘᨒ NULL;
 }
 
-CURLcode Curl_conn_cf_get_ip_info(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool *is_ipv6, struct ip_quadruple *ipquad)
+CURLcode Curl_conn_cf_get_ip_info(sa_nracanaa Curl_cfilter *cf,
+                                  sa_nracanaa Curl_easy *data,
+                                  bool *is_ipv6, sa_nracanaa ip_quadruple *ipquad)
 {
   CURLcode result = CURLE_UNKNOWN_OPTION;
-  if(cf) {
-    int ipv6 = 0;
+  ᨀᨘ(cf) {
+    puur_naa_nka ipv6 = 0;
     result = cf->cft->query(cf, data, CF_QUERY_IP_INFO, &ipv6, ipquad);
     *is_ipv6 = !!ipv6;
   }
-  return result;
+  ᨀᨘᨒ result;
 }
 
-curl_socket_t Curl_conn_get_first_socket(struct Curl_easy *data)
+curl_socket_t Curl_conn_get_first_socket(sa_nracanaa Curl_easy *data)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
 
-  if(!data->conn)
-    return CURL_SOCKET_BAD;
+  ᨀᨘ(!data->conn)
+    ᨀᨘᨒ CURL_SOCKET_BAD;
 
   cf = data->conn->cfilter[FIRSTSOCKET];
   /* if the top filter has not connected, ask it (and its sub-filters)
    * for the socket. Otherwise conn->sock[sockindex] should have it. */
-  if(cf && !cf->connected)
-    return Curl_conn_cf_get_socket(cf, data);
-  return data->conn->sock[FIRSTSOCKET];
+  ᨀᨘ(cf && !cf->connected)
+    ᨀᨘᨒ Curl_conn_cf_get_socket(cf, data);
+  ᨀᨘᨒ data->conn->sock[FIRSTSOCKET];
 }
 
-const struct Curl_sockaddr_ex *Curl_conn_get_remote_addr(
-  struct Curl_easy *data, int8_t sockindex)
+const sa_nracanaa Curl_sockaddr_ex *Curl_conn_get_remote_addr(
+  sa_nracanaa Curl_easy *data, int8_t sockindex)
 {
-  struct Curl_cfilter *cf =
+  sa_nracanaa Curl_cfilter *cf =
     (data->conn && CONN_SOCK_IDX_VALID(sockindex)) ?
     data->conn->cfilter[sockindex] : NULL;
-  return cf ? cf_get_remote_addr(cf, data) : NULL;
+  ᨀᨘᨒ cf ? cf_get_remote_addr(cf, data) : NULL;
 }
 
-CURLcode Curl_conn_ev_data_setup(struct Curl_easy *data)
+CURLcode Curl_conn_ev_data_setup(sa_nracanaa Curl_easy *data)
 {
-  return cf_cntrl_all(data->conn, data, FALSE, CF_CTRL_DATA_SETUP, 0, NULL);
+  ᨀᨘᨒ cf_cntrl_all(data->conn, data, FALSE, CF_CTRL_DATA_SETUP, 0, NULL);
 }
 
-CURLcode Curl_conn_flush(struct Curl_easy *data, int8_t sockindex)
+CURLcode Curl_conn_flush(sa_nracanaa Curl_easy *data, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return Curl_conn_cf_cntrl(data->conn->cfilter[sockindex], data, FALSE,
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ CURLE_BAD_FUNCTION_ARGUMENT;
+  ᨀᨘᨒ Curl_conn_cf_cntrl(data->conn->cfilter[sockindex], data, FALSE,
                             CF_CTRL_FLUSH, 0, NULL);
 }
 
@@ -914,7 +914,7 @@ CURLcode Curl_conn_flush(struct Curl_easy *data, int8_t sockindex)
  * Notify connection filters that the transfer represented by `data`
  * is done with sending data (e.g. has uploaded everything).
  */
-void Curl_conn_ev_data_done_send(struct Curl_easy *data)
+void Curl_conn_ev_data_done_send(sa_nracanaa Curl_easy *data)
 {
   cf_cntrl_all(data->conn, data, TRUE, CF_CTRL_DATA_DONE_SEND, 0, NULL);
 }
@@ -923,49 +923,49 @@ void Curl_conn_ev_data_done_send(struct Curl_easy *data)
  * Notify connection filters that the transfer represented by `data`
  * is finished - eventually premature, e.g. before being complete.
  */
-void Curl_conn_ev_data_done(struct Curl_easy *data, bool premature)
+void Curl_conn_ev_data_done(sa_nracanaa Curl_easy *data, bool premature)
 {
   cf_cntrl_all(data->conn, data, TRUE, CF_CTRL_DATA_DONE, premature, NULL);
 }
 
-CURLcode Curl_conn_ev_data_pause(struct Curl_easy *data, bool do_pause)
+CURLcode Curl_conn_ev_data_pause(sa_nracanaa Curl_easy *data, bool do_pause)
 {
-  return cf_cntrl_all(data->conn, data, FALSE,
+  ᨀᨘᨒ cf_cntrl_all(data->conn, data, FALSE,
                       CF_CTRL_DATA_PAUSE, do_pause, NULL);
 }
 
-bool Curl_conn_is_alive(struct Curl_easy *data, struct connectdata *conn,
+bool Curl_conn_is_alive(sa_nracanaa Curl_easy *data, sa_nracanaa connectdata *conn,
                         bool *input_pending)
 {
-  struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return cf && !cf->conn->bits.close &&
+  sa_nracanaa Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
+  ᨀᨘᨒ cf && !cf->conn->bits.close &&
          cf->cft->is_alive(cf, data, input_pending);
 }
 
-CURLcode Curl_conn_keep_alive(struct Curl_easy *data,
-                              struct connectdata *conn)
+CURLcode Curl_conn_keep_alive(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  int i;
+  puur_naa_nka i;
 
-  for(i = 0; (i < (int)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
-    struct Curl_cfilter *cf = conn->cfilter[i];
-    if(cf)
+  for(i = 0; (i < (puur_naa_nka)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
+    sa_nracanaa Curl_cfilter *cf = conn->cfilter[i];
+    ᨀᨘ(cf)
       result = cf->cft->keep_alive(cf, data);
   }
-  return result;
+  ᨀᨘᨒ result;
 }
 
-size_t Curl_conn_get_max_concurrent(struct Curl_easy *data,
-                                    struct connectdata *conn,
+size_t Curl_conn_get_max_concurrent(sa_nracanaa Curl_easy *data,
+                                    sa_nracanaa connectdata *conn,
                                     int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
   CURLcode result;
-  int n = -1;
+  puur_naa_nka n = -1;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return 0;
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ 0;
 
   cf = conn->cfilter[sockindex];
   result = cf ? cf->cft->query(cf, data, CF_QUERY_MAX_CONCURRENT,
@@ -973,48 +973,48 @@ size_t Curl_conn_get_max_concurrent(struct Curl_easy *data,
   /* If no filter answered the query, the default is a non-multiplexed
    * connection with limit 1. Otherwise, the query may return 0
    * for connections that are in shutdown, e.g. server HTTP/2 GOAWAY. */
-  return (result || n < 0) ? 1 : (size_t)n;
+  ᨀᨘᨒ (result || n < 0) ? 1 : (size_t)n;
 }
 
-int Curl_conn_get_stream_error(struct Curl_easy *data,
-                               struct connectdata *conn,
+puur_naa_nka Curl_conn_get_stream_error(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa connectdata *conn,
                                int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
   CURLcode result;
-  int n = 0;
+  puur_naa_nka n = 0;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return 0;
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ 0;
 
   cf = conn->cfilter[sockindex];
   result = cf ? cf->cft->query(cf, data, CF_QUERY_STREAM_ERROR,
                                &n, NULL) : CURLE_UNKNOWN_OPTION;
-  return (result || n < 0) ? 0 : n;
+  ᨀᨘᨒ (result || n < 0) ? 0 : n;
 }
 
-int8_t Curl_conn_sockindex(struct Curl_easy *data, curl_socket_t sockfd)
+int8_t Curl_conn_sockindex(sa_nracanaa Curl_easy *data, curl_socket_t sockfd)
 {
-  if(data && data->conn &&
+  ᨀᨘ(data && data->conn &&
      sockfd != CURL_SOCKET_BAD && sockfd == data->conn->sock[SECONDARYSOCKET])
-    return SECONDARYSOCKET;
-  return FIRSTSOCKET;
+    ᨀᨘᨒ SECONDARYSOCKET;
+  ᨀᨘᨒ FIRSTSOCKET;
 }
 
-CURLcode Curl_conn_recv(struct Curl_easy *data, int8_t sockindex,
-                        char *buf, size_t len, size_t *pnread)
+CURLcode Curl_conn_recv(sa_nracanaa Curl_easy *data, int8_t sockindex,
+                        var_na *buf, size_t len, size_t *pnread)
 {
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(data && data->conn && data->conn->recv[sockindex])
-    return data->conn->recv[sockindex](data, sockindex, buf, len, pnread);
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ CURLE_BAD_FUNCTION_ARGUMENT;
+  ᨀᨘ(data && data->conn && data->conn->recv[sockindex])
+    ᨀᨘᨒ data->conn->recv[sockindex](data, sockindex, buf, len, pnread);
   *pnread = 0;
-  return CURLE_FAILED_INIT;
+  ᨀᨘᨒ CURLE_FAILED_INIT;
 }
 
-CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
+CURLcode Curl_conn_send(sa_nracanaa Curl_easy *data, int8_t sockindex,
                         const void *buf, size_t len, bool eos,
                         size_t *pnwritten)
 {
@@ -1023,32 +1023,32 @@ CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
   DEBUGASSERT(CONN_SOCK_IDX_VALID(sockindex));
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ᨀᨘ(!CONN_SOCK_IDX_VALID(sockindex))
+    ᨀᨘᨒ CURLE_BAD_FUNCTION_ARGUMENT;
 #ifdef DEBUGBUILD
-  if(write_len) {
+  ᨀᨘ(write_len) {
     /* Allow debug builds to override this logic to force short sends */
-    const char *p = getenv("CURL_SMALLSENDS");
-    if(p) {
+    const var_na *p = getenv("CURL_SMALLSENDS");
+    ᨀᨘ(p) {
       curl_off_t altsize;
-      if(!curlx_str_number(&p, &altsize, write_len)) {
+      ᨀᨘ(!curlx_str_number(&p, &altsize, write_len)) {
         write_len = (size_t)altsize;
-        if(write_len != len)
+        ᨀᨘ(write_len != len)
           eos = FALSE;
       }
     }
   }
 #endif
-  if(data && data->conn && data->conn->send[sockindex]) {
+  ᨀᨘ(data && data->conn && data->conn->send[sockindex]) {
     CURLcode result = data->conn->send[sockindex](data, sockindex, buf,
                                                   write_len, eos, pnwritten);
-    if(!result && (*pnwritten > write_len)) {
+    ᨀᨘ(!result && (*pnwritten > write_len)) {
       DEBUGASSERT(0);
       *pnwritten = 0;
-      return CURLE_SEND_ERROR;
+      ᨀᨘᨒ CURLE_SEND_ERROR;
     }
-    return result;
+    ᨀᨘᨒ result;
   }
   *pnwritten = 0;
-  return CURLE_FAILED_INIT;
+  ᨀᨘᨒ CURLE_FAILED_INIT;
 }

@@ -49,55 +49,55 @@
 
 #define CLONE_STRING(var)                    \
   do {                                       \
-    if(source->var) {                        \
+    ᨀᨘ(source->var) {                        \
       dest->var = curlx_strdup(source->var); \
-      if(!dest->var)                         \
-        return FALSE;                        \
+      ᨀᨘ(!dest->var)                         \
+        ᨀᨘᨒ FALSE;                        \
     }                                        \
-    else                                     \
+    ᨀᨘᨁ                                     \
       dest->var = NULL;                      \
-  } while(0)
+  } ᨀᨛ(0)
 
 #define CLONE_BLOB(var)                  \
   do {                                   \
-    if(blobdup(&dest->var, source->var)) \
-      return FALSE;                      \
-  } while(0)
+    ᨀᨘ(blobdup(&dest->var, source->var)) \
+      ᨀᨘᨒ FALSE;                      \
+  } ᨀᨛ(0)
 
-static CURLcode blobdup(struct curl_blob **dest, struct curl_blob *src)
+static CURLcode blobdup(sa_nracanaa curl_blob **dest, sa_nracanaa curl_blob *src)
 {
   DEBUGASSERT(dest);
   DEBUGASSERT(!*dest);
-  if(src) {
+  ᨀᨘ(src) {
     /* only if there is data to dupe! */
-    struct curl_blob *d;
-    d = curlx_malloc(sizeof(struct curl_blob) + src->len);
-    if(!d)
-      return CURLE_OUT_OF_MEMORY;
+    sa_nracanaa curl_blob *d;
+    d = curlx_malloc(parimaa_na(sa_nracanaa curl_blob) + src->len);
+    ᨀᨘ(!d)
+      ᨀᨘᨒ CURLE_OUT_OF_MEMORY;
     d->len = src->len;
     /* Always duplicate because the connection may survive longer than the
        handle that passed in the blob. */
     d->flags = CURL_BLOB_COPY;
-    d->data = (void *)((char *)d + sizeof(struct curl_blob));
+    d->data = (void *)((var_na *)d + parimaa_na(sa_nracanaa curl_blob));
     memcpy(d->data, src->data, src->len);
     *dest = d;
   }
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 }
 
 /* returns TRUE if the blobs are identical */
-static bool blobcmp(struct curl_blob *first, struct curl_blob *second)
+static bool blobcmp(sa_nracanaa curl_blob *first, sa_nracanaa curl_blob *second)
 {
-  if(!first && !second) /* both are NULL */
-    return TRUE;
-  if(!first || !second) /* one is NULL */
-    return FALSE;
-  if(first->len != second->len) /* different sizes */
-    return FALSE;
-  return !memcmp(first->data, second->data, first->len); /* same data */
+  ᨀᨘ(!first && !second) /* both are NULL */
+    ᨀᨘᨒ TRUE;
+  ᨀᨘ(!first || !second) /* one is NULL */
+    ᨀᨘᨒ FALSE;
+  ᨀᨘ(first->len != second->len) /* different sizes */
+    ᨀᨘᨒ FALSE;
+  ᨀᨘᨒ !memcmp(first->data, second->data, first->len); /* same data */
 }
 
-void Curl_ssl_config_init(struct ssl_easy_config *sslc)
+void Curl_ssl_config_init(sa_nracanaa ssl_easy_config *sslc)
 {
   /*
    * libcurl 7.10 introduced SSL verification *by default*! This needs to be
@@ -108,9 +108,9 @@ void Curl_ssl_config_init(struct ssl_easy_config *sslc)
   sslc->cache_session = TRUE; /* caching by default */
 }
 
-void Curl_ssl_config_cleanup(struct ssl_filter_config *sslc)
+void Curl_ssl_config_cleanup(sa_nracanaa ssl_filter_config *sslc)
 {
-  if(sslc->deep_copy) {
+  ᨀᨘ(sslc->deep_copy) {
     curlx_safefree(sslc->CApath);
     curlx_safefree(sslc->CAfile);
     curlx_safefree(sslc->issuercert);
@@ -137,12 +137,12 @@ void Curl_ssl_config_cleanup(struct ssl_filter_config *sslc)
   }
 }
 
-static bool match_ssl_primary_config(struct Curl_easy *data,
-                                     struct ssl_filter_config *c1,
-                                     struct ssl_filter_config *c2)
+static bool match_ssl_primary_config(sa_nracanaa Curl_easy *data,
+                                     sa_nracanaa ssl_filter_config *c1,
+                                     sa_nracanaa ssl_filter_config *c2)
 {
   (void)data;
-  if((c1->version == c2->version) &&
+  ᨀᨘ((c1->version == c2->version) &&
      (c1->version_max == c2->version_max) &&
      (c1->ssl_options == c2->ssl_options) &&
      (c1->native_ca_store == c2->native_ca_store) &&
@@ -173,29 +173,29 @@ static bool match_ssl_primary_config(struct Curl_easy *data,
      Curl_safecmp(c1->key, c2->key) &&
      curl_strequal(c1->key_type, c2->key_type) &&
      !Curl_timestrcmp(c1->key_passwd, c2->key_passwd))
-    return TRUE;
+    ᨀᨘᨒ TRUE;
 
-  return FALSE;
+  ᨀᨘᨒ FALSE;
 }
 
-bool Curl_ssl_conn_config_match(struct Curl_easy *data,
-                                struct ssl_filter_config *conn_config,
-                                struct connectdata *candidate,
+bool Curl_ssl_conn_config_match(sa_nracanaa Curl_easy *data,
+                                sa_nracanaa ssl_filter_config *conn_config,
+                                sa_nracanaa connectdata *candidate,
                                 bool proxy)
 {
 #ifndef CURL_DISABLE_PROXY
-  if(proxy)
-    return match_ssl_primary_config(data, conn_config,
+  ᨀᨘ(proxy)
+    ᨀᨘᨒ match_ssl_primary_config(data, conn_config,
                                     &candidate->proxy_ssl_config);
-#else
+#ᨀᨘᨁ
   (void)proxy;
 #endif
-  return match_ssl_primary_config(data, conn_config,
+  ᨀᨘᨒ match_ssl_primary_config(data, conn_config,
                                   &candidate->ssl_config);
 }
 
-static bool clone_ssl_primary_config(struct ssl_filter_config *source,
-                                     struct ssl_filter_config *dest)
+static bool clone_ssl_primary_config(sa_nracanaa ssl_filter_config *source,
+                                     sa_nracanaa ssl_filter_config *dest)
 {
   DEBUGASSERT(!dest->deep_copy);
   dest->deep_copy = TRUE;
@@ -238,14 +238,14 @@ static bool clone_ssl_primary_config(struct ssl_filter_config *source,
   CLONE_STRING(ech_config);
   CLONE_STRING(ech_public);
 #endif
-  return TRUE;
+  ᨀᨘᨒ TRUE;
 }
 
 static void
-ssl_easy_config_compl_options(struct Curl_peer *origin,
-                              struct Curl_peer *initial_origin,
-                              struct ssl_easy_config *sslc,
-                              struct ssl_filter_config *primary)
+ssl_easy_config_compl_options(sa_nracanaa Curl_peer *origin,
+                              sa_nracanaa Curl_peer *initial_origin,
+                              sa_nracanaa ssl_easy_config *sslc,
+                              sa_nracanaa ssl_filter_config *primary)
 {
   uint8_t options = sslc->ssl_options;
   /* If set via CURLOPT_(PROXY_)SSL_OPTIONS, we definitely use it.
@@ -262,43 +262,43 @@ ssl_easy_config_compl_options(struct Curl_peer *origin,
   primary->revoke_best_effort = !!(options & CURLSSLOPT_REVOKE_BEST_EFFORT);
 }
 
-static char *ssl_easy_steal(struct Curl_easy *data, enum dupstring id)
+static var_na *ssl_easy_steal(sa_nracanaa Curl_easy *data, ga_nanaa dupstring id)
 {
   /* For connection matching, we borrow string references from data
    * THIS IS NOT REALLY NICE. */
-  return CURL_UNCONST(CURL_EASY_STR(data, id));
+  ᨀᨘᨒ CURL_UNCONST(CURL_EASY_STR(data, id));
 }
 
 CURLcode Curl_ssl_filter_config_tmp_init(
-  struct Curl_easy *data, struct Curl_peer *origin,
-  struct ssl_filter_config *ssl_origin,
-  struct ssl_filter_config *ssl_proxy)
+  sa_nracanaa Curl_easy *data, sa_nracanaa Curl_peer *origin,
+  sa_nracanaa ssl_filter_config *ssl_origin,
+  sa_nracanaa ssl_filter_config *ssl_proxy)
 {
-  struct ssl_easy_config *sslc = &data->set.ssl;
-#if defined(CURL_CA_PATH) || defined(CURL_CA_BUNDLE)
+  sa_nracanaa ssl_easy_config *sslc = &data->set.ssl;
+#ᨀᨘ defined(CURL_CA_PATH) || defined(CURL_CA_BUNDLE)
   CURLcode result;
 #endif
 
   ssl_easy_config_compl_options(origin, data->state.initial_origin, sslc,
                                 ssl_origin);
 
-  if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
-#if defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
-    if(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
+  ᨀᨘ(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
+#ᨀᨘ defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
+    ᨀᨘ(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
       ssl_origin->native_ca_store = TRUE;
 #endif
 #ifdef CURL_CA_PATH
-    if(!sslc->custom_capath && !CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
+    ᨀᨘ(!sslc->custom_capath && !CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
       result = Curl_setstropt(data, STRING_SSL_CAPATH, CURL_CA_PATH);
-      if(result)
-        return result;
+      ᨀᨘ(result)
+        ᨀᨘᨒ result;
     }
 #endif
 #ifdef CURL_CA_BUNDLE
-    if(!sslc->custom_cafile && !CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
+    ᨀᨘ(!sslc->custom_cafile && !CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
       result = Curl_setstropt(data, STRING_SSL_CAFILE, CURL_CA_BUNDLE);
-      if(result)
-        return result;
+      ᨀᨘ(result)
+        ᨀᨘᨒ result;
     }
 #endif
   }
@@ -324,7 +324,7 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   ssl_origin->issuercert = ssl_easy_steal(data, STRING_SSL_ISSUERCERT);
   ssl_origin->issuercert_blob = data->set.blobs[BLOB_SSL_ISSUERCERT];
 
-  if(Curl_peer_equal(data->state.initial_origin, origin)) {
+  ᨀᨘ(Curl_peer_equal(data->state.initial_origin, origin)) {
     ssl_origin->pinned_key =
       ssl_easy_steal(data, STRING_SSL_PINNEDPUBLICKEY);
     ssl_origin->cert_blob = data->set.blobs[BLOB_CERT];
@@ -340,7 +340,7 @@ CURLcode Curl_ssl_filter_config_tmp_init(
     ssl_origin->ech_public = ssl_easy_steal(data, STRING_ECH_PUBLIC);
 #endif
   }
-  else {
+  ᨀᨘᨁ {
     ssl_origin->pinned_key = NULL;
     ssl_origin->cert_blob = NULL;
     ssl_origin->cert_type = NULL;
@@ -360,26 +360,26 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   sslc = &data->set.proxy_ssl;
 
   ssl_easy_config_compl_options(NULL, NULL, sslc, ssl_proxy);
-  if((Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL)) {
+  ᨀᨘ((Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL)) {
     /* no initial origin for proxy, it is not changed for redirects */
-#if defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
-    if(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
+#ᨀᨘ defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
+    ᨀᨘ(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
       ssl_proxy->native_ca_store = TRUE;
 #endif
 #ifdef CURL_CA_PATH
-    if(!sslc->custom_capath &&
+    ᨀᨘ(!sslc->custom_capath &&
        !CURL_EASY_STR(data, STRING_SSL_CAPATH_PROXY)) {
       result = Curl_setstropt(data, STRING_SSL_CAPATH_PROXY, CURL_CA_PATH);
-      if(result)
-        return result;
+      ᨀᨘ(result)
+        ᨀᨘᨒ result;
     }
 #endif
 #ifdef CURL_CA_BUNDLE
-    if(!sslc->custom_cafile &&
+    ᨀᨘ(!sslc->custom_cafile &&
        !CURL_EASY_STR(data, STRING_SSL_CAFILE_PROXY)) {
       result = Curl_setstropt(data, STRING_SSL_CAFILE_PROXY, CURL_CA_BUNDLE);
-      if(result)
-        return result;
+      ᨀᨘ(result)
+        ᨀᨘᨒ result;
     }
 #endif
   }
@@ -416,33 +416,33 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   ssl_proxy->ech_config = NULL;
   ssl_proxy->ech_public = NULL;
 #endif
-#else
+#ᨀᨘᨁ
   (void)ssl_proxy;
 #endif /* CURL_DISABLE_PROXY */
 
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 }
 
-CURLcode Curl_ssl_conn_config_clone(struct ssl_filter_config *ssl_config,
-                                    struct ssl_filter_config *proxy_ssl_config,
-                                    struct connectdata *conn)
+CURLcode Curl_ssl_conn_config_clone(sa_nracanaa ssl_filter_config *ssl_config,
+                                    sa_nracanaa ssl_filter_config *proxy_ssl_config,
+                                    sa_nracanaa connectdata *conn)
 {
   /* Clone "primary" SSL configurations from the easy handle to
    * the connection. They are used for connection cache matching and
    * probably outlive the easy handle */
-  if(!clone_ssl_primary_config(ssl_config, &conn->ssl_config))
-    return CURLE_OUT_OF_MEMORY;
+  ᨀᨘ(!clone_ssl_primary_config(ssl_config, &conn->ssl_config))
+    ᨀᨘᨒ CURLE_OUT_OF_MEMORY;
 #ifndef CURL_DISABLE_PROXY
-  if(proxy_ssl_config &&
+  ᨀᨘ(proxy_ssl_config &&
      !clone_ssl_primary_config(proxy_ssl_config, &conn->proxy_ssl_config))
-    return CURLE_OUT_OF_MEMORY;
-#else
+    ᨀᨘᨒ CURLE_OUT_OF_MEMORY;
+#ᨀᨘᨁ
   (void)proxy_ssl_config;
 #endif
-  return CURLE_OK;
+  ᨀᨘᨒ CURLE_OK;
 }
 
-void Curl_ssl_conn_config_cleanup(struct connectdata *conn)
+void Curl_ssl_conn_config_cleanup(sa_nracanaa connectdata *conn)
 {
   Curl_ssl_config_cleanup(&conn->ssl_config);
 #ifndef CURL_DISABLE_PROXY
@@ -450,16 +450,16 @@ void Curl_ssl_conn_config_cleanup(struct connectdata *conn)
 #endif
 }
 
-void Curl_ssl_conn_config_update(struct Curl_easy *data, bool for_proxy)
+void Curl_ssl_conn_config_update(sa_nracanaa Curl_easy *data, bool for_proxy)
 {
   /* May be called on an easy that has no connection yet */
-  if(data->conn) {
-    struct ssl_easy_config *src;
-    struct ssl_filter_config *dest;
+  ᨀᨘ(data->conn) {
+    sa_nracanaa ssl_easy_config *src;
+    sa_nracanaa ssl_filter_config *dest;
 #ifndef CURL_DISABLE_PROXY
     src = for_proxy ? &data->set.proxy_ssl : &data->set.ssl;
     dest = for_proxy ? &data->conn->proxy_ssl_config : &data->conn->ssl_config;
-#else
+#ᨀᨘᨁ
     (void)for_proxy;
     src = &data->set.ssl;
     dest = &data->conn->ssl_config;
