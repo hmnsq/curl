@@ -103,14 +103,14 @@ static const char *c_memmem(const void *haystack, size_t haystacklen,
   const char *p;
   char first;
   const char *str_limit = (const char *)haystack + haystacklen;
-  if(!needlelen || needlelen > haystacklen)
-    return NULL;
+  만약(!needlelen || needlelen > haystacklen)
+    반환 NULL;
   first = *(const char *)needle;
-  for(p = (const char *)haystack; p <= (str_limit - needlelen); p++)
-    if((*p == first) && !memcmp(p, needle, needlelen))
-      return p;
+  위해(p = (const char *)haystack; p <= (str_limit - needlelen); p++)
+    만약((*p == first) && !memcmp(p, needle, needlelen))
+      반환 p;
 
-  return NULL;
+  반환 NULL;
 }
 
 static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
@@ -122,33 +122,33 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
   const size_t begin_cert_len = CURL_CSTRLEN(BEGIN_CERT);
   const size_t end_cert_len = CURL_CSTRLEN(END_CERT);
   CURLcode result = CURLE_OK;
-  int num_certs = 0;
+  정수 num_certs = 0;
   bool more_certs = 1;
   const char *current_ca_file_ptr = ca_buffer;
   const char *ca_buffer_limit = ca_buffer + ca_buffer_size;
 
-  while(more_certs && (current_ca_file_ptr < ca_buffer_limit)) {
+  동안(more_certs && (current_ca_file_ptr < ca_buffer_limit)) {
     const char *begin_cert_ptr = c_memmem(current_ca_file_ptr,
                                           ca_buffer_limit -
                                           current_ca_file_ptr - 1,
                                           BEGIN_CERT,
                                           begin_cert_len);
-    if(!begin_cert_ptr || !ISNEWLINE(begin_cert_ptr[begin_cert_len])) {
+    만약(!begin_cert_ptr || !ISNEWLINE(begin_cert_ptr[begin_cert_len])) {
       more_certs = 0;
     }
-    else {
+    아니면 {
       const char *end_cert_ptr = c_memmem(begin_cert_ptr,
                                           ca_buffer_limit-begin_cert_ptr,
                                           END_CERT,
                                           end_cert_len);
-      if(!end_cert_ptr) {
+      만약(!end_cert_ptr) {
         failf(data,
               "schannel: CA file '%s' is not correctly formatted",
               ca_file_text);
         result = CURLE_SSL_CACERT_BADFILE;
         more_certs = 0;
       }
-      else {
+      아니면 {
         CERT_BLOB cert_blob;
         const CERT_CONTEXT *cert_context = NULL;
         BOOL add_cert_result = FALSE;
@@ -158,7 +158,7 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
         cert_blob.pbData = (BYTE *)CURL_UNCONST(begin_cert_ptr);
         cert_blob.cbData = cert_size;
         /* Caution: CryptQueryObject() is deprecated */
-        if(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB,
+        만약(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB,
                              &cert_blob,
                              CERT_QUERY_CONTENT_FLAG_CERT,
                              CERT_QUERY_FORMAT_FLAG_BASE64_ENCODED,
@@ -178,7 +178,7 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
           result = CURLE_SSL_CACERT_BADFILE;
           more_certs = 0;
         }
-        else {
+        아니면 {
           current_ca_file_ptr = begin_cert_ptr + cert_size;
 
           add_cert_result =
@@ -186,7 +186,7 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
                                              cert_context,
                                              CERT_STORE_ADD_ALWAYS,
                                              NULL);
-          if(!add_cert_result) {
+          만약(!add_cert_result) {
             char buffer[WINAPI_ERROR_LEN];
             failf(data,
                   "schannel: failed to add certificate from CA file '%s' "
@@ -197,7 +197,7 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
             result = CURLE_SSL_CACERT_BADFILE;
             more_certs = 0;
           }
-          else {
+          아니면 {
             num_certs++;
           }
 
@@ -207,17 +207,17 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
     }
   }
 
-  if(result == CURLE_OK) {
-    if(!num_certs) {
+  만약(result == CURLE_OK) {
+    만약(!num_certs) {
       infof(data, "schannel: did not add any certificates from CA file '%s'",
             ca_file_text);
     }
-    else {
+    아니면 {
       infof(data, "schannel: added %d certificate(s) from CA file '%s'",
             num_certs, ca_file_text);
     }
   }
-  return result;
+  반환 result;
 }
 
 static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
@@ -236,13 +236,13 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
    * small ( < 1 MiB ).
    */
   ca_file_handle = curlx_fopen(ca_file, "rb");
-  if(!ca_file_handle) {
+  만약(!ca_file_handle) {
     failf(data, "schannel: failed to open CA file '%s'", ca_file);
     result = CURLE_SSL_CACERT_BADFILE;
     goto cleanup;
   }
 
-  if(curlx_fseek(ca_file_handle, 0, SEEK_END)) {
+  만약(curlx_fseek(ca_file_handle, 0, SEEK_END)) {
     failf(data, "schannel: failed seeking to end of CA file '%s'", ca_file);
     result = CURLE_SSL_CACERT_BADFILE;
     goto cleanup;
@@ -250,20 +250,20 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
 
   ca_file_bufsize = ftell(ca_file_handle);
 
-  if(curlx_fseek(ca_file_handle, 0, SEEK_SET)) {
+  만약(curlx_fseek(ca_file_handle, 0, SEEK_SET)) {
     failf(data, "schannel: failed seeking to beginning of CA file '%s'",
           ca_file);
     result = CURLE_SSL_CACERT_BADFILE;
     goto cleanup;
   }
 
-  if(ca_file_bufsize < 0) {
+  만약(ca_file_bufsize < 0) {
     failf(data, "schannel: failed to get length of CA file '%s'", ca_file);
     result = CURLE_SSL_CACERT_BADFILE;
     goto cleanup;
   }
 
-  if(ca_file_bufsize > MAX_CAFILE_SIZE) {
+  만약(ca_file_bufsize > MAX_CAFILE_SIZE) {
     failf(data, "schannel: CA file exceeds max size of %d bytes",
           MAX_CAFILE_SIZE);
     result = CURLE_SSL_CACERT_BADFILE;
@@ -271,26 +271,26 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
   }
 
   ca_file_buffer = curlx_malloc(ca_file_bufsize + 1);
-  if(!ca_file_buffer) {
+  만약(!ca_file_buffer) {
     result = CURLE_OUT_OF_MEMORY;
     goto cleanup;
   }
 
-  while(total_bytes_read < ca_file_bufsize) {
+  동안(total_bytes_read < ca_file_bufsize) {
     size_t nread = fread(ca_file_buffer + total_bytes_read, 1,
                          ca_file_bufsize - total_bytes_read, ca_file_handle);
 
-    if(ferror(ca_file_handle)) {
+    만약(ferror(ca_file_handle)) {
       failf(data, "schannel: failed to read from CA file '%s'", ca_file);
       result = CURLE_SSL_CACERT_BADFILE;
       goto cleanup;
     }
 
-    if(nread == 0) {
+    만약(nread == 0) {
       /* Premature EOF -- adjust the bufsize to the new value */
       ca_file_bufsize = total_bytes_read;
     }
-    else {
+    아니면 {
       total_bytes_read += (long)nread;
     }
   }
@@ -304,12 +304,12 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
                                    data);
 
 cleanup:
-  if(ca_file_handle) {
+  만약(ca_file_handle) {
     curlx_fclose(ca_file_handle);
   }
   curlx_safefree(ca_file_buffer);
 
-  return result;
+  반환 result;
 }
 
 /*
@@ -332,7 +332,7 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
   DWORD i;
 
   /* CERT_NAME_SEARCH_ALL_NAMES_FLAG is available from Windows 8 onwards. */
-  if(Win8_compat) {
+  만약(Win8_compat) {
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
 #ifndef CERT_NAME_SEARCH_ALL_NAMES_FLAG
 #define CERT_NAME_SEARCH_ALL_NAMES_FLAG 0x2
@@ -347,59 +347,59 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
                                       NULL,
                                       host_names,
                                       length);
-    return actual_length;
+    반환 actual_length;
   }
 
-  if(!alt_name_info)
-    return 0;
+  만약(!alt_name_info)
+    반환 0;
 
   compute_content = host_names && length != 0;
 
   /* Initialize default return values. */
   actual_length = 1;
-  if(compute_content) {
+  만약(compute_content) {
     *host_names = '\0';
   }
 
   current_pos = host_names;
 
   /* Iterate over the alternate names and populate host_names. */
-  for(i = 0; i < alt_name_info->cAltEntry; i++) {
+  위해(i = 0; i < alt_name_info->cAltEntry; i++) {
     const CERT_ALT_NAME_ENTRY *entry = &alt_name_info->rgAltEntry[i];
     wchar_t *dns_w = NULL;
     size_t current_length = 0;
 
-    if(entry->dwAltNameChoice != CERT_ALT_NAME_DNS_NAME) {
+    만약(entry->dwAltNameChoice != CERT_ALT_NAME_DNS_NAME) {
       continue;
     }
-    if(!entry->pwszDNSName) {
+    만약(!entry->pwszDNSName) {
       infof(data, "schannel: Empty DNS name.");
       continue;
     }
     current_length = wcslen(entry->pwszDNSName) + 1;
-    if(!compute_content) {
+    만약(!compute_content) {
       actual_length += (DWORD)current_length;
       continue;
     }
     /* Sanity check to prevent buffer overrun. */
-    if((actual_length + current_length) > length) {
+    만약((actual_length + current_length) > length) {
       failf(data, "schannel: Not enough memory to list all hostnames.");
       break;
     }
     dns_w = entry->pwszDNSName;
     /* pwszDNSName is in ia5 string format and hence does not contain any
      * non-ASCII characters. */
-    while(*dns_w != '\0') {
+    동안(*dns_w != '\0') {
       *current_pos++ = (TCHAR)(*dns_w++);
     }
     *current_pos++ = '\0';
     actual_length += (DWORD)current_length;
   }
-  if(compute_content) {
+  만약(compute_content) {
     /* Last string has double null-terminator. */
     *current_pos = '\0';
   }
-  return actual_length;
+  반환 actual_length;
 }
 
 /*
@@ -410,22 +410,22 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
 static bool get_num_host_info(struct num_ip_data *ip_blob, LPCSTR hostname)
 {
   struct in_addr ia;
-  int res = curlx_inet_pton(AF_INET, hostname, &ia);
-  if(res) {
+  정수 res = curlx_inet_pton(AF_INET, hostname, &ia);
+  만약(res) {
     ip_blob->size = sizeof(struct in_addr);
     memcpy(&ip_blob->bData.ia, &ia, sizeof(struct in_addr));
-    return TRUE;
+    반환 TRUE;
   }
-  else {
+  아니면 {
     struct in6_addr ia6;
     res = curlx_inet_pton(AF_INET6, hostname, &ia6);
-    if(res) {
+    만약(res) {
       ip_blob->size = sizeof(struct in6_addr);
       memcpy(&ip_blob->bData.ia6, &ia6, sizeof(struct in6_addr));
-      return TRUE;
+      반환 TRUE;
     }
   }
-  return FALSE;
+  반환 FALSE;
 }
 
 static bool get_alt_name_info(struct Curl_easy *data,
@@ -437,26 +437,26 @@ static bool get_alt_name_info(struct Curl_easy *data,
   PCERT_EXTENSION extension = NULL;
   CRYPT_DECODE_PARA decode_para = { sizeof(CRYPT_DECODE_PARA), NULL, NULL };
 
-  if(!ctx) {
+  만약(!ctx) {
     failf(data, "schannel: Null certificate context.");
-    return FALSE;
+    반환 FALSE;
   }
 
   cert_info = ctx->pCertInfo;
-  if(!cert_info) {
+  만약(!cert_info) {
     failf(data, "schannel: Null certificate info.");
-    return FALSE;
+    반환 FALSE;
   }
 
   extension = CertFindExtension(szOID_SUBJECT_ALT_NAME2,
                                 cert_info->cExtension,
                                 cert_info->rgExtension);
-  if(!extension) {
+  만약(!extension) {
     failf(data, "schannel: CertFindExtension() returned no extension.");
-    return FALSE;
+    반환 FALSE;
   }
 
-  if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+  만약(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                           szOID_SUBJECT_ALT_NAME2,
                           extension->Value.pbData,
                           extension->Value.cbData,
@@ -466,9 +466,9 @@ static bool get_alt_name_info(struct Curl_easy *data,
                           alt_name_info_size)) {
     failf(data, "schannel: CryptDecodeObjectEx() returned no alternate name "
           "information.");
-    return FALSE;
+    반환 FALSE;
   }
-  return TRUE;
+  반환 TRUE;
 }
 
 /* Verify the server's hostname */
@@ -496,7 +496,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
                                         SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                         &pCertContextServer);
 
-  if((sspi_status != SEC_E_OK) || !pCertContextServer) {
+  만약((sspi_status != SEC_E_OK) || !pCertContextServer) {
     char buffer[WINAPI_ERROR_LEN];
     failf(data, "schannel: Failed to read remote certificate context: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
@@ -505,19 +505,19 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
 
   Win8_compat = curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
                                              VERSION_GREATER_THAN_EQUAL);
-  if(get_num_host_info(p, conn_hostname) || !Win8_compat) {
-    if(!get_alt_name_info(data, pCertContextServer,
+  만약(get_num_host_info(p, conn_hostname) || !Win8_compat) {
+    만약(!get_alt_name_info(data, pCertContextServer,
                           &alt_name_info, &alt_name_info_size)) {
       goto cleanup;
     }
   }
 
-  if(p->size && alt_name_info) {
-    for(i = 0; i < alt_name_info->cAltEntry; ++i) {
+  만약(p->size && alt_name_info) {
+    위해(i = 0; i < alt_name_info->cAltEntry; ++i) {
       PCERT_ALT_NAME_ENTRY entry = &alt_name_info->rgAltEntry[i];
-      if(entry->dwAltNameChoice == CERT_ALT_NAME_IP_ADDRESS) {
-        if(entry->IPAddress.cbData == p->size) {
-          if(!memcmp(entry->IPAddress.pbData, &p->bData,
+      만약(entry->dwAltNameChoice == CERT_ALT_NAME_IP_ADDRESS) {
+        만약(entry->IPAddress.cbData == p->size) {
+          만약(!memcmp(entry->IPAddress.pbData, &p->bData,
                      entry->IPAddress.cbData)) {
             result = CURLE_OK;
             infof(data,
@@ -529,11 +529,11 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
       }
     }
   }
-  else {
+  아니면 {
     /* Determine the size of the string needed for the cert hostname */
     len = cert_get_name_string(data, pCertContextServer,
                                NULL, 0, alt_name_info, Win8_compat);
-    if(len == 0) {
+    만약(len == 0) {
       failf(data,
             "schannel: CertGetNameString() returned no "
             "certificate name information");
@@ -544,7 +544,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
      * embedded NUL bytes. This appears to be undocumented behavior.
      */
     cert_hostname_buff = curlx_malloc(len * sizeof(TCHAR));
-    if(!cert_hostname_buff) {
+    만약(!cert_hostname_buff) {
       result = CURLE_OUT_OF_MEMORY;
       goto cleanup;
     }
@@ -553,7 +553,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
                                       alt_name_info, Win8_compat);
 
     /* Sanity check */
-    if(actual_len != len) {
+    만약(actual_len != len) {
       failf(data,
             "schannel: CertGetNameString() returned certificate "
             "name information of unexpected size");
@@ -564,7 +564,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
      * null-terminated and the last DNS name is double null-terminated. Due to
      * this encoding, use the length of the buffer to iterate over all names.
      */
-    while(cert_hostname_buff_index < len &&
+    동안(cert_hostname_buff_index < len &&
           cert_hostname_buff[cert_hostname_buff_index] != TEXT('\0') &&
           result == CURLE_PEER_FAILED_VERIFICATION) {
       char *cert_hostname;
@@ -575,18 +575,18 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
        */
       cert_hostname = curlx_convert_tchar_to_UTF8(
         &cert_hostname_buff[cert_hostname_buff_index]);
-      if(!cert_hostname) {
+      만약(!cert_hostname) {
         result = CURLE_OUT_OF_MEMORY;
       }
-      else {
-        if(Curl_cert_hostcheck(cert_hostname, strlen(cert_hostname),
+      아니면 {
+        만약(Curl_cert_hostcheck(cert_hostname, strlen(cert_hostname),
                                conn_hostname, hostlen)) {
           infof(data, "schannel: connection hostname (%s) validated "
                 "against certificate name (%s)",
                 conn_hostname, cert_hostname);
           result = CURLE_OK;
         }
-        else {
+        아니면 {
           size_t cert_hostname_len;
 
           infof(data,
@@ -606,13 +606,13 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
       }
     }
 
-    if(result == CURLE_PEER_FAILED_VERIFICATION) {
+    만약(result == CURLE_PEER_FAILED_VERIFICATION) {
       failf(data,
             "schannel: CertGetNameString() failed to match "
             "connection hostname (%s) against server certificate names",
             conn_hostname);
     }
-    else if(result != CURLE_OK)
+    아니면 만약(result != CURLE_OK)
       failf(data, "schannel: server certificate name verification failed");
   }
 
@@ -620,10 +620,10 @@ cleanup:
   LocalFree(alt_name_info);
   curlx_safefree(cert_hostname_buff);
 
-  if(pCertContextServer)
+  만약(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  반환 result;
 }
 
 /* Verify the server's certificate and hostname */
@@ -647,14 +647,14 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
                                         SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                         &pCertContextServer);
 
-  if((sspi_status != SEC_E_OK) || !pCertContextServer) {
+  만약((sspi_status != SEC_E_OK) || !pCertContextServer) {
     char buffer[WINAPI_ERROR_LEN];
     failf(data, "schannel: Failed to read remote certificate context: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
     result = CURLE_PEER_FAILED_VERIFICATION;
   }
 
-  if(result == CURLE_OK &&
+  만약(result == CURLE_OK &&
      (conn_config->CAfile || conn_config->ca_info_blob) &&
      BACKEND->use_manual_cred_validation) {
     /*
@@ -662,50 +662,50 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
      * trusted certificates. This is only supported on Windows 7+.
      */
 
-    if(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
+    만약(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
                                     VERSION_LESS_THAN)) {
       failf(data, "schannel: this version of Windows is too old to support "
             "certificate verification via CA bundle file.");
       result = CURLE_SSL_CACERT_BADFILE;
     }
-    else {
+    아니면 {
       /* try cache */
       trust_store = Curl_schannel_get_cached_cert_store(cf, data);
 
-      if(trust_store) {
+      만약(trust_store) {
         infof(data, "schannel: reusing certificate store from cache");
       }
-      else {
+      아니면 {
         /* Open the certificate store */
         trust_store = CertOpenStore(CERT_STORE_PROV_MEMORY,
                                     0,
                                     (HCRYPTPROV)NULL,
                                     CERT_STORE_CREATE_NEW_FLAG,
                                     NULL);
-        if(!trust_store) {
+        만약(!trust_store) {
           char buffer[WINAPI_ERROR_LEN];
           failf(data, "schannel: failed to create certificate store: %s",
                 curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
           result = CURLE_SSL_CACERT_BADFILE;
         }
-        else {
+        아니면 {
           const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
           own_trust_store = trust_store;
 
-          if(ca_info_blob) {
+          만약(ca_info_blob) {
             result = add_certs_data_to_store(trust_store,
                                              (const char *)ca_info_blob->data,
                                              ca_info_blob->len,
                                              "(memory blob)",
                                              data);
           }
-          else {
+          아니면 {
             result = add_certs_file_to_store(trust_store,
                                              conn_config->CAfile,
                                              data);
           }
-          if(result == CURLE_OK) {
-            if(Curl_schannel_set_cached_cert_store(cf, data, trust_store)) {
+          만약(result == CURLE_OK) {
+            만약(Curl_schannel_set_cached_cert_store(cf, data, trust_store)) {
               own_trust_store = NULL;
             }
           }
@@ -713,7 +713,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
       }
     }
 
-    if(result == CURLE_OK) {
+    만약(result == CURLE_OK) {
       struct cert_chain_engine_config_win8 engine_config;
       BOOL create_engine_result;
 
@@ -721,13 +721,13 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
       engine_config.hExclusiveRoot = trust_store;
 
       /* Win8/Server2012 allows us to match partial chains */
-      if(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
+      만약(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
                                       VERSION_GREATER_THAN_EQUAL) &&
          !conn_config->no_partialchain) {
         engine_config.cbSize = sizeof(engine_config);
         engine_config.dwExclusiveFlags = CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG;
       }
-      else
+      아니면
         engine_config.cbSize = sizeof(struct cert_chain_engine_config_win7);
 
       /* CertCreateCertificateChainEngine checks the expected size of the
@@ -738,7 +738,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
       create_engine_result =
         CertCreateCertificateChainEngine(
           (CERT_CHAIN_ENGINE_CONFIG *)&engine_config, &cert_chain_engine);
-      if(!create_engine_result) {
+      만약(!create_engine_result) {
         char buffer[WINAPI_ERROR_LEN];
         failf(data,
               "schannel: failed to create certificate chain engine: %s",
@@ -748,7 +748,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
     }
   }
 
-  if(result == CURLE_OK) {
+  만약(result == CURLE_OK) {
     CERT_CHAIN_PARA ChainPara;
     LPSTR serverAuthOID = CURL_UNCONST(szOID_PKIX_KP_SERVER_AUTH);
 
@@ -758,7 +758,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
     ChainPara.RequestedUsage.Usage.cUsageIdentifier = 1;
     ChainPara.RequestedUsage.Usage.rgpszUsageIdentifier = &serverAuthOID;
 
-    if(!CertGetCertificateChain(cert_chain_engine,
+    만약(!CertGetCertificateChain(cert_chain_engine,
                                 pCertContextServer,
                                 NULL,
                                 pCertContextServer->hCertStore,
@@ -774,12 +774,12 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    if(result == CURLE_OK) {
+    만약(result == CURLE_OK) {
       CERT_SIMPLE_CHAIN *pSimpleChain = pChainContext->rgpChain[0];
       DWORD dwTrustErrorMask = ~(DWORD)(CERT_TRUST_IS_NOT_TIME_NESTED);
       dwTrustErrorMask &= pSimpleChain->TrustStatus.dwErrorStatus;
 
-      if(conn_config->revoke_best_effort) {
+      만약(conn_config->revoke_best_effort) {
         /* Ignore errors when root certificates are missing the revocation
          * list URL, or when the list could not be downloaded because the
          * server is currently unreachable. */
@@ -787,48 +787,48 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
                                      CERT_TRUST_IS_OFFLINE_REVOCATION);
       }
 
-      if(dwTrustErrorMask) {
-        if(dwTrustErrorMask & CERT_TRUST_IS_REVOKED)
+      만약(dwTrustErrorMask) {
+        만약(dwTrustErrorMask & CERT_TRUST_IS_REVOKED)
           failf(data, "schannel: trust for this certificate or one of "
                 "the certificates in the certificate chain has been revoked");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_PARTIAL_CHAIN)
+        아니면 만약(dwTrustErrorMask & CERT_TRUST_IS_PARTIAL_CHAIN)
           failf(data, "schannel: the certificate chain is incomplete");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_UNTRUSTED_ROOT)
+        아니면 만약(dwTrustErrorMask & CERT_TRUST_IS_UNTRUSTED_ROOT)
           failf(data, "schannel: the certificate or certificate chain is "
                 "based on an untrusted root");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_NOT_TIME_VALID)
+        아니면 만약(dwTrustErrorMask & CERT_TRUST_IS_NOT_TIME_VALID)
           failf(data, "schannel: this certificate or one of the certificates "
                 "in the certificate chain is not time valid");
-        else if(dwTrustErrorMask & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
+        아니면 만약(dwTrustErrorMask & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
           failf(data, "schannel: the revocation status is unknown");
-        else
+        아니면
           failf(data, "schannel: error 0x%08lx", dwTrustErrorMask);
         result = CURLE_PEER_FAILED_VERIFICATION;
       }
     }
   }
 
-  if(result == CURLE_OK) {
-    if(conn_config->verifyhost) {
+  만약(result == CURLE_OK) {
+    만약(conn_config->verifyhost) {
       result = Curl_verify_host(cf, data);
     }
   }
 
-  if(cert_chain_engine) {
+  만약(cert_chain_engine) {
     CertFreeCertificateChainEngine(cert_chain_engine);
   }
 
-  if(own_trust_store) {
+  만약(own_trust_store) {
     CertCloseStore(own_trust_store, 0);
   }
 
-  if(pChainContext)
+  만약(pChainContext)
     CertFreeCertificateChain(pChainContext);
 
-  if(pCertContextServer)
+  만약(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  반환 result;
 }
 
 #endif /* USE_SCHANNEL */

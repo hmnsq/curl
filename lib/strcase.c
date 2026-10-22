@@ -76,12 +76,12 @@ const unsigned char Curl_tolowermap[256] = {
  */
 void Curl_strntoupper(char *dest, const char *src, size_t n)
 {
-  if(n < 1)
-    return;
+  만약(n < 1)
+    반환;
 
   do {
     *dest++ = Curl_raw_toupper(*src);
-  } while(*src++ && --n);
+  } 동안(*src++ && --n);
 }
 
 /* Copy a lower case version of the string from src to dest. The
@@ -91,12 +91,12 @@ void Curl_strntoupper(char *dest, const char *src, size_t n)
  */
 void Curl_strntolower(char *dest, const char *src, size_t n)
 {
-  if(n < 1)
-    return;
+  만약(n < 1)
+    반환;
 
   do {
     *dest++ = Curl_raw_tolower(*src);
-  } while(*src++ && --n);
+  } 동안(*src++ && --n);
 }
 
 /* Compare case-sensitive null-terminated strings, taking care of possible
@@ -104,29 +104,29 @@ void Curl_strntolower(char *dest, const char *src, size_t n)
  */
 bool Curl_safecmp(const char *a, const char *b)
 {
-  if(a && b)
-    return !strcmp(a, b);
-  return !a && !b;
+  만약(a && b)
+    반환 !strcmp(a, b);
+  반환 !a && !b;
 }
 
 /*
  * Curl_timestrcmp() returns 0 if the two strings are identical. The time this
  * function spends is a function of the shortest string, not of the contents.
  */
-int Curl_timestrcmp(const char *a, const char *b)
+정수 Curl_timestrcmp(const char *a, const char *b)
 {
-  int match = 0;
-  int i = 0;
+  정수 match = 0;
+  정수 i = 0;
 
-  if(a && b) {
-    while(1) {
+  만약(a && b) {
+    동안(1) {
       match |= a[i] ^ b[i];
-      if(!a[i] || !b[i])
+      만약(!a[i] || !b[i])
         break;
       i++;
     }
   }
-  else
-    return a || b;
-  return match;
+  아니면
+    반환 a || b;
+  반환 match;
 }

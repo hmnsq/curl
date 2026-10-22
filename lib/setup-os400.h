@@ -51,18 +51,18 @@
 
 #ifdef BUILDING_LIBCURL
 
-extern int Curl_getaddrinfo_a(const char *nodename,
+extern 정수 Curl_getaddrinfo_a(const char *nodename,
                               const char *servname,
                               const struct addrinfo *hints,
                               struct addrinfo **res);
 #define getaddrinfo             Curl_getaddrinfo_a
 
 /* Note socklen_t must be used as this is declared before curl_socklen_t */
-extern int Curl_getnameinfo_a(const struct sockaddr *sa,
+extern 정수 Curl_getnameinfo_a(const struct sockaddr *sa,
                               socklen_t salen,
                               char *nodename, socklen_t nodenamelen,
                               char *servname, socklen_t servnamelen,
-                              int flags);
+                              정수 flags);
 #define getnameinfo             Curl_getnameinfo_a
 
 /* GSSAPI wrappers. */
@@ -75,7 +75,7 @@ extern OM_uint32 Curl_gss_import_name_a(OM_uint32 *minor_status,
 
 extern OM_uint32 Curl_gss_display_status_a(OM_uint32 *minor_status,
                                            OM_uint32 status_value,
-                                           int status_type, gss_OID mech_type,
+                                           정수 status_type, gss_OID mech_type,
                                            gss_msg_ctx_t *message_context,
                                            gss_buffer_t status_string);
 #define gss_display_status      Curl_gss_display_status_a
@@ -118,14 +118,14 @@ extern OM_uint32 Curl_gss_delete_sec_context_a(OM_uint32 *minor_status,
 /* Some socket functions must be wrapped to process textual addresses
    like AF_UNIX. */
 
-extern int Curl_os400_connect(int sd, struct sockaddr *destaddr, int addrlen);
-extern int Curl_os400_bind(int sd, struct sockaddr *localaddr, int addrlen);
-extern int Curl_os400_sendto(int sd, char *buffer, int buflen, int flags,
-                             const struct sockaddr *dstaddr, int addrlen);
-extern int Curl_os400_recvfrom(int sd, char *buffer, int buflen, int flags,
-                               struct sockaddr *fromaddr, int *addrlen);
-extern int Curl_os400_getpeername(int sd, struct sockaddr *addr, int *addrlen);
-extern int Curl_os400_getsockname(int sd, struct sockaddr *addr, int *addrlen);
+extern 정수 Curl_os400_connect(정수 sd, struct sockaddr *destaddr, 정수 addrlen);
+extern 정수 Curl_os400_bind(정수 sd, struct sockaddr *localaddr, 정수 addrlen);
+extern 정수 Curl_os400_sendto(정수 sd, char *buffer, 정수 buflen, 정수 flags,
+                             const struct sockaddr *dstaddr, 정수 addrlen);
+extern 정수 Curl_os400_recvfrom(정수 sd, char *buffer, 정수 buflen, 정수 flags,
+                               struct sockaddr *fromaddr, 정수 *addrlen);
+extern 정수 Curl_os400_getpeername(정수 sd, struct sockaddr *addr, 정수 *addrlen);
+extern 정수 Curl_os400_getsockname(정수 sd, struct sockaddr *addr, 정수 *addrlen);
 
 #define connect                 Curl_os400_connect
 #define bind                    Curl_os400_bind

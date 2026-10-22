@@ -102,7 +102,7 @@ void Curl_httpchunk_free(struct Curl_easy *data, struct Curl_chunker *ch)
 bool Curl_httpchunk_is_done(struct Curl_easy *data, struct Curl_chunker *ch)
 {
   (void)data;
-  return ch->state == CHUNK_DONE;
+  반환 ch->state == CHUNK_DONE;
 }
 
 static CURLcode httpchunk_readwrite(struct Curl_easy *data,
@@ -116,59 +116,59 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
 
   *pconsumed = 0; /* nothing's written yet */
   /* first check terminal states that will not progress anywhere */
-  if(ch->state == CHUNK_DONE)
-    return CURLE_OK;
-  if(ch->state == CHUNK_FAILED)
-    return CURLE_RECV_ERROR;
+  만약(ch->state == CHUNK_DONE)
+    반환 CURLE_OK;
+  만약(ch->state == CHUNK_FAILED)
+    반환 CURLE_RECV_ERROR;
 
   /* the original data is written to the client, but we go on with the
      chunk read process, to properly calculate the content length */
-  if(data->set.http_te_skip && !ch->ignore_body) {
-    if(cw_next)
+  만약(data->set.http_te_skip && !ch->ignore_body) {
+    만약(cw_next)
       result = Curl_cwriter_write(data, cw_next, CLIENTWRITE_BODY, buf, blen);
-    else
+    아니면
       result = Curl_client_write(data, CLIENTWRITE_BODY, buf, blen);
-    if(result) {
+    만약(result) {
       ch->state = CHUNK_FAILED;
       ch->last_code = CHUNKE_PASSTHRU_ERROR;
-      return result;
+      반환 result;
     }
   }
 
-  while(blen) {
+  동안(blen) {
     switch(ch->state) {
     case CHUNK_HEX:
-      if(ISXDIGIT(*buf)) {
-        if(ch->hexindex >= CHUNK_MAXNUM_LEN) {
+      만약(ISXDIGIT(*buf)) {
+        만약(ch->hexindex >= CHUNK_MAXNUM_LEN) {
           failf(data, "chunk hex-length longer than %d", CHUNK_MAXNUM_LEN);
           ch->state = CHUNK_FAILED;
           ch->last_code = CHUNKE_TOO_LONG_HEX; /* longer than we support */
-          return CURLE_RECV_ERROR;
+          반환 CURLE_RECV_ERROR;
         }
         ch->hexbuffer[ch->hexindex++] = *buf;
         buf++;
         blen--;
         (*pconsumed)++;
       }
-      else {
+      아니면 {
         const char *p;
-        if(ch->hexindex == 0) {
+        만약(ch->hexindex == 0) {
           /* This is illegal data, we received junk where we expected
              a hexadecimal digit. */
           failf(data, "chunk hex-length char not a hex digit: 0x%x",
-                (unsigned int)*buf);
+                (unsigned 정수)*buf);
           ch->state = CHUNK_FAILED;
           ch->last_code = CHUNKE_ILLEGAL_HEX;
-          return CURLE_RECV_ERROR;
+          반환 CURLE_RECV_ERROR;
         }
         /* blen and buf are unmodified */
         ch->hexbuffer[ch->hexindex] = 0;
         p = &ch->hexbuffer[0];
-        if(curlx_str_hex(&p, &ch->datasize, CURL_OFF_T_MAX)) {
+        만약(curlx_str_hex(&p, &ch->datasize, CURL_OFF_T_MAX)) {
           failf(data, "invalid chunk size: '%s'", ch->hexbuffer);
           ch->state = CHUNK_FAILED;
           ch->last_code = CHUNKE_ILLEGAL_HEX;
-          return CURLE_RECV_ERROR;
+          반환 CURLE_RECV_ERROR;
         }
         ch->state = CHUNK_LF; /* now wait for the CRLF */
       }
@@ -176,12 +176,12 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
 
     case CHUNK_LF:
       /* waiting for the LF after a chunk size */
-      if(*buf == 0x0a) {
+      만약(*buf == 0x0a) {
         /* we are now expecting data to come, unless size was zero! */
-        if(ch->datasize == 0) {
+        만약(ch->datasize == 0) {
           ch->state = CHUNK_TRAILER; /* now check for trailers */
         }
-        else {
+        아니면 {
           ch->state = CHUNK_DATA;
           CURL_TRC_WRITE(data, "http_chunked, chunk start of %"
                          FMT_OFF_T " bytes", ch->datasize);
@@ -197,20 +197,20 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
       /* We expect 'datasize' of data. We have 'blen' right now, it can be
          more or less than 'datasize'. Get the smallest piece. */
       piece = blen;
-      if(ch->datasize < (curl_off_t)blen)
+      만약(ch->datasize < (curl_off_t)blen)
         piece = curlx_sotouz(ch->datasize);
 
       /* Write the data portion available */
-      if(!data->set.http_te_skip && !ch->ignore_body) {
-        if(cw_next)
+      만약(!data->set.http_te_skip && !ch->ignore_body) {
+        만약(cw_next)
           result = Curl_cwriter_write(data, cw_next, CLIENTWRITE_BODY,
                                       buf, piece);
-        else
+        아니면
           result = Curl_client_write(data, CLIENTWRITE_BODY, buf, piece);
-        if(result) {
+        만약(result) {
           ch->state = CHUNK_FAILED;
           ch->last_code = CHUNKE_PASSTHRU_ERROR;
-          return result;
+          반환 result;
         }
       }
 
@@ -222,20 +222,20 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
                      FMT_OFF_T " bytes in chunk remain",
                      piece, ch->datasize);
 
-      if(ch->datasize == 0)
+      만약(ch->datasize == 0)
         /* end of data this round, we now expect a trailing CRLF */
         ch->state = CHUNK_POSTLF;
       break;
 
     case CHUNK_POSTLF:
-      if(*buf == 0x0a) {
+      만약(*buf == 0x0a) {
         /* The last one before we go back to hex state and start all over. */
         Curl_httpchunk_reset(data, ch, (bool)ch->ignore_body);
       }
-      else if(*buf != 0x0d) {
+      아니면 만약(*buf != 0x0d) {
         ch->state = CHUNK_FAILED;
         ch->last_code = CHUNKE_BAD_CHUNK;
-        return CURLE_RECV_ERROR;
+        반환 CURLE_RECV_ERROR;
       }
       buf++;
       blen--;
@@ -243,18 +243,18 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
       break;
 
     case CHUNK_TRAILER:
-      if((*buf == 0x0d) || (*buf == 0x0a)) {
+      만약((*buf == 0x0d) || (*buf == 0x0a)) {
         const char *tr = curlx_dyn_ptr(&ch->trailer);
         /* this is the end of a trailer, but if the trailer was zero bytes
            there was no trailer and we move on */
 
-        if(tr) {
+        만약(tr) {
           size_t trlen;
           result = curlx_dyn_addn(&ch->trailer, STRCONST("\x0d\x0a"));
-          if(result) {
+          만약(result) {
             ch->state = CHUNK_FAILED;
             ch->last_code = CHUNKE_OUT_OF_MEMORY;
-            return result;
+            반환 result;
           }
           tr = curlx_dyn_ptr(&ch->trailer);
           trlen = curlx_dyn_len(&ch->trailer);
@@ -262,51 +262,51 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
           /* a trailer is delivered to the client as a header, so it must pass
              the same checks as a regular response header */
           result = Curl_verify_header(data, tr, trlen);
-          if(result) {
+          만약(result) {
             ch->state = CHUNK_FAILED;
             ch->last_code = CHUNKE_BAD_CHUNK;
-            return result;
+            반환 result;
           }
 
-          if(!data->set.http_te_skip) {
-            int hd_type = CLIENTWRITE_HEADER | CLIENTWRITE_TRAILER;
-            if(ch->in_connect)
+          만약(!data->set.http_te_skip) {
+            정수 hd_type = CLIENTWRITE_HEADER | CLIENTWRITE_TRAILER;
+            만약(ch->in_connect)
               hd_type |= CLIENTWRITE_CONNECT;
-            if(cw_next)
+            만약(cw_next)
               result = Curl_cwriter_write(data, cw_next, hd_type, tr, trlen);
-            else
+            아니면
               result = Curl_client_write(data, hd_type, tr, trlen);
             CURL_TRC_WRITE(data, "wrote trailer '%s'", tr);
-            if(result) {
+            만약(result) {
               ch->state = CHUNK_FAILED;
               ch->last_code = CHUNKE_PASSTHRU_ERROR;
-              return result;
+              반환 result;
             }
             result = Curl_bump_headersize(data, trlen, FALSE);
-            if(result) {
+            만약(result) {
               ch->state = CHUNK_FAILED;
               ch->last_code = CHUNKE_TRAILER_LIMIT;
-              return result;
+              반환 result;
             }
           }
           curlx_dyn_reset(&ch->trailer);
           ch->state = CHUNK_TRAILER_CR;
-          if(*buf == 0x0a)
+          만약(*buf == 0x0a)
             /* already on the LF */
             break;
         }
-        else {
+        아니면 {
           /* no trailer, we are on the final CRLF pair */
           ch->state = CHUNK_TRAILER_POSTCR;
           break; /* do not advance the pointer */
         }
       }
-      else {
+      아니면 {
         result = curlx_dyn_addn(&ch->trailer, buf, 1);
-        if(result) {
+        만약(result) {
           ch->state = CHUNK_FAILED;
           ch->last_code = CHUNKE_OUT_OF_MEMORY;
-          return result;
+          반환 result;
         }
       }
       buf++;
@@ -315,28 +315,28 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
       break;
 
     case CHUNK_TRAILER_CR:
-      if(*buf == 0x0a) {
+      만약(*buf == 0x0a) {
         ch->state = CHUNK_TRAILER_POSTCR;
         buf++;
         blen--;
         (*pconsumed)++;
       }
-      else {
+      아니면 {
         ch->state = CHUNK_FAILED;
         ch->last_code = CHUNKE_BAD_CHUNK;
-        return CURLE_RECV_ERROR;
+        반환 CURLE_RECV_ERROR;
       }
       break;
 
     case CHUNK_TRAILER_POSTCR:
       /* We enter this state when a CR should arrive so we expect to
          have to first pass a CR before we wait for LF */
-      if((*buf != 0x0d) && (*buf != 0x0a)) {
+      만약((*buf != 0x0d) && (*buf != 0x0a)) {
         /* not a CR then it must be another header in the trailer */
         ch->state = CHUNK_TRAILER;
         break;
       }
-      if(*buf == 0x0d) {
+      만약(*buf == 0x0d) {
         /* skip if CR */
         buf++;
         blen--;
@@ -347,7 +347,7 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
       break;
 
     case CHUNK_STOP:
-      if(*buf == 0x0a) {
+      만약(*buf == 0x0a) {
         blen--;
         (*pconsumed)++;
         /* Record the length of any data left in the end of the buffer
@@ -355,44 +355,44 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
         ch->datasize = blen;
         ch->state = CHUNK_DONE;
         CURL_TRC_WRITE(data, "http_chunk, response complete");
-        return CURLE_OK;
+        반환 CURLE_OK;
       }
-      else {
+      아니면 {
         ch->state = CHUNK_FAILED;
         ch->last_code = CHUNKE_BAD_CHUNK;
         CURL_TRC_WRITE(data, "http_chunk error, expected 0x0a, seeing 0x%ux",
-                       (unsigned int)*buf);
-        return CURLE_RECV_ERROR;
+                       (unsigned 정수)*buf);
+        반환 CURLE_RECV_ERROR;
       }
     case CHUNK_DONE:
-      return CURLE_OK;
+      반환 CURLE_OK;
 
     case CHUNK_FAILED:
-      return CURLE_RECV_ERROR;
+      반환 CURLE_RECV_ERROR;
     }
   }
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static const char *Curl_chunked_strerror(CHUNKcode code)
 {
   switch(code) {
   default:
-    return "OK";
+    반환 "OK";
   case CHUNKE_TOO_LONG_HEX:
-    return "Too long hexadecimal number";
+    반환 "Too long hexadecimal number";
   case CHUNKE_ILLEGAL_HEX:
-    return "Illegal or missing hexadecimal sequence";
+    반환 "Illegal or missing hexadecimal sequence";
   case CHUNKE_BAD_CHUNK:
-    return "Malformed encoding found";
+    반환 "Malformed encoding found";
   case CHUNKE_PASSTHRU_ERROR:
-    return "Error writing data to client";
+    반환 "Error writing data to client";
   case CHUNKE_BAD_ENCODING:
-    return "Bad content-encoding found";
+    반환 "Bad content-encoding found";
   case CHUNKE_OUT_OF_MEMORY:
-    return "Out of memory";
+    반환 "Out of memory";
   case CHUNKE_TRAILER_LIMIT:
-    return "trailers exceeded header limit";
+    반환 "trailers exceeded header limit";
   }
 }
 
@@ -401,7 +401,7 @@ CURLcode Curl_httpchunk_read(struct Curl_easy *data,
                              char *buf, size_t blen,
                              size_t *pconsumed)
 {
-  return httpchunk_readwrite(data, ch, NULL, buf, blen, pconsumed);
+  반환 httpchunk_readwrite(data, ch, NULL, buf, blen, pconsumed);
 }
 
 struct chunked_writer {
@@ -416,7 +416,7 @@ static CURLcode cw_chunked_init(struct Curl_easy *data,
 
   data->req.chunk = TRUE;      /* chunks coming our way. */
   Curl_httpchunk_init(data, &ctx->ch, FALSE, FALSE);
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static void cw_chunked_close(struct Curl_easy *data,
@@ -427,45 +427,45 @@ static void cw_chunked_close(struct Curl_easy *data,
 }
 
 static CURLcode cw_chunked_write(struct Curl_easy *data,
-                                 struct Curl_cwriter *writer, int type,
+                                 struct Curl_cwriter *writer, 정수 type,
                                  const char *buf, size_t blen)
 {
   struct chunked_writer *ctx = writer->ctx;
   CURLcode result;
   size_t consumed;
 
-  if(!(type & CLIENTWRITE_BODY))
-    return Curl_cwriter_write(data, writer->next, type, buf, blen);
+  만약(!(type & CLIENTWRITE_BODY))
+    반환 Curl_cwriter_write(data, writer->next, type, buf, blen);
 
   consumed = 0;
   result = httpchunk_readwrite(data, &ctx->ch, writer->next, buf, blen,
                                &consumed);
 
-  if(result) {
-    if(CHUNKE_PASSTHRU_ERROR == ctx->ch.last_code) {
+  만약(result) {
+    만약(CHUNKE_PASSTHRU_ERROR == ctx->ch.last_code) {
       failf(data, "Failed reading the chunked-encoded stream");
     }
-    else {
+    아니면 {
       failf(data, "%s in chunked-encoding",
             Curl_chunked_strerror(ctx->ch.last_code));
     }
-    return result;
+    반환 result;
   }
 
   blen -= consumed;
-  if(CHUNK_DONE == ctx->ch.state) {
+  만약(CHUNK_DONE == ctx->ch.state) {
     /* chunks read successfully, download is complete */
     data->req.download_done = TRUE;
-    if(blen) {
+    만약(blen) {
       infof(data, "Leftovers after chunking: %zu bytes", blen);
     }
   }
-  else if((type & CLIENTWRITE_EOS) && !data->req.no_body) {
+  아니면 만약((type & CLIENTWRITE_EOS) && !data->req.no_body) {
     failf(data, "transfer closed with outstanding read data remaining");
-    return CURLE_PARTIAL_FILE;
+    반환 CURLE_PARTIAL_FILE;
   }
 
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 /* HTTP chunked Transfer-Encoding decoder */
@@ -497,7 +497,7 @@ static CURLcode cr_chunked_init(struct Curl_easy *data,
   struct chunked_reader *ctx = reader->ctx;
   (void)data;
   Curl_bufq_init2(&ctx->chunkbuf, CURL_CHUNKED_MAXLEN, 2, BUFQ_OPT_SOFT_LIMIT);
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static void cr_chunked_close(struct Curl_easy *data,
@@ -515,15 +515,15 @@ static CURLcode add_last_chunk(struct Curl_easy *data,
   struct curl_slist *trailers = NULL, *tr;
   CURLcode result;
   size_t n;
-  int rc;
+  정수 rc;
 
-  if(!data->set.trailer_callback) {
+  만약(!data->set.trailer_callback) {
     CURL_TRC_READ(data, "http_chunk, added last, empty chunk");
-    return Curl_bufq_cwrite(&ctx->chunkbuf, STRCONST("0\r\n\r\n"), &n);
+    반환 Curl_bufq_cwrite(&ctx->chunkbuf, STRCONST("0\r\n\r\n"), &n);
   }
 
   result = Curl_bufq_cwrite(&ctx->chunkbuf, STRCONST("0\r\n"), &n);
-  if(result)
+  만약(result)
     goto out;
 
   {
@@ -533,24 +533,24 @@ static CURLcode add_last_chunk(struct Curl_easy *data,
     CURL_CBAPI_END(&guard);
   }
 
-  if(rc != CURL_TRAILERFUNC_OK) {
+  만약(rc != CURL_TRAILERFUNC_OK) {
     failf(data, "operation aborted by trailing headers callback");
     result = CURLE_ABORTED_BY_CALLBACK;
     goto out;
   }
 
-  for(tr = trailers; tr; tr = tr->next) {
+  위해(tr = trailers; tr; tr = tr->next) {
     /* only add correctly formatted trailers */
     const char *ptr = strchr(tr->data, ':');
-    if(!ptr || *(ptr + 1) != ' ') {
+    만약(!ptr || *(ptr + 1) != ' ') {
       infof(data, "Malformatted trailing header, skipping trailer");
       continue;
     }
 
     result = Curl_bufq_cwrite(&ctx->chunkbuf, tr->data, strlen(tr->data), &n);
-    if(!result)
+    만약(!result)
       result = Curl_bufq_cwrite(&ctx->chunkbuf, STRCONST("\r\n"), &n);
-    if(result)
+    만약(result)
       goto out;
   }
 
@@ -559,8 +559,8 @@ static CURLcode add_last_chunk(struct Curl_easy *data,
 out:
   curl_slist_free_all(trailers);
   CURL_TRC_READ(data, "http_chunk, added last chunk with trailers "
-                "from client -> %d", (int)result);
-  return result;
+                "from client -> %d", (정수)result);
+  반환 result;
 }
 
 static CURLcode add_chunk(struct Curl_easy *data,
@@ -575,46 +575,46 @@ static CURLcode add_chunk(struct Curl_easy *data,
 
   DEBUGASSERT(!ctx->read_eos);
   blen = CURLMIN(blen, CURL_CHUNKED_MAXLEN); /* respect our buffer pref */
-  if(blen < sizeof(tmp)) {
+  만약(blen < sizeof(tmp)) {
     /* small read, make a chunk of decent size */
     buf = tmp;
     blen = sizeof(tmp);
   }
-  else {
+  아니면 {
     /* larger read, make a chunk that will fit when read back */
     blen -= (8 + 2 + 2); /* deduct max overhead, 8 hex + 2*crlf */
   }
 
   result = Curl_creader_read(data, reader->next, buf, blen, &nread, &eos);
-  if(result)
-    return result;
-  if(eos)
+  만약(result)
+    반환 result;
+  만약(eos)
     ctx->read_eos = TRUE;
 
-  if(nread) {
+  만약(nread) {
     /* actually got bytes, wrap them into the chunkbuf */
     char hd[11] = "";
-    int hdlen;
+    정수 hdlen;
     size_t n;
 
     hdlen = curl_msnprintf(hd, sizeof(hd), "%zx\r\n", nread);
-    if(hdlen <= 0)
-      return CURLE_READ_ERROR;
+    만약(hdlen <= 0)
+      반환 CURLE_READ_ERROR;
     /* On a soft-limited bufq, we do not need to check that all was written */
     result = Curl_bufq_cwrite(&ctx->chunkbuf, hd, hdlen, &n);
-    if(!result)
+    만약(!result)
       result = Curl_bufq_cwrite(&ctx->chunkbuf, buf, nread, &n);
-    if(!result)
+    만약(!result)
       result = Curl_bufq_cwrite(&ctx->chunkbuf, "\r\n", 2, &n);
     CURL_TRC_READ(data, "http_chunk, made chunk of %zu bytes -> %d",
-                  nread, (int)result);
-    if(result)
-      return result;
+                  nread, (정수)result);
+    만약(result)
+      반환 result;
   }
 
-  if(ctx->read_eos)
-    return add_last_chunk(data, reader);
-  return CURLE_OK;
+  만약(ctx->read_eos)
+    반환 add_last_chunk(data, reader);
+  반환 CURLE_OK;
 }
 
 static CURLcode cr_chunked_read(struct Curl_easy *data,
@@ -628,27 +628,27 @@ static CURLcode cr_chunked_read(struct Curl_easy *data,
   *pnread = 0;
   *peos = (bool)ctx->eos;
 
-  if(!ctx->eos) {
-    if(!ctx->read_eos && Curl_bufq_is_empty(&ctx->chunkbuf)) {
+  만약(!ctx->eos) {
+    만약(!ctx->read_eos && Curl_bufq_is_empty(&ctx->chunkbuf)) {
       /* Still getting data form the next reader, buffer is empty */
       result = add_chunk(data, reader, buf, blen);
-      if(result)
-        return result;
+      만약(result)
+        반환 result;
     }
 
-    if(!Curl_bufq_is_empty(&ctx->chunkbuf)) {
+    만약(!Curl_bufq_is_empty(&ctx->chunkbuf)) {
       result = Curl_bufq_cread(&ctx->chunkbuf, buf, blen, pnread);
-      if(!result && ctx->read_eos && Curl_bufq_is_empty(&ctx->chunkbuf)) {
+      만약(!result && ctx->read_eos && Curl_bufq_is_empty(&ctx->chunkbuf)) {
         /* no more data, read all, done. */
         ctx->eos = TRUE;
         *peos = TRUE;
       }
-      return result;
+      반환 result;
     }
   }
   /* We may get here, because we are done or because callbacks paused */
   DEBUGASSERT(ctx->eos || !ctx->read_eos);
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static curl_off_t cr_chunked_total_length(struct Curl_easy *data,
@@ -657,7 +657,7 @@ static curl_off_t cr_chunked_total_length(struct Curl_easy *data,
   /* this reader changes length depending on input */
   (void)data;
   (void)reader;
-  return -1;
+  반환 -1;
 }
 
 /* HTTP chunked Transfer-Encoding encoder */
@@ -682,12 +682,12 @@ CURLcode Curl_httpchunk_add_reader(struct Curl_easy *data)
 
   result = Curl_creader_create(&reader, data, &Curl_httpchunk_encoder,
                                CURL_CR_TRANSFER_ENCODE);
-  if(!result)
+  만약(!result)
     result = Curl_creader_add(data, reader);
 
-  if(result && reader)
+  만약(result && reader)
     Curl_creader_free(data, reader);
-  return result;
+  반환 result;
 }
 
 #endif /* CURL_DISABLE_HTTP */

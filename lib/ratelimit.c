@@ -37,18 +37,18 @@ static void rlimit_update(struct Curl_rlimit *r,
   int64_t token_gain;
 
   DEBUGASSERT(r->rate_per_step);
-  if((r->ts.tv_sec == pts->tv_sec) && (r->ts.tv_usec == pts->tv_usec))
-    return;
+  만약((r->ts.tv_sec == pts->tv_sec) && (r->ts.tv_usec == pts->tv_usec))
+    반환;
 
   elapsed_us = curlx_ptimediff_us(pts, &r->ts);
-  if(elapsed_us < 0) { /* not going back in time */
+  만약(elapsed_us < 0) { /* not going back in time */
     DEBUGASSERT(0);
-    return;
+    반환;
   }
 
   elapsed_us += r->spare_us;
-  if(elapsed_us < r->step_us)
-    return;
+  만약(elapsed_us < r->step_us)
+    반환;
 
   /* we do the update */
   r->ts = *pts;
@@ -56,20 +56,20 @@ static void rlimit_update(struct Curl_rlimit *r,
   r->spare_us = elapsed_us % r->step_us;
 
   /* How many tokens did we gain since the last update? */
-  if(r->rate_per_step > (INT64_MAX / elapsed_steps))
+  만약(r->rate_per_step > (INT64_MAX / elapsed_steps))
     token_gain = INT64_MAX;
-  else {
+  아니면 {
     token_gain = r->rate_per_step * elapsed_steps;
   }
 
-  if((INT64_MAX - token_gain) > r->tokens)
+  만약((INT64_MAX - token_gain) > r->tokens)
     r->tokens += token_gain;
-  else
+  아니면
     r->tokens = INT64_MAX;
 
   /* Limit the token again by the burst rate (if set), so we
    * do not suddenly have a huge number of tokens after inactivity. */
-  if(r->burst_per_step && (r->tokens > r->burst_per_step)) {
+  만약(r->burst_per_step && (r->tokens > r->burst_per_step)) {
     r->tokens = r->burst_per_step;
   }
 }
@@ -98,16 +98,16 @@ static void rlimit_tune_steps(struct Curl_rlimit *r,
    * 1 percent of the total tokens (at least 1). The rest of the tokens
    * are to be consumed in the steps before by adjusting the duration of
    * the step and the amount of tokens it provides. */
-  if(!r->rate_per_step ||
+  만약(!r->rate_per_step ||
      (tokens_total <= 1) ||
      (tokens_total > (INT64_MAX / 1000)))
-    return;
+    반환;
 
   /* Calculate tokens for the last step and the ones before. */
   tokens_last = tokens_total / 100;
-  if(!tokens_last) /* less than 100 total, use 1 */
+  만약(!tokens_last) /* less than 100 total, use 1 */
     tokens_last = 1;
-  else if(tokens_last > CURL_RLIMIT_MIN_RATE)
+  아니면 만약(tokens_last > CURL_RLIMIT_MIN_RATE)
     tokens_last = CURL_RLIMIT_MIN_RATE;
   DEBUGASSERT(tokens_last);
   tokens_main = tokens_total - tokens_last;
@@ -118,32 +118,32 @@ static void rlimit_tune_steps(struct Curl_rlimit *r,
   DEBUGASSERT(r->step_us == CURL_US_PER_SEC);
 
   msteps = (tokens_main * 1000 / r->rate_per_step);
-  if(msteps < CURL_RLIMIT_STEP_MIN_MS) {
+  만약(msteps < CURL_RLIMIT_STEP_MIN_MS) {
     /* Steps this small will not work. Do not tune. */
-    return;
+    반환;
   }
-  else if(msteps < 1000) {
+  아니면 만약(msteps < 1000) {
     /* It needs less than one step to provide the needed tokens.
      * Make it exactly that long and with exactly those tokens. */
     r->step_us = (timediff_t)msteps * 1000;
     r->rate_per_step = tokens_main;
     r->tokens = r->rate_per_step;
   }
-  else {
+  아니면 {
     /* More than 1 step. Spread the remainder milli steps and
      * the tokens they need to provide across all steps. If integer
      * arithmetic can do it. */
     curl_off_t ms_unaccounted = (msteps % 1000);
     curl_off_t mstep_inc = (ms_unaccounted / (msteps / 1000));
-    if(mstep_inc) {
+    만약(mstep_inc) {
       curl_off_t rate_inc = ((r->rate_per_step * mstep_inc) / 1000);
-      if(rate_inc) {
+      만약(rate_inc) {
         r->step_us = CURL_US_PER_SEC + ((timediff_t)mstep_inc * 1000);
         r->rate_per_step += rate_inc;
         r->tokens = r->rate_per_step;
-        if(r->burst_per_step) {
+        만약(r->burst_per_step) {
           curl_off_t burst_inc = ((r->burst_per_step * mstep_inc) / 1000);
-          if(burst_inc)
+          만약(burst_inc)
             r->burst_per_step += burst_inc;
         }
       }
@@ -178,7 +178,7 @@ void Curl_rlimit_change(struct Curl_rlimit *r,
   r->burst_per_step = r->burst_per_sec = burst_per_sec;
   r->step_us = CURL_US_PER_SEC;
   r->spare_us = 0;
-  if(r->tokens > r->rate_per_step)
+  만약(r->tokens > r->rate_per_step)
     r->tokens = r->rate_per_step;
   /* ts and blocked stay as they are, a paused transfer stays paused */
 }
@@ -199,17 +199,17 @@ void Curl_rlimit_start(struct Curl_rlimit *r, const struct curltime *pts,
 
 int64_t Curl_rlimit_per_step(struct Curl_rlimit *r)
 {
-  return r->rate_per_step;
+  반환 r->rate_per_step;
 }
 
 bool Curl_rlimit_active(struct Curl_rlimit *r)
 {
-  return (r->rate_per_step > 0) || r->blocked;
+  반환 (r->rate_per_step > 0) || r->blocked;
 }
 
 bool Curl_rlimit_is_blocked(struct Curl_rlimit *r)
 {
-  return (bool)r->blocked;
+  반환 (bool)r->blocked;
 }
 
 int64_t Curl_rlimit_avail(struct Curl_rlimit *r,
@@ -217,18 +217,18 @@ int64_t Curl_rlimit_avail(struct Curl_rlimit *r,
 {
   struct curltime ts;
 
-  if(r->blocked)
-    return 0;
-  else if(r->rate_per_step) {
-    if(!pts) {
+  만약(r->blocked)
+    반환 0;
+  아니면 만약(r->rate_per_step) {
+    만약(!pts) {
       curlx_pnow(&ts);
       pts = &ts;
     }
     rlimit_update(r, pts);
-    return r->tokens;
+    반환 r->tokens;
   }
-  else
-    return INT64_MAX;
+  아니면
+    반환 INT64_MAX;
 }
 
 void Curl_rlimit_drain(struct Curl_rlimit *r, size_t tokens,
@@ -236,25 +236,25 @@ void Curl_rlimit_drain(struct Curl_rlimit *r, size_t tokens,
 {
   struct curltime ts;
 
-  if(r->blocked || !r->rate_per_step)
-    return;
+  만약(r->blocked || !r->rate_per_step)
+    반환;
 
-  if(!pts) {
+  만약(!pts) {
     curlx_pnow(&ts);
     pts = &ts;
   }
   rlimit_update(r, pts);
-#if 8 <= SIZEOF_SIZE_T
-  if(tokens > INT64_MAX) {
+#만약 8 <= SIZEOF_SIZE_T
+  만약(tokens > INT64_MAX) {
     r->tokens = INT64_MAX;
   }
-  else
+  아니면
 #endif
   {
     int64_t val = (int64_t)tokens;
-    if((INT64_MIN + val) < r->tokens)
+    만약((INT64_MIN + val) < r->tokens)
       r->tokens -= val;
-    else
+    아니면
       r->tokens = INT64_MIN;
   }
 }
@@ -264,58 +264,58 @@ timediff_t Curl_rlimit_wait_ms(struct Curl_rlimit *r,
 {
   timediff_t wait_us, elapsed_us;
 
-  if(r->blocked || !r->rate_per_step)
-    return 0;
+  만약(r->blocked || !r->rate_per_step)
+    반환 0;
   rlimit_update(r, pts);
-  if(r->tokens > 0)
-    return 0;
+  만약(r->tokens > 0)
+    반환 0;
 
   /* How much time will it take tokens to become positive again?
    * Deduct `spare_us` and check against already elapsed time */
   wait_us = r->step_us - r->spare_us;
-  if(r->tokens < 0) {
+  만약(r->tokens < 0) {
     curl_off_t debt_pct = ((-r->tokens) * 100 / r->rate_per_step);
-    if(debt_pct)
+    만약(debt_pct)
       wait_us += (r->step_us * debt_pct / 100);
   }
 
   elapsed_us = curlx_ptimediff_us(pts, &r->ts);
-  if(elapsed_us >= wait_us)
-    return 0;
+  만약(elapsed_us >= wait_us)
+    반환 0;
   wait_us -= elapsed_us;
-  return (wait_us + 999) / 1000; /* in milliseconds */
+  반환 (wait_us + 999) / 1000; /* in milliseconds */
 }
 
 timediff_t Curl_rlimit_next_step_ms(struct Curl_rlimit *r,
                                     const struct curltime *pts)
 {
-  if(!r->blocked && r->rate_per_step) {
+  만약(!r->blocked && r->rate_per_step) {
     timediff_t elapsed_us, next_us;
 
     elapsed_us = curlx_ptimediff_us(pts, &r->ts) + r->spare_us;
-    if(r->step_us > elapsed_us) {
+    만약(r->step_us > elapsed_us) {
       next_us = r->step_us - elapsed_us;
-      return (next_us + 999) / 1000; /* in milliseconds */
+      반환 (next_us + 999) / 1000; /* in milliseconds */
     }
   }
-  return 0;
+  반환 0;
 }
 
 void Curl_rlimit_block(struct Curl_rlimit *r,
                        bool activate,
                        const struct curltime *pts)
 {
-  if(!activate == !r->blocked)
-    return;
+  만약(!activate == !r->blocked)
+    반환;
 
   r->ts = *pts;
   r->blocked = activate;
-  if(!r->blocked) {
+  만약(!r->blocked) {
     /* Start rate limiting fresh. The amount of time this was blocked
      * does not generate extra tokens. */
     Curl_rlimit_start(r, pts, -1);
   }
-  else {
+  아니면 {
     r->tokens = 0;
   }
 }

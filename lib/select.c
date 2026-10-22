@@ -48,7 +48,7 @@
  *    0 = timeout
  *    N = number of signalled file descriptors
  */
-static int our_select(curl_socket_t maxfd,   /* highest socket number */
+static 정수 our_select(curl_socket_t maxfd,   /* highest socket number */
                       fd_set *fds_read,      /* sockets ready for reading */
                       fd_set *fds_write,     /* sockets ready for writing */
                       fd_set *fds_err,       /* sockets with errors */
@@ -59,11 +59,11 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
 
 #ifdef USE_WINSOCK
   /* Winsock select() cannot handle zero events. See the comment below. */
-  if((!fds_read || fds_read->fd_count == 0) &&
+  만약((!fds_read || fds_read->fd_count == 0) &&
      (!fds_write || fds_write->fd_count == 0) &&
      (!fds_err || fds_err->fd_count == 0)) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    반환 curlx_wait_ms(timeout_ms);
   }
 #endif
 
@@ -82,12 +82,12 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
      calling this an error. Luckily, with Winsock, we can _also_ ask how
      many bits are set on an fd_set. Therefore, let's check it beforehand.
    */
-  return select((int)maxfd + 1,
+  반환 select((정수)maxfd + 1,
                 fds_read && fds_read->fd_count ? fds_read : NULL,
                 fds_write && fds_write->fd_count ? fds_write : NULL,
                 fds_err && fds_err->fd_count ? fds_err : NULL, ptimeout);
-#else
-  return select((int)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
+#아니면
+  반환 select((정수)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
 #endif
 }
 
@@ -113,19 +113,19 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
  * CURL_CSELECT_OUT - write socket is writable
  * CURL_CSELECT_ERR - an error condition occurred
  */
-int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
+정수 Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
                       curl_socket_t readfd1,
                       curl_socket_t writefd, /* socket to write to */
                       timediff_t timeout_ms) /* milliseconds to wait */
 {
   struct pollfd pfd[3];
-  int num;
-  int r;
+  정수 num;
+  정수 r;
 
-  if((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
+  만약((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
      (writefd == CURL_SOCKET_BAD)) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    반환 curlx_wait_ms(timeout_ms);
   }
 
   /* Avoid initial timestamp, avoid curlx_now() call, when elapsed
@@ -134,53 +134,53 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
      value indicating a blocking call should be performed. */
 
   num = 0;
-  if(readfd0 != CURL_SOCKET_BAD) {
+  만약(readfd0 != CURL_SOCKET_BAD) {
     pfd[num].fd = readfd0;
     pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
     pfd[num].revents = 0;
     num++;
   }
-  if(readfd1 != CURL_SOCKET_BAD) {
+  만약(readfd1 != CURL_SOCKET_BAD) {
     pfd[num].fd = readfd1;
     pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
     pfd[num].revents = 0;
     num++;
   }
-  if(writefd != CURL_SOCKET_BAD) {
+  만약(writefd != CURL_SOCKET_BAD) {
     pfd[num].fd = writefd;
     pfd[num].events = POLLWRNORM | POLLOUT | POLLPRI;
     pfd[num].revents = 0;
     num++;
   }
 
-  r = Curl_poll(pfd, (unsigned int)num, timeout_ms);
-  if(r <= 0)
-    return r;
+  r = Curl_poll(pfd, (unsigned 정수)num, timeout_ms);
+  만약(r <= 0)
+    반환 r;
 
   r = 0;
   num = 0;
-  if(readfd0 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+  만약(readfd0 != CURL_SOCKET_BAD) {
+    만약(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
       r |= CURL_CSELECT_IN;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+    만약(pfd[num].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
     num++;
   }
-  if(readfd1 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+  만약(readfd1 != CURL_SOCKET_BAD) {
+    만약(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
       r |= CURL_CSELECT_IN2;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+    만약(pfd[num].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
     num++;
   }
-  if(writefd != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLWRNORM | POLLOUT))
+  만약(writefd != CURL_SOCKET_BAD) {
+    만약(pfd[num].revents & (POLLWRNORM | POLLOUT))
       r |= CURL_CSELECT_OUT;
-    if(pfd[num].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
+    만약(pfd[num].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
   }
 
-  return r;
+  반환 r;
 }
 
 /*
@@ -196,31 +196,31 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
+정수 Curl_poll(struct pollfd ufds[], unsigned 정수 nfds, timediff_t timeout_ms)
 {
 #ifdef HAVE_POLL
-  int pending_ms;
-#else
+  정수 pending_ms;
+#아니면
   fd_set fds_read;
   fd_set fds_write;
   fd_set fds_err;
   curl_socket_t maxfd;
 #endif
   bool fds_none = TRUE;
-  unsigned int i;
-  int r;
+  unsigned 정수 i;
+  정수 r;
 
-  if(ufds) {
-    for(i = 0; i < nfds; i++) {
-      if(ufds[i].fd != CURL_SOCKET_BAD) {
+  만약(ufds) {
+    위해(i = 0; i < nfds; i++) {
+      만약(ufds[i].fd != CURL_SOCKET_BAD) {
         fds_none = FALSE;
         break;
       }
     }
   }
-  if(fds_none) {
+  만약(fds_none) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    반환 curlx_wait_ms(timeout_ms);
   }
 
   /* Avoid initial timestamp, avoid curlx_now() call, when elapsed
@@ -231,54 +231,54 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
 #ifdef HAVE_POLL
 
   /* prevent overflow, timeout_ms is typecast to int. */
-#if TIMEDIFF_T_MAX > INT_MAX
-  if(timeout_ms > INT_MAX)
+#만약 TIMEDIFF_T_MAX > INT_MAX
+  만약(timeout_ms > INT_MAX)
     timeout_ms = INT_MAX;
 #endif
-  if(timeout_ms > 0)
-    pending_ms = (int)timeout_ms;
-  else if(timeout_ms < 0)
+  만약(timeout_ms > 0)
+    pending_ms = (정수)timeout_ms;
+  아니면 만약(timeout_ms < 0)
     pending_ms = -1;
-  else
+  아니면
     pending_ms = 0;
   r = poll(ufds, nfds, pending_ms);
-  if(r <= 0) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  만약(r <= 0) {
+    만약((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    return r;
+    반환 r;
   }
 
-  for(i = 0; i < nfds; i++) {
-    if(ufds[i].fd == CURL_SOCKET_BAD)
+  위해(i = 0; i < nfds; i++) {
+    만약(ufds[i].fd == CURL_SOCKET_BAD)
       continue;
-    if(ufds[i].revents & POLLHUP)
+    만약(ufds[i].revents & POLLHUP)
       ufds[i].revents |= POLLIN;
-    if(ufds[i].revents & POLLERR)
+    만약(ufds[i].revents & POLLERR)
       ufds[i].revents |= POLLIN | POLLOUT;
   }
 
-#else /* !HAVE_POLL */
+#아니면 /* !HAVE_POLL */
 
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_err);
   maxfd = (curl_socket_t)-1;
 
-  for(i = 0; i < nfds; i++) {
+  위해(i = 0; i < nfds; i++) {
     ufds[i].revents = 0;
-    if(ufds[i].fd == CURL_SOCKET_BAD)
+    만약(ufds[i].fd == CURL_SOCKET_BAD)
       continue;
     VERIFY_SOCK(ufds[i].fd);
-    if(ufds[i].events & (POLLIN | POLLOUT | POLLPRI |
+    만약(ufds[i].events & (POLLIN | POLLOUT | POLLPRI |
                          POLLRDNORM | POLLWRNORM | POLLRDBAND)) {
-      if(ufds[i].fd > maxfd)
+      만약(ufds[i].fd > maxfd)
         maxfd = ufds[i].fd;
-      if(ufds[i].events & (POLLRDNORM | POLLIN))
+      만약(ufds[i].events & (POLLRDNORM | POLLIN))
         FD_SET(ufds[i].fd, &fds_read);
-      if(ufds[i].events & (POLLWRNORM | POLLOUT))
+      만약(ufds[i].events & (POLLWRNORM | POLLOUT))
         FD_SET(ufds[i].fd, &fds_write);
-      if(ufds[i].events & (POLLRDBAND | POLLPRI))
+      만약(ufds[i].events & (POLLRDBAND | POLLPRI))
         FD_SET(ufds[i].fd, &fds_err);
     }
   }
@@ -288,52 +288,52 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
      curl_socket_t is unsigned in such cases and thus -1 is the largest
      value). */
   r = our_select(maxfd, &fds_read, &fds_write, &fds_err, timeout_ms);
-  if(r <= 0) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  만약(r <= 0) {
+    만약((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    return r;
+    반환 r;
   }
 
   r = 0;
-  for(i = 0; i < nfds; i++) {
+  위해(i = 0; i < nfds; i++) {
     ufds[i].revents = 0;
-    if(ufds[i].fd == CURL_SOCKET_BAD)
+    만약(ufds[i].fd == CURL_SOCKET_BAD)
       continue;
-    if(FD_ISSET(ufds[i].fd, &fds_read)) {
-      if(ufds[i].events & POLLRDNORM)
+    만약(FD_ISSET(ufds[i].fd, &fds_read)) {
+      만약(ufds[i].events & POLLRDNORM)
         ufds[i].revents |= POLLRDNORM;
-      if(ufds[i].events & POLLIN)
+      만약(ufds[i].events & POLLIN)
         ufds[i].revents |= POLLIN;
     }
-    if(FD_ISSET(ufds[i].fd, &fds_write)) {
-      if(ufds[i].events & POLLWRNORM)
+    만약(FD_ISSET(ufds[i].fd, &fds_write)) {
+      만약(ufds[i].events & POLLWRNORM)
         ufds[i].revents |= POLLWRNORM;
-      if(ufds[i].events & POLLOUT)
+      만약(ufds[i].events & POLLOUT)
         ufds[i].revents |= POLLOUT;
     }
-    if(FD_ISSET(ufds[i].fd, &fds_err)) {
-      if(ufds[i].events & POLLRDBAND)
+    만약(FD_ISSET(ufds[i].fd, &fds_err)) {
+      만약(ufds[i].events & POLLRDBAND)
         ufds[i].revents |= POLLRDBAND;
-      if(ufds[i].events & POLLPRI)
+      만약(ufds[i].events & POLLPRI)
         ufds[i].revents |= POLLPRI;
     }
-    if(ufds[i].revents)
+    만약(ufds[i].revents)
       r++;
   }
 
 #endif /* HAVE_POLL */
 
-  return r;
+  반환 r;
 }
 
 void Curl_pollfds_init(struct curl_pollfds *cpfds,
                        struct pollfd *static_pfds,
-                       unsigned int static_count)
+                       unsigned 정수 static_count)
 {
   DEBUGASSERT(cpfds);
   memset(cpfds, 0, sizeof(*cpfds));
-  if(static_pfds && static_count) {
+  만약(static_pfds && static_count) {
     cpfds->pfds = static_pfds;
     cpfds->count = static_count;
   }
@@ -347,7 +347,7 @@ void Curl_pollfds_reset(struct curl_pollfds *cpfds)
 void Curl_pollfds_cleanup(struct curl_pollfds *cpfds)
 {
   DEBUGASSERT(cpfds);
-  if(cpfds->allocated_pfds) {
+  만약(cpfds->allocated_pfds) {
     curlx_safefree(cpfds->pfds);
     cpfds->count = 0;
     cpfds->allocated_pfds = FALSE;
@@ -355,50 +355,50 @@ void Curl_pollfds_cleanup(struct curl_pollfds *cpfds)
   cpfds->n = 0;
 }
 
-static CURLcode cpfds_increase(struct curl_pollfds *cpfds, unsigned int inc)
+static CURLcode cpfds_increase(struct curl_pollfds *cpfds, unsigned 정수 inc)
 {
   struct pollfd *new_fds;
-  unsigned int new_count = cpfds->count + inc;
+  unsigned 정수 new_count = cpfds->count + inc;
 
   new_fds = curlx_calloc(new_count, sizeof(struct pollfd));
-  if(!new_fds)
-    return CURLE_OUT_OF_MEMORY;
+  만약(!new_fds)
+    반환 CURLE_OUT_OF_MEMORY;
 
   memcpy(new_fds, cpfds->pfds, cpfds->count * sizeof(struct pollfd));
-  if(cpfds->allocated_pfds)
+  만약(cpfds->allocated_pfds)
     curlx_free(cpfds->pfds);
   cpfds->pfds = new_fds;
   cpfds->count = new_count;
   cpfds->allocated_pfds = TRUE;
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static CURLcode cpfds_add_sock(struct curl_pollfds *cpfds,
                                curl_socket_t sock, short events, bool fold)
 {
-  int i;
+  정수 i;
 
-  if(fold && cpfds->n <= INT_MAX) {
-    for(i = (int)cpfds->n - 1; i >= 0; --i) {
-      if(sock == cpfds->pfds[i].fd) {
+  만약(fold && cpfds->n <= INT_MAX) {
+    위해(i = (정수)cpfds->n - 1; i >= 0; --i) {
+      만약(sock == cpfds->pfds[i].fd) {
         cpfds->pfds[i].events |= events;
-        return CURLE_OK;
+        반환 CURLE_OK;
       }
     }
   }
   /* not folded, add new entry */
-  if(cpfds->n >= cpfds->count && cpfds_increase(cpfds, 100))
-    return CURLE_OUT_OF_MEMORY;
+  만약(cpfds->n >= cpfds->count && cpfds_increase(cpfds, 100))
+    반환 CURLE_OUT_OF_MEMORY;
   cpfds->pfds[cpfds->n].fd = sock;
   cpfds->pfds[cpfds->n].events = events;
   ++cpfds->n;
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
                                curl_socket_t sock, short events)
 {
-  return cpfds_add_sock(cpfds, sock, events, FALSE);
+  반환 cpfds_add_sock(cpfds, sock, events, FALSE);
 }
 
 CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
@@ -408,21 +408,21 @@ CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
 
   DEBUGASSERT(cpfds);
   DEBUGASSERT(ps);
-  for(i = 0; i < ps->n; i++) {
+  위해(i = 0; i < ps->n; i++) {
     short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN)
+    만약(ps->actions[i] & CURL_POLL_IN)
       events |= POLLIN;
-    if(ps->actions[i] & CURL_POLL_OUT)
+    만약(ps->actions[i] & CURL_POLL_OUT)
       events |= POLLOUT;
-    if(events && cpfds_add_sock(cpfds, ps->sockets[i], events, TRUE))
-      return CURLE_OUT_OF_MEMORY;
+    만약(events && cpfds_add_sock(cpfds, ps->sockets[i], events, TRUE))
+      반환 CURLE_OUT_OF_MEMORY;
   }
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 void Curl_waitfds_init(struct Curl_waitfds *cwfds,
                        struct curl_waitfd *static_wfds,
-                       unsigned int static_count)
+                       unsigned 정수 static_count)
 {
   DEBUGASSERT(cwfds);
   DEBUGASSERT(static_wfds || !static_count);
@@ -431,49 +431,49 @@ void Curl_waitfds_init(struct Curl_waitfds *cwfds,
   cwfds->count = static_count;
 }
 
-static unsigned int cwfds_add_sock(struct Curl_waitfds *cwfds,
+static unsigned 정수 cwfds_add_sock(struct Curl_waitfds *cwfds,
                                    curl_socket_t sock, short events)
 {
-  int i;
-  if(!cwfds->wfds) {
+  정수 i;
+  만약(!cwfds->wfds) {
     DEBUGASSERT(!cwfds->count && !cwfds->n);
-    return 1;
+    반환 1;
   }
-  if(cwfds->n <= INT_MAX) {
-    for(i = (int)cwfds->n - 1; i >= 0; --i) {
-      if(sock == cwfds->wfds[i].fd) {
+  만약(cwfds->n <= INT_MAX) {
+    위해(i = (정수)cwfds->n - 1; i >= 0; --i) {
+      만약(sock == cwfds->wfds[i].fd) {
         cwfds->wfds[i].events |= events;
-        return 0;
+        반환 0;
       }
     }
   }
   /* not folded, add new entry */
-  if(cwfds->n < cwfds->count) {
+  만약(cwfds->n < cwfds->count) {
     cwfds->wfds[cwfds->n].fd = sock;
     cwfds->wfds[cwfds->n].events = events;
     ++cwfds->n;
   }
-  return 1;
+  반환 1;
 }
 
-unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
+unsigned 정수 Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
                                  struct easy_pollset *ps)
 {
   size_t i;
-  unsigned int need = 0;
+  unsigned 정수 need = 0;
 
   DEBUGASSERT(cwfds);
   DEBUGASSERT(ps);
-  for(i = 0; i < ps->n; i++) {
+  위해(i = 0; i < ps->n; i++) {
     short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN)
+    만약(ps->actions[i] & CURL_POLL_IN)
       events |= CURL_WAIT_POLLIN;
-    if(ps->actions[i] & CURL_POLL_OUT)
+    만약(ps->actions[i] & CURL_POLL_OUT)
       events |= CURL_WAIT_POLLOUT;
-    if(events)
+    만약(events)
       need += cwfds_add_sock(cwfds, ps->sockets[i], events);
   }
-  return need;
+  반환 need;
 }
 
 void Curl_pollset_reset(struct easy_pollset *ps)
@@ -499,9 +499,9 @@ void Curl_pollset_init(struct easy_pollset *ps)
 struct easy_pollset *Curl_pollset_create(void)
 {
   struct easy_pollset *ps = curlx_calloc(1, sizeof(*ps));
-  if(ps)
+  만약(ps)
     Curl_pollset_init(ps);
-  return ps;
+  반환 ps;
 }
 
 void Curl_pollset_cleanup(struct easy_pollset *ps)
@@ -509,11 +509,11 @@ void Curl_pollset_cleanup(struct easy_pollset *ps)
 #ifdef DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
 #endif
-  if(ps->sockets != ps->def_sockets) {
+  만약(ps->sockets != ps->def_sockets) {
     curlx_free(ps->sockets);
     ps->sockets = ps->def_sockets;
   }
-  if(ps->actions != ps->def_actions) {
+  만약(ps->actions != ps->def_actions) {
     curlx_free(ps->actions);
     ps->actions = ps->def_actions;
   }
@@ -524,7 +524,7 @@ void Curl_pollset_cleanup(struct easy_pollset *ps)
 void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
 {
   Curl_pollset_cleanup(to); /* deallocate anything in to */
-  if(from->sockets != from->def_sockets) {
+  만약(from->sockets != from->def_sockets) {
     DEBUGASSERT(from->actions != from->def_actions);
     to->sockets = from->sockets;
     to->actions = from->actions;
@@ -532,7 +532,7 @@ void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
     to->n = from->n;
     Curl_pollset_init(from);
   }
-  else {
+  아니면 {
     DEBUGASSERT(to->sockets == to->def_sockets);
     DEBUGASSERT(to->actions == to->def_actions);
     memcpy(to->sockets, from->sockets, to->count * sizeof(to->sockets[0]));
@@ -547,28 +547,28 @@ void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
  */
 CURLcode Curl_pollset_change(struct Curl_easy *data,
                              struct easy_pollset *ps, curl_socket_t sock,
-                             int add_flags, int remove_flags)
+                             정수 add_flags, 정수 remove_flags)
 {
-  unsigned int i;
+  unsigned 정수 i;
 
 #ifdef DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
 #endif
 
   DEBUGASSERT(VALID_SOCK(sock));
-  if(!VALID_SOCK(sock))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  만약(!VALID_SOCK(sock))
+    반환 CURLE_BAD_FUNCTION_ARGUMENT;
 
   DEBUGASSERT(add_flags <= (CURL_POLL_IN | CURL_POLL_OUT));
   DEBUGASSERT(remove_flags <= (CURL_POLL_IN | CURL_POLL_OUT));
   DEBUGASSERT((add_flags & remove_flags) == 0); /* no overlap */
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
+  위해(i = 0; i < ps->n; ++i) {
+    만약(ps->sockets[i] == sock) {
       ps->actions[i] &= (unsigned char)(~remove_flags);
       ps->actions[i] |= (unsigned char)add_flags;
       /* all gone? remove socket */
-      if(!ps->actions[i]) {
-        if((i + 1) < ps->n) {
+      만약(!ps->actions[i]) {
+        만약((i + 1) < ps->n) {
           memmove(&ps->sockets[i], &ps->sockets[i + 1],
                   (ps->n - (i + 1)) * sizeof(ps->sockets[0]));
           memmove(&ps->actions[i], &ps->actions[i + 1],
@@ -576,53 +576,53 @@ CURLcode Curl_pollset_change(struct Curl_easy *data,
         }
         --ps->n;
       }
-      return CURLE_OK;
+      반환 CURLE_OK;
     }
   }
   /* not present */
-  if(add_flags) {
-    if(i >= ps->count) { /* need to grow */
-      unsigned int new_count = CURLMAX(ps->count * 2, 8);
+  만약(add_flags) {
+    만약(i >= ps->count) { /* need to grow */
+      unsigned 정수 new_count = CURLMAX(ps->count * 2, 8);
       curl_socket_t *nsockets;
       unsigned char *nactions;
 
       CURL_TRC_M(data, "growing pollset capacity from %u to %u",
                  ps->count, new_count);
-      if(new_count <= ps->count)
-        return CURLE_OUT_OF_MEMORY;
+      만약(new_count <= ps->count)
+        반환 CURLE_OUT_OF_MEMORY;
       nsockets = curlx_calloc(new_count, sizeof(nsockets[0]));
-      if(!nsockets)
-        return CURLE_OUT_OF_MEMORY;
+      만약(!nsockets)
+        반환 CURLE_OUT_OF_MEMORY;
       nactions = curlx_calloc(new_count, sizeof(nactions[0]));
-      if(!nactions) {
+      만약(!nactions) {
         curlx_free(nsockets);
-        return CURLE_OUT_OF_MEMORY;
+        반환 CURLE_OUT_OF_MEMORY;
       }
       memcpy(nsockets, ps->sockets, ps->count * sizeof(ps->sockets[0]));
       memcpy(nactions, ps->actions, ps->count * sizeof(ps->actions[0]));
-      if(ps->sockets != ps->def_sockets)
+      만약(ps->sockets != ps->def_sockets)
         curlx_free(ps->sockets);
       ps->sockets = nsockets;
-      if(ps->actions != ps->def_actions)
+      만약(ps->actions != ps->def_actions)
         curlx_free(ps->actions);
       ps->actions = nactions;
       ps->count = new_count;
     }
     DEBUGASSERT(i < ps->count);
-    if(i < ps->count) {
+    만약(i < ps->count) {
       ps->sockets[i] = sock;
       ps->actions[i] = (unsigned char)add_flags;
       ps->n = i + 1;
     }
   }
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 CURLcode Curl_pollset_set(struct Curl_easy *data,
                           struct easy_pollset *ps, curl_socket_t sock,
                           bool do_in, bool do_out)
 {
-  return Curl_pollset_change(data, ps, sock,
+  반환 Curl_pollset_change(data, ps, sock,
                              (do_in ? CURL_POLL_IN : 0) |
                              (do_out ? CURL_POLL_OUT : 0),
                              (!do_in ? CURL_POLL_IN : 0) |
@@ -631,17 +631,17 @@ CURLcode Curl_pollset_set(struct Curl_easy *data,
 
 void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock)
 {
-  unsigned int i;
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      if((i + 1) < ps->n) {
+  unsigned 정수 i;
+  위해(i = 0; i < ps->n; ++i) {
+    만약(ps->sockets[i] == sock) {
+      만약((i + 1) < ps->n) {
         memmove(&ps->sockets[i], &ps->sockets[i + 1],
                 (ps->n - (i + 1)) * sizeof(ps->sockets[0]));
         memmove(&ps->actions[i], &ps->actions[i + 1],
                 (ps->n - (i + 1)) * sizeof(ps->actions[0]));
       }
       --ps->n;
-      return;
+      반환;
     }
   }
 }
@@ -652,35 +652,35 @@ void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock)
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_pollset_poll(struct Curl_easy *data,
+정수 Curl_pollset_poll(struct Curl_easy *data,
                       struct easy_pollset *ps,
                       timediff_t timeout_ms)
 {
   struct pollfd *pfds;
-  unsigned int i, npfds;
-  int rc;
+  unsigned 정수 i, npfds;
+  정수 rc;
 
   (void)data;
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
 
-  if(!ps->n)
-    return curlx_wait_ms(timeout_ms);
+  만약(!ps->n)
+    반환 curlx_wait_ms(timeout_ms);
 
   pfds = curlx_calloc(ps->n, sizeof(*pfds));
-  if(!pfds)
-    return -1;
+  만약(!pfds)
+    반환 -1;
 
   npfds = 0;
-  for(i = 0; i < ps->n; ++i) {
+  위해(i = 0; i < ps->n; ++i) {
     short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN) {
+    만약(ps->actions[i] & CURL_POLL_IN) {
       events |= POLLIN;
     }
-    if(ps->actions[i] & CURL_POLL_OUT) {
+    만약(ps->actions[i] & CURL_POLL_OUT) {
       events |= POLLOUT;
     }
-    if(events) {
+    만약(events) {
       pfds[npfds].fd = ps->sockets[i];
       pfds[npfds].events = events;
       ++npfds;
@@ -689,22 +689,22 @@ int Curl_pollset_poll(struct Curl_easy *data,
 
   rc = Curl_poll(pfds, npfds, timeout_ms);
   curlx_free(pfds);
-  return rc;
+  반환 rc;
 }
 
 void Curl_pollset_check(struct Curl_easy *data,
                         struct easy_pollset *ps, curl_socket_t sock,
                         bool *pwant_read, bool *pwant_write)
 {
-  unsigned int i;
+  unsigned 정수 i;
 
   (void)data;
   DEBUGASSERT(VALID_SOCK(sock));
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
+  위해(i = 0; i < ps->n; ++i) {
+    만약(ps->sockets[i] == sock) {
       *pwant_read = !!(ps->actions[i] & CURL_POLL_IN);
       *pwant_write = !!(ps->actions[i] & CURL_POLL_OUT);
-      return;
+      반환;
     }
   }
   *pwant_read = *pwant_write = FALSE;
@@ -714,24 +714,24 @@ bool Curl_pollset_want_recv(struct Curl_easy *data,
                             struct easy_pollset *ps,
                             curl_socket_t sock)
 {
-  unsigned int i;
+  unsigned 정수 i;
   (void)data;
-  for(i = 0; i < ps->n; ++i) {
-    if((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_IN))
-      return TRUE;
+  위해(i = 0; i < ps->n; ++i) {
+    만약((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_IN))
+      반환 TRUE;
   }
-  return FALSE;
+  반환 FALSE;
 }
 
 bool Curl_pollset_want_send(struct Curl_easy *data,
                             struct easy_pollset *ps,
                             curl_socket_t sock)
 {
-  unsigned int i;
+  unsigned 정수 i;
   (void)data;
-  for(i = 0; i < ps->n; ++i) {
-    if((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_OUT))
-      return TRUE;
+  위해(i = 0; i < ps->n; ++i) {
+    만약((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_OUT))
+      반환 TRUE;
   }
-  return FALSE;
+  반환 FALSE;
 }

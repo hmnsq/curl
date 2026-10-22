@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_HTTPSRR) && defined(USE_ARES)
+#만약 defined(USE_HTTPSRR) && defined(USE_ARES)
 #include "vdns/httpsrr.h"
 #endif
 
@@ -43,7 +43,7 @@ struct hostent;
 struct connectdata;
 struct easy_pollset;
 
-#if defined(USE_RESOLV_ARES) && defined(USE_RESOLV_THREADED)
+#만약 defined(USE_RESOLV_ARES) && defined(USE_RESOLV_THREADED)
 #error cannot have both USE_RESOLV_ARES and USE_RESOLV_THREADED defined
 #endif
 
@@ -60,7 +60,7 @@ struct easy_pollset;
  * Called from curl_global_init() to initialize global resolver environment.
  * Returning anything else than CURLE_OK fails curl_global_init().
  */
-int Curl_async_global_init(void);
+정수 Curl_async_global_init(void);
 
 /*
  * Curl_async_global_cleanup()
@@ -99,14 +99,14 @@ timediff_t Curl_ares_timeout_ms(struct Curl_easy *data,
                                 struct Curl_resolv_async *async,
                                 ares_channel channel);
 
-int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms);
+정수 Curl_ares_perform(ares_channel channel, timediff_t timeout_ms);
 #endif
 
 #ifdef USE_RESOLV_ARES
 /* async resolving implementation using c-ares alone */
 struct async_ares_ctx {
   ares_channel channel;
-  int ares_status;               /* ARES_SUCCESS, ARES_ENOTFOUND, etc. */
+  정수 ares_status;               /* ARES_SUCCESS, ARES_ENOTFOUND, etc. */
   CURLcode result;               /* CURLE_OK or error handling response */
   BIT(transient_err); /* an A/AAAA query failed without the resolver
                          answering that the name does not exist */
@@ -127,7 +127,7 @@ struct async_thrdd_item;
 struct async_thrdd_ctx {
   struct async_thrdd_item *res_A; /* IPv4 final result */
   struct async_thrdd_item *res_AAAA; /* IPv6 final result */
-#if defined(USE_HTTPSRR) && defined(USE_ARES)
+#만약 defined(USE_HTTPSRR) && defined(USE_ARES)
   struct {
     ares_channel channel;
   } rr;
@@ -194,7 +194,7 @@ CURLcode Curl_async_pollset(struct Curl_easy *data,
                             struct Curl_resolv_async *async,
                             struct easy_pollset *ps);
 
-#else /* CURLRES_ASYNCH */
+#아니면 /* CURLRES_ASYNCH */
 
 /* convert these functions if an asynch resolver is not used */
 #define Curl_async_global_init()        CURLE_OK
@@ -205,7 +205,7 @@ CURLcode Curl_async_pollset(struct Curl_easy *data,
 #define Curl_async_knows_https(x, y)    TRUE
 #endif /* !CURLRES_ASYNCH */
 
-#if defined(CURLRES_ASYNCH) || !defined(CURL_DISABLE_DOH)
+#만약 defined(CURLRES_ASYNCH) || !defined(CURL_DISABLE_DOH)
 #define USE_CURL_ASYNC
 #endif
 
@@ -263,7 +263,7 @@ CURLcode Curl_async_failed(struct Curl_easy *data,
                            struct Curl_resolv_async *async,
                            const char *detail);
 
-#else /* !USE_CURL_ASYNC */
+#아니면 /* !USE_CURL_ASYNC */
 #define Curl_async_shutdown(x, y) Curl_nop_stmt
 #endif /* USE_CURL_ASYNC */
 

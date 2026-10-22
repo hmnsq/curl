@@ -68,7 +68,7 @@ enum socks_state_t {
   SOCKS_ST_FAILED
 };
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#만약 defined(DEBUGBUILD) && defined(CURLVERBOSE)
 static const char * const cf_socks_statename[] = {
   "SOCKS_INIT",
   "SOCKS4_START",
@@ -108,7 +108,7 @@ struct socks_ctx {
   BIT(socks4a);
 };
 
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#만약 defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
 /*
  * Helper read-from-socket functions. Does the same as Curl_read() but it
  * blocks until all bytes amount of buffersize will be read. No more, no less.
@@ -125,30 +125,30 @@ CURLcode Curl_blockread_all(struct Curl_cfilter *cf,
   CURLcode result;
 
   *pnread = 0;
-  for(;;) {
+  위해(;;) {
     timediff_t timeout_ms = Curl_timeleft_ms(data);
     curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
 
-    if(timeout_ms < 0) {
+    만약(timeout_ms < 0) {
       /* we already got the timeout */
-      return CURLE_OPERATION_TIMEDOUT;
+      반환 CURLE_OPERATION_TIMEDOUT;
     }
-    if(!timeout_ms)
+    만약(!timeout_ms)
       timeout_ms = TIMEDIFF_T_MAX;
-    if(SOCKET_READABLE(sock, timeout_ms) <= 0)
-      return CURLE_OPERATION_TIMEDOUT;
+    만약(SOCKET_READABLE(sock, timeout_ms) <= 0)
+      반환 CURLE_OPERATION_TIMEDOUT;
     result = Curl_conn_cf_recv(cf->next, data, buf, blen, &nread);
-    if(result == CURLE_AGAIN)
+    만약(result == CURLE_AGAIN)
       continue;
-    else if(result)
-      return result;
+    아니면 만약(result)
+      반환 result;
 
-    if(blen == nread) {
+    만약(blen == nread) {
       *pnread += nread;
-      return CURLE_OK;
+      반환 CURLE_OK;
     }
-    if(!nread) /* EOF */
-      return CURLE_RECV_ERROR;
+    만약(!nread) /* EOF */
+      반환 CURLE_RECV_ERROR;
 
     buf += nread;
     blen -= nread;
@@ -157,9 +157,9 @@ CURLcode Curl_blockread_all(struct Curl_cfilter *cf,
 }
 #endif
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#만약 defined(DEBUGBUILD) && defined(CURLVERBOSE)
 #define sxstate(x, c, d, y) socksstate(x, c, d, y, __LINE__)
-#else
+#아니면
 #define sxstate(x, c, d, y) socksstate(x, c, d, y)
 #endif
 
@@ -168,24 +168,24 @@ static void socksstate(struct socks_ctx *sx,
                        struct Curl_cfilter *cf,
                        struct Curl_easy *data,
                        enum socks_state_t state
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
-                       , int lineno
+#만약 defined(DEBUGBUILD) && defined(CURLVERBOSE)
+                       , 정수 lineno
 #endif
 )
 {
   enum socks_state_t oldstate = sx->state;
 
-  if(oldstate == state)
+  만약(oldstate == state)
     /* do not bother when the new state is the same as the old state */
-    return;
+    반환;
 
   sx->state = state;
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#만약 defined(DEBUGBUILD) && defined(CURLVERBOSE)
   CURL_TRC_CF(data, cf, "[%s] -> [%s] (line %d)",
               cf_socks_statename[oldstate],
               cf_socks_statename[sx->state], lineno);
-#else
+#아니면
   (void)cf;
   (void)data;
 #endif
@@ -198,7 +198,7 @@ static CURLproxycode socks_failed(struct socks_ctx *sx,
 {
   sxstate(sx, cf, data, SOCKS_ST_FAILED);
   sx->presult = presult;
-  return presult;
+  반환 presult;
 }
 
 static CURLproxycode socks_flush(struct socks_ctx *sx,
@@ -210,19 +210,19 @@ static CURLproxycode socks_flush(struct socks_ctx *sx,
   size_t nwritten;
 
   *done = FALSE;
-  while(!Curl_bufq_is_empty(&sx->iobuf)) {
+  동안(!Curl_bufq_is_empty(&sx->iobuf)) {
     result = Curl_cf_send_bufq(cf->next, data, &sx->iobuf, NULL, 0,
                                &nwritten);
-    if(result == CURLE_AGAIN)
-      return CURLPX_OK;
-    else if(result) {
+    만약(result == CURLE_AGAIN)
+      반환 CURLPX_OK;
+    아니면 만약(result) {
       failf(data, "Failed to send SOCKS request: %s",
             curl_easy_strerror(result));
-      return socks_failed(sx, cf, data, CURLPX_SEND_CONNECT);
+      반환 socks_failed(sx, cf, data, CURLPX_SEND_CONNECT);
     }
   }
   *done = TRUE;
-  return CURLPX_OK;
+  반환 CURLPX_OK;
 }
 
 static CURLproxycode socks_recv(struct socks_ctx *sx,
@@ -235,28 +235,28 @@ static CURLproxycode socks_recv(struct socks_ctx *sx,
   size_t nread;
 
   *done = FALSE;
-  while(Curl_bufq_len(&sx->iobuf) < min_bytes) {
+  동안(Curl_bufq_len(&sx->iobuf) < min_bytes) {
     result = Curl_cf_recv_bufq(cf->next, data, &sx->iobuf,
                                min_bytes - Curl_bufq_len(&sx->iobuf),
                                &nread);
-    if(result == CURLE_AGAIN)
-      return CURLPX_OK;
-    else if(result) {
+    만약(result == CURLE_AGAIN)
+      반환 CURLPX_OK;
+    아니면 만약(result) {
       failf(data, "Failed to receive SOCKS response: %s",
             curl_easy_strerror(result));
-      return CURLPX_RECV_CONNECT;
+      반환 CURLPX_RECV_CONNECT;
     }
-    else if(!nread) { /* EOF */
-      if(Curl_bufq_len(&sx->iobuf) < min_bytes) {
+    아니면 만약(!nread) { /* EOF */
+      만약(Curl_bufq_len(&sx->iobuf) < min_bytes) {
         failf(data, "Failed to receive SOCKS response, "
               "proxy closed connection");
-        return CURLPX_RECV_CONNECT;
+        반환 CURLPX_RECV_CONNECT;
       }
       break;
     }
   }
   *done = TRUE;
-  return CURLPX_OK;
+  반환 CURLPX_OK;
 }
 
 static CURLproxycode socks4_req_add_hd(struct socks_ctx *sx,
@@ -273,9 +273,9 @@ static CURLproxycode socks4_req_add_hd(struct socks_ctx *sx,
   buf[3] = (unsigned char)(sx->dest->port & 0xffU);        /* LSB */
 
   result = Curl_bufq_write(&sx->iobuf, buf, 4, &nwritten);
-  if(result || (nwritten != 4))
-    return CURLPX_SEND_REQUEST;
-  return CURLPX_OK;
+  만약(result || (nwritten != 4))
+    반환 CURLPX_SEND_REQUEST;
+  반환 CURLPX_OK;
 }
 
 static CURLproxycode socks4_req_add_user(struct socks_ctx *sx,
@@ -284,29 +284,29 @@ static CURLproxycode socks4_req_add_user(struct socks_ctx *sx,
   CURLcode result;
   size_t nwritten;
 
-  if(sx->creds) {
+  만약(sx->creds) {
     size_t plen = strlen(sx->creds->user);
-    if(plen > 255) {
+    만약(plen > 255) {
       /* there is no real size limit to this field in the protocol, but
          SOCKS5 limits the proxy user field to 255 bytes and it seems likely
          that a longer field is either a mistake or malicious input */
       failf(data, "Too long SOCKS proxy username");
-      return CURLPX_LONG_USER;
+      반환 CURLPX_LONG_USER;
     }
     /* add proxy name WITH null-terminator */
     result = Curl_bufq_cwrite(&sx->iobuf, sx->creds->user, plen + 1,
                               &nwritten);
-    if(result || (nwritten != (plen + 1)))
-      return CURLPX_SEND_REQUEST;
+    만약(result || (nwritten != (plen + 1)))
+      반환 CURLPX_SEND_REQUEST;
   }
-  else {
+  아니면 {
     /* empty username */
     unsigned char b = 0;
     result = Curl_bufq_write(&sx->iobuf, &b, 1, &nwritten);
-    if(result || (nwritten != 1))
-      return CURLPX_SEND_REQUEST;
+    만약(result || (nwritten != 1))
+      반환 CURLPX_SEND_REQUEST;
   }
-  return CURLPX_OK;
+  반환 CURLPX_OK;
 }
 
 static CURLproxycode socks4_resolving(struct socks_ctx *sx,
@@ -320,17 +320,17 @@ static CURLproxycode socks4_resolving(struct socks_ctx *sx,
 
   *done = FALSE;
   result = Curl_conn_dns_addr_result(cf->conn, cf->sockindex, sx->dest);
-  if(result) {
-    if(result != CURLE_AGAIN) {
+  만약(result) {
+    만약(result != CURLE_AGAIN) {
       failf(data, "error %d resolving SOCKS destination %s:%u",
-            (int)result, sx->dest->hostname, sx->dest->port);
-      return CURLPX_RESOLVE_HOST;
+            (정수)result, sx->dest->hostname, sx->dest->port);
+      반환 CURLPX_RESOLVE_HOST;
     }
-    return CURLPX_OK;
+    반환 CURLPX_OK;
   }
 
   ai = Curl_conn_dns_get_ai(data, sx->dest, cf->sockindex, AF_INET, 0);
-  if(ai) {
+  만약(ai) {
     struct sockaddr_in *saddr_in;
     char ipbuf[64];
 
@@ -343,17 +343,17 @@ static CURLproxycode socks4_resolving(struct socks_ctx *sx,
                              (unsigned char *)&saddr_in->sin_addr.s_addr, 4,
                              &nwritten);
 
-    if(result || (nwritten != 4))
-      return CURLPX_SEND_REQUEST;
+    만약(result || (nwritten != 4))
+      반환 CURLPX_SEND_REQUEST;
   }
-  else {
+  아니면 {
     /* No IPv4 address resolved */
     failf(data, "SOCKS4 connection to %s not supported", sx->dest->hostname);
-    return CURLPX_RESOLVE_HOST;
+    반환 CURLPX_RESOLVE_HOST;
   }
 
   *done = TRUE;
-  return CURLPX_OK;
+  반환 CURLPX_OK;
 }
 
 static CURLproxycode socks4_check_resp(struct socks_ctx *sx,
@@ -363,9 +363,9 @@ static CURLproxycode socks4_check_resp(struct socks_ctx *sx,
   const unsigned char *resp;
   size_t rlen;
 
-  if(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 8) {
+  만약(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 8) {
     failf(data, "SOCKS4 reply is incomplete.");
-    return CURLPX_RECV_CONNECT;
+    반환 CURLPX_RECV_CONNECT;
   }
 
   DEBUGASSERT(rlen == 8);
@@ -389,9 +389,9 @@ static CURLproxycode socks4_check_resp(struct socks_ctx *sx,
    */
 
   /* wrong version ? */
-  if(resp[0]) {
+  만약(resp[0]) {
     failf(data, "SOCKS4 reply has wrong version, version should be 0.");
-    return CURLPX_BAD_VERSION;
+    반환 CURLPX_BAD_VERSION;
   }
 
   /* Result */
@@ -399,37 +399,37 @@ static CURLproxycode socks4_check_resp(struct socks_ctx *sx,
   case 90:
     CURL_TRC_CF(data, cf, "SOCKS4%s request granted.", sx->socks4a ? "a" : "");
     Curl_bufq_skip(&sx->iobuf, 8);
-    return CURLPX_OK;
+    반환 CURLPX_OK;
   case 91:
     failf(data,
           "[SOCKS] cannot complete SOCKS4 connection to %u.%u.%u.%u:%u. (%u)"
           ", request rejected or failed.",
           resp[4], resp[5], resp[6], resp[7],
-          (unsigned int)((resp[2] << 8) | resp[3]), resp[1]);
-    return CURLPX_REQUEST_FAILED;
+          (unsigned 정수)((resp[2] << 8) | resp[3]), resp[1]);
+    반환 CURLPX_REQUEST_FAILED;
   case 92:
     failf(data,
           "[SOCKS] cannot complete SOCKS4 connection to %u.%u.%u.%u:%u. (%u)"
           ", request rejected because SOCKS server cannot connect to "
           "identd on the client.",
           resp[4], resp[5], resp[6], resp[7],
-          (unsigned int)((resp[2] << 8) | resp[3]), resp[1]);
-    return CURLPX_IDENTD;
+          (unsigned 정수)((resp[2] << 8) | resp[3]), resp[1]);
+    반환 CURLPX_IDENTD;
   case 93:
     failf(data,
           "[SOCKS] cannot complete SOCKS4 connection to %u.%u.%u.%u:%u. (%u)"
           ", request rejected because the client program and identd "
           "report different user-ids.",
           resp[4], resp[5], resp[6], resp[7],
-          (unsigned int)((resp[2] << 8) | resp[3]), resp[1]);
-    return CURLPX_IDENTD_DIFFER;
+          (unsigned 정수)((resp[2] << 8) | resp[3]), resp[1]);
+    반환 CURLPX_IDENTD_DIFFER;
   default:
     failf(data,
           "[SOCKS] cannot complete SOCKS4 connection to %u.%u.%u.%u:%u. (%u)"
           ", Unknown.",
           resp[4], resp[5], resp[6], resp[7],
-          (unsigned int)((resp[2] << 8) | resp[3]), resp[1]);
-    return CURLPX_UNKNOWN_FAIL;
+          (unsigned 정수)((resp[2] << 8) | resp[3]), resp[1]);
+    반환 CURLPX_UNKNOWN_FAIL;
   }
 }
 
@@ -482,30 +482,30 @@ process_state:
      * # of bytes:  1    1      2              4           variable       1
      */
     presult = socks4_req_add_hd(sx, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
 
     /* DNS resolve only for SOCKS4, not SOCKS4a */
-    if(!sx->resolve_local) {
+    만약(!sx->resolve_local) {
       /* socks4a, not resolving locally, sends the hostname.
        * add an invalid address + user + hostname */
       unsigned char buf[4] = { 0, 0, 0, 1 };
       size_t hlen = strlen(sx->dest->hostname) + 1; /* including NUL */
 
-      if(hlen > 255) {
+      만약(hlen > 255) {
         failf(data, "SOCKS4: too long hostname");
-        return socks_failed(sx, cf, data, CURLPX_LONG_HOSTNAME);
+        반환 socks_failed(sx, cf, data, CURLPX_LONG_HOSTNAME);
       }
       result = Curl_bufq_write(&sx->iobuf, buf, 4, &nwritten);
-      if(result || (nwritten != 4))
-        return socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
+      만약(result || (nwritten != 4))
+        반환 socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
       presult = socks4_req_add_user(sx, data);
-      if(presult)
-        return socks_failed(sx, cf, data, presult);
+      만약(presult)
+        반환 socks_failed(sx, cf, data, presult);
       result = Curl_bufq_cwrite(&sx->iobuf, sx->dest->hostname, hlen,
                                 &nwritten);
-      if(result || (nwritten != hlen))
-        return socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
+      만약(result || (nwritten != hlen))
+        반환 socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
       /* request complete */
       sxstate(sx, cf, data, SOCKS4_ST_SEND);
       goto process_state;
@@ -515,49 +515,49 @@ process_state:
 
   case SOCKS4_ST_RESOLVING:
     presult = socks4_resolving(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    if(!done)
-      return CURLPX_OK;
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    만약(!done)
+      반환 CURLPX_OK;
     /* append user */
     presult = socks4_req_add_user(sx, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
     sxstate(sx, cf, data, SOCKS4_ST_SEND);
     FALLTHROUGH();
 
   case SOCKS4_ST_SEND:
     presult = socks_flush(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    아니면 만약(!done)
+      반환 CURLPX_OK;
     sxstate(sx, cf, data, SOCKS4_ST_RECV);
     FALLTHROUGH();
 
   case SOCKS4_ST_RECV:
     /* Receive 8-byte response */
     presult = socks_recv(sx, cf, data, 8, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    아니면 만약(!done)
+      반환 CURLPX_OK;
     presult = socks4_check_resp(sx, cf, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
     sxstate(sx, cf, data, SOCKS_ST_SUCCESS);
     FALLTHROUGH();
 
   case SOCKS_ST_SUCCESS:
-    return CURLPX_OK;
+    반환 CURLPX_OK;
 
   case SOCKS_ST_FAILED:
     DEBUGASSERT(sx->presult);
-    return sx->presult;
+    반환 sx->presult;
 
   default:
     DEBUGASSERT(0);
-    return socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
+    반환 socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
   }
 }
 
@@ -573,50 +573,50 @@ static CURLproxycode socks5_req0_init(struct Curl_cfilter *cf,
 
   (void)cf;
   /* RFC1928 chapter 5 specifies max 255 chars for domain name in packet */
-  if(!sx->resolve_local && strlen(sx->dest->hostname) > 255) {
+  만약(!sx->resolve_local && strlen(sx->dest->hostname) > 255) {
     failf(data, "SOCKS5: the destination hostname is too long to be "
           "resolved remotely by the proxy.");
-    return CURLPX_LONG_HOSTNAME;
+    반환 CURLPX_LONG_HOSTNAME;
   }
 
-  if(auth & ~(CURLAUTH_BASIC | CURLAUTH_GSSAPI))
+  만약(auth & ~(CURLAUTH_BASIC | CURLAUTH_GSSAPI))
     infof(data, "warning: unsupported value passed to "
           "CURLOPT_SOCKS5_AUTH: %u", auth);
-  if(!(auth & CURLAUTH_BASIC))
+  만약(!(auth & CURLAUTH_BASIC))
     /* disable username/password auth */
     Curl_creds_unlink(&sx->creds);
 
-  if(cf->sockindex == FIRSTSOCKET)
+  만약(cf->sockindex == FIRSTSOCKET)
     /* the reuse of this connection depends on how this negotiation ends */
     cf->conn->bits.socks5_authenticated = FALSE;
 
   req[0] = 5;   /* version */
   nauths = 0;
-  if(!data->set.socks5_auth_only) {
+  만약(!data->set.socks5_auth_only) {
     ++nauths;
     req[1 + nauths] = 0; /* no authentication */
   }
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  if(auth & CURLAUTH_GSSAPI) {
+#만약 defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  만약(auth & CURLAUTH_GSSAPI) {
     ++nauths;
     req[1 + nauths] = 1; /* GSS-API */
   }
 #endif
-  if(sx->creds) {
+  만약(sx->creds) {
     ++nauths;
     req[1 + nauths] = 2; /* username/password */
   }
-  if(!nauths) {
+  만약(!nauths) {
     failf(data, "SOCKS5: no acceptable authentication method is available.");
-    return CURLPX_NO_AUTH;
+    반환 CURLPX_NO_AUTH;
   }
   req[1] = nauths;
   req_len = 2 + nauths;
 
   result = Curl_bufq_write(&sx->iobuf, req, req_len, &nwritten);
-  if(result || (nwritten != req_len))
-    return CURLPX_SEND_REQUEST;
-  return CURLPX_OK;
+  만약(result || (nwritten != req_len))
+    반환 CURLPX_SEND_REQUEST;
+  반환 CURLPX_OK;
 }
 
 static CURLproxycode socks5_check_resp0(struct socks_ctx *sx,
@@ -627,14 +627,14 @@ static CURLproxycode socks5_check_resp0(struct socks_ctx *sx,
   unsigned char auth_mode;
   size_t rlen;
 
-  if(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 2) {
+  만약(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 2) {
     failf(data, "SOCKS5 initial reply is incomplete.");
-    return CURLPX_RECV_CONNECT;
+    반환 CURLPX_RECV_CONNECT;
   }
 
-  if(resp[0] != 5) {
+  만약(resp[0] != 5) {
     failf(data, "Received invalid version in initial SOCKS5 response.");
-    return CURLPX_BAD_VERSION;
+    반환 CURLPX_BAD_VERSION;
   }
 
   auth_mode = resp[1];
@@ -642,38 +642,38 @@ static CURLproxycode socks5_check_resp0(struct socks_ctx *sx,
 
   switch(auth_mode) {
   case 0:
-    if(data->set.socks5_auth_only) {
+    만약(data->set.socks5_auth_only) {
       failf(data, "SOCKS5 proxy selected no authentication.");
-      return CURLPX_NO_AUTH;
+      반환 CURLPX_NO_AUTH;
     }
     /* DONE! No authentication needed. Send request. */
     sxstate(sx, cf, data, SOCKS5_ST_REQ1_INIT);
-    return CURLPX_OK;
+    반환 CURLPX_OK;
   case 1:
-    if(data->set.socks5auth & CURLAUTH_GSSAPI) {
-      if(cf->sockindex == FIRSTSOCKET)
+    만약(data->set.socks5auth & CURLAUTH_GSSAPI) {
+      만약(cf->sockindex == FIRSTSOCKET)
         cf->conn->bits.socks5_authenticated = TRUE;
       sxstate(sx, cf, data, SOCKS5_ST_GSSAPI_INIT);
-      return CURLPX_OK;
+      반환 CURLPX_OK;
     }
     failf(data, "SOCKS5 GSSAPI per-message authentication is not enabled.");
-    return CURLPX_GSSAPI_PERMSG;
+    반환 CURLPX_GSSAPI_PERMSG;
   case 2:
     /* regular name + password authentication */
-    if(data->set.socks5auth & CURLAUTH_BASIC) {
-      if(cf->sockindex == FIRSTSOCKET)
+    만약(data->set.socks5auth & CURLAUTH_BASIC) {
+      만약(cf->sockindex == FIRSTSOCKET)
         cf->conn->bits.socks5_authenticated = TRUE;
       sxstate(sx, cf, data, SOCKS5_ST_AUTH_INIT);
-      return CURLPX_OK;
+      반환 CURLPX_OK;
     }
     failf(data, "BASIC authentication proposed but not enabled.");
-    return CURLPX_NO_AUTH;
+    반환 CURLPX_NO_AUTH;
   case 255:
     failf(data, "No authentication method was acceptable.");
-    return CURLPX_NO_AUTH;
+    반환 CURLPX_NO_AUTH;
   default:
     failf(data, "Unknown SOCKS5 mode attempted to be used by server.");
-    return CURLPX_UNKNOWN_MODE;
+    반환 CURLPX_UNKNOWN_MODE;
   }
 }
 
@@ -686,17 +686,17 @@ static CURLproxycode socks5_auth_init(struct Curl_cfilter *cf,
   unsigned char buf[2];
   CURLcode result;
 
-  if(sx->creds) {
+  만약(sx->creds) {
     ulen = strlen(sx->creds->user);
     plen = strlen(sx->creds->passwd);
     /* the lengths must fit in a single byte */
-    if(ulen > 255) {
+    만약(ulen > 255) {
       failf(data, "Excessive username length for proxy auth");
-      return CURLPX_LONG_USER;
+      반환 CURLPX_LONG_USER;
     }
-    if(plen > 255) {
+    만약(plen > 255) {
       failf(data, "Excessive password length for proxy auth");
-      return CURLPX_LONG_PASSWD;
+      반환 CURLPX_LONG_PASSWD;
     }
   }
 
@@ -710,24 +710,24 @@ static CURLproxycode socks5_auth_init(struct Curl_cfilter *cf,
   buf[0] = 1;    /* username/pw subnegotiation version */
   buf[1] = (unsigned char)ulen;
   result = Curl_bufq_write(&sx->iobuf, buf, 2, &nwritten);
-  if(result || (nwritten != 2))
-    return CURLPX_SEND_REQUEST;
-  if(ulen) {
+  만약(result || (nwritten != 2))
+    반환 CURLPX_SEND_REQUEST;
+  만약(ulen) {
     result = Curl_bufq_cwrite(&sx->iobuf, sx->creds->user, ulen, &nwritten);
-    if(result || (nwritten != ulen))
-      return CURLPX_SEND_REQUEST;
+    만약(result || (nwritten != ulen))
+      반환 CURLPX_SEND_REQUEST;
   }
   buf[0] = (unsigned char)plen;
   result = Curl_bufq_write(&sx->iobuf, buf, 1, &nwritten);
-  if(result || (nwritten != 1))
-    return CURLPX_SEND_REQUEST;
-  if(plen) {
+  만약(result || (nwritten != 1))
+    반환 CURLPX_SEND_REQUEST;
+  만약(plen) {
     result = Curl_bufq_cwrite(&sx->iobuf, sx->creds->passwd, plen, &nwritten);
-    if(result || (nwritten != plen))
-      return CURLPX_SEND_REQUEST;
+    만약(result || (nwritten != plen))
+      반환 CURLPX_SEND_REQUEST;
   }
   sxstate(sx, cf, data, SOCKS5_ST_AUTH_SEND);
-  return CURLPX_OK;
+  반환 CURLPX_OK;
 }
 
 static CURLproxycode socks5_check_auth_resp(struct socks_ctx *sx,
@@ -739,20 +739,20 @@ static CURLproxycode socks5_check_auth_resp(struct socks_ctx *sx,
   size_t rlen;
 
   (void)cf;
-  if(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 2) {
+  만약(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 2) {
     failf(data, "SOCKS5 sub-negotiation response incomplete.");
-    return CURLPX_RECV_CONNECT;
+    반환 CURLPX_RECV_CONNECT;
   }
 
   /* ignore the first (VER) byte */
   auth_status = resp[1];
-  if(auth_status) {
+  만약(auth_status) {
     failf(data, "User was rejected by the SOCKS5 server (%d %d).",
           resp[0], resp[1]);
-    return CURLPX_USER_REJECTED;
+    반환 CURLPX_USER_REJECTED;
   }
   Curl_bufq_skip(&sx->iobuf, 2);
-  return CURLPX_OK;
+  반환 CURLPX_OK;
 }
 
 static CURLproxycode socks5_req1_init(struct socks_ctx *sx,
@@ -769,31 +769,31 @@ static CURLproxycode socks5_req1_init(struct socks_ctx *sx,
   req[0] = 5; /* version (SOCKS5) */
   req[1] = 1; /* connect */
   req[2] = 0; /* must be zero */
-  if(sx->resolve_local) {
+  만약(sx->resolve_local) {
     /* rest of request is added after resolving */
     result = Curl_bufq_write(&sx->iobuf, req, 3, &nwritten);
-    if(result || (nwritten != 3))
-      return CURLPX_SEND_REQUEST;
-    return CURLPX_OK;
+    만약(result || (nwritten != 3))
+      반환 CURLPX_SEND_REQUEST;
+    반환 CURLPX_OK;
   }
 
   /* remote resolving, send what type+addr/string to resolve */
 #ifdef USE_IPV6
-  if(strchr(sx->dest->hostname, ':')) {
+  만약(strchr(sx->dest->hostname, ':')) {
     desttype = 4;
     destination = ipbuf;
     destlen = 16;
-    if(curlx_inet_pton(AF_INET6, sx->dest->hostname, ipbuf) != 1)
-      return CURLPX_BAD_ADDRESS_TYPE;
+    만약(curlx_inet_pton(AF_INET6, sx->dest->hostname, ipbuf) != 1)
+      반환 CURLPX_BAD_ADDRESS_TYPE;
   }
-  else
+  아니면
 #endif
-  if(curlx_inet_pton(AF_INET, sx->dest->hostname, ipbuf) == 1) {
+  만약(curlx_inet_pton(AF_INET, sx->dest->hostname, ipbuf) == 1) {
     desttype = 1;
     destination = ipbuf;
     destlen = 4;
   }
-  else {
+  아니면 {
     const size_t hostname_len = strlen(sx->dest->hostname);
     /* socks5_req0_init() already rejects hostnames longer than 255 bytes, so
        this cast to unsigned char is safe. Assert to guard against future
@@ -808,20 +808,20 @@ static CURLproxycode socks5_req1_init(struct socks_ctx *sx,
   req[4] = destlen;
   hdlen = (desttype == 3) ? 5 : 4; /* no length byte for ip addresses */
   result = Curl_bufq_write(&sx->iobuf, req, hdlen, &nwritten);
-  if(result || (nwritten != hdlen))
-    return CURLPX_SEND_REQUEST;
+  만약(result || (nwritten != hdlen))
+    반환 CURLPX_SEND_REQUEST;
   result = Curl_bufq_write(&sx->iobuf, destination, destlen, &nwritten);
-  if(result || (nwritten != destlen))
-    return CURLPX_SEND_REQUEST;
+  만약(result || (nwritten != destlen))
+    반환 CURLPX_SEND_REQUEST;
   /* PORT MSB+LSB */
   req[0] = (unsigned char)((sx->dest->port >> 8) & 0xff);
   req[1] = (unsigned char)(sx->dest->port & 0xff);
   result = Curl_bufq_write(&sx->iobuf, req, 2, &nwritten);
-  if(result || (nwritten != 2))
-    return CURLPX_SEND_REQUEST;
+  만약(result || (nwritten != 2))
+    반환 CURLPX_SEND_REQUEST;
   CURL_TRC_CF(data, cf, "SOCKS5 connect to %s:%u (remotely resolved)",
               sx->dest->hostname, sx->dest->port);
-  return CURLPX_OK;
+  반환 CURLPX_OK;
 }
 
 static CURLproxycode socks5_resolving(struct socks_ctx *sx,
@@ -840,23 +840,23 @@ static CURLproxycode socks5_resolving(struct socks_ctx *sx,
 
   *done = FALSE;
   result = Curl_conn_dns_addr_result(cf->conn, cf->sockindex, sx->dest);
-  if(result) {
-    if(result != CURLE_AGAIN) {
+  만약(result) {
+    만약(result != CURLE_AGAIN) {
       failf(data, "error %d resolving SOCKS destination %s:%u",
-            (int)result, sx->dest->hostname, sx->dest->port);
-      return CURLPX_RESOLVE_HOST;
+            (정수)result, sx->dest->hostname, sx->dest->port);
+      반환 CURLPX_RESOLVE_HOST;
     }
-    return CURLPX_OK;
+    반환 CURLPX_OK;
   }
 
 #ifdef USE_IPV6
-  if(data->set.ipver != CURL_IPRESOLVE_V4)
+  만약(data->set.ipver != CURL_IPRESOLVE_V4)
     ai = Curl_conn_dns_get_ai(data, sx->dest, cf->sockindex, AF_INET6, 0);
 #endif
-  if(!ai)
+  만약(!ai)
     ai = Curl_conn_dns_get_ai(data, sx->dest, cf->sockindex, AF_INET, 0);
 
-  if(!ai) {
+  만약(!ai) {
     failf(data, "Failed to resolve \"%s\" for SOCKS5 connect.",
           sx->dest->hostname);
     presult = CURLPX_RESOLVE_HOST;
@@ -865,7 +865,7 @@ static CURLproxycode socks5_resolving(struct socks_ctx *sx,
 
   Curl_printable_address(ai, dest, sizeof(dest));
 
-  if(ai->ai_family == AF_INET) {
+  만약(ai->ai_family == AF_INET) {
     struct sockaddr_in *saddr_in;
     desttype = 1; /* ATYP: IPv4 = 1 */
     destlen = 4;
@@ -875,7 +875,7 @@ static CURLproxycode socks5_resolving(struct socks_ctx *sx,
                 dest, sx->dest->port);
   }
 #ifdef USE_IPV6
-  else if(ai->ai_family == AF_INET6) {
+  아니면 만약(ai->ai_family == AF_INET6) {
     struct sockaddr_in6 *saddr_in6;
     desttype = 4; /* ATYP: IPv6 = 4 */
     destlen = 16;
@@ -886,7 +886,7 @@ static CURLproxycode socks5_resolving(struct socks_ctx *sx,
   }
 #endif
 
-  if(!destination) {
+  만약(!destination) {
     failf(data, "SOCKS5 connection to %s not supported", dest);
     presult = CURLPX_RESOLVE_HOST;
     goto out;
@@ -894,12 +894,12 @@ static CURLproxycode socks5_resolving(struct socks_ctx *sx,
 
   req[0] = desttype;
   result = Curl_bufq_write(&sx->iobuf, req, 1, &nwritten);
-  if(result || (nwritten != 1)) {
+  만약(result || (nwritten != 1)) {
     presult = CURLPX_SEND_REQUEST;
     goto out;
   }
   result = Curl_bufq_write(&sx->iobuf, destination, destlen, &nwritten);
-  if(result || (nwritten != destlen)) {
+  만약(result || (nwritten != destlen)) {
     presult = CURLPX_SEND_REQUEST;
     goto out;
   }
@@ -907,14 +907,14 @@ static CURLproxycode socks5_resolving(struct socks_ctx *sx,
   req[0] = (unsigned char)((sx->dest->port >> 8) & 0xffU);
   req[1] = (unsigned char)(sx->dest->port & 0xffU);
   result = Curl_bufq_write(&sx->iobuf, req, 2, &nwritten);
-  if(result || (nwritten != 2)) {
+  만약(result || (nwritten != 2)) {
     presult = CURLPX_SEND_REQUEST;
     goto out;
   }
 
 out:
   *done = (presult == CURLPX_OK);
-  return presult;
+  반환 presult;
 }
 
 static CURLproxycode socks5_recv_resp1(struct socks_ctx *sx,
@@ -927,14 +927,14 @@ static CURLproxycode socks5_recv_resp1(struct socks_ctx *sx,
   CURLproxycode presult;
 
   presult = socks_recv(sx, cf, data, resp_len, done);
-  if(presult)
-    return presult;
-  else if(!*done)
-    return CURLPX_OK;
+  만약(presult)
+    반환 presult;
+  아니면 만약(!*done)
+    반환 CURLPX_OK;
 
-  if(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < resp_len) {
+  만약(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < resp_len) {
     failf(data, "SOCKS5 response is incomplete.");
-    return CURLPX_RECV_CONNECT;
+    반환 CURLPX_RECV_CONNECT;
   }
 
   /* Response packet includes BND.ADDR is variable length parameter by RFC
@@ -952,16 +952,16 @@ static CURLproxycode socks5_recv_resp1(struct socks_ctx *sx,
      o domain name:  0x03, BND.ADDR = [ 1-byte length, string ]
      o IPv6 address: 0x04, BND.ADDR = 16-byte
    */
-  if(resp[0] != 5) { /* version */
+  만약(resp[0] != 5) { /* version */
     failf(data, "SOCKS5 reply has wrong version, version should be 5.");
-    return CURLPX_BAD_VERSION;
+    반환 CURLPX_BAD_VERSION;
   }
-  else if(resp[1]) { /* Anything besides 0 is an error */
+  아니면 만약(resp[1]) { /* Anything besides 0 is an error */
     CURLproxycode rc = CURLPX_REPLY_UNASSIGNED;
-    int code = resp[1];
+    정수 code = resp[1];
     failf(data, "cannot complete SOCKS5 connection to %s. (%d)",
           sx->dest->hostname, code);
-    if(code < 9) {
+    만약(code < 9) {
       /* RFC 1928 section 6 lists: */
       static const CURLproxycode lookup[] = {
         CURLPX_OK,
@@ -976,7 +976,7 @@ static CURLproxycode socks5_recv_resp1(struct socks_ctx *sx,
       };
       rc = lookup[code];
     }
-    return rc;
+    반환 rc;
   }
 
   /* Calculate real packet size */
@@ -992,23 +992,23 @@ static CURLproxycode socks5_recv_resp1(struct socks_ctx *sx,
     break;
   default:
     failf(data, "SOCKS5 reply has wrong address type.");
-    return CURLPX_BAD_ADDRESS_TYPE;
+    반환 CURLPX_BAD_ADDRESS_TYPE;
   }
 
   /* receive the rest of the response */
   presult = socks_recv(sx, cf, data, resp_len, done);
-  if(presult)
-    return presult;
-  else if(!*done)
-    return CURLPX_OK;
+  만약(presult)
+    반환 presult;
+  아니면 만약(!*done)
+    반환 CURLPX_OK;
 
-  if(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < resp_len) {
+  만약(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < resp_len) {
     failf(data, "SOCKS5 response is incomplete.");
-    return CURLPX_RECV_CONNECT;
+    반환 CURLPX_RECV_CONNECT;
   }
   /* got it all */
   *done = TRUE;
-  return CURLPX_OK;
+  반환 CURLPX_OK;
 }
 
 /*
@@ -1033,83 +1033,83 @@ process_state:
     CURL_TRC_CF(data, cf, "SOCKS5: connecting to %s:%u",
                 sx->dest->hostname, sx->dest->port);
     presult = socks5_req0_init(cf, sx, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
     sxstate(sx, cf, data, SOCKS5_ST_REQ0_SEND);
     FALLTHROUGH();
 
   case SOCKS5_ST_REQ0_SEND:
     presult = socks_flush(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    아니면 만약(!done)
+      반환 CURLPX_OK;
     /* done sending! */
     sxstate(sx, cf, data, SOCKS5_ST_RESP0_RECV);
     FALLTHROUGH();
 
   case SOCKS5_ST_RESP0_RECV:
     presult = socks_recv(sx, cf, data, 2, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    아니면 만약(!done)
+      반환 CURLPX_OK;
     presult = socks5_check_resp0(sx, cf, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
     /* socks5_check_resp0() sets next socks state */
     goto process_state;
 
   case SOCKS5_ST_GSSAPI_INIT: {
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#만약 defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
     /* GSSAPI stuff done non-blocking */
     CURLcode result = Curl_SOCKS5_gssapi_negotiate(cf, data, sx->creds);
-    if(result) {
+    만약(result) {
       failf(data, "Unable to negotiate SOCKS5 GSS-API context.");
-      return CURLPX_GSSAPI;
+      반환 CURLPX_GSSAPI;
     }
     sxstate(sx, cf, data, SOCKS5_ST_REQ1_INIT);
     goto process_state;
-#else
+#아니면
     failf(data, "SOCKS5 GSSAPI per-message authentication is not supported.");
-    return socks_failed(sx, cf, data, CURLPX_GSSAPI_PERMSG);
+    반환 socks_failed(sx, cf, data, CURLPX_GSSAPI_PERMSG);
 #endif
   }
 
   case SOCKS5_ST_AUTH_INIT:
     presult = socks5_auth_init(cf, sx, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
     sxstate(sx, cf, data, SOCKS5_ST_AUTH_SEND);
     FALLTHROUGH();
 
   case SOCKS5_ST_AUTH_SEND:
     presult = socks_flush(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    아니면 만약(!done)
+      반환 CURLPX_OK;
     sxstate(sx, cf, data, SOCKS5_ST_AUTH_RECV);
     FALLTHROUGH();
 
   case SOCKS5_ST_AUTH_RECV:
     presult = socks_recv(sx, cf, data, 2, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    아니면 만약(!done)
+      반환 CURLPX_OK;
     presult = socks5_check_auth_resp(sx, cf, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
     /* Everything is good so far, user was authenticated! */
     sxstate(sx, cf, data, SOCKS5_ST_REQ1_INIT);
     FALLTHROUGH();
 
   case SOCKS5_ST_REQ1_INIT:
     presult = socks5_req1_init(sx, cf, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    if(!sx->resolve_local) {
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    만약(!sx->resolve_local) {
       /* we do not resolve, request is complete */
       sxstate(sx, cf, data, SOCKS5_ST_REQ1_SEND);
       goto process_state;
@@ -1119,23 +1119,23 @@ process_state:
 
   case SOCKS5_ST_RESOLVING:
     presult = socks5_resolving(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    if(!done)
-      return CURLPX_OK;
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    만약(!done)
+      반환 CURLPX_OK;
     sxstate(sx, cf, data, SOCKS5_ST_REQ1_SEND);
     FALLTHROUGH();
 
   case SOCKS5_ST_REQ1_SEND:
     presult = socks_flush(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-    if(cf->conn->socks5_gssapi_enctype) {
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    아니면 만약(!done)
+      반환 CURLPX_OK;
+#만약 defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+    만약(cf->conn->socks5_gssapi_enctype) {
       failf(data, "SOCKS5 GSS-API protection not yet implemented.");
-      return CURLPX_GSSAPI_PROTECTION;
+      반환 CURLPX_GSSAPI_PROTECTION;
     }
 #endif
     sxstate(sx, cf, data, SOCKS5_ST_RESP1_RECV);
@@ -1143,30 +1143,30 @@ process_state:
 
   case SOCKS5_ST_RESP1_RECV:
     presult = socks5_recv_resp1(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    if(!done)
-      return CURLPX_OK;
+    만약(presult)
+      반환 socks_failed(sx, cf, data, presult);
+    만약(!done)
+      반환 CURLPX_OK;
     CURL_TRC_CF(data, cf, "SOCKS5 request granted.");
     sxstate(sx, cf, data, SOCKS_ST_SUCCESS);
     FALLTHROUGH();
 
   case SOCKS_ST_SUCCESS:
-    return CURLPX_OK;
+    반환 CURLPX_OK;
 
   case SOCKS_ST_FAILED:
     DEBUGASSERT(sx->presult);
-    return sx->presult;
+    반환 sx->presult;
 
   default:
     DEBUGASSERT(0);
-    return socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
+    반환 socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
   }
 }
 
 static void socks_proxy_ctx_free(struct socks_ctx *ctx)
 {
-  if(ctx) {
+  만약(ctx) {
     Curl_peer_unlink(&ctx->dest);
     Curl_creds_unlink(&ctx->creds);
     Curl_bufq_free(&ctx->iobuf);
@@ -1187,14 +1187,14 @@ static CURLcode socks_proxy_cf_connect(struct Curl_cfilter *cf,
   CURLproxycode pxresult = CURLPX_OK;
   CURLcode result;
 
-  if(cf->connected) {
+  만약(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    반환 CURLE_OK;
   }
 
   result = cf->next->cft->do_connect(cf->next, data, done);
-  if(result || !*done)
-    return result;
+  만약(result || !*done)
+    반환 result;
 
   switch(ctx->proxy_type) {
   case CURLPROXY_SOCKS5:
@@ -1213,26 +1213,26 @@ static CURLcode socks_proxy_cf_connect(struct Curl_cfilter *cf,
     goto out;
   }
 
-  if(pxresult) {
+  만약(pxresult) {
     result = CURLE_PROXY;
     data->info.pxcode = (uint8_t)pxresult;
     goto out;
   }
-  else if(ctx->state != SOCKS_ST_SUCCESS)
+  아니면 만약(ctx->state != SOCKS_ST_SUCCESS)
     goto out;
 
 #ifdef CURLVERBOSE
-  if(Curl_trc_is_verbose(data)) {
+  만약(Curl_trc_is_verbose(data)) {
     struct ip_quadruple ipquad;
     bool is_ipv6;
-    if(!Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad))
+    만약(!Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad))
       infof(data, "Opened %sSOCKS connection from %s port %d to %s port %d "
             "(via %s port %u)",
             (cf->sockindex == SECONDARYSOCKET) ? "2nd " : "",
             ipquad.local_ip, ipquad.local_port,
             ctx->dest->hostname, ctx->dest->port,
             ipquad.remote_ip, ipquad.remote_port);
-    else
+    아니면
       infof(data, "Opened %sSOCKS connection",
             (cf->sockindex == SECONDARYSOCKET) ? "2nd " : "");
   }
@@ -1241,9 +1241,9 @@ static CURLcode socks_proxy_cf_connect(struct Curl_cfilter *cf,
 
 out:
   *done = (bool)cf->connected;
-  if(*done || result)
+  만약(*done || result)
     Curl_creds_unlink(&ctx->creds);
-  return result;
+  반환 result;
 }
 
 static CURLcode socks_cf_adjust_pollset(struct Curl_cfilter *cf,
@@ -1253,7 +1253,7 @@ static CURLcode socks_cf_adjust_pollset(struct Curl_cfilter *cf,
   struct socks_ctx *sx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  if(!cf->connected && sx) {
+  만약(!cf->connected && sx) {
     /* If we are not connected, the filter below is and has nothing
      * to wait on, we determine what to wait for. */
     curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
@@ -1262,16 +1262,16 @@ static CURLcode socks_cf_adjust_pollset(struct Curl_cfilter *cf,
     case SOCKS5_ST_REQ0_SEND:
     case SOCKS5_ST_AUTH_SEND:
     case SOCKS5_ST_REQ1_SEND:
-      CURL_TRC_CF(data, cf, "adjust pollset out (%d)", (int)sx->state);
+      CURL_TRC_CF(data, cf, "adjust pollset out (%d)", (정수)sx->state);
       result = Curl_pollset_set_out_only(data, ps, sock);
       break;
     default:
-      CURL_TRC_CF(data, cf, "adjust pollset in (%d)", (int)sx->state);
+      CURL_TRC_CF(data, cf, "adjust pollset in (%d)", (정수)sx->state);
       result = Curl_pollset_set_in_only(data, ps, sock);
       break;
     }
   }
-  return result;
+  반환 result;
 }
 
 static void socks_proxy_cf_destroy(struct Curl_cfilter *cf,
@@ -1284,28 +1284,28 @@ static void socks_proxy_cf_destroy(struct Curl_cfilter *cf,
 
 static CURLcode socks_cf_query(struct Curl_cfilter *cf,
                                struct Curl_easy *data,
-                               int query, int *pres1, void *pres2)
+                               정수 query, 정수 *pres1, void *pres2)
 {
   struct socks_ctx *sx = cf->ctx;
 
   switch(query) {
   case CF_QUERY_HOST_PORT:
-    if(sx) {
+    만약(sx) {
       *pres1 = sx->dest->port;
       *((const char **)pres2) = sx->dest->hostname;
-      return CURLE_OK;
+      반환 CURLE_OK;
     }
     break;
   case CF_QUERY_ALPN_NEGOTIATED: {
     const char **palpn = pres2;
     DEBUGASSERT(palpn);
     *palpn = NULL;
-    return CURLE_OK;
+    반환 CURLE_OK;
   }
   default:
     break;
   }
-  return cf->next ?
+  반환 cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
@@ -1340,8 +1340,8 @@ CURLcode Curl_cf_socks_proxy_insert_after(struct Curl_cfilter *cf_at,
   uint8_t dns_queries = Curl_resolv_dns_queries(data, ip_version);
   CURLcode result;
 
-  if(!dest)
-    return CURLE_FAILED_INIT;
+  만약(!dest)
+    반환 CURLE_FAILED_INIT;
 
   switch(proxy_type) {
   case CURLPROXY_SOCKS5:
@@ -1357,13 +1357,13 @@ CURLcode Curl_cf_socks_proxy_insert_after(struct Curl_cfilter *cf_at,
     break;
   default:
     failf(data, "unknown proxytype %d option given", proxy_type);
-    return CURLE_COULDNT_CONNECT;
+    반환 CURLE_COULDNT_CONNECT;
   }
 
   /* NUL byte already part of struct size */
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    return CURLE_OUT_OF_MEMORY;
+  만약(!ctx) {
+    반환 CURLE_OUT_OF_MEMORY;
   }
 
   Curl_peer_link(&ctx->dest, dest);
@@ -1375,18 +1375,18 @@ CURLcode Curl_cf_socks_proxy_insert_after(struct Curl_cfilter *cf_at,
                   BUFQ_OPT_SOFT_LIMIT);
 
   result = Curl_cf_create(&cf, &Curl_cft_socks_proxy, ctx);
-  if(!result) {
+  만약(!result) {
     Curl_conn_cf_insert_after(cf_at, cf);
-    if(ctx->resolve_local) {
+    만약(ctx->resolve_local) {
       result = Curl_conn_dns_add_addr_resolve(data, cf_at->conn,
                                               cf_at->sockindex,
                                               ctx->dest, dns_queries,
                                               TRNSPRT_TCP);
     }
   }
-  else
+  아니면
     socks_proxy_ctx_free(ctx);
-  return result;
+  반환 result;
 }
 
 #endif /* CURL_DISABLE_PROXY */

@@ -82,7 +82,7 @@ char *Curl_checkProxyheaders(struct Curl_easy *data,
 
 CURLcode Curl_add_timecondition(struct Curl_easy *data, struct dynbuf *req);
 CURLcode Curl_add_custom_headers(struct Curl_easy *data, bool is_connect,
-                                 int httpversion, struct dynbuf *req);
+                                 정수 httpversion, struct dynbuf *req);
 
 void Curl_http_to_fold(struct dynbuf *bf);
 
@@ -254,7 +254,7 @@ CURLcode Curl_http_req_to_h2(struct dynhds *h2_headers,
  * All about a core HTTP response, excluding body and trailers
  */
 struct http_resp {
-  int status;
+  정수 status;
   char *description;
   struct dynhds headers;
   struct dynhds trailers;
@@ -265,7 +265,7 @@ struct http_resp {
  * Create an HTTP response struct.
  */
 CURLcode Curl_http_resp_make(struct http_resp **presp,
-                             int status,
+                             정수 status,
                              const char *description);
 
 void Curl_http_resp_free(struct http_resp *resp);

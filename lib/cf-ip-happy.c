@@ -73,10 +73,10 @@ const
 struct transport_provider transport_providers[] = {
   { Curl_cf_tcp_create, TRNSPRT_TCP, FALSE },
   { Curl_cf_tcp_create, TRNSPRT_TCP, TRUE },
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#만약 !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   { Curl_cf_quic_create, TRNSPRT_QUIC, FALSE },
 #endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_PROXY_HTTP3)
+#만약 !defined(CURL_DISABLE_HTTP) && defined(USE_PROXY_HTTP3)
   { Curl_cf_h3_proxy_create, TRNSPRT_QUIC, TRUE },
 #endif
 #ifndef CURL_DISABLE_TFTP
@@ -92,12 +92,12 @@ static cf_ip_connect_create *get_cf_create(uint8_t transport,
                                            bool tunnel)
 {
   size_t i;
-  for(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
-    if((transport == transport_providers[i].transport) &&
+  위해(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
+    만약((transport == transport_providers[i].transport) &&
        (tunnel == transport_providers[i].tunnel))
-      return transport_providers[i].cf_create;
+      반환 transport_providers[i].cf_create;
   }
-  return NULL;
+  반환 NULL;
 }
 
 #ifdef UNITTESTS
@@ -108,8 +108,8 @@ UNITTEST void debug_set_transport_provider(
   uint8_t transport, cf_ip_connect_create *cf_create)
 {
   size_t i;
-  for(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
-    if(transport == transport_providers[i].transport) {
+  위해(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
+    만약(transport == transport_providers[i].transport) {
       transport_providers[i].cf_create = cf_create;
     }
   }
@@ -119,14 +119,14 @@ UNITTEST void debug_set_transport_provider(
 struct cf_ai_iter {
   struct Curl_cfilter *cf;
   struct Curl_peer *peer;
-  int ai_family;
-  unsigned int n;
+  정수 ai_family;
+  unsigned 정수 n;
 };
 
 static void cf_ai_iter_init(struct cf_ai_iter *iter,
                             struct Curl_cfilter *cf,
                             struct Curl_peer *peer,
-                            int ai_family)
+                            정수 ai_family)
 {
   iter->cf = cf;
   iter->peer = peer; /* not linked, ctx->ballers owns and has same lifetime */
@@ -139,20 +139,20 @@ static const struct Curl_addrinfo *cf_ai_iter_next(struct cf_ai_iter *iter,
 {
   const struct Curl_addrinfo *addr;
 
-  if(!iter->cf)
-    return NULL;
+  만약(!iter->cf)
+    반환 NULL;
 
   addr = Curl_conn_dns_get_ai(data, iter->peer, iter->cf->sockindex,
                               iter->ai_family, iter->n);
-  if(addr)
+  만약(addr)
     iter->n++;
-  return addr;
+  반환 addr;
 }
 
 static bool cf_ai_iter_has_more(struct cf_ai_iter *iter,
                                 struct Curl_easy *data)
 {
-  return (iter->cf &&
+  반환 (iter->cf &&
           !!Curl_conn_dns_get_ai(data, iter->peer, iter->cf->sockindex,
                                  iter->ai_family, iter->n));
 }
@@ -166,10 +166,10 @@ struct cf_ip_attempt {
   struct Curl_cfilter *cf;           /* current sub-cfilter connecting */
   cf_ip_connect_create *cf_create;
   CURLcode result;
-  int ai_family;
+  정수 ai_family;
   uint8_t transport_peer;
   uint8_t tunnel_transport;
-  int error;
+  정수 error;
   BIT(connected);                    /* cf has connected */
   BIT(shutdown);                     /* cf has shutdown */
   BIT(inconclusive);                 /* connect was not a hard failure, we
@@ -179,8 +179,8 @@ struct cf_ip_attempt {
 static void cf_ip_attempt_free(struct cf_ip_attempt *a,
                                struct Curl_easy *data)
 {
-  if(a) {
-    if(a->cf)
+  만약(a) {
+    만약(a->cf)
       Curl_conn_cf_discard_chain(&a->cf, data);
     Curl_peer_unlink(&a->origin);
     Curl_peer_unlink(&a->peer);
@@ -196,7 +196,7 @@ static CURLcode cf_ip_attempt_new(struct cf_ip_attempt **pa,
                                   struct Curl_peer *peer,
                                   uint8_t transport_peer,
                                   struct Curl_sockaddr_ex *addr,
-                                  int ai_family,
+                                  정수 ai_family,
                                   struct Curl_peer *tunnel_peer,
                                   uint8_t tunnel_transport,
                                   cf_ip_connect_create *cf_create)
@@ -207,8 +207,8 @@ static CURLcode cf_ip_attempt_new(struct cf_ip_attempt **pa,
 
   *pa = NULL;
   a = curlx_calloc(1, sizeof(*a));
-  if(!a)
-    return CURLE_OUT_OF_MEMORY;
+  만약(!a)
+    반환 CURLE_OUT_OF_MEMORY;
 
   Curl_peer_link(&a->origin, origin);
   Curl_peer_link(&a->peer, peer);
@@ -224,21 +224,21 @@ static CURLcode cf_ip_attempt_new(struct cf_ip_attempt **pa,
   result = a->cf_create(&a->cf, data, a->origin, a->peer, a->transport_peer,
                         cf->conn, &a->addr, a->tunnel_peer,
                         a->tunnel_transport);
-  if(result)
+  만약(result)
     goto out;
 
   /* the new filter might have sub-filters */
-  for(wcf = a->cf; wcf; wcf = wcf->next) {
+  위해(wcf = a->cf; wcf; wcf = wcf->next) {
     wcf->conn = cf->conn;
     wcf->sockindex = cf->sockindex;
   }
 
 out:
-  if(result) {
+  만약(result) {
     cf_ip_attempt_free(a, data);
     *pa = NULL;
   }
-  return result;
+  반환 result;
 }
 
 static CURLcode cf_ip_attempt_connect(struct cf_ip_attempt *a,
@@ -246,23 +246,23 @@ static CURLcode cf_ip_attempt_connect(struct cf_ip_attempt *a,
                                       bool *connected)
 {
   *connected = (bool)a->connected;
-  if(!a->result && !*connected) {
+  만약(!a->result && !*connected) {
     /* evaluate again */
     a->result = Curl_conn_cf_connect(a->cf, data, connected);
 
-    if(!a->result) {
-      if(*connected) {
+    만약(!a->result) {
+      만약(*connected) {
         a->connected = TRUE;
       }
     }
-    else {
-      if(a->result == CURLE_WEIRD_SERVER_REPLY)
+    아니면 {
+      만약(a->result == CURLE_WEIRD_SERVER_REPLY)
         a->inconclusive = TRUE;
-      if(a->cf)
+      만약(a->cf)
         Curl_conn_cf_discard_chain(&a->cf, data);
     }
   }
-  return a->result;
+  반환 a->result;
 }
 
 struct cf_ip_ballers {
@@ -280,7 +280,7 @@ struct cf_ip_ballers {
   struct curltime last_attempt_started;
   timediff_t attempt_delay_ms;
   CURLcode last_dead_result;  /* result of last discarded hard failure */
-  int last_attempt_ai_family;
+  정수 last_attempt_ai_family;
   uint32_t max_concurrent;
   uint8_t transport_peer;
   uint8_t tunnel_transport;
@@ -294,7 +294,7 @@ static CURLcode cf_ip_attempt_restart(struct cf_ip_attempt *a,
   struct Curl_cfilter *wcf;
   CURLcode result;
 
-  if(a->cf)
+  만약(a->cf)
     Curl_conn_cf_discard_chain(&a->cf, data);
 
   a->result = CURLE_OK;
@@ -305,22 +305,22 @@ static CURLcode cf_ip_attempt_restart(struct cf_ip_attempt *a,
   result = a->cf_create(&a->cf, data, a->origin, a->peer, a->transport_peer,
                         cf->conn, &a->addr,
                         a->tunnel_peer, a->tunnel_transport);
-  if(!result) {
+  만약(!result) {
     bool dummy;
     /* the new filter might have sub-filters */
-    for(wcf = a->cf; wcf; wcf = wcf->next) {
+    위해(wcf = a->cf; wcf; wcf = wcf->next) {
       wcf->conn = cf->conn;
       wcf->sockindex = cf->sockindex;
     }
     a->result = cf_ip_attempt_connect(a, data, &dummy);
   }
-  return result;
+  반환 result;
 }
 
 static void cf_ip_ballers_clear(struct Curl_easy *data,
                                 struct cf_ip_ballers *bs)
 {
-  while(bs->running) {
+  동안(bs->running) {
     struct cf_ip_attempt *a = bs->running;
     bs->running = a->next;
     cf_ip_attempt_free(a, data);
@@ -346,10 +346,10 @@ static CURLcode cf_ip_ballers_init(struct cf_ip_ballers *bs,
   memset(bs, 0, sizeof(*bs));
   bs->running_tail = &bs->running;
   bs->cf_create = get_cf_create(transport_peer, !!tunnel_peer);
-  if(!bs->cf_create) {
+  만약(!bs->cf_create) {
     failf(data, "unsupported transport type %u%s",
           transport_peer, tunnel_peer ? " to proxy" : "");
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    반환 CURLE_UNSUPPORTED_PROTOCOL;
   }
   Curl_peer_link(&bs->origin, origin);
   Curl_peer_link(&bs->peer, peer);
@@ -359,7 +359,7 @@ static CURLcode cf_ip_ballers_init(struct cf_ip_ballers *bs,
   bs->attempt_delay_ms = attempt_delay_ms;
   bs->max_concurrent = max_concurrent;
   bs->last_attempt_ai_family = AF_INET; /* so AF_INET6 is next */
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static void cf_ip_ballers_prune(struct cf_ip_ballers *bs,
@@ -370,24 +370,24 @@ static void cf_ip_ballers_prune(struct cf_ip_ballers *bs,
   struct cf_ip_attempt *a = NULL, **panchor;
   uint32_t ongoing = 0;
 
-  for(a = bs->running; a; a = a->next) {
-    if(!a->result && !a->connected)
+  위해(a = bs->running; a; a = a->next) {
+    만약(!a->result && !a->connected)
       ++ongoing;
   }
 
   panchor = &bs->running;
-  while(*panchor && (ongoing > max_concurrent)) {
+  동안(*panchor && (ongoing > max_concurrent)) {
     a = *panchor;
-    if(!a->result && !a->connected) {
+    만약(!a->result && !a->connected) {
       *panchor = a->next;
-      if(!a->next)
+      만약(!a->next)
         bs->running_tail = panchor;
       a->next = NULL;
       cf_ip_attempt_free(a, data);
       --ongoing;
       CURL_TRC_CF(data, cf, "discarding oldest attempt to keep limit");
     }
-    else {
+    아니면 {
       panchor = &a->next;
     }
   }
@@ -405,54 +405,54 @@ static CURLcode cf_ip_ballers_run(struct cf_ip_ballers *bs,
   timediff_t next_expire_ms;
   uint32_t inconclusive, ongoing;
   const struct curltime *pnow = NULL;
-  VERBOSE(int i);
+  VERBOSE(정수 i);
 
-  if(bs->winner)
-    return CURLE_OK;
+  만약(bs->winner)
+    반환 CURLE_OK;
 
 evaluate:
-  if(Curl_timeleft_now_ms(data, Curl_pgrs_now(data)) < 0) {
+  만약(Curl_timeleft_now_ms(data, Curl_pgrs_now(data)) < 0) {
     failf(data, "Connection timeout after %" FMT_OFF_T " ms",
           Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE));
-    return CURLE_OPERATION_TIMEDOUT;
+    반환 CURLE_OPERATION_TIMEDOUT;
   }
 
   ongoing = inconclusive = 0;
 
   /* check if a running baller connects now */
   VERBOSE(i = -1);
-  for(panchor = &bs->running; *panchor;) {
+  위해(panchor = &bs->running; *panchor;) {
     VERBOSE(++i);
     a = *panchor;
     a->result = cf_ip_attempt_connect(a, data, connected);
-    if(!a->result) {
-      if(*connected) {
+    만약(!a->result) {
+      만약(*connected) {
         /* connected, declare the winner, remove from running,
          * clear remaining running list. */
         CURL_TRC_CF(data, cf, "connect attempt #%d successful", i);
         bs->winner = a;
         *panchor = a->next;
         a->next = NULL;
-        while(bs->running) {
+        동안(bs->running) {
           a = bs->running;
           bs->running = a->next;
           cf_ip_attempt_free(a, data);
         }
         bs->running_tail = &bs->running;
-        return CURLE_OK;
+        반환 CURLE_OK;
       }
       /* still running */
       ++ongoing;
       panchor = &(*panchor)->next;
     }
-    else if(a->inconclusive) { /* failed, but inconclusive */
+    아니면 만약(a->inconclusive) { /* failed, but inconclusive */
       ++inconclusive;
       panchor = &(*panchor)->next;
     }
-    else {
+    아니면 {
       /* hard failure, discard right away */
       *panchor = a->next;
-      if(!a->next)
+      만약(!a->next)
         bs->running_tail = panchor;
       a->next = NULL;
       bs->last_dead_result = a->result;
@@ -460,37 +460,37 @@ evaluate:
       cf_ip_attempt_free(a, data);
     }
   }
-  if(bs->running)
+  만약(bs->running)
     CURL_TRC_CF(data, cf, "checked connect attempts: "
                 "%u ongoing, %u inconclusive", ongoing, inconclusive);
 
   /* no attempt connected yet, start another one? */
   pnow = Curl_pgrs_now(data);
-  if(!ongoing) {
+  만약(!ongoing) {
     do_more = TRUE;
   }
-  else {
+  아니면 {
     bool more_possible = cf_ai_iter_has_more(&bs->addr_iter, data);
 #ifdef USE_IPV6
-    if(!more_possible)
+    만약(!more_possible)
       more_possible = cf_ai_iter_has_more(&bs->ipv6_iter, data);
 #endif
     do_more = more_possible &&
       (curlx_ptimediff_ms(pnow, &bs->last_attempt_started) >=
        bs->attempt_delay_ms);
-    if(do_more)
+    만약(do_more)
       CURL_TRC_CF(data, cf, "happy eyeballs timeout expired, "
                   "start next attempt");
   }
 
-  if(do_more) {
+  만약(do_more) {
     /* start the next attempt if there is another ip address to try.
      * Alternate between address families when possible. */
     const struct Curl_addrinfo *ai = NULL;
-    int ai_family = 0;
+    정수 ai_family = 0;
     CURL_TRC_CF(data, cf, "want to do more");
 #ifdef USE_IPV6
-    if((bs->last_attempt_ai_family == AF_INET) ||
+    만약((bs->last_attempt_ai_family == AF_INET) ||
        !cf_ai_iter_has_more(&bs->addr_iter, data)) {
       ai = cf_ai_iter_next(&bs->ipv6_iter, data);
       ai_family = bs->ipv6_iter.ai_family;
@@ -498,7 +498,7 @@ evaluate:
                   ai ? "found" : "none");
     }
 #endif
-    if(!ai) {
+    만약(!ai) {
       ai = cf_ai_iter_next(&bs->addr_iter, data);
       ai_family = bs->addr_iter.ai_family;
       CURL_TRC_CF(data, cf, "check for next A address: %s",
@@ -509,15 +509,15 @@ evaluate:
      * succeed or persist new failure. */
     Curl_reset_fail(data);
 
-    if(ai) {  /* try another address */
+    만약(ai) {  /* try another address */
       struct Curl_sockaddr_ex addr;
 
       /* Discard oldest to make room for new attempt */
-      if(bs->max_concurrent)
+      만약(bs->max_concurrent)
         cf_ip_ballers_prune(bs, cf, data, bs->max_concurrent - 1);
 
       result = Curl_socket_addr_from_ai(&addr, ai, bs->transport_peer);
-      if(result)
+      만약(result)
         goto out;
 
       result = cf_ip_attempt_new(&a, data, cf, bs->origin, bs->peer,
@@ -526,8 +526,8 @@ evaluate:
                                  bs->cf_create);
       CURL_TRC_CF(data, cf, "starting %s attempt for ipv%s -> %d",
                   bs->running ? "next" : "first",
-                  (ai_family == AF_INET) ? "4" : "6", (int)result);
-      if(result)
+                  (ai_family == AF_INET) ? "4" : "6", (정수)result);
+      만약(result)
         goto out;
       DEBUGASSERT(a);
 
@@ -540,29 +540,29 @@ evaluate:
       /* and run everything again */
       goto evaluate;
     }
-    else if(inconclusive) {
+    아니면 만약(inconclusive) {
       /* tried all addresses, no success but some where inconclusive.
        * Let's restart the inconclusive ones. */
       timediff_t since_ms =
         curlx_ptimediff_ms(pnow, &bs->last_attempt_started);
       timediff_t delay_ms = bs->attempt_delay_ms - since_ms;
-      if(delay_ms <= 0) {
+      만약(delay_ms <= 0) {
         CURL_TRC_CF(data, cf, "all attempts inconclusive, restarting one");
         VERBOSE(i = -1);
-        for(a = bs->running; a; a = a->next) {
+        위해(a = bs->running; a; a = a->next) {
           VERBOSE(++i);
-          if(!a->inconclusive)
+          만약(!a->inconclusive)
             continue;
           result = cf_ip_attempt_restart(a, cf, data);
-          CURL_TRC_CF(data, cf, "restarted baller %d -> %d", i, (int)result);
-          if(result) /* serious failure */
+          CURL_TRC_CF(data, cf, "restarted baller %d -> %d", i, (정수)result);
+          만약(result) /* serious failure */
             goto out;
           bs->last_attempt_started = *pnow;
           goto evaluate;
         }
         DEBUGASSERT(0); /* should not come here */
       }
-      else {
+      아니면 {
         /* let's wait some more before restarting */
         infof(data, "connect attempts inconclusive, retrying "
                     "in %" FMT_TIMEDIFF_T "ms", delay_ms);
@@ -571,7 +571,7 @@ evaluate:
       /* attempt timeout for restart has not expired yet */
       goto out;
     }
-    else if(!ongoing && dns_resolved) {
+    아니면 만약(!ongoing && dns_resolved) {
       /* no more addresses, no inconclusive attempts */
       CURL_TRC_CF(data, cf, "no more attempts to try");
       DEBUGASSERT(!bs->running);
@@ -580,30 +580,30 @@ evaluate:
   }
 
 out:
-  if(!result) {
+  만약(!result) {
     bool more_possible;
 
     /* when do we need to be called again? */
     pnow = Curl_pgrs_now(data);
     next_expire_ms = Curl_timeleft_now_ms(data, pnow);
-    if(next_expire_ms < 0) {
+    만약(next_expire_ms < 0) {
       failf(data, "Connection timeout after %" FMT_OFF_T " ms",
             Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE));
-      return CURLE_OPERATION_TIMEDOUT;
+      반환 CURLE_OPERATION_TIMEDOUT;
     }
 
     more_possible = cf_ai_iter_has_more(&bs->addr_iter, data);
 #ifdef USE_IPV6
-    if(!more_possible)
+    만약(!more_possible)
       more_possible = cf_ai_iter_has_more(&bs->ipv6_iter, data);
 #endif
-    if(more_possible) {
+    만약(more_possible) {
       timediff_t expire_ms, elapsed_ms;
 
       elapsed_ms = curlx_ptimediff_ms(pnow, &bs->last_attempt_started);
       expire_ms = CURLMAX(bs->attempt_delay_ms - elapsed_ms, 0);
       next_expire_ms = CURLMIN(next_expire_ms, expire_ms);
-      if(next_expire_ms <= 0) {
+      만약(next_expire_ms <= 0) {
         CURL_TRC_CF(data, cf, "HAPPY_EYEBALLS timeout due, re-evaluate");
         goto evaluate;
       }
@@ -612,7 +612,7 @@ out:
       Curl_expire_set(data, EXPIRE_HAPPY_EYEBALLS, next_expire_ms, pnow);
     }
   }
-  return result;
+  반환 result;
 }
 
 static CURLcode cf_ip_ballers_shutdown(struct cf_ip_ballers *bs,
@@ -624,17 +624,17 @@ static CURLcode cf_ip_ballers_shutdown(struct cf_ip_ballers *bs,
   /* shutdown all ballers that have not done so already. If one fails,
    * continue shutting down others until all are shutdown. */
   *done = TRUE;
-  for(a = bs->running; a; a = a->next) {
+  위해(a = bs->running; a; a = a->next) {
     bool bdone = FALSE;
-    if(a->shutdown || !a->cf)
+    만약(a->shutdown || !a->cf)
       continue;
     a->result = a->cf->cft->do_shutdown(a->cf, data, &bdone);
-    if(a->result || bdone)
+    만약(a->result || bdone)
       a->shutdown = TRUE; /* treat a failed shutdown as done */
-    else
+    아니면
       *done = FALSE;
   }
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static CURLcode cf_ip_ballers_pollset(struct cf_ip_ballers *bs,
@@ -643,12 +643,12 @@ static CURLcode cf_ip_ballers_pollset(struct cf_ip_ballers *bs,
 {
   struct cf_ip_attempt *a;
   CURLcode result = CURLE_OK;
-  for(a = bs->running; a && !result; a = a->next) {
-    if(a->result)
+  위해(a = bs->running; a && !result; a = a->next) {
+    만약(a->result)
       continue;
     result = Curl_conn_cf_adjust_pollset(a->cf, data, ps);
   }
-  return result;
+  반환 result;
 }
 
 static bool cf_ip_ballers_pending(struct cf_ip_ballers *bs,
@@ -656,28 +656,28 @@ static bool cf_ip_ballers_pending(struct cf_ip_ballers *bs,
 {
   struct cf_ip_attempt *a;
 
-  for(a = bs->running; a; a = a->next) {
-    if(a->result)
+  위해(a = bs->running; a; a = a->next) {
+    만약(a->result)
       continue;
-    if(a->cf && a->cf->cft->has_data_pending(a->cf, data))
-      return TRUE;
+    만약(a->cf && a->cf->cft->has_data_pending(a->cf, data))
+      반환 TRUE;
   }
-  return FALSE;
+  반환 FALSE;
 }
 
-static int cf_ip_ballers_min_reply_ms(struct cf_ip_ballers *bs,
+static 정수 cf_ip_ballers_min_reply_ms(struct cf_ip_ballers *bs,
                                       struct Curl_easy *data)
 {
-  int reply_ms = -1, breply_ms;
+  정수 reply_ms = -1, breply_ms;
   struct cf_ip_attempt *a;
 
-  for(a = bs->running; a; a = a->next) {
-    if(a->cf && !a->cf->cft->query(a->cf, data, CF_QUERY_CONNECT_REPLY_MS,
+  위해(a = bs->running; a; a = a->next) {
+    만약(a->cf && !a->cf->cft->query(a->cf, data, CF_QUERY_CONNECT_REPLY_MS,
                                    &breply_ms, NULL) &&
        breply_ms >= 0 && (reply_ms < 0 || breply_ms < reply_ms))
       reply_ms = breply_ms;
   }
-  return reply_ms;
+  반환 reply_ms;
 }
 
 typedef enum {
@@ -704,31 +704,31 @@ static CURLcode is_connected(struct Curl_cfilter *cf,
   result = cf_ip_ballers_run(&ctx->ballers, cf, data,
                              (bool)ctx->dns_resolved, connected);
 
-  if(!result)
-    return CURLE_OK;
-  else {
+  만약(!result)
+    반환 CURLE_OK;
+  아니면 {
     struct Curl_peer *peer = NULL, *proxy_peer = NULL;
     char viamsg[160];
 
     peer = Curl_conn_get_first_peer(conn, cf->sockindex);
-    if(!conn->origin || !peer)
-      return CURLE_FAILED_INIT;
+    만약(!conn->origin || !peer)
+      반환 CURLE_FAILED_INIT;
 
 #ifndef CURL_DISABLE_PROXY
-    if(conn->socks_proxy.peer)
+    만약(conn->socks_proxy.peer)
       proxy_peer = conn->socks_proxy.peer;
-    else if(conn->http_proxy.peer)
+    아니면 만약(conn->http_proxy.peer)
       proxy_peer = conn->http_proxy.peer;
 #endif
 
     viamsg[0] = 0;
-    if(!Curl_peer_equal(peer, conn->origin) &&
+    만약(!Curl_peer_equal(peer, conn->origin) &&
        !Curl_peer_equal(peer, proxy_peer)) {
 #ifdef USE_UNIX_SOCKETS
-      if(peer->unix_socket)
+      만약(peer->unix_socket)
         curl_msnprintf(viamsg, sizeof(viamsg), " over unix://%s",
                        peer->hostname);
-      else
+      아니면
 #endif
       curl_msnprintf(viamsg, sizeof(viamsg), " via %s:%u",
                      peer->hostname, peer->port);
@@ -744,11 +744,11 @@ static CURLcode is_connected(struct Curl_cfilter *cf,
           curl_easy_strerror(result));
 
 #ifdef SOCKETIMEDOUT
-    if(SOCKETIMEDOUT == data->state.os_errno)
+    만약(SOCKETIMEDOUT == data->state.os_errno)
       result = CURLE_OPERATION_TIMEDOUT;
 #endif
 
-    return result;
+    반환 result;
   }
 }
 
@@ -759,20 +759,20 @@ static CURLcode cf_ip_happy_init(struct Curl_cfilter *cf,
 {
   struct cf_ip_happy_ctx *ctx = cf->ctx;
 
-  if(Curl_timeleft_ms(data) < 0) {
+  만약(Curl_timeleft_ms(data) < 0) {
     /* a precaution, no need to continue if time already is up */
     failf(data, "Connection time-out");
-    return CURLE_OPERATION_TIMEDOUT;
+    반환 CURLE_OPERATION_TIMEDOUT;
   }
 
-  if(ctx->ballers.transport_peer == TRNSPRT_UNIX) {
+  만약(ctx->ballers.transport_peer == TRNSPRT_UNIX) {
 #ifdef USE_UNIX_SOCKETS
     cf_ai_iter_init(&ctx->ballers.addr_iter, cf, ctx->ballers.peer, AF_UNIX);
-#else
-    return CURLE_UNSUPPORTED_PROTOCOL;
+#아니면
+    반환 CURLE_UNSUPPORTED_PROTOCOL;
 #endif
   }
-  else { /* TCP/UDP/QUIC */
+  아니면 { /* TCP/UDP/QUIC */
 #ifdef USE_IPV6
     cf_ai_iter_init(&ctx->ballers.ipv6_iter, cf, ctx->ballers.peer, AF_INET6);
 #endif
@@ -781,21 +781,21 @@ static CURLcode cf_ip_happy_init(struct Curl_cfilter *cf,
 
   CURL_TRC_CF(data, cf, "init ip ballers for transport %u",
               ctx->ballers.transport_peer);
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static void cf_ip_happy_ctx_clear(struct cf_ip_happy_ctx *ctx,
                                   struct Curl_easy *data)
 {
   DEBUGASSERT(ctx);
-  if(ctx)
+  만약(ctx)
     cf_ip_ballers_clear(data, &ctx->ballers);
 }
 
 static void cf_ip_happy_ctx_destroy(struct cf_ip_happy_ctx *ctx,
                                     struct Curl_easy *data)
 {
-  if(ctx) {
+  만약(ctx) {
     cf_ip_happy_ctx_clear(ctx, data);
     curlx_free(ctx);
   }
@@ -809,14 +809,14 @@ static CURLcode cf_ip_happy_shutdown(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(data);
-  if(cf->connected) {
+  만약(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    반환 CURLE_OK;
   }
 
   result = cf_ip_ballers_shutdown(&ctx->ballers, data, done);
-  CURL_TRC_CF(data, cf, "shutdown -> %d, done=%d", (int)result, *done);
-  return result;
+  CURL_TRC_CF(data, cf, "shutdown -> %d, done=%d", (정수)result, *done);
+  반환 result;
 }
 
 static CURLcode cf_ip_happy_adjust_pollset(struct Curl_cfilter *cf,
@@ -826,12 +826,12 @@ static CURLcode cf_ip_happy_adjust_pollset(struct Curl_cfilter *cf,
   struct cf_ip_happy_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  if(!cf->connected) {
+  만약(!cf->connected) {
     result = cf_ip_ballers_pollset(&ctx->ballers, data, ps);
-    CURL_TRC_CF(data, cf, "adjust_pollset -> %d, %u socks", (int)result,
+    CURL_TRC_CF(data, cf, "adjust_pollset -> %d, %u socks", (정수)result,
                 ps->n);
   }
-  return result;
+  반환 result;
 }
 
 static CURLcode cf_ip_happy_connect(struct Curl_cfilter *cf,
@@ -842,26 +842,26 @@ static CURLcode cf_ip_happy_connect(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
 
   /* -Werror=null-dereference finds false positives suddenly. */
-  if(!data)
-    return CURLE_FAILED_INIT;
+  만약(!data)
+    반환 CURLE_FAILED_INIT;
 
-  if(cf->connected) {
+  만약(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    반환 CURLE_OK;
   }
 
   DEBUGASSERT(ctx);
   *done = FALSE;
 
-  if(!ctx->dns_resolved) {
+  만약(!ctx->dns_resolved) {
     result = Curl_conn_dns_addr_result(cf->conn, cf->sockindex,
                                        ctx->ballers.peer);
-    if(!result)
+    만약(!result)
       ctx->dns_resolved = TRUE;
-    else if(result == CURLE_AGAIN) {
+    아니면 만약(result == CURLE_AGAIN) {
       result = CURLE_OK;
     }
-    else /* real error */
+    아니면 /* real error */
       goto out;
   }
 
@@ -870,13 +870,13 @@ static CURLcode cf_ip_happy_connect(struct Curl_cfilter *cf,
     DEBUGASSERT(CURL_SOCKET_BAD == Curl_conn_cf_get_socket(cf, data));
     DEBUGASSERT(!cf->connected);
     result = cf_ip_happy_init(cf, data);
-    if(result)
+    만약(result)
       goto out;
     ctx->state = SCFST_WAITING;
     FALLTHROUGH();
   case SCFST_WAITING:
     result = is_connected(cf, data, done);
-    if(!result && *done) {
+    만약(!result && *done) {
       DEBUGASSERT(ctx->ballers.winner);
       DEBUGASSERT(ctx->ballers.winner->cf);
       DEBUGASSERT(ctx->ballers.winner->cf->connected);
@@ -887,13 +887,13 @@ static CURLcode cf_ip_happy_connect(struct Curl_cfilter *cf,
       cf->next = ctx->ballers.winner->cf;
       ctx->ballers.winner->cf = NULL;
 
-      if(cf->conn->scheme->protocol & PROTO_FAMILY_SSH)
+      만약(cf->conn->scheme->protocol & PROTO_FAMILY_SSH)
         Curl_pgrsTime(data, TIMER_APPCONNECT); /* we are connected already */
 #ifdef CURLVERBOSE
-      if(Curl_trc_cf_is_verbose(cf, data)) {
+      만약(Curl_trc_cf_is_verbose(cf, data)) {
         struct ip_quadruple ipquad;
         bool is_ipv6;
-        if(!Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad)) {
+        만약(!Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad)) {
           CURL_TRC_CF(data, cf, "Connected to %s (%s) port %u",
                       ctx->ballers.peer->hostname,
                       ipquad.remote_ip, ipquad.remote_port);
@@ -912,7 +912,7 @@ static CURLcode cf_ip_happy_connect(struct Curl_cfilter *cf,
     break;
   }
 out:
-  return result;
+  반환 result;
 }
 
 static bool cf_ip_happy_data_pending(struct Curl_cfilter *cf,
@@ -920,31 +920,31 @@ static bool cf_ip_happy_data_pending(struct Curl_cfilter *cf,
 {
   struct cf_ip_happy_ctx *ctx = cf->ctx;
 
-  if(!cf->connected) {
-    return cf_ip_ballers_pending(&ctx->ballers, data);
+  만약(!cf->connected) {
+    반환 cf_ip_ballers_pending(&ctx->ballers, data);
   }
-  return cf->next->cft->has_data_pending(cf->next, data);
+  반환 cf->next->cft->has_data_pending(cf->next, data);
 }
 
 static CURLcode cf_ip_happy_query(struct Curl_cfilter *cf,
                                   struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2)
+                                  정수 query, 정수 *pres1, void *pres2)
 {
   struct cf_ip_happy_ctx *ctx = cf->ctx;
 
-  if(!cf->connected) {
+  만약(!cf->connected) {
     switch(query) {
     case CF_QUERY_CONNECT_REPLY_MS: {
       *pres1 = cf_ip_ballers_min_reply_ms(&ctx->ballers, data);
       CURL_TRC_CF(data, cf, "query connect reply: %dms", *pres1);
-      return CURLE_OK;
+      반환 CURLE_OK;
     }
     default:
       break;
     }
   }
 
-  return cf->next ?
+  반환 cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
@@ -955,7 +955,7 @@ static void cf_ip_happy_destroy(struct Curl_cfilter *cf,
   struct cf_ip_happy_ctx *ctx = cf->ctx;
 
   CURL_TRC_CF(data, cf, "destroy");
-  if(ctx) {
+  만약(ctx) {
     cf_ip_happy_ctx_clear(ctx, data);
     cf_ip_happy_ctx_destroy(ctx, data);
   }
@@ -994,7 +994,7 @@ static CURLcode cf_ip_happy_create(struct Curl_cfilter **pcf,
   (void)conn;
   *pcf = NULL;
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  만약(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -1003,17 +1003,17 @@ static CURLcode cf_ip_happy_create(struct Curl_cfilter **pcf,
                               tunnel_peer, tunnel_transport,
                               data->set.happy_eyeballs_timeout,
                               IP_HE_MAX_CONCURRENT_ATTEMPTS);
-  if(result)
+  만약(result)
     goto out;
 
   result = Curl_cf_create(pcf, &Curl_cft_ip_happy, ctx);
 
 out:
-  if(result) {
+  만약(result) {
     curlx_safefree(*pcf);
     cf_ip_happy_ctx_destroy(ctx, data);
   }
-  return result;
+  반환 result;
 }
 
 CURLcode Curl_cf_ip_happy_insert_after(struct Curl_cfilter *cf_at,
@@ -1031,9 +1031,9 @@ CURLcode Curl_cf_ip_happy_insert_after(struct Curl_cfilter *cf_at,
   DEBUGASSERT(cf_at);
   result = cf_ip_happy_create(&cf, data, origin, peer, transport_peer,
                               cf_at->conn, tunnel_peer, tunnel_transport);
-  if(result)
-    return result;
+  만약(result)
+    반환 result;
 
   Curl_conn_cf_insert_after(cf_at, cf);
-  return CURLE_OK;
+  반환 CURLE_OK;
 }

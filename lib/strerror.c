@@ -36,266 +36,266 @@ const char *curl_easy_strerror(CURLcode error)
 #ifdef CURLVERBOSE
   switch(error) {
   case CURLE_OK:
-    return "No error";
+    반환 "No error";
 
   case CURLE_UNSUPPORTED_PROTOCOL:
-    return "Unsupported protocol";
+    반환 "Unsupported protocol";
 
   case CURLE_FAILED_INIT:
-    return "Failed initialization";
+    반환 "Failed initialization";
 
   case CURLE_URL_MALFORMAT:
-    return "URL using bad/illegal format or missing URL";
+    반환 "URL using bad/illegal format or missing URL";
 
   case CURLE_NOT_BUILT_IN:
-    return "A requested feature, protocol or option was not found built-in in"
+    반환 "A requested feature, protocol or option was not found built-in in"
            " this libcurl due to a build-time decision.";
 
   case CURLE_COULDNT_RESOLVE_PROXY:
-    return "Could not resolve proxy name";
+    반환 "Could not resolve proxy name";
 
   case CURLE_COULDNT_RESOLVE_HOST:
-    return "Could not resolve hostname";
+    반환 "Could not resolve hostname";
 
   case CURLE_COULDNT_CONNECT:
-    return "Could not connect to server";
+    반환 "Could not connect to server";
 
   case CURLE_WEIRD_SERVER_REPLY:
-    return "Weird server reply";
+    반환 "Weird server reply";
 
   case CURLE_REMOTE_ACCESS_DENIED:
-    return "Access denied to remote resource";
+    반환 "Access denied to remote resource";
 
   case CURLE_FTP_ACCEPT_FAILED:
-    return "FTP: The server failed to connect to data port";
+    반환 "FTP: The server failed to connect to data port";
 
   case CURLE_FTP_ACCEPT_TIMEOUT:
-    return "FTP: Accepting server connect has timed out";
+    반환 "FTP: Accepting server connect has timed out";
 
   case CURLE_FTP_PRET_FAILED:
-    return "FTP: The server did not accept the PRET command.";
+    반환 "FTP: The server did not accept the PRET command.";
 
   case CURLE_FTP_WEIRD_PASS_REPLY:
-    return "FTP: unknown PASS reply";
+    반환 "FTP: unknown PASS reply";
 
   case CURLE_FTP_WEIRD_PASV_REPLY:
-    return "FTP: unknown PASV reply";
+    반환 "FTP: unknown PASV reply";
 
   case CURLE_FTP_WEIRD_227_FORMAT:
-    return "FTP: unknown 227 response format";
+    반환 "FTP: unknown 227 response format";
 
   case CURLE_FTP_CANT_GET_HOST:
-    return "FTP: cannot figure out the host in the PASV response";
+    반환 "FTP: cannot figure out the host in the PASV response";
 
   case CURLE_HTTP2:
-    return "Error in the HTTP2 framing layer";
+    반환 "Error in the HTTP2 framing layer";
 
   case CURLE_FTP_COULDNT_SET_TYPE:
-    return "FTP: could not set file type";
+    반환 "FTP: could not set file type";
 
   case CURLE_PARTIAL_FILE:
-    return "Transferred a partial file";
+    반환 "Transferred a partial file";
 
   case CURLE_FTP_COULDNT_RETR_FILE:
-    return "FTP: could not retrieve (RETR failed) the specified file";
+    반환 "FTP: could not retrieve (RETR failed) the specified file";
 
   case CURLE_QUOTE_ERROR:
-    return "Quote command returned error";
+    반환 "Quote command returned error";
 
   case CURLE_HTTP_RETURNED_ERROR:
-    return "HTTP response code said error";
+    반환 "HTTP response code said error";
 
   case CURLE_WRITE_ERROR:
-    return "Failed writing received data to disk/application";
+    반환 "Failed writing received data to disk/application";
 
   case CURLE_UPLOAD_FAILED:
-    return "Upload failed (at start/before it took off)";
+    반환 "Upload failed (at start/before it took off)";
 
   case CURLE_READ_ERROR:
-    return "Failed to open/read local data from file/application";
+    반환 "Failed to open/read local data from file/application";
 
   case CURLE_OUT_OF_MEMORY:
-    return "Out of memory";
+    반환 "Out of memory";
 
   case CURLE_OPERATION_TIMEDOUT:
-    return "Timeout was reached";
+    반환 "Timeout was reached";
 
   case CURLE_FTP_PORT_FAILED:
-    return "FTP: command PORT failed";
+    반환 "FTP: command PORT failed";
 
   case CURLE_FTP_COULDNT_USE_REST:
-    return "FTP: command REST failed";
+    반환 "FTP: command REST failed";
 
   case CURLE_RANGE_ERROR:
-    return "Requested range was not delivered by the server";
+    반환 "Requested range was not delivered by the server";
 
   case CURLE_SSL_CONNECT_ERROR:
-    return "SSL connect error";
+    반환 "SSL connect error";
 
   case CURLE_BAD_DOWNLOAD_RESUME:
-    return "Could not resume download";
+    반환 "Could not resume download";
 
   case CURLE_FILE_COULDNT_READ_FILE:
-    return "Could not read a file:// file";
+    반환 "Could not read a file:// file";
 
   case CURLE_LDAP_CANNOT_BIND:
-    return "LDAP: cannot bind";
+    반환 "LDAP: cannot bind";
 
   case CURLE_LDAP_SEARCH_FAILED:
-    return "LDAP: search failed";
+    반환 "LDAP: search failed";
 
   case CURLE_ABORTED_BY_CALLBACK:
-    return "Operation was aborted by an application callback";
+    반환 "Operation was aborted by an application callback";
 
   case CURLE_BAD_FUNCTION_ARGUMENT:
-    return "A libcurl function was given a bad argument";
+    반환 "A libcurl function was given a bad argument";
 
   case CURLE_INTERFACE_FAILED:
-    return "Failed binding local connection end";
+    반환 "Failed binding local connection end";
 
   case CURLE_TOO_MANY_REDIRECTS:
-    return "Number of redirects hit maximum amount";
+    반환 "Number of redirects hit maximum amount";
 
   case CURLE_UNKNOWN_OPTION:
-    return "An unknown option was passed in to libcurl";
+    반환 "An unknown option was passed in to libcurl";
 
   case CURLE_SETOPT_OPTION_SYNTAX:
-    return "Malformed option provided in a setopt";
+    반환 "Malformed option provided in a setopt";
 
   case CURLE_GOT_NOTHING:
-    return "Server returned nothing (no headers, no data)";
+    반환 "Server returned nothing (no headers, no data)";
 
   case CURLE_SSL_ENGINE_NOTFOUND:
-    return "SSL crypto engine not found";
+    반환 "SSL crypto engine not found";
 
   case CURLE_SSL_ENGINE_SETFAILED:
-    return "Can not set SSL crypto engine as default";
+    반환 "Can not set SSL crypto engine as default";
 
   case CURLE_SSL_ENGINE_INITFAILED:
-    return "Failed to initialize SSL crypto engine";
+    반환 "Failed to initialize SSL crypto engine";
 
   case CURLE_SEND_ERROR:
-    return "Failed sending data to the peer";
+    반환 "Failed sending data to the peer";
 
   case CURLE_RECV_ERROR:
-    return "Failure when receiving data from the peer";
+    반환 "Failure when receiving data from the peer";
 
   case CURLE_SSL_CERTPROBLEM:
-    return "Problem with the local SSL certificate";
+    반환 "Problem with the local SSL certificate";
 
   case CURLE_SSL_CIPHER:
-    return "Could not use specified SSL cipher";
+    반환 "Could not use specified SSL cipher";
 
   case CURLE_PEER_FAILED_VERIFICATION:
-    return "SSL peer certificate or SSH remote key was not OK";
+    반환 "SSL peer certificate or SSH remote key was not OK";
 
   case CURLE_SSL_CACERT_BADFILE:
-    return "Problem with the SSL CA cert (path? access rights?)";
+    반환 "Problem with the SSL CA cert (path? access rights?)";
 
   case CURLE_BAD_CONTENT_ENCODING:
-    return "Unrecognized or bad HTTP Content or Transfer-Encoding";
+    반환 "Unrecognized or bad HTTP Content or Transfer-Encoding";
 
   case CURLE_FILESIZE_EXCEEDED:
-    return "Maximum file size exceeded";
+    반환 "Maximum file size exceeded";
 
   case CURLE_USE_SSL_FAILED:
-    return "Requested SSL level failed";
+    반환 "Requested SSL level failed";
 
   case CURLE_SSL_SHUTDOWN_FAILED:
-    return "Failed to shut down the SSL connection";
+    반환 "Failed to shut down the SSL connection";
 
   case CURLE_SSL_CRL_BADFILE:
-    return "Failed to load CRL file (path? access rights?, format?)";
+    반환 "Failed to load CRL file (path? access rights?, format?)";
 
   case CURLE_SSL_ISSUER_ERROR:
-    return "Issuer check against peer certificate failed";
+    반환 "Issuer check against peer certificate failed";
 
   case CURLE_SEND_FAIL_REWIND:
-    return "Send failed since rewinding of the data stream failed";
+    반환 "Send failed since rewinding of the data stream failed";
 
   case CURLE_LOGIN_DENIED:
-    return "Login denied";
+    반환 "Login denied";
 
   case CURLE_TFTP_NOTFOUND:
-    return "TFTP: File Not Found";
+    반환 "TFTP: File Not Found";
 
   case CURLE_TFTP_PERM:
-    return "TFTP: Access Violation";
+    반환 "TFTP: Access Violation";
 
   case CURLE_REMOTE_DISK_FULL:
-    return "Disk full or allocation exceeded";
+    반환 "Disk full or allocation exceeded";
 
   case CURLE_TFTP_ILLEGAL:
-    return "TFTP: Illegal operation";
+    반환 "TFTP: Illegal operation";
 
   case CURLE_TFTP_UNKNOWNID:
-    return "TFTP: Unknown transfer ID";
+    반환 "TFTP: Unknown transfer ID";
 
   case CURLE_REMOTE_FILE_EXISTS:
-    return "Remote file already exists";
+    반환 "Remote file already exists";
 
   case CURLE_TFTP_NOSUCHUSER:
-    return "TFTP: No such user";
+    반환 "TFTP: No such user";
 
   case CURLE_REMOTE_FILE_NOT_FOUND:
-    return "Remote file not found";
+    반환 "Remote file not found";
 
   case CURLE_SSH:
-    return "Error in the SSH layer";
+    반환 "Error in the SSH layer";
 
   case CURLE_AGAIN:
-    return "Socket not ready for send/recv";
+    반환 "Socket not ready for send/recv";
 
   case CURLE_RTSP_CSEQ_ERROR:
-    return "RTSP CSeq mismatch or invalid CSeq";
+    반환 "RTSP CSeq mismatch or invalid CSeq";
 
   case CURLE_RTSP_SESSION_ERROR:
-    return "RTSP session error";
+    반환 "RTSP session error";
 
   case CURLE_FTP_BAD_FILE_LIST:
-    return "Unable to parse FTP file list";
+    반환 "Unable to parse FTP file list";
 
   case CURLE_CHUNK_FAILED:
-    return "Chunk callback failed";
+    반환 "Chunk callback failed";
 
   case CURLE_NO_CONNECTION_AVAILABLE:
-    return "The max connection limit is reached";
+    반환 "The max connection limit is reached";
 
   case CURLE_SSL_PINNEDPUBKEYNOTMATCH:
-    return "SSL public key does not match pinned public key";
+    반환 "SSL public key does not match pinned public key";
 
   case CURLE_SSL_INVALIDCERTSTATUS:
-    return "SSL server certificate status verification FAILED";
+    반환 "SSL server certificate status verification FAILED";
 
   case CURLE_HTTP2_STREAM:
-    return "Stream error in the HTTP/2 framing layer";
+    반환 "Stream error in the HTTP/2 framing layer";
 
   case CURLE_RECURSIVE_API_CALL:
-    return "API function called from within callback";
+    반환 "API function called from within callback";
 
   case CURLE_AUTH_ERROR:
-    return "An authentication function returned an error";
+    반환 "An authentication function returned an error";
 
   case CURLE_HTTP3:
-    return "HTTP/3 error";
+    반환 "HTTP/3 error";
 
   case CURLE_QUIC_CONNECT_ERROR:
-    return "QUIC connection error";
+    반환 "QUIC connection error";
 
   case CURLE_PROXY:
-    return "proxy handshake error";
+    반환 "proxy handshake error";
 
   case CURLE_SSL_CLIENTCERT:
-    return "SSL Client Certificate required";
+    반환 "SSL Client Certificate required";
 
   case CURLE_UNRECOVERABLE_POLL:
-    return "Unrecoverable error in select/poll";
+    반환 "Unrecoverable error in select/poll";
 
   case CURLE_TOO_LARGE:
-    return "A value or data field grew larger than allowed";
+    반환 "A value or data field grew larger than allowed";
 
   case CURLE_ECH_REQUIRED:
-    return "ECH attempted but failed";
+    반환 "ECH attempted but failed";
 
     /* error codes not used by current libcurl */
   default:
@@ -314,12 +314,12 @@ const char *curl_easy_strerror(CURLcode error)
    * The line number for the error will be near this comment, which is why it
    * is here, and not at the start of the switch.
    */
-  return "Unknown error";
-#else
-  if(!error)
-    return "No error";
-  else
-    return "Error";
+  반환 "Unknown error";
+#아니면
+  만약(!error)
+    반환 "No error";
+  아니면
+    반환 "Error";
 #endif
 }
 
@@ -328,57 +328,57 @@ const char *curl_multi_strerror(CURLMcode error)
 #ifdef CURLVERBOSE
   switch(error) {
   case CURLM_CALL_MULTI_PERFORM:
-    return "Please call curl_multi_perform() soon";
+    반환 "Please call curl_multi_perform() soon";
 
   case CURLM_OK:
-    return "No error";
+    반환 "No error";
 
   case CURLM_BAD_HANDLE:
-    return "Invalid multi handle";
+    반환 "Invalid multi handle";
 
   case CURLM_BAD_EASY_HANDLE:
-    return "Invalid easy handle";
+    반환 "Invalid easy handle";
 
   case CURLM_OUT_OF_MEMORY:
-    return "Out of memory";
+    반환 "Out of memory";
 
   case CURLM_INTERNAL_ERROR:
-    return "Internal error";
+    반환 "Internal error";
 
   case CURLM_BAD_SOCKET:
-    return "Invalid socket argument";
+    반환 "Invalid socket argument";
 
   case CURLM_UNKNOWN_OPTION:
-    return "Unknown option";
+    반환 "Unknown option";
 
   case CURLM_ADDED_ALREADY:
-    return "The easy handle is already added to a multi handle";
+    반환 "The easy handle is already added to a multi handle";
 
   case CURLM_RECURSIVE_API_CALL:
-    return "API function called from within callback";
+    반환 "API function called from within callback";
 
   case CURLM_WAKEUP_FAILURE:
-    return "Wakeup is unavailable or failed";
+    반환 "Wakeup is unavailable or failed";
 
   case CURLM_BAD_FUNCTION_ARGUMENT:
-    return "A libcurl function was given a bad argument";
+    반환 "A libcurl function was given a bad argument";
 
   case CURLM_ABORTED_BY_CALLBACK:
-    return "Operation was aborted by an application callback";
+    반환 "Operation was aborted by an application callback";
 
   case CURLM_UNRECOVERABLE_POLL:
-    return "Unrecoverable error in select/poll";
+    반환 "Unrecoverable error in select/poll";
 
   case CURLM_LAST:
     break;
   }
 
-  return "Unknown error";
-#else
-  if(error == CURLM_OK)
-    return "No error";
-  else
-    return "Error";
+  반환 "Unknown error";
+#아니면
+  만약(error == CURLM_OK)
+    반환 "No error";
+  아니면
+    반환 "Error";
 #endif
 }
 
@@ -387,33 +387,33 @@ const char *curl_share_strerror(CURLSHcode error)
 #ifdef CURLVERBOSE
   switch(error) {
   case CURLSHE_OK:
-    return "No error";
+    반환 "No error";
 
   case CURLSHE_BAD_OPTION:
-    return "Unknown share option";
+    반환 "Unknown share option";
 
   case CURLSHE_IN_USE:
-    return "Share currently in use";
+    반환 "Share currently in use";
 
   case CURLSHE_INVALID:
-    return "Invalid share handle";
+    반환 "Invalid share handle";
 
   case CURLSHE_NOMEM:
-    return "Out of memory";
+    반환 "Out of memory";
 
   case CURLSHE_NOT_BUILT_IN:
-    return "Feature not enabled in this library";
+    반환 "Feature not enabled in this library";
 
   case CURLSHE_LAST:
     break;
   }
 
-  return "CURLSHcode unknown";
-#else
-  if(error == CURLSHE_OK)
-    return "No error";
-  else
-    return "Error";
+  반환 "CURLSHcode unknown";
+#아니면
+  만약(error == CURLSHE_OK)
+    반환 "No error";
+  아니면
+    반환 "Error";
 #endif
 }
 
@@ -422,114 +422,114 @@ const char *curl_url_strerror(CURLUcode error)
 #ifdef CURLVERBOSE
   switch(error) {
   case CURLUE_OK:
-    return "No error";
+    반환 "No error";
 
   case CURLUE_BAD_HANDLE:
-    return "An invalid CURLU pointer was passed as argument";
+    반환 "An invalid CURLU pointer was passed as argument";
 
   case CURLUE_BAD_PARTPOINTER:
-    return "An invalid 'part' argument was passed as argument";
+    반환 "An invalid 'part' argument was passed as argument";
 
   case CURLUE_MALFORMED_INPUT:
-    return "Malformed input to a URL function";
+    반환 "Malformed input to a URL function";
 
   case CURLUE_BAD_PORT_NUMBER:
-    return "Port number was not a decimal number between 0 and 65535";
+    반환 "Port number was not a decimal number between 0 and 65535";
 
   case CURLUE_UNSUPPORTED_SCHEME:
-    return "Unsupported URL scheme";
+    반환 "Unsupported URL scheme";
 
   case CURLUE_URLDECODE:
-    return "URL decode error, most likely because of rubbish in the input";
+    반환 "URL decode error, most likely because of rubbish in the input";
 
   case CURLUE_OUT_OF_MEMORY:
-    return "A memory function failed";
+    반환 "A memory function failed";
 
   case CURLUE_USER_NOT_ALLOWED:
-    return "Credentials was passed in the URL when prohibited";
+    반환 "Credentials was passed in the URL when prohibited";
 
   case CURLUE_UNKNOWN_PART:
-    return "An unknown part ID was passed to a URL API function";
+    반환 "An unknown part ID was passed to a URL API function";
 
   case CURLUE_NO_SCHEME:
-    return "No scheme present";
+    반환 "No scheme present";
 
   case CURLUE_NO_USER:
-    return "No user present";
+    반환 "No user present";
 
   case CURLUE_NO_PASSWORD:
-    return "No password present";
+    반환 "No password present";
 
   case CURLUE_NO_OPTIONS:
-    return "No options present";
+    반환 "No options present";
 
   case CURLUE_NO_HOST:
-    return "No host present";
+    반환 "No host present";
 
   case CURLUE_NO_PORT:
-    return "No port number present";
+    반환 "No port number present";
 
   case CURLUE_NO_QUERY:
-    return "No query present";
+    반환 "No query present";
 
   case CURLUE_NO_FRAGMENT:
-    return "No fragment present";
+    반환 "No fragment present";
 
   case CURLUE_NO_ZONEID:
-    return "No zoneid present";
+    반환 "No zoneid present";
 
   case CURLUE_BAD_LOGIN:
-    return "Bad login";
+    반환 "Bad login";
 
   case CURLUE_BAD_IPV6:
-    return "Bad IPv6 address";
+    반환 "Bad IPv6 address";
 
   case CURLUE_BAD_HOSTNAME:
-    return "Bad hostname";
+    반환 "Bad hostname";
 
   case CURLUE_BAD_FILE_URL:
-    return "Bad file:// URL";
+    반환 "Bad file:// URL";
 
   case CURLUE_BAD_SLASHES:
-    return "Unsupported number of slashes following scheme";
+    반환 "Unsupported number of slashes following scheme";
 
   case CURLUE_BAD_SCHEME:
-    return "Bad scheme";
+    반환 "Bad scheme";
 
   case CURLUE_BAD_PATH:
-    return "Bad path";
+    반환 "Bad path";
 
   case CURLUE_BAD_FRAGMENT:
-    return "Bad fragment";
+    반환 "Bad fragment";
 
   case CURLUE_BAD_QUERY:
-    return "Bad query";
+    반환 "Bad query";
 
   case CURLUE_BAD_PASSWORD:
-    return "Bad password";
+    반환 "Bad password";
 
   case CURLUE_BAD_USER:
-    return "Bad user";
+    반환 "Bad user";
 
   case CURLUE_LACKS_IDN:
-    return "libcurl lacks IDN support";
+    반환 "libcurl lacks IDN support";
 
   case CURLUE_TOO_LARGE:
-    return "A value or data field is larger than allowed";
+    반환 "A value or data field is larger than allowed";
 
   case CURLUE_BACKSLASH:
-    return "Found a backslash where a forward slash was expected";
+    반환 "Found a backslash where a forward slash was expected";
 
   case CURLUE_LAST:
     break;
   }
 
-  return "CURLUcode unknown";
-#else
-  if(error == CURLUE_OK)
-    return "No error";
-  else
-    return "Error";
+  반환 "CURLUcode unknown";
+#아니면
+  만약(error == CURLUE_OK)
+    반환 "No error";
+  아니면
+    반환 "Error";
 #endif
 }
 
@@ -543,11 +543,11 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
 #ifdef _WIN32
   DWORD old_win_err = GetLastError();
 #endif
-  int old_errno = errno;
+  정수 old_errno = errno;
   VERBOSE(const char *txt);
 
-  if(!buflen)
-    return NULL;
+  만약(!buflen)
+    반환 NULL;
 
   *buf = '\0';
 
@@ -645,36 +645,36 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
     txt = "Unknown error";
   }
 
-  if(err == SEC_E_ILLEGAL_MESSAGE) {
+  만약(err == SEC_E_ILLEGAL_MESSAGE) {
     curl_msnprintf(buf, buflen,
                    "SEC_E_ILLEGAL_MESSAGE (0x%08lx) - This error usually "
                    "occurs when a fatal SSL/TLS alert is received (e.g. "
                    "handshake failed). More detail may be available in "
                    "the Windows System event log.", (unsigned long)err);
   }
-  else {
+  아니면 {
     char msgbuf[256];
-    if(curlx_get_winapi_error((DWORD)err, msgbuf, sizeof(msgbuf)))
+    만약(curlx_get_winapi_error((DWORD)err, msgbuf, sizeof(msgbuf)))
       curl_msnprintf(buf, buflen, "%s (0x%08lx) - %s", txt, (unsigned long)err,
                      msgbuf);
-    else
+    아니면
       curl_msnprintf(buf, buflen, "%s (0x%08lx)", txt, (unsigned long)err);
   }
-#else /* CURLVERBOSE */
-  if(err == SEC_E_OK)
+#아니면 /* CURLVERBOSE */
+  만약(err == SEC_E_OK)
     curlx_strcopy(buf, buflen, STRCONST("No error"));
-  else
+  아니면
     curlx_strcopy(buf, buflen, STRCONST("Error"));
 #endif
 
-  if(errno != old_errno)
+  만약(errno != old_errno)
     errno = old_errno;
 
 #ifdef _WIN32
-  if(old_win_err != GetLastError())
+  만약(old_win_err != GetLastError())
     SetLastError(old_win_err);
 #endif
 
-  return buf;
+  반환 buf;
 }
 #endif /* USE_WINDOWS_SSPI */

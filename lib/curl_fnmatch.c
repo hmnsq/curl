@@ -66,71 +66,71 @@ typedef enum {
 #define SETCHARSET_OK     1
 #define SETCHARSET_FAIL   0
 
-static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
+static 정수 parsekeyword(const unsigned char **pattern, unsigned char *charset)
 {
   parsekey_state state = CURLFNM_PKW_INIT;
   char keyword[10] = { 0 };
   size_t i;
   const unsigned char *p = *pattern;
   bool found = FALSE;
-  for(i = 0; !found; i++) {
+  위해(i = 0; !found; i++) {
     char c = (char)*p++;
-    if(i >= sizeof(keyword))
-      return SETCHARSET_FAIL;
+    만약(i >= sizeof(keyword))
+      반환 SETCHARSET_FAIL;
     switch(state) {
     case CURLFNM_PKW_INIT:
-      if(ISLOWER(c))
+      만약(ISLOWER(c))
         keyword[i] = c;
-      else if(c == ':')
+      아니면 만약(c == ':')
         state = CURLFNM_PKW_DDOT;
-      else
-        return SETCHARSET_FAIL;
+      아니면
+        반환 SETCHARSET_FAIL;
       break;
     case CURLFNM_PKW_DDOT:
-      if(c == ']')
+      만약(c == ']')
         found = TRUE;
-      else
-        return SETCHARSET_FAIL;
+      아니면
+        반환 SETCHARSET_FAIL;
     }
   }
 #undef KEYLEN
 
   *pattern = p; /* move caller's pattern pointer */
-  if(!strcmp(keyword, "digit"))
+  만약(!strcmp(keyword, "digit"))
     charset[CURLFNM_DIGIT] = 1;
-  else if(!strcmp(keyword, "alnum"))
+  아니면 만약(!strcmp(keyword, "alnum"))
     charset[CURLFNM_ALNUM] = 1;
-  else if(!strcmp(keyword, "alpha"))
+  아니면 만약(!strcmp(keyword, "alpha"))
     charset[CURLFNM_ALPHA] = 1;
-  else if(!strcmp(keyword, "xdigit"))
+  아니면 만약(!strcmp(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
-  else if(!strcmp(keyword, "print"))
+  아니면 만약(!strcmp(keyword, "print"))
     charset[CURLFNM_PRINT] = 1;
-  else if(!strcmp(keyword, "graph"))
+  아니면 만약(!strcmp(keyword, "graph"))
     charset[CURLFNM_GRAPH] = 1;
-  else if(!strcmp(keyword, "space"))
+  아니면 만약(!strcmp(keyword, "space"))
     charset[CURLFNM_SPACE] = 1;
-  else if(!strcmp(keyword, "blank"))
+  아니면 만약(!strcmp(keyword, "blank"))
     charset[CURLFNM_BLANK] = 1;
-  else if(!strcmp(keyword, "upper"))
+  아니면 만약(!strcmp(keyword, "upper"))
     charset[CURLFNM_UPPER] = 1;
-  else if(!strcmp(keyword, "lower"))
+  아니면 만약(!strcmp(keyword, "lower"))
     charset[CURLFNM_LOWER] = 1;
-  else
-    return SETCHARSET_FAIL;
-  return SETCHARSET_OK;
+  아니면
+    반환 SETCHARSET_FAIL;
+  반환 SETCHARSET_OK;
 }
 
 /* Return the character class. */
 static char_class charclass(unsigned char c)
 {
-  if(ISUPPER(c))
-    return CCLASS_UPPER;
-  if(ISLOWER(c))
-    return CCLASS_LOWER;
-  if(ISDIGIT(c))
-    return CCLASS_DIGIT;
-  return CCLASS_OTHER;
+  만약(ISUPPER(c))
+    반환 CCLASS_UPPER;
+  만약(ISLOWER(c))
+    반환 CCLASS_LOWER;
+  만약(ISDIGIT(c))
+    반환 CCLASS_DIGIT;
+  반환 CCLASS_OTHER;
 }
 
 /* Include a character or a range in set. */
@@ -140,15 +140,15 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
   unsigned char c = *p++;
 
   charset[c] = 1;
-  if(ISALNUM(c) && *p++ == '-') {
+  만약(ISALNUM(c) && *p++ == '-') {
     char_class cc = charclass(c);
     unsigned char endrange = *p++;
 
-    if(endrange == '\\')
+    만약(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
-      while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+    만약(endrange >= c && charclass(endrange) == cc) {
+      동안(c++ != endrange)
+        만약(charclass(c) == cc)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }
@@ -156,88 +156,88 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
 }
 
 /* returns 1 (TRUE) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(const unsigned char **p, unsigned char *charset)
+static 정수 setcharset(const unsigned char **p, unsigned char *charset)
 {
   setcharset_state state = CURLFNM_SCHS_DEFAULT;
   bool something_found = FALSE;
   unsigned char c;
 
   memset(charset, 0, CURLFNM_CHSET_SIZE);
-  for(;;) {
+  위해(;;) {
     c = **p;
-    if(!c)
-      return SETCHARSET_FAIL;
+    만약(!c)
+      반환 SETCHARSET_FAIL;
 
     switch(state) {
     case CURLFNM_SCHS_DEFAULT:
-      if(c == ']') {
-        if(something_found)
-          return SETCHARSET_OK;
+      만약(c == ']') {
+        만약(something_found)
+          반환 SETCHARSET_OK;
         something_found = TRUE;
         state = CURLFNM_SCHS_RIGHTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == '[') {
+      아니면 만약(c == '[') {
         const unsigned char *pp = *p + 1;
 
-        if(*pp++ == ':' && parsekeyword(&pp, charset))
+        만약(*pp++ == ':' && parsekeyword(&pp, charset))
           *p = pp;
-        else {
+        아니면 {
           charset[c] = 1;
           (*p)++;
         }
         something_found = TRUE;
       }
-      else if(c == '^' || c == '!') {
-        if(!something_found) {
-          if(charset[CURLFNM_NEGATE]) {
+      아니면 만약(c == '^' || c == '!') {
+        만약(!something_found) {
+          만약(charset[CURLFNM_NEGATE]) {
             charset[c] = 1;
             something_found = TRUE;
           }
-          else
+          아니면
             charset[CURLFNM_NEGATE] = 1; /* negate charset */
         }
-        else
+        아니면
           charset[c] = 1;
         (*p)++;
       }
-      else if(c == '\\') {
+      아니면 만약(c == '\\') {
         c = *(++(*p));
-        if(c)
+        만약(c)
           setcharorrange(p, charset);
-        else
+        아니면
           charset['\\'] = 1;
         something_found = TRUE;
       }
-      else {
+      아니면 {
         setcharorrange(p, charset);
         something_found = TRUE;
       }
       break;
     case CURLFNM_SCHS_RIGHTBR:
-      if(c == '[') {
+      만약(c == '[') {
         state = CURLFNM_SCHS_RIGHTBRLEFTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == ']') {
-        return SETCHARSET_OK;
+      아니면 만약(c == ']') {
+        반환 SETCHARSET_OK;
       }
-      else if(ISPRINT(c)) {
+      아니면 만약(ISPRINT(c)) {
         charset[c] = 1;
         (*p)++;
         state = CURLFNM_SCHS_DEFAULT;
       }
-      else
+      아니면
         /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
          * nonsense warning 'statement not reached' at end of the fnc when
          * compiling on Solaris */
         goto fail;
       break;
     case CURLFNM_SCHS_RIGHTBRLEFTBR:
-      if(c == ']')
-        return SETCHARSET_OK;
+      만약(c == ']')
+        반환 SETCHARSET_OK;
       state = CURLFNM_SCHS_DEFAULT;
       charset[c] = 1;
       (*p)++;
@@ -245,11 +245,11 @@ static int setcharset(const unsigned char **p, unsigned char *charset)
     }
   }
 fail:
-  return SETCHARSET_FAIL;
+  반환 SETCHARSET_FAIL;
 }
 
 /* match one pattern token against one string character, advancing both */
-static int matchtoken(const unsigned char **pp, const unsigned char **sp)
+static 정수 matchtoken(const unsigned char **pp, const unsigned char **sp)
 {
   const unsigned char *p = *pp;
   const unsigned char *s = *sp;
@@ -258,158 +258,158 @@ static int matchtoken(const unsigned char **pp, const unsigned char **sp)
   case '?':
     break;
   case '\\':
-    if(p[1])
+    만약(p[1])
       p++;
-    if(*s != *p)
-      return 0;
+    만약(*s != *p)
+      반환 0;
     break;
   case '[': {
     unsigned char charset[CURLFNM_CHSET_SIZE];
     const unsigned char *pp2 = p + 1; /* Copy in case of syntax error. */
     bool found = FALSE;
-    if(!setcharset(&pp2, charset))
-      return -1; /* Syntax error in set; mismatch! */
-    if(charset[(unsigned int)*s])
+    만약(!setcharset(&pp2, charset))
+      반환 -1; /* Syntax error in set; mismatch! */
+    만약(charset[(unsigned 정수)*s])
       found = TRUE;
-    else if(charset[CURLFNM_ALNUM])
+    아니면 만약(charset[CURLFNM_ALNUM])
       found = ISALNUM(*s);
-    else if(charset[CURLFNM_ALPHA])
+    아니면 만약(charset[CURLFNM_ALPHA])
       found = ISALPHA(*s);
-    else if(charset[CURLFNM_DIGIT])
+    아니면 만약(charset[CURLFNM_DIGIT])
       found = ISDIGIT(*s);
-    else if(charset[CURLFNM_XDIGIT])
+    아니면 만약(charset[CURLFNM_XDIGIT])
       found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
+    아니면 만약(charset[CURLFNM_PRINT])
       found = ISPRINT(*s);
-    else if(charset[CURLFNM_SPACE])
+    아니면 만약(charset[CURLFNM_SPACE])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_UPPER])
+    아니면 만약(charset[CURLFNM_UPPER])
       found = ISUPPER(*s);
-    else if(charset[CURLFNM_LOWER])
+    아니면 만약(charset[CURLFNM_LOWER])
       found = ISLOWER(*s);
-    else if(charset[CURLFNM_BLANK])
+    아니면 만약(charset[CURLFNM_BLANK])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_GRAPH])
+    아니면 만약(charset[CURLFNM_GRAPH])
       found = ISGRAPH(*s);
 
-    if(charset[CURLFNM_NEGATE])
+    만약(charset[CURLFNM_NEGATE])
       found = !found;
 
-    if(!found)
-      return 0;
+    만약(!found)
+      반환 0;
     *pp = pp2 + 1;
     *sp = s + 1;
-    return 1;
+    반환 1;
   }
   default:
-    if(*p != *s)
-      return 0;
+    만약(*p != *s)
+      반환 0;
     break;
   }
   *pp = p + 1;
   *sp = s + 1;
-  return 1;
+  반환 1;
 }
 
 /* greedy match with backtracking to the most recent '*' */
-static int loop(const unsigned char *pattern, const unsigned char *string)
+static 정수 loop(const unsigned char *pattern, const unsigned char *string)
 {
   const unsigned char *p = pattern;
   const unsigned char *s = string;
   const unsigned char *star_p = NULL;
   const unsigned char *star_s = NULL;
-  int maxstars = 2;
+  정수 maxstars = 2;
 
-  while(*s) {
-    if(*p == '*') {
-      if(!maxstars)
-        return CURL_FNMATCH_NOMATCH;
+  동안(*s) {
+    만약(*p == '*') {
+      만약(!maxstars)
+        반환 CURL_FNMATCH_NOMATCH;
       maxstars--;
-      for(;;) {
+      위해(;;) {
         p++;
-        if(!*p)
-          return CURL_FNMATCH_MATCH;
-        if(*p == '?') {
-          if(!*s)
-            return CURL_FNMATCH_NOMATCH;
+        만약(!*p)
+          반환 CURL_FNMATCH_MATCH;
+        만약(*p == '?') {
+          만약(!*s)
+            반환 CURL_FNMATCH_NOMATCH;
           s++;
         }
-        else if(*p != '*')
+        아니면 만약(*p != '*')
           break;
       }
       star_p = p;
       star_s = s;
     }
-    else if(*p) {
+    아니면 만약(*p) {
       const unsigned char *np = p;
       const unsigned char *ns = s;
-      int r = matchtoken(&np, &ns);
-      if(r < 0)
-        return CURL_FNMATCH_NOMATCH;
-      if(r) {
+      정수 r = matchtoken(&np, &ns);
+      만약(r < 0)
+        반환 CURL_FNMATCH_NOMATCH;
+      만약(r) {
         p = np;
         s = ns;
         continue;
       }
-      if(!star_p)
-        return CURL_FNMATCH_NOMATCH;
+      만약(!star_p)
+        반환 CURL_FNMATCH_NOMATCH;
       p = star_p;
       s = ++star_s;
     }
-    else if(star_p) {
+    아니면 만약(star_p) {
       p = star_p;
       s = ++star_s;
     }
-    else
-      return CURL_FNMATCH_NOMATCH;
+    아니면
+      반환 CURL_FNMATCH_NOMATCH;
   }
-  while(*p == '*') {
-    if(!maxstars)
-      return CURL_FNMATCH_NOMATCH;
+  동안(*p == '*') {
+    만약(!maxstars)
+      반환 CURL_FNMATCH_NOMATCH;
     maxstars--;
     do {
       p++;
-      if(*p == '?')
-        return CURL_FNMATCH_NOMATCH;
-    } while(*p == '*');
+      만약(*p == '?')
+        반환 CURL_FNMATCH_NOMATCH;
+    } 동안(*p == '*');
   }
-  return *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
+  반환 *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
 }
 
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+정수 Curl_fnmatch(void *ptr, const char *pattern, const char *string)
 {
   (void)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  만약(!pattern || !string) {
+    반환 CURL_FNMATCH_FAIL;
   }
-  return loop((const unsigned char *)pattern,
+  반환 loop((const unsigned char *)pattern,
               (const unsigned char *)string);
 }
-#else /* HAVE_FNMATCH */
+#아니면 /* HAVE_FNMATCH */
 
 #include <fnmatch.h>
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+정수 Curl_fnmatch(void *ptr, const char *pattern, const char *string)
 {
   (void)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  만약(!pattern || !string) {
+    반환 CURL_FNMATCH_FAIL;
   }
 
   switch(fnmatch(pattern, string, 0)) {
   case 0:
-    return CURL_FNMATCH_MATCH;
+    반환 CURL_FNMATCH_MATCH;
   case FNM_NOMATCH:
-    return CURL_FNMATCH_NOMATCH;
+    반환 CURL_FNMATCH_NOMATCH;
   default:
-    return CURL_FNMATCH_FAIL;
+    반환 CURL_FNMATCH_FAIL;
   }
   /* not reached */
 }

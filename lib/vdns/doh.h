@@ -123,7 +123,7 @@ CURLcode Curl_doh_take_result(struct Curl_easy *data,
 #define DOH_MAX_HTTPS 4
 
 struct dohaddr {
-  int type;
+  정수 type;
   union {
     unsigned char v4[4]; /* network byte order */
     unsigned char v6[16];
@@ -147,11 +147,11 @@ struct dohhttps_rr {
 
 struct dohentry {
   struct dohaddr addr[DOH_MAX_ADDR];
-  int numaddr;
-  unsigned int ttl;
+  정수 numaddr;
+  unsigned 정수 ttl;
 #ifdef USE_HTTPSRR
   struct dohhttps_rr https_rrs[DOH_MAX_HTTPS];
-  int numhttps_rrs;
+  정수 numhttps_rrs;
 #endif
 };
 
@@ -159,7 +159,7 @@ void Curl_doh_cleanup(struct Curl_easy *data,
                       struct Curl_resolv_async *async);
 #define Curl_doh_wanted(d)  (!!(d)->set.doh)
 
-#else /* CURL_DISABLE_DOH */
+#아니면 /* CURL_DISABLE_DOH */
 #define Curl_doh(a, b)             NULL
 #define Curl_doh_take_result(x, y, z) CURLE_COULDNT_RESOLVE_HOST
 #define Curl_doh_wanted(d)         FALSE

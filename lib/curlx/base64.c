@@ -102,16 +102,16 @@ CURLcode curlx_base64_decode(const char *src,
   srclen = strlen(src);
 
   /* Check the length of the input string is valid */
-  if(!srclen || srclen % 4)
-    return CURLE_BAD_CONTENT_ENCODING;
+  만약(!srclen || srclen % 4)
+    반환 CURLE_BAD_CONTENT_ENCODING;
 
   /* srclen is at least 4 here */
-  while(src[srclen - 1 - padding] == '=') {
+  동안(src[srclen - 1 - padding] == '=') {
     /* count padding characters */
     padding++;
     /* A maximum of two = padding characters is allowed */
-    if(padding > 2)
-      return CURLE_BAD_CONTENT_ENCODING;
+    만약(padding > 2)
+      반환 CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Calculate the number of quantums */
@@ -123,18 +123,18 @@ CURLcode curlx_base64_decode(const char *src,
 
   /* Allocate our buffer including room for a null-terminator */
   newstr = curlx_malloc(rawlen + 1);
-  if(!newstr)
-    return CURLE_OUT_OF_MEMORY;
+  만약(!newstr)
+    반환 CURLE_OUT_OF_MEMORY;
 
   pos = newstr;
 
   /* Decode the complete quantums first */
-  for(i = 0; i < fullQuantums; i++) {
+  위해(i = 0; i < fullQuantums; i++) {
     unsigned char v0 = decodetable[(unsigned char)src[0]];
     unsigned char v1 = decodetable[(unsigned char)src[1]];
     unsigned char v2 = decodetable[(unsigned char)src[2]];
     unsigned char v3 = decodetable[(unsigned char)src[3]];
-    if((v0 | v1 | v2 | v3) & 0x80)
+    만약((v0 | v1 | v2 | v3) & 0x80)
       goto bad;
     pos[0] = (unsigned char)((v0 << 2) | (v1 >> 4));
     pos[1] = (unsigned char)((v1 << 4) | (v2 >> 2));
@@ -142,28 +142,28 @@ CURLcode curlx_base64_decode(const char *src,
     pos += 3;
     src += 4;
   }
-  if(padding) {
+  만약(padding) {
     /* this means either 8 or 16 bits output */
     unsigned char val;
-    unsigned int x = 0;
-    int j;
+    unsigned 정수 x = 0;
+    정수 j;
     size_t padc = 0;
-    for(j = 0; j < 4; j++) {
-      if(*src == '=') {
+    위해(j = 0; j < 4; j++) {
+      만약(*src == '=') {
         x <<= 6;
         src++;
-        if(++padc > padding)
+        만약(++padc > padding)
           /* this is a badly placed '=' symbol! */
           goto bad;
       }
-      else {
+      아니면 {
         val = decodetable[(unsigned char)*src++];
-        if(val == 0xff) /* bad symbol */
+        만약(val == 0xff) /* bad symbol */
           goto bad;
         x = (x << 6) | val;
       }
     }
-    if(padding == 1)
+    만약(padding == 1)
       pos[1] = (unsigned char)((x >> 8) & 0xff);
     pos[0] = (unsigned char)((x >> 16) & 0xff);
     pos += 3 - padding;
@@ -176,10 +176,10 @@ CURLcode curlx_base64_decode(const char *src,
   *outptr = newstr;
   *outlen = rawlen;
 
-  return CURLE_OK;
+  반환 CURLE_OK;
 bad:
   curlx_free(newstr);
-  return CURLE_BAD_CONTENT_ENCODING;
+  반환 CURLE_BAD_CONTENT_ENCODING;
 }
 
 static CURLcode base64_encode(const char *table64,
@@ -194,19 +194,19 @@ static CURLcode base64_encode(const char *table64,
   *outptr = NULL;
   *outlen = 0;
 
-  if(!insize)
-    return CURLE_OK;
+  만약(!insize)
+    반환 CURLE_OK;
 
   /* safety precaution */
   DEBUGASSERT(insize <= CURL_MAX_BASE64_INPUT);
-  if(insize > CURL_MAX_BASE64_INPUT)
-    return CURLE_TOO_LARGE;
+  만약(insize > CURL_MAX_BASE64_INPUT)
+    반환 CURLE_TOO_LARGE;
 
   base64data = output = curlx_malloc(((insize + 2) / 3 * 4) + 1);
-  if(!output)
-    return CURLE_OUT_OF_MEMORY;
+  만약(!output)
+    반환 CURLE_OUT_OF_MEMORY;
 
-  while(insize >= 3) {
+  동안(insize >= 3) {
     /* Load all three input bytes before storing output, avoiding reloads when
        the compiler cannot rule out aliasing. Extract four 6-bit indices from
        the packed value; byte-wise loads avoid alignment and endian issues. */
@@ -219,21 +219,21 @@ static CURLcode base64_encode(const char *table64,
     insize -= 3;
     in += 3;
   }
-  if(insize) {
+  만약(insize) {
     /* this is only one or two bytes now */
     *output++ = table64[in[0] >> 2];
-    if(insize == 1) {
+    만약(insize == 1) {
       *output++ = table64[((in[0] & 0x03) << 4)];
-      if(padbyte) {
+      만약(padbyte) {
         *output++ = padbyte;
         *output++ = padbyte;
       }
     }
-    else {
+    아니면 {
       /* insize == 2 */
       *output++ = table64[((in[0] & 0x03) << 4) | ((in[1] & 0xF0) >> 4)];
       *output++ = table64[((in[1] & 0x0F) << 2)];
-      if(padbyte)
+      만약(padbyte)
         *output++ = padbyte;
     }
   }
@@ -247,7 +247,7 @@ static CURLcode base64_encode(const char *table64,
   /* Return the length of the new data */
   *outlen = (size_t)(output - base64data);
 
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 /*
@@ -266,7 +266,7 @@ static CURLcode base64_encode(const char *table64,
 CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
                              char **outptr, size_t *outlen)
 {
-  return base64_encode(curlx_base64encdec, '=',
+  반환 base64_encode(curlx_base64encdec, '=',
                        inputbuff, insize, outptr, outlen);
 }
 
@@ -288,5 +288,5 @@ CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
 CURLcode curlx_base64url_encode(const uint8_t *inputbuff, size_t insize,
                                 char **outptr, size_t *outlen)
 {
-  return base64_encode(base64url, 0, inputbuff, insize, outptr, outlen);
+  반환 base64_encode(base64url, 0, inputbuff, insize, outptr, outlen);
 }

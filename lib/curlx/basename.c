@@ -59,14 +59,14 @@ char *curlx_basename(char *path)
   s1 = strrchr(path, '/');
   s2 = strrchr(path, '\\');
 
-  if(s1 && s2)
+  만약(s1 && s2)
     path = ((s1 > s2) ? s1 : s2) + 1;
-  else if(s1)
+  아니면 만약(s1)
     path = s1 + 1;
-  else if(s2)
+  아니면 만약(s2)
     path = s2 + 1;
 
-  return path;
+  반환 path;
 }
 
 #endif /* !HAVE_BASENAME */

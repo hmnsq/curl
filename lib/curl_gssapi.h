@@ -77,14 +77,14 @@ OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_status,
 /* Helper to log a GSS-API error status */
 void Curl_gss_log_error(struct Curl_easy *data, const char *prefix,
                         OM_uint32 major, OM_uint32 minor);
-#else
+#아니면
 #define Curl_gss_log_error(data, prefix, major, minor) \
   do {                                                 \
     (void)(data);                                      \
     (void)(prefix);                                    \
     (void)(major);                                     \
     (void)(minor);                                     \
-  } while(0)
+  } 동안(0)
 #endif
 
 /* Define our privacy and integrity protection values */

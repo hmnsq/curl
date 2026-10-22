@@ -32,66 +32,66 @@ static const struct curl_easyoption *lookup(const char *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
+  만약(name || id) {
     const struct curl_easyoption *o = &Curl_easyopts[0];
     do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+      만약(name) {
+        만약(curl_strequal(o->name, name))
+          반환 o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      아니면 {
+        만약((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          반환 o;
       }
       o++;
-    } while(o->name);
+    } 동안(o->name);
   }
-  return NULL;
+  반환 NULL;
 }
 
 const struct curl_easyoption *curl_easy_option_by_name(const char *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  반환 lookup(name, CURLOPT_LASTENTRY);
 }
 
 const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  반환 lookup(NULL, id);
 }
 
 /* Iterates over available options */
 const struct curl_easyoption *curl_easy_option_next(
   const struct curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  만약(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    만약(prev->name)
+      반환 prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  아니면 만약(!prev)
+    반환 &Curl_easyopts[0];
+  반환 NULL;
 }
 
-#else
+#아니면
 const struct curl_easyoption *curl_easy_option_by_name(const char *name)
 {
   (void)name;
-  return NULL;
+  반환 NULL;
 }
 
 const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
   (void)id;
-  return NULL;
+  반환 NULL;
 }
 
 const struct curl_easyoption *curl_easy_option_next(
   const struct curl_easyoption *prev)
 {
   (void)prev;
-  return NULL;
+  반환 NULL;
 }
 #endif

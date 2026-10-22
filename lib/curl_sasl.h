@@ -108,8 +108,8 @@ struct SASLproto {
                               or zero if no max. This is normally the max
                               command length - other characters count.
                               This has to be zero for non-base64 protocols. */
-  int contcode;            /* Code to receive when continuation is expected */
-  int finalcode;           /* Code to receive upon authentication success */
+  정수 contcode;            /* Code to receive when continuation is expected */
+  정수 finalcode;           /* Code to receive upon authentication success */
   unsigned short defmechs; /* Mechanisms enabled by default */
   unsigned short flags;    /* Configuration flags. */
 };
@@ -153,7 +153,7 @@ CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
 
 /* Continue an SASL authentication */
 CURLcode Curl_sasl_continue(struct SASL *sasl, struct Curl_easy *data,
-                            int code, saslprogress *progress);
+                            정수 code, saslprogress *progress);
 
 CURLcode Curl_sasl_is_blocked(struct SASL *sasl, struct Curl_easy *data);
 

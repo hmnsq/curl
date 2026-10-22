@@ -125,7 +125,7 @@ struct Curl_ssl_session {
   uint8_t *sdata;              /* session ticket data, plain bytes */
   size_t sdata_len;            /* number of bytes in sdata */
   curl_off_t valid_until;      /* seconds since EPOCH until ticket expires */
-  int ietf_tls_id;             /* TLS protocol identifier negotiated */
+  정수 ietf_tls_id;             /* TLS protocol identifier negotiated */
   char *alpn;                  /* APLN TLS negotiated protocol string */
   size_t earlydata_max;        /* max 0-RTT data supported by peer */
   uint8_t *quic_tp;            /* Optional QUIC transport param bytes */
@@ -145,14 +145,14 @@ struct Curl_ssl_session {
  * @param psession on return the scached session instance created
  */
 CURLcode Curl_ssl_session_create(void *sdata, size_t sdata_len,
-                                 int ietf_tls_id, const char *alpn,
+                                 정수 ietf_tls_id, const char *alpn,
                                  curl_off_t valid_until, size_t earlydata_max,
                                  struct Curl_ssl_session **psession);
 
 /* Variation of session creation with quic transport parameter bytes,
  * Takes ownership of `quic_tp` regardless of return code. */
 CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
-                                  int ietf_tls_id, const char *alpn,
+                                  정수 ietf_tls_id, const char *alpn,
                                   curl_off_t valid_until, size_t earlydata_max,
                                   unsigned char *quic_tp, size_t quic_tp_len,
                                   struct Curl_ssl_session **psession);

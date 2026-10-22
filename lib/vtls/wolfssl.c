@@ -33,10 +33,10 @@
 #include <wolfssl/options.h>
 #include <wolfssl/version.h>
 
-#if LIBWOLFSSL_VERSION_HEX < 0x05000000 /* wolfSSL 5.0.0 (2021-11-01) */
+#만약 LIBWOLFSSL_VERSION_HEX < 0x05000000 /* wolfSSL 5.0.0 (2021-11-01) */
 #error "wolfSSL 5.0.0 or greater required"
 #endif
-#if defined(OPENSSL_COEXIST) && LIBWOLFSSL_VERSION_HEX < 0x05007006
+#만약 defined(OPENSSL_COEXIST) && LIBWOLFSSL_VERSION_HEX < 0x05007006
 #error "wolfSSL 5.7.6 or greater required to coexist with OpenSSL"
 #endif
 
@@ -80,7 +80,7 @@
    in wolfSSL's settings.h, and the latter two are build time symbols in
    options.h. */
 #ifndef KEEP_PEER_CERT
-#if defined(HAVE_WOLFSSL_GET_PEER_CERTIFICATE) || \
+#만약 defined(HAVE_WOLFSSL_GET_PEER_CERTIFICATE) || \
   (defined(OPENSSL_EXTRA) && !defined(NO_CERTS))
 #define KEEP_PEER_CERT
 #endif
@@ -90,7 +90,7 @@
 #define USE_BIO_CHAIN
 #ifdef HAVE_WOLFSSL_BIO_SET_SHUTDOWN
 #define USE_FULL_BIO
-#else /* HAVE_WOLFSSL_BIO_SET_SHUTDOWN */
+#아니면 /* HAVE_WOLFSSL_BIO_SET_SHUTDOWN */
 #undef USE_FULL_BIO
 #endif
 /* wolfSSL 5.7.4 and older do not have these symbols, but only the
@@ -104,7 +104,7 @@
 #define wolfSSL_BIO_set_retry_read    BIO_set_retry_read
 #endif /* !WOLFSSL_BIO_CTRL_GET_CLOSE */
 
-#else /* HAVE_WOLFSSL_BIO_NEW */
+#아니면 /* HAVE_WOLFSSL_BIO_NEW */
 #undef USE_BIO_CHAIN
 #endif
 
@@ -118,17 +118,17 @@
  * wolfSSL_get_client_random and wolfSSL_get_keys require OPENSSL_EXTRA
  * (--enable-opensslextra or --enable-all).
  */
-#if defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13)
-static int wssl_tls13_secret_callback(SSL *ssl, int id,
+#만약 defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13)
+static 정수 wssl_tls13_secret_callback(SSL *ssl, 정수 id,
                                       const unsigned char *secret,
-                                      int secretSz, void *ctx)
+                                      정수 secretSz, void *ctx)
 {
   const char *label;
   unsigned char client_random[SSL3_RANDOM_SIZE];
   (void)ctx;
 
-  if(!ssl || !Curl_tls_keylog_enabled()) {
-    return 0;
+  만약(!ssl || !Curl_tls_keylog_enabled()) {
+    반환 0;
   }
 
   switch(id) {
@@ -154,24 +154,24 @@ static int wssl_tls13_secret_callback(SSL *ssl, int id,
     label = "EXPORTER_SECRET";
     break;
   default:
-    return 0;
+    반환 0;
   }
 
-  if(wolfSSL_get_client_random(ssl, client_random, SSL3_RANDOM_SIZE) == 0) {
+  만약(wolfSSL_get_client_random(ssl, client_random, SSL3_RANDOM_SIZE) == 0) {
     /* Should never happen as wolfSSL_KeepArrays() was called before. */
-    return 0;
+    반환 0;
   }
 
   Curl_tls_keylog_write(label, client_random, sizeof(client_random),
                         secret, secretSz);
-  return 0;
+  반환 0;
 }
 #endif /* HAVE_SECRET_CALLBACK && WOLFSSL_TLS13 */
 
 static void wssl_log_tls12_secret(WOLFSSL *ssl)
 {
   unsigned char *ms, *sr, *cr;
-  unsigned int msLen, srLen, crLen, i, x = 0;
+  unsigned 정수 msLen, srLen, crLen, i, x = 0;
 
   /* wolfSSL_GetVersion is available since 3.13, we use it instead of
    * SSL_version since the latter relies on OPENSSL_ALL (--enable-opensslall or
@@ -186,51 +186,51 @@ static void wssl_log_tls12_secret(WOLFSSL *ssl)
   default:
     /* TLS 1.3 does not use this mechanism, the "master secret" returned below
      * is not directly usable. */
-    return;
+    반환;
   }
 
-  if(wolfSSL_get_keys(ssl, &ms, &msLen, &sr, &srLen, &cr, &crLen) !=
+  만약(wolfSSL_get_keys(ssl, &ms, &msLen, &sr, &srLen, &cr, &crLen) !=
      WOLFSSL_SUCCESS) {
-    return;
+    반환;
   }
 
   /* Check for a missing master secret and skip logging. That can happen if
    * curl rejects the server certificate and aborts the handshake.
    */
-  for(i = 0; i < msLen; i++) {
+  위해(i = 0; i < msLen; i++) {
     x |= ms[i];
   }
-  if(x == 0) {
-    return;
+  만약(x == 0) {
+    반환;
   }
 
   Curl_tls_keylog_write("CLIENT_RANDOM", cr, crLen, ms, msLen);
 }
 #endif /* OPENSSL_EXTRA */
 
-static int wssl_do_file_type(const char *type)
+static 정수 wssl_do_file_type(const char *type)
 {
-  if(!type || !type[0])
-    return WOLFSSL_FILETYPE_PEM;
-  if(curl_strequal(type, "PEM"))
-    return WOLFSSL_FILETYPE_PEM;
-  if(curl_strequal(type, "DER"))
-    return WOLFSSL_FILETYPE_ASN1;
-  return -1;
+  만약(!type || !type[0])
+    반환 WOLFSSL_FILETYPE_PEM;
+  만약(curl_strequal(type, "PEM"))
+    반환 WOLFSSL_FILETYPE_PEM;
+  만약(curl_strequal(type, "DER"))
+    반환 WOLFSSL_FILETYPE_ASN1;
+  반환 -1;
 }
 
 #ifdef USE_BIO_CHAIN
 
-static int wssl_bio_cf_create(WOLFSSL_BIO *bio)
+static 정수 wssl_bio_cf_create(WOLFSSL_BIO *bio)
 {
 #ifdef USE_FULL_BIO
   wolfSSL_BIO_set_shutdown(bio, 1);
 #endif
   wolfSSL_BIO_set_data(bio, NULL);
-  return 1;
+  반환 1;
 }
 
-static long wssl_bio_cf_ctrl(WOLFSSL_BIO *bio, int cmd, long num, void *ptr)
+static long wssl_bio_cf_ctrl(WOLFSSL_BIO *bio, 정수 cmd, long num, void *ptr)
 {
   struct Curl_cfilter *cf = wolfSSL_BIO_get_data(bio);
   long ret = 1;
@@ -242,13 +242,13 @@ static long wssl_bio_cf_ctrl(WOLFSSL_BIO *bio, int cmd, long num, void *ptr)
   case WOLFSSL_BIO_CTRL_GET_CLOSE:
 #ifdef USE_FULL_BIO
     ret = (long)wolfSSL_BIO_get_shutdown(bio);
-#else
+#아니면
     ret = 0;
 #endif
     break;
   case WOLFSSL_BIO_CTRL_SET_CLOSE:
 #ifdef USE_FULL_BIO
-    wolfSSL_BIO_set_shutdown(bio, (int)num);
+    wolfSSL_BIO_set_shutdown(bio, (정수)num);
 #endif
     break;
   case WOLFSSL_BIO_CTRL_FLUSH:
@@ -263,17 +263,17 @@ static long wssl_bio_cf_ctrl(WOLFSSL_BIO *bio, int cmd, long num, void *ptr)
   case WOLFSSL_BIO_CTRL_EOF: {
     /* EOF has been reached on input? */
     struct ssl_connect_data *connssl = cf->ctx;
-    return connssl->peer_closed;
+    반환 connssl->peer_closed;
   }
 #endif
   default:
     ret = 0;
     break;
   }
-  return ret;
+  반환 ret;
 }
 
-static int wssl_bio_cf_out_write(WOLFSSL_BIO *bio, const char *buf, int blen)
+static 정수 wssl_bio_cf_out_write(WOLFSSL_BIO *bio, const char *buf, 정수 blen)
 {
   struct Curl_cfilter *cf = wolfSSL_BIO_get_data(bio);
   struct ssl_connect_data *connssl = cf->ctx;
@@ -283,7 +283,7 @@ static int wssl_bio_cf_out_write(WOLFSSL_BIO *bio, const char *buf, int blen)
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(data);
-  if(wssl->shutting_down && wssl->io_send_blocked_len &&
+  만약(wssl->shutting_down && wssl->io_send_blocked_len &&
      (wssl->io_send_blocked_len < blen)) {
     /* bug in wolfSSL: <https://github.com/wolfSSL/wolfssl/issues/7784>
      * It adds the close notify message again every time we retry
@@ -297,21 +297,21 @@ static int wssl_bio_cf_out_write(WOLFSSL_BIO *bio, const char *buf, int blen)
                              (const uint8_t *)buf, blen, FALSE, &nwritten);
   wssl->io_result = result;
   CURL_TRC_CF(data, cf, "bio_write(len=%d) -> %d, %zu",
-              blen, (int)result, nwritten);
+              blen, (정수)result, nwritten);
 #ifdef USE_FULL_BIO
   wolfSSL_BIO_clear_retry_flags(bio);
 #endif
-  if(result == CURLE_AGAIN) {
+  만약(result == CURLE_AGAIN) {
     wolfSSL_BIO_set_retry_write(bio);
-    if(wssl->shutting_down && !wssl->io_send_blocked_len)
+    만약(wssl->shutting_down && !wssl->io_send_blocked_len)
       wssl->io_send_blocked_len = blen;
   }
-  else if(!result && skiplen)
+  아니면 만약(!result && skiplen)
     nwritten += skiplen;
-  return result ? -1 : (int)nwritten;
+  반환 result ? -1 : (정수)nwritten;
 }
 
-static int wssl_bio_cf_in_read(WOLFSSL_BIO *bio, char *buf, int blen)
+static 정수 wssl_bio_cf_in_read(WOLFSSL_BIO *bio, char *buf, 정수 blen)
 {
   struct Curl_cfilter *cf = wolfSSL_BIO_get_data(bio);
   struct ssl_connect_data *connssl = cf->ctx;
@@ -321,52 +321,52 @@ static int wssl_bio_cf_in_read(WOLFSSL_BIO *bio, char *buf, int blen)
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(data);
-  if(!data || (blen < 0)) {
+  만약(!data || (blen < 0)) {
     wssl->io_result = CURLE_FAILED_INIT;
-    return -1;
+    반환 -1;
   }
-  if(!buf || !blen)
-    return 0;
+  만약(!buf || !blen)
+    반환 0;
 
-  if((connssl->connecting_state == ssl_connect_2) &&
+  만약((connssl->connecting_state == ssl_connect_2) &&
      !wssl->x509_store_setup) {
     /* During handshake, init the x509 store before receiving the
      * server response. This allows sending of ClientHello without delay. */
     result = Curl_wssl_setup_x509_store(cf, data, wssl);
-    if(result) {
-      CURL_TRC_CF(data, cf, "Curl_wssl_setup_x509_store() -> %d", (int)result);
+    만약(result) {
+      CURL_TRC_CF(data, cf, "Curl_wssl_setup_x509_store() -> %d", (정수)result);
       wssl->io_result = result;
-      return -1;
+      반환 -1;
     }
   }
 
   result = Curl_conn_cf_recv(cf->next, data, buf, blen, &nread);
   wssl->io_result = result;
-  CURL_TRC_CF(data, cf, "bio_read(len=%d) -> %d, %zu", blen, (int)result,
+  CURL_TRC_CF(data, cf, "bio_read(len=%d) -> %d, %zu", blen, (정수)result,
               nread);
 #ifdef USE_FULL_BIO
   wolfSSL_BIO_clear_retry_flags(bio);
 #endif
-  if(result == CURLE_AGAIN)
+  만약(result == CURLE_AGAIN)
     wolfSSL_BIO_set_retry_read(bio);
-  else if(nread == 0)
+  아니면 만약(nread == 0)
     connssl->peer_closed = TRUE;
-  return result ? -1 : (int)nread;
+  반환 result ? -1 : (정수)nread;
 }
 
 static WOLFSSL_BIO_METHOD *wssl_bio_cf_method = NULL;
 
-static int wssl_bio_cf_init_methods(void)
+static 정수 wssl_bio_cf_init_methods(void)
 {
   wssl_bio_cf_method = wolfSSL_BIO_meth_new(WOLFSSL_BIO_MEMORY,
                                             "wolfSSL CF BIO");
-  if(!wssl_bio_cf_method)
-    return FALSE; /* error */
+  만약(!wssl_bio_cf_method)
+    반환 FALSE; /* error */
   wolfSSL_BIO_meth_set_write(wssl_bio_cf_method, &wssl_bio_cf_out_write);
   wolfSSL_BIO_meth_set_read(wssl_bio_cf_method, &wssl_bio_cf_in_read);
   wolfSSL_BIO_meth_set_ctrl(wssl_bio_cf_method, &wssl_bio_cf_ctrl);
   wolfSSL_BIO_meth_set_create(wssl_bio_cf_method, &wssl_bio_cf_create);
-  return TRUE; /* fine */
+  반환 TRUE; /* fine */
 }
 
 static void wssl_bio_cf_free_methods(void)
@@ -375,7 +375,7 @@ static void wssl_bio_cf_free_methods(void)
   wssl_bio_cf_method = NULL;
 }
 
-#else /* USE_BIO_CHAIN */
+#아니면 /* USE_BIO_CHAIN */
 
 #define wssl_bio_cf_init_methods() TRUE
 #define wssl_bio_cf_free_methods() Curl_nop_stmt
@@ -387,7 +387,7 @@ CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
                                  const char *ssl_peer_key,
                                  WOLFSSL_SESSION *session,
-                                 int ietf_tls_id,
+                                 정수 ietf_tls_id,
                                  const char *alpn,
                                  unsigned char *quic_tp,
                                  size_t quic_tp_len,
@@ -396,22 +396,22 @@ CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
   struct Curl_ssl_session *sc_session = NULL, *sc_dup = NULL;
   unsigned char *sdata = NULL, *sdata_ptr, *qtp_clone = NULL;
-  unsigned int sdata_len;
-  unsigned int earlydata_max = 0;
+  unsigned 정수 sdata_len;
+  unsigned 정수 earlydata_max = 0;
 
-  if(pscs)
+  만약(pscs)
     *pscs = NULL;
-  if(!session)
+  만약(!session)
     goto out;
 
   sdata_len = wolfSSL_i2d_SSL_SESSION(session, NULL);
-  if(sdata_len <= 0) {
+  만약(sdata_len <= 0) {
     CURL_TRC_CF(data, cf, "fail to assess session length: %u", sdata_len);
     result = CURLE_FAILED_INIT;
     goto out;
   }
   sdata = sdata_ptr = curlx_calloc(1, sdata_len);
-  if(!sdata) {
+  만약(!sdata) {
     failf(data, "unable to allocate session buffer of %u bytes", sdata_len);
     result = CURLE_OUT_OF_MEMORY;
     goto out;
@@ -419,16 +419,16 @@ CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
   /* wolfSSL right now does not change the last parameter here, but it
    * might one day decide to do so for OpenSSL compatibility. */
   sdata_len = wolfSSL_i2d_SSL_SESSION(session, &sdata_ptr);
-  if(sdata_len <= 0) {
+  만약(sdata_len <= 0) {
     CURL_TRC_CF(data, cf, "fail to serialize session: %u", sdata_len);
     result = CURLE_FAILED_INIT;
     goto out;
   }
-  if(quic_tp && quic_tp_len) {
+  만약(quic_tp && quic_tp_len) {
     qtp_clone = curlx_memdup0((const char *)quic_tp, quic_tp_len);
-    if(!qtp_clone) {
+    만약(!qtp_clone) {
       curlx_free(sdata);
-      return CURLE_OUT_OF_MEMORY;
+      반환 CURLE_OUT_OF_MEMORY;
     }
   }
 #ifdef WOLFSSL_EARLY_DATA
@@ -442,10 +442,10 @@ CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
                                     earlydata_max, qtp_clone, quic_tp_len,
                                     &sc_session);
   sdata = NULL;  /* took ownership of sdata */
-  if(!result && pscs &&  /* return a duplicate if asked for and FTP */
+  만약(!result && pscs &&  /* return a duplicate if asked for and FTP */
      (cf->conn->scheme->family == CURLPROTO_FTP))
     result = Curl_ssl_session_dup(sc_session, &sc_dup);
-  if(!result) {
+  만약(!result) {
     result = Curl_ssl_scache_put(cf, data, ssl_peer_key, sc_session);
     /* took ownership of `sc_session` */
     sc_session = NULL;
@@ -453,38 +453,38 @@ CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
 
 out:
   curlx_free(sdata);
-  if(!result && pscs) {
+  만약(!result && pscs) {
     *pscs = sc_dup;
     sc_dup = NULL;
   }
   Curl_ssl_session_destroy(sc_session);
   Curl_ssl_session_destroy(sc_dup);
-  return result;
+  반환 result;
 }
 
-static int wssl_vtls_new_session_cb(WOLFSSL *ssl, WOLFSSL_SESSION *session)
+static 정수 wssl_vtls_new_session_cb(WOLFSSL *ssl, WOLFSSL_SESSION *session)
 {
   struct Curl_cfilter *cf;
 
   cf = (struct Curl_cfilter *)wolfSSL_get_app_data(ssl);
   DEBUGASSERT(cf);
-  if(cf && session) {
+  만약(cf && session) {
     struct ssl_connect_data *connssl = cf->ctx;
     struct Curl_easy *data = CF_DATA_CURRENT(cf);
     struct Curl_ssl_session *scs = NULL;
     DEBUGASSERT(connssl);
     DEBUGASSERT(data);
-    if(connssl && data) {
+    만약(connssl && data) {
       (void)Curl_wssl_cache_session(cf, data, connssl->peer.scache_key,
                                     session, wolfSSL_version(ssl),
                                     connssl->negotiated.alpn, NULL, 0, &scs);
-      if(scs) {
+      만약(scs) {
         Curl_ssl_session_destroy(connssl->session);
         connssl->session = scs;
       }
     }
   }
-  return 0;
+  반환 0;
 }
 #endif
 
@@ -500,12 +500,12 @@ static CURLcode wssl_on_session_reuse(struct Curl_cfilter *cf,
 
   connssl->earlydata_max = wolfSSL_SESSION_get_max_early_data(
     wolfSSL_get_session(wssl->ssl));
-#else
+#아니면
   connssl->earlydata_max = 0;
 #endif
 
   /* Seems to be no wolfSSL way to signal no EarlyData in session */
-  return Curl_on_session_reuse(cf, data, alpns, scs, do_early_data,
+  반환 Curl_on_session_reuse(cf, data, alpns, scs, do_early_data,
                                connssl->earlydata_max);
 }
 
@@ -522,55 +522,55 @@ static bool wssl_apply_session(
   WOLFSSL_SESSION *session = NULL;
   bool success = FALSE;
 
-  if(scs && scs->sdata && scs->sdata_len &&
+  만약(scs && scs->sdata && scs->sdata_len &&
      (!scs->alpn || Curl_alpn_contains_proto(alpns, scs->alpn))) {
     /* wolfSSL changes the passed pointer for whatever reasons, yikes */
     const unsigned char *sdata = scs->sdata;
     session = wolfSSL_d2i_SSL_SESSION(NULL, &sdata, (long)scs->sdata_len);
-    if(session) {
-      int ret = wolfSSL_set_session(wss->ssl, session);
-      if(ret != WOLFSSL_SUCCESS) {
+    만약(session) {
+      정수 ret = wolfSSL_set_session(wss->ssl, session);
+      만약(ret != WOLFSSL_SUCCESS) {
         infof(data, "cached session not accepted (%d), "
               "removing from cache", ret);
         goto out;
       }
-      else {
+      아니면 {
         infof(data, "SSL reusing session with ALPN '%s'",
               scs->alpn ? scs->alpn : "-");
         success = TRUE;
-        if(conn_config->earlydata &&
+        만약(conn_config->earlydata &&
            !cf->conn->bits.connect_only &&
            !strcmp("TLSv1.3", wolfSSL_get_version(wss->ssl))) {
           bool do_early_data = FALSE;
-          if(sess_reuse_cb) {
+          만약(sess_reuse_cb) {
             result = sess_reuse_cb(cf, data, alpns, scs, &do_early_data);
-            if(result) {
+            만약(result) {
               goto out;
             }
           }
 #ifdef WOLFSSL_EARLY_DATA
-          if(do_early_data) {
-            unsigned int edmax = (scs->earlydata_max < UINT_MAX) ?
-              (unsigned int)scs->earlydata_max : UINT_MAX;
+          만약(do_early_data) {
+            unsigned 정수 edmax = (scs->earlydata_max < UINT_MAX) ?
+              (unsigned 정수)scs->earlydata_max : UINT_MAX;
             /* We only try the ALPN protocol the session used before,
              * otherwise we might send early data for the wrong protocol */
             Curl_alpn_restrict_to(alpns, scs->alpn);
             wolfSSL_set_max_early_data(wss->ssl, edmax);
           }
-#else
+#아니면
           /* Should never enable when not supported */
           DEBUGASSERT(!do_early_data);
 #endif
         }
       }
     }
-    else {
+    아니면 {
       failf(data, "could not decode previous session");
     }
   }
 out:
   wolfSSL_SESSION_free(session);
-  return success;
+  반환 success;
 }
 
 static CURLcode wssl_populate_x509_store(struct Curl_cfilter *cf,
@@ -589,16 +589,16 @@ static CURLcode wssl_populate_x509_store(struct Curl_cfilter *cf,
 
 #ifndef NO_FILESYSTEM
   /* load native CA certificates */
-  if(conn_config->native_ca_store) {
+  만약(conn_config->native_ca_store) {
 #ifdef WOLFSSL_SYS_CA_CERTS
-    if(wolfSSL_CTX_load_system_CA_certs(wssl->ssl_ctx) != WOLFSSL_SUCCESS) {
+    만약(wolfSSL_CTX_load_system_CA_certs(wssl->ssl_ctx) != WOLFSSL_SUCCESS) {
       infof(data, "error importing native CA store, continuing anyway");
     }
-    else {
+    아니면 {
       imported_native_ca = TRUE;
       infof(data, "successfully imported native CA store");
     }
-#else
+#아니면
     infof(data, "ignoring native CA option because wolfSSL was built without "
                 "native CA support");
 #endif
@@ -606,15 +606,15 @@ static CURLcode wssl_populate_x509_store(struct Curl_cfilter *cf,
 #endif /* !NO_FILESYSTEM */
 
   /* load certificate blob */
-  if(ca_info_blob) {
-    if(wolfSSL_CTX_load_verify_buffer(wssl->ssl_ctx, ca_info_blob->data,
+  만약(ca_info_blob) {
+    만약(wolfSSL_CTX_load_verify_buffer(wssl->ssl_ctx, ca_info_blob->data,
                                       (long)ca_info_blob->len,
                                       WOLFSSL_FILETYPE_PEM) !=
        WOLFSSL_SUCCESS) {
       failf(data, "error importing CA certificate blob");
-      return CURLE_SSL_CACERT_BADFILE;
+      반환 CURLE_SSL_CACERT_BADFILE;
     }
-    else {
+    아니면 {
       imported_ca_info_blob = TRUE;
       infof(data, "successfully imported CA certificate blob");
     }
@@ -625,33 +625,33 @@ static CURLcode wssl_populate_x509_store(struct Curl_cfilter *cf,
 
   CURL_TRC_CF(data, cf, "wssl_populate_x509_store, path=%s, blob=%d",
               ssl_cafile ? ssl_cafile : "none", !!ca_info_blob);
-  if(!store)
-    return CURLE_OUT_OF_MEMORY;
+  만약(!store)
+    반환 CURLE_OUT_OF_MEMORY;
 
-  if(ssl_cafile || ssl_capath) {
-    int rc =
+  만약(ssl_cafile || ssl_capath) {
+    정수 rc =
       wolfSSL_CTX_load_verify_locations_ex(wssl->ssl_ctx,
                                            ssl_cafile,
                                            ssl_capath,
                                            WOLFSSL_LOAD_FLAG_IGNORE_ERR);
-    if(rc != WOLFSSL_SUCCESS) {
-      if(conn_config->verifypeer &&
+    만약(rc != WOLFSSL_SUCCESS) {
+      만약(conn_config->verifypeer &&
          !imported_native_ca && !imported_ca_info_blob) {
         /* Fail if we insist on successfully verifying the server. */
         failf(data, "error setting certificate verify locations:"
               " CAfile: %s CApath: %s",
               ssl_cafile ? ssl_cafile : "none",
               ssl_capath ? ssl_capath : "none");
-        return CURLE_SSL_CACERT_BADFILE;
+        반환 CURLE_SSL_CACERT_BADFILE;
       }
-      else {
+      아니면 {
         /* continue with a warning if no strict certificate
            verification is required. */
         infof(data, "error setting certificate verify locations,"
                     " continuing anyway:");
       }
     }
-    else {
+    아니면 {
       /* Everything is fine. */
       infof(data, "successfully set certificate verify locations:");
     }
@@ -660,7 +660,7 @@ static CURLcode wssl_populate_x509_store(struct Curl_cfilter *cf,
   }
 #endif
   (void)store;
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 /* key to use at `multi->proto_hash` */
@@ -679,7 +679,7 @@ static void wssl_x509_share_free(const void *key, size_t key_len, void *p)
   DEBUGASSERT(!memcmp(MPROTO_WSSL_X509_KEY, key, key_len));
   (void)key;
   (void)key_len;
-  if(share->store) {
+  만약(share->store) {
     wolfSSL_X509_STORE_free(share->store);
   }
   curlx_free(share->CAfile);
@@ -692,20 +692,20 @@ static bool wssl_cached_x509_store_expired(struct Curl_easy *data,
   timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &mb->time);
   timediff_t timeout_ms = data->set.ssl_ca_cache_timeout * (timediff_t)1000;
 
-  if(timeout_ms < 0)
-    return FALSE;
+  만약(timeout_ms < 0)
+    반환 FALSE;
 
-  return elapsed_ms >= timeout_ms;
+  반환 elapsed_ms >= timeout_ms;
 }
 
 static bool wssl_cached_x509_store_different(struct Curl_cfilter *cf,
                                              const struct wssl_x509_share *mb)
 {
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  if(!mb->CAfile || !conn_config->CAfile)
-    return mb->CAfile != conn_config->CAfile;
+  만약(!mb->CAfile || !conn_config->CAfile)
+    반환 mb->CAfile != conn_config->CAfile;
 
-  return strcmp(mb->CAfile, conn_config->CAfile);
+  반환 strcmp(mb->CAfile, conn_config->CAfile);
 }
 
 static WOLFSSL_X509_STORE *wssl_get_cached_x509_store(struct Curl_cfilter *cf,
@@ -719,13 +719,13 @@ static WOLFSSL_X509_STORE *wssl_get_cached_x509_store(struct Curl_cfilter *cf,
   share = multi ? Curl_hash_pick(&multi->proto_hash,
                                  MPROTO_WSSL_X509_KEY,
                                  CURL_CSTRLEN(MPROTO_WSSL_X509_KEY)) : NULL;
-  if(share && share->store &&
+  만약(share && share->store &&
      !wssl_cached_x509_store_expired(data, share) &&
      !wssl_cached_x509_store_different(cf, share)) {
     store = share->store;
   }
 
-  return store;
+  반환 store;
 }
 
 static void wssl_set_cached_x509_store(struct Curl_cfilter *cf,
@@ -737,37 +737,37 @@ static void wssl_set_cached_x509_store(struct Curl_cfilter *cf,
   struct wssl_x509_share *share;
 
   DEBUGASSERT(multi);
-  if(!multi)
-    return;
+  만약(!multi)
+    반환;
   share = Curl_hash_pick(&multi->proto_hash,
                          MPROTO_WSSL_X509_KEY,
                          CURL_CSTRLEN(MPROTO_WSSL_X509_KEY));
 
-  if(!share) {
+  만약(!share) {
     share = curlx_calloc(1, sizeof(*share));
-    if(!share)
-      return;
-    if(!Curl_hash_add2(&multi->proto_hash,
+    만약(!share)
+      반환;
+    만약(!Curl_hash_add2(&multi->proto_hash,
                        MPROTO_WSSL_X509_KEY,
                        CURL_CSTRLEN(MPROTO_WSSL_X509_KEY),
                        share, wssl_x509_share_free)) {
       curlx_free(share);
-      return;
+      반환;
     }
   }
 
-  if(wolfSSL_X509_STORE_up_ref(store)) {
+  만약(wolfSSL_X509_STORE_up_ref(store)) {
     char *CAfile = NULL;
 
-    if(conn_config->CAfile) {
+    만약(conn_config->CAfile) {
       CAfile = curlx_strdup(conn_config->CAfile);
-      if(!CAfile) {
+      만약(!CAfile) {
         wolfSSL_X509_STORE_free(store);
-        return;
+        반환;
       }
     }
 
-    if(share->store) {
+    만약(share->store) {
       wolfSSL_X509_STORE_free(share->store);
       curlx_free(share->CAfile);
     }
@@ -802,97 +802,97 @@ CURLcode Curl_wssl_setup_x509_store(struct Curl_cfilter *cf,
 
   cached_store = cache_criteria_met ? wssl_get_cached_x509_store(cf, data)
                                     : NULL;
-  if(cached_store &&
+  만약(cached_store &&
      wolfSSL_CTX_get_cert_store(wssl->ssl_ctx) == cached_store) {
     /* The cached store is already in use, do nothing. */
   }
-  else if(cached_store && wolfSSL_X509_STORE_up_ref(cached_store)) {
+  아니면 만약(cached_store && wolfSSL_X509_STORE_up_ref(cached_store)) {
     wolfSSL_CTX_set_cert_store(wssl->ssl_ctx, cached_store);
   }
-  else if(cache_criteria_met) {
+  아니면 만약(cache_criteria_met) {
     /* wolfSSL's initial store in CTX is not shareable by default.
      * Make a new one, suitable for adding to the cache. See #14278 */
     WOLFSSL_X509_STORE *store = wolfSSL_X509_STORE_new();
-    if(!store) {
+    만약(!store) {
       failf(data, "SSL: could not create a X509 store");
-      return CURLE_OUT_OF_MEMORY;
+      반환 CURLE_OUT_OF_MEMORY;
     }
     wolfSSL_CTX_set_cert_store(wssl->ssl_ctx, store);
 
     result = wssl_populate_x509_store(cf, data, store, wssl);
-    if(!result) {
+    만약(!result) {
       wssl_set_cached_x509_store(cf, data, store);
     }
   }
-  else {
+  아니면 {
     /* We never share the CTX's store, use it. */
     WOLFSSL_X509_STORE *store = wolfSSL_CTX_get_cert_store(wssl->ssl_ctx);
     result = wssl_populate_x509_store(cf, data, store, wssl);
   }
 
-  return result;
+  반환 result;
 }
 
 #ifdef WOLFSSL_TLS13
 static CURLcode wssl_add_default_ciphers(bool tls13, struct dynbuf *buf)
 {
-  int i;
+  정수 i;
   char *str;
 
-  for(i = 0; (str = wolfSSL_get_cipher_list(i)) != NULL; i++) {
+  위해(i = 0; (str = wolfSSL_get_cipher_list(i)) != NULL; i++) {
     size_t n;
-    if((!strncmp(str, "TLS13", 5)) != tls13)
+    만약((!strncmp(str, "TLS13", 5)) != tls13)
       continue;
 
     /* if there already is data in the string, add colon separator */
-    if(curlx_dyn_len(buf)) {
+    만약(curlx_dyn_len(buf)) {
       CURLcode result = curlx_dyn_addn(buf, ":", 1);
-      if(result)
-        return result;
+      만약(result)
+        반환 result;
     }
 
     n = strlen(str);
-    if(curlx_dyn_addn(buf, str, n))
-      return CURLE_OUT_OF_MEMORY;
+    만약(curlx_dyn_addn(buf, str, n))
+      반환 CURLE_OUT_OF_MEMORY;
   }
 
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 #endif
 
 #ifndef OPENSSL_EXTRA
-static int wssl_legacy_CTX_set_min_proto_version(WOLFSSL_CTX *ctx, int version)
+static 정수 wssl_legacy_CTX_set_min_proto_version(WOLFSSL_CTX *ctx, 정수 version)
 {
-  int res;
+  정수 res;
   switch(version) {
   default:
   case TLS1_VERSION:
     res = wolfSSL_CTX_SetMinVersion(ctx, WOLFSSL_TLSV1);
-    if(res == WOLFSSL_SUCCESS)
-      return res;
+    만약(res == WOLFSSL_SUCCESS)
+      반환 res;
     FALLTHROUGH();
   case TLS1_1_VERSION:
     res = wolfSSL_CTX_SetMinVersion(ctx, WOLFSSL_TLSV1_1);
-    if(res == WOLFSSL_SUCCESS)
-      return res;
+    만약(res == WOLFSSL_SUCCESS)
+      반환 res;
     FALLTHROUGH();
   case TLS1_2_VERSION:
     res = wolfSSL_CTX_SetMinVersion(ctx, WOLFSSL_TLSV1_2);
 #ifdef WOLFSSL_TLS13
-    if(res == WOLFSSL_SUCCESS)
-      return res;
+    만약(res == WOLFSSL_SUCCESS)
+      반환 res;
     FALLTHROUGH();
   case TLS1_3_VERSION:
     res = wolfSSL_CTX_SetMinVersion(ctx, WOLFSSL_TLSV1_3);
 #endif
   }
-  return res;
+  반환 res;
 }
 
-static int wssl_legacy_CTX_set_max_proto_version(WOLFSSL_CTX *ctx, int version)
+static 정수 wssl_legacy_CTX_set_max_proto_version(WOLFSSL_CTX *ctx, 정수 version)
 {
   (void)ctx, (void)version;
-  return WOLFSSL_NOT_IMPLEMENTED;
+  반환 WOLFSSL_NOT_IMPLEMENTED;
 }
 #define wolfSSL_CTX_set_min_proto_version wssl_legacy_CTX_set_min_proto_version
 #define wolfSSL_CTX_set_max_proto_version wssl_legacy_CTX_set_max_proto_version
@@ -904,13 +904,13 @@ static CURLcode wssl_client_cert(struct Curl_easy *data,
 {
   /* Load the client certificate, and private key */
 #ifndef NO_FILESYSTEM
-  if(conn_config->cert_blob || conn_config->clientcert) {
+  만약(conn_config->cert_blob || conn_config->clientcert) {
     const char *cert_file = conn_config->clientcert;
     const char *key_file = conn_config->key;
     const struct curl_blob *cert_blob = conn_config->cert_blob;
     const struct curl_blob *key_blob = conn_config->key_blob;
-    int file_type = wssl_do_file_type(conn_config->cert_type);
-    int rc;
+    정수 file_type = wssl_do_file_type(conn_config->cert_type);
+    정수 rc;
 
     switch(file_type) {
     case WOLFSSL_FILETYPE_PEM:
@@ -928,35 +928,35 @@ static CURLcode wssl_client_cert(struct Curl_easy *data,
       break;
     default:
       failf(data, "unknown cert type");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      반환 CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    if(rc != 1) {
+    만약(rc != 1) {
       failf(data, "unable to use client certificate");
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
 
-    if(!key_blob && !key_file) {
+    만약(!key_blob && !key_file) {
       key_blob = cert_blob;
       key_file = cert_file;
     }
-    else
+    아니면
       file_type = wssl_do_file_type(conn_config->key_type);
 
     rc = key_blob ?
       wolfSSL_CTX_use_PrivateKey_buffer(wctx->ssl_ctx, key_blob->data,
                                         (long)key_blob->len, file_type) :
       wolfSSL_CTX_use_PrivateKey_file(wctx->ssl_ctx, key_file, file_type);
-    if(rc != 1) {
+    만약(rc != 1) {
       failf(data, "unable to set private key");
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
   }
-#else /* NO_FILESYSTEM */
-  if(conn_config->cert_blob) {
+#아니면 /* NO_FILESYSTEM */
+  만약(conn_config->cert_blob) {
     const struct curl_blob *cert_blob = conn_config->cert_blob;
     const struct curl_blob *key_blob = conn_config->key_blob;
-    int file_type = wssl_do_file_type(conn_config->cert_type);
-    int rc;
+    정수 file_type = wssl_do_file_type(conn_config->cert_type);
+    정수 rc;
 
     switch(file_type) {
     case WOLFSSL_FILETYPE_PEM:
@@ -970,35 +970,35 @@ static CURLcode wssl_client_cert(struct Curl_easy *data,
       break;
     default:
       failf(data, "unknown cert type");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      반환 CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    if(rc != 1) {
+    만약(rc != 1) {
       failf(data, "unable to use client certificate");
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
 
-    if(!key_blob)
+    만약(!key_blob)
       key_blob = cert_blob;
-    else
+    아니면
       file_type = wssl_do_file_type(conn_config->key_type);
 
-    if(wolfSSL_CTX_use_PrivateKey_buffer(wctx->ssl_ctx, key_blob->data,
+    만약(wolfSSL_CTX_use_PrivateKey_buffer(wctx->ssl_ctx, key_blob->data,
                                          (long)key_blob->len,
                                          file_type) != 1) {
       failf(data, "unable to set private key");
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
   }
 #endif /* !NO_FILESYSTEM */
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static CURLcode ssl_version(struct Curl_easy *data,
                             struct ssl_filter_config *conn_config,
                             struct wssl_ctx *wctx,
-                            int *min_version, int *max_version)
+                            정수 *min_version, 정수 *max_version)
 {
-  int res;
+  정수 res;
   *min_version = *max_version = 0;
   DEBUGASSERT(conn_config->version != CURL_SSLVERSION_DEFAULT);
 
@@ -1020,7 +1020,7 @@ static CURLcode ssl_version(struct Curl_easy *data,
 #endif
   default:
     failf(data, "wolfSSL: unsupported minimum TLS version value");
-    return CURLE_SSL_CONNECT_ERROR;
+    반환 CURLE_SSL_CONNECT_ERROR;
   }
 
   switch(conn_config->version_max) {
@@ -1043,23 +1043,23 @@ static CURLcode ssl_version(struct Curl_easy *data,
     break;
   default:
     failf(data, "wolfSSL: unsupported maximum TLS version value");
-    return CURLE_SSL_CONNECT_ERROR;
+    반환 CURLE_SSL_CONNECT_ERROR;
   }
 
   res = wolfSSL_CTX_set_min_proto_version(wctx->ssl_ctx, *min_version);
-  if(res != WOLFSSL_SUCCESS) {
+  만약(res != WOLFSSL_SUCCESS) {
     failf(data, "wolfSSL: failed set the minimum TLS version");
-    return CURLE_SSL_CONNECT_ERROR;
+    반환 CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(*max_version) {
+  만약(*max_version) {
     res = wolfSSL_CTX_set_max_proto_version(wctx->ssl_ctx, *max_version);
-    if(res != WOLFSSL_SUCCESS) {
+    만약(res != WOLFSSL_SUCCESS) {
       failf(data, "wolfSSL: failed set the maximum TLS version");
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
   }
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 #ifdef WOLFSSL_TLS13
@@ -1069,56 +1069,56 @@ static CURLcode ssl_version(struct Curl_easy *data,
 static CURLcode wssl_init_ciphers(struct Curl_easy *data,
                                   struct wssl_ctx *wctx,
                                   struct ssl_filter_config *conn_config,
-                                  int tls_min, int tls_max)
+                                  정수 tls_min, 정수 tls_max)
 {
 #ifndef WOLFSSL_TLS13
   const char *ciphers = conn_config->cipher_list;
   (void)tls_min;
   (void)tls_max;
-  if(ciphers) {
-    if(!SSL_CTX_set_cipher_list(wctx->ssl_ctx, ciphers)) {
+  만약(ciphers) {
+    만약(!SSL_CTX_set_cipher_list(wctx->ssl_ctx, ciphers)) {
       failf(data, "failed setting cipher list: %s", ciphers);
-      return CURLE_SSL_CIPHER;
+      반환 CURLE_SSL_CIPHER;
     }
     infof(data, "Cipher selection: %s", ciphers);
   }
-  return CURLE_OK;
-#else
+  반환 CURLE_OK;
+#아니면
   CURLcode result = CURLE_OK;
-  if(conn_config->cipher_list || conn_config->cipher_list13) {
+  만약(conn_config->cipher_list || conn_config->cipher_list13) {
     const char *ciphers12 = conn_config->cipher_list;
     const char *ciphers13 = conn_config->cipher_list13;
     struct dynbuf c;
     curlx_dyn_init(&c, MAX_CIPHER_LEN);
 
-    if(!tls_max || (tls_max >= TLS1_3_VERSION)) {
-      if(ciphers13)
+    만약(!tls_max || (tls_max >= TLS1_3_VERSION)) {
+      만약(ciphers13)
         result = curlx_dyn_add(&c, ciphers13);
-      else
+      아니면
         result = wssl_add_default_ciphers(TRUE, &c);
     }
 
-    if(!result && (tls_min < TLS1_3_VERSION)) {
-      if(ciphers12) {
-        if(curlx_dyn_len(&c))
+    만약(!result && (tls_min < TLS1_3_VERSION)) {
+      만약(ciphers12) {
+        만약(curlx_dyn_len(&c))
           result = curlx_dyn_addn(&c, ":", 1);
-        if(!result)
+        만약(!result)
           result = curlx_dyn_add(&c, ciphers12);
       }
-      else
+      아니면
         result = wssl_add_default_ciphers(FALSE, &c);
     }
-    if(!result) {
-      if(!wolfSSL_CTX_set_cipher_list(wctx->ssl_ctx, curlx_dyn_ptr(&c))) {
+    만약(!result) {
+      만약(!wolfSSL_CTX_set_cipher_list(wctx->ssl_ctx, curlx_dyn_ptr(&c))) {
         failf(data, "failed setting cipher list: %s", curlx_dyn_ptr(&c));
         result = CURLE_SSL_CIPHER;
       }
-      else
+      아니면
         infof(data, "Cipher selection: %s", curlx_dyn_ptr(&c));
     }
     curlx_dyn_free(&c);
   }
-  return result;
+  반환 result;
 #endif
 }
 
@@ -1128,7 +1128,7 @@ static CURLcode wssl_init_ciphers(struct Curl_easy *data,
    does not. */
 #ifdef OPENSSL_EXTRA
 #define wssl_CTX_set1_groups_list wolfSSL_CTX_set1_groups_list
-#else
+#아니면
 #define wssl_CTX_set1_groups_list wolfSSL_CTX_set1_curves_list
 #endif
 
@@ -1139,11 +1139,11 @@ static CURLcode wssl_init_curves(struct Curl_easy *data,
   char *curves = conn_config->curves;
   /* Without an explicit list, leave the key share group selection to
      wolfSSL's own default. */
-  if(curves && !wssl_CTX_set1_groups_list(wctx->ssl_ctx, curves)) {
+  만약(curves && !wssl_CTX_set1_groups_list(wctx->ssl_ctx, curves)) {
     failf(data, "failed setting curves list: '%s'", curves);
-    return CURLE_SSL_CIPHER;
+    반환 CURLE_SSL_CIPHER;
   }
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static CURLcode wssl_init_ssl_handle(
@@ -1161,84 +1161,84 @@ static CURLcode wssl_init_ssl_handle(
 
   /* Let's make an SSL structure */
   wctx->ssl = wolfSSL_new(wctx->ssl_ctx);
-  if(!wctx->ssl) {
+  만약(!wctx->ssl) {
     failf(data, "SSL: could not create a handle");
-    return CURLE_OUT_OF_MEMORY;
+    반환 CURLE_OUT_OF_MEMORY;
   }
 
 #ifdef HAVE_EX_DATA
   wolfSSL_set_app_data(wctx->ssl, ssl_user_data);
-#else
+#아니면
   (void)ssl_user_data;
 #endif
 #ifdef WOLFSSL_QUIC
-  if(transport == TRNSPRT_QUIC)
+  만약(transport == TRNSPRT_QUIC)
     wolfSSL_set_quic_use_legacy_codepoint(wctx->ssl, 0);
-#else
+#아니면
   (void)transport;
 #endif
 
-  if((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
+  만약((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
     /* FTP is a bitch. On TLS secured transfers, it is a common server
      * option to require the client to use the SAME TLS session as on
      * the control connection or it fails the request. See #22225. */
     scs = Curl_ssl_get_cf_session(data, cf->cft, FIRSTSOCKET);
-    if(scs) {
+    만약(scs) {
       session_applied = wssl_apply_session(cf, data, wctx, alpns,
                                            sess_reuse_cb, scs);
-      if(session_applied)
+      만약(session_applied)
         CURL_TRC_CF(data, cf, "applied SSL session from control connection");
       scs = NULL;
     }
   }
 
   /* Check if there is a cached ID we can/should use here! */
-  if(!session_applied && Curl_ssl_scache_use(cf, data)) {
+  만약(!session_applied && Curl_ssl_scache_use(cf, data)) {
     /* Set session from cache if there is one */
     CURLcode result = Curl_ssl_scache_take(cf, data, peer->scache_key, &scs);
-    if(!result && scs) {
-      if(wssl_apply_session(cf, data, wctx, alpns, sess_reuse_cb, scs))
+    만약(!result && scs) {
+      만약(wssl_apply_session(cf, data, wctx, alpns, sess_reuse_cb, scs))
         Curl_ssl_scache_return(cf, data, peer->scache_key, scs);
-      else
+      아니면
         Curl_ssl_session_destroy(scs);
     }
   }
 
 #ifdef HAVE_ALPN
-  if(alpns->count) {
+  만약(alpns->count) {
     struct alpn_proto_buf proto;
     memset(&proto, 0, sizeof(proto));
     Curl_alpn_to_proto_str(&proto, alpns);
 
-    if(wolfSSL_UseALPN(wctx->ssl, (char *)proto.data,
-                       (unsigned int)proto.len,
+    만약(wolfSSL_UseALPN(wctx->ssl, (char *)proto.data,
+                       (unsigned 정수)proto.len,
                        WOLFSSL_ALPN_CONTINUE_ON_MISMATCH)
        != WOLFSSL_SUCCESS) {
       failf(data, "SSL: failed setting ALPN protocols");
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
     CURL_TRC_CF(data, cf, "set ALPN: %s", proto.data);
   }
 #endif /* HAVE_ALPN */
 
 #ifdef OPENSSL_EXTRA
-  if(Curl_tls_keylog_enabled()) {
+  만약(Curl_tls_keylog_enabled()) {
     /* Ensure the Client Random is preserved. */
     wolfSSL_KeepArrays(wctx->ssl);
-#if defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13)
+#만약 defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13)
     wolfSSL_set_tls13_secret_cb(wctx->ssl, wssl_tls13_secret_callback, NULL);
 #endif
   }
 #endif /* OPENSSL_EXTRA */
 
 #ifdef HAVE_SECURE_RENEGOTIATION
-  if(wolfSSL_UseSecureRenegotiation(wctx->ssl) != SSL_SUCCESS) {
+  만약(wolfSSL_UseSecureRenegotiation(wctx->ssl) != SSL_SUCCESS) {
     failf(data, "SSL: failed setting secure renegotiation");
-    return CURLE_SSL_CONNECT_ERROR;
+    반환 CURLE_SSL_CONNECT_ERROR;
   }
 #endif /* HAVE_SECURE_RENEGOTIATION */
 
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 #ifdef HAVE_WOLFSSL_CTX_GENERATEECHCONFIG
@@ -1248,66 +1248,66 @@ static CURLcode wssl_init_ech(struct wssl_ctx *wctx,
                               struct ssl_peer *peer)
 {
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int trying_ech_now = 0;
+  정수 trying_ech_now = 0;
 
-  if(conn_config->ech_public) {
+  만약(conn_config->ech_public) {
     infof(data, "ECH: outername not supported with wolfSSL");
-    return CURLE_SSL_CONNECT_ERROR;
+    반환 CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(conn_config->ech == CURLECH_GREASE) {
+  만약(conn_config->ech == CURLECH_GREASE) {
     infof(data, "ECH: GREASE is done by default by wolfSSL: no need to ask");
   }
-  else if(conn_config->ech && conn_config->ech_config) {
+  아니면 만약(conn_config->ech && conn_config->ech_config) {
     const char *b64val = conn_config->ech_config;
     word32 b64len = 0;
 
     b64len = (word32)strlen(b64val);
-    if(b64len && wolfSSL_SetEchConfigsBase64(wctx->ssl, CURL_UNCONST(b64val),
+    만약(b64len && wolfSSL_SetEchConfigsBase64(wctx->ssl, CURL_UNCONST(b64val),
                                              b64len) != WOLFSSL_SUCCESS) {
-      if(conn_config->ech == CURLECH_HARD)
-        return CURLE_SSL_CONNECT_ERROR;
+      만약(conn_config->ech == CURLECH_HARD)
+        반환 CURLE_SSL_CONNECT_ERROR;
     }
-    else {
+    아니면 {
       trying_ech_now = 1;
       infof(data, "ECH: ECHConfig from command line");
     }
   }
-  else {
+  아니면 {
     const struct Curl_https_rrinfo *rinfo =
       Curl_conn_dns_get_https(data, cf->sockindex, peer->origin);
 
-    if(Curl_httpsrr_is_for_peer(peer->origin, rinfo) && rinfo->echconfiglist) {
+    만약(Curl_httpsrr_is_for_peer(peer->origin, rinfo) && rinfo->echconfiglist) {
       const unsigned char *ecl = rinfo->echconfiglist;
       size_t elen = rinfo->echconfiglist_len;
 
       infof(data, "ECH: ECHConfig from HTTPS RR");
-      if(wolfSSL_SetEchConfigs(wctx->ssl, ecl, (word32)elen) !=
+      만약(wolfSSL_SetEchConfigs(wctx->ssl, ecl, (word32)elen) !=
          WOLFSSL_SUCCESS) {
         infof(data, "ECH: wolfSSL_SetEchConfigs failed");
-        if(conn_config->ech == CURLECH_HARD) {
-          return CURLE_SSL_CONNECT_ERROR;
+        만약(conn_config->ech == CURLECH_HARD) {
+          반환 CURLE_SSL_CONNECT_ERROR;
         }
       }
-      else {
+      아니면 {
         trying_ech_now = 1;
         infof(data, "ECH: imported ECHConfigList of length %zu", elen);
       }
     }
-    else {
+    아니면 {
       infof(data, "ECH: requested but no ECHConfig available");
-      if(conn_config->ech == CURLECH_HARD) {
-        return CURLE_SSL_CONNECT_ERROR;
+      만약(conn_config->ech == CURLECH_HARD) {
+        반환 CURLE_SSL_CONNECT_ERROR;
       }
     }
   }
 
-  if(trying_ech_now &&
+  만약(trying_ech_now &&
      wolfSSL_set_min_proto_version(wctx->ssl, TLS1_3_VERSION) != 1) {
     infof(data, "ECH: cannot force TLSv1.3 [ERROR]");
-    return CURLE_SSL_CONNECT_ERROR;
+    반환 CURLE_SSL_CONNECT_ERROR;
   }
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 #endif /* HAVE_WOLFSSL_CTX_GENERATEECHCONFIG */
 
@@ -1326,12 +1326,12 @@ CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
   struct alpn_spec alpns;
   CURLcode result = CURLE_FAILED_INIT;
   unsigned char transport;
-  int tls_min, tls_max;
+  정수 tls_min, tls_max;
 
   DEBUGASSERT(!wctx->ssl_ctx);
   DEBUGASSERT(!wctx->ssl);
   conn_config = Curl_ssl_cf_get_filter_config(cf);
-  if(!conn_config) {
+  만약(!conn_config) {
     result = CURLE_FAILED_INIT;
     goto out;
   }
@@ -1340,36 +1340,36 @@ CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
   transport = Curl_conn_cf_get_transport(cf->next, data);
 
   req_method = wolfTLS_client_method();
-  if(!req_method) {
+  만약(!req_method) {
     failf(data, "wolfSSL: could not create a client method");
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
-  if(wctx->ssl_ctx)
+  만약(wctx->ssl_ctx)
     wolfSSL_CTX_free(wctx->ssl_ctx);
 
   wctx->ssl_ctx = wolfSSL_CTX_new(req_method);
-  if(!wctx->ssl_ctx) {
+  만약(!wctx->ssl_ctx) {
     failf(data, "wolfSSL: could not create a context");
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
   result = ssl_version(data, conn_config, wctx, &tls_min, &tls_max);
-  if(result)
+  만약(result)
     goto out;
 
   result = wssl_init_ciphers(data, wctx, conn_config, tls_min, tls_max);
-  if(result)
+  만약(result)
     goto out;
 
   result = wssl_init_curves(data, wctx, conn_config);
-  if(result)
+  만약(result)
     goto out;
 
   result = wssl_client_cert(data, conn_config, wctx);
-  if(result)
+  만약(result)
     goto out;
 
   /* SSL always tries to verify the peer, this only says whether it should
@@ -1380,10 +1380,10 @@ CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
                          WOLFSSL_VERIFY_PEER : WOLFSSL_VERIFY_NONE, NULL);
 
 #ifdef HAVE_SNI
-  if(peer->sni) {
+  만약(peer->sni) {
     size_t sni_len = strlen(peer->sni);
-    if((sni_len < USHRT_MAX)) {
-      if(wolfSSL_CTX_UseSNI(wctx->ssl_ctx, WOLFSSL_SNI_HOST_NAME,
+    만약((sni_len < USHRT_MAX)) {
+      만약(wolfSSL_CTX_UseSNI(wctx->ssl_ctx, WOLFSSL_SNI_HOST_NAME,
                             peer->sni, (unsigned short)sni_len) != 1) {
         failf(data, "Failed to set SNI");
         result = CURLE_SSL_CONNECT_ERROR;
@@ -1395,34 +1395,34 @@ CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
 #endif
 
 #ifdef HAVE_EX_DATA
-  if(Curl_ssl_scache_use(cf, data) && (transport != TRNSPRT_QUIC)) {
+  만약(Curl_ssl_scache_use(cf, data) && (transport != TRNSPRT_QUIC)) {
     /* Register to get notified when a new session is received */
     wolfSSL_CTX_sess_set_new_cb(wctx->ssl_ctx, wssl_vtls_new_session_cb);
   }
 #endif
 
-  if(cb_setup) {
+  만약(cb_setup) {
     result = cb_setup(cf, data, cb_user_data);
-    if(result)
+    만약(result)
       goto out;
   }
 
   /* give application a chance to interfere with SSL set up. */
-  if(data->set.ssl_fsslctx) {
-    if(!wctx->x509_store_setup) {
+  만약(data->set.ssl_fsslctx) {
+    만약(!wctx->x509_store_setup) {
       result = Curl_wssl_setup_x509_store(cf, data, wctx);
-      if(result)
+      만약(result)
         goto out;
     }
     result = (*data->set.ssl_fsslctx)(data, wctx->ssl_ctx,
                                       data->set.ssl_fsslctxp);
-    if(result) {
+    만약(result) {
       failf(data, "error signaled by SSL ctx callback");
       goto out;
     }
   }
 #ifdef NO_FILESYSTEM
-  else if(conn_config->verifypeer) {
+  아니면 만약(conn_config->verifypeer) {
     failf(data, "SSL: Certificates cannot be loaded because wolfSSL was built"
           " with no file system. Either disable peer verification"
           " (insecure) or if you are building an application with libcurl you"
@@ -1434,13 +1434,13 @@ CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
 
   result = wssl_init_ssl_handle(wctx, cf, data, peer, &alpns, ssl_user_data,
                                 transport, sess_reuse_cb);
-  if(result)
+  만약(result)
     goto out;
 
 #ifdef HAVE_WOLFSSL_CTX_GENERATEECHCONFIG
-  if(Curl_ssl_ech_enabled(cf)) {
+  만약(Curl_ssl_ech_enabled(cf)) {
     result = wssl_init_ech(wctx, cf, data, peer);
-    if(result)
+    만약(result)
       goto out;
   }
 #endif /* HAVE_WOLFSSL_CTX_GENERATEECHCONFIG */
@@ -1448,15 +1448,15 @@ CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
   result = CURLE_OK;
 
 out:
-  if(result && wctx->ssl) {
+  만약(result && wctx->ssl) {
     wolfSSL_free(wctx->ssl);
     wctx->ssl = NULL;
   }
-  if(result && wctx->ssl_ctx) {
+  만약(result && wctx->ssl_ctx) {
     wolfSSL_CTX_free(wctx->ssl_ctx);
     wctx->ssl_ctx = NULL;
   }
-  return result;
+  반환 result;
 }
 
 /*
@@ -1473,16 +1473,16 @@ static CURLcode wssl_connect_step1(struct Curl_cfilter *cf,
 
   DEBUGASSERT(wssl);
 
-  if(connssl->state == ssl_connection_complete)
-    return CURLE_OK;
+  만약(connssl->state == ssl_connection_complete)
+    반환 CURLE_OK;
 
   result = Curl_wssl_ctx_init(wssl, cf, data, &connssl->peer, connssl->alpn,
                               NULL, NULL, cf, wssl_on_session_reuse);
-  if(result)
-    return result;
+  만약(result)
+    반환 result;
 
 #ifdef HAVE_ALPN
-  if(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
+  만약(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
     struct alpn_proto_buf proto;
     memset(&proto, 0, sizeof(proto));
     Curl_alpn_to_proto_str(&proto, connssl->alpn);
@@ -1492,10 +1492,10 @@ static CURLcode wssl_connect_step1(struct Curl_cfilter *cf,
 
   /* Enable RFC2818 checks on domain names. This cannot check
    * IP addresses which we need to do extra after the handshake. */
-  if(conn_config->verifyhost && connssl->peer.sni) {
-    if(wolfSSL_check_domain_name(wssl->ssl, connssl->peer.sni) !=
+  만약(conn_config->verifyhost && connssl->peer.sni) {
+    만약(wolfSSL_check_domain_name(wssl->ssl, connssl->peer.sni) !=
        WOLFSSL_SUCCESS) {
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
   }
 
@@ -1503,31 +1503,31 @@ static CURLcode wssl_connect_step1(struct Curl_cfilter *cf,
   {
     WOLFSSL_BIO *bio;
 
-    if(!wssl_bio_cf_method)
-      return CURLE_FAILED_INIT;
+    만약(!wssl_bio_cf_method)
+      반환 CURLE_FAILED_INIT;
     bio = wolfSSL_BIO_new(wssl_bio_cf_method);
-    if(!bio)
-      return CURLE_OUT_OF_MEMORY;
+    만약(!bio)
+      반환 CURLE_OUT_OF_MEMORY;
 
     wolfSSL_BIO_set_data(bio, cf);
     wolfSSL_set_bio(wssl->ssl, bio, bio);
   }
-#else /* !USE_BIO_CHAIN */
+#아니면 /* !USE_BIO_CHAIN */
   {
     curl_socket_t sockfd = Curl_conn_cf_get_socket(cf, data);
-    if(sockfd > INT_MAX) {
+    만약(sockfd > INT_MAX) {
       failf(data, "SSL: socket value too large");
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
     /* pass the raw socket into the SSL layer */
-    if(!wolfSSL_set_fd(wssl->ssl, (int)sockfd)) {
+    만약(!wolfSSL_set_fd(wssl->ssl, (정수)sockfd)) {
       failf(data, "SSL: wolfSSL_set_fd failed");
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
   }
 #endif /* USE_BIO_CHAIN */
 
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static char *wssl_strerror(unsigned long error, char *buf, unsigned long size)
@@ -1537,12 +1537,12 @@ static char *wssl_strerror(unsigned long error, char *buf, unsigned long size)
 
   wolfSSL_ERR_error_string_n(error, buf, size);
 
-  if(!*buf) {
+  만약(!*buf) {
     const char *msg = error ? "Unknown error" : "No error";
     curlx_strcopy(buf, size, msg, strlen(msg));
   }
 
-  return buf;
+  반환 buf;
 }
 
 CURLcode Curl_wssl_verify_pinned(struct Curl_cfilter *cf,
@@ -1555,39 +1555,39 @@ CURLcode Curl_wssl_verify_pinned(struct Curl_cfilter *cf,
   const char * const pinnedpubkey = Curl_ssl_cf_is_proxy(cf) ?
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#else
+#아니면
   const char * const pinnedpubkey =
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
   (void)cf;
 #endif
 
-  if(pinnedpubkey) {
+  만약(pinnedpubkey) {
 #ifdef KEEP_PEER_CERT
     const uint8_t *x509_der;
-    int x509_der_len;
+    정수 x509_der_len;
     struct Curl_X509certificate x509_parsed;
     struct Curl_asn1Element *pubkey;
 
     result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
     x509 = wolfSSL_get_peer_certificate(wssl->ssl);
-    if(!x509) {
+    만약(!x509) {
       failf(data, "SSL: failed retrieving server certificate");
       goto end;
     }
 
     x509_der = wolfSSL_X509_get_der(x509, &x509_der_len);
-    if(!x509_der) {
+    만약(!x509_der) {
       failf(data, "SSL: failed retrieving ASN.1 server certificate");
       goto end;
     }
 
     memset(&x509_parsed, 0, sizeof(x509_parsed));
-    if(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
+    만약(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
       goto end;
 
     pubkey = &x509_parsed.subjectPublicKeyInfo;
-    if(!pubkey->header || pubkey->end <= pubkey->header) {
+    만약(!pubkey->header || pubkey->end <= pubkey->header) {
       failf(data, "SSL: failed retrieving public key from server certificate");
       goto end;
     }
@@ -1595,16 +1595,16 @@ CURLcode Curl_wssl_verify_pinned(struct Curl_cfilter *cf,
     result = Curl_pin_peer_pubkey(data, pinnedpubkey,
                                   (const unsigned char *)pubkey->header,
                                   (size_t)(pubkey->end - pubkey->header));
-    if(result)
+    만약(result)
       failf(data, "SSL: public key does not match pinned public key");
-#else
+#아니면
     failf(data, "Library lacks pinning support built-in");
-    return CURLE_NOT_BUILT_IN;
+    반환 CURLE_NOT_BUILT_IN;
 #endif
   }
 end:
   wolfSSL_FreeX509(x509);
-  return result;
+  반환 result;
 }
 
 #ifdef WOLFSSL_EARLY_DATA
@@ -1618,36 +1618,36 @@ static CURLcode wssl_send_earlydata(struct Curl_cfilter *cf,
 
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sending);
   wssl->io_result = CURLE_OK;
-  while(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
-    int nwritten = 0, rc;
+  동안(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
+    정수 nwritten = 0, rc;
 
     wolfSSL_ERR_clear_error();
-    rc = wolfSSL_write_early_data(wssl->ssl, buf, (int)blen, &nwritten);
+    rc = wolfSSL_write_early_data(wssl->ssl, buf, (정수)blen, &nwritten);
     CURL_TRC_CF(data, cf, "wolfSSL_write_early_data(len=%zu) -> %d, %d",
                 blen, rc, nwritten);
-    if(rc < 0) {
-      int err = wolfSSL_get_error(wssl->ssl, rc);
+    만약(rc < 0) {
+      정수 err = wolfSSL_get_error(wssl->ssl, rc);
       char error_buffer[256];
       switch(err) {
       case WOLFSSL_ERROR_NONE: /* did not get anything */
       case WOLFSSL_ERROR_WANT_READ:
       case WOLFSSL_ERROR_WANT_WRITE:
-        return CURLE_AGAIN;
+        반환 CURLE_AGAIN;
       }
       CURL_TRC_CF(data, cf, "SSL send early data, error: '%s'(%d)",
                   wssl_strerror((unsigned long)err, error_buffer,
                                 sizeof(error_buffer)), err);
-      return CURLE_SEND_ERROR;
+      반환 CURLE_SEND_ERROR;
     }
 
     Curl_bufq_skip(&connssl->earlydata, (size_t)nwritten);
   }
   /* sent everything there was */
   connssl->earlydata_state = ssl_earlydata_sent;
-  if(!Curl_ssl_cf_is_proxy(cf))
+  만약(!Curl_ssl_cf_is_proxy(cf))
     Curl_pgrsEarlyData(data, (curl_off_t)connssl->earlydata_skip);
   infof(data, "SSL sending %zu bytes of early data", connssl->earlydata_skip);
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 #endif /* WOLFSSL_EARLY_DATA */
 
@@ -1656,39 +1656,39 @@ static CURLcode wssl_handshake(struct Curl_cfilter *cf, struct Curl_easy *data)
   struct ssl_connect_data *connssl = cf->ctx;
   struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int ret = -1, detail;
+  정수 ret = -1, detail;
   CURLcode result;
 
   DEBUGASSERT(wssl);
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
 #ifdef WOLFSSL_EARLY_DATA
-  if(connssl->earlydata_state == ssl_earlydata_sending) {
+  만약(connssl->earlydata_state == ssl_earlydata_sending) {
     result = wssl_send_earlydata(cf, data);
-    if(result)
-      return result;
+    만약(result)
+      반환 result;
   }
   DEBUGASSERT((connssl->earlydata_state == ssl_earlydata_none) ||
               (connssl->earlydata_state == ssl_earlydata_sent));
-#else
+#아니면
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_none);
 #endif /* WOLFSSL_EARLY_DATA */
 
   wolfSSL_ERR_clear_error();
   ret = wolfSSL_connect(wssl->ssl);
 
-  if(!wssl->x509_store_setup) {
+  만약(!wssl->x509_store_setup) {
     /* After having send off the ClientHello, we prepare the x509
      * store to verify the coming certificate from the server */
     result = Curl_wssl_setup_x509_store(cf, data, wssl);
-    if(result) {
-      CURL_TRC_CF(data, cf, "Curl_wssl_setup_x509_store() -> %d", (int)result);
-      return result;
+    만약(result) {
+      CURL_TRC_CF(data, cf, "Curl_wssl_setup_x509_store() -> %d", (정수)result);
+      반환 result;
     }
   }
 
 #ifdef OPENSSL_EXTRA
-  if(Curl_tls_keylog_enabled()) {
+  만약(Curl_tls_keylog_enabled()) {
     /* If key logging is enabled, wait for the handshake to complete and then
      * proceed with logging secrets (for TLS 1.2 or older).
      *
@@ -1700,7 +1700,7 @@ static CURLcode wssl_handshake(struct Curl_cfilter *cf, struct Curl_easy *data)
      * Note that OpenSSL SSL_want_read() is always true here. If wolfSSL ever
      * changes, the worst case is that no key is logged on error.
      */
-    if(ret == WOLFSSL_SUCCESS ||
+    만약(ret == WOLFSSL_SUCCESS ||
        (!wolfSSL_want_read(wssl->ssl) &&
         !wolfSSL_want_write(wssl->ssl))) {
       wssl_log_tls12_secret(wssl->ssl);
@@ -1718,103 +1718,103 @@ static CURLcode wssl_handshake(struct Curl_cfilter *cf, struct Curl_easy *data)
    * verified. With an anonymous cipher suite the server sends none and
    * neither the CA nor the hostname check runs. For an IP address as
    * hostname, also check the certificate for an IP match. */
-  if(ret == WOLFSSL_SUCCESS &&
+  만약(ret == WOLFSSL_SUCCESS &&
      (conn_config->verifypeer || conn_config->verifyhost)) {
     WOLFSSL_X509 *cert = wolfSSL_get_peer_certificate(wssl->ssl);
-    if(!cert) {
+    만약(!cert) {
       failf(data, "unable to get peer certificate");
-      return CURLE_PEER_FAILED_VERIFICATION;
+      반환 CURLE_PEER_FAILED_VERIFICATION;
     }
-    if(conn_config->verifyhost && !connssl->peer.sni) {
+    만약(conn_config->verifyhost && !connssl->peer.sni) {
       ret = wolfSSL_X509_check_ip_asc(cert, connssl->peer.origin->hostname,
                                       0);
       CURL_TRC_CF(data, cf, "check peer certificate for IP match on %s -> %d",
                   connssl->peer.origin->hostname, ret);
-      if(ret != WOLFSSL_SUCCESS)
+      만약(ret != WOLFSSL_SUCCESS)
         detail = DOMAIN_NAME_MISMATCH;
     }
     wolfSSL_X509_free(cert);
   }
 
-  if(ret == WOLFSSL_SUCCESS) {
-    return CURLE_OK;
+  만약(ret == WOLFSSL_SUCCESS) {
+    반환 CURLE_OK;
   }
-  else {
-    if(detail == WOLFSSL_ERROR_WANT_READ) {
+  아니면 {
+    만약(detail == WOLFSSL_ERROR_WANT_READ) {
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
-      return CURLE_AGAIN;
+      반환 CURLE_AGAIN;
     }
-    else if(detail == WOLFSSL_ERROR_WANT_WRITE) {
+    아니면 만약(detail == WOLFSSL_ERROR_WANT_WRITE) {
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      return CURLE_AGAIN;
+      반환 CURLE_AGAIN;
     }
-    else if(detail == DOMAIN_NAME_MISMATCH) {
+    아니면 만약(detail == DOMAIN_NAME_MISMATCH) {
       /* There is no easy way to override only the CN matching.
        * This enables the override of both mismatching SubjectAltNames
        * as also mismatching CN fields */
       failf(data, " subject alt name(s) or common name do not match \"%s\"",
             connssl->peer.origin->hostname);
-      return CURLE_PEER_FAILED_VERIFICATION;
+      반환 CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if(detail == ASN_NO_SIGNER_E) {
-      if(conn_config->verifypeer) {
+    아니면 만약(detail == ASN_NO_SIGNER_E) {
+      만약(conn_config->verifypeer) {
         failf(data, " CA signer not available for verification");
-        return CURLE_SSL_CACERT_BADFILE;
+        반환 CURLE_SSL_CACERT_BADFILE;
       }
       /* Continue with a warning if no strict certificate
          verification is required. */
       infof(data, "CA signer not available for verification, "
                   "continuing anyway");
-      return CURLE_OK;
+      반환 CURLE_OK;
     }
-    else if(detail == ASN_AFTER_DATE_E) {
+    아니면 만약(detail == ASN_AFTER_DATE_E) {
       failf(data, "server verification failed: certificate has expired.");
-      return CURLE_PEER_FAILED_VERIFICATION;
+      반환 CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if(detail == ASN_BEFORE_DATE_E) {
+    아니면 만약(detail == ASN_BEFORE_DATE_E) {
       failf(data, "server verification failed: certificate not valid yet.");
-      return CURLE_PEER_FAILED_VERIFICATION;
+      반환 CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if(wssl->io_result) {
+    아니면 만약(wssl->io_result) {
       switch(wssl->io_result) {
       case CURLE_SEND_ERROR:
       case CURLE_RECV_ERROR:
-        return CURLE_SSL_CONNECT_ERROR;
+        반환 CURLE_SSL_CONNECT_ERROR;
       default:
-        return wssl->io_result;
+        반환 wssl->io_result;
       }
     }
 #ifdef HAVE_WOLFSSL_CTX_GENERATEECHCONFIG
-    else if(detail == -1) {
+    아니면 만약(detail == -1) {
       /* try access a retry_config ECHConfigList for tracing */
       byte echConfigs[1000];
       word32 echConfigsLen = 1000;
-      int rv = 0;
+      정수 rv = 0;
 
       /* this currently does not produce the retry_configs */
       rv = wolfSSL_GetEchConfigs(wssl->ssl, echConfigs, &echConfigsLen);
-      if(rv != WOLFSSL_SUCCESS) {
+      만약(rv != WOLFSSL_SUCCESS) {
         infof(data, "Failed to get ECHConfigs");
       }
-      else {
+      아니면 {
         char *b64str = NULL;
         size_t blen = 0;
 
         result = curlx_base64_encode(echConfigs, echConfigsLen,
                                      &b64str, &blen);
-        if(!result && b64str)
+        만약(!result && b64str)
           infof(data, "ECH: (not yet) retry_configs %s", b64str);
         curlx_free(b64str);
       }
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
 #endif
-    else {
+    아니면 {
       char error_buffer[256];
       failf(data, "SSL_connect failed with error %d: %s", detail,
             wssl_strerror((unsigned long)detail, error_buffer,
                           sizeof(error_buffer)));
-      return CURLE_SSL_CONNECT_ERROR;
+      반환 CURLE_SSL_CONNECT_ERROR;
     }
   }
 }
@@ -1827,27 +1827,27 @@ static CURLcode wssl_send(struct Curl_cfilter *cf,
   struct ssl_connect_data *connssl = cf->ctx;
   struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
-  int nwritten;
+  정수 nwritten;
 
   DEBUGASSERT(wssl);
   *pnwritten = 0;
   wolfSSL_ERR_clear_error();
 
-  if(blen) {
-    int memlen = (blen > (size_t)INT_MAX) ? INT_MAX : (int)blen;
+  만약(blen) {
+    정수 memlen = (blen > (size_t)INT_MAX) ? INT_MAX : (정수)blen;
 
     nwritten = wolfSSL_write(wssl->ssl, buf, memlen);
 
-    if(nwritten > 0)
+    만약(nwritten > 0)
       *pnwritten += (size_t)nwritten;
-    else {
-      int err = wolfSSL_get_error(wssl->ssl, nwritten);
+    아니면 {
+      정수 err = wolfSSL_get_error(wssl->ssl, nwritten);
 
       switch(err) {
       case WOLFSSL_ERROR_WANT_READ:
       case WOLFSSL_ERROR_WANT_WRITE:
         /* there is data pending, re-invoke wolfSSL_write() */
-        if(*pnwritten) {
+        만약(*pnwritten) {
           result = CURLE_OK;
           goto out;
         }
@@ -1855,8 +1855,8 @@ static CURLcode wssl_send(struct Curl_cfilter *cf,
         goto out;
 
       default:
-        if(wssl->io_result == CURLE_AGAIN) {
-          if(*pnwritten) {
+        만약(wssl->io_result == CURLE_AGAIN) {
+          만약(*pnwritten) {
             result = CURLE_OK;
             goto out;
           }
@@ -1878,8 +1878,8 @@ static CURLcode wssl_send(struct Curl_cfilter *cf,
 
 out:
   CURL_TRC_CF(data, cf, "wssl_send(len=%zu) -> %d, %zu",
-              blen, (int)result, *pnwritten);
-  return result;
+              blen, (정수)result, *pnwritten);
+  반환 result;
 }
 
 static CURLcode wssl_shutdown(struct Curl_cfilter *cf,
@@ -1890,12 +1890,12 @@ static CURLcode wssl_shutdown(struct Curl_cfilter *cf,
   struct wssl_ctx *wctx = (struct wssl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
   char buf[1024];
-  int nread = -1, err;
+  정수 nread = -1, err;
   size_t i;
   VERBOSE(char error_buffer[256]);
 
   DEBUGASSERT(wctx);
-  if(!wctx->ssl || cf->shutdown) {
+  만약(!wctx->ssl || cf->shutdown) {
     *done = TRUE;
     goto out;
   }
@@ -1903,22 +1903,22 @@ static CURLcode wssl_shutdown(struct Curl_cfilter *cf,
   wctx->shutting_down = TRUE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
   *done = FALSE;
-  if(!(wolfSSL_get_shutdown(wctx->ssl) & WOLFSSL_SENT_SHUTDOWN)) {
+  만약(!(wolfSSL_get_shutdown(wctx->ssl) & WOLFSSL_SENT_SHUTDOWN)) {
     /* We have not started the shutdown from our side yet. Check
      * if the server already sent us one. */
     wolfSSL_ERR_clear_error();
-    nread = wolfSSL_read(wctx->ssl, buf, (int)sizeof(buf));
+    nread = wolfSSL_read(wctx->ssl, buf, (정수)sizeof(buf));
     err = wolfSSL_get_error(wctx->ssl, nread);
     CURL_TRC_CF(data, cf, "wolfSSL_read, nread=%d, err=%d", nread, err);
-    if(!nread && err == WOLFSSL_ERROR_ZERO_RETURN) {
+    만약(!nread && err == WOLFSSL_ERROR_ZERO_RETURN) {
       bool input_pending;
       /* Yes, it did. */
-      if(!send_shutdown) {
+      만약(!send_shutdown) {
         CURL_TRC_CF(data, cf, "SSL shutdown received, not sending");
         *done = TRUE;
         goto out;
       }
-      else if(!cf->next->cft->is_alive(cf->next, data, &input_pending)) {
+      아니면 만약(!cf->next->cft->is_alive(cf->next, data, &input_pending)) {
         /* Server closed the connection after its closy notify. It
          * seems not interested to see our close notify, so do not
          * send it. We are done. */
@@ -1932,15 +1932,15 @@ static CURLcode wssl_shutdown(struct Curl_cfilter *cf,
 
   /* wolfSSL should now have started the shutdown from our side. Since it
    * was not complete, we are lacking the close notify from the server. */
-  if(send_shutdown) {
+  만약(send_shutdown) {
     wolfSSL_ERR_clear_error();
     nread = wolfSSL_shutdown(wctx->ssl);
-    if(nread == 1) {
+    만약(nread == 1) {
       CURL_TRC_CF(data, cf, "SSL shutdown finished");
       *done = TRUE;
       goto out;
     }
-    if(wolfSSL_get_error(wctx->ssl, nread) == WOLFSSL_ERROR_WANT_WRITE) {
+    만약(wolfSSL_get_error(wctx->ssl, nread) == WOLFSSL_ERROR_WANT_WRITE) {
       CURL_TRC_CF(data, cf, "SSL shutdown still wants to send");
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
       goto out;
@@ -1949,10 +1949,10 @@ static CURLcode wssl_shutdown(struct Curl_cfilter *cf,
      * missing close notify from the server. */
   }
 
-  for(i = 0; i < 10; ++i) {
+  위해(i = 0; i < 10; ++i) {
     wolfSSL_ERR_clear_error();
-    nread = wolfSSL_read(wctx->ssl, buf, (int)sizeof(buf));
-    if(nread <= 0)
+    nread = wolfSSL_read(wctx->ssl, buf, (정수)sizeof(buf));
+    만약(nread <= 0)
       break;
   }
   err = wolfSSL_get_error(wctx->ssl, nread);
@@ -1983,7 +1983,7 @@ static CURLcode wssl_shutdown(struct Curl_cfilter *cf,
 
 out:
   cf->shutdown = (result || *done);
-  return result;
+  반환 result;
 }
 
 static void wssl_close(struct Curl_cfilter *cf, struct Curl_easy *data)
@@ -1995,11 +1995,11 @@ static void wssl_close(struct Curl_cfilter *cf, struct Curl_easy *data)
 
   DEBUGASSERT(wssl);
 
-  if(wssl->ssl) {
+  만약(wssl->ssl) {
     wolfSSL_free(wssl->ssl);
     wssl->ssl = NULL;
   }
-  if(wssl->ssl_ctx) {
+  만약(wssl->ssl_ctx) {
     wolfSSL_CTX_free(wssl->ssl_ctx);
     wssl->ssl_ctx = NULL;
   }
@@ -2012,8 +2012,8 @@ static CURLcode wssl_recv(struct Curl_cfilter *cf,
 {
   struct ssl_connect_data *connssl = cf->ctx;
   struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
-  int buffsize = (blen > (size_t)INT_MAX) ? INT_MAX : (int)blen;
-  int nread;
+  정수 buffsize = (blen > (size_t)INT_MAX) ? INT_MAX : (정수)blen;
+  정수 nread;
 
   DEBUGASSERT(wssl);
 
@@ -2022,65 +2022,65 @@ static CURLcode wssl_recv(struct Curl_cfilter *cf,
 
   nread = wolfSSL_read(wssl->ssl, buf, buffsize);
 
-  if(nread > 0)
+  만약(nread > 0)
     *pnread = (size_t)nread;
-  else {
-    int err = wolfSSL_get_error(wssl->ssl, nread);
+  아니면 {
+    정수 err = wolfSSL_get_error(wssl->ssl, nread);
 
     switch(err) {
     case WOLFSSL_ERROR_ZERO_RETURN: /* no more data */
       CURL_TRC_CF(data, cf, "wssl_recv(len=%zu) -> CLOSED", blen);
-      return CURLE_OK;
+      반환 CURLE_OK;
     case WOLFSSL_ERROR_NONE:
     case WOLFSSL_ERROR_WANT_READ:
     case WOLFSSL_ERROR_WANT_WRITE:
-      if(!wssl->io_result && !connssl->peer_closed) {
+      만약(!wssl->io_result && !connssl->peer_closed) {
         /* there is data pending, re-invoke wolfSSL_read() */
         CURL_TRC_CF(data, cf, "wssl_recv(len=%zu) -> AGAIN", blen);
-        return CURLE_AGAIN;
+        반환 CURLE_AGAIN;
       }
       /* fall through to default error handling below */
       FALLTHROUGH();
     default:
-      if(wssl->io_result == CURLE_AGAIN) {
+      만약(wssl->io_result == CURLE_AGAIN) {
         CURL_TRC_CF(data, cf, "wssl_recv(len=%zu) -> AGAIN", blen);
-        return CURLE_AGAIN;
+        반환 CURLE_AGAIN;
       }
-      else if(!wssl->io_result && connssl->peer_closed) {
+      아니면 만약(!wssl->io_result && connssl->peer_closed) {
         CURL_TRC_CF(data, cf, "wssl_recv(len=%zu) -> CLOSED", blen);
         failf(data, "Connection closed abruptly");
       }
-      else {
+      아니면 {
         char error_buffer[256];
         failf(data, "SSL read: %s, errno %d",
               wssl_strerror((unsigned long)err, error_buffer,
                             sizeof(error_buffer)),
               SOCKERRNO);
       }
-      return CURLE_RECV_ERROR;
+      반환 CURLE_RECV_ERROR;
     }
   }
 
   CURL_TRC_CF(data, cf, "wssl_recv(len=%zu) -> 0, %zu", blen, *pnread);
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 size_t Curl_wssl_version(char *buffer, size_t size)
 {
-  return curl_msnprintf(buffer, size, "wolfSSL/%s", wolfSSL_lib_version());
+  반환 curl_msnprintf(buffer, size, "wolfSSL/%s", wolfSSL_lib_version());
 }
 
-static int wssl_init(void)
+static 정수 wssl_init(void)
 {
-  int ret;
+  정수 ret;
 
 #ifdef OPENSSL_EXTRA
   Curl_tls_keylog_open();
 #endif
   ret = (wolfSSL_Init() == WOLFSSL_SUCCESS);
-  if(ret)
+  만약(ret)
     ret = wssl_bio_cf_init_methods();
-  return ret;
+  반환 ret;
 }
 
 static void wssl_cleanup(void)
@@ -2102,10 +2102,10 @@ static bool wssl_data_pending(struct Curl_cfilter *cf,
   DEBUGASSERT(ctx && ctx->backend);
 
   wssl = (struct wssl_ctx *)ctx->backend;
-  if(wssl->ssl)   /* wolfSSL is in use */
-    return wolfSSL_pending(wssl->ssl);
-  else
-    return FALSE;
+  만약(wssl->ssl)   /* wolfSSL is in use */
+    반환 wolfSSL_pending(wssl->ssl);
+  아니면
+    반환 FALSE;
 }
 
 void Curl_wssl_report_handshake(struct Curl_easy *data, struct wssl_ctx *wssl)
@@ -2125,73 +2125,73 @@ static CURLcode wssl_connect(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
 
   /* check if the connection has already been established */
-  if(ssl_connection_complete == connssl->state) {
+  만약(ssl_connection_complete == connssl->state) {
     *done = TRUE;
-    return CURLE_OK;
+    반환 CURLE_OK;
   }
 
   *done = FALSE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  if(connssl->connecting_state == ssl_connect_1) {
+  만약(connssl->connecting_state == ssl_connect_1) {
 #ifdef HAVE_WOLFSSL_CTX_GENERATEECHCONFIG
     /* if we do ECH and need the HTTPS-RR information for it,
      * we delay the connect until it arrives or DNS resolve fails. */
-    if(Curl_ssl_need_httpsrr(cf) &&
+    만약(Curl_ssl_need_httpsrr(cf) &&
        !Curl_conn_dns_resolved_https(data, cf->sockindex,
                                      connssl->peer.peer)) {
       CURL_TRC_CF(data, cf, "need HTTPS-RR for ECH, delaying connect");
-      return CURLE_OK;
+      반환 CURLE_OK;
     }
 #endif /* HAVE_WOLFSSL_CTX_GENERATEECHCONFIG */
     result = wssl_connect_step1(cf, data);
-    if(result)
-      return result;
+    만약(result)
+      반환 result;
     connssl->connecting_state = ssl_connect_2;
   }
 
-  if(connssl->connecting_state == ssl_connect_2) {
-    if(connssl->earlydata_state == ssl_earlydata_await) {
+  만약(connssl->connecting_state == ssl_connect_2) {
+    만약(connssl->earlydata_state == ssl_earlydata_await) {
       /* We defer the handshake until request data arrives. */
       DEBUGASSERT(connssl->state == ssl_connection_deferred);
       goto out;
     }
     result = wssl_handshake(cf, data);
-    if(result == CURLE_AGAIN)
+    만약(result == CURLE_AGAIN)
       goto out;
     wssl->hs_result = result;
     connssl->connecting_state = ssl_connect_3;
   }
 
-  if(connssl->connecting_state == ssl_connect_3) {
+  만약(connssl->connecting_state == ssl_connect_3) {
     /* Once the handshake has errored, it stays in that state and
      * errors again on every call. */
-    if(wssl->hs_result) {
+    만약(wssl->hs_result) {
       result = wssl->hs_result;
       goto out;
     }
     result = Curl_wssl_verify_pinned(cf, data, wssl);
-    if(result) {
+    만약(result) {
       wssl->hs_result = result;
       goto out;
     }
     /* handshake was done without errors */
 #ifdef HAVE_ALPN
-    if(connssl->alpn) {
-      int rc;
+    만약(connssl->alpn) {
+      정수 rc;
       char *protocol = NULL;
       unsigned short protocol_len = 0;
 
       rc = wolfSSL_ALPN_GetProtocol(wssl->ssl, &protocol, &protocol_len);
 
-      if(rc == WOLFSSL_SUCCESS) {
+      만약(rc == WOLFSSL_SUCCESS) {
         Curl_alpn_set_negotiated(cf, data, connssl,
                                  (const unsigned char *)protocol,
                                  protocol_len);
       }
-      else if(rc == WOLFSSL_ALPN_NOT_FOUND)
+      아니면 만약(rc == WOLFSSL_ALPN_NOT_FOUND)
         Curl_alpn_set_negotiated(cf, data, connssl, NULL, 0);
-      else {
+      아니면 {
         failf(data, "ALPN, failure getting protocol, error %d", rc);
         wssl->hs_result = result = CURLE_SSL_CONNECT_ERROR;
         goto out;
@@ -2204,7 +2204,7 @@ static CURLcode wssl_connect(struct Curl_cfilter *cf,
     Curl_wssl_report_handshake(data, wssl);
 
 #ifdef WOLFSSL_EARLY_DATA
-    if(connssl->earlydata_state > ssl_earlydata_none) {
+    만약(connssl->earlydata_state > ssl_earlydata_none) {
       /* We should be in this state by now */
       DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sent);
       connssl->earlydata_state =
@@ -2215,22 +2215,22 @@ static CURLcode wssl_connect(struct Curl_cfilter *cf,
 #endif /* WOLFSSL_EARLY_DATA */
   }
 
-  if((connssl->connecting_state == ssl_connect_done) ||
+  만약((connssl->connecting_state == ssl_connect_done) ||
      (connssl->state == ssl_connection_deferred)) {
     *done = TRUE;
   }
 
 out:
-  if(result) {
+  만약(result) {
     *done = FALSE;
-    if(result == CURLE_AGAIN)
-      return CURLE_OK;
+    만약(result == CURLE_AGAIN)
+      반환 CURLE_OK;
   }
-  else if((connssl->connecting_state == ssl_connect_done) ||
+  아니면 만약((connssl->connecting_state == ssl_connect_done) ||
           (connssl->state == ssl_connection_deferred)) {
     *done = TRUE;
   }
-  return result;
+  반환 result;
 }
 
 static CURLcode wssl_random(struct Curl_easy *data,
@@ -2238,15 +2238,15 @@ static CURLcode wssl_random(struct Curl_easy *data,
 {
   WC_RNG rng;
   (void)data;
-  if(wc_InitRng(&rng))
-    return CURLE_FAILED_INIT;
-  if(length > UINT_MAX)
-    return CURLE_FAILED_INIT;
-  if(wc_RNG_GenerateBlock(&rng, entropy, (unsigned)length))
-    return CURLE_FAILED_INIT;
-  if(wc_FreeRng(&rng))
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  만약(wc_InitRng(&rng))
+    반환 CURLE_FAILED_INIT;
+  만약(length > UINT_MAX)
+    반환 CURLE_FAILED_INIT;
+  만약(wc_RNG_GenerateBlock(&rng, entropy, (unsigned)length))
+    반환 CURLE_FAILED_INIT;
+  만약(wc_FreeRng(&rng))
+    반환 CURLE_FAILED_INIT;
+  반환 CURLE_OK;
 }
 
 static CURLcode wssl_sha256sum(const unsigned char *input,
@@ -2256,18 +2256,18 @@ static CURLcode wssl_sha256sum(const unsigned char *input,
 {
   wc_Sha256 SHA256pw;
   (void)unused;
-  if(wc_InitSha256(&SHA256pw))
-    return CURLE_FAILED_INIT;
+  만약(wc_InitSha256(&SHA256pw))
+    반환 CURLE_FAILED_INIT;
   do {
     word32 ilen = (word32)CURLMIN(len, UINT32_MAX);
-    if(wc_Sha256Update(&SHA256pw, input, ilen))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    만약(wc_Sha256Update(&SHA256pw, input, ilen))
+      반환 CURLE_BAD_FUNCTION_ARGUMENT;
     len -= ilen;
     input += ilen;
-  } while(len);
-  if(wc_Sha256Final(&SHA256pw, sha256sum))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return CURLE_OK;
+  } 동안(len);
+  만약(wc_Sha256Final(&SHA256pw, sha256sum))
+    반환 CURLE_BAD_FUNCTION_ARGUMENT;
+  반환 CURLE_OK;
 }
 
 static void *wssl_get_internals(struct ssl_connect_data *connssl,
@@ -2275,7 +2275,7 @@ static void *wssl_get_internals(struct ssl_connect_data *connssl,
 {
   struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
   DEBUGASSERT(wssl);
-  return info == CURLINFO_TLS_SESSION ?
+  반환 info == CURLINFO_TLS_SESSION ?
     (void *)wssl->ssl_ctx : (void *)wssl->ssl;
 }
 

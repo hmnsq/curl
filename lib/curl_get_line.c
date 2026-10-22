@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#만약 !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
 #include "curl_get_line.h"
@@ -37,30 +37,30 @@ CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
   CURLcode result;
   char buffer[128];
   curlx_dyn_reset(buf);
-  while(1) {
+  동안(1) {
     size_t rlen;
     const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+    만약(!b && ferror(input))
+      반환 CURLE_READ_ERROR;
 
     *eof = feof(input);
 
     rlen = b ? strlen(b) : 0;
-    if(rlen) {
+    만약(rlen) {
       result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+      만약(result)
         /* too long line or out of memory */
-        return result;
+        반환 result;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    만약(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      반환 CURLE_OK; /* all good */
+    만약(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      반환 curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */

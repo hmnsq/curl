@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(_WIN32) && defined(UNICODE)
+#만약 defined(_WIN32) && defined(UNICODE)
 
 #include "curlx/multibyte.h"
 
@@ -35,44 +35,44 @@ wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8)
 {
   wchar_t *str_w = NULL;
 
-  if(str_utf8) {
-    int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+  만약(str_utf8) {
+    정수 str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                         str_utf8, -1, NULL, 0);
-    if(str_w_len > 0) {
+    만약(str_w_len > 0) {
       str_w = curlx_malloc(str_w_len * sizeof(wchar_t));
-      if(str_w) {
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+      만약(str_w) {
+        만약(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                str_utf8, -1, str_w, str_w_len) == 0) {
           curlx_free(str_w);
-          return NULL;
+          반환 NULL;
         }
       }
     }
   }
 
-  return str_w;
+  반환 str_w;
 }
 
 char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w)
 {
   char *str_utf8 = NULL;
 
-  if(str_w) {
-    int bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
+  만약(str_w) {
+    정수 bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
                                     NULL, 0, NULL, NULL);
-    if(bytes > 0) {
+    만약(bytes > 0) {
       str_utf8 = curlx_malloc(bytes);
-      if(str_utf8) {
-        if(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
+      만약(str_utf8) {
+        만약(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
                                NULL, NULL) == 0) {
           curlx_free(str_utf8);
-          return NULL;
+          반환 NULL;
         }
       }
     }
   }
 
-  return str_utf8;
+  반환 str_utf8;
 }
 
 #endif /* _WIN32 && UNICODE */

@@ -59,7 +59,7 @@ NETRCcode Curl_netrc_scan(struct Curl_easy *data,
                           const char *user,
                           const char *netrcfile,
                           struct Curl_creds **pcreds);
-#else
+#아니면
 /* disabled */
 #define Curl_netrc_init(x)
 #define Curl_netrc_cleanup(x)

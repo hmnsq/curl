@@ -43,7 +43,7 @@ static void cf_recvbuf_destroy(struct Curl_cfilter *cf,
 {
   struct cf_recvbuf_ctx *ctx = cf->ctx;
   (void)data;
-  if(ctx) {
+  만약(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
@@ -56,14 +56,14 @@ static CURLcode cf_recvbuf_recv(struct Curl_cfilter *cf,
 {
   struct cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf)) {
-    return Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
+  만약(!Curl_bufq_is_empty(&ctx->recvbuf)) {
+    반환 Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
   }
 
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  만약(cf->next)
+    반환 cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  반환 CURLE_RECV_ERROR;
 }
 
 static bool cf_recvbuf_data_pending(struct Curl_cfilter *cf,
@@ -71,10 +71,10 @@ static bool cf_recvbuf_data_pending(struct Curl_cfilter *cf,
 {
   struct cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
+  만약(!Curl_bufq_is_empty(&ctx->recvbuf))
+    반환 TRUE;
 
-  return cf->next ?
+  반환 cf->next ?
     cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
@@ -106,7 +106,7 @@ static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
 
   (void)data;
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  만약(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -114,25 +114,25 @@ static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
                   (blen / CURL_CF_RECVBUF_CHUNK) + 1,
                   (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
   result = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
-  if(result)
+  만약(result)
     goto out;
-  if(nwritten != blen) {
+  만약(nwritten != blen) {
     result = CURLE_FAILED_INIT;
     goto out;
   }
 
   result = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
-  if(result)
+  만약(result)
     goto out;
   ctx = NULL;
 
 out:
   *pcf = result ? NULL : cf;
-  if(ctx) {
+  만약(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
-  return result;
+  반환 result;
 }
 
 CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
@@ -145,13 +145,13 @@ CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
 
   DEBUGASSERT(data);
   result = cf_recvbuf_create(&cf, data, buf, blen);
-  if(result)
+  만약(result)
     goto out;
 
   cf->connected = Curl_conn_is_connected(conn, sockindex);
   Curl_conn_cf_add(data, conn, sockindex, cf);
 out:
-  return result;
+  반환 result;
 }
 
 #endif /* !CURL_DISABLE_WEBSOCKETS */

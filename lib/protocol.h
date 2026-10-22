@@ -86,7 +86,7 @@ typedef curl_off_t curl_prot_t;
 #define PROTO_FAMILY_SMTP (CURLPROTO_SMTP | CURLPROTO_SMTPS)
 #define PROTO_FAMILY_SSH  (CURLPROTO_SCP | CURLPROTO_SFTP)
 
-#if !defined(CURL_DISABLE_FTP) || defined(USE_SSH) || \
+#만약 !defined(CURL_DISABLE_FTP) || defined(USE_SSH) || \
   !defined(CURL_DISABLE_POP3)
 /* these protocols support CURLOPT_DIRLISTONLY */
 #define CURL_LIST_ONLY_PROTOCOL 1

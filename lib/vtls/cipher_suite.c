@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_MBEDTLS) || defined(USE_RUSTLS)
+#만약 defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
 #include "vtls/cipher_suite.h"
 
@@ -539,42 +539,42 @@ static const struct cs_entry cs_list[] = {
 };
 #define CS_LIST_LEN CURL_ARRAYSIZE(cs_list)
 
-static int cs_str_to_zip(const char *cs_str, size_t cs_len, uint8_t zip[6])
+static 정수 cs_str_to_zip(const char *cs_str, size_t cs_len, uint8_t zip[6])
 {
   uint8_t indexes[8] = { 0 };
   const char *entry, *cur;
   const char *nxt = cs_str;
   const char *end = cs_str + cs_len;
   char separator = '-';
-  int idx, i = 0;
+  정수 idx, i = 0;
   size_t len;
 
   /* split the cipher string by '-' or '_' */
-  if(curl_strnequal(cs_str, "TLS", 3))
+  만약(curl_strnequal(cs_str, "TLS", 3))
     separator = '_';
 
   do {
-    if(i == 8)
-      return -1;
+    만약(i == 8)
+      반환 -1;
 
     /* determine the length of the part */
     cur = nxt;
-    for(; nxt < end && *nxt != '\0' && *nxt != separator; nxt++)
+    위해(; nxt < end && *nxt != '\0' && *nxt != separator; nxt++)
       ;
     len = nxt - cur;
 
     /* lookup index for the part (skip empty string at 0) */
-    for(idx = 1, entry = cs_txt + 1; idx < CS_TXT_LEN; idx++) {
+    위해(idx = 1, entry = cs_txt + 1; idx < CS_TXT_LEN; idx++) {
       size_t elen = strlen(entry);
-      if(elen == len && curl_strnequal(entry, cur, len))
+      만약(elen == len && curl_strnequal(entry, cur, len))
         break;
       entry += elen + 1;
     }
-    if(idx == CS_TXT_LEN)
-      return -1;
+    만약(idx == CS_TXT_LEN)
+      반환 -1;
 
     indexes[i++] = (uint8_t)idx;
-  } while(nxt < end && *(nxt++) != '\0');
+  } 동안(nxt < end && *(nxt++) != '\0');
 
   /* zip the 8 indexes into 48 bits */
   zip[0] = (uint8_t)(indexes[0] << 2 | (indexes[1] & 0x3F) >> 4);
@@ -584,15 +584,15 @@ static int cs_str_to_zip(const char *cs_str, size_t cs_len, uint8_t zip[6])
   zip[4] = (uint8_t)(indexes[5] << 4 | (indexes[6] & 0x3F) >> 2);
   zip[5] = (uint8_t)(indexes[6] << 6 | (indexes[7] & 0x3F));
 
-  return 0;
+  반환 0;
 }
 
-static int cs_zip_to_str(const uint8_t zip[6], char *buf, size_t buf_size)
+static 정수 cs_zip_to_str(const uint8_t zip[6], char *buf, size_t buf_size)
 {
   uint8_t indexes[8] = { 0 };
   const char *entry;
   char separator = '-';
-  int idx, i, r;
+  정수 idx, i, r;
   size_t len = 0;
 
   /* unzip the 8 indexes */
@@ -605,31 +605,31 @@ static int cs_zip_to_str(const uint8_t zip[6], char *buf, size_t buf_size)
   indexes[6] = (uint8_t)(((zip[4] << 2) & 0x3F) | zip[5] >> 6);
   indexes[7] = ((zip[5] << 0) & 0x3F);
 
-  if(indexes[0] == CS_TXT_IDX_TLS)
+  만약(indexes[0] == CS_TXT_IDX_TLS)
     separator = '_';
 
-  for(i = 0; i < 8 && indexes[i] != 0 && len < buf_size; i++) {
-    if(indexes[i] >= CS_TXT_LEN)
-      return -1;
+  위해(i = 0; i < 8 && indexes[i] != 0 && len < buf_size; i++) {
+    만약(indexes[i] >= CS_TXT_LEN)
+      반환 -1;
 
     /* lookup the part string for the index (skip empty string at 0) */
-    for(idx = 1, entry = cs_txt + 1; idx < indexes[i]; idx++) {
+    위해(idx = 1, entry = cs_txt + 1; idx < indexes[i]; idx++) {
       size_t elen = strlen(entry);
       entry += elen + 1;
     }
 
     /* append the part string to the buffer */
-    if(i > 0)
+    만약(i > 0)
       r = curl_msnprintf(&buf[len], buf_size - len, "%c%s", separator, entry);
-    else
+    아니면
       r = curl_msnprintf(&buf[len], buf_size - len, "%s", entry);
 
-    if(r < 0)
-      return -1;
+    만약(r < 0)
+      반환 -1;
     len += r;
   }
 
-  return 0;
+  반환 0;
 }
 
 uint16_t Curl_cipher_suite_lookup_id(const char *cs_str, size_t cs_len)
@@ -637,14 +637,14 @@ uint16_t Curl_cipher_suite_lookup_id(const char *cs_str, size_t cs_len)
   size_t i;
   uint8_t zip[6];
 
-  if(cs_len > 0 && cs_str_to_zip(cs_str, cs_len, zip) == 0) {
-    for(i = 0; i < CS_LIST_LEN; i++) {
-      if(!memcmp(cs_list[i].zip, zip, sizeof(zip)))
-        return cs_list[i].id;
+  만약(cs_len > 0 && cs_str_to_zip(cs_str, cs_len, zip) == 0) {
+    위해(i = 0; i < CS_LIST_LEN; i++) {
+      만약(!memcmp(cs_list[i].zip, zip, sizeof(zip)))
+        반환 cs_list[i].id;
     }
   }
 
-  return 0;
+  반환 0;
 }
 
 static bool cs_is_separator(char c)
@@ -655,48 +655,48 @@ static bool cs_is_separator(char c)
   case ':':
   case ',':
   case ';':
-    return TRUE;
+    반환 TRUE;
   }
-  return FALSE;
+  반환 FALSE;
 }
 
 uint16_t Curl_cipher_suite_walk_str(const char **str, const char **end)
 {
   /* move string pointer to first non-separator or end of string */
-  for(; cs_is_separator(*str[0]); (*str)++)
+  위해(; cs_is_separator(*str[0]); (*str)++)
     ;
 
   /* move end pointer to next separator or end of string */
-  for(*end = *str; *end[0] != '\0' && !cs_is_separator(*end[0]); (*end)++)
+  위해(*end = *str; *end[0] != '\0' && !cs_is_separator(*end[0]); (*end)++)
     ;
 
-  return Curl_cipher_suite_lookup_id(*str, *end - *str);
+  반환 Curl_cipher_suite_lookup_id(*str, *end - *str);
 }
 
-int Curl_cipher_suite_get_str(uint16_t id, char *buf, size_t buf_size,
+정수 Curl_cipher_suite_get_str(uint16_t id, char *buf, size_t buf_size,
                               bool prefer_rfc)
 {
   size_t i, j = CS_LIST_LEN;
-  int r = -1;
+  정수 r = -1;
 
-  for(i = 0; i < CS_LIST_LEN; i++) {
-    if(cs_list[i].id != id)
+  위해(i = 0; i < CS_LIST_LEN; i++) {
+    만약(cs_list[i].id != id)
       continue;
-    if((cs_list[i].zip[0] >> 2 != CS_TXT_IDX_TLS) == !prefer_rfc) {
+    만약((cs_list[i].zip[0] >> 2 != CS_TXT_IDX_TLS) == !prefer_rfc) {
       j = i;
       break;
     }
-    if(j == CS_LIST_LEN)
+    만약(j == CS_LIST_LEN)
       j = i;
   }
 
-  if(j < CS_LIST_LEN)
+  만약(j < CS_LIST_LEN)
     r = cs_zip_to_str(cs_list[j].zip, buf, buf_size);
 
-  if(r < 0)
+  만약(r < 0)
     curl_msnprintf(buf, buf_size, "TLS_UNKNOWN_0x%04x", id);
 
-  return r;
+  반환 r;
 }
 
 #endif /* defined(USE_MBEDTLS) || defined(USE_RUSTLS) */

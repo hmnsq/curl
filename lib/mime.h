@@ -110,7 +110,7 @@ struct curl_mimepart {
   curl_mime *parent;               /* Parent mime structure. */
   curl_mimepart *nextpart;         /* Forward linked list. */
   enum mimekind kind;              /* The part kind. */
-  unsigned int flags;              /* Flags. */
+  unsigned 정수 flags;              /* Flags. */
   char *data;                      /* Memory data or filename. */
   curl_read_callback readfunc;     /* Read function. */
   curl_seek_callback seekfunc;     /* Seek function. */
@@ -132,7 +132,7 @@ struct curl_mimepart {
 CURLcode Curl_mime_add_header(struct curl_slist **slp, const char *fmt, ...)
   CURL_PRINTF(2, 3);
 
-#if !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
+#만약 !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
                                     !defined(CURL_DISABLE_SMTP) ||      \
                                     !defined(CURL_DISABLE_IMAP))
 
@@ -144,7 +144,7 @@ CURLcode Curl_mime_duppart(struct Curl_easy *data,
                            const curl_mimepart *src);
 CURLcode Curl_mime_set_subparts(struct curl_mimepart *part,
                                 struct curl_mime *subparts,
-                                int take_ownership);
+                                정수 take_ownership);
 CURLcode Curl_mime_prepare_headers(struct Curl_easy *data,
                                    struct curl_mimepart *part,
                                    const char *contenttype,
@@ -160,7 +160,7 @@ const char *Curl_mime_contenttype(const char *filename);
  */
 CURLcode Curl_creader_set_mime(struct Curl_easy *data, curl_mimepart *part);
 
-#else /* if disabled */
+#아니면 /* if disabled */
 #define Curl_mime_initpart(x)
 #define Curl_mime_cleanpart(x)
 #define Curl_mime_duppart(x, y, z) CURLE_OK /* Nothing to duplicate. Succeed */

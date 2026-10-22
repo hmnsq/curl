@@ -28,9 +28,9 @@
 #endif
 
 /* DllMain() must only be defined for Windows DLL builds. */
-#if defined(_WIN32) && !defined(CURL_STATICLIB)
+#만약 defined(_WIN32) && !defined(CURL_STATICLIB)
 
-#if defined(USE_OPENSSL) && \
+#만약 defined(USE_OPENSSL) && \
   !defined(OPENSSL_IS_AWSLC) && !defined(OPENSSL_IS_BORINGSSL) && \
   !defined(LIBRESSL_VERSION_NUMBER)
 #define PREVENT_OPENSSL_MEMLEAK  /* non-fork OpenSSL */
@@ -57,7 +57,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     OPENSSL_thread_stop();
     break;
   }
-  return TRUE;
+  반환 TRUE;
 }
 #endif /* PREVENT_OPENSSL_MEMLEAK */
 

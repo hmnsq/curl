@@ -52,14 +52,14 @@ PSecurityFunctionTable Curl_pSecFn = NULL;
 CURLcode Curl_sspi_global_init(void)
 {
   /* If security interface is not yet initialized try to do this */
-  if(!Curl_pSecFn) {
+  만약(!Curl_pSecFn) {
     /* Get pointer to Security Service Provider Interface dispatch table */
     Curl_pSecFn = InitSecurityInterface();
-    if(!Curl_pSecFn)
-      return CURLE_FAILED_INIT;
+    만약(!Curl_pSecFn)
+      반환 CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 /*
@@ -73,7 +73,7 @@ CURLcode Curl_sspi_global_init(void)
  */
 void Curl_sspi_global_cleanup(void)
 {
-  if(Curl_pSecFn) {
+  만약(Curl_pSecFn) {
     Curl_pSecFn = NULL;
   }
 }
@@ -110,19 +110,19 @@ CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
   identity->Length = sizeof(*identity);
 
   useranddomain.tchar_ptr = curlx_convert_UTF8_to_tchar(userp);
-  if(!useranddomain.tchar_ptr)
-    return CURLE_OUT_OF_MEMORY;
+  만약(!useranddomain.tchar_ptr)
+    반환 CURLE_OUT_OF_MEMORY;
 
   user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, _TEXT('\\'));
-  if(!user.const_tchar_ptr)
+  만약(!user.const_tchar_ptr)
     user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, _TEXT('/'));
 
-  if(user.tchar_ptr) {
+  만약(user.tchar_ptr) {
     domain.tchar_ptr = useranddomain.tchar_ptr;
     domlen = user.tchar_ptr - useranddomain.tchar_ptr;
     user.tchar_ptr++;
   }
-  else {
+  아니면 {
     user.tchar_ptr = useranddomain.tchar_ptr;
     domain.const_tchar_ptr = _TEXT("");
     domlen = 0;
@@ -130,42 +130,42 @@ CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
 
   /* Setup the identity's user and length */
   dup_user.tchar_ptr = curlx_tcsdup(user.tchar_ptr);
-  if(!dup_user.tchar_ptr) {
+  만약(!dup_user.tchar_ptr) {
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    반환 CURLE_OUT_OF_MEMORY;
   }
 
   /* Setup the identity's domain and length */
   dup_domain.tchar_ptr = curlx_malloc(sizeof(TCHAR) * (domlen + 1));
-  if(!dup_domain.tchar_ptr) {
+  만약(!dup_domain.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    반환 CURLE_OUT_OF_MEMORY;
   }
-  if(_tcsncpy_s(dup_domain.tchar_ptr, domlen + 1, domain.tchar_ptr, domlen)) {
+  만약(_tcsncpy_s(dup_domain.tchar_ptr, domlen + 1, domain.tchar_ptr, domlen)) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    반환 CURLE_OUT_OF_MEMORY;
   }
 
   curlx_free(useranddomain.tchar_ptr);
 
   /* Setup the identity's password and length */
   passwd.tchar_ptr = curlx_convert_UTF8_to_tchar(passwdp);
-  if(!passwd.tchar_ptr) {
+  만약(!passwd.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    반환 CURLE_OUT_OF_MEMORY;
   }
   pwlen = _tcslen(passwd.tchar_ptr);
   dup_passwd.tchar_ptr = curlx_tcsdup(passwd.tchar_ptr);
-  if(!dup_passwd.tchar_ptr) {
+  만약(!dup_passwd.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
     curlx_memzero(passwd.tchar_ptr, pwlen * sizeof(*passwd.tchar_ptr));
     curlx_free(passwd.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    반환 CURLE_OUT_OF_MEMORY;
   }
   identity->Password = dup_passwd.tbyte_ptr;
   identity->PasswordLength = curlx_uztoul(pwlen);
@@ -183,7 +183,7 @@ CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
 
   identity->Flags = CURL_SEC_WINNT_AUTH_IDENTITY;
 
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 /*
@@ -197,7 +197,7 @@ CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
  */
 void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY_EX *identity)
 {
-  if(identity) {
+  만약(identity) {
     curlx_safefree(identity->User);
     curlx_memzero(identity->Password,
                   identity->PasswordLength * sizeof(*identity->Password));

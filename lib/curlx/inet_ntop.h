@@ -25,6 +25,6 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-CURLcode curlx_inet_ntop(int af, const void *src, char *buf, size_t size);
+CURLcode curlx_inet_ntop(정수 af, const void *src, char *buf, size_t size);
 
 #endif /* HEADER_CURL_INET_NTOP_H */

@@ -127,7 +127,7 @@ struct SMTP {
   curl_pp_transfer transfer;
   char *custom;            /* Custom Request */
   struct curl_slist *rcpt; /* Recipient list */
-  int rcpt_last_error;     /* The last error received for RCPT TO command */
+  정수 rcpt_last_error;     /* The last error received for RCPT TO command */
   size_t eob;              /* Number of bytes of the EOB (End Of Body) that
                               have been received so far */
   BIT(rcpt_had_ok);        /* Whether any of RCPT TO commands (depends on
@@ -147,29 +147,29 @@ static CURLcode smtp_parse_url_options(struct connectdata *conn,
   CURLcode result = CURLE_OK;
   const char *ptr = conn->options;
 
-  while(!result && ptr && *ptr) {
+  동안(!result && ptr && *ptr) {
     const char *key = ptr;
     const char *value;
 
-    while(*ptr && *ptr != '=')
+    동안(*ptr && *ptr != '=')
       ptr++;
 
     value = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    동안(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=", 5))
+    만약(curl_strnequal(key, "AUTH=", 5))
       result = Curl_sasl_parse_url_auth_option(&smtpc->sasl,
                                                value, ptr - value);
-    else
+    아니면
       result = CURLE_URL_MALFORMAT;
 
-    if(*ptr == ';')
+    만약(*ptr == ';')
       ptr++;
   }
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -186,15 +186,15 @@ static CURLcode smtp_parse_url_path(struct Curl_easy *data,
   char localhost[HOSTNAME_MAX + 1];
 
   /* Calculate the path if necessary */
-  if(!*path) {
-    if(!Curl_gethostname(localhost, sizeof(localhost)))
+  만약(!*path) {
+    만약(!Curl_gethostname(localhost, sizeof(localhost)))
       path = localhost;
-    else
+    아니면
       path = "localhost";
   }
 
   /* URL decode the path and use it as the domain in our EHLO */
-  return Curl_urldecode(path, 0, &smtpc->domain, NULL, REJECT_CTRL);
+  반환 Curl_urldecode(path, 0, &smtpc->domain, NULL, REJECT_CTRL);
 }
 
 /***********************************************************************
@@ -210,10 +210,10 @@ static CURLcode smtp_parse_custom_request(struct Curl_easy *data,
   const char *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
 
   /* URL decode the custom request */
-  if(custom)
+  만약(custom)
     result = Curl_urldecode(custom, 0, &smtp->custom, NULL, REJECT_CTRL);
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -261,25 +261,25 @@ static CURLcode smtp_parse_address(struct Curl_easy *data, const char *fqma,
   /* A CR or LF in the address ends up verbatim in the MAIL FROM/RCPT TO
      command line, so a crafted address could smuggle further SMTP commands
      onto the wire. Reject it before the command is built. */
-  if(strpbrk(fqma, "\r\n")) {
+  만약(strpbrk(fqma, "\r\n")) {
     failf(data, "Refusing to send email address with a CR or LF");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    반환 CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   /* Duplicate the fully qualified email address so we can manipulate it,
      ensuring it does not contain the delimiters if specified */
   dup = curlx_strdup(fqma[0] == '<' ? fqma + 1 : fqma);
-  if(!dup)
-    return CURLE_OUT_OF_MEMORY;
+  만약(!dup)
+    반환 CURLE_OUT_OF_MEMORY;
 
-  if(fqma[0] != '<') {
+  만약(fqma[0] != '<') {
     length = strlen(dup);
-    if(length && dup[length - 1] == '>')
+    만약(length && dup[length - 1] == '>')
       dup[length - 1] = '\0';
   }
-  else {
+  아니면 {
     addressend = strrchr(dup, '>');
-    if(addressend) {
+    만약(addressend) {
       *addressend = '\0';
       *suffix = addressend + 1;
     }
@@ -287,7 +287,7 @@ static CURLcode smtp_parse_address(struct Curl_easy *data, const char *fqma,
 
   /* Extract the hostname from the address (if we can) */
   host->name = strpbrk(dup, "@");
-  if(host->name) {
+  만약(host->name) {
     *host->name = '\0';
     host->name = host->name + 1;
 
@@ -302,7 +302,7 @@ static CURLcode smtp_parse_address(struct Curl_easy *data, const char *fqma,
   /* Extract the local address from the mailbox */
   *address = dup;
 
-  return result;
+  반환 result;
 }
 
 struct cr_eob_ctx {
@@ -325,7 +325,7 @@ static CURLcode cr_eob_init(struct Curl_easy *data,
    * read CRLF before */
   ctx->n_eob = 2;
   Curl_bufq_init2(&ctx->buf, (16 * 1024), 1, BUFQ_OPT_SOFT_LIMIT);
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 static void cr_eob_close(struct Curl_easy *data, struct Curl_creader *reader)
@@ -350,59 +350,59 @@ static CURLcode cr_eob_read(struct Curl_easy *data,
   size_t nread, i, start, n;
   bool eos;
 
-  if(!ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
+  만약(!ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
     /* Get more and convert it when needed */
     result = Curl_creader_read(data, reader->next, buf, blen, &nread, &eos);
     CURL_TRC_SMTP(data, "cr_eob_read, next_read(len=%zu) -> %d, %zu eos=%d",
-                  blen, (int)result, nread, eos);
-    if(result)
-      return result;
+                  blen, (정수)result, nread, eos);
+    만약(result)
+      반환 result;
 
     ctx->read_eos = eos;
-    if(nread) {
-      if(!ctx->n_eob && !memchr(buf, SMTP_EOB[0], nread)) {
+    만약(nread) {
+      만약(!ctx->n_eob && !memchr(buf, SMTP_EOB[0], nread)) {
         /* not in the middle of a match, no EOB start found, pass */
         *pnread = nread;
         *peos = FALSE;
-        return CURLE_OK;
+        반환 CURLE_OK;
       }
       /* scan for EOB (continuation) and convert */
-      for(i = start = 0; i < nread; ++i) {
-        if(ctx->n_eob >= SMTP_EOB_FIND_LEN) {
+      위해(i = start = 0; i < nread; ++i) {
+        만약(ctx->n_eob >= SMTP_EOB_FIND_LEN) {
           /* matched the EOB prefix and seeing additional char, add '.' */
           result = Curl_bufq_cwrite(&ctx->buf, buf + start, i - start, &n);
-          if(result)
-            return result;
+          만약(result)
+            반환 result;
           result = Curl_bufq_cwrite(&ctx->buf, ".", 1, &n);
-          if(result)
-            return result;
+          만약(result)
+            반환 result;
           ctx->n_eob = 0;
           start = i;
-          if(data->state.infilesize > 0)
+          만약(data->state.infilesize > 0)
             data->state.infilesize++;
         }
 
-        if(buf[i] != SMTP_EOB[ctx->n_eob])
+        만약(buf[i] != SMTP_EOB[ctx->n_eob])
           ctx->n_eob = 0;
 
-        if(buf[i] == SMTP_EOB[ctx->n_eob]) {
+        만약(buf[i] == SMTP_EOB[ctx->n_eob]) {
           /* matching another char of the EOB */
           ++ctx->n_eob;
         }
       }
 
       /* add any remainder to buf */
-      if(start < nread) {
+      만약(start < nread) {
         result = Curl_bufq_cwrite(&ctx->buf, buf + start, nread - start, &n);
-        if(result)
-          return result;
+        만약(result)
+          반환 result;
       }
     }
   }
 
   *peos = FALSE;
 
-  if(ctx->read_eos && !ctx->processed_eos) {
+  만약(ctx->read_eos && !ctx->processed_eos) {
     /* if we last matched a CRLF or if the data was empty, add ".\r\n"
      * to end the body. If we sent something and it did not end with "\r\n",
      * add "\r\n.\r\n" to end the body */
@@ -421,26 +421,26 @@ static CURLcode cr_eob_read(struct Curl_easy *data,
       break;
     }
     result = Curl_bufq_cwrite(&ctx->buf, eob, strlen(eob), &n);
-    if(result)
-      return result;
+    만약(result)
+      반환 result;
     ctx->processed_eos = TRUE;
   }
 
-  if(!Curl_bufq_is_empty(&ctx->buf)) {
+  만약(!Curl_bufq_is_empty(&ctx->buf)) {
     result = Curl_bufq_cread(&ctx->buf, buf, blen, pnread);
   }
-  else
+  아니면
     *pnread = 0;
 
-  if(ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
+  만약(ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
     /* no more data, read all, done. */
     CURL_TRC_SMTP(data, "mail body complete, returning EOS");
     ctx->eos = TRUE;
   }
   *peos = (bool)ctx->eos;
   DEBUGF(infof(data, "cr_eob_read(%zu) -> %d, %zu, %d",
-               blen, (int)result, *pnread, *peos));
-  return result;
+               blen, (정수)result, *pnread, *peos));
+  반환 result;
 }
 
 static curl_off_t cr_eob_total_length(struct Curl_easy *data,
@@ -449,7 +449,7 @@ static curl_off_t cr_eob_total_length(struct Curl_easy *data,
   /* this reader changes length depending on input */
   (void)data;
   (void)reader;
-  return -1;
+  반환 -1;
 }
 
 static const struct Curl_crtype cr_eob = {
@@ -472,12 +472,12 @@ static CURLcode cr_eob_add(struct Curl_easy *data)
   CURLcode result;
 
   result = Curl_creader_create(&reader, data, &cr_eob, CURL_CR_CONTENT_ENCODE);
-  if(!result)
+  만약(!result)
     result = Curl_creader_add(data, reader);
 
-  if(result && reader)
+  만약(result && reader)
     Curl_creader_free(data, reader);
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -489,47 +489,47 @@ static CURLcode cr_eob_add(struct Curl_easy *data)
  * supported authentication mechanisms.
  */
 static bool smtp_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+                           const char *line, size_t len, 정수 *resp)
 {
   struct smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
   bool end = FALSE;
   (void)data;
 
   DEBUGASSERT(smtpc);
-  if(!smtpc)
-    return FALSE;
+  만약(!smtpc)
+    반환 FALSE;
 
   /* Nothing for us */
-  if(len < 4 || !ISDIGIT(line[0]) || !ISDIGIT(line[1]) || !ISDIGIT(line[2]))
-    return FALSE;
+  만약(len < 4 || !ISDIGIT(line[0]) || !ISDIGIT(line[1]) || !ISDIGIT(line[2]))
+    반환 FALSE;
 
   /* Do we have a command response? This should be the response code followed
      by a space and optionally some text as per RFC-5321 and as outlined in
      Section 4. Examples of RFC-4954 but some email servers ignore this and
      only send the response code instead as per Section 4.2. */
-  if(line[3] == ' ' || len == 5) {
+  만약(line[3] == ' ' || len == 5) {
     char tmpline[6];
     curl_off_t code;
     const char *p = tmpline;
     end = TRUE;
     memcpy(tmpline, line, (len == 5 ? 5 : 3));
     tmpline[len == 5 ? 5 : 3] = 0;
-    if(curlx_str_number(&p, &code, len == 5 ? 99999 : 999))
-      return FALSE;
-    *resp = (int)code;
+    만약(curlx_str_number(&p, &code, len == 5 ? 99999 : 999))
+      반환 FALSE;
+    *resp = (정수)code;
 
     /* Make sure real server never sends internal value */
-    if(*resp == 1)
+    만약(*resp == 1)
       *resp = 0;
   }
   /* Do we have a multiline (continuation) response? */
-  else if(line[3] == '-' &&
+  아니면 만약(line[3] == '-' &&
           (smtpc->state == SMTP_EHLO || smtpc->state == SMTP_COMMAND)) {
     end = TRUE;
     *resp = 1;  /* Internal response code */
   }
 
-  return end;
+  반환 end;
 }
 
 /***********************************************************************
@@ -545,31 +545,31 @@ static CURLcode smtp_get_message(struct Curl_easy *data, struct bufref *out)
   char *message;
   size_t len;
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  만약(!smtpc)
+    반환 CURLE_FAILED_INIT;
 
   message = curlx_dyn_ptr(&smtpc->pp.recvbuf);
   len = smtpc->pp.nfinal;
-  if(len > 4) {
+  만약(len > 4) {
     /* Find the start of the message */
     len -= 4;
-    for(message += 4; ISBLANK(*message); message++, len--)
+    위해(message += 4; ISBLANK(*message); message++, len--)
       ;
 
     /* Find the end of the message */
-    while(len--)
-      if(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
+    동안(len--)
+      만약(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
         break;
 
     /* Terminate the message */
     message[++len] = '\0';
     Curl_bufref_set(out, message, len, NULL);
   }
-  else
+  아니면
     /* junk input => zero length output */
     Curl_bufref_set(out, "", 0, NULL);
 
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 /***********************************************************************
@@ -601,10 +601,10 @@ static void smtp_state(struct Curl_easy *data,
     /* LAST */
   };
 
-  if(smtpc->state != newstate)
+  만약(smtpc->state != newstate)
     CURL_TRC_SMTP(data, "state change from %s to %s",
                   names[smtpc->state], names[newstate]);
-#else
+#아니면
   (void)data;
 #endif
 
@@ -632,10 +632,10 @@ static CURLcode smtp_perform_ehlo(struct Curl_easy *data,
   /* Send the EHLO command */
   result = Curl_pp_sendf(data, &smtpc->pp, "EHLO %s", smtpc->domain);
 
-  if(!result)
+  만약(!result)
     smtp_state(data, smtpc, SMTP_EHLO);
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -655,10 +655,10 @@ static CURLcode smtp_perform_helo(struct Curl_easy *data,
   /* Send the HELO command */
   result = Curl_pp_sendf(data, &smtpc->pp, "HELO %s", smtpc->domain);
 
-  if(!result)
+  만약(!result)
     smtp_state(data, smtpc, SMTP_HELO);
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -673,10 +673,10 @@ static CURLcode smtp_perform_starttls(struct Curl_easy *data,
   /* Send the STARTTLS command */
   CURLcode result = Curl_pp_sendf(data, &smtpc->pp, "%s", "STARTTLS");
 
-  if(!result)
+  만약(!result)
     smtp_state(data, smtpc, SMTP_STARTTLS);
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -695,10 +695,10 @@ static CURLcode smtp_perform_upgrade_tls(struct Curl_easy *data,
   bool ssldone = FALSE;
 
   DEBUGASSERT(smtpc->state == SMTP_UPGRADETLS);
-  if(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+  만약(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
     result = Curl_ssl_cfilter_add(
       data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
+    만약(result)
       goto out;
     /* Change the connection handler and SMTP state */
     conn->scheme = &Curl_scheme_smtps;
@@ -707,18 +707,18 @@ static CURLcode smtp_perform_upgrade_tls(struct Curl_easy *data,
   DEBUGASSERT(!smtpc->ssldone);
   result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
   DEBUGF(infof(data, "smtp_perform_upgrade_tls, connect -> %d, %d",
-               (int)result, ssldone));
-  if(!result && ssldone) {
+               (정수)result, ssldone));
+  만약(!result && ssldone) {
     smtpc->ssldone = ssldone;
     /* perform EHLO now, changes smtp->state out of SMTP_UPGRADETLS */
     result = smtp_perform_ehlo(data, smtpc);
   }
 out:
-  return result;
-#else
+  반환 result;
+#아니면
   (void)data;
   (void)smtpc;
-  return CURLE_NOT_BUILT_IN;
+  반환 CURLE_NOT_BUILT_IN;
 #endif
 }
 
@@ -738,20 +738,20 @@ static CURLcode smtp_perform_auth(struct Curl_easy *data,
     Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
   const char *ir = Curl_bufref_ptr(initresp);
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  만약(!smtpc)
+    반환 CURLE_FAILED_INIT;
 
-  if(ir) {                                  /* AUTH <mech> ...<crlf> */
+  만약(ir) {                                  /* AUTH <mech> ...<crlf> */
     /* Send the AUTH command with the initial response */
     result = Curl_pp_sendf(data, &smtpc->pp, "AUTH %s %s",
                            mech, *ir ? ir : "=");
   }
-  else {
+  아니면 {
     /* Send the AUTH command */
     result = Curl_pp_sendf(data, &smtpc->pp, "AUTH %s", mech);
   }
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -768,9 +768,9 @@ static CURLcode smtp_continue_auth(struct Curl_easy *data,
     Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
 
   (void)mech;
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &smtpc->pp, "%s", Curl_bufref_ptr(resp));
+  만약(!smtpc)
+    반환 CURLE_FAILED_INIT;
+  반환 Curl_pp_sendf(data, &smtpc->pp, "%s", Curl_bufref_ptr(resp));
 }
 
 /***********************************************************************
@@ -785,9 +785,9 @@ static CURLcode smtp_cancel_auth(struct Curl_easy *data, const char *mech)
     Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
 
   (void)mech;
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &smtpc->pp, "*");
+  만약(!smtpc)
+    반환 CURLE_FAILED_INIT;
+  반환 Curl_pp_sendf(data, &smtpc->pp, "*");
 }
 
 /***********************************************************************
@@ -805,23 +805,23 @@ static CURLcode smtp_perform_authentication(struct Curl_easy *data,
 
   /* Check we have enough data to authenticate with, and the
      server supports authentication, and end the connect phase if not */
-  if(!smtpc->auth_supported ||
+  만약(!smtpc->auth_supported ||
      !Curl_sasl_can_authenticate(&smtpc->sasl, data)) {
     smtp_state(data, smtpc, SMTP_STOP);
-    return result;
+    반환 result;
   }
 
   /* Calculate the SASL login details */
   result = Curl_sasl_start(&smtpc->sasl, data, FALSE, &progress);
 
-  if(!result) {
-    if(progress == SASL_INPROGRESS)
+  만약(!result) {
+    만약(progress == SASL_INPROGRESS)
       smtp_state(data, smtpc, SMTP_AUTH);
-    else
+    아니면
       result = Curl_sasl_is_blocked(&smtpc->sasl, data);
   }
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -836,14 +836,14 @@ static CURLcode smtp_perform_command(struct Curl_easy *data,
 {
   CURLcode result = CURLE_OK;
 
-  if(smtp->rcpt) {
+  만약(smtp->rcpt) {
     /* We notify the server we are sending UTF-8 data if a) it supports the
        SMTPUTF8 extension and b) The mailbox contains UTF-8 characters, in
        either the local address or hostname parts. This is regardless of
        whether the hostname is encoded using IDN ACE */
     bool utf8 = FALSE;
 
-    if(!smtp->custom || !smtp->custom[0]) {
+    만약(!smtp->custom || !smtp->custom[0]) {
       char *address = NULL;
       struct hostname host = { NULL, NULL, NULL, NULL };
       const char *suffix = "";
@@ -852,8 +852,8 @@ static CURLcode smtp_perform_command(struct Curl_easy *data,
          parts, converting the hostname to an IDN A-label if necessary */
       result = smtp_parse_address(data, smtp->rcpt->data,
                                   &address, &host, &suffix);
-      if(result)
-        return result;
+      만약(result)
+        반환 result;
 
       /* Establish whether we should report SMTPUTF8 to the server for this
          mailbox as per RFC-6531 sect. 3.1 point 6 */
@@ -873,7 +873,7 @@ static CURLcode smtp_perform_command(struct Curl_easy *data,
       Curl_free_idnconverted_hostname(&host);
       curlx_free(address);
     }
-    else {
+    아니면 {
       /* Establish whether we should report that we support SMTPUTF8 for EXPN
          commands to the server as per RFC-6531 sect. 3.1 point 6 */
       utf8 = smtpc->utf8_supported && !strcmp(smtp->custom, "EXPN");
@@ -885,16 +885,16 @@ static CURLcode smtp_perform_command(struct Curl_easy *data,
                              utf8 ? " SMTPUTF8" : "");
     }
   }
-  else
+  아니면
     /* Send the non-recipient based command such as HELP */
     result = Curl_pp_sendf(data, &smtpc->pp, "%s",
                            smtp->custom && smtp->custom[0] != '\0' ?
                            smtp->custom : "HELP");
 
-  if(!result)
+  만약(!result)
     smtp_state(data, smtpc, SMTP_COMMAND);
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -921,7 +921,7 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
 
   /* Calculate the FROM parameter */
   str = CURL_EASY_STR(data, STRING_MAIL_FROM);
-  if(str) {
+  만약(str) {
     char *address = NULL;
     struct hostname host = { NULL, NULL, NULL, NULL };
     const char *suffix = "";
@@ -929,7 +929,7 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
     /* Parse the FROM mailbox into the local address and hostname parts,
        converting the hostname to an IDN A-label if necessary */
     result = smtp_parse_address(data, str, &address, &host, &suffix);
-    if(result)
+    만약(result)
       goto out;
 
     /* Establish whether we should report SMTPUTF8 to the server for this
@@ -939,31 +939,31 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
             !Curl_is_ASCII_name(address) ||
             !Curl_is_ASCII_name(host.name));
 
-    if(host.name) {
+    만약(host.name) {
       from = curl_maprintf("<%s@%s>%s", address, host.name, suffix);
 
       Curl_free_idnconverted_hostname(&host);
     }
-    else
+    아니면
       /* An invalid mailbox was provided but we let the server worry
          about that and reply with a 501 error */
       from = curl_maprintf("<%s>%s", address, suffix);
 
     curlx_free(address);
   }
-  else
+  아니면
     /* Null reverse-path, RFC-5321, sect. 3.6.3 */
     from = curlx_strdup("<>");
 
-  if(!from) {
+  만약(!from) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
   /* Calculate the optional AUTH parameter */
   str = CURL_EASY_STR(data, STRING_MAIL_AUTH);
-  if(str && smtpc->sasl.authused) {
-    if(str[0] != '\0') {
+  만약(str && smtpc->sasl.authused) {
+    만약(str[0] != '\0') {
       char *address = NULL;
       struct hostname host = { NULL, NULL, NULL, NULL };
       const char *suffix = "";
@@ -971,33 +971,33 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
       /* Parse the AUTH mailbox into the local address and hostname parts,
          converting the hostname to an IDN A-label if necessary */
       result = smtp_parse_address(data, str, &address, &host, &suffix);
-      if(result)
+      만약(result)
         goto out;
 
       /* Establish whether we should report SMTPUTF8 to the server for this
          mailbox as per RFC-6531 sect. 3.1 point 4 and sect. 3.4 */
-      if(!utf8 && smtpc->utf8_supported &&
+      만약(!utf8 && smtpc->utf8_supported &&
          (host.encalloc ||
           !Curl_is_ASCII_name(address) ||
           !Curl_is_ASCII_name(host.name)))
         utf8 = TRUE;
 
-      if(host.name) {
+      만약(host.name) {
         auth = curl_maprintf("<%s@%s>%s", address, host.name, suffix);
 
         Curl_free_idnconverted_hostname(&host);
       }
-      else
+      아니면
         /* An invalid mailbox was provided but we let the server worry
            about it */
         auth = curl_maprintf("<%s>%s", address, suffix);
       curlx_free(address);
     }
-    else
+    아니면
       /* Empty AUTH, RFC-2554, sect. 5 */
       auth = curlx_strdup("<>");
 
-    if(!auth) {
+    만약(!auth) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
@@ -1005,38 +1005,38 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
 
 #ifndef CURL_DISABLE_MIME
   /* Prepare the mime data if some. */
-  if(IS_MIME_POST(data)) {
+  만약(IS_MIME_POST(data)) {
     curl_mimepart *postp = data->set.mimepostp;
 
     /* Use the whole structure as data. */
-    postp->flags &= ~(unsigned int)MIME_BODY_ONLY;
+    postp->flags &= ~(unsigned 정수)MIME_BODY_ONLY;
 
     /* Add external headers and mime version. */
     curl_mime_headers(postp, data->set.headers, 0);
     result = Curl_mime_prepare_headers(data, postp, NULL,
                                        NULL, MIMESTRATEGY_MAIL);
 
-    if(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
+    만약(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
       result = Curl_mime_add_header(&postp->curlheaders, "Mime-Version: 1.0");
-    if(!result)
+    만약(!result)
       result = Curl_creader_set_mime(data, postp);
-    if(result)
+    만약(result)
       goto out;
     data->state.infilesize = Curl_creader_total_length(data);
   }
-  else
+  아니면
 #endif
   {
     result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
+    만약(result)
       goto out;
   }
 
   /* Calculate the optional SIZE parameter */
-  if(smtpc->size_supported && data->state.infilesize > 0) {
+  만약(smtpc->size_supported && data->state.infilesize > 0) {
     size = curl_maprintf("%" FMT_OFF_T, data->state.infilesize);
 
-    if(!size) {
+    만약(!size) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
@@ -1046,12 +1046,12 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
      based address then quickly scan through the recipient list and check if
      any there do, as we need to correctly identify our support for SMTPUTF8
      in the envelope, as per RFC-6531 sect. 3.4 */
-  if(smtpc->utf8_supported && !utf8) {
+  만약(smtpc->utf8_supported && !utf8) {
     struct curl_slist *rcpt = smtp->rcpt;
 
-    while(rcpt && !utf8) {
+    동안(rcpt && !utf8) {
       /* Does the hostname contain non-ASCII characters? */
-      if(!Curl_is_ASCII_name(rcpt->data))
+      만약(!Curl_is_ASCII_name(rcpt->data))
         utf8 = TRUE;
 
       rcpt = rcpt->next;
@@ -1060,7 +1060,7 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
 
   /* Add the client reader doing STMP EOB escaping */
   result = cr_eob_add(data);
-  if(result)
+  만약(result)
     goto out;
 
   /* Send the MAIL command */
@@ -1079,10 +1079,10 @@ out:
   curlx_free(auth);
   curlx_free(size);
 
-  if(!result)
+  만약(!result)
     smtp_state(data, smtpc, SMTP_MAIL);
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -1105,14 +1105,14 @@ static CURLcode smtp_perform_rcpt_to(struct Curl_easy *data,
      converting the hostname to an IDN A-label if necessary */
   result = smtp_parse_address(data, smtp->rcpt->data,
                               &address, &host, &suffix);
-  if(result)
-    return result;
+  만약(result)
+    반환 result;
 
   /* Send the RCPT TO command */
-  if(host.name)
+  만약(host.name)
     result = Curl_pp_sendf(data, &smtpc->pp, "RCPT TO:<%s@%s>%s",
                            address, host.name, suffix);
-  else
+  아니면
     /* An invalid mailbox was provided but we let the server worry about
        that and reply with a 501 error */
     result = Curl_pp_sendf(data, &smtpc->pp, "RCPT TO:<%s>%s",
@@ -1121,10 +1121,10 @@ static CURLcode smtp_perform_rcpt_to(struct Curl_easy *data,
   Curl_free_idnconverted_hostname(&host);
   curlx_free(address);
 
-  if(!result)
+  만약(!result)
     smtp_state(data, smtpc, SMTP_RCPT);
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -1139,62 +1139,62 @@ static CURLcode smtp_perform_quit(struct Curl_easy *data,
   /* Send the QUIT command */
   CURLcode result = Curl_pp_sendf(data, &smtpc->pp, "%s", "QUIT");
 
-  if(!result)
+  만약(!result)
     smtp_state(data, smtpc, SMTP_QUIT);
 
-  return result;
+  반환 result;
 }
 
 /* For the initial server greeting */
 static CURLcode smtp_state_servergreet_resp(struct Curl_easy *data,
                                             struct smtp_conn *smtpc,
-                                            int smtpcode,
+                                            정수 smtpcode,
                                             smtpstate instate)
 {
   CURLcode result = CURLE_OK;
   (void)instate;
 
-  if(smtpcode / 100 != 2) {
+  만약(smtpcode / 100 != 2) {
     failf(data, "Got unexpected smtp-server response: %d", smtpcode);
     result = CURLE_WEIRD_SERVER_REPLY;
   }
-  else
+  아니면
     result = smtp_perform_ehlo(data, smtpc);
 
-  return result;
+  반환 result;
 }
 
 /* For STARTTLS responses */
 static CURLcode smtp_state_starttls_resp(struct Curl_easy *data,
                                          struct smtp_conn *smtpc,
-                                         int smtpcode,
+                                         정수 smtpcode,
                                          smtpstate instate)
 {
   CURLcode result = CURLE_OK;
   (void)instate;
 
   /* Pipelining in response is forbidden. */
-  if(smtpc->pp.overflow)
-    return CURLE_WEIRD_SERVER_REPLY;
+  만약(smtpc->pp.overflow)
+    반환 CURLE_WEIRD_SERVER_REPLY;
 
-  if(smtpcode != 220) {
-    if(data->set.use_ssl != CURLUSESSL_TRY) {
+  만약(smtpcode != 220) {
+    만약(data->set.use_ssl != CURLUSESSL_TRY) {
       failf(data, "STARTTLS denied, code %d", smtpcode);
       result = CURLE_USE_SSL_FAILED;
     }
-    else
+    아니면
       result = smtp_perform_authentication(data, smtpc);
   }
-  else
+  아니면
     smtp_state(data, smtpc, SMTP_UPGRADETLS);
 
-  return result;
+  반환 result;
 }
 
 /* For EHLO responses */
 static CURLcode smtp_state_ehlo_resp(struct Curl_easy *data,
                                      struct smtp_conn *smtpc,
-                                     int smtpcode,
+                                     정수 smtpcode,
                                      smtpstate instate)
 {
   CURLcode result = CURLE_OK;
@@ -1203,33 +1203,33 @@ static CURLcode smtp_state_ehlo_resp(struct Curl_easy *data,
 
   (void)instate;
 
-  if(smtpcode / 100 != 2 && smtpcode != 1) {
-    if(data->set.use_ssl <= CURLUSESSL_TRY ||
+  만약(smtpcode / 100 != 2 && smtpcode != 1) {
+    만약(data->set.use_ssl <= CURLUSESSL_TRY ||
        Curl_conn_is_ssl(data->conn, FIRSTSOCKET))
       result = smtp_perform_helo(data, smtpc);
-    else {
+    아니면 {
       failf(data, "Remote access denied: %d", smtpcode);
       result = CURLE_REMOTE_ACCESS_DENIED;
     }
   }
-  else if(len >= 4) {
+  아니면 만약(len >= 4) {
     line += 4;
     len -= 4;
 
     /* Does the server support the STARTTLS capability? */
-    if(len >= 8 && curl_strnequal(line, "STARTTLS", 8))
+    만약(len >= 8 && curl_strnequal(line, "STARTTLS", 8))
       smtpc->tls_supported = TRUE;
 
     /* Does the server support the SIZE capability? */
-    else if(len >= 4 && curl_strnequal(line, "SIZE", 4))
+    아니면 만약(len >= 4 && curl_strnequal(line, "SIZE", 4))
       smtpc->size_supported = TRUE;
 
     /* Does the server support the UTF-8 capability? */
-    else if(len >= 8 && curl_strnequal(line, "SMTPUTF8", 8))
+    아니면 만약(len >= 8 && curl_strnequal(line, "SMTPUTF8", 8))
       smtpc->utf8_supported = TRUE;
 
     /* Does the server support authentication? */
-    else if(len >= 5 && curl_strnequal(line, "AUTH ", 5)) {
+    아니면 만약(len >= 5 && curl_strnequal(line, "AUTH ", 5)) {
       smtpc->auth_supported = TRUE;
 
       /* Advance past the AUTH keyword */
@@ -1237,27 +1237,27 @@ static CURLcode smtp_state_ehlo_resp(struct Curl_easy *data,
       len -= 5;
 
       /* Loop through the data line */
-      for(;;) {
+      위해(;;) {
         size_t llen;
         size_t wordlen;
         unsigned short mechbit;
 
-        while(len && (ISBLANK(*line) || ISNEWLINE(*line))) {
+        동안(len && (ISBLANK(*line) || ISNEWLINE(*line))) {
           line++;
           len--;
         }
 
-        if(!len)
+        만약(!len)
           break;
 
         /* Extract the word */
-        for(wordlen = 0; wordlen < len && !ISBLANK(line[wordlen]) &&
+        위해(wordlen = 0; wordlen < len && !ISBLANK(line[wordlen]) &&
               !ISNEWLINE(line[wordlen]);)
           wordlen++;
 
         /* Test the word for a matching authentication mechanism */
         mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
-        if(mechbit && llen == wordlen)
+        만약(mechbit && llen == wordlen)
           smtpc->sasl.authmechs |= mechbit;
 
         line += wordlen;
@@ -1265,56 +1265,56 @@ static CURLcode smtp_state_ehlo_resp(struct Curl_easy *data,
       }
     }
 
-    if(smtpcode != 1) {
-      if(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
+    만약(smtpcode != 1) {
+      만약(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
         /* We do not have an SSL/TLS connection yet, but SSL is requested */
-        if(smtpc->tls_supported)
+        만약(smtpc->tls_supported)
           /* Switch to TLS connection now */
           result = smtp_perform_starttls(data, smtpc);
-        else if(data->set.use_ssl == CURLUSESSL_TRY)
+        아니면 만약(data->set.use_ssl == CURLUSESSL_TRY)
           /* Fallback and carry on with authentication */
           result = smtp_perform_authentication(data, smtpc);
-        else {
+        아니면 {
           failf(data, "STARTTLS not supported.");
           result = CURLE_USE_SSL_FAILED;
         }
       }
-      else
+      아니면
         result = smtp_perform_authentication(data, smtpc);
     }
   }
-  else {
+  아니면 {
     failf(data, "Unexpectedly short EHLO response");
     result = CURLE_WEIRD_SERVER_REPLY;
   }
 
-  return result;
+  반환 result;
 }
 
 /* For HELO responses */
 static CURLcode smtp_state_helo_resp(struct Curl_easy *data,
                                      struct smtp_conn *smtpc,
-                                     int smtpcode,
+                                     정수 smtpcode,
                                      smtpstate instate)
 {
   CURLcode result = CURLE_OK;
   (void)instate;
 
-  if(smtpcode / 100 != 2) {
+  만약(smtpcode / 100 != 2) {
     failf(data, "Remote access denied: %d", smtpcode);
     result = CURLE_REMOTE_ACCESS_DENIED;
   }
-  else
+  아니면
     /* End of connect phase */
     smtp_state(data, smtpc, SMTP_STOP);
 
-  return result;
+  반환 result;
 }
 
 /* For SASL authentication responses */
 static CURLcode smtp_state_auth_resp(struct Curl_easy *data,
                                      struct smtp_conn *smtpc,
-                                     int smtpcode,
+                                     정수 smtpcode,
                                      smtpstate instate)
 {
   CURLcode result = CURLE_OK;
@@ -1323,7 +1323,7 @@ static CURLcode smtp_state_auth_resp(struct Curl_easy *data,
   (void)instate;
 
   result = Curl_sasl_continue(&smtpc->sasl, data, smtpcode, &progress);
-  if(!result)
+  만약(!result)
     switch(progress) {
     case SASL_DONE:
       smtp_state(data, smtpc, SMTP_STOP);  /* Authenticated */
@@ -1336,14 +1336,14 @@ static CURLcode smtp_state_auth_resp(struct Curl_easy *data,
       break;
     }
 
-  return result;
+  반환 result;
 }
 
 /* For command responses */
 static CURLcode smtp_state_command_resp(struct Curl_easy *data,
                                         struct smtp_conn *smtpc,
                                         struct SMTP *smtp,
-                                        int smtpcode,
+                                        정수 smtpcode,
                                         smtpstate instate)
 {
   CURLcode result = CURLE_OK;
@@ -1352,62 +1352,62 @@ static CURLcode smtp_state_command_resp(struct Curl_easy *data,
 
   (void)instate;
 
-  if((smtp->rcpt && smtpcode / 100 != 2 && smtpcode != 553 && smtpcode != 1) ||
+  만약((smtp->rcpt && smtpcode / 100 != 2 && smtpcode != 553 && smtpcode != 1) ||
      (!smtp->rcpt && smtpcode / 100 != 2 && smtpcode != 1)) {
     failf(data, "Command failed: %d", smtpcode);
     result = CURLE_WEIRD_SERVER_REPLY;
   }
-  else {
-    if(!data->req.no_body)
+  아니면 {
+    만약(!data->req.no_body)
       result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
 
-    if(!result && (smtpcode != 1)) {
-      if(smtp->rcpt) {
+    만약(!result && (smtpcode != 1)) {
+      만약(smtp->rcpt) {
         smtp->rcpt = smtp->rcpt->next;
 
-        if(smtp->rcpt) {
+        만약(smtp->rcpt) {
           /* Send the next command */
           result = smtp_perform_command(data, smtpc, smtp);
         }
-        else
+        아니면
           /* End of DO phase */
           smtp_state(data, smtpc, SMTP_STOP);
       }
-      else
+      아니면
         /* End of DO phase */
         smtp_state(data, smtpc, SMTP_STOP);
     }
   }
 
-  return result;
+  반환 result;
 }
 
 /* For MAIL responses */
 static CURLcode smtp_state_mail_resp(struct Curl_easy *data,
                                      struct smtp_conn *smtpc,
                                      struct SMTP *smtp,
-                                     int smtpcode,
+                                     정수 smtpcode,
                                      smtpstate instate)
 {
   CURLcode result = CURLE_OK;
   (void)instate;
 
-  if(smtpcode / 100 != 2) {
+  만약(smtpcode / 100 != 2) {
     failf(data, "MAIL failed: %d", smtpcode);
     result = CURLE_SEND_ERROR;
   }
-  else
+  아니면
     /* Start the RCPT TO command */
     result = smtp_perform_rcpt_to(data, smtpc, smtp);
 
-  return result;
+  반환 result;
 }
 
 /* For RCPT responses */
 static CURLcode smtp_state_rcpt_resp(struct Curl_easy *data,
                                      struct smtp_conn *smtpc,
                                      struct SMTP *smtp,
-                                     int smtpcode,
+                                     정수 smtpcode,
                                      smtpstate instate)
 {
   CURLcode result = CURLE_OK;
@@ -1422,61 +1422,61 @@ static CURLcode smtp_state_rcpt_resp(struct Curl_easy *data,
      ignore errors and proceed with only the valid addresses. */
   is_smtp_blocking_err = (is_smtp_err && !data->set.mail_rcpt_allowfails);
 
-  if(is_smtp_err) {
+  만약(is_smtp_err) {
     /* Remembering the last failure which we can report if all "RCPT TO" have
        failed and we cannot proceed. */
     smtp->rcpt_last_error = smtpcode;
 
-    if(is_smtp_blocking_err) {
+    만약(is_smtp_blocking_err) {
       failf(data, "RCPT failed: %d", smtpcode);
       result = CURLE_SEND_ERROR;
     }
   }
-  else {
+  아니면 {
     /* Some RCPT TO commands have succeeded. */
     smtp->rcpt_had_ok = TRUE;
   }
 
-  if(!is_smtp_blocking_err) {
+  만약(!is_smtp_blocking_err) {
     smtp->rcpt = smtp->rcpt->next;
 
-    if(smtp->rcpt)
+    만약(smtp->rcpt)
       /* Send the next RCPT TO command */
       result = smtp_perform_rcpt_to(data, smtpc, smtp);
-    else {
+    아니면 {
       /* We were not able to issue a successful RCPT TO command while going
          over recipients (potentially multiple). Sending back last error. */
-      if(!smtp->rcpt_had_ok) {
+      만약(!smtp->rcpt_had_ok) {
         failf(data, "RCPT failed: %d (last error)", smtp->rcpt_last_error);
         result = CURLE_SEND_ERROR;
       }
-      else {
+      아니면 {
         /* Send the DATA command */
         result = Curl_pp_sendf(data, &smtpc->pp, "%s", "DATA");
 
-        if(!result)
+        만약(!result)
           smtp_state(data, smtpc, SMTP_DATA);
       }
     }
   }
 
-  return result;
+  반환 result;
 }
 
 /* For DATA response */
 static CURLcode smtp_state_data_resp(struct Curl_easy *data,
                                      struct smtp_conn *smtpc,
-                                     int smtpcode,
+                                     정수 smtpcode,
                                      smtpstate instate)
 {
   CURLcode result = CURLE_OK;
   (void)instate;
 
-  if(smtpcode != 354) {
+  만약(smtpcode != 354) {
     failf(data, "DATA failed: %d", smtpcode);
     result = CURLE_SEND_ERROR;
   }
-  else {
+  아니면 {
     /* Set the progress upload size */
     Curl_pgrsSetUploadSize(data, data->state.infilesize);
 
@@ -1487,65 +1487,65 @@ static CURLcode smtp_state_data_resp(struct Curl_easy *data,
     smtp_state(data, smtpc, SMTP_STOP);
   }
 
-  return result;
+  반환 result;
 }
 
 /* For POSTDATA responses, which are received after the entire DATA
    part has been sent to the server */
 static CURLcode smtp_state_postdata_resp(struct Curl_easy *data,
                                          struct smtp_conn *smtpc,
-                                         int smtpcode,
+                                         정수 smtpcode,
                                          smtpstate instate)
 {
   CURLcode result = CURLE_OK;
 
   (void)instate;
 
-  if(smtpcode != 250)
+  만약(smtpcode != 250)
     result = CURLE_WEIRD_SERVER_REPLY;
 
   /* End of DONE phase */
   smtp_state(data, smtpc, SMTP_STOP);
 
-  return result;
+  반환 result;
 }
 
 static CURLcode smtp_pp_statemachine(struct Curl_easy *data,
                                      struct connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  int smtpcode;
+  정수 smtpcode;
   struct smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
   struct SMTP *smtp = Curl_meta_get(data, CURL_META_SMTP_EASY);
   size_t nread = 0;
 
-  if(!smtpc || !smtp)
-    return CURLE_FAILED_INIT;
+  만약(!smtpc || !smtp)
+    반환 CURLE_FAILED_INIT;
 
   /* Busy upgrading the connection; right now all I/O is SSL/TLS, not SMTP */
 upgrade_tls:
-  if(smtpc->state == SMTP_UPGRADETLS) {
+  만약(smtpc->state == SMTP_UPGRADETLS) {
     result = smtp_perform_upgrade_tls(data, smtpc);
-    if(result || (smtpc->state == SMTP_UPGRADETLS))
-      return result;
+    만약(result || (smtpc->state == SMTP_UPGRADETLS))
+      반환 result;
   }
 
   /* Flush any data that needs to be sent */
-  if(smtpc->pp.sendleft)
-    return Curl_pp_flushsend(data, &smtpc->pp);
+  만약(smtpc->pp.sendleft)
+    반환 Curl_pp_flushsend(data, &smtpc->pp);
 
   do {
     /* Read the response from the server */
     result = Curl_pp_readresp(data, FIRSTSOCKET, &smtpc->pp,
                               &smtpcode, &nread);
-    if(result)
-      return result;
+    만약(result)
+      반환 result;
 
     /* Store the latest response for later retrieval if necessary */
-    if(smtpc->state != SMTP_QUIT && smtpcode != 1)
+    만약(smtpc->state != SMTP_QUIT && smtpcode != 1)
       data->info.httpcode = smtpcode;
 
-    if(!smtpcode)
+    만약(!smtpcode)
       break;
 
     /* We have now received a full SMTP server response */
@@ -1567,7 +1567,7 @@ upgrade_tls:
       result = smtp_state_starttls_resp(data, smtpc, smtpcode, smtpc->state);
       /* During UPGRADETLS, leave the read loop as we need to connect
        * (e.g. TLS handshake) before we continue sending/receiving. */
-      if(!result && (smtpc->state == SMTP_UPGRADETLS))
+      만약(!result && (smtpc->state == SMTP_UPGRADETLS))
         goto upgrade_tls;
       break;
 
@@ -1602,10 +1602,10 @@ upgrade_tls:
       smtp_state(data, smtpc, SMTP_STOP);
       break;
     }
-  } while(!result && smtpc->state != SMTP_STOP &&
+  } 동안(!result && smtpc->state != SMTP_STOP &&
           Curl_pp_moredata(&smtpc->pp));
 
-  return result;
+  반환 result;
 }
 
 /* Called repeatedly until done from multi.c */
@@ -1616,12 +1616,12 @@ static CURLcode smtp_multi_statemach(struct Curl_easy *data, bool *done)
     Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
 
   *done = FALSE;
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  만약(!smtpc)
+    반환 CURLE_FAILED_INIT;
 
   result = Curl_pp_statemach(data, &smtpc->pp, FALSE, FALSE);
   *done = (smtpc->state == SMTP_STOP);
-  return result;
+  반환 result;
 }
 
 static CURLcode smtp_block_statemach(struct Curl_easy *data,
@@ -1630,10 +1630,10 @@ static CURLcode smtp_block_statemach(struct Curl_easy *data,
 {
   CURLcode result = CURLE_OK;
 
-  while(smtpc->state != SMTP_STOP && !result)
+  동안(smtpc->state != SMTP_STOP && !result)
     result = Curl_pp_statemach(data, &smtpc->pp, TRUE, disconnecting);
 
-  return result;
+  반환 result;
 }
 
 /* For the SMTP "protocol connect" and "doing" phases only */
@@ -1642,7 +1642,7 @@ static CURLcode smtp_pollset(struct Curl_easy *data,
 {
   struct smtp_conn *smtpc =
     Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  return smtpc ? Curl_pp_pollset(data, &smtpc->pp, ps) : CURLE_OK;
+  반환 smtpc ? Curl_pp_pollset(data, &smtpc->pp, ps) : CURLE_OK;
 }
 
 /* SASL parameters for the smtp protocol */
@@ -1676,8 +1676,8 @@ static CURLcode smtp_connect(struct Curl_easy *data, bool *done)
   CURLcode result = CURLE_OK;
 
   *done = FALSE; /* default to not done yet */
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  만약(!smtpc)
+    반환 CURLE_FAILED_INIT;
 
   PINGPONG_SETUP(&smtpc->pp, smtp_pp_statemachine, smtp_endofresp);
 
@@ -1689,20 +1689,20 @@ static CURLcode smtp_connect(struct Curl_easy *data, bool *done)
 
   /* Parse the URL options */
   result = smtp_parse_url_options(data->conn, smtpc);
-  if(result)
-    return result;
+  만약(result)
+    반환 result;
 
   /* Parse the URL path */
   result = smtp_parse_url_path(data, smtpc);
-  if(result)
-    return result;
+  만약(result)
+    반환 result;
 
   /* Start off waiting for the server greeting response */
   smtp_state(data, smtpc, SMTP_SERVERGREET);
 
   result = smtp_multi_statemach(data, done);
 
-  return result;
+  반환 result;
 }
 
 /***********************************************************************
@@ -1725,20 +1725,20 @@ static CURLcode smtp_done(struct Curl_easy *data, CURLcode status,
 
   (void)premature;
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
-  if(!smtp)
-    return CURLE_OK;
+  만약(!smtpc)
+    반환 CURLE_FAILED_INIT;
+  만약(!smtp)
+    반환 CURLE_OK;
 
   /* Cleanup our per-request based variables */
   curlx_safefree(smtp->custom);
 
-  if(status) {
+  만약(status) {
     CURL_TRC_M(data, "SMTP done with bad status");
     connclose(conn); /* marked for closure */
     result = status;         /* use the already set error code */
   }
-  else if(!data->set.connect_only && data->set.mail_rcpt &&
+  아니면 만약(!data->set.connect_only && data->set.mail_rcpt &&
           (data->state.upload || IS_MIME_POST(data))) {
 
     smtp_state(data, smtpc, SMTP_POSTDATA);
@@ -1750,8 +1750,8 @@ static CURLcode smtp_done(struct Curl_easy *data, CURLcode status,
   /* Clear the transfer mode for the next request */
   smtp->transfer = PPTRANSFER_BODY;
   CURL_TRC_SMTP(data, "smtp_done(status=%d, premature=%d) -> %d",
-                (int)status, premature, (int)result);
-  return result;
+                (정수)status, premature, (정수)result);
+  반환 result;
 }
 
 /***********************************************************************
@@ -1772,7 +1772,7 @@ static CURLcode smtp_perform(struct Curl_easy *data,
 
   CURL_TRC_SMTP(data, "smtp_perform(), start");
 
-  if(data->req.no_body) {
+  만약(data->req.no_body) {
     /* Requested no body means no transfer */
     smtp->transfer = PPTRANSFER_INFO;
   }
@@ -1794,14 +1794,14 @@ static CURLcode smtp_perform(struct Curl_easy *data,
   smtp->eob = 2;
 
   /* Start the first command in the DO phase */
-  if((data->state.upload || IS_MIME_POST(data)) && data->set.mail_rcpt)
+  만약((data->state.upload || IS_MIME_POST(data)) && data->set.mail_rcpt)
     /* MAIL transfer */
     result = smtp_perform_mail(data, smtpc, smtp);
-  else
+  아니면
     /* SMTP based command (VRFY, EXPN, NOOP, RSET or HELP) */
     result = smtp_perform_command(data, smtpc, smtp);
 
-  if(result)
+  만약(result)
     goto out;
 
   /* Run the state-machine */
@@ -1811,8 +1811,8 @@ static CURLcode smtp_perform(struct Curl_easy *data,
 
 out:
   CURL_TRC_SMTP(data, "smtp_perform() -> %d, connected=%d, done=%d",
-                (int)result, *connected, *dophase_done);
-  return result;
+                (정수)result, *connected, *dophase_done);
+  반환 result;
 }
 
 /* Call this when the DO phase has completed */
@@ -1822,11 +1822,11 @@ static CURLcode smtp_dophase_done(struct Curl_easy *data,
 {
   (void)connected;
 
-  if(smtp->transfer != PPTRANSFER_BODY)
+  만약(smtp->transfer != PPTRANSFER_BODY)
     /* no data to transfer */
     Curl_xfer_setup_nop(data);
 
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 /***********************************************************************
@@ -1856,12 +1856,12 @@ static CURLcode smtp_regular_transfer(struct Curl_easy *data,
   result = smtp_perform(data, smtpc, smtp, &connected, dophase_done);
 
   /* Perform post DO phase operations if necessary */
-  if(!result && *dophase_done)
+  만약(!result && *dophase_done)
     result = smtp_dophase_done(data, smtp, connected);
 
   CURL_TRC_SMTP(data, "smtp_regular_transfer() -> %d, done=%d",
-                (int)result, *dophase_done);
-  return result;
+                (정수)result, *dophase_done);
+  반환 result;
 }
 
 /***********************************************************************
@@ -1883,17 +1883,17 @@ static CURLcode smtp_do(struct Curl_easy *data, bool *done)
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
   *done = FALSE; /* default to false */
-  if(!smtpc || !smtp)
-    return CURLE_FAILED_INIT;
+  만약(!smtpc || !smtp)
+    반환 CURLE_FAILED_INIT;
 
   /* Parse the custom request */
   result = smtp_parse_custom_request(data, smtp);
-  if(result)
-    return result;
+  만약(result)
+    반환 result;
 
   result = smtp_regular_transfer(data, smtpc, smtp, done);
-  CURL_TRC_SMTP(data, "smtp_do() -> %d, done=%d", (int)result, *done);
-  return result;
+  CURL_TRC_SMTP(data, "smtp_do() -> %d, done=%d", (정수)result, *done);
+  반환 result;
 }
 
 /***********************************************************************
@@ -1909,20 +1909,20 @@ static CURLcode smtp_disconnect(struct Curl_easy *data,
 {
   struct smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  만약(!smtpc)
+    반환 CURLE_FAILED_INIT;
 
   /* We cannot send quit unconditionally. If this connection is stale or
      bad in any way, sending quit and waiting around here will make the
      disconnect wait in vain and cause more problems than we need to. */
 
-  if(!dead_connection && conn->bits.protoconnstart &&
+  만약(!dead_connection && conn->bits.protoconnstart &&
      !Curl_pp_needs_flush(data, &smtpc->pp) &&
      !smtp_perform_quit(data, smtpc))
     (void)smtp_block_statemach(data, smtpc, TRUE); /* ignore on QUIT */
 
   CURL_TRC_SMTP(data, "smtp_disconnect(), finished");
-  return CURLE_OK;
+  반환 CURLE_OK;
 }
 
 /* Called from multi.c while DOing */
@@ -1931,20 +1931,20 @@ static CURLcode smtp_doing(struct Curl_easy *data, bool *dophase_done)
   struct SMTP *smtp = Curl_meta_get(data, CURL_META_SMTP_EASY);
   CURLcode result;
 
-  if(!smtp)
-    return CURLE_FAILED_INIT;
+  만약(!smtp)
+    반환 CURLE_FAILED_INIT;
   result = smtp_multi_statemach(data, dophase_done);
-  if(result)
+  만약(result)
     DEBUGF(infof(data, "DO phase failed"));
-  else if(*dophase_done) {
+  아니면 만약(*dophase_done) {
     result = smtp_dophase_done(data, smtp, FALSE /* not connected */);
 
     DEBUGF(infof(data, "DO phase is complete"));
   }
 
-  CURL_TRC_SMTP(data, "smtp_doing() -> %d, done=%d", (int)result,
+  CURL_TRC_SMTP(data, "smtp_doing() -> %d, done=%d", (정수)result,
                 *dophase_done);
-  return result;
+  반환 result;
 }
 
 static void smtp_easy_dtor(const void *key, size_t klen, void *entry)
@@ -1973,20 +1973,20 @@ static CURLcode smtp_setup_connection(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   smtpc = curlx_calloc(1, sizeof(*smtpc));
-  if(!smtpc ||
+  만약(!smtpc ||
      Curl_conn_meta_set(conn, CURL_META_SMTP_CONN, smtpc, smtp_conn_dtor)) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
   smtp = curlx_calloc(1, sizeof(*smtp));
-  if(!smtp ||
+  만약(!smtp ||
      Curl_meta_set(data, CURL_META_SMTP_EASY, smtp, smtp_easy_dtor))
     result = CURLE_OUT_OF_MEMORY;
 
 out:
-  CURL_TRC_SMTP(data, "smtp_setup_connection() -> %d", (int)result);
-  return result;
+  CURL_TRC_SMTP(data, "smtp_setup_connection() -> %d", (정수)result);
+  반환 result;
 }
 
 /*
