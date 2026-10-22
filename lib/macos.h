@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MACOS_H
-#define HEADER_CURL_MACOS_H
+#که_نه_تعریف_شوی سرلیک_CURL_MACOS_H
+#تعریف_کړه سرلیک_CURL_MACOS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef CURL_MACOS_CALL_COPYPROXIES
-CURLcode Curl_macos_init(void);
-#else
-#define Curl_macos_init() CURLE_OK
-#endif
+#که_تعریف_شوی CURL_MACOS_CALL_COPYPROXIES
+CURLcode Curl_macos_init(فراغ);
+#وإلا
+#تعریف_کړه Curl_macos_init() CURLE_OK
+#د_که_پای
 
-#endif /* HEADER_CURL_MACOS_H */
+#د_که_پای /* HEADER_CURL_MACOS_H */

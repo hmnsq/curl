@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_HTTP_H
-#define HEADER_CURL_CF_HTTP_H
+#که_نه_تعریف_شوی سرلیک_CURL_CF_HTTP_H
+#تعریف_کړه سرلیک_CURL_CF_HTTP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#که_نه_تعریف_شوی CURL_DISABLE_HTTP
 
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_cftype;
-struct Curl_peer;
+بنية Curl_cfilter;
+بنية Curl_easy;
+بنية connectdata;
+بنية Curl_cftype;
+بنية Curl_peer;
 
-extern struct Curl_cftype Curl_cft_http_connect;
+خارجي بنية Curl_cftype Curl_cft_http_connect;
 
-CURLcode Curl_cf_https_setup(struct Curl_easy *data,
-                             struct Curl_peer *destination,
-                             struct connectdata *conn,
+CURLcode Curl_cf_https_تیاری(بنية Curl_easy *معلومات,
+                             بنية Curl_peer *destination,
+                             بنية connectdata *conn,
                              int8_t sockindex);
 
-#endif /* !CURL_DISABLE_HTTP */
-#endif /* HEADER_CURL_CF_HTTP_H */
+#د_که_پای /* !CURL_DISABLE_HTTP */
+#د_که_پای /* HEADER_CURL_CF_HTTP_H */

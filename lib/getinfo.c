@@ -21,16 +21,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "getinfo.h"
-#include "cfilters.h"
-#include "vtls/vtls.h"
-#include "connect.h" /* Curl_getconnectinfo() */
-#include "bufref.h"
-#include "url.h" /* Curl_uc_to_curlcode() */
-#include "curlx/strparse.h"
+#ضمن "urldata.h"
+#ضمن "getinfo.h"
+#ضمن "cfilters.h"
+#ضمن "vtls/vtls.h"
+#ضمن "connect.h" /* Curl_getconnectinfo() */
+#ضمن "bufref.h"
+#ضمن "url.h" /* Curl_uc_to_curlcode() */
+#ضمن "curlx/strparse.h"
 
 /*
  * Initialize statistical and informational data.
@@ -39,13 +39,13 @@
  * beginning of a perform session. It must reset the session-info variables,
  * in particular all variables in struct PureInfo.
  */
-void Curl_initinfo(struct Curl_easy *data)
+فراغ Curl_initinfo(بنية Curl_easy *معلومات)
 {
-  struct Progress *pro = &data->progress;
-  struct PureInfo *info = &data->info;
+  بنية پرمختګ_2 *pro = &معلومات->پرمختګ;
+  بنية خالص_Info *info = &معلومات->info;
 
-  memset(&pro->delta, 0, sizeof(pro->delta));
-  memset(&pro->total, 0, sizeof(pro->total));
+  memset(&pro->delta, 0, حجم(pro->delta));
+  memset(&pro->ټول, 0, حجم(pro->ټول));
   pro->startransfer_added = FALSE;
 
   info->httpcode = 0;
@@ -54,8 +54,8 @@ void Curl_initinfo(struct Curl_easy *data)
   info->filetime = -1; /* -1 is an illegal time and thus means unknown */
   info->timecond = FALSE;
 
-  info->header_size = 0;
-  info->request_size = 0;
+  info->سرلیک_اندازه = 0;
+  info->request_اندازه = 0;
   info->proxyauthavail = 0;
   info->httpauthavail = 0;
   info->proxyauthpicked = 0;
@@ -66,648 +66,648 @@ void Curl_initinfo(struct Curl_easy *data)
   curlx_safefree(info->wouldredirect);
   curlx_safefree(info->effective_url);
 
-  memset(&info->primary, 0, sizeof(info->primary));
+  memset(&info->primary, 0, حجم(info->primary));
   info->retry_after = 0;
 
   info->conn_scheme = 0;
   info->conn_protocol = 0;
-  info->used_proxy = 0;
+  info->کارول_شوی_proxy = 0;
 
-#ifdef USE_SSL
-  Curl_ssl_free_certinfo(data);
-#endif
+#که_تعریف_شوی USE_SSL
+  Curl_ssl_free_certinfo(معلومات);
+#د_که_پای
 }
 
-static CURLcode effective_url(struct Curl_easy *data,
-                              const char **param_charp)
+ساكن CURLcode effective_url(بنية Curl_easy *معلومات,
+                              ثابت حرف **param_charp)
 {
-  const char *s = Curl_bufref_ptr(&data->state.url);
+  ثابت حرف *s = Curl_bufref_ptr(&معلومات->state.url);
   /* never return the URL unfiltered */
-  *param_charp = s ? NULL : "";
-  if(s) {
-    char *url = NULL;
+  *param_charp = s ? عدم : "";
+  إذا(s) {
+    حرف *url = عدم;
     /* Make a copy of the URL without credentials */
     CURLU *u = curl_url();
     CURLUcode uc;
-    if(!u)
-      return CURLE_OUT_OF_MEMORY;
+    إذا(!u)
+      أرجع CURLE_بهر_د_حافظه;
 
-    uc = curl_url_set(u, CURLUPART_URL, s,
+    uc = curl_url_سېټ(u, CURLUPART_URL, s,
                       CURLU_NON_SUPPORT_SCHEME |
-                      (data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
-    if(!uc)
-      uc = curl_url_set(u, CURLUPART_USER, NULL, 0);
-    if(!uc)
-      uc = curl_url_set(u, CURLUPART_PASSWORD, NULL, 0);
-    if(!uc)
-      uc = curl_url_get(u, CURLUPART_URL, &url, CURLU_GET_EMPTY);
+                      (معلومات->سېټ.لار_as_is ? CURLU_لار_AS_IS : 0));
+    إذا(!uc)
+      uc = curl_url_سېټ(u, CURLUPART_USER, عدم, 0);
+    إذا(!uc)
+      uc = curl_url_سېټ(u, CURLUPART_PASSWORD, عدم, 0);
+    إذا(!uc)
+      uc = curl_url_get(u, CURLUPART_URL, &url, CURLU_GET_تشه);
 
     curl_url_cleanup(u);
 
-    if(uc || !url)
-      return uc ? Curl_uc_to_curlcode(uc) : CURLE_OUT_OF_MEMORY;
-    if(strcmp(url, s)) {
+    إذا(uc || !url)
+      أرجع uc ? Curl_uc_منزل_curlcode(uc) : CURLE_بهر_د_حافظه;
+    إذا(strcmp(url, s)) {
       /* they are different */
-      curlx_free(data->info.effective_url);
-      data->info.effective_url = url;
+      curlx_free(معلومات->info.effective_url);
+      معلومات->info.effective_url = url;
       *param_charp = url;
     }
-    else {
+    وإلا {
       curl_free(url);
       *param_charp = s;
     }
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode getinfo_char(struct Curl_easy *data, CURLINFO info,
-                             const char **param_charp)
+ساكن CURLcode getinfo_char(بنية Curl_easy *معلومات, CURLINFO info,
+                             ثابت حرف **param_charp)
 {
-  switch(info) {
-  case CURLINFO_EFFECTIVE_URL:
-    return effective_url(data, param_charp);
-  case CURLINFO_EFFECTIVE_METHOD: {
-    const char *m = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
-    if(!m) {
-      if(data->set.opt_no_body)
+  بدل(info) {
+  حالة CURLINFO_EFFECTIVE_URL:
+    أرجع effective_url(معلومات, param_charp);
+  حالة CURLINFO_EFFECTIVE_لاره: {
+    ثابت حرف *m = CURL_EASY_STR(معلومات, STRING_CUSTOMREQUEST);
+    إذا(!m) {
+      إذا(معلومات->سېټ.opt_no_body)
         m = "HEAD";
-#ifndef CURL_DISABLE_HTTP
-      else {
-        switch(data->state.httpreq) {
-        case HTTPREQ_POST:
-        case HTTPREQ_POST_FORM:
-        case HTTPREQ_POST_MIME:
+#که_نه_تعریف_شوی CURL_DISABLE_HTTP
+      وإلا {
+        بدل(معلومات->state.httpreq) {
+        حالة HTTPREQ_POST:
+        حالة HTTPREQ_POST_FORM:
+        حالة HTTPREQ_POST_MIME:
           m = "POST";
-          break;
-        case HTTPREQ_PUT:
+          اكسر;
+        حالة HTTPREQ_PUT:
           m = "PUT";
-          break;
-        default: /* this should never happen */
-        case HTTPREQ_GET:
+          اكسر;
+        افتراضي: /* this should never happen */
+        حالة HTTPREQ_GET:
           m = "GET";
-          break;
-        case HTTPREQ_HEAD:
+          اكسر;
+        حالة HTTPREQ_سر:
           m = "HEAD";
-          break;
+          اكسر;
         }
       }
-#endif
+#د_که_پای
     }
     *param_charp = m;
   }
-    break;
-  case CURLINFO_CONTENT_TYPE:
-    *param_charp = data->info.contenttype;
-    break;
-  case CURLINFO_PRIVATE:
-    *param_charp = (const char *)data->set.private_data;
-    break;
-  case CURLINFO_FTP_ENTRY_PATH:
+    اكسر;
+  حالة CURLINFO_CONTENT_TYPE:
+    *param_charp = معلومات->info.contenttype;
+    اكسر;
+  حالة CURLINFO_شخصي:
+    *param_charp = (ثابت حرف *)معلومات->سېټ.شخصي_معلومات;
+    اكسر;
+  حالة CURLINFO_FTP_ثبت_لار:
     /* Return the entrypath string from the most recent connection.
        This pointer was copied from the connectdata structure by FTP.
        The actual string may be freed by subsequent libcurl calls so
        it must be copied to a safer area before the next libcurl call.
        Callers must never free it themselves. */
-    *param_charp = data->state.most_recent_ftp_entrypath;
-    break;
-  case CURLINFO_REDIRECT_URL:
+    *param_charp = معلومات->state.most_recent_ftp_entrypath;
+    اكسر;
+  حالة CURLINFO_REDIRECT_URL:
     /* Return the URL this request would have been redirected to if that
        option had been enabled! */
-    *param_charp = data->info.wouldredirect;
-    break;
-  case CURLINFO_REFERER:
+    *param_charp = معلومات->info.wouldredirect;
+    اكسر;
+  حالة CURLINFO_REFERER:
     /* Return the referrer header for this request, or NULL if unset */
-    *param_charp = Curl_bufref_ptr(&data->state.referer);
-    break;
-  case CURLINFO_PRIMARY_IP:
+    *param_charp = Curl_bufref_ptr(&معلومات->state.referer);
+    اكسر;
+  حالة CURLINFO_PRIMARY_IP:
     /* Return the ip address of the most recent (primary) connection */
-    *param_charp = data->info.primary.remote_ip;
-    break;
-  case CURLINFO_LOCAL_IP:
+    *param_charp = معلومات->info.primary.remote_ip;
+    اكسر;
+  حالة CURLINFO_LOCAL_IP:
     /* Return the source/local ip address of the most recent (primary)
        connection */
-    *param_charp = data->info.primary.local_ip;
-    break;
-  case CURLINFO_RTSP_SESSION_ID:
-#ifndef CURL_DISABLE_RTSP
-    *param_charp = CURL_EASY_STR(data, STRING_RTSP_SESSION_ID);
-#else
-    *param_charp = NULL;
-#endif
-    break;
-  case CURLINFO_SCHEME:
-    *param_charp = data->info.conn_scheme;
-    break;
-  case CURLINFO_CAPATH:
-#ifdef CURL_CA_PATH
-    *param_charp = CURL_CA_PATH;
-#else
-    *param_charp = NULL;
-#endif
-    break;
-  case CURLINFO_CAINFO:
-#ifdef CURL_CA_BUNDLE
+    *param_charp = معلومات->info.primary.local_ip;
+    اكسر;
+  حالة CURLINFO_RTSP_SESSION_ID:
+#که_نه_تعریف_شوی CURL_DISABLE_RTSP
+    *param_charp = CURL_EASY_STR(معلومات, STRING_RTSP_SESSION_ID);
+#وإلا
+    *param_charp = عدم;
+#د_که_پای
+    اكسر;
+  حالة CURLINFO_SCHEME:
+    *param_charp = معلومات->info.conn_scheme;
+    اكسر;
+  حالة CURLINFO_CAPATH:
+#که_تعریف_شوی CURL_CA_لار
+    *param_charp = CURL_CA_لار;
+#وإلا
+    *param_charp = عدم;
+#د_که_پای
+    اكسر;
+  حالة CURLINFO_CAINFO:
+#که_تعریف_شوی CURL_CA_BUNDLE
     *param_charp = CURL_CA_BUNDLE;
-#else
-    *param_charp = NULL;
-#endif
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+#وإلا
+    *param_charp = عدم;
+#د_که_پای
+    اكسر;
+  افتراضي:
+    أرجع CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
-                             long *param_longp)
+ساكن CURLcode getinfo_long(بنية Curl_easy *معلومات, CURLINFO info,
+                             اوږد *param_longp)
 {
   curl_socket_t sockfd;
 
-  union {
-    unsigned long *to_ulong;
-    long          *to_long;
+  اتحاد {
+    بینښه اوږد *منزل_ulong;
+    اوږد          *منزل_long;
   } lptr;
 
-#ifdef DEBUGBUILD
-  const char *envstr;
+#که_تعریف_شوی DEBUGBUILD
+  ثابت حرف *envstr;
 
   /* use another variable for this to allow different values */
-  switch(info) {
-  case CURLINFO_LOCAL_PORT:
+  بدل(info) {
+  حالة CURLINFO_LOCAL_پورټ:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    إذا(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, TIME_T_MAX);
-      *param_longp = (long)val;
-      return CURLE_OK;
+      curlx_str_شمېره(&envstr, &val, وخت_T_MAX);
+      *param_longp = (اوږد)val;
+      أرجع CURLE_OK;
     }
-    break;
-  case CURLINFO_HEADER_SIZE:
-  case CURLINFO_REQUEST_SIZE:
+    اكسر;
+  حالة CURLINFO_سرلیک_اندازه:
+  حالة CURLINFO_REQUEST_اندازه:
     envstr = getenv("CURL_DEBUG_SIZE");
-    if(envstr) {
+    إذا(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, LONG_MAX);
-      *param_longp = (long)val;
-      return CURLE_OK;
+      curlx_str_شمېره(&envstr, &val, LONG_MAX);
+      *param_longp = (اوږد)val;
+      أرجع CURLE_OK;
     }
-    break;
-  default:
-    break;
+    اكسر;
+  افتراضي:
+    اكسر;
   }
-#endif
+#د_که_پای
 
-  switch(info) {
-  case CURLINFO_RESPONSE_CODE:
-    *param_longp = data->info.httpcode;
-    break;
-  case CURLINFO_HTTP_CONNECTCODE:
-    *param_longp = data->info.httpproxycode;
-    break;
-  case CURLINFO_FILETIME:
-    if(data->info.filetime > LONG_MAX)
+  بدل(info) {
+  حالة CURLINFO_RESPONSE_کوډ:
+    *param_longp = معلومات->info.httpcode;
+    اكسر;
+  حالة CURLINFO_HTTP_CONNECTCODE:
+    *param_longp = معلومات->info.httpproxycode;
+    اكسر;
+  حالة CURLINFO_FILETIME:
+    إذا(معلومات->info.filetime > LONG_MAX)
       *param_longp = LONG_MAX;
-#if !defined(MSDOS) && !defined(__AMIGA__)
-    else if(data->info.filetime < LONG_MIN)
+#إذا !defined(MSDOS) && !defined(__AMIGA__)
+    وإلا إذا(معلومات->info.filetime < LONG_MIN)
       *param_longp = LONG_MIN;
-#endif
-    else
-      *param_longp = (long)data->info.filetime;
-    break;
-  case CURLINFO_HEADER_SIZE:
-    *param_longp = (long)data->info.header_size;
-    break;
-  case CURLINFO_REQUEST_SIZE:
-    *param_longp = (long)data->info.request_size;
-    break;
-  case CURLINFO_SSL_VERIFYRESULT:
-    *param_longp = data->set.ssl.certverifyresult;
-    break;
-  case CURLINFO_PROXY_SSL_VERIFYRESULT:
-#ifndef CURL_DISABLE_PROXY
-    *param_longp = data->set.proxy_ssl.certverifyresult;
-#else
+#د_که_پای
+    وإلا
+      *param_longp = (اوږد)معلومات->info.filetime;
+    اكسر;
+  حالة CURLINFO_سرلیک_اندازه:
+    *param_longp = (اوږد)معلومات->info.سرلیک_اندازه;
+    اكسر;
+  حالة CURLINFO_REQUEST_اندازه:
+    *param_longp = (اوږد)معلومات->info.request_اندازه;
+    اكسر;
+  حالة CURLINFO_SSL_VERIFYRESULT:
+    *param_longp = معلومات->سېټ.ssl.certverifyresult;
+    اكسر;
+  حالة CURLINFO_PROXY_SSL_VERIFYRESULT:
+#که_نه_تعریف_شوی CURL_DISABLE_PROXY
+    *param_longp = معلومات->سېټ.proxy_ssl.certverifyresult;
+#وإلا
     *param_longp = 0;
-#endif
-    break;
-  case CURLINFO_REDIRECT_COUNT:
-    *param_longp = data->state.followlocation;
-    break;
-  case CURLINFO_HTTPAUTH_AVAIL:
-    lptr.to_long = param_longp;
-    *lptr.to_ulong = data->info.httpauthavail;
-    break;
-  case CURLINFO_PROXYAUTH_AVAIL:
-    lptr.to_long = param_longp;
-    *lptr.to_ulong = data->info.proxyauthavail;
-    break;
-  case CURLINFO_HTTPAUTH_USED:
-    lptr.to_long = param_longp;
-    *lptr.to_ulong = data->info.httpauthpicked;
-    break;
-  case CURLINFO_PROXYAUTH_USED:
-    lptr.to_long = param_longp;
-    *lptr.to_ulong = data->info.proxyauthpicked;
-    break;
-  case CURLINFO_OS_ERRNO:
-    *param_longp = data->state.os_errno;
-    break;
-  case CURLINFO_NUM_CONNECTS:
-#if SIZEOF_LONG < SIZEOF_CURL_OFF_T
-    if(data->info.numconnects > LONG_MAX)
+#د_که_پای
+    اكسر;
+  حالة CURLINFO_REDIRECT_شمېر:
+    *param_longp = معلومات->state.followlocation;
+    اكسر;
+  حالة CURLINFO_HTTPAUTH_AVAIL:
+    lptr.منزل_long = param_longp;
+    *lptr.منزل_ulong = معلومات->info.httpauthavail;
+    اكسر;
+  حالة CURLINFO_PROXYAUTH_AVAIL:
+    lptr.منزل_long = param_longp;
+    *lptr.منزل_ulong = معلومات->info.proxyauthavail;
+    اكسر;
+  حالة CURLINFO_HTTPAUTH_کارول_شوی:
+    lptr.منزل_long = param_longp;
+    *lptr.منزل_ulong = معلومات->info.httpauthpicked;
+    اكسر;
+  حالة CURLINFO_PROXYAUTH_کارول_شوی:
+    lptr.منزل_long = param_longp;
+    *lptr.منزل_ulong = معلومات->info.proxyauthpicked;
+    اكسر;
+  حالة CURLINFO_OS_ERRNO:
+    *param_longp = معلومات->state.os_errno;
+    اكسر;
+  حالة CURLINFO_عدد_CONNECTS:
+#إذا SIZEOF_LONG < SIZEOF_CURL_OFF_T
+    إذا(معلومات->info.numconnects > LONG_MAX)
       *param_longp = LONG_MAX;
-    else
-#endif
-      *param_longp = (long)data->info.numconnects;
-    break;
-  case CURLINFO_LASTSOCKET:
-    sockfd = Curl_getconnectinfo(data, NULL);
+    وإلا
+#د_که_پای
+      *param_longp = (اوږد)معلومات->info.numconnects;
+    اكسر;
+  حالة CURLINFO_LASTSOCKET:
+    sockfd = Curl_getconnectinfo(معلومات, عدم);
 
     /* note: this is not a good conversion for systems with 64-bit sockets and
        32-bit longs */
-    if(sockfd != CURL_SOCKET_BAD)
-      *param_longp = (long)sockfd;
-    else
+    إذا(sockfd != CURL_SOCKET_BAD)
+      *param_longp = (اوږد)sockfd;
+    وإلا
       /* this interface is documented to return -1 in case of badness, which
          may not be the same as the CURL_SOCKET_BAD value */
       *param_longp = -1;
-    break;
-  case CURLINFO_PRIMARY_PORT:
+    اكسر;
+  حالة CURLINFO_PRIMARY_پورټ:
     /* Return the (remote) port of the most recent (primary) connection */
-    if(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
-      *param_longp = data->info.primary.remote_port;
-    else
+    إذا(CUR_IP_QUAD_HAS_PORTS(&معلومات->info.primary))
+      *param_longp = معلومات->info.primary.remote_پورټ;
+    وإلا
       *param_longp = -1;
-    break;
-  case CURLINFO_LOCAL_PORT:
+    اكسر;
+  حالة CURLINFO_LOCAL_پورټ:
     /* Return the local port of the most recent (primary) connection */
-    if(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
-      *param_longp = data->info.primary.local_port;
-    else
+    إذا(CUR_IP_QUAD_HAS_PORTS(&معلومات->info.primary))
+      *param_longp = معلومات->info.primary.local_پورټ;
+    وإلا
       *param_longp = -1;
-    break;
-  case CURLINFO_PROXY_ERROR:
-    *param_longp = (long)data->info.pxcode;
-    break;
-  case CURLINFO_CONDITION_UNMET:
-    if(data->info.httpcode == 304)
+    اكسر;
+  حالة CURLINFO_PROXY_ERROR:
+    *param_longp = (اوږد)معلومات->info.pxcode;
+    اكسر;
+  حالة CURLINFO_CONDITION_UNMET:
+    إذا(معلومات->info.httpcode == 304)
       *param_longp = 1L;
-    else
+    وإلا
       /* return if the condition prevented the document to get transferred */
-      *param_longp = data->info.timecond ? 1L : 0L;
-    break;
-#ifndef CURL_DISABLE_RTSP
-  case CURLINFO_RTSP_CLIENT_CSEQ:
-    *param_longp = data->state.rtsp_next_client_CSeq;
-    break;
-  case CURLINFO_RTSP_SERVER_CSEQ:
-    *param_longp = data->state.rtsp_next_server_CSeq;
-    break;
-  case CURLINFO_RTSP_CSEQ_RECV:
-    *param_longp = data->state.rtsp_CSeq_recv;
-    break;
-#else
-  case CURLINFO_RTSP_CLIENT_CSEQ:
-  case CURLINFO_RTSP_SERVER_CSEQ:
-  case CURLINFO_RTSP_CSEQ_RECV:
+      *param_longp = معلومات->info.timecond ? 1L : 0L;
+    اكسر;
+#که_نه_تعریف_شوی CURL_DISABLE_RTSP
+  حالة CURLINFO_RTSP_CLIENT_CSEQ:
+    *param_longp = معلومات->state.rtsp_بل_client_CSeq;
+    اكسر;
+  حالة CURLINFO_RTSP_SERVER_CSEQ:
+    *param_longp = معلومات->state.rtsp_بل_server_CSeq;
+    اكسر;
+  حالة CURLINFO_RTSP_CSEQ_RECV:
+    *param_longp = معلومات->state.rtsp_CSeq_recv;
+    اكسر;
+#وإلا
+  حالة CURLINFO_RTSP_CLIENT_CSEQ:
+  حالة CURLINFO_RTSP_SERVER_CSEQ:
+  حالة CURLINFO_RTSP_CSEQ_RECV:
     *param_longp = 0;
-    break;
-#endif
-  case CURLINFO_HTTP_VERSION:
-    switch(data->info.httpversion) {
-    case 10:
-      *param_longp = CURL_HTTP_VERSION_1_0;
-      break;
-    case 11:
-      *param_longp = CURL_HTTP_VERSION_1_1;
-      break;
-    case 20:
-      *param_longp = CURL_HTTP_VERSION_2_0;
-      break;
-    case 30:
-      *param_longp = CURL_HTTP_VERSION_3;
-      break;
-    default:
-      *param_longp = CURL_HTTP_VERSION_NONE;
-      break;
+    اكسر;
+#د_که_پای
+  حالة CURLINFO_HTTP_نسخه:
+    بدل(معلومات->info.httpversion) {
+    حالة 10:
+      *param_longp = CURL_HTTP_نسخه_1_0;
+      اكسر;
+    حالة 11:
+      *param_longp = CURL_HTTP_نسخه_1_1;
+      اكسر;
+    حالة 20:
+      *param_longp = CURL_HTTP_نسخه_2_0;
+      اكسر;
+    حالة 30:
+      *param_longp = CURL_HTTP_نسخه_3;
+      اكسر;
+    افتراضي:
+      *param_longp = CURL_HTTP_نسخه_NONE;
+      اكسر;
     }
-    break;
-  case CURLINFO_PROTOCOL:
-    *param_longp = (long)data->info.conn_protocol;
-    break;
-  case CURLINFO_USED_PROXY:
+    اكسر;
+  حالة CURLINFO_PROTOCOL:
+    *param_longp = (اوږد)معلومات->info.conn_protocol;
+    اكسر;
+  حالة CURLINFO_کارول_شوی_PROXY:
     *param_longp =
-#ifdef CURL_DISABLE_PROXY
+#که_تعریف_شوی CURL_DISABLE_PROXY
       0
-#else
-      data->info.used_proxy
-#endif
+#وإلا
+      معلومات->info.کارول_شوی_proxy
+#د_که_پای
       ;
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    اكسر;
+  افتراضي:
+    أرجع CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-#define DOUBLE_SECS(x) ((double)(x) / 1000000)
+#تعریف_کړه DOUBLE_SECS(x) ((مزدوج)(x) / 1000000)
 
-static CURLcode getinfo_offt(struct Curl_easy *data, CURLINFO info,
+ساكن CURLcode getinfo_offt(بنية Curl_easy *معلومات, CURLINFO info,
                              curl_off_t *param_offt)
 {
-#ifdef DEBUGBUILD
-  const char *envstr;
-  switch(info) {
-  case CURLINFO_TOTAL_TIME_T:
-  case CURLINFO_NAMELOOKUP_TIME_T:
-  case CURLINFO_CONNECT_TIME_T:
-  case CURLINFO_APPCONNECT_TIME_T:
-  case CURLINFO_PRETRANSFER_TIME_T:
-  case CURLINFO_POSTTRANSFER_TIME_T:
-  case CURLINFO_QUEUE_TIME_T:
-  case CURLINFO_STARTTRANSFER_TIME_T:
-  case CURLINFO_REDIRECT_TIME_T:
-  case CURLINFO_SPEED_DOWNLOAD_T:
-  case CURLINFO_SPEED_UPLOAD_T:
+#که_تعریف_شوی DEBUGBUILD
+  ثابت حرف *envstr;
+  بدل(info) {
+  حالة CURLINFO_ټول_وخت_T:
+  حالة CURLINFO_NAMELOOKUP_وخت_T:
+  حالة CURLINFO_CONNECT_وخت_T:
+  حالة CURLINFO_APPCONNECT_وخت_T:
+  حالة CURLINFO_PRETRANSFER_وخت_T:
+  حالة CURLINFO_POSTTRANSFER_وخت_T:
+  حالة CURLINFO_کتار_وخت_T:
+  حالة CURLINFO_STARTTRANSFER_وخت_T:
+  حالة CURLINFO_REDIRECT_وخت_T:
+  حالة CURLINFO_چټکتیا_DOWNLOAD_T:
+  حالة CURLINFO_چټکتیا_UPLOAD_T:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    إذا(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, CURL_OFF_T_MAX);
+      curlx_str_شمېره(&envstr, &val, CURL_OFF_T_MAX);
       *param_offt = (curl_off_t)val;
-      return CURLE_OK;
+      أرجع CURLE_OK;
     }
-    break;
-  default:
-    break;
+    اكسر;
+  افتراضي:
+    اكسر;
   }
-#endif
-  switch(info) {
-  case CURLINFO_FILETIME_T:
-    *param_offt = (curl_off_t)data->info.filetime;
-    break;
-  case CURLINFO_SIZE_DELIVERED:
-    *param_offt = data->progress.deliver;
-    break;
-  case CURLINFO_SIZE_UPLOAD_T:
-    *param_offt = data->progress.ul.cur_size;
-    break;
-  case CURLINFO_SIZE_DOWNLOAD_T:
-    *param_offt = data->progress.dl.cur_size;
-    break;
-  case CURLINFO_SPEED_DOWNLOAD_T:
-    *param_offt = data->progress.dl.speed;
-    break;
-  case CURLINFO_SPEED_UPLOAD_T:
-    *param_offt = data->progress.ul.speed;
-    break;
-  case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
-    *param_offt = data->progress.dl_size_known ?
-      data->progress.dl.total_size : -1;
-    break;
-  case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
-    *param_offt = data->progress.ul_size_known ?
-      data->progress.ul.total_size : -1;
-    break;
-   case CURLINFO_TOTAL_TIME_T:
-    *param_offt = data->progress.total.spent_us;
-    break;
-  case CURLINFO_NAMELOOKUP_TIME_T:
-    *param_offt = data->progress.total.nslookup_us;
-    break;
-  case CURLINFO_CONNECT_TIME_T:
-    *param_offt = data->progress.total.connect_us;
-    break;
-  case CURLINFO_APPCONNECT_TIME_T:
-    *param_offt = data->progress.total.appconnect_us;
-    break;
-  case CURLINFO_PRETRANSFER_TIME_T:
-    *param_offt = data->progress.total.pretransfer_us;
-    break;
-  case CURLINFO_POSTTRANSFER_TIME_T:
-    *param_offt = data->progress.total.posttransfer_us;
-    break;
-  case CURLINFO_STARTTRANSFER_TIME_T:
-    *param_offt = data->progress.total.starttransfer_us;
-    break;
-  case CURLINFO_QUEUE_TIME_T:
-    *param_offt = data->progress.total.queued_us;
-    break;
-  case CURLINFO_REDIRECT_TIME_T:
-    *param_offt = data->progress.delta.startredirect_us;
-    break;
-  case CURLINFO_RETRY_AFTER:
-    *param_offt = data->info.retry_after;
-    break;
-  case CURLINFO_XFER_ID:
-    *param_offt = data->id;
-    break;
-  case CURLINFO_CONN_ID:
-    *param_offt = data->state.last_conn_id;
-    break;
-  case CURLINFO_EARLYDATA_SENT_T:
-    *param_offt = data->progress.earlydata_sent;
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+#د_که_پای
+  بدل(info) {
+  حالة CURLINFO_FILETIME_T:
+    *param_offt = (curl_off_t)معلومات->info.filetime;
+    اكسر;
+  حالة CURLINFO_اندازه_DELIVERED:
+    *param_offt = معلومات->پرمختګ.deliver;
+    اكسر;
+  حالة CURLINFO_اندازه_UPLOAD_T:
+    *param_offt = معلومات->پرمختګ.ul.cur_اندازه;
+    اكسر;
+  حالة CURLINFO_اندازه_DOWNLOAD_T:
+    *param_offt = معلومات->پرمختګ.dl.cur_اندازه;
+    اكسر;
+  حالة CURLINFO_چټکتیا_DOWNLOAD_T:
+    *param_offt = معلومات->پرمختګ.dl.چټکتیا;
+    اكسر;
+  حالة CURLINFO_چټکتیا_UPLOAD_T:
+    *param_offt = معلومات->پرمختګ.ul.چټکتیا;
+    اكسر;
+  حالة CURLINFO_CONTENT_اوږدتیا_DOWNLOAD_T:
+    *param_offt = معلومات->پرمختګ.dl_اندازه_معلوم ?
+      معلومات->پرمختګ.dl.ټول_اندازه : -1;
+    اكسر;
+  حالة CURLINFO_CONTENT_اوږدتیا_UPLOAD_T:
+    *param_offt = معلومات->پرمختګ.ul_اندازه_معلوم ?
+      معلومات->پرمختګ.ul.ټول_اندازه : -1;
+    اكسر;
+   حالة CURLINFO_ټول_وخت_T:
+    *param_offt = معلومات->پرمختګ.ټول.spent_us;
+    اكسر;
+  حالة CURLINFO_NAMELOOKUP_وخت_T:
+    *param_offt = معلومات->پرمختګ.ټول.nslookup_us;
+    اكسر;
+  حالة CURLINFO_CONNECT_وخت_T:
+    *param_offt = معلومات->پرمختګ.ټول.connect_us;
+    اكسر;
+  حالة CURLINFO_APPCONNECT_وخت_T:
+    *param_offt = معلومات->پرمختګ.ټول.appconnect_us;
+    اكسر;
+  حالة CURLINFO_PRETRANSFER_وخت_T:
+    *param_offt = معلومات->پرمختګ.ټول.pretransfer_us;
+    اكسر;
+  حالة CURLINFO_POSTTRANSFER_وخت_T:
+    *param_offt = معلومات->پرمختګ.ټول.posttransfer_us;
+    اكسر;
+  حالة CURLINFO_STARTTRANSFER_وخت_T:
+    *param_offt = معلومات->پرمختګ.ټول.starttransfer_us;
+    اكسر;
+  حالة CURLINFO_کتار_وخت_T:
+    *param_offt = معلومات->پرمختګ.ټول.queued_us;
+    اكسر;
+  حالة CURLINFO_REDIRECT_وخت_T:
+    *param_offt = معلومات->پرمختګ.delta.startredirect_us;
+    اكسر;
+  حالة CURLINFO_RETRY_AFTER:
+    *param_offt = معلومات->info.retry_after;
+    اكسر;
+  حالة CURLINFO_XFER_ID:
+    *param_offt = معلومات->id;
+    اكسر;
+  حالة CURLINFO_CONN_ID:
+    *param_offt = معلومات->state.وروستی_conn_id;
+    اكسر;
+  حالة CURLINFO_EARLYDATA_لېږل_شوی_T:
+    *param_offt = معلومات->پرمختګ.earlydata_لېږل_شوی;
+    اكسر;
+  افتراضي:
+    أرجع CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode getinfo_double(struct Curl_easy *data, CURLINFO info,
-                               double *param_doublep)
+ساكن CURLcode getinfo_double(بنية Curl_easy *معلومات, CURLINFO info,
+                               مزدوج *param_doublep)
 {
-#ifdef DEBUGBUILD
-  const char *envstr;
+#که_تعریف_شوی DEBUGBUILD
+  ثابت حرف *envstr;
 
-  switch(info) {
-  case CURLINFO_TOTAL_TIME:
-  case CURLINFO_NAMELOOKUP_TIME:
-  case CURLINFO_CONNECT_TIME:
-  case CURLINFO_APPCONNECT_TIME:
-  case CURLINFO_PRETRANSFER_TIME:
-  case CURLINFO_STARTTRANSFER_TIME:
-  case CURLINFO_REDIRECT_TIME:
-  case CURLINFO_SPEED_DOWNLOAD:
-  case CURLINFO_SPEED_UPLOAD:
+  بدل(info) {
+  حالة CURLINFO_ټول_وخت:
+  حالة CURLINFO_NAMELOOKUP_وخت:
+  حالة CURLINFO_CONNECT_وخت:
+  حالة CURLINFO_APPCONNECT_وخت:
+  حالة CURLINFO_PRETRANSFER_وخت:
+  حالة CURLINFO_STARTTRANSFER_وخت:
+  حالة CURLINFO_REDIRECT_وخت:
+  حالة CURLINFO_چټکتیا_DOWNLOAD:
+  حالة CURLINFO_چټکتیا_UPLOAD:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    إذا(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, CURL_OFF_T_MAX);
-      *param_doublep = (double)val;
-      return CURLE_OK;
+      curlx_str_شمېره(&envstr, &val, CURL_OFF_T_MAX);
+      *param_doublep = (مزدوج)val;
+      أرجع CURLE_OK;
     }
-    break;
-  default:
-    break;
+    اكسر;
+  افتراضي:
+    اكسر;
   }
-#endif
-  switch(info) {
-  case CURLINFO_TOTAL_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.spent_us);
-    break;
-  case CURLINFO_NAMELOOKUP_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.nslookup_us);
-    break;
-  case CURLINFO_CONNECT_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.connect_us);
-    break;
-  case CURLINFO_APPCONNECT_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.appconnect_us);
-    break;
-  case CURLINFO_PRETRANSFER_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.pretransfer_us);
-    break;
-  case CURLINFO_STARTTRANSFER_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.starttransfer_us);
-    break;
-  case CURLINFO_SIZE_UPLOAD:
-    *param_doublep = (double)data->progress.ul.cur_size;
-    break;
-  case CURLINFO_SIZE_DOWNLOAD:
-    *param_doublep = (double)data->progress.dl.cur_size;
-    break;
-  case CURLINFO_SPEED_DOWNLOAD:
-    *param_doublep = (double)data->progress.dl.speed;
-    break;
-  case CURLINFO_SPEED_UPLOAD:
-    *param_doublep = (double)data->progress.ul.speed;
-    break;
-  case CURLINFO_CONTENT_LENGTH_DOWNLOAD:
-    *param_doublep = data->progress.dl_size_known ?
-      (double)data->progress.dl.total_size : -1;
-    break;
-  case CURLINFO_CONTENT_LENGTH_UPLOAD:
-    *param_doublep = data->progress.ul_size_known ?
-      (double)data->progress.ul.total_size : -1;
-    break;
-  case CURLINFO_REDIRECT_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.delta.startredirect_us);
-    break;
+#د_که_پای
+  بدل(info) {
+  حالة CURLINFO_ټول_وخت:
+    *param_doublep = DOUBLE_SECS(معلومات->پرمختګ.ټول.spent_us);
+    اكسر;
+  حالة CURLINFO_NAMELOOKUP_وخت:
+    *param_doublep = DOUBLE_SECS(معلومات->پرمختګ.ټول.nslookup_us);
+    اكسر;
+  حالة CURLINFO_CONNECT_وخت:
+    *param_doublep = DOUBLE_SECS(معلومات->پرمختګ.ټول.connect_us);
+    اكسر;
+  حالة CURLINFO_APPCONNECT_وخت:
+    *param_doublep = DOUBLE_SECS(معلومات->پرمختګ.ټول.appconnect_us);
+    اكسر;
+  حالة CURLINFO_PRETRANSFER_وخت:
+    *param_doublep = DOUBLE_SECS(معلومات->پرمختګ.ټول.pretransfer_us);
+    اكسر;
+  حالة CURLINFO_STARTTRANSFER_وخت:
+    *param_doublep = DOUBLE_SECS(معلومات->پرمختګ.ټول.starttransfer_us);
+    اكسر;
+  حالة CURLINFO_اندازه_UPLOAD:
+    *param_doublep = (مزدوج)معلومات->پرمختګ.ul.cur_اندازه;
+    اكسر;
+  حالة CURLINFO_اندازه_DOWNLOAD:
+    *param_doublep = (مزدوج)معلومات->پرمختګ.dl.cur_اندازه;
+    اكسر;
+  حالة CURLINFO_چټکتیا_DOWNLOAD:
+    *param_doublep = (مزدوج)معلومات->پرمختګ.dl.چټکتیا;
+    اكسر;
+  حالة CURLINFO_چټکتیا_UPLOAD:
+    *param_doublep = (مزدوج)معلومات->پرمختګ.ul.چټکتیا;
+    اكسر;
+  حالة CURLINFO_CONTENT_اوږدتیا_DOWNLOAD:
+    *param_doublep = معلومات->پرمختګ.dl_اندازه_معلوم ?
+      (مزدوج)معلومات->پرمختګ.dl.ټول_اندازه : -1;
+    اكسر;
+  حالة CURLINFO_CONTENT_اوږدتیا_UPLOAD:
+    *param_doublep = معلومات->پرمختګ.ul_اندازه_معلوم ?
+      (مزدوج)معلومات->پرمختګ.ul.ټول_اندازه : -1;
+    اكسر;
+  حالة CURLINFO_REDIRECT_وخت:
+    *param_doublep = DOUBLE_SECS(معلومات->پرمختګ.delta.startredirect_us);
+    اكسر;
 
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  افتراضي:
+    أرجع CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode getinfo_slist(struct Curl_easy *data, CURLINFO info,
-                              struct curl_slist **param_slistp)
+ساكن CURLcode getinfo_slist(بنية Curl_easy *معلومات, CURLINFO info,
+                              بنية curl_slist **param_slistp)
 {
-  union {
-    struct curl_certinfo *to_certinfo;
-    struct curl_slist    *to_slist;
+  اتحاد {
+    بنية curl_certinfo *منزل_certinfo;
+    بنية curl_slist    *منزل_slist;
   } ptr;
 
-  switch(info) {
-  case CURLINFO_SSL_ENGINES:
-    *param_slistp = Curl_ssl_engines_list(data);
-    break;
-  case CURLINFO_COOKIELIST:
-    *param_slistp = Curl_cookie_list(data);
-    break;
-  case CURLINFO_CERTINFO:
+  بدل(info) {
+  حالة CURLINFO_SSL_ENGINES:
+    *param_slistp = Curl_ssl_engines_list(معلومات);
+    اكسر;
+  حالة CURLINFO_COOKIELIST:
+    *param_slistp = Curl_cookie_list(معلومات);
+    اكسر;
+  حالة CURLINFO_CERTINFO:
     /* Return the a pointer to the certinfo struct. Not really an slist
        pointer but we can pretend it is here */
-    ptr.to_certinfo = &data->info.certs;
-    *param_slistp = ptr.to_slist;
-    break;
-  case CURLINFO_TLS_SESSION:
-  case CURLINFO_TLS_SSL_PTR: {
-    int query = (info == CURLINFO_TLS_SSL_PTR) ?
+    ptr.منزل_certinfo = &معلومات->info.certs;
+    *param_slistp = ptr.منزل_slist;
+    اكسر;
+  حالة CURLINFO_TLS_SESSION:
+  حالة CURLINFO_TLS_SSL_PTR: {
+    صحيح query = (info == CURLINFO_TLS_SSL_PTR) ?
       CF_QUERY_SSL_INFO : CF_QUERY_SSL_CTX_INFO;
-    struct curl_tlssessioninfo **tsip = (struct curl_tlssessioninfo **)
+    بنية curl_tlssessioninfo **tsip = (بنية curl_tlssessioninfo **)
       param_slistp;
-    struct curl_tlssessioninfo *tsi = &data->tsi;
+    بنية curl_tlssessioninfo *tsi = &معلومات->tsi;
 
     /* we are exposing a pointer to internal memory with unknown
      * lifetime here. */
     *tsip = tsi;
-    if(!Curl_conn_get_ssl_info(data, data->conn, FIRSTSOCKET, query, tsi)) {
+    إذا(!Curl_conn_get_ssl_info(معلومات, معلومات->conn, FIRSTSOCKET, query, tsi)) {
       tsi->backend = Curl_ssl_backend();
-      tsi->internals = NULL;
+      tsi->internals = عدم;
     }
   }
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    اكسر;
+  افتراضي:
+    أرجع CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode getinfo_socket(struct Curl_easy *data, CURLINFO info,
+ساكن CURLcode getinfo_socket(بنية Curl_easy *معلومات, CURLINFO info,
                                curl_socket_t *param_socketp)
 {
-  switch(info) {
-  case CURLINFO_ACTIVESOCKET:
-    *param_socketp = Curl_getconnectinfo(data, NULL);
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  بدل(info) {
+  حالة CURLINFO_ACTIVESOCKET:
+    *param_socketp = Curl_getconnectinfo(معلومات, عدم);
+    اكسر;
+  افتراضي:
+    أرجع CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_getinfo(struct Curl_easy *data, CURLINFO info, ...)
+CURLcode Curl_getinfo(بنية Curl_easy *معلومات, CURLINFO info, ...)
 {
   va_list arg;
-  long *param_longp = NULL;
-  double *param_doublep = NULL;
-  curl_off_t *param_offt = NULL;
-  const char **param_charp = NULL;
-  struct curl_slist **param_slistp = NULL;
-  curl_socket_t *param_socketp = NULL;
-  int type;
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
+  اوږد *param_longp = عدم;
+  مزدوج *param_doublep = عدم;
+  curl_off_t *param_offt = عدم;
+  ثابت حرف **param_charp = عدم;
+  بنية curl_slist **param_slistp = عدم;
+  curl_socket_t *param_socketp = عدم;
+  صحيح type;
+  CURLcode پایله = CURLE_BAD_FUNCTION_دلیل;
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(!معلومات)
+    أرجع CURLE_BAD_FUNCTION_دلیل;
 
   va_start(arg, info);
 
-  type = CURLINFO_TYPEMASK & (int)info;
-  switch(type) {
-  case CURLINFO_STRING:
-    param_charp = va_arg(arg, const char **);
-    if(param_charp)
-      result = getinfo_char(data, info, param_charp);
-    break;
-  case CURLINFO_LONG:
-    param_longp = va_arg(arg, long *);
-    if(param_longp)
-      result = getinfo_long(data, info, param_longp);
-    break;
-  case CURLINFO_DOUBLE:
-    param_doublep = va_arg(arg, double *);
-    if(param_doublep)
-      result = getinfo_double(data, info, param_doublep);
-    break;
-  case CURLINFO_OFF_T:
+  type = CURLINFO_TYPEMASK & (صحيح)info;
+  بدل(type) {
+  حالة CURLINFO_STRING:
+    param_charp = va_arg(arg, ثابت حرف **);
+    إذا(param_charp)
+      پایله = getinfo_char(معلومات, info, param_charp);
+    اكسر;
+  حالة CURLINFO_LONG:
+    param_longp = va_arg(arg, اوږد *);
+    إذا(param_longp)
+      پایله = getinfo_long(معلومات, info, param_longp);
+    اكسر;
+  حالة CURLINFO_DOUBLE:
+    param_doublep = va_arg(arg, مزدوج *);
+    إذا(param_doublep)
+      پایله = getinfo_double(معلومات, info, param_doublep);
+    اكسر;
+  حالة CURLINFO_OFF_T:
     param_offt = va_arg(arg, curl_off_t *);
-    if(param_offt)
-      result = getinfo_offt(data, info, param_offt);
-    break;
-  case CURLINFO_SLIST:
-    param_slistp = va_arg(arg, struct curl_slist **);
-    if(param_slistp)
-      result = getinfo_slist(data, info, param_slistp);
-    break;
-  case CURLINFO_SOCKET:
+    إذا(param_offt)
+      پایله = getinfo_offt(معلومات, info, param_offt);
+    اكسر;
+  حالة CURLINFO_SLIST:
+    param_slistp = va_arg(arg, بنية curl_slist **);
+    إذا(param_slistp)
+      پایله = getinfo_slist(معلومات, info, param_slistp);
+    اكسر;
+  حالة CURLINFO_SOCKET:
     param_socketp = va_arg(arg, curl_socket_t *);
-    if(param_socketp)
-      result = getinfo_socket(data, info, param_socketp);
-    break;
-  default:
-    result = CURLE_UNKNOWN_OPTION;
-    break;
+    إذا(param_socketp)
+      پایله = getinfo_socket(معلومات, info, param_socketp);
+    اكسر;
+  افتراضي:
+    پایله = CURLE_UNKNOWN_OPTION;
+    اكسر;
   }
 
   va_end(arg);
 
-  return result;
+  أرجع پایله;
 }

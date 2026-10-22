@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTIBYTE_H
-#define HEADER_CURL_MULTIBYTE_H
+#که_نه_تعریف_شوی سرلیک_CURL_MULTIBYTE_H
+#تعریف_کړه سرلیک_CURL_MULTIBYTE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef _WIN32
+#که_تعریف_شوی _WIN32
 
 /*
  * Macros curlx_convert_UTF8_to_tchar(), curlx_convert_tchar_to_UTF8()
@@ -39,35 +39,35 @@
  * significance of the conversion functions is primarily for Unicode builds.
  */
 
-#ifdef UNICODE
+#که_تعریف_شوی UNICODE
 
 /* MultiByte conversions using Windows kernel32 library. */
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8);
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w);
+wchar_t *curlx_convert_UTF8_منزل_wchar(ثابت حرف *str_utf8);
+حرف *curlx_convert_wchar_منزل_UTF8(ثابت wchar_t *str_w);
 
-#define curlx_convert_UTF8_to_tchar(ptr) curlx_convert_UTF8_to_wchar(ptr)
-#define curlx_convert_tchar_to_UTF8(ptr) curlx_convert_wchar_to_UTF8(ptr)
+#تعریف_کړه curlx_convert_UTF8_منزل_tchar(ptr) curlx_convert_UTF8_منزل_wchar(ptr)
+#تعریف_کړه curlx_convert_tchar_منزل_UTF8(ptr) curlx_convert_wchar_منزل_UTF8(ptr)
 
-typedef union {
-  unsigned short       *tchar_ptr;
-  const unsigned short *const_tchar_ptr;
-  unsigned short       *tbyte_ptr;
-  const unsigned short *const_tbyte_ptr;
+تعريفنوع اتحاد {
+  بینښه لنډ       *tchar_ptr;
+  ثابت بینښه لنډ *const_tchar_ptr;
+  بینښه لنډ       *tbyte_ptr;
+  ثابت بینښه لنډ *const_tbyte_ptr;
 } xcharp_u;
 
-#else /* !UNICODE */
+#وإلا /* !UNICODE */
 
-#define curlx_convert_UTF8_to_tchar(ptr) curlx_strdup(ptr)
-#define curlx_convert_tchar_to_UTF8(ptr) curlx_strdup(ptr)
+#تعریف_کړه curlx_convert_UTF8_منزل_tchar(ptr) curlx_strdup(ptr)
+#تعریف_کړه curlx_convert_tchar_منزل_UTF8(ptr) curlx_strdup(ptr)
 
-typedef union {
-  char                *tchar_ptr;
-  const char          *const_tchar_ptr;
-  unsigned char       *tbyte_ptr;
-  const unsigned char *const_tbyte_ptr;
+تعريفنوع اتحاد {
+  حرف                *tchar_ptr;
+  ثابت حرف          *const_tchar_ptr;
+  بینښه حرف       *tbyte_ptr;
+  ثابت بینښه حرف *const_tbyte_ptr;
 } xcharp_u;
 
-#endif /* UNICODE */
-#endif /* _WIN32 */
+#د_که_پای /* UNICODE */
+#د_که_پای /* _WIN32 */
 
-#endif /* HEADER_CURL_MULTIBYTE_H */
+#د_که_پای /* HEADER_CURL_MULTIBYTE_H */

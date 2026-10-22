@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_CF_QUICHE_H
-#define HEADER_CURL_VQUIC_CF_QUICHE_H
+#که_نه_تعریف_شوی سرلیک_CURL_VQUIC_CF_QUICHE_H
+#تعریف_کړه سرلیک_CURL_VQUIC_CF_QUICHE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,29 +23,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#إذا !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
 
-#include <quiche.h>
-#include <openssl/ssl.h>
+#ضمن <quiche.h>
+#ضمن <openssl/ssl.h>
 
-struct Curl_cfilter;
-struct Curl_easy;
+بنية Curl_cfilter;
+بنية Curl_easy;
 
-void Curl_quiche_ver(char *p, size_t len);
+فراغ Curl_quiche_ver(حرف *p, size_t len);
 
-CURLcode Curl_cf_quiche_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
-CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
+CURLcode Curl_cf_quiche_create(بنية Curl_cfilter **pcf,
+                               بنية Curl_easy *معلومات,
+                               بنية Curl_peer *origin,
+                               بنية Curl_peer *peer,
+                               بنية connectdata *conn,
+                               بنية Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_quiche_ورننباسه_after(بنية Curl_cfilter *cf_at,
+                                     بنية Curl_peer *origin,
+                                     بنية Curl_peer *peer,
+                                     بنية Curl_cfilter **pcf);
 
-#endif
+#د_که_پای
 
-#endif /* HEADER_CURL_VQUIC_CF_QUICHE_H */
+#د_که_پای /* HEADER_CURL_VQUIC_CF_QUICHE_H */

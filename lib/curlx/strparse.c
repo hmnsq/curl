@@ -21,144 +21,144 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/strparse.h"
+#ضمن "curlx/strparse.h"
 
-void curlx_str_init(struct Curl_str *out)
+فراغ curlx_str_init(بنية Curl_str *بهر)
 {
-  out->str = NULL;
-  out->len = 0;
+  بهر->str = عدم;
+  بهر->len = 0;
 }
 
-void curlx_str_assign(struct Curl_str *out, const char *str, size_t len)
+فراغ curlx_str_ټاکل(بنية Curl_str *بهر, ثابت حرف *str, size_t len)
 {
-  out->str = str;
-  out->len = len;
+  بهر->str = str;
+  بهر->len = len;
 }
 
 /* remove bytes from the end of the string, never remove more bytes than what
    the string holds! */
-void curlx_str_trim(struct Curl_str *out, size_t len)
+فراغ curlx_str_trim(بنية Curl_str *بهر, size_t len)
 {
-  DEBUGASSERT(out);
-  DEBUGASSERT(out->len >= len);
-  out->len -= len;
+  DEBUGASSERT(بهر);
+  DEBUGASSERT(بهر->len >= len);
+  بهر->len -= len;
 }
 
 /* Get a word until the first DELIM or end of string. At least one byte long.
    return non-zero on error. If 'max' is zero, it will always return error. */
-int curlx_str_until(const char **linep, struct Curl_str *out,
-                    const size_t max, char delim)
+صحيح curlx_str_until(ثابت حرف **linep, بنية Curl_str *بهر,
+                    ثابت size_t max, حرف delim)
 {
-  const char *s;
+  ثابت حرف *s;
   size_t len = 0;
   DEBUGASSERT(linep);
   DEBUGASSERT(*linep);
-  DEBUGASSERT(out);
+  DEBUGASSERT(بهر);
   DEBUGASSERT(delim);
   s = *linep;
 
-  curlx_str_init(out);
-  while(*s && (*s != delim)) {
+  curlx_str_init(بهر);
+  طالما(*s && (*s != delim)) {
     s++;
-    if(++len > max) {
-      return STRE_BIG;
+    إذا(++len > max) {
+      أرجع STRE_BIG;
     }
   }
-  if(!len)
-    return STRE_SHORT;
-  out->str = *linep;
-  out->len = len;
+  إذا(!len)
+    أرجع STRE_SHORT;
+  بهر->str = *linep;
+  بهر->len = len;
   *linep = s; /* point to the first byte after the word */
-  return STRE_OK;
+  أرجع STRE_OK;
 }
 
 /* Get a word until the first space or end of string. At least one byte long.
    return non-zero on error */
-int curlx_str_word(const char **linep, struct Curl_str *out, const size_t max)
+صحيح curlx_str_کلمه(ثابت حرف **linep, بنية Curl_str *بهر, ثابت size_t max)
 {
-  return curlx_str_until(linep, out, max, ' ');
+  أرجع curlx_str_until(linep, بهر, max, ' ');
 }
 
 /* Get a word until a newline byte or end of string. At least one byte long.
    return non-zero on error */
-int curlx_str_untilnl(const char **linep, struct Curl_str *out,
-                      const size_t max)
+صحيح curlx_str_untilnl(ثابت حرف **linep, بنية Curl_str *بهر,
+                      ثابت size_t max)
 {
-  const char *s = *linep;
+  ثابت حرف *s = *linep;
   size_t len = 0;
-  DEBUGASSERT(linep && *linep && out && max);
+  DEBUGASSERT(linep && *linep && بهر && max);
 
-  curlx_str_init(out);
-  while(*s && !ISNEWLINE(*s)) {
+  curlx_str_init(بهر);
+  طالما(*s && !ISNEWLINE(*s)) {
     s++;
-    if(++len > max)
-      return STRE_BIG;
+    إذا(++len > max)
+      أرجع STRE_BIG;
   }
-  if(!len)
-    return STRE_SHORT;
-  out->str = *linep;
-  out->len = len;
+  إذا(!len)
+    أرجع STRE_SHORT;
+  بهر->str = *linep;
+  بهر->len = len;
   *linep = s; /* point to the first byte after the word */
-  return STRE_OK;
+  أرجع STRE_OK;
 }
 
 /* Get a "quoted" word. Escaped quotes are supported.
    return non-zero on error */
-int curlx_str_quotedword(const char **linep, struct Curl_str *out,
-                         const size_t max)
+صحيح curlx_str_quotedword(ثابت حرف **linep, بنية Curl_str *بهر,
+                         ثابت size_t max)
 {
-  const char *s = *linep;
+  ثابت حرف *s = *linep;
   size_t len = 0;
-  DEBUGASSERT(linep && *linep && out && max);
+  DEBUGASSERT(linep && *linep && بهر && max);
 
-  curlx_str_init(out);
-  if(*s != '\"')
-    return STRE_BEGQUOTE;
+  curlx_str_init(بهر);
+  إذا(*s != '\"')
+    أرجع STRE_BEGQUOTE;
   s++;
-  while(*s && (*s != '\"')) {
-    if(*s == '\\' && s[1]) {
+  طالما(*s && (*s != '\"')) {
+    إذا(*s == '\\' && s[1]) {
       s++;
-      if(++len > max)
-        return STRE_BIG;
+      إذا(++len > max)
+        أرجع STRE_BIG;
     }
     s++;
-    if(++len > max)
-      return STRE_BIG;
+    إذا(++len > max)
+      أرجع STRE_BIG;
   }
-  if(*s != '\"')
-    return STRE_ENDQUOTE;
-  out->str = (*linep) + 1;
-  out->len = len;
+  إذا(*s != '\"')
+    أرجع STRE_ENDQUOTE;
+  بهر->str = (*linep) + 1;
+  بهر->len = len;
   *linep = s + 1;
-  return STRE_OK;
+  أرجع STRE_OK;
 }
 
 /* Advance over a single character.
    return non-zero on error */
-int curlx_str_single(const char **linep, char byte)
+صحيح curlx_str_single(ثابت حرف **linep, حرف byte)
 {
   DEBUGASSERT(linep && *linep);
-  if(**linep != byte)
-    return STRE_BYTE;
+  إذا(**linep != byte)
+    أرجع STRE_BYTE;
   (*linep)++; /* move over it */
-  return STRE_OK;
+  أرجع STRE_OK;
 }
 
 /* Advance over a single space.
    return non-zero on error */
-int curlx_str_singlespace(const char **linep)
+صحيح curlx_str_singlespace(ثابت حرف **linep)
 {
-  return curlx_str_single(linep, ' ');
+  أرجع curlx_str_single(linep, ' ');
 }
 
 /* given an ASCII character and max ascii, return TRUE if valid */
-#define valid_digit(x, m) \
+#تعریف_کړه valid_digit(x, m) \
   (((x) >= '0') && ((x) <= (m)) && curlx_hexasciitable[(x) - '0'])
 
 /* We use 16 for the zero index (and the necessary bitwise AND in the loop)
    to be able to have a non-zero value there to make valid_digit() able to
    use the info */
-const unsigned char curlx_hexasciitable[] = {
+ثابت بینښه حرف curlx_hexasciitable[] = {
   16, 1, 2, 3, 4, 5, 6, 7, 8, 9, /* 0x30: 0 - 9 */
   0, 0, 0, 0, 0, 0, 0,
   10, 11, 12, 13, 14, 15,        /* 0x41: A - F */
@@ -167,156 +167,156 @@ const unsigned char curlx_hexasciitable[] = {
 };
 
 /* no support for 0x prefix nor leading spaces */
-static int str_num_base(const char **linep, curl_off_t *nump, curl_off_t max,
-                        int base) /* 8, 10 or 16, nothing else */
+ساكن صحيح str_عدد_بنسټ(ثابت حرف **linep, curl_off_t *nump, curl_off_t max,
+                        صحيح بنسټ) /* 8, 10 or 16, nothing else */
 {
-  curl_off_t num = 0;
-  const char *p;
-  int m = (base == 10) ? '9' :   /* the largest digit possible */
-    (base == 16) ? 'f' : '7';
+  curl_off_t عدد = 0;
+  ثابت حرف *p;
+  صحيح m = (بنسټ == 10) ? '9' :   /* the largest digit possible */
+    (بنسټ == 16) ? 'f' : '7';
   DEBUGASSERT(linep && *linep && nump);
-  DEBUGASSERT((base == 8) || (base == 10) || (base == 16));
+  DEBUGASSERT((بنسټ == 8) || (بنسټ == 10) || (بنسټ == 16));
   DEBUGASSERT(max >= 0); /* mostly to catch SIZE_MAX, which is too large */
   *nump = 0;
   p = *linep;
-  if(!valid_digit(*p, m))
-    return STRE_NO_NUM;
-  if(max < base) {
+  إذا(!valid_digit(*p, m))
+    أرجع STRE_NO_عدد;
+  إذا(max < بنسټ) {
     /* special-case low max scenario because check needs to be different */
-    do {
-      int n = curlx_hexval(*p++);
-      num = (num * base) + n;
-      if(num > max)
-        return STRE_OVERFLOW;
-    } while(valid_digit(*p, m));
+    افعل {
+      صحيح n = curlx_hexval(*p++);
+      عدد = (عدد * بنسټ) + n;
+      إذا(عدد > max)
+        أرجع STRE_ډکېدنه;
+    } طالما(valid_digit(*p, m));
   }
-  else {
-    curl_off_t cutoff = (max - (base - 1)) / base;
-    while(valid_digit(*p, m)) {
-      if(num <= cutoff)
-        num = (num * base) + curlx_hexval(*p++);
-      else {
-        int n = curlx_hexval(*p++);
-        if(num > ((max - n) / base))
-          return STRE_OVERFLOW;
-        num = (num * base) + n;
+  وإلا {
+    curl_off_t cutoff = (max - (بنسټ - 1)) / بنسټ;
+    طالما(valid_digit(*p, m)) {
+      إذا(عدد <= cutoff)
+        عدد = (عدد * بنسټ) + curlx_hexval(*p++);
+      وإلا {
+        صحيح n = curlx_hexval(*p++);
+        إذا(عدد > ((max - n) / بنسټ))
+          أرجع STRE_ډکېدنه;
+        عدد = (عدد * بنسټ) + n;
       }
     }
   }
-  *nump = num;
+  *nump = عدد;
   *linep = p;
-  return STRE_OK;
+  أرجع STRE_OK;
 }
 
 /* Get an unsigned decimal number with no leading space or minus. Leading
    zeroes are accepted. return non-zero on error */
-int curlx_str_number(const char **linep, curl_off_t *nump, curl_off_t max)
+صحيح curlx_str_شمېره(ثابت حرف **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 10);
+  أرجع str_عدد_بنسټ(linep, nump, max, 10);
 }
 
 /* Get an unsigned hexadecimal number with no leading space or minus and no
    "0x" support. Leading zeroes are accepted. return non-zero on error */
-int curlx_str_hex(const char **linep, curl_off_t *nump, curl_off_t max)
+صحيح curlx_str_hex(ثابت حرف **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 16);
+  أرجع str_عدد_بنسټ(linep, nump, max, 16);
 }
 
 /* Get an unsigned octal number with no leading space or minus and no "0"
    prefix support. Leading zeroes are accepted. return non-zero on error */
-int curlx_str_octal(const char **linep, curl_off_t *nump, curl_off_t max)
+صحيح curlx_str_octal(ثابت حرف **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 8);
+  أرجع str_عدد_بنسټ(linep, nump, max, 8);
 }
 
 /*
  * Parse a positive number up to 63-bit number written in ASCII. Skip leading
  * blanks. No support for prefixes.
  */
-int curlx_str_numblanks(const char **str, curl_off_t *num)
+صحيح curlx_str_numblanks(ثابت حرف **str, curl_off_t *عدد)
 {
   curlx_str_passblanks(str);
-  return curlx_str_number(str, num, CURL_OFF_T_MAX);
+  أرجع curlx_str_شمېره(str, عدد, CURL_OFF_T_MAX);
 }
 
 /* CR or LF
    return non-zero on error */
-int curlx_str_newline(const char **linep)
+صحيح curlx_str_newline(ثابت حرف **linep)
 {
   DEBUGASSERT(linep && *linep);
-  if(ISNEWLINE(**linep)) {
+  إذا(ISNEWLINE(**linep)) {
     (*linep)++;
-    return STRE_OK; /* yessir */
+    أرجع STRE_OK; /* yessir */
   }
-  return STRE_NEWLINE;
+  أرجع STRE_NEWLINE;
 }
 
-#ifndef WITHOUT_LIBCURL
+#که_نه_تعریف_شوی WITHOUT_LIBCURL
 /* case insensitive compare that the parsed string matches the given string.
    Returns non-zero on match. */
-int curlx_str_casecompare(struct Curl_str *str, const char *check)
+صحيح curlx_str_casecompare(بنية Curl_str *str, ثابت حرف *check)
 {
-  size_t clen = check ? strlen(check) : 0;
-  return ((str->len == clen) && curl_strnequal(str->str, check, clen));
+  size_t clen = check ? مزي_اوږدوالی(check) : 0;
+  أرجع ((str->len == clen) && curl_strnequal(str->str, check, clen));
 }
-#endif
+#د_که_پای
 
 /* case sensitive string compare. Returns non-zero on match. */
-int curlx_str_cmp(struct Curl_str *str, const char *check)
+صحيح curlx_str_cmp(بنية Curl_str *str, ثابت حرف *check)
 {
-  if(check) {
-    size_t clen = strlen(check);
-    return ((str->len == clen) && !strncmp(str->str, check, clen));
+  إذا(check) {
+    size_t clen = مزي_اوږدوالی(check);
+    أرجع ((str->len == clen) && !مزي_پرتله(str->str, check, clen));
   }
-  return !!str->len;
+  أرجع !!str->len;
 }
 
 /* Trim off 'num' number of bytes from the beginning (left side) of the
    string. If 'num' is larger than the string, return error. */
-int curlx_str_nudge(struct Curl_str *str, size_t num)
+صحيح curlx_str_nudge(بنية Curl_str *str, size_t عدد)
 {
-  if(num <= str->len) {
-    str->str += num;
-    str->len -= num;
-    return STRE_OK;
+  إذا(عدد <= str->len) {
+    str->str += عدد;
+    str->len -= عدد;
+    أرجع STRE_OK;
   }
-  return STRE_OVERFLOW;
+  أرجع STRE_ډکېدنه;
 }
 
 /* Get the following character sequence that consists only of bytes not
    present in the 'reject' string. Like strcspn(). */
-int curlx_str_cspn(const char **linep, struct Curl_str *out,
-                   const char *reject)
+صحيح curlx_str_cspn(ثابت حرف **linep, بنية Curl_str *بهر,
+                   ثابت حرف *reject)
 {
-  const char *s = *linep;
+  ثابت حرف *s = *linep;
   size_t len;
   DEBUGASSERT(linep && *linep);
 
   len = strcspn(s, reject);
-  if(len) {
-    out->str = s;
-    out->len = len;
+  إذا(len) {
+    بهر->str = s;
+    بهر->len = len;
     *linep = &s[len];
-    return STRE_OK;
+    أرجع STRE_OK;
   }
-  curlx_str_init(out);
-  return STRE_SHORT;
+  curlx_str_init(بهر);
+  أرجع STRE_SHORT;
 }
 
 /* remove ISBLANK()s from both ends of the string */
-void curlx_str_trimblanks(struct Curl_str *out)
+فراغ curlx_str_trimblanks(بنية Curl_str *بهر)
 {
-  while(out->len && ISBLANK(*out->str))
-    curlx_str_nudge(out, 1);
+  طالما(بهر->len && ISBLANK(*بهر->str))
+    curlx_str_nudge(بهر, 1);
 
   /* trim trailing spaces and tabs */
-  while(out->len && ISBLANK(out->str[out->len - 1]))
-    out->len--;
+  طالما(بهر->len && ISBLANK(بهر->str[بهر->len - 1]))
+    بهر->len--;
 }
 
 /* increase the pointer until it has moved over all blanks */
-void curlx_str_passblanks(const char **linep)
+فراغ curlx_str_passblanks(ثابت حرف **linep)
 {
-  while(ISBLANK(**linep))
+  طالما(ISBLANK(**linep))
     (*linep)++; /* move over it */
 }

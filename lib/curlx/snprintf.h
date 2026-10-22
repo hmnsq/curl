@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_SNPRINTF_H
-#define HEADER_CURLX_SNPRINTF_H
+#که_نه_تعریف_شوی سرلیک_CURLX_SNPRINTF_H
+#تعریف_کړه سرلیک_CURLX_SNPRINTF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,23 +23,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 /* Raw snprintf() for curlx */
 
-#ifdef _WIN32
-void curlx_win32_snprintf(char *buf, size_t maxlen, const char *fmt, ...)
+#که_تعریف_شوی _WIN32
+فراغ curlx_win32_snprintf(حرف *buf, size_t maxlen, ثابت حرف *fmt, ...)
   CURL_PRINTF(3, 4);
-#endif
+#د_که_پای
 
-#ifdef WITHOUT_LIBCURL /* when built for the test servers */
-#ifdef _WIN32
-#define SNPRINTF curlx_win32_snprintf
-#else
-#define SNPRINTF snprintf
-#endif
-#else /* !WITHOUT_LIBCURL */
-#include <curl/mprintf.h>
-#define SNPRINTF curl_msnprintf
-#endif /* WITHOUT_LIBCURL */
-#endif /* HEADER_CURLX_SNPRINTF_H */
+#که_تعریف_شوی WITHOUT_LIBCURL /* when built for the test servers */
+#که_تعریف_شوی _WIN32
+#تعریف_کړه SNPRINTF curlx_win32_snprintf
+#وإلا
+#تعریف_کړه SNPRINTF snprintf
+#د_که_پای
+#وإلا /* !WITHOUT_LIBCURL */
+#ضمن <curl/mprintf.h>
+#تعریف_کړه SNPRINTF curl_msnprintf
+#د_که_پای /* WITHOUT_LIBCURL */
+#د_که_پای /* HEADER_CURLX_SNPRINTF_H */

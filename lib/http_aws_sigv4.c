@@ -21,95 +21,95 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
 
-#include "urldata.h"
-#include "strcase.h"
-#include "curlx/strdup.h"
-#include "http_aws_sigv4.h"
-#include "curl_sha256.h"
-#include "transfer.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "curlx/strparse.h"
-#include "slist.h"
+#ضمن "urldata.h"
+#ضمن "strcase.h"
+#ضمن "curlx/strdup.h"
+#ضمن "http_aws_sigv4.h"
+#ضمن "curl_sha256.h"
+#ضمن "transfer.h"
+#ضمن "curl_trc.h"
+#ضمن "escape.h"
+#ضمن "curlx/strparse.h"
+#ضمن "slist.h"
 
-#include <time.h>
+#ضمن <time.h>
 
-#define HMAC_SHA256(k, kl, d, dl, o)                 \
-  do {                                               \
-    result = Curl_hmacit(&Curl_HMAC_SHA256,          \
-                         (const unsigned char *)(k), \
+#تعریف_کړه HMAC_SHA256(k, kl, d, dl, o)                 \
+  افعل {                                               \
+    پایله = Curl_hmacit(&Curl_HMAC_SHA256,          \
+                         (ثابت بینښه حرف *)(k), \
                          kl,                         \
-                         (const unsigned char *)(d), \
+                         (ثابت بینښه حرف *)(d), \
                          dl, o);                     \
-    if(result) {                                     \
-      goto fail;                                     \
+    إذا(پایله) {                                     \
+      اذهب fail;                                     \
     }                                                \
-  } while(0)
+  } طالما(0)
 
-#define TIMESTAMP_SIZE 17
+#تعریف_کړه TIMESTAMP_اندازه 17
 
 /* hex-encoded with null-terminator */
-#define SHA256_HEX_LENGTH ((2 * CURL_SHA256_DIGEST_LENGTH) + 1)
+#تعریف_کړه SHA256_HEX_اوږدتیا ((2 * CURL_SHA256_DIGEST_اوږدتیا) + 1)
 
-#define MAX_QUERY_COMPONENTS 128
+#تعریف_کړه MAX_QUERY_COMPONENTS 128
 
-struct pair {
-  struct dynbuf key;
-  struct dynbuf value;
+بنية pair {
+  بنية dynbuf کلی;
+  بنية dynbuf ارزښت;
 };
 
-static void sha256_to_hex(char *dst, unsigned char *sha)
+ساكن فراغ sha256_منزل_hex(حرف *dst, بینښه حرف *sha)
 {
-  Curl_hexencode(sha, CURL_SHA256_DIGEST_LENGTH,
-                 (unsigned char *)dst, SHA256_HEX_LENGTH);
+  Curl_hexencode(sha, CURL_SHA256_DIGEST_اوږدتیا,
+                 (بینښه حرف *)dst, SHA256_HEX_اوږدتیا);
 }
 
-static char *find_date_hdr(struct Curl_easy *data, const char *sig_hdr)
+ساكن حرف *پیدا_کړه_date_hdr(بنية Curl_easy *معلومات, ثابت حرف *sig_hdr)
 {
-  char *tmp = Curl_checkheaders(data, sig_hdr, strlen(sig_hdr));
+  حرف *tmp = Curl_checkheaders(معلومات, sig_hdr, مزي_اوږدوالی(sig_hdr));
 
-  if(tmp)
-    return tmp;
-  return Curl_checkheaders(data, STRCONST("Date"));
+  إذا(tmp)
+    أرجع tmp;
+  أرجع Curl_checkheaders(معلومات, STRCONST("Date"));
 }
 
 /* remove whitespace, and lowercase all headers */
-static void trim_headers(struct curl_slist *head)
+ساكن فراغ trim_سرلیکونه(بنية curl_slist *سر)
 {
-  struct curl_slist *l;
-  for(l = head; l; l = l->next) {
-    const char *value; /* to read from */
-    char *store;
-    size_t colon = strcspn(l->data, ":");
-    Curl_strntolower(l->data, l->data, colon);
+  بنية curl_slist *l;
+  لكل(l = سر; l; l = l->بل) {
+    ثابت حرف *ارزښت; /* to read from */
+    حرف *store;
+    size_t colon = strcspn(l->معلومات, ":");
+    Curl_strntolower(l->معلومات, l->معلومات, colon);
 
-    value = &l->data[colon];
-    if(!*value)
-      continue;
-    ++value;
-    store = (char *)CURL_UNCONST(value);
+    ارزښت = &l->معلومات[colon];
+    إذا(!*ارزښت)
+      استمر;
+    ++ارزښت;
+    store = (حرف *)CURL_UNCONST(ارزښت);
 
     /* skip leading whitespace */
-    curlx_str_passblanks(&value);
+    curlx_str_passblanks(&ارزښت);
 
-    while(*value) {
-      int space = 0;
-      while(ISBLANK(*value)) {
-        value++;
+    طالما(*ارزښت) {
+      صحيح space = 0;
+      طالما(ISBLANK(*ارزښت)) {
+        ارزښت++;
         space++;
       }
-      if(space) {
+      إذا(space) {
         /* replace any number of consecutive whitespace with a single space,
            unless at the end of the string, then nothing */
-        if(*value)
+        إذا(*ارزښت)
           *store++ = ' ';
       }
-      else
-        *store++ = *value++;
+      وإلا
+        *store++ = *ارزښت++;
     }
     *store = 0; /* null-terminate */
   }
@@ -118,25 +118,25 @@ static void trim_headers(struct curl_slist *head)
 /*
  * Frees all allocated strings in a dynbuf pair array, and the dynbuf itself
  */
-static void pair_array_free(struct pair *pair_array, size_t num_elements)
+ساكن فراغ pair_array_free(بنية pair *pair_array, size_t عدد_elements)
 {
-  size_t index;
+  size_t شاخص;
 
-  for(index = 0; index != num_elements; index++) {
-    curlx_dyn_free(&pair_array[index].key);
-    curlx_dyn_free(&pair_array[index].value);
+  لكل(شاخص = 0; شاخص != عدد_elements; شاخص++) {
+    curlx_dyn_free(&pair_array[شاخص].کلی);
+    curlx_dyn_free(&pair_array[شاخص].ارزښت);
   }
 }
 
 /*
  * Frees all allocated strings in a split dynbuf, and the dynbuf itself
  */
-static void dyn_array_free(struct dynbuf *db, size_t num_elements)
+ساكن فراغ dyn_array_free(بنية dynbuf *db, size_t عدد_elements)
 {
-  size_t index;
+  size_t شاخص;
 
-  for(index = 0; index < num_elements; index++)
-    curlx_dyn_free((&db[index]));
+  لكل(شاخص = 0; شاخص < عدد_elements; شاخص++)
+    curlx_dyn_free((&db[شاخص]));
 }
 
 /*
@@ -145,122 +145,122 @@ static void dyn_array_free(struct dynbuf *db, size_t num_elements)
  * Caller is responsible for freeing the array elements with dyn_array_free
  */
 
-#define SPLIT_BY '&'
+#تعریف_کړه وېشل_BY '&'
 
-static CURLcode split_to_dyn_array(const char *source,
-                                   struct dynbuf db[MAX_QUERY_COMPONENTS],
-                                   size_t *num_splits_out)
+ساكن CURLcode وېشل_منزل_dyn_array(ثابت حرف *سرچینه,
+                                   بنية dynbuf db[MAX_QUERY_COMPONENTS],
+                                   size_t *عدد_splits_بهر)
 {
-  CURLcode result = CURLE_OK;
-  size_t len = strlen(source);
+  CURLcode پایله = CURLE_OK;
+  size_t len = مزي_اوږدوالی(سرچینه);
   size_t pos;         /* Position in result buffer */
-  size_t start = 0;   /* Start of current segment */
-  size_t segment_length = 0;
-  size_t index = 0;
-  size_t num_splits = 0;
+  size_t پیل = 0;   /* Start of current segment */
+  size_t segment_اوږدتیا = 0;
+  size_t شاخص = 0;
+  size_t عدد_splits = 0;
 
   /* Split source_ptr on SPLIT_BY and store the segment offsets and length in
    * array */
-  for(pos = 0; pos < len; pos++) {
-    if(source[pos] == SPLIT_BY) {
-      if(segment_length) {
-        curlx_dyn_init(&db[index], segment_length + 1);
-        result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-        if(result)
-          goto fail;
+  لكل(pos = 0; pos < len; pos++) {
+    إذا(سرچینه[pos] == وېشل_BY) {
+      إذا(segment_اوږدتیا) {
+        curlx_dyn_init(&db[شاخص], segment_اوږدتیا + 1);
+        پایله = curlx_dyn_addn(&db[شاخص], &سرچینه[پیل], segment_اوږدتیا);
+        إذا(پایله)
+          اذهب fail;
 
-        segment_length = 0;
-        index++;
-        if(++num_splits == MAX_QUERY_COMPONENTS) {
-          result = CURLE_TOO_LARGE;
-          goto fail;
+        segment_اوږدتیا = 0;
+        شاخص++;
+        إذا(++عدد_splits == MAX_QUERY_COMPONENTS) {
+          پایله = CURLE_TOO_LARGE;
+          اذهب fail;
         }
       }
-      start = pos + 1;
+      پیل = pos + 1;
     }
-    else {
-      segment_length++;
+    وإلا {
+      segment_اوږدتیا++;
     }
   }
 
-  if(segment_length) {
-    curlx_dyn_init(&db[index], segment_length + 1);
-    result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-    if(!result && ++num_splits == MAX_QUERY_COMPONENTS)
-      result = CURLE_TOO_LARGE;
+  إذا(segment_اوږدتیا) {
+    curlx_dyn_init(&db[شاخص], segment_اوږدتیا + 1);
+    پایله = curlx_dyn_addn(&db[شاخص], &سرچینه[پیل], segment_اوږدتیا);
+    إذا(!پایله && ++عدد_splits == MAX_QUERY_COMPONENTS)
+      پایله = CURLE_TOO_LARGE;
   }
 fail:
-  *num_splits_out = num_splits;
-  return result;
+  *عدد_splits_بهر = عدد_splits;
+  أرجع پایله;
 }
 
-static bool is_reserved_char(const char c)
+ساكن bool is_reserved_char(ثابت حرف c)
 {
-  return (ISALNUM(c) || ISURLPUNTCS(c));
+  أرجع (ISALNUM(c) || ISURLPUNTCS(c));
 }
 
-static CURLcode uri_encode_path(struct Curl_str *original_path,
-                                struct dynbuf *new_path)
+ساكن CURLcode uri_encode_لار(بنية Curl_str *original_لار,
+                                بنية dynbuf *new_لار)
 {
-  const char *p = curlx_str(original_path);
+  ثابت حرف *p = curlx_str(original_لار);
   size_t i;
 
-  for(i = 0; i < curlx_strlen(original_path); i++) {
+  لكل(i = 0; i < curlx_strlen(original_لار); i++) {
     /* Do not encode slashes or unreserved chars from RFC 3986 */
-    CURLcode result = CURLE_OK;
-    unsigned char c = p[i];
-    if(is_reserved_char(c) || c == '/')
-      result = curlx_dyn_addn(new_path, &c, 1);
-    else
-      result = curlx_dyn_addf(new_path, "%%%02X", c);
-    if(result)
-      return result;
+    CURLcode پایله = CURLE_OK;
+    بینښه حرف c = p[i];
+    إذا(is_reserved_char(c) || c == '/')
+      پایله = curlx_dyn_addn(new_لار, &c, 1);
+    وإلا
+      پایله = curlx_dyn_addf(new_لار, "%%%02X", c);
+    إذا(پایله)
+      أرجع پایله;
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /* Normalize the query part. Make sure %2B is left percent encoded, and not
    decoded to plus, then encoded to space. */
-static CURLcode normalize_query(const char *string, size_t len,
-                                struct dynbuf *db)
+ساكن CURLcode normalize_query(ثابت حرف *string, size_t len,
+                                بنية dynbuf *db)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
 
-  while(len && !result) {
-    unsigned char in = (unsigned char)*string;
-    if(('%' == in) && (len > 2) &&
+  طالما(len && !پایله) {
+    بینښه حرف دننه = (بینښه حرف)*string;
+    إذا(('%' == دننه) && (len > 2) &&
        ISXDIGIT(string[1]) && ISXDIGIT(string[2])) {
       /* this is two hexadecimal digits following a '%' */
-      in = (unsigned char)((curlx_hexval(string[1]) << 4) |
+      دننه = (بینښه حرف)((curlx_hexval(string[1]) << 4) |
                            curlx_hexval(string[2]));
       string += 3;
       len -= 3;
-      if(in == '+') {
+      إذا(دننه == '+') {
         /* decodes to plus, so leave this encoded */
-        result = curlx_dyn_addn(db, "%2B", 3);
-        continue;
+        پایله = curlx_dyn_addn(db, "%2B", 3);
+        استمر;
       }
     }
-    else {
+    وإلا {
       string++;
       len--;
     }
 
-    if(is_reserved_char(in))
+    إذا(is_reserved_char(دننه))
       /* Escape unreserved chars from RFC 3986 */
-      result = curlx_dyn_addn(db, &in, 1);
-    else if(in == '+')
+      پایله = curlx_dyn_addn(db, &دننه, 1);
+    وإلا إذا(دننه == '+')
       /* Encode '+' as space */
-      result = curlx_dyn_add(db, "%20");
-    else
-      result = curlx_dyn_addf(db, "%%%02X", in);
+      پایله = curlx_dyn_جمع_کړه(db, "%20");
+    وإلا
+      پایله = curlx_dyn_addf(db, "%%%02X", دننه);
   }
 
-  return result;
+  أرجع پایله;
 }
 
-static bool should_urlencode(struct Curl_str *service_name)
+ساكن bool should_urlencode(بنية Curl_str *service_name)
 {
   /*
    * These services require unmodified (not additionally URL-encoded) URL
@@ -268,32 +268,32 @@ static bool should_urlencode(struct Curl_str *service_name)
    * set in the AWS S3 endpoint rules. Urls are already normalized by the curl
    * URL parser
    */
-  if(curlx_str_cmp(service_name, "s3") ||
+  إذا(curlx_str_cmp(service_name, "s3") ||
      curlx_str_cmp(service_name, "s3express") ||
      curlx_str_cmp(service_name, "s3-outposts") ||
      curlx_str_cmp(service_name, "s3-object-lambda")) {
-    return FALSE;
+    أرجع FALSE;
   }
-  return TRUE;
+  أرجع TRUE;
 }
 
 /* maximum length for the aws sivg4 parts */
-#define MAX_SIGV4_LEN    64
-#define DATE_HDR_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Date"))
+#تعریف_کړه MAX_SIGV4_LEN    64
+#تعریف_کړه DATE_HDR_کلی_LEN (MAX_SIGV4_LEN + حجم("X--Date"))
 
 /* string been x-PROVIDER-date:TIMESTAMP, I need +1 for ':' */
-#define DATE_FULL_HDR_LEN (DATE_HDR_KEY_LEN + TIMESTAMP_SIZE + 1)
+#تعریف_کړه DATE_ډک_HDR_LEN (DATE_HDR_کلی_LEN + TIMESTAMP_اندازه + 1)
 
 /* alphabetically compare two headers by their name, expecting
    headers to use ':' at this point */
-static int compare_header_names(const char *a, const char *b)
+ساكن صحيح compare_سرلیک_نومونه(ثابت حرف *a, ثابت حرف *b)
 {
-  const char *colon_a;
-  const char *colon_b;
+  ثابت حرف *colon_a;
+  ثابت حرف *colon_b;
   size_t len_a;
   size_t len_b;
   size_t min_len;
-  int cmp;
+  صحيح cmp;
 
   colon_a = strchr(a, ':');
   colon_b = strchr(b, ':');
@@ -301,118 +301,118 @@ static int compare_header_names(const char *a, const char *b)
   DEBUGASSERT(colon_a);
   DEBUGASSERT(colon_b);
 
-  len_a = colon_a ? (size_t)(colon_a - a) : strlen(a);
-  len_b = colon_b ? (size_t)(colon_b - b) : strlen(b);
+  len_a = colon_a ? (size_t)(colon_a - a) : مزي_اوږدوالی(a);
+  len_b = colon_b ? (size_t)(colon_b - b) : مزي_اوږدوالی(b);
 
   min_len = (len_a < len_b) ? len_a : len_b;
 
-  cmp = strncmp(a, b, min_len);
+  cmp = مزي_پرتله(a, b, min_len);
 
   /* return the shorter of the two if one is shorter */
-  if(!cmp)
-    return (int)(len_a - len_b);
+  إذا(!cmp)
+    أرجع (صحيح)(len_a - len_b);
 
-  return cmp;
+  أرجع cmp;
 }
 
 /* Merge duplicate header definitions by comma delimiting their values
    in the order defined the headers are defined, expecting headers to
    be alpha-sorted and use ':' at this point */
-static CURLcode merge_duplicate_headers(struct curl_slist *head)
+ساكن CURLcode یوځای_duplicate_سرلیکونه(بنية curl_slist *سر)
 {
-  struct curl_slist *curr = head;
-  CURLcode result = CURLE_OK;
+  بنية curl_slist *curr = سر;
+  CURLcode پایله = CURLE_OK;
 
-  while(curr) {
-    struct curl_slist *next = curr->next;
-    if(!next)
-      break;
+  طالما(curr) {
+    بنية curl_slist *بل = curr->بل;
+    إذا(!بل)
+      اكسر;
 
-    if(compare_header_names(curr->data, next->data) == 0) {
-      struct dynbuf buf;
-      const char *colon_next;
-      const char *val_next;
+    إذا(compare_سرلیک_نومونه(curr->معلومات, بل->معلومات) == 0) {
+      بنية dynbuf buf;
+      ثابت حرف *colon_بل;
+      ثابت حرف *val_بل;
 
-      curlx_dyn_init(&buf, CURL_MAX_HTTP_HEADER);
+      curlx_dyn_init(&buf, CURL_MAX_HTTP_سرلیک);
 
-      result = curlx_dyn_add(&buf, curr->data);
-      if(result)
-        return result;
+      پایله = curlx_dyn_جمع_کړه(&buf, curr->معلومات);
+      إذا(پایله)
+        أرجع پایله;
 
-      colon_next = strchr(next->data, ':');
-      DEBUGASSERT(colon_next);
-      val_next = colon_next + 1;
+      colon_بل = strchr(بل->معلومات, ':');
+      DEBUGASSERT(colon_بل);
+      val_بل = colon_بل + 1;
 
-      result = curlx_dyn_addn(&buf, ",", 1);
-      if(result)
-        return result;
+      پایله = curlx_dyn_addn(&buf, ",", 1);
+      إذا(پایله)
+        أرجع پایله;
 
-      result = curlx_dyn_add(&buf, val_next);
-      if(result)
-        return result;
+      پایله = curlx_dyn_جمع_کړه(&buf, val_بل);
+      إذا(پایله)
+        أرجع پایله;
 
-      curlx_free(curr->data);
-      curr->data = curlx_dyn_ptr(&buf);
+      curlx_free(curr->معلومات);
+      curr->معلومات = curlx_dyn_ptr(&buf);
 
-      curr->next = next->next;
-      curlx_free(next->data);
-      curlx_free(next);
+      curr->بل = بل->بل;
+      curlx_free(بل->معلومات);
+      curlx_free(بل);
     }
-    else {
-      curr = curr->next;
+    وإلا {
+      curr = curr->بل;
     }
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /* timestamp should point to a buffer of at last TIMESTAMP_SIZE bytes */
-static CURLcode make_headers(struct Curl_easy *data,
-                             char *timestamp,
-                             const char *provider1,
+ساكن CURLcode make_سرلیکونه(بنية Curl_easy *معلومات,
+                             حرف *timestamp,
+                             ثابت حرف *provider1,
                              size_t plen, /* length of provider1 */
-                             char **date_header,
-                             char *content_sha256_header,
-                             struct dynbuf *canonical_headers,
-                             struct dynbuf *signed_headers)
+                             حرف **date_سرلیک,
+                             حرف *content_sha256_سرلیک,
+                             بنية dynbuf *canonical_سرلیکونه,
+                             بنية dynbuf *signed_سرلیکونه)
 {
-  char date_hdr_key[DATE_HDR_KEY_LEN];
-  char date_full_hdr[DATE_FULL_HDR_LEN];
-  struct curl_slist *head = NULL;
-  struct curl_slist *tmp_head = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  struct curl_slist *l;
+  حرف date_hdr_کلی[DATE_HDR_کلی_LEN];
+  حرف date_ډک_hdr[DATE_ډک_HDR_LEN];
+  بنية curl_slist *سر = عدم;
+  بنية curl_slist *tmp_سر = عدم;
+  CURLcode پایله = CURLE_بهر_د_حافظه;
+  بنية curl_slist *l;
   bool again = TRUE;
 
-  curl_msnprintf(date_hdr_key, DATE_HDR_KEY_LEN, "X-%.*s-Date",
-                 (int)plen, provider1);
+  curl_msnprintf(date_hdr_کلی, DATE_HDR_کلی_LEN, "X-%.*s-Date",
+                 (صحيح)plen, provider1);
   /* provider1 ucfirst */
-  Curl_strntolower(&date_hdr_key[2], provider1, plen);
-  date_hdr_key[2] = Curl_raw_toupper(provider1[0]);
+  Curl_strntolower(&date_hdr_کلی[2], provider1, plen);
+  date_hdr_کلی[2] = Curl_raw_toupper(provider1[0]);
 
-  curl_msnprintf(date_full_hdr, DATE_FULL_HDR_LEN,
-                 "x-%.*s-date:%s", (int)plen, provider1, timestamp);
+  curl_msnprintf(date_ډک_hdr, DATE_ډک_HDR_LEN,
+                 "x-%.*s-date:%s", (صحيح)plen, provider1, timestamp);
   /* provider1 lowercase */
-  Curl_strntolower(&date_full_hdr[2], provider1, plen);
+  Curl_strntolower(&date_ډک_hdr[2], provider1, plen);
 
-  if(!Curl_checkheaders(data, STRCONST("Host")) &&
-     data->state.http_host) {
+  إذا(!Curl_checkheaders(معلومات, STRCONST("Host")) &&
+     معلومات->state.http_host) {
     /* Host: [host]:[port] */
-    char *fullhost = curlx_strdup(data->state.http_host);
+    حرف *fullhost = curlx_strdup(معلومات->state.http_host);
 
-    if(fullhost)
-      head = Curl_slist_append_nodup(NULL, fullhost);
-    if(!head) {
+    إذا(fullhost)
+      سر = Curl_slist_append_nodup(عدم, fullhost);
+    إذا(!سر) {
       curlx_free(fullhost);
-      goto fail;
+      اذهب fail;
     }
   }
 
-  if(*content_sha256_header) {
-    tmp_head = curl_slist_append(head, content_sha256_header);
-    if(!tmp_head)
-      goto fail;
-    head = tmp_head;
+  إذا(*content_sha256_سرلیک) {
+    tmp_سر = curl_slist_append(سر, content_sha256_سرلیک);
+    إذا(!tmp_سر)
+      اذهب fail;
+    سر = tmp_سر;
   }
 
   /* copy user headers to our header list. the logic is based on how http.c
@@ -430,804 +430,804 @@ static CURLcode make_headers(struct Curl_easy *data,
      user headers with a value of whitespace only, or without a colon or
      semi-colon, are not added to this list.
      */
-  for(l = data->set.headers; l; l = l->next) {
-    char *dupdata;
-    const char *ptr;
-    const char *sep = strchr(l->data, ':');
-    if(!sep)
-      sep = strchr(l->data, ';');
-    if(!sep || (*sep == ':' && !*(sep + 1)))
-      continue;
-    for(ptr = sep + 1; ISBLANK(*ptr); ++ptr)
+  لكل(l = معلومات->سېټ.سرلیکونه; l; l = l->بل) {
+    حرف *dupdata;
+    ثابت حرف *ptr;
+    ثابت حرف *sep = strchr(l->معلومات, ':');
+    إذا(!sep)
+      sep = strchr(l->معلومات, ';');
+    إذا(!sep || (*sep == ':' && !*(sep + 1)))
+      استمر;
+    لكل(ptr = sep + 1; ISBLANK(*ptr); ++ptr)
       ;
-    if(!*ptr && ptr != sep + 1) /* a value of whitespace only */
-      continue;
-    dupdata = curlx_strdup(l->data);
-    if(!dupdata)
-      goto fail;
-    dupdata[sep - l->data] = ':';
-    tmp_head = Curl_slist_append_nodup(head, dupdata);
-    if(!tmp_head) {
+    إذا(!*ptr && ptr != sep + 1) /* a value of whitespace only */
+      استمر;
+    dupdata = curlx_strdup(l->معلومات);
+    إذا(!dupdata)
+      اذهب fail;
+    dupdata[sep - l->معلومات] = ':';
+    tmp_سر = Curl_slist_append_nodup(سر, dupdata);
+    إذا(!tmp_سر) {
       curlx_free(dupdata);
-      goto fail;
+      اذهب fail;
     }
-    head = tmp_head;
+    سر = tmp_سر;
   }
 
-  trim_headers(head);
+  trim_سرلیکونه(سر);
 
-  *date_header = find_date_hdr(data, date_hdr_key);
-  if(!*date_header) {
-    tmp_head = curl_slist_append(head, date_full_hdr);
-    if(!tmp_head)
-      goto fail;
-    head = tmp_head;
-    *date_header = curl_maprintf("%s: %s\r\n", date_hdr_key, timestamp);
-    if(!*date_header)
-      goto fail;
+  *date_سرلیک = پیدا_کړه_date_hdr(معلومات, date_hdr_کلی);
+  إذا(!*date_سرلیک) {
+    tmp_سر = curl_slist_append(سر, date_ډک_hdr);
+    إذا(!tmp_سر)
+      اذهب fail;
+    سر = tmp_سر;
+    *date_سرلیک = curl_maprintf("%s: %s\r\n", date_hdr_کلی, timestamp);
+    إذا(!*date_سرلیک)
+      اذهب fail;
   }
-  else {
-    const char *value;
-    const char *endp;
-    value = strchr(*date_header, ':');
-    if(!value) {
-      *date_header = NULL;
-      goto fail;
+  وإلا {
+    ثابت حرف *ارزښت;
+    ثابت حرف *endp;
+    ارزښت = strchr(*date_سرلیک, ':');
+    إذا(!ارزښت) {
+      *date_سرلیک = عدم;
+      اذهب fail;
     }
-    ++value;
-    curlx_str_passblanks(&value);
-    endp = value;
-    while(*endp && ISALNUM(*endp))
+    ++ارزښت;
+    curlx_str_passblanks(&ارزښت);
+    endp = ارزښت;
+    طالما(*endp && ISALNUM(*endp))
       ++endp;
     /* 16 bytes => "19700101T000000Z" */
-    if((endp - value) == TIMESTAMP_SIZE - 1) {
-      memcpy(timestamp, value, TIMESTAMP_SIZE - 1);
-      timestamp[TIMESTAMP_SIZE - 1] = 0;
+    إذا((endp - ارزښت) == TIMESTAMP_اندازه - 1) {
+      حافظه_نقل(timestamp, ارزښت, TIMESTAMP_اندازه - 1);
+      timestamp[TIMESTAMP_اندازه - 1] = 0;
     }
-    else
+    وإلا
       /* bad timestamp length */
       timestamp[0] = 0;
-    *date_header = NULL;
+    *date_سرلیک = عدم;
   }
 
   /* alpha-sort by header name in a case sensitive manner */
-  do {
+  افعل {
     again = FALSE;
-    for(l = head; l; l = l->next) {
-      struct curl_slist *next = l->next;
+    لكل(l = سر; l; l = l->بل) {
+      بنية curl_slist *بل = l->بل;
 
-      if(next && compare_header_names(l->data, next->data) > 0) {
-        char *tmp = l->data;
+      إذا(بل && compare_سرلیک_نومونه(l->معلومات, بل->معلومات) > 0) {
+        حرف *tmp = l->معلومات;
 
-        l->data = next->data;
-        next->data = tmp;
+        l->معلومات = بل->معلومات;
+        بل->معلومات = tmp;
         again = TRUE;
       }
     }
-  } while(again);
+  } طالما(again);
 
-  result = merge_duplicate_headers(head);
-  if(result)
-    goto fail;
+  پایله = یوځای_duplicate_سرلیکونه(سر);
+  إذا(پایله)
+    اذهب fail;
 
-  for(l = head; l; l = l->next) {
-    char *tmp;
+  لكل(l = سر; l; l = l->بل) {
+    حرف *tmp;
 
-    if(curlx_dyn_add(canonical_headers, l->data))
-      goto fail;
-    if(curlx_dyn_add(canonical_headers, "\n"))
-      goto fail;
+    إذا(curlx_dyn_جمع_کړه(canonical_سرلیکونه, l->معلومات))
+      اذهب fail;
+    إذا(curlx_dyn_جمع_کړه(canonical_سرلیکونه, "\n"))
+      اذهب fail;
 
-    tmp = strchr(l->data, ':');
-    if(tmp)
+    tmp = strchr(l->معلومات, ':');
+    إذا(tmp)
       *tmp = 0;
 
-    if(l != head && curlx_dyn_add(signed_headers, ";"))
-      goto fail;
-    if(curlx_dyn_add(signed_headers, l->data))
-      goto fail;
+    إذا(l != سر && curlx_dyn_جمع_کړه(signed_سرلیکونه, ";"))
+      اذهب fail;
+    إذا(curlx_dyn_جمع_کړه(signed_سرلیکونه, l->معلومات))
+      اذهب fail;
   }
 
-  result = CURLE_OK;
+  پایله = CURLE_OK;
 fail:
-  curl_slist_free_all(head);
+  curl_slist_free_all(سر);
 
-  return result;
+  أرجع پایله;
 }
 
-#define CONTENT_SHA256_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Content-Sha256"))
+#تعریف_کړه CONTENT_SHA256_کلی_LEN (MAX_SIGV4_LEN + حجم("X--Content-Sha256"))
 /* add 2 for ": " between header name and value */
-#define CONTENT_SHA256_HDR_LEN (CONTENT_SHA256_KEY_LEN + 2 + SHA256_HEX_LENGTH)
+#تعریف_کړه CONTENT_SHA256_HDR_LEN (CONTENT_SHA256_کلی_LEN + 2 + SHA256_HEX_اوږدتیا)
 
 /* try to parse a payload hash from the content-sha256 header */
-static const char *parse_content_sha_hdr(struct Curl_easy *data,
-                                         const char *provider1,
+ساكن ثابت حرف *parse_content_sha_hdr(بنية Curl_easy *معلومات,
+                                         ثابت حرف *provider1,
                                          size_t plen,
-                                         size_t *value_len)
+                                         size_t *ارزښت_len)
 {
-  char key[CONTENT_SHA256_KEY_LEN];
-  size_t key_len;
-  const char *value;
+  حرف کلی[CONTENT_SHA256_کلی_LEN];
+  size_t کلی_len;
+  ثابت حرف *ارزښت;
   size_t len;
 
-  key_len = curl_msnprintf(key, sizeof(key), "x-%.*s-content-sha256",
-                           (int)plen, provider1);
+  کلی_len = curl_msnprintf(کلی, حجم(کلی), "x-%.*s-content-sha256",
+                           (صحيح)plen, provider1);
 
-  value = Curl_checkheaders(data, key, key_len);
-  if(!value)
-    return NULL;
+  ارزښت = Curl_checkheaders(معلومات, کلی, کلی_len);
+  إذا(!ارزښت)
+    أرجع عدم;
 
-  value = strchr(value, ':');
-  if(!value)
-    return NULL;
-  ++value;
+  ارزښت = strchr(ارزښت, ':');
+  إذا(!ارزښت)
+    أرجع عدم;
+  ++ارزښت;
 
-  curlx_str_passblanks(&value);
+  curlx_str_passblanks(&ارزښت);
 
-  len = strlen(value);
-  while(len > 0 && ISBLANK(value[len - 1]))
+  len = مزي_اوږدوالی(ارزښت);
+  طالما(len > 0 && ISBLANK(ارزښت[len - 1]))
     --len;
 
-  *value_len = len;
-  return value;
+  *ارزښت_len = len;
+  أرجع ارزښت;
 }
 
-static CURLcode calc_payload_hash(struct Curl_easy *data,
-                                  unsigned char *sha_hash, char *sha_hex)
+ساكن CURLcode calc_payload_hash(بنية Curl_easy *معلومات,
+                                  بینښه حرف *sha_hash, حرف *sha_hex)
 {
-  const char *post_data = data->set.postfields;
-  size_t post_data_len = 0;
-  CURLcode result;
+  ثابت حرف *post_معلومات = معلومات->سېټ.postfields;
+  size_t post_معلومات_len = 0;
+  CURLcode پایله;
 
-  if(post_data) {
-    if(data->set.postfieldsize < 0)
-      post_data_len = strlen(post_data);
-    else
-      post_data_len = (size_t)data->set.postfieldsize;
+  إذا(post_معلومات) {
+    إذا(معلومات->سېټ.postfieldsize < 0)
+      post_معلومات_len = مزي_اوږدوالی(post_معلومات);
+    وإلا
+      post_معلومات_len = (size_t)معلومات->سېټ.postfieldsize;
   }
-  result = Curl_sha256it(sha_hash, (const unsigned char *)post_data,
-                         post_data_len);
-  if(!result)
-    sha256_to_hex(sha_hex, sha_hash);
-  return result;
+  پایله = Curl_sha256it(sha_hash, (ثابت بینښه حرف *)post_معلومات,
+                         post_معلومات_len);
+  إذا(!پایله)
+    sha256_منزل_hex(sha_hex, sha_hash);
+  أرجع پایله;
 }
 
-#define S3_UNSIGNED_PAYLOAD "UNSIGNED-PAYLOAD"
+#تعریف_کړه S3_UNSIGNED_PAYLOAD "UNSIGNED-PAYLOAD"
 
-static CURLcode calc_s3_payload_hash(struct Curl_easy *data,
+ساكن CURLcode calc_s3_payload_hash(بنية Curl_easy *معلومات,
                                      Curl_HttpReq httpreq,
-                                     const char *provider1,
+                                     ثابت حرف *provider1,
                                      size_t plen,
-                                     unsigned char *sha_hash,
-                                     char *sha_hex, char *header)
+                                     بینښه حرف *sha_hash,
+                                     حرف *sha_hex, حرف *سرلیک)
 {
-  bool empty_method = (httpreq == HTTPREQ_GET || httpreq == HTTPREQ_HEAD);
+  bool تشه_لاره = (httpreq == HTTPREQ_GET || httpreq == HTTPREQ_سر);
   /* The request method or filesize indicate no request payload */
-  bool empty_payload = (empty_method || data->set.filesize == 0);
+  bool تشه_payload = (تشه_لاره || معلومات->سېټ.filesize == 0);
   /* The POST payload is in memory */
-  bool post_payload = (httpreq == HTTPREQ_POST && data->set.postfields);
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  bool post_payload = (httpreq == HTTPREQ_POST && معلومات->سېټ.postfields);
+  CURLcode پایله = CURLE_بهر_د_حافظه;
 
-  if(empty_payload || post_payload) {
+  إذا(تشه_payload || post_payload) {
     /* Calculate a real hash when we know the request payload */
-    result = calc_payload_hash(data, sha_hash, sha_hex);
-    if(result)
-      goto fail;
+    پایله = calc_payload_hash(معلومات, sha_hash, sha_hex);
+    إذا(پایله)
+      اذهب fail;
   }
-  else {
+  وإلا {
     /* Fall back to s3's UNSIGNED-PAYLOAD */
     size_t len = CURL_CSTRLEN(S3_UNSIGNED_PAYLOAD);
-    DEBUGASSERT(len < SHA256_HEX_LENGTH); /* 16 < 65 */
-    memcpy(sha_hex, S3_UNSIGNED_PAYLOAD, len);
+    DEBUGASSERT(len < SHA256_HEX_اوږدتیا); /* 16 < 65 */
+    حافظه_نقل(sha_hex, S3_UNSIGNED_PAYLOAD, len);
     sha_hex[len] = 0;
   }
 
   /* format the required content-sha256 header */
-  curl_msnprintf(header, CONTENT_SHA256_HDR_LEN,
-                 "x-%.*s-content-sha256: %s", (int)plen, provider1, sha_hex);
+  curl_msnprintf(سرلیک, CONTENT_SHA256_HDR_LEN,
+                 "x-%.*s-content-sha256: %s", (صحيح)plen, provider1, sha_hex);
 
-  result = CURLE_OK;
+  پایله = CURLE_OK;
 fail:
-  return result;
+  أرجع پایله;
 }
 
-static int compare_func(const void *a, const void *b)
+ساكن صحيح compare_func(ثابت فراغ *a, ثابت فراغ *b)
 {
-  const struct pair *aa = a;
-  const struct pair *bb = b;
-  const size_t aa_key_len = curlx_dyn_len(&aa->key);
-  const size_t bb_key_len = curlx_dyn_len(&bb->key);
-  const size_t aa_value_len = curlx_dyn_len(&aa->value);
-  const size_t bb_value_len = curlx_dyn_len(&bb->value);
-  int compare;
+  ثابت بنية pair *aa = a;
+  ثابت بنية pair *bb = b;
+  ثابت size_t aa_کلی_len = curlx_dyn_len(&aa->کلی);
+  ثابت size_t bb_کلی_len = curlx_dyn_len(&bb->کلی);
+  ثابت size_t aa_ارزښت_len = curlx_dyn_len(&aa->ارزښت);
+  ثابت size_t bb_ارزښت_len = curlx_dyn_len(&bb->ارزښت);
+  صحيح compare;
 
   /* If one element is empty, the other is always sorted higher */
 
   /* Compare keys */
-  if((aa_key_len == 0) && (bb_key_len == 0))
-    return 0;
-  if(aa_key_len == 0)
-    return -1;
-  if(bb_key_len == 0)
-    return 1;
-  compare = strcmp(curlx_dyn_ptr(&aa->key), curlx_dyn_ptr(&bb->key));
-  if(compare) {
-    return compare;
+  إذا((aa_کلی_len == 0) && (bb_کلی_len == 0))
+    أرجع 0;
+  إذا(aa_کلی_len == 0)
+    أرجع -1;
+  إذا(bb_کلی_len == 0)
+    أرجع 1;
+  compare = strcmp(curlx_dyn_ptr(&aa->کلی), curlx_dyn_ptr(&bb->کلی));
+  إذا(compare) {
+    أرجع compare;
   }
 
   /* Compare values */
-  if((aa_value_len == 0) && (bb_value_len == 0))
-    return 0;
-  if(aa_value_len == 0)
-    return -1;
-  if(bb_value_len == 0)
-    return 1;
-  compare = strcmp(curlx_dyn_ptr(&aa->value), curlx_dyn_ptr(&bb->value));
+  إذا((aa_ارزښت_len == 0) && (bb_ارزښت_len == 0))
+    أرجع 0;
+  إذا(aa_ارزښت_len == 0)
+    أرجع -1;
+  إذا(bb_ارزښت_len == 0)
+    أرجع 1;
+  compare = strcmp(curlx_dyn_ptr(&aa->ارزښت), curlx_dyn_ptr(&bb->ارزښت));
 
-  return compare;
+  أرجع compare;
 }
 
 /* @unittest 1979 */
-UNITTEST CURLcode canon_path(const char *q, size_t len,
-                             struct dynbuf *new_path,
+UNITTEST CURLcode canon_لار(ثابت حرف *q, size_t len,
+                             بنية dynbuf *new_لار,
                              bool do_uri_encode);
-UNITTEST CURLcode canon_path(const char *q, size_t len,
-                             struct dynbuf *new_path,
+UNITTEST CURLcode canon_لار(ثابت حرف *q, size_t len,
+                             بنية dynbuf *new_لار,
                              bool do_uri_encode)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
 
-  struct Curl_str original_path;
+  بنية Curl_str original_لار;
 
-  curlx_str_assign(&original_path, q, len);
+  curlx_str_ټاکل(&original_لار, q, len);
 
   /* Normalized path will be either the same or shorter than the original
    * path, plus trailing slash */
 
-  if(do_uri_encode)
-    result = uri_encode_path(&original_path, new_path);
-  else
-    result = curlx_dyn_addn(new_path, q, len);
+  إذا(do_uri_encode)
+    پایله = uri_encode_لار(&original_لار, new_لار);
+  وإلا
+    پایله = curlx_dyn_addn(new_لار, q, len);
 
-  if(!result && curlx_dyn_len(new_path) == 0)
-    result = curlx_dyn_add(new_path, "/");
+  إذا(!پایله && curlx_dyn_len(new_لار) == 0)
+    پایله = curlx_dyn_جمع_کړه(new_لار, "/");
 
-  return result;
+  أرجع پایله;
 }
 
 /* @unittest 1980 */
-UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq);
-UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
+UNITTEST CURLcode canon_query(ثابت حرف *query, بنية dynbuf *dq);
+UNITTEST CURLcode canon_query(ثابت حرف *query, بنية dynbuf *dq)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
 
-  struct dynbuf query_array[MAX_QUERY_COMPONENTS];
-  struct pair encoded_query_array[MAX_QUERY_COMPONENTS];
-  size_t num_query_components;
+  بنية dynbuf query_array[MAX_QUERY_COMPONENTS];
+  بنية pair encoded_query_array[MAX_QUERY_COMPONENTS];
+  size_t عدد_query_components;
   size_t counted_query_components = 0;
-  size_t index;
+  size_t شاخص;
 
-  if(!query)
-    return result;
+  إذا(!query)
+    أرجع پایله;
 
-  result = split_to_dyn_array(query, &query_array[0], &num_query_components);
-  if(result) {
-    goto fail;
+  پایله = وېشل_منزل_dyn_array(query, &query_array[0], &عدد_query_components);
+  إذا(پایله) {
+    اذهب fail;
   }
 
   /* Create list of pairs, each pair containing an encoded query
    * component */
 
-  for(index = 0; index < num_query_components; index++) {
-    const char *in_key;
-    size_t in_key_len;
-    const char *offset;
-    size_t query_part_len = curlx_dyn_len(&query_array[index]);
-    const char *query_part = curlx_dyn_ptr(&query_array[index]);
+  لكل(شاخص = 0; شاخص < عدد_query_components; شاخص++) {
+    ثابت حرف *دننه_کلی;
+    size_t دننه_کلی_len;
+    ثابت حرف *دننه_واټن;
+    size_t query_part_len = curlx_dyn_len(&query_array[شاخص]);
+    ثابت حرف *query_part = curlx_dyn_ptr(&query_array[شاخص]);
 
-    in_key = query_part;
+    دننه_کلی = query_part;
 
-    offset = strchr(query_part, '=');
+    دننه_واټن = strchr(query_part, '=');
     /* If there is no equals, this key has no value */
-    if(!offset) {
-      in_key_len = strlen(in_key);
+    إذا(!دننه_واټن) {
+      دننه_کلی_len = مزي_اوږدوالی(دننه_کلی);
     }
-    else {
-      in_key_len = offset - in_key;
+    وإلا {
+      دننه_کلی_len = دننه_واټن - دننه_کلی;
     }
 
-    curlx_dyn_init(&encoded_query_array[index].key,
+    curlx_dyn_init(&encoded_query_array[شاخص].کلی,
       (query_part_len * 3) + 1);
-    curlx_dyn_init(&encoded_query_array[index].value,
+    curlx_dyn_init(&encoded_query_array[شاخص].ارزښت,
       (query_part_len * 3) + 1);
     counted_query_components++;
 
     /* Decode/encode the key */
-    result = normalize_query(in_key, in_key_len,
-                             &encoded_query_array[index].key);
-    if(result) {
-      goto fail;
+    پایله = normalize_query(دننه_کلی, دننه_کلی_len,
+                             &encoded_query_array[شاخص].کلی);
+    إذا(پایله) {
+      اذهب fail;
     }
 
     /* Decode/encode the value if it exists */
-    if(offset && offset != (query_part + query_part_len - 1)) {
-      size_t in_value_len;
-      const char *in_value = offset + 1;
-      in_value_len = query_part + query_part_len - (offset + 1);
-      result = normalize_query(in_value, in_value_len,
-                               &encoded_query_array[index].value);
-      if(result) {
-        goto fail;
+    إذا(دننه_واټن && دننه_واټن != (query_part + query_part_len - 1)) {
+      size_t دننه_ارزښت_len;
+      ثابت حرف *دننه_ارزښت = دننه_واټن + 1;
+      دننه_ارزښت_len = query_part + query_part_len - (دننه_واټن + 1);
+      پایله = normalize_query(دننه_ارزښت, دننه_ارزښت_len,
+                               &encoded_query_array[شاخص].ارزښت);
+      إذا(پایله) {
+        اذهب fail;
       }
     }
-    else {
+    وإلا {
       /* If there is no value, the value is an empty string */
-      curlx_dyn_init(&encoded_query_array[index].value, 2);
-      result = curlx_dyn_addn(&encoded_query_array[index].value, "", 1);
+      curlx_dyn_init(&encoded_query_array[شاخص].ارزښت, 2);
+      پایله = curlx_dyn_addn(&encoded_query_array[شاخص].ارزښت, "", 1);
     }
 
-    if(result) {
-      goto fail;
+    إذا(پایله) {
+      اذهب fail;
     }
   }
 
   /* Sort the encoded query components by key and value */
-  qsort(&encoded_query_array, num_query_components,
-        sizeof(struct pair), compare_func);
+  qsort(&encoded_query_array, عدد_query_components,
+        حجم(بنية pair), compare_func);
 
   /* Append the query components together to make a full query string */
-  for(index = 0; index < num_query_components; index++) {
+  لكل(شاخص = 0; شاخص < عدد_query_components; شاخص++) {
 
-    if(index)
-      result = curlx_dyn_addn(dq, "&", 1);
-    if(!result) {
-      const char *key_ptr = curlx_dyn_ptr(&encoded_query_array[index].key);
-      const char *value_ptr = curlx_dyn_ptr(&encoded_query_array[index].value);
-      size_t vlen = curlx_dyn_len(&encoded_query_array[index].value);
-      if(value_ptr && vlen) {
-        result = curlx_dyn_addf(dq, "%s=%s", key_ptr, value_ptr);
+    إذا(شاخص)
+      پایله = curlx_dyn_addn(dq, "&", 1);
+    إذا(!پایله) {
+      ثابت حرف *کلی_ptr = curlx_dyn_ptr(&encoded_query_array[شاخص].کلی);
+      ثابت حرف *ارزښت_ptr = curlx_dyn_ptr(&encoded_query_array[شاخص].ارزښت);
+      size_t vlen = curlx_dyn_len(&encoded_query_array[شاخص].ارزښت);
+      إذا(ارزښت_ptr && vlen) {
+        پایله = curlx_dyn_addf(dq, "%s=%s", کلی_ptr, ارزښت_ptr);
       }
-      else {
+      وإلا {
         /* Empty value is always encoded to key= */
-        result = curlx_dyn_addf(dq, "%s=", key_ptr);
+        پایله = curlx_dyn_addf(dq, "%s=", کلی_ptr);
       }
     }
-    if(result)
-      break;
+    إذا(پایله)
+      اكسر;
   }
 
 fail:
-  if(counted_query_components)
+  إذا(counted_query_components)
     /* the encoded_query_array might not be initialized yet */
     pair_array_free(&encoded_query_array[0], counted_query_components);
-  dyn_array_free(&query_array[0], num_query_components);
-  return result;
+  dyn_array_free(&query_array[0], عدد_query_components);
+  أرجع پایله;
 }
 
-static CURLcode parse_sigv4_params(struct Curl_easy *data,
-                                   const char *hostname,
-                                   struct Curl_str *provider0,
-                                   struct Curl_str *provider1,
-                                   struct Curl_str *region,
-                                   struct Curl_str *service)
+ساكن CURLcode parse_sigv4_params(بنية Curl_easy *معلومات,
+                                   ثابت حرف *hostname,
+                                   بنية Curl_str *provider0,
+                                   بنية Curl_str *provider1,
+                                   بنية Curl_str *region,
+                                   بنية Curl_str *service)
 {
-  const char *line = CURL_EASY_STR(data, STRING_AWS_SIGV4);
-  if(!line || !*line)
-    line = "aws:amz";
+  ثابت حرف *کرښه = CURL_EASY_STR(معلومات, STRING_AWS_SIGV4);
+  إذا(!کرښه || !*کرښه)
+    کرښه = "aws:amz";
 
   /* provider0[:provider1[:region[:service]]]
 
      No string can be longer than N bytes of non-whitespace */
-  if(curlx_str_until(&line, provider0, MAX_SIGV4_LEN, ':')) {
-    failf(data, "first aws-sigv4 provider cannot be empty");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(curlx_str_until(&کرښه, provider0, MAX_SIGV4_LEN, ':')) {
+    failf(معلومات, "first aws-sigv4 provider cannot be empty");
+    أرجع CURLE_BAD_FUNCTION_دلیل;
   }
-  if(curlx_str_single(&line, ':') ||
-     curlx_str_until(&line, provider1, MAX_SIGV4_LEN, ':')) {
+  إذا(curlx_str_single(&کرښه, ':') ||
+     curlx_str_until(&کرښه, provider1, MAX_SIGV4_LEN, ':')) {
     *provider1 = *provider0;
   }
-  else if(curlx_str_single(&line, ':') ||
-          curlx_str_until(&line, region, MAX_SIGV4_LEN, ':') ||
-          curlx_str_single(&line, ':') ||
-          curlx_str_until(&line, service, MAX_SIGV4_LEN, ':')) {
+  وإلا إذا(curlx_str_single(&کرښه, ':') ||
+          curlx_str_until(&کرښه, region, MAX_SIGV4_LEN, ':') ||
+          curlx_str_single(&کرښه, ':') ||
+          curlx_str_until(&کرښه, service, MAX_SIGV4_LEN, ':')) {
     /* nothing to do */
   }
 
-  if(!curlx_strlen(service)) {
-    const char *p = hostname;
-    if(curlx_str_until(&p, service, MAX_SIGV4_LEN, '.') ||
+  إذا(!curlx_strlen(service)) {
+    ثابت حرف *p = hostname;
+    إذا(curlx_str_until(&p, service, MAX_SIGV4_LEN, '.') ||
        curlx_str_single(&p, '.')) {
-      failf(data, "aws-sigv4: service missing in parameters and hostname");
-      return CURLE_URL_MALFORMAT;
+      failf(معلومات, "aws-sigv4: service missing in parameters and hostname");
+      أرجع CURLE_URL_MALFORMAT;
     }
 
-    infof(data, "aws_sigv4: picked service %.*s from host",
-          (int)curlx_strlen(service), curlx_str(service));
+    infof(معلومات, "aws_sigv4: picked service %.*s from host",
+          (صحيح)curlx_strlen(service), curlx_str(service));
 
-    if(!curlx_strlen(region)) {
-      if(curlx_str_until(&p, region, MAX_SIGV4_LEN, '.') ||
+    إذا(!curlx_strlen(region)) {
+      إذا(curlx_str_until(&p, region, MAX_SIGV4_LEN, '.') ||
          curlx_str_single(&p, '.')) {
-        failf(data, "aws-sigv4: region missing in parameters and hostname");
-        return CURLE_URL_MALFORMAT;
+        failf(معلومات, "aws-sigv4: region missing in parameters and hostname");
+        أرجع CURLE_URL_MALFORMAT;
       }
-      infof(data, "aws_sigv4: picked region %.*s from host",
-            (int)curlx_strlen(region), curlx_str(region));
+      infof(معلومات, "aws_sigv4: picked region %.*s from host",
+            (صحيح)curlx_strlen(region), curlx_str(region));
     }
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode get_payload_hash(struct Curl_easy *data,
+ساكن CURLcode get_payload_hash(بنية Curl_easy *معلومات,
                                  Curl_HttpReq httpreq,
-                                 struct Curl_str *provider0,
-                                 struct Curl_str *provider1,
-                                 struct Curl_str *service,
-                                 unsigned char *sha_hash,
-                                 char *sha_hex,
-                                 char *content_sha256_hdr,
-                                 const char **payload_hash_out,
-                                 size_t *payload_hash_len_out)
+                                 بنية Curl_str *provider0,
+                                 بنية Curl_str *provider1,
+                                 بنية Curl_str *service,
+                                 بینښه حرف *sha_hash,
+                                 حرف *sha_hex,
+                                 حرف *content_sha256_hdr,
+                                 ثابت حرف **payload_hash_بهر,
+                                 size_t *payload_hash_len_بهر)
 {
-  *payload_hash_out =
-    parse_content_sha_hdr(data, curlx_str(provider1),
-                          curlx_strlen(provider1), payload_hash_len_out);
+  *payload_hash_بهر =
+    parse_content_sha_hdr(معلومات, curlx_str(provider1),
+                          curlx_strlen(provider1), payload_hash_len_بهر);
 
-  if(!*payload_hash_out) {
-    CURLcode result;
+  إذا(!*payload_hash_بهر) {
+    CURLcode پایله;
     /* AWS S3 requires a x-amz-content-sha256 header, and supports special
      * values like UNSIGNED-PAYLOAD */
     bool sign_as_s3 = curlx_str_casecompare(provider0, "aws") &&
                       curlx_str_casecompare(service, "s3");
 
-    if(sign_as_s3)
-      result = calc_s3_payload_hash(data, httpreq, curlx_str(provider1),
+    إذا(sign_as_s3)
+      پایله = calc_s3_payload_hash(معلومات, httpreq, curlx_str(provider1),
                                     curlx_strlen(provider1), sha_hash,
                                     sha_hex, content_sha256_hdr);
-    else
-      result = calc_payload_hash(data, sha_hash, sha_hex);
-    if(result)
-      return result;
+    وإلا
+      پایله = calc_payload_hash(معلومات, sha_hash, sha_hex);
+    إذا(پایله)
+      أرجع پایله;
 
-    *payload_hash_out = sha_hex;
+    *payload_hash_بهر = sha_hex;
     /* may be shorter than SHA256_HEX_LENGTH, like S3_UNSIGNED_PAYLOAD */
-    *payload_hash_len_out = strlen(sha_hex);
+    *payload_hash_len_بهر = مزي_اوږدوالی(sha_hex);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode get_timestamp(char *timestamp, size_t stampsize)
+ساكن CURLcode get_timestamp(حرف *timestamp, size_t stampsize)
 {
   time_t clock;
-  struct tm tm;
-  CURLcode result;
+  بنية tm tm;
+  CURLcode پایله;
 
-#ifdef DEBUGBUILD
+#که_تعریف_شوی DEBUGBUILD
   {
-    char *force_timestamp = getenv("CURL_FORCETIME");
-    if(force_timestamp)
+    حرف *force_timestamp = getenv("CURL_FORCETIME");
+    إذا(force_timestamp)
       clock = 0;
-    else
-      clock = time(NULL);
+    وإلا
+      clock = وخت(عدم);
   }
-#else
-  clock = time(NULL);
-#endif
-  result = curlx_gmtime(clock, &tm);
-  if(result)
-    return result;
+#وإلا
+  clock = وخت(عدم);
+#د_که_پای
+  پایله = curlx_gmtime(clock, &tm);
+  إذا(پایله)
+    أرجع پایله;
 
-  if(!strftime(timestamp, stampsize, "%Y%m%dT%H%M%SZ", &tm))
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!strftime(timestamp, stampsize, "%Y%m%dT%H%M%SZ", &tm))
+    أرجع CURLE_بهر_د_حافظه;
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode make_canonical_request(struct Curl_easy *data,
-                                       char *timestamp,
-                                       struct Curl_str *provider1,
-                                       struct Curl_str *service,
-                                       const char *method,
-                                       const char *payload_hash,
+ساكن CURLcode make_canonical_request(بنية Curl_easy *معلومات,
+                                       حرف *timestamp,
+                                       بنية Curl_str *provider1,
+                                       بنية Curl_str *service,
+                                       ثابت حرف *لاره,
+                                       ثابت حرف *payload_hash,
                                        size_t payload_hash_len,
-                                       char **date_header_out,
-                                       char *content_sha256_hdr,
-                                       struct dynbuf *canonical_headers,
-                                       struct dynbuf *signed_headers,
-                                       char **canonical_request_out)
+                                       حرف **date_سرلیک_بهر,
+                                       حرف *content_sha256_hdr,
+                                       بنية dynbuf *canonical_سرلیکونه,
+                                       بنية dynbuf *signed_سرلیکونه,
+                                       حرف **canonical_request_بهر)
 {
-  struct dynbuf canonical_query;
-  struct dynbuf canonical_path;
-  CURLcode result;
+  بنية dynbuf canonical_query;
+  بنية dynbuf canonical_لار;
+  CURLcode پایله;
 
-  curlx_dyn_init(&canonical_query, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&canonical_path, CURL_MAX_HTTP_HEADER);
+  curlx_dyn_init(&canonical_query, CURL_MAX_HTTP_سرلیک);
+  curlx_dyn_init(&canonical_لار, CURL_MAX_HTTP_سرلیک);
 
-  result = make_headers(data, timestamp,
+  پایله = make_سرلیکونه(معلومات, timestamp,
                         curlx_str(provider1), curlx_strlen(provider1),
-                        date_header_out, content_sha256_hdr,
-                        canonical_headers, signed_headers);
-  if(result)
-    goto fail;
+                        date_سرلیک_بهر, content_sha256_hdr,
+                        canonical_سرلیکونه, signed_سرلیکونه);
+  إذا(پایله)
+    اذهب fail;
 
-  result = canon_query(data->state.up.query, &canonical_query);
-  if(result)
-    goto fail;
+  پایله = canon_query(معلومات->state.پورته.query, &canonical_query);
+  إذا(پایله)
+    اذهب fail;
 
-  result = canon_path(data->state.up.path, strlen(data->state.up.path),
-                      &canonical_path,
+  پایله = canon_لار(معلومات->state.پورته.لار, مزي_اوږدوالی(معلومات->state.پورته.لار),
+                      &canonical_لار,
                       should_urlencode(service));
-  if(result)
-    goto fail;
+  إذا(پایله)
+    اذهب fail;
 
-  *canonical_request_out =
+  *canonical_request_بهر =
     curl_maprintf("%s\n" /* HTTPRequestMethod */
                   "%s\n" /* CanonicalURI */
                   "%s\n" /* CanonicalQueryString */
                   "%s\n" /* CanonicalHeaders */
                   "%s\n" /* SignedHeaders */
                   "%.*s",  /* HashedRequestPayload in hex */
-                  method,
-                  curlx_dyn_ptr(&canonical_path),
+                  لاره,
+                  curlx_dyn_ptr(&canonical_لار),
                   curlx_dyn_ptr(&canonical_query) ?
                   curlx_dyn_ptr(&canonical_query) : "",
-                  curlx_dyn_ptr(canonical_headers),
-                  curlx_dyn_ptr(signed_headers),
-                  (int)payload_hash_len, payload_hash);
-  if(!*canonical_request_out) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+                  curlx_dyn_ptr(canonical_سرلیکونه),
+                  curlx_dyn_ptr(signed_سرلیکونه),
+                  (صحيح)payload_hash_len, payload_hash);
+  إذا(!*canonical_request_بهر) {
+    پایله = CURLE_بهر_د_حافظه;
+    اذهب fail;
   }
 
-  result = CURLE_OK;
+  پایله = CURLE_OK;
 fail:
   curlx_dyn_free(&canonical_query);
-  curlx_dyn_free(&canonical_path);
-  return result;
+  curlx_dyn_free(&canonical_لار);
+  أرجع پایله;
 }
 
-static CURLcode make_string_to_sign(struct Curl_easy *data,
-                                    struct Curl_str *provider0,
-                                    struct Curl_str *region,
-                                    struct Curl_str *service,
-                                    const char *date,
-                                    const char *timestamp,
-                                    const char *canonical_request,
-                                    char **request_type_out,
-                                    char **credential_scope_out,
-                                    char **str_to_sign_out)
+ساكن CURLcode make_string_منزل_sign(بنية Curl_easy *معلومات,
+                                    بنية Curl_str *provider0,
+                                    بنية Curl_str *region,
+                                    بنية Curl_str *service,
+                                    ثابت حرف *date,
+                                    ثابت حرف *timestamp,
+                                    ثابت حرف *canonical_request,
+                                    حرف **request_type_بهر,
+                                    حرف **credential_scope_بهر,
+                                    حرف **str_منزل_sign_بهر)
 {
-  char *request_type;
-  char *credential_scope;
-  char *str_to_sign;
-  unsigned char sha_hash[CURL_SHA256_DIGEST_LENGTH];
-  char sha_hex[SHA256_HEX_LENGTH];
+  حرف *request_type;
+  حرف *credential_scope;
+  حرف *str_منزل_sign;
+  بینښه حرف sha_hash[CURL_SHA256_DIGEST_اوږدتیا];
+  حرف sha_hex[SHA256_HEX_اوږدتیا];
 
   request_type = curl_maprintf("%.*s4_request",
-                               (int)curlx_strlen(provider0),
+                               (صحيح)curlx_strlen(provider0),
                                curlx_str(provider0));
-  if(!request_type)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!request_type)
+    أرجع CURLE_بهر_د_حافظه;
 
   /* provider0 is lowercased *after* curl_maprintf() so that the buffer
      can be written to */
   Curl_strntolower(request_type, request_type, curlx_strlen(provider0));
 
   credential_scope = curl_maprintf("%s/%.*s/%.*s/%s", date,
-                                   (int)curlx_strlen(region),
+                                   (صحيح)curlx_strlen(region),
                                    curlx_str(region),
-                                   (int)curlx_strlen(service),
+                                   (صحيح)curlx_strlen(service),
                                    curlx_str(service),
                                    request_type);
-  if(!credential_scope) {
+  إذا(!credential_scope) {
     curlx_free(request_type);
-    return CURLE_OUT_OF_MEMORY;
+    أرجع CURLE_بهر_د_حافظه;
   }
 
-  if(Curl_sha256it(sha_hash, (const unsigned char *)canonical_request,
-                   strlen(canonical_request))) {
+  إذا(Curl_sha256it(sha_hash, (ثابت بینښه حرف *)canonical_request,
+                   مزي_اوږدوالی(canonical_request))) {
     curlx_free(request_type);
     curlx_free(credential_scope);
-    return CURLE_OUT_OF_MEMORY;
+    أرجع CURLE_بهر_د_حافظه;
   }
 
-  sha256_to_hex(sha_hex, sha_hash);
+  sha256_منزل_hex(sha_hex, sha_hash);
 
   /*
    * Google allows using RSA key instead of HMAC, so this code might change
    * in the future. For now we only support HMAC.
    */
-  str_to_sign = curl_maprintf("%.*s4-HMAC-SHA256\n" /* Algorithm */
+  str_منزل_sign = curl_maprintf("%.*s4-HMAC-SHA256\n" /* Algorithm */
                               "%s\n" /* RequestDateTime */
                               "%s\n" /* CredentialScope */
                               "%s",  /* HashedCanonicalRequest in hex */
-                              (int)curlx_strlen(provider0),
+                              (صحيح)curlx_strlen(provider0),
                               curlx_str(provider0),
                               timestamp,
                               credential_scope,
                               sha_hex);
-  if(!str_to_sign) {
+  إذا(!str_منزل_sign) {
     curlx_free(request_type);
     curlx_free(credential_scope);
-    return CURLE_OUT_OF_MEMORY;
+    أرجع CURLE_بهر_د_حافظه;
   }
 
   /* make provider0 part done uppercase */
-  Curl_strntoupper(str_to_sign, curlx_str(provider0),
+  Curl_strntoupper(str_منزل_sign, curlx_str(provider0),
                    curlx_strlen(provider0));
 
-  infof(data, "aws_sigv4: String to sign (enclosed in []) - [%s]",
-        str_to_sign);
+  infof(معلومات, "aws_sigv4: String to sign (enclosed in []) - [%s]",
+        str_منزل_sign);
 
-  *request_type_out = request_type;
-  *credential_scope_out = credential_scope;
-  *str_to_sign_out = str_to_sign;
-  return CURLE_OK;
+  *request_type_بهر = request_type;
+  *credential_scope_بهر = credential_scope;
+  *str_منزل_sign_بهر = str_منزل_sign;
+  أرجع CURLE_OK;
 }
 
-static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
-                                          struct Curl_str *provider0,
-                                          struct Curl_str *region,
-                                          struct Curl_str *service,
-                                          const char *request_type,
-                                          const char *credential_scope,
-                                          const char *date,
-                                          const char *str_to_sign,
-                                          const char *date_header,
-                                          const char *content_sha256_hdr,
-                                          struct dynbuf *signed_headers)
+ساكن CURLcode sign_and_سېټ_auth_سرلیکونه(بنية Curl_easy *معلومات,
+                                          بنية Curl_str *provider0,
+                                          بنية Curl_str *region,
+                                          بنية Curl_str *service,
+                                          ثابت حرف *request_type,
+                                          ثابت حرف *credential_scope,
+                                          ثابت حرف *date,
+                                          ثابت حرف *str_منزل_sign,
+                                          ثابت حرف *date_سرلیک,
+                                          ثابت حرف *content_sha256_hdr,
+                                          بنية dynbuf *signed_سرلیکونه)
 {
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  const char *passwd = Curl_creds_passwd(data->state.creds);
-  char *secret = NULL;
-  unsigned char sign0[CURL_SHA256_DIGEST_LENGTH] = { 0 };
-  unsigned char sign1[CURL_SHA256_DIGEST_LENGTH] = { 0 };
-  char sha_hex[SHA256_HEX_LENGTH];
-  char *auth_headers = NULL;
-  char *user = curl_escape(Curl_creds_user(data->state.creds), 0);
-  if(!user)
-    return CURLE_OUT_OF_MEMORY;
+  CURLcode پایله = CURLE_بهر_د_حافظه;
+  ثابت حرف *passwd = Curl_creds_passwd(معلومات->state.creds);
+  حرف *secret = عدم;
+  بینښه حرف sign0[CURL_SHA256_DIGEST_اوږدتیا] = { 0 };
+  بینښه حرف sign1[CURL_SHA256_DIGEST_اوږدتیا] = { 0 };
+  حرف sha_hex[SHA256_HEX_اوږدتیا];
+  حرف *auth_سرلیکونه = عدم;
+  حرف *user = curl_escape(Curl_creds_user(معلومات->state.creds), 0);
+  إذا(!user)
+    أرجع CURLE_بهر_د_حافظه;
 
-  secret = curl_maprintf("%.*s4%s", (int)curlx_strlen(provider0),
+  secret = curl_maprintf("%.*s4%s", (صحيح)curlx_strlen(provider0),
                          curlx_str(provider0), passwd);
-  if(!secret)
-    goto fail;
+  إذا(!secret)
+    اذهب fail;
   /* make provider0 part done uppercase */
   Curl_strntoupper(secret, curlx_str(provider0), curlx_strlen(provider0));
 
-  HMAC_SHA256(secret, strlen(secret), date, strlen(date), sign0);
-  HMAC_SHA256(sign0, sizeof(sign0),
+  HMAC_SHA256(secret, مزي_اوږدوالی(secret), date, مزي_اوږدوالی(date), sign0);
+  HMAC_SHA256(sign0, حجم(sign0),
               curlx_str(region), curlx_strlen(region), sign1);
-  HMAC_SHA256(sign1, sizeof(sign1),
+  HMAC_SHA256(sign1, حجم(sign1),
               curlx_str(service), curlx_strlen(service), sign0);
-  HMAC_SHA256(sign0, sizeof(sign0),
-              request_type, strlen(request_type), sign1);
-  HMAC_SHA256(sign1, sizeof(sign1),
-              str_to_sign, strlen(str_to_sign), sign0);
+  HMAC_SHA256(sign0, حجم(sign0),
+              request_type, مزي_اوږدوالی(request_type), sign1);
+  HMAC_SHA256(sign1, حجم(sign1),
+              str_منزل_sign, مزي_اوږدوالی(str_منزل_sign), sign0);
 
-  sha256_to_hex(sha_hex, sign0);
+  sha256_منزل_hex(sha_hex, sign0);
 
-  infof(data, "aws_sigv4: Signature - %s", sha_hex);
+  infof(معلومات, "aws_sigv4: Signature - %s", sha_hex);
 
-  auth_headers = curl_maprintf("Authorization: %.*s4-HMAC-SHA256 "
+  auth_سرلیکونه = curl_maprintf("Authorization: %.*s4-HMAC-SHA256 "
                                "Credential=%s/%s, "
                                "SignedHeaders=%s, "
                                "Signature=%s\r\n"
                                "%s"
                                "%s%s",
-                               (int)curlx_strlen(provider0),
+                               (صحيح)curlx_strlen(provider0),
                                curlx_str(provider0),
                                user,
                                credential_scope,
-                               curlx_dyn_ptr(signed_headers),
+                               curlx_dyn_ptr(signed_سرلیکونه),
                                sha_hex,
                                /*
                                 * date_header is added here, only if it was not
                                 * user-specified (using CURLOPT_HTTPHEADER).
                                 * date_header includes \r\n
                                 */
-                               date_header ? date_header : "",
+                               date_سرلیک ? date_سرلیک : "",
                                content_sha256_hdr,
                                content_sha256_hdr[0] ? "\r\n": "");
-  if(!auth_headers)
-    goto fail;
+  إذا(!auth_سرلیکونه)
+    اذهب fail;
 
   /* provider 0 uppercase */
-  Curl_strntoupper(&auth_headers[CURL_CSTRLEN("Authorization: ")],
+  Curl_strntoupper(&auth_سرلیکونه[CURL_CSTRLEN("Authorization: ")],
                    curlx_str(provider0), curlx_strlen(provider0));
 
-  curlx_free(data->req.hd_auth);
-  data->req.hd_auth = auth_headers;
-  data->state.authhost.done = TRUE;
-  result = CURLE_OK;
+  curlx_free(معلومات->req.hd_auth);
+  معلومات->req.hd_auth = auth_سرلیکونه;
+  معلومات->state.authhost.بشپړ = TRUE;
+  پایله = CURLE_OK;
 
 fail:
   curlx_free(user);
   curlx_free(secret);
-  return result;
+  أرجع پایله;
 }
 
-CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
+CURLcode Curl_output_aws_sigv4(بنية Curl_easy *معلومات)
 {
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  struct Curl_str provider0 = { NULL, 0 };
-  struct Curl_str provider1 = { NULL, 0 };
-  struct Curl_str region = { NULL, 0 };
-  struct Curl_str service = { NULL, 0 };
-  const char *hostname = data->state.origin->hostname;
-  char timestamp[TIMESTAMP_SIZE];
-  char date[9];
-  struct dynbuf canonical_headers;
-  struct dynbuf signed_headers;
-  char *date_header = NULL;
+  CURLcode پایله = CURLE_بهر_د_حافظه;
+  بنية Curl_str provider0 = { عدم, 0 };
+  بنية Curl_str provider1 = { عدم, 0 };
+  بنية Curl_str region = { عدم, 0 };
+  بنية Curl_str service = { عدم, 0 };
+  ثابت حرف *hostname = معلومات->state.origin->hostname;
+  حرف timestamp[TIMESTAMP_اندازه];
+  حرف date[9];
+  بنية dynbuf canonical_سرلیکونه;
+  بنية dynbuf signed_سرلیکونه;
+  حرف *date_سرلیک = عدم;
   Curl_HttpReq httpreq;
-  const char *method = NULL;
-  const char *payload_hash = NULL;
+  ثابت حرف *لاره = عدم;
+  ثابت حرف *payload_hash = عدم;
   size_t payload_hash_len = 0;
-  unsigned char sha_hash[CURL_SHA256_DIGEST_LENGTH];
-  char sha_hex[SHA256_HEX_LENGTH];
-  char content_sha256_hdr[CONTENT_SHA256_HDR_LEN + 2] = ""; /* add \r\n */
-  char *canonical_request = NULL;
-  char *request_type = NULL;
-  char *credential_scope = NULL;
-  char *str_to_sign = NULL;
+  بینښه حرف sha_hash[CURL_SHA256_DIGEST_اوږدتیا];
+  حرف sha_hex[SHA256_HEX_اوږدتیا];
+  حرف content_sha256_hdr[CONTENT_SHA256_HDR_LEN + 2] = ""; /* add \r\n */
+  حرف *canonical_request = عدم;
+  حرف *request_type = عدم;
+  حرف *credential_scope = عدم;
+  حرف *str_منزل_sign = عدم;
 
-  if(data->set.path_as_is) {
-    failf(data, "Cannot use sigv4 authentication with path-as-is flag");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(معلومات->سېټ.لار_as_is) {
+    failf(معلومات, "Cannot use sigv4 authentication with path-as-is flag");
+    أرجع CURLE_BAD_FUNCTION_دلیل;
   }
 
-  if(Curl_checkheaders(data, STRCONST("Authorization")))
+  إذا(Curl_checkheaders(معلومات, STRCONST("Authorization")))
     /* Authorization already present, Bailing out */
-    return CURLE_OK;
+    أرجع CURLE_OK;
 
   /* we init those buffers here, so goto fail will free initialized dynbuf */
-  curlx_dyn_init(&canonical_headers, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&signed_headers, CURL_MAX_HTTP_HEADER);
+  curlx_dyn_init(&canonical_سرلیکونه, CURL_MAX_HTTP_سرلیک);
+  curlx_dyn_init(&signed_سرلیکونه, CURL_MAX_HTTP_سرلیک);
 
-  result = parse_sigv4_params(data, hostname, &provider0, &provider1,
+  پایله = parse_sigv4_params(معلومات, hostname, &provider0, &provider1,
                               &region, &service);
-  if(!result) {
-    Curl_http_method(data, &method, &httpreq);
-    result = get_payload_hash(data, httpreq, &provider0, &provider1, &service,
+  إذا(!پایله) {
+    Curl_http_لاره(معلومات, &لاره, &httpreq);
+    پایله = get_payload_hash(معلومات, httpreq, &provider0, &provider1, &service,
                               sha_hash, sha_hex, content_sha256_hdr,
                               &payload_hash, &payload_hash_len);
   }
 
-  if(!result)
-    result = get_timestamp(timestamp, sizeof(timestamp));
+  إذا(!پایله)
+    پایله = get_timestamp(timestamp, حجم(timestamp));
 
-  if(!result)
-    result = make_canonical_request(data, timestamp,
+  إذا(!پایله)
+    پایله = make_canonical_request(معلومات, timestamp,
                                     &provider1, &service,
-                                    method, payload_hash, payload_hash_len,
-                                    &date_header, content_sha256_hdr,
-                                    &canonical_headers, &signed_headers,
+                                    لاره, payload_hash, payload_hash_len,
+                                    &date_سرلیک, content_sha256_hdr,
+                                    &canonical_سرلیکونه, &signed_سرلیکونه,
                                     &canonical_request);
-  if(!result) {
+  إذا(!پایله) {
     /* the timestamp might have been updated in make_canonical_request */
-    memcpy(date, timestamp, sizeof(date) - 1);
-    date[sizeof(date) - 1] = 0;
+    حافظه_نقل(date, timestamp, حجم(date) - 1);
+    date[حجم(date) - 1] = 0;
 
-    result = make_string_to_sign(data, &provider0, &region, &service,
+    پایله = make_string_منزل_sign(معلومات, &provider0, &region, &service,
                                  date, timestamp, canonical_request,
                                  &request_type, &credential_scope,
-                                 &str_to_sign);
+                                 &str_منزل_sign);
   }
-  if(!result)
-    result = sign_and_set_auth_headers(data, &provider0, &region, &service,
+  إذا(!پایله)
+    پایله = sign_and_سېټ_auth_سرلیکونه(معلومات, &provider0, &region, &service,
                                        request_type, credential_scope,
-                                       date, str_to_sign, date_header,
-                                       content_sha256_hdr, &signed_headers);
+                                       date, str_منزل_sign, date_سرلیک,
+                                       content_sha256_hdr, &signed_سرلیکونه);
 
-  curlx_dyn_free(&canonical_headers);
-  curlx_dyn_free(&signed_headers);
+  curlx_dyn_free(&canonical_سرلیکونه);
+  curlx_dyn_free(&signed_سرلیکونه);
   curlx_free(canonical_request);
   curlx_free(request_type);
   curlx_free(credential_scope);
-  curlx_free(str_to_sign);
-  curlx_free(date_header);
-  return result;
+  curlx_free(str_منزل_sign);
+  curlx_free(date_سرلیک);
+  أرجع پایله;
 }
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_AWS */
+#د_که_پای /* !CURL_DISABLE_HTTP && !CURL_DISABLE_AWS */

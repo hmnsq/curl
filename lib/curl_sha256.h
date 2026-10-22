@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SHA256_H
-#define HEADER_CURL_SHA256_H
+#که_نه_تعریف_شوی سرلیک_CURL_SHA256_H
+#تعریف_کړه سرلیک_CURL_SHA256_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,23 +24,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_HTTPSIG) ||     \
+#إذا !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_HTTPSIG) ||     \
   !defined(CURL_DISABLE_DIGEST_AUTH) ||                                 \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
-#include "curl_hmac.h"
+#ضمن "curl_hmac.h"
 
-extern const struct HMAC_params Curl_HMAC_SHA256;
+خارجي ثابت بنية HMAC_params Curl_HMAC_SHA256;
 
-#ifndef CURL_SHA256_DIGEST_LENGTH
-#define CURL_SHA256_DIGEST_LENGTH 32 /* fixed size */
-#endif
+#که_نه_تعریف_شوی CURL_SHA256_DIGEST_اوږدتیا
+#تعریف_کړه CURL_SHA256_DIGEST_اوږدتیا 32 /* fixed size */
+#د_که_پای
 
-CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_sha256it(بینښه حرف *output, ثابت بینښه حرف *ننوت,
                        size_t len);
 
-#endif
+#د_که_پای
 
-#endif /* HEADER_CURL_SHA256_H */
+#د_که_پای /* HEADER_CURL_SHA256_H */

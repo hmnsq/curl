@@ -21,22 +21,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
-#endif
+#که_تعریف_شوی HAVE_SYS_SELECT_H
+#ضمن <sys/select.h>
+#وإلاإذا defined(HAVE_UNISTD_H)
+#ضمن <unistd.h>
+#د_که_پای
 
-#include "urldata.h"
-#include "connect.h"
-#include "select.h"
-#include "curl_trc.h"
-#include "curlx/timediff.h"
-#include "curlx/wait.h"
+#ضمن "urldata.h"
+#ضمن "connect.h"
+#ضمن "select.h"
+#ضمن "curl_trc.h"
+#ضمن "curlx/timediff.h"
+#ضمن "curlx/wait.h"
 
-#ifndef HAVE_POLL  /* use select() */
+#که_نه_تعریف_شوی HAVE_POLL  /* use select() */
 /*
  * This is a wrapper around select() to aid in Windows compatibility. A
  * negative timeout value makes this function wait indefinitely, unless no
@@ -48,28 +48,28 @@
  *    0 = timeout
  *    N = number of signalled file descriptors
  */
-static int our_select(curl_socket_t maxfd,   /* highest socket number */
+ساكن صحيح our_select(curl_socket_t maxfd,   /* highest socket number */
                       fd_set *fds_read,      /* sockets ready for reading */
                       fd_set *fds_write,     /* sockets ready for writing */
                       fd_set *fds_err,       /* sockets with errors */
                       timediff_t timeout_ms) /* milliseconds to wait */
 {
-  struct timeval pending_tv;
-  struct timeval *ptimeout;
+  بنية timeval pending_tv;
+  بنية timeval *ptimeout;
 
-#ifdef USE_WINSOCK
+#که_تعریف_شوی USE_WINSOCK
   /* Winsock select() cannot handle zero events. See the comment below. */
-  if((!fds_read || fds_read->fd_count == 0) &&
-     (!fds_write || fds_write->fd_count == 0) &&
-     (!fds_err || fds_err->fd_count == 0)) {
+  إذا((!fds_read || fds_read->fd_شمېر == 0) &&
+     (!fds_write || fds_write->fd_شمېر == 0) &&
+     (!fds_err || fds_err->fd_شمېر == 0)) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    أرجع curlx_wait_ms(timeout_ms);
   }
-#endif
+#د_که_پای
 
   ptimeout = curlx_mstotv(&pending_tv, timeout_ms);
 
-#ifdef USE_WINSOCK
+#که_تعریف_شوی USE_WINSOCK
   /* Winsock select() must not be called with an fd_set that contains zero
      fd flags, or it will return WSAEINVAL. It also cannot be called with
      no fd_sets at all!  From the documentation:
@@ -82,16 +82,16 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
      calling this an error. Luckily, with Winsock, we can _also_ ask how
      many bits are set on an fd_set. Therefore, let's check it beforehand.
    */
-  return select((int)maxfd + 1,
-                fds_read && fds_read->fd_count ? fds_read : NULL,
-                fds_write && fds_write->fd_count ? fds_write : NULL,
-                fds_err && fds_err->fd_count ? fds_err : NULL, ptimeout);
-#else
-  return select((int)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
-#endif
+  أرجع select((صحيح)maxfd + 1,
+                fds_read && fds_read->fd_شمېر ? fds_read : عدم,
+                fds_write && fds_write->fd_شمېر ? fds_write : عدم,
+                fds_err && fds_err->fd_شمېر ? fds_err : عدم, ptimeout);
+#وإلا
+  أرجع select((صحيح)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
+#د_که_پای
 }
 
-#endif
+#د_که_پای
 
 /*
  * Wait for read or write events on a set of file descriptors. It uses poll()
@@ -113,19 +113,19 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
  * CURL_CSELECT_OUT - write socket is writable
  * CURL_CSELECT_ERR - an error condition occurred
  */
-int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
+صحيح Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
                       curl_socket_t readfd1,
                       curl_socket_t writefd, /* socket to write to */
                       timediff_t timeout_ms) /* milliseconds to wait */
 {
-  struct pollfd pfd[3];
-  int num;
-  int r;
+  بنية pollfd pfd[3];
+  صحيح عدد;
+  صحيح r;
 
-  if((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
+  إذا((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
      (writefd == CURL_SOCKET_BAD)) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    أرجع curlx_wait_ms(timeout_ms);
   }
 
   /* Avoid initial timestamp, avoid curlx_now() call, when elapsed
@@ -133,54 +133,54 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
      when function is called with a zero timeout or a negative timeout
      value indicating a blocking call should be performed. */
 
-  num = 0;
-  if(readfd0 != CURL_SOCKET_BAD) {
-    pfd[num].fd = readfd0;
-    pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+  عدد = 0;
+  إذا(readfd0 != CURL_SOCKET_BAD) {
+    pfd[عدد].fd = readfd0;
+    pfd[عدد].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
+    pfd[عدد].revents = 0;
+    عدد++;
   }
-  if(readfd1 != CURL_SOCKET_BAD) {
-    pfd[num].fd = readfd1;
-    pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+  إذا(readfd1 != CURL_SOCKET_BAD) {
+    pfd[عدد].fd = readfd1;
+    pfd[عدد].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
+    pfd[عدد].revents = 0;
+    عدد++;
   }
-  if(writefd != CURL_SOCKET_BAD) {
-    pfd[num].fd = writefd;
-    pfd[num].events = POLLWRNORM | POLLOUT | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+  إذا(writefd != CURL_SOCKET_BAD) {
+    pfd[عدد].fd = writefd;
+    pfd[عدد].events = POLLWRNORM | POLLOUT | POLLPRI;
+    pfd[عدد].revents = 0;
+    عدد++;
   }
 
-  r = Curl_poll(pfd, (unsigned int)num, timeout_ms);
-  if(r <= 0)
-    return r;
+  r = Curl_poll(pfd, (بینښه صحيح)عدد, timeout_ms);
+  إذا(r <= 0)
+    أرجع r;
 
   r = 0;
-  num = 0;
-  if(readfd0 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
-      r |= CURL_CSELECT_IN;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+  عدد = 0;
+  إذا(readfd0 != CURL_SOCKET_BAD) {
+    إذا(pfd[عدد].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+      r |= CURL_CSELECT_دننه;
+    إذا(pfd[عدد].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
-    num++;
+    عدد++;
   }
-  if(readfd1 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+  إذا(readfd1 != CURL_SOCKET_BAD) {
+    إذا(pfd[عدد].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
       r |= CURL_CSELECT_IN2;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+    إذا(pfd[عدد].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
-    num++;
+    عدد++;
   }
-  if(writefd != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLWRNORM | POLLOUT))
-      r |= CURL_CSELECT_OUT;
-    if(pfd[num].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
+  إذا(writefd != CURL_SOCKET_BAD) {
+    إذا(pfd[عدد].revents & (POLLWRNORM | POLLOUT))
+      r |= CURL_CSELECT_بهر;
+    إذا(pfd[عدد].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
   }
 
-  return r;
+  أرجع r;
 }
 
 /*
@@ -196,31 +196,31 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
+صحيح Curl_poll(بنية pollfd ufds[], بینښه صحيح nfds, timediff_t timeout_ms)
 {
-#ifdef HAVE_POLL
-  int pending_ms;
-#else
+#که_تعریف_شوی HAVE_POLL
+  صحيح pending_ms;
+#وإلا
   fd_set fds_read;
   fd_set fds_write;
   fd_set fds_err;
   curl_socket_t maxfd;
-#endif
+#د_که_پای
   bool fds_none = TRUE;
-  unsigned int i;
-  int r;
+  بینښه صحيح i;
+  صحيح r;
 
-  if(ufds) {
-    for(i = 0; i < nfds; i++) {
-      if(ufds[i].fd != CURL_SOCKET_BAD) {
+  إذا(ufds) {
+    لكل(i = 0; i < nfds; i++) {
+      إذا(ufds[i].fd != CURL_SOCKET_BAD) {
         fds_none = FALSE;
-        break;
+        اكسر;
       }
     }
   }
-  if(fds_none) {
+  إذا(fds_none) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    أرجع curlx_wait_ms(timeout_ms);
   }
 
   /* Avoid initial timestamp, avoid curlx_now() call, when elapsed
@@ -228,57 +228,57 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
      when function is called with a zero timeout or a negative timeout
      value indicating a blocking call should be performed. */
 
-#ifdef HAVE_POLL
+#که_تعریف_شوی HAVE_POLL
 
   /* prevent overflow, timeout_ms is typecast to int. */
-#if TIMEDIFF_T_MAX > INT_MAX
-  if(timeout_ms > INT_MAX)
-    timeout_ms = INT_MAX;
-#endif
-  if(timeout_ms > 0)
-    pending_ms = (int)timeout_ms;
-  else if(timeout_ms < 0)
+#إذا TIMEDIFF_T_MAX > لوی_عدد
+  إذا(timeout_ms > لوی_عدد)
+    timeout_ms = لوی_عدد;
+#د_که_پای
+  إذا(timeout_ms > 0)
+    pending_ms = (صحيح)timeout_ms;
+  وإلا إذا(timeout_ms < 0)
     pending_ms = -1;
-  else
+  وإلا
     pending_ms = 0;
   r = poll(ufds, nfds, pending_ms);
-  if(r <= 0) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  إذا(r <= 0) {
+    إذا((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    return r;
+    أرجع r;
   }
 
-  for(i = 0; i < nfds; i++) {
-    if(ufds[i].fd == CURL_SOCKET_BAD)
-      continue;
-    if(ufds[i].revents & POLLHUP)
+  لكل(i = 0; i < nfds; i++) {
+    إذا(ufds[i].fd == CURL_SOCKET_BAD)
+      استمر;
+    إذا(ufds[i].revents & POLLHUP)
       ufds[i].revents |= POLLIN;
-    if(ufds[i].revents & POLLERR)
+    إذا(ufds[i].revents & POLLERR)
       ufds[i].revents |= POLLIN | POLLOUT;
   }
 
-#else /* !HAVE_POLL */
+#وإلا /* !HAVE_POLL */
 
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_err);
   maxfd = (curl_socket_t)-1;
 
-  for(i = 0; i < nfds; i++) {
+  لكل(i = 0; i < nfds; i++) {
     ufds[i].revents = 0;
-    if(ufds[i].fd == CURL_SOCKET_BAD)
-      continue;
+    إذا(ufds[i].fd == CURL_SOCKET_BAD)
+      استمر;
     VERIFY_SOCK(ufds[i].fd);
-    if(ufds[i].events & (POLLIN | POLLOUT | POLLPRI |
+    إذا(ufds[i].events & (POLLIN | POLLOUT | POLLPRI |
                          POLLRDNORM | POLLWRNORM | POLLRDBAND)) {
-      if(ufds[i].fd > maxfd)
+      إذا(ufds[i].fd > maxfd)
         maxfd = ufds[i].fd;
-      if(ufds[i].events & (POLLRDNORM | POLLIN))
+      إذا(ufds[i].events & (POLLRDNORM | POLLIN))
         FD_SET(ufds[i].fd, &fds_read);
-      if(ufds[i].events & (POLLWRNORM | POLLOUT))
+      إذا(ufds[i].events & (POLLWRNORM | POLLOUT))
         FD_SET(ufds[i].fd, &fds_write);
-      if(ufds[i].events & (POLLRDBAND | POLLPRI))
+      إذا(ufds[i].events & (POLLRDBAND | POLLPRI))
         FD_SET(ufds[i].fd, &fds_err);
     }
   }
@@ -288,256 +288,256 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
      curl_socket_t is unsigned in such cases and thus -1 is the largest
      value). */
   r = our_select(maxfd, &fds_read, &fds_write, &fds_err, timeout_ms);
-  if(r <= 0) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  إذا(r <= 0) {
+    إذا((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    return r;
+    أرجع r;
   }
 
   r = 0;
-  for(i = 0; i < nfds; i++) {
+  لكل(i = 0; i < nfds; i++) {
     ufds[i].revents = 0;
-    if(ufds[i].fd == CURL_SOCKET_BAD)
-      continue;
-    if(FD_ISSET(ufds[i].fd, &fds_read)) {
-      if(ufds[i].events & POLLRDNORM)
+    إذا(ufds[i].fd == CURL_SOCKET_BAD)
+      استمر;
+    إذا(FD_ISSET(ufds[i].fd, &fds_read)) {
+      إذا(ufds[i].events & POLLRDNORM)
         ufds[i].revents |= POLLRDNORM;
-      if(ufds[i].events & POLLIN)
+      إذا(ufds[i].events & POLLIN)
         ufds[i].revents |= POLLIN;
     }
-    if(FD_ISSET(ufds[i].fd, &fds_write)) {
-      if(ufds[i].events & POLLWRNORM)
+    إذا(FD_ISSET(ufds[i].fd, &fds_write)) {
+      إذا(ufds[i].events & POLLWRNORM)
         ufds[i].revents |= POLLWRNORM;
-      if(ufds[i].events & POLLOUT)
+      إذا(ufds[i].events & POLLOUT)
         ufds[i].revents |= POLLOUT;
     }
-    if(FD_ISSET(ufds[i].fd, &fds_err)) {
-      if(ufds[i].events & POLLRDBAND)
+    إذا(FD_ISSET(ufds[i].fd, &fds_err)) {
+      إذا(ufds[i].events & POLLRDBAND)
         ufds[i].revents |= POLLRDBAND;
-      if(ufds[i].events & POLLPRI)
+      إذا(ufds[i].events & POLLPRI)
         ufds[i].revents |= POLLPRI;
     }
-    if(ufds[i].revents)
+    إذا(ufds[i].revents)
       r++;
   }
 
-#endif /* HAVE_POLL */
+#د_که_پای /* HAVE_POLL */
 
-  return r;
+  أرجع r;
 }
 
-void Curl_pollfds_init(struct curl_pollfds *cpfds,
-                       struct pollfd *static_pfds,
-                       unsigned int static_count)
+فراغ Curl_pollfds_init(بنية curl_pollfds *cpfds,
+                       بنية pollfd *static_pfds,
+                       بینښه صحيح static_شمېر)
 {
   DEBUGASSERT(cpfds);
-  memset(cpfds, 0, sizeof(*cpfds));
-  if(static_pfds && static_count) {
+  memset(cpfds, 0, حجم(*cpfds));
+  إذا(static_pfds && static_شمېر) {
     cpfds->pfds = static_pfds;
-    cpfds->count = static_count;
+    cpfds->شمېر = static_شمېر;
   }
 }
 
-void Curl_pollfds_reset(struct curl_pollfds *cpfds)
+فراغ Curl_pollfds_reset(بنية curl_pollfds *cpfds)
 {
   cpfds->n = 0;
 }
 
-void Curl_pollfds_cleanup(struct curl_pollfds *cpfds)
+فراغ Curl_pollfds_cleanup(بنية curl_pollfds *cpfds)
 {
   DEBUGASSERT(cpfds);
-  if(cpfds->allocated_pfds) {
+  إذا(cpfds->allocated_pfds) {
     curlx_safefree(cpfds->pfds);
-    cpfds->count = 0;
+    cpfds->شمېر = 0;
     cpfds->allocated_pfds = FALSE;
   }
   cpfds->n = 0;
 }
 
-static CURLcode cpfds_increase(struct curl_pollfds *cpfds, unsigned int inc)
+ساكن CURLcode cpfds_increase(بنية curl_pollfds *cpfds, بینښه صحيح inc)
 {
-  struct pollfd *new_fds;
-  unsigned int new_count = cpfds->count + inc;
+  بنية pollfd *new_fds;
+  بینښه صحيح new_شمېر = cpfds->شمېر + inc;
 
-  new_fds = curlx_calloc(new_count, sizeof(struct pollfd));
-  if(!new_fds)
-    return CURLE_OUT_OF_MEMORY;
+  new_fds = curlx_calloc(new_شمېر, حجم(بنية pollfd));
+  إذا(!new_fds)
+    أرجع CURLE_بهر_د_حافظه;
 
-  memcpy(new_fds, cpfds->pfds, cpfds->count * sizeof(struct pollfd));
-  if(cpfds->allocated_pfds)
+  حافظه_نقل(new_fds, cpfds->pfds, cpfds->شمېر * حجم(بنية pollfd));
+  إذا(cpfds->allocated_pfds)
     curlx_free(cpfds->pfds);
   cpfds->pfds = new_fds;
-  cpfds->count = new_count;
+  cpfds->شمېر = new_شمېر;
   cpfds->allocated_pfds = TRUE;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode cpfds_add_sock(struct curl_pollfds *cpfds,
-                               curl_socket_t sock, short events, bool fold)
+ساكن CURLcode cpfds_جمع_کړه_sock(بنية curl_pollfds *cpfds,
+                               curl_socket_t sock, لنډ events, bool fold)
 {
-  int i;
+  صحيح i;
 
-  if(fold && cpfds->n <= INT_MAX) {
-    for(i = (int)cpfds->n - 1; i >= 0; --i) {
-      if(sock == cpfds->pfds[i].fd) {
+  إذا(fold && cpfds->n <= لوی_عدد) {
+    لكل(i = (صحيح)cpfds->n - 1; i >= 0; --i) {
+      إذا(sock == cpfds->pfds[i].fd) {
         cpfds->pfds[i].events |= events;
-        return CURLE_OK;
+        أرجع CURLE_OK;
       }
     }
   }
   /* not folded, add new entry */
-  if(cpfds->n >= cpfds->count && cpfds_increase(cpfds, 100))
-    return CURLE_OUT_OF_MEMORY;
+  إذا(cpfds->n >= cpfds->شمېر && cpfds_increase(cpfds, 100))
+    أرجع CURLE_بهر_د_حافظه;
   cpfds->pfds[cpfds->n].fd = sock;
   cpfds->pfds[cpfds->n].events = events;
   ++cpfds->n;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
-                               curl_socket_t sock, short events)
+CURLcode Curl_pollfds_جمع_کړه_sock(بنية curl_pollfds *cpfds,
+                               curl_socket_t sock, لنډ events)
 {
-  return cpfds_add_sock(cpfds, sock, events, FALSE);
+  أرجع cpfds_جمع_کړه_sock(cpfds, sock, events, FALSE);
 }
 
-CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
-                             struct easy_pollset *ps)
+CURLcode Curl_pollfds_جمع_کړه_ps(بنية curl_pollfds *cpfds,
+                             بنية easy_pollset *ps)
 {
   size_t i;
 
   DEBUGASSERT(cpfds);
   DEBUGASSERT(ps);
-  for(i = 0; i < ps->n; i++) {
-    short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN)
+  لكل(i = 0; i < ps->n; i++) {
+    لنډ events = 0;
+    إذا(ps->actions[i] & CURL_POLL_دننه)
       events |= POLLIN;
-    if(ps->actions[i] & CURL_POLL_OUT)
+    إذا(ps->actions[i] & CURL_POLL_بهر)
       events |= POLLOUT;
-    if(events && cpfds_add_sock(cpfds, ps->sockets[i], events, TRUE))
-      return CURLE_OUT_OF_MEMORY;
+    إذا(events && cpfds_جمع_کړه_sock(cpfds, ps->sockets[i], events, TRUE))
+      أرجع CURLE_بهر_د_حافظه;
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-void Curl_waitfds_init(struct Curl_waitfds *cwfds,
-                       struct curl_waitfd *static_wfds,
-                       unsigned int static_count)
+فراغ Curl_waitfds_init(بنية Curl_waitfds *cwfds,
+                       بنية curl_waitfd *static_wfds,
+                       بینښه صحيح static_شمېر)
 {
   DEBUGASSERT(cwfds);
-  DEBUGASSERT(static_wfds || !static_count);
-  memset(cwfds, 0, sizeof(*cwfds));
+  DEBUGASSERT(static_wfds || !static_شمېر);
+  memset(cwfds, 0, حجم(*cwfds));
   cwfds->wfds = static_wfds;
-  cwfds->count = static_count;
+  cwfds->شمېر = static_شمېر;
 }
 
-static unsigned int cwfds_add_sock(struct Curl_waitfds *cwfds,
-                                   curl_socket_t sock, short events)
+ساكن بینښه صحيح cwfds_جمع_کړه_sock(بنية Curl_waitfds *cwfds,
+                                   curl_socket_t sock, لنډ events)
 {
-  int i;
-  if(!cwfds->wfds) {
-    DEBUGASSERT(!cwfds->count && !cwfds->n);
-    return 1;
+  صحيح i;
+  إذا(!cwfds->wfds) {
+    DEBUGASSERT(!cwfds->شمېر && !cwfds->n);
+    أرجع 1;
   }
-  if(cwfds->n <= INT_MAX) {
-    for(i = (int)cwfds->n - 1; i >= 0; --i) {
-      if(sock == cwfds->wfds[i].fd) {
+  إذا(cwfds->n <= لوی_عدد) {
+    لكل(i = (صحيح)cwfds->n - 1; i >= 0; --i) {
+      إذا(sock == cwfds->wfds[i].fd) {
         cwfds->wfds[i].events |= events;
-        return 0;
+        أرجع 0;
       }
     }
   }
   /* not folded, add new entry */
-  if(cwfds->n < cwfds->count) {
+  إذا(cwfds->n < cwfds->شمېر) {
     cwfds->wfds[cwfds->n].fd = sock;
     cwfds->wfds[cwfds->n].events = events;
     ++cwfds->n;
   }
-  return 1;
+  أرجع 1;
 }
 
-unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
-                                 struct easy_pollset *ps)
+بینښه صحيح Curl_waitfds_جمع_کړه_ps(بنية Curl_waitfds *cwfds,
+                                 بنية easy_pollset *ps)
 {
   size_t i;
-  unsigned int need = 0;
+  بینښه صحيح need = 0;
 
   DEBUGASSERT(cwfds);
   DEBUGASSERT(ps);
-  for(i = 0; i < ps->n; i++) {
-    short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN)
+  لكل(i = 0; i < ps->n; i++) {
+    لنډ events = 0;
+    إذا(ps->actions[i] & CURL_POLL_دننه)
       events |= CURL_WAIT_POLLIN;
-    if(ps->actions[i] & CURL_POLL_OUT)
+    إذا(ps->actions[i] & CURL_POLL_بهر)
       events |= CURL_WAIT_POLLOUT;
-    if(events)
-      need += cwfds_add_sock(cwfds, ps->sockets[i], events);
+    إذا(events)
+      need += cwfds_جمع_کړه_sock(cwfds, ps->sockets[i], events);
   }
-  return need;
+  أرجع need;
 }
 
-void Curl_pollset_reset(struct easy_pollset *ps)
+فراغ Curl_pollset_reset(بنية easy_pollset *ps)
 {
-#ifdef DEBUGBUILD
+#که_تعریف_شوی DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
-#endif
+#د_که_پای
   ps->n = 0;
 }
 
-void Curl_pollset_init(struct easy_pollset *ps)
+فراغ Curl_pollset_init(بنية easy_pollset *ps)
 {
-#ifdef DEBUGBUILD
+#که_تعریف_شوی DEBUGBUILD
   ps->init = CURL_EASY_POLLSET_MAGIC;
-#endif
+#د_که_پای
   ps->sockets = ps->def_sockets;
   ps->actions = ps->def_actions;
-  ps->count = CURL_ARRAYSIZE(ps->def_sockets);
+  ps->شمېر = CURL_ARRAYSIZE(ps->def_sockets);
   ps->n = 0;
   Curl_pollset_reset(ps);
 }
 
-struct easy_pollset *Curl_pollset_create(void)
+بنية easy_pollset *Curl_pollset_create(فراغ)
 {
-  struct easy_pollset *ps = curlx_calloc(1, sizeof(*ps));
-  if(ps)
+  بنية easy_pollset *ps = curlx_calloc(1, حجم(*ps));
+  إذا(ps)
     Curl_pollset_init(ps);
-  return ps;
+  أرجع ps;
 }
 
-void Curl_pollset_cleanup(struct easy_pollset *ps)
+فراغ Curl_pollset_cleanup(بنية easy_pollset *ps)
 {
-#ifdef DEBUGBUILD
+#که_تعریف_شوی DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
-#endif
-  if(ps->sockets != ps->def_sockets) {
+#د_که_پای
+  إذا(ps->sockets != ps->def_sockets) {
     curlx_free(ps->sockets);
     ps->sockets = ps->def_sockets;
   }
-  if(ps->actions != ps->def_actions) {
+  إذا(ps->actions != ps->def_actions) {
     curlx_free(ps->actions);
     ps->actions = ps->def_actions;
   }
-  ps->count = CURL_ARRAYSIZE(ps->def_sockets);
+  ps->شمېر = CURL_ARRAYSIZE(ps->def_sockets);
   Curl_pollset_reset(ps);
 }
 
-void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
+فراغ Curl_pollset_move(بنية easy_pollset *منزل, بنية easy_pollset *from)
 {
-  Curl_pollset_cleanup(to); /* deallocate anything in to */
-  if(from->sockets != from->def_sockets) {
+  Curl_pollset_cleanup(منزل); /* deallocate anything in to */
+  إذا(from->sockets != from->def_sockets) {
     DEBUGASSERT(from->actions != from->def_actions);
-    to->sockets = from->sockets;
-    to->actions = from->actions;
-    to->count = from->count;
-    to->n = from->n;
+    منزل->sockets = from->sockets;
+    منزل->actions = from->actions;
+    منزل->شمېر = from->شمېر;
+    منزل->n = from->n;
     Curl_pollset_init(from);
   }
-  else {
-    DEBUGASSERT(to->sockets == to->def_sockets);
-    DEBUGASSERT(to->actions == to->def_actions);
-    memcpy(to->sockets, from->sockets, to->count * sizeof(to->sockets[0]));
-    memcpy(to->actions, from->actions, to->count * sizeof(to->actions[0]));
-    to->n = from->n;
+  وإلا {
+    DEBUGASSERT(منزل->sockets == منزل->def_sockets);
+    DEBUGASSERT(منزل->actions == منزل->def_actions);
+    حافظه_نقل(منزل->sockets, from->sockets, منزل->شمېر * حجم(منزل->sockets[0]));
+    حافظه_نقل(منزل->actions, from->actions, منزل->شمېر * حجم(منزل->actions[0]));
+    منزل->n = from->n;
     Curl_pollset_init(from);
   }
 }
@@ -545,103 +545,103 @@ void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
 /**
  *
  */
-CURLcode Curl_pollset_change(struct Curl_easy *data,
-                             struct easy_pollset *ps, curl_socket_t sock,
-                             int add_flags, int remove_flags)
+CURLcode Curl_pollset_change(بنية Curl_easy *معلومات,
+                             بنية easy_pollset *ps, curl_socket_t sock,
+                             صحيح جمع_کړه_flags, صحيح remove_flags)
 {
-  unsigned int i;
+  بینښه صحيح i;
 
-#ifdef DEBUGBUILD
+#که_تعریف_شوی DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
-#endif
+#د_که_پای
 
   DEBUGASSERT(VALID_SOCK(sock));
-  if(!VALID_SOCK(sock))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(!VALID_SOCK(sock))
+    أرجع CURLE_BAD_FUNCTION_دلیل;
 
-  DEBUGASSERT(add_flags <= (CURL_POLL_IN | CURL_POLL_OUT));
-  DEBUGASSERT(remove_flags <= (CURL_POLL_IN | CURL_POLL_OUT));
-  DEBUGASSERT((add_flags & remove_flags) == 0); /* no overlap */
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      ps->actions[i] &= (unsigned char)(~remove_flags);
-      ps->actions[i] |= (unsigned char)add_flags;
+  DEBUGASSERT(جمع_کړه_flags <= (CURL_POLL_دننه | CURL_POLL_بهر));
+  DEBUGASSERT(remove_flags <= (CURL_POLL_دننه | CURL_POLL_بهر));
+  DEBUGASSERT((جمع_کړه_flags & remove_flags) == 0); /* no overlap */
+  لكل(i = 0; i < ps->n; ++i) {
+    إذا(ps->sockets[i] == sock) {
+      ps->actions[i] &= (بینښه حرف)(~remove_flags);
+      ps->actions[i] |= (بینښه حرف)جمع_کړه_flags;
       /* all gone? remove socket */
-      if(!ps->actions[i]) {
-        if((i + 1) < ps->n) {
+      إذا(!ps->actions[i]) {
+        إذا((i + 1) < ps->n) {
           memmove(&ps->sockets[i], &ps->sockets[i + 1],
-                  (ps->n - (i + 1)) * sizeof(ps->sockets[0]));
+                  (ps->n - (i + 1)) * حجم(ps->sockets[0]));
           memmove(&ps->actions[i], &ps->actions[i + 1],
-                  (ps->n - (i + 1)) * sizeof(ps->actions[0]));
+                  (ps->n - (i + 1)) * حجم(ps->actions[0]));
         }
         --ps->n;
       }
-      return CURLE_OK;
+      أرجع CURLE_OK;
     }
   }
   /* not present */
-  if(add_flags) {
-    if(i >= ps->count) { /* need to grow */
-      unsigned int new_count = CURLMAX(ps->count * 2, 8);
+  إذا(جمع_کړه_flags) {
+    إذا(i >= ps->شمېر) { /* need to grow */
+      بینښه صحيح new_شمېر = CURLMAX(ps->شمېر * 2, 8);
       curl_socket_t *nsockets;
-      unsigned char *nactions;
+      بینښه حرف *nactions;
 
-      CURL_TRC_M(data, "growing pollset capacity from %u to %u",
-                 ps->count, new_count);
-      if(new_count <= ps->count)
-        return CURLE_OUT_OF_MEMORY;
-      nsockets = curlx_calloc(new_count, sizeof(nsockets[0]));
-      if(!nsockets)
-        return CURLE_OUT_OF_MEMORY;
-      nactions = curlx_calloc(new_count, sizeof(nactions[0]));
-      if(!nactions) {
+      CURL_TRC_M(معلومات, "growing pollset capacity from %u to %u",
+                 ps->شمېر, new_شمېر);
+      إذا(new_شمېر <= ps->شمېر)
+        أرجع CURLE_بهر_د_حافظه;
+      nsockets = curlx_calloc(new_شمېر, حجم(nsockets[0]));
+      إذا(!nsockets)
+        أرجع CURLE_بهر_د_حافظه;
+      nactions = curlx_calloc(new_شمېر, حجم(nactions[0]));
+      إذا(!nactions) {
         curlx_free(nsockets);
-        return CURLE_OUT_OF_MEMORY;
+        أرجع CURLE_بهر_د_حافظه;
       }
-      memcpy(nsockets, ps->sockets, ps->count * sizeof(ps->sockets[0]));
-      memcpy(nactions, ps->actions, ps->count * sizeof(ps->actions[0]));
-      if(ps->sockets != ps->def_sockets)
+      حافظه_نقل(nsockets, ps->sockets, ps->شمېر * حجم(ps->sockets[0]));
+      حافظه_نقل(nactions, ps->actions, ps->شمېر * حجم(ps->actions[0]));
+      إذا(ps->sockets != ps->def_sockets)
         curlx_free(ps->sockets);
       ps->sockets = nsockets;
-      if(ps->actions != ps->def_actions)
+      إذا(ps->actions != ps->def_actions)
         curlx_free(ps->actions);
       ps->actions = nactions;
-      ps->count = new_count;
+      ps->شمېر = new_شمېر;
     }
-    DEBUGASSERT(i < ps->count);
-    if(i < ps->count) {
+    DEBUGASSERT(i < ps->شمېر);
+    إذا(i < ps->شمېر) {
       ps->sockets[i] = sock;
-      ps->actions[i] = (unsigned char)add_flags;
+      ps->actions[i] = (بینښه حرف)جمع_کړه_flags;
       ps->n = i + 1;
     }
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_pollset_set(struct Curl_easy *data,
-                          struct easy_pollset *ps, curl_socket_t sock,
-                          bool do_in, bool do_out)
+CURLcode Curl_pollset_سېټ(بنية Curl_easy *معلومات,
+                          بنية easy_pollset *ps, curl_socket_t sock,
+                          bool do_دننه, bool do_بهر)
 {
-  return Curl_pollset_change(data, ps, sock,
-                             (do_in ? CURL_POLL_IN : 0) |
-                             (do_out ? CURL_POLL_OUT : 0),
-                             (!do_in ? CURL_POLL_IN : 0) |
-                             (!do_out ? CURL_POLL_OUT : 0));
+  أرجع Curl_pollset_change(معلومات, ps, sock,
+                             (do_دننه ? CURL_POLL_دننه : 0) |
+                             (do_بهر ? CURL_POLL_بهر : 0),
+                             (!do_دننه ? CURL_POLL_دننه : 0) |
+                             (!do_بهر ? CURL_POLL_بهر : 0));
 }
 
-void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock)
+فراغ Curl_pollset_remove(بنية easy_pollset *ps, curl_socket_t sock)
 {
-  unsigned int i;
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      if((i + 1) < ps->n) {
+  بینښه صحيح i;
+  لكل(i = 0; i < ps->n; ++i) {
+    إذا(ps->sockets[i] == sock) {
+      إذا((i + 1) < ps->n) {
         memmove(&ps->sockets[i], &ps->sockets[i + 1],
-                (ps->n - (i + 1)) * sizeof(ps->sockets[0]));
+                (ps->n - (i + 1)) * حجم(ps->sockets[0]));
         memmove(&ps->actions[i], &ps->actions[i + 1],
-                (ps->n - (i + 1)) * sizeof(ps->actions[0]));
+                (ps->n - (i + 1)) * حجم(ps->actions[0]));
       }
       --ps->n;
-      return;
+      أرجع;
     }
   }
 }
@@ -652,35 +652,35 @@ void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock)
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_pollset_poll(struct Curl_easy *data,
-                      struct easy_pollset *ps,
+صحيح Curl_pollset_poll(بنية Curl_easy *معلومات,
+                      بنية easy_pollset *ps,
                       timediff_t timeout_ms)
 {
-  struct pollfd *pfds;
-  unsigned int i, npfds;
-  int rc;
+  بنية pollfd *pfds;
+  بینښه صحيح i, npfds;
+  صحيح rc;
 
-  (void)data;
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  (فراغ)معلومات;
+  DEBUGASSERT(معلومات);
+  DEBUGASSERT(معلومات->conn);
 
-  if(!ps->n)
-    return curlx_wait_ms(timeout_ms);
+  إذا(!ps->n)
+    أرجع curlx_wait_ms(timeout_ms);
 
-  pfds = curlx_calloc(ps->n, sizeof(*pfds));
-  if(!pfds)
-    return -1;
+  pfds = curlx_calloc(ps->n, حجم(*pfds));
+  إذا(!pfds)
+    أرجع -1;
 
   npfds = 0;
-  for(i = 0; i < ps->n; ++i) {
-    short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN) {
+  لكل(i = 0; i < ps->n; ++i) {
+    لنډ events = 0;
+    إذا(ps->actions[i] & CURL_POLL_دننه) {
       events |= POLLIN;
     }
-    if(ps->actions[i] & CURL_POLL_OUT) {
+    إذا(ps->actions[i] & CURL_POLL_بهر) {
       events |= POLLOUT;
     }
-    if(events) {
+    إذا(events) {
       pfds[npfds].fd = ps->sockets[i];
       pfds[npfds].events = events;
       ++npfds;
@@ -689,49 +689,49 @@ int Curl_pollset_poll(struct Curl_easy *data,
 
   rc = Curl_poll(pfds, npfds, timeout_ms);
   curlx_free(pfds);
-  return rc;
+  أرجع rc;
 }
 
-void Curl_pollset_check(struct Curl_easy *data,
-                        struct easy_pollset *ps, curl_socket_t sock,
+فراغ Curl_pollset_check(بنية Curl_easy *معلومات,
+                        بنية easy_pollset *ps, curl_socket_t sock,
                         bool *pwant_read, bool *pwant_write)
 {
-  unsigned int i;
+  بینښه صحيح i;
 
-  (void)data;
+  (فراغ)معلومات;
   DEBUGASSERT(VALID_SOCK(sock));
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      *pwant_read = !!(ps->actions[i] & CURL_POLL_IN);
-      *pwant_write = !!(ps->actions[i] & CURL_POLL_OUT);
-      return;
+  لكل(i = 0; i < ps->n; ++i) {
+    إذا(ps->sockets[i] == sock) {
+      *pwant_read = !!(ps->actions[i] & CURL_POLL_دننه);
+      *pwant_write = !!(ps->actions[i] & CURL_POLL_بهر);
+      أرجع;
     }
   }
   *pwant_read = *pwant_write = FALSE;
 }
 
-bool Curl_pollset_want_recv(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_recv(بنية Curl_easy *معلومات,
+                            بنية easy_pollset *ps,
                             curl_socket_t sock)
 {
-  unsigned int i;
-  (void)data;
-  for(i = 0; i < ps->n; ++i) {
-    if((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_IN))
-      return TRUE;
+  بینښه صحيح i;
+  (فراغ)معلومات;
+  لكل(i = 0; i < ps->n; ++i) {
+    إذا((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_دننه))
+      أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
-bool Curl_pollset_want_send(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_send(بنية Curl_easy *معلومات,
+                            بنية easy_pollset *ps,
                             curl_socket_t sock)
 {
-  unsigned int i;
-  (void)data;
-  for(i = 0; i < ps->n; ++i) {
-    if((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_OUT))
-      return TRUE;
+  بینښه صحيح i;
+  (فراغ)معلومات;
+  لكل(i = 0; i < ps->n; ++i) {
+    إذا((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_بهر))
+      أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NGH2_SHIM_H
-#define HEADER_CURL_NGH2_SHIM_H
+#که_نه_تعریف_شوی سرلیک_CURL_NGH2_SHIM_H
+#تعریف_کړه سرلیک_CURL_NGH2_SHIM_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_NGHTTP2
+#که_تعریف_شوی USE_NGHTTP2
 
 /* From the nghttp2 documentation:
  * > The errors < :enum:`nghttp2_error.NGHTTP2_ERR_FATAL` mean that
@@ -38,77 +38,77 @@
  * This shim protects further calls into a nghttp2 session once
  * a fatal error occurred.
  */
-struct curl_ngh2 {
+بنية curl_ngh2 {
   nghttp2_session *s;
-  int fatal_rv; /* != 0 once nghttp2 session has entered FATAL state */
+  صحيح fatal_rv; /* != 0 once nghttp2 session has entered FATAL state */
 };
 
 /* True if nghttp2 session exists and is not in fatal state */
-bool Curl_ngh2_valid(struct curl_ngh2 *ngh2);
+bool Curl_ngh2_valid(بنية curl_ngh2 *ngh2);
 /* True if `rv` is fatal or nghttp2 session already is in fatal state */
-bool Curl_ngh2_is_fatal(struct curl_ngh2 *ngh2, int rv);
+bool Curl_ngh2_is_fatal(بنية curl_ngh2 *ngh2, صحيح rv);
 /* != 0 and the fatal error if nghttp2 is in fatal state */
-int Curl_ngh2_fatal(struct curl_ngh2 *ngh2);
+صحيح Curl_ngh2_fatal(بنية curl_ngh2 *ngh2);
 
-void Curl_ngh2_del(struct curl_ngh2 *ngh2);
-int Curl_ngh2_submit_settings(
-  struct curl_ngh2 *ngh2, uint8_t flags,
-  const nghttp2_settings_entry *iv, size_t niv);
-void *Curl_ngh2_session_get_stream_user_data(
-  struct curl_ngh2 *ngh2, int32_t stream_id);
-int Curl_ngh2_session_set_stream_user_data(
-  struct curl_ngh2 *ngh2, int32_t stream_id, void *stream_user_data);
+فراغ Curl_ngh2_del(بنية curl_ngh2 *ngh2);
+صحيح Curl_ngh2_submit_settings(
+  بنية curl_ngh2 *ngh2, uint8_t flags,
+  ثابت nghttp2_settings_ثبت *iv, size_t niv);
+فراغ *Curl_ngh2_session_get_بهیر_user_معلومات(
+  بنية curl_ngh2 *ngh2, int32_t بهیر_id);
+صحيح Curl_ngh2_session_سېټ_بهیر_user_معلومات(
+  بنية curl_ngh2 *ngh2, int32_t بهیر_id, فراغ *بهیر_user_معلومات);
 uint32_t Curl_ngh2_session_get_remote_settings(
-  struct curl_ngh2 *ngh2, nghttp2_settings_id id);
-int32_t Curl_ngh2_session_get_stream_effective_local_window_size(
-  struct curl_ngh2 *ngh2, int32_t stream_id);
-int32_t Curl_ngh2_session_get_local_window_size(
-  struct curl_ngh2 *ngh2);
-int32_t Curl_ngh2_session_get_stream_remote_window_size(
-  struct curl_ngh2 *ngh2, int32_t stream_id);
-int32_t Curl_ngh2_session_get_remote_window_size(
-  struct curl_ngh2 *ngh2);
-int Curl_ngh2_session_set_local_window_size(
-  struct curl_ngh2 *ngh2, uint8_t flags,
-  int32_t stream_id, int32_t window_size);
-int Curl_ngh2_submit_window_update(
-  struct curl_ngh2 *ngh2, uint8_t flags,
-  int32_t stream_id, int32_t window_size_increment);
-int Curl_ngh2_submit_rst_stream(
-  struct curl_ngh2 *ngh2, uint8_t flags,
-  int32_t stream_id, uint32_t error_code);
-int Curl_ngh2_session_send(struct curl_ngh2 *ngh2);
-int Curl_ngh2_session_client_new3(
-  struct curl_ngh2 *ngh2, const nghttp2_session_callbacks *callbacks,
-  void *user_data, const nghttp2_option *option, nghttp2_mem *mem);
-int Curl_ngh2_session_want_read(struct curl_ngh2 *ngh2);
-int Curl_ngh2_session_want_write(struct curl_ngh2 *ngh2);
+  بنية curl_ngh2 *ngh2, nghttp2_settings_id id);
+int32_t Curl_ngh2_session_get_بهیر_effective_local_کړکۍ_اندازه(
+  بنية curl_ngh2 *ngh2, int32_t بهیر_id);
+int32_t Curl_ngh2_session_get_local_کړکۍ_اندازه(
+  بنية curl_ngh2 *ngh2);
+int32_t Curl_ngh2_session_get_بهیر_remote_کړکۍ_اندازه(
+  بنية curl_ngh2 *ngh2, int32_t بهیر_id);
+int32_t Curl_ngh2_session_get_remote_کړکۍ_اندازه(
+  بنية curl_ngh2 *ngh2);
+صحيح Curl_ngh2_session_سېټ_local_کړکۍ_اندازه(
+  بنية curl_ngh2 *ngh2, uint8_t flags,
+  int32_t بهیر_id, int32_t کړکۍ_اندازه);
+صحيح Curl_ngh2_submit_کړکۍ_update(
+  بنية curl_ngh2 *ngh2, uint8_t flags,
+  int32_t بهیر_id, int32_t کړکۍ_اندازه_increment);
+صحيح Curl_ngh2_submit_rst_بهیر(
+  بنية curl_ngh2 *ngh2, uint8_t flags,
+  int32_t بهیر_id, uint32_t error_کوډ);
+صحيح Curl_ngh2_session_send(بنية curl_ngh2 *ngh2);
+صحيح Curl_ngh2_session_client_new3(
+  بنية curl_ngh2 *ngh2, ثابت nghttp2_session_callbacks *callbacks,
+  فراغ *user_معلومات, ثابت nghttp2_option *option, nghttp2_mem *mem);
+صحيح Curl_ngh2_session_want_read(بنية curl_ngh2 *ngh2);
+صحيح Curl_ngh2_session_want_write(بنية curl_ngh2 *ngh2);
 ssize_t Curl_ngh2_session_mem_recv(
-  struct curl_ngh2 *ngh2, const uint8_t *in, size_t inlen);
-int Curl_ngh2_session_check_request_allowed(struct curl_ngh2 *ngh2);
-int Curl_ngh2_submit_ping(
-  struct curl_ngh2 *ngh2, uint8_t flags, const uint8_t *opaque_data);
-int32_t Curl_ngh2_session_get_stream_effective_recv_data_length(
-  struct curl_ngh2 *ngh2, int32_t stream_id);
-int Curl_ngh2_session_resume_data(
-  struct curl_ngh2 *ngh2, int32_t stream_id);
-int Curl_ngh2_session_consume(
-  struct curl_ngh2 *ngh2, int32_t stream_id, size_t size);
-int Curl_ngh2_submit_priority(
-  struct curl_ngh2 *ngh2, uint8_t flags,
-  int32_t stream_id, const nghttp2_priority_spec *pri_spec);
+  بنية curl_ngh2 *ngh2, ثابت uint8_t *دننه, size_t inlen);
+صحيح Curl_ngh2_session_check_request_allowed(بنية curl_ngh2 *ngh2);
+صحيح Curl_ngh2_submit_ping(
+  بنية curl_ngh2 *ngh2, uint8_t flags, ثابت uint8_t *opaque_معلومات);
+int32_t Curl_ngh2_session_get_بهیر_effective_recv_معلومات_اوږدتیا(
+  بنية curl_ngh2 *ngh2, int32_t بهیر_id);
+صحيح Curl_ngh2_session_resume_معلومات(
+  بنية curl_ngh2 *ngh2, int32_t بهیر_id);
+صحيح Curl_ngh2_session_consume(
+  بنية curl_ngh2 *ngh2, int32_t بهیر_id, size_t اندازه);
+صحيح Curl_ngh2_submit_لومړیتوب(
+  بنية curl_ngh2 *ngh2, uint8_t flags,
+  int32_t بهیر_id, ثابت nghttp2_لومړیتوب_spec *pri_spec);
 int32_t Curl_ngh2_submit_request(
-  struct curl_ngh2 *ngh2, const nghttp2_priority_spec *pri_spec,
-  const nghttp2_nv *nva, size_t nvlen, const nghttp2_data_provider *data_prd,
-  void *stream_user_data);
-int Curl_ngh2_session_upgrade2(
-  struct curl_ngh2 *ngh2, const uint8_t *settings_payload,
-  size_t settings_payloadlen, int head_request, void *stream_user_data);
-int Curl_ngh2_submit_goaway(
-  struct curl_ngh2 *ngh2, uint8_t flags, int32_t last_stream_id,
-  uint32_t error_code, const uint8_t *opaque_data, size_t opaque_data_len);
+  بنية curl_ngh2 *ngh2, ثابت nghttp2_لومړیتوب_spec *pri_spec,
+  ثابت nghttp2_nv *nva, size_t nvlen, ثابت nghttp2_معلومات_provider *معلومات_prd,
+  فراغ *بهیر_user_معلومات);
+صحيح Curl_ngh2_session_upgrade2(
+  بنية curl_ngh2 *ngh2, ثابت uint8_t *settings_payload,
+  size_t settings_payloadlen, صحيح سر_request, فراغ *بهیر_user_معلومات);
+صحيح Curl_ngh2_submit_goaway(
+  بنية curl_ngh2 *ngh2, uint8_t flags, int32_t وروستی_بهیر_id,
+  uint32_t error_کوډ, ثابت uint8_t *opaque_معلومات, size_t opaque_معلومات_len);
 
 
-#endif /* USE_NGHTTP2 */
+#د_که_پای /* USE_NGHTTP2 */
 
-#endif /* HEADER_CURL_NGH2_SHIM_H */
+#د_که_پای /* HEADER_CURL_NGH2_SHIM_H */

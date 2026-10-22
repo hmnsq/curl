@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SCHANNEL_H
-#define HEADER_CURL_SCHANNEL_H
+#که_نه_تعریف_شوی سرلیک_CURL_SCHANNEL_H
+#تعریف_کړه سرلیک_CURL_SCHANNEL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,22 +24,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_SCHANNEL
+#که_تعریف_شوی USE_SCHANNEL
 
-#include <schannel.h>
+#ضمن <schannel.h>
 
-#include "curl_sspi.h"
-#include "cfilters.h"
-#include "urldata.h"
+#ضمن "curl_sspi.h"
+#ضمن "cfilters.h"
+#ضمن "urldata.h"
 
-extern const struct Curl_ssl Curl_ssl_schannel;
+خارجي ثابت بنية Curl_ssl Curl_ssl_schannel;
 
-CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data);
+CURLcode Curl_verify_host(بنية Curl_cfilter *cf, بنية Curl_easy *معلومات);
 
-CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data);
+CURLcode Curl_verify_certificate(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *معلومات);
 
-#endif /* USE_SCHANNEL */
-#endif /* HEADER_CURL_SCHANNEL_H */
+#د_که_پای /* USE_SCHANNEL */
+#د_که_پای /* HEADER_CURL_SCHANNEL_H */

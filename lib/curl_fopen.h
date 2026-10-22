@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FOPEN_H
-#define HEADER_CURL_FOPEN_H
+#که_نه_تعریف_شوی سرلیک_CURL_FOPEN_H
+#تعریف_کړه سرلیک_CURL_FOPEN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/win32-fopen.h"
+#ضمن "curlx/win32-fopen.h"
 
-CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
-                    FILE **fh, char **tempname);
+CURLcode Curl_fopen(بنية Curl_easy *معلومات, ثابت حرف *filename,
+                    FILE **fh, حرف **tempname);
 
-#endif
+#د_که_پای

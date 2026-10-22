@@ -21,25 +21,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "slist.h"
+#ضمن "slist.h"
 
 /* returns last node in linked list */
-static struct curl_slist *slist_get_last(struct curl_slist *list)
+ساكن بنية curl_slist *slist_get_وروستی(بنية curl_slist *list)
 {
-  struct curl_slist *item;
+  بنية curl_slist *توکی;
 
   /* if caller passed us a NULL, return now */
-  if(!list)
-    return NULL;
+  إذا(!list)
+    أرجع عدم;
 
   /* loop through to find the last item */
-  item = list;
-  while(item->next) {
-    item = item->next;
+  توکی = list;
+  طالما(توکی->بل) {
+    توکی = توکی->بل;
   }
-  return item;
+  أرجع توکی;
 }
 
 /*
@@ -51,28 +51,28 @@ static struct curl_slist *slist_get_last(struct curl_slist *list)
  * If an error occurs, NULL is returned and the string argument is NOT
  * released.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data)
+بنية curl_slist *Curl_slist_append_nodup(بنية curl_slist *list,
+                                           ثابت حرف *معلومات)
 {
-  struct curl_slist *last;
-  struct curl_slist *new_item;
+  بنية curl_slist *وروستی;
+  بنية curl_slist *new_توکی;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(معلومات);
 
-  new_item = curlx_malloc(sizeof(struct curl_slist));
-  if(!new_item)
-    return NULL;
+  new_توکی = curlx_malloc(حجم(بنية curl_slist));
+  إذا(!new_توکی)
+    أرجع عدم;
 
-  new_item->next = NULL;
-  new_item->data = CURL_UNCONST(data);
+  new_توکی->بل = عدم;
+  new_توکی->معلومات = CURL_UNCONST(معلومات);
 
   /* if this is the first item, then new_item *is* the list */
-  if(!list)
-    return new_item;
+  إذا(!list)
+    أرجع new_توکی;
 
-  last = slist_get_last(list);
-  last->next = new_item;
-  return list;
+  وروستی = slist_get_وروستی(list);
+  وروستی->بل = new_توکی;
+  أرجع list;
 }
 
 /*
@@ -82,18 +82,18 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
  * bothersome, then create a separate _init function and call it
  * appropriately from within the program.
  */
-struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
+بنية curl_slist *curl_slist_append(بنية curl_slist *list, ثابت حرف *معلومات)
 {
-  char *dupdata = curlx_strdup(data);
+  حرف *dupdata = curlx_strdup(معلومات);
 
-  if(!dupdata)
-    return NULL;
+  إذا(!dupdata)
+    أرجع عدم;
 
   list = Curl_slist_append_nodup(list, dupdata);
-  if(!list)
+  إذا(!list)
     curlx_free(dupdata);
 
-  return list;
+  أرجع list;
 }
 
 /*
@@ -101,40 +101,40 @@ struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist)
+بنية curl_slist *Curl_slist_duplicate(بنية curl_slist *inlist)
 {
-  struct curl_slist *outlist = NULL;
-  struct curl_slist **tail = &outlist;
+  بنية curl_slist *outlist = عدم;
+  بنية curl_slist **لکۍ = &outlist;
 
-  while(inlist) {
-    struct curl_slist *tmp = curl_slist_append(NULL, inlist->data);
+  طالما(inlist) {
+    بنية curl_slist *tmp = curl_slist_append(عدم, inlist->معلومات);
 
-    if(!tmp) {
+    إذا(!tmp) {
       curl_slist_free_all(outlist);
-      return NULL;
+      أرجع عدم;
     }
 
-    *tail = tmp;
-    tail = &tmp->next;
-    inlist = inlist->next;
+    *لکۍ = tmp;
+    لکۍ = &tmp->بل;
+    inlist = inlist->بل;
   }
-  return outlist;
+  أرجع outlist;
 }
 
 /* be nice and clean up resources */
-void curl_slist_free_all(struct curl_slist *list)
+فراغ curl_slist_free_all(بنية curl_slist *list)
 {
-  struct curl_slist *next;
-  struct curl_slist *item;
+  بنية curl_slist *بل;
+  بنية curl_slist *توکی;
 
-  if(!list)
-    return;
+  إذا(!list)
+    أرجع;
 
-  item = list;
-  do {
-    next = item->next;
-    curlx_safefree(item->data);
-    curlx_free(item);
-    item = next;
-  } while(next);
+  توکی = list;
+  افعل {
+    بل = توکی->بل;
+    curlx_safefree(توکی->معلومات);
+    curlx_free(توکی);
+    توکی = بل;
+  } طالما(بل);
 }

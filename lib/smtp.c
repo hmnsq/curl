@@ -38,53 +38,53 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "smtp.h"
+#ضمن "curl_setup.h"
+#ضمن "urldata.h"
+#ضمن "smtp.h"
 
-#ifndef CURL_DISABLE_SMTP
+#که_نه_تعریف_شوی CURL_DISABLE_SMTP
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#که_تعریف_شوی HAVE_NETINET_دننه_H
+#ضمن <netinet/in.h>
+#د_که_پای
+#که_تعریف_شوی HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#د_که_پای
+#که_تعریف_شوی HAVE_NETDB_H
+#ضمن <netdb.h>
+#د_که_پای
+#که_تعریف_شوی __VMS
+#ضمن <in.h>
+#ضمن <inet.h>
+#د_که_پای
 
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "escape.h"
-#include "pingpong.h"
-#include "mime.h"
-#include "vtls/vtls.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "select.h"
-#include "url.h"
-#include "curl_gethostname.h"
-#include "bufref.h"
-#include "curl_sasl.h"
-#include "idn.h"
-#include "curlx/strparse.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "progress.h"
+#ضمن "transfer.h"
+#ضمن "escape.h"
+#ضمن "pingpong.h"
+#ضمن "mime.h"
+#ضمن "vtls/vtls.h"
+#ضمن "cfilters.h"
+#ضمن "connect.h"
+#ضمن "select.h"
+#ضمن "url.h"
+#ضمن "curl_gethostname.h"
+#ضمن "bufref.h"
+#ضمن "curl_sasl.h"
+#ضمن "idn.h"
+#ضمن "curlx/strparse.h"
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_SMTP_EASY   "meta:proto:smtp:easy"
+#تعریف_کړه CURL_META_SMTP_EASY   "meta:proto:smtp:easy"
 /* meta key for storing protocol meta at connection */
-#define CURL_META_SMTP_CONN   "meta:proto:smtp:conn"
+#تعریف_کړه CURL_META_SMTP_CONN   "meta:proto:smtp:conn"
 
 /****************************************************************************
  * SMTP unique setup
  ***************************************************************************/
-typedef enum {
+تعريفنوع تعداد {
   SMTP_STOP,        /* do nothing state, stops the state machine */
   SMTP_SERVERGREET, /* waiting for the initial greeting immediately after
                        a connect */
@@ -97,42 +97,42 @@ typedef enum {
   SMTP_COMMAND,     /* VRFY, EXPN, NOOP, RSET and HELP */
   SMTP_MAIL,        /* MAIL FROM */
   SMTP_RCPT,        /* RCPT TO */
-  SMTP_DATA,
+  SMTP_معلومات,
   SMTP_POSTDATA,
   SMTP_QUIT,
-  SMTP_LAST         /* never used */
+  SMTP_وروستی         /* never used */
 } smtpstate;
 
 /* smtp_conn is used for struct connection-oriented data in the connectdata
    struct */
-struct smtp_conn {
-  struct pingpong pp;
-  struct SASL sasl;        /* SASL-related storage */
+بنية smtp_conn {
+  بنية pingpong pp;
+  بنية SASL sasl;        /* SASL-related storage */
   smtpstate state;         /* Always use smtp.c:state() to change state! */
-  char *domain;            /* Client address/name to send in the EHLO */
-  BIT(ssldone);            /* Is connect() over SSL done? */
-  BIT(tls_supported);      /* StartTLS capability supported by server */
-  BIT(size_supported);     /* If server supports SIZE extension according to
+  حرف *domain;            /* Client address/name to send in the EHLO */
+  بټ(ssldone);            /* Is connect() over SSL done? */
+  بټ(tls_supported);      /* StartTLS capability supported by server */
+  بټ(اندازه_supported);     /* If server supports SIZE extension according to
                               RFC 1870 */
-  BIT(utf8_supported);     /* If server supports SMTPUTF8 extension according
+  بټ(utf8_supported);     /* If server supports SMTPUTF8 extension according
                               to RFC 6531 */
-  BIT(auth_supported);     /* AUTH capability supported by server */
+  بټ(auth_supported);     /* AUTH capability supported by server */
 };
 
 /* This SMTP struct is used in the Curl_easy. All SMTP data that is
    connection-oriented must be in smtp_conn to properly deal with the fact that
    perhaps the Curl_easy is changed between the times the connection is
    used. */
-struct SMTP {
+بنية SMTP {
   curl_pp_transfer transfer;
-  char *custom;            /* Custom Request */
-  struct curl_slist *rcpt; /* Recipient list */
-  int rcpt_last_error;     /* The last error received for RCPT TO command */
+  حرف *custom;            /* Custom Request */
+  بنية curl_slist *rcpt; /* Recipient list */
+  صحيح rcpt_وروستی_error;     /* The last error received for RCPT TO command */
   size_t eob;              /* Number of bytes of the EOB (End Of Body) that
                               have been received so far */
-  BIT(rcpt_had_ok);        /* Whether any of RCPT TO commands (depends on
+  بټ(rcpt_had_ok);        /* Whether any of RCPT TO commands (depends on
                               total number of recipients) succeeded so far */
-  BIT(trailing_crlf);      /* Specifies if the trailing CRLF is present */
+  بټ(trailing_crlf);      /* Specifies if the trailing CRLF is present */
 };
 
 /***********************************************************************
@@ -141,35 +141,35 @@ struct SMTP {
  *
  * Parse the URL login options.
  */
-static CURLcode smtp_parse_url_options(struct connectdata *conn,
-                                       struct smtp_conn *smtpc)
+ساكن CURLcode smtp_parse_url_options(بنية connectdata *conn,
+                                       بنية smtp_conn *smtpc)
 {
-  CURLcode result = CURLE_OK;
-  const char *ptr = conn->options;
+  CURLcode پایله = CURLE_OK;
+  ثابت حرف *ptr = conn->options;
 
-  while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+  طالما(!پایله && ptr && *ptr) {
+    ثابت حرف *کلی = ptr;
+    ثابت حرف *ارزښت;
 
-    while(*ptr && *ptr != '=')
+    طالما(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    ارزښت = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    طالما(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=", 5))
-      result = Curl_sasl_parse_url_auth_option(&smtpc->sasl,
-                                               value, ptr - value);
-    else
-      result = CURLE_URL_MALFORMAT;
+    إذا(curl_strnequal(کلی, "AUTH=", 5))
+      پایله = Curl_sasl_parse_url_auth_option(&smtpc->sasl,
+                                               ارزښت, ptr - ارزښت);
+    وإلا
+      پایله = CURLE_URL_MALFORMAT;
 
-    if(*ptr == ';')
+    إذا(*ptr == ';')
       ptr++;
   }
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -178,23 +178,23 @@ static CURLcode smtp_parse_url_options(struct connectdata *conn,
  *
  * Parse the URL path into separate path components.
  */
-static CURLcode smtp_parse_url_path(struct Curl_easy *data,
-                                    struct smtp_conn *smtpc)
+ساكن CURLcode smtp_parse_url_لار(بنية Curl_easy *معلومات,
+                                    بنية smtp_conn *smtpc)
 {
   /* The SMTP struct is already initialized in smtp_connect() */
-  const char *path = &data->state.up.path[1]; /* skip leading path */
-  char localhost[HOSTNAME_MAX + 1];
+  ثابت حرف *لار = &معلومات->state.پورته.لار[1]; /* skip leading path */
+  حرف localhost[HOSTNAME_MAX + 1];
 
   /* Calculate the path if necessary */
-  if(!*path) {
-    if(!Curl_gethostname(localhost, sizeof(localhost)))
-      path = localhost;
-    else
-      path = "localhost";
+  إذا(!*لار) {
+    إذا(!Curl_gethostname(localhost, حجم(localhost)))
+      لار = localhost;
+    وإلا
+      لار = "localhost";
   }
 
   /* URL decode the path and use it as the domain in our EHLO */
-  return Curl_urldecode(path, 0, &smtpc->domain, NULL, REJECT_CTRL);
+  أرجع Curl_urldecode(لار, 0, &smtpc->domain, عدم, REJECT_CTRL);
 }
 
 /***********************************************************************
@@ -203,17 +203,17 @@ static CURLcode smtp_parse_url_path(struct Curl_easy *data,
  *
  * Parse the custom request.
  */
-static CURLcode smtp_parse_custom_request(struct Curl_easy *data,
-                                          struct SMTP *smtp)
+ساكن CURLcode smtp_parse_custom_request(بنية Curl_easy *معلومات,
+                                          بنية SMTP *smtp)
 {
-  CURLcode result = CURLE_OK;
-  const char *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  CURLcode پایله = CURLE_OK;
+  ثابت حرف *custom = CURL_EASY_STR(معلومات, STRING_CUSTOMREQUEST);
 
   /* URL decode the custom request */
-  if(custom)
-    result = Curl_urldecode(custom, 0, &smtp->custom, NULL, REJECT_CTRL);
+  إذا(custom)
+    پایله = Curl_urldecode(custom, 0, &smtp->custom, عدم, REJECT_CTRL);
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -249,37 +249,37 @@ static CURLcode smtp_parse_custom_request(struct Curl_easy *data,
  * calling function deems it to be) then the input will be returned in
  * the address part with the hostname being NULL.
  */
-static CURLcode smtp_parse_address(struct Curl_easy *data, const char *fqma,
-                                   char **address, struct hostname *host,
-                                   const char **suffix)
+ساكن CURLcode smtp_parse_پته(بنية Curl_easy *معلومات, ثابت حرف *fqma,
+                                   حرف **پته, بنية hostname *host,
+                                   ثابت حرف **suffix)
 {
-  CURLcode result = CURLE_OK;
-  size_t length;
-  char *addressend;
-  char *dup;
+  CURLcode پایله = CURLE_OK;
+  size_t اوږدتیا;
+  حرف *addressend;
+  حرف *dup;
 
   /* A CR or LF in the address ends up verbatim in the MAIL FROM/RCPT TO
      command line, so a crafted address could smuggle further SMTP commands
      onto the wire. Reject it before the command is built. */
-  if(strpbrk(fqma, "\r\n")) {
-    failf(data, "Refusing to send email address with a CR or LF");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(strpbrk(fqma, "\r\n")) {
+    failf(معلومات, "Refusing to send email address with a CR or LF");
+    أرجع CURLE_BAD_FUNCTION_دلیل;
   }
 
   /* Duplicate the fully qualified email address so we can manipulate it,
      ensuring it does not contain the delimiters if specified */
   dup = curlx_strdup(fqma[0] == '<' ? fqma + 1 : fqma);
-  if(!dup)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!dup)
+    أرجع CURLE_بهر_د_حافظه;
 
-  if(fqma[0] != '<') {
-    length = strlen(dup);
-    if(length && dup[length - 1] == '>')
-      dup[length - 1] = '\0';
+  إذا(fqma[0] != '<') {
+    اوږدتیا = مزي_اوږدوالی(dup);
+    إذا(اوږدتیا && dup[اوږدتیا - 1] == '>')
+      dup[اوږدتیا - 1] = '\0';
   }
-  else {
+  وإلا {
     addressend = strrchr(dup, '>');
-    if(addressend) {
+    إذا(addressend) {
       *addressend = '\0';
       *suffix = addressend + 1;
     }
@@ -287,12 +287,12 @@ static CURLcode smtp_parse_address(struct Curl_easy *data, const char *fqma,
 
   /* Extract the hostname from the address (if we can) */
   host->name = strpbrk(dup, "@");
-  if(host->name) {
+  إذا(host->name) {
     *host->name = '\0';
     host->name = host->name + 1;
 
     /* Attempt to convert the hostname to IDN ACE */
-    (void)Curl_idnconvert_hostname(host);
+    (فراغ)Curl_idnconvert_hostname(host);
 
     /* If Curl_idnconvert_hostname() fails then we shall attempt to continue
        and send the hostname using UTF-8 rather than as 7-bit ACE (which is
@@ -300,184 +300,184 @@ static CURLcode smtp_parse_address(struct Curl_easy *data, const char *fqma,
   }
 
   /* Extract the local address from the mailbox */
-  *address = dup;
+  *پته = dup;
 
-  return result;
+  أرجع پایله;
 }
 
-struct cr_eob_ctx {
-  struct Curl_creader super;
-  struct bufq buf;
+بنية cr_eob_ctx {
+  بنية Curl_creader super;
+  بنية bufq buf;
   size_t n_eob; /* how many EOB bytes we matched so far */
   size_t eob;       /* Number of bytes of the EOB (End Of Body) that
                        have been received so far */
-  BIT(read_eos);  /* we read an EOS from the next reader */
-  BIT(processed_eos);  /* we read and processed an EOS */
-  BIT(eos);       /* we have returned an EOS */
+  بټ(read_eos);  /* we read an EOS from the next reader */
+  بټ(processed_eos);  /* we read and processed an EOS */
+  بټ(eos);       /* we have returned an EOS */
 };
 
-static CURLcode cr_eob_init(struct Curl_easy *data,
-                            struct Curl_creader *reader)
+ساكن CURLcode cr_eob_init(بنية Curl_easy *معلومات,
+                            بنية Curl_creader *reader)
 {
-  struct cr_eob_ctx *ctx = reader->ctx;
-  (void)data;
+  بنية cr_eob_ctx *ctx = reader->ctx;
+  (فراغ)معلومات;
   /* The first char we read is the first on a line, as if we had
    * read CRLF before */
   ctx->n_eob = 2;
-  Curl_bufq_init2(&ctx->buf, (16 * 1024), 1, BUFQ_OPT_SOFT_LIMIT);
-  return CURLE_OK;
+  Curl_bufq_init2(&ctx->buf, (16 * 1024), 1, BUFQ_OPT_SOFT_حد);
+  أرجع CURLE_OK;
 }
 
-static void cr_eob_close(struct Curl_easy *data, struct Curl_creader *reader)
+ساكن فراغ cr_eob_close(بنية Curl_easy *معلومات, بنية Curl_creader *reader)
 {
-  struct cr_eob_ctx *ctx = reader->ctx;
-  (void)data;
+  بنية cr_eob_ctx *ctx = reader->ctx;
+  (فراغ)معلومات;
   Curl_bufq_free(&ctx->buf);
 }
 
 /* this is the 5-bytes End-Of-Body marker for SMTP */
-#define SMTP_EOB          "\r\n.\r\n"
-#define SMTP_EOB_FIND_LEN 3
+#تعریف_کړه SMTP_EOB          "\r\n.\r\n"
+#تعریف_کړه SMTP_EOB_پیدا_کړه_LEN 3
 
 /* client reader doing SMTP End-Of-Body escaping. */
-static CURLcode cr_eob_read(struct Curl_easy *data,
-                            struct Curl_creader *reader,
-                            char *buf, size_t blen,
+ساكن CURLcode cr_eob_read(بنية Curl_easy *معلومات,
+                            بنية Curl_creader *reader,
+                            حرف *buf, size_t blen,
                             size_t *pnread, bool *peos)
 {
-  struct cr_eob_ctx *ctx = reader->ctx;
-  CURLcode result = CURLE_OK;
-  size_t nread, i, start, n;
+  بنية cr_eob_ctx *ctx = reader->ctx;
+  CURLcode پایله = CURLE_OK;
+  size_t nread, i, پیل, n;
   bool eos;
 
-  if(!ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
+  إذا(!ctx->read_eos && Curl_bufq_is_تشه(&ctx->buf)) {
     /* Get more and convert it when needed */
-    result = Curl_creader_read(data, reader->next, buf, blen, &nread, &eos);
-    CURL_TRC_SMTP(data, "cr_eob_read, next_read(len=%zu) -> %d, %zu eos=%d",
-                  blen, (int)result, nread, eos);
-    if(result)
-      return result;
+    پایله = Curl_creader_read(معلومات, reader->بل, buf, blen, &nread, &eos);
+    CURL_TRC_SMTP(معلومات, "cr_eob_read, next_read(len=%zu) -> %d, %zu eos=%d",
+                  blen, (صحيح)پایله, nread, eos);
+    إذا(پایله)
+      أرجع پایله;
 
     ctx->read_eos = eos;
-    if(nread) {
-      if(!ctx->n_eob && !memchr(buf, SMTP_EOB[0], nread)) {
+    إذا(nread) {
+      إذا(!ctx->n_eob && !memchr(buf, SMTP_EOB[0], nread)) {
         /* not in the middle of a match, no EOB start found, pass */
         *pnread = nread;
         *peos = FALSE;
-        return CURLE_OK;
+        أرجع CURLE_OK;
       }
       /* scan for EOB (continuation) and convert */
-      for(i = start = 0; i < nread; ++i) {
-        if(ctx->n_eob >= SMTP_EOB_FIND_LEN) {
+      لكل(i = پیل = 0; i < nread; ++i) {
+        إذا(ctx->n_eob >= SMTP_EOB_پیدا_کړه_LEN) {
           /* matched the EOB prefix and seeing additional char, add '.' */
-          result = Curl_bufq_cwrite(&ctx->buf, buf + start, i - start, &n);
-          if(result)
-            return result;
-          result = Curl_bufq_cwrite(&ctx->buf, ".", 1, &n);
-          if(result)
-            return result;
+          پایله = Curl_bufq_cwrite(&ctx->buf, buf + پیل, i - پیل, &n);
+          إذا(پایله)
+            أرجع پایله;
+          پایله = Curl_bufq_cwrite(&ctx->buf, ".", 1, &n);
+          إذا(پایله)
+            أرجع پایله;
           ctx->n_eob = 0;
-          start = i;
-          if(data->state.infilesize > 0)
-            data->state.infilesize++;
+          پیل = i;
+          إذا(معلومات->state.infilesize > 0)
+            معلومات->state.infilesize++;
         }
 
-        if(buf[i] != SMTP_EOB[ctx->n_eob])
+        إذا(buf[i] != SMTP_EOB[ctx->n_eob])
           ctx->n_eob = 0;
 
-        if(buf[i] == SMTP_EOB[ctx->n_eob]) {
+        إذا(buf[i] == SMTP_EOB[ctx->n_eob]) {
           /* matching another char of the EOB */
           ++ctx->n_eob;
         }
       }
 
       /* add any remainder to buf */
-      if(start < nread) {
-        result = Curl_bufq_cwrite(&ctx->buf, buf + start, nread - start, &n);
-        if(result)
-          return result;
+      إذا(پیل < nread) {
+        پایله = Curl_bufq_cwrite(&ctx->buf, buf + پیل, nread - پیل, &n);
+        إذا(پایله)
+          أرجع پایله;
       }
     }
   }
 
   *peos = FALSE;
 
-  if(ctx->read_eos && !ctx->processed_eos) {
+  إذا(ctx->read_eos && !ctx->processed_eos) {
     /* if we last matched a CRLF or if the data was empty, add ".\r\n"
      * to end the body. If we sent something and it did not end with "\r\n",
      * add "\r\n.\r\n" to end the body */
-    const char *eob = SMTP_EOB;
-    CURL_TRC_SMTP(data, "auto-ending mail body with '\\r\\n.\\r\\n'");
-    switch(ctx->n_eob) {
-    case 2:
+    ثابت حرف *eob = SMTP_EOB;
+    CURL_TRC_SMTP(معلومات, "auto-ending mail body with '\\r\\n.\\r\\n'");
+    بدل(ctx->n_eob) {
+    حالة 2:
       /* seen a CRLF at the end, add the remainder */
       eob = &SMTP_EOB[2];
-      break;
-    case 3:
+      اكسر;
+    حالة 3:
       /* ended with '\r\n.', we should escape the last '.' */
       eob = "." SMTP_EOB;
-      break;
-    default:
-      break;
+      اكسر;
+    افتراضي:
+      اكسر;
     }
-    result = Curl_bufq_cwrite(&ctx->buf, eob, strlen(eob), &n);
-    if(result)
-      return result;
+    پایله = Curl_bufq_cwrite(&ctx->buf, eob, مزي_اوږدوالی(eob), &n);
+    إذا(پایله)
+      أرجع پایله;
     ctx->processed_eos = TRUE;
   }
 
-  if(!Curl_bufq_is_empty(&ctx->buf)) {
-    result = Curl_bufq_cread(&ctx->buf, buf, blen, pnread);
+  إذا(!Curl_bufq_is_تشه(&ctx->buf)) {
+    پایله = Curl_bufq_cread(&ctx->buf, buf, blen, pnread);
   }
-  else
+  وإلا
     *pnread = 0;
 
-  if(ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
+  إذا(ctx->read_eos && Curl_bufq_is_تشه(&ctx->buf)) {
     /* no more data, read all, done. */
-    CURL_TRC_SMTP(data, "mail body complete, returning EOS");
+    CURL_TRC_SMTP(معلومات, "mail body complete, returning EOS");
     ctx->eos = TRUE;
   }
   *peos = (bool)ctx->eos;
-  DEBUGF(infof(data, "cr_eob_read(%zu) -> %d, %zu, %d",
-               blen, (int)result, *pnread, *peos));
-  return result;
+  DEBUGF(infof(معلومات, "cr_eob_read(%zu) -> %d, %zu, %d",
+               blen, (صحيح)پایله, *pnread, *peos));
+  أرجع پایله;
 }
 
-static curl_off_t cr_eob_total_length(struct Curl_easy *data,
-                                      struct Curl_creader *reader)
+ساكن curl_off_t cr_eob_ټول_اوږدتیا(بنية Curl_easy *معلومات,
+                                      بنية Curl_creader *reader)
 {
   /* this reader changes length depending on input */
-  (void)data;
-  (void)reader;
-  return -1;
+  (فراغ)معلومات;
+  (فراغ)reader;
+  أرجع -1;
 }
 
-static const struct Curl_crtype cr_eob = {
+ساكن ثابت بنية Curl_crtype cr_eob = {
   "cr-smtp-eob",
   cr_eob_init,
   cr_eob_read,
   cr_eob_close,
   Curl_creader_def_needs_rewind,
-  cr_eob_total_length,
+  cr_eob_ټول_اوږدتیا,
   Curl_creader_def_resume_from,
   Curl_creader_def_cntrl,
   Curl_creader_def_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct cr_eob_ctx)
+  Curl_creader_def_بشپړ,
+  حجم(بنية cr_eob_ctx)
 };
 
-static CURLcode cr_eob_add(struct Curl_easy *data)
+ساكن CURLcode cr_eob_جمع_کړه(بنية Curl_easy *معلومات)
 {
-  struct Curl_creader *reader = NULL;
-  CURLcode result;
+  بنية Curl_creader *reader = عدم;
+  CURLcode پایله;
 
-  result = Curl_creader_create(&reader, data, &cr_eob, CURL_CR_CONTENT_ENCODE);
-  if(!result)
-    result = Curl_creader_add(data, reader);
+  پایله = Curl_creader_create(&reader, معلومات, &cr_eob, CURL_CR_CONTENT_ENCODE);
+  إذا(!پایله)
+    پایله = Curl_creader_جمع_کړه(معلومات, reader);
 
-  if(result && reader)
-    Curl_creader_free(data, reader);
-  return result;
+  إذا(پایله && reader)
+    Curl_creader_free(معلومات, reader);
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -488,48 +488,48 @@ static CURLcode cr_eob_add(struct Curl_easy *data)
  * also detects various capabilities from the EHLO response including the
  * supported authentication mechanisms.
  */
-static bool smtp_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+ساكن bool smtp_endofresp(بنية Curl_easy *معلومات, بنية connectdata *conn,
+                           ثابت حرف *کرښه, size_t len, صحيح *resp)
 {
-  struct smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
-  bool end = FALSE;
-  (void)data;
+  بنية smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
+  bool پای_ټکی = FALSE;
+  (فراغ)معلومات;
 
   DEBUGASSERT(smtpc);
-  if(!smtpc)
-    return FALSE;
+  إذا(!smtpc)
+    أرجع FALSE;
 
   /* Nothing for us */
-  if(len < 4 || !ISDIGIT(line[0]) || !ISDIGIT(line[1]) || !ISDIGIT(line[2]))
-    return FALSE;
+  إذا(len < 4 || !ISDIGIT(کرښه[0]) || !ISDIGIT(کرښه[1]) || !ISDIGIT(کرښه[2]))
+    أرجع FALSE;
 
   /* Do we have a command response? This should be the response code followed
      by a space and optionally some text as per RFC-5321 and as outlined in
      Section 4. Examples of RFC-4954 but some email servers ignore this and
      only send the response code instead as per Section 4.2. */
-  if(line[3] == ' ' || len == 5) {
-    char tmpline[6];
-    curl_off_t code;
-    const char *p = tmpline;
-    end = TRUE;
-    memcpy(tmpline, line, (len == 5 ? 5 : 3));
+  إذا(کرښه[3] == ' ' || len == 5) {
+    حرف tmpline[6];
+    curl_off_t کوډ;
+    ثابت حرف *p = tmpline;
+    پای_ټکی = TRUE;
+    حافظه_نقل(tmpline, کرښه, (len == 5 ? 5 : 3));
     tmpline[len == 5 ? 5 : 3] = 0;
-    if(curlx_str_number(&p, &code, len == 5 ? 99999 : 999))
-      return FALSE;
-    *resp = (int)code;
+    إذا(curlx_str_شمېره(&p, &کوډ, len == 5 ? 99999 : 999))
+      أرجع FALSE;
+    *resp = (صحيح)کوډ;
 
     /* Make sure real server never sends internal value */
-    if(*resp == 1)
+    إذا(*resp == 1)
       *resp = 0;
   }
   /* Do we have a multiline (continuation) response? */
-  else if(line[3] == '-' &&
+  وإلا إذا(کرښه[3] == '-' &&
           (smtpc->state == SMTP_EHLO || smtpc->state == SMTP_COMMAND)) {
-    end = TRUE;
+    پای_ټکی = TRUE;
     *resp = 1;  /* Internal response code */
   }
 
-  return end;
+  أرجع پای_ټکی;
 }
 
 /***********************************************************************
@@ -538,38 +538,38 @@ static bool smtp_endofresp(struct Curl_easy *data, struct connectdata *conn,
  *
  * Gets the authentication message from the response buffer.
  */
-static CURLcode smtp_get_message(struct Curl_easy *data, struct bufref *out)
+ساكن CURLcode smtp_get_پیغام(بنية Curl_easy *معلومات, بنية bufref *بهر)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  char *message;
+  بنية smtp_conn *smtpc =
+    Curl_conn_meta_get(معلومات->conn, CURL_META_SMTP_CONN);
+  حرف *پیغام_2;
   size_t len;
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  إذا(!smtpc)
+    أرجع CURLE_FAILED_INIT;
 
-  message = curlx_dyn_ptr(&smtpc->pp.recvbuf);
+  پیغام_2 = curlx_dyn_ptr(&smtpc->pp.recvbuf);
   len = smtpc->pp.nfinal;
-  if(len > 4) {
+  إذا(len > 4) {
     /* Find the start of the message */
     len -= 4;
-    for(message += 4; ISBLANK(*message); message++, len--)
+    لكل(پیغام_2 += 4; ISBLANK(*پیغام_2); پیغام_2++, len--)
       ;
 
     /* Find the end of the message */
-    while(len--)
-      if(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
-        break;
+    طالما(len--)
+      إذا(!ISNEWLINE(پیغام_2[len]) && !ISBLANK(پیغام_2[len]))
+        اكسر;
 
     /* Terminate the message */
-    message[++len] = '\0';
-    Curl_bufref_set(out, message, len, NULL);
+    پیغام_2[++len] = '\0';
+    Curl_bufref_سېټ(بهر, پیغام_2, len, عدم);
   }
-  else
+  وإلا
     /* junk input => zero length output */
-    Curl_bufref_set(out, "", 0, NULL);
+    Curl_bufref_سېټ(بهر, "", 0, عدم);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /***********************************************************************
@@ -578,13 +578,13 @@ static CURLcode smtp_get_message(struct Curl_easy *data, struct bufref *out)
  *
  * This is the ONLY way to change SMTP state!
  */
-static void smtp_state(struct Curl_easy *data,
-                       struct smtp_conn *smtpc,
+ساكن فراغ smtp_state(بنية Curl_easy *معلومات,
+                       بنية smtp_conn *smtpc,
                        smtpstate newstate)
 {
-#ifdef CURLVERBOSE
+#که_تعریف_شوی CURLVERBOSE
   /* for debug purposes */
-  static const char * const names[] = {
+  ساكن ثابت حرف * ثابت نومونه[] = {
     "STOP",
     "SERVERGREET",
     "EHLO",
@@ -598,15 +598,15 @@ static void smtp_state(struct Curl_easy *data,
     "DATA",
     "POSTDATA",
     "QUIT",
-    /* LAST */
+    /*وروستی*/
   };
 
-  if(smtpc->state != newstate)
-    CURL_TRC_SMTP(data, "state change from %s to %s",
-                  names[smtpc->state], names[newstate]);
-#else
-  (void)data;
-#endif
+  إذا(smtpc->state != newstate)
+    CURL_TRC_SMTP(معلومات, "state change from %s to %s",
+                  نومونه[smtpc->state], نومونه[newstate]);
+#وإلا
+  (فراغ)معلومات;
+#د_که_پای
 
   smtpc->state = newstate;
 }
@@ -618,10 +618,10 @@ static void smtp_state(struct Curl_easy *data,
  * Sends the EHLO command to not only initialize communication with the ESMTP
  * server but to also obtain a list of server side supported capabilities.
  */
-static CURLcode smtp_perform_ehlo(struct Curl_easy *data,
-                                  struct smtp_conn *smtpc)
+ساكن CURLcode smtp_perform_ehlo(بنية Curl_easy *معلومات,
+                                  بنية smtp_conn *smtpc)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
 
   smtpc->sasl.authmechs = SASL_AUTH_NONE; /* No known auth. mechanism yet */
   smtpc->sasl.authused = SASL_AUTH_NONE;  /* Clear the authentication mechanism
@@ -630,12 +630,12 @@ static CURLcode smtp_perform_ehlo(struct Curl_easy *data,
   smtpc->auth_supported = FALSE;          /* Clear the AUTH capability */
 
   /* Send the EHLO command */
-  result = Curl_pp_sendf(data, &smtpc->pp, "EHLO %s", smtpc->domain);
+  پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "EHLO %s", smtpc->domain);
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_EHLO);
+  إذا(!پایله)
+    smtp_state(معلومات, smtpc, SMTP_EHLO);
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -644,21 +644,21 @@ static CURLcode smtp_perform_ehlo(struct Curl_easy *data,
  *
  * Sends the HELO command to initialize communication with the SMTP server.
  */
-static CURLcode smtp_perform_helo(struct Curl_easy *data,
-                                  struct smtp_conn *smtpc)
+ساكن CURLcode smtp_perform_helo(بنية Curl_easy *معلومات,
+                                  بنية smtp_conn *smtpc)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
 
   smtpc->sasl.authused = SASL_AUTH_NONE; /* No authentication mechanism used
                                             in smtp connections */
 
   /* Send the HELO command */
-  result = Curl_pp_sendf(data, &smtpc->pp, "HELO %s", smtpc->domain);
+  پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "HELO %s", smtpc->domain);
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_HELO);
+  إذا(!پایله)
+    smtp_state(معلومات, smtpc, SMTP_HELO);
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -667,16 +667,16 @@ static CURLcode smtp_perform_helo(struct Curl_easy *data,
  *
  * Sends the STLS command to start the upgrade to TLS.
  */
-static CURLcode smtp_perform_starttls(struct Curl_easy *data,
-                                      struct smtp_conn *smtpc)
+ساكن CURLcode smtp_perform_starttls(بنية Curl_easy *معلومات,
+                                      بنية smtp_conn *smtpc)
 {
   /* Send the STARTTLS command */
-  CURLcode result = Curl_pp_sendf(data, &smtpc->pp, "%s", "STARTTLS");
+  CURLcode پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "%s", "STARTTLS");
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_STARTTLS);
+  إذا(!پایله)
+    smtp_state(معلومات, smtpc, SMTP_STARTTLS);
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -685,41 +685,41 @@ static CURLcode smtp_perform_starttls(struct Curl_easy *data,
  *
  * Performs the upgrade to TLS.
  */
-static CURLcode smtp_perform_upgrade_tls(struct Curl_easy *data,
-                                         struct smtp_conn *smtpc)
+ساكن CURLcode smtp_perform_upgrade_tls(بنية Curl_easy *معلومات,
+                                         بنية smtp_conn *smtpc)
 {
-#ifdef USE_SSL
+#که_تعریف_شوی USE_SSL
   /* Start the SSL connection */
-  struct connectdata *conn = data->conn;
-  CURLcode result;
+  بنية connectdata *conn = معلومات->conn;
+  CURLcode پایله;
   bool ssldone = FALSE;
 
   DEBUGASSERT(smtpc->state == SMTP_UPGRADETLS);
-  if(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
-    result = Curl_ssl_cfilter_add(
-      data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
-      goto out;
+  إذا(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+    پایله = Curl_ssl_cfilter_جمع_کړه(
+      معلومات, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
+    إذا(پایله)
+      اذهب بهر;
     /* Change the connection handler and SMTP state */
     conn->scheme = &Curl_scheme_smtps;
   }
 
   DEBUGASSERT(!smtpc->ssldone);
-  result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
-  DEBUGF(infof(data, "smtp_perform_upgrade_tls, connect -> %d, %d",
-               (int)result, ssldone));
-  if(!result && ssldone) {
+  پایله = Curl_conn_connect(معلومات, FIRSTSOCKET, FALSE, &ssldone);
+  DEBUGF(infof(معلومات, "smtp_perform_upgrade_tls, connect -> %d, %d",
+               (صحيح)پایله, ssldone));
+  إذا(!پایله && ssldone) {
     smtpc->ssldone = ssldone;
     /* perform EHLO now, changes smtp->state out of SMTP_UPGRADETLS */
-    result = smtp_perform_ehlo(data, smtpc);
+    پایله = smtp_perform_ehlo(معلومات, smtpc);
   }
-out:
-  return result;
-#else
-  (void)data;
-  (void)smtpc;
-  return CURLE_NOT_BUILT_IN;
-#endif
+بهر:
+  أرجع پایله;
+#وإلا
+  (فراغ)معلومات;
+  (فراغ)smtpc;
+  أرجع CURLE_NOT_BUILT_دننه;
+#د_که_پای
 }
 
 /***********************************************************************
@@ -729,29 +729,29 @@ out:
  * Sends an AUTH command allowing the client to login with the given SASL
  * authentication mechanism.
  */
-static CURLcode smtp_perform_auth(struct Curl_easy *data,
-                                  const char *mech,
-                                  const struct bufref *initresp)
+ساكن CURLcode smtp_perform_auth(بنية Curl_easy *معلومات,
+                                  ثابت حرف *mech,
+                                  ثابت بنية bufref *initresp)
 {
-  CURLcode result = CURLE_OK;
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  const char *ir = Curl_bufref_ptr(initresp);
+  CURLcode پایله = CURLE_OK;
+  بنية smtp_conn *smtpc =
+    Curl_conn_meta_get(معلومات->conn, CURL_META_SMTP_CONN);
+  ثابت حرف *ir = Curl_bufref_ptr(initresp);
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  إذا(!smtpc)
+    أرجع CURLE_FAILED_INIT;
 
-  if(ir) {                                  /* AUTH <mech> ...<crlf> */
+  إذا(ir) {                                  /* AUTH <mech> ...<crlf> */
     /* Send the AUTH command with the initial response */
-    result = Curl_pp_sendf(data, &smtpc->pp, "AUTH %s %s",
+    پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "AUTH %s %s",
                            mech, *ir ? ir : "=");
   }
-  else {
+  وإلا {
     /* Send the AUTH command */
-    result = Curl_pp_sendf(data, &smtpc->pp, "AUTH %s", mech);
+    پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "AUTH %s", mech);
   }
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -760,17 +760,17 @@ static CURLcode smtp_perform_auth(struct Curl_easy *data,
  *
  * Sends SASL continuation data.
  */
-static CURLcode smtp_continue_auth(struct Curl_easy *data,
-                                   const char *mech,
-                                   const struct bufref *resp)
+ساكن CURLcode smtp_continue_auth(بنية Curl_easy *معلومات,
+                                   ثابت حرف *mech,
+                                   ثابت بنية bufref *resp)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
+  بنية smtp_conn *smtpc =
+    Curl_conn_meta_get(معلومات->conn, CURL_META_SMTP_CONN);
 
-  (void)mech;
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &smtpc->pp, "%s", Curl_bufref_ptr(resp));
+  (فراغ)mech;
+  إذا(!smtpc)
+    أرجع CURLE_FAILED_INIT;
+  أرجع Curl_pp_sendf(معلومات, &smtpc->pp, "%s", Curl_bufref_ptr(resp));
 }
 
 /***********************************************************************
@@ -779,15 +779,15 @@ static CURLcode smtp_continue_auth(struct Curl_easy *data,
  *
  * Sends SASL cancellation.
  */
-static CURLcode smtp_cancel_auth(struct Curl_easy *data, const char *mech)
+ساكن CURLcode smtp_cancel_auth(بنية Curl_easy *معلومات, ثابت حرف *mech)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
+  بنية smtp_conn *smtpc =
+    Curl_conn_meta_get(معلومات->conn, CURL_META_SMTP_CONN);
 
-  (void)mech;
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &smtpc->pp, "*");
+  (فراغ)mech;
+  إذا(!smtpc)
+    أرجع CURLE_FAILED_INIT;
+  أرجع Curl_pp_sendf(معلومات, &smtpc->pp, "*");
 }
 
 /***********************************************************************
@@ -797,31 +797,31 @@ static CURLcode smtp_cancel_auth(struct Curl_easy *data, const char *mech)
  * Initiates the authentication sequence, with the appropriate SASL
  * authentication mechanism.
  */
-static CURLcode smtp_perform_authentication(struct Curl_easy *data,
-                                            struct smtp_conn *smtpc)
+ساكن CURLcode smtp_perform_authentication(بنية Curl_easy *معلومات,
+                                            بنية smtp_conn *smtpc)
 {
-  CURLcode result = CURLE_OK;
-  saslprogress progress;
+  CURLcode پایله = CURLE_OK;
+  saslprogress پرمختګ;
 
   /* Check we have enough data to authenticate with, and the
      server supports authentication, and end the connect phase if not */
-  if(!smtpc->auth_supported ||
-     !Curl_sasl_can_authenticate(&smtpc->sasl, data)) {
-    smtp_state(data, smtpc, SMTP_STOP);
-    return result;
+  إذا(!smtpc->auth_supported ||
+     !Curl_sasl_can_authenticate(&smtpc->sasl, معلومات)) {
+    smtp_state(معلومات, smtpc, SMTP_STOP);
+    أرجع پایله;
   }
 
   /* Calculate the SASL login details */
-  result = Curl_sasl_start(&smtpc->sasl, data, FALSE, &progress);
+  پایله = Curl_sasl_پیل(&smtpc->sasl, معلومات, FALSE, &پرمختګ);
 
-  if(!result) {
-    if(progress == SASL_INPROGRESS)
-      smtp_state(data, smtpc, SMTP_AUTH);
-    else
-      result = Curl_sasl_is_blocked(&smtpc->sasl, data);
+  إذا(!پایله) {
+    إذا(پرمختګ == SASL_INPROGRESS)
+      smtp_state(معلومات, smtpc, SMTP_AUTH);
+    وإلا
+      پایله = Curl_sasl_is_blocked(&smtpc->sasl, معلومات);
   }
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -830,71 +830,71 @@ static CURLcode smtp_perform_authentication(struct Curl_easy *data,
  *
  * Sends an SMTP based command.
  */
-static CURLcode smtp_perform_command(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     struct SMTP *smtp)
+ساكن CURLcode smtp_perform_command(بنية Curl_easy *معلومات,
+                                     بنية smtp_conn *smtpc,
+                                     بنية SMTP *smtp)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
 
-  if(smtp->rcpt) {
+  إذا(smtp->rcpt) {
     /* We notify the server we are sending UTF-8 data if a) it supports the
        SMTPUTF8 extension and b) The mailbox contains UTF-8 characters, in
        either the local address or hostname parts. This is regardless of
        whether the hostname is encoded using IDN ACE */
     bool utf8 = FALSE;
 
-    if(!smtp->custom || !smtp->custom[0]) {
-      char *address = NULL;
-      struct hostname host = { NULL, NULL, NULL, NULL };
-      const char *suffix = "";
+    إذا(!smtp->custom || !smtp->custom[0]) {
+      حرف *پته = عدم;
+      بنية hostname host = { عدم, عدم, عدم, عدم };
+      ثابت حرف *suffix = "";
 
       /* Parse the mailbox to verify into the local address and hostname
          parts, converting the hostname to an IDN A-label if necessary */
-      result = smtp_parse_address(data, smtp->rcpt->data,
-                                  &address, &host, &suffix);
-      if(result)
-        return result;
+      پایله = smtp_parse_پته(معلومات, smtp->rcpt->معلومات,
+                                  &پته, &host, &suffix);
+      إذا(پایله)
+        أرجع پایله;
 
       /* Establish whether we should report SMTPUTF8 to the server for this
          mailbox as per RFC-6531 sect. 3.1 point 6 */
       utf8 = smtpc->utf8_supported &&
              (host.encalloc ||
-              !Curl_is_ASCII_name(address) ||
+              !Curl_is_ASCII_name(پته) ||
               !Curl_is_ASCII_name(host.name));
 
       /* Send the VRFY command (Note: The hostname part may be absent when the
          host is a local system) */
-      result = Curl_pp_sendf(data, &smtpc->pp, "VRFY %s%s%s%s",
-                             address,
+      پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "VRFY %s%s%s%s",
+                             پته,
                              host.name ? "@" : "",
                              host.name ? host.name : "",
                              utf8 ? " SMTPUTF8" : "");
 
       Curl_free_idnconverted_hostname(&host);
-      curlx_free(address);
+      curlx_free(پته);
     }
-    else {
+    وإلا {
       /* Establish whether we should report that we support SMTPUTF8 for EXPN
          commands to the server as per RFC-6531 sect. 3.1 point 6 */
       utf8 = smtpc->utf8_supported && !strcmp(smtp->custom, "EXPN");
 
       /* Send the custom recipient based command such as the EXPN command */
-      result = Curl_pp_sendf(data, &smtpc->pp,
+      پایله = Curl_pp_sendf(معلومات, &smtpc->pp,
                              "%s %s%s", smtp->custom,
-                             smtp->rcpt->data,
+                             smtp->rcpt->معلومات,
                              utf8 ? " SMTPUTF8" : "");
     }
   }
-  else
+  وإلا
     /* Send the non-recipient based command such as HELP */
-    result = Curl_pp_sendf(data, &smtpc->pp, "%s",
+    پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "%s",
                            smtp->custom && smtp->custom[0] != '\0' ?
                            smtp->custom : "HELP");
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_COMMAND);
+  إذا(!پایله)
+    smtp_state(معلومات, smtpc, SMTP_COMMAND);
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -903,15 +903,15 @@ static CURLcode smtp_perform_command(struct Curl_easy *data,
  *
  * Sends an MAIL command to initiate the upload of a message.
  */
-static CURLcode smtp_perform_mail(struct Curl_easy *data,
-                                  struct smtp_conn *smtpc,
-                                  struct SMTP *smtp)
+ساكن CURLcode smtp_perform_mail(بنية Curl_easy *معلومات,
+                                  بنية smtp_conn *smtpc,
+                                  بنية SMTP *smtp)
 {
-  char *from = NULL;
-  char *auth = NULL;
-  char *size = NULL;
-  const char *str;
-  CURLcode result = CURLE_OK;
+  حرف *from = عدم;
+  حرف *auth = عدم;
+  حرف *اندازه = عدم;
+  ثابت حرف *str;
+  CURLcode پایله = CURLE_OK;
 
   /* We notify the server we are sending UTF-8 data if a) it supports the
      SMTPUTF8 extension and b) The mailbox contains UTF-8 characters, in
@@ -920,125 +920,125 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
   bool utf8 = FALSE;
 
   /* Calculate the FROM parameter */
-  str = CURL_EASY_STR(data, STRING_MAIL_FROM);
-  if(str) {
-    char *address = NULL;
-    struct hostname host = { NULL, NULL, NULL, NULL };
-    const char *suffix = "";
+  str = CURL_EASY_STR(معلومات, STRING_MAIL_FROM);
+  إذا(str) {
+    حرف *پته = عدم;
+    بنية hostname host = { عدم, عدم, عدم, عدم };
+    ثابت حرف *suffix = "";
 
     /* Parse the FROM mailbox into the local address and hostname parts,
        converting the hostname to an IDN A-label if necessary */
-    result = smtp_parse_address(data, str, &address, &host, &suffix);
-    if(result)
-      goto out;
+    پایله = smtp_parse_پته(معلومات, str, &پته, &host, &suffix);
+    إذا(پایله)
+      اذهب بهر;
 
     /* Establish whether we should report SMTPUTF8 to the server for this
        mailbox as per RFC-6531 sect. 3.1 point 4 and sect. 3.4 */
     utf8 = smtpc->utf8_supported &&
            (host.encalloc ||
-            !Curl_is_ASCII_name(address) ||
+            !Curl_is_ASCII_name(پته) ||
             !Curl_is_ASCII_name(host.name));
 
-    if(host.name) {
-      from = curl_maprintf("<%s@%s>%s", address, host.name, suffix);
+    إذا(host.name) {
+      from = curl_maprintf("<%s@%s>%s", پته, host.name, suffix);
 
       Curl_free_idnconverted_hostname(&host);
     }
-    else
+    وإلا
       /* An invalid mailbox was provided but we let the server worry
          about that and reply with a 501 error */
-      from = curl_maprintf("<%s>%s", address, suffix);
+      from = curl_maprintf("<%s>%s", پته, suffix);
 
-    curlx_free(address);
+    curlx_free(پته);
   }
-  else
+  وإلا
     /* Null reverse-path, RFC-5321, sect. 3.6.3 */
     from = curlx_strdup("<>");
 
-  if(!from) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  إذا(!from) {
+    پایله = CURLE_بهر_د_حافظه;
+    اذهب بهر;
   }
 
   /* Calculate the optional AUTH parameter */
-  str = CURL_EASY_STR(data, STRING_MAIL_AUTH);
-  if(str && smtpc->sasl.authused) {
-    if(str[0] != '\0') {
-      char *address = NULL;
-      struct hostname host = { NULL, NULL, NULL, NULL };
-      const char *suffix = "";
+  str = CURL_EASY_STR(معلومات, STRING_MAIL_AUTH);
+  إذا(str && smtpc->sasl.authused) {
+    إذا(str[0] != '\0') {
+      حرف *پته = عدم;
+      بنية hostname host = { عدم, عدم, عدم, عدم };
+      ثابت حرف *suffix = "";
 
       /* Parse the AUTH mailbox into the local address and hostname parts,
          converting the hostname to an IDN A-label if necessary */
-      result = smtp_parse_address(data, str, &address, &host, &suffix);
-      if(result)
-        goto out;
+      پایله = smtp_parse_پته(معلومات, str, &پته, &host, &suffix);
+      إذا(پایله)
+        اذهب بهر;
 
       /* Establish whether we should report SMTPUTF8 to the server for this
          mailbox as per RFC-6531 sect. 3.1 point 4 and sect. 3.4 */
-      if(!utf8 && smtpc->utf8_supported &&
+      إذا(!utf8 && smtpc->utf8_supported &&
          (host.encalloc ||
-          !Curl_is_ASCII_name(address) ||
+          !Curl_is_ASCII_name(پته) ||
           !Curl_is_ASCII_name(host.name)))
         utf8 = TRUE;
 
-      if(host.name) {
-        auth = curl_maprintf("<%s@%s>%s", address, host.name, suffix);
+      إذا(host.name) {
+        auth = curl_maprintf("<%s@%s>%s", پته, host.name, suffix);
 
         Curl_free_idnconverted_hostname(&host);
       }
-      else
+      وإلا
         /* An invalid mailbox was provided but we let the server worry
            about it */
-        auth = curl_maprintf("<%s>%s", address, suffix);
-      curlx_free(address);
+        auth = curl_maprintf("<%s>%s", پته, suffix);
+      curlx_free(پته);
     }
-    else
+    وإلا
       /* Empty AUTH, RFC-2554, sect. 5 */
       auth = curlx_strdup("<>");
 
-    if(!auth) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    إذا(!auth) {
+      پایله = CURLE_بهر_د_حافظه;
+      اذهب بهر;
     }
   }
 
-#ifndef CURL_DISABLE_MIME
+#که_نه_تعریف_شوی CURL_DISABLE_MIME
   /* Prepare the mime data if some. */
-  if(IS_MIME_POST(data)) {
-    curl_mimepart *postp = data->set.mimepostp;
+  إذا(IS_MIME_POST(معلومات)) {
+    curl_mimepart *postp = معلومات->سېټ.mimepostp;
 
     /* Use the whole structure as data. */
-    postp->flags &= ~(unsigned int)MIME_BODY_ONLY;
+    postp->flags &= ~(بینښه صحيح)MIME_BODY_ONLY;
 
     /* Add external headers and mime version. */
-    curl_mime_headers(postp, data->set.headers, 0);
-    result = Curl_mime_prepare_headers(data, postp, NULL,
-                                       NULL, MIMESTRATEGY_MAIL);
+    curl_mime_سرلیکونه(postp, معلومات->سېټ.سرلیکونه, 0);
+    پایله = Curl_mime_prepare_سرلیکونه(معلومات, postp, عدم,
+                                       عدم, MIMESTRATEGY_MAIL);
 
-    if(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
-      result = Curl_mime_add_header(&postp->curlheaders, "Mime-Version: 1.0");
-    if(!result)
-      result = Curl_creader_set_mime(data, postp);
-    if(result)
-      goto out;
-    data->state.infilesize = Curl_creader_total_length(data);
+    إذا(!پایله && !Curl_checkheaders(معلومات, STRCONST("Mime-Version")))
+      پایله = Curl_mime_جمع_کړه_سرلیک(&postp->curlheaders, "Mime-Version: 1.0");
+    إذا(!پایله)
+      پایله = Curl_creader_سېټ_mime(معلومات, postp);
+    إذا(پایله)
+      اذهب بهر;
+    معلومات->state.infilesize = Curl_creader_ټول_اوږدتیا(معلومات);
   }
-  else
-#endif
+  وإلا
+#د_که_پای
   {
-    result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
-      goto out;
+    پایله = Curl_creader_سېټ_fread(معلومات, معلومات->state.infilesize);
+    إذا(پایله)
+      اذهب بهر;
   }
 
   /* Calculate the optional SIZE parameter */
-  if(smtpc->size_supported && data->state.infilesize > 0) {
-    size = curl_maprintf("%" FMT_OFF_T, data->state.infilesize);
+  إذا(smtpc->اندازه_supported && معلومات->state.infilesize > 0) {
+    اندازه = curl_maprintf("%" FMT_OFF_T, معلومات->state.infilesize);
 
-    if(!size) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    إذا(!اندازه) {
+      پایله = CURLE_بهر_د_حافظه;
+      اذهب بهر;
     }
   }
 
@@ -1046,43 +1046,43 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
      based address then quickly scan through the recipient list and check if
      any there do, as we need to correctly identify our support for SMTPUTF8
      in the envelope, as per RFC-6531 sect. 3.4 */
-  if(smtpc->utf8_supported && !utf8) {
-    struct curl_slist *rcpt = smtp->rcpt;
+  إذا(smtpc->utf8_supported && !utf8) {
+    بنية curl_slist *rcpt = smtp->rcpt;
 
-    while(rcpt && !utf8) {
+    طالما(rcpt && !utf8) {
       /* Does the hostname contain non-ASCII characters? */
-      if(!Curl_is_ASCII_name(rcpt->data))
+      إذا(!Curl_is_ASCII_name(rcpt->معلومات))
         utf8 = TRUE;
 
-      rcpt = rcpt->next;
+      rcpt = rcpt->بل;
     }
   }
 
   /* Add the client reader doing STMP EOB escaping */
-  result = cr_eob_add(data);
-  if(result)
-    goto out;
+  پایله = cr_eob_جمع_کړه(معلومات);
+  إذا(پایله)
+    اذهب بهر;
 
   /* Send the MAIL command */
-  result = Curl_pp_sendf(data, &smtpc->pp,
+  پایله = Curl_pp_sendf(معلومات, &smtpc->pp,
                          "MAIL FROM:%s%s%s%s%s%s",
                          from,                 /* Mandatory                 */
                          auth ? " AUTH=" : "", /* Optional on AUTH support  */
                          auth ? auth : "",
-                         size ? " SIZE=" : "", /* Optional on SIZE support  */
-                         size ? size : "",
+                         اندازه ? " SIZE=" : "", /* Optional on SIZE support  */
+                         اندازه ? اندازه : "",
                          utf8 ? " SMTPUTF8"    /* Internationalised mailbox */
                                : "");          /* included in our envelope  */
 
-out:
+بهر:
   curlx_free(from);
   curlx_free(auth);
-  curlx_free(size);
+  curlx_free(اندازه);
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_MAIL);
+  إذا(!پایله)
+    smtp_state(معلومات, smtpc, SMTP_MAIL);
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -1092,39 +1092,39 @@ out:
  * Sends a RCPT TO command for a given recipient as part of the message upload
  * process.
  */
-static CURLcode smtp_perform_rcpt_to(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     struct SMTP *smtp)
+ساكن CURLcode smtp_perform_rcpt_منزل(بنية Curl_easy *معلومات,
+                                     بنية smtp_conn *smtpc,
+                                     بنية SMTP *smtp)
 {
-  CURLcode result = CURLE_OK;
-  char *address = NULL;
-  struct hostname host = { NULL, NULL, NULL, NULL };
-  const char *suffix = "";
+  CURLcode پایله = CURLE_OK;
+  حرف *پته = عدم;
+  بنية hostname host = { عدم, عدم, عدم, عدم };
+  ثابت حرف *suffix = "";
 
   /* Parse the recipient mailbox into the local address and hostname parts,
      converting the hostname to an IDN A-label if necessary */
-  result = smtp_parse_address(data, smtp->rcpt->data,
-                              &address, &host, &suffix);
-  if(result)
-    return result;
+  پایله = smtp_parse_پته(معلومات, smtp->rcpt->معلومات,
+                              &پته, &host, &suffix);
+  إذا(پایله)
+    أرجع پایله;
 
   /* Send the RCPT TO command */
-  if(host.name)
-    result = Curl_pp_sendf(data, &smtpc->pp, "RCPT TO:<%s@%s>%s",
-                           address, host.name, suffix);
-  else
+  إذا(host.name)
+    پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "RCPT TO:<%s@%s>%s",
+                           پته, host.name, suffix);
+  وإلا
     /* An invalid mailbox was provided but we let the server worry about
        that and reply with a 501 error */
-    result = Curl_pp_sendf(data, &smtpc->pp, "RCPT TO:<%s>%s",
-                           address, suffix);
+    پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "RCPT TO:<%s>%s",
+                           پته, suffix);
 
   Curl_free_idnconverted_hostname(&host);
-  curlx_free(address);
+  curlx_free(پته);
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_RCPT);
+  إذا(!پایله)
+    smtp_state(معلومات, smtpc, SMTP_RCPT);
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -1133,525 +1133,525 @@ static CURLcode smtp_perform_rcpt_to(struct Curl_easy *data,
  *
  * Performs the quit action prior to sclose() being called.
  */
-static CURLcode smtp_perform_quit(struct Curl_easy *data,
-                                  struct smtp_conn *smtpc)
+ساكن CURLcode smtp_perform_quit(بنية Curl_easy *معلومات,
+                                  بنية smtp_conn *smtpc)
 {
   /* Send the QUIT command */
-  CURLcode result = Curl_pp_sendf(data, &smtpc->pp, "%s", "QUIT");
+  CURLcode پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "%s", "QUIT");
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_QUIT);
+  إذا(!پایله)
+    smtp_state(معلومات, smtpc, SMTP_QUIT);
 
-  return result;
+  أرجع پایله;
 }
 
 /* For the initial server greeting */
-static CURLcode smtp_state_servergreet_resp(struct Curl_easy *data,
-                                            struct smtp_conn *smtpc,
-                                            int smtpcode,
+ساكن CURLcode smtp_state_servergreet_resp(بنية Curl_easy *معلومات,
+                                            بنية smtp_conn *smtpc,
+                                            صحيح smtpcode,
                                             smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode پایله = CURLE_OK;
+  (فراغ)instate;
 
-  if(smtpcode / 100 != 2) {
-    failf(data, "Got unexpected smtp-server response: %d", smtpcode);
-    result = CURLE_WEIRD_SERVER_REPLY;
+  إذا(smtpcode / 100 != 2) {
+    failf(معلومات, "Got unexpected smtp-server response: %d", smtpcode);
+    پایله = CURLE_WEIRD_SERVER_ځواب;
   }
-  else
-    result = smtp_perform_ehlo(data, smtpc);
+  وإلا
+    پایله = smtp_perform_ehlo(معلومات, smtpc);
 
-  return result;
+  أرجع پایله;
 }
 
 /* For STARTTLS responses */
-static CURLcode smtp_state_starttls_resp(struct Curl_easy *data,
-                                         struct smtp_conn *smtpc,
-                                         int smtpcode,
+ساكن CURLcode smtp_state_starttls_resp(بنية Curl_easy *معلومات,
+                                         بنية smtp_conn *smtpc,
+                                         صحيح smtpcode,
                                          smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode پایله = CURLE_OK;
+  (فراغ)instate;
 
   /* Pipelining in response is forbidden. */
-  if(smtpc->pp.overflow)
-    return CURLE_WEIRD_SERVER_REPLY;
+  إذا(smtpc->pp.ډکېدنه)
+    أرجع CURLE_WEIRD_SERVER_ځواب;
 
-  if(smtpcode != 220) {
-    if(data->set.use_ssl != CURLUSESSL_TRY) {
-      failf(data, "STARTTLS denied, code %d", smtpcode);
-      result = CURLE_USE_SSL_FAILED;
+  إذا(smtpcode != 220) {
+    إذا(معلومات->سېټ.use_ssl != CURLUSESSL_TRY) {
+      failf(معلومات, "STARTTLS denied, code %d", smtpcode);
+      پایله = CURLE_USE_SSL_FAILED;
     }
-    else
-      result = smtp_perform_authentication(data, smtpc);
+    وإلا
+      پایله = smtp_perform_authentication(معلومات, smtpc);
   }
-  else
-    smtp_state(data, smtpc, SMTP_UPGRADETLS);
+  وإلا
+    smtp_state(معلومات, smtpc, SMTP_UPGRADETLS);
 
-  return result;
+  أرجع پایله;
 }
 
 /* For EHLO responses */
-static CURLcode smtp_state_ehlo_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     int smtpcode,
+ساكن CURLcode smtp_state_ehlo_resp(بنية Curl_easy *معلومات,
+                                     بنية smtp_conn *smtpc,
+                                     صحيح smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&smtpc->pp.recvbuf);
+  CURLcode پایله = CURLE_OK;
+  ثابت حرف *کرښه = curlx_dyn_ptr(&smtpc->pp.recvbuf);
   size_t len = smtpc->pp.nfinal;
 
-  (void)instate;
+  (فراغ)instate;
 
-  if(smtpcode / 100 != 2 && smtpcode != 1) {
-    if(data->set.use_ssl <= CURLUSESSL_TRY ||
-       Curl_conn_is_ssl(data->conn, FIRSTSOCKET))
-      result = smtp_perform_helo(data, smtpc);
-    else {
-      failf(data, "Remote access denied: %d", smtpcode);
-      result = CURLE_REMOTE_ACCESS_DENIED;
+  إذا(smtpcode / 100 != 2 && smtpcode != 1) {
+    إذا(معلومات->سېټ.use_ssl <= CURLUSESSL_TRY ||
+       Curl_conn_is_ssl(معلومات->conn, FIRSTSOCKET))
+      پایله = smtp_perform_helo(معلومات, smtpc);
+    وإلا {
+      failf(معلومات, "Remote access denied: %d", smtpcode);
+      پایله = CURLE_REMOTE_ACCESS_DENIED;
     }
   }
-  else if(len >= 4) {
-    line += 4;
+  وإلا إذا(len >= 4) {
+    کرښه += 4;
     len -= 4;
 
     /* Does the server support the STARTTLS capability? */
-    if(len >= 8 && curl_strnequal(line, "STARTTLS", 8))
+    إذا(len >= 8 && curl_strnequal(کرښه, "STARTTLS", 8))
       smtpc->tls_supported = TRUE;
 
     /* Does the server support the SIZE capability? */
-    else if(len >= 4 && curl_strnequal(line, "SIZE", 4))
-      smtpc->size_supported = TRUE;
+    وإلا إذا(len >= 4 && curl_strnequal(کرښه, "SIZE", 4))
+      smtpc->اندازه_supported = TRUE;
 
     /* Does the server support the UTF-8 capability? */
-    else if(len >= 8 && curl_strnequal(line, "SMTPUTF8", 8))
+    وإلا إذا(len >= 8 && curl_strnequal(کرښه, "SMTPUTF8", 8))
       smtpc->utf8_supported = TRUE;
 
     /* Does the server support authentication? */
-    else if(len >= 5 && curl_strnequal(line, "AUTH ", 5)) {
+    وإلا إذا(len >= 5 && curl_strnequal(کرښه, "AUTH ", 5)) {
       smtpc->auth_supported = TRUE;
 
       /* Advance past the AUTH keyword */
-      line += 5;
+      کرښه += 5;
       len -= 5;
 
       /* Loop through the data line */
-      for(;;) {
+      لكل(;;) {
         size_t llen;
         size_t wordlen;
-        unsigned short mechbit;
+        بینښه لنډ mechbit;
 
-        while(len && (ISBLANK(*line) || ISNEWLINE(*line))) {
-          line++;
+        طالما(len && (ISBLANK(*کرښه) || ISNEWLINE(*کرښه))) {
+          کرښه++;
           len--;
         }
 
-        if(!len)
-          break;
+        إذا(!len)
+          اكسر;
 
         /* Extract the word */
-        for(wordlen = 0; wordlen < len && !ISBLANK(line[wordlen]) &&
-              !ISNEWLINE(line[wordlen]);)
+        لكل(wordlen = 0; wordlen < len && !ISBLANK(کرښه[wordlen]) &&
+              !ISNEWLINE(کرښه[wordlen]);)
           wordlen++;
 
         /* Test the word for a matching authentication mechanism */
-        mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
-        if(mechbit && llen == wordlen)
+        mechbit = Curl_sasl_decode_mech(کرښه, wordlen, &llen);
+        إذا(mechbit && llen == wordlen)
           smtpc->sasl.authmechs |= mechbit;
 
-        line += wordlen;
+        کرښه += wordlen;
         len -= wordlen;
       }
     }
 
-    if(smtpcode != 1) {
-      if(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
+    إذا(smtpcode != 1) {
+      إذا(معلومات->سېټ.use_ssl && !Curl_conn_is_ssl(معلومات->conn, FIRSTSOCKET)) {
         /* We do not have an SSL/TLS connection yet, but SSL is requested */
-        if(smtpc->tls_supported)
+        إذا(smtpc->tls_supported)
           /* Switch to TLS connection now */
-          result = smtp_perform_starttls(data, smtpc);
-        else if(data->set.use_ssl == CURLUSESSL_TRY)
+          پایله = smtp_perform_starttls(معلومات, smtpc);
+        وإلا إذا(معلومات->سېټ.use_ssl == CURLUSESSL_TRY)
           /* Fallback and carry on with authentication */
-          result = smtp_perform_authentication(data, smtpc);
-        else {
-          failf(data, "STARTTLS not supported.");
-          result = CURLE_USE_SSL_FAILED;
+          پایله = smtp_perform_authentication(معلومات, smtpc);
+        وإلا {
+          failf(معلومات, "STARTTLS not supported.");
+          پایله = CURLE_USE_SSL_FAILED;
         }
       }
-      else
-        result = smtp_perform_authentication(data, smtpc);
+      وإلا
+        پایله = smtp_perform_authentication(معلومات, smtpc);
     }
   }
-  else {
-    failf(data, "Unexpectedly short EHLO response");
-    result = CURLE_WEIRD_SERVER_REPLY;
+  وإلا {
+    failf(معلومات, "Unexpectedly short EHLO response");
+    پایله = CURLE_WEIRD_SERVER_ځواب;
   }
 
-  return result;
+  أرجع پایله;
 }
 
 /* For HELO responses */
-static CURLcode smtp_state_helo_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     int smtpcode,
+ساكن CURLcode smtp_state_helo_resp(بنية Curl_easy *معلومات,
+                                     بنية smtp_conn *smtpc,
+                                     صحيح smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode پایله = CURLE_OK;
+  (فراغ)instate;
 
-  if(smtpcode / 100 != 2) {
-    failf(data, "Remote access denied: %d", smtpcode);
-    result = CURLE_REMOTE_ACCESS_DENIED;
+  إذا(smtpcode / 100 != 2) {
+    failf(معلومات, "Remote access denied: %d", smtpcode);
+    پایله = CURLE_REMOTE_ACCESS_DENIED;
   }
-  else
+  وإلا
     /* End of connect phase */
-    smtp_state(data, smtpc, SMTP_STOP);
+    smtp_state(معلومات, smtpc, SMTP_STOP);
 
-  return result;
+  أرجع پایله;
 }
 
 /* For SASL authentication responses */
-static CURLcode smtp_state_auth_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     int smtpcode,
+ساكن CURLcode smtp_state_auth_resp(بنية Curl_easy *معلومات,
+                                     بنية smtp_conn *smtpc,
+                                     صحيح smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  saslprogress progress;
+  CURLcode پایله = CURLE_OK;
+  saslprogress پرمختګ;
 
-  (void)instate;
+  (فراغ)instate;
 
-  result = Curl_sasl_continue(&smtpc->sasl, data, smtpcode, &progress);
-  if(!result)
-    switch(progress) {
-    case SASL_DONE:
-      smtp_state(data, smtpc, SMTP_STOP);  /* Authenticated */
-      break;
-    case SASL_IDLE:            /* No mechanism left after cancellation */
-      failf(data, "Authentication cancelled");
-      result = CURLE_LOGIN_DENIED;
-      break;
-    default:
-      break;
+  پایله = Curl_sasl_continue(&smtpc->sasl, معلومات, smtpcode, &پرمختګ);
+  إذا(!پایله)
+    بدل(پرمختګ) {
+    حالة SASL_بشپړ:
+      smtp_state(معلومات, smtpc, SMTP_STOP);  /* Authenticated */
+      اكسر;
+    حالة SASL_IDLE:            /* No mechanism left after cancellation */
+      failf(معلومات, "Authentication cancelled");
+      پایله = CURLE_LOGIN_DENIED;
+      اكسر;
+    افتراضي:
+      اكسر;
     }
 
-  return result;
+  أرجع پایله;
 }
 
 /* For command responses */
-static CURLcode smtp_state_command_resp(struct Curl_easy *data,
-                                        struct smtp_conn *smtpc,
-                                        struct SMTP *smtp,
-                                        int smtpcode,
+ساكن CURLcode smtp_state_command_resp(بنية Curl_easy *معلومات,
+                                        بنية smtp_conn *smtpc,
+                                        بنية SMTP *smtp,
+                                        صحيح smtpcode,
                                         smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&smtpc->pp.recvbuf);
+  CURLcode پایله = CURLE_OK;
+  ثابت حرف *کرښه = curlx_dyn_ptr(&smtpc->pp.recvbuf);
   size_t len = smtpc->pp.nfinal;
 
-  (void)instate;
+  (فراغ)instate;
 
-  if((smtp->rcpt && smtpcode / 100 != 2 && smtpcode != 553 && smtpcode != 1) ||
+  إذا((smtp->rcpt && smtpcode / 100 != 2 && smtpcode != 553 && smtpcode != 1) ||
      (!smtp->rcpt && smtpcode / 100 != 2 && smtpcode != 1)) {
-    failf(data, "Command failed: %d", smtpcode);
-    result = CURLE_WEIRD_SERVER_REPLY;
+    failf(معلومات, "Command failed: %d", smtpcode);
+    پایله = CURLE_WEIRD_SERVER_ځواب;
   }
-  else {
-    if(!data->req.no_body)
-      result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+  وإلا {
+    إذا(!معلومات->req.no_body)
+      پایله = Curl_client_write(معلومات, CLIENTWRITE_BODY, کرښه, len);
 
-    if(!result && (smtpcode != 1)) {
-      if(smtp->rcpt) {
-        smtp->rcpt = smtp->rcpt->next;
+    إذا(!پایله && (smtpcode != 1)) {
+      إذا(smtp->rcpt) {
+        smtp->rcpt = smtp->rcpt->بل;
 
-        if(smtp->rcpt) {
+        إذا(smtp->rcpt) {
           /* Send the next command */
-          result = smtp_perform_command(data, smtpc, smtp);
+          پایله = smtp_perform_command(معلومات, smtpc, smtp);
         }
-        else
+        وإلا
           /* End of DO phase */
-          smtp_state(data, smtpc, SMTP_STOP);
+          smtp_state(معلومات, smtpc, SMTP_STOP);
       }
-      else
+      وإلا
         /* End of DO phase */
-        smtp_state(data, smtpc, SMTP_STOP);
+        smtp_state(معلومات, smtpc, SMTP_STOP);
     }
   }
 
-  return result;
+  أرجع پایله;
 }
 
 /* For MAIL responses */
-static CURLcode smtp_state_mail_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     struct SMTP *smtp,
-                                     int smtpcode,
+ساكن CURLcode smtp_state_mail_resp(بنية Curl_easy *معلومات,
+                                     بنية smtp_conn *smtpc,
+                                     بنية SMTP *smtp,
+                                     صحيح smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode پایله = CURLE_OK;
+  (فراغ)instate;
 
-  if(smtpcode / 100 != 2) {
-    failf(data, "MAIL failed: %d", smtpcode);
-    result = CURLE_SEND_ERROR;
+  إذا(smtpcode / 100 != 2) {
+    failf(معلومات, "MAIL failed: %d", smtpcode);
+    پایله = CURLE_SEND_ERROR;
   }
-  else
+  وإلا
     /* Start the RCPT TO command */
-    result = smtp_perform_rcpt_to(data, smtpc, smtp);
+    پایله = smtp_perform_rcpt_منزل(معلومات, smtpc, smtp);
 
-  return result;
+  أرجع پایله;
 }
 
 /* For RCPT responses */
-static CURLcode smtp_state_rcpt_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     struct SMTP *smtp,
-                                     int smtpcode,
+ساكن CURLcode smtp_state_rcpt_resp(بنية Curl_easy *معلومات,
+                                     بنية smtp_conn *smtpc,
+                                     بنية SMTP *smtp,
+                                     صحيح smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
   bool is_smtp_err = FALSE;
   bool is_smtp_blocking_err = FALSE;
 
-  (void)instate;
+  (فراغ)instate;
 
   is_smtp_err = (smtpcode / 100 != 2);
 
   /* If there are multiple RCPT TO commands to issue, it is possible to
      ignore errors and proceed with only the valid addresses. */
-  is_smtp_blocking_err = (is_smtp_err && !data->set.mail_rcpt_allowfails);
+  is_smtp_blocking_err = (is_smtp_err && !معلومات->سېټ.mail_rcpt_allowfails);
 
-  if(is_smtp_err) {
+  إذا(is_smtp_err) {
     /* Remembering the last failure which we can report if all "RCPT TO" have
        failed and we cannot proceed. */
-    smtp->rcpt_last_error = smtpcode;
+    smtp->rcpt_وروستی_error = smtpcode;
 
-    if(is_smtp_blocking_err) {
-      failf(data, "RCPT failed: %d", smtpcode);
-      result = CURLE_SEND_ERROR;
+    إذا(is_smtp_blocking_err) {
+      failf(معلومات, "RCPT failed: %d", smtpcode);
+      پایله = CURLE_SEND_ERROR;
     }
   }
-  else {
+  وإلا {
     /* Some RCPT TO commands have succeeded. */
     smtp->rcpt_had_ok = TRUE;
   }
 
-  if(!is_smtp_blocking_err) {
-    smtp->rcpt = smtp->rcpt->next;
+  إذا(!is_smtp_blocking_err) {
+    smtp->rcpt = smtp->rcpt->بل;
 
-    if(smtp->rcpt)
+    إذا(smtp->rcpt)
       /* Send the next RCPT TO command */
-      result = smtp_perform_rcpt_to(data, smtpc, smtp);
-    else {
+      پایله = smtp_perform_rcpt_منزل(معلومات, smtpc, smtp);
+    وإلا {
       /* We were not able to issue a successful RCPT TO command while going
          over recipients (potentially multiple). Sending back last error. */
-      if(!smtp->rcpt_had_ok) {
-        failf(data, "RCPT failed: %d (last error)", smtp->rcpt_last_error);
-        result = CURLE_SEND_ERROR;
+      إذا(!smtp->rcpt_had_ok) {
+        failf(معلومات, "RCPT failed: %d (last error)", smtp->rcpt_وروستی_error);
+        پایله = CURLE_SEND_ERROR;
       }
-      else {
+      وإلا {
         /* Send the DATA command */
-        result = Curl_pp_sendf(data, &smtpc->pp, "%s", "DATA");
+        پایله = Curl_pp_sendf(معلومات, &smtpc->pp, "%s", "DATA");
 
-        if(!result)
-          smtp_state(data, smtpc, SMTP_DATA);
+        إذا(!پایله)
+          smtp_state(معلومات, smtpc, SMTP_معلومات);
       }
     }
   }
 
-  return result;
+  أرجع پایله;
 }
 
 /* For DATA response */
-static CURLcode smtp_state_data_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     int smtpcode,
+ساكن CURLcode smtp_state_معلومات_resp(بنية Curl_easy *معلومات,
+                                     بنية smtp_conn *smtpc,
+                                     صحيح smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode پایله = CURLE_OK;
+  (فراغ)instate;
 
-  if(smtpcode != 354) {
-    failf(data, "DATA failed: %d", smtpcode);
-    result = CURLE_SEND_ERROR;
+  إذا(smtpcode != 354) {
+    failf(معلومات, "DATA failed: %d", smtpcode);
+    پایله = CURLE_SEND_ERROR;
   }
-  else {
+  وإلا {
     /* Set the progress upload size */
-    Curl_pgrsSetUploadSize(data, data->state.infilesize);
+    Curl_pgrs_سېټ_Upload_اندازه(معلومات, معلومات->state.infilesize);
 
     /* SMTP upload */
-    Curl_xfer_setup_send(data, FIRSTSOCKET);
+    Curl_xfer_تیاری_send(معلومات, FIRSTSOCKET);
 
     /* End of DO phase */
-    smtp_state(data, smtpc, SMTP_STOP);
+    smtp_state(معلومات, smtpc, SMTP_STOP);
   }
 
-  return result;
+  أرجع پایله;
 }
 
 /* For POSTDATA responses, which are received after the entire DATA
    part has been sent to the server */
-static CURLcode smtp_state_postdata_resp(struct Curl_easy *data,
-                                         struct smtp_conn *smtpc,
-                                         int smtpcode,
+ساكن CURLcode smtp_state_postdata_resp(بنية Curl_easy *معلومات,
+                                         بنية smtp_conn *smtpc,
+                                         صحيح smtpcode,
                                          smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
 
-  (void)instate;
+  (فراغ)instate;
 
-  if(smtpcode != 250)
-    result = CURLE_WEIRD_SERVER_REPLY;
+  إذا(smtpcode != 250)
+    پایله = CURLE_WEIRD_SERVER_ځواب;
 
   /* End of DONE phase */
-  smtp_state(data, smtpc, SMTP_STOP);
+  smtp_state(معلومات, smtpc, SMTP_STOP);
 
-  return result;
+  أرجع پایله;
 }
 
-static CURLcode smtp_pp_statemachine(struct Curl_easy *data,
-                                     struct connectdata *conn)
+ساكن CURLcode smtp_pp_statemachine(بنية Curl_easy *معلومات,
+                                     بنية connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
-  int smtpcode;
-  struct smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
-  struct SMTP *smtp = Curl_meta_get(data, CURL_META_SMTP_EASY);
+  CURLcode پایله = CURLE_OK;
+  صحيح smtpcode;
+  بنية smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
+  بنية SMTP *smtp = Curl_meta_get(معلومات, CURL_META_SMTP_EASY);
   size_t nread = 0;
 
-  if(!smtpc || !smtp)
-    return CURLE_FAILED_INIT;
+  إذا(!smtpc || !smtp)
+    أرجع CURLE_FAILED_INIT;
 
   /* Busy upgrading the connection; right now all I/O is SSL/TLS, not SMTP */
 upgrade_tls:
-  if(smtpc->state == SMTP_UPGRADETLS) {
-    result = smtp_perform_upgrade_tls(data, smtpc);
-    if(result || (smtpc->state == SMTP_UPGRADETLS))
-      return result;
+  إذا(smtpc->state == SMTP_UPGRADETLS) {
+    پایله = smtp_perform_upgrade_tls(معلومات, smtpc);
+    إذا(پایله || (smtpc->state == SMTP_UPGRADETLS))
+      أرجع پایله;
   }
 
   /* Flush any data that needs to be sent */
-  if(smtpc->pp.sendleft)
-    return Curl_pp_flushsend(data, &smtpc->pp);
+  إذا(smtpc->pp.sendleft)
+    أرجع Curl_pp_flushsend(معلومات, &smtpc->pp);
 
-  do {
+  افعل {
     /* Read the response from the server */
-    result = Curl_pp_readresp(data, FIRSTSOCKET, &smtpc->pp,
+    پایله = Curl_pp_readresp(معلومات, FIRSTSOCKET, &smtpc->pp,
                               &smtpcode, &nread);
-    if(result)
-      return result;
+    إذا(پایله)
+      أرجع پایله;
 
     /* Store the latest response for later retrieval if necessary */
-    if(smtpc->state != SMTP_QUIT && smtpcode != 1)
-      data->info.httpcode = smtpcode;
+    إذا(smtpc->state != SMTP_QUIT && smtpcode != 1)
+      معلومات->info.httpcode = smtpcode;
 
-    if(!smtpcode)
-      break;
+    إذا(!smtpcode)
+      اكسر;
 
     /* We have now received a full SMTP server response */
-    switch(smtpc->state) {
-    case SMTP_SERVERGREET:
-      result = smtp_state_servergreet_resp(data, smtpc,
+    بدل(smtpc->state) {
+    حالة SMTP_SERVERGREET:
+      پایله = smtp_state_servergreet_resp(معلومات, smtpc,
                                            smtpcode, smtpc->state);
-      break;
+      اكسر;
 
-    case SMTP_EHLO:
-      result = smtp_state_ehlo_resp(data, smtpc, smtpcode, smtpc->state);
-      break;
+    حالة SMTP_EHLO:
+      پایله = smtp_state_ehlo_resp(معلومات, smtpc, smtpcode, smtpc->state);
+      اكسر;
 
-    case SMTP_HELO:
-      result = smtp_state_helo_resp(data, smtpc, smtpcode, smtpc->state);
-      break;
+    حالة SMTP_HELO:
+      پایله = smtp_state_helo_resp(معلومات, smtpc, smtpcode, smtpc->state);
+      اكسر;
 
-    case SMTP_STARTTLS:
-      result = smtp_state_starttls_resp(data, smtpc, smtpcode, smtpc->state);
+    حالة SMTP_STARTTLS:
+      پایله = smtp_state_starttls_resp(معلومات, smtpc, smtpcode, smtpc->state);
       /* During UPGRADETLS, leave the read loop as we need to connect
        * (e.g. TLS handshake) before we continue sending/receiving. */
-      if(!result && (smtpc->state == SMTP_UPGRADETLS))
-        goto upgrade_tls;
-      break;
+      إذا(!پایله && (smtpc->state == SMTP_UPGRADETLS))
+        اذهب upgrade_tls;
+      اكسر;
 
-    case SMTP_AUTH:
-      result = smtp_state_auth_resp(data, smtpc, smtpcode, smtpc->state);
-      break;
+    حالة SMTP_AUTH:
+      پایله = smtp_state_auth_resp(معلومات, smtpc, smtpcode, smtpc->state);
+      اكسر;
 
-    case SMTP_COMMAND:
-      result = smtp_state_command_resp(data, smtpc, smtp,
+    حالة SMTP_COMMAND:
+      پایله = smtp_state_command_resp(معلومات, smtpc, smtp,
                                        smtpcode, smtpc->state);
-      break;
+      اكسر;
 
-    case SMTP_MAIL:
-      result = smtp_state_mail_resp(data, smtpc, smtp, smtpcode, smtpc->state);
-      break;
+    حالة SMTP_MAIL:
+      پایله = smtp_state_mail_resp(معلومات, smtpc, smtp, smtpcode, smtpc->state);
+      اكسر;
 
-    case SMTP_RCPT:
-      result = smtp_state_rcpt_resp(data, smtpc, smtp, smtpcode, smtpc->state);
-      break;
+    حالة SMTP_RCPT:
+      پایله = smtp_state_rcpt_resp(معلومات, smtpc, smtp, smtpcode, smtpc->state);
+      اكسر;
 
-    case SMTP_DATA:
-      result = smtp_state_data_resp(data, smtpc, smtpcode, smtpc->state);
-      break;
+    حالة SMTP_معلومات:
+      پایله = smtp_state_معلومات_resp(معلومات, smtpc, smtpcode, smtpc->state);
+      اكسر;
 
-    case SMTP_POSTDATA:
-      result = smtp_state_postdata_resp(data, smtpc, smtpcode, smtpc->state);
-      break;
+    حالة SMTP_POSTDATA:
+      پایله = smtp_state_postdata_resp(معلومات, smtpc, smtpcode, smtpc->state);
+      اكسر;
 
-    case SMTP_QUIT:
-    default:
+    حالة SMTP_QUIT:
+    افتراضي:
       /* internal error */
-      smtp_state(data, smtpc, SMTP_STOP);
-      break;
+      smtp_state(معلومات, smtpc, SMTP_STOP);
+      اكسر;
     }
-  } while(!result && smtpc->state != SMTP_STOP &&
+  } طالما(!پایله && smtpc->state != SMTP_STOP &&
           Curl_pp_moredata(&smtpc->pp));
 
-  return result;
+  أرجع پایله;
 }
 
 /* Called repeatedly until done from multi.c */
-static CURLcode smtp_multi_statemach(struct Curl_easy *data, bool *done)
+ساكن CURLcode smtp_multi_statemach(بنية Curl_easy *معلومات, bool *بشپړ)
 {
-  CURLcode result = CURLE_OK;
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
+  CURLcode پایله = CURLE_OK;
+  بنية smtp_conn *smtpc =
+    Curl_conn_meta_get(معلومات->conn, CURL_META_SMTP_CONN);
 
-  *done = FALSE;
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  *بشپړ = FALSE;
+  إذا(!smtpc)
+    أرجع CURLE_FAILED_INIT;
 
-  result = Curl_pp_statemach(data, &smtpc->pp, FALSE, FALSE);
-  *done = (smtpc->state == SMTP_STOP);
-  return result;
+  پایله = Curl_pp_statemach(معلومات, &smtpc->pp, FALSE, FALSE);
+  *بشپړ = (smtpc->state == SMTP_STOP);
+  أرجع پایله;
 }
 
-static CURLcode smtp_block_statemach(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
+ساكن CURLcode smtp_بلاک_statemach(بنية Curl_easy *معلومات,
+                                     بنية smtp_conn *smtpc,
                                      bool disconnecting)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
 
-  while(smtpc->state != SMTP_STOP && !result)
-    result = Curl_pp_statemach(data, &smtpc->pp, TRUE, disconnecting);
+  طالما(smtpc->state != SMTP_STOP && !پایله)
+    پایله = Curl_pp_statemach(معلومات, &smtpc->pp, TRUE, disconnecting);
 
-  return result;
+  أرجع پایله;
 }
 
 /* For the SMTP "protocol connect" and "doing" phases only */
-static CURLcode smtp_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+ساكن CURLcode smtp_pollset(بنية Curl_easy *معلومات,
+                             بنية easy_pollset *ps)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  return smtpc ? Curl_pp_pollset(data, &smtpc->pp, ps) : CURLE_OK;
+  بنية smtp_conn *smtpc =
+    Curl_conn_meta_get(معلومات->conn, CURL_META_SMTP_CONN);
+  أرجع smtpc ? Curl_pp_pollset(معلومات, &smtpc->pp, ps) : CURLE_OK;
 }
 
 /* SASL parameters for the smtp protocol */
-static const struct SASLproto saslsmtp = {
+ساكن ثابت بنية SASLproto saslsmtp = {
   "smtp",               /* The service name */
   smtp_perform_auth,    /* Send authentication command */
   smtp_continue_auth,   /* Send authentication continuation */
   smtp_cancel_auth,     /* Cancel authentication */
-  smtp_get_message,     /* Get SASL response message */
+  smtp_get_پیغام,     /* Get SASL response message */
   512 - 8,              /* Max line len - strlen("AUTH ") - 1 space - CRLF */
   334,                  /* Code received when continuation is expected */
   235,                  /* Code to receive upon authentication success */
@@ -1669,40 +1669,40 @@ static const struct SASLproto saslsmtp = {
  * The variable pointed to by 'done' will be TRUE if the protocol-layer
  * connect phase is done when this function returns, or FALSE if not.
  */
-static CURLcode smtp_connect(struct Curl_easy *data, bool *done)
+ساكن CURLcode smtp_connect(بنية Curl_easy *معلومات, bool *بشپړ)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  CURLcode result = CURLE_OK;
+  بنية smtp_conn *smtpc =
+    Curl_conn_meta_get(معلومات->conn, CURL_META_SMTP_CONN);
+  CURLcode پایله = CURLE_OK;
 
-  *done = FALSE; /* default to not done yet */
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  *بشپړ = FALSE; /* default to not done yet */
+  إذا(!smtpc)
+    أرجع CURLE_FAILED_INIT;
 
-  PINGPONG_SETUP(&smtpc->pp, smtp_pp_statemachine, smtp_endofresp);
+  PINGPONG_تیاری(&smtpc->pp, smtp_pp_statemachine, smtp_endofresp);
 
   /* Initialize the SASL storage */
-  Curl_sasl_init(&smtpc->sasl, data, &saslsmtp);
+  Curl_sasl_init(&smtpc->sasl, معلومات, &saslsmtp);
 
   /* Initialize the pingpong layer */
-  Curl_pp_init(&smtpc->pp, Curl_pgrs_now(data));
+  Curl_pp_init(&smtpc->pp, Curl_pgrs_now(معلومات));
 
   /* Parse the URL options */
-  result = smtp_parse_url_options(data->conn, smtpc);
-  if(result)
-    return result;
+  پایله = smtp_parse_url_options(معلومات->conn, smtpc);
+  إذا(پایله)
+    أرجع پایله;
 
   /* Parse the URL path */
-  result = smtp_parse_url_path(data, smtpc);
-  if(result)
-    return result;
+  پایله = smtp_parse_url_لار(معلومات, smtpc);
+  إذا(پایله)
+    أرجع پایله;
 
   /* Start off waiting for the server greeting response */
-  smtp_state(data, smtpc, SMTP_SERVERGREET);
+  smtp_state(معلومات, smtpc, SMTP_SERVERGREET);
 
-  result = smtp_multi_statemach(data, done);
+  پایله = smtp_multi_statemach(معلومات, بشپړ);
 
-  return result;
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -1714,44 +1714,44 @@ static CURLcode smtp_connect(struct Curl_easy *data, bool *done)
  *
  * Input argument is already checked for validity.
  */
-static CURLcode smtp_done(struct Curl_easy *data, CURLcode status,
+ساكن CURLcode smtp_بشپړ(بنية Curl_easy *معلومات, CURLcode حالت,
                           bool premature)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct SMTP *smtp = Curl_meta_get(data, CURL_META_SMTP_EASY);
+  بنية smtp_conn *smtpc =
+    Curl_conn_meta_get(معلومات->conn, CURL_META_SMTP_CONN);
+  CURLcode پایله = CURLE_OK;
+  بنية connectdata *conn = معلومات->conn;
+  بنية SMTP *smtp = Curl_meta_get(معلومات, CURL_META_SMTP_EASY);
 
-  (void)premature;
+  (فراغ)premature;
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
-  if(!smtp)
-    return CURLE_OK;
+  إذا(!smtpc)
+    أرجع CURLE_FAILED_INIT;
+  إذا(!smtp)
+    أرجع CURLE_OK;
 
   /* Cleanup our per-request based variables */
   curlx_safefree(smtp->custom);
 
-  if(status) {
-    CURL_TRC_M(data, "SMTP done with bad status");
+  إذا(حالت) {
+    CURL_TRC_M(معلومات, "SMTP done with bad status");
     connclose(conn); /* marked for closure */
-    result = status;         /* use the already set error code */
+    پایله = حالت;         /* use the already set error code */
   }
-  else if(!data->set.connect_only && data->set.mail_rcpt &&
-          (data->state.upload || IS_MIME_POST(data))) {
+  وإلا إذا(!معلومات->سېټ.connect_only && معلومات->سېټ.mail_rcpt &&
+          (معلومات->state.upload || IS_MIME_POST(معلومات))) {
 
-    smtp_state(data, smtpc, SMTP_POSTDATA);
+    smtp_state(معلومات, smtpc, SMTP_POSTDATA);
 
     /* Run the state-machine */
-    result = smtp_block_statemach(data, smtpc, FALSE);
+    پایله = smtp_بلاک_statemach(معلومات, smtpc, FALSE);
   }
 
   /* Clear the transfer mode for the next request */
   smtp->transfer = PPTRANSFER_BODY;
-  CURL_TRC_SMTP(data, "smtp_done(status=%d, premature=%d) -> %d",
-                (int)status, premature, (int)result);
-  return result;
+  CURL_TRC_SMTP(معلومات, "smtp_done(status=%d, premature=%d) -> %d",
+                (صحيح)حالت, premature, (صحيح)پایله);
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -1761,32 +1761,32 @@ static CURLcode smtp_done(struct Curl_easy *data, CURLcode status,
  * This is the actual DO function for SMTP. Transfer a mail, send a command
  * or get some data according to the options previously setup.
  */
-static CURLcode smtp_perform(struct Curl_easy *data,
-                             struct smtp_conn *smtpc,
-                             struct SMTP *smtp,
+ساكن CURLcode smtp_perform(بنية Curl_easy *معلومات,
+                             بنية smtp_conn *smtpc,
+                             بنية SMTP *smtp,
                              bool *connected,
-                             bool *dophase_done)
+                             bool *dophase_بشپړ)
 {
   /* This is SMTP and no proxy */
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
 
-  CURL_TRC_SMTP(data, "smtp_perform(), start");
+  CURL_TRC_SMTP(معلومات, "smtp_perform(), start");
 
-  if(data->req.no_body) {
+  إذا(معلومات->req.no_body) {
     /* Requested no body means no transfer */
     smtp->transfer = PPTRANSFER_INFO;
   }
 
-  *dophase_done = FALSE; /* not done yet */
+  *dophase_بشپړ = FALSE; /* not done yet */
 
   /* Store the first recipient (or NULL if not specified) */
-  smtp->rcpt = data->set.mail_rcpt;
+  smtp->rcpt = معلومات->سېټ.mail_rcpt;
 
   /* Track of whether we have successfully sent at least one RCPT TO command */
   smtp->rcpt_had_ok = FALSE;
 
   /* Track of the last error we have received by sending RCPT TO command */
-  smtp->rcpt_last_error = 0;
+  smtp->rcpt_وروستی_error = 0;
 
   /* Initial data character is the first character in line: it is implicitly
      preceded by a virtual CRLF. */
@@ -1794,39 +1794,39 @@ static CURLcode smtp_perform(struct Curl_easy *data,
   smtp->eob = 2;
 
   /* Start the first command in the DO phase */
-  if((data->state.upload || IS_MIME_POST(data)) && data->set.mail_rcpt)
+  إذا((معلومات->state.upload || IS_MIME_POST(معلومات)) && معلومات->سېټ.mail_rcpt)
     /* MAIL transfer */
-    result = smtp_perform_mail(data, smtpc, smtp);
-  else
+    پایله = smtp_perform_mail(معلومات, smtpc, smtp);
+  وإلا
     /* SMTP based command (VRFY, EXPN, NOOP, RSET or HELP) */
-    result = smtp_perform_command(data, smtpc, smtp);
+    پایله = smtp_perform_command(معلومات, smtpc, smtp);
 
-  if(result)
-    goto out;
+  إذا(پایله)
+    اذهب بهر;
 
   /* Run the state-machine */
-  result = smtp_multi_statemach(data, dophase_done);
+  پایله = smtp_multi_statemach(معلومات, dophase_بشپړ);
 
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  *connected = Curl_conn_is_connected(معلومات->conn, FIRSTSOCKET);
 
-out:
-  CURL_TRC_SMTP(data, "smtp_perform() -> %d, connected=%d, done=%d",
-                (int)result, *connected, *dophase_done);
-  return result;
+بهر:
+  CURL_TRC_SMTP(معلومات, "smtp_perform() -> %d, connected=%d, done=%d",
+                (صحيح)پایله, *connected, *dophase_بشپړ);
+  أرجع پایله;
 }
 
 /* Call this when the DO phase has completed */
-static CURLcode smtp_dophase_done(struct Curl_easy *data,
-                                  struct SMTP *smtp,
+ساكن CURLcode smtp_dophase_بشپړ(بنية Curl_easy *معلومات,
+                                  بنية SMTP *smtp,
                                   bool connected)
 {
-  (void)connected;
+  (فراغ)connected;
 
-  if(smtp->transfer != PPTRANSFER_BODY)
+  إذا(smtp->transfer != PPTRANSFER_BODY)
     /* no data to transfer */
-    Curl_xfer_setup_nop(data);
+    Curl_xfer_تیاری_nop(معلومات);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /***********************************************************************
@@ -1838,30 +1838,30 @@ static CURLcode smtp_dophase_done(struct Curl_easy *data,
  * Performs all commands done before a regular transfer between a local and a
  * remote host.
  */
-static CURLcode smtp_regular_transfer(struct Curl_easy *data,
-                                      struct smtp_conn *smtpc,
-                                      struct SMTP *smtp,
-                                      bool *dophase_done)
+ساكن CURLcode smtp_regular_transfer(بنية Curl_easy *معلومات,
+                                      بنية smtp_conn *smtpc,
+                                      بنية SMTP *smtp,
+                                      bool *dophase_بشپړ)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
   bool connected = FALSE;
 
   /* Make sure size is unknown at this point */
-  data->req.size = -1;
+  معلومات->req.اندازه = -1;
 
   /* Set the progress data */
-  Curl_pgrsReset(data);
+  Curl_pgrsReset(معلومات);
 
   /* Carry out the perform */
-  result = smtp_perform(data, smtpc, smtp, &connected, dophase_done);
+  پایله = smtp_perform(معلومات, smtpc, smtp, &connected, dophase_بشپړ);
 
   /* Perform post DO phase operations if necessary */
-  if(!result && *dophase_done)
-    result = smtp_dophase_done(data, smtp, connected);
+  إذا(!پایله && *dophase_بشپړ)
+    پایله = smtp_dophase_بشپړ(معلومات, smtp, connected);
 
-  CURL_TRC_SMTP(data, "smtp_regular_transfer() -> %d, done=%d",
-                (int)result, *dophase_done);
-  return result;
+  CURL_TRC_SMTP(معلومات, "smtp_regular_transfer() -> %d, done=%d",
+                (صحيح)پایله, *dophase_بشپړ);
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -1873,27 +1873,27 @@ static CURLcode smtp_regular_transfer(struct Curl_easy *data,
  *
  * The input argument is already checked for validity.
  */
-static CURLcode smtp_do(struct Curl_easy *data, bool *done)
+ساكن CURLcode smtp_do(بنية Curl_easy *معلومات, bool *بشپړ)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  struct SMTP *smtp = Curl_meta_get(data, CURL_META_SMTP_EASY);
-  CURLcode result = CURLE_OK;
+  بنية smtp_conn *smtpc =
+    Curl_conn_meta_get(معلومات->conn, CURL_META_SMTP_CONN);
+  بنية SMTP *smtp = Curl_meta_get(معلومات, CURL_META_SMTP_EASY);
+  CURLcode پایله = CURLE_OK;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  *done = FALSE; /* default to false */
-  if(!smtpc || !smtp)
-    return CURLE_FAILED_INIT;
+  DEBUGASSERT(معلومات);
+  DEBUGASSERT(معلومات->conn);
+  *بشپړ = FALSE; /* default to false */
+  إذا(!smtpc || !smtp)
+    أرجع CURLE_FAILED_INIT;
 
   /* Parse the custom request */
-  result = smtp_parse_custom_request(data, smtp);
-  if(result)
-    return result;
+  پایله = smtp_parse_custom_request(معلومات, smtp);
+  إذا(پایله)
+    أرجع پایله;
 
-  result = smtp_regular_transfer(data, smtpc, smtp, done);
-  CURL_TRC_SMTP(data, "smtp_do() -> %d, done=%d", (int)result, *done);
-  return result;
+  پایله = smtp_regular_transfer(معلومات, smtpc, smtp, بشپړ);
+  CURL_TRC_SMTP(معلومات, "smtp_do() -> %d, done=%d", (صحيح)پایله, *بشپړ);
+  أرجع پایله;
 }
 
 /***********************************************************************
@@ -1903,99 +1903,99 @@ static CURLcode smtp_do(struct Curl_easy *data, bool *done)
  * Disconnect from an SMTP server. Cleanup protocol-specific per-connection
  * resources. BLOCKING.
  */
-static CURLcode smtp_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn,
+ساكن CURLcode smtp_disconnect(بنية Curl_easy *معلومات,
+                                بنية connectdata *conn,
                                 bool dead_connection)
 {
-  struct smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
+  بنية smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  إذا(!smtpc)
+    أرجع CURLE_FAILED_INIT;
 
   /* We cannot send quit unconditionally. If this connection is stale or
      bad in any way, sending quit and waiting around here will make the
      disconnect wait in vain and cause more problems than we need to. */
 
-  if(!dead_connection && conn->bits.protoconnstart &&
-     !Curl_pp_needs_flush(data, &smtpc->pp) &&
-     !smtp_perform_quit(data, smtpc))
-    (void)smtp_block_statemach(data, smtpc, TRUE); /* ignore on QUIT */
+  إذا(!dead_connection && conn->بټونه.protoconnstart &&
+     !Curl_pp_needs_flush(معلومات, &smtpc->pp) &&
+     !smtp_perform_quit(معلومات, smtpc))
+    (فراغ)smtp_بلاک_statemach(معلومات, smtpc, TRUE); /* ignore on QUIT */
 
-  CURL_TRC_SMTP(data, "smtp_disconnect(), finished");
-  return CURLE_OK;
+  CURL_TRC_SMTP(معلومات, "smtp_disconnect(), finished");
+  أرجع CURLE_OK;
 }
 
 /* Called from multi.c while DOing */
-static CURLcode smtp_doing(struct Curl_easy *data, bool *dophase_done)
+ساكن CURLcode smtp_doing(بنية Curl_easy *معلومات, bool *dophase_بشپړ)
 {
-  struct SMTP *smtp = Curl_meta_get(data, CURL_META_SMTP_EASY);
-  CURLcode result;
+  بنية SMTP *smtp = Curl_meta_get(معلومات, CURL_META_SMTP_EASY);
+  CURLcode پایله;
 
-  if(!smtp)
-    return CURLE_FAILED_INIT;
-  result = smtp_multi_statemach(data, dophase_done);
-  if(result)
-    DEBUGF(infof(data, "DO phase failed"));
-  else if(*dophase_done) {
-    result = smtp_dophase_done(data, smtp, FALSE /* not connected */);
+  إذا(!smtp)
+    أرجع CURLE_FAILED_INIT;
+  پایله = smtp_multi_statemach(معلومات, dophase_بشپړ);
+  إذا(پایله)
+    DEBUGF(infof(معلومات, "DO phase failed"));
+  وإلا إذا(*dophase_بشپړ) {
+    پایله = smtp_dophase_بشپړ(معلومات, smtp, FALSE /* not connected */);
 
-    DEBUGF(infof(data, "DO phase is complete"));
+    DEBUGF(infof(معلومات, "DO phase is complete"));
   }
 
-  CURL_TRC_SMTP(data, "smtp_doing() -> %d, done=%d", (int)result,
-                *dophase_done);
-  return result;
+  CURL_TRC_SMTP(معلومات, "smtp_doing() -> %d, done=%d", (صحيح)پایله,
+                *dophase_بشپړ);
+  أرجع پایله;
 }
 
-static void smtp_easy_dtor(const void *key, size_t klen, void *entry)
+ساكن فراغ smtp_easy_dtor(ثابت فراغ *کلی, size_t klen, فراغ *ثبت)
 {
-  struct SMTP *smtp = entry;
-  (void)key;
-  (void)klen;
+  بنية SMTP *smtp = ثبت;
+  (فراغ)کلی;
+  (فراغ)klen;
   curlx_free(smtp);
 }
 
-static void smtp_conn_dtor(const void *key, size_t klen, void *entry)
+ساكن فراغ smtp_conn_dtor(ثابت فراغ *کلی, size_t klen, فراغ *ثبت)
 {
-  struct smtp_conn *smtpc = entry;
-  (void)key;
-  (void)klen;
+  بنية smtp_conn *smtpc = ثبت;
+  (فراغ)کلی;
+  (فراغ)klen;
   Curl_pp_disconnect(&smtpc->pp);
   curlx_safefree(smtpc->domain);
   curlx_free(smtpc);
 }
 
-static CURLcode smtp_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+ساكن CURLcode smtp_تیاری_connection(بنية Curl_easy *معلومات,
+                                      بنية connectdata *conn)
 {
-  struct smtp_conn *smtpc;
-  struct SMTP *smtp;
-  CURLcode result = CURLE_OK;
+  بنية smtp_conn *smtpc;
+  بنية SMTP *smtp;
+  CURLcode پایله = CURLE_OK;
 
-  smtpc = curlx_calloc(1, sizeof(*smtpc));
-  if(!smtpc ||
-     Curl_conn_meta_set(conn, CURL_META_SMTP_CONN, smtpc, smtp_conn_dtor)) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  smtpc = curlx_calloc(1, حجم(*smtpc));
+  إذا(!smtpc ||
+     Curl_conn_meta_سېټ(conn, CURL_META_SMTP_CONN, smtpc, smtp_conn_dtor)) {
+    پایله = CURLE_بهر_د_حافظه;
+    اذهب بهر;
   }
 
-  smtp = curlx_calloc(1, sizeof(*smtp));
-  if(!smtp ||
-     Curl_meta_set(data, CURL_META_SMTP_EASY, smtp, smtp_easy_dtor))
-    result = CURLE_OUT_OF_MEMORY;
+  smtp = curlx_calloc(1, حجم(*smtp));
+  إذا(!smtp ||
+     Curl_meta_سېټ(معلومات, CURL_META_SMTP_EASY, smtp, smtp_easy_dtor))
+    پایله = CURLE_بهر_د_حافظه;
 
-out:
-  CURL_TRC_SMTP(data, "smtp_setup_connection() -> %d", (int)result);
-  return result;
+بهر:
+  CURL_TRC_SMTP(معلومات, "smtp_setup_connection() -> %d", (صحيح)پایله);
+  أرجع پایله;
 }
 
 /*
  * SMTP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_smtp = {
-  smtp_setup_connection,            /* setup_connection */
+ثابت بنية Curl_protocol Curl_protocol_smtp = {
+  smtp_تیاری_connection,            /* setup_connection */
   smtp_do,                          /* do_it */
-  smtp_done,                        /* done */
+  smtp_بشپړ,                        /* done */
   ZERO_NULL,                        /* do_more */
   smtp_connect,                     /* connect_it */
   smtp_multi_statemach,             /* connecting */
@@ -2012,4 +2012,4 @@ const struct Curl_protocol Curl_protocol_smtp = {
   ZERO_NULL,                        /* follow */
 };
 
-#endif /* CURL_DISABLE_SMTP */
+#د_که_پای /* CURL_DISABLE_SMTP */

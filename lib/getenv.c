@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-char *curl_getenv(const char *variable)
+حرف *curl_getenv(ثابت حرف *variable)
 {
-#if defined(CURL_WINDOWS_UWP) || \
+#إذا defined(CURL_WINDOWS_UWP) || \
   defined(__ORBIS__) || defined(__PROSPERO__) /* PlayStation 4 and 5 */
-  (void)variable;
-  return NULL;
-#elif defined(_WIN32)
+  (فراغ)variable;
+  أرجع عدم;
+#وإلاإذا defined(_WIN32)
   /* This uses Windows API instead of C runtime getenv() to get the environment
      variable since some changes are not always visible to the latter. #4774 */
-  char *buf = NULL;
-  char *tmp;
+  حرف *buf = عدم;
+  حرف *tmp;
   DWORD bufsize;
   DWORD rc = 1;
-  const DWORD max = 32768; /* max env var size from MSCRT source */
+  ثابت DWORD max = 32768; /* max env var size from MSCRT source */
 
-  for(;;) {
+  لكل(;;) {
     tmp = curlx_realloc(buf, rc);
-    if(!tmp) {
+    إذا(!tmp) {
       curlx_free(buf);
-      return NULL;
+      أرجع عدم;
     }
 
     buf = tmp;
@@ -51,20 +51,20 @@ char *curl_getenv(const char *variable)
     /* it is possible for rc to be 0 if the variable was found but empty.
        Since getenv does not make that distinction we ignore it as well. */
     rc = GetEnvironmentVariableA(variable, buf, bufsize);
-    if(!rc || rc == bufsize || rc > max) {
+    إذا(!rc || rc == bufsize || rc > max) {
       curlx_free(buf);
-      return NULL;
+      أرجع عدم;
     }
 
     /* if rc < bufsize then rc is bytes written not including
        the null-terminator */
-    if(rc < bufsize)
-      return buf;
+    إذا(rc < bufsize)
+      أرجع buf;
 
     /* else rc is bytes needed, try again */
   }
-#else
-  char *env = getenv(variable);
-  return (env && env[0]) ? curlx_strdup(env) : NULL;
-#endif
+#وإلا
+  حرف *env = getenv(variable);
+  أرجع (env && env[0]) ? curlx_strdup(env) : عدم;
+#د_که_پای
 }

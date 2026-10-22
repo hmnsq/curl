@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_BUFREF_H
-#define HEADER_CURL_BUFREF_H
+#که_نه_تعریف_شوی سرلیک_CURL_BUFREF_H
+#تعریف_کړه سرلیک_CURL_BUFREF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -27,25 +27,25 @@
 /*
  * Generic buffer reference.
  */
-struct bufref {
-  void (*dtor)(void *);         /* Associated destructor. */
-  const unsigned char *ptr;     /* Referenced data buffer. */
+بنية bufref {
+  فراغ (*dtor)(فراغ *);         /* Associated destructor. */
+  ثابت بینښه حرف *ptr;     /* Referenced data buffer. */
   size_t len;                   /* The data size in bytes. */
-#ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
-#endif
+#که_تعریف_شوی DEBUGBUILD
+  صحيح signature;                /* Detect API use mistakes. */
+#د_که_پای
 };
 
-void Curl_bufref_init(struct bufref *br);
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *));
-const char *Curl_bufref_ptr(const struct bufref *br);
-const unsigned char *Curl_bufref_uptr(const struct bufref *br);
-size_t Curl_bufref_len(const struct bufref *br);
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len);
-void Curl_bufref_free(struct bufref *br);
+فراغ Curl_bufref_init(بنية bufref *br);
+فراغ Curl_bufref_سېټ(بنية bufref *br, ثابت فراغ *ptr, size_t len,
+                     فراغ (*dtor)(فراغ *));
+ثابت حرف *Curl_bufref_ptr(ثابت بنية bufref *br);
+ثابت بینښه حرف *Curl_bufref_uptr(ثابت بنية bufref *br);
+size_t Curl_bufref_len(ثابت بنية bufref *br);
+CURLcode Curl_bufref_memdup0(بنية bufref *br, ثابت فراغ *ptr, size_t len);
+فراغ Curl_bufref_free(بنية bufref *br);
 
 /* return a strdup() version of the buffer */
-#define Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))
+#تعریف_کړه Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))
 
-#endif
+#د_که_پای

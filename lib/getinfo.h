@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GETINFO_H
-#define HEADER_CURL_GETINFO_H
+#که_نه_تعریف_شوی سرلیک_CURL_GETINFO_H
+#تعریف_کړه سرلیک_CURL_GETINFO_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-CURLcode Curl_getinfo(struct Curl_easy *data, CURLINFO info, ...);
-void Curl_initinfo(struct Curl_easy *data);
+CURLcode Curl_getinfo(بنية Curl_easy *معلومات, CURLINFO info, ...);
+فراغ Curl_initinfo(بنية Curl_easy *معلومات);
 
-#endif /* HEADER_CURL_GETINFO_H */
+#د_که_پای /* HEADER_CURL_GETINFO_H */

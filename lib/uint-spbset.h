@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_UINT_SPBSET_H
-#define HEADER_CURL_UINT_SPBSET_H
+#که_نه_تعریف_شوی سرلیک_CURL_UINT_SPBSET_H
+#تعریف_کړه سرلیک_CURL_UINT_SPBSET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 /* A "sparse" bitset for uint32_t values.
  * It can hold any uint32_t value.
@@ -34,45 +34,45 @@
  */
 
 /* 4 slots = 256 bits, keep this a 2^n value. */
-#define CURL_UINT32_SPBSET_CH_SLOTS  4
-#define CURL_UINT32_SPBSET_CH_MASK   ((CURL_UINT32_SPBSET_CH_SLOTS * 64) - 1)
+#تعریف_کړه CURL_UINT32_SPBSET_CH_SLOTS  4
+#تعریف_کړه CURL_UINT32_SPBSET_CH_ماسک   ((CURL_UINT32_SPBSET_CH_SLOTS * 64) - 1)
 
 /* store the uint value from offset to
  * (offset + (CURL_UINT32_SPBSET_CHUNK_SLOTS * 64) - 1 */
-struct uint32_spbset_chunk {
-  struct uint32_spbset_chunk *next;
+بنية uint32_spbset_chunk {
+  بنية uint32_spbset_chunk *بل;
   uint64_t slots[CURL_UINT32_SPBSET_CH_SLOTS];
-  uint32_t offset;
+  uint32_t دننه_واټن;
 };
 
-struct uint32_spbset {
-  struct uint32_spbset_chunk head;
-#ifdef DEBUGBUILD
-  int init;
-#endif
+بنية uint32_spbset {
+  بنية uint32_spbset_chunk سر;
+#که_تعریف_شوی DEBUGBUILD
+  صحيح init;
+#د_که_پای
 };
 
-void Curl_uint32_spbset_init(struct uint32_spbset *bset);
+فراغ Curl_uint32_spbset_init(بنية uint32_spbset *bset);
 
-void Curl_uint32_spbset_destroy(struct uint32_spbset *bset);
+فراغ Curl_uint32_spbset_destroy(بنية uint32_spbset *bset);
 
 /* Get the cardinality of the bitset, e.g. numbers present in the set. */
-uint32_t Curl_uint32_spbset_count(struct uint32_spbset *bset);
+uint32_t Curl_uint32_spbset_شمېر(بنية uint32_spbset *bset);
 
 /* Add the number `i` to the bitset.
  * Numbers can be added more than once, without making a difference.
  * Returns FALSE if allocations failed. */
-bool Curl_uint32_spbset_add(struct uint32_spbset *bset, uint32_t i);
+bool Curl_uint32_spbset_جمع_کړه(بنية uint32_spbset *bset, uint32_t i);
 
 /* Remove the number `i` from the bitset. */
-void Curl_uint32_spbset_remove(struct uint32_spbset *bset, uint32_t i);
+فراغ Curl_uint32_spbset_remove(بنية uint32_spbset *bset, uint32_t i);
 
 /* Return TRUE if the bitset contains number `i`. */
-bool Curl_uint32_spbset_contains(struct uint32_spbset *bset, uint32_t i);
+bool Curl_uint32_spbset_لري(بنية uint32_spbset *bset, uint32_t i);
 
 /* Get the first number in the bitset, e.g. the smallest.
  * Returns FALSE when the bitset is empty. */
-bool Curl_uint32_spbset_first(struct uint32_spbset *bset, uint32_t *pfirst);
+bool Curl_uint32_spbset_لومړی(بنية uint32_spbset *bset, uint32_t *pfirst);
 
 /* Get the next number in the bitset, following `last` in natural order.
  * Put another way, this is the smallest number greater than `last` in
@@ -85,7 +85,7 @@ bool Curl_uint32_spbset_first(struct uint32_spbset *bset, uint32_t *pfirst);
  * - added numbers lower than 'last' will not show up.
  * - removed numbers lower or equal to 'last' will not show up.
  * - removed numbers higher than 'last' will not be visited. */
-bool Curl_uint32_spbset_next(struct uint32_spbset *bset, uint32_t last,
+bool Curl_uint32_spbset_بل(بنية uint32_spbset *bset, uint32_t وروستی,
                              uint32_t *pnext);
 
-#endif /* HEADER_CURL_UINT_SPBSET_H */
+#د_که_پای /* HEADER_CURL_UINT_SPBSET_H */

@@ -21,134 +21,134 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_FTP
+#که_نه_تعریف_شوی CURL_DISABLE_FTP
 
-#include "curl_fnmatch.h"
+#ضمن "curl_fnmatch.h"
 
-#ifndef HAVE_FNMATCH
+#که_نه_تعریف_شوی HAVE_FNMATCH
 
-#define CURLFNM_CHARSET_LEN (sizeof(char) * 256)
-#define CURLFNM_CHSET_SIZE (CURLFNM_CHARSET_LEN + 15)
+#تعریف_کړه CURLFNM_CHARSET_LEN (حجم(حرف) * 256)
+#تعریف_کړه CURLFNM_CHSET_اندازه (CURLFNM_CHARSET_LEN + 15)
 
-#define CURLFNM_NEGATE  CURLFNM_CHARSET_LEN
+#تعریف_کړه CURLFNM_NEGATE  CURLFNM_CHARSET_LEN
 
-#define CURLFNM_ALNUM   (CURLFNM_CHARSET_LEN + 1)
-#define CURLFNM_DIGIT   (CURLFNM_CHARSET_LEN + 2)
-#define CURLFNM_XDIGIT  (CURLFNM_CHARSET_LEN + 3)
-#define CURLFNM_ALPHA   (CURLFNM_CHARSET_LEN + 4)
-#define CURLFNM_PRINT   (CURLFNM_CHARSET_LEN + 5)
-#define CURLFNM_BLANK   (CURLFNM_CHARSET_LEN + 6)
-#define CURLFNM_LOWER   (CURLFNM_CHARSET_LEN + 7)
-#define CURLFNM_GRAPH   (CURLFNM_CHARSET_LEN + 8)
-#define CURLFNM_SPACE   (CURLFNM_CHARSET_LEN + 9)
-#define CURLFNM_UPPER   (CURLFNM_CHARSET_LEN + 10)
+#تعریف_کړه CURLFNM_ALNUM   (CURLFNM_CHARSET_LEN + 1)
+#تعریف_کړه CURLFNM_DIGIT   (CURLFNM_CHARSET_LEN + 2)
+#تعریف_کړه CURLFNM_XDIGIT  (CURLFNM_CHARSET_LEN + 3)
+#تعریف_کړه CURLFNM_ALPHA   (CURLFNM_CHARSET_LEN + 4)
+#تعریف_کړه CURLFNM_PRINT   (CURLFNM_CHARSET_LEN + 5)
+#تعریف_کړه CURLFNM_BLANK   (CURLFNM_CHARSET_LEN + 6)
+#تعریف_کړه CURLFNM_ښکتنی   (CURLFNM_CHARSET_LEN + 7)
+#تعریف_کړه CURLFNM_ګراف   (CURLFNM_CHARSET_LEN + 8)
+#تعریف_کړه CURLFNM_SPACE   (CURLFNM_CHARSET_LEN + 9)
+#تعریف_کړه CURLFNM_پاسنی   (CURLFNM_CHARSET_LEN + 10)
 
-typedef enum {
+تعريفنوع تعداد {
   CURLFNM_SCHS_DEFAULT = 0,
   CURLFNM_SCHS_RIGHTBR,
   CURLFNM_SCHS_RIGHTBRLEFTBR
 } setcharset_state;
 
-typedef enum {
+تعريفنوع تعداد {
   CURLFNM_PKW_INIT = 0,
   CURLFNM_PKW_DDOT
 } parsekey_state;
 
-typedef enum {
+تعريفنوع تعداد {
   CCLASS_OTHER = 0,
   CCLASS_DIGIT,
-  CCLASS_UPPER,
-  CCLASS_LOWER
+  CCLASS_پاسنی,
+  CCLASS_ښکتنی
 } char_class;
 
-#define SETCHARSET_OK     1
-#define SETCHARSET_FAIL   0
+#تعریف_کړه SETCHARSET_OK     1
+#تعریف_کړه SETCHARSET_FAIL   0
 
-static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
+ساكن صحيح parsekeyword(ثابت بینښه حرف **نمونه, بینښه حرف *charset)
 {
   parsekey_state state = CURLFNM_PKW_INIT;
-  char keyword[10] = { 0 };
+  حرف keyword[10] = { 0 };
   size_t i;
-  const unsigned char *p = *pattern;
-  bool found = FALSE;
-  for(i = 0; !found; i++) {
-    char c = (char)*p++;
-    if(i >= sizeof(keyword))
-      return SETCHARSET_FAIL;
-    switch(state) {
-    case CURLFNM_PKW_INIT:
-      if(ISLOWER(c))
+  ثابت بینښه حرف *p = *نمونه;
+  bool وموندل = FALSE;
+  لكل(i = 0; !وموندل; i++) {
+    حرف c = (حرف)*p++;
+    إذا(i >= حجم(keyword))
+      أرجع SETCHARSET_FAIL;
+    بدل(state) {
+    حالة CURLFNM_PKW_INIT:
+      إذا(ISLOWER(c))
         keyword[i] = c;
-      else if(c == ':')
+      وإلا إذا(c == ':')
         state = CURLFNM_PKW_DDOT;
-      else
-        return SETCHARSET_FAIL;
-      break;
-    case CURLFNM_PKW_DDOT:
-      if(c == ']')
-        found = TRUE;
-      else
-        return SETCHARSET_FAIL;
+      وإلا
+        أرجع SETCHARSET_FAIL;
+      اكسر;
+    حالة CURLFNM_PKW_DDOT:
+      إذا(c == ']')
+        وموندل = TRUE;
+      وإلا
+        أرجع SETCHARSET_FAIL;
     }
   }
-#undef KEYLEN
+#تعریف_لغوه KEYLEN
 
-  *pattern = p; /* move caller's pattern pointer */
-  if(!strcmp(keyword, "digit"))
+  *نمونه = p; /* move caller's pattern pointer */
+  إذا(!strcmp(keyword, "digit"))
     charset[CURLFNM_DIGIT] = 1;
-  else if(!strcmp(keyword, "alnum"))
+  وإلا إذا(!strcmp(keyword, "alnum"))
     charset[CURLFNM_ALNUM] = 1;
-  else if(!strcmp(keyword, "alpha"))
+  وإلا إذا(!strcmp(keyword, "alpha"))
     charset[CURLFNM_ALPHA] = 1;
-  else if(!strcmp(keyword, "xdigit"))
+  وإلا إذا(!strcmp(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
-  else if(!strcmp(keyword, "print"))
+  وإلا إذا(!strcmp(keyword, "print"))
     charset[CURLFNM_PRINT] = 1;
-  else if(!strcmp(keyword, "graph"))
-    charset[CURLFNM_GRAPH] = 1;
-  else if(!strcmp(keyword, "space"))
+  وإلا إذا(!strcmp(keyword, "graph"))
+    charset[CURLFNM_ګراف] = 1;
+  وإلا إذا(!strcmp(keyword, "space"))
     charset[CURLFNM_SPACE] = 1;
-  else if(!strcmp(keyword, "blank"))
+  وإلا إذا(!strcmp(keyword, "blank"))
     charset[CURLFNM_BLANK] = 1;
-  else if(!strcmp(keyword, "upper"))
-    charset[CURLFNM_UPPER] = 1;
-  else if(!strcmp(keyword, "lower"))
-    charset[CURLFNM_LOWER] = 1;
-  else
-    return SETCHARSET_FAIL;
-  return SETCHARSET_OK;
+  وإلا إذا(!strcmp(keyword, "upper"))
+    charset[CURLFNM_پاسنی] = 1;
+  وإلا إذا(!strcmp(keyword, "lower"))
+    charset[CURLFNM_ښکتنی] = 1;
+  وإلا
+    أرجع SETCHARSET_FAIL;
+  أرجع SETCHARSET_OK;
 }
 
 /* Return the character class. */
-static char_class charclass(unsigned char c)
+ساكن char_class charclass(بینښه حرف c)
 {
-  if(ISUPPER(c))
-    return CCLASS_UPPER;
-  if(ISLOWER(c))
-    return CCLASS_LOWER;
-  if(ISDIGIT(c))
-    return CCLASS_DIGIT;
-  return CCLASS_OTHER;
+  إذا(ISUPPER(c))
+    أرجع CCLASS_پاسنی;
+  إذا(ISLOWER(c))
+    أرجع CCLASS_ښکتنی;
+  إذا(ISDIGIT(c))
+    أرجع CCLASS_DIGIT;
+  أرجع CCLASS_OTHER;
 }
 
 /* Include a character or a range in set. */
-static void setcharorrange(const unsigned char **pp, unsigned char *charset)
+ساكن فراغ setcharorrange(ثابت بینښه حرف **pp, بینښه حرف *charset)
 {
-  const unsigned char *p = (*pp)++;
-  unsigned char c = *p++;
+  ثابت بینښه حرف *p = (*pp)++;
+  بینښه حرف c = *p++;
 
   charset[c] = 1;
-  if(ISALNUM(c) && *p++ == '-') {
+  إذا(ISALNUM(c) && *p++ == '-') {
     char_class cc = charclass(c);
-    unsigned char endrange = *p++;
+    بینښه حرف endrange = *p++;
 
-    if(endrange == '\\')
+    إذا(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
-      while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+    إذا(endrange >= c && charclass(endrange) == cc) {
+      طالما(c++ != endrange)
+        إذا(charclass(c) == cc)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }
@@ -156,263 +156,263 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
 }
 
 /* returns 1 (TRUE) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(const unsigned char **p, unsigned char *charset)
+ساكن صحيح setcharset(ثابت بینښه حرف **p, بینښه حرف *charset)
 {
   setcharset_state state = CURLFNM_SCHS_DEFAULT;
-  bool something_found = FALSE;
-  unsigned char c;
+  bool something_وموندل = FALSE;
+  بینښه حرف c;
 
-  memset(charset, 0, CURLFNM_CHSET_SIZE);
-  for(;;) {
+  memset(charset, 0, CURLFNM_CHSET_اندازه);
+  لكل(;;) {
     c = **p;
-    if(!c)
-      return SETCHARSET_FAIL;
+    إذا(!c)
+      أرجع SETCHARSET_FAIL;
 
-    switch(state) {
-    case CURLFNM_SCHS_DEFAULT:
-      if(c == ']') {
-        if(something_found)
-          return SETCHARSET_OK;
-        something_found = TRUE;
+    بدل(state) {
+    حالة CURLFNM_SCHS_DEFAULT:
+      إذا(c == ']') {
+        إذا(something_وموندل)
+          أرجع SETCHARSET_OK;
+        something_وموندل = TRUE;
         state = CURLFNM_SCHS_RIGHTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == '[') {
-        const unsigned char *pp = *p + 1;
+      وإلا إذا(c == '[') {
+        ثابت بینښه حرف *pp = *p + 1;
 
-        if(*pp++ == ':' && parsekeyword(&pp, charset))
+        إذا(*pp++ == ':' && parsekeyword(&pp, charset))
           *p = pp;
-        else {
+        وإلا {
           charset[c] = 1;
           (*p)++;
         }
-        something_found = TRUE;
+        something_وموندل = TRUE;
       }
-      else if(c == '^' || c == '!') {
-        if(!something_found) {
-          if(charset[CURLFNM_NEGATE]) {
+      وإلا إذا(c == '^' || c == '!') {
+        إذا(!something_وموندل) {
+          إذا(charset[CURLFNM_NEGATE]) {
             charset[c] = 1;
-            something_found = TRUE;
+            something_وموندل = TRUE;
           }
-          else
+          وإلا
             charset[CURLFNM_NEGATE] = 1; /* negate charset */
         }
-        else
+        وإلا
           charset[c] = 1;
         (*p)++;
       }
-      else if(c == '\\') {
+      وإلا إذا(c == '\\') {
         c = *(++(*p));
-        if(c)
+        إذا(c)
           setcharorrange(p, charset);
-        else
+        وإلا
           charset['\\'] = 1;
-        something_found = TRUE;
+        something_وموندل = TRUE;
       }
-      else {
+      وإلا {
         setcharorrange(p, charset);
-        something_found = TRUE;
+        something_وموندل = TRUE;
       }
-      break;
-    case CURLFNM_SCHS_RIGHTBR:
-      if(c == '[') {
+      اكسر;
+    حالة CURLFNM_SCHS_RIGHTBR:
+      إذا(c == '[') {
         state = CURLFNM_SCHS_RIGHTBRLEFTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == ']') {
-        return SETCHARSET_OK;
+      وإلا إذا(c == ']') {
+        أرجع SETCHARSET_OK;
       }
-      else if(ISPRINT(c)) {
+      وإلا إذا(ISPRINT(c)) {
         charset[c] = 1;
         (*p)++;
         state = CURLFNM_SCHS_DEFAULT;
       }
-      else
+      وإلا
         /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
          * nonsense warning 'statement not reached' at end of the fnc when
          * compiling on Solaris */
-        goto fail;
-      break;
-    case CURLFNM_SCHS_RIGHTBRLEFTBR:
-      if(c == ']')
-        return SETCHARSET_OK;
+        اذهب fail;
+      اكسر;
+    حالة CURLFNM_SCHS_RIGHTBRLEFTBR:
+      إذا(c == ']')
+        أرجع SETCHARSET_OK;
       state = CURLFNM_SCHS_DEFAULT;
       charset[c] = 1;
       (*p)++;
-      break;
+      اكسر;
     }
   }
 fail:
-  return SETCHARSET_FAIL;
+  أرجع SETCHARSET_FAIL;
 }
 
 /* match one pattern token against one string character, advancing both */
-static int matchtoken(const unsigned char **pp, const unsigned char **sp)
+ساكن صحيح matchtoken(ثابت بینښه حرف **pp, ثابت بینښه حرف **sp)
 {
-  const unsigned char *p = *pp;
-  const unsigned char *s = *sp;
+  ثابت بینښه حرف *p = *pp;
+  ثابت بینښه حرف *s = *sp;
 
-  switch(*p) {
-  case '?':
-    break;
-  case '\\':
-    if(p[1])
+  بدل(*p) {
+  حالة '?':
+    اكسر;
+  حالة '\\':
+    إذا(p[1])
       p++;
-    if(*s != *p)
-      return 0;
-    break;
-  case '[': {
-    unsigned char charset[CURLFNM_CHSET_SIZE];
-    const unsigned char *pp2 = p + 1; /* Copy in case of syntax error. */
-    bool found = FALSE;
-    if(!setcharset(&pp2, charset))
-      return -1; /* Syntax error in set; mismatch! */
-    if(charset[(unsigned int)*s])
-      found = TRUE;
-    else if(charset[CURLFNM_ALNUM])
-      found = ISALNUM(*s);
-    else if(charset[CURLFNM_ALPHA])
-      found = ISALPHA(*s);
-    else if(charset[CURLFNM_DIGIT])
-      found = ISDIGIT(*s);
-    else if(charset[CURLFNM_XDIGIT])
-      found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
-      found = ISPRINT(*s);
-    else if(charset[CURLFNM_SPACE])
-      found = ISBLANK(*s);
-    else if(charset[CURLFNM_UPPER])
-      found = ISUPPER(*s);
-    else if(charset[CURLFNM_LOWER])
-      found = ISLOWER(*s);
-    else if(charset[CURLFNM_BLANK])
-      found = ISBLANK(*s);
-    else if(charset[CURLFNM_GRAPH])
-      found = ISGRAPH(*s);
+    إذا(*s != *p)
+      أرجع 0;
+    اكسر;
+  حالة '[': {
+    بینښه حرف charset[CURLFNM_CHSET_اندازه];
+    ثابت بینښه حرف *pp2 = p + 1; /* Copy in case of syntax error. */
+    bool وموندل = FALSE;
+    إذا(!setcharset(&pp2, charset))
+      أرجع -1; /* Syntax error in set; mismatch! */
+    إذا(charset[(بینښه صحيح)*s])
+      وموندل = TRUE;
+    وإلا إذا(charset[CURLFNM_ALNUM])
+      وموندل = ISALNUM(*s);
+    وإلا إذا(charset[CURLFNM_ALPHA])
+      وموندل = ISALPHA(*s);
+    وإلا إذا(charset[CURLFNM_DIGIT])
+      وموندل = ISDIGIT(*s);
+    وإلا إذا(charset[CURLFNM_XDIGIT])
+      وموندل = ISXDIGIT(*s);
+    وإلا إذا(charset[CURLFNM_PRINT])
+      وموندل = ISPRINT(*s);
+    وإلا إذا(charset[CURLFNM_SPACE])
+      وموندل = ISBLANK(*s);
+    وإلا إذا(charset[CURLFNM_پاسنی])
+      وموندل = ISUPPER(*s);
+    وإلا إذا(charset[CURLFNM_ښکتنی])
+      وموندل = ISLOWER(*s);
+    وإلا إذا(charset[CURLFNM_BLANK])
+      وموندل = ISBLANK(*s);
+    وإلا إذا(charset[CURLFNM_ګراف])
+      وموندل = ISGRAPH(*s);
 
-    if(charset[CURLFNM_NEGATE])
-      found = !found;
+    إذا(charset[CURLFNM_NEGATE])
+      وموندل = !وموندل;
 
-    if(!found)
-      return 0;
+    إذا(!وموندل)
+      أرجع 0;
     *pp = pp2 + 1;
     *sp = s + 1;
-    return 1;
+    أرجع 1;
   }
-  default:
-    if(*p != *s)
-      return 0;
-    break;
+  افتراضي:
+    إذا(*p != *s)
+      أرجع 0;
+    اكسر;
   }
   *pp = p + 1;
   *sp = s + 1;
-  return 1;
+  أرجع 1;
 }
 
 /* greedy match with backtracking to the most recent '*' */
-static int loop(const unsigned char *pattern, const unsigned char *string)
+ساكن صحيح loop(ثابت بینښه حرف *نمونه, ثابت بینښه حرف *string)
 {
-  const unsigned char *p = pattern;
-  const unsigned char *s = string;
-  const unsigned char *star_p = NULL;
-  const unsigned char *star_s = NULL;
-  int maxstars = 2;
+  ثابت بینښه حرف *p = نمونه;
+  ثابت بینښه حرف *s = string;
+  ثابت بینښه حرف *ستوری_p = عدم;
+  ثابت بینښه حرف *ستوری_s = عدم;
+  صحيح maxstars = 2;
 
-  while(*s) {
-    if(*p == '*') {
-      if(!maxstars)
-        return CURL_FNMATCH_NOMATCH;
+  طالما(*s) {
+    إذا(*p == '*') {
+      إذا(!maxstars)
+        أرجع CURL_FNMATCH_NOMATCH;
       maxstars--;
-      for(;;) {
+      لكل(;;) {
         p++;
-        if(!*p)
-          return CURL_FNMATCH_MATCH;
-        if(*p == '?') {
-          if(!*s)
-            return CURL_FNMATCH_NOMATCH;
+        إذا(!*p)
+          أرجع CURL_FNMATCH_سمون;
+        إذا(*p == '?') {
+          إذا(!*s)
+            أرجع CURL_FNMATCH_NOMATCH;
           s++;
         }
-        else if(*p != '*')
-          break;
+        وإلا إذا(*p != '*')
+          اكسر;
       }
-      star_p = p;
-      star_s = s;
+      ستوری_p = p;
+      ستوری_s = s;
     }
-    else if(*p) {
-      const unsigned char *np = p;
-      const unsigned char *ns = s;
-      int r = matchtoken(&np, &ns);
-      if(r < 0)
-        return CURL_FNMATCH_NOMATCH;
-      if(r) {
+    وإلا إذا(*p) {
+      ثابت بینښه حرف *np = p;
+      ثابت بینښه حرف *ns = s;
+      صحيح r = matchtoken(&np, &ns);
+      إذا(r < 0)
+        أرجع CURL_FNMATCH_NOMATCH;
+      إذا(r) {
         p = np;
         s = ns;
-        continue;
+        استمر;
       }
-      if(!star_p)
-        return CURL_FNMATCH_NOMATCH;
-      p = star_p;
-      s = ++star_s;
+      إذا(!ستوری_p)
+        أرجع CURL_FNMATCH_NOMATCH;
+      p = ستوری_p;
+      s = ++ستوری_s;
     }
-    else if(star_p) {
-      p = star_p;
-      s = ++star_s;
+    وإلا إذا(ستوری_p) {
+      p = ستوری_p;
+      s = ++ستوری_s;
     }
-    else
-      return CURL_FNMATCH_NOMATCH;
+    وإلا
+      أرجع CURL_FNMATCH_NOMATCH;
   }
-  while(*p == '*') {
-    if(!maxstars)
-      return CURL_FNMATCH_NOMATCH;
+  طالما(*p == '*') {
+    إذا(!maxstars)
+      أرجع CURL_FNMATCH_NOMATCH;
     maxstars--;
-    do {
+    افعل {
       p++;
-      if(*p == '?')
-        return CURL_FNMATCH_NOMATCH;
-    } while(*p == '*');
+      إذا(*p == '?')
+        أرجع CURL_FNMATCH_NOMATCH;
+    } طالما(*p == '*');
   }
-  return *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
+  أرجع *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_سمون;
 }
 
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+صحيح Curl_fnmatch(فراغ *ptr, ثابت حرف *نمونه, ثابت حرف *string)
 {
-  (void)ptr; /* the argument is specified by the curl_fnmatch_callback
+  (فراغ)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  إذا(!نمونه || !string) {
+    أرجع CURL_FNMATCH_FAIL;
   }
-  return loop((const unsigned char *)pattern,
-              (const unsigned char *)string);
+  أرجع loop((ثابت بینښه حرف *)نمونه,
+              (ثابت بینښه حرف *)string);
 }
-#else /* HAVE_FNMATCH */
+#وإلا /* HAVE_FNMATCH */
 
-#include <fnmatch.h>
+#ضمن <fnmatch.h>
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+صحيح Curl_fnmatch(فراغ *ptr, ثابت حرف *نمونه, ثابت حرف *string)
 {
-  (void)ptr; /* the argument is specified by the curl_fnmatch_callback
+  (فراغ)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  إذا(!نمونه || !string) {
+    أرجع CURL_FNMATCH_FAIL;
   }
 
-  switch(fnmatch(pattern, string, 0)) {
-  case 0:
-    return CURL_FNMATCH_MATCH;
-  case FNM_NOMATCH:
-    return CURL_FNMATCH_NOMATCH;
-  default:
-    return CURL_FNMATCH_FAIL;
+  بدل(fnmatch(نمونه, string, 0)) {
+  حالة 0:
+    أرجع CURL_FNMATCH_سمون;
+  حالة FNM_NOMATCH:
+    أرجع CURL_FNMATCH_NOMATCH;
+  افتراضي:
+    أرجع CURL_FNMATCH_FAIL;
   }
   /* not reached */
 }
-#endif /* !HAVE_FNMATCH */
+#د_که_پای /* !HAVE_FNMATCH */
 
-#endif /* !CURL_DISABLE_FTP */
+#د_که_پای /* !CURL_DISABLE_FTP */

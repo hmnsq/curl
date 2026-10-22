@@ -21,156 +21,156 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#که_نه_تعریف_شوی CURL_DISABLE_HTTP
 
-#include "urldata.h"
-#include "http.h"
-#include "http1.h"
-#include "urlapi-int.h"
+#ضمن "urldata.h"
+#ضمن "http.h"
+#ضمن "http1.h"
+#ضمن "urlapi-int.h"
 
 
-#define H1_MAX_URL_LEN (8 * 1024)
+#تعریف_کړه H1_MAX_URL_LEN (8 * 1024)
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len)
+فراغ Curl_h1_req_parse_init(بنية h1_req_parser *parser, size_t max_کرښه_len)
 {
-  memset(parser, 0, sizeof(*parser));
-  parser->max_line_len = max_line_len;
-  curlx_dyn_init(&parser->scratch, max_line_len);
+  memset(parser, 0, حجم(*parser));
+  parser->max_کرښه_len = max_کرښه_len;
+  curlx_dyn_init(&parser->scratch, max_کرښه_len);
 }
 
-void Curl_h1_req_parse_free(struct h1_req_parser *parser)
+فراغ Curl_h1_req_parse_free(بنية h1_req_parser *parser)
 {
-  if(parser) {
+  إذا(parser) {
     Curl_http_req_free(parser->req);
     curlx_dyn_free(&parser->scratch);
-    parser->req = NULL;
-    parser->done = FALSE;
+    parser->req = عدم;
+    parser->بشپړ = FALSE;
   }
 }
 
-static CURLcode trim_line(struct h1_req_parser *parser, int options)
+ساكن CURLcode trim_کرښه(بنية h1_req_parser *parser, صحيح options)
 {
-  DEBUGASSERT(parser->line);
-  if(parser->line_len) {
-    if(parser->line[parser->line_len - 1] == '\n')
-      --parser->line_len;
-    if(parser->line_len) {
-      if(parser->line[parser->line_len - 1] == '\r')
-        --parser->line_len;
-      else if(options & H1_PARSE_OPT_STRICT)
-        return CURLE_URL_MALFORMAT;
+  DEBUGASSERT(parser->کرښه);
+  إذا(parser->کرښه_len) {
+    إذا(parser->کرښه[parser->کرښه_len - 1] == '\n')
+      --parser->کرښه_len;
+    إذا(parser->کرښه_len) {
+      إذا(parser->کرښه[parser->کرښه_len - 1] == '\r')
+        --parser->کرښه_len;
+      وإلا إذا(options & H1_PARSE_OPT_STRICT)
+        أرجع CURLE_URL_MALFORMAT;
     }
-    else if(options & H1_PARSE_OPT_STRICT)
-      return CURLE_URL_MALFORMAT;
+    وإلا إذا(options & H1_PARSE_OPT_STRICT)
+      أرجع CURLE_URL_MALFORMAT;
   }
-  else if(options & H1_PARSE_OPT_STRICT)
-    return CURLE_URL_MALFORMAT;
+  وإلا إذا(options & H1_PARSE_OPT_STRICT)
+    أرجع CURLE_URL_MALFORMAT;
 
-  if(parser->line_len > parser->max_line_len) {
-    return CURLE_URL_MALFORMAT;
+  إذا(parser->کرښه_len > parser->max_کرښه_len) {
+    أرجع CURLE_URL_MALFORMAT;
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode detect_line(struct h1_req_parser *parser,
-                            const uint8_t *buf, const size_t buflen,
+ساكن CURLcode detect_کرښه(بنية h1_req_parser *parser,
+                            ثابت uint8_t *buf, ثابت size_t buflen,
                             size_t *pnread)
 {
-  const char *line_end;
+  ثابت حرف *کرښه_پای_ټکی;
 
-  DEBUGASSERT(!parser->line);
+  DEBUGASSERT(!parser->کرښه);
   *pnread = 0;
-  line_end = memchr(buf, '\n', buflen);
-  if(!line_end)
-    return CURLE_AGAIN;
-  parser->line = (const char *)buf;
-  parser->line_len = line_end - parser->line + 1;
-  *pnread = parser->line_len;
-  return CURLE_OK;
+  کرښه_پای_ټکی = memchr(buf, '\n', buflen);
+  إذا(!کرښه_پای_ټکی)
+    أرجع CURLE_AGAIN;
+  parser->کرښه = (ثابت حرف *)buf;
+  parser->کرښه_len = کرښه_پای_ټکی - parser->کرښه + 1;
+  *pnread = parser->کرښه_len;
+  أرجع CURLE_OK;
 }
 
-static CURLcode next_line(struct h1_req_parser *parser,
-                          const uint8_t *buf, const size_t buflen, int options,
+ساكن CURLcode بل_کرښه(بنية h1_req_parser *parser,
+                          ثابت uint8_t *buf, ثابت size_t buflen, صحيح options,
                           size_t *pnread)
 {
-  CURLcode result;
+  CURLcode پایله;
 
   *pnread = 0;
-  if(parser->line) {
-    parser->line = NULL;
-    parser->line_len = 0;
+  إذا(parser->کرښه) {
+    parser->کرښه = عدم;
+    parser->کرښه_len = 0;
     curlx_dyn_reset(&parser->scratch);
   }
 
-  result = detect_line(parser, buf, buflen, pnread);
-  if(!result) {
-    if(curlx_dyn_len(&parser->scratch)) {
+  پایله = detect_کرښه(parser, buf, buflen, pnread);
+  إذا(!پایله) {
+    إذا(curlx_dyn_len(&parser->scratch)) {
       /* append detected line to scratch to have the complete line */
-      result = curlx_dyn_addn(&parser->scratch, parser->line,
-                              parser->line_len);
-      if(result)
-        return result;
-      parser->line = curlx_dyn_ptr(&parser->scratch);
-      parser->line_len = curlx_dyn_len(&parser->scratch);
+      پایله = curlx_dyn_addn(&parser->scratch, parser->کرښه,
+                              parser->کرښه_len);
+      إذا(پایله)
+        أرجع پایله;
+      parser->کرښه = curlx_dyn_ptr(&parser->scratch);
+      parser->کرښه_len = curlx_dyn_len(&parser->scratch);
     }
-    result = trim_line(parser, options);
-    if(result)
-      return result;
+    پایله = trim_کرښه(parser, options);
+    إذا(پایله)
+      أرجع پایله;
   }
-  else if(result == CURLE_AGAIN) {
+  وإلا إذا(پایله == CURLE_AGAIN) {
     /* no line end in `buf`, add it to our scratch */
-    result = curlx_dyn_addn(&parser->scratch, (const unsigned char *)buf,
+    پایله = curlx_dyn_addn(&parser->scratch, (ثابت بینښه حرف *)buf,
                             buflen);
     *pnread = buflen;
   }
-  return result;
+  أرجع پایله;
 }
 
-static CURLcode start_req(struct h1_req_parser *parser,
-                          const char *scheme_default,
-                          const char *custom_method,
-                          int options)
+ساكن CURLcode پیل_req(بنية h1_req_parser *parser,
+                          ثابت حرف *scheme_default,
+                          ثابت حرف *custom_لاره,
+                          صحيح options)
 {
-  const char *p, *m, *target, *hv, *scheme, *authority, *path;
-  size_t m_len, target_len, hv_len, scheme_len, authority_len, path_len;
+  ثابت حرف *p, *m, *موخه, *hv, *scheme, *authority, *لار;
+  size_t m_len, موخه_len, hv_len, scheme_len, authority_len, لار_len;
   size_t i;
-  CURLU *url = NULL;
-  CURLcode result = CURLE_URL_MALFORMAT; /* Use this as default fail */
+  CURLU *url = عدم;
+  CURLcode پایله = CURLE_URL_MALFORMAT; /* Use this as default fail */
 
   DEBUGASSERT(!parser->req);
   /* line must match: "METHOD TARGET HTTP_VERSION" */
-  if(custom_method && custom_method[0] &&
-     !strncmp(custom_method, parser->line, strlen(custom_method))) {
-    p = parser->line + strlen(custom_method);
+  إذا(custom_لاره && custom_لاره[0] &&
+     !مزي_پرتله(custom_لاره, parser->کرښه, مزي_اوږدوالی(custom_لاره))) {
+    p = parser->کرښه + مزي_اوږدوالی(custom_لاره);
   }
-  else {
-    p = memchr(parser->line, ' ', parser->line_len);
-    if(!p || p == parser->line)
-      goto out;
+  وإلا {
+    p = memchr(parser->کرښه, ' ', parser->کرښه_len);
+    إذا(!p || p == parser->کرښه)
+      اذهب بهر;
   }
 
-  m = parser->line;
-  m_len = p - parser->line;
-  target = p + 1;
-  target_len = hv_len = 0;
-  hv = NULL;
+  m = parser->کرښه;
+  m_len = p - parser->کرښه;
+  موخه = p + 1;
+  موخه_len = hv_len = 0;
+  hv = عدم;
 
   /* URL may contain spaces so scan backwards */
-  for(i = parser->line_len; i > m_len; --i) {
-    if(parser->line[i] == ' ') {
-      hv = &parser->line[i + 1];
-      hv_len = parser->line_len - i;
-      target_len = (hv - target) - 1;
-      break;
+  لكل(i = parser->کرښه_len; i > m_len; --i) {
+    إذا(parser->کرښه[i] == ' ') {
+      hv = &parser->کرښه[i + 1];
+      hv_len = parser->کرښه_len - i;
+      موخه_len = (hv - موخه) - 1;
+      اكسر;
     }
   }
   /* no SPACE found or empty TARGET or empty HTTP_VERSION */
-  if(!target_len || !hv_len)
-    goto out;
+  إذا(!موخه_len || !hv_len)
+    اذهب بهر;
 
-  (void)hv;
+  (فراغ)hv;
 
   /* The TARGET can be (rfc 9112, ch. 3.2):
    * origin-form:     path + optional query
@@ -184,102 +184,102 @@ static CURLcode start_req(struct h1_req_parser *parser,
    * authority-form         --        TARGET      --
    * asterisk-form          --        --          TARGET
    */
-  scheme = authority = path = NULL;
-  scheme_len = authority_len = path_len = 0;
+  scheme = authority = لار = عدم;
+  scheme_len = authority_len = لار_len = 0;
 
-  if(target_len == 1 && target[0] == '*') {
+  إذا(موخه_len == 1 && موخه[0] == '*') {
     /* asterisk-form */
-    path = target;
-    path_len = target_len;
+    لار = موخه;
+    لار_len = موخه_len;
   }
-  else if(!strncmp("CONNECT", m, m_len)) {
+  وإلا إذا(!مزي_پرتله("CONNECT", m, m_len)) {
     /* authority-form */
-    authority = target;
-    authority_len = target_len;
+    authority = موخه;
+    authority_len = موخه_len;
   }
-  else if(target[0] == '/') {
+  وإلا إذا(موخه[0] == '/') {
     /* origin-form */
-    path = target;
-    path_len = target_len;
+    لار = موخه;
+    لار_len = موخه_len;
   }
-  else {
+  وإلا {
     /* origin-form OR absolute-form */
     CURLUcode uc;
-    char tmp[H1_MAX_URL_LEN];
+    حرف tmp[H1_MAX_URL_LEN];
 
     /* default, unless we see an absolute URL */
-    path = target;
-    path_len = target_len;
+    لار = موخه;
+    لار_len = موخه_len;
 
     /* URL parser wants null-termination */
-    if(target_len >= sizeof(tmp))
-      goto out;
-    memcpy(tmp, target, target_len);
-    tmp[target_len] = '\0';
+    إذا(موخه_len >= حجم(tmp))
+      اذهب بهر;
+    حافظه_نقل(tmp, موخه, موخه_len);
+    tmp[موخه_len] = '\0';
     /* See if treating TARGET as an absolute URL makes sense */
-    if(Curl_is_absolute_url(tmp, NULL, 0, FALSE)) {
-      unsigned int url_options;
+    إذا(Curl_is_absolute_url(tmp, عدم, 0, FALSE)) {
+      بینښه صحيح url_options;
 
       url = curl_url();
-      if(!url) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      إذا(!url) {
+        پایله = CURLE_بهر_د_حافظه;
+        اذهب بهر;
       }
       url_options = (CURLU_NON_SUPPORT_SCHEME |
-                     CURLU_PATH_AS_IS |
-                     CURLU_NO_DEFAULT_PORT);
-      if(!(options & H1_PARSE_OPT_STRICT))
+                     CURLU_لار_AS_IS |
+                     CURLU_NO_DEFAULT_پورټ);
+      إذا(!(options & H1_PARSE_OPT_STRICT))
         url_options |= CURLU_ALLOW_SPACE;
-      uc = curl_url_set(url, CURLUPART_URL, tmp, url_options);
-      if(uc) {
-        goto out;
+      uc = curl_url_سېټ(url, CURLUPART_URL, tmp, url_options);
+      إذا(uc) {
+        اذهب بهر;
       }
     }
 
-    if(!url && (options & H1_PARSE_OPT_STRICT)) {
+    إذا(!url && (options & H1_PARSE_OPT_STRICT)) {
       /* we should have an absolute URL or have seen `/` earlier */
-      goto out;
+      اذهب بهر;
     }
   }
 
-  if(url) {
-    result = Curl_http_req_make2(&parser->req, m, m_len, url, scheme_default);
+  إذا(url) {
+    پایله = Curl_http_req_make2(&parser->req, m, m_len, url, scheme_default);
   }
-  else {
-    if(!scheme && scheme_default) {
+  وإلا {
+    إذا(!scheme && scheme_default) {
       scheme = scheme_default;
-      scheme_len = strlen(scheme_default);
+      scheme_len = مزي_اوږدوالی(scheme_default);
     }
-    result = Curl_http_req_make(&parser->req, m, m_len, scheme, scheme_len,
-                                authority, authority_len, path, path_len);
+    پایله = Curl_http_req_make(&parser->req, m, m_len, scheme, scheme_len,
+                                authority, authority_len, لار, لار_len);
   }
 
-out:
+بهر:
   curl_url_cleanup(url);
-  return result;
+  أرجع پایله;
 }
 
-CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
-                                const uint8_t *buf, size_t buflen,
-                                const char *scheme_default,
-                                const char *custom_method,
-                                int options, size_t *pnread)
+CURLcode Curl_h1_req_parse_read(بنية h1_req_parser *parser,
+                                ثابت uint8_t *buf, size_t buflen,
+                                ثابت حرف *scheme_default,
+                                ثابت حرف *custom_لاره,
+                                صحيح options, size_t *pnread)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode پایله = CURLE_OK;
   size_t nread;
 
   *pnread = 0;
 
   DEBUGASSERT(buf);
-  if(!buf)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(!buf)
+    أرجع CURLE_BAD_FUNCTION_دلیل;
 
-  while(!parser->done) {
-    result = next_line(parser, buf, buflen, options, &nread);
-    if(result) {
-      if(result == CURLE_AGAIN)
-        result = CURLE_OK;
-      goto out;
+  طالما(!parser->بشپړ) {
+    پایله = بل_کرښه(parser, buf, buflen, options, &nread);
+    إذا(پایله) {
+      إذا(پایله == CURLE_AGAIN)
+        پایله = CURLE_OK;
+      اذهب بهر;
     }
 
     /* Consume this line */
@@ -287,61 +287,61 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
     buf += nread;
     buflen -= nread;
 
-    if(!parser->line) {
+    إذا(!parser->کرښه) {
       /* consumed bytes, but line not complete */
-      if(!buflen)
-        goto out;
+      إذا(!buflen)
+        اذهب بهر;
     }
-    else if(!parser->req) {
-      result = start_req(parser, scheme_default, custom_method, options);
-      if(result)
-        goto out;
+    وإلا إذا(!parser->req) {
+      پایله = پیل_req(parser, scheme_default, custom_لاره, options);
+      إذا(پایله)
+        اذهب بهر;
     }
-    else if(parser->line_len == 0) {
+    وإلا إذا(parser->کرښه_len == 0) {
       /* last, empty line, we are finished */
-      if(!parser->req) {
-        result = CURLE_URL_MALFORMAT;
-        goto out;
+      إذا(!parser->req) {
+        پایله = CURLE_URL_MALFORMAT;
+        اذهب بهر;
       }
-      parser->done = TRUE;
+      parser->بشپړ = TRUE;
       curlx_dyn_reset(&parser->scratch);
       /* last chance adjustments */
     }
-    else {
-      result = Curl_dynhds_h1_add_line(&parser->req->headers,
-                                       parser->line, parser->line_len);
-      if(result)
-        goto out;
+    وإلا {
+      پایله = Curl_dynhds_h1_جمع_کړه_کرښه(&parser->req->سرلیکونه,
+                                       parser->کرښه, parser->کرښه_len);
+      إذا(پایله)
+        اذهب بهر;
     }
   }
 
-out:
-  return result;
+بهر:
+  أرجع پایله;
 }
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
-                                struct dynbuf *dbuf)
+CURLcode Curl_h1_req_write_سر(بنية httpreq *req, صحيح http_minor,
+                                بنية dynbuf *dbuf)
 {
-  CURLcode result;
+  CURLcode پایله;
 
-  result = curlx_dyn_addf(dbuf, "%s %s%s%s%s HTTP/1.%d\r\n",
-                          req->method,
+  پایله = curlx_dyn_addf(dbuf, "%s %s%s%s%s HTTP/1.%d\r\n",
+                          req->لاره,
                           req->scheme ? req->scheme : "",
                           req->scheme ? "://" : "",
                           req->authority ? req->authority : "",
-                          req->path ? req->path : "",
+                          req->لار ? req->لار : "",
                           http_minor);
-  if(result)
-    goto out;
+  إذا(پایله)
+    اذهب بهر;
 
-  result = Curl_dynhds_h1_dprint(&req->headers, dbuf);
-  if(result)
-    goto out;
+  پایله = Curl_dynhds_h1_dprint(&req->سرلیکونه, dbuf);
+  إذا(پایله)
+    اذهب بهر;
 
-  result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
+  پایله = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
 
-out:
-  return result;
+بهر:
+  أرجع پایله;
 }
 
-#endif /* !CURL_DISABLE_HTTP */
+#د_که_پای /* !CURL_DISABLE_HTTP */

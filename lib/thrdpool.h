@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_THRDPOOL_H
-#define HEADER_CURL_THRDPOOL_H
+#که_نه_تعریف_شوی سرلیک_CURL_THRDPOOL_H
+#تعریف_کړه سرلیک_CURL_THRDPOOL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,31 +23,31 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "curlx/timediff.h"
+#ضمن "curl_setup.h"
+#ضمن "curlx/timediff.h"
 
-#ifdef USE_THREADS
+#که_تعریف_شوی USE_تارونه
 
-struct curl_thrdpool;
-struct Curl_easy;
+بنية curl_thrdpool;
+بنية Curl_easy;
 
 /* Invoked under thread pool lock to get an "item" to work on. Must
  * return NULL if there is nothing to do.
  * Caller might return a descriptive string about the "item", where
  * available. The string needs to have the same lifetime as the
  * item itself. */
-typedef void *Curl_thrdpool_take_item_cb(void *user_data,
-                                         const char **pdescription,
+تعريفنوع فراغ *Curl_thrdpool_take_توکی_cb(فراغ *user_معلومات,
+                                         ثابت حرف **pdescription,
                                          timediff_t *ptimeout_ms);
 
 /* Invoked outside thread pool lock to process the item taken. */
-typedef void Curl_thrdpool_process_item_cb(void *item);
+تعريفنوع فراغ Curl_thrdpool_process_توکی_cb(فراغ *توکی);
 
 /* Invoked under thread pool lock to return a processed item back
  * to the producer.
  * If the thread pool has been destroyed, `user_data` will be NULL
  * and the callback is responsible to release all `item` resources. */
-typedef void Curl_thrdpool_return_item_cb(void *item, void *user_data);
+تعريفنوع فراغ Curl_thrdpool_return_توکی_cb(فراغ *توکی, فراغ *user_معلومات);
 
 /* Create a new thread pool.
  * @param name         name of pool for tracing purposes
@@ -62,15 +62,15 @@ typedef void Curl_thrdpool_return_item_cb(void *item, void *user_data);
  * @param fn_return    return the processed item
  * @param user_data    parameter passed to take/return callbacks
  */
-CURLcode Curl_thrdpool_create(struct curl_thrdpool **ptpool,
-                              const char *name,
-                              uint32_t min_threads,
-                              uint32_t max_threads,
-                              uint32_t idle_time_ms,
-                              Curl_thrdpool_take_item_cb *fn_take,
-                              Curl_thrdpool_process_item_cb *fn_process,
-                              Curl_thrdpool_return_item_cb *fn_return,
-                              void *user_data);
+CURLcode Curl_thrdpool_create(بنية curl_thrdpool **ptpool,
+                              ثابت حرف *name,
+                              uint32_t min_تارونه,
+                              uint32_t max_تارونه,
+                              uint32_t idle_وخت_ms,
+                              Curl_thrdpool_take_توکی_cb *fn_take,
+                              Curl_thrdpool_process_توکی_cb *fn_process,
+                              Curl_thrdpool_return_توکی_cb *fn_return,
+                              فراغ *user_معلومات);
 
 /* Destroy the thread pool, release its resources.
  * With `join` being TRUE, the call will wait for all threads to finish
@@ -78,29 +78,29 @@ CURLcode Curl_thrdpool_create(struct curl_thrdpool **ptpool,
  * running. Ongoing item processing will continue to run and
  * `fn_return` will be invoked with NULL user_data before the thread exits.
  */
-void Curl_thrdpool_destroy(struct curl_thrdpool *tpool, bool join);
+فراغ Curl_thrdpool_destroy(بنية curl_thrdpool *tpool, bool join);
 
 /* Signal the pool to wake up `nthreads` idle worker threads, possible
  * creating new threads up to the max limit. The number should reflect
  * the items that can actually be taken for processing right away, e.g.
  * the producers "queue" length of outstanding items.
  */
-CURLcode Curl_thrdpool_signal(struct curl_thrdpool *tpool, uint32_t nthreads);
+CURLcode Curl_thrdpool_signal(بنية curl_thrdpool *tpool, uint32_t nthreads);
 
-CURLcode Curl_thrdpool_await_idle(struct curl_thrdpool *tpool,
+CURLcode Curl_thrdpool_await_idle(بنية curl_thrdpool *tpool,
                                   uint32_t timeout_ms);
 
 /* Change the properties of a threadpool. */
-CURLcode Curl_thrdpool_set_props(struct curl_thrdpool *tpool,
-                                 uint32_t min_threads,
-                                 uint32_t max_threads,
-                                 uint32_t idle_time_ms);
+CURLcode Curl_thrdpool_سېټ_props(بنية curl_thrdpool *tpool,
+                                 uint32_t min_تارونه,
+                                 uint32_t max_تارونه,
+                                 uint32_t idle_وخت_ms);
 
-#ifdef CURLVERBOSE
-void Curl_thrdpool_trace(struct curl_thrdpool *tpool,
-                         struct Curl_easy *data);
-#endif
+#که_تعریف_شوی CURLVERBOSE
+فراغ Curl_thrdpool_trace(بنية curl_thrdpool *tpool,
+                         بنية Curl_easy *معلومات);
+#د_که_پای
 
-#endif /* USE_THREADS */
+#د_که_پای /* USE_THREADS */
 
-#endif /* HEADER_CURL_THRDPOOL_H */
+#د_که_پای /* HEADER_CURL_THRDPOOL_H */

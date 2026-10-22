@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SSLUSE_H
-#define HEADER_CURL_SSLUSE_H
+#که_نه_تعریف_شوی سرلیک_CURL_SSLUSE_H
+#تعریف_کړه سرلیک_CURL_SSLUSE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_OPENSSL
+#که_تعریف_شوی USE_OPENSSL
 
-#ifdef USE_WIN32_CRYPTO
-#include <wincrypt.h>
+#که_تعریف_شوی USE_WIN32_CRYPTO
+#ضمن <wincrypt.h>
 /* If <wincrypt.h> is included directly, or indirectly via <schannel.h>,
  * <winldap.h>, <iphlpapi.h>, or something else, <wincrypt.h> does this:
  *   #define X509_NAME  ((LPCSTR)7)
@@ -52,37 +52,37 @@
  *
  * LibreSSL automatically undefines these symbols before using them.
  */
-#undef X509_NAME
-#undef X509_EXTENSIONS
-#undef PKCS7_ISSUER_AND_SERIAL
-#undef PKCS7_SIGNER_INFO
-#undef OCSP_REQUEST
-#undef OCSP_RESPONSE
-#endif /* USE_WIN32_CRYPTO */
+#تعریف_لغوه X509_NAME
+#تعریف_لغوه X509_EXTENSIONS
+#تعریف_لغوه PKCS7_ISSUER_AND_SERIAL
+#تعریف_لغوه PKCS7_SIGNER_INFO
+#تعریف_لغوه OCSP_REQUEST
+#تعریف_لغوه OCSP_RESPONSE
+#د_که_پای /* USE_WIN32_CRYPTO */
 
 /*
  * This header should only be needed to get included by vtls.c, openssl.c
  * and ngtcp2.c
  */
-#include <openssl/opensslv.h>
-#include <openssl/ossl_typ.h>
-#include <openssl/ssl.h>
+#ضمن <openssl/opensslv.h>
+#ضمن <openssl/ossl_typ.h>
+#ضمن <openssl/ssl.h>
 
-#include "urldata.h"
+#ضمن "urldata.h"
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-#define HAVE_OPENSSL3  /* non-fork OpenSSL 3.x or later */
-#endif
+#إذا OPENSSL_نسخه_شمېره >= 0x30000000L
+#تعریف_کړه HAVE_OPENSSL3  /* non-fork OpenSSL 3.x or later */
+#د_که_پای
 
-#if defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
-#define HAVE_BORINGSSL_LIKE
-#endif
+#إذا defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
+#تعریف_کړه HAVE_BORINGSSL_LIKE
+#د_که_پای
 
 /* OpenSSL 3.5.0+ has built-in 'SSLKEYLOGFILE' support if built with
    'enable-sslkeylog' */
-#if OPENSSL_VERSION_NUMBER >= 0x30500000L && !defined(OPENSSL_NO_SSLKEYLOG)
-#define HAVE_KEYLOG_UPSTREAM
-#endif
+#إذا OPENSSL_نسخه_شمېره >= 0x30500000L && !defined(OPENSSL_NO_SSLKEYLOG)
+#تعریف_کړه HAVE_KEYLOG_UPSTREAM
+#د_که_پای
 
 /*
  * Whether SSL_CTX_set_keylog_callback is available.
@@ -90,133 +90,133 @@
  * LibreSSL: not supported. 3.5.0+ has a stub function that does nothing.
  * OpenSSL: supported since 1.1.1 https://github.com/openssl/openssl/pull/2287
  */
-#ifndef LIBRESSL_VERSION_NUMBER
-#define HAVE_KEYLOG_CALLBACK
-#endif
+#که_نه_تعریف_شوی LIBRESSL_نسخه_شمېره
+#تعریف_کړه HAVE_KEYLOG_CALLBACK
+#د_که_پای
 
 /* Check for OpenSSL 1.1.1 which has early data support. */
-#undef HAVE_OPENSSL_EARLYDATA
-#if defined(TLS1_3_VERSION) && !defined(HAVE_BORINGSSL_LIKE)
-#define HAVE_OPENSSL_EARLYDATA
-#endif
+#تعریف_لغوه HAVE_OPENSSL_EARLYDATA
+#إذا defined(TLS1_3_نسخه) && !defined(HAVE_BORINGSSL_LIKE)
+#تعریف_کړه HAVE_OPENSSL_EARLYDATA
+#د_که_پای
 
-#ifdef LIBRESSL_VERSION_NUMBER
-typedef long ctx_option_t;
-#elif defined(HAVE_BORINGSSL_LIKE)
-typedef uint32_t ctx_option_t;
-#else
-typedef uint64_t ctx_option_t;
-#endif
+#که_تعریف_شوی LIBRESSL_نسخه_شمېره
+تعريفنوع اوږد ctx_option_t;
+#وإلاإذا defined(HAVE_BORINGSSL_LIKE)
+تعريفنوع uint32_t ctx_option_t;
+#وإلا
+تعريفنوع uint64_t ctx_option_t;
+#د_که_پای
 
-struct alpn_spec;
-struct ssl_peer;
-struct Curl_ssl_session;
+بنية alpn_spec;
+بنية ssl_peer;
+بنية Curl_ssl_session;
 
-struct provider {
+بنية provider {
   /* void instead of ENGINE to avoid bleeding OpenSSL into this header */
-  void *engine;
+  فراغ *engine;
   /* void instead of OSSL_PROVIDER */
-  void *provider;
-  void *baseprov;
-  void *libctx;
-  char *propq; /* for a provider */
-  BIT(provider_loaded);
+  فراغ *provider;
+  فراغ *baseprov;
+  فراغ *libctx;
+  حرف *propq; /* for a provider */
+  بټ(provider_loaded);
 };
 
 /* Struct to hold a curl OpenSSL instance */
-struct ossl_ctx {
+بنية ossl_ctx {
   /* these ones requires specific SSL-types */
   SSL_CTX *ssl_ctx;
   SSL *ssl;
-  BIO_METHOD *bio_method;
-  struct provider p;
-  CURLcode io_result;       /* result of last BIO cfilter operation */
+  BIO_لاره *bio_لاره;
+  بنية provider p;
+  CURLcode io_پایله;       /* result of last BIO cfilter operation */
   /* blocked writes need to retry with same length, remember it */
-  int blocked_ssl_write_len;
-#if !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
+  صحيح blocked_ssl_write_len;
+#إذا !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
   /* Set to true once a valid keylog entry has been created to avoid dupes.
      This is a bool and not a bitfield because it is passed by address. */
-  bool keylog_done;
-#endif
-  BIT(x509_store_setup);            /* x509 store has been set up */
-  BIT(store_is_empty);              /* no certs/paths/blobs in x509 store */
-  BIT(reused_session);              /* session-ID was reused for this */
-#ifdef USE_APPLE_SECTRUST
-  BIT(sectrust_verified);           /* peer was verified by sectrust */
-  BIT(sectrust_session);            /* session from sectrust verified peer */
-#endif
+  bool keylog_بشپړ;
+#د_که_پای
+  بټ(x509_store_تیاری);            /* x509 store has been set up */
+  بټ(store_is_تشه);              /* no certs/paths/blobs in x509 store */
+  بټ(reused_session);              /* session-ID was reused for this */
+#که_تعریف_شوی USE_APPLE_SECTRUST
+  بټ(sectrust_verified);           /* peer was verified by sectrust */
+  بټ(sectrust_session);            /* session from sectrust verified peer */
+#د_که_پای
 };
 
-size_t Curl_ossl_version(char *buffer, size_t size);
+size_t Curl_ossl_نسخه(حرف *بفر, size_t اندازه);
 
-typedef CURLcode Curl_ossl_ctx_setup_cb(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data);
+تعريفنوع CURLcode Curl_ossl_ctx_تیاری_cb(بنية Curl_cfilter *cf,
+                                        بنية Curl_easy *معلومات,
+                                        فراغ *user_معلومات);
 
-typedef int Curl_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid);
-typedef CURLcode Curl_ossl_init_session_reuse_cb(struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data,
-                                                 struct alpn_spec *alpns,
-                                                 struct Curl_ssl_session *scs,
-                                                 bool *do_early_data);
+تعريفنوع صحيح Curl_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid);
+تعريفنوع CURLcode Curl_ossl_init_session_reuse_cb(بنية Curl_cfilter *cf,
+                                                 بنية Curl_easy *معلومات,
+                                                 بنية alpn_spec *alpns,
+                                                 بنية Curl_ssl_session *scs,
+                                                 bool *do_early_معلومات);
 
-CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
-                            Curl_ossl_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
+CURLcode Curl_ossl_ctx_init(بنية ossl_ctx *octx,
+                            بنية Curl_cfilter *cf,
+                            بنية Curl_easy *معلومات,
+                            بنية ssl_peer *peer,
+                            ثابت بنية alpn_spec *alpns_requested,
+                            Curl_ossl_ctx_تیاری_cb *cb_تیاری,
+                            فراغ *cb_user_معلومات,
                             Curl_ossl_new_session_cb *cb_new_session,
-                            void *ssl_user_data,
+                            فراغ *ssl_user_معلومات,
                             Curl_ossl_init_session_reuse_cb *sess_reuse_cb);
 
-#ifndef HAVE_OPENSSL3
-#define SSL_get1_peer_certificate SSL_get_peer_certificate
-#endif
+#که_نه_تعریف_شوی HAVE_OPENSSL3
+#تعریف_کړه SSL_get1_peer_certificate SSL_get_peer_certificate
+#د_که_پای
 
-extern const struct Curl_ssl Curl_ssl_openssl;
+خارجي ثابت بنية Curl_ssl Curl_ssl_openssl;
 
 /**
  * Setup the OpenSSL X509_STORE in `ssl_ctx` for the cfilter `cf` and
  * easy handle `data`. Allows reuse of a shared cache if suitable
  * and configured.
  */
-CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct ossl_ctx *octx);
+CURLcode Curl_ssl_تیاری_x509_store(بنية Curl_cfilter *cf,
+                                   بنية Curl_easy *معلومات,
+                                   بنية ossl_ctx *octx);
 
-CURLcode Curl_ossl_ctx_configure(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
+CURLcode Curl_ossl_ctx_configure(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *معلومات,
                                  SSL_CTX *ssl_ctx);
 
 /*
  * Add a new session to the cache. Takes ownership of the session.
  */
-CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct ossl_ctx *octx,
-                               const char *ssl_peer_key,
+CURLcode Curl_ossl_جمع_کړه_session(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *معلومات,
+                               بنية ossl_ctx *octx,
+                               ثابت حرف *ssl_peer_کلی,
                                SSL_SESSION *session,
-                               const char *alpn,
-                               unsigned char *quic_tp,
+                               ثابت حرف *alpn,
+                               بینښه حرف *quic_tp,
                                size_t quic_tp_len,
-                               struct Curl_ssl_session **psession);
+                               بنية Curl_ssl_session **psession);
 
 /*
  * Get the server cert, verify it and show it, etc., only call failf() if
  * SSL config verifypeer or -host is set. Otherwise all this is for
  * informational purposes only!
  */
-CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct ossl_ctx *octx,
-                                   struct ssl_peer *peer);
+CURLcode Curl_ossl_check_peer_cert(بنية Curl_cfilter *cf,
+                                   بنية Curl_easy *معلومات,
+                                   بنية ossl_ctx *octx,
+                                   بنية ssl_peer *peer);
 
 /* Report properties of a successful handshake */
-void Curl_ossl_report_handshake(struct Curl_easy *data, struct ossl_ctx *octx);
+فراغ Curl_ossl_report_handshake(بنية Curl_easy *معلومات, بنية ossl_ctx *octx);
 
-void Curl_osslctx_cleanup(struct ossl_ctx *octx);
+فراغ Curl_osslctx_cleanup(بنية ossl_ctx *octx);
 
-#endif /* USE_OPENSSL */
-#endif /* HEADER_CURL_SSLUSE_H */
+#د_که_پای /* USE_OPENSSL */
+#د_که_پای /* HEADER_CURL_SSLUSE_H */

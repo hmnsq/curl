@@ -21,285 +21,285 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "uint-bset.h"
-#include "uint-spbset.h"
+#ضمن "uint-bset.h"
+#ضمن "uint-spbset.h"
 
-#ifdef DEBUGBUILD
-#define CURL_UINT32_SPBSET_MAGIC  0x70737362
-#endif
+#که_تعریف_شوی DEBUGBUILD
+#تعریف_کړه CURL_UINT32_SPBSET_MAGIC  0x70737362
+#د_که_پای
 
-void Curl_uint32_spbset_init(struct uint32_spbset *bset)
+فراغ Curl_uint32_spbset_init(بنية uint32_spbset *bset)
 {
-  memset(bset, 0, sizeof(*bset));
-#ifdef DEBUGBUILD
+  memset(bset, 0, حجم(*bset));
+#که_تعریف_شوی DEBUGBUILD
   bset->init = CURL_UINT32_SPBSET_MAGIC;
-#endif
+#د_که_پای
 }
 
 /* Clear the bitset, making it empty.
 
    @unittest 3213
  */
-UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset);
-UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset)
+UNITTEST فراغ uint32_spbset_clear(بنية uint32_spbset *bset);
+UNITTEST فراغ uint32_spbset_clear(بنية uint32_spbset *bset)
 {
-  struct uint32_spbset_chunk *next, *chunk;
+  بنية uint32_spbset_chunk *بل, *chunk;
 
-  for(chunk = bset->head.next; chunk; chunk = next) {
-    next = chunk->next;
+  لكل(chunk = bset->سر.بل; chunk; chunk = بل) {
+    بل = chunk->بل;
     curlx_free(chunk);
   }
-  memset(&bset->head, 0, sizeof(bset->head));
+  memset(&bset->سر, 0, حجم(bset->سر));
 }
 
-void Curl_uint32_spbset_destroy(struct uint32_spbset *bset)
+فراغ Curl_uint32_spbset_destroy(بنية uint32_spbset *bset)
 {
   DEBUGASSERT(bset->init == CURL_UINT32_SPBSET_MAGIC);
   uint32_spbset_clear(bset);
 }
 
-uint32_t Curl_uint32_spbset_count(struct uint32_spbset *bset)
+uint32_t Curl_uint32_spbset_شمېر(بنية uint32_spbset *bset)
 {
-  struct uint32_spbset_chunk *chunk;
+  بنية uint32_spbset_chunk *chunk;
   uint32_t i, n = 0;
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-      if(chunk->slots[i])
+  لكل(chunk = &bset->سر; chunk; chunk = chunk->بل) {
+    لكل(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+      إذا(chunk->slots[i])
         n += CURL_POPCOUNT64(chunk->slots[i]);
     }
   }
-  return n;
+  أرجع n;
 }
 
-static bool uint32_spbset_empty_chunk(struct uint32_spbset_chunk *chunk)
+ساكن bool uint32_spbset_تشه_chunk(بنية uint32_spbset_chunk *chunk)
 {
   uint32_t i;
-  for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-    if(chunk->slots[i])
-      return FALSE;
+  لكل(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+    إذا(chunk->slots[i])
+      أرجع FALSE;
   }
-  return TRUE;
+  أرجع TRUE;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_unlink_empty(
-  struct uint32_spbset *bset, uint32_t for_offset)
+ساكن بنية uint32_spbset_chunk *uint32_spbset_unlink_تشه(
+  بنية uint32_spbset *bset, uint32_t for_دننه_واټن)
 {
-  struct uint32_spbset_chunk *chunk, **panchor = NULL;
-  for(chunk = &bset->head; chunk;
-      panchor = &chunk->next, chunk = chunk->next) {
-    if(uint32_spbset_empty_chunk(chunk))
-      break;
+  بنية uint32_spbset_chunk *chunk, **panchor = عدم;
+  لكل(chunk = &bset->سر; chunk;
+      panchor = &chunk->بل, chunk = chunk->بل) {
+    إذا(uint32_spbset_تشه_chunk(chunk))
+      اكسر;
   }
-  if(chunk) {
-    if(chunk == &bset->head) { /* head chunk is empty */
-      if(!bset->head.next || (for_offset < bset->head.next->offset)) {
-        return &bset->head;
+  إذا(chunk) {
+    إذا(chunk == &bset->سر) { /* head chunk is empty */
+      إذا(!bset->سر.بل || (for_دننه_واټن < bset->سر.بل->دننه_واټن)) {
+        أرجع &bset->سر;
       }
       /* swap head and next, unlink */
-      chunk = bset->head.next;
-      memcpy(&bset->head, chunk, sizeof(bset->head));
-      memset(chunk, 0, sizeof(*chunk));
+      chunk = bset->سر.بل;
+      حافظه_نقل(&bset->سر, chunk, حجم(bset->سر));
+      memset(chunk, 0, حجم(*chunk));
     }
-    else {
-      *panchor = chunk->next; /* unlink */
-      memset(chunk, 0, sizeof(*chunk));
+    وإلا {
+      *panchor = chunk->بل; /* unlink */
+      memset(chunk, 0, حجم(*chunk));
     }
   }
-  return chunk;
+  أرجع chunk;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_insert_chunk(
-  struct uint32_spbset *bset, struct uint32_spbset_chunk *nchunk)
+ساكن بنية uint32_spbset_chunk *uint32_spbset_ورننباسه_chunk(
+  بنية uint32_spbset *bset, بنية uint32_spbset_chunk *nchunk)
 {
-  struct uint32_spbset_chunk *chunk, **panchor;
+  بنية uint32_spbset_chunk *chunk, **panchor;
 
   /* insert nchunk into set's ordered chunk list */
-  if(nchunk->offset < bset->head.offset) {
+  إذا(nchunk->دننه_واټن < bset->سر.دننه_واټن) {
     /* swap chunk and head */
-    uint32_t offset = nchunk->offset;
-    memcpy(nchunk, &bset->head, sizeof(*nchunk));
-    memset(&bset->head, 0, sizeof(bset->head));
-    bset->head.next = nchunk;
-    bset->head.offset = offset;
-    return &bset->head;
+    uint32_t دننه_واټن = nchunk->دننه_واټن;
+    حافظه_نقل(nchunk, &bset->سر, حجم(*nchunk));
+    memset(&bset->سر, 0, حجم(bset->سر));
+    bset->سر.بل = nchunk;
+    bset->سر.دننه_واټن = دننه_واټن;
+    أرجع &bset->سر;
   }
-  DEBUGASSERT(nchunk->offset > bset->head.offset);
-  panchor = &bset->head.next;
-  for(chunk = *panchor; chunk;
-      panchor = &chunk->next, chunk = chunk->next) {
-    if(chunk->offset > nchunk->offset) { /* insert before this chunk */
-      nchunk->next = chunk;
+  DEBUGASSERT(nchunk->دننه_واټن > bset->سر.دننه_واټن);
+  panchor = &bset->سر.بل;
+  لكل(chunk = *panchor; chunk;
+      panchor = &chunk->بل, chunk = chunk->بل) {
+    إذا(chunk->دننه_واټن > nchunk->دننه_واټن) { /* insert before this chunk */
+      nchunk->بل = chunk;
       *panchor = nchunk;
-      return nchunk;
+      أرجع nchunk;
     }
   }
   /* no chunk with larger offset, append */
   *panchor = nchunk;
-  return nchunk;
+  أرجع nchunk;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_get_chunk(
-  struct uint32_spbset *bset, uint32_t i, bool grow)
+ساكن بنية uint32_spbset_chunk *uint32_spbset_get_chunk(
+  بنية uint32_spbset *bset, uint32_t i, bool grow)
 {
-  struct uint32_spbset_chunk *chunk;
-  uint32_t i_offset = (i & ~CURL_UINT32_SPBSET_CH_MASK);
+  بنية uint32_spbset_chunk *chunk;
+  uint32_t i_دننه_واټن = (i & ~CURL_UINT32_SPBSET_CH_ماسک);
 
-  if(!bset)
-    return NULL;
+  إذا(!bset)
+    أرجع عدم;
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    if(chunk->offset == i_offset)
-      return chunk;
-    else if(chunk->offset > i_offset)
-      break; /* need new chunk here */
+  لكل(chunk = &bset->سر; chunk; chunk = chunk->بل) {
+    إذا(chunk->دننه_واټن == i_دننه_واټن)
+      أرجع chunk;
+    وإلا إذا(chunk->دننه_واټن > i_دننه_واټن)
+      اكسر; /* need new chunk here */
   }
-  if(!grow) /* just a check if the chunk exists */
-    return NULL;
+  إذا(!grow) /* just a check if the chunk exists */
+    أرجع عدم;
 
   /* Is there an empty chunk to reuse? */
-  chunk = uint32_spbset_unlink_empty(bset, i_offset);
-  if(chunk) {
-    chunk->offset = i_offset;
-    if(chunk == &bset->head) /* head chunk is empty, stayed linked */
-      return &bset->head;
+  chunk = uint32_spbset_unlink_تشه(bset, i_دننه_واټن);
+  إذا(chunk) {
+    chunk->دننه_واټن = i_دننه_واټن;
+    إذا(chunk == &bset->سر) /* head chunk is empty, stayed linked */
+      أرجع &bset->سر;
     /* was really unlinked, need to insert below */
   }
-  else {
+  وإلا {
     /* need a new one */
-    chunk = curlx_calloc(1, sizeof(*chunk));
-    if(!chunk)
-      return NULL;
-    chunk->offset = i_offset;
+    chunk = curlx_calloc(1, حجم(*chunk));
+    إذا(!chunk)
+      أرجع عدم;
+    chunk->دننه_واټن = i_دننه_واټن;
   }
 
-  return uint32_spbset_insert_chunk(bset, chunk);
+  أرجع uint32_spbset_ورننباسه_chunk(bset, chunk);
 }
 
-bool Curl_uint32_spbset_add(struct uint32_spbset *bset, uint32_t i)
+bool Curl_uint32_spbset_جمع_کړه(بنية uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, TRUE);
-  if(!chunk)
-    return FALSE;
+  بنية uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, TRUE);
+  إذا(!chunk)
+    أرجع FALSE;
 
-  DEBUGASSERT(i >= chunk->offset);
-  i -= chunk->offset;
+  DEBUGASSERT(i >= chunk->دننه_واټن);
+  i -= chunk->دننه_واټن;
   DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
   chunk->slots[(i / 64)] |= ((uint64_t)1 << (i % 64));
-  return TRUE;
+  أرجع TRUE;
 }
 
-void Curl_uint32_spbset_remove(struct uint32_spbset *bset, uint32_t i)
+فراغ Curl_uint32_spbset_remove(بنية uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
-  if(chunk) {
-    DEBUGASSERT(i >= chunk->offset);
-    i -= chunk->offset;
+  بنية uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
+  إذا(chunk) {
+    DEBUGASSERT(i >= chunk->دننه_واټن);
+    i -= chunk->دننه_واټن;
     DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
     chunk->slots[(i / 64)] &= ~((uint64_t)1 << (i % 64));
   }
 }
 
-bool Curl_uint32_spbset_contains(struct uint32_spbset *bset, uint32_t i)
+bool Curl_uint32_spbset_لري(بنية uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
-  if(chunk) {
-    DEBUGASSERT(i >= chunk->offset);
-    i -= chunk->offset;
+  بنية uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
+  إذا(chunk) {
+    DEBUGASSERT(i >= chunk->دننه_واټن);
+    i -= chunk->دننه_واټن;
     DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
-    return (chunk->slots[i / 64] & ((uint64_t)1 << (i % 64))) != 0;
+    أرجع (chunk->slots[i / 64] & ((uint64_t)1 << (i % 64))) != 0;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
-bool Curl_uint32_spbset_first(struct uint32_spbset *bset, uint32_t *pfirst)
+bool Curl_uint32_spbset_لومړی(بنية uint32_spbset *bset, uint32_t *pfirst)
 {
-  struct uint32_spbset_chunk *chunk;
+  بنية uint32_spbset_chunk *chunk;
   uint32_t i;
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-      if(chunk->slots[i]) {
-        *pfirst = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-        return TRUE;
+  لكل(chunk = &bset->سر; chunk; chunk = chunk->بل) {
+    لكل(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+      إذا(chunk->slots[i]) {
+        *pfirst = chunk->دننه_واټن + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
+        أرجع TRUE;
       }
     }
   }
   *pfirst = 0; /* give it a defined value even if it should not be used */
-  return FALSE;
+  أرجع FALSE;
 }
 
-static bool uint32_spbset_chunk_first(struct uint32_spbset_chunk *chunk,
+ساكن bool uint32_spbset_chunk_لومړی(بنية uint32_spbset_chunk *chunk,
                                       uint32_t *pfirst)
 {
   uint32_t i;
-  for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-    if(chunk->slots[i]) {
-      *pfirst = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-      return TRUE;
+  لكل(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+    إذا(chunk->slots[i]) {
+      *pfirst = chunk->دننه_واټن + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
+      أرجع TRUE;
     }
   }
   *pfirst = UINT32_MAX; /* a value we cannot store */
-  return FALSE;
+  أرجع FALSE;
 }
 
-static bool uint32_spbset_chunk_next(struct uint32_spbset_chunk *chunk,
-                                     uint32_t last,
+ساكن bool uint32_spbset_chunk_بل(بنية uint32_spbset_chunk *chunk,
+                                     uint32_t وروستی,
                                      uint32_t *pnext)
 {
-  if(chunk->offset <= last) {
+  إذا(chunk->دننه_واټن <= وروستی) {
     uint64_t x;
-    uint32_t i = ((last - chunk->offset) / 64);
-    if(i < CURL_UINT32_SPBSET_CH_SLOTS) {
-      x = (chunk->slots[i] >> (last % 64));
-      if(x) {
+    uint32_t i = ((وروستی - chunk->دننه_واټن) / 64);
+    إذا(i < CURL_UINT32_SPBSET_CH_SLOTS) {
+      x = (chunk->slots[i] >> (وروستی % 64));
+      إذا(x) {
         /* more bits set, next is `last` + trailing 0s of the shifted slot */
-        *pnext = last + CURL_CTZ64(x);
-        return TRUE;
+        *pnext = وروستی + CURL_CTZ64(x);
+        أرجع TRUE;
       }
       /* no more bits set in the last slot, scan forward */
-      for(i = i + 1; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-        if(chunk->slots[i]) {
-          *pnext = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-          return TRUE;
+      لكل(i = i + 1; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+        إذا(chunk->slots[i]) {
+          *pnext = chunk->دننه_واټن + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
+          أرجع TRUE;
         }
       }
     }
   }
   *pnext = UINT32_MAX;
-  return FALSE;
+  أرجع FALSE;
 }
 
-bool Curl_uint32_spbset_next(struct uint32_spbset *bset, uint32_t last,
+bool Curl_uint32_spbset_بل(بنية uint32_spbset *bset, uint32_t وروستی,
                              uint32_t *pnext)
 {
-  struct uint32_spbset_chunk *chunk;
-  uint32_t last_offset;
+  بنية uint32_spbset_chunk *chunk;
+  uint32_t وروستی_دننه_واټن;
 
-  ++last; /* look for the next higher number */
-  last_offset = (last & ~CURL_UINT32_SPBSET_CH_MASK);
+  ++وروستی; /* look for the next higher number */
+  وروستی_دننه_واټن = (وروستی & ~CURL_UINT32_SPBSET_CH_ماسک);
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    if(chunk->offset >= last_offset) {
-      break;
+  لكل(chunk = &bset->سر; chunk; chunk = chunk->بل) {
+    إذا(chunk->دننه_واټن >= وروستی_دننه_واټن) {
+      اكسر;
     }
   }
 
-  if(chunk && (chunk->offset == last_offset)) {
+  إذا(chunk && (chunk->دننه_واټن == وروستی_دننه_واټن)) {
     /* is there a number higher than last in this chunk? */
-    if(uint32_spbset_chunk_next(chunk, last, pnext))
-      return TRUE;
+    إذا(uint32_spbset_chunk_بل(chunk, وروستی, pnext))
+      أرجع TRUE;
     /* not in this chunk */
-    chunk = chunk->next;
+    chunk = chunk->بل;
   }
   /* look for the first in the "higher" chunks, if there are any. */
-  while(chunk) {
-    if(uint32_spbset_chunk_first(chunk, pnext))
-      return TRUE;
-    chunk = chunk->next;
+  طالما(chunk) {
+    إذا(uint32_spbset_chunk_لومړی(chunk, pnext))
+      أرجع TRUE;
+    chunk = chunk->بل;
   }
   *pnext = UINT32_MAX;
-  return FALSE;
+  أرجع FALSE;
 }

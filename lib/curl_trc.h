@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_TRC_H
-#define HEADER_CURL_TRC_H
+#که_نه_تعریف_شوی سرلیک_CURL_TRC_H
+#تعریف_کړه سرلیک_CURL_TRC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-struct Curl_easy;
-struct Curl_cfilter;
+بنية Curl_easy;
+بنية Curl_cfilter;
 
 /**
  * Init logging, return != 0 on failure.
  */
-CURLcode Curl_trc_init(void);
+CURLcode Curl_trc_init(فراغ);
 
 /**
  * Configure tracing. May be called several times during global
@@ -47,301 +47,301 @@ CURLcode Curl_trc_init(void);
  *
  * @param config configuration string
  */
-CURLcode Curl_trc_opt(const char *config);
+CURLcode Curl_trc_opt(ثابت حرف *config);
 
 /* the function used to output verbose information */
-void Curl_debug(struct Curl_easy *data, curl_infotype type,
-                const char *ptr, size_t size);
+فراغ Curl_debug(بنية Curl_easy *معلومات, curl_infotype type,
+                ثابت حرف *ptr, size_t اندازه);
 
 /**
  * Output a failure message on registered callbacks for transfer.
  */
-void Curl_failf(struct Curl_easy *data,
-                const char *fmt, ...) CURL_PRINTF(2, 3);
+فراغ Curl_failf(بنية Curl_easy *معلومات,
+                ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
 
-#define failf Curl_failf
+#تعریف_کړه failf Curl_failf
 
 /* In case failf() reported into the errorbuf, clear it again.
  * This is used to clear information from happy eyeballing attempts
  * when ultimately a successful attempt was made. */
-void Curl_reset_fail(struct Curl_easy *data);
+فراغ Curl_reset_fail(بنية Curl_easy *معلومات);
 
-#define CURL_LOG_LVL_NONE  0
-#define CURL_LOG_LVL_INFO  1
+#تعریف_کړه CURL_LOG_LVL_NONE  0
+#تعریف_کړه CURL_LOG_LVL_INFO  1
 
 /**
  * Output an informational message when transfer's verbose logging is enabled.
  */
-void Curl_infof(struct Curl_easy *data,
-                const char *fmt, ...) CURL_PRINTF(2, 3);
+فراغ Curl_infof(بنية Curl_easy *معلومات,
+                ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
 
 /**
  * Output an informational message when both transfer's verbose logging
  * and connection filters verbose logging are enabled.
  */
-void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
-                       const char *fmt, ...) CURL_PRINTF(3, 4);
-void Curl_trc_multi(struct Curl_easy *data,
-                    const char *fmt, ...) CURL_PRINTF(2, 3);
-const char *Curl_trc_mstate_name(int state);
-const char *Curl_trc_timer_name(int tid);
-void Curl_trc_easy_timers(struct Curl_easy *data);
+فراغ Curl_trc_cf_infof(بنية Curl_easy *معلومات, ثابت بنية Curl_cfilter *cf,
+                       ثابت حرف *fmt, ...) CURL_PRINTF(3, 4);
+فراغ Curl_trc_multi(بنية Curl_easy *معلومات,
+                    ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
+ثابت حرف *Curl_trc_mstate_name(صحيح state);
+ثابت حرف *Curl_trc_timer_name(صحيح tid);
+فراغ Curl_trc_easy_timers(بنية Curl_easy *معلومات);
 
-void Curl_trc_write(struct Curl_easy *data,
-                    const char *fmt, ...) CURL_PRINTF(2, 3);
-void Curl_trc_read(struct Curl_easy *data,
-                   const char *fmt, ...) CURL_PRINTF(2, 3);
-void Curl_trc_dns(struct Curl_easy *data,
-                  const char *fmt, ...) CURL_PRINTF(2, 3);
-void Curl_trc_timer(struct Curl_easy *data, int tid,
-                    const char *fmt, ...) CURL_PRINTF(3, 4);
+فراغ Curl_trc_write(بنية Curl_easy *معلومات,
+                    ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
+فراغ Curl_trc_read(بنية Curl_easy *معلومات,
+                   ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
+فراغ Curl_trc_dns(بنية Curl_easy *معلومات,
+                  ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
+فراغ Curl_trc_timer(بنية Curl_easy *معلومات, صحيح tid,
+                    ثابت حرف *fmt, ...) CURL_PRINTF(3, 4);
 
-struct curl_trc_feat {
-  const char *name;
-  int log_level;
+بنية curl_trc_feat {
+  ثابت حرف *name;
+  صحيح log_level;
 };
 
-void Curl_trc_feat_infof(struct Curl_easy *data,
-                         struct curl_trc_feat *feat,
-                         const char *fmt, ...) CURL_PRINTF(3, 4);
+فراغ Curl_trc_feat_infof(بنية Curl_easy *معلومات,
+                         بنية curl_trc_feat *feat,
+                         ثابت حرف *fmt, ...) CURL_PRINTF(3, 4);
 
-#ifndef CURL_DISABLE_FTP
-extern struct curl_trc_feat Curl_trc_feat_ftp;
-void Curl_trc_ftp(struct Curl_easy *data,
-                  const char *fmt, ...) CURL_PRINTF(2, 3);
-#endif
-#ifndef CURL_DISABLE_SMTP
-extern struct curl_trc_feat Curl_trc_feat_smtp;
-void Curl_trc_smtp(struct Curl_easy *data,
-                   const char *fmt, ...) CURL_PRINTF(2, 3);
-#endif
-#ifdef USE_SSL
-extern struct curl_trc_feat Curl_trc_feat_ssls;
-void Curl_trc_ssls(struct Curl_easy *data,
-                   const char *fmt, ...) CURL_PRINTF(2, 3);
-#endif
-#ifdef USE_SSH
-extern struct curl_trc_feat Curl_trc_feat_ssh;
-void Curl_trc_ssh(struct Curl_easy *data,
-                  const char *fmt, ...) CURL_PRINTF(2, 3);
-#endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-extern struct curl_trc_feat Curl_trc_feat_ws;
-void Curl_trc_ws(struct Curl_easy *data,
-                 const char *fmt, ...) CURL_PRINTF(2, 3);
-#endif
+#که_نه_تعریف_شوی CURL_DISABLE_FTP
+خارجي بنية curl_trc_feat Curl_trc_feat_ftp;
+فراغ Curl_trc_ftp(بنية Curl_easy *معلومات,
+                  ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
+#د_که_پای
+#که_نه_تعریف_شوی CURL_DISABLE_SMTP
+خارجي بنية curl_trc_feat Curl_trc_feat_smtp;
+فراغ Curl_trc_smtp(بنية Curl_easy *معلومات,
+                   ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
+#د_که_پای
+#که_تعریف_شوی USE_SSL
+خارجي بنية curl_trc_feat Curl_trc_feat_ssls;
+فراغ Curl_trc_ssls(بنية Curl_easy *معلومات,
+                   ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
+#د_که_پای
+#که_تعریف_شوی USE_SSH
+خارجي بنية curl_trc_feat Curl_trc_feat_ssh;
+فراغ Curl_trc_ssh(بنية Curl_easy *معلومات,
+                  ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
+#د_که_پای
+#إذا !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+خارجي بنية curl_trc_feat Curl_trc_feat_ws;
+فراغ Curl_trc_ws(بنية Curl_easy *معلومات,
+                 ثابت حرف *fmt, ...) CURL_PRINTF(2, 3);
+#د_که_پای
 
-#define CURL_TRC_M_is_verbose(data) \
-  Curl_trc_ft_is_verbose(data, &Curl_trc_feat_multi)
-#define CURL_TRC_DNS_is_verbose(data) \
-  Curl_trc_ft_is_verbose(data, &Curl_trc_feat_dns)
-#define CURL_TRC_TIMER_is_verbose(data) \
-  Curl_trc_ft_is_verbose(data, &Curl_trc_feat_timer)
+#تعریف_کړه CURL_TRC_M_is_verbose(معلومات) \
+  Curl_trc_ft_is_verbose(معلومات, &Curl_trc_feat_multi)
+#تعریف_کړه CURL_TRC_DNS_is_verbose(معلومات) \
+  Curl_trc_ft_is_verbose(معلومات, &Curl_trc_feat_dns)
+#تعریف_کړه CURL_TRC_TIMER_is_verbose(معلومات) \
+  Curl_trc_ft_is_verbose(معلومات, &Curl_trc_feat_timer)
 
-#if defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
-#define infof(data, ...)             \
-  do {                               \
-    if(Curl_trc_is_verbose(data))    \
-      Curl_infof(data, __VA_ARGS__); \
-  } while(0)
-#define CURL_TRC_M(data, ...)            \
-  do {                                   \
-    if(CURL_TRC_M_is_verbose(data))      \
-      Curl_trc_multi(data, __VA_ARGS__); \
-  } while(0)
-#define CURL_TRC_CF(data, cf, ...)              \
-  do {                                          \
-    if(Curl_trc_cf_is_verbose(cf, data))        \
-      Curl_trc_cf_infof(data, cf, __VA_ARGS__); \
-  } while(0)
-#define CURL_TRC_WRITE(data, ...)                          \
-  do {                                                     \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_write)) \
-      Curl_trc_write(data, __VA_ARGS__);                   \
-  } while(0)
-#define CURL_TRC_READ(data, ...)                          \
-  do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_read)) \
-      Curl_trc_read(data, __VA_ARGS__);                   \
-  } while(0)
-#define CURL_TRC_DNS(data, ...)        \
-  do {                                 \
-    if(CURL_TRC_DNS_is_verbose(data))  \
-      Curl_trc_dns(data, __VA_ARGS__); \
-  } while(0)
-#define CURL_TRC_TIMER(data, tid, ...)        \
-  do {                                        \
-    if(CURL_TRC_TIMER_is_verbose(data))       \
-      Curl_trc_timer(data, tid, __VA_ARGS__); \
-  } while(0)
+#إذا defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_مزي_ګانې)
+#تعریف_کړه infof(معلومات, ...)             \
+  افعل {                               \
+    إذا(Curl_trc_is_verbose(معلومات))    \
+      Curl_infof(معلومات, __VA_ARGS__); \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_M(معلومات, ...)            \
+  افعل {                                   \
+    إذا(CURL_TRC_M_is_verbose(معلومات))      \
+      Curl_trc_multi(معلومات, __VA_ARGS__); \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_CF(معلومات, cf, ...)              \
+  افعل {                                          \
+    إذا(Curl_trc_cf_is_verbose(cf, معلومات))        \
+      Curl_trc_cf_infof(معلومات, cf, __VA_ARGS__); \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_WRITE(معلومات, ...)                          \
+  افعل {                                                     \
+    إذا(Curl_trc_ft_is_verbose(معلومات, &Curl_trc_feat_write)) \
+      Curl_trc_write(معلومات, __VA_ARGS__);                   \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_READ(معلومات, ...)                          \
+  افعل {                                                    \
+    إذا(Curl_trc_ft_is_verbose(معلومات, &Curl_trc_feat_read)) \
+      Curl_trc_read(معلومات, __VA_ARGS__);                   \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_DNS(معلومات, ...)        \
+  افعل {                                 \
+    إذا(CURL_TRC_DNS_is_verbose(معلومات))  \
+      Curl_trc_dns(معلومات, __VA_ARGS__); \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_TIMER(معلومات, tid, ...)        \
+  افعل {                                        \
+    إذا(CURL_TRC_TIMER_is_verbose(معلومات))       \
+      Curl_trc_timer(معلومات, tid, __VA_ARGS__); \
+  } طالما(0)
 
-#ifndef CURL_DISABLE_FTP
-#define CURL_TRC_FTP(data, ...)                          \
-  do {                                                   \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ftp)) \
-      Curl_trc_ftp(data, __VA_ARGS__);                   \
-  } while(0)
-#endif /* !CURL_DISABLE_FTP */
-#ifndef CURL_DISABLE_SMTP
-#define CURL_TRC_SMTP(data, ...)                          \
-  do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_smtp)) \
-      Curl_trc_smtp(data, __VA_ARGS__);                   \
-  } while(0)
-#endif /* !CURL_DISABLE_SMTP */
-#ifdef USE_SSL
-#define CURL_TRC_SSLS(data, ...)                          \
-  do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssls)) \
-      Curl_trc_ssls(data, __VA_ARGS__);                   \
-  } while(0)
-#endif /* USE_SSL */
-#ifdef USE_SSH
-#define CURL_TRC_SSH(data, ...)                          \
-  do {                                                   \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssh)) \
-      Curl_trc_ssh(data, __VA_ARGS__);                   \
-  } while(0)
-#endif /* USE_SSH */
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-#define CURL_TRC_WS(data, ...)                          \
-  do {                                                  \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ws)) \
-      Curl_trc_ws(data, __VA_ARGS__);                   \
-  } while(0)
-#endif /* !CURL_DISABLE_WEBSOCKETS && !CURL_DISABLE_HTTP */
+#که_نه_تعریف_شوی CURL_DISABLE_FTP
+#تعریف_کړه CURL_TRC_FTP(معلومات, ...)                          \
+  افعل {                                                   \
+    إذا(Curl_trc_ft_is_verbose(معلومات, &Curl_trc_feat_ftp)) \
+      Curl_trc_ftp(معلومات, __VA_ARGS__);                   \
+  } طالما(0)
+#د_که_پای /* !CURL_DISABLE_FTP */
+#که_نه_تعریف_شوی CURL_DISABLE_SMTP
+#تعریف_کړه CURL_TRC_SMTP(معلومات, ...)                          \
+  افعل {                                                    \
+    إذا(Curl_trc_ft_is_verbose(معلومات, &Curl_trc_feat_smtp)) \
+      Curl_trc_smtp(معلومات, __VA_ARGS__);                   \
+  } طالما(0)
+#د_که_پای /* !CURL_DISABLE_SMTP */
+#که_تعریف_شوی USE_SSL
+#تعریف_کړه CURL_TRC_SSLS(معلومات, ...)                          \
+  افعل {                                                    \
+    إذا(Curl_trc_ft_is_verbose(معلومات, &Curl_trc_feat_ssls)) \
+      Curl_trc_ssls(معلومات, __VA_ARGS__);                   \
+  } طالما(0)
+#د_که_پای /* USE_SSL */
+#که_تعریف_شوی USE_SSH
+#تعریف_کړه CURL_TRC_SSH(معلومات, ...)                          \
+  افعل {                                                   \
+    إذا(Curl_trc_ft_is_verbose(معلومات, &Curl_trc_feat_ssh)) \
+      Curl_trc_ssh(معلومات, __VA_ARGS__);                   \
+  } طالما(0)
+#د_که_پای /* USE_SSH */
+#إذا !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#تعریف_کړه CURL_TRC_WS(معلومات, ...)                          \
+  افعل {                                                  \
+    إذا(Curl_trc_ft_is_verbose(معلومات, &Curl_trc_feat_ws)) \
+      Curl_trc_ws(معلومات, __VA_ARGS__);                   \
+  } طالما(0)
+#د_که_پای /* !CURL_DISABLE_WEBSOCKETS && !CURL_DISABLE_HTTP */
 
-#elif defined(CURL_HAVE_MACRO_VARARG) && defined(CURL_DISABLE_VERBOSE_STRINGS)
+#وإلاإذا defined(CURL_HAVE_MACRO_VARARG) && defined(CURL_DISABLE_VERBOSE_مزي_ګانې)
 
-#define infof(data, ...) \
-  do {                   \
-    (void)(data);        \
-  } while(0)
-#define CURL_TRC_M(data, ...) \
-  do {                        \
-    (void)(data);             \
-  } while(0)
-#define CURL_TRC_CF(data, cf, ...) \
-  do {                             \
-    (void)(data);                  \
-    (void)(cf);                    \
-  } while(0)
-#define CURL_TRC_WRITE(data, ...) \
-  do {                            \
-    (void)(data);                 \
-  } while(0)
-#define CURL_TRC_READ(data, ...) \
-  do {                           \
-    (void)(data);                \
-  } while(0)
-#define CURL_TRC_DNS(data, ...) \
-  do {                          \
-    (void)(data);               \
-  } while(0)
-#define CURL_TRC_TIMER(data, tid, ...) \
-  do {                                 \
-    (void)(data);                      \
-    (void)(tid);                       \
-  } while(0)
-#ifndef CURL_DISABLE_FTP
-#define CURL_TRC_FTP(data, ...) \
-  do {                          \
-    (void)(data);               \
-  } while(0)
-#endif /* !CURL_DISABLE_FTP */
-#ifndef CURL_DISABLE_SMTP
-#define CURL_TRC_SMTP(data, ...) \
-  do {                           \
-    (void)(data);                \
-  } while(0)
-#endif /* !CURL_DISABLE_SMTP */
-#ifdef USE_SSL
-#define CURL_TRC_SSLS(data, ...) \
-  do {                           \
-    (void)(data);                \
-  } while(0)
-#endif /* USE_SSL */
-#ifdef USE_SSH
-#define CURL_TRC_SSH(data, ...) \
-  do {                          \
-    (void)(data);               \
-  } while(0)
-#endif /* USE_SSH */
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-#define CURL_TRC_WS(data, ...) \
-  do {                         \
-    (void)(data);              \
-  } while(0)
-#endif
+#تعریف_کړه infof(معلومات, ...) \
+  افعل {                   \
+    (فراغ)(معلومات);        \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_M(معلومات, ...) \
+  افعل {                        \
+    (فراغ)(معلومات);             \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_CF(معلومات, cf, ...) \
+  افعل {                             \
+    (فراغ)(معلومات);                  \
+    (فراغ)(cf);                    \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_WRITE(معلومات, ...) \
+  افعل {                            \
+    (فراغ)(معلومات);                 \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_READ(معلومات, ...) \
+  افعل {                           \
+    (فراغ)(معلومات);                \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_DNS(معلومات, ...) \
+  افعل {                          \
+    (فراغ)(معلومات);               \
+  } طالما(0)
+#تعریف_کړه CURL_TRC_TIMER(معلومات, tid, ...) \
+  افعل {                                 \
+    (فراغ)(معلومات);                      \
+    (فراغ)(tid);                       \
+  } طالما(0)
+#که_نه_تعریف_شوی CURL_DISABLE_FTP
+#تعریف_کړه CURL_TRC_FTP(معلومات, ...) \
+  افعل {                          \
+    (فراغ)(معلومات);               \
+  } طالما(0)
+#د_که_پای /* !CURL_DISABLE_FTP */
+#که_نه_تعریف_شوی CURL_DISABLE_SMTP
+#تعریف_کړه CURL_TRC_SMTP(معلومات, ...) \
+  افعل {                           \
+    (فراغ)(معلومات);                \
+  } طالما(0)
+#د_که_پای /* !CURL_DISABLE_SMTP */
+#که_تعریف_شوی USE_SSL
+#تعریف_کړه CURL_TRC_SSLS(معلومات, ...) \
+  افعل {                           \
+    (فراغ)(معلومات);                \
+  } طالما(0)
+#د_که_پای /* USE_SSL */
+#که_تعریف_شوی USE_SSH
+#تعریف_کړه CURL_TRC_SSH(معلومات, ...) \
+  افعل {                          \
+    (فراغ)(معلومات);               \
+  } طالما(0)
+#د_که_پای /* USE_SSH */
+#إذا !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#تعریف_کړه CURL_TRC_WS(معلومات, ...) \
+  افعل {                         \
+    (فراغ)(معلومات);              \
+  } طالما(0)
+#د_که_پای
 
-#else /* !CURL_HAVE_MACRO_VARARG */
+#وإلا /* !CURL_HAVE_MACRO_VARARG */
 
-#define infof          Curl_infof
-#define CURL_TRC_M     Curl_trc_multi
-#define CURL_TRC_CF    Curl_trc_cf_infof
-#define CURL_TRC_WRITE Curl_trc_write
-#define CURL_TRC_READ  Curl_trc_read
-#define CURL_TRC_DNS   Curl_trc_dns
-#define CURL_TRC_TIMER Curl_trc_timer
+#تعریف_کړه infof          Curl_infof
+#تعریف_کړه CURL_TRC_M     Curl_trc_multi
+#تعریف_کړه CURL_TRC_CF    Curl_trc_cf_infof
+#تعریف_کړه CURL_TRC_WRITE Curl_trc_write
+#تعریف_کړه CURL_TRC_READ  Curl_trc_read
+#تعریف_کړه CURL_TRC_DNS   Curl_trc_dns
+#تعریف_کړه CURL_TRC_TIMER Curl_trc_timer
 
-#ifndef CURL_DISABLE_FTP
-#define CURL_TRC_FTP   Curl_trc_ftp
-#endif
-#ifndef CURL_DISABLE_SMTP
-#define CURL_TRC_SMTP  Curl_trc_smtp
-#endif
-#ifdef USE_SSL
-#define CURL_TRC_SSLS  Curl_trc_ssls
-#endif
-#ifdef USE_SSH
-#define CURL_TRC_SSH   Curl_trc_ssh
-#endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-#define CURL_TRC_WS    Curl_trc_ws
-#endif
+#که_نه_تعریف_شوی CURL_DISABLE_FTP
+#تعریف_کړه CURL_TRC_FTP   Curl_trc_ftp
+#د_که_پای
+#که_نه_تعریف_شوی CURL_DISABLE_SMTP
+#تعریف_کړه CURL_TRC_SMTP  Curl_trc_smtp
+#د_که_پای
+#که_تعریف_شوی USE_SSL
+#تعریف_کړه CURL_TRC_SSLS  Curl_trc_ssls
+#د_که_پای
+#که_تعریف_شوی USE_SSH
+#تعریف_کړه CURL_TRC_SSH   Curl_trc_ssh
+#د_که_پای
+#إذا !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#تعریف_کړه CURL_TRC_WS    Curl_trc_ws
+#د_که_پای
 
-#endif /* CURL_HAVE_MACRO_VARARG */
+#د_که_پای /* CURL_HAVE_MACRO_VARARG */
 
-#ifdef CURLVERBOSE
-extern struct curl_trc_feat Curl_trc_feat_multi;
-extern struct curl_trc_feat Curl_trc_feat_read;
-extern struct curl_trc_feat Curl_trc_feat_write;
-extern struct curl_trc_feat Curl_trc_feat_dns;
-#ifndef CURL_DISABLE_DOH
-extern struct curl_trc_feat Curl_trc_feat_doh;
-#endif
-extern struct curl_trc_feat Curl_trc_feat_timer;
-#ifdef USE_THREADS
-extern struct curl_trc_feat Curl_trc_feat_threads;
-#endif
-#endif
+#که_تعریف_شوی CURLVERBOSE
+خارجي بنية curl_trc_feat Curl_trc_feat_multi;
+خارجي بنية curl_trc_feat Curl_trc_feat_read;
+خارجي بنية curl_trc_feat Curl_trc_feat_write;
+خارجي بنية curl_trc_feat Curl_trc_feat_dns;
+#که_نه_تعریف_شوی CURL_DISABLE_DOH
+خارجي بنية curl_trc_feat Curl_trc_feat_doh;
+#د_که_پای
+خارجي بنية curl_trc_feat Curl_trc_feat_timer;
+#که_تعریف_شوی USE_تارونه
+خارجي بنية curl_trc_feat Curl_trc_feat_تارونه;
+#د_که_پای
+#د_که_پای
 
-#ifndef CURL_DISABLE_VERBOSE_STRINGS
+#که_نه_تعریف_شوی CURL_DISABLE_VERBOSE_مزي_ګانې
 /* informational messages enabled */
-#define Curl_trc_is_verbose(data)                          \
-  ((data) && (data)->set.verbose &&                        \
-   (!(data)->state.feat ||                                 \
-    ((data)->state.feat->log_level >= CURL_LOG_LVL_INFO)))
-#define Curl_trc_cf_is_verbose(cf, data)              \
-  (Curl_trc_is_verbose(data) &&                       \
+#تعریف_کړه Curl_trc_is_verbose(معلومات)                          \
+  ((معلومات) && (معلومات)->سېټ.verbose &&                        \
+   (!(معلومات)->state.feat ||                                 \
+    ((معلومات)->state.feat->log_level >= CURL_LOG_LVL_INFO)))
+#تعریف_کړه Curl_trc_cf_is_verbose(cf, معلومات)              \
+  (Curl_trc_is_verbose(معلومات) &&                       \
    (cf) && (cf)->cft->log_level >= CURL_LOG_LVL_INFO)
-#define Curl_trc_ft_is_verbose(data, ft) \
-  (Curl_trc_is_verbose(data) &&          \
+#تعریف_کړه Curl_trc_ft_is_verbose(معلومات, ft) \
+  (Curl_trc_is_verbose(معلومات) &&          \
    (ft)->log_level >= CURL_LOG_LVL_INFO)
-#define CURL_MSTATE_NAME(s)  Curl_trc_mstate_name((int)(s))
-#define CURL_TRC_EASY_TIMERS(data)      \
-  do {                                  \
-    if(CURL_TRC_TIMER_is_verbose(data)) \
-      Curl_trc_easy_timers(data);       \
-  } while(0)
+#تعریف_کړه CURL_MSTATE_NAME(s)  Curl_trc_mstate_name((صحيح)(s))
+#تعریف_کړه CURL_TRC_EASY_TIMERS(معلومات)      \
+  افعل {                                  \
+    إذا(CURL_TRC_TIMER_is_verbose(معلومات)) \
+      Curl_trc_easy_timers(معلومات);       \
+  } طالما(0)
 
-#else /* CURL_DISABLE_VERBOSE_STRINGS */
+#وإلا /* CURL_DISABLE_VERBOSE_STRINGS */
 /* All informational messages are not compiled in for size savings */
-#define Curl_trc_is_verbose(d)        FALSE
-#define Curl_trc_cf_is_verbose(x, y)  FALSE
-#define Curl_trc_ft_is_verbose(x, y)  FALSE
-#define CURL_MSTATE_NAME(x)           ((void)(x), "-")
-#define CURL_TRC_EASY_TIMERS(x)       Curl_nop_stmt
-#endif /* !CURL_DISABLE_VERBOSE_STRINGS */
+#تعریف_کړه Curl_trc_is_verbose(d)        FALSE
+#تعریف_کړه Curl_trc_cf_is_verbose(x, y)  FALSE
+#تعریف_کړه Curl_trc_ft_is_verbose(x, y)  FALSE
+#تعریف_کړه CURL_MSTATE_NAME(x)           ((فراغ)(x), "-")
+#تعریف_کړه CURL_TRC_EASY_TIMERS(x)       Curl_nop_stmt
+#د_که_پای /* !CURL_DISABLE_VERBOSE_STRINGS */
 
-#endif /* HEADER_CURL_TRC_H */
+#د_که_پای /* HEADER_CURL_TRC_H */

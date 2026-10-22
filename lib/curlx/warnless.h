@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WARNLESS_H
-#define HEADER_CURL_WARNLESS_H
+#که_نه_تعریف_شوی سرلیک_CURL_WARNLESS_H
+#تعریف_کړه سرلیک_CURL_WARNLESS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,34 +24,34 @@
  *
  ***************************************************************************/
 
-#define CURLX_FUNCTION_CAST(target_type, func) \
-  (target_type)(void (*)(void))(func)
+#تعریف_کړه CURLX_FUNCTION_CAST(موخه_type, func) \
+  (موخه_type)(فراغ (*)(فراغ))(func)
 
-unsigned char curlx_ultouc(unsigned long ulnum);
+بینښه حرف curlx_ultouc(بینښه اوږد ulnum);
 
-int curlx_uztosi(size_t uznum);
+صحيح curlx_uztosi(size_t uznum);
 
-unsigned long curlx_uztoul(size_t uznum);
+بینښه اوږد curlx_uztoul(size_t uznum);
 
-unsigned int curlx_uztoui(size_t uznum);
+بینښه صحيح curlx_uztoui(size_t uznum);
 
-int curlx_sltosi(long slnum);
+صحيح curlx_sltosi(اوږد slnum);
 
-unsigned int curlx_sltoui(long slnum);
+بینښه صحيح curlx_sltoui(اوږد slnum);
 
-unsigned short curlx_sltous(long slnum);
+بینښه لنډ curlx_sltous(اوږد slnum);
 
 ssize_t curlx_uztosz(size_t uznum);
 
 size_t curlx_sotouz(curl_off_t sonum);
 
-int curlx_sztosi(ssize_t sznum);
+صحيح curlx_sztosi(ssize_t sznum);
 
-unsigned short curlx_uitous(unsigned int uinum);
+بینښه لنډ curlx_uitous(بینښه صحيح uinum);
 
-size_t curlx_sitouz(int sinum);
+size_t curlx_sitouz(صحيح sinum);
 
-size_t curlx_uitouz(unsigned int uinum);
+size_t curlx_uitouz(بینښه صحيح uinum);
 
 /* Convert a curl_off_t to fit into size_t interval [uzmin, uzmax].
  * values outside this interval give the lower/upper bound. */
@@ -65,10 +65,10 @@ bool curlx_sztouz(ssize_t sznum, size_t *puznum);
 
 /* Convert a curl_off_t to size_t, return FALSE if negative or
  * too large and set 0 */
-bool curlx_sotouz_fits(curl_off_t sonum, size_t *puznum);
+bool curlx_sotouz_ځاییږي(curl_off_t sonum, size_t *puznum);
 
 /* Convert a long to size_t, return FALSE if negative or too large
  * and set 0 */
-bool curlx_sltouz(long slnum, size_t *puznum);
+bool curlx_sltouz(اوږد slnum, size_t *puznum);
 
-#endif /* HEADER_CURL_WARNLESS_H */
+#د_که_پای /* HEADER_CURL_WARNLESS_H */

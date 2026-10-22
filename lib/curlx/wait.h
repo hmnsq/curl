@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WAIT_H
-#define HEADER_CURL_WAIT_H
+#که_نه_تعریف_شوی سرلیک_CURL_WAIT_H
+#تعریف_کړه سرلیک_CURL_WAIT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-int curlx_wait_ms(timediff_t timeout_ms);
+صحيح curlx_wait_ms(timediff_t timeout_ms);
 
-#endif /* HEADER_CURL_WAIT_H */
+#د_که_پای /* HEADER_CURL_WAIT_H */

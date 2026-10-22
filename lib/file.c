@@ -21,143 +21,143 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "file.h"
+#ضمن "curl_setup.h"
+#ضمن "urldata.h"
+#ضمن "file.h"
 
-#ifndef CURL_DISABLE_FILE
+#که_نه_تعریف_شوی CURL_DISABLE_FILE
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
+#که_تعریف_شوی HAVE_NETINET_دننه_H
+#ضمن <netinet/in.h>
+#د_که_پای
+#که_تعریف_شوی HAVE_NETDB_H
+#ضمن <netdb.h>
+#د_که_پای
+#که_تعریف_شوی HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#د_که_پای
+#که_تعریف_شوی HAVE_NET_IF_H
+#ضمن <net/if.h>
+#د_که_پای
+#که_تعریف_شوی HAVE_SYS_IOCTL_H
+#ضمن <sys/ioctl.h>
+#د_که_پای
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#که_تعریف_شوی HAVE_SYS_PARAM_H
+#ضمن <sys/param.h>
+#د_که_پای
 
-#ifdef HAVE_DIRENT_H
-#include <dirent.h>
-#endif
+#که_تعریف_شوی HAVE_DIRENT_H
+#ضمن <dirent.h>
+#د_که_پای
 
-#include "progress.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "multiif.h"
-#include "transfer.h"
-#include "url.h"
-#include "parsedate.h" /* for the week day and month names */
-#include "curlx/win32-fopen.h"
-#include "curl_range.h"
+#ضمن "progress.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "escape.h"
+#ضمن "multiif.h"
+#ضمن "transfer.h"
+#ضمن "url.h"
+#ضمن "parsedate.h" /* for the week day and month names */
+#ضمن "curlx/win32-fopen.h"
+#ضمن "curl_range.h"
 
-#if defined(_WIN32) || defined(MSDOS)
-#define DOS_FILESYSTEM 1
-#elif defined(__amigaos4__)
-#define AMIGA_FILESYSTEM 1
-#endif
+#إذا defined(_WIN32) || defined(MSDOS)
+#تعریف_کړه DOS_FILESYSTEM 1
+#وإلاإذا defined(__amigaos4__)
+#تعریف_کړه AMIGA_FILESYSTEM 1
+#د_که_پای
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_FILE_EASY   "meta:proto:file:easy"
+#تعریف_کړه CURL_META_FILE_EASY   "meta:proto:file:easy"
 
-struct FILEPROTO {
-  char *path; /* the path we operate on */
-  char *freepath; /* pointer to the allocated block we must free, this might
+بنية FILEPROTO {
+  حرف *لار; /* the path we operate on */
+  حرف *freepath; /* pointer to the allocated block we must free, this might
                      differ from the 'path' pointer */
-  int fd;     /* open file descriptor to read from! */
+  صحيح fd;     /* open file descriptor to read from! */
   bool is_dir;
 };
 
-static void file_cleanup(struct FILEPROTO *file)
+ساكن فراغ file_cleanup(بنية FILEPROTO *file)
 {
   curlx_safefree(file->freepath);
-  file->path = NULL;
+  file->لار = عدم;
   file->is_dir = FALSE;
-  if(file->fd != -1) {
+  إذا(file->fd != -1) {
     curlx_close(file->fd);
     file->fd = -1;
   }
 }
 
-static void file_easy_dtor(const void *key, size_t klen, void *entry)
+ساكن فراغ file_easy_dtor(ثابت فراغ *کلی, size_t klen, فراغ *ثبت)
 {
-  struct FILEPROTO *file = entry;
-  (void)key;
-  (void)klen;
+  بنية FILEPROTO *file = ثبت;
+  (فراغ)کلی;
+  (فراغ)klen;
   file_cleanup(file);
   curlx_free(file);
 }
 
-static CURLcode file_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+ساكن CURLcode file_تیاری_connection(بنية Curl_easy *معلومات,
+                                      بنية connectdata *conn)
 {
-  struct FILEPROTO *filep;
-  (void)conn;
+  بنية FILEPROTO *filep;
+  (فراغ)conn;
   /* allocate the FILE specific struct */
-  filep = curlx_calloc(1, sizeof(*filep));
-  if(filep)
+  filep = curlx_calloc(1, حجم(*filep));
+  إذا(filep)
     filep->fd = -1;
-  if(!filep ||
-     Curl_meta_set(data, CURL_META_FILE_EASY, filep, file_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!filep ||
+     Curl_meta_سېټ(معلومات, CURL_META_FILE_EASY, filep, file_easy_dtor))
+    أرجع CURLE_بهر_د_حافظه;
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode file_done(struct Curl_easy *data,
-                          CURLcode status, bool premature)
+ساكن CURLcode file_بشپړ(بنية Curl_easy *معلومات,
+                          CURLcode حالت, bool premature)
 {
-  struct FILEPROTO *file = Curl_meta_get(data, CURL_META_FILE_EASY);
-  (void)status;
-  (void)premature;
+  بنية FILEPROTO *file = Curl_meta_get(معلومات, CURL_META_FILE_EASY);
+  (فراغ)حالت;
+  (فراغ)premature;
 
-  if(file)
+  إذا(file)
     file_cleanup(file);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static int file_stat(const char *path, curlx_struct_stat *statbuf)
+ساكن صحيح file_stat(ثابت حرف *لار, curlx_struct_stat *statbuf)
 {
-#ifdef _WIN32
-  int result = curlx_stat(path, statbuf);
+#که_تعریف_شوی _WIN32
+  صحيح پایله = curlx_stat(لار, statbuf);
 
-  if(result) {
-    size_t pathlen = strlen(path);
+  إذا(پایله) {
+    size_t pathlen = مزي_اوږدوالی(لار);
 
     /* MSVCRT's narrow stat() rejects trailing directory separators. */
-    if((pathlen > 3) &&
-       ((path[pathlen - 1] == '\\') || (path[pathlen - 1] == '/'))) {
-      char *trimmed = curlx_strdup(path);
+    إذا((pathlen > 3) &&
+       ((لار[pathlen - 1] == '\\') || (لار[pathlen - 1] == '/'))) {
+      حرف *trimmed = curlx_strdup(لار);
 
-      if(trimmed) {
-        do {
+      إذا(trimmed) {
+        افعل {
           trimmed[--pathlen] = '\0';
-        } while((pathlen > 3) &&
+        } طالما((pathlen > 3) &&
                 ((trimmed[pathlen - 1] == '\\') ||
                  (trimmed[pathlen - 1] == '/')));
 
-        result = curlx_stat(trimmed, statbuf);
+        پایله = curlx_stat(trimmed, statbuf);
         curlx_free(trimmed);
       }
     }
   }
 
-  return result;
-#else
-  return curlx_stat(path, statbuf);
-#endif
+  أرجع پایله;
+#وإلا
+  أرجع curlx_stat(لار, statbuf);
+#د_که_پای
 }
 
 /*
@@ -165,39 +165,39 @@ static int file_stat(const char *path, curlx_struct_stat *statbuf)
  * do protocol-specific actions at connect-time. We emulate a
  * connect-then-transfer protocol and "connect" to the file here
  */
-static CURLcode file_connect(struct Curl_easy *data, bool *done)
+ساكن CURLcode file_connect(بنية Curl_easy *معلومات, bool *بشپړ)
 {
-  char *real_path;
-  struct FILEPROTO *file = Curl_meta_get(data, CURL_META_FILE_EASY);
-#ifdef _WIN32
+  حرف *real_لار;
+  بنية FILEPROTO *file = Curl_meta_get(معلومات, CURL_META_FILE_EASY);
+#که_تعریف_شوی _WIN32
   curlx_struct_stat statbuf;
-#endif
-  int fd;
-#ifdef DOS_FILESYSTEM
+#د_که_پای
+  صحيح fd;
+#که_تعریف_شوی DOS_FILESYSTEM
   size_t i;
-  char *actual_path;
-#endif
-  size_t real_path_len;
-  CURLcode result;
+  حرف *actual_لار;
+#د_که_پای
+  size_t real_لار_len;
+  CURLcode پایله;
 
-  if(!file)
-    return CURLE_FAILED_INIT;
+  إذا(!file)
+    أرجع CURLE_FAILED_INIT;
 
-  if(file->path) {
+  إذا(file->لار) {
     /* already connected.
      * the handler->connect_it() is normally only called once, but
      * FILE does a special check on setting up the connection which
      * calls this explicitly. */
-    *done = TRUE;
-    return CURLE_OK;
+    *بشپړ = TRUE;
+    أرجع CURLE_OK;
   }
 
-  result = Curl_urldecode(data->state.up.path, 0, &real_path,
-                          &real_path_len, REJECT_ZERO);
-  if(result)
-    return result;
+  پایله = Curl_urldecode(معلومات->state.پورته.لار, 0, &real_لار,
+                          &real_لار_len, REJECT_ZERO);
+  إذا(پایله)
+    أرجع پایله;
 
-#ifdef DOS_FILESYSTEM
+#که_تعریف_شوی DOS_FILESYSTEM
   /* If the first character is a slash, and there is
      something that looks like a drive at the beginning of
      the path, skip the slash. If we remove the initial
@@ -211,34 +211,34 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
      On other platforms, we need the slash to indicate an
      absolute pathname. On Windows, absolute paths start
      with a drive letter. */
-  actual_path = real_path;
-  if((actual_path[0] == '/') &&
-      actual_path[1] &&
-     (actual_path[2] == ':' || actual_path[2] == '|')) {
-    actual_path[2] = ':';
-    actual_path++;
-    real_path_len--;
+  actual_لار = real_لار;
+  إذا((actual_لار[0] == '/') &&
+      actual_لار[1] &&
+     (actual_لار[2] == ':' || actual_لار[2] == '|')) {
+    actual_لار[2] = ':';
+    actual_لار++;
+    real_لار_len--;
   }
 
   /* change path separators from '/' to '\\' for DOS, Windows and OS/2 */
-  for(i = 0; i < real_path_len; ++i)
-    if(actual_path[i] == '/')
-      actual_path[i] = '\\';
-    else if(!actual_path[i]) { /* binary zero */
-      curlx_safefree(real_path);
-      return CURLE_URL_MALFORMAT;
+  لكل(i = 0; i < real_لار_len; ++i)
+    إذا(actual_لار[i] == '/')
+      actual_لار[i] = '\\';
+    وإلا إذا(!actual_لار[i]) { /* binary zero */
+      curlx_safefree(real_لار);
+      أرجع CURLE_URL_MALFORMAT;
     }
 
-  fd = curlx_open(actual_path, O_RDONLY | CURL_O_BINARY);
-  file->path = actual_path;
-#else
-  if(memchr(real_path, 0, real_path_len)) {
+  fd = curlx_open(actual_لار, O_RDONLY | CURL_O_دوګونی);
+  file->لار = actual_لار;
+#وإلا
+  إذا(memchr(real_لار, 0, real_لار_len)) {
     /* binary zeroes indicate foul play */
-    curlx_safefree(real_path);
-    return CURLE_URL_MALFORMAT;
+    curlx_safefree(real_لار);
+    أرجع CURLE_URL_MALFORMAT;
   }
 
-#ifdef AMIGA_FILESYSTEM
+#که_تعریف_شوی AMIGA_FILESYSTEM
   /*
    * A leading slash in an AmigaDOS path denotes the parent
    * directory, and hence we block this as it is relative.
@@ -247,71 +247,71 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
    * path, but only if the application was compiled with -lunix.
    */
   fd = -1;
-  file->path = real_path;
+  file->لار = real_لار;
 
-  if(real_path[0] == '/') {
-    extern int __unix_path_semantics;
-    if(strchr(real_path + 1, ':')) {
+  إذا(real_لار[0] == '/') {
+    خارجي صحيح __unix_path_semantics;
+    إذا(strchr(real_لار + 1, ':')) {
       /* Amiga absolute path */
-      fd = curlx_open(real_path + 1, O_RDONLY);
-      file->path++;
+      fd = curlx_open(real_لار + 1, O_RDONLY);
+      file->لار++;
     }
-    else if(__unix_path_semantics) {
+    وإلا إذا(__unix_path_semantics) {
       /* -lunix fallback */
-      fd = curlx_open(real_path, O_RDONLY);
+      fd = curlx_open(real_لار, O_RDONLY);
     }
   }
-#else
-  fd = curlx_open(real_path, O_RDONLY);
-  file->path = real_path;
-#endif
-#endif
+#وإلا
+  fd = curlx_open(real_لار, O_RDONLY);
+  file->لار = real_لار;
+#د_که_پای
+#د_که_پای
   curlx_free(file->freepath);
-  file->freepath = real_path; /* free this when done */
+  file->freepath = real_لار; /* free this when done */
 
   file->fd = fd;
-#ifdef _WIN32
-  if(!data->state.upload && (fd == -1) &&
-     !file_stat(file->path, &statbuf) && S_ISDIR(statbuf.st_mode))
+#که_تعریف_شوی _WIN32
+  إذا(!معلومات->state.upload && (fd == -1) &&
+     !file_stat(file->لار, &statbuf) && S_ISDIR(statbuf.st_ډېرپېښ))
     file->is_dir = TRUE;
-#endif
+#د_که_پای
 
-  if(!data->state.upload && (fd == -1) && !file->is_dir) {
-    failf(data, "Could not open file %s", data->state.up.path);
-    file_done(data, CURLE_FILE_COULDNT_READ_FILE, FALSE);
-    return CURLE_FILE_COULDNT_READ_FILE;
+  إذا(!معلومات->state.upload && (fd == -1) && !file->is_dir) {
+    failf(معلومات, "Could not open file %s", معلومات->state.پورته.لار);
+    file_بشپړ(معلومات, CURLE_FILE_COULDNT_READ_FILE, FALSE);
+    أرجع CURLE_FILE_COULDNT_READ_FILE;
   }
-  *done = TRUE;
+  *بشپړ = TRUE;
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode file_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn,
+ساكن CURLcode file_disconnect(بنية Curl_easy *معلومات,
+                                بنية connectdata *conn,
                                 bool dead_connection)
 {
-  (void)dead_connection;
-  (void)conn;
-  return file_done(data, CURLE_OK, FALSE);
+  (فراغ)dead_connection;
+  (فراغ)conn;
+  أرجع file_بشپړ(معلومات, CURLE_OK, FALSE);
 }
 
-#ifdef DOS_FILESYSTEM
-#define DIRSEP '\\'
-#else
-#define DIRSEP '/'
-#endif
+#که_تعریف_شوی DOS_FILESYSTEM
+#تعریف_کړه DIRSEP '\\'
+#وإلا
+#تعریف_کړه DIRSEP '/'
+#د_که_پای
 
-static CURLcode file_upload(struct Curl_easy *data,
-                            struct FILEPROTO *file)
+ساكن CURLcode file_upload(بنية Curl_easy *معلومات,
+                            بنية FILEPROTO *file)
 {
-  const char *dir = strchr(file->path, DIRSEP);
-  int fd;
-  int mode;
-  CURLcode result = CURLE_OK;
-  char *xfer_ulbuf;
+  ثابت حرف *dir = strchr(file->لار, DIRSEP);
+  صحيح fd;
+  صحيح ډېرپېښ;
+  CURLcode پایله = CURLE_OK;
+  حرف *xfer_ulbuf;
   size_t xfer_ulblen;
   curlx_struct_stat file_stat;
-  const char *sendbuf;
+  ثابت حرف *sendbuf;
   bool eos = FALSE;
 
   /*
@@ -319,149 +319,149 @@ static CURLcode file_upload(struct Curl_easy *data,
    * assignments here.
    */
 
-  if(!dir)
-    return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
+  إذا(!dir)
+    أرجع CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
-  if(!dir[1])
-    return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
+  إذا(!dir[1])
+    أرجع CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
-  mode = O_WRONLY | O_CREAT | CURL_O_BINARY;
-  if(data->state.resume_from)
-    mode |= O_APPEND;
-  else
-    mode |= O_TRUNC;
+  ډېرپېښ = O_WRONLY | O_CREAT | CURL_O_دوګونی;
+  إذا(معلومات->state.resume_from)
+    ډېرپېښ |= O_APPEND;
+  وإلا
+    ډېرپېښ |= O_TRUNC;
 
-  fd = curlx_open(file->path, mode,
-#ifdef _WIN32
-                  data->set.new_file_perms & (_S_IREAD | _S_IWRITE)
-#else
-                  (mode_t)data->set.new_file_perms
-#endif
+  fd = curlx_open(file->لار, ډېرپېښ,
+#که_تعریف_شوی _WIN32
+                  معلومات->سېټ.new_file_perms & (_S_IREAD | _S_IWRITE)
+#وإلا
+                  (mode_t)معلومات->سېټ.new_file_perms
+#د_که_پای
                   );
-  if(fd < 0) {
-    failf(data, "cannot open %s for writing", file->path);
-    return CURLE_WRITE_ERROR;
+  إذا(fd < 0) {
+    failf(معلومات, "cannot open %s for writing", file->لار);
+    أرجع CURLE_WRITE_ERROR;
   }
 
-  if(data->state.infilesize != -1)
+  إذا(معلومات->state.infilesize != -1)
     /* known size of data to "upload" */
-    Curl_pgrsSetUploadSize(data, data->state.infilesize);
+    Curl_pgrs_سېټ_Upload_اندازه(معلومات, معلومات->state.infilesize);
 
   /* treat the negative resume offset value as the case of "-" */
-  if(data->state.resume_from < 0) {
-    if(curlx_fstat(fd, &file_stat)) {
+  إذا(معلومات->state.resume_from < 0) {
+    إذا(curlx_fstat(fd, &file_stat)) {
       curlx_close(fd);
-      failf(data, "cannot get the size of %s", file->path);
-      return CURLE_WRITE_ERROR;
+      failf(معلومات, "cannot get the size of %s", file->لار);
+      أرجع CURLE_WRITE_ERROR;
     }
-    data->state.resume_from = (curl_off_t)file_stat.st_size;
+    معلومات->state.resume_from = (curl_off_t)file_stat.st_اندازه;
   }
 
-  result = Curl_multi_xfer_ulbuf_borrow(data, &xfer_ulbuf, &xfer_ulblen);
-  if(result)
-    goto out;
+  پایله = Curl_multi_xfer_ulbuf_borrow(معلومات, &xfer_ulbuf, &xfer_ulblen);
+  إذا(پایله)
+    اذهب بهر;
 
-  while(!result && !eos) {
+  طالما(!پایله && !eos) {
     size_t nread, nwritten;
     ssize_t rv;
     size_t readcount;
 
-    result = Curl_client_read(data, xfer_ulbuf, xfer_ulblen, &readcount, &eos);
-    if(result)
-      break;
+    پایله = Curl_client_read(معلومات, xfer_ulbuf, xfer_ulblen, &readcount, &eos);
+    إذا(پایله)
+      اكسر;
 
-    if(!readcount)
-      break;
+    إذا(!readcount)
+      اكسر;
 
     nread = readcount;
 
     /* skip bytes before resume point */
-    if(data->state.resume_from) {
-      if((curl_off_t)nread <= data->state.resume_from) {
-        data->state.resume_from -= nread;
+    إذا(معلومات->state.resume_from) {
+      إذا((curl_off_t)nread <= معلومات->state.resume_from) {
+        معلومات->state.resume_from -= nread;
         nread = 0;
         sendbuf = xfer_ulbuf;
       }
-      else {
-        sendbuf = xfer_ulbuf + data->state.resume_from;
-        nread -= (size_t)data->state.resume_from;
-        data->state.resume_from = 0;
+      وإلا {
+        sendbuf = xfer_ulbuf + معلومات->state.resume_from;
+        nread -= (size_t)معلومات->state.resume_from;
+        معلومات->state.resume_from = 0;
       }
     }
-    else
+    وإلا
       sendbuf = xfer_ulbuf;
 
     /* write the data to the target */
-    rv = write(fd, sendbuf, nread);
-    if(!curlx_sztouz(rv, &nwritten) || (nwritten != nread)) {
-      result = CURLE_SEND_ERROR;
-      break;
+    rv = اكتب(fd, sendbuf, nread);
+    إذا(!curlx_sztouz(rv, &nwritten) || (nwritten != nread)) {
+      پایله = CURLE_SEND_ERROR;
+      اكسر;
     }
-    Curl_pgrs_upload_inc(data, nwritten);
+    Curl_pgrs_upload_inc(معلومات, nwritten);
 
-    result = Curl_pgrsCheck(data);
+    پایله = Curl_pgrsCheck(معلومات);
   }
-  if(!result)
-    result = Curl_pgrsUpdate(data);
+  إذا(!پایله)
+    پایله = Curl_pgrsUpdate(معلومات);
 
-out:
+بهر:
   curlx_close(fd);
-  Curl_multi_xfer_ulbuf_release(data, xfer_ulbuf);
+  Curl_multi_xfer_ulbuf_release(معلومات, xfer_ulbuf);
 
-  return result;
+  أرجع پایله;
 }
 
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
-static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
+#إذا defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+ساكن CURLcode win32_file_list(بنية Curl_easy *معلومات, ثابت حرف *لار)
 {
-  WIN32_FIND_DATA entry;
+  WIN32_پیدا_کړه_معلومات ثبت;
   HANDLE handle;
-  char *pattern;
-  size_t pathlen = strlen(path);
-  CURLcode result = CURLE_OK;
+  حرف *نمونه;
+  size_t pathlen = مزي_اوږدوالی(لار);
+  CURLcode پایله = CURLE_OK;
   DWORD error;
 
-  pattern = curl_maprintf("%s%s*", path,
+  نمونه = curl_maprintf("%s%s*", لار,
                           pathlen &&
-                          (path[pathlen - 1] == '\\' ||
-                           path[pathlen - 1] == '/') ? "" : "\\");
-  if(!pattern)
-    return CURLE_OUT_OF_MEMORY;
+                          (لار[pathlen - 1] == '\\' ||
+                           لار[pathlen - 1] == '/') ? "" : "\\");
+  إذا(!نمونه)
+    أرجع CURLE_بهر_د_حافظه;
 
-  handle = curlx_FindFirstFile(pattern, &entry);
-  curlx_free(pattern);
-  if(handle == INVALID_HANDLE_VALUE)
-    return CURLE_READ_ERROR;
+  handle = curlx_پیدا_کړه_لومړی_File(نمونه, &ثبت);
+  curlx_free(نمونه);
+  إذا(handle == INVALID_HANDLE_ارزښت)
+    أرجع CURLE_READ_ERROR;
 
-  do {
-    if(entry.cFileName[0] != TEXT('.')) {
-      char *name = curlx_convert_tchar_to_UTF8(entry.cFileName);
+  افعل {
+    إذا(ثبت.cFileName[0] != متن_2('.')) {
+      حرف *name = curlx_convert_tchar_منزل_UTF8(ثبت.cFileName);
 
-      if(!name) {
-        result = CURLE_OUT_OF_MEMORY;
-        break;
+      إذا(!name) {
+        پایله = CURLE_بهر_د_حافظه;
+        اكسر;
       }
 
-      result = Curl_client_write(data, CLIENTWRITE_BODY,
-                                 name, strlen(name));
+      پایله = Curl_client_write(معلومات, CLIENTWRITE_BODY,
+                                 name, مزي_اوږدوالی(name));
       curlx_free(name);
-      if(result)
-        break;
+      إذا(پایله)
+        اكسر;
 
-      result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-      if(result)
-        break;
+      پایله = Curl_client_write(معلومات, CLIENTWRITE_BODY, "\n", 1);
+      إذا(پایله)
+        اكسر;
     }
-  } while(FindNextFile(handle, &entry));
+  } طالما(پیدا_کړه_بل_File(handle, &ثبت));
 
-  error = GetLastError();
-  if(!result && error != ERROR_NO_MORE_FILES)
-    result = CURLE_READ_ERROR;
+  error = Get_وروستی_Error();
+  إذا(!پایله && error != ERROR_NO_نور_FILES)
+    پایله = CURLE_READ_ERROR;
 
-  FindClose(handle);
-  return result;
+  پیدا_کړه_Close(handle);
+  أرجع پایله;
 }
-#endif
+#د_که_پای
 
 /*
  * file_do() is the protocol-specific function for the do-phase, separated
@@ -471,76 +471,76 @@ static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
  * opposed to sockets) we instead perform the whole do-operation in this
  * function.
  */
-static CURLcode file_do(struct Curl_easy *data, bool *done)
+ساكن CURLcode file_do(بنية Curl_easy *معلومات, bool *بشپړ)
 {
   /* This implementation ignores the hostname in conformance with
      RFC 1738. Only local files (reachable via the standard file system)
      are supported. This means that files on remotely mounted directories
      (via NFS, Samba, NT sharing) can be accessed through a file:// URL */
-  struct FILEPROTO *file = Curl_meta_get(data, CURL_META_FILE_EASY);
-  CURLcode result = CURLE_OK;
+  بنية FILEPROTO *file = Curl_meta_get(معلومات, CURL_META_FILE_EASY);
+  CURLcode پایله = CURLE_OK;
   curlx_struct_stat statbuf;
-  curl_off_t expected_size = -1;
-  bool size_known;
+  curl_off_t expected_اندازه = -1;
+  bool اندازه_معلوم;
   bool fstated = FALSE;
-  int fd;
-  char *xfer_buf;
+  صحيح fd;
+  حرف *xfer_buf;
   size_t xfer_blen;
 
-  *done = TRUE; /* unconditionally */
-  if(!file)
-    return CURLE_FAILED_INIT;
+  *بشپړ = TRUE; /* unconditionally */
+  إذا(!file)
+    أرجع CURLE_FAILED_INIT;
 
-  if(data->state.upload)
-    return file_upload(data, file);
+  إذا(معلومات->state.upload)
+    أرجع file_upload(معلومات, file);
 
   /* get the fd from the connection phase */
   fd = file->fd;
 
   /* VMS: This only works reliable for STREAMLF files */
-  if((file->is_dir ? file_stat(file->path, &statbuf) :
+  إذا((file->is_dir ? file_stat(file->لار, &statbuf) :
                      curlx_fstat(fd, &statbuf)) != -1) {
-    file->is_dir = (fd == -1) || S_ISDIR(statbuf.st_mode);
-    if(!file->is_dir)
-      expected_size = statbuf.st_size;
+    file->is_dir = (fd == -1) || S_ISDIR(statbuf.st_ډېرپېښ);
+    إذا(!file->is_dir)
+      expected_اندازه = statbuf.st_اندازه;
     /* and store the modification time */
-    data->info.filetime = statbuf.st_mtime;
+    معلومات->info.filetime = statbuf.st_mtime;
     fstated = TRUE;
   }
 
-  if(fstated && !data->state.range && data->set.timecondition &&
-     !Curl_meets_timecondition(data, data->info.filetime))
-    return CURLE_OK;
+  إذا(fstated && !معلومات->state.range && معلومات->سېټ.timecondition &&
+     !Curl_meets_timecondition(معلومات, معلومات->info.filetime))
+    أرجع CURLE_OK;
 
-  if(fstated) {
+  إذا(fstated) {
     time_t filetime;
-    struct tm buffer;
-    const struct tm *tm = &buffer;
-    char header[80];
-    int headerlen;
-    static const char accept_ranges[] = { "Accept-ranges: bytes\r\n" };
-    if(expected_size >= 0) {
+    بنية tm بفر;
+    ثابت بنية tm *tm = &بفر;
+    حرف سرلیک[80];
+    صحيح headerlen;
+    ساكن ثابت حرف accept_ranges[] = { "Accept-ranges: bytes\r\n" };
+    إذا(expected_اندازه >= 0) {
       headerlen =
-        curl_msnprintf(header, sizeof(header),
-                       "Content-Length: %" FMT_OFF_T "\r\n", expected_size);
-      result = Curl_client_write(data, CLIENTWRITE_HEADER, header, headerlen);
-      if(result)
-        return result;
+        curl_msnprintf(سرلیک, حجم(سرلیک),
+                       "Content-Length: %" FMT_OFF_T "\r\n", expected_اندازه);
+      پایله = Curl_client_write(معلومات, CLIENTWRITE_سرلیک, سرلیک, headerlen);
+      إذا(پایله)
+        أرجع پایله;
 
-      result = Curl_client_write(data, CLIENTWRITE_HEADER,
+      پایله = Curl_client_write(معلومات, CLIENTWRITE_سرلیک,
                                  accept_ranges, CURL_CSTRLEN(accept_ranges));
-      if(result != CURLE_OK)
-        return result;
+      إذا(پایله != CURLE_OK)
+        أرجع پایله;
     }
 
     filetime = (time_t)statbuf.st_mtime;
-    result = curlx_gmtime(filetime, &buffer);
-    if(result)
-      return result;
+    پایله = curlx_gmtime(filetime, &بفر);
+    إذا(پایله)
+      أرجع پایله;
 
     /* format: "Tue, 15 Nov 1994 12:45:26 GMT" */
     headerlen =
-      curl_msnprintf(header, sizeof(header),
+      curl_msnprintf(سرلیک, حجم(سرلیک),
                      "Last-Modified: %s, %02d %s %4d %02d:%02d:%02d GMT\r\n",
                      Curl_wkday[tm->tm_wday ? tm->tm_wday - 1 : 6],
                      tm->tm_mday,
@@ -549,154 +549,154 @@ static CURLcode file_do(struct Curl_easy *data, bool *done)
                      tm->tm_hour,
                      tm->tm_min,
                      tm->tm_sec);
-    result = Curl_client_write(data, CLIENTWRITE_HEADER, header, headerlen);
-    if(!result)
+    پایله = Curl_client_write(معلومات, CLIENTWRITE_سرلیک, سرلیک, headerlen);
+    إذا(!پایله)
       /* end of headers */
-      result = Curl_client_write(data, CLIENTWRITE_HEADER, "\r\n", 2);
-    if(result)
-      return result;
+      پایله = Curl_client_write(معلومات, CLIENTWRITE_سرلیک, "\r\n", 2);
+    إذا(پایله)
+      أرجع پایله;
     /* set the file size to make it available post transfer */
-    Curl_pgrsSetDownloadSize(data, expected_size);
-    if(data->req.no_body)
-      return CURLE_OK;
+    Curl_pgrs_سېټ_Download_اندازه(معلومات, expected_اندازه);
+    إذا(معلومات->req.no_body)
+      أرجع CURLE_OK;
   }
 
   /* Check whether file range has been specified */
-  result = Curl_range(data);
-  if(result)
-    return result;
+  پایله = Curl_range(معلومات);
+  إذا(پایله)
+    أرجع پایله;
 
   /* Adjust the start offset in case we want to get the N last bytes
    * of the stream if the filesize could be determined */
-  if(data->state.resume_from < 0) {
-    if(!fstated) {
-      failf(data, "cannot get the size of file.");
-      return CURLE_READ_ERROR;
+  إذا(معلومات->state.resume_from < 0) {
+    إذا(!fstated) {
+      failf(معلومات, "cannot get the size of file.");
+      أرجع CURLE_READ_ERROR;
     }
-    data->state.resume_from += (curl_off_t)statbuf.st_size;
+    معلومات->state.resume_from += (curl_off_t)statbuf.st_اندازه;
   }
 
-  if(data->state.resume_from > 0) {
+  إذا(معلومات->state.resume_from > 0) {
     /* We check explicitly if we have a start offset, because
      * expected_size may be -1 if we do not know how large the file is,
      * in which case we should not adjust it. */
-    if(data->state.resume_from <= expected_size)
-      expected_size -= data->state.resume_from;
-    else {
-      failf(data, "failed to resume file:// transfer");
-      return CURLE_BAD_DOWNLOAD_RESUME;
+    إذا(معلومات->state.resume_from <= expected_اندازه)
+      expected_اندازه -= معلومات->state.resume_from;
+    وإلا {
+      failf(معلومات, "failed to resume file:// transfer");
+      أرجع CURLE_BAD_DOWNLOAD_RESUME;
     }
   }
 
   /* A high water mark has been specified so we obey... */
-  if(data->req.maxdownload > 0)
-    expected_size = data->req.maxdownload;
+  إذا(معلومات->req.maxdownload > 0)
+    expected_اندازه = معلومات->req.maxdownload;
 
-  if(!fstated || (expected_size <= 0))
-    size_known = FALSE;
-  else
-    size_known = TRUE;
+  إذا(!fstated || (expected_اندازه <= 0))
+    اندازه_معلوم = FALSE;
+  وإلا
+    اندازه_معلوم = TRUE;
 
   /* The following is a shortcut implementation of file reading
      this is both more efficient than the former call to download() and
      it avoids problems with select() and recv() on file descriptors
      in Winsock */
-  if(size_known)
-    Curl_pgrsSetDownloadSize(data, expected_size);
+  إذا(اندازه_معلوم)
+    Curl_pgrs_سېټ_Download_اندازه(معلومات, expected_اندازه);
 
-  if(data->state.resume_from) {
-    if(!file->is_dir) {
-      if(data->state.resume_from !=
-         curl_lseek(fd, data->state.resume_from, SEEK_SET))
-        return CURLE_BAD_DOWNLOAD_RESUME;
+  إذا(معلومات->state.resume_from) {
+    إذا(!file->is_dir) {
+      إذا(معلومات->state.resume_from !=
+         curl_lseek(fd, معلومات->state.resume_from, SEEK_SET))
+        أرجع CURLE_BAD_DOWNLOAD_RESUME;
     }
-    else {
-      return CURLE_BAD_DOWNLOAD_RESUME;
+    وإلا {
+      أرجع CURLE_BAD_DOWNLOAD_RESUME;
     }
   }
 
-  result = Curl_multi_xfer_buf_borrow(data, &xfer_buf, &xfer_blen);
-  if(result)
-    goto out;
+  پایله = Curl_multi_xfer_buf_borrow(معلومات, &xfer_buf, &xfer_blen);
+  إذا(پایله)
+    اذهب بهر;
 
-  if(!file->is_dir) {
-    while(!result) {
+  إذا(!file->is_dir) {
+    طالما(!پایله) {
       ssize_t nread;
       /* Do not fill a whole buffer if we want less than all data */
       size_t bytestoread;
 
-      if(size_known) {
-        bytestoread = (expected_size < (curl_off_t)(xfer_blen - 1)) ?
-          curlx_sotouz(expected_size) : (xfer_blen - 1);
+      إذا(اندازه_معلوم) {
+        bytestoread = (expected_اندازه < (curl_off_t)(xfer_blen - 1)) ?
+          curlx_sotouz(expected_اندازه) : (xfer_blen - 1);
       }
-      else
+      وإلا
         bytestoread = xfer_blen - 1;
 
-      nread = read(fd, xfer_buf, bytestoread);
+      nread = اقرأ(fd, xfer_buf, bytestoread);
 
-      if(nread > 0)
+      إذا(nread > 0)
         xfer_buf[nread] = 0;
 
-      if(nread <= 0 || (size_known && (expected_size == 0)))
-        break;
+      إذا(nread <= 0 || (اندازه_معلوم && (expected_اندازه == 0)))
+        اكسر;
 
-      if(size_known)
-        expected_size -= nread;
+      إذا(اندازه_معلوم)
+        expected_اندازه -= nread;
 
-      result = Curl_client_write(data, CLIENTWRITE_BODY, xfer_buf, nread);
-      if(result)
-        goto out;
+      پایله = Curl_client_write(معلومات, CLIENTWRITE_BODY, xfer_buf, nread);
+      إذا(پایله)
+        اذهب بهر;
 
-      result = Curl_pgrsCheck(data);
-      if(result)
-        goto out;
+      پایله = Curl_pgrsCheck(معلومات);
+      إذا(پایله)
+        اذهب بهر;
     }
   }
-  else {
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
-    result = win32_file_list(data, file->path);
-    if(result)
-      goto out;
-#elif defined(HAVE_OPENDIR)
-    DIR *dir = opendir(file->path);
-    struct dirent *entry;
+  وإلا {
+#إذا defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+    پایله = win32_file_list(معلومات, file->لار);
+    إذا(پایله)
+      اذهب بهر;
+#وإلاإذا defined(HAVE_OPENDIR)
+    DIR *dir = opendir(file->لار);
+    بنية dirent *ثبت;
 
-    if(!dir) {
-      result = CURLE_READ_ERROR;
-      goto out;
+    إذا(!dir) {
+      پایله = CURLE_READ_ERROR;
+      اذهب بهر;
     }
-    else {
-      while((entry = readdir(dir))) {
-        if(entry->d_name[0] != '.') {
-          result = Curl_client_write(data, CLIENTWRITE_BODY,
-                   entry->d_name, strlen(entry->d_name));
-          if(result)
-            break;
-          result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-          if(result)
-            break;
+    وإلا {
+      طالما((ثبت = readdir(dir))) {
+        إذا(ثبت->d_name[0] != '.') {
+          پایله = Curl_client_write(معلومات, CLIENTWRITE_BODY,
+                   ثبت->d_name, مزي_اوږدوالی(ثبت->d_name));
+          إذا(پایله)
+            اكسر;
+          پایله = Curl_client_write(معلومات, CLIENTWRITE_BODY, "\n", 1);
+          إذا(پایله)
+            اكسر;
         }
       }
       closedir(dir);
     }
-#else
-    failf(data, "Directory listing not yet implemented on this platform.");
-    result = CURLE_READ_ERROR;
-#endif
+#وإلا
+    failf(معلومات, "Directory listing not yet implemented on this platform.");
+    پایله = CURLE_READ_ERROR;
+#د_که_پای
   }
 
-  if(!result)
-    result = Curl_pgrsUpdate(data);
+  إذا(!پایله)
+    پایله = Curl_pgrsUpdate(معلومات);
 
-out:
-  Curl_multi_xfer_buf_release(data, xfer_buf);
-  return result;
+بهر:
+  Curl_multi_xfer_buf_release(معلومات, xfer_buf);
+  أرجع پایله;
 }
 
-const struct Curl_protocol Curl_protocol_file = {
-  file_setup_connection,                /* setup_connection */
+ثابت بنية Curl_protocol Curl_protocol_file = {
+  file_تیاری_connection,                /* setup_connection */
   file_do,                              /* do_it */
-  file_done,                            /* done */
+  file_بشپړ,                            /* done */
   ZERO_NULL,                            /* do_more */
   file_connect,                         /* connect_it */
   ZERO_NULL,                            /* connecting */
@@ -713,4 +713,4 @@ const struct Curl_protocol Curl_protocol_file = {
   ZERO_NULL,                            /* follow */
 };
 
-#endif
+#د_که_پای

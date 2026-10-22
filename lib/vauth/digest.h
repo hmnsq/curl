@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_DIGEST_H
-#define HEADER_CURL_DIGEST_H
+#که_نه_تعریف_شوی سرلیک_CURL_DIGEST_H
+#تعریف_کړه سرلیک_CURL_DIGEST_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,19 +23,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
+#که_نه_تعریف_شوی CURL_DISABLE_DIGEST_AUTH
 
-#define DIGEST_MAX_VALUE_LENGTH           256
-#define DIGEST_MAX_CONTENT_LENGTH         1024
+#تعریف_کړه DIGEST_MAX_ارزښت_اوږدتیا           256
+#تعریف_کړه DIGEST_MAX_CONTENT_اوږدتیا         1024
 
-struct Curl_str;
+بنية Curl_str;
 
 /* This is used to extract the realm from a challenge message */
-bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
-                               char *content, const char **endptr);
+bool Curl_auth_digest_get_pair(ثابت حرف *str, بنية Curl_str *ارزښت,
+                               حرف *content, ثابت حرف **endptr);
 
-#endif
+#د_که_پای
 
-#endif /* HEADER_CURL_DIGEST_H */
+#د_که_پای /* HEADER_CURL_DIGEST_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HSTS_H
-#define HEADER_CURL_HSTS_H
+#که_نه_تعریف_شوی سرلیک_CURL_HSTS_H
+#تعریف_کړه سرلیک_CURL_HSTS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-struct hsts;
+بنية hsts;
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
-#include "llist.h"
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
+#ضمن "llist.h"
 
-struct Curl_peer;
+بنية Curl_peer;
 
-#define MAX_HSTS_ENTRIES 10000
+#تعریف_کړه MAX_HSTS_ENTRIES 10000
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
-extern time_t deltatime;
-#endif
+#إذا defined(DEBUGBUILD) || defined(UNITTESTS)
+خارجي time_t deltatime;
+#د_که_پای
 
-struct stsentry {
-  struct Curl_llist_node node;
+بنية stsentry {
+  بنية Curl_llist_غوټه غوټه;
   curl_off_t expires; /* the timestamp of this entry's expiry */
-  BIT(includeSubDomains);
-  char host[1];
+  بټ(includeSubDomains);
+  حرف host[1];
 };
 
 /* The HSTS cache. Needs to be able to tailmatch hostnames. */
-struct hsts {
-  struct Curl_llist list;
-  char *filename;
-  unsigned int flags;
+بنية hsts {
+  بنية Curl_llist list;
+  حرف *filename;
+  بینښه صحيح flags;
 };
 
-struct hsts *Curl_hsts_init(void);
-void Curl_hsts_cleanup(struct hsts **hp);
-CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src);
-CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
-                         const char *header);
-CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
-                        const char *file);
-CURLcode Curl_hsts_loadfile(struct Curl_easy *data,
-                            struct hsts *h, const char *file);
-CURLcode Curl_hsts_loadcb(struct Curl_easy *data,
-                          struct hsts *h);
-CURLcode Curl_hsts_loadfiles(struct Curl_easy *data);
+بنية hsts *Curl_hsts_init(فراغ);
+فراغ Curl_hsts_cleanup(بنية hsts **hp);
+CURLcode Curl_hsts_copy(بنية hsts *dst, بنية hsts *src);
+CURLcode Curl_hsts_parse(بنية hsts *h, ثابت حرف *hostname,
+                         ثابت حرف *سرلیک);
+CURLcode Curl_hsts_save(بنية Curl_easy *معلومات, بنية hsts *h,
+                        ثابت حرف *file);
+CURLcode Curl_hsts_loadfile(بنية Curl_easy *معلومات,
+                            بنية hsts *h, ثابت حرف *file);
+CURLcode Curl_hsts_loadcb(بنية Curl_easy *معلومات,
+                          بنية hsts *h);
+CURLcode Curl_hsts_loadfiles(بنية Curl_easy *معلومات);
 
-bool Curl_hsts_applies(struct hsts *h, const struct Curl_peer *dest);
+bool Curl_hsts_applies(بنية hsts *h, ثابت بنية Curl_peer *dest);
 
-#else
-#define Curl_hsts_cleanup(x)
-#define Curl_hsts_loadcb(x, y) CURLE_OK
-#define Curl_hsts_save(x, y, z)
-#define Curl_hsts_loadfiles(x) CURLE_OK
-#endif /* CURL_DISABLE_HTTP || CURL_DISABLE_HSTS */
-#endif /* HEADER_CURL_HSTS_H */
+#وإلا
+#تعریف_کړه Curl_hsts_cleanup(x)
+#تعریف_کړه Curl_hsts_loadcb(x, y) CURLE_OK
+#تعریف_کړه Curl_hsts_save(x, y, z)
+#تعریف_کړه Curl_hsts_loadfiles(x) CURLE_OK
+#د_که_پای /* CURL_DISABLE_HTTP || CURL_DISABLE_HSTS */
+#د_که_پای /* HEADER_CURL_HSTS_H */

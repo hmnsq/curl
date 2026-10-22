@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTPSRR_H
-#define HEADER_CURL_HTTPSRR_H
+#که_نه_تعریف_شوی سرلیک_CURL_HTTPSRR_H
+#تعریف_کړه سرلیک_CURL_HTTPSRR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,79 +23,79 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_ARES
-#include <ares.h>
-#endif
+#که_تعریف_شوی USE_ARES
+#ضمن <ares.h>
+#د_که_پای
 
-#ifdef USE_HTTPSRR
+#که_تعریف_شوی USE_HTTPSRR
 
-#define CURL_MAXLEN_HOST_NAME 253
-#define MAX_HTTPSRR_ALPNS     4
+#تعریف_کړه CURL_MAXLEN_HOST_NAME 253
+#تعریف_کړه MAX_HTTPSRR_ALPNS     4
 
-struct Curl_easy;
-struct dynbuf;
+بنية Curl_easy;
+بنية dynbuf;
 
-struct Curl_https_rrinfo {
+بنية Curl_https_rrinfo {
   /*
    * Fields from HTTPS RR. The only mandatory fields are priority and target.
    * See https://datatracker.ietf.org/doc/html/rfc9460#section-14.3.2
    */
-  char *target;
-  unsigned char *ipv4hints; /* keytag = 4 */
+  حرف *موخه;
+  بینښه حرف *ipv4hints; /* keytag = 4 */
   size_t ipv4hints_len;
-  unsigned char *echconfiglist; /* keytag = 5 */
+  بینښه حرف *echconfiglist; /* keytag = 5 */
   size_t echconfiglist_len;
-  unsigned char *ipv6hints; /* keytag = 6 */
+  بینښه حرف *ipv6hints; /* keytag = 6 */
   size_t ipv6hints_len;
-  unsigned char alpns[MAX_HTTPSRR_ALPNS]; /* keytag = 1 */
+  بینښه حرف alpns[MAX_HTTPSRR_ALPNS]; /* keytag = 1 */
   /* store parsed alpnid entries in the array, end with ALPN_none */
-  uint16_t port;
-  uint16_t priority;
-  BIT(no_def_alpn); /* keytag = 2 */
-  BIT(mandatory); /* keytag = 0 */
-  BIT(port_set); /* port value has been assigned */
+  uint16_t پورټ;
+  uint16_t لومړیتوب;
+  بټ(no_def_alpn); /* keytag = 2 */
+  بټ(mandatory); /* keytag = 0 */
+  بټ(پورټ_سېټ); /* port value has been assigned */
 };
 
-CURLcode Curl_httpsrr_set(struct Curl_https_rrinfo *rr,
-                          uint16_t rrkey, const uint8_t *val, size_t vlen);
+CURLcode Curl_httpsrr_سېټ(بنية Curl_https_rrinfo *rr,
+                          uint16_t rrkey, ثابت uint8_t *val, size_t vlen);
 
-void Curl_httpsrr_destroy(struct Curl_https_rrinfo *rrinfo);
+فراغ Curl_httpsrr_destroy(بنية Curl_https_rrinfo *rrinfo);
 
 /* TRUE if the record is applicable to the transfer and its connection. */
-bool Curl_httpsrr_applicable(struct Curl_easy *data,
-                             const struct Curl_https_rrinfo *rr);
+bool Curl_httpsrr_applicable(بنية Curl_easy *معلومات,
+                             ثابت بنية Curl_https_rrinfo *rr);
 
 /* TRUE if the record is applicable to the given peer. */
-bool Curl_httpsrr_is_for_peer(struct Curl_peer *peer,
-                              const struct Curl_https_rrinfo *rr);
+bool Curl_httpsrr_is_for_peer(بنية Curl_peer *peer,
+                              ثابت بنية Curl_https_rrinfo *rr);
 
 /*
  * Code points for DNS wire format SvcParams as per RFC 9460
  */
-#define HTTPS_RR_CODE_MANDATORY       0x00
-#define HTTPS_RR_CODE_ALPN            0x01
-#define HTTPS_RR_CODE_NO_DEF_ALPN     0x02
-#define HTTPS_RR_CODE_PORT            0x03
-#define HTTPS_RR_CODE_IPV4            0x04
-#define HTTPS_RR_CODE_ECH             0x05
-#define HTTPS_RR_CODE_IPV6            0x06
+#تعریف_کړه HTTPS_RR_کوډ_MANDATORY       0x00
+#تعریف_کړه HTTPS_RR_کوډ_ALPN            0x01
+#تعریف_کړه HTTPS_RR_کوډ_NO_DEF_ALPN     0x02
+#تعریف_کړه HTTPS_RR_کوډ_پورټ            0x03
+#تعریف_کړه HTTPS_RR_کوډ_IPV4            0x04
+#تعریف_کړه HTTPS_RR_کوډ_ECH             0x05
+#تعریف_کړه HTTPS_RR_کوډ_IPV6            0x06
 
-#ifdef USE_ARES
-CURLcode Curl_httpsrr_from_ares(const ares_dns_record_t *dnsrec,
-                                struct Curl_https_rrinfo **phinfo);
-#endif /* USE_ARES */
+#که_تعریف_شوی USE_ARES
+CURLcode Curl_httpsrr_from_ares(ثابت ares_dns_ریکارډ_t *dnsrec,
+                                بنية Curl_https_rrinfo **phinfo);
+#د_که_پای /* USE_ARES */
 
-#ifdef CURLVERBOSE
-CURLcode Curl_httpsrr_print(struct dynbuf *tmp,
-                            struct Curl_https_rrinfo *rr);
-void Curl_httpsrr_trace(struct Curl_easy *data,
-                        struct Curl_https_rrinfo *rr);
-#else
-#define Curl_httpsrr_trace(a, b) Curl_nop_stmt
-#endif
+#که_تعریف_شوی CURLVERBOSE
+CURLcode Curl_httpsrr_print(بنية dynbuf *tmp,
+                            بنية Curl_https_rrinfo *rr);
+فراغ Curl_httpsrr_trace(بنية Curl_easy *معلومات,
+                        بنية Curl_https_rrinfo *rr);
+#وإلا
+#تعریف_کړه Curl_httpsrr_trace(a, b) Curl_nop_stmt
+#د_که_پای
 
-#endif /* USE_HTTPSRR */
+#د_که_پای /* USE_HTTPSRR */
 
-#endif /* HEADER_CURL_HTTPSRR_H */
+#د_که_پای /* HEADER_CURL_HTTPSRR_H */

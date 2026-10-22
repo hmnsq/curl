@@ -21,413 +21,413 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_THREADS
+#که_تعریف_شوی USE_تارونه
 
-#include "llist.h"
-#include "curl_threads.h"
-#include "thrdpool.h"
-#include "thrdqueue.h"
-#include "curlx/timeval.h"
-#ifdef CURLVERBOSE
-#include "curl_trc.h"
-#include "urldata.h"
-#endif
+#ضمن "llist.h"
+#ضمن "curl_threads.h"
+#ضمن "thrdpool.h"
+#ضمن "thrdqueue.h"
+#ضمن "curlx/timeval.h"
+#که_تعریف_شوی CURLVERBOSE
+#ضمن "curl_trc.h"
+#ضمن "urldata.h"
+#د_که_پای
 
 
-struct curl_thrdq {
-  const char *name;
-  curl_mutex_t lock;
+بنية curl_thrdq {
+  ثابت حرف *name;
+  curl_mutex_t قلف;
   curl_cond_t await;
-  struct Curl_llist sendq;
-  struct Curl_llist recvq;
-  struct curl_thrdpool *tpool;
-  Curl_thrdq_item_free_cb *fn_free;
-  Curl_thrdq_item_process_cb *fn_process;
+  بنية Curl_llist sendq;
+  بنية Curl_llist recvq;
+  بنية curl_thrdpool *tpool;
+  Curl_thrdq_توکی_free_cb *fn_free;
+  Curl_thrdq_توکی_process_cb *fn_process;
   Curl_thrdq_ev_cb *fn_event;
-  void *fn_user_data;
-  BIT(aborted);
+  فراغ *fn_user_معلومات;
+  بټ(aborted);
 };
 
-struct thrdq_item {
-  struct Curl_llist_node node;
-  Curl_thrdq_item_free_cb *fn_free;
-  Curl_thrdq_item_process_cb *fn_process;
-  void *item;
-  struct curltime start;
+بنية thrdq_توکی {
+  بنية Curl_llist_غوټه غوټه;
+  Curl_thrdq_توکی_free_cb *fn_free;
+  Curl_thrdq_توکی_process_cb *fn_process;
+  فراغ *توکی;
+  بنية curltime پیل;
   timediff_t timeout_ms;
-  const char *description;
+  ثابت حرف *description;
 };
 
-static struct thrdq_item *thrdq_item_create(struct curl_thrdq *tqueue,
-                                            void *item,
-                                            const char *description,
+ساكن بنية thrdq_توکی *thrdq_توکی_create(بنية curl_thrdq *tqueue,
+                                            فراغ *توکی,
+                                            ثابت حرف *description,
                                             timediff_t timeout_ms)
 {
-  struct thrdq_item *qitem;
+  بنية thrdq_توکی *qitem;
 
-  qitem = curlx_calloc(1, sizeof(*qitem));
-  if(!qitem)
-    return NULL;
-  qitem->item = item;
+  qitem = curlx_calloc(1, حجم(*qitem));
+  إذا(!qitem)
+    أرجع عدم;
+  qitem->توکی = توکی;
   qitem->description = description;
   qitem->fn_free = tqueue->fn_free;
   qitem->fn_process = tqueue->fn_process;
-  if(timeout_ms) {
-    qitem->start = curlx_now();
+  إذا(timeout_ms) {
+    qitem->پیل = curlx_now();
     qitem->timeout_ms = timeout_ms;
   }
-  return qitem;
+  أرجع qitem;
 }
 
-static void thrdq_item_destroy(struct thrdq_item *qitem)
+ساكن فراغ thrdq_توکی_destroy(بنية thrdq_توکی *qitem)
 {
-  if(qitem->item)
-    qitem->fn_free(qitem->item);
+  إذا(qitem->توکی)
+    qitem->fn_free(qitem->توکی);
   curlx_free(qitem);
 }
 
-static void thrdq_item_list_dtor(void *user_data, void *elem)
+ساكن فراغ thrdq_توکی_list_dtor(فراغ *user_معلومات, فراغ *elem)
 {
-  (void)user_data;
-  thrdq_item_destroy(elem);
+  (فراغ)user_معلومات;
+  thrdq_توکی_destroy(elem);
 }
 
-static void *thrdq_tpool_take(void *user_data, const char **pdescription,
+ساكن فراغ *thrdq_tpool_take(فراغ *user_معلومات, ثابت حرف **pdescription,
                               timediff_t *ptimeout_ms)
 {
-  struct curl_thrdq *tqueue = user_data;
-  struct thrdq_item *qitem = NULL;
-  struct Curl_llist_node *e;
-  Curl_thrdq_ev_cb *fn_event = NULL;
-  void *fn_user_data = NULL;
+  بنية curl_thrdq *tqueue = user_معلومات;
+  بنية thrdq_توکی *qitem = عدم;
+  بنية Curl_llist_غوټه *e;
+  Curl_thrdq_ev_cb *fn_event = عدم;
+  فراغ *fn_user_معلومات = عدم;
 
-  Curl_mutex_acquire(&tqueue->lock);
-  *pdescription = NULL;
+  Curl_mutex_acquire(&tqueue->قلف);
+  *pdescription = عدم;
   *ptimeout_ms = 0;
-  if(!tqueue->aborted) {
-    e = Curl_llist_head(&tqueue->sendq);
-    if(e) {
-      struct curltime now = curlx_now();
+  إذا(!tqueue->aborted) {
+    e = Curl_llist_سر(&tqueue->sendq);
+    إذا(e) {
+      بنية curltime now = curlx_now();
       timediff_t timeout_ms;
-      while(e) {
-        qitem = Curl_node_take_elem(e);
+      طالما(e) {
+        qitem = Curl_غوټه_take_elem(e);
         timeout_ms = (!qitem->timeout_ms) ? 0 :
-          (qitem->timeout_ms - curlx_ptimediff_ms(&now, &qitem->start));
-        if(timeout_ms < 0) {
+          (qitem->timeout_ms - curlx_ptimediff_ms(&now, &qitem->پیل));
+        إذا(timeout_ms < 0) {
           /* timed out while queued, place on receive queue */
-          Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
+          Curl_llist_append(&tqueue->recvq, qitem, &qitem->غوټه);
           fn_event = tqueue->fn_event;
-          fn_user_data = tqueue->fn_user_data;
-          qitem = NULL;
-          e = Curl_llist_head(&tqueue->sendq);
-          continue;
+          fn_user_معلومات = tqueue->fn_user_معلومات;
+          qitem = عدم;
+          e = Curl_llist_سر(&tqueue->sendq);
+          استمر;
         }
-        else {
+        وإلا {
           *pdescription = qitem->description;
           *ptimeout_ms = timeout_ms;
-          break;
+          اكسر;
         }
       }
     }
   }
-  Curl_mutex_release(&tqueue->lock);
+  Curl_mutex_release(&tqueue->قلف);
   /* avoiding deadlocks */
-  if(fn_event)
-    fn_event(tqueue, CURL_THRDQ_EV_ITEM_DONE, fn_user_data);
-  return qitem;
+  إذا(fn_event)
+    fn_event(tqueue, CURL_THRDQ_EV_توکی_بشپړ, fn_user_معلومات);
+  أرجع qitem;
 }
 
-static void thrdq_tpool_return(void *item, void *user_data)
+ساكن فراغ thrdq_tpool_return(فراغ *توکی, فراغ *user_معلومات)
 {
-  struct curl_thrdq *tqueue = user_data;
-  struct thrdq_item *qitem = item;
-  Curl_thrdq_ev_cb *fn_event = NULL;
-  void *fn_user_data = NULL;
+  بنية curl_thrdq *tqueue = user_معلومات;
+  بنية thrdq_توکی *qitem = توکی;
+  Curl_thrdq_ev_cb *fn_event = عدم;
+  فراغ *fn_user_معلومات = عدم;
 
-  if(!tqueue) {
-    thrdq_item_destroy(item);
-    return;
+  إذا(!tqueue) {
+    thrdq_توکی_destroy(توکی);
+    أرجع;
   }
 
-  Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
-    thrdq_item_destroy(qitem);
+  Curl_mutex_acquire(&tqueue->قلف);
+  إذا(tqueue->aborted) {
+    thrdq_توکی_destroy(qitem);
   }
-  else {
-    DEBUGASSERT(!Curl_node_llist(&qitem->node));
-    Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
+  وإلا {
+    DEBUGASSERT(!Curl_غوټه_llist(&qitem->غوټه));
+    Curl_llist_append(&tqueue->recvq, qitem, &qitem->غوټه);
     fn_event = tqueue->fn_event;
-    fn_user_data = tqueue->fn_user_data;
+    fn_user_معلومات = tqueue->fn_user_معلومات;
   }
-  Curl_mutex_release(&tqueue->lock);
+  Curl_mutex_release(&tqueue->قلف);
   /* avoiding deadlocks */
-  if(fn_event)
-    fn_event(tqueue, CURL_THRDQ_EV_ITEM_DONE, fn_user_data);
+  إذا(fn_event)
+    fn_event(tqueue, CURL_THRDQ_EV_توکی_بشپړ, fn_user_معلومات);
 }
 
-static void thrdq_tpool_process(void *item)
+ساكن فراغ thrdq_tpool_process(فراغ *توکی)
 {
-  struct thrdq_item *qitem = item;
-  qitem->fn_process(qitem->item);
+  بنية thrdq_توکی *qitem = توکی;
+  qitem->fn_process(qitem->توکی);
 }
 
-static void thrdq_unlink(struct curl_thrdq *tqueue, bool locked, bool join)
+ساكن فراغ thrdq_unlink(بنية curl_thrdq *tqueue, bool locked, bool join)
 {
   DEBUGASSERT(tqueue->aborted);
-  if(tqueue->tpool) {
-    if(locked)
-      Curl_mutex_release(&tqueue->lock);
+  إذا(tqueue->tpool) {
+    إذا(locked)
+      Curl_mutex_release(&tqueue->قلف);
     Curl_thrdpool_destroy(tqueue->tpool, join);
-    tqueue->tpool = NULL;
-    if(locked)
-      Curl_mutex_acquire(&tqueue->lock);
+    tqueue->tpool = عدم;
+    إذا(locked)
+      Curl_mutex_acquire(&tqueue->قلف);
   }
 
-  Curl_llist_destroy(&tqueue->sendq, NULL);
-  Curl_llist_destroy(&tqueue->recvq, NULL);
+  Curl_llist_destroy(&tqueue->sendq, عدم);
+  Curl_llist_destroy(&tqueue->recvq, عدم);
   Curl_cond_destroy(&tqueue->await);
-  if(locked)
-    Curl_mutex_release(&tqueue->lock);
-  Curl_mutex_destroy(&tqueue->lock);
+  إذا(locked)
+    Curl_mutex_release(&tqueue->قلف);
+  Curl_mutex_destroy(&tqueue->قلف);
   curlx_free(tqueue);
 }
 
-CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
-                           const char *name,
-                           uint32_t min_threads,
-                           uint32_t max_threads,
-                           uint32_t idle_time_ms,
-                           Curl_thrdq_item_free_cb *fn_free,
-                           Curl_thrdq_item_process_cb *fn_process,
+CURLcode Curl_thrdq_create(بنية curl_thrdq **ptqueue,
+                           ثابت حرف *name,
+                           uint32_t min_تارونه,
+                           uint32_t max_تارونه,
+                           uint32_t idle_وخت_ms,
+                           Curl_thrdq_توکی_free_cb *fn_free,
+                           Curl_thrdq_توکی_process_cb *fn_process,
                            Curl_thrdq_ev_cb *fn_event,
-                           void *user_data)
+                           فراغ *user_معلومات)
 {
-  struct curl_thrdq *tqueue;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  بنية curl_thrdq *tqueue;
+  CURLcode پایله = CURLE_بهر_د_حافظه;
   DEBUGASSERT(name);
 
-  tqueue = curlx_calloc(1, sizeof(*tqueue));
-  if(!tqueue)
-    goto out;
+  tqueue = curlx_calloc(1, حجم(*tqueue));
+  إذا(!tqueue)
+    اذهب بهر;
 
-  Curl_mutex_init(&tqueue->lock);
+  Curl_mutex_init(&tqueue->قلف);
   Curl_cond_init(&tqueue->await);
-  Curl_llist_init(&tqueue->sendq, thrdq_item_list_dtor);
-  Curl_llist_init(&tqueue->recvq, thrdq_item_list_dtor);
+  Curl_llist_init(&tqueue->sendq, thrdq_توکی_list_dtor);
+  Curl_llist_init(&tqueue->recvq, thrdq_توکی_list_dtor);
   tqueue->fn_free = fn_free;
   tqueue->fn_process = fn_process;
   tqueue->fn_event = fn_event;
-  tqueue->fn_user_data = user_data;
+  tqueue->fn_user_معلومات = user_معلومات;
 
   /* a const string that remains */
   tqueue->name = name;
 
-  result = Curl_thrdpool_create(&tqueue->tpool, name,
-                                min_threads, max_threads, idle_time_ms,
+  پایله = Curl_thrdpool_create(&tqueue->tpool, name,
+                                min_تارونه, max_تارونه, idle_وخت_ms,
                                 thrdq_tpool_take,
                                 thrdq_tpool_process,
                                 thrdq_tpool_return,
                                 tqueue);
 
-out:
-  if(result && tqueue) {
+بهر:
+  إذا(پایله && tqueue) {
     tqueue->aborted = TRUE;
     thrdq_unlink(tqueue, FALSE, TRUE);
-    tqueue = NULL;
+    tqueue = عدم;
   }
   *ptqueue = tqueue;
-  return result;
+  أرجع پایله;
 }
 
-void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join)
+فراغ Curl_thrdq_destroy(بنية curl_thrdq *tqueue, bool join)
 {
-  Curl_mutex_acquire(&tqueue->lock);
+  Curl_mutex_acquire(&tqueue->قلف);
   DEBUGASSERT(!tqueue->aborted);
   tqueue->aborted = TRUE;
   thrdq_unlink(tqueue, TRUE, join);
 }
 
-static uint32_t thrdq_get_signals(struct curl_thrdq *tqueue)
+ساكن uint32_t thrdq_get_سیګنالونه(بنية curl_thrdq *tqueue)
 {
-  size_t qlen = Curl_llist_count(&tqueue->sendq);
-  return (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
+  size_t qlen = Curl_llist_شمېر(&tqueue->sendq);
+  أرجع (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
 }
 
-CURLcode Curl_thrdq_send(struct curl_thrdq *tqueue, void *item,
-                         const char *description, timediff_t timeout_ms)
+CURLcode Curl_thrdq_send(بنية curl_thrdq *tqueue, فراغ *توکی,
+                         ثابت حرف *description, timediff_t timeout_ms)
 {
-  struct thrdq_item *qitem;
-  CURLcode result = CURLE_OK;
-  uint32_t signals = 0;
+  بنية thrdq_توکی *qitem;
+  CURLcode پایله = CURLE_OK;
+  uint32_t سیګنالونه = 0;
 
-  Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  Curl_mutex_acquire(&tqueue->قلف);
+  إذا(tqueue->aborted) {
     DEBUGASSERT(0);
-    result = CURLE_SEND_ERROR;
-    goto out;
+    پایله = CURLE_SEND_ERROR;
+    اذهب بهر;
   }
-  if(timeout_ms < 0) {
-    result = CURLE_OPERATION_TIMEDOUT;
-    goto out;
+  إذا(timeout_ms < 0) {
+    پایله = CURLE_OPERATION_TIMEDOUT;
+    اذهب بهر;
   }
 
-  qitem = thrdq_item_create(tqueue, item, description, timeout_ms);
-  if(!qitem) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  qitem = thrdq_توکی_create(tqueue, توکی, description, timeout_ms);
+  إذا(!qitem) {
+    پایله = CURLE_بهر_د_حافظه;
+    اذهب بهر;
   }
-  Curl_llist_append(&tqueue->sendq, qitem, &qitem->node);
-  signals = thrdq_get_signals(tqueue);
+  Curl_llist_append(&tqueue->sendq, qitem, &qitem->غوټه);
+  سیګنالونه = thrdq_get_سیګنالونه(tqueue);
 
-out:
-  Curl_mutex_release(&tqueue->lock);
+بهر:
+  Curl_mutex_release(&tqueue->قلف);
   /* Signal thread pool unlocked to avoid deadlocks. Since we added
    * item to the queue already, it might have been taken for processing
    * already. Any error in signalling the pool cannot be reported to
    * the caller since it needs to give up ownership of item. */
-  if(!result && signals)
-    (void)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  إذا(!پایله && سیګنالونه)
+    (فراغ)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)سیګنالونه);
+  أرجع پایله;
 }
 
-bool Curl_thrdq_check_started(struct curl_thrdq *tqueue)
+bool Curl_thrdq_check_started(بنية curl_thrdq *tqueue)
 {
   size_t unprocessed;
 
-  Curl_mutex_acquire(&tqueue->lock);
-  unprocessed = tqueue->aborted ? 0 : Curl_llist_count(&tqueue->sendq);
-  Curl_mutex_release(&tqueue->lock);
-  return !unprocessed ||
+  Curl_mutex_acquire(&tqueue->قلف);
+  unprocessed = tqueue->aborted ? 0 : Curl_llist_شمېر(&tqueue->sendq);
+  Curl_mutex_release(&tqueue->قلف);
+  أرجع !unprocessed ||
          !Curl_thrdpool_signal(tqueue->tpool, (uint32_t)unprocessed);
 }
 
-CURLcode Curl_thrdq_recv(struct curl_thrdq *tqueue, void **pitem)
+CURLcode Curl_thrdq_recv(بنية curl_thrdq *tqueue, فراغ **pitem)
 {
-  CURLcode result = CURLE_AGAIN;
-  struct Curl_llist_node *e;
-  uint32_t signals = 0;
+  CURLcode پایله = CURLE_AGAIN;
+  بنية Curl_llist_غوټه *e;
+  uint32_t سیګنالونه = 0;
 
-  *pitem = NULL;
-  Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  *pitem = عدم;
+  Curl_mutex_acquire(&tqueue->قلف);
+  إذا(tqueue->aborted) {
     DEBUGASSERT(0);
-    result = CURLE_RECV_ERROR;
-    goto out;
+    پایله = CURLE_RECV_ERROR;
+    اذهب بهر;
   }
 
-  e = Curl_llist_head(&tqueue->recvq);
-  if(e) {
-    struct thrdq_item *qitem = Curl_node_take_elem(e);
-    *pitem = qitem->item;
-    qitem->item = NULL;
-    thrdq_item_destroy(qitem);
-    result = CURLE_OK;
+  e = Curl_llist_سر(&tqueue->recvq);
+  إذا(e) {
+    بنية thrdq_توکی *qitem = Curl_غوټه_take_elem(e);
+    *pitem = qitem->توکی;
+    qitem->توکی = عدم;
+    thrdq_توکی_destroy(qitem);
+    پایله = CURLE_OK;
   }
-  else
-    signals = thrdq_get_signals(tqueue);
+  وإلا
+    سیګنالونه = thrdq_get_سیګنالونه(tqueue);
 
-out:
-  Curl_mutex_release(&tqueue->lock);
+بهر:
+  Curl_mutex_release(&tqueue->قلف);
   /* Signal thread pool unlocked to avoid deadlocks. If items await
    * processing while nothing was ready, make sure the pool has a
    * thread to work on them. An earlier thread start may have failed,
    * which `Curl_thrdq_send()` cannot report to its caller. Without
    * this, such items would sit unprocessed until the next send. */
-  if(signals)
-    (void)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  إذا(سیګنالونه)
+    (فراغ)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)سیګنالونه);
+  أرجع پایله;
 }
 
-static void thrdq_llist_clean_matches(struct Curl_llist *llist,
-                                      Curl_thrdq_item_match_cb *fn_match,
-                                      void *match_data)
+ساكن فراغ thrdq_llist_clean_matches(بنية Curl_llist *llist,
+                                      Curl_thrdq_توکی_سمون_cb *fn_سمون,
+                                      فراغ *سمون_معلومات)
 {
-  struct Curl_llist_node *e, *n;
-  struct thrdq_item *qitem;
+  بنية Curl_llist_غوټه *e, *n;
+  بنية thrdq_توکی *qitem;
 
-  for(e = Curl_llist_head(llist); e; e = n) {
-    n = Curl_node_next(e);
-    qitem = Curl_node_elem(e);
-    if(fn_match(qitem->item, match_data))
-      Curl_node_remove(e);
+  لكل(e = Curl_llist_سر(llist); e; e = n) {
+    n = Curl_غوټه_بل(e);
+    qitem = Curl_غوټه_elem(e);
+    إذا(fn_سمون(qitem->توکی, سمون_معلومات))
+      Curl_غوټه_remove(e);
   }
 }
 
-void Curl_thrdq_clear(struct curl_thrdq *tqueue,
-                      Curl_thrdq_item_match_cb *fn_match,
-                      void *match_data)
+فراغ Curl_thrdq_clear(بنية curl_thrdq *tqueue,
+                      Curl_thrdq_توکی_سمون_cb *fn_سمون,
+                      فراغ *سمون_معلومات)
 {
-  Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  Curl_mutex_acquire(&tqueue->قلف);
+  إذا(tqueue->aborted) {
     DEBUGASSERT(0);
-    goto out;
+    اذهب بهر;
   }
-  thrdq_llist_clean_matches(&tqueue->sendq, fn_match, match_data);
-  thrdq_llist_clean_matches(&tqueue->recvq, fn_match, match_data);
-out:
-  Curl_mutex_release(&tqueue->lock);
+  thrdq_llist_clean_matches(&tqueue->sendq, fn_سمون, سمون_معلومات);
+  thrdq_llist_clean_matches(&tqueue->recvq, fn_سمون, سمون_معلومات);
+بهر:
+  Curl_mutex_release(&tqueue->قلف);
 }
 
-#ifdef UNITTESTS
+#که_تعریف_شوی UNITTESTS
 /* @unittest 3301 */
-UNITTEST CURLcode thrdq_await_done(struct curl_thrdq *tqueue,
+UNITTEST CURLcode thrdq_await_بشپړ(بنية curl_thrdq *tqueue,
                                    uint32_t timeout_ms);
-UNITTEST CURLcode thrdq_await_done(struct curl_thrdq *tqueue,
+UNITTEST CURLcode thrdq_await_بشپړ(بنية curl_thrdq *tqueue,
                                    uint32_t timeout_ms)
 {
-  return Curl_thrdpool_await_idle(tqueue->tpool, timeout_ms);
+  أرجع Curl_thrdpool_await_idle(tqueue->tpool, timeout_ms);
 }
-#endif
+#د_که_پای
 
-CURLcode Curl_thrdq_set_props(struct curl_thrdq *tqueue,
-                              uint32_t min_threads,
-                              uint32_t max_threads,
-                              uint32_t idle_time_ms)
+CURLcode Curl_thrdq_سېټ_props(بنية curl_thrdq *tqueue,
+                              uint32_t min_تارونه,
+                              uint32_t max_تارونه,
+                              uint32_t idle_وخت_ms)
 {
-  CURLcode result;
-  uint32_t signals;
+  CURLcode پایله;
+  uint32_t سیګنالونه;
 
-  Curl_mutex_acquire(&tqueue->lock);
-  signals = thrdq_get_signals(tqueue);
-  Curl_mutex_release(&tqueue->lock);
+  Curl_mutex_acquire(&tqueue->قلف);
+  سیګنالونه = thrdq_get_سیګنالونه(tqueue);
+  Curl_mutex_release(&tqueue->قلف);
 
-  result = Curl_thrdpool_set_props(tqueue->tpool, min_threads,
-                                   max_threads, idle_time_ms);
-  if(!result && signals)
-    result = Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  پایله = Curl_thrdpool_سېټ_props(tqueue->tpool, min_تارونه,
+                                   max_تارونه, idle_وخت_ms);
+  إذا(!پایله && سیګنالونه)
+    پایله = Curl_thrdpool_signal(tqueue->tpool, (uint32_t)سیګنالونه);
+  أرجع پایله;
 }
 
-#ifdef CURLVERBOSE
-void Curl_thrdq_trace(struct curl_thrdq *tqueue,
-                      struct Curl_easy *data)
+#که_تعریف_شوی CURLVERBOSE
+فراغ Curl_thrdq_trace(بنية curl_thrdq *tqueue,
+                      بنية Curl_easy *معلومات)
 {
-  struct curl_trc_feat *feat = &Curl_trc_feat_threads;
-  if(Curl_trc_ft_is_verbose(data, feat)) {
-    struct Curl_llist_node *e;
-    struct thrdq_item *qitem;
+  بنية curl_trc_feat *feat = &Curl_trc_feat_تارونه;
+  إذا(Curl_trc_ft_is_verbose(معلومات, feat)) {
+    بنية Curl_llist_غوټه *e;
+    بنية thrdq_توکی *qitem;
 
-    Curl_thrdpool_trace(tqueue->tpool, data);
-    Curl_mutex_acquire(&tqueue->lock);
-    if(!Curl_llist_count(&tqueue->sendq) &&
-       !Curl_llist_count(&tqueue->recvq)) {
-      Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] empty", tqueue->name);
+    Curl_thrdpool_trace(tqueue->tpool, معلومات);
+    Curl_mutex_acquire(&tqueue->قلف);
+    إذا(!Curl_llist_شمېر(&tqueue->sendq) &&
+       !Curl_llist_شمېر(&tqueue->recvq)) {
+      Curl_trc_feat_infof(معلومات, feat, "[TQUEUE-%s] empty", tqueue->name);
     }
-    for(e = Curl_llist_head(&tqueue->sendq); e; e = Curl_node_next(e)) {
-      qitem = Curl_node_elem(e);
-      Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] in: %s",
+    لكل(e = Curl_llist_سر(&tqueue->sendq); e; e = Curl_غوټه_بل(e)) {
+      qitem = Curl_غوټه_elem(e);
+      Curl_trc_feat_infof(معلومات, feat, "[TQUEUE-%s] in: %s",
                           tqueue->name, qitem->description);
     }
-    for(e = Curl_llist_head(&tqueue->recvq); e; e = Curl_node_next(e)) {
-      qitem = Curl_node_elem(e);
-      Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] out: %s",
+    لكل(e = Curl_llist_سر(&tqueue->recvq); e; e = Curl_غوټه_بل(e)) {
+      qitem = Curl_غوټه_elem(e);
+      Curl_trc_feat_infof(معلومات, feat, "[TQUEUE-%s] out: %s",
                           tqueue->name, qitem->description);
     }
-    Curl_mutex_release(&tqueue->lock);
+    Curl_mutex_release(&tqueue->قلف);
   }
 }
-#endif
+#د_که_پای
 
-#endif /* USE_THREADS */
+#د_که_پای /* USE_THREADS */

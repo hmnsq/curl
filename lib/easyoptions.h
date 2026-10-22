@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_EASYOPTIONS_H
-#define HEADER_CURL_EASYOPTIONS_H
+#که_نه_تعریف_شوی سرلیک_CURL_EASYOPTIONS_H
+#تعریف_کړه سرلیک_CURL_EASYOPTIONS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -26,10 +26,10 @@
 /* should probably go into the public header */
 
 /* generated table with all easy options */
-extern const struct curl_easyoption Curl_easyopts[];
+خارجي ثابت بنية curl_easyoption Curl_easyopts[];
 
-#ifdef DEBUGBUILD
-int Curl_easyopts_check(void);
-#endif
+#که_تعریف_شوی DEBUGBUILD
+صحيح Curl_easyopts_check(فراغ);
+#د_که_پای
 
-#endif /* HEADER_CURL_EASYOPTIONS_H */
+#د_که_پای /* HEADER_CURL_EASYOPTIONS_H */

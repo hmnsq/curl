@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VSSH_VSSH_H
-#define HEADER_CURL_VSSH_VSSH_H
+#که_نه_تعریف_شوی سرلیک_CURL_VSSH_VSSH_H
+#تعریف_کړه سرلیک_CURL_VSSH_VSSH_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,26 +23,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_SSH
+#که_تعریف_شوی USE_SSH
 
-#include "urldata.h"
+#ضمن "urldata.h"
 
-struct ssh_conn;
+بنية ssh_conn;
 
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir,
-                             char **path);
+CURLcode Curl_getworkingpath(بنية Curl_easy *معلومات,
+                             ثابت حرف *homedir,
+                             حرف **لار);
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir);
+CURLcode Curl_get_pathname(ثابت حرف **cpp, حرف **لار, ثابت حرف *homedir);
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(بنية Curl_easy *معلومات,
+                        ثابت حرف *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep);
 
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps);
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc);
+CURLcode Curl_ssh_pollset(بنية Curl_easy *معلومات, بنية easy_pollset *ps);
+CURLcode Curl_ssh_تیاری_pkey(بنية Curl_easy *معلومات, بنية ssh_conn *sshc);
 
-#endif /* USE_SSH */
-#endif /* HEADER_CURL_VSSH_VSSH_H */
+#د_که_پای /* USE_SSH */
+#د_که_پای /* HEADER_CURL_VSSH_VSSH_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FILE_H
-#define HEADER_CURL_FILE_H
+#که_نه_تعریف_شوی سرلیک_CURL_FILE_H
+#تعریف_کړه سرلیک_CURL_FILE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_FILE
-extern const struct Curl_protocol Curl_protocol_file;
-#endif
+#که_نه_تعریف_شوی CURL_DISABLE_FILE
+خارجي ثابت بنية Curl_protocol Curl_protocol_file;
+#د_که_پای
 
-#endif /* HEADER_CURL_FILE_H */
+#د_که_پای /* HEADER_CURL_FILE_H */

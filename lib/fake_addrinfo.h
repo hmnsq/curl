@@ -1,5 +1,5 @@
-#ifndef HEADER_FAKE_ADDRINFO_H
-#define HEADER_FAKE_ADDRINFO_H
+#که_نه_تعریف_شوی سرلیک_FAKE_ADDRINFO_H
+#تعریف_کړه سرلیک_FAKE_ADDRINFO_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,31 +23,31 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_ARES
-#include <ares.h>
-#endif
+#که_تعریف_شوی USE_ARES
+#ضمن <ares.h>
+#د_که_پای
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
-  defined(USE_ARES) && (ARES_VERSION >= 0x011a00) /* >= 1.26.0 */
-#define USE_FAKE_GETADDRINFO 1
-#endif
+#إذا defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+  defined(USE_ARES) && (ARES_نسخه >= 0x011a00) /* >= 1.26.0 */
+#تعریف_کړه USE_FAKE_GETADDRINFO 1
+#د_که_پای
 
-#ifdef USE_FAKE_GETADDRINFO
+#که_تعریف_شوی USE_FAKE_GETADDRINFO
 
-#ifdef HAVE_NETDB_H
+#که_تعریف_شوی HAVE_NETDB_H
 #  include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
+#د_که_پای
+#که_تعریف_شوی HAVE_ARPA_INET_H
 #  include <arpa/inet.h>
-#endif
+#د_که_پای
 
-void r_freeaddrinfo(struct addrinfo *cahead);
-int r_getaddrinfo(const char *node,
-                  const char *service,
-                  const struct addrinfo *hints,
-                  struct addrinfo **res);
-#endif /* USE_FAKE_GETADDRINFO */
+فراغ r_freeaddrinfo(بنية addrinfo *cahead);
+صحيح r_getaddrinfo(ثابت حرف *غوټه,
+                  ثابت حرف *service,
+                  ثابت بنية addrinfo *hints,
+                  بنية addrinfo **res);
+#د_که_پای /* USE_FAKE_GETADDRINFO */
 
-#endif /* HEADER_FAKE_ADDRINFO_H */
+#د_که_پای /* HEADER_FAKE_ADDRINFO_H */

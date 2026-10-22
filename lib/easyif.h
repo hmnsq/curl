@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_EASYIF_H
-#define HEADER_CURL_EASYIF_H
+#که_نه_تعریف_شوی سرلیک_CURL_EASYIF_H
+#تعریف_کړه سرلیک_CURL_EASYIF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -26,15 +26,15 @@
 /*
  * Prototypes for library-wide functions provided by easy.c
  */
-CURLcode Curl_senddata(struct Curl_easy *data, const void *buffer,
+CURLcode Curl_senddata(بنية Curl_easy *معلومات, ثابت فراغ *بفر,
                        size_t buflen, size_t *n);
 
-#ifndef CURL_DISABLE_WEBSOCKETS
-CURLcode Curl_connect_only_attach(struct Curl_easy *data);
-#endif
+#که_نه_تعریف_شوی CURL_DISABLE_WEBSOCKETS
+CURLcode Curl_connect_only_attach(بنية Curl_easy *معلومات);
+#د_که_پای
 
-#ifdef DEBUGBUILD
-CURL_EXTERN CURLcode curl_easy_perform_ev(struct Curl_easy *easy);
-#endif
+#که_تعریف_شوی DEBUGBUILD
+CURL_EXTERN CURLcode curl_easy_perform_ev(بنية Curl_easy *easy);
+#د_که_پای
 
-#endif /* HEADER_CURL_EASYIF_H */
+#د_که_پای /* HEADER_CURL_EASYIF_H */

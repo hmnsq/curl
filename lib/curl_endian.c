@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curl_endian.h"
+#ضمن "curl_endian.h"
 
 /*
  * Curl_read16_le()
@@ -38,10 +38,10 @@
  *
  * Returns the integer.
  */
-unsigned short Curl_read16_le(const unsigned char *buf)
+بینښه لنډ Curl_read16_le(ثابت بینښه حرف *buf)
 {
-  return (unsigned short)(((unsigned short)buf[0]) |
-                          ((unsigned short)buf[1] << 8));
+  أرجع (بینښه لنډ)(((بینښه لنډ)buf[0]) |
+                          ((بینښه لنډ)buf[1] << 8));
 }
 
 /*
@@ -57,10 +57,10 @@ unsigned short Curl_read16_le(const unsigned char *buf)
  *
  * Returns the integer.
  */
-unsigned int Curl_read32_le(const unsigned char *buf)
+بینښه صحيح Curl_read32_le(ثابت بینښه حرف *buf)
 {
-  return ((unsigned int)buf[0]) | ((unsigned int)buf[1] << 8) |
-         ((unsigned int)buf[2] << 16) | ((unsigned int)buf[3] << 24);
+  أرجع ((بینښه صحيح)buf[0]) | ((بینښه صحيح)buf[1] << 8) |
+         ((بینښه صحيح)buf[2] << 16) | ((بینښه صحيح)buf[3] << 24);
 }
 
 /*
@@ -76,8 +76,8 @@ unsigned int Curl_read32_le(const unsigned char *buf)
  *
  * Returns the integer.
  */
-unsigned short Curl_read16_be(const unsigned char *buf)
+بینښه لنډ Curl_read16_be(ثابت بینښه حرف *buf)
 {
-  return (unsigned short)(((unsigned short)buf[0] << 8) |
-                          ((unsigned short)buf[1]));
+  أرجع (بینښه لنډ)(((بینښه لنډ)buf[0] << 8) |
+                          ((بینښه لنډ)buf[1]));
 }

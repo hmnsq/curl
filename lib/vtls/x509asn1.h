@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_X509ASN1_H
-#define HEADER_CURL_X509ASN1_H
+#که_نه_تعریف_شوی سرلیک_CURL_X509_ASN1_H
+#تعریف_کړه سرلیک_CURL_X509_ASN1_H
 
 /***************************************************************************
  *                                  _   _ ____  _
@@ -24,16 +24,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 /* forward-declare to make it visible in all builds */
-struct Curl_asn1Element;
+بنية Curl_asn1Element;
 
-#if defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
+#إذا defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
   defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
-#include "cfilters.h"
-#include "urldata.h"
+#ضمن "cfilters.h"
+#ضمن "urldata.h"
 
 /* ASN.1 classes. */
 /* #define CURL_ASN1_UNIVERSAL             0 */
@@ -42,78 +42,78 @@ struct Curl_asn1Element;
 /* #define CURL_ASN1_PRIVATE               3 */
 
 /* ASN.1 types. */
-#define CURL_ASN1_BOOLEAN               1
-#define CURL_ASN1_INTEGER               2
-#define CURL_ASN1_BIT_STRING            3
-#define CURL_ASN1_OCTET_STRING          4
-#define CURL_ASN1_NULL                  5
-#define CURL_ASN1_OBJECT_IDENTIFIER     6
+#تعریف_کړه CURL_ASN1_BOOLEAN               1
+#تعریف_کړه CURL_ASN1_INTEGER               2
+#تعریف_کړه CURL_ASN1_بټ_STRING            3
+#تعریف_کړه CURL_ASN1_OCTET_STRING          4
+#تعریف_کړه CURL_ASN1_NULL                  5
+#تعریف_کړه CURL_ASN1_OBJECT_IDENTIFIER     6
 /* #define CURL_ASN1_OBJECT_DESCRIPTOR     7 */
 /* #define CURL_ASN1_INSTANCE_OF           8 */
 /* #define CURL_ASN1_REAL                  9 */
-#define CURL_ASN1_ENUMERATED            10
+#تعریف_کړه CURL_ASN1_ENUMERATED            10
 /* #define CURL_ASN1_EMBEDDED              11 */
-#define CURL_ASN1_UTF8_STRING           12
+#تعریف_کړه CURL_ASN1_UTF8_STRING           12
 /* #define CURL_ASN1_RELATIVE_OID          13 */
 /* #define CURL_ASN1_SEQUENCE              16 */
 /* #define CURL_ASN1_SET                   17 */
-#define CURL_ASN1_NUMERIC_STRING        18
-#define CURL_ASN1_PRINTABLE_STRING      19
-#define CURL_ASN1_TELETEX_STRING        20
+#تعریف_کړه CURL_ASN1_NUMERIC_STRING        18
+#تعریف_کړه CURL_ASN1_PRINTABLE_STRING      19
+#تعریف_کړه CURL_ASN1_TELETEX_STRING        20
 /* #define CURL_ASN1_VIDEOTEX_STRING       21 */
-#define CURL_ASN1_IA5_STRING            22
-#define CURL_ASN1_UTC_TIME              23
-#define CURL_ASN1_GENERALIZED_TIME      24
+#تعریف_کړه CURL_ASN1_IA5_STRING            22
+#تعریف_کړه CURL_ASN1_UTC_وخت              23
+#تعریف_کړه CURL_ASN1_GENERALIZED_وخت      24
 /* #define CURL_ASN1_GRAPHIC_STRING        25 */
-#define CURL_ASN1_VISIBLE_STRING        26
+#تعریف_کړه CURL_ASN1_VISIBLE_STRING        26
 /* #define CURL_ASN1_GENERAL_STRING        27 */
-#define CURL_ASN1_UNIVERSAL_STRING      28
+#تعریف_کړه CURL_ASN1_UNIVERSAL_STRING      28
 /* #define CURL_ASN1_CHARACTER_STRING      29 */
-#define CURL_ASN1_BMP_STRING            30
+#تعریف_کړه CURL_ASN1_BMP_STRING            30
 
 /*
  * Types.
  */
 
 /* ASN.1 parsed element. */
-struct Curl_asn1Element {
-  const uint8_t *header;      /* Pointer to header byte. */
-  const uint8_t *beg;         /* Pointer to element data. */
-  const uint8_t *end;         /* Pointer to 1st byte after element. */
+بنية Curl_asn1Element {
+  ثابت uint8_t *سرلیک;      /* Pointer to header byte. */
+  ثابت uint8_t *beg;         /* Pointer to element data. */
+  ثابت uint8_t *پای_ټکی;         /* Pointer to 1st byte after element. */
   uint8_t eclass;             /* ASN.1 element class. */
-  uint8_t tag;                /* ASN.1 element tag. */
-  BIT(constructed);           /* Element is constructed. */
+  uint8_t نښان;                /* ASN.1 element tag. */
+  بټ(constructed);           /* Element is constructed. */
 };
 
 /* X509 certificate: RFC 5280. */
-struct Curl_X509certificate {
-  struct Curl_asn1Element certificate;
-  struct Curl_asn1Element version;
-  struct Curl_asn1Element serialNumber;
-  struct Curl_asn1Element signatureAlgorithm;
-  struct Curl_asn1Element signature;
-  struct Curl_asn1Element issuer;
-  struct Curl_asn1Element notBefore;
-  struct Curl_asn1Element notAfter;
-  struct Curl_asn1Element subject;
-  struct Curl_asn1Element subjectPublicKeyInfo;
-  struct Curl_asn1Element subjectPublicKeyAlgorithm;
-  struct Curl_asn1Element subjectPublicKey;
-  struct Curl_asn1Element issuerUniqueID;
-  struct Curl_asn1Element subjectUniqueID;
-  struct Curl_asn1Element extensions;
+بنية Curl_X509certificate {
+  بنية Curl_asn1Element certificate;
+  بنية Curl_asn1Element نسخه_2;
+  بنية Curl_asn1Element serial_شمېره;
+  بنية Curl_asn1Element signatureAlgorithm;
+  بنية Curl_asn1Element signature;
+  بنية Curl_asn1Element issuer;
+  بنية Curl_asn1Element notBefore;
+  بنية Curl_asn1Element notAfter;
+  بنية Curl_asn1Element subject;
+  بنية Curl_asn1Element subject_عامه_کلی_Info;
+  بنية Curl_asn1Element subject_عامه_کلی_Algorithm;
+  بنية Curl_asn1Element subject_عامه_کلی;
+  بنية Curl_asn1Element issuerUniqueID;
+  بنية Curl_asn1Element subjectUniqueID;
+  بنية Curl_asn1Element extensions;
 };
 
 /*
  * Prototypes.
  */
 
-int Curl_parseX509(struct Curl_X509certificate *cert,
-                   const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_extract_certinfo(struct Curl_easy *data, int certnum,
-                               const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_verifyhost(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         const uint8_t *beg, const uint8_t *end);
-#endif /* USE_GNUTLS || USE_WOLFSSL || USE_SCHANNEL || USE_MBEDTLS ||
+صحيح Curl_parseX509(بنية Curl_X509certificate *cert,
+                   ثابت uint8_t *beg, ثابت uint8_t *پای_ټکی);
+CURLcode Curl_ایستل_certinfo(بنية Curl_easy *معلومات, صحيح certnum,
+                               ثابت uint8_t *beg, ثابت uint8_t *پای_ټکی);
+CURLcode Curl_verifyhost(بنية Curl_cfilter *cf, بنية Curl_easy *معلومات,
+                         ثابت uint8_t *beg, ثابت uint8_t *پای_ټکی);
+#د_که_پای /* USE_GNUTLS || USE_WOLFSSL || USE_SCHANNEL || USE_MBEDTLS ||
           USE_RUSTLS */
-#endif /* HEADER_CURL_X509ASN1_H */
+#د_که_پای /* HEADER_CURL_X509ASN1_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRERR_H
-#define HEADER_CURL_STRERR_H
+#که_نه_تعریف_شوی سرلیک_CURL_STRERR_H
+#تعریف_کړه سرلیک_CURL_STRERR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,6 +24,6 @@
  *
  ***************************************************************************/
 
-const char *curlx_strerror(int err, char *buf, size_t buflen);
+ثابت حرف *curlx_strerror(صحيح err, حرف *buf, size_t buflen);
 
-#endif /* HEADER_CURL_STRERR_H */
+#د_که_پای /* HEADER_CURL_STRERR_H */

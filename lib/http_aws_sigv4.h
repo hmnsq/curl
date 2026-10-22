@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_AWS_SIGV4_H
-#define HEADER_CURL_HTTP_AWS_SIGV4_H
+#که_نه_تعریف_شوی سرلیک_CURL_HTTP_AWS_SIGV4_H
+#تعریف_کړه سرلیک_CURL_HTTP_AWS_SIGV4_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curlx/dynbuf.h"
-#include "urldata.h"
+#ضمن "curlx/dynbuf.h"
+#ضمن "urldata.h"
 
 /* this is for creating aws_sigv4 header output */
-CURLcode Curl_output_aws_sigv4(struct Curl_easy *data);
+CURLcode Curl_output_aws_sigv4(بنية Curl_easy *معلومات);
 
-#endif /* HEADER_CURL_HTTP_AWS_SIGV4_H */
+#د_که_پای /* HEADER_CURL_HTTP_AWS_SIGV4_H */

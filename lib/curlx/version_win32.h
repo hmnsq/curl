@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VERSION_WIN32_H
-#define HEADER_CURL_VERSION_WIN32_H
+#که_نه_تعریف_شوی سرلیک_CURL_نسخه_WIN32_H
+#تعریف_کړه سرلیک_CURL_نسخه_WIN32_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,38 +23,38 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef _WIN32
+#که_تعریف_شوی _WIN32
 
 /* Version condition */
-typedef enum {
-  VERSION_LESS_THAN,
-  VERSION_LESS_THAN_EQUAL,
-  VERSION_EQUAL,
-  VERSION_GREATER_THAN_EQUAL,
-  VERSION_GREATER_THAN
-} VersionCondition;
+تعريفنوع تعداد {
+  نسخه_LESS_THAN,
+  نسخه_LESS_THAN_EQUAL,
+  نسخه_EQUAL,
+  نسخه_GREATER_THAN_EQUAL,
+  نسخه_GREATER_THAN
+} نسخه_Condition;
 
 /* Platform identifier */
-typedef enum {
+تعريفنوع تعداد {
   PLATFORM_DONT_CARE,
   PLATFORM_WINDOWS,
   PLATFORM_WINNT
 } PlatformIdentifier;
 
-#ifdef CURL_WINDOWS_UWP
-#define curlx_verify_windows_init() Curl_nop_stmt
-#else
-void curlx_verify_windows_init(void);
-#endif
+#که_تعریف_شوی CURL_WINDOWS_UWP
+#تعریف_کړه curlx_verify_windows_init() Curl_nop_stmt
+#وإلا
+فراغ curlx_verify_windows_init(فراغ);
+#د_که_پای
 /* This is used to verify if we are running on a specific Windows version */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-                                  const unsigned int minorVersion,
-                                  const unsigned int buildVersion,
-                                  const PlatformIdentifier platform,
-                                  const VersionCondition condition);
+bool curlx_verify_windows_نسخه(ثابت بینښه صحيح major_نسخه,
+                                  ثابت بینښه صحيح minor_نسخه,
+                                  ثابت بینښه صحيح build_نسخه,
+                                  ثابت PlatformIdentifier platform,
+                                  ثابت نسخه_Condition condition);
 
-#endif /* _WIN32 */
+#د_که_پای /* _WIN32 */
 
-#endif /* HEADER_CURL_VERSION_WIN32_H */
+#د_که_پای /* HEADER_CURL_VERSION_WIN32_H */

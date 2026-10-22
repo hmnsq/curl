@@ -21,53 +21,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "strerror.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "cf-https-connect.h"
-#include "cf-setup.h"
-#include "multiif.h"
-#include "progress.h"
-#include "conncache.h"
-#include "multihandle.h"
-#include "select.h"
-#include "vdns/cf-dns.h"
-#include "curlx/strparse.h"
+#ضمن "urldata.h"
+#ضمن "curl_trc.h"
+#ضمن "strerror.h"
+#ضمن "cfilters.h"
+#ضمن "connect.h"
+#ضمن "cf-https-connect.h"
+#ضمن "cf-setup.h"
+#ضمن "multiif.h"
+#ضمن "progress.h"
+#ضمن "conncache.h"
+#ضمن "multihandle.h"
+#ضمن "select.h"
+#ضمن "vdns/cf-dns.h"
+#ضمن "curlx/strparse.h"
 
-#if !defined(CURL_DISABLE_ALTSVC) || defined(USE_HTTPSRR)
+#إذا !defined(CURL_DISABLE_ALTSVC) || defined(USE_HTTPSRR)
 
-enum alpnid Curl_alpn2alpnid(const unsigned char *name, size_t len)
+تعداد alpnid Curl_alpn2alpnid(ثابت بینښه حرف *name, size_t len)
 {
-  if(len == 2) {
-    if(!memcmp(name, "h1", 2))
-      return ALPN_h1;
-    if(!memcmp(name, "h2", 2))
-      return ALPN_h2;
-    if(!memcmp(name, "h3", 2))
-      return ALPN_h3;
+  إذا(len == 2) {
+    إذا(!memcmp(name, "h1", 2))
+      أرجع ALPN_h1;
+    إذا(!memcmp(name, "h2", 2))
+      أرجع ALPN_h2;
+    إذا(!memcmp(name, "h3", 2))
+      أرجع ALPN_h3;
   }
-  else if(len == 8 && !memcmp(name, "http/1.1", 8))
-    return ALPN_h1;
-  return ALPN_none; /* unknown, probably rubbish input */
+  وإلا إذا(len == 8 && !memcmp(name, "http/1.1", 8))
+    أرجع ALPN_h1;
+  أرجع ALPN_none; /* unknown, probably rubbish input */
 }
 
-#endif
+#د_که_پای
 
 /*
  * Milliseconds left of the connect timeout after `used_ms` have been spent.
  * One home for the default timeout and the zero-to-expired sentinel.
  */
-static timediff_t connect_left_ms(struct Curl_easy *data,
-                                  timediff_t used_ms)
+ساكن timediff_t connect_کیڼ_ms(بنية Curl_easy *معلومات,
+                                  timediff_t کارول_شوی_ms)
 {
-  timediff_t timeout_ms = (data->set.connecttimeout > 0) ?
-    data->set.connecttimeout : DEFAULT_CONNECT_TIMEOUT;
-  timediff_t left_ms = timeout_ms - used_ms;
-  return left_ms ? left_ms : -1; /* 0 is "no limit", fake 1 ms expiry */
+  timediff_t timeout_ms = (معلومات->سېټ.connecttimeout > 0) ?
+    معلومات->سېټ.connecttimeout : DEFAULT_CONNECT_TIMEOUT;
+  timediff_t کیڼ_ms = timeout_ms - کارول_شوی_ms;
+  أرجع کیڼ_ms ? کیڼ_ms : -1; /* 0 is "no limit", fake 1 ms expiry */
 }
 
 /*
@@ -78,47 +78,47 @@ static timediff_t connect_left_ms(struct Curl_easy *data,
  *
  * @unittest 1303
  */
-UNITTEST timediff_t timeleft_now_ms(struct Curl_easy *data,
-                                    const struct curltime *pnow);
-UNITTEST timediff_t timeleft_now_ms(struct Curl_easy *data,
-                                    const struct curltime *pnow)
+UNITTEST timediff_t timeleft_now_ms(بنية Curl_easy *معلومات,
+                                    ثابت بنية curltime *pnow);
+UNITTEST timediff_t timeleft_now_ms(بنية Curl_easy *معلومات,
+                                    ثابت بنية curltime *pnow)
 {
   timediff_t timeleft_ms = 0;
   timediff_t ctimeleft_ms = 0;
 
-  if(data->conn && CURL_CONN_IN_SHUTDOWN(data->conn, FIRSTSOCKET))
-    return Curl_cshutdn_timeleft_ms(data, data->conn, FIRSTSOCKET);
-  else if(Curl_is_connecting(data)) {
-    ctimeleft_ms = connect_left_ms(data,
-      Curl_pgrs_since_ms(data, pnow, TIMER_STARTSINGLE));
+  إذا(معلومات->conn && CURL_CONN_دننه_SHUTDOWN(معلومات->conn, FIRSTSOCKET))
+    أرجع Curl_cshutdn_timeleft_ms(معلومات, معلومات->conn, FIRSTSOCKET);
+  وإلا إذا(Curl_is_connecting(معلومات)) {
+    ctimeleft_ms = connect_کیڼ_ms(معلومات,
+      Curl_pgrs_since_ms(معلومات, pnow, TIMER_STARTSINGLE));
   }
-  else if(!data->set.timeout || data->set.connect_only) {
-    return 0; /* no timeout in place or checked, return "no limit" */
+  وإلا إذا(!معلومات->سېټ.timeout || معلومات->سېټ.connect_only) {
+    أرجع 0; /* no timeout in place or checked, return "no limit" */
   }
 
-  if(data->set.timeout) {
-    timeleft_ms = data->set.timeout -
-                  Curl_pgrs_since_ms(data, pnow, TIMER_STARTOP);
-    if(!timeleft_ms)
+  إذا(معلومات->سېټ.timeout) {
+    timeleft_ms = معلومات->سېټ.timeout -
+                  Curl_pgrs_since_ms(معلومات, pnow, TIMER_STARTOP);
+    إذا(!timeleft_ms)
       timeleft_ms = -1; /* 0 is "no limit", fake 1 ms expiry */
   }
 
-  if(!ctimeleft_ms)
-    return timeleft_ms;
-  else if(!timeleft_ms)
-    return ctimeleft_ms;
-  return CURLMIN(ctimeleft_ms, timeleft_ms);
+  إذا(!ctimeleft_ms)
+    أرجع timeleft_ms;
+  وإلا إذا(!timeleft_ms)
+    أرجع ctimeleft_ms;
+  أرجع CURLMIN(ctimeleft_ms, timeleft_ms);
 }
 
-timediff_t Curl_timeleft_ms(struct Curl_easy *data)
+timediff_t Curl_timeleft_ms(بنية Curl_easy *معلومات)
 {
-  return timeleft_now_ms(data, Curl_pgrs_now(data));
+  أرجع timeleft_now_ms(معلومات, Curl_pgrs_now(معلومات));
 }
 
-timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
-                                const struct curltime *pnow)
+timediff_t Curl_timeleft_now_ms(بنية Curl_easy *معلومات,
+                                ثابت بنية curltime *pnow)
 {
-  return timeleft_now_ms(data, pnow);
+  أرجع timeleft_now_ms(معلومات, pnow);
 }
 
 /*
@@ -127,317 +127,317 @@ timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
  *
  * The returned socket will be CURL_SOCKET_BAD in case of failure!
  */
-curl_socket_t Curl_getconnectinfo(struct Curl_easy *data,
-                                  struct connectdata **connp)
+curl_socket_t Curl_getconnectinfo(بنية Curl_easy *معلومات,
+                                  بنية connectdata **connp)
 {
   /* this works for an easy handle:
    * - that has been used for curl_easy_perform()
    * - that is associated with a multi handle, and whose connection
    *   was detached with CURLOPT_CONNECT_ONLY
    */
-  struct connectdata *conn = Curl_cpool_get_last_conn(data);
-  if(connp)
+  بنية connectdata *conn = Curl_cpool_get_وروستی_conn(معلومات);
+  إذا(connp)
     *connp = conn;
-  return conn ? conn->sock[FIRSTSOCKET] : CURL_SOCKET_BAD;
+  أرجع conn ? conn->sock[FIRSTSOCKET] : CURL_SOCKET_BAD;
 }
 
-void Curl_conncontrol(struct connectdata *conn, int ctrl)
+فراغ Curl_conncontrol(بنية connectdata *conn, صحيح ctrl)
 {
-  if(!conn) {
+  إذا(!conn) {
     DEBUGASSERT(0);
-    return;
+    أرجع;
   }
-  switch(ctrl) {
-    case CONNCTRL_CONN_KEEP:
-      conn->bits.close = FALSE;
-      break;
-    case CONNCTRL_CONN_CLOSE:
-      conn->bits.close = TRUE;
-      break;
-    case CONNCTRL_STREAM_CLOSE:
+  بدل(ctrl) {
+    حالة CONNCTRL_CONN_KEEP:
+      conn->بټونه.close = FALSE;
+      اكسر;
+    حالة CONNCTRL_CONN_CLOSE:
+      conn->بټونه.close = TRUE;
+      اكسر;
+    حالة CONNCTRL_بهیر_CLOSE:
       /* stream close when multiplexing does not affect connection */
-      if(!Curl_conn_is_multiplex(conn, FIRSTSOCKET))
-        conn->bits.close = TRUE;
-      break;
-    default:
+      إذا(!Curl_conn_is_multiplex(conn, FIRSTSOCKET))
+        conn->بټونه.close = TRUE;
+      اكسر;
+    افتراضي:
       DEBUGASSERT(0);
-      break;
+      اكسر;
   }
 }
 
-CURLcode Curl_conn_setup(struct Curl_easy *data,
-                         struct connectdata *conn,
+CURLcode Curl_conn_تیاری(بنية Curl_easy *معلومات,
+                         بنية connectdata *conn,
                          int8_t sockindex,
-                         int ssl_mode)
+                         صحيح ssl_ډېرپېښ)
 {
-  struct Curl_peer *first_peer = Curl_conn_get_first_peer(conn, sockindex);
-  CURLcode result = CURLE_OK;
+  بنية Curl_peer *لومړی_peer = Curl_conn_get_لومړی_peer(conn, sockindex);
+  CURLcode پایله = CURLE_OK;
   uint8_t dns_queries;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(معلومات);
   DEBUGASSERT(conn->scheme);
   DEBUGASSERT(!conn->cfilter[sockindex]);
 
-  if(!first_peer)
-    return CURLE_FAILED_INIT;
+  إذا(!لومړی_peer)
+    أرجع CURLE_FAILED_INIT;
 
-#ifndef CURL_DISABLE_HTTP
-  if(!conn->cfilter[sockindex] &&
+#که_نه_تعریف_شوی CURL_DISABLE_HTTP
+  إذا(!conn->cfilter[sockindex] &&
      conn->scheme->protocol == CURLPROTO_HTTPS) {
-    DEBUGASSERT(ssl_mode != CURL_CF_SSL_DISABLE);
-    result = Curl_cf_https_setup(
-      data, Curl_conn_get_destination(conn, sockindex), conn, sockindex);
-    if(result)
-      goto out;
+    DEBUGASSERT(ssl_ډېرپېښ != CURL_CF_SSL_DISABLE);
+    پایله = Curl_cf_https_تیاری(
+      معلومات, Curl_conn_get_destination(conn, sockindex), conn, sockindex);
+    إذا(پایله)
+      اذهب بهر;
   }
-#endif /* !CURL_DISABLE_HTTP */
+#د_که_پای /* !CURL_DISABLE_HTTP */
 
   /* Still no cfilter set, apply default. */
-  if(!conn->cfilter[sockindex]) {
-    result = Curl_cf_setup_add(data, conn, sockindex,
-                               conn->transport_wanted, ssl_mode);
-    if(result)
-      goto out;
+  إذا(!conn->cfilter[sockindex]) {
+    پایله = Curl_cf_تیاری_جمع_کړه(معلومات, conn, sockindex,
+                               conn->transport_wanted, ssl_ډېرپېښ);
+    إذا(پایله)
+      اذهب بهر;
   }
 
   /* Whatever the filter chain will be in the end, it will need the
    * resolving of `first_peer`. Add that now so the resolve is started
    * right away. */
-  dns_queries = Curl_resolv_dns_queries(data, conn->ip_version);
-  result = Curl_conn_dns_add_addr_resolve(data, conn, sockindex,
-                                          first_peer, dns_queries,
+  dns_queries = Curl_resolv_dns_queries(معلومات, conn->ip_نسخه);
+  پایله = Curl_conn_dns_جمع_کړه_addr_resolve(معلومات, conn, sockindex,
+                                          لومړی_peer, dns_queries,
                                           conn->transport_wanted);
-  if(result)
-    goto out;
+  إذا(پایله)
+    اذهب بهر;
 
   DEBUGASSERT(conn->cfilter[sockindex]);
-out:
-  return result;
+بهر:
+  أرجع پایله;
 }
 
-#ifdef CURLVERBOSE
-static CURLcode conn_connect_trace(struct Curl_easy *data,
-                                   struct Curl_cfilter *cf)
+#که_تعریف_شوی CURLVERBOSE
+ساكن CURLcode conn_connect_trace(بنية Curl_easy *معلومات,
+                                   بنية Curl_cfilter *cf)
 {
-  if(Curl_trc_is_verbose(data)) {
-    struct ip_quadruple ipquad;
+  إذا(Curl_trc_is_verbose(معلومات)) {
+    بنية ip_quadruple ipquad;
     bool is_ipv6;
-    CURLcode result;
+    CURLcode پایله;
 
-    result = Curl_conn_cf_get_ip_info(cf, data, &is_ipv6, &ipquad);
-    if(result)
-      return result;
+    پایله = Curl_conn_cf_get_ip_info(cf, معلومات, &is_ipv6, &ipquad);
+    إذا(پایله)
+      أرجع پایله;
 
-    infof(data, "Established %sconnection to %s (%s port %u) from %s port %u ",
+    infof(معلومات, "Established %sconnection to %s (%s port %u) from %s port %u ",
           (cf->sockindex == SECONDARYSOCKET) ? "2nd " : "",
-          CURL_CONN_HOST_DISPNAME(data->conn),
-          ipquad.remote_ip, ipquad.remote_port,
-          ipquad.local_ip, ipquad.local_port);
+          CURL_CONN_HOST_DISPNAME(معلومات->conn),
+          ipquad.remote_ip, ipquad.remote_پورټ,
+          ipquad.local_ip, ipquad.local_پورټ);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
-#endif
+#د_که_پای
 
 /**
  * Update connection statistics
  */
-static void conn_report_stats(struct Curl_easy *data, int sockindex)
+ساكن فراغ conn_report_stats(بنية Curl_easy *معلومات, صحيح sockindex)
 {
   /* We do gather stats for the second socket...yet */
-  if(sockindex == FIRSTSOCKET) {
-    Curl_conn_cntrl_report_stats(data, data->conn, sockindex);
+  إذا(sockindex == FIRSTSOCKET) {
+    Curl_conn_cntrl_report_stats(معلومات, معلومات->conn, sockindex);
   }
 }
 
-void Curl_conn_report_failed(struct Curl_easy *data, int8_t sockindex)
+فراغ Curl_conn_report_failed(بنية Curl_easy *معلومات, int8_t sockindex)
 {
-  if(!data->conn || (sockindex != FIRSTSOCKET))
-    return;
+  إذا(!معلومات->conn || (sockindex != FIRSTSOCKET))
+    أرجع;
   /* Only filters connected at IP level have info to update. Filters
    * still racing for a connection, like happy eyeballing, pass it on
    * to a connected one only. */
-  (void)Curl_conn_cf_cntrl(data->conn->cfilter[sockindex], data, TRUE,
-                           CF_CTRL_CONN_INFO_UPDATE, 0, NULL);
-  conn_report_stats(data, sockindex);
+  (فراغ)Curl_conn_cf_cntrl(معلومات->conn->cfilter[sockindex], معلومات, TRUE,
+                           CF_CTRL_CONN_INFO_UPDATE, 0, عدم);
+  conn_report_stats(معلومات, sockindex);
 }
 
-CURLcode Curl_conn_connect(struct Curl_easy *data,
+CURLcode Curl_conn_connect(بنية Curl_easy *معلومات,
                            int8_t sockindex,
                            bool blocking,
-                           bool *done)
+                           bool *بشپړ)
 {
-#define CF_CONN_NUM_POLLS_ON_STACK 5
-  struct pollfd a_few_on_stack[CF_CONN_NUM_POLLS_ON_STACK];
-  struct easy_pollset ps;
-  struct curl_pollfds cpfds;
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+#تعریف_کړه CF_CONN_عدد_POLLS_ON_ډېری 5
+  بنية pollfd a_few_on_ډېری[CF_CONN_عدد_POLLS_ON_ډېری];
+  بنية easy_pollset ps;
+  بنية curl_pollfds cpfds;
+  بنية Curl_cfilter *cf;
+  CURLcode پایله = CURLE_OK;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  DEBUGASSERT(معلومات);
+  DEBUGASSERT(معلومات->conn);
+  إذا(!CONN_SOCK_IDX_VALID(sockindex))
+    أرجع CURLE_BAD_FUNCTION_دلیل;
 
-  if(data->conn->scheme->flags & PROTOPT_NONETWORK) {
-    *done = TRUE;
-    return CURLE_OK;
+  إذا(معلومات->conn->scheme->flags & PROTOPT_NONETWORK) {
+    *بشپړ = TRUE;
+    أرجع CURLE_OK;
   }
 
-  cf = data->conn->cfilter[sockindex];
-  if(!cf) {
-    *done = FALSE;
-    return CURLE_FAILED_INIT;
+  cf = معلومات->conn->cfilter[sockindex];
+  إذا(!cf) {
+    *بشپړ = FALSE;
+    أرجع CURLE_FAILED_INIT;
   }
 
-  *done = (bool)cf->connected;
-  if(*done)
-    return CURLE_OK;
+  *بشپړ = (bool)cf->connected;
+  إذا(*بشپړ)
+    أرجع CURLE_OK;
 
-  if(!data->conn->connect_started.set[sockindex]) {
-    data->conn->connect_started.at[sockindex] = *Curl_pgrs_now(data);
-    data->conn->connect_started.set[sockindex] = TRUE;
+  إذا(!معلومات->conn->connect_started.سېټ[sockindex]) {
+    معلومات->conn->connect_started.at[sockindex] = *Curl_pgrs_now(معلومات);
+    معلومات->conn->connect_started.سېټ[sockindex] = TRUE;
   }
 
   Curl_pollset_init(&ps);
-  Curl_pollfds_init(&cpfds, a_few_on_stack, CF_CONN_NUM_POLLS_ON_STACK);
-  while(!*done) {
-    if(Curl_conn_needs_flush(data, sockindex)) {
-      DEBUGF(infof(data, "Curl_conn_connect(index=%d), flush", sockindex));
-      result = Curl_conn_flush(data, sockindex);
-      if(result && (result != CURLE_AGAIN))
-        goto out;
+  Curl_pollfds_init(&cpfds, a_few_on_ډېری, CF_CONN_عدد_POLLS_ON_ډېری);
+  طالما(!*بشپړ) {
+    إذا(Curl_conn_needs_flush(معلومات, sockindex)) {
+      DEBUGF(infof(معلومات, "Curl_conn_connect(index=%d), flush", sockindex));
+      پایله = Curl_conn_flush(معلومات, sockindex);
+      إذا(پایله && (پایله != CURLE_AGAIN))
+        اذهب بهر;
     }
 
-    result = cf->cft->do_connect(cf, data, done);
-    CURL_TRC_CF(data, cf, "Curl_conn_connect(block=%d) -> %d, done=%d",
-                blocking, (int)result, *done);
-    if(!result && *done) {
+    پایله = cf->cft->do_connect(cf, معلومات, بشپړ);
+    CURL_TRC_CF(معلومات, cf, "Curl_conn_connect(block=%d) -> %d, done=%d",
+                blocking, (صحيح)پایله, *بشپړ);
+    إذا(!پایله && *بشپړ) {
       /* A final sanity check on connection security */
-      if((data->state.origin->scheme->flags & PROTOPT_SSL) &&
+      إذا((معلومات->state.origin->scheme->flags & PROTOPT_SSL) &&
          (sockindex == FIRSTSOCKET) &&
-         !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
+         !Curl_conn_is_ssl(معلومات->conn, FIRSTSOCKET)) {
         DEBUGASSERT(0);
-        failf(data, "transfer requires SSL, but not connected via SSL");
-        result = CURLE_FAILED_INIT;
-        goto out;
+        failf(معلومات, "transfer requires SSL, but not connected via SSL");
+        پایله = CURLE_FAILED_INIT;
+        اذهب بهر;
       }
       /* Now that the complete filter chain is connected, let all filters
        * persist information at the connection. E.g. cf-socket sets the
        * socket and ip related information. */
-      Curl_conn_cntrl_update_info(data, data->conn);
-      conn_report_stats(data, sockindex);
-      Curl_cpool_conn_was_used(data, data->conn, Curl_pgrs_now(data));
-      VERBOSE(result = conn_connect_trace(data, cf));
-      VERBOSE(Curl_conn_trc_filters(data, sockindex, "connected"));
-      Curl_conn_remove_setup_filters(data, sockindex);
-      VERBOSE(Curl_conn_trc_filters(data, sockindex, "reduced to"));
-      goto out;
+      Curl_conn_cntrl_update_info(معلومات, معلومات->conn);
+      conn_report_stats(معلومات, sockindex);
+      Curl_cpool_conn_was_کارول_شوی(معلومات, معلومات->conn, Curl_pgrs_now(معلومات));
+      VERBOSE(پایله = conn_connect_trace(معلومات, cf));
+      VERBOSE(Curl_conn_trc_filters(معلومات, sockindex, "connected"));
+      Curl_conn_remove_تیاری_filters(معلومات, sockindex);
+      VERBOSE(Curl_conn_trc_filters(معلومات, sockindex, "reduced to"));
+      اذهب بهر;
     }
-    else if(result) {
-      CURL_TRC_CF(data, cf, "Curl_conn_connect(), filter returned %d",
-                  (int)result);
-      VERBOSE(Curl_conn_trc_filters(data, sockindex, "failed to connect"));
-      Curl_conn_report_failed(data, sockindex);
-      goto out;
+    وإلا إذا(پایله) {
+      CURL_TRC_CF(معلومات, cf, "Curl_conn_connect(), filter returned %d",
+                  (صحيح)پایله);
+      VERBOSE(Curl_conn_trc_filters(معلومات, sockindex, "failed to connect"));
+      Curl_conn_report_failed(معلومات, sockindex);
+      اذهب بهر;
     }
 
-    if(!blocking)
-      goto out;
-    else {
+    إذا(!blocking)
+      اذهب بهر;
+    وإلا {
       /* check allowed time left */
-      const struct curltime *pnow = Curl_pgrs_now(data);
-      timediff_t timeout_ms = Curl_timeleft_now_ms(data, pnow);
-      curl_socket_t sockfd = Curl_conn_cf_get_socket(cf, data);
-      int rc;
+      ثابت بنية curltime *pnow = Curl_pgrs_now(معلومات);
+      timediff_t timeout_ms = Curl_timeleft_now_ms(معلومات, pnow);
+      curl_socket_t sockfd = Curl_conn_cf_get_socket(cf, معلومات);
+      صحيح rc;
 
-      if(!Curl_is_connecting(data)) {
+      إذا(!Curl_is_connecting(معلومات)) {
         /* Past MSTATE_DO, e.g. an FTP data connection handshake in DO_MORE,
          * timeleft_now_ms() leaves the connect timeout out. Bound the wait
          * by this socket's whole connect phase, or a peer that never
          * finishes the handshake blocks forever. */
-        const struct curltime *started =
-          &data->conn->connect_started.at[sockindex];
-        timediff_t ctimeleft_ms = connect_left_ms(data,
+        ثابت بنية curltime *started =
+          &معلومات->conn->connect_started.at[sockindex];
+        timediff_t ctimeleft_ms = connect_کیڼ_ms(معلومات,
           curlx_ptimediff_ms(pnow, started));
-        if(!timeout_ms || (ctimeleft_ms < timeout_ms))
+        إذا(!timeout_ms || (ctimeleft_ms < timeout_ms))
           timeout_ms = ctimeleft_ms;
       }
 
-      if(timeout_ms < 0) {
+      إذا(timeout_ms < 0) {
         /* no need to continue if time already is up */
-        failf(data, "connect timeout");
-        result = CURLE_OPERATION_TIMEDOUT;
-        goto out;
+        failf(معلومات, "connect timeout");
+        پایله = CURLE_OPERATION_TIMEDOUT;
+        اذهب بهر;
       }
 
-      CURL_TRC_CF(data, cf, "Curl_conn_connect(block=1), do poll");
+      CURL_TRC_CF(معلومات, cf, "Curl_conn_connect(block=1), do poll");
       Curl_pollset_reset(&ps);
       Curl_pollfds_reset(&cpfds);
       /* In general, we want to send after connect, wait on that. */
-      if(sockfd != CURL_SOCKET_BAD)
-        result = Curl_pollset_set_out_only(data, &ps, sockfd);
-      if(!result)
-        result = Curl_conn_adjust_pollset(data, data->conn, &ps);
-      if(result)
-        goto out;
-      result = Curl_pollfds_add_ps(&cpfds, &ps);
-      if(result)
-        goto out;
+      إذا(sockfd != CURL_SOCKET_BAD)
+        پایله = Curl_pollset_سېټ_بهر_only(معلومات, &ps, sockfd);
+      إذا(!پایله)
+        پایله = Curl_conn_adjust_pollset(معلومات, معلومات->conn, &ps);
+      إذا(پایله)
+        اذهب بهر;
+      پایله = Curl_pollfds_جمع_کړه_ps(&cpfds, &ps);
+      إذا(پایله)
+        اذهب بهر;
 
       rc = Curl_poll(cpfds.pfds, cpfds.n,
                      CURLMIN(timeout_ms ? timeout_ms : 1000,
                              (cpfds.n ? 1000 : 10)));
-      CURL_TRC_CF(data, cf, "Curl_conn_connect(block=1), Curl_poll() -> %d",
+      CURL_TRC_CF(معلومات, cf, "Curl_conn_connect(block=1), Curl_poll() -> %d",
                   rc);
-      if(rc < 0) {
-        result = CURLE_COULDNT_CONNECT;
-        goto out;
+      إذا(rc < 0) {
+        پایله = CURLE_COULDNT_CONNECT;
+        اذهب بهر;
       }
       /* continue iterating */
     }
   }
 
-out:
+بهر:
   Curl_pollset_cleanup(&ps);
   Curl_pollfds_cleanup(&cpfds);
-  return result;
+  أرجع پایله;
 }
 
-void Curl_conn_set_multiplex(struct connectdata *conn)
+فراغ Curl_conn_سېټ_multiplex(بنية connectdata *conn)
 {
-  if(!conn->bits.multiplex) {
-    conn->bits.multiplex = TRUE;
-    if(conn->attached_multi) {
+  إذا(!conn->بټونه.multiplex) {
+    conn->بټونه.multiplex = TRUE;
+    إذا(conn->attached_multi) {
       Curl_multi_connchanged(conn->attached_multi);
     }
   }
 }
 
-struct Curl_peer *Curl_conn_get_origin(struct connectdata *conn,
+بنية Curl_peer *Curl_conn_get_origin(بنية connectdata *conn,
                                        int8_t sockindex)
 {
-  return (sockindex == SECONDARYSOCKET) ?
+  أرجع (sockindex == SECONDARYSOCKET) ?
     conn->origin2 : conn->origin;
 }
 
-struct Curl_peer *Curl_conn_get_destination(struct connectdata *conn,
+بنية Curl_peer *Curl_conn_get_destination(بنية connectdata *conn,
                                             int8_t sockindex)
 {
-  return (sockindex == SECONDARYSOCKET) ?
-    (conn->via_peer2 ? conn->via_peer2 : conn->origin2) :
-    (conn->via_peer ? conn->via_peer : conn->origin);
+  أرجع (sockindex == SECONDARYSOCKET) ?
+    (conn->له_لارې_peer2 ? conn->له_لارې_peer2 : conn->origin2) :
+    (conn->له_لارې_peer ? conn->له_لارې_peer : conn->origin);
 }
 
-struct Curl_peer *Curl_conn_get_first_peer(struct connectdata *conn,
+بنية Curl_peer *Curl_conn_get_لومړی_peer(بنية connectdata *conn,
                                            int8_t sockindex)
 {
-#ifndef CURL_DISABLE_PROXY
-  if(conn->socks_proxy.peer)
-    return conn->socks_proxy.peer;
-  if(conn->http_proxy.peer)
-    return conn->http_proxy.peer;
-#endif
-  return (sockindex == SECONDARYSOCKET) ?
-    (conn->via_peer2 ? conn->via_peer2 : conn->origin2) :
-    (conn->via_peer ? conn->via_peer : conn->origin);
+#که_نه_تعریف_شوی CURL_DISABLE_PROXY
+  إذا(conn->socks_proxy.peer)
+    أرجع conn->socks_proxy.peer;
+  إذا(conn->http_proxy.peer)
+    أرجع conn->http_proxy.peer;
+#د_که_پای
+  أرجع (sockindex == SECONDARYSOCKET) ?
+    (conn->له_لارې_peer2 ? conn->له_لارې_peer2 : conn->origin2) :
+    (conn->له_لارې_peer ? conn->له_لارې_peer : conn->origin);
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CIPHER_SUITE_H
-#define HEADER_CURL_CIPHER_SUITE_H
+#که_نه_تعریف_شوی سرلیک_CURL_CIPHER_SUITE_H
+#تعریف_کړه سرلیک_CURL_CIPHER_SUITE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if defined(USE_MBEDTLS) || defined(USE_RUSTLS)
+#إذا defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
 /* Lookup IANA id for cipher suite string, returns 0 if not recognized */
-uint16_t Curl_cipher_suite_lookup_id(const char *cs_str, size_t cs_len);
+uint16_t Curl_cipher_suite_lookup_id(ثابت حرف *cs_str, size_t cs_len);
 
 /* Walk over cipher suite string, update str and end pointers to next
    cipher suite in string, returns IANA id of that suite if recognized */
-uint16_t Curl_cipher_suite_walk_str(const char **str, const char **end);
+uint16_t Curl_cipher_suite_walk_str(ثابت حرف **str, ثابت حرف **پای_ټکی);
 
 /* Copy openssl or RFC name for cipher suite in supplied buffer.
    Caller is responsible to supply sufficiently large buffer (size
    of 64 should suffice), excess bytes are silently truncated. */
-int Curl_cipher_suite_get_str(uint16_t id, char *buf, size_t buf_size,
+صحيح Curl_cipher_suite_get_str(uint16_t id, حرف *buf, size_t buf_اندازه,
                               bool prefer_rfc);
 
-#endif /* defined(USE_MBEDTLS) || defined(USE_RUSTLS) */
-#endif /* HEADER_CURL_CIPHER_SUITE_H */
+#د_که_پای /* defined(USE_MBEDTLS) || defined(USE_RUSTLS) */
+#د_که_پای /* HEADER_CURL_CIPHER_SUITE_H */

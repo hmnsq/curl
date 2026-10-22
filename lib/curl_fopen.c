@@ -21,14 +21,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#إذا !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS)
 
-#include "urldata.h"
-#include "rand.h"
-#include "curl_fopen.h"
+#ضمن "urldata.h"
+#ضمن "rand.h"
+#ضمن "curl_fopen.h"
 
 /* The dirslash() function breaks a null-terminated pathname string into
    directory and filename components then returns the directory component up
@@ -40,38 +40,38 @@
    The input path to this function is expected to have a filename part.
  */
 
-#ifdef _WIN32
-#define PATHSEP   "\\"
-#define IS_SEP(x) (((x) == '/') || ((x) == '\\'))
-#elif defined(MSDOS) || defined(OS2)
-#define PATHSEP   "\\"
-#define IS_SEP(x) ((x) == '\\')
-#else
-#define PATHSEP   "/"
-#define IS_SEP(x) ((x) == '/')
-#endif
+#که_تعریف_شوی _WIN32
+#تعریف_کړه PATHSEP   "\\"
+#تعریف_کړه IS_SEP(x) (((x) == '/') || ((x) == '\\'))
+#وإلاإذا defined(MSDOS) || defined(OS2)
+#تعریف_کړه PATHSEP   "\\"
+#تعریف_کړه IS_SEP(x) ((x) == '\\')
+#وإلا
+#تعریف_کړه PATHSEP   "/"
+#تعریف_کړه IS_SEP(x) ((x) == '/')
+#د_که_پای
 
-static char *dirslash(const char *path)
+ساكن حرف *dirslash(ثابت حرف *لار)
 {
   size_t n;
-  struct dynbuf out;
-  DEBUGASSERT(path);
-  curlx_dyn_init(&out, CURL_MAX_INPUT_LENGTH);
-  n = strlen(path);
-  if(n) {
+  بنية dynbuf بهر;
+  DEBUGASSERT(لار);
+  curlx_dyn_init(&بهر, CURL_MAX_ننوت_اوږدتیا);
+  n = مزي_اوږدوالی(لار);
+  إذا(n) {
     /* find the rightmost path separator, if any */
-    while(n && !IS_SEP(path[n - 1]))
+    طالما(n && !IS_SEP(لار[n - 1]))
       --n;
     /* skip over all the path separators, if any */
-    while(n && IS_SEP(path[n - 1]))
+    طالما(n && IS_SEP(لار[n - 1]))
       --n;
   }
-  if(curlx_dyn_addn(&out, path, n))
-    return NULL;
+  إذا(curlx_dyn_addn(&بهر, لار, n))
+    أرجع عدم;
   /* if there was a directory, append a single trailing slash */
-  if(n && curlx_dyn_addn(&out, PATHSEP, 1))
-    return NULL;
-  return curlx_dyn_ptr(&out);
+  إذا(n && curlx_dyn_addn(&بهر, PATHSEP, 1))
+    أرجع عدم;
+  أرجع curlx_dyn_ptr(&بهر);
 }
 
 /*
@@ -81,85 +81,85 @@ static char *dirslash(const char *path)
  * file. if 'tempname' is non-NULL, it needs a rename after the file is
  * written.
  */
-CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
-                    FILE **fh, char **tempname)
+CURLcode Curl_fopen(بنية Curl_easy *معلومات, ثابت حرف *filename,
+                    FILE **fh, حرف **tempname)
 {
-  CURLcode result = CURLE_WRITE_ERROR;
-  unsigned char randbuf[41];
-  char *tempstore = NULL;
-#ifndef _WIN32
+  CURLcode پایله = CURLE_WRITE_ERROR;
+  بینښه حرف randbuf[41];
+  حرف *tempstore = عدم;
+#که_نه_تعریف_شوی _WIN32
   curlx_struct_stat sb;
-#endif
-  int fd = -1;
-  char *dir = NULL;
-  *tempname = NULL;
+#د_که_پای
+  صحيح fd = -1;
+  حرف *dir = عدم;
+  *tempname = عدم;
 
-#ifndef _WIN32
+#که_نه_تعریف_شوی _WIN32
   *fh = curlx_fopen(filename, FOPEN_WRITETEXT);
-  if(!*fh)
-    goto fail;
-  if(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
-    return CURLE_OK;
+  إذا(!*fh)
+    اذهب fail;
+  إذا(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_ډېرپېښ)) {
+    أرجع CURLE_OK;
   }
   curlx_fclose(*fh);
-#endif /* !_WIN32 */
-  *fh = NULL;
+#د_که_پای /* !_WIN32 */
+  *fh = عدم;
 
-  result = Curl_rand_alnum(data, randbuf, sizeof(randbuf));
-  if(result)
-    goto fail;
+  پایله = Curl_rand_alnum(معلومات, randbuf, حجم(randbuf));
+  إذا(پایله)
+    اذهب fail;
 
   dir = dirslash(filename);
-  if(dir) {
+  إذا(dir) {
     /* The temp filename should not end up too long for the target file
        system */
     tempstore = curl_maprintf("%s%s.tmp", dir, randbuf);
     curlx_free(dir);
   }
 
-  if(!tempstore) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  إذا(!tempstore) {
+    پایله = CURLE_بهر_د_حافظه;
+    اذهب fail;
   }
 
-  result = CURLE_WRITE_ERROR;
-#ifdef _WIN32
+  پایله = CURLE_WRITE_ERROR;
+#که_تعریف_شوی _WIN32
   fd = curlx_open(tempstore, _O_WRONLY | _O_CREAT | _O_EXCL,
                   _S_IREAD | _S_IWRITE);
-#else
+#وإلا
   fd = curlx_open(tempstore, O_WRONLY | O_CREAT | O_EXCL,
                   (mode_t)(S_IRUSR | S_IWUSR | 0600));
-#endif
-  if(fd == -1)
-    goto fail;
+#د_که_پای
+  إذا(fd == -1)
+    اذهب fail;
 
-#ifdef HAVE_FCHMOD
+#که_تعریف_شوی HAVE_FCHMOD
   {
     curlx_struct_stat nsb;
-    if((curlx_fstat(fd, &nsb) != -1) &&
+    إذا((curlx_fstat(fd, &nsb) != -1) &&
        (nsb.st_uid == sb.st_uid) && (nsb.st_gid == sb.st_gid)) {
       /* if the user and group are the same, clone the original mode */
-      if(fchmod(fd, (mode_t)sb.st_mode) == -1)
-        goto fail;
+      إذا(fchmod(fd, (mode_t)sb.st_ډېرپېښ) == -1)
+        اذهب fail;
     }
   }
-#endif
+#د_که_پای
 
   *fh = curlx_fdopen(fd, FOPEN_WRITETEXT);
-  if(!*fh)
-    goto fail;
+  إذا(!*fh)
+    اذهب fail;
 
   *tempname = tempstore;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 
 fail:
-  if(fd != -1) {
+  إذا(fd != -1) {
     curlx_close(fd);
     unlink(tempstore);
   }
 
   curlx_free(tempstore);
-  return result;
+  أرجع پایله;
 }
 
-#endif /* !disabled */
+#د_که_پای /* !disabled */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_EASY_LOCK_H
-#define HEADER_CURL_EASY_LOCK_H
+#که_نه_تعریف_شوی سرلیک_CURL_EASY_قلف_H
+#تعریف_کړه سرلیک_CURL_EASY_قلف_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,79 +23,79 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#define GLOBAL_INIT_IS_THREADSAFE
+#تعریف_کړه GLOBAL_INIT_IS_THREADSAFE
 
-#ifdef _WIN32
+#که_تعریف_شوی _WIN32
 
-#define curl_simple_lock      SRWLOCK
-#define CURL_SIMPLE_LOCK_INIT SRWLOCK_INIT
+#تعریف_کړه curl_simple_قلف      SRWLOCK
+#تعریف_کړه CURL_SIMPLE_قلف_INIT SRWLOCK_INIT
 
-#define curl_simple_lock_lock(m)   AcquireSRWLockExclusive(m)
-#define curl_simple_lock_unlock(m) ReleaseSRWLockExclusive(m)
+#تعریف_کړه curl_simple_قلف_قلف(m)   AcquireSRWLockExclusive(m)
+#تعریف_کړه curl_simple_قلف_unlock(m) ReleaseSRWLockExclusive(m)
 
-#elif defined(HAVE_ATOMIC) && defined(HAVE_STDATOMIC_H)
-#include <stdatomic.h>
-#ifdef HAVE_SCHED_YIELD
-#include <sched.h>
-#endif
+#وإلاإذا defined(HAVE_ATOMIC) && defined(HAVE_STDATOMIC_H)
+#ضمن <stdatomic.h>
+#که_تعریف_شوی HAVE_SCHED_YIELD
+#ضمن <sched.h>
+#د_که_پای
 
-#define curl_simple_lock      atomic_int
-#define CURL_SIMPLE_LOCK_INIT 0
+#تعریف_کړه curl_simple_قلف      atomic_int
+#تعریف_کړه CURL_SIMPLE_قلف_INIT 0
 
-#ifndef __INTEL_COMPILER
+#که_نه_تعریف_شوی __INTEL_COMPILER
 /* The Intel compiler tries to look like GCC *and* clang *and* lies in its
    __has_builtin() function, so override it. */
 
 /* if GCC on i386/x86_64 or if the built-in is present */
-#if (defined(__GNUC__) && !defined(__clang__)) && \
+#إذا (defined(__GNUC__) && !defined(__clang__)) && \
   (defined(__i386__) || defined(__x86_64__))
-#define HAVE_BUILTIN_IA32_PAUSE
-#elif defined(__has_builtin)  /* Keep this PP check separate from others */
-#if __has_builtin(__builtin_ia32_pause)
-#define HAVE_BUILTIN_IA32_PAUSE
-#endif
-#endif
+#تعریف_کړه HAVE_BUILTIN_IA32_PAUSE
+#وإلاإذا defined(__has_builtin)  /* Keep this PP check separate from others */
+#إذا __has_builtin(__builtin_ia32_pause)
+#تعریف_کړه HAVE_BUILTIN_IA32_PAUSE
+#د_که_پای
+#د_که_پای
 
-#endif /* !__INTEL_COMPILER */
+#د_که_پای /* !__INTEL_COMPILER */
 
-static CURL_INLINE void curl_simple_lock_lock(curl_simple_lock *lock)
+ساكن CURL_INLINE فراغ curl_simple_قلف_قلف(curl_simple_قلف *قلف)
 {
-  for(;;) {
-    if(!atomic_exchange_explicit(lock, true, memory_order_acquire))
-      break;
+  لكل(;;) {
+    إذا(!atomic_exchange_explicit(قلف, true, حافظه_ترتیب_acquire))
+      اكسر;
     /* Reduce cache coherency traffic */
-    while(atomic_load_explicit(lock, memory_order_relaxed)) {
+    طالما(atomic_load_explicit(قلف, حافظه_ترتیب_relaxed)) {
       /* Reduce load (not mandatory) */
-#ifdef HAVE_BUILTIN_IA32_PAUSE
+#که_تعریف_شوی HAVE_BUILTIN_IA32_PAUSE
       __builtin_ia32_pause();
-#elif defined(__aarch64__)
+#وإلاإذا defined(__aarch64__)
       /* NOLINTNEXTLINE(portability-no-assembler) */
-      __asm__ volatile("yield" ::: "memory");
-#elif defined(HAVE_SCHED_YIELD)
+      __asm__ متطاير("yield" ::: "memory");
+#وإلاإذا defined(HAVE_SCHED_YIELD)
       sched_yield();
-#endif
+#د_که_پای
     }
   }
 }
 
-static CURL_INLINE void curl_simple_lock_unlock(curl_simple_lock *lock)
+ساكن CURL_INLINE فراغ curl_simple_قلف_unlock(curl_simple_قلف *قلف)
 {
-  atomic_store_explicit(lock, false, memory_order_release);
+  atomic_store_explicit(قلف, false, حافظه_ترتیب_release);
 }
 
-#elif defined(HAVE_THREADS_POSIX)
+#وإلاإذا defined(HAVE_تارونه_POSIX)
 
-#define curl_simple_lock           pthread_mutex_t
-#define CURL_SIMPLE_LOCK_INIT      PTHREAD_MUTEX_INITIALIZER
-#define curl_simple_lock_lock(m)   pthread_mutex_lock(m)
-#define curl_simple_lock_unlock(m) pthread_mutex_unlock(m)
+#تعریف_کړه curl_simple_قلف           pthread_mutex_t
+#تعریف_کړه CURL_SIMPLE_قلف_INIT      PTHREAD_MUTEX_INITIALIZER
+#تعریف_کړه curl_simple_قلف_قلف(m)   pthread_mutex_قلف(m)
+#تعریف_کړه curl_simple_قلف_unlock(m) pthread_mutex_unlock(m)
 
-#else
+#وإلا
 
-#undef GLOBAL_INIT_IS_THREADSAFE
+#تعریف_لغوه GLOBAL_INIT_IS_THREADSAFE
 
-#endif
+#د_که_پای
 
-#endif /* HEADER_CURL_EASY_LOCK_H */
+#د_که_پای /* HEADER_CURL_EASY_LOCK_H */
