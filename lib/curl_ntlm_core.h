@@ -27,44 +27,44 @@
 
 #ifdef USE_CURL_NTLM_CORE
 
-struct ntlmdata;
+sa_nracanaa ntlmdata;
 
 /* Helpers to generate function byte arguments in little endian order */
-#define SHORTPAIR(x)   ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff))
-#define LONGQUARTET(x) ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff)), \
-  ((int)(((x) >> 16) & 0xff)), ((int)(((x) >> 24) & 0xff))
+#define SHORTPAIR(x)   ((ចំនួនគត់)((x) & 0xff)), ((ចំនួនគត់)(((x) >> 8) & 0xff))
+#define LONGQUARTET(x) ((ចំនួនគត់)((x) & 0xff)), ((ចំនួនគត់)(((x) >> 8) & 0xff)), \
+  ((ចំនួនគត់)(((x) >> 16) & 0xff)), ((ចំនួនគត់)(((x) >> 24) & 0xff))
 
-void Curl_ntlm_core_lm_resp(const unsigned char *keys,
-                            const unsigned char *plaintext,
-                            unsigned char *results);
+void Curl_ntlm_core_lm_resp(const unsigned var_na *keys,
+                            const unsigned var_na *plaintext,
+                            unsigned var_na *results);
 
-CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
-                                   unsigned char *lmbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_lm_hash(const var_na *password,
+                                   unsigned var_na *lmbuffer /* 21 bytes */);
 
-CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
-                                   unsigned char *ntbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_nt_hash(const var_na *password,
+                                   unsigned var_na *ntbuffer /* 21 bytes */);
 
 #ifndef USE_WINDOWS_SSPI
 
-CURLcode Curl_hmac_md5(const unsigned char *key, unsigned int keylen,
-                       const unsigned char *data, unsigned int datalen,
-                       unsigned char *output);
+CURLcode Curl_hmac_md5(const unsigned var_na *key, unsigned ចំនួនគត់ keylen,
+                       const unsigned var_na *data, unsigned ចំនួនគត់ datalen,
+                       unsigned var_na *output);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
-                                       const char *domain, size_t domlen,
-                                       unsigned char *ntlmhash,
-                                       unsigned char *ntlmv2hash);
+CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const var_na *user, size_t userlen,
+                                       const var_na *domain, size_t domlen,
+                                       unsigned var_na *ntlmhash,
+                                       unsigned var_na *ntlmv2hash);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
-                                       const unsigned char *challenge_client,
-                                       const struct ntlmdata *ntlm,
-                                       unsigned char **ntresp,
-                                       unsigned int *ntresp_len);
+CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned var_na *ntlmv2hash,
+                                       const unsigned var_na *challenge_client,
+                                       const sa_nracanaa ntlmdata *ntlm,
+                                       unsigned var_na **ntresp,
+                                       unsigned ចំនួនគត់ *ntresp_len);
 
-CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
-                                     const unsigned char *challenge_client,
-                                     const unsigned char *challenge_server,
-                                     unsigned char *lmresp);
+CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned var_na *ntlmv2hash,
+                                     const unsigned var_na *challenge_client,
+                                     const unsigned var_na *challenge_server,
+                                     unsigned var_na *lmresp);
 
 #endif /* !USE_WINDOWS_SSPI */
 

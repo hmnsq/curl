@@ -30,51 +30,51 @@ typedef void (*Curl_llist_dtor)(void *user, void *elem);
 /* none of these struct members should be referenced directly, use the
    dedicated functions */
 
-struct Curl_llist {
-  struct Curl_llist_node *_head;
-  struct Curl_llist_node *_tail;
+sa_nracanaa Curl_llist {
+  sa_nracanaa Curl_llist_node *_head;
+  sa_nracanaa Curl_llist_node *_tail;
   Curl_llist_dtor _dtor;
   size_t _size;
 #ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
+  ចំនួនគត់ _init;      /* detect API usage mistakes */
 #endif
 };
 
-struct Curl_llist_node {
-  struct Curl_llist *_list; /* the list where this belongs */
+sa_nracanaa Curl_llist_node {
+  sa_nracanaa Curl_llist *_list; /* the list where this belongs */
   void *_ptr;
-  struct Curl_llist_node *_prev;
-  struct Curl_llist_node *_next;
+  sa_nracanaa Curl_llist_node *_prev;
+  sa_nracanaa Curl_llist_node *_next;
 #ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
+  ចំនួនគត់ _init;      /* detect API usage mistakes */
 #endif
 };
 
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor);
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne);
-void Curl_node_remove(struct Curl_llist_node *e);
-void Curl_llist_destroy(struct Curl_llist *list, void *user);
+void Curl_llist_init(sa_nracanaa Curl_llist *l, Curl_llist_dtor dtor);
+void Curl_llist_append(sa_nracanaa Curl_llist *list, const void *p,
+                       sa_nracanaa Curl_llist_node *ne);
+void Curl_node_remove(sa_nracanaa Curl_llist_node *e);
+void Curl_llist_destroy(sa_nracanaa Curl_llist *list, void *user);
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list);
+sa_nracanaa Curl_llist_node *Curl_llist_head(const sa_nracanaa Curl_llist *list);
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list);
+size_t Curl_llist_count(const sa_nracanaa Curl_llist *list);
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n);
+void *Curl_node_elem(const sa_nracanaa Curl_llist_node *n);
 
 /* Remove the node from the list and return the custom data
  * from a Curl_llist_node. Does NOT invoke a registered `dtor`. */
-void *Curl_node_take_elem(struct Curl_llist_node *e);
+void *Curl_node_take_elem(sa_nracanaa Curl_llist_node *e);
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n);
+sa_nracanaa Curl_llist_node *Curl_node_next(const sa_nracanaa Curl_llist_node *n);
 
 /* Curl_node_llist() return the list the node is in or NULL. */
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n);
+sa_nracanaa Curl_llist *Curl_node_llist(const sa_nracanaa Curl_llist_node *n);
 
 #endif /* HEADER_CURL_LLIST_H */

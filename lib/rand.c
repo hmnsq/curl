@@ -37,37 +37,37 @@
 
 #ifndef USE_SSL
 /* ---- possibly non-cryptographic version following ---- */
-static CURLcode weak_random(struct Curl_easy *data,
-                            unsigned char *entropy,
+static CURLcode weak_random(sa_nracanaa Curl_easy *data,
+                            unsigned var_na *entropy,
                             size_t length) /* always 4, size of int */
 {
-  unsigned int r;
-  DEBUGASSERT(length == sizeof(int));
+  unsigned ចំនួនគត់ r;
+  DEBUGASSERT(length == parimaa_na(ចំនួនគត់));
 
   /* Trying cryptographically secure functions first */
 #ifdef _WIN32
   (void)data;
   {
     CURLcode result = curlx_win32_random(entropy, length);
-    if(result != CURLE_NOT_BUILT_IN)
-      return result;
+    ប្រសិនបើ(result != CURLE_NOT_BUILT_IN)
+      ត្រឡប់ result;
   }
 #endif
 
 #ifdef HAVE_ARC4RANDOM
   (void)data;
-  r = (unsigned int)arc4random();
+  r = (unsigned ចំនួនគត់)arc4random();
   memcpy(entropy, &r, length);
-#else
+#បើមិនដូច្នេះ
   infof(data, "WARNING: using weak random seed");
   {
-    static unsigned int randseed;
+    static unsigned ចំនួនគត់ randseed;
     static bool seeded = FALSE;
-    unsigned int rnd;
-    if(!seeded) {
-      struct curltime now;
+    unsigned ចំនួនគត់ rnd;
+    ប្រសិនបើ(!seeded) {
+      sa_nracanaa curltime now;
       curlx_pnow(&now);
-      randseed += (unsigned int)now.tv_usec + (unsigned int)now.tv_sec;
+      randseed += (unsigned ចំនួនគត់)now.tv_usec + (unsigned ចំនួនគត់)now.tv_sec;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
@@ -80,44 +80,44 @@ static CURLcode weak_random(struct Curl_easy *data,
     memcpy(entropy, &rnd, length);
   }
 #endif
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 #endif
 
-static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
+static CURLcode randit(sa_nracanaa Curl_easy *data, unsigned ចំនួនគត់ *rnd,
                        bool env_override)
 {
 #ifdef DEBUGBUILD
-  if(env_override) {
-    char *force_entropy = getenv("CURL_ENTROPY");
-    if(force_entropy) {
-      static unsigned int randseed;
+  ប្រសិនបើ(env_override) {
+    var_na *force_entropy = getenv("CURL_ENTROPY");
+    ប្រសិនបើ(force_entropy) {
+      static unsigned ចំនួនគត់ randseed;
       static bool seeded = FALSE;
 
-      if(!seeded) {
-        unsigned int seed = 0;
+      ប្រសិនបើ(!seeded) {
+        unsigned ចំនួនគត់ seed = 0;
         size_t elen = strlen(force_entropy);
-        size_t clen = sizeof(seed);
+        size_t clen = parimaa_na(seed);
         size_t min = elen < clen ? elen : clen;
-        memcpy((char *)&seed, force_entropy, min);
+        memcpy((var_na *)&seed, force_entropy, min);
         randseed = ntohl(seed);
         seeded = TRUE;
       }
-      else
+      បើមិនដូច្នេះ
         randseed++;
       *rnd = randseed;
-      return CURLE_OK;
+      ត្រឡប់ CURLE_OK;
     }
   }
-#else
+#បើមិនដូច្នេះ
   (void)env_override;
 #endif
 
   /* data may be NULL! */
 #ifdef USE_SSL
-  return Curl_ssl_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#else
-  return weak_random(data, (unsigned char *)rnd, sizeof(*rnd));
+  ត្រឡប់ Curl_ssl_random(data, (unsigned var_na *)rnd, parimaa_na(*rnd));
+#បើមិនដូច្នេះ
+  ត្រឡប់ weak_random(data, (unsigned var_na *)rnd, parimaa_na(*rnd));
 #endif
 }
 
@@ -136,11 +136,11 @@ static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
  *
  */
 
-CURLcode Curl_rand_bytes(struct Curl_easy *data,
+CURLcode Curl_rand_bytes(sa_nracanaa Curl_easy *data,
 #ifdef DEBUGBUILD
                          bool env_override,
 #endif
-                         unsigned char *rnd, size_t num)
+                         unsigned var_na *rnd, size_t num)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
 #ifndef DEBUGBUILD
@@ -149,23 +149,23 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
 
   DEBUGASSERT(num);
 
-  while(num) {
-    unsigned int r;
-    size_t left = num < sizeof(unsigned int) ? num : sizeof(unsigned int);
+  ខណៈពេល(num) {
+    unsigned ចំនួនគត់ r;
+    size_t left = num < parimaa_na(unsigned ចំនួនគត់) ? num : parimaa_na(unsigned ចំនួនគត់);
 
     result = randit(data, &r, env_override);
-    if(result)
-      return result;
+    ប្រសិនបើ(result)
+      ត្រឡប់ result;
 
-    while(left) {
-      *rnd++ = (unsigned char)(r & 0xFF);
+    ខណៈពេល(left) {
+      *rnd++ = (unsigned var_na)(r & 0xFF);
       r >>= 8;
       --num;
       --left;
     }
   }
 
-  return result;
+  ត្រឡប់ result;
 }
 
 /*
@@ -174,26 +174,26 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
  * size.
  */
 
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
+CURLcode Curl_rand_hex(sa_nracanaa Curl_easy *data, unsigned var_na *rnd, size_t num)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  unsigned char buffer[128];
+  unsigned var_na buffer[128];
   DEBUGASSERT(num > 1);
 
-  if((num / 2 >= sizeof(buffer)) || !(num & 1)) {
+  ប្រសិនបើ((num / 2 >= parimaa_na(buffer)) || !(num & 1)) {
     /* make sure it fits in the local buffer and that it is an odd number! */
     DEBUGF(infof(data, "invalid buffer size with Curl_rand_hex"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ត្រឡប់ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   num--; /* save one for null-termination */
 
   result = Curl_rand(data, buffer, num / 2);
-  if(result)
-    return result;
+  ប្រសិនបើ(result)
+    ត្រឡប់ result;
 
   Curl_hexencode(buffer, num / 2, rnd, num + 1);
-  return result;
+  ត្រឡប់ result;
 }
 
 /*
@@ -201,30 +201,30 @@ CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
  * alphanumerical chars PLUS a null-terminator byte.
  */
 
-static const char alnum[] =
+static const var_na alnum[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
+CURLcode Curl_rand_alnum(sa_nracanaa Curl_easy *data, unsigned var_na *rnd,
                          size_t num)
 {
   CURLcode result = CURLE_OK;
-  const unsigned int alnumspace = CURL_CSTRLEN(alnum);
-  unsigned int r;
+  const unsigned ចំនួនគត់ alnumspace = CURL_CSTRLEN(alnum);
+  unsigned ចំនួនគត់ r;
   DEBUGASSERT(num > 1);
 
   num--; /* save one for null-termination */
 
-  while(num) {
+  ខណៈពេល(num) {
     do {
       result = randit(data, &r, TRUE);
-      if(result)
-        return result;
-    } while(r >= (UINT_MAX - UINT_MAX % alnumspace));
+      ប្រសិនបើ(result)
+        ត្រឡប់ result;
+    } ខណៈពេល(r >= (UINT_MAX - UINT_MAX % alnumspace));
 
-    *rnd++ = (unsigned char)alnum[r % alnumspace];
+    *rnd++ = (unsigned var_na)alnum[r % alnumspace];
     num--;
   }
   *rnd = 0;
 
-  return result;
+  ត្រឡប់ result;
 }

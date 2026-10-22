@@ -34,30 +34,30 @@
 
 #define H1_PARSE_DEFAULT_MAX_LINE_LEN   DYN_HTTP_REQUEST
 
-struct h1_req_parser {
-  struct httpreq *req;
-  struct dynbuf scratch;
+sa_nracanaa h1_req_parser {
+  sa_nracanaa httpreq *req;
+  sa_nracanaa dynbuf scratch;
   size_t scratch_skip;
-  const char *line;
+  const var_na *line;
   size_t max_line_len;
   size_t line_len;
   BIT(done);
 };
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len);
-void Curl_h1_req_parse_free(struct h1_req_parser *parser);
+void Curl_h1_req_parse_init(sa_nracanaa h1_req_parser *parser, size_t max_line_len);
+void Curl_h1_req_parse_free(sa_nracanaa h1_req_parser *parser);
 
-CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
+CURLcode Curl_h1_req_parse_read(sa_nracanaa h1_req_parser *parser,
                                 const uint8_t *buf, size_t buflen,
-                                const char *scheme_default,
-                                const char *custom_method,
-                                int options, size_t *pnread);
+                                const var_na *scheme_default,
+                                const var_na *custom_method,
+                                ចំនួនគត់ options, size_t *pnread);
 
-CURLcode Curl_h1_req_dprint(const struct httpreq *req,
-                            struct dynbuf *dbuf);
+CURLcode Curl_h1_req_dprint(const sa_nracanaa httpreq *req,
+                            sa_nracanaa dynbuf *dbuf);
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
-                                struct dynbuf *dbuf);
+CURLcode Curl_h1_req_write_head(sa_nracanaa httpreq *req, ចំនួនគត់ http_minor,
+                                sa_nracanaa dynbuf *dbuf);
 
 #endif /* !CURL_DISABLE_HTTP */
 #endif /* HEADER_CURL_HTTP1_H */

@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
+#ប្រសិនបើ (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 
 #include "curl_md5.h"
@@ -39,7 +39,7 @@
 
 #ifdef USE_MBEDTLS
 #include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
+#ប្រសិនបើ MBEDTLS_VERSION_NUMBER < 0x03020000
 #error "mbedTLS 3.2.0 or greater required"
 #endif
 #include <psa/crypto_config.h>
@@ -49,25 +49,25 @@
 #include <nettle/md5.h>
 #include <nettle/version.h>
 
-typedef struct md5_ctx my_md5_ctx;
+typedef sa_nracanaa md5_ctx my_md5_ctx;
 
 static CURLcode my_md5_init(void *ctx)
 {
   md5_init(ctx);
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned var_na *input, unsigned ចំនួនគត់ len)
 {
   md5_update(ctx, len, input);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+static void my_md5_final(unsigned var_na *digest, void *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#ប្រសិនបើ NETTLE_VERSION_MAJOR >= 4
   md5_digest(ctx, digest);
-#else
+#បើមិនដូច្នេះ
   md5_digest(ctx, MD5_DIGEST_LEN, digest);
 #endif
 }
@@ -81,25 +81,25 @@ static CURLcode my_md5_init(void *in)
 {
   EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return CURLE_OUT_OF_MEMORY;
+  ប្រសិនបើ(!*ctx)
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md5(), NULL)) {
+  ប្រសិនបើ(!EVP_DigestInit_ex(*ctx, EVP_md5(), NULL)) {
     EVP_MD_CTX_free(*ctx);
     *ctx = NULL;
-    return CURLE_FAILED_INIT;
+    ត្រឡប់ CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
 static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned var_na *input, unsigned ចំនួនគត់ len)
 {
   EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
   (void)EVP_DigestUpdate(*ctx, input, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *in)
+static void my_md5_final(unsigned var_na *digest, void *in)
 {
   EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
   (void)EVP_DigestFinal_ex(*ctx, digest, NULL);
@@ -114,18 +114,18 @@ typedef wc_Md5 my_md5_ctx;
 
 static CURLcode my_md5_init(void *ctx)
 {
-  if(wc_InitMd5(ctx))
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ប្រសិនបើ(wc_InitMd5(ctx))
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
+  ត្រឡប់ CURLE_OK;
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned var_na *input, unsigned ចំនួនគត់ len)
 {
   (void)wc_Md5Update(ctx, input, (word32)len);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+static void my_md5_final(unsigned var_na *digest, void *ctx)
 {
   (void)wc_Md5Final(ctx, digest);
 }
@@ -140,18 +140,18 @@ static CURLcode my_md5_init(void *ctx)
 {
   psa_hash_operation_t *pctx = (psa_hash_operation_t *)ctx;
   *pctx = psa_hash_operation_init();
-  if(psa_hash_setup(pctx, PSA_ALG_MD5) != PSA_SUCCESS)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ប្រសិនបើ(psa_hash_setup(pctx, PSA_ALG_MD5) != PSA_SUCCESS)
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
+  ត្រឡប់ CURLE_OK;
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned var_na *input, unsigned ចំនួនគត់ len)
 {
   (void)psa_hash_update(ctx, input, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+static void my_md5_final(unsigned var_na *digest, void *ctx)
 {
   size_t actual_length;
   (void)psa_hash_finish(ctx, digest, MD5_DIGEST_LEN, &actual_length);
@@ -178,16 +178,16 @@ static void my_md5_final(unsigned char *digest, void *ctx)
 static CURLcode my_md5_init(void *ctx)
 {
   (void)CC_MD5_Init(ctx);  /* always returns 1 */
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned var_na *input, unsigned ចំនួនគត់ len)
 {
   CC_MD5_Update(ctx, input, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+static void my_md5_final(unsigned var_na *digest, void *ctx)
 {
   CC_MD5_Final(digest, ctx);
 }
@@ -195,49 +195,49 @@ static void my_md5_final(unsigned char *digest, void *ctx)
 #elif defined(USE_WIN32_CRYPTO)
 #include <wincrypt.h>
 
-struct md5_ctx {
+sa_nracanaa md5_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct md5_ctx my_md5_ctx;
+typedef sa_nracanaa md5_ctx my_md5_ctx;
 
 static CURLcode my_md5_init(void *in)
 {
   my_md5_ctx *ctx = (my_md5_ctx *)in;
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  ប្រសិនបើ(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return CURLE_OUT_OF_MEMORY;
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD5, 0, 0, &ctx->hHash)) {
+  ប្រសិនបើ(!CryptCreateHash(ctx->hCryptProv, CALG_MD5, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return CURLE_FAILED_INIT;
+    ត្រឡប់ CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
 static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned var_na *input, unsigned ចំនួនគត់ len)
 {
   my_md5_ctx *ctx = in;
   CryptHashData(ctx->hHash, (const BYTE *)input, len, 0);
 }
 
-static void my_md5_final(unsigned char *digest, void *in)
+static void my_md5_final(unsigned var_na *digest, void *in)
 {
   my_md5_ctx *ctx = (my_md5_ctx *)in;
   unsigned long length = 0;
   CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD5_DIGEST_LEN)
+  ប្រសិនបើ(length == MD5_DIGEST_LEN)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
-  if(ctx->hHash)
+  ប្រសិនបើ(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
-  if(ctx->hCryptProv)
+  ប្រសិនបើ(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#else
+#បើមិនដូច្នេះ
 
 /* When no other crypto library is available we use this code segment */
 
@@ -266,13 +266,13 @@ static void my_md5_final(unsigned char *digest, void *in)
  * (This is a heavily cut-down "BSD license".)
  */
 
-struct md5_ctx {
+sa_nracanaa md5_ctx {
   uint32_t lo, hi;
   uint32_t a, b, c, d;
-  unsigned char buffer[64];
+  unsigned var_na buffer[64];
   uint32_t block[16];
 };
-typedef struct md5_ctx my_md5_ctx;
+typedef sa_nracanaa md5_ctx my_md5_ctx;
 
 /*
  * The basic MD5 functions.
@@ -302,10 +302,10 @@ typedef struct md5_ctx my_md5_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#ប្រសិនបើ defined(__i386__) || defined(__x86_64__) || defined(__vax__)
 #define MD5_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
 #define MD5_GET(n) MD5_SET(n)
-#else
+#បើមិនដូច្នេះ
 #define MD5_SET(n) (ctx->block[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
@@ -321,10 +321,10 @@ typedef struct md5_ctx my_md5_ctx;
 static const void *my_md5_body(my_md5_ctx *ctx,
                                const void *data, unsigned long size)
 {
-  const unsigned char *ptr;
+  const unsigned var_na *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)data;
+  ptr = (const unsigned var_na *)data;
 
   a = ctx->a;
   b = ctx->b;
@@ -417,14 +417,14 @@ static const void *my_md5_body(my_md5_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } ខណៈពេល(size -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  ត្រឡប់ ptr;
 }
 
 static CURLcode my_md5_init(void *in)
@@ -438,39 +438,39 @@ static CURLcode my_md5_init(void *in)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
 static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned var_na *input, unsigned ចំនួនគត់ len)
 {
   uint32_t saved_lo;
-  unsigned int used;
+  unsigned ចំនួនគត់ used;
   my_md5_ctx *ctx = (my_md5_ctx *)in;
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  ប្រសិនបើ(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
   used = saved_lo & 0x3f;
 
-  if(used) {
-    unsigned int available = 64 - used;
+  ប្រសិនបើ(used) {
+    unsigned ចំនួនគត់ available = 64 - used;
 
-    if(len < available) {
+    ប្រសិនបើ(len < available) {
       memcpy(&ctx->buffer[used], input, len);
-      return;
+      ត្រឡប់;
     }
 
     memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
+    input = (const unsigned var_na *)input + available;
     len -= available;
     my_md5_body(ctx, ctx->buffer, 64);
   }
 
-  if(len >= 64) {
+  ប្រសិនបើ(len >= 64) {
     input = my_md5_body(ctx, input, len & ~(unsigned long)0x3f);
     len &= 0x3f;
   }
@@ -478,9 +478,9 @@ static void my_md5_update(void *in,
   memcpy(ctx->buffer, input, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *in)
+static void my_md5_final(unsigned var_na *digest, void *in)
 {
-  unsigned int used, available;
+  unsigned ចំនួនគត់ used, available;
   my_md5_ctx *ctx = (my_md5_ctx *)in;
 
   used = ctx->lo & 0x3f;
@@ -489,7 +489,7 @@ static void my_md5_final(unsigned char *digest, void *in)
 
   available = 64 - used;
 
-  if(available < 8) {
+  ប្រសិនបើ(available < 8) {
     memset(&ctx->buffer[used], 0, available);
     my_md5_body(ctx, ctx->buffer, 64);
     used = 0;
@@ -527,25 +527,25 @@ static void my_md5_final(unsigned char *digest, void *in)
   digest[14] = curlx_ultouc((ctx->d >> 16) & 0xff);
   digest[15] = curlx_ultouc(ctx->d >> 24);
 
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, parimaa_na(*ctx));
 }
 
 #endif /* CRYPTO LIBS */
 
-const struct HMAC_params Curl_HMAC_MD5 = {
+const sa_nracanaa HMAC_params Curl_HMAC_MD5 = {
   my_md5_init,        /* Hash initialization function. */
   my_md5_update,      /* Hash update function. */
   my_md5_final,       /* Hash computation end function. */
-  sizeof(my_md5_ctx), /* Size of hash context structure. */
+  parimaa_na(my_md5_ctx), /* Size of hash context structure. */
   64,                 /* Maximum key length. */
   MD5_DIGEST_LEN      /* Result size. */
 };
 
-const struct MD5_params Curl_DIGEST_MD5 = {
+const sa_nracanaa MD5_params Curl_DIGEST_MD5 = {
   my_md5_init,        /* Digest initialization function */
   my_md5_update,      /* Digest update function */
   my_md5_final,       /* Digest computation end function */
-  sizeof(my_md5_ctx), /* Size of digest context struct */
+  parimaa_na(my_md5_ctx), /* Size of digest context struct */
   MD5_DIGEST_LEN      /* Result size */
 };
 
@@ -553,69 +553,69 @@ const struct MD5_params Curl_DIGEST_MD5 = {
  * @unittest: 1601
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_md5it(unsigned char *output,
-                    const unsigned char *input, size_t len)
+CURLcode Curl_md5it(unsigned var_na *output,
+                    const unsigned var_na *input, size_t len)
 {
   CURLcode result;
   my_md5_ctx ctx;
 
   result = my_md5_init(&ctx);
-  if(!result) {
+  ប្រសិនបើ(!result) {
     do {
-      unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
+      unsigned ចំនួនគត់ ilen = (unsigned ចំនួនគត់)CURLMIN(len, UINT_MAX);
       my_md5_update(&ctx, input, ilen);
       input += ilen;
       len -= ilen;
-    } while(len);
+    } ខណៈពេល(len);
     my_md5_final(output, &ctx);
   }
-  return result;
+  ត្រឡប់ result;
 }
 
-struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params)
+sa_nracanaa MD5_context *Curl_MD5_init(const sa_nracanaa MD5_params *md5params)
 {
-  struct MD5_context *ctxt;
+  sa_nracanaa MD5_context *ctxt;
 
   /* Create MD5 context */
-  ctxt = curlx_malloc(sizeof(*ctxt));
+  ctxt = curlx_malloc(parimaa_na(*ctxt));
 
-  if(!ctxt)
-    return ctxt;
+  ប្រសិនបើ(!ctxt)
+    ត្រឡប់ ctxt;
 
   ctxt->md5_hashctx = curlx_malloc(md5params->md5_ctxtsize);
 
-  if(!ctxt->md5_hashctx) {
+  ប្រសិនបើ(!ctxt->md5_hashctx) {
     curlx_free(ctxt);
-    return NULL;
+    ត្រឡប់ NULL;
   }
 
   ctxt->md5_hash = md5params;
 
-  if((*md5params->md5_init_func)(ctxt->md5_hashctx)) {
+  ប្រសិនបើ((*md5params->md5_init_func)(ctxt->md5_hashctx)) {
     curlx_free(ctxt->md5_hashctx);
     curlx_free(ctxt);
-    return NULL;
+    ត្រឡប់ NULL;
   }
 
-  return ctxt;
+  ត្រឡប់ ctxt;
 }
 
-CURLcode Curl_MD5_update(struct MD5_context *context,
-                         const unsigned char *input, unsigned int len)
+CURLcode Curl_MD5_update(sa_nracanaa MD5_context *context,
+                         const unsigned var_na *input, unsigned ចំនួនគត់ len)
 {
   (*context->md5_hash->md5_update_func)(context->md5_hashctx, input, len);
 
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
-CURLcode Curl_MD5_final(struct MD5_context *context, unsigned char *result)
+CURLcode Curl_MD5_final(sa_nracanaa MD5_context *context, unsigned var_na *result)
 {
   (*context->md5_hash->md5_final_func)(result, context->md5_hashctx);
 
   curlx_free(context->md5_hashctx);
   curlx_free(context);
 
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
 #endif /* Using NTLM (without SSPI) || Digest */

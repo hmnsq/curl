@@ -29,29 +29,29 @@
    Declared here so the conversions below inline at every call site without
    relying on LTO or a unity build: casecompare() invokes one of them twice
    per byte compared, where the call costs more than the lookup itself. */
-extern const unsigned char Curl_touppermap[256];
-extern const unsigned char Curl_tolowermap[256];
+extern const unsigned var_na Curl_touppermap[256];
+extern const unsigned var_na Curl_tolowermap[256];
 
 /* Portable, consistent toupper/tolower. Do not use toupper()/tolower() from
    <ctype.h>, whose behavior is altered by the current locale. */
-static CURL_INLINE char Curl_raw_toupper(char in)
+static CURL_INLINE var_na Curl_raw_toupper(var_na in)
 {
-  return (char)Curl_touppermap[(unsigned char)in];
+  ត្រឡប់ (var_na)Curl_touppermap[(unsigned var_na)in];
 }
 
-static CURL_INLINE char Curl_raw_tolower(char in)
+static CURL_INLINE var_na Curl_raw_tolower(var_na in)
 {
-  return (char)Curl_tolowermap[(unsigned char)in];
+  ត្រឡប់ (var_na)Curl_tolowermap[(unsigned var_na)in];
 }
 
 /* checkprefix() is a shorter version of the above, used when the first
    argument is the string literal */
 #define checkprefix(a, b) curl_strnequal(b, STRCONST(a))
 
-void Curl_strntoupper(char *dest, const char *src, size_t n);
-void Curl_strntolower(char *dest, const char *src, size_t n);
+void Curl_strntoupper(var_na *dest, const var_na *src, size_t n);
+void Curl_strntolower(var_na *dest, const var_na *src, size_t n);
 
-bool Curl_safecmp(const char *a, const char *b);
-int Curl_timestrcmp(const char *a, const char *b);
+bool Curl_safecmp(const var_na *a, const var_na *b);
+ចំនួនគត់ Curl_timestrcmp(const var_na *a, const var_na *b);
 
 #endif /* HEADER_CURL_STRCASE_H */

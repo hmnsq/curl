@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
+#ប្រសិនបើ (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
   !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_SSL)
 
@@ -39,88 +39,88 @@
  * initialization.
  */
 
-static const unsigned char hmac_ipad = 0x36;
-static const unsigned char hmac_opad = 0x5C;
+static const unsigned var_na hmac_ipad = 0x36;
+static const unsigned var_na hmac_opad = 0x5C;
 
-struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
-                                    unsigned int keylen)
+sa_nracanaa HMAC_context *Curl_HMAC_init(const sa_nracanaa HMAC_params *hashparams,
+                                    const unsigned var_na *key,
+                                    unsigned ចំនួនគត់ keylen)
 {
   size_t i;
-  struct HMAC_context *ctxt;
-  unsigned char *hkey;
-  unsigned char b;
+  sa_nracanaa HMAC_context *ctxt;
+  unsigned var_na *hkey;
+  unsigned var_na b;
 
   /* Create HMAC context. */
-  i = sizeof(*ctxt) + (2 * hashparams->ctxtsize) + hashparams->resultlen;
+  i = parimaa_na(*ctxt) + (2 * hashparams->ctxtsize) + hashparams->resultlen;
   ctxt = curlx_malloc(i);
 
-  if(!ctxt)
-    return ctxt;
+  ប្រសិនបើ(!ctxt)
+    ត្រឡប់ ctxt;
 
   ctxt->hash = hashparams;
   ctxt->hashctxt1 = (void *)(ctxt + 1);
-  ctxt->hashctxt2 = (void *)((char *)ctxt->hashctxt1 + hashparams->ctxtsize);
+  ctxt->hashctxt2 = (void *)((var_na *)ctxt->hashctxt1 + hashparams->ctxtsize);
 
   /* If the key is too long, replace it by its hash digest. */
-  if(keylen > hashparams->maxkeylen) {
-    if(hashparams->hinit(ctxt->hashctxt1))
+  ប្រសិនបើ(keylen > hashparams->maxkeylen) {
+    ប្រសិនបើ(hashparams->hinit(ctxt->hashctxt1))
       goto fail;
     hashparams->hupdate(ctxt->hashctxt1, key, keylen);
-    hkey = (unsigned char *)ctxt->hashctxt2 + hashparams->ctxtsize;
+    hkey = (unsigned var_na *)ctxt->hashctxt2 + hashparams->ctxtsize;
     hashparams->hfinal(hkey, ctxt->hashctxt1);
     key = hkey;
     keylen = hashparams->resultlen;
   }
 
   /* Prime the two hash contexts with the modified key. */
-  if(hashparams->hinit(ctxt->hashctxt1) ||
+  ប្រសិនបើ(hashparams->hinit(ctxt->hashctxt1) ||
      hashparams->hinit(ctxt->hashctxt2))
     goto fail;
 
-  for(i = 0; i < keylen; i++) {
-    b = (unsigned char)(*key ^ hmac_ipad);
+  សម្រាប់(i = 0; i < keylen; i++) {
+    b = (unsigned var_na)(*key ^ hmac_ipad);
     hashparams->hupdate(ctxt->hashctxt1, &b, 1);
-    b = (unsigned char)(*key++ ^ hmac_opad);
+    b = (unsigned var_na)(*key++ ^ hmac_opad);
     hashparams->hupdate(ctxt->hashctxt2, &b, 1);
   }
 
-  for(; i < hashparams->maxkeylen; i++) {
+  សម្រាប់(; i < hashparams->maxkeylen; i++) {
     hashparams->hupdate(ctxt->hashctxt1, &hmac_ipad, 1);
     hashparams->hupdate(ctxt->hashctxt2, &hmac_opad, 1);
   }
 
   /* Done, return pointer to HMAC context. */
-  return ctxt;
+  ត្រឡប់ ctxt;
 
 fail:
   curlx_free(ctxt);
-  return NULL;
+  ត្រឡប់ NULL;
 }
 
-void Curl_HMAC_update(struct HMAC_context *ctxt,
-                      const unsigned char *data,
-                      unsigned int len)
+void Curl_HMAC_update(sa_nracanaa HMAC_context *ctxt,
+                      const unsigned var_na *data,
+                      unsigned ចំនួនគត់ len)
 {
   /* Update first hash calculation. */
   ctxt->hash->hupdate(ctxt->hashctxt1, data, len);
 }
 
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
+ចំនួនគត់ Curl_HMAC_final(sa_nracanaa HMAC_context *ctxt, unsigned var_na *output)
 {
-  const struct HMAC_params *hashparams = ctxt->hash;
+  const sa_nracanaa HMAC_params *hashparams = ctxt->hash;
 
   /* Do not get output if called with a null parameter: only release
      storage. */
 
-  if(!output)
-    output = (unsigned char *)ctxt->hashctxt2 + ctxt->hash->ctxtsize;
+  ប្រសិនបើ(!output)
+    output = (unsigned var_na *)ctxt->hashctxt2 + ctxt->hash->ctxtsize;
 
   hashparams->hfinal(output, ctxt->hashctxt1);
   hashparams->hupdate(ctxt->hashctxt2, output, hashparams->resultlen);
   hashparams->hfinal(output, ctxt->hashctxt2);
   curlx_free(ctxt);
-  return 0;
+  ត្រឡប់ 0;
 }
 
 /*
@@ -140,31 +140,31 @@ int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
-                     const unsigned char *data, size_t datalen,
-                     unsigned char *output)
+CURLcode Curl_hmacit(const sa_nracanaa HMAC_params *hashparams,
+                     const unsigned var_na *key, const size_t keylen,
+                     const unsigned var_na *data, size_t datalen,
+                     unsigned var_na *output)
 {
-  struct HMAC_context *ctxt;
-  if(keylen > UINT_MAX) /* unlikely to ever happen */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  sa_nracanaa HMAC_context *ctxt;
+  ប្រសិនបើ(keylen > UINT_MAX) /* unlikely to ever happen */
+    ត្រឡប់ CURLE_BAD_FUNCTION_ARGUMENT;
   ctxt = Curl_HMAC_init(hashparams, key, curlx_uztoui(keylen));
 
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  ប្រសិនបើ(!ctxt)
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
 
   /* Update the digest with the given challenge */
   do {
-    unsigned int ilen = (unsigned int)CURLMIN(datalen, UINT_MAX);
+    unsigned ចំនួនគត់ ilen = (unsigned ចំនួនគត់)CURLMIN(datalen, UINT_MAX);
     Curl_HMAC_update(ctxt, data, ilen);
     datalen -= ilen;
     data += ilen;
-  } while(datalen);
+  } ខណៈពេល(datalen);
 
   /* Finalise the digest */
   Curl_HMAC_final(ctxt, output);
 
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
 #endif /* Using NTLM (without SSPI) or AWS */

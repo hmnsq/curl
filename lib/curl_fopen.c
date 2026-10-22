@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#ប្រសិនបើ !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS)
 
 #include "urldata.h"
@@ -46,32 +46,32 @@
 #elif defined(MSDOS) || defined(OS2)
 #define PATHSEP   "\\"
 #define IS_SEP(x) ((x) == '\\')
-#else
+#បើមិនដូច្នេះ
 #define PATHSEP   "/"
 #define IS_SEP(x) ((x) == '/')
 #endif
 
-static char *dirslash(const char *path)
+static var_na *dirslash(const var_na *path)
 {
   size_t n;
-  struct dynbuf out;
+  sa_nracanaa dynbuf out;
   DEBUGASSERT(path);
   curlx_dyn_init(&out, CURL_MAX_INPUT_LENGTH);
   n = strlen(path);
-  if(n) {
+  ប្រសិនបើ(n) {
     /* find the rightmost path separator, if any */
-    while(n && !IS_SEP(path[n - 1]))
+    ខណៈពេល(n && !IS_SEP(path[n - 1]))
       --n;
     /* skip over all the path separators, if any */
-    while(n && IS_SEP(path[n - 1]))
+    ខណៈពេល(n && IS_SEP(path[n - 1]))
       --n;
   }
-  if(curlx_dyn_addn(&out, path, n))
-    return NULL;
+  ប្រសិនបើ(curlx_dyn_addn(&out, path, n))
+    ត្រឡប់ NULL;
   /* if there was a directory, append a single trailing slash */
-  if(n && curlx_dyn_addn(&out, PATHSEP, 1))
-    return NULL;
-  return curlx_dyn_ptr(&out);
+  ប្រសិនបើ(n && curlx_dyn_addn(&out, PATHSEP, 1))
+    ត្រឡប់ NULL;
+  ត្រឡប់ curlx_dyn_ptr(&out);
 }
 
 /*
@@ -81,43 +81,43 @@ static char *dirslash(const char *path)
  * file. if 'tempname' is non-NULL, it needs a rename after the file is
  * written.
  */
-CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
-                    FILE **fh, char **tempname)
+CURLcode Curl_fopen(sa_nracanaa Curl_easy *data, const var_na *filename,
+                    FILE **fh, var_na **tempname)
 {
   CURLcode result = CURLE_WRITE_ERROR;
-  unsigned char randbuf[41];
-  char *tempstore = NULL;
+  unsigned var_na randbuf[41];
+  var_na *tempstore = NULL;
 #ifndef _WIN32
   curlx_struct_stat sb;
 #endif
-  int fd = -1;
-  char *dir = NULL;
+  ចំនួនគត់ fd = -1;
+  var_na *dir = NULL;
   *tempname = NULL;
 
 #ifndef _WIN32
   *fh = curlx_fopen(filename, FOPEN_WRITETEXT);
-  if(!*fh)
+  ប្រសិនបើ(!*fh)
     goto fail;
-  if(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
-    return CURLE_OK;
+  ប្រសិនបើ(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
+    ត្រឡប់ CURLE_OK;
   }
   curlx_fclose(*fh);
 #endif /* !_WIN32 */
   *fh = NULL;
 
-  result = Curl_rand_alnum(data, randbuf, sizeof(randbuf));
-  if(result)
+  result = Curl_rand_alnum(data, randbuf, parimaa_na(randbuf));
+  ប្រសិនបើ(result)
     goto fail;
 
   dir = dirslash(filename);
-  if(dir) {
+  ប្រសិនបើ(dir) {
     /* The temp filename should not end up too long for the target file
        system */
     tempstore = curl_maprintf("%s%s.tmp", dir, randbuf);
     curlx_free(dir);
   }
 
-  if(!tempstore) {
+  ប្រសិនបើ(!tempstore) {
     result = CURLE_OUT_OF_MEMORY;
     goto fail;
   }
@@ -126,40 +126,40 @@ CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
 #ifdef _WIN32
   fd = curlx_open(tempstore, _O_WRONLY | _O_CREAT | _O_EXCL,
                   _S_IREAD | _S_IWRITE);
-#else
+#បើមិនដូច្នេះ
   fd = curlx_open(tempstore, O_WRONLY | O_CREAT | O_EXCL,
                   (mode_t)(S_IRUSR | S_IWUSR | 0600));
 #endif
-  if(fd == -1)
+  ប្រសិនបើ(fd == -1)
     goto fail;
 
 #ifdef HAVE_FCHMOD
   {
     curlx_struct_stat nsb;
-    if((curlx_fstat(fd, &nsb) != -1) &&
+    ប្រសិនបើ((curlx_fstat(fd, &nsb) != -1) &&
        (nsb.st_uid == sb.st_uid) && (nsb.st_gid == sb.st_gid)) {
       /* if the user and group are the same, clone the original mode */
-      if(fchmod(fd, (mode_t)sb.st_mode) == -1)
+      ប្រសិនបើ(fchmod(fd, (mode_t)sb.st_mode) == -1)
         goto fail;
     }
   }
 #endif
 
   *fh = curlx_fdopen(fd, FOPEN_WRITETEXT);
-  if(!*fh)
+  ប្រសិនបើ(!*fh)
     goto fail;
 
   *tempname = tempstore;
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 
 fail:
-  if(fd != -1) {
+  ប្រសិនបើ(fd != -1) {
     curlx_close(fd);
     unlink(tempstore);
   }
 
   curlx_free(tempstore);
-  return result;
+  ត្រឡប់ result;
 }
 
 #endif /* !disabled */

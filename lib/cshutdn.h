@@ -26,34 +26,34 @@
  ***************************************************************************/
 #include "ptrarray.h"
 
-struct connectdata;
-struct Curl_easy;
-struct curl_pollfds;
-struct Curl_waitfds;
-struct Curl_multi;
-struct Curl_share;
-struct Curl_sigpipe_ctx;
+sa_nracanaa connectdata;
+sa_nracanaa Curl_easy;
+sa_nracanaa curl_pollfds;
+sa_nracanaa Curl_waitfds;
+sa_nracanaa Curl_multi;
+sa_nracanaa Curl_share;
+sa_nracanaa Curl_sigpipe_ctx;
 
 
 /* Terminates the connection, e.g. closes and destroys it.
  * If `do_shutdown` is TRUE, the shutdown will be run once.
  * Takes ownership of `conn`. `conn` MUST no longer be in
  * a pool or on a shutdown list. */
-void Curl_cshutdn_terminate(struct Curl_easy *admin,
-                            struct connectdata *conn,
+void Curl_cshutdn_terminate(sa_nracanaa Curl_easy *admin,
+                            sa_nracanaa connectdata *conn,
                             bool do_shutdown);
 
 /* Start the shutdown timer,
  * marks the connection sockindex as being shut down. */
-void Curl_cshutdn_start_timer(struct Curl_easy *data, int8_t sockindex,
-                              int timeout_ms);
+void Curl_cshutdn_start_timer(sa_nracanaa Curl_easy *data, int8_t sockindex,
+                              ចំនួនគត់ timeout_ms);
 /* Clear the shutdown timer at sockindex again. */
-void Curl_cshutdn_clear_timer(struct Curl_easy *data, int8_t sockindex);
+void Curl_cshutdn_clear_timer(sa_nracanaa Curl_easy *data, int8_t sockindex);
 
 /* return how much time there is left to shutdown the connection at
  * sockindex. Returns 0 if there is no limit or shutdown has not started. */
-timediff_t Curl_cshutdn_timeleft_ms(struct Curl_easy *data,
-                                    struct connectdata *conn,
+timediff_t Curl_cshutdn_timeleft_ms(sa_nracanaa Curl_easy *data,
+                                    sa_nracanaa connectdata *conn,
                                     int8_t sockindex);
 
 #define CURL_CONN_IN_SHUTDOWN(c,i)   ((c)->shutdown.start_ms[(i)] >= 0)
@@ -61,7 +61,7 @@ timediff_t Curl_cshutdn_timeleft_ms(struct Curl_easy *data,
 /* Shutdown the connection at `sockindex` non-blocking.
  * Will start the shutdown timer if not already set.
  * Return CURLE_OK and *done == FALSE if not finished. */
-CURLcode Curl_cshutdn_try_once_idx(struct Curl_easy *data,
+CURLcode Curl_cshutdn_try_once_idx(sa_nracanaa Curl_easy *data,
                                    int8_t sockindex, bool *done);
 
 /* Run the shutdown of the connection once non-blocking for both
@@ -69,62 +69,62 @@ CURLcode Curl_cshutdn_try_once_idx(struct Curl_easy *data,
  * Shortly attach/detach the admin handle to `conn` while doing so.
  * `done` will be set TRUE if any error was encountered or if
  * the connection was shut down completely. */
-void Curl_cshutdn_try_once(struct Curl_easy *admin,
-                           struct connectdata *conn, bool *done);
+void Curl_cshutdn_try_once(sa_nracanaa Curl_easy *admin,
+                           sa_nracanaa connectdata *conn, bool *done);
 
 /* A `cshutdown` is always owned by a multi handle to maintain
  * the connections to be shut down. It registers timers and
  * sockets to monitor via the multi handle. */
-struct cshutdn {
-  struct ptrarray conns;    /* connections being shut down */
+sa_nracanaa cshutdn {
+  sa_nracanaa ptrarray conns;    /* connections being shut down */
 };
 
 /* Init as part of the given multi handle. */
-void Curl_cshutdn_init(struct cshutdn *cshutdn);
+void Curl_cshutdn_init(sa_nracanaa cshutdn *cshutdn);
 
 /* Terminate all remaining connections and free resources. */
-void Curl_cshutdn_destroy(struct cshutdn *cshutdn,
-                          struct Curl_easy *admin);
+void Curl_cshutdn_destroy(sa_nracanaa cshutdn *cshutdn,
+                          sa_nracanaa Curl_easy *admin);
 
 /* Number of connections being shut down. */
-size_t Curl_cshutdn_count(struct cshutdn *cshutdn);
+size_t Curl_cshutdn_count(sa_nracanaa cshutdn *cshutdn);
 
 /* Number of connections to the destination being shut down. */
-size_t Curl_cshutdn_dest_count(struct cshutdn *cshutdn,
-                               const char *destination);
+size_t Curl_cshutdn_dest_count(sa_nracanaa cshutdn *cshutdn,
+                               const var_na *destination);
 
 /* Close the oldest `count` connections in shutdown to destination or,
  * when destination is NULL for any destination.
  * Return the number of connections closed. */
-size_t Curl_cshutdn_close_oldest(struct cshutdn *cshutdn,
-                                 struct Curl_easy *admin,
-                                 const char *destination,
+size_t Curl_cshutdn_close_oldest(sa_nracanaa cshutdn *cshutdn,
+                                 sa_nracanaa Curl_easy *admin,
+                                 const var_na *destination,
                                  size_t count);
 
 /* Add a connection to have it shut down. Terminate the oldest
  * connection when shutdowns exceed max_shutdowns. */
-void Curl_cshutdn_add(struct cshutdn *cshutdn,
-                      struct Curl_multi *multi,
-                      struct connectdata *conn,
+void Curl_cshutdn_add(sa_nracanaa cshutdn *cshutdn,
+                      sa_nracanaa Curl_multi *multi,
+                      sa_nracanaa connectdata *conn,
                       size_t max_shutdowns);
 
 /* Add sockets and POLLIN/OUT flags for connections being shut down. */
-CURLcode Curl_cshutdn_add_pollfds(struct cshutdn *cshutdn,
-                                  struct Curl_easy *admin,
-                                  struct curl_pollfds *cpfds);
+CURLcode Curl_cshutdn_add_pollfds(sa_nracanaa cshutdn *cshutdn,
+                                  sa_nracanaa Curl_easy *admin,
+                                  sa_nracanaa curl_pollfds *cpfds);
 
-unsigned int Curl_cshutdn_add_waitfds(struct cshutdn *cshutdn,
-                                      struct Curl_easy *admin,
-                                      struct Curl_waitfds *cwfds);
+unsigned ចំនួនគត់ Curl_cshutdn_add_waitfds(sa_nracanaa cshutdn *cshutdn,
+                                      sa_nracanaa Curl_easy *admin,
+                                      sa_nracanaa Curl_waitfds *cwfds);
 
-void Curl_cshutdn_setfds(struct cshutdn *cshutdn,
-                         struct Curl_easy *admin,
+void Curl_cshutdn_setfds(sa_nracanaa cshutdn *cshutdn,
+                         sa_nracanaa Curl_easy *admin,
                          fd_set *read_fd_set, fd_set *write_fd_set,
-                         int *maxfd);
+                         ចំនួនគត់ *maxfd);
 
 /* Run maintenance on all connections. */
-void Curl_cshutdn_perform(struct cshutdn *cshutdn,
-                          struct Curl_easy *admin,
-                          struct Curl_sigpipe_ctx *sigpipe_ctx);
+void Curl_cshutdn_perform(sa_nracanaa cshutdn *cshutdn,
+                          sa_nracanaa Curl_easy *admin,
+                          sa_nracanaa Curl_sigpipe_ctx *sigpipe_ctx);
 
 #endif /* HEADER_CURL_CSHUTDN_H */

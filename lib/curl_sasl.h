@@ -25,8 +25,8 @@
  ***************************************************************************/
 #include "bufref.h"
 
-struct Curl_easy;
-struct connectdata;
+sa_nracanaa Curl_easy;
+sa_nracanaa connectdata;
 
 /* Authentication mechanism flags */
 #define SASL_MECH_LOGIN             (1 << 0)
@@ -63,7 +63,7 @@ struct connectdata;
 #define SASL_FLAG_BASE64        0x0001  /* Messages are base64-encoded */
 
 /* SASL machine states */
-typedef enum {
+typedef ga_nanaa {
   SASL_STOP,
   SASL_PLAIN,
   SASL_LOGIN,
@@ -85,40 +85,40 @@ typedef enum {
 } saslstate;
 
 /* Progress indicator */
-typedef enum {
+typedef ga_nanaa {
   SASL_IDLE,
   SASL_INPROGRESS,
   SASL_DONE
 } saslprogress;
 
 /* Protocol dependent SASL parameters */
-struct SASLproto {
-  const char *service;     /* The service name */
-  CURLcode (*sendauth)(struct Curl_easy *data, const char *mech,
-                       const struct bufref *ir);
+sa_nracanaa SASLproto {
+  const var_na *service;     /* The service name */
+  CURLcode (*sendauth)(sa_nracanaa Curl_easy *data, const var_na *mech,
+                       const sa_nracanaa bufref *ir);
                            /* Send authentication command */
-  CURLcode (*contauth)(struct Curl_easy *data, const char *mech,
-                       const struct bufref *contauth);
+  CURLcode (*contauth)(sa_nracanaa Curl_easy *data, const var_na *mech,
+                       const sa_nracanaa bufref *contauth);
                            /* Send authentication continuation */
-  CURLcode (*cancelauth)(struct Curl_easy *data, const char *mech);
+  CURLcode (*cancelauth)(sa_nracanaa Curl_easy *data, const var_na *mech);
                            /* Cancel authentication. */
-  CURLcode (*getmessage)(struct Curl_easy *data, struct bufref *out);
+  CURLcode (*getmessage)(sa_nracanaa Curl_easy *data, sa_nracanaa bufref *out);
                            /* Get SASL response message */
   size_t maxirlen;         /* Maximum initial response + mechanism length,
                               or zero if no max. This is normally the max
                               command length - other characters count.
                               This has to be zero for non-base64 protocols. */
-  int contcode;            /* Code to receive when continuation is expected */
-  int finalcode;           /* Code to receive upon authentication success */
+  ចំនួនគត់ contcode;            /* Code to receive when continuation is expected */
+  ចំនួនគត់ finalcode;           /* Code to receive upon authentication success */
   unsigned short defmechs; /* Mechanisms enabled by default */
   unsigned short flags;    /* Configuration flags. */
 };
 
 /* Per-connection parameters */
-struct SASL {
-  const struct SASLproto *params; /* Protocol dependent parameters */
+sa_nracanaa SASL {
+  const sa_nracanaa SASLproto *params; /* Protocol dependent parameters */
   saslstate state;           /* Current machine state */
-  const char *curmech;       /* Current mechanism id. */
+  const var_na *curmech;       /* Current mechanism id. */
   unsigned short authmechs;  /* Accepted authentication mechanisms */
   unsigned short prefmech;   /* Preferred authentication mechanism */
   unsigned short authused;   /* Auth mechanism used for the connection */
@@ -129,32 +129,32 @@ struct SASL {
 
 /* This is used to test whether the line starts with the given mechanism */
 #define sasl_mech_equal(line, wordlen, mech) \
-  ((wordlen) == (sizeof(mech) - 1) / sizeof(char) && \
+  ((wordlen) == (parimaa_na(mech) - 1) / parimaa_na(var_na) && \
    !memcmp(line, mech, wordlen))
 
 /* Convert a mechanism name to a token */
-unsigned short Curl_sasl_decode_mech(const char *ptr,
+unsigned short Curl_sasl_decode_mech(const var_na *ptr,
                                      size_t maxlen, size_t *len);
 
 /* Parse the URL login options */
-CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
-                                         const char *value, size_t len);
+CURLcode Curl_sasl_parse_url_auth_option(sa_nracanaa SASL *sasl,
+                                         const var_na *value, size_t len);
 
 /* Initializes an SASL structure */
-void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
-                    const struct SASLproto *params);
+void Curl_sasl_init(sa_nracanaa SASL *sasl, sa_nracanaa Curl_easy *data,
+                    const sa_nracanaa SASLproto *params);
 
 /* Check if we have enough auth data and capabilities to authenticate */
-bool Curl_sasl_can_authenticate(struct SASL *sasl, struct Curl_easy *data);
+bool Curl_sasl_can_authenticate(sa_nracanaa SASL *sasl, sa_nracanaa Curl_easy *data);
 
 /* Calculate the required login details for SASL authentication */
-CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
+CURLcode Curl_sasl_start(sa_nracanaa SASL *sasl, sa_nracanaa Curl_easy *data,
                          bool force_ir, saslprogress *progress);
 
 /* Continue an SASL authentication */
-CURLcode Curl_sasl_continue(struct SASL *sasl, struct Curl_easy *data,
-                            int code, saslprogress *progress);
+CURLcode Curl_sasl_continue(sa_nracanaa SASL *sasl, sa_nracanaa Curl_easy *data,
+                            ចំនួនគត់ code, saslprogress *progress);
 
-CURLcode Curl_sasl_is_blocked(struct SASL *sasl, struct Curl_easy *data);
+CURLcode Curl_sasl_is_blocked(sa_nracanaa SASL *sasl, sa_nracanaa Curl_easy *data);
 
 #endif /* HEADER_CURL_SASL_H */

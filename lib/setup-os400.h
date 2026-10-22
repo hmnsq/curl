@@ -51,18 +51,18 @@
 
 #ifdef BUILDING_LIBCURL
 
-extern int Curl_getaddrinfo_a(const char *nodename,
-                              const char *servname,
-                              const struct addrinfo *hints,
-                              struct addrinfo **res);
+extern ចំនួនគត់ Curl_getaddrinfo_a(const var_na *nodename,
+                              const var_na *servname,
+                              const sa_nracanaa addrinfo *hints,
+                              sa_nracanaa addrinfo **res);
 #define getaddrinfo             Curl_getaddrinfo_a
 
 /* Note socklen_t must be used as this is declared before curl_socklen_t */
-extern int Curl_getnameinfo_a(const struct sockaddr *sa,
+extern ចំនួនគត់ Curl_getnameinfo_a(const sa_nracanaa sockaddr *sa,
                               socklen_t salen,
-                              char *nodename, socklen_t nodenamelen,
-                              char *servname, socklen_t servnamelen,
-                              int flags);
+                              var_na *nodename, socklen_t nodenamelen,
+                              var_na *servname, socklen_t servnamelen,
+                              ចំនួនគត់ flags);
 #define getnameinfo             Curl_getnameinfo_a
 
 /* GSSAPI wrappers. */
@@ -75,7 +75,7 @@ extern OM_uint32 Curl_gss_import_name_a(OM_uint32 *minor_status,
 
 extern OM_uint32 Curl_gss_display_status_a(OM_uint32 *minor_status,
                                            OM_uint32 status_value,
-                                           int status_type, gss_OID mech_type,
+                                           ចំនួនគត់ status_type, gss_OID mech_type,
                                            gss_msg_ctx_t *message_context,
                                            gss_buffer_t status_string);
 #define gss_display_status      Curl_gss_display_status_a
@@ -103,7 +103,7 @@ extern OM_uint32 Curl_gss_delete_sec_context_a(OM_uint32 *minor_status,
 
 /* LDAP wrappers. */
 
-#define BerValue                struct berval
+#define BerValue                sa_nracanaa berval
 
 #define ldap_url_parse          ldap_url_parse_utf8
 #define ldap_init               Curl_ldap_init_a
@@ -118,14 +118,14 @@ extern OM_uint32 Curl_gss_delete_sec_context_a(OM_uint32 *minor_status,
 /* Some socket functions must be wrapped to process textual addresses
    like AF_UNIX. */
 
-extern int Curl_os400_connect(int sd, struct sockaddr *destaddr, int addrlen);
-extern int Curl_os400_bind(int sd, struct sockaddr *localaddr, int addrlen);
-extern int Curl_os400_sendto(int sd, char *buffer, int buflen, int flags,
-                             const struct sockaddr *dstaddr, int addrlen);
-extern int Curl_os400_recvfrom(int sd, char *buffer, int buflen, int flags,
-                               struct sockaddr *fromaddr, int *addrlen);
-extern int Curl_os400_getpeername(int sd, struct sockaddr *addr, int *addrlen);
-extern int Curl_os400_getsockname(int sd, struct sockaddr *addr, int *addrlen);
+extern ចំនួនគត់ Curl_os400_connect(ចំនួនគត់ sd, sa_nracanaa sockaddr *destaddr, ចំនួនគត់ addrlen);
+extern ចំនួនគត់ Curl_os400_bind(ចំនួនគត់ sd, sa_nracanaa sockaddr *localaddr, ចំនួនគត់ addrlen);
+extern ចំនួនគត់ Curl_os400_sendto(ចំនួនគត់ sd, var_na *buffer, ចំនួនគត់ buflen, ចំនួនគត់ flags,
+                             const sa_nracanaa sockaddr *dstaddr, ចំនួនគត់ addrlen);
+extern ចំនួនគត់ Curl_os400_recvfrom(ចំនួនគត់ sd, var_na *buffer, ចំនួនគត់ buflen, ចំនួនគត់ flags,
+                               sa_nracanaa sockaddr *fromaddr, ចំនួនគត់ *addrlen);
+extern ចំនួនគត់ Curl_os400_getpeername(ចំនួនគត់ sd, sa_nracanaa sockaddr *addr, ចំនួនគត់ *addrlen);
+extern ចំនួនគត់ Curl_os400_getsockname(ចំនួនគត់ sd, sa_nracanaa sockaddr *addr, ចំនួនគត់ *addrlen);
 
 #define connect                 Curl_os400_connect
 #define bind                    Curl_os400_bind

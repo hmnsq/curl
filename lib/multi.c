@@ -71,56 +71,56 @@
 #define CURL_TLS_SESSION_SIZE 25
 #endif
 
-static void move_pending_to_connect(struct Curl_multi *multi,
-                                    struct Curl_easy *data);
-static CURLMcode add_next_timeout(const struct curltime *pnow,
-                                  struct Curl_multi *multi,
-                                  struct Curl_easy *data);
-static void multi_timeout(struct Curl_multi *multi,
+static void move_pending_to_connect(sa_nracanaa Curl_multi *multi,
+                                    sa_nracanaa Curl_easy *data);
+static CURLMcode add_next_timeout(const sa_nracanaa curltime *pnow,
+                                  sa_nracanaa Curl_multi *multi,
+                                  sa_nracanaa Curl_easy *data);
+static void multi_timeout(sa_nracanaa Curl_multi *multi,
                           timediff_t *pexire_offset_us,
-                          int *timeout_ms);
-static void multi_schedule_pending(struct Curl_multi *multi);
-static void multi_xfer_bufs_free(struct Curl_multi *multi);
+                          ចំនួនគត់ *timeout_ms);
+static void multi_schedule_pending(sa_nracanaa Curl_multi *multi);
+static void multi_xfer_bufs_free(sa_nracanaa Curl_multi *multi);
 #ifdef DEBUGBUILD
-static void multi_xfer_tbl_dump(struct Curl_multi *multi);
+static void multi_xfer_tbl_dump(sa_nracanaa Curl_multi *multi);
 #endif
 /* Get the # of transfers current in process/pending. */
-static uint32_t multi_xfers_running(struct Curl_multi *multi);
+static uint32_t multi_xfers_running(sa_nracanaa Curl_multi *multi);
 
 /* function pointer called once when entering a state */
-typedef void (*mstate_enter_func)(struct Curl_easy *data,
+typedef void (*mstate_enter_func)(sa_nracanaa Curl_easy *data,
                                   CURLMstate from_state);
 
-static void mstate_enter_connect(struct Curl_easy *data,
+static void mstate_enter_connect(sa_nracanaa Curl_easy *data,
                                  CURLMstate from_state)
 {
   (void)from_state;
   Curl_init_CONNECT(data);
 }
 
-static void mstate_enter_did(struct Curl_easy *data,
+static void mstate_enter_did(sa_nracanaa Curl_easy *data,
                              CURLMstate from_state)
 {
   (void)from_state;
   data->req.chunk = FALSE;
   Curl_pgrsTime(data, TIMER_PRETRANSFER);
-  if(!CURL_REQ_WANT_SEND(data))
+  ប្រសិនបើ(!CURL_REQ_WANT_SEND(data))
     Curl_pgrsTime(data, TIMER_POSTRANSFER);
 }
 
-static void mstate_enter_done(struct Curl_easy *data,
+static void mstate_enter_done(sa_nracanaa Curl_easy *data,
                               CURLMstate from_state)
 {
   (void)from_state;
   CURLM_NTFY(data, CURLMNOTIFY_EASY_DONE);
 }
 
-static void mstate_enter_completed(struct Curl_easy *data,
+static void mstate_enter_completed(sa_nracanaa Curl_easy *data,
                                    CURLMstate from_state)
 {
   /* we sometimes directly jump to COMPLETED, trigger things
    * we then missed. */
-  if(from_state < MSTATE_DID) {
+  ប្រសិនបើ(from_state < MSTATE_DID) {
     Curl_pgrsTime(data, TIMER_PRETRANSFER);
     Curl_pgrsTime(data, TIMER_POSTRANSFER);
     Curl_pgrsTime(data, TIMER_STARTTRANSFER);
@@ -128,14 +128,14 @@ static void mstate_enter_completed(struct Curl_easy *data,
   /* multi_done() should have run and detached any connection already */
   DEBUGASSERT(!data->conn);
   Curl_pgrsCompleted(data);
-  if(from_state < MSTATE_DONE)
+  ប្រសិនបើ(from_state < MSTATE_DONE)
     CURLM_NTFY(data, CURLMNOTIFY_EASY_DONE);
   /* changing to COMPLETED means it is in process and needs to go */
   DEBUGASSERT(Curl_uint32_bset_contains(&data->multi->process, data->mid));
   Curl_uint32_bset_remove(&data->multi->process, data->mid);
   Curl_uint32_bset_remove(&data->multi->pending, data->mid); /* to be sure */
 
-  if(Curl_uint32_bset_empty(&data->multi->process)) {
+  ប្រសិនបើ(Curl_uint32_bset_empty(&data->multi->process)) {
     /* free the transfer buffer when we have no more active transfers */
     multi_xfer_bufs_free(data->multi);
   }
@@ -146,9 +146,9 @@ static void mstate_enter_completed(struct Curl_easy *data,
 }
 
 /* always use this function to change state, to make debugging easier */
-static void mstate(struct Curl_easy *data, CURLMstate state
+static void mstate(sa_nracanaa Curl_easy *data, CURLMstate state
 #ifdef DEBUGBUILD
-                   , int lineno
+                   , ចំនួនគត់ lineno
 #endif
 )
 {
@@ -172,26 +172,26 @@ static void mstate(struct Curl_easy *data, CURLMstate state
     NULL                       /* MSGSENT */
   };
 
-  if(oldstate == state)
+  ប្រសិនបើ(oldstate == state)
     /* do not bother when the new state is the same as the old state */
-    return;
+    ត្រឡប់;
 
 #ifdef DEBUGBUILD
   NOVERBOSE((void)lineno);
   CURL_TRC_M(data, "-> [%s] (line %d)", CURL_MSTATE_NAME(state), lineno);
-#else
+#បើមិនដូច្នេះ
   CURL_TRC_M(data, "-> [%s]", CURL_MSTATE_NAME(state));
 #endif
 
   /* really switching state */
   data->mstate = state;
-  if(state_enter[state])
+  ប្រសិនបើ(state_enter[state])
     state_enter[state](data, oldstate);
 }
 
 #ifndef DEBUGBUILD
 #define multistate(x, y) mstate(x, y)
-#else
+#បើមិនដូច្នេះ
 #define multistate(x, y) mstate(x, y, __LINE__)
 #endif
 
@@ -211,26 +211,26 @@ static void ph_freeentry(void *p)
  *
  * Called when a transfer is completed. Marks its message as unread.
  */
-static void multi_addmsg(struct Curl_multi *multi, struct Curl_easy *data)
+static void multi_addmsg(sa_nracanaa Curl_multi *multi, sa_nracanaa Curl_easy *data)
 {
-  if(Curl_uint32_bset_empty(&multi->msgsent))
+  ប្រសិនបើ(Curl_uint32_bset_empty(&multi->msgsent))
     CURLM_NTFY(multi->admin, CURLMNOTIFY_INFO_READ);
   Curl_uint32_bset_add(&multi->msgsent, data->mid);
 }
 
-static void multi_timeouts_init(struct Curl_easy *data);
+static void multi_timeouts_init(sa_nracanaa Curl_easy *data);
 
-struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
+sa_nracanaa Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
                                      size_t ev_hashsize,  /* event hash */
                                      size_t chashsize, /* connection hash */
                                      size_t dnssize,   /* dns hash */
                                      size_t sesssize)  /* TLS session cache */
 {
-  struct curltime created;
-  struct Curl_multi *multi = curlx_calloc(1, sizeof(struct Curl_multi));
+  sa_nracanaa curltime created;
+  sa_nracanaa Curl_multi *multi = curlx_calloc(1, parimaa_na(sa_nracanaa Curl_multi));
 
-  if(!multi)
-    return NULL;
+  ប្រសិនបើ(!multi)
+    ត្រឡប់ NULL;
 
   multi->magic = CURLMULTI_MAGIC_NUMBER;
 
@@ -239,9 +239,9 @@ struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
    * up platform specific things we need. For example calling curlx_pnow()
    * before this is not safe. */
   multi->admin = curl_easy_init();
-  if(!multi->admin) {
+  ប្រសិនបើ(!multi->admin) {
     curlx_free(multi);
-    return NULL;
+    ត្រឡប់ NULL;
   }
   multi->admin->multi = multi;
   multi->admin->state.internal = TRUE;
@@ -273,7 +273,7 @@ struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
   multi->wakeup_internal[1] = CURL_SOCKET_BAD;
 #endif
 
-  if(Curl_uint32_bset_resize(&multi->process, xfer_table_size) ||
+  ប្រសិនបើ(Curl_uint32_bset_resize(&multi->process, xfer_table_size) ||
      Curl_uint32_bset_resize(&multi->pending, xfer_table_size) ||
      Curl_uint32_bset_resize(&multi->dirty, xfer_table_size) ||
      Curl_uint32_bset_resize(&multi->msgsent, xfer_table_size) ||
@@ -282,13 +282,13 @@ struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
 
 #ifdef DEBUGBUILD
   {
-    const char *p;
-    if(getenv("CURL_DEBUG"))
+    const var_na *p;
+    ប្រសិនបើ(getenv("CURL_DEBUG"))
       multi->admin->set.verbose = TRUE;
     p = getenv("CURL_DBG_MAX_TOTAL_CONNECTIONS");
-    if(p) {
+    ប្រសិនបើ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
+      ប្រសិនបើ(!curlx_str_number(&p, &l, UINT32_MAX)) {
         multi->max_total_connections = (uint32_t)l;
       }
     }
@@ -300,43 +300,43 @@ struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
   Curl_cpool_init(&multi->cpool, NULL, chashsize);
 
 #ifdef USE_SSL
-  if(Curl_ssl_scache_create(sesssize, 2, &multi->ssl_scache))
+  ប្រសិនបើ(Curl_ssl_scache_create(sesssize, 2, &multi->ssl_scache))
     goto error;
-#else
+#បើមិនដូច្នេះ
   (void)sesssize;
 #endif
 
 #ifdef USE_WINSOCK
   multi->wsa_event = WSACreateEvent();
-  if(multi->wsa_event == WSA_INVALID_EVENT)
+  ប្រសិនបើ(multi->wsa_event == WSA_INVALID_EVENT)
     goto error;
 #endif
 #ifdef ENABLE_WAKEUP
   /* When enabled, rely on this to work. We ignore this in previous
    * versions, but that seems an unnecessary complication. */
-  if(Curl_wakeup_init(multi->wakeup_pair, TRUE) < 0)
+  ប្រសិនបើ(Curl_wakeup_init(multi->wakeup_pair, TRUE) < 0)
     goto error;
 #endif
 #ifdef ENABLE_INTERNAL_WAKEUP
-  if(Curl_wakeup_init(multi->wakeup_internal, TRUE) < 0)
+  ប្រសិនបើ(Curl_wakeup_init(multi->wakeup_internal, TRUE) < 0)
     goto error;
 #endif
 
-  if(Curl_probeipv6(multi))
+  ប្រសិនបើ(Curl_probeipv6(multi))
     goto error;
 
 #ifdef USE_RESOLV_THREADED
-  if(xfer_table_size < CURL_XFER_TABLE_SIZE) { /* easy multi */
-    if(Curl_async_thrdd_multi_init(multi, 0, 2, 10))
+  ប្រសិនបើ(xfer_table_size < CURL_XFER_TABLE_SIZE) { /* easy multi */
+    ប្រសិនបើ(Curl_async_thrdd_multi_init(multi, 0, 2, 10))
       goto error;
   }
-  else { /* real multi handle */
-    if(Curl_async_thrdd_multi_init(multi, 0, 20, 2000))
+  បើមិនដូច្នេះ { /* real multi handle */
+    ប្រសិនបើ(Curl_async_thrdd_multi_init(multi, 0, 20, 2000))
       goto error;
   }
 #endif
 
-  return multi;
+  ត្រឡប់ multi;
 
 error:
 
@@ -351,7 +351,7 @@ error:
 #ifdef USE_SSL
   Curl_ssl_scache_destroy(multi->ssl_scache);
 #endif
-  if(multi->admin) {
+  ប្រសិនបើ(multi->admin) {
     Curl_multi_ev_xfer_done(multi, multi->admin);
     multi->admin->multi = NULL;
     Curl_close(&multi->admin);
@@ -371,50 +371,50 @@ error:
 #endif
 
   curlx_free(multi);
-  return NULL;
+  ត្រឡប់ NULL;
 }
 
 CURLM *curl_multi_init(void)
 {
-  return Curl_multi_handle(CURL_XFER_TABLE_SIZE,
+  ត្រឡប់ Curl_multi_handle(CURL_XFER_TABLE_SIZE,
                            CURL_SOCKET_HASH_TABLE_SIZE,
                            CURL_CONNECTION_HASH_SIZE,
                            CURL_DNS_HASH_SIZE,
                            CURL_TLS_SESSION_SIZE);
 }
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
-static void multi_warn_debug(struct Curl_multi *multi, struct Curl_easy *data)
+#ប្រសិនបើ defined(DEBUGBUILD) && defined(CURLVERBOSE)
+static void multi_warn_debug(sa_nracanaa Curl_multi *multi, sa_nracanaa Curl_easy *data)
 {
-  if(!multi->warned) {
+  ប្រសិនបើ(!multi->warned) {
     infof(data, "!!! WARNING !!!");
     infof(data, "This is a debug build of libcurl, "
                 "do not use in production.");
     multi->warned = TRUE;
   }
 }
-#else
+#បើមិនដូច្នេះ
 #define multi_warn_debug(x, y) Curl_nop_stmt
 #endif
 
-bool Curl_is_connecting(struct Curl_easy *data)
+bool Curl_is_connecting(sa_nracanaa Curl_easy *data)
 {
-  return data->mstate < MSTATE_DO;
+  ត្រឡប់ data->mstate < MSTATE_DO;
 }
 
-static CURLMcode multi_assess_wakeup(struct Curl_multi *multi)
+static CURLMcode multi_assess_wakeup(sa_nracanaa Curl_multi *multi)
 {
 #ifdef ENABLE_INTERNAL_WAKEUP
-  if(multi->socket_cb)
-    return Curl_multi_ev_assess_xfer(multi, multi->admin);
-#else
+  ប្រសិនបើ(multi->socket_cb)
+    ត្រឡប់ Curl_multi_ev_assess_xfer(multi, multi->admin);
+#បើមិនដូច្នេះ
   (void)multi;
 #endif
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
-static CURLMcode multi_xfers_add(struct Curl_multi *multi,
-                                 struct Curl_easy *data)
+static CURLMcode multi_xfers_add(sa_nracanaa Curl_multi *multi,
+                                 sa_nracanaa Curl_easy *data)
 {
   uint32_t capacity = Curl_uint32_tbl_capacity(&multi->xfers);
   uint32_t new_size = 0;
@@ -423,68 +423,68 @@ static CURLMcode multi_xfers_add(struct Curl_multi *multi,
   /* UINT_MAX is our "invalid" id, do not let the table grow up to that. */
   const uint32_t max_capacity = UINT_MAX - 1;
 
-  if(capacity < max_capacity) {
+  ប្រសិនបើ(capacity < max_capacity) {
     /* We want `multi->xfers` to have "sufficient" free rows, so that we do
      * not have to reuse the `mid` from a removed easy right away.
      * Check if an 8th of the capacity is still free */
     uint32_t used = Curl_uint32_tbl_count(&multi->xfers);
     uint32_t unused = capacity - used;
     uint32_t min_unused = CURLMAX(capacity >> 3, 4);
-    if(unused < min_unused) {
+    ប្រសិនបើ(unused < min_unused) {
       /* Grow by 50% of current capacity, in range of [128, 2048],
        * which means the table grows max by 16kb on 64-bit arch. */
       uint32_t growth = CURLMIN(CURLMAX(capacity >> 1, 128), 2048);
       /* Make sure the uint arithmetic here works on the corner
        * cases where we are close to max_capacity or UINT_MAX */
-      if((max_capacity - growth) <= capacity)
+      ប្រសិនបើ((max_capacity - growth) <= capacity)
         new_size = max_capacity;
-      else
+      បើមិនដូច្នេះ
         new_size = capacity + growth;
     }
   }
 
-  if(new_size > capacity) {
+  ប្រសិនបើ(new_size > capacity) {
     /* Grow the bitsets first. Should one fail, we do not need
      * to downsize the already resized ones. The sets continue
      * to work properly when larger than the table, but not
      * the other way around. */
     CURL_TRC_M(data, "increasing xfer table size to %u", new_size);
-    if(Curl_uint32_bset_resize(&multi->process, new_size) ||
+    ប្រសិនបើ(Curl_uint32_bset_resize(&multi->process, new_size) ||
        Curl_uint32_bset_resize(&multi->dirty, new_size) ||
        Curl_uint32_bset_resize(&multi->pending, new_size) ||
        Curl_uint32_bset_resize(&multi->msgsent, new_size) ||
        Curl_uint32_tbl_resize(&multi->xfers, new_size))
-      return CURLM_OUT_OF_MEMORY;
+      ត្រឡប់ CURLM_OUT_OF_MEMORY;
   }
 
   /* Insert the easy into the table now */
-  if(!Curl_uint32_tbl_add(&multi->xfers, data, &data->mid)) {
+  ប្រសិនបើ(!Curl_uint32_tbl_add(&multi->xfers, data, &data->mid)) {
     /* MUST only happen when table is full */
     DEBUGASSERT(Curl_uint32_tbl_capacity(&multi->xfers) <=
                 Curl_uint32_tbl_count(&multi->xfers));
-    return CURLM_OUT_OF_MEMORY;
+    ត្រឡប់ CURLM_OUT_OF_MEMORY;
   }
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
-CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
-                                struct Curl_easy *data)
+CURLMcode Curl_multi_add_handle(sa_nracanaa Curl_multi *multi,
+                                sa_nracanaa Curl_easy *data)
 {
   CURLMcode mresult;
 
   /* Prevent users from adding same easy handle more than once and prevent
      adding to more than one multi stack */
-  if(data->multi)
-    return CURLM_ADDED_ALREADY;
+  ប្រសិនបើ(data->multi)
+    ត្រឡប់ CURLM_ADDED_ALREADY;
 
-  if(multi->dead) {
+  ប្រសិនបើ(multi->dead) {
     /* a "dead" handle cannot get added transfers while any existing easy
        handles are still alive - but if there are none alive anymore, it is
        fine to start over and unmark the "deadness" of this handle.
        This means only the admin handle MUST be present. */
-    if((Curl_uint32_tbl_count(&multi->xfers) != 1) ||
+    ប្រសិនបើ((Curl_uint32_tbl_count(&multi->xfers) != 1) ||
        !Curl_uint32_tbl_contains(&multi->xfers, 0))
-      return CURLM_ABORTED_BY_CALLBACK;
+      ត្រឡប់ CURLM_ABORTED_BY_CALLBACK;
     multi->dead = FALSE;
     Curl_uint32_bset_clear(&multi->process);
     Curl_uint32_bset_clear(&multi->dirty);
@@ -492,7 +492,7 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
     Curl_uint32_bset_clear(&multi->msgsent);
   }
 
-  if(data->multi_easy) {
+  ប្រសិនបើ(data->multi_easy) {
     /* if this easy handle was previously used for curl_easy_perform(), there
        is a private multi handle here that we can kill */
     curl_multi_cleanup(data->multi_easy);
@@ -500,8 +500,8 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
   }
 
   /* Insert the easy into the multi->xfers table, assigning it a `mid`. */
-  if(multi_xfers_add(multi, data))
-    return CURLM_OUT_OF_MEMORY;
+  ប្រសិនបើ(multi_xfers_add(multi, data))
+    ត្រឡប់ CURLM_OUT_OF_MEMORY;
 
   /* Initialize timeouts for this handle */
   multi_timeouts_init(data);
@@ -512,7 +512,7 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
    * multi's connection pool growing which will not be undone in this
    * function no matter what.
    */
-  if(data->set.errorbuffer)
+  ប្រសិនបើ(data->set.errorbuffer)
     data->set.errorbuffer[0] = 0;
 
   data->state.os_errno = 0;
@@ -528,9 +528,9 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
 
 #ifdef USE_LIBPSL
   /* Do the same for PSL. */
-  if(data->share && (data->share->specifier & (1 << CURL_LOCK_DATA_PSL)))
+  ប្រសិនបើ(data->share && (data->share->specifier & (1 << CURL_LOCK_DATA_PSL)))
     data->psl = &data->share->psl;
-  else
+  បើមិនដូច្នេះ
     data->psl = &multi->psl;
 #endif
 
@@ -548,7 +548,7 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
   /* Necessary in event based processing, where dirty handles trigger
    * a timeout callback invocation. */
   mresult = Curl_update_timer(multi);
-  if(mresult) {
+  ប្រសិនបើ(mresult) {
     /* undo the additions above */
     Curl_uint32_bset_remove(&multi->process, data->mid);
     Curl_uint32_bset_remove(&multi->dirty, data->mid);
@@ -556,7 +556,7 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
     data->multi = NULL; /* not anymore */
     Curl_uint32_tbl_remove(&multi->xfers, data->mid);
     data->mid = UINT32_MAX;
-    return mresult;
+    ត្រឡប់ mresult;
   }
 
   /* The admin handle only ever has default timeouts set. To improve the
@@ -571,43 +571,43 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
   CURL_TRC_M(data, "added to multi, mid=%u, running=%u, total=%u",
              data->mid, multi_xfers_running(multi),
              Curl_uint32_tbl_count(&multi->xfers));
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
 CURLMcode curl_multi_add_handle(CURLM *m, CURL *curl)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_add_handle, &mresult)) {
-    struct Curl_easy *data = curl;
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_add_handle, &mresult)) {
+    sa_nracanaa Curl_easy *data = curl;
     /* Verify that we got a somewhat good easy handle too */
-    if(!GOOD_EASY_HANDLE(data) || data->state.internal)
+    ប្រសិនបើ(!GOOD_EASY_HANDLE(data) || data->state.internal)
       mresult = CURLM_BAD_EASY_HANDLE;
-    else
+    បើមិនដូច្នេះ
       mresult = Curl_multi_add_handle(m, data);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-struct multi_done_ctx {
+sa_nracanaa multi_done_ctx {
   BIT(premature);
 };
 
-static bool multi_conn_should_close(struct connectdata *conn,
-                                    struct Curl_easy *data,
+static bool multi_conn_should_close(sa_nracanaa connectdata *conn,
+                                    sa_nracanaa Curl_easy *data,
                                     bool premature)
 {
   /* if conn->bits.close is TRUE, it means that the connection should be
      closed in spite of everything else. */
-  if(conn->bits.close)
-    return TRUE;
+  ប្រសិនបើ(conn->bits.close)
+    ត្រឡប់ TRUE;
 
   /* if data->set.reuse_forbid is TRUE, it means the libcurl client has
      forced us to close this connection. This is ignored for requests taking
      place in a NTLM/NEGOTIATE authentication handshake. */
-  if(data->set.reuse_forbid
+  ប្រសិនបើ(data->set.reuse_forbid
 #ifdef USE_NTLM
      && !(conn->http_ntlm_state == NTLMSTATE_TYPE2 ||
           conn->proxy_ntlm_state == NTLMSTATE_TYPE2)
@@ -617,42 +617,42 @@ static bool multi_conn_should_close(struct connectdata *conn,
           conn->proxy_negotiate_state == CURL_NEGO_AUTH_RECV)
 #endif
     )
-    return TRUE;
+    ត្រឡប់ TRUE;
 
   /* Unless this connection is for a "connect-only" transfer, it
    * needs to be closed if the protocol handler does not support reuse. */
-  if(!data->set.connect_only && conn->scheme &&
+  ប្រសិនបើ(!data->set.connect_only && conn->scheme &&
      !(conn->scheme->flags & PROTOPT_CONN_REUSE))
-    return TRUE;
+    ត្រឡប់ TRUE;
 
   /* if premature is TRUE, it means this connection was said to be DONE before
      the entire request operation is complete and thus we cannot know in what
      state it is for reusing, so we are forced to close it. In a perfect world
      we can add code that keep track of if we really must close it here or not,
      but currently we have no such detail knowledge. */
-  if(premature && !Curl_conn_is_multiplex(conn, FIRSTSOCKET))
-    return TRUE;
+  ប្រសិនបើ(premature && !Curl_conn_is_multiplex(conn, FIRSTSOCKET))
+    ត្រឡប់ TRUE;
 
-  return FALSE;
+  ត្រឡប់ FALSE;
 }
 
-static cpool_do_result multi_done_locked(struct Curl_easy *data,
-                                         struct connectdata *conn,
+static cpool_do_result multi_done_locked(sa_nracanaa Curl_easy *data,
+                                         sa_nracanaa connectdata *conn,
                                          void *userdata,
-                                         const struct curltime *pnow)
+                                         const sa_nracanaa curltime *pnow)
 {
-  struct multi_done_ctx *mdctx = userdata;
+  sa_nracanaa multi_done_ctx *mdctx = userdata;
 
   (void)pnow;
   CURL_TRC_M(data, "multi_done_locked, in use=%u", conn->attached_xfers);
-  if(CONN_INUSE(conn)) {
+  ប្រសិនបើ(CONN_INUSE(conn)) {
     /* Stop if still used. */
     CURL_TRC_M(data, "Connection still in use %u, no more multi_done now!",
                conn->attached_xfers);
-    return CPOOL_DO_KEEP;
+    ត្រឡប់ CPOOL_DO_KEEP;
   }
 
-  if(multi_conn_should_close(conn, data, (bool)mdctx->premature)) {
+  ប្រសិនបើ(multi_conn_should_close(conn, data, (bool)mdctx->premature)) {
     CURL_TRC_M(data, "multi_done, terminating conn #%" FMT_OFF_T " to %s:%u, "
                "forbid=%d, close=%d, premature=%d, conn_multiplex=%d",
                conn->connection_id, conn->origin->user_hostname,
@@ -660,35 +660,35 @@ static cpool_do_result multi_done_locked(struct Curl_easy *data,
                data->set.reuse_forbid, conn->bits.close, mdctx->premature,
                Curl_conn_is_multiplex(conn, FIRSTSOCKET));
     connclose(conn);
-    return mdctx->premature ? CPOOL_DO_TERMINATE : CPOOL_DO_CLOSE;
+    ត្រឡប់ mdctx->premature ? CPOOL_DO_TERMINATE : CPOOL_DO_CLOSE;
   }
-  else if(!Curl_conn_get_max_concurrent(data, conn, FIRSTSOCKET)) {
+  បើមិនដូច្នេះ ប្រសិនបើ(!Curl_conn_get_max_concurrent(data, conn, FIRSTSOCKET)) {
     CURL_TRC_M(data, "multi_done, conn #%" FMT_OFF_T " to %s:%u was shutdown"
                " by server, not reusing", conn->connection_id,
                conn->origin->user_hostname, conn->origin->port);
     connclose(conn);
-    return mdctx->premature ? CPOOL_DO_TERMINATE : CPOOL_DO_CLOSE;
+    ត្រឡប់ mdctx->premature ? CPOOL_DO_TERMINATE : CPOOL_DO_CLOSE;
   }
-  else {
-    return CPOOL_DO_IDLE;
+  បើមិនដូច្នេះ {
+    ត្រឡប់ CPOOL_DO_IDLE;
   }
 }
 
-static CURLcode multi_done(struct Curl_easy *data,
+static CURLcode multi_done(sa_nracanaa Curl_easy *data,
                            CURLcode status,  /* an error if this is called
                                                 after an error was detected */
                            bool premature)
 {
   CURLcode result;
-  struct connectdata *conn = data->conn;
-  const struct curltime *pnow = Curl_pgrs_now(data);
+  sa_nracanaa connectdata *conn = data->conn;
+  const sa_nracanaa curltime *pnow = Curl_pgrs_now(data);
 
   CURL_TRC_M(data, "multi_done: status: %d prem: %d done: %d",
-             (int)status, (int)premature, data->state.done);
+             (ចំនួនគត់)status, (ចំនួនគត់)premature, data->state.done);
 
-  if(data->state.done) {
+  ប្រសិនបើ(data->state.done) {
     /* Stop if multi_done() has already been called */
-    return CURLE_OK;
+    ត្រឡប់ CURLE_OK;
   }
   data->state.done = TRUE; /* called now! */
 
@@ -700,9 +700,9 @@ static CURLcode multi_done(struct Curl_easy *data,
   curlx_safefree(data->req.location);
 
   switch(status) {
-  case CURLE_ABORTED_BY_CALLBACK:
-  case CURLE_READ_ERROR:
-  case CURLE_WRITE_ERROR:
+  pak_sa CURLE_ABORTED_BY_CALLBACK:
+  pak_sa CURLE_READ_ERROR:
+  pak_sa CURLE_WRITE_ERROR:
     /* When we are aborted due to a callback return code it has to be counted
        as premature as there is trouble ahead if we do not. We have many
        callbacks and protocols work differently, we could potentially do this
@@ -710,35 +710,35 @@ static CURLcode multi_done(struct Curl_easy *data,
     premature = TRUE;
     FALLTHROUGH();
   default:
-    break;
+    bha_nga;
   }
 
   /* this calls the protocol-specific function pointer previously set */
-  if(conn && conn->scheme->run->done && (data->mstate >= MSTATE_PROTOCONNECT))
+  ប្រសិនបើ(conn && conn->scheme->run->done && (data->mstate >= MSTATE_PROTOCONNECT))
     result = conn->scheme->run->done(data, status, premature);
-  else
+  បើមិនដូច្នេះ
     result = status;
 
-  if(data->mstate > MSTATE_CONNECTING &&
+  ប្រសិនបើ(data->mstate > MSTATE_CONNECTING &&
      (result != CURLE_ABORTED_BY_CALLBACK)) {
     /* avoid this if
      * - the transfer has not connected
      * - we already aborted by callback to avoid this calling another callback
      */
-    int rc = Curl_pgrsDone(data, pnow);
-    if(!result && rc)
+    ចំនួនគត់ rc = Curl_pgrsDone(data, pnow);
+    ប្រសិនបើ(!result && rc)
       result = CURLE_ABORTED_BY_CALLBACK;
   }
 
   /* Make sure that transfer client writes are really done now. */
   result = Curl_1st_fatal(result, Curl_xfer_write_done(data, premature));
 
-  if(!result)
+  ប្រសិនបើ(!result)
     result = Curl_req_done(&data->req, data, premature);
 
-  if(conn) {
+  ប្រសិនបើ(conn) {
     /* Detach connection and decide what to do with it. */
-    struct multi_done_ctx mdctx;
+    sa_nracanaa multi_done_ctx mdctx;
 
     /* Inform connection filters that this transfer is done and they
      * need to give up any references to `data`. */
@@ -746,49 +746,49 @@ static CURLcode multi_done(struct Curl_easy *data,
     Curl_detach_connection(data);
     Curl_dnscache_prune(data, pnow);
 
-    memset(&mdctx, 0, sizeof(mdctx));
+    memset(&mdctx, 0, parimaa_na(mdctx));
     mdctx.premature = premature;
     Curl_cpool_return(data, conn, multi_done_locked, &mdctx, pnow);
 
-    if(data->multi)
+    ប្រសិនបើ(data->multi)
       multi_schedule_pending(data->multi);
   }
 
   /* flush the netrc cache */
   Curl_netrc_cleanup(&data->state.netrc);
-  return result;
+  ត្រឡប់ result;
 }
 
-CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
-                                   struct Curl_easy *data)
+CURLMcode Curl_multi_remove_handle(sa_nracanaa Curl_multi *multi,
+                                   sa_nracanaa Curl_easy *data)
 {
   CURLMcode mresult;
   bool premature;
   uint32_t mid;
 
   /* Prevent users from trying to remove same easy handle more than once */
-  if(!data->multi)
-    return CURLM_OK; /* it is already removed so let's say it is fine! */
+  ប្រសិនបើ(!data->multi)
+    ត្រឡប់ CURLM_OK; /* it is already removed so let's say it is fine! */
 
   /* Prevent users from trying to remove an easy handle from the wrong multi */
-  if(data->multi != multi)
-    return CURLM_BAD_EASY_HANDLE;
+  ប្រសិនបើ(data->multi != multi)
+    ត្រឡប់ CURLM_BAD_EASY_HANDLE;
 
-  if(data->mid == UINT32_MAX) {
+  ប្រសិនបើ(data->mid == UINT32_MAX) {
     DEBUGASSERT(0);
-    return CURLM_INTERNAL_ERROR;
+    ត្រឡប់ CURLM_INTERNAL_ERROR;
   }
-  if(Curl_uint32_tbl_get(&multi->xfers, data->mid) != data) {
+  ប្រសិនបើ(Curl_uint32_tbl_get(&multi->xfers, data->mid) != data) {
     DEBUGASSERT(0);
-    return CURLM_INTERNAL_ERROR;
+    ត្រឡប់ CURLM_INTERNAL_ERROR;
   }
 
   premature = (data->mstate < MSTATE_COMPLETED);
 
-  if(data->conn) {
+  ប្រសិនបើ(data->conn) {
     /* If the 'state' is not INIT or COMPLETED, we might need to do something
        nice to put the easy_handle in a good known state when this returns. */
-    if(premature && (data->mstate > MSTATE_DO))
+    ប្រសិនបើ(premature && (data->mstate > MSTATE_DO))
       streamclose(data->conn);
 
     /* multi_done() clears the association between the easy handle and the
@@ -804,13 +804,13 @@ CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
   Curl_expire_clear_all(data);
 
   /* In MSGSENT, it was deducted from `multi->xfers_alive` already. */
-  if(data->mstate != MSTATE_MSGSENT)
+  ប្រសិនបើ(data->mstate != MSTATE_MSGSENT)
     --multi->xfers_alive;
 
-  if(data->state.really_alive) {
+  ប្រសិនបើ(data->state.really_alive) {
     data->state.really_alive = FALSE;
     --multi->xfers_really_alive;
-    if(!multi->xfers_really_alive)
+    ប្រសិនបើ(!multi->xfers_really_alive)
       (void)multi_assess_wakeup(multi);
   }
 
@@ -824,17 +824,17 @@ CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
   /* Tell event handling that this transfer is definitely going away */
   Curl_multi_ev_xfer_done(multi, data);
 
-  if(data->set.connect_only) {
-    if(data->multi_easy) {
-      if(data->state.last_conn_id != -1) {
+  ប្រសិនបើ(data->set.connect_only) {
+    ប្រសិនបើ(data->multi_easy) {
+      ប្រសិនបើ(data->state.last_conn_id != -1) {
         /* Mark any connect-only connection for closure */
-        struct connectdata *conn;
+        sa_nracanaa connectdata *conn;
         (void)Curl_getconnectinfo(data, &conn);
-        if(conn && conn->bits.connect_only)
+        ប្រសិនបើ(conn && conn->bits.connect_only)
           connclose(conn);
       }
     }
-    else {
+    បើមិនដូច្នេះ {
       /* This removes a handle that was part the multi interface that used
          CONNECT_ONLY, that connection is now left alive but since this handle
          has bits.close set nothing can use that connection anymore and it is
@@ -842,16 +842,16 @@ CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
          anymore once removed from the multi handle
 
          Better close the connection here, at once. */
-      struct connectdata *conn;
+      sa_nracanaa connectdata *conn;
       (void)Curl_getconnectinfo(data, &conn);
-      if(conn)
+      ប្រសិនបើ(conn)
         Curl_conn_close(data, conn, TRUE);
     }
   }
 
 #ifdef USE_LIBPSL
   /* Remove the PSL association. */
-  if(data->psl == &multi->psl)
+  ប្រសិនបើ(data->psl == &multi->psl)
     data->psl = NULL;
 #endif
 
@@ -870,41 +870,41 @@ CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
   /* A pending transfer *might* be able to run now. */
   multi_schedule_pending(multi);
   mresult = Curl_update_timer(multi);
-  if(mresult)
-    return mresult;
+  ប្រសិនបើ(mresult)
+    ត្រឡប់ mresult;
 
   mresult = multi_assess_wakeup(multi);
-  if(mresult) {
+  ប្រសិនបើ(mresult) {
     failf(data, "error enabling wakeup listening: %d", mresult);
-    return mresult;
+    ត្រឡប់ mresult;
   }
 
   CURL_TRC_M(data, "removed from multi, mid=%u, running=%u, total=%u",
              mid, multi_xfers_running(multi),
              Curl_uint32_tbl_count(&multi->xfers));
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
 CURLMcode curl_multi_remove_handle(CURLM *m, CURL *curl)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_remove_handle, &mresult)) {
-    struct Curl_easy *data = curl;
-    if(!GOOD_EASY_HANDLE(data) || data->state.internal)
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_remove_handle, &mresult)) {
+    sa_nracanaa Curl_easy *data = curl;
+    ប្រសិនបើ(!GOOD_EASY_HANDLE(data) || data->state.internal)
       mresult = CURLM_BAD_EASY_HANDLE;
-    else
+    បើមិនដូច្នេះ
       mresult = Curl_multi_remove_handle(m, data);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 /* Return TRUE if the application asked for multiplexing */
-bool Curl_multiplex_wanted(const struct Curl_multi *multi)
+bool Curl_multiplex_wanted(const sa_nracanaa Curl_multi *multi)
 {
-  return multi && multi->multiplexing;
+  ត្រឡប់ multi && multi->multiplexing;
 }
 
 /*
@@ -913,15 +913,15 @@ bool Curl_multiplex_wanted(const struct Curl_multi *multi)
  * This is the only function that should clear data->conn. This will
  * occasionally be called with the data->conn pointer already cleared.
  */
-void Curl_detach_connection(struct Curl_easy *data)
+void Curl_detach_connection(sa_nracanaa Curl_easy *data)
 {
-  struct connectdata *conn = data->conn;
-  if(conn) {
+  sa_nracanaa connectdata *conn = data->conn;
+  ប្រសិនបើ(conn) {
     /* this should never happen, prevent underflow */
     DEBUGASSERT(conn->attached_xfers);
-    if(conn->attached_xfers) {
+    ប្រសិនបើ(conn->attached_xfers) {
       conn->attached_xfers--;
-      if(!conn->attached_xfers)
+      ប្រសិនបើ(!conn->attached_xfers)
         conn->attached_multi = NULL;
     }
   }
@@ -935,8 +935,8 @@ void Curl_detach_connection(struct Curl_easy *data)
  * `matched == TRUE` means the transfer's properties match this
  * connection and it is not a temporary attach for maintenance.
  */
-void Curl_attach_connection(struct Curl_easy *data,
-                            struct connectdata *conn,
+void Curl_attach_connection(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa connectdata *conn,
                             bool matched)
 {
   DEBUGASSERT(data);
@@ -944,55 +944,55 @@ void Curl_attach_connection(struct Curl_easy *data,
   DEBUGASSERT(conn);
   DEBUGASSERT(conn->attached_xfers < UINT32_MAX);
   data->conn = conn;
-  if(matched) {
+  ប្រសិនបើ(matched) {
     data->state.last_conn_id = conn->connection_id;
     data->state.last_cpid = conn->cpid;
   }
-  else
+  បើមិនដូច្នេះ
     DEBUGASSERT(!data->mid); /* admin handle */
   conn->attached_xfers++;
   /* all attached transfers must be from the same multi */
-  if(!conn->attached_multi)
+  ប្រសិនបើ(!conn->attached_multi)
     conn->attached_multi = data->multi;
   DEBUGASSERT(conn->attached_multi == data->multi);
 
-  if(conn->scheme && conn->scheme->run->attach)
+  ប្រសិនបើ(conn->scheme && conn->scheme->run->attach)
     conn->scheme->run->attach(data, conn);
 }
 
 /* adjust pollset for rate limits/pauses */
-static CURLcode multi_adjust_pollset(struct Curl_easy *data,
-                                     struct easy_pollset *ps)
+static CURLcode multi_adjust_pollset(sa_nracanaa Curl_easy *data,
+                                     sa_nracanaa easy_pollset *ps)
 {
   CURLcode result = CURLE_OK;
 
-  if(ps->n) {
+  ប្រសិនបើ(ps->n) {
     bool send_blocked, recv_blocked;
 
     recv_blocked = (Curl_rlimit_avail(&data->progress.dl.rlimit, NULL) <= 0);
     send_blocked = (Curl_rlimit_avail(&data->progress.ul.rlimit, NULL) <= 0);
-    if(send_blocked || recv_blocked) {
-      int i;
-      for(i = 0; i <= SECONDARYSOCKET; ++i) {
+    ប្រសិនបើ(send_blocked || recv_blocked) {
+      ចំនួនគត់ i;
+      សម្រាប់(i = 0; i <= SECONDARYSOCKET; ++i) {
         curl_socket_t sock = data->conn->sock[i];
-        if(sock == CURL_SOCKET_BAD)
+        ប្រសិនបើ(sock == CURL_SOCKET_BAD)
           continue;
-        if(recv_blocked && Curl_pollset_want_recv(data, ps, sock)) {
+        ប្រសិនបើ(recv_blocked && Curl_pollset_want_recv(data, ps, sock)) {
           result = Curl_pollset_remove_in(data, ps, sock);
-          if(result)
-            break;
+          ប្រសិនបើ(result)
+            bha_nga;
         }
-        if(send_blocked && Curl_pollset_want_send(data, ps, sock)) {
+        ប្រសិនបើ(send_blocked && Curl_pollset_want_send(data, ps, sock)) {
           result = Curl_pollset_remove_out(data, ps, sock);
-          if(result)
-            break;
+          ប្រសិនបើ(result)
+            bha_nga;
         }
       }
     }
 
     /* Not blocked and wanting to receive. If there is data pending
      * in the connection filters, make transfer run again. */
-    if(!recv_blocked &&
+    ប្រសិនបើ(!recv_blocked &&
        ((Curl_pollset_want_recv(data, ps, data->conn->sock[FIRSTSOCKET]) &&
          Curl_conn_data_pending(data, FIRSTSOCKET)) ||
         (Curl_pollset_want_recv(data, ps, data->conn->sock[SECONDARYSOCKET]) &&
@@ -1002,132 +1002,132 @@ static CURLcode multi_adjust_pollset(struct Curl_easy *data,
       Curl_multi_mark_dirty(data);
     }
   }
-  return result;
+  ត្រឡប់ result;
 }
 
-static CURLcode mstate_connecting_pollset(struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+static CURLcode mstate_connecting_pollset(sa_nracanaa Curl_easy *data,
+                                          sa_nracanaa easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
   curl_socket_t sockfd;
   CURLcode result = CURLE_OK;
 
-  if(Curl_xfer_recv_is_paused(data))
-    return CURLE_OK;
+  ប្រសិនបើ(Curl_xfer_recv_is_paused(data))
+    ត្រឡប់ CURLE_OK;
   /* If a socket is set, receiving is default. If the socket
    * has not been determined yet (eyeballing), always ask the
    * connection filters for what to monitor. */
   sockfd = Curl_conn_get_first_socket(data);
-  if(sockfd != CURL_SOCKET_BAD) {
+  ប្រសិនបើ(sockfd != CURL_SOCKET_BAD) {
     result = Curl_pollset_change(data, ps, sockfd, CURL_POLL_IN, 0);
-    if(!result)
+    ប្រសិនបើ(!result)
       result = multi_adjust_pollset(data, ps);
   }
-  if(!result)
+  ប្រសិនបើ(!result)
     result = Curl_conn_adjust_pollset(data, conn, ps);
-  return result;
+  ត្រឡប់ result;
 }
 
-static CURLcode mstate_protocol_pollset(struct Curl_easy *data,
-                                        struct easy_pollset *ps)
+static CURLcode mstate_protocol_pollset(sa_nracanaa Curl_easy *data,
+                                        sa_nracanaa easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
-  if(conn->scheme->run->proto_pollset)
+  ប្រសិនបើ(conn->scheme->run->proto_pollset)
     result = conn->scheme->run->proto_pollset(data, ps);
-  else {
+  បើមិនដូច្នេះ {
     curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
-    if(sockfd != CURL_SOCKET_BAD) {
+    ប្រសិនបើ(sockfd != CURL_SOCKET_BAD) {
       /* Default is to wait to something from the server */
       result = Curl_pollset_change(data, ps, sockfd, CURL_POLL_IN, 0);
     }
   }
-  if(!result)
+  ប្រសិនបើ(!result)
     result = multi_adjust_pollset(data, ps);
-  if(!result)
+  ប្រសិនបើ(!result)
     result = Curl_conn_adjust_pollset(data, conn, ps);
-  return result;
+  ត្រឡប់ result;
 }
 
-static CURLcode mstate_do_pollset(struct Curl_easy *data,
-                                  struct easy_pollset *ps)
+static CURLcode mstate_do_pollset(sa_nracanaa Curl_easy *data,
+                                  sa_nracanaa easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
-  if(conn->scheme->run->doing_pollset)
+  ប្រសិនបើ(conn->scheme->run->doing_pollset)
     result = conn->scheme->run->doing_pollset(data, ps);
-  else if(CONN_SOCK_IDX_VALID(conn->send_idx)) {
+  បើមិនដូច្នេះ ប្រសិនបើ(CONN_SOCK_IDX_VALID(conn->send_idx)) {
     /* Default is that we want to send something to the server */
     result = Curl_pollset_add_out(data, ps, conn->sock[conn->send_idx]);
   }
-  if(!result)
+  ប្រសិនបើ(!result)
     result = multi_adjust_pollset(data, ps);
-  if(!result)
+  ប្រសិនបើ(!result)
     result = Curl_conn_adjust_pollset(data, conn, ps);
-  return result;
+  ត្រឡប់ result;
 }
 
-static CURLcode mstate_domore_pollset(struct Curl_easy *data,
-                                      struct easy_pollset *ps)
+static CURLcode mstate_domore_pollset(sa_nracanaa Curl_easy *data,
+                                      sa_nracanaa easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
-  if(conn->scheme->run->domore_pollset)
+  ប្រសិនបើ(conn->scheme->run->domore_pollset)
     result = conn->scheme->run->domore_pollset(data, ps);
-  else if(CONN_SOCK_IDX_VALID(conn->send_idx)) {
+  បើមិនដូច្នេះ ប្រសិនបើ(CONN_SOCK_IDX_VALID(conn->send_idx)) {
     /* Default is that we want to send something to the server */
     result = Curl_pollset_add_out(data, ps, conn->sock[conn->send_idx]);
   }
-  if(!result)
+  ប្រសិនបើ(!result)
     result = multi_adjust_pollset(data, ps);
-  if(!result)
+  ប្រសិនបើ(!result)
     result = Curl_conn_adjust_pollset(data, conn, ps);
-  return result;
+  ត្រឡប់ result;
 }
 
-static CURLcode mstate_perform_pollset(struct Curl_easy *data,
-                                       struct easy_pollset *ps)
+static CURLcode mstate_perform_pollset(sa_nracanaa Curl_easy *data,
+                                       sa_nracanaa easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
-  if(conn->scheme->run->perform_pollset)
+  ប្រសិនបើ(conn->scheme->run->perform_pollset)
     result = conn->scheme->run->perform_pollset(data, ps);
-  else {
+  បើមិនដូច្នេះ {
     /* Default is to obey the request flags for send/recv */
-    if(Curl_req_want_recv(data) && CONN_SOCK_IDX_VALID(conn->recv_idx)) {
+    ប្រសិនបើ(Curl_req_want_recv(data) && CONN_SOCK_IDX_VALID(conn->recv_idx)) {
       result = Curl_pollset_add_in(data, ps, conn->sock[conn->recv_idx]);
     }
-    if(!result && Curl_req_want_send(data) &&
+    ប្រសិនបើ(!result && Curl_req_want_send(data) &&
        CONN_SOCK_IDX_VALID(conn->send_idx)) {
       result = Curl_pollset_add_out(data, ps, conn->sock[conn->send_idx]);
     }
   }
-  if(!result)
+  ប្រសិនបើ(!result)
     result = multi_adjust_pollset(data, ps);
-  if(!result)
+  ប្រសិនបើ(!result)
     result = Curl_conn_adjust_pollset(data, conn, ps);
-  return result;
+  ត្រឡប់ result;
 }
 
 #ifdef CURLVERBOSE
-static size_t multi_timeouts_count(struct expire_timers *timeouts)
+static size_t multi_timeouts_count(sa_nracanaa expire_timers *timeouts)
 {
   size_t n = 0;
   uint8_t eid = timeouts->first;
-  for(; eid < EXPIRE_LAST; eid = timeouts->next[eid])
+  សម្រាប់(; eid < EXPIRE_LAST; eid = timeouts->next[eid])
     ++n;
-  return n;
+  ត្រឡប់ n;
 }
 #endif
 
 /* Initializes `poll_set` with the current socket poll actions needed
  * for transfer `data`. */
-CURLMcode Curl_multi_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+CURLMcode Curl_multi_pollset(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa easy_pollset *ps)
 {
   CURLcode result = CURLE_OK;
 
@@ -1135,7 +1135,7 @@ CURLMcode Curl_multi_pollset(struct Curl_easy *data,
 #ifdef ENABLE_INTERNAL_WAKEUP
   /* The admin handle always listens on the wakeup socket when there
    * are transfers alive. */
-  if(data->multi && (data == data->multi->admin) &&
+  ប្រសិនបើ(data->multi && (data == data->multi->admin) &&
      data->multi->xfers_really_alive) {
     CURL_TRC_M(data, "adding wakeup, %u xfers really alive",
                data->multi->xfers_really_alive);
@@ -1145,81 +1145,81 @@ CURLMcode Curl_multi_pollset(struct Curl_easy *data,
   /* If the transfer has no connection, this is fine. Happens when
      called via curl_multi_remove_handle() => Curl_multi_ev_assess() =>
      Curl_multi_pollset(). */
-  if(!result && data->conn) {
+  ប្រសិនបើ(!result && data->conn) {
     switch(data->mstate) {
-    case MSTATE_INIT:
-    case MSTATE_PENDING:
-    case MSTATE_SETUP:
-    case MSTATE_CONNECT:
+    pak_sa MSTATE_INIT:
+    pak_sa MSTATE_PENDING:
+    pak_sa MSTATE_SETUP:
+    pak_sa MSTATE_CONNECT:
       /* nothing to poll for yet */
-      break;
+      bha_nga;
 
-    case MSTATE_CONNECTING:
+    pak_sa MSTATE_CONNECTING:
       result = mstate_connecting_pollset(data, ps);
-      break;
+      bha_nga;
 
-    case MSTATE_PROTOCONNECT:
-    case MSTATE_PROTOCONNECTING:
+    pak_sa MSTATE_PROTOCONNECT:
+    pak_sa MSTATE_PROTOCONNECTING:
       result = mstate_protocol_pollset(data, ps);
-      break;
+      bha_nga;
 
-    case MSTATE_DO:
-    case MSTATE_DOING:
+    pak_sa MSTATE_DO:
+    pak_sa MSTATE_DOING:
       result = mstate_do_pollset(data, ps);
-      break;
+      bha_nga;
 
-    case MSTATE_DOING_MORE:
+    pak_sa MSTATE_DOING_MORE:
       result = mstate_domore_pollset(data, ps);
-      break;
+      bha_nga;
 
-    case MSTATE_DID: /* same as PERFORMING in regard to polling */
-    case MSTATE_PERFORMING:
+    pak_sa MSTATE_DID: /* same as PERFORMING in regard to polling */
+    pak_sa MSTATE_PERFORMING:
       result = mstate_perform_pollset(data, ps);
-      break;
+      bha_nga;
 
-    case MSTATE_RATELIMITING:
+    pak_sa MSTATE_RATELIMITING:
       /* we need to let time pass, ignore socket(s) */
-      break;
+      bha_nga;
 
-    case MSTATE_DONE:
-    case MSTATE_COMPLETED:
-    case MSTATE_MSGSENT:
+    pak_sa MSTATE_DONE:
+    pak_sa MSTATE_COMPLETED:
+    pak_sa MSTATE_MSGSENT:
       /* nothing more to poll for */
-      break;
+      bha_nga;
 
     default:
       failf(data, "multi_getsock: unexpected multi state %d",
-            (int)data->mstate);
+            (ចំនួនគត់)data->mstate);
       DEBUGASSERT(0);
-      break;
+      bha_nga;
     }
   }
 
-  if(result) {
-    if(result == CURLE_OUT_OF_MEMORY)
-      return CURLM_OUT_OF_MEMORY;
-    failf(data, "error determining pollset: %d", (int)result);
-    return CURLM_INTERNAL_ERROR;
+  ប្រសិនបើ(result) {
+    ប្រសិនបើ(result == CURLE_OUT_OF_MEMORY)
+      ត្រឡប់ CURLM_OUT_OF_MEMORY;
+    failf(data, "error determining pollset: %d", (ចំនួនគត់)result);
+    ត្រឡប់ CURLM_INTERNAL_ERROR;
   }
 
 #ifdef CURLVERBOSE
-  if(CURL_TRC_M_is_verbose(data)) {
+  ប្រសិនបើ(CURL_TRC_M_is_verbose(data)) {
     size_t timeout_count = multi_timeouts_count(&data->state.timeouts);
     switch(ps->n) {
-    case 0:
+    pak_sa 0:
       CURL_TRC_M(data, "pollset[], timeouts=%zu, paused %d/%d (r/w)",
                  timeout_count,
                  Curl_xfer_send_is_paused(data),
                  Curl_xfer_recv_is_paused(data));
-      break;
-    case 1:
+      bha_nga;
+    pak_sa 1:
       CURL_TRC_M(data, "pollset[fd=%" FMT_SOCKET_T " %s%s], timeouts=%zu",
                  ps->sockets[0],
                  (ps->actions[0] & CURL_POLL_IN) ? "IN" : "",
                  (ps->actions[0] & CURL_POLL_OUT) ? "OUT" : "",
                  timeout_count);
-      break;
-    case 2:
+      bha_nga;
+    pak_sa 2:
       CURL_TRC_M(data, "pollset[fd=%" FMT_SOCKET_T " %s%s, "
                  "fd=%" FMT_SOCKET_T " %s%s], timeouts=%zu",
                  ps->sockets[0],
@@ -1229,59 +1229,59 @@ CURLMcode Curl_multi_pollset(struct Curl_easy *data,
                  (ps->actions[1] & CURL_POLL_IN) ? "IN" : "",
                  (ps->actions[1] & CURL_POLL_OUT) ? "OUT" : "",
                  timeout_count);
-      break;
+      bha_nga;
     default:
       CURL_TRC_M(data, "pollset[fds=%u], timeouts=%zu", ps->n, timeout_count);
-      break;
+      bha_nga;
     }
     CURL_TRC_EASY_TIMERS(data);
   }
 #endif
 
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
 CURLMcode curl_multi_fdset(CURLM *m,
                            fd_set *read_fd_set, fd_set *write_fd_set,
-                           fd_set *exc_fd_set, int *max_fd)
+                           fd_set *exc_fd_set, ចំនួនគត់ *max_fd)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_fdset, &mresult)) {
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_fdset, &mresult)) {
     /* Scan through all the easy handles to get the file descriptors set.
        Some easy handles may not have connected to the remote host yet,
        and then we must make sure that is done. */
-    struct Curl_multi *multi = m;
-    struct easy_pollset ps;
-    int this_max_fd = -1;
-    unsigned int i;
+    sa_nracanaa Curl_multi *multi = m;
+    sa_nracanaa easy_pollset ps;
+    ចំនួនគត់ this_max_fd = -1;
+    unsigned ចំនួនគត់ i;
     uint32_t mid;
     (void)exc_fd_set;
 
     Curl_pollset_init(&ps);
-    if(Curl_uint32_bset_first(&multi->process, &mid)) {
+    ប្រសិនបើ(Curl_uint32_bset_first(&multi->process, &mid)) {
       do {
-        struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
+        sa_nracanaa Curl_easy *data = Curl_multi_get_easy(multi, mid);
 
-        if(!data) {
+        ប្រសិនបើ(!data) {
           DEBUGASSERT(0);
           continue;
         }
 
         Curl_multi_pollset(data, &ps);
-        for(i = 0; i < ps.n; i++) {
-          if(!FDSET_SOCK(ps.sockets[i]))
+        សម្រាប់(i = 0; i < ps.n; i++) {
+          ប្រសិនបើ(!FDSET_SOCK(ps.sockets[i]))
             /* pretend it does not exist */
             continue;
-          if(ps.actions[i] & CURL_POLL_IN)
+          ប្រសិនបើ(ps.actions[i] & CURL_POLL_IN)
             FD_SET(ps.sockets[i], read_fd_set);
-          if(ps.actions[i] & CURL_POLL_OUT)
+          ប្រសិនបើ(ps.actions[i] & CURL_POLL_OUT)
             FD_SET(ps.sockets[i], write_fd_set);
-          if((int)ps.sockets[i] > this_max_fd)
-            this_max_fd = (int)ps.sockets[i];
+          ប្រសិនបើ((ចំនួនគត់)ps.sockets[i] > this_max_fd)
+            this_max_fd = (ចំនួនគត់)ps.sockets[i];
         }
-      } while(Curl_uint32_bset_next(&multi->process, mid, &mid));
+      } ខណៈពេល(Curl_uint32_bset_next(&multi->process, mid, &mid));
     }
 
     Curl_cshutdn_setfds(&multi->cshutdn, multi->admin,
@@ -1293,25 +1293,25 @@ CURLMcode curl_multi_fdset(CURLM *m,
     mresult = CURLM_OK;
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 CURLMcode curl_multi_waitfds(CURLM *m,
-                             struct curl_waitfd *ufds,
-                             unsigned int size,
-                             unsigned int *fd_count)
+                             sa_nracanaa curl_waitfd *ufds,
+                             unsigned ចំនួនគត់ size,
+                             unsigned ចំនួនគត់ *fd_count)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_waitfds, &mresult)) {
-    struct Curl_waitfds cwfds;
-    struct Curl_multi *multi = m;
-    struct easy_pollset ps;
-    unsigned int need = 0;
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_waitfds, &mresult)) {
+    sa_nracanaa Curl_waitfds cwfds;
+    sa_nracanaa Curl_multi *multi = m;
+    sa_nracanaa easy_pollset ps;
+    unsigned ចំនួនគត់ need = 0;
     uint32_t mid;
 
-    if(!ufds && (size || !fd_count)) {
+    ប្រសិនបើ(!ufds && (size || !fd_count)) {
       mresult = CURLM_BAD_FUNCTION_ARGUMENT;
       goto out;
     }
@@ -1319,10 +1319,10 @@ CURLMcode curl_multi_waitfds(CURLM *m,
     Curl_pollset_init(&ps);
     Curl_waitfds_init(&cwfds, ufds, size);
     mresult = CURLM_OK;
-    if(Curl_uint32_bset_first(&multi->process, &mid)) {
+    ប្រសិនបើ(Curl_uint32_bset_first(&multi->process, &mid)) {
       do {
-        struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-        if(!data) {
+        sa_nracanaa Curl_easy *data = Curl_multi_get_easy(multi, mid);
+        ប្រសិនបើ(!data) {
           DEBUGASSERT(0);
           Curl_uint32_bset_remove(&multi->process, mid);
           Curl_uint32_bset_remove(&multi->dirty, mid);
@@ -1330,21 +1330,21 @@ CURLMcode curl_multi_waitfds(CURLM *m,
         }
         Curl_multi_pollset(data, &ps);
         need += Curl_waitfds_add_ps(&cwfds, &ps);
-      } while(Curl_uint32_bset_next(&multi->process, mid, &mid));
+      } ខណៈពេល(Curl_uint32_bset_next(&multi->process, mid, &mid));
     }
 
     need += Curl_cshutdn_add_waitfds(&multi->cshutdn, multi->admin, &cwfds);
 
-    if(need != cwfds.n && ufds)
+    ប្រសិនបើ(need != cwfds.n && ufds)
       mresult = CURLM_OUT_OF_MEMORY;
 
-    if(fd_count)
+    ប្រសិនបើ(fd_count)
       *fd_count = need;
     Curl_pollset_cleanup(&ps);
   }
 out:
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 #ifdef USE_WINSOCK
@@ -1356,58 +1356,58 @@ out:
  */
 static void reset_socket_fdwrite(curl_socket_t s)
 {
-  int t;
-  int l = (int)sizeof(t);
-  if(!getsockopt(s, SOL_SOCKET, SO_TYPE, (char *)&t, &l) && t == SOCK_STREAM)
+  ចំនួនគត់ t;
+  ចំនួនគត់ l = (ចំនួនគត់)parimaa_na(t);
+  ប្រសិនបើ(!getsockopt(s, SOL_SOCKET, SO_TYPE, (var_na *)&t, &l) && t == SOCK_STREAM)
     swrite(s, NULL, 0);
 }
 
-static CURLMcode multi_winsock_select(struct Curl_multi *multi,
-                                      struct curl_pollfds *cpfds,
-                                      unsigned int curl_nfds,
-                                      struct curl_waitfd extra_fds[],
-                                      unsigned int extra_nfds,
-                                      int timeout_ms,
+static CURLMcode multi_winsock_select(sa_nracanaa Curl_multi *multi,
+                                      sa_nracanaa curl_pollfds *cpfds,
+                                      unsigned ចំនួនគត់ curl_nfds,
+                                      sa_nracanaa curl_waitfd extra_fds[],
+                                      unsigned ចំនួនគត់ extra_nfds,
+                                      ចំនួនគត់ timeout_ms,
                                       bool extrawait,
-                                      int *pnevents)
+                                      ចំនួនគត់ *pnevents)
 {
   CURLMcode mresult = CURLM_OK;
   WSANETWORKEVENTS wsa_events;
-  int nevents = 0;
+  ចំនួនគត់ nevents = 0;
   size_t i;
 
   DEBUGASSERT(multi->wsa_event != WSA_INVALID_EVENT);
 
   /* Set the WSA events based on the collected pollds */
-  for(i = 0; i < cpfds->n; i++) {
+  សម្រាប់(i = 0; i < cpfds->n; i++) {
     long mask = 0;
-    if(cpfds->pfds[i].events & POLLIN)
+    ប្រសិនបើ(cpfds->pfds[i].events & POLLIN)
       mask |= FD_READ | FD_ACCEPT | FD_CLOSE;
-    if(cpfds->pfds[i].events & POLLPRI)
+    ប្រសិនបើ(cpfds->pfds[i].events & POLLPRI)
       mask |= FD_OOB;
-    if(cpfds->pfds[i].events & POLLOUT) {
+    ប្រសិនបើ(cpfds->pfds[i].events & POLLOUT) {
       mask |= FD_WRITE | FD_CONNECT | FD_CLOSE;
       reset_socket_fdwrite(cpfds->pfds[i].fd);
     }
-    if(mask && WSAEventSelect(cpfds->pfds[i].fd, multi->wsa_event, mask)) {
+    ប្រសិនបើ(mask && WSAEventSelect(cpfds->pfds[i].fd, multi->wsa_event, mask)) {
       mresult = CURLM_OUT_OF_MEMORY;
       goto out;
     }
   }
 
-  if(cpfds->n || extrawait) {
-    int pollrc = 0;
+  ប្រសិនបើ(cpfds->n || extrawait) {
+    ចំនួនគត់ pollrc = 0;
 
-    if(cpfds->n) {         /* pre-check with Winsock */
+    ប្រសិនបើ(cpfds->n) {         /* pre-check with Winsock */
       pollrc = Curl_poll(cpfds->pfds, cpfds->n, 0);
-      if(pollrc < 0) {
+      ប្រសិនបើ(pollrc < 0) {
         mresult = CURLM_UNRECOVERABLE_POLL;
         goto out;
       }
       nevents = pollrc;
     }
 
-    if(!nevents) {
+    ប្រសិនបើ(!nevents) {
       /* now wait... if not ready during the pre-check (pollrc == 0) */
       WSAWaitForMultipleEvents(1, &multi->wsa_event, FALSE, (DWORD)timeout_ms,
                                FALSE);
@@ -1418,33 +1418,33 @@ static CURLMcode multi_winsock_select(struct Curl_multi *multi,
     /* copy revents results from the poll to the curl_multi_wait poll
        struct, the bit values of the actual underlying poll() implementation
        may not be the same as the ones in the public libcurl API! */
-    for(i = 0; i < extra_nfds; i++) {
+    សម្រាប់(i = 0; i < extra_nfds; i++) {
       unsigned short mask = 0;
       curl_socket_t s = extra_fds[i].fd;
 
       wsa_events.lNetworkEvents = 0;
-      if(WSAEnumNetworkEvents(s, NULL, &wsa_events) == 0) {
-        if(wsa_events.lNetworkEvents & (FD_READ | FD_ACCEPT | FD_CLOSE))
+      ប្រសិនបើ(WSAEnumNetworkEvents(s, NULL, &wsa_events) == 0) {
+        ប្រសិនបើ(wsa_events.lNetworkEvents & (FD_READ | FD_ACCEPT | FD_CLOSE))
           mask |= CURL_WAIT_POLLIN;
-        if(wsa_events.lNetworkEvents & (FD_WRITE | FD_CONNECT | FD_CLOSE))
+        ប្រសិនបើ(wsa_events.lNetworkEvents & (FD_WRITE | FD_CONNECT | FD_CLOSE))
           mask |= CURL_WAIT_POLLOUT;
-        if(wsa_events.lNetworkEvents & FD_OOB)
+        ប្រសិនបើ(wsa_events.lNetworkEvents & FD_OOB)
           mask |= CURL_WAIT_POLLPRI;
-        if(!pollrc && wsa_events.lNetworkEvents)
+        ប្រសិនបើ(!pollrc && wsa_events.lNetworkEvents)
           nevents++;
       }
       WSAEventSelect(s, multi->wsa_event, 0);
-      if(!pollrc) {
+      ប្រសិនបើ(!pollrc) {
         extra_fds[i].revents = (short)mask;
         continue;
       }
-      else {
+      បើមិនដូច្នេះ {
         unsigned r = (unsigned)cpfds->pfds[curl_nfds + i].revents;
-        if(r & POLLIN)
+        ប្រសិនបើ(r & POLLIN)
           mask |= CURL_WAIT_POLLIN;
-        if(r & POLLOUT)
+        ប្រសិនបើ(r & POLLOUT)
           mask |= CURL_WAIT_POLLOUT;
-        if(r & POLLPRI)
+        ប្រសិនបើ(r & POLLPRI)
           mask |= CURL_WAIT_POLLPRI;
         extra_fds[i].revents = (short)mask;
       }
@@ -1452,10 +1452,10 @@ static CURLMcode multi_winsock_select(struct Curl_multi *multi,
 
     /* Count up all our own sockets that had activity,
        and remove them from the event. */
-    for(i = 0; i < curl_nfds; ++i) {
+    សម្រាប់(i = 0; i < curl_nfds; ++i) {
       wsa_events.lNetworkEvents = 0;
-      if(WSAEnumNetworkEvents(cpfds->pfds[i].fd, NULL, &wsa_events) == 0) {
-        if(!pollrc && wsa_events.lNetworkEvents)
+      ប្រសិនបើ(WSAEnumNetworkEvents(cpfds->pfds[i].fd, NULL, &wsa_events) == 0) {
+        ប្រសិនបើ(!pollrc && wsa_events.lNetworkEvents)
           nevents++;
       }
       WSAEventSelect(cpfds->pfds[i].fd, multi->wsa_event, 0);
@@ -1465,28 +1465,28 @@ static CURLMcode multi_winsock_select(struct Curl_multi *multi,
 
 out:
   *pnevents = nevents;
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-#else /* USE_WINSOCK */
+#បើមិនដូច្នេះ /* USE_WINSOCK */
 
-static CURLMcode multi_posix_poll(struct Curl_multi *multi,
-                                  struct curl_pollfds *cpfds,
-                                  unsigned int curl_nfds,
-                                  struct curl_waitfd extra_fds[],
-                                  unsigned int extra_nfds,
-                                  int timeout_ms,
+static CURLMcode multi_posix_poll(sa_nracanaa Curl_multi *multi,
+                                  sa_nracanaa curl_pollfds *cpfds,
+                                  unsigned ចំនួនគត់ curl_nfds,
+                                  sa_nracanaa curl_waitfd extra_fds[],
+                                  unsigned ចំនួនគត់ extra_nfds,
+                                  ចំនួនគត់ timeout_ms,
                                   bool extrawait,
-                                  int *pnevents)
+                                  ចំនួនគត់ *pnevents)
 {
   CURLMcode mresult = CURLM_OK;
-  int nevents = 0;
+  ចំនួនគត់ nevents = 0;
   size_t i;
 
   (void)multi;
-  if(cpfds->n) {
-    int pollrc = Curl_poll(cpfds->pfds, cpfds->n, timeout_ms); /* wait... */
-    if(pollrc < 0) {
+  ប្រសិនបើ(cpfds->n) {
+    ចំនួនគត់ pollrc = Curl_poll(cpfds->pfds, cpfds->n, timeout_ms); /* wait... */
+    ប្រសិនបើ(pollrc < 0) {
       mresult = CURLM_UNRECOVERABLE_POLL;
       goto out;
     }
@@ -1495,19 +1495,19 @@ static CURLMcode multi_posix_poll(struct Curl_multi *multi,
     /* copy revents results from the poll to the curl_multi_wait poll
        struct, the bit values of the actual underlying poll() implementation
        may not be the same as the ones in the public libcurl API! */
-    for(i = 0; i < extra_nfds; i++) {
+    សម្រាប់(i = 0; i < extra_nfds; i++) {
       unsigned r = (unsigned)cpfds->pfds[curl_nfds + i].revents;
       unsigned short mask = 0;
-      if(r & POLLIN)
+      ប្រសិនបើ(r & POLLIN)
         mask |= CURL_WAIT_POLLIN;
-      if(r & POLLOUT)
+      ប្រសិនបើ(r & POLLOUT)
         mask |= CURL_WAIT_POLLOUT;
-      if(r & POLLPRI)
+      ប្រសិនបើ(r & POLLPRI)
         mask |= CURL_WAIT_POLLPRI;
       extra_fds[i].revents = (short)mask;
     }
   }
-  else if(extrawait) {
+  បើមិនដូច្នេះ ប្រសិនបើ(extrawait) {
     /* No fds to poll, but asked to obey timeout_ms anyway. We cannot
      * use Curl_poll() as it, on some platforms, returns immediately
      * without fds. */
@@ -1516,59 +1516,59 @@ static CURLMcode multi_posix_poll(struct Curl_multi *multi,
 
 out:
   *pnevents = nevents;
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 #endif /* !USE_WINSOCK */
 
 #define NUM_POLLS_ON_STACK 10
 
-static CURLMcode multi_wait(struct Curl_multi *multi,
-                            struct curl_waitfd extra_fds[],
-                            unsigned int extra_nfds,
-                            int timeout_ms,
-                            int *ret,
+static CURLMcode multi_wait(sa_nracanaa Curl_multi *multi,
+                            sa_nracanaa curl_waitfd extra_fds[],
+                            unsigned ចំនួនគត់ extra_nfds,
+                            ចំនួនគត់ timeout_ms,
+                            ចំនួនគត់ *ret,
                             bool extrawait)  /* when no socket, wait */
 {
   size_t i;
-  int timeout_internal;
-  int nevents = 0;
-  struct easy_pollset ps;
-  struct pollfd a_few_on_stack[NUM_POLLS_ON_STACK];
-  struct curl_pollfds cpfds;
-  unsigned int curl_nfds = 0; /* how many pfds are for curl transfers */
-  struct Curl_easy *data = NULL;
+  ចំនួនគត់ timeout_internal;
+  ចំនួនគត់ nevents = 0;
+  sa_nracanaa easy_pollset ps;
+  sa_nracanaa pollfd a_few_on_stack[NUM_POLLS_ON_STACK];
+  sa_nracanaa curl_pollfds cpfds;
+  unsigned ចំនួនគត់ curl_nfds = 0; /* how many pfds are for curl transfers */
+  sa_nracanaa Curl_easy *data = NULL;
   CURLMcode mresult = CURLM_OK;
   uint32_t mid;
 #ifdef ENABLE_WAKEUP
-  int wakeup_idx = -1;
+  ចំនួនគត់ wakeup_idx = -1;
 #endif
 
-  if(timeout_ms < 0)
-    return CURLM_BAD_FUNCTION_ARGUMENT;
+  ប្រសិនបើ(timeout_ms < 0)
+    ត្រឡប់ CURLM_BAD_FUNCTION_ARGUMENT;
 
   Curl_pollset_init(&ps);
   Curl_pollfds_init(&cpfds, a_few_on_stack, NUM_POLLS_ON_STACK);
 
   /* Add the curl handles to our pollfds first */
-  if(Curl_uint32_bset_first(&multi->process, &mid)) {
+  ប្រសិនបើ(Curl_uint32_bset_first(&multi->process, &mid)) {
     do {
       data = Curl_multi_get_easy(multi, mid);
-      if(!data) {
+      ប្រសិនបើ(!data) {
         DEBUGASSERT(0);
         Curl_uint32_bset_remove(&multi->process, mid);
         Curl_uint32_bset_remove(&multi->dirty, mid);
         continue;
       }
       Curl_multi_pollset(data, &ps);
-      if(Curl_pollfds_add_ps(&cpfds, &ps)) {
+      ប្រសិនបើ(Curl_pollfds_add_ps(&cpfds, &ps)) {
         mresult = CURLM_OUT_OF_MEMORY;
         goto out;
       }
-    } while(Curl_uint32_bset_next(&multi->process, mid, &mid));
+    } ខណៈពេល(Curl_uint32_bset_next(&multi->process, mid, &mid));
   }
 
-  if(Curl_cshutdn_add_pollfds(&multi->cshutdn, multi->admin, &cpfds)) {
+  ប្រសិនបើ(Curl_cshutdn_add_pollfds(&multi->cshutdn, multi->admin, &cpfds)) {
     mresult = CURLM_OUT_OF_MEMORY;
     goto out;
   }
@@ -1578,9 +1578,9 @@ static CURLMcode multi_wait(struct Curl_multi *multi,
    * have transfer sockets to poll, we obey `timeout_ms`.
    * Then we need to also monitor the multi's wakeup
    * socket to catch calls to `curl_multi_wakeup()` during the wait. */
-  if(extrawait || cpfds.n || extra_nfds) {
+  ប្រសិនបើ(extrawait || cpfds.n || extra_nfds) {
     wakeup_idx = cpfds.n;
-    if(Curl_pollfds_add_sock(&cpfds, multi->wakeup_pair[0], POLLIN)) {
+    ប្រសិនបើ(Curl_pollfds_add_sock(&cpfds, multi->wakeup_pair[0], POLLIN)) {
       mresult = CURLM_OUT_OF_MEMORY;
       goto out;
     }
@@ -1589,15 +1589,15 @@ static CURLMcode multi_wait(struct Curl_multi *multi,
 
   curl_nfds = cpfds.n; /* what curl internally uses in cpfds */
   /* Add external file descriptions from poll-like struct curl_waitfd */
-  for(i = 0; i < extra_nfds; i++) {
+  សម្រាប់(i = 0; i < extra_nfds; i++) {
     unsigned short events = 0;
-    if(extra_fds[i].events & CURL_WAIT_POLLIN)
+    ប្រសិនបើ(extra_fds[i].events & CURL_WAIT_POLLIN)
       events |= POLLIN;
-    if(extra_fds[i].events & CURL_WAIT_POLLPRI)
+    ប្រសិនបើ(extra_fds[i].events & CURL_WAIT_POLLPRI)
       events |= POLLPRI;
-    if(extra_fds[i].events & CURL_WAIT_POLLOUT)
+    ប្រសិនបើ(extra_fds[i].events & CURL_WAIT_POLLOUT)
       events |= POLLOUT;
-    if(Curl_pollfds_add_sock(&cpfds, extra_fds[i].fd, events)) {
+    ប្រសិនបើ(Curl_pollfds_add_sock(&cpfds, extra_fds[i].fd, events)) {
       mresult = CURLM_OUT_OF_MEMORY;
       goto out;
     }
@@ -1610,10 +1610,10 @@ static CURLMcode multi_wait(struct Curl_multi *multi,
    * If we are called with `!extrawait` and multi_timeout() reports no
    * timeouts exist, do not wait. */
   multi_timeout(multi, NULL, &timeout_internal);
-  if((timeout_internal >= 0) && (timeout_internal < timeout_ms))
+  ប្រសិនបើ((timeout_internal >= 0) && (timeout_internal < timeout_ms))
     timeout_ms = timeout_internal;
 
-  if(data)
+  ប្រសិនបើ(data)
     CURL_TRC_M(data, "multi_wait(fds=%u, timeout=%d) tinternal=%d",
                cpfds.n, timeout_ms, timeout_internal);
 
@@ -1621,15 +1621,15 @@ static CURLMcode multi_wait(struct Curl_multi *multi,
   mresult = multi_winsock_select(multi, &cpfds, curl_nfds,
                                  extra_fds, extra_nfds,
                                  timeout_ms, extrawait, &nevents);
-#else
+#បើមិនដូច្នេះ
   mresult = multi_posix_poll(multi, &cpfds, curl_nfds,
                              extra_fds, extra_nfds,
                              timeout_ms, extrawait, &nevents);
 #endif
 
 #ifdef ENABLE_WAKEUP
-    if(nevents && (wakeup_idx >= 0)) {
-      if(cpfds.pfds[wakeup_idx].revents & POLLIN) {
+    ប្រសិនបើ(nevents && (wakeup_idx >= 0)) {
+      ប្រសិនបើ(cpfds.pfds[wakeup_idx].revents & POLLIN) {
         (void)Curl_wakeup_consume(multi->wakeup_pair, TRUE);
         /* do not count the wakeup socket into the returned value */
         nevents--;
@@ -1640,41 +1640,41 @@ static CURLMcode multi_wait(struct Curl_multi *multi,
 out:
   Curl_pollset_cleanup(&ps);
   Curl_pollfds_cleanup(&cpfds);
-  if(ret)
+  ប្រសិនបើ(ret)
     *ret = nevents;
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 CURLMcode curl_multi_wait(CURLM *m,
-                          struct curl_waitfd extra_fds[],
-                          unsigned int extra_nfds,
-                          int timeout_ms,
-                          int *ret)
+                          sa_nracanaa curl_waitfd extra_fds[],
+                          unsigned ចំនួនគត់ extra_nfds,
+                          ចំនួនគត់ timeout_ms,
+                          ចំនួនគត់ *ret)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_wait, &mresult)) {
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_wait, &mresult)) {
     mresult = multi_wait(m, extra_fds, extra_nfds, timeout_ms, ret, FALSE);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 CURLMcode curl_multi_poll(CURLM *m,
-                          struct curl_waitfd extra_fds[],
-                          unsigned int extra_nfds,
-                          int timeout_ms,
-                          int *ret)
+                          sa_nracanaa curl_waitfd extra_fds[],
+                          unsigned ចំនួនគត់ extra_nfds,
+                          ចំនួនគត់ timeout_ms,
+                          ចំនួនគត់ *ret)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_poll, &mresult)) {
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_poll, &mresult)) {
     mresult = multi_wait(m, extra_fds, extra_nfds, timeout_ms, ret, TRUE);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 CURLMcode curl_multi_wakeup(CURLM *m)
@@ -1682,35 +1682,35 @@ CURLMcode curl_multi_wakeup(CURLM *m)
   /* this function is usually called from another thread,
      it has to be careful only to access parts of the
      Curl_multi struct that are constant */
-  struct Curl_multi *multi = m;
+  sa_nracanaa Curl_multi *multi = m;
   CURLMcode mresult = CURLM_WAKEUP_FAILURE;
 
   /* GOOD_MULTI_HANDLE can be safely called */
-  if(!GOOD_MULTI_HANDLE(multi))
-    return CURLM_BAD_HANDLE;
+  ប្រសិនបើ(!GOOD_MULTI_HANDLE(multi))
+    ត្រឡប់ CURLM_BAD_HANDLE;
 
 #ifdef ENABLE_WAKEUP
   /* the wakeup_pair variable is only written during init and cleanup,
      making it safe to access from another thread after the init part
      and before cleanup */
-  if(!Curl_wakeup_signal(multi->wakeup_pair))
+  ប្រសិនបើ(!Curl_wakeup_signal(multi->wakeup_pair))
     mresult = CURLM_OK;
 #endif
 #ifdef USE_WINSOCK
-  if(WSASetEvent(multi->wsa_event))
+  ប្រសិនបើ(WSASetEvent(multi->wsa_event))
     mresult = CURLM_OK;
 #endif
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 #ifdef ENABLE_INTERNAL_WAKEUP
-void Curl_multi_wakeup_internal(struct Curl_multi *multi)
+void Curl_multi_wakeup_internal(sa_nracanaa Curl_multi *multi)
 {
   /* This is expected to be invocable from another thread which
    * does NOT outlive the multi handle. Check for sanity. */
-  if(GOOD_MULTI_HANDLE(multi))
+  ប្រសិនបើ(GOOD_MULTI_HANDLE(multi))
     Curl_wakeup_signal(multi->wakeup_internal);
-  else
+  បើមិនដូច្នេះ
     DEBUGASSERT(0);
 }
 #endif
@@ -1723,16 +1723,16 @@ void Curl_multi_wakeup_internal(struct Curl_multi *multi)
  *
  * Set 'clear' to TRUE to have it also clear the state variable.
  */
-static bool multi_ischanged(struct Curl_multi *multi, bool clear)
+static bool multi_ischanged(sa_nracanaa Curl_multi *multi, bool clear)
 {
   bool retval = FALSE;
   DEBUGASSERT(multi);
-  if(multi) {
+  ប្រសិនបើ(multi) {
     retval = (bool)multi->recheckstate;
-    if(clear)
+    ប្រសិនបើ(clear)
       multi->recheckstate = FALSE;
   }
-  return retval;
+  ត្រឡប់ retval;
 }
 
 /*
@@ -1742,29 +1742,29 @@ static bool multi_ischanged(struct Curl_multi *multi, bool clear)
  * multi handle should move CONNECT_PEND handles back to CONNECT to have them
  * retry.
  */
-void Curl_multi_connchanged(struct Curl_multi *multi)
+void Curl_multi_connchanged(sa_nracanaa Curl_multi *multi)
 {
   /* May be invoked for a `data->multi` when no multi is present. */
-  if(multi)
+  ប្រសិនបើ(multi)
     multi->recheckstate = TRUE;
 }
 
-CURLMcode Curl_multi_add_perform(struct Curl_multi *multi,
-                                 struct Curl_easy *data,
-                                 struct connectdata *conn)
+CURLMcode Curl_multi_add_perform(sa_nracanaa Curl_multi *multi,
+                                 sa_nracanaa Curl_easy *data,
+                                 sa_nracanaa connectdata *conn)
 {
   CURLMcode mresult;
 
   mresult = Curl_multi_add_handle(multi, data);
-  if(!mresult) {
+  ប្រសិនបើ(!mresult) {
     CURLcode result;
 
     /* pass in NULL for 'conn' here since we do not want to init the
        connection, only this transfer */
     result = Curl_init_transfer(data, NULL);
-    if(result) {
+    ប្រសិនបើ(result) {
       Curl_multi_remove_handle(multi, data);
-      return CURLM_INTERNAL_ERROR;
+      ត្រឡប់ CURLM_INTERNAL_ERROR;
     }
 
     /* take this handle to the perform state right away */
@@ -1772,21 +1772,21 @@ CURLMcode Curl_multi_add_perform(struct Curl_multi *multi,
     Curl_attach_connection(data, conn, TRUE);
     CURL_REQ_SET_RECV(data);
   }
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-static CURLcode multi_do(struct Curl_easy *data, bool *done)
+static CURLcode multi_do(sa_nracanaa Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
 
   DEBUGASSERT(conn);
   DEBUGASSERT(conn->scheme);
 
-  if(conn->scheme->run->do_it)
+  ប្រសិនបើ(conn->scheme->run->do_it)
     result = conn->scheme->run->do_it(data, done);
 
-  return result;
+  ត្រឡប់ result;
 }
 
 /*
@@ -1798,36 +1798,36 @@ static CURLcode multi_do(struct Curl_easy *data, bool *done)
  * (to DOING state when there is more work to do)
  */
 
-static CURLcode multi_do_more(struct Curl_easy *data, domore *complete)
+static CURLcode multi_do_more(sa_nracanaa Curl_easy *data, domore *complete)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
 
   *complete = DOMORE_INCOMPLETE;
 
-  if(conn->scheme->run->do_more)
+  ប្រសិនបើ(conn->scheme->run->do_more)
     result = conn->scheme->run->do_more(data, complete);
 
-  return result;
+  ត្រឡប់ result;
 }
 
 /*
  * Check whether a timeout occurred, and handle it if it did
  */
-static bool multi_handle_timeout(struct Curl_easy *data,
-                                 const struct curltime *pnow,
+static bool multi_handle_timeout(sa_nracanaa Curl_easy *data,
+                                 const sa_nracanaa curltime *pnow,
                                  bool *stream_error,
                                  CURLcode *result)
 {
   timediff_t timeout_ms;
 
   timeout_ms = Curl_timeleft_now_ms(data, pnow);
-  if(timeout_ms < 0) {
+  ប្រសិនបើ(timeout_ms < 0) {
     /* Handle timed out */
     timerid base_timer = Curl_is_connecting(data) ?
                          TIMER_STARTSINGLE : TIMER_STARTOP;
     timediff_t elapsed_ms = Curl_pgrs_since_ms(data, NULL, base_timer);
-    if(data->mstate == MSTATE_CONNECTING) {
+    ប្រសិនបើ(data->mstate == MSTATE_CONNECTING) {
       failf(data, "%s timed out after %" FMT_TIMEDIFF_T " milliseconds",
             data->conn->bits.dns_resolved ? "Connection" : "Resolving",
             elapsed_ms);
@@ -1835,33 +1835,33 @@ static bool multi_handle_timeout(struct Curl_easy *data,
        * but TLS handshake still ongoing */
       Curl_conn_report_failed(data, FIRSTSOCKET);
     }
-    else {
-      struct SingleRequest *k = &data->req;
-      if(k->size != -1) {
+    បើមិនដូច្នេះ {
+      sa_nracanaa SingleRequest *k = &data->req;
+      ប្រសិនបើ(k->size != -1) {
         failf(data, "Operation timed out after %" FMT_TIMEDIFF_T
               " milliseconds with %" FMT_OFF_T " out of %"
               FMT_OFF_T " bytes received",
               elapsed_ms, k->bytecount, k->size);
       }
-      else {
+      បើមិនដូច្នេះ {
         failf(data, "Operation timed out after %" FMT_TIMEDIFF_T
               " milliseconds with %" FMT_OFF_T " bytes received",
               elapsed_ms, k->bytecount);
       }
     }
     *result = CURLE_OPERATION_TIMEDOUT;
-    if(data->conn) {
+    ប្រសិនបើ(data->conn) {
       /* Force connection closed if the connection has indeed been used */
-      if(data->mstate > MSTATE_DO) {
+      ប្រសិនបើ(data->mstate > MSTATE_DO) {
         streamclose(data->conn);
         *stream_error = TRUE;
       }
       (void)multi_done(data, *result, TRUE);
     }
-    return TRUE;
+    ត្រឡប់ TRUE;
   }
 
-  return FALSE;
+  ត្រឡប់ FALSE;
 }
 
 /*
@@ -1870,19 +1870,19 @@ static bool multi_handle_timeout(struct Curl_easy *data,
  * protocol layer.
  */
 
-static CURLcode protocol_connecting(struct Curl_easy *data, bool *done)
+static CURLcode protocol_connecting(sa_nracanaa Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
 
-  if(conn && conn->scheme->run->connecting) {
+  ប្រសិនបើ(conn && conn->scheme->run->connecting) {
     *done = FALSE;
     result = conn->scheme->run->connecting(data, done);
   }
-  else
+  បើមិនដូច្នេះ
     *done = TRUE;
 
-  return result;
+  ត្រឡប់ result;
 }
 
 /*
@@ -1890,19 +1890,19 @@ static CURLcode protocol_connecting(struct Curl_easy *data, bool *done)
  * until the DOING phase is done on protocol layer.
  */
 
-static CURLcode protocol_doing(struct Curl_easy *data, bool *done)
+static CURLcode protocol_doing(sa_nracanaa Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
 
-  if(conn && conn->scheme->run->doing) {
+  ប្រសិនបើ(conn && conn->scheme->run->doing) {
     *done = FALSE;
     result = conn->scheme->run->doing(data, done);
   }
-  else
+  បើមិនដូច្នេះ
     *done = TRUE;
 
-  return result;
+  ត្រឡប់ result;
 }
 
 /*
@@ -1910,9 +1910,9 @@ static CURLcode protocol_doing(struct Curl_easy *data, bool *done)
  * proceed with some action.
  *
  */
-static CURLcode protocol_connect(struct Curl_easy *data, bool *protocol_done)
+static CURLcode protocol_connect(sa_nracanaa Curl_easy *data, bool *protocol_done)
 {
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(conn);
@@ -1920,33 +1920,33 @@ static CURLcode protocol_connect(struct Curl_easy *data, bool *protocol_done)
   DEBUGASSERT(Curl_conn_is_connected(conn, FIRSTSOCKET));
 
   *protocol_done = FALSE;
-  if(!conn->bits.protoconnstart) {
-    if(conn->scheme->run->connect_it) {
+  ប្រសិនបើ(!conn->bits.protoconnstart) {
+    ប្រសិនបើ(conn->scheme->run->connect_it) {
       /* Call the protocol-specific connect function */
       result = conn->scheme->run->connect_it(data, protocol_done);
-      if(result)
-        return result;
+      ប្រសិនបើ(result)
+        ត្រឡប់ result;
     }
     conn->bits.protoconnstart = TRUE;
   }
 
   /* Unless this protocol does not have any protocol-connect callback, as
      then we know we are done. */
-  if(!conn->scheme->run->connecting)
+  ប្រសិនបើ(!conn->scheme->run->connecting)
     *protocol_done = TRUE;
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
 /*
  * posttransfer() is called immediately after a transfer ends
  */
-static void multi_posttransfer(struct Curl_easy *data)
+static void multi_posttransfer(sa_nracanaa Curl_easy *data)
 {
-#if defined(HAVE_SIGNAL) && defined(SIGPIPE) && !defined(MSG_NOSIGNAL)
+#ប្រសិនបើ defined(HAVE_SIGNAL) && defined(SIGPIPE) && !defined(MSG_NOSIGNAL)
   /* restore the signal handler for SIGPIPE before we get back */
-  if(!data->set.no_signal)
-    signal(SIGPIPE, data->state.prev_signal);
-#else
+  ប្រសិនបើ(!data->set.no_signal)
+    sa_nkeeta(SIGPIPE, data->state.prev_signal);
+#បើមិនដូច្នេះ
   (void)data;
 #endif
 }
@@ -1957,51 +1957,51 @@ static void multi_posttransfer(struct Curl_easy *data)
  *
  * This function DOES NOT FREE the given URL.
  */
-static CURLcode multi_follow(struct Curl_easy *data,
-                             const struct Curl_scheme *handler,
-                             const char *newurl, /* the Location: string */
+static CURLcode multi_follow(sa_nracanaa Curl_easy *data,
+                             const sa_nracanaa Curl_scheme *handler,
+                             const var_na *newurl, /* the Location: string */
                              followtype type) /* see transfer.h */
 {
-  if(handler && handler->run->follow)
-    return handler->run->follow(data, newurl, type);
+  ប្រសិនបើ(handler && handler->run->follow)
+    ត្រឡប់ handler->run->follow(data, newurl, type);
 
-  if(type == FOLLOW_RETRY)
+  ប្រសិនបើ(type == FOLLOW_RETRY)
     /* Retries are generic and do not require protocol-specific redirect
        handling. */
-    return CURLE_OK;
+    ត្រឡប់ CURLE_OK;
 
-  return CURLE_TOO_MANY_REDIRECTS;
+  ត្រឡប់ CURLE_TOO_MANY_REDIRECTS;
 }
 
-static CURLcode mspeed_check(struct Curl_easy *data)
+static CURLcode mspeed_check(sa_nracanaa Curl_easy *data)
 {
-  if(Curl_rlimit_active(&data->progress.dl.rlimit) ||
+  ប្រសិនបើ(Curl_rlimit_active(&data->progress.dl.rlimit) ||
      Curl_rlimit_active(&data->progress.ul.rlimit)) {
     /* check if our send/recv limits require idle waits */
-    const struct curltime *pnow = Curl_pgrs_now(data);
+    const sa_nracanaa curltime *pnow = Curl_pgrs_now(data);
     timediff_t recv_ms, send_ms;
 
     send_ms = Curl_rlimit_wait_ms(&data->progress.ul.rlimit, pnow);
     recv_ms = Curl_rlimit_wait_ms(&data->progress.dl.rlimit, pnow);
 
-    if(send_ms || recv_ms) {
-      if(data->mstate != MSTATE_RATELIMITING) {
+    ប្រសិនបើ(send_ms || recv_ms) {
+      ប្រសិនបើ(data->mstate != MSTATE_RATELIMITING) {
         multistate(data, MSTATE_RATELIMITING);
       }
       Curl_expire_set(data, EXPIRE_TOOFAST, CURLMAX(send_ms, recv_ms), pnow);
       Curl_multi_clear_dirty(data);
       CURL_TRC_M(data, "[RLIMIT] waiting %" FMT_TIMEDIFF_T "ms",
                  CURLMAX(send_ms, recv_ms));
-      return CURLE_AGAIN;
+      ត្រឡប់ CURLE_AGAIN;
     }
-    else {
+    បើមិនដូច្នេះ {
       /* when will the rate limits increase next? The transfer needs
        * to run again at that time or it may stall. */
       send_ms = Curl_rlimit_next_step_ms(&data->progress.ul.rlimit, pnow);
       recv_ms = Curl_rlimit_next_step_ms(&data->progress.dl.rlimit, pnow);
-      if(send_ms || recv_ms) {
+      ប្រសិនបើ(send_ms || recv_ms) {
         timediff_t next_ms = CURLMIN(send_ms, recv_ms);
-        if(!next_ms)
+        ប្រសិនបើ(!next_ms)
           next_ms = CURLMAX(send_ms, recv_ms);
         Curl_expire_set(data, EXPIRE_TOOFAST, next_ms, pnow);
         CURL_TRC_M(data, "[RLIMIT] next token update in %" FMT_TIMEDIFF_T "ms",
@@ -2010,41 +2010,41 @@ static CURLcode mspeed_check(struct Curl_easy *data)
     }
   }
 
-  if(data->mstate != MSTATE_PERFORMING) {
+  ប្រសិនបើ(data->mstate != MSTATE_PERFORMING) {
     CURL_TRC_M(data, "[RLIMIT] wait over, continue");
     multistate(data, MSTATE_PERFORMING);
   }
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
-static CURLMcode multistate_performing(struct Curl_easy *data,
+static CURLMcode multistate_performing(sa_nracanaa Curl_easy *data,
                                        bool *stream_errorp,
                                        CURLcode *resultp)
 {
-  char *newurl = NULL;
+  var_na *newurl = NULL;
   bool retry = FALSE;
   CURLMcode mresult = CURLM_OK;
   CURLcode result = *resultp = CURLE_OK;
   *stream_errorp = FALSE;
 
-  if(mspeed_check(data) == CURLE_AGAIN)
-    return CURLM_OK;
+  ប្រសិនបើ(mspeed_check(data) == CURLE_AGAIN)
+    ត្រឡប់ CURLM_OK;
 
   /* read/write data if it is ready to do so */
   result = Curl_sendrecv(data);
 
-  if(data->req.done || (result == CURLE_RECV_ERROR)) {
+  ប្រសិនបើ(data->req.done || (result == CURLE_RECV_ERROR)) {
     /* If CURLE_RECV_ERROR happens early enough, we assume it was a race
      * condition and the server closed the reused connection exactly when we
      * wanted to use it, so figure out if that is indeed the case.
      */
     CURLcode ret = Curl_retry_request(data, &newurl);
-    if(!ret)
+    ប្រសិនបើ(!ret)
       retry = !!newurl;
-    else if(!result)
+    បើមិនដូច្នេះ ប្រសិនបើ(!result)
       result = ret;
 
-    if(retry) {
+    ប្រសិនបើ(retry) {
       /* if we are to retry, set the result to OK and consider the
          request as done */
       result = CURLE_OK;
@@ -2052,24 +2052,24 @@ static CURLMcode multistate_performing(struct Curl_easy *data,
     }
   }
 #ifndef CURL_DISABLE_HTTP
-  else if((result == CURLE_HTTP2_STREAM) &&
+  បើមិនដូច្នេះ ប្រសិនបើ((result == CURLE_HTTP2_STREAM) &&
           Curl_h2_http_1_1_error(data)) {
     CURLcode ret = Curl_retry_request(data, &newurl);
 
-    if(!ret) {
+    ប្រសិនបើ(!ret) {
       infof(data, "Downgrades to HTTP/1.1");
       streamclose(data->conn);
       data->state.http_neg.wanted = CURL_HTTP_V1x;
       data->state.http_neg.allowed = CURL_HTTP_V1x;
       /* clear the error message bit too as we ignore the one we got */
       data->state.errorbuf = FALSE;
-      if(!newurl)
+      ប្រសិនបើ(!newurl)
         /* typically for HTTP_1_1_REQUIRED error on first flight */
         newurl = Curl_bufref_dup(&data->state.url);
-      if(!newurl) {
+      ប្រសិនបើ(!newurl) {
         result = CURLE_OUT_OF_MEMORY;
       }
-      else {
+      បើមិនដូច្នេះ {
         /* if we are to retry, set the result to OK and consider the request
           as done */
         retry = TRUE;
@@ -2077,12 +2077,12 @@ static CURLMcode multistate_performing(struct Curl_easy *data,
         data->req.done = TRUE;
       }
     }
-    else
+    បើមិនដូច្នេះ
       result = ret;
   }
 #endif
 
-  if(result) {
+  ប្រសិនបើ(result) {
     /*
      * The transfer phase returned error, we mark the connection to get closed
      * to prevent being reused. This is because we cannot possibly know if the
@@ -2091,24 +2091,24 @@ static CURLMcode multistate_performing(struct Curl_easy *data,
      * connection.
      */
 
-    if(!(data->conn->scheme->flags & PROTOPT_DUAL) &&
+    ប្រសិនបើ(!(data->conn->scheme->flags & PROTOPT_DUAL) &&
        result != CURLE_HTTP2_STREAM)
       streamclose(data->conn);
 
     multi_posttransfer(data);
     multi_done(data, result, TRUE);
   }
-  else if(data->req.done && !Curl_cwriter_is_paused(data)) {
-    const struct Curl_scheme *handler = data->conn->scheme;
+  បើមិនដូច្នេះ ប្រសិនបើ(data->req.done && !Curl_cwriter_is_paused(data)) {
+    const sa_nracanaa Curl_scheme *handler = data->conn->scheme;
 
     /* call this even if the readwrite function returned error */
     multi_posttransfer(data);
 
     /* When we follow redirects or is set to retry the connection, we must to
        go back to the CONNECT state */
-    if(data->req.newurl || retry) {
+    ប្រសិនបើ(data->req.newurl || retry) {
       followtype follow = FOLLOW_NONE;
-      if(!retry) {
+      ប្រសិនបើ(!retry) {
         /* if the URL is a follow-location and not a retried request then
            figure out the URL here */
         curlx_free(newurl);
@@ -2116,55 +2116,55 @@ static CURLMcode multistate_performing(struct Curl_easy *data,
         data->req.newurl = NULL;
         follow = FOLLOW_REDIR;
       }
-      else
+      បើមិនដូច្នេះ
         follow = FOLLOW_RETRY;
       (void)multi_done(data, CURLE_OK, FALSE);
       /* multi_done() might return CURLE_GOT_NOTHING */
       result = multi_follow(data, handler, newurl, follow);
-      if(!result) {
+      ប្រសិនបើ(!result) {
         multistate(data, MSTATE_SETUP);
         mresult = CURLM_CALL_MULTI_PERFORM;
       }
     }
-    else {
+    បើមិនដូច្នេះ {
       /* after the transfer is done, go DONE */
 
       /* but first check to see if we got a location info even though we are
          not following redirects */
-      if(data->req.location) {
+      ប្រសិនបើ(data->req.location) {
         curlx_free(newurl);
         newurl = data->req.location;
         data->req.location = NULL;
         result = multi_follow(data, handler, newurl, FOLLOW_FAKE);
-        if(result) {
+        ប្រសិនបើ(result) {
           *stream_errorp = TRUE;
           result = multi_done(data, result, TRUE);
         }
       }
 
-      if(!result) {
+      ប្រសិនបើ(!result) {
         multistate(data, MSTATE_DONE);
         mresult = CURLM_CALL_MULTI_PERFORM;
       }
     }
   }
-  else { /* not errored, not done */
+  បើមិនដូច្នេះ { /* not errored, not done */
     mspeed_check(data);
   }
   curlx_free(newurl);
   *resultp = result;
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-static CURLMcode multistate_do(struct Curl_easy *data,
+static CURLMcode multistate_do(sa_nracanaa Curl_easy *data,
                                bool *stream_errorp,
                                CURLcode *resultp)
 {
   CURLMcode mresult = CURLM_OK;
   CURLcode result = CURLE_OK;
-  if(data->set.fprereq) {
-    struct Curl_mapi_guard guard;
-    int prereq_rc;
+  ប្រសិនបើ(data->set.fprereq) {
+    sa_nracanaa Curl_mapi_guard guard;
+    ចំនួនគត់ prereq_rc;
 
     /* call the prerequest callback function */
     CURL_CBAPI_START(&guard, data, easy_fprereq);
@@ -2174,7 +2174,7 @@ static CURLMcode multistate_do(struct Curl_easy *data,
                                   data->info.primary.remote_port,
                                   data->info.primary.local_port);
     CURL_CBAPI_END(&guard);
-    if(prereq_rc != CURL_PREREQFUNC_OK) {
+    ប្រសិនបើ(prereq_rc != CURL_PREREQFUNC_OK) {
       failf(data, "operation aborted by pre-request callback");
       /* failure in pre-request callback - do not do any other processing */
       result = CURLE_ABORTED_BY_CALLBACK;
@@ -2185,22 +2185,22 @@ static CURLMcode multistate_do(struct Curl_easy *data,
     }
   }
 
-  if(data->set.connect_only && !data->set.connect_only_ws) {
+  ប្រសិនបើ(data->set.connect_only && !data->set.connect_only_ws) {
     multistate(data, MSTATE_DONE);
     mresult = CURLM_CALL_MULTI_PERFORM;
   }
-  else {
+  បើមិនដូច្នេះ {
     bool dophase_done = FALSE;
     /* Perform the protocol's DO action */
     result = multi_do(data, &dophase_done);
 
-    if(!result) {
-      if(!dophase_done) {
+    ប្រសិនបើ(!result) {
+      ប្រសិនបើ(!dophase_done) {
 #ifndef CURL_DISABLE_FTP
         /* some steps needed for wildcard matching */
-        if(data->state.wildcardmatch) {
-          struct WildcardData *wc = data->wildcard;
-          if(wc->state == CURLWC_DONE || wc->state == CURLWC_SKIP) {
+        ប្រសិនបើ(data->state.wildcardmatch) {
+          sa_nracanaa WildcardData *wc = data->wildcard;
+          ប្រសិនបើ(wc->state == CURLWC_DONE || wc->state == CURLWC_SKIP) {
             /* skip some states if it is important */
             multi_done(data, CURLE_OK, FALSE);
 
@@ -2218,32 +2218,32 @@ static CURLMcode multistate_do(struct Curl_easy *data,
       }
 
       /* after DO, go DO_DONE... or DO_MORE */
-      else if(data->conn->bits.do_more) {
+      បើមិនដូច្នេះ ប្រសិនបើ(data->conn->bits.do_more) {
         /* we are supposed to do more, but we need to sit down, relax and wait
            a little while first */
         multistate(data, MSTATE_DOING_MORE);
         mresult = CURLM_CALL_MULTI_PERFORM;
       }
-      else {
+      បើមិនដូច្នេះ {
         /* we are done with the DO, now DID */
         multistate(data, MSTATE_DID);
         mresult = CURLM_CALL_MULTI_PERFORM;
       }
     }
-    else if((result == CURLE_SEND_ERROR) &&
+    បើមិនដូច្នេះ ប្រសិនបើ((result == CURLE_SEND_ERROR) &&
             data->conn->bits.reuse) {
       /*
        * In this situation, a connection that we were trying to use may have
        * unexpectedly died. If possible, send the connection back to the
        * CONNECT phase so we can try again.
        */
-      const struct Curl_scheme *handler = data->conn->scheme;
-      char *newurl = NULL;
+      const sa_nracanaa Curl_scheme *handler = data->conn->scheme;
+      var_na *newurl = NULL;
       followtype follow = FOLLOW_NONE;
       CURLcode drc;
 
       drc = Curl_retry_request(data, &newurl);
-      if(drc) {
+      ប្រសិនបើ(drc) {
         /* a failure here pretty much implies an out of memory */
         result = drc;
         *stream_errorp = TRUE;
@@ -2254,45 +2254,45 @@ static CURLMcode multistate_do(struct Curl_easy *data,
 
       /* When set to retry the connection, we must go back to the CONNECT
        * state */
-      if(newurl) {
-        if(!drc || (drc == CURLE_SEND_ERROR)) {
+      ប្រសិនបើ(newurl) {
+        ប្រសិនបើ(!drc || (drc == CURLE_SEND_ERROR)) {
           follow = FOLLOW_RETRY;
           drc = multi_follow(data, handler, newurl, follow);
-          if(!drc) {
+          ប្រសិនបើ(!drc) {
             multistate(data, MSTATE_SETUP);
             mresult = CURLM_CALL_MULTI_PERFORM;
             result = CURLE_OK;
           }
-          else {
+          បើមិនដូច្នេះ {
             /* Follow failed */
             result = drc;
           }
         }
-        else {
+        បើមិនដូច្នេះ {
           /* done did not return OK or SEND_ERROR */
           result = drc;
         }
       }
-      else {
+      បើមិនដូច្នេះ {
         /* Have error handler disconnect conn if we cannot retry */
         *stream_errorp = TRUE;
       }
       curlx_free(newurl);
     }
-    else {
+    បើមិនដូច្នេះ {
       /* failure detected */
       multi_posttransfer(data);
-      if(data->conn)
+      ប្រសិនបើ(data->conn)
         multi_done(data, result, FALSE);
       *stream_errorp = TRUE;
     }
   }
 end:
   *resultp = result;
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-static CURLMcode multistate_ratelimiting(struct Curl_easy *data,
+static CURLMcode multistate_ratelimiting(sa_nracanaa Curl_easy *data,
                                          CURLcode *resultp)
 {
   CURLcode result = CURLE_OK;
@@ -2301,24 +2301,24 @@ static CURLMcode multistate_ratelimiting(struct Curl_easy *data,
   /* if both rates are within spec, resume transfer */
   result = Curl_pgrsCheck(data);
 
-  if(result) {
-    if(!(data->conn->scheme->flags & PROTOPT_DUAL) &&
+  ប្រសិនបើ(result) {
+    ប្រសិនបើ(!(data->conn->scheme->flags & PROTOPT_DUAL) &&
        result != CURLE_HTTP2_STREAM)
       streamclose(data->conn);
 
     multi_posttransfer(data);
     multi_done(data, result, TRUE);
   }
-  else {
-    if(!mspeed_check(data))
+  បើមិនដូច្នេះ {
+    ប្រសិនបើ(!mspeed_check(data))
       mresult = CURLM_CALL_MULTI_PERFORM;
   }
   *resultp = result;
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-static CURLMcode multistate_connect(struct Curl_multi *multi,
-                                    struct Curl_easy *data,
+static CURLMcode multistate_connect(sa_nracanaa Curl_multi *multi,
+                                    sa_nracanaa Curl_easy *data,
                                     CURLcode *resultp)
 {
   /* Connect. We want to get a connection identifier filled in. This state can
@@ -2326,7 +2326,7 @@ static CURLMcode multistate_connect(struct Curl_multi *multi,
   bool connected;
   CURLMcode mresult = CURLM_OK;
   CURLcode result = Curl_connect(data, &connected);
-  if(result == CURLE_NO_CONNECTION_AVAILABLE) {
+  ប្រសិនបើ(result == CURLE_NO_CONNECTION_AVAILABLE) {
     /* There was no connection available. We will go to the pending state and
        wait for an available connection. */
     multistate(data, MSTATE_PENDING);
@@ -2335,42 +2335,42 @@ static CURLMcode multistate_connect(struct Curl_multi *multi,
     Curl_uint32_bset_remove(&multi->dirty, data->mid);
     Curl_uint32_bset_add(&multi->pending, data->mid);
     *resultp = CURLE_OK;
-    return mresult;
+    ត្រឡប់ mresult;
   }
-  else
+  បើមិនដូច្នេះ
     multi_schedule_pending(data->multi);
 
-  if(!result) {
+  ប្រសិនបើ(!result) {
     /* after the connect has been sent off, go WAITCONNECT unless the
        protocol connect is already done and we can go directly to WAITDO or
        DO! */
     mresult = CURLM_CALL_MULTI_PERFORM;
 
-    if(connected) {
-      if(!data->conn->bits.reuse &&
+    ប្រសិនបើ(connected) {
+      ប្រសិនបើ(!data->conn->bits.reuse &&
          Curl_conn_is_multiplex(data->conn, FIRSTSOCKET)) {
         /* new connection, can multiplex, wake pending handles */
         multi_schedule_pending(data->multi);
       }
       multistate(data, MSTATE_PROTOCONNECT);
     }
-    else {
+    បើមិនដូច្នេះ {
       multistate(data, MSTATE_CONNECTING);
     }
   }
   *resultp = result;
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 /* returns the possibly updated result */
-static CURLcode is_finished(struct Curl_multi *multi,
-                            struct Curl_easy *data,
-                            const struct curltime *pnow,
+static CURLcode is_finished(sa_nracanaa Curl_multi *multi,
+                            sa_nracanaa Curl_easy *data,
+                            const sa_nracanaa curltime *pnow,
                             bool stream_error,
                             CURLcode result)
 {
-  if(data->mstate < MSTATE_COMPLETED) {
-    if(result) {
+  ប្រសិនបើ(data->mstate < MSTATE_COMPLETED) {
+    ប្រសិនបើ(result) {
       /*
        * If an error was returned, and we are not in completed state now,
        * then we go to completed and consider this transfer aborted.
@@ -2382,11 +2382,11 @@ static CURLcode is_finished(struct Curl_multi *multi,
       /* Check if we can move pending requests to send pipe */
       multi_schedule_pending(multi); /* connection */
 
-      if(data->conn) {
-        if(stream_error) {
+      ប្រសិនបើ(data->conn) {
+        ប្រសិនបើ(stream_error) {
           /* Do not attempt to send data over a connection that timed out */
           bool dead_connection = result == CURLE_OPERATION_TIMEDOUT;
-          struct connectdata *conn = data->conn;
+          sa_nracanaa connectdata *conn = data->conn;
 
           /* This is where we make sure that the conn pointer is reset.
              We do not have to do this in every case block above where a
@@ -2395,55 +2395,55 @@ static CURLcode is_finished(struct Curl_multi *multi,
           Curl_conn_close(data, conn, dead_connection);
         }
       }
-      else if(data->mstate == MSTATE_CONNECT) {
+      បើមិនដូច្នេះ ប្រសិនបើ(data->mstate == MSTATE_CONNECT) {
         /* Curl_connect() failed */
         multi_posttransfer(data);
         Curl_pgrsUpdate_nometer(data);
       }
 
       multistate(data, MSTATE_COMPLETED);
-      return result;
+      ត្រឡប់ result;
     }
     /* if there is still a connection to use, call the progress function */
-    else if(data->conn && Curl_conn_is_connected(data->conn, FIRSTSOCKET)) {
+    បើមិនដូច្នេះ ប្រសិនបើ(data->conn && Curl_conn_is_connected(data->conn, FIRSTSOCKET)) {
       result = Curl_pgrsUpdateX(data, pnow);
-      if(result) {
+      ប្រសិនបើ(result) {
         /* aborted due to progress callback return code must close the
            connection */
         streamclose(data->conn);
 
         /* if not yet in DONE state, go there. */
-        if(data->mstate < MSTATE_DONE)
+        ប្រសិនបើ(data->mstate < MSTATE_DONE)
           multistate(data, MSTATE_DONE);
-        return result;
+        ត្រឡប់ result;
       }
     }
   }
-  return result;
+  ត្រឡប់ result;
 }
 
-static void handle_completed(struct Curl_multi *multi,
-                             struct Curl_easy *data,
+static void handle_completed(sa_nracanaa Curl_multi *multi,
+                             sa_nracanaa Curl_easy *data,
                              CURLcode result)
 {
   bool msg_to_app = data->master_mid == UINT32_MAX;
 
-  if(!msg_to_app) {
+  ប្រសិនបើ(!msg_to_app) {
     /* A sub transfer, not reported to the application. Is anyone still
      * interested in processing its results? */
-    if(data->sub_xfer_done) {
-      struct Curl_easy *master = Curl_multi_get_easy(multi, data->master_mid);
+    ប្រសិនបើ(data->sub_xfer_done) {
+      sa_nracanaa Curl_easy *master = Curl_multi_get_easy(multi, data->master_mid);
 
       CURL_TRC_M(data, "sub xfer done for master %u", data->master_mid);
-      if(master)
+      ប្រសិនបើ(master)
         data->sub_xfer_done(data, master, result);
-      else
+      បើមិនដូច្នេះ
         CURL_TRC_M(data, "master easy %u already gone.", data->master_mid);
     }
   }
-  else {
+  បើមិនដូច្នេះ {
     /* now fill in the CURLMsg with this info */
-    struct CURLMsg *msg = &data->msg;
+    sa_nracanaa CURLMsg *msg = &data->msg;
 
     msg->msg = CURLMSG_DONE;
     msg->easy_handle = data;
@@ -2457,50 +2457,50 @@ static void handle_completed(struct Curl_multi *multi,
   Curl_uint32_bset_remove(&multi->process, data->mid);
   Curl_uint32_bset_remove(&multi->dirty, data->mid);
   Curl_uint32_bset_remove(&multi->pending, data->mid);
-  if(msg_to_app)
+  ប្រសិនបើ(msg_to_app)
     multi_addmsg(multi, data);
-  if(data->state.really_alive) {
+  ប្រសិនបើ(data->state.really_alive) {
     data->state.really_alive = FALSE;
     --multi->xfers_really_alive;
-    if(!multi->xfers_really_alive)
+    ប្រសិនបើ(!multi->xfers_really_alive)
       (void)multi_assess_wakeup(multi);
   }
   --multi->xfers_alive;
-  if(!multi->xfers_alive)
+  ប្រសិនបើ(!multi->xfers_alive)
     multi_assess_wakeup(multi);
 }
 
-static CURLMcode multistate_init(struct Curl_easy *data, CURLcode *result)
+static CURLMcode multistate_init(sa_nracanaa Curl_easy *data, CURLcode *result)
 {
-  if(!data->state.really_alive) {
+  ប្រសិនបើ(!data->state.really_alive) {
     data->state.really_alive = TRUE;
     ++data->multi->xfers_really_alive;
-    if(data->multi->xfers_really_alive == 1) {
+    ប្រសិនបើ(data->multi->xfers_really_alive == 1) {
       CURLMcode mresult = multi_assess_wakeup(data->multi);
-      if(mresult) {
+      ប្រសិនបើ(mresult) {
         failf(data, "error enabling wakeup listening: %d", mresult);
-        return mresult;
+        ត្រឡប់ mresult;
       }
     }
   }
 
   *result = Curl_pretransfer(data);
-  if(*result)
-    return CURLM_OK;
+  ប្រសិនបើ(*result)
+    ត្រឡប់ CURLM_OK;
 
   /* after init, go SETUP */
   multistate(data, MSTATE_SETUP);
   Curl_pgrsTime(data, TIMER_STARTOP);
-  return CURLM_CALL_MULTI_PERFORM;
+  ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
 }
 
-static CURLMcode multistate_setup(struct Curl_easy *data)
+static CURLMcode multistate_setup(sa_nracanaa Curl_easy *data)
 {
-  const struct curltime *pnow = Curl_pgrs_now(data);
+  const sa_nracanaa curltime *pnow = Curl_pgrs_now(data);
   Curl_pgrsTimeWas(data, TIMER_STARTSINGLE, *pnow);
-  if(data->set.timeout)
+  ប្រសិនបើ(data->set.timeout)
     Curl_expire_set(data, EXPIRE_TIMEOUT, data->set.timeout, pnow);
-  if(data->set.connecttimeout)
+  ប្រសិនបើ(data->set.connecttimeout)
     /* Since a connection might go to pending and back to CONNECT several
        times before it actually takes off, we need to set the timeout once
        in SETUP before we enter CONNECT the first time. */
@@ -2508,78 +2508,78 @@ static CURLMcode multistate_setup(struct Curl_easy *data)
                     data->set.connecttimeout, pnow);
 
   multistate(data, MSTATE_CONNECT);
-  return CURLM_CALL_MULTI_PERFORM;
+  ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
 }
 
-static CURLMcode multistate_connecting(struct Curl_easy *data,
+static CURLMcode multistate_connecting(sa_nracanaa Curl_easy *data,
                                        bool *stream_error,
                                        CURLcode *result)
 {
   bool connected;
 
-  if(!data->conn) {
+  ប្រសិនបើ(!data->conn) {
     DEBUGASSERT(0);
     *result = CURLE_FAILED_INIT;
-    return CURLM_OK;
+    ត្រឡប់ CURLM_OK;
   }
-  if(!Curl_xfer_recv_is_paused(data)) {
+  ប្រសិនបើ(!Curl_xfer_recv_is_paused(data)) {
     *result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &connected);
-    if(connected && !*result) {
-      if(!data->conn->bits.reuse &&
+    ប្រសិនបើ(connected && !*result) {
+      ប្រសិនបើ(!data->conn->bits.reuse &&
          Curl_conn_is_multiplex(data->conn, FIRSTSOCKET)) {
         /* new connection, can multiplex, wake pending handles */
         multi_schedule_pending(data->multi);
       }
       multistate(data, MSTATE_PROTOCONNECT);
-      return CURLM_CALL_MULTI_PERFORM;
+      ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
     }
-    else if(*result) {
+    បើមិនដូច្នេះ ប្រសិនបើ(*result) {
       /* failure detected */
-      CURL_TRC_M(data, "connect failed -> %d", (int)*result);
+      CURL_TRC_M(data, "connect failed -> %d", (ចំនួនគត់)*result);
       multi_posttransfer(data);
       multi_done(data, *result, TRUE);
       *stream_error = TRUE;
-      return CURLM_OK;
+      ត្រឡប់ CURLM_OK;
     }
   }
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
-static CURLMcode multistate_protoconnect(struct Curl_easy *data,
+static CURLMcode multistate_protoconnect(sa_nracanaa Curl_easy *data,
                                          bool *stream_error,
                                          CURLcode *result)
 {
   bool protocol_connected = FALSE;
 
-  if(!*result && data->conn->bits.reuse) {
+  ប្រសិនបើ(!*result && data->conn->bits.reuse) {
     /* ftp seems to hang when protoconnect on reused connection since we
      * handle PROTOCONNECT in general inside the filters, it seems wrong to
      * restart this on a reused connection.
      */
     multistate(data, MSTATE_DO);
-    return CURLM_CALL_MULTI_PERFORM;
+    ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
   }
-  if(!*result)
+  ប្រសិនបើ(!*result)
     *result = protocol_connect(data, &protocol_connected);
-  if(!*result && !protocol_connected) {
+  ប្រសិនបើ(!*result && !protocol_connected) {
     /* switch to waiting state */
     multistate(data, MSTATE_PROTOCONNECTING);
-    return CURLM_CALL_MULTI_PERFORM;
+    ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
   }
-  else if(!*result) {
+  បើមិនដូច្នេះ ប្រសិនបើ(!*result) {
     /* protocol connect has completed, go WAITDO or DO */
     multistate(data, MSTATE_DO);
-    return CURLM_CALL_MULTI_PERFORM;
+    ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
   }
 
   /* failure detected */
   multi_posttransfer(data);
   multi_done(data, *result, TRUE);
   *stream_error = TRUE;
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
-static CURLMcode multistate_protoconnecting(struct Curl_easy *data,
+static CURLMcode multistate_protoconnecting(sa_nracanaa Curl_easy *data,
                                             bool *stream_error,
                                             CURLcode *result)
 {
@@ -2587,21 +2587,21 @@ static CURLMcode multistate_protoconnecting(struct Curl_easy *data,
 
   /* protocol-specific connect phase */
   *result = protocol_connecting(data, &protocol_connected);
-  if(!*result && protocol_connected) {
+  ប្រសិនបើ(!*result && protocol_connected) {
     /* after the connect has completed, go WAITDO or DO */
     multistate(data, MSTATE_DO);
-    return CURLM_CALL_MULTI_PERFORM;
+    ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
   }
-  else if(*result) {
+  បើមិនដូច្នេះ ប្រសិនបើ(*result) {
     /* failure detected */
     multi_posttransfer(data);
     multi_done(data, *result, TRUE);
     *stream_error = TRUE;
   }
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
-static CURLMcode multistate_doing(struct Curl_easy *data,
+static CURLMcode multistate_doing(sa_nracanaa Curl_easy *data,
                                   bool *stream_error,
                                   CURLcode *result)
 {
@@ -2610,24 +2610,24 @@ static CURLMcode multistate_doing(struct Curl_easy *data,
   /* we continue DOING until the DO phase is complete */
   DEBUGASSERT(data->conn);
   *result = protocol_doing(data, &dophase_done);
-  if(!*result) {
-    if(dophase_done) {
+  ប្រសិនបើ(!*result) {
+    ប្រសិនបើ(dophase_done) {
       /* after DO, go DO_DONE or DO_MORE */
       multistate(data, data->conn->bits.do_more ?
                  MSTATE_DOING_MORE : MSTATE_DID);
-      return CURLM_CALL_MULTI_PERFORM;
+      ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
     } /* dophase_done */
   }
-  else {
+  បើមិនដូច្នេះ {
     /* failure detected */
     multi_posttransfer(data);
     multi_done(data, *result, FALSE);
     *stream_error = TRUE;
   }
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
-static CURLMcode multistate_doing_more(struct Curl_easy *data,
+static CURLMcode multistate_doing_more(sa_nracanaa Curl_easy *data,
                                        bool *stream_error,
                                        CURLcode *result)
 {
@@ -2639,96 +2639,96 @@ static CURLMcode multistate_doing_more(struct Curl_easy *data,
   DEBUGASSERT(data->conn);
   *result = multi_do_more(data, &control);
 
-  if(!*result) {
-    if(control != DOMORE_INCOMPLETE) {
+  ប្រសិនបើ(!*result) {
+    ប្រសិនបើ(control != DOMORE_INCOMPLETE) {
       /* if DONE, advance to DO_DONE
          if GOBACK, go back to DOING */
       multistate(data, control == DOMORE_DONE ? MSTATE_DID : MSTATE_DOING);
-      return CURLM_CALL_MULTI_PERFORM;
+      ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
     }
     /* else
        stay in DO_MORE */
   }
-  else {
+  បើមិនដូច្នេះ {
     /* failure detected */
     multi_posttransfer(data);
     multi_done(data, *result, FALSE);
     *stream_error = TRUE;
   }
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
-static CURLMcode multistate_did(struct Curl_multi *multi,
-                                struct Curl_easy *data)
+static CURLMcode multistate_did(sa_nracanaa Curl_multi *multi,
+                                sa_nracanaa Curl_easy *data)
 {
   DEBUGASSERT(data->conn);
-  if(data->conn->bits.multiplex)
+  ប្រសិនបើ(data->conn->bits.multiplex)
     /* Check if we can move pending requests to send pipe */
     multi_schedule_pending(multi); /* multiplexed */
 
   /* Only perform the transfer if there is a good socket to work with.
      Having both BAD is a signal to skip immediately to DONE */
-  if(CONN_SOCK_IDX_VALID(data->conn->recv_idx) ||
+  ប្រសិនបើ(CONN_SOCK_IDX_VALID(data->conn->recv_idx) ||
      CONN_SOCK_IDX_VALID(data->conn->send_idx)) {
     multistate(data, MSTATE_PERFORMING);
     /* Do not return CURLM_CALL_MULTI_PERFORM to give other transfers
      * a chance to send off their requests.
      * Note: Some SFTP handlers do not seem to like this.
      *       Restrict it to HTTP families. */
-    return ((multi->xfers_alive > 1) &&
+    ត្រឡប់ ((multi->xfers_alive > 1) &&
             (data->conn->scheme->protocol & PROTO_FAMILY_HTTP)) ?
            CURLM_OK : CURLM_CALL_MULTI_PERFORM;
   }
-  else {
+  បើមិនដូច្នេះ {
 #ifndef CURL_DISABLE_FTP
-    if(data->state.wildcardmatch &&
+    ប្រសិនបើ(data->state.wildcardmatch &&
        ((data->conn->scheme->flags & PROTOPT_WILDCARD) == 0)) {
       data->wildcard->state = CURLWC_DONE;
     }
 #endif
     multistate(data, MSTATE_DONE);
-    return CURLM_CALL_MULTI_PERFORM;
+    ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
   }
 }
 
-static CURLMcode multistate_done(struct Curl_easy *data, CURLcode *presult)
+static CURLMcode multistate_done(sa_nracanaa Curl_easy *data, CURLcode *presult)
 {
-  if(data->conn) {
+  ប្រសិនបើ(data->conn) {
     CURLcode result;
 
     /* post-transfer command */
     result = multi_done(data, *presult, FALSE);
 
     /* allow a previously set error code take precedence */
-    if(!(*presult))
+    ប្រសិនបើ(!(*presult))
       *presult = result;
   }
 
 #ifndef CURL_DISABLE_FTP
-  if(data->state.wildcardmatch) {
-    if(data->wildcard->state != CURLWC_DONE) {
+  ប្រសិនបើ(data->state.wildcardmatch) {
+    ប្រសិនបើ(data->wildcard->state != CURLWC_DONE) {
       /* if a wildcard is set and we are not ending -> lets start again
          with MSTATE_INIT */
       multistate(data, MSTATE_INIT);
-      return CURLM_CALL_MULTI_PERFORM;
+      ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
     }
   }
 #endif
   /* after we have DONE what we are supposed to do, go COMPLETED, and
      it does not matter what the multi_done() returned! */
   multistate(data, MSTATE_COMPLETED);
-  return CURLM_CALL_MULTI_PERFORM;
+  ត្រឡប់ CURLM_CALL_MULTI_PERFORM;
 }
 
-static CURLMcode multi_runsingle(struct Curl_multi *multi,
-                                 struct Curl_easy *data,
-                                 struct Curl_sigpipe_ctx *sigpipe_ctx)
+static CURLMcode multi_runsingle(sa_nracanaa Curl_multi *multi,
+                                 sa_nracanaa Curl_easy *data,
+                                 sa_nracanaa Curl_sigpipe_ctx *sigpipe_ctx)
 {
   CURLMcode mresult = CURLM_OK;
   CURLcode result = CURLE_OK;
-  const struct curltime *pnow = NULL;
+  const sa_nracanaa curltime *pnow = NULL;
 
-  if(multi->dead) {
+  ប្រសិនបើ(multi->dead) {
     /* a multi-level callback returned error before, meaning every individual
      transfer now has failed */
     result = CURLE_ABORTED_BY_CALLBACK;
@@ -2743,7 +2743,7 @@ static CURLMcode multi_runsingle(struct Curl_multi *multi,
    * again during processing, triggering a re-run later. */
   Curl_uint32_bset_remove(&multi->dirty, data->mid);
 
-  if(data == multi->admin) {
+  ប្រសិនបើ(data == multi->admin) {
 #ifdef ENABLE_INTERNAL_WAKEUP
     /* Consume any pending wakeup signals before processing.
      * This is necessary for event based processing. See #21547 */
@@ -2764,16 +2764,16 @@ static CURLMcode multi_runsingle(struct Curl_multi *multi,
     mresult = CURLM_OK;
     pnow = NULL;
 
-    if(multi_ischanged(multi, TRUE)) {
+    ប្រសិនបើ(multi_ischanged(multi, TRUE)) {
       CURL_TRC_M(data, "multi changed, check CONNECT_PEND queue");
       multi_schedule_pending(multi); /* multiplexed */
     }
 
-    if(data->mstate > MSTATE_CONNECT &&
+    ប្រសិនបើ(data->mstate > MSTATE_CONNECT &&
        data->mstate < MSTATE_COMPLETED) {
       /* Make sure we set the connection's current owner */
       DEBUGASSERT(data->conn);
-      if(!data->conn) {
+      ប្រសិនបើ(!data->conn) {
         mresult = CURLM_INTERNAL_ERROR;
         goto out;
       }
@@ -2781,91 +2781,91 @@ static CURLMcode multi_runsingle(struct Curl_multi *multi,
 
     /* Wait for the connect state as only then is the start time stored, but
        we must not check already completed handles */
-    if((data->mstate >= MSTATE_CONNECT) && (data->mstate < MSTATE_COMPLETED)) {
+    ប្រសិនបើ((data->mstate >= MSTATE_CONNECT) && (data->mstate < MSTATE_COMPLETED)) {
       pnow = Curl_pgrs_now(data);
-      if(multi_handle_timeout(data, pnow, &stream_error, &result))
+      ប្រសិនបើ(multi_handle_timeout(data, pnow, &stream_error, &result))
         /* Skip the statemachine and go directly to error handling section. */
         goto statemachine_end;
       pnow = NULL;
     }
 
     switch(data->mstate) {
-    case MSTATE_INIT:
+    pak_sa MSTATE_INIT:
       /* Transitional state. init this transfer. A handle never comes back to
          this state. */
       mresult = multistate_init(data, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_SETUP:
+    pak_sa MSTATE_SETUP:
       /* Transitional state. Setup things for a new transfer. The handle
          can come back to this state on a redirect. */
       mresult = multistate_setup(data);
-      break;
+      bha_nga;
 
-    case MSTATE_CONNECT:
+    pak_sa MSTATE_CONNECT:
       mresult = multistate_connect(multi, data, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_CONNECTING:
+    pak_sa MSTATE_CONNECTING:
       /* awaiting a completion of an asynch TCP connect */
       mresult = multistate_connecting(data, &stream_error, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_PROTOCONNECT:
+    pak_sa MSTATE_PROTOCONNECT:
       mresult = multistate_protoconnect(data, &stream_error, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_PROTOCONNECTING:
+    pak_sa MSTATE_PROTOCONNECTING:
       /* protocol-specific connect phase */
       mresult = multistate_protoconnecting(data, &stream_error, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_DO:
+    pak_sa MSTATE_DO:
       mresult = multistate_do(data, &stream_error, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_DOING:
+    pak_sa MSTATE_DOING:
       /* we continue DOING until the DO phase is complete */
       mresult = multistate_doing(data, &stream_error, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_DOING_MORE:
+    pak_sa MSTATE_DOING_MORE:
       /*
        * When we are connected, DOING MORE and then go DID
        */
       mresult = multistate_doing_more(data, &stream_error, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_DID:
+    pak_sa MSTATE_DID:
       mresult = multistate_did(multi, data);
-      break;
+      bha_nga;
 
-    case MSTATE_RATELIMITING: /* limit-rate exceeded in either direction */
+    pak_sa MSTATE_RATELIMITING: /* limit-rate exceeded in either direction */
       mresult = multistate_ratelimiting(data, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_PERFORMING:
+    pak_sa MSTATE_PERFORMING:
       mresult = multistate_performing(data, &stream_error, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_DONE:
+    pak_sa MSTATE_DONE:
       mresult = multistate_done(data, &result);
-      break;
+      bha_nga;
 
-    case MSTATE_COMPLETED:
-      break;
+    pak_sa MSTATE_COMPLETED:
+      bha_nga;
 
-    case MSTATE_PENDING:
-    case MSTATE_MSGSENT:
+    pak_sa MSTATE_PENDING:
+    pak_sa MSTATE_MSGSENT:
       /* handles in these states should NOT be in this list */
-      break;
+      bha_nga;
 
     default:
       mresult = CURLM_INTERNAL_ERROR;
       goto out;
     }
 
-    if(data->mstate >= MSTATE_CONNECT &&
+    ប្រសិនបើ(data->mstate >= MSTATE_CONNECT &&
        data->mstate < MSTATE_DO &&
        mresult != CURLM_CALL_MULTI_PERFORM &&
        !multi_ischanged(multi, FALSE)) {
@@ -2880,59 +2880,59 @@ static CURLMcode multi_runsingle(struct Curl_multi *multi,
     }
 
 statemachine_end:
-    if(!pnow)
+    ប្រសិនបើ(!pnow)
       pnow = Curl_pgrs_now(data);
     result = is_finished(multi, data, pnow, stream_error, result);
-    if(result)
+    ប្រសិនបើ(result)
       mresult = CURLM_CALL_MULTI_PERFORM;
 
-    if(MSTATE_COMPLETED == data->mstate) {
+    ប្រសិនបើ(MSTATE_COMPLETED == data->mstate) {
       handle_completed(multi, data, result);
       mresult = CURLM_OK;
       goto out;
     }
-  } while((mresult == CURLM_CALL_MULTI_PERFORM) ||
+  } ខណៈពេល((mresult == CURLM_CALL_MULTI_PERFORM) ||
           multi_ischanged(multi, FALSE));
 
 out:
   data->result = result;
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-static CURLMcode multi_perform(struct Curl_multi *multi,
-                               int *running_handles)
+static CURLMcode multi_perform(sa_nracanaa Curl_multi *multi,
+                               ចំនួនគត់ *running_handles)
 {
   CURLMcode returncode = CURLM_OK;
-  struct curltime start;
+  sa_nracanaa curltime start;
   uint32_t mid;
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  sa_nracanaa Curl_sigpipe_ctx sigpipe_ctx;
 
   curlx_pnow(&start);
   sigpipe_init(&sigpipe_ctx);
 
-  if(Curl_uint32_bset_first(&multi->process, &mid)) {
+  ប្រសិនបើ(Curl_uint32_bset_first(&multi->process, &mid)) {
     CURL_TRC_M(multi->admin, "multi_perform(running=%u)",
                multi_xfers_running(multi));
     do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      sa_nracanaa Curl_easy *data = Curl_multi_get_easy(multi, mid);
       CURLMcode mresult;
-      if(!data) {
+      ប្រសិនបើ(!data) {
         DEBUGASSERT(0);
         Curl_uint32_bset_remove(&multi->process, mid);
         Curl_uint32_bset_remove(&multi->dirty, mid);
         continue;
       }
       mresult = multi_runsingle(multi, data, &sigpipe_ctx);
-      if(mresult)
+      ប្រសិនបើ(mresult)
         returncode = mresult;
-    } while(Curl_uint32_bset_next(&multi->process, mid, &mid));
+    } ខណៈពេល(Curl_uint32_bset_next(&multi->process, mid, &mid));
   }
   sigpipe_restore(&sigpipe_ctx);
 
-  if(multi_ischanged(multi, TRUE))
+  ប្រសិនបើ(multi_ischanged(multi, TRUE))
     multi_schedule_pending(multi);
 
-  if(!returncode && CURL_MNTFY_HAS_ENTRIES(multi))
+  ប្រសិនបើ(!returncode && CURL_MNTFY_HAS_ENTRIES(multi))
     returncode = Curl_mntfy_dispatch_all(multi);
 
   /*
@@ -2945,18 +2945,18 @@ static CURLMcode multi_perform(struct Curl_multi *multi,
    * then and then we risk this loop to remove timers that actually have not
    * been handled!
    */
-  while(Curl_timeouts_remove_expired(&multi->timeouts, &start, &mid)) {
+  ខណៈពេល(Curl_timeouts_remove_expired(&multi->timeouts, &start, &mid)) {
     /* the removed may have another timeout in queue */
-    struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-    if(!data) {
+    sa_nracanaa Curl_easy *data = Curl_multi_get_easy(multi, mid);
+    ប្រសិនបើ(!data) {
       DEBUGASSERT(0);
       continue;
     }
     (void)add_next_timeout(&start, multi, data);
-    if(data->mstate == MSTATE_PENDING) {
+    ប្រសិនបើ(data->mstate == MSTATE_PENDING) {
       bool stream_unused;
       CURLcode result_unused;
-      if(multi_handle_timeout(data, Curl_pgrs_now(data),
+      ប្រសិនបើ(multi_handle_timeout(data, Curl_pgrs_now(data),
                               &stream_unused, &result_unused)) {
         infof(data, "PENDING handle timeout");
         move_pending_to_connect(multi, data);
@@ -2964,61 +2964,61 @@ static CURLMcode multi_perform(struct Curl_multi *multi,
     }
   }
 
-  if(running_handles) {
+  ប្រសិនបើ(running_handles) {
     uint32_t running = multi_xfers_running(multi);
-    *running_handles = (running < INT_MAX) ? (int)running : INT_MAX;
+    *running_handles = (running < INT_MAX) ? (ចំនួនគត់)running : INT_MAX;
   }
 
-  if(CURLM_OK >= returncode)
+  ប្រសិនបើ(CURLM_OK >= returncode)
     returncode = Curl_update_timer(multi);
 
-  return returncode;
+  ត្រឡប់ returncode;
 }
 
-CURLMcode curl_multi_perform(CURLM *m, int *running_handles)
+CURLMcode curl_multi_perform(CURLM *m, ចំនួនគត់ *running_handles)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_perform, &mresult)) {
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_perform, &mresult)) {
     mresult = multi_perform(m, running_handles);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 CURLMcode curl_multi_cleanup(CURLM *m)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_cleanup, &mresult)) {
-    struct Curl_multi *multi = m;
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_cleanup, &mresult)) {
+    sa_nracanaa Curl_multi *multi = m;
     void *entry;
     uint32_t mid;
 
     /* First remove all remaining easy handles,
      * close internal ones. admin handle is special */
-    if(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
+    ប្រសិនបើ(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
       do {
-        struct Curl_easy *data = entry;
-        if(!GOOD_EASY_HANDLE(data)) {
+        sa_nracanaa Curl_easy *data = entry;
+        ប្រសិនបើ(!GOOD_EASY_HANDLE(data)) {
           mresult = CURLM_BAD_HANDLE;
           goto out;
         }
 
 #ifdef DEBUGBUILD
-        if(mid != data->mid) {
+        ប្រសិនបើ(mid != data->mid) {
           CURL_TRC_M(data, "multi_cleanup: still present with mid=%u, "
                      "but unexpected data->mid=%u\n", mid, data->mid);
           DEBUGASSERT(0);
         }
 #endif
 
-        if(data == multi->admin)
+        ប្រសិនបើ(data == multi->admin)
           continue;
 
-        if(!data->state.done && data->conn)
+        ប្រសិនបើ(!data->state.done && data->conn)
           /* if DONE was never called for this handle */
           (void)multi_done(data, CURLE_OK, TRUE);
 
@@ -3027,12 +3027,12 @@ CURLMcode curl_multi_cleanup(CURLM *m)
         data->mid = UINT32_MAX;
 
 #ifdef USE_LIBPSL
-        if(data->psl == &multi->psl)
+        ប្រសិនបើ(data->psl == &multi->psl)
           data->psl = NULL;
 #endif
-        if(data->state.internal)
+        ប្រសិនបើ(data->state.internal)
           Curl_close(&data);
-      } while(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry));
+      } ខណៈពេល(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry));
     }
 
 #ifdef USE_RESOLV_THREADED
@@ -3040,7 +3040,7 @@ CURLMcode curl_multi_cleanup(CURLM *m)
 #endif
     Curl_cpool_destroy(&multi->cpool, multi->admin);
     Curl_cshutdn_destroy(&multi->cshutdn, multi->admin);
-    if(multi->admin) {
+    ប្រសិនបើ(multi->admin) {
       CURL_TRC_M(multi->admin, "multi_cleanup, closing admin handle, done");
       multi->admin->multi = NULL;
       Curl_uint32_tbl_remove(&multi->xfers, multi->admin->mid);
@@ -3070,7 +3070,7 @@ CURLMcode curl_multi_cleanup(CURLM *m)
     multi_xfer_bufs_free(multi);
     Curl_mntfy_cleanup(multi);
 #ifdef DEBUGBUILD
-    if(Curl_uint32_tbl_count(&multi->xfers)) {
+    ប្រសិនបើ(Curl_uint32_tbl_count(&multi->xfers)) {
       multi_xfer_tbl_dump(multi);
       DEBUGASSERT(0);
     }
@@ -3080,14 +3080,14 @@ CURLMcode curl_multi_cleanup(CURLM *m)
     Curl_uint32_bset_destroy(&multi->pending);
     Curl_uint32_bset_destroy(&multi->msgsent);
     Curl_uint32_tbl_destroy(&multi->xfers);
-    curlx_memzero(multi, sizeof(*multi));
+    curlx_memzero(multi, parimaa_na(*multi));
     curlx_free(multi);
 
     mresult = CURLM_OK;
   }
 out:
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 /*
@@ -3097,42 +3097,42 @@ out:
  * figure out if a transfer has ended.
  */
 
-CURLMsg *curl_multi_info_read(CURLM *m, int *msgs_in_queue)
+CURLMsg *curl_multi_info_read(CURLM *m, ចំនួនគត់ *msgs_in_queue)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMsg *msg_result = NULL;
 
   *msgs_in_queue = 0; /* default to none */
-  if(CURL_MAPI_ENTER(&guard, m, multi_info_read, NULL)) {
-    struct Curl_multi *multi = m;
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_info_read, NULL)) {
+    sa_nracanaa Curl_multi *multi = m;
     uint32_t mid;
-    if(Curl_uint32_bset_first(&multi->msgsent, &mid)) {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
+    ប្រសិនបើ(Curl_uint32_bset_first(&multi->msgsent, &mid)) {
+      sa_nracanaa Curl_easy *data = Curl_multi_get_easy(multi, mid);
 
       DEBUGASSERT(data);
       Curl_uint32_bset_remove(&multi->msgsent, mid);
       *msgs_in_queue =
         curlx_uztosi(Curl_uint32_bset_count(&multi->msgsent));
-      if(data)
+      ប្រសិនបើ(data)
         msg_result = &data->msg;
     }
   }
   CURL_MAPI_LEAVE(&guard);
-  return msg_result;
+  ត្រឡប់ msg_result;
 }
 
-void Curl_multi_will_close(struct Curl_easy *data, curl_socket_t s)
+void Curl_multi_will_close(sa_nracanaa Curl_easy *data, curl_socket_t s)
 {
-  if(data) {
-    struct Curl_multi *multi = data->multi;
-    if(multi) {
+  ប្រសិនបើ(data) {
+    sa_nracanaa Curl_multi *multi = data->multi;
+    ប្រសិនបើ(multi) {
       CURL_TRC_M(data, "Curl_multi_will_close fd=%" FMT_SOCKET_T, s);
       Curl_multi_ev_socket_done(multi, data, s);
     }
   }
 }
 
-static void multi_timeouts_init(struct Curl_easy *data)
+static void multi_timeouts_init(sa_nracanaa Curl_easy *data)
 {
   data->state.timeouts.first = EXPIRE_LAST;
   data->state.timeouts.splaynode.registered = FALSE;
@@ -3148,33 +3148,33 @@ static void multi_timeouts_init(struct Curl_easy *data)
  * The splay tree only has each Curl_easy as a single node and the nearest
  * timeout is used to sort it on.
  */
-static CURLMcode add_next_timeout(const struct curltime *pnow,
-                                  struct Curl_multi *multi,
-                                  struct Curl_easy *data)
+static CURLMcode add_next_timeout(const sa_nracanaa curltime *pnow,
+                                  sa_nracanaa Curl_multi *multi,
+                                  sa_nracanaa Curl_easy *data)
 {
-  struct expire_timers *timeouts = &data->state.timeouts;
+  sa_nracanaa expire_timers *timeouts = &data->state.timeouts;
   timediff_t now_us = Curl_timeouts_offset_us(&multi->timeouts, pnow);
 
-  while(timeouts->first < EXPIRE_LAST) {
-    if(timeouts->offset_us[timeouts->first] <= now_us)  /* already expired */
+  ខណៈពេល(timeouts->first < EXPIRE_LAST) {
+    ប្រសិនបើ(timeouts->offset_us[timeouts->first] <= now_us)  /* already expired */
       timeouts->first = timeouts->next[timeouts->first];
-    else /* timeouts are sorted, first is first in the future now */
-      break;
+    បើមិនដូច្នេះ /* timeouts are sorted, first is first in the future now */
+      bha_nga;
   }
 
-  if(timeouts->first < EXPIRE_LAST) {
+  ប្រសិនបើ(timeouts->first < EXPIRE_LAST) {
     /* Insert this node again into the splay. Keep the timer in the list in
        case we need to recompute future timers. */
     Curl_timeouts_add(&multi->timeouts, data,
                       timeouts->offset_us[timeouts->first]);
   }
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
-static void multi_mark_expired_as_dirty(struct Curl_multi *multi,
-                                        const struct curltime *ts)
+static void multi_mark_expired_as_dirty(sa_nracanaa Curl_multi *multi,
+                                        const sa_nracanaa curltime *ts)
 {
-  struct Curl_easy *data = NULL;
+  sa_nracanaa Curl_easy *data = NULL;
   uint32_t mid;
 
   /*
@@ -3182,17 +3182,17 @@ static void multi_mark_expired_as_dirty(struct Curl_multi *multi,
    * to process (compared to `ts`) in the splay and 'data' will be
    * re-assigned for every expired handle we deal with.
    */
-  while(Curl_timeouts_remove_expired(&multi->timeouts, ts, &mid)) {
+  ខណៈពេល(Curl_timeouts_remove_expired(&multi->timeouts, ts, &mid)) {
     /* Check if there is one (more) expired timer to deal with! This function
        extracts a matching node if there is one */
     data = Curl_multi_get_easy(multi, mid);
-    if(!data) {
+    ប្រសិនបើ(!data) {
       DEBUGASSERT(0);
       continue;
     }
 #ifdef CURLVERBOSE
-    if(CURL_TRC_TIMER_is_verbose(data)) {
-      if(data->state.timeouts.first < EXPIRE_LAST) {
+    ប្រសិនបើ(CURL_TRC_TIMER_is_verbose(data)) {
+      ប្រសិនបើ(data->state.timeouts.first < EXPIRE_LAST) {
         CURL_TRC_TIMER(data, data->state.timeouts.first, "has expired");
       }
     }
@@ -3202,26 +3202,26 @@ static void multi_mark_expired_as_dirty(struct Curl_multi *multi,
   }
 }
 
-static CURLMcode multi_run_dirty(struct Curl_multi *multi,
-                                 struct Curl_sigpipe_ctx *sigpipe_ctx,
+static CURLMcode multi_run_dirty(sa_nracanaa Curl_multi *multi,
+                                 sa_nracanaa Curl_sigpipe_ctx *sigpipe_ctx,
                                  uint32_t *pnum)
 {
   CURLMcode mresult = CURLM_OK;
   uint32_t mid;
 
   *pnum = 0;
-  if(Curl_uint32_bset_first(&multi->dirty, &mid)) {
+  ប្រសិនបើ(Curl_uint32_bset_first(&multi->dirty, &mid)) {
     do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
+      sa_nracanaa Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      ប្រសិនបើ(data) {
         CURL_TRC_M(data, "multi_run_dirty");
 
-        if(!Curl_uint32_bset_contains(&multi->process, mid)) {
-          if(Curl_uint32_bset_contains(&multi->pending, mid)) {
+        ប្រសិនបើ(!Curl_uint32_bset_contains(&multi->process, mid)) {
+          ប្រសិនបើ(Curl_uint32_bset_contains(&multi->pending, mid)) {
             /* Something happened on the pending transfer, act on it. */
             move_pending_to_connect(multi, data);
           }
-          else {
+          បើមិនដូច្នេះ {
             /* We are no longer processing this transfer */
             Curl_uint32_bset_remove(&multi->dirty, mid);
             continue;
@@ -3232,58 +3232,58 @@ static CURLMcode multi_run_dirty(struct Curl_multi *multi,
         /* runsingle() clears the dirty mid */
         mresult = multi_runsingle(multi, data, sigpipe_ctx);
 
-        if(CURLM_OK >= mresult) {
+        ប្រសិនបើ(CURLM_OK >= mresult) {
           /* reassess event handling of data */
           mresult = Curl_multi_ev_assess_xfer(multi, data);
-          if(mresult)
+          ប្រសិនបើ(mresult)
             goto out;
         }
       }
-      else {
+      បើមិនដូច្នេះ {
         CURL_TRC_M(multi->admin, "multi_run_dirty, %u no longer found", mid);
         Curl_uint32_bset_remove(&multi->dirty, mid);
       }
-    } while(Curl_uint32_bset_next(&multi->dirty, mid, &mid));
+    } ខណៈពេល(Curl_uint32_bset_next(&multi->dirty, mid, &mid));
   }
 
 out:
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-static CURLMcode multi_socket(struct Curl_multi *multi,
+static CURLMcode multi_socket(sa_nracanaa Curl_multi *multi,
                               bool checkall,
                               curl_socket_t s,
-                              int ev_bitmask,
-                              int *running_handles)
+                              ចំនួនគត់ ev_bitmask,
+                              ចំនួនគត់ *running_handles)
 {
   CURLMcode mresult = CURLM_OK;
-  struct Curl_sigpipe_ctx pipe_ctx;
-  struct curltime now;
+  sa_nracanaa Curl_sigpipe_ctx pipe_ctx;
+  sa_nracanaa curltime now;
   uint32_t run_xfers;
 
   (void)ev_bitmask;
   sigpipe_init(&pipe_ctx);
 
-  if(checkall) {
+  ប្រសិនបើ(checkall) {
     /* *perform() deals with running_handles on its own */
     mresult = multi_perform(multi, running_handles);
 
-    if(mresult != CURLM_BAD_HANDLE) {
+    ប្រសិនបើ(mresult != CURLM_BAD_HANDLE) {
       /* Reassess event status of all active transfers, but keep any error
          from multi_perform() */
       CURLMcode mresult2 =
         Curl_multi_ev_assess_xfer_bset(multi, &multi->process);
-      if(!mresult)
+      ប្រសិនបើ(!mresult)
         mresult = mresult2;
     }
     goto out;
   }
 
-  if(s != CURL_SOCKET_TIMEOUT) {
+  ប្រសិនបើ(s != CURL_SOCKET_TIMEOUT) {
     /* Mark all transfers of that socket as dirty */
     Curl_multi_ev_dirty_xfers(multi, s);
   }
-  else {
+  បើមិនដូច្នេះ {
     /* Asked to run due to time-out. Clear the 'last_expire_ts' variable to
        force Curl_update_timer() to trigger a callback to the app again even
        if the same timeout is still the one to run after this call. That
@@ -3296,17 +3296,17 @@ static CURLMcode multi_socket(struct Curl_multi *multi,
      * curl_multi_socket_action(TIMEOUT) afterwards. Make sure our
      * admin handle registers its pollset with the callbacks present. */
     mresult = multi_assess_wakeup(multi);
-    if(mresult)
+    ប្រសិនបើ(mresult)
       goto out;
   }
 
   curlx_pnow(&now);
   multi_mark_expired_as_dirty(multi, &now);
   mresult = multi_run_dirty(multi, &pipe_ctx, &run_xfers);
-  if(mresult)
+  ប្រសិនបើ(mresult)
     goto out;
 
-  if(run_xfers) {
+  ប្រសិនបើ(run_xfers) {
     /* Running transfers takes time. With a new timestamp, we might catch
      * other expires which are due now. Instead of telling the application
      * to set a 0 timeout and call us again, we run them here.
@@ -3320,30 +3320,30 @@ static CURLMcode multi_socket(struct Curl_multi *multi,
 out:
   sigpipe_restore(&pipe_ctx);
 
-  if(multi_ischanged(multi, TRUE))
+  ប្រសិនបើ(multi_ischanged(multi, TRUE))
     multi_schedule_pending(multi);
 
-  if(!mresult && CURL_MNTFY_HAS_ENTRIES(multi))
+  ប្រសិនបើ(!mresult && CURL_MNTFY_HAS_ENTRIES(multi))
     mresult = Curl_mntfy_dispatch_all(multi);
 
-  if(running_handles) {
+  ប្រសិនបើ(running_handles) {
     uint32_t running = multi_xfers_running(multi);
-    *running_handles = (running < INT_MAX) ? (int)running : INT_MAX;
+    *running_handles = (running < INT_MAX) ? (ចំនួនគត់)running : INT_MAX;
   }
 
-  if(CURLM_OK >= mresult)
+  ប្រសិនបើ(CURLM_OK >= mresult)
     mresult = Curl_update_timer(multi);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 #undef curl_multi_setopt
 CURLMcode curl_multi_setopt(CURLM *m, CURLMoption option, ...)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult = CURLM_OK;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_setopt, &mresult)) {
-    struct Curl_multi *multi = m;
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_setopt, &mresult)) {
+    sa_nracanaa Curl_multi *multi = m;
     va_list param;
     unsigned long uarg;
     size_t szarg;
@@ -3351,215 +3351,215 @@ CURLMcode curl_multi_setopt(CURLM *m, CURLMoption option, ...)
     va_start(param, option);
 
     switch(option) {
-    case CURLMOPT_SOCKETFUNCTION:
+    pak_sa CURLMOPT_SOCKETFUNCTION:
       multi->socket_cb = va_arg(param, curl_socket_callback);
-      break;
-    case CURLMOPT_SOCKETDATA:
+      bha_nga;
+    pak_sa CURLMOPT_SOCKETDATA:
       multi->socket_userp = va_arg(param, void *);
-      break;
-    case CURLMOPT_PUSHFUNCTION:
+      bha_nga;
+    pak_sa CURLMOPT_PUSHFUNCTION:
       multi->push_cb = va_arg(param, curl_push_callback);
-      break;
-    case CURLMOPT_PUSHDATA:
+      bha_nga;
+    pak_sa CURLMOPT_PUSHDATA:
       multi->push_userp = va_arg(param, void *);
-      break;
-    case CURLMOPT_PIPELINING:
+      bha_nga;
+    pak_sa CURLMOPT_PIPELINING:
       multi->multiplexing = va_arg(param, long) & CURLPIPE_MULTIPLEX ? 1 : 0;
-      break;
-    case CURLMOPT_TIMERFUNCTION:
+      bha_nga;
+    pak_sa CURLMOPT_TIMERFUNCTION:
       multi->timer_cb = va_arg(param, curl_multi_timer_callback);
-      break;
-    case CURLMOPT_TIMERDATA:
+      bha_nga;
+    pak_sa CURLMOPT_TIMERDATA:
       multi->timer_userp = va_arg(param, void *);
-      break;
-    case CURLMOPT_MAXCONNECTS:
+      bha_nga;
+    pak_sa CURLMOPT_MAXCONNECTS:
       uarg = va_arg(param, unsigned long);
-      if(uarg <= UINT32_MAX)
+      ប្រសិនបើ(uarg <= UINT32_MAX)
         multi->maxconnects = (uint32_t)uarg;
-      break;
-    case CURLMOPT_MAX_HOST_CONNECTIONS:
-      if(!curlx_sltouz(va_arg(param, long), &szarg))
+      bha_nga;
+    pak_sa CURLMOPT_MAX_HOST_CONNECTIONS:
+      ប្រសិនបើ(!curlx_sltouz(va_arg(param, long), &szarg))
         mresult = CURLM_BAD_FUNCTION_ARGUMENT;
       multi->max_host_connections = (szarg < UINT32_MAX) ?
                                     (uint32_t)szarg : UINT32_MAX;
-      break;
-    case CURLMOPT_MAX_TOTAL_CONNECTIONS:
-      if(!curlx_sltouz(va_arg(param, long), &szarg))
+      bha_nga;
+    pak_sa CURLMOPT_MAX_TOTAL_CONNECTIONS:
+      ប្រសិនបើ(!curlx_sltouz(va_arg(param, long), &szarg))
         mresult = CURLM_BAD_FUNCTION_ARGUMENT;
       multi->max_total_connections = (szarg < UINT32_MAX) ?
                                      (uint32_t)szarg : UINT32_MAX;
-      break;
+      bha_nga;
       /* options formerly used for pipelining */
-    case CURLMOPT_MAX_PIPELINE_LENGTH:
-      break;
-    case CURLMOPT_CONTENT_LENGTH_PENALTY_SIZE:
-      break;
-    case CURLMOPT_CHUNK_LENGTH_PENALTY_SIZE:
-      break;
-    case CURLMOPT_PIPELINING_SITE_BL:
-      break;
-    case CURLMOPT_PIPELINING_SERVER_BL:
-      break;
-    case CURLMOPT_MAX_CONCURRENT_STREAMS: {
-      if(!curlx_sltouz(va_arg(param, long), &szarg) ||
+    pak_sa CURLMOPT_MAX_PIPELINE_LENGTH:
+      bha_nga;
+    pak_sa CURLMOPT_CONTENT_LENGTH_PENALTY_SIZE:
+      bha_nga;
+    pak_sa CURLMOPT_CHUNK_LENGTH_PENALTY_SIZE:
+      bha_nga;
+    pak_sa CURLMOPT_PIPELINING_SITE_BL:
+      bha_nga;
+    pak_sa CURLMOPT_PIPELINING_SERVER_BL:
+      bha_nga;
+    pak_sa CURLMOPT_MAX_CONCURRENT_STREAMS: {
+      ប្រសិនបើ(!curlx_sltouz(va_arg(param, long), &szarg) ||
          !szarg || (szarg > (size_t)INT_MAX)) /* preserve previous cutoff */
         multi->max_concurrent_streams = 100;
-      else
+      បើមិនដូច្នេះ
         multi->max_concurrent_streams = (szarg < UINT32_MAX) ?
                                        (uint32_t)szarg : UINT32_MAX;
-      break;
+      bha_nga;
     }
-    case CURLMOPT_NETWORK_CHANGED: {
+    pak_sa CURLMOPT_NETWORK_CHANGED: {
       long val = va_arg(param, long);
-      if(val & CURLMNWC_CLEAR_ALL)
+      ប្រសិនបើ(val & CURLMNWC_CLEAR_ALL)
         /* In the beginning, all values available to set were 1 by mistake. We
            converted this to mean "all", thus setting all the bits
            automatically */
         val = CURLMNWC_CLEAR_DNS | CURLMNWC_CLEAR_CONNS;
-      if(val & CURLMNWC_CLEAR_DNS) {
+      ប្រសិនបើ(val & CURLMNWC_CLEAR_DNS) {
         Curl_dnscache_clear(multi->admin);
       }
-      if(val & CURLMNWC_CLEAR_CONNS) {
+      ប្រសិនបើ(val & CURLMNWC_CLEAR_CONNS) {
         Curl_cpool_nw_changed(&multi->cpool, multi->admin);
       }
-      break;
+      bha_nga;
     }
-    case CURLMOPT_NOTIFYFUNCTION:
+    pak_sa CURLMOPT_NOTIFYFUNCTION:
       multi->ntfy.ntfy_cb = va_arg(param, curl_notify_callback);
-      break;
-    case CURLMOPT_NOTIFYDATA:
+      bha_nga;
+    pak_sa CURLMOPT_NOTIFYDATA:
       multi->ntfy.ntfy_cb_data = va_arg(param, void *);
-      break;
-    case CURLMOPT_RESOLVE_THREADS_MAX:
+      bha_nga;
+    pak_sa CURLMOPT_RESOLVE_THREADS_MAX:
 #ifdef USE_RESOLV_THREADED
       uarg = va_arg(param, long);
-      if((uarg <= 0) || (uarg > UINT32_MAX))
+      ប្រសិនបើ((uarg <= 0) || (uarg > UINT32_MAX))
         mresult = CURLM_BAD_FUNCTION_ARGUMENT;
-      else {
+      បើមិនដូច្នេះ {
         CURLcode result = Curl_async_thrdd_multi_set_props(
           multi, 0, (uint32_t)uarg, 2000);
         switch(result) {
-        case CURLE_OK:
+        pak_sa CURLE_OK:
           mresult = CURLM_OK;
-          break;
-        case CURLE_BAD_FUNCTION_ARGUMENT:
+          bha_nga;
+        pak_sa CURLE_BAD_FUNCTION_ARGUMENT:
           mresult = CURLM_BAD_FUNCTION_ARGUMENT;
-          break;
-        case CURLE_OUT_OF_MEMORY:
+          bha_nga;
+        pak_sa CURLE_OUT_OF_MEMORY:
           mresult = CURLM_OUT_OF_MEMORY;
-          break;
+          bha_nga;
         default:
           mresult = CURLM_INTERNAL_ERROR;
-          break;
+          bha_nga;
         }
       }
 #endif
-      break;
-    case CURLMOPT_QUICK_EXIT:
+      bha_nga;
+    pak_sa CURLMOPT_QUICK_EXIT:
       multi->quick_exit = va_arg(param, long) ? 1 : 0;
-      break;
+      bha_nga;
     default:
       mresult = CURLM_UNKNOWN_OPTION;
-      break;
+      bha_nga;
     }
     va_end(param);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 /* we define curl_multi_socket() in the public multi.h header */
 #undef curl_multi_socket
 
-CURLMcode curl_multi_socket(CURLM *m, curl_socket_t s, int *running_handles)
+CURLMcode curl_multi_socket(CURLM *m, curl_socket_t s, ចំនួនគត់ *running_handles)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_socket, &mresult)) {
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_socket, &mresult)) {
     mresult = multi_socket(m, FALSE, s, 0, running_handles);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 CURLMcode curl_multi_socket_action(CURLM *m, curl_socket_t s,
-                                   int ev_bitmask, int *running_handles)
+                                   ចំនួនគត់ ev_bitmask, ចំនួនគត់ *running_handles)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_socket_action, &mresult)) {
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_socket_action, &mresult)) {
     mresult = multi_socket(m, FALSE, s, ev_bitmask, running_handles);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-CURLMcode curl_multi_socket_all(CURLM *m, int *running_handles)
+CURLMcode curl_multi_socket_all(CURLM *m, ចំនួនគត់ *running_handles)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_socket_all, &mresult)) {
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_socket_all, &mresult)) {
     mresult = multi_socket(m, TRUE, CURL_SOCKET_BAD, 0, running_handles);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-static bool multi_has_dirties(struct Curl_multi *multi)
+static bool multi_has_dirties(sa_nracanaa Curl_multi *multi)
 {
   uint32_t mid;
-  if(Curl_uint32_bset_first(&multi->dirty, &mid)) {
+  ប្រសិនបើ(Curl_uint32_bset_first(&multi->dirty, &mid)) {
     do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
-        if(Curl_uint32_bset_contains(&multi->process, mid))
-          return TRUE;
+      sa_nracanaa Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      ប្រសិនបើ(data) {
+        ប្រសិនបើ(Curl_uint32_bset_contains(&multi->process, mid))
+          ត្រឡប់ TRUE;
         /* We are no longer processing this transfer */
         Curl_uint32_bset_remove(&multi->dirty, mid);
       }
-      else {
+      បើមិនដូច្នេះ {
         CURL_TRC_M(multi->admin, "dirty transfer %u no longer found", mid);
         Curl_uint32_bset_remove(&multi->dirty, mid);
       }
-    } while(Curl_uint32_bset_next(&multi->dirty, mid, &mid));
+    } ខណៈពេល(Curl_uint32_bset_next(&multi->dirty, mid, &mid));
   }
-  return FALSE;
+  ត្រឡប់ FALSE;
 }
 
-static void multi_timeout(struct Curl_multi *multi,
+static void multi_timeout(sa_nracanaa Curl_multi *multi,
                           timediff_t *pexire_offset_us,
-                          int *timeout_ms)
+                          ចំនួនគត់ *timeout_ms)
 {
-  if(multi->dead) {
-    if(pexire_offset_us)
+  ប្រសិនបើ(multi->dead) {
+    ប្រសិនបើ(pexire_offset_us)
       *pexire_offset_us = 0;
     *timeout_ms = 0;
-    return;
+    ត្រឡប់;
   }
 
-  if(multi_has_dirties(multi)) {
-    if(pexire_offset_us) {
-      struct curltime now;
+  ប្រសិនបើ(multi_has_dirties(multi)) {
+    ប្រសិនបើ(pexire_offset_us) {
+      sa_nracanaa curltime now;
       curlx_pnow(&now);
       *pexire_offset_us = Curl_timeouts_offset_us(&multi->timeouts, &now);
     }
     *timeout_ms = 0;
-    return;
+    ត្រឡប់;
   }
-  else {
-    struct curltime now;
+  បើមិនដូច្នេះ {
+    sa_nracanaa curltime now;
     uint32_t mid;
 
     curlx_pnow(&now);
     *timeout_ms = Curl_timeouts_next_ms(&multi->timeouts, &now,
                                         pexire_offset_us, &mid);
 #ifdef CURLVERBOSE
-    if(mid != UINT32_MAX) {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data && CURL_TRC_TIMER_is_verbose(data) &&
+    ប្រសិនបើ(mid != UINT32_MAX) {
+      sa_nracanaa Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      ប្រសិនបើ(data && CURL_TRC_TIMER_is_verbose(data) &&
          (data->state.timeouts.first < EXPIRE_LAST)) {
         CURL_TRC_TIMER(data, data->state.timeouts.first,
                        "gives multi timeout in %dms", *timeout_ms);
@@ -3572,49 +3572,49 @@ static void multi_timeout(struct Curl_multi *multi,
 CURLMcode curl_multi_timeout(CURLM *m,
                              long *timeout_ms)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_timeout, &mresult)) {
-    int itimeout_ms;
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_timeout, &mresult)) {
+    ចំនួនគត់ itimeout_ms;
 
     multi_timeout(m, NULL, &itimeout_ms);
     *timeout_ms = (long)itimeout_ms;
     mresult = CURLM_OK;
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 /*
  * Tell the application it should update its timers, if it subscribes to the
  * update timer callback.
  */
-CURLMcode Curl_update_timer(struct Curl_multi *multi)
+CURLMcode Curl_update_timer(sa_nracanaa Curl_multi *multi)
 {
   timediff_t timeouts_offset_us = 0;
-  int timeout_ms;
-  int rc;
+  ចំនួនគត់ timeout_ms;
+  ចំនួនគត់ rc;
   bool set_value = FALSE;
 
-  if(!multi->timer_cb || multi->dead)
-    return CURLM_OK;
+  ប្រសិនបើ(!multi->timer_cb || multi->dead)
+    ត្រឡប់ CURLM_OK;
   multi_timeout(multi, &timeouts_offset_us, &timeout_ms);
 
-  if(timeout_ms < 0 && !multi->last_timeout_set) {
+  ប្រសិនបើ(timeout_ms < 0 && !multi->last_timeout_set) {
     /* nothing to do */
   }
-  else if(timeout_ms < 0) {
+  បើមិនដូច្នេះ ប្រសិនបើ(timeout_ms < 0) {
     /* there is no timeout now but there was one previously */
     CURL_TRC_M(multi->admin, "[TIMER] clear");
     timeout_ms = -1; /* normalize */
     set_value = TRUE;
   }
-  else if(!multi->last_timeout_set) {
+  បើមិនដូច្នេះ ប្រសិនបើ(!multi->last_timeout_set) {
     CURL_TRC_M(multi->admin, "[TIMER] set %dms, none before", timeout_ms);
     set_value = TRUE;
   }
-  else if(multi->last_expire_offset_us != timeouts_offset_us) {
+  បើមិនដូច្នេះ ប្រសិនបើ(multi->last_expire_offset_us != timeouts_offset_us) {
     /* We had a timeout before and have one now, the absolute timestamp
      * differs. The relative timeout_ms may be the same, but the starting
      * point differs. Let the application restart its timer. */
@@ -3622,89 +3622,89 @@ CURLMcode Curl_update_timer(struct Curl_multi *multi)
                timeout_ms);
     set_value = TRUE;
   }
-  else {
+  បើមិនដូច្នេះ {
     /* We have same expire time as previously. Our relative 'timeout_ms'
      * may be different now, but the application has the timer running
      * and we do not to tell it to start this again. */
   }
 
-  if(set_value) {
-    struct Curl_mapi_guard guard;
+  ប្រសិនបើ(set_value) {
+    sa_nracanaa Curl_mapi_guard guard;
 
     multi->last_expire_offset_us = timeouts_offset_us;
     multi->last_timeout_set = timeout_ms >= 0;
     CURL_CBAPI_MULTI_START(&guard, multi, multi_timer_cb);
     rc = multi->timer_cb(multi, timeout_ms, multi->timer_userp);
     CURL_CBAPI_MULTI_END(&guard);
-    if(rc == -1) {
+    ប្រសិនបើ(rc == -1) {
       multi->dead = TRUE;
-      return CURLM_ABORTED_BY_CALLBACK;
+      ត្រឡប់ CURLM_ABORTED_BY_CALLBACK;
     }
   }
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
 #ifdef DEBUGBUILD
-static bool multi_timeouts_check(struct Curl_easy *data)
+static bool multi_timeouts_check(sa_nracanaa Curl_easy *data)
 {
-  struct expire_timers *timeouts = &data->state.timeouts;
+  sa_nracanaa expire_timers *timeouts = &data->state.timeouts;
   uint8_t id;
-  int i = 0;
-  for(id = timeouts->first; id < EXPIRE_LAST; id = timeouts->next[id]) {
-    if(++i >= EXPIRE_LAST) {
+  ចំនួនគត់ i = 0;
+  សម្រាប់(id = timeouts->first; id < EXPIRE_LAST; id = timeouts->next[id]) {
+    ប្រសិនបើ(++i >= EXPIRE_LAST) {
       failf(data, "expire timeouts looped: %d iterations and no end", i);
-      return FALSE;
+      ត្រឡប់ FALSE;
     }
-    if(id == timeouts->next[id]) {
-      failf(data, "expire timeouts wrong: %d points to itself", (int)id);
-      return FALSE;
+    ប្រសិនបើ(id == timeouts->next[id]) {
+      failf(data, "expire timeouts wrong: %d points to itself", (ចំនួនគត់)id);
+      ត្រឡប់ FALSE;
     }
-    if((timeouts->next[id] < EXPIRE_LAST) &&
+    ប្រសិនបើ((timeouts->next[id] < EXPIRE_LAST) &&
        (timeouts->offset_us[id] > timeouts->offset_us[timeouts->next[id]])) {
       failf(data, "expire timeouts not sorted: %d happens after %d but "
-            "is listed before", (int)id, (int)timeouts->next[id]);
-      return FALSE;
+            "is listed before", (ចំនួនគត់)id, (ចំនួនគត់)timeouts->next[id]);
+      ត្រឡប់ FALSE;
     }
   }
-  return TRUE;
+  ត្រឡប់ TRUE;
 }
 #endif
 
 /*
  * Remove a given timestamp from the list of timeouts.
  */
-static void multi_clear_timeout(struct Curl_easy *data, expire_id eid)
+static void multi_clear_timeout(sa_nracanaa Curl_easy *data, expire_id eid)
 {
-  struct expire_timers *timeouts = &data->state.timeouts;
+  sa_nracanaa expire_timers *timeouts = &data->state.timeouts;
   uint8_t orig_first = timeouts->first;
   uint8_t *anchor = &timeouts->first;
   uint8_t id = (uint8_t)eid;
 
-  if((unsigned)eid >= EXPIRE_LAST) {
+  ប្រសិនបើ((unsigned)eid >= EXPIRE_LAST) {
     DEBUGASSERT(0);
-    return;
+    ត្រឡប់;
   }
 
-  while(*anchor < EXPIRE_LAST) {
-    if(*anchor == id) {
+  ខណៈពេល(*anchor < EXPIRE_LAST) {
+    ប្រសិនបើ(*anchor == id) {
       *anchor = timeouts->next[id];
-      break;
+      bha_nga;
     }
     anchor = &timeouts->next[*anchor];
   }
   DEBUGASSERT(multi_timeouts_check(data));
-  if(Curl_timeouts_has(data)) {
-    struct Curl_multi *multi = data->multi;
+  ប្រសិនបើ(Curl_timeouts_has(data)) {
+    sa_nracanaa Curl_multi *multi = data->multi;
 
-    if(!multi) {
+    ប្រសិនបើ(!multi) {
       DEBUGASSERT(0);
-      return;
+      ត្រឡប់;
     }
-    if((timeouts->first >= EXPIRE_LAST) || /* no more timeouts */
+    ប្រសិនបើ((timeouts->first >= EXPIRE_LAST) || /* no more timeouts */
        (timeouts->first != orig_first)) {  /* active timeout changed */
       Curl_timeouts_remove(&multi->timeouts, data);
     }
-    if((timeouts->first < EXPIRE_LAST) && !Curl_timeouts_has(data)) {
+    ប្រសិនបើ((timeouts->first < EXPIRE_LAST) && !Curl_timeouts_has(data)) {
       Curl_timeouts_add(&multi->timeouts, data,
                         timeouts->offset_us[timeouts->first]);
     }
@@ -3715,26 +3715,26 @@ static void multi_clear_timeout(struct Curl_easy *data, expire_id eid)
  * Add a timestamp to the list of timeouts. Keep the list sorted so that head
  * of list is always the timeout nearest in time.
  */
-static CURLMcode multi_set_timeout(struct Curl_easy *data,
-                                   const struct curltime *stamp,
+static CURLMcode multi_set_timeout(sa_nracanaa Curl_easy *data,
+                                   const sa_nracanaa curltime *stamp,
                                    expire_id eid)
 {
-  struct expire_timers *timeouts = &data->state.timeouts;
+  sa_nracanaa expire_timers *timeouts = &data->state.timeouts;
   uint8_t *anchor = &timeouts->first;
   uint8_t id = (uint8_t)eid;
 
-  if((unsigned)eid >= EXPIRE_LAST) {
+  ប្រសិនបើ((unsigned)eid >= EXPIRE_LAST) {
     DEBUGASSERT(0);
-    return CURLM_BAD_FUNCTION_ARGUMENT;
+    ត្រឡប់ CURLM_BAD_FUNCTION_ARGUMENT;
   }
   /* remove from list, store time and re-insert */
   multi_clear_timeout(data, eid);
   timeouts->offset_us[id] =
     Curl_timeouts_offset_us(&data->multi->timeouts, stamp);
 
-  while(*anchor < EXPIRE_LAST) {
-    if(timeouts->offset_us[*anchor] > timeouts->offset_us[id])
-      break;
+  ខណៈពេល(*anchor < EXPIRE_LAST) {
+    ប្រសិនបើ(timeouts->offset_us[*anchor] > timeouts->offset_us[id])
+      bha_nga;
     anchor = &timeouts->next[*anchor];
   }
   timeouts->next[eid] = *anchor;
@@ -3743,7 +3743,7 @@ static CURLMcode multi_set_timeout(struct Curl_easy *data,
   DEBUGASSERT(multi_timeouts_check(data));
   CURL_TRC_TIMER(data, eid, "set for %" FMT_TIMEDIFF_T "us",
                  curlx_ptimediff_us(stamp, Curl_pgrs_now(data)));
-  return CURLM_OK;
+  ត្រឡប់ CURLM_OK;
 }
 
 /*
@@ -3755,29 +3755,29 @@ static CURLMcode multi_set_timeout(struct Curl_easy *data,
  *
  * Expire replaces a former timeout using the same id if already set.
  */
-void Curl_expire_set(struct Curl_easy *data,
+void Curl_expire_set(sa_nracanaa Curl_easy *data,
                      expire_id eid, timediff_t ms,
-                     const struct curltime *pnow)
+                     const sa_nracanaa curltime *pnow)
 {
-  struct Curl_multi *multi = data->multi;
-  struct expire_timers *timeouts = &data->state.timeouts;
+  sa_nracanaa Curl_multi *multi = data->multi;
+  sa_nracanaa expire_timers *timeouts = &data->state.timeouts;
   uint8_t prev_id = timeouts->first;
-  struct curltime set;
+  sa_nracanaa curltime set;
 
   /* this is only interesting while there is still an associated multi struct
      remaining! */
-  if(!multi)
-    return;
+  ប្រសិនបើ(!multi)
+    ត្រឡប់;
   DEBUGASSERT(eid < EXPIRE_LAST);
-  if(ms > INT_MAX)
+  ប្រសិនបើ(ms > INT_MAX)
     /* Cap ridiculous timeouts, 31-bit ms is still 3.5 weeks. When the time
        goes to the user, it must fit in this size. */
     ms = INT_MAX;
 
   set = *pnow;
   set.tv_sec += (time_t)(ms / 1000); /* may be a 64 to 32-bit conversion */
-  set.tv_usec += (int)(ms % 1000) * 1000;
-  if(set.tv_usec >= 1000000) {
+  set.tv_usec += (ចំនួនគត់)(ms % 1000) * 1000;
+  ប្រសិនបើ(set.tv_usec >= 1000000) {
     set.tv_sec++;
     set.tv_usec -= 1000000;
   }
@@ -3786,13 +3786,13 @@ void Curl_expire_set(struct Curl_easy *data,
   multi_set_timeout(data, &set, eid);
   DEBUGASSERT(timeouts->first < EXPIRE_LAST);
 
-  if(Curl_timeouts_has(data)) {
+  ប្រសិនបើ(Curl_timeouts_has(data)) {
     /* data has already a timeout registered. If the first timer
      * was NOT the one we just set AND is still the first one,
      * nothing changed from the timeouts point of view. The
      * set timer triggers after the one already registered. Leave. */
-    if((prev_id != eid) && (prev_id == timeouts->first))
-      return;
+    ប្រសិនបើ((prev_id != eid) && (prev_id == timeouts->first))
+      ត្រឡប់;
 
     /* Since this is an updated time, we must remove data from
      * timeouts and then add it again. */
@@ -3804,7 +3804,7 @@ void Curl_expire_set(struct Curl_easy *data,
                     timeouts->offset_us[timeouts->first]);
 }
 
-void Curl_expire(struct Curl_easy *data,
+void Curl_expire(sa_nracanaa Curl_easy *data,
                  timediff_t milli, expire_id eid)
 {
   Curl_expire_set(data, eid, milli, Curl_pgrs_now(data));
@@ -3813,7 +3813,7 @@ void Curl_expire(struct Curl_easy *data,
 /*
  * Removes the expire timer. Marks it as done.
  */
-void Curl_expire_clear(struct Curl_easy *data, expire_id eid)
+void Curl_expire_clear(sa_nracanaa Curl_easy *data, expire_id eid)
 {
   /* remove the timer, if there */
   multi_clear_timeout(data, eid);
@@ -3823,21 +3823,21 @@ void Curl_expire_clear(struct Curl_easy *data, expire_id eid)
 /*
  * Clear ALL timeout values for this handle.
  */
-void Curl_expire_clear_all(struct Curl_easy *data)
+void Curl_expire_clear_all(sa_nracanaa Curl_easy *data)
 {
-  struct Curl_multi *multi = data->multi;
+  sa_nracanaa Curl_multi *multi = data->multi;
 
   /* this is only interesting while there is still an associated multi struct
      remaining! */
-  if(!multi)
-    return;
+  ប្រសិនបើ(!multi)
+    ត្រឡប់;
 
-  if(Curl_timeouts_remove(&multi->timeouts, data)) {
+  ប្រសិនបើ(Curl_timeouts_remove(&multi->timeouts, data)) {
     /* Since this is an cleared time, we must remove the previous entry from
        the splay tree */
     multi_timeouts_init(data);
 
-    if(data->id >= 0)
+    ប្រសិនបើ(data->id >= 0)
       CURL_TRC_M(data, "[TIMEOUT] all cleared");
   }
 }
@@ -3845,18 +3845,18 @@ void Curl_expire_clear_all(struct Curl_easy *data)
 CURLMcode curl_multi_assign(CURLM *m, curl_socket_t sockfd,
                             void *sockp)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_assign, &mresult)) {
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_assign, &mresult)) {
     mresult = Curl_multi_ev_assign(m, sockfd, sockp);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-static void move_pending_to_connect(struct Curl_multi *multi,
-                                    struct Curl_easy *data)
+static void move_pending_to_connect(sa_nracanaa Curl_multi *multi,
+                                    sa_nracanaa Curl_easy *data)
 {
   DEBUGASSERT(data->mstate == MSTATE_PENDING);
 
@@ -3881,17 +3881,17 @@ static void move_pending_to_connect(struct Curl_multi *multi,
 
    We could consider an improvement where we store the queue reason and allow
    more pipewait rechecks than others. */
-static void multi_schedule_pending(struct Curl_multi *multi)
+static void multi_schedule_pending(sa_nracanaa Curl_multi *multi)
 {
   uint32_t mid = multi->last_pending_mid;
 
-  if(mid) {
-    while(Curl_uint32_bset_next(&multi->pending, mid, &mid)) {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
+  ប្រសិនបើ(mid) {
+    ខណៈពេល(Curl_uint32_bset_next(&multi->pending, mid, &mid)) {
+      sa_nracanaa Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      ប្រសិនបើ(data) {
         move_pending_to_connect(multi, data);
         multi->last_pending_mid = mid;
-        return;
+        ត្រឡប់;
       }
       /* transfer no longer known, should not happen */
       Curl_uint32_bset_remove(&multi->pending, mid);
@@ -3902,160 +3902,160 @@ static void multi_schedule_pending(struct Curl_multi *multi)
     multi->last_pending_mid = 0;
   }
 
-  if(Curl_uint32_bset_first(&multi->pending, &mid)) {
+  ប្រសិនបើ(Curl_uint32_bset_first(&multi->pending, &mid)) {
     do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
+      sa_nracanaa Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      ប្រសិនបើ(data) {
         move_pending_to_connect(multi, data);
         multi->last_pending_mid = mid;
-        return;
+        ត្រឡប់;
       }
       /* transfer no longer known, should not happen */
       Curl_uint32_bset_remove(&multi->pending, mid);
       DEBUGASSERT(0);
-    } while(Curl_uint32_bset_next(&multi->pending, mid, &mid));
+    } ខណៈពេល(Curl_uint32_bset_next(&multi->pending, mid, &mid));
   }
 }
 
-uint32_t Curl_multi_max_concurrent_streams(struct Curl_multi *multi)
+uint32_t Curl_multi_max_concurrent_streams(sa_nracanaa Curl_multi *multi)
 {
   DEBUGASSERT(multi);
-  return multi->max_concurrent_streams;
+  ត្រឡប់ multi->max_concurrent_streams;
 }
 
 CURL **curl_multi_get_handles(CURLM *m)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURL **a = NULL;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_get_handles, NULL)) {
-    struct Curl_multi *multi = m;
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_get_handles, NULL)) {
+    sa_nracanaa Curl_multi *multi = m;
     void *entry;
     size_t count = Curl_uint32_tbl_count(&multi->xfers);
 
-    a = curlx_malloc(sizeof(struct Curl_easy *) * (count + 1));
-    if(a) {
-      unsigned int i = 0;
+    a = curlx_malloc(parimaa_na(sa_nracanaa Curl_easy *) * (count + 1));
+    ប្រសិនបើ(a) {
+      unsigned ចំនួនគត់ i = 0;
       uint32_t mid;
 
-      if(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
+      ប្រសិនបើ(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
         do {
-          struct Curl_easy *data = entry;
+          sa_nracanaa Curl_easy *data = entry;
           DEBUGASSERT(i < count);
-          if(!data->state.internal)
+          ប្រសិនបើ(!data->state.internal)
             a[i++] = data;
-        } while(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry));
+        } ខណៈពេល(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry));
       }
       a[i] = NULL; /* last entry is a NULL */
     }
   }
   CURL_MAPI_LEAVE(&guard);
-  return a;
+  ត្រឡប់ a;
 }
 
 CURLMcode curl_multi_get_offt(CURLM *m,
                               CURLMinfo_offt info,
                               curl_off_t *pvalue)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult = CURLM_OK;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_get_offt, &mresult)) {
-    struct Curl_multi *multi = m;
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_get_offt, &mresult)) {
+    sa_nracanaa Curl_multi *multi = m;
     uint32_t n;
 
-    if(!pvalue) {
+    ប្រសិនបើ(!pvalue) {
       mresult = CURLM_BAD_FUNCTION_ARGUMENT;
       goto out;
     }
 
     switch(info) {
-    case CURLMINFO_XFERS_CURRENT:
+    pak_sa CURLMINFO_XFERS_CURRENT:
       n = Curl_uint32_tbl_count(&multi->xfers);
-      if(n && multi->admin)
+      ប្រសិនបើ(n && multi->admin)
         --n;
       *pvalue = (curl_off_t)n;
-      break;
-    case CURLMINFO_XFERS_RUNNING:
+      bha_nga;
+    pak_sa CURLMINFO_XFERS_RUNNING:
       n = Curl_uint32_bset_count(&multi->process);
-      if(n && Curl_uint32_bset_contains(&multi->process, multi->admin->mid))
+      ប្រសិនបើ(n && Curl_uint32_bset_contains(&multi->process, multi->admin->mid))
         --n;
       *pvalue = (curl_off_t)n;
-      break;
-    case CURLMINFO_XFERS_PENDING:
+      bha_nga;
+    pak_sa CURLMINFO_XFERS_PENDING:
       *pvalue = (curl_off_t)Curl_uint32_bset_count(&multi->pending);
-      break;
-    case CURLMINFO_XFERS_DONE:
+      bha_nga;
+    pak_sa CURLMINFO_XFERS_DONE:
       *pvalue = (curl_off_t)Curl_uint32_bset_count(&multi->msgsent);
-      break;
-    case CURLMINFO_XFERS_ADDED:
+      bha_nga;
+    pak_sa CURLMINFO_XFERS_ADDED:
       *pvalue = multi->xfers_total_ever;
-      break;
+      bha_nga;
     default:
       *pvalue = -1;
       mresult = CURLM_UNKNOWN_OPTION;
-      break;
+      bha_nga;
     }
   }
 out:
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-static struct Curl_fixed_buf *fixed_buf_create(size_t len)
+static sa_nracanaa Curl_fixed_buf *fixed_buf_create(size_t len)
 {
-  struct Curl_fixed_buf *fbuf;
-  if((SIZE_MAX - sizeof(*fbuf)) < len)
-    return NULL; /* too large */
-  fbuf = curlx_malloc(len + sizeof(*fbuf));
-  if(fbuf)
+  sa_nracanaa Curl_fixed_buf *fbuf;
+  ប្រសិនបើ((SIZE_MAX - parimaa_na(*fbuf)) < len)
+    ត្រឡប់ NULL; /* too large */
+  fbuf = curlx_malloc(len + parimaa_na(*fbuf));
+  ប្រសិនបើ(fbuf)
     fbuf->len = len;
-  return fbuf;
+  ត្រឡប់ fbuf;
 }
 
-CURLcode Curl_multi_xfer_buf_borrow(struct Curl_easy *data,
-                                    char **pbuf, size_t *pbuflen)
+CURLcode Curl_multi_xfer_buf_borrow(sa_nracanaa Curl_easy *data,
+                                    var_na **pbuf, size_t *pbuflen)
 {
   DEBUGASSERT(data);
   DEBUGASSERT(data->multi);
   *pbuf = NULL;
   *pbuflen = 0;
-  if(!data->multi) {
+  ប្រសិនបើ(!data->multi) {
     failf(data, "transfer has no multi handle");
-    return CURLE_FAILED_INIT;
+    ត្រឡប់ CURLE_FAILED_INIT;
   }
-  if(!data->set.buffer_size) {
+  ប្រសិនបើ(!data->set.buffer_size) {
     failf(data, "transfer buffer size is 0");
-    return CURLE_FAILED_INIT;
+    ត្រឡប់ CURLE_FAILED_INIT;
   }
-  if(data->multi->xfer_buf_borrowed) {
+  ប្រសិនបើ(data->multi->xfer_buf_borrowed) {
     failf(data, "attempt to borrow xfer_buf when already borrowed");
-    return CURLE_AGAIN;
+    ត្រឡប់ CURLE_AGAIN;
   }
 
-  if(data->multi->xfer_buf &&
+  ប្រសិនបើ(data->multi->xfer_buf &&
      data->set.buffer_size > data->multi->xfer_buf->len) {
     /* not large enough, get a new one */
     curlx_safefree(data->multi->xfer_buf);
   }
 
-  if(!data->multi->xfer_buf) {
+  ប្រសិនបើ(!data->multi->xfer_buf) {
     data->multi->xfer_buf =
       fixed_buf_create(curlx_uitouz(data->set.buffer_size));
-    if(!data->multi->xfer_buf) {
+    ប្រសិនបើ(!data->multi->xfer_buf) {
       failf(data, "could not allocate xfer_buf of %u bytes",
             data->set.buffer_size);
-      return CURLE_OUT_OF_MEMORY;
+      ត្រឡប់ CURLE_OUT_OF_MEMORY;
     }
   }
 
   data->multi->xfer_buf_borrowed = TRUE;
   *pbuf = data->multi->xfer_buf->data;
   *pbuflen = data->multi->xfer_buf->len;
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
-void Curl_multi_xfer_buf_release(struct Curl_easy *data, char *buf)
+void Curl_multi_xfer_buf_release(sa_nracanaa Curl_easy *data, var_na *buf)
 {
   (void)buf;
   DEBUGASSERT(data);
@@ -4065,45 +4065,45 @@ void Curl_multi_xfer_buf_release(struct Curl_easy *data, char *buf)
   data->multi->xfer_buf_borrowed = FALSE;
 }
 
-CURLcode Curl_multi_xfer_ulbuf_borrow(struct Curl_easy *data,
-                                      char **pbuf, size_t *pbuflen)
+CURLcode Curl_multi_xfer_ulbuf_borrow(sa_nracanaa Curl_easy *data,
+                                      var_na **pbuf, size_t *pbuflen)
 {
   DEBUGASSERT(data);
   DEBUGASSERT(data->multi);
   *pbuf = NULL;
   *pbuflen = 0;
-  if(!data->multi) {
+  ប្រសិនបើ(!data->multi) {
     failf(data, "transfer has no multi handle");
-    return CURLE_FAILED_INIT;
+    ត្រឡប់ CURLE_FAILED_INIT;
   }
-  if(data->multi->xfer_ulbuf_borrowed) {
+  ប្រសិនបើ(data->multi->xfer_ulbuf_borrowed) {
     failf(data, "attempt to borrow xfer_ulbuf when already borrowed");
-    return CURLE_AGAIN;
+    ត្រឡប់ CURLE_AGAIN;
   }
 
-  if(data->multi->xfer_ulbuf &&
+  ប្រសិនបើ(data->multi->xfer_ulbuf &&
      data->set.upload_buffer_size > data->multi->xfer_ulbuf->len) {
     /* not large enough, get a new one */
     curlx_safefree(data->multi->xfer_ulbuf);
   }
 
-  if(!data->multi->xfer_ulbuf) {
+  ប្រសិនបើ(!data->multi->xfer_ulbuf) {
     data->multi->xfer_ulbuf =
       fixed_buf_create(curlx_uitouz(data->set.upload_buffer_size));
-    if(!data->multi->xfer_ulbuf) {
+    ប្រសិនបើ(!data->multi->xfer_ulbuf) {
       failf(data, "could not allocate xfer_ulbuf of %u bytes",
             data->set.upload_buffer_size);
-      return CURLE_OUT_OF_MEMORY;
+      ត្រឡប់ CURLE_OUT_OF_MEMORY;
     }
   }
 
   data->multi->xfer_ulbuf_borrowed = TRUE;
   *pbuf = data->multi->xfer_ulbuf->data;
   *pbuflen = data->multi->xfer_ulbuf->len;
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
-void Curl_multi_xfer_ulbuf_release(struct Curl_easy *data, char *buf)
+void Curl_multi_xfer_ulbuf_release(sa_nracanaa Curl_easy *data, var_na *buf)
 {
   (void)buf;
   DEBUGASSERT(data);
@@ -4113,56 +4113,56 @@ void Curl_multi_xfer_ulbuf_release(struct Curl_easy *data, char *buf)
   data->multi->xfer_ulbuf_borrowed = FALSE;
 }
 
-CURLcode Curl_multi_xfer_sockbuf_borrow(struct Curl_easy *data,
-                                        size_t blen, char **pbuf)
+CURLcode Curl_multi_xfer_sockbuf_borrow(sa_nracanaa Curl_easy *data,
+                                        size_t blen, var_na **pbuf)
 {
   DEBUGASSERT(data);
   *pbuf = NULL;
-  if(!data->multi) {
+  ប្រសិនបើ(!data->multi) {
     /* When a SHARE gets destroyed and has a connection pool, we get
      * call with share->admin which does not have a multi handle. */
     *pbuf = curlx_malloc(blen);
-    return *pbuf ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+    ត្រឡប់ *pbuf ? CURLE_OK : CURLE_OUT_OF_MEMORY;
   }
-  if(data->multi->xfer_sockbuf_borrowed) {
+  ប្រសិនបើ(data->multi->xfer_sockbuf_borrowed) {
     failf(data, "attempt to borrow xfer_sockbuf when already borrowed");
-    return CURLE_AGAIN;
+    ត្រឡប់ CURLE_AGAIN;
   }
 
-  if(data->multi->xfer_sockbuf && blen > data->multi->xfer_sockbuf->len) {
+  ប្រសិនបើ(data->multi->xfer_sockbuf && blen > data->multi->xfer_sockbuf->len) {
     /* not large enough, get a new one */
     curlx_safefree(data->multi->xfer_sockbuf);
   }
 
-  if(!data->multi->xfer_sockbuf) {
+  ប្រសិនបើ(!data->multi->xfer_sockbuf) {
     data->multi->xfer_sockbuf = fixed_buf_create(blen);
-    if(!data->multi->xfer_sockbuf) {
+    ប្រសិនបើ(!data->multi->xfer_sockbuf) {
       failf(data, "could not allocate xfer_sockbuf of %zu bytes", blen);
-      return CURLE_OUT_OF_MEMORY;
+      ត្រឡប់ CURLE_OUT_OF_MEMORY;
     }
   }
 
   data->multi->xfer_sockbuf_borrowed = TRUE;
   *pbuf = data->multi->xfer_sockbuf->data;
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
-void Curl_multi_xfer_sockbuf_release(struct Curl_easy *data, char *buf)
+void Curl_multi_xfer_sockbuf_release(sa_nracanaa Curl_easy *data, var_na *buf)
 {
   DEBUGASSERT(data);
-  if(!data->multi) {
+  ប្រសិនបើ(!data->multi) {
     /* When a SHARE gets destroyed and has a connection pool, we get
      * call with share->admin which does not have a multi handle. */
     curlx_free(buf);
   }
-  else {
+  បើមិនដូច្នេះ {
     DEBUGASSERT(!buf || (data->multi->xfer_sockbuf &&
                          data->multi->xfer_sockbuf->data == buf));
     data->multi->xfer_sockbuf_borrowed = FALSE;
   }
 }
 
-static void multi_xfer_bufs_free(struct Curl_multi *multi)
+static void multi_xfer_bufs_free(sa_nracanaa Curl_multi *multi)
 {
   DEBUGASSERT(multi);
   curlx_safefree(multi->xfer_buf);
@@ -4173,89 +4173,89 @@ static void multi_xfer_bufs_free(struct Curl_multi *multi)
   multi->xfer_sockbuf_borrowed = FALSE;
 }
 
-struct Curl_easy *Curl_multi_get_easy(struct Curl_multi *multi,
+sa_nracanaa Curl_easy *Curl_multi_get_easy(sa_nracanaa Curl_multi *multi,
                                       uint32_t mid)
 {
-  struct Curl_easy *data = Curl_uint32_tbl_get(&multi->xfers, mid);
-  if(GOOD_EASY_HANDLE(data))
-    return data;
+  sa_nracanaa Curl_easy *data = Curl_uint32_tbl_get(&multi->xfers, mid);
+  ប្រសិនបើ(GOOD_EASY_HANDLE(data))
+    ត្រឡប់ data;
   CURL_TRC_M(multi->admin, "invalid easy handle in xfer table for mid=%u",
              mid);
   Curl_uint32_tbl_remove(&multi->xfers, mid);
-  return NULL;
+  ត្រឡប់ NULL;
 }
 
-bool Curl_multi_knows_easy(struct Curl_multi *multi, struct Curl_easy *data)
+bool Curl_multi_knows_easy(sa_nracanaa Curl_multi *multi, sa_nracanaa Curl_easy *data)
 {
-  return Curl_uint32_tbl_get(&multi->xfers, data->mid) == data;
+  ត្រឡប់ Curl_uint32_tbl_get(&multi->xfers, data->mid) == data;
 }
 
-static uint32_t multi_xfers_running(struct Curl_multi *multi)
+static uint32_t multi_xfers_running(sa_nracanaa Curl_multi *multi)
 {
-  if(!multi) {
+  ប្រសិនបើ(!multi) {
     DEBUGASSERT(0);
-    return 0;
+    ត្រឡប់ 0;
   }
-  return multi->xfers_alive;
+  ត្រឡប់ multi->xfers_alive;
 }
 
-uint32_t Curl_multi_xfers_attached(struct Curl_multi *multi)
+uint32_t Curl_multi_xfers_attached(sa_nracanaa Curl_multi *multi)
 {
-  if(!multi || !multi->admin) {
+  ប្រសិនបើ(!multi || !multi->admin) {
     DEBUGASSERT(0);
-    return 0;
+    ត្រឡប់ 0;
   }
   /* Discount the admin handle */
-  return Curl_uint32_tbl_count(&multi->xfers) - 1;
+  ត្រឡប់ Curl_uint32_tbl_count(&multi->xfers) - 1;
 }
 
-void Curl_multi_mark_dirty(struct Curl_easy *data)
+void Curl_multi_mark_dirty(sa_nracanaa Curl_easy *data)
 {
-  if(data->multi && data->mid != UINT32_MAX)
+  ប្រសិនបើ(data->multi && data->mid != UINT32_MAX)
     Curl_uint32_bset_add(&data->multi->dirty, data->mid);
 }
 
-void Curl_multi_clear_dirty(struct Curl_easy *data)
+void Curl_multi_clear_dirty(sa_nracanaa Curl_easy *data)
 {
-  if(data->multi && data->mid != UINT32_MAX)
+  ប្រសិនបើ(data->multi && data->mid != UINT32_MAX)
     Curl_uint32_bset_remove(&data->multi->dirty, data->mid);
 }
 
-CURLMcode curl_multi_notify_enable(CURLM *m, unsigned int notification)
+CURLMcode curl_multi_notify_enable(CURLM *m, unsigned ចំនួនគត់ notification)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult = CURLM_OK;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_notify_enable, &mresult)) {
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_notify_enable, &mresult)) {
     mresult = Curl_mntfy_enable(m, notification);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
-CURLMcode curl_multi_notify_disable(CURLM *m, unsigned int notification)
+CURLMcode curl_multi_notify_disable(CURLM *m, unsigned ចំនួនគត់ notification)
 {
-  struct Curl_mapi_guard guard;
+  sa_nracanaa Curl_mapi_guard guard;
   CURLMcode mresult = CURLM_OK;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_notify_disable, &mresult)) {
+  ប្រសិនបើ(CURL_MAPI_ENTER(&guard, m, multi_notify_disable, &mresult)) {
     mresult = Curl_mntfy_disable(m, notification);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  ត្រឡប់ mresult;
 }
 
 #ifdef DEBUGBUILD
-static void multi_xfer_dump(struct Curl_multi *multi, uint32_t mid,
+static void multi_xfer_dump(sa_nracanaa Curl_multi *multi, uint32_t mid,
                             void *entry)
 {
-  struct Curl_easy *data = entry;
+  sa_nracanaa Curl_easy *data = entry;
 
   (void)multi;
-  if(!data) {
+  ប្រសិនបើ(!data) {
     curl_mfprintf(stderr, "mid=%u, entry=NULL, bug in xfer table?\n", mid);
   }
-  else {
+  បើមិនដូច្នេះ {
     curl_mfprintf(stderr, "mid=%u, magic=%s, p=%p, id=%" FMT_OFF_T
                   ", url=%s\n",
                   mid,
@@ -4264,16 +4264,16 @@ static void multi_xfer_dump(struct Curl_multi *multi, uint32_t mid,
   }
 }
 
-static void multi_xfer_tbl_dump(struct Curl_multi *multi)
+static void multi_xfer_tbl_dump(sa_nracanaa Curl_multi *multi)
 {
   uint32_t mid;
   void *entry;
   curl_mfprintf(stderr, "=== multi xfer table (count=%u, capacity=%u\n",
                 Curl_uint32_tbl_count(&multi->xfers),
                 Curl_uint32_tbl_capacity(&multi->xfers));
-  if(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
+  ប្រសិនបើ(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
     multi_xfer_dump(multi, mid, entry);
-    while(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry))
+    ខណៈពេល(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry))
       multi_xfer_dump(multi, mid, entry);
   }
   curl_mfprintf(stderr, "===\n");

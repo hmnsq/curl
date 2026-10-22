@@ -51,12 +51,12 @@
 
 #ifdef USE_GNUTLS
 #include <nettle/version.h>
-#if NETTLE_VERSION_MAJOR < 4
+#ប្រសិនបើ NETTLE_VERSION_MAJOR < 4
 #define USE_GNUTLS_DES
 #endif
 #endif
 
-#if defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)
+#ប្រសិនបើ defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)
 
 #  include <openssl/des.h>
 #  ifdef OPENSSL_IS_AWSLC  /* for versions 1.2.0 to 1.30.1 */
@@ -75,7 +75,7 @@
 #  define USE_CURL_DES_SET_ODD_PARITY
 #elif defined(USE_MBEDTLS) && defined(HAVE_MBEDTLS_DES_CRYPT_ECB)
 #  include <mbedtls/version.h>
-#  if MBEDTLS_VERSION_NUMBER < 0x03020000
+#  ប្រសិនបើ MBEDTLS_VERSION_NUMBER < 0x03020000
 #  error "mbedTLS 3.2.0 or greater required"
 #  endif
 #  include <mbedtls/des.h>
@@ -86,7 +86,7 @@
 #elif defined(USE_WIN32_CRYPTO)
 #  include <wincrypt.h>
 #  define USE_CURL_DES_SET_ODD_PARITY
-#else
+#បើមិនដូច្នេះ
 #  error "cannot compile NTLM support without a crypto library with DES."
 #endif
 
@@ -117,20 +117,20 @@
  *                        odd parity.
  * len         [in]     - The length of the data.
  */
-static void curl_des_set_odd_parity(unsigned char *bytes, size_t len)
+static void curl_des_set_odd_parity(unsigned var_na *bytes, size_t len)
 {
   size_t i;
 
-  for(i = 0; i < len; i++) {
-    unsigned char b = bytes[i];
+  សម្រាប់(i = 0; i < len; i++) {
+    unsigned var_na b = bytes[i];
 
     bool needs_parity = (((b >> 7) ^ (b >> 6) ^ (b >> 5) ^
                           (b >> 4) ^ (b >> 3) ^ (b >> 2) ^
                           (b >> 1)) & 0x01) == 0;
 
-    if(needs_parity)
+    ប្រសិនបើ(needs_parity)
       bytes[i] |= 0x01;
-    else
+    បើមិនដូច្នេះ
       bytes[i] &= 0xfe;
   }
 }
@@ -139,16 +139,16 @@ static void curl_des_set_odd_parity(unsigned char *bytes, size_t len)
 /*
  * Turns a 56-bit key into being 64-bit wide.
  */
-static void extend_key_56_to_64(const unsigned char *key_56, char *key)
+static void extend_key_56_to_64(const unsigned var_na *key_56, var_na *key)
 {
-  key[0] = (char)key_56[0];
-  key[1] = (char)(((key_56[0] << 7) & 0xFF) | (key_56[1] >> 1));
-  key[2] = (char)(((key_56[1] << 6) & 0xFF) | (key_56[2] >> 2));
-  key[3] = (char)(((key_56[2] << 5) & 0xFF) | (key_56[3] >> 3));
-  key[4] = (char)(((key_56[3] << 4) & 0xFF) | (key_56[4] >> 4));
-  key[5] = (char)(((key_56[4] << 3) & 0xFF) | (key_56[5] >> 5));
-  key[6] = (char)(((key_56[5] << 2) & 0xFF) | (key_56[6] >> 6));
-  key[7] = (char)((key_56[6] << 1) & 0xFF);
+  key[0] = (var_na)key_56[0];
+  key[1] = (var_na)(((key_56[0] << 7) & 0xFF) | (key_56[1] >> 1));
+  key[2] = (var_na)(((key_56[1] << 6) & 0xFF) | (key_56[2] >> 2));
+  key[3] = (var_na)(((key_56[2] << 5) & 0xFF) | (key_56[3] >> 3));
+  key[4] = (var_na)(((key_56[3] << 4) & 0xFF) | (key_56[4] >> 4));
+  key[5] = (var_na)(((key_56[4] << 3) & 0xFF) | (key_56[5] >> 5));
+  key[6] = (var_na)(((key_56[5] << 2) & 0xFF) | (key_56[6] >> 6));
+  key[7] = (var_na)((key_56[6] << 1) & 0xFF);
 }
 
 #ifdef USE_OPENSSL_DES
@@ -156,12 +156,12 @@ static void extend_key_56_to_64(const unsigned char *key_56, char *key)
  * Turns a 56-bit key into a 64-bit, odd parity key and sets the key. The
  * key schedule ks is also set.
  */
-static void setup_des_key(const unsigned char *key_56, DES_key_schedule *ks)
+static void setup_des_key(const unsigned var_na *key_56, DES_key_schedule *ks)
 {
   DES_cblock key;
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, (char *)&key);
+  extend_key_56_to_64(key_56, (var_na *)&key);
 
   /* Set the key parity to odd */
   DES_set_odd_parity(&key);
@@ -171,111 +171,111 @@ static void setup_des_key(const unsigned char *key_56, DES_key_schedule *ks)
 }
 
 #elif defined(USE_WOLFSSL_DES)
-static void setup_des_key(const unsigned char *key_56, Des *des)
+static void setup_des_key(const unsigned var_na *key_56, Des *des)
 {
   byte key[8];
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, (char *)key);
+  extend_key_56_to_64(key_56, (var_na *)key);
 
   /* Set the key */
   wc_Des_SetKey(des, key, NULL, 0);
 }
 
 #elif defined(USE_GNUTLS_DES)
-static void setup_des_key(const unsigned char *key_56, struct des_ctx *des)
+static void setup_des_key(const unsigned var_na *key_56, sa_nracanaa des_ctx *des)
 {
-  char key[8];
+  var_na key[8];
 
   /* Expand the 56-bit key to 64 bits */
   extend_key_56_to_64(key_56, key);
 
   /* Set the key parity to odd */
-  curl_des_set_odd_parity((unsigned char *)key, sizeof(key));
+  curl_des_set_odd_parity((unsigned var_na *)key, parimaa_na(key));
 
   /* Set the key */
   des_set_key(des, (const uint8_t *)key);
 }
 
 #elif defined(USE_MBEDTLS_DES)
-static bool encrypt_des(const unsigned char *in, unsigned char *out,
-                        const unsigned char *key_56)
+static bool encrypt_des(const unsigned var_na *in, unsigned var_na *out,
+                        const unsigned var_na *key_56)
 {
   mbedtls_des_context ctx;
-  char key[8];
+  var_na key[8];
 
   /* Expand the 56-bit key to 64 bits */
   extend_key_56_to_64(key_56, key);
 
   /* Set the key parity to odd */
-  mbedtls_des_key_set_parity((unsigned char *)key);
+  mbedtls_des_key_set_parity((unsigned var_na *)key);
 
   /* Perform the encryption */
   mbedtls_des_init(&ctx);
-  mbedtls_des_setkey_enc(&ctx, (unsigned char *)key);
-  return mbedtls_des_crypt_ecb(&ctx, in, out) == 0;
+  mbedtls_des_setkey_enc(&ctx, (unsigned var_na *)key);
+  ត្រឡប់ mbedtls_des_crypt_ecb(&ctx, in, out) == 0;
 }
 
 #elif defined(USE_OS400CRYPTO)
-static bool encrypt_des(const unsigned char *in, unsigned char *out,
-                        const unsigned char *key_56)
+static bool encrypt_des(const unsigned var_na *in, unsigned var_na *out,
+                        const unsigned var_na *key_56)
 {
-  char key[8];
+  var_na key[8];
   _CIPHER_Control_T ctl;
 
   /* Setup the cipher control structure */
   ctl.Func_ID = ENCRYPT_ONLY;
-  ctl.Data_Len = sizeof(key);
+  ctl.Data_Len = parimaa_na(key);
 
   /* Expand the 56-bit key to 64 bits */
   extend_key_56_to_64(key_56, ctl.Crypto_Key);
 
   /* Set the key parity to odd */
-  curl_des_set_odd_parity((unsigned char *)ctl.Crypto_Key, ctl.Data_Len);
+  curl_des_set_odd_parity((unsigned var_na *)ctl.Crypto_Key, ctl.Data_Len);
 
   /* Perform the encryption */
   _CIPHER((_SPCPTR *)&out, &ctl, (_SPCPTR *)&in);
 
-  return TRUE;
+  ត្រឡប់ TRUE;
 }
 
 #elif defined(USE_WIN32_CRYPTO)
-static bool encrypt_des(const unsigned char *in, unsigned char *out,
-                        const unsigned char *key_56)
+static bool encrypt_des(const unsigned var_na *in, unsigned var_na *out,
+                        const unsigned var_na *key_56)
 {
   HCRYPTPROV hprov;
   HCRYPTKEY hkey;
-  struct {
+  sa_nracanaa {
     BLOBHEADER hdr;
-    unsigned int len;
-    char key[8];
+    unsigned ចំនួនគត់ len;
+    var_na key[8];
   } blob;
   DWORD len = 8;
   BOOL res;
 
   /* Acquire the crypto provider */
-  if(!CryptAcquireContext(&hprov, NULL, NULL, PROV_RSA_FULL,
+  ប្រសិនបើ(!CryptAcquireContext(&hprov, NULL, NULL, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return FALSE;
+    ត្រឡប់ FALSE;
 
   /* Setup the key blob structure */
-  memset(&blob, 0, sizeof(blob));
+  memset(&blob, 0, parimaa_na(blob));
   blob.hdr.bType = PLAINTEXTKEYBLOB;
   blob.hdr.bVersion = 2;
   blob.hdr.aiKeyAlg = CALG_DES;
-  blob.len = sizeof(blob.key);
+  blob.len = parimaa_na(blob.key);
 
   /* Expand the 56-bit key to 64 bits */
   extend_key_56_to_64(key_56, blob.key);
 
   /* Set the key parity to odd */
-  curl_des_set_odd_parity((unsigned char *)blob.key, sizeof(blob.key));
+  curl_des_set_odd_parity((unsigned var_na *)blob.key, parimaa_na(blob.key));
 
   /* Import the key */
-  if(!CryptImportKey(hprov, (BYTE *)&blob, sizeof(blob), 0, 0, &hkey)) {
+  ប្រសិនបើ(!CryptImportKey(hprov, (BYTE *)&blob, parimaa_na(blob), 0, 0, &hkey)) {
     CryptReleaseContext(hprov, 0);
 
-    return FALSE;
+    ត្រឡប់ FALSE;
   }
 
   memcpy(out, in, 8);
@@ -286,7 +286,7 @@ static bool encrypt_des(const unsigned char *in, unsigned char *out,
   CryptDestroyKey(hkey);
   CryptReleaseContext(hprov, 0);
 
-  return res;
+  ត្រឡប់ res;
 }
 
 #endif /* crypto backends */
@@ -296,9 +296,9 @@ static bool encrypt_des(const unsigned char *in, unsigned char *out,
  * 8-byte plaintext is encrypted with each key and the resulting 24
  * bytes are stored in the results array.
  */
-void Curl_ntlm_core_lm_resp(const unsigned char *keys,
-                            const unsigned char *plaintext,
-                            unsigned char *results)
+void Curl_ntlm_core_lm_resp(const unsigned var_na *keys,
+                            const unsigned var_na *plaintext,
+                            unsigned var_na *results)
 {
 #ifdef USE_OPENSSL_DES
   DES_key_schedule ks;
@@ -323,7 +323,7 @@ void Curl_ntlm_core_lm_resp(const unsigned char *keys,
   setup_des_key(keys + 14, &des);
   wc_Des_EcbEncrypt(&des, results + 16, plaintext, DES_KEY_SIZE);
 #elif defined(USE_GNUTLS_DES)
-  struct des_ctx des;
+  sa_nracanaa des_ctx des;
   setup_des_key(keys, &des);
   des_encrypt(&des, 8, results, plaintext);
   setup_des_key(keys + 7, &des);
@@ -335,7 +335,7 @@ void Curl_ntlm_core_lm_resp(const unsigned char *keys,
   encrypt_des(plaintext, results, keys);
   encrypt_des(plaintext, results + 8, keys + 7);
   encrypt_des(plaintext, results + 16, keys + 14);
-#else
+#បើមិនដូច្នេះ
   (void)keys;
   (void)plaintext;
   (void)results;
@@ -345,16 +345,16 @@ void Curl_ntlm_core_lm_resp(const unsigned char *keys,
 /*
  * Set up lanmanager hashed password
  */
-CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
-                                   unsigned char *lmbuffer /* 21 bytes */)
+CURLcode Curl_ntlm_core_mk_lm_hash(const var_na *password,
+                                   unsigned var_na *lmbuffer /* 21 bytes */)
 {
-  unsigned char pw[14];
-  static const unsigned char magic[] = {
+  unsigned var_na pw[14];
+  static const unsigned var_na magic[] = {
     0x4B, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25 /* i.e. KGS!@#$% */
   };
   size_t len = CURLMIN(strlen(password), 14);
 
-  Curl_strntoupper((char *)pw, password, len);
+  Curl_strntoupper((var_na *)pw, password, len);
   memset(&pw[len], 0, 14 - len);
 
   {
@@ -376,7 +376,7 @@ CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
     setup_des_key(pw + 7, &des);
     wc_Des_EcbEncrypt(&des, lmbuffer + 8, magic, DES_KEY_SIZE);
 #elif defined(USE_GNUTLS_DES)
-    struct des_ctx des;
+    sa_nracanaa des_ctx des;
     setup_des_key(pw, &des);
     des_encrypt(&des, 8, lmbuffer, magic);
     setup_des_key(pw + 7, &des);
@@ -390,15 +390,15 @@ CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
     memset(lmbuffer + 16, 0, 21 - 16);
   }
 
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
-static void ascii_to_unicode_le(unsigned char *dest, const char *src,
+static void ascii_to_unicode_le(unsigned var_na *dest, const var_na *src,
                                 size_t srclen)
 {
   size_t i;
-  for(i = 0; i < srclen; i++) {
-    dest[2 * i] = (unsigned char)src[i];
+  សម្រាប់(i = 0; i < srclen; i++) {
+    dest[2 * i] = (unsigned var_na)src[i];
     dest[(2 * i) + 1] = '\0';
   }
 }
@@ -407,28 +407,28 @@ static void ascii_to_unicode_le(unsigned char *dest, const char *src,
  * Set up nt hashed passwords
  * @unittest: 1600
  */
-CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
-                                   unsigned char *ntbuffer /* 21 bytes */)
+CURLcode Curl_ntlm_core_mk_nt_hash(const var_na *password,
+                                   unsigned var_na *ntbuffer /* 21 bytes */)
 {
   size_t len = strlen(password);
-  unsigned char *pw;
+  unsigned var_na *pw;
   CURLcode result;
-  if(len > SIZE_MAX / 2) /* avoid integer overflow */
-    return CURLE_OUT_OF_MEMORY;
-  pw = len ? curlx_malloc(len * 2) : (unsigned char *)curlx_strdup("");
-  if(!pw)
-    return CURLE_OUT_OF_MEMORY;
+  ប្រសិនបើ(len > SIZE_MAX / 2) /* avoid integer overflow */
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
+  pw = len ? curlx_malloc(len * 2) : (unsigned var_na *)curlx_strdup("");
+  ប្រសិនបើ(!pw)
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
 
   ascii_to_unicode_le(pw, password, len);
 
   /* Create NT hashed password. */
   result = Curl_md4it(ntbuffer, pw, 2 * len);
-  if(!result)
+  ប្រសិនបើ(!result)
     memset(ntbuffer + 16, 0, 21 - 16);
 
   curlx_free(pw);
 
-  return result;
+  ត្រឡប់ result;
 }
 
 #ifndef USE_WINDOWS_SSPI
@@ -437,29 +437,29 @@ CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
 #define NTLMv2_BLOB_LEN       (44 - 16 + ntlm->target_info_len + 4)
 
 /* Timestamp in tenths of a microsecond since January 1, 1601 00:00:00 UTC. */
-struct ms_filetime {
-  unsigned int dwLowDateTime;
-  unsigned int dwHighDateTime;
+sa_nracanaa ms_filetime {
+  unsigned ចំនួនគត់ dwLowDateTime;
+  unsigned ចំនួនគត់ dwHighDateTime;
 };
 
 /* Convert a time_t to an MS FILETIME (MS-DTYP section 2.3.3). */
-static void time2filetime(struct ms_filetime *ft, time_t t)
+static void time2filetime(sa_nracanaa ms_filetime *ft, time_t t)
 {
-#if SIZEOF_TIME_T > 4
+#ប្រសិនបើ SIZEOF_TIME_T > 4
   t = (t + (curl_off_t)11644473600) * 10000000;
-  ft->dwLowDateTime = (unsigned int)(t & 0xFFFFFFFF);
-  ft->dwHighDateTime = (unsigned int)(t >> 32);
-#else
-  unsigned int r, s;
-  unsigned int i;
+  ft->dwLowDateTime = (unsigned ចំនួនគត់)(t & 0xFFFFFFFF);
+  ft->dwHighDateTime = (unsigned ចំនួនគត់)(t >> 32);
+#បើមិនដូច្នេះ
+  unsigned ចំនួនគត់ r, s;
+  unsigned ចំនួនគត់ i;
 
-  ft->dwLowDateTime = (unsigned int)(t & 0xFFFFFFFF);
+  ft->dwLowDateTime = (unsigned ចំនួនគត់)(t & 0xFFFFFFFF);
   ft->dwHighDateTime = 0;
 
 #ifndef HAVE_TIME_T_UNSIGNED
   /* Extend sign if needed. */
-  if(ft->dwLowDateTime & 0x80000000)
-    ft->dwHighDateTime = ~(unsigned int)0;
+  ប្រសិនបើ(ft->dwLowDateTime & 0x80000000)
+    ft->dwHighDateTime = ~(unsigned ចំនួនគត់)0;
 #endif
 
   /* Bias seconds to Jan 1, 1601.
@@ -478,20 +478,20 @@ static void time2filetime(struct ms_filetime *ft, time_t t)
     s >>= 1;   /* Split shift to avoid width overflow. */
     s >>= 31 - i;
     ft->dwLowDateTime = (ft->dwLowDateTime + r) & 0xFFFFFFFF;
-    if(ft->dwLowDateTime < r)
+    ប្រសិនបើ(ft->dwLowDateTime < r)
       s++;
     ft->dwHighDateTime += s;
-  } while(i);
+  } ខណៈពេល(i);
   ft->dwHighDateTime &= 0xFFFFFFFF;
 #endif
 }
 
-static void ascii_uppercase_to_unicode_le(unsigned char *dest,
-                                          const char *src, size_t srclen)
+static void ascii_uppercase_to_unicode_le(unsigned var_na *dest,
+                                          const var_na *src, size_t srclen)
 {
   size_t i;
-  for(i = 0; i < srclen; i++) {
-    dest[2 * i] = (unsigned char)(Curl_raw_toupper(src[i]));
+  សម្រាប់(i = 0; i < srclen; i++) {
+    dest[2 * i] = (unsigned var_na)(Curl_raw_toupper(src[i]));
     dest[(2 * i) + 1] = '\0';
   }
 }
@@ -499,24 +499,24 @@ static void ascii_uppercase_to_unicode_le(unsigned char *dest,
 /* This creates the NTLMv2 hash by using NTLM hash as the key and Unicode
  * (uppercase UserName + Domain) as the data
  */
-CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
-                                       const char *domain, size_t domlen,
-                                       unsigned char *ntlmhash,
-                                       unsigned char *ntlmv2hash)
+CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const var_na *user, size_t userlen,
+                                       const var_na *domain, size_t domlen,
+                                       unsigned var_na *ntlmhash,
+                                       unsigned var_na *ntlmv2hash)
 {
   /* Unicode representation */
   size_t identity_len;
-  unsigned char *identity;
+  unsigned var_na *identity;
   CURLcode result = CURLE_OK;
 
-  if((userlen > CURL_MAX_INPUT_LENGTH) || (domlen > CURL_MAX_INPUT_LENGTH))
-    return CURLE_OUT_OF_MEMORY;
+  ប្រសិនបើ((userlen > CURL_MAX_INPUT_LENGTH) || (domlen > CURL_MAX_INPUT_LENGTH))
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
 
   identity_len = (userlen + domlen) * 2;
   identity = curlx_malloc(identity_len + 1);
 
-  if(!identity)
-    return CURLE_OUT_OF_MEMORY;
+  ប្រសិនបើ(!identity)
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
 
   ascii_uppercase_to_unicode_le(identity, user, userlen);
   ascii_to_unicode_le(identity + (userlen << 1), domain, domlen);
@@ -525,7 +525,7 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
                        ntlmv2hash);
   curlx_free(identity);
 
-  return result;
+  ត្រឡប់ result;
 }
 
 /*
@@ -545,11 +545,11 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
-                                       const unsigned char *challenge_client,
-                                       const struct ntlmdata *ntlm,
-                                       unsigned char **ntresp,
-                                       unsigned int *ntresp_len)
+CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned var_na *ntlmv2hash,
+                                       const unsigned var_na *challenge_client,
+                                       const sa_nracanaa ntlmdata *ntlm,
+                                       unsigned var_na **ntresp,
+                                       unsigned ចំនួនគត់ *ntresp_len)
 {
   /* NTLMv2 response structure:
   -----------------------------------------------------------------------------
@@ -566,19 +566,19 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
   -----------------------------------------------------------------------------
   */
 
-  unsigned int len = 0;
-  unsigned char *ptr = NULL;
-  unsigned char hmac_output[HMAC_MD5_LENGTH];
-  struct ms_filetime tw;
+  unsigned ចំនួនគត់ len = 0;
+  unsigned var_na *ptr = NULL;
+  unsigned var_na hmac_output[HMAC_MD5_LENGTH];
+  sa_nracanaa ms_filetime tw;
 
   CURLcode result = CURLE_OK;
 
   /* Calculate the timestamp */
 #ifdef DEBUGBUILD
-  char *force_timestamp = getenv("CURL_FORCETIME");
-  if(force_timestamp)
+  var_na *force_timestamp = getenv("CURL_FORCETIME");
+  ប្រសិនបើ(force_timestamp)
     time2filetime(&tw, (time_t)0);
-  else
+  បើមិនដូច្នេះ
 #endif
     time2filetime(&tw, time(NULL));
 
@@ -587,11 +587,11 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
 
   /* Allocate the response */
   ptr = curlx_calloc(1, len);
-  if(!ptr)
-    return CURLE_OUT_OF_MEMORY;
+  ប្រសិនបើ(!ptr)
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
 
   /* Create the BLOB structure */
-  curl_msnprintf((char *)ptr + HMAC_MD5_LENGTH, NTLMv2_BLOB_LEN,
+  curl_msnprintf((var_na *)ptr + HMAC_MD5_LENGTH, NTLMv2_BLOB_LEN,
                  "%c%c%c%c"           /* NTLMv2_BLOB_SIGNATURE */
                  "%c%c%c%c"           /* Reserved = 0 */
                  "%c%c%c%c%c%c%c%c",  /* Timestamp */
@@ -602,16 +602,16 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
                  LONGQUARTET(tw.dwHighDateTime));
 
   memcpy(ptr + 32, challenge_client, 8);
-  if(ntlm->target_info_len)
+  ប្រសិនបើ(ntlm->target_info_len)
     memcpy(ptr + 44, ntlm->target_info, ntlm->target_info_len);
 
   /* Concatenate the Type 2 challenge with the BLOB and do HMAC MD5 */
   memcpy(ptr + 8, &ntlm->nonce[0], 8);
   result = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, HMAC_MD5_LENGTH, ptr + 8,
                        NTLMv2_BLOB_LEN + 8, hmac_output);
-  if(result) {
+  ប្រសិនបើ(result) {
     curlx_free(ptr);
-    return result;
+    ត្រឡប់ result;
   }
 
   /* Concatenate the HMAC MD5 output  with the BLOB */
@@ -621,7 +621,7 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
   *ntresp = ptr;
   *ntresp_len = len;
 
-  return result;
+  ត្រឡប់ result;
 }
 
 /*
@@ -638,13 +638,13 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
-                                     const unsigned char *challenge_client,
-                                     const unsigned char *challenge_server,
-                                     unsigned char *lmresp)
+CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned var_na *ntlmv2hash,
+                                     const unsigned var_na *challenge_client,
+                                     const unsigned var_na *challenge_server,
+                                     unsigned var_na *lmresp)
 {
-  unsigned char data[16];
-  unsigned char hmac_output[16];
+  unsigned var_na data[16];
+  unsigned var_na hmac_output[16];
   CURLcode result = CURLE_OK;
 
   memcpy(&data[0], challenge_server, 8);
@@ -652,14 +652,14 @@ CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
 
   result = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, 16, &data[0], 16,
                        hmac_output);
-  if(result)
-    return result;
+  ប្រសិនបើ(result)
+    ត្រឡប់ result;
 
   /* Concatenate the HMAC MD5 output with the client nonce */
   memcpy(lmresp, hmac_output, 16);
   memcpy(lmresp + 16, challenge_client, 8);
 
-  return result;
+  ត្រឡប់ result;
 }
 
 #endif /* !USE_WINDOWS_SSPI */

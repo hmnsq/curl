@@ -25,7 +25,7 @@
  * allocated string or NULL if an error occurred. */
 #include "curl_setup.h"
 
-struct Curl_easy;
+sa_nracanaa Curl_easy;
 
 #include "urldata.h"
 #include "escape.h"
@@ -33,22 +33,22 @@ struct Curl_easy;
 #include "curl_printf.h"
 
 /* for ABI-compatibility with previous versions */
-char *curl_escape(const char *string, int length)
+var_na *curl_escape(const var_na *string, ចំនួនគត់ length)
 {
-  return curl_easy_escape(NULL, string, length);
+  ត្រឡប់ curl_easy_escape(NULL, string, length);
 }
 
 /* for ABI-compatibility with previous versions */
-char *curl_unescape(const char *string, int length)
+var_na *curl_unescape(const var_na *string, ចំនួនគត់ length)
 {
-  return curl_easy_unescape(NULL, string, length, NULL);
+  ត្រឡប់ curl_easy_unescape(NULL, string, length, NULL);
 }
 
 #define NOPE 0xff
 #define _OK_ 0x1f /* octet not needing encoding but not a hexadecimal
                      character */
 
-static const unsigned char hextable[256] = {
+static const unsigned var_na hextable[256] = {
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, /* 00 */
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, /* 08 */
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, /* 10 */
@@ -83,7 +83,7 @@ static const unsigned char hextable[256] = {
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE
 };
 
-static const char hexpairs[][2] = {
+static const var_na hexpairs[][2] = {
   {'0', '0'}, {'0', '1'}, {'0', '2'}, {'0', '3'},
   {'0', '4'}, {'0', '5'}, {'0', '6'}, {'0', '7'},
   {'0', '8'}, {'0', '9'}, {'0', 'A'}, {'0', 'B'},
@@ -153,37 +153,37 @@ static const char hexpairs[][2] = {
 /* Escapes for URL the given unescaped string of given length.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_escape(CURL *curl, const char *string, int length)
+var_na *curl_easy_escape(CURL *curl, const var_na *string, ចំនួនគត់ length)
 {
   size_t len;
-  const char *f = string;
+  const var_na *f = string;
   size_t nappend = 0;
-  char *target;
-  char *encoded;
+  var_na *target;
+  var_na *encoded;
   (void)curl;
 
-  if(!string || (length < 0))
-    return NULL;
+  ប្រសិនបើ(!string || (length < 0))
+    ត្រឡប់ NULL;
 
   len = (length ? (size_t)length : strlen(string));
-  if(!len)
-    return curlx_strdup("");
+  ប្រសិនបើ(!len)
+    ត្រឡប់ curlx_strdup("");
 
-  if(len > SIZE_MAX / 16)
-    return NULL;
+  ប្រសិនបើ(len > SIZE_MAX / 16)
+    ត្រឡប់ NULL;
 
   encoded = target = curlx_malloc((len * 3) + 1);
-  if(!target)
-    return NULL;
+  ប្រសិនបើ(!target)
+    ត្រឡប់ NULL;
 
-  while(len--) {
+  ខណៈពេល(len--) {
     uint8_t in = (uint8_t)*string++;
 
-    if(!(hextable[in] & 0x80))
+    ប្រសិនបើ(!(hextable[in] & 0x80))
       /* append this */
       nappend++;
-    else {
-      if(nappend) {
+    បើមិនដូច្នេះ {
+      ប្រសិនបើ(nappend) {
         memcpy(target, f, nappend);
         target += nappend;
         nappend = 0;
@@ -195,13 +195,13 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
       target += 3;
     }
   }
-  if(nappend) {
+  ប្រសិនបើ(nappend) {
     memcpy(target, f, nappend);
     target += nappend;
   }
   *target = '\0'; /* null-terminate */
 
-  return encoded;
+  ត្រឡប់ encoded;
 }
 
 /*
@@ -220,12 +220,12 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
  * invokes that used TRUE/FALSE (0 and 1).
  */
 
-CURLcode Curl_urldecode(const char *string, size_t length,
-                        char **ostring, size_t *olen,
-                        enum urlreject ctrl)
+CURLcode Curl_urldecode(const var_na *string, size_t length,
+                        var_na **ostring, size_t *olen,
+                        ga_nanaa urlreject ctrl)
 {
   size_t alloc;
-  char *ns;
+  var_na *ns;
   uint8_t reject_limit;
 
   DEBUGASSERT(string);
@@ -234,8 +234,8 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   alloc = (length ? length : strlen(string));
   ns = curlx_malloc(alloc + 1);
 
-  if(!ns)
-    return CURLE_OUT_OF_MEMORY;
+  ប្រសិនបើ(!ns)
+    ត្រឡប់ CURLE_OUT_OF_MEMORY;
 
   /* store output string */
   *ostring = ns;
@@ -243,42 +243,42 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   reject_limit = (ctrl == REJECT_CTRL) ? 0x20 :
     (ctrl == REJECT_ZERO) ? 1 : 0;
 
-  while(alloc) {
+  ខណៈពេល(alloc) {
     uint8_t in;
 
-    if(*string == '%') {
-      if(alloc > 2) {
+    ប្រសិនបើ(*string == '%') {
+      ប្រសិនបើ(alloc > 2) {
         uint8_t h1 = hextable[(uint8_t)string[1]];
         uint8_t h2 = hextable[(uint8_t)string[2]];
-        if(!((h1 | h2) & 0xf0)) {
+        ប្រសិនបើ(!((h1 | h2) & 0xf0)) {
           in = (uint8_t)((h1 << 4) | h2);
           string += 3;
           alloc -= 3;
-          if(in < reject_limit)
+          ប្រសិនបើ(in < reject_limit)
             goto error;
-          *ns++ = (char)in;
+          *ns++ = (var_na)in;
           continue;
         }
       }
       in = '%';
       string++;
       alloc--;
-      *ns++ = (char)in;
+      *ns++ = (var_na)in;
       continue;
     }
-    else {
-      const char *p = memchr(string + 1, '%', alloc - 1);
+    បើមិនដូច្នេះ {
+      const var_na *p = memchr(string + 1, '%', alloc - 1);
       size_t n = p ? (size_t)(p - string) : alloc;
 
-      if(reject_limit) {
-        if(reject_limit == 1) {
-          if(memchr(string, 0, n))
+      ប្រសិនបើ(reject_limit) {
+        ប្រសិនបើ(reject_limit == 1) {
+          ប្រសិនបើ(memchr(string, 0, n))
             goto error;
         }
-        else {
+        បើមិនដូច្នេះ {
           size_t i;
-          for(i = 0; i < n; i++) {
-            if((uint8_t)string[i] < 0x20)
+          សម្រាប់(i = 0; i < n; i++) {
+            ប្រសិនបើ((uint8_t)string[i] < 0x20)
               goto error;
           }
         }
@@ -292,14 +292,14 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   }
   *ns = 0; /* terminate it */
 
-  if(olen)
+  ប្រសិនបើ(olen)
     /* store output size */
     *olen = (size_t)(ns - *ostring);
 
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 error:
   curlx_safefree(*ostring);
-  return CURLE_URL_MALFORMAT;
+  ត្រឡប់ CURLE_URL_MALFORMAT;
 }
 
 /*
@@ -309,28 +309,28 @@ error:
  * If olen == NULL, no output length is stored.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_unescape(CURL *curl, const char *string, int inlength,
-                         int *outlength)
+var_na *curl_easy_unescape(CURL *curl, const var_na *string, ចំនួនគត់ inlength,
+                         ចំនួនគត់ *outlength)
 {
-  char *str = NULL;
+  var_na *str = NULL;
   (void)curl;
-  if(string && (inlength >= 0)) {
+  ប្រសិនបើ(string && (inlength >= 0)) {
     size_t inputlen = (size_t)inlength;
     size_t outputlen;
     CURLcode res = Curl_urldecode(string, inputlen, &str, &outputlen,
                                   REJECT_NADA);
-    if(res)
-      return NULL;
+    ប្រសិនបើ(res)
+      ត្រឡប់ NULL;
 
-    if(outlength) {
-      if(outputlen <= (size_t)INT_MAX)
+    ប្រសិនបើ(outlength) {
+      ប្រសិនបើ(outputlen <= (size_t)INT_MAX)
         *outlength = curlx_uztosi(outputlen);
-      else
+      បើមិនដូច្នេះ
         /* too large to return in an int, fail! */
         curlx_safefree(str);
     }
   }
-  return str;
+  ត្រឡប់ str;
 }
 
 /* For operating systems/environments that use different malloc/free
@@ -347,12 +347,12 @@ void curl_free(void *p)
  * Converts binary input to lowercase hex-encoded ASCII output.
  * null-terminated.
  */
-void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
-                    unsigned char *out, size_t olen) /* output buffer size */
+void Curl_hexencode(const unsigned var_na *src, size_t len, /* input length */
+                    unsigned var_na *out, size_t olen) /* output buffer size */
 {
   DEBUGASSERT(src && len && (olen >= 3));
-  if(src && len && (olen >= 3)) {
-    while(len-- && (olen >= 3)) {
+  ប្រសិនបើ(src && len && (olen >= 3)) {
+    ខណៈពេល(len-- && (olen >= 3)) {
       out[0] = Curl_ldigits[*src >> 4];
       out[1] = Curl_ldigits[*src & 0x0F];
       ++src;
@@ -361,7 +361,7 @@ void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
     }
     *out = 0;
   }
-  else if(olen)
+  បើមិនដូច្នេះ ប្រសិនបើ(olen)
     *out = 0;
 }
 
@@ -369,8 +369,8 @@ void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
  *
  * Output a single unsigned char as a two-digit UPPERCASE hex number.
  */
-void Curl_hexbyte(unsigned char *dest, /* must fit two bytes */
-                  unsigned char val)
+void Curl_hexbyte(unsigned var_na *dest, /* must fit two bytes */
+                  unsigned var_na val)
 {
   dest[0] = Curl_udigits[val >> 4];
   dest[1] = Curl_udigits[val & 0x0F];

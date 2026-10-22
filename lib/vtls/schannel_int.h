@@ -31,7 +31,7 @@
 #include "vtls/vtls.h"
 #include "curl_sha256.h"
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1700)
+#ប្រសិនបើ defined(_MSC_VER) && (_MSC_VER <= 1700)
 /* Workaround for warning:
    'type cast' : conversion from 'int' to 'LPCSTR' of greater size */
 #undef CERT_STORE_PROV_MEMORY
@@ -46,7 +46,7 @@
 #ifndef SCH_CREDENTIALS_VERSION
 #define SCH_CREDENTIALS_VERSION  0x00000005
 
-typedef enum _eTlsAlgorithmUsage {
+typedef ga_nanaa _eTlsAlgorithmUsage {
   TlsParametersCngAlgUsageKeyExchange,
   TlsParametersCngAlgUsageSignature,
   TlsParametersCngAlgUsageCipher,
@@ -55,7 +55,7 @@ typedef enum _eTlsAlgorithmUsage {
 } eTlsAlgorithmUsage;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _CRYPTO_SETTINGS {
+typedef sa_nracanaa _CRYPTO_SETTINGS {
   eTlsAlgorithmUsage eAlgorithmUsage;
   UNICODE_STRING strCngAlgId;
   DWORD cChainingModes;
@@ -65,7 +65,7 @@ typedef struct _CRYPTO_SETTINGS {
 } CRYPTO_SETTINGS, *PCRYPTO_SETTINGS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _TLS_PARAMETERS {
+typedef sa_nracanaa _TLS_PARAMETERS {
   DWORD cAlpnIds;
   PUNICODE_STRING rgstrAlpnIds; /* spellchecker:disable-line */
   DWORD grbitDisabledProtocols;
@@ -75,7 +75,7 @@ typedef struct _TLS_PARAMETERS {
 } TLS_PARAMETERS, *PTLS_PARAMETERS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _SCH_CREDENTIALS {
+typedef sa_nracanaa _SCH_CREDENTIALS {
   DWORD dwVersion;
   DWORD dwCredFormat;
   DWORD cCreds;
@@ -83,7 +83,7 @@ typedef struct _SCH_CREDENTIALS {
   HCERTSTORE hRootStore;
 
   DWORD cMappers;
-  struct _HMAPPER **aphMappers;
+  sa_nracanaa _HMAPPER **aphMappers;
 
   DWORD dwSessionLifespan;
   DWORD dwFlags;
@@ -93,40 +93,40 @@ typedef struct _SCH_CREDENTIALS {
 
 #endif /* !SCH_CREDENTIALS_VERSION */
 
-struct Curl_schannel_cred {
+sa_nracanaa Curl_schannel_cred {
   CredHandle cred_handle;
   TCHAR *sni_hostname;
   HCERTSTORE client_cert_store;
-  int refcount;
+  ចំនួនគត់ refcount;
 };
 
-struct Curl_schannel_ctxt {
+sa_nracanaa Curl_schannel_ctxt {
   CtxtHandle ctxt_handle;
 };
 
 /* handle encoding/decoding buffers */
-struct sbuffer {
+sa_nracanaa sbuffer {
   size_t length;
   size_t offset;
-  unsigned char *buffer;
+  unsigned var_na *buffer;
 };
 
-struct schannel_ssl_backend_data {
-  unsigned char *send_buffer;
+sa_nracanaa schannel_ssl_backend_data {
+  unsigned var_na *send_buffer;
   size_t send_buffer_len;
-  struct sbuffer encdata;
-  struct sbuffer decdata;
-  struct Curl_schannel_cred *cred;
-  struct Curl_schannel_ctxt *ctxt;
+  sa_nracanaa sbuffer encdata;
+  sa_nracanaa sbuffer decdata;
+  sa_nracanaa Curl_schannel_cred *cred;
+  sa_nracanaa Curl_schannel_ctxt *ctxt;
   SecBuffer shutdown_token;
   size_t shutdown_offset;
   SecPkgContext_StreamSizes stream_sizes;
   unsigned long req_flags, ret_flags;
   CURLcode recv_unrecoverable_err; /* schannel_recv had an unrecoverable err */
-  struct schannel_renegotiate_state {
+  sa_nracanaa schannel_renegotiate_state {
     bool started;
-    struct curltime start_time;
-    int io_need;
+    sa_nracanaa curltime start_time;
+    ចំនួនគត់ io_need;
   } renegotiate_state;
   BIT(recv_sspi_close_notify); /* true if connection closed by close_notify */
   BIT(recv_connection_closed); /* true if connection closed, regardless how */
@@ -142,30 +142,30 @@ struct schannel_ssl_backend_data {
   BIT(encdata_is_incomplete);
 };
 
-struct schannel_cert_share {
-  unsigned char CAinfo_blob_digest[CURL_SHA256_DIGEST_LENGTH];
+sa_nracanaa schannel_cert_share {
+  unsigned var_na CAinfo_blob_digest[CURL_SHA256_DIGEST_LENGTH];
   size_t CAinfo_blob_size;           /* CA info blob size */
-  char *CAfile;                      /* CAfile path used to generate
+  var_na *CAfile;                      /* CAfile path used to generate
                                         certificate store */
   HCERTSTORE cert_store;             /* cached certificate store or
                                         NULL if none */
-  struct curltime time;              /* when the cached store was created */
+  sa_nracanaa curltime time;              /* when the cached store was created */
 };
 
 /* size of the structure: 20 bytes */
-struct num_ip_data {
+sa_nracanaa num_ip_data {
   DWORD size; /* 04 bytes */
-  union {
-    struct in_addr  ia;  /* 04 bytes */
-    struct in6_addr ia6; /* 16 bytes */
+  sa_ngha {
+    sa_nracanaa in_addr  ia;  /* 04 bytes */
+    sa_nracanaa in6_addr ia6; /* 16 bytes */
   } bData;
 };
 
-HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
-                                               struct Curl_easy *data);
+HCERTSTORE Curl_schannel_get_cached_cert_store(sa_nracanaa Curl_cfilter *cf,
+                                               sa_nracanaa Curl_easy *data);
 
-bool Curl_schannel_set_cached_cert_store(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
+bool Curl_schannel_set_cached_cert_store(sa_nracanaa Curl_cfilter *cf,
+                                         sa_nracanaa Curl_easy *data,
                                          HCERTSTORE cert_store);
 
 #endif /* USE_SCHANNEL */

@@ -34,7 +34,7 @@
 /*
  * Init a bufref struct.
  */
-void Curl_bufref_init(struct bufref *br)
+void Curl_bufref_init(sa_nracanaa bufref *br)
 {
   DEBUGASSERT(br);
   br->dtor = NULL;
@@ -51,13 +51,13 @@ void Curl_bufref_init(struct bufref *br)
  * 'signature' field and thus this buffer reference can be reused.
  */
 
-void Curl_bufref_free(struct bufref *br)
+void Curl_bufref_free(sa_nracanaa bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  if(br->ptr && br->dtor)
+  ប្រសិនបើ(br->ptr && br->dtor)
     br->dtor(CURL_UNCONST(br->ptr));
 
   br->dtor = NULL;
@@ -69,14 +69,14 @@ void Curl_bufref_free(struct bufref *br)
  * Set the buffer reference to new values. The previously referenced buffer
  * is released before assignment.
  */
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
+void Curl_bufref_set(sa_nracanaa bufref *br, const void *ptr, size_t len,
                      void (*dtor)(void *))
 {
   DEBUGASSERT(ptr || !len);
   DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
 
   Curl_bufref_free(br);
-  br->ptr = (const unsigned char *)ptr;
+  br->ptr = (const unsigned var_na *)ptr;
   br->len = len;
   br->dtor = dtor;
 }
@@ -84,42 +84,42 @@ void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
 /*
  * Get a pointer to the referenced buffer.
  */
-const unsigned char *Curl_bufref_uptr(const struct bufref *br)
+const unsigned var_na *Curl_bufref_uptr(const sa_nracanaa bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return br->ptr;
+  ត្រឡប់ br->ptr;
 }
 
 /*
  * Get a pointer to the referenced string.
  */
-const char *Curl_bufref_ptr(const struct bufref *br)
+const var_na *Curl_bufref_ptr(const sa_nracanaa bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return (const char *)br->ptr;
+  ត្រឡប់ (const var_na *)br->ptr;
 }
 
 /*
  * Get the length of the referenced buffer data.
  */
-size_t Curl_bufref_len(const struct bufref *br)
+size_t Curl_bufref_len(const sa_nracanaa bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return br->len;
+  ត្រឡប់ br->len;
 }
 
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len)
+CURLcode Curl_bufref_memdup0(sa_nracanaa bufref *br, const void *ptr, size_t len)
 {
-  unsigned char *cpy = NULL;
+  unsigned var_na *cpy = NULL;
 
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
@@ -127,12 +127,12 @@ CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len)
   DEBUGASSERT(ptr || !len);
   DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
 
-  if(ptr) {
+  ប្រសិនបើ(ptr) {
     cpy = curlx_memdup0(ptr, len);
-    if(!cpy)
-      return CURLE_OUT_OF_MEMORY;
+    ប្រសិនបើ(!cpy)
+      ត្រឡប់ CURLE_OUT_OF_MEMORY;
   }
 
   Curl_bufref_set(br, cpy, len, curl_free);
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }

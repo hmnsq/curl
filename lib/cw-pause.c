@@ -36,185 +36,185 @@
 /* when content decoding, write data in chunks */
 #define CW_PAUSE_DEC_WRITE_CHUNK   4096
 
-struct cw_pause_buf {
-  struct cw_pause_buf *next;
-  struct bufq b;
-  int type;
+sa_nracanaa cw_pause_buf {
+  sa_nracanaa cw_pause_buf *next;
+  sa_nracanaa bufq b;
+  ចំនួនគត់ type;
 };
 
-static struct cw_pause_buf *cw_pause_buf_create(int type, size_t buflen)
+static sa_nracanaa cw_pause_buf *cw_pause_buf_create(ចំនួនគត់ type, size_t buflen)
 {
-  struct cw_pause_buf *cwbuf = curlx_calloc(1, sizeof(*cwbuf));
-  if(cwbuf) {
+  sa_nracanaa cw_pause_buf *cwbuf = curlx_calloc(1, parimaa_na(*cwbuf));
+  ប្រសិនបើ(cwbuf) {
     cwbuf->type = type;
-    if(type & CLIENTWRITE_BODY)
+    ប្រសិនបើ(type & CLIENTWRITE_BODY)
       Curl_bufq_init2(&cwbuf->b, CW_PAUSE_BUF_CHUNK, 1,
                       (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
-    else
+    បើមិនដូច្នេះ
       Curl_bufq_init(&cwbuf->b, buflen, 1);
   }
-  return cwbuf;
+  ត្រឡប់ cwbuf;
 }
 
-static void cw_pause_buf_free(struct cw_pause_buf *cwbuf)
+static void cw_pause_buf_free(sa_nracanaa cw_pause_buf *cwbuf)
 {
-  if(cwbuf) {
+  ប្រសិនបើ(cwbuf) {
     Curl_bufq_free(&cwbuf->b);
     curlx_free(cwbuf);
   }
 }
 
-struct cw_pause_ctx {
-  struct Curl_cwriter super;
-  struct cw_pause_buf *buf;
-  struct cw_pause_buf *tail;
+sa_nracanaa cw_pause_ctx {
+  sa_nracanaa Curl_cwriter super;
+  sa_nracanaa cw_pause_buf *buf;
+  sa_nracanaa cw_pause_buf *tail;
   size_t buf_total;
 };
 
-static CURLcode cw_pause_init(struct Curl_easy *data,
-                              struct Curl_cwriter *writer)
+static CURLcode cw_pause_init(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa Curl_cwriter *writer)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
+  sa_nracanaa cw_pause_ctx *ctx = writer->ctx;
   (void)data;
   ctx->buf = NULL;
   ctx->tail = NULL;
-  return CURLE_OK;
+  ត្រឡប់ CURLE_OK;
 }
 
-static void cw_pause_bufs_free(struct cw_pause_ctx *ctx)
+static void cw_pause_bufs_free(sa_nracanaa cw_pause_ctx *ctx)
 {
-  while(ctx->buf) {
-    struct cw_pause_buf *next = ctx->buf->next;
+  ខណៈពេល(ctx->buf) {
+    sa_nracanaa cw_pause_buf *next = ctx->buf->next;
     cw_pause_buf_free(ctx->buf);
     ctx->buf = next;
   }
   ctx->tail = NULL;
 }
 
-static void cw_pause_close(struct Curl_easy *data, struct Curl_cwriter *writer)
+static void cw_pause_close(sa_nracanaa Curl_easy *data, sa_nracanaa Curl_cwriter *writer)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
+  sa_nracanaa cw_pause_ctx *ctx = writer->ctx;
 
   (void)data;
   cw_pause_bufs_free(ctx);
 }
 
-static CURLcode cw_pause_flush(struct Curl_easy *data,
-                               struct Curl_cwriter *cw_pause)
+static CURLcode cw_pause_flush(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa Curl_cwriter *cw_pause)
 {
-  struct cw_pause_ctx *ctx = (struct cw_pause_ctx *)cw_pause;
+  sa_nracanaa cw_pause_ctx *ctx = (sa_nracanaa cw_pause_ctx *)cw_pause;
   CURLcode result = CURLE_OK;
 
   /* write the front of the chain until it blocks or gets empty */
-  while(ctx->buf && !Curl_cwriter_is_paused(data)) {
-    struct cw_pause_buf *first = ctx->buf;
+  ខណៈពេល(ctx->buf && !Curl_cwriter_is_paused(data)) {
+    sa_nracanaa cw_pause_buf *first = ctx->buf;
     size_t blen, wlen = 0;
-    const unsigned char *buf = NULL;
+    const unsigned var_na *buf = NULL;
 
-    if(Curl_bufq_peek(&first->b, &buf, &blen)) {
-      int wtype = first->type;
+    ប្រសិនបើ(Curl_bufq_peek(&first->b, &buf, &blen)) {
+      ចំនួនគត់ wtype = first->type;
       wlen = (first->type & CLIENTWRITE_BODY) ?
              CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
       /* EOS only goes with the very last piece, same as in cw_pause_write */
-      if((wlen < Curl_bufq_len(&first->b)) || first->next)
+      ប្រសិនបើ((wlen < Curl_bufq_len(&first->b)) || first->next)
         wtype &= ~CLIENTWRITE_EOS;
       result = Curl_cwriter_write(data, cw_pause->next, wtype,
-                                  (const char *)buf, wlen);
+                                  (const var_na *)buf, wlen);
       CURL_TRC_WRITE(data, "[PAUSE] flushed %zu/%zu bytes, type=%x -> %d",
-                     wlen, ctx->buf_total, (unsigned int)wtype,
-                     (int)result);
+                     wlen, ctx->buf_total, (unsigned ចំនួនគត់)wtype,
+                     (ចំនួនគត់)result);
       Curl_bufq_skip(&first->b, wlen);
       DEBUGASSERT(ctx->buf_total >= wlen);
       ctx->buf_total -= wlen;
-      if(result)
-        return result;
+      ប្រសិនបើ(result)
+        ត្រឡប់ result;
     }
-    else if(first->type & CLIENTWRITE_EOS) {
+    បើមិនដូច្នេះ ប្រសិនបើ(first->type & CLIENTWRITE_EOS) {
       result = Curl_cwriter_write(data, cw_pause->next, first->type,
-                                  (const char *)buf, 0);
+                                  (const var_na *)buf, 0);
       CURL_TRC_WRITE(data, "[PAUSE] flushed 0/%zu bytes, type=%x -> %d",
-                     ctx->buf_total, (unsigned int)first->type,
-                     (int)result);
+                     ctx->buf_total, (unsigned ចំនួនគត់)first->type,
+                     (ចំនួនគត់)result);
     }
 
-    if(Curl_bufq_is_empty(&first->b)) {
+    ប្រសិនបើ(Curl_bufq_is_empty(&first->b)) {
       ctx->buf = first->next;
-      if(!ctx->buf)
+      ប្រសិនបើ(!ctx->buf)
         ctx->tail = NULL;
       cw_pause_buf_free(first);
     }
   }
 
-  if(!result)
+  ប្រសិនបើ(!result)
     result = Curl_cwriter_flush(data, cw_pause->next);
-  return result;
+  ត្រឡប់ result;
 }
 
-static CURLcode cw_pause_write(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
-                               const char *buf, size_t blen)
+static CURLcode cw_pause_write(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa Curl_cwriter *writer, ចំនួនគត់ type,
+                               const var_na *buf, size_t blen)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
+  sa_nracanaa cw_pause_ctx *ctx = writer->ctx;
   CURLcode result = CURLE_OK;
   size_t wlen = 0;
 
-  if(ctx->buf && !Curl_cwriter_is_paused(data)) {
+  ប្រសិនបើ(ctx->buf && !Curl_cwriter_is_paused(data)) {
     result = cw_pause_flush(data, writer);
-    if(result)
-      return result;
+    ប្រសិនបើ(result)
+      ត្រឡប់ result;
   }
 
-  while(!ctx->buf && !Curl_cwriter_is_paused(data)) {
-    int wtype = type;
+  ខណៈពេល(!ctx->buf && !Curl_cwriter_is_paused(data)) {
+    ចំនួនគត់ wtype = type;
     DEBUGASSERT(!ctx->buf);
     /* content decoding might blow up size considerably, write smaller
      * chunks to make pausing need buffer less. */
     wlen = (type & CLIENTWRITE_BODY) ?
            CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
-    if(wlen < blen)
+    ប្រសិនបើ(wlen < blen)
       wtype &= ~CLIENTWRITE_EOS;
     result = Curl_cwriter_write(data, writer->next, wtype, buf, wlen);
-    if(result)
-      return result;
+    ប្រសិនបើ(result)
+      ត្រឡប់ result;
     buf += wlen;
     blen -= wlen;
-    if(!blen)
-      return result;
+    ប្រសិនបើ(!blen)
+      ត្រឡប់ result;
   }
 
   do {
     size_t nwritten = 0;
-    if(ctx->tail && (ctx->tail->type == type) && (type & CLIENTWRITE_BODY)) {
+    ប្រសិនបើ(ctx->tail && (ctx->tail->type == type) && (type & CLIENTWRITE_BODY)) {
       /* same type and body, append to tail buffer which has a soft
        * limit and should take everything up to OOM. */
       result = Curl_bufq_cwrite(&ctx->tail->b, buf, blen, &nwritten);
     }
-    else {
+    បើមិនដូច្នេះ {
       /* Need a new buf, type changed */
-      struct cw_pause_buf *cwbuf = cw_pause_buf_create(type, blen);
-      if(!cwbuf)
-        return CURLE_OUT_OF_MEMORY;
-      if(ctx->tail)
+      sa_nracanaa cw_pause_buf *cwbuf = cw_pause_buf_create(type, blen);
+      ប្រសិនបើ(!cwbuf)
+        ត្រឡប់ CURLE_OUT_OF_MEMORY;
+      ប្រសិនបើ(ctx->tail)
         ctx->tail->next = cwbuf;
-      else
+      បើមិនដូច្នេះ
         ctx->buf = cwbuf;
       ctx->tail = cwbuf;
       result = Curl_bufq_cwrite(&ctx->tail->b, buf, blen, &nwritten);
     }
     CURL_TRC_WRITE(data, "[PAUSE] buffer %zu more bytes of type %x, "
-                   "total=%zu -> %d", nwritten, (unsigned int)type,
-                   ctx->buf_total + wlen, (int)result);
-    if(result)
-      return result;
+                   "total=%zu -> %d", nwritten, (unsigned ចំនួនគត់)type,
+                   ctx->buf_total + wlen, (ចំនួនគត់)result);
+    ប្រសិនបើ(result)
+      ត្រឡប់ result;
     buf += nwritten;
     blen -= nwritten;
     ctx->buf_total += nwritten;
-  } while(blen);
+  } ខណៈពេល(blen);
 
-  return result;
+  ត្រឡប់ result;
 }
 
-const struct Curl_cwtype Curl_cwt_pause = {
+const sa_nracanaa Curl_cwtype Curl_cwt_pause = {
   "cw-pause",
   NULL,
   0,
@@ -222,5 +222,5 @@ const struct Curl_cwtype Curl_cwt_pause = {
   cw_pause_write,
   cw_pause_flush,
   cw_pause_close,
-  sizeof(struct cw_pause_ctx)
+  parimaa_na(sa_nracanaa cw_pause_ctx)
 };
