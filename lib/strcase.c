@@ -26,7 +26,7 @@
 #include "strcase.h"
 
 /* Mapping table to go from lowercase to uppercase for plain ASCII.*/
-const unsigned char Curl_touppermap[256] = {
+const unsigned var_na Curl_touppermap[256] = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -48,7 +48,7 @@ const unsigned char Curl_touppermap[256] = {
 };
 
 /* Mapping table to go from uppercase to lowercase for plain ASCII.*/
-const unsigned char Curl_tolowermap[256] = {
+const unsigned var_na Curl_tolowermap[256] = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -74,14 +74,14 @@ const unsigned char Curl_tolowermap[256] = {
  * (including any NUL) and the destination string will NOT be
  * null-terminated if that limit is reached.
  */
-void Curl_strntoupper(char *dest, const char *src, size_t n)
+void Curl_strntoupper(var_na *dest, const var_na *src, size_t n)
 {
-  if(n < 1)
-    return;
+  གལ་ཏེ(n < 1)
+    ཕྱིར;
 
   do {
     *dest++ = Curl_raw_toupper(*src);
-  } while(*src++ && --n);
+  } སྐབས(*src++ && --n);
 }
 
 /* Copy a lower case version of the string from src to dest. The
@@ -89,44 +89,44 @@ void Curl_strntoupper(char *dest, const char *src, size_t n)
  * (including any NUL) and the destination string will NOT be
  * null-terminated if that limit is reached.
  */
-void Curl_strntolower(char *dest, const char *src, size_t n)
+void Curl_strntolower(var_na *dest, const var_na *src, size_t n)
 {
-  if(n < 1)
-    return;
+  གལ་ཏེ(n < 1)
+    ཕྱིར;
 
   do {
     *dest++ = Curl_raw_tolower(*src);
-  } while(*src++ && --n);
+  } སྐབས(*src++ && --n);
 }
 
 /* Compare case-sensitive null-terminated strings, taking care of possible
  * null pointers. Return true if arguments match.
  */
-bool Curl_safecmp(const char *a, const char *b)
+bool Curl_safecmp(const var_na *a, const var_na *b)
 {
-  if(a && b)
-    return !strcmp(a, b);
-  return !a && !b;
+  གལ་ཏེ(a && b)
+    ཕྱིར !strcmp(a, b);
+  ཕྱིར !a && !b;
 }
 
 /*
  * Curl_timestrcmp() returns 0 if the two strings are identical. The time this
  * function spends is a function of the shortest string, not of the contents.
  */
-int Curl_timestrcmp(const char *a, const char *b)
+ཧྲིལ Curl_timestrcmp(const var_na *a, const var_na *b)
 {
-  int match = 0;
-  int i = 0;
+  ཧྲིལ match = 0;
+  ཧྲིལ i = 0;
 
-  if(a && b) {
-    while(1) {
+  གལ་ཏེ(a && b) {
+    སྐབས(1) {
       match |= a[i] ^ b[i];
-      if(!a[i] || !b[i])
-        break;
+      གལ་ཏེ(!a[i] || !b[i])
+        bha_nga;
       i++;
     }
   }
-  else
-    return a || b;
-  return match;
+  དེ་མིན
+    ཕྱིར a || b;
+  ཕྱིར match;
 }

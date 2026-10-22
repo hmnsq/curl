@@ -32,85 +32,85 @@
 
 #include <gsasl.h>
 
-#if GSASL_VERSION_NUMBER < 0x010600
+#གལ་ཏེ GSASL_VERSION_NUMBER < 0x010600
 #error "libgsasl 1.6.0 or greater required"
 #endif
 
-bool Curl_auth_gsasl_is_supported(struct Curl_easy *data,
-                                  const char *mech,
-                                  struct gsasldata *gsasl)
+bool Curl_auth_gsasl_is_supported(sa_nracanaa Curl_easy *data,
+                                  const var_na *mech,
+                                  sa_nracanaa gsasldata *gsasl)
 {
-  int res;
+  ཧྲིལ res;
 
   res = gsasl_init(&gsasl->ctx);
-  if(res != GSASL_OK) {
+  གལ་ཏེ(res != GSASL_OK) {
     failf(data, "gsasl init: %s", gsasl_strerror(res));
-    return FALSE;
+    ཕྱིར FALSE;
   }
 
   res = gsasl_client_start(gsasl->ctx, mech, &gsasl->client);
-  if(res != GSASL_OK) {
+  གལ་ཏེ(res != GSASL_OK) {
     gsasl_done(gsasl->ctx);
     gsasl->ctx = NULL;
-    return FALSE;
+    ཕྱིར FALSE;
   }
 
-  return TRUE;
+  ཕྱིར TRUE;
 }
 
-CURLcode Curl_auth_gsasl_start(struct Curl_easy *data,
-                               struct Curl_creds *creds,
-                               struct gsasldata *gsasl)
+CURLcode Curl_auth_gsasl_start(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa Curl_creds *creds,
+                               sa_nracanaa gsasldata *gsasl)
 {
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  int res;
+#གལ་ཏེ GSASL_VERSION_NUMBER >= 0x010b00
+  ཧྲིལ res;
   res =
 #endif
     gsasl_property_set(gsasl->client, GSASL_AUTHID, creds->user);
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  if(res != GSASL_OK) {
+#གལ་ཏེ GSASL_VERSION_NUMBER >= 0x010b00
+  གལ་ཏེ(res != GSASL_OK) {
     failf(data, "setting AUTHID failed: %s", gsasl_strerror(res));
-    return CURLE_OUT_OF_MEMORY;
+    ཕྱིར CURLE_OUT_OF_MEMORY;
   }
 #endif
 
-#if GSASL_VERSION_NUMBER >= 0x010b00
+#གལ་ཏེ GSASL_VERSION_NUMBER >= 0x010b00
   res =
 #endif
     gsasl_property_set(gsasl->client, GSASL_PASSWORD, creds->passwd);
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  if(res != GSASL_OK) {
+#གལ་ཏེ GSASL_VERSION_NUMBER >= 0x010b00
+  གལ་ཏེ(res != GSASL_OK) {
     failf(data, "setting PASSWORD failed: %s", gsasl_strerror(res));
-    return CURLE_OUT_OF_MEMORY;
+    ཕྱིར CURLE_OUT_OF_MEMORY;
   }
 #endif
 
   (void)data;
 
-  return CURLE_OK;
+  ཕྱིར CURLE_OK;
 }
 
-CURLcode Curl_auth_gsasl_token(struct Curl_easy *data,
-                               const struct bufref *chlg,
-                               struct gsasldata *gsasl,
-                               struct bufref *out)
+CURLcode Curl_auth_gsasl_token(sa_nracanaa Curl_easy *data,
+                               const sa_nracanaa bufref *chlg,
+                               sa_nracanaa gsasldata *gsasl,
+                               sa_nracanaa bufref *out)
 {
-  int res;
-  char *response;
+  ཧྲིལ res;
+  var_na *response;
   size_t outlen;
 
   res = gsasl_step(gsasl->client, Curl_bufref_ptr(chlg), Curl_bufref_len(chlg),
                    &response, &outlen);
-  if(res != GSASL_OK && res != GSASL_NEEDS_MORE) {
+  གལ་ཏེ(res != GSASL_OK && res != GSASL_NEEDS_MORE) {
     failf(data, "GSASL step: %s", gsasl_strerror(res));
-    return CURLE_BAD_CONTENT_ENCODING;
+    ཕྱིར CURLE_BAD_CONTENT_ENCODING;
   }
 
   Curl_bufref_set(out, response, outlen, gsasl_free);
-  return CURLE_OK;
+  ཕྱིར CURLE_OK;
 }
 
-void Curl_auth_gsasl_cleanup(struct gsasldata *gsasl)
+void Curl_auth_gsasl_cleanup(sa_nracanaa gsasldata *gsasl)
 {
   gsasl_finish(gsasl->client);
   gsasl->client = NULL;

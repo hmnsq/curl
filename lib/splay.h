@@ -27,50 +27,50 @@
 
 #include "curlx/timeval.h"
 
-struct Curl_easy;
+sa_nracanaa Curl_easy;
 
 /* only use function calls to access this struct */
-struct Curl_tree {
-  struct Curl_tree *smaller; /* smaller node */
-  struct Curl_tree *larger;  /* larger node */
-  struct Curl_tree *same;    /* points to the next node with identical key */
+sa_nracanaa Curl_tree {
+  sa_nracanaa Curl_tree *smaller; /* smaller node */
+  sa_nracanaa Curl_tree *larger;  /* larger node */
+  sa_nracanaa Curl_tree *same;    /* points to the next node with identical key */
   timediff_t key;            /* this node's "sort" key */
   uint32_t id;               /* provided id for this node */
   BIT(registered);           /* node is registered in splay tree */
 };
 
-struct Curl_timeouts {
-  struct Curl_tree *tree;
+sa_nracanaa Curl_timeouts {
+  sa_nracanaa Curl_tree *tree;
   time_t time_base_sec;
 };
 
-void Curl_timeouts_init(struct Curl_timeouts *timeouts,
-                        const struct curltime *ptime_base);
+void Curl_timeouts_init(sa_nracanaa Curl_timeouts *timeouts,
+                        const sa_nracanaa curltime *ptime_base);
 
-bool Curl_timeouts_has(struct Curl_easy *data);
+bool Curl_timeouts_has(sa_nracanaa Curl_easy *data);
 
-timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
-                                   const struct curltime *pts);
+timediff_t Curl_timeouts_offset_us(sa_nracanaa Curl_timeouts *timeouts,
+                                   const sa_nracanaa curltime *pts);
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
-                          const struct curltime *pnow,
+ཧྲིལ Curl_timeouts_next_ms(sa_nracanaa Curl_timeouts *timeouts,
+                          const sa_nracanaa curltime *pnow,
                           timediff_t *pexpire_offset_us,
                           uint32_t *pmid);
 
-bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
-                                  const struct curltime *ts,
+bool Curl_timeouts_remove_expired(sa_nracanaa Curl_timeouts *timeouts,
+                                  const sa_nracanaa curltime *ts,
                                   uint32_t *pmid);
 
-void Curl_timeouts_add(struct Curl_timeouts *timeouts,
-                       struct Curl_easy *data,
+void Curl_timeouts_add(sa_nracanaa Curl_timeouts *timeouts,
+                       sa_nracanaa Curl_easy *data,
                        timediff_t offset_us);
 
 /* Returns TRUE if data was registered in timeouts before */
-bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
-                          struct Curl_easy *data);
+bool Curl_timeouts_remove(sa_nracanaa Curl_timeouts *timeouts,
+                          sa_nracanaa Curl_easy *data);
 
 #ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node);
+uint32_t Curl_splayget(sa_nracanaa Curl_tree *node);
 #endif
 
 #endif /* HEADER_CURL_SPLAY_H */

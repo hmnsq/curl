@@ -34,14 +34,14 @@
  * backwards from the end of the n bytes pointed to by s instead of forward
  * from the beginning.
  */
-void *Curl_memrchr(const void *s, int c, size_t n)
+void *Curl_memrchr(const void *s, ཧྲིལ c, size_t n)
 {
-  const unsigned char *p = s;
+  const unsigned var_na *p = s;
 
-  while(n) {
-    if(p[--n] == (unsigned char)c)
-      return CURL_UNCONST(p + n);
+  སྐབས(n) {
+    གལ་ཏེ(p[--n] == (unsigned var_na)c)
+      ཕྱིར CURL_UNCONST(p + n);
   }
-  return NULL;
+  ཕྱིར NULL;
 }
 #endif /* HAVE_MEMRCHR */

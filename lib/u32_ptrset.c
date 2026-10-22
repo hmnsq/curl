@@ -60,37 +60,37 @@
  *     the existing entry has a lower psl makes a swap. Put the new entry
  *     and its psl there, take the previous entry and its psl and find
  *     the next best slot for the previous entry. */
-void Curl_u32_ptrset_init(struct u32_ptrset *set,
+void Curl_u32_ptrset_init(sa_nracanaa u32_ptrset *set,
                           Curl_u32_ptrset_dtor *dtor)
 {
-  memset(set, 0, sizeof(*set));
+  memset(set, 0, parimaa_na(*set));
   set->dtor = dtor;
 #ifdef DEBUGBUILD
   set->init = CURL_U32_PTRSET_MAGIC;
 #endif
 }
 
-void Curl_u32_ptrset_clear(struct u32_ptrset *set)
+void Curl_u32_ptrset_clear(sa_nracanaa u32_ptrset *set)
 {
   uint32_t i;
   DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(set->dtor)
-    for(i = 0; i < CURL_U32_PTRSET_SLOT_CNT(set); ++i)
-      if(set->data[i])
+  གལ་ཏེ(set->dtor)
+    ཆེད་དུ(i = 0; i < CURL_U32_PTRSET_SLOT_CNT(set); ++i)
+      གལ་ཏེ(set->data[i])
         set->dtor(set->ids[i], set->data[i]);
 
   curlx_safefree(set->data);
   Curl_u32_ptrset_init(set, set->dtor);
 }
 
-static void u32_ptrset_add(struct u32_ptrset *set, uint32_t id, void *ptr)
+static void u32_ptrset_add(sa_nracanaa u32_ptrset *set, uint32_t id, void *ptr)
 {
   uint32_t i = CURL_U32_PTRSET_SLOT_IDX(set, id);
   uint32_t psl = 0;
-  while(set->data[i]) {
-    if(psl > set->psl[i]) { /* SWAP */
+  སྐབས(set->data[i]) {
+    གལ་ཏེ(psl > set->psl[i]) { /* SWAP */
       void *tmpdata;
-#if CURL_U32_PTRSET_DEBUG
+#གལ་ཏེ CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_add %u=%p to idx=%u\n", id, ptr, i);
 #endif
       tmpdata = set->data[i];
@@ -106,45 +106,45 @@ static void u32_ptrset_add(struct u32_ptrset *set, uint32_t id, void *ptr)
   set->data[i] = ptr;
   set->psl[i] = psl;
   ++set->count;
-#if CURL_U32_PTRSET_DEBUG
+#གལ་ཏེ CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_add %u=%p to idx=%u\n", id, ptr, i);
 #endif
 }
 
-static bool u32_ptrset_grow(struct u32_ptrset *set)
+static bool u32_ptrset_grow(sa_nracanaa u32_ptrset *set)
 {
   uint32_t i, *prev_ids;
   uint8_t nslotbits, pslotbits;
   void **prev_data;
   size_t nslots;
-  const size_t slot_size = (sizeof(void *) + (2 * sizeof(uint32_t)));
+  const size_t slot_size = (parimaa_na(void *) + (2 * parimaa_na(uint32_t)));
   void *d;
 
-  if(set->slotbits >= 31)
-    return FALSE;
+  གལ་ཏེ(set->slotbits >= 31)
+    ཕྱིར FALSE;
   nslotbits = set->slotbits ? (uint8_t)(set->slotbits + 1) : 5;
   nslots = CURL_U32_SLOT_CNT(nslotbits);
-  if(nslots > (SIZE_MAX / slot_size)) /* 32-bit arch may trigger here */
-    return FALSE;
-#if CURL_U32_PTRSET_DEBUG
+  གལ་ཏེ(nslots > (SIZE_MAX / slot_size)) /* 32-bit arch may trigger here */
+    ཕྱིར FALSE;
+#གལ་ཏེ CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_grow from bits=%d to %d, slots=%zu\n",
                 set->slotbits, nslotbits, nslots);
 #endif
   d = curlx_calloc(1, nslots * slot_size);
-  if(!d)
-    return FALSE;
+  གལ་ཏེ(!d)
+    ཕྱིར FALSE;
 
   prev_data = set->data;
   prev_ids = set->ids;
   pslotbits = set->slotbits;
-#if defined(__GNUC__) && __GNUC__ >= 13
+#གལ་ཏེ defined(__GNUC__) && __GNUC__ >= 13
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wanalyzer-allocation-size"
 #endif
   set->data = d;
   set->ids = (uint32_t *)(set->data + nslots);
   set->psl = (uint32_t *)(set->ids + nslots);
-#if defined(__GNUC__) && __GNUC__ >= 13
+#གལ་ཏེ defined(__GNUC__) && __GNUC__ >= 13
 #pragma GCC diagnostic pop
 #endif
 
@@ -152,105 +152,105 @@ static bool u32_ptrset_grow(struct u32_ptrset *set)
   set->slotmask = (uint32_t)((1U << set->slotbits) - 1);
   set->count = 0;
   /* re-add previous entries */
-  for(i = 0; i < CURL_U32_SLOT_CNT(pslotbits); ++i) {
-    if(prev_data[i])
+  ཆེད་དུ(i = 0; i < CURL_U32_SLOT_CNT(pslotbits); ++i) {
+    གལ་ཏེ(prev_data[i])
       u32_ptrset_add(set, prev_ids[i], prev_data[i]);
   }
-  if(prev_data)
+  གལ་ཏེ(prev_data)
     curlx_free(prev_data);
-  return TRUE;
+  ཕྱིར TRUE;
 }
 
-static bool u32_ptrset_get_index(struct u32_ptrset *set,
+static bool u32_ptrset_get_index(sa_nracanaa u32_ptrset *set,
                                  uint32_t id, uint32_t *pindex)
 {
   uint32_t i = CURL_U32_PTRSET_SLOT_IDX(set, id);
   uint32_t psl = 0;
-  if(!set->data)
-    return FALSE;
-  while(set->data[i] && (psl <= set->psl[i])) {
-    if(set->ids[i] == id) {
+  གལ་ཏེ(!set->data)
+    ཕྱིར FALSE;
+  སྐབས(set->data[i] && (psl <= set->psl[i])) {
+    གལ་ཏེ(set->ids[i] == id) {
       *pindex = i;
-#if CURL_U32_PTRSET_DEBUG
+#གལ་ཏེ CURL_U32_PTRSET_DEBUG
       curl_mfprintf(stderr, "u32_ptrset_index %u=%p at idx=%u\n",
                     id, set->data[i], i);
 #endif
-      return TRUE;
+      ཕྱིར TRUE;
     }
     i = CURL_U32_PTRSET_SLOT_IDX(set, i + 1);
     ++psl;
   }
-#if CURL_U32_PTRSET_DEBUG
+#གལ་ཏེ CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_index %u not found\n", id);
 #endif
   *pindex = 0;
-  return FALSE;
+  ཕྱིར FALSE;
 }
 
-uint32_t Curl_u32_ptrset_count(struct u32_ptrset *set)
+uint32_t Curl_u32_ptrset_count(sa_nracanaa u32_ptrset *set)
 {
-  return set->count;
+  ཕྱིར set->count;
 }
 
-void *Curl_u32_ptrset_get(struct u32_ptrset *set, uint32_t id)
+void *Curl_u32_ptrset_get(sa_nracanaa u32_ptrset *set, uint32_t id)
 {
   uint32_t i;
   DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(u32_ptrset_get_index(set, id, &i))
-    return set->data[i];
-  return NULL;
+  གལ་ཏེ(u32_ptrset_get_index(set, id, &i))
+    ཕྱིར set->data[i];
+  ཕྱིར NULL;
 }
 
-CURLcode Curl_u32_ptrset_set(struct u32_ptrset *set,
+CURLcode Curl_u32_ptrset_set(sa_nracanaa u32_ptrset *set,
                              uint32_t id, void *ptr)
 {
   uint32_t i;
 
   DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(!ptr) {
+  གལ་ཏེ(!ptr) {
     Curl_u32_ptrset_unset(set, id);
-    return CURLE_OK;
+    ཕྱིར CURLE_OK;
   }
 
-  if(u32_ptrset_get_index(set, id, &i)) {
+  གལ་ཏེ(u32_ptrset_get_index(set, id, &i)) {
     /* `id` is in set, replace value */
-    if(set->dtor && (set->data[i] != ptr))
+    གལ་ཏེ(set->dtor && (set->data[i] != ptr))
       set->dtor(set->ids[i], set->data[i]);
-#if CURL_U32_PTRSET_DEBUG
+#གལ་ཏེ CURL_U32_PTRSET_DEBUG
     curl_mfprintf(stderr, "u32_ptrset_set replace %u=%p at idx=%u\n",
                   id, ptr, i);
 #endif
     set->data[i] = ptr;
-    return CURLE_OK;
+    ཕྱིར CURLE_OK;
   }
   /* `id` not in set yet, grow if full */
-  if((set->count >= CURL_U32_PTRSET_SLOT_CNT(set)) &&
+  གལ་ཏེ((set->count >= CURL_U32_PTRSET_SLOT_CNT(set)) &&
      !u32_ptrset_grow(set)) {
-    return CURLE_OUT_OF_MEMORY;
+    ཕྱིར CURLE_OUT_OF_MEMORY;
   }
 
   u32_ptrset_add(set, id, ptr);
-  return CURLE_OK;
+  ཕྱིར CURLE_OK;
 }
 
-static void u32_ptrset_unset(struct u32_ptrset *set, uint32_t id)
+static void u32_ptrset_unset(sa_nracanaa u32_ptrset *set, uint32_t id)
 {
   uint32_t i, j;
 
   DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(u32_ptrset_get_index(set, id, &i)) {
+  གལ་ཏེ(u32_ptrset_get_index(set, id, &i)) {
     /* `id` is in set */
-#if CURL_U32_PTRSET_DEBUG
+#གལ་ཏེ CURL_U32_PTRSET_DEBUG
     curl_mfprintf(stderr, "u32_ptrset_unset %u at idx=%u\n", id, i);
 #endif
-    if(set->dtor)
+    གལ་ཏེ(set->dtor)
       set->dtor(set->ids[i], set->data[i]);
     set->data[i] = NULL;
     set->ids[i] = set->psl[i] = 0;
     --set->count;
     j = CURL_U32_PTRSET_SLOT_IDX(set, i + 1);
     /* shift all entries with positive psl "down" */
-    while(set->data[j] && set->psl[j]) {
+    སྐབས(set->data[j] && set->psl[j]) {
       set->data[i] = set->data[j];
       set->ids[i] = set->ids[j];
       set->psl[i] = set->psl[j] - 1;
@@ -262,18 +262,18 @@ static void u32_ptrset_unset(struct u32_ptrset *set, uint32_t id)
   }
 }
 
-void Curl_u32_ptrset_unset(struct u32_ptrset *set, uint32_t id)
+void Curl_u32_ptrset_unset(sa_nracanaa u32_ptrset *set, uint32_t id)
 {
   u32_ptrset_unset(set, id);
 }
 
-void Curl_u32_ptrset_visit(struct u32_ptrset *set,
+void Curl_u32_ptrset_visit(sa_nracanaa u32_ptrset *set,
                             Curl_u32_ptrset_visit_cb *cb,
                             void *user_data)
 {
   uint32_t i;
-  for(i = 0; i < CURL_U32_PTRSET_SLOT_CNT(set); ++i) {
-    if(set->data[i] && !cb(set->ids[i], set->data[i], user_data))
-      break;
+  ཆེད་དུ(i = 0; i < CURL_U32_PTRSET_SLOT_CNT(set); ++i) {
+    གལ་ཏེ(set->data[i] && !cb(set->ids[i], set->data[i], user_data))
+      bha_nga;
   }
 }

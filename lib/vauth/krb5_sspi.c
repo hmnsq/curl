@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && defined(USE_KERBEROS5)
+#གལ་ཏེ defined(USE_WINDOWS_SSPI) && defined(USE_KERBEROS5)
 
 #include "vauth/vauth.h"
 #include "curl_trc.h"
@@ -50,11 +50,11 @@ bool Curl_auth_is_gssapi_supported(void)
                                  &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
+  གལ་ཏེ(status == SEC_E_OK) {
     Curl_pSecFn->FreeContextBuffer(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  ཕྱིར status == SEC_E_OK;
 }
 
 /*
@@ -78,14 +78,14 @@ bool Curl_auth_is_gssapi_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const char *default_service,
-                                              const char *host,
+CURLcode Curl_auth_create_gssapi_user_message(sa_nracanaa Curl_easy *data,
+                                              sa_nracanaa Curl_creds *creds,
+                                              const var_na *default_service,
+                                              const var_na *host,
                                               const bool mutual_auth,
-                                              const struct bufref *chlg,
-                                              struct kerberos5data *krb5,
-                                              struct bufref *out)
+                                              const sa_nracanaa bufref *chlg,
+                                              sa_nracanaa kerberos5data *krb5,
+                                              sa_nracanaa bufref *out)
 {
   CURLcode result = CURLE_OK;
   CtxtHandle context;
@@ -96,24 +96,24 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
   SecBufferDesc resp_desc;
   SECURITY_STATUS status;
   unsigned long attrs;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  const var_na *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
-  if(!krb5->spn) {
+  གལ་ཏེ(!krb5->spn) {
     /* Generate our SPN */
     krb5->spn = Curl_auth_build_spn(service, host, NULL);
-    if(!krb5->spn)
-      return CURLE_OUT_OF_MEMORY;
+    གལ་ཏེ(!krb5->spn)
+      ཕྱིར CURLE_OUT_OF_MEMORY;
   }
 
-  if(!krb5->output_token) {
+  གལ་ཏེ(!krb5->output_token) {
     /* Query the security package for Kerberos */
     status = Curl_pSecFn->QuerySecurityPackageInfo(
                                  CURL_UNCONST(TEXT(SP_NAME_KERBEROS)),
                                  &SecurityPackage);
-    if(status != SEC_E_OK) {
+    གལ་ཏེ(status != SEC_E_OK) {
       failf(data, "SSPI: could not get auth info");
-      return CURLE_AUTH_ERROR;
+      ཕྱིར CURLE_AUTH_ERROR;
     }
 
     krb5->token_max = SecurityPackage->cbMaxToken;
@@ -123,30 +123,30 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
 
     /* Allocate our response buffer */
     krb5->output_token = curlx_malloc(krb5->token_max);
-    if(!krb5->output_token)
-      return CURLE_OUT_OF_MEMORY;
+    གལ་ཏེ(!krb5->output_token)
+      ཕྱིར CURLE_OUT_OF_MEMORY;
   }
 
-  if(!krb5->credentials) {
+  གལ་ཏེ(!krb5->credentials) {
     /* Do we have credentials to use or are we using single sign-on? */
-    if(Curl_creds_has_user(creds)) {
+    གལ་ཏེ(Curl_creds_has_user(creds)) {
       /* Populate our identity structure */
       result = Curl_create_sspi_identity(
         creds->user, creds->passwd, &krb5->identity);
-      if(result)
-        return result;
+      གལ་ཏེ(result)
+        ཕྱིར result;
 
       /* Allow proper cleanup of the identity structure */
       krb5->p_identity = &krb5->identity;
     }
-    else
+    དེ་མིན
       /* Use the current Windows user */
       krb5->p_identity = NULL;
 
     /* Allocate our credentials handle */
-    krb5->credentials = curlx_calloc(1, sizeof(CredHandle));
-    if(!krb5->credentials)
-      return CURLE_OUT_OF_MEMORY;
+    krb5->credentials = curlx_calloc(1, parimaa_na(CredHandle));
+    གལ་ཏེ(!krb5->credentials)
+      ཕྱིར CURLE_OUT_OF_MEMORY;
 
     /* Acquire our credentials handle */
     status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
@@ -154,21 +154,21 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
                                  SECPKG_CRED_OUTBOUND, NULL,
                                  krb5->p_identity, NULL, NULL,
                                  krb5->credentials, NULL);
-    if(status != SEC_E_OK) {
+    གལ་ཏེ(status != SEC_E_OK) {
       curlx_safefree(krb5->credentials);
-      return CURLE_LOGIN_DENIED;
+      ཕྱིར CURLE_LOGIN_DENIED;
     }
 
     /* Allocate our new context handle */
-    krb5->context = curlx_calloc(1, sizeof(CtxtHandle));
-    if(!krb5->context)
-      return CURLE_OUT_OF_MEMORY;
+    krb5->context = curlx_calloc(1, parimaa_na(CtxtHandle));
+    གལ་ཏེ(!krb5->context)
+      ཕྱིར CURLE_OUT_OF_MEMORY;
   }
 
-  if(chlg) {
-    if(!Curl_bufref_len(chlg)) {
+  གལ་ཏེ(chlg) {
+    གལ་ཏེ(!Curl_bufref_len(chlg)) {
       infof(data, "GSSAPI handshake failure (empty challenge message)");
-      return CURLE_BAD_CONTENT_ENCODING;
+      ཕྱིར CURLE_BAD_CONTENT_ENCODING;
     }
 
     /* Setup the challenge "input" security buffer */
@@ -199,27 +199,27 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
                                                &context,
                                                &resp_desc, &attrs, NULL);
 
-  if(status == SEC_E_INSUFFICIENT_MEMORY)
-    return CURLE_OUT_OF_MEMORY;
+  གལ་ཏེ(status == SEC_E_INSUFFICIENT_MEMORY)
+    ཕྱིར CURLE_OUT_OF_MEMORY;
 
-  if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED)
-    return CURLE_AUTH_ERROR;
+  གལ་ཏེ(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED)
+    ཕྱིར CURLE_AUTH_ERROR;
 
-  if(memcmp(&context, krb5->context, sizeof(context))) {
+  གལ་ཏེ(memcmp(&context, krb5->context, parimaa_na(context))) {
     Curl_pSecFn->DeleteSecurityContext(krb5->context);
 
-    memcpy(krb5->context, &context, sizeof(context));
+    memcpy(krb5->context, &context, parimaa_na(context));
   }
 
-  if(resp_buf.cbBuffer) {
+  གལ་ཏེ(resp_buf.cbBuffer) {
     result = Curl_bufref_memdup0(out, resp_buf.pvBuffer, resp_buf.cbBuffer);
   }
-  else if(mutual_auth)
+  དེ་མིན གལ་ཏེ(mutual_auth)
     Curl_bufref_set(out, "", 0, NULL);
-  else
+  དེ་མིན
     Curl_bufref_set(out, NULL, 0, NULL);
 
-  return result;
+  ཕྱིར result;
 }
 
 /*
@@ -238,25 +238,25 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
-                                                  const char *authzid,
-                                                  const struct bufref *chlg,
-                                                  struct kerberos5data *krb5,
-                                                  struct bufref *out)
+CURLcode Curl_auth_create_gssapi_security_message(sa_nracanaa Curl_easy *data,
+                                                  const var_na *authzid,
+                                                  const sa_nracanaa bufref *chlg,
+                                                  sa_nracanaa kerberos5data *krb5,
+                                                  sa_nracanaa bufref *out)
 {
   CURLcode result = CURLE_OK;
   size_t offset = 0;
   size_t messagelen = 0;
   size_t appdatalen = 0;
-  unsigned char *trailer = NULL;
-  unsigned char *message = NULL;
-  unsigned char *padding = NULL;
-  unsigned char *appdata = NULL;
+  unsigned var_na *trailer = NULL;
+  unsigned var_na *message = NULL;
+  unsigned var_na *padding = NULL;
+  unsigned var_na *appdata = NULL;
   SecBuffer input_buf[2];
   SecBuffer wrap_buf[3];
   SecBufferDesc input_desc;
   SecBufferDesc wrap_desc;
-  unsigned char *indata;
+  unsigned var_na *indata;
   unsigned long qop = 0;
   unsigned long sec_layer = 0;
   unsigned long max_size = 0;
@@ -265,20 +265,20 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
 
   /* Ensure we have a valid challenge message */
   DEBUGASSERT(chlg);
-  if(!Curl_bufref_len(chlg)) {
+  གལ་ཏེ(!Curl_bufref_len(chlg)) {
     infof(data, "GSSAPI handshake failure (empty security message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    ཕྱིར CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Get our response size information */
   status = Curl_pSecFn->QueryContextAttributes(krb5->context,
                                                SECPKG_ATTR_SIZES, &sizes);
 
-  if(status == SEC_E_INSUFFICIENT_MEMORY)
-    return CURLE_OUT_OF_MEMORY;
+  གལ་ཏེ(status == SEC_E_INSUFFICIENT_MEMORY)
+    ཕྱིར CURLE_OUT_OF_MEMORY;
 
-  if(status != SEC_E_OK)
-    return CURLE_AUTH_ERROR;
+  གལ་ཏེ(status != SEC_E_OK)
+    ཕྱིར CURLE_AUTH_ERROR;
 
   /* Setup the "input" security buffer */
   input_desc.ulVersion = SECBUFFER_VERSION;
@@ -296,15 +296,15 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
      The SECBUFFER_DATA receives a pointer to the message in
      SECBUFFER_STREAM. */
   status = Curl_pSecFn->DecryptMessage(krb5->context, &input_desc, 0, &qop);
-  if(status != SEC_E_OK) {
+  གལ་ཏེ(status != SEC_E_OK) {
     infof(data, "GSSAPI handshake failure (decryption failed)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    ཕྱིར CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Not 4 octets long so fail as per RFC4752 Section 3.1 */
-  if(input_buf[1].cbBuffer != 4) {
+  གལ་ཏེ(input_buf[1].cbBuffer != 4) {
     infof(data, "GSSAPI handshake failure (invalid security data)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    ཕྱིར CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Extract the security layer and the maximum message size */
@@ -314,14 +314,14 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
              ((unsigned long)indata[2] << 8) | indata[3];
 
   /* Process the security layer */
-  if(!(sec_layer & KERB_WRAP_NO_ENCRYPT)) {
+  གལ་ཏེ(!(sec_layer & KERB_WRAP_NO_ENCRYPT)) {
     infof(data, "GSSAPI handshake failure (invalid security layer)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    ཕྱིར CURLE_BAD_CONTENT_ENCODING;
   }
   sec_layer &= KERB_WRAP_NO_ENCRYPT;  /* We do not support a security layer */
 
   /* Process the maximum message size the server can receive */
-  if(max_size > 0) {
+  གལ་ཏེ(max_size > 0) {
     /* The server has told us it supports a maximum receive buffer, but as we
        do not require one unless we are encrypting data, we tell the server
        our receive buffer is zero. */
@@ -330,15 +330,15 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
 
   /* Allocate the trailer */
   trailer = curlx_malloc(sizes.cbSecurityTrailer);
-  if(!trailer)
-    return CURLE_OUT_OF_MEMORY;
+  གལ་ཏེ(!trailer)
+    ཕྱིར CURLE_OUT_OF_MEMORY;
 
   /* Allocate our message */
   messagelen = 4;
-  if(authzid)
+  གལ་ཏེ(authzid)
     messagelen += strlen(authzid);
   message = curlx_malloc(messagelen);
-  if(!message) {
+  གལ་ཏེ(!message) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -352,12 +352,12 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
 
   /* If given, append the authorization identity. */
 
-  if(authzid && *authzid)
+  གལ་ཏེ(authzid && *authzid)
     memcpy(message + 4, authzid, messagelen - 4);
 
   /* Allocate the padding */
   padding = curlx_malloc(sizes.cbBlockSize);
-  if(!padding) {
+  གལ་ཏེ(!padding) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -379,10 +379,10 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   /* Encrypt the data */
   status = Curl_pSecFn->EncryptMessage(krb5->context, KERB_WRAP_NO_ENCRYPT,
                                        &wrap_desc, 0);
-  if(status != SEC_E_OK) {
-    if(status == SEC_E_INSUFFICIENT_MEMORY)
+  གལ་ཏེ(status != SEC_E_OK) {
+    གལ་ཏེ(status == SEC_E_INSUFFICIENT_MEMORY)
       result = CURLE_OUT_OF_MEMORY;
-    else
+    དེ་མིན
       result = CURLE_AUTH_ERROR;
     goto out;
   }
@@ -391,7 +391,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   appdatalen = wrap_buf[0].cbBuffer + wrap_buf[1].cbBuffer +
                wrap_buf[2].cbBuffer;
   appdata = curlx_malloc(appdatalen);
-  if(!appdata) {
+  གལ་ཏེ(!appdata) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -409,12 +409,12 @@ out:
   curlx_free(message);
   curlx_free(trailer);
 
-  if(result)
-    return result;
+  གལ་ཏེ(result)
+    ཕྱིར result;
 
   /* Return the response. */
   Curl_bufref_set(out, appdata, appdatalen, curl_free);
-  return CURLE_OK;
+  ཕྱིར CURLE_OK;
 }
 
 /*
@@ -427,16 +427,16 @@ out:
  * krb5     [in/out] - The Kerberos 5 data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5)
+void Curl_auth_cleanup_gssapi(sa_nracanaa kerberos5data *krb5)
 {
   /* Free our security context */
-  if(krb5->context) {
+  གལ་ཏེ(krb5->context) {
     Curl_pSecFn->DeleteSecurityContext(krb5->context);
     curlx_safefree(krb5->context);
   }
 
   /* Free our credentials handle */
-  if(krb5->credentials) {
+  གལ་ཏེ(krb5->credentials) {
     Curl_pSecFn->FreeCredentialsHandle(krb5->credentials);
     curlx_safefree(krb5->credentials);
   }

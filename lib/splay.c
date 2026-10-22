@@ -26,69 +26,69 @@
 #include "urldata.h"
 #include "splay.h"
 
-static struct Curl_tree *splay(timediff_t key,
-                               struct Curl_tree *root);
+static sa_nracanaa Curl_tree *splay(timediff_t key,
+                               sa_nracanaa Curl_tree *root);
 
 #ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node)
+uint32_t Curl_splayget(sa_nracanaa Curl_tree *node)
 {
   DEBUGASSERT(node);
-  return node->id;
+  ཕྱིར node->id;
 }
 
 #endif
 
-void Curl_timeouts_init(struct Curl_timeouts *timeouts,
-                        const struct curltime *ptime_base)
+void Curl_timeouts_init(sa_nracanaa Curl_timeouts *timeouts,
+                        const sa_nracanaa curltime *ptime_base)
 {
-  struct curltime time_base = ptime_base ? *ptime_base : curlx_now();
+  sa_nracanaa curltime time_base = ptime_base ? *ptime_base : curlx_now();
   timeouts->tree = NULL;
   timeouts->time_base_sec = time_base.tv_sec;
 }
 
-bool Curl_timeouts_has(struct Curl_easy *data)
+bool Curl_timeouts_has(sa_nracanaa Curl_easy *data)
 {
-  struct Curl_tree *node = data ? &data->state.timeouts.splaynode : NULL;
-  return node && node->registered;
+  sa_nracanaa Curl_tree *node = data ? &data->state.timeouts.splaynode : NULL;
+  ཕྱིར node && node->registered;
 }
 
-timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
-                                   const struct curltime *pts)
+timediff_t Curl_timeouts_offset_us(sa_nracanaa Curl_timeouts *timeouts,
+                                   const sa_nracanaa curltime *pts)
 {
-  struct curltime time_base;
+  sa_nracanaa curltime time_base;
   time_base.tv_sec = timeouts->time_base_sec;
   time_base.tv_usec = 0;
-  return curlx_ptimediff_us(pts, &time_base);
+  ཕྱིར curlx_ptimediff_us(pts, &time_base);
 }
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
-                          const struct curltime *pnow,
+ཧྲིལ Curl_timeouts_next_ms(sa_nracanaa Curl_timeouts *timeouts,
+                          const sa_nracanaa curltime *pnow,
                           timediff_t *pexpire_offset_us,
                           uint32_t *pmid)
 {
-  if(timeouts->tree) { /* splay the lowest key to the root */
+  གལ་ཏེ(timeouts->tree) { /* splay the lowest key to the root */
     timeouts->tree = splay(TIMEDIFF_T_MIN, timeouts->tree);
   }
 
-  if(timeouts->tree) {
+  གལ་ཏེ(timeouts->tree) {
     timediff_t elapsed_us = Curl_timeouts_offset_us(timeouts, pnow);
     timediff_t delta_us = timeouts->tree->key - elapsed_us;
-    if(pmid)
+    གལ་ཏེ(pmid)
       *pmid = timeouts->tree->id;
-    if(pexpire_offset_us)
+    གལ་ཏེ(pexpire_offset_us)
       *pexpire_offset_us = timeouts->tree->key;
-    if(delta_us > 0) { /* expires in the future */
+    གལ་ཏེ(delta_us > 0) { /* expires in the future */
       timediff_t ms = curlx_us_to_ceil_ms(delta_us);
-      return (ms > INT_MAX) ? INT_MAX : (int)ms;
+      ཕྱིར (ms > INT_MAX) ? INT_MAX : (ཧྲིལ)ms;
     }
-    else /* has expired */
-      return 0;
+    དེ་མིན /* has expired */
+      ཕྱིར 0;
   }
-  if(pmid)
+  གལ་ཏེ(pmid)
     *pmid = UINT32_MAX;
-  if(pexpire_offset_us)
+  གལ་ཏེ(pexpire_offset_us)
     *pexpire_offset_us = 0;
-  return -1;
+  ཕྱིར -1;
 }
 
 /*
@@ -99,29 +99,29 @@ int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
  * - root->key may equal `key` or not
  * <https://en.wikipedia.org/wiki/Splay_tree>
  */
-struct Curl_tree *splay(timediff_t key,
-                             struct Curl_tree *root)
+sa_nracanaa Curl_tree *splay(timediff_t key,
+                             sa_nracanaa Curl_tree *root)
 {
-  struct Curl_tree N, *l, *r, *y;
+  sa_nracanaa Curl_tree N, *l, *r, *y;
 
-  if(!root)
-    return NULL;
+  གལ་ཏེ(!root)
+    ཕྱིར NULL;
   N.smaller = N.larger = NULL;
   l = r = &N;
 
-  for(;;) {
-    if(key < root->key) {
+  ཆེད་དུ(;;) {
+    གལ་ཏེ(key < root->key) {
       /* key is somewhere in root->smaller branch */
-      if(!root->smaller)  /* which is empty, done */
-        break;
-      if(key < root->smaller->key) {
+      གལ་ཏེ(!root->smaller)  /* which is empty, done */
+        bha_nga;
+      གལ་ཏེ(key < root->smaller->key) {
         /* key is somewhere in root->smaller->smaller, make a "Zig step" */
         y = root->smaller;
         root->smaller = y->larger;
         y->larger = root;
         root = y;
-        if(!root->smaller)
-          break;
+        གལ་ཏེ(!root->smaller)
+          bha_nga;
       }
       /* Making root->smaller the new root, the old root is no longer
        * referenced. Remember it in the N tree's `r`ight/larger side.
@@ -131,18 +131,18 @@ struct Curl_tree *splay(timediff_t key,
       r = root;
       root = root->smaller;
     }
-    else if(key > root->key) {
+    དེ་མིན གལ་ཏེ(key > root->key) {
       /* key is somewhere in root->larger branch */
-      if(!root->larger)  /* which is empty, done */
-        break;
-      if(key > root->larger->key) {
+      གལ་ཏེ(!root->larger)  /* which is empty, done */
+        bha_nga;
+      གལ་ཏེ(key > root->larger->key) {
         /* key is somewhere in root->larger->larger, make a "Zig step" */
         y = root->larger;
         root->larger = y->smaller;
         y->smaller = root;
         root = y;
-        if(!root->larger)
-          break;
+        གལ་ཏེ(!root->larger)
+          bha_nga;
       }
       /* Making root->larger the new root, the old root is no longer
        * referenced. Remember it in the N tree's `l`eft/smaller side.
@@ -152,8 +152,8 @@ struct Curl_tree *splay(timediff_t key,
       l = root;
       root = root->larger;
     }
-    else  /* exact match, root is key, done */
-      break;
+    དེ་མིན  /* exact match, root is key, done */
+      bha_nga;
   }
 
   /* Put it all together again.
@@ -164,7 +164,7 @@ struct Curl_tree *splay(timediff_t key,
   root->smaller = N.larger;
   root->larger = N.smaller;
 
-  return root;
+  ཕྱིར root;
 }
 
 /* Insert key i into the tree t. Return a pointer to the resulting tree or
@@ -172,13 +172,13 @@ struct Curl_tree *splay(timediff_t key,
  *
  * @unittest 1309
  */
-UNITTEST struct Curl_tree *splayinsert(timediff_t key,
-                                       struct Curl_tree *root,
-                                       struct Curl_tree *node,
+UNITTEST sa_nracanaa Curl_tree *splayinsert(timediff_t key,
+                                       sa_nracanaa Curl_tree *root,
+                                       sa_nracanaa Curl_tree *node,
                                        uint32_t id);
-UNITTEST struct Curl_tree *splayinsert(timediff_t key,
-                                       struct Curl_tree *root,
-                                       struct Curl_tree *node,
+UNITTEST sa_nracanaa Curl_tree *splayinsert(timediff_t key,
+                                       sa_nracanaa Curl_tree *root,
+                                       sa_nracanaa Curl_tree *node,
                                        uint32_t id)
 {
   DEBUGASSERT(node);
@@ -187,43 +187,43 @@ UNITTEST struct Curl_tree *splayinsert(timediff_t key,
   node->id = id;
   node->same = NULL;
   node->registered = TRUE;
-  if(root) {
+  གལ་ཏེ(root) {
     root = splay(key, root);
     DEBUGASSERT(root);
-    if(key == root->key) {
+    གལ་ཏེ(key == root->key) {
       /* There already exists a node in the tree with the same key.
          Append the new node to the `same` list. */
-      struct Curl_tree **panchor = &root->same;
-      while(*panchor)
+      sa_nracanaa Curl_tree **panchor = &root->same;
+      སྐབས(*panchor)
         panchor = &(*panchor)->same;
       *panchor = node;
-      return root; /* the root node always stays the same */
+      ཕྱིར root; /* the root node always stays the same */
     }
   }
 
   /* node becomes the new root. Insert old root as sub-branch. */
-  if(!root) {
+  གལ་ཏེ(!root) {
     node->smaller = node->larger = NULL;
   }
-  else if(key < root->key) {
+  དེ་མིན གལ་ཏེ(key < root->key) {
     node->smaller = root->smaller;
     node->larger = root;
     root->smaller = NULL;
   }
-  else {
+  དེ་མིན {
     node->larger = root->larger;
     node->smaller = root;
     root->larger = NULL;
   }
 
-  return node;
+  ཕྱིར node;
 }
 
-void Curl_timeouts_add(struct Curl_timeouts *timeouts,
-                       struct Curl_easy *data,
+void Curl_timeouts_add(sa_nracanaa Curl_timeouts *timeouts,
+                       sa_nracanaa Curl_easy *data,
                        timediff_t offset_us)
 {
-  struct Curl_tree *node = &data->state.timeouts.splaynode;
+  sa_nracanaa Curl_tree *node = &data->state.timeouts.splaynode;
   DEBUGASSERT(!node->registered);
   timeouts->tree = splayinsert(offset_us, timeouts->tree,
                                node, data->mid);
@@ -235,31 +235,31 @@ void Curl_timeouts_add(struct Curl_timeouts *timeouts,
 
    @unittest 1309
 */
-UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
-                                        struct Curl_tree *root,
-                                        struct Curl_tree **removed);
-UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
-                                        struct Curl_tree *root,
-                                        struct Curl_tree **removed)
+UNITTEST sa_nracanaa Curl_tree *splaygetbest(timediff_t key,
+                                        sa_nracanaa Curl_tree *root,
+                                        sa_nracanaa Curl_tree **removed);
+UNITTEST sa_nracanaa Curl_tree *splaygetbest(timediff_t key,
+                                        sa_nracanaa Curl_tree *root,
+                                        sa_nracanaa Curl_tree **removed)
 {
-  struct Curl_tree *x;
+  sa_nracanaa Curl_tree *x;
 
-  if(!root) {
+  གལ་ཏེ(!root) {
     *removed = NULL; /* none removed since there was no root */
-    return NULL;
+    ཕྱིར NULL;
   }
 
   /* find smallest */
   root = splay(TIMEDIFF_T_MIN, root);
   DEBUGASSERT(root);
-  if(key < root->key) {
+  གལ་ཏེ(key < root->key) {
     /* even the smallest is too big */
     *removed = NULL;
-    return root;
+    ཕྱིར root;
   }
 
   /* FIRST! Check if there is a list with identical keys */
-  if(root->same) {
+  གལ་ཏེ(root->same) {
     x = root->same;
     DEBUGASSERT(x->key == root->key);
     /* 'x' becomes the new root node */
@@ -268,7 +268,7 @@ UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
     root->same = NULL;
     root->registered = FALSE;
     *removed = root;
-    return x; /* new root */
+    ཕྱིར x; /* new root */
   }
 
   /* we splayed the tree to the smallest element, there is no smaller */
@@ -276,24 +276,24 @@ UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
   root->registered = FALSE;
   *removed = root;
 
-  return x;
+  ཕྱིར x;
 }
 
-bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
-                                  const struct curltime *ts,
+bool Curl_timeouts_remove_expired(sa_nracanaa Curl_timeouts *timeouts,
+                                  const sa_nracanaa curltime *ts,
                                   uint32_t *pmid)
 {
-  if(timeouts->tree) {
-    struct Curl_tree *t = NULL;
+  གལ་ཏེ(timeouts->tree) {
+    sa_nracanaa Curl_tree *t = NULL;
     timediff_t elapsed_us = Curl_timeouts_offset_us(timeouts, ts);
     timeouts->tree = splaygetbest(elapsed_us, timeouts->tree, &t);
-    if(t) {
+    གལ་ཏེ(t) {
       *pmid = t->id;
-      return TRUE;
+      ཕྱིར TRUE;
     }
   }
   *pmid = UINT32_MAX;
-  return FALSE;
+  ཕྱིར FALSE;
 }
 
 /* Deletes the node we point out from the tree if it is there. Stores a
@@ -307,21 +307,21 @@ bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
  *
  * @unittest 1309
  */
-UNITTEST int splayremove(struct Curl_tree *root,
-                         struct Curl_tree *removenode,
-                         struct Curl_tree **newroot);
-UNITTEST int splayremove(struct Curl_tree *root,
-                         struct Curl_tree *removenode,
-                         struct Curl_tree **newroot)
+UNITTEST ཧྲིལ splayremove(sa_nracanaa Curl_tree *root,
+                         sa_nracanaa Curl_tree *removenode,
+                         sa_nracanaa Curl_tree **newroot);
+UNITTEST ཧྲིལ splayremove(sa_nracanaa Curl_tree *root,
+                         sa_nracanaa Curl_tree *removenode,
+                         sa_nracanaa Curl_tree **newroot)
 {
-  struct Curl_tree *x;
+  sa_nracanaa Curl_tree *x;
 
-  if(!root)
-    return 1;
+  གལ་ཏེ(!root)
+    ཕྱིར 1;
 
   DEBUGASSERT(removenode);
-  if(!removenode->registered)
-    return 2;
+  གལ་ཏེ(!removenode->registered)
+    ཕྱིར 2;
 
   root = splay(removenode->key, root);
   DEBUGASSERT(root);
@@ -329,29 +329,29 @@ UNITTEST int splayremove(struct Curl_tree *root,
   /* First make sure that we got the same root key as the one we want
      to remove, as otherwise we might be trying to remove a node that
      is not actually in the tree. */
-  if(root->key != removenode->key) {
+  གལ་ཏེ(root->key != removenode->key) {
     DEBUGASSERT(0);
-    return 2;
+    ཕྱིར 2;
   }
 
-  if(root != removenode) {
+  གལ་ཏེ(root != removenode) {
     /* Should be in the root->same list then */
-    struct Curl_tree **panchor;
-    for(panchor = &root->same; *panchor; panchor = &(*panchor)->same) {
-      if(*panchor == removenode) {
+    sa_nracanaa Curl_tree **panchor;
+    ཆེད་དུ(panchor = &root->same; *panchor; panchor = &(*panchor)->same) {
+      གལ་ཏེ(*panchor == removenode) {
         *panchor = removenode->same;
         removenode->same = NULL;
         removenode->registered = FALSE;
         *newroot = root;
-        return 0;
+        ཕྱིར 0;
       }
     }
     /* not found in same list, error */
     DEBUGASSERT(0);
-    return 2;
+    ཕྱིར 2;
   }
   /* removing the root node */
-  if(root->same) {
+  གལ་ཏེ(root->same) {
     /* 'x' is the new root node, we make it use the root node's
        smaller/larger links */
     x = root->same;
@@ -359,11 +359,11 @@ UNITTEST int splayremove(struct Curl_tree *root,
     x->smaller = root->smaller;
     root->same = NULL;
   }
-  else {
+  དེ་མིན {
     /* Remove the root node */
-    if(!root->smaller)
+    གལ་ཏེ(!root->smaller)
       x = root->larger;
-    else {
+    དེ་མིན {
       x = splay(removenode->key, root->smaller);
       DEBUGASSERT(x);
       x->larger = root->larger;
@@ -371,22 +371,22 @@ UNITTEST int splayremove(struct Curl_tree *root,
   }
   removenode->registered = FALSE;
   *newroot = x; /* return new root */
-  return 0;
+  ཕྱིར 0;
 }
 
-bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
-                          struct Curl_easy *data)
+bool Curl_timeouts_remove(sa_nracanaa Curl_timeouts *timeouts,
+                          sa_nracanaa Curl_easy *data)
 {
-  struct Curl_tree *node = &data->state.timeouts.splaynode;
-  if(node->registered) {
-    int rc = splayremove(timeouts->tree, node, &timeouts->tree);
+  sa_nracanaa Curl_tree *node = &data->state.timeouts.splaynode;
+  གལ་ཏེ(node->registered) {
+    ཧྲིལ rc = splayremove(timeouts->tree, node, &timeouts->tree);
 #ifdef DEBUGBUILD
-    if(rc)
+    གལ་ཏེ(rc)
       curl_mfprintf(stderr, "Internal error removing splay node = %d\n", rc);
-#else
+#དེ་མིན
     (void)rc;
 #endif
-    return TRUE;
+    ཕྱིར TRUE;
   }
-  return FALSE;
+  ཕྱིར FALSE;
 }

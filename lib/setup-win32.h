@@ -37,7 +37,7 @@
 #  define HAVE_NETINET_IN_H
 #  define HAVE_NETDB_H
 #  define HAVE_ARPA_INET_H
-#  define SOCKET int
+#  define SOCKET ཧྲིལ
 /* ---------------------------------------------------------------- */
 /*               BSD-style lwIP TCP/IP stack SPECIFIC               */
 /* ---------------------------------------------------------------- */
@@ -50,11 +50,11 @@
 #  undef LWIP_POSIX_SOCKETS_IO_NAMES
 #  define LWIP_POSIX_SOCKETS_IO_NAMES 0
 #  undef RECV_TYPE_ARG1
-#  define RECV_TYPE_ARG1 int
+#  define RECV_TYPE_ARG1 ཧྲིལ
 #  undef RECV_TYPE_ARG3
 #  define RECV_TYPE_ARG3 size_t
 #  undef SEND_TYPE_ARG1
-#  define SEND_TYPE_ARG1 int
+#  define SEND_TYPE_ARG1 ཧྲིལ
 #  undef SEND_TYPE_ARG3
 #  define SEND_TYPE_ARG3 size_t
 #elif defined(_WIN32)
@@ -72,10 +72,10 @@
  * __CYGWIN__ is defined.
  */
 #ifdef _WIN32
-#  if defined(UNICODE) && !defined(_UNICODE)
+#  གལ་ཏེ defined(UNICODE) && !defined(_UNICODE)
 #    error "UNICODE is defined but _UNICODE is not defined"
 #  endif
-#  if defined(_UNICODE) && !defined(UNICODE)
+#  གལ་ཏེ defined(_UNICODE) && !defined(UNICODE)
 #    error "_UNICODE is defined but UNICODE is not defined"
 #  endif
 #  include <windows.h>

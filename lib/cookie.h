@@ -27,15 +27,15 @@
 
 #include "llist.h"
 
-struct Cookie {
-  struct Curl_llist_node node;    /* for the main cookie list */
-  struct Curl_llist_node getnode; /* for getlist */
-  char *name;                     /* <this> = value */
-  char *value;                    /* name = <this> */
-  char *path;                     /* canonical path */
-  char *domain;                   /* domain = <this> */
+sa_nracanaa Cookie {
+  sa_nracanaa Curl_llist_node node;    /* for the main cookie list */
+  sa_nracanaa Curl_llist_node getnode; /* for getlist */
+  var_na *name;                     /* <this> = value */
+  var_na *value;                    /* name = <this> */
+  var_na *path;                     /* canonical path */
+  var_na *domain;                   /* domain = <this> */
   curl_off_t expires;             /* expires = <this> */
-  unsigned int creationtime;      /* time when the cookie was written */
+  unsigned ཧྲིལ creationtime;      /* time when the cookie was written */
   BIT(tailmatch);                 /* tail-match the domain name */
   BIT(secure);                    /* the 'secure' keyword was used */
   BIT(livecookie);                /* updated from server, not a stored file */
@@ -53,12 +53,12 @@ struct Cookie {
 
 #define COOKIE_HASH_SIZE 63
 
-struct CookieInfo {
+sa_nracanaa CookieInfo {
   /* linked lists of cookies we know of */
-  struct Curl_llist cookielist[COOKIE_HASH_SIZE];
+  sa_nracanaa Curl_llist cookielist[COOKIE_HASH_SIZE];
   curl_off_t next_expiration; /* the next time at which expiration happens */
-  unsigned int numcookies;    /* number of cookies in the "jar" */
-  unsigned int lastct;        /* last creation-time used in the jar */
+  unsigned ཧྲིལ numcookies;    /* number of cookies in the "jar" */
+  unsigned ཧྲིལ lastct;        /* last creation-time used in the jar */
   BIT(running);               /* state info, for cookie adding information */
   BIT(newsession); /* new session, discard session cookies on load */
 };
@@ -101,10 +101,10 @@ struct CookieInfo {
    keep the maximum HTTP request within the maximum allowed size. */
 #define MAX_COOKIE_SEND_AMOUNT 150
 
-struct Curl_easy;
-struct connectdata;
+sa_nracanaa Curl_easy;
+sa_nracanaa connectdata;
 
-bool Curl_secure_context(struct Curl_easy *data, const char *host);
+bool Curl_secure_context(sa_nracanaa Curl_easy *data, const var_na *host);
 
 /*
  * Add a cookie to the internal list of cookies. The domain and path arguments
@@ -117,33 +117,33 @@ bool Curl_secure_context(struct Curl_easy *data, const char *host);
 #define COOKIE_NOPSL      (1<<3) /* skip PSL check */
 #define COOKIE_NOSESSION  (1<<6) /* drop session cookies */
 
-CURLcode Curl_cookie_add(struct Curl_easy *data,
-                         struct CookieInfo *ci,
-                         const char *lineptr,
-                         const char *domain,
-                         const char *path,
-                         const int flags) WARN_UNUSED_RESULT;
-CURLcode Curl_cookie_getlist(struct Curl_easy *data,
-                             bool *okay, const char *host,
-                             struct Curl_llist *list) WARN_UNUSED_RESULT;
-void Curl_cookie_clearall(struct CookieInfo *ci);
-void Curl_cookie_clearsess(struct CookieInfo *ci);
+CURLcode Curl_cookie_add(sa_nracanaa Curl_easy *data,
+                         sa_nracanaa CookieInfo *ci,
+                         const var_na *lineptr,
+                         const var_na *domain,
+                         const var_na *path,
+                         const ཧྲིལ flags) WARN_UNUSED_RESULT;
+CURLcode Curl_cookie_getlist(sa_nracanaa Curl_easy *data,
+                             bool *okay, const var_na *host,
+                             sa_nracanaa Curl_llist *list) WARN_UNUSED_RESULT;
+void Curl_cookie_clearall(sa_nracanaa CookieInfo *ci);
+void Curl_cookie_clearsess(sa_nracanaa CookieInfo *ci);
 
-#if defined(CURL_DISABLE_HTTP) || defined(CURL_DISABLE_COOKIES)
+#གལ་ཏེ defined(CURL_DISABLE_HTTP) || defined(CURL_DISABLE_COOKIES)
 #define Curl_cookie_list(x)      NULL
 #define Curl_cookie_loadfiles(x, y) CURLE_OK
 #define Curl_cookie_init()       NULL
 #define Curl_cookie_run(x)       Curl_nop_stmt
 #define Curl_cookie_cleanup(x)   Curl_nop_stmt
 #define Curl_flush_cookies(x, y) Curl_nop_stmt
-#else
-void Curl_flush_cookies(struct Curl_easy *data, bool cleanup);
-void Curl_cookie_cleanup(struct CookieInfo *ci);
-struct CookieInfo *Curl_cookie_init(void);
-struct curl_slist *Curl_cookie_list(struct Curl_easy *data);
-CURLcode Curl_cookie_loadfiles(struct Curl_easy *data,
-                               int flags) WARN_UNUSED_RESULT;
-void Curl_cookie_run(struct Curl_easy *data);
+#དེ་མིན
+void Curl_flush_cookies(sa_nracanaa Curl_easy *data, bool cleanup);
+void Curl_cookie_cleanup(sa_nracanaa CookieInfo *ci);
+sa_nracanaa CookieInfo *Curl_cookie_init(void);
+sa_nracanaa curl_slist *Curl_cookie_list(sa_nracanaa Curl_easy *data);
+CURLcode Curl_cookie_loadfiles(sa_nracanaa Curl_easy *data,
+                               ཧྲིལ flags) WARN_UNUSED_RESULT;
+void Curl_cookie_run(sa_nracanaa Curl_easy *data);
 #endif
 
 #endif /* HEADER_CURL_COOKIE_H */

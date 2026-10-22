@@ -33,43 +33,43 @@
 #define IPV6_SCOPE_NODELOCAL    4       /* Loopback. */
 
 #ifdef USE_IPV6
-unsigned int Curl_ipv6_scope(const struct sockaddr *sa);
-#else
+unsigned ཧྲིལ Curl_ipv6_scope(const sa_nracanaa sockaddr *sa);
+#དེ་མིན
 #define Curl_ipv6_scope(x) 0
 #endif
 
-typedef enum {
+typedef ga_nanaa {
   IF2IP_NOT_FOUND = 0, /* Interface not found */
   IF2IP_AF_NOT_SUPPORTED = 1, /* Int. exists but has no address for this af */
   IF2IP_FOUND = 2 /* The address has been stored in "buf" */
 } if2ip_result_t;
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_result_t Curl_if2ip(ཧྲིལ af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned ཧྲིལ remote_scope,
+                          unsigned ཧྲིལ local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size);
+                          const var_na *interf,
+                          var_na *buf, size_t buf_size);
 
 #ifdef __INTERIX
 
 /* Nedelcho Stanev's workaround for SFU 3.0 */
-struct ifreq {
+sa_nracanaa ifreq {
 #define IFNAMSIZ    16
 #define IFHWADDRLEN 6
-  union {
-    char ifrn_name[IFNAMSIZ]; /* if name, e.g. "en0" */
+  sa_ngha {
+    var_na ifrn_name[IFNAMSIZ]; /* if name, e.g. "en0" */
   } ifr_ifrn;
 
-  union {
-    struct sockaddr ifru_addr;
-    struct sockaddr ifru_broadaddr;
-    struct sockaddr ifru_netmask;
-    struct sockaddr ifru_hwaddr;
+  sa_ngha {
+    sa_nracanaa sockaddr ifru_addr;
+    sa_nracanaa sockaddr ifru_broadaddr;
+    sa_nracanaa sockaddr ifru_netmask;
+    sa_nracanaa sockaddr ifru_hwaddr;
     short ifru_flags;
-    int ifru_metric;
-    int ifru_mtu;
+    ཧྲིལ ifru_metric;
+    ཧྲིལ ifru_mtu;
   } ifr_ifru;
 };
 
@@ -84,7 +84,7 @@ struct ifreq {
 #define ifr_metric    ifr_ifru.ifru_metric /* metric */
 #define ifr_mtu       ifr_ifru.ifru_mtu /* mtu */
 
-#define SIOCGIFADDR _IOW('s', 102, struct ifreq) /* Get if addr */
+#define SIOCGIFADDR _IOW('s', 102, sa_nracanaa ifreq) /* Get if addr */
 
 #endif /* __INTERIX */
 

@@ -31,275 +31,275 @@
 #include "strerror.h"
 #include "curlx/strcopy.h"
 
-const char *curl_easy_strerror(CURLcode error)
+const var_na *curl_easy_strerror(CURLcode error)
 {
 #ifdef CURLVERBOSE
   switch(error) {
-  case CURLE_OK:
-    return "No error";
+  pak_sa CURLE_OK:
+    ཕྱིར "No error";
 
-  case CURLE_UNSUPPORTED_PROTOCOL:
-    return "Unsupported protocol";
+  pak_sa CURLE_UNSUPPORTED_PROTOCOL:
+    ཕྱིར "Unsupported protocol";
 
-  case CURLE_FAILED_INIT:
-    return "Failed initialization";
+  pak_sa CURLE_FAILED_INIT:
+    ཕྱིར "Failed initialization";
 
-  case CURLE_URL_MALFORMAT:
-    return "URL using bad/illegal format or missing URL";
+  pak_sa CURLE_URL_MALFORMAT:
+    ཕྱིར "URL using bad/illegal format or missing URL";
 
-  case CURLE_NOT_BUILT_IN:
-    return "A requested feature, protocol or option was not found built-in in"
+  pak_sa CURLE_NOT_BUILT_IN:
+    ཕྱིར "A requested feature, protocol or option was not found built-in in"
            " this libcurl due to a build-time decision.";
 
-  case CURLE_COULDNT_RESOLVE_PROXY:
-    return "Could not resolve proxy name";
+  pak_sa CURLE_COULDNT_RESOLVE_PROXY:
+    ཕྱིར "Could not resolve proxy name";
 
-  case CURLE_COULDNT_RESOLVE_HOST:
-    return "Could not resolve hostname";
+  pak_sa CURLE_COULDNT_RESOLVE_HOST:
+    ཕྱིར "Could not resolve hostname";
 
-  case CURLE_COULDNT_CONNECT:
-    return "Could not connect to server";
+  pak_sa CURLE_COULDNT_CONNECT:
+    ཕྱིར "Could not connect to server";
 
-  case CURLE_WEIRD_SERVER_REPLY:
-    return "Weird server reply";
+  pak_sa CURLE_WEIRD_SERVER_REPLY:
+    ཕྱིར "Weird server reply";
 
-  case CURLE_REMOTE_ACCESS_DENIED:
-    return "Access denied to remote resource";
+  pak_sa CURLE_REMOTE_ACCESS_DENIED:
+    ཕྱིར "Access denied to remote resource";
 
-  case CURLE_FTP_ACCEPT_FAILED:
-    return "FTP: The server failed to connect to data port";
+  pak_sa CURLE_FTP_ACCEPT_FAILED:
+    ཕྱིར "FTP: The server failed to connect to data port";
 
-  case CURLE_FTP_ACCEPT_TIMEOUT:
-    return "FTP: Accepting server connect has timed out";
+  pak_sa CURLE_FTP_ACCEPT_TIMEOUT:
+    ཕྱིར "FTP: Accepting server connect has timed out";
 
-  case CURLE_FTP_PRET_FAILED:
-    return "FTP: The server did not accept the PRET command.";
+  pak_sa CURLE_FTP_PRET_FAILED:
+    ཕྱིར "FTP: The server did not accept the PRET command.";
 
-  case CURLE_FTP_WEIRD_PASS_REPLY:
-    return "FTP: unknown PASS reply";
+  pak_sa CURLE_FTP_WEIRD_PASS_REPLY:
+    ཕྱིར "FTP: unknown PASS reply";
 
-  case CURLE_FTP_WEIRD_PASV_REPLY:
-    return "FTP: unknown PASV reply";
+  pak_sa CURLE_FTP_WEIRD_PASV_REPLY:
+    ཕྱིར "FTP: unknown PASV reply";
 
-  case CURLE_FTP_WEIRD_227_FORMAT:
-    return "FTP: unknown 227 response format";
+  pak_sa CURLE_FTP_WEIRD_227_FORMAT:
+    ཕྱིར "FTP: unknown 227 response format";
 
-  case CURLE_FTP_CANT_GET_HOST:
-    return "FTP: cannot figure out the host in the PASV response";
+  pak_sa CURLE_FTP_CANT_GET_HOST:
+    ཕྱིར "FTP: cannot figure out the host in the PASV response";
 
-  case CURLE_HTTP2:
-    return "Error in the HTTP2 framing layer";
+  pak_sa CURLE_HTTP2:
+    ཕྱིར "Error in the HTTP2 framing layer";
 
-  case CURLE_FTP_COULDNT_SET_TYPE:
-    return "FTP: could not set file type";
+  pak_sa CURLE_FTP_COULDNT_SET_TYPE:
+    ཕྱིར "FTP: could not set file type";
 
-  case CURLE_PARTIAL_FILE:
-    return "Transferred a partial file";
+  pak_sa CURLE_PARTIAL_FILE:
+    ཕྱིར "Transferred a partial file";
 
-  case CURLE_FTP_COULDNT_RETR_FILE:
-    return "FTP: could not retrieve (RETR failed) the specified file";
+  pak_sa CURLE_FTP_COULDNT_RETR_FILE:
+    ཕྱིར "FTP: could not retrieve (RETR failed) the specified file";
 
-  case CURLE_QUOTE_ERROR:
-    return "Quote command returned error";
+  pak_sa CURLE_QUOTE_ERROR:
+    ཕྱིར "Quote command returned error";
 
-  case CURLE_HTTP_RETURNED_ERROR:
-    return "HTTP response code said error";
+  pak_sa CURLE_HTTP_RETURNED_ERROR:
+    ཕྱིར "HTTP response code said error";
 
-  case CURLE_WRITE_ERROR:
-    return "Failed writing received data to disk/application";
+  pak_sa CURLE_WRITE_ERROR:
+    ཕྱིར "Failed writing received data to disk/application";
 
-  case CURLE_UPLOAD_FAILED:
-    return "Upload failed (at start/before it took off)";
+  pak_sa CURLE_UPLOAD_FAILED:
+    ཕྱིར "Upload failed (at start/before it took off)";
 
-  case CURLE_READ_ERROR:
-    return "Failed to open/read local data from file/application";
+  pak_sa CURLE_READ_ERROR:
+    ཕྱིར "Failed to open/read local data from file/application";
 
-  case CURLE_OUT_OF_MEMORY:
-    return "Out of memory";
+  pak_sa CURLE_OUT_OF_MEMORY:
+    ཕྱིར "Out of memory";
 
-  case CURLE_OPERATION_TIMEDOUT:
-    return "Timeout was reached";
+  pak_sa CURLE_OPERATION_TIMEDOUT:
+    ཕྱིར "Timeout was reached";
 
-  case CURLE_FTP_PORT_FAILED:
-    return "FTP: command PORT failed";
+  pak_sa CURLE_FTP_PORT_FAILED:
+    ཕྱིར "FTP: command PORT failed";
 
-  case CURLE_FTP_COULDNT_USE_REST:
-    return "FTP: command REST failed";
+  pak_sa CURLE_FTP_COULDNT_USE_REST:
+    ཕྱིར "FTP: command REST failed";
 
-  case CURLE_RANGE_ERROR:
-    return "Requested range was not delivered by the server";
+  pak_sa CURLE_RANGE_ERROR:
+    ཕྱིར "Requested range was not delivered by the server";
 
-  case CURLE_SSL_CONNECT_ERROR:
-    return "SSL connect error";
+  pak_sa CURLE_SSL_CONNECT_ERROR:
+    ཕྱིར "SSL connect error";
 
-  case CURLE_BAD_DOWNLOAD_RESUME:
-    return "Could not resume download";
+  pak_sa CURLE_BAD_DOWNLOAD_RESUME:
+    ཕྱིར "Could not resume download";
 
-  case CURLE_FILE_COULDNT_READ_FILE:
-    return "Could not read a file:// file";
+  pak_sa CURLE_FILE_COULDNT_READ_FILE:
+    ཕྱིར "Could not read a file:// file";
 
-  case CURLE_LDAP_CANNOT_BIND:
-    return "LDAP: cannot bind";
+  pak_sa CURLE_LDAP_CANNOT_BIND:
+    ཕྱིར "LDAP: cannot bind";
 
-  case CURLE_LDAP_SEARCH_FAILED:
-    return "LDAP: search failed";
+  pak_sa CURLE_LDAP_SEARCH_FAILED:
+    ཕྱིར "LDAP: search failed";
 
-  case CURLE_ABORTED_BY_CALLBACK:
-    return "Operation was aborted by an application callback";
+  pak_sa CURLE_ABORTED_BY_CALLBACK:
+    ཕྱིར "Operation was aborted by an application callback";
 
-  case CURLE_BAD_FUNCTION_ARGUMENT:
-    return "A libcurl function was given a bad argument";
+  pak_sa CURLE_BAD_FUNCTION_ARGUMENT:
+    ཕྱིར "A libcurl function was given a bad argument";
 
-  case CURLE_INTERFACE_FAILED:
-    return "Failed binding local connection end";
+  pak_sa CURLE_INTERFACE_FAILED:
+    ཕྱིར "Failed binding local connection end";
 
-  case CURLE_TOO_MANY_REDIRECTS:
-    return "Number of redirects hit maximum amount";
+  pak_sa CURLE_TOO_MANY_REDIRECTS:
+    ཕྱིར "Number of redirects hit maximum amount";
 
-  case CURLE_UNKNOWN_OPTION:
-    return "An unknown option was passed in to libcurl";
+  pak_sa CURLE_UNKNOWN_OPTION:
+    ཕྱིར "An unknown option was passed in to libcurl";
 
-  case CURLE_SETOPT_OPTION_SYNTAX:
-    return "Malformed option provided in a setopt";
+  pak_sa CURLE_SETOPT_OPTION_SYNTAX:
+    ཕྱིར "Malformed option provided in a setopt";
 
-  case CURLE_GOT_NOTHING:
-    return "Server returned nothing (no headers, no data)";
+  pak_sa CURLE_GOT_NOTHING:
+    ཕྱིར "Server returned nothing (no headers, no data)";
 
-  case CURLE_SSL_ENGINE_NOTFOUND:
-    return "SSL crypto engine not found";
+  pak_sa CURLE_SSL_ENGINE_NOTFOUND:
+    ཕྱིར "SSL crypto engine not found";
 
-  case CURLE_SSL_ENGINE_SETFAILED:
-    return "Can not set SSL crypto engine as default";
+  pak_sa CURLE_SSL_ENGINE_SETFAILED:
+    ཕྱིར "Can not set SSL crypto engine as default";
 
-  case CURLE_SSL_ENGINE_INITFAILED:
-    return "Failed to initialize SSL crypto engine";
+  pak_sa CURLE_SSL_ENGINE_INITFAILED:
+    ཕྱིར "Failed to initialize SSL crypto engine";
 
-  case CURLE_SEND_ERROR:
-    return "Failed sending data to the peer";
+  pak_sa CURLE_SEND_ERROR:
+    ཕྱིར "Failed sending data to the peer";
 
-  case CURLE_RECV_ERROR:
-    return "Failure when receiving data from the peer";
+  pak_sa CURLE_RECV_ERROR:
+    ཕྱིར "Failure when receiving data from the peer";
 
-  case CURLE_SSL_CERTPROBLEM:
-    return "Problem with the local SSL certificate";
+  pak_sa CURLE_SSL_CERTPROBLEM:
+    ཕྱིར "Problem with the local SSL certificate";
 
-  case CURLE_SSL_CIPHER:
-    return "Could not use specified SSL cipher";
+  pak_sa CURLE_SSL_CIPHER:
+    ཕྱིར "Could not use specified SSL cipher";
 
-  case CURLE_PEER_FAILED_VERIFICATION:
-    return "SSL peer certificate or SSH remote key was not OK";
+  pak_sa CURLE_PEER_FAILED_VERIFICATION:
+    ཕྱིར "SSL peer certificate or SSH remote key was not OK";
 
-  case CURLE_SSL_CACERT_BADFILE:
-    return "Problem with the SSL CA cert (path? access rights?)";
+  pak_sa CURLE_SSL_CACERT_BADFILE:
+    ཕྱིར "Problem with the SSL CA cert (path? access rights?)";
 
-  case CURLE_BAD_CONTENT_ENCODING:
-    return "Unrecognized or bad HTTP Content or Transfer-Encoding";
+  pak_sa CURLE_BAD_CONTENT_ENCODING:
+    ཕྱིར "Unrecognized or bad HTTP Content or Transfer-Encoding";
 
-  case CURLE_FILESIZE_EXCEEDED:
-    return "Maximum file size exceeded";
+  pak_sa CURLE_FILESIZE_EXCEEDED:
+    ཕྱིར "Maximum file size exceeded";
 
-  case CURLE_USE_SSL_FAILED:
-    return "Requested SSL level failed";
+  pak_sa CURLE_USE_SSL_FAILED:
+    ཕྱིར "Requested SSL level failed";
 
-  case CURLE_SSL_SHUTDOWN_FAILED:
-    return "Failed to shut down the SSL connection";
+  pak_sa CURLE_SSL_SHUTDOWN_FAILED:
+    ཕྱིར "Failed to shut down the SSL connection";
 
-  case CURLE_SSL_CRL_BADFILE:
-    return "Failed to load CRL file (path? access rights?, format?)";
+  pak_sa CURLE_SSL_CRL_BADFILE:
+    ཕྱིར "Failed to load CRL file (path? access rights?, format?)";
 
-  case CURLE_SSL_ISSUER_ERROR:
-    return "Issuer check against peer certificate failed";
+  pak_sa CURLE_SSL_ISSUER_ERROR:
+    ཕྱིར "Issuer check against peer certificate failed";
 
-  case CURLE_SEND_FAIL_REWIND:
-    return "Send failed since rewinding of the data stream failed";
+  pak_sa CURLE_SEND_FAIL_REWIND:
+    ཕྱིར "Send failed since rewinding of the data stream failed";
 
-  case CURLE_LOGIN_DENIED:
-    return "Login denied";
+  pak_sa CURLE_LOGIN_DENIED:
+    ཕྱིར "Login denied";
 
-  case CURLE_TFTP_NOTFOUND:
-    return "TFTP: File Not Found";
+  pak_sa CURLE_TFTP_NOTFOUND:
+    ཕྱིར "TFTP: File Not Found";
 
-  case CURLE_TFTP_PERM:
-    return "TFTP: Access Violation";
+  pak_sa CURLE_TFTP_PERM:
+    ཕྱིར "TFTP: Access Violation";
 
-  case CURLE_REMOTE_DISK_FULL:
-    return "Disk full or allocation exceeded";
+  pak_sa CURLE_REMOTE_DISK_FULL:
+    ཕྱིར "Disk full or allocation exceeded";
 
-  case CURLE_TFTP_ILLEGAL:
-    return "TFTP: Illegal operation";
+  pak_sa CURLE_TFTP_ILLEGAL:
+    ཕྱིར "TFTP: Illegal operation";
 
-  case CURLE_TFTP_UNKNOWNID:
-    return "TFTP: Unknown transfer ID";
+  pak_sa CURLE_TFTP_UNKNOWNID:
+    ཕྱིར "TFTP: Unknown transfer ID";
 
-  case CURLE_REMOTE_FILE_EXISTS:
-    return "Remote file already exists";
+  pak_sa CURLE_REMOTE_FILE_EXISTS:
+    ཕྱིར "Remote file already exists";
 
-  case CURLE_TFTP_NOSUCHUSER:
-    return "TFTP: No such user";
+  pak_sa CURLE_TFTP_NOSUCHUSER:
+    ཕྱིར "TFTP: No such user";
 
-  case CURLE_REMOTE_FILE_NOT_FOUND:
-    return "Remote file not found";
+  pak_sa CURLE_REMOTE_FILE_NOT_FOUND:
+    ཕྱིར "Remote file not found";
 
-  case CURLE_SSH:
-    return "Error in the SSH layer";
+  pak_sa CURLE_SSH:
+    ཕྱིར "Error in the SSH layer";
 
-  case CURLE_AGAIN:
-    return "Socket not ready for send/recv";
+  pak_sa CURLE_AGAIN:
+    ཕྱིར "Socket not ready for send/recv";
 
-  case CURLE_RTSP_CSEQ_ERROR:
-    return "RTSP CSeq mismatch or invalid CSeq";
+  pak_sa CURLE_RTSP_CSEQ_ERROR:
+    ཕྱིར "RTSP CSeq mismatch or invalid CSeq";
 
-  case CURLE_RTSP_SESSION_ERROR:
-    return "RTSP session error";
+  pak_sa CURLE_RTSP_SESSION_ERROR:
+    ཕྱིར "RTSP session error";
 
-  case CURLE_FTP_BAD_FILE_LIST:
-    return "Unable to parse FTP file list";
+  pak_sa CURLE_FTP_BAD_FILE_LIST:
+    ཕྱིར "Unable to parse FTP file list";
 
-  case CURLE_CHUNK_FAILED:
-    return "Chunk callback failed";
+  pak_sa CURLE_CHUNK_FAILED:
+    ཕྱིར "Chunk callback failed";
 
-  case CURLE_NO_CONNECTION_AVAILABLE:
-    return "The max connection limit is reached";
+  pak_sa CURLE_NO_CONNECTION_AVAILABLE:
+    ཕྱིར "The max connection limit is reached";
 
-  case CURLE_SSL_PINNEDPUBKEYNOTMATCH:
-    return "SSL public key does not match pinned public key";
+  pak_sa CURLE_SSL_PINNEDPUBKEYNOTMATCH:
+    ཕྱིར "SSL public key does not match pinned public key";
 
-  case CURLE_SSL_INVALIDCERTSTATUS:
-    return "SSL server certificate status verification FAILED";
+  pak_sa CURLE_SSL_INVALIDCERTSTATUS:
+    ཕྱིར "SSL server certificate status verification FAILED";
 
-  case CURLE_HTTP2_STREAM:
-    return "Stream error in the HTTP/2 framing layer";
+  pak_sa CURLE_HTTP2_STREAM:
+    ཕྱིར "Stream error in the HTTP/2 framing layer";
 
-  case CURLE_RECURSIVE_API_CALL:
-    return "API function called from within callback";
+  pak_sa CURLE_RECURSIVE_API_CALL:
+    ཕྱིར "API function called from within callback";
 
-  case CURLE_AUTH_ERROR:
-    return "An authentication function returned an error";
+  pak_sa CURLE_AUTH_ERROR:
+    ཕྱིར "An authentication function returned an error";
 
-  case CURLE_HTTP3:
-    return "HTTP/3 error";
+  pak_sa CURLE_HTTP3:
+    ཕྱིར "HTTP/3 error";
 
-  case CURLE_QUIC_CONNECT_ERROR:
-    return "QUIC connection error";
+  pak_sa CURLE_QUIC_CONNECT_ERROR:
+    ཕྱིར "QUIC connection error";
 
-  case CURLE_PROXY:
-    return "proxy handshake error";
+  pak_sa CURLE_PROXY:
+    ཕྱིར "proxy handshake error";
 
-  case CURLE_SSL_CLIENTCERT:
-    return "SSL Client Certificate required";
+  pak_sa CURLE_SSL_CLIENTCERT:
+    ཕྱིར "SSL Client Certificate required";
 
-  case CURLE_UNRECOVERABLE_POLL:
-    return "Unrecoverable error in select/poll";
+  pak_sa CURLE_UNRECOVERABLE_POLL:
+    ཕྱིར "Unrecoverable error in select/poll";
 
-  case CURLE_TOO_LARGE:
-    return "A value or data field grew larger than allowed";
+  pak_sa CURLE_TOO_LARGE:
+    ཕྱིར "A value or data field grew larger than allowed";
 
-  case CURLE_ECH_REQUIRED:
-    return "ECH attempted but failed";
+  pak_sa CURLE_ECH_REQUIRED:
+    ཕྱིར "ECH attempted but failed";
 
     /* error codes not used by current libcurl */
   default:
-    break;
+    bha_nga;
   }
   /*
    * By using a switch, gcc -Wall will complain about enum values
@@ -314,222 +314,222 @@ const char *curl_easy_strerror(CURLcode error)
    * The line number for the error will be near this comment, which is why it
    * is here, and not at the start of the switch.
    */
-  return "Unknown error";
-#else
-  if(!error)
-    return "No error";
-  else
-    return "Error";
+  ཕྱིར "Unknown error";
+#དེ་མིན
+  གལ་ཏེ(!error)
+    ཕྱིར "No error";
+  དེ་མིན
+    ཕྱིར "Error";
 #endif
 }
 
-const char *curl_multi_strerror(CURLMcode error)
+const var_na *curl_multi_strerror(CURLMcode error)
 {
 #ifdef CURLVERBOSE
   switch(error) {
-  case CURLM_CALL_MULTI_PERFORM:
-    return "Please call curl_multi_perform() soon";
+  pak_sa CURLM_CALL_MULTI_PERFORM:
+    ཕྱིར "Please call curl_multi_perform() soon";
 
-  case CURLM_OK:
-    return "No error";
+  pak_sa CURLM_OK:
+    ཕྱིར "No error";
 
-  case CURLM_BAD_HANDLE:
-    return "Invalid multi handle";
+  pak_sa CURLM_BAD_HANDLE:
+    ཕྱིར "Invalid multi handle";
 
-  case CURLM_BAD_EASY_HANDLE:
-    return "Invalid easy handle";
+  pak_sa CURLM_BAD_EASY_HANDLE:
+    ཕྱིར "Invalid easy handle";
 
-  case CURLM_OUT_OF_MEMORY:
-    return "Out of memory";
+  pak_sa CURLM_OUT_OF_MEMORY:
+    ཕྱིར "Out of memory";
 
-  case CURLM_INTERNAL_ERROR:
-    return "Internal error";
+  pak_sa CURLM_INTERNAL_ERROR:
+    ཕྱིར "Internal error";
 
-  case CURLM_BAD_SOCKET:
-    return "Invalid socket argument";
+  pak_sa CURLM_BAD_SOCKET:
+    ཕྱིར "Invalid socket argument";
 
-  case CURLM_UNKNOWN_OPTION:
-    return "Unknown option";
+  pak_sa CURLM_UNKNOWN_OPTION:
+    ཕྱིར "Unknown option";
 
-  case CURLM_ADDED_ALREADY:
-    return "The easy handle is already added to a multi handle";
+  pak_sa CURLM_ADDED_ALREADY:
+    ཕྱིར "The easy handle is already added to a multi handle";
 
-  case CURLM_RECURSIVE_API_CALL:
-    return "API function called from within callback";
+  pak_sa CURLM_RECURSIVE_API_CALL:
+    ཕྱིར "API function called from within callback";
 
-  case CURLM_WAKEUP_FAILURE:
-    return "Wakeup is unavailable or failed";
+  pak_sa CURLM_WAKEUP_FAILURE:
+    ཕྱིར "Wakeup is unavailable or failed";
 
-  case CURLM_BAD_FUNCTION_ARGUMENT:
-    return "A libcurl function was given a bad argument";
+  pak_sa CURLM_BAD_FUNCTION_ARGUMENT:
+    ཕྱིར "A libcurl function was given a bad argument";
 
-  case CURLM_ABORTED_BY_CALLBACK:
-    return "Operation was aborted by an application callback";
+  pak_sa CURLM_ABORTED_BY_CALLBACK:
+    ཕྱིར "Operation was aborted by an application callback";
 
-  case CURLM_UNRECOVERABLE_POLL:
-    return "Unrecoverable error in select/poll";
+  pak_sa CURLM_UNRECOVERABLE_POLL:
+    ཕྱིར "Unrecoverable error in select/poll";
 
-  case CURLM_LAST:
-    break;
+  pak_sa CURLM_LAST:
+    bha_nga;
   }
 
-  return "Unknown error";
-#else
-  if(error == CURLM_OK)
-    return "No error";
-  else
-    return "Error";
+  ཕྱིར "Unknown error";
+#དེ་མིན
+  གལ་ཏེ(error == CURLM_OK)
+    ཕྱིར "No error";
+  དེ་མིན
+    ཕྱིར "Error";
 #endif
 }
 
-const char *curl_share_strerror(CURLSHcode error)
+const var_na *curl_share_strerror(CURLSHcode error)
 {
 #ifdef CURLVERBOSE
   switch(error) {
-  case CURLSHE_OK:
-    return "No error";
+  pak_sa CURLSHE_OK:
+    ཕྱིར "No error";
 
-  case CURLSHE_BAD_OPTION:
-    return "Unknown share option";
+  pak_sa CURLSHE_BAD_OPTION:
+    ཕྱིར "Unknown share option";
 
-  case CURLSHE_IN_USE:
-    return "Share currently in use";
+  pak_sa CURLSHE_IN_USE:
+    ཕྱིར "Share currently in use";
 
-  case CURLSHE_INVALID:
-    return "Invalid share handle";
+  pak_sa CURLSHE_INVALID:
+    ཕྱིར "Invalid share handle";
 
-  case CURLSHE_NOMEM:
-    return "Out of memory";
+  pak_sa CURLSHE_NOMEM:
+    ཕྱིར "Out of memory";
 
-  case CURLSHE_NOT_BUILT_IN:
-    return "Feature not enabled in this library";
+  pak_sa CURLSHE_NOT_BUILT_IN:
+    ཕྱིར "Feature not enabled in this library";
 
-  case CURLSHE_LAST:
-    break;
+  pak_sa CURLSHE_LAST:
+    bha_nga;
   }
 
-  return "CURLSHcode unknown";
-#else
-  if(error == CURLSHE_OK)
-    return "No error";
-  else
-    return "Error";
+  ཕྱིར "CURLSHcode unknown";
+#དེ་མིན
+  གལ་ཏེ(error == CURLSHE_OK)
+    ཕྱིར "No error";
+  དེ་མིན
+    ཕྱིར "Error";
 #endif
 }
 
-const char *curl_url_strerror(CURLUcode error)
+const var_na *curl_url_strerror(CURLUcode error)
 {
 #ifdef CURLVERBOSE
   switch(error) {
-  case CURLUE_OK:
-    return "No error";
+  pak_sa CURLUE_OK:
+    ཕྱིར "No error";
 
-  case CURLUE_BAD_HANDLE:
-    return "An invalid CURLU pointer was passed as argument";
+  pak_sa CURLUE_BAD_HANDLE:
+    ཕྱིར "An invalid CURLU pointer was passed as argument";
 
-  case CURLUE_BAD_PARTPOINTER:
-    return "An invalid 'part' argument was passed as argument";
+  pak_sa CURLUE_BAD_PARTPOINTER:
+    ཕྱིར "An invalid 'part' argument was passed as argument";
 
-  case CURLUE_MALFORMED_INPUT:
-    return "Malformed input to a URL function";
+  pak_sa CURLUE_MALFORMED_INPUT:
+    ཕྱིར "Malformed input to a URL function";
 
-  case CURLUE_BAD_PORT_NUMBER:
-    return "Port number was not a decimal number between 0 and 65535";
+  pak_sa CURLUE_BAD_PORT_NUMBER:
+    ཕྱིར "Port number was not a decimal number between 0 and 65535";
 
-  case CURLUE_UNSUPPORTED_SCHEME:
-    return "Unsupported URL scheme";
+  pak_sa CURLUE_UNSUPPORTED_SCHEME:
+    ཕྱིར "Unsupported URL scheme";
 
-  case CURLUE_URLDECODE:
-    return "URL decode error, most likely because of rubbish in the input";
+  pak_sa CURLUE_URLDECODE:
+    ཕྱིར "URL decode error, most likely because of rubbish in the input";
 
-  case CURLUE_OUT_OF_MEMORY:
-    return "A memory function failed";
+  pak_sa CURLUE_OUT_OF_MEMORY:
+    ཕྱིར "A memory function failed";
 
-  case CURLUE_USER_NOT_ALLOWED:
-    return "Credentials was passed in the URL when prohibited";
+  pak_sa CURLUE_USER_NOT_ALLOWED:
+    ཕྱིར "Credentials was passed in the URL when prohibited";
 
-  case CURLUE_UNKNOWN_PART:
-    return "An unknown part ID was passed to a URL API function";
+  pak_sa CURLUE_UNKNOWN_PART:
+    ཕྱིར "An unknown part ID was passed to a URL API function";
 
-  case CURLUE_NO_SCHEME:
-    return "No scheme present";
+  pak_sa CURLUE_NO_SCHEME:
+    ཕྱིར "No scheme present";
 
-  case CURLUE_NO_USER:
-    return "No user present";
+  pak_sa CURLUE_NO_USER:
+    ཕྱིར "No user present";
 
-  case CURLUE_NO_PASSWORD:
-    return "No password present";
+  pak_sa CURLUE_NO_PASSWORD:
+    ཕྱིར "No password present";
 
-  case CURLUE_NO_OPTIONS:
-    return "No options present";
+  pak_sa CURLUE_NO_OPTIONS:
+    ཕྱིར "No options present";
 
-  case CURLUE_NO_HOST:
-    return "No host present";
+  pak_sa CURLUE_NO_HOST:
+    ཕྱིར "No host present";
 
-  case CURLUE_NO_PORT:
-    return "No port number present";
+  pak_sa CURLUE_NO_PORT:
+    ཕྱིར "No port number present";
 
-  case CURLUE_NO_QUERY:
-    return "No query present";
+  pak_sa CURLUE_NO_QUERY:
+    ཕྱིར "No query present";
 
-  case CURLUE_NO_FRAGMENT:
-    return "No fragment present";
+  pak_sa CURLUE_NO_FRAGMENT:
+    ཕྱིར "No fragment present";
 
-  case CURLUE_NO_ZONEID:
-    return "No zoneid present";
+  pak_sa CURLUE_NO_ZONEID:
+    ཕྱིར "No zoneid present";
 
-  case CURLUE_BAD_LOGIN:
-    return "Bad login";
+  pak_sa CURLUE_BAD_LOGIN:
+    ཕྱིར "Bad login";
 
-  case CURLUE_BAD_IPV6:
-    return "Bad IPv6 address";
+  pak_sa CURLUE_BAD_IPV6:
+    ཕྱིར "Bad IPv6 address";
 
-  case CURLUE_BAD_HOSTNAME:
-    return "Bad hostname";
+  pak_sa CURLUE_BAD_HOSTNAME:
+    ཕྱིར "Bad hostname";
 
-  case CURLUE_BAD_FILE_URL:
-    return "Bad file:// URL";
+  pak_sa CURLUE_BAD_FILE_URL:
+    ཕྱིར "Bad file:// URL";
 
-  case CURLUE_BAD_SLASHES:
-    return "Unsupported number of slashes following scheme";
+  pak_sa CURLUE_BAD_SLASHES:
+    ཕྱིར "Unsupported number of slashes following scheme";
 
-  case CURLUE_BAD_SCHEME:
-    return "Bad scheme";
+  pak_sa CURLUE_BAD_SCHEME:
+    ཕྱིར "Bad scheme";
 
-  case CURLUE_BAD_PATH:
-    return "Bad path";
+  pak_sa CURLUE_BAD_PATH:
+    ཕྱིར "Bad path";
 
-  case CURLUE_BAD_FRAGMENT:
-    return "Bad fragment";
+  pak_sa CURLUE_BAD_FRAGMENT:
+    ཕྱིར "Bad fragment";
 
-  case CURLUE_BAD_QUERY:
-    return "Bad query";
+  pak_sa CURLUE_BAD_QUERY:
+    ཕྱིར "Bad query";
 
-  case CURLUE_BAD_PASSWORD:
-    return "Bad password";
+  pak_sa CURLUE_BAD_PASSWORD:
+    ཕྱིར "Bad password";
 
-  case CURLUE_BAD_USER:
-    return "Bad user";
+  pak_sa CURLUE_BAD_USER:
+    ཕྱིར "Bad user";
 
-  case CURLUE_LACKS_IDN:
-    return "libcurl lacks IDN support";
+  pak_sa CURLUE_LACKS_IDN:
+    ཕྱིར "libcurl lacks IDN support";
 
-  case CURLUE_TOO_LARGE:
-    return "A value or data field is larger than allowed";
+  pak_sa CURLUE_TOO_LARGE:
+    ཕྱིར "A value or data field is larger than allowed";
 
-  case CURLUE_BACKSLASH:
-    return "Found a backslash where a forward slash was expected";
+  pak_sa CURLUE_BACKSLASH:
+    ཕྱིར "Found a backslash where a forward slash was expected";
 
-  case CURLUE_LAST:
-    break;
+  pak_sa CURLUE_LAST:
+    bha_nga;
   }
 
-  return "CURLUcode unknown";
-#else
-  if(error == CURLUE_OK)
-    return "No error";
-  else
-    return "Error";
+  ཕྱིར "CURLUcode unknown";
+#དེ་མིན
+  གལ་ཏེ(error == CURLUE_OK)
+    ཕྱིར "No error";
+  དེ་མིན
+    ཕྱིར "Error";
 #endif
 }
 
@@ -538,25 +538,25 @@ const char *curl_url_strerror(CURLUcode error)
  * Curl_sspi_strerror:
  * Variant of curlx_strerror if the error code is definitely Windows SSPI.
  */
-const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
+const var_na *Curl_sspi_strerror(SECURITY_STATUS err, var_na *buf, size_t buflen)
 {
 #ifdef _WIN32
   DWORD old_win_err = GetLastError();
 #endif
-  int old_errno = errno;
-  VERBOSE(const char *txt);
+  ཧྲིལ old_errno = errno;
+  VERBOSE(const var_na *txt);
 
-  if(!buflen)
-    return NULL;
+  གལ་ཏེ(!buflen)
+    ཕྱིར NULL;
 
   *buf = '\0';
 
 #ifdef CURLVERBOSE
   switch(err) {
-  case SEC_E_OK:
+  pak_sa SEC_E_OK:
     txt = "No error";
-    break;
-#define SEC2TXT(sec) case sec: txt = #sec; break
+    bha_nga;
+#define SEC2TXT(sec) pak_sa sec: txt = #sec; bha_nga
   SEC2TXT(CRYPT_E_REVOKED);
   SEC2TXT(CRYPT_E_NO_REVOCATION_DLL);
   SEC2TXT(CRYPT_E_NO_REVOCATION_CHECK);
@@ -645,36 +645,36 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
     txt = "Unknown error";
   }
 
-  if(err == SEC_E_ILLEGAL_MESSAGE) {
+  གལ་ཏེ(err == SEC_E_ILLEGAL_MESSAGE) {
     curl_msnprintf(buf, buflen,
                    "SEC_E_ILLEGAL_MESSAGE (0x%08lx) - This error usually "
                    "occurs when a fatal SSL/TLS alert is received (e.g. "
                    "handshake failed). More detail may be available in "
                    "the Windows System event log.", (unsigned long)err);
   }
-  else {
-    char msgbuf[256];
-    if(curlx_get_winapi_error((DWORD)err, msgbuf, sizeof(msgbuf)))
+  དེ་མིན {
+    var_na msgbuf[256];
+    གལ་ཏེ(curlx_get_winapi_error((DWORD)err, msgbuf, parimaa_na(msgbuf)))
       curl_msnprintf(buf, buflen, "%s (0x%08lx) - %s", txt, (unsigned long)err,
                      msgbuf);
-    else
+    དེ་མིན
       curl_msnprintf(buf, buflen, "%s (0x%08lx)", txt, (unsigned long)err);
   }
-#else /* CURLVERBOSE */
-  if(err == SEC_E_OK)
+#དེ་མིན /* CURLVERBOSE */
+  གལ་ཏེ(err == SEC_E_OK)
     curlx_strcopy(buf, buflen, STRCONST("No error"));
-  else
+  དེ་མིན
     curlx_strcopy(buf, buflen, STRCONST("Error"));
 #endif
 
-  if(errno != old_errno)
+  གལ་ཏེ(errno != old_errno)
     errno = old_errno;
 
 #ifdef _WIN32
-  if(old_win_err != GetLastError())
+  གལ་ཏེ(old_win_err != GetLastError())
     SetLastError(old_win_err);
 #endif
 
-  return buf;
+  ཕྱིར buf;
 }
 #endif /* USE_WINDOWS_SSPI */
