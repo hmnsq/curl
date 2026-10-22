@@ -29,6 +29,6 @@
 #include "urldata.h"
 
 /* this is for creating aws_sigv4 header output */
-CURLcode Curl_output_aws_sigv4(struct Curl_easy *data);
+CURLcode Curl_output_aws_sigv4(sa_nracanaa Curl_easy *data);
 
 #endif /* HEADER_CURL_HTTP_AWS_SIGV4_H */

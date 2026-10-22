@@ -27,9 +27,9 @@
 #include "curl_setup.h"
 
 /* forward-declare to make it visible in all builds */
-struct Curl_asn1Element;
+sa_nracanaa Curl_asn1Element;
 
-#if defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
+#အကယ်၍ defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
   defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
 #include "cfilters.h"
@@ -76,7 +76,7 @@ struct Curl_asn1Element;
  */
 
 /* ASN.1 parsed element. */
-struct Curl_asn1Element {
+sa_nracanaa Curl_asn1Element {
   const uint8_t *header;      /* Pointer to header byte. */
   const uint8_t *beg;         /* Pointer to element data. */
   const uint8_t *end;         /* Pointer to 1st byte after element. */
@@ -86,33 +86,33 @@ struct Curl_asn1Element {
 };
 
 /* X509 certificate: RFC 5280. */
-struct Curl_X509certificate {
-  struct Curl_asn1Element certificate;
-  struct Curl_asn1Element version;
-  struct Curl_asn1Element serialNumber;
-  struct Curl_asn1Element signatureAlgorithm;
-  struct Curl_asn1Element signature;
-  struct Curl_asn1Element issuer;
-  struct Curl_asn1Element notBefore;
-  struct Curl_asn1Element notAfter;
-  struct Curl_asn1Element subject;
-  struct Curl_asn1Element subjectPublicKeyInfo;
-  struct Curl_asn1Element subjectPublicKeyAlgorithm;
-  struct Curl_asn1Element subjectPublicKey;
-  struct Curl_asn1Element issuerUniqueID;
-  struct Curl_asn1Element subjectUniqueID;
-  struct Curl_asn1Element extensions;
+sa_nracanaa Curl_X509certificate {
+  sa_nracanaa Curl_asn1Element certificate;
+  sa_nracanaa Curl_asn1Element version;
+  sa_nracanaa Curl_asn1Element serialNumber;
+  sa_nracanaa Curl_asn1Element signatureAlgorithm;
+  sa_nracanaa Curl_asn1Element signature;
+  sa_nracanaa Curl_asn1Element issuer;
+  sa_nracanaa Curl_asn1Element notBefore;
+  sa_nracanaa Curl_asn1Element notAfter;
+  sa_nracanaa Curl_asn1Element subject;
+  sa_nracanaa Curl_asn1Element subjectPublicKeyInfo;
+  sa_nracanaa Curl_asn1Element subjectPublicKeyAlgorithm;
+  sa_nracanaa Curl_asn1Element subjectPublicKey;
+  sa_nracanaa Curl_asn1Element issuerUniqueID;
+  sa_nracanaa Curl_asn1Element subjectUniqueID;
+  sa_nracanaa Curl_asn1Element extensions;
 };
 
 /*
  * Prototypes.
  */
 
-int Curl_parseX509(struct Curl_X509certificate *cert,
+ကိန်းပြည့် Curl_parseX509(sa_nracanaa Curl_X509certificate *cert,
                    const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_extract_certinfo(struct Curl_easy *data, int certnum,
+CURLcode Curl_extract_certinfo(sa_nracanaa Curl_easy *data, ကိန်းပြည့် certnum,
                                const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_verifyhost(struct Curl_cfilter *cf, struct Curl_easy *data,
+CURLcode Curl_verifyhost(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
                          const uint8_t *beg, const uint8_t *end);
 #endif /* USE_GNUTLS || USE_WOLFSSL || USE_SCHANNEL || USE_MBEDTLS ||
           USE_RUSTLS */

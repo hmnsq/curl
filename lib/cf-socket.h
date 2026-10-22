@@ -25,12 +25,12 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-struct Curl_addrinfo;
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_sockaddr_ex;
-struct ip_quadruple;
+sa_nracanaa Curl_addrinfo;
+sa_nracanaa Curl_cfilter;
+sa_nracanaa Curl_easy;
+sa_nracanaa connectdata;
+sa_nracanaa Curl_sockaddr_ex;
+sa_nracanaa ip_quadruple;
 
 #define curl_sa_addr    addr.sa
 #define curl_sa_addrbuf addr.buf
@@ -38,11 +38,11 @@ struct ip_quadruple;
 /*
  * Parse interface option, and return the interface name and the host part.
  */
-CURLcode Curl_parse_interface(const char *input,
-                              char **dev, char **iface, char **host);
+CURLcode Curl_parse_interface(const var_na *input,
+                              var_na **dev, var_na **iface, var_na **host);
 
-CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,
-                                  const struct Curl_addrinfo *ai,
+CURLcode Curl_socket_addr_from_ai(sa_nracanaa Curl_sockaddr_ex *addr,
+                                  const sa_nracanaa Curl_addrinfo *ai,
                                   uint8_t transport);
 
 /*
@@ -52,18 +52,18 @@ CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,
  * socket callback is set, used that!
  *
  */
-CURLcode Curl_socket_open(struct Curl_easy *data,
-                          const struct Curl_addrinfo *ai,
-                          struct Curl_sockaddr_ex *addr,
+CURLcode Curl_socket_open(sa_nracanaa Curl_easy *data,
+                          const sa_nracanaa Curl_addrinfo *ai,
+                          sa_nracanaa Curl_sockaddr_ex *addr,
                           uint8_t transport,
                           curl_socket_t *sockfd);
 
 #ifdef USE_SO_NOSIGPIPE
 /* Set SO_NOSIGPIPE on socket, return < 0 on error. */
-int Curl_sock_nosigpipe(curl_socket_t sockfd);
+ကိန်းပြည့် Curl_sock_nosigpipe(curl_socket_t sockfd);
 #endif
 
-int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
+ကိန်းပြည့် Curl_socket_close(sa_nracanaa Curl_easy *data, sa_nracanaa connectdata *conn,
                       curl_socket_t sock);
 
 /**
@@ -73,14 +73,14 @@ int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_tcp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_tcp_create(sa_nracanaa Curl_cfilter **pcf,
+                            sa_nracanaa Curl_easy *data,
+                            sa_nracanaa Curl_peer *origin,
+                            sa_nracanaa Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            sa_nracanaa connectdata *conn,
+                            sa_nracanaa Curl_sockaddr_ex *addr,
+                            sa_nracanaa Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport);
 
 /**
@@ -90,14 +90,14 @@ CURLcode Curl_cf_tcp_create(struct Curl_cfilter **pcf,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_udp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_udp_create(sa_nracanaa Curl_cfilter **pcf,
+                            sa_nracanaa Curl_easy *data,
+                            sa_nracanaa Curl_peer *origin,
+                            sa_nracanaa Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            sa_nracanaa connectdata *conn,
+                            sa_nracanaa Curl_sockaddr_ex *addr,
+                            sa_nracanaa Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport);
 
 /**
@@ -107,21 +107,21 @@ CURLcode Curl_cf_udp_create(struct Curl_cfilter **pcf,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_unix_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_unix_create(sa_nracanaa Curl_cfilter **pcf,
+                             sa_nracanaa Curl_easy *data,
+                             sa_nracanaa Curl_peer *origin,
+                             sa_nracanaa Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             sa_nracanaa connectdata *conn,
+                             sa_nracanaa Curl_sockaddr_ex *addr,
+                             sa_nracanaa Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport);
 
 /**
  * Creates a cfilter that keeps a listening socket.
  */
-CURLcode Curl_conn_tcp_listen_set(struct Curl_easy *data,
-                                  struct connectdata *conn,
+CURLcode Curl_conn_tcp_listen_set(sa_nracanaa Curl_easy *data,
+                                  sa_nracanaa connectdata *conn,
                                   int8_t sockindex,
                                   curl_socket_t *s);
 
@@ -129,7 +129,7 @@ CURLcode Curl_conn_tcp_listen_set(struct Curl_easy *data,
  * Return TRUE iff the last filter at `sockindex` was set via
  * Curl_conn_tcp_listen_set().
  */
-bool Curl_conn_is_tcp_listen(struct Curl_easy *data,
+bool Curl_conn_is_tcp_listen(sa_nracanaa Curl_easy *data,
                              int8_t sockindex);
 
 /**
@@ -140,15 +140,15 @@ bool Curl_conn_is_tcp_listen(struct Curl_easy *data,
  * @param pip               pointer to get IP quadruple or NULL
  * Returns error if the filter is of invalid type.
  */
-CURLcode Curl_cf_socket_peek(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
+CURLcode Curl_cf_socket_peek(sa_nracanaa Curl_cfilter *cf,
+                             sa_nracanaa Curl_easy *data,
                              curl_socket_t *psock,
-                             const struct Curl_sockaddr_ex **paddr,
-                             struct ip_quadruple *pip) WARN_UNUSED_RESULT;
+                             const sa_nracanaa Curl_sockaddr_ex **paddr,
+                             sa_nracanaa ip_quadruple *pip) WARN_UNUSED_RESULT;
 
-extern struct Curl_cftype Curl_cft_tcp;
-extern struct Curl_cftype Curl_cft_udp;
-extern struct Curl_cftype Curl_cft_unix;
-extern struct Curl_cftype Curl_cft_tcp_accept;
+extern sa_nracanaa Curl_cftype Curl_cft_tcp;
+extern sa_nracanaa Curl_cftype Curl_cft_udp;
+extern sa_nracanaa Curl_cftype Curl_cft_unix;
+extern sa_nracanaa Curl_cftype Curl_cft_tcp_accept;
 
 #endif /* HEADER_CURL_CF_SOCKET_H */

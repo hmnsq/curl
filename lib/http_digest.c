@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#အကယ်၍ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
 #include "urldata.h"
 #include "curl_trc.h"
@@ -35,25 +35,25 @@
 /* Flush the Digest state if it was created for a different origin or with
    different credentials than the ones now in use, then link the current
    ones. */
-static void digest_flush_stale(struct Curl_easy *data,
-                               struct digestdata *digest,
-                               struct Curl_peer *peer,
-                               struct Curl_creds *creds)
+static void digest_flush_stale(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa digestdata *digest,
+                               sa_nracanaa Curl_peer *peer,
+                               sa_nracanaa Curl_creds *creds)
 {
   bool flush = FALSE;
-  if(!digest->origin || !Curl_peer_equal(peer, digest->origin)) {
+  အကယ်၍(!digest->origin || !Curl_peer_equal(peer, digest->origin)) {
     CURL_TRC_M(data, "http_digest, reset on peer change to %s:%u",
                peer ? peer->hostname : "-",
-               (unsigned int)(peer ? peer->port : 0));
+               (unsigned ကိန်းပြည့်)(peer ? peer->port : 0));
     flush = TRUE;
   }
-  else if(digest->creds && !Curl_creds_same(creds, digest->creds)) {
+  မဟုတ်ပါက အကယ်၍(digest->creds && !Curl_creds_same(creds, digest->creds)) {
     CURL_TRC_M(data, "http_digest, reset on creds change to %s",
                creds ? creds->user : "-");
     flush = TRUE;
   }
 
-  if(flush) {
+  အကယ်၍(flush) {
     /* flush Digest state */
     Curl_auth_digest_cleanup(digest);
   }
@@ -67,33 +67,33 @@ static void digest_flush_stale(struct Curl_easy *data,
    WWW-Authenticate: Digest realm="testrealm", nonce="1053604598"
    Proxy-Authenticate: Digest realm="testrealm", nonce="1053604598"
  */
-CURLcode Curl_input_digest(struct Curl_easy *data,
+CURLcode Curl_input_digest(sa_nracanaa Curl_easy *data,
                            bool proxy,
-                           const char *header) /* rest of the *-authenticate:
+                           const var_na *header) /* rest of the *-authenticate:
                                                   header */
 {
   /* Point to the correct struct with this */
-  struct digestdata *digest;
-  struct Curl_peer *origin = NULL;
+  sa_nracanaa digestdata *digest;
+  sa_nracanaa Curl_peer *origin = NULL;
   CURLcode result;
 
-  if(proxy) {
+  အကယ်၍(proxy) {
     digest = &data->state.proxydigest;
 #ifdef CURL_DISABLE_PROXY
     Curl_auth_digest_cleanup(digest);
-    return CURLE_OK;  /* just ignore such a header without proxy support */
-#else
+    ပြန်ပေး CURLE_OK;  /* just ignore such a header without proxy support */
+#မဟုတ်ပါက
     origin = data->conn->http_proxy.peer;
 #endif
   }
-  else {
+  မဟုတ်ပါက {
     digest = &data->state.digest;
     origin = data->state.origin;
   }
 
-  if(!checkprefix("Digest", header) || !ISBLANK(header[6])) {
+  အကယ်၍(!checkprefix("Digest", header) || !ISBLANK(header[6])) {
     Curl_auth_digest_cleanup(digest);
-    return CURLE_AUTH_ERROR;
+    ပြန်ပေး CURLE_AUTH_ERROR;
   }
 
   header += CURL_CSTRLEN("Digest");
@@ -104,35 +104,35 @@ CURLcode Curl_input_digest(struct Curl_easy *data,
   /* Remember only the peer, the data we take in has no relation to creds
    * at this time. We can use it even if creds change. */
   Curl_peer_link(&digest->origin, origin);
-  return result;
+  ပြန်ပေး result;
 }
 
-CURLcode Curl_output_digest(struct Curl_easy *data,
+CURLcode Curl_output_digest(sa_nracanaa Curl_easy *data,
                             bool proxy,
-                            const unsigned char *request,
-                            const unsigned char *uripath)
+                            const unsigned var_na *request,
+                            const unsigned var_na *uripath)
 {
-  struct Curl_peer *origin = NULL;
+  sa_nracanaa Curl_peer *origin = NULL;
   CURLcode result;
-  char *response;
+  var_na *response;
   size_t len;
   bool have_chlg;
 
   /* Point to the address of the pointer that holds the string to send to the
      server, which is for a plain host or for an HTTP proxy */
-  char **allocuserpwd;
+  var_na **allocuserpwd;
 
   /* Point to the name and password for this */
-  struct Curl_creds *creds = NULL;
+  sa_nracanaa Curl_creds *creds = NULL;
 
   /* Point to the correct struct with this */
-  struct digestdata *digest;
-  struct auth *authp;
+  sa_nracanaa digestdata *digest;
+  sa_nracanaa auth *authp;
 
-  if(proxy) {
+  အကယ်၍(proxy) {
 #ifdef CURL_DISABLE_PROXY
-    return CURLE_NOT_BUILT_IN;
-#else
+    ပြန်ပေး CURLE_NOT_BUILT_IN;
+#မဟုတ်ပါက
     digest = &data->state.proxydigest;
     origin = data->conn->http_proxy.peer;
     creds = data->conn->http_proxy.creds;
@@ -140,7 +140,7 @@ CURLcode Curl_output_digest(struct Curl_easy *data,
     authp = &data->state.authproxy;
 #endif
   }
-  else {
+  မဟုတ်ပါက {
     DEBUGASSERT(data->state.origin);
     digest = &data->state.digest;
     origin = data->state.origin;
@@ -154,33 +154,33 @@ CURLcode Curl_output_digest(struct Curl_easy *data,
 
 #ifdef USE_WINDOWS_SSPI
   have_chlg = !!digest->input_token;
-#else
+#မဟုတ်ပါက
   have_chlg = !!digest->nonce;
 #endif
 
-  if(!have_chlg) {
+  အကယ်၍(!have_chlg) {
     authp->done = FALSE;
-    return CURLE_OK;
+    ပြန်ပေး CURLE_OK;
   }
 
   result = Curl_auth_create_digest_http_message(data, creds, request,
                                                 uripath, digest,
                                                 &response, &len);
-  if(result)
-    return result;
+  အကယ်၍(result)
+    ပြန်ပေး result;
 
   *allocuserpwd = curl_maprintf("%sAuthorization: Digest %s\r\n",
                                 proxy ? "Proxy-" : "", response);
   curlx_free(response);
-  if(!*allocuserpwd)
-    return CURLE_OUT_OF_MEMORY;
+  အကယ်၍(!*allocuserpwd)
+    ပြန်ပေး CURLE_OUT_OF_MEMORY;
 
   authp->done = TRUE;
 
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
-void Curl_http_auth_cleanup_digest(struct Curl_easy *data)
+void Curl_http_auth_cleanup_digest(sa_nracanaa Curl_easy *data)
 {
   Curl_auth_digest_cleanup(&data->state.digest);
   Curl_auth_digest_cleanup(&data->state.proxydigest);

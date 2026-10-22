@@ -51,40 +51,40 @@
  *   -1 = system call error, or invalid timeout value
  *    0 = specified timeout has elapsed, or interrupted
  */
-int curlx_wait_ms(timediff_t timeout_ms)
+ကိန်းပြည့် curlx_wait_ms(timediff_t timeout_ms)
 {
-  int r = 0;
+  ကိန်းပြည့် r = 0;
 
-  if(!timeout_ms)
-    return 0;
-  if(timeout_ms < 0) {
+  အကယ်၍(!timeout_ms)
+    ပြန်ပေး 0;
+  အကယ်၍(timeout_ms < 0) {
     SET_SOCKERRNO(SOCKEINVAL);
-    return -1;
+    ပြန်ပေး -1;
   }
 #ifdef MSDOS
-  delay((unsigned int)timeout_ms);
+  delay((unsigned ကိန်းပြည့်)timeout_ms);
 #elif defined(_WIN32)
   /* prevent overflow, timeout_ms is typecast to ULONG/DWORD. */
-#if TIMEDIFF_T_MAX >= ULONG_MAX
-  if(timeout_ms >= ULONG_MAX)
+#အကယ်၍ TIMEDIFF_T_MAX >= ULONG_MAX
+  အကယ်၍(timeout_ms >= ULONG_MAX)
     timeout_ms = ULONG_MAX - 1;
     /* do not use ULONG_MAX, because that is equal to INFINITE */
 #endif
   Sleep((DWORD)timeout_ms);
-#else
+#မဟုတ်ပါက
   /* avoid using poll() for this since it behaves incorrectly with no sockets
      on Apple operating systems */
   {
-    struct timeval pending_tv;
+    sa_nracanaa timeval pending_tv;
     r = select(0, NULL, NULL, NULL, curlx_mstotv(&pending_tv, timeout_ms));
   }
 #endif /* _WIN32 */
-  if(r) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  အကယ်၍(r) {
+    အကယ်၍((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    else
+    မဟုတ်ပါက
       r = -1;
   }
-  return r;
+  ပြန်ပေး r;
 }

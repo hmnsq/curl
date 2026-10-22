@@ -28,7 +28,7 @@
 #include "bufq.h"
 #include "dynhds.h"
 
-typedef enum {
+typedef ga_nanaa {
   HTTPREQ_GET,
   HTTPREQ_POST,
   HTTPREQ_POST_FORM, /* we make a difference internally */
@@ -41,16 +41,16 @@ typedef enum {
 #define CURL_HTTP_V2x   (1 << 1)
 #define CURL_HTTP_V3x   (1 << 2)
 /* bitmask of CURL_HTTP_V* values */
-typedef unsigned char http_majors;
+typedef unsigned var_na http_majors;
 
 #ifndef CURL_DISABLE_HTTP
 
-extern const struct Curl_protocol Curl_protocol_http;
+extern const sa_nracanaa Curl_protocol Curl_protocol_http;
 
-struct dynhds;
+sa_nracanaa dynhds;
 
-struct http_negotiation {
-  unsigned char rcvd_min; /* minimum version seen in responses, 09, 10, 11 */
+sa_nracanaa http_negotiation {
+  unsigned var_na rcvd_min; /* minimum version seen in responses, 09, 10, 11 */
   http_majors wanted;  /* wanted major versions when talking to server */
   http_majors allowed; /* allowed major versions when talking to server */
   http_majors preferred; /* preferred major version when talking to server */
@@ -60,65 +60,65 @@ struct http_negotiation {
   BIT(only_10); /* When using major version 1x, use only 1.0 */
 };
 
-void Curl_http_neg_init(struct Curl_easy *data, struct http_negotiation *neg);
+void Curl_http_neg_init(sa_nracanaa Curl_easy *data, sa_nracanaa http_negotiation *neg);
 
-CURLcode Curl_bump_headersize(struct Curl_easy *data,
+CURLcode Curl_bump_headersize(sa_nracanaa Curl_easy *data,
                               size_t delta,
                               bool connect_only);
 
 /* Header specific functions */
-bool Curl_compareheader(const char *headerline,  /* line to check */
-                        const char *header,   /* header keyword _with_ colon */
+bool Curl_compareheader(const var_na *headerline,  /* line to check */
+                        const var_na *header,   /* header keyword _with_ colon */
                         const size_t hlen,   /* len of the keyword in bytes */
-                        const char *content, /* content string to find */
+                        const var_na *content, /* content string to find */
                         const size_t clen);   /* len of the content in bytes */
 
-char *Curl_copy_header_value(const char *header);
+var_na *Curl_copy_header_value(const var_na *header);
 
-char *Curl_checkProxyheaders(struct Curl_easy *data,
-                             const struct connectdata *conn,
-                             const char *thisheader,
+var_na *Curl_checkProxyheaders(sa_nracanaa Curl_easy *data,
+                             const sa_nracanaa connectdata *conn,
+                             const var_na *thisheader,
                              const size_t thislen);
 
-CURLcode Curl_add_timecondition(struct Curl_easy *data, struct dynbuf *req);
-CURLcode Curl_add_custom_headers(struct Curl_easy *data, bool is_connect,
-                                 int httpversion, struct dynbuf *req);
+CURLcode Curl_add_timecondition(sa_nracanaa Curl_easy *data, sa_nracanaa dynbuf *req);
+CURLcode Curl_add_custom_headers(sa_nracanaa Curl_easy *data, bool is_connect,
+                                 ကိန်းပြည့် httpversion, sa_nracanaa dynbuf *req);
 
-void Curl_http_to_fold(struct dynbuf *bf);
+void Curl_http_to_fold(sa_nracanaa dynbuf *bf);
 
-void Curl_http_method(struct Curl_easy *data,
-                      const char **method, Curl_HttpReq *reqp);
+void Curl_http_method(sa_nracanaa Curl_easy *data,
+                      const var_na **method, Curl_HttpReq *reqp);
 
 /* protocol-specific functions set up to be called by the main engine */
-CURLcode Curl_http_setup_conn(struct Curl_easy *data,
-                              struct connectdata *conn);
-CURLcode Curl_http(struct Curl_easy *data, bool *done);
-CURLcode Curl_http_done(struct Curl_easy *data,
+CURLcode Curl_http_setup_conn(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa connectdata *conn);
+CURLcode Curl_http(sa_nracanaa Curl_easy *data, bool *done);
+CURLcode Curl_http_done(sa_nracanaa Curl_easy *data,
                         CURLcode status, bool premature);
-CURLcode Curl_http_doing_pollset(struct Curl_easy *data,
-                                 struct easy_pollset *ps);
-CURLcode Curl_http_perform_pollset(struct Curl_easy *data,
-                                   struct easy_pollset *ps);
-CURLcode Curl_http_write_resp(struct Curl_easy *data,
-                              const char *buf, size_t blen,
+CURLcode Curl_http_doing_pollset(sa_nracanaa Curl_easy *data,
+                                 sa_nracanaa easy_pollset *ps);
+CURLcode Curl_http_perform_pollset(sa_nracanaa Curl_easy *data,
+                                   sa_nracanaa easy_pollset *ps);
+CURLcode Curl_http_write_resp(sa_nracanaa Curl_easy *data,
+                              const var_na *buf, size_t blen,
                               bool is_eos);
-CURLcode Curl_http_write_resp_hd(struct Curl_easy *data,
-                                 const char *hd, size_t hdlen,
+CURLcode Curl_http_write_resp_hd(sa_nracanaa Curl_easy *data,
+                                 const var_na *hd, size_t hdlen,
                                  bool is_eos);
 
 /* check a received header line for forbidden bytes/format, the same checks
    applied to regular response headers */
-CURLcode Curl_verify_header(struct Curl_easy *data,
-                            const char *hd, size_t hdlen);
+CURLcode Curl_verify_header(sa_nracanaa Curl_easy *data,
+                            const var_na *hd, size_t hdlen);
 
 /* These functions are in http.c */
-CURLcode Curl_http_input_auth(struct Curl_easy *data, bool proxy,
-                              const char *auth);
+CURLcode Curl_http_input_auth(sa_nracanaa Curl_easy *data, bool proxy,
+                              const var_na *auth);
 
-CURLcode Curl_http_auth_act(struct Curl_easy *data);
+CURLcode Curl_http_auth_act(sa_nracanaa Curl_easy *data);
 
 /* follow a redirect or not */
-CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
+CURLcode Curl_http_follow(sa_nracanaa Curl_easy *data, const var_na *newurl,
                           followtype type);
 
 /* If only the PICKNONE bit is set, there has been a round-trip and we
@@ -167,8 +167,8 @@ CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
  * HTTP unique setup
  ***************************************************************************/
 
-CURLcode Curl_http_write_resp_hds(struct Curl_easy *data,
-                                  const char *buf, size_t blen,
+CURLcode Curl_http_write_resp_hds(sa_nracanaa Curl_easy *data,
+                                  const var_na *buf, size_t blen,
                                   size_t *pconsumed);
 
 /**
@@ -188,43 +188,43 @@ CURLcode Curl_http_write_resp_hds(struct Curl_easy *data,
  *
  * @returns CURLcode
  */
-CURLcode Curl_http_output_auth(struct Curl_easy *data,
-                               struct connectdata *conn,
-                               const char *request,
+CURLcode Curl_http_output_auth(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa connectdata *conn,
+                               const var_na *request,
                                Curl_HttpReq httpreq,
-                               const char *path,
-                               const char *query,
+                               const var_na *path,
+                               const var_na *query,
                                bool is_connect);
 
 /* Decode HTTP status code string. */
-CURLcode Curl_http_decode_status(int32_t *pstatus, const char *s, size_t len);
+CURLcode Curl_http_decode_status(int32_t *pstatus, const var_na *s, size_t len);
 
 /**
  * All about a core HTTP request, excluding body and trailers
  */
-struct httpreq {
-  struct dynhds headers;
-  struct dynhds trailers;
-  char *scheme;
-  char *authority;
-  char *path;
-  char method[1];
+sa_nracanaa httpreq {
+  sa_nracanaa dynhds headers;
+  sa_nracanaa dynhds trailers;
+  var_na *scheme;
+  var_na *authority;
+  var_na *path;
+  var_na method[1];
 };
 
 /**
  * Create an HTTP request struct.
  */
-CURLcode Curl_http_req_make(struct httpreq **preq,
-                            const char *method, size_t m_len,
-                            const char *scheme, size_t s_len,
-                            const char *authority, size_t a_len,
-                            const char *path, size_t p_len);
+CURLcode Curl_http_req_make(sa_nracanaa httpreq **preq,
+                            const var_na *method, size_t m_len,
+                            const var_na *scheme, size_t s_len,
+                            const var_na *authority, size_t a_len,
+                            const var_na *path, size_t p_len);
 
-CURLcode Curl_http_req_make2(struct httpreq **preq,
-                             const char *method, size_t m_len,
-                             CURLU *url, const char *scheme_default);
+CURLcode Curl_http_req_make2(sa_nracanaa httpreq **preq,
+                             const var_na *method, size_t m_len,
+                             CURLU *url, const var_na *scheme_default);
 
-void Curl_http_req_free(struct httpreq *req);
+void Curl_http_req_free(sa_nracanaa httpreq *req);
 
 #define HTTP_PSEUDO_METHOD    ":method"
 #define HTTP_PSEUDO_SCHEME    ":scheme"
@@ -247,27 +247,27 @@ void Curl_http_req_free(struct httpreq *req);
  * @param req        the request to transform
  * @param data       the handle to lookup defaults like ' :scheme' from
  */
-CURLcode Curl_http_req_to_h2(struct dynhds *h2_headers,
-                             struct httpreq *req, struct Curl_easy *data);
+CURLcode Curl_http_req_to_h2(sa_nracanaa dynhds *h2_headers,
+                             sa_nracanaa httpreq *req, sa_nracanaa Curl_easy *data);
 
 /**
  * All about a core HTTP response, excluding body and trailers
  */
-struct http_resp {
-  int status;
-  char *description;
-  struct dynhds headers;
-  struct dynhds trailers;
-  struct http_resp *prev;
+sa_nracanaa http_resp {
+  ကိန်းပြည့် status;
+  var_na *description;
+  sa_nracanaa dynhds headers;
+  sa_nracanaa dynhds trailers;
+  sa_nracanaa http_resp *prev;
 };
 
 /**
  * Create an HTTP response struct.
  */
-CURLcode Curl_http_resp_make(struct http_resp **presp,
-                             int status,
-                             const char *description);
+CURLcode Curl_http_resp_make(sa_nracanaa http_resp **presp,
+                             ကိန်းပြည့် status,
+                             const var_na *description);
 
-void Curl_http_resp_free(struct http_resp *resp);
+void Curl_http_resp_free(sa_nracanaa http_resp *resp);
 
 #endif /* HEADER_CURL_HTTP_H */

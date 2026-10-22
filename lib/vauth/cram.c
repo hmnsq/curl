@@ -46,25 +46,25 @@
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_cram_md5_message(const struct bufref *chlg,
-                                           struct Curl_creds *creds,
-                                           struct bufref *out)
+CURLcode Curl_auth_create_cram_md5_message(const sa_nracanaa bufref *chlg,
+                                           sa_nracanaa Curl_creds *creds,
+                                           sa_nracanaa bufref *out)
 {
-  struct HMAC_context *ctxt;
-  unsigned char digest[MD5_DIGEST_LEN];
-  char *response;
-  const char *user = Curl_creds_user(creds);
-  const char *passwd = Curl_creds_passwd(creds);
+  sa_nracanaa HMAC_context *ctxt;
+  unsigned var_na digest[MD5_DIGEST_LEN];
+  var_na *response;
+  const var_na *user = Curl_creds_user(creds);
+  const var_na *passwd = Curl_creds_passwd(creds);
 
   /* Compute the digest using the password as the key */
   ctxt = Curl_HMAC_init(&Curl_HMAC_MD5,
-                        (const unsigned char *)passwd,
+                        (const unsigned var_na *)passwd,
                         curlx_uztoui(strlen(passwd)));
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  အကယ်၍(!ctxt)
+    ပြန်ပေး CURLE_OUT_OF_MEMORY;
 
   /* Update the digest with the given challenge */
-  if(Curl_bufref_len(chlg))
+  အကယ်၍(Curl_bufref_len(chlg))
     Curl_HMAC_update(ctxt, Curl_bufref_uptr(chlg),
                      curlx_uztoui(Curl_bufref_len(chlg)));
 
@@ -77,11 +77,11 @@ CURLcode Curl_auth_create_cram_md5_message(const struct bufref *chlg,
     user, digest[0], digest[1], digest[2], digest[3], digest[4],
     digest[5], digest[6], digest[7], digest[8], digest[9], digest[10],
     digest[11], digest[12], digest[13], digest[14], digest[15]);
-  if(!response)
-    return CURLE_OUT_OF_MEMORY;
+  အကယ်၍(!response)
+    ပြန်ပေး CURLE_OUT_OF_MEMORY;
 
   Curl_bufref_set(out, response, strlen(response), curl_free);
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
 #endif /* !CURL_DISABLE_DIGEST_AUTH */

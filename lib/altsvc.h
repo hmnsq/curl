@@ -25,52 +25,52 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
+#အကယ်၍ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
 #include "llist.h"
 
-struct Curl_peer;
+sa_nracanaa Curl_peer;
 
 /* the maximum number of alt-svc entries kept in a single cache */
 #define MAX_ALTSVC_ENTRIES 5000
 
-struct althost {
-  char *host;
+sa_nracanaa althost {
+  var_na *host;
   uint16_t port;
-  enum alpnid alpnid;
+  ga_nanaa alpnid alpnid;
 };
 
-struct altsvc {
-  struct althost src;
-  struct althost dst;
+sa_nracanaa altsvc {
+  sa_nracanaa althost src;
+  sa_nracanaa althost dst;
   time_t expires;
-  struct Curl_llist_node node;
+  sa_nracanaa Curl_llist_node node;
   BIT(persist);
 };
 
-struct altsvcinfo {
-  char *filename;
-  struct Curl_llist list; /* list of entries */
+sa_nracanaa altsvcinfo {
+  var_na *filename;
+  sa_nracanaa Curl_llist list; /* list of entries */
   long flags; /* the publicly set bitmask */
 };
 
-const char *Curl_alpnid2str(enum alpnid id);
-struct altsvcinfo *Curl_altsvc_init(void);
-CURLcode Curl_altsvc_load(struct altsvcinfo *asi, const char *file);
-CURLcode Curl_altsvc_save(struct Curl_easy *data,
-                          struct altsvcinfo *asi, const char *file);
-CURLcode Curl_altsvc_ctrl(struct Curl_easy *data, const long ctrl);
-void Curl_altsvc_cleanup(struct altsvcinfo **asi);
-CURLcode Curl_altsvc_parse(struct Curl_easy *data,
-                           struct altsvcinfo *asi, const char *value,
-                           struct Curl_peer *origin,
-                           enum alpnid origin_alpnid);
-bool Curl_altsvc_lookup(struct altsvcinfo *asi,
-                        struct Curl_peer *origin,
-                        enum alpnid origin_alpnid,
-                        struct altsvc **dstentry,
-                        const int versions, /* CURLALTSVC_H* bits */
+const var_na *Curl_alpnid2str(ga_nanaa alpnid id);
+sa_nracanaa altsvcinfo *Curl_altsvc_init(void);
+CURLcode Curl_altsvc_load(sa_nracanaa altsvcinfo *asi, const var_na *file);
+CURLcode Curl_altsvc_save(sa_nracanaa Curl_easy *data,
+                          sa_nracanaa altsvcinfo *asi, const var_na *file);
+CURLcode Curl_altsvc_ctrl(sa_nracanaa Curl_easy *data, const long ctrl);
+void Curl_altsvc_cleanup(sa_nracanaa altsvcinfo **asi);
+CURLcode Curl_altsvc_parse(sa_nracanaa Curl_easy *data,
+                           sa_nracanaa altsvcinfo *asi, const var_na *value,
+                           sa_nracanaa Curl_peer *origin,
+                           ga_nanaa alpnid origin_alpnid);
+bool Curl_altsvc_lookup(sa_nracanaa altsvcinfo *asi,
+                        sa_nracanaa Curl_peer *origin,
+                        ga_nanaa alpnid origin_alpnid,
+                        sa_nracanaa altsvc **dstentry,
+                        const ကိန်းပြည့် versions, /* CURLALTSVC_H* bits */
                         bool *psame_destination);
-#else
+#မဟုတ်ပါက
 /* disabled */
 #define Curl_altsvc_save(a, b, c)
 #define Curl_altsvc_cleanup(x)

@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_NTLM) && !defined(USE_WINDOWS_SSPI)
+#အကယ်၍ defined(USE_NTLM) && !defined(USE_WINDOWS_SSPI)
 
 /*
  * NTLM details:
@@ -61,7 +61,7 @@
 /* Requests that the server's authentication realm be included in the Type 2
    message. */
 
-#if DEBUG_ME
+#အကယ်၍ DEBUG_ME
 /* unknown (1 << 3) */
 #define NTLMFLAG_NEGOTIATE_SIGN                  (1 << 4)
 /* Specifies that authenticated communication between the client and server
@@ -82,7 +82,7 @@
 #define NTLMFLAG_NEGOTIATE_NTLM_KEY              (1 << 9)
 /* Indicates that NTLM authentication is being used. */
 
-#if DEBUG_ME
+#အကယ်၍ DEBUG_ME
 /* unknown (1 << 10) */
 
 #define NTLMFLAG_NEGOTIATE_ANONYMOUS             (1 << 11)
@@ -107,7 +107,7 @@
 /* Indicates that authenticated communication between the client and server
    should be signed with a "dummy" signature. */
 
-#if DEBUG_ME
+#အကယ်၍ DEBUG_ME
 #define NTLMFLAG_TARGET_TYPE_DOMAIN              (1 << 16)
 /* Sent by the server in the Type 2 message to indicate that the target
    authentication realm is a domain. */
@@ -126,7 +126,7 @@
 /* Indicates that the NTLM2 signing and sealing scheme should be used for
    protecting authenticated communications. */
 
-#if DEBUG_ME
+#အကယ်၍ DEBUG_ME
 #define NTLMFLAG_REQUEST_INIT_RESPONSE           (1 << 20)
 /* unknown purpose */
 
@@ -141,7 +141,7 @@
 /* Sent by the server in the Type 2 message to indicate that it is including a
    Target Information block in the message. */
 
-#if DEBUG_ME
+#အကယ်၍ DEBUG_ME
 /* unknown (1<24) */
 /* unknown (1<25) */
 /* unknown (1<26) */
@@ -161,81 +161,81 @@
 #define DEBUG_OUT(x) x
 static void ntlm_print_flags(FILE *handle, unsigned long flags)
 {
-  if(flags & NTLMFLAG_NEGOTIATE_UNICODE)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_UNICODE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_UNICODE ");
-  if(flags & NTLMFLAG_NEGOTIATE_OEM)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_OEM)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_OEM ");
-  if(flags & NTLMFLAG_REQUEST_TARGET)
+  အကယ်၍(flags & NTLMFLAG_REQUEST_TARGET)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_TARGET ");
-  if(flags & (1 << 3))
+  အကယ်၍(flags & (1 << 3))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_3 ");
-  if(flags & NTLMFLAG_NEGOTIATE_SIGN)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_SIGN)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_SIGN ");
-  if(flags & NTLMFLAG_NEGOTIATE_SEAL)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_SEAL)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_SEAL ");
-  if(flags & NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE ");
-  if(flags & NTLMFLAG_NEGOTIATE_LM_KEY)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_LM_KEY)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_LM_KEY ");
-  if(flags & NTLMFLAG_NEGOTIATE_NTLM_KEY)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_NTLM_KEY)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_NTLM_KEY ");
-  if(flags & (1 << 10))
+  အကယ်၍(flags & (1 << 10))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_10 ");
-  if(flags & NTLMFLAG_NEGOTIATE_ANONYMOUS)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_ANONYMOUS)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_ANONYMOUS ");
-  if(flags & NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED ");
-  if(flags & NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED ");
-  if(flags & NTLMFLAG_NEGOTIATE_LOCAL_CALL)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_LOCAL_CALL)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_LOCAL_CALL ");
-  if(flags & NTLMFLAG_NEGOTIATE_ALWAYS_SIGN)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_ALWAYS_SIGN)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_ALWAYS_SIGN ");
-  if(flags & NTLMFLAG_TARGET_TYPE_DOMAIN)
+  အကယ်၍(flags & NTLMFLAG_TARGET_TYPE_DOMAIN)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_DOMAIN ");
-  if(flags & NTLMFLAG_TARGET_TYPE_SERVER)
+  အကယ်၍(flags & NTLMFLAG_TARGET_TYPE_SERVER)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_SERVER ");
-  if(flags & NTLMFLAG_TARGET_TYPE_SHARE)
+  အကယ်၍(flags & NTLMFLAG_TARGET_TYPE_SHARE)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_SHARE ");
-  if(flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_NTLM2_KEY ");
-  if(flags & NTLMFLAG_REQUEST_INIT_RESPONSE)
+  အကယ်၍(flags & NTLMFLAG_REQUEST_INIT_RESPONSE)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_INIT_RESPONSE ");
-  if(flags & NTLMFLAG_REQUEST_ACCEPT_RESPONSE)
+  အကယ်၍(flags & NTLMFLAG_REQUEST_ACCEPT_RESPONSE)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_ACCEPT_RESPONSE ");
-  if(flags & NTLMFLAG_REQUEST_NONNT_SESSION_KEY)
+  အကယ်၍(flags & NTLMFLAG_REQUEST_NONNT_SESSION_KEY)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_NONNT_SESSION_KEY ");
-  if(flags & NTLMFLAG_NEGOTIATE_TARGET_INFO)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_TARGET_INFO)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_TARGET_INFO ");
-  if(flags & (1 << 24))
+  အကယ်၍(flags & (1 << 24))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_24 ");
-  if(flags & (1 << 25))
+  အကယ်၍(flags & (1 << 25))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_25 ");
-  if(flags & (1 << 26))
+  အကယ်၍(flags & (1 << 26))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_26 ");
-  if(flags & (1 << 27))
+  အကယ်၍(flags & (1 << 27))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_27 ");
-  if(flags & (1 << 28))
+  အကယ်၍(flags & (1 << 28))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_28 ");
-  if(flags & NTLMFLAG_NEGOTIATE_128)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_128)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_128 ");
-  if(flags & NTLMFLAG_NEGOTIATE_KEY_EXCHANGE)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_KEY_EXCHANGE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_KEY_EXCHANGE ");
-  if(flags & NTLMFLAG_NEGOTIATE_56)
+  အကယ်၍(flags & NTLMFLAG_NEGOTIATE_56)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_56 ");
 }
 
-static void ntlm_print_hex(FILE *handle, const char *buf, size_t len)
+static void ntlm_print_hex(FILE *handle, const var_na *buf, size_t len)
 {
-  const char *p = buf;
+  const var_na *p = buf;
 
   (void)handle;
 
   curl_mfprintf(stderr, "0x");
-  while(len-- > 0)
-    curl_mfprintf(stderr, "%02.2x", (unsigned int)*p++);
+  နေစဉ်(len-- > 0)
+    curl_mfprintf(stderr, "%02.2x", (unsigned ကိန်းပြည့်)*p++);
 }
-#else
+#မဟုတ်ပါက
 #define DEBUG_OUT(x) Curl_nop_stmt
 #endif
 
@@ -253,38 +253,38 @@ static void ntlm_print_hex(FILE *handle, const char *buf, size_t len)
  *
  * Returns CURLE_OK on success.
  */
-static CURLcode ntlm_decode_type2_target(struct Curl_easy *data,
-                                         const struct bufref *type2ref,
-                                         struct ntlmdata *ntlm)
+static CURLcode ntlm_decode_type2_target(sa_nracanaa Curl_easy *data,
+                                         const sa_nracanaa bufref *type2ref,
+                                         sa_nracanaa ntlmdata *ntlm)
 {
   unsigned short target_info_len = 0;
-  unsigned int target_info_offset = 0;
-  const unsigned char *type2 = Curl_bufref_uptr(type2ref);
+  unsigned ကိန်းပြည့် target_info_offset = 0;
+  const unsigned var_na *type2 = Curl_bufref_uptr(type2ref);
   size_t type2len = Curl_bufref_len(type2ref);
 
-  if(type2len >= 48) {
+  အကယ်၍(type2len >= 48) {
     target_info_len = Curl_read16_le(&type2[40]);
     target_info_offset = Curl_read32_le(&type2[44]);
-    if(target_info_len > 0) {
-      if((target_info_offset > type2len) ||
+    အကယ်၍(target_info_len > 0) {
+      အကယ်၍((target_info_offset > type2len) ||
          (target_info_offset + target_info_len) > type2len ||
          target_info_offset < 48) {
         infof(data, "NTLM handshake failure (bad type-2 message). "
               "Target Info Offset Len is set incorrect by the peer");
-        return CURLE_BAD_CONTENT_ENCODING;
+        ပြန်ပေး CURLE_BAD_CONTENT_ENCODING;
       }
 
       curlx_free(ntlm->target_info); /* replace any previous data */
       ntlm->target_info = curlx_memdup(&type2[target_info_offset],
                                        target_info_len);
-      if(!ntlm->target_info)
-        return CURLE_OUT_OF_MEMORY;
+      အကယ်၍(!ntlm->target_info)
+        ပြန်ပေး CURLE_OUT_OF_MEMORY;
     }
   }
 
   ntlm->target_info_len = target_info_len;
 
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
 /*
@@ -314,7 +314,7 @@ static CURLcode ntlm_decode_type2_target(struct Curl_easy *data,
  */
 bool Curl_auth_is_ntlm_supported(void)
 {
-  return TRUE;
+  ပြန်ပေး TRUE;
 }
 
 /*
@@ -332,11 +332,11 @@ bool Curl_auth_is_ntlm_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
-                                             const struct bufref *type2ref,
-                                             struct ntlmdata *ntlm)
+CURLcode Curl_auth_decode_ntlm_type2_message(sa_nracanaa Curl_easy *data,
+                                             const sa_nracanaa bufref *type2ref,
+                                             sa_nracanaa ntlmdata *ntlm)
 {
-  static const char type2_marker[] = { 0x02, 0x00, 0x00, 0x00 };
+  static const var_na type2_marker[] = { 0x02, 0x00, 0x00, 0x00 };
 
   /* NTLM type-2 message structure:
 
@@ -355,27 +355,27 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
   */
 
   CURLcode result = CURLE_OK;
-  const unsigned char *type2 = Curl_bufref_uptr(type2ref);
+  const unsigned var_na *type2 = Curl_bufref_uptr(type2ref);
   size_t type2len = Curl_bufref_len(type2ref);
 
   ntlm->flags = 0;
 
-  if((type2len < 32) ||
+  အကယ်၍((type2len < 32) ||
      memcmp(type2, NTLMSSP_SIGNATURE, 8) ||
-     memcmp(type2 + 8, type2_marker, sizeof(type2_marker))) {
+     memcmp(type2 + 8, type2_marker, parimaa_na(type2_marker))) {
     /* This was not a good enough type-2 message */
     infof(data, "NTLM handshake failure (bad type-2 message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    ပြန်ပေး CURLE_BAD_CONTENT_ENCODING;
   }
 
   ntlm->flags = Curl_read32_le(&type2[20]);
   memcpy(ntlm->nonce, &type2[24], 8);
 
-  if(ntlm->flags & NTLMFLAG_NEGOTIATE_TARGET_INFO) {
+  အကယ်၍(ntlm->flags & NTLMFLAG_NEGOTIATE_TARGET_INFO) {
     result = ntlm_decode_type2_target(data, type2ref, ntlm);
-    if(result) {
+    အကယ်၍(result) {
       infof(data, "NTLM handshake failure (bad type-2 message)");
-      return result;
+      ပြန်ပေး result;
     }
   }
 
@@ -383,21 +383,21 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
     curl_mfprintf(stderr, "**** TYPE2 header flags=0x%08.8lx ", ntlm->flags);
     ntlm_print_flags(stderr, ntlm->flags);
     curl_mfprintf(stderr, "\n                  nonce=");
-    ntlm_print_hex(stderr, (char *)ntlm->nonce, 8);
+    ntlm_print_hex(stderr, (var_na *)ntlm->nonce, 8);
     curl_mfprintf(stderr, "\n****\n");
     curl_mfprintf(stderr, "**** Header %s\n ", header);
   });
 
-  return result;
+  ပြန်ပေး result;
 }
 
 /* copy the source to the destination and fill in zeroes in every
    other destination byte! */
-static void unicodecpy(unsigned char *dest, const char *src, size_t length)
+static void unicodecpy(unsigned var_na *dest, const var_na *src, size_t length)
 {
   size_t i;
-  for(i = 0; i < length; i++) {
-    dest[2 * i] = (unsigned char)src[i];
+  အတွက်(i = 0; i < length; i++) {
+    dest[2 * i] = (unsigned var_na)src[i];
     dest[(2 * i) + 1] = '\0';
   }
 }
@@ -420,12 +420,12 @@ static void unicodecpy(unsigned char *dest, const char *src, size_t length)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             const char *host,
-                                             struct ntlmdata *ntlm,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_ntlm_type1_message(sa_nracanaa Curl_easy *data,
+                                             sa_nracanaa Curl_creds *creds,
+                                             const var_na *default_service,
+                                             const var_na *host,
+                                             sa_nracanaa ntlmdata *ntlm,
+                                             sa_nracanaa bufref *out)
 {
   /* NTLM type-1 message structure:
 
@@ -441,13 +441,13 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
                                      (*) -> Optional
   */
 
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  const var_na *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
   size_t size;
 
-  char *ntlmbuf;
-  const char *hostname = "";          /* empty */
-  const char *domain = "";            /* empty */
+  var_na *ntlmbuf;
+  const var_na *hostname = "";          /* empty */
+  const var_na *domain = "";            /* empty */
   size_t hostlen = 0;
   size_t domlen = 0;
   size_t hostoff = 0;
@@ -493,8 +493,8 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
                           hostname, /* this is empty */
                           domain /* this is empty */);
 
-  if(!ntlmbuf)
-    return CURLE_OUT_OF_MEMORY;
+  အကယ်၍(!ntlmbuf)
+    ပြန်ပေး CURLE_OUT_OF_MEMORY;
 
   /* Initial packet length */
   size = 32 + hostlen + domlen;
@@ -522,7 +522,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
   });
 
   Curl_bufref_set(out, ntlmbuf, size, curl_free);
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
 /*
@@ -541,10 +541,10 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
-                                             struct Curl_creds *creds,
-                                             struct ntlmdata *ntlm,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_ntlm_type3_message(sa_nracanaa Curl_easy *data,
+                                             sa_nracanaa Curl_creds *creds,
+                                             sa_nracanaa ntlmdata *ntlm,
+                                             sa_nracanaa bufref *out)
 {
   /* NTLM type-3 message structure:
 
@@ -566,22 +566,22 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 
   CURLcode result = CURLE_OK;
   size_t size;
-  unsigned char ntlmbuf[NTLM_BUFSIZE];
-  unsigned int lmrespoff;
-  unsigned char lmresp[24]; /* fixed-size */
-  unsigned int ntrespoff;
-  unsigned int ntresplen = 24;
-  unsigned char ntresp[24]; /* fixed-size */
-  const unsigned char *ptr_ntresp = &ntresp[0];
-  unsigned char *ntlmv2resp = NULL;
+  unsigned var_na ntlmbuf[NTLM_BUFSIZE];
+  unsigned ကိန်းပြည့် lmrespoff;
+  unsigned var_na lmresp[24]; /* fixed-size */
+  unsigned ကိန်းပြည့် ntrespoff;
+  unsigned ကိန်းပြည့် ntresplen = 24;
+  unsigned var_na ntresp[24]; /* fixed-size */
+  const unsigned var_na *ptr_ntresp = &ntresp[0];
+  unsigned var_na *ntlmv2resp = NULL;
   bool unicode = (ntlm->flags & NTLMFLAG_NEGOTIATE_UNICODE);
   /* The fixed hostname we provide, in order to not leak our real local host
      name. Copy the name used by Firefox. */
-  static const char host[] = "WORKSTATION";
-  const char *userp = Curl_creds_user(creds);
-  const char *passwdp = Curl_creds_passwd(creds);
-  const char *user;
-  const char *domain = "";
+  static const var_na host[] = "WORKSTATION";
+  const var_na *userp = Curl_creds_user(creds);
+  const var_na *passwdp = Curl_creds_passwd(creds);
+  const var_na *user;
+  const var_na *domain = "";
   size_t hostoff = 0;
   size_t useroff = 0;
   size_t domoff = 0;
@@ -589,85 +589,85 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   size_t userlen = 0;
   size_t domlen = 0;
 
-  memset(lmresp, 0, sizeof(lmresp));
-  memset(ntresp, 0, sizeof(ntresp));
+  memset(lmresp, 0, parimaa_na(lmresp));
+  memset(ntresp, 0, parimaa_na(ntresp));
   user = strchr(userp, '\\');
-  if(!user)
+  အကယ်၍(!user)
     user = strchr(userp, '/');
 
-  if(user) {
+  အကယ်၍(user) {
     domain = userp;
     domlen = (user - domain);
     user++;
   }
-  else
+  မဟုတ်ပါက
     user = userp;
 
   userlen = strlen(user);
-  hostlen = sizeof(host) - 1;
+  hostlen = parimaa_na(host) - 1;
 
-  if(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY) {
-    unsigned char ntbuffer[0x18];
-    unsigned char entropy[8];
-    unsigned char ntlmv2hash[0x18];
+  အကယ်၍(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY) {
+    unsigned var_na ntbuffer[0x18];
+    unsigned var_na entropy[8];
+    unsigned var_na ntlmv2hash[0x18];
 
     /* Full NTLM version 2
        Although this cannot be negotiated, it is used here if available, as
        servers featuring extended security are likely supporting also
        NTLMv2. */
     result = Curl_rand(data, entropy, 8);
-    if(result)
-      return result;
+    အကယ်၍(result)
+      ပြန်ပေး result;
 
     result = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
-    if(result)
-      return result;
+    အကယ်၍(result)
+      ပြန်ပေး result;
 
     result = Curl_ntlm_core_mk_ntlmv2_hash(user, userlen, domain, domlen,
                                            ntbuffer, ntlmv2hash);
-    if(result)
-      return result;
+    အကယ်၍(result)
+      ပြန်ပေး result;
 
     /* LMv2 response */
     result = Curl_ntlm_core_mk_lmv2_resp(ntlmv2hash, entropy,
                                          &ntlm->nonce[0], lmresp);
-    if(result)
-      return result;
+    အကယ်၍(result)
+      ပြန်ပေး result;
 
     /* NTLMv2 response */
     result = Curl_ntlm_core_mk_ntlmv2_resp(ntlmv2hash, entropy,
                                            ntlm, &ntlmv2resp, &ntresplen);
-    if(result)
-      return result;
+    အကယ်၍(result)
+      ပြန်ပေး result;
 
     ptr_ntresp = ntlmv2resp;
   }
-  else {
+  မဟုတ်ပါက {
 
-    unsigned char ntbuffer[0x18];
-    unsigned char lmbuffer[0x18];
+    unsigned var_na ntbuffer[0x18];
+    unsigned var_na lmbuffer[0x18];
 
     /* NTLM version 1 */
 
     result = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
-    if(result)
-      return result;
+    အကယ်၍(result)
+      ပြန်ပေး result;
 
     Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], ntresp);
 
     result = Curl_ntlm_core_mk_lm_hash(passwdp, lmbuffer);
-    if(result)
-      return result;
+    အကယ်၍(result)
+      ပြန်ပေး result;
 
     Curl_ntlm_core_lm_resp(lmbuffer, &ntlm->nonce[0], lmresp);
-    ntlm->flags &= ~(unsigned int)NTLMFLAG_NEGOTIATE_NTLM2_KEY;
+    ntlm->flags &= ~(unsigned ကိန်းပြည့်)NTLMFLAG_NEGOTIATE_NTLM2_KEY;
 
     /* A safer but less compatible alternative is:
      *   Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], lmresp);
      * See https://davenport.sourceforge.net/ntlm.html#ntlmVersion2 */
   }
 
-  if(unicode) {
+  အကယ်၍(unicode) {
     domlen = domlen * 2;
     userlen = userlen * 2;
     hostlen = hostlen * 2;
@@ -680,7 +680,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   hostoff = useroff + userlen;
 
   /* Create the big type-3 message binary blob */
-  size = curl_msnprintf((char *)ntlmbuf, NTLM_BUFSIZE,
+  size = curl_msnprintf((var_na *)ntlmbuf, NTLM_BUFSIZE,
                          NTLMSSP_SIGNATURE "%c"
                          "\x03%c%c%c"  /* 32-bit type = 3 */
 
@@ -763,18 +763,18 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   DEBUGASSERT(size == (size_t)lmrespoff);
 
   /* We append the binary hashes */
-  if(size < (NTLM_BUFSIZE - 0x18)) {
+  အကယ်၍(size < (NTLM_BUFSIZE - 0x18)) {
     memcpy(&ntlmbuf[size], lmresp, 0x18);
     size += 0x18;
   }
 
   DEBUG_OUT({
     curl_mfprintf(stderr, "**** TYPE3 header lmresp=");
-    ntlm_print_hex(stderr, (char *)&ntlmbuf[lmrespoff], 0x18);
+    ntlm_print_hex(stderr, (var_na *)&ntlmbuf[lmrespoff], 0x18);
   });
 
   /* ntresplen + size should not be risking an integer overflow here */
-  if(ntresplen + size > sizeof(ntlmbuf)) {
+  အကယ်၍(ntresplen + size > parimaa_na(ntlmbuf)) {
     failf(data, "incoming NTLM message too big");
     result = CURLE_TOO_LARGE;
     goto error;
@@ -785,7 +785,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 
   DEBUG_OUT({
     curl_mfprintf(stderr, "\n   ntresp=");
-    ntlm_print_hex(stderr, (char *)&ntlmbuf[ntrespoff], ntresplen);
+    ntlm_print_hex(stderr, (var_na *)&ntlmbuf[ntrespoff], ntresplen);
   });
 
   DEBUG_OUT({
@@ -797,32 +797,32 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 
   /* Make sure that the domain, user and host strings fit in the
      buffer before we copy them there. */
-  if(size + userlen + domlen + hostlen >= NTLM_BUFSIZE) {
+  အကယ်၍(size + userlen + domlen + hostlen >= NTLM_BUFSIZE) {
     failf(data, "user + domain + hostname too big for NTLM");
     result = CURLE_TOO_LARGE;
     goto error;
   }
 
   DEBUGASSERT(size == domoff);
-  if(unicode)
+  အကယ်၍(unicode)
     unicodecpy(&ntlmbuf[size], domain, domlen / 2);
-  else
+  မဟုတ်ပါက
     memcpy(&ntlmbuf[size], domain, domlen);
 
   size += domlen;
 
   DEBUGASSERT(size == useroff);
-  if(unicode)
+  အကယ်၍(unicode)
     unicodecpy(&ntlmbuf[size], user, userlen / 2);
-  else
+  မဟုတ်ပါက
     memcpy(&ntlmbuf[size], user, userlen);
 
   size += userlen;
 
   DEBUGASSERT(size == hostoff);
-  if(unicode)
+  အကယ်၍(unicode)
     unicodecpy(&ntlmbuf[size], host, hostlen / 2);
-  else
+  မဟုတ်ပါက
     memcpy(&ntlmbuf[size], host, hostlen);
 
   size += hostlen;
@@ -835,7 +835,7 @@ error:
 
   Curl_auth_cleanup_ntlm(ntlm);
 
-  return result;
+  ပြန်ပေး result;
 }
 
 /*
@@ -848,7 +848,7 @@ error:
  * ntlm    [in/out] - The NTLM data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_ntlm(struct ntlmdata *ntlm)
+void Curl_auth_cleanup_ntlm(sa_nracanaa ntlmdata *ntlm)
 {
   /* Free the target info */
   curlx_safefree(ntlm->target_info);

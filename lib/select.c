@@ -48,22 +48,22 @@
  *    0 = timeout
  *    N = number of signalled file descriptors
  */
-static int our_select(curl_socket_t maxfd,   /* highest socket number */
+static ကိန်းပြည့် our_select(curl_socket_t maxfd,   /* highest socket number */
                       fd_set *fds_read,      /* sockets ready for reading */
                       fd_set *fds_write,     /* sockets ready for writing */
                       fd_set *fds_err,       /* sockets with errors */
                       timediff_t timeout_ms) /* milliseconds to wait */
 {
-  struct timeval pending_tv;
-  struct timeval *ptimeout;
+  sa_nracanaa timeval pending_tv;
+  sa_nracanaa timeval *ptimeout;
 
 #ifdef USE_WINSOCK
   /* Winsock select() cannot handle zero events. See the comment below. */
-  if((!fds_read || fds_read->fd_count == 0) &&
+  အကယ်၍((!fds_read || fds_read->fd_count == 0) &&
      (!fds_write || fds_write->fd_count == 0) &&
      (!fds_err || fds_err->fd_count == 0)) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    ပြန်ပေး curlx_wait_ms(timeout_ms);
   }
 #endif
 
@@ -82,12 +82,12 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
      calling this an error. Luckily, with Winsock, we can _also_ ask how
      many bits are set on an fd_set. Therefore, let's check it beforehand.
    */
-  return select((int)maxfd + 1,
+  ပြန်ပေး select((ကိန်းပြည့်)maxfd + 1,
                 fds_read && fds_read->fd_count ? fds_read : NULL,
                 fds_write && fds_write->fd_count ? fds_write : NULL,
                 fds_err && fds_err->fd_count ? fds_err : NULL, ptimeout);
-#else
-  return select((int)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
+#မဟုတ်ပါက
+  ပြန်ပေး select((ကိန်းပြည့်)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
 #endif
 }
 
@@ -113,19 +113,19 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
  * CURL_CSELECT_OUT - write socket is writable
  * CURL_CSELECT_ERR - an error condition occurred
  */
-int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
+ကိန်းပြည့် Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
                       curl_socket_t readfd1,
                       curl_socket_t writefd, /* socket to write to */
                       timediff_t timeout_ms) /* milliseconds to wait */
 {
-  struct pollfd pfd[3];
-  int num;
-  int r;
+  sa_nracanaa pollfd pfd[3];
+  ကိန်းပြည့် num;
+  ကိန်းပြည့် r;
 
-  if((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
+  အကယ်၍((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
      (writefd == CURL_SOCKET_BAD)) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    ပြန်ပေး curlx_wait_ms(timeout_ms);
   }
 
   /* Avoid initial timestamp, avoid curlx_now() call, when elapsed
@@ -134,53 +134,53 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
      value indicating a blocking call should be performed. */
 
   num = 0;
-  if(readfd0 != CURL_SOCKET_BAD) {
+  အကယ်၍(readfd0 != CURL_SOCKET_BAD) {
     pfd[num].fd = readfd0;
     pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
     pfd[num].revents = 0;
     num++;
   }
-  if(readfd1 != CURL_SOCKET_BAD) {
+  အကယ်၍(readfd1 != CURL_SOCKET_BAD) {
     pfd[num].fd = readfd1;
     pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
     pfd[num].revents = 0;
     num++;
   }
-  if(writefd != CURL_SOCKET_BAD) {
+  အကယ်၍(writefd != CURL_SOCKET_BAD) {
     pfd[num].fd = writefd;
     pfd[num].events = POLLWRNORM | POLLOUT | POLLPRI;
     pfd[num].revents = 0;
     num++;
   }
 
-  r = Curl_poll(pfd, (unsigned int)num, timeout_ms);
-  if(r <= 0)
-    return r;
+  r = Curl_poll(pfd, (unsigned ကိန်းပြည့်)num, timeout_ms);
+  အကယ်၍(r <= 0)
+    ပြန်ပေး r;
 
   r = 0;
   num = 0;
-  if(readfd0 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+  အကယ်၍(readfd0 != CURL_SOCKET_BAD) {
+    အကယ်၍(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
       r |= CURL_CSELECT_IN;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+    အကယ်၍(pfd[num].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
     num++;
   }
-  if(readfd1 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+  အကယ်၍(readfd1 != CURL_SOCKET_BAD) {
+    အကယ်၍(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
       r |= CURL_CSELECT_IN2;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+    အကယ်၍(pfd[num].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
     num++;
   }
-  if(writefd != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLWRNORM | POLLOUT))
+  အကယ်၍(writefd != CURL_SOCKET_BAD) {
+    အကယ်၍(pfd[num].revents & (POLLWRNORM | POLLOUT))
       r |= CURL_CSELECT_OUT;
-    if(pfd[num].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
+    အကယ်၍(pfd[num].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
   }
 
-  return r;
+  ပြန်ပေး r;
 }
 
 /*
@@ -196,31 +196,31 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
+ကိန်းပြည့် Curl_poll(sa_nracanaa pollfd ufds[], unsigned ကိန်းပြည့် nfds, timediff_t timeout_ms)
 {
 #ifdef HAVE_POLL
-  int pending_ms;
-#else
+  ကိန်းပြည့် pending_ms;
+#မဟုတ်ပါက
   fd_set fds_read;
   fd_set fds_write;
   fd_set fds_err;
   curl_socket_t maxfd;
 #endif
   bool fds_none = TRUE;
-  unsigned int i;
-  int r;
+  unsigned ကိန်းပြည့် i;
+  ကိန်းပြည့် r;
 
-  if(ufds) {
-    for(i = 0; i < nfds; i++) {
-      if(ufds[i].fd != CURL_SOCKET_BAD) {
+  အကယ်၍(ufds) {
+    အတွက်(i = 0; i < nfds; i++) {
+      အကယ်၍(ufds[i].fd != CURL_SOCKET_BAD) {
         fds_none = FALSE;
-        break;
+        bha_nga;
       }
     }
   }
-  if(fds_none) {
+  အကယ်၍(fds_none) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    ပြန်ပေး curlx_wait_ms(timeout_ms);
   }
 
   /* Avoid initial timestamp, avoid curlx_now() call, when elapsed
@@ -231,54 +231,54 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
 #ifdef HAVE_POLL
 
   /* prevent overflow, timeout_ms is typecast to int. */
-#if TIMEDIFF_T_MAX > INT_MAX
-  if(timeout_ms > INT_MAX)
+#အကယ်၍ TIMEDIFF_T_MAX > INT_MAX
+  အကယ်၍(timeout_ms > INT_MAX)
     timeout_ms = INT_MAX;
 #endif
-  if(timeout_ms > 0)
-    pending_ms = (int)timeout_ms;
-  else if(timeout_ms < 0)
+  အကယ်၍(timeout_ms > 0)
+    pending_ms = (ကိန်းပြည့်)timeout_ms;
+  မဟုတ်ပါက အကယ်၍(timeout_ms < 0)
     pending_ms = -1;
-  else
+  မဟုတ်ပါက
     pending_ms = 0;
   r = poll(ufds, nfds, pending_ms);
-  if(r <= 0) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  အကယ်၍(r <= 0) {
+    အကယ်၍((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    return r;
+    ပြန်ပေး r;
   }
 
-  for(i = 0; i < nfds; i++) {
-    if(ufds[i].fd == CURL_SOCKET_BAD)
+  အတွက်(i = 0; i < nfds; i++) {
+    အကယ်၍(ufds[i].fd == CURL_SOCKET_BAD)
       continue;
-    if(ufds[i].revents & POLLHUP)
+    အကယ်၍(ufds[i].revents & POLLHUP)
       ufds[i].revents |= POLLIN;
-    if(ufds[i].revents & POLLERR)
+    အကယ်၍(ufds[i].revents & POLLERR)
       ufds[i].revents |= POLLIN | POLLOUT;
   }
 
-#else /* !HAVE_POLL */
+#မဟုတ်ပါက /* !HAVE_POLL */
 
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_err);
   maxfd = (curl_socket_t)-1;
 
-  for(i = 0; i < nfds; i++) {
+  အတွက်(i = 0; i < nfds; i++) {
     ufds[i].revents = 0;
-    if(ufds[i].fd == CURL_SOCKET_BAD)
+    အကယ်၍(ufds[i].fd == CURL_SOCKET_BAD)
       continue;
     VERIFY_SOCK(ufds[i].fd);
-    if(ufds[i].events & (POLLIN | POLLOUT | POLLPRI |
+    အကယ်၍(ufds[i].events & (POLLIN | POLLOUT | POLLPRI |
                          POLLRDNORM | POLLWRNORM | POLLRDBAND)) {
-      if(ufds[i].fd > maxfd)
+      အကယ်၍(ufds[i].fd > maxfd)
         maxfd = ufds[i].fd;
-      if(ufds[i].events & (POLLRDNORM | POLLIN))
+      အကယ်၍(ufds[i].events & (POLLRDNORM | POLLIN))
         FD_SET(ufds[i].fd, &fds_read);
-      if(ufds[i].events & (POLLWRNORM | POLLOUT))
+      အကယ်၍(ufds[i].events & (POLLWRNORM | POLLOUT))
         FD_SET(ufds[i].fd, &fds_write);
-      if(ufds[i].events & (POLLRDBAND | POLLPRI))
+      အကယ်၍(ufds[i].events & (POLLRDBAND | POLLPRI))
         FD_SET(ufds[i].fd, &fds_err);
     }
   }
@@ -288,66 +288,66 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
      curl_socket_t is unsigned in such cases and thus -1 is the largest
      value). */
   r = our_select(maxfd, &fds_read, &fds_write, &fds_err, timeout_ms);
-  if(r <= 0) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  အကယ်၍(r <= 0) {
+    အကယ်၍((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    return r;
+    ပြန်ပေး r;
   }
 
   r = 0;
-  for(i = 0; i < nfds; i++) {
+  အတွက်(i = 0; i < nfds; i++) {
     ufds[i].revents = 0;
-    if(ufds[i].fd == CURL_SOCKET_BAD)
+    အကယ်၍(ufds[i].fd == CURL_SOCKET_BAD)
       continue;
-    if(FD_ISSET(ufds[i].fd, &fds_read)) {
-      if(ufds[i].events & POLLRDNORM)
+    အကယ်၍(FD_ISSET(ufds[i].fd, &fds_read)) {
+      အကယ်၍(ufds[i].events & POLLRDNORM)
         ufds[i].revents |= POLLRDNORM;
-      if(ufds[i].events & POLLIN)
+      အကယ်၍(ufds[i].events & POLLIN)
         ufds[i].revents |= POLLIN;
     }
-    if(FD_ISSET(ufds[i].fd, &fds_write)) {
-      if(ufds[i].events & POLLWRNORM)
+    အကယ်၍(FD_ISSET(ufds[i].fd, &fds_write)) {
+      အကယ်၍(ufds[i].events & POLLWRNORM)
         ufds[i].revents |= POLLWRNORM;
-      if(ufds[i].events & POLLOUT)
+      အကယ်၍(ufds[i].events & POLLOUT)
         ufds[i].revents |= POLLOUT;
     }
-    if(FD_ISSET(ufds[i].fd, &fds_err)) {
-      if(ufds[i].events & POLLRDBAND)
+    အကယ်၍(FD_ISSET(ufds[i].fd, &fds_err)) {
+      အကယ်၍(ufds[i].events & POLLRDBAND)
         ufds[i].revents |= POLLRDBAND;
-      if(ufds[i].events & POLLPRI)
+      အကယ်၍(ufds[i].events & POLLPRI)
         ufds[i].revents |= POLLPRI;
     }
-    if(ufds[i].revents)
+    အကယ်၍(ufds[i].revents)
       r++;
   }
 
 #endif /* HAVE_POLL */
 
-  return r;
+  ပြန်ပေး r;
 }
 
-void Curl_pollfds_init(struct curl_pollfds *cpfds,
-                       struct pollfd *static_pfds,
-                       unsigned int static_count)
+void Curl_pollfds_init(sa_nracanaa curl_pollfds *cpfds,
+                       sa_nracanaa pollfd *static_pfds,
+                       unsigned ကိန်းပြည့် static_count)
 {
   DEBUGASSERT(cpfds);
-  memset(cpfds, 0, sizeof(*cpfds));
-  if(static_pfds && static_count) {
+  memset(cpfds, 0, parimaa_na(*cpfds));
+  အကယ်၍(static_pfds && static_count) {
     cpfds->pfds = static_pfds;
     cpfds->count = static_count;
   }
 }
 
-void Curl_pollfds_reset(struct curl_pollfds *cpfds)
+void Curl_pollfds_reset(sa_nracanaa curl_pollfds *cpfds)
 {
   cpfds->n = 0;
 }
 
-void Curl_pollfds_cleanup(struct curl_pollfds *cpfds)
+void Curl_pollfds_cleanup(sa_nracanaa curl_pollfds *cpfds)
 {
   DEBUGASSERT(cpfds);
-  if(cpfds->allocated_pfds) {
+  အကယ်၍(cpfds->allocated_pfds) {
     curlx_safefree(cpfds->pfds);
     cpfds->count = 0;
     cpfds->allocated_pfds = FALSE;
@@ -355,128 +355,128 @@ void Curl_pollfds_cleanup(struct curl_pollfds *cpfds)
   cpfds->n = 0;
 }
 
-static CURLcode cpfds_increase(struct curl_pollfds *cpfds, unsigned int inc)
+static CURLcode cpfds_increase(sa_nracanaa curl_pollfds *cpfds, unsigned ကိန်းပြည့် inc)
 {
-  struct pollfd *new_fds;
-  unsigned int new_count = cpfds->count + inc;
+  sa_nracanaa pollfd *new_fds;
+  unsigned ကိန်းပြည့် new_count = cpfds->count + inc;
 
-  new_fds = curlx_calloc(new_count, sizeof(struct pollfd));
-  if(!new_fds)
-    return CURLE_OUT_OF_MEMORY;
+  new_fds = curlx_calloc(new_count, parimaa_na(sa_nracanaa pollfd));
+  အကယ်၍(!new_fds)
+    ပြန်ပေး CURLE_OUT_OF_MEMORY;
 
-  memcpy(new_fds, cpfds->pfds, cpfds->count * sizeof(struct pollfd));
-  if(cpfds->allocated_pfds)
+  memcpy(new_fds, cpfds->pfds, cpfds->count * parimaa_na(sa_nracanaa pollfd));
+  အကယ်၍(cpfds->allocated_pfds)
     curlx_free(cpfds->pfds);
   cpfds->pfds = new_fds;
   cpfds->count = new_count;
   cpfds->allocated_pfds = TRUE;
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
-static CURLcode cpfds_add_sock(struct curl_pollfds *cpfds,
+static CURLcode cpfds_add_sock(sa_nracanaa curl_pollfds *cpfds,
                                curl_socket_t sock, short events, bool fold)
 {
-  int i;
+  ကိန်းပြည့် i;
 
-  if(fold && cpfds->n <= INT_MAX) {
-    for(i = (int)cpfds->n - 1; i >= 0; --i) {
-      if(sock == cpfds->pfds[i].fd) {
+  အကယ်၍(fold && cpfds->n <= INT_MAX) {
+    အတွက်(i = (ကိန်းပြည့်)cpfds->n - 1; i >= 0; --i) {
+      အကယ်၍(sock == cpfds->pfds[i].fd) {
         cpfds->pfds[i].events |= events;
-        return CURLE_OK;
+        ပြန်ပေး CURLE_OK;
       }
     }
   }
   /* not folded, add new entry */
-  if(cpfds->n >= cpfds->count && cpfds_increase(cpfds, 100))
-    return CURLE_OUT_OF_MEMORY;
+  အကယ်၍(cpfds->n >= cpfds->count && cpfds_increase(cpfds, 100))
+    ပြန်ပေး CURLE_OUT_OF_MEMORY;
   cpfds->pfds[cpfds->n].fd = sock;
   cpfds->pfds[cpfds->n].events = events;
   ++cpfds->n;
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
-CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
+CURLcode Curl_pollfds_add_sock(sa_nracanaa curl_pollfds *cpfds,
                                curl_socket_t sock, short events)
 {
-  return cpfds_add_sock(cpfds, sock, events, FALSE);
+  ပြန်ပေး cpfds_add_sock(cpfds, sock, events, FALSE);
 }
 
-CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
-                             struct easy_pollset *ps)
+CURLcode Curl_pollfds_add_ps(sa_nracanaa curl_pollfds *cpfds,
+                             sa_nracanaa easy_pollset *ps)
 {
   size_t i;
 
   DEBUGASSERT(cpfds);
   DEBUGASSERT(ps);
-  for(i = 0; i < ps->n; i++) {
+  အတွက်(i = 0; i < ps->n; i++) {
     short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN)
+    အကယ်၍(ps->actions[i] & CURL_POLL_IN)
       events |= POLLIN;
-    if(ps->actions[i] & CURL_POLL_OUT)
+    အကယ်၍(ps->actions[i] & CURL_POLL_OUT)
       events |= POLLOUT;
-    if(events && cpfds_add_sock(cpfds, ps->sockets[i], events, TRUE))
-      return CURLE_OUT_OF_MEMORY;
+    အကယ်၍(events && cpfds_add_sock(cpfds, ps->sockets[i], events, TRUE))
+      ပြန်ပေး CURLE_OUT_OF_MEMORY;
   }
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
-void Curl_waitfds_init(struct Curl_waitfds *cwfds,
-                       struct curl_waitfd *static_wfds,
-                       unsigned int static_count)
+void Curl_waitfds_init(sa_nracanaa Curl_waitfds *cwfds,
+                       sa_nracanaa curl_waitfd *static_wfds,
+                       unsigned ကိန်းပြည့် static_count)
 {
   DEBUGASSERT(cwfds);
   DEBUGASSERT(static_wfds || !static_count);
-  memset(cwfds, 0, sizeof(*cwfds));
+  memset(cwfds, 0, parimaa_na(*cwfds));
   cwfds->wfds = static_wfds;
   cwfds->count = static_count;
 }
 
-static unsigned int cwfds_add_sock(struct Curl_waitfds *cwfds,
+static unsigned ကိန်းပြည့် cwfds_add_sock(sa_nracanaa Curl_waitfds *cwfds,
                                    curl_socket_t sock, short events)
 {
-  int i;
-  if(!cwfds->wfds) {
+  ကိန်းပြည့် i;
+  အကယ်၍(!cwfds->wfds) {
     DEBUGASSERT(!cwfds->count && !cwfds->n);
-    return 1;
+    ပြန်ပေး 1;
   }
-  if(cwfds->n <= INT_MAX) {
-    for(i = (int)cwfds->n - 1; i >= 0; --i) {
-      if(sock == cwfds->wfds[i].fd) {
+  အကယ်၍(cwfds->n <= INT_MAX) {
+    အတွက်(i = (ကိန်းပြည့်)cwfds->n - 1; i >= 0; --i) {
+      အကယ်၍(sock == cwfds->wfds[i].fd) {
         cwfds->wfds[i].events |= events;
-        return 0;
+        ပြန်ပေး 0;
       }
     }
   }
   /* not folded, add new entry */
-  if(cwfds->n < cwfds->count) {
+  အကယ်၍(cwfds->n < cwfds->count) {
     cwfds->wfds[cwfds->n].fd = sock;
     cwfds->wfds[cwfds->n].events = events;
     ++cwfds->n;
   }
-  return 1;
+  ပြန်ပေး 1;
 }
 
-unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
-                                 struct easy_pollset *ps)
+unsigned ကိန်းပြည့် Curl_waitfds_add_ps(sa_nracanaa Curl_waitfds *cwfds,
+                                 sa_nracanaa easy_pollset *ps)
 {
   size_t i;
-  unsigned int need = 0;
+  unsigned ကိန်းပြည့် need = 0;
 
   DEBUGASSERT(cwfds);
   DEBUGASSERT(ps);
-  for(i = 0; i < ps->n; i++) {
+  အတွက်(i = 0; i < ps->n; i++) {
     short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN)
+    အကယ်၍(ps->actions[i] & CURL_POLL_IN)
       events |= CURL_WAIT_POLLIN;
-    if(ps->actions[i] & CURL_POLL_OUT)
+    အကယ်၍(ps->actions[i] & CURL_POLL_OUT)
       events |= CURL_WAIT_POLLOUT;
-    if(events)
+    အကယ်၍(events)
       need += cwfds_add_sock(cwfds, ps->sockets[i], events);
   }
-  return need;
+  ပြန်ပေး need;
 }
 
-void Curl_pollset_reset(struct easy_pollset *ps)
+void Curl_pollset_reset(sa_nracanaa easy_pollset *ps)
 {
 #ifdef DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
@@ -484,7 +484,7 @@ void Curl_pollset_reset(struct easy_pollset *ps)
   ps->n = 0;
 }
 
-void Curl_pollset_init(struct easy_pollset *ps)
+void Curl_pollset_init(sa_nracanaa easy_pollset *ps)
 {
 #ifdef DEBUGBUILD
   ps->init = CURL_EASY_POLLSET_MAGIC;
@@ -496,24 +496,24 @@ void Curl_pollset_init(struct easy_pollset *ps)
   Curl_pollset_reset(ps);
 }
 
-struct easy_pollset *Curl_pollset_create(void)
+sa_nracanaa easy_pollset *Curl_pollset_create(void)
 {
-  struct easy_pollset *ps = curlx_calloc(1, sizeof(*ps));
-  if(ps)
+  sa_nracanaa easy_pollset *ps = curlx_calloc(1, parimaa_na(*ps));
+  အကယ်၍(ps)
     Curl_pollset_init(ps);
-  return ps;
+  ပြန်ပေး ps;
 }
 
-void Curl_pollset_cleanup(struct easy_pollset *ps)
+void Curl_pollset_cleanup(sa_nracanaa easy_pollset *ps)
 {
 #ifdef DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
 #endif
-  if(ps->sockets != ps->def_sockets) {
+  အကယ်၍(ps->sockets != ps->def_sockets) {
     curlx_free(ps->sockets);
     ps->sockets = ps->def_sockets;
   }
-  if(ps->actions != ps->def_actions) {
+  အကယ်၍(ps->actions != ps->def_actions) {
     curlx_free(ps->actions);
     ps->actions = ps->def_actions;
   }
@@ -521,10 +521,10 @@ void Curl_pollset_cleanup(struct easy_pollset *ps)
   Curl_pollset_reset(ps);
 }
 
-void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
+void Curl_pollset_move(sa_nracanaa easy_pollset *to, sa_nracanaa easy_pollset *from)
 {
   Curl_pollset_cleanup(to); /* deallocate anything in to */
-  if(from->sockets != from->def_sockets) {
+  အကယ်၍(from->sockets != from->def_sockets) {
     DEBUGASSERT(from->actions != from->def_actions);
     to->sockets = from->sockets;
     to->actions = from->actions;
@@ -532,11 +532,11 @@ void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
     to->n = from->n;
     Curl_pollset_init(from);
   }
-  else {
+  မဟုတ်ပါက {
     DEBUGASSERT(to->sockets == to->def_sockets);
     DEBUGASSERT(to->actions == to->def_actions);
-    memcpy(to->sockets, from->sockets, to->count * sizeof(to->sockets[0]));
-    memcpy(to->actions, from->actions, to->count * sizeof(to->actions[0]));
+    memcpy(to->sockets, from->sockets, to->count * parimaa_na(to->sockets[0]));
+    memcpy(to->actions, from->actions, to->count * parimaa_na(to->actions[0]));
     to->n = from->n;
     Curl_pollset_init(from);
   }
@@ -545,103 +545,103 @@ void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
 /**
  *
  */
-CURLcode Curl_pollset_change(struct Curl_easy *data,
-                             struct easy_pollset *ps, curl_socket_t sock,
-                             int add_flags, int remove_flags)
+CURLcode Curl_pollset_change(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa easy_pollset *ps, curl_socket_t sock,
+                             ကိန်းပြည့် add_flags, ကိန်းပြည့် remove_flags)
 {
-  unsigned int i;
+  unsigned ကိန်းပြည့် i;
 
 #ifdef DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
 #endif
 
   DEBUGASSERT(VALID_SOCK(sock));
-  if(!VALID_SOCK(sock))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  အကယ်၍(!VALID_SOCK(sock))
+    ပြန်ပေး CURLE_BAD_FUNCTION_ARGUMENT;
 
   DEBUGASSERT(add_flags <= (CURL_POLL_IN | CURL_POLL_OUT));
   DEBUGASSERT(remove_flags <= (CURL_POLL_IN | CURL_POLL_OUT));
   DEBUGASSERT((add_flags & remove_flags) == 0); /* no overlap */
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      ps->actions[i] &= (unsigned char)(~remove_flags);
-      ps->actions[i] |= (unsigned char)add_flags;
+  အတွက်(i = 0; i < ps->n; ++i) {
+    အကယ်၍(ps->sockets[i] == sock) {
+      ps->actions[i] &= (unsigned var_na)(~remove_flags);
+      ps->actions[i] |= (unsigned var_na)add_flags;
       /* all gone? remove socket */
-      if(!ps->actions[i]) {
-        if((i + 1) < ps->n) {
+      အကယ်၍(!ps->actions[i]) {
+        အကယ်၍((i + 1) < ps->n) {
           memmove(&ps->sockets[i], &ps->sockets[i + 1],
-                  (ps->n - (i + 1)) * sizeof(ps->sockets[0]));
+                  (ps->n - (i + 1)) * parimaa_na(ps->sockets[0]));
           memmove(&ps->actions[i], &ps->actions[i + 1],
-                  (ps->n - (i + 1)) * sizeof(ps->actions[0]));
+                  (ps->n - (i + 1)) * parimaa_na(ps->actions[0]));
         }
         --ps->n;
       }
-      return CURLE_OK;
+      ပြန်ပေး CURLE_OK;
     }
   }
   /* not present */
-  if(add_flags) {
-    if(i >= ps->count) { /* need to grow */
-      unsigned int new_count = CURLMAX(ps->count * 2, 8);
+  အကယ်၍(add_flags) {
+    အကယ်၍(i >= ps->count) { /* need to grow */
+      unsigned ကိန်းပြည့် new_count = CURLMAX(ps->count * 2, 8);
       curl_socket_t *nsockets;
-      unsigned char *nactions;
+      unsigned var_na *nactions;
 
       CURL_TRC_M(data, "growing pollset capacity from %u to %u",
                  ps->count, new_count);
-      if(new_count <= ps->count)
-        return CURLE_OUT_OF_MEMORY;
-      nsockets = curlx_calloc(new_count, sizeof(nsockets[0]));
-      if(!nsockets)
-        return CURLE_OUT_OF_MEMORY;
-      nactions = curlx_calloc(new_count, sizeof(nactions[0]));
-      if(!nactions) {
+      အကယ်၍(new_count <= ps->count)
+        ပြန်ပေး CURLE_OUT_OF_MEMORY;
+      nsockets = curlx_calloc(new_count, parimaa_na(nsockets[0]));
+      အကယ်၍(!nsockets)
+        ပြန်ပေး CURLE_OUT_OF_MEMORY;
+      nactions = curlx_calloc(new_count, parimaa_na(nactions[0]));
+      အကယ်၍(!nactions) {
         curlx_free(nsockets);
-        return CURLE_OUT_OF_MEMORY;
+        ပြန်ပေး CURLE_OUT_OF_MEMORY;
       }
-      memcpy(nsockets, ps->sockets, ps->count * sizeof(ps->sockets[0]));
-      memcpy(nactions, ps->actions, ps->count * sizeof(ps->actions[0]));
-      if(ps->sockets != ps->def_sockets)
+      memcpy(nsockets, ps->sockets, ps->count * parimaa_na(ps->sockets[0]));
+      memcpy(nactions, ps->actions, ps->count * parimaa_na(ps->actions[0]));
+      အကယ်၍(ps->sockets != ps->def_sockets)
         curlx_free(ps->sockets);
       ps->sockets = nsockets;
-      if(ps->actions != ps->def_actions)
+      အကယ်၍(ps->actions != ps->def_actions)
         curlx_free(ps->actions);
       ps->actions = nactions;
       ps->count = new_count;
     }
     DEBUGASSERT(i < ps->count);
-    if(i < ps->count) {
+    အကယ်၍(i < ps->count) {
       ps->sockets[i] = sock;
-      ps->actions[i] = (unsigned char)add_flags;
+      ps->actions[i] = (unsigned var_na)add_flags;
       ps->n = i + 1;
     }
   }
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
-CURLcode Curl_pollset_set(struct Curl_easy *data,
-                          struct easy_pollset *ps, curl_socket_t sock,
+CURLcode Curl_pollset_set(sa_nracanaa Curl_easy *data,
+                          sa_nracanaa easy_pollset *ps, curl_socket_t sock,
                           bool do_in, bool do_out)
 {
-  return Curl_pollset_change(data, ps, sock,
+  ပြန်ပေး Curl_pollset_change(data, ps, sock,
                              (do_in ? CURL_POLL_IN : 0) |
                              (do_out ? CURL_POLL_OUT : 0),
                              (!do_in ? CURL_POLL_IN : 0) |
                              (!do_out ? CURL_POLL_OUT : 0));
 }
 
-void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock)
+void Curl_pollset_remove(sa_nracanaa easy_pollset *ps, curl_socket_t sock)
 {
-  unsigned int i;
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      if((i + 1) < ps->n) {
+  unsigned ကိန်းပြည့် i;
+  အတွက်(i = 0; i < ps->n; ++i) {
+    အကယ်၍(ps->sockets[i] == sock) {
+      အကယ်၍((i + 1) < ps->n) {
         memmove(&ps->sockets[i], &ps->sockets[i + 1],
-                (ps->n - (i + 1)) * sizeof(ps->sockets[0]));
+                (ps->n - (i + 1)) * parimaa_na(ps->sockets[0]));
         memmove(&ps->actions[i], &ps->actions[i + 1],
-                (ps->n - (i + 1)) * sizeof(ps->actions[0]));
+                (ps->n - (i + 1)) * parimaa_na(ps->actions[0]));
       }
       --ps->n;
-      return;
+      ပြန်ပေး;
     }
   }
 }
@@ -652,35 +652,35 @@ void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock)
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_pollset_poll(struct Curl_easy *data,
-                      struct easy_pollset *ps,
+ကိန်းပြည့် Curl_pollset_poll(sa_nracanaa Curl_easy *data,
+                      sa_nracanaa easy_pollset *ps,
                       timediff_t timeout_ms)
 {
-  struct pollfd *pfds;
-  unsigned int i, npfds;
-  int rc;
+  sa_nracanaa pollfd *pfds;
+  unsigned ကိန်းပြည့် i, npfds;
+  ကိန်းပြည့် rc;
 
   (void)data;
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
 
-  if(!ps->n)
-    return curlx_wait_ms(timeout_ms);
+  အကယ်၍(!ps->n)
+    ပြန်ပေး curlx_wait_ms(timeout_ms);
 
-  pfds = curlx_calloc(ps->n, sizeof(*pfds));
-  if(!pfds)
-    return -1;
+  pfds = curlx_calloc(ps->n, parimaa_na(*pfds));
+  အကယ်၍(!pfds)
+    ပြန်ပေး -1;
 
   npfds = 0;
-  for(i = 0; i < ps->n; ++i) {
+  အတွက်(i = 0; i < ps->n; ++i) {
     short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN) {
+    အကယ်၍(ps->actions[i] & CURL_POLL_IN) {
       events |= POLLIN;
     }
-    if(ps->actions[i] & CURL_POLL_OUT) {
+    အကယ်၍(ps->actions[i] & CURL_POLL_OUT) {
       events |= POLLOUT;
     }
-    if(events) {
+    အကယ်၍(events) {
       pfds[npfds].fd = ps->sockets[i];
       pfds[npfds].events = events;
       ++npfds;
@@ -689,49 +689,49 @@ int Curl_pollset_poll(struct Curl_easy *data,
 
   rc = Curl_poll(pfds, npfds, timeout_ms);
   curlx_free(pfds);
-  return rc;
+  ပြန်ပေး rc;
 }
 
-void Curl_pollset_check(struct Curl_easy *data,
-                        struct easy_pollset *ps, curl_socket_t sock,
+void Curl_pollset_check(sa_nracanaa Curl_easy *data,
+                        sa_nracanaa easy_pollset *ps, curl_socket_t sock,
                         bool *pwant_read, bool *pwant_write)
 {
-  unsigned int i;
+  unsigned ကိန်းပြည့် i;
 
   (void)data;
   DEBUGASSERT(VALID_SOCK(sock));
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
+  အတွက်(i = 0; i < ps->n; ++i) {
+    အကယ်၍(ps->sockets[i] == sock) {
       *pwant_read = !!(ps->actions[i] & CURL_POLL_IN);
       *pwant_write = !!(ps->actions[i] & CURL_POLL_OUT);
-      return;
+      ပြန်ပေး;
     }
   }
   *pwant_read = *pwant_write = FALSE;
 }
 
-bool Curl_pollset_want_recv(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_recv(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa easy_pollset *ps,
                             curl_socket_t sock)
 {
-  unsigned int i;
+  unsigned ကိန်းပြည့် i;
   (void)data;
-  for(i = 0; i < ps->n; ++i) {
-    if((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_IN))
-      return TRUE;
+  အတွက်(i = 0; i < ps->n; ++i) {
+    အကယ်၍((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_IN))
+      ပြန်ပေး TRUE;
   }
-  return FALSE;
+  ပြန်ပေး FALSE;
 }
 
-bool Curl_pollset_want_send(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_send(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa easy_pollset *ps,
                             curl_socket_t sock)
 {
-  unsigned int i;
+  unsigned ကိန်းပြည့် i;
   (void)data;
-  for(i = 0; i < ps->n; ++i) {
-    if((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_OUT))
-      return TRUE;
+  အတွက်(i = 0; i < ps->n; ++i) {
+    အကယ်၍((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_OUT))
+      ပြန်ပေး TRUE;
   }
-  return FALSE;
+  ပြန်ပေး FALSE;
 }

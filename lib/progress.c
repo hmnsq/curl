@@ -34,44 +34,44 @@
 /* Provide a string that is 7 letters long (plus the zero byte).
 
    @unittest 1636 */
-UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds);
-UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds)
+UNITTEST void time2str(var_na *r, size_t rsize, curl_off_t seconds);
+UNITTEST void time2str(var_na *r, size_t rsize, curl_off_t seconds)
 {
   curl_off_t h;
-  if(seconds <= 0) {
+  အကယ်၍(seconds <= 0) {
     curlx_strcopy(r, rsize, STRCONST("       "));
-    return;
+    ပြန်ပေး;
   }
   h = seconds / 3600;
-  if(h <= 99) {
+  အကယ်၍(h <= 99) {
     curl_off_t m = (seconds - (h * 3600)) / 60;
-    if(h <= 9) {
+    အကယ်၍(h <= 9) {
       curl_off_t s = (seconds - (h * 3600)) - (m * 60);
-      if(h)
+      အကယ်၍(h)
         curl_msnprintf(r, rsize, "%" FMT_OFF_T ":%02" FMT_OFF_T ":"
                        "%02" FMT_OFF_T, h, m, s);
-      else
+      မဟုတ်ပါက
         curl_msnprintf(r, rsize, "  %02" FMT_OFF_T ":%02" FMT_OFF_T, m, s);
     }
-    else
+    မဟုတ်ပါက
       curl_msnprintf(r, rsize, "%" FMT_OFF_T "h %02" FMT_OFF_T "m", h, m);
   }
-  else {
+  မဟုတ်ပါက {
     curl_off_t d = seconds / 86400;
     h = (seconds - (d * 86400)) / 3600;
-    if(d <= 99)
+    အကယ်၍(d <= 99)
       curl_msnprintf(r, rsize, "%2" FMT_OFF_T "d %02" FMT_OFF_T "h", d, h);
-    else if(d <= 999)
+    မဟုတ်ပါက အကယ်၍(d <= 999)
       curl_msnprintf(r, rsize, "%6" FMT_OFF_T "d", d);
-    else { /* more than 999 days */
+    မဟုတ်ပါက { /* more than 999 days */
       curl_off_t m = d / 30;
-      if(m <= 999)
+      အကယ်၍(m <= 999)
         curl_msnprintf(r, rsize, "%6" FMT_OFF_T "m", m);
-      else { /* more than 999 months */
+      မဟုတ်ပါက { /* more than 999 months */
         curl_off_t y = d / 365;
-        if(y <= 99999)
+        အကယ်၍(y <= 99999)
           curl_msnprintf(r, rsize, "%6" FMT_OFF_T "y", y);
-        else
+        မဟုတ်ပါက
           curlx_strcopy(r, rsize, STRCONST(">99999y"));
       }
     }
@@ -83,80 +83,80 @@ UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds)
    Add suffix k, M, G when suitable...
 
    @unittest 1636 */
-UNITTEST char *max6out(curl_off_t bytes, char *max6, size_t mlen);
-UNITTEST char *max6out(curl_off_t bytes, char *max6, size_t mlen)
+UNITTEST var_na *max6out(curl_off_t bytes, var_na *max6, size_t mlen);
+UNITTEST var_na *max6out(curl_off_t bytes, var_na *max6, size_t mlen)
 {
   /* a signed 64-bit value is 8192 petabytes maximum, shown as
      8.0E (exabytes)*/
-  if(bytes < 100000)
+  အကယ်၍(bytes < 100000)
     curl_msnprintf(max6, mlen, "%6" CURL_FORMAT_CURL_OFF_T, bytes);
-  else {
-    static const char unit[] = { 'k', 'M', 'G', 'T', 'P', 'E', 0 };
-    int k = 0;
+  မဟုတ်ပါက {
+    static const var_na unit[] = { 'k', 'M', 'G', 'T', 'P', 'E', 0 };
+    ကိန်းပြည့် k = 0;
     curl_off_t nbytes;
     curl_off_t rest;
     do {
       nbytes = bytes / 1024;
-      if(nbytes < 1000)
-        break;
+      အကယ်၍(nbytes < 1000)
+        bha_nga;
       bytes = nbytes;
       k++;
       DEBUGASSERT(unit[k]);
-    } while(unit[k]);
+    } နေစဉ်(unit[k]);
     rest = bytes % 1024;
-    if(nbytes <= 99)
+    အကယ်၍(nbytes <= 99)
       /* xx.yyU */
       curl_msnprintf(max6, mlen, "%2" CURL_FORMAT_CURL_OFF_T
                      ".%02" CURL_FORMAT_CURL_OFF_T "%c", nbytes,
                      rest * 100 / 1024, unit[k]);
-    else
+    မဟုတ်ပါက
       /* xxx.yU */
       curl_msnprintf(max6, mlen, "%3" CURL_FORMAT_CURL_OFF_T
                      ".%" CURL_FORMAT_CURL_OFF_T "%c", nbytes,
                      rest * 10 / 1024, unit[k]);
   }
-  return max6;
+  ပြန်ပေး max6;
 }
 #endif
 
-static void pgrs_speedinit(struct Curl_easy *data)
+static void pgrs_speedinit(sa_nracanaa Curl_easy *data)
 {
-  memset(&data->state.keeps_speed, 0, sizeof(struct curltime));
+  memset(&data->state.keeps_speed, 0, parimaa_na(sa_nracanaa curltime));
 }
 
 /*
  * @unittest 1606
  */
-UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
-                                  const struct curltime *pnow);
-UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
-                                  const struct curltime *pnow)
+UNITTEST CURLcode pgrs_speedcheck(sa_nracanaa Curl_easy *data,
+                                  const sa_nracanaa curltime *pnow);
+UNITTEST CURLcode pgrs_speedcheck(sa_nracanaa Curl_easy *data,
+                                  const sa_nracanaa curltime *pnow)
 {
-  if(!data->set.low_speed_time || !data->set.low_speed_limit ||
+  အကယ်၍(!data->set.low_speed_time || !data->set.low_speed_limit ||
      Curl_xfer_recv_is_paused(data) || Curl_xfer_send_is_paused(data))
     /* A paused transfer is not qualified for speed checks */
-    return CURLE_OK;
+    ပြန်ပေး CURLE_OK;
 
-  if(data->progress.current_speed >= 0) {
-    if(data->progress.current_speed < data->set.low_speed_limit) {
-      if(!data->state.keeps_speed.tv_sec)
+  အကယ်၍(data->progress.current_speed >= 0) {
+    အကယ်၍(data->progress.current_speed < data->set.low_speed_limit) {
+      အကယ်၍(!data->state.keeps_speed.tv_sec)
         /* under the limit at this moment */
         data->state.keeps_speed = *pnow;
-      else {
+      မဟုတ်ပါက {
         /* how long has it been under the limit */
         timediff_t howlong =
           curlx_ptimediff_ms(pnow, &data->state.keeps_speed);
 
-        if(howlong >= data->set.low_speed_time * 1000) {
+        အကယ်၍(howlong >= data->set.low_speed_time * 1000) {
           /* too long */
           failf(data, "Operation too slow. Less than %" FMT_OFF_T
                 " bytes/sec transferred the last %u seconds",
                 data->set.low_speed_limit, data->set.low_speed_time);
-          return CURLE_OPERATION_TIMEDOUT;
+          ပြန်ပေး CURLE_OPERATION_TIMEDOUT;
         }
       }
     }
-    else
+    မဟုတ်ပါက
       /* faster right now */
       data->state.keeps_speed.tv_sec = 0;
   }
@@ -165,13 +165,13 @@ UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
      connection's speed get checked again in a second */
   Curl_expire_set(data, EXPIRE_SPEEDCHECK, 1000, pnow);
 
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
-const struct curltime *Curl_pgrs_now(struct Curl_easy *data)
+const sa_nracanaa curltime *Curl_pgrs_now(sa_nracanaa Curl_easy *data)
 {
   curlx_pnow(&data->progress.now);
-  return &data->progress.now;
+  ပြန်ပေး &data->progress.now;
 }
 
 /* New proposed interface, 9th of February 2000:
@@ -185,23 +185,23 @@ const struct curltime *Curl_pgrs_now(struct Curl_easy *data)
    pgrsDone() - transfer complete
  */
 
-int Curl_pgrsDone(struct Curl_easy *data, const struct curltime *pnow)
+ကိန်းပြည့် Curl_pgrsDone(sa_nracanaa Curl_easy *data, const sa_nracanaa curltime *pnow)
 {
-  int rc;
+  ကိန်းပြည့် rc;
   data->progress.delta.lastshow_us = -1;
   rc = Curl_pgrsUpdateX(data, pnow); /* the final (forced) update */
-  if(rc)
-    return rc;
+  အကယ်၍(rc)
+    ပြန်ပေး rc;
 
-  if(!data->progress.hide && !data->progress.callback)
+  အကယ်၍(!data->progress.hide && !data->progress.callback)
     /* only output if we do not use a progress callback and we are not
      * hidden */
     curl_mfprintf(data->set.err, "\n");
 
-  return 0;
+  ပြန်ပေး 0;
 }
 
-void Curl_pgrsReset(struct Curl_easy *data)
+void Curl_pgrsReset(sa_nracanaa Curl_easy *data)
 {
   Curl_pgrsSetUploadCounter(data, 0);
   data->progress.dl.cur_size = 0;
@@ -213,30 +213,30 @@ void Curl_pgrsReset(struct Curl_easy *data)
 }
 
 /* reset the known transfer sizes */
-void Curl_pgrsResetTransferSizes(struct Curl_easy *data)
+void Curl_pgrsResetTransferSizes(sa_nracanaa Curl_easy *data)
 {
   Curl_pgrsSetDownloadSize(data, -1);
   Curl_pgrsSetUploadSize(data, -1);
 }
 
-void Curl_pgrsRecvPause(struct Curl_easy *data, bool enable)
+void Curl_pgrsRecvPause(sa_nracanaa Curl_easy *data, bool enable)
 {
-  if(!enable) {
+  အကယ်၍(!enable) {
     data->progress.speeder_c = 0; /* reset speed records */
     pgrs_speedinit(data); /* reset low speed measurements */
   }
 }
 
-void Curl_pgrsSendPause(struct Curl_easy *data, bool enable)
+void Curl_pgrsSendPause(sa_nracanaa Curl_easy *data, bool enable)
 {
-  if(!enable) {
+  အကယ်၍(!enable) {
     data->progress.speeder_c = 0; /* reset speed records */
     pgrs_speedinit(data); /* reset low speed measurements */
   }
 }
 
 #ifdef CURLVERBOSE
-static const char * const pgrs_timer_names[] = {
+static const var_na * const pgrs_timer_names[] = {
   "PGRS-NONE",
   "PGRS-STARTOP",
   "PGRS-STARTSINGLE",
@@ -250,92 +250,92 @@ static const char * const pgrs_timer_names[] = {
   "PGRS-REDIRECT",
 };
 
-static const char *pgrs_timer_name(timerid timer)
+static const var_na *pgrs_timer_name(timerid timer)
 {
-  if((size_t)timer < CURL_ARRAYSIZE(pgrs_timer_names))
-    return pgrs_timer_names[(size_t)timer];
-  return "?";
+  အကယ်၍((size_t)timer < CURL_ARRAYSIZE(pgrs_timer_names))
+    ပြန်ပေး pgrs_timer_names[(size_t)timer];
+  ပြန်ပေး "?";
 }
 #endif /* CURLVERBOSE */
 
 /*
  * Curl_pgrsTimeWas(). Store the timestamp time at the given label.
  */
-void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
-                      struct curltime timestamp)
+void Curl_pgrsTimeWas(sa_nracanaa Curl_easy *data, timerid timer,
+                      sa_nracanaa curltime timestamp)
 {
   timediff_t *delta = NULL;
 
   switch(timer) {
   default:
-  case TIMER_NONE:
+  pak_sa TIMER_NONE:
     /* mistake filter */
-    break;
-  case TIMER_STARTOP:
+    bha_nga;
+  pak_sa TIMER_STARTOP:
     /* This is set at the start of a transfer */
     data->progress.delta.startop_us =
       curlx_ptimediff_us(&timestamp, &data->progress.start);
     data->progress.delta.startqueue_us = data->progress.delta.startop_us;
-    break;
-  case TIMER_STARTSINGLE:
+    bha_nga;
+  pak_sa TIMER_STARTSINGLE:
     /* This is set at the start of each single transfer */
     data->progress.delta.startsingle_us =
       curlx_ptimediff_us(&timestamp, &data->progress.start);
     data->progress.startransfer_added = FALSE;
-    break;
-  case TIMER_POSTQUEUE:
+    bha_nga;
+  pak_sa TIMER_POSTQUEUE:
     /* Queue time is accumulative from all involved redirects */
     data->progress.total.queued_us +=
       curlx_ptimediff_us(&timestamp, &data->progress.start) -
       data->progress.delta.startqueue_us;
-    break;
-  case TIMER_NAMELOOKUP:
+    bha_nga;
+  pak_sa TIMER_NAMELOOKUP:
     delta = &data->progress.total.nslookup_us;
-    break;
-  case TIMER_CONNECT:
+    bha_nga;
+  pak_sa TIMER_CONNECT:
     delta = &data->progress.total.connect_us;
-    break;
-  case TIMER_APPCONNECT:
+    bha_nga;
+  pak_sa TIMER_APPCONNECT:
     delta = &data->progress.total.appconnect_us;
-    break;
-  case TIMER_PRETRANSFER:
+    bha_nga;
+  pak_sa TIMER_PRETRANSFER:
     delta = &data->progress.total.pretransfer_us;
-    break;
-  case TIMER_STARTTRANSFER:
+    bha_nga;
+  pak_sa TIMER_STARTTRANSFER:
     /* prevent updating t_starttransfer unless:
      *   1. this is the first time we are setting t_starttransfer
      *   2. a redirect has occurred since the last time t_starttransfer was set
      * This prevents repeated invocations of the function from incorrectly
      * changing the t_starttransfer time.
      */
-    if(data->progress.startransfer_added) {
+    အကယ်၍(data->progress.startransfer_added) {
       CURL_TRC_M(data, "[%s] ignored", pgrs_timer_name(timer));
-      return;
+      ပြန်ပေး;
     }
     data->progress.startransfer_added = TRUE;
     delta = &data->progress.total.starttransfer_us;
-    break;
-  case TIMER_POSTRANSFER:
+    bha_nga;
+  pak_sa TIMER_POSTRANSFER:
     delta = &data->progress.total.posttransfer_us;
-    break;
-  case TIMER_REDIRECT:
+    bha_nga;
+  pak_sa TIMER_REDIRECT:
     data->progress.delta.startredirect_us =
       curlx_ptimediff_us(&timestamp, &data->progress.start);
     /* transfer starts queueing again */
     data->progress.delta.startqueue_us =
       data->progress.delta.startredirect_us;
-    break;
+    bha_nga;
   }
-  if(delta) {
+  အကယ်၍(delta) {
     timediff_t us = curlx_ptimediff_us(&timestamp, &data->progress.start) -
                     data->progress.delta.startsingle_us;
-    if(us < 1)
+    အကယ်၍(us < 1)
       us = 1; /* make sure at least one microsecond passed */
     *delta += us;
     CURL_TRC_M(data, "[%s] added %" FMT_TIMEDIFF_T "us",
                pgrs_timer_name(timer), us);
   }
-  else
+  မဟုတ်ပါက
     CURL_TRC_M(data, "[%s] set", pgrs_timer_name(timer));
 }
 
@@ -345,21 +345,21 @@ void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
  *
  * @unittest: 1399
  */
-void Curl_pgrsTime(struct Curl_easy *data, timerid timer)
+void Curl_pgrsTime(sa_nracanaa Curl_easy *data, timerid timer)
 {
   Curl_pgrsTimeWas(data, timer, *Curl_pgrs_now(data));
 }
 
-void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow)
+void Curl_pgrsStart(sa_nracanaa Curl_easy *data, const sa_nracanaa curltime *pnow)
 {
-  struct Progress *p = &data->progress;
+  sa_nracanaa Progress *p = &data->progress;
 
-  if(!pnow)
+  အကယ်၍(!pnow)
     pnow = Curl_pgrs_now(data);
   p->speeder_c = 0; /* reset the progress meter display */
   p->start = *pnow;
-  memset(&p->delta, 0, sizeof(p->delta));
-  memset(&p->total, 0, sizeof(p->total));
+  memset(&p->delta, 0, parimaa_na(p->delta));
+  memset(&p->total, 0, parimaa_na(p->total));
   p->startransfer_added = FALSE;
   p->dl.cur_size = 0;
   p->ul.cur_size = 0;
@@ -370,34 +370,34 @@ void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow)
 
 /* check that the 'delta' amount of bytes are okay to deliver to the
    application, or return error if not. */
-CURLcode Curl_pgrs_deliver_check(struct Curl_easy *data, size_t delta)
+CURLcode Curl_pgrs_deliver_check(sa_nracanaa Curl_easy *data, size_t delta)
 {
-  if(data->set.max_filesize &&
+  အကယ်၍(data->set.max_filesize &&
      ((curl_off_t)delta > data->set.max_filesize - data->progress.deliver)) {
     failf(data, "Would have exceeded max file size");
-    return CURLE_FILESIZE_EXCEEDED;
+    ပြန်ပေး CURLE_FILESIZE_EXCEEDED;
   }
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
 /* this counts how much data is delivered to the application, which
    in compressed cases may differ from downloaded amount */
-void Curl_pgrs_deliver_inc(struct Curl_easy *data, size_t delta)
+void Curl_pgrs_deliver_inc(sa_nracanaa Curl_easy *data, size_t delta)
 {
   data->progress.deliver += delta;
 }
 
-void Curl_pgrs_download_inc(struct Curl_easy *data, size_t delta)
+void Curl_pgrs_download_inc(sa_nracanaa Curl_easy *data, size_t delta)
 {
-  if(delta) {
+  အကယ်၍(delta) {
     data->progress.dl.cur_size += delta;
     Curl_rlimit_drain(&data->progress.dl.rlimit, delta, NULL);
   }
 }
 
-void Curl_pgrs_upload_inc(struct Curl_easy *data, size_t delta)
+void Curl_pgrs_upload_inc(sa_nracanaa Curl_easy *data, size_t delta)
 {
-  if(delta) {
+  အကယ်၍(delta) {
     data->progress.ul.cur_size += delta;
     Curl_rlimit_drain(&data->progress.ul.rlimit, delta, NULL);
   }
@@ -406,36 +406,36 @@ void Curl_pgrs_upload_inc(struct Curl_easy *data, size_t delta)
 /*
  * Set the number of uploaded bytes so far.
  */
-void Curl_pgrsSetUploadCounter(struct Curl_easy *data, curl_off_t size)
+void Curl_pgrsSetUploadCounter(sa_nracanaa Curl_easy *data, curl_off_t size)
 {
   data->progress.ul.cur_size = size;
 }
 
-void Curl_pgrsSetDownloadSize(struct Curl_easy *data, curl_off_t size)
+void Curl_pgrsSetDownloadSize(sa_nracanaa Curl_easy *data, curl_off_t size)
 {
-  if(size >= 0) {
+  အကယ်၍(size >= 0) {
     data->progress.dl.total_size = size;
     data->progress.dl_size_known = TRUE;
   }
-  else {
+  မဟုတ်ပါက {
     data->progress.dl.total_size = 0;
     data->progress.dl_size_known = FALSE;
   }
 }
 
-void Curl_pgrsSetUploadSize(struct Curl_easy *data, curl_off_t size)
+void Curl_pgrsSetUploadSize(sa_nracanaa Curl_easy *data, curl_off_t size)
 {
-  if(size >= 0) {
+  အကယ်၍(size >= 0) {
     data->progress.ul.total_size = size;
     data->progress.ul_size_known = TRUE;
   }
-  else {
+  မဟုတ်ပါက {
     data->progress.ul.total_size = 0;
     data->progress.ul_size_known = FALSE;
   }
 }
 
-void Curl_pgrsEarlyData(struct Curl_easy *data, curl_off_t sent)
+void Curl_pgrsEarlyData(sa_nracanaa Curl_easy *data, curl_off_t sent)
 {
   data->progress.earlydata_sent = sent;
 }
@@ -444,22 +444,22 @@ void Curl_pgrsEarlyData(struct Curl_easy *data, curl_off_t sent)
 static curl_off_t trspeed(curl_off_t size, /* number of bytes */
                           curl_off_t us)   /* microseconds */
 {
-  if(us < 1)
-    return size * 1000000;
-  else if(size < CURL_OFF_T_MAX / 1000000)
-    return (size * 1000000) / us;
-  else if(us >= 1000000)
-    return size / (us / 1000000);
-  else
-    return CURL_OFF_T_MAX;
+  အကယ်၍(us < 1)
+    ပြန်ပေး size * 1000000;
+  မဟုတ်ပါက အကယ်၍(size < CURL_OFF_T_MAX / 1000000)
+    ပြန်ပေး (size * 1000000) / us;
+  မဟုတ်ပါက အကယ်၍(us >= 1000000)
+    ပြန်ပေး size / (us / 1000000);
+  မဟုတ်ပါက
+    ပြန်ပေး CURL_OFF_T_MAX;
 }
 
 /* returns TRUE if it is time to show the progress meter */
-static bool progress_calc(struct Curl_easy *data,
-                          const struct curltime *pnow)
+static bool progress_calc(sa_nracanaa Curl_easy *data,
+                          const sa_nracanaa curltime *pnow)
 {
-  struct Progress * const p = &data->progress;
-  int i_next, i_oldest, i_latest;
+  sa_nracanaa Progress * const p = &data->progress;
+  ကိန်းပြည့် i_next, i_oldest, i_latest;
   timediff_t duration_us, elapsed_us;
   curl_off_t amount;
 
@@ -469,14 +469,14 @@ static bool progress_calc(struct Curl_easy *data,
   p->dl.speed = trspeed(p->dl.cur_size, p->total.spent_us);
   p->ul.speed = trspeed(p->ul.cur_size, p->total.spent_us);
 
-  if(!p->speeder_c) { /* no previous record exists */
+  အကယ်၍(!p->speeder_c) { /* no previous record exists */
     p->speed_amount[0] = p->dl.cur_size + p->ul.cur_size;
     p->speed_time[0] = elapsed_us;
     p->speeder_c++;
     /* use the overall average at the start */
     p->current_speed = p->ul.speed + p->dl.speed;
     p->delta.lastshow_us = elapsed_us;
-    return TRUE;
+    ပြန်ပေး TRUE;
   }
   /* We have at least one record now. Where to put the next and
    * where is the latest one? */
@@ -485,25 +485,25 @@ static bool progress_calc(struct Curl_easy *data,
 
   /* Make a new record only when some time has passed.
    * Too frequent calls otherwise ruin the history. */
-  if((elapsed_us - p->speed_time[i_latest]) >= (1000 * 1000)) {
+  အကယ်၍((elapsed_us - p->speed_time[i_latest]) >= (1000 * 1000)) {
     p->speeder_c++;
     i_latest = i_next;
     p->speed_amount[i_latest] = p->dl.cur_size + p->ul.cur_size;
     p->speed_time[i_latest] = elapsed_us;
   }
-  else if(data->req.done) {
+  မဟုတ်ပါက အကယ်၍(data->req.done) {
     /* When a transfer is done, and we did not have a current speed
      * already, update the last record. Otherwise, stay at the speed
      * we have. The last chunk of data, when rate limiting, would increase
      * reported speed since it no longer measures a full second. */
-    if(!p->current_speed) {
+    အကယ်၍(!p->current_speed) {
       p->speed_amount[i_latest] = p->dl.cur_size + p->ul.cur_size;
       p->speed_time[i_latest] = elapsed_us;
     }
   }
-  else {
+  မဟုတ်ပါက {
     /* transfer ongoing, wait for more time to pass. */
-    return FALSE;
+    ပြန်ပေး FALSE;
   }
 
   i_oldest = (p->speeder_c < CURL_SPEED_RECORDS) ? 0 :
@@ -513,71 +513,71 @@ static bool progress_calc(struct Curl_easy *data,
   amount = p->speed_amount[i_latest] - p->speed_amount[i_oldest];
   /* How long this took */
   duration_us = p->speed_time[i_latest] - p->speed_time[i_oldest];
-  if(duration_us <= 0)
+  အကယ်၍(duration_us <= 0)
     duration_us = 1;
 
-  if(amount > (CURL_OFF_T_MAX / 1000000)) {
+  အကယ်၍(amount > (CURL_OFF_T_MAX / 1000000)) {
     /* the 'amount' value is bigger than would fit in 64 bits if
        multiplied with 1000000, so we use the double math for this */
     p->current_speed =
-      (curl_off_t)(((double)amount * 1000000.0) / (double)duration_us);
+      (curl_off_t)(((dviguu_na)amount * 1000000.0) / (dviguu_na)duration_us);
   }
-  else {
+  မဟုတ်ပါက {
     p->current_speed = amount * 1000000 / duration_us;
   }
 
-  if((p->delta.lastshow_us >= 0) && !data->req.done &&
+  အကယ်၍((p->delta.lastshow_us >= 0) && !data->req.done &&
      ((elapsed_us - p->delta.lastshow_us) < (1000 * 1000)))
-    return FALSE;
+    ပြန်ပေး FALSE;
   p->delta.lastshow_us = elapsed_us;
-  return TRUE;
+  ပြန်ပေး TRUE;
 }
 
 #ifndef CURL_DISABLE_PROGRESS_METER
 
-struct pgrs_estimate {
+sa_nracanaa pgrs_estimate {
   curl_off_t secs;
   curl_off_t percent;
 };
 
 static curl_off_t pgrs_est_percent(curl_off_t total, curl_off_t cur)
 {
-  if(total > 10000)
-    return cur / (total / 100);
-  else if(total > 0)
-    return (cur * 100) / total;
-  return 0;
+  အကယ်၍(total > 10000)
+    ပြန်ပေး cur / (total / 100);
+  မဟုတ်ပါက အကယ်၍(total > 0)
+    ပြန်ပေး (cur * 100) / total;
+  ပြန်ပေး 0;
 }
 
-static void pgrs_estimates(struct pgrs_dir *d,
+static void pgrs_estimates(sa_nracanaa pgrs_dir *d,
                            bool total_known,
-                           struct pgrs_estimate *est)
+                           sa_nracanaa pgrs_estimate *est)
 {
   est->secs = 0;
   est->percent = 0;
-  if(total_known && (d->speed > 0)) {
+  အကယ်၍(total_known && (d->speed > 0)) {
     est->secs = d->total_size / d->speed;
     est->percent = pgrs_est_percent(d->total_size, d->cur_size);
   }
 }
 
-static void progress_meter(struct Curl_easy *data)
+static void progress_meter(sa_nracanaa Curl_easy *data)
 {
-  struct Progress *p = &data->progress;
-  char max6[6][7];
-  struct pgrs_estimate dl_estm;
-  struct pgrs_estimate ul_estm;
-  struct pgrs_estimate total_estm;
+  sa_nracanaa Progress *p = &data->progress;
+  var_na max6[6][7];
+  sa_nracanaa pgrs_estimate dl_estm;
+  sa_nracanaa pgrs_estimate ul_estm;
+  sa_nracanaa pgrs_estimate total_estm;
   curl_off_t total_cur_size;
   curl_off_t total_expected_size;
   curl_off_t dl_size;
-  char time_left[8];
-  char time_total[8];
-  char time_spent[8];
+  var_na time_left[8];
+  var_na time_total[8];
+  var_na time_spent[8];
   curl_off_t cur_secs = (curl_off_t)p->total.spent_us / 1000000;
 
-  if(!p->headers_out) {
-    if(data->state.resume_from) {
+  အကယ်၍(!p->headers_out) {
+    အကယ်၍(data->state.resume_from) {
       curl_mfprintf(data->set.err,
                     "** Resuming transfer from byte position %" FMT_OFF_T "\n",
                     data->state.resume_from);
@@ -597,10 +597,10 @@ static void progress_meter(struct Curl_easy *data)
   /* Since both happen at the same time, total expected duration is max. */
   total_estm.secs = CURLMAX(ul_estm.secs, dl_estm.secs);
   /* create the three time strings */
-  time2str(time_left, sizeof(time_left),
+  time2str(time_left, parimaa_na(time_left),
            total_estm.secs > 0 ? (total_estm.secs - cur_secs) : 0);
-  time2str(time_total, sizeof(time_total), total_estm.secs);
-  time2str(time_spent, sizeof(time_spent), cur_secs);
+  time2str(time_total, parimaa_na(time_total), total_estm.secs);
+  time2str(time_spent, parimaa_na(time_spent), cur_secs);
 
   /* Get the total amount of data expected to get transferred */
   total_expected_size = p->ul_size_known ? p->ul.total_size : p->ul.cur_size;
@@ -608,9 +608,9 @@ static void progress_meter(struct Curl_easy *data)
   dl_size = p->dl_size_known ? p->dl.total_size : p->dl.cur_size;
 
   /* integer overflow check */
-  if((CURL_OFF_T_MAX - total_expected_size) < dl_size)
+  အကယ်၍((CURL_OFF_T_MAX - total_expected_size) < dl_size)
     total_expected_size = CURL_OFF_T_MAX; /* capped */
-  else
+  မဟုတ်ပါက
     total_expected_size += dl_size;
 
   /* We have transferred this much so far */
@@ -626,28 +626,28 @@ static void progress_meter(struct Curl_easy *data)
                 "%3" FMT_OFF_T " %s %s %s %s %s %s %s",
                 total_estm.percent, /* 3 letters */    /* total % */
                 max6out(total_expected_size, max6[2],
-                        sizeof(max6[2])),              /* total size */
+                        parimaa_na(max6[2])),              /* total size */
                 dl_estm.percent, /* 3 letters */       /* rcvd % */
                 max6out(p->dl.cur_size, max6[0],
-                        sizeof(max6[0])),              /* rcvd size */
+                        parimaa_na(max6[0])),              /* rcvd size */
                 ul_estm.percent, /* 3 letters */       /* xfer % */
                 max6out(p->ul.cur_size, max6[1],
-                        sizeof(max6[1])),              /* xfer size */
+                        parimaa_na(max6[1])),              /* xfer size */
                 max6out(p->dl.speed, max6[3],
-                        sizeof(max6[3])),              /* avrg dl speed */
+                        parimaa_na(max6[3])),              /* avrg dl speed */
                 max6out(p->ul.speed, max6[4],
-                        sizeof(max6[4])),              /* avrg ul speed */
+                        parimaa_na(max6[4])),              /* avrg ul speed */
                 time_total,    /* 7 letters */         /* total time */
                 time_spent,    /* 7 letters */         /* time spent */
                 time_left,     /* 7 letters */         /* time left */
                 max6out(p->current_speed, max6[5],
-                        sizeof(max6[5]))               /* current speed */
+                        parimaa_na(max6[5]))               /* current speed */
     );
 
   /* we flush the output stream to make it appear as soon as possible */
   fflush(data->set.err);
 }
-#else /* CURL_DISABLE_PROGRESS_METER */
+#မဟုတ်ပါက /* CURL_DISABLE_PROGRESS_METER */
 #define progress_meter(x) Curl_nop_stmt
 #endif
 
@@ -655,13 +655,13 @@ static void progress_meter(struct Curl_easy *data)
  * Curl_pgrsUpdate() returns 0 for success or the value returned by the
  * progress callback!
  */
-static CURLcode pgrsupdate(struct Curl_easy *data, bool showprogress)
+static CURLcode pgrsupdate(sa_nracanaa Curl_easy *data, bool showprogress)
 {
-  if(!data->progress.hide) {
-    int rc;
-    if(data->set.fxferinfo) {
+  အကယ်၍(!data->progress.hide) {
+    ကိန်းပြည့် rc;
+    အကယ်၍(data->set.fxferinfo) {
       /* There is a callback set, call that */
-      struct Curl_mapi_guard guard;
+      sa_nracanaa Curl_mapi_guard guard;
       CURL_CBAPI_START(&guard, data, easy_fxferinfo);
       rc = data->set.fxferinfo(data->set.progress_client,
                                data->progress.dl.total_size,
@@ -669,103 +669,103 @@ static CURLcode pgrsupdate(struct Curl_easy *data, bool showprogress)
                                data->progress.ul.total_size,
                                data->progress.ul.cur_size);
       CURL_CBAPI_END(&guard);
-      if(rc != CURL_PROGRESSFUNC_CONTINUE) {
-        if(rc) {
+      အကယ်၍(rc != CURL_PROGRESSFUNC_CONTINUE) {
+        အကယ်၍(rc) {
           failf(data, "Callback aborted");
-          return CURLE_ABORTED_BY_CALLBACK;
+          ပြန်ပေး CURLE_ABORTED_BY_CALLBACK;
         }
-        return CURLE_OK;
+        ပြန်ပေး CURLE_OK;
       }
     }
-    else if(data->set.fprogress) {
+    မဟုတ်ပါက အကယ်၍(data->set.fprogress) {
       /* The older deprecated callback is set, call that */
-      struct Curl_mapi_guard guard;
+      sa_nracanaa Curl_mapi_guard guard;
       CURL_CBAPI_START(&guard, data, easy_fprogress);
       rc = data->set.fprogress(data->set.progress_client,
-                               (double)data->progress.dl.total_size,
-                               (double)data->progress.dl.cur_size,
-                               (double)data->progress.ul.total_size,
-                               (double)data->progress.ul.cur_size);
+                               (dviguu_na)data->progress.dl.total_size,
+                               (dviguu_na)data->progress.dl.cur_size,
+                               (dviguu_na)data->progress.ul.total_size,
+                               (dviguu_na)data->progress.ul.cur_size);
       CURL_CBAPI_END(&guard);
-      if(rc != CURL_PROGRESSFUNC_CONTINUE) {
-        if(rc) {
+      အကယ်၍(rc != CURL_PROGRESSFUNC_CONTINUE) {
+        အကယ်၍(rc) {
           failf(data, "Callback aborted");
-          return CURLE_ABORTED_BY_CALLBACK;
+          ပြန်ပေး CURLE_ABORTED_BY_CALLBACK;
         }
-        return CURLE_OK;
+        ပြန်ပေး CURLE_OK;
       }
     }
 
-    if(showprogress)
+    အကယ်၍(showprogress)
       progress_meter(data);
   }
 
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
-static CURLcode pgrs_update(struct Curl_easy *data,
-                            const struct curltime *pnow)
+static CURLcode pgrs_update(sa_nracanaa Curl_easy *data,
+                            const sa_nracanaa curltime *pnow)
 {
   bool showprogress = progress_calc(data, pnow);
-  return pgrsupdate(data, showprogress);
+  ပြန်ပေး pgrsupdate(data, showprogress);
 }
 
-CURLcode Curl_pgrsUpdate(struct Curl_easy *data)
+CURLcode Curl_pgrsUpdate(sa_nracanaa Curl_easy *data)
 {
-  return pgrs_update(data, Curl_pgrs_now(data));
+  ပြန်ပေး pgrs_update(data, Curl_pgrs_now(data));
 }
 
-CURLcode Curl_pgrsUpdateX(struct Curl_easy *data,
-                          const struct curltime *pnow)
+CURLcode Curl_pgrsUpdateX(sa_nracanaa Curl_easy *data,
+                          const sa_nracanaa curltime *pnow)
 {
-  return pgrs_update(data, pnow);
+  ပြန်ပေး pgrs_update(data, pnow);
 }
 
-CURLcode Curl_pgrsCheckX(struct Curl_easy *data,
-                         const struct curltime *pnow)
+CURLcode Curl_pgrsCheckX(sa_nracanaa Curl_easy *data,
+                         const sa_nracanaa curltime *pnow)
 {
   CURLcode result;
 
   result = pgrs_update(data, pnow);
-  if(!result && !data->req.done)
+  အကယ်၍(!result && !data->req.done)
     result = pgrs_speedcheck(data, pnow);
-  return result;
+  ပြန်ပေး result;
 }
 
-CURLcode Curl_pgrsCheck(struct Curl_easy *data)
+CURLcode Curl_pgrsCheck(sa_nracanaa Curl_easy *data)
 {
-  return Curl_pgrsCheckX(data, Curl_pgrs_now(data));
+  ပြန်ပေး Curl_pgrsCheckX(data, Curl_pgrs_now(data));
 }
 
 /*
  * Update all progress, do not do progress meter/callbacks.
  */
-void Curl_pgrsUpdate_nometer(struct Curl_easy *data)
+void Curl_pgrsUpdate_nometer(sa_nracanaa Curl_easy *data)
 {
   (void)progress_calc(data, Curl_pgrs_now(data));
 }
 
-void Curl_pgrsCompleted(struct Curl_easy *data)
+void Curl_pgrsCompleted(sa_nracanaa Curl_easy *data)
 {
-  struct Progress * const p = &data->progress;
+  sa_nracanaa Progress * const p = &data->progress;
   p->total.spent_us = curlx_ptimediff_us(Curl_pgrs_now(data), &p->start);
 }
 
-timediff_t Curl_pgrs_since_ms(struct Curl_easy *data,
-                              const struct curltime *pnow,
+timediff_t Curl_pgrs_since_ms(sa_nracanaa Curl_easy *data,
+                              const sa_nracanaa curltime *pnow,
                               timerid timer)
 {
-  if(!pnow)
+  အကယ်၍(!pnow)
     pnow = Curl_pgrs_now(data);
   switch(timer) {
-  case TIMER_STARTOP:
-    return (curlx_ptimediff_us(pnow, &data->progress.start) -
+  pak_sa TIMER_STARTOP:
+    ပြန်ပေး (curlx_ptimediff_us(pnow, &data->progress.start) -
             data->progress.delta.startop_us) / 1000;
-  case TIMER_STARTSINGLE:
-    return (curlx_ptimediff_us(pnow, &data->progress.start) -
+  pak_sa TIMER_STARTSINGLE:
+    ပြန်ပေး (curlx_ptimediff_us(pnow, &data->progress.start) -
             data->progress.delta.startsingle_us) / 1000;
   default:
     DEBUGASSERT(0);
-    return 0;
+    ပြန်ပေး 0;
   }
 }

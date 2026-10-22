@@ -29,7 +29,7 @@
 
 #ifndef HAVE_FNMATCH
 
-#define CURLFNM_CHARSET_LEN (sizeof(char) * 256)
+#define CURLFNM_CHARSET_LEN (parimaa_na(var_na) * 256)
 #define CURLFNM_CHSET_SIZE (CURLFNM_CHARSET_LEN + 15)
 
 #define CURLFNM_NEGATE  CURLFNM_CHARSET_LEN
@@ -45,18 +45,18 @@
 #define CURLFNM_SPACE   (CURLFNM_CHARSET_LEN + 9)
 #define CURLFNM_UPPER   (CURLFNM_CHARSET_LEN + 10)
 
-typedef enum {
+typedef ga_nanaa {
   CURLFNM_SCHS_DEFAULT = 0,
   CURLFNM_SCHS_RIGHTBR,
   CURLFNM_SCHS_RIGHTBRLEFTBR
 } setcharset_state;
 
-typedef enum {
+typedef ga_nanaa {
   CURLFNM_PKW_INIT = 0,
   CURLFNM_PKW_DDOT
 } parsekey_state;
 
-typedef enum {
+typedef ga_nanaa {
   CCLASS_OTHER = 0,
   CCLASS_DIGIT,
   CCLASS_UPPER,
@@ -66,89 +66,89 @@ typedef enum {
 #define SETCHARSET_OK     1
 #define SETCHARSET_FAIL   0
 
-static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
+static ကိန်းပြည့် parsekeyword(const unsigned var_na **pattern, unsigned var_na *charset)
 {
   parsekey_state state = CURLFNM_PKW_INIT;
-  char keyword[10] = { 0 };
+  var_na keyword[10] = { 0 };
   size_t i;
-  const unsigned char *p = *pattern;
+  const unsigned var_na *p = *pattern;
   bool found = FALSE;
-  for(i = 0; !found; i++) {
-    char c = (char)*p++;
-    if(i >= sizeof(keyword))
-      return SETCHARSET_FAIL;
+  အတွက်(i = 0; !found; i++) {
+    var_na c = (var_na)*p++;
+    အကယ်၍(i >= parimaa_na(keyword))
+      ပြန်ပေး SETCHARSET_FAIL;
     switch(state) {
-    case CURLFNM_PKW_INIT:
-      if(ISLOWER(c))
+    pak_sa CURLFNM_PKW_INIT:
+      အကယ်၍(ISLOWER(c))
         keyword[i] = c;
-      else if(c == ':')
+      မဟုတ်ပါက အကယ်၍(c == ':')
         state = CURLFNM_PKW_DDOT;
-      else
-        return SETCHARSET_FAIL;
-      break;
-    case CURLFNM_PKW_DDOT:
-      if(c == ']')
+      မဟုတ်ပါက
+        ပြန်ပေး SETCHARSET_FAIL;
+      bha_nga;
+    pak_sa CURLFNM_PKW_DDOT:
+      အကယ်၍(c == ']')
         found = TRUE;
-      else
-        return SETCHARSET_FAIL;
+      မဟုတ်ပါက
+        ပြန်ပေး SETCHARSET_FAIL;
     }
   }
 #undef KEYLEN
 
   *pattern = p; /* move caller's pattern pointer */
-  if(!strcmp(keyword, "digit"))
+  အကယ်၍(!strcmp(keyword, "digit"))
     charset[CURLFNM_DIGIT] = 1;
-  else if(!strcmp(keyword, "alnum"))
+  မဟုတ်ပါက အကယ်၍(!strcmp(keyword, "alnum"))
     charset[CURLFNM_ALNUM] = 1;
-  else if(!strcmp(keyword, "alpha"))
+  မဟုတ်ပါက အကယ်၍(!strcmp(keyword, "alpha"))
     charset[CURLFNM_ALPHA] = 1;
-  else if(!strcmp(keyword, "xdigit"))
+  မဟုတ်ပါက အကယ်၍(!strcmp(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
-  else if(!strcmp(keyword, "print"))
+  မဟုတ်ပါက အကယ်၍(!strcmp(keyword, "print"))
     charset[CURLFNM_PRINT] = 1;
-  else if(!strcmp(keyword, "graph"))
+  မဟုတ်ပါက အကယ်၍(!strcmp(keyword, "graph"))
     charset[CURLFNM_GRAPH] = 1;
-  else if(!strcmp(keyword, "space"))
+  မဟုတ်ပါက အကယ်၍(!strcmp(keyword, "space"))
     charset[CURLFNM_SPACE] = 1;
-  else if(!strcmp(keyword, "blank"))
+  မဟုတ်ပါက အကယ်၍(!strcmp(keyword, "blank"))
     charset[CURLFNM_BLANK] = 1;
-  else if(!strcmp(keyword, "upper"))
+  မဟုတ်ပါက အကယ်၍(!strcmp(keyword, "upper"))
     charset[CURLFNM_UPPER] = 1;
-  else if(!strcmp(keyword, "lower"))
+  မဟုတ်ပါက အကယ်၍(!strcmp(keyword, "lower"))
     charset[CURLFNM_LOWER] = 1;
-  else
-    return SETCHARSET_FAIL;
-  return SETCHARSET_OK;
+  မဟုတ်ပါက
+    ပြန်ပေး SETCHARSET_FAIL;
+  ပြန်ပေး SETCHARSET_OK;
 }
 
 /* Return the character class. */
-static char_class charclass(unsigned char c)
+static char_class charclass(unsigned var_na c)
 {
-  if(ISUPPER(c))
-    return CCLASS_UPPER;
-  if(ISLOWER(c))
-    return CCLASS_LOWER;
-  if(ISDIGIT(c))
-    return CCLASS_DIGIT;
-  return CCLASS_OTHER;
+  အကယ်၍(ISUPPER(c))
+    ပြန်ပေး CCLASS_UPPER;
+  အကယ်၍(ISLOWER(c))
+    ပြန်ပေး CCLASS_LOWER;
+  အကယ်၍(ISDIGIT(c))
+    ပြန်ပေး CCLASS_DIGIT;
+  ပြန်ပေး CCLASS_OTHER;
 }
 
 /* Include a character or a range in set. */
-static void setcharorrange(const unsigned char **pp, unsigned char *charset)
+static void setcharorrange(const unsigned var_na **pp, unsigned var_na *charset)
 {
-  const unsigned char *p = (*pp)++;
-  unsigned char c = *p++;
+  const unsigned var_na *p = (*pp)++;
+  unsigned var_na c = *p++;
 
   charset[c] = 1;
-  if(ISALNUM(c) && *p++ == '-') {
+  အကယ်၍(ISALNUM(c) && *p++ == '-') {
     char_class cc = charclass(c);
-    unsigned char endrange = *p++;
+    unsigned var_na endrange = *p++;
 
-    if(endrange == '\\')
+    အကယ်၍(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
-      while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+    အကယ်၍(endrange >= c && charclass(endrange) == cc) {
+      နေစဉ်(c++ != endrange)
+        အကယ်၍(charclass(c) == cc)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }
@@ -156,260 +156,260 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
 }
 
 /* returns 1 (TRUE) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(const unsigned char **p, unsigned char *charset)
+static ကိန်းပြည့် setcharset(const unsigned var_na **p, unsigned var_na *charset)
 {
   setcharset_state state = CURLFNM_SCHS_DEFAULT;
   bool something_found = FALSE;
-  unsigned char c;
+  unsigned var_na c;
 
   memset(charset, 0, CURLFNM_CHSET_SIZE);
-  for(;;) {
+  အတွက်(;;) {
     c = **p;
-    if(!c)
-      return SETCHARSET_FAIL;
+    အကယ်၍(!c)
+      ပြန်ပေး SETCHARSET_FAIL;
 
     switch(state) {
-    case CURLFNM_SCHS_DEFAULT:
-      if(c == ']') {
-        if(something_found)
-          return SETCHARSET_OK;
+    pak_sa CURLFNM_SCHS_DEFAULT:
+      အကယ်၍(c == ']') {
+        အကယ်၍(something_found)
+          ပြန်ပေး SETCHARSET_OK;
         something_found = TRUE;
         state = CURLFNM_SCHS_RIGHTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == '[') {
-        const unsigned char *pp = *p + 1;
+      မဟုတ်ပါက အကယ်၍(c == '[') {
+        const unsigned var_na *pp = *p + 1;
 
-        if(*pp++ == ':' && parsekeyword(&pp, charset))
+        အကယ်၍(*pp++ == ':' && parsekeyword(&pp, charset))
           *p = pp;
-        else {
+        မဟုတ်ပါက {
           charset[c] = 1;
           (*p)++;
         }
         something_found = TRUE;
       }
-      else if(c == '^' || c == '!') {
-        if(!something_found) {
-          if(charset[CURLFNM_NEGATE]) {
+      မဟုတ်ပါက အကယ်၍(c == '^' || c == '!') {
+        အကယ်၍(!something_found) {
+          အကယ်၍(charset[CURLFNM_NEGATE]) {
             charset[c] = 1;
             something_found = TRUE;
           }
-          else
+          မဟုတ်ပါက
             charset[CURLFNM_NEGATE] = 1; /* negate charset */
         }
-        else
+        မဟုတ်ပါက
           charset[c] = 1;
         (*p)++;
       }
-      else if(c == '\\') {
+      မဟုတ်ပါက အကယ်၍(c == '\\') {
         c = *(++(*p));
-        if(c)
+        အကယ်၍(c)
           setcharorrange(p, charset);
-        else
+        မဟုတ်ပါက
           charset['\\'] = 1;
         something_found = TRUE;
       }
-      else {
+      မဟုတ်ပါက {
         setcharorrange(p, charset);
         something_found = TRUE;
       }
-      break;
-    case CURLFNM_SCHS_RIGHTBR:
-      if(c == '[') {
+      bha_nga;
+    pak_sa CURLFNM_SCHS_RIGHTBR:
+      အကယ်၍(c == '[') {
         state = CURLFNM_SCHS_RIGHTBRLEFTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == ']') {
-        return SETCHARSET_OK;
+      မဟုတ်ပါက အကယ်၍(c == ']') {
+        ပြန်ပေး SETCHARSET_OK;
       }
-      else if(ISPRINT(c)) {
+      မဟုတ်ပါက အကယ်၍(ISPRINT(c)) {
         charset[c] = 1;
         (*p)++;
         state = CURLFNM_SCHS_DEFAULT;
       }
-      else
+      မဟုတ်ပါက
         /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
          * nonsense warning 'statement not reached' at end of the fnc when
          * compiling on Solaris */
         goto fail;
-      break;
-    case CURLFNM_SCHS_RIGHTBRLEFTBR:
-      if(c == ']')
-        return SETCHARSET_OK;
+      bha_nga;
+    pak_sa CURLFNM_SCHS_RIGHTBRLEFTBR:
+      အကယ်၍(c == ']')
+        ပြန်ပေး SETCHARSET_OK;
       state = CURLFNM_SCHS_DEFAULT;
       charset[c] = 1;
       (*p)++;
-      break;
+      bha_nga;
     }
   }
 fail:
-  return SETCHARSET_FAIL;
+  ပြန်ပေး SETCHARSET_FAIL;
 }
 
 /* match one pattern token against one string character, advancing both */
-static int matchtoken(const unsigned char **pp, const unsigned char **sp)
+static ကိန်းပြည့် matchtoken(const unsigned var_na **pp, const unsigned var_na **sp)
 {
-  const unsigned char *p = *pp;
-  const unsigned char *s = *sp;
+  const unsigned var_na *p = *pp;
+  const unsigned var_na *s = *sp;
 
   switch(*p) {
-  case '?':
-    break;
-  case '\\':
-    if(p[1])
+  pak_sa '?':
+    bha_nga;
+  pak_sa '\\':
+    အကယ်၍(p[1])
       p++;
-    if(*s != *p)
-      return 0;
-    break;
-  case '[': {
-    unsigned char charset[CURLFNM_CHSET_SIZE];
-    const unsigned char *pp2 = p + 1; /* Copy in case of syntax error. */
+    အကယ်၍(*s != *p)
+      ပြန်ပေး 0;
+    bha_nga;
+  pak_sa '[': {
+    unsigned var_na charset[CURLFNM_CHSET_SIZE];
+    const unsigned var_na *pp2 = p + 1; /* Copy in case of syntax error. */
     bool found = FALSE;
-    if(!setcharset(&pp2, charset))
-      return -1; /* Syntax error in set; mismatch! */
-    if(charset[(unsigned int)*s])
+    အကယ်၍(!setcharset(&pp2, charset))
+      ပြန်ပေး -1; /* Syntax error in set; mismatch! */
+    အကယ်၍(charset[(unsigned ကိန်းပြည့်)*s])
       found = TRUE;
-    else if(charset[CURLFNM_ALNUM])
+    မဟုတ်ပါက အကယ်၍(charset[CURLFNM_ALNUM])
       found = ISALNUM(*s);
-    else if(charset[CURLFNM_ALPHA])
+    မဟုတ်ပါက အကယ်၍(charset[CURLFNM_ALPHA])
       found = ISALPHA(*s);
-    else if(charset[CURLFNM_DIGIT])
+    မဟုတ်ပါက အကယ်၍(charset[CURLFNM_DIGIT])
       found = ISDIGIT(*s);
-    else if(charset[CURLFNM_XDIGIT])
+    မဟုတ်ပါက အကယ်၍(charset[CURLFNM_XDIGIT])
       found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
+    မဟုတ်ပါက အကယ်၍(charset[CURLFNM_PRINT])
       found = ISPRINT(*s);
-    else if(charset[CURLFNM_SPACE])
+    မဟုတ်ပါက အကယ်၍(charset[CURLFNM_SPACE])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_UPPER])
+    မဟုတ်ပါက အကယ်၍(charset[CURLFNM_UPPER])
       found = ISUPPER(*s);
-    else if(charset[CURLFNM_LOWER])
+    မဟုတ်ပါက အကယ်၍(charset[CURLFNM_LOWER])
       found = ISLOWER(*s);
-    else if(charset[CURLFNM_BLANK])
+    မဟုတ်ပါက အကယ်၍(charset[CURLFNM_BLANK])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_GRAPH])
+    မဟုတ်ပါက အကယ်၍(charset[CURLFNM_GRAPH])
       found = ISGRAPH(*s);
 
-    if(charset[CURLFNM_NEGATE])
+    အကယ်၍(charset[CURLFNM_NEGATE])
       found = !found;
 
-    if(!found)
-      return 0;
+    အကယ်၍(!found)
+      ပြန်ပေး 0;
     *pp = pp2 + 1;
     *sp = s + 1;
-    return 1;
+    ပြန်ပေး 1;
   }
   default:
-    if(*p != *s)
-      return 0;
-    break;
+    အကယ်၍(*p != *s)
+      ပြန်ပေး 0;
+    bha_nga;
   }
   *pp = p + 1;
   *sp = s + 1;
-  return 1;
+  ပြန်ပေး 1;
 }
 
 /* greedy match with backtracking to the most recent '*' */
-static int loop(const unsigned char *pattern, const unsigned char *string)
+static ကိန်းပြည့် loop(const unsigned var_na *pattern, const unsigned var_na *string)
 {
-  const unsigned char *p = pattern;
-  const unsigned char *s = string;
-  const unsigned char *star_p = NULL;
-  const unsigned char *star_s = NULL;
-  int maxstars = 2;
+  const unsigned var_na *p = pattern;
+  const unsigned var_na *s = string;
+  const unsigned var_na *star_p = NULL;
+  const unsigned var_na *star_s = NULL;
+  ကိန်းပြည့် maxstars = 2;
 
-  while(*s) {
-    if(*p == '*') {
-      if(!maxstars)
-        return CURL_FNMATCH_NOMATCH;
+  နေစဉ်(*s) {
+    အကယ်၍(*p == '*') {
+      အကယ်၍(!maxstars)
+        ပြန်ပေး CURL_FNMATCH_NOMATCH;
       maxstars--;
-      for(;;) {
+      အတွက်(;;) {
         p++;
-        if(!*p)
-          return CURL_FNMATCH_MATCH;
-        if(*p == '?') {
-          if(!*s)
-            return CURL_FNMATCH_NOMATCH;
+        အကယ်၍(!*p)
+          ပြန်ပေး CURL_FNMATCH_MATCH;
+        အကယ်၍(*p == '?') {
+          အကယ်၍(!*s)
+            ပြန်ပေး CURL_FNMATCH_NOMATCH;
           s++;
         }
-        else if(*p != '*')
-          break;
+        မဟုတ်ပါက အကယ်၍(*p != '*')
+          bha_nga;
       }
       star_p = p;
       star_s = s;
     }
-    else if(*p) {
-      const unsigned char *np = p;
-      const unsigned char *ns = s;
-      int r = matchtoken(&np, &ns);
-      if(r < 0)
-        return CURL_FNMATCH_NOMATCH;
-      if(r) {
+    မဟုတ်ပါက အကယ်၍(*p) {
+      const unsigned var_na *np = p;
+      const unsigned var_na *ns = s;
+      ကိန်းပြည့် r = matchtoken(&np, &ns);
+      အကယ်၍(r < 0)
+        ပြန်ပေး CURL_FNMATCH_NOMATCH;
+      အကယ်၍(r) {
         p = np;
         s = ns;
         continue;
       }
-      if(!star_p)
-        return CURL_FNMATCH_NOMATCH;
+      အကယ်၍(!star_p)
+        ပြန်ပေး CURL_FNMATCH_NOMATCH;
       p = star_p;
       s = ++star_s;
     }
-    else if(star_p) {
+    မဟုတ်ပါက အကယ်၍(star_p) {
       p = star_p;
       s = ++star_s;
     }
-    else
-      return CURL_FNMATCH_NOMATCH;
+    မဟုတ်ပါက
+      ပြန်ပေး CURL_FNMATCH_NOMATCH;
   }
-  while(*p == '*') {
-    if(!maxstars)
-      return CURL_FNMATCH_NOMATCH;
+  နေစဉ်(*p == '*') {
+    အကယ်၍(!maxstars)
+      ပြန်ပေး CURL_FNMATCH_NOMATCH;
     maxstars--;
     do {
       p++;
-      if(*p == '?')
-        return CURL_FNMATCH_NOMATCH;
-    } while(*p == '*');
+      အကယ်၍(*p == '?')
+        ပြန်ပေး CURL_FNMATCH_NOMATCH;
+    } နေစဉ်(*p == '*');
   }
-  return *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
+  ပြန်ပေး *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
 }
 
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+ကိန်းပြည့် Curl_fnmatch(void *ptr, const var_na *pattern, const var_na *string)
 {
   (void)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  အကယ်၍(!pattern || !string) {
+    ပြန်ပေး CURL_FNMATCH_FAIL;
   }
-  return loop((const unsigned char *)pattern,
-              (const unsigned char *)string);
+  ပြန်ပေး loop((const unsigned var_na *)pattern,
+              (const unsigned var_na *)string);
 }
-#else /* HAVE_FNMATCH */
+#မဟုတ်ပါက /* HAVE_FNMATCH */
 
 #include <fnmatch.h>
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+ကိန်းပြည့် Curl_fnmatch(void *ptr, const var_na *pattern, const var_na *string)
 {
   (void)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  အကယ်၍(!pattern || !string) {
+    ပြန်ပေး CURL_FNMATCH_FAIL;
   }
 
   switch(fnmatch(pattern, string, 0)) {
-  case 0:
-    return CURL_FNMATCH_MATCH;
-  case FNM_NOMATCH:
-    return CURL_FNMATCH_NOMATCH;
+  pak_sa 0:
+    ပြန်ပေး CURL_FNMATCH_MATCH;
+  pak_sa FNM_NOMATCH:
+    ပြန်ပေး CURL_FNMATCH_NOMATCH;
   default:
-    return CURL_FNMATCH_FAIL;
+    ပြန်ပေး CURL_FNMATCH_FAIL;
   }
   /* not reached */
 }

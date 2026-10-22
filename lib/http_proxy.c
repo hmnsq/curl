@@ -25,7 +25,7 @@
 
 #include "http_proxy.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY)
+#အကယ်၍ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY)
 
 #include "curl_trc.h"
 #include "http.h"
@@ -38,93 +38,93 @@
 #include "vquic/vquic.h"
 #include "curlx/strparse.h"
 
-static CURLcode dynhds_add_custom(struct Curl_easy *data,
-                                  bool is_connect, int httpversion,
-                                  bool is_udp, struct dynhds *hds)
+static CURLcode dynhds_add_custom(sa_nracanaa Curl_easy *data,
+                                  bool is_connect, ကိန်းပြည့် httpversion,
+                                  bool is_udp, sa_nracanaa dynhds *hds)
 {
-  struct connectdata *conn = data->conn;
-  struct curl_slist *h[2];
-  struct curl_slist *headers;
-  int numlists = 1; /* by default */
-  int i;
+  sa_nracanaa connectdata *conn = data->conn;
+  sa_nracanaa curl_slist *h[2];
+  sa_nracanaa curl_slist *headers;
+  ကိန်းပြည့် numlists = 1; /* by default */
+  ကိန်းပြည့် i;
 
-  enum Curl_proxy_use proxy;
+  ga_nanaa Curl_proxy_use proxy;
 
-  if(is_connect && !is_udp)
+  အကယ်၍(is_connect && !is_udp)
     proxy = HEADER_CONNECT;
-  else if(is_connect && is_udp)
+  မဟုတ်ပါက အကယ်၍(is_connect && is_udp)
     proxy = HEADER_CONNECT_UDP;
-  else
+  မဟုတ်ပါက
     proxy = conn->bits.origin_is_proxy ? HEADER_PROXY : HEADER_SERVER;
 
   switch(proxy) {
-  case HEADER_SERVER:
+  pak_sa HEADER_SERVER:
     h[0] = data->set.headers;
-    break;
-  case HEADER_PROXY:
+    bha_nga;
+  pak_sa HEADER_PROXY:
     h[0] = data->set.headers;
-    if(data->set.sep_headers) {
+    အကယ်၍(data->set.sep_headers) {
       h[1] = data->set.proxyheaders;
       numlists++;
     }
-    break;
-  case HEADER_CONNECT:
-    if(data->set.sep_headers)
+    bha_nga;
+  pak_sa HEADER_CONNECT:
+    အကယ်၍(data->set.sep_headers)
       h[0] = data->set.proxyheaders;
-    else
+    မဟုတ်ပါက
       h[0] = data->set.headers;
-    break;
-  case HEADER_CONNECT_UDP:
-    if(data->set.sep_headers)
+    bha_nga;
+  pak_sa HEADER_CONNECT_UDP:
+    အကယ်၍(data->set.sep_headers)
       h[0] = data->set.proxyheaders;
-    else
+    မဟုတ်ပါက
       h[0] = data->set.headers;
-    break;
+    bha_nga;
   }
 
   /* loop through one or two lists */
-  for(i = 0; i < numlists; i++) {
-    for(headers = h[i]; headers; headers = headers->next) {
-      struct Curl_str name;
-      const char *value = NULL;
+  အတွက်(i = 0; i < numlists; i++) {
+    အတွက်(headers = h[i]; headers; headers = headers->next) {
+      sa_nracanaa Curl_str name;
+      const var_na *value = NULL;
       size_t valuelen = 0;
-      const char *ptr = headers->data;
+      const var_na *ptr = headers->data;
 
       /* There are 2 quirks in place for custom headers:
        * 1. setting only 'name:' to suppress a header from being sent
        * 2. setting only 'name;' to send an empty (illegal) header
        */
-      if(!curlx_str_cspn(&ptr, &name, ";:")) {
-        if(!curlx_str_single(&ptr, ':')) {
+      အကယ်၍(!curlx_str_cspn(&ptr, &name, ";:")) {
+        အကယ်၍(!curlx_str_single(&ptr, ':')) {
           curlx_str_passblanks(&ptr);
-          if(*ptr) {
+          အကယ်၍(*ptr) {
             value = ptr;
             valuelen = strlen(value);
           }
-          else {
+          မဟုတ်ပါက {
             /* quirk #1, suppress this header */
             continue;
           }
         }
-        else if(!curlx_str_single(&ptr, ';')) {
+        မဟုတ်ပါက အကယ်၍(!curlx_str_single(&ptr, ';')) {
           curlx_str_passblanks(&ptr);
-          if(!*ptr) {
+          အကယ်၍(!*ptr) {
             /* quirk #2, send an empty header */
             value = "";
             valuelen = 0;
           }
-          else {
+          မဟုတ်ပါက {
             /* this may be used for something else in the future,
              * ignore this for now */
             continue;
           }
         }
-        else
+        မဟုတ်ပါက
           /* neither : nor ; in provided header value. We ignore this
            * silently */
           continue;
       }
-      else
+      မဟုတ်ပါက
         /* no name, move on */
         continue;
 
@@ -132,82 +132,82 @@ static CURLcode dynhds_add_custom(struct Curl_easy *data,
       /* trim surrounding whitespace so a padded field name (e.g.
          `Authorization :`) cannot slip past the Authorization/Cookie check */
       curlx_str_trimblanks(&name);
-      if(!curlx_strlen(&name))
+      အကယ်၍(!curlx_strlen(&name))
         continue;
-      if(data->state.http_host &&
+      အကယ်၍(data->state.http_host &&
          /* a Host: header was sent already, do not pass on any custom Host:
             header as that will produce *two* in the same request! */
          curlx_str_casecompare(&name, "Host"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_FORM &&
+      မဟုတ်ပါက အကယ်၍(data->state.httpreq == HTTPREQ_POST_FORM &&
               /* this header (extended by formdata.c) is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_MIME &&
+      မဟုတ်ပါက အကယ်၍(data->state.httpreq == HTTPREQ_POST_MIME &&
               /* this header is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->req.authneg &&
+      မဟုတ်ပါက အကယ်၍(data->req.authneg &&
               /* while doing auth neg, do not allow the custom length since
                  we will force length zero then */
               curlx_str_casecompare(&name, "Content-Length"))
         ;
-      else if((httpversion >= 20) &&
+      မဟုတ်ပါက အကယ်၍((httpversion >= 20) &&
               curlx_str_casecompare(&name, "Transfer-Encoding"))
         ;
       /* HTTP/2 and HTTP/3 do not support chunked requests */
-      else if((curlx_str_casecompare(&name, "Authorization") ||
+      မဟုတ်ပါက အကယ်၍((curlx_str_casecompare(&name, "Authorization") ||
                curlx_str_casecompare(&name, "Cookie")) &&
               /* be careful of sending this potentially sensitive header to
                  other hosts */
               !Curl_auth_allowed_to_host(data))
         ;
-      else {
+      မဟုတ်ပါက {
         CURLcode result =
           Curl_dynhds_add(hds, curlx_str(&name), curlx_strlen(&name),
                           value, valuelen);
-        if(result)
-          return result;
+        အကယ်၍(result)
+          ပြန်ပေး result;
       }
     }
   }
 
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
-struct cf_proxy_ctx {
-  struct Curl_peer *peer; /* proxy */
-  struct Curl_peer *tunnel_peer; /* tunnel destination */
+sa_nracanaa cf_proxy_ctx {
+  sa_nracanaa Curl_peer *peer; /* proxy */
+  sa_nracanaa Curl_peer *tunnel_peer; /* tunnel destination */
   uint8_t proxytype;
   uint8_t tunnel_transport;
   BIT(sub_filter_installed);
 };
 
-static int proxy_http_ver_major(proxy_http_ver ver)
+static ကိန်းပြည့် proxy_http_ver_major(proxy_http_ver ver)
 {
   switch(ver) {
-  case PROXY_HTTP_V1:
-    return 11;
-  case PROXY_HTTP_V2:
-    return 20;
-  case PROXY_HTTP_V3:
-    return 30;
+  pak_sa PROXY_HTTP_V1:
+    ပြန်ပေး 11;
+  pak_sa PROXY_HTTP_V2:
+    ပြန်ပေး 20;
+  pak_sa PROXY_HTTP_V3:
+    ပြန်ပေး 30;
   }
-  return 0;
+  ပြန်ပေး 0;
 }
 
-static CURLcode http_proxy_create_CONNECT(struct httpreq **preq,
-                                          struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct Curl_peer *peer,
-                                          struct Curl_peer *dest,
+static CURLcode http_proxy_create_CONNECT(sa_nracanaa httpreq **preq,
+                                          sa_nracanaa Curl_cfilter *cf,
+                                          sa_nracanaa Curl_easy *data,
+                                          sa_nracanaa Curl_peer *peer,
+                                          sa_nracanaa Curl_peer *dest,
                                           proxy_http_ver ver)
 {
-  char *authority = NULL;
-  const char *ua;
-  int httpversion = proxy_http_ver_major(ver);
+  var_na *authority = NULL;
+  const var_na *ua;
+  ကိန်းပြည့် httpversion = proxy_http_ver_major(ver);
   CURLcode result;
-  struct httpreq *req = NULL;
+  sa_nracanaa httpreq *req = NULL;
 
   (void)peer;
   authority = curl_maprintf("%s%s%s:%u",
@@ -215,7 +215,7 @@ static CURLcode http_proxy_create_CONNECT(struct httpreq **preq,
                             dest->hostname,
                             dest->ipv6 ? "]" : "",
                             dest->port);
-  if(!authority) {
+  အကယ်၍(!authority) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -223,42 +223,42 @@ static CURLcode http_proxy_create_CONNECT(struct httpreq **preq,
   result = Curl_http_req_make(&req, STRCONST("CONNECT"),
                               NULL, 0, authority, strlen(authority),
                               NULL, 0);
-  if(result)
+  အကယ်၍(result)
     goto out;
 
   /* Setup the proxy-authorization header, if any */
   result = Curl_http_output_auth(data, cf->conn, req->method, HTTPREQ_GET,
                                  req->authority, NULL, TRUE);
-  if(result)
+  အကယ်၍(result)
     goto out;
 
   /* If user is not overriding Host: header, we add for HTTP/1.x */
-  if(ver == PROXY_HTTP_V1 &&
+  အကယ်၍(ver == PROXY_HTTP_V1 &&
      !Curl_checkProxyheaders(data, cf->conn, STRCONST("Host"))) {
     result = Curl_dynhds_cadd(&req->headers, "Host", authority);
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
 
-  if(data->req.hd_proxy_auth) {
+  အကယ်၍(data->req.hd_proxy_auth) {
     result = Curl_dynhds_h1_cadd_line(&req->headers,
                                       data->req.hd_proxy_auth);
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
 
   ua = CURL_EASY_STR(data, STRING_USERAGENT);
-  if(!Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent")) &&
+  အကယ်၍(!Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent")) &&
      ua && *ua) {
     result = Curl_dynhds_cadd(&req->headers, "User-Agent", ua);
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
 
-  if(ver == PROXY_HTTP_V1 &&
+  အကယ်၍(ver == PROXY_HTTP_V1 &&
      !Curl_checkProxyheaders(data, cf->conn, STRCONST("Proxy-Connection"))) {
     result = Curl_dynhds_cadd(&req->headers, "Proxy-Connection", "Keep-Alive");
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
 
@@ -266,31 +266,31 @@ static CURLcode http_proxy_create_CONNECT(struct httpreq **preq,
                              FALSE, &req->headers);
 
 out:
-  if(result && req) {
+  အကယ်၍(result && req) {
     Curl_http_req_free(req);
     req = NULL;
   }
   curlx_free(authority);
   *preq = req;
-  return result;
+  ပြန်ပေး result;
 }
 
-static CURLcode http_proxy_create_CONNECTUDP(struct httpreq **preq,
-                                             struct Curl_cfilter *cf,
-                                             struct Curl_easy *data,
-                                             struct Curl_peer *peer,
-                                             struct Curl_peer *dest,
+static CURLcode http_proxy_create_CONNECTUDP(sa_nracanaa httpreq **preq,
+                                             sa_nracanaa Curl_cfilter *cf,
+                                             sa_nracanaa Curl_easy *data,
+                                             sa_nracanaa Curl_peer *peer,
+                                             sa_nracanaa Curl_peer *dest,
                                              proxy_http_ver ver)
 {
-  const char *proxy_scheme = "http", *ua;
-  int httpversion = proxy_http_ver_major(ver);
-  char *authority = NULL;
-  char *path = NULL;
-  char *encoded_host = NULL;
-  struct httpreq *req = NULL;
+  const var_na *proxy_scheme = "http", *ua;
+  ကိန်းပြည့် httpversion = proxy_http_ver_major(ver);
+  var_na *authority = NULL;
+  var_na *path = NULL;
+  var_na *encoded_host = NULL;
+  sa_nracanaa httpreq *req = NULL;
   CURLcode result;
 
-  if(cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS ||
+  အကယ်၍(cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS ||
      cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS2 ||
      cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS3)
     proxy_scheme = "https";
@@ -300,64 +300,64 @@ static CURLcode http_proxy_create_CONNECTUDP(struct httpreq **preq,
                             peer->hostname,
                             peer->ipv6 ? "]" : "",
                             peer->port);
-  if(!authority) {
+  အကယ်၍(!authority) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
-  if(dest->ipv6) {
+  အကယ်၍(dest->ipv6) {
     /* RFC 9298: colons in IPv6 addresses MUST be percent-encoded
      * in the URI template (e.g. "2001:db8::1" -> "2001%3Adb8%3A%3A1") */
-    const char *s = dest->hostname;
-    char *d;
+    const var_na *s = dest->hostname;
+    var_na *d;
     size_t hlen = strlen(s);
     encoded_host = curlx_malloc(hlen * 3 + 1);
-    if(!encoded_host) {
+    အကယ်၍(!encoded_host) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
     d = encoded_host;
-    while(*s) {
-      if(*s == ':') {
+    နေစဉ်(*s) {
+      အကယ်၍(*s == ':') {
         *d++ = '%';
         *d++ = '3';
         *d++ = 'A';
       }
-      else
+      မဟုတ်ပါက
         *d++ = *s;
       s++;
     }
     *d = '\0';
     path = curl_maprintf("/.well-known/masque/udp/%s/%u/",
-                         encoded_host, (unsigned int)dest->port);
+                         encoded_host, (unsigned ကိန်းပြည့်)dest->port);
   }
-  else {
+  မဟုတ်ပါက {
     path = curl_maprintf("/.well-known/masque/udp/%s/%u/",
-                         dest->hostname, (unsigned int)dest->port);
+                         dest->hostname, (unsigned ကိန်းပြည့်)dest->port);
   }
 
-  if(!path) {
+  အကယ်၍(!path) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
-  if(ver == PROXY_HTTP_V1) {
+  အကယ်၍(ver == PROXY_HTTP_V1) {
     result = Curl_http_req_make(&req, "GET", CURL_CSTRLEN("GET"),
                                 proxy_scheme, strlen(proxy_scheme),
                                 authority, strlen(authority),
                                 path, strlen(path));
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
-  else if(ver == PROXY_HTTP_V2 || ver == PROXY_HTTP_V3) {
+  မဟုတ်ပါက အကယ်၍(ver == PROXY_HTTP_V2 || ver == PROXY_HTTP_V3) {
     result = Curl_http_req_make(&req, STRCONST("CONNECT"),
                                 proxy_scheme, strlen(proxy_scheme),
                                 authority, strlen(authority),
                                 path, strlen(path));
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
-  else {
+  မဟုတ်ပါက {
     result = CURLE_FAILED_INIT;
     goto out;
   }
@@ -365,61 +365,61 @@ static CURLcode http_proxy_create_CONNECTUDP(struct httpreq **preq,
   /* Setup the proxy-authorization header, if any */
   result = Curl_http_output_auth(data, cf->conn, req->method, HTTPREQ_GET,
                                  req->authority, NULL, TRUE);
-  if(result)
+  အကယ်၍(result)
     goto out;
 
   /* If user is not overriding Host: header, we add for HTTP/1.x */
-  if(ver == PROXY_HTTP_V1 &&
+  အကယ်၍(ver == PROXY_HTTP_V1 &&
      !Curl_checkProxyheaders(data, cf->conn, STRCONST("Host"))) {
     result = Curl_dynhds_cadd(&req->headers, "Host", authority);
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
 
-  if(data->req.hd_proxy_auth) {
+  အကယ်၍(data->req.hd_proxy_auth) {
     result = Curl_dynhds_h1_cadd_line(&req->headers,
                                       data->req.hd_proxy_auth);
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
 
   ua = CURL_EASY_STR(data, STRING_USERAGENT);
-  if(ver == PROXY_HTTP_V1 &&
+  အကယ်၍(ver == PROXY_HTTP_V1 &&
      !Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent")) &&
      ua && *ua) {
     result = Curl_dynhds_cadd(&req->headers, "User-Agent", ua);
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
 
-  if(ver == PROXY_HTTP_V1 &&
+  အကယ်၍(ver == PROXY_HTTP_V1 &&
      !Curl_checkProxyheaders(data, cf->conn, STRCONST("Proxy-Connection"))) {
     result = Curl_dynhds_cadd(&req->headers, "Proxy-Connection", "Keep-Alive");
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
 
-  if(ver == PROXY_HTTP_V1) {
+  အကယ်၍(ver == PROXY_HTTP_V1) {
     result = Curl_dynhds_cadd(&req->headers, "Connection", "Upgrade");
-    if(result)
+    အကယ်၍(result)
       goto out;
 
     result = Curl_dynhds_cadd(&req->headers, "Upgrade", "connect-udp");
-    if(result)
+    အကယ်၍(result)
       goto out;
 
     result = Curl_dynhds_cadd(&req->headers, "Capsule-Protocol", "?1");
-    if(result)
+    အကယ်၍(result)
       goto out;
   }
-  else {
+  မဟုတ်ပါက {
     result = Curl_dynhds_cadd(&req->headers, ":Protocol", "connect-udp");
-    if(result)
+    အကယ်၍(result)
       goto out;
 
-    if(ver >= PROXY_HTTP_V2) {
+    အကယ်၍(ver >= PROXY_HTTP_V2) {
       result = Curl_dynhds_cadd(&req->headers, "Capsule-Protocol", "?1");
-      if(result)
+      အကယ်၍(result)
         goto out;
     }
   }
@@ -428,7 +428,7 @@ static CURLcode http_proxy_create_CONNECTUDP(struct httpreq **preq,
                              TRUE, &req->headers);
 
 out:
-  if(result && req) {
+  အကယ်၍(result && req) {
     Curl_http_req_free(req);
     req = NULL;
   }
@@ -436,35 +436,35 @@ out:
   curlx_free(path);
   curlx_free(encoded_host);
   *preq = req;
-  return result;
+  ပြန်ပေး result;
 }
 
 CURLcode Curl_http_proxy_create_tunnel_request(
-    struct httpreq **preq, struct Curl_cfilter *cf,
-    struct Curl_easy *data, struct Curl_peer *peer, struct Curl_peer *dest,
+    sa_nracanaa httpreq **preq, sa_nracanaa Curl_cfilter *cf,
+    sa_nracanaa Curl_easy *data, sa_nracanaa Curl_peer *peer, sa_nracanaa Curl_peer *dest,
     proxy_http_ver ver, bool udp_tunnel)
 {
   CURLcode result = udp_tunnel ?
     http_proxy_create_CONNECTUDP(preq, cf, data, peer, dest, ver) :
     http_proxy_create_CONNECT(preq, cf, data, peer, dest, ver);
-  if(result)
-    return result;
+  အကယ်၍(result)
+    ပြန်ပေး result;
 
   infof(data, "Establishing %s proxy %stunnel to %s:%u",
         (ver == PROXY_HTTP_V2) ? "HTTP/2" :
         (ver == PROXY_HTTP_V3) ? "HTTP/3" : "HTTP",
         udp_tunnel ? "UDP " : "",
         dest->user_hostname, dest->port);
-  return CURLE_OK;
+  ပြန်ပေး CURLE_OK;
 }
 
 CURLcode Curl_http_proxy_inspect_tunnel_response(
-    struct Curl_cfilter *cf, struct Curl_easy *data,
-    struct http_resp *resp, bool udp_tunnel,
+    sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
+    sa_nracanaa http_resp *resp, bool udp_tunnel,
     proxy_inspect_result *presult)
 {
-  struct dynhds_entry *capsule_protocol = NULL;
-  struct dynhds_entry *auth_reply = NULL;
+  sa_nracanaa dynhds_entry *capsule_protocol = NULL;
+  sa_nracanaa dynhds_entry *auth_reply = NULL;
   size_t i, header_count;
   CURLcode result = CURLE_OK;
 
@@ -474,165 +474,165 @@ CURLcode Curl_http_proxy_inspect_tunnel_response(
   infof(data, "CONNECT%s Response Status %d",
         udp_tunnel ? "-UDP" : "", resp->status);
   infof(data, "Response Headers (%zu total):", header_count);
-  for(i = 0; i < header_count; i++) {
-    struct dynhds_entry *entry = Curl_dynhds_getn(&resp->headers, i);
-    if(entry)
+  အတွက်(i = 0; i < header_count; i++) {
+    sa_nracanaa dynhds_entry *entry = Curl_dynhds_getn(&resp->headers, i);
+    အကယ်၍(entry)
       infof(data, "  %s: %s", entry->name, entry->value);
   }
 
-  if(resp->status == 407) {
+  အကယ်၍(resp->status == 407) {
     auth_reply = Curl_dynhds_cget(&resp->headers, "Proxy-Authenticate");
   }
 
-  if(auth_reply) {
+  အကယ်၍(auth_reply) {
     CURL_TRC_CF(data, cf, "[0] CONNECT%s: fwd auth header '%s'",
                 udp_tunnel ? "-UDP" : "", auth_reply->value);
     result = Curl_http_input_auth(data, resp->status == 407,
                                   auth_reply->value);
-    if(result)
-      return result;
-    if(data->req.newurl) {
+    အကယ်၍(result)
+      ပြန်ပေး result;
+    အကယ်၍(data->req.newurl) {
       curlx_safefree(data->req.newurl);
       *presult = PROXY_INSPECT_AUTH_RETRY;
-      return CURLE_OK;
+      ပြန်ပေး CURLE_OK;
     }
   }
 
-  if(udp_tunnel) {
-    if(resp->status / 100 == 2) {
+  အကယ်၍(udp_tunnel) {
+    အကယ်၍(resp->status / 100 == 2) {
       capsule_protocol = Curl_dynhds_cget(&resp->headers,
                                            "capsule-protocol");
-      if(capsule_protocol) {
-        if(!strncmp(capsule_protocol->value, "?1", 2) &&
+      အကယ်၍(capsule_protocol) {
+        အကယ်၍(!strncmp(capsule_protocol->value, "?1", 2) &&
            !capsule_protocol->value[2]) {
           infof(data, "CONNECT-UDP tunnel established, response %d",
                 resp->status);
           *presult = PROXY_INSPECT_OK;
-          return CURLE_OK;
+          ပြန်ပေး CURLE_OK;
         }
         failf(data, "Failed to establish CONNECT-UDP tunnel, response %d, "
               "unsupported capsule-protocol value '%s'",
               resp->status, capsule_protocol->value);
         *presult = PROXY_INSPECT_FAILED;
-        return CURLE_COULDNT_CONNECT;
+        ပြန်ပေး CURLE_COULDNT_CONNECT;
       }
-      else {
+      မဟုတ်ပါက {
         /* NOTE proxies may not set capsule protocol in the headers */
         infof(data, "CONNECT-UDP tunnel established, response %d "
                     "but no capsule-protocol header found", resp->status);
         *presult = PROXY_INSPECT_OK;
-        return CURLE_OK;
+        ပြန်ပေး CURLE_OK;
       }
     }
-    else {
+    မဟုတ်ပါက {
       failf(data, "Failed to establish CONNECT-UDP tunnel, "
                   "response %d", resp->status);
       *presult = PROXY_INSPECT_FAILED;
-      return CURLE_COULDNT_CONNECT;
+      ပြန်ပေး CURLE_COULDNT_CONNECT;
     }
   }
 
-  if(resp->status / 100 == 2) {
+  အကယ်၍(resp->status / 100 == 2) {
     infof(data, "CONNECT tunnel established, response %d", resp->status);
     *presult = PROXY_INSPECT_OK;
-    return CURLE_OK;
+    ပြန်ပေး CURLE_OK;
   }
 
   *presult = PROXY_INSPECT_FAILED;
-  return CURLE_COULDNT_CONNECT;
+  ပြန်ပေး CURLE_COULDNT_CONNECT;
 }
 
-static CURLcode http_proxy_cf_connect(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
+static CURLcode http_proxy_cf_connect(sa_nracanaa Curl_cfilter *cf,
+                                      sa_nracanaa Curl_easy *data,
                                       bool *done)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_proxy_ctx *ctx = cf->ctx;
   CURLcode result;
   bool udp_tunnel = TRNSPRT_IS_DGRAM(ctx->tunnel_transport);
 
-  if(cf->connected) {
+  အကယ်၍(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    ပြန်ပေး CURLE_OK;
   }
 
   CURL_TRC_CF(data, cf, "CONNECT%s", udp_tunnel ? "-UDP" : "");
 connect_sub:
   /* in case of h3_proxy, cf->next will be NULL initially */
-  if(cf->next) {
+  အကယ်၍(cf->next) {
     result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+    အကယ်၍(result || !*done)
+      ပြန်ပေး result;
   }
 
   *done = FALSE;
-  if(!ctx->sub_filter_installed) {
-    const char *alpn = NULL;
+  အကယ်၍(!ctx->sub_filter_installed) {
+    const var_na *alpn = NULL;
 
     /* in case of h3_proxy, cf->next will be NULL initially */
-    if(cf->next) {
+    အကယ်၍(cf->next) {
       alpn = Curl_conn_cf_get_alpn_negotiated(cf->next, data);
     }
 
-    if(alpn)
+    အကယ်၍(alpn)
       infof(data, "CONNECT%s: '%s' negotiated",
             udp_tunnel ? "-UDP" : "", alpn);
-    else if(!alpn) {
+    မဟုတ်ပါက အကယ်၍(!alpn) {
       /* No ALPN, proxytype rules. Fake ALPN */
       infof(data, "CONNECT%s: no ALPN negotiated", udp_tunnel ? "-UDP" : "");
       switch(ctx->proxytype) {
-      case CURLPROXY_HTTP_1_0:
+      pak_sa CURLPROXY_HTTP_1_0:
         alpn = "http/1.0";
-        break;
-      case CURLPROXY_HTTPS2:
+        bha_nga;
+      pak_sa CURLPROXY_HTTPS2:
         alpn = "h2";
-        break;
-      case CURLPROXY_HTTPS3:
+        bha_nga;
+      pak_sa CURLPROXY_HTTPS3:
         alpn = "h3";
-        break;
+        bha_nga;
       default:
         alpn = "http/1.1";
-        break;
+        bha_nga;
       }
     }
 
-    if(!strcmp(alpn, "http/1.0")) {
+    အကယ်၍(!strcmp(alpn, "http/1.0")) {
       CURL_TRC_CF(data, cf, "installing subfilter for HTTP/1.0");
       result = Curl_cf_h1_proxy_insert_after(cf, data, ctx->peer,
                                              ctx->tunnel_peer, 10, udp_tunnel);
-      if(result)
+      အကယ်၍(result)
         goto out;
     }
-    else if(!strcmp(alpn, "http/1.1")) {
-      int httpversion = (ctx->proxytype == CURLPROXY_HTTP_1_0) ? 10 : 11;
+    မဟုတ်ပါက အကယ်၍(!strcmp(alpn, "http/1.1")) {
+      ကိန်းပြည့် httpversion = (ctx->proxytype == CURLPROXY_HTTP_1_0) ? 10 : 11;
       CURL_TRC_CF(data, cf, "installing subfilter for HTTP/1.%d",
                   httpversion % 10);
       result = Curl_cf_h1_proxy_insert_after(cf, data, ctx->peer,
                                              ctx->tunnel_peer,
                                              httpversion, udp_tunnel);
-      if(result)
+      အကယ်၍(result)
         goto out;
     }
 #ifdef USE_NGHTTP2
-    else if(!strcmp(alpn, "h2")) {
+    မဟုတ်ပါက အကယ်၍(!strcmp(alpn, "h2")) {
       CURL_TRC_CF(data, cf, "installing subfilter for HTTP/2");
       result = Curl_cf_h2_proxy_insert_after(cf, data, ctx->peer,
                                              ctx->tunnel_peer, udp_tunnel);
-      if(result)
+      အကယ်၍(result)
         goto out;
     }
 #endif /* USE_NGHTTP2 */
-#if defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) && \
+#အကယ်၍ defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) && \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
-    else if(!strcmp(alpn, "h3")) {
+    မဟုတ်ပါက အကယ်၍(!strcmp(alpn, "h3")) {
       CURL_TRC_CF(data, cf, "installing subfilter for HTTP/3");
       result = Curl_cf_h3_proxy_insert_after(cf, data, ctx->peer, ctx->peer,
                                              ctx->tunnel_peer,
                                              ctx->tunnel_transport);
-      if(result)
+      အကယ်၍(result)
         goto out;
     }
 #endif /* USE_PROXY_HTTP3 && USE_NGHTTP3 && USE_NGTCP2 && USE_OPENSSL */
-    else {
+    မဟုတ်ပါက {
       failf(data, "CONNECT%s: negotiated ALPN '%s' not supported",
             udp_tunnel ? "-UDP" : "", alpn);
       result = CURLE_COULDNT_CONNECT;
@@ -645,7 +645,7 @@ connect_sub:
      */
     goto connect_sub;
   }
-  else {
+  မဟုတ်ပါက {
     /* subchain connected and we had already installed the protocol filter.
      * This means the protocol tunnel is established, we are done. */
     DEBUGASSERT(ctx->sub_filter_installed);
@@ -653,57 +653,57 @@ connect_sub:
   }
 
 out:
-  if(!result) {
+  အကယ်၍(!result) {
     cf->connected = TRUE;
     *done = TRUE;
   }
-  return result;
+  ပြန်ပေး result;
 }
 
-static CURLcode cf_http_proxy_query(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    int query, int *pres1, void *pres2)
+static CURLcode cf_http_proxy_query(sa_nracanaa Curl_cfilter *cf,
+                                    sa_nracanaa Curl_easy *data,
+                                    ကိန်းပြည့် query, ကိန်းပြည့် *pres1, void *pres2)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_proxy_ctx *ctx = cf->ctx;
   switch(query) {
-  case CF_QUERY_HOST_PORT:
-    *pres1 = (int)ctx->tunnel_peer->port;
-    *((const char **)pres2) = ctx->tunnel_peer->hostname;
-    return CURLE_OK;
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  pak_sa CF_QUERY_HOST_PORT:
+    *pres1 = (ကိန်းပြည့်)ctx->tunnel_peer->port;
+    *((const var_na **)pres2) = ctx->tunnel_peer->hostname;
+    ပြန်ပေး CURLE_OK;
+  pak_sa CF_QUERY_ALPN_NEGOTIATED: {
+    const var_na **palpn = pres2;
     DEBUGASSERT(palpn);
     *palpn = NULL;
-    return CURLE_OK;
+    ပြန်ပေး CURLE_OK;
   }
   default:
-    break;
+    bha_nga;
   }
-  return cf->next ?
+  ပြန်ပေး cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static void cf_https_proxy_ctx_free(struct cf_proxy_ctx *ctx)
+static void cf_https_proxy_ctx_free(sa_nracanaa cf_proxy_ctx *ctx)
 {
-  if(ctx) {
+  အကယ်၍(ctx) {
     Curl_peer_unlink(&ctx->peer);
     Curl_peer_unlink(&ctx->tunnel_peer);
     curlx_free(ctx);
   }
 }
 
-static void http_proxy_cf_destroy(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+static void http_proxy_cf_destroy(sa_nracanaa Curl_cfilter *cf,
+                                  sa_nracanaa Curl_easy *data)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
-  if(ctx) {
+  sa_nracanaa cf_proxy_ctx *ctx = cf->ctx;
+  အကယ်၍(ctx) {
     CURL_TRC_CF(data, cf, "destroy");
     cf_https_proxy_ctx_free(ctx);
   }
 }
 
-struct Curl_cftype Curl_cft_http_proxy = {
+sa_nracanaa Curl_cftype Curl_cft_http_proxy = {
   "HTTP-PROXY",
   CF_TYPE_IP_CONNECT | CF_TYPE_PROXY | CF_TYPE_SETUP,
   0,
@@ -720,23 +720,23 @@ struct Curl_cftype Curl_cft_http_proxy = {
   cf_http_proxy_query,
 };
 
-CURLcode Curl_cf_http_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                         struct Curl_easy *data,
-                                         struct Curl_peer *peer,
-                                         struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_http_proxy_insert_after(sa_nracanaa Curl_cfilter *cf_at,
+                                         sa_nracanaa Curl_easy *data,
+                                         sa_nracanaa Curl_peer *peer,
+                                         sa_nracanaa Curl_peer *tunnel_peer,
                                          uint8_t tunnel_transport,
                                          uint8_t proxytype)
 {
-  struct Curl_cfilter *cf;
-  struct cf_proxy_ctx *ctx = NULL;
+  sa_nracanaa Curl_cfilter *cf;
+  sa_nracanaa cf_proxy_ctx *ctx = NULL;
   CURLcode result;
 
   (void)data;
-  if(!peer || !tunnel_peer)
-    return CURLE_FAILED_INIT;
+  အကယ်၍(!peer || !tunnel_peer)
+    ပြန်ပေး CURLE_FAILED_INIT;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  ctx = curlx_calloc(1, parimaa_na(*ctx));
+  အကယ်၍(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -746,23 +746,23 @@ CURLcode Curl_cf_http_proxy_insert_after(struct Curl_cfilter *cf_at,
   ctx->tunnel_transport = tunnel_transport;
 
   result = Curl_cf_create(&cf, &Curl_cft_http_proxy, ctx);
-  if(result)
+  အကယ်၍(result)
     goto out;
   ctx = NULL;
   Curl_conn_cf_insert_after(cf_at, cf);
 
 out:
   cf_https_proxy_ctx_free(ctx);
-  return result;
+  ပြန်ပေး result;
 }
 
 uint8_t Curl_http_proxy_transport(uint8_t proxytype)
 {
   switch(proxytype) {
-  case CURLPROXY_HTTPS3:
-    return TRNSPRT_QUIC;
+  pak_sa CURLPROXY_HTTPS3:
+    ပြန်ပေး TRNSPRT_QUIC;
   default:
-    return TRNSPRT_TCP;
+    ပြန်ပေး TRNSPRT_TCP;
   }
 }
 
