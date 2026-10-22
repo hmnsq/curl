@@ -38,35 +38,35 @@
 #ifdef USE_WINSOCK
 /* int recv(SOCKET, char *, int, int) */
 #define RECV_TYPE_ARG1 SOCKET
-#define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 int
-#define RECV_TYPE_RETV int
+#define RECV_TYPE_ARG2 var_na *
+#define RECV_TYPE_ARG3 පූර්ණ_සංඛ්‍යා
+#define RECV_TYPE_RETV පූර්ණ_සංඛ්‍යා
 
 /* int send(SOCKET, const char *, int, int); */
 #define SEND_TYPE_ARG1 SOCKET
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
+#define SEND_TYPE_ARG2 var_na *
+#define SEND_TYPE_ARG3 පූර්ණ_සංඛ්‍යා
+#define SEND_TYPE_RETV පූර්ණ_සංඛ්‍යා
 
 #elif defined(__AMIGA__) /* Any AmigaOS flavor */
 
 /* long recv(long, char *, long, long); */
 #define RECV_TYPE_ARG1 long
-#define RECV_TYPE_ARG2 char *
+#define RECV_TYPE_ARG2 var_na *
 #define RECV_TYPE_ARG3 long
 #define RECV_TYPE_ARG4 long
 #define RECV_TYPE_RETV long
 
 /* int send(int, char *, int, int); */
-#define SEND_TYPE_ARG1 int
+#define SEND_TYPE_ARG1 පූර්ණ_සංඛ්‍යා
 #define SEND_NONCONST_ARG2
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
+#define SEND_TYPE_ARG2 var_na *
+#define SEND_TYPE_ARG3 පූර්ණ_සංඛ්‍යා
+#define SEND_TYPE_RETV පූර්ණ_සංඛ්‍යා
 #endif
 
 #ifndef RECV_TYPE_ARG1
-#define RECV_TYPE_ARG1 int
+#define RECV_TYPE_ARG1 පූර්ණ_සංඛ්‍යා
 #endif
 
 #ifndef RECV_TYPE_ARG2
@@ -78,7 +78,7 @@
 #endif
 
 #ifndef RECV_TYPE_ARG4
-#define RECV_TYPE_ARG4 int
+#define RECV_TYPE_ARG4 පූර්ණ_සංඛ්‍යා
 #endif
 
 #ifndef RECV_TYPE_RETV
@@ -86,7 +86,7 @@
 #endif
 
 #ifndef SEND_TYPE_ARG1
-#define SEND_TYPE_ARG1 int
+#define SEND_TYPE_ARG1 පූර්ණ_සංඛ්‍යා
 #endif
 
 #ifndef SEND_TYPE_ARG2
@@ -98,7 +98,7 @@
 #endif
 
 #ifndef SEND_TYPE_ARG4
-#define SEND_TYPE_ARG4 int
+#define SEND_TYPE_ARG4 පූර්ණ_සංඛ්‍යා
 #endif
 
 #ifndef SEND_TYPE_RETV

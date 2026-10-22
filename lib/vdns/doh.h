@@ -28,9 +28,9 @@
 /* enums outside of the #ifdef to make the types work in unitprotos.h even on
    builds without DoH support */
 
-struct Curl_resolv_async;
+sa_nracanaa Curl_resolv_async;
 
-typedef enum {
+typedef ga_nanaa {
   DOH_OK,
   DOH_DNS_BAD_LABEL,        /* 1 */
   DOH_DNS_OUT_OF_RANGE,     /* 2 */
@@ -51,7 +51,7 @@ typedef enum {
   DOH_CODE_LAST             /* Not used, limit */
 } DOHcode;
 
-typedef enum {
+typedef ga_nanaa {
   CURL_DNS_TYPE_A = 1,
   CURL_DNS_TYPE_NS = 2,
   CURL_DNS_TYPE_CNAME = 5,
@@ -60,11 +60,11 @@ typedef enum {
   CURL_DNS_TYPE_HTTPS = 65
 } DNStype;
 
-struct dohentry; /* forward-declare for non-DoH builds */
+sa_nracanaa dohentry; /* forward-declare for non-DoH builds */
 
 #ifndef CURL_DISABLE_DOH
 
-enum doh_slot_num {
+ga_nanaa doh_slot_num {
   /* Explicit values for first two symbols so as to match hard-coded
    * constants in existing code
    */
@@ -92,10 +92,10 @@ enum doh_slot_num {
 
 /* each DoH probe request has this
  * as easy meta for CURL_EZM_DOH_PROBE */
-struct doh_request {
-  unsigned char req_body[DOH_MAX_DNSREQ_SIZE];
-  struct curl_slist *req_hds;
-  struct dynbuf resp_body;
+sa_nracanaa doh_request {
+  unsigned var_na req_body[DOH_MAX_DNSREQ_SIZE];
+  sa_nracanaa curl_slist *req_hds;
+  sa_nracanaa dynbuf resp_body;
   size_t req_body_len;
   uint32_t resolv_id; /* id of the resolve operation */
   DNStype dnstype;
@@ -103,7 +103,7 @@ struct doh_request {
 
 /* each transfer firing off DoH requests has this
  * as easy meta for CURL_EZM_DOH_MASTER */
-struct doh_probes {
+sa_nracanaa doh_probes {
   uint32_t probe_mid[DOH_SLOT_COUNT];
   DOHcode probe_rc[DOH_SLOT_COUNT];
 };
@@ -112,21 +112,21 @@ struct doh_probes {
  * Curl_doh() starts a name resolve using DoH (DNS-over-HTTPS). It resolves a
  * name and returns a 'Curl_addrinfo *' with the address information.
  */
-CURLcode Curl_doh(struct Curl_easy *data,
-                  struct Curl_resolv_async *async);
+CURLcode Curl_doh(sa_nracanaa Curl_easy *data,
+                  sa_nracanaa Curl_resolv_async *async);
 
-CURLcode Curl_doh_take_result(struct Curl_easy *data,
-                              struct Curl_resolv_async *async,
-                              struct Curl_dns_entry **pdns);
+CURLcode Curl_doh_take_result(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa Curl_resolv_async *async,
+                              sa_nracanaa Curl_dns_entry **pdns);
 
 #define DOH_MAX_ADDR  24
 #define DOH_MAX_HTTPS 4
 
-struct dohaddr {
-  int type;
-  union {
-    unsigned char v4[4]; /* network byte order */
-    unsigned char v6[16];
+sa_nracanaa dohaddr {
+  පූර්ණ_සංඛ්‍යා type;
+  sa_ngha {
+    unsigned var_na v4[4]; /* network byte order */
+    unsigned var_na v6[16];
   } ip;
 };
 
@@ -139,27 +139,27 @@ struct dohaddr {
 #define COMMA_CHAR                    ','
 #define BACKSLASH_CHAR                '\\'
 
-struct dohhttps_rr {
+sa_nracanaa dohhttps_rr {
   uint16_t len; /* raw encoded length */
-  unsigned char *val; /* raw encoded octets */
+  unsigned var_na *val; /* raw encoded octets */
 };
 #endif
 
-struct dohentry {
-  struct dohaddr addr[DOH_MAX_ADDR];
-  int numaddr;
-  unsigned int ttl;
+sa_nracanaa dohentry {
+  sa_nracanaa dohaddr addr[DOH_MAX_ADDR];
+  පූර්ණ_සංඛ්‍යා numaddr;
+  unsigned පූර්ණ_සංඛ්‍යා ttl;
 #ifdef USE_HTTPSRR
-  struct dohhttps_rr https_rrs[DOH_MAX_HTTPS];
-  int numhttps_rrs;
+  sa_nracanaa dohhttps_rr https_rrs[DOH_MAX_HTTPS];
+  පූර්ණ_සංඛ්‍යා numhttps_rrs;
 #endif
 };
 
-void Curl_doh_cleanup(struct Curl_easy *data,
-                      struct Curl_resolv_async *async);
+void Curl_doh_cleanup(sa_nracanaa Curl_easy *data,
+                      sa_nracanaa Curl_resolv_async *async);
 #define Curl_doh_wanted(d)  (!!(d)->set.doh)
 
-#else /* CURL_DISABLE_DOH */
+#නැතහොත් /* CURL_DISABLE_DOH */
 #define Curl_doh(a, b)             NULL
 #define Curl_doh_take_result(x, y, z) CURLE_COULDNT_RESOLVE_HOST
 #define Curl_doh_wanted(d)         FALSE

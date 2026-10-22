@@ -27,7 +27,7 @@
 
 #ifdef USE_RUSTLS
 
-extern const struct Curl_ssl Curl_ssl_rustls;
+extern const sa_nracanaa Curl_ssl Curl_ssl_rustls;
 
 #endif /* USE_RUSTLS */
 #endif /* HEADER_CURL_RUSTLS_H */

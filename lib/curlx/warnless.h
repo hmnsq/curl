@@ -27,17 +27,17 @@
 #define CURLX_FUNCTION_CAST(target_type, func) \
   (target_type)(void (*)(void))(func)
 
-unsigned char curlx_ultouc(unsigned long ulnum);
+unsigned var_na curlx_ultouc(unsigned long ulnum);
 
-int curlx_uztosi(size_t uznum);
+පූර්ණ_සංඛ්‍යා curlx_uztosi(size_t uznum);
 
 unsigned long curlx_uztoul(size_t uznum);
 
-unsigned int curlx_uztoui(size_t uznum);
+unsigned පූර්ණ_සංඛ්‍යා curlx_uztoui(size_t uznum);
 
-int curlx_sltosi(long slnum);
+පූර්ණ_සංඛ්‍යා curlx_sltosi(long slnum);
 
-unsigned int curlx_sltoui(long slnum);
+unsigned පූර්ණ_සංඛ්‍යා curlx_sltoui(long slnum);
 
 unsigned short curlx_sltous(long slnum);
 
@@ -45,13 +45,13 @@ ssize_t curlx_uztosz(size_t uznum);
 
 size_t curlx_sotouz(curl_off_t sonum);
 
-int curlx_sztosi(ssize_t sznum);
+පූර්ණ_සංඛ්‍යා curlx_sztosi(ssize_t sznum);
 
-unsigned short curlx_uitous(unsigned int uinum);
+unsigned short curlx_uitous(unsigned පූර්ණ_සංඛ්‍යා uinum);
 
-size_t curlx_sitouz(int sinum);
+size_t curlx_sitouz(පූර්ණ_සංඛ්‍යා sinum);
 
-size_t curlx_uitouz(unsigned int uinum);
+size_t curlx_uitouz(unsigned පූර්ණ_සංඛ්‍යා uinum);
 
 /* Convert a curl_off_t to fit into size_t interval [uzmin, uzmax].
  * values outside this interval give the lower/upper bound. */

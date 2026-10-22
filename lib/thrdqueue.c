@@ -36,13 +36,13 @@
 #endif
 
 
-struct curl_thrdq {
-  const char *name;
+sa_nracanaa curl_thrdq {
+  const var_na *name;
   curl_mutex_t lock;
   curl_cond_t await;
-  struct Curl_llist sendq;
-  struct Curl_llist recvq;
-  struct curl_thrdpool *tpool;
+  sa_nracanaa Curl_llist sendq;
+  sa_nracanaa Curl_llist recvq;
+  sa_nracanaa curl_thrdpool *tpool;
   Curl_thrdq_item_free_cb *fn_free;
   Curl_thrdq_item_process_cb *fn_process;
   Curl_thrdq_ev_cb *fn_event;
@@ -50,40 +50,40 @@ struct curl_thrdq {
   BIT(aborted);
 };
 
-struct thrdq_item {
-  struct Curl_llist_node node;
+sa_nracanaa thrdq_item {
+  sa_nracanaa Curl_llist_node node;
   Curl_thrdq_item_free_cb *fn_free;
   Curl_thrdq_item_process_cb *fn_process;
   void *item;
-  struct curltime start;
+  sa_nracanaa curltime start;
   timediff_t timeout_ms;
-  const char *description;
+  const var_na *description;
 };
 
-static struct thrdq_item *thrdq_item_create(struct curl_thrdq *tqueue,
+static sa_nracanaa thrdq_item *thrdq_item_create(sa_nracanaa curl_thrdq *tqueue,
                                             void *item,
-                                            const char *description,
+                                            const var_na *description,
                                             timediff_t timeout_ms)
 {
-  struct thrdq_item *qitem;
+  sa_nracanaa thrdq_item *qitem;
 
-  qitem = curlx_calloc(1, sizeof(*qitem));
-  if(!qitem)
-    return NULL;
+  qitem = curlx_calloc(1, parimaa_na(*qitem));
+  නම්(!qitem)
+    ආපසු NULL;
   qitem->item = item;
   qitem->description = description;
   qitem->fn_free = tqueue->fn_free;
   qitem->fn_process = tqueue->fn_process;
-  if(timeout_ms) {
+  නම්(timeout_ms) {
     qitem->start = curlx_now();
     qitem->timeout_ms = timeout_ms;
   }
-  return qitem;
+  ආපසු qitem;
 }
 
-static void thrdq_item_destroy(struct thrdq_item *qitem)
+static void thrdq_item_destroy(sa_nracanaa thrdq_item *qitem)
 {
-  if(qitem->item)
+  නම්(qitem->item)
     qitem->fn_free(qitem->item);
   curlx_free(qitem);
 }
@@ -94,28 +94,28 @@ static void thrdq_item_list_dtor(void *user_data, void *elem)
   thrdq_item_destroy(elem);
 }
 
-static void *thrdq_tpool_take(void *user_data, const char **pdescription,
+static void *thrdq_tpool_take(void *user_data, const var_na **pdescription,
                               timediff_t *ptimeout_ms)
 {
-  struct curl_thrdq *tqueue = user_data;
-  struct thrdq_item *qitem = NULL;
-  struct Curl_llist_node *e;
+  sa_nracanaa curl_thrdq *tqueue = user_data;
+  sa_nracanaa thrdq_item *qitem = NULL;
+  sa_nracanaa Curl_llist_node *e;
   Curl_thrdq_ev_cb *fn_event = NULL;
   void *fn_user_data = NULL;
 
   Curl_mutex_acquire(&tqueue->lock);
   *pdescription = NULL;
   *ptimeout_ms = 0;
-  if(!tqueue->aborted) {
+  නම්(!tqueue->aborted) {
     e = Curl_llist_head(&tqueue->sendq);
-    if(e) {
-      struct curltime now = curlx_now();
+    නම්(e) {
+      sa_nracanaa curltime now = curlx_now();
       timediff_t timeout_ms;
-      while(e) {
+      අතරතුර(e) {
         qitem = Curl_node_take_elem(e);
         timeout_ms = (!qitem->timeout_ms) ? 0 :
           (qitem->timeout_ms - curlx_ptimediff_ms(&now, &qitem->start));
-        if(timeout_ms < 0) {
+        නම්(timeout_ms < 0) {
           /* timed out while queued, place on receive queue */
           Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
           fn_event = tqueue->fn_event;
@@ -124,38 +124,38 @@ static void *thrdq_tpool_take(void *user_data, const char **pdescription,
           e = Curl_llist_head(&tqueue->sendq);
           continue;
         }
-        else {
+        නැතහොත් {
           *pdescription = qitem->description;
           *ptimeout_ms = timeout_ms;
-          break;
+          bha_nga;
         }
       }
     }
   }
   Curl_mutex_release(&tqueue->lock);
   /* avoiding deadlocks */
-  if(fn_event)
+  නම්(fn_event)
     fn_event(tqueue, CURL_THRDQ_EV_ITEM_DONE, fn_user_data);
-  return qitem;
+  ආපසු qitem;
 }
 
 static void thrdq_tpool_return(void *item, void *user_data)
 {
-  struct curl_thrdq *tqueue = user_data;
-  struct thrdq_item *qitem = item;
+  sa_nracanaa curl_thrdq *tqueue = user_data;
+  sa_nracanaa thrdq_item *qitem = item;
   Curl_thrdq_ev_cb *fn_event = NULL;
   void *fn_user_data = NULL;
 
-  if(!tqueue) {
+  නම්(!tqueue) {
     thrdq_item_destroy(item);
-    return;
+    ආපසු;
   }
 
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  නම්(tqueue->aborted) {
     thrdq_item_destroy(qitem);
   }
-  else {
+  නැතහොත් {
     DEBUGASSERT(!Curl_node_llist(&qitem->node));
     Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
     fn_event = tqueue->fn_event;
@@ -163,39 +163,39 @@ static void thrdq_tpool_return(void *item, void *user_data)
   }
   Curl_mutex_release(&tqueue->lock);
   /* avoiding deadlocks */
-  if(fn_event)
+  නම්(fn_event)
     fn_event(tqueue, CURL_THRDQ_EV_ITEM_DONE, fn_user_data);
 }
 
 static void thrdq_tpool_process(void *item)
 {
-  struct thrdq_item *qitem = item;
+  sa_nracanaa thrdq_item *qitem = item;
   qitem->fn_process(qitem->item);
 }
 
-static void thrdq_unlink(struct curl_thrdq *tqueue, bool locked, bool join)
+static void thrdq_unlink(sa_nracanaa curl_thrdq *tqueue, bool locked, bool join)
 {
   DEBUGASSERT(tqueue->aborted);
-  if(tqueue->tpool) {
-    if(locked)
+  නම්(tqueue->tpool) {
+    නම්(locked)
       Curl_mutex_release(&tqueue->lock);
     Curl_thrdpool_destroy(tqueue->tpool, join);
     tqueue->tpool = NULL;
-    if(locked)
+    නම්(locked)
       Curl_mutex_acquire(&tqueue->lock);
   }
 
   Curl_llist_destroy(&tqueue->sendq, NULL);
   Curl_llist_destroy(&tqueue->recvq, NULL);
   Curl_cond_destroy(&tqueue->await);
-  if(locked)
+  නම්(locked)
     Curl_mutex_release(&tqueue->lock);
   Curl_mutex_destroy(&tqueue->lock);
   curlx_free(tqueue);
 }
 
-CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
-                           const char *name,
+CURLcode Curl_thrdq_create(sa_nracanaa curl_thrdq **ptqueue,
+                           const var_na *name,
                            uint32_t min_threads,
                            uint32_t max_threads,
                            uint32_t idle_time_ms,
@@ -204,12 +204,12 @@ CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
                            Curl_thrdq_ev_cb *fn_event,
                            void *user_data)
 {
-  struct curl_thrdq *tqueue;
+  sa_nracanaa curl_thrdq *tqueue;
   CURLcode result = CURLE_OUT_OF_MEMORY;
   DEBUGASSERT(name);
 
-  tqueue = curlx_calloc(1, sizeof(*tqueue));
-  if(!tqueue)
+  tqueue = curlx_calloc(1, parimaa_na(*tqueue));
+  නම්(!tqueue)
     goto out;
 
   Curl_mutex_init(&tqueue->lock);
@@ -232,16 +232,16 @@ CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
                                 tqueue);
 
 out:
-  if(result && tqueue) {
+  නම්(result && tqueue) {
     tqueue->aborted = TRUE;
     thrdq_unlink(tqueue, FALSE, TRUE);
     tqueue = NULL;
   }
   *ptqueue = tqueue;
-  return result;
+  ආපසු result;
 }
 
-void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join)
+void Curl_thrdq_destroy(sa_nracanaa curl_thrdq *tqueue, bool join)
 {
   Curl_mutex_acquire(&tqueue->lock);
   DEBUGASSERT(!tqueue->aborted);
@@ -249,32 +249,32 @@ void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join)
   thrdq_unlink(tqueue, TRUE, join);
 }
 
-static uint32_t thrdq_get_signals(struct curl_thrdq *tqueue)
+static uint32_t thrdq_get_signals(sa_nracanaa curl_thrdq *tqueue)
 {
   size_t qlen = Curl_llist_count(&tqueue->sendq);
-  return (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
+  ආපසු (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
 }
 
-CURLcode Curl_thrdq_send(struct curl_thrdq *tqueue, void *item,
-                         const char *description, timediff_t timeout_ms)
+CURLcode Curl_thrdq_send(sa_nracanaa curl_thrdq *tqueue, void *item,
+                         const var_na *description, timediff_t timeout_ms)
 {
-  struct thrdq_item *qitem;
+  sa_nracanaa thrdq_item *qitem;
   CURLcode result = CURLE_OK;
   uint32_t signals = 0;
 
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  නම්(tqueue->aborted) {
     DEBUGASSERT(0);
     result = CURLE_SEND_ERROR;
     goto out;
   }
-  if(timeout_ms < 0) {
+  නම්(timeout_ms < 0) {
     result = CURLE_OPERATION_TIMEDOUT;
     goto out;
   }
 
   qitem = thrdq_item_create(tqueue, item, description, timeout_ms);
-  if(!qitem) {
+  නම්(!qitem) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -287,45 +287,45 @@ out:
    * item to the queue already, it might have been taken for processing
    * already. Any error in signalling the pool cannot be reported to
    * the caller since it needs to give up ownership of item. */
-  if(!result && signals)
+  නම්(!result && signals)
     (void)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  ආපසු result;
 }
 
-bool Curl_thrdq_check_started(struct curl_thrdq *tqueue)
+bool Curl_thrdq_check_started(sa_nracanaa curl_thrdq *tqueue)
 {
   size_t unprocessed;
 
   Curl_mutex_acquire(&tqueue->lock);
   unprocessed = tqueue->aborted ? 0 : Curl_llist_count(&tqueue->sendq);
   Curl_mutex_release(&tqueue->lock);
-  return !unprocessed ||
+  ආපසු !unprocessed ||
          !Curl_thrdpool_signal(tqueue->tpool, (uint32_t)unprocessed);
 }
 
-CURLcode Curl_thrdq_recv(struct curl_thrdq *tqueue, void **pitem)
+CURLcode Curl_thrdq_recv(sa_nracanaa curl_thrdq *tqueue, void **pitem)
 {
   CURLcode result = CURLE_AGAIN;
-  struct Curl_llist_node *e;
+  sa_nracanaa Curl_llist_node *e;
   uint32_t signals = 0;
 
   *pitem = NULL;
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  නම්(tqueue->aborted) {
     DEBUGASSERT(0);
     result = CURLE_RECV_ERROR;
     goto out;
   }
 
   e = Curl_llist_head(&tqueue->recvq);
-  if(e) {
-    struct thrdq_item *qitem = Curl_node_take_elem(e);
+  නම්(e) {
+    sa_nracanaa thrdq_item *qitem = Curl_node_take_elem(e);
     *pitem = qitem->item;
     qitem->item = NULL;
     thrdq_item_destroy(qitem);
     result = CURLE_OK;
   }
-  else
+  නැතහොත්
     signals = thrdq_get_signals(tqueue);
 
 out:
@@ -335,32 +335,32 @@ out:
    * thread to work on them. An earlier thread start may have failed,
    * which `Curl_thrdq_send()` cannot report to its caller. Without
    * this, such items would sit unprocessed until the next send. */
-  if(signals)
+  නම්(signals)
     (void)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  ආපසු result;
 }
 
-static void thrdq_llist_clean_matches(struct Curl_llist *llist,
+static void thrdq_llist_clean_matches(sa_nracanaa Curl_llist *llist,
                                       Curl_thrdq_item_match_cb *fn_match,
                                       void *match_data)
 {
-  struct Curl_llist_node *e, *n;
-  struct thrdq_item *qitem;
+  sa_nracanaa Curl_llist_node *e, *n;
+  sa_nracanaa thrdq_item *qitem;
 
-  for(e = Curl_llist_head(llist); e; e = n) {
+  සඳහා(e = Curl_llist_head(llist); e; e = n) {
     n = Curl_node_next(e);
     qitem = Curl_node_elem(e);
-    if(fn_match(qitem->item, match_data))
+    නම්(fn_match(qitem->item, match_data))
       Curl_node_remove(e);
   }
 }
 
-void Curl_thrdq_clear(struct curl_thrdq *tqueue,
+void Curl_thrdq_clear(sa_nracanaa curl_thrdq *tqueue,
                       Curl_thrdq_item_match_cb *fn_match,
                       void *match_data)
 {
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  නම්(tqueue->aborted) {
     DEBUGASSERT(0);
     goto out;
   }
@@ -372,16 +372,16 @@ out:
 
 #ifdef UNITTESTS
 /* @unittest 3301 */
-UNITTEST CURLcode thrdq_await_done(struct curl_thrdq *tqueue,
+UNITTEST CURLcode thrdq_await_done(sa_nracanaa curl_thrdq *tqueue,
                                    uint32_t timeout_ms);
-UNITTEST CURLcode thrdq_await_done(struct curl_thrdq *tqueue,
+UNITTEST CURLcode thrdq_await_done(sa_nracanaa curl_thrdq *tqueue,
                                    uint32_t timeout_ms)
 {
-  return Curl_thrdpool_await_idle(tqueue->tpool, timeout_ms);
+  ආපසු Curl_thrdpool_await_idle(tqueue->tpool, timeout_ms);
 }
 #endif
 
-CURLcode Curl_thrdq_set_props(struct curl_thrdq *tqueue,
+CURLcode Curl_thrdq_set_props(sa_nracanaa curl_thrdq *tqueue,
                               uint32_t min_threads,
                               uint32_t max_threads,
                               uint32_t idle_time_ms)
@@ -395,32 +395,32 @@ CURLcode Curl_thrdq_set_props(struct curl_thrdq *tqueue,
 
   result = Curl_thrdpool_set_props(tqueue->tpool, min_threads,
                                    max_threads, idle_time_ms);
-  if(!result && signals)
+  නම්(!result && signals)
     result = Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  ආපසු result;
 }
 
 #ifdef CURLVERBOSE
-void Curl_thrdq_trace(struct curl_thrdq *tqueue,
-                      struct Curl_easy *data)
+void Curl_thrdq_trace(sa_nracanaa curl_thrdq *tqueue,
+                      sa_nracanaa Curl_easy *data)
 {
-  struct curl_trc_feat *feat = &Curl_trc_feat_threads;
-  if(Curl_trc_ft_is_verbose(data, feat)) {
-    struct Curl_llist_node *e;
-    struct thrdq_item *qitem;
+  sa_nracanaa curl_trc_feat *feat = &Curl_trc_feat_threads;
+  නම්(Curl_trc_ft_is_verbose(data, feat)) {
+    sa_nracanaa Curl_llist_node *e;
+    sa_nracanaa thrdq_item *qitem;
 
     Curl_thrdpool_trace(tqueue->tpool, data);
     Curl_mutex_acquire(&tqueue->lock);
-    if(!Curl_llist_count(&tqueue->sendq) &&
+    නම්(!Curl_llist_count(&tqueue->sendq) &&
        !Curl_llist_count(&tqueue->recvq)) {
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] empty", tqueue->name);
     }
-    for(e = Curl_llist_head(&tqueue->sendq); e; e = Curl_node_next(e)) {
+    සඳහා(e = Curl_llist_head(&tqueue->sendq); e; e = Curl_node_next(e)) {
       qitem = Curl_node_elem(e);
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] in: %s",
                           tqueue->name, qitem->description);
     }
-    for(e = Curl_llist_head(&tqueue->recvq); e; e = Curl_node_next(e)) {
+    සඳහා(e = Curl_llist_head(&tqueue->recvq); e; e = Curl_node_next(e)) {
       qitem = Curl_node_elem(e);
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] out: %s",
                           tqueue->name, qitem->description);

@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 
-int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
-                   int nonblock   /* TRUE or FALSE */);
+පූර්ණ_සංඛ්‍යා curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
+                   පූර්ණ_සංඛ්‍යා nonblock   /* TRUE or FALSE */);
 
 #endif /* HEADER_CURL_NONBLOCK_H */

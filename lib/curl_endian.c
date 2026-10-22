@@ -38,9 +38,9 @@
  *
  * Returns the integer.
  */
-unsigned short Curl_read16_le(const unsigned char *buf)
+unsigned short Curl_read16_le(const unsigned var_na *buf)
 {
-  return (unsigned short)(((unsigned short)buf[0]) |
+  ආපසු (unsigned short)(((unsigned short)buf[0]) |
                           ((unsigned short)buf[1] << 8));
 }
 
@@ -57,10 +57,10 @@ unsigned short Curl_read16_le(const unsigned char *buf)
  *
  * Returns the integer.
  */
-unsigned int Curl_read32_le(const unsigned char *buf)
+unsigned පූර්ණ_සංඛ්‍යා Curl_read32_le(const unsigned var_na *buf)
 {
-  return ((unsigned int)buf[0]) | ((unsigned int)buf[1] << 8) |
-         ((unsigned int)buf[2] << 16) | ((unsigned int)buf[3] << 24);
+  ආපසු ((unsigned පූර්ණ_සංඛ්‍යා)buf[0]) | ((unsigned පූර්ණ_සංඛ්‍යා)buf[1] << 8) |
+         ((unsigned පූර්ණ_සංඛ්‍යා)buf[2] << 16) | ((unsigned පූර්ණ_සංඛ්‍යා)buf[3] << 24);
 }
 
 /*
@@ -76,8 +76,8 @@ unsigned int Curl_read32_le(const unsigned char *buf)
  *
  * Returns the integer.
  */
-unsigned short Curl_read16_be(const unsigned char *buf)
+unsigned short Curl_read16_be(const unsigned var_na *buf)
 {
-  return (unsigned short)(((unsigned short)buf[0] << 8) |
+  ආපසු (unsigned short)(((unsigned short)buf[0] << 8) |
                           ((unsigned short)buf[1]));
 }

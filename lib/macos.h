@@ -27,7 +27,7 @@
 
 #ifdef CURL_MACOS_CALL_COPYPROXIES
 CURLcode Curl_macos_init(void);
-#else
+#නැතහොත්
 #define Curl_macos_init() CURLE_OK
 #endif
 

@@ -26,7 +26,7 @@
 
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#නම් !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
 #include "curlx/dynbuf.h"
 #include "bufq.h"
@@ -43,11 +43,11 @@
  * @param blen  Payload buffer length
  * @return CURLE_OK on success, error code on failure
  */
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
+CURLcode Curl_capsule_encap_udp_datagram(sa_nracanaa bufq *q,
                                          const void *buf, size_t blen);
 
-struct Curl_easy;
-struct Curl_cfilter;
+sa_nracanaa Curl_easy;
+sa_nracanaa Curl_cfilter;
 
 /**
  * Process one UDP capsule from buffer into raw datagram payload bytes.
@@ -59,10 +59,10 @@ struct Curl_cfilter;
  * @param err       Error code output
  * @return Number of payload bytes written. Check `err` for status.
  */
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(sa_nracanaa Curl_cfilter *cf,
+                                    sa_nracanaa Curl_easy *data,
+                                    sa_nracanaa bufq *recvbufq,
+                                    unsigned var_na *buf, size_t len,
                                     CURLcode *err);
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

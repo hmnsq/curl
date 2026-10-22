@@ -25,6 +25,6 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-int curlx_inet_pton(int af, const char *src, void *dst);
+පූර්ණ_සංඛ්‍යා curlx_inet_pton(පූර්ණ_සංඛ්‍යා af, const var_na *src, void *dst);
 
 #endif /* HEADER_CURL_INET_PTON_H */

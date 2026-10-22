@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_MBEDTLS) || defined(USE_RUSTLS)
+#නම් defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
 #include "vtls/cipher_suite.h"
 
@@ -48,7 +48,7 @@
 
 /* Text for cipher suite parts (max 64 entries),
    keep indexes below in sync with this! */
-static const char cs_txt[] =
+static const var_na cs_txt[] =
   "\0"
   "TLS" "\0"
   "WITH" "\0"
@@ -89,7 +89,7 @@ static const char cs_txt[] =
 #endif
 ;
 /* Indexes of above cs_txt */
-enum {
+ga_nanaa {
   CS_TXT_IDX_,
   CS_TXT_IDX_TLS,
   CS_TXT_IDX_WITH,
@@ -151,13 +151,13 @@ enum {
   )                                          \
 }
 
-struct cs_entry {
+sa_nracanaa cs_entry {
   uint16_t id;
   uint8_t zip[6];
 };
 
 /* !checksrc! disable COMMANOSPACE all */
-static const struct cs_entry cs_list[] = {
+static const sa_nracanaa cs_entry cs_list[] = {
   /* TLS 1.3 ciphers */
   CS_ENTRY(0x1301, TLS,AES,128,GCM,SHA256,,,),
   CS_ENTRY(0x1302, TLS,AES,256,GCM,SHA384,,,),
@@ -539,42 +539,42 @@ static const struct cs_entry cs_list[] = {
 };
 #define CS_LIST_LEN CURL_ARRAYSIZE(cs_list)
 
-static int cs_str_to_zip(const char *cs_str, size_t cs_len, uint8_t zip[6])
+static පූර්ණ_සංඛ්‍යා cs_str_to_zip(const var_na *cs_str, size_t cs_len, uint8_t zip[6])
 {
   uint8_t indexes[8] = { 0 };
-  const char *entry, *cur;
-  const char *nxt = cs_str;
-  const char *end = cs_str + cs_len;
-  char separator = '-';
-  int idx, i = 0;
+  const var_na *entry, *cur;
+  const var_na *nxt = cs_str;
+  const var_na *end = cs_str + cs_len;
+  var_na separator = '-';
+  පූර්ණ_සංඛ්‍යා idx, i = 0;
   size_t len;
 
   /* split the cipher string by '-' or '_' */
-  if(curl_strnequal(cs_str, "TLS", 3))
+  නම්(curl_strnequal(cs_str, "TLS", 3))
     separator = '_';
 
   do {
-    if(i == 8)
-      return -1;
+    නම්(i == 8)
+      ආපසු -1;
 
     /* determine the length of the part */
     cur = nxt;
-    for(; nxt < end && *nxt != '\0' && *nxt != separator; nxt++)
+    සඳහා(; nxt < end && *nxt != '\0' && *nxt != separator; nxt++)
       ;
     len = nxt - cur;
 
     /* lookup index for the part (skip empty string at 0) */
-    for(idx = 1, entry = cs_txt + 1; idx < CS_TXT_LEN; idx++) {
+    සඳහා(idx = 1, entry = cs_txt + 1; idx < CS_TXT_LEN; idx++) {
       size_t elen = strlen(entry);
-      if(elen == len && curl_strnequal(entry, cur, len))
-        break;
+      නම්(elen == len && curl_strnequal(entry, cur, len))
+        bha_nga;
       entry += elen + 1;
     }
-    if(idx == CS_TXT_LEN)
-      return -1;
+    නම්(idx == CS_TXT_LEN)
+      ආපසු -1;
 
     indexes[i++] = (uint8_t)idx;
-  } while(nxt < end && *(nxt++) != '\0');
+  } අතරතුර(nxt < end && *(nxt++) != '\0');
 
   /* zip the 8 indexes into 48 bits */
   zip[0] = (uint8_t)(indexes[0] << 2 | (indexes[1] & 0x3F) >> 4);
@@ -584,15 +584,15 @@ static int cs_str_to_zip(const char *cs_str, size_t cs_len, uint8_t zip[6])
   zip[4] = (uint8_t)(indexes[5] << 4 | (indexes[6] & 0x3F) >> 2);
   zip[5] = (uint8_t)(indexes[6] << 6 | (indexes[7] & 0x3F));
 
-  return 0;
+  ආපසු 0;
 }
 
-static int cs_zip_to_str(const uint8_t zip[6], char *buf, size_t buf_size)
+static පූර්ණ_සංඛ්‍යා cs_zip_to_str(const uint8_t zip[6], var_na *buf, size_t buf_size)
 {
   uint8_t indexes[8] = { 0 };
-  const char *entry;
-  char separator = '-';
-  int idx, i, r;
+  const var_na *entry;
+  var_na separator = '-';
+  පූර්ණ_සංඛ්‍යා idx, i, r;
   size_t len = 0;
 
   /* unzip the 8 indexes */
@@ -605,98 +605,98 @@ static int cs_zip_to_str(const uint8_t zip[6], char *buf, size_t buf_size)
   indexes[6] = (uint8_t)(((zip[4] << 2) & 0x3F) | zip[5] >> 6);
   indexes[7] = ((zip[5] << 0) & 0x3F);
 
-  if(indexes[0] == CS_TXT_IDX_TLS)
+  නම්(indexes[0] == CS_TXT_IDX_TLS)
     separator = '_';
 
-  for(i = 0; i < 8 && indexes[i] != 0 && len < buf_size; i++) {
-    if(indexes[i] >= CS_TXT_LEN)
-      return -1;
+  සඳහා(i = 0; i < 8 && indexes[i] != 0 && len < buf_size; i++) {
+    නම්(indexes[i] >= CS_TXT_LEN)
+      ආපසු -1;
 
     /* lookup the part string for the index (skip empty string at 0) */
-    for(idx = 1, entry = cs_txt + 1; idx < indexes[i]; idx++) {
+    සඳහා(idx = 1, entry = cs_txt + 1; idx < indexes[i]; idx++) {
       size_t elen = strlen(entry);
       entry += elen + 1;
     }
 
     /* append the part string to the buffer */
-    if(i > 0)
+    නම්(i > 0)
       r = curl_msnprintf(&buf[len], buf_size - len, "%c%s", separator, entry);
-    else
+    නැතහොත්
       r = curl_msnprintf(&buf[len], buf_size - len, "%s", entry);
 
-    if(r < 0)
-      return -1;
+    නම්(r < 0)
+      ආපසු -1;
     len += r;
   }
 
-  return 0;
+  ආපසු 0;
 }
 
-uint16_t Curl_cipher_suite_lookup_id(const char *cs_str, size_t cs_len)
+uint16_t Curl_cipher_suite_lookup_id(const var_na *cs_str, size_t cs_len)
 {
   size_t i;
   uint8_t zip[6];
 
-  if(cs_len > 0 && cs_str_to_zip(cs_str, cs_len, zip) == 0) {
-    for(i = 0; i < CS_LIST_LEN; i++) {
-      if(!memcmp(cs_list[i].zip, zip, sizeof(zip)))
-        return cs_list[i].id;
+  නම්(cs_len > 0 && cs_str_to_zip(cs_str, cs_len, zip) == 0) {
+    සඳහා(i = 0; i < CS_LIST_LEN; i++) {
+      නම්(!memcmp(cs_list[i].zip, zip, parimaa_na(zip)))
+        ආපසු cs_list[i].id;
     }
   }
 
-  return 0;
+  ආපසු 0;
 }
 
-static bool cs_is_separator(char c)
+static bool cs_is_separator(var_na c)
 {
   switch(c) {
-  case ' ':
-  case '\t':
-  case ':':
-  case ',':
-  case ';':
-    return TRUE;
+  pak_sa ' ':
+  pak_sa '\t':
+  pak_sa ':':
+  pak_sa ',':
+  pak_sa ';':
+    ආපසු TRUE;
   }
-  return FALSE;
+  ආපසු FALSE;
 }
 
-uint16_t Curl_cipher_suite_walk_str(const char **str, const char **end)
+uint16_t Curl_cipher_suite_walk_str(const var_na **str, const var_na **end)
 {
   /* move string pointer to first non-separator or end of string */
-  for(; cs_is_separator(*str[0]); (*str)++)
+  සඳහා(; cs_is_separator(*str[0]); (*str)++)
     ;
 
   /* move end pointer to next separator or end of string */
-  for(*end = *str; *end[0] != '\0' && !cs_is_separator(*end[0]); (*end)++)
+  සඳහා(*end = *str; *end[0] != '\0' && !cs_is_separator(*end[0]); (*end)++)
     ;
 
-  return Curl_cipher_suite_lookup_id(*str, *end - *str);
+  ආපසු Curl_cipher_suite_lookup_id(*str, *end - *str);
 }
 
-int Curl_cipher_suite_get_str(uint16_t id, char *buf, size_t buf_size,
+පූර්ණ_සංඛ්‍යා Curl_cipher_suite_get_str(uint16_t id, var_na *buf, size_t buf_size,
                               bool prefer_rfc)
 {
   size_t i, j = CS_LIST_LEN;
-  int r = -1;
+  පූර්ණ_සංඛ්‍යා r = -1;
 
-  for(i = 0; i < CS_LIST_LEN; i++) {
-    if(cs_list[i].id != id)
+  සඳහා(i = 0; i < CS_LIST_LEN; i++) {
+    නම්(cs_list[i].id != id)
       continue;
-    if((cs_list[i].zip[0] >> 2 != CS_TXT_IDX_TLS) == !prefer_rfc) {
+    නම්((cs_list[i].zip[0] >> 2 != CS_TXT_IDX_TLS) == !prefer_rfc) {
       j = i;
-      break;
+      bha_nga;
     }
-    if(j == CS_LIST_LEN)
+    නම්(j == CS_LIST_LEN)
       j = i;
   }
 
-  if(j < CS_LIST_LEN)
+  නම්(j < CS_LIST_LEN)
     r = cs_zip_to_str(cs_list[j].zip, buf, buf_size);
 
-  if(r < 0)
+  නම්(r < 0)
     curl_msnprintf(buf, buf_size, "TLS_UNKNOWN_0x%04x", id);
 
-  return r;
+  ආපසු r;
 }
 
 #endif /* defined(USE_MBEDTLS) || defined(USE_RUSTLS) */

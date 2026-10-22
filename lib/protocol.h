@@ -26,9 +26,9 @@
 /* This file is for lib internal stuff */
 #include "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct easy_pollset;
+sa_nracanaa Curl_easy;
+sa_nracanaa connectdata;
+sa_nracanaa easy_pollset;
 
 /* Known protocol default port numbers */
 #define PORT_FTP    21
@@ -86,14 +86,14 @@ typedef curl_off_t curl_prot_t;
 #define PROTO_FAMILY_SMTP (CURLPROTO_SMTP | CURLPROTO_SMTPS)
 #define PROTO_FAMILY_SSH  (CURLPROTO_SCP | CURLPROTO_SFTP)
 
-#if !defined(CURL_DISABLE_FTP) || defined(USE_SSH) || \
+#නම් !defined(CURL_DISABLE_FTP) || defined(USE_SSH) || \
   !defined(CURL_DISABLE_POP3)
 /* these protocols support CURLOPT_DIRLISTONLY */
 #define CURL_LIST_ONLY_PROTOCOL 1
 #endif
 
 /* When redirecting transfers. */
-typedef enum {
+typedef ga_nanaa {
   FOLLOW_NONE,  /* not used within the function, a placeholder to allow
                    initing to this */
   FOLLOW_FAKE,  /* only records stuff, not actually following */
@@ -102,7 +102,7 @@ typedef enum {
   FOLLOW_REDIR /* a full true redirect */
 } followtype;
 
-typedef enum {
+typedef ga_nanaa {
   DOMORE_GOBACK = -1,
   DOMORE_INCOMPLETE = 0,
   DOMORE_DONE = 1
@@ -111,15 +111,15 @@ typedef enum {
 /*
  * Specific protocol handler, an implementation of one or more URI schemes.
  */
-struct Curl_protocol {
+sa_nracanaa Curl_protocol {
   /* Complement to setup_connection_internals(). This is done before the
      transfer "owns" the connection. */
-  CURLcode (*setup_connection)(struct Curl_easy *data,
-                               struct connectdata *conn);
+  CURLcode (*setup_connection)(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa connectdata *conn);
 
   /* These two functions MUST be set to be protocol dependent */
-  CURLcode (*do_it)(struct Curl_easy *data, bool *done);
-  CURLcode (*done)(struct Curl_easy *, CURLcode, bool);
+  CURLcode (*do_it)(sa_nracanaa Curl_easy *data, bool *done);
+  CURLcode (*done)(sa_nracanaa Curl_easy *, CURLcode, bool);
 
   /* If the curl_do() function is better made in two halves, this
    * curl_do_more() function will be called afterwards, if set. For example
@@ -129,7 +129,7 @@ struct Curl_protocol {
    * DOMORE_DONE when the second phase is complete, or DOMORE_GOBACK
    * to return to the regular DO/DOING handling.
    */
-  CURLcode (*do_more)(struct Curl_easy *, domore *);
+  CURLcode (*do_more)(sa_nracanaa Curl_easy *, domore *);
 
   /* This function *MAY* be set to a protocol-dependent function that is run
    * after the connect() and everything is done, as a step in the connection.
@@ -137,32 +137,32 @@ struct Curl_protocol {
    * function completes before return. If it does not complete, the caller
    * should call the ->connecting() function until it is.
    */
-  CURLcode (*connect_it)(struct Curl_easy *data, bool *done);
+  CURLcode (*connect_it)(sa_nracanaa Curl_easy *data, bool *done);
 
   /* See above. */
-  CURLcode (*connecting)(struct Curl_easy *data, bool *done);
-  CURLcode (*doing)(struct Curl_easy *data, bool *done);
+  CURLcode (*connecting)(sa_nracanaa Curl_easy *data, bool *done);
+  CURLcode (*doing)(sa_nracanaa Curl_easy *data, bool *done);
 
   /* Called from the multi interface during the PROTOCONNECT phase, and it
      should then return a proper fd set */
-  CURLcode (*proto_pollset)(struct Curl_easy *data,
-                            struct easy_pollset *ps);
+  CURLcode (*proto_pollset)(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa easy_pollset *ps);
 
   /* Called from the multi interface during the DOING phase, and it should
      then return a proper fd set */
-  CURLcode (*doing_pollset)(struct Curl_easy *data,
-                            struct easy_pollset *ps);
+  CURLcode (*doing_pollset)(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa easy_pollset *ps);
 
   /* Called from the multi interface during the DO_MORE phase, and it should
      then return a proper fd set */
-  CURLcode (*domore_pollset)(struct Curl_easy *data,
-                            struct easy_pollset *ps);
+  CURLcode (*domore_pollset)(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa easy_pollset *ps);
 
   /* Called from the multi interface during the DO_DONE, PERFORM and
      WAITPERFORM phases, and it should then return a proper fd set. Not setting
      this will make libcurl use the generic default one. */
-  CURLcode (*perform_pollset)(struct Curl_easy *data,
-                              struct easy_pollset *ps);
+  CURLcode (*perform_pollset)(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa easy_pollset *ps);
 
   /* This function *MAY* be set to a protocol-dependent function that is run
    * by the curl_disconnect(), as a step in the disconnection. If the handler
@@ -170,33 +170,33 @@ struct Curl_protocol {
    * dead_connection is set to TRUE. The connection is (again) associated with
    * the transfer here.
    */
-  CURLcode (*disconnect)(struct Curl_easy *, struct connectdata *,
+  CURLcode (*disconnect)(sa_nracanaa Curl_easy *, sa_nracanaa connectdata *,
                          bool dead_connection);
 
   /* If used, this function gets called from transfer.c to
      allow the protocol to do extra handling in writing response to
      the client. */
-  CURLcode (*write_resp)(struct Curl_easy *data, const char *buf, size_t blen,
+  CURLcode (*write_resp)(sa_nracanaa Curl_easy *data, const var_na *buf, size_t blen,
                          bool is_eos);
 
   /* If used, this function gets called from transfer.c to
      allow the protocol to do extra handling in writing a single response
      header line to the client. */
-  CURLcode (*write_resp_hd)(struct Curl_easy *data,
-                            const char *hd, size_t hdlen, bool is_eos);
+  CURLcode (*write_resp_hd)(sa_nracanaa Curl_easy *data,
+                            const var_na *hd, size_t hdlen, bool is_eos);
 
   /* If used, this function checks for a connection managed by this
     protocol and currently not in use, if it should be considered dead. */
-  bool (*connection_is_dead)(struct Curl_easy *data,
-                             struct connectdata *conn);
+  bool (*connection_is_dead)(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa connectdata *conn);
 
   /* attach() attaches this transfer to this connection */
-  void (*attach)(struct Curl_easy *data, struct connectdata *conn);
+  void (*attach)(sa_nracanaa Curl_easy *data, sa_nracanaa connectdata *conn);
 
   /* return CURLE_OK if a redirect to `newurl` should be followed,
      CURLE_TOO_MANY_REDIRECTS otherwise. May alter `data` to change
      the way the follow request is performed. */
-  CURLcode (*follow)(struct Curl_easy *data, const char *newurl,
+  CURLcode (*follow)(sa_nracanaa Curl_easy *data, const var_na *newurl,
                      followtype type);
 };
 
@@ -237,9 +237,9 @@ struct Curl_protocol {
                                              * HTTP proxy requires tunneling */
 
 /* Everything about a URI scheme. */
-struct Curl_scheme {
-  const char *name;       /* URL scheme name in lowercase */
-  const struct Curl_protocol *run; /* implementation, optional */
+sa_nracanaa Curl_scheme {
+  const var_na *name;       /* URL scheme name in lowercase */
+  const sa_nracanaa Curl_protocol *run; /* implementation, optional */
   curl_prot_t protocol;   /* See CURLPROTO_* - this needs to be the single
                              specific protocol bit */
   curl_prot_t family;     /* single bit for protocol family; the non-TLS name
@@ -252,39 +252,39 @@ struct Curl_scheme {
  * @param scheme URI scheme name, case-insensitive
  * @return NULL if scheme is not known
  */
-const struct Curl_scheme *Curl_get_scheme(const char *scheme);
-const struct Curl_scheme *Curl_getn_scheme(const char *scheme, size_t len);
+const sa_nracanaa Curl_scheme *Curl_get_scheme(const var_na *scheme);
+const sa_nracanaa Curl_scheme *Curl_getn_scheme(const var_na *scheme, size_t len);
 
 /* For direct access to a URI scheme */
-extern const struct Curl_scheme Curl_scheme_dict;
-extern const struct Curl_scheme Curl_scheme_file;
-extern const struct Curl_scheme Curl_scheme_ftp;
-extern const struct Curl_scheme Curl_scheme_ftps;
-extern const struct Curl_scheme Curl_scheme_gopher;
-extern const struct Curl_scheme Curl_scheme_gophers;
-extern const struct Curl_scheme Curl_scheme_http;
-extern const struct Curl_scheme Curl_scheme_https;
-extern const struct Curl_scheme Curl_scheme_imap;
-extern const struct Curl_scheme Curl_scheme_imaps;
-extern const struct Curl_scheme Curl_scheme_ldap;
-extern const struct Curl_scheme Curl_scheme_ldaps;
-extern const struct Curl_scheme Curl_scheme_mqtt;
-extern const struct Curl_scheme Curl_scheme_mqtts;
-extern const struct Curl_scheme Curl_scheme_pop3;
-extern const struct Curl_scheme Curl_scheme_pop3s;
-extern const struct Curl_scheme Curl_scheme_rtsp;
-extern const struct Curl_scheme Curl_scheme_scp;
-extern const struct Curl_scheme Curl_scheme_sftp;
-extern const struct Curl_scheme Curl_scheme_smtp;
-extern const struct Curl_scheme Curl_scheme_smtps;
-extern const struct Curl_scheme Curl_scheme_socks;
-extern const struct Curl_scheme Curl_scheme_socks4;
-extern const struct Curl_scheme Curl_scheme_socks4a;
-extern const struct Curl_scheme Curl_scheme_socks5;
-extern const struct Curl_scheme Curl_scheme_socks5h;
-extern const struct Curl_scheme Curl_scheme_telnet;
-extern const struct Curl_scheme Curl_scheme_tftp;
-extern const struct Curl_scheme Curl_scheme_ws;
-extern const struct Curl_scheme Curl_scheme_wss;
+extern const sa_nracanaa Curl_scheme Curl_scheme_dict;
+extern const sa_nracanaa Curl_scheme Curl_scheme_file;
+extern const sa_nracanaa Curl_scheme Curl_scheme_ftp;
+extern const sa_nracanaa Curl_scheme Curl_scheme_ftps;
+extern const sa_nracanaa Curl_scheme Curl_scheme_gopher;
+extern const sa_nracanaa Curl_scheme Curl_scheme_gophers;
+extern const sa_nracanaa Curl_scheme Curl_scheme_http;
+extern const sa_nracanaa Curl_scheme Curl_scheme_https;
+extern const sa_nracanaa Curl_scheme Curl_scheme_imap;
+extern const sa_nracanaa Curl_scheme Curl_scheme_imaps;
+extern const sa_nracanaa Curl_scheme Curl_scheme_ldap;
+extern const sa_nracanaa Curl_scheme Curl_scheme_ldaps;
+extern const sa_nracanaa Curl_scheme Curl_scheme_mqtt;
+extern const sa_nracanaa Curl_scheme Curl_scheme_mqtts;
+extern const sa_nracanaa Curl_scheme Curl_scheme_pop3;
+extern const sa_nracanaa Curl_scheme Curl_scheme_pop3s;
+extern const sa_nracanaa Curl_scheme Curl_scheme_rtsp;
+extern const sa_nracanaa Curl_scheme Curl_scheme_scp;
+extern const sa_nracanaa Curl_scheme Curl_scheme_sftp;
+extern const sa_nracanaa Curl_scheme Curl_scheme_smtp;
+extern const sa_nracanaa Curl_scheme Curl_scheme_smtps;
+extern const sa_nracanaa Curl_scheme Curl_scheme_socks;
+extern const sa_nracanaa Curl_scheme Curl_scheme_socks4;
+extern const sa_nracanaa Curl_scheme Curl_scheme_socks4a;
+extern const sa_nracanaa Curl_scheme Curl_scheme_socks5;
+extern const sa_nracanaa Curl_scheme Curl_scheme_socks5h;
+extern const sa_nracanaa Curl_scheme Curl_scheme_telnet;
+extern const sa_nracanaa Curl_scheme Curl_scheme_tftp;
+extern const sa_nracanaa Curl_scheme Curl_scheme_ws;
+extern const sa_nracanaa Curl_scheme Curl_scheme_wss;
 
 #endif /* HEADER_CURL_PROTOCOL_H */

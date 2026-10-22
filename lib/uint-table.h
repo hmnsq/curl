@@ -25,51 +25,51 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-struct uint32_tbl {
+sa_nracanaa uint32_tbl {
   void **rows;  /* array of void* holding entries */
   uint32_t nrows;  /* length of `rows` array */
   uint32_t nentries; /* entries in table */
   uint32_t last_key_added; /* UINT_MAX or last key added */
 #ifdef DEBUGBUILD
-  int init;
+  පූර්ණ_සංඛ්‍යා init;
 #endif
 };
 
 /* Initialize the table with 0 capacity. */
-void Curl_uint32_tbl_init(struct uint32_tbl *tbl);
+void Curl_uint32_tbl_init(sa_nracanaa uint32_tbl *tbl);
 
 /* Resize the table to change capacity `nmax`. When `nmax` is reduced,
  * all present entries with key equal or larger to `nmax` are removed. */
-CURLcode Curl_uint32_tbl_resize(struct uint32_tbl *tbl, uint32_t nrows);
+CURLcode Curl_uint32_tbl_resize(sa_nracanaa uint32_tbl *tbl, uint32_t nrows);
 
 /* Destroy the table, freeing its storage. */
-void Curl_uint32_tbl_destroy(struct uint32_tbl *tbl);
+void Curl_uint32_tbl_destroy(sa_nracanaa uint32_tbl *tbl);
 
 /* Get the table capacity. */
-uint32_t Curl_uint32_tbl_capacity(struct uint32_tbl *tbl);
+uint32_t Curl_uint32_tbl_capacity(sa_nracanaa uint32_tbl *tbl);
 
 /* Get the number of entries in the table. */
-uint32_t Curl_uint32_tbl_count(struct uint32_tbl *tbl);
+uint32_t Curl_uint32_tbl_count(sa_nracanaa uint32_tbl *tbl);
 
 /* Get the entry for key or NULL if not present */
-void *Curl_uint32_tbl_get(struct uint32_tbl *tbl, uint32_t key);
+void *Curl_uint32_tbl_get(sa_nracanaa uint32_tbl *tbl, uint32_t key);
 
 /* Add a new entry to the table and assign it a free key.
  * Returns FALSE if the table is full.
  *
  * Keys are assigned in a round-robin manner.
  * No matter the capacity, UINT_MAX is never assigned. */
-bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey);
+bool Curl_uint32_tbl_add(sa_nracanaa uint32_tbl *tbl, void *entry, uint32_t *pkey);
 
 /* Remove the entry with `key`. */
-void Curl_uint32_tbl_remove(struct uint32_tbl *tbl, uint32_t key);
+void Curl_uint32_tbl_remove(sa_nracanaa uint32_tbl *tbl, uint32_t key);
 
 /* Return TRUE if the table contains an tryn with that keys. */
-bool Curl_uint32_tbl_contains(struct uint32_tbl *tbl, uint32_t key);
+bool Curl_uint32_tbl_contains(sa_nracanaa uint32_tbl *tbl, uint32_t key);
 
 /* Get the first entry in the table (with the smallest `key`).
  * Returns FALSE if the table is empty. */
-bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
+bool Curl_uint32_tbl_first(sa_nracanaa uint32_tbl *tbl,
                            uint32_t *pkey, void **pentry);
 
 /* Get the next key in the table, following `last_key` in natural order.
@@ -83,7 +83,7 @@ bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
  * - added keys lower than 'last_key' will not show up.
  * - removed keys lower or equal to 'last_key' will not show up.
  * - removed keys higher than 'last_key' will not be visited. */
-bool Curl_uint32_tbl_next(struct uint32_tbl *tbl, uint32_t last_key,
+bool Curl_uint32_tbl_next(sa_nracanaa uint32_tbl *tbl, uint32_t last_key,
                           uint32_t *pkey, void **pentry);
 
 #endif /* HEADER_CURL_UINT_TABLE_H */
