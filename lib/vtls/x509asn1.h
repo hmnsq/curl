@@ -24,16 +24,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 /* forward-declare to make it visible in all builds */
-struct Curl_asn1Element;
+بنية Curl_asn1Element;
 
-#if defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
+#إذا defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
   defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
-#include "cfilters.h"
-#include "urldata.h"
+#ضمن "cfilters.h"
+#ضمن "urldata.h"
 
 /* ASN.1 classes. */
 /* #define CURL_ASN1_UNIVERSAL             0 */
@@ -76,44 +76,44 @@ struct Curl_asn1Element;
  */
 
 /* ASN.1 parsed element. */
-struct Curl_asn1Element {
-  const uint8_t *header;      /* Pointer to header byte. */
-  const uint8_t *beg;         /* Pointer to element data. */
-  const uint8_t *end;         /* Pointer to 1st byte after element. */
+بنية Curl_asn1Element {
+  ثابت uint8_t *header;      /* Pointer to header byte. */
+  ثابت uint8_t *beg;         /* Pointer to element data. */
+  ثابت uint8_t *end;         /* Pointer to 1st byte after element. */
   uint8_t eclass;             /* ASN.1 element class. */
   uint8_t tag;                /* ASN.1 element tag. */
   BIT(constructed);           /* Element is constructed. */
 };
 
 /* X509 certificate: RFC 5280. */
-struct Curl_X509certificate {
-  struct Curl_asn1Element certificate;
-  struct Curl_asn1Element version;
-  struct Curl_asn1Element serialNumber;
-  struct Curl_asn1Element signatureAlgorithm;
-  struct Curl_asn1Element signature;
-  struct Curl_asn1Element issuer;
-  struct Curl_asn1Element notBefore;
-  struct Curl_asn1Element notAfter;
-  struct Curl_asn1Element subject;
-  struct Curl_asn1Element subjectPublicKeyInfo;
-  struct Curl_asn1Element subjectPublicKeyAlgorithm;
-  struct Curl_asn1Element subjectPublicKey;
-  struct Curl_asn1Element issuerUniqueID;
-  struct Curl_asn1Element subjectUniqueID;
-  struct Curl_asn1Element extensions;
+بنية Curl_X509certificate {
+  بنية Curl_asn1Element certificate;
+  بنية Curl_asn1Element version;
+  بنية Curl_asn1Element serial_سان;
+  بنية Curl_asn1Element signatureAlgorithm;
+  بنية Curl_asn1Element signature;
+  بنية Curl_asn1Element issuer;
+  بنية Curl_asn1Element notBefore;
+  بنية Curl_asn1Element notAfter;
+  بنية Curl_asn1Element subject;
+  بنية Curl_asn1Element subject_Public_ئاچقۇچ_Info;
+  بنية Curl_asn1Element subject_Public_ئاچقۇچ_Algorithm;
+  بنية Curl_asn1Element subject_Public_ئاچقۇچ;
+  بنية Curl_asn1Element issuerUniqueID;
+  بنية Curl_asn1Element subjectUniqueID;
+  بنية Curl_asn1Element extensions;
 };
 
 /*
  * Prototypes.
  */
 
-int Curl_parseX509(struct Curl_X509certificate *cert,
-                   const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_extract_certinfo(struct Curl_easy *data, int certnum,
-                               const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_verifyhost(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         const uint8_t *beg, const uint8_t *end);
+صحيح Curl_parseX509(بنية Curl_X509certificate *cert,
+                   ثابت uint8_t *beg, ثابت uint8_t *end);
+CURLcode Curl_extract_certinfo(بنية Curl_easy *data, صحيح certnum,
+                               ثابت uint8_t *beg, ثابت uint8_t *end);
+CURLcode Curl_verifyhost(بنية Curl_cfilter *cf, بنية Curl_easy *data,
+                         ثابت uint8_t *beg, ثابت uint8_t *end);
 #endif /* USE_GNUTLS || USE_WOLFSSL || USE_SCHANNEL || USE_MBEDTLS ||
           USE_RUSTLS */
 #endif /* HEADER_CURL_X509ASN1_H */

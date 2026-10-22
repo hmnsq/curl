@@ -23,69 +23,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_addrinfo;
+#إذا !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+بنية Curl_cfilter;
+بنية Curl_easy;
+بنية connectdata;
+بنية Curl_addrinfo;
 
-void Curl_quic_ver(char *p, size_t len);
-int Curl_vquic_init(void);
-void Curl_vquic_cleanup(void);
+فراغ Curl_quic_ver(حرف *p, size_t len);
+صحيح Curl_vquic_init(فراغ);
+فراغ Curl_vquic_cleanup(فراغ);
 
-CURLcode Curl_qlogdir(struct Curl_easy *data,
-                      unsigned char *scid,
+CURLcode Curl_qlogdir(بنية Curl_easy *data,
+                      unsigned حرف *scid,
                       size_t scidlen,
-                      int *qlogfdp);
+                      صحيح *qlogfdp);
 
-CURLcode Curl_cf_quic_insert_after(struct Curl_cfilter *cf_at,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer);
+CURLcode Curl_cf_quic_قىستۇرۇش_after(بنية Curl_cfilter *cf_at,
+                                   بنية Curl_easy *data,
+                                   بنية Curl_peer *origin,
+                                   بنية Curl_peer *peer);
 
-CURLcode Curl_cf_quic_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_quic_create(بنية Curl_cfilter **pcf,
+                             بنية Curl_easy *data,
+                             بنية Curl_peer *origin,
+                             بنية Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             بنية connectdata *conn,
+                             بنية Curl_sockaddr_ex *addr,
+                             بنية Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_http3;
+خارجي بنية Curl_cftype Curl_cft_http3;
 
-#if !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
+#إذا !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
 
-CURLcode Curl_cf_h3_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_h3_proxy_قىستۇرۇش_after(بنية Curl_cfilter *cf_at,
+                                       بنية Curl_easy *data,
+                                       بنية Curl_peer *origin,
+                                       بنية Curl_peer *peer,
+                                       بنية Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport);
 
-CURLcode Curl_cf_h3_proxy_create(struct Curl_cfilter **pcf,
-                                 struct Curl_easy *data,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
+CURLcode Curl_cf_h3_proxy_create(بنية Curl_cfilter **pcf,
+                                 بنية Curl_easy *data,
+                                 بنية Curl_peer *origin,
+                                 بنية Curl_peer *peer,
                                  uint8_t transport_peer,
-                                 struct connectdata *conn,
-                                 struct Curl_sockaddr_ex *addr,
-                                 struct Curl_peer *tunnel_peer,
+                                 بنية connectdata *conn,
+                                 بنية Curl_sockaddr_ex *addr,
+                                 بنية Curl_peer *tunnel_peer,
                                  uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_h3_proxy;
+خارجي بنية Curl_cftype Curl_cft_h3_proxy;
 
 #endif /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
 
-#else
+#وإلا
 #define Curl_vquic_init() 1
 #define Curl_vquic_cleanup()
 #endif /* !CURL_DISABLE_HTTP && USE_HTTP3 */
 
-CURLcode Curl_conn_may_http3(struct Curl_easy *data,
-                             struct connectdata *conn);
+CURLcode Curl_conn_may_http3(بنية Curl_easy *data,
+                             بنية connectdata *conn);
 
 #endif /* HEADER_CURL_VQUIC_QUIC_H */

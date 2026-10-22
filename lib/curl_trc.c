@@ -21,68 +21,68 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curl_trc.h"
-#include "urldata.h"
-#include "cfilters.h"
-#include "multiif.h"
+#ضمن "curl_trc.h"
+#ضمن "urldata.h"
+#ضمن "cfilters.h"
+#ضمن "multiif.h"
 
-#include "cf-recvbuf.h"
-#include "cf-socket.h"
-#include "cf-setup.h"
-#include "http2.h"
-#include "http_proxy.h"
-#include "cf-h1-proxy.h"
-#include "cf-h2-proxy.h"
-#include "cf-haproxy.h"
-#include "cf-https-connect.h"
-#include "cf-ip-happy.h"
-#include "progress.h"
-#include "socks.h"
-#include "curlx/strparse.h"
-#include "vdns/cf-dns.h"
-#include "vtls/vtls.h"
-#include "vquic/vquic.h"
-#include "curlx/strcopy.h"
+#ضمن "cf-recvbuf.h"
+#ضمن "cf-socket.h"
+#ضمن "cf-setup.h"
+#ضمن "http2.h"
+#ضمن "http_proxy.h"
+#ضمن "cf-h1-proxy.h"
+#ضمن "cf-h2-proxy.h"
+#ضمن "cf-haproxy.h"
+#ضمن "cf-https-connect.h"
+#ضمن "cf-ip-happy.h"
+#ضمن "progress.h"
+#ضمن "socks.h"
+#ضمن "curlx/strparse.h"
+#ضمن "vdns/cf-dns.h"
+#ضمن "vtls/vtls.h"
+#ضمن "vquic/vquic.h"
+#ضمن "curlx/strcopy.h"
 
-static void trc_write(struct Curl_easy *data, curl_infotype type,
-                      const char *ptr, size_t size)
+ساكن فراغ trc_write(بنية Curl_easy *data, curl_infotype type,
+                      ثابت حرف *ptr, size_t size)
 {
-  if(data->set.verbose) {
-    if(data->set.fdebug) {
-      struct Curl_mapi_guard guard;
+  إذا(data->set.verbose) {
+    إذا(data->set.fdebug) {
+      بنية Curl_mapi_guard guard;
       CURL_CBAPI_START(&guard, data, easy_fdebug);
-      (void)(*data->set.fdebug)(data, type, CURL_UNCONST(ptr), size,
+      (فراغ)(*data->set.fdebug)(data, type, CURL_UNCONST(ptr), size,
                                 data->set.debugdata);
       CURL_CBAPI_END(&guard);
     }
-    else {
-      static const char s_infotype[CURLINFO_END][3] = {
+    وإلا {
+      ساكن ثابت حرف s_infotype[CURLINFO_END][3] = {
         "* ", "< ", "> ", "{ ", "} ", "{ ", "} " };
-      switch(type) {
-      case CURLINFO_TEXT:
-      case CURLINFO_HEADER_OUT:
-      case CURLINFO_HEADER_IN:
+      بدل(type) {
+      حالة CURLINFO_TEXT:
+      حالة CURLINFO_HEADER_OUT:
+      حالة CURLINFO_HEADER_IN:
         fwrite(s_infotype[type], 2, 1, data->set.err);
         fwrite(ptr, size, 1, data->set.err);
-        break;
-      default: /* nada */
-        break;
+        اكسر;
+      افتراضي: /* nada */
+        اكسر;
       }
     }
   }
 }
 
 /* max length we trace before ending in '...' */
-#define TRC_LINE_MAX 2048
+#define TRC_قۇر_MAX 2048
 
 #define CURL_TRC_FMT_IDSC   "[x-%" CURL_FORMAT_CURL_OFF_T "] "
 #define CURL_TRC_FMT_IDSD   "[%" CURL_FORMAT_CURL_OFF_T "-x] "
 #define CURL_TRC_FMT_IDSDC  "[%" CURL_FORMAT_CURL_OFF_T "-%" \
                             CURL_FORMAT_CURL_OFF_T "] "
 
-static struct curl_trc_feat Curl_trc_feat_ids = {
+ساكن بنية curl_trc_feat Curl_trc_feat_ids = {
   "LIB-IDS",
   CURL_LOG_LVL_NONE,
 };
@@ -90,81 +90,81 @@ static struct curl_trc_feat Curl_trc_feat_ids = {
   (Curl_trc_is_verbose(data) && \
   Curl_trc_feat_ids.log_level >= CURL_LOG_LVL_INFO)
 
-static size_t trc_print_ids(struct Curl_easy *data, char *buf, size_t maxlen)
+ساكن size_t trc_print_ids(بنية Curl_easy *data, حرف *buf, size_t maxlen)
 {
   curl_off_t cid = data->state.last_conn_id;
-  if(data->id >= 0) {
-    if(cid >= 0)
-      return curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSDC, data->id, cid);
-    else
-      return curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSD, data->id);
+  إذا(data->id >= 0) {
+    إذا(cid >= 0)
+      أرجع curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSDC, data->id, cid);
+    وإلا
+      أرجع curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSD, data->id);
   }
-  else if(cid >= 0)
-    return curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSC, cid);
-  else {
-    return curl_msnprintf(buf, maxlen, "[x-x] ");
+  وإلا إذا(cid >= 0)
+    أرجع curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSC, cid);
+  وإلا {
+    أرجع curl_msnprintf(buf, maxlen, "[x-x] ");
   }
 }
 
-static size_t trc_end_buf(char *buf, size_t len, size_t maxlen, bool addnl)
+ساكن size_t trc_end_buf(حرف *buf, size_t len, size_t maxlen, bool addnl)
 {
   /* make sure we end the trace line in `buf` properly. It needs
    * to end with a null-terminator '\0' or '\n\0' */
-  if(len >= (maxlen - (addnl ? 2 : 1))) {
+  إذا(len >= (maxlen - (addnl ? 2 : 1))) {
     len = maxlen - 5;
     buf[len++] = '.';
     buf[len++] = '.';
     buf[len++] = '.';
     buf[len++] = '\n';
   }
-  else if(addnl)
+  وإلا إذا(addnl)
     buf[len++] = '\n';
   buf[len] = '\0';
-  return len;
+  أرجع len;
 }
 
-void Curl_debug(struct Curl_easy *data, curl_infotype type,
-                const char *ptr, size_t size)
+فراغ Curl_debug(بنية Curl_easy *data, curl_infotype type,
+                ثابت حرف *ptr, size_t size)
 {
-  if(data->set.verbose) {
-    static const char s_infotype[CURLINFO_END][3] = {
+  إذا(data->set.verbose) {
+    ساكن ثابت حرف s_infotype[CURLINFO_END][3] = {
       "* ", "< ", "> ", "{ ", "} ", "{ ", "} " };
-    char buf[TRC_LINE_MAX];
+    حرف buf[TRC_قۇر_MAX];
     size_t len;
-    if(data->set.fdebug) {
-      struct Curl_mapi_guard guard;
-      if(CURL_TRC_IDS(data) && (size < TRC_LINE_MAX)) {
-        len = trc_print_ids(data, buf, TRC_LINE_MAX);
-        len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "%.*s",
-                              (int)size, ptr);
-        len = trc_end_buf(buf, len, TRC_LINE_MAX, FALSE);
+    إذا(data->set.fdebug) {
+      بنية Curl_mapi_guard guard;
+      إذا(CURL_TRC_IDS(data) && (size < TRC_قۇر_MAX)) {
+        len = trc_print_ids(data, buf, TRC_قۇر_MAX);
+        len += curl_msnprintf(buf + len, TRC_قۇر_MAX - len, "%.*s",
+                              (صحيح)size, ptr);
+        len = trc_end_buf(buf, len, TRC_قۇر_MAX, FALSE);
         CURL_CBAPI_START(&guard, data, easy_fdebug);
-        (void)(*data->set.fdebug)(data, type, buf, len, data->set.debugdata);
+        (فراغ)(*data->set.fdebug)(data, type, buf, len, data->set.debugdata);
         CURL_CBAPI_END(&guard);
       }
-      else {
+      وإلا {
         CURL_CBAPI_START(&guard, data, easy_fdebug);
-        (void)(*data->set.fdebug)(data, type, CURL_UNCONST(ptr),
+        (فراغ)(*data->set.fdebug)(data, type, CURL_UNCONST(ptr),
                                   size, data->set.debugdata);
         CURL_CBAPI_END(&guard);
       }
     }
-    else {
-      switch(type) {
-      case CURLINFO_TEXT:
-      case CURLINFO_HEADER_OUT:
-      case CURLINFO_HEADER_IN:
+    وإلا {
+      بدل(type) {
+      حالة CURLINFO_TEXT:
+      حالة CURLINFO_HEADER_OUT:
+      حالة CURLINFO_HEADER_IN:
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
-        if(CURL_TRC_IDS(data)) {
-          len = trc_print_ids(data, buf, TRC_LINE_MAX);
+        إذا(CURL_TRC_IDS(data)) {
+          len = trc_print_ids(data, buf, TRC_قۇر_MAX);
           fwrite(buf, len, 1, data->set.err);
         }
 #endif
         fwrite(s_infotype[type], 2, 1, data->set.err);
         fwrite(ptr, size, 1, data->set.err);
-        break;
-      default: /* nada */
-        break;
+        اكسر;
+      افتراضي: /* nada */
+        اكسر;
       }
     }
   }
@@ -173,17 +173,17 @@ void Curl_debug(struct Curl_easy *data, curl_infotype type,
 /* Curl_failf() is for messages stating why we failed.
  * The message SHALL NOT include any LF or CR.
  */
-void Curl_failf(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_failf(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(data->set.verbose || data->set.errorbuffer) {
+  إذا(data->set.verbose || data->set.errorbuffer) {
     va_list ap;
     size_t len;
-    char error[CURL_ERROR_SIZE + 2];
+    حرف error[CURL_ERROR_SIZE + 2];
     va_start(ap, fmt);
     len = curl_mvsnprintf(error, CURL_ERROR_SIZE, fmt, ap);
 
-    if(data->set.errorbuffer && !data->state.errorbuf) {
+    إذا(data->set.errorbuffer && !data->state.errorbuf) {
       curlx_strcopy(data->set.errorbuffer, CURL_ERROR_SIZE, error, len);
       data->state.errorbuf = TRUE; /* wrote error string */
     }
@@ -194,42 +194,42 @@ void Curl_failf(struct Curl_easy *data, const char *fmt, ...)
   }
 }
 
-void Curl_reset_fail(struct Curl_easy *data)
+فراغ Curl_reset_fail(بنية Curl_easy *data)
 {
-  if(data->set.errorbuffer)
+  إذا(data->set.errorbuffer)
     data->set.errorbuffer[0] = 0;
   data->state.errorbuf = FALSE;
 }
 
 #ifdef CURLVERBOSE
-struct curl_trc_feat Curl_trc_feat_multi = {
+بنية curl_trc_feat Curl_trc_feat_multi = {
   "MULTI",
   CURL_LOG_LVL_NONE,
 };
-struct curl_trc_feat Curl_trc_feat_read = {
+بنية curl_trc_feat Curl_trc_feat_read = {
   "READ",
   CURL_LOG_LVL_NONE,
 };
-struct curl_trc_feat Curl_trc_feat_write = {
+بنية curl_trc_feat Curl_trc_feat_write = {
   "WRITE",
   CURL_LOG_LVL_NONE,
 };
-struct curl_trc_feat Curl_trc_feat_dns = {
+بنية curl_trc_feat Curl_trc_feat_dns = {
   "DNS",
   CURL_LOG_LVL_NONE,
 };
 #ifndef CURL_DISABLE_DOH
-struct curl_trc_feat Curl_trc_feat_doh = {
+بنية curl_trc_feat Curl_trc_feat_doh = {
   "DoH",
   CURL_LOG_LVL_NONE,
 };
 #endif
-struct curl_trc_feat Curl_trc_feat_timer = {
+بنية curl_trc_feat Curl_trc_feat_timer = {
   "TIMER",
   CURL_LOG_LVL_NONE,
 };
 #ifdef USE_THREADS
-struct curl_trc_feat Curl_trc_feat_threads = {
+بنية curl_trc_feat Curl_trc_feat_threads = {
   "THREADS",
   CURL_LOG_LVL_NONE,
 };
@@ -238,51 +238,51 @@ struct curl_trc_feat Curl_trc_feat_threads = {
 
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 
-static void trc_infof(struct Curl_easy *data,
-                      struct curl_trc_feat *feat,
-                      const char *opt_id, int opt_id_idx,
-                      const char * const fmt, va_list ap) CURL_PRINTF(5, 0);
+ساكن فراغ trc_infof(بنية Curl_easy *data,
+                      بنية curl_trc_feat *feat,
+                      ثابت حرف *opt_id, صحيح opt_id_idx,
+                      ثابت حرف * ثابت fmt, va_list ap) CURL_PRINTF(5, 0);
 
-static void trc_infof(struct Curl_easy *data,
-                      struct curl_trc_feat *feat,
-                      const char *opt_id, int opt_id_idx,
-                      const char * const fmt, va_list ap)
+ساكن فراغ trc_infof(بنية Curl_easy *data,
+                      بنية curl_trc_feat *feat,
+                      ثابت حرف *opt_id, صحيح opt_id_idx,
+                      ثابت حرف * ثابت fmt, va_list ap)
 {
   size_t len = 0;
-  char buf[TRC_LINE_MAX];
+  حرف buf[TRC_قۇر_MAX];
 
-  if(CURL_TRC_IDS(data))
-    len += trc_print_ids(data, buf + len, TRC_LINE_MAX - len);
-  if(feat)
-    len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s] ", feat->name);
-  if(opt_id) {
-    if(opt_id_idx > 0)
-      len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s-%d] ",
+  إذا(CURL_TRC_IDS(data))
+    len += trc_print_ids(data, buf + len, TRC_قۇر_MAX - len);
+  إذا(feat)
+    len += curl_msnprintf(buf + len, TRC_قۇر_MAX - len, "[%s] ", feat->name);
+  إذا(opt_id) {
+    إذا(opt_id_idx > 0)
+      len += curl_msnprintf(buf + len, TRC_قۇر_MAX - len, "[%s-%d] ",
                             opt_id, opt_id_idx);
-    else
-      len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s] ", opt_id);
+    وإلا
+      len += curl_msnprintf(buf + len, TRC_قۇر_MAX - len, "[%s] ", opt_id);
   }
-  len += curl_mvsnprintf(buf + len, TRC_LINE_MAX - len, fmt, ap);
-  len = trc_end_buf(buf, len, TRC_LINE_MAX, TRUE);
+  len += curl_mvsnprintf(buf + len, TRC_قۇر_MAX - len, fmt, ap);
+  len = trc_end_buf(buf, len, TRC_قۇر_MAX, TRUE);
   trc_write(data, CURLINFO_TEXT, buf, len);
 }
 
-void Curl_infof(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_infof(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_is_verbose(data)) {
+  إذا(Curl_trc_is_verbose(data)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, data->state.feat, NULL, 0, fmt, ap);
+    trc_infof(data, data->state.feat, عدم, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
-                       const char *fmt, ...)
+فراغ Curl_trc_cf_infof(بنية Curl_easy *data, ثابت بنية Curl_cfilter *cf,
+                       ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(cf);
-  if(Curl_trc_cf_is_verbose(cf, data)) {
+  إذا(Curl_trc_cf_is_verbose(cf, data)) {
     va_list ap;
     va_start(ap, fmt);
     trc_infof(data, data->state.feat, cf->cft->name, cf->sockindex, fmt, ap);
@@ -290,20 +290,20 @@ void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
   }
 }
 
-void Curl_trc_feat_infof(struct Curl_easy *data,
-                         struct curl_trc_feat *feat,
-                         const char *fmt, ...)
+فراغ Curl_trc_feat_infof(بنية Curl_easy *data,
+                         بنية curl_trc_feat *feat,
+                         ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(feat);
-  if(Curl_trc_ft_is_verbose(data, feat)) {
+  إذا(Curl_trc_ft_is_verbose(data, feat)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, feat, NULL, 0, fmt, ap);
+    trc_infof(data, feat, عدم, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-static const char * const Curl_trc_timer_names[] = {
+ساكن ثابت حرف * ثابت Curl_trc_timer_names[] = {
   "100_TIMEOUT",
   "ASYNC_NAME",
   "CONNECTTIMEOUT",
@@ -319,18 +319,18 @@ static const char * const Curl_trc_timer_names[] = {
   "SERVER_RESPONSE",
 };
 
-static const char *trc_timer_name(int tid)
+ساكن ثابت حرف *trc_timer_name(صحيح tid)
 {
-  if((tid >= 0) && ((size_t)tid < CURL_ARRAYSIZE(Curl_trc_timer_names)))
-    return Curl_trc_timer_names[(size_t)tid];
-  return "TIMER-???";
+  إذا((tid >= 0) && ((size_t)tid < CURL_ARRAYSIZE(Curl_trc_timer_names)))
+    أرجع Curl_trc_timer_names[(size_t)tid];
+  أرجع "TIMER-???";
 }
 
-void Curl_trc_timer(struct Curl_easy *data, int tid, const char *fmt, ...)
+فراغ Curl_trc_timer(بنية Curl_easy *data, صحيح tid, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_timer)) {
-    const char *tname = trc_timer_name(tid);
+  إذا(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_timer)) {
+    ثابت حرف *tname = trc_timer_name(tid);
     va_list ap;
     va_start(ap, fmt);
     trc_infof(data, &Curl_trc_feat_timer, tname, 0, fmt, ap);
@@ -338,15 +338,15 @@ void Curl_trc_timer(struct Curl_easy *data, int tid, const char *fmt, ...)
   }
 }
 
-void Curl_trc_easy_timers(struct Curl_easy *data)
+فراغ Curl_trc_easy_timers(بنية Curl_easy *data)
 {
-  if(CURL_TRC_TIMER_is_verbose(data) && data->multi) {
-    if(data->state.timeouts.first < EXPIRE_LAST) {
-      struct expire_timers *timeouts = &data->state.timeouts;
+  إذا(CURL_TRC_TIMER_is_verbose(data) && data->multi) {
+    إذا(data->state.timeouts.first < EXPIRE_LAST) {
+      بنية expire_timers *timeouts = &data->state.timeouts;
       timediff_t base_us =
         Curl_timeouts_offset_us(&data->multi->timeouts, Curl_pgrs_now(data));
       uint8_t id = data->state.timeouts.first;
-      for(; id < EXPIRE_LAST; id = timeouts->next[id]) {
+      لكل(; id < EXPIRE_LAST; id = timeouts->next[id]) {
         CURL_TRC_TIMER(data, id, "expires in %" FMT_TIMEDIFF_T "us",
                        timeouts->offset_us[id] - base_us);
       }
@@ -354,7 +354,7 @@ void Curl_trc_easy_timers(struct Curl_easy *data)
   }
 }
 
-static const char * const Curl_trc_mstate_names[] = {
+ساكن ثابت حرف * ثابت Curl_trc_mstate_names[] = {
   "INIT",
   "PENDING",
   "SETUP",
@@ -373,19 +373,19 @@ static const char * const Curl_trc_mstate_names[] = {
   "MSGSENT",
 };
 
-const char *Curl_trc_mstate_name(int state)
+ثابت حرف *Curl_trc_mstate_name(صحيح state)
 {
-  if((state >= 0) && ((size_t)state < CURL_ARRAYSIZE(Curl_trc_mstate_names)))
-    return Curl_trc_mstate_names[(size_t)state];
-  return "?";
+  إذا((state >= 0) && ((size_t)state < CURL_ARRAYSIZE(Curl_trc_mstate_names)))
+    أرجع Curl_trc_mstate_names[(size_t)state];
+  أرجع "?";
 }
 
-void Curl_trc_multi(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_multi(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_multi)) {
-    const char *sname = (data->id >= 0) ?
-                        Curl_trc_mstate_name(data->mstate) : NULL;
+  إذا(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_multi)) {
+    ثابت حرف *sname = (data->id >= 0) ?
+                        Curl_trc_mstate_name(data->mstate) : عدم;
     va_list ap;
     va_start(ap, fmt);
     trc_infof(data, &Curl_trc_feat_multi, sname, 0, fmt, ap);
@@ -393,124 +393,124 @@ void Curl_trc_multi(struct Curl_easy *data, const char *fmt, ...)
   }
 }
 
-void Curl_trc_read(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_read(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_read)) {
+  إذا(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_read)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_read, NULL, 0, fmt, ap);
+    trc_infof(data, &Curl_trc_feat_read, عدم, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-void Curl_trc_write(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_write(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_write)) {
+  إذا(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_write)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_write, NULL, 0, fmt, ap);
+    trc_infof(data, &Curl_trc_feat_write, عدم, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-void Curl_trc_dns(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_dns(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_dns)) {
+  إذا(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_dns)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_dns, NULL, 0, fmt, ap);
+    trc_infof(data, &Curl_trc_feat_dns, عدم, 0, fmt, ap);
     va_end(ap);
   }
 }
 
 #ifndef CURL_DISABLE_FTP
-struct curl_trc_feat Curl_trc_feat_ftp = {
+بنية curl_trc_feat Curl_trc_feat_ftp = {
   "FTP",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ftp(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_ftp(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ftp)) {
+  إذا(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ftp)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ftp, NULL, 0, fmt, ap);
+    trc_infof(data, &Curl_trc_feat_ftp, عدم, 0, fmt, ap);
     va_end(ap);
   }
 }
 #endif /* !CURL_DISABLE_FTP */
 
 #ifndef CURL_DISABLE_SMTP
-struct curl_trc_feat Curl_trc_feat_smtp = {
+بنية curl_trc_feat Curl_trc_feat_smtp = {
   "SMTP",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_smtp(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_smtp(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_smtp)) {
+  إذا(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_smtp)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_smtp, NULL, 0, fmt, ap);
+    trc_infof(data, &Curl_trc_feat_smtp, عدم, 0, fmt, ap);
     va_end(ap);
   }
 }
 #endif /* !CURL_DISABLE_SMTP */
 
 #ifdef USE_SSL
-struct curl_trc_feat Curl_trc_feat_ssls = {
+بنية curl_trc_feat Curl_trc_feat_ssls = {
   "SSLS",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ssls(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_ssls(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssls)) {
+  إذا(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssls)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ssls, NULL, 0, fmt, ap);
+    trc_infof(data, &Curl_trc_feat_ssls, عدم, 0, fmt, ap);
     va_end(ap);
   }
 }
 #endif /* USE_SSL */
 
 #ifdef USE_SSH
-struct curl_trc_feat Curl_trc_feat_ssh = {
+بنية curl_trc_feat Curl_trc_feat_ssh = {
   "SSH",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ssh(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_ssh(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssh)) {
+  إذا(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssh)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ssh, NULL, 0, fmt, ap);
+    trc_infof(data, &Curl_trc_feat_ssh, عدم, 0, fmt, ap);
     va_end(ap);
   }
 }
 #endif /* USE_SSH */
 
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-struct curl_trc_feat Curl_trc_feat_ws = {
+#إذا !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+بنية curl_trc_feat Curl_trc_feat_ws = {
   "WS",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ws(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_ws(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ws)) {
+  إذا(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ws)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ws, NULL, 0, fmt, ap);
+    trc_infof(data, &Curl_trc_feat_ws, عدم, 0, fmt, ap);
     va_end(ap);
   }
 }
@@ -522,12 +522,12 @@ void Curl_trc_ws(struct Curl_easy *data, const char *fmt, ...)
 #define TRC_CT_PROXY       (1 << 2)
 #define TRC_CT_INTERNALS   (1 << 3)
 
-struct trc_feat_def {
-  struct curl_trc_feat *feat;
-  unsigned int category;
+بنية trc_feat_def {
+  بنية curl_trc_feat *feat;
+  unsigned صحيح category;
 };
 
-static struct trc_feat_def trc_feats[] = {
+ساكن بنية trc_feat_def trc_feats[] = {
   { &Curl_trc_feat_ids,       TRC_CT_INTERNALS },
   { &Curl_trc_feat_multi,     TRC_CT_NETWORK },
   { &Curl_trc_feat_read,      TRC_CT_NONE },
@@ -552,17 +552,17 @@ static struct trc_feat_def trc_feats[] = {
 #ifdef USE_SSH
   { &Curl_trc_feat_ssh,       TRC_CT_PROTOCOL },
 #endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#إذا !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
   { &Curl_trc_feat_ws,        TRC_CT_PROTOCOL },
 #endif
 };
 
-struct trc_cft_def {
-  struct Curl_cftype *cft;
-  unsigned int category;
+بنية trc_cft_def {
+  بنية Curl_cftype *cft;
+  unsigned صحيح category;
 };
 
-static struct trc_cft_def trc_cfts[] = {
+ساكن بنية trc_cft_def trc_cfts[] = {
   { &Curl_cft_dns,            TRC_CT_NETWORK },
   { &Curl_cft_tcp,            TRC_CT_NETWORK },
   { &Curl_cft_udp,            TRC_CT_NETWORK },
@@ -573,7 +573,7 @@ static struct trc_cft_def trc_cfts[] = {
   { &Curl_cft_recvbuf,        TRC_CT_PROTOCOL },
 #endif
   { &Curl_cft_setup,          TRC_CT_PROTOCOL },
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+#إذا !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
   { &Curl_cft_nghttp2,        TRC_CT_PROTOCOL },
 #endif
 #ifdef USE_SSL
@@ -588,7 +588,7 @@ static struct trc_cft_def trc_cfts[] = {
 #ifdef USE_NGHTTP2
   { &Curl_cft_h2_proxy,       TRC_CT_PROXY },
 #endif
-#if defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3)
+#إذا defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3)
   { &Curl_cft_h3_proxy,       TRC_CT_PROXY },
 #endif
   { &Curl_cft_http_proxy,     TRC_CT_PROXY },
@@ -596,7 +596,7 @@ static struct trc_cft_def trc_cfts[] = {
   { &Curl_cft_haproxy,        TRC_CT_PROXY },
   { &Curl_cft_socks_proxy,    TRC_CT_PROXY },
 #endif /* !CURL_DISABLE_PROXY */
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#إذا !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   { &Curl_cft_http3,          TRC_CT_PROTOCOL },
 #endif
 #ifndef CURL_DISABLE_HTTP
@@ -604,177 +604,177 @@ static struct trc_cft_def trc_cfts[] = {
 #endif
 };
 
-static void trc_apply_level_by_name(struct Curl_str *token, int lvl)
+ساكن فراغ trc_apply_level_by_name(بنية Curl_str *token, صحيح lvl)
 {
   size_t i;
 
-  for(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
-    if(curlx_str_casecompare(token, trc_cfts[i].cft->name)) {
+  لكل(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
+    إذا(curlx_str_casecompare(token, trc_cfts[i].cft->name)) {
       trc_cfts[i].cft->log_level = lvl;
-      break;
+      اكسر;
     }
   }
-  for(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
-    if(curlx_str_casecompare(token, trc_feats[i].feat->name)) {
+  لكل(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
+    إذا(curlx_str_casecompare(token, trc_feats[i].feat->name)) {
       trc_feats[i].feat->log_level = lvl;
-      break;
+      اكسر;
     }
   }
 }
 
-static void trc_apply_level_by_category(unsigned int category, int lvl)
+ساكن فراغ trc_apply_level_by_category(unsigned صحيح category, صحيح lvl)
 {
   size_t i;
 
-  for(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
-    if(!category || (trc_cfts[i].category & category))
+  لكل(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
+    إذا(!category || (trc_cfts[i].category & category))
       trc_cfts[i].cft->log_level = lvl;
   }
-  for(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
-    if(!category || (trc_feats[i].category & category))
+  لكل(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
+    إذا(!category || (trc_feats[i].category & category))
       trc_feats[i].feat->log_level = lvl;
   }
 }
 
-static CURLcode trc_opt(const char *config)
+ساكن CURLcode trc_opt(ثابت حرف *config)
 {
-  struct Curl_str out;
-  while(!curlx_str_until(&config, &out, 32, ',')) {
-    int lvl = CURL_LOG_LVL_INFO;
-    const char *token = curlx_str(&out);
+  بنية Curl_str out;
+  طالما(!curlx_str_until(&config, &out, 32, ',')) {
+    صحيح lvl = CURL_LOG_LVL_INFO;
+    ثابت حرف *token = curlx_str(&out);
 
-    if(*token == '-') {
+    إذا(*token == '-') {
       lvl = CURL_LOG_LVL_NONE;
       curlx_str_nudge(&out, 1);
     }
-    else if(*token == '+')
+    وإلا إذا(*token == '+')
       curlx_str_nudge(&out, 1);
 
-    if(curlx_str_casecompare(&out, "all"))
+    إذا(curlx_str_casecompare(&out, "all"))
       trc_apply_level_by_category(TRC_CT_NONE, lvl);
-    else if(curlx_str_casecompare(&out, "protocol"))
+    وإلا إذا(curlx_str_casecompare(&out, "protocol"))
       trc_apply_level_by_category(TRC_CT_PROTOCOL, lvl);
-    else if(curlx_str_casecompare(&out, "network"))
+    وإلا إذا(curlx_str_casecompare(&out, "network"))
       trc_apply_level_by_category(TRC_CT_NETWORK, lvl);
-    else if(curlx_str_casecompare(&out, "proxy"))
+    وإلا إذا(curlx_str_casecompare(&out, "proxy"))
       trc_apply_level_by_category(TRC_CT_PROXY, lvl);
-    else
+    وإلا
       trc_apply_level_by_name(&out, lvl);
 
-    if(curlx_str_single(&config, ','))
-      break;
+    إذا(curlx_str_single(&config, ','))
+      اكسر;
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_trc_opt(const char *config)
+CURLcode Curl_trc_opt(ثابت حرف *config)
 {
   CURLcode result = config ? trc_opt(config) : CURLE_OK;
 #ifdef DEBUGBUILD
   /* CURL_DEBUG can override anything */
-  if(!result) {
-    const char *dbg_config = getenv("CURL_DEBUG");
-    if(dbg_config)
+  إذا(!result) {
+    ثابت حرف *dbg_config = getenv("CURL_DEBUG");
+    إذا(dbg_config)
       result = trc_opt(dbg_config);
   }
 #endif /* DEBUGBUILD */
-  return result;
+  أرجع result;
 }
 
-CURLcode Curl_trc_init(void)
+CURLcode Curl_trc_init(فراغ)
 {
 #ifdef DEBUGBUILD
-  return Curl_trc_opt(NULL);
-#else
-  return CURLE_OK;
+  أرجع Curl_trc_opt(عدم);
+#وإلا
+  أرجع CURLE_OK;
 #endif
 }
 
-#else /* CURL_DISABLE_VERBOSE_STRINGS */
+#وإلا /* CURL_DISABLE_VERBOSE_STRINGS */
 
-CURLcode Curl_trc_init(void)
+CURLcode Curl_trc_init(فراغ)
 {
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-void Curl_infof(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_infof(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)fmt;
 }
 
-void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
-                       const char *fmt, ...)
+فراغ Curl_trc_cf_infof(بنية Curl_easy *data, ثابت بنية Curl_cfilter *cf,
+                       ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)cf;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)cf;
+  (فراغ)fmt;
 }
 
-void Curl_trc_multi(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_multi(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)fmt;
 }
 
-void Curl_trc_write(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_write(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)fmt;
 }
 
-void Curl_trc_dns(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_dns(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)fmt;
 }
 
-void Curl_trc_timer(struct Curl_easy *data, int tid, const char *fmt, ...)
+فراغ Curl_trc_timer(بنية Curl_easy *data, صحيح tid, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)tid;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)tid;
+  (فراغ)fmt;
 }
 
-void Curl_trc_read(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_read(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)fmt;
 }
 
 #ifndef CURL_DISABLE_FTP
-void Curl_trc_ftp(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_ftp(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)fmt;
 }
 #endif
 #ifndef CURL_DISABLE_SMTP
-void Curl_trc_smtp(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_smtp(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)fmt;
 }
 #endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-void Curl_trc_ws(struct Curl_easy *data, const char *fmt, ...)
+#إذا !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+فراغ Curl_trc_ws(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)fmt;
 }
 #endif
 #ifdef USE_SSH
-void Curl_trc_ssh(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_ssh(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)fmt;
 }
 #endif
 #ifdef USE_SSL
-void Curl_trc_ssls(struct Curl_easy *data, const char *fmt, ...)
+فراغ Curl_trc_ssls(بنية Curl_easy *data, ثابت حرف *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (فراغ)data;
+  (فراغ)fmt;
 }
 #endif
 
