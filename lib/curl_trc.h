@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-struct Curl_easy;
-struct Curl_cfilter;
+संरचना Curl_easy;
+संरचना Curl_cfilter;
 
 /**
  * Init logging, return != 0 on failure.
  */
-CURLcode Curl_trc_init(void);
+CURLcode Curl_trc_init(शून्य);
 
 /**
  * Configure tracing. May be called several times during global
@@ -47,24 +47,24 @@ CURLcode Curl_trc_init(void);
  *
  * @param config configuration string
  */
-CURLcode Curl_trc_opt(const char *config);
+CURLcode Curl_trc_opt(ध्रुव वर्ण *config);
 
 /* the function used to output verbose information */
-void Curl_debug(struct Curl_easy *data, curl_infotype type,
-                const char *ptr, size_t size);
+शून्य Curl_debug(संरचना Curl_easy *data, curl_infotype type,
+                ध्रुव वर्ण *ptr, size_t size);
 
 /**
  * Output a failure message on registered callbacks for transfer.
  */
-void Curl_failf(struct Curl_easy *data,
-                const char *fmt, ...) CURL_PRINTF(2, 3);
+शून्य Curl_failf(संरचना Curl_easy *data,
+                ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
 
 #define failf Curl_failf
 
 /* In case failf() reported into the errorbuf, clear it again.
  * This is used to clear information from happy eyeballing attempts
  * when ultimately a successful attempt was made. */
-void Curl_reset_fail(struct Curl_easy *data);
+शून्य Curl_reset_fail(संरचना Curl_easy *data);
 
 #define CURL_LOG_LVL_NONE  0
 #define CURL_LOG_LVL_INFO  1
@@ -72,63 +72,63 @@ void Curl_reset_fail(struct Curl_easy *data);
 /**
  * Output an informational message when transfer's verbose logging is enabled.
  */
-void Curl_infof(struct Curl_easy *data,
-                const char *fmt, ...) CURL_PRINTF(2, 3);
+शून्य Curl_infof(संरचना Curl_easy *data,
+                ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
 
 /**
  * Output an informational message when both transfer's verbose logging
  * and connection filters verbose logging are enabled.
  */
-void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
-                       const char *fmt, ...) CURL_PRINTF(3, 4);
-void Curl_trc_multi(struct Curl_easy *data,
-                    const char *fmt, ...) CURL_PRINTF(2, 3);
-const char *Curl_trc_mstate_name(int state);
-const char *Curl_trc_timer_name(int tid);
-void Curl_trc_easy_timers(struct Curl_easy *data);
+शून्य Curl_trc_cf_infof(संरचना Curl_easy *data, ध्रुव संरचना Curl_cfilter *cf,
+                       ध्रुव वर्ण *fmt, ...) CURL_PRINTF(3, 4);
+शून्य Curl_trc_multi(संरचना Curl_easy *data,
+                    ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
+ध्रुव वर्ण *Curl_trc_mstate_name(पूर्णाङ्क state);
+ध्रुव वर्ण *Curl_trc_timer_name(पूर्णाङ्क tid);
+शून्य Curl_trc_easy_timers(संरचना Curl_easy *data);
 
-void Curl_trc_write(struct Curl_easy *data,
-                    const char *fmt, ...) CURL_PRINTF(2, 3);
-void Curl_trc_read(struct Curl_easy *data,
-                   const char *fmt, ...) CURL_PRINTF(2, 3);
-void Curl_trc_dns(struct Curl_easy *data,
-                  const char *fmt, ...) CURL_PRINTF(2, 3);
-void Curl_trc_timer(struct Curl_easy *data, int tid,
-                    const char *fmt, ...) CURL_PRINTF(3, 4);
+शून्य Curl_trc_write(संरचना Curl_easy *data,
+                    ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
+शून्य Curl_trc_read(संरचना Curl_easy *data,
+                   ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
+शून्य Curl_trc_dns(संरचना Curl_easy *data,
+                  ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
+शून्य Curl_trc_timer(संरचना Curl_easy *data, पूर्णाङ्क tid,
+                    ध्रुव वर्ण *fmt, ...) CURL_PRINTF(3, 4);
 
-struct curl_trc_feat {
-  const char *name;
-  int log_level;
+संरचना curl_trc_feat {
+  ध्रुव वर्ण *name;
+  पूर्णाङ्क log_level;
 };
 
-void Curl_trc_feat_infof(struct Curl_easy *data,
-                         struct curl_trc_feat *feat,
-                         const char *fmt, ...) CURL_PRINTF(3, 4);
+शून्य Curl_trc_feat_infof(संरचना Curl_easy *data,
+                         संरचना curl_trc_feat *feat,
+                         ध्रुव वर्ण *fmt, ...) CURL_PRINTF(3, 4);
 
 #ifndef CURL_DISABLE_FTP
-extern struct curl_trc_feat Curl_trc_feat_ftp;
-void Curl_trc_ftp(struct Curl_easy *data,
-                  const char *fmt, ...) CURL_PRINTF(2, 3);
+बाह्य संरचना curl_trc_feat Curl_trc_feat_ftp;
+शून्य Curl_trc_ftp(संरचना Curl_easy *data,
+                  ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
 #endif
 #ifndef CURL_DISABLE_SMTP
-extern struct curl_trc_feat Curl_trc_feat_smtp;
-void Curl_trc_smtp(struct Curl_easy *data,
-                   const char *fmt, ...) CURL_PRINTF(2, 3);
+बाह्य संरचना curl_trc_feat Curl_trc_feat_smtp;
+शून्य Curl_trc_smtp(संरचना Curl_easy *data,
+                   ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
 #endif
 #ifdef USE_SSL
-extern struct curl_trc_feat Curl_trc_feat_ssls;
-void Curl_trc_ssls(struct Curl_easy *data,
-                   const char *fmt, ...) CURL_PRINTF(2, 3);
+बाह्य संरचना curl_trc_feat Curl_trc_feat_ssls;
+शून्य Curl_trc_ssls(संरचना Curl_easy *data,
+                   ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
 #endif
 #ifdef USE_SSH
-extern struct curl_trc_feat Curl_trc_feat_ssh;
-void Curl_trc_ssh(struct Curl_easy *data,
-                  const char *fmt, ...) CURL_PRINTF(2, 3);
+बाह्य संरचना curl_trc_feat Curl_trc_feat_ssh;
+शून्य Curl_trc_ssh(संरचना Curl_easy *data,
+                  ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
 #endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-extern struct curl_trc_feat Curl_trc_feat_ws;
-void Curl_trc_ws(struct Curl_easy *data,
-                 const char *fmt, ...) CURL_PRINTF(2, 3);
+#यदि !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+बाह्य संरचना curl_trc_feat Curl_trc_feat_ws;
+शून्य Curl_trc_ws(संरचना Curl_easy *data,
+                 ध्रुव वर्ण *fmt, ...) CURL_PRINTF(2, 3);
 #endif
 
 #define CURL_TRC_M_is_verbose(data) \
@@ -138,143 +138,143 @@ void Curl_trc_ws(struct Curl_easy *data,
 #define CURL_TRC_TIMER_is_verbose(data) \
   Curl_trc_ft_is_verbose(data, &Curl_trc_feat_timer)
 
-#if defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
+#यदि defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
 #define infof(data, ...)             \
-  do {                               \
-    if(Curl_trc_is_verbose(data))    \
+  कुरु {                               \
+    यदि(Curl_trc_is_verbose(data))    \
       Curl_infof(data, __VA_ARGS__); \
-  } while(0)
+  } यावत्(0)
 #define CURL_TRC_M(data, ...)            \
-  do {                                   \
-    if(CURL_TRC_M_is_verbose(data))      \
+  कुरु {                                   \
+    यदि(CURL_TRC_M_is_verbose(data))      \
       Curl_trc_multi(data, __VA_ARGS__); \
-  } while(0)
+  } यावत्(0)
 #define CURL_TRC_CF(data, cf, ...)              \
-  do {                                          \
-    if(Curl_trc_cf_is_verbose(cf, data))        \
+  कुरु {                                          \
+    यदि(Curl_trc_cf_is_verbose(cf, data))        \
       Curl_trc_cf_infof(data, cf, __VA_ARGS__); \
-  } while(0)
+  } यावत्(0)
 #define CURL_TRC_WRITE(data, ...)                          \
-  do {                                                     \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_write)) \
+  कुरु {                                                     \
+    यदि(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_write)) \
       Curl_trc_write(data, __VA_ARGS__);                   \
-  } while(0)
+  } यावत्(0)
 #define CURL_TRC_READ(data, ...)                          \
-  do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_read)) \
+  कुरु {                                                    \
+    यदि(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_read)) \
       Curl_trc_read(data, __VA_ARGS__);                   \
-  } while(0)
+  } यावत्(0)
 #define CURL_TRC_DNS(data, ...)        \
-  do {                                 \
-    if(CURL_TRC_DNS_is_verbose(data))  \
+  कुरु {                                 \
+    यदि(CURL_TRC_DNS_is_verbose(data))  \
       Curl_trc_dns(data, __VA_ARGS__); \
-  } while(0)
+  } यावत्(0)
 #define CURL_TRC_TIMER(data, tid, ...)        \
-  do {                                        \
-    if(CURL_TRC_TIMER_is_verbose(data))       \
+  कुरु {                                        \
+    यदि(CURL_TRC_TIMER_is_verbose(data))       \
       Curl_trc_timer(data, tid, __VA_ARGS__); \
-  } while(0)
+  } यावत्(0)
 
 #ifndef CURL_DISABLE_FTP
 #define CURL_TRC_FTP(data, ...)                          \
-  do {                                                   \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ftp)) \
+  कुरु {                                                   \
+    यदि(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ftp)) \
       Curl_trc_ftp(data, __VA_ARGS__);                   \
-  } while(0)
+  } यावत्(0)
 #endif /* !CURL_DISABLE_FTP */
 #ifndef CURL_DISABLE_SMTP
 #define CURL_TRC_SMTP(data, ...)                          \
-  do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_smtp)) \
+  कुरु {                                                    \
+    यदि(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_smtp)) \
       Curl_trc_smtp(data, __VA_ARGS__);                   \
-  } while(0)
+  } यावत्(0)
 #endif /* !CURL_DISABLE_SMTP */
 #ifdef USE_SSL
 #define CURL_TRC_SSLS(data, ...)                          \
-  do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssls)) \
+  कुरु {                                                    \
+    यदि(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssls)) \
       Curl_trc_ssls(data, __VA_ARGS__);                   \
-  } while(0)
+  } यावत्(0)
 #endif /* USE_SSL */
 #ifdef USE_SSH
 #define CURL_TRC_SSH(data, ...)                          \
-  do {                                                   \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssh)) \
+  कुरु {                                                   \
+    यदि(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssh)) \
       Curl_trc_ssh(data, __VA_ARGS__);                   \
-  } while(0)
+  } यावत्(0)
 #endif /* USE_SSH */
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#यदि !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 #define CURL_TRC_WS(data, ...)                          \
-  do {                                                  \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ws)) \
+  कुरु {                                                  \
+    यदि(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ws)) \
       Curl_trc_ws(data, __VA_ARGS__);                   \
-  } while(0)
+  } यावत्(0)
 #endif /* !CURL_DISABLE_WEBSOCKETS && !CURL_DISABLE_HTTP */
 
-#elif defined(CURL_HAVE_MACRO_VARARG) && defined(CURL_DISABLE_VERBOSE_STRINGS)
+#नोचेद्यदि defined(CURL_HAVE_MACRO_VARARG) && defined(CURL_DISABLE_VERBOSE_STRINGS)
 
 #define infof(data, ...) \
-  do {                   \
-    (void)(data);        \
-  } while(0)
+  कुरु {                   \
+    (शून्य)(data);        \
+  } यावत्(0)
 #define CURL_TRC_M(data, ...) \
-  do {                        \
-    (void)(data);             \
-  } while(0)
+  कुरु {                        \
+    (शून्य)(data);             \
+  } यावत्(0)
 #define CURL_TRC_CF(data, cf, ...) \
-  do {                             \
-    (void)(data);                  \
-    (void)(cf);                    \
-  } while(0)
+  कुरु {                             \
+    (शून्य)(data);                  \
+    (शून्य)(cf);                    \
+  } यावत्(0)
 #define CURL_TRC_WRITE(data, ...) \
-  do {                            \
-    (void)(data);                 \
-  } while(0)
+  कुरु {                            \
+    (शून्य)(data);                 \
+  } यावत्(0)
 #define CURL_TRC_READ(data, ...) \
-  do {                           \
-    (void)(data);                \
-  } while(0)
+  कुरु {                           \
+    (शून्य)(data);                \
+  } यावत्(0)
 #define CURL_TRC_DNS(data, ...) \
-  do {                          \
-    (void)(data);               \
-  } while(0)
+  कुरु {                          \
+    (शून्य)(data);               \
+  } यावत्(0)
 #define CURL_TRC_TIMER(data, tid, ...) \
-  do {                                 \
-    (void)(data);                      \
-    (void)(tid);                       \
-  } while(0)
+  कुरु {                                 \
+    (शून्य)(data);                      \
+    (शून्य)(tid);                       \
+  } यावत्(0)
 #ifndef CURL_DISABLE_FTP
 #define CURL_TRC_FTP(data, ...) \
-  do {                          \
-    (void)(data);               \
-  } while(0)
+  कुरु {                          \
+    (शून्य)(data);               \
+  } यावत्(0)
 #endif /* !CURL_DISABLE_FTP */
 #ifndef CURL_DISABLE_SMTP
 #define CURL_TRC_SMTP(data, ...) \
-  do {                           \
-    (void)(data);                \
-  } while(0)
+  कुरु {                           \
+    (शून्य)(data);                \
+  } यावत्(0)
 #endif /* !CURL_DISABLE_SMTP */
 #ifdef USE_SSL
 #define CURL_TRC_SSLS(data, ...) \
-  do {                           \
-    (void)(data);                \
-  } while(0)
+  कुरु {                           \
+    (शून्य)(data);                \
+  } यावत्(0)
 #endif /* USE_SSL */
 #ifdef USE_SSH
 #define CURL_TRC_SSH(data, ...) \
-  do {                          \
-    (void)(data);               \
-  } while(0)
+  कुरु {                          \
+    (शून्य)(data);               \
+  } यावत्(0)
 #endif /* USE_SSH */
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#यदि !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 #define CURL_TRC_WS(data, ...) \
-  do {                         \
-    (void)(data);              \
-  } while(0)
+  कुरु {                         \
+    (शून्य)(data);              \
+  } यावत्(0)
 #endif
 
-#else /* !CURL_HAVE_MACRO_VARARG */
+#अन्यथा /* !CURL_HAVE_MACRO_VARARG */
 
 #define infof          Curl_infof
 #define CURL_TRC_M     Curl_trc_multi
@@ -296,23 +296,23 @@ void Curl_trc_ws(struct Curl_easy *data,
 #ifdef USE_SSH
 #define CURL_TRC_SSH   Curl_trc_ssh
 #endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#यदि !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 #define CURL_TRC_WS    Curl_trc_ws
 #endif
 
 #endif /* CURL_HAVE_MACRO_VARARG */
 
 #ifdef CURLVERBOSE
-extern struct curl_trc_feat Curl_trc_feat_multi;
-extern struct curl_trc_feat Curl_trc_feat_read;
-extern struct curl_trc_feat Curl_trc_feat_write;
-extern struct curl_trc_feat Curl_trc_feat_dns;
+बाह्य संरचना curl_trc_feat Curl_trc_feat_multi;
+बाह्य संरचना curl_trc_feat Curl_trc_feat_read;
+बाह्य संरचना curl_trc_feat Curl_trc_feat_write;
+बाह्य संरचना curl_trc_feat Curl_trc_feat_dns;
 #ifndef CURL_DISABLE_DOH
-extern struct curl_trc_feat Curl_trc_feat_doh;
+बाह्य संरचना curl_trc_feat Curl_trc_feat_doh;
 #endif
-extern struct curl_trc_feat Curl_trc_feat_timer;
+बाह्य संरचना curl_trc_feat Curl_trc_feat_timer;
 #ifdef USE_THREADS
-extern struct curl_trc_feat Curl_trc_feat_threads;
+बाह्य संरचना curl_trc_feat Curl_trc_feat_threads;
 #endif
 #endif
 
@@ -328,19 +328,19 @@ extern struct curl_trc_feat Curl_trc_feat_threads;
 #define Curl_trc_ft_is_verbose(data, ft) \
   (Curl_trc_is_verbose(data) &&          \
    (ft)->log_level >= CURL_LOG_LVL_INFO)
-#define CURL_MSTATE_NAME(s)  Curl_trc_mstate_name((int)(s))
+#define CURL_MSTATE_NAME(s)  Curl_trc_mstate_name((पूर्णाङ्क)(s))
 #define CURL_TRC_EASY_TIMERS(data)      \
-  do {                                  \
-    if(CURL_TRC_TIMER_is_verbose(data)) \
+  कुरु {                                  \
+    यदि(CURL_TRC_TIMER_is_verbose(data)) \
       Curl_trc_easy_timers(data);       \
-  } while(0)
+  } यावत्(0)
 
-#else /* CURL_DISABLE_VERBOSE_STRINGS */
+#अन्यथा /* CURL_DISABLE_VERBOSE_STRINGS */
 /* All informational messages are not compiled in for size savings */
 #define Curl_trc_is_verbose(d)        FALSE
 #define Curl_trc_cf_is_verbose(x, y)  FALSE
 #define Curl_trc_ft_is_verbose(x, y)  FALSE
-#define CURL_MSTATE_NAME(x)           ((void)(x), "-")
+#define CURL_MSTATE_NAME(x)           ((शून्य)(x), "-")
 #define CURL_TRC_EASY_TIMERS(x)       Curl_nop_stmt
 #endif /* !CURL_DISABLE_VERBOSE_STRINGS */
 
