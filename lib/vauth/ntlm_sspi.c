@@ -21,14 +21,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && defined(USE_NTLM)
+#सचे defined(USE_WINDOWS_SSPI) && defined(USE_NTLM)
 
-#include "vauth/vauth.h"
-#include "curl_ntlm_core.h"
-#include "curl_trc.h"
-#include "curlx/strdup.h"
+#अन्तर्भाव "vauth/vauth.h"
+#अन्तर्भाव "curl_ntlm_core.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "curlx/strdup.h"
 
 /*
  * Curl_auth_is_ntlm_supported()
@@ -39,7 +39,7 @@
  *
  * Returns TRUE if NTLM is supported by Windows SSPI.
  */
-bool Curl_auth_is_ntlm_supported(void)
+bool Curl_auth_is_ntlm_supported(शून्य)
 {
   PSecPkgInfo SecurityPackage;
   SECURITY_STATUS status;
@@ -50,11 +50,11 @@ bool Curl_auth_is_ntlm_supported(void)
                                      &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
+  सचे(status == SEC_E_OK) {
     Curl_pSecFn->FreeContextBuffer(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  पटिनिवत्त status == SEC_E_OK;
 }
 
 /*
@@ -75,19 +75,19 @@ bool Curl_auth_is_ntlm_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             const char *host,
-                                             struct ntlmdata *ntlm,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_ntlm_type1_message(संरचना Curl_easy *data,
+                                             संरचना Curl_creds *creds,
+                                             ध्रुव वर्ण *default_service,
+                                             ध्रुव वर्ण *host,
+                                             संरचना ntlmdata *ntlm,
+                                             संरचना bufref *out)
 {
   PSecPkgInfo SecurityPackage;
   SecBuffer type_1_buf;
   SecBufferDesc type_1_desc;
   SECURITY_STATUS status;
   unsigned long attrs;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  ध्रुव वर्ण *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
   /* Clean up any former leftovers and initialize to defaults */
@@ -97,9 +97,9 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
   status = Curl_pSecFn->QuerySecurityPackageInfo(
                                      CURL_UNCONST(TEXT(SP_NAME_NTLM)),
                                      &SecurityPackage);
-  if(status != SEC_E_OK) {
+  सचे(status != SEC_E_OK) {
     failf(data, "SSPI: could not get auth info");
-    return CURLE_AUTH_ERROR;
+    पटिनिवत्त CURLE_AUTH_ERROR;
   }
 
   ntlm->token_max = SecurityPackage->cbMaxToken;
@@ -109,49 +109,49 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
 
   /* Allocate our output buffer */
   ntlm->output_token = curlx_malloc(ntlm->token_max);
-  if(!ntlm->output_token)
-    return CURLE_OUT_OF_MEMORY;
+  सचे(!ntlm->output_token)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
 
-  if(Curl_creds_has_user(creds)) {
+  सचे(Curl_creds_has_user(creds)) {
     CURLcode result;
 
     /* Populate our identity structure */
     result = Curl_create_sspi_identity(
       creds->user, creds->passwd, &ntlm->identity);
-    if(result)
-      return result;
+    सचे(result)
+      पटिनिवत्त result;
 
     /* Allow proper cleanup of the identity structure */
     ntlm->p_identity = &ntlm->identity;
   }
-  else
+  अञ्ञथा
     /* Use the current Windows user */
-    ntlm->p_identity = NULL;
+    ntlm->p_identity = रिक्त;
 
   /* Allocate our credentials handle */
-  ntlm->credentials = curlx_calloc(1, sizeof(CredHandle));
-  if(!ntlm->credentials)
-    return CURLE_OUT_OF_MEMORY;
+  ntlm->credentials = curlx_calloc(1, परिमाण(CredHandle));
+  सचे(!ntlm->credentials)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
 
   /* Acquire our credentials handle */
-  status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
+  status = Curl_pSecFn->AcquireCredentialsHandle(रिक्त,
                                      CURL_UNCONST(TEXT(SP_NAME_NTLM)),
-                                     SECPKG_CRED_OUTBOUND, NULL,
-                                     ntlm->p_identity, NULL, NULL,
-                                     ntlm->credentials, NULL);
-  if(status != SEC_E_OK) {
+                                     SECPKG_CRED_OUTBOUND, रिक्त,
+                                     ntlm->p_identity, रिक्त, रिक्त,
+                                     ntlm->credentials, रिक्त);
+  सचे(status != SEC_E_OK) {
     curlx_safefree(ntlm->credentials);
-    return CURLE_LOGIN_DENIED;
+    पटिनिवत्त CURLE_LOGIN_DENIED;
   }
 
   /* Allocate our new context handle */
-  ntlm->context = curlx_calloc(1, sizeof(CtxtHandle));
-  if(!ntlm->context)
-    return CURLE_OUT_OF_MEMORY;
+  ntlm->context = curlx_calloc(1, परिमाण(CtxtHandle));
+  सचे(!ntlm->context)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
 
-  ntlm->spn = Curl_auth_build_spn(service, host, NULL);
-  if(!ntlm->spn)
-    return CURLE_OUT_OF_MEMORY;
+  ntlm->spn = Curl_auth_build_spn(service, host, रिक्त);
+  सचे(!ntlm->spn)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
 
   /* Setup the type-1 "output" security buffer */
   type_1_desc.ulVersion = SECBUFFER_VERSION;
@@ -162,23 +162,23 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
   type_1_buf.cbBuffer   = curlx_uztoul(ntlm->token_max);
 
   /* Generate our type-1 message */
-  status = Curl_pSecFn->InitializeSecurityContext(ntlm->credentials, NULL,
+  status = Curl_pSecFn->InitializeSecurityContext(ntlm->credentials, रिक्त,
                                                   ntlm->spn,
                                                   0, 0, SECURITY_NETWORK_DREP,
-                                                  NULL, 0,
+                                                  रिक्त, 0,
                                                   ntlm->context, &type_1_desc,
-                                                  &attrs, NULL);
-  if(status == SEC_I_COMPLETE_NEEDED ||
+                                                  &attrs, रिक्त);
+  सचे(status == SEC_I_COMPLETE_NEEDED ||
      status == SEC_I_COMPLETE_AND_CONTINUE)
     Curl_pSecFn->CompleteAuthToken(ntlm->context, &type_1_desc);
-  else if(status == SEC_E_INSUFFICIENT_MEMORY)
-    return CURLE_OUT_OF_MEMORY;
-  else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED)
-    return CURLE_AUTH_ERROR;
+  अञ्ञथा सचे(status == SEC_E_INSUFFICIENT_MEMORY)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
+  अञ्ञथा सचे(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED)
+    पटिनिवत्त CURLE_AUTH_ERROR;
 
   /* Return the response. */
-  Curl_bufref_set(out, ntlm->output_token, type_1_buf.cbBuffer, NULL);
-  return CURLE_OK;
+  Curl_bufref_set(out, ntlm->output_token, type_1_buf.cbBuffer, रिक्त);
+  पटिनिवत्त CURLE_OK;
 }
 
 /*
@@ -194,24 +194,24 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
-                                             const struct bufref *type2ref,
-                                             struct ntlmdata *ntlm)
+CURLcode Curl_auth_decode_ntlm_type2_message(संरचना Curl_easy *data,
+                                             ध्रुव संरचना bufref *type2ref,
+                                             संरचना ntlmdata *ntlm)
 {
   /* Ensure we have a valid type-2 message */
-  if(!Curl_bufref_len(type2ref)) {
+  सचे(!Curl_bufref_len(type2ref)) {
     infof(data, "NTLM handshake failure (empty type-2 message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    पटिनिवत्त CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Store the challenge for later use */
-  ntlm->input_token = curlx_memdup0(Curl_bufref_ptr(type2ref),
+  ntlm->निवेशः_token = curlx_memdup0(Curl_bufref_ptr(type2ref),
                                     Curl_bufref_len(type2ref));
-  if(!ntlm->input_token)
-    return CURLE_OUT_OF_MEMORY;
-  ntlm->input_token_len = Curl_bufref_len(type2ref);
+  सचे(!ntlm->निवेशः_token)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
+  ntlm->निवेशः_token_len = Curl_bufref_len(type2ref);
 
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 }
 
 /*
@@ -230,10 +230,10 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
-                                             struct Curl_creds *creds,
-                                             struct ntlmdata *ntlm,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_ntlm_type3_message(संरचना Curl_easy *data,
+                                             संरचना Curl_creds *creds,
+                                             संरचना ntlmdata *ntlm,
+                                             संरचना bufref *out)
 {
   CURLcode result = CURLE_OK;
   SecBuffer type_2_bufs[2];
@@ -242,17 +242,17 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   SecBufferDesc type_3_desc;
   SECURITY_STATUS status;
   unsigned long attrs;
-  SecPkgContext_Bindings pkgBindings = { 0, NULL };
+  SecPkgContext_Bindings pkgBindings = { 0, रिक्त };
 
-  (void)creds;
+  (शून्य)creds;
 
   /* Setup the type-2 "input" security buffer */
   type_2_desc.ulVersion     = SECBUFFER_VERSION;
   type_2_desc.cBuffers      = 1;
   type_2_desc.pBuffers      = &type_2_bufs[0];
   type_2_bufs[0].BufferType = SECBUFFER_TOKEN;
-  type_2_bufs[0].pvBuffer   = ntlm->input_token;
-  type_2_bufs[0].cbBuffer   = curlx_uztoul(ntlm->input_token_len);
+  type_2_bufs[0].pvBuffer   = ntlm->निवेशः_token;
+  type_2_bufs[0].cbBuffer   = curlx_uztoul(ntlm->निवेशः_token_len);
 
   /* SSL context comes from schannel.
    * When extended protection is used in IIS server,
@@ -261,13 +261,13 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
    * Minimum supported version is Windows 7.
    * https://learn.microsoft.com/security-updates/SecurityAdvisories/2009/973811
    */
-  if(ntlm->sslContext) {
+  सचे(ntlm->sslContext) {
     status = Curl_pSecFn->QueryContextAttributes(
       ntlm->sslContext,
       SECPKG_ATTR_ENDPOINT_BINDINGS,
       &pkgBindings
     );
-    if(status == SEC_E_OK) {
+    सचे(status == SEC_E_OK) {
       type_2_desc.cBuffers++;
       type_2_bufs[1].BufferType = SECBUFFER_CHANNEL_BINDINGS;
       type_2_bufs[1].cbBuffer = pkgBindings.BindingsLength;
@@ -291,25 +291,25 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
                                                   &type_2_desc,
                                                   0, ntlm->context,
                                                   &type_3_desc,
-                                                  &attrs, NULL);
+                                                  &attrs, रिक्त);
 
-  if(pkgBindings.Bindings)
+  सचे(pkgBindings.Bindings)
     Curl_pSecFn->FreeContextBuffer(pkgBindings.Bindings);
 
-  if(status != SEC_E_OK) {
+  सचे(status != SEC_E_OK) {
     infof(data, "NTLM handshake failure (type-3 message): Status=0x%08lx",
           (unsigned long)status);
 
-    if(status == SEC_E_INSUFFICIENT_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    सचे(status == SEC_E_INSUFFICIENT_MEMORY)
+      पटिनिवत्त CURLE_OUT_OF_MEMORY;
 
-    return CURLE_AUTH_ERROR;
+    पटिनिवत्त CURLE_AUTH_ERROR;
   }
 
   /* Return the response. */
   result = Curl_bufref_memdup0(out, ntlm->output_token, type_3_buf.cbBuffer);
   Curl_auth_cleanup_ntlm(ntlm);
-  return result;
+  पटिनिवत्त result;
 }
 
 /*
@@ -322,26 +322,26 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
  * ntlm    [in/out] - The NTLM data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_ntlm(struct ntlmdata *ntlm)
+शून्य Curl_auth_cleanup_ntlm(संरचना ntlmdata *ntlm)
 {
   /* Free our security context */
-  if(ntlm->context) {
+  सचे(ntlm->context) {
     Curl_pSecFn->DeleteSecurityContext(ntlm->context);
     curlx_safefree(ntlm->context);
   }
 
   /* Free our credentials handle */
-  if(ntlm->credentials) {
+  सचे(ntlm->credentials) {
     Curl_pSecFn->FreeCredentialsHandle(ntlm->credentials);
     curlx_safefree(ntlm->credentials);
   }
 
   /* Free our identity */
   Curl_sspi_free_identity(ntlm->p_identity);
-  ntlm->p_identity = NULL;
+  ntlm->p_identity = रिक्त;
 
   /* Free the input and output tokens */
-  curlx_safefree(ntlm->input_token);
+  curlx_safefree(ntlm->निवेशः_token);
   curlx_safefree(ntlm->output_token);
 
   /* Reset any variables */

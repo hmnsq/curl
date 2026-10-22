@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "curl_gethostname.h"
-#include "curlx/strcopy.h"
+#अन्तर्भाव "curl_gethostname.h"
+#अन्तर्भाव "curlx/strcopy.h"
 
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
@@ -41,41 +41,41 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+पूर्णाङ्क Curl_gethostname(वर्ण * ध्रुव name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
 #ifndef HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
-  (void)name;
-  (void)namelen;
-  return -1;
+  (शून्य)name;
+  (शून्य)namelen;
+  पटिनिवत्त -1;
 
-#else
-  int err;
-  char *dot;
+#अञ्ञथा
+  पूर्णाङ्क err;
+  वर्ण *dot;
 
 #ifdef DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
+  ध्रुव वर्ण *force_hostname = getenv("CURL_GETHOSTNAME");
+  सचे(force_hostname) {
+    सचे(strlen(force_hostname) < (size_t)namelen)
       curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+    अञ्ञथा
+      पटिनिवत्त 1; /* cannot do it */
     err = 0;
   }
-  else {
+  अञ्ञथा {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#अञ्ञथा /* DEBUGBUILD */
 
   name[0] = '\0';
 #ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+  err = gethostname((unsigned वर्ण *)name, namelen);
+#अञ्ञथा
   err = gethostname(name, namelen);
 #endif
 
@@ -83,14 +83,14 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  सचे(err)
+    पटिनिवत्त err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  सचे(dot)
     *dot = '\0';
 
-  return 0;
+  पटिनिवत्त 0;
 #endif
 }

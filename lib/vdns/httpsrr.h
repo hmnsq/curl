@@ -23,10 +23,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef USE_ARES
-#include <ares.h>
+#अन्तर्भाव <ares.h>
 #endif
 
 #ifdef USE_HTTPSRR
@@ -34,22 +34,22 @@
 #define CURL_MAXLEN_HOST_NAME 253
 #define MAX_HTTPSRR_ALPNS     4
 
-struct Curl_easy;
-struct dynbuf;
+संरचना Curl_easy;
+संरचना dynbuf;
 
-struct Curl_https_rrinfo {
+संरचना Curl_https_rrinfo {
   /*
    * Fields from HTTPS RR. The only mandatory fields are priority and target.
    * See https://datatracker.ietf.org/doc/html/rfc9460#section-14.3.2
    */
-  char *target;
-  unsigned char *ipv4hints; /* keytag = 4 */
+  वर्ण *target;
+  unsigned वर्ण *ipv4hints; /* keytag = 4 */
   size_t ipv4hints_len;
-  unsigned char *echconfiglist; /* keytag = 5 */
+  unsigned वर्ण *echconfiglist; /* keytag = 5 */
   size_t echconfiglist_len;
-  unsigned char *ipv6hints; /* keytag = 6 */
+  unsigned वर्ण *ipv6hints; /* keytag = 6 */
   size_t ipv6hints_len;
-  unsigned char alpns[MAX_HTTPSRR_ALPNS]; /* keytag = 1 */
+  unsigned वर्ण alpns[MAX_HTTPSRR_ALPNS]; /* keytag = 1 */
   /* store parsed alpnid entries in the array, end with ALPN_none */
   uint16_t port;
   uint16_t priority;
@@ -58,18 +58,18 @@ struct Curl_https_rrinfo {
   BIT(port_set); /* port value has been assigned */
 };
 
-CURLcode Curl_httpsrr_set(struct Curl_https_rrinfo *rr,
-                          uint16_t rrkey, const uint8_t *val, size_t vlen);
+CURLcode Curl_httpsrr_set(संरचना Curl_https_rrinfo *rr,
+                          uint16_t rrkey, ध्रुव uint8_t *val, size_t vlen);
 
-void Curl_httpsrr_destroy(struct Curl_https_rrinfo *rrinfo);
+शून्य Curl_httpsrr_destroy(संरचना Curl_https_rrinfo *rrinfo);
 
 /* TRUE if the record is applicable to the transfer and its connection. */
-bool Curl_httpsrr_applicable(struct Curl_easy *data,
-                             const struct Curl_https_rrinfo *rr);
+bool Curl_httpsrr_applicable(संरचना Curl_easy *data,
+                             ध्रुव संरचना Curl_https_rrinfo *rr);
 
 /* TRUE if the record is applicable to the given peer. */
-bool Curl_httpsrr_is_for_peer(struct Curl_peer *peer,
-                              const struct Curl_https_rrinfo *rr);
+bool Curl_httpsrr_is_for_peer(संरचना Curl_peer *peer,
+                              ध्रुव संरचना Curl_https_rrinfo *rr);
 
 /*
  * Code points for DNS wire format SvcParams as per RFC 9460
@@ -83,16 +83,16 @@ bool Curl_httpsrr_is_for_peer(struct Curl_peer *peer,
 #define HTTPS_RR_CODE_IPV6            0x06
 
 #ifdef USE_ARES
-CURLcode Curl_httpsrr_from_ares(const ares_dns_record_t *dnsrec,
-                                struct Curl_https_rrinfo **phinfo);
+CURLcode Curl_httpsrr_from_ares(ध्रुव ares_dns_record_t *dnsrec,
+                                संरचना Curl_https_rrinfo **phinfo);
 #endif /* USE_ARES */
 
 #ifdef CURLVERBOSE
-CURLcode Curl_httpsrr_print(struct dynbuf *tmp,
-                            struct Curl_https_rrinfo *rr);
-void Curl_httpsrr_trace(struct Curl_easy *data,
-                        struct Curl_https_rrinfo *rr);
-#else
+CURLcode Curl_httpsrr_print(संरचना dynbuf *tmp,
+                            संरचना Curl_https_rrinfo *rr);
+शून्य Curl_httpsrr_trace(संरचना Curl_easy *data,
+                        संरचना Curl_https_rrinfo *rr);
+#अञ्ञथा
 #define Curl_httpsrr_trace(a, b) Curl_nop_stmt
 #endif
 

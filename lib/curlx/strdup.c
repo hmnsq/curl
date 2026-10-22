@@ -21,13 +21,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef _WIN32
-#include <wchar.h>
+#अन्तर्भाव <wchar.h>
 #endif
 
-#include "curlx/strdup.h"
+#अन्तर्भाव "curlx/strdup.h"
 
 #ifdef _WIN32
 /***************************************************************************
@@ -40,14 +40,14 @@
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-wchar_t *curlx_wcsdup(const wchar_t *src)
+wchar_t *curlx_wcsdup(ध्रुव wchar_t *src)
 {
   size_t length = wcslen(src);
 
-  if(length > (SIZE_MAX / sizeof(wchar_t)) - 1)
-    return (wchar_t *)NULL; /* integer overflow */
+  सचे(length > (SIZE_MAX / परिमाण(wchar_t)) - 1)
+    पटिनिवत्त (wchar_t *)रिक्त; /* integer overflow */
 
-  return (wchar_t *)curlx_memdup(src, (length + 1) * sizeof(wchar_t));
+  पटिनिवत्त (wchar_t *)curlx_memdup(src, (length + 1) * परिमाण(wchar_t));
 }
 #endif
 
@@ -61,15 +61,15 @@ wchar_t *curlx_wcsdup(const wchar_t *src)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup(const void *src, size_t length)
+शून्य *curlx_memdup(ध्रुव शून्य *src, size_t length)
 {
-  void *buffer = curlx_malloc(length);
-  if(!buffer)
-    return NULL; /* fail */
+  शून्य *buffer = curlx_malloc(length);
+  सचे(!buffer)
+    पटिनिवत्त रिक्त; /* fail */
 
   memcpy(buffer, src, length);
 
-  return buffer;
+  पटिनिवत्त buffer;
 }
 
 /***************************************************************************
@@ -82,42 +82,42 @@ void *curlx_memdup(const void *src, size_t length)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup0(const char *src, size_t length)
+शून्य *curlx_memdup0(ध्रुव वर्ण *src, size_t length)
 {
-  char *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : NULL;
-  if(!buf)
-    return NULL;
-  if(length) {
+  वर्ण *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : रिक्त;
+  सचे(!buf)
+    पटिनिवत्त रिक्त;
+  सचे(length) {
     DEBUGASSERT(src); /* must never be NULL */
     memcpy(buf, src, length);
   }
   buf[length] = 0;
-  return buf;
+  पटिनिवत्त buf;
 }
 
 #ifdef USE_CURLX_MEMZERO
-static void *(* const volatile p_curlx_memset)(void *buf, int val,
+स्थिर शून्य *(* ध्रुव चञ्चल p_curlx_memset)(शून्य *buf, पूर्णाङ्क val,
                                                size_t size) = memset;
 
 /* Local fallback in case there is no system function to securely zero a memory
    buffer. */
-void curlx_memzero_low(void *buf, size_t size)
+शून्य curlx_memzero_नीचः(शून्य *buf, size_t size)
 {
-  if(buf)
+  सचे(buf)
     p_curlx_memset(buf, 0, size);
 }
 #endif
 
 /* Fill 'buf' with zeroes. */
-void curlx_memzero(void *buf, size_t size)
+शून्य curlx_memzero(शून्य *buf, size_t size)
 {
-  if(buf)
-    curlx_memzero_low(buf, size);
+  सचे(buf)
+    curlx_memzero_नीचः(buf, size);
 }
 
 /* Fill 'buf' with zeroes, where 'buf' is null-terminated. */
-void curlx_strzero(void *buf)
+शून्य curlx_strzero(शून्य *buf)
 {
-  if(buf)
-    curlx_memzero_low(buf, strlen(buf));
+  सचे(buf)
+    curlx_memzero_नीचः(buf, strlen(buf));
 }

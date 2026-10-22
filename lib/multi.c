@@ -21,33 +21,33 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "urldata.h"
-#include "transfer.h"
-#include "url.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "progress.h"
-#include "curl_share.h"
-#include "psl.h"
-#include "multiif.h"
-#include "multi_ev.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "http.h"
-#include "select.h"
-#include "curlx/wait.h"
-#include "conncache.h"
-#include "multihandle.h"
-#include "sigpipe.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_scache.h"
-#include "http_proxy.h"
-#include "http2.h"
-#include "socketpair.h"
-#include "bufref.h"
-#include "curlx/strparse.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "transfer.h"
+#अन्तर्भाव "url.h"
+#अन्तर्भाव "cfilters.h"
+#अन्तर्भाव "connect.h"
+#अन्तर्भाव "progress.h"
+#अन्तर्भाव "curl_share.h"
+#अन्तर्भाव "psl.h"
+#अन्तर्भाव "multiif.h"
+#अन्तर्भाव "multi_ev.h"
+#अन्तर्भाव "sendf.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "http.h"
+#अन्तर्भाव "select.h"
+#अन्तर्भाव "curlx/wait.h"
+#अन्तर्भाव "conncache.h"
+#अन्तर्भाव "multihandle.h"
+#अन्तर्भाव "sigpipe.h"
+#अन्तर्भाव "vtls/vtls.h"
+#अन्तर्भाव "vtls/vtls_scache.h"
+#अन्तर्भाव "http_proxy.h"
+#अन्तर्भाव "http2.h"
+#अन्तर्भाव "socketpair.h"
+#अन्तर्भाव "bufref.h"
+#अन्तर्भाव "curlx/strparse.h"
 
 /* initial multi->xfers table size for a full multi */
 #define CURL_XFER_TABLE_SIZE 128
@@ -71,56 +71,56 @@
 #define CURL_TLS_SESSION_SIZE 25
 #endif
 
-static void move_pending_to_connect(struct Curl_multi *multi,
-                                    struct Curl_easy *data);
-static CURLMcode add_next_timeout(const struct curltime *pnow,
-                                  struct Curl_multi *multi,
-                                  struct Curl_easy *data);
-static void multi_timeout(struct Curl_multi *multi,
+स्थिर शून्य move_pending_to_connect(संरचना Curl_multi *multi,
+                                    संरचना Curl_easy *data);
+स्थिर CURLMcode add_next_timeout(ध्रुव संरचना curltime *pnow,
+                                  संरचना Curl_multi *multi,
+                                  संरचना Curl_easy *data);
+स्थिर शून्य multi_timeout(संरचना Curl_multi *multi,
                           timediff_t *pexire_offset_us,
-                          int *timeout_ms);
-static void multi_schedule_pending(struct Curl_multi *multi);
-static void multi_xfer_bufs_free(struct Curl_multi *multi);
+                          पूर्णाङ्क *timeout_ms);
+स्थिर शून्य multi_schedule_pending(संरचना Curl_multi *multi);
+स्थिर शून्य multi_xfer_bufs_free(संरचना Curl_multi *multi);
 #ifdef DEBUGBUILD
-static void multi_xfer_tbl_dump(struct Curl_multi *multi);
+स्थिर शून्य multi_xfer_tbl_dump(संरचना Curl_multi *multi);
 #endif
 /* Get the # of transfers current in process/pending. */
-static uint32_t multi_xfers_running(struct Curl_multi *multi);
+स्थिर uint32_t multi_xfers_running(संरचना Curl_multi *multi);
 
 /* function pointer called once when entering a state */
-typedef void (*mstate_enter_func)(struct Curl_easy *data,
+प्रकारनिर्देश शून्य (*mstate_enter_func)(संरचना Curl_easy *data,
                                   CURLMstate from_state);
 
-static void mstate_enter_connect(struct Curl_easy *data,
+स्थिर शून्य mstate_enter_connect(संरचना Curl_easy *data,
                                  CURLMstate from_state)
 {
-  (void)from_state;
+  (शून्य)from_state;
   Curl_init_CONNECT(data);
 }
 
-static void mstate_enter_did(struct Curl_easy *data,
+स्थिर शून्य mstate_enter_did(संरचना Curl_easy *data,
                              CURLMstate from_state)
 {
-  (void)from_state;
+  (शून्य)from_state;
   data->req.chunk = FALSE;
   Curl_pgrsTime(data, TIMER_PRETRANSFER);
-  if(!CURL_REQ_WANT_SEND(data))
+  सचे(!CURL_REQ_WANT_SEND(data))
     Curl_pgrsTime(data, TIMER_POSTRANSFER);
 }
 
-static void mstate_enter_done(struct Curl_easy *data,
+स्थिर शून्य mstate_enter_done(संरचना Curl_easy *data,
                               CURLMstate from_state)
 {
-  (void)from_state;
+  (शून्य)from_state;
   CURLM_NTFY(data, CURLMNOTIFY_EASY_DONE);
 }
 
-static void mstate_enter_completed(struct Curl_easy *data,
+स्थिर शून्य mstate_enter_completed(संरचना Curl_easy *data,
                                    CURLMstate from_state)
 {
   /* we sometimes directly jump to COMPLETED, trigger things
    * we then missed. */
-  if(from_state < MSTATE_DID) {
+  सचे(from_state < MSTATE_DID) {
     Curl_pgrsTime(data, TIMER_PRETRANSFER);
     Curl_pgrsTime(data, TIMER_POSTRANSFER);
     Curl_pgrsTime(data, TIMER_STARTTRANSFER);
@@ -128,14 +128,14 @@ static void mstate_enter_completed(struct Curl_easy *data,
   /* multi_done() should have run and detached any connection already */
   DEBUGASSERT(!data->conn);
   Curl_pgrsCompleted(data);
-  if(from_state < MSTATE_DONE)
+  सचे(from_state < MSTATE_DONE)
     CURLM_NTFY(data, CURLMNOTIFY_EASY_DONE);
   /* changing to COMPLETED means it is in process and needs to go */
   DEBUGASSERT(Curl_uint32_bset_contains(&data->multi->process, data->mid));
   Curl_uint32_bset_remove(&data->multi->process, data->mid);
   Curl_uint32_bset_remove(&data->multi->pending, data->mid); /* to be sure */
 
-  if(Curl_uint32_bset_empty(&data->multi->process)) {
+  सचे(Curl_uint32_bset_empty(&data->multi->process)) {
     /* free the transfer buffer when we have no more active transfers */
     multi_xfer_bufs_free(data->multi);
   }
@@ -146,60 +146,60 @@ static void mstate_enter_completed(struct Curl_easy *data,
 }
 
 /* always use this function to change state, to make debugging easier */
-static void mstate(struct Curl_easy *data, CURLMstate state
+स्थिर शून्य mstate(संरचना Curl_easy *data, CURLMstate state
 #ifdef DEBUGBUILD
-                   , int lineno
+                   , पूर्णाङ्क lineno
 #endif
 )
 {
   CURLMstate oldstate = data->mstate;
-  static const mstate_enter_func state_enter[MSTATE_LAST] = {
-    NULL,                      /* INIT */
-    NULL,                      /* PENDING */
-    NULL,                      /* SETUP */
+  स्थिर ध्रुव mstate_enter_func state_enter[MSTATE_LAST] = {
+    रिक्त,                      /* INIT */
+    रिक्त,                      /* PENDING */
+    रिक्त,                      /* SETUP */
     mstate_enter_connect,      /* CONNECT */
-    NULL,                      /* CONNECTING */
-    NULL,                      /* PROTOCONNECT */
-    NULL,                      /* PROTOCONNECTING */
-    NULL,                      /* DO */
-    NULL,                      /* DOING */
-    NULL,                      /* DOING_MORE */
+    रिक्त,                      /* CONNECTING */
+    रिक्त,                      /* PROTOCONNECT */
+    रिक्त,                      /* PROTOCONNECTING */
+    रिक्त,                      /* DO */
+    रिक्त,                      /* DOING */
+    रिक्त,                      /* DOING_MORE */
     mstate_enter_did,          /* DID */
-    NULL,                      /* PERFORMING */
-    NULL,                      /* RATELIMITING */
+    रिक्त,                      /* PERFORMING */
+    रिक्त,                      /* RATELIMITING */
     mstate_enter_done,         /* DONE */
     mstate_enter_completed,    /* COMPLETED */
-    NULL                       /* MSGSENT */
+    रिक्त                       /* MSGSENT */
   };
 
-  if(oldstate == state)
+  सचे(oldstate == state)
     /* do not bother when the new state is the same as the old state */
-    return;
+    पटिनिवत्त;
 
 #ifdef DEBUGBUILD
-  NOVERBOSE((void)lineno);
+  NOVERBOSE((शून्य)lineno);
   CURL_TRC_M(data, "-> [%s] (line %d)", CURL_MSTATE_NAME(state), lineno);
-#else
+#अञ्ञथा
   CURL_TRC_M(data, "-> [%s]", CURL_MSTATE_NAME(state));
 #endif
 
   /* really switching state */
   data->mstate = state;
-  if(state_enter[state])
+  सचे(state_enter[state])
     state_enter[state](data, oldstate);
 }
 
 #ifndef DEBUGBUILD
 #define multistate(x, y) mstate(x, y)
-#else
+#अञ्ञथा
 #define multistate(x, y) mstate(x, y, __LINE__)
 #endif
 
 /* multi->proto_hash destructor. Should never be called as elements
  * MUST be added with their own destructor */
-static void ph_freeentry(void *p)
+स्थिर शून्य ph_freeentry(शून्य *p)
 {
-  (void)p;
+  (शून्य)p;
   /* Always FALSE. Cannot use a 0 assert here since compilers
    * are not in agreement if they then want a NORETURN attribute or
    * not. *sigh* */
@@ -211,37 +211,37 @@ static void ph_freeentry(void *p)
  *
  * Called when a transfer is completed. Marks its message as unread.
  */
-static void multi_addmsg(struct Curl_multi *multi, struct Curl_easy *data)
+स्थिर शून्य multi_addmsg(संरचना Curl_multi *multi, संरचना Curl_easy *data)
 {
-  if(Curl_uint32_bset_empty(&multi->msgsent))
+  सचे(Curl_uint32_bset_empty(&multi->msgsent))
     CURLM_NTFY(multi->admin, CURLMNOTIFY_INFO_READ);
   Curl_uint32_bset_add(&multi->msgsent, data->mid);
 }
 
-static void multi_timeouts_init(struct Curl_easy *data);
+स्थिर शून्य multi_timeouts_init(संरचना Curl_easy *data);
 
-struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
+संरचना Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
                                      size_t ev_hashsize,  /* event hash */
                                      size_t chashsize, /* connection hash */
                                      size_t dnssize,   /* dns hash */
                                      size_t sesssize)  /* TLS session cache */
 {
-  struct curltime created;
-  struct Curl_multi *multi = curlx_calloc(1, sizeof(struct Curl_multi));
+  संरचना curltime created;
+  संरचना Curl_multi *multi = curlx_calloc(1, परिमाण(संरचना Curl_multi));
 
-  if(!multi)
-    return NULL;
+  सचे(!multi)
+    पटिनिवत्त रिक्त;
 
-  multi->magic = CURLMULTI_MAGIC_NUMBER;
+  multi->magic = CURLMULTI_MAGIC_सङ्ख्या;
 
   /* Initialisation order is important here!
    * easy_init() does a lazy check on curl_global_init() which sets
    * up platform specific things we need. For example calling curlx_pnow()
    * before this is not safe. */
   multi->admin = curl_easy_init();
-  if(!multi->admin) {
+  सचे(!multi->admin) {
     curlx_free(multi);
-    return NULL;
+    पटिनिवत्त रिक्त;
   }
   multi->admin->multi = multi;
   multi->admin->state.internal = TRUE;
@@ -273,22 +273,22 @@ struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
   multi->wakeup_internal[1] = CURL_SOCKET_BAD;
 #endif
 
-  if(Curl_uint32_bset_resize(&multi->process, xfer_table_size) ||
+  सचे(Curl_uint32_bset_resize(&multi->process, xfer_table_size) ||
      Curl_uint32_bset_resize(&multi->pending, xfer_table_size) ||
      Curl_uint32_bset_resize(&multi->dirty, xfer_table_size) ||
      Curl_uint32_bset_resize(&multi->msgsent, xfer_table_size) ||
      Curl_uint32_tbl_resize(&multi->xfers, xfer_table_size))
-    goto error;
+    गच्छ error;
 
 #ifdef DEBUGBUILD
   {
-    const char *p;
-    if(getenv("CURL_DEBUG"))
+    ध्रुव वर्ण *p;
+    सचे(getenv("CURL_DEBUG"))
       multi->admin->set.verbose = TRUE;
     p = getenv("CURL_DBG_MAX_TOTAL_CONNECTIONS");
-    if(p) {
+    सचे(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
+      सचे(!curlx_str_सङ्ख्या(&p, &l, UINT32_MAX)) {
         multi->max_total_connections = (uint32_t)l;
       }
     }
@@ -297,46 +297,46 @@ struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
   Curl_uint32_tbl_add(&multi->xfers, multi->admin, &multi->admin->mid);
   Curl_uint32_bset_add(&multi->process, multi->admin->mid);
 
-  Curl_cpool_init(&multi->cpool, NULL, chashsize);
+  Curl_cpool_init(&multi->cpool, रिक्त, chashsize);
 
 #ifdef USE_SSL
-  if(Curl_ssl_scache_create(sesssize, 2, &multi->ssl_scache))
-    goto error;
-#else
-  (void)sesssize;
+  सचे(Curl_ssl_scache_create(sesssize, 2, &multi->ssl_scache))
+    गच्छ error;
+#अञ्ञथा
+  (शून्य)sesssize;
 #endif
 
 #ifdef USE_WINSOCK
   multi->wsa_event = WSACreateEvent();
-  if(multi->wsa_event == WSA_INVALID_EVENT)
-    goto error;
+  सचे(multi->wsa_event == WSA_INVALID_EVENT)
+    गच्छ error;
 #endif
 #ifdef ENABLE_WAKEUP
   /* When enabled, rely on this to work. We ignore this in previous
    * versions, but that seems an unnecessary complication. */
-  if(Curl_wakeup_init(multi->wakeup_pair, TRUE) < 0)
-    goto error;
+  सचे(Curl_wakeup_init(multi->wakeup_pair, TRUE) < 0)
+    गच्छ error;
 #endif
 #ifdef ENABLE_INTERNAL_WAKEUP
-  if(Curl_wakeup_init(multi->wakeup_internal, TRUE) < 0)
-    goto error;
+  सचे(Curl_wakeup_init(multi->wakeup_internal, TRUE) < 0)
+    गच्छ error;
 #endif
 
-  if(Curl_probeipv6(multi))
-    goto error;
+  सचे(Curl_probeipv6(multi))
+    गच्छ error;
 
 #ifdef USE_RESOLV_THREADED
-  if(xfer_table_size < CURL_XFER_TABLE_SIZE) { /* easy multi */
-    if(Curl_async_thrdd_multi_init(multi, 0, 2, 10))
-      goto error;
+  सचे(xfer_table_size < CURL_XFER_TABLE_SIZE) { /* easy multi */
+    सचे(Curl_async_thrdd_multi_init(multi, 0, 2, 10))
+      गच्छ error;
   }
-  else { /* real multi handle */
-    if(Curl_async_thrdd_multi_init(multi, 0, 20, 2000))
-      goto error;
+  अञ्ञथा { /* real multi handle */
+    सचे(Curl_async_thrdd_multi_init(multi, 0, 20, 2000))
+      गच्छ error;
   }
 #endif
 
-  return multi;
+  पटिनिवत्त multi;
 
 error:
 
@@ -351,9 +351,9 @@ error:
 #ifdef USE_SSL
   Curl_ssl_scache_destroy(multi->ssl_scache);
 #endif
-  if(multi->admin) {
+  सचे(multi->admin) {
     Curl_multi_ev_xfer_done(multi, multi->admin);
-    multi->admin->multi = NULL;
+    multi->admin->multi = रिक्त;
     Curl_close(&multi->admin);
   }
   Curl_mntfy_cleanup(multi);
@@ -371,120 +371,120 @@ error:
 #endif
 
   curlx_free(multi);
-  return NULL;
+  पटिनिवत्त रिक्त;
 }
 
-CURLM *curl_multi_init(void)
+CURLM *curl_multi_init(शून्य)
 {
-  return Curl_multi_handle(CURL_XFER_TABLE_SIZE,
+  पटिनिवत्त Curl_multi_handle(CURL_XFER_TABLE_SIZE,
                            CURL_SOCKET_HASH_TABLE_SIZE,
                            CURL_CONNECTION_HASH_SIZE,
                            CURL_DNS_HASH_SIZE,
                            CURL_TLS_SESSION_SIZE);
 }
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
-static void multi_warn_debug(struct Curl_multi *multi, struct Curl_easy *data)
+#सचे defined(DEBUGBUILD) && defined(CURLVERBOSE)
+स्थिर शून्य multi_warn_debug(संरचना Curl_multi *multi, संरचना Curl_easy *data)
 {
-  if(!multi->warned) {
+  सचे(!multi->warned) {
     infof(data, "!!! WARNING !!!");
     infof(data, "This is a debug build of libcurl, "
                 "do not use in production.");
     multi->warned = TRUE;
   }
 }
-#else
+#अञ्ञथा
 #define multi_warn_debug(x, y) Curl_nop_stmt
 #endif
 
-bool Curl_is_connecting(struct Curl_easy *data)
+bool Curl_is_connecting(संरचना Curl_easy *data)
 {
-  return data->mstate < MSTATE_DO;
+  पटिनिवत्त data->mstate < MSTATE_DO;
 }
 
-static CURLMcode multi_assess_wakeup(struct Curl_multi *multi)
+स्थिर CURLMcode multi_assess_wakeup(संरचना Curl_multi *multi)
 {
 #ifdef ENABLE_INTERNAL_WAKEUP
-  if(multi->socket_cb)
-    return Curl_multi_ev_assess_xfer(multi, multi->admin);
-#else
-  (void)multi;
+  सचे(multi->socket_cb)
+    पटिनिवत्त Curl_multi_ev_assess_xfer(multi, multi->admin);
+#अञ्ञथा
+  (शून्य)multi;
 #endif
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
-static CURLMcode multi_xfers_add(struct Curl_multi *multi,
-                                 struct Curl_easy *data)
+स्थिर CURLMcode multi_xfers_add(संरचना Curl_multi *multi,
+                                 संरचना Curl_easy *data)
 {
   uint32_t capacity = Curl_uint32_tbl_capacity(&multi->xfers);
   uint32_t new_size = 0;
   /* Prepare to make this into a CURLMOPT_MAX_TRANSFERS, because some
    * applications may want to prevent a run-away of their memory use. */
   /* UINT_MAX is our "invalid" id, do not let the table grow up to that. */
-  const uint32_t max_capacity = UINT_MAX - 1;
+  ध्रुव uint32_t max_capacity = UINT_MAX - 1;
 
-  if(capacity < max_capacity) {
+  सचे(capacity < max_capacity) {
     /* We want `multi->xfers` to have "sufficient" free rows, so that we do
      * not have to reuse the `mid` from a removed easy right away.
      * Check if an 8th of the capacity is still free */
-    uint32_t used = Curl_uint32_tbl_count(&multi->xfers);
+    uint32_t used = Curl_uint32_tbl_गणनम्(&multi->xfers);
     uint32_t unused = capacity - used;
     uint32_t min_unused = CURLMAX(capacity >> 3, 4);
-    if(unused < min_unused) {
+    सचे(unused < min_unused) {
       /* Grow by 50% of current capacity, in range of [128, 2048],
        * which means the table grows max by 16kb on 64-bit arch. */
       uint32_t growth = CURLMIN(CURLMAX(capacity >> 1, 128), 2048);
       /* Make sure the uint arithmetic here works on the corner
        * cases where we are close to max_capacity or UINT_MAX */
-      if((max_capacity - growth) <= capacity)
+      सचे((max_capacity - growth) <= capacity)
         new_size = max_capacity;
-      else
+      अञ्ञथा
         new_size = capacity + growth;
     }
   }
 
-  if(new_size > capacity) {
+  सचे(new_size > capacity) {
     /* Grow the bitsets first. Should one fail, we do not need
      * to downsize the already resized ones. The sets continue
      * to work properly when larger than the table, but not
      * the other way around. */
     CURL_TRC_M(data, "increasing xfer table size to %u", new_size);
-    if(Curl_uint32_bset_resize(&multi->process, new_size) ||
+    सचे(Curl_uint32_bset_resize(&multi->process, new_size) ||
        Curl_uint32_bset_resize(&multi->dirty, new_size) ||
        Curl_uint32_bset_resize(&multi->pending, new_size) ||
        Curl_uint32_bset_resize(&multi->msgsent, new_size) ||
        Curl_uint32_tbl_resize(&multi->xfers, new_size))
-      return CURLM_OUT_OF_MEMORY;
+      पटिनिवत्त CURLM_OUT_OF_MEMORY;
   }
 
   /* Insert the easy into the table now */
-  if(!Curl_uint32_tbl_add(&multi->xfers, data, &data->mid)) {
+  सचे(!Curl_uint32_tbl_add(&multi->xfers, data, &data->mid)) {
     /* MUST only happen when table is full */
     DEBUGASSERT(Curl_uint32_tbl_capacity(&multi->xfers) <=
-                Curl_uint32_tbl_count(&multi->xfers));
-    return CURLM_OUT_OF_MEMORY;
+                Curl_uint32_tbl_गणनम्(&multi->xfers));
+    पटिनिवत्त CURLM_OUT_OF_MEMORY;
   }
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
-CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
-                                struct Curl_easy *data)
+CURLMcode Curl_multi_add_handle(संरचना Curl_multi *multi,
+                                संरचना Curl_easy *data)
 {
   CURLMcode mresult;
 
   /* Prevent users from adding same easy handle more than once and prevent
      adding to more than one multi stack */
-  if(data->multi)
-    return CURLM_ADDED_ALREADY;
+  सचे(data->multi)
+    पटिनिवत्त CURLM_ADDED_ALREADY;
 
-  if(multi->dead) {
+  सचे(multi->dead) {
     /* a "dead" handle cannot get added transfers while any existing easy
        handles are still alive - but if there are none alive anymore, it is
        fine to start over and unmark the "deadness" of this handle.
        This means only the admin handle MUST be present. */
-    if((Curl_uint32_tbl_count(&multi->xfers) != 1) ||
+    सचे((Curl_uint32_tbl_गणनम्(&multi->xfers) != 1) ||
        !Curl_uint32_tbl_contains(&multi->xfers, 0))
-      return CURLM_ABORTED_BY_CALLBACK;
+      पटिनिवत्त CURLM_ABORTED_BY_CALLBACK;
     multi->dead = FALSE;
     Curl_uint32_bset_clear(&multi->process);
     Curl_uint32_bset_clear(&multi->dirty);
@@ -492,16 +492,16 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
     Curl_uint32_bset_clear(&multi->msgsent);
   }
 
-  if(data->multi_easy) {
+  सचे(data->multi_easy) {
     /* if this easy handle was previously used for curl_easy_perform(), there
        is a private multi handle here that we can kill */
     curl_multi_cleanup(data->multi_easy);
-    data->multi_easy = NULL;
+    data->multi_easy = रिक्त;
   }
 
   /* Insert the easy into the multi->xfers table, assigning it a `mid`. */
-  if(multi_xfers_add(multi, data))
-    return CURLM_OUT_OF_MEMORY;
+  सचे(multi_xfers_add(multi, data))
+    पटिनिवत्त CURLM_OUT_OF_MEMORY;
 
   /* Initialize timeouts for this handle */
   multi_timeouts_init(data);
@@ -512,7 +512,7 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
    * multi's connection pool growing which will not be undone in this
    * function no matter what.
    */
-  if(data->set.errorbuffer)
+  सचे(data->set.errorbuffer)
     data->set.errorbuffer[0] = 0;
 
   data->state.os_errno = 0;
@@ -528,9 +528,9 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
 
 #ifdef USE_LIBPSL
   /* Do the same for PSL. */
-  if(data->share && (data->share->specifier & (1 << CURL_LOCK_DATA_PSL)))
+  सचे(data->share && (data->share->specifier & (1 << CURL_LOCK_DATA_PSL)))
     data->psl = &data->share->psl;
-  else
+  अञ्ञथा
     data->psl = &multi->psl;
 #endif
 
@@ -548,15 +548,15 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
   /* Necessary in event based processing, where dirty handles trigger
    * a timeout callback invocation. */
   mresult = Curl_update_timer(multi);
-  if(mresult) {
+  सचे(mresult) {
     /* undo the additions above */
     Curl_uint32_bset_remove(&multi->process, data->mid);
     Curl_uint32_bset_remove(&multi->dirty, data->mid);
     --multi->xfers_alive;
-    data->multi = NULL; /* not anymore */
+    data->multi = रिक्त; /* not anymore */
     Curl_uint32_tbl_remove(&multi->xfers, data->mid);
     data->mid = UINT32_MAX;
-    return mresult;
+    पटिनिवत्त mresult;
   }
 
   /* The admin handle only ever has default timeouts set. To improve the
@@ -570,44 +570,44 @@ CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
 
   CURL_TRC_M(data, "added to multi, mid=%u, running=%u, total=%u",
              data->mid, multi_xfers_running(multi),
-             Curl_uint32_tbl_count(&multi->xfers));
-  return CURLM_OK;
+             Curl_uint32_tbl_गणनम्(&multi->xfers));
+  पटिनिवत्त CURLM_OK;
 }
 
 CURLMcode curl_multi_add_handle(CURLM *m, CURL *curl)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_add_handle, &mresult)) {
-    struct Curl_easy *data = curl;
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_add_handle, &mresult)) {
+    संरचना Curl_easy *data = curl;
     /* Verify that we got a somewhat good easy handle too */
-    if(!GOOD_EASY_HANDLE(data) || data->state.internal)
+    सचे(!GOOD_EASY_HANDLE(data) || data->state.internal)
       mresult = CURLM_BAD_EASY_HANDLE;
-    else
+    अञ्ञथा
       mresult = Curl_multi_add_handle(m, data);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-struct multi_done_ctx {
+संरचना multi_done_ctx {
   BIT(premature);
 };
 
-static bool multi_conn_should_close(struct connectdata *conn,
-                                    struct Curl_easy *data,
+स्थिर bool multi_conn_should_close(संरचना connectdata *conn,
+                                    संरचना Curl_easy *data,
                                     bool premature)
 {
   /* if conn->bits.close is TRUE, it means that the connection should be
      closed in spite of everything else. */
-  if(conn->bits.close)
-    return TRUE;
+  सचे(conn->bits.close)
+    पटिनिवत्त TRUE;
 
   /* if data->set.reuse_forbid is TRUE, it means the libcurl client has
      forced us to close this connection. This is ignored for requests taking
      place in a NTLM/NEGOTIATE authentication handshake. */
-  if(data->set.reuse_forbid
+  सचे(data->set.reuse_forbid
 #ifdef USE_NTLM
      && !(conn->http_ntlm_state == NTLMSTATE_TYPE2 ||
           conn->proxy_ntlm_state == NTLMSTATE_TYPE2)
@@ -617,42 +617,42 @@ static bool multi_conn_should_close(struct connectdata *conn,
           conn->proxy_negotiate_state == CURL_NEGO_AUTH_RECV)
 #endif
     )
-    return TRUE;
+    पटिनिवत्त TRUE;
 
   /* Unless this connection is for a "connect-only" transfer, it
    * needs to be closed if the protocol handler does not support reuse. */
-  if(!data->set.connect_only && conn->scheme &&
+  सचे(!data->set.connect_only && conn->scheme &&
      !(conn->scheme->flags & PROTOPT_CONN_REUSE))
-    return TRUE;
+    पटिनिवत्त TRUE;
 
   /* if premature is TRUE, it means this connection was said to be DONE before
      the entire request operation is complete and thus we cannot know in what
      state it is for reusing, so we are forced to close it. In a perfect world
      we can add code that keep track of if we really must close it here or not,
      but currently we have no such detail knowledge. */
-  if(premature && !Curl_conn_is_multiplex(conn, FIRSTSOCKET))
-    return TRUE;
+  सचे(premature && !Curl_conn_is_multiplex(conn, FIRSTSOCKET))
+    पटिनिवत्त TRUE;
 
-  return FALSE;
+  पटिनिवत्त FALSE;
 }
 
-static cpool_do_result multi_done_locked(struct Curl_easy *data,
-                                         struct connectdata *conn,
-                                         void *userdata,
-                                         const struct curltime *pnow)
+स्थिर cpool_do_result multi_done_locked(संरचना Curl_easy *data,
+                                         संरचना connectdata *conn,
+                                         शून्य *userdata,
+                                         ध्रुव संरचना curltime *pnow)
 {
-  struct multi_done_ctx *mdctx = userdata;
+  संरचना multi_done_ctx *mdctx = userdata;
 
-  (void)pnow;
+  (शून्य)pnow;
   CURL_TRC_M(data, "multi_done_locked, in use=%u", conn->attached_xfers);
-  if(CONN_INUSE(conn)) {
+  सचे(CONN_INUSE(conn)) {
     /* Stop if still used. */
     CURL_TRC_M(data, "Connection still in use %u, no more multi_done now!",
                conn->attached_xfers);
-    return CPOOL_DO_KEEP;
+    पटिनिवत्त CPOOL_DO_KEEP;
   }
 
-  if(multi_conn_should_close(conn, data, (bool)mdctx->premature)) {
+  सचे(multi_conn_should_close(conn, data, (bool)mdctx->premature)) {
     CURL_TRC_M(data, "multi_done, terminating conn #%" FMT_OFF_T " to %s:%u, "
                "forbid=%d, close=%d, premature=%d, conn_multiplex=%d",
                conn->connection_id, conn->origin->user_hostname,
@@ -660,35 +660,35 @@ static cpool_do_result multi_done_locked(struct Curl_easy *data,
                data->set.reuse_forbid, conn->bits.close, mdctx->premature,
                Curl_conn_is_multiplex(conn, FIRSTSOCKET));
     connclose(conn);
-    return mdctx->premature ? CPOOL_DO_TERMINATE : CPOOL_DO_CLOSE;
+    पटिनिवत्त mdctx->premature ? CPOOL_DO_TERMINATE : CPOOL_DO_CLOSE;
   }
-  else if(!Curl_conn_get_max_concurrent(data, conn, FIRSTSOCKET)) {
+  अञ्ञथा सचे(!Curl_conn_get_max_concurrent(data, conn, FIRSTSOCKET)) {
     CURL_TRC_M(data, "multi_done, conn #%" FMT_OFF_T " to %s:%u was shutdown"
                " by server, not reusing", conn->connection_id,
                conn->origin->user_hostname, conn->origin->port);
     connclose(conn);
-    return mdctx->premature ? CPOOL_DO_TERMINATE : CPOOL_DO_CLOSE;
+    पटिनिवत्त mdctx->premature ? CPOOL_DO_TERMINATE : CPOOL_DO_CLOSE;
   }
-  else {
-    return CPOOL_DO_IDLE;
+  अञ्ञथा {
+    पटिनिवत्त CPOOL_DO_IDLE;
   }
 }
 
-static CURLcode multi_done(struct Curl_easy *data,
+स्थिर CURLcode multi_done(संरचना Curl_easy *data,
                            CURLcode status,  /* an error if this is called
                                                 after an error was detected */
                            bool premature)
 {
   CURLcode result;
-  struct connectdata *conn = data->conn;
-  const struct curltime *pnow = Curl_pgrs_now(data);
+  संरचना connectdata *conn = data->conn;
+  ध्रुव संरचना curltime *pnow = Curl_pgrs_now(data);
 
   CURL_TRC_M(data, "multi_done: status: %d prem: %d done: %d",
-             (int)status, (int)premature, data->state.done);
+             (पूर्णाङ्क)status, (पूर्णाङ्क)premature, data->state.done);
 
-  if(data->state.done) {
+  सचे(data->state.done) {
     /* Stop if multi_done() has already been called */
-    return CURLE_OK;
+    पटिनिवत्त CURLE_OK;
   }
   data->state.done = TRUE; /* called now! */
 
@@ -699,46 +699,46 @@ static CURLcode multi_done(struct Curl_easy *data,
   curlx_safefree(data->req.newurl);
   curlx_safefree(data->req.location);
 
-  switch(status) {
-  case CURLE_ABORTED_BY_CALLBACK:
-  case CURLE_READ_ERROR:
-  case CURLE_WRITE_ERROR:
+  विकल्प(status) {
+  पक्ष CURLE_ABORTED_BY_CALLBACK:
+  पक्ष CURLE_READ_ERROR:
+  पक्ष CURLE_WRITE_ERROR:
     /* When we are aborted due to a callback return code it has to be counted
        as premature as there is trouble ahead if we do not. We have many
        callbacks and protocols work differently, we could potentially do this
        more fine-grained in the future. */
     premature = TRUE;
     FALLTHROUGH();
-  default:
-    break;
+  स्वभाव:
+    भङ्ग;
   }
 
   /* this calls the protocol-specific function pointer previously set */
-  if(conn && conn->scheme->run->done && (data->mstate >= MSTATE_PROTOCONNECT))
+  सचे(conn && conn->scheme->run->done && (data->mstate >= MSTATE_PROTOCONNECT))
     result = conn->scheme->run->done(data, status, premature);
-  else
+  अञ्ञथा
     result = status;
 
-  if(data->mstate > MSTATE_CONNECTING &&
+  सचे(data->mstate > MSTATE_CONNECTING &&
      (result != CURLE_ABORTED_BY_CALLBACK)) {
     /* avoid this if
      * - the transfer has not connected
      * - we already aborted by callback to avoid this calling another callback
      */
-    int rc = Curl_pgrsDone(data, pnow);
-    if(!result && rc)
+    पूर्णाङ्क rc = Curl_pgrsDone(data, pnow);
+    सचे(!result && rc)
       result = CURLE_ABORTED_BY_CALLBACK;
   }
 
   /* Make sure that transfer client writes are really done now. */
   result = Curl_1st_fatal(result, Curl_xfer_write_done(data, premature));
 
-  if(!result)
+  सचे(!result)
     result = Curl_req_done(&data->req, data, premature);
 
-  if(conn) {
+  सचे(conn) {
     /* Detach connection and decide what to do with it. */
-    struct multi_done_ctx mdctx;
+    संरचना multi_done_ctx mdctx;
 
     /* Inform connection filters that this transfer is done and they
      * need to give up any references to `data`. */
@@ -746,56 +746,56 @@ static CURLcode multi_done(struct Curl_easy *data,
     Curl_detach_connection(data);
     Curl_dnscache_prune(data, pnow);
 
-    memset(&mdctx, 0, sizeof(mdctx));
+    memset(&mdctx, 0, परिमाण(mdctx));
     mdctx.premature = premature;
     Curl_cpool_return(data, conn, multi_done_locked, &mdctx, pnow);
 
-    if(data->multi)
+    सचे(data->multi)
       multi_schedule_pending(data->multi);
   }
 
   /* flush the netrc cache */
   Curl_netrc_cleanup(&data->state.netrc);
-  return result;
+  पटिनिवत्त result;
 }
 
-CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
-                                   struct Curl_easy *data)
+CURLMcode Curl_multi_remove_handle(संरचना Curl_multi *multi,
+                                   संरचना Curl_easy *data)
 {
   CURLMcode mresult;
   bool premature;
   uint32_t mid;
 
   /* Prevent users from trying to remove same easy handle more than once */
-  if(!data->multi)
-    return CURLM_OK; /* it is already removed so let's say it is fine! */
+  सचे(!data->multi)
+    पटिनिवत्त CURLM_OK; /* it is already removed so let's say it is fine! */
 
   /* Prevent users from trying to remove an easy handle from the wrong multi */
-  if(data->multi != multi)
-    return CURLM_BAD_EASY_HANDLE;
+  सचे(data->multi != multi)
+    पटिनिवत्त CURLM_BAD_EASY_HANDLE;
 
-  if(data->mid == UINT32_MAX) {
+  सचे(data->mid == UINT32_MAX) {
     DEBUGASSERT(0);
-    return CURLM_INTERNAL_ERROR;
+    पटिनिवत्त CURLM_INTERNAL_ERROR;
   }
-  if(Curl_uint32_tbl_get(&multi->xfers, data->mid) != data) {
+  सचे(Curl_uint32_tbl_get(&multi->xfers, data->mid) != data) {
     DEBUGASSERT(0);
-    return CURLM_INTERNAL_ERROR;
+    पटिनिवत्त CURLM_INTERNAL_ERROR;
   }
 
   premature = (data->mstate < MSTATE_COMPLETED);
 
-  if(data->conn) {
+  सचे(data->conn) {
     /* If the 'state' is not INIT or COMPLETED, we might need to do something
        nice to put the easy_handle in a good known state when this returns. */
-    if(premature && (data->mstate > MSTATE_DO))
+    सचे(premature && (data->mstate > MSTATE_DO))
       streamclose(data->conn);
 
     /* multi_done() clears the association between the easy handle and the
        connection.
        Note that this ignores the return code because there is
        nothing really useful to do with it anyway! */
-    (void)multi_done(data, data->result, premature);
+    (शून्य)multi_done(data, data->result, premature);
   }
 
   /* The timer must be shut down before data->multi is set to NULL, else
@@ -804,14 +804,14 @@ CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
   Curl_expire_clear_all(data);
 
   /* In MSGSENT, it was deducted from `multi->xfers_alive` already. */
-  if(data->mstate != MSTATE_MSGSENT)
+  सचे(data->mstate != MSTATE_MSGSENT)
     --multi->xfers_alive;
 
-  if(data->state.really_alive) {
+  सचे(data->state.really_alive) {
     data->state.really_alive = FALSE;
     --multi->xfers_really_alive;
-    if(!multi->xfers_really_alive)
-      (void)multi_assess_wakeup(multi);
+    सचे(!multi->xfers_really_alive)
+      (शून्य)multi_assess_wakeup(multi);
   }
 
   Curl_wildcard_dtor(&data->wildcard);
@@ -824,17 +824,17 @@ CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
   /* Tell event handling that this transfer is definitely going away */
   Curl_multi_ev_xfer_done(multi, data);
 
-  if(data->set.connect_only) {
-    if(data->multi_easy) {
-      if(data->state.last_conn_id != -1) {
+  सचे(data->set.connect_only) {
+    सचे(data->multi_easy) {
+      सचे(data->state.last_conn_id != -1) {
         /* Mark any connect-only connection for closure */
-        struct connectdata *conn;
-        (void)Curl_getconnectinfo(data, &conn);
-        if(conn && conn->bits.connect_only)
+        संरचना connectdata *conn;
+        (शून्य)Curl_getconnectinfo(data, &conn);
+        सचे(conn && conn->bits.connect_only)
           connclose(conn);
       }
     }
-    else {
+    अञ्ञथा {
       /* This removes a handle that was part the multi interface that used
          CONNECT_ONLY, that connection is now left alive but since this handle
          has bits.close set nothing can use that connection anymore and it is
@@ -842,17 +842,17 @@ CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
          anymore once removed from the multi handle
 
          Better close the connection here, at once. */
-      struct connectdata *conn;
-      (void)Curl_getconnectinfo(data, &conn);
-      if(conn)
+      संरचना connectdata *conn;
+      (शून्य)Curl_getconnectinfo(data, &conn);
+      सचे(conn)
         Curl_conn_close(data, conn, TRUE);
     }
   }
 
 #ifdef USE_LIBPSL
   /* Remove the PSL association. */
-  if(data->psl == &multi->psl)
-    data->psl = NULL;
+  सचे(data->psl == &multi->psl)
+    data->psl = रिक्त;
 #endif
 
   /* clear the association to this multi handle */
@@ -863,48 +863,48 @@ CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
   Curl_uint32_bset_remove(&multi->dirty, mid);
   Curl_uint32_bset_remove(&multi->pending, mid);
   Curl_uint32_bset_remove(&multi->msgsent, mid);
-  data->multi = NULL;
+  data->multi = रिक्त;
   data->mid = UINT32_MAX;
   data->master_mid = UINT32_MAX;
 
   /* A pending transfer *might* be able to run now. */
   multi_schedule_pending(multi);
   mresult = Curl_update_timer(multi);
-  if(mresult)
-    return mresult;
+  सचे(mresult)
+    पटिनिवत्त mresult;
 
   mresult = multi_assess_wakeup(multi);
-  if(mresult) {
+  सचे(mresult) {
     failf(data, "error enabling wakeup listening: %d", mresult);
-    return mresult;
+    पटिनिवत्त mresult;
   }
 
   CURL_TRC_M(data, "removed from multi, mid=%u, running=%u, total=%u",
              mid, multi_xfers_running(multi),
-             Curl_uint32_tbl_count(&multi->xfers));
-  return CURLM_OK;
+             Curl_uint32_tbl_गणनम्(&multi->xfers));
+  पटिनिवत्त CURLM_OK;
 }
 
 CURLMcode curl_multi_remove_handle(CURLM *m, CURL *curl)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_remove_handle, &mresult)) {
-    struct Curl_easy *data = curl;
-    if(!GOOD_EASY_HANDLE(data) || data->state.internal)
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_remove_handle, &mresult)) {
+    संरचना Curl_easy *data = curl;
+    सचे(!GOOD_EASY_HANDLE(data) || data->state.internal)
       mresult = CURLM_BAD_EASY_HANDLE;
-    else
+    अञ्ञथा
       mresult = Curl_multi_remove_handle(m, data);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 /* Return TRUE if the application asked for multiplexing */
-bool Curl_multiplex_wanted(const struct Curl_multi *multi)
+bool Curl_multiplex_wanted(ध्रुव संरचना Curl_multi *multi)
 {
-  return multi && multi->multiplexing;
+  पटिनिवत्त multi && multi->multiplexing;
 }
 
 /*
@@ -913,19 +913,19 @@ bool Curl_multiplex_wanted(const struct Curl_multi *multi)
  * This is the only function that should clear data->conn. This will
  * occasionally be called with the data->conn pointer already cleared.
  */
-void Curl_detach_connection(struct Curl_easy *data)
+शून्य Curl_detach_connection(संरचना Curl_easy *data)
 {
-  struct connectdata *conn = data->conn;
-  if(conn) {
+  संरचना connectdata *conn = data->conn;
+  सचे(conn) {
     /* this should never happen, prevent underflow */
     DEBUGASSERT(conn->attached_xfers);
-    if(conn->attached_xfers) {
+    सचे(conn->attached_xfers) {
       conn->attached_xfers--;
-      if(!conn->attached_xfers)
-        conn->attached_multi = NULL;
+      सचे(!conn->attached_xfers)
+        conn->attached_multi = रिक्त;
     }
   }
-  data->conn = NULL;
+  data->conn = रिक्त;
 }
 
 /*
@@ -935,8 +935,8 @@ void Curl_detach_connection(struct Curl_easy *data)
  * `matched == TRUE` means the transfer's properties match this
  * connection and it is not a temporary attach for maintenance.
  */
-void Curl_attach_connection(struct Curl_easy *data,
-                            struct connectdata *conn,
+शून्य Curl_attach_connection(संरचना Curl_easy *data,
+                            संरचना connectdata *conn,
                             bool matched)
 {
   DEBUGASSERT(data);
@@ -944,55 +944,55 @@ void Curl_attach_connection(struct Curl_easy *data,
   DEBUGASSERT(conn);
   DEBUGASSERT(conn->attached_xfers < UINT32_MAX);
   data->conn = conn;
-  if(matched) {
+  सचे(matched) {
     data->state.last_conn_id = conn->connection_id;
     data->state.last_cpid = conn->cpid;
   }
-  else
+  अञ्ञथा
     DEBUGASSERT(!data->mid); /* admin handle */
   conn->attached_xfers++;
   /* all attached transfers must be from the same multi */
-  if(!conn->attached_multi)
+  सचे(!conn->attached_multi)
     conn->attached_multi = data->multi;
   DEBUGASSERT(conn->attached_multi == data->multi);
 
-  if(conn->scheme && conn->scheme->run->attach)
+  सचे(conn->scheme && conn->scheme->run->attach)
     conn->scheme->run->attach(data, conn);
 }
 
 /* adjust pollset for rate limits/pauses */
-static CURLcode multi_adjust_pollset(struct Curl_easy *data,
-                                     struct easy_pollset *ps)
+स्थिर CURLcode multi_adjust_pollset(संरचना Curl_easy *data,
+                                     संरचना easy_pollset *ps)
 {
   CURLcode result = CURLE_OK;
 
-  if(ps->n) {
+  सचे(ps->n) {
     bool send_blocked, recv_blocked;
 
-    recv_blocked = (Curl_rlimit_avail(&data->progress.dl.rlimit, NULL) <= 0);
-    send_blocked = (Curl_rlimit_avail(&data->progress.ul.rlimit, NULL) <= 0);
-    if(send_blocked || recv_blocked) {
-      int i;
-      for(i = 0; i <= SECONDARYSOCKET; ++i) {
+    recv_blocked = (Curl_rlimit_avail(&data->progress.dl.rlimit, रिक्त) <= 0);
+    send_blocked = (Curl_rlimit_avail(&data->progress.ul.rlimit, रिक्त) <= 0);
+    सचे(send_blocked || recv_blocked) {
+      पूर्णाङ्क i;
+      अत्थाय(i = 0; i <= SECONDARYSOCKET; ++i) {
         curl_socket_t sock = data->conn->sock[i];
-        if(sock == CURL_SOCKET_BAD)
-          continue;
-        if(recv_blocked && Curl_pollset_want_recv(data, ps, sock)) {
+        सचे(sock == CURL_SOCKET_BAD)
+          अनुवर्त;
+        सचे(recv_blocked && Curl_pollset_want_recv(data, ps, sock)) {
           result = Curl_pollset_remove_in(data, ps, sock);
-          if(result)
-            break;
+          सचे(result)
+            भङ्ग;
         }
-        if(send_blocked && Curl_pollset_want_send(data, ps, sock)) {
+        सचे(send_blocked && Curl_pollset_want_send(data, ps, sock)) {
           result = Curl_pollset_remove_out(data, ps, sock);
-          if(result)
-            break;
+          सचे(result)
+            भङ्ग;
         }
       }
     }
 
     /* Not blocked and wanting to receive. If there is data pending
      * in the connection filters, make transfer run again. */
-    if(!recv_blocked &&
+    सचे(!recv_blocked &&
        ((Curl_pollset_want_recv(data, ps, data->conn->sock[FIRSTSOCKET]) &&
          Curl_conn_data_pending(data, FIRSTSOCKET)) ||
         (Curl_pollset_want_recv(data, ps, data->conn->sock[SECONDARYSOCKET]) &&
@@ -1002,132 +1002,132 @@ static CURLcode multi_adjust_pollset(struct Curl_easy *data,
       Curl_multi_mark_dirty(data);
     }
   }
-  return result;
+  पटिनिवत्त result;
 }
 
-static CURLcode mstate_connecting_pollset(struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+स्थिर CURLcode mstate_connecting_pollset(संरचना Curl_easy *data,
+                                          संरचना easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = data->conn;
   curl_socket_t sockfd;
   CURLcode result = CURLE_OK;
 
-  if(Curl_xfer_recv_is_paused(data))
-    return CURLE_OK;
+  सचे(Curl_xfer_recv_is_paused(data))
+    पटिनिवत्त CURLE_OK;
   /* If a socket is set, receiving is default. If the socket
    * has not been determined yet (eyeballing), always ask the
    * connection filters for what to monitor. */
   sockfd = Curl_conn_get_first_socket(data);
-  if(sockfd != CURL_SOCKET_BAD) {
+  सचे(sockfd != CURL_SOCKET_BAD) {
     result = Curl_pollset_change(data, ps, sockfd, CURL_POLL_IN, 0);
-    if(!result)
+    सचे(!result)
       result = multi_adjust_pollset(data, ps);
   }
-  if(!result)
+  सचे(!result)
     result = Curl_conn_adjust_pollset(data, conn, ps);
-  return result;
+  पटिनिवत्त result;
 }
 
-static CURLcode mstate_protocol_pollset(struct Curl_easy *data,
-                                        struct easy_pollset *ps)
+स्थिर CURLcode mstate_protocol_pollset(संरचना Curl_easy *data,
+                                        संरचना easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
-  if(conn->scheme->run->proto_pollset)
+  सचे(conn->scheme->run->proto_pollset)
     result = conn->scheme->run->proto_pollset(data, ps);
-  else {
+  अञ्ञथा {
     curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
-    if(sockfd != CURL_SOCKET_BAD) {
+    सचे(sockfd != CURL_SOCKET_BAD) {
       /* Default is to wait to something from the server */
       result = Curl_pollset_change(data, ps, sockfd, CURL_POLL_IN, 0);
     }
   }
-  if(!result)
+  सचे(!result)
     result = multi_adjust_pollset(data, ps);
-  if(!result)
+  सचे(!result)
     result = Curl_conn_adjust_pollset(data, conn, ps);
-  return result;
+  पटिनिवत्त result;
 }
 
-static CURLcode mstate_do_pollset(struct Curl_easy *data,
-                                  struct easy_pollset *ps)
+स्थिर CURLcode mstate_do_pollset(संरचना Curl_easy *data,
+                                  संरचना easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
-  if(conn->scheme->run->doing_pollset)
+  सचे(conn->scheme->run->doing_pollset)
     result = conn->scheme->run->doing_pollset(data, ps);
-  else if(CONN_SOCK_IDX_VALID(conn->send_idx)) {
+  अञ्ञथा सचे(CONN_SOCK_IDX_VALID(conn->send_idx)) {
     /* Default is that we want to send something to the server */
     result = Curl_pollset_add_out(data, ps, conn->sock[conn->send_idx]);
   }
-  if(!result)
+  सचे(!result)
     result = multi_adjust_pollset(data, ps);
-  if(!result)
+  सचे(!result)
     result = Curl_conn_adjust_pollset(data, conn, ps);
-  return result;
+  पटिनिवत्त result;
 }
 
-static CURLcode mstate_domore_pollset(struct Curl_easy *data,
-                                      struct easy_pollset *ps)
+स्थिर CURLcode mstate_domore_pollset(संरचना Curl_easy *data,
+                                      संरचना easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
-  if(conn->scheme->run->domore_pollset)
+  सचे(conn->scheme->run->domore_pollset)
     result = conn->scheme->run->domore_pollset(data, ps);
-  else if(CONN_SOCK_IDX_VALID(conn->send_idx)) {
+  अञ्ञथा सचे(CONN_SOCK_IDX_VALID(conn->send_idx)) {
     /* Default is that we want to send something to the server */
     result = Curl_pollset_add_out(data, ps, conn->sock[conn->send_idx]);
   }
-  if(!result)
+  सचे(!result)
     result = multi_adjust_pollset(data, ps);
-  if(!result)
+  सचे(!result)
     result = Curl_conn_adjust_pollset(data, conn, ps);
-  return result;
+  पटिनिवत्त result;
 }
 
-static CURLcode mstate_perform_pollset(struct Curl_easy *data,
-                                       struct easy_pollset *ps)
+स्थिर CURLcode mstate_perform_pollset(संरचना Curl_easy *data,
+                                       संरचना easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
-  if(conn->scheme->run->perform_pollset)
+  सचे(conn->scheme->run->perform_pollset)
     result = conn->scheme->run->perform_pollset(data, ps);
-  else {
+  अञ्ञथा {
     /* Default is to obey the request flags for send/recv */
-    if(Curl_req_want_recv(data) && CONN_SOCK_IDX_VALID(conn->recv_idx)) {
+    सचे(Curl_req_want_recv(data) && CONN_SOCK_IDX_VALID(conn->recv_idx)) {
       result = Curl_pollset_add_in(data, ps, conn->sock[conn->recv_idx]);
     }
-    if(!result && Curl_req_want_send(data) &&
+    सचे(!result && Curl_req_want_send(data) &&
        CONN_SOCK_IDX_VALID(conn->send_idx)) {
       result = Curl_pollset_add_out(data, ps, conn->sock[conn->send_idx]);
     }
   }
-  if(!result)
+  सचे(!result)
     result = multi_adjust_pollset(data, ps);
-  if(!result)
+  सचे(!result)
     result = Curl_conn_adjust_pollset(data, conn, ps);
-  return result;
+  पटिनिवत्त result;
 }
 
 #ifdef CURLVERBOSE
-static size_t multi_timeouts_count(struct expire_timers *timeouts)
+स्थिर size_t multi_timeouts_गणनम्(संरचना expire_timers *timeouts)
 {
   size_t n = 0;
   uint8_t eid = timeouts->first;
-  for(; eid < EXPIRE_LAST; eid = timeouts->next[eid])
+  अत्थाय(; eid < EXPIRE_LAST; eid = timeouts->next[eid])
     ++n;
-  return n;
+  पटिनिवत्त n;
 }
 #endif
 
 /* Initializes `poll_set` with the current socket poll actions needed
  * for transfer `data`. */
-CURLMcode Curl_multi_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+CURLMcode Curl_multi_pollset(संरचना Curl_easy *data,
+                             संरचना easy_pollset *ps)
 {
   CURLcode result = CURLE_OK;
 
@@ -1135,7 +1135,7 @@ CURLMcode Curl_multi_pollset(struct Curl_easy *data,
 #ifdef ENABLE_INTERNAL_WAKEUP
   /* The admin handle always listens on the wakeup socket when there
    * are transfers alive. */
-  if(data->multi && (data == data->multi->admin) &&
+  सचे(data->multi && (data == data->multi->admin) &&
      data->multi->xfers_really_alive) {
     CURL_TRC_M(data, "adding wakeup, %u xfers really alive",
                data->multi->xfers_really_alive);
@@ -1145,81 +1145,81 @@ CURLMcode Curl_multi_pollset(struct Curl_easy *data,
   /* If the transfer has no connection, this is fine. Happens when
      called via curl_multi_remove_handle() => Curl_multi_ev_assess() =>
      Curl_multi_pollset(). */
-  if(!result && data->conn) {
-    switch(data->mstate) {
-    case MSTATE_INIT:
-    case MSTATE_PENDING:
-    case MSTATE_SETUP:
-    case MSTATE_CONNECT:
+  सचे(!result && data->conn) {
+    विकल्प(data->mstate) {
+    पक्ष MSTATE_INIT:
+    पक्ष MSTATE_PENDING:
+    पक्ष MSTATE_SETUP:
+    पक्ष MSTATE_CONNECT:
       /* nothing to poll for yet */
-      break;
+      भङ्ग;
 
-    case MSTATE_CONNECTING:
+    पक्ष MSTATE_CONNECTING:
       result = mstate_connecting_pollset(data, ps);
-      break;
+      भङ्ग;
 
-    case MSTATE_PROTOCONNECT:
-    case MSTATE_PROTOCONNECTING:
+    पक्ष MSTATE_PROTOCONNECT:
+    पक्ष MSTATE_PROTOCONNECTING:
       result = mstate_protocol_pollset(data, ps);
-      break;
+      भङ्ग;
 
-    case MSTATE_DO:
-    case MSTATE_DOING:
+    पक्ष MSTATE_DO:
+    पक्ष MSTATE_DOING:
       result = mstate_do_pollset(data, ps);
-      break;
+      भङ्ग;
 
-    case MSTATE_DOING_MORE:
+    पक्ष MSTATE_DOING_MORE:
       result = mstate_domore_pollset(data, ps);
-      break;
+      भङ्ग;
 
-    case MSTATE_DID: /* same as PERFORMING in regard to polling */
-    case MSTATE_PERFORMING:
+    पक्ष MSTATE_DID: /* same as PERFORMING in regard to polling */
+    पक्ष MSTATE_PERFORMING:
       result = mstate_perform_pollset(data, ps);
-      break;
+      भङ्ग;
 
-    case MSTATE_RATELIMITING:
+    पक्ष MSTATE_RATELIMITING:
       /* we need to let time pass, ignore socket(s) */
-      break;
+      भङ्ग;
 
-    case MSTATE_DONE:
-    case MSTATE_COMPLETED:
-    case MSTATE_MSGSENT:
+    पक्ष MSTATE_DONE:
+    पक्ष MSTATE_COMPLETED:
+    पक्ष MSTATE_MSGSENT:
       /* nothing more to poll for */
-      break;
+      भङ्ग;
 
-    default:
+    स्वभाव:
       failf(data, "multi_getsock: unexpected multi state %d",
-            (int)data->mstate);
+            (पूर्णाङ्क)data->mstate);
       DEBUGASSERT(0);
-      break;
+      भङ्ग;
     }
   }
 
-  if(result) {
-    if(result == CURLE_OUT_OF_MEMORY)
-      return CURLM_OUT_OF_MEMORY;
-    failf(data, "error determining pollset: %d", (int)result);
-    return CURLM_INTERNAL_ERROR;
+  सचे(result) {
+    सचे(result == CURLE_OUT_OF_MEMORY)
+      पटिनिवत्त CURLM_OUT_OF_MEMORY;
+    failf(data, "error determining pollset: %d", (पूर्णाङ्क)result);
+    पटिनिवत्त CURLM_INTERNAL_ERROR;
   }
 
 #ifdef CURLVERBOSE
-  if(CURL_TRC_M_is_verbose(data)) {
-    size_t timeout_count = multi_timeouts_count(&data->state.timeouts);
-    switch(ps->n) {
-    case 0:
+  सचे(CURL_TRC_M_is_verbose(data)) {
+    size_t timeout_गणनम् = multi_timeouts_गणनम्(&data->state.timeouts);
+    विकल्प(ps->n) {
+    पक्ष 0:
       CURL_TRC_M(data, "pollset[], timeouts=%zu, paused %d/%d (r/w)",
-                 timeout_count,
+                 timeout_गणनम्,
                  Curl_xfer_send_is_paused(data),
                  Curl_xfer_recv_is_paused(data));
-      break;
-    case 1:
+      भङ्ग;
+    पक्ष 1:
       CURL_TRC_M(data, "pollset[fd=%" FMT_SOCKET_T " %s%s], timeouts=%zu",
                  ps->sockets[0],
                  (ps->actions[0] & CURL_POLL_IN) ? "IN" : "",
                  (ps->actions[0] & CURL_POLL_OUT) ? "OUT" : "",
-                 timeout_count);
-      break;
-    case 2:
+                 timeout_गणनम्);
+      भङ्ग;
+    पक्ष 2:
       CURL_TRC_M(data, "pollset[fd=%" FMT_SOCKET_T " %s%s, "
                  "fd=%" FMT_SOCKET_T " %s%s], timeouts=%zu",
                  ps->sockets[0],
@@ -1228,60 +1228,60 @@ CURLMcode Curl_multi_pollset(struct Curl_easy *data,
                  ps->sockets[1],
                  (ps->actions[1] & CURL_POLL_IN) ? "IN" : "",
                  (ps->actions[1] & CURL_POLL_OUT) ? "OUT" : "",
-                 timeout_count);
-      break;
-    default:
-      CURL_TRC_M(data, "pollset[fds=%u], timeouts=%zu", ps->n, timeout_count);
-      break;
+                 timeout_गणनम्);
+      भङ्ग;
+    स्वभाव:
+      CURL_TRC_M(data, "pollset[fds=%u], timeouts=%zu", ps->n, timeout_गणनम्);
+      भङ्ग;
     }
     CURL_TRC_EASY_TIMERS(data);
   }
 #endif
 
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
 CURLMcode curl_multi_fdset(CURLM *m,
                            fd_set *read_fd_set, fd_set *write_fd_set,
-                           fd_set *exc_fd_set, int *max_fd)
+                           fd_set *exc_fd_set, पूर्णाङ्क *max_fd)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_fdset, &mresult)) {
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_fdset, &mresult)) {
     /* Scan through all the easy handles to get the file descriptors set.
        Some easy handles may not have connected to the remote host yet,
        and then we must make sure that is done. */
-    struct Curl_multi *multi = m;
-    struct easy_pollset ps;
-    int this_max_fd = -1;
-    unsigned int i;
+    संरचना Curl_multi *multi = m;
+    संरचना easy_pollset ps;
+    पूर्णाङ्क this_max_fd = -1;
+    unsigned पूर्णाङ्क i;
     uint32_t mid;
-    (void)exc_fd_set;
+    (शून्य)exc_fd_set;
 
     Curl_pollset_init(&ps);
-    if(Curl_uint32_bset_first(&multi->process, &mid)) {
-      do {
-        struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
+    सचे(Curl_uint32_bset_first(&multi->process, &mid)) {
+      करोहि {
+        संरचना Curl_easy *data = Curl_multi_get_easy(multi, mid);
 
-        if(!data) {
+        सचे(!data) {
           DEBUGASSERT(0);
-          continue;
+          अनुवर्त;
         }
 
         Curl_multi_pollset(data, &ps);
-        for(i = 0; i < ps.n; i++) {
-          if(!FDSET_SOCK(ps.sockets[i]))
+        अत्थाय(i = 0; i < ps.n; i++) {
+          सचे(!FDSET_SOCK(ps.sockets[i]))
             /* pretend it does not exist */
-            continue;
-          if(ps.actions[i] & CURL_POLL_IN)
+            अनुवर्त;
+          सचे(ps.actions[i] & CURL_POLL_IN)
             FD_SET(ps.sockets[i], read_fd_set);
-          if(ps.actions[i] & CURL_POLL_OUT)
+          सचे(ps.actions[i] & CURL_POLL_OUT)
             FD_SET(ps.sockets[i], write_fd_set);
-          if((int)ps.sockets[i] > this_max_fd)
-            this_max_fd = (int)ps.sockets[i];
+          सचे((पूर्णाङ्क)ps.sockets[i] > this_max_fd)
+            this_max_fd = (पूर्णाङ्क)ps.sockets[i];
         }
-      } while(Curl_uint32_bset_next(&multi->process, mid, &mid));
+      } याव(Curl_uint32_bset_next(&multi->process, mid, &mid));
     }
 
     Curl_cshutdn_setfds(&multi->cshutdn, multi->admin,
@@ -1293,58 +1293,58 @@ CURLMcode curl_multi_fdset(CURLM *m,
     mresult = CURLM_OK;
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 CURLMcode curl_multi_waitfds(CURLM *m,
-                             struct curl_waitfd *ufds,
-                             unsigned int size,
-                             unsigned int *fd_count)
+                             संरचना curl_waitfd *ufds,
+                             unsigned पूर्णाङ्क size,
+                             unsigned पूर्णाङ्क *fd_गणनम्)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_waitfds, &mresult)) {
-    struct Curl_waitfds cwfds;
-    struct Curl_multi *multi = m;
-    struct easy_pollset ps;
-    unsigned int need = 0;
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_waitfds, &mresult)) {
+    संरचना Curl_waitfds cwfds;
+    संरचना Curl_multi *multi = m;
+    संरचना easy_pollset ps;
+    unsigned पूर्णाङ्क need = 0;
     uint32_t mid;
 
-    if(!ufds && (size || !fd_count)) {
+    सचे(!ufds && (size || !fd_गणनम्)) {
       mresult = CURLM_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      गच्छ out;
     }
 
     Curl_pollset_init(&ps);
     Curl_waitfds_init(&cwfds, ufds, size);
     mresult = CURLM_OK;
-    if(Curl_uint32_bset_first(&multi->process, &mid)) {
-      do {
-        struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-        if(!data) {
+    सचे(Curl_uint32_bset_first(&multi->process, &mid)) {
+      करोहि {
+        संरचना Curl_easy *data = Curl_multi_get_easy(multi, mid);
+        सचे(!data) {
           DEBUGASSERT(0);
           Curl_uint32_bset_remove(&multi->process, mid);
           Curl_uint32_bset_remove(&multi->dirty, mid);
-          continue;
+          अनुवर्त;
         }
         Curl_multi_pollset(data, &ps);
         need += Curl_waitfds_add_ps(&cwfds, &ps);
-      } while(Curl_uint32_bset_next(&multi->process, mid, &mid));
+      } याव(Curl_uint32_bset_next(&multi->process, mid, &mid));
     }
 
     need += Curl_cshutdn_add_waitfds(&multi->cshutdn, multi->admin, &cwfds);
 
-    if(need != cwfds.n && ufds)
+    सचे(need != cwfds.n && ufds)
       mresult = CURLM_OUT_OF_MEMORY;
 
-    if(fd_count)
-      *fd_count = need;
+    सचे(fd_गणनम्)
+      *fd_गणनम् = need;
     Curl_pollset_cleanup(&ps);
   }
 out:
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 #ifdef USE_WINSOCK
@@ -1354,60 +1354,60 @@ out:
  * "On Windows the internal state of FD_WRITE as returned from
  * WSAEnumNetworkEvents is only reset after successful send()."
  */
-static void reset_socket_fdwrite(curl_socket_t s)
+स्थिर शून्य reset_socket_fdwrite(curl_socket_t s)
 {
-  int t;
-  int l = (int)sizeof(t);
-  if(!getsockopt(s, SOL_SOCKET, SO_TYPE, (char *)&t, &l) && t == SOCK_STREAM)
-    swrite(s, NULL, 0);
+  पूर्णाङ्क t;
+  पूर्णाङ्क l = (पूर्णाङ्क)परिमाण(t);
+  सचे(!getsockopt(s, SOL_SOCKET, SO_TYPE, (वर्ण *)&t, &l) && t == SOCK_STREAM)
+    swrite(s, रिक्त, 0);
 }
 
-static CURLMcode multi_winsock_select(struct Curl_multi *multi,
-                                      struct curl_pollfds *cpfds,
-                                      unsigned int curl_nfds,
-                                      struct curl_waitfd extra_fds[],
-                                      unsigned int extra_nfds,
-                                      int timeout_ms,
+स्थिर CURLMcode multi_winsock_select(संरचना Curl_multi *multi,
+                                      संरचना curl_pollfds *cpfds,
+                                      unsigned पूर्णाङ्क curl_nfds,
+                                      संरचना curl_waitfd extra_fds[],
+                                      unsigned पूर्णाङ्क extra_nfds,
+                                      पूर्णाङ्क timeout_ms,
                                       bool extrawait,
-                                      int *pnevents)
+                                      पूर्णाङ्क *pnevents)
 {
   CURLMcode mresult = CURLM_OK;
   WSANETWORKEVENTS wsa_events;
-  int nevents = 0;
+  पूर्णाङ्क nevents = 0;
   size_t i;
 
   DEBUGASSERT(multi->wsa_event != WSA_INVALID_EVENT);
 
   /* Set the WSA events based on the collected pollds */
-  for(i = 0; i < cpfds->n; i++) {
+  अत्थाय(i = 0; i < cpfds->n; i++) {
     long mask = 0;
-    if(cpfds->pfds[i].events & POLLIN)
+    सचे(cpfds->pfds[i].events & POLLIN)
       mask |= FD_READ | FD_ACCEPT | FD_CLOSE;
-    if(cpfds->pfds[i].events & POLLPRI)
+    सचे(cpfds->pfds[i].events & POLLPRI)
       mask |= FD_OOB;
-    if(cpfds->pfds[i].events & POLLOUT) {
+    सचे(cpfds->pfds[i].events & POLLOUT) {
       mask |= FD_WRITE | FD_CONNECT | FD_CLOSE;
       reset_socket_fdwrite(cpfds->pfds[i].fd);
     }
-    if(mask && WSAEventSelect(cpfds->pfds[i].fd, multi->wsa_event, mask)) {
+    सचे(mask && WSAEventSelect(cpfds->pfds[i].fd, multi->wsa_event, mask)) {
       mresult = CURLM_OUT_OF_MEMORY;
-      goto out;
+      गच्छ out;
     }
   }
 
-  if(cpfds->n || extrawait) {
-    int pollrc = 0;
+  सचे(cpfds->n || extrawait) {
+    पूर्णाङ्क pollrc = 0;
 
-    if(cpfds->n) {         /* pre-check with Winsock */
+    सचे(cpfds->n) {         /* pre-check with Winsock */
       pollrc = Curl_poll(cpfds->pfds, cpfds->n, 0);
-      if(pollrc < 0) {
+      सचे(pollrc < 0) {
         mresult = CURLM_UNRECOVERABLE_POLL;
-        goto out;
+        गच्छ out;
       }
       nevents = pollrc;
     }
 
-    if(!nevents) {
+    सचे(!nevents) {
       /* now wait... if not ready during the pre-check (pollrc == 0) */
       WSAWaitForMultipleEvents(1, &multi->wsa_event, FALSE, (DWORD)timeout_ms,
                                FALSE);
@@ -1418,33 +1418,33 @@ static CURLMcode multi_winsock_select(struct Curl_multi *multi,
     /* copy revents results from the poll to the curl_multi_wait poll
        struct, the bit values of the actual underlying poll() implementation
        may not be the same as the ones in the public libcurl API! */
-    for(i = 0; i < extra_nfds; i++) {
+    अत्थाय(i = 0; i < extra_nfds; i++) {
       unsigned short mask = 0;
       curl_socket_t s = extra_fds[i].fd;
 
       wsa_events.lNetworkEvents = 0;
-      if(WSAEnumNetworkEvents(s, NULL, &wsa_events) == 0) {
-        if(wsa_events.lNetworkEvents & (FD_READ | FD_ACCEPT | FD_CLOSE))
+      सचे(WSAEnumNetworkEvents(s, रिक्त, &wsa_events) == 0) {
+        सचे(wsa_events.lNetworkEvents & (FD_READ | FD_ACCEPT | FD_CLOSE))
           mask |= CURL_WAIT_POLLIN;
-        if(wsa_events.lNetworkEvents & (FD_WRITE | FD_CONNECT | FD_CLOSE))
+        सचे(wsa_events.lNetworkEvents & (FD_WRITE | FD_CONNECT | FD_CLOSE))
           mask |= CURL_WAIT_POLLOUT;
-        if(wsa_events.lNetworkEvents & FD_OOB)
+        सचे(wsa_events.lNetworkEvents & FD_OOB)
           mask |= CURL_WAIT_POLLPRI;
-        if(!pollrc && wsa_events.lNetworkEvents)
+        सचे(!pollrc && wsa_events.lNetworkEvents)
           nevents++;
       }
       WSAEventSelect(s, multi->wsa_event, 0);
-      if(!pollrc) {
+      सचे(!pollrc) {
         extra_fds[i].revents = (short)mask;
-        continue;
+        अनुवर्त;
       }
-      else {
+      अञ्ञथा {
         unsigned r = (unsigned)cpfds->pfds[curl_nfds + i].revents;
-        if(r & POLLIN)
+        सचे(r & POLLIN)
           mask |= CURL_WAIT_POLLIN;
-        if(r & POLLOUT)
+        सचे(r & POLLOUT)
           mask |= CURL_WAIT_POLLOUT;
-        if(r & POLLPRI)
+        सचे(r & POLLPRI)
           mask |= CURL_WAIT_POLLPRI;
         extra_fds[i].revents = (short)mask;
       }
@@ -1452,10 +1452,10 @@ static CURLMcode multi_winsock_select(struct Curl_multi *multi,
 
     /* Count up all our own sockets that had activity,
        and remove them from the event. */
-    for(i = 0; i < curl_nfds; ++i) {
+    अत्थाय(i = 0; i < curl_nfds; ++i) {
       wsa_events.lNetworkEvents = 0;
-      if(WSAEnumNetworkEvents(cpfds->pfds[i].fd, NULL, &wsa_events) == 0) {
-        if(!pollrc && wsa_events.lNetworkEvents)
+      सचे(WSAEnumNetworkEvents(cpfds->pfds[i].fd, रिक्त, &wsa_events) == 0) {
+        सचे(!pollrc && wsa_events.lNetworkEvents)
           nevents++;
       }
       WSAEventSelect(cpfds->pfds[i].fd, multi->wsa_event, 0);
@@ -1465,49 +1465,49 @@ static CURLMcode multi_winsock_select(struct Curl_multi *multi,
 
 out:
   *pnevents = nevents;
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-#else /* USE_WINSOCK */
+#अञ्ञथा /* USE_WINSOCK */
 
-static CURLMcode multi_posix_poll(struct Curl_multi *multi,
-                                  struct curl_pollfds *cpfds,
-                                  unsigned int curl_nfds,
-                                  struct curl_waitfd extra_fds[],
-                                  unsigned int extra_nfds,
-                                  int timeout_ms,
+स्थिर CURLMcode multi_posix_poll(संरचना Curl_multi *multi,
+                                  संरचना curl_pollfds *cpfds,
+                                  unsigned पूर्णाङ्क curl_nfds,
+                                  संरचना curl_waitfd extra_fds[],
+                                  unsigned पूर्णाङ्क extra_nfds,
+                                  पूर्णाङ्क timeout_ms,
                                   bool extrawait,
-                                  int *pnevents)
+                                  पूर्णाङ्क *pnevents)
 {
   CURLMcode mresult = CURLM_OK;
-  int nevents = 0;
+  पूर्णाङ्क nevents = 0;
   size_t i;
 
-  (void)multi;
-  if(cpfds->n) {
-    int pollrc = Curl_poll(cpfds->pfds, cpfds->n, timeout_ms); /* wait... */
-    if(pollrc < 0) {
+  (शून्य)multi;
+  सचे(cpfds->n) {
+    पूर्णाङ्क pollrc = Curl_poll(cpfds->pfds, cpfds->n, timeout_ms); /* wait... */
+    सचे(pollrc < 0) {
       mresult = CURLM_UNRECOVERABLE_POLL;
-      goto out;
+      गच्छ out;
     }
     nevents = pollrc;
 
     /* copy revents results from the poll to the curl_multi_wait poll
        struct, the bit values of the actual underlying poll() implementation
        may not be the same as the ones in the public libcurl API! */
-    for(i = 0; i < extra_nfds; i++) {
+    अत्थाय(i = 0; i < extra_nfds; i++) {
       unsigned r = (unsigned)cpfds->pfds[curl_nfds + i].revents;
       unsigned short mask = 0;
-      if(r & POLLIN)
+      सचे(r & POLLIN)
         mask |= CURL_WAIT_POLLIN;
-      if(r & POLLOUT)
+      सचे(r & POLLOUT)
         mask |= CURL_WAIT_POLLOUT;
-      if(r & POLLPRI)
+      सचे(r & POLLPRI)
         mask |= CURL_WAIT_POLLPRI;
       extra_fds[i].revents = (short)mask;
     }
   }
-  else if(extrawait) {
+  अञ्ञथा सचे(extrawait) {
     /* No fds to poll, but asked to obey timeout_ms anyway. We cannot
      * use Curl_poll() as it, on some platforms, returns immediately
      * without fds. */
@@ -1516,61 +1516,61 @@ static CURLMcode multi_posix_poll(struct Curl_multi *multi,
 
 out:
   *pnevents = nevents;
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 #endif /* !USE_WINSOCK */
 
-#define NUM_POLLS_ON_STACK 10
+#define अङ्कः_POLLS_ON_राशिः 10
 
-static CURLMcode multi_wait(struct Curl_multi *multi,
-                            struct curl_waitfd extra_fds[],
-                            unsigned int extra_nfds,
-                            int timeout_ms,
-                            int *ret,
+स्थिर CURLMcode multi_wait(संरचना Curl_multi *multi,
+                            संरचना curl_waitfd extra_fds[],
+                            unsigned पूर्णाङ्क extra_nfds,
+                            पूर्णाङ्क timeout_ms,
+                            पूर्णाङ्क *ret,
                             bool extrawait)  /* when no socket, wait */
 {
   size_t i;
-  int timeout_internal;
-  int nevents = 0;
-  struct easy_pollset ps;
-  struct pollfd a_few_on_stack[NUM_POLLS_ON_STACK];
-  struct curl_pollfds cpfds;
-  unsigned int curl_nfds = 0; /* how many pfds are for curl transfers */
-  struct Curl_easy *data = NULL;
+  पूर्णाङ्क timeout_internal;
+  पूर्णाङ्क nevents = 0;
+  संरचना easy_pollset ps;
+  संरचना pollfd a_few_on_राशिः[अङ्कः_POLLS_ON_राशिः];
+  संरचना curl_pollfds cpfds;
+  unsigned पूर्णाङ्क curl_nfds = 0; /* how many pfds are for curl transfers */
+  संरचना Curl_easy *data = रिक्त;
   CURLMcode mresult = CURLM_OK;
   uint32_t mid;
 #ifdef ENABLE_WAKEUP
-  int wakeup_idx = -1;
+  पूर्णाङ्क wakeup_idx = -1;
 #endif
 
-  if(timeout_ms < 0)
-    return CURLM_BAD_FUNCTION_ARGUMENT;
+  सचे(timeout_ms < 0)
+    पटिनिवत्त CURLM_BAD_FUNCTION_ARGUMENT;
 
   Curl_pollset_init(&ps);
-  Curl_pollfds_init(&cpfds, a_few_on_stack, NUM_POLLS_ON_STACK);
+  Curl_pollfds_init(&cpfds, a_few_on_राशिः, अङ्कः_POLLS_ON_राशिः);
 
   /* Add the curl handles to our pollfds first */
-  if(Curl_uint32_bset_first(&multi->process, &mid)) {
-    do {
+  सचे(Curl_uint32_bset_first(&multi->process, &mid)) {
+    करोहि {
       data = Curl_multi_get_easy(multi, mid);
-      if(!data) {
+      सचे(!data) {
         DEBUGASSERT(0);
         Curl_uint32_bset_remove(&multi->process, mid);
         Curl_uint32_bset_remove(&multi->dirty, mid);
-        continue;
+        अनुवर्त;
       }
       Curl_multi_pollset(data, &ps);
-      if(Curl_pollfds_add_ps(&cpfds, &ps)) {
+      सचे(Curl_pollfds_add_ps(&cpfds, &ps)) {
         mresult = CURLM_OUT_OF_MEMORY;
-        goto out;
+        गच्छ out;
       }
-    } while(Curl_uint32_bset_next(&multi->process, mid, &mid));
+    } याव(Curl_uint32_bset_next(&multi->process, mid, &mid));
   }
 
-  if(Curl_cshutdn_add_pollfds(&multi->cshutdn, multi->admin, &cpfds)) {
+  सचे(Curl_cshutdn_add_pollfds(&multi->cshutdn, multi->admin, &cpfds)) {
     mresult = CURLM_OUT_OF_MEMORY;
-    goto out;
+    गच्छ out;
   }
 
 #ifdef ENABLE_WAKEUP
@@ -1578,28 +1578,28 @@ static CURLMcode multi_wait(struct Curl_multi *multi,
    * have transfer sockets to poll, we obey `timeout_ms`.
    * Then we need to also monitor the multi's wakeup
    * socket to catch calls to `curl_multi_wakeup()` during the wait. */
-  if(extrawait || cpfds.n || extra_nfds) {
+  सचे(extrawait || cpfds.n || extra_nfds) {
     wakeup_idx = cpfds.n;
-    if(Curl_pollfds_add_sock(&cpfds, multi->wakeup_pair[0], POLLIN)) {
+    सचे(Curl_pollfds_add_sock(&cpfds, multi->wakeup_pair[0], POLLIN)) {
       mresult = CURLM_OUT_OF_MEMORY;
-      goto out;
+      गच्छ out;
     }
   }
 #endif
 
   curl_nfds = cpfds.n; /* what curl internally uses in cpfds */
   /* Add external file descriptions from poll-like struct curl_waitfd */
-  for(i = 0; i < extra_nfds; i++) {
+  अत्थाय(i = 0; i < extra_nfds; i++) {
     unsigned short events = 0;
-    if(extra_fds[i].events & CURL_WAIT_POLLIN)
+    सचे(extra_fds[i].events & CURL_WAIT_POLLIN)
       events |= POLLIN;
-    if(extra_fds[i].events & CURL_WAIT_POLLPRI)
+    सचे(extra_fds[i].events & CURL_WAIT_POLLPRI)
       events |= POLLPRI;
-    if(extra_fds[i].events & CURL_WAIT_POLLOUT)
+    सचे(extra_fds[i].events & CURL_WAIT_POLLOUT)
       events |= POLLOUT;
-    if(Curl_pollfds_add_sock(&cpfds, extra_fds[i].fd, events)) {
+    सचे(Curl_pollfds_add_sock(&cpfds, extra_fds[i].fd, events)) {
       mresult = CURLM_OUT_OF_MEMORY;
-      goto out;
+      गच्छ out;
     }
   }
 
@@ -1609,11 +1609,11 @@ static CURLMcode multi_wait(struct Curl_multi *multi,
    * Use the shorter one of the internal and the caller requested timeout.
    * If we are called with `!extrawait` and multi_timeout() reports no
    * timeouts exist, do not wait. */
-  multi_timeout(multi, NULL, &timeout_internal);
-  if((timeout_internal >= 0) && (timeout_internal < timeout_ms))
+  multi_timeout(multi, रिक्त, &timeout_internal);
+  सचे((timeout_internal >= 0) && (timeout_internal < timeout_ms))
     timeout_ms = timeout_internal;
 
-  if(data)
+  सचे(data)
     CURL_TRC_M(data, "multi_wait(fds=%u, timeout=%d) tinternal=%d",
                cpfds.n, timeout_ms, timeout_internal);
 
@@ -1621,16 +1621,16 @@ static CURLMcode multi_wait(struct Curl_multi *multi,
   mresult = multi_winsock_select(multi, &cpfds, curl_nfds,
                                  extra_fds, extra_nfds,
                                  timeout_ms, extrawait, &nevents);
-#else
+#अञ्ञथा
   mresult = multi_posix_poll(multi, &cpfds, curl_nfds,
                              extra_fds, extra_nfds,
                              timeout_ms, extrawait, &nevents);
 #endif
 
 #ifdef ENABLE_WAKEUP
-    if(nevents && (wakeup_idx >= 0)) {
-      if(cpfds.pfds[wakeup_idx].revents & POLLIN) {
-        (void)Curl_wakeup_consume(multi->wakeup_pair, TRUE);
+    सचे(nevents && (wakeup_idx >= 0)) {
+      सचे(cpfds.pfds[wakeup_idx].revents & POLLIN) {
+        (शून्य)Curl_wakeup_consume(multi->wakeup_pair, TRUE);
         /* do not count the wakeup socket into the returned value */
         nevents--;
       }
@@ -1640,41 +1640,41 @@ static CURLMcode multi_wait(struct Curl_multi *multi,
 out:
   Curl_pollset_cleanup(&ps);
   Curl_pollfds_cleanup(&cpfds);
-  if(ret)
+  सचे(ret)
     *ret = nevents;
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 CURLMcode curl_multi_wait(CURLM *m,
-                          struct curl_waitfd extra_fds[],
-                          unsigned int extra_nfds,
-                          int timeout_ms,
-                          int *ret)
+                          संरचना curl_waitfd extra_fds[],
+                          unsigned पूर्णाङ्क extra_nfds,
+                          पूर्णाङ्क timeout_ms,
+                          पूर्णाङ्क *ret)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_wait, &mresult)) {
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_wait, &mresult)) {
     mresult = multi_wait(m, extra_fds, extra_nfds, timeout_ms, ret, FALSE);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 CURLMcode curl_multi_poll(CURLM *m,
-                          struct curl_waitfd extra_fds[],
-                          unsigned int extra_nfds,
-                          int timeout_ms,
-                          int *ret)
+                          संरचना curl_waitfd extra_fds[],
+                          unsigned पूर्णाङ्क extra_nfds,
+                          पूर्णाङ्क timeout_ms,
+                          पूर्णाङ्क *ret)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_poll, &mresult)) {
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_poll, &mresult)) {
     mresult = multi_wait(m, extra_fds, extra_nfds, timeout_ms, ret, TRUE);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 CURLMcode curl_multi_wakeup(CURLM *m)
@@ -1682,35 +1682,35 @@ CURLMcode curl_multi_wakeup(CURLM *m)
   /* this function is usually called from another thread,
      it has to be careful only to access parts of the
      Curl_multi struct that are constant */
-  struct Curl_multi *multi = m;
+  संरचना Curl_multi *multi = m;
   CURLMcode mresult = CURLM_WAKEUP_FAILURE;
 
   /* GOOD_MULTI_HANDLE can be safely called */
-  if(!GOOD_MULTI_HANDLE(multi))
-    return CURLM_BAD_HANDLE;
+  सचे(!GOOD_MULTI_HANDLE(multi))
+    पटिनिवत्त CURLM_BAD_HANDLE;
 
 #ifdef ENABLE_WAKEUP
   /* the wakeup_pair variable is only written during init and cleanup,
      making it safe to access from another thread after the init part
      and before cleanup */
-  if(!Curl_wakeup_signal(multi->wakeup_pair))
+  सचे(!Curl_wakeup_signal(multi->wakeup_pair))
     mresult = CURLM_OK;
 #endif
 #ifdef USE_WINSOCK
-  if(WSASetEvent(multi->wsa_event))
+  सचे(WSASetEvent(multi->wsa_event))
     mresult = CURLM_OK;
 #endif
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 #ifdef ENABLE_INTERNAL_WAKEUP
-void Curl_multi_wakeup_internal(struct Curl_multi *multi)
+शून्य Curl_multi_wakeup_internal(संरचना Curl_multi *multi)
 {
   /* This is expected to be invocable from another thread which
    * does NOT outlive the multi handle. Check for sanity. */
-  if(GOOD_MULTI_HANDLE(multi))
+  सचे(GOOD_MULTI_HANDLE(multi))
     Curl_wakeup_signal(multi->wakeup_internal);
-  else
+  अञ्ञथा
     DEBUGASSERT(0);
 }
 #endif
@@ -1723,16 +1723,16 @@ void Curl_multi_wakeup_internal(struct Curl_multi *multi)
  *
  * Set 'clear' to TRUE to have it also clear the state variable.
  */
-static bool multi_ischanged(struct Curl_multi *multi, bool clear)
+स्थिर bool multi_ischanged(संरचना Curl_multi *multi, bool clear)
 {
   bool retval = FALSE;
   DEBUGASSERT(multi);
-  if(multi) {
+  सचे(multi) {
     retval = (bool)multi->recheckstate;
-    if(clear)
+    सचे(clear)
       multi->recheckstate = FALSE;
   }
-  return retval;
+  पटिनिवत्त retval;
 }
 
 /*
@@ -1742,29 +1742,29 @@ static bool multi_ischanged(struct Curl_multi *multi, bool clear)
  * multi handle should move CONNECT_PEND handles back to CONNECT to have them
  * retry.
  */
-void Curl_multi_connchanged(struct Curl_multi *multi)
+शून्य Curl_multi_connchanged(संरचना Curl_multi *multi)
 {
   /* May be invoked for a `data->multi` when no multi is present. */
-  if(multi)
+  सचे(multi)
     multi->recheckstate = TRUE;
 }
 
-CURLMcode Curl_multi_add_perform(struct Curl_multi *multi,
-                                 struct Curl_easy *data,
-                                 struct connectdata *conn)
+CURLMcode Curl_multi_add_perform(संरचना Curl_multi *multi,
+                                 संरचना Curl_easy *data,
+                                 संरचना connectdata *conn)
 {
   CURLMcode mresult;
 
   mresult = Curl_multi_add_handle(multi, data);
-  if(!mresult) {
+  सचे(!mresult) {
     CURLcode result;
 
     /* pass in NULL for 'conn' here since we do not want to init the
        connection, only this transfer */
-    result = Curl_init_transfer(data, NULL);
-    if(result) {
+    result = Curl_init_transfer(data, रिक्त);
+    सचे(result) {
       Curl_multi_remove_handle(multi, data);
-      return CURLM_INTERNAL_ERROR;
+      पटिनिवत्त CURLM_INTERNAL_ERROR;
     }
 
     /* take this handle to the perform state right away */
@@ -1772,21 +1772,21 @@ CURLMcode Curl_multi_add_perform(struct Curl_multi *multi,
     Curl_attach_connection(data, conn, TRUE);
     CURL_REQ_SET_RECV(data);
   }
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-static CURLcode multi_do(struct Curl_easy *data, bool *done)
+स्थिर CURLcode multi_do(संरचना Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = data->conn;
 
   DEBUGASSERT(conn);
   DEBUGASSERT(conn->scheme);
 
-  if(conn->scheme->run->do_it)
+  सचे(conn->scheme->run->do_it)
     result = conn->scheme->run->do_it(data, done);
 
-  return result;
+  पटिनिवत्त result;
 }
 
 /*
@@ -1798,36 +1798,36 @@ static CURLcode multi_do(struct Curl_easy *data, bool *done)
  * (to DOING state when there is more work to do)
  */
 
-static CURLcode multi_do_more(struct Curl_easy *data, domore *complete)
+स्थिर CURLcode multi_do_more(संरचना Curl_easy *data, domore *complete)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = data->conn;
 
   *complete = DOMORE_INCOMPLETE;
 
-  if(conn->scheme->run->do_more)
+  सचे(conn->scheme->run->do_more)
     result = conn->scheme->run->do_more(data, complete);
 
-  return result;
+  पटिनिवत्त result;
 }
 
 /*
  * Check whether a timeout occurred, and handle it if it did
  */
-static bool multi_handle_timeout(struct Curl_easy *data,
-                                 const struct curltime *pnow,
+स्थिर bool multi_handle_timeout(संरचना Curl_easy *data,
+                                 ध्रुव संरचना curltime *pnow,
                                  bool *stream_error,
                                  CURLcode *result)
 {
   timediff_t timeout_ms;
 
   timeout_ms = Curl_timeleft_now_ms(data, pnow);
-  if(timeout_ms < 0) {
+  सचे(timeout_ms < 0) {
     /* Handle timed out */
     timerid base_timer = Curl_is_connecting(data) ?
                          TIMER_STARTSINGLE : TIMER_STARTOP;
-    timediff_t elapsed_ms = Curl_pgrs_since_ms(data, NULL, base_timer);
-    if(data->mstate == MSTATE_CONNECTING) {
+    timediff_t elapsed_ms = Curl_pgrs_since_ms(data, रिक्त, base_timer);
+    सचे(data->mstate == MSTATE_CONNECTING) {
       failf(data, "%s timed out after %" FMT_TIMEDIFF_T " milliseconds",
             data->conn->bits.dns_resolved ? "Connection" : "Resolving",
             elapsed_ms);
@@ -1835,33 +1835,33 @@ static bool multi_handle_timeout(struct Curl_easy *data,
        * but TLS handshake still ongoing */
       Curl_conn_report_failed(data, FIRSTSOCKET);
     }
-    else {
-      struct SingleRequest *k = &data->req;
-      if(k->size != -1) {
+    अञ्ञथा {
+      संरचना SingleRequest *k = &data->req;
+      सचे(k->size != -1) {
         failf(data, "Operation timed out after %" FMT_TIMEDIFF_T
               " milliseconds with %" FMT_OFF_T " out of %"
               FMT_OFF_T " bytes received",
               elapsed_ms, k->bytecount, k->size);
       }
-      else {
+      अञ्ञथा {
         failf(data, "Operation timed out after %" FMT_TIMEDIFF_T
               " milliseconds with %" FMT_OFF_T " bytes received",
               elapsed_ms, k->bytecount);
       }
     }
     *result = CURLE_OPERATION_TIMEDOUT;
-    if(data->conn) {
+    सचे(data->conn) {
       /* Force connection closed if the connection has indeed been used */
-      if(data->mstate > MSTATE_DO) {
+      सचे(data->mstate > MSTATE_DO) {
         streamclose(data->conn);
         *stream_error = TRUE;
       }
-      (void)multi_done(data, *result, TRUE);
+      (शून्य)multi_done(data, *result, TRUE);
     }
-    return TRUE;
+    पटिनिवत्त TRUE;
   }
 
-  return FALSE;
+  पटिनिवत्त FALSE;
 }
 
 /*
@@ -1870,19 +1870,19 @@ static bool multi_handle_timeout(struct Curl_easy *data,
  * protocol layer.
  */
 
-static CURLcode protocol_connecting(struct Curl_easy *data, bool *done)
+स्थिर CURLcode protocol_connecting(संरचना Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = data->conn;
 
-  if(conn && conn->scheme->run->connecting) {
+  सचे(conn && conn->scheme->run->connecting) {
     *done = FALSE;
     result = conn->scheme->run->connecting(data, done);
   }
-  else
+  अञ्ञथा
     *done = TRUE;
 
-  return result;
+  पटिनिवत्त result;
 }
 
 /*
@@ -1890,19 +1890,19 @@ static CURLcode protocol_connecting(struct Curl_easy *data, bool *done)
  * until the DOING phase is done on protocol layer.
  */
 
-static CURLcode protocol_doing(struct Curl_easy *data, bool *done)
+स्थिर CURLcode protocol_doing(संरचना Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = data->conn;
 
-  if(conn && conn->scheme->run->doing) {
+  सचे(conn && conn->scheme->run->doing) {
     *done = FALSE;
     result = conn->scheme->run->doing(data, done);
   }
-  else
+  अञ्ञथा
     *done = TRUE;
 
-  return result;
+  पटिनिवत्त result;
 }
 
 /*
@@ -1910,9 +1910,9 @@ static CURLcode protocol_doing(struct Curl_easy *data, bool *done)
  * proceed with some action.
  *
  */
-static CURLcode protocol_connect(struct Curl_easy *data, bool *protocol_done)
+स्थिर CURLcode protocol_connect(संरचना Curl_easy *data, bool *protocol_done)
 {
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(conn);
@@ -1920,34 +1920,34 @@ static CURLcode protocol_connect(struct Curl_easy *data, bool *protocol_done)
   DEBUGASSERT(Curl_conn_is_connected(conn, FIRSTSOCKET));
 
   *protocol_done = FALSE;
-  if(!conn->bits.protoconnstart) {
-    if(conn->scheme->run->connect_it) {
+  सचे(!conn->bits.protoconnstart) {
+    सचे(conn->scheme->run->connect_it) {
       /* Call the protocol-specific connect function */
       result = conn->scheme->run->connect_it(data, protocol_done);
-      if(result)
-        return result;
+      सचे(result)
+        पटिनिवत्त result;
     }
     conn->bits.protoconnstart = TRUE;
   }
 
   /* Unless this protocol does not have any protocol-connect callback, as
      then we know we are done. */
-  if(!conn->scheme->run->connecting)
+  सचे(!conn->scheme->run->connecting)
     *protocol_done = TRUE;
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 }
 
 /*
  * posttransfer() is called immediately after a transfer ends
  */
-static void multi_posttransfer(struct Curl_easy *data)
+स्थिर शून्य multi_posttransfer(संरचना Curl_easy *data)
 {
-#if defined(HAVE_SIGNAL) && defined(SIGPIPE) && !defined(MSG_NOSIGNAL)
+#सचे defined(HAVE_SIGNAL) && defined(SIGPIPE) && !defined(MSG_NOSIGNAL)
   /* restore the signal handler for SIGPIPE before we get back */
-  if(!data->set.no_signal)
-    signal(SIGPIPE, data->state.prev_signal);
-#else
-  (void)data;
+  सचे(!data->set.no_signal)
+    सङ्केत(SIGPIPE, data->state.prev_signal);
+#अञ्ञथा
+  (शून्य)data;
 #endif
 }
 
@@ -1957,51 +1957,51 @@ static void multi_posttransfer(struct Curl_easy *data)
  *
  * This function DOES NOT FREE the given URL.
  */
-static CURLcode multi_follow(struct Curl_easy *data,
-                             const struct Curl_scheme *handler,
-                             const char *newurl, /* the Location: string */
+स्थिर CURLcode multi_follow(संरचना Curl_easy *data,
+                             ध्रुव संरचना Curl_scheme *handler,
+                             ध्रुव वर्ण *newurl, /* the Location: string */
                              followtype type) /* see transfer.h */
 {
-  if(handler && handler->run->follow)
-    return handler->run->follow(data, newurl, type);
+  सचे(handler && handler->run->follow)
+    पटिनिवत्त handler->run->follow(data, newurl, type);
 
-  if(type == FOLLOW_RETRY)
+  सचे(type == FOLLOW_RETRY)
     /* Retries are generic and do not require protocol-specific redirect
        handling. */
-    return CURLE_OK;
+    पटिनिवत्त CURLE_OK;
 
-  return CURLE_TOO_MANY_REDIRECTS;
+  पटिनिवत्त CURLE_TOO_MANY_REDIRECTS;
 }
 
-static CURLcode mspeed_check(struct Curl_easy *data)
+स्थिर CURLcode mspeed_check(संरचना Curl_easy *data)
 {
-  if(Curl_rlimit_active(&data->progress.dl.rlimit) ||
+  सचे(Curl_rlimit_active(&data->progress.dl.rlimit) ||
      Curl_rlimit_active(&data->progress.ul.rlimit)) {
     /* check if our send/recv limits require idle waits */
-    const struct curltime *pnow = Curl_pgrs_now(data);
+    ध्रुव संरचना curltime *pnow = Curl_pgrs_now(data);
     timediff_t recv_ms, send_ms;
 
     send_ms = Curl_rlimit_wait_ms(&data->progress.ul.rlimit, pnow);
     recv_ms = Curl_rlimit_wait_ms(&data->progress.dl.rlimit, pnow);
 
-    if(send_ms || recv_ms) {
-      if(data->mstate != MSTATE_RATELIMITING) {
+    सचे(send_ms || recv_ms) {
+      सचे(data->mstate != MSTATE_RATELIMITING) {
         multistate(data, MSTATE_RATELIMITING);
       }
       Curl_expire_set(data, EXPIRE_TOOFAST, CURLMAX(send_ms, recv_ms), pnow);
       Curl_multi_clear_dirty(data);
       CURL_TRC_M(data, "[RLIMIT] waiting %" FMT_TIMEDIFF_T "ms",
                  CURLMAX(send_ms, recv_ms));
-      return CURLE_AGAIN;
+      पटिनिवत्त CURLE_AGAIN;
     }
-    else {
+    अञ्ञथा {
       /* when will the rate limits increase next? The transfer needs
        * to run again at that time or it may stall. */
       send_ms = Curl_rlimit_next_step_ms(&data->progress.ul.rlimit, pnow);
       recv_ms = Curl_rlimit_next_step_ms(&data->progress.dl.rlimit, pnow);
-      if(send_ms || recv_ms) {
+      सचे(send_ms || recv_ms) {
         timediff_t next_ms = CURLMIN(send_ms, recv_ms);
-        if(!next_ms)
+        सचे(!next_ms)
           next_ms = CURLMAX(send_ms, recv_ms);
         Curl_expire_set(data, EXPIRE_TOOFAST, next_ms, pnow);
         CURL_TRC_M(data, "[RLIMIT] next token update in %" FMT_TIMEDIFF_T "ms",
@@ -2010,41 +2010,41 @@ static CURLcode mspeed_check(struct Curl_easy *data)
     }
   }
 
-  if(data->mstate != MSTATE_PERFORMING) {
+  सचे(data->mstate != MSTATE_PERFORMING) {
     CURL_TRC_M(data, "[RLIMIT] wait over, continue");
     multistate(data, MSTATE_PERFORMING);
   }
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 }
 
-static CURLMcode multistate_performing(struct Curl_easy *data,
+स्थिर CURLMcode multistate_performing(संरचना Curl_easy *data,
                                        bool *stream_errorp,
                                        CURLcode *resultp)
 {
-  char *newurl = NULL;
+  वर्ण *newurl = रिक्त;
   bool retry = FALSE;
   CURLMcode mresult = CURLM_OK;
   CURLcode result = *resultp = CURLE_OK;
   *stream_errorp = FALSE;
 
-  if(mspeed_check(data) == CURLE_AGAIN)
-    return CURLM_OK;
+  सचे(mspeed_check(data) == CURLE_AGAIN)
+    पटिनिवत्त CURLM_OK;
 
   /* read/write data if it is ready to do so */
   result = Curl_sendrecv(data);
 
-  if(data->req.done || (result == CURLE_RECV_ERROR)) {
+  सचे(data->req.done || (result == CURLE_RECV_ERROR)) {
     /* If CURLE_RECV_ERROR happens early enough, we assume it was a race
      * condition and the server closed the reused connection exactly when we
      * wanted to use it, so figure out if that is indeed the case.
      */
     CURLcode ret = Curl_retry_request(data, &newurl);
-    if(!ret)
+    सचे(!ret)
       retry = !!newurl;
-    else if(!result)
+    अञ्ञथा सचे(!result)
       result = ret;
 
-    if(retry) {
+    सचे(retry) {
       /* if we are to retry, set the result to OK and consider the
          request as done */
       result = CURLE_OK;
@@ -2052,24 +2052,24 @@ static CURLMcode multistate_performing(struct Curl_easy *data,
     }
   }
 #ifndef CURL_DISABLE_HTTP
-  else if((result == CURLE_HTTP2_STREAM) &&
+  अञ्ञथा सचे((result == CURLE_HTTP2_STREAM) &&
           Curl_h2_http_1_1_error(data)) {
     CURLcode ret = Curl_retry_request(data, &newurl);
 
-    if(!ret) {
+    सचे(!ret) {
       infof(data, "Downgrades to HTTP/1.1");
       streamclose(data->conn);
       data->state.http_neg.wanted = CURL_HTTP_V1x;
       data->state.http_neg.allowed = CURL_HTTP_V1x;
       /* clear the error message bit too as we ignore the one we got */
       data->state.errorbuf = FALSE;
-      if(!newurl)
+      सचे(!newurl)
         /* typically for HTTP_1_1_REQUIRED error on first flight */
         newurl = Curl_bufref_dup(&data->state.url);
-      if(!newurl) {
+      सचे(!newurl) {
         result = CURLE_OUT_OF_MEMORY;
       }
-      else {
+      अञ्ञथा {
         /* if we are to retry, set the result to OK and consider the request
           as done */
         retry = TRUE;
@@ -2077,12 +2077,12 @@ static CURLMcode multistate_performing(struct Curl_easy *data,
         data->req.done = TRUE;
       }
     }
-    else
+    अञ्ञथा
       result = ret;
   }
 #endif
 
-  if(result) {
+  सचे(result) {
     /*
      * The transfer phase returned error, we mark the connection to get closed
      * to prevent being reused. This is because we cannot possibly know if the
@@ -2091,80 +2091,80 @@ static CURLMcode multistate_performing(struct Curl_easy *data,
      * connection.
      */
 
-    if(!(data->conn->scheme->flags & PROTOPT_DUAL) &&
+    सचे(!(data->conn->scheme->flags & PROTOPT_DUAL) &&
        result != CURLE_HTTP2_STREAM)
       streamclose(data->conn);
 
     multi_posttransfer(data);
     multi_done(data, result, TRUE);
   }
-  else if(data->req.done && !Curl_cwriter_is_paused(data)) {
-    const struct Curl_scheme *handler = data->conn->scheme;
+  अञ्ञथा सचे(data->req.done && !Curl_cwriter_is_paused(data)) {
+    ध्रुव संरचना Curl_scheme *handler = data->conn->scheme;
 
     /* call this even if the readwrite function returned error */
     multi_posttransfer(data);
 
     /* When we follow redirects or is set to retry the connection, we must to
        go back to the CONNECT state */
-    if(data->req.newurl || retry) {
+    सचे(data->req.newurl || retry) {
       followtype follow = FOLLOW_NONE;
-      if(!retry) {
+      सचे(!retry) {
         /* if the URL is a follow-location and not a retried request then
            figure out the URL here */
         curlx_free(newurl);
         newurl = data->req.newurl;
-        data->req.newurl = NULL;
+        data->req.newurl = रिक्त;
         follow = FOLLOW_REDIR;
       }
-      else
+      अञ्ञथा
         follow = FOLLOW_RETRY;
-      (void)multi_done(data, CURLE_OK, FALSE);
+      (शून्य)multi_done(data, CURLE_OK, FALSE);
       /* multi_done() might return CURLE_GOT_NOTHING */
       result = multi_follow(data, handler, newurl, follow);
-      if(!result) {
+      सचे(!result) {
         multistate(data, MSTATE_SETUP);
         mresult = CURLM_CALL_MULTI_PERFORM;
       }
     }
-    else {
+    अञ्ञथा {
       /* after the transfer is done, go DONE */
 
       /* but first check to see if we got a location info even though we are
          not following redirects */
-      if(data->req.location) {
+      सचे(data->req.location) {
         curlx_free(newurl);
         newurl = data->req.location;
-        data->req.location = NULL;
+        data->req.location = रिक्त;
         result = multi_follow(data, handler, newurl, FOLLOW_FAKE);
-        if(result) {
+        सचे(result) {
           *stream_errorp = TRUE;
           result = multi_done(data, result, TRUE);
         }
       }
 
-      if(!result) {
+      सचे(!result) {
         multistate(data, MSTATE_DONE);
         mresult = CURLM_CALL_MULTI_PERFORM;
       }
     }
   }
-  else { /* not errored, not done */
+  अञ्ञथा { /* not errored, not done */
     mspeed_check(data);
   }
   curlx_free(newurl);
   *resultp = result;
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-static CURLMcode multistate_do(struct Curl_easy *data,
+स्थिर CURLMcode multistate_do(संरचना Curl_easy *data,
                                bool *stream_errorp,
                                CURLcode *resultp)
 {
   CURLMcode mresult = CURLM_OK;
   CURLcode result = CURLE_OK;
-  if(data->set.fprereq) {
-    struct Curl_mapi_guard guard;
-    int prereq_rc;
+  सचे(data->set.fprereq) {
+    संरचना Curl_mapi_guard guard;
+    पूर्णाङ्क prereq_rc;
 
     /* call the prerequest callback function */
     CURL_CBAPI_START(&guard, data, easy_fprereq);
@@ -2174,40 +2174,40 @@ static CURLMcode multistate_do(struct Curl_easy *data,
                                   data->info.primary.remote_port,
                                   data->info.primary.local_port);
     CURL_CBAPI_END(&guard);
-    if(prereq_rc != CURL_PREREQFUNC_OK) {
+    सचे(prereq_rc != CURL_PREREQFUNC_OK) {
       failf(data, "operation aborted by pre-request callback");
       /* failure in pre-request callback - do not do any other processing */
       result = CURLE_ABORTED_BY_CALLBACK;
       multi_posttransfer(data);
       multi_done(data, result, FALSE);
       *stream_errorp = TRUE;
-      goto end;
+      गच्छ end;
     }
   }
 
-  if(data->set.connect_only && !data->set.connect_only_ws) {
+  सचे(data->set.connect_only && !data->set.connect_only_ws) {
     multistate(data, MSTATE_DONE);
     mresult = CURLM_CALL_MULTI_PERFORM;
   }
-  else {
+  अञ्ञथा {
     bool dophase_done = FALSE;
     /* Perform the protocol's DO action */
     result = multi_do(data, &dophase_done);
 
-    if(!result) {
-      if(!dophase_done) {
+    सचे(!result) {
+      सचे(!dophase_done) {
 #ifndef CURL_DISABLE_FTP
         /* some steps needed for wildcard matching */
-        if(data->state.wildcardmatch) {
-          struct WildcardData *wc = data->wildcard;
-          if(wc->state == CURLWC_DONE || wc->state == CURLWC_SKIP) {
+        सचे(data->state.wildcardmatch) {
+          संरचना WildcardData *wc = data->wildcard;
+          सचे(wc->state == CURLWC_DONE || wc->state == CURLWC_SKIP) {
             /* skip some states if it is important */
             multi_done(data, CURLE_OK, FALSE);
 
             /* if there is no connection left, skip the DONE state */
             multistate(data, data->conn ? MSTATE_DONE : MSTATE_COMPLETED);
             mresult = CURLM_CALL_MULTI_PERFORM;
-            goto end;
+            गच्छ end;
           }
         }
 #endif
@@ -2218,32 +2218,32 @@ static CURLMcode multistate_do(struct Curl_easy *data,
       }
 
       /* after DO, go DO_DONE... or DO_MORE */
-      else if(data->conn->bits.do_more) {
+      अञ्ञथा सचे(data->conn->bits.do_more) {
         /* we are supposed to do more, but we need to sit down, relax and wait
            a little while first */
         multistate(data, MSTATE_DOING_MORE);
         mresult = CURLM_CALL_MULTI_PERFORM;
       }
-      else {
+      अञ्ञथा {
         /* we are done with the DO, now DID */
         multistate(data, MSTATE_DID);
         mresult = CURLM_CALL_MULTI_PERFORM;
       }
     }
-    else if((result == CURLE_SEND_ERROR) &&
+    अञ्ञथा सचे((result == CURLE_SEND_ERROR) &&
             data->conn->bits.reuse) {
       /*
        * In this situation, a connection that we were trying to use may have
        * unexpectedly died. If possible, send the connection back to the
        * CONNECT phase so we can try again.
        */
-      const struct Curl_scheme *handler = data->conn->scheme;
-      char *newurl = NULL;
+      ध्रुव संरचना Curl_scheme *handler = data->conn->scheme;
+      वर्ण *newurl = रिक्त;
       followtype follow = FOLLOW_NONE;
       CURLcode drc;
 
       drc = Curl_retry_request(data, &newurl);
-      if(drc) {
+      सचे(drc) {
         /* a failure here pretty much implies an out of memory */
         result = drc;
         *stream_errorp = TRUE;
@@ -2254,45 +2254,45 @@ static CURLMcode multistate_do(struct Curl_easy *data,
 
       /* When set to retry the connection, we must go back to the CONNECT
        * state */
-      if(newurl) {
-        if(!drc || (drc == CURLE_SEND_ERROR)) {
+      सचे(newurl) {
+        सचे(!drc || (drc == CURLE_SEND_ERROR)) {
           follow = FOLLOW_RETRY;
           drc = multi_follow(data, handler, newurl, follow);
-          if(!drc) {
+          सचे(!drc) {
             multistate(data, MSTATE_SETUP);
             mresult = CURLM_CALL_MULTI_PERFORM;
             result = CURLE_OK;
           }
-          else {
+          अञ्ञथा {
             /* Follow failed */
             result = drc;
           }
         }
-        else {
+        अञ्ञथा {
           /* done did not return OK or SEND_ERROR */
           result = drc;
         }
       }
-      else {
+      अञ्ञथा {
         /* Have error handler disconnect conn if we cannot retry */
         *stream_errorp = TRUE;
       }
       curlx_free(newurl);
     }
-    else {
+    अञ्ञथा {
       /* failure detected */
       multi_posttransfer(data);
-      if(data->conn)
+      सचे(data->conn)
         multi_done(data, result, FALSE);
       *stream_errorp = TRUE;
     }
   }
 end:
   *resultp = result;
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-static CURLMcode multistate_ratelimiting(struct Curl_easy *data,
+स्थिर CURLMcode multistate_ratelimiting(संरचना Curl_easy *data,
                                          CURLcode *resultp)
 {
   CURLcode result = CURLE_OK;
@@ -2301,24 +2301,24 @@ static CURLMcode multistate_ratelimiting(struct Curl_easy *data,
   /* if both rates are within spec, resume transfer */
   result = Curl_pgrsCheck(data);
 
-  if(result) {
-    if(!(data->conn->scheme->flags & PROTOPT_DUAL) &&
+  सचे(result) {
+    सचे(!(data->conn->scheme->flags & PROTOPT_DUAL) &&
        result != CURLE_HTTP2_STREAM)
       streamclose(data->conn);
 
     multi_posttransfer(data);
     multi_done(data, result, TRUE);
   }
-  else {
-    if(!mspeed_check(data))
+  अञ्ञथा {
+    सचे(!mspeed_check(data))
       mresult = CURLM_CALL_MULTI_PERFORM;
   }
   *resultp = result;
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-static CURLMcode multistate_connect(struct Curl_multi *multi,
-                                    struct Curl_easy *data,
+स्थिर CURLMcode multistate_connect(संरचना Curl_multi *multi,
+                                    संरचना Curl_easy *data,
                                     CURLcode *resultp)
 {
   /* Connect. We want to get a connection identifier filled in. This state can
@@ -2326,7 +2326,7 @@ static CURLMcode multistate_connect(struct Curl_multi *multi,
   bool connected;
   CURLMcode mresult = CURLM_OK;
   CURLcode result = Curl_connect(data, &connected);
-  if(result == CURLE_NO_CONNECTION_AVAILABLE) {
+  सचे(result == CURLE_NO_CONNECTION_AVAILABLE) {
     /* There was no connection available. We will go to the pending state and
        wait for an available connection. */
     multistate(data, MSTATE_PENDING);
@@ -2335,42 +2335,42 @@ static CURLMcode multistate_connect(struct Curl_multi *multi,
     Curl_uint32_bset_remove(&multi->dirty, data->mid);
     Curl_uint32_bset_add(&multi->pending, data->mid);
     *resultp = CURLE_OK;
-    return mresult;
+    पटिनिवत्त mresult;
   }
-  else
+  अञ्ञथा
     multi_schedule_pending(data->multi);
 
-  if(!result) {
+  सचे(!result) {
     /* after the connect has been sent off, go WAITCONNECT unless the
        protocol connect is already done and we can go directly to WAITDO or
        DO! */
     mresult = CURLM_CALL_MULTI_PERFORM;
 
-    if(connected) {
-      if(!data->conn->bits.reuse &&
+    सचे(connected) {
+      सचे(!data->conn->bits.reuse &&
          Curl_conn_is_multiplex(data->conn, FIRSTSOCKET)) {
         /* new connection, can multiplex, wake pending handles */
         multi_schedule_pending(data->multi);
       }
       multistate(data, MSTATE_PROTOCONNECT);
     }
-    else {
+    अञ्ञथा {
       multistate(data, MSTATE_CONNECTING);
     }
   }
   *resultp = result;
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 /* returns the possibly updated result */
-static CURLcode is_finished(struct Curl_multi *multi,
-                            struct Curl_easy *data,
-                            const struct curltime *pnow,
+स्थिर CURLcode is_finished(संरचना Curl_multi *multi,
+                            संरचना Curl_easy *data,
+                            ध्रुव संरचना curltime *pnow,
                             bool stream_error,
                             CURLcode result)
 {
-  if(data->mstate < MSTATE_COMPLETED) {
-    if(result) {
+  सचे(data->mstate < MSTATE_COMPLETED) {
+    सचे(result) {
       /*
        * If an error was returned, and we are not in completed state now,
        * then we go to completed and consider this transfer aborted.
@@ -2382,11 +2382,11 @@ static CURLcode is_finished(struct Curl_multi *multi,
       /* Check if we can move pending requests to send pipe */
       multi_schedule_pending(multi); /* connection */
 
-      if(data->conn) {
-        if(stream_error) {
+      सचे(data->conn) {
+        सचे(stream_error) {
           /* Do not attempt to send data over a connection that timed out */
           bool dead_connection = result == CURLE_OPERATION_TIMEDOUT;
-          struct connectdata *conn = data->conn;
+          संरचना connectdata *conn = data->conn;
 
           /* This is where we make sure that the conn pointer is reset.
              We do not have to do this in every case block above where a
@@ -2395,59 +2395,59 @@ static CURLcode is_finished(struct Curl_multi *multi,
           Curl_conn_close(data, conn, dead_connection);
         }
       }
-      else if(data->mstate == MSTATE_CONNECT) {
+      अञ्ञथा सचे(data->mstate == MSTATE_CONNECT) {
         /* Curl_connect() failed */
         multi_posttransfer(data);
         Curl_pgrsUpdate_nometer(data);
       }
 
       multistate(data, MSTATE_COMPLETED);
-      return result;
+      पटिनिवत्त result;
     }
     /* if there is still a connection to use, call the progress function */
-    else if(data->conn && Curl_conn_is_connected(data->conn, FIRSTSOCKET)) {
+    अञ्ञथा सचे(data->conn && Curl_conn_is_connected(data->conn, FIRSTSOCKET)) {
       result = Curl_pgrsUpdateX(data, pnow);
-      if(result) {
+      सचे(result) {
         /* aborted due to progress callback return code must close the
            connection */
         streamclose(data->conn);
 
         /* if not yet in DONE state, go there. */
-        if(data->mstate < MSTATE_DONE)
+        सचे(data->mstate < MSTATE_DONE)
           multistate(data, MSTATE_DONE);
-        return result;
+        पटिनिवत्त result;
       }
     }
   }
-  return result;
+  पटिनिवत्त result;
 }
 
-static void handle_completed(struct Curl_multi *multi,
-                             struct Curl_easy *data,
+स्थिर शून्य handle_completed(संरचना Curl_multi *multi,
+                             संरचना Curl_easy *data,
                              CURLcode result)
 {
-  bool msg_to_app = data->master_mid == UINT32_MAX;
+  bool सन्देशः_to_app = data->master_mid == UINT32_MAX;
 
-  if(!msg_to_app) {
+  सचे(!सन्देशः_to_app) {
     /* A sub transfer, not reported to the application. Is anyone still
      * interested in processing its results? */
-    if(data->sub_xfer_done) {
-      struct Curl_easy *master = Curl_multi_get_easy(multi, data->master_mid);
+    सचे(data->sub_xfer_done) {
+      संरचना Curl_easy *master = Curl_multi_get_easy(multi, data->master_mid);
 
       CURL_TRC_M(data, "sub xfer done for master %u", data->master_mid);
-      if(master)
+      सचे(master)
         data->sub_xfer_done(data, master, result);
-      else
+      अञ्ञथा
         CURL_TRC_M(data, "master easy %u already gone.", data->master_mid);
     }
   }
-  else {
+  अञ्ञथा {
     /* now fill in the CURLMsg with this info */
-    struct CURLMsg *msg = &data->msg;
+    संरचना CURLMsg *सन्देशः = &data->सन्देशः;
 
-    msg->msg = CURLMSG_DONE;
-    msg->easy_handle = data;
-    msg->data.result = result;
+    सन्देशः->सन्देशः = CURLMSG_DONE;
+    सन्देशः->easy_handle = data;
+    सन्देशः->data.result = result;
 
     DEBUGASSERT(!data->conn);
   }
@@ -2457,50 +2457,50 @@ static void handle_completed(struct Curl_multi *multi,
   Curl_uint32_bset_remove(&multi->process, data->mid);
   Curl_uint32_bset_remove(&multi->dirty, data->mid);
   Curl_uint32_bset_remove(&multi->pending, data->mid);
-  if(msg_to_app)
+  सचे(सन्देशः_to_app)
     multi_addmsg(multi, data);
-  if(data->state.really_alive) {
+  सचे(data->state.really_alive) {
     data->state.really_alive = FALSE;
     --multi->xfers_really_alive;
-    if(!multi->xfers_really_alive)
-      (void)multi_assess_wakeup(multi);
+    सचे(!multi->xfers_really_alive)
+      (शून्य)multi_assess_wakeup(multi);
   }
   --multi->xfers_alive;
-  if(!multi->xfers_alive)
+  सचे(!multi->xfers_alive)
     multi_assess_wakeup(multi);
 }
 
-static CURLMcode multistate_init(struct Curl_easy *data, CURLcode *result)
+स्थिर CURLMcode multistate_init(संरचना Curl_easy *data, CURLcode *result)
 {
-  if(!data->state.really_alive) {
+  सचे(!data->state.really_alive) {
     data->state.really_alive = TRUE;
     ++data->multi->xfers_really_alive;
-    if(data->multi->xfers_really_alive == 1) {
+    सचे(data->multi->xfers_really_alive == 1) {
       CURLMcode mresult = multi_assess_wakeup(data->multi);
-      if(mresult) {
+      सचे(mresult) {
         failf(data, "error enabling wakeup listening: %d", mresult);
-        return mresult;
+        पटिनिवत्त mresult;
       }
     }
   }
 
   *result = Curl_pretransfer(data);
-  if(*result)
-    return CURLM_OK;
+  सचे(*result)
+    पटिनिवत्त CURLM_OK;
 
   /* after init, go SETUP */
   multistate(data, MSTATE_SETUP);
   Curl_pgrsTime(data, TIMER_STARTOP);
-  return CURLM_CALL_MULTI_PERFORM;
+  पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
 }
 
-static CURLMcode multistate_setup(struct Curl_easy *data)
+स्थिर CURLMcode multistate_setup(संरचना Curl_easy *data)
 {
-  const struct curltime *pnow = Curl_pgrs_now(data);
+  ध्रुव संरचना curltime *pnow = Curl_pgrs_now(data);
   Curl_pgrsTimeWas(data, TIMER_STARTSINGLE, *pnow);
-  if(data->set.timeout)
+  सचे(data->set.timeout)
     Curl_expire_set(data, EXPIRE_TIMEOUT, data->set.timeout, pnow);
-  if(data->set.connecttimeout)
+  सचे(data->set.connecttimeout)
     /* Since a connection might go to pending and back to CONNECT several
        times before it actually takes off, we need to set the timeout once
        in SETUP before we enter CONNECT the first time. */
@@ -2508,78 +2508,78 @@ static CURLMcode multistate_setup(struct Curl_easy *data)
                     data->set.connecttimeout, pnow);
 
   multistate(data, MSTATE_CONNECT);
-  return CURLM_CALL_MULTI_PERFORM;
+  पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
 }
 
-static CURLMcode multistate_connecting(struct Curl_easy *data,
+स्थिर CURLMcode multistate_connecting(संरचना Curl_easy *data,
                                        bool *stream_error,
                                        CURLcode *result)
 {
   bool connected;
 
-  if(!data->conn) {
+  सचे(!data->conn) {
     DEBUGASSERT(0);
     *result = CURLE_FAILED_INIT;
-    return CURLM_OK;
+    पटिनिवत्त CURLM_OK;
   }
-  if(!Curl_xfer_recv_is_paused(data)) {
+  सचे(!Curl_xfer_recv_is_paused(data)) {
     *result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &connected);
-    if(connected && !*result) {
-      if(!data->conn->bits.reuse &&
+    सचे(connected && !*result) {
+      सचे(!data->conn->bits.reuse &&
          Curl_conn_is_multiplex(data->conn, FIRSTSOCKET)) {
         /* new connection, can multiplex, wake pending handles */
         multi_schedule_pending(data->multi);
       }
       multistate(data, MSTATE_PROTOCONNECT);
-      return CURLM_CALL_MULTI_PERFORM;
+      पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
     }
-    else if(*result) {
+    अञ्ञथा सचे(*result) {
       /* failure detected */
-      CURL_TRC_M(data, "connect failed -> %d", (int)*result);
+      CURL_TRC_M(data, "connect failed -> %d", (पूर्णाङ्क)*result);
       multi_posttransfer(data);
       multi_done(data, *result, TRUE);
       *stream_error = TRUE;
-      return CURLM_OK;
+      पटिनिवत्त CURLM_OK;
     }
   }
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
-static CURLMcode multistate_protoconnect(struct Curl_easy *data,
+स्थिर CURLMcode multistate_protoconnect(संरचना Curl_easy *data,
                                          bool *stream_error,
                                          CURLcode *result)
 {
   bool protocol_connected = FALSE;
 
-  if(!*result && data->conn->bits.reuse) {
+  सचे(!*result && data->conn->bits.reuse) {
     /* ftp seems to hang when protoconnect on reused connection since we
      * handle PROTOCONNECT in general inside the filters, it seems wrong to
      * restart this on a reused connection.
      */
     multistate(data, MSTATE_DO);
-    return CURLM_CALL_MULTI_PERFORM;
+    पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
   }
-  if(!*result)
+  सचे(!*result)
     *result = protocol_connect(data, &protocol_connected);
-  if(!*result && !protocol_connected) {
+  सचे(!*result && !protocol_connected) {
     /* switch to waiting state */
     multistate(data, MSTATE_PROTOCONNECTING);
-    return CURLM_CALL_MULTI_PERFORM;
+    पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
   }
-  else if(!*result) {
+  अञ्ञथा सचे(!*result) {
     /* protocol connect has completed, go WAITDO or DO */
     multistate(data, MSTATE_DO);
-    return CURLM_CALL_MULTI_PERFORM;
+    पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
   }
 
   /* failure detected */
   multi_posttransfer(data);
   multi_done(data, *result, TRUE);
   *stream_error = TRUE;
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
-static CURLMcode multistate_protoconnecting(struct Curl_easy *data,
+स्थिर CURLMcode multistate_protoconnecting(संरचना Curl_easy *data,
                                             bool *stream_error,
                                             CURLcode *result)
 {
@@ -2587,21 +2587,21 @@ static CURLMcode multistate_protoconnecting(struct Curl_easy *data,
 
   /* protocol-specific connect phase */
   *result = protocol_connecting(data, &protocol_connected);
-  if(!*result && protocol_connected) {
+  सचे(!*result && protocol_connected) {
     /* after the connect has completed, go WAITDO or DO */
     multistate(data, MSTATE_DO);
-    return CURLM_CALL_MULTI_PERFORM;
+    पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
   }
-  else if(*result) {
+  अञ्ञथा सचे(*result) {
     /* failure detected */
     multi_posttransfer(data);
     multi_done(data, *result, TRUE);
     *stream_error = TRUE;
   }
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
-static CURLMcode multistate_doing(struct Curl_easy *data,
+स्थिर CURLMcode multistate_doing(संरचना Curl_easy *data,
                                   bool *stream_error,
                                   CURLcode *result)
 {
@@ -2610,24 +2610,24 @@ static CURLMcode multistate_doing(struct Curl_easy *data,
   /* we continue DOING until the DO phase is complete */
   DEBUGASSERT(data->conn);
   *result = protocol_doing(data, &dophase_done);
-  if(!*result) {
-    if(dophase_done) {
+  सचे(!*result) {
+    सचे(dophase_done) {
       /* after DO, go DO_DONE or DO_MORE */
       multistate(data, data->conn->bits.do_more ?
                  MSTATE_DOING_MORE : MSTATE_DID);
-      return CURLM_CALL_MULTI_PERFORM;
+      पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
     } /* dophase_done */
   }
-  else {
+  अञ्ञथा {
     /* failure detected */
     multi_posttransfer(data);
     multi_done(data, *result, FALSE);
     *stream_error = TRUE;
   }
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
-static CURLMcode multistate_doing_more(struct Curl_easy *data,
+स्थिर CURLMcode multistate_doing_more(संरचना Curl_easy *data,
                                        bool *stream_error,
                                        CURLcode *result)
 {
@@ -2639,96 +2639,96 @@ static CURLMcode multistate_doing_more(struct Curl_easy *data,
   DEBUGASSERT(data->conn);
   *result = multi_do_more(data, &control);
 
-  if(!*result) {
-    if(control != DOMORE_INCOMPLETE) {
+  सचे(!*result) {
+    सचे(control != DOMORE_INCOMPLETE) {
       /* if DONE, advance to DO_DONE
          if GOBACK, go back to DOING */
       multistate(data, control == DOMORE_DONE ? MSTATE_DID : MSTATE_DOING);
-      return CURLM_CALL_MULTI_PERFORM;
+      पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
     }
     /* else
        stay in DO_MORE */
   }
-  else {
+  अञ्ञथा {
     /* failure detected */
     multi_posttransfer(data);
     multi_done(data, *result, FALSE);
     *stream_error = TRUE;
   }
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
-static CURLMcode multistate_did(struct Curl_multi *multi,
-                                struct Curl_easy *data)
+स्थिर CURLMcode multistate_did(संरचना Curl_multi *multi,
+                                संरचना Curl_easy *data)
 {
   DEBUGASSERT(data->conn);
-  if(data->conn->bits.multiplex)
+  सचे(data->conn->bits.multiplex)
     /* Check if we can move pending requests to send pipe */
     multi_schedule_pending(multi); /* multiplexed */
 
   /* Only perform the transfer if there is a good socket to work with.
      Having both BAD is a signal to skip immediately to DONE */
-  if(CONN_SOCK_IDX_VALID(data->conn->recv_idx) ||
+  सचे(CONN_SOCK_IDX_VALID(data->conn->recv_idx) ||
      CONN_SOCK_IDX_VALID(data->conn->send_idx)) {
     multistate(data, MSTATE_PERFORMING);
     /* Do not return CURLM_CALL_MULTI_PERFORM to give other transfers
      * a chance to send off their requests.
      * Note: Some SFTP handlers do not seem to like this.
      *       Restrict it to HTTP families. */
-    return ((multi->xfers_alive > 1) &&
+    पटिनिवत्त ((multi->xfers_alive > 1) &&
             (data->conn->scheme->protocol & PROTO_FAMILY_HTTP)) ?
            CURLM_OK : CURLM_CALL_MULTI_PERFORM;
   }
-  else {
+  अञ्ञथा {
 #ifndef CURL_DISABLE_FTP
-    if(data->state.wildcardmatch &&
+    सचे(data->state.wildcardmatch &&
        ((data->conn->scheme->flags & PROTOPT_WILDCARD) == 0)) {
       data->wildcard->state = CURLWC_DONE;
     }
 #endif
     multistate(data, MSTATE_DONE);
-    return CURLM_CALL_MULTI_PERFORM;
+    पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
   }
 }
 
-static CURLMcode multistate_done(struct Curl_easy *data, CURLcode *presult)
+स्थिर CURLMcode multistate_done(संरचना Curl_easy *data, CURLcode *presult)
 {
-  if(data->conn) {
+  सचे(data->conn) {
     CURLcode result;
 
     /* post-transfer command */
     result = multi_done(data, *presult, FALSE);
 
     /* allow a previously set error code take precedence */
-    if(!(*presult))
+    सचे(!(*presult))
       *presult = result;
   }
 
 #ifndef CURL_DISABLE_FTP
-  if(data->state.wildcardmatch) {
-    if(data->wildcard->state != CURLWC_DONE) {
+  सचे(data->state.wildcardmatch) {
+    सचे(data->wildcard->state != CURLWC_DONE) {
       /* if a wildcard is set and we are not ending -> lets start again
          with MSTATE_INIT */
       multistate(data, MSTATE_INIT);
-      return CURLM_CALL_MULTI_PERFORM;
+      पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
     }
   }
 #endif
   /* after we have DONE what we are supposed to do, go COMPLETED, and
      it does not matter what the multi_done() returned! */
   multistate(data, MSTATE_COMPLETED);
-  return CURLM_CALL_MULTI_PERFORM;
+  पटिनिवत्त CURLM_CALL_MULTI_PERFORM;
 }
 
-static CURLMcode multi_runsingle(struct Curl_multi *multi,
-                                 struct Curl_easy *data,
-                                 struct Curl_sigpipe_ctx *sigpipe_ctx)
+स्थिर CURLMcode multi_runsingle(संरचना Curl_multi *multi,
+                                 संरचना Curl_easy *data,
+                                 संरचना Curl_sigpipe_ctx *sigpipe_ctx)
 {
   CURLMcode mresult = CURLM_OK;
   CURLcode result = CURLE_OK;
-  const struct curltime *pnow = NULL;
+  ध्रुव संरचना curltime *pnow = रिक्त;
 
-  if(multi->dead) {
+  सचे(multi->dead) {
     /* a multi-level callback returned error before, meaning every individual
      transfer now has failed */
     result = CURLE_ABORTED_BY_CALLBACK;
@@ -2743,129 +2743,129 @@ static CURLMcode multi_runsingle(struct Curl_multi *multi,
    * again during processing, triggering a re-run later. */
   Curl_uint32_bset_remove(&multi->dirty, data->mid);
 
-  if(data == multi->admin) {
+  सचे(data == multi->admin) {
 #ifdef ENABLE_INTERNAL_WAKEUP
     /* Consume any pending wakeup signals before processing.
      * This is necessary for event based processing. See #21547 */
-    (void)Curl_wakeup_consume(multi->wakeup_internal, TRUE);
+    (शून्य)Curl_wakeup_consume(multi->wakeup_internal, TRUE);
 #endif
 #ifdef USE_RESOLV_THREADED
     Curl_async_thrdd_multi_process(multi);
 #endif
     Curl_cshutdn_perform(&multi->cshutdn, multi->admin, sigpipe_ctx);
-    goto out;
+    गच्छ out;
   }
 
   sigpipe_apply(data, sigpipe_ctx);
-  do {
+  करोहि {
     /* A "stream" here is a logical stream if the protocol can handle that
        (HTTP/2), or the full connection for older protocols */
     bool stream_error = FALSE;
     mresult = CURLM_OK;
-    pnow = NULL;
+    pnow = रिक्त;
 
-    if(multi_ischanged(multi, TRUE)) {
+    सचे(multi_ischanged(multi, TRUE)) {
       CURL_TRC_M(data, "multi changed, check CONNECT_PEND queue");
       multi_schedule_pending(multi); /* multiplexed */
     }
 
-    if(data->mstate > MSTATE_CONNECT &&
+    सचे(data->mstate > MSTATE_CONNECT &&
        data->mstate < MSTATE_COMPLETED) {
       /* Make sure we set the connection's current owner */
       DEBUGASSERT(data->conn);
-      if(!data->conn) {
+      सचे(!data->conn) {
         mresult = CURLM_INTERNAL_ERROR;
-        goto out;
+        गच्छ out;
       }
     }
 
     /* Wait for the connect state as only then is the start time stored, but
        we must not check already completed handles */
-    if((data->mstate >= MSTATE_CONNECT) && (data->mstate < MSTATE_COMPLETED)) {
+    सचे((data->mstate >= MSTATE_CONNECT) && (data->mstate < MSTATE_COMPLETED)) {
       pnow = Curl_pgrs_now(data);
-      if(multi_handle_timeout(data, pnow, &stream_error, &result))
+      सचे(multi_handle_timeout(data, pnow, &stream_error, &result))
         /* Skip the statemachine and go directly to error handling section. */
-        goto statemachine_end;
-      pnow = NULL;
+        गच्छ statemachine_end;
+      pnow = रिक्त;
     }
 
-    switch(data->mstate) {
-    case MSTATE_INIT:
+    विकल्प(data->mstate) {
+    पक्ष MSTATE_INIT:
       /* Transitional state. init this transfer. A handle never comes back to
          this state. */
       mresult = multistate_init(data, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_SETUP:
+    पक्ष MSTATE_SETUP:
       /* Transitional state. Setup things for a new transfer. The handle
          can come back to this state on a redirect. */
       mresult = multistate_setup(data);
-      break;
+      भङ्ग;
 
-    case MSTATE_CONNECT:
+    पक्ष MSTATE_CONNECT:
       mresult = multistate_connect(multi, data, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_CONNECTING:
+    पक्ष MSTATE_CONNECTING:
       /* awaiting a completion of an asynch TCP connect */
       mresult = multistate_connecting(data, &stream_error, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_PROTOCONNECT:
+    पक्ष MSTATE_PROTOCONNECT:
       mresult = multistate_protoconnect(data, &stream_error, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_PROTOCONNECTING:
+    पक्ष MSTATE_PROTOCONNECTING:
       /* protocol-specific connect phase */
       mresult = multistate_protoconnecting(data, &stream_error, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_DO:
+    पक्ष MSTATE_DO:
       mresult = multistate_do(data, &stream_error, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_DOING:
+    पक्ष MSTATE_DOING:
       /* we continue DOING until the DO phase is complete */
       mresult = multistate_doing(data, &stream_error, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_DOING_MORE:
+    पक्ष MSTATE_DOING_MORE:
       /*
        * When we are connected, DOING MORE and then go DID
        */
       mresult = multistate_doing_more(data, &stream_error, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_DID:
+    पक्ष MSTATE_DID:
       mresult = multistate_did(multi, data);
-      break;
+      भङ्ग;
 
-    case MSTATE_RATELIMITING: /* limit-rate exceeded in either direction */
+    पक्ष MSTATE_RATELIMITING: /* limit-rate exceeded in either direction */
       mresult = multistate_ratelimiting(data, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_PERFORMING:
+    पक्ष MSTATE_PERFORMING:
       mresult = multistate_performing(data, &stream_error, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_DONE:
+    पक्ष MSTATE_DONE:
       mresult = multistate_done(data, &result);
-      break;
+      भङ्ग;
 
-    case MSTATE_COMPLETED:
-      break;
+    पक्ष MSTATE_COMPLETED:
+      भङ्ग;
 
-    case MSTATE_PENDING:
-    case MSTATE_MSGSENT:
+    पक्ष MSTATE_PENDING:
+    पक्ष MSTATE_MSGSENT:
       /* handles in these states should NOT be in this list */
-      break;
+      भङ्ग;
 
-    default:
+    स्वभाव:
       mresult = CURLM_INTERNAL_ERROR;
-      goto out;
+      गच्छ out;
     }
 
-    if(data->mstate >= MSTATE_CONNECT &&
+    सचे(data->mstate >= MSTATE_CONNECT &&
        data->mstate < MSTATE_DO &&
        mresult != CURLM_CALL_MULTI_PERFORM &&
        !multi_ischanged(multi, FALSE)) {
@@ -2880,59 +2880,59 @@ static CURLMcode multi_runsingle(struct Curl_multi *multi,
     }
 
 statemachine_end:
-    if(!pnow)
+    सचे(!pnow)
       pnow = Curl_pgrs_now(data);
     result = is_finished(multi, data, pnow, stream_error, result);
-    if(result)
+    सचे(result)
       mresult = CURLM_CALL_MULTI_PERFORM;
 
-    if(MSTATE_COMPLETED == data->mstate) {
+    सचे(MSTATE_COMPLETED == data->mstate) {
       handle_completed(multi, data, result);
       mresult = CURLM_OK;
-      goto out;
+      गच्छ out;
     }
-  } while((mresult == CURLM_CALL_MULTI_PERFORM) ||
+  } याव((mresult == CURLM_CALL_MULTI_PERFORM) ||
           multi_ischanged(multi, FALSE));
 
 out:
   data->result = result;
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-static CURLMcode multi_perform(struct Curl_multi *multi,
-                               int *running_handles)
+स्थिर CURLMcode multi_perform(संरचना Curl_multi *multi,
+                               पूर्णाङ्क *running_handles)
 {
   CURLMcode returncode = CURLM_OK;
-  struct curltime start;
+  संरचना curltime start;
   uint32_t mid;
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  संरचना Curl_sigpipe_ctx sigpipe_ctx;
 
   curlx_pnow(&start);
   sigpipe_init(&sigpipe_ctx);
 
-  if(Curl_uint32_bset_first(&multi->process, &mid)) {
+  सचे(Curl_uint32_bset_first(&multi->process, &mid)) {
     CURL_TRC_M(multi->admin, "multi_perform(running=%u)",
                multi_xfers_running(multi));
-    do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
+    करोहि {
+      संरचना Curl_easy *data = Curl_multi_get_easy(multi, mid);
       CURLMcode mresult;
-      if(!data) {
+      सचे(!data) {
         DEBUGASSERT(0);
         Curl_uint32_bset_remove(&multi->process, mid);
         Curl_uint32_bset_remove(&multi->dirty, mid);
-        continue;
+        अनुवर्त;
       }
       mresult = multi_runsingle(multi, data, &sigpipe_ctx);
-      if(mresult)
+      सचे(mresult)
         returncode = mresult;
-    } while(Curl_uint32_bset_next(&multi->process, mid, &mid));
+    } याव(Curl_uint32_bset_next(&multi->process, mid, &mid));
   }
   sigpipe_restore(&sigpipe_ctx);
 
-  if(multi_ischanged(multi, TRUE))
+  सचे(multi_ischanged(multi, TRUE))
     multi_schedule_pending(multi);
 
-  if(!returncode && CURL_MNTFY_HAS_ENTRIES(multi))
+  सचे(!returncode && CURL_MNTFY_HAS_ENTRIES(multi))
     returncode = Curl_mntfy_dispatch_all(multi);
 
   /*
@@ -2945,18 +2945,18 @@ static CURLMcode multi_perform(struct Curl_multi *multi,
    * then and then we risk this loop to remove timers that actually have not
    * been handled!
    */
-  while(Curl_timeouts_remove_expired(&multi->timeouts, &start, &mid)) {
+  याव(Curl_timeouts_remove_expired(&multi->timeouts, &start, &mid)) {
     /* the removed may have another timeout in queue */
-    struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-    if(!data) {
+    संरचना Curl_easy *data = Curl_multi_get_easy(multi, mid);
+    सचे(!data) {
       DEBUGASSERT(0);
-      continue;
+      अनुवर्त;
     }
-    (void)add_next_timeout(&start, multi, data);
-    if(data->mstate == MSTATE_PENDING) {
+    (शून्य)add_next_timeout(&start, multi, data);
+    सचे(data->mstate == MSTATE_PENDING) {
       bool stream_unused;
       CURLcode result_unused;
-      if(multi_handle_timeout(data, Curl_pgrs_now(data),
+      सचे(multi_handle_timeout(data, Curl_pgrs_now(data),
                               &stream_unused, &result_unused)) {
         infof(data, "PENDING handle timeout");
         move_pending_to_connect(multi, data);
@@ -2964,75 +2964,75 @@ static CURLMcode multi_perform(struct Curl_multi *multi,
     }
   }
 
-  if(running_handles) {
+  सचे(running_handles) {
     uint32_t running = multi_xfers_running(multi);
-    *running_handles = (running < INT_MAX) ? (int)running : INT_MAX;
+    *running_handles = (running < INT_MAX) ? (पूर्णाङ्क)running : INT_MAX;
   }
 
-  if(CURLM_OK >= returncode)
+  सचे(CURLM_OK >= returncode)
     returncode = Curl_update_timer(multi);
 
-  return returncode;
+  पटिनिवत्त returncode;
 }
 
-CURLMcode curl_multi_perform(CURLM *m, int *running_handles)
+CURLMcode curl_multi_perform(CURLM *m, पूर्णाङ्क *running_handles)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_perform, &mresult)) {
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_perform, &mresult)) {
     mresult = multi_perform(m, running_handles);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 CURLMcode curl_multi_cleanup(CURLM *m)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_cleanup, &mresult)) {
-    struct Curl_multi *multi = m;
-    void *entry;
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_cleanup, &mresult)) {
+    संरचना Curl_multi *multi = m;
+    शून्य *entry;
     uint32_t mid;
 
     /* First remove all remaining easy handles,
      * close internal ones. admin handle is special */
-    if(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
-      do {
-        struct Curl_easy *data = entry;
-        if(!GOOD_EASY_HANDLE(data)) {
+    सचे(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
+      करोहि {
+        संरचना Curl_easy *data = entry;
+        सचे(!GOOD_EASY_HANDLE(data)) {
           mresult = CURLM_BAD_HANDLE;
-          goto out;
+          गच्छ out;
         }
 
 #ifdef DEBUGBUILD
-        if(mid != data->mid) {
+        सचे(mid != data->mid) {
           CURL_TRC_M(data, "multi_cleanup: still present with mid=%u, "
                      "but unexpected data->mid=%u\n", mid, data->mid);
           DEBUGASSERT(0);
         }
 #endif
 
-        if(data == multi->admin)
-          continue;
+        सचे(data == multi->admin)
+          अनुवर्त;
 
-        if(!data->state.done && data->conn)
+        सचे(!data->state.done && data->conn)
           /* if DONE was never called for this handle */
-          (void)multi_done(data, CURLE_OK, TRUE);
+          (शून्य)multi_done(data, CURLE_OK, TRUE);
 
-        data->multi = NULL; /* clear the association */
+        data->multi = रिक्त; /* clear the association */
         Curl_uint32_tbl_remove(&multi->xfers, mid);
         data->mid = UINT32_MAX;
 
 #ifdef USE_LIBPSL
-        if(data->psl == &multi->psl)
-          data->psl = NULL;
+        सचे(data->psl == &multi->psl)
+          data->psl = रिक्त;
 #endif
-        if(data->state.internal)
+        सचे(data->state.internal)
           Curl_close(&data);
-      } while(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry));
+      } याव(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry));
     }
 
 #ifdef USE_RESOLV_THREADED
@@ -3040,9 +3040,9 @@ CURLMcode curl_multi_cleanup(CURLM *m)
 #endif
     Curl_cpool_destroy(&multi->cpool, multi->admin);
     Curl_cshutdn_destroy(&multi->cshutdn, multi->admin);
-    if(multi->admin) {
+    सचे(multi->admin) {
       CURL_TRC_M(multi->admin, "multi_cleanup, closing admin handle, done");
-      multi->admin->multi = NULL;
+      multi->admin->multi = रिक्त;
       Curl_uint32_tbl_remove(&multi->xfers, multi->admin->mid);
       Curl_close(&multi->admin);
     }
@@ -3070,7 +3070,7 @@ CURLMcode curl_multi_cleanup(CURLM *m)
     multi_xfer_bufs_free(multi);
     Curl_mntfy_cleanup(multi);
 #ifdef DEBUGBUILD
-    if(Curl_uint32_tbl_count(&multi->xfers)) {
+    सचे(Curl_uint32_tbl_गणनम्(&multi->xfers)) {
       multi_xfer_tbl_dump(multi);
       DEBUGASSERT(0);
     }
@@ -3080,14 +3080,14 @@ CURLMcode curl_multi_cleanup(CURLM *m)
     Curl_uint32_bset_destroy(&multi->pending);
     Curl_uint32_bset_destroy(&multi->msgsent);
     Curl_uint32_tbl_destroy(&multi->xfers);
-    curlx_memzero(multi, sizeof(*multi));
+    curlx_memzero(multi, परिमाण(*multi));
     curlx_free(multi);
 
     mresult = CURLM_OK;
   }
 out:
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 /*
@@ -3097,42 +3097,42 @@ out:
  * figure out if a transfer has ended.
  */
 
-CURLMsg *curl_multi_info_read(CURLM *m, int *msgs_in_queue)
+CURLMsg *curl_multi_info_read(CURLM *m, पूर्णाङ्क *msgs_in_queue)
 {
-  struct Curl_mapi_guard guard;
-  CURLMsg *msg_result = NULL;
+  संरचना Curl_mapi_guard guard;
+  CURLMsg *सन्देशः_result = रिक्त;
 
   *msgs_in_queue = 0; /* default to none */
-  if(CURL_MAPI_ENTER(&guard, m, multi_info_read, NULL)) {
-    struct Curl_multi *multi = m;
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_info_read, रिक्त)) {
+    संरचना Curl_multi *multi = m;
     uint32_t mid;
-    if(Curl_uint32_bset_first(&multi->msgsent, &mid)) {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
+    सचे(Curl_uint32_bset_first(&multi->msgsent, &mid)) {
+      संरचना Curl_easy *data = Curl_multi_get_easy(multi, mid);
 
       DEBUGASSERT(data);
       Curl_uint32_bset_remove(&multi->msgsent, mid);
       *msgs_in_queue =
-        curlx_uztosi(Curl_uint32_bset_count(&multi->msgsent));
-      if(data)
-        msg_result = &data->msg;
+        curlx_uztosi(Curl_uint32_bset_गणनम्(&multi->msgsent));
+      सचे(data)
+        सन्देशः_result = &data->सन्देशः;
     }
   }
   CURL_MAPI_LEAVE(&guard);
-  return msg_result;
+  पटिनिवत्त सन्देशः_result;
 }
 
-void Curl_multi_will_close(struct Curl_easy *data, curl_socket_t s)
+शून्य Curl_multi_will_close(संरचना Curl_easy *data, curl_socket_t s)
 {
-  if(data) {
-    struct Curl_multi *multi = data->multi;
-    if(multi) {
+  सचे(data) {
+    संरचना Curl_multi *multi = data->multi;
+    सचे(multi) {
       CURL_TRC_M(data, "Curl_multi_will_close fd=%" FMT_SOCKET_T, s);
       Curl_multi_ev_socket_done(multi, data, s);
     }
   }
 }
 
-static void multi_timeouts_init(struct Curl_easy *data)
+स्थिर शून्य multi_timeouts_init(संरचना Curl_easy *data)
 {
   data->state.timeouts.first = EXPIRE_LAST;
   data->state.timeouts.splaynode.registered = FALSE;
@@ -3148,33 +3148,33 @@ static void multi_timeouts_init(struct Curl_easy *data)
  * The splay tree only has each Curl_easy as a single node and the nearest
  * timeout is used to sort it on.
  */
-static CURLMcode add_next_timeout(const struct curltime *pnow,
-                                  struct Curl_multi *multi,
-                                  struct Curl_easy *data)
+स्थिर CURLMcode add_next_timeout(ध्रुव संरचना curltime *pnow,
+                                  संरचना Curl_multi *multi,
+                                  संरचना Curl_easy *data)
 {
-  struct expire_timers *timeouts = &data->state.timeouts;
+  संरचना expire_timers *timeouts = &data->state.timeouts;
   timediff_t now_us = Curl_timeouts_offset_us(&multi->timeouts, pnow);
 
-  while(timeouts->first < EXPIRE_LAST) {
-    if(timeouts->offset_us[timeouts->first] <= now_us)  /* already expired */
+  याव(timeouts->first < EXPIRE_LAST) {
+    सचे(timeouts->offset_us[timeouts->first] <= now_us)  /* already expired */
       timeouts->first = timeouts->next[timeouts->first];
-    else /* timeouts are sorted, first is first in the future now */
-      break;
+    अञ्ञथा /* timeouts are sorted, first is first in the future now */
+      भङ्ग;
   }
 
-  if(timeouts->first < EXPIRE_LAST) {
+  सचे(timeouts->first < EXPIRE_LAST) {
     /* Insert this node again into the splay. Keep the timer in the list in
        case we need to recompute future timers. */
     Curl_timeouts_add(&multi->timeouts, data,
                       timeouts->offset_us[timeouts->first]);
   }
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
-static void multi_mark_expired_as_dirty(struct Curl_multi *multi,
-                                        const struct curltime *ts)
+स्थिर शून्य multi_mark_expired_as_dirty(संरचना Curl_multi *multi,
+                                        ध्रुव संरचना curltime *ts)
 {
-  struct Curl_easy *data = NULL;
+  संरचना Curl_easy *data = रिक्त;
   uint32_t mid;
 
   /*
@@ -3182,49 +3182,49 @@ static void multi_mark_expired_as_dirty(struct Curl_multi *multi,
    * to process (compared to `ts`) in the splay and 'data' will be
    * re-assigned for every expired handle we deal with.
    */
-  while(Curl_timeouts_remove_expired(&multi->timeouts, ts, &mid)) {
+  याव(Curl_timeouts_remove_expired(&multi->timeouts, ts, &mid)) {
     /* Check if there is one (more) expired timer to deal with! This function
        extracts a matching node if there is one */
     data = Curl_multi_get_easy(multi, mid);
-    if(!data) {
+    सचे(!data) {
       DEBUGASSERT(0);
-      continue;
+      अनुवर्त;
     }
 #ifdef CURLVERBOSE
-    if(CURL_TRC_TIMER_is_verbose(data)) {
-      if(data->state.timeouts.first < EXPIRE_LAST) {
+    सचे(CURL_TRC_TIMER_is_verbose(data)) {
+      सचे(data->state.timeouts.first < EXPIRE_LAST) {
         CURL_TRC_TIMER(data, data->state.timeouts.first, "has expired");
       }
     }
 #endif
-    (void)add_next_timeout(ts, multi, data);
+    (शून्य)add_next_timeout(ts, multi, data);
     Curl_multi_mark_dirty(data);
   }
 }
 
-static CURLMcode multi_run_dirty(struct Curl_multi *multi,
-                                 struct Curl_sigpipe_ctx *sigpipe_ctx,
+स्थिर CURLMcode multi_run_dirty(संरचना Curl_multi *multi,
+                                 संरचना Curl_sigpipe_ctx *sigpipe_ctx,
                                  uint32_t *pnum)
 {
   CURLMcode mresult = CURLM_OK;
   uint32_t mid;
 
   *pnum = 0;
-  if(Curl_uint32_bset_first(&multi->dirty, &mid)) {
-    do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
+  सचे(Curl_uint32_bset_first(&multi->dirty, &mid)) {
+    करोहि {
+      संरचना Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      सचे(data) {
         CURL_TRC_M(data, "multi_run_dirty");
 
-        if(!Curl_uint32_bset_contains(&multi->process, mid)) {
-          if(Curl_uint32_bset_contains(&multi->pending, mid)) {
+        सचे(!Curl_uint32_bset_contains(&multi->process, mid)) {
+          सचे(Curl_uint32_bset_contains(&multi->pending, mid)) {
             /* Something happened on the pending transfer, act on it. */
             move_pending_to_connect(multi, data);
           }
-          else {
+          अञ्ञथा {
             /* We are no longer processing this transfer */
             Curl_uint32_bset_remove(&multi->dirty, mid);
-            continue;
+            अनुवर्त;
           }
         }
 
@@ -3232,58 +3232,58 @@ static CURLMcode multi_run_dirty(struct Curl_multi *multi,
         /* runsingle() clears the dirty mid */
         mresult = multi_runsingle(multi, data, sigpipe_ctx);
 
-        if(CURLM_OK >= mresult) {
+        सचे(CURLM_OK >= mresult) {
           /* reassess event handling of data */
           mresult = Curl_multi_ev_assess_xfer(multi, data);
-          if(mresult)
-            goto out;
+          सचे(mresult)
+            गच्छ out;
         }
       }
-      else {
+      अञ्ञथा {
         CURL_TRC_M(multi->admin, "multi_run_dirty, %u no longer found", mid);
         Curl_uint32_bset_remove(&multi->dirty, mid);
       }
-    } while(Curl_uint32_bset_next(&multi->dirty, mid, &mid));
+    } याव(Curl_uint32_bset_next(&multi->dirty, mid, &mid));
   }
 
 out:
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-static CURLMcode multi_socket(struct Curl_multi *multi,
+स्थिर CURLMcode multi_socket(संरचना Curl_multi *multi,
                               bool checkall,
                               curl_socket_t s,
-                              int ev_bitmask,
-                              int *running_handles)
+                              पूर्णाङ्क ev_bitmask,
+                              पूर्णाङ्क *running_handles)
 {
   CURLMcode mresult = CURLM_OK;
-  struct Curl_sigpipe_ctx pipe_ctx;
-  struct curltime now;
+  संरचना Curl_sigpipe_ctx pipe_ctx;
+  संरचना curltime now;
   uint32_t run_xfers;
 
-  (void)ev_bitmask;
+  (शून्य)ev_bitmask;
   sigpipe_init(&pipe_ctx);
 
-  if(checkall) {
+  सचे(checkall) {
     /* *perform() deals with running_handles on its own */
     mresult = multi_perform(multi, running_handles);
 
-    if(mresult != CURLM_BAD_HANDLE) {
+    सचे(mresult != CURLM_BAD_HANDLE) {
       /* Reassess event status of all active transfers, but keep any error
          from multi_perform() */
       CURLMcode mresult2 =
         Curl_multi_ev_assess_xfer_bset(multi, &multi->process);
-      if(!mresult)
+      सचे(!mresult)
         mresult = mresult2;
     }
-    goto out;
+    गच्छ out;
   }
 
-  if(s != CURL_SOCKET_TIMEOUT) {
+  सचे(s != CURL_SOCKET_TIMEOUT) {
     /* Mark all transfers of that socket as dirty */
     Curl_multi_ev_dirty_xfers(multi, s);
   }
-  else {
+  अञ्ञथा {
     /* Asked to run due to time-out. Clear the 'last_expire_ts' variable to
        force Curl_update_timer() to trigger a callback to the app again even
        if the same timeout is still the one to run after this call. That
@@ -3296,17 +3296,17 @@ static CURLMcode multi_socket(struct Curl_multi *multi,
      * curl_multi_socket_action(TIMEOUT) afterwards. Make sure our
      * admin handle registers its pollset with the callbacks present. */
     mresult = multi_assess_wakeup(multi);
-    if(mresult)
-      goto out;
+    सचे(mresult)
+      गच्छ out;
   }
 
   curlx_pnow(&now);
   multi_mark_expired_as_dirty(multi, &now);
   mresult = multi_run_dirty(multi, &pipe_ctx, &run_xfers);
-  if(mresult)
-    goto out;
+  सचे(mresult)
+    गच्छ out;
 
-  if(run_xfers) {
+  सचे(run_xfers) {
     /* Running transfers takes time. With a new timestamp, we might catch
      * other expires which are due now. Instead of telling the application
      * to set a 0 timeout and call us again, we run them here.
@@ -3320,246 +3320,246 @@ static CURLMcode multi_socket(struct Curl_multi *multi,
 out:
   sigpipe_restore(&pipe_ctx);
 
-  if(multi_ischanged(multi, TRUE))
+  सचे(multi_ischanged(multi, TRUE))
     multi_schedule_pending(multi);
 
-  if(!mresult && CURL_MNTFY_HAS_ENTRIES(multi))
+  सचे(!mresult && CURL_MNTFY_HAS_ENTRIES(multi))
     mresult = Curl_mntfy_dispatch_all(multi);
 
-  if(running_handles) {
+  सचे(running_handles) {
     uint32_t running = multi_xfers_running(multi);
-    *running_handles = (running < INT_MAX) ? (int)running : INT_MAX;
+    *running_handles = (running < INT_MAX) ? (पूर्णाङ्क)running : INT_MAX;
   }
 
-  if(CURLM_OK >= mresult)
+  सचे(CURLM_OK >= mresult)
     mresult = Curl_update_timer(multi);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 #undef curl_multi_setopt
 CURLMcode curl_multi_setopt(CURLM *m, CURLMoption option, ...)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult = CURLM_OK;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_setopt, &mresult)) {
-    struct Curl_multi *multi = m;
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_setopt, &mresult)) {
+    संरचना Curl_multi *multi = m;
     va_list param;
     unsigned long uarg;
     size_t szarg;
 
     va_start(param, option);
 
-    switch(option) {
-    case CURLMOPT_SOCKETFUNCTION:
+    विकल्प(option) {
+    पक्ष CURLMOPT_SOCKETFUNCTION:
       multi->socket_cb = va_arg(param, curl_socket_callback);
-      break;
-    case CURLMOPT_SOCKETDATA:
-      multi->socket_userp = va_arg(param, void *);
-      break;
-    case CURLMOPT_PUSHFUNCTION:
-      multi->push_cb = va_arg(param, curl_push_callback);
-      break;
-    case CURLMOPT_PUSHDATA:
-      multi->push_userp = va_arg(param, void *);
-      break;
-    case CURLMOPT_PIPELINING:
+      भङ्ग;
+    पक्ष CURLMOPT_SOCKETDATA:
+      multi->socket_userp = va_arg(param, शून्य *);
+      भङ्ग;
+    पक्ष CURLMOPT_PUSHFUNCTION:
+      multi->प्रक्षिप_cb = va_arg(param, curl_प्रक्षिप_callback);
+      भङ्ग;
+    पक्ष CURLMOPT_PUSHDATA:
+      multi->प्रक्षिप_userp = va_arg(param, शून्य *);
+      भङ्ग;
+    पक्ष CURLMOPT_PIPELINING:
       multi->multiplexing = va_arg(param, long) & CURLPIPE_MULTIPLEX ? 1 : 0;
-      break;
-    case CURLMOPT_TIMERFUNCTION:
+      भङ्ग;
+    पक्ष CURLMOPT_TIMERFUNCTION:
       multi->timer_cb = va_arg(param, curl_multi_timer_callback);
-      break;
-    case CURLMOPT_TIMERDATA:
-      multi->timer_userp = va_arg(param, void *);
-      break;
-    case CURLMOPT_MAXCONNECTS:
+      भङ्ग;
+    पक्ष CURLMOPT_TIMERDATA:
+      multi->timer_userp = va_arg(param, शून्य *);
+      भङ्ग;
+    पक्ष CURLMOPT_MAXCONNECTS:
       uarg = va_arg(param, unsigned long);
-      if(uarg <= UINT32_MAX)
+      सचे(uarg <= UINT32_MAX)
         multi->maxconnects = (uint32_t)uarg;
-      break;
-    case CURLMOPT_MAX_HOST_CONNECTIONS:
-      if(!curlx_sltouz(va_arg(param, long), &szarg))
+      भङ्ग;
+    पक्ष CURLMOPT_MAX_HOST_CONNECTIONS:
+      सचे(!curlx_sltouz(va_arg(param, long), &szarg))
         mresult = CURLM_BAD_FUNCTION_ARGUMENT;
       multi->max_host_connections = (szarg < UINT32_MAX) ?
                                     (uint32_t)szarg : UINT32_MAX;
-      break;
-    case CURLMOPT_MAX_TOTAL_CONNECTIONS:
-      if(!curlx_sltouz(va_arg(param, long), &szarg))
+      भङ्ग;
+    पक्ष CURLMOPT_MAX_TOTAL_CONNECTIONS:
+      सचे(!curlx_sltouz(va_arg(param, long), &szarg))
         mresult = CURLM_BAD_FUNCTION_ARGUMENT;
       multi->max_total_connections = (szarg < UINT32_MAX) ?
                                      (uint32_t)szarg : UINT32_MAX;
-      break;
+      भङ्ग;
       /* options formerly used for pipelining */
-    case CURLMOPT_MAX_PIPELINE_LENGTH:
-      break;
-    case CURLMOPT_CONTENT_LENGTH_PENALTY_SIZE:
-      break;
-    case CURLMOPT_CHUNK_LENGTH_PENALTY_SIZE:
-      break;
-    case CURLMOPT_PIPELINING_SITE_BL:
-      break;
-    case CURLMOPT_PIPELINING_SERVER_BL:
-      break;
-    case CURLMOPT_MAX_CONCURRENT_STREAMS: {
-      if(!curlx_sltouz(va_arg(param, long), &szarg) ||
+    पक्ष CURLMOPT_MAX_PIPELINE_LENGTH:
+      भङ्ग;
+    पक्ष CURLMOPT_CONTENT_LENGTH_PENALTY_SIZE:
+      भङ्ग;
+    पक्ष CURLMOPT_CHUNK_LENGTH_PENALTY_SIZE:
+      भङ्ग;
+    पक्ष CURLMOPT_PIPELINING_SITE_BL:
+      भङ्ग;
+    पक्ष CURLMOPT_PIPELINING_SERVER_BL:
+      भङ्ग;
+    पक्ष CURLMOPT_MAX_CONCURRENT_STREAMS: {
+      सचे(!curlx_sltouz(va_arg(param, long), &szarg) ||
          !szarg || (szarg > (size_t)INT_MAX)) /* preserve previous cutoff */
         multi->max_concurrent_streams = 100;
-      else
+      अञ्ञथा
         multi->max_concurrent_streams = (szarg < UINT32_MAX) ?
                                        (uint32_t)szarg : UINT32_MAX;
-      break;
+      भङ्ग;
     }
-    case CURLMOPT_NETWORK_CHANGED: {
+    पक्ष CURLMOPT_NETWORK_CHANGED: {
       long val = va_arg(param, long);
-      if(val & CURLMNWC_CLEAR_ALL)
+      सचे(val & CURLMNWC_CLEAR_ALL)
         /* In the beginning, all values available to set were 1 by mistake. We
            converted this to mean "all", thus setting all the bits
            automatically */
         val = CURLMNWC_CLEAR_DNS | CURLMNWC_CLEAR_CONNS;
-      if(val & CURLMNWC_CLEAR_DNS) {
+      सचे(val & CURLMNWC_CLEAR_DNS) {
         Curl_dnscache_clear(multi->admin);
       }
-      if(val & CURLMNWC_CLEAR_CONNS) {
+      सचे(val & CURLMNWC_CLEAR_CONNS) {
         Curl_cpool_nw_changed(&multi->cpool, multi->admin);
       }
-      break;
+      भङ्ग;
     }
-    case CURLMOPT_NOTIFYFUNCTION:
+    पक्ष CURLMOPT_NOTIFYFUNCTION:
       multi->ntfy.ntfy_cb = va_arg(param, curl_notify_callback);
-      break;
-    case CURLMOPT_NOTIFYDATA:
-      multi->ntfy.ntfy_cb_data = va_arg(param, void *);
-      break;
-    case CURLMOPT_RESOLVE_THREADS_MAX:
+      भङ्ग;
+    पक्ष CURLMOPT_NOTIFYDATA:
+      multi->ntfy.ntfy_cb_data = va_arg(param, शून्य *);
+      भङ्ग;
+    पक्ष CURLMOPT_RESOLVE_THREADS_MAX:
 #ifdef USE_RESOLV_THREADED
       uarg = va_arg(param, long);
-      if((uarg <= 0) || (uarg > UINT32_MAX))
+      सचे((uarg <= 0) || (uarg > UINT32_MAX))
         mresult = CURLM_BAD_FUNCTION_ARGUMENT;
-      else {
+      अञ्ञथा {
         CURLcode result = Curl_async_thrdd_multi_set_props(
           multi, 0, (uint32_t)uarg, 2000);
-        switch(result) {
-        case CURLE_OK:
+        विकल्प(result) {
+        पक्ष CURLE_OK:
           mresult = CURLM_OK;
-          break;
-        case CURLE_BAD_FUNCTION_ARGUMENT:
+          भङ्ग;
+        पक्ष CURLE_BAD_FUNCTION_ARGUMENT:
           mresult = CURLM_BAD_FUNCTION_ARGUMENT;
-          break;
-        case CURLE_OUT_OF_MEMORY:
+          भङ्ग;
+        पक्ष CURLE_OUT_OF_MEMORY:
           mresult = CURLM_OUT_OF_MEMORY;
-          break;
-        default:
+          भङ्ग;
+        स्वभाव:
           mresult = CURLM_INTERNAL_ERROR;
-          break;
+          भङ्ग;
         }
       }
 #endif
-      break;
-    case CURLMOPT_QUICK_EXIT:
+      भङ्ग;
+    पक्ष CURLMOPT_QUICK_EXIT:
       multi->quick_exit = va_arg(param, long) ? 1 : 0;
-      break;
-    default:
+      भङ्ग;
+    स्वभाव:
       mresult = CURLM_UNKNOWN_OPTION;
-      break;
+      भङ्ग;
     }
     va_end(param);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 /* we define curl_multi_socket() in the public multi.h header */
 #undef curl_multi_socket
 
-CURLMcode curl_multi_socket(CURLM *m, curl_socket_t s, int *running_handles)
+CURLMcode curl_multi_socket(CURLM *m, curl_socket_t s, पूर्णाङ्क *running_handles)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_socket, &mresult)) {
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_socket, &mresult)) {
     mresult = multi_socket(m, FALSE, s, 0, running_handles);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 CURLMcode curl_multi_socket_action(CURLM *m, curl_socket_t s,
-                                   int ev_bitmask, int *running_handles)
+                                   पूर्णाङ्क ev_bitmask, पूर्णाङ्क *running_handles)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_socket_action, &mresult)) {
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_socket_action, &mresult)) {
     mresult = multi_socket(m, FALSE, s, ev_bitmask, running_handles);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-CURLMcode curl_multi_socket_all(CURLM *m, int *running_handles)
+CURLMcode curl_multi_socket_all(CURLM *m, पूर्णाङ्क *running_handles)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_socket_all, &mresult)) {
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_socket_all, &mresult)) {
     mresult = multi_socket(m, TRUE, CURL_SOCKET_BAD, 0, running_handles);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-static bool multi_has_dirties(struct Curl_multi *multi)
+स्थिर bool multi_has_dirties(संरचना Curl_multi *multi)
 {
   uint32_t mid;
-  if(Curl_uint32_bset_first(&multi->dirty, &mid)) {
-    do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
-        if(Curl_uint32_bset_contains(&multi->process, mid))
-          return TRUE;
+  सचे(Curl_uint32_bset_first(&multi->dirty, &mid)) {
+    करोहि {
+      संरचना Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      सचे(data) {
+        सचे(Curl_uint32_bset_contains(&multi->process, mid))
+          पटिनिवत्त TRUE;
         /* We are no longer processing this transfer */
         Curl_uint32_bset_remove(&multi->dirty, mid);
       }
-      else {
+      अञ्ञथा {
         CURL_TRC_M(multi->admin, "dirty transfer %u no longer found", mid);
         Curl_uint32_bset_remove(&multi->dirty, mid);
       }
-    } while(Curl_uint32_bset_next(&multi->dirty, mid, &mid));
+    } याव(Curl_uint32_bset_next(&multi->dirty, mid, &mid));
   }
-  return FALSE;
+  पटिनिवत्त FALSE;
 }
 
-static void multi_timeout(struct Curl_multi *multi,
+स्थिर शून्य multi_timeout(संरचना Curl_multi *multi,
                           timediff_t *pexire_offset_us,
-                          int *timeout_ms)
+                          पूर्णाङ्क *timeout_ms)
 {
-  if(multi->dead) {
-    if(pexire_offset_us)
+  सचे(multi->dead) {
+    सचे(pexire_offset_us)
       *pexire_offset_us = 0;
     *timeout_ms = 0;
-    return;
+    पटिनिवत्त;
   }
 
-  if(multi_has_dirties(multi)) {
-    if(pexire_offset_us) {
-      struct curltime now;
+  सचे(multi_has_dirties(multi)) {
+    सचे(pexire_offset_us) {
+      संरचना curltime now;
       curlx_pnow(&now);
       *pexire_offset_us = Curl_timeouts_offset_us(&multi->timeouts, &now);
     }
     *timeout_ms = 0;
-    return;
+    पटिनिवत्त;
   }
-  else {
-    struct curltime now;
+  अञ्ञथा {
+    संरचना curltime now;
     uint32_t mid;
 
     curlx_pnow(&now);
     *timeout_ms = Curl_timeouts_next_ms(&multi->timeouts, &now,
                                         pexire_offset_us, &mid);
 #ifdef CURLVERBOSE
-    if(mid != UINT32_MAX) {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data && CURL_TRC_TIMER_is_verbose(data) &&
+    सचे(mid != UINT32_MAX) {
+      संरचना Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      सचे(data && CURL_TRC_TIMER_is_verbose(data) &&
          (data->state.timeouts.first < EXPIRE_LAST)) {
         CURL_TRC_TIMER(data, data->state.timeouts.first,
                        "gives multi timeout in %dms", *timeout_ms);
@@ -3572,139 +3572,139 @@ static void multi_timeout(struct Curl_multi *multi,
 CURLMcode curl_multi_timeout(CURLM *m,
                              long *timeout_ms)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_timeout, &mresult)) {
-    int itimeout_ms;
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_timeout, &mresult)) {
+    पूर्णाङ्क itimeout_ms;
 
-    multi_timeout(m, NULL, &itimeout_ms);
+    multi_timeout(m, रिक्त, &itimeout_ms);
     *timeout_ms = (long)itimeout_ms;
     mresult = CURLM_OK;
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 /*
  * Tell the application it should update its timers, if it subscribes to the
  * update timer callback.
  */
-CURLMcode Curl_update_timer(struct Curl_multi *multi)
+CURLMcode Curl_update_timer(संरचना Curl_multi *multi)
 {
   timediff_t timeouts_offset_us = 0;
-  int timeout_ms;
-  int rc;
-  bool set_value = FALSE;
+  पूर्णाङ्क timeout_ms;
+  पूर्णाङ्क rc;
+  bool set_मानम् = FALSE;
 
-  if(!multi->timer_cb || multi->dead)
-    return CURLM_OK;
+  सचे(!multi->timer_cb || multi->dead)
+    पटिनिवत्त CURLM_OK;
   multi_timeout(multi, &timeouts_offset_us, &timeout_ms);
 
-  if(timeout_ms < 0 && !multi->last_timeout_set) {
+  सचे(timeout_ms < 0 && !multi->last_timeout_set) {
     /* nothing to do */
   }
-  else if(timeout_ms < 0) {
+  अञ्ञथा सचे(timeout_ms < 0) {
     /* there is no timeout now but there was one previously */
     CURL_TRC_M(multi->admin, "[TIMER] clear");
     timeout_ms = -1; /* normalize */
-    set_value = TRUE;
+    set_मानम् = TRUE;
   }
-  else if(!multi->last_timeout_set) {
+  अञ्ञथा सचे(!multi->last_timeout_set) {
     CURL_TRC_M(multi->admin, "[TIMER] set %dms, none before", timeout_ms);
-    set_value = TRUE;
+    set_मानम् = TRUE;
   }
-  else if(multi->last_expire_offset_us != timeouts_offset_us) {
+  अञ्ञथा सचे(multi->last_expire_offset_us != timeouts_offset_us) {
     /* We had a timeout before and have one now, the absolute timestamp
      * differs. The relative timeout_ms may be the same, but the starting
      * point differs. Let the application restart its timer. */
     CURL_TRC_M(multi->admin, "[TIMER] set %dms, replace previous",
                timeout_ms);
-    set_value = TRUE;
+    set_मानम् = TRUE;
   }
-  else {
+  अञ्ञथा {
     /* We have same expire time as previously. Our relative 'timeout_ms'
      * may be different now, but the application has the timer running
      * and we do not to tell it to start this again. */
   }
 
-  if(set_value) {
-    struct Curl_mapi_guard guard;
+  सचे(set_मानम्) {
+    संरचना Curl_mapi_guard guard;
 
     multi->last_expire_offset_us = timeouts_offset_us;
     multi->last_timeout_set = timeout_ms >= 0;
     CURL_CBAPI_MULTI_START(&guard, multi, multi_timer_cb);
     rc = multi->timer_cb(multi, timeout_ms, multi->timer_userp);
     CURL_CBAPI_MULTI_END(&guard);
-    if(rc == -1) {
+    सचे(rc == -1) {
       multi->dead = TRUE;
-      return CURLM_ABORTED_BY_CALLBACK;
+      पटिनिवत्त CURLM_ABORTED_BY_CALLBACK;
     }
   }
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
 #ifdef DEBUGBUILD
-static bool multi_timeouts_check(struct Curl_easy *data)
+स्थिर bool multi_timeouts_check(संरचना Curl_easy *data)
 {
-  struct expire_timers *timeouts = &data->state.timeouts;
+  संरचना expire_timers *timeouts = &data->state.timeouts;
   uint8_t id;
-  int i = 0;
-  for(id = timeouts->first; id < EXPIRE_LAST; id = timeouts->next[id]) {
-    if(++i >= EXPIRE_LAST) {
+  पूर्णाङ्क i = 0;
+  अत्थाय(id = timeouts->first; id < EXPIRE_LAST; id = timeouts->next[id]) {
+    सचे(++i >= EXPIRE_LAST) {
       failf(data, "expire timeouts looped: %d iterations and no end", i);
-      return FALSE;
+      पटिनिवत्त FALSE;
     }
-    if(id == timeouts->next[id]) {
-      failf(data, "expire timeouts wrong: %d points to itself", (int)id);
-      return FALSE;
+    सचे(id == timeouts->next[id]) {
+      failf(data, "expire timeouts wrong: %d points to itself", (पूर्णाङ्क)id);
+      पटिनिवत्त FALSE;
     }
-    if((timeouts->next[id] < EXPIRE_LAST) &&
+    सचे((timeouts->next[id] < EXPIRE_LAST) &&
        (timeouts->offset_us[id] > timeouts->offset_us[timeouts->next[id]])) {
       failf(data, "expire timeouts not sorted: %d happens after %d but "
-            "is listed before", (int)id, (int)timeouts->next[id]);
-      return FALSE;
+            "is listed before", (पूर्णाङ्क)id, (पूर्णाङ्क)timeouts->next[id]);
+      पटिनिवत्त FALSE;
     }
   }
-  return TRUE;
+  पटिनिवत्त TRUE;
 }
 #endif
 
 /*
  * Remove a given timestamp from the list of timeouts.
  */
-static void multi_clear_timeout(struct Curl_easy *data, expire_id eid)
+स्थिर शून्य multi_clear_timeout(संरचना Curl_easy *data, expire_id eid)
 {
-  struct expire_timers *timeouts = &data->state.timeouts;
+  संरचना expire_timers *timeouts = &data->state.timeouts;
   uint8_t orig_first = timeouts->first;
   uint8_t *anchor = &timeouts->first;
   uint8_t id = (uint8_t)eid;
 
-  if((unsigned)eid >= EXPIRE_LAST) {
+  सचे((unsigned)eid >= EXPIRE_LAST) {
     DEBUGASSERT(0);
-    return;
+    पटिनिवत्त;
   }
 
-  while(*anchor < EXPIRE_LAST) {
-    if(*anchor == id) {
+  याव(*anchor < EXPIRE_LAST) {
+    सचे(*anchor == id) {
       *anchor = timeouts->next[id];
-      break;
+      भङ्ग;
     }
     anchor = &timeouts->next[*anchor];
   }
   DEBUGASSERT(multi_timeouts_check(data));
-  if(Curl_timeouts_has(data)) {
-    struct Curl_multi *multi = data->multi;
+  सचे(Curl_timeouts_has(data)) {
+    संरचना Curl_multi *multi = data->multi;
 
-    if(!multi) {
+    सचे(!multi) {
       DEBUGASSERT(0);
-      return;
+      पटिनिवत्त;
     }
-    if((timeouts->first >= EXPIRE_LAST) || /* no more timeouts */
+    सचे((timeouts->first >= EXPIRE_LAST) || /* no more timeouts */
        (timeouts->first != orig_first)) {  /* active timeout changed */
       Curl_timeouts_remove(&multi->timeouts, data);
     }
-    if((timeouts->first < EXPIRE_LAST) && !Curl_timeouts_has(data)) {
+    सचे((timeouts->first < EXPIRE_LAST) && !Curl_timeouts_has(data)) {
       Curl_timeouts_add(&multi->timeouts, data,
                         timeouts->offset_us[timeouts->first]);
     }
@@ -3715,26 +3715,26 @@ static void multi_clear_timeout(struct Curl_easy *data, expire_id eid)
  * Add a timestamp to the list of timeouts. Keep the list sorted so that head
  * of list is always the timeout nearest in time.
  */
-static CURLMcode multi_set_timeout(struct Curl_easy *data,
-                                   const struct curltime *stamp,
+स्थिर CURLMcode multi_set_timeout(संरचना Curl_easy *data,
+                                   ध्रुव संरचना curltime *stamp,
                                    expire_id eid)
 {
-  struct expire_timers *timeouts = &data->state.timeouts;
+  संरचना expire_timers *timeouts = &data->state.timeouts;
   uint8_t *anchor = &timeouts->first;
   uint8_t id = (uint8_t)eid;
 
-  if((unsigned)eid >= EXPIRE_LAST) {
+  सचे((unsigned)eid >= EXPIRE_LAST) {
     DEBUGASSERT(0);
-    return CURLM_BAD_FUNCTION_ARGUMENT;
+    पटिनिवत्त CURLM_BAD_FUNCTION_ARGUMENT;
   }
   /* remove from list, store time and re-insert */
   multi_clear_timeout(data, eid);
   timeouts->offset_us[id] =
     Curl_timeouts_offset_us(&data->multi->timeouts, stamp);
 
-  while(*anchor < EXPIRE_LAST) {
-    if(timeouts->offset_us[*anchor] > timeouts->offset_us[id])
-      break;
+  याव(*anchor < EXPIRE_LAST) {
+    सचे(timeouts->offset_us[*anchor] > timeouts->offset_us[id])
+      भङ्ग;
     anchor = &timeouts->next[*anchor];
   }
   timeouts->next[eid] = *anchor;
@@ -3743,7 +3743,7 @@ static CURLMcode multi_set_timeout(struct Curl_easy *data,
   DEBUGASSERT(multi_timeouts_check(data));
   CURL_TRC_TIMER(data, eid, "set for %" FMT_TIMEDIFF_T "us",
                  curlx_ptimediff_us(stamp, Curl_pgrs_now(data)));
-  return CURLM_OK;
+  पटिनिवत्त CURLM_OK;
 }
 
 /*
@@ -3755,29 +3755,29 @@ static CURLMcode multi_set_timeout(struct Curl_easy *data,
  *
  * Expire replaces a former timeout using the same id if already set.
  */
-void Curl_expire_set(struct Curl_easy *data,
+शून्य Curl_expire_set(संरचना Curl_easy *data,
                      expire_id eid, timediff_t ms,
-                     const struct curltime *pnow)
+                     ध्रुव संरचना curltime *pnow)
 {
-  struct Curl_multi *multi = data->multi;
-  struct expire_timers *timeouts = &data->state.timeouts;
+  संरचना Curl_multi *multi = data->multi;
+  संरचना expire_timers *timeouts = &data->state.timeouts;
   uint8_t prev_id = timeouts->first;
-  struct curltime set;
+  संरचना curltime set;
 
   /* this is only interesting while there is still an associated multi struct
      remaining! */
-  if(!multi)
-    return;
+  सचे(!multi)
+    पटिनिवत्त;
   DEBUGASSERT(eid < EXPIRE_LAST);
-  if(ms > INT_MAX)
+  सचे(ms > INT_MAX)
     /* Cap ridiculous timeouts, 31-bit ms is still 3.5 weeks. When the time
        goes to the user, it must fit in this size. */
     ms = INT_MAX;
 
   set = *pnow;
   set.tv_sec += (time_t)(ms / 1000); /* may be a 64 to 32-bit conversion */
-  set.tv_usec += (int)(ms % 1000) * 1000;
-  if(set.tv_usec >= 1000000) {
+  set.tv_usec += (पूर्णाङ्क)(ms % 1000) * 1000;
+  सचे(set.tv_usec >= 1000000) {
     set.tv_sec++;
     set.tv_usec -= 1000000;
   }
@@ -3786,13 +3786,13 @@ void Curl_expire_set(struct Curl_easy *data,
   multi_set_timeout(data, &set, eid);
   DEBUGASSERT(timeouts->first < EXPIRE_LAST);
 
-  if(Curl_timeouts_has(data)) {
+  सचे(Curl_timeouts_has(data)) {
     /* data has already a timeout registered. If the first timer
      * was NOT the one we just set AND is still the first one,
      * nothing changed from the timeouts point of view. The
      * set timer triggers after the one already registered. Leave. */
-    if((prev_id != eid) && (prev_id == timeouts->first))
-      return;
+    सचे((prev_id != eid) && (prev_id == timeouts->first))
+      पटिनिवत्त;
 
     /* Since this is an updated time, we must remove data from
      * timeouts and then add it again. */
@@ -3804,7 +3804,7 @@ void Curl_expire_set(struct Curl_easy *data,
                     timeouts->offset_us[timeouts->first]);
 }
 
-void Curl_expire(struct Curl_easy *data,
+शून्य Curl_expire(संरचना Curl_easy *data,
                  timediff_t milli, expire_id eid)
 {
   Curl_expire_set(data, eid, milli, Curl_pgrs_now(data));
@@ -3813,7 +3813,7 @@ void Curl_expire(struct Curl_easy *data,
 /*
  * Removes the expire timer. Marks it as done.
  */
-void Curl_expire_clear(struct Curl_easy *data, expire_id eid)
+शून्य Curl_expire_clear(संरचना Curl_easy *data, expire_id eid)
 {
   /* remove the timer, if there */
   multi_clear_timeout(data, eid);
@@ -3823,40 +3823,40 @@ void Curl_expire_clear(struct Curl_easy *data, expire_id eid)
 /*
  * Clear ALL timeout values for this handle.
  */
-void Curl_expire_clear_all(struct Curl_easy *data)
+शून्य Curl_expire_clear_all(संरचना Curl_easy *data)
 {
-  struct Curl_multi *multi = data->multi;
+  संरचना Curl_multi *multi = data->multi;
 
   /* this is only interesting while there is still an associated multi struct
      remaining! */
-  if(!multi)
-    return;
+  सचे(!multi)
+    पटिनिवत्त;
 
-  if(Curl_timeouts_remove(&multi->timeouts, data)) {
+  सचे(Curl_timeouts_remove(&multi->timeouts, data)) {
     /* Since this is an cleared time, we must remove the previous entry from
        the splay tree */
     multi_timeouts_init(data);
 
-    if(data->id >= 0)
+    सचे(data->id >= 0)
       CURL_TRC_M(data, "[TIMEOUT] all cleared");
   }
 }
 
 CURLMcode curl_multi_assign(CURLM *m, curl_socket_t sockfd,
-                            void *sockp)
+                            शून्य *sockp)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_assign, &mresult)) {
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_assign, &mresult)) {
     mresult = Curl_multi_ev_assign(m, sockfd, sockp);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-static void move_pending_to_connect(struct Curl_multi *multi,
-                                    struct Curl_easy *data)
+स्थिर शून्य move_pending_to_connect(संरचना Curl_multi *multi,
+                                    संरचना Curl_easy *data)
 {
   DEBUGASSERT(data->mstate == MSTATE_PENDING);
 
@@ -3881,17 +3881,17 @@ static void move_pending_to_connect(struct Curl_multi *multi,
 
    We could consider an improvement where we store the queue reason and allow
    more pipewait rechecks than others. */
-static void multi_schedule_pending(struct Curl_multi *multi)
+स्थिर शून्य multi_schedule_pending(संरचना Curl_multi *multi)
 {
   uint32_t mid = multi->last_pending_mid;
 
-  if(mid) {
-    while(Curl_uint32_bset_next(&multi->pending, mid, &mid)) {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
+  सचे(mid) {
+    याव(Curl_uint32_bset_next(&multi->pending, mid, &mid)) {
+      संरचना Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      सचे(data) {
         move_pending_to_connect(multi, data);
         multi->last_pending_mid = mid;
-        return;
+        पटिनिवत्त;
       }
       /* transfer no longer known, should not happen */
       Curl_uint32_bset_remove(&multi->pending, mid);
@@ -3902,162 +3902,162 @@ static void multi_schedule_pending(struct Curl_multi *multi)
     multi->last_pending_mid = 0;
   }
 
-  if(Curl_uint32_bset_first(&multi->pending, &mid)) {
-    do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
+  सचे(Curl_uint32_bset_first(&multi->pending, &mid)) {
+    करोहि {
+      संरचना Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      सचे(data) {
         move_pending_to_connect(multi, data);
         multi->last_pending_mid = mid;
-        return;
+        पटिनिवत्त;
       }
       /* transfer no longer known, should not happen */
       Curl_uint32_bset_remove(&multi->pending, mid);
       DEBUGASSERT(0);
-    } while(Curl_uint32_bset_next(&multi->pending, mid, &mid));
+    } याव(Curl_uint32_bset_next(&multi->pending, mid, &mid));
   }
 }
 
-uint32_t Curl_multi_max_concurrent_streams(struct Curl_multi *multi)
+uint32_t Curl_multi_max_concurrent_streams(संरचना Curl_multi *multi)
 {
   DEBUGASSERT(multi);
-  return multi->max_concurrent_streams;
+  पटिनिवत्त multi->max_concurrent_streams;
 }
 
 CURL **curl_multi_get_handles(CURLM *m)
 {
-  struct Curl_mapi_guard guard;
-  CURL **a = NULL;
+  संरचना Curl_mapi_guard guard;
+  CURL **a = रिक्त;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_get_handles, NULL)) {
-    struct Curl_multi *multi = m;
-    void *entry;
-    size_t count = Curl_uint32_tbl_count(&multi->xfers);
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_get_handles, रिक्त)) {
+    संरचना Curl_multi *multi = m;
+    शून्य *entry;
+    size_t गणनम् = Curl_uint32_tbl_गणनम्(&multi->xfers);
 
-    a = curlx_malloc(sizeof(struct Curl_easy *) * (count + 1));
-    if(a) {
-      unsigned int i = 0;
+    a = curlx_malloc(परिमाण(संरचना Curl_easy *) * (गणनम् + 1));
+    सचे(a) {
+      unsigned पूर्णाङ्क i = 0;
       uint32_t mid;
 
-      if(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
-        do {
-          struct Curl_easy *data = entry;
-          DEBUGASSERT(i < count);
-          if(!data->state.internal)
+      सचे(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
+        करोहि {
+          संरचना Curl_easy *data = entry;
+          DEBUGASSERT(i < गणनम्);
+          सचे(!data->state.internal)
             a[i++] = data;
-        } while(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry));
+        } याव(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry));
       }
-      a[i] = NULL; /* last entry is a NULL */
+      a[i] = रिक्त; /* last entry is a NULL */
     }
   }
   CURL_MAPI_LEAVE(&guard);
-  return a;
+  पटिनिवत्त a;
 }
 
 CURLMcode curl_multi_get_offt(CURLM *m,
                               CURLMinfo_offt info,
                               curl_off_t *pvalue)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult = CURLM_OK;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_get_offt, &mresult)) {
-    struct Curl_multi *multi = m;
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_get_offt, &mresult)) {
+    संरचना Curl_multi *multi = m;
     uint32_t n;
 
-    if(!pvalue) {
+    सचे(!pvalue) {
       mresult = CURLM_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      गच्छ out;
     }
 
-    switch(info) {
-    case CURLMINFO_XFERS_CURRENT:
-      n = Curl_uint32_tbl_count(&multi->xfers);
-      if(n && multi->admin)
+    विकल्प(info) {
+    पक्ष CURLMINFO_XFERS_CURRENT:
+      n = Curl_uint32_tbl_गणनम्(&multi->xfers);
+      सचे(n && multi->admin)
         --n;
       *pvalue = (curl_off_t)n;
-      break;
-    case CURLMINFO_XFERS_RUNNING:
-      n = Curl_uint32_bset_count(&multi->process);
-      if(n && Curl_uint32_bset_contains(&multi->process, multi->admin->mid))
+      भङ्ग;
+    पक्ष CURLMINFO_XFERS_RUNNING:
+      n = Curl_uint32_bset_गणनम्(&multi->process);
+      सचे(n && Curl_uint32_bset_contains(&multi->process, multi->admin->mid))
         --n;
       *pvalue = (curl_off_t)n;
-      break;
-    case CURLMINFO_XFERS_PENDING:
-      *pvalue = (curl_off_t)Curl_uint32_bset_count(&multi->pending);
-      break;
-    case CURLMINFO_XFERS_DONE:
-      *pvalue = (curl_off_t)Curl_uint32_bset_count(&multi->msgsent);
-      break;
-    case CURLMINFO_XFERS_ADDED:
+      भङ्ग;
+    पक्ष CURLMINFO_XFERS_PENDING:
+      *pvalue = (curl_off_t)Curl_uint32_bset_गणनम्(&multi->pending);
+      भङ्ग;
+    पक्ष CURLMINFO_XFERS_DONE:
+      *pvalue = (curl_off_t)Curl_uint32_bset_गणनम्(&multi->msgsent);
+      भङ्ग;
+    पक्ष CURLMINFO_XFERS_ADDED:
       *pvalue = multi->xfers_total_ever;
-      break;
-    default:
+      भङ्ग;
+    स्वभाव:
       *pvalue = -1;
       mresult = CURLM_UNKNOWN_OPTION;
-      break;
+      भङ्ग;
     }
   }
 out:
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-static struct Curl_fixed_buf *fixed_buf_create(size_t len)
+स्थिर संरचना Curl_fixed_buf *fixed_buf_create(size_t len)
 {
-  struct Curl_fixed_buf *fbuf;
-  if((SIZE_MAX - sizeof(*fbuf)) < len)
-    return NULL; /* too large */
-  fbuf = curlx_malloc(len + sizeof(*fbuf));
-  if(fbuf)
+  संरचना Curl_fixed_buf *fbuf;
+  सचे((SIZE_MAX - परिमाण(*fbuf)) < len)
+    पटिनिवत्त रिक्त; /* too large */
+  fbuf = curlx_malloc(len + परिमाण(*fbuf));
+  सचे(fbuf)
     fbuf->len = len;
-  return fbuf;
+  पटिनिवत्त fbuf;
 }
 
-CURLcode Curl_multi_xfer_buf_borrow(struct Curl_easy *data,
-                                    char **pbuf, size_t *pbuflen)
+CURLcode Curl_multi_xfer_buf_borrow(संरचना Curl_easy *data,
+                                    वर्ण **pbuf, size_t *pbuflen)
 {
   DEBUGASSERT(data);
   DEBUGASSERT(data->multi);
-  *pbuf = NULL;
+  *pbuf = रिक्त;
   *pbuflen = 0;
-  if(!data->multi) {
+  सचे(!data->multi) {
     failf(data, "transfer has no multi handle");
-    return CURLE_FAILED_INIT;
+    पटिनिवत्त CURLE_FAILED_INIT;
   }
-  if(!data->set.buffer_size) {
+  सचे(!data->set.buffer_size) {
     failf(data, "transfer buffer size is 0");
-    return CURLE_FAILED_INIT;
+    पटिनिवत्त CURLE_FAILED_INIT;
   }
-  if(data->multi->xfer_buf_borrowed) {
+  सचे(data->multi->xfer_buf_borrowed) {
     failf(data, "attempt to borrow xfer_buf when already borrowed");
-    return CURLE_AGAIN;
+    पटिनिवत्त CURLE_AGAIN;
   }
 
-  if(data->multi->xfer_buf &&
+  सचे(data->multi->xfer_buf &&
      data->set.buffer_size > data->multi->xfer_buf->len) {
     /* not large enough, get a new one */
     curlx_safefree(data->multi->xfer_buf);
   }
 
-  if(!data->multi->xfer_buf) {
+  सचे(!data->multi->xfer_buf) {
     data->multi->xfer_buf =
       fixed_buf_create(curlx_uitouz(data->set.buffer_size));
-    if(!data->multi->xfer_buf) {
+    सचे(!data->multi->xfer_buf) {
       failf(data, "could not allocate xfer_buf of %u bytes",
             data->set.buffer_size);
-      return CURLE_OUT_OF_MEMORY;
+      पटिनिवत्त CURLE_OUT_OF_MEMORY;
     }
   }
 
   data->multi->xfer_buf_borrowed = TRUE;
   *pbuf = data->multi->xfer_buf->data;
   *pbuflen = data->multi->xfer_buf->len;
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 }
 
-void Curl_multi_xfer_buf_release(struct Curl_easy *data, char *buf)
+शून्य Curl_multi_xfer_buf_release(संरचना Curl_easy *data, वर्ण *buf)
 {
-  (void)buf;
+  (शून्य)buf;
   DEBUGASSERT(data);
   DEBUGASSERT(data->multi);
   DEBUGASSERT(!buf || (data->multi->xfer_buf &&
@@ -4065,47 +4065,47 @@ void Curl_multi_xfer_buf_release(struct Curl_easy *data, char *buf)
   data->multi->xfer_buf_borrowed = FALSE;
 }
 
-CURLcode Curl_multi_xfer_ulbuf_borrow(struct Curl_easy *data,
-                                      char **pbuf, size_t *pbuflen)
+CURLcode Curl_multi_xfer_ulbuf_borrow(संरचना Curl_easy *data,
+                                      वर्ण **pbuf, size_t *pbuflen)
 {
   DEBUGASSERT(data);
   DEBUGASSERT(data->multi);
-  *pbuf = NULL;
+  *pbuf = रिक्त;
   *pbuflen = 0;
-  if(!data->multi) {
+  सचे(!data->multi) {
     failf(data, "transfer has no multi handle");
-    return CURLE_FAILED_INIT;
+    पटिनिवत्त CURLE_FAILED_INIT;
   }
-  if(data->multi->xfer_ulbuf_borrowed) {
+  सचे(data->multi->xfer_ulbuf_borrowed) {
     failf(data, "attempt to borrow xfer_ulbuf when already borrowed");
-    return CURLE_AGAIN;
+    पटिनिवत्त CURLE_AGAIN;
   }
 
-  if(data->multi->xfer_ulbuf &&
+  सचे(data->multi->xfer_ulbuf &&
      data->set.upload_buffer_size > data->multi->xfer_ulbuf->len) {
     /* not large enough, get a new one */
     curlx_safefree(data->multi->xfer_ulbuf);
   }
 
-  if(!data->multi->xfer_ulbuf) {
+  सचे(!data->multi->xfer_ulbuf) {
     data->multi->xfer_ulbuf =
       fixed_buf_create(curlx_uitouz(data->set.upload_buffer_size));
-    if(!data->multi->xfer_ulbuf) {
+    सचे(!data->multi->xfer_ulbuf) {
       failf(data, "could not allocate xfer_ulbuf of %u bytes",
             data->set.upload_buffer_size);
-      return CURLE_OUT_OF_MEMORY;
+      पटिनिवत्त CURLE_OUT_OF_MEMORY;
     }
   }
 
   data->multi->xfer_ulbuf_borrowed = TRUE;
   *pbuf = data->multi->xfer_ulbuf->data;
   *pbuflen = data->multi->xfer_ulbuf->len;
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 }
 
-void Curl_multi_xfer_ulbuf_release(struct Curl_easy *data, char *buf)
+शून्य Curl_multi_xfer_ulbuf_release(संरचना Curl_easy *data, वर्ण *buf)
 {
-  (void)buf;
+  (शून्य)buf;
   DEBUGASSERT(data);
   DEBUGASSERT(data->multi);
   DEBUGASSERT(!buf || (data->multi->xfer_ulbuf &&
@@ -4113,56 +4113,56 @@ void Curl_multi_xfer_ulbuf_release(struct Curl_easy *data, char *buf)
   data->multi->xfer_ulbuf_borrowed = FALSE;
 }
 
-CURLcode Curl_multi_xfer_sockbuf_borrow(struct Curl_easy *data,
-                                        size_t blen, char **pbuf)
+CURLcode Curl_multi_xfer_sockbuf_borrow(संरचना Curl_easy *data,
+                                        size_t blen, वर्ण **pbuf)
 {
   DEBUGASSERT(data);
-  *pbuf = NULL;
-  if(!data->multi) {
+  *pbuf = रिक्त;
+  सचे(!data->multi) {
     /* When a SHARE gets destroyed and has a connection pool, we get
      * call with share->admin which does not have a multi handle. */
     *pbuf = curlx_malloc(blen);
-    return *pbuf ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+    पटिनिवत्त *pbuf ? CURLE_OK : CURLE_OUT_OF_MEMORY;
   }
-  if(data->multi->xfer_sockbuf_borrowed) {
+  सचे(data->multi->xfer_sockbuf_borrowed) {
     failf(data, "attempt to borrow xfer_sockbuf when already borrowed");
-    return CURLE_AGAIN;
+    पटिनिवत्त CURLE_AGAIN;
   }
 
-  if(data->multi->xfer_sockbuf && blen > data->multi->xfer_sockbuf->len) {
+  सचे(data->multi->xfer_sockbuf && blen > data->multi->xfer_sockbuf->len) {
     /* not large enough, get a new one */
     curlx_safefree(data->multi->xfer_sockbuf);
   }
 
-  if(!data->multi->xfer_sockbuf) {
+  सचे(!data->multi->xfer_sockbuf) {
     data->multi->xfer_sockbuf = fixed_buf_create(blen);
-    if(!data->multi->xfer_sockbuf) {
+    सचे(!data->multi->xfer_sockbuf) {
       failf(data, "could not allocate xfer_sockbuf of %zu bytes", blen);
-      return CURLE_OUT_OF_MEMORY;
+      पटिनिवत्त CURLE_OUT_OF_MEMORY;
     }
   }
 
   data->multi->xfer_sockbuf_borrowed = TRUE;
   *pbuf = data->multi->xfer_sockbuf->data;
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 }
 
-void Curl_multi_xfer_sockbuf_release(struct Curl_easy *data, char *buf)
+शून्य Curl_multi_xfer_sockbuf_release(संरचना Curl_easy *data, वर्ण *buf)
 {
   DEBUGASSERT(data);
-  if(!data->multi) {
+  सचे(!data->multi) {
     /* When a SHARE gets destroyed and has a connection pool, we get
      * call with share->admin which does not have a multi handle. */
     curlx_free(buf);
   }
-  else {
+  अञ्ञथा {
     DEBUGASSERT(!buf || (data->multi->xfer_sockbuf &&
                          data->multi->xfer_sockbuf->data == buf));
     data->multi->xfer_sockbuf_borrowed = FALSE;
   }
 }
 
-static void multi_xfer_bufs_free(struct Curl_multi *multi)
+स्थिर शून्य multi_xfer_bufs_free(संरचना Curl_multi *multi)
 {
   DEBUGASSERT(multi);
   curlx_safefree(multi->xfer_buf);
@@ -4173,107 +4173,107 @@ static void multi_xfer_bufs_free(struct Curl_multi *multi)
   multi->xfer_sockbuf_borrowed = FALSE;
 }
 
-struct Curl_easy *Curl_multi_get_easy(struct Curl_multi *multi,
+संरचना Curl_easy *Curl_multi_get_easy(संरचना Curl_multi *multi,
                                       uint32_t mid)
 {
-  struct Curl_easy *data = Curl_uint32_tbl_get(&multi->xfers, mid);
-  if(GOOD_EASY_HANDLE(data))
-    return data;
+  संरचना Curl_easy *data = Curl_uint32_tbl_get(&multi->xfers, mid);
+  सचे(GOOD_EASY_HANDLE(data))
+    पटिनिवत्त data;
   CURL_TRC_M(multi->admin, "invalid easy handle in xfer table for mid=%u",
              mid);
   Curl_uint32_tbl_remove(&multi->xfers, mid);
-  return NULL;
+  पटिनिवत्त रिक्त;
 }
 
-bool Curl_multi_knows_easy(struct Curl_multi *multi, struct Curl_easy *data)
+bool Curl_multi_knows_easy(संरचना Curl_multi *multi, संरचना Curl_easy *data)
 {
-  return Curl_uint32_tbl_get(&multi->xfers, data->mid) == data;
+  पटिनिवत्त Curl_uint32_tbl_get(&multi->xfers, data->mid) == data;
 }
 
-static uint32_t multi_xfers_running(struct Curl_multi *multi)
+स्थिर uint32_t multi_xfers_running(संरचना Curl_multi *multi)
 {
-  if(!multi) {
+  सचे(!multi) {
     DEBUGASSERT(0);
-    return 0;
+    पटिनिवत्त 0;
   }
-  return multi->xfers_alive;
+  पटिनिवत्त multi->xfers_alive;
 }
 
-uint32_t Curl_multi_xfers_attached(struct Curl_multi *multi)
+uint32_t Curl_multi_xfers_attached(संरचना Curl_multi *multi)
 {
-  if(!multi || !multi->admin) {
+  सचे(!multi || !multi->admin) {
     DEBUGASSERT(0);
-    return 0;
+    पटिनिवत्त 0;
   }
   /* Discount the admin handle */
-  return Curl_uint32_tbl_count(&multi->xfers) - 1;
+  पटिनिवत्त Curl_uint32_tbl_गणनम्(&multi->xfers) - 1;
 }
 
-void Curl_multi_mark_dirty(struct Curl_easy *data)
+शून्य Curl_multi_mark_dirty(संरचना Curl_easy *data)
 {
-  if(data->multi && data->mid != UINT32_MAX)
+  सचे(data->multi && data->mid != UINT32_MAX)
     Curl_uint32_bset_add(&data->multi->dirty, data->mid);
 }
 
-void Curl_multi_clear_dirty(struct Curl_easy *data)
+शून्य Curl_multi_clear_dirty(संरचना Curl_easy *data)
 {
-  if(data->multi && data->mid != UINT32_MAX)
+  सचे(data->multi && data->mid != UINT32_MAX)
     Curl_uint32_bset_remove(&data->multi->dirty, data->mid);
 }
 
-CURLMcode curl_multi_notify_enable(CURLM *m, unsigned int notification)
+CURLMcode curl_multi_notify_enable(CURLM *m, unsigned पूर्णाङ्क notification)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult = CURLM_OK;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_notify_enable, &mresult)) {
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_notify_enable, &mresult)) {
     mresult = Curl_mntfy_enable(m, notification);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
-CURLMcode curl_multi_notify_disable(CURLM *m, unsigned int notification)
+CURLMcode curl_multi_notify_disable(CURLM *m, unsigned पूर्णाङ्क notification)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   CURLMcode mresult = CURLM_OK;
 
-  if(CURL_MAPI_ENTER(&guard, m, multi_notify_disable, &mresult)) {
+  सचे(CURL_MAPI_ENTER(&guard, m, multi_notify_disable, &mresult)) {
     mresult = Curl_mntfy_disable(m, notification);
   }
   CURL_MAPI_LEAVE(&guard);
-  return mresult;
+  पटिनिवत्त mresult;
 }
 
 #ifdef DEBUGBUILD
-static void multi_xfer_dump(struct Curl_multi *multi, uint32_t mid,
-                            void *entry)
+स्थिर शून्य multi_xfer_dump(संरचना Curl_multi *multi, uint32_t mid,
+                            शून्य *entry)
 {
-  struct Curl_easy *data = entry;
+  संरचना Curl_easy *data = entry;
 
-  (void)multi;
-  if(!data) {
+  (शून्य)multi;
+  सचे(!data) {
     curl_mfprintf(stderr, "mid=%u, entry=NULL, bug in xfer table?\n", mid);
   }
-  else {
+  अञ्ञथा {
     curl_mfprintf(stderr, "mid=%u, magic=%s, p=%p, id=%" FMT_OFF_T
                   ", url=%s\n",
                   mid,
-                  (data->magic == CURLEASY_MAGIC_NUMBER) ? "GOOD" : "BAD!",
-                  (void *)data, data->id, Curl_bufref_ptr(&data->state.url));
+                  (data->magic == CURLEASY_MAGIC_सङ्ख्या) ? "GOOD" : "BAD!",
+                  (शून्य *)data, data->id, Curl_bufref_ptr(&data->state.url));
   }
 }
 
-static void multi_xfer_tbl_dump(struct Curl_multi *multi)
+स्थिर शून्य multi_xfer_tbl_dump(संरचना Curl_multi *multi)
 {
   uint32_t mid;
-  void *entry;
+  शून्य *entry;
   curl_mfprintf(stderr, "=== multi xfer table (count=%u, capacity=%u\n",
-                Curl_uint32_tbl_count(&multi->xfers),
+                Curl_uint32_tbl_गणनम्(&multi->xfers),
                 Curl_uint32_tbl_capacity(&multi->xfers));
-  if(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
+  सचे(Curl_uint32_tbl_first(&multi->xfers, &mid, &entry)) {
     multi_xfer_dump(multi, mid, entry);
-    while(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry))
+    याव(Curl_uint32_tbl_next(&multi->xfers, mid, &mid, &entry))
       multi_xfer_dump(multi, mid, entry);
   }
   curl_mfprintf(stderr, "===\n");

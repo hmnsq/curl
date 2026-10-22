@@ -23,37 +23,37 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#define CURLEASY_MAGIC_NUMBER 0xc0dedbadU
+#define CURLEASY_MAGIC_सङ्ख्या 0xc0dedbadU
 #ifdef DEBUGBUILD
 /* On a debug build, we want to fail hard on easy handles that
  * are not NULL, but no longer have the MAGIC touch. This gives
  * us early warning on things only discovered by valgrind otherwise. */
 #define GOOD_EASY_HANDLE(x) \
-  (((x) && ((x)->magic == CURLEASY_MAGIC_NUMBER)) ? TRUE : \
+  (((x) && ((x)->magic == CURLEASY_MAGIC_सङ्ख्या)) ? TRUE : \
    (DEBUGASSERT(!(x)), FALSE))
-#else
+#अञ्ञथा
 #define GOOD_EASY_HANDLE(x) \
-  ((x) && ((x)->magic == CURLEASY_MAGIC_NUMBER))
+  ((x) && ((x)->magic == CURLEASY_MAGIC_सङ्ख्या))
 #endif
 
-#define CURLMULTI_MAGIC_NUMBER 0x000bab1e
+#define CURLMULTI_MAGIC_सङ्ख्या 0x000bab1e
 
 #ifdef DEBUGBUILD
 /* On a debug build, we want to fail hard on multi handles that
  * are not NULL, but no longer have the MAGIC touch. This gives
  * us early warning on things only discovered by valgrind otherwise. */
 #define GOOD_MULTI_HANDLE(x)                         \
-  (((x) && (x)->magic == CURLMULTI_MAGIC_NUMBER) ? TRUE : \
+  (((x) && (x)->magic == CURLMULTI_MAGIC_सङ्ख्या) ? TRUE : \
   (DEBUGASSERT(!(x)), FALSE))
-#else
+#अञ्ञथा
 #define GOOD_MULTI_HANDLE(x) \
-  ((x) && (x)->magic == CURLMULTI_MAGIC_NUMBER)
+  ((x) && (x)->magic == CURLMULTI_MAGIC_सङ्ख्या)
 #endif
 
 /* the API functions called on a CURL* */
-typedef enum {
+प्रकारनिर्देश गणना {
   CURL_EAPI_FN_easy_cleanup,
   CURL_EAPI_FN_easy_duphandle,
   CURL_EAPI_FN_easy_getinfo,
@@ -76,7 +76,7 @@ typedef enum {
 } Curl_eapi_fn;
 
 /* the API functions called on a CURLM* */
-typedef enum {
+प्रकारनिर्देश गणना {
   CURL_MAPI_FN_multi_add_handle,
   CURL_MAPI_FN_multi_assign,
   CURL_MAPI_FN_multi_cleanup,
@@ -102,7 +102,7 @@ typedef enum {
 #define CURL_CBAPI_FN_START        128
 
 /* the callback functions */
-typedef enum {
+प्रकारनिर्देश गणना {
   CURL_CBAPI_FN_easy_chunk_bgn = CURL_CBAPI_FN_START,
   CURL_CBAPI_FN_easy_chunk_end,
   CURL_CBAPI_FN_easy_closesocket,
@@ -127,7 +127,7 @@ typedef enum {
   CURL_CBAPI_FN_easy_trailer_callback,
 
   CURL_CBAPI_FN_multi_ntfy_cb,
-  CURL_CBAPI_FN_multi_push_cb,
+  CURL_CBAPI_FN_multi_प्रक्षिप_cb,
   CURL_CBAPI_FN_multi_socket_cb,
   CURL_CBAPI_FN_multi_timer_cb,
 
@@ -138,21 +138,21 @@ typedef enum {
 
 #define CURL_EAPI_MAX_RECURSION       7
 
-struct Curl_eapi_stack {
-  uint16_t count;
+संरचना Curl_eapi_राशिः {
+  uint16_t गणनम्;
   uint16_t calls[CURL_EAPI_MAX_RECURSION];
 };
 
-struct Curl_eapi_guard {
-  struct Curl_easy *data;  /* != NULL if handle stays */
+संरचना Curl_eapi_guard {
+  संरचना Curl_easy *data;  /* != NULL if handle stays */
   uint16_t depth;  /* > 0 if this guard was entered */
 };
 
-bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
+bool Curl_eapi_enter(संरचना Curl_eapi_guard *guard,
                      CURL *curl,
                      Curl_eapi_fn fn,
                      CURLcode *presult);
-void Curl_eapi_leave(struct Curl_eapi_guard *guard);
+शून्य Curl_eapi_leave(संरचना Curl_eapi_guard *guard);
 
 /* Convert an EAPI failure to a header API result */
 CURLHcode Curl_eapi_hcode(CURLcode result);
@@ -168,21 +168,21 @@ CURLHcode Curl_eapi_hcode(CURLcode result);
 
 #define CURL_MAPI_MAX_RECURSION       15
 
-struct Curl_mapi_stack {
-  uint8_t count;
+संरचना Curl_mapi_राशिः {
+  uint8_t गणनम्;
   uint8_t calls[CURL_MAPI_MAX_RECURSION];
 };
 
-struct Curl_mapi_guard {
-  struct Curl_multi *multi;  /* != NULL if handle stays */
+संरचना Curl_mapi_guard {
+  संरचना Curl_multi *multi;  /* != NULL if handle stays */
   uint8_t depth;  /* > 0 if this guard was entered */
 };
 
-bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
+bool Curl_mapi_enter(संरचना Curl_mapi_guard *guard,
                      CURLM *m,
                      Curl_mapi_fn fn,
                      CURLMcode *pmresult);
-void Curl_mapi_leave(struct Curl_mapi_guard *guard);
+शून्य Curl_mapi_leave(संरचना Curl_mapi_guard *guard);
 
 /* Curl_mapi_enter() checks for m being NULL, but windows compiler
  * analyzers do not realize this. *sigh* */
@@ -191,22 +191,22 @@ void Curl_mapi_leave(struct Curl_mapi_guard *guard);
 #define CURL_MAPI_LEAVE(g) \
   Curl_mapi_leave(g)
 
-void Curl_cbapi_enter(struct Curl_mapi_guard *guard,
-                      struct Curl_easy *data,
-                      struct Curl_multi *multi,
+शून्य Curl_cbapi_enter(संरचना Curl_mapi_guard *guard,
+                      संरचना Curl_easy *data,
+                      संरचना Curl_multi *multi,
                       Curl_cbapi_fn fn);
-void Curl_cbapi_leave(struct Curl_mapi_guard *guard);
+शून्य Curl_cbapi_leave(संरचना Curl_mapi_guard *guard);
 
 #define CURL_CBAPI_START(g, d, fn) \
-  Curl_cbapi_enter((g), (d), NULL, CURL_CBAPI_FN_##fn)
+  Curl_cbapi_enter((g), (d), रिक्त, CURL_CBAPI_FN_##fn)
 #define CURL_CBAPI_MULTI_START(g, m, fn) \
-  Curl_cbapi_enter((g), NULL, (m), CURL_CBAPI_FN_##fn)
+  Curl_cbapi_enter((g), रिक्त, (m), CURL_CBAPI_FN_##fn)
 #define CURL_CBAPI_END(g) \
   Curl_cbapi_leave(g)
 #define CURL_CBAPI_MULTI_END(g) \
   Curl_cbapi_leave(g)
 
-bool Curl_api_is_in_callback(struct Curl_easy *data);
-bool Curl_api_multi_is_in_callback(struct Curl_multi *multi);
+bool Curl_api_is_in_callback(संरचना Curl_easy *data);
+bool Curl_api_multi_is_in_callback(संरचना Curl_multi *multi);
 
 #endif /* HEADER_CURL_API_H */

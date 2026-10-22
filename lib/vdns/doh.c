@@ -21,30 +21,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifndef CURL_DISABLE_DOH
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "url.h"
-#include "connect.h"
-#include "vdns/doh.h"
-#include "vdns/httpsrr.h"
-#include "curlx/strdup.h"
-#include "curlx/dynbuf.h"
-#include "escape.h"  /* for Curl_hexencode() */
-#include "urlapi-int.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "curl_addrinfo.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "multiif.h"
+#अन्तर्भाव "url.h"
+#अन्तर्भाव "connect.h"
+#अन्तर्भाव "vdns/doh.h"
+#अन्तर्भाव "vdns/httpsrr.h"
+#अन्तर्भाव "curlx/strdup.h"
+#अन्तर्भाव "curlx/dynbuf.h"
+#अन्तर्भाव "escape.h"  /* for Curl_hexencode() */
+#अन्तर्भाव "urlapi-int.h"
 
 #define DNS_CLASS_IN 0x01
 
-static void doh_close(struct Curl_easy *data,
-                      struct Curl_resolv_async *async);
+स्थिर शून्य doh_close(संरचना Curl_easy *data,
+                      संरचना Curl_resolv_async *async);
 
 #ifdef CURLVERBOSE
-static const char * const doh_code_str[] = {
+स्थिर ध्रुव वर्ण * ध्रुव doh_code_str[] = {
   "",
   "Bad label",
   "Out of range",
@@ -64,26 +64,26 @@ static const char * const doh_code_str[] = {
   "Out Of Memory"
 };
 
-static const char *doh_strerror(DOHcode code)
+स्थिर ध्रुव वर्ण *doh_strerror(DOHcode code)
 {
-  if((size_t)code < CURL_ARRAYSIZE(doh_code_str))
-    return doh_code_str[code];
-  return "bad error code";
+  सचे((size_t)code < CURL_ARRAYSIZE(doh_code_str))
+    पटिनिवत्त doh_code_str[code];
+  पटिनिवत्त "bad error code";
 }
 
-static const char *doh_type2name(DNStype dnstype)
+स्थिर ध्रुव वर्ण *doh_type2name(DNStype dnstype)
 {
-  switch(dnstype) {
-  case CURL_DNS_TYPE_A:
-    return "A";
-  case CURL_DNS_TYPE_AAAA:
-    return "AAAA";
+  विकल्प(dnstype) {
+  पक्ष CURL_DNS_TYPE_A:
+    पटिनिवत्त "A";
+  पक्ष CURL_DNS_TYPE_AAAA:
+    पटिनिवत्त "AAAA";
 #ifdef USE_HTTPSRR
-  case CURL_DNS_TYPE_HTTPS:
-    return "HTTPS";
+  पक्ष CURL_DNS_TYPE_HTTPS:
+    पटिनिवत्त "HTTPS";
 #endif
-  default:
-    return "unknown";
+  स्वभाव:
+    पटिनिवत्त "unknown";
   }
 }
 
@@ -91,20 +91,20 @@ static const char *doh_type2name(DNStype dnstype)
 
 /* @unittest 1655
  */
-UNITTEST DOHcode doh_req_encode(const char *host,
+UNITTEST DOHcode doh_req_encode(ध्रुव वर्ण *host,
                                 DNStype dnstype,
-                                unsigned char *dnsp,  /* buffer */
+                                unsigned वर्ण *dnsp,  /* buffer */
                                 size_t len,  /* buffer size */
                                 size_t *olen);  /* output length */
-UNITTEST DOHcode doh_req_encode(const char *host,
+UNITTEST DOHcode doh_req_encode(ध्रुव वर्ण *host,
                                 DNStype dnstype,
-                                unsigned char *dnsp, /* buffer */
+                                unsigned वर्ण *dnsp, /* buffer */
                                 size_t len,   /* buffer size */
                                 size_t *olen) /* output length */
 {
-  const size_t hostlen = strlen(host);
-  unsigned char *orig = dnsp;
-  const char *hostp = host;
+  ध्रुव size_t hostlen = strlen(host);
+  unsigned वर्ण *orig = dnsp;
+  ध्रुव वर्ण *hostp = host;
 
   /* The expected output length is 16 bytes more than the length of
    * the QNAME-encoding of the hostname.
@@ -131,14 +131,14 @@ UNITTEST DOHcode doh_req_encode(const char *host,
   size_t expected_len;
   DEBUGASSERT(hostlen);
   expected_len = 12 + 1 + hostlen + 4;
-  if(host[hostlen - 1] != '.')
+  सचे(host[hostlen - 1] != '.')
     expected_len++;
 
-  if(expected_len > DOH_MAX_DNSREQ_SIZE)
-    return DOH_DNS_NAME_TOO_LONG;
+  सचे(expected_len > DOH_MAX_DNSREQ_SIZE)
+    पटिनिवत्त DOH_DNS_NAME_TOO_LONG;
 
-  if(len < expected_len)
-    return DOH_TOO_SMALL_BUFFER;
+  सचे(len < expected_len)
+    पटिनिवत्त DOH_TOO_SMALL_BUFFER;
 
   *dnsp++ = 0; /* 16-bit id */
   *dnsp++ = 0;
@@ -154,33 +154,33 @@ UNITTEST DOHcode doh_req_encode(const char *host,
   *dnsp++ = '\0'; /* ARCOUNT */
 
   /* encode each label and store it in the QNAME */
-  while(*hostp) {
+  याव(*hostp) {
     size_t labellen;
-    const char *dot = strchr(hostp, '.');
-    if(dot)
+    ध्रुव वर्ण *dot = strchr(hostp, '.');
+    सचे(dot)
       labellen = dot - hostp;
-    else
+    अञ्ञथा
       labellen = strlen(hostp);
-    if((labellen > 63) || (!labellen)) {
+    सचे((labellen > 63) || (!labellen)) {
       /* label is too long or too short, error out */
       *olen = 0;
-      return DOH_DNS_BAD_LABEL;
+      पटिनिवत्त DOH_DNS_BAD_LABEL;
     }
     /* label is non-empty, process it */
-    *dnsp++ = (unsigned char)labellen;
+    *dnsp++ = (unsigned वर्ण)labellen;
     memcpy(dnsp, hostp, labellen);
     dnsp += labellen;
     hostp += labellen;
     /* advance past dot, but only if there is one */
-    if(dot)
+    सचे(dot)
       hostp++;
   } /* next label */
 
   *dnsp++ = 0; /* append zero-length label for root */
 
   /* There are assigned TYPE codes beyond 255: use range [1..65535] */
-  *dnsp++ = (unsigned char)(255 & (dnstype >> 8)); /* upper 8-bit TYPE */
-  *dnsp++ = (unsigned char)(255 & dnstype);        /* lower 8-bit TYPE */
+  *dnsp++ = (unsigned वर्ण)(255 & (dnstype >> 8)); /* upper 8-bit TYPE */
+  *dnsp++ = (unsigned वर्ण)(255 & dnstype);        /* lower 8-bit TYPE */
 
   *dnsp++ = '\0'; /* upper 8-bit CLASS */
   *dnsp++ = DNS_CLASS_IN; /* IN - "the Internet" */
@@ -190,32 +190,32 @@ UNITTEST DOHcode doh_req_encode(const char *host,
   /* verify that our estimation of length is valid, since
    * this has led to buffer overflows in this function */
   DEBUGASSERT(*olen == expected_len);
-  return DOH_OK;
+  पटिनिवत्त DOH_OK;
 }
 
-static size_t doh_probe_write_cb(char *contents, size_t size, size_t nmemb,
-                                 void *userp)
+स्थिर size_t doh_probe_write_cb(वर्ण *contents, size_t size, size_t nmemb,
+                                 शून्य *userp)
 {
   size_t realsize = size * nmemb;
-  struct Curl_easy *data = userp;
-  struct doh_request *doh_req = Curl_meta_get(data, CURL_EZM_DOH_PROBE);
-  if(!doh_req)
-    return CURL_WRITEFUNC_ERROR;
+  संरचना Curl_easy *data = userp;
+  संरचना doh_request *doh_req = Curl_meta_get(data, CURL_EZM_DOH_PROBE);
+  सचे(!doh_req)
+    पटिनिवत्त CURL_WRITEFUNC_ERROR;
 
-  if(curlx_dyn_addn(&doh_req->resp_body, contents, realsize))
-    return 0;
+  सचे(curlx_dyn_addn(&doh_req->resp_body, contents, realsize))
+    पटिनिवत्त 0;
 
-  return realsize;
+  पटिनिवत्त realsize;
 }
 
-static void doh_probe_done(struct Curl_easy *doh,
-                           struct Curl_easy *master, CURLcode result);
-static void doh_probe_dtor(const void *key, size_t klen, void *e)
+स्थिर शून्य doh_probe_done(संरचना Curl_easy *doh,
+                           संरचना Curl_easy *master, CURLcode result);
+स्थिर शून्य doh_probe_dtor(ध्रुव शून्य *कुञ्चिका, size_t klen, शून्य *e)
 {
-  (void)key;
-  (void)klen;
-  if(e) {
-    struct doh_request *doh_req = e;
+  (शून्य)कुञ्चिका;
+  (शून्य)klen;
+  सचे(e) {
+    संरचना doh_request *doh_req = e;
     curl_slist_free_all(doh_req->req_hds);
     curlx_dyn_free(&doh_req->resp_body);
     curlx_free(e);
@@ -223,63 +223,63 @@ static void doh_probe_dtor(const void *key, size_t klen, void *e)
 }
 
 #define ERROR_CHECK_SETOPT(x, y)                        \
-  do {                                                  \
+  करोहि {                                                  \
     result = curl_easy_setopt((CURL *)doh, x, y);       \
-    if(result &&                                        \
+    सचे(result &&                                        \
        result != CURLE_NOT_BUILT_IN &&                  \
        result != CURLE_UNKNOWN_OPTION)                  \
-      goto error;                                       \
-  } while(0)
+      गच्छ error;                                       \
+  } याव(0)
 
-static CURLcode doh_probe_run(struct Curl_easy *data,
+स्थिर CURLcode doh_probe_run(संरचना Curl_easy *data,
                               DNStype dnstype,
-                              const char *host,
-                              const char *url, CURLM *multi,
+                              ध्रुव वर्ण *host,
+                              ध्रुव वर्ण *url, CURLM *multi,
                               uint32_t resolv_id,
                               uint32_t *pmid)
 {
-  struct Curl_easy *doh = NULL;
+  संरचना Curl_easy *doh = रिक्त;
   CURLcode result = CURLE_OK;
   timediff_t timeout_ms;
-  struct doh_request *doh_req;
+  संरचना doh_request *doh_req;
   DOHcode d;
   bool maybe_https = !curl_strnequal(url, STRCONST("http:"));
 
   *pmid = UINT32_MAX;
 
-  doh_req = curlx_calloc(1, sizeof(*doh_req));
-  if(!doh_req)
-    return CURLE_OUT_OF_MEMORY;
+  doh_req = curlx_calloc(1, परिमाण(*doh_req));
+  सचे(!doh_req)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
   doh_req->resolv_id = resolv_id;
   doh_req->dnstype = dnstype;
   curlx_dyn_init(&doh_req->resp_body, DYN_DOH_RESPONSE);
 
   d = doh_req_encode(host, dnstype, doh_req->req_body,
-                     sizeof(doh_req->req_body),
+                     परिमाण(doh_req->req_body),
                      &doh_req->req_body_len);
-  if(d) {
-    failf(data, "Failed to encode DoH packet [%d]", (int)d);
+  सचे(d) {
+    failf(data, "Failed to encode DoH packet [%d]", (पूर्णाङ्क)d);
     result = CURLE_OUT_OF_MEMORY;
-    goto error;
+    गच्छ error;
   }
 
   timeout_ms = Curl_timeleft_ms(data);
-  if(timeout_ms < 0) {
+  सचे(timeout_ms < 0) {
     result = CURLE_OPERATION_TIMEDOUT;
-    goto error;
+    गच्छ error;
   }
 
   doh_req->req_hds =
-    curl_slist_append(NULL, "Content-Type: application/dns-message");
-  if(!doh_req->req_hds) {
+    curl_slist_append(रिक्त, "Content-Type: application/dns-message");
+  सचे(!doh_req->req_hds) {
     result = CURLE_OUT_OF_MEMORY;
-    goto error;
+    गच्छ error;
   }
 
   /* Curl_open() is the internal version of curl_easy_init() */
   result = Curl_open(&doh);
-  if(result)
-    goto error;
+  सचे(result)
+    गच्छ error;
 
   /* pass in the struct pointer via a local variable to please coverity and
      the gcc typecheck helpers */
@@ -292,7 +292,7 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
   ERROR_CHECK_SETOPT(CURLOPT_POSTFIELDSIZE, (long)doh_req->req_body_len);
   ERROR_CHECK_SETOPT(CURLOPT_HTTPHEADER, doh_req->req_hds);
 #ifdef USE_HTTP2
-  if(maybe_https) {
+  सचे(maybe_https) {
     ERROR_CHECK_SETOPT(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2TLS);
     ERROR_CHECK_SETOPT(CURLOPT_PIPEWAIT, 1L);
   }
@@ -300,42 +300,42 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
 #ifndef DEBUGBUILD
   /* enforce HTTPS if not debug */
   ERROR_CHECK_SETOPT(CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
-#else
+#अञ्ञथा
   /* in debug mode, also allow http */
   ERROR_CHECK_SETOPT(CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
 #endif
   ERROR_CHECK_SETOPT(CURLOPT_TIMEOUT_MS, (long)timeout_ms);
   ERROR_CHECK_SETOPT(CURLOPT_SHARE, (CURLSH *)data->share);
-  if(data->set.err && data->set.err != stderr)
+  सचे(data->set.err && data->set.err != stderr)
     ERROR_CHECK_SETOPT(CURLOPT_STDERR, data->set.err);
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_doh))
+  सचे(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_doh))
     ERROR_CHECK_SETOPT(CURLOPT_VERBOSE, 1L);
-  if(data->set.no_signal)
+  सचे(data->set.no_signal)
     ERROR_CHECK_SETOPT(CURLOPT_NOSIGNAL, 1L);
-  if(data->set.fdebug)
+  सचे(data->set.fdebug)
     ERROR_CHECK_SETOPT(CURLOPT_DEBUGFUNCTION, data->set.fdebug);
-  if(data->set.debugdata)
+  सचे(data->set.debugdata)
     ERROR_CHECK_SETOPT(CURLOPT_DEBUGDATA, data->set.debugdata);
 
 #ifdef USE_RESOLV_ARES
-  if(CURL_EASY_STR(data, STRING_DNS_SERVERS)) {
+  सचे(CURL_EASY_STR(data, STRING_DNS_SERVERS)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_SERVERS,
                        CURL_EASY_STR(data, STRING_DNS_SERVERS));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_INTERFACE)) {
+  सचे(CURL_EASY_STR(data, STRING_DNS_INTERFACE)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_INTERFACE,
                        CURL_EASY_STR(data, STRING_DNS_INTERFACE));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4)) {
+  सचे(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_LOCAL_IP4,
                        CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6)) {
+  सचे(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_LOCAL_IP6,
                        CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6));
   }
 #endif
-  if(maybe_https) {
+  सचे(maybe_https) {
     ERROR_CHECK_SETOPT(CURLOPT_SSL_VERIFYHOST,
                        data->set.doh_verifyhost ? 2L : 0L);
     ERROR_CHECK_SETOPT(CURLOPT_SSL_VERIFYPEER,
@@ -354,32 +354,32 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
     doh->set.ssl.custom_cafile = data->set.ssl.custom_cafile;
     doh->set.ssl.custom_capath = data->set.ssl.custom_capath;
     doh->set.ssl.custom_cablob = data->set.ssl.custom_cablob;
-    if(CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
+    सचे(CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
       ERROR_CHECK_SETOPT(CURLOPT_CAINFO,
                          CURL_EASY_STR(data, STRING_SSL_CAFILE));
     }
-    if(data->set.blobs[BLOB_CAINFO]) {
+    सचे(data->set.blobs[BLOB_CAINFO]) {
       ERROR_CHECK_SETOPT(CURLOPT_CAINFO_BLOB, data->set.blobs[BLOB_CAINFO]);
     }
-    if(CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
+    सचे(CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
       ERROR_CHECK_SETOPT(CURLOPT_CAPATH,
                          CURL_EASY_STR(data, STRING_SSL_CAPATH));
     }
-    if(CURL_EASY_STR(data, STRING_SSL_CRLFILE)) {
+    सचे(CURL_EASY_STR(data, STRING_SSL_CRLFILE)) {
       ERROR_CHECK_SETOPT(CURLOPT_CRLFILE,
                          CURL_EASY_STR(data, STRING_SSL_CRLFILE));
     }
-    if(data->set.ssl.certinfo)
+    सचे(data->set.ssl.certinfo)
       ERROR_CHECK_SETOPT(CURLOPT_CERTINFO, 1L);
-    if(data->set.ssl_fsslctx)
+    सचे(data->set.ssl_fsslctx)
       ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_FUNCTION, data->set.ssl_fsslctx);
-    if(data->set.ssl_fsslctxp)
+    सचे(data->set.ssl_fsslctxp)
       ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_DATA, data->set.ssl_fsslctxp);
-    if(CURL_EASY_STR(data, STRING_SSL_EC_CURVES)) {
+    सचे(CURL_EASY_STR(data, STRING_SSL_EC_CURVES)) {
       ERROR_CHECK_SETOPT(CURLOPT_SSL_EC_CURVES,
                          CURL_EASY_STR(data, STRING_SSL_EC_CURVES));
     }
-    (void)curl_easy_setopt(doh, CURLOPT_SSL_OPTIONS,
+    (शून्य)curl_easy_setopt(doh, CURLOPT_SSL_OPTIONS,
                            ((long)data->set.ssl.ssl_options &
                             ~CURLSSLOPT_AUTO_CLIENT_CERT));
   }
@@ -389,9 +389,9 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
   doh->sub_xfer_done = doh_probe_done;
 
   result = Curl_meta_set(doh, CURL_EZM_DOH_PROBE, doh_req, doh_probe_dtor);
-  doh_req = NULL; /* call took ownership */
-  if(result)
-    goto error;
+  doh_req = रिक्त; /* call took ownership */
+  सचे(result)
+    गच्छ error;
 
   /* DoH handles must not inherit private_data. The handles may be passed to
      the user via callbacks and the user will be able to identify them as
@@ -399,17 +399,17 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
      private_data via CURLOPT_PRIVATE if they so choose. */
   DEBUGASSERT(!doh->set.private_data);
 
-  if(Curl_multi_add_handle(multi, doh))
-    goto error;
+  सचे(Curl_multi_add_handle(multi, doh))
+    गच्छ error;
 
   *pmid = doh->mid;
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 
 error:
   Curl_close(&doh);
-  if(doh_req)
-    doh_probe_dtor(NULL, 0, doh_req);
-  return result;
+  सचे(doh_req)
+    doh_probe_dtor(रिक्त, 0, doh_req);
+  पटिनिवत्त result;
 }
 
 /*
@@ -417,81 +417,81 @@ error:
  * a 'Curl_addrinfo *' with the address information.
  */
 
-CURLcode Curl_doh(struct Curl_easy *data,
-                  struct Curl_resolv_async *async)
+CURLcode Curl_doh(संरचना Curl_easy *data,
+                  संरचना Curl_resolv_async *async)
 {
   CURLcode result = CURLE_OK;
-  struct doh_probes *dohp = NULL;
+  संरचना doh_probes *dohp = रिक्त;
   size_t i;
 
   DEBUGASSERT(!async->doh);
   DEBUGASSERT(async->peer->hostname[0]);
-  if(async->doh) {
+  सचे(async->doh) {
     DEBUGASSERT(0); /* should not happen */
     Curl_doh_cleanup(data, async);
   }
 
-  if(!async->dns_queries)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  सचे(!async->dns_queries)
+    पटिनिवत्त CURLE_BAD_FUNCTION_ARGUMENT;
 #ifdef USE_HTTPSRR
-  if(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
+  सचे(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
      (async->dns_queries & CURL_DNSQ_HTTPS)) {
     /* Can't mix those in the same async resolve */
     DEBUGASSERT(0);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    पटिनिवत्त CURLE_BAD_FUNCTION_ARGUMENT;
   }
-#else
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
+#अञ्ञथा
+  सचे(async->dns_queries & CURL_DNSQ_HTTPS) {
     DEBUGASSERT(0);
-    return CURLE_NOT_BUILT_IN;
+    पटिनिवत्त CURLE_NOT_BUILT_IN;
   }
 #endif
 
   /* start clean, consider allocating this struct on demand */
-  async->doh = dohp = curlx_calloc(1, sizeof(struct doh_probes));
-  if(!dohp)
-    return CURLE_OUT_OF_MEMORY;
+  async->doh = dohp = curlx_calloc(1, परिमाण(संरचना doh_probes));
+  सचे(!dohp)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
 
-  for(i = 0; i < DOH_SLOT_COUNT; ++i) {
+  अत्थाय(i = 0; i < DOH_SLOT_गणनम्; ++i) {
     dohp->probe_rc[i] = DOH_OK;
     dohp->probe_mid[i] = UINT32_MAX;
   }
 
 #ifdef USE_IPV6
   /* AAAA results have preference in happy eyeballing, trigger first */
-  if(async->dns_queries & CURL_DNSQ_AAAA) {
+  सचे(async->dns_queries & CURL_DNSQ_AAAA) {
     /* create IPv6 DoH request */
     result = doh_probe_run(data, CURL_DNS_TYPE_AAAA,
                            async->peer->hostname,
                            CURL_EASY_STR(data, STRING_DOH),
                            data->multi, async->id,
                            &dohp->probe_mid[DOH_SLOT_IPV6]);
-    if(result)
-      goto error;
+    सचे(result)
+      गच्छ error;
     async->queries_ongoing++;
   }
 #endif
 
   /* create IPv4 DoH request */
-  if(async->dns_queries & CURL_DNSQ_A) {
+  सचे(async->dns_queries & CURL_DNSQ_A) {
     result = doh_probe_run(data, CURL_DNS_TYPE_A,
                            async->peer->hostname,
                            CURL_EASY_STR(data, STRING_DOH),
                            data->multi, async->id,
                            &dohp->probe_mid[DOH_SLOT_IPV4]);
-    if(result)
-      goto error;
+    सचे(result)
+      गच्छ error;
     async->queries_ongoing++;
   }
 
 #ifdef USE_HTTPSRR
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
-    char *qname = NULL;
-    if(async->peer->port != PORT_HTTPS) {
+  सचे(async->dns_queries & CURL_DNSQ_HTTPS) {
+    वर्ण *qname = रिक्त;
+    सचे(async->peer->port != PORT_HTTPS) {
       qname = curl_maprintf("_%u._https.%s",
                             async->peer->port, async->peer->hostname);
-      if(!qname)
-        goto error;
+      सचे(!qname)
+        गच्छ error;
     }
     result = doh_probe_run(data, CURL_DNS_TYPE_HTTPS,
                            qname ? qname : async->peer->hostname,
@@ -499,49 +499,49 @@ CURLcode Curl_doh(struct Curl_easy *data,
                            async->id,
                            &dohp->probe_mid[DOH_SLOT_HTTPS_RR]);
     curlx_free(qname);
-    if(result)
-      goto error;
+    सचे(result)
+      गच्छ error;
     async->queries_ongoing++;
   }
 #endif
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 
 error:
   Curl_doh_cleanup(data, async);
-  return result;
+  पटिनिवत्त result;
 }
 
-static DOHcode doh_skipqname(const unsigned char *doh, size_t dohlen,
-                             unsigned int *indexp)
+स्थिर DOHcode doh_skipqname(ध्रुव unsigned वर्ण *doh, size_t dohlen,
+                             unsigned पूर्णाङ्क *indexp)
 {
-  unsigned char length;
-  do {
-    if(dohlen < (*indexp + 1))
-      return DOH_DNS_OUT_OF_RANGE;
+  unsigned वर्ण length;
+  करोहि {
+    सचे(dohlen < (*indexp + 1))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
     length = doh[*indexp];
-    if((length & 0xc0) == 0xc0) {
+    सचे((length & 0xc0) == 0xc0) {
       /* name pointer, advance over it and be done */
-      if(dohlen < (*indexp + 2))
-        return DOH_DNS_OUT_OF_RANGE;
+      सचे(dohlen < (*indexp + 2))
+        पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
       *indexp += 2;
-      break;
+      भङ्ग;
     }
-    if(length & 0xc0)
-      return DOH_DNS_BAD_LABEL;
-    if(dohlen < (*indexp + 1 + length))
-      return DOH_DNS_OUT_OF_RANGE;
-    *indexp += (unsigned int)(1 + length);
-  } while(length);
-  return DOH_OK;
+    सचे(length & 0xc0)
+      पटिनिवत्त DOH_DNS_BAD_LABEL;
+    सचे(dohlen < (*indexp + 1 + length))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
+    *indexp += (unsigned पूर्णाङ्क)(1 + length);
+  } याव(length);
+  पटिनिवत्त DOH_OK;
 }
 
-static unsigned short doh_get16bit(const unsigned char *doh,
-                                   unsigned int index)
+स्थिर unsigned short doh_get16bit(ध्रुव unsigned वर्ण *doh,
+                                   unsigned पूर्णाङ्क index)
 {
-  return (unsigned short)((doh[index] << 8) | doh[index + 1]);
+  पटिनिवत्त (unsigned short)((doh[index] << 8) | doh[index + 1]);
 }
 
-static unsigned int doh_get32bit(const unsigned char *doh, unsigned int index)
+स्थिर unsigned पूर्णाङ्क doh_get32bit(ध्रुव unsigned वर्ण *doh, unsigned पूर्णाङ्क index)
 {
   /* make clang and gcc optimize this to bswap by incrementing
      the pointer first. */
@@ -550,28 +550,28 @@ static unsigned int doh_get32bit(const unsigned char *doh, unsigned int index)
   /* avoid undefined behavior by casting to unsigned before shifting
      24 bits, possibly into the sign bit. codegen is same, but
      ub sanitizer will not be upset */
-  return ((unsigned)doh[0] << 24) | ((unsigned)doh[1] << 16) |
+  पटिनिवत्त ((unsigned)doh[0] << 24) | ((unsigned)doh[1] << 16) |
          ((unsigned)doh[2] << 8) | doh[3];
 }
 
-static void doh_store_a(const unsigned char *doh, int index,
-                        struct dohentry *d)
+स्थिर शून्य doh_store_a(ध्रुव unsigned वर्ण *doh, पूर्णाङ्क index,
+                        संरचना dohentry *d)
 {
   /* silently ignore addresses over the limit */
-  if(d->numaddr < DOH_MAX_ADDR) {
-    struct dohaddr *a = &d->addr[d->numaddr];
+  सचे(d->numaddr < DOH_MAX_ADDR) {
+    संरचना dohaddr *a = &d->addr[d->numaddr];
     a->type = CURL_DNS_TYPE_A;
     memcpy(&a->ip.v4, &doh[index], 4);
     d->numaddr++;
   }
 }
 
-static void doh_store_aaaa(const unsigned char *doh, int index,
-                           struct dohentry *d)
+स्थिर शून्य doh_store_aaaa(ध्रुव unsigned वर्ण *doh, पूर्णाङ्क index,
+                           संरचना dohentry *d)
 {
   /* silently ignore addresses over the limit */
-  if(d->numaddr < DOH_MAX_ADDR) {
-    struct dohaddr *a = &d->addr[d->numaddr];
+  सचे(d->numaddr < DOH_MAX_ADDR) {
+    संरचना dohaddr *a = &d->addr[d->numaddr];
     a->type = CURL_DNS_TYPE_AAAA;
     memcpy(&a->ip.v6, &doh[index], 16);
     d->numaddr++;
@@ -579,207 +579,207 @@ static void doh_store_aaaa(const unsigned char *doh, int index,
 }
 
 #ifdef USE_HTTPSRR
-static DOHcode doh_store_https(const unsigned char *doh, int index,
-                               struct dohentry *d, uint16_t len)
+स्थिर DOHcode doh_store_https(ध्रुव unsigned वर्ण *doh, पूर्णाङ्क index,
+                               संरचना dohentry *d, uint16_t len)
 {
   /* silently ignore RRs over the limit */
-  if(d->numhttps_rrs < DOH_MAX_HTTPS) {
-    struct dohhttps_rr *h = &d->https_rrs[d->numhttps_rrs];
+  सचे(d->numhttps_rrs < DOH_MAX_HTTPS) {
+    संरचना dohhttps_rr *h = &d->https_rrs[d->numhttps_rrs];
     h->val = curlx_memdup(&doh[index], len);
-    if(!h->val)
-      return DOH_OUT_OF_MEM;
+    सचे(!h->val)
+      पटिनिवत्त DOH_OUT_OF_MEM;
     h->len = len;
     d->numhttps_rrs++;
   }
-  return DOH_OK;
+  पटिनिवत्त DOH_OK;
 }
 #endif
 
-static DOHcode doh_rdata(const unsigned char *doh,
+स्थिर DOHcode doh_rdata(ध्रुव unsigned वर्ण *doh,
                          unsigned short rdlength,
                          unsigned short type,
-                         int index,
-                         struct dohentry *d)
+                         पूर्णाङ्क index,
+                         संरचना dohentry *d)
 {
   /* RDATA
      - A (TYPE 1): 4 bytes
      - AAAA (TYPE 28): 16 bytes
      - HTTPS (TYPE 65): N bytes */
-  switch(type) {
-  case CURL_DNS_TYPE_A:
-    if(rdlength != 4)
-      return DOH_DNS_RDATA_LEN;
+  विकल्प(type) {
+  पक्ष CURL_DNS_TYPE_A:
+    सचे(rdlength != 4)
+      पटिनिवत्त DOH_DNS_RDATA_LEN;
     doh_store_a(doh, index, d);
-    break;
-  case CURL_DNS_TYPE_AAAA:
-    if(rdlength != 16)
-      return DOH_DNS_RDATA_LEN;
+    भङ्ग;
+  पक्ष CURL_DNS_TYPE_AAAA:
+    सचे(rdlength != 16)
+      पटिनिवत्त DOH_DNS_RDATA_LEN;
     doh_store_aaaa(doh, index, d);
-    break;
+    भङ्ग;
 #ifdef USE_HTTPSRR
-  case CURL_DNS_TYPE_HTTPS:
-    if(rdlength < 3)
-      return DOH_DNS_RDATA_LEN;
-    return doh_store_https(doh, index, d, rdlength);
+  पक्ष CURL_DNS_TYPE_HTTPS:
+    सचे(rdlength < 3)
+      पटिनिवत्त DOH_DNS_RDATA_LEN;
+    पटिनिवत्त doh_store_https(doh, index, d, rdlength);
 #endif
-  default:
+  स्वभाव:
     /* unsupported type, or type we do not store, skip it */
-    break;
+    भङ्ग;
   }
-  return DOH_OK;
+  पटिनिवत्त DOH_OK;
 }
 
 /* @unittest 1655 */
-UNITTEST void de_init(struct dohentry *de);
-UNITTEST void de_init(struct dohentry *de)
+UNITTEST शून्य de_init(संरचना dohentry *de);
+UNITTEST शून्य de_init(संरचना dohentry *de)
 {
-  memset(de, 0, sizeof(*de));
+  memset(de, 0, परिमाण(*de));
   de->ttl = INT_MAX;
 }
 
 /* TTL value cap */
 #define MAX_DNS_TTL 86400U /* 24 hours */
 /* @unittest 1650 */
-UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
+UNITTEST DOHcode doh_resp_decode(ध्रुव unsigned वर्ण *doh,
                                  size_t dohlen,
                                  DNStype dnstype,
-                                 struct dohentry *d);
-UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
+                                 संरचना dohentry *d);
+UNITTEST DOHcode doh_resp_decode(ध्रुव unsigned वर्ण *doh,
                                  size_t dohlen,
                                  DNStype dnstype,
-                                 struct dohentry *d)
+                                 संरचना dohentry *d)
 {
-  unsigned char rcode;
+  unsigned वर्ण rcode;
   unsigned short qdcount;
   unsigned short ancount;
   unsigned short type = 0;
   unsigned short rdlength;
   unsigned short nscount;
   unsigned short arcount;
-  unsigned int index = 12;
+  unsigned पूर्णाङ्क index = 12;
   DOHcode rc;
 
-  if(dohlen < 12)
-    return DOH_TOO_SMALL_BUFFER; /* too small */
-  if(!doh || doh[0] || doh[1])
-    return DOH_DNS_BAD_ID; /* bad ID */
+  सचे(dohlen < 12)
+    पटिनिवत्त DOH_TOO_SMALL_BUFFER; /* too small */
+  सचे(!doh || doh[0] || doh[1])
+    पटिनिवत्त DOH_DNS_BAD_ID; /* bad ID */
   rcode = doh[3] & 0x0f;
-  if(rcode == 3)
-    return DOH_DNS_NXDOMAIN; /* name does not exist */
-  if(rcode)
-    return DOH_DNS_BAD_RCODE; /* bad rcode */
+  सचे(rcode == 3)
+    पटिनिवत्त DOH_DNS_NXDOMAIN; /* name does not exist */
+  सचे(rcode)
+    पटिनिवत्त DOH_DNS_BAD_RCODE; /* bad rcode */
 
   qdcount = doh_get16bit(doh, 4);
-  while(qdcount) {
+  याव(qdcount) {
     rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
-    if(dohlen < (index + 4))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(rc)
+      पटिनिवत्त rc; /* bad qname */
+    सचे(dohlen < (index + 4))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
     index += 4; /* skip question's type and class */
     qdcount--;
   }
 
   ancount = doh_get16bit(doh, 6);
-  while(ancount) {
+  याव(ancount) {
     unsigned short dnsclass;
-    unsigned int ttl;
+    unsigned पूर्णाङ्क ttl;
 
     rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+    सचे(rc)
+      पटिनिवत्त rc; /* bad qname */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + 2))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
 
     type = doh_get16bit(doh, index);
-    if((type != CURL_DNS_TYPE_CNAME) &&  /* may be synthesized from DNAME */
+    सचे((type != CURL_DNS_TYPE_CNAME) &&  /* may be synthesized from DNAME */
        (type != CURL_DNS_TYPE_DNAME) &&  /* if present, accept and ignore */
        (type != dnstype))
       /* Not the same type as was asked for, nor CNAME nor DNAME */
-      return DOH_DNS_UNEXPECTED_TYPE;
+      पटिनिवत्त DOH_DNS_UNEXPECTED_TYPE;
     index += 2;
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + 2))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
     dnsclass = doh_get16bit(doh, index);
-    if(DNS_CLASS_IN != dnsclass)
-      return DOH_DNS_UNEXPECTED_CLASS; /* unsupported */
+    सचे(DNS_CLASS_IN != dnsclass)
+      पटिनिवत्त DOH_DNS_UNEXPECTED_CLASS; /* unsupported */
     index += 2;
 
-    if(dohlen < (index + 4))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + 4))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
 
     ttl = doh_get32bit(doh, index);
-    if(ttl > MAX_DNS_TTL)
+    सचे(ttl > MAX_DNS_TTL)
       ttl = MAX_DNS_TTL;
-    if(ttl < d->ttl)
+    सचे(ttl < d->ttl)
       d->ttl = ttl;
     index += 4;
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + 2))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
 
     rdlength = doh_get16bit(doh, index);
     index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + rdlength))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
 
-    rc = doh_rdata(doh, rdlength, type, (int)index, d);
-    if(rc)
-      return rc;
+    rc = doh_rdata(doh, rdlength, type, (पूर्णाङ्क)index, d);
+    सचे(rc)
+      पटिनिवत्त rc;
     index += rdlength;
     ancount--;
   }
 
   nscount = doh_get16bit(doh, 8);
-  while(nscount) {
+  याव(nscount) {
     rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+    सचे(rc)
+      पटिनिवत्त rc; /* bad qname */
 
-    if(dohlen < (index + 8))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + 8))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
 
     index += 2 + 2 + 4; /* type, dnsclass and ttl */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + 2))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
 
     rdlength = doh_get16bit(doh, index);
     index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + rdlength))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
     index += rdlength;
     nscount--;
   }
 
   arcount = doh_get16bit(doh, 10);
-  while(arcount) {
+  याव(arcount) {
     rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+    सचे(rc)
+      पटिनिवत्त rc; /* bad qname */
 
-    if(dohlen < (index + 8))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + 8))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
 
     index += 2 + 2 + 4; /* type, dnsclass and ttl */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + 2))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
 
     rdlength = doh_get16bit(doh, index);
     index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
+    सचे(dohlen < (index + rdlength))
+      पटिनिवत्त DOH_DNS_OUT_OF_RANGE;
     index += rdlength;
     arcount--;
   }
 
-  if(index != dohlen)
-    return DOH_DNS_MALFORMAT; /* something is wrong */
+  सचे(index != dohlen)
+    पटिनिवत्त DOH_DNS_MALFORMAT; /* something is wrong */
 
-  return DOH_OK; /* ok */
+  पटिनिवत्त DOH_OK; /* ok */
 }
 
 /*
@@ -792,51 +792,51 @@ UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
  * Curl_freeaddrinfo(). For each successful call to this function there
  * must be an associated call later to Curl_freeaddrinfo().
  */
-static CURLcode doh2ai(const struct dohentry *de, const char *hostname,
-                       int port, struct Curl_addrinfo **aip)
+स्थिर CURLcode doh2ai(ध्रुव संरचना dohentry *de, ध्रुव वर्ण *hostname,
+                       पूर्णाङ्क port, संरचना Curl_addrinfo **aip)
 {
-  struct Curl_addrinfo *ai;
-  struct Curl_addrinfo *prevai = NULL;
-  struct Curl_addrinfo *firstai = NULL;
-  struct sockaddr_in *addr;
+  संरचना Curl_addrinfo *ai;
+  संरचना Curl_addrinfo *prevai = रिक्त;
+  संरचना Curl_addrinfo *firstai = रिक्त;
+  संरचना sockaddr_in *addr;
 #ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
+  संरचना sockaddr_in6 *addr6;
 #endif
   size_t hostlen = strlen(hostname) + 1; /* include null-terminator */
   CURLcode result = CURLE_OK;
-  int i;
+  पूर्णाङ्क i;
 
-  for(i = 0; i < de->numaddr; i++) {
+  अत्थाय(i = 0; i < de->numaddr; i++) {
     size_t ss_size;
     CURL_SA_FAMILY_T addrtype;
-    if(de->addr[i].type == CURL_DNS_TYPE_AAAA) {
+    सचे(de->addr[i].type == CURL_DNS_TYPE_AAAA) {
 #ifndef USE_IPV6
       /* we cannot handle IPv6 addresses */
-      continue;
-#else
-      ss_size = sizeof(struct sockaddr_in6);
+      अनुवर्त;
+#अञ्ञथा
+      ss_size = परिमाण(संरचना sockaddr_in6);
       addrtype = AF_INET6;
 #endif
     }
-    else {
-      ss_size = sizeof(struct sockaddr_in);
+    अञ्ञथा {
+      ss_size = परिमाण(संरचना sockaddr_in);
       addrtype = AF_INET;
     }
 
-    ai = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen);
-    if(!ai) {
+    ai = curlx_calloc(1, परिमाण(संरचना Curl_addrinfo) + ss_size + hostlen);
+    सचे(!ai) {
       result = CURLE_OUT_OF_MEMORY;
-      break;
+      भङ्ग;
     }
-    ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
-    ai->ai_canonname = (void *)((char *)ai->ai_addr + ss_size);
+    ai->ai_addr = (शून्य *)((वर्ण *)ai + परिमाण(संरचना Curl_addrinfo));
+    ai->ai_canonname = (शून्य *)((वर्ण *)ai->ai_addr + ss_size);
     memcpy(ai->ai_canonname, hostname, hostlen);
 
-    if(!firstai)
+    सचे(!firstai)
       /* store the pointer we want to return from this function */
       firstai = ai;
 
-    if(prevai)
+    सचे(prevai)
       /* make the previous entry point to this */
       prevai->ai_next = ai;
 
@@ -850,48 +850,48 @@ static CURLcode doh2ai(const struct dohentry *de, const char *hostname,
 
     /* leave the rest of the struct filled with zero */
 
-    switch(ai->ai_family) {
-    case AF_INET:
-      addr = (void *)ai->ai_addr; /* storage area for this info */
-      DEBUGASSERT(sizeof(struct in_addr) == sizeof(de->addr[i].ip.v4));
-      memcpy(&addr->sin_addr, &de->addr[i].ip.v4, sizeof(struct in_addr));
+    विकल्प(ai->ai_family) {
+    पक्ष AF_INET:
+      addr = (शून्य *)ai->ai_addr; /* storage area for this info */
+      DEBUGASSERT(परिमाण(संरचना in_addr) == परिमाण(de->addr[i].ip.v4));
+      memcpy(&addr->sin_addr, &de->addr[i].ip.v4, परिमाण(संरचना in_addr));
       addr->sin_family = addrtype;
       addr->sin_port = htons((unsigned short)port);
-      break;
+      भङ्ग;
 
 #ifdef USE_IPV6
-    case AF_INET6:
-      addr6 = (void *)ai->ai_addr; /* storage area for this info */
-      DEBUGASSERT(sizeof(struct in6_addr) == sizeof(de->addr[i].ip.v6));
-      memcpy(&addr6->sin6_addr, &de->addr[i].ip.v6, sizeof(struct in6_addr));
+    पक्ष AF_INET6:
+      addr6 = (शून्य *)ai->ai_addr; /* storage area for this info */
+      DEBUGASSERT(परिमाण(संरचना in6_addr) == परिमाण(de->addr[i].ip.v6));
+      memcpy(&addr6->sin6_addr, &de->addr[i].ip.v6, परिमाण(संरचना in6_addr));
       addr6->sin6_family = addrtype;
       addr6->sin6_port = htons((unsigned short)port);
-      break;
+      भङ्ग;
 #endif
     }
 
     prevai = ai;
   }
 
-  if(result) {
+  सचे(result) {
     Curl_freeaddrinfo(firstai);
-    firstai = NULL;
+    firstai = रिक्त;
   }
   *aip = firstai;
 
-  return result;
+  पटिनिवत्त result;
 }
 
 /* @unittest 1655 */
-UNITTEST void de_cleanup(struct dohentry *d);
-UNITTEST void de_cleanup(struct dohentry *d)
+UNITTEST शून्य de_cleanup(संरचना dohentry *d);
+UNITTEST शून्य de_cleanup(संरचना dohentry *d)
 {
 #ifdef USE_HTTPSRR
-  int i = 0;
-  for(i = 0; i < d->numhttps_rrs; i++)
+  पूर्णाङ्क i = 0;
+  अत्थाय(i = 0; i < d->numhttps_rrs; i++)
     curlx_safefree(d->https_rrs[i].val);
-#else
-  (void)d;
+#अञ्ञथा
+  (शून्य)d;
 #endif
 }
 
@@ -911,124 +911,124 @@ UNITTEST void de_cleanup(struct dohentry *d)
  * the DNS name encoding on output. (that is why it is an "unsigned char
  * **" :-)
  */
-static CURLcode doh_decode_rdata_name(const unsigned char **buf,
-                                      size_t *remaining, char **dnsname)
+स्थिर CURLcode doh_decode_rdata_name(ध्रुव unsigned वर्ण **buf,
+                                      size_t *remaining, वर्ण **dnsname)
 {
-  const unsigned char *cp = NULL;
+  ध्रुव unsigned वर्ण *cp = रिक्त;
   size_t rem = 0;
-  unsigned char clen = 0; /* chunk len */
-  struct dynbuf thename;
+  unsigned वर्ण clen = 0; /* chunk len */
+  संरचना dynbuf thename;
 
   DEBUGASSERT(buf && remaining && dnsname);
-  if(!buf || !remaining || !dnsname || !*remaining)
-    return CURLE_OUT_OF_MEMORY;
+  सचे(!buf || !remaining || !dnsname || !*remaining)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
   curlx_dyn_init(&thename, CURL_MAXLEN_HOST_NAME);
   rem = *remaining;
   cp = *buf;
   clen = *cp++;
   /* RFC 9460 says it must be uncompressed */
-  if(clen > 63)
-    return CURLE_WEIRD_SERVER_REPLY;
+  सचे(clen > 63)
+    पटिनिवत्त CURLE_WEIRD_SERVER_REPLY;
 
-  if(clen == 0) {
+  सचे(clen == 0) {
     /* special case - return "." as name */
-    if(curlx_dyn_addn(&thename, ".", 1))
-      return CURLE_OUT_OF_MEMORY;
+    सचे(curlx_dyn_addn(&thename, ".", 1))
+      पटिनिवत्त CURLE_OUT_OF_MEMORY;
   }
-  while(clen) {
-    if(clen >= rem) {
+  याव(clen) {
+    सचे(clen >= rem) {
       curlx_dyn_free(&thename);
-      return CURLE_OUT_OF_MEMORY;
+      पटिनिवत्त CURLE_OUT_OF_MEMORY;
     }
-    if(curlx_dyn_addn(&thename, cp, clen) ||
+    सचे(curlx_dyn_addn(&thename, cp, clen) ||
        curlx_dyn_addn(&thename, ".", 1))
-      return CURLE_TOO_LARGE;
+      पटिनिवत्त CURLE_TOO_LARGE;
 
     cp += clen;
     rem -= (clen + 1);
-    if(rem <= 0) {
+    सचे(rem <= 0) {
       curlx_dyn_free(&thename);
-      return CURLE_OUT_OF_MEMORY;
+      पटिनिवत्त CURLE_OUT_OF_MEMORY;
     }
     clen = *cp++;
-    if(clen > 63) {
+    सचे(clen > 63) {
       /* invalid format */
       curlx_dyn_free(&thename);
-      return CURLE_WEIRD_SERVER_REPLY;
+      पटिनिवत्त CURLE_WEIRD_SERVER_REPLY;
     }
   }
   *buf = cp;
   *remaining = rem - 1;
   *dnsname = curlx_dyn_ptr(&thename);
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 }
 
 /* scan for byte values <= 32 or 127 */
-static CURLcode junkscan(const char *url)
+स्थिर CURLcode junkscan(ध्रुव वर्ण *url)
 {
-  const unsigned char *p = (const unsigned char *)url;
-  while(*p) {
-    if(*p <= 0x20 || *p == 127)
-      return CURLE_WEIRD_SERVER_REPLY;
+  ध्रुव unsigned वर्ण *p = (ध्रुव unsigned वर्ण *)url;
+  याव(*p) {
+    सचे(*p <= 0x20 || *p == 127)
+      पटिनिवत्त CURLE_WEIRD_SERVER_REPLY;
     p++;
   }
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 }
 
 /* @unittest 1658 */
-UNITTEST CURLcode doh_resp_decode_httpsrr(struct Curl_easy *data,
-                                          const unsigned char *cp, size_t len,
-                                          struct Curl_https_rrinfo **hrr);
-UNITTEST CURLcode doh_resp_decode_httpsrr(struct Curl_easy *data,
-                                          const unsigned char *cp, size_t len,
-                                          struct Curl_https_rrinfo **hrr)
+UNITTEST CURLcode doh_resp_decode_httpsrr(संरचना Curl_easy *data,
+                                          ध्रुव unsigned वर्ण *cp, size_t len,
+                                          संरचना Curl_https_rrinfo **hrr);
+UNITTEST CURLcode doh_resp_decode_httpsrr(संरचना Curl_easy *data,
+                                          ध्रुव unsigned वर्ण *cp, size_t len,
+                                          संरचना Curl_https_rrinfo **hrr)
 {
   uint16_t pcode = 0, plen = 0;
   uint32_t expected_min_pcode = 0;
-  struct Curl_https_rrinfo *lhrr = NULL;
-  char *dnsname = NULL;
+  संरचना Curl_https_rrinfo *lhrr = रिक्त;
+  वर्ण *dnsname = रिक्त;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  (void)data;
-  *hrr = NULL;
-  if(len <= 2)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  lhrr = curlx_calloc(1, sizeof(struct Curl_https_rrinfo));
-  if(!lhrr)
-    return CURLE_OUT_OF_MEMORY;
+  (शून्य)data;
+  *hrr = रिक्त;
+  सचे(len <= 2)
+    पटिनिवत्त CURLE_BAD_FUNCTION_ARGUMENT;
+  lhrr = curlx_calloc(1, परिमाण(संरचना Curl_https_rrinfo));
+  सचे(!lhrr)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
   lhrr->priority = doh_get16bit(cp, 0);
   cp += 2;
   len -= 2;
-  if(doh_decode_rdata_name(&cp, &len, &dnsname) != CURLE_OK)
-    goto err;
+  सचे(doh_decode_rdata_name(&cp, &len, &dnsname) != CURLE_OK)
+    गच्छ err;
   lhrr->target = dnsname;
   result = junkscan(dnsname);
-  if(result) {
+  सचे(result) {
     /* unacceptable hostname content */
-    goto err;
+    गच्छ err;
   }
-  while(len >= 4) {
+  याव(len >= 4) {
     pcode = doh_get16bit(cp, 0);
     plen = doh_get16bit(cp, 2);
     cp += 4;
     len -= 4;
-    if(pcode < expected_min_pcode || plen > len) {
+    सचे(pcode < expected_min_pcode || plen > len) {
       result = CURLE_WEIRD_SERVER_REPLY;
-      goto err;
+      गच्छ err;
     }
     result = Curl_httpsrr_set(lhrr, pcode, cp, plen);
-    if(result)
-      goto err;
+    सचे(result)
+      गच्छ err;
     Curl_httpsrr_trace(data, lhrr);
     cp += plen;
     len -= plen;
     expected_min_pcode = pcode + 1;
   }
   *hrr = lhrr;
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 err:
   Curl_httpsrr_destroy(lhrr);
-  return result;
+  पटिनिवत्त result;
 }
 
 #endif /* USE_HTTPSRR */
@@ -1037,84 +1037,84 @@ err:
  * Parse the response and set the results in the `async` context
  * of master, using the id from the probe's CURL_EZM_DOH_PROBE
  * meta data. */
-static void doh_probe_done(struct Curl_easy *doh,
-                           struct Curl_easy *master, CURLcode result)
+स्थिर शून्य doh_probe_done(संरचना Curl_easy *doh,
+                           संरचना Curl_easy *master, CURLcode result)
 {
-  struct Curl_resolv_async *async = NULL;
-  struct doh_probes *dohp = NULL;
-  struct doh_request *doh_req = NULL;
-  struct Curl_addrinfo **pdest_ai;
-  struct dohentry de;
-  int slot, httpcode;
+  संरचना Curl_resolv_async *async = रिक्त;
+  संरचना doh_probes *dohp = रिक्त;
+  संरचना doh_request *doh_req = रिक्त;
+  संरचना Curl_addrinfo **pdest_ai;
+  संरचना dohentry de;
+  पूर्णाङ्क slot, httpcode;
 
   de_init(&de);
   doh_req = Curl_meta_get(doh, CURL_EZM_DOH_PROBE);
-  if(!doh_req) {
+  सचे(!doh_req) {
     /* transfer `doh` is not a DoH probe. */
     DEBUGASSERT(0);
-    goto out;
+    गच्छ out;
   }
 
   async = Curl_async_get(master, doh_req->resolv_id);
-  if(!async) {
+  सचे(!async) {
     CURL_TRC_DNS(master, "[%u] ignoring outdated DoH response",
                  doh_req->resolv_id);
-    goto out;
+    गच्छ out;
   }
   dohp = async->doh;
 
-  for(slot = 0; slot < DOH_SLOT_COUNT; ++slot) {
-    if(dohp->probe_mid[slot] == doh->mid)
-      break;
+  अत्थाय(slot = 0; slot < DOH_SLOT_गणनम्; ++slot) {
+    सचे(dohp->probe_mid[slot] == doh->mid)
+      भङ्ग;
   }
   /* We really should have found the slot where to store the response */
-  if(slot >= DOH_SLOT_COUNT) {
+  सचे(slot >= DOH_SLOT_गणनम्) {
     failf(master, "DoH: unknown sub request done");
     DEBUGASSERT(0);
-    goto out;
+    गच्छ out;
   }
 
   async->queries_ongoing--;
   dohp = async->doh;
   httpcode = doh->info.httpcode;
-  switch(slot) {
-  case DOH_SLOT_IPV4:
+  विकल्प(slot) {
+  पक्ष DOH_SLOT_IPV4:
     async->dns_responses |= CURL_DNSQ_A;
-    break;
+    भङ्ग;
 #ifdef USE_IPV6
-  case DOH_SLOT_IPV6:
+  पक्ष DOH_SLOT_IPV6:
     async->dns_responses |= CURL_DNSQ_AAAA;
-    break;
+    भङ्ग;
 #endif
 #ifdef USE_HTTPSRR
-  case DOH_SLOT_HTTPS_RR:
+  पक्ष DOH_SLOT_HTTPS_RR:
     async->dns_responses |= CURL_DNSQ_HTTPS;
-    break;
+    भङ्ग;
 #endif
-  default:
+  स्वभाव:
     DEBUGASSERT(0);
-    break;
+    भङ्ग;
   }
 
-  if(result) {
+  सचे(result) {
     dohp->probe_rc[slot] = DOH_HTTP_FAILED;
     infof(doh, "[DoH] [%s] error: %s",
           doh_type2name(doh_req->dnstype), curl_easy_strerror(result));
-    goto out;
+    गच्छ out;
   }
-  else if((httpcode < 200) || (httpcode >= 300)) {
+  अञ्ञथा सचे((httpcode < 200) || (httpcode >= 300)) {
     dohp->probe_rc[slot] = DOH_HTTP_FAILED;
     infof(doh, "[DoH] [%s] error: HTTP status %d",
           doh_type2name(doh_req->dnstype), httpcode);
-    goto out;
+    गच्छ out;
   }
 
   dohp->probe_rc[slot] = doh_resp_decode(curlx_dyn_uptr(&doh_req->resp_body),
                                          curlx_dyn_len(&doh_req->resp_body),
                                          doh_req->dnstype, &de);
-  if(dohp->probe_rc[slot]) {
+  सचे(dohp->probe_rc[slot]) {
 #ifdef USE_HTTPSRR
-    if((dohp->probe_rc[slot] == DOH_NO_CONTENT) &&
+    सचे((dohp->probe_rc[slot] == DOH_NO_CONTENT) &&
        (doh_req->dnstype == CURL_DNS_TYPE_HTTPS)) {
       dohp->probe_rc[slot] = DOH_DNS_NXDOMAIN;
     }
@@ -1122,23 +1122,23 @@ static void doh_probe_done(struct Curl_easy *doh,
     infof(doh, "[DoH] [%s] error decoding response: %s",
           doh_type2name(doh_req->dnstype),
           doh_strerror(dohp->probe_rc[slot]));
-    goto out;
+    गच्छ out;
   }
 
-  if(doh_req->dnstype == CURL_DNS_TYPE_A)
+  सचे(doh_req->dnstype == CURL_DNS_TYPE_A)
     pdest_ai = &async->ai_A;
-  else if(doh_req->dnstype == CURL_DNS_TYPE_AAAA)
+  अञ्ञथा सचे(doh_req->dnstype == CURL_DNS_TYPE_AAAA)
     pdest_ai = &async->ai_AAAA;
-  else
-    pdest_ai = NULL;
+  अञ्ञथा
+    pdest_ai = रिक्त;
 
-  if(pdest_ai && de.numaddr) {
-    if(*pdest_ai) {
+  सचे(pdest_ai && de.numaddr) {
+    सचे(*pdest_ai) {
       Curl_freeaddrinfo(*pdest_ai);
-      *pdest_ai = NULL;
+      *pdest_ai = रिक्त;
     }
     result = doh2ai(&de, async->peer->hostname, async->peer->port, pdest_ai);
-    if(result) { /* hard failure on our side, fail completely */
+    सचे(result) { /* hard failure on our side, fail completely */
       infof(doh, "[DoH] [%s] error creating addrinfo: %s",
             doh_type2name(doh_req->dnstype), curl_easy_strerror(result));
       dohp->probe_rc[slot] = DOH_OOM;
@@ -1146,15 +1146,15 @@ static void doh_probe_done(struct Curl_easy *doh,
     }
   }
 #ifdef USE_HTTPSRR
-  else if((doh_req->dnstype == CURL_DNS_TYPE_HTTPS) && de.numhttps_rrs) {
+  अञ्ञथा सचे((doh_req->dnstype == CURL_DNS_TYPE_HTTPS) && de.numhttps_rrs) {
     CURL_TRC_DNS(doh, "[HTTPS] got %d records", de.numhttps_rrs);
     result = doh_resp_decode_httpsrr(doh, de.https_rrs->val,
                                      de.https_rrs->len, &async->httpsrr);
-    if(result) {
+    सचे(result) {
       dohp->probe_rc[slot] = DOH_HTTP_FAILED;
       infof(doh, "[DoH] error decoding HTTPS RR: %s",
             curl_easy_strerror(result));
-      goto out;
+      गच्छ out;
     }
   }
 #endif /* USE_HTTPSRR */
@@ -1168,66 +1168,66 @@ out:
   Curl_meta_remove(doh, CURL_EZM_DOH_PROBE);
 }
 
-CURLcode Curl_doh_take_result(struct Curl_easy *data,
-                              struct Curl_resolv_async *async,
-                              struct Curl_dns_entry **pdns)
+CURLcode Curl_doh_take_result(संरचना Curl_easy *data,
+                              संरचना Curl_resolv_async *async,
+                              संरचना Curl_dns_entry **pdns)
 {
-  struct doh_probes *dohp = async->doh;
+  संरचना doh_probes *dohp = async->doh;
   CURLcode result = CURLE_OK;
 
-  *pdns = NULL; /* defaults to no response */
-  if(!dohp)
-    return CURLE_OUT_OF_MEMORY;
+  *pdns = रिक्त; /* defaults to no response */
+  सचे(!dohp)
+    पटिनिवत्त CURLE_OUT_OF_MEMORY;
 
   async->negative_answer = FALSE;
-  if(async->result) {
+  सचे(async->result) {
     result = async->result;
-    goto out;
+    गच्छ out;
   }
 
-  if(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
+  सचे(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
      dohp->probe_mid[DOH_SLOT_IPV4] == UINT32_MAX &&
      dohp->probe_mid[DOH_SLOT_IPV6] == UINT32_MAX) {
     failf(data, "Could not DoH-resolve: %s", async->peer->hostname);
-    return async->for_proxy ?
+    पटिनिवत्त async->for_proxy ?
       CURLE_COULDNT_RESOLVE_PROXY : CURLE_COULDNT_RESOLVE_HOST;
   }
-  else if(!async->queries_ongoing) {
-    struct Curl_dns_entry *dns = NULL;
+  अञ्ञथा सचे(!async->queries_ongoing) {
+    संरचना Curl_dns_entry *dns = रिक्त;
     bool negative = TRUE;
-    int slot;
+    पूर्णाङ्क slot;
 
     /* remove DoH handles from multi handle and close them */
     doh_close(data, async);
     /* parse the responses, create the struct and return it! */
-    for(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
+    अत्थाय(slot = 0; slot < DOH_SLOT_गणनम्; slot++) {
       /* Failing without an NXDOMAIN answer - a SERVFAIL-class rcode or
          an undecodable response - says nothing about the name. Such a
          failure must not be cached as a negative entry. */
-      if(dohp->probe_rc[slot] && (dohp->probe_rc[slot] != DOH_DNS_NXDOMAIN))
+      सचे(dohp->probe_rc[slot] && (dohp->probe_rc[slot] != DOH_DNS_NXDOMAIN))
         negative = FALSE;
     } /* next slot */
 
-    if(async->ai_A || async->ai_AAAA) {
+    सचे(async->ai_A || async->ai_AAAA) {
       dns = Curl_dnsc_mk_addr2(
         data, async->dns_queries, &async->ai_A, &async->ai_AAAA, async->peer);
-      if(!dns) {
+      सचे(!dns) {
         result = CURLE_OUT_OF_MEMORY;
-        goto out;
+        गच्छ out;
       }
     }
 #ifdef USE_HTTPSRR
-    else if((async->dns_queries & CURL_DNSQ_HTTPS) &&
+    अञ्ञथा सचे((async->dns_queries & CURL_DNSQ_HTTPS) &&
             !dohp->probe_rc[DOH_SLOT_HTTPS_RR]) {
       Curl_httpsrr_trace(data, async->httpsrr);
       dns = Curl_dnsc_mk_https(data, &async->httpsrr, async->peer);
-      if(!dns) {
+      सचे(!dns) {
         result = CURLE_OUT_OF_MEMORY;
-        goto out;
+        गच्छ out;
       }
     }
 #endif /* USE_HTTPSRR */
-    else {
+    अञ्ञथा {
       /* every query failed. Only NXDOMAIN answers for all of them
          make this a negative answer, eligible for caching. */
       async->negative_answer = negative;
@@ -1236,40 +1236,40 @@ CURLcode Curl_doh_take_result(struct Curl_easy *data,
     }
 
     /* and add the entry to the cache */
-    if(dns)
+    सचे(dns)
       result = Curl_dnscache_add(data, dns);
     *pdns = dns;
   } /* !async->queries_ongoing */
-  else
+  अञ्ञथा
     /* wait for pending DoH transactions to complete */
-    return CURLE_AGAIN;
+    पटिनिवत्त CURLE_AGAIN;
 
 out:
   Curl_doh_cleanup(data, async);
-  return result;
+  पटिनिवत्त result;
 }
 
-static void doh_close(struct Curl_easy *data,
-                      struct Curl_resolv_async *async)
+स्थिर शून्य doh_close(संरचना Curl_easy *data,
+                      संरचना Curl_resolv_async *async)
 {
-  struct doh_probes *doh = async ? async->doh : NULL;
-  if(doh && data->multi) {
-    struct Curl_easy *probe_data;
+  संरचना doh_probes *doh = async ? async->doh : रिक्त;
+  सचे(doh && data->multi) {
+    संरचना Curl_easy *probe_data;
     uint32_t mid;
     size_t slot;
-    for(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
+    अत्थाय(slot = 0; slot < DOH_SLOT_गणनम्; slot++) {
       mid = doh->probe_mid[slot];
-      if(mid == UINT32_MAX)
-        continue;
+      सचे(mid == UINT32_MAX)
+        अनुवर्त;
       doh->probe_mid[slot] = UINT32_MAX;
       /* should have been called before data is removed from multi handle */
       DEBUGASSERT(data->multi);
-      probe_data = data->multi ? Curl_multi_get_easy(data->multi, mid) : NULL;
-      if(!probe_data) {
+      probe_data = data->multi ? Curl_multi_get_easy(data->multi, mid) : रिक्त;
+      सचे(!probe_data) {
         DEBUGF(infof(data, "Curl_doh_close: xfer for mid=%u not found!", mid));
-        continue;
+        अनुवर्त;
       }
-      probe_data->sub_xfer_done = NULL; /* No longer interested in result */
+      probe_data->sub_xfer_done = रिक्त; /* No longer interested in result */
       /* data->multi might already be reset at this time */
       Curl_multi_remove_handle(data->multi, probe_data);
       Curl_close(&probe_data);
@@ -1278,11 +1278,11 @@ static void doh_close(struct Curl_easy *data,
   }
 }
 
-void Curl_doh_cleanup(struct Curl_easy *data,
-                      struct Curl_resolv_async *async)
+शून्य Curl_doh_cleanup(संरचना Curl_easy *data,
+                      संरचना Curl_resolv_async *async)
 {
-  struct doh_probes *dohp = async->doh;
-  if(dohp) {
+  संरचना doh_probes *dohp = async->doh;
+  सचे(dohp) {
     doh_close(data, async);
     curlx_safefree(async->doh);
   }

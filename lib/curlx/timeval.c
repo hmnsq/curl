@@ -21,34 +21,34 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timeval.h"
+#अन्तर्भाव "curlx/timeval.h"
 
 #ifdef _WIN32
 
-static LARGE_INTEGER s_time_freq;
+स्थिर LARGE_INTEGER s_time_freq;
 
 /* For tool or tests, we must initialize before calling curlx_now().
    Providing this function here is wrong. */
-void curlx_now_init(void)
+शून्य curlx_now_init(शून्य)
 {
   QueryPerformanceFrequency(&s_time_freq);
 }
 
 /* In case of bug fix this function has a counterpart in tool_util.c */
-void curlx_pnow(struct curltime *pnow)
+शून्य curlx_pnow(संरचना curltime *pnow)
 {
-  LARGE_INTEGER count;
+  LARGE_INTEGER गणनम्;
   DEBUGASSERT(s_time_freq.QuadPart);
-  QueryPerformanceCounter(&count);
-  pnow->tv_sec = (time_t)(count.QuadPart / s_time_freq.QuadPart);
-  pnow->tv_usec = (int)((count.QuadPart % s_time_freq.QuadPart) * 1000000 /
+  QueryPerformanceCounter(&गणनम्);
+  pnow->tv_sec = (time_t)(गणनम्.QuadPart / s_time_freq.QuadPart);
+  pnow->tv_usec = (पूर्णाङ्क)((गणनम्.QuadPart % s_time_freq.QuadPart) * 1000000 /
                         s_time_freq.QuadPart);
 }
 
-#elif defined(HAVE_CLOCK_GETTIME_MONOTONIC) || \
+#नोचेद्यदि defined(HAVE_CLOCK_GETTIME_MONOTONIC) || \
   defined(HAVE_CLOCK_GETTIME_MONOTONIC_RAW)
 
-void curlx_pnow(struct curltime *pnow)
+शून्य curlx_pnow(संरचना curltime *pnow)
 {
   /*
    * clock_gettime() is granted to be increased monotonically when the
@@ -57,41 +57,41 @@ void curlx_pnow(struct curltime *pnow)
    * in any case the time starting point does not change once that the
    * system has started up.
    */
-  struct timespec tsnow;
+  संरचना timespec tsnow;
 
   /*
    * clock_gettime() may be defined by Apple's SDK as weak symbol thus
    * code compiles but fails during runtime if clock_gettime() is
    * called on unsupported OS version.
    */
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
+#सचे defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
   (HAVE_BUILTIN_AVAILABLE == 1)
   bool have_clock_gettime = FALSE;
-  if(__builtin_available(macOS 10.12, iOS 10, tvOS 10, watchOS 3, *))
+  सचे(__builtin_available(macOS 10.12, iOS 10, tvOS 10, watchOS 3, *))
     have_clock_gettime = TRUE;
 #endif
 
 #ifdef HAVE_CLOCK_GETTIME_MONOTONIC_RAW
-  if(
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
+  सचे(
+#सचे defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
   (HAVE_BUILTIN_AVAILABLE == 1)
     have_clock_gettime &&
 #endif
     (clock_gettime(CLOCK_MONOTONIC_RAW, &tsnow) == 0)) {
     pnow->tv_sec = tsnow.tv_sec;
-    pnow->tv_usec = (int)(tsnow.tv_nsec / 1000);
+    pnow->tv_usec = (पूर्णाङ्क)(tsnow.tv_nsec / 1000);
   }
-  else
+  अञ्ञथा
 #endif
 
-  if(
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
+  सचे(
+#सचे defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
   (HAVE_BUILTIN_AVAILABLE == 1)
     have_clock_gettime &&
 #endif
     (clock_gettime(CLOCK_MONOTONIC, &tsnow) == 0)) {
     pnow->tv_sec = tsnow.tv_sec;
-    pnow->tv_usec = (int)(tsnow.tv_nsec / 1000);
+    pnow->tv_usec = (पूर्णाङ्क)(tsnow.tv_nsec / 1000);
   }
   /*
    * Even when the configure process has truly detected monotonic clock
@@ -99,25 +99,25 @@ void curlx_pnow(struct curltime *pnow)
    * runtime. When this occurs, fallback to other time source.
    */
 #ifdef HAVE_GETTIMEOFDAY
-  else {
-    struct timeval now;
-    (void)gettimeofday(&now, NULL);
+  अञ्ञथा {
+    संरचना timeval now;
+    (शून्य)gettimeofday(&now, रिक्त);
     pnow->tv_sec = now.tv_sec;
-    pnow->tv_usec = (int)now.tv_usec;
+    pnow->tv_usec = (पूर्णाङ्क)now.tv_usec;
   }
-#else
-  else {
-    pnow->tv_sec = time(NULL);
+#अञ्ञथा
+  अञ्ञथा {
+    pnow->tv_sec = time(रिक्त);
     pnow->tv_usec = 0;
   }
 #endif
 }
 
-#elif defined(HAVE_MACH_ABSOLUTE_TIME)
+#नोचेद्यदि defined(HAVE_MACH_ABSOLUTE_TIME)
 
-#include <mach/mach_time.h>
+#अन्तर्भाव <mach/mach_time.h>
 
-void curlx_pnow(struct curltime *pnow)
+शून्य curlx_pnow(संरचना curltime *pnow)
 {
   /*
    * Monotonic timer on macOS is provided by mach_absolute_time(), which
@@ -125,11 +125,11 @@ void curlx_pnow(struct curltime *pnow)
    * To convert to nanoseconds, one must use conversion factors specified by
    * mach_timebase_info().
    */
-  static mach_timebase_info_data_t timebase;
+  स्थिर mach_timebase_info_data_t timebase;
   uint64_t usecs;
 
-  if(timebase.denom == 0)
-    (void)mach_timebase_info(&timebase);
+  सचे(timebase.denom == 0)
+    (शून्य)mach_timebase_info(&timebase);
 
   usecs = mach_absolute_time();
   usecs *= timebase.numer; /* spellchecker:disable-line */
@@ -137,44 +137,44 @@ void curlx_pnow(struct curltime *pnow)
   usecs /= 1000;
 
   pnow->tv_sec = usecs / 1000000;
-  pnow->tv_usec = (int)(usecs % 1000000);
+  pnow->tv_usec = (पूर्णाङ्क)(usecs % 1000000);
 }
 
-#elif defined(HAVE_GETTIMEOFDAY)
+#नोचेद्यदि defined(HAVE_GETTIMEOFDAY)
 
-void curlx_pnow(struct curltime *pnow)
+शून्य curlx_pnow(संरचना curltime *pnow)
 {
   /*
    * gettimeofday() is not granted to be increased monotonically, due to
    * clock drifting and external source time synchronization it can jump
    * forward or backward in time.
    */
-  struct timeval now;
-  (void)gettimeofday(&now, NULL);
+  संरचना timeval now;
+  (शून्य)gettimeofday(&now, रिक्त);
   pnow->tv_sec = now.tv_sec;
-  pnow->tv_usec = (int)now.tv_usec;
+  pnow->tv_usec = (पूर्णाङ्क)now.tv_usec;
 }
 
-#else
+#अञ्ञथा
 
-void curlx_pnow(struct curltime *pnow)
+शून्य curlx_pnow(संरचना curltime *pnow)
 {
   /*
    * time() returns the value of time in seconds since the Epoch.
    */
-  pnow->tv_sec = time(NULL);
+  pnow->tv_sec = time(रिक्त);
   pnow->tv_usec = 0;
-  if(!pnow->tv_sec) /* avoid a `now` fully zero */
+  सचे(!pnow->tv_sec) /* avoid a `now` fully zero */
     pnow->tv_usec = 1;
 }
 
 #endif
 
-struct curltime curlx_now(void)
+संरचना curltime curlx_now(शून्य)
 {
-  struct curltime now;
+  संरचना curltime now;
   curlx_pnow(&now);
-  return now;
+  पटिनिवत्त now;
 }
 
 /*
@@ -183,67 +183,67 @@ struct curltime curlx_now(void)
  *
  * @unittest: 1323
  */
-timediff_t curlx_ptimediff_ms(const struct curltime *newer,
-                              const struct curltime *older)
+timediff_t curlx_ptimediff_ms(ध्रुव संरचना curltime *newer,
+                              ध्रुव संरचना curltime *older)
 {
   timediff_t diff = (timediff_t)newer->tv_sec - older->tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000) + ((newer->tv_usec - older->tv_usec) / 1000);
+  सचे(diff >= (TIMEDIFF_T_MAX / 1000))
+    पटिनिवत्त TIMEDIFF_T_MAX;
+  अञ्ञथा सचे(diff <= (TIMEDIFF_T_MIN / 1000))
+    पटिनिवत्त TIMEDIFF_T_MIN;
+  पटिनिवत्त (diff * 1000) + ((newer->tv_usec - older->tv_usec) / 1000);
 }
 
-timediff_t curlx_timediff_ms(struct curltime newer, struct curltime older)
+timediff_t curlx_timediff_ms(संरचना curltime newer, संरचना curltime older)
 {
-  return curlx_ptimediff_ms(&newer, &older);
+  पटिनिवत्त curlx_ptimediff_ms(&newer, &older);
 }
 
 /*
  * Returns: time difference in number of milliseconds, rounded up.
  * For too large diffs it returns max value.
  */
-timediff_t curlx_timediff_ceil_ms(struct curltime newer,
-                                  struct curltime older)
+timediff_t curlx_timediff_ceil_ms(संरचना curltime newer,
+                                  संरचना curltime older)
 {
   timediff_t diff = (timediff_t)newer.tv_sec - older.tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000) + ((newer.tv_usec - older.tv_usec + 999) / 1000);
+  सचे(diff >= (TIMEDIFF_T_MAX / 1000))
+    पटिनिवत्त TIMEDIFF_T_MAX;
+  अञ्ञथा सचे(diff <= (TIMEDIFF_T_MIN / 1000))
+    पटिनिवत्त TIMEDIFF_T_MIN;
+  पटिनिवत्त (diff * 1000) + ((newer.tv_usec - older.tv_usec + 999) / 1000);
 }
 
 timediff_t curlx_us_to_ceil_ms(timediff_t us)
 {
-  return (us / 1000) + ((us > 0) && (us % 1000));
+  पटिनिवत्त (us / 1000) + ((us > 0) && (us % 1000));
 }
 
 /*
  * Returns: time difference in number of microseconds. For too large diffs it
  * returns max value.
  */
-timediff_t curlx_ptimediff_us(const struct curltime *newer,
-                              const struct curltime *older)
+timediff_t curlx_ptimediff_us(ध्रुव संरचना curltime *newer,
+                              ध्रुव संरचना curltime *older)
 {
   timediff_t diff = (timediff_t)newer->tv_sec - older->tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000000) + newer->tv_usec - older->tv_usec;
+  सचे(diff >= (TIMEDIFF_T_MAX / 1000000))
+    पटिनिवत्त TIMEDIFF_T_MAX;
+  अञ्ञथा सचे(diff <= (TIMEDIFF_T_MIN / 1000000))
+    पटिनिवत्त TIMEDIFF_T_MIN;
+  पटिनिवत्त (diff * 1000000) + newer->tv_usec - older->tv_usec;
 }
 
-timediff_t curlx_timediff_us(struct curltime newer, struct curltime older)
+timediff_t curlx_timediff_us(संरचना curltime newer, संरचना curltime older)
 {
-  return curlx_ptimediff_us(&newer, &older);
+  पटिनिवत्त curlx_ptimediff_us(&newer, &older);
 }
 
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 3)
-#include <sec_api/time_s.h>  /* for _gmtime32_s(), _gmtime64_s() */
+#सचे defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 3)
+#अन्तर्भाव <sec_api/time_s.h>  /* for _gmtime32_s(), _gmtime64_s() */
 #ifdef _USE_32BIT_TIME_T
 #define gmtime_s _gmtime32_s
-#else
+#अञ्ञथा
 #define gmtime_s _gmtime64_s
 #endif
 #endif
@@ -252,25 +252,25 @@ timediff_t curlx_timediff_us(struct curltime newer, struct curltime older)
  * curlx_gmtime() is a gmtime() replacement for portability. Do not use
  * the gmtime_s(), gmtime_r() or gmtime() functions anywhere else but here.
  */
-CURLcode curlx_gmtime(time_t intime, struct tm *store)
+CURLcode curlx_gmtime(time_t intime, संरचना tm *store)
 {
 #ifdef _WIN32
-  if(gmtime_s(store, &intime)) /* thread-safe */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#elif defined(HAVE_GMTIME_R)
-  const struct tm *tm;
+  सचे(gmtime_s(store, &intime)) /* thread-safe */
+    पटिनिवत्त CURLE_BAD_FUNCTION_ARGUMENT;
+#नोचेद्यदि defined(HAVE_GMTIME_R)
+  ध्रुव संरचना tm *tm;
   tm = gmtime_r(&intime, store); /* thread-safe */
-  if(!tm)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#else
-  const struct tm *tm;
+  सचे(!tm)
+    पटिनिवत्त CURLE_BAD_FUNCTION_ARGUMENT;
+#अञ्ञथा
+  ध्रुव संरचना tm *tm;
   /* !checksrc! disable BANNEDFUNC 1 */
   tm = gmtime(&intime); /* not thread-safe */
-  if(tm)
+  सचे(tm)
     *store = *tm; /* copy the pointed struct to the local copy */
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  अञ्ञथा
+    पटिनिवत्त CURLE_BAD_FUNCTION_ARGUMENT;
 #endif
 
-  return CURLE_OK;
+  पटिनिवत्त CURLE_OK;
 }
