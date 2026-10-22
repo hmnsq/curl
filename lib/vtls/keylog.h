@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #define KEYLOG_LABEL_MAXLEN CURL_CSTRLEN("CLIENT_HANDSHAKE_TRAFFIC_SECRET")
 
@@ -40,36 +40,36 @@
  * Opens the TLS key log file if requested by the user. The SSLKEYLOGFILE
  * environment variable specifies the output file.
  */
-void Curl_tls_keylog_open(void);
+शून्य Curl_tls_keylog_open(शून्य);
 
 /*
  * Closes the TLS key log file if not already.
  */
-void Curl_tls_keylog_close(void);
+शून्य Curl_tls_keylog_close(शून्य);
 
 /*
  * Returns true if the user successfully enabled the TLS key log file.
  */
-bool Curl_tls_keylog_enabled(void);
+bool Curl_tls_keylog_enabled(शून्य);
 
 /*
  * Returns a pointer to the filename keys are being written to, if enabled.
  */
-const char *Curl_tls_keylog_file_name(void);
+ध्रुव वर्ण *Curl_tls_keylog_file_name(शून्य);
 
 /*
  * Appends a key log file entry.
  * Returns true iff the key log file is open and a valid entry was provided.
  */
-bool Curl_tls_keylog_write(const char *label,
-                           const unsigned char *client_random,
+bool Curl_tls_keylog_write(ध्रुव वर्ण *label,
+                           ध्रुव unsigned वर्ण *client_random,
                            size_t random_size,
-                           const unsigned char *secret, size_t secretlen);
+                           ध्रुव unsigned वर्ण *secret, size_t secretlen);
 
 /*
  * Appends a line to the key log file, ensure it is terminated by an LF.
  * Returns true iff the key log file is open and a valid line was provided.
  */
-bool Curl_tls_keylog_write_line(const char *line);
+bool Curl_tls_keylog_write_ओळ(ध्रुव वर्ण *ओळ);
 
 #endif /* HEADER_CURL_KEYLOG_H */

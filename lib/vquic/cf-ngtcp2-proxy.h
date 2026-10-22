@@ -24,27 +24,27 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) &&              \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
 
-CURLcode Curl_cf_ngtcp2_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                           struct Curl_easy *data,
-                                           struct Curl_peer *origin,
-                                           struct Curl_peer *peer,
-                                           struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_ngtcp2_proxy_घाला_after(संरचना Curl_cfilter *cf_at,
+                                           संरचना Curl_easy *data,
+                                           संरचना Curl_peer *origin,
+                                           संरचना Curl_peer *peer,
+                                           संरचना Curl_peer *tunnel_peer,
                                            uint8_t tunnel_transport);
 
-CURLcode Curl_cf_ngtcp2_proxy_create(struct Curl_cfilter **pcf,
-                                     struct Curl_easy *data,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
+CURLcode Curl_cf_ngtcp2_proxy_create(संरचना Curl_cfilter **pcf,
+                                     संरचना Curl_easy *data,
+                                     संरचना Curl_peer *origin,
+                                     संरचना Curl_peer *peer,
                                      uint8_t transport_peer,
-                                     struct connectdata *conn,
-                                     struct Curl_sockaddr_ex *addr,
-                                     struct Curl_peer *tunnel_peer,
+                                     संरचना connectdata *conn,
+                                     संरचना Curl_sockaddr_ex *addr,
+                                     संरचना Curl_peer *tunnel_peer,
                                      uint8_t tunnel_transport);
 
 #endif
