@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && defined(USE_NTLM)
+#ако defined(USE_WINDOWS_SSPI) && defined(USE_NTLM)
 
 #include "vauth/vauth.h"
 #include "curl_ntlm_core.h"
@@ -50,11 +50,11 @@ bool Curl_auth_is_ntlm_supported(void)
                                      &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
+  ако(status == SEC_E_OK) {
     Curl_pSecFn->FreeContextBuffer(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  врати status == SEC_E_OK;
 }
 
 /*
@@ -97,9 +97,9 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
   status = Curl_pSecFn->QuerySecurityPackageInfo(
                                      CURL_UNCONST(TEXT(SP_NAME_NTLM)),
                                      &SecurityPackage);
-  if(status != SEC_E_OK) {
+  ако(status != SEC_E_OK) {
     failf(data, "SSPI: could not get auth info");
-    return CURLE_AUTH_ERROR;
+    врати CURLE_AUTH_ERROR;
   }
 
   ntlm->token_max = SecurityPackage->cbMaxToken;
@@ -109,29 +109,29 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
 
   /* Allocate our output buffer */
   ntlm->output_token = curlx_malloc(ntlm->token_max);
-  if(!ntlm->output_token)
-    return CURLE_OUT_OF_MEMORY;
+  ако(!ntlm->output_token)
+    врати CURLE_OUT_OF_MEMORY;
 
-  if(Curl_creds_has_user(creds)) {
+  ако(Curl_creds_has_user(creds)) {
     CURLcode result;
 
     /* Populate our identity structure */
     result = Curl_create_sspi_identity(
       creds->user, creds->passwd, &ntlm->identity);
-    if(result)
-      return result;
+    ако(result)
+      врати result;
 
     /* Allow proper cleanup of the identity structure */
     ntlm->p_identity = &ntlm->identity;
   }
-  else
+  инако
     /* Use the current Windows user */
     ntlm->p_identity = NULL;
 
   /* Allocate our credentials handle */
   ntlm->credentials = curlx_calloc(1, sizeof(CredHandle));
-  if(!ntlm->credentials)
-    return CURLE_OUT_OF_MEMORY;
+  ако(!ntlm->credentials)
+    врати CURLE_OUT_OF_MEMORY;
 
   /* Acquire our credentials handle */
   status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
@@ -139,19 +139,19 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
                                      SECPKG_CRED_OUTBOUND, NULL,
                                      ntlm->p_identity, NULL, NULL,
                                      ntlm->credentials, NULL);
-  if(status != SEC_E_OK) {
+  ако(status != SEC_E_OK) {
     curlx_safefree(ntlm->credentials);
-    return CURLE_LOGIN_DENIED;
+    врати CURLE_LOGIN_DENIED;
   }
 
   /* Allocate our new context handle */
   ntlm->context = curlx_calloc(1, sizeof(CtxtHandle));
-  if(!ntlm->context)
-    return CURLE_OUT_OF_MEMORY;
+  ако(!ntlm->context)
+    врати CURLE_OUT_OF_MEMORY;
 
   ntlm->spn = Curl_auth_build_spn(service, host, NULL);
-  if(!ntlm->spn)
-    return CURLE_OUT_OF_MEMORY;
+  ако(!ntlm->spn)
+    врати CURLE_OUT_OF_MEMORY;
 
   /* Setup the type-1 "output" security buffer */
   type_1_desc.ulVersion = SECBUFFER_VERSION;
@@ -168,17 +168,17 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
                                                   NULL, 0,
                                                   ntlm->context, &type_1_desc,
                                                   &attrs, NULL);
-  if(status == SEC_I_COMPLETE_NEEDED ||
+  ако(status == SEC_I_COMPLETE_NEEDED ||
      status == SEC_I_COMPLETE_AND_CONTINUE)
     Curl_pSecFn->CompleteAuthToken(ntlm->context, &type_1_desc);
-  else if(status == SEC_E_INSUFFICIENT_MEMORY)
-    return CURLE_OUT_OF_MEMORY;
-  else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED)
-    return CURLE_AUTH_ERROR;
+  инако ако(status == SEC_E_INSUFFICIENT_MEMORY)
+    врати CURLE_OUT_OF_MEMORY;
+  инако ако(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED)
+    врати CURLE_AUTH_ERROR;
 
   /* Return the response. */
   Curl_bufref_set(out, ntlm->output_token, type_1_buf.cbBuffer, NULL);
-  return CURLE_OK;
+  врати CURLE_OK;
 }
 
 /*
@@ -199,19 +199,19 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
                                              struct ntlmdata *ntlm)
 {
   /* Ensure we have a valid type-2 message */
-  if(!Curl_bufref_len(type2ref)) {
+  ако(!Curl_bufref_len(type2ref)) {
     infof(data, "NTLM handshake failure (empty type-2 message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    врати CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Store the challenge for later use */
   ntlm->input_token = curlx_memdup0(Curl_bufref_ptr(type2ref),
                                     Curl_bufref_len(type2ref));
-  if(!ntlm->input_token)
-    return CURLE_OUT_OF_MEMORY;
+  ако(!ntlm->input_token)
+    врати CURLE_OUT_OF_MEMORY;
   ntlm->input_token_len = Curl_bufref_len(type2ref);
 
-  return CURLE_OK;
+  врати CURLE_OK;
 }
 
 /*
@@ -261,13 +261,13 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
    * Minimum supported version is Windows 7.
    * https://learn.microsoft.com/security-updates/SecurityAdvisories/2009/973811
    */
-  if(ntlm->sslContext) {
+  ако(ntlm->sslContext) {
     status = Curl_pSecFn->QueryContextAttributes(
       ntlm->sslContext,
       SECPKG_ATTR_ENDPOINT_BINDINGS,
       &pkgBindings
     );
-    if(status == SEC_E_OK) {
+    ако(status == SEC_E_OK) {
       type_2_desc.cBuffers++;
       type_2_bufs[1].BufferType = SECBUFFER_CHANNEL_BINDINGS;
       type_2_bufs[1].cbBuffer = pkgBindings.BindingsLength;
@@ -293,23 +293,23 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
                                                   &type_3_desc,
                                                   &attrs, NULL);
 
-  if(pkgBindings.Bindings)
+  ако(pkgBindings.Bindings)
     Curl_pSecFn->FreeContextBuffer(pkgBindings.Bindings);
 
-  if(status != SEC_E_OK) {
+  ако(status != SEC_E_OK) {
     infof(data, "NTLM handshake failure (type-3 message): Status=0x%08lx",
           (unsigned long)status);
 
-    if(status == SEC_E_INSUFFICIENT_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    ако(status == SEC_E_INSUFFICIENT_MEMORY)
+      врати CURLE_OUT_OF_MEMORY;
 
-    return CURLE_AUTH_ERROR;
+    врати CURLE_AUTH_ERROR;
   }
 
   /* Return the response. */
   result = Curl_bufref_memdup0(out, ntlm->output_token, type_3_buf.cbBuffer);
   Curl_auth_cleanup_ntlm(ntlm);
-  return result;
+  врати result;
 }
 
 /*
@@ -325,13 +325,13 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 void Curl_auth_cleanup_ntlm(struct ntlmdata *ntlm)
 {
   /* Free our security context */
-  if(ntlm->context) {
+  ако(ntlm->context) {
     Curl_pSecFn->DeleteSecurityContext(ntlm->context);
     curlx_safefree(ntlm->context);
   }
 
   /* Free our credentials handle */
-  if(ntlm->credentials) {
+  ако(ntlm->credentials) {
     Curl_pSecFn->FreeCredentialsHandle(ntlm->credentials);
     curlx_safefree(ntlm->credentials);
   }

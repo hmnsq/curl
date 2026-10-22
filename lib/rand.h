@@ -33,7 +33,7 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
 
 #ifdef DEBUGBUILD
 #define Curl_rand(a, b, c) Curl_rand_bytes(a, TRUE, b, c)
-#else
+#инако
 #define Curl_rand(a, b, c) Curl_rand_bytes(a, b, c)
 #endif
 

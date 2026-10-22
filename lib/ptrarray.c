@@ -41,31 +41,31 @@ void Curl_ptrarray_clear(struct ptrarray *pa)
 
 uint32_t Curl_ptrarray_count(struct ptrarray *pa)
 {
-  return pa->n;
+  врати pa->n;
 }
 
 CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr)
 {
-  if(!ptr)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(pa->n >= pa->capacity) {
+  ако(!ptr)
+    врати CURLE_BAD_FUNCTION_ARGUMENT;
+  ако(pa->n >= pa->capacity) {
     uint32_t growth;
     void **ndata;
 
-    if(pa->capacity == UINT32_MAX)
-      return CURLE_OUT_OF_MEMORY;
-    if(!pa->capacity)
+    ако(pa->capacity == UINT32_MAX)
+      врати CURLE_OUT_OF_MEMORY;
+    ако(!pa->capacity)
       growth = 8;
-    else if((UINT32_MAX / 2) > pa->capacity)
+    инако ако((UINT32_MAX / 2) > pa->capacity)
       growth = CURLMIN(2 * pa->capacity, CURL_PTRARRAY_MAX_GROW);
-    else
+    инако
       growth = ((UINT32_MAX - pa->capacity) > CURL_PTRARRAY_MAX_GROW) ?
                CURL_PTRARRAY_MAX_GROW : (UINT32_MAX - pa->capacity);
 
     ndata = curlx_calloc(1, (pa->capacity + growth) * sizeof(void *));
-    if(!ndata)
-      return CURLE_OUT_OF_MEMORY;
-    if(pa->n)
+    ако(!ndata)
+      врати CURLE_OUT_OF_MEMORY;
+    ако(pa->n)
       memcpy(ndata, pa->data, pa->n * sizeof(void *));
     curlx_free(pa->data);
     pa->data = ndata;
@@ -73,26 +73,26 @@ CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr)
   }
   DEBUGASSERT(pa->n < pa->capacity);
   pa->data[pa->n++] = ptr;
-  return CURLE_OK;
+  врати CURLE_OK;
 }
 
 void *Curl_ptrarray_remove(struct ptrarray *pa, uint32_t idx)
 {
-  if(idx < pa->n) {
+  ако(idx < pa->n) {
     uint32_t rem = pa->n - idx - 1;
     void *ptr = pa->data[idx];
     pa->data[idx] = NULL;
-    if(rem)
+    ако(rem)
       memmove(pa->data + idx, pa->data + idx + 1, rem * sizeof(void *));
     pa->n--;
-    if(!pa->n)
+    ако(!pa->n)
       Curl_ptrarray_clear(pa);
-    return ptr;
+    врати ptr;
   }
-  return NULL;
+  врати NULL;
 }
 
 void *Curl_ptrarray_get(struct ptrarray *pa, uint32_t idx)
 {
-  return (idx < pa->n) ? pa->data[idx] : NULL;
+  врати (idx < pa->n) ? pa->data[idx] : NULL;
 }

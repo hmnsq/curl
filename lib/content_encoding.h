@@ -31,5 +31,5 @@ struct Curl_cwriter;
 char *Curl_get_content_encodings(void);
 
 CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer);
+                                     const char *enclist, цео is_transfer);
 #endif /* HEADER_CURL_CONTENT_ENCODING_H */

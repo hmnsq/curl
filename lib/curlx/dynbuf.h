@@ -30,7 +30,7 @@ struct dynbuf {
   size_t allc;   /* size of the current allocation */
   size_t toobig; /* size limit for the buffer */
 #ifdef DEBUGBUILD
-  int init;      /* detect API usage mistakes */
+  цео init;      /* detect API usage mistakes */
 #endif
 };
 
@@ -53,7 +53,7 @@ size_t curlx_dyn_len(const struct dynbuf *s);
 
 /* returns 0 on success, -1 on error */
 /* The implementation of this function exists in mprintf.c */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args);
+цео curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args);
 
 /* Take the buffer out of the dynbuf. Caller has ownership and
  * dynbuf resets to initial state. */

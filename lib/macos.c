@@ -42,9 +42,9 @@ CURLcode Curl_macos_init(void)
    * CURL_MACOS_CALL_COPYPROXIES in curl_setup.h.
    */
   CFDictionaryRef dict = SCDynamicStoreCopyProxies(NULL);
-  if(dict)
+  ако(dict)
     CFRelease(dict);
-  return CURLE_OK;
+  врати CURLE_OK;
 }
 
 #endif

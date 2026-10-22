@@ -29,7 +29,7 @@
 
 struct curltime {
   time_t tv_sec; /* seconds */
-  int tv_usec;   /* microseconds */
+  цео tv_usec;   /* microseconds */
 };
 
 #ifdef _WIN32

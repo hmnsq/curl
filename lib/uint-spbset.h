@@ -48,7 +48,7 @@ struct uint32_spbset_chunk {
 struct uint32_spbset {
   struct uint32_spbset_chunk head;
 #ifdef DEBUGBUILD
-  int init;
+  цео init;
 #endif
 };
 

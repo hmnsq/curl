@@ -73,7 +73,7 @@ void Curl_wildcard_dtor(struct WildcardData **wcp);
 
 struct Curl_easy;
 
-#else /* CURL_DISABLE_FTP */
+#инако /* CURL_DISABLE_FTP */
 #define Curl_ftp_listmode(x) FALSE
 #define Curl_ftp_parselist ZERO_NULL
 #define Curl_wildcard_dtor(x)

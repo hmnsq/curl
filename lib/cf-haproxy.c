@@ -41,13 +41,13 @@ typedef enum {
 } haproxy_state;
 
 struct cf_haproxy_ctx {
-  int state;
+  цео state;
   struct dynbuf data_out;
 };
 
 static void cf_haproxy_ctx_free(struct cf_haproxy_ctx *ctx)
 {
-  if(ctx) {
+  ако(ctx) {
     curlx_dyn_free(&ctx->data_out);
     curlx_free(ctx);
   }
@@ -72,21 +72,21 @@ static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
   DEBUGASSERT(ctx);
   DEBUGASSERT(ctx->state == HAPROXY_INIT);
 #ifdef USE_UNIX_SOCKETS
-  if(Curl_conn_get_first_peer(cf->conn, cf->sockindex)->unix_socket)
+  ако(Curl_conn_get_first_peer(cf->conn, cf->sockindex)->unix_socket)
     /* the buffer is large enough to hold this! */
     result = curlx_dyn_addn(&ctx->data_out, STRCONST("PROXY UNKNOWN\r\n"));
-  else {
+  инако {
 #endif /* USE_UNIX_SOCKETS */
   result = Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad);
-  if(result)
-    return result;
+  ако(result)
+    врати result;
 
   client_source_ip = CURL_EASY_STR(data, STRING_HAPROXY_CLIENT_IP);
-  if(client_source_ip) {
+  ако(client_source_ip) {
     client_dest_ip = client_source_ip;
     is_ipv6 = !Curl_is_ipv4addr(client_source_ip);
   }
-  else {
+  инако {
     client_source_ip = ipquad.local_ip;
     client_dest_ip = ipquad.remote_ip;
   }
@@ -99,7 +99,7 @@ static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
 #ifdef USE_UNIX_SOCKETS
   }
 #endif /* USE_UNIX_SOCKETS */
-  return result;
+  врати result;
 }
 
 static CURLcode cf_haproxy_connect(struct Curl_cfilter *cf,
@@ -111,37 +111,37 @@ static CURLcode cf_haproxy_connect(struct Curl_cfilter *cf,
   size_t len;
 
   DEBUGASSERT(ctx);
-  if(cf->connected) {
+  ако(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    врати CURLE_OK;
   }
 
   result = cf->next->cft->do_connect(cf->next, data, done);
-  if(result || !*done)
-    return result;
+  ако(result || !*done)
+    врати result;
 
   switch(ctx->state) {
   case HAPROXY_INIT:
     result = cf_haproxy_date_out_set(cf, data);
-    if(result)
+    ако(result)
       goto out;
     ctx->state = HAPROXY_SEND;
     FALLTHROUGH();
   case HAPROXY_SEND:
     len = curlx_dyn_len(&ctx->data_out);
-    if(len > 0) {
+    ако(len > 0) {
       size_t nwritten;
       result = Curl_conn_cf_send(cf->next, data,
                                  curlx_dyn_uptr(&ctx->data_out), len, FALSE,
                                  &nwritten);
-      if(result) {
-        if(result != CURLE_AGAIN)
+      ако(result) {
+        ако(result != CURLE_AGAIN)
           goto out;
         result = CURLE_OK;
         nwritten = 0;
       }
       curlx_dyn_tail(&ctx->data_out, len - nwritten);
-      if(curlx_dyn_len(&ctx->data_out) > 0) {
+      ако(curlx_dyn_len(&ctx->data_out) > 0) {
         result = CURLE_OK;
         goto out;
       }
@@ -156,7 +156,7 @@ static CURLcode cf_haproxy_connect(struct Curl_cfilter *cf,
 out:
   *done = (!result) && (ctx->state == HAPROXY_DONE);
   cf->connected = *done;
-  return result;
+  врати result;
 }
 
 static void cf_haproxy_destroy(struct Curl_cfilter *cf,
@@ -170,13 +170,13 @@ static CURLcode cf_haproxy_adjust_pollset(struct Curl_cfilter *cf,
                                           struct Curl_easy *data,
                                           struct easy_pollset *ps)
 {
-  if(cf->next->connected && !cf->connected) {
+  ако(cf->next->connected && !cf->connected) {
     /* If we are not connected, but the filter "below" is
      * and not waiting on something, we are sending. */
-    return Curl_pollset_set_out_only(
+    врати Curl_pollset_set_out_only(
       data, ps, Curl_conn_cf_get_socket(cf, data));
   }
-  return CURLE_OK;
+  врати CURLE_OK;
 }
 
 struct Curl_cftype Curl_cft_haproxy = {
@@ -205,7 +205,7 @@ static CURLcode cf_haproxy_create(struct Curl_cfilter **pcf,
 
   (void)data;
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  ако(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -213,14 +213,14 @@ static CURLcode cf_haproxy_create(struct Curl_cfilter **pcf,
   curlx_dyn_init(&ctx->data_out, DYN_HAXPROXY);
 
   result = Curl_cf_create(&cf, &Curl_cft_haproxy, ctx);
-  if(result)
+  ако(result)
     goto out;
   ctx = NULL;
 
 out:
   cf_haproxy_ctx_free(ctx);
   *pcf = result ? NULL : cf;
-  return result;
+  врати result;
 }
 
 CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
@@ -230,12 +230,12 @@ CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
   CURLcode result;
 
   result = cf_haproxy_create(&cf, data);
-  if(result)
+  ако(result)
     goto out;
   Curl_conn_cf_insert_after(cf_at, cf);
 
 out:
-  return result;
+  врати result;
 }
 
 #endif /* !CURL_DISABLE_PROXY */

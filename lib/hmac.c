@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
+#ако (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
   !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_SSL)
 
@@ -44,7 +44,7 @@ static const unsigned char hmac_opad = 0x5C;
 
 struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
                                     const unsigned char *key,
-                                    unsigned int keylen)
+                                    unsigned цео keylen)
 {
   size_t i;
   struct HMAC_context *ctxt;
@@ -55,16 +55,16 @@ struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
   i = sizeof(*ctxt) + (2 * hashparams->ctxtsize) + hashparams->resultlen;
   ctxt = curlx_malloc(i);
 
-  if(!ctxt)
-    return ctxt;
+  ако(!ctxt)
+    врати ctxt;
 
   ctxt->hash = hashparams;
   ctxt->hashctxt1 = (void *)(ctxt + 1);
   ctxt->hashctxt2 = (void *)((char *)ctxt->hashctxt1 + hashparams->ctxtsize);
 
   /* If the key is too long, replace it by its hash digest. */
-  if(keylen > hashparams->maxkeylen) {
-    if(hashparams->hinit(ctxt->hashctxt1))
+  ако(keylen > hashparams->maxkeylen) {
+    ако(hashparams->hinit(ctxt->hashctxt1))
       goto fail;
     hashparams->hupdate(ctxt->hashctxt1, key, keylen);
     hkey = (unsigned char *)ctxt->hashctxt2 + hashparams->ctxtsize;
@@ -74,53 +74,53 @@ struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
   }
 
   /* Prime the two hash contexts with the modified key. */
-  if(hashparams->hinit(ctxt->hashctxt1) ||
+  ако(hashparams->hinit(ctxt->hashctxt1) ||
      hashparams->hinit(ctxt->hashctxt2))
     goto fail;
 
-  for(i = 0; i < keylen; i++) {
+  за(i = 0; i < keylen; i++) {
     b = (unsigned char)(*key ^ hmac_ipad);
     hashparams->hupdate(ctxt->hashctxt1, &b, 1);
     b = (unsigned char)(*key++ ^ hmac_opad);
     hashparams->hupdate(ctxt->hashctxt2, &b, 1);
   }
 
-  for(; i < hashparams->maxkeylen; i++) {
+  за(; i < hashparams->maxkeylen; i++) {
     hashparams->hupdate(ctxt->hashctxt1, &hmac_ipad, 1);
     hashparams->hupdate(ctxt->hashctxt2, &hmac_opad, 1);
   }
 
   /* Done, return pointer to HMAC context. */
-  return ctxt;
+  врати ctxt;
 
 fail:
   curlx_free(ctxt);
-  return NULL;
+  врати NULL;
 }
 
 void Curl_HMAC_update(struct HMAC_context *ctxt,
                       const unsigned char *data,
-                      unsigned int len)
+                      unsigned цео len)
 {
   /* Update first hash calculation. */
   ctxt->hash->hupdate(ctxt->hashctxt1, data, len);
 }
 
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
+цео Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
 {
   const struct HMAC_params *hashparams = ctxt->hash;
 
   /* Do not get output if called with a null parameter: only release
      storage. */
 
-  if(!output)
+  ако(!output)
     output = (unsigned char *)ctxt->hashctxt2 + ctxt->hash->ctxtsize;
 
   hashparams->hfinal(output, ctxt->hashctxt1);
   hashparams->hupdate(ctxt->hashctxt2, output, hashparams->resultlen);
   hashparams->hfinal(output, ctxt->hashctxt2);
   curlx_free(ctxt);
-  return 0;
+  врати 0;
 }
 
 /*
@@ -146,25 +146,25 @@ CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
                      unsigned char *output)
 {
   struct HMAC_context *ctxt;
-  if(keylen > UINT_MAX) /* unlikely to ever happen */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ако(keylen > UINT_MAX) /* unlikely to ever happen */
+    врати CURLE_BAD_FUNCTION_ARGUMENT;
   ctxt = Curl_HMAC_init(hashparams, key, curlx_uztoui(keylen));
 
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  ако(!ctxt)
+    врати CURLE_OUT_OF_MEMORY;
 
   /* Update the digest with the given challenge */
   do {
-    unsigned int ilen = (unsigned int)CURLMIN(datalen, UINT_MAX);
+    unsigned цео ilen = (unsigned цео)CURLMIN(datalen, UINT_MAX);
     Curl_HMAC_update(ctxt, data, ilen);
     datalen -= ilen;
     data += ilen;
-  } while(datalen);
+  } док(datalen);
 
   /* Finalise the digest */
   Curl_HMAC_final(ctxt, output);
 
-  return CURLE_OK;
+  врати CURLE_OK;
 }
 
 #endif /* Using NTLM (without SSPI) or AWS */

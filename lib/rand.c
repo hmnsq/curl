@@ -41,33 +41,33 @@ static CURLcode weak_random(struct Curl_easy *data,
                             unsigned char *entropy,
                             size_t length) /* always 4, size of int */
 {
-  unsigned int r;
-  DEBUGASSERT(length == sizeof(int));
+  unsigned цео r;
+  DEBUGASSERT(length == sizeof(цео));
 
   /* Trying cryptographically secure functions first */
 #ifdef _WIN32
   (void)data;
   {
     CURLcode result = curlx_win32_random(entropy, length);
-    if(result != CURLE_NOT_BUILT_IN)
-      return result;
+    ако(result != CURLE_NOT_BUILT_IN)
+      врати result;
   }
 #endif
 
 #ifdef HAVE_ARC4RANDOM
   (void)data;
-  r = (unsigned int)arc4random();
+  r = (unsigned цео)arc4random();
   memcpy(entropy, &r, length);
-#else
+#инако
   infof(data, "WARNING: using weak random seed");
   {
-    static unsigned int randseed;
+    static unsigned цео randseed;
     static bool seeded = FALSE;
-    unsigned int rnd;
-    if(!seeded) {
+    unsigned цео rnd;
+    ако(!seeded) {
       struct curltime now;
       curlx_pnow(&now);
-      randseed += (unsigned int)now.tv_usec + (unsigned int)now.tv_sec;
+      randseed += (unsigned цео)now.tv_usec + (unsigned цео)now.tv_sec;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
@@ -80,22 +80,22 @@ static CURLcode weak_random(struct Curl_easy *data,
     memcpy(entropy, &rnd, length);
   }
 #endif
-  return CURLE_OK;
+  врати CURLE_OK;
 }
 #endif
 
-static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
+static CURLcode randit(struct Curl_easy *data, unsigned цео *rnd,
                        bool env_override)
 {
 #ifdef DEBUGBUILD
-  if(env_override) {
+  ако(env_override) {
     char *force_entropy = getenv("CURL_ENTROPY");
-    if(force_entropy) {
-      static unsigned int randseed;
+    ако(force_entropy) {
+      static unsigned цео randseed;
       static bool seeded = FALSE;
 
-      if(!seeded) {
-        unsigned int seed = 0;
+      ако(!seeded) {
+        unsigned цео seed = 0;
         size_t elen = strlen(force_entropy);
         size_t clen = sizeof(seed);
         size_t min = elen < clen ? elen : clen;
@@ -103,21 +103,21 @@ static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
         randseed = ntohl(seed);
         seeded = TRUE;
       }
-      else
+      инако
         randseed++;
       *rnd = randseed;
-      return CURLE_OK;
+      врати CURLE_OK;
     }
   }
-#else
+#инако
   (void)env_override;
 #endif
 
   /* data may be NULL! */
 #ifdef USE_SSL
-  return Curl_ssl_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#else
-  return weak_random(data, (unsigned char *)rnd, sizeof(*rnd));
+  врати Curl_ssl_random(data, (unsigned char *)rnd, sizeof(*rnd));
+#инако
+  врати weak_random(data, (unsigned char *)rnd, sizeof(*rnd));
 #endif
 }
 
@@ -149,15 +149,15 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
 
   DEBUGASSERT(num);
 
-  while(num) {
-    unsigned int r;
-    size_t left = num < sizeof(unsigned int) ? num : sizeof(unsigned int);
+  док(num) {
+    unsigned цео r;
+    size_t left = num < sizeof(unsigned цео) ? num : sizeof(unsigned цео);
 
     result = randit(data, &r, env_override);
-    if(result)
-      return result;
+    ако(result)
+      врати result;
 
-    while(left) {
+    док(left) {
       *rnd++ = (unsigned char)(r & 0xFF);
       r >>= 8;
       --num;
@@ -165,7 +165,7 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
     }
   }
 
-  return result;
+  врати result;
 }
 
 /*
@@ -180,20 +180,20 @@ CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
   unsigned char buffer[128];
   DEBUGASSERT(num > 1);
 
-  if((num / 2 >= sizeof(buffer)) || !(num & 1)) {
+  ако((num / 2 >= sizeof(buffer)) || !(num & 1)) {
     /* make sure it fits in the local buffer and that it is an odd number! */
     DEBUGF(infof(data, "invalid buffer size with Curl_rand_hex"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    врати CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   num--; /* save one for null-termination */
 
   result = Curl_rand(data, buffer, num / 2);
-  if(result)
-    return result;
+  ако(result)
+    врати result;
 
   Curl_hexencode(buffer, num / 2, rnd, num + 1);
-  return result;
+  врати result;
 }
 
 /*
@@ -208,23 +208,23 @@ CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
                          size_t num)
 {
   CURLcode result = CURLE_OK;
-  const unsigned int alnumspace = CURL_CSTRLEN(alnum);
-  unsigned int r;
+  const unsigned цео alnumspace = CURL_CSTRLEN(alnum);
+  unsigned цео r;
   DEBUGASSERT(num > 1);
 
   num--; /* save one for null-termination */
 
-  while(num) {
+  док(num) {
     do {
       result = randit(data, &r, TRUE);
-      if(result)
-        return result;
-    } while(r >= (UINT_MAX - UINT_MAX % alnumspace));
+      ако(result)
+        врати result;
+    } док(r >= (UINT_MAX - UINT_MAX % alnumspace));
 
     *rnd++ = (unsigned char)alnum[r % alnumspace];
     num--;
   }
   *rnd = 0;
 
-  return result;
+  врати result;
 }

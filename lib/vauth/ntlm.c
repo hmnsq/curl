@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_NTLM) && !defined(USE_WINDOWS_SSPI)
+#ако defined(USE_NTLM) && !defined(USE_WINDOWS_SSPI)
 
 /*
  * NTLM details:
@@ -61,7 +61,7 @@
 /* Requests that the server's authentication realm be included in the Type 2
    message. */
 
-#if DEBUG_ME
+#ако DEBUG_ME
 /* unknown (1 << 3) */
 #define NTLMFLAG_NEGOTIATE_SIGN                  (1 << 4)
 /* Specifies that authenticated communication between the client and server
@@ -82,7 +82,7 @@
 #define NTLMFLAG_NEGOTIATE_NTLM_KEY              (1 << 9)
 /* Indicates that NTLM authentication is being used. */
 
-#if DEBUG_ME
+#ако DEBUG_ME
 /* unknown (1 << 10) */
 
 #define NTLMFLAG_NEGOTIATE_ANONYMOUS             (1 << 11)
@@ -107,7 +107,7 @@
 /* Indicates that authenticated communication between the client and server
    should be signed with a "dummy" signature. */
 
-#if DEBUG_ME
+#ако DEBUG_ME
 #define NTLMFLAG_TARGET_TYPE_DOMAIN              (1 << 16)
 /* Sent by the server in the Type 2 message to indicate that the target
    authentication realm is a domain. */
@@ -126,7 +126,7 @@
 /* Indicates that the NTLM2 signing and sealing scheme should be used for
    protecting authenticated communications. */
 
-#if DEBUG_ME
+#ако DEBUG_ME
 #define NTLMFLAG_REQUEST_INIT_RESPONSE           (1 << 20)
 /* unknown purpose */
 
@@ -141,7 +141,7 @@
 /* Sent by the server in the Type 2 message to indicate that it is including a
    Target Information block in the message. */
 
-#if DEBUG_ME
+#ако DEBUG_ME
 /* unknown (1<24) */
 /* unknown (1<25) */
 /* unknown (1<26) */
@@ -161,67 +161,67 @@
 #define DEBUG_OUT(x) x
 static void ntlm_print_flags(FILE *handle, unsigned long flags)
 {
-  if(flags & NTLMFLAG_NEGOTIATE_UNICODE)
+  ако(flags & NTLMFLAG_NEGOTIATE_UNICODE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_UNICODE ");
-  if(flags & NTLMFLAG_NEGOTIATE_OEM)
+  ако(flags & NTLMFLAG_NEGOTIATE_OEM)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_OEM ");
-  if(flags & NTLMFLAG_REQUEST_TARGET)
+  ако(flags & NTLMFLAG_REQUEST_TARGET)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_TARGET ");
-  if(flags & (1 << 3))
+  ако(flags & (1 << 3))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_3 ");
-  if(flags & NTLMFLAG_NEGOTIATE_SIGN)
+  ако(flags & NTLMFLAG_NEGOTIATE_SIGN)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_SIGN ");
-  if(flags & NTLMFLAG_NEGOTIATE_SEAL)
+  ако(flags & NTLMFLAG_NEGOTIATE_SEAL)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_SEAL ");
-  if(flags & NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE)
+  ако(flags & NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE ");
-  if(flags & NTLMFLAG_NEGOTIATE_LM_KEY)
+  ако(flags & NTLMFLAG_NEGOTIATE_LM_KEY)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_LM_KEY ");
-  if(flags & NTLMFLAG_NEGOTIATE_NTLM_KEY)
+  ако(flags & NTLMFLAG_NEGOTIATE_NTLM_KEY)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_NTLM_KEY ");
-  if(flags & (1 << 10))
+  ако(flags & (1 << 10))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_10 ");
-  if(flags & NTLMFLAG_NEGOTIATE_ANONYMOUS)
+  ако(flags & NTLMFLAG_NEGOTIATE_ANONYMOUS)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_ANONYMOUS ");
-  if(flags & NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED)
+  ако(flags & NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED ");
-  if(flags & NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED)
+  ако(flags & NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED ");
-  if(flags & NTLMFLAG_NEGOTIATE_LOCAL_CALL)
+  ако(flags & NTLMFLAG_NEGOTIATE_LOCAL_CALL)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_LOCAL_CALL ");
-  if(flags & NTLMFLAG_NEGOTIATE_ALWAYS_SIGN)
+  ако(flags & NTLMFLAG_NEGOTIATE_ALWAYS_SIGN)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_ALWAYS_SIGN ");
-  if(flags & NTLMFLAG_TARGET_TYPE_DOMAIN)
+  ако(flags & NTLMFLAG_TARGET_TYPE_DOMAIN)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_DOMAIN ");
-  if(flags & NTLMFLAG_TARGET_TYPE_SERVER)
+  ако(flags & NTLMFLAG_TARGET_TYPE_SERVER)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_SERVER ");
-  if(flags & NTLMFLAG_TARGET_TYPE_SHARE)
+  ако(flags & NTLMFLAG_TARGET_TYPE_SHARE)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_SHARE ");
-  if(flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY)
+  ако(flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_NTLM2_KEY ");
-  if(flags & NTLMFLAG_REQUEST_INIT_RESPONSE)
+  ако(flags & NTLMFLAG_REQUEST_INIT_RESPONSE)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_INIT_RESPONSE ");
-  if(flags & NTLMFLAG_REQUEST_ACCEPT_RESPONSE)
+  ако(flags & NTLMFLAG_REQUEST_ACCEPT_RESPONSE)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_ACCEPT_RESPONSE ");
-  if(flags & NTLMFLAG_REQUEST_NONNT_SESSION_KEY)
+  ако(flags & NTLMFLAG_REQUEST_NONNT_SESSION_KEY)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_NONNT_SESSION_KEY ");
-  if(flags & NTLMFLAG_NEGOTIATE_TARGET_INFO)
+  ако(flags & NTLMFLAG_NEGOTIATE_TARGET_INFO)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_TARGET_INFO ");
-  if(flags & (1 << 24))
+  ако(flags & (1 << 24))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_24 ");
-  if(flags & (1 << 25))
+  ако(flags & (1 << 25))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_25 ");
-  if(flags & (1 << 26))
+  ако(flags & (1 << 26))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_26 ");
-  if(flags & (1 << 27))
+  ако(flags & (1 << 27))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_27 ");
-  if(flags & (1 << 28))
+  ако(flags & (1 << 28))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_28 ");
-  if(flags & NTLMFLAG_NEGOTIATE_128)
+  ако(flags & NTLMFLAG_NEGOTIATE_128)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_128 ");
-  if(flags & NTLMFLAG_NEGOTIATE_KEY_EXCHANGE)
+  ако(flags & NTLMFLAG_NEGOTIATE_KEY_EXCHANGE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_KEY_EXCHANGE ");
-  if(flags & NTLMFLAG_NEGOTIATE_56)
+  ако(flags & NTLMFLAG_NEGOTIATE_56)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_56 ");
 }
 
@@ -232,10 +232,10 @@ static void ntlm_print_hex(FILE *handle, const char *buf, size_t len)
   (void)handle;
 
   curl_mfprintf(stderr, "0x");
-  while(len-- > 0)
-    curl_mfprintf(stderr, "%02.2x", (unsigned int)*p++);
+  док(len-- > 0)
+    curl_mfprintf(stderr, "%02.2x", (unsigned цео)*p++);
 }
-#else
+#инако
 #define DEBUG_OUT(x) Curl_nop_stmt
 #endif
 
@@ -258,33 +258,33 @@ static CURLcode ntlm_decode_type2_target(struct Curl_easy *data,
                                          struct ntlmdata *ntlm)
 {
   unsigned short target_info_len = 0;
-  unsigned int target_info_offset = 0;
+  unsigned цео target_info_offset = 0;
   const unsigned char *type2 = Curl_bufref_uptr(type2ref);
   size_t type2len = Curl_bufref_len(type2ref);
 
-  if(type2len >= 48) {
+  ако(type2len >= 48) {
     target_info_len = Curl_read16_le(&type2[40]);
     target_info_offset = Curl_read32_le(&type2[44]);
-    if(target_info_len > 0) {
-      if((target_info_offset > type2len) ||
+    ако(target_info_len > 0) {
+      ако((target_info_offset > type2len) ||
          (target_info_offset + target_info_len) > type2len ||
          target_info_offset < 48) {
         infof(data, "NTLM handshake failure (bad type-2 message). "
               "Target Info Offset Len is set incorrect by the peer");
-        return CURLE_BAD_CONTENT_ENCODING;
+        врати CURLE_BAD_CONTENT_ENCODING;
       }
 
       curlx_free(ntlm->target_info); /* replace any previous data */
       ntlm->target_info = curlx_memdup(&type2[target_info_offset],
                                        target_info_len);
-      if(!ntlm->target_info)
-        return CURLE_OUT_OF_MEMORY;
+      ако(!ntlm->target_info)
+        врати CURLE_OUT_OF_MEMORY;
     }
   }
 
   ntlm->target_info_len = target_info_len;
 
-  return CURLE_OK;
+  врати CURLE_OK;
 }
 
 /*
@@ -314,7 +314,7 @@ static CURLcode ntlm_decode_type2_target(struct Curl_easy *data,
  */
 bool Curl_auth_is_ntlm_supported(void)
 {
-  return TRUE;
+  врати TRUE;
 }
 
 /*
@@ -360,22 +360,22 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
 
   ntlm->flags = 0;
 
-  if((type2len < 32) ||
+  ако((type2len < 32) ||
      memcmp(type2, NTLMSSP_SIGNATURE, 8) ||
      memcmp(type2 + 8, type2_marker, sizeof(type2_marker))) {
     /* This was not a good enough type-2 message */
     infof(data, "NTLM handshake failure (bad type-2 message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    врати CURLE_BAD_CONTENT_ENCODING;
   }
 
   ntlm->flags = Curl_read32_le(&type2[20]);
   memcpy(ntlm->nonce, &type2[24], 8);
 
-  if(ntlm->flags & NTLMFLAG_NEGOTIATE_TARGET_INFO) {
+  ако(ntlm->flags & NTLMFLAG_NEGOTIATE_TARGET_INFO) {
     result = ntlm_decode_type2_target(data, type2ref, ntlm);
-    if(result) {
+    ако(result) {
       infof(data, "NTLM handshake failure (bad type-2 message)");
-      return result;
+      врати result;
     }
   }
 
@@ -388,7 +388,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
     curl_mfprintf(stderr, "**** Header %s\n ", header);
   });
 
-  return result;
+  врати result;
 }
 
 /* copy the source to the destination and fill in zeroes in every
@@ -396,7 +396,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
 static void unicodecpy(unsigned char *dest, const char *src, size_t length)
 {
   size_t i;
-  for(i = 0; i < length; i++) {
+  за(i = 0; i < length; i++) {
     dest[2 * i] = (unsigned char)src[i];
     dest[(2 * i) + 1] = '\0';
   }
@@ -493,8 +493,8 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
                           hostname, /* this is empty */
                           domain /* this is empty */);
 
-  if(!ntlmbuf)
-    return CURLE_OUT_OF_MEMORY;
+  ако(!ntlmbuf)
+    врати CURLE_OUT_OF_MEMORY;
 
   /* Initial packet length */
   size = 32 + hostlen + domlen;
@@ -522,7 +522,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
   });
 
   Curl_bufref_set(out, ntlmbuf, size, curl_free);
-  return CURLE_OK;
+  врати CURLE_OK;
 }
 
 /*
@@ -567,10 +567,10 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
   size_t size;
   unsigned char ntlmbuf[NTLM_BUFSIZE];
-  unsigned int lmrespoff;
+  unsigned цео lmrespoff;
   unsigned char lmresp[24]; /* fixed-size */
-  unsigned int ntrespoff;
-  unsigned int ntresplen = 24;
+  unsigned цео ntrespoff;
+  unsigned цео ntresplen = 24;
   unsigned char ntresp[24]; /* fixed-size */
   const unsigned char *ptr_ntresp = &ntresp[0];
   unsigned char *ntlmv2resp = NULL;
@@ -592,21 +592,21 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   memset(lmresp, 0, sizeof(lmresp));
   memset(ntresp, 0, sizeof(ntresp));
   user = strchr(userp, '\\');
-  if(!user)
+  ако(!user)
     user = strchr(userp, '/');
 
-  if(user) {
+  ако(user) {
     domain = userp;
     domlen = (user - domain);
     user++;
   }
-  else
+  инако
     user = userp;
 
   userlen = strlen(user);
   hostlen = sizeof(host) - 1;
 
-  if(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY) {
+  ако(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY) {
     unsigned char ntbuffer[0x18];
     unsigned char entropy[8];
     unsigned char ntlmv2hash[0x18];
@@ -616,33 +616,33 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
        servers featuring extended security are likely supporting also
        NTLMv2. */
     result = Curl_rand(data, entropy, 8);
-    if(result)
-      return result;
+    ако(result)
+      врати result;
 
     result = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
-    if(result)
-      return result;
+    ако(result)
+      врати result;
 
     result = Curl_ntlm_core_mk_ntlmv2_hash(user, userlen, domain, domlen,
                                            ntbuffer, ntlmv2hash);
-    if(result)
-      return result;
+    ако(result)
+      врати result;
 
     /* LMv2 response */
     result = Curl_ntlm_core_mk_lmv2_resp(ntlmv2hash, entropy,
                                          &ntlm->nonce[0], lmresp);
-    if(result)
-      return result;
+    ако(result)
+      врати result;
 
     /* NTLMv2 response */
     result = Curl_ntlm_core_mk_ntlmv2_resp(ntlmv2hash, entropy,
                                            ntlm, &ntlmv2resp, &ntresplen);
-    if(result)
-      return result;
+    ако(result)
+      врати result;
 
     ptr_ntresp = ntlmv2resp;
   }
-  else {
+  инако {
 
     unsigned char ntbuffer[0x18];
     unsigned char lmbuffer[0x18];
@@ -650,24 +650,24 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
     /* NTLM version 1 */
 
     result = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
-    if(result)
-      return result;
+    ако(result)
+      врати result;
 
     Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], ntresp);
 
     result = Curl_ntlm_core_mk_lm_hash(passwdp, lmbuffer);
-    if(result)
-      return result;
+    ако(result)
+      врати result;
 
     Curl_ntlm_core_lm_resp(lmbuffer, &ntlm->nonce[0], lmresp);
-    ntlm->flags &= ~(unsigned int)NTLMFLAG_NEGOTIATE_NTLM2_KEY;
+    ntlm->flags &= ~(unsigned цео)NTLMFLAG_NEGOTIATE_NTLM2_KEY;
 
     /* A safer but less compatible alternative is:
      *   Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], lmresp);
      * See https://davenport.sourceforge.net/ntlm.html#ntlmVersion2 */
   }
 
-  if(unicode) {
+  ако(unicode) {
     domlen = domlen * 2;
     userlen = userlen * 2;
     hostlen = hostlen * 2;
@@ -763,7 +763,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   DEBUGASSERT(size == (size_t)lmrespoff);
 
   /* We append the binary hashes */
-  if(size < (NTLM_BUFSIZE - 0x18)) {
+  ако(size < (NTLM_BUFSIZE - 0x18)) {
     memcpy(&ntlmbuf[size], lmresp, 0x18);
     size += 0x18;
   }
@@ -774,7 +774,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   });
 
   /* ntresplen + size should not be risking an integer overflow here */
-  if(ntresplen + size > sizeof(ntlmbuf)) {
+  ако(ntresplen + size > sizeof(ntlmbuf)) {
     failf(data, "incoming NTLM message too big");
     result = CURLE_TOO_LARGE;
     goto error;
@@ -797,32 +797,32 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 
   /* Make sure that the domain, user and host strings fit in the
      buffer before we copy them there. */
-  if(size + userlen + domlen + hostlen >= NTLM_BUFSIZE) {
+  ако(size + userlen + domlen + hostlen >= NTLM_BUFSIZE) {
     failf(data, "user + domain + hostname too big for NTLM");
     result = CURLE_TOO_LARGE;
     goto error;
   }
 
   DEBUGASSERT(size == domoff);
-  if(unicode)
+  ако(unicode)
     unicodecpy(&ntlmbuf[size], domain, domlen / 2);
-  else
+  инако
     memcpy(&ntlmbuf[size], domain, domlen);
 
   size += domlen;
 
   DEBUGASSERT(size == useroff);
-  if(unicode)
+  ако(unicode)
     unicodecpy(&ntlmbuf[size], user, userlen / 2);
-  else
+  инако
     memcpy(&ntlmbuf[size], user, userlen);
 
   size += userlen;
 
   DEBUGASSERT(size == hostoff);
-  if(unicode)
+  ако(unicode)
     unicodecpy(&ntlmbuf[size], host, hostlen / 2);
-  else
+  инако
     memcpy(&ntlmbuf[size], host, hostlen);
 
   size += hostlen;
@@ -835,7 +835,7 @@ error:
 
   Curl_auth_cleanup_ntlm(ntlm);
 
-  return result;
+  врати result;
 }
 
 /*

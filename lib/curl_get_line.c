@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#ако !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
 #include "curl_get_line.h"
@@ -37,30 +37,30 @@ CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
   CURLcode result;
   char buffer[128];
   curlx_dyn_reset(buf);
-  while(1) {
+  док(1) {
     size_t rlen;
     const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+    ако(!b && ferror(input))
+      врати CURLE_READ_ERROR;
 
     *eof = feof(input);
 
     rlen = b ? strlen(b) : 0;
-    if(rlen) {
+    ако(rlen) {
       result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+      ако(result)
         /* too long line or out of memory */
-        return result;
+        врати result;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    ако(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      врати CURLE_OK; /* all good */
+    ако(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      врати curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */

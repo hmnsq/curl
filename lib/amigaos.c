@@ -74,16 +74,16 @@ CURLcode Curl_amiga_init(void)
   struct SocketIFace *ISocket;
   struct Library *base = OpenLibrary("bsdsocket.library", 4);
 
-  if(base) {
+  ако(base) {
     ISocket = (struct SocketIFace *)GetInterface(base, "main", 1, NULL);
-    if(ISocket) {
+    ако(ISocket) {
       ULONG enabled = 0;
 
       SocketBaseTags(SBTM_SETVAL(SBTC_CAN_SHARE_LIBRARY_BASES), TRUE,
                      SBTM_GETREF(SBTC_HAVE_GETHOSTADDR_R_API), (ULONG)&enabled,
                      TAG_DONE);
 
-      if(enabled) {
+      ако(enabled) {
         SocketFeatures |= HAVE_BSDSOCKET_GETHOSTBYNAME_R;
       }
 
@@ -91,17 +91,17 @@ CURLcode Curl_amiga_init(void)
 
       atexit(Curl_amiga_cleanup);
 
-      return CURLE_OK;
+      врати CURLE_OK;
     }
     CloseLibrary(base);
   }
 
-  return CURLE_FAILED_INIT;
+  врати CURLE_FAILED_INIT;
 }
 
 void Curl_amiga_cleanup(void)
 {
-  if(__CurlISocket) {
+  ако(__CurlISocket) {
     struct Library *base = __CurlISocket->Data.LibBase;
     DropInterface((struct Interface *)__CurlISocket);
     CloseLibrary(base);
@@ -124,62 +124,62 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname, uint16_t port)
   struct hostent *h;
   struct SocketIFace *ISocket = __CurlISocket;
 
-  if(SocketFeatures & HAVE_BSDSOCKET_GETHOSTBYNAME_R) {
+  ако(SocketFeatures & HAVE_BSDSOCKET_GETHOSTBYNAME_R) {
     LONG h_errnop = 0;
     struct hostent *buf;
 
     buf = curlx_calloc(1, CURL_HOSTENT_SIZE);
-    if(buf) {
+    ако(buf) {
       h = gethostbyname_r((STRPTR)hostname, buf,
                           (char *)buf + sizeof(struct hostent),
                           CURL_HOSTENT_SIZE - sizeof(struct hostent),
                           &h_errnop);
-      if(h) {
+      ако(h) {
         ai = Curl_he2ai(h, port);
       }
       curlx_free(buf);
     }
   }
-  else {
+  инако {
 #ifdef USE_RESOLV_THREADED
     /* gethostbyname() is not thread-safe, so we need to reopen bsdsocket
      * on the thread's context
      */
     struct Library *base = OpenLibrary("bsdsocket.library", 4);
-    if(base) {
+    ако(base) {
       ISocket = (struct SocketIFace *)GetInterface(base, "main", 1, NULL);
-      if(ISocket) {
+      ако(ISocket) {
         h = gethostbyname((STRPTR)hostname);
-        if(h) {
+        ако(h) {
           ai = Curl_he2ai(h, port);
         }
         DropInterface((struct Interface *)ISocket);
       }
       CloseLibrary(base);
     }
-#else
+#инако
     /* not using threaded resolver - safe to use this as-is */
     h = gethostbyname(hostname);
-    if(h) {
+    ако(h) {
       ai = Curl_he2ai(h, port);
     }
 #endif
   }
 
-  return ai;
+  врати ai;
 }
 #endif /* CURLRES_AMIGA */
 
 #ifdef USE_AMISSL
 #include <signal.h>
-int Curl_amiga_select(int nfds, fd_set *readfds, fd_set *writefds,
+цео Curl_amiga_select(цео nfds, fd_set *readfds, fd_set *writefds,
                       fd_set *errorfds, struct timeval *timeout)
 {
-  int r = WaitSelect(nfds, readfds, writefds, errorfds, timeout, 0);
+  цео r = WaitSelect(nfds, readfds, writefds, errorfds, timeout, 0);
   /* Ensure Ctrl-C signal is actioned */
-  if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  ако((r == -1) && (SOCKERRNO == SOCKEINTR))
     raise(SIGINT);
-  return r;
+  врати r;
 }
 #endif /* USE_AMISSL */
 
@@ -193,13 +193,13 @@ struct Library *SocketBase = NULL;
 #ifdef __libnix__
 void __request(const char *msg);
 #define CURL_AMIGA_REQUEST(msg)  __request(msg)
-#else
+#инако
 #define CURL_AMIGA_REQUEST(msg)  Printf((const unsigned char *)(msg "\n\a"), 0)
 #endif
 
 void Curl_amiga_cleanup(void)
 {
-  if(SocketBase) {
+  ако(SocketBase) {
     CloseLibrary(SocketBase);
     SocketBase = NULL;
   }
@@ -207,25 +207,25 @@ void Curl_amiga_cleanup(void)
 
 CURLcode Curl_amiga_init(void)
 {
-  if(!SocketBase)
+  ако(!SocketBase)
     SocketBase = OpenLibrary((const unsigned char *)"bsdsocket.library", 4);
 
-  if(!SocketBase) {
+  ако(!SocketBase) {
     CURL_AMIGA_REQUEST("No TCP/IP Stack running!");
-    return CURLE_FAILED_INIT;
+    врати CURLE_FAILED_INIT;
   }
 
-  if(SocketBaseTags(SBTM_SETVAL(SBTC_ERRNOPTR(sizeof(errno))), (ULONG)&errno,
+  ако(SocketBaseTags(SBTM_SETVAL(SBTC_ERRNOPTR(sizeof(errno))), (ULONG)&errno,
                     SBTM_SETVAL(SBTC_LOGTAGPTR), (ULONG)"curl", TAG_DONE)) {
     CURL_AMIGA_REQUEST("SocketBaseTags ERROR");
-    return CURLE_FAILED_INIT;
+    врати CURLE_FAILED_INIT;
   }
 
 #ifndef __libnix__
   atexit(Curl_amiga_cleanup);
 #endif
 
-  return CURLE_OK;
+  врати CURLE_OK;
 }
 
 #ifdef __libnix__

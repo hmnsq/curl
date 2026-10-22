@@ -27,14 +27,14 @@
 
 struct hsts;
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
+#ако !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
 #include "llist.h"
 
 struct Curl_peer;
 
 #define MAX_HSTS_ENTRIES 10000
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
+#ако defined(DEBUGBUILD) || defined(UNITTESTS)
 extern time_t deltatime;
 #endif
 
@@ -49,7 +49,7 @@ struct stsentry {
 struct hsts {
   struct Curl_llist list;
   char *filename;
-  unsigned int flags;
+  unsigned цео flags;
 };
 
 struct hsts *Curl_hsts_init(void);
@@ -67,7 +67,7 @@ CURLcode Curl_hsts_loadfiles(struct Curl_easy *data);
 
 bool Curl_hsts_applies(struct hsts *h, const struct Curl_peer *dest);
 
-#else
+#инако
 #define Curl_hsts_cleanup(x)
 #define Curl_hsts_loadcb(x, y) CURLE_OK
 #define Curl_hsts_save(x, y, z)

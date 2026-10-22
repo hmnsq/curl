@@ -138,50 +138,50 @@ cbapi_fn_props[CURL_CBAPI_FN_LAST - CURL_CBAPI_FN_START] = {
 static bool eapi_in_readonly_cb(struct Curl_easy *data)
 {
   struct Curl_multi *multi = data->multi;
-  if(multi && multi->callstack.count) {
+  ако(multi && multi->callstack.count) {
     size_t i;
-    for(i = 0; i < multi->callstack.count; ++i) {
-      if(multi->callstack.calls[i] >= CURL_CBAPI_FN_START) {
+    за(i = 0; i < multi->callstack.count; ++i) {
+      ако(multi->callstack.calls[i] >= CURL_CBAPI_FN_START) {
         uint8_t fn = multi->callstack.calls[i];
-        if((fn < CURL_CBAPI_FN_LAST) &&
+        ако((fn < CURL_CBAPI_FN_LAST) &&
            cbapi_fn_props[fn - CURL_CBAPI_FN_START].set_readonly)
-          return TRUE;
+          врати TRUE;
       }
     }
   }
-  return FALSE;
+  врати FALSE;
 }
 
 static bool mapi_in_ntfy_cb(struct Curl_multi *multi)
 {
-  if(multi && multi->callstack.count) {
+  ако(multi && multi->callstack.count) {
     size_t i;
-    for(i = 0; i < multi->callstack.count; ++i) {
-      if(multi->callstack.calls[i] == CURL_CBAPI_FN_multi_ntfy_cb)
-        return TRUE;
+    за(i = 0; i < multi->callstack.count; ++i) {
+      ако(multi->callstack.calls[i] == CURL_CBAPI_FN_multi_ntfy_cb)
+        врати TRUE;
     }
   }
-  return FALSE;
+  врати FALSE;
 }
 
 bool Curl_api_multi_is_in_callback(struct Curl_multi *multi)
 {
-  if(multi && multi->callstack.count) {
+  ако(multi && multi->callstack.count) {
     size_t i;
-    for(i = 0; i < multi->callstack.count; ++i) {
-      if(multi->callstack.calls[i] >= CURL_CBAPI_FN_START)
-        return TRUE;
+    за(i = 0; i < multi->callstack.count; ++i) {
+      ако(multi->callstack.calls[i] >= CURL_CBAPI_FN_START)
+        врати TRUE;
     }
   }
-  return FALSE;
+  врати FALSE;
 }
 
 bool Curl_api_is_in_callback(struct Curl_easy *data)
 {
-  if(data && data->multi) {
-    return Curl_api_multi_is_in_callback(data->multi);
+  ако(data && data->multi) {
+    врати Curl_api_multi_is_in_callback(data->multi);
   }
-  return FALSE;
+  врати FALSE;
 }
 
 bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
@@ -196,42 +196,42 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
   guard->depth = 0;
 
   /* Verify that we got an easy handle we can work with. */
-  if(!GOOD_EASY_HANDLE(data) || data->state.internal) {
+  ако(!GOOD_EASY_HANDLE(data) || data->state.internal) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
   /* verify that is either not added to a multi handle OR has a
    * GOOD multi handle that knows `data` for `data->mid`. */
-  if(data->mid != UINT32_MAX) {
-    if(GOOD_MULTI_HANDLE(data->multi)) {
-      if(!Curl_multi_knows_easy(data->multi, data)) {
+  ако(data->mid != UINT32_MAX) {
+    ако(GOOD_MULTI_HANDLE(data->multi)) {
+      ако(!Curl_multi_knows_easy(data->multi, data)) {
         /* But multi does not know it, something is fishy, better deny call */
         DEBUGASSERT(0);
         result = CURLE_BAD_FUNCTION_ARGUMENT;
         goto out;
       }
     }
-    else {
+    инако {
       DEBUGASSERT(0); /* data needs to have a GOOD multi handle */
       result = CURLE_BAD_FUNCTION_ARGUMENT;
       goto out;
     }
   }
-  else if(data->multi) {
+  инако ако(data->multi) {
     DEBUGASSERT(0); /* data should not have a multi handle */
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
   /* verify that the call `fn` we're about to enter is known
    * and check call properties to be admitting. */
-  if(fn >= CURL_EAPI_FN_LAST) {
+  ако(fn >= CURL_EAPI_FN_LAST) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
   fn_props = &eapi_fn_props[fn];
   DEBUGASSERT(fn_props->fn == fn);
-  if(!fn_props->recurse) {
-    if(data->callstack.count) {
+  ако(!fn_props->recurse) {
+    ако(data->callstack.count) {
 #ifdef CURLVERBOSE
       DEBUGF(curl_mfprintf(stderr,
         "EAPI guard: calling %hu with call to %u ongoing\n", (uint16_t)fn,
@@ -240,7 +240,7 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
       result = CURLE_RECURSIVE_API_CALL;
       goto out;
     }
-    if(data->multi && data->multi->callstack.count) {
+    ако(data->multi && data->multi->callstack.count) {
 #ifdef CURLVERBOSE
 
       DEBUGF(curl_mfprintf(stderr,
@@ -253,7 +253,7 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
     }
   }
 
-  if(!fn_props->readonly && eapi_in_readonly_cb(data)) {
+  ако(!fn_props->readonly && eapi_in_readonly_cb(data)) {
     /* Not allowed to be invoked while an event cb is ongoing */
 #ifdef CURLVERBOSE
       DEBUGF(curl_mfprintf(stderr,
@@ -264,8 +264,8 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
     goto out;
   }
 
-#if defined(USE_SSL) && defined(USE_MUTEX)
-  if(fn_props->no_scache_lock &&
+#ако defined(USE_SSL) && defined(USE_MUTEX)
+  ако(fn_props->no_scache_lock &&
      Curl_ssl_scache_is_locked_by_current_thread(data)) {
 #ifdef CURLVERBOSE
       DEBUGF(curl_mfprintf(stderr,
@@ -278,7 +278,7 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
 #endif
 
   /* all fine, add to data's callstack */
-  if(data->callstack.count >= CURL_EAPI_MAX_RECURSION) {
+  ако(data->callstack.count >= CURL_EAPI_MAX_RECURSION) {
     result = CURLE_RECURSIVE_API_CALL;
     goto out;
   }
@@ -288,21 +288,21 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
   guard->data = fn_props->data_is_killed ? NULL : data;
 
 out:
-  if(presult)
+  ако(presult)
     *presult = result;
-  return guard->depth > 0;
+  врати guard->depth > 0;
 }
 
 void Curl_eapi_leave(struct Curl_eapi_guard *guard)
 {
-  if(guard->depth) {
+  ако(guard->depth) {
     /* guard->data is set when handle is supposed to stay alive during call */
-    if(guard->data && GOOD_EASY_HANDLE(guard->data)) {
-      if(guard->depth > guard->data->callstack.count) {
+    ако(guard->data && GOOD_EASY_HANDLE(guard->data)) {
+      ако(guard->depth > guard->data->callstack.count) {
         DEBUGASSERT(0); /* something very wrong */
       }
-      else {
-        if(guard->depth < guard->data->callstack.count) {
+      инако {
+        ако(guard->depth < guard->data->callstack.count) {
           DEBUGASSERT(0); /* someone forgot to clean up */
         }
         /* reset to depth the guard was entered in */
@@ -316,17 +316,17 @@ CURLHcode Curl_eapi_hcode(CURLcode result)
 {
   switch(result) {
   case CURLE_OK:
-    return CURLHE_OK;
+    врати CURLHE_OK;
   case CURLE_BAD_FUNCTION_ARGUMENT:
-    return CURLHE_BAD_ARGUMENT;
+    врати CURLHE_BAD_ARGUMENT;
   case CURLE_OUT_OF_MEMORY:
-    return CURLHE_OUT_OF_MEMORY;
+    врати CURLHE_OUT_OF_MEMORY;
   case CURLE_NOT_BUILT_IN:
-    return CURLHE_NOT_BUILT_IN;
+    врати CURLHE_NOT_BUILT_IN;
   default:
     /* Unfortunately, we cannot convert RECURSIVE_API_CALL,
      * but since the header API is reentrant, this should not happen. */
-    return CURLHE_BAD_ARGUMENT;
+    врати CURLHE_BAD_ARGUMENT;
   }
 }
 
@@ -342,20 +342,20 @@ bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
   guard->depth = 0;
 
   /* Verify that we got an easy handle we can work with. */
-  if(!GOOD_MULTI_HANDLE(multi)) {
+  ако(!GOOD_MULTI_HANDLE(multi)) {
     mresult = CURLM_BAD_HANDLE;
     goto out;
   }
-  if(fn >= CURL_MAPI_FN_LAST) {
+  ако(fn >= CURL_MAPI_FN_LAST) {
     mresult = CURLM_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
   fn_props = &mapi_fn_props[fn];
   DEBUGASSERT(fn_props->fn == fn);
-  if(fn_props->allow_ntfy_cb && mapi_in_ntfy_cb(multi)) {
+  ако(fn_props->allow_ntfy_cb && mapi_in_ntfy_cb(multi)) {
     /* explicitly allowed, even though normal recursion may not */
   }
-  else if(!fn_props->recurse && multi->callstack.count) {
+  инако ако(!fn_props->recurse && multi->callstack.count) {
 #ifdef CURLVERBOSE
       DEBUGF(curl_mfprintf(stderr,
         "MAPI guard: calling %hu with call to %u ongoing\n", (uint16_t)fn,
@@ -365,8 +365,8 @@ bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
     goto out;
   }
 
-#if defined(USE_SSL) && defined(USE_MUTEX)
-  if(fn_props->no_scache_lock && multi->ssl_scache &&
+#ако defined(USE_SSL) && defined(USE_MUTEX)
+  ако(fn_props->no_scache_lock && multi->ssl_scache &&
      Curl_ssl_scache_is_locked_by_current_thread(multi->admin)) {
 #ifdef CURLVERBOSE
       DEBUGF(curl_mfprintf(stderr,
@@ -379,7 +379,7 @@ bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
 #endif
 
   /* all fine, add to data's callstack */
-  if(multi->callstack.count >= CURL_MAPI_MAX_RECURSION) {
+  ако(multi->callstack.count >= CURL_MAPI_MAX_RECURSION) {
     mresult = CURLM_RECURSIVE_API_CALL;
     goto out;
   }
@@ -389,21 +389,21 @@ bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
   guard->multi = fn_props->multi_is_killed ? NULL : multi;
 
 out:
-  if(pmresult)
+  ако(pmresult)
     *pmresult = mresult;
-  return guard->depth > 0;
+  врати guard->depth > 0;
 }
 
 void Curl_mapi_leave(struct Curl_mapi_guard *guard)
 {
-  if(guard->depth) {
+  ако(guard->depth) {
     /* guard->data is set when handle is supposed to stay alive during call */
-    if(guard->multi && GOOD_MULTI_HANDLE(guard->multi)) {
-      if(guard->depth > guard->multi->callstack.count) {
+    ако(guard->multi && GOOD_MULTI_HANDLE(guard->multi)) {
+      ако(guard->depth > guard->multi->callstack.count) {
         DEBUGASSERT(0); /* something very wrong */
       }
-      else {
-        if(guard->depth < guard->multi->callstack.count) {
+      инако {
+        ако(guard->depth < guard->multi->callstack.count) {
           DEBUGASSERT(0); /* someone forgot to clean up */
         }
         /* reset to depth the guard was entered in */
@@ -420,22 +420,22 @@ void Curl_cbapi_enter(struct Curl_mapi_guard *guard,
 {
   guard->depth = 0;
 
-  if(!multi)
+  ако(!multi)
     multi = data ? data->multi : NULL;
   /* if not multi is involved here, just leave */
-  if(!multi)
-    return;
+  ако(!multi)
+    врати;
   /* invalid callback specifier? */
-  if((fn >= CURL_CBAPI_FN_LAST) || (fn < CURL_CBAPI_FN_START)) {
+  ако((fn >= CURL_CBAPI_FN_LAST) || (fn < CURL_CBAPI_FN_START)) {
     DEBUGASSERT(0);
-    return;
+    врати;
   }
   DEBUGASSERT(cbapi_fn_props[fn - CURL_CBAPI_FN_START].fn == fn);
   /* all fine, add to data's callstack */
   /* if multi callstack already at max depth, leave */
-  if(multi->callstack.count >= CURL_MAPI_MAX_RECURSION) {
+  ако(multi->callstack.count >= CURL_MAPI_MAX_RECURSION) {
     DEBUGASSERT(0);
-    return;
+    врати;
   }
   multi->callstack.calls[multi->callstack.count] = (uint8_t)fn;
   ++multi->callstack.count;

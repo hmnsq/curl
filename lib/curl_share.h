@@ -42,18 +42,18 @@ struct Curl_ssl_scache;
 
 /* this struct is libcurl-private, do not export details */
 struct Curl_share {
-  unsigned int magic; /* CURL_GOOD_SHARE */
-  unsigned int specifier;
+  unsigned цео magic; /* CURL_GOOD_SHARE */
+  unsigned цео specifier;
 
   uint32_t ref_count;
 #ifdef USE_MUTEX
    /* do `ref_count` and `has_been_shared` checks using this mutex. */
   curl_mutex_t lock;
-  int has_been_shared;
-#else
+  цео has_been_shared;
+#инако
   /* this only ever goes from FALSE -> TRUE once. We need to check
    * this without being able to use the `lockfunc`. */
-  volatile int has_been_shared;
+  volatile цео has_been_shared;
 #endif
   curl_lock_function lockfunc;
   curl_unlock_function unlockfunc;
@@ -62,7 +62,7 @@ struct Curl_share {
 
   struct cpool cpool;
   struct Curl_dnscache dnscache; /* DNS cache */
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+#ако !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
   struct CookieInfo *cookies;
 #endif
 #ifdef USE_LIBPSL

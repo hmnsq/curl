@@ -41,7 +41,7 @@
 #  define Curl_cond_init(c)      InitializeConditionVariable(c)
 #  define Curl_cond_destroy(c)   (void)(c)
 #elif defined(HAVE_THREADS_POSIX)
-#  define CURL_THREAD_RETURN_T   unsigned int
+#  define CURL_THREAD_RETURN_T   unsigned цео
 #  define CURL_STDCALL
 #  define curl_mutex_t           pthread_mutex_t
 #  define curl_thread_t          pthread_t *
@@ -54,7 +54,7 @@
 #  define curl_cond_t            pthread_cond_t
 #  define Curl_cond_init(c)      pthread_cond_init(c, NULL)
 #  define Curl_cond_destroy(c)   pthread_cond_destroy(c)
-#else
+#инако
 #error neither HAVE_THREADS_POSIX nor _WIN32 defined
 #endif
 
@@ -76,7 +76,7 @@ curl_thread_t Curl_thread_create(
 
 void Curl_thread_destroy(curl_thread_t *hnd);
 
-int Curl_thread_join(curl_thread_t *hnd);
+цео Curl_thread_join(curl_thread_t *hnd);
 
 #endif /* USE_THREADS */
 
