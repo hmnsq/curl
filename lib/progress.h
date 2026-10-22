@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timeval.h"
+#ضمن "curlx/timeval.h"
 
-struct Curl_easy;
+بنية Curl_easy;
 
-typedef enum {
+تعريفنوع تعداد {
   TIMER_NONE,
   TIMER_STARTOP,
   TIMER_STARTSINGLE, /* start of transfer, might get queued */
@@ -43,51 +43,51 @@ typedef enum {
 } timerid;
 
 /* Get the current timestamp of the transfer */
-const struct curltime *Curl_pgrs_now(struct Curl_easy *data);
+ثابت بنية curltime *Curl_pgrs_now(بنية Curl_easy *data);
 
-int Curl_pgrsDone(struct Curl_easy *data, const struct curltime *pnow);
-void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow);
-void Curl_pgrsSetDownloadSize(struct Curl_easy *data, curl_off_t size);
-void Curl_pgrsSetUploadSize(struct Curl_easy *data, curl_off_t size);
-CURLcode Curl_pgrs_deliver_check(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_deliver_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_download_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_upload_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrsSetUploadCounter(struct Curl_easy *data, curl_off_t size);
+صحيح Curl_pgrsDone(بنية Curl_easy *data, ثابت بنية curltime *pnow);
+فراغ Curl_pgrsStart(بنية Curl_easy *data, ثابت بنية curltime *pnow);
+فراغ Curl_pgrsSetDownloadSize(بنية Curl_easy *data, curl_off_t size);
+فراغ Curl_pgrsSetUploadSize(بنية Curl_easy *data, curl_off_t size);
+CURLcode Curl_pgrs_deliver_check(بنية Curl_easy *data, size_t delta);
+فراغ Curl_pgrs_deliver_inc(بنية Curl_easy *data, size_t delta);
+فراغ Curl_pgrs_download_inc(بنية Curl_easy *data, size_t delta);
+فراغ Curl_pgrs_upload_inc(بنية Curl_easy *data, size_t delta);
+فراغ Curl_pgrsSetUploadCounter(بنية Curl_easy *data, curl_off_t size);
 
 /* perform progress update, invoking callbacks at intervals */
-CURLcode Curl_pgrsUpdate(struct Curl_easy *data);
-CURLcode Curl_pgrsUpdateX(struct Curl_easy *data, const struct curltime *pnow);
+CURLcode Curl_pgrsUpdate(بنية Curl_easy *data);
+CURLcode Curl_pgrsUpdateX(بنية Curl_easy *data, ثابت بنية curltime *pnow);
 /* perform progress update, no callbacks invoked */
-void Curl_pgrsUpdate_nometer(struct Curl_easy *data);
+فراغ Curl_pgrsUpdate_nometer(بنية Curl_easy *data);
 /* perform progress update with callbacks and speed checks */
-CURLcode Curl_pgrsCheck(struct Curl_easy *data);
-CURLcode Curl_pgrsCheckX(struct Curl_easy *data, const struct curltime *pnow);
+CURLcode Curl_pgrsCheck(بنية Curl_easy *data);
+CURLcode Curl_pgrsCheckX(بنية Curl_easy *data, ثابت بنية curltime *pnow);
 
 /* Inform progress/speedcheck about receive/send pausing */
-void Curl_pgrsRecvPause(struct Curl_easy *data, bool enable);
-void Curl_pgrsSendPause(struct Curl_easy *data, bool enable);
+فراغ Curl_pgrsRecvPause(بنية Curl_easy *data, bool enable);
+فراغ Curl_pgrsSendPause(بنية Curl_easy *data, bool enable);
 
 /* Reset sizes and counters for up- and download. */
-void Curl_pgrsReset(struct Curl_easy *data);
+فراغ Curl_pgrsReset(بنية Curl_easy *data);
 /* Reset sizes for up- and download. */
-void Curl_pgrsResetTransferSizes(struct Curl_easy *data);
+فراغ Curl_pgrsResetTransferSizes(بنية Curl_easy *data);
 
-void Curl_pgrsTime(struct Curl_easy *data, timerid timer);
+فراغ Curl_pgrsTime(بنية Curl_easy *data, timerid timer);
 /**
  * Update progress timer with the elapsed time from its start to `timestamp`.
  * This allows updating timers later and is used by happy eyeballing, where
  * we only want to record the winner's times.
  */
-void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
-                      struct curltime timestamp);
+فراغ Curl_pgrsTimeWas(بنية Curl_easy *data, timerid timer,
+                      بنية curltime timestamp);
 
-void Curl_pgrsEarlyData(struct Curl_easy *data, curl_off_t sent);
+فراغ Curl_pgrsEarlyData(بنية Curl_easy *data, curl_off_t sent);
 
-void Curl_pgrsCompleted(struct Curl_easy *data);
+فراغ Curl_pgrsCompleted(بنية Curl_easy *data);
 
-timediff_t Curl_pgrs_since_ms(struct Curl_easy *data,
-                              const struct curltime *pnow,
+timediff_t Curl_pgrs_since_ms(بنية Curl_easy *data,
+                              ثابت بنية curltime *pnow,
                               timerid timer);
 
 #endif /* HEADER_CURL_PROGRESS_H */

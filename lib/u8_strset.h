@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 /* How large should the initial set be?
  * Measuring our test suite with set growth force fail, gives
@@ -44,14 +44,14 @@
  * Getting the string for an id not in the set returns NULL.
  * Setting an id to NULL unsets the id.
  */
-struct u8_strset {
-  char **data; /* #slots array of null-terminated strings */
+بنية u8_strset {
+  حرف **data; /* #slots array of null-terminated strings */
   uint8_t *ids; /* #slots array of `id` values */
   uint8_t *psl; /* #slots array of "probe sequence length" values */
-  char *sdata[CURL_U8_STRSET_START_DIM];
+  حرف *sdata[CURL_U8_STRSET_START_DIM];
   uint8_t sids[CURL_U8_STRSET_START_DIM];
   uint8_t spsl[CURL_U8_STRSET_START_DIM];
-  uint16_t count;
+  uint16_t کيراءن;
   uint8_t slotbits;
   uint8_t slotmask;
 #ifdef DEBUGBUILD
@@ -59,26 +59,26 @@ struct u8_strset {
 #endif
 };
 
-void Curl_u8_strset_init(struct u8_strset *set);
-void Curl_u8_strset_clear(struct u8_strset *set);
+فراغ Curl_u8_strset_init(بنية u8_strset *set);
+فراغ Curl_u8_strset_clear(بنية u8_strset *set);
 
 #ifdef UNITTESTS
-uint16_t Curl_u8_strset_count(struct u8_strset *set);
+uint16_t Curl_u8_strset_کيراءن(بنية u8_strset *set);
 #endif
 
-const char *Curl_u8_strset_get(struct u8_strset *set, uint8_t id);
+ثابت حرف *Curl_u8_strset_get(بنية u8_strset *set, uint8_t id);
 
 /* Set string for id, makes a copy. */
-CURLcode Curl_u8_strset_setx(struct u8_strset *set,
-                             uint8_t id, const char *str, size_t slen);
+CURLcode Curl_u8_strset_setx(بنية u8_strset *set,
+                             uint8_t id, ثابت حرف *str, size_t slen);
 /* Set string for id, takes ownership of `str` even on failure. */
-CURLcode Curl_u8_strset_setn(struct u8_strset *set,
-                             uint8_t id, char *str);
-void Curl_u8_strset_unset(struct u8_strset *set, uint8_t id);
+CURLcode Curl_u8_strset_setn(بنية u8_strset *set,
+                             uint8_t id, حرف *str);
+فراغ Curl_u8_strset_unset(بنية u8_strset *set, uint8_t id);
 
 /* Remove the string if in the set and zero its memory */
-void Curl_u8_strset_unset0(struct u8_strset *set, uint8_t id);
+فراغ Curl_u8_strset_unset0(بنية u8_strset *set, uint8_t id);
 
-CURLcode Curl_u8_strset_copy(struct u8_strset *dest, struct u8_strset *src);
+CURLcode Curl_u8_strset_copy(بنية u8_strset *dest, بنية u8_strset *src);
 
 #endif /* HEADER_CURL_U8_STRSET_H */
