@@ -94,7 +94,7 @@ typedef enum {
   IMAP_FETCH_FINAL,
   IMAP_APPEND,
   IMAP_APPEND_FINAL,
-  IMAP_SEARCH,
+  IMAP_हानाप,
   IMAP_LOGOUT,
   IMAP_LAST          /* never used */
 } imapstate;
@@ -187,7 +187,7 @@ static CURLcode imap_sendf(struct Curl_easy *data,
  */
 static char *imap_atom(const char *str, bool escape_only)
 {
-  struct dynbuf line;
+  struct dynbuf लिन्या;
   size_t nclean;
   size_t len;
 
@@ -200,50 +200,50 @@ static char *imap_atom(const char *str, bool escape_only)
     /* nothing to escape, return a strdup */
     return curlx_strdup(str);
 
-  curlx_dyn_init(&line, 2000);
+  curlx_dyn_init(&लिन्या, 2000);
 
-  if(!escape_only && curlx_dyn_addn(&line, "\"", 1))
+  if(!escape_only && curlx_dyn_addn(&लिन्या, "\"", 1))
     return NULL;
 
   while(*str) {
     if((*str == '\\' || *str == '"') &&
-       curlx_dyn_addn(&line, "\\", 1))
+       curlx_dyn_addn(&लिन्या, "\\", 1))
       return NULL;
-    if(curlx_dyn_addn(&line, str, 1))
+    if(curlx_dyn_addn(&लिन्या, str, 1))
       return NULL;
     str++;
   }
 
-  if(!escape_only && curlx_dyn_addn(&line, "\"", 1))
+  if(!escape_only && curlx_dyn_addn(&लिन्या, "\"", 1))
     return NULL;
 
-  return curlx_dyn_ptr(&line);
+  return curlx_dyn_ptr(&लिन्या);
 }
 
 /*
  * Finds the start of a literal '{size}' in line, skipping over quoted strings.
  */
-static const char *imap_find_literal(const char *line, size_t len)
+static const char *imap_find_literal(const char *लिन्या, size_t len)
 {
-  const char *end = line + len;
+  const char *end = लिन्या + len;
   bool in_quote = FALSE;
 
-  while(line < end) {
+  while(लिन्या < end) {
     if(in_quote) {
-      if(*line == '\\' && (line + 1) < end) {
-        line += 2;
+      if(*लिन्या == '\\' && (लिन्या + 1) < end) {
+        लिन्या += 2;
         continue;
       }
-      if(*line == '"')
+      if(*लिन्या == '"')
         in_quote = FALSE;
     }
     else {
-      if(*line == '"')
+      if(*लिन्या == '"')
         in_quote = TRUE;
-      else if(*line == '{')
-        return line;
+      else if(*लिन्या == '{')
+        return लिन्या;
     }
-    line++;
+    लिन्या++;
   }
   return NULL;
 }
@@ -258,32 +258,32 @@ static const char *imap_find_literal(const char *line, size_t len)
  *
  * The "* " marker is assumed to have already been checked by the caller.
  */
-static bool imap_matchresp(const char *line, size_t len, const char *cmd)
+static bool imap_matchresp(const char *लिन्या, size_t len, const char *cmd)
 {
-  const char *end = line + len;
+  const char *end = लिन्या + len;
   size_t cmd_len = strlen(cmd);
 
   /* Skip the untagged response marker */
-  line += 2;
+  लिन्या += 2;
 
   /* Do we have a number after the marker? */
-  if(line < end && ISDIGIT(*line)) {
+  if(लिन्या < end && ISDIGIT(*लिन्या)) {
     /* Skip the number */
     do
-      line++;
-    while(line < end && ISDIGIT(*line));
+      लिन्या++;
+    while(लिन्या < end && ISDIGIT(*लिन्या));
 
     /* Do we have the space character? */
-    if(line == end || *line != ' ')
+    if(लिन्या == end || *लिन्या != ' ')
       return FALSE;
 
-    line++;
+    लिन्या++;
   }
 
   /* Does the command name match and is it followed by a space character or at
      the end of line? */
-  if(line + cmd_len <= end && curl_strnequal(line, cmd, cmd_len) &&
-     (line[cmd_len] == ' ' || line + cmd_len + 2 == end))
+  if(लिन्या + cmd_len <= end && curl_strnequal(लिन्या, cmd, cmd_len) &&
+     (लिन्या[cmd_len] == ' ' || लिन्या + cmd_len + 2 == end))
     return TRUE;
 
   return FALSE;
@@ -297,7 +297,7 @@ static bool imap_matchresp(const char *line, size_t len, const char *cmd)
  * response which can be processed by the response handler.
  */
 static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+                           const char *लिन्या, size_t len, int *resp)
 {
   struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
   struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
@@ -312,13 +312,13 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
   /* Do we have a tagged command response? */
   id = imapc->resptag;
   id_len = strlen(id);
-  if(len >= id_len + 1 && !memcmp(id, line, id_len) && line[id_len] == ' ') {
-    line += id_len + 1;
+  if(len >= id_len + 1 && !memcmp(id, लिन्या, id_len) && लिन्या[id_len] == ' ') {
+    लिन्या += id_len + 1;
     len -= id_len + 1;
 
-    if(len >= 2 && !memcmp(line, "OK", 2))
+    if(len >= 2 && !memcmp(लिन्या, "OK", 2))
       *resp = IMAP_RESP_OK;
-    else if(len >= 7 && !memcmp(line, "PREAUTH", 7))
+    else if(len >= 7 && !memcmp(लिन्या, "PREAUTH", 7))
       *resp = IMAP_RESP_PREAUTH;
     else
       *resp = IMAP_RESP_NOT_OK;
@@ -327,19 +327,19 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
   }
 
   /* Do we have an untagged command response? */
-  if(len >= 2 && !memcmp("* ", line, 2)) {
+  if(len >= 2 && !memcmp("* ", लिन्या, 2)) {
     switch(imapc->state) {
     /* States which are interested in untagged responses */
     case IMAP_CAPABILITY:
-      if(!imap_matchresp(line, len, "CAPABILITY"))
+      if(!imap_matchresp(लिन्या, len, "CAPABILITY"))
         return FALSE;
       break;
 
     case IMAP_LIST:
-      if((!imap->custom && !imap_matchresp(line, len, "LIST")) ||
-         (imap->custom && !imap_matchresp(line, len, imap->custom) &&
+      if((!imap->custom && !imap_matchresp(लिन्या, len, "LIST")) ||
+         (imap->custom && !imap_matchresp(लिन्या, len, imap->custom) &&
           (!curl_strequal(imap->custom, "STORE") ||
-           !imap_matchresp(line, len, "FETCH")) &&
+           !imap_matchresp(लिन्या, len, "FETCH")) &&
           !curl_strequal(imap->custom, "SELECT") &&
           !curl_strequal(imap->custom, "EXAMINE") &&
           !curl_strequal(imap->custom, "SEARCH") &&
@@ -357,12 +357,12 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
       break;
 
     case IMAP_FETCH:
-      if(!imap_matchresp(line, len, "FETCH"))
+      if(!imap_matchresp(लिन्या, len, "FETCH"))
         return FALSE;
       break;
 
-    case IMAP_SEARCH:
-      if(!imap_matchresp(line, len, "SEARCH"))
+    case IMAP_हानाप:
+      if(!imap_matchresp(लिन्या, len, "SEARCH"))
         return FALSE;
       break;
 
@@ -379,8 +379,8 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
      a space and optionally some text as per RFC-3501 for the AUTHENTICATE and
      APPEND commands and as outlined in Section 4. Examples of RFC-4959 but
      some email servers ignore this and only send a single + instead. */
-  if(!imap->custom && ((len == 3 && line[0] == '+') ||
-                       (len >= 2 && !memcmp("+ ", line, 2)))) {
+  if(!imap->custom && ((len == 3 && लिन्या[0] == '+') ||
+                       (len >= 2 && !memcmp("+ ", लिन्या, 2)))) {
     switch(imapc->state) {
     /* States which are interested in continuation responses */
     case IMAP_AUTHENTICATE:
@@ -945,7 +945,7 @@ cleanup:
  *
  * Sends a SEARCH command.
  */
-static CURLcode imap_perform_search(struct Curl_easy *data,
+static CURLcode imap_perform_हानाप(struct Curl_easy *data,
                                     struct imap_conn *imapc,
                                     struct IMAP *imap)
 {
@@ -961,7 +961,7 @@ static CURLcode imap_perform_search(struct Curl_easy *data,
   result = imap_sendf(data, imapc, "SEARCH %s", imap->query);
 
   if(!result)
-    imap_state(data, imapc, IMAP_SEARCH);
+    imap_state(data, imapc, IMAP_हानाप);
 
   return result;
 }
@@ -1012,55 +1012,55 @@ static CURLcode imap_state_capability_resp(struct Curl_easy *data,
                                            imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  const char *लिन्या = curlx_dyn_ptr(&imapc->pp.recvbuf);
 
   (void)instate;
 
   /* Do we have an untagged response? */
   if(imapcode == '*') {
-    line += 2;
+    लिन्या += 2;
 
     /* Loop through the data line */
     for(;;) {
       size_t wordlen;
-      while(*line && (ISBLANK(*line) || ISNEWLINE(*line)))
-        line++;
+      while(*लिन्या && (ISBLANK(*लिन्या) || ISNEWLINE(*लिन्या)))
+        लिन्या++;
 
-      if(!*line)
+      if(!*लिन्या)
         break;
 
       /* Extract the word */
-      for(wordlen = 0; line[wordlen] && !ISBLANK(line[wordlen]) &&
-                       !ISNEWLINE(line[wordlen]);)
+      for(wordlen = 0; लिन्या[wordlen] && !ISBLANK(लिन्या[wordlen]) &&
+                       !ISNEWLINE(लिन्या[wordlen]);)
         wordlen++;
 
       /* Does the server support the STARTTLS capability? */
-      if(wordlen == 8 && curl_strnequal(line, "STARTTLS", 8))
+      if(wordlen == 8 && curl_strnequal(लिन्या, "STARTTLS", 8))
         imapc->tls_supported = TRUE;
 
       /* Has the server explicitly disabled clear text authentication? */
-      else if(wordlen == 13 && curl_strnequal(line, "LOGINDISABLED", 13))
+      else if(wordlen == 13 && curl_strnequal(लिन्या, "LOGINDISABLED", 13))
         imapc->login_disabled = TRUE;
 
       /* Does the server support the SASL-IR capability? */
-      else if(wordlen == 7 && curl_strnequal(line, "SASL-IR", 7))
+      else if(wordlen == 7 && curl_strnequal(लिन्या, "SASL-IR", 7))
         imapc->ir_supported = TRUE;
 
       /* Do we have a SASL based authentication mechanism? */
-      else if(wordlen > 5 && curl_strnequal(line, "AUTH=", 5)) {
+      else if(wordlen > 5 && curl_strnequal(लिन्या, "AUTH=", 5)) {
         size_t llen;
         unsigned short mechbit;
 
-        line += 5;
+        लिन्या += 5;
         wordlen -= 5;
 
         /* Test the word for a matching authentication mechanism */
-        mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
+        mechbit = Curl_sasl_decode_mech(लिन्या, wordlen, &llen);
         if(mechbit && llen == wordlen)
           imapc->sasl.authmechs |= mechbit;
       }
 
-      line += wordlen;
+      लिन्या += wordlen;
     }
   }
   else if(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
@@ -1206,7 +1206,7 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
                                            imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  const char *लिन्या = curlx_dyn_ptr(&imapc->pp.recvbuf);
   size_t len = imapc->pp.nfinal;
   struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
 
@@ -1221,14 +1221,14 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
   else if(imapcode == '*') {
     /* Check if this response contains a literal (e.g. FETCH responses with
        body data). Literal syntax is {size}\r\n */
-    const char *cr = memchr(line, '\r', len);
-    size_t line_len = cr ? (size_t)(cr - line) : len;
-    const char *ptr = imap_find_literal(line, line_len);
+    const char *cr = memchr(लिन्या, '\r', len);
+    size_t लिन्या_len = cr ? (size_t)(cr - लिन्या) : len;
+    const char *ptr = imap_find_literal(लिन्या, लिन्या_len);
     if(ptr) {
       curl_off_t size = 0;
       bool parsed = FALSE;
       ptr++;
-      if(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
+      if(!curlx_str_नुमेरो(&ptr, &size, CURL_OFF_T_MAX) &&
          !curlx_str_single(&ptr, '}'))
         parsed = TRUE;
 
@@ -1241,7 +1241,7 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
         infof(data, "Found %" FMT_OFF_T " bytes to download", size);
 
         /* First write the header line */
-        result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+        result = Curl_client_write(data, CLIENTWRITE_BODY, लिन्या, len);
         if(result)
           return result;
 
@@ -1309,12 +1309,12 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
       }
       else {
         /* Failed to parse literal, write the line */
-        result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+        result = Curl_client_write(data, CLIENTWRITE_BODY, लिन्या, len);
       }
     }
     else {
       /* No literal, write the line as-is */
-      result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+      result = Curl_client_write(data, CLIENTWRITE_BODY, लिन्या, len);
     }
   }
   else if(imapcode != IMAP_RESP_OK)
@@ -1338,13 +1338,13 @@ static CURLcode imap_state_select_resp(struct Curl_easy *data,
 
   if(imapcode == '*') {
     /* See if this is an UIDVALIDITY response */
-    const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+    const char *लिन्या = curlx_dyn_ptr(&imapc->pp.recvbuf);
     size_t len = curlx_dyn_len(&imapc->pp.recvbuf);
-    if((len >= 18) && checkprefix("OK [UIDVALIDITY ", &line[2])) {
-      curl_off_t value;
-      const char *p = &line[2] + CURL_CSTRLEN("OK [UIDVALIDITY ");
-      if(!curlx_str_number(&p, &value, UINT_MAX)) {
-        imapc->mb_uidvalidity = (unsigned int)value;
+    if((len >= 18) && checkprefix("OK [UIDVALIDITY ", &लिन्या[2])) {
+      curl_off_t हालागा;
+      const char *p = &लिन्या[2] + CURL_CSTRLEN("OK [UIDVALIDITY ");
+      if(!curlx_str_नुमेरो(&p, &हालागा, UINT_MAX)) {
+        imapc->mb_uidvalidity = (unsigned int)हालागा;
         imapc->mb_uidvalidity_set = TRUE;
       }
     }
@@ -1366,7 +1366,7 @@ static CURLcode imap_state_select_resp(struct Curl_easy *data,
       if(imap->custom)
         result = imap_perform_list(data, imapc, imap);
       else if(imap->query)
-        result = imap_perform_search(data, imapc, imap);
+        result = imap_perform_हानाप(data, imapc, imap);
       else
         result = imap_perform_fetch(data, imapc, imap);
     }
@@ -1405,7 +1405,7 @@ static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
   ptr = imap_find_literal(ptr, len);
   if(ptr) {
     ptr++;
-    if(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
+    if(!curlx_str_नुमेरो(&ptr, &size, CURL_OFF_T_MAX) &&
        !curlx_str_single(&ptr, '}'))
       parsed = TRUE;
   }
@@ -1605,7 +1605,7 @@ upgrade_tls:
       break;
 
     case IMAP_LIST:
-    case IMAP_SEARCH:
+    case IMAP_हानाप:
       result = imap_state_listsearch_resp(data, imapc, imapcode, imapc->state);
       break;
 
@@ -1723,26 +1723,26 @@ static CURLcode imap_parse_url_options(struct connectdata *conn,
   bool prefer_login = FALSE;
 
   while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+    const char *सुसि = ptr;
+    const char *हालागा;
 
     while(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    हालागा = ptr + 1;
 
     while(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=+LOGIN", 11)) {
+    if(curl_strnequal(सुसि, "AUTH=+LOGIN", 11)) {
       /* User prefers plaintext LOGIN over any SASL, including SASL LOGIN */
       prefer_login = TRUE;
       imapc->sasl.prefmech = SASL_AUTH_NONE;
     }
-    else if(curl_strnequal(key, "AUTH=", 5)) {
+    else if(curl_strnequal(सुसि, "AUTH=", 5)) {
       prefer_login = FALSE;
       result = Curl_sasl_parse_url_auth_option(&imapc->sasl,
-                                               value, ptr - value);
+                                               हालागा, ptr - हालागा);
     }
     else {
       prefer_login = FALSE;
@@ -1808,7 +1808,7 @@ static CURLcode imap_parse_url_path(struct Curl_easy *data,
   /* There can be any number of parameters in the form ";NAME=VALUE" */
   while(*ptr == ';') {
     char *name;
-    char *value;
+    char *हालागा;
     size_t valuelen;
 
     /* Find the length of the name parameter */
@@ -1831,53 +1831,53 @@ static CURLcode imap_parse_url_path(struct Curl_easy *data,
       ptr++;
 
     /* Decode the value parameter */
-    result = Curl_urldecode(begin, ptr - begin, &value, &valuelen,
+    result = Curl_urldecode(begin, ptr - begin, &हालागा, &valuelen,
                             REJECT_CTRL);
     if(result) {
       curlx_free(name);
       return result;
     }
 
-    DEBUGF(infof(data, "IMAP URL parameter '%s' = '%s'", name, value));
+    DEBUGF(infof(data, "IMAP URL parameter '%s' = '%s'", name, हालागा));
 
     /* Process the known hierarchical parameters (UIDVALIDITY, UID, SECTION
        and PARTIAL) stripping of the trailing slash character if it is
        present.
 
        Note: Unknown parameters trigger a URL_MALFORMAT error. */
-    if(valuelen > 0 && value[valuelen - 1] == '/')
-      value[valuelen - 1] = '\0';
+    if(valuelen > 0 && हालागा[valuelen - 1] == '/')
+      हालागा[valuelen - 1] = '\0';
     if(valuelen) {
       if(curl_strequal(name, "UIDVALIDITY") && !imap->uidvalidity_set) {
-        curl_off_t num;
-        const char *p = (const char *)value;
-        if(!curlx_str_number(&p, &num, UINT_MAX)) {
-          imap->uidvalidity = (unsigned int)num;
+        curl_off_t नुमेरो;
+        const char *p = (const char *)हालागा;
+        if(!curlx_str_नुमेरो(&p, &नुमेरो, UINT_MAX)) {
+          imap->uidvalidity = (unsigned int)नुमेरो;
           imap->uidvalidity_set = TRUE;
         }
-        curlx_free(value);
+        curlx_free(हालागा);
       }
       else if(curl_strequal(name, "UID") && !imap->uid) {
-        imap->uid = value;
+        imap->uid = हालागा;
       }
       else if(curl_strequal(name, "MAILINDEX") && !imap->mindex) {
-        imap->mindex = value;
+        imap->mindex = हालागा;
       }
       else if(curl_strequal(name, "SECTION") && !imap->section) {
-        imap->section = value;
+        imap->section = हालागा;
       }
       else if(curl_strequal(name, "PARTIAL") && !imap->partial) {
-        imap->partial = value;
+        imap->partial = हालागा;
       }
       else {
         curlx_free(name);
-        curlx_free(value);
+        curlx_free(हालागा);
         return CURLE_URL_MALFORMAT;
       }
     }
     else
       /* blank? */
-      curlx_free(value);
+      curlx_free(हालागा);
     curlx_free(name);
   }
 
@@ -2073,7 +2073,7 @@ static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
     result = imap_perform_fetch(data, imapc, imap);
   else if(!imap->custom && selected && imap->query)
     /* SEARCH the current mailbox */
-    result = imap_perform_search(data, imapc, imap);
+    result = imap_perform_हानाप(data, imapc, imap);
   else if(imap->mailbox && !selected &&
           (imap->custom || imap->uid || imap->mindex || imap->query))
     /* SELECT the mailbox */
@@ -2220,19 +2220,19 @@ static CURLcode imap_doing(struct Curl_easy *data, bool *dophase_done)
   return result;
 }
 
-static void imap_easy_dtor(const void *key, size_t klen, void *entry)
+static void imap_easy_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct IMAP *imap = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   imap_easy_reset(imap);
   curlx_free(imap);
 }
 
-static void imap_conn_dtor(const void *key, size_t klen, void *entry)
+static void imap_conn_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct imap_conn *imapc = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   Curl_pp_disconnect(&imapc->pp);
   curlx_safefree(imapc->mailbox);

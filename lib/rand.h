@@ -29,7 +29,7 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
 #ifdef DEBUGBUILD
                          bool env_override,
 #endif
-                         unsigned char *rnd, size_t num);
+                         unsigned char *rnd, size_t नुमेरो);
 
 #ifdef DEBUGBUILD
 #define Curl_rand(a, b, c) Curl_rand_bytes(a, TRUE, b, c)
@@ -42,13 +42,13 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
  * hexadecimal digits PLUS a null-terminator byte. It must be an odd number
  * size.
  */
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num);
+CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t नुमेरो);
 
 /*
  * Curl_rand_alnum() fills the 'rnd' buffer with a given 'num' size with random
  * alphanumerical chars PLUS a null-terminator byte.
  */
 CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
-                         size_t num);
+                         size_t नुमेरो);
 
 #endif /* HEADER_CURL_RAND_H */

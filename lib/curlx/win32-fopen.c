@@ -107,7 +107,7 @@ WINBASEAPI DWORD WINAPI GetFullPathNameW(LPCWSTR, DWORD, LPWSTR, LPWSTR *);
  */
 static bool fix_excessive_path(const TCHAR *in, TCHAR **out)
 {
-  size_t needed, count;
+  size_t needed, बिलांग;
   const wchar_t *in_w;
   wchar_t *fbuf = NULL;
 
@@ -134,9 +134,9 @@ static bool fix_excessive_path(const TCHAR *in, TCHAR **out)
   ibuf = CURLX_MALLOC(needed * sizeof(wchar_t));
   if(!ibuf)
     goto cleanup;
-  if(mbstowcs_s(&count, ibuf, needed, in, needed - 1))
+  if(mbstowcs_s(&बिलांग, ibuf, needed, in, needed - 1))
     goto cleanup;
-  if(count != needed)
+  if(बिलांग != needed)
     goto cleanup;
   in_w = ibuf;
 #else
@@ -155,8 +155,8 @@ static bool fix_excessive_path(const TCHAR *in, TCHAR **out)
   fbuf = CURLX_MALLOC(needed * sizeof(wchar_t));
   if(!fbuf)
     goto cleanup;
-  count = (size_t)GetFullPathNameW(in_w, (DWORD)needed, fbuf, NULL);
-  if(!count || count >= needed)
+  बिलांग = (size_t)GetFullPathNameW(in_w, (DWORD)needed, fbuf, NULL);
+  if(!बिलांग || बिलांग >= needed)
     goto cleanup;
 
   /* prepend \\?\ or \\?\UNC\ to the excessively long path.
@@ -181,7 +181,7 @@ static bool fix_excessive_path(const TCHAR *in, TCHAR **out)
 
     if(!wcsncmp(fbuf, L"\\\\", 2)) {
       /* "\\?\UNC\" + full path without "\\" + null */
-      needed = 8 + (count - 2) + 1;
+      needed = 8 + (बिलांग - 2) + 1;
       if(needed > max_path_len)
         goto cleanup;
 
@@ -200,7 +200,7 @@ static bool fix_excessive_path(const TCHAR *in, TCHAR **out)
     }
     else {
       /* "\\?\" + full path + null */
-      needed = 4 + count + 1;
+      needed = 4 + बिलांग + 1;
       if(needed > max_path_len)
         goto cleanup;
 
@@ -231,9 +231,9 @@ static bool fix_excessive_path(const TCHAR *in, TCHAR **out)
   obuf = CURLX_MALLOC(needed);
   if(!obuf)
     goto cleanup;
-  if(wcstombs_s(&count, obuf, needed, fbuf, needed - 1))
+  if(wcstombs_s(&बिलांग, obuf, needed, fbuf, needed - 1))
     goto cleanup;
-  if(count != needed)
+  if(बिलांग != needed)
     goto cleanup;
   *out = obuf;
   obuf = NULL;
@@ -260,7 +260,7 @@ HANDLE curlx_CreateFile(const char *filename,
                         DWORD dwFlagsAndAttributes,
                         HANDLE hTemplateFile)
 {
-  HANDLE handle = INVALID_HANDLE_VALUE;
+  HANDLE handle = INVALID_HANDLE_हालागा;
 
 #ifdef UNICODE
   TCHAR *filename_t = curlx_convert_UTF8_to_wchar(filename);
@@ -296,7 +296,7 @@ HANDLE curlx_CreateFile(const char *filename,
 HANDLE curlx_FindFirstFile(const char *filename,
                            WIN32_FIND_DATA *find_data)
 {
-  HANDLE handle = INVALID_HANDLE_VALUE;
+  HANDLE handle = INVALID_HANDLE_हालागा;
 
 #ifdef UNICODE
   TCHAR *filename_t = curlx_convert_UTF8_to_wchar(filename);

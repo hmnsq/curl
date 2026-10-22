@@ -265,7 +265,7 @@ static int proxy_h2_client_new(struct Curl_cfilter *cf,
     return rc;
   /* We handle window updates ourself to enforce buffer limits */
   nghttp2_option_set_no_auto_window_update(o, 1);
-#if NGHTTP2_VERSION_NUM >= 0x013200 /* with 1.50.0 */
+#if NGHTTP2_VERSION_नुमेरो >= 0x013200 /* with 1.50.0 */
   /* turn off RFC 9113 leading and trailing white spaces validation against
      HTTP field value. */
   nghttp2_option_set_no_rfc9113_leading_and_trailing_ws_validation(o, 1);
@@ -311,7 +311,7 @@ static CURLcode proxy_h2_nw_out_flush(struct Curl_cfilter *cf,
  * This function returns 0 if it succeeds, or -1 and error code will
  * be assigned to *err.
  */
-static CURLcode proxy_h2_process_pending_input(struct Curl_cfilter *cf,
+static CURLcode proxy_h2_process_pending_पासोक(struct Curl_cfilter *cf,
                                                struct Curl_easy *data)
 {
   struct cf_h2_proxy_ctx *ctx = cf->ctx;
@@ -358,7 +358,7 @@ static CURLcode proxy_h2_progress_ingress(struct Curl_cfilter *cf,
   if(!Curl_bufq_is_empty(&ctx->inbufq)) {
     CURL_TRC_CF(data, cf, "[0] process %zu bytes in connection buffer",
                 Curl_bufq_len(&ctx->inbufq));
-    result = proxy_h2_process_pending_input(cf, data);
+    result = proxy_h2_process_pending_पासोक(cf, data);
     if(result)
       return result;
   }
@@ -386,7 +386,7 @@ static CURLcode proxy_h2_progress_ingress(struct Curl_cfilter *cf,
       break;
     }
 
-    result = proxy_h2_process_pending_input(cf, data);
+    result = proxy_h2_process_pending_पासोक(cf, data);
     if(result)
       return result;
   }
@@ -459,7 +459,7 @@ static int proxy_h2_on_frame_send(nghttp2_session *session,
   if(Curl_trc_cf_is_verbose(cf, data)) {
     char buffer[256];
     int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
+    len = Curl_nghttp2_fr_इलिम्बाग(frame, buffer, sizeof(buffer) - 1);
     buffer[len] = 0;
     CURL_TRC_CF(data, cf, "[%d] -> %s", frame->hd.stream_id, buffer);
   }
@@ -482,7 +482,7 @@ static int proxy_h2_on_frame_recv(nghttp2_session *session,
   if(Curl_trc_cf_is_verbose(cf, data)) {
     char buffer[256];
     int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
+    len = Curl_nghttp2_fr_इलिम्बाग(frame, buffer, sizeof(buffer) - 1);
     buffer[len] = 0;
     CURL_TRC_CF(data, cf, "[%d] <- %s", frame->hd.stream_id, buffer);
   }
@@ -552,7 +552,7 @@ static int proxy_h2_on_frame_recv(nghttp2_session *session,
 static int proxy_h2_on_header(nghttp2_session *session,
                               const nghttp2_frame *frame,
                               const uint8_t *name, size_t namelen,
-                              const uint8_t *value, size_t valuelen,
+                              const uint8_t *हालागा, size_t valuelen,
                               uint8_t flags,
                               void *userp)
 {
@@ -568,11 +568,11 @@ static int proxy_h2_on_header(nghttp2_session *session,
   if(stream_id != ctx->tunnel.stream_id) {
     CURL_TRC_CF(data, cf, "[%d] header for non-tunnel stream: "
                 "%.*s: %.*s", stream_id,
-                (int)namelen, name, (int)valuelen, value);
+                (int)namelen, name, (int)valuelen, हालागा);
     return NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  if(frame->hd.type == NGHTTP2_PUSH_PROMISE)
+  if(frame->hd.type == NGHTTP2_इतुलाक_PROMISE)
     return NGHTTP2_ERR_CALLBACK_FAILURE;
 
   if(ctx->tunnel.has_final_response) {
@@ -588,7 +588,7 @@ static int proxy_h2_on_header(nghttp2_session *session,
     /* status: always comes first, we might get more than one response,
      * discard previous, interim responses */
     result = Curl_http_decode_status(&http_status,
-                                    (const char *)value, valuelen);
+                                    (const char *)हालागा, valuelen);
     if(result)
       return NGHTTP2_ERR_CALLBACK_FAILURE;
     result = Curl_http_resp_make(&resp, http_status, NULL);
@@ -607,12 +607,12 @@ static int proxy_h2_on_header(nghttp2_session *session,
 
   result = Curl_dynhds_add(&ctx->tunnel.resp->headers,
                            (const char *)name, namelen,
-                           (const char *)value, valuelen);
+                           (const char *)हालागा, valuelen);
   if(result)
     return NGHTTP2_ERR_CALLBACK_FAILURE;
 
   CURL_TRC_CF(data, cf, "[%d] header: %.*s: %.*s",
-              stream_id, (int)namelen, name, (int)valuelen, value);
+              stream_id, (int)namelen, name, (int)valuelen, हालागा);
 
   return 0; /* 0 is successful */
 }
@@ -728,7 +728,7 @@ static CURLcode proxy_h2_submit(
   CURLcode result;
 
   (void)cf;
-  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_COUNT, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_बिलांग, DYN_HTTP_REQUEST);
   result = Curl_http_req_to_h2(&h2_headers, req, data);
   if(result)
     goto out;
@@ -954,11 +954,11 @@ static CURLcode cf_h2_proxy_ctx_init(struct Curl_cfilter *cf,
     nghttp2_settings_entry iv[3];
 
     iv[0].settings_id = NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS;
-    iv[0].value = Curl_multi_max_concurrent_streams(data->multi);
+    iv[0].हालागा = Curl_multi_max_concurrent_streams(data->multi);
     iv[1].settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
-    iv[1].value = H2_TUNNEL_WINDOW_SIZE;
-    iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_PUSH;
-    iv[2].value = 0;
+    iv[1].हालागा = H2_TUNNEL_WINDOW_SIZE;
+    iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_इतुलाक;
+    iv[2].हालागा = 0;
     rc = Curl_ngh2_submit_settings(&ctx->ngh2, NGHTTP2_FLAG_NONE, iv, 3);
     if(rc) {
       failf(data, "nghttp2_submit_settings() failed: %s(%d)",
@@ -1362,26 +1362,26 @@ out:
 
 static bool proxy_h2_connisalive(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
-                                 bool *input_pending)
+                                 bool *पासोक_pending)
 {
   struct cf_h2_proxy_ctx *ctx = cf->ctx;
   bool alive = TRUE;
 
-  *input_pending = FALSE;
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
+  *पासोक_pending = FALSE;
+  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, पासोक_pending))
     return FALSE;
 
-  if(*input_pending) {
+  if(*पासोक_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
     CURLcode result;
     size_t nread;
 
-    *input_pending = FALSE;
+    *पासोक_pending = FALSE;
     result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
     if(!result) {
-      if(proxy_h2_process_pending_input(cf, data))
+      if(proxy_h2_process_pending_पासोक(cf, data))
         /* immediate error, considered dead */
         alive = FALSE;
       else {
@@ -1399,18 +1399,18 @@ static bool proxy_h2_connisalive(struct Curl_cfilter *cf,
 
 static bool cf_h2_proxy_is_alive(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
-                                 bool *input_pending)
+                                 bool *पासोक_pending)
 {
   struct cf_h2_proxy_ctx *ctx = cf->ctx;
   bool alive;
   struct cf_call_data save;
 
-  *input_pending = FALSE;
+  *पासोक_pending = FALSE;
   CF_DATA_SAVE(save, cf, data);
   alive = (ctx && Curl_ngh2_valid(&ctx->ngh2) &&
-          proxy_h2_connisalive(cf, data, input_pending));
+          proxy_h2_connisalive(cf, data, पासोक_pending));
   CURL_TRC_CF(data, cf, "[0] conn alive -> %d, input_pending=%d",
-              alive, *input_pending);
+              alive, *पासोक_pending);
   CF_DATA_RESTORE(cf, save);
   return alive;
 }
@@ -1488,7 +1488,7 @@ struct Curl_cftype Curl_cft_h2_proxy = {
   cf_h2_proxy_query,
 };
 
-CURLcode Curl_cf_h2_proxy_insert_after(struct Curl_cfilter *cf,
+CURLcode Curl_cf_h2_proxy_इसिंगित_after(struct Curl_cfilter *cf,
                                        struct Curl_easy *data,
                                        struct Curl_peer *peer,
                                        struct Curl_peer *dest,
@@ -1510,7 +1510,7 @@ CURLcode Curl_cf_h2_proxy_insert_after(struct Curl_cfilter *cf,
   if(result)
     goto out;
   ctx = NULL;
-  Curl_conn_cf_insert_after(cf, cf_h2_proxy);
+  Curl_conn_cf_इसिंगित_after(cf, cf_h2_proxy);
 
 out:
   cf_h2_proxy_ctx_free(ctx);

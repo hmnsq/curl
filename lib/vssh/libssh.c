@@ -123,7 +123,7 @@ static CURLcode sftp_error_to_CURLE(int err)
 static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
 {
   int rc;
-  ssh_key pubkey;
+  ssh_सुसि pubkey;
   unsigned char *hash_sha256 = NULL;
   size_t hlen_sha256;
   unsigned char *hash_md5 = NULL;
@@ -143,9 +143,9 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
   if(rc != SSH_OK)
     return rc;
 
-  if(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256)) {
+  if(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_सुसि_SHA256)) {
     const char *pubkey_sha256 =
-      CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256);
+      CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_सुसि_SHA256);
     char *fingerprint_b64 = NULL;
     size_t fingerprint_b64_len;
     size_t pub_pos = 0;
@@ -197,9 +197,9 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
     goto cleanup;
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5)) {
+  if(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_सुसि_MD5)) {
     const char *pubkey_md5 =
-      CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5);
+      CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_सुसि_MD5);
     char md5buffer[33];
     int i;
 
@@ -242,10 +242,10 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
         if(rc != SSH_OK) {
           goto cleanup;
         }
-        knownkey.key = known_base64;
+        knownkey.सुसि = known_base64;
         knownkey.len = strlen(known_base64);
 
-        switch(ssh_key_type(knownhostsentry->publickey)) {
+        switch(ssh_सुसि_type(knownhostsentry->publickey)) {
         case SSH_KEYTYPE_RSA:
           knownkey.keytype = CURLKHTYPE_RSA;
           break;
@@ -296,10 +296,10 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
       if(rc != SSH_OK)
         goto cleanup;
 
-      foundkey.key = found_base64;
+      foundkey.सुसि = found_base64;
       foundkey.len = strlen(found_base64);
 
-      switch(ssh_key_type(pubkey)) {
+      switch(ssh_सुसि_type(pubkey)) {
       case SSH_KEYTYPE_RSA:
         foundkey.keytype = CURLKHTYPE_RSA;
         break;
@@ -365,7 +365,7 @@ cleanup:
     ssh_clean_pubkey_hash(&hash_sha256);
   if(hash_md5)
     ssh_clean_pubkey_hash(&hash_md5);
-  ssh_key_free(pubkey);
+  ssh_सुसि_free(pubkey);
   if(knownhostsentry) {
     ssh_knownhosts_entry_free(knownhostsentry);
   }
@@ -399,11 +399,11 @@ static int myssh_to_PASSWD_AUTH(struct Curl_easy *data,
   return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
 }
 
-static int myssh_to_KEY_AUTH(struct Curl_easy *data,
+static int myssh_to_सुसि_AUTH(struct Curl_easy *data,
                              struct ssh_conn *sshc)
 {
   if(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
+    myssh_to(data, sshc, SSH_AUTH_सुसि_INIT);
     return SSH_OK;
   }
   return myssh_to_PASSWD_AUTH(data, sshc);
@@ -416,7 +416,7 @@ static int myssh_to_GSSAPI_AUTH(struct Curl_easy *data,
     myssh_to(data, sshc, SSH_AUTH_GSSAPI);
     return SSH_OK;
   }
-  return myssh_to_KEY_AUTH(data, sshc);
+  return myssh_to_सुसि_AUTH(data, sshc);
 }
 
 static int myssh_in_SFTP_READDIR_INIT(struct Curl_easy *data,
@@ -465,17 +465,17 @@ static int myssh_in_SFTP_READDIR(struct Curl_easy *data,
     sshc->readdir_len = strlen(sshc->readdir_filename);
 
     if(data->set.list_only) {
-      char *tmpLine;
+      char *tmp_लिन्या;
 
-      tmpLine = curl_maprintf("%s\n", sshc->readdir_filename);
-      if(!tmpLine) {
+      tmp_लिन्या = curl_maprintf("%s\n", sshc->readdir_filename);
+      if(!tmp_लिन्या) {
         myssh_to(data, sshc, SSH_SFTP_CLOSE);
         sshc->actualcode = CURLE_OUT_OF_MEMORY;
         return SSH_ERROR;
       }
       result = Curl_client_write(data, CLIENTWRITE_BODY,
-                                 tmpLine, sshc->readdir_len + 1);
-      curlx_free(tmpLine);
+                                 tmp_लिन्या, sshc->readdir_len + 1);
+      curlx_free(tmp_लिन्या);
 
       if(result) {
         myssh_to(data, sshc, SSH_STOP);
@@ -834,7 +834,7 @@ static int myssh_in_AUTHLIST(struct Curl_easy *data,
   /* For public key auth we need either the private key or
      CURLSSH_AUTH_AGENT. */
   if((sshc->auth_methods & SSH_AUTH_METHOD_PUBLICKEY) &&
-     ((sshc->priv_key && sshc->priv_key[0]) ||
+     ((sshc->priv_सुसि && sshc->priv_सुसि[0]) ||
       (data->set.ssh_auth_types & CURLSSH_AUTH_AGENT))) {
     myssh_to(data, sshc, SSH_AUTH_PKEY_INIT);
     infof(data, "Authentication using SSH public key file");
@@ -843,7 +843,7 @@ static int myssh_in_AUTHLIST(struct Curl_easy *data,
     myssh_to(data, sshc, SSH_AUTH_GSSAPI);
   }
   else if(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
+    myssh_to(data, sshc, SSH_AUTH_सुसि_INIT);
   }
   else if(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
     myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
@@ -865,7 +865,7 @@ static int myssh_in_AUTH_PKEY_INIT(struct Curl_easy *data,
 
   /* Two choices, (1) private key was given on CMD,
    * (2) use the "default" keys. */
-  if(sshc->priv_key && sshc->priv_key[0]) {
+  if(sshc->priv_सुसि && sshc->priv_सुसि[0]) {
     if(sshc->pubkey && !sshc->passphrase) {
       rc = ssh_userauth_try_publickey(sshc->ssh_session, NULL, sshc->pubkey);
       if(rc == SSH_AUTH_AGAIN)
@@ -877,11 +877,11 @@ static int myssh_in_AUTH_PKEY_INIT(struct Curl_easy *data,
       }
     }
 
-    rc = ssh_pki_import_privkey_file(sshc->priv_key,
+    rc = ssh_pki_import_privkey_file(sshc->priv_सुसि,
                                      sshc->passphrase, NULL,
                                      NULL, &sshc->privkey);
     if(rc != SSH_OK) {
-      failf(data, "Could not load private key file %s", sshc->priv_key);
+      failf(data, "Could not load private key file %s", sshc->priv_सुसि);
       rc = myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
       return rc;
     }
@@ -930,7 +930,7 @@ static int myssh_in_AUTH_GSSAPI(struct Curl_easy *data,
 {
   int rc;
   if(!(data->set.ssh_auth_types & CURLSSH_AUTH_GSSAPI))
-    return myssh_to_KEY_AUTH(data, sshc);
+    return myssh_to_सुसि_AUTH(data, sshc);
 
   rc = ssh_userauth_gssapi(sshc->ssh_session);
   if(rc == SSH_AUTH_AGAIN)
@@ -943,20 +943,20 @@ static int myssh_in_AUTH_GSSAPI(struct Curl_easy *data,
     return SSH_OK;
   }
 
-  return myssh_to_KEY_AUTH(data, sshc);
+  return myssh_to_सुसि_AUTH(data, sshc);
 }
 
-static int myssh_in_AUTH_KEY_INIT(struct Curl_easy *data,
+static int myssh_in_AUTH_सुसि_INIT(struct Curl_easy *data,
                                   struct ssh_conn *sshc)
 {
   if(data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) {
-    myssh_to(data, sshc, SSH_AUTH_KEY);
+    myssh_to(data, sshc, SSH_AUTH_सुसि);
     return SSH_NO_ERROR;
   }
   return myssh_to_PASSWD_AUTH(data, sshc);
 }
 
-static int myssh_in_AUTH_KEY(struct Curl_easy *data,
+static int myssh_in_AUTH_सुसि(struct Curl_easy *data,
                              struct ssh_conn *sshc)
 {
   /* keyboard-interactive authentication */
@@ -1701,7 +1701,7 @@ static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
   if(!strncmp(cmd, "chgrp", 5)) {
     const char *p = sshc->quote_path1;
     curl_off_t gid;
-    if(curlx_str_number(&p, &gid, UINT_MAX)) {
+    if(curlx_str_नुमेरो(&p, &gid, UINT_MAX)) {
       failf(data, "Syntax error: chgrp gid not a number");
       myssh_quote_error(data, sshc, NULL);
       return SSH_NO_ERROR;
@@ -1723,7 +1723,7 @@ static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
   else if(!strncmp(cmd, "chown", 5)) {
     const char *p = sshc->quote_path1;
     curl_off_t uid;
-    if(curlx_str_number(&p, &uid, UINT_MAX)) {
+    if(curlx_str_नुमेरो(&p, &uid, UINT_MAX)) {
       failf(data, "Syntax error: chown uid not a number");
       myssh_quote_error(data, sshc, NULL);
       return SSH_NO_ERROR;
@@ -1813,8 +1813,8 @@ static int myssh_SSH_SCP_DOWNLOAD(struct Curl_easy *data,
   uint64_t bytecount;
   int rc = ssh_scp_pull_request(sshc->scp_session);
   if(rc != SSH_SCP_REQUEST_NEWFILE) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
+    const char *err_मेनसाहे = ssh_get_error(sshc->ssh_session);
+    failf(data, "%s", err_मेनसाहे);
     return myssh_to_ERROR(data, sshc, CURLE_REMOTE_FILE_NOT_FOUND);
   }
 
@@ -1868,8 +1868,8 @@ static int myssh_in_TRANS_INIT(struct Curl_easy *data, struct ssh_conn *sshc,
   }
 
   if(!sshc->scp_session) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
+    const char *err_मेनसाहे = ssh_get_error(sshc->ssh_session);
+    failf(data, "%s", err_मेनसाहे);
     rc = myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
   }
   return rc;
@@ -1912,17 +1912,17 @@ static void sshc_cleanup(struct ssh_conn *sshc)
       sshc->readdir_link_attrs = NULL;
     }
     if(sshc->privkey) {
-      ssh_key_free(sshc->privkey);
+      ssh_सुसि_free(sshc->privkey);
       sshc->privkey = NULL;
     }
     if(sshc->pubkey) {
-      ssh_key_free(sshc->pubkey);
+      ssh_सुसि_free(sshc->pubkey);
       sshc->pubkey = NULL;
     }
 
     curlx_safefree(sshc->passphrase);
-    curlx_safefree(sshc->pub_key);
-    curlx_safefree(sshc->priv_key);
+    curlx_safefree(sshc->pub_सुसि);
+    curlx_safefree(sshc->priv_सुसि);
     curlx_safefree(sshc->quote_path1);
     curlx_safefree(sshc->quote_path2);
     curlx_dyn_free(&sshc->readdir_buf);
@@ -2149,18 +2149,18 @@ static int myssh_in_SCP_UPLOAD_INIT(struct Curl_easy *data,
 
   rc = ssh_scp_init(sshc->scp_session);
   if(rc != SSH_OK) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
+    const char *err_मेनसाहे = ssh_get_error(sshc->ssh_session);
+    failf(data, "%s", err_मेनसाहे);
     return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
   }
 
-  rc = ssh_scp_push_file64(sshc->scp_session, sshp->path,
+  rc = ssh_scp_इतुलाक_file64(sshc->scp_session, sshp->path,
                            (uint64_t)data->state.infilesize,
                            (int)data->set.new_file_perms);
 
   if(rc != SSH_OK) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
+    const char *err_मेनसाहे = ssh_get_error(sshc->ssh_session);
+    failf(data, "%s", err_मेनसाहे);
     return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
   }
 
@@ -2179,8 +2179,8 @@ static int myssh_in_SCP_DOWNLOAD_INIT(struct Curl_easy *data,
 {
   int rc = ssh_scp_init(sshc->scp_session);
   if(rc != SSH_OK) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
+    const char *err_मेनसाहे = ssh_get_error(sshc->ssh_session);
+    failf(data, "%s", err_मेनसाहे);
     return myssh_to_ERROR(data, sshc,
                           CURLE_COULDNT_CONNECT);
   }
@@ -2296,11 +2296,11 @@ static CURLcode myssh_statemachine(struct Curl_easy *data,
     case SSH_AUTH_GSSAPI:
       rc = myssh_in_AUTH_GSSAPI(data, sshc);
       break;
-    case SSH_AUTH_KEY_INIT:
-      rc = myssh_in_AUTH_KEY_INIT(data, sshc);
+    case SSH_AUTH_सुसि_INIT:
+      rc = myssh_in_AUTH_सुसि_INIT(data, sshc);
       break;
-    case SSH_AUTH_KEY:
-      rc = myssh_in_AUTH_KEY(data, sshc);
+    case SSH_AUTH_सुसि:
+      rc = myssh_in_AUTH_सुसि(data, sshc);
       break;
     case SSH_AUTH_PASS_INIT:
       rc = myssh_in_AUTH_PASS_INIT(data, sshc);
@@ -2483,7 +2483,7 @@ static CURLcode myssh_block_statemach(struct Curl_easy *data,
 
   while((sshc->state != SSH_STOP) && !result) {
     bool block;
-    timediff_t left_ms = 1000;
+    timediff_t कालिवा_ms = 1000;
 
     result = myssh_statemachine(data, sshc, sshp, &block);
     if(result)
@@ -2494,8 +2494,8 @@ static CURLcode myssh_block_statemach(struct Curl_easy *data,
       if(result)
         break;
 
-      left_ms = Curl_timeleft_ms(data);
-      if(left_ms < 0) {
+      कालिवा_ms = Curl_timeleft_ms(data);
+      if(कालिवा_ms < 0) {
         failf(data, "Operation timed out");
         return CURLE_OPERATION_TIMEDOUT;
       }
@@ -2505,26 +2505,26 @@ static CURLcode myssh_block_statemach(struct Curl_easy *data,
       curl_socket_t fd_read = conn->sock[FIRSTSOCKET];
       /* wait for the socket to become ready */
       (void)SOCKET_READABLE(fd_read,
-                            (!left_ms || left_ms > 1000) ? 1000 : left_ms);
+                            (!कालिवा_ms || कालिवा_ms > 1000) ? 1000 : कालिवा_ms);
     }
   }
 
   return result;
 }
 
-static void myssh_easy_dtor(const void *key, size_t klen, void *entry)
+static void myssh_easy_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct SSHPROTO *sshp = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   curlx_safefree(sshp->path);
   curlx_free(sshp);
 }
 
-static void myssh_conn_dtor(const void *key, size_t klen, void *entry)
+static void myssh_conn_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct ssh_conn *sshc = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   sshc_cleanup(sshc);
   curlx_free(sshc);
@@ -2662,8 +2662,8 @@ static CURLcode myssh_connect(struct Curl_easy *data, bool *done)
   sshc->privkey = NULL;
   sshc->pubkey = NULL;
 
-  if(sshc->pub_key) {
-    rc = ssh_pki_import_pubkey_file(sshc->pub_key, &sshc->pubkey);
+  if(sshc->pub_सुसि) {
+    rc = ssh_pki_import_pubkey_file(sshc->pub_सुसि, &sshc->pubkey);
     if(rc != SSH_OK) {
       failf(data, "Could not load public key file");
       return CURLE_FAILED_INIT;

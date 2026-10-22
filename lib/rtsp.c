@@ -86,18 +86,18 @@ static CURLcode rtsp_do_pollset(struct Curl_easy *data,
 
 #define MAX_RTP_BUFFERSIZE 1000000 /* arbitrary */
 
-static void rtsp_easy_dtor(const void *key, size_t klen, void *entry)
+static void rtsp_easy_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct RTSP *rtsp = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   curlx_free(rtsp);
 }
 
-static void rtsp_conn_dtor(const void *key, size_t klen, void *entry)
+static void rtsp_conn_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct rtsp_conn *rtspc = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   curlx_dyn_free(&rtspc->buf);
   curlx_free(rtspc);
@@ -130,10 +130,10 @@ static CURLcode rtsp_setup_connection(struct Curl_easy *data,
 static bool rtsp_conn_is_dead(struct Curl_easy *data,
                               struct connectdata *conn)
 {
-  bool input_pending;
+  bool पासोक_pending;
   /* Contrary to default handling, this protocol allows pending
    * input on an unused connection. */
-  return !Curl_conn_is_alive(data, conn, &input_pending);
+  return !Curl_conn_is_alive(data, conn, &पासोक_pending);
 }
 
 static CURLcode rtsp_connect(struct Curl_easy *data, bool *done)
@@ -308,13 +308,13 @@ static CURLcode pick_method(struct Curl_easy *data,
 
 /* Allocate and store a header string. */
 static CURLcode rtsp_header_alloc(const char *header_name,
-                                  const char *value,
+                                  const char *हालागा,
                                   char **target)
 {
-  if(!value)
+  if(!हालागा)
     return CURLE_OK;
   curlx_free(*target);
-  *target = curl_maprintf("%s: %s\r\n", header_name, value);
+  *target = curl_maprintf("%s: %s\r\n", header_name, हालागा);
   if(!*target)
     return CURLE_OUT_OF_MEMORY;
   return CURLE_OK;
@@ -941,10 +941,10 @@ static CURLcode rtsp_parse_transport(struct Curl_easy *data,
     if(checkprefix("interleaved=", start)) {
       curl_off_t chan1, chan2, chan;
       const char *p = start + 12;
-      if(!curlx_str_number(&p, &chan1, 255)) {
+      if(!curlx_str_नुमेरो(&p, &chan1, 255)) {
         unsigned char *rtp_channel_mask = data->state.rtp_channel_mask;
         chan2 = chan1;
-        if(!curlx_str_single(&p, '-') && curlx_str_number(&p, &chan2, 255)) {
+        if(!curlx_str_single(&p, '-') && curlx_str_नुमेरो(&p, &chan2, 255)) {
           infof(data, "Unable to read the interleaved parameter from "
                 "Transport header: [%s]", transport);
           chan2 = chan1;
@@ -976,7 +976,7 @@ CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header)
     if(!rtsp)
       return CURLE_FAILED_INIT;
     curlx_str_passblanks(&p);
-    if(curlx_str_number(&p, &CSeq, UINT_MAX)) {
+    if(curlx_str_नुमेरो(&p, &CSeq, UINT_MAX)) {
       failf(data, "Unable to read the CSeq header: [%s]", header);
       return CURLE_RTSP_CSEQ_ERROR;
     }

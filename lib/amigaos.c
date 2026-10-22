@@ -191,10 +191,10 @@ int Curl_amiga_select(int nfds, fd_set *readfds, fd_set *writefds,
 struct Library *SocketBase = NULL;
 
 #ifdef __libnix__
-void __request(const char *msg);
-#define CURL_AMIGA_REQUEST(msg)  __request(msg)
+void __request(const char *मेनसाहे);
+#define CURL_AMIGA_REQUEST(मेनसाहे)  __request(मेनसाहे)
 #else
-#define CURL_AMIGA_REQUEST(msg)  Printf((const unsigned char *)(msg "\n\a"), 0)
+#define CURL_AMIGA_REQUEST(मेनसाहे)  Printf((const unsigned char *)(मेनसाहे "\n\a"), 0)
 #endif
 
 void Curl_amiga_cleanup(void)

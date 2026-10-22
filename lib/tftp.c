@@ -206,16 +206,16 @@ static CURLcode tftp_set_timeouts(struct tftp_conn *state)
  *
  **********************************************************/
 
-static void setpacketevent(struct tftp_packet *packet, unsigned short num)
+static void setpacketevent(struct tftp_packet *packet, unsigned short नुमेरो)
 {
-  packet->data[0] = (unsigned char)(num >> 8);
-  packet->data[1] = (unsigned char)(num & 0xff);
+  packet->data[0] = (unsigned char)(नुमेरो >> 8);
+  packet->data[1] = (unsigned char)(नुमेरो & 0xff);
 }
 
-static void setpacketblock(struct tftp_packet *packet, unsigned short num)
+static void setpacketblock(struct tftp_packet *packet, unsigned short नुमेरो)
 {
-  packet->data[2] = (unsigned char)(num >> 8);
-  packet->data[3] = (unsigned char)(num & 0xff);
+  packet->data[2] = (unsigned char)(नुमेरो >> 8);
+  packet->data[3] = (unsigned char)(नुमेरो & 0xff);
 }
 
 static unsigned short getrpacketevent(const struct tftp_packet *packet)
@@ -235,7 +235,7 @@ static size_t tftp_strnlen(const char *string, size_t maxlen)
 }
 
 static const char *tftp_option_get(const char *buf, size_t len,
-                                   const char **option, const char **value)
+                                   const char **option, const char **हालागा)
 {
   size_t loc;
 
@@ -251,7 +251,7 @@ static const char *tftp_option_get(const char *buf, size_t len,
 
   if(loc > len)
     return NULL;
-  *value = &buf[strlen(*option) + 1];
+  *हालागा = &buf[strlen(*option) + 1];
 
   return &buf[loc];
 }
@@ -266,22 +266,22 @@ static CURLcode tftp_parse_option_ack(struct tftp_conn *state,
   state->blksize = TFTP_BLKSIZE_DEFAULT;
 
   while(tmp < ptr + len) {
-    const char *option, *value;
+    const char *option, *हालागा;
     size_t olen;
 
-    tmp = tftp_option_get(tmp, ptr + len - tmp, &option, &value);
+    tmp = tftp_option_get(tmp, ptr + len - tmp, &option, &हालागा);
     if(!tmp) {
       failf(data, "Malformed ACK packet, rejecting");
       return CURLE_TFTP_ILLEGAL;
     }
     olen = strlen(option);
 
-    infof(data, "got option=(%s) value=(%s)", option, value);
+    infof(data, "got option=(%s) value=(%s)", option, हालागा);
 
     if((CURL_CSTRLEN(TFTP_OPTION_BLKSIZE) == olen) &&
        checkprefix(TFTP_OPTION_BLKSIZE, option)) {
       curl_off_t blksize;
-      if(curlx_str_number(&value, &blksize, TFTP_BLKSIZE_MAX)) {
+      if(curlx_str_नुमेरो(&हालागा, &blksize, TFTP_BLKSIZE_MAX)) {
         failf(data, "%s (%d)", "blksize is larger than max supported",
               TFTP_BLKSIZE_MAX);
         return CURLE_TFTP_ILLEGAL;
@@ -314,9 +314,9 @@ static CURLcode tftp_parse_option_ack(struct tftp_conn *state,
       /* tsize should be ignored on upload: Who cares about the size of the
          remote file? */
       if(!data->state.upload &&
-         !curlx_str_number(&value, &tsize, CURL_OFF_T_MAX)) {
+         !curlx_str_नुमेरो(&हालागा, &tsize, CURL_OFF_T_MAX)) {
         if(!tsize) {
-          failf(data, "invalid tsize -:%s:- value in OACK packet", value);
+          failf(data, "invalid tsize -:%s:- value in OACK packet", हालागा);
           return CURLE_TFTP_ILLEGAL;
         }
         infof(data, "tsize parsed from OACK (%" CURL_FORMAT_CURL_OFF_T ")",
@@ -890,10 +890,10 @@ static CURLcode tftp_state_machine(struct tftp_conn *state,
   return result;
 }
 
-static void tftp_conn_dtor(const void *key, size_t klen, void *entry)
+static void tftp_conn_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct tftp_conn *state = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   curlx_safefree(state->rpacket.data);
   curlx_safefree(state->spacket.data);

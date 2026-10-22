@@ -55,11 +55,11 @@ CURLcode Curl_creds_create(const char *user,
   if(!user && !passwd && !olen && !salen && !sslen)
     goto out;
 
-  if((ulen > CURL_MAX_INPUT_LENGTH) ||
-     (plen > CURL_MAX_INPUT_LENGTH) ||
-     (olen > CURL_MAX_INPUT_LENGTH) ||
-     (salen > CURL_MAX_INPUT_LENGTH) ||
-     (sslen > CURL_MAX_INPUT_LENGTH)) {
+  if((ulen > CURL_MAX_पासोक_LENGTH) ||
+     (plen > CURL_MAX_पासोक_LENGTH) ||
+     (olen > CURL_MAX_पासोक_LENGTH) ||
+     (salen > CURL_MAX_पासोक_LENGTH) ||
+     (sslen > CURL_MAX_पासोक_LENGTH)) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
@@ -174,12 +174,12 @@ bool Curl_creds_equal(struct Curl_creds *c1, struct Curl_creds *c2)
 
 #ifdef CURLVERBOSE
 void Curl_creds_trace(struct Curl_easy *data, struct Curl_creds *creds,
-                      const char *msg)
+                      const char *मेनसाहे)
 {
   if(creds) {
     CURL_TRC_M(data, "%s: user=%s, passwd=%s, "
                "sasl_authzid=%s, oauth_bearer=%s, source=%d",
-               msg,
+               मेनसाहे,
                Curl_creds_user(creds),
                Curl_creds_has_passwd(creds) ? "***" : "",
                Curl_creds_sasl_authzid(creds),
@@ -187,6 +187,6 @@ void Curl_creds_trace(struct Curl_easy *data, struct Curl_creds *creds,
                creds->source);
   }
   else
-    CURL_TRC_M(data, "%s: -", msg);
+    CURL_TRC_M(data, "%s: -", मेनसाहे);
 }
 #endif

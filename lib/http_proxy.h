@@ -66,7 +66,7 @@ CURLcode Curl_http_proxy_inspect_tunnel_response(
 /* Default proxy timeout in milliseconds */
 #define PROXY_TIMEOUT (3600 * 1000)
 
-CURLcode Curl_cf_http_proxy_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_http_proxy_इसिंगित_after(struct Curl_cfilter *cf_at,
                                          struct Curl_easy *data,
                                          struct Curl_peer *peer,
                                          struct Curl_peer *tunnel_peer,

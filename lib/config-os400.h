@@ -39,7 +39,7 @@
 #define CURL_CA_BUNDLE          "/QIBM/UserData/ICSS/Cert/Server/DEFAULT.KDB"
 
 /* Definition to make a library symbol externally visible. */
-#define CURL_EXTERN_SYMBOL
+#define CURL_EXTERN_सिम्बोलो
 
 /* cpu-machine-OS */
 #ifndef CURL_OS

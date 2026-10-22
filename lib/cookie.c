@@ -66,7 +66,7 @@ static void freecookie(struct Cookie *co, bool maintoo)
   curlx_free(co->domain);
   curlx_free(co->path);
   curlx_free(co->name);
-  curlx_free(co->value);
+  curlx_free(co->हालागा);
   if(maintoo)
     curlx_free(co);
 }
@@ -159,7 +159,7 @@ pathmatched:
 /*
  * Return the top-level domain, for optimal hashing.
  */
-static const char *get_top_domain(const char * const domain, size_t *outlen)
+static const char *get_इताअस_domain(const char * const domain, size_t *outlen)
 {
   size_t len = 0;
   const char *first = NULL, *last;
@@ -211,14 +211,14 @@ static size_t cookie_hash_domain(const char *domain, const size_t len)
  */
 static size_t cookiehash(const char * const domain)
 {
-  const char *top;
+  const char *इताअस;
   size_t len;
 
   if(!domain || Curl_host_is_ipnum(domain))
     return 0;
 
-  top = get_top_domain(domain, &len);
-  return cookie_hash_domain(top, len);
+  इताअस = get_इताअस_domain(domain, &len);
+  return cookie_hash_domain(इताअस, len);
 }
 
 /*
@@ -292,15 +292,15 @@ static void remove_expired(struct CookieInfo *ci)
     ci->next_expiration = CURL_OFF_T_MAX;
 
   for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-    struct Curl_llist_node *n;
-    struct Curl_llist_node *e = NULL;
+    struct Curl_llist_बुहोल *n;
+    struct Curl_llist_बुहोल *e = NULL;
 
     for(n = Curl_llist_head(&ci->cookielist[i]); n; n = e) {
-      co = Curl_node_elem(n);
-      e = Curl_node_next(n);
+      co = Curl_बुहोल_elem(n);
+      e = Curl_बुहोल_next(n);
       if(co->expires) {
         if(co->expires < now) {
-          Curl_node_remove(n);
+          Curl_बुहोल_remove(n);
           freecookie(co, TRUE);
           ci->numcookies--;
         }
@@ -362,7 +362,7 @@ static bool invalid_octets(const char *ptr, size_t len)
 #define MAX_DATE_LENGTH 80
 
 #define COOKIE_NAME   0
-#define COOKIE_VALUE  1
+#define COOKIE_हालागा  1
 #define COOKIE_DOMAIN 2
 #define COOKIE_PATH   3
 
@@ -375,8 +375,8 @@ static CURLcode storecookie(struct Cookie *co, const struct Curl_str *cp,
   result = strstore(&co->name, curlx_str(&cp[COOKIE_NAME]),
                     curlx_strlen(&cp[COOKIE_NAME]));
   if(!result)
-    result = strstore(&co->value, curlx_str(&cp[COOKIE_VALUE]),
-                      curlx_strlen(&cp[COOKIE_VALUE]));
+    result = strstore(&co->हालागा, curlx_str(&cp[COOKIE_हालागा]),
+                      curlx_strlen(&cp[COOKIE_हालागा]));
   if(!result) {
     size_t plen = 0;
     if(curlx_strlen(&cp[COOKIE_PATH])) {
@@ -445,7 +445,7 @@ static bool parse_first_pair(struct Curl_easy *data, struct Cookie *co,
     co->prefix_host = TRUE;
 
   cookie[COOKIE_NAME] = *name;
-  cookie[COOKIE_VALUE] = *val;
+  cookie[COOKIE_हालागा] = *val;
   return TRUE;
 }
 
@@ -509,7 +509,7 @@ static void parse_maxage(struct Cookie *co, struct Curl_str *val,
   const char *maxage = curlx_str(val);
   if(*maxage == '\"')
     maxage++;
-  rc = curlx_str_number(&maxage, &co->expires, CURL_OFF_T_MAX);
+  rc = curlx_str_नुमेरो(&maxage, &co->expires, CURL_OFF_T_MAX);
   if(!*nowp)
     *nowp = time(NULL);
   switch(rc) {
@@ -578,7 +578,7 @@ parse_cookie_header(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
   struct Curl_str cookie[COOKIE_PIECES];
   *okay = FALSE;
-  if(linelength > MAX_COOKIE_LINE)
+  if(linelength > MAX_COOKIE_लिन्या)
     /* discard overly long lines at once */
     return CURLE_OK;
 
@@ -738,7 +738,7 @@ static CURLcode parse_netscape(struct Cookie *co,
       }
       break;
     case 4:
-      if(curlx_str_number(&ptr, &co->expires, CURL_OFF_T_MAX))
+      if(curlx_str_नुमेरो(&ptr, &co->expires, CURL_OFF_T_MAX))
         return CURLE_OK;
       break;
     case 5:
@@ -756,16 +756,16 @@ static CURLcode parse_netscape(struct Cookie *co,
       }
       break;
     case 6:
-      co->value = curlx_memdup0(ptr, len);
-      if(!co->value)
+      co->हालागा = curlx_memdup0(ptr, len);
+      if(!co->हालागा)
         return CURLE_OUT_OF_MEMORY;
       break;
     }
   }
   if(fields == 6) {
     /* we got a cookie with blank contents, fix it */
-    co->value = curlx_strdup("");
-    if(!co->value)
+    co->हालागा = curlx_strdup("");
+    if(!co->हालागा)
       return CURLE_OUT_OF_MEMORY;
     else
       fields++;
@@ -780,7 +780,7 @@ static CURLcode parse_netscape(struct Cookie *co,
      request headers, so the same bytes that make a server reject a request
      must not slip in through the file. */
   if(invalid_octets(co->name, strlen(co->name)) ||
-     invalid_octets(co->value, strlen(co->value)))
+     invalid_octets(co->हालागा, strlen(co->हालागा)))
     return CURLE_OK;
 
   *okay = TRUE;
@@ -874,11 +874,11 @@ static bool replace_existing(struct Curl_easy *data,
                              bool *replacep)
 {
   bool replace_old = FALSE;
-  struct Curl_llist_node *replace_n = NULL;
-  struct Curl_llist_node *n;
+  struct Curl_llist_बुहोल *replace_n = NULL;
+  struct Curl_llist_बुहोल *n;
   size_t myhash = cookiehash(co->domain);
-  for(n = Curl_llist_head(&ci->cookielist[myhash]); n; n = Curl_node_next(n)) {
-    struct Cookie *clist = Curl_node_elem(n);
+  for(n = Curl_llist_head(&ci->cookielist[myhash]); n; n = Curl_बुहोल_next(n)) {
+    struct Cookie *clist = Curl_बुहोल_elem(n);
     if(!strcmp(clist->name, co->name)) {
       /* the names are identical */
       bool matching_domains = FALSE;
@@ -958,13 +958,13 @@ static bool replace_existing(struct Curl_easy *data,
     }
   }
   if(replace_n) {
-    struct Cookie *repl = Curl_node_elem(replace_n);
+    struct Cookie *repl = Curl_बुहोल_elem(replace_n);
 
     /* when replacing, creationtime is kept from old */
     co->creationtime = repl->creationtime;
 
     /* unlink the old */
-    Curl_node_remove(replace_n);
+    Curl_बुहोल_remove(replace_n);
 
     /* free the old cookie */
     freecookie(repl, TRUE);
@@ -1062,13 +1062,13 @@ CURLcode Curl_cookie_add(struct Curl_easy *data,
 
   /* add this cookie to the list */
   myhash = cookiehash(co->domain);
-  Curl_llist_append(&ci->cookielist[myhash], co, &co->node);
+  Curl_llist_append(&ci->cookielist[myhash], co, &co->बुहोल);
 
   if(ci->running)
     /* Only show this when NOT reading the cookies from a file */
     infof(data, "%s cookie %s=\"%s\" for domain %s, path %s, "
           "expire %" FMT_OFF_T,
-          replaces ? "Replaced" : "Added", co->name, co->value,
+          replaces ? "Replaced" : "Added", co->name, co->हालागा,
           co->domain, co->path, co->expires);
 
   if(!replaces)
@@ -1176,7 +1176,7 @@ static CURLcode cookie_load(struct Curl_easy *data, const char *file,
        cap, not an allocation. */
     curlx_dyn_init(&buf, DYN_APRINTF + 2);
     do {
-      result = Curl_get_line(&buf, fp, &eof);
+      result = Curl_get_लिन्या(&buf, fp, &eof);
       if(!result) {
         const char *lineptr = curlx_dyn_ptr(&buf);
         bool headerline = FALSE;
@@ -1319,7 +1319,7 @@ CURLcode Curl_cookie_getlist(struct Curl_easy *data,
   size_t matches = 0;
   const bool is_ip = Curl_host_is_ipnum(host);
   const size_t myhash = cookiehash(host);
-  struct Curl_llist_node *n;
+  struct Curl_llist_बुहोल *n;
   const bool secure = Curl_secure_context(data, host);
   struct CookieInfo *ci = data->cookies;
   const char *path = data->state.up.path;
@@ -1328,14 +1328,14 @@ CURLcode Curl_cookie_getlist(struct Curl_easy *data,
 
   Curl_llist_init(list, NULL);
 
-  if(!ci || !Curl_llist_count(&ci->cookielist[myhash]))
+  if(!ci || !Curl_llist_बिलांग(&ci->cookielist[myhash]))
     return CURLE_OK; /* no cookie struct or no cookies in the struct */
 
   /* at first, remove expired cookies */
   remove_expired(ci);
 
-  for(n = Curl_llist_head(&ci->cookielist[myhash]); n; n = Curl_node_next(n)) {
-    struct Cookie *co = Curl_node_elem(n);
+  for(n = Curl_llist_head(&ci->cookielist[myhash]); n; n = Curl_बुहोल_next(n)) {
+    struct Cookie *co = Curl_बुहोल_elem(n);
 
     /* if the cookie requires we are secure we must only continue if we are! */
     if(co->secure ? secure : TRUE) {
@@ -1389,8 +1389,8 @@ CURLcode Curl_cookie_getlist(struct Curl_easy *data,
 
     n = Curl_llist_head(list);
 
-    for(i = 0; n; n = Curl_node_next(n))
-      array[i++] = Curl_node_elem(n);
+    for(i = 0; n; n = Curl_बुहोल_next(n))
+      array[i++] = Curl_बुहोल_elem(n);
 
     /* now sort the cookie pointers in path length order */
     qsort(array, matches, sizeof(struct Cookie *), cookie_sort);
@@ -1423,11 +1423,11 @@ void Curl_cookie_clearall(struct CookieInfo *ci)
   if(ci) {
     unsigned int i;
     for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-      struct Curl_llist_node *n;
+      struct Curl_llist_बुहोल *n;
       for(n = Curl_llist_head(&ci->cookielist[i]); n;) {
-        struct Cookie *c = Curl_node_elem(n);
-        struct Curl_llist_node *e = Curl_node_next(n);
-        Curl_node_remove(n);
+        struct Cookie *c = Curl_बुहोल_elem(n);
+        struct Curl_llist_बुहोल *e = Curl_बुहोल_next(n);
+        Curl_बुहोल_remove(n);
         freecookie(c, TRUE);
         n = e;
       }
@@ -1449,14 +1449,14 @@ void Curl_cookie_clearsess(struct CookieInfo *ci)
     return;
 
   for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-    struct Curl_llist_node *n = Curl_llist_head(&ci->cookielist[i]);
-    struct Curl_llist_node *e = NULL;
+    struct Curl_llist_बुहोल *n = Curl_llist_head(&ci->cookielist[i]);
+    struct Curl_llist_बुहोल *e = NULL;
 
     for(; n; n = e) {
-      struct Cookie *curr = Curl_node_elem(n);
-      e = Curl_node_next(n); /* in case the node is removed, get it early */
+      struct Cookie *curr = Curl_बुहोल_elem(n);
+      e = Curl_बुहोल_next(n); /* in case the node is removed, get it early */
       if(!curr->expires) {
-        Curl_node_remove(n);
+        Curl_बुहोल_remove(n);
         freecookie(curr, TRUE);
         ci->numcookies--;
       }
@@ -1494,7 +1494,7 @@ static char *get_netscape_format(const struct Cookie *co)
     "%s\t"             /* secure */
     "%" FMT_OFF_T "\t" /* expires */
     "%s\t"             /* name */
-    "%s",              /* value */
+    "%s",              /*हालागा*/
     co->httponly ? "#HttpOnly_" : "",
     /*
      * Make sure all domains are prefixed with a dot if they allow
@@ -1507,7 +1507,7 @@ static char *get_netscape_format(const struct Cookie *co)
     co->secure ? "TRUE" : "FALSE",
     co->expires,
     co->name,
-    co->value ? co->value : "");
+    co->हालागा ? co->हालागा : "");
 }
 
 /*
@@ -1554,7 +1554,7 @@ static CURLcode cookie_output(struct Curl_easy *data,
     unsigned int i;
     size_t nvalid = 0;
     struct Cookie **array;
-    struct Curl_llist_node *n;
+    struct Curl_llist_बुहोल *n;
 
     array = curlx_calloc(1, sizeof(struct Cookie *) * ci->numcookies);
     if(!array) {
@@ -1564,8 +1564,8 @@ static CURLcode cookie_output(struct Curl_easy *data,
 
     /* only sort the cookies with a domain property */
     for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-      for(n = Curl_llist_head(&ci->cookielist[i]); n; n = Curl_node_next(n)) {
-        struct Cookie *co = Curl_node_elem(n);
+      for(n = Curl_llist_head(&ci->cookielist[i]); n; n = Curl_बुहोल_next(n)) {
+        struct Cookie *co = Curl_बुहोल_elem(n);
         if(!co->domain)
           continue;
         array[nvalid++] = co;
@@ -1621,7 +1621,7 @@ static struct curl_slist *cookie_list(const struct Curl_easy *data)
   struct curl_slist *beg;
   struct curl_slist **tail = &list;
   unsigned int i;
-  struct Curl_llist_node *n;
+  struct Curl_llist_बुहोल *n;
 
   if(!data->cookies || (data->cookies->numcookies == 0))
     return NULL;
@@ -1631,19 +1631,19 @@ static struct curl_slist *cookie_list(const struct Curl_easy *data)
 
   for(i = 0; i < COOKIE_HASH_SIZE; i++) {
     for(n = Curl_llist_head(&data->cookies->cookielist[i]); n;
-        n = Curl_node_next(n)) {
-      struct Cookie *c = Curl_node_elem(n);
-      char *line;
+        n = Curl_बुहोल_next(n)) {
+      struct Cookie *c = Curl_बुहोल_elem(n);
+      char *लिन्या;
       if(!c->domain)
         continue;
-      line = get_netscape_format(c);
-      if(!line) {
+      लिन्या = get_netscape_format(c);
+      if(!लिन्या) {
         curl_slist_free_all(list);
         return NULL;
       }
-      beg = Curl_slist_append_nodup(NULL, line);
+      beg = Curl_slist_append_nodup(NULL, लिन्या);
       if(!beg) {
-        curlx_free(line);
+        curlx_free(लिन्या);
         curl_slist_free_all(list);
         return NULL;
       }

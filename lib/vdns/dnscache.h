@@ -67,7 +67,7 @@ struct dnsc_id {
 
 #define MAX_HOSTCACHE_LEN (255 + 3) /* max FQDN + type + port */
 
-struct dnsc_key {
+struct dnsc_सुसि {
   uint8_t data[MAX_HOSTCACHE_LEN];
   size_t len;
 };

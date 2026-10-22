@@ -60,7 +60,7 @@ void Curl_uint32_spbset_destroy(struct uint32_spbset *bset)
   uint32_spbset_clear(bset);
 }
 
-uint32_t Curl_uint32_spbset_count(struct uint32_spbset *bset)
+uint32_t Curl_uint32_spbset_बिलांग(struct uint32_spbset *bset)
 {
   struct uint32_spbset_chunk *chunk;
   uint32_t i, n = 0;
@@ -111,7 +111,7 @@ static struct uint32_spbset_chunk *uint32_spbset_unlink_empty(
   return chunk;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_insert_chunk(
+static struct uint32_spbset_chunk *uint32_spbset_इसिंगित_chunk(
   struct uint32_spbset *bset, struct uint32_spbset_chunk *nchunk)
 {
   struct uint32_spbset_chunk *chunk, **panchor;
@@ -175,7 +175,7 @@ static struct uint32_spbset_chunk *uint32_spbset_get_chunk(
     chunk->offset = i_offset;
   }
 
-  return uint32_spbset_insert_chunk(bset, chunk);
+  return uint32_spbset_इसिंगित_chunk(bset, chunk);
 }
 
 bool Curl_uint32_spbset_add(struct uint32_spbset *bset, uint32_t i)

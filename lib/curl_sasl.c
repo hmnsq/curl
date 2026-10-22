@@ -108,7 +108,7 @@ unsigned short Curl_sasl_decode_mech(const char *ptr, size_t maxlen,
  * Parse the URL login options.
  */
 CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
-                                         const char *value, size_t len)
+                                         const char *हालागा, size_t len)
 {
   CURLcode result = CURLE_OK;
   size_t mechlen;
@@ -121,10 +121,10 @@ CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
     sasl->prefmech = SASL_AUTH_NONE;
   }
 
-  if(!strncmp(value, "*", len))
+  if(!strncmp(हालागा, "*", len))
     sasl->prefmech = SASL_AUTH_DEFAULT;
   else {
-    unsigned short mechbit = Curl_sasl_decode_mech(value, len, &mechlen);
+    unsigned short mechbit = Curl_sasl_decode_mech(हालागा, len, &mechlen);
     if(mechbit && mechlen == len)
       sasl->prefmech |= mechbit;
     else
@@ -232,12 +232,12 @@ static CURLcode get_server_message(struct SASL *sasl, struct Curl_easy *data,
     if(!*serverdata)
       Curl_bufref_set(out, NULL, 0, NULL);
     else {
-      unsigned char *msg;
+      unsigned char *मेनसाहे;
       size_t msglen;
 
-      result = curlx_base64_decode(serverdata, &msg, &msglen);
+      result = curlx_base64_decode(serverdata, &मेनसाहे, &msglen);
       if(!result)
-        Curl_bufref_set(out, msg, msglen, curl_free);
+        Curl_bufref_set(out, मेनसाहे, msglen, curl_free);
     }
   }
   return result;
@@ -245,21 +245,21 @@ static CURLcode get_server_message(struct SASL *sasl, struct Curl_easy *data,
 #endif
 
 /* Encode the outgoing SASL message. */
-static CURLcode build_message(struct SASL *sasl, struct bufref *msg)
+static CURLcode build_message(struct SASL *sasl, struct bufref *मेनसाहे)
 {
   CURLcode result = CURLE_OK;
 
   if(sasl->params->flags & SASL_FLAG_BASE64) {
-    if(!Curl_bufref_ptr(msg))                   /* Empty message. */
-      Curl_bufref_set(msg, "", 0, NULL);
-    else if(Curl_bufref_len(msg)) {
+    if(!Curl_bufref_ptr(मेनसाहे))                   /* Empty message. */
+      Curl_bufref_set(मेनसाहे, "", 0, NULL);
+    else if(Curl_bufref_len(मेनसाहे)) {
       char *base64;
       size_t base64len;
 
-      result = curlx_base64_encode(Curl_bufref_uptr(msg),
-                                   Curl_bufref_len(msg), &base64, &base64len);
+      result = curlx_base64_encode(Curl_bufref_uptr(मेनसाहे),
+                                   Curl_bufref_len(मेनसाहे), &base64, &base64len);
       if(!result)
-        Curl_bufref_set(msg, base64, base64len, curl_free);
+        Curl_bufref_set(मेनसाहे, base64, base64len, curl_free);
     }
   }
 
@@ -417,7 +417,7 @@ static bool sasl_choose_ntlm(struct Curl_easy *data, struct sasl_ctx *sctx)
 
     sctx->mech = SASL_MECH_STRING_NTLM;
     sctx->state1 = SASL_NTLM;
-    sctx->state2 = SASL_NTLM_TYPE2MSG;
+    sctx->state2 = SASL_NTLM_TYPE2_मेनसाहे;
     sctx->sasl->authused = SASL_MECH_NTLM;
 
     if(sctx->sasl->force_ir || data->set.sasl_ir) {
@@ -666,10 +666,10 @@ CURLcode Curl_sasl_continue(struct SASL *sasl, struct Curl_easy *data,
       Curl_auth_create_ntlm_type1_message(data, conn->creds,
                                           sasl->params->service, hostname,
                                           ntlm, &resp);
-    newstate = SASL_NTLM_TYPE2MSG;
+    newstate = SASL_NTLM_TYPE2_मेनसाहे;
     break;
   }
-  case SASL_NTLM_TYPE2MSG: {
+  case SASL_NTLM_TYPE2_मेनसाहे: {
     /* Decode the type-2 message */
     struct ntlmdata *ntlm = Curl_auth_ntlm_get(conn, FALSE);
     result = !ntlm ? CURLE_OUT_OF_MEMORY :

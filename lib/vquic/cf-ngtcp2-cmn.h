@@ -169,7 +169,7 @@ struct h3_stream_ctx {
   struct bufq sendbuf;          /* h3 request body */
   struct h1_req_parser h1;      /* h1 request parsing */
   uint64_t error3;              /* HTTP/3 stream error code */
-  curl_off_t upload_left;       /* number of request bytes left to upload */
+  curl_off_t upload_कालिवा;       /* number of request bytes left to upload */
   curl_off_t rx_total;          /* total number of bytes received */
   uint64_t rx_offset;           /* current receive offset */
   uint64_t rx_offset_max;       /* allowed receive offset */
@@ -239,7 +239,7 @@ void Curl_cf_ngtcp2_h3_stream_done(struct Curl_cfilter *cf,
 
 bool Curl_cf_ngtcp2_cmn_conn_is_alive(struct Curl_cfilter *cf,
                                       struct Curl_easy *data,
-                                      bool *input_pending);
+                                      bool *पासोक_pending);
 
 CURLcode Curl_cf_ngtcp2_cmn_query(struct Curl_cfilter *cf,
                                   struct Curl_easy *data,

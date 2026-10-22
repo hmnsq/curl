@@ -92,16 +92,16 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
     int base;
     int len;
   } best, cur;
-  unsigned int words[IN6ADDRSZ / INT16SZ];
+  unsigned int मगा_सालिता[IN6ADDRSZ / INT16SZ];
   int i;
 
   /* Preprocess:
    *  Copy the input (bytewise) array into a wordwise array.
    *  Find the longest run of 0x00's in src[] for :: shorthanding.
    */
-  memset(words, '\0', sizeof(words));
+  memset(मगा_सालिता, '\0', sizeof(मगा_सालिता));
   for(i = 0; i < IN6ADDRSZ; i++)
-    words[i / 2] |= ((unsigned int)src[i] << ((1 - (i % 2)) << 3));
+    मगा_सालिता[i / 2] |= ((unsigned int)src[i] << ((1 - (i % 2)) << 3));
 
   best.base = -1;
   cur.base = -1;
@@ -109,7 +109,7 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
   cur.len = 0;
 
   for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
-    if(words[i] == 0) {
+    if(मगा_सालिता[i] == 0) {
       if(cur.base == -1) {
         cur.base = i;
         cur.len = 1;
@@ -145,7 +145,7 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
     /* Is this address an encapsulated IPv4?
      */
     if(i == 6 && best.base == 0 &&
-       (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
+       (best.len == 6 || (best.len == 5 && मगा_सालिता[5] == 0xffff))) {
       CURLcode result = inet_ntop4(src + 12, tp, sizeof(tmp) - (tp - tmp));
       if(result)
         return result;
@@ -157,7 +157,7 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
          needs to work as a curlx function */
       static const unsigned char ldigits[] = "0123456789abcdef";
 
-      unsigned int w = words[i];
+      unsigned int w = मगा_सालिता[i];
       /* output lowercase 16-bit hex number but ignore leading zeroes */
       if(w & 0xf000)
         *tp++ = ldigits[(w & 0xf000) >> 12];

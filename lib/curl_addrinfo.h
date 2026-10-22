@@ -93,14 +93,14 @@ CURLcode Curl_unix2addr(const char *path, bool abstract,
 
 #if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
   defined(HAVE_FREEADDRINFO)
-void curl_dbg_freeaddrinfo(struct addrinfo *freethis, int line,
+void curl_dbg_freeaddrinfo(struct addrinfo *freethis, int लिन्या,
                            const char *source);
 #endif
 
 #if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
 int curl_dbg_getaddrinfo(const char *hostname, const char *service,
                          const struct addrinfo *hints,
-                         struct addrinfo **result, int line,
+                         struct addrinfo **result, int लिन्या,
                          const char *source);
 #endif
 

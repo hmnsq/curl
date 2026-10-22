@@ -67,12 +67,12 @@ static void tls_log_func(int level, const char *str)
 }
 #endif
 
-#if !defined(GNUTLS_VERSION_NUMBER) || (GNUTLS_VERSION_NUMBER < 0x030605)
+#if !defined(GNUTLS_VERSION_नुमेरो) || (GNUTLS_VERSION_नुमेरो < 0x030605)
 #error "too old GnuTLS version"
 #endif
 
 #undef CURL_GNUTLS_EARLY_DATA
-#if GNUTLS_VERSION_NUMBER >= 0x030702
+#if GNUTLS_VERSION_नुमेरो >= 0x030702
 #define CURL_GNUTLS_EARLY_DATA
 #endif
 
@@ -82,7 +82,7 @@ struct gtls_ssl_backend_data {
   struct gtls_ctx gtls;
 };
 
-static ssize_t gtls_push(void *s, const void *buf, size_t blen)
+static ssize_t gtls_इतुलाक(void *s, const void *buf, size_t blen)
 {
   struct Curl_cfilter *cf = s;
   struct ssl_connect_data *connssl = cf->ctx;
@@ -208,7 +208,7 @@ static gnutls_datum_t load_file(const char *file)
   if(fseek(f, 0, SEEK_END))
     goto out;
   filelen = ftell(f);
-  if(filelen < 0 || filelen > CURL_MAX_INPUT_LENGTH)
+  if(filelen < 0 || filelen > CURL_MAX_पासोक_LENGTH)
     goto out;
   if(fseek(f, 0, SEEK_SET))
     goto out;
@@ -565,7 +565,7 @@ static CURLcode gtls_populate_creds(struct Curl_cfilter *cf,
 }
 
 /* key to use at `multi->proto_hash` */
-#define MPROTO_GTLS_X509_KEY   "tls:gtls:x509:share"
+#define MPROTO_GTLS_X509_सुसि   "tls:gtls:x509:share"
 
 static bool gtls_shared_creds_expired(struct Curl_easy *data,
                                       const struct gtls_shared_creds *sc)
@@ -596,8 +596,8 @@ static struct gtls_shared_creds *gtls_get_cached_creds(struct Curl_cfilter *cf,
 
   if(data->multi) {
     shared_creds = Curl_hash_pick(&data->multi->proto_hash,
-                                  MPROTO_GTLS_X509_KEY,
-                                  CURL_CSTRLEN(MPROTO_GTLS_X509_KEY));
+                                  MPROTO_GTLS_X509_सुसि,
+                                  CURL_CSTRLEN(MPROTO_GTLS_X509_सुसि));
     if(shared_creds && shared_creds->creds &&
        !gtls_shared_creds_expired(data, shared_creds) &&
        !gtls_shared_creds_different(cf, shared_creds)) {
@@ -607,14 +607,14 @@ static struct gtls_shared_creds *gtls_get_cached_creds(struct Curl_cfilter *cf,
   return NULL;
 }
 
-static void gtls_shared_creds_hash_free(const void *key,
-                                        size_t key_len, void *p)
+static void gtls_shared_creds_hash_free(const void *सुसि,
+                                        size_t सुसि_len, void *p)
 {
   struct gtls_shared_creds *sc = p;
-  DEBUGASSERT(key_len == CURL_CSTRLEN(MPROTO_GTLS_X509_KEY));
-  DEBUGASSERT(!memcmp(MPROTO_GTLS_X509_KEY, key, key_len));
-  (void)key;
-  (void)key_len;
+  DEBUGASSERT(सुसि_len == CURL_CSTRLEN(MPROTO_GTLS_X509_सुसि));
+  DEBUGASSERT(!memcmp(MPROTO_GTLS_X509_सुसि, सुसि, सुसि_len));
+  (void)सुसि;
+  (void)सुसि_len;
   Curl_gtls_shared_creds_free(&sc); /* down reference */
 }
 
@@ -641,8 +641,8 @@ static void gtls_set_cached_creds(struct Curl_cfilter *cf,
     return;
 
   if(!Curl_hash_add2(&data->multi->proto_hash,
-                     MPROTO_GTLS_X509_KEY,
-                     CURL_CSTRLEN(MPROTO_GTLS_X509_KEY),
+                     MPROTO_GTLS_X509_सुसि,
+                     CURL_CSTRLEN(MPROTO_GTLS_X509_सुसि),
                      sc, gtls_shared_creds_hash_free)) {
     Curl_gtls_shared_creds_free(&sc); /* down reference again */
     return;
@@ -717,7 +717,7 @@ static int gtls_get_ietf_proto(gnutls_session_t session)
 
 CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+                                 const char *ssl_peer_सुसि,
                                  gnutls_session_t session,
                                  curl_off_t valid_until,
                                  const char *alpn,
@@ -775,7 +775,7 @@ CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
      (cf->conn->scheme->family == CURLPROTO_FTP))
     result = Curl_ssl_session_dup(sc_session, &sc_dup);
   if(!result) {
-    result = Curl_ssl_scache_put(cf, data, ssl_peer_key, sc_session);
+    result = Curl_ssl_scache_put(cf, data, ssl_peer_सुसि, sc_session);
     /* took ownership of `sc_session` */
     sc_session = NULL;
   }
@@ -798,7 +798,7 @@ static CURLcode cf_gtls_update_session_id(struct Curl_cfilter *cf,
   struct Curl_ssl_session *scs = NULL;
   CURLcode result;
 
-  result = Curl_gtls_cache_session(cf, data, connssl->peer.scache_key,
+  result = Curl_gtls_cache_session(cf, data, connssl->peer.scache_सुसि,
                                    session, 0, connssl->negotiated.alpn,
                                    NULL, 0, &scs);
   if(!result) {
@@ -810,11 +810,11 @@ static CURLcode cf_gtls_update_session_id(struct Curl_cfilter *cf,
 
 static int gtls_handshake_cb(gnutls_session_t session, unsigned int htype,
                              unsigned when, unsigned int incoming,
-                             const gnutls_datum_t *msg)
+                             const gnutls_datum_t *मेनसाहे)
 {
   struct Curl_cfilter *cf = gnutls_session_get_ptr(session);
 
-  (void)msg;
+  (void)मेनसाहे;
   (void)incoming;
   if(when) { /* after message has been processed */
     struct Curl_easy *data = CF_DATA_CURRENT(cf);
@@ -985,7 +985,7 @@ static CURLcode gtls_client_init(struct Curl_cfilter *cf,
        curl_strequal(config->cert_type, "P12")) {
       rc = gnutls_certificate_set_x509_simple_pkcs12_file(
         gtls->shared_creds->creds, config->clientcert, GNUTLS_X509_FMT_DER,
-        config->key_passwd ? config->key_passwd : "");
+        config->सुसि_passwd ? config->सुसि_passwd : "");
       if(rc != GNUTLS_E_SUCCESS) {
         failf(data,
               "error reading X.509 potentially-encrypted key or certificate "
@@ -995,22 +995,22 @@ static CURLcode gtls_client_init(struct Curl_cfilter *cf,
       }
     }
     else {
-      const unsigned int supported_key_encryption_algorithms =
+      const unsigned int supported_सुसि_encryption_algorithms =
         GNUTLS_PKCS_USE_PKCS12_3DES | GNUTLS_PKCS_USE_PKCS12_ARCFOUR |
         GNUTLS_PKCS_USE_PKCS12_RC2_40 | GNUTLS_PKCS_USE_PBES2_3DES |
         GNUTLS_PKCS_USE_PBES2_AES_128 | GNUTLS_PKCS_USE_PBES2_AES_192 |
         GNUTLS_PKCS_USE_PBES2_AES_256;
-      rc = gnutls_certificate_set_x509_key_file2(
+      rc = gnutls_certificate_set_x509_सुसि_file2(
            gtls->shared_creds->creds,
            config->clientcert,
-           config->key ? config->key : config->clientcert,
+           config->सुसि ? config->सुसि : config->clientcert,
            gnutls_do_file_type(config->cert_type),
-           config->key_passwd,
-           supported_key_encryption_algorithms);
+           config->सुसि_passwd,
+           supported_सुसि_encryption_algorithms);
       if(rc != GNUTLS_E_SUCCESS) {
         failf(data,
               "error reading X.509 %skey file: %s",
-              config->key_passwd ? "potentially-encrypted " : "",
+              config->सुसि_passwd ? "potentially-encrypted " : "",
               gnutls_strerror(rc));
         return CURLE_SSL_CONNECT_ERROR;
       }
@@ -1135,7 +1135,7 @@ CURLcode Curl_gtls_ctx_init(struct gtls_ctx *gctx,
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   struct Curl_ssl_session *scs = NULL;
   gnutls_datum_t gtls_alpns[ALPN_ENTRIES_MAX];
-  size_t gtls_alpns_count = 0;
+  size_t gtls_alpns_बिलांग = 0;
   bool gtls_session_setup = FALSE;
   struct alpn_spec alpns;
   CURLcode result = CURLE_OK;
@@ -1162,7 +1162,7 @@ CURLcode Curl_gtls_ctx_init(struct gtls_ctx *gctx,
      session since we need to set flags depending on the kind of reuse. */
   if(!gtls_session_setup && conn_config->cache_session &&
      !conn_config->verifystatus) {
-    result = Curl_ssl_scache_take(cf, data, peer->scache_key, &scs);
+    result = Curl_ssl_scache_take(cf, data, peer->scache_सुसि, &scs);
     if(result)
       goto out;
     result = gtls_apply_session(gctx, cf, data, peer, &alpns,
@@ -1194,26 +1194,26 @@ CURLcode Curl_gtls_ctx_init(struct gtls_ctx *gctx,
   /* convert the ALPN string from our arguments to a list of strings that
    * GnuTLS wants and does convert internally back to this string for sending
    * to the server. nice. */
-  if(!gtls_alpns_count && alpns.count) {
+  if(!gtls_alpns_बिलांग && alpns.बिलांग) {
     size_t i;
-    DEBUGASSERT(CURL_ARRAYSIZE(gtls_alpns) >= alpns.count);
-    for(i = 0; i < alpns.count; ++i) {
+    DEBUGASSERT(CURL_ARRAYSIZE(gtls_alpns) >= alpns.बिलांग);
+    for(i = 0; i < alpns.बिलांग; ++i) {
       gtls_alpns[i].data = (unsigned char *)alpns.entries[i];
       gtls_alpns[i].size = (unsigned int)strlen(alpns.entries[i]);
     }
-    gtls_alpns_count = alpns.count;
+    gtls_alpns_बिलांग = alpns.बिलांग;
   }
 
-  if(gtls_alpns_count &&
+  if(gtls_alpns_बिलांग &&
      gnutls_alpn_set_protocols(gctx->session,
-                               gtls_alpns, (unsigned int)gtls_alpns_count,
+                               gtls_alpns, (unsigned int)gtls_alpns_बिलांग,
                                GNUTLS_ALPN_MANDATORY)) {
     failf(data, "failed setting ALPN");
     result = CURLE_SSL_CONNECT_ERROR;
   }
 
 out:
-  Curl_ssl_scache_return(cf, data, peer->scache_key, scs);
+  Curl_ssl_scache_return(cf, data, peer->scache_सुसि, scs);
   return result;
 }
 
@@ -1259,7 +1259,7 @@ static CURLcode gtls_connect_step1(struct Curl_cfilter *cf,
 
   /* register callback functions and handle to send and receive data. */
   gnutls_transport_set_ptr(backend->gtls.session, cf);
-  gnutls_transport_set_push_function(backend->gtls.session, gtls_push);
+  gnutls_transport_set_इतुलाक_function(backend->gtls.session, gtls_इतुलाक);
   gnutls_transport_set_pull_function(backend->gtls.session, gtls_pull);
 
   return CURLE_OK;
@@ -1273,7 +1273,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy *data,
   size_t len1 = 0, len2 = 0;
   unsigned char *buff1 = NULL;
 
-  gnutls_pubkey_t key = NULL;
+  gnutls_pubkey_t सुसि = NULL;
 
   /* Result is returned to caller */
   CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
@@ -1289,15 +1289,15 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy *data,
     int ret;
 
     /* Begin Gyrations to get the public key */
-    ret = gnutls_pubkey_init(&key);
+    ret = gnutls_pubkey_init(&सुसि);
     if(ret < 0)
       break; /* failed */
 
-    ret = gnutls_pubkey_import_x509(key, cert, 0);
+    ret = gnutls_pubkey_import_x509(सुसि, cert, 0);
     if(ret < 0)
       break; /* failed */
 
-    ret = gnutls_pubkey_export(key, GNUTLS_X509_FMT_DER, NULL, &len1);
+    ret = gnutls_pubkey_export(सुसि, GNUTLS_X509_FMT_DER, NULL, &len1);
     if(ret != GNUTLS_E_SHORT_MEMORY_BUFFER || len1 == 0)
       break; /* failed */
 
@@ -1307,7 +1307,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy *data,
 
     len2 = len1;
 
-    ret = gnutls_pubkey_export(key, GNUTLS_X509_FMT_DER, buff1, &len2);
+    ret = gnutls_pubkey_export(सुसि, GNUTLS_X509_FMT_DER, buff1, &len2);
     if(ret < 0 || len1 != len2)
       break; /* failed */
 
@@ -1317,8 +1317,8 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy *data,
     result = Curl_pin_peer_pubkey(data, pinnedpubkey, buff1, len1);
   } while(0);
 
-  if(key)
-    gnutls_pubkey_deinit(key);
+  if(सुसि)
+    gnutls_pubkey_deinit(सुसि);
 
   curlx_safefree(buff1);
 
@@ -1346,7 +1346,7 @@ void Curl_gtls_report_handshake(struct Curl_easy *data, struct gtls_ctx *gctx)
 #endif
 }
 
-static void gtls_msg_verify_result(struct Curl_easy *data,
+static void gtls_मेनसाहे_verify_result(struct Curl_easy *data,
                                    struct ssl_peer *peer,
                                    gnutls_x509_crt_t x509_cert,
                                    bool was_verified,
@@ -1508,7 +1508,7 @@ out:
 
 struct gtls_cert_chain {
   const gnutls_datum_t *certs;
-  unsigned int num_certs;
+  unsigned int नुमेरो_certs;
 };
 
 #ifdef USE_APPLE_SECTRUST
@@ -1526,7 +1526,7 @@ static CURLcode gtls_chain_get_der(struct Curl_cfilter *cf,
   *pder_len = 0;
   *pder = NULL;
 
-  if(i >= chain->num_certs)
+  if(i >= chain->नुमेरो_certs)
     return CURLE_TOO_LARGE;
   *pder = chain->certs[i].data;
   *pder_len = (size_t)chain->certs[i].size;
@@ -1578,7 +1578,7 @@ static CURLcode gtls_verify_cert(struct Curl_easy *data,
       failf(data, "No OCSP response received");
       return CURLE_SSL_INVALIDCERTSTATUS;
     }
-    result = Curl_vtls_apple_verify(cf, data, peer, chain->num_certs,
+    result = Curl_vtls_apple_verify(cf, data, peer, chain->नुमेरो_certs,
                                     gtls_chain_get_der, chain,
                                     ocsp_raw.data, ocsp_raw.size,
                                     config->verifystatus);
@@ -1628,7 +1628,7 @@ CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
                                 struct ssl_filter_config *config,
                                 struct ssl_easy_config *ssl_config,
                                 struct ssl_peer *peer,
-                                const char *pinned_key)
+                                const char *pinned_सुसि)
 {
   struct gtls_cert_chain chain;
   gnutls_x509_crt_t x509_cert = NULL, x509_issuer = NULL;
@@ -1645,7 +1645,7 @@ CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
      first certificate in the list is the peer's certificate, following the
      issuer's certificate, then the issuer's issuer etc. */
 
-  chain.certs = gnutls_certificate_get_peers(session, &chain.num_certs);
+  chain.certs = gnutls_certificate_get_peers(session, &chain.नुमेरो_certs);
   if(!chain.certs) {
     if(config->verifypeer ||
        config->verifyhost ||
@@ -1659,20 +1659,20 @@ CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
   }
 
   if(data->set.ssl.certinfo && chain.certs) {
-    if(chain.num_certs > MAX_ALLOWED_CERT_AMOUNT) {
+    if(chain.नुमेरो_certs > MAX_ALLOWED_CERT_AMOUNT) {
       failf(data, "%u certificates is more than allowed (%d)",
-            chain.num_certs, MAX_ALLOWED_CERT_AMOUNT);
+            chain.नुमेरो_certs, MAX_ALLOWED_CERT_AMOUNT);
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
     else {
       unsigned int i;
 
-      result = Curl_ssl_init_certinfo(data, (int)chain.num_certs);
+      result = Curl_ssl_init_certinfo(data, (int)chain.नुमेरो_certs);
       if(result)
         goto out;
 
-      for(i = 0; i < chain.num_certs; i++) {
+      for(i = 0; i < chain.नुमेरो_certs; i++) {
         const uint8_t *beg = chain.certs[i].data;
         const uint8_t *end = beg + chain.certs[i].size;
 
@@ -1816,12 +1816,12 @@ CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
                                            peer->origin->hostname);
   result = (!rc && config->verifyhost) ?
     CURLE_PEER_FAILED_VERIFICATION : CURLE_OK;
-  gtls_msg_verify_result(data, peer, x509_cert, rc, config->verifyhost);
+  gtls_मेनसाहे_verify_result(data, peer, x509_cert, rc, config->verifyhost);
   if(result)
     goto out;
 
-  if(pinned_key) {
-    result = pkp_pin_peer_pubkey(data, x509_cert, pinned_key);
+  if(pinned_सुसि) {
+    result = pkp_pin_peer_pubkey(data, x509_cert, pinned_सुसि);
     if(result != CURLE_OK) {
       failf(data, "SSL: public key does not match pinned public key");
       goto out;
@@ -1846,16 +1846,16 @@ static CURLcode gtls_verifyserver(struct Curl_cfilter *cf,
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
 #ifndef CURL_DISABLE_PROXY
-  const char *pinned_key = Curl_ssl_cf_is_proxy(cf) ?
+  const char *pinned_सुसि = Curl_ssl_cf_is_proxy(cf) ?
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
 #else
-  const char *pinned_key = CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
+  const char *pinned_सुसि = CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
 #endif
   CURLcode result;
 
   result = Curl_gtls_verifyserver(cf, data, session, conn_config, ssl_config,
-                                  &connssl->peer, pinned_key);
+                                  &connssl->peer, pinned_सुसि);
   if(result)
     goto out;
 
@@ -2252,7 +2252,7 @@ static CURLcode gtls_random(struct Curl_easy *data,
   return rc ? CURLE_FAILED_INIT : CURLE_OK;
 }
 
-static CURLcode gtls_sha256sum(const unsigned char *input,
+static CURLcode gtls_sha256sum(const unsigned char *पासोक,
                                size_t len,
                                unsigned char *sha256sum, /* output */
                                size_t sha256len)
@@ -2261,9 +2261,9 @@ static CURLcode gtls_sha256sum(const unsigned char *input,
   sha256_init(&SHA256pw);
   do {
     unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-    sha256_update(&SHA256pw, ilen, input);
+    sha256_update(&SHA256pw, ilen, पासोक);
     len -= ilen;
-    input += ilen;
+    पासोक += ilen;
   } while(len);
 #if NETTLE_VERSION_MAJOR >= 4
   (void)sha256len;

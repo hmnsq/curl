@@ -45,7 +45,7 @@ struct Curl_share {
   unsigned int magic; /* CURL_GOOD_SHARE */
   unsigned int specifier;
 
-  uint32_t ref_count;
+  uint32_t ref_बिलांग;
 #ifdef USE_MUTEX
    /* do `ref_count` and `has_been_shared` checks using this mutex. */
   curl_mutex_t lock;

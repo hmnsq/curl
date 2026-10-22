@@ -49,7 +49,7 @@ static void http_auth_nego_reset(struct connectdata *conn,
     Curl_auth_cleanup_spnego(neg_ctx);
 }
 
-CURLcode Curl_input_negotiate(struct Curl_easy *data, struct connectdata *conn,
+CURLcode Curl_पासोक_negotiate(struct Curl_easy *data, struct connectdata *conn,
                               bool proxy, const char *header)
 {
   CURLcode result;
@@ -201,7 +201,7 @@ CURLcode Curl_output_negotiate(struct Curl_easy *data,
       http_auth_nego_reset(conn, neg_ctx, proxy);
     }
     if(!neg_ctx->context) {
-      result = Curl_input_negotiate(data, conn, proxy, "Negotiate");
+      result = Curl_पासोक_negotiate(data, conn, proxy, "Negotiate");
       if(result == CURLE_AUTH_ERROR) {
         /* negotiate auth failed, let's continue unauthenticated to stay
          * compatible with the behavior before curl-7_64_0-158-g6c6035532 */

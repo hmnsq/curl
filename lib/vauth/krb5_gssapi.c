@@ -34,7 +34,7 @@
 #include "curl_trc.h"
 
 #if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -86,7 +86,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
   OM_uint32 major_status;
   OM_uint32 minor_status;
   OM_uint32 unused_status;
-  gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
+  gss_buffer_desc पासोक_token = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
   const char *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
@@ -100,7 +100,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
       return CURLE_OUT_OF_MEMORY;
 
     /* Populate the SPN structure */
-    spn_token.value = spn;
+    spn_token.हालागा = spn;
     spn_token.length = strlen(spn);
 
     /* Import the SPN */
@@ -123,8 +123,8 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
       infof(data, "GSSAPI handshake failure (empty challenge message)");
       return CURLE_BAD_CONTENT_ENCODING;
     }
-    input_token.value = CURL_UNCONST(Curl_bufref_ptr(chlg));
-    input_token.length = Curl_bufref_len(chlg);
+    पासोक_token.हालागा = CURL_UNCONST(Curl_bufref_ptr(chlg));
+    पासोक_token.length = Curl_bufref_len(chlg);
   }
 
   major_status = Curl_gss_init_sec_context(data,
@@ -133,14 +133,14 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
                                            krb5->spn,
                                            &Curl_krb5_mech_oid,
                                            GSS_C_NO_CHANNEL_BINDINGS,
-                                           &input_token,
+                                           &पासोक_token,
                                            &output_token,
                                            mutual_auth,
                                            NULL,
                                            GSS_C_NO_CREDENTIAL);
 
   if(GSS_ERROR(major_status)) {
-    if(output_token.value)
+    if(output_token.हालागा)
       gss_release_buffer(&unused_status, &output_token);
 
     Curl_gss_log_error(data, "gss_init_sec_context() failed: ",
@@ -149,8 +149,8 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
     return CURLE_AUTH_ERROR;
   }
 
-  if(output_token.value && output_token.length) {
-    result = Curl_bufref_memdup0(out, output_token.value, output_token.length);
+  if(output_token.हालागा && output_token.length) {
+    result = Curl_bufref_memdup0(out, output_token.हालागा, output_token.length);
     gss_release_buffer(&unused_status, &output_token);
   }
   else
@@ -187,7 +187,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   OM_uint32 major_status;
   OM_uint32 minor_status;
   OM_uint32 unused_status;
-  gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
+  gss_buffer_desc पासोक_token = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
   unsigned char *indata;
   gss_qop_t qop = GSS_C_QOP_DEFAULT;
@@ -201,11 +201,11 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   }
 
   /* Setup the challenge "input" security buffer */
-  input_token.value = CURL_UNCONST(Curl_bufref_ptr(chlg));
-  input_token.length = Curl_bufref_len(chlg);
+  पासोक_token.हालागा = CURL_UNCONST(Curl_bufref_ptr(chlg));
+  पासोक_token.length = Curl_bufref_len(chlg);
 
   /* Decrypt the inbound challenge and obtain the qop */
-  major_status = gss_unwrap(&minor_status, krb5->context, &input_token,
+  major_status = gss_unwrap(&minor_status, krb5->context, &पासोक_token,
                             &output_token, NULL, &qop);
   if(GSS_ERROR(major_status)) {
     Curl_gss_log_error(data, "gss_unwrap() failed: ",
@@ -221,7 +221,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   }
 
   /* Extract the security layer and the maximum message size */
-  indata = output_token.value;
+  indata = output_token.हालागा;
   sec_layer = indata[0];
   max_size = ((unsigned int)indata[1] << 16) |
              ((unsigned int)indata[2] << 8) | indata[3];
@@ -266,12 +266,12 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
     memcpy(message + 4, authzid, messagelen - 4);
 
   /* Setup the "authentication data" security buffer */
-  input_token.value = message;
-  input_token.length = messagelen;
+  पासोक_token.हालागा = message;
+  पासोक_token.length = messagelen;
 
   /* Encrypt the data */
   major_status = gss_wrap(&minor_status, krb5->context, 0,
-                          GSS_C_QOP_DEFAULT, &input_token, NULL,
+                          GSS_C_QOP_DEFAULT, &पासोक_token, NULL,
                           &output_token);
   if(GSS_ERROR(major_status)) {
     Curl_gss_log_error(data, "gss_wrap() failed: ",
@@ -281,7 +281,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   }
 
   /* Return the response. */
-  result = Curl_bufref_memdup0(out, output_token.value, output_token.length);
+  result = Curl_bufref_memdup0(out, output_token.हालागा, output_token.length);
   /* Free the output buffer */
   gss_release_buffer(&unused_status, &output_token);
 
@@ -320,7 +320,7 @@ void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5)
 }
 
 #if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
 
 #endif /* HAVE_GSSAPI && USE_KERBEROS5 */

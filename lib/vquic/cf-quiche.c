@@ -100,10 +100,10 @@ struct cf_quiche_ctx {
 #ifdef DEBUG_QUICHE
 /* initialize debug log callback only once */
 static int debug_log_init = 0;
-static void quiche_debug_log(const char *line, void *argp)
+static void quiche_debug_log(const char *लिन्या, void *argp)
 {
   (void)argp;
-  curl_mfprintf(stderr, "%s\n", line);
+  curl_mfprintf(stderr, "%s\n", लिन्या);
 }
 #endif
 
@@ -276,7 +276,7 @@ static CURLcode h3_data_setup(struct Curl_cfilter *cf,
     return CURLE_OUT_OF_MEMORY;
 
   stream->id = -1;
-  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_LINE_LEN);
+  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_लिन्या_LEN);
 
   if(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
     h3_stream_ctx_free(stream);
@@ -370,7 +370,7 @@ static bool is_valid_h3_header(const uint8_t *hdr, size_t hlen)
 }
 
 static int cb_each_header(uint8_t *name, size_t name_len,
-                          uint8_t *value, size_t value_len,
+                          uint8_t *हालागा, size_t हालागा_len,
                           void *argp)
 {
   struct cb_ctx *x = argp;
@@ -384,14 +384,14 @@ static int cb_each_header(uint8_t *name, size_t name_len,
     return 1; /* abort iteration */
 
   if((name_len == 7) && !strncmp(HTTP_PSEUDO_STATUS, (char *)name, 7) &&
-     is_valid_h3_header(value, value_len)) {
+     is_valid_h3_header(हालागा, हालागा_len)) {
     curlx_dyn_reset(&ctx->h1hdr);
     result = Curl_http_decode_status(&stream->status_code,
-                                     (const char *)value, value_len);
+                                     (const char *)हालागा, हालागा_len);
     if(!result)
       result = curlx_dyn_addn(&ctx->h1hdr, STRCONST("HTTP/3 "));
     if(!result)
-      result = curlx_dyn_addn(&ctx->h1hdr, (const char *)value, value_len);
+      result = curlx_dyn_addn(&ctx->h1hdr, (const char *)हालागा, हालागा_len);
     if(!result)
       result = curlx_dyn_addn(&ctx->h1hdr, STRCONST(" \r\n"));
     if(!result)
@@ -401,18 +401,18 @@ static int cb_each_header(uint8_t *name, size_t name_len,
                 stream->id, curlx_dyn_ptr(&ctx->h1hdr));
   }
   else {
-    if(is_valid_h3_header(value, value_len) &&
+    if(is_valid_h3_header(हालागा, हालागा_len) &&
        is_valid_h3_header(name, name_len)) {
       /* store as an HTTP1-style header */
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] header: %.*s: %.*s",
                   stream->id, (int)name_len, name,
-                  (int)value_len, value);
+                  (int)हालागा_len, हालागा);
       curlx_dyn_reset(&ctx->h1hdr);
       result = curlx_dyn_addn(&ctx->h1hdr, (const char *)name, name_len);
       if(!result)
         result = curlx_dyn_addn(&ctx->h1hdr, STRCONST(": "));
       if(!result)
-        result = curlx_dyn_addn(&ctx->h1hdr, (const char *)value, value_len);
+        result = curlx_dyn_addn(&ctx->h1hdr, (const char *)हालागा, हालागा_len);
       if(!result)
         result = curlx_dyn_addn(&ctx->h1hdr, STRCONST("\r\n"));
       if(!result)
@@ -421,7 +421,7 @@ static int cb_each_header(uint8_t *name, size_t name_len,
     }
     else
       CURL_TRC_CF(x->data, x->cf, "[%" PRIu64 "] ignore %zu bytes bad header",
-                  stream->id, value_len + name_len);
+                  stream->id, हालागा_len + name_len);
   }
 
   if(result) {
@@ -780,7 +780,7 @@ static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
   int64_t expiry_ns;
   int64_t timeout_ns;
   struct read_ctx readx;
-  size_t pkt_count, gsolen;
+  size_t pkt_बिलांग, gsolen;
 
   expiry_ns = quiche_conn_timeout_as_nanos(ctx->qconn);
   if(!expiry_ns) {
@@ -809,7 +809,7 @@ static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
   readx.cf = cf;
   readx.data = data;
   memset(&readx.send_info, 0, sizeof(readx.send_info));
-  pkt_count = 0;
+  pkt_बिलांग = 0;
   gsolen = quiche_conn_max_send_udp_payload_size(ctx->qconn);
   for(;;) {
     /* add the next packet to send, if any, to our buffer */
@@ -830,8 +830,8 @@ static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
       goto out;
     }
 
-    ++pkt_count;
-    if(nread < gsolen || pkt_count >= MAX_PKT_BURST) {
+    ++pkt_बिलांग;
+    if(nread < gsolen || pkt_बिलांग >= MAX_PKT_BURST) {
       result = Curl_vquic_send(cf, data, &ctx->q, gsolen);
       if(result) {
         if(result == CURLE_AGAIN) {
@@ -840,7 +840,7 @@ static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
         }
         goto out;
       }
-      pkt_count = 0;
+      pkt_बिलांग = 0;
     }
   }
 
@@ -1030,7 +1030,7 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
   /* no longer needed */
   Curl_h1_req_parse_free(&stream->h1);
 
-  nheader = Curl_dynhds_count(&h2_headers);
+  nheader = Curl_dynhds_बिलांग(&h2_headers);
   nva = curlx_malloc(sizeof(quiche_h3_header) * nheader);
   if(!nva) {
     result = CURLE_OUT_OF_MEMORY;
@@ -1041,8 +1041,8 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
     struct dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
     nva[i].name = (unsigned char *)e->name;
     nva[i].name_len = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
-    nva[i].value_len = e->valuelen;
+    nva[i].हालागा = (unsigned char *)e->हालागा;
+    nva[i].हालागा_len = e->valuelen;
   }
 
   buf += *pnwritten;
@@ -1083,7 +1083,7 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
     for(i = 0; i < nheader; ++i) {
       infof(data, "[HTTP/3] [%" PRIu64 "] [%.*s: %.*s]", stream->id,
             (int)nva[i].name_len, nva[i].name,
-            (int)nva[i].value_len, nva[i].value);
+            (int)nva[i].हालागा_len, nva[i].हालागा);
     }
   }
 
@@ -1542,7 +1542,7 @@ static CURLcode cf_quiche_query(struct Curl_cfilter *cf,
   case CF_QUERY_MAX_CONCURRENT: {
     uint64_t max_streams = cf->conn->attached_xfers;
     if(!ctx->goaway && ctx->qconn) {
-      max_streams += quiche_conn_peer_streams_left_bidi(ctx->qconn);
+      max_streams += quiche_conn_peer_streams_कालिवा_bidi(ctx->qconn);
     }
     *pres1 = (max_streams > INT_MAX) ? INT_MAX : (int)max_streams;
     CURL_TRC_CF(data, cf, "query conn[%" FMT_OFF_T "]: "
@@ -1586,12 +1586,12 @@ static CURLcode cf_quiche_query(struct Curl_cfilter *cf,
 
 static bool cf_quiche_conn_is_alive(struct Curl_cfilter *cf,
                                     struct Curl_easy *data,
-                                    bool *input_pending)
+                                    bool *पासोक_pending)
 {
   struct cf_quiche_ctx *ctx = cf->ctx;
   bool alive = TRUE;
 
-  *input_pending = FALSE;
+  *पासोक_pending = FALSE;
   if(!ctx->qconn)
     return FALSE;
 
@@ -1603,14 +1603,14 @@ static bool cf_quiche_conn_is_alive(struct Curl_cfilter *cf,
     return FALSE;
   }
 
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
+  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, पासोक_pending))
     return FALSE;
 
-  if(*input_pending) {
+  if(*पासोक_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
-    *input_pending = FALSE;
+    *पासोक_pending = FALSE;
     if(cf_process_ingress(cf, data))
       alive = FALSE;
     else {
@@ -1680,7 +1680,7 @@ out:
   return result;
 }
 
-CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_quiche_इसिंगित_after(struct Curl_cfilter *cf_at,
                                      struct Curl_peer *origin,
                                      struct Curl_peer *peer,
                                      struct Curl_cfilter **pcf)
@@ -1699,7 +1699,7 @@ CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
     result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
   if(result)
     goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  Curl_conn_cf_इसिंगित_after(cf_at, cf);
 
 out:
   if(result) {

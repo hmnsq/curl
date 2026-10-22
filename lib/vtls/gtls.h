@@ -92,13 +92,13 @@ CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
                                 struct ssl_filter_config *config,
                                 struct ssl_easy_config *ssl_config,
                                 struct ssl_peer *peer,
-                                const char *pinned_key);
+                                const char *pinned_सुसि);
 
 /* Extract TLS session and place in cache, if configured. Return
  * a copy of the session if desired. */
 CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+                                 const char *ssl_peer_सुसि,
                                  gnutls_session_t session,
                                  curl_off_t valid_until,
                                  const char *alpn,

@@ -47,7 +47,7 @@
 #define SCH_CREDENTIALS_VERSION  0x00000005
 
 typedef enum _eTlsAlgorithmUsage {
-  TlsParametersCngAlgUsageKeyExchange,
+  Tls_Parameters_Cng_Alg_Usage_सुसि_Exchange,
   TlsParametersCngAlgUsageSignature,
   TlsParametersCngAlgUsageCipher,
   TlsParametersCngAlgUsageDigest,
@@ -80,7 +80,7 @@ typedef struct _SCH_CREDENTIALS {
   DWORD dwCredFormat;
   DWORD cCreds;
   PCCERT_CONTEXT *paCred;
-  HCERTSTORE hRootStore;
+  HCERTSTORE h_उगात_Store;
 
   DWORD cMappers;
   struct _HMAPPER **aphMappers;
@@ -153,7 +153,7 @@ struct schannel_cert_share {
 };
 
 /* size of the structure: 20 bytes */
-struct num_ip_data {
+struct नुमेरो_ip_data {
   DWORD size; /* 04 bytes */
   union {
     struct in_addr  ia;  /* 04 bytes */

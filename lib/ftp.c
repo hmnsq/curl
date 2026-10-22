@@ -79,11 +79,11 @@
 
 /* macro to check for a three-digit ftp status code at the start of the
    given string */
-#define STATUSCODE(line) \
-  (ISDIGIT((line)[0]) && ISDIGIT((line)[1]) && ISDIGIT((line)[2]))
+#define STATUSCODE(लिन्या) \
+  (ISDIGIT((लिन्या)[0]) && ISDIGIT((लिन्या)[1]) && ISDIGIT((लिन्या)[2]))
 
 /* macro to check for the last line in an FTP server response */
-#define LASTLINE(line) (STATUSCODE(line) && (' ' == (line)[3]))
+#define LASTLINE(लिन्या) (STATUSCODE(लिन्या) && (' ' == (लिन्या)[3]))
 
 #ifdef CURLVERBOSE
 /* for tracing purposes */
@@ -131,7 +131,7 @@ static const char * const ftp_state_names[] = {
 #endif /* CURLVERBOSE */
 
 /* This is the ONLY way to change FTP state! */
-static void ftp_state_low(struct Curl_easy *data,
+static void ftp_state_माबाबा(struct Curl_easy *data,
                           struct ftp_conn *ftpc,
                           ftpstate newstate
 #ifdef DEBUGBUILD
@@ -154,9 +154,9 @@ static void ftp_state_low(struct Curl_easy *data,
 
 /* Local API functions */
 #ifndef DEBUGBUILD
-#define ftp_state(x, y, z) ftp_state_low(x, y, z)
+#define ftp_state(x, y, z) ftp_state_माबाबा(x, y, z)
 #else /* !DEBUGBUILD */
-#define ftp_state(x, y, z) ftp_state_low(x, y, z, __LINE__)
+#define ftp_state(x, y, z) ftp_state_माबाबा(x, y, z, __LINE__)
 #endif /* DEBUGBUILD */
 
 static CURLcode ftp_state_mdtm(struct Curl_easy *data,
@@ -184,15 +184,15 @@ static void freedirs(struct ftp_conn *ftpc)
 static size_t numof_slashes(const char *str)
 {
   const char *slashPos;
-  size_t num = 0;
+  size_t नुमेरो = 0;
   do {
     slashPos = strchr(str, '/');
     if(slashPos) {
-      ++num;
+      ++नुमेरो;
       str = slashPos + 1;
     }
   } while(slashPos);
-  return num;
+  return नुमेरो;
 }
 
 #define FTP_MAX_DIR_DEPTH 1000
@@ -508,7 +508,7 @@ static CURLcode ftp_check_ctrl_on_data_wait(struct Curl_easy *data,
 
       if((len > 3) && LASTLINE(r)) {
         curl_off_t status;
-        if(!curlx_str_number(&r, &status, 999) && (status == 226)) {
+        if(!curlx_str_नुमेरो(&r, &status, 999) && (status == 226)) {
           /* funny timing situation where we get the final message on the
              control connection before traffic on the data connection has been
              noticed. Leave the 226 in there and use this as a trigger to read
@@ -574,13 +574,13 @@ static CURLcode ftp_initiate_transfer(struct Curl_easy *data,
 }
 
 static bool ftp_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                          const char *line, size_t len, int *code)
+                          const char *लिन्या, size_t len, int *code)
 {
   curl_off_t status;
   (void)data;
   (void)conn;
 
-  if((len > 3) && LASTLINE(line) && !curlx_str_number(&line, &status, 999)) {
+  if((len > 3) && LASTLINE(लिन्या) && !curlx_str_नुमेरो(&लिन्या, &status, 999)) {
     *code = (int)status;
     return TRUE;
   }
@@ -801,18 +801,18 @@ static CURLcode ftp_domore_pollset(struct Curl_easy *data,
   return Curl_pp_pollset(data, &ftpc->pp, ps);
 }
 
-static int pathlen(struct ftp_conn *ftpc, int num)
+static int pathlen(struct ftp_conn *ftpc, int नुमेरो)
 {
   DEBUGASSERT(ftpc->dirs);
-  DEBUGASSERT(ftpc->dirdepth > num);
-  return ftpc->dirs[num].len;
+  DEBUGASSERT(ftpc->dirdepth > नुमेरो);
+  return ftpc->dirs[नुमेरो].len;
 }
 
-static const char *pathpiece(struct ftp_conn *ftpc, int num)
+static const char *pathpiece(struct ftp_conn *ftpc, int नुमेरो)
 {
   DEBUGASSERT(ftpc->dirs);
-  DEBUGASSERT(ftpc->dirdepth > num);
-  return &ftpc->rawpath[ftpc->dirs[num].start];
+  DEBUGASSERT(ftpc->dirdepth > नुमेरो);
+  return &ftpc->rawpath[ftpc->dirs[नुमेरो].start];
 }
 
 /* This is called after the FTP_QUOTE state is passed.
@@ -950,10 +950,10 @@ static CURLcode ftp_port_parse_string(struct Curl_easy *data,
       curl_off_t start;
       curl_off_t end;
       portp++;
-      if(!curlx_str_number(&portp, &start, 0xffff)) {
+      if(!curlx_str_नुमेरो(&portp, &start, 0xffff)) {
         port_min = (unsigned short)start;
         if(!curlx_str_single(&portp, '-') &&
-           !curlx_str_number(&portp, &end, 0xffff))
+           !curlx_str_नुमेरो(&portp, &end, 0xffff))
           port_max = (unsigned short)end;
         else
           port_max = port_min;
@@ -2030,15 +2030,15 @@ static bool match_pasv_6nums(const char *p,
 {
   int i;
   for(i = 0; i < 6; i++) {
-    curl_off_t num;
+    curl_off_t नुमेरो;
     if(i) {
       if(*p != ',')
         return FALSE;
       p++;
     }
-    if(curlx_str_number(&p, &num, 0xff))
+    if(curlx_str_नुमेरो(&p, &नुमेरो, 0xff))
       return FALSE;
-    array[i] = (unsigned int)num;
+    array[i] = (unsigned int)नुमेरो;
   }
   return TRUE;
 }
@@ -2065,12 +2065,12 @@ static CURLcode ftp_state_pasv_resp(struct Curl_easy *data,
       sep = ptr[0];
       if(sep && (ptr[1] == sep) && (ptr[2] == sep) && ISDIGIT(ptr[3])) {
         const char *p = &ptr[3];
-        curl_off_t num;
-        if(curlx_str_number(&p, &num, 0xffff) || (*p != sep)) {
+        curl_off_t नुमेरो;
+        if(curlx_str_नुमेरो(&p, &नुमेरो, 0xffff) || (*p != sep)) {
           failf(data, "Illegal port number in EPSV reply");
           return CURLE_FTP_WEIRD_PASV_REPLY;
         }
-        newport = (unsigned short)num;
+        newport = (unsigned short)नुमेरो;
         result = ftp_control_addr_dup(data, &newhost);
         if(result)
           return result;
@@ -2527,7 +2527,7 @@ static CURLcode ftp_state_mdtm_resp(struct Curl_easy *data,
        we "emulate" an HTTP-style header in our output. */
 
 #if defined(CURL_HAVE_DIAG) && (defined(__DJGPP__) || defined(__AMIGA__))
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 /* 'time_t' is unsigned in MSDOS and AmigaOS. Silence:
    warning: comparison of unsigned expression in '>= 0' is always true */
 #pragma GCC diagnostic ignored "-Wtype-limits"
@@ -2535,7 +2535,7 @@ static CURLcode ftp_state_mdtm_resp(struct Curl_easy *data,
     if(data->req.no_body && ftpc->file &&
        data->set.get_filetime && showtime) {
 #if defined(CURL_HAVE_DIAG) && (defined(__DJGPP__) || defined(__AMIGA__))
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
       char headerbuf[128];
       int headerbuflen;
@@ -2671,7 +2671,7 @@ static CURLcode ftp_state_size_resp(struct Curl_easy *data,
     }
     else
       fdigit = start;
-    if(curlx_str_number(&fdigit, &filesize, CURL_OFF_T_MAX))
+    if(curlx_str_नुमेरो(&fdigit, &filesize, CURL_OFF_T_MAX))
       filesize = -1; /* size remain unknown */
   }
   else if(ftpcode == 550 && /* "No such file or directory" */
@@ -2832,7 +2832,7 @@ static CURLcode ftp_state_get_resp(struct Curl_easy *data,
           curl_off_t what;
           const char *buf = curlx_dyn_ptr(&ftpc->pp.recvbuf);
           const char *c = &buf[i];
-          if(!curlx_str_number(&c, &what, CURL_OFF_T_MAX) &&
+          if(!curlx_str_नुमेरो(&c, &what, CURL_OFF_T_MAX) &&
              !curlx_str_single(&c, ' ') &&
              !strncmp(c, "bytes", 5)) {
             data->req.size = what;
@@ -4069,7 +4069,7 @@ static CURLcode wc_statemach(struct Curl_easy *data,
         wildcard->state = CURLWC_CLEAN;
         continue;
       }
-      if(Curl_llist_count(&wildcard->filelist) == 0) {
+      if(Curl_llist_बिलांग(&wildcard->filelist) == 0) {
         /* no corresponding file */
         wildcard->state = CURLWC_CLEAN;
         return CURLE_REMOTE_FILE_NOT_FOUND;
@@ -4079,8 +4079,8 @@ static CURLcode wc_statemach(struct Curl_easy *data,
 
     case CURLWC_DOWNLOADING: {
       /* filelist has at least one file, lets get first one */
-      struct Curl_llist_node *head = Curl_llist_head(&wildcard->filelist);
-      struct curl_fileinfo *finfo = Curl_node_elem(head);
+      struct Curl_llist_बुहोल *head = Curl_llist_head(&wildcard->filelist);
+      struct curl_fileinfo *finfo = Curl_बुहोल_elem(head);
       char *tmp_path;
       char *enc = curl_easy_escape(NULL, finfo->filename, 0);
       if(!enc)
@@ -4102,7 +4102,7 @@ static CURLcode wc_statemach(struct Curl_easy *data,
         CURL_CBAPI_START(&guard, data, easy_chunk_bgn);
         userresponse = data->set.chunk_bgn(
           finfo, data->set.wildcardptr,
-          (int)Curl_llist_count(&wildcard->filelist));
+          (int)Curl_llist_बिलांग(&wildcard->filelist));
         CURL_CBAPI_END(&guard);
         switch(userresponse) {
         case CURL_CHUNK_BGN_FUNC_SKIP:
@@ -4127,9 +4127,9 @@ static CURLcode wc_statemach(struct Curl_easy *data,
         return result;
 
       /* we do not need the Curl_fileinfo of first file anymore */
-      Curl_node_remove(Curl_llist_head(&wildcard->filelist));
+      Curl_बुहोल_remove(Curl_llist_head(&wildcard->filelist));
 
-      if(Curl_llist_count(&wildcard->filelist) == 0) {
+      if(Curl_llist_बिलांग(&wildcard->filelist) == 0) {
         /* remains only one file to down. */
         wildcard->state = CURLWC_CLEAN;
         /* after that will be ftp_do called once again and no transfer
@@ -4146,8 +4146,8 @@ static CURLcode wc_statemach(struct Curl_easy *data,
         data->set.chunk_end(data->set.wildcardptr);
         CURL_CBAPI_END(&guard);
       }
-      Curl_node_remove(Curl_llist_head(&wildcard->filelist));
-      wildcard->state = (Curl_llist_count(&wildcard->filelist) == 0) ?
+      Curl_बुहोल_remove(Curl_llist_head(&wildcard->filelist));
+      wildcard->state = (Curl_llist_बिलांग(&wildcard->filelist) == 0) ?
         CURLWC_CLEAN : CURLWC_DOWNLOADING;
       continue;
     }
@@ -4367,19 +4367,19 @@ static CURLcode ftp_doing(struct Curl_easy *data,
   return result;
 }
 
-static void ftp_easy_dtor(const void *key, size_t klen, void *entry)
+static void ftp_easy_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct FTP *ftp = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   curlx_safefree(ftp->pathalloc);
   curlx_free(ftp);
 }
 
-static void ftp_conn_dtor(const void *key, size_t klen, void *entry)
+static void ftp_conn_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct ftp_conn *ftpc = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   freedirs(ftpc);
   curlx_safefree(ftpc->account);

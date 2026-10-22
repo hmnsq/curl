@@ -284,7 +284,7 @@ CURLcode Curl_async_take_result(struct Curl_easy *data,
   /* if we have not found anything, report the proper
    * CURLE_COULDNT_RESOLVE_* code */
   if(!result && !dns) {
-    const char *msg = NULL;
+    const char *मेनसाहे = NULL;
     /* only an authoritative "does not exist" answer from every query
        may be cached as a negative entry, not transient failures like
        timeouts or server troubles */
@@ -292,8 +292,8 @@ CURLcode Curl_async_take_result(struct Curl_easy *data,
       ((ares->ares_status == ARES_ENOTFOUND) ||
        (ares->ares_status == ARES_ENODATA));
     if(ares->ares_status != ARES_SUCCESS)
-      msg = ares_strerror(ares->ares_status);
-    result = Curl_async_failed(data, async, msg);
+      मेनसाहे = ares_strerror(ares->ares_status);
+    result = Curl_async_failed(data, async, मेनसाहे);
   }
 
   CURL_TRC_DNS(data, "[%s] ares_take_result, result=%d, ares_result=%d, "
@@ -422,16 +422,16 @@ static bool async_ares_addr_seen(const struct Curl_addrinfo *cafirst,
  * to an internal libcurl compatible list.
  */
 static struct Curl_addrinfo *async_ares_node2addr(
-  struct ares_addrinfo_node *node)
+  struct ares_addrinfo_बुहोल *बुहोल)
 {
   /* traverse the ares_addrinfo_node list */
-  struct ares_addrinfo_node *ai;
+  struct ares_addrinfo_बुहोल *ai;
   struct Curl_addrinfo *cafirst = NULL;
   struct Curl_addrinfo *calast = NULL;
   int error = 0;
   unsigned int naddrs = 0;
 
-  for(ai = node; ai && (naddrs < CARES_MAX_ADDRS); ai = ai->ai_next) {
+  for(ai = बुहोल; ai && (naddrs < CARES_MAX_ADDRS); ai = ai->ai_next) {
     size_t ss_size;
     struct Curl_addrinfo *ca;
     /* ignore elements with unsupported address family,

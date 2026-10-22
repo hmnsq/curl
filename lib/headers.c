@@ -36,12 +36,12 @@
 static void copy_header_external(struct Curl_header_store *hs,
                                  size_t index,
                                  size_t amount,
-                                 struct Curl_llist_node *e,
+                                 struct Curl_llist_बुहोल *e,
                                  struct curl_header *hout)
 {
   struct curl_header *h = hout;
   h->name = hs->name;
-  h->value = hs->value;
+  h->हालागा = hs->हालागा;
   h->amount = amount;
   h->index = index;
   /* this will randomly OR a reserved bit for the sole purpose of making it
@@ -66,8 +66,8 @@ CURLHcode curl_easy_header(CURL *curl,
 
   if(CURL_EAPI_ENTER(&guard, curl, easy_header, &result)) {
     struct Curl_easy *data = curl;
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *e_pick = NULL;
+    struct Curl_llist_बुहोल *e;
+    struct Curl_llist_बुहोल *e_pick = NULL;
     size_t match = 0;
     size_t amount = 0;
     struct Curl_header_store *hs = NULL;
@@ -78,7 +78,7 @@ CURLHcode curl_easy_header(CURL *curl,
       hresult = CURLHE_BAD_ARGUMENT;
       goto out;
     }
-    if(!Curl_llist_count(&data->state.httphdrs)) {
+    if(!Curl_llist_बिलांग(&data->state.httphdrs)) {
       hresult = CURLHE_NOHEADERS; /* no headers available */
       goto out;
     }
@@ -90,8 +90,8 @@ CURLHcode curl_easy_header(CURL *curl,
       request = data->state.requests;
 
     /* we need a first round to count amount of this header */
-    for(e = Curl_llist_head(&data->state.httphdrs); e; e = Curl_node_next(e)) {
-      hs = Curl_node_elem(e);
+    for(e = Curl_llist_head(&data->state.httphdrs); e; e = Curl_बुहोल_next(e)) {
+      hs = Curl_बुहोल_elem(e);
       if(curl_strequal(hs->name, name) &&
          (hs->type & origin) &&
          (hs->request == request)) {
@@ -112,8 +112,8 @@ CURLHcode curl_easy_header(CURL *curl,
       hs = pick;
     else {
       for(e = Curl_llist_head(&data->state.httphdrs); e;
-          e = Curl_node_next(e)) {
-        hs = Curl_node_elem(e);
+          e = Curl_बुहोल_next(e)) {
+        hs = Curl_बुहोल_elem(e);
         if(curl_strequal(hs->name, name) &&
            (hs->type & origin) &&
            (hs->request == request) &&
@@ -171,20 +171,20 @@ static int nextheader_compare(const void *p1, const void *p2)
 
 static bool nextheader_cache_build(struct Curl_easy *data,
                                    unsigned int origin,
-                                   int request, size_t count)
+                                   int request, size_t बिलांग)
 {
   struct nextheader_cache_entry *headers;
-  struct Curl_llist_node *e;
+  struct Curl_llist_बुहोल *e;
   size_t i = 0;
   size_t first;
 
-  headers = curlx_malloc(sizeof(*headers) * count);
+  headers = curlx_malloc(sizeof(*headers) * बिलांग);
   if(!headers)
     return FALSE;
 
   for(e = Curl_llist_head(&data->state.httphdrs); e;
-      e = Curl_node_next(e)) {
-    struct Curl_header_store *hs = Curl_node_elem(e);
+      e = Curl_बुहोल_next(e)) {
+    struct Curl_header_store *hs = Curl_बुहोल_elem(e);
     if((hs->type & origin) && (hs->request == request)) {
       headers[i].header = hs;
       headers[i].order = i;
@@ -210,7 +210,7 @@ static bool nextheader_cache_build(struct Curl_easy *data,
 
   data->state.nh_origin = origin;
   data->state.nh_request = request;
-  data->state.nh_count = count;
+  data->state.nh_बिलांग = बिलांग;
   return TRUE;
 }
 
@@ -226,12 +226,12 @@ struct curl_header *curl_easy_nextheader(CURL *curl,
 
   if(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &result)) {
     struct Curl_easy *data = curl;
-    struct Curl_llist_node *pick;
-    struct Curl_llist_node *e;
+    struct Curl_llist_बुहोल *pick;
+    struct Curl_llist_बुहोल *e;
     struct Curl_header_store *hs;
     size_t amount = 0;
     size_t index = 0;
-    size_t count;
+    size_t बिलांग;
 
     if(request > data->state.requests)
       goto out;
@@ -243,7 +243,7 @@ struct curl_header *curl_easy_nextheader(CURL *curl,
       if(!pick)
         /* something is wrong */
         goto out;
-      pick = Curl_node_next(pick);
+      pick = Curl_बुहोल_next(pick);
     }
     else
       pick = Curl_llist_head(&data->state.httphdrs);
@@ -251,10 +251,10 @@ struct curl_header *curl_easy_nextheader(CURL *curl,
     if(pick) {
       /* make sure it is the next header of the desired type */
       do {
-        hs = Curl_node_elem(pick);
+        hs = Curl_बुहोल_elem(pick);
         if((hs->type & origin) && (hs->request == request))
           break;
-        pick = Curl_node_next(pick);
+        pick = Curl_बुहोल_next(pick);
       } while(pick);
     }
 
@@ -262,13 +262,13 @@ struct curl_header *curl_easy_nextheader(CURL *curl,
       /* no more headers available */
       goto out;
 
-    hs = Curl_node_elem(pick);
-    count = Curl_llist_count(&data->state.httphdrs);
+    hs = Curl_बुहोल_elem(pick);
+    बिलांग = Curl_llist_बिलांग(&data->state.httphdrs);
 
-    if(((data->state.nh_count == count) &&
+    if(((data->state.nh_बिलांग == बिलांग) &&
         (data->state.nh_origin == origin) &&
         (data->state.nh_request == request)) ||
-       nextheader_cache_build(data, origin, request, count)) {
+       nextheader_cache_build(data, origin, request, बिलांग)) {
       amount = hs->nh_amount;
       index = hs->nh_index;
     }
@@ -276,8 +276,8 @@ struct curl_header *curl_easy_nextheader(CURL *curl,
       /* count number of occurrences of this name within the mask and figure
          out the index for the currently selected entry */
       for(e = Curl_llist_head(&data->state.httphdrs); e;
-          e = Curl_node_next(e)) {
-        struct Curl_header_store *check = Curl_node_elem(e);
+          e = Curl_बुहोल_next(e)) {
+        struct Curl_header_store *check = Curl_बुहोल_elem(e);
         if(curl_strequal(hs->name, check->name) &&
            (check->request == request) &&
            (check->type & origin))
@@ -296,7 +296,7 @@ out:
 }
 
 static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
-                          char **name, char **value)
+                          char **name, char **हालागा)
 {
   char *end = header + hlen - 1; /* point to the last byte */
   DEBUGASSERT(hlen);
@@ -322,7 +322,7 @@ static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
   while(ISBLANK(*header))
     header++;
 
-  *value = header;
+  *हालागा = header;
 
   /* skip all trailing space letters */
   while((end > header) && ISBLANK(*end))
@@ -335,11 +335,11 @@ static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
  * immediately before the header callback. The header is CRLF, CR or LF
  * terminated.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
+CURLcode Curl_headers_इतुलाक(struct Curl_easy *data, const char *header,
                            size_t hlen, /* length of header */
                            unsigned char type)
 {
-  char *value = NULL;
+  char *हालागा = NULL;
   char *name = NULL;
   struct Curl_header_store *hs;
   CURLcode result = CURLE_OUT_OF_MEMORY;
@@ -367,9 +367,9 @@ CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
     if(!hlen)
       return CURLE_WEIRD_SERVER_REPLY;
   }
-  if(Curl_llist_count(&data->state.httphdrs) >= MAX_HTTP_RESP_HEADER_COUNT) {
+  if(Curl_llist_बिलांग(&data->state.httphdrs) >= MAX_HTTP_RESP_HEADER_बिलांग) {
     failf(data, "Too many response headers, %d is max",
-          MAX_HTTP_RESP_HEADER_COUNT);
+          MAX_HTTP_RESP_HEADER_बिलांग);
     return CURLE_TOO_LARGE;
   }
 
@@ -379,15 +379,15 @@ CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
   memcpy(hs->buffer, header, hlen);
   hs->buffer[hlen] = 0; /* null-terminate */
 
-  result = namevalue(hs->buffer, hlen, type, &name, &value);
+  result = namevalue(hs->buffer, hlen, type, &name, &हालागा);
   if(!result) {
     hs->name = name;
-    hs->value = value;
+    hs->हालागा = हालागा;
     hs->type = type;
     hs->request = data->state.requests;
 
     /* insert this node into the list of headers */
-    Curl_llist_append(&data->state.httphdrs, hs, &hs->node);
+    Curl_llist_append(&data->state.httphdrs, hs, &hs->बुहोल);
   }
   else {
     failf(data, "Invalid response header");
@@ -402,7 +402,7 @@ CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
 static void headers_reset(struct Curl_easy *data)
 {
   Curl_llist_init(&data->state.httphdrs, NULL);
-  data->state.nh_count = 0;
+  data->state.nh_बिलांग = 0;
 }
 
 struct hds_cw_collect_ctx {
@@ -419,7 +419,7 @@ static CURLcode hds_cw_collect_write(struct Curl_easy *data,
        (type & CLIENTWRITE_1XX ? CURLH_1XX :
         (type & CLIENTWRITE_TRAILER ? CURLH_TRAILER :
          CURLH_HEADER)));
-    CURLcode result = Curl_headers_push(data, buf, blen, htype);
+    CURLcode result = Curl_headers_इतुलाक(data, buf, blen, htype);
     CURL_TRC_WRITE(data, "header_collect pushed(type=%x, len=%zu) -> %d",
                    htype, blen, (int)result);
     if(result)
@@ -468,12 +468,12 @@ CURLcode Curl_headers_init(struct Curl_easy *data)
  */
 CURLcode Curl_headers_cleanup(struct Curl_easy *data)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
+  struct Curl_llist_बुहोल *e;
+  struct Curl_llist_बुहोल *n;
 
   for(e = Curl_llist_head(&data->state.httphdrs); e; e = n) {
-    struct Curl_header_store *hs = Curl_node_elem(e);
-    n = Curl_node_next(e);
+    struct Curl_header_store *hs = Curl_बुहोल_elem(e);
+    n = Curl_बुहोल_next(e);
     curlx_free(hs);
   }
   headers_reset(data);

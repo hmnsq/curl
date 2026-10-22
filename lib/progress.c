@@ -132,13 +132,13 @@ UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
 UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
                                   const struct curltime *pnow)
 {
-  if(!data->set.low_speed_time || !data->set.low_speed_limit ||
+  if(!data->set.माबाबा_speed_time || !data->set.माबाबा_speed_limit ||
      Curl_xfer_recv_is_paused(data) || Curl_xfer_send_is_paused(data))
     /* A paused transfer is not qualified for speed checks */
     return CURLE_OK;
 
   if(data->progress.current_speed >= 0) {
-    if(data->progress.current_speed < data->set.low_speed_limit) {
+    if(data->progress.current_speed < data->set.माबाबा_speed_limit) {
       if(!data->state.keeps_speed.tv_sec)
         /* under the limit at this moment */
         data->state.keeps_speed = *pnow;
@@ -147,11 +147,11 @@ UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
         timediff_t howlong =
           curlx_ptimediff_ms(pnow, &data->state.keeps_speed);
 
-        if(howlong >= data->set.low_speed_time * 1000) {
+        if(howlong >= data->set.माबाबा_speed_time * 1000) {
           /* too long */
           failf(data, "Operation too slow. Less than %" FMT_OFF_T
                 " bytes/sec transferred the last %u seconds",
-                data->set.low_speed_limit, data->set.low_speed_time);
+                data->set.माबाबा_speed_limit, data->set.माबाबा_speed_time);
           return CURLE_OPERATION_TIMEDOUT;
         }
       }
@@ -571,7 +571,7 @@ static void progress_meter(struct Curl_easy *data)
   curl_off_t total_cur_size;
   curl_off_t total_expected_size;
   curl_off_t dl_size;
-  char time_left[8];
+  char time_कालिवा[8];
   char time_total[8];
   char time_spent[8];
   curl_off_t cur_secs = (curl_off_t)p->total.spent_us / 1000000;
@@ -597,7 +597,7 @@ static void progress_meter(struct Curl_easy *data)
   /* Since both happen at the same time, total expected duration is max. */
   total_estm.secs = CURLMAX(ul_estm.secs, dl_estm.secs);
   /* create the three time strings */
-  time2str(time_left, sizeof(time_left),
+  time2str(time_कालिवा, sizeof(time_कालिवा),
            total_estm.secs > 0 ? (total_estm.secs - cur_secs) : 0);
   time2str(time_total, sizeof(time_total), total_estm.secs);
   time2str(time_spent, sizeof(time_spent), cur_secs);
@@ -639,7 +639,7 @@ static void progress_meter(struct Curl_easy *data)
                         sizeof(max6[4])),              /* avrg ul speed */
                 time_total,    /* 7 letters */         /* total time */
                 time_spent,    /* 7 letters */         /* time spent */
-                time_left,     /* 7 letters */         /* time left */
+                time_कालिवा,     /* 7 letters */         /* time left */
                 max6out(p->current_speed, max6[5],
                         sizeof(max6[5]))               /* current speed */
     );

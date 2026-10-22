@@ -223,7 +223,7 @@ out:
   return result;
 }
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_haproxy_इसिंगित_after(struct Curl_cfilter *cf_at,
                                       struct Curl_easy *data)
 {
   struct Curl_cfilter *cf;
@@ -232,7 +232,7 @@ CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
   result = cf_haproxy_create(&cf, data);
   if(result)
     goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  Curl_conn_cf_इसिंगित_after(cf_at, cf);
 
 out:
   return result;

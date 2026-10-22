@@ -50,7 +50,7 @@ struct buf_chunk {
 struct bufc_pool {
   struct buf_chunk *spare;  /* list of available spare chunks */
   size_t chunk_size;        /* the size of chunks in this pool */
-  size_t spare_count;       /* current number of spare chunks in list */
+  size_t spare_बिलांग;       /* current number of spare chunks in list */
   size_t spare_max;         /* max number of spares to keep */
 };
 
@@ -93,7 +93,7 @@ struct bufq {
   struct buf_chunk *tail;       /* chunk to write to */
   struct buf_chunk *spare;      /* list of free chunks, unless `pool` */
   struct bufc_pool *pool;       /* optional pool for free chunks */
-  size_t chunk_count;           /* current number of chunks in `head+spare` */
+  size_t chunk_बिलांग;           /* current number of chunks in `head+spare` */
   size_t max_chunks;            /* max `head` chunks to use */
   size_t chunk_size;            /* size of chunks to manage */
   int opts;                     /* options for handling queue, see below */

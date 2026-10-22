@@ -34,7 +34,7 @@ struct ntlmdata;
 #define LONGQUARTET(x) ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff)), \
   ((int)(((x) >> 16) & 0xff)), ((int)(((x) >> 24) & 0xff))
 
-void Curl_ntlm_core_lm_resp(const unsigned char *keys,
+void Curl_ntlm_core_lm_resp(const unsigned char *मगा_सुसि,
                             const unsigned char *plaintext,
                             unsigned char *results);
 
@@ -46,7 +46,7 @@ CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
 
 #ifndef USE_WINDOWS_SSPI
 
-CURLcode Curl_hmac_md5(const unsigned char *key, unsigned int keylen,
+CURLcode Curl_hmac_md5(const unsigned char *सुसि, unsigned int keylen,
                        const unsigned char *data, unsigned int datalen,
                        unsigned char *output);
 

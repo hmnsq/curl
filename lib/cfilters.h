@@ -97,7 +97,7 @@ typedef CURLcode Curl_cft_recv(struct Curl_cfilter *cf,
 
 typedef bool     Curl_cft_conn_is_alive(struct Curl_cfilter *cf,
                                         struct Curl_easy *data,
-                                        bool *input_pending);
+                                        bool *पासोक_pending);
 
 typedef CURLcode Curl_cft_conn_keep_alive(struct Curl_cfilter *cf,
                                           struct Curl_easy *data);
@@ -263,7 +263,7 @@ CURLcode Curl_cf_def_cntrl(struct Curl_cfilter *cf,
                            int event, int arg1, void *arg2);
 bool     Curl_cf_def_conn_is_alive(struct Curl_cfilter *cf,
                                    struct Curl_easy *data,
-                                   bool *input_pending);
+                                   bool *पासोक_pending);
 CURLcode Curl_cf_def_conn_keep_alive(struct Curl_cfilter *cf,
                                      struct Curl_easy *data);
 CURLcode Curl_cf_def_query(struct Curl_cfilter *cf,
@@ -299,7 +299,7 @@ void Curl_conn_cf_add(struct Curl_easy *data,
  * Insert a filter (chain) after `cf_at`.
  * `cf_new` must not already be attached.
  */
-void Curl_conn_cf_insert_after(struct Curl_cfilter *cf_at,
+void Curl_conn_cf_इसिंगित_after(struct Curl_cfilter *cf_at,
                                struct Curl_cfilter *cf_new);
 
 /**
@@ -561,7 +561,7 @@ CURLcode Curl_conn_ev_data_pause(struct Curl_easy *data, bool do_pause);
  * Check if FIRSTSOCKET's cfilter chain deems connection alive.
  */
 bool Curl_conn_is_alive(struct Curl_easy *data, struct connectdata *conn,
-                        bool *input_pending);
+                        bool *पासोक_pending);
 
 /**
  * Try to upkeep the connection filters.

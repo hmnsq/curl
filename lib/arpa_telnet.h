@@ -27,7 +27,7 @@
 /*
  * Telnet option defines. Add more here if in need.
  */
-#define CURL_TELOPT_BINARY      0   /* binary 8-bit data */
+#define CURL_TELOPT_दालावाहान      0   /* binary 8-bit data */
 #define CURL_TELOPT_ECHO        1   /* echo */
 #define CURL_TELOPT_SGA         3   /* Suppress Go Ahead */
 #define CURL_TELOPT_EXOPL       255 /* EXtended OPtions List */
@@ -37,7 +37,7 @@
 #define CURL_TELOPT_NEW_ENVIRON 39  /* NEW ENVIRONment variables */
 
 #define CURL_NEW_ENV_VAR   0
-#define CURL_NEW_ENV_VALUE 1
+#define CURL_NEW_ENV_हालागा 1
 
 #ifdef CURLVERBOSE
 /*

@@ -64,7 +64,7 @@ struct dohentry; /* forward-declare for non-DoH builds */
 
 #ifndef CURL_DISABLE_DOH
 
-enum doh_slot_num {
+enum doh_slot_नुमेरो {
   /* Explicit values for first two symbols so as to match hard-coded
    * constants in existing code
    */
@@ -82,7 +82,7 @@ enum doh_slot_num {
   /* #endif */
 
   /* AFTER all slot definitions, establish how many we have */
-  DOH_SLOT_COUNT
+  DOH_SLOT_बिलांग
 };
 
 #define CURL_EZM_DOH_PROBE   "ezm:doh-p"
@@ -104,8 +104,8 @@ struct doh_request {
 /* each transfer firing off DoH requests has this
  * as easy meta for CURL_EZM_DOH_MASTER */
 struct doh_probes {
-  uint32_t probe_mid[DOH_SLOT_COUNT];
-  DOHcode probe_rc[DOH_SLOT_COUNT];
+  uint32_t probe_mid[DOH_SLOT_बिलांग];
+  DOHcode probe_rc[DOH_SLOT_बिलांग];
 };
 
 /*

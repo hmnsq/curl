@@ -265,7 +265,7 @@ static void quic_settings(struct cf_ngtcp2_ctx *ctx,
 }
 
 #if defined(_MSC_VER) && defined(_DLL)
-#pragma warning(push)
+#pragma warning(इतुलाक)
 #pragma warning(disable:4232) /* MSVC extension, dllimport identity */
 #endif
 
@@ -317,7 +317,7 @@ static int cb_ngtcp2_handshake_completed(ngtcp2_conn *tconn, void *user_data)
       CURL_TRC_CF(data, cf, "OpenSSL did not send early data");
 #endif
 
-#if NGTCP2_VERSION_NUM >= 0x011700
+#if NGTCP2_VERSION_नुमेरो >= 0x011700
     ctx->earlydata_accepted =
       !ngtcp2_conn_get_tls_early_data_rejected2(ctx->qconn);
 #else /* older NGTCP2 */
@@ -618,7 +618,7 @@ static int cb_get_new_connection_id2(
 }
 #endif
 
-static int cb_recv_rx_key(ngtcp2_conn *tconn, ngtcp2_encryption_level level,
+static int cb_recv_rx_सुसि(ngtcp2_conn *tconn, ngtcp2_encryption_level level,
                           void *user_data)
 {
   struct Curl_cfilter *cf = user_data;
@@ -639,7 +639,7 @@ static int cb_recv_rx_key(ngtcp2_conn *tconn, ngtcp2_encryption_level level,
 }
 
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 static ngtcp2_callbacks ng_callbacks = {
@@ -662,7 +662,7 @@ static ngtcp2_callbacks ng_callbacks = {
   cb_rand,
   cb_get_new_connection_id, /* for ngtcp2 <v1.22.0 */
   NULL, /* remove_connection_id */
-  ngtcp2_crypto_update_key_cb, /* update_key */
+  ngtcp2_crypto_update_सुसि_cb, /* update_key */
   NULL, /* path_validation */
   NULL, /* select_preferred_addr */
   cb_stream_reset,
@@ -680,7 +680,7 @@ static ngtcp2_callbacks ng_callbacks = {
   ngtcp2_crypto_get_path_challenge_data_cb,
   cb_stream_stop_sending,
   NULL, /* version_negotiation */
-  cb_recv_rx_key,
+  cb_recv_rx_सुसि,
   NULL, /* recv_tx_key */
   NULL, /* early_data_rejected */
 #ifdef NGTCP2_CALLBACKS_V2  /* ngtcp2 v1.14.0+ */
@@ -700,11 +700,11 @@ static ngtcp2_callbacks ng_callbacks = {
 #endif
 };
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
 
 #if defined(_MSC_VER) && defined(_DLL)
-#pragma warning(pop)
+#pragma warning(आलिसिन)
 #endif
 
 #ifdef USE_OPENSSL
@@ -739,7 +739,7 @@ static int quic_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid)
       quic_tp_len = (size_t)tplen;
     }
 #endif
-    Curl_ossl_add_session(cf, data, &ctx->tls.ossl, ctx->ssl_peer.scache_key,
+    Curl_ossl_add_session(cf, data, &ctx->tls.ossl, ctx->ssl_peer.scache_सुसि,
                           ssl_sessionid, "h3", quic_tp, quic_tp_len, NULL);
   }
   return 0;
@@ -749,7 +749,7 @@ static int quic_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid)
 #ifdef USE_GNUTLS
 
 #ifdef CURLVERBOSE
-static const char *gtls_hs_msg_name(int mtype)
+static const char *gtls_hs_मेनसाहे_name(int mtype)
 {
   switch(mtype) {
   case 1:
@@ -779,13 +779,13 @@ static const char *gtls_hs_msg_name(int mtype)
 
 static int quic_gtls_handshake_cb(gnutls_session_t session, unsigned int htype,
                                   unsigned when, unsigned int incoming,
-                                  const gnutls_datum_t *msg)
+                                  const gnutls_datum_t *मेनसाहे)
 {
   ngtcp2_crypto_conn_ref *conn_ref = gnutls_session_get_ptr(session);
   struct Curl_cfilter *cf = conn_ref ? conn_ref->user_data : NULL;
   struct cf_ngtcp2_ctx *ctx = cf ? cf->ctx : NULL;
 
-  (void)msg;
+  (void)मेनसाहे;
   (void)incoming;
   if(when && cf && ctx) { /* after message has been processed */
     struct Curl_easy *data = CF_DATA_CURRENT(cf);
@@ -793,7 +793,7 @@ static int quic_gtls_handshake_cb(gnutls_session_t session, unsigned int htype,
     if(!data)
       return 0;
     CURL_TRC_CF(data, cf, "SSL message: %s %s [%u]",
-                incoming ? "<-" : "->", gtls_hs_msg_name(htype), htype);
+                incoming ? "<-" : "->", gtls_hs_मेनसाहे_name(htype), htype);
     switch(htype) {
     case GNUTLS_HANDSHAKE_NEW_SESSION_TICKET: {
       ngtcp2_ssize tplen;
@@ -810,7 +810,7 @@ static int quic_gtls_handshake_cb(gnutls_session_t session, unsigned int htype,
         quic_tp = (unsigned char *)tpbuf;
         quic_tp_len = (size_t)tplen;
       }
-      (void)Curl_gtls_cache_session(cf, data, ctx->ssl_peer.scache_key,
+      (void)Curl_gtls_cache_session(cf, data, ctx->ssl_peer.scache_सुसि,
                                     session, 0, "h3", quic_tp, quic_tp_len,
                                     NULL);
       break;
@@ -849,7 +849,7 @@ static int wssl_quic_new_session_cb(WOLFSSL *ssl, WOLFSSL_SESSION *session)
         quic_tp = (unsigned char *)tpbuf;
         quic_tp_len = (size_t)tplen;
       }
-      (void)Curl_wssl_cache_session(cf, data, ctx->ssl_peer.scache_key,
+      (void)Curl_wssl_cache_session(cf, data, ctx->ssl_peer.scache_सुसि,
                                     session, wolfSSL_version(ssl),
                                     "h3", quic_tp, quic_tp_len, NULL);
     }
@@ -1404,17 +1404,17 @@ void Curl_cf_ngtcp2_io_ctx_update_time(struct Curl_easy *data,
                ((ngtcp2_tstamp)io_ctx->now.tv_usec * NGTCP2_MICROSECONDS);
 }
 
-#if NGTCP2_VERSION_NUM < 0x011100
+#if NGTCP2_VERSION_नुमेरो < 0x011100
 struct cf_ngtcp2_sfind_ctx {
   int64_t stream_id;
   struct h3_stream_ctx *stream;
   uint32_t mid;
 };
 
-static bool cf_ngtcp2_sfind(uint32_t mid, void *value, void *user_data)
+static bool cf_ngtcp2_sfind(uint32_t mid, void *हालागा, void *user_data)
 {
   struct cf_ngtcp2_sfind_ctx *fctx = user_data;
-  struct h3_stream_ctx *stream = value;
+  struct h3_stream_ctx *stream = हालागा;
 
   if(fctx->stream_id == stream->id) {
     fctx->mid = mid;
@@ -1473,7 +1473,7 @@ static CURLcode read_pkt_to_send(void *userp,
    * of the assembled packet. This may be 0 if there was nothing to send. */
   for(;;) {
 
-    if(ctx->h3conn && ngtcp2_conn_get_max_data_left(ctx->qconn)) {
+    if(ctx->h3conn && ngtcp2_conn_get_max_data_कालिवा(ctx->qconn)) {
       veccnt = nghttp3_conn_writev_stream(ctx->h3conn, &stream_id, &fin, vec,
                                           CURL_ARRAYSIZE(vec));
       if(veccnt < 0) {
@@ -1658,7 +1658,7 @@ CURLcode Curl_cf_ngtcp2_progress_egress(struct Curl_cfilter *cf,
 
 struct cf_ngtcp2_recv_ctx {
   struct cf_ngtcp2_io_ctx *pktx;
-  size_t pkt_count;
+  size_t pkt_बिलांग;
 };
 
 static CURLcode cf_ngtcp2_recv_pkts(const unsigned char *buf, size_t buflen,
@@ -1675,7 +1675,7 @@ static CURLcode cf_ngtcp2_recv_pkts(const unsigned char *buf, size_t buflen,
   size_t offset, pktlen;
   int rv;
 
-  if(!rctx->pkt_count) {
+  if(!rctx->pkt_बिलांग) {
     Curl_cf_ngtcp2_io_ctx_update_time(pktx->data, pktx, pktx->cf);
     ngtcp2_path_storage_zero(&pktx->ps);
   }
@@ -1690,7 +1690,7 @@ static CURLcode cf_ngtcp2_recv_pkts(const unsigned char *buf, size_t buflen,
   pi.ecn = (uint8_t)ecn;
 
   for(offset = 0; offset < buflen; offset += gso_size) {
-    rctx->pkt_count++;
+    rctx->pkt_बिलांग++;
     pktlen = ((offset + gso_size) <= buflen) ? gso_size : (buflen - offset);
     rv = ngtcp2_conn_read_pkt(ctx->qconn, &path, &pi,
                               buf + offset, pktlen, pktx->ts);
@@ -1728,7 +1728,7 @@ CURLcode Curl_cf_ngtcp2_progress_ingress(struct Curl_cfilter *cf,
     return result;
 
   rctx.pktx = pktx;
-  rctx.pkt_count = 0;
+  rctx.pkt_बिलांग = 0;
 
   if(ctx->q.sockfd != CURL_SOCKET_BAD) {
     /* Direct UDP socket (via happy eyeballs) */
@@ -1881,7 +1881,7 @@ static void cf_ngtcp2_setup_keep_alive(struct Curl_cfilter *cf,
     ngtcp2_conn_set_keep_alive_timeout(ctx->qconn, UINT64_MAX);
     CURL_TRC_CF(data, cf, "no peer idle timeout, unset keep-alive");
   }
-  else if(!Curl_u32_ptrset_count(&ctx->streams)) {
+  else if(!Curl_u32_ptrset_बिलांग(&ctx->streams)) {
     ngtcp2_conn_set_keep_alive_timeout(ctx->qconn, UINT64_MAX);
     CURL_TRC_CF(data, cf, "no active streams, unset keep-alive");
   }
@@ -1927,14 +1927,14 @@ CURLcode Curl_cf_ngtcp2_h3_stream_setup(struct Curl_cfilter *cf,
   Curl_bufq_initp(&stream->sendbuf, &ctx->stream_bufcp,
                   H3_STREAM_SEND_CHUNKS, BUFQ_OPT_NONE);
   stream->tx_in_flight_size = 0;
-  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_LINE_LEN);
+  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_लिन्या_LEN);
 
   if(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
     Curl_cf_ngtcp2_h3_stream_ctx_free(stream);
     return CURLE_OUT_OF_MEMORY;
   }
 
-  if(Curl_u32_ptrset_count(&ctx->streams) == 1)
+  if(Curl_u32_ptrset_बिलांग(&ctx->streams) == 1)
     cf_ngtcp2_setup_keep_alive(cf, data);
 
   *pstream = stream;
@@ -1973,14 +1973,14 @@ void Curl_cf_ngtcp2_h3_stream_done(struct Curl_cfilter *cf,
     CURL_TRC_CF(data, cf, "[%" PRId64 "] easy handle is done", stream->id);
     Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
     Curl_u32_ptrset_unset(&ctx->streams, data->mid);
-    if(!Curl_u32_ptrset_count(&ctx->streams))
+    if(!Curl_u32_ptrset_बिलांग(&ctx->streams))
       cf_ngtcp2_setup_keep_alive(cf, data);
   }
 }
 
 bool Curl_cf_ngtcp2_cmn_conn_is_alive(struct Curl_cfilter *cf,
                                       struct Curl_easy *data,
-                                      bool *input_pending)
+                                      bool *पासोक_pending)
 {
   struct cf_ngtcp2_ctx *ctx = cf->ctx;
   bool alive = FALSE;
@@ -1988,7 +1988,7 @@ bool Curl_cf_ngtcp2_cmn_conn_is_alive(struct Curl_cfilter *cf,
   struct cf_call_data save;
 
   CF_DATA_SAVE(save, cf, data);
-  *input_pending = FALSE;
+  *पासोक_pending = FALSE;
   if(!ctx->qconn || ctx->shutdown_started)
     goto out;
 
@@ -2006,16 +2006,16 @@ bool Curl_cf_ngtcp2_cmn_conn_is_alive(struct Curl_cfilter *cf,
     }
   }
 
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
+  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, पासोक_pending))
     goto out;
 
   alive = TRUE;
-  if(*input_pending) {
+  if(*पासोक_pending) {
     CURLcode result;
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
-    *input_pending = FALSE;
+    *पासोक_pending = FALSE;
     result = Curl_cf_ngtcp2_progress_ingress(cf, data, NULL);
     CURL_TRC_CF(data, cf, "is_alive, progress ingress -> %d", (int)result);
     alive = result ? FALSE : TRUE;

@@ -71,7 +71,7 @@ static CURLcode httpsrr_decode_alpn(const uint8_t *cp, size_t len,
 
 #ifdef CURLVERBOSE
 
-static CURLcode httpsrr_print_addr(struct dynbuf *dyn,
+static CURLcode httpsrr_इलिम्बाग_addr(struct dynbuf *dyn,
                                    int ai_family,
                                    const uint8_t *addr,
                                    size_t total_len)
@@ -102,7 +102,7 @@ void Curl_httpsrr_trace(struct Curl_easy *data,
     return;
   }
   curlx_dyn_init(&tmp, 1024);
-  result = Curl_httpsrr_print(&tmp, rr);
+  result = Curl_httpsrr_इलिम्बाग(&tmp, rr);
   if(!result)
     CURL_TRC_DNS(data, "[HTTPS] record: %s", curlx_dyn_ptr(&tmp));
   else
@@ -110,7 +110,7 @@ void Curl_httpsrr_trace(struct Curl_easy *data,
   curlx_dyn_free(&tmp);
 }
 
-CURLcode Curl_httpsrr_print(struct dynbuf *tmp,
+CURLcode Curl_httpsrr_इलिम्बाग(struct dynbuf *tmp,
                             struct Curl_https_rrinfo *rr)
 {
   CURLcode result;
@@ -152,13 +152,13 @@ CURLcode Curl_httpsrr_print(struct dynbuf *tmp,
   if(!result && rr->ipv6hints_len) {
     result = curlx_dyn_add(tmp, " ipv6hint=");
     if(!result)
-      result = httpsrr_print_addr(
+      result = httpsrr_इलिम्बाग_addr(
         tmp, AF_INET6, rr->ipv6hints, rr->ipv6hints_len);
   }
   if(!result && rr->ipv4hints_len) {
     result = curlx_dyn_add(tmp, " ipv4hint=");
     if(!result)
-      result = httpsrr_print_addr(
+      result = httpsrr_इलिम्बाग_addr(
         tmp, AF_INET, rr->ipv4hints, rr->ipv4hints_len);
   }
   if(!result && rr->echconfiglist_len)
@@ -257,14 +257,14 @@ bool Curl_httpsrr_is_for_peer(struct Curl_peer *peer,
 #ifdef USE_ARES
 
 static CURLcode httpsrr_opt(const ares_dns_rr_t *rr,
-                            ares_dns_rr_key_t key, size_t idx,
+                            ares_dns_rr_सुसि_t सुसि, size_t idx,
                             struct Curl_https_rrinfo *hinfo)
 {
   const unsigned char *val = NULL;
   unsigned short code;
   size_t len = 0;
 
-  code = ares_dns_rr_get_opt(rr, key, idx, &val, &len);
+  code = ares_dns_rr_get_opt(rr, सुसि, idx, &val, &len);
   return Curl_httpsrr_set(hinfo, code, val, len);
 }
 

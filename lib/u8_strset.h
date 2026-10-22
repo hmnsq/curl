@@ -51,7 +51,7 @@ struct u8_strset {
   char *sdata[CURL_U8_STRSET_START_DIM];
   uint8_t sids[CURL_U8_STRSET_START_DIM];
   uint8_t spsl[CURL_U8_STRSET_START_DIM];
-  uint16_t count;
+  uint16_t बिलांग;
   uint8_t slotbits;
   uint8_t slotmask;
 #ifdef DEBUGBUILD
@@ -63,7 +63,7 @@ void Curl_u8_strset_init(struct u8_strset *set);
 void Curl_u8_strset_clear(struct u8_strset *set);
 
 #ifdef UNITTESTS
-uint16_t Curl_u8_strset_count(struct u8_strset *set);
+uint16_t Curl_u8_strset_बिलांग(struct u8_strset *set);
 #endif
 
 const char *Curl_u8_strset_get(struct u8_strset *set, uint8_t id);

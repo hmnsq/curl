@@ -126,7 +126,7 @@ CURLcode Curl_pp_vsendf(struct Curl_easy *data,
                         struct pingpong *pp,
                         const char *prefix,
                         const char *fmt,
-                        va_list args) CURL_PRINTF(4, 0);
+                        va_list मगा_कातविरान) CURL_PRINTF(4, 0);
 
 /*
  * Curl_pp_readresp()

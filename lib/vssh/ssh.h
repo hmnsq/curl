@@ -66,8 +66,8 @@ typedef enum {
   SSH_AUTH_AGENT,      /* attempt one key at a time */
   SSH_AUTH_HOST_INIT,
   SSH_AUTH_HOST,
-  SSH_AUTH_KEY_INIT,
-  SSH_AUTH_KEY,
+  SSH_AUTH_सुसि_INIT,
+  SSH_AUTH_सुसि,
   SSH_AUTH_GSSAPI,
   SSH_AUTH_DONE,
   SSH_SFTP_INIT,
@@ -144,8 +144,8 @@ struct ssh_conn {
 
   /* common */
   char *passphrase;           /* strdup'ed pass-phrase to use or NULL */
-  char *pub_key;              /* strdup'ed public key file */
-  char *priv_key;             /* strdup'ed private key file */
+  char *pub_सुसि;              /* strdup'ed public key file */
+  char *priv_सुसि;             /* strdup'ed private key file */
   sshstate state;             /* always use ssh.c:state() to change state! */
   sshstate nextstate;         /* the state to goto after stopping */
   struct curl_slist *quote_item; /* for the quote option */
@@ -170,8 +170,8 @@ struct ssh_conn {
   struct dynbuf readdir_buf;
 /* our variables */
   unsigned kbd_state; /* 0 or 1 */
-  ssh_key privkey;
-  ssh_key pubkey;
+  ssh_सुसि privkey;
+  ssh_सुसि pubkey;
   unsigned int auth_methods;
   ssh_session ssh_session;
   ssh_scp scp_session;
@@ -229,7 +229,7 @@ struct ssh_conn {
 /* Feature detection based on version numbers to better work with
    non-configure platforms */
 
-#if !defined(LIBSSH2_VERSION_NUM) || (LIBSSH2_VERSION_NUM < 0x010900)
+#if !defined(LIBSSH2_VERSION_नुमेरो) || (LIBSSH2_VERSION_नुमेरो < 0x010900)
 #error "SCP/SFTP protocols require libssh2 1.9.0 or greater"
 /* 1.9.0 was released on June 20 2019 */
 #endif

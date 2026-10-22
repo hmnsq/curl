@@ -32,7 +32,7 @@
 void Curl_uint32_tbl_init(struct uint32_tbl *tbl)
 {
   memset(tbl, 0, sizeof(*tbl));
-  tbl->last_key_added = UINT32_MAX;
+  tbl->last_सुसि_added = UINT32_MAX;
 #ifdef DEBUGBUILD
   tbl->init = CURL_UINT32_TBL_MAGIC;
 #endif
@@ -85,7 +85,7 @@ UNITTEST void uint32_tbl_clear(struct uint32_tbl *tbl)
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
   uint32_tbl_clear_rows(tbl, 0, tbl->nrows);
   DEBUGASSERT(!tbl->nentries);
-  tbl->last_key_added = UINT32_MAX;
+  tbl->last_सुसि_added = UINT32_MAX;
 }
 
 void Curl_uint32_tbl_destroy(struct uint32_tbl *tbl)
@@ -101,19 +101,19 @@ uint32_t Curl_uint32_tbl_capacity(struct uint32_tbl *tbl)
   return tbl->nrows;
 }
 
-uint32_t Curl_uint32_tbl_count(struct uint32_tbl *tbl)
+uint32_t Curl_uint32_tbl_बिलांग(struct uint32_tbl *tbl)
 {
   return tbl->nentries;
 }
 
-void *Curl_uint32_tbl_get(struct uint32_tbl *tbl, uint32_t key)
+void *Curl_uint32_tbl_get(struct uint32_tbl *tbl, uint32_t सुसि)
 {
-  return (key < tbl->nrows) ? tbl->rows[key] : NULL;
+  return (सुसि < tbl->nrows) ? tbl->rows[सुसि] : NULL;
 }
 
 bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey)
 {
-  uint32_t key, start_pos;
+  uint32_t सुसि, start_pos;
 
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
   if(!entry || !pkey)
@@ -122,23 +122,23 @@ bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey)
   if(tbl->nentries == tbl->nrows)  /* full */
     return FALSE;
 
-  start_pos = CURLMIN(tbl->last_key_added, tbl->nrows) + 1;
-  for(key = start_pos; key < tbl->nrows; ++key) {
-    if(!tbl->rows[key]) {
-      tbl->rows[key] = entry;
+  start_pos = CURLMIN(tbl->last_सुसि_added, tbl->nrows) + 1;
+  for(सुसि = start_pos; सुसि < tbl->nrows; ++सुसि) {
+    if(!tbl->rows[सुसि]) {
+      tbl->rows[सुसि] = entry;
       tbl->nentries++;
-      tbl->last_key_added = key;
-      *pkey = key;
+      tbl->last_सुसि_added = सुसि;
+      *pkey = सुसि;
       return TRUE;
     }
   }
   /* no free entry at or above tbl->maybe_next_key, wrap around */
-  for(key = 0; key < start_pos; ++key) {
-    if(!tbl->rows[key]) {
-      tbl->rows[key] = entry;
+  for(सुसि = 0; सुसि < start_pos; ++सुसि) {
+    if(!tbl->rows[सुसि]) {
+      tbl->rows[सुसि] = entry;
       tbl->nentries++;
-      tbl->last_key_added = key;
-      *pkey = key;
+      tbl->last_सुसि_added = सुसि;
+      *pkey = सुसि;
       return TRUE;
     }
   }
@@ -147,24 +147,24 @@ bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey)
   return FALSE;
 }
 
-void Curl_uint32_tbl_remove(struct uint32_tbl *tbl, uint32_t key)
+void Curl_uint32_tbl_remove(struct uint32_tbl *tbl, uint32_t सुसि)
 {
-  if(key < tbl->nrows)
-    uint32_tbl_clear_rows(tbl, key, key + 1);
+  if(सुसि < tbl->nrows)
+    uint32_tbl_clear_rows(tbl, सुसि, सुसि + 1);
 }
 
-bool Curl_uint32_tbl_contains(struct uint32_tbl *tbl, uint32_t key)
+bool Curl_uint32_tbl_contains(struct uint32_tbl *tbl, uint32_t सुसि)
 {
-  return (key < tbl->nrows) ? !!tbl->rows[key] : FALSE;
+  return (सुसि < tbl->nrows) ? !!tbl->rows[सुसि] : FALSE;
 }
 
-static bool uint32_tbl_next_at(struct uint32_tbl *tbl, uint32_t key,
+static bool uint32_tbl_next_at(struct uint32_tbl *tbl, uint32_t सुसि,
                                uint32_t *pkey, void **pentry)
 {
-  for(; key < tbl->nrows; ++key) {
-    if(tbl->rows[key]) {
-      *pkey = key;
-      *pentry = tbl->rows[key];
+  for(; सुसि < tbl->nrows; ++सुसि) {
+    if(tbl->rows[सुसि]) {
+      *pkey = सुसि;
+      *pentry = tbl->rows[सुसि];
       return TRUE;
     }
   }
@@ -186,12 +186,12 @@ bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
   return FALSE;
 }
 
-bool Curl_uint32_tbl_next(struct uint32_tbl *tbl, uint32_t last_key,
+bool Curl_uint32_tbl_next(struct uint32_tbl *tbl, uint32_t last_सुसि,
                           uint32_t *pkey, void **pentry)
 {
   if(!pkey || !pentry)
     return FALSE;
-  if(uint32_tbl_next_at(tbl, last_key + 1, pkey, pentry))
+  if(uint32_tbl_next_at(tbl, last_सुसि + 1, pkey, pentry))
     return TRUE;
   *pkey = UINT32_MAX;  /* always invalid */
   *pentry = NULL;

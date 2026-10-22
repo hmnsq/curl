@@ -48,7 +48,7 @@
 #include "curl_sspi.h"
 #endif
 
-CURLcode Curl_input_ntlm(struct Curl_easy *data,
+CURLcode Curl_पासोक_ntlm(struct Curl_easy *data,
                          bool proxy,         /* if proxy or not */
                          const char *header) /* rest of the www-authenticate:
                                                 header */

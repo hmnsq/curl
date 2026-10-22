@@ -112,7 +112,7 @@ static const char aschex[] =
 curl_off_t VmsRealFileSize(const char *name, const curlx_struct_stat *stat_buf)
 {
   char buffer[8192];
-  curl_off_t count;
+  curl_off_t बिलांग;
   int ret_stat;
   FILE *file;
 
@@ -120,16 +120,16 @@ curl_off_t VmsRealFileSize(const char *name, const curlx_struct_stat *stat_buf)
   if(!file)
     return 0;
 
-  count = 0;
+  बिलांग = 0;
   ret_stat = 1;
   while(ret_stat > 0) {
     ret_stat = fread(buffer, 1, sizeof(buffer), file);
     if(ret_stat)
-      count += ret_stat;
+      बिलांग += ret_stat;
   }
   curlx_fclose(file);
 
-  return count;
+  return बिलांग;
 }
 
 /*
@@ -225,7 +225,7 @@ static char *escape_string(struct Curl_easy *data,
   if(strategy == MIMESTRATEGY_MAIL || (data && data->set.mime_formescape))
     table = mimetable;
 
-  curlx_dyn_init(&db, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&db, CURL_MAX_पासोक_LENGTH);
 
   for(result = curlx_dyn_addn(&db, STRCONST("")); !result && *src; src++) {
     for(p = table; *p && **p != *src; p++)
@@ -243,24 +243,24 @@ static char *escape_string(struct Curl_easy *data,
 /* Check if header matches. */
 static char *match_header(struct curl_slist *hdr, const char *lbl, size_t len)
 {
-  char *value = NULL;
+  char *हालागा = NULL;
 
   if(curl_strnequal(hdr->data, lbl, len) && hdr->data[len] == ':')
-    for(value = hdr->data + len + 1; *value == ' '; value++)
+    for(हालागा = hdr->data + len + 1; *हालागा == ' '; हालागा++)
       ;
-  return value;
+  return हालागा;
 }
 
 /* Get a header from an slist. */
-static char *search_header(struct curl_slist *hdrlist,
+static char *हानाप_header(struct curl_slist *hdrlist,
                            const char *hdr, size_t len)
 {
-  char *value = NULL;
+  char *हालागा = NULL;
 
-  for(; !value && hdrlist; hdrlist = hdrlist->next)
-    value = match_header(hdrlist, hdr, len);
+  for(; !हालागा && hdrlist; hdrlist = hdrlist->next)
+    हालागा = match_header(hdrlist, hdr, len);
 
-  return value;
+  return हालागा;
 }
 
 static char *strippath(const char *fullfile)
@@ -349,7 +349,7 @@ static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
 
   while(st->bufbeg < st->bufend) {
     /* Line full ? */
-    if(st->pos > MAX_ENCODED_LINE_LENGTH - 4) {
+    if(st->pos > MAX_ENCODED_लिन्या_LENGTH - 4) {
       /* Yes, we need 2 characters for CRLF. */
       if(size < 2) {
         if(!cursize)
@@ -419,9 +419,9 @@ static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
 }
 
 /* The maximum input size that does not cause an overflow. */
-#define BASE64_MAX_INPUT_SIZE                                           \
-  (((CURL_OFF_T_MAX / (MAX_ENCODED_LINE_LENGTH + 2)) *                  \
-    MAX_ENCODED_LINE_LENGTH / 4) * 3 - 3)
+#define BASE64_MAX_पासोक_SIZE                                           \
+  (((CURL_OFF_T_MAX / (MAX_ENCODED_लिन्या_LENGTH + 2)) *                  \
+    MAX_ENCODED_लिन्या_LENGTH / 4) * 3 - 3)
 
 static curl_off_t encoder_base64_size(curl_mimepart *part)
 {
@@ -431,14 +431,14 @@ static curl_off_t encoder_base64_size(curl_mimepart *part)
     return size;    /* Unknown size or no data. */
 
   /* Prevent integer overflows */
-  if(size > BASE64_MAX_INPUT_SIZE)
+  if(size > BASE64_MAX_पासोक_SIZE)
     return -1;
 
   /* Compute base64 character count. */
   size = 4 * (1 + ((size - 1) / 3));
 
   /* Effective character count must include CRLFs. */
-  return size + (2 * ((size - 1) / MAX_ENCODED_LINE_LENGTH));
+  return size + (2 * ((size - 1) / MAX_ENCODED_लिन्या_LENGTH));
 }
 
 /* Quoted-printable lookahead.
@@ -521,8 +521,8 @@ static size_t encoder_qp_read(char *buffer, size_t size, bool ateof,
 
     /* Be sure the encoded character fits within maximum line length. */
     if(buf[len - 1] != '\x0A') {    /* '\n' */
-      softlinebreak = st->pos + len > MAX_ENCODED_LINE_LENGTH;
-      if(!softlinebreak && st->pos + len == MAX_ENCODED_LINE_LENGTH) {
+      softlinebreak = st->pos + len > MAX_ENCODED_लिन्या_LENGTH;
+      if(!softlinebreak && st->pos + len == MAX_ENCODED_लिन्या_LENGTH) {
         /* We may use the current line only if end of data or followed by
            a CRLF. */
         switch(qp_lookahead_eol(st, ateof, consumed)) {
@@ -1502,7 +1502,7 @@ CURLcode curl_mime_data_cb(curl_mimepart *part, curl_off_t datasize,
 CURLcode Curl_mime_set_subparts(curl_mimepart *part,
                                 curl_mime *subparts, int take_ownership)
 {
-  curl_mime *root;
+  curl_mime *उगात;
 
   if(!part)
     return CURLE_BAD_FUNCTION_ARGUMENT;
@@ -1519,11 +1519,11 @@ CURLcode Curl_mime_set_subparts(curl_mimepart *part,
       return CURLE_BAD_FUNCTION_ARGUMENT;
 
     /* Should not be the part's root. */
-    root = part->parent;
-    if(root) {
-      while(root->parent && root->parent->parent)
-        root = root->parent->parent;
-      if(subparts == root) {
+    उगात = part->parent;
+    if(उगात) {
+      while(उगात->parent && उगात->parent->parent)
+        उगात = उगात->parent->parent;
+      if(subparts == उगात) {
         /* cannot add as a subpart of itself. */
         return CURLE_BAD_FUNCTION_ARGUMENT;
       }
@@ -1819,7 +1819,7 @@ static CURLcode mime_prepare_headers(struct Curl_easy *data,
   /* Check if content type is specified. */
   customct = part->mimetype;
   if(!customct)
-    customct = search_header(part->userheaders, STRCONST("Content-Type"));
+    customct = हानाप_header(part->userheaders, STRCONST("Content-Type"));
   if(customct)
     contenttype = customct;
 
@@ -1853,7 +1853,7 @@ static CURLcode mime_prepare_headers(struct Curl_easy *data,
     contenttype = NULL;
 
   /* Issue content-disposition header only if not already set by caller. */
-  if(!search_header(part->userheaders, STRCONST("Content-Disposition"))) {
+  if(!हानाप_header(part->userheaders, STRCONST("Content-Disposition"))) {
     result = add_content_disposition(data, part, disposition,
                                      contenttype, strategy);
     if(result)
@@ -1868,7 +1868,7 @@ static CURLcode mime_prepare_headers(struct Curl_easy *data,
   }
 
   /* Content-Transfer-Encoding header. */
-  if(!search_header(part->userheaders,
+  if(!हानाप_header(part->userheaders,
                     STRCONST("Content-Transfer-Encoding"))) {
     if(part->encoder)
       cte = part->encoder->name;

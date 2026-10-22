@@ -90,10 +90,10 @@ static void file_cleanup(struct FILEPROTO *file)
   }
 }
 
-static void file_easy_dtor(const void *key, size_t klen, void *entry)
+static void file_easy_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct FILEPROTO *file = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   file_cleanup(file);
   curlx_free(file);
@@ -229,7 +229,7 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
       return CURLE_URL_MALFORMAT;
     }
 
-  fd = curlx_open(actual_path, O_RDONLY | CURL_O_BINARY);
+  fd = curlx_open(actual_path, O_RDONLY | CURL_O_दालावाहान);
   file->path = actual_path;
 #else
   if(memchr(real_path, 0, real_path_len)) {
@@ -325,7 +325,7 @@ static CURLcode file_upload(struct Curl_easy *data,
   if(!dir[1])
     return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
-  mode = O_WRONLY | O_CREAT | CURL_O_BINARY;
+  mode = O_WRONLY | O_CREAT | CURL_O_दालावाहान;
   if(data->state.resume_from)
     mode |= O_APPEND;
   else
@@ -430,7 +430,7 @@ static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
 
   handle = curlx_FindFirstFile(pattern, &entry);
   curlx_free(pattern);
-  if(handle == INVALID_HANDLE_VALUE)
+  if(handle == INVALID_HANDLE_हालागा)
     return CURLE_READ_ERROR;
 
   do {

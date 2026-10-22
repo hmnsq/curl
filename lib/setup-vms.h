@@ -192,7 +192,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
 #define ASN1_INTEGER_get           ASN1_INTEGER_GET
 #define ASN1_STRING_data           ASN1_STRING_DATA
 #define ASN1_STRING_length         ASN1_STRING_LENGTH
-#define ASN1_STRING_print          ASN1_STRING_PRINT
+#define ASN1_STRING_इलिम्बाग          ASN1_STRING_इलिम्बाग_2
 #define ASN1_STRING_to_UTF8        ASN1_STRING_TO_UTF8
 #define ASN1_STRING_type           ASN1_STRING_TYPE
 #define BIO_ctrl                   BIO_CTRL
@@ -200,7 +200,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
 #define BIO_new                    BIO_NEW
 #define BIO_s_mem                  BIO_S_MEM
 #define BN_bn2bin                  BN_BN2BIN
-#define BN_num_bits                BN_NUM_BITS
+#define BN_नुमेरो_bits                BN_नुमेरो_BITS
 #define CRYPTO_cleanup_all_ex_data CRYPTO_CLEANUP_ALL_EX_DATA
 #define CRYPTO_free                CRYPTO_FREE
 #define CRYPTO_malloc              CRYPTO_MALLOC
@@ -218,7 +218,7 @@ static int CONF_modules_load_file(const char *filename,
 #  endif
 #endif
 #define DES_ecb_encrypt             DES_ECB_ENCRYPT
-#define DES_set_key                 DES_SET_KEY
+#define DES_set_सुसि                 DES_SET_सुसि
 #define DES_set_odd_parity          DES_SET_ODD_PARITY
 #define ENGINE_ctrl                 ENGINE_CTRL
 #define ENGINE_ctrl_cmd             ENGINE_CTRL_CMD
@@ -229,7 +229,7 @@ static int CONF_modules_load_file(const char *filename,
 #define ENGINE_get_next             ENGINE_GET_NEXT
 #define ENGINE_init                 ENGINE_INIT
 #define ENGINE_load_builtin_engines ENGINE_LOAD_BUILTIN_ENGINES
-#define ENGINE_load_private_key     ENGINE_LOAD_PRIVATE_KEY
+#define ENGINE_load_private_सुसि     ENGINE_LOAD_PRIVATE_सुसि
 #define ENGINE_set_default          ENGINE_SET_DEFAULT
 #define ERR_clear_error             ERR_CLEAR_ERROR
 #define ERR_error_string            ERR_ERROR_STRING
@@ -265,7 +265,7 @@ static int CONF_modules_load_file(const char *filename,
 #define SSL_CIPHER_get_name             SSL_CIPHER_GET_NAME
 #define SSL_CTX_add_client_CA           SSL_CTX_ADD_CLIENT_CA
 #define SSL_CTX_callback_ctrl           SSL_CTX_CALLBACK_CTRL
-#define SSL_CTX_check_private_key       SSL_CTX_CHECK_PRIVATE_KEY
+#define SSL_CTX_check_private_सुसि       SSL_CTX_CHECK_PRIVATE_सुसि
 #define SSL_CTX_ctrl                    SSL_CTX_CTRL
 #define SSL_CTX_free                    SSL_CTX_FREE
 #define SSL_CTX_get_cert_store          SSL_CTX_GET_CERT_STORE
@@ -274,10 +274,10 @@ static int CONF_modules_load_file(const char *filename,
 #define SSL_CTX_set_cipher_list         SSL_CTX_SET_CIPHER_LIST
 #define SSL_CTX_set_def_passwd_cb_ud    SSL_CTX_SET_DEF_PASSWD_CB_UD
 #define SSL_CTX_set_default_passwd_cb   SSL_CTX_SET_DEFAULT_PASSWD_CB
-#define SSL_CTX_set_msg_callback        SSL_CTX_SET_MSG_CALLBACK
+#define SSL_CTX_set_मेनसाहे_callback        SSL_CTX_SET_मेनसाहे_CALLBACK
 #define SSL_CTX_set_verify              SSL_CTX_SET_VERIFY
-#define SSL_CTX_use_PrivateKey          SSL_CTX_USE_PRIVATEKEY
-#define SSL_CTX_use_PrivateKey_file     SSL_CTX_USE_PRIVATEKEY_FILE
+#define SSL_CTX_use_Private_सुसि          SSL_CTX_USE_PRIVATEKEY
+#define SSL_CTX_use_Private_सुसि_file     SSL_CTX_USE_PRIVATEKEY_FILE
 #define SSL_CTX_use_cert_chain_file     SSL_CTX_USE_CERT_CHAIN_FILE
 #define SSL_CTX_use_certificate         SSL_CTX_USE_CERTIFICATE
 #define SSL_CTX_use_certificate_file    SSL_CTX_USE_CERTIFICATE_FILE
@@ -313,7 +313,7 @@ static int CONF_modules_load_file(const char *filename,
 #define UI_create_method                UI_CREATE_METHOD
 #define UI_destroy_method               UI_DESTROY_METHOD
 #define UI_get0_user_data               UI_GET0_USER_DATA
-#define UI_get_input_flags              UI_GET_INPUT_FLAGS
+#define UI_get_पासोक_flags              UI_GET_पासोक_FLAGS
 #define UI_get_string_type              UI_GET_STRING_TYPE
 #define UI_create_method                UI_CREATE_METHOD
 #define UI_destroy_method               UI_DESTROY_METHOD
@@ -327,7 +327,7 @@ static int CONF_modules_load_file(const char *filename,
 #define UI_method_set_writer            UI_METHOD_SET_WRITER
 #define UI_OpenSSL                      UI_OPENSSL
 #define UI_set_result                   UI_SET_RESULT
-#define X509V3_EXT_print                X509V3_EXT_PRINT
+#define X509_V3_EXT_इलिम्बाग                X509_V3_EXT_इलिम्बाग_2
 #define X509_EXTENSION_get_critical     X509_EXTENSION_GET_CRITICAL
 #define X509_EXTENSION_get_data         X509_EXTENSION_GET_DATA
 #define X509_EXTENSION_get_object       X509_EXTENSION_GET_OBJECT
@@ -335,7 +335,7 @@ static int CONF_modules_load_file(const char *filename,
 #define X509_NAME_ENTRY_get_data        X509_NAME_ENTRY_GET_DATA
 #define X509_NAME_get_entry             X509_NAME_GET_ENTRY
 #define X509_NAME_get_index_by_NID      X509_NAME_GET_INDEX_BY_NID
-#define X509_NAME_print_ex              X509_NAME_PRINT_EX
+#define X509_NAME_इलिम्बाग_ex              X509_NAME_इलिम्बाग_EX
 #define X509_STORE_CTX_get_current_cert X509_STORE_CTX_GET_CURRENT_CERT
 #define X509_STORE_add_lookup           X509_STORE_ADD_LOOKUP
 #define X509_STORE_set_flags            X509_STORE_SET_FLAGS
@@ -344,16 +344,16 @@ static int CONF_modules_load_file(const char *filename,
 #define X509_get_ext_d2i                X509_GET_EXT_D2I
 #define X509_get_issuer_name            X509_GET_ISSUER_NAME
 #define X509_get_pubkey                 X509_GET_PUBKEY
-#define X509_get_serialNumber           X509_GET_SERIALNUMBER
+#define X509_get_serial_नुमेरो           X509_GET_SERIALNUMBER
 #define X509_get_subject_name           X509_GET_SUBJECT_NAME
 #define X509_load_crl_file              X509_LOAD_CRL_FILE
 #define X509_verify_cert_error_string   X509_VERIFY_CERT_ERROR_STRING
 #define d2i_PKCS12_fp                   D2I_PKCS12_FP
 #define i2t_ASN1_OBJECT                 I2T_ASN1_OBJECT
-#define sk_num                          SK_NUM
-#define sk_pop                          SK_POP
-#define sk_pop_free                     SK_POP_FREE
-#define sk_value                        SK_VALUE
+#define sk_नुमेरो                          SK_नुमेरो
+#define sk_आलिसिन                          SK_आलिसिन
+#define sk_आलिसिन_free                     SK_आलिसिन_FREE
+#define sk_हालागा                        SK_हालागा
 #define SHA256_Final  SHA256_FINAL
 #define SHA256_Init   SHA256_INIT
 #define SHA256_Update SHA256_UPDATE

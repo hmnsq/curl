@@ -38,7 +38,7 @@
 #define CURLFNM_DIGIT   (CURLFNM_CHARSET_LEN + 2)
 #define CURLFNM_XDIGIT  (CURLFNM_CHARSET_LEN + 3)
 #define CURLFNM_ALPHA   (CURLFNM_CHARSET_LEN + 4)
-#define CURLFNM_PRINT   (CURLFNM_CHARSET_LEN + 5)
+#define CURLFNM_इलिम्बाग   (CURLFNM_CHARSET_LEN + 5)
 #define CURLFNM_BLANK   (CURLFNM_CHARSET_LEN + 6)
 #define CURLFNM_LOWER   (CURLFNM_CHARSET_LEN + 7)
 #define CURLFNM_GRAPH   (CURLFNM_CHARSET_LEN + 8)
@@ -105,7 +105,7 @@ static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
   else if(!strcmp(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
   else if(!strcmp(keyword, "print"))
-    charset[CURLFNM_PRINT] = 1;
+    charset[CURLFNM_इलिम्बाग] = 1;
   else if(!strcmp(keyword, "graph"))
     charset[CURLFNM_GRAPH] = 1;
   else if(!strcmp(keyword, "space"))
@@ -279,7 +279,7 @@ static int matchtoken(const unsigned char **pp, const unsigned char **sp)
       found = ISDIGIT(*s);
     else if(charset[CURLFNM_XDIGIT])
       found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
+    else if(charset[CURLFNM_इलिम्बाग])
       found = ISPRINT(*s);
     else if(charset[CURLFNM_SPACE])
       found = ISBLANK(*s);

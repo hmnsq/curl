@@ -187,7 +187,7 @@ CURLcode Curl_vquic_tls_verify_peer(struct curl_tls_ctx *ctx,
 #endif
   /* on error, remove any session we might have in the pool */
   if(result)
-    Curl_ssl_scache_remove_all(cf, data, peer->scache_key);
+    Curl_ssl_scache_remove_all(cf, data, peer->scache_सुसि);
   return result;
 }
 

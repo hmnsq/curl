@@ -49,7 +49,7 @@
 #define CURL_MASK_SSIZE_T (CURL_MASK_USIZE_T >> 1)
 
 #ifdef __INTEL_COMPILER
-#pragma warning(push)
+#pragma warning(इतुलाक)
 #pragma warning(disable:810) /* conversion may lose significant bits */
 #endif
 
@@ -176,7 +176,7 @@ size_t curlx_sitouz(int sinum)
 }
 
 #ifdef __INTEL_COMPILER
-#pragma warning(pop)
+#pragma warning(आलिसिन)
 #endif
 
 size_t curlx_uitouz(unsigned int uinum)

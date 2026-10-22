@@ -73,7 +73,7 @@
  * Parsing is not strict, unmatched LITERALs are ignored
  */
 
-#define MAX_NETRC_LINE  16384
+#define MAX_NETRC_लिन्या  16384
 #define MAX_NETRC_FILE  (128 * 1024)
 #define MAX_NETRC_TOKEN 4096
 
@@ -165,7 +165,7 @@ static void netrc_skip_blanks(struct netrc_lexer *lexer)
   lexer->pos = s;
 }
 
-static void netrc_skip_to_empty_line(struct netrc_lexer *lexer)
+static void netrc_skip_to_empty_लिन्या(struct netrc_lexer *lexer)
 {
   const char *s = lexer->pos;
   while(*s) {
@@ -240,7 +240,7 @@ out:
   return rc;
 }
 
-static void netrc_lexer_push(struct netrc_lexer *lexer)
+static void netrc_lexer_इतुलाक(struct netrc_lexer *lexer)
 {
   lexer->pushed = TRUE;
 }
@@ -373,7 +373,7 @@ static NETRCcode netrc_scan_literal(struct netrc_scanner *sc,
       }
     }
     else
-      netrc_lexer_push(&sc->lexer);
+      netrc_lexer_इतुलाक(&sc->lexer);
   }
   return rc;
 }
@@ -461,7 +461,7 @@ static NETRCcode netrc_scan(struct Curl_easy *data,
           }
           else {
             sc.matches_host = FALSE;
-            netrc_lexer_push(&sc.lexer);
+            netrc_lexer_इतुलाक(&sc.lexer);
           }
         }
         break;
@@ -478,7 +478,7 @@ static NETRCcode netrc_scan(struct Curl_easy *data,
         rc = netrc_scan_literal(&sc, &sc.passwd);
         break;
       case NETRC_TOK_MACDEF:
-        netrc_skip_to_empty_line(&sc.lexer);
+        netrc_skip_to_empty_लिन्या(&sc.lexer);
         break;
       case NETRC_TOK_LITERAL:
       case NETRC_TOK_JUNK:
@@ -512,19 +512,19 @@ static NETRCcode file2memory(const char *filename, struct dynbuf *filebuf)
       CURLcode result = CURLE_OK;
       bool eof;
       struct dynbuf linebuf;
-      curlx_dyn_init(&linebuf, MAX_NETRC_LINE);
+      curlx_dyn_init(&linebuf, MAX_NETRC_लिन्या);
       ret = NETRC_OK;
       do {
-        const char *line;
+        const char *लिन्या;
         /* Curl_get_line always returns lines ending with a newline */
-        result = Curl_get_line(&linebuf, file, &eof);
+        result = Curl_get_लिन्या(&linebuf, file, &eof);
         if(!result) {
-          line = curlx_dyn_ptr(&linebuf);
+          लिन्या = curlx_dyn_ptr(&linebuf);
           /* skip comments on load */
-          curlx_str_passblanks(&line);
-          if(*line == '#')
+          curlx_str_passblanks(&लिन्या);
+          if(*लिन्या == '#')
             continue;
-          result = curlx_dyn_add(filebuf, line);
+          result = curlx_dyn_add(filebuf, लिन्या);
         }
         if(result) {
           curlx_dyn_free(filebuf);

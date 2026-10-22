@@ -111,18 +111,18 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms);
  * `actions` are bitmaps of CURL_POLL_IN and CURL_POLL_OUT.
  * Starts with small capacity, grows on demand.
  */
-#define EZ_POLLSET_DEF_COUNT 2
+#define EZ_POLLSET_DEF_बिलांग 2
 
 struct easy_pollset {
   curl_socket_t *sockets;
   unsigned char *actions;
   unsigned int n;
-  unsigned int count;
+  unsigned int बिलांग;
 #ifdef DEBUGBUILD
   int init;
 #endif
-  curl_socket_t def_sockets[EZ_POLLSET_DEF_COUNT];
-  unsigned char def_actions[EZ_POLLSET_DEF_COUNT];
+  curl_socket_t def_sockets[EZ_POLLSET_DEF_बिलांग];
+  unsigned char def_actions[EZ_POLLSET_DEF_बिलांग];
 };
 
 #ifdef DEBUGBUILD
@@ -198,13 +198,13 @@ bool Curl_pollset_want_send(struct Curl_easy *data,
 struct curl_pollfds {
   struct pollfd *pfds;
   unsigned int n;
-  unsigned int count;
+  unsigned int बिलांग;
   BIT(allocated_pfds);
 };
 
 void Curl_pollfds_init(struct curl_pollfds *cpfds,
                        struct pollfd *static_pfds,
-                       unsigned int static_count);
+                       unsigned int static_बिलांग);
 
 void Curl_pollfds_reset(struct curl_pollfds *cpfds);
 
@@ -219,12 +219,12 @@ CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
 struct Curl_waitfds {
   struct curl_waitfd *wfds;
   unsigned int n;
-  unsigned int count;
+  unsigned int बिलांग;
 };
 
 void Curl_waitfds_init(struct Curl_waitfds *cwfds,
                        struct curl_waitfd *static_wfds,
-                       unsigned int static_count);
+                       unsigned int static_बिलांग);
 
 unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
                                  struct easy_pollset *ps);

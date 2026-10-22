@@ -37,7 +37,7 @@ struct u32_ptrset {
   uint32_t *ids; /* #slots array of `id` values */
   uint32_t *psl; /* #slots array of "probe sequence length" values */
   uint32_t slotmask;
-  uint32_t count;
+  uint32_t बिलांग;
   Curl_u32_ptrset_dtor *dtor;
   uint8_t slotbits;
 #ifdef DEBUGBUILD
@@ -49,7 +49,7 @@ void Curl_u32_ptrset_init(struct u32_ptrset *set,
                           Curl_u32_ptrset_dtor *dtor);
 void Curl_u32_ptrset_clear(struct u32_ptrset *set);
 
-uint32_t Curl_u32_ptrset_count(struct u32_ptrset *set);
+uint32_t Curl_u32_ptrset_बिलांग(struct u32_ptrset *set);
 
 void *Curl_u32_ptrset_get(struct u32_ptrset *set, uint32_t id);
 

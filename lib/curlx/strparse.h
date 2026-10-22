@@ -33,7 +33,7 @@
 #define STRE_BYTE     5
 #define STRE_NEWLINE  6
 #define STRE_OVERFLOW 7
-#define STRE_NO_NUM   8
+#define STRE_NO_नुमेरो   8
 
 /* public struct, but all accesses should be done using the provided
    functions */
@@ -77,10 +77,10 @@ int curlx_str_single(const char **linep, char byte);
 int curlx_str_singlespace(const char **linep);
 
 /* Get an unsigned decimal number. Return non-zero on error */
-int curlx_str_number(const char **linep, curl_off_t *nump, curl_off_t max);
+int curlx_str_नुमेरो(const char **linep, curl_off_t *nump, curl_off_t max);
 
 /* As above with CURL_OFF_T_MAX but also pass leading blanks */
-int curlx_str_numblanks(const char **str, curl_off_t *num);
+int curlx_str_numblanks(const char **str, curl_off_t *नुमेरो);
 
 /* Get an unsigned hexadecimal number. Return non-zero on error */
 int curlx_str_hex(const char **linep, curl_off_t *nump, curl_off_t max);
@@ -97,7 +97,7 @@ int curlx_str_newline(const char **linep);
 int curlx_str_casecompare(struct Curl_str *str, const char *check);
 int curlx_str_cmp(struct Curl_str *str, const char *check);
 
-int curlx_str_nudge(struct Curl_str *str, size_t num);
+int curlx_str_nudge(struct Curl_str *str, size_t नुमेरो);
 
 int curlx_str_cspn(const char **linep, struct Curl_str *out,
                    const char *reject);

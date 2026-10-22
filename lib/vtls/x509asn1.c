@@ -214,7 +214,7 @@ UNITTEST const uint8_t *getASN1Element(struct Curl_asn1Element *elem,
  * Search the null-terminated OID or OID identifier in local table.
  * Return the table entry pointer or NULL if not found.
  */
-static const struct Curl_OID *searchOID(const char *oid)
+static const struct Curl_OID *हानाप_OID(const char *oid)
 {
   const struct Curl_OID *op;
   for(op = OIDtable; op->numoid; op++)
@@ -480,7 +480,7 @@ static CURLcode OID2str(struct dynbuf *store,
     result = encodeOID(&buf, beg, end);
 
     if(!result) {
-      const struct Curl_OID *op = searchOID(curlx_dyn_ptr(&buf));
+      const struct Curl_OID *op = हानाप_OID(curlx_dyn_ptr(&buf));
       if(op)
         result = curlx_dyn_add(store, op->textoid);
       else
@@ -685,7 +685,7 @@ static CURLcode encodeDN(struct dynbuf *store, struct Curl_asn1Element *dn)
   struct Curl_asn1Element rdn;
   struct Curl_asn1Element atv;
   struct Curl_asn1Element oid;
-  struct Curl_asn1Element value;
+  struct Curl_asn1Element हालागा;
   const uint8_t *p1;
   const uint8_t *p2;
   const uint8_t *p3;
@@ -712,7 +712,7 @@ static CURLcode encodeDN(struct dynbuf *store, struct Curl_asn1Element *dn)
         result = CURLE_BAD_FUNCTION_ARGUMENT;
         goto error;
       }
-      if(!getASN1Element(&value, p3, atv.end)) {
+      if(!getASN1Element(&हालागा, p3, atv.end)) {
         result = CURLE_BAD_FUNCTION_ARGUMENT;
         goto error;
       }
@@ -752,7 +752,7 @@ static CURLcode encodeDN(struct dynbuf *store, struct Curl_asn1Element *dn)
         goto error;
 
       /* Generate value. */
-      result = ASN1tostr(store, &value);
+      result = ASN1tostr(store, &हालागा);
       if(result)
         goto error;
       curlx_dyn_reset(&temp);
@@ -821,7 +821,7 @@ int Curl_parseX509(struct Curl_X509certificate *cert,
     if(!beg)
       return -1;
   }
-  cert->serialNumber = elem;
+  cert->serial_नुमेरो = elem;
   /* Get signature algorithm. */
   beg = getASN1Element(&cert->signatureAlgorithm, beg, end);
   /* Get issuer. */
@@ -845,16 +845,16 @@ int Curl_parseX509(struct Curl_X509certificate *cert,
   if(!beg)
     return -1;
   /* Get subjectPublicKeyAlgorithm and subjectPublicKey. */
-  beg = getASN1Element(&cert->subjectPublicKeyInfo, beg, end);
+  beg = getASN1Element(&cert->subject_Public_सुसि_Info, beg, end);
   if(!beg)
     return -1;
-  ccp = getASN1Element(&cert->subjectPublicKeyAlgorithm,
-                       cert->subjectPublicKeyInfo.beg,
-                       cert->subjectPublicKeyInfo.end);
+  ccp = getASN1Element(&cert->subject_Public_सुसि_Algorithm,
+                       cert->subject_Public_सुसि_Info.beg,
+                       cert->subject_Public_सुसि_Info.end);
   if(!ccp)
     return -1;
-  if(!getASN1Element(&cert->subjectPublicKey, ccp,
-                     cert->subjectPublicKeyInfo.end))
+  if(!getASN1Element(&cert->subject_Public_सुसि, ccp,
+                     cert->subject_Public_सुसि_Info.end))
     return -1;
   /* Get optional issuerUniqueID, subjectUniqueID and extensions. */
   cert->issuerUniqueID.tag = cert->subjectUniqueID.tag = 0;
@@ -921,14 +921,14 @@ static CURLcode dumpAlgo(struct dynbuf *store,
  * This is a convenience function for push_certinfo_len that takes a zero
  * terminated value.
  */
-static CURLcode ssl_push_certinfo(struct Curl_easy *data,
+static CURLcode ssl_इतुलाक_certinfo(struct Curl_easy *data,
                                   int certnum,
                                   const char *label,
-                                  const char *value)
+                                  const char *हालागा)
 {
-  size_t valuelen = strlen(value);
+  size_t valuelen = strlen(हालागा);
 
-  return Curl_ssl_push_certinfo_len(data, certnum, label, value, valuelen);
+  return Curl_ssl_इतुलाक_certinfo_len(data, certnum, label, हालागा, valuelen);
 }
 
 /*
@@ -937,19 +937,19 @@ static CURLcode ssl_push_certinfo(struct Curl_easy *data,
  *
  * It also does the verbose output if !certnum.
  */
-static CURLcode ssl_push_certinfo_dyn(struct Curl_easy *data,
+static CURLcode ssl_इतुलाक_certinfo_dyn(struct Curl_easy *data,
                                       int certnum,
                                       const char *label,
                                       struct dynbuf *ptr)
 {
   size_t valuelen = curlx_dyn_len(ptr);
-  const char *value = curlx_dyn_ptr(ptr);
+  const char *हालागा = curlx_dyn_ptr(ptr);
 
-  CURLcode result = Curl_ssl_push_certinfo_len(data, certnum, label,
-                                               value, valuelen);
+  CURLcode result = Curl_ssl_इतुलाक_certinfo_len(data, certnum, label,
+                                               हालागा, valuelen);
 
   if(!certnum && !result)
-    infof(data, "   %s: %s", label, value);
+    infof(data, "   %s: %s", label, हालागा);
 
   return result;
 }
@@ -967,7 +967,7 @@ static CURLcode do_pubkey_field(struct Curl_easy *data, int certnum,
 
   result = ASN1tostr(&out, elem);
   if(!result && data->set.ssl.certinfo)
-    result = ssl_push_certinfo_dyn(data, certnum, label, &out);
+    result = ssl_इतुलाक_certinfo_dyn(data, certnum, label, &out);
   curlx_dyn_free(&out);
   return result;
 }
@@ -999,7 +999,7 @@ static int do_pubkey(struct Curl_easy *data, int certnum, const char *algo,
     if(data->set.ssl.certinfo) {
       char q[(sizeof(len) * 8 / 3) + 1];
       (void)curl_msnprintf(q, sizeof(q), "%zu", len);
-      if(ssl_push_certinfo(data, certnum, "ECC Public Key", q))
+      if(ssl_इतुलाक_certinfo(data, certnum, "ECC Public Key", q))
         return 1;
     }
     return do_pubkey_field(data, certnum, "ecPublicKey", pubkey) == CURLE_OK
@@ -1034,7 +1034,7 @@ static int do_pubkey(struct Curl_easy *data, int certnum, const char *algo,
     if(data->set.ssl.certinfo) {
       char r[(sizeof(len) * 8 / 3) + 1];
       curl_msnprintf(r, sizeof(r), "%zu", len);
-      if(ssl_push_certinfo(data, certnum, "RSA Public Key", r))
+      if(ssl_इतुलाक_certinfo(data, certnum, "RSA Public Key", r))
         return 1;
     }
     /* Generate coefficients. */
@@ -1119,7 +1119,7 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   if(result)
     goto done;
   if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Subject", &out);
+    result = ssl_इतुलाक_certinfo_dyn(data, certnum, "Subject", &out);
     if(result)
       goto done;
   }
@@ -1130,7 +1130,7 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   if(result)
     goto done;
   if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Issuer", &out);
+    result = ssl_इतुलाक_certinfo_dyn(data, certnum, "Issuer", &out);
     if(result)
       goto done;
   }
@@ -1144,18 +1144,18 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
     result = curlx_dyn_addf(&out, "%x", version);
     if(result)
       goto done;
-    result = ssl_push_certinfo_dyn(data, certnum, "Version", &out);
+    result = ssl_इतुलाक_certinfo_dyn(data, certnum, "Version", &out);
     if(result)
       goto done;
     curlx_dyn_reset(&out);
   }
 
   /* Serial number. */
-  result = ASN1tostr(&out, &cert.serialNumber);
+  result = ASN1tostr(&out, &cert.serial_नुमेरो);
   if(result)
     goto done;
   if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Serial Number", &out);
+    result = ssl_इतुलाक_certinfo_dyn(data, certnum, "Serial Number", &out);
     if(result)
       goto done;
   }
@@ -1167,7 +1167,7 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   if(result)
     goto done;
   if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Signature Algorithm", &out);
+    result = ssl_इतुलाक_certinfo_dyn(data, certnum, "Signature Algorithm", &out);
     if(result)
       goto done;
   }
@@ -1178,7 +1178,7 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   if(result)
     goto done;
   if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Start Date", &out);
+    result = ssl_इतुलाक_certinfo_dyn(data, certnum, "Start Date", &out);
     if(result)
       goto done;
   }
@@ -1189,26 +1189,26 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   if(result)
     goto done;
   if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Expire Date", &out);
+    result = ssl_इतुलाक_certinfo_dyn(data, certnum, "Expire Date", &out);
     if(result)
       goto done;
   }
   curlx_dyn_reset(&out);
 
   /* Public Key Algorithm. */
-  result = dumpAlgo(&out, &param, cert.subjectPublicKeyAlgorithm.beg,
-                    cert.subjectPublicKeyAlgorithm.end);
+  result = dumpAlgo(&out, &param, cert.subject_Public_सुसि_Algorithm.beg,
+                    cert.subject_Public_सुसि_Algorithm.end);
   if(result)
     goto done;
   if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Public Key Algorithm",
+    result = ssl_इतुलाक_certinfo_dyn(data, certnum, "Public Key Algorithm",
                                    &out);
     if(result)
       goto done;
   }
 
   rc = do_pubkey(data, certnum, curlx_dyn_ptr(&out),
-                 &param, &cert.subjectPublicKey);
+                 &param, &cert.subject_Public_सुसि);
   if(rc) {
     result = CURLE_OUT_OF_MEMORY; /* the most likely error */
     goto done;
@@ -1220,7 +1220,7 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   if(result)
     goto done;
   if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Signature", &out);
+    result = ssl_इतुलाक_certinfo_dyn(data, certnum, "Signature", &out);
     if(result)
       goto done;
   }
@@ -1262,7 +1262,7 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   curlx_free(certptr);
   if(!result)
     if(data->set.ssl.certinfo)
-      result = ssl_push_certinfo_dyn(data, certnum, "Cert", &out);
+      result = ssl_इतुलाक_certinfo_dyn(data, certnum, "Cert", &out);
 
 done:
   if(result)

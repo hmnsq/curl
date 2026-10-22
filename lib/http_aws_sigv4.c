@@ -58,8 +58,8 @@
 #define MAX_QUERY_COMPONENTS 128
 
 struct pair {
-  struct dynbuf key;
-  struct dynbuf value;
+  struct dynbuf सुसि;
+  struct dynbuf हालागा;
 };
 
 static void sha256_to_hex(char *dst, unsigned char *sha)
@@ -82,34 +82,34 @@ static void trim_headers(struct curl_slist *head)
 {
   struct curl_slist *l;
   for(l = head; l; l = l->next) {
-    const char *value; /* to read from */
+    const char *हालागा; /* to read from */
     char *store;
     size_t colon = strcspn(l->data, ":");
     Curl_strntolower(l->data, l->data, colon);
 
-    value = &l->data[colon];
-    if(!*value)
+    हालागा = &l->data[colon];
+    if(!*हालागा)
       continue;
-    ++value;
-    store = (char *)CURL_UNCONST(value);
+    ++हालागा;
+    store = (char *)CURL_UNCONST(हालागा);
 
     /* skip leading whitespace */
-    curlx_str_passblanks(&value);
+    curlx_str_passblanks(&हालागा);
 
-    while(*value) {
+    while(*हालागा) {
       int space = 0;
-      while(ISBLANK(*value)) {
-        value++;
+      while(ISBLANK(*हालागा)) {
+        हालागा++;
         space++;
       }
       if(space) {
         /* replace any number of consecutive whitespace with a single space,
            unless at the end of the string, then nothing */
-        if(*value)
+        if(*हालागा)
           *store++ = ' ';
       }
       else
-        *store++ = *value++;
+        *store++ = *हालागा++;
     }
     *store = 0; /* null-terminate */
   }
@@ -118,24 +118,24 @@ static void trim_headers(struct curl_slist *head)
 /*
  * Frees all allocated strings in a dynbuf pair array, and the dynbuf itself
  */
-static void pair_array_free(struct pair *pair_array, size_t num_elements)
+static void pair_array_free(struct pair *pair_array, size_t नुमेरो_elements)
 {
   size_t index;
 
-  for(index = 0; index != num_elements; index++) {
-    curlx_dyn_free(&pair_array[index].key);
-    curlx_dyn_free(&pair_array[index].value);
+  for(index = 0; index != नुमेरो_elements; index++) {
+    curlx_dyn_free(&pair_array[index].सुसि);
+    curlx_dyn_free(&pair_array[index].हालागा);
   }
 }
 
 /*
  * Frees all allocated strings in a split dynbuf, and the dynbuf itself
  */
-static void dyn_array_free(struct dynbuf *db, size_t num_elements)
+static void dyn_array_free(struct dynbuf *db, size_t नुमेरो_elements)
 {
   size_t index;
 
-  for(index = 0; index < num_elements; index++)
+  for(index = 0; index < नुमेरो_elements; index++)
     curlx_dyn_free((&db[index]));
 }
 
@@ -149,7 +149,7 @@ static void dyn_array_free(struct dynbuf *db, size_t num_elements)
 
 static CURLcode split_to_dyn_array(const char *source,
                                    struct dynbuf db[MAX_QUERY_COMPONENTS],
-                                   size_t *num_splits_out)
+                                   size_t *नुमेरो_splits_out)
 {
   CURLcode result = CURLE_OK;
   size_t len = strlen(source);
@@ -157,7 +157,7 @@ static CURLcode split_to_dyn_array(const char *source,
   size_t start = 0;   /* Start of current segment */
   size_t segment_length = 0;
   size_t index = 0;
-  size_t num_splits = 0;
+  size_t नुमेरो_splits = 0;
 
   /* Split source_ptr on SPLIT_BY and store the segment offsets and length in
    * array */
@@ -171,7 +171,7 @@ static CURLcode split_to_dyn_array(const char *source,
 
         segment_length = 0;
         index++;
-        if(++num_splits == MAX_QUERY_COMPONENTS) {
+        if(++नुमेरो_splits == MAX_QUERY_COMPONENTS) {
           result = CURLE_TOO_LARGE;
           goto fail;
         }
@@ -186,11 +186,11 @@ static CURLcode split_to_dyn_array(const char *source,
   if(segment_length) {
     curlx_dyn_init(&db[index], segment_length + 1);
     result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-    if(!result && ++num_splits == MAX_QUERY_COMPONENTS)
+    if(!result && ++नुमेरो_splits == MAX_QUERY_COMPONENTS)
       result = CURLE_TOO_LARGE;
   }
 fail:
-  *num_splits_out = num_splits;
+  *नुमेरो_splits_out = नुमेरो_splits;
   return result;
 }
 
@@ -279,10 +279,10 @@ static bool should_urlencode(struct Curl_str *service_name)
 
 /* maximum length for the aws sivg4 parts */
 #define MAX_SIGV4_LEN    64
-#define DATE_HDR_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Date"))
+#define DATE_HDR_सुसि_LEN (MAX_SIGV4_LEN + sizeof("X--Date"))
 
 /* string been x-PROVIDER-date:TIMESTAMP, I need +1 for ':' */
-#define DATE_FULL_HDR_LEN (DATE_HDR_KEY_LEN + TIMESTAMP_SIZE + 1)
+#define DATE_FULL_HDR_LEN (DATE_HDR_सुसि_LEN + TIMESTAMP_SIZE + 1)
 
 /* alphabetically compare two headers by their name, expecting
    headers to use ':' at this point */
@@ -376,7 +376,7 @@ static CURLcode make_headers(struct Curl_easy *data,
                              struct dynbuf *canonical_headers,
                              struct dynbuf *signed_headers)
 {
-  char date_hdr_key[DATE_HDR_KEY_LEN];
+  char date_hdr_सुसि[DATE_HDR_सुसि_LEN];
   char date_full_hdr[DATE_FULL_HDR_LEN];
   struct curl_slist *head = NULL;
   struct curl_slist *tmp_head = NULL;
@@ -384,11 +384,11 @@ static CURLcode make_headers(struct Curl_easy *data,
   struct curl_slist *l;
   bool again = TRUE;
 
-  curl_msnprintf(date_hdr_key, DATE_HDR_KEY_LEN, "X-%.*s-Date",
+  curl_msnprintf(date_hdr_सुसि, DATE_HDR_सुसि_LEN, "X-%.*s-Date",
                  (int)plen, provider1);
   /* provider1 ucfirst */
-  Curl_strntolower(&date_hdr_key[2], provider1, plen);
-  date_hdr_key[2] = Curl_raw_toupper(provider1[0]);
+  Curl_strntolower(&date_hdr_सुसि[2], provider1, plen);
+  date_hdr_सुसि[2] = Curl_raw_toupper(provider1[0]);
 
   curl_msnprintf(date_full_hdr, DATE_FULL_HDR_LEN,
                  "x-%.*s-date:%s", (int)plen, provider1, timestamp);
@@ -456,32 +456,32 @@ static CURLcode make_headers(struct Curl_easy *data,
 
   trim_headers(head);
 
-  *date_header = find_date_hdr(data, date_hdr_key);
+  *date_header = find_date_hdr(data, date_hdr_सुसि);
   if(!*date_header) {
     tmp_head = curl_slist_append(head, date_full_hdr);
     if(!tmp_head)
       goto fail;
     head = tmp_head;
-    *date_header = curl_maprintf("%s: %s\r\n", date_hdr_key, timestamp);
+    *date_header = curl_maprintf("%s: %s\r\n", date_hdr_सुसि, timestamp);
     if(!*date_header)
       goto fail;
   }
   else {
-    const char *value;
+    const char *हालागा;
     const char *endp;
-    value = strchr(*date_header, ':');
-    if(!value) {
+    हालागा = strchr(*date_header, ':');
+    if(!हालागा) {
       *date_header = NULL;
       goto fail;
     }
-    ++value;
-    curlx_str_passblanks(&value);
-    endp = value;
+    ++हालागा;
+    curlx_str_passblanks(&हालागा);
+    endp = हालागा;
     while(*endp && ISALNUM(*endp))
       ++endp;
     /* 16 bytes => "19700101T000000Z" */
-    if((endp - value) == TIMESTAMP_SIZE - 1) {
-      memcpy(timestamp, value, TIMESTAMP_SIZE - 1);
+    if((endp - हालागा) == TIMESTAMP_SIZE - 1) {
+      memcpy(timestamp, हालागा, TIMESTAMP_SIZE - 1);
       timestamp[TIMESTAMP_SIZE - 1] = 0;
     }
     else
@@ -535,41 +535,41 @@ fail:
   return result;
 }
 
-#define CONTENT_SHA256_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Content-Sha256"))
+#define CONTENT_SHA256_सुसि_LEN (MAX_SIGV4_LEN + sizeof("X--Content-Sha256"))
 /* add 2 for ": " between header name and value */
-#define CONTENT_SHA256_HDR_LEN (CONTENT_SHA256_KEY_LEN + 2 + SHA256_HEX_LENGTH)
+#define CONTENT_SHA256_HDR_LEN (CONTENT_SHA256_सुसि_LEN + 2 + SHA256_HEX_LENGTH)
 
 /* try to parse a payload hash from the content-sha256 header */
 static const char *parse_content_sha_hdr(struct Curl_easy *data,
                                          const char *provider1,
                                          size_t plen,
-                                         size_t *value_len)
+                                         size_t *हालागा_len)
 {
-  char key[CONTENT_SHA256_KEY_LEN];
-  size_t key_len;
-  const char *value;
+  char सुसि[CONTENT_SHA256_सुसि_LEN];
+  size_t सुसि_len;
+  const char *हालागा;
   size_t len;
 
-  key_len = curl_msnprintf(key, sizeof(key), "x-%.*s-content-sha256",
+  सुसि_len = curl_msnprintf(सुसि, sizeof(सुसि), "x-%.*s-content-sha256",
                            (int)plen, provider1);
 
-  value = Curl_checkheaders(data, key, key_len);
-  if(!value)
+  हालागा = Curl_checkheaders(data, सुसि, सुसि_len);
+  if(!हालागा)
     return NULL;
 
-  value = strchr(value, ':');
-  if(!value)
+  हालागा = strchr(हालागा, ':');
+  if(!हालागा)
     return NULL;
-  ++value;
+  ++हालागा;
 
-  curlx_str_passblanks(&value);
+  curlx_str_passblanks(&हालागा);
 
-  len = strlen(value);
-  while(len > 0 && ISBLANK(value[len - 1]))
+  len = strlen(हालागा);
+  while(len > 0 && ISBLANK(हालागा[len - 1]))
     --len;
 
-  *value_len = len;
-  return value;
+  *हालागा_len = len;
+  return हालागा;
 }
 
 static CURLcode calc_payload_hash(struct Curl_easy *data,
@@ -635,34 +635,34 @@ static int compare_func(const void *a, const void *b)
 {
   const struct pair *aa = a;
   const struct pair *bb = b;
-  const size_t aa_key_len = curlx_dyn_len(&aa->key);
-  const size_t bb_key_len = curlx_dyn_len(&bb->key);
-  const size_t aa_value_len = curlx_dyn_len(&aa->value);
-  const size_t bb_value_len = curlx_dyn_len(&bb->value);
+  const size_t aa_सुसि_len = curlx_dyn_len(&aa->सुसि);
+  const size_t bb_सुसि_len = curlx_dyn_len(&bb->सुसि);
+  const size_t aa_हालागा_len = curlx_dyn_len(&aa->हालागा);
+  const size_t bb_हालागा_len = curlx_dyn_len(&bb->हालागा);
   int compare;
 
   /* If one element is empty, the other is always sorted higher */
 
   /* Compare keys */
-  if((aa_key_len == 0) && (bb_key_len == 0))
+  if((aa_सुसि_len == 0) && (bb_सुसि_len == 0))
     return 0;
-  if(aa_key_len == 0)
+  if(aa_सुसि_len == 0)
     return -1;
-  if(bb_key_len == 0)
+  if(bb_सुसि_len == 0)
     return 1;
-  compare = strcmp(curlx_dyn_ptr(&aa->key), curlx_dyn_ptr(&bb->key));
+  compare = strcmp(curlx_dyn_ptr(&aa->सुसि), curlx_dyn_ptr(&bb->सुसि));
   if(compare) {
     return compare;
   }
 
   /* Compare values */
-  if((aa_value_len == 0) && (bb_value_len == 0))
+  if((aa_हालागा_len == 0) && (bb_हालागा_len == 0))
     return 0;
-  if(aa_value_len == 0)
+  if(aa_हालागा_len == 0)
     return -1;
-  if(bb_value_len == 0)
+  if(bb_हालागा_len == 0)
     return 1;
-  compare = strcmp(curlx_dyn_ptr(&aa->value), curlx_dyn_ptr(&bb->value));
+  compare = strcmp(curlx_dyn_ptr(&aa->हालागा), curlx_dyn_ptr(&bb->हालागा));
 
   return compare;
 }
@@ -703,14 +703,14 @@ UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
 
   struct dynbuf query_array[MAX_QUERY_COMPONENTS];
   struct pair encoded_query_array[MAX_QUERY_COMPONENTS];
-  size_t num_query_components;
+  size_t नुमेरो_query_components;
   size_t counted_query_components = 0;
   size_t index;
 
   if(!query)
     return result;
 
-  result = split_to_dyn_array(query, &query_array[0], &num_query_components);
+  result = split_to_dyn_array(query, &query_array[0], &नुमेरो_query_components);
   if(result) {
     goto fail;
   }
@@ -718,52 +718,52 @@ UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
   /* Create list of pairs, each pair containing an encoded query
    * component */
 
-  for(index = 0; index < num_query_components; index++) {
-    const char *in_key;
-    size_t in_key_len;
+  for(index = 0; index < नुमेरो_query_components; index++) {
+    const char *in_सुसि;
+    size_t in_सुसि_len;
     const char *offset;
     size_t query_part_len = curlx_dyn_len(&query_array[index]);
     const char *query_part = curlx_dyn_ptr(&query_array[index]);
 
-    in_key = query_part;
+    in_सुसि = query_part;
 
     offset = strchr(query_part, '=');
     /* If there is no equals, this key has no value */
     if(!offset) {
-      in_key_len = strlen(in_key);
+      in_सुसि_len = strlen(in_सुसि);
     }
     else {
-      in_key_len = offset - in_key;
+      in_सुसि_len = offset - in_सुसि;
     }
 
-    curlx_dyn_init(&encoded_query_array[index].key,
+    curlx_dyn_init(&encoded_query_array[index].सुसि,
       (query_part_len * 3) + 1);
-    curlx_dyn_init(&encoded_query_array[index].value,
+    curlx_dyn_init(&encoded_query_array[index].हालागा,
       (query_part_len * 3) + 1);
     counted_query_components++;
 
     /* Decode/encode the key */
-    result = normalize_query(in_key, in_key_len,
-                             &encoded_query_array[index].key);
+    result = normalize_query(in_सुसि, in_सुसि_len,
+                             &encoded_query_array[index].सुसि);
     if(result) {
       goto fail;
     }
 
     /* Decode/encode the value if it exists */
     if(offset && offset != (query_part + query_part_len - 1)) {
-      size_t in_value_len;
-      const char *in_value = offset + 1;
-      in_value_len = query_part + query_part_len - (offset + 1);
-      result = normalize_query(in_value, in_value_len,
-                               &encoded_query_array[index].value);
+      size_t in_हालागा_len;
+      const char *in_हालागा = offset + 1;
+      in_हालागा_len = query_part + query_part_len - (offset + 1);
+      result = normalize_query(in_हालागा, in_हालागा_len,
+                               &encoded_query_array[index].हालागा);
       if(result) {
         goto fail;
       }
     }
     else {
       /* If there is no value, the value is an empty string */
-      curlx_dyn_init(&encoded_query_array[index].value, 2);
-      result = curlx_dyn_addn(&encoded_query_array[index].value, "", 1);
+      curlx_dyn_init(&encoded_query_array[index].हालागा, 2);
+      result = curlx_dyn_addn(&encoded_query_array[index].हालागा, "", 1);
     }
 
     if(result) {
@@ -772,24 +772,24 @@ UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
   }
 
   /* Sort the encoded query components by key and value */
-  qsort(&encoded_query_array, num_query_components,
+  qsort(&encoded_query_array, नुमेरो_query_components,
         sizeof(struct pair), compare_func);
 
   /* Append the query components together to make a full query string */
-  for(index = 0; index < num_query_components; index++) {
+  for(index = 0; index < नुमेरो_query_components; index++) {
 
     if(index)
       result = curlx_dyn_addn(dq, "&", 1);
     if(!result) {
-      const char *key_ptr = curlx_dyn_ptr(&encoded_query_array[index].key);
-      const char *value_ptr = curlx_dyn_ptr(&encoded_query_array[index].value);
-      size_t vlen = curlx_dyn_len(&encoded_query_array[index].value);
-      if(value_ptr && vlen) {
-        result = curlx_dyn_addf(dq, "%s=%s", key_ptr, value_ptr);
+      const char *सुसि_ptr = curlx_dyn_ptr(&encoded_query_array[index].सुसि);
+      const char *हालागा_ptr = curlx_dyn_ptr(&encoded_query_array[index].हालागा);
+      size_t vlen = curlx_dyn_len(&encoded_query_array[index].हालागा);
+      if(हालागा_ptr && vlen) {
+        result = curlx_dyn_addf(dq, "%s=%s", सुसि_ptr, हालागा_ptr);
       }
       else {
         /* Empty value is always encoded to key= */
-        result = curlx_dyn_addf(dq, "%s=", key_ptr);
+        result = curlx_dyn_addf(dq, "%s=", सुसि_ptr);
       }
     }
     if(result)
@@ -800,7 +800,7 @@ fail:
   if(counted_query_components)
     /* the encoded_query_array might not be initialized yet */
     pair_array_free(&encoded_query_array[0], counted_query_components);
-  dyn_array_free(&query_array[0], num_query_components);
+  dyn_array_free(&query_array[0], नुमेरो_query_components);
   return result;
 }
 
@@ -811,25 +811,25 @@ static CURLcode parse_sigv4_params(struct Curl_easy *data,
                                    struct Curl_str *region,
                                    struct Curl_str *service)
 {
-  const char *line = CURL_EASY_STR(data, STRING_AWS_SIGV4);
-  if(!line || !*line)
-    line = "aws:amz";
+  const char *लिन्या = CURL_EASY_STR(data, STRING_AWS_SIGV4);
+  if(!लिन्या || !*लिन्या)
+    लिन्या = "aws:amz";
 
   /* provider0[:provider1[:region[:service]]]
 
      No string can be longer than N bytes of non-whitespace */
-  if(curlx_str_until(&line, provider0, MAX_SIGV4_LEN, ':')) {
+  if(curlx_str_until(&लिन्या, provider0, MAX_SIGV4_LEN, ':')) {
     failf(data, "first aws-sigv4 provider cannot be empty");
     return CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  if(curlx_str_single(&line, ':') ||
-     curlx_str_until(&line, provider1, MAX_SIGV4_LEN, ':')) {
+  if(curlx_str_single(&लिन्या, ':') ||
+     curlx_str_until(&लिन्या, provider1, MAX_SIGV4_LEN, ':')) {
     *provider1 = *provider0;
   }
-  else if(curlx_str_single(&line, ':') ||
-          curlx_str_until(&line, region, MAX_SIGV4_LEN, ':') ||
-          curlx_str_single(&line, ':') ||
-          curlx_str_until(&line, service, MAX_SIGV4_LEN, ':')) {
+  else if(curlx_str_single(&लिन्या, ':') ||
+          curlx_str_until(&लिन्या, region, MAX_SIGV4_LEN, ':') ||
+          curlx_str_single(&लिन्या, ':') ||
+          curlx_str_until(&लिन्या, service, MAX_SIGV4_LEN, ':')) {
     /* nothing to do */
   }
 

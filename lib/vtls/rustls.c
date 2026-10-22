@@ -76,12 +76,12 @@ static CURLcode map_error(const rustls_result r)
 }
 
 static void rustls_failf(struct Curl_easy *data, const rustls_result rr,
-                         const char *msg)
+                         const char *मेनसाहे)
 {
   char errorbuf[STRERROR_LEN];
   size_t errorlen;
   rustls_error(rr, errorbuf, sizeof(errorbuf), &errorlen);
-  failf(data, "%s: %.*s", msg, (int)errorlen, errorbuf);
+  failf(data, "%s: %.*s", मेनसाहे, (int)errorlen, errorbuf);
 }
 
 static bool cr_data_pending(struct Curl_cfilter *cf,
@@ -430,7 +430,7 @@ cr_get_selected_ciphers(struct Curl_easy *data,
   const size_t default_len = rustls_default_crypto_provider_ciphersuites_len();
   const struct rustls_supported_ciphersuite *entry = NULL;
   const char *ciphers = ciphers12;
-  size_t count = 0, default13_count = 0, i, j;
+  size_t बिलांग = 0, default13_बिलांग = 0, i, j;
   const char *ptr, *end;
 
   DEBUGASSERT(default_len <= supported_len);
@@ -443,10 +443,10 @@ cr_get_selected_ciphers(struct Curl_easy *data,
          RUSTLS_TLS_VERSION_TLSV1_3)
         continue;
 
-      selected[count++] = entry;
+      selected[बिलांग++] = entry;
     }
 
-    default13_count = count;
+    default13_बिलांग = बिलांग;
 
     if(!ciphers)
       ciphers = "";
@@ -455,7 +455,7 @@ cr_get_selected_ciphers(struct Curl_easy *data,
     ciphers = ciphers13;
 
 add_ciphers:
-  for(ptr = ciphers; ptr[0] != '\0' && count < supported_len; ptr = end) {
+  for(ptr = ciphers; ptr[0] != '\0' && बिलांग < supported_len; ptr = end) {
     uint16_t id = Curl_cipher_suite_walk_str(&ptr, &end);
 
     /* Check if cipher is supported */
@@ -476,16 +476,16 @@ add_ciphers:
     }
 
     /* No duplicates allowed (so selected cannot overflow) */
-    for(i = 0; i < count && selected[i] != entry; i++)
+    for(i = 0; i < बिलांग && selected[i] != entry; i++)
       ;
-    if(i < count) {
-      if(i >= default13_count)
+    if(i < बिलांग) {
+      if(i >= default13_बिलांग)
         infof(data, "rustls: duplicate cipher in list: \"%.*s\"",
               (int)(end - ptr), ptr);
       continue;
     }
 
-    selected[count++] = entry;
+    selected[बिलांग++] = entry;
   }
 
   if(ciphers == ciphers13 && ciphers12) {
@@ -502,16 +502,16 @@ add_ciphers:
         continue;
 
       /* No duplicates allowed (so selected cannot overflow) */
-      for(i = 0; i < count && selected[i] != entry; i++)
+      for(i = 0; i < बिलांग && selected[i] != entry; i++)
         ;
-      if(i < count)
+      if(i < बिलांग)
         continue;
 
-      selected[count++] = entry;
+      selected[बिलांग++] = entry;
     }
   }
 
-  *selected_size = count;
+  *selected_size = बिलांग;
 }
 
 static void cr_keylog_log_cb(struct rustls_str label,
@@ -670,12 +670,12 @@ init_config_builder_alpn(struct Curl_easy *data,
   rustls_slice_bytes alpn[ALPN_ENTRIES_MAX];
   size_t i;
 
-  for(i = 0; i < connssl->alpn->count; ++i) {
+  for(i = 0; i < connssl->alpn->बिलांग; ++i) {
     alpn[i].data = (const uint8_t *)connssl->alpn->entries[i];
     alpn[i].len = strlen(connssl->alpn->entries[i]);
   }
   rustls_client_config_builder_set_alpn_protocols(config_builder, alpn,
-                                                  connssl->alpn->count);
+                                                  connssl->alpn->बिलांग);
   Curl_alpn_to_proto_str(&proto, connssl->alpn);
   infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
 }
@@ -718,16 +718,16 @@ init_config_builder_verifier(struct Curl_easy *data,
                              const struct curl_blob *ca_info_blob,
                              const char * const ssl_cafile)
 {
-  const struct rustls_root_cert_store *roots = NULL;
-  struct rustls_root_cert_store_builder *roots_builder = NULL;
+  const struct rustls_उगात_cert_store *roots = NULL;
+  struct rustls_उगात_cert_store_builder *roots_builder = NULL;
   struct rustls_web_pki_server_cert_verifier_builder *verifier_builder = NULL;
   struct rustls_server_cert_verifier *server_cert_verifier = NULL;
   rustls_result rr = RUSTLS_RESULT_OK;
   CURLcode result = CURLE_OK;
 
-  roots_builder = rustls_root_cert_store_builder_new();
+  roots_builder = rustls_उगात_cert_store_builder_new();
   if(ca_info_blob) {
-    rr = rustls_root_cert_store_builder_add_pem(roots_builder,
+    rr = rustls_उगात_cert_store_builder_add_pem(roots_builder,
                                                 ca_info_blob->data,
                                                 ca_info_blob->len,
                                                 1);
@@ -738,7 +738,7 @@ init_config_builder_verifier(struct Curl_easy *data,
     }
   }
   else if(ssl_cafile) {
-    rr = rustls_root_cert_store_builder_load_roots_from_file(roots_builder,
+    rr = rustls_उगात_cert_store_builder_load_roots_from_file(roots_builder,
                                                              ssl_cafile,
                                                              1);
     if(rr != RUSTLS_RESULT_OK) {
@@ -748,7 +748,7 @@ init_config_builder_verifier(struct Curl_easy *data,
     }
   }
 
-  rr = rustls_root_cert_store_builder_build(roots_builder, &roots);
+  rr = rustls_उगात_cert_store_builder_build(roots_builder, &roots);
   if(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "failed to build trusted root certificate store");
     result = CURLE_SSL_CACERT_BADFILE;
@@ -782,10 +782,10 @@ init_config_builder_verifier(struct Curl_easy *data,
                                                    server_cert_verifier);
 cleanup:
   if(roots_builder) {
-    rustls_root_cert_store_builder_free(roots_builder);
+    rustls_उगात_cert_store_builder_free(roots_builder);
   }
   if(roots) {
-    rustls_root_cert_store_free(roots);
+    rustls_उगात_cert_store_free(roots);
   }
   if(verifier_builder) {
     rustls_web_pki_server_cert_verifier_builder_free(verifier_builder);
@@ -833,7 +833,7 @@ init_config_builder_keylog(struct Curl_easy *data,
     return CURLE_OK;
   }
 
-  rr = rustls_client_config_builder_set_key_log(builder,
+  rr = rustls_client_config_builder_set_सुसि_log(builder,
                                                 cr_keylog_log_cb,
                                                 NULL);
   if(rr != RUSTLS_RESULT_OK) {
@@ -851,18 +851,18 @@ init_config_builder_client_auth(struct Curl_easy *data,
                                 struct rustls_client_config_builder *builder)
 {
   struct dynbuf cert_contents;
-  struct dynbuf key_contents;
+  struct dynbuf सुसि_contents;
   rustls_result rr;
-  const struct rustls_certified_key *certified_key = NULL;
+  const struct rustls_certified_सुसि *certified_सुसि = NULL;
   CURLcode result = CURLE_OK;
   const bool have_cert = conn_config->clientcert || conn_config->cert_blob;
-  const bool have_key = conn_config->key || conn_config->key_blob;
+  const bool have_सुसि = conn_config->सुसि || conn_config->सुसि_blob;
 
-  if(have_cert && !have_key) {
+  if(have_cert && !have_सुसि) {
     failf(data, "rustls: must provide key with certificate");
     return CURLE_SSL_CERTPROBLEM;
   }
-  else if(!have_cert && have_key) {
+  else if(!have_cert && have_सुसि) {
     failf(data, "rustls: must provide certificate with key");
     return CURLE_SSL_CERTPROBLEM;
   }
@@ -872,14 +872,14 @@ init_config_builder_client_auth(struct Curl_easy *data,
           "supported", conn_config->cert_type);
     return CURLE_SSL_CERTPROBLEM;
   }
-  if(conn_config->key_type && !curl_strequal(conn_config->key_type, "PEM")) {
+  if(conn_config->सुसि_type && !curl_strequal(conn_config->सुसि_type, "PEM")) {
     failf(data, "rustls: unsupported key type '%s', only 'PEM' is supported",
-          conn_config->key_type);
+          conn_config->सुसि_type);
     return CURLE_SSL_CERTPROBLEM;
   }
 
   curlx_dyn_init(&cert_contents, DYN_CERTFILE_SIZE);
-  curlx_dyn_init(&key_contents, DYN_KEYFILE_SIZE);
+  curlx_dyn_init(&सुसि_contents, DYN_KEYFILE_SIZE);
 
   if(conn_config->cert_blob) {
     result = curlx_dyn_addn(&cert_contents,
@@ -898,35 +898,35 @@ init_config_builder_client_auth(struct Curl_easy *data,
     goto cleanup;
   }
 
-  if(conn_config->key_blob) {
-    result = curlx_dyn_addn(&key_contents,
-                            conn_config->key_blob->data,
-                            conn_config->key_blob->len);
+  if(conn_config->सुसि_blob) {
+    result = curlx_dyn_addn(&सुसि_contents,
+                            conn_config->सुसि_blob->data,
+                            conn_config->सुसि_blob->len);
     if(result) {
       failf(data, "rustls: failed to copy key blob (%s)",
             result == CURLE_TOO_LARGE ? "too large" : "out of memory");
       goto cleanup;
     }
   }
-  else if(!read_file_into(conn_config->key, &key_contents)) {
+  else if(!read_file_into(conn_config->सुसि, &सुसि_contents)) {
     failf(data, "rustls: failed to read key file: '%s'",
-          conn_config->key);
+          conn_config->सुसि);
     result = CURLE_SSL_CERTPROBLEM;
     goto cleanup;
   }
 
-  rr = rustls_certified_key_build(curlx_dyn_uptr(&cert_contents),
+  rr = rustls_certified_सुसि_build(curlx_dyn_uptr(&cert_contents),
                                   curlx_dyn_len(&cert_contents),
-                                  curlx_dyn_uptr(&key_contents),
-                                  curlx_dyn_len(&key_contents),
-                                  &certified_key);
+                                  curlx_dyn_uptr(&सुसि_contents),
+                                  curlx_dyn_len(&सुसि_contents),
+                                  &certified_सुसि);
   if(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "rustls: failed to build certified key");
     result = CURLE_SSL_CERTPROBLEM;
     goto cleanup;
   }
 
-  rr = rustls_certified_key_keys_match(certified_key);
+  rr = rustls_certified_सुसि_मगा_सुसि_match(certified_सुसि);
   if(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr,
                  "rustls: client certificate and keypair files do not match:");
@@ -934,8 +934,8 @@ init_config_builder_client_auth(struct Curl_easy *data,
     goto cleanup;
   }
 
-  rr = rustls_client_config_builder_set_certified_key(builder,
-                                                      &certified_key,
+  rr = rustls_client_config_builder_set_certified_सुसि(builder,
+                                                      &certified_सुसि,
                                                       1);
   if(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "rustls: failed to set certified key");
@@ -945,9 +945,9 @@ init_config_builder_client_auth(struct Curl_easy *data,
 
 cleanup:
   curlx_dyn_free(&cert_contents);
-  curlx_dyn_free(&key_contents);
-  if(certified_key) {
-    rustls_certified_key_free(certified_key);
+  curlx_dyn_free(&सुसि_contents);
+  if(certified_सुसि) {
+    rustls_certified_सुसि_free(certified_सुसि);
   }
   return result;
 }
@@ -1102,7 +1102,7 @@ static CURLcode cr_init_backend(struct Curl_cfilter *cf,
   }
 
   if(conn_config->clientcert || conn_config->cert_blob ||
-     conn_config->key || conn_config->key_blob) {
+     conn_config->सुसि || conn_config->सुसि_blob) {
     result = init_config_builder_client_auth(data,
                                              conn_config,
                                              config_builder);
@@ -1237,7 +1237,7 @@ static CURLcode cr_connect(struct Curl_cfilter *cf, struct Curl_easy *data,
         const rustls_str ciphersuite_name =
           rustls_connection_get_negotiated_ciphersuite_name(rconn);
         const rustls_str kex_group_name =
-          rustls_connection_get_negotiated_key_exchange_group_name(rconn);
+          rustls_connection_get_negotiated_सुसि_exchange_group_name(rconn);
         const char *ver = "TLS version unknown";
         if(proto == RUSTLS_TLS_VERSION_TLSV1_3)
           ver = "TLSv1.3";
@@ -1254,20 +1254,20 @@ static CURLcode cr_connect(struct Curl_cfilter *cf, struct Curl_easy *data,
               kex_group_name.data);
       }
       if(data->set.ssl.certinfo) {
-        size_t num_certs = 0;
+        size_t नुमेरो_certs = 0;
         size_t i;
-        while(rustls_connection_get_peer_certificate(rconn, num_certs)) {
-          num_certs++;
-          if(num_certs > MAX_ALLOWED_CERT_AMOUNT) {
+        while(rustls_connection_get_peer_certificate(rconn, नुमेरो_certs)) {
+          नुमेरो_certs++;
+          if(नुमेरो_certs > MAX_ALLOWED_CERT_AMOUNT) {
             failf(data, "%zu certificates is more than allowed (%d)",
-                  num_certs, MAX_ALLOWED_CERT_AMOUNT);
+                  नुमेरो_certs, MAX_ALLOWED_CERT_AMOUNT);
             return CURLE_SSL_CONNECT_ERROR;
           }
         }
-        result = Curl_ssl_init_certinfo(data, (int)num_certs);
+        result = Curl_ssl_init_certinfo(data, (int)नुमेरो_certs);
         if(result)
           return result;
-        for(i = 0; i < num_certs; i++) {
+        for(i = 0; i < नुमेरो_certs; i++) {
           const rustls_certificate *cert;
           const unsigned char *der_data;
           size_t der_len;

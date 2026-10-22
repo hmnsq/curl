@@ -114,9 +114,9 @@ static void mev_sh_entry_kill(struct Curl_multi *multi, curl_socket_t s)
   Curl_hash_delete(&multi->ev.sh_entries, (char *)&s, sizeof(curl_socket_t));
 }
 
-static size_t mev_sh_entry_user_count(struct mev_sh_entry *e)
+static size_t mev_sh_entry_user_बिलांग(struct mev_sh_entry *e)
 {
-  return Curl_uint32_spbset_count(&e->xfers) + (e->conn ? 1 : 0);
+  return Curl_uint32_spbset_बिलांग(&e->xfers) + (e->conn ? 1 : 0);
 }
 
 static bool mev_sh_entry_xfer_known(struct mev_sh_entry *e,
@@ -131,10 +131,10 @@ static bool mev_sh_entry_conn_known(struct mev_sh_entry *e,
   return (e->conn == conn);
 }
 
-static void mev_pollset_dtor(const void *key, size_t klen, void *entry)
+static void mev_pollset_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct easy_pollset *ps = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   if(ps) {
     Curl_pollset_cleanup(ps);
@@ -181,7 +181,7 @@ static bool mev_sh_entry_xfer_add(struct mev_sh_entry *e,
                                   struct Curl_easy *data)
 {
    /* detect weird values */
-  DEBUGASSERT(mev_sh_entry_user_count(e) < 100000);
+  DEBUGASSERT(mev_sh_entry_user_बिलांग(e) < 100000);
   return Curl_uint32_spbset_add(&e->xfers, data->mid);
 }
 
@@ -189,7 +189,7 @@ static bool mev_sh_entry_conn_add(struct mev_sh_entry *e,
                                   struct connectdata *conn)
 {
    /* detect weird values */
-  DEBUGASSERT(mev_sh_entry_user_count(e) < 100000);
+  DEBUGASSERT(mev_sh_entry_user_बिलांग(e) < 100000);
   DEBUGASSERT(!e->conn);
   if(e->conn)
     return FALSE;
@@ -309,8 +309,8 @@ static CURLMcode mev_sh_entry_update(struct Curl_multi *multi,
   else if(cur_action & CURL_POLL_OUT)
     entry->writers++;
 
-  DEBUGASSERT(entry->readers <= mev_sh_entry_user_count(entry));
-  DEBUGASSERT(entry->writers <= mev_sh_entry_user_count(entry));
+  DEBUGASSERT(entry->readers <= mev_sh_entry_user_बिलांग(entry));
+  DEBUGASSERT(entry->writers <= mev_sh_entry_user_बिलांग(entry));
   DEBUGASSERT(entry->writers + entry->readers);
 
   CURL_TRC_M(data, "ev update fd=%" FMT_SOCKET_T ", action '%s%s' -> '%s%s'"
@@ -415,7 +415,7 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
                  ", total=%u/%d (xfer/conn)", s,
                  conn ? "connection" : "transfer",
                  conn ? conn->connection_id : data->mid,
-                 Curl_uint32_spbset_count(&entry->xfers),
+                 Curl_uint32_spbset_बिलांग(&entry->xfers),
                  entry->conn ? 1 : 0);
     }
     else {
@@ -475,7 +475,7 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
       continue;
     }
 
-    if(mev_sh_entry_user_count(entry)) {
+    if(mev_sh_entry_user_बिलांग(entry)) {
       /* track readers/writers changes and report to socket callback */
       mresult = mev_sh_entry_update(multi, data, entry, s,
                                     prev_ps->actions[i], 0);
@@ -483,7 +483,7 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
         return mresult;
       CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", removed transfer, "
                  "total=%u/%d (xfer/conn)", s,
-                 Curl_uint32_spbset_count(&entry->xfers),
+                 Curl_uint32_spbset_बिलांग(&entry->xfers),
                  entry->conn ? 1 : 0);
     }
     else {

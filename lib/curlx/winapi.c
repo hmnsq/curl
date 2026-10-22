@@ -78,14 +78,14 @@ const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen)
 #ifdef CURLVERBOSE
   if(!curlx_get_winapi_error(err, buf, buflen)) {
 #if defined(__GNUC__) && __GNUC__ >= 7
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic warning "-Wformat-truncation=1"
 #endif
     /* some GCC compilers cause false positive warnings if we allow this
        warning */
     SNPRINTF(buf, buflen, "Unknown error %lu (0x%08lx)", err, err);
 #if defined(__GNUC__) && __GNUC__ >= 7
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
   }
 #else

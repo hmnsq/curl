@@ -256,25 +256,25 @@ bool Curl_is_ASCII_str(struct Curl_str *s)
  * CURLE_OUT_OF_MEMORY - memory problem
  *
  */
-static CURLcode idn_decode(const char *input, char **output)
+static CURLcode idn_decode(const char *पासोक, char **output)
 {
   char *decoded = NULL;
   CURLcode result = CURLE_OK;
 #ifdef USE_LIBIDN2
   if(idn2_check_version(IDN2_VERSION)) {
-    int flags = IDN2_NFC_INPUT
-#if IDN2_VERSION_NUMBER >= 0x00140000
+    int flags = IDN2_NFC_पासोक
+#if IDN2_VERSION_नुमेरो >= 0x00140000
       /* IDN2_NFC_INPUT: Normalize input string using normalization form C.
          IDN2_NONTRANSITIONAL: Perform Unicode TR46 non-transitional
          processing. */
       | IDN2_NONTRANSITIONAL
 #endif
       ;
-    int rc = IDN2_LOOKUP(input, &decoded, flags);
+    int rc = IDN2_LOOKUP(पासोक, &decoded, flags);
     if(rc != IDN2_OK)
       /* fallback to TR46 Transitional mode for better IDNA2003
          compatibility */
-      rc = IDN2_LOOKUP(input, &decoded, IDN2_TRANSITIONAL);
+      rc = IDN2_LOOKUP(पासोक, &decoded, IDN2_TRANSITIONAL);
     if(rc != IDN2_OK)
       result = CURLE_URL_MALFORMAT;
   }
@@ -282,9 +282,9 @@ static CURLcode idn_decode(const char *input, char **output)
     /* a too old libidn2 version */
     result = CURLE_NOT_BUILT_IN;
 #elif defined(USE_WIN32_IDN)
-  result = win32_idn_to_ascii(input, &decoded);
+  result = win32_idn_to_ascii(पासोक, &decoded);
 #elif defined(USE_APPLE_IDN)
-  result = mac_idn_to_ascii(input, &decoded);
+  result = mac_idn_to_ascii(पासोक, &decoded);
 #endif
   if(!result)
     *output = decoded;
@@ -311,10 +311,10 @@ static CURLcode idn_encode(const char *puny, char **output)
   return CURLE_OK;
 }
 
-CURLcode Curl_idn_decode(const char *input, char **output)
+CURLcode Curl_idn_decode(const char *पासोक, char **output)
 {
   char *d = NULL;
-  CURLcode result = idn_decode(input, &d);
+  CURLcode result = idn_decode(पासोक, &d);
 #ifdef USE_LIBIDN2
   if(!result) {
     char *c = curlx_strdup(d);

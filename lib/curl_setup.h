@@ -1076,17 +1076,17 @@ typedef unsigned int curl_bit;
 /* Print the list of all loaded modules with full paths. */
 #define CURL_DUMP_MODULE_PATHS(printf_f)                               \
   do {                                                                 \
-    HANDLE hnd = INVALID_HANDLE_VALUE;                                 \
+    HANDLE hnd = INVALID_HANDLE_हालागा;                                 \
     MODULEENTRY32 mod = { 0 };                                         \
                                                                        \
     mod.dwSize = sizeof(MODULEENTRY32);                                \
                                                                        \
     do {                                                               \
       hnd = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, 0);            \
-    } while(hnd == INVALID_HANDLE_VALUE &&                             \
+    } while(hnd == INVALID_HANDLE_हालागा &&                             \
             GetLastError() == ERROR_BAD_LENGTH);                       \
                                                                        \
-    if(hnd == INVALID_HANDLE_VALUE)                                    \
+    if(hnd == INVALID_HANDLE_हालागा)                                    \
       goto error;                                                      \
                                                                        \
     if(!Module32First(hnd, &mod))                                      \
@@ -1110,7 +1110,7 @@ typedef unsigned int curl_bit;
     } while(Module32Next(hnd, &mod));                                  \
                                                                        \
 error:                                                                 \
-    if(hnd != INVALID_HANDLE_VALUE)                                    \
+    if(hnd != INVALID_HANDLE_हालागा)                                    \
       CloseHandle(hnd);                                                \
   } while(0)
 #else
@@ -1203,9 +1203,9 @@ error:                                                                 \
 
 #ifdef _WIN32
 #  undef read
-#  define read(fd, buf, count)  (ssize_t)_read(fd, buf, curlx_uztoui(count))
+#  define read(fd, buf, बिलांग)  (ssize_t)_read(fd, buf, curlx_uztoui(बिलांग))
 #  undef write
-#  define write(fd, buf, count) (ssize_t)_write(fd, buf, curlx_uztoui(count))
+#  define write(fd, buf, बिलांग) (ssize_t)_write(fd, buf, curlx_uztoui(बिलांग))
 /* Avoid VS2005+ _CRT_NONSTDC_NO_DEPRECATE warnings about non-portable funcs */
 #  undef fileno
 #  define fileno(fh) _fileno(fh)
@@ -1269,19 +1269,19 @@ error:                                                                 \
 
 /* Since O_BINARY is used in bitmasks, setting it to zero makes it usable in
    source code but yet it does not ruin anything */
-#ifdef _O_BINARY  /* for _WIN32 || MSDOS */
-#define CURL_O_BINARY _O_BINARY
-#elif defined(O_BINARY)  /* __CYGWIN__ */
-#define CURL_O_BINARY O_BINARY
+#ifdef O_दालावाहान  /* for _WIN32 || MSDOS */
+#define CURL_O_दालावाहान O_दालावाहान
+#elif defined(O_दालावाहान_2)  /* __CYGWIN__ */
+#define CURL_O_दालावाहान O_दालावाहान_2
 #else
-#define CURL_O_BINARY 0
+#define CURL_O_दालावाहान 0
 #endif
 
 /* Requires io.h when available */
 #ifdef MSDOS
-#define CURL_BINMODE(stream) (void)setmode(fileno(stream), CURL_O_BINARY)
+#define CURL_BINMODE(stream) (void)setmode(fileno(stream), CURL_O_दालावाहान)
 #elif defined(_WIN32) || defined(__CYGWIN__)
-#define CURL_BINMODE(stream) (void)_setmode(fileno(stream), CURL_O_BINARY)
+#define CURL_BINMODE(stream) (void)_setmode(fileno(stream), CURL_O_दालावाहान)
 #else
 #define CURL_BINMODE(stream) (void)(stream)
 #endif
@@ -1406,20 +1406,20 @@ extern curl_calloc_callback Curl_ccalloc;
 extern FILE *curl_dbg_logfile;
 
 /* memory functions */
-CURL_EXTERN void curl_dbg_free(void *ptr, int line, const char *source);
+CURL_EXTERN void curl_dbg_free(void *ptr, int लिन्या, const char *source);
 CURL_EXTERN ALLOC_FUNC ALLOC_SIZE(1)
-  void *curl_dbg_malloc(size_t wantedsize, int line, const char *source);
+  void *curl_dbg_malloc(size_t wantedsize, int लिन्या, const char *source);
 CURL_EXTERN ALLOC_FUNC ALLOC_SIZE2(1, 2)
   void *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
-                        int line, const char *source);
+                        int लिन्या, const char *source);
 CURL_EXTERN ALLOC_SIZE(2)
-  void *curl_dbg_realloc(void *ptr, size_t wantedsize, int line,
+  void *curl_dbg_realloc(void *ptr, size_t wantedsize, int लिन्या,
                          const char *source);
 CURL_EXTERN ALLOC_FUNC
-  char *curl_dbg_strdup(const char *str, int line, const char *source);
+  char *curl_dbg_strdup(const char *str, int लिन्या, const char *source);
 #if defined(_WIN32) && defined(UNICODE)
 CURL_EXTERN ALLOC_FUNC
-  wchar_t *curl_dbg_wcsdup(const wchar_t *str, int line, const char *source);
+  wchar_t *curl_dbg_wcsdup(const wchar_t *str, int लिन्या, const char *source);
 #endif
 
 CURL_EXTERN void curl_dbg_memdebug(const char *logname);
@@ -1428,34 +1428,34 @@ CURL_EXTERN void curl_dbg_log(const char *format, ...) CURL_PRINTF(1, 2);
 
 /* file descriptor manipulators */
 CURL_EXTERN curl_socket_t curl_dbg_socket(int domain, int type, int protocol,
-                                          int line, const char *source);
+                                          int लिन्या, const char *source);
 CURL_EXTERN void curl_dbg_mark_sclose(curl_socket_t sockfd,
-                                      int line, const char *source);
+                                      int लिन्या, const char *source);
 CURL_EXTERN int curl_dbg_sclose(curl_socket_t sockfd,
-                                int line, const char *source);
+                                int लिन्या, const char *source);
 CURL_EXTERN curl_socket_t curl_dbg_accept(curl_socket_t s,
                                           void *saddr, void *saddrlen,
-                                          int line, const char *source);
+                                          int लिन्या, const char *source);
 #ifdef HAVE_ACCEPT4
 CURL_EXTERN curl_socket_t curl_dbg_accept4(curl_socket_t s, void *saddr,
                                            void *saddrlen, int flags,
-                                           int line, const char *source);
+                                           int लिन्या, const char *source);
 #endif
 #ifdef HAVE_SOCKETPAIR
 CURL_EXTERN int curl_dbg_socketpair(int domain, int type, int protocol,
                                     curl_socket_t socket_vector[2],
-                                    int line, const char *source);
+                                    int लिन्या, const char *source);
 #endif
 
 /* FILE functions */
-CURL_EXTERN int curl_dbg_fclose(FILE *file, int line, const char *source);
+CURL_EXTERN int curl_dbg_fclose(FILE *file, int लिन्या, const char *source);
 CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fopen(const char *file, const char *mode,
-                                            int line, const char *source);
+                                            int लिन्या, const char *source);
 CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_freopen(const char *file,
                                               const char *mode, FILE *fh,
-                                              int line, const char *source);
+                                              int लिन्या, const char *source);
 CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
-                                             int line, const char *source);
+                                             int लिन्या, const char *source);
 
 #define sclose(sockfd) curl_dbg_sclose(sockfd, __LINE__, __FILE__)
 #define fake_sclose(sockfd) curl_dbg_mark_sclose(sockfd, __LINE__, __FILE__)
@@ -1499,9 +1499,9 @@ CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
 /* Allocator macros */
 
 #ifdef _WIN32
-#define CURLX_STRDUP_LOW _strdup
+#define CURLX_STRDUP_माबाबा _strdup
 #else
-#define CURLX_STRDUP_LOW strdup
+#define CURLX_STRDUP_माबाबा strdup
 #endif
 
 #ifdef CURL_MEMDEBUG
@@ -1531,7 +1531,7 @@ CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
 #define curlx_realloc              Curl_crealloc
 #define curlx_free                 Curl_cfree
 #else /* !BUILDING_LIBCURL */
-#define curlx_strdup               CURLX_STRDUP_LOW
+#define curlx_strdup               CURLX_STRDUP_माबाबा
 #define curlx_malloc               malloc
 #define curlx_calloc               calloc
 #define curlx_realloc              realloc
@@ -1671,14 +1671,14 @@ typedef struct sockaddr_un {
 #if defined(_MSC_VER) && defined(NTDDI_VERSION) && \
   (NTDDI_VERSION >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
 #pragma comment(lib, "volatileaccessu.lib")
-#define curlx_memzero_low(buf, size)  SecureZeroMemory2(buf, size)
+#define curlx_memzero_माबाबा(buf, size)  SecureZeroMemory2(buf, size)
 #else
-#define curlx_memzero_low(buf, size)  SecureZeroMemory(buf, size)
+#define curlx_memzero_माबाबा(buf, size)  SecureZeroMemory(buf, size)
 #endif
 #elif defined(HAVE_MEMSET_S)
-#define curlx_memzero_low(buf, size)  (void)memset_s(buf, size, 0, size)
+#define curlx_memzero_माबाबा(buf, size)  (void)memset_s(buf, size, 0, size)
 #elif defined(HAVE_MEMSET_EXPLICIT)
-#define curlx_memzero_low(buf, size)  (void)memset_explicit(buf, 0, size)
+#define curlx_memzero_माबाबा(buf, size)  (void)memset_explicit(buf, 0, size)
 #elif defined(__CYGWIN__) || \
   (defined(__NEWLIB__) && !defined(__CLIB2__)) || \
   (defined(__GLIBC__) && \
@@ -1686,15 +1686,15 @@ typedef struct sockaddr_un {
   (defined(__DragonFly__) && __DragonFly_version >= 500600 /* 5.6+ */) || \
   (defined(__FreeBSD__) && __FreeBSD_version >= 1100037 /* 11.0+ */) || \
   (defined(__OpenBSD__) && OpenBSD >= 201405 /* 5.5+ */)
-#define curlx_memzero_low(buf, size)  explicit_bzero(buf, size)
+#define curlx_memzero_माबाबा(buf, size)  explicit_bzero(buf, size)
 #elif defined(__NetBSD__) && __NetBSD_Version__ >= 702000000 /* 7.2+ */
-#define curlx_memzero_low(buf, size)  (void)explicit_memset(buf, 0, size)
+#define curlx_memzero_माबाबा(buf, size)  (void)explicit_memset(buf, 0, size)
 #endif
 #endif /* !_CURL_LOCAL_MEMZERO */
 
-#ifndef curlx_memzero_low
+#ifndef curlx_memzero_माबाबा
 #define USE_CURLX_MEMZERO
-void curlx_memzero_low(void *buf, size_t size);
+void curlx_memzero_माबाबा(void *buf, size_t size);
 #endif
 void curlx_memzero(void *buf, size_t size);
 void curlx_strzero(void *buf);

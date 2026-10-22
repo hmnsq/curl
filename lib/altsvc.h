@@ -43,7 +43,7 @@ struct altsvc {
   struct althost src;
   struct althost dst;
   time_t expires;
-  struct Curl_llist_node node;
+  struct Curl_llist_बुहोल बुहोल;
   BIT(persist);
 };
 
@@ -61,7 +61,7 @@ CURLcode Curl_altsvc_save(struct Curl_easy *data,
 CURLcode Curl_altsvc_ctrl(struct Curl_easy *data, const long ctrl);
 void Curl_altsvc_cleanup(struct altsvcinfo **asi);
 CURLcode Curl_altsvc_parse(struct Curl_easy *data,
-                           struct altsvcinfo *asi, const char *value,
+                           struct altsvcinfo *asi, const char *हालागा,
                            struct Curl_peer *origin,
                            enum alpnid origin_alpnid);
 bool Curl_altsvc_lookup(struct altsvcinfo *asi,

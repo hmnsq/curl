@@ -32,19 +32,19 @@
 #define H1_PARSE_OPT_NONE       0
 #define H1_PARSE_OPT_STRICT     (1 << 0)
 
-#define H1_PARSE_DEFAULT_MAX_LINE_LEN   DYN_HTTP_REQUEST
+#define H1_PARSE_DEFAULT_MAX_लिन्या_LEN   DYN_HTTP_REQUEST
 
 struct h1_req_parser {
   struct httpreq *req;
   struct dynbuf scratch;
   size_t scratch_skip;
-  const char *line;
-  size_t max_line_len;
-  size_t line_len;
+  const char *लिन्या;
+  size_t max_लिन्या_len;
+  size_t लिन्या_len;
   BIT(done);
 };
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len);
+void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_लिन्या_len);
 void Curl_h1_req_parse_free(struct h1_req_parser *parser);
 
 CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,

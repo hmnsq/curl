@@ -56,8 +56,8 @@ CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
   size_t clen = strlen(Curl_creds_user(creds));
   size_t plen = strlen(Curl_creds_passwd(creds));
 
-  if((zlen > CURL_MAX_INPUT_LENGTH) || (clen > CURL_MAX_INPUT_LENGTH) ||
-     (plen > CURL_MAX_INPUT_LENGTH))
+  if((zlen > CURL_MAX_पासोक_LENGTH) || (clen > CURL_MAX_पासोक_LENGTH) ||
+     (plen > CURL_MAX_पासोक_LENGTH))
     return CURLE_TOO_LARGE;
 
   len = zlen + clen + plen + 2;
@@ -85,9 +85,9 @@ CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
  *
  * Returns void.
  */
-void Curl_auth_create_login_message(const char *value, struct bufref *out)
+void Curl_auth_create_login_message(const char *हालागा, struct bufref *out)
 {
-  Curl_bufref_set(out, value, strlen(value), NULL);
+  Curl_bufref_set(out, हालागा, strlen(हालागा), NULL);
 }
 
 /*

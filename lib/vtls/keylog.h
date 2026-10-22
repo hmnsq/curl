@@ -70,6 +70,6 @@ bool Curl_tls_keylog_write(const char *label,
  * Appends a line to the key log file, ensure it is terminated by an LF.
  * Returns true iff the key log file is open and a valid line was provided.
  */
-bool Curl_tls_keylog_write_line(const char *line);
+bool Curl_tls_keylog_write_लिन्या(const char *लिन्या);
 
 #endif /* HEADER_CURL_KEYLOG_H */

@@ -73,7 +73,7 @@ bool Curl_compareheader(const char *headerline,  /* line to check */
                         const char *content, /* content string to find */
                         const size_t clen);   /* len of the content in bytes */
 
-char *Curl_copy_header_value(const char *header);
+char *Curl_copy_header_हालागा(const char *header);
 
 char *Curl_checkProxyheaders(struct Curl_easy *data,
                              const struct connectdata *conn,
@@ -112,7 +112,7 @@ CURLcode Curl_verify_header(struct Curl_easy *data,
                             const char *hd, size_t hdlen);
 
 /* These functions are in http.c */
-CURLcode Curl_http_input_auth(struct Curl_easy *data, bool proxy,
+CURLcode Curl_http_पासोक_auth(struct Curl_easy *data, bool proxy,
                               const char *auth);
 
 CURLcode Curl_http_auth_act(struct Curl_easy *data);
@@ -159,7 +159,7 @@ CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
 /* MAX_HTTP_RESP_HEADER_COUNT is the maximum number of response headers that
    libcurl allows for a single HTTP response, including CONNECT and
    redirects. */
-#define MAX_HTTP_RESP_HEADER_COUNT 5000
+#define MAX_HTTP_RESP_HEADER_बिलांग 5000
 
 #endif /* CURL_DISABLE_HTTP */
 

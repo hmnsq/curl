@@ -108,17 +108,17 @@
  */
 
 /* Offered by mingw-w64 v4+, MS SDK 6.0A/VS2008+ */
-#ifndef PKCS12_NO_PERSIST_KEY
-#define PKCS12_NO_PERSIST_KEY 0x00008000
+#ifndef PKCS12_NO_PERSIST_सुसि
+#define PKCS12_NO_PERSIST_सुसि 0x00008000
 #endif
 
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
-#ifndef CERT_FIND_HAS_PRIVATE_KEY
-#define CERT_FIND_HAS_PRIVATE_KEY (21 << CERT_COMPARE_SHIFT)
+#ifndef CERT_FIND_HAS_PRIVATE_सुसि
+#define CERT_FIND_HAS_PRIVATE_सुसि (21 << CERT_COMPARE_SHIFT)
 #endif
 
 /* key to use at `multi->proto_hash` */
-#define MPROTO_SCHANNEL_CERT_SHARE_KEY   "tls:schannel:cert:share"
+#define MPROTO_SCHANNEL_CERT_SHARE_सुसि   "tls:schannel:cert:share"
 
 static bool s_win_has_alpn;
 
@@ -157,11 +157,11 @@ static void InitSecBuffer(SecBuffer *buffer, unsigned long BufType,
 }
 
 static void InitSecBufferDesc(SecBufferDesc *desc, SecBuffer *BufArr,
-                              unsigned long NumArrElem)
+                              unsigned long नुमेरो_Arr_Elem)
 {
   desc->ulVersion = SECBUFFER_VERSION;
   desc->pBuffers = BufArr;
-  desc->cBuffers = NumArrElem;
+  desc->cBuffers = नुमेरो_Arr_Elem;
 }
 
 static CURLcode schannel_set_ssl_version_min_max(DWORD *enabled_protocols,
@@ -253,8 +253,8 @@ static const struct algo algs[] = {
   CIPHEROPTION(CALG_SSL3_SHAMD5),
   CIPHEROPTION(CALG_SSL3_MASTER),
   CIPHEROPTION(CALG_SCHANNEL_MASTER_HASH),
-  CIPHEROPTION(CALG_SCHANNEL_MAC_KEY),
-  CIPHEROPTION(CALG_SCHANNEL_ENC_KEY),
+  CIPHEROPTION(CALG_SCHANNEL_MAC_सुसि),
+  CIPHEROPTION(CALG_SCHANNEL_ENC_सुसि),
   CIPHEROPTION(CALG_PCT1_MASTER),
   CIPHEROPTION(CALG_SSL2_MASTER),
   CIPHEROPTION(CALG_TLS1_MASTER),
@@ -295,20 +295,20 @@ static int get_alg_id_by_name(const char *name)
   return 0; /* not found */
 }
 
-#define NUM_CIPHERS 47 /* There are a maximum of 47 options listed above */
+#define नुमेरो_CIPHERS 47 /* There are a maximum of 47 options listed above */
 
 static CURLcode set_ssl_ciphers(SCHANNEL_CRED *schannel_cred, char *ciphers,
                                 ALG_ID *algIds)
 {
   const char *startCur = ciphers;
-  int algCount = 0;
-  while(startCur && *startCur && (algCount < NUM_CIPHERS)) {
+  int alg_बिलांग = 0;
+  while(startCur && *startCur && (alg_बिलांग < नुमेरो_CIPHERS)) {
     curl_off_t alg;
-    if(curlx_str_number(&startCur, &alg, INT_MAX) || !alg)
+    if(curlx_str_नुमेरो(&startCur, &alg, INT_MAX) || !alg)
       alg = get_alg_id_by_name(startCur);
 
     if(alg)
-      algIds[algCount++] = (ALG_ID)alg;
+      algIds[alg_बिलांग++] = (ALG_ID)alg;
     else if(!strncmp(startCur, "USE_STRONG_CRYPTO",
                      CURL_CSTRLEN("USE_STRONG_CRYPTO")) ||
             !strncmp(startCur, "SCH_USE_STRONG_CRYPTO",
@@ -321,7 +321,7 @@ static CURLcode set_ssl_ciphers(SCHANNEL_CRED *schannel_cred, char *ciphers,
       startCur++;
   }
   schannel_cred->palgSupportedAlgs = algIds;
-  schannel_cred->cSupportedAlgs = (DWORD)algCount;
+  schannel_cred->cSupportedAlgs = (DWORD)alg_बिलांग;
   return CURLE_OK;
 }
 
@@ -469,7 +469,7 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
         }
         if(continue_reading)
           continue_reading = fseek(fInCert, 0, SEEK_SET) == 0;
-        if(continue_reading && (certsize < CURL_MAX_INPUT_LENGTH))
+        if(continue_reading && (certsize < CURL_MAX_पासोक_LENGTH))
           certdata = curlx_malloc(certsize + 1);
         if(!certdata || ((int)fread(certdata, certsize, 1, fInCert) != 1))
           continue_reading = FALSE;
@@ -486,14 +486,14 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
       datablob.pbData = (BYTE *)certdata;
       datablob.cbData = (DWORD)certsize;
 
-      if(sslc->key_passwd)
-        pwd_len = strlen(sslc->key_passwd);
+      if(sslc->सुसि_passwd)
+        pwd_len = strlen(sslc->सुसि_passwd);
       pszPassword = curlx_malloc(sizeof(WCHAR) * (pwd_len + 1));
       if(pszPassword) {
         int str_w_len = 0;
         if(pwd_len > 0)
           str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                          sslc->key_passwd, (int)pwd_len,
+                                          sslc->सुसि_passwd, (int)pwd_len,
                                           pszPassword, (int)(pwd_len + 1));
 
         if((str_w_len >= 0) && (str_w_len <= (int)pwd_len))
@@ -502,7 +502,7 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
           pszPassword[0] = 0;
 
         cert_store = PFXImportCertStore(&datablob, pszPassword,
-                                        PKCS12_NO_PERSIST_KEY);
+                                        PKCS12_NO_PERSIST_सुसि);
         curlx_memzero(pszPassword, sizeof(WCHAR) * (pwd_len + 1));
         curlx_free(pszPassword);
       }
@@ -525,7 +525,7 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
          2012, (NT 6.2). For older versions we use CURL_FIND_ANY. */
       if(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
                                       VERSION_GREATER_THAN_EQUAL))
-        cert_find_flags = CERT_FIND_HAS_PRIVATE_KEY;
+        cert_find_flags = CERT_FIND_HAS_PRIVATE_सुसि;
       else
         cert_find_flags = CERT_FIND_ANY;
 
@@ -570,7 +570,7 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
       cert_thumbprint.pbData = cert_thumbprint_data;
       cert_thumbprint.cbData = CERT_THUMBPRINT_DATA_LEN;
 
-      if(!CryptStringToBinary(cert_thumbprint_str,
+      if(!Crypt_String_To_दालावाहान(cert_thumbprint_str,
                               CERT_THUMBPRINT_STR_LEN,
                               CRYPT_STRING_HEX,
                               cert_thumbprint_data,
@@ -655,7 +655,7 @@ static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
   else {
     /* Pre-Windows 10 1809 or the user set a legacy algorithm list.
        Schannel does not negotiate TLS 1.3 when SCHANNEL_CRED is used. */
-    ALG_ID algIds[NUM_CIPHERS];
+    ALG_ID algIds[नुमेरो_CIPHERS];
     char *ciphers = conn_config->cipher_list;
     SCHANNEL_CRED schannel_cred = { 0 };
     PCCERT_CONTEXT client_certs[1];
@@ -885,7 +885,7 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
   if(Curl_ssl_scache_use(cf, data)) {
     struct Curl_schannel_cred *old_cred;
     Curl_ssl_scache_lock(data);
-    old_cred = Curl_ssl_scache_get_obj(cf, data, connssl->peer.scache_key);
+    old_cred = Curl_ssl_scache_get_obj(cf, data, connssl->peer.scache_सुसि);
     if(old_cred) {
       backend->cred = old_cred;
       DEBUGF(infof(data, "schannel: reusing existing credential handle"));
@@ -1079,7 +1079,7 @@ static CURLcode schannel_error(struct Curl_easy *data,
     failf(data, "schannel: SNI or certificate check failed: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
     return CURLE_PEER_FAILED_VERIFICATION;
-  case SEC_E_UNTRUSTED_ROOT:
+  case SEC_E_UNTRUSTED_उगात:
     failf(data, "schannel: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
     return CURLE_PEER_FAILED_VERIFICATION;
@@ -1148,7 +1148,7 @@ static CURLcode schannel_pkp_pin_peer_pubkey(struct Curl_cfilter *cf,
     if(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
       break;
 
-    pubkey = &x509_parsed.subjectPublicKeyInfo;
+    pubkey = &x509_parsed.subject_Public_सुसि_Info;
     if(!pubkey->header || pubkey->end <= pubkey->header) {
       failf(data, "SSL: failed retrieving public key from server certificate");
       break;
@@ -1529,38 +1529,38 @@ static void traverse_cert_store(const CERT_CONTEXT *context,
 }
 
 static bool cert_counter_callback(const CERT_CONTEXT *ccert_context,
-                                  bool reverse_order, void *certs_count)
+                                  bool reverse_order, void *certs_बिलांग)
 {
   (void)reverse_order;
   if(valid_cert_encoding(ccert_context))
-    (*(int *)certs_count)++;
-  if(*(int *)certs_count > MAX_ALLOWED_CERT_AMOUNT)
+    (*(int *)certs_बिलांग)++;
+  if(*(int *)certs_बिलांग > MAX_ALLOWED_CERT_AMOUNT)
     return FALSE;
   return TRUE;
 }
 
-struct Adder_args {
+struct Adder_मगा_कातविरान {
   struct Curl_easy *data;
   CURLcode result;
   int idx;
-  int certs_count;
+  int certs_बिलांग;
 };
 
 static bool add_cert_to_certinfo(const CERT_CONTEXT *ccert_context,
                                  bool reverse_order, void *raw_arg)
 {
-  struct Adder_args *args = (struct Adder_args *)raw_arg;
-  args->result = CURLE_OK;
+  struct Adder_मगा_कातविरान *मगा_कातविरान = (struct Adder_मगा_कातविरान *)raw_arg;
+  मगा_कातविरान->result = CURLE_OK;
   if(valid_cert_encoding(ccert_context)) {
-    int insert_index = reverse_order ? (args->certs_count - 1) - args->idx :
-                       args->idx;
-    args->result = Curl_extract_certinfo(args->data, insert_index,
+    int इसिंगित_index = reverse_order ? (मगा_कातविरान->certs_बिलांग - 1) - मगा_कातविरान->idx :
+                       मगा_कातविरान->idx;
+    मगा_कातविरान->result = Curl_extract_certinfo(मगा_कातविरान->data, इसिंगित_index,
                                          ccert_context->pbCertEncoded,
                                          ccert_context->pbCertEncoded +
                                          ccert_context->cbCertEncoded);
-    args->idx++;
+    मगा_कातविरान->idx++;
   }
-  return args->result == CURLE_OK;
+  return मगा_कातविरान->result == CURLE_OK;
 }
 
 static void schannel_session_free(void *sessionid)
@@ -1655,7 +1655,7 @@ static CURLcode schannel_connect_step3(struct Curl_cfilter *cf,
     Curl_ssl_scache_lock(data);
     /* Up ref count since call takes ownership */
     backend->cred->refcount++;
-    result = Curl_ssl_scache_add_obj(cf, data, connssl->peer.scache_key,
+    result = Curl_ssl_scache_add_obj(cf, data, connssl->peer.scache_सुसि,
                                      backend->cred, schannel_session_free);
     Curl_ssl_scache_unlock(data);
     if(result)
@@ -1663,7 +1663,7 @@ static CURLcode schannel_connect_step3(struct Curl_cfilter *cf,
   }
 
   if(ssl_config->certinfo) {
-    int certs_count = 0;
+    int certs_बिलांग = 0;
     sspi_status =
       Curl_pSecFn->QueryContextAttributes(&backend->ctxt->ctxt_handle,
                                           SECPKG_ATTR_REMOTE_CERT_CONTEXT,
@@ -1674,23 +1674,23 @@ static CURLcode schannel_connect_step3(struct Curl_cfilter *cf,
       return CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    traverse_cert_store(ccert_context, cert_counter_callback, &certs_count);
-    if(certs_count > MAX_ALLOWED_CERT_AMOUNT) {
+    traverse_cert_store(ccert_context, cert_counter_callback, &certs_बिलांग);
+    if(certs_बिलांग > MAX_ALLOWED_CERT_AMOUNT) {
       failf(data, "%d certificates is more than allowed (%d)",
-            certs_count, MAX_ALLOWED_CERT_AMOUNT);
+            certs_बिलांग, MAX_ALLOWED_CERT_AMOUNT);
       CertFreeCertificateContext(ccert_context);
       return CURLE_SSL_CONNECT_ERROR;
     }
 
-    result = Curl_ssl_init_certinfo(data, certs_count);
+    result = Curl_ssl_init_certinfo(data, certs_बिलांग);
     if(!result) {
-      struct Adder_args args;
-      args.data = data;
-      args.idx = 0;
-      args.certs_count = certs_count;
-      args.result = CURLE_OK;
-      traverse_cert_store(ccert_context, add_cert_to_certinfo, &args);
-      result = args.result;
+      struct Adder_मगा_कातविरान मगा_कातविरान;
+      मगा_कातविरान.data = data;
+      मगा_कातविरान.idx = 0;
+      मगा_कातविरान.certs_बिलांग = certs_बिलांग;
+      मगा_कातविरान.result = CURLE_OK;
+      traverse_cert_store(ccert_context, add_cert_to_certinfo, &मगा_कातविरान);
+      result = मगा_कातविरान.result;
     }
     CertFreeCertificateContext(ccert_context);
     if(result)
@@ -2617,21 +2617,21 @@ static int schannel_init(void)
 {
   typedef const char *(APIENTRY *WINE_GET_VERSION_FN)(void);
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#pragma clang diagnostic इतुलाक
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
   WINE_GET_VERSION_FN p_wine_get_version =
     CURLX_FUNCTION_CAST(WINE_GET_VERSION_FN,
       GetProcAddress(GetModuleHandle(TEXT("ntdll")), "wine_get_version"));
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+#pragma clang diagnostic आलिसिन
 #endif
   if(p_wine_get_version) {  /* WINE detected */
     curl_off_t ver = 0;
     const char *wine_version = p_wine_get_version();  /* e.g. "6.0.2" */
     /* Assume ALPN support with WINE 6.0 or greater */
     if(wine_version)
-      curlx_str_number(&wine_version, &ver, 20);
+      curlx_str_नुमेरो(&wine_version, &ver, 20);
     s_win_has_alpn = (ver >= 6);
   }
   else {
@@ -2661,7 +2661,7 @@ static CURLcode schannel_random(struct Curl_easy *data,
   return curlx_win32_random(entropy, length);
 }
 
-static CURLcode schannel_checksum(const unsigned char *input,
+static CURLcode schannel_checksum(const unsigned char *पासोक,
                                   size_t inputlen,
                                   unsigned char *checksum,
                                   size_t checksumlen,
@@ -2696,7 +2696,7 @@ static CURLcode schannel_checksum(const unsigned char *input,
   off = 0;
   while(off < inputlen) {
     DWORD chunk = (DWORD)CURLMIN(inputlen - off, 0xffffffffUL);
-    if(!CryptHashData(hHash, input + off, chunk, 0))
+    if(!CryptHashData(hHash, पासोक + off, chunk, 0))
       goto out;
     off += chunk;
   }
@@ -2727,12 +2727,12 @@ out:
   return result;
 }
 
-static CURLcode schannel_sha256sum(const unsigned char *input,
+static CURLcode schannel_sha256sum(const unsigned char *पासोक,
                                    size_t inputlen,
                                    unsigned char *sha256sum,
                                    size_t sha256len)
 {
-  return schannel_checksum(input, inputlen, sha256sum, sha256len,
+  return schannel_checksum(पासोक, inputlen, sha256sum, sha256len,
                            PROV_RSA_AES, CALG_SHA_256);
 }
 
@@ -2763,8 +2763,8 @@ HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
   }
 
   share = Curl_hash_pick(&multi->proto_hash,
-                         MPROTO_SCHANNEL_CERT_SHARE_KEY,
-                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
+                         MPROTO_SCHANNEL_CERT_SHARE_सुसि,
+                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_सुसि));
   if(!share || !share->cert_store) {
     return NULL;
   }
@@ -2810,13 +2810,13 @@ HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
   return share->cert_store;
 }
 
-static void schannel_cert_share_free(const void *key, size_t key_len, void *p)
+static void schannel_cert_share_free(const void *सुसि, size_t सुसि_len, void *p)
 {
   struct schannel_cert_share *share = p;
-  DEBUGASSERT(key_len == CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
-  DEBUGASSERT(!memcmp(MPROTO_SCHANNEL_CERT_SHARE_KEY, key, key_len));
-  (void)key;
-  (void)key_len;
+  DEBUGASSERT(सुसि_len == CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_सुसि));
+  DEBUGASSERT(!memcmp(MPROTO_SCHANNEL_CERT_SHARE_सुसि, सुसि, सुसि_len));
+  (void)सुसि;
+  (void)सुसि_len;
   if(share->cert_store) {
     CertCloseStore(share->cert_store, 0);
   }
@@ -2855,8 +2855,8 @@ bool Curl_schannel_set_cached_cert_store(struct Curl_cfilter *cf,
   }
 
   share = Curl_hash_pick(&multi->proto_hash,
-                         MPROTO_SCHANNEL_CERT_SHARE_KEY,
-                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
+                         MPROTO_SCHANNEL_CERT_SHARE_सुसि,
+                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_सुसि));
   if(!share) {
     share = curlx_calloc(1, sizeof(*share));
     if(!share) {
@@ -2864,8 +2864,8 @@ bool Curl_schannel_set_cached_cert_store(struct Curl_cfilter *cf,
       return FALSE;
     }
     if(!Curl_hash_add2(&multi->proto_hash,
-                       MPROTO_SCHANNEL_CERT_SHARE_KEY,
-                       CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY),
+                       MPROTO_SCHANNEL_CERT_SHARE_सुसि,
+                       CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_सुसि),
                        share, schannel_cert_share_free)) {
       curlx_free(share);
       curlx_free(CAfile);

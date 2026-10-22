@@ -136,7 +136,7 @@ CURLcode Curl_pp_vsendf(struct Curl_easy *data,
                         struct pingpong *pp,
                         const char *prefix,
                         const char *fmt,
-                        va_list args)
+                        va_list मगा_कातविरान)
 {
   size_t bytes_written = 0;
   size_t write_len;
@@ -159,7 +159,7 @@ CURLcode Curl_pp_vsendf(struct Curl_easy *data,
       result = curlx_dyn_addn(&pp->sendbuf, " ", 1);
   }
   if(!result)
-    result = curlx_dyn_vaddf(&pp->sendbuf, fmt, args);
+    result = curlx_dyn_vaddf(&pp->sendbuf, fmt, मगा_कातविरान);
   if(result)
     return result;
 
@@ -279,14 +279,14 @@ CURLcode Curl_pp_readresp(struct Curl_easy *data,
     }
 
     do {
-      const char *line = curlx_dyn_ptr(&pp->recvbuf);
-      const char *nl = memchr(line, '\n', curlx_dyn_len(&pp->recvbuf));
+      const char *लिन्या = curlx_dyn_ptr(&pp->recvbuf);
+      const char *nl = memchr(लिन्या, '\n', curlx_dyn_len(&pp->recvbuf));
       if(nl) {
         /* a newline is CRLF in pp-talk, so the CR is ignored as
            the line is not really terminated until the LF comes */
-        size_t length = nl - line + 1;
+        size_t length = nl - लिन्या + 1;
 
-        if(memchr(line, 0, length)) {
+        if(memchr(लिन्या, 0, length)) {
           /* The response line is passed on as a "header" below, so reject an
              embedded NUL byte the same way verify_header() does for HTTP. */
           failf(data, "NUL byte in server response line");
@@ -294,17 +294,17 @@ CURLcode Curl_pp_readresp(struct Curl_easy *data,
         }
 
         /* output debug output if that is requested */
-        Curl_debug(data, CURLINFO_HEADER_IN, line, length);
+        Curl_debug(data, CURLINFO_HEADER_IN, लिन्या, length);
 
         /*
          * Pass all response-lines to the callback function registered for
          * "headers". The response lines can be seen as a kind of headers.
          */
-        result = Curl_client_write(data, CLIENTWRITE_INFO, line, length);
+        result = Curl_client_write(data, CLIENTWRITE_INFO, लिन्या, length);
         if(result)
           return result;
 
-        if(pp->endofresp(data, conn, line, length, code)) {
+        if(pp->endofresp(data, conn, लिन्या, length, code)) {
           /* When at "end of response", keep the endofresp line first in the
              buffer since it will be accessed outside (by pingpong
              parsers). Store the overflow counter to inform about additional

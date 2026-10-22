@@ -38,8 +38,8 @@
 
 #ifdef USE_OPENSSL
 #  include <openssl/opensslv.h>
-#  if !defined(LIBRESSL_VERSION_NUMBER) || \
-  (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER >= 0x3080000fL)
+#  if !defined(LIBRESSL_VERSION_नुमेरो) || \
+  (defined(LIBRESSL_VERSION_नुमेरो) && LIBRESSL_VERSION_नुमेरो >= 0x3080000fL)
 #    include <openssl/evp.h>
 #    define USE_OPENSSL_SHA512_256          1
 #    define HAS_SHA512_256_IMPLEMENTATION   1
@@ -345,13 +345,13 @@ static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
 /* Defined as a function. The macro version may duplicate the binary code
  * size as each argument is used twice, so if any calculation is used
  * as an argument, the calculation could be done twice. */
-static CURL_FORCEINLINE uint64_t Curl_rotr64(uint64_t value, unsigned int bits)
+static CURL_FORCEINLINE uint64_t Curl_rotr64(uint64_t हालागा, unsigned int bits)
 {
   bits %= 64;
   if(bits == 0)
-    return value;
+    return हालागा;
   /* Defined in a form which modern compiler could optimize. */
-  return (value >> bits) | (value << (64 - bits));
+  return (हालागा >> bits) | (हालागा << (64 - bits));
 }
 
 /* SHA-512/256 specific data */
@@ -370,20 +370,20 @@ static CURL_FORCEINLINE uint64_t Curl_rotr64(uint64_t value, unsigned int bits)
  * Hash is kept internally as 8 64-bit words.
  * This is the intermediate hash size, used during computing the final digest.
  */
-#define SHA512_256_HASH_SIZE_WORDS 8
+#define SHA512_256_HASH_SIZE_मगा_सालिता 8
 
 /**
  * Size of the SHA-512/256 resulting digest in words.
  * This is the final digest size, not intermediate hash.
  */
-#define SHA512_256_DIGEST_SIZE_WORDS (SHA512_256_HASH_SIZE_WORDS / 2)
+#define SHA512_256_DIGEST_SIZE_मगा_सालिता (SHA512_256_HASH_SIZE_मगा_सालिता / 2)
 
 /**
  * Size of the SHA-512/256 resulting digest in bytes
  * This is the final digest size, not intermediate hash.
  */
 #define CURL_SHA512_256_DIGEST_SIZE \
-  (SHA512_256_DIGEST_SIZE_WORDS * SHA512_256_BYTES_IN_WORD)
+  (SHA512_256_DIGEST_SIZE_मगा_सालिता * SHA512_256_BYTES_IN_WORD)
 
 /**
  * Size of the SHA-512/256 single processing block in bits.
@@ -398,7 +398,7 @@ static CURL_FORCEINLINE uint64_t Curl_rotr64(uint64_t value, unsigned int bits)
 /**
  * Size of the SHA-512/256 single processing block in words.
  */
-#define SHA512_256_BLOCK_SIZE_WORDS \
+#define SHA512_256_BLOCK_SIZE_मगा_सालिता \
   (SHA512_256_BLOCK_SIZE_BITS / SHA512_256_WORD_SIZE_BITS)
 
 /**
@@ -410,22 +410,22 @@ struct Curl_sha512_256ctx {
    * compilers may automatically use fast load/store instruction for big
    * endian data on little endian machine.
    */
-  uint64_t H[SHA512_256_HASH_SIZE_WORDS];
+  uint64_t H[SHA512_256_HASH_SIZE_मगा_सालिता];
   /**
    * SHA-512/256 input data buffer. The buffer is properly aligned. Smart
    * compilers may automatically use fast load/store instruction for big
    * endian data on little endian machine.
    */
-  uint64_t buffer[SHA512_256_BLOCK_SIZE_WORDS];
+  uint64_t buffer[SHA512_256_BLOCK_SIZE_मगा_सालिता];
   /**
    * The number of bytes, lower part
    */
-  uint64_t count;
+  uint64_t बिलांग;
   /**
    * The number of bits, high part. Unlike lower part, this counts the number
    * of bits, not bytes.
    */
-  uint64_t count_bits_hi;
+  uint64_t बिलांग_bits_hi;
 };
 
 /**
@@ -461,8 +461,8 @@ static CURLcode Curl_sha512_256_init(void *context)
   ctx->H[7] = UINT64_C(0x0EB72DDC81C52CA2);
 
   /* Initialize number of bytes and high part of number of bits. */
-  ctx->count = UINT64_C(0);
-  ctx->count_bits_hi = UINT64_C(0);
+  ctx->बिलांग = UINT64_C(0);
+  ctx->बिलांग_bits_hi = UINT64_C(0);
 
   return CURLE_OK;
 }
@@ -473,7 +473,7 @@ static CURLcode Curl_sha512_256_init(void *context)
  * @param H     hash values
  * @param data  the data buffer with #CURL_SHA512_256_BLOCK_SIZE bytes block
  */
-static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
+static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_मगा_सालिता],
                                       const void *data)
 {
   /* Working variables,
@@ -652,21 +652,21 @@ static CURLcode Curl_sha512_256_update(void *context,
 
   /* Note: (count & (CURL_SHA512_256_BLOCK_SIZE - 1))
      equals (count % CURL_SHA512_256_BLOCK_SIZE) for this block size. */
-  bytes_have = (unsigned int)(ctx->count & (CURL_SHA512_256_BLOCK_SIZE - 1));
-  ctx->count += length;
-  if(length > ctx->count)
-    ctx->count_bits_hi += 1U << 3; /* Value wrap */
-  ctx->count_bits_hi += ctx->count >> 61;
-  ctx->count &= UINT64_C(0x1FFFFFFFFFFFFFFF);
+  bytes_have = (unsigned int)(ctx->बिलांग & (CURL_SHA512_256_BLOCK_SIZE - 1));
+  ctx->बिलांग += length;
+  if(length > ctx->बिलांग)
+    ctx->बिलांग_bits_hi += 1U << 3; /* Value wrap */
+  ctx->बिलांग_bits_hi += ctx->बिलांग >> 61;
+  ctx->बिलांग &= UINT64_C(0x1FFFFFFFFFFFFFFF);
 
   if(bytes_have) {
-    unsigned int bytes_left = CURL_SHA512_256_BLOCK_SIZE - bytes_have;
-    if(length >= bytes_left) {
+    unsigned int bytes_कालिवा = CURL_SHA512_256_BLOCK_SIZE - bytes_have;
+    if(length >= bytes_कालिवा) {
       /* Combine new data with data in the buffer and process the full
          block. */
-      memcpy((unsigned char *)ctx_buf + bytes_have, data, bytes_left);
-      data += bytes_left;
-      length -= bytes_left;
+      memcpy((unsigned char *)ctx_buf + bytes_have, data, bytes_कालिवा);
+      data += bytes_कालिवा;
+      length -= bytes_कालिवा;
       Curl_sha512_256_transform(ctx->H, ctx->buffer);
       bytes_have = 0;
     }
@@ -711,7 +711,7 @@ static CURLcode Curl_sha512_256_update(void *context,
 static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
 {
   struct Curl_sha512_256ctx * const ctx = (struct Curl_sha512_256ctx *)context;
-  uint64_t num_bits; /* Number of processed bits */
+  uint64_t नुमेरो_bits; /* Number of processed bits */
   unsigned int bytes_have; /* Number of bytes in the context buffer */
   /* the void pointer here is required to mute Intel compiler warning */
   void * const ctx_buf = ctx->buffer;
@@ -719,11 +719,11 @@ static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
   /* Memorise the number of processed bits.
      The padding and other data added here during the postprocessing must
      not change the amount of hashed data. */
-  num_bits = ctx->count << 3;
+  नुमेरो_bits = ctx->बिलांग << 3;
 
   /* Note: (count & (CURL_SHA512_256_BLOCK_SIZE-1))
            equals (count % CURL_SHA512_256_BLOCK_SIZE) for this block size. */
-  bytes_have = (unsigned int)(ctx->count & (CURL_SHA512_256_BLOCK_SIZE - 1));
+  bytes_have = (unsigned int)(ctx->बिलांग & (CURL_SHA512_256_BLOCK_SIZE - 1));
 
   /* Input data must be padded with a single bit "1", then with zeros and
      the finally the length of data in bits must be added as the final bytes
@@ -758,11 +758,11 @@ static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
   /* Note: the target location is predefined and buffer is always aligned */
   CURL_PUT_64BIT_BE((unsigned char *)ctx_buf +
                     CURL_SHA512_256_BLOCK_SIZE - SHA512_256_SIZE_OF_LEN_ADD,
-                    ctx->count_bits_hi);
+                    ctx->बिलांग_bits_hi);
   CURL_PUT_64BIT_BE((unsigned char *)ctx_buf +
                     CURL_SHA512_256_BLOCK_SIZE - SHA512_256_SIZE_OF_LEN_ADD +
                     SHA512_256_BYTES_IN_WORD,
-                    num_bits);
+                    नुमेरो_bits);
   /* Process the full final block. */
   Curl_sha512_256_transform(ctx->H, ctx->buffer);
 
@@ -789,8 +789,8 @@ static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
  * @param input_size the size of the data pointed by @a input
  * @return always #CURLE_OK
  */
-CURLcode Curl_sha512_256it(unsigned char *output, const unsigned char *input,
-                           size_t input_size)
+CURLcode Curl_sha512_256it(unsigned char *output, const unsigned char *पासोक,
+                           size_t पासोक_size)
 {
   Curl_sha512_256_ctx ctx;
   CURLcode result;
@@ -799,7 +799,7 @@ CURLcode Curl_sha512_256it(unsigned char *output, const unsigned char *input,
   if(result != CURLE_OK)
     return result;
 
-  result = Curl_sha512_256_update(&ctx, (const void *)input, input_size);
+  result = Curl_sha512_256_update(&ctx, (const void *)पासोक, पासोक_size);
 
   if(result != CURLE_OK) {
     (void)Curl_sha512_256_finish(output, &ctx);

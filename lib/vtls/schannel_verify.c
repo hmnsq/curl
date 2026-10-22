@@ -57,7 +57,7 @@
 
 struct cert_chain_engine_config_win8 {
   DWORD cbSize;
-  HCERTSTORE hRestrictedRoot;
+  HCERTSTORE h_Restricted_उगात;
   HCERTSTORE hRestrictedTrust;
   HCERTSTORE hRestrictedOther;
   DWORD cAdditionalStore;
@@ -66,7 +66,7 @@ struct cert_chain_engine_config_win8 {
   DWORD dwUrlRetrievalTimeout;
   DWORD MaximumCachedCertificates;
   DWORD CycleDetectionModulus;
-  HCERTSTORE hExclusiveRoot;
+  HCERTSTORE h_Exclusive_उगात;
   HCERTSTORE hExclusiveTrustedPeople;
   DWORD dwExclusiveFlags;
 };
@@ -79,7 +79,7 @@ struct cert_chain_engine_config_win8 {
 /* Legacy structure to supply size to Win7 clients */
 struct cert_chain_engine_config_win7 {
   DWORD cbSize;
-  HCERTSTORE hRestrictedRoot;
+  HCERTSTORE h_Restricted_उगात;
   HCERTSTORE hRestrictedTrust;
   HCERTSTORE hRestrictedOther;
   DWORD cAdditionalStore;
@@ -88,7 +88,7 @@ struct cert_chain_engine_config_win7 {
   DWORD dwUrlRetrievalTimeout;
   DWORD MaximumCachedCertificates;
   DWORD CycleDetectionModulus;
-  HCERTSTORE hExclusiveRoot;
+  HCERTSTORE h_Exclusive_उगात;
   HCERTSTORE hExclusiveTrustedPeople;
 };
 
@@ -122,7 +122,7 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
   const size_t begin_cert_len = CURL_CSTRLEN(BEGIN_CERT);
   const size_t end_cert_len = CURL_CSTRLEN(END_CERT);
   CURLcode result = CURLE_OK;
-  int num_certs = 0;
+  int नुमेरो_certs = 0;
   bool more_certs = 1;
   const char *current_ca_file_ptr = ca_buffer;
   const char *ca_buffer_limit = ca_buffer + ca_buffer_size;
@@ -198,7 +198,7 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
             more_certs = 0;
           }
           else {
-            num_certs++;
+            नुमेरो_certs++;
           }
 
           CertFreeCertificateContext(cert_context);
@@ -208,13 +208,13 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
   }
 
   if(result == CURLE_OK) {
-    if(!num_certs) {
+    if(!नुमेरो_certs) {
       infof(data, "schannel: did not add any certificates from CA file '%s'",
             ca_file_text);
     }
     else {
       infof(data, "schannel: added %d certificate(s) from CA file '%s'",
-            num_certs, ca_file_text);
+            नुमेरो_certs, ca_file_text);
     }
   }
   return result;
@@ -334,13 +334,13 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
   /* CERT_NAME_SEARCH_ALL_NAMES_FLAG is available from Windows 8 onwards. */
   if(Win8_compat) {
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
-#ifndef CERT_NAME_SEARCH_ALL_NAMES_FLAG
-#define CERT_NAME_SEARCH_ALL_NAMES_FLAG 0x2
+#ifndef CERT_NAME_हानाप_ALL_NAMES_FLAG
+#define CERT_NAME_हानाप_ALL_NAMES_FLAG 0x2
 #endif
     /* CertGetNameString provides the 8-bit character string without
      * any decoding */
     DWORD name_flags =
-      CERT_NAME_DISABLE_IE4_UTF8_FLAG | CERT_NAME_SEARCH_ALL_NAMES_FLAG;
+      CERT_NAME_DISABLE_IE4_UTF8_FLAG | CERT_NAME_हानाप_ALL_NAMES_FLAG;
     actual_length = CertGetNameString(cert_context,
                                       CERT_NAME_DNS_TYPE,
                                       name_flags,
@@ -407,7 +407,7 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
  * and populates the buffer with IPv4/IPv6 info.
  */
 
-static bool get_num_host_info(struct num_ip_data *ip_blob, LPCSTR hostname)
+static bool get_नुमेरो_host_info(struct नुमेरो_ip_data *ip_blob, LPCSTR hostname)
 {
   struct in_addr ia;
   int res = curlx_inet_pton(AF_INET, hostname, &ia);
@@ -458,8 +458,8 @@ static bool get_alt_name_info(struct Curl_easy *data,
 
   if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                           szOID_SUBJECT_ALT_NAME2,
-                          extension->Value.pbData,
-                          extension->Value.cbData,
+                          extension->हालागा_2.pbData,
+                          extension->हालागा_2.cbData,
                           CRYPT_DECODE_ALLOC_FLAG | CRYPT_DECODE_NOCOPY_FLAG,
                           &decode_para,
                           alt_name_info,
@@ -486,9 +486,9 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
   DWORD actual_len = 0;
   PCERT_ALT_NAME_INFO alt_name_info = NULL;
   DWORD alt_name_info_size = 0;
-  struct num_ip_data ip_blob = { 0 };
+  struct नुमेरो_ip_data ip_blob = { 0 };
   bool Win8_compat;
-  struct num_ip_data *p = &ip_blob;
+  struct नुमेरो_ip_data *p = &ip_blob;
   DWORD i;
 
   sspi_status =
@@ -505,7 +505,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
 
   Win8_compat = curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
                                              VERSION_GREATER_THAN_EQUAL);
-  if(get_num_host_info(p, conn_hostname) || !Win8_compat) {
+  if(get_नुमेरो_host_info(p, conn_hostname) || !Win8_compat) {
     if(!get_alt_name_info(data, pCertContextServer,
                           &alt_name_info, &alt_name_info_size)) {
       goto cleanup;
@@ -718,7 +718,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
       BOOL create_engine_result;
 
       memset(&engine_config, 0, sizeof(engine_config));
-      engine_config.hExclusiveRoot = trust_store;
+      engine_config.h_Exclusive_उगात = trust_store;
 
       /* Win8/Server2012 allows us to match partial chains */
       if(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
@@ -793,7 +793,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
                 "the certificates in the certificate chain has been revoked");
         else if(dwTrustErrorMask & CERT_TRUST_IS_PARTIAL_CHAIN)
           failf(data, "schannel: the certificate chain is incomplete");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_UNTRUSTED_ROOT)
+        else if(dwTrustErrorMask & CERT_TRUST_IS_UNTRUSTED_उगात)
           failf(data, "schannel: the certificate or certificate chain is "
                 "based on an untrusted root");
         else if(dwTrustErrorMask & CERT_TRUST_IS_NOT_TIME_VALID)

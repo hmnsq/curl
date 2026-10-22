@@ -291,7 +291,7 @@ out:
   return result;
 }
 
-CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_capsule_इसिंगित_after(struct Curl_cfilter *cf_at,
                                       struct Curl_easy *data)
 {
   struct Curl_cfilter *cf;
@@ -299,7 +299,7 @@ CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
 
   result = cf_capsule_create(&cf, data, cf_at->conn);
   if(!result)
-    Curl_conn_cf_insert_after(cf_at, cf);
+    Curl_conn_cf_इसिंगित_after(cf_at, cf);
   return result;
 }
 

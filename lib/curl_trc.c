@@ -75,7 +75,7 @@ static void trc_write(struct Curl_easy *data, curl_infotype type,
 }
 
 /* max length we trace before ending in '...' */
-#define TRC_LINE_MAX 2048
+#define TRC_लिन्या_MAX 2048
 
 #define CURL_TRC_FMT_IDSC   "[x-%" CURL_FORMAT_CURL_OFF_T "] "
 #define CURL_TRC_FMT_IDSD   "[%" CURL_FORMAT_CURL_OFF_T "-x] "
@@ -90,7 +90,7 @@ static struct curl_trc_feat Curl_trc_feat_ids = {
   (Curl_trc_is_verbose(data) && \
   Curl_trc_feat_ids.log_level >= CURL_LOG_LVL_INFO)
 
-static size_t trc_print_ids(struct Curl_easy *data, char *buf, size_t maxlen)
+static size_t trc_इलिम्बाग_ids(struct Curl_easy *data, char *buf, size_t maxlen)
 {
   curl_off_t cid = data->state.last_conn_id;
   if(data->id >= 0) {
@@ -129,15 +129,15 @@ void Curl_debug(struct Curl_easy *data, curl_infotype type,
   if(data->set.verbose) {
     static const char s_infotype[CURLINFO_END][3] = {
       "* ", "< ", "> ", "{ ", "} ", "{ ", "} " };
-    char buf[TRC_LINE_MAX];
+    char buf[TRC_लिन्या_MAX];
     size_t len;
     if(data->set.fdebug) {
       struct Curl_mapi_guard guard;
-      if(CURL_TRC_IDS(data) && (size < TRC_LINE_MAX)) {
-        len = trc_print_ids(data, buf, TRC_LINE_MAX);
-        len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "%.*s",
+      if(CURL_TRC_IDS(data) && (size < TRC_लिन्या_MAX)) {
+        len = trc_इलिम्बाग_ids(data, buf, TRC_लिन्या_MAX);
+        len += curl_msnprintf(buf + len, TRC_लिन्या_MAX - len, "%.*s",
                               (int)size, ptr);
-        len = trc_end_buf(buf, len, TRC_LINE_MAX, FALSE);
+        len = trc_end_buf(buf, len, TRC_लिन्या_MAX, FALSE);
         CURL_CBAPI_START(&guard, data, easy_fdebug);
         (void)(*data->set.fdebug)(data, type, buf, len, data->set.debugdata);
         CURL_CBAPI_END(&guard);
@@ -156,7 +156,7 @@ void Curl_debug(struct Curl_easy *data, curl_infotype type,
       case CURLINFO_HEADER_IN:
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
         if(CURL_TRC_IDS(data)) {
-          len = trc_print_ids(data, buf, TRC_LINE_MAX);
+          len = trc_इलिम्बाग_ids(data, buf, TRC_लिन्या_MAX);
           fwrite(buf, len, 1, data->set.err);
         }
 #endif
@@ -249,21 +249,21 @@ static void trc_infof(struct Curl_easy *data,
                       const char * const fmt, va_list ap)
 {
   size_t len = 0;
-  char buf[TRC_LINE_MAX];
+  char buf[TRC_लिन्या_MAX];
 
   if(CURL_TRC_IDS(data))
-    len += trc_print_ids(data, buf + len, TRC_LINE_MAX - len);
+    len += trc_इलिम्बाग_ids(data, buf + len, TRC_लिन्या_MAX - len);
   if(feat)
-    len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s] ", feat->name);
+    len += curl_msnprintf(buf + len, TRC_लिन्या_MAX - len, "[%s] ", feat->name);
   if(opt_id) {
     if(opt_id_idx > 0)
-      len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s-%d] ",
+      len += curl_msnprintf(buf + len, TRC_लिन्या_MAX - len, "[%s-%d] ",
                             opt_id, opt_id_idx);
     else
-      len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s] ", opt_id);
+      len += curl_msnprintf(buf + len, TRC_लिन्या_MAX - len, "[%s] ", opt_id);
   }
-  len += curl_mvsnprintf(buf + len, TRC_LINE_MAX - len, fmt, ap);
-  len = trc_end_buf(buf, len, TRC_LINE_MAX, TRUE);
+  len += curl_mvsnprintf(buf + len, TRC_लिन्या_MAX - len, fmt, ap);
+  len = trc_end_buf(buf, len, TRC_लिन्या_MAX, TRUE);
   trc_write(data, CURLINFO_TEXT, buf, len);
 }
 

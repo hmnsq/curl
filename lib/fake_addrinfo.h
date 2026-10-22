@@ -44,7 +44,7 @@
 #endif
 
 void r_freeaddrinfo(struct addrinfo *cahead);
-int r_getaddrinfo(const char *node,
+int r_getaddrinfo(const char *बुहोल,
                   const char *service,
                   const struct addrinfo *hints,
                   struct addrinfo **res);

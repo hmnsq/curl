@@ -67,7 +67,7 @@ typedef enum {
 enum {
   FLAGS_SPACE      = 1 << 0,
   FLAGS_SHOWSIGN   = 1 << 1,
-  FLAGS_LEFT       = 1 << 2,
+  FLAGS_कालिवा       = 1 << 2,
   FLAGS_ALT        = 1 << 3,
   FLAGS_SHORT      = 1 << 4,
   FLAGS_LONG       = 1 << 5,
@@ -97,7 +97,7 @@ enum {
 /*
  * Describes an input va_arg type and hold its value.
  */
-struct va_input {
+struct va_पासोक {
   FormatType type; /* FormatType */
   union {
     const char *str;
@@ -115,7 +115,7 @@ struct outsegment {
   int width;     /* width OR width parameter number */
   int precision; /* precision OR precision parameter number */
   unsigned int flags;
-  unsigned int input; /* input argument array index */
+  unsigned int पासोक; /* input argument array index */
   const char *start; /* format string start to output */
   size_t outlen;     /* number of bytes from the format string to output */
 };
@@ -150,12 +150,12 @@ struct ioprintf {
  */
 static int dollarstring(const char *p, const char **end)
 {
-  curl_off_t num;
-  if(curlx_str_number(&p, &num, MAX_PARAMETERS) ||
-     curlx_str_single(&p, '$') || !num)
+  curl_off_t नुमेरो;
+  if(curlx_str_नुमेरो(&p, &नुमेरो, MAX_PARAMETERS) ||
+     curlx_str_single(&p, '$') || !नुमेरो)
     return -1;
   *end = p;
-  return (int)num - 1;
+  return (int)नुमेरो - 1;
 }
 
 #define is_arg_used(x, y)   ((x)[(y) / 8] & (1 << ((y) & 7)))
@@ -201,7 +201,7 @@ static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
       flags |= FLAGS_SHOWSIGN;
       break;
     case '-':
-      flags |= FLAGS_LEFT;
+      flags |= FLAGS_कालिवा;
       flags &= ~(unsigned int)FLAGS_PAD_NIL;
       break;
     case '#':
@@ -225,14 +225,14 @@ static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
       }
       else {
         bool is_neg;
-        curl_off_t num;
+        curl_off_t नुमेरो;
         flags |= FLAGS_PREC;
         is_neg = ('-' == *fmt);
         if(is_neg)
           fmt++;
-        if(curlx_str_number(&fmt, &num, INT_MAX))
+        if(curlx_str_नुमेरो(&fmt, &नुमेरो, INT_MAX))
           return PFMT_PREC;
-        precision = (int)num;
+        precision = (int)नुमेरो;
         if(is_neg)
           precision = -precision;
       }
@@ -294,7 +294,7 @@ static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
 #endif
       break;
     case '0':
-      if(!(flags & FLAGS_LEFT))
+      if(!(flags & FLAGS_कालिवा))
         flags |= FLAGS_PAD_NIL;
       FALLTHROUGH();
     case '1':
@@ -306,12 +306,12 @@ static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
     case '7':
     case '8':
     case '9': {
-      curl_off_t num;
+      curl_off_t नुमेरो;
       flags |= FLAGS_WIDTH;
       fmt--;
-      if(curlx_str_number(&fmt, &num, INT_MAX))
+      if(curlx_str_नुमेरो(&fmt, &नुमेरो, INT_MAX))
         return PFMT_WIDTH;
-      width = (int)num;
+      width = (int)नुमेरो;
       break;
     }
     case '*':  /* read width from argument list */
@@ -442,12 +442,12 @@ static bool parse_conversion(const char f, unsigned int *flagp,
 
 static int parsefmt(const char *format,
                     struct outsegment *out,
-                    struct va_input *in,
+                    struct va_पासोक *in,
                     int *opieces,
                     int *ipieces, va_list arglist)
 {
   const char *fmt = format;
-  int param_num = 0;
+  int param_नुमेरो = 0;
   int max_param = -1;
   int i;
   int ocount = 0;
@@ -462,7 +462,7 @@ static int parsefmt(const char *format,
 
   while(*fmt) {
     if(*fmt == '%') {
-      struct va_input *iptr;
+      struct va_पासोक *iptr;
       FormatType type;
       unsigned int flags = 0;
       int width = 0;
@@ -478,7 +478,7 @@ static int parsefmt(const char *format,
           optr = &out[ocount++];
           if(ocount > MAX_SEGMENTS)
             return PFMT_MANYSEGS;
-          optr->input = 0;
+          optr->पासोक = 0;
           optr->flags = FLAGS_SUBSTR;
           optr->start = start;
           optr->outlen = outlen;
@@ -512,7 +512,7 @@ static int parsefmt(const char *format,
 
       if(flags & FLAGS_WIDTHPARAM) {
         if(width < 0)
-          width = param_num++;
+          width = param_नुमेरो++;
         else {
           /* if this identifies a parameter already used, this is illegal */
           if(is_arg_used(usedinput, width))
@@ -530,7 +530,7 @@ static int parsefmt(const char *format,
 
       if(flags & FLAGS_PRECPARAM) {
         if(precision < 0)
-          precision = param_num++;
+          precision = param_नुमेरो++;
         else {
           /* if this identifies a parameter already used, this is illegal */
           if(is_arg_used(usedinput, precision))
@@ -547,7 +547,7 @@ static int parsefmt(const char *format,
 
       /* Handle the specifier */
       if(param < 0)
-        param = param_num++;
+        param = param_नुमेरो++;
       if(param >= MAX_PARAMETERS)
         return PFMT_MANYARGS;
       if(param >= max_param)
@@ -563,7 +563,7 @@ static int parsefmt(const char *format,
       optr = &out[ocount++];
       if(ocount > MAX_SEGMENTS)
         return PFMT_MANYSEGS;
-      optr->input = (unsigned int)param;
+      optr->पासोक = (unsigned int)param;
       optr->flags = flags;
       optr->width = width;
       optr->precision = precision;
@@ -581,7 +581,7 @@ static int parsefmt(const char *format,
     optr = &out[ocount++];
     if(ocount > MAX_SEGMENTS)
       return PFMT_MANYSEGS;
-    optr->input = 0;
+    optr->पासोक = 0;
     optr->flags = FLAGS_SUBSTR;
     optr->start = start;
     optr->outlen = outlen;
@@ -589,7 +589,7 @@ static int parsefmt(const char *format,
 
   /* Read the arg list parameters into our data list */
   for(i = 0; i < max_param + 1; i++) {
-    struct va_input *iptr = &in[i];
+    struct va_पासोक *iptr = &in[i];
     if(!is_arg_used(usedinput, i))
       /* bad input */
       return PFMT_INPUTGAP;
@@ -699,21 +699,21 @@ static const char pad_zeros[] = "0000000000000000";
 static bool stream_pad(void *userp,
                        int (*stream)(unsigned char, void *),
                        mp_streamn streamn,
-                       unsigned char pad, int num, int *donep)
+                       unsigned char pad, int नुमेरो, int *donep)
 {
   const unsigned char *src;
-  if(num <= 0)
+  if(नुमेरो <= 0)
     return FALSE;
   if(pad == '0')
     src = (const unsigned char *)pad_zeros;
   else
     src = (const unsigned char *)pad_spaces;
-  while(num > PAD_RUN) {
+  while(नुमेरो > PAD_RUN) {
     if(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
       return TRUE;
-    num -= PAD_RUN;
+    नुमेरो -= PAD_RUN;
   }
-  return stream_run(userp, stream, streamn, src, (size_t)num, donep);
+  return stream_run(userp, stream, streamn, src, (size_t)नुमेरो, donep);
 }
 
 /* emit the leading null-terminated part of a run of at most 'len' bytes.
@@ -743,12 +743,12 @@ static bool out_double(void *userp,
 {
   char fmt[32] = "%";
   char *fptr = &fmt[1];
-  size_t left = sizeof(fmt) - strlen(fmt);
+  size_t कालिवा = sizeof(fmt) - strlen(fmt);
   int flags = p->flags;
   int width = p->width;
   int prec = p->prec;
 
-  if(flags & FLAGS_LEFT)
+  if(flags & FLAGS_कालिवा)
     *fptr++ = '-';
   if(flags & FLAGS_SHOWSIGN)
     *fptr++ = '+';
@@ -764,9 +764,9 @@ static bool out_double(void *userp,
     if(width >= BUFFSIZE)
       width = BUFFSIZE - 1;
     /* RECURSIVE USAGE */
-    dlen = (size_t)curl_msnprintf(fptr, left, "%d", width);
+    dlen = (size_t)curl_msnprintf(fptr, कालिवा, "%d", width);
     fptr += dlen;
-    left -= dlen;
+    कालिवा -= dlen;
   }
   if(prec >= 0) {
     /* for each digit in the integer part, we can have one less
@@ -788,7 +788,7 @@ static bool out_double(void *userp,
     if(prec < 0)
       prec = 0;
     /* RECURSIVE USAGE */
-    len = curl_msnprintf(fptr, left, ".%d", prec);
+    len = curl_msnprintf(fptr, कालिवा, ".%d", prec);
     fptr += len;
   }
   if(flags & FLAGS_LONG)
@@ -806,7 +806,7 @@ static bool out_double(void *userp,
   /* NOTE NOTE NOTE!! Not all sprintf implementations return number of
      output characters */
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #endif
 #ifdef _WIN32
@@ -816,18 +816,18 @@ static bool out_double(void *userp,
   snprintf(work, BUFFSIZE, fmt, dnum);
 #endif
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
   DEBUGASSERT(strlen(work) < BUFFSIZE);
   return stream_run(userp, stream, streamn,
                     (const unsigned char *)work, strlen(work), donep);
 }
 
-static bool out_number(void *userp,
+static bool out_नुमेरो(void *userp,
                        int (*stream)(unsigned char, void *),
                        mp_streamn streamn,
                        struct mproperty *p,
-                       uint64_t num,
+                       uint64_t नुमेरो,
                        int64_t nums,
                        char *work, int *donep)
 {
@@ -847,13 +847,13 @@ static bool out_number(void *userp,
 
   if(flags & FLAGS_CHAR) {
     /* Character. */
-    if(!(flags & FLAGS_LEFT)) {
+    if(!(flags & FLAGS_कालिवा)) {
       if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
         return TRUE;
       width = 1;
     }
-    OUTCHAR((char)num);
-    if(flags & FLAGS_LEFT) {
+    OUTCHAR((char)नुमेरो);
+    if(flags & FLAGS_कालिवा) {
       if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
         return TRUE;
     }
@@ -877,11 +877,11 @@ static bool out_number(void *userp,
     is_neg = (nums < 0);
     if(is_neg) {
       /* signed_num might fail to hold absolute negative minimum by 1 */
-      int64_t signed_num; /* Used to convert negative in positive. */
-      signed_num = nums + (int64_t)1;
-      signed_num = -signed_num;
-      num = (uint64_t)signed_num;
-      num += (uint64_t)1;
+      int64_t signed_नुमेरो; /* Used to convert negative in positive. */
+      signed_नुमेरो = nums + (int64_t)1;
+      signed_नुमेरो = -signed_नुमेरो;
+      नुमेरो = (uint64_t)signed_नुमेरो;
+      नुमेरो += (uint64_t)1;
     }
   }
 
@@ -894,15 +894,15 @@ static bool out_number(void *userp,
   DEBUGASSERT(base <= 16);
   switch(base) {
   case 10:
-    while(num > 0) {
-      *w-- = (char)('0' + (num % 10));
-      num /= 10;
+    while(नुमेरो > 0) {
+      *w-- = (char)('0' + (नुमेरो % 10));
+      नुमेरो /= 10;
     }
     break;
   default:
-    while(num > 0) {
-      *w-- = digits[num % base];
-      num /= base;
+    while(नुमेरो > 0) {
+      *w-- = digits[नुमेरो % base];
+      नुमेरो /= base;
     }
     break;
   }
@@ -926,7 +926,7 @@ static bool out_number(void *userp,
   if(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
     --width;
 
-  if(!(flags & FLAGS_LEFT) && !(flags & FLAGS_PAD_NIL)) {
+  if(!(flags & FLAGS_कालिवा) && !(flags & FLAGS_PAD_NIL)) {
     if(stream_pad(userp, stream, streamn, ' ', width, donep))
       return TRUE;
     width = 0;
@@ -947,7 +947,7 @@ static bool out_number(void *userp,
       OUTCHAR('x');
   }
 
-  if(!(flags & FLAGS_LEFT) && (flags & FLAGS_PAD_NIL)) {
+  if(!(flags & FLAGS_कालिवा) && (flags & FLAGS_PAD_NIL)) {
     if(stream_pad(userp, stream, streamn, '0', width, donep))
       return TRUE;
     width = 0;
@@ -958,7 +958,7 @@ static bool out_number(void *userp,
                 (size_t)(workend - w), donep))
     return TRUE;
 
-  if(flags & FLAGS_LEFT) {
+  if(flags & FLAGS_कालिवा) {
     if(stream_pad(userp, stream, streamn, ' ', width, donep))
       return TRUE;
   }
@@ -1005,7 +1005,7 @@ static bool out_string(void *userp,
   if(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  if(!(flags & FLAGS_LEFT)) {
+  if(!(flags & FLAGS_कालिवा)) {
     if(stream_pad(userp, stream, streamn, ' ', width, donep))
       return TRUE;
     width = 0;
@@ -1021,7 +1021,7 @@ static bool out_string(void *userp,
   }
   else if(stream_zrun(userp, stream, streamn, str, len, donep))
     return TRUE;
-  if(flags & FLAGS_LEFT) {
+  if(flags & FLAGS_कालिवा) {
     if(stream_pad(userp, stream, streamn, ' ', width, donep))
       return TRUE;
   }
@@ -1042,11 +1042,11 @@ static bool out_pointer(void *userp,
 {
   /* Generic pointer. */
   if(ptr) {
-    size_t num = (size_t)ptr;
+    size_t नुमेरो = (size_t)ptr;
 
     /* If the pointer is not NULL, write it as a %#x spec. */
     p->flags |= FLAGS_HEX | FLAGS_ALT;
-    if(out_number(userp, stream, streamn, p, num, 0, work, donep))
+    if(out_नुमेरो(userp, stream, streamn, p, नुमेरो, 0, work, donep))
       return TRUE;
   }
   else {
@@ -1055,7 +1055,7 @@ static bool out_pointer(void *userp,
     int flags = p->flags;
 
     width -= (int)CURL_CSTRLEN(nilstr);
-    if(flags & FLAGS_LEFT) {
+    if(flags & FLAGS_कालिवा) {
       if(stream_pad(userp, stream, streamn, ' ', width, donep))
         return TRUE;
       width = 0;
@@ -1063,7 +1063,7 @@ static bool out_pointer(void *userp,
     if(stream_run(userp, stream, streamn, (const unsigned char *)nilstr,
                   sizeof(nilstr) - 1, donep))
       return TRUE;
-    if(!(flags & FLAGS_LEFT)) {
+    if(!(flags & FLAGS_कालिवा)) {
       if(stream_pad(userp, stream, streamn, ' ', width, donep))
         return TRUE;
     }
@@ -1103,16 +1103,16 @@ static int formatf(void *userp, /* untouched by format(), sent to the
   int icount = 0; /* number of input arguments */
 
   struct outsegment output[MAX_SEGMENTS];
-  struct va_input input[MAX_PARAMETERS];
+  struct va_पासोक पासोक[MAX_PARAMETERS];
   char work[BUFFSIZE + 2];
 
   /* Parse the format string */
-  if(parsefmt(format, output, input, &ocount, &icount, ap_save))
+  if(parsefmt(format, output, पासोक, &ocount, &icount, ap_save))
     return 0;
 
   for(i = 0; i < ocount; i++) {
     struct outsegment *optr = &output[i];
-    struct va_input *iptr = &input[optr->input];
+    struct va_पासोक *iptr = &पासोक[optr->पासोक];
     struct mproperty p;
     size_t outlen = optr->outlen;
 
@@ -1128,7 +1128,7 @@ static int formatf(void *userp, /* untouched by format(), sent to the
 
     /* pick up the specified width */
     if(p.flags & FLAGS_WIDTHPARAM) {
-      p.width = (int)input[optr->width].val.nums;
+      p.width = (int)पासोक[optr->width].val.nums;
       if(p.width < 0) {
         /* "A negative field width is taken as a '-' flag followed by a
            positive field width." */
@@ -1136,7 +1136,7 @@ static int formatf(void *userp, /* untouched by format(), sent to the
           p.width = INT_MAX;
         else
           p.width = -p.width;
-        p.flags |= FLAGS_LEFT;
+        p.flags |= FLAGS_कालिवा;
         p.flags &= ~(unsigned int)FLAGS_PAD_NIL;
       }
     }
@@ -1145,7 +1145,7 @@ static int formatf(void *userp, /* untouched by format(), sent to the
 
     /* pick up the specified precision */
     if(p.flags & FLAGS_PRECPARAM) {
-      p.prec = (int)input[optr->precision].val.nums;
+      p.prec = (int)पासोक[optr->precision].val.nums;
       if(p.prec < 0)
         /* "A negative precision is taken as if the precision were
            omitted." */
@@ -1161,7 +1161,7 @@ static int formatf(void *userp, /* untouched by format(), sent to the
     case MTYPE_LONGU:
     case MTYPE_LONGLONGU:
       p.flags |= FLAGS_UNSIGNED;
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu, 0, work,
+      if(out_नुमेरो(userp, stream, streamn, &p, iptr->val.numu, 0, work,
                     &done))
         return done;
       break;
@@ -1169,7 +1169,7 @@ static int formatf(void *userp, /* untouched by format(), sent to the
     case MTYPE_INT:
     case MTYPE_LONG:
     case MTYPE_LONGLONG:
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu,
+      if(out_नुमेरो(userp, stream, streamn, &p, iptr->val.numu,
                     iptr->val.nums, work, &done))
         return done;
       break;
@@ -1245,7 +1245,7 @@ static size_t addrun(const unsigned char *buf, size_t len, void *f)
 }
 
 int curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
-                    va_list args)
+                    va_list मगा_कातविरान)
 {
   int retcode;
   struct nsprintf info;
@@ -1254,7 +1254,7 @@ int curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
   info.length = 0;
   info.max = maxlength;
 
-  retcode = formatf(&info, addbyter, addrun, NULL, format, args);
+  retcode = formatf(&info, addbyter, addrun, NULL, format, मगा_कातविरान);
   if(info.max) {
     /* we null-terminate this */
     if(info.max == info.length) {
@@ -1272,10 +1272,10 @@ int curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
 int curl_msnprintf(char *buffer, size_t maxlength, const char *format, ...)
 {
   int retcode;
-  va_list args; /* argument pointer */
-  va_start(args, format);
-  retcode = curl_mvsnprintf(buffer, maxlength, format, args);
-  va_end(args);
+  va_list मगा_कातविरान; /* argument pointer */
+  va_start(मगा_कातविरान, format);
+  retcode = curl_mvsnprintf(buffer, maxlength, format, मगा_कातविरान);
+  va_end(मगा_कातविरान);
   return retcode;
 }
 
@@ -1374,7 +1374,7 @@ static size_t alloc_addrun(const unsigned char *buf, size_t len, void *f)
 }
 
 /* appends the formatted string, returns MERR error code */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
+int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list मगा_कातविरान)
 {
   struct asprintf info;
   info.b = dyn;
@@ -1382,7 +1382,7 @@ int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
   info.nstage = 0;
 
   (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
-                format, args);
+                format, मगा_कातविरान);
   if(!info.merr)
     (void)alloc_flush(&info);
   if(info.merr) {
@@ -1392,7 +1392,7 @@ int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
   return 0;
 }
 
-char *curl_mvaprintf(const char *format, va_list args)
+char *curl_mvaprintf(const char *format, va_list मगा_कातविरान)
 {
   struct asprintf info;
   struct dynbuf dyn;
@@ -1402,7 +1402,7 @@ char *curl_mvaprintf(const char *format, va_list args)
   info.nstage = 0;
 
   (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
-                format, args);
+                format, मगा_कातविरान);
   if(!info.merr)
     (void)alloc_flush(&info);
   if(info.merr) {
@@ -1416,11 +1416,11 @@ char *curl_mvaprintf(const char *format, va_list args)
 
 char *curl_maprintf(const char *format, ...)
 {
-  va_list args;
+  va_list मगा_कातविरान;
   char *s;
-  va_start(args, format);
-  s = curl_mvaprintf(format, args);
-  va_end(args);
+  va_start(मगा_कातविरान, format);
+  s = curl_mvaprintf(format, मगा_कातविरान);
+  va_end(मगा_कातविरान);
   return s;
 }
 
@@ -1443,11 +1443,11 @@ static size_t storerun(const unsigned char *buf, size_t len, void *f)
 
 int curl_msprintf(char *buffer, const char *format, ...)
 {
-  va_list args; /* argument pointer */
+  va_list मगा_कातविरान; /* argument pointer */
   int retcode;
-  va_start(args, format);
-  retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
-  va_end(args);
+  va_start(मगा_कातविरान, format);
+  retcode = formatf(&buffer, storebuffer, storerun, NULL, format, मगा_कातविरान);
+  va_end(मगा_कातविरान);
   *buffer = 0; /* we null-terminate this */
   return retcode;
 }
@@ -1473,13 +1473,13 @@ static size_t fwrite_wrapper(const unsigned char *buf, size_t len, void *f)
   return n;
 }
 
-int curl_mvfprintf(FILE *fd, const char *format, va_list args)
+int curl_mvfprintf(FILE *fd, const char *format, va_list मगा_कातविरान)
 {
   struct ioprintf info;
   int n;
   info.fd = fd;
   info.error = FALSE;
-  n = formatf(&info, fputc_wrapper, fwrite_wrapper, NULL, format, args);
+  n = formatf(&info, fputc_wrapper, fwrite_wrapper, NULL, format, मगा_कातविरान);
   if(info.error)
     return -1;
   return n;
@@ -1487,32 +1487,32 @@ int curl_mvfprintf(FILE *fd, const char *format, va_list args)
 
 int curl_mfprintf(FILE *fd, const char *format, ...)
 {
-  va_list args; /* argument pointer */
+  va_list मगा_कातविरान; /* argument pointer */
   int n;
-  va_start(args, format);
-  n = curl_mvfprintf(fd, format, args);
-  va_end(args);
+  va_start(मगा_कातविरान, format);
+  n = curl_mvfprintf(fd, format, मगा_कातविरान);
+  va_end(मगा_कातविरान);
   return n;
 }
 
 int curl_mprintf(const char *format, ...)
 {
-  va_list args; /* argument pointer */
+  va_list मगा_कातविरान; /* argument pointer */
   int n;
-  va_start(args, format);
-  n = curl_mvfprintf(stdout, format, args);
-  va_end(args);
+  va_start(मगा_कातविरान, format);
+  n = curl_mvfprintf(stdout, format, मगा_कातविरान);
+  va_end(मगा_कातविरान);
   return n;
 }
 
-int curl_mvsprintf(char *buffer, const char *format, va_list args)
+int curl_mvsprintf(char *buffer, const char *format, va_list मगा_कातविरान)
 {
-  int retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
+  int retcode = formatf(&buffer, storebuffer, storerun, NULL, format, मगा_कातविरान);
   *buffer = 0; /* we null-terminate this */
   return retcode;
 }
 
-int curl_mvprintf(const char *format, va_list args)
+int curl_mvprintf(const char *format, va_list मगा_कातविरान)
 {
-  return curl_mvfprintf(stdout, format, args);
+  return curl_mvfprintf(stdout, format, मगा_कातविरान);
 }

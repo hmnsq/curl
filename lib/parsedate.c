@@ -428,13 +428,13 @@ static curl_off_t time2epoch(struct when *w)
    digit. */
 static int oneortwodigit(const char *date, const char **endp)
 {
-  int num = date[0] - '0';
+  int नुमेरो = date[0] - '0';
   if(ISDIGIT(date[1])) {
     *endp = &date[2];
-    return (num * 10) + (date[1] - '0');
+    return (नुमेरो * 10) + (date[1] - '0');
   }
   *endp = &date[1];
-  return num;
+  return नुमेरो;
 }
 
 /* HH:MM:SS or HH:MM and accept single-digits too */
@@ -531,17 +531,17 @@ static int datenum(const char *indate, const char **datep, struct when *w)
   else {
     bool found = FALSE;
     curl_off_t lval;
-    int num_digits = 0;
+    int नुमेरो_digits = 0;
     const char *p = *datep;
-    if(curlx_str_number(&p, &lval, 99999999))
+    if(curlx_str_नुमेरो(&p, &lval, 99999999))
       return PARSEDATE_FAIL;
 
     /* we know num_digits cannot be larger than 8 */
-    num_digits = (int)(p - *datep);
+    नुमेरो_digits = (int)(p - *datep);
     val = (unsigned int)lval;
 
     if((w->tzoff == -1) &&
-       (num_digits == 4) &&
+       (नुमेरो_digits == 4) &&
        (val <= 1400) &&
        (indate < date) &&
        (date[-1] == '+' || date[-1] == '-')) {
@@ -561,7 +561,7 @@ static int datenum(const char *indate, const char **datep, struct when *w)
       w->tzoff = date[-1] == '+' ? -w->tzoff : w->tzoff;
     }
 
-    else if((num_digits == 8) && (w->year == -1) &&
+    else if((नुमेरो_digits == 8) && (w->year == -1) &&
             (w->mon == -1) && (w->mday == -1)) {
       /* 8 digits, no year, month or day yet. This is YYYYMMDD */
       found = TRUE;

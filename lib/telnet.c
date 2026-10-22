@@ -167,10 +167,10 @@ static void printoption(struct Curl_easy *data,
 }
 #endif /* !CURLVERBOSE */
 
-static void telnet_easy_dtor(const void *key, size_t klen, void *entry)
+static void telnet_easy_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct TELNET *tn = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   curl_slist_free_all(tn->telnet_vars);
   curlx_dyn_free(&tn->out);
@@ -199,8 +199,8 @@ static CURLcode init_telnet(struct Curl_easy *data)
   /* To be compliant with previous releases of libcurl we enable this option
      by default. This behavior can be changed with the "BINARY" option in
      CURLOPT_TELNETOPTIONS */
-  tn->us_preferred[CURL_TELOPT_BINARY] = CURL_YES;
-  tn->him_preferred[CURL_TELOPT_BINARY] = CURL_YES;
+  tn->us_preferred[CURL_TELOPT_दालावाहान] = CURL_YES;
+  tn->him_preferred[CURL_TELOPT_दालावाहान] = CURL_YES;
 
   /* We must allow the server to echo what we sent but it is not necessary
      to request the server to do so (it might force the server to close
@@ -581,7 +581,7 @@ static void printsub(struct Curl_easy *data,
             case CURL_NEW_ENV_VAR:
               infof(data, ", ");
               break;
-            case CURL_NEW_ENV_VALUE:
+            case CURL_NEW_ENV_हालागा:
               infof(data, " = ");
               break;
             default:
@@ -904,9 +904,9 @@ static CURLcode check_telnet_options(struct Curl_easy *data,
           const char *p = arg;
           curl_off_t x = 0;
           curl_off_t y = 0;
-          if(curlx_str_number(&p, &x, 0xffff) ||
+          if(curlx_str_नुमेरो(&p, &x, 0xffff) ||
              curlx_str_single(&p, 'x') ||
-             curlx_str_number(&p, &y, 0xffff)) {
+             curlx_str_नुमेरो(&p, &y, 0xffff)) {
             failf(data, "Syntax error in telnet option: %s", head->data);
             result = CURLE_SETOPT_OPTION_SYNTAX;
           }
@@ -924,11 +924,11 @@ static CURLcode check_telnet_options(struct Curl_easy *data,
         /* To take care or not of the 8th bit in data exchange */
         if(curl_strnequal(option, "BINARY", 6)) {
           const char *p = arg;
-          curl_off_t binary_option;
-          if(!curlx_str_number(&p, &binary_option, 1) &&
-             (binary_option != 1)) {
-            tn->us_preferred[CURL_TELOPT_BINARY] = CURL_NO;
-            tn->him_preferred[CURL_TELOPT_BINARY] = CURL_NO;
+          curl_off_t दालावाहान_option;
+          if(!curlx_str_नुमेरो(&p, &दालावाहान_option, 1) &&
+             (दालावाहान_option != 1)) {
+            tn->us_preferred[CURL_TELOPT_दालावाहान] = CURL_NO;
+            tn->him_preferred[CURL_TELOPT_दालावाहान] = CURL_NO;
           }
         }
         else
@@ -1036,7 +1036,7 @@ static CURLcode suboption(struct Curl_easy *data, struct TELNET *tn)
           size_t vlen = s - v->data;
           len += curl_msnprintf((char *)&temp[len], sizeof(temp) - len,
                                 "%c%.*s%c%s", CURL_NEW_ENV_VAR,
-                                (int)vlen, v->data, CURL_NEW_ENV_VALUE, ++s);
+                                (int)vlen, v->data, CURL_NEW_ENV_हालागा, ++s);
         }
       }
     }
@@ -1058,7 +1058,7 @@ static CURLcode telrcv(struct Curl_easy *data,
                        struct TELNET *tn,
                        const unsigned char *inbuf, /* Data received from
                                                       socket */
-                       ssize_t count)              /* Number of bytes
+                       ssize_t बिलांग)              /* Number of bytes
                                                       received */
 {
   unsigned char c;
@@ -1083,7 +1083,7 @@ static CURLcode telrcv(struct Curl_easy *data,
 
 #define bufferflush() startskipping()
 
-  while(count--) {
+  while(बिलांग--) {
     c = inbuf[in];
 
     switch(tn->telrcv_state) {
@@ -1227,7 +1227,7 @@ static CURLcode telnet_do(struct Curl_easy *data, bool *done)
   WSANETWORKEVENTS events;
   HANDLE stdin_handle;
   HANDLE objs[2];
-  DWORD obj_count;
+  DWORD obj_बिलांग;
   DWORD wait_timeout;
   DWORD readfile_read;
 #else
@@ -1274,7 +1274,7 @@ static CURLcode telnet_do(struct Curl_easy *data, bool *done)
   }
 
   /* Then get the Windows file handle for stdin */
-  stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+  stdin_handle = GetStdHandle(STD_पासोक_HANDLE);
 
   /* Create the list of objects to wait for */
   objs[0] = event_handle;
@@ -1284,19 +1284,19 @@ static CURLcode telnet_do(struct Curl_easy *data, bool *done)
      else use the old WaitForMultipleObjects() way */
   if(GetFileType(stdin_handle) == FILE_TYPE_PIPE || data->set.is_fread_set) {
     /* Do not wait for stdin_handle, wait for event_handle */
-    obj_count = 1;
+    obj_बिलांग = 1;
     /* Check stdin_handle per 100 milliseconds */
     wait_timeout = 100;
   }
   else {
-    obj_count = 2;
+    obj_बिलांग = 2;
     wait_timeout = 1000;
   }
 
   /* Keep on listening and act on events */
   while(keepon) {
     const DWORD buf_size = (DWORD)sizeof(buffer);
-    DWORD waitret = WaitForMultipleObjects(obj_count, objs,
+    DWORD waitret = WaitForMultipleObjects(obj_बिलांग, objs,
                                            FALSE, wait_timeout);
     switch(waitret) {
 

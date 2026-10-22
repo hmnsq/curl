@@ -77,7 +77,7 @@ CURLSH *curl_share_init(void)
 #ifdef USE_MUTEX
     Curl_mutex_init(&share->lock);
 #endif
-    share->ref_count = 1;
+    share->ref_बिलांग = 1;
     Curl_dnscache_init(&share->dnscache, 23);
     share->admin = curl_easy_init();
     if(!share->admin) {
@@ -100,11 +100,11 @@ static uint32_t share_ref_inc(struct Curl_share *share)
   uint32_t n;
 #ifdef USE_MUTEX
   Curl_mutex_acquire(&share->lock);
-  n = ++share->ref_count;
+  n = ++share->ref_बिलांग;
   share->has_been_shared = TRUE;
   Curl_mutex_release(&share->lock);
 #else
-  n = ++share->ref_count;
+  n = ++share->ref_बिलांग;
   share->has_been_shared = TRUE;
 #endif
   return n;
@@ -115,11 +115,11 @@ static uint32_t share_ref_dec(struct Curl_share *share)
   uint32_t n;
 #ifdef USE_MUTEX
   Curl_mutex_acquire(&share->lock);
-  DEBUGASSERT(share->ref_count);
-  n = --share->ref_count;
+  DEBUGASSERT(share->ref_बिलांग);
+  n = --share->ref_बिलांग;
   Curl_mutex_release(&share->lock);
 #else
-  n = --share->ref_count;
+  n = --share->ref_बिलांग;
 #endif
   return n;
 }
@@ -165,11 +165,11 @@ static bool share_in_use(struct Curl_share *share)
   bool in_use;
 #ifdef USE_MUTEX
   Curl_mutex_acquire(&share->lock);
-  in_use = (share->ref_count > 1);
+  in_use = (share->ref_बिलांग > 1);
   Curl_mutex_release(&share->lock);
 #else
   bool locked = share_lock_acquire(share, NULL);
-  in_use = (share->ref_count > 1);
+  in_use = (share->ref_बिलांग > 1);
   share_lock_release(share, NULL, locked);
 #endif
   return in_use;

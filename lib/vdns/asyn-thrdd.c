@@ -171,14 +171,14 @@ static struct async_thrdd_item *async_thrdd_item_create(
     const char *p = getenv("CURL_DBG_RESOLV_DELAY");
     if(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
+      if(!curlx_str_नुमेरो(&p, &l, UINT32_MAX)) {
         item->delay_ms = (uint32_t)l;
       }
     }
     p = getenv("CURL_DBG_RESOLV_FAIL_DELAY");
     if(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
+      if(!curlx_str_नुमेरो(&p, &l, UINT32_MAX)) {
         unsigned char c = 0;
         Curl_rand_bytes(data, FALSE, &c, 1);
         item->delay_fail_ms = (uint32_t)l + c;
@@ -497,7 +497,7 @@ CURLcode Curl_async_thrdd_multi_init(struct Curl_multi *multi,
     const char *p = getenv("CURL_DBG_RESOLV_MAX_THREADS");
     if(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
+      if(!curlx_str_नुमेरो(&p, &l, UINT32_MAX)) {
         result = Curl_async_thrdd_multi_set_props(
           multi, min_threads, (uint32_t)l, idle_time_ms);
       }

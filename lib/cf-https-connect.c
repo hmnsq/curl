@@ -114,7 +114,7 @@ struct cf_hc_ctx {
   CURLcode result;          /* overall result */
   CURLcode check_h3_result;
   struct cf_hc_baller ballers[2];
-  size_t baller_count;
+  size_t baller_बिलांग;
   timediff_t soft_eyeballs_timeout_ms;
   timediff_t hard_eyeballs_timeout_ms;
   uint8_t def_transport;
@@ -128,7 +128,7 @@ static void cf_hc_ctx_destroy(struct Curl_easy *data,
 {
   if(ctx) {
     size_t i;
-    for(i = 0; i < ctx->baller_count; ++i)
+    for(i = 0; i < ctx->baller_बिलांग; ++i)
       cf_hc_baller_discard(&ctx->ballers[i], data);
     Curl_peer_unlink(&ctx->destination);
     curlx_free(ctx);
@@ -172,7 +172,7 @@ static void cf_hc_baller_init(struct cf_hc_baller *b,
   struct Curl_cfilter *save = cf->next;
 
   cf->next = NULL;
-  b->result = Curl_cf_setup_insert_after(cf, data, b->transport,
+  b->result = Curl_cf_setup_इसिंगित_after(cf, data, b->transport,
                                          CURL_CF_SSL_ENABLE);
   b->cf = cf->next;
   cf->next = save;
@@ -242,7 +242,7 @@ static bool time_to_start_baller2(struct Curl_cfilter *cf,
   struct cf_hc_ctx *ctx = cf->ctx;
   timediff_t elapsed_ms;
 
-  if(ctx->baller_count < 2)
+  if(ctx->baller_बिलांग < 2)
     return FALSE;
   else if(cf_hc_baller_has_started(&ctx->ballers[1]))
     return FALSE;
@@ -425,7 +425,7 @@ static CURLcode cf_hc_set_baller1(struct Curl_cfilter *cf,
   }
 
   cf_hc_baller_assign(&ctx->ballers[0], alpn1, ctx->def_transport);
-  ctx->baller_count = 1;
+  ctx->baller_बिलांग = 1;
   CURL_TRC_CF(data, cf, "1st attempt uses %s from %s",
               ctx->ballers[0].name, source);
 
@@ -468,7 +468,7 @@ static void cf_hc_set_baller2(struct Curl_cfilter *cf,
 
   if(alpn2 != ALPN_none) {
     cf_hc_baller_assign(&ctx->ballers[1], alpn2, ctx->def_transport);
-    ctx->baller_count = 2;
+    ctx->baller_बिलांग = 2;
     CURL_TRC_CF(data, cf, "2nd attempt uses %s from %s",
                 ctx->ballers[1].name, source);
   }
@@ -519,7 +519,7 @@ static CURLcode cf_hc_connect(struct Curl_cfilter *cf,
     pnow = Curl_pgrs_now(data);
     ctx->started = *pnow;
     cf_hc_baller_init(&ctx->ballers[0], cf, data);
-    if((ctx->baller_count > 1) || !ctx->ballers_complete) {
+    if((ctx->baller_बिलांग > 1) || !ctx->ballers_complete) {
       Curl_expire_set(data, EXPIRE_ALPN_EYEBALLS,
                       ctx->soft_eyeballs_timeout_ms, pnow);
     }
@@ -553,7 +553,7 @@ static CURLcode cf_hc_connect(struct Curl_cfilter *cf,
 
     if(ctx->ballers[0].result &&
        (ctx->ballers[1].result ||
-        (ctx->ballers_complete && (ctx->baller_count < 2)))) {
+        (ctx->ballers_complete && (ctx->baller_बिलांग < 2)))) {
       /* all have failed. we give up */
       CURL_TRC_CF(data, cf, "connect, all attempts failed");
       ctx->result = result = ctx->ballers[0].result;
@@ -597,7 +597,7 @@ static CURLcode cf_hc_shutdown(struct Curl_cfilter *cf,
 
   /* shutdown all ballers that have not done so already. If one fails,
    * continue shutting down others until all are shutdown. */
-  for(i = 0; i < ctx->baller_count; i++) {
+  for(i = 0; i < ctx->baller_बिलांग; i++) {
     struct cf_hc_baller *b = &ctx->ballers[i];
     bool bdone = FALSE;
     if(!cf_hc_baller_is_connecting(b) || b->shutdown)
@@ -608,12 +608,12 @@ static CURLcode cf_hc_shutdown(struct Curl_cfilter *cf,
   }
 
   *done = TRUE;
-  for(i = 0; i < ctx->baller_count; i++) {
+  for(i = 0; i < ctx->baller_बिलांग; i++) {
     if(!ctx->ballers[i].shutdown)
       *done = FALSE;
   }
   if(*done) {
-    for(i = 0; i < ctx->baller_count; i++) {
+    for(i = 0; i < ctx->baller_बिलांग; i++) {
       if(ctx->ballers[i].result)
         result = ctx->ballers[i].result;
     }
@@ -631,7 +631,7 @@ static CURLcode cf_hc_adjust_pollset(struct Curl_cfilter *cf,
     struct cf_hc_ctx *ctx = cf->ctx;
     size_t i;
 
-    for(i = 0; (i < ctx->baller_count) && !result; i++) {
+    for(i = 0; (i < ctx->baller_बिलांग) && !result; i++) {
       struct cf_hc_baller *b = &ctx->ballers[i];
       if(!cf_hc_baller_is_connecting(b))
         continue;
@@ -652,7 +652,7 @@ static bool cf_hc_data_pending(struct Curl_cfilter *cf,
   if(cf->connected)
     return cf->next->cft->has_data_pending(cf->next, data);
 
-  for(i = 0; i < ctx->baller_count; i++)
+  for(i = 0; i < ctx->baller_बिलांग; i++)
     if(cf_hc_baller_data_pending(&ctx->ballers[i], data))
       return TRUE;
   return FALSE;
@@ -668,7 +668,7 @@ static CURLcode cf_hc_query(struct Curl_cfilter *cf,
   if(!cf->connected) {
     switch(query) {
     case CF_QUERY_NEED_FLUSH: {
-      for(i = 0; i < ctx->baller_count; i++)
+      for(i = 0; i < ctx->baller_बिलांग; i++)
         if(cf_hc_baller_needs_flush(&ctx->ballers[i], data)) {
           *pres1 = TRUE;
           return CURLE_OK;
@@ -696,7 +696,7 @@ static CURLcode cf_hc_cntrl(struct Curl_cfilter *cf,
     switch(event) {
     case CF_CTRL_REPORT_STATS:
     case CF_CTRL_CONN_INFO_UPDATE:
-      for(i = 0; i < ctx->baller_count; i++) {
+      for(i = 0; i < ctx->baller_बिलांग; i++) {
         /* Make the first baller that connected at network level report */
         if(Curl_conn_cf_is_ip_connected(ctx->ballers[i].cf, data)) {
           Curl_conn_cf_cntrl(ctx->ballers[i].cf, data, TRUE,
@@ -706,7 +706,7 @@ static CURLcode cf_hc_cntrl(struct Curl_cfilter *cf,
       }
       break;
     default:
-      for(i = 0; i < ctx->baller_count; i++) {
+      for(i = 0; i < ctx->baller_बिलांग; i++) {
         result = cf_hc_baller_cntrl(&ctx->ballers[i], data, event, arg1, arg2);
         if(result && (result != CURLE_AGAIN))
           goto out;

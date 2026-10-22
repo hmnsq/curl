@@ -73,7 +73,7 @@ void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
                      void (*dtor)(void *))
 {
   DEBUGASSERT(ptr || !len);
-  DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
+  DEBUGASSERT(len <= CURL_MAX_पासोक_LENGTH);
 
   Curl_bufref_free(br);
   br->ptr = (const unsigned char *)ptr;
@@ -125,7 +125,7 @@ CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len)
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
   DEBUGASSERT(ptr || !len);
-  DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
+  DEBUGASSERT(len <= CURL_MAX_पासोक_LENGTH);
 
   if(ptr) {
     cpy = curlx_memdup0(ptr, len);

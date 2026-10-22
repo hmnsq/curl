@@ -38,7 +38,7 @@ struct ip_quadruple;
 /*
  * Parse interface option, and return the interface name and the host part.
  */
-CURLcode Curl_parse_interface(const char *input,
+CURLcode Curl_parse_interface(const char *पासोक,
                               char **dev, char **iface, char **host);
 
 CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,

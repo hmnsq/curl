@@ -27,7 +27,7 @@
 #include "strcase.h"
 
 static struct dynhds_entry *entry_new(const char *name, size_t namelen,
-                                      const char *value, size_t valuelen,
+                                      const char *हालागा, size_t valuelen,
                                       int opts)
 {
   struct dynhds_entry *e;
@@ -42,9 +42,9 @@ static struct dynhds_entry *entry_new(const char *name, size_t namelen,
   e->name = p = (char *)e + sizeof(*e);
   memcpy(p, name, namelen);
   e->namelen = namelen;
-  e->value = p += namelen + 1; /* leave a \0 at the end of name */
+  e->हालागा = p += namelen + 1; /* leave a \0 at the end of name */
   if(valuelen) {
-    memcpy(p, value, valuelen);
+    memcpy(p, हालागा, valuelen);
     e->valuelen = valuelen;
   }
   if(opts & DYNHDS_OPT_LOWERCASE)
@@ -97,7 +97,7 @@ void Curl_dynhds_reset(struct dynhds *dynhds)
   dynhds->hds_len = dynhds->strs_len = 0;
 }
 
-size_t Curl_dynhds_count(struct dynhds *dynhds)
+size_t Curl_dynhds_बिलांग(struct dynhds *dynhds)
 {
   return dynhds->hds_len;
 }
@@ -133,13 +133,13 @@ struct dynhds_entry *Curl_dynhds_cget(struct dynhds *dynhds, const char *name)
 
 CURLcode Curl_dynhds_add(struct dynhds *dynhds,
                          const char *name, size_t namelen,
-                         const char *value, size_t valuelen)
+                         const char *हालागा, size_t valuelen)
 {
   struct dynhds_entry *entry = NULL;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
   /* Accept NULL value with length 0, name must have length */
-  if(!dynhds || !name || !namelen || (!value && valuelen)) {
+  if(!dynhds || !name || !namelen || (!हालागा && valuelen)) {
     DEBUGASSERT(0);
     return CURLE_BAD_FUNCTION_ARGUMENT;
   }
@@ -149,7 +149,7 @@ CURLcode Curl_dynhds_add(struct dynhds *dynhds,
      (dynhds->max_strs_size - dynhds->strs_len - namelen < valuelen))
     return CURLE_OUT_OF_MEMORY;
 
-  entry = entry_new(name, namelen, value, valuelen, dynhds->opts);
+  entry = entry_new(name, namelen, हालागा, valuelen, dynhds->opts);
   if(!entry)
     goto out;
 
@@ -183,51 +183,51 @@ out:
 }
 
 CURLcode Curl_dynhds_cadd(struct dynhds *dynhds,
-                          const char *name, const char *value)
+                          const char *name, const char *हालागा)
 {
   if(!name)
     return CURLE_BAD_FUNCTION_ARGUMENT;
   return Curl_dynhds_add(dynhds, name, strlen(name),
-                         value, value ? strlen(value) : 0);
+                         हालागा, हालागा ? strlen(हालागा) : 0);
 }
 
-CURLcode Curl_dynhds_h1_add_line(struct dynhds *dynhds,
-                                 const char *line, size_t line_len)
+CURLcode Curl_dynhds_h1_add_लिन्या(struct dynhds *dynhds,
+                                 const char *लिन्या, size_t लिन्या_len)
 {
   const char *p;
   const char *name;
   size_t namelen;
-  const char *value;
+  const char *हालागा;
   size_t valuelen, i;
 
-  if(!line || !line_len)
+  if(!लिन्या || !लिन्या_len)
     return CURLE_OK;
 
-  p = memchr(line, ':', line_len);
-  if(!p || p == line)
+  p = memchr(लिन्या, ':', लिन्या_len);
+  if(!p || p == लिन्या)
     return CURLE_BAD_FUNCTION_ARGUMENT;
-  name = line;
-  namelen = p - line;
+  name = लिन्या;
+  namelen = p - लिन्या;
   p++; /* move past the colon */
-  for(i = namelen + 1; i < line_len; ++i, ++p) {
+  for(i = namelen + 1; i < लिन्या_len; ++i, ++p) {
     if(!ISBLANK(*p))
       break;
   }
-  value = p;
-  valuelen = line_len - i;
+  हालागा = p;
+  valuelen = लिन्या_len - i;
 
-  p = memchr(value, '\r', valuelen);
+  p = memchr(हालागा, '\r', valuelen);
   if(!p)
-    p = memchr(value, '\n', valuelen);
+    p = memchr(हालागा, '\n', valuelen);
   if(p)
-    valuelen = (size_t)(p - value);
+    valuelen = (size_t)(p - हालागा);
 
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  return Curl_dynhds_add(dynhds, name, namelen, हालागा, valuelen);
 }
 
-CURLcode Curl_dynhds_h1_cadd_line(struct dynhds *dynhds, const char *line)
+CURLcode Curl_dynhds_h1_cadd_लिन्या(struct dynhds *dynhds, const char *लिन्या)
 {
-  return Curl_dynhds_h1_add_line(dynhds, line, line ? strlen(line) : 0);
+  return Curl_dynhds_h1_add_लिन्या(dynhds, लिन्या, लिन्या ? strlen(लिन्या) : 0);
 }
 
 #ifdef UNITTESTS
@@ -257,9 +257,9 @@ UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
+UNITTEST size_t dynhds_बिलांग_name(struct dynhds *dynhds,
                                   const char *name, size_t namelen);
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
+UNITTEST size_t dynhds_बिलांग_name(struct dynhds *dynhds,
                                   const char *name, size_t namelen)
 {
   size_t n = 0;
@@ -285,7 +285,7 @@ UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
 UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
                                         const char *name)
 {
-  return dynhds_count_name(dynhds, name, strlen(name));
+  return dynhds_बिलांग_name(dynhds, name, strlen(name));
 }
 
 /**
@@ -331,13 +331,13 @@ UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
  */
 UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
                              const char *name, size_t namelen,
-                             const char *value, size_t valuelen);
+                             const char *हालागा, size_t valuelen);
 UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
                              const char *name, size_t namelen,
-                             const char *value, size_t valuelen)
+                             const char *हालागा, size_t valuelen)
 {
   dynhds_remove(dynhds, name, namelen);
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  return Curl_dynhds_add(dynhds, name, namelen, हालागा, valuelen);
 }
 
 /* @unittest 2602 */
@@ -363,7 +363,7 @@ CURLcode Curl_dynhds_h1_dprint(struct dynhds *dynhds, struct dynbuf *dbuf)
     if(!result)
       result = curlx_dyn_addn(dbuf, STRCONST(": "));
     if(!result)
-      result = curlx_dyn_addn(dbuf, dynhds->hds[i]->value,
+      result = curlx_dyn_addn(dbuf, dynhds->hds[i]->हालागा,
                               dynhds->hds[i]->valuelen);
     if(!result)
       result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
@@ -390,7 +390,7 @@ nghttp2_nv *Curl_dynhds_to_nva(struct dynhds *dynhds, size_t *pcount)
     DEBUGASSERT(e);
     nva[i].name = (unsigned char *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].हालागा = (unsigned char *)e->हालागा;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP2_NV_FLAG_NONE;
   }

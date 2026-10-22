@@ -113,16 +113,16 @@ static CURLcode socks5_sspi_loop(struct Curl_cfilter *cf,
   CURLcode code;
   SECURITY_STATUS status;
   SecBuffer sspi_send_token, sspi_recv_token;
-  SecBufferDesc input_desc, output_desc;
+  SecBufferDesc पासोक_desc, output_desc;
   PCtxtHandle context_handle = NULL;
   unsigned short us_length;
   size_t actualread;
   size_t written;
   unsigned char socksreq[4];
 
-  input_desc.cBuffers = 1;
-  input_desc.pBuffers = &sspi_recv_token;
-  input_desc.ulVersion = SECBUFFER_VERSION;
+  पासोक_desc.cBuffers = 1;
+  पासोक_desc.pBuffers = &sspi_recv_token;
+  पासोक_desc.ulVersion = SECBUFFER_VERSION;
 
   sspi_recv_token.BufferType = SECBUFFER_TOKEN;
   sspi_recv_token.cbBuffer = 0;
@@ -153,7 +153,7 @@ static CURLcode socks5_sspi_loop(struct Curl_cfilter *cf,
                                              ISC_REQ_CONFIDENTIALITY |
                                              ISC_REQ_REPLAY_DETECT,
                                              0, SECURITY_NATIVE_DREP,
-                                             &input_desc, 0,
+                                             &पासोक_desc, 0,
                                              sspi_context,
                                              &output_desc,
                                              sspi_ret_flagsp, NULL);

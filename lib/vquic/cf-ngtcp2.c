@@ -75,8 +75,8 @@ static CURLcode cf_ngtcp2_adjust_pollset(struct Curl_cfilter *cf,
     bool c_exhaust, s_exhaust;
 
     CF_DATA_SAVE(save, cf, data);
-    c_exhaust = want_send && (!ngtcp2_conn_get_cwnd_left(ctx->qconn) ||
-                              !ngtcp2_conn_get_max_data_left(ctx->qconn));
+    c_exhaust = want_send && (!ngtcp2_conn_get_cwnd_कालिवा(ctx->qconn) ||
+                              !ngtcp2_conn_get_max_data_कालिवा(ctx->qconn));
     s_exhaust = want_send && stream && stream->id >= 0 &&
                 (stream->quic_flow_blocked ||
                  stream->tx_in_flight_size >= stream->tx_in_flight_ideal);
@@ -285,13 +285,13 @@ static int cb_h3_end_headers(nghttp3_conn *conn, int64_t stream_id,
 
 static int cb_h3_recv_header(nghttp3_conn *conn, int64_t stream_id,
                              int32_t token, nghttp3_rcbuf *name,
-                             nghttp3_rcbuf *value, uint8_t flags,
+                             nghttp3_rcbuf *हालागा, uint8_t flags,
                              void *user_data, void *stream_user_data)
 {
   struct Curl_cfilter *cf = user_data;
   struct cf_ngtcp2_ctx *ctx = cf->ctx;
   nghttp3_vec h3name = nghttp3_rcbuf_get_buf(name);
-  nghttp3_vec h3val = nghttp3_rcbuf_get_buf(value);
+  nghttp3_vec h3val = nghttp3_rcbuf_get_buf(हालागा);
   struct h3_stream_ctx *stream;
   struct Curl_easy *data =
     Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
@@ -391,7 +391,7 @@ static int cb_h3_reset_stream(nghttp3_conn *conn, int64_t stream_id,
 }
 
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 static nghttp3_callbacks ngh3_callbacks = {
@@ -423,7 +423,7 @@ static nghttp3_callbacks ngh3_callbacks = {
 #endif
 };
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
 
 static CURLcode init_ngh3_conn(struct Curl_cfilter *cf,
@@ -432,7 +432,7 @@ static CURLcode init_ngh3_conn(struct Curl_cfilter *cf,
 {
   int rc;
 
-  if(ngtcp2_conn_get_streams_uni_left(ctx->qconn) < 3) {
+  if(ngtcp2_conn_get_streams_uni_कालिवा(ctx->qconn) < 3) {
     failf(data, "QUIC connection lacks 3 uni streams to run HTTP/3");
     return CURLE_QUIC_CONNECT_ERROR;
   }
@@ -636,12 +636,12 @@ static nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t stream_id,
     DEBUGASSERT(nvecs > 0); /* we SHOULD have been be able to peek */
   }
 
-  if(nwritten > 0 && stream->upload_left != -1)
-    stream->upload_left -= nwritten;
+  if(nwritten > 0 && stream->upload_कालिवा != -1)
+    stream->upload_कालिवा -= nwritten;
 
   /* When we stopped sending and everything in `sendbuf` is "in flight",
    * we are at the end of the request body. */
-  if(stream->upload_left == 0) {
+  if(stream->upload_कालिवा == 0) {
     *pflags = NGHTTP3_DATA_FLAG_EOF;
     stream->send_closed = TRUE;
   }
@@ -656,7 +656,7 @@ static nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t stream_id,
               stream->id, nvecs,
               *pflags == NGHTTP3_DATA_FLAG_EOF ? " EOF" : "",
               nwritten, Curl_bufq_len(&stream->sendbuf),
-              stream->upload_left);
+              stream->upload_कालिवा);
   return (nghttp3_ssize)nvecs;
 }
 
@@ -703,7 +703,7 @@ static CURLcode h3_stream_open(struct Curl_cfilter *cf,
   /* no longer needed */
   Curl_h1_req_parse_free(&stream->h1);
 
-  nheader = Curl_dynhds_count(&h2_headers);
+  nheader = Curl_dynhds_बिलांग(&h2_headers);
   nva = curlx_malloc(sizeof(nghttp3_nv) * nheader);
   if(!nva) {
     result = CURLE_OUT_OF_MEMORY;
@@ -714,7 +714,7 @@ static CURLcode h3_stream_open(struct Curl_cfilter *cf,
     struct dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
     nva[i].name = (unsigned char *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].हालागा = (unsigned char *)e->हालागा;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP3_NV_FLAG_NONE;
   }
@@ -735,18 +735,18 @@ static CURLcode h3_stream_open(struct Curl_cfilter *cf,
   case HTTPREQ_PUT:
     /* known request body size or -1 */
     if(data->state.infilesize != -1)
-      stream->upload_left = data->state.infilesize;
+      stream->upload_कालिवा = data->state.infilesize;
     else
       /* data sending without specifying the data amount up front */
-      stream->upload_left = -1; /* unknown */
+      stream->upload_कालिवा = -1; /* unknown */
     break;
   default:
     /* there is no request body */
-    stream->upload_left = 0; /* no request body */
+    stream->upload_कालिवा = 0; /* no request body */
     break;
   }
 
-  stream->send_closed = (stream->upload_left == 0);
+  stream->send_closed = (stream->upload_कालिवा == 0);
   if(!stream->send_closed) {
     reader.read_data = cb_h3_read_req_body;
     preader = &reader;
@@ -778,7 +778,7 @@ static CURLcode h3_stream_open(struct Curl_cfilter *cf,
     for(i = 0; i < nheader; ++i) {
       infof(data, "[HTTP/3] [%" PRId64 "] [%.*s: %.*s]", stream->id,
             (int)nva[i].namelen, nva[i].name,
-            (int)nva[i].valuelen, nva[i].value);
+            (int)nva[i].valuelen, nva[i].हालागा);
     }
   }
 
@@ -946,7 +946,7 @@ static CURLcode cf_ngtcp2_cntrl(struct Curl_cfilter *cf,
     struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
     if(stream && !stream->send_closed) {
       stream->send_closed = TRUE;
-      stream->upload_left = Curl_bufq_len(&stream->sendbuf) -
+      stream->upload_कालिवा = Curl_bufq_len(&stream->sendbuf) -
         stream->tx_in_flight_size;
       (void)nghttp3_conn_resume_stream(ctx->h3conn, stream->id);
     }
@@ -1111,7 +1111,7 @@ out:
   return result;
 }
 
-CURLcode Curl_cf_ngtcp2_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_ngtcp2_इसिंगित_after(struct Curl_cfilter *cf_at,
                                      struct Curl_peer *origin,
                                      struct Curl_peer *peer,
                                      struct Curl_cfilter **pcf)
@@ -1131,7 +1131,7 @@ CURLcode Curl_cf_ngtcp2_insert_after(struct Curl_cfilter *cf_at,
     result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
   if(result)
     goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  Curl_conn_cf_इसिंगित_after(cf_at, cf);
 out:
   if(result) {
     curlx_safefree(cf);

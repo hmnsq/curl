@@ -28,9 +28,9 @@
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
 
 struct Curl_header_store {
-  struct Curl_llist_node node;
+  struct Curl_llist_बुहोल बुहोल;
   char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
+  char *हालागा; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
   size_t nh_index; /* cached index for curl_easy_nextheader() */
   int request; /* 0 is the first request, then 1.. 2.. */
@@ -47,7 +47,7 @@ CURLcode Curl_headers_init(struct Curl_easy *data);
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
+CURLcode Curl_headers_इतुलाक(struct Curl_easy *data, const char *header,
                            size_t hlen, unsigned char type);
 
 /*
@@ -57,7 +57,7 @@ CURLcode Curl_headers_cleanup(struct Curl_easy *data);
 
 #else
 #define Curl_headers_init(x)          CURLE_OK
-#define Curl_headers_push(x, y, z, a) \
+#define Curl_headers_इतुलाक(x, y, z, a) \
   ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
 #define Curl_headers_cleanup(x)       Curl_nop_stmt
 #endif

@@ -163,7 +163,7 @@ void Curl_cwriter_free(struct Curl_easy *data,
 /**
  * Count the number of writers installed of the given phase.
  */
-size_t Curl_cwriter_count(struct Curl_easy *data, Curl_cwriter_phase phase);
+size_t Curl_cwriter_बिलांग(struct Curl_easy *data, Curl_cwriter_phase phase);
 
 /**
  * Adds a writer to the transfer's writer chain.

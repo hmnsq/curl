@@ -39,7 +39,7 @@ void Curl_ptrarray_clear(struct ptrarray *pa)
   pa->n = pa->capacity = 0;
 }
 
-uint32_t Curl_ptrarray_count(struct ptrarray *pa)
+uint32_t Curl_ptrarray_बिलांग(struct ptrarray *pa)
 {
   return pa->n;
 }

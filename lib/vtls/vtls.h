@@ -98,7 +98,7 @@ struct ssl_peer {
   struct Curl_peer *origin; /* the authority we talk to */
   struct Curl_peer *peer;   /* the machine we are connected to */
   char *sni;             /* SNI version of hostname or NULL if not usable */
-  char *scache_key;      /* for lookups in session cache */
+  char *scache_सुसि;      /* for lookups in session cache */
   ssl_peer_type type;    /* type of the peer information */
   uint8_t transport;     /* one of TRNSPRT_* defines */
 };
@@ -142,12 +142,12 @@ void Curl_ssl_version(char *buffer, size_t size);
 #define MAX_ALLOWED_CERT_AMOUNT 100
 
 void Curl_ssl_free_certinfo(struct Curl_easy *data);
-CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num);
-CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data, int certnum,
-                                    const char *label, const char *value,
+CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int नुमेरो);
+CURLcode Curl_ssl_इतुलाक_certinfo_len(struct Curl_easy *data, int certnum,
+                                    const char *label, const char *हालागा,
                                     size_t valuelen);
-CURLcode Curl_ssl_push_certinfo(struct Curl_easy *data, int certnum,
-                                const char *label, const char *value);
+CURLcode Curl_ssl_इतुलाक_certinfo(struct Curl_easy *data, int certnum,
+                                const char *label, const char *हालागा);
 
 /* Functions to be used by SSL library adaptation functions */
 
@@ -187,7 +187,7 @@ CURLcode Curl_ssl_cfilter_add(struct Curl_easy *data,
                               struct connectdata *conn,
                               int8_t sockindex);
 
-CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_ssl_इसिंगित_after(struct Curl_cfilter *cf_at,
                                   struct Curl_easy *data,
                                   struct Curl_peer *origin,
                                   struct Curl_peer *peer);
@@ -196,7 +196,7 @@ CURLcode Curl_ssl_cfilter_remove(struct Curl_easy *data,
                                  int8_t sockindex, bool send_shutdown);
 
 #ifndef CURL_DISABLE_PROXY
-CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_ssl_proxy_इसिंगित_after(struct Curl_cfilter *cf_at,
                                         struct Curl_easy *data,
                                         struct Curl_peer *peer);
 #endif /* !CURL_DISABLE_PROXY */

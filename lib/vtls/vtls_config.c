@@ -117,18 +117,18 @@ void Curl_ssl_config_cleanup(struct ssl_filter_config *sslc)
     curlx_safefree(sslc->clientcert);
     curlx_safefree(sslc->cipher_list);
     curlx_safefree(sslc->cipher_list13);
-    curlx_safefree(sslc->pinned_key);
+    curlx_safefree(sslc->pinned_सुसि);
     curlx_safefree(sslc->cert_blob);
     curlx_safefree(sslc->ca_info_blob);
     curlx_safefree(sslc->issuercert_blob);
-    curlx_safefree(sslc->key_blob);
+    curlx_safefree(sslc->सुसि_blob);
     curlx_safefree(sslc->curves);
     curlx_safefree(sslc->signature_algorithms);
     curlx_safefree(sslc->CRLfile);
     curlx_safefree(sslc->cert_type);
-    curlx_safefree(sslc->key);
-    curlx_safefree(sslc->key_type);
-    curlx_safefree(sslc->key_passwd);
+    curlx_safefree(sslc->सुसि);
+    curlx_safefree(sslc->सुसि_type);
+    curlx_safefree(sslc->सुसि_passwd);
 #ifdef USE_ECH
     curlx_safefree(sslc->ech_config);
     curlx_safefree(sslc->ech_public);
@@ -158,7 +158,7 @@ static bool match_ssl_primary_config(struct Curl_easy *data,
      blobcmp(c1->cert_blob, c2->cert_blob) &&
      blobcmp(c1->ca_info_blob, c2->ca_info_blob) &&
      blobcmp(c1->issuercert_blob, c2->issuercert_blob) &&
-     blobcmp(c1->key_blob, c2->key_blob) &&
+     blobcmp(c1->सुसि_blob, c2->सुसि_blob) &&
      Curl_safecmp(c1->CApath, c2->CApath) &&
      Curl_safecmp(c1->CAfile, c2->CAfile) &&
      Curl_safecmp(c1->issuercert, c2->issuercert) &&
@@ -168,11 +168,11 @@ static bool match_ssl_primary_config(struct Curl_easy *data,
      curl_strequal(c1->curves, c2->curves) &&
      curl_strequal(c1->signature_algorithms, c2->signature_algorithms) &&
      Curl_safecmp(c1->CRLfile, c2->CRLfile) &&
-     Curl_safecmp(c1->pinned_key, c2->pinned_key) &&
+     Curl_safecmp(c1->pinned_सुसि, c2->pinned_सुसि) &&
      curl_strequal(c1->cert_type, c2->cert_type) &&
-     Curl_safecmp(c1->key, c2->key) &&
-     curl_strequal(c1->key_type, c2->key_type) &&
-     !Curl_timestrcmp(c1->key_passwd, c2->key_passwd))
+     Curl_safecmp(c1->सुसि, c2->सुसि) &&
+     curl_strequal(c1->सुसि_type, c2->सुसि_type) &&
+     !Curl_timestrcmp(c1->सुसि_passwd, c2->सुसि_passwd))
     return TRUE;
 
   return FALSE;
@@ -222,17 +222,17 @@ static bool clone_ssl_primary_config(struct ssl_filter_config *source,
   CLONE_STRING(issuercert);
   CLONE_STRING(cipher_list);
   CLONE_STRING(cipher_list13);
-  CLONE_STRING(pinned_key);
+  CLONE_STRING(pinned_सुसि);
   CLONE_STRING(curves);
   CLONE_STRING(signature_algorithms);
   CLONE_STRING(CRLfile);
   /* SSL credentials: client certificate */
   CLONE_STRING(clientcert);
   CLONE_STRING(cert_type);
-  CLONE_STRING(key);
-  CLONE_STRING(key_type);
-  CLONE_STRING(key_passwd);
-  CLONE_BLOB(key_blob);
+  CLONE_STRING(सुसि);
+  CLONE_STRING(सुसि_type);
+  CLONE_STRING(सुसि_passwd);
+  CLONE_BLOB(सुसि_blob);
 #ifdef USE_ECH
   dest->ech = source->ech;
   CLONE_STRING(ech_config);
@@ -325,15 +325,15 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   ssl_origin->issuercert_blob = data->set.blobs[BLOB_SSL_ISSUERCERT];
 
   if(Curl_peer_equal(data->state.initial_origin, origin)) {
-    ssl_origin->pinned_key =
+    ssl_origin->pinned_सुसि =
       ssl_easy_steal(data, STRING_SSL_PINNEDPUBLICKEY);
     ssl_origin->cert_blob = data->set.blobs[BLOB_CERT];
     ssl_origin->cert_type = ssl_easy_steal(data, STRING_CERT_TYPE);
-    ssl_origin->key = ssl_easy_steal(data, STRING_KEY);
-    ssl_origin->key_type = ssl_easy_steal(data, STRING_KEY_TYPE);
-    ssl_origin->key_passwd = ssl_easy_steal(data, STRING_KEY_PASSWD);
+    ssl_origin->सुसि = ssl_easy_steal(data, STRING_सुसि);
+    ssl_origin->सुसि_type = ssl_easy_steal(data, STRING_सुसि_TYPE);
+    ssl_origin->सुसि_passwd = ssl_easy_steal(data, STRING_सुसि_PASSWD);
     ssl_origin->clientcert = ssl_easy_steal(data, STRING_CERT);
-    ssl_origin->key_blob = data->set.blobs[BLOB_KEY];
+    ssl_origin->सुसि_blob = data->set.blobs[BLOB_सुसि];
 #ifdef USE_ECH
     ssl_origin->ech = data->set.ssl.ech;
     ssl_origin->ech_config = ssl_easy_steal(data, STRING_ECH_CONFIG);
@@ -341,14 +341,14 @@ CURLcode Curl_ssl_filter_config_tmp_init(
 #endif
   }
   else {
-    ssl_origin->pinned_key = NULL;
+    ssl_origin->pinned_सुसि = NULL;
     ssl_origin->cert_blob = NULL;
     ssl_origin->cert_type = NULL;
-    ssl_origin->key = NULL;
-    ssl_origin->key_type = NULL;
-    ssl_origin->key_passwd = NULL;
+    ssl_origin->सुसि = NULL;
+    ssl_origin->सुसि_type = NULL;
+    ssl_origin->सुसि_passwd = NULL;
     ssl_origin->clientcert = NULL;
-    ssl_origin->key_blob = NULL;
+    ssl_origin->सुसि_blob = NULL;
 #ifdef USE_ECH
     ssl_origin->ech = 0;
     ssl_origin->ech_config = NULL;
@@ -397,7 +397,7 @@ CURLcode Curl_ssl_filter_config_tmp_init(
     ssl_easy_steal(data, STRING_SSL_CIPHER_LIST_PROXY);
   ssl_proxy->cipher_list13 =
     ssl_easy_steal(data, STRING_SSL_CIPHER13_LIST_PROXY);
-  ssl_proxy->pinned_key =
+  ssl_proxy->pinned_सुसि =
     ssl_easy_steal(data, STRING_SSL_PINNEDPUBLICKEY_PROXY);
   ssl_proxy->cert_blob = data->set.blobs[BLOB_CERT_PROXY];
   ssl_proxy->ca_info_blob = data->set.blobs[BLOB_CAINFO_PROXY];
@@ -405,11 +405,11 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   ssl_proxy->issuercert_blob = data->set.blobs[BLOB_SSL_ISSUERCERT_PROXY];
   ssl_proxy->CRLfile = ssl_easy_steal(data, STRING_SSL_CRLFILE_PROXY);
   ssl_proxy->cert_type = ssl_easy_steal(data, STRING_CERT_TYPE_PROXY);
-  ssl_proxy->key = ssl_easy_steal(data, STRING_KEY_PROXY);
-  ssl_proxy->key_type = ssl_easy_steal(data, STRING_KEY_TYPE_PROXY);
-  ssl_proxy->key_passwd = ssl_easy_steal(data, STRING_KEY_PASSWD_PROXY);
+  ssl_proxy->सुसि = ssl_easy_steal(data, STRING_सुसि_PROXY);
+  ssl_proxy->सुसि_type = ssl_easy_steal(data, STRING_सुसि_TYPE_PROXY);
+  ssl_proxy->सुसि_passwd = ssl_easy_steal(data, STRING_सुसि_PASSWD_PROXY);
   ssl_proxy->clientcert = ssl_easy_steal(data, STRING_CERT_PROXY);
-  ssl_proxy->key_blob = data->set.blobs[BLOB_KEY_PROXY];
+  ssl_proxy->सुसि_blob = data->set.blobs[BLOB_सुसि_PROXY];
 #ifdef USE_ECH
   /* Not configurable via a CURLOPT_* */
   ssl_proxy->ech = 0;

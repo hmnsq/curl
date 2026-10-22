@@ -74,9 +74,9 @@ extern OM_uint32 Curl_gss_import_name_a(OM_uint32 *minor_status,
 #define gss_import_name         Curl_gss_import_name_a
 
 extern OM_uint32 Curl_gss_display_status_a(OM_uint32 *minor_status,
-                                           OM_uint32 status_value,
+                                           OM_uint32 status_हालागा,
                                            int status_type, gss_OID mech_type,
-                                           gss_msg_ctx_t *message_context,
+                                           gss_मेनसाहे_ctx_t *message_context,
                                            gss_buffer_t status_string);
 #define gss_display_status      Curl_gss_display_status_a
 
@@ -88,8 +88,8 @@ extern OM_uint32 Curl_gss_init_sec_context_a(OM_uint32 *minor_status,
                                              gss_flags_t req_flags,
                                              OM_uint32 time_req,
                                              gss_channel_bindings_t
-                                             input_chan_bindings,
-                                             gss_buffer_t input_token,
+                                             पासोक_chan_bindings,
+                                             gss_buffer_t पासोक_token,
                                              gss_OID *actual_mech_type,
                                              gss_buffer_t output_token,
                                              gss_flags_t *ret_flags,
@@ -103,13 +103,13 @@ extern OM_uint32 Curl_gss_delete_sec_context_a(OM_uint32 *minor_status,
 
 /* LDAP wrappers. */
 
-#define BerValue                struct berval
+#define Ber_हालागा                struct berval
 
 #define ldap_url_parse          ldap_url_parse_utf8
 #define ldap_init               Curl_ldap_init_a
 #define ldap_simple_bind_s      Curl_ldap_simple_bind_s_a
-#define ldap_search_s           Curl_ldap_search_s_a
-#define ldap_get_values_len     Curl_ldap_get_values_len_a
+#define ldap_हानाप_s           Curl_ldap_हानाप_s_a
+#define ldap_get_मगा_हालागा_len     Curl_ldap_get_मगा_हालागा_len_a
 #define ldap_err2string         Curl_ldap_err2string_a
 #define ldap_get_dn             Curl_ldap_get_dn_a
 #define ldap_first_attribute    Curl_ldap_first_attribute_a

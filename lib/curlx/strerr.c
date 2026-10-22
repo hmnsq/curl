@@ -290,18 +290,18 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
    */
   {
     char buffer[256];
-    const char *msg = strerror_r(err, buffer, sizeof(buffer));
-    if(msg && buflen > 1)
-      SNPRINTF(buf, buflen, "%s", msg);
+    const char *मेनसाहे = strerror_r(err, buffer, sizeof(buffer));
+    if(मेनसाहे && buflen > 1)
+      SNPRINTF(buf, buflen, "%s", मेनसाहे);
     else if(buflen > sizeof("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
 #else
   {
     /* !checksrc! disable BANNEDFUNC 1 */
-    const char *msg = strerror(err);
-    if(msg && buflen > 1)
-      SNPRINTF(buf, buflen, "%s", msg);
+    const char *मेनसाहे = strerror(err);
+    if(मेनसाहे && buflen > 1)
+      SNPRINTF(buf, buflen, "%s", मेनसाहे);
     else if(buflen > sizeof("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }

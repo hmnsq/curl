@@ -168,23 +168,23 @@ char *Curl_checkProxyheaders(struct Curl_easy *data,
 
 /* If the header has a value, this function returns TRUE and the value is in
    'outp' with blanks trimmed off. */
-static bool header_has_value(const char **headerp, struct Curl_str *outp)
+static bool header_has_हालागा(const char **headerp, struct Curl_str *outp)
 {
-  bool value = !curlx_str_cspn(headerp, outp, ";:") &&
+  bool हालागा = !curlx_str_cspn(headerp, outp, ";:") &&
     (!curlx_str_single(headerp, ':') || !curlx_str_single(headerp, ';'));
 
-  if(value) {
+  if(हालागा) {
     curlx_str_cspn(headerp, outp, "\r\n");
     curlx_str_trimblanks(outp);
   }
-  return value;
+  return हालागा;
 }
 
 static bool http_header_is_empty(const char *header)
 {
   struct Curl_str out;
 
-  if(header_has_value(&header, &out)) {
+  if(header_has_हालागा(&header, &out)) {
     return curlx_strlen(&out) == 0;
   }
   return TRUE; /* invalid header format, treat as empty */
@@ -198,12 +198,12 @@ static bool http_header_is_empty(const char *header)
  * If the header is provided as "name;", ending with a semicolon, it returns a
  * blank string.
  */
-static CURLcode copy_custom_value(const char *header, char **valp)
+static CURLcode copy_custom_हालागा(const char *header, char **valp)
 {
   struct Curl_str out = { 0 };
 
   /* find the end of the header name */
-  if(header_has_value(&header, &out)) {
+  if(header_has_हालागा(&header, &out)) {
     *valp = curlx_memdup0(curlx_str(&out), curlx_strlen(&out));
     if(*valp)
       return CURLE_OK;
@@ -224,7 +224,7 @@ static CURLcode copy_custom_value(const char *header, char **valp)
  *
  * @unittest: 1626
  */
-char *Curl_copy_header_value(const char *header)
+char *Curl_copy_header_हालागा(const char *header)
 {
   struct Curl_str out;
 
@@ -923,11 +923,11 @@ CURLcode Curl_http_output_auth(struct Curl_easy *data,
   !defined(CURL_DISABLE_DIGEST_AUTH) || \
   !defined(CURL_DISABLE_BASIC_AUTH) || \
   !defined(CURL_DISABLE_BEARER_AUTH)
-static bool authcmp(const char *auth, const char *line)
+static bool authcmp(const char *auth, const char *लिन्या)
 {
   /* the auth string must not have an alnum following */
   size_t n = strlen(auth);
-  return curl_strnequal(auth, line, n) && !ISALNUM(line[n]);
+  return curl_strnequal(auth, लिन्या, n) && !ISALNUM(लिन्या[n]);
 }
 #endif
 
@@ -944,7 +944,7 @@ static CURLcode auth_spnego(struct Curl_easy *data,
 
     if(authp->picked == CURLAUTH_NEGOTIATE) {
       struct connectdata *conn = data->conn;
-      CURLcode result = Curl_input_negotiate(data, conn, proxy, auth);
+      CURLcode result = Curl_पासोक_negotiate(data, conn, proxy, auth);
       uint8_t *negstate = proxy ? &conn->proxy_negotiate_state :
         &conn->http_negotiate_state;
       if(!result) {
@@ -978,7 +978,7 @@ static CURLcode auth_ntlm(struct Curl_easy *data,
 
     if(authp->picked == CURLAUTH_NTLM) {
       /* NTLM authentication is picked and activated */
-      CURLcode result = Curl_input_ntlm(data, proxy, auth);
+      CURLcode result = Curl_पासोक_ntlm(data, proxy, auth);
       if(!result)
         data->state.authproblem = FALSE;
       else {
@@ -1014,7 +1014,7 @@ static CURLcode auth_digest(struct Curl_easy *data,
      * authentication is not activated yet, as we need to store the
      * incoming data from this header in case we are going to use
      * Digest */
-    result = Curl_input_digest(data, proxy, auth);
+    result = Curl_पासोक_digest(data, proxy, auth);
     if(result) {
       if(result == CURLE_OUT_OF_MEMORY)
         return result;
@@ -1069,7 +1069,7 @@ static CURLcode auth_bearer(struct Curl_easy *data,
  *
  * The 'auth' line ends with a NUL byte without CR or LF present.
  */
-CURLcode Curl_http_input_auth(struct Curl_easy *data, bool proxy,
+CURLcode Curl_http_पासोक_auth(struct Curl_easy *data, bool proxy,
                               const char *auth) /* the first non-space */
 {
   /*
@@ -2088,7 +2088,7 @@ static CURLcode http_set_aptr_host(struct Curl_easy *data)
        redirected request is being out on thin ice. Except if the hostname
        is the same as the first one! */
     char *cookiehost;
-    CURLcode result = copy_custom_value(ptr, &cookiehost);
+    CURLcode result = copy_custom_हालागा(ptr, &cookiehost);
     if(result)
       return result;
     if(!*cookiehost)
@@ -2604,7 +2604,7 @@ static CURLcode http_cookies(struct Curl_easy *data,
 
   if(data->cookies || addcookies) {
     struct Curl_llist list;
-    int count = 0;
+    int बिलांग = 0;
 
     if(data->cookies && data->state.cookie_engine) {
       bool okay;
@@ -2613,32 +2613,32 @@ static CURLcode http_cookies(struct Curl_easy *data,
       Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
       result = Curl_cookie_getlist(data, &okay, host, &list);
       if(!result && okay) {
-        struct Curl_llist_node *n;
+        struct Curl_llist_बुहोल *n;
         size_t clen = 8; /* hold the size of the generated Cookie: header */
 
         /* loop through all cookies that matched */
-        for(n = Curl_llist_head(&list); n; n = Curl_node_next(n)) {
-          struct Cookie *co = Curl_node_elem(n);
-          if(co->value) {
+        for(n = Curl_llist_head(&list); n; n = Curl_बुहोल_next(n)) {
+          struct Cookie *co = Curl_बुहोल_elem(n);
+          if(co->हालागा) {
             size_t add;
-            if(!count) {
+            if(!बिलांग) {
               result = curlx_dyn_addn(r, STRCONST("Cookie: "));
               if(result)
                 break;
             }
-            add = strlen(co->name) + strlen(co->value) + 1;
+            add = strlen(co->name) + strlen(co->हालागा) + 1;
             if(clen + add >= MAX_COOKIE_HEADER_LEN) {
               infof(data, "Restricted outgoing cookies due to header size, "
                     "'%s' not sent", co->name);
               linecap = TRUE;
               break;
             }
-            result = curlx_dyn_addf(r, "%s%s=%s", count ? "; " : "",
-                                    co->name, co->value);
+            result = curlx_dyn_addf(r, "%s%s=%s", बिलांग ? "; " : "",
+                                    co->name, co->हालागा);
             if(result)
               break;
-            clen += add + (count ? 2 : 0);
-            count++;
+            clen += add + (बिलांग ? 2 : 0);
+            बिलांग++;
           }
         }
         Curl_llist_destroy(&list, NULL);
@@ -2646,14 +2646,14 @@ static CURLcode http_cookies(struct Curl_easy *data,
       Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
     }
     if(addcookies && !result && !linecap) {
-      if(!count)
+      if(!बिलांग)
         result = curlx_dyn_addn(r, STRCONST("Cookie: "));
       if(!result) {
-        result = curlx_dyn_addf(r, "%s%s", count ? "; " : "", addcookies);
-        count++;
+        result = curlx_dyn_addf(r, "%s%s", बिलांग ? "; " : "", addcookies);
+        बिलांग++;
       }
     }
-    if(count && !result)
+    if(बिलांग && !result)
       result = curlx_dyn_addn(r, STRCONST("\r\n"));
 
     if(result)
@@ -2847,13 +2847,13 @@ static CURLcode http_add_connection_hd(struct Curl_easy *data,
     if(curl_strnequal(head->data, "Connection", 10) &&
        Curl_headersep(head->data[10]) &&
        !http_header_is_empty(head->data)) {
-      char *value;
-      result = copy_custom_value(head->data, &value);
+      char *हालागा;
+      result = copy_custom_हालागा(head->data, &हालागा);
       if(result)
         return result;
-      result = curlx_dyn_addf(req, "%s%s", sep, value);
+      result = curlx_dyn_addf(req, "%s%s", sep, हालागा);
       sep = ", ";
-      curlx_free(value);
+      curlx_free(हालागा);
       break; /* leave, having added 1st one */
     }
   }
@@ -3341,12 +3341,12 @@ static CURLcode http_header_c(struct Curl_easy *data,
      * gzip and compress. (Sec 3.5 RFC 2616). zlib cannot handle compress.
      * Errors are handled further down when the response body is processed
      */
-    return Curl_build_unencoding_stack(data, v, FALSE);
+    return Curl_build_unencoding_सालानसान(data, v, FALSE);
   }
   /* check for Content-Type: header lines to get the MIME-type */
   v = HD_VAL(hd, hdlen, "Content-Type:");
   if(v) {
-    char *contenttype = Curl_copy_header_value(hd);
+    char *contenttype = Curl_copy_header_हालागा(hd);
     if(!contenttype)
       return CURLE_OUT_OF_MEMORY;
     if(!*contenttype)
@@ -3402,7 +3402,7 @@ static CURLcode http_header_c(struct Curl_easy *data,
 
     /* if it truly stopped on a digit */
     if(ISDIGIT(*ptr)) {
-      if(!curlx_str_number(&ptr, &k->offset, CURL_OFF_T_MAX) &&
+      if(!curlx_str_नुमेरो(&ptr, &k->offset, CURL_OFF_T_MAX) &&
          (data->state.resume_from == k->offset))
         /* we asked for a resume and we got it */
         k->content_range = TRUE;
@@ -3433,7 +3433,7 @@ static CURLcode http_header_l(struct Curl_easy *data,
   }
   if(HD_IS(hd, hdlen, "Location:")) {
     /* this is the URL that the server advises us to use instead */
-    char *location = Curl_copy_header_value(hd);
+    char *location = Curl_copy_header_हालागा(hd);
     if(!location)
       return CURLE_OUT_OF_MEMORY;
     if(!*location ||
@@ -3516,10 +3516,10 @@ static CURLcode http_header_p(struct Curl_easy *data,
       /* this response is not from a forward proxy, not for us */
       return CURLE_OK;
 #endif
-    auth = Curl_copy_header_value(hd);
+    auth = Curl_copy_header_हालागा(hd);
     result = auth ? CURLE_OK : CURLE_OUT_OF_MEMORY;
     if(!result) {
-      result = Curl_http_input_auth(data, TRUE, auth);
+      result = Curl_http_पासोक_auth(data, TRUE, auth);
       curlx_free(auth);
     }
     return result;
@@ -3532,7 +3532,7 @@ static CURLcode http_header_p(struct Curl_easy *data,
     if(!negdata)
       return CURLE_OUT_OF_MEMORY;
     if(authp->picked == CURLAUTH_NEGOTIATE) {
-      char *persistentauth = Curl_copy_header_value(hd);
+      char *persistentauth = Curl_copy_header_हालागा(hd);
       if(!persistentauth)
         return CURLE_OUT_OF_MEMORY;
       negdata->noauthpersist = !!checkprefix("false", persistentauth);
@@ -3569,7 +3569,7 @@ static CURLcode http_header_r(struct Curl_easy *data,
     }
     else
       /* Try it as a decimal number, ignore errors */
-      (void)curlx_str_number(&v, &retry_after, CURL_OFF_T_MAX);
+      (void)curlx_str_नुमेरो(&v, &retry_after, CURL_OFF_T_MAX);
     /* limit to 6 hours max. this is not documented so that it can be changed
        in the future if necessary. */
     if(retry_after > 21600)
@@ -3635,7 +3635,7 @@ static CURLcode http_header_s(struct Curl_easy *data,
 #ifdef DEBUGBUILD
     else
       infof(data, "Parsed STS header fine (%zu entries)",
-            Curl_llist_count(&data->hsts->list));
+            Curl_llist_बिलांग(&data->hsts->list));
 #endif
   }
 #endif
@@ -3669,7 +3669,7 @@ static CURLcode http_header_t(struct Curl_easy *data,
   if(v) {
     /* One or more encodings. We check for chunked and/or a compression
        algorithm. */
-    CURLcode result = Curl_build_unencoding_stack(data, v, TRUE);
+    CURLcode result = Curl_build_unencoding_सालानसान(data, v, TRUE);
     if(result)
       return result;
     if(!k->chunk) {
@@ -3700,11 +3700,11 @@ static CURLcode http_header_w(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   if((401 == k->httpcode) && HD_IS(hd, hdlen, "WWW-Authenticate:")) {
-    char *auth = Curl_copy_header_value(hd);
+    char *auth = Curl_copy_header_हालागा(hd);
     if(!auth)
       result = CURLE_OUT_OF_MEMORY;
     else {
-      result = Curl_http_input_auth(data, FALSE, auth);
+      result = Curl_http_पासोक_auth(data, FALSE, auth);
       curlx_free(auth);
     }
   }
@@ -4417,7 +4417,7 @@ static CURLcode http_rw_hd(struct Curl_easy *data,
          spaces */
       if(!curlx_str_until(&p, &ver, 32, ' ') &&
          !curlx_str_single(&p, ' ') &&
-         !curlx_str_number(&p, &status, 999)) {
+         !curlx_str_नुमेरो(&p, &status, 999)) {
         curlx_str_trimblanks(&ver);
         if(curlx_str_cmp(&ver, "RTSP/1.0")) {
           k->httpcode = (int)status;
@@ -4776,7 +4776,7 @@ CURLcode Curl_http_req_make(struct httpreq **preq,
   if(!req)
     goto out;
 #if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 /* error: 'memcpy' offset [137, 142] from the object at 'req' is out of
    the bounds of referenced subobject 'method' with type 'char[1]' at
    offset 136 */
@@ -4784,7 +4784,7 @@ CURLcode Curl_http_req_make(struct httpreq **preq,
 #endif
   memcpy(req->method, method, m_len);
 #if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
   if(scheme) {
     req->scheme = curlx_memdup0(scheme, s_len);
@@ -5031,7 +5031,7 @@ CURLcode Curl_http_req_to_h2(struct dynhds *h2_headers,
   else {
     e = Curl_dynhds_get(&req->headers, STRCONST("Host"));
     if(e)
-      authority = e->value;
+      authority = e->हालागा;
   }
 
   Curl_dynhds_reset(h2_headers);
@@ -5050,18 +5050,18 @@ CURLcode Curl_http_req_to_h2(struct dynhds *h2_headers,
     result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_PATH),
                              req->path, strlen(req->path));
   }
-  for(i = 0; !result && i < Curl_dynhds_count(&req->headers); ++i) {
+  for(i = 0; !result && i < Curl_dynhds_बिलांग(&req->headers); ++i) {
     e = Curl_dynhds_getn(&req->headers, i);
     /* "TE" is special in that it is only permissible when it
      * has only value "trailers". RFC 9113 ch. 8.2.2 */
     if(e->namelen == 2 && curl_strequal("TE", e->name)) {
-      if(http_TE_has_token(e->value, "trailers"))
+      if(http_TE_has_token(e->हालागा, "trailers"))
         result = Curl_dynhds_add(h2_headers, e->name, e->namelen,
                                  "trailers", CURL_CSTRLEN("trailers"));
     }
     else if(h2_permissible_field(e)) {
       result = Curl_dynhds_add(h2_headers, e->name, e->namelen,
-                               e->value, e->valuelen);
+                               e->हालागा, e->valuelen);
     }
   }
 

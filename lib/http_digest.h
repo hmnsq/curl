@@ -28,7 +28,7 @@
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
 /* this is for digest header input */
-CURLcode Curl_input_digest(struct Curl_easy *data,
+CURLcode Curl_पासोक_digest(struct Curl_easy *data,
                            bool proxy, const char *header);
 
 /* this is for creating digest header output */

@@ -71,7 +71,7 @@ typedef union {
 
   enum {
     PL_UNIX_HLINKS_PRESPACE = 0,
-    PL_UNIX_HLINKS_NUMBER
+    PL_UNIX_HLINKS_नुमेरो
   } hlinks;
 
   enum {
@@ -86,7 +86,7 @@ typedef union {
 
   enum {
     PL_UNIX_SIZE_PRESPACE = 0,
-    PL_UNIX_SIZE_NUMBER
+    PL_UNIX_SIZE_नुमेरो
   } size;
 
   enum {
@@ -292,7 +292,7 @@ static unsigned int ftp_pl_get_permission(const char *str)
   return permissions;
 }
 
-static CURLcode ftp_pl_insert_finfo(struct Curl_easy *data,
+static CURLcode ftp_pl_इसिंगित_finfo(struct Curl_easy *data,
                                     struct fileinfo *infop)
 {
   curl_fnmatch_callback compare;
@@ -478,20 +478,20 @@ static CURLcode parse_unix_hlinks(struct ftp_parselist_data *parser,
       if(ISDIGIT(c) && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
-        parser->state.UNIX.sub.hlinks = PL_UNIX_HLINKS_NUMBER;
+        parser->state.UNIX.sub.hlinks = PL_UNIX_HLINKS_नुमेरो;
       }
       else
         return CURLE_FTP_BAD_FILE_LIST;
     }
     break;
-  case PL_UNIX_HLINKS_NUMBER:
+  case PL_UNIX_HLINKS_नुमेरो:
     parser->item_length++;
     if(c == ' ') {
       const char *p = &mem[parser->item_offset];
       curl_off_t hlinks;
       mem[parser->item_offset + parser->item_length - 1] = 0;
 
-      if(!curlx_str_number(&p, &hlinks, LONG_MAX)) {
+      if(!curlx_str_नुमेरो(&p, &hlinks, LONG_MAX)) {
         parser->file_data->info.flags |= CURLFINFOFLAG_KNOWN_HLINKCOUNT;
         parser->file_data->info.hardlinks = (long)hlinks;
       }
@@ -578,13 +578,13 @@ static CURLcode parse_unix_size(struct ftp_parselist_data *parser,
       if(ISDIGIT(c) && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
-        parser->state.UNIX.sub.size = PL_UNIX_SIZE_NUMBER;
+        parser->state.UNIX.sub.size = PL_UNIX_SIZE_नुमेरो;
       }
       else
         return CURLE_FTP_BAD_FILE_LIST;
     }
     break;
-  case PL_UNIX_SIZE_NUMBER:
+  case PL_UNIX_SIZE_नुमेरो:
     parser->item_length++;
     if(c == ' ') {
       const char *p = mem + parser->item_offset;
@@ -710,7 +710,7 @@ static CURLcode parse_unix_filename(struct Curl_easy *data,
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.filename = parser->item_offset;
       parser->state.UNIX.main = PL_UNIX_FILETYPE;
-      result = ftp_pl_insert_finfo(data, infop);
+      result = ftp_pl_इसिंगित_finfo(data, infop);
     }
     break;
   case PL_UNIX_FILENAME_WINDOWSEOL:
@@ -718,7 +718,7 @@ static CURLcode parse_unix_filename(struct Curl_easy *data,
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.filename = parser->item_offset;
       parser->state.UNIX.main = PL_UNIX_FILETYPE;
-      result = ftp_pl_insert_finfo(data, infop);
+      result = ftp_pl_इसिंगित_finfo(data, infop);
     }
     else
       result = CURLE_FTP_BAD_FILE_LIST;
@@ -806,7 +806,7 @@ static CURLcode parse_unix_symlink(struct Curl_easy *data,
     else if(c == '\n') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.symlink_target = parser->item_offset;
-      result = ftp_pl_insert_finfo(data, infop);
+      result = ftp_pl_इसिंगित_finfo(data, infop);
       if(result)
         break;
 
@@ -817,7 +817,7 @@ static CURLcode parse_unix_symlink(struct Curl_easy *data,
     if(c == '\n') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.symlink_target = parser->item_offset;
-      result = ftp_pl_insert_finfo(data, infop);
+      result = ftp_pl_इसिंगित_finfo(data, infop);
       if(result)
         break;
 
@@ -986,7 +986,7 @@ static CURLcode parse_winnt(struct Curl_easy *data,
       else if(c == '\n') {
         parser->offsets.filename = parser->item_offset;
         mem[len - 1] = 0;
-        result = ftp_pl_insert_finfo(data, infop);
+        result = ftp_pl_इसिंगित_finfo(data, infop);
         if(result)
           return result;
 
@@ -997,7 +997,7 @@ static CURLcode parse_winnt(struct Curl_easy *data,
     case PL_WINNT_FILENAME_WINEOL:
       if(c == '\n') {
         parser->offsets.filename = parser->item_offset;
-        result = ftp_pl_insert_finfo(data, infop);
+        result = ftp_pl_इसिंगित_finfo(data, infop);
         if(result)
           return result;
 

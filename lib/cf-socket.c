@@ -596,7 +596,7 @@ int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_parse_interface(const char *input,
+CURLcode Curl_parse_interface(const char *पासोक,
                               char **dev, char **iface, char **host)
 {
   static const char if_prefix[] = "if!";
@@ -604,7 +604,7 @@ CURLcode Curl_parse_interface(const char *input,
   static const char if_host_prefix[] = "ifhost!";
   size_t len;
 
-  len = strlen(input);
+  len = strlen(पासोक);
   if(len > 512)
     return CURLE_BAD_FUNCTION_ARGUMENT;
 
@@ -615,41 +615,41 @@ CURLcode Curl_parse_interface(const char *input,
   if(host)
     *host = NULL;
 
-  if(!strncmp(if_prefix, input, strlen(if_prefix))) {
-    input += strlen(if_prefix);
-    if(!*input)
+  if(!strncmp(if_prefix, पासोक, strlen(if_prefix))) {
+    पासोक += strlen(if_prefix);
+    if(!*पासोक)
       return CURLE_BAD_FUNCTION_ARGUMENT;
     if(iface) {
-      *iface = curlx_memdup0(input, len - strlen(if_prefix));
+      *iface = curlx_memdup0(पासोक, len - strlen(if_prefix));
       return *iface ? CURLE_OK : CURLE_OUT_OF_MEMORY;
     }
     return CURLE_OK;
   }
-  else if(!strncmp(host_prefix, input, strlen(host_prefix))) {
-    input += strlen(host_prefix);
-    if(!*input)
+  else if(!strncmp(host_prefix, पासोक, strlen(host_prefix))) {
+    पासोक += strlen(host_prefix);
+    if(!*पासोक)
       return CURLE_BAD_FUNCTION_ARGUMENT;
     if(host) {
-      *host = curlx_memdup0(input, len - strlen(host_prefix));
+      *host = curlx_memdup0(पासोक, len - strlen(host_prefix));
       return *host ? CURLE_OK : CURLE_OUT_OF_MEMORY;
     }
     return CURLE_OK;
   }
-  else if(!strncmp(if_host_prefix, input, strlen(if_host_prefix))) {
+  else if(!strncmp(if_host_prefix, पासोक, strlen(if_host_prefix))) {
     const char *host_part;
-    input += strlen(if_host_prefix);
+    पासोक += strlen(if_host_prefix);
     len -= strlen(if_host_prefix);
-    host_part = memchr(input, '!', len);
+    host_part = memchr(पासोक, '!', len);
     if(!host_part || !*(host_part + 1))
       return CURLE_BAD_FUNCTION_ARGUMENT;
     if(iface) {
-      *iface = curlx_memdup0(input, host_part - input);
+      *iface = curlx_memdup0(पासोक, host_part - पासोक);
       if(!*iface)
         return CURLE_OUT_OF_MEMORY;
     }
     ++host_part;
     if(host) {
-      *host = curlx_memdup0(host_part, len - (host_part - input));
+      *host = curlx_memdup0(host_part, len - (host_part - पासोक));
       if(!*host) {
         if(iface)
           curlx_safefree(*iface);
@@ -659,10 +659,10 @@ CURLcode Curl_parse_interface(const char *input,
     return CURLE_OK;
   }
 
-  if(!*input)
+  if(!*पासोक)
     return CURLE_BAD_FUNCTION_ARGUMENT;
   if(dev) {
-    *dev = curlx_memdup0(input, len);
+    *dev = curlx_memdup0(पासोक, len);
     return *dev ? CURLE_OK : CURLE_OUT_OF_MEMORY;
   }
   return CURLE_OK;
@@ -842,7 +842,7 @@ static CURLcode bindlocal(struct Curl_easy *data, struct connectdata *conn,
                IDs and the former returns none at all. Making the scope ID,
                if present, known to be numeric */
             curl_off_t scope_id;
-            if(curlx_str_number((const char **)CURL_UNCONST(&scope_ptr),
+            if(curlx_str_नुमेरो((const char **)CURL_UNCONST(&scope_ptr),
                                 &scope_id, UINT_MAX)) {
               result = CURLE_UNSUPPORTED_PROTOCOL;
               goto out;
@@ -1058,31 +1058,31 @@ static CURLcode cf_socket_ctx_init(struct cf_socket_ctx *ctx,
     const char *p = getenv("CURL_DBG_SOCK_WBLOCK");
     if(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
+      if(!curlx_str_नुमेरो(&p, &l, 100))
         ctx->wblock_percent = (int)l;
     }
     p = getenv("CURL_DBG_SOCK_WPARTIAL");
     if(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
+      if(!curlx_str_नुमेरो(&p, &l, 100))
         ctx->wpartial_percent = (int)l;
     }
     p = getenv("CURL_DBG_SOCK_RBLOCK");
     if(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
+      if(!curlx_str_नुमेरो(&p, &l, 100))
         ctx->rblock_percent = (int)l;
     }
     p = getenv("CURL_DBG_SOCK_RMAX");
     if(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, CURL_OFF_T_MAX))
+      if(!curlx_str_नुमेरो(&p, &l, CURL_OFF_T_MAX))
         ctx->recv_max = (size_t)l;
     }
     p = getenv("CURL_DBG_SOCK_CONNECT_WAIT_MS");
     if(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, INT_MAX))
+      if(!curlx_str_नुमेरो(&p, &l, INT_MAX))
         ctx->connect_wait_ms = (int)l;
     }
   }
@@ -1832,13 +1832,13 @@ static CURLcode cf_socket_cntrl(struct Curl_cfilter *cf,
 
 static bool cf_socket_conn_is_alive(struct Curl_cfilter *cf,
                                     struct Curl_easy *data,
-                                    bool *input_pending)
+                                    bool *पासोक_pending)
 {
   struct cf_socket_ctx *ctx = cf->ctx;
   struct pollfd pfd[1];
   int r;
 
-  *input_pending = FALSE;
+  *पासोक_pending = FALSE;
 
   if(!ctx || ctx->sock == CURL_SOCKET_BAD)
     return FALSE;
@@ -1863,7 +1863,7 @@ static bool cf_socket_conn_is_alive(struct Curl_cfilter *cf,
   }
 
   CURL_TRC_CF(data, cf, "is_alive: valid events, looks alive");
-  *input_pending = TRUE;
+  *पासोक_pending = TRUE;
   return TRUE;
 }
 

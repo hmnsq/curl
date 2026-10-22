@@ -63,19 +63,19 @@
 void Curl_u8_strset_init(struct u8_strset *set)
 {
 #if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
   memset(set, 0, sizeof(*set));
 #if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
   set->data = set->sdata;
   set->ids = set->sids;
   set->psl = set->spsl;
   set->slotbits = CURL_U8_STRSET_START_BITS;
   set->slotmask = CURL_U8_SLOT_MASK(set->slotbits);
-  set->count = 0;
+  set->बिलांग = 0;
 #ifdef DEBUGBUILD
   set->init = CURL_U8_STRSET_MAGIC;
 #endif
@@ -112,7 +112,7 @@ static void u8_strset_addn(struct u8_strset *set, uint8_t id, char *val)
   set->ids[i] = id;
   set->data[i] = val;
   set->psl[i] = psl;
-  ++set->count;
+  ++set->बिलांग;
 }
 
 static bool u8_strset_grow(struct u8_strset *set)
@@ -139,18 +139,18 @@ static bool u8_strset_grow(struct u8_strset *set)
   prev_ids = set->ids;
   prev_slots = set->slotbits;
 #if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Wanalyzer-allocation-size"
 #endif
   set->data = (char **)d;
 #if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
   set->ids = (uint8_t *)d + (nslots * sizeof(char *));
   set->psl = set->ids + nslots;
   set->slotbits = nslotbits;
   set->slotmask = CURL_U8_SLOT_MASK(set->slotbits);
-  set->count = 0;
+  set->बिलांग = 0;
   /* re-add previous entries */
   {
     uint16_t i;
@@ -189,9 +189,9 @@ static bool u8_strset_get_index(struct u8_strset *set,
 
 #ifdef UNITTESTS
 /* @unittest 3211 */
-uint16_t Curl_u8_strset_count(struct u8_strset *set)
+uint16_t Curl_u8_strset_बिलांग(struct u8_strset *set)
 {
-  return set->count;
+  return set->बिलांग;
 }
 #endif
 
@@ -225,7 +225,7 @@ CURLcode Curl_u8_strset_setn(struct u8_strset *set,
     return CURLE_OK;
   }
   /* `id` not in set yet, grow if full */
-  if((set->count >= CURL_U8_STRSET_SLOT_CNT(set)) && !u8_strset_grow(set)) {
+  if((set->बिलांग >= CURL_U8_STRSET_SLOT_CNT(set)) && !u8_strset_grow(set)) {
     curlx_free(str);
     return CURLE_OUT_OF_MEMORY;
   }
@@ -271,7 +271,7 @@ static void u8_strset_unset(struct u8_strset *set, uint8_t id, bool zero)
       curlx_strzero(set->data[i]);
     curlx_safefree(set->data[i]);
     set->ids[i] = set->psl[i] = 0;
-    --set->count;
+    --set->बिलांग;
     j = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
     /* shift all entries with positive psl "down" */
     while(set->data[j] && set->psl[j]) {

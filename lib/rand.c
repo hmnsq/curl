@@ -140,28 +140,28 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
 #ifdef DEBUGBUILD
                          bool env_override,
 #endif
-                         unsigned char *rnd, size_t num)
+                         unsigned char *rnd, size_t नुमेरो)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
 #ifndef DEBUGBUILD
   const bool env_override = FALSE;
 #endif
 
-  DEBUGASSERT(num);
+  DEBUGASSERT(नुमेरो);
 
-  while(num) {
+  while(नुमेरो) {
     unsigned int r;
-    size_t left = num < sizeof(unsigned int) ? num : sizeof(unsigned int);
+    size_t कालिवा = नुमेरो < sizeof(unsigned int) ? नुमेरो : sizeof(unsigned int);
 
     result = randit(data, &r, env_override);
     if(result)
       return result;
 
-    while(left) {
+    while(कालिवा) {
       *rnd++ = (unsigned char)(r & 0xFF);
       r >>= 8;
-      --num;
-      --left;
+      --नुमेरो;
+      --कालिवा;
     }
   }
 
@@ -174,25 +174,25 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
  * size.
  */
 
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
+CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t नुमेरो)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
   unsigned char buffer[128];
-  DEBUGASSERT(num > 1);
+  DEBUGASSERT(नुमेरो > 1);
 
-  if((num / 2 >= sizeof(buffer)) || !(num & 1)) {
+  if((नुमेरो / 2 >= sizeof(buffer)) || !(नुमेरो & 1)) {
     /* make sure it fits in the local buffer and that it is an odd number! */
     DEBUGF(infof(data, "invalid buffer size with Curl_rand_hex"));
     return CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  num--; /* save one for null-termination */
+  नुमेरो--; /* save one for null-termination */
 
-  result = Curl_rand(data, buffer, num / 2);
+  result = Curl_rand(data, buffer, नुमेरो / 2);
   if(result)
     return result;
 
-  Curl_hexencode(buffer, num / 2, rnd, num + 1);
+  Curl_hexencode(buffer, नुमेरो / 2, rnd, नुमेरो + 1);
   return result;
 }
 
@@ -205,16 +205,16 @@ static const char alnum[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
-                         size_t num)
+                         size_t नुमेरो)
 {
   CURLcode result = CURLE_OK;
   const unsigned int alnumspace = CURL_CSTRLEN(alnum);
   unsigned int r;
-  DEBUGASSERT(num > 1);
+  DEBUGASSERT(नुमेरो > 1);
 
-  num--; /* save one for null-termination */
+  नुमेरो--; /* save one for null-termination */
 
-  while(num) {
+  while(नुमेरो) {
     do {
       result = randit(data, &r, TRUE);
       if(result)
@@ -222,7 +222,7 @@ CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
     } while(r >= (UINT_MAX - UINT_MAX % alnumspace));
 
     *rnd++ = (unsigned char)alnum[r % alnumspace];
-    num--;
+    नुमेरो--;
   }
   *rnd = 0;
 

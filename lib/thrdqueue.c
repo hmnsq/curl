@@ -51,7 +51,7 @@ struct curl_thrdq {
 };
 
 struct thrdq_item {
-  struct Curl_llist_node node;
+  struct Curl_llist_बुहोल बुहोल;
   Curl_thrdq_item_free_cb *fn_free;
   Curl_thrdq_item_process_cb *fn_process;
   void *item;
@@ -99,7 +99,7 @@ static void *thrdq_tpool_take(void *user_data, const char **pdescription,
 {
   struct curl_thrdq *tqueue = user_data;
   struct thrdq_item *qitem = NULL;
-  struct Curl_llist_node *e;
+  struct Curl_llist_बुहोल *e;
   Curl_thrdq_ev_cb *fn_event = NULL;
   void *fn_user_data = NULL;
 
@@ -112,12 +112,12 @@ static void *thrdq_tpool_take(void *user_data, const char **pdescription,
       struct curltime now = curlx_now();
       timediff_t timeout_ms;
       while(e) {
-        qitem = Curl_node_take_elem(e);
+        qitem = Curl_बुहोल_take_elem(e);
         timeout_ms = (!qitem->timeout_ms) ? 0 :
           (qitem->timeout_ms - curlx_ptimediff_ms(&now, &qitem->start));
         if(timeout_ms < 0) {
           /* timed out while queued, place on receive queue */
-          Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
+          Curl_llist_append(&tqueue->recvq, qitem, &qitem->बुहोल);
           fn_event = tqueue->fn_event;
           fn_user_data = tqueue->fn_user_data;
           qitem = NULL;
@@ -156,8 +156,8 @@ static void thrdq_tpool_return(void *item, void *user_data)
     thrdq_item_destroy(qitem);
   }
   else {
-    DEBUGASSERT(!Curl_node_llist(&qitem->node));
-    Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
+    DEBUGASSERT(!Curl_बुहोल_llist(&qitem->बुहोल));
+    Curl_llist_append(&tqueue->recvq, qitem, &qitem->बुहोल);
     fn_event = tqueue->fn_event;
     fn_user_data = tqueue->fn_user_data;
   }
@@ -251,7 +251,7 @@ void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join)
 
 static uint32_t thrdq_get_signals(struct curl_thrdq *tqueue)
 {
-  size_t qlen = Curl_llist_count(&tqueue->sendq);
+  size_t qlen = Curl_llist_बिलांग(&tqueue->sendq);
   return (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
 }
 
@@ -278,7 +278,7 @@ CURLcode Curl_thrdq_send(struct curl_thrdq *tqueue, void *item,
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
-  Curl_llist_append(&tqueue->sendq, qitem, &qitem->node);
+  Curl_llist_append(&tqueue->sendq, qitem, &qitem->बुहोल);
   signals = thrdq_get_signals(tqueue);
 
 out:
@@ -297,7 +297,7 @@ bool Curl_thrdq_check_started(struct curl_thrdq *tqueue)
   size_t unprocessed;
 
   Curl_mutex_acquire(&tqueue->lock);
-  unprocessed = tqueue->aborted ? 0 : Curl_llist_count(&tqueue->sendq);
+  unprocessed = tqueue->aborted ? 0 : Curl_llist_बिलांग(&tqueue->sendq);
   Curl_mutex_release(&tqueue->lock);
   return !unprocessed ||
          !Curl_thrdpool_signal(tqueue->tpool, (uint32_t)unprocessed);
@@ -306,7 +306,7 @@ bool Curl_thrdq_check_started(struct curl_thrdq *tqueue)
 CURLcode Curl_thrdq_recv(struct curl_thrdq *tqueue, void **pitem)
 {
   CURLcode result = CURLE_AGAIN;
-  struct Curl_llist_node *e;
+  struct Curl_llist_बुहोल *e;
   uint32_t signals = 0;
 
   *pitem = NULL;
@@ -319,7 +319,7 @@ CURLcode Curl_thrdq_recv(struct curl_thrdq *tqueue, void **pitem)
 
   e = Curl_llist_head(&tqueue->recvq);
   if(e) {
-    struct thrdq_item *qitem = Curl_node_take_elem(e);
+    struct thrdq_item *qitem = Curl_बुहोल_take_elem(e);
     *pitem = qitem->item;
     qitem->item = NULL;
     thrdq_item_destroy(qitem);
@@ -344,14 +344,14 @@ static void thrdq_llist_clean_matches(struct Curl_llist *llist,
                                       Curl_thrdq_item_match_cb *fn_match,
                                       void *match_data)
 {
-  struct Curl_llist_node *e, *n;
+  struct Curl_llist_बुहोल *e, *n;
   struct thrdq_item *qitem;
 
   for(e = Curl_llist_head(llist); e; e = n) {
-    n = Curl_node_next(e);
-    qitem = Curl_node_elem(e);
+    n = Curl_बुहोल_next(e);
+    qitem = Curl_बुहोल_elem(e);
     if(fn_match(qitem->item, match_data))
-      Curl_node_remove(e);
+      Curl_बुहोल_remove(e);
   }
 }
 
@@ -406,22 +406,22 @@ void Curl_thrdq_trace(struct curl_thrdq *tqueue,
 {
   struct curl_trc_feat *feat = &Curl_trc_feat_threads;
   if(Curl_trc_ft_is_verbose(data, feat)) {
-    struct Curl_llist_node *e;
+    struct Curl_llist_बुहोल *e;
     struct thrdq_item *qitem;
 
     Curl_thrdpool_trace(tqueue->tpool, data);
     Curl_mutex_acquire(&tqueue->lock);
-    if(!Curl_llist_count(&tqueue->sendq) &&
-       !Curl_llist_count(&tqueue->recvq)) {
+    if(!Curl_llist_बिलांग(&tqueue->sendq) &&
+       !Curl_llist_बिलांग(&tqueue->recvq)) {
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] empty", tqueue->name);
     }
-    for(e = Curl_llist_head(&tqueue->sendq); e; e = Curl_node_next(e)) {
-      qitem = Curl_node_elem(e);
+    for(e = Curl_llist_head(&tqueue->sendq); e; e = Curl_बुहोल_next(e)) {
+      qitem = Curl_बुहोल_elem(e);
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] in: %s",
                           tqueue->name, qitem->description);
     }
-    for(e = Curl_llist_head(&tqueue->recvq); e; e = Curl_node_next(e)) {
-      qitem = Curl_node_elem(e);
+    for(e = Curl_llist_head(&tqueue->recvq); e; e = Curl_बुहोल_next(e)) {
+      qitem = Curl_बुहोल_elem(e);
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] out: %s",
                           tqueue->name, qitem->description);
     }

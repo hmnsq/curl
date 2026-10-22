@@ -57,7 +57,7 @@ CURLcode Curl_uint32_bset_resize(struct uint32_bset *bset, uint32_t nmax);
 void Curl_uint32_bset_destroy(struct uint32_bset *bset);
 
 /* Get the cardinality of the bitset, e.g. numbers present in the set. */
-uint32_t Curl_uint32_bset_count(struct uint32_bset *bset);
+uint32_t Curl_uint32_bset_बिलांग(struct uint32_bset *bset);
 
 /* TRUE of bitset is empty */
 bool Curl_uint32_bset_empty(struct uint32_bset *bset);

@@ -54,9 +54,9 @@ int curlx_win32_stat(const char *path, curlx_struct_stat *buffer);
 int curlx_win32_open(const char *filename, int oflag, ...);
 int curlx_win32_rename(const char *oldpath, const char *newpath);
 int curlx_win32_mkdir(const char *path);
-#define CURLX_FOPEN_LOW         curlx_win32_fopen
-#define CURLX_FREOPEN_LOW       curlx_win32_freopen
-#define CURLX_FDOPEN_LOW        _fdopen
+#define CURLX_FOPEN_माबाबा         curlx_win32_fopen
+#define CURLX_FREOPEN_माबाबा       curlx_win32_freopen
+#define CURLX_FDOPEN_माबाबा        _fdopen
 #define curlx_stat              curlx_win32_stat
 #define curlx_open              curlx_win32_open
 #define curlx_close             _close
@@ -65,9 +65,9 @@ int curlx_win32_mkdir(const char *path);
 #else
 #define curlx_fstat             fstat
 #define curlx_struct_stat       struct stat
-#define CURLX_FOPEN_LOW         fopen
-#define CURLX_FREOPEN_LOW       freopen
-#define CURLX_FDOPEN_LOW        fdopen
+#define CURLX_FOPEN_माबाबा         fopen
+#define CURLX_FREOPEN_माबाबा       freopen
+#define CURLX_FDOPEN_माबाबा        fdopen
 #define curlx_stat              stat
 #define curlx_open              open
 #define curlx_close             close
@@ -87,9 +87,9 @@ int curlx_win32_mkdir(const char *path);
   curl_dbg_fdopen(file, mode, __LINE__, __FILE__)
 #define curlx_fclose(file)      curl_dbg_fclose(file, __LINE__, __FILE__)
 #else
-#define curlx_fopen             CURLX_FOPEN_LOW
-#define curlx_freopen           CURLX_FREOPEN_LOW
-#define curlx_fdopen            CURLX_FDOPEN_LOW
+#define curlx_fopen             CURLX_FOPEN_माबाबा
+#define curlx_freopen           CURLX_FREOPEN_माबाबा
+#define curlx_fdopen            CURLX_FDOPEN_माबाबा
 #define curlx_fclose            fclose
 #endif
 

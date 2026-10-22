@@ -87,10 +87,10 @@ void Curl_cshutdn_destroy(struct cshutdn *cshutdn,
                           struct Curl_easy *admin);
 
 /* Number of connections being shut down. */
-size_t Curl_cshutdn_count(struct cshutdn *cshutdn);
+size_t Curl_cshutdn_बिलांग(struct cshutdn *cshutdn);
 
 /* Number of connections to the destination being shut down. */
-size_t Curl_cshutdn_dest_count(struct cshutdn *cshutdn,
+size_t Curl_cshutdn_dest_बिलांग(struct cshutdn *cshutdn,
                                const char *destination);
 
 /* Close the oldest `count` connections in shutdown to destination or,
@@ -99,7 +99,7 @@ size_t Curl_cshutdn_dest_count(struct cshutdn *cshutdn,
 size_t Curl_cshutdn_close_oldest(struct cshutdn *cshutdn,
                                  struct Curl_easy *admin,
                                  const char *destination,
-                                 size_t count);
+                                 size_t बिलांग);
 
 /* Add a connection to have it shut down. Terminate the oldest
  * connection when shutdowns exceed max_shutdowns. */

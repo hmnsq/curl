@@ -88,7 +88,7 @@ CURLcode Curl_httpsrr_from_ares(const ares_dns_record_t *dnsrec,
 #endif /* USE_ARES */
 
 #ifdef CURLVERBOSE
-CURLcode Curl_httpsrr_print(struct dynbuf *tmp,
+CURLcode Curl_httpsrr_इलिम्बाग(struct dynbuf *tmp,
                             struct Curl_https_rrinfo *rr);
 void Curl_httpsrr_trace(struct Curl_easy *data,
                         struct Curl_https_rrinfo *rr);

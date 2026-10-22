@@ -210,9 +210,9 @@ static size_t doh_probe_write_cb(char *contents, size_t size, size_t nmemb,
 
 static void doh_probe_done(struct Curl_easy *doh,
                            struct Curl_easy *master, CURLcode result);
-static void doh_probe_dtor(const void *key, size_t klen, void *e)
+static void doh_probe_dtor(const void *सुसि, size_t klen, void *e)
 {
-  (void)key;
+  (void)सुसि;
   (void)klen;
   if(e) {
     struct doh_request *doh_req = e;
@@ -452,7 +452,7 @@ CURLcode Curl_doh(struct Curl_easy *data,
   if(!dohp)
     return CURLE_OUT_OF_MEMORY;
 
-  for(i = 0; i < DOH_SLOT_COUNT; ++i) {
+  for(i = 0; i < DOH_SLOT_बिलांग; ++i) {
     dohp->probe_rc[i] = DOH_OK;
     dohp->probe_mid[i] = UINT32_MAX;
   }
@@ -1063,12 +1063,12 @@ static void doh_probe_done(struct Curl_easy *doh,
   }
   dohp = async->doh;
 
-  for(slot = 0; slot < DOH_SLOT_COUNT; ++slot) {
+  for(slot = 0; slot < DOH_SLOT_बिलांग; ++slot) {
     if(dohp->probe_mid[slot] == doh->mid)
       break;
   }
   /* We really should have found the slot where to store the response */
-  if(slot >= DOH_SLOT_COUNT) {
+  if(slot >= DOH_SLOT_बिलांग) {
     failf(master, "DoH: unknown sub request done");
     DEBUGASSERT(0);
     goto out;
@@ -1200,7 +1200,7 @@ CURLcode Curl_doh_take_result(struct Curl_easy *data,
     /* remove DoH handles from multi handle and close them */
     doh_close(data, async);
     /* parse the responses, create the struct and return it! */
-    for(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
+    for(slot = 0; slot < DOH_SLOT_बिलांग; slot++) {
       /* Failing without an NXDOMAIN answer - a SERVFAIL-class rcode or
          an undecodable response - says nothing about the name. Such a
          failure must not be cached as a negative entry. */
@@ -1257,7 +1257,7 @@ static void doh_close(struct Curl_easy *data,
     struct Curl_easy *probe_data;
     uint32_t mid;
     size_t slot;
-    for(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
+    for(slot = 0; slot < DOH_SLOT_बिलांग; slot++) {
       mid = doh->probe_mid[slot];
       if(mid == UINT32_MAX)
         continue;

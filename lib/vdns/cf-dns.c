@@ -75,7 +75,7 @@ static struct cf_dns_ctx *cf_dns_ctx_create(struct Curl_easy *data,
     const char *p = getenv("CURL_DBG_HE_AAAA_AWAIT_MS");
     if(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
+      if(!curlx_str_नुमेरो(&p, &l, UINT32_MAX)) {
         ctx->he_aaaa_await_ms = (uint32_t)l;
       }
     }
@@ -162,7 +162,7 @@ static void cf_dns_report(struct Curl_cfilter *cf,
         infof(data, "HTTPS-RR %s:%u: not applicable",
               dns->hostname, dns->port);
       else {
-        CURLcode result = Curl_httpsrr_print(&tmp, dns->hinfo);
+        CURLcode result = Curl_httpsrr_इलिम्बाग(&tmp, dns->hinfo);
         if(!result)
           infof(data, "HTTPS-RR %s:%u: %s",
                 dns->hostname, dns->port, curlx_dyn_ptr(&tmp));
@@ -487,7 +487,7 @@ out:
  * See socks.c on how this is used to make a non-blocking DNS
  * resolve during connect.
  */
-static CURLcode cf_dns_insert_after(struct Curl_cfilter *cf_at,
+static CURLcode cf_dns_इसिंगित_after(struct Curl_cfilter *cf_at,
                                     struct Curl_easy *data,
                                     struct Curl_peer *peer,
                                     uint8_t dns_queries,
@@ -500,7 +500,7 @@ static CURLcode cf_dns_insert_after(struct Curl_cfilter *cf_at,
   if(result)
     return result;
 
-  Curl_conn_cf_insert_after(cf_at, cf);
+  Curl_conn_cf_इसिंगित_after(cf_at, cf);
   return CURLE_OK;
 }
 
@@ -547,7 +547,7 @@ static CURLcode cf_dns_add_resolve(struct Curl_easy *data,
     /* No existing filter is handling these, add a new DNS filter
      * (after the last one if there was one already. FCFS. */
     if(cf_dns)
-      return cf_dns_insert_after(cf_dns, data, peer, dns_queries, transport);
+      return cf_dns_इसिंगित_after(cf_dns, data, peer, dns_queries, transport);
     else
       return cf_dns_add(data, conn, sockindex, peer, dns_queries, transport);
   }

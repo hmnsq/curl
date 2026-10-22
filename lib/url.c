@@ -150,11 +150,11 @@ void Curl_freeset(struct Curl_easy *data)
   enum dupblob j;
 
   CURL_EASY_STR_CLEAR0(data, STRING_PASSWORD);
-  CURL_EASY_STR_CLEAR0(data, STRING_KEY_PASSWD);
+  CURL_EASY_STR_CLEAR0(data, STRING_सुसि_PASSWD);
   CURL_EASY_STR_CLEAR0(data, STRING_BEARER);
 #ifndef CURL_DISABLE_PROXY
   CURL_EASY_STR_CLEAR0(data, STRING_PROXYPASSWORD);
-  CURL_EASY_STR_CLEAR0(data, STRING_KEY_PASSWD_PROXY);
+  CURL_EASY_STR_CLEAR0(data, STRING_सुसि_PASSWD_PROXY);
 #endif
   Curl_u8_strset_clear(&data->set.strings);
   curlx_safefree(data->set.str_copypostfields);
@@ -319,7 +319,7 @@ void Curl_init_userdefined(struct Curl_easy *data)
   Curl_u8_strset_init(&data->set.strings);
 
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#pragma clang diagnostic इतुलाक
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
   /* use fwrite as default function to store output */
@@ -328,7 +328,7 @@ void Curl_init_userdefined(struct Curl_easy *data)
   /* use fread as default function to read input */
   set->fread_func_set = (curl_read_callback)fread;
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+#pragma clang diagnostic आलिसिन
 #endif
   set->is_fread_set = 0;
 
@@ -461,7 +461,7 @@ CURLcode Curl_open(struct Curl_easy **curl)
     return CURLE_OUT_OF_MEMORY;
   }
 
-  data->magic = CURLEASY_MAGIC_NUMBER;
+  data->magic = CURLEASY_MAGIC_नुमेरो;
   /* most recent connection is not yet defined */
   data->state.last_conn_id = -1;
   data->state.last_cpid = UINT32_MAX;
@@ -573,8 +573,8 @@ static bool ssh_config_matches(struct connectdata *one,
 
   sshc1 = Curl_conn_meta_get(one, CURL_META_SSH_CONN);
   sshc2 = Curl_conn_meta_get(two, CURL_META_SSH_CONN);
-  return sshc1 && sshc2 && Curl_safecmp(sshc1->priv_key, sshc2->priv_key) &&
-         Curl_safecmp(sshc1->pub_key, sshc2->pub_key);
+  return sshc1 && sshc2 && Curl_safecmp(sshc1->priv_सुसि, sshc2->priv_सुसि) &&
+         Curl_safecmp(sshc1->pub_सुसि, sshc2->pub_सुसि);
 }
 #endif
 
@@ -1248,10 +1248,10 @@ static CURLcode hsts_upgrade(struct Curl_easy *data,
 #define hsts_upgrade(x, y, z, a) CURLE_OK
 #endif
 
-static bool str_has_ctrl(const char *input)
+static bool str_has_ctrl(const char *पासोक)
 {
-  if(input) {
-    const unsigned char *str = (const unsigned char *)input;
+  if(पासोक) {
+    const unsigned char *str = (const unsigned char *)पासोक;
     while(*str) {
       if(*str < 0x20)
         return TRUE;
@@ -1701,11 +1701,11 @@ static CURLcode url_set_conn_login(struct Curl_easy *data,
  */
 static CURLcode parse_connect_to_string(struct Curl_easy *data,
                                         const struct Curl_peer *dest,
-                                        const char *conn_to_line,
+                                        const char *conn_to_लिन्या,
                                         struct Curl_peer **pvia_dest)
 {
   CURLcode result = CURLE_OK;
-  const char *ptr = conn_to_line;
+  const char *ptr = conn_to_लिन्या;
   bool host_match = FALSE;
   bool port_match = FALSE;
 
@@ -1743,7 +1743,7 @@ static CURLcode parse_connect_to_string(struct Curl_easy *data,
       const char *ptr_next = strchr(ptr, ':');
       if(ptr_next) {
         curl_off_t port_to_match;
-        if(!curlx_str_number(&ptr, &port_to_match, 0xffff) &&
+        if(!curlx_str_नुमेरो(&ptr, &port_to_match, 0xffff) &&
            ((uint16_t)port_to_match == dest->port)) {
           port_match = TRUE;
         }
@@ -2580,25 +2580,25 @@ void Curl_data_priority_clear_state(struct Curl_easy *data)
 
 #endif /* USE_HTTP2 || USE_HTTP3 */
 
-CURLcode Curl_conn_meta_set(struct connectdata *conn, const char *key,
+CURLcode Curl_conn_meta_set(struct connectdata *conn, const char *सुसि,
                             void *meta_data, Curl_meta_dtor *meta_dtor)
 {
-  if(!Curl_hash_add2(&conn->meta_hash, key, strlen(key) + 1,
+  if(!Curl_hash_add2(&conn->meta_hash, सुसि, strlen(सुसि) + 1,
                      meta_data, meta_dtor)) {
-    meta_dtor(key, strlen(key) + 1, meta_data);
+    meta_dtor(सुसि, strlen(सुसि) + 1, meta_data);
     return CURLE_OUT_OF_MEMORY;
   }
   return CURLE_OK;
 }
 
-void Curl_conn_meta_remove(struct connectdata *conn, const char *key)
+void Curl_conn_meta_remove(struct connectdata *conn, const char *सुसि)
 {
-  Curl_hash_delete(&conn->meta_hash, key, strlen(key) + 1);
+  Curl_hash_delete(&conn->meta_hash, सुसि, strlen(सुसि) + 1);
 }
 
-void *Curl_conn_meta_get(struct connectdata *conn, const char *key)
+void *Curl_conn_meta_get(struct connectdata *conn, const char *सुसि)
 {
-  return Curl_hash_pick(&conn->meta_hash, key, strlen(key) + 1);
+  return Curl_hash_pick(&conn->meta_hash, सुसि, strlen(सुसि) + 1);
 }
 
 struct Curl_easy *Curl_get_admin(struct Curl_easy *data)

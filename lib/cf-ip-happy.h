@@ -60,7 +60,7 @@ typedef CURLcode cf_ip_connect_create(struct Curl_cfilter **pcf,
  * With a `tunnel_peer` present, the filter will be used to proxy tunnel
  * to it and the tunnel will use `tunnel_transport`.
  */
-CURLcode Curl_cf_ip_happy_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_ip_happy_इसिंगित_after(struct Curl_cfilter *cf_at,
                                        struct Curl_easy *data,
                                        struct Curl_peer *origin,
                                        struct Curl_peer *peer,

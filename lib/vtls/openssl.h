@@ -70,7 +70,7 @@
 
 #include "urldata.h"
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_नुमेरो >= 0x30000000L
 #define HAVE_OPENSSL3  /* non-fork OpenSSL 3.x or later */
 #endif
 
@@ -80,7 +80,7 @@
 
 /* OpenSSL 3.5.0+ has built-in 'SSLKEYLOGFILE' support if built with
    'enable-sslkeylog' */
-#if OPENSSL_VERSION_NUMBER >= 0x30500000L && !defined(OPENSSL_NO_SSLKEYLOG)
+#if OPENSSL_VERSION_नुमेरो >= 0x30500000L && !defined(OPENSSL_NO_SSLKEYLOG)
 #define HAVE_KEYLOG_UPSTREAM
 #endif
 
@@ -90,7 +90,7 @@
  * LibreSSL: not supported. 3.5.0+ has a stub function that does nothing.
  * OpenSSL: supported since 1.1.1 https://github.com/openssl/openssl/pull/2287
  */
-#ifndef LIBRESSL_VERSION_NUMBER
+#ifndef LIBRESSL_VERSION_नुमेरो
 #define HAVE_KEYLOG_CALLBACK
 #endif
 
@@ -100,7 +100,7 @@
 #define HAVE_OPENSSL_EARLYDATA
 #endif
 
-#ifdef LIBRESSL_VERSION_NUMBER
+#ifdef LIBRESSL_VERSION_नुमेरो
 typedef long ctx_option_t;
 #elif defined(HAVE_BORINGSSL_LIKE)
 typedef uint32_t ctx_option_t;
@@ -196,7 +196,7 @@ CURLcode Curl_ossl_ctx_configure(struct Curl_cfilter *cf,
 CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
                                struct Curl_easy *data,
                                struct ossl_ctx *octx,
-                               const char *ssl_peer_key,
+                               const char *ssl_peer_सुसि,
                                SSL_SESSION *session,
                                const char *alpn,
                                unsigned char *quic_tp,

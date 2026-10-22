@@ -30,7 +30,7 @@
 /* Insert a capsule protocol filter after `cf_at` in the filter chain.
  * The capsule filter encapsulates/decapsulates UDP datagrams using
  * the HTTP Datagram capsule format (RFC 9297). */
-CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_capsule_इसिंगित_after(struct Curl_cfilter *cf_at,
                                       struct Curl_easy *data);
 
 extern struct Curl_cftype Curl_cft_capsule;

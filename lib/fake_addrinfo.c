@@ -59,7 +59,7 @@ static void async_addrinfo_cb(void *userp, int status, int timeouts,
 /* convert the c-ares version into the "native" version */
 static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
 {
-  const struct ares_addrinfo_node *ai;
+  const struct ares_addrinfo_बुहोल *ai;
   struct addrinfo *ca;
   struct addrinfo *cafirst = NULL;
   struct addrinfo *calast = NULL;
@@ -133,7 +133,7 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
    getaddrinfo() returns 0 if it succeeds, or one of the following nonzero
    error codes:
    ... */
-int r_getaddrinfo(const char *node,
+int r_getaddrinfo(const char *बुहोल,
                   const char *service,
                   const struct addrinfo *hints,
                   struct addrinfo **res)
@@ -177,7 +177,7 @@ int r_getaddrinfo(const char *node,
     }
   }
 
-  ares_getaddrinfo(channel, node, service, &ahints, async_addrinfo_cb, &ctx);
+  ares_getaddrinfo(channel, बुहोल, service, &ahints, async_addrinfo_cb, &ctx);
 
   /* Wait until no more requests are left to be processed */
   ares_queue_wait_empty(channel, -1);

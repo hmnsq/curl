@@ -36,22 +36,22 @@ CURLcode Curl_range(struct Curl_easy *data)
 {
   if(data->state.use_range && data->state.range) {
     curl_off_t from, to;
-    bool first_num = TRUE;
+    bool first_नुमेरो = TRUE;
     const char *p = data->state.range;
-    if(curlx_str_number(&p, &from, CURL_OFF_T_MAX))
-      first_num = FALSE;
+    if(curlx_str_नुमेरो(&p, &from, CURL_OFF_T_MAX))
+      first_नुमेरो = FALSE;
 
     if(curlx_str_single(&p, '-'))
       /* no leading dash or after the first number is an error */
       return CURLE_RANGE_ERROR;
 
-    if(curlx_str_number(&p, &to, CURL_OFF_T_MAX)) {
+    if(curlx_str_नुमेरो(&p, &to, CURL_OFF_T_MAX)) {
       /* no second number */
       /* X - */
       data->state.resume_from = from;
       DEBUGF(infof(data, "RANGE %" FMT_OFF_T " to end of file", from));
     }
-    else if(!first_num) {
+    else if(!first_नुमेरो) {
       /* -Y */
       if(!to)
         /* "-0" is wrong */

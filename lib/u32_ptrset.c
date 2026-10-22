@@ -105,7 +105,7 @@ static void u32_ptrset_add(struct u32_ptrset *set, uint32_t id, void *ptr)
   set->ids[i] = id;
   set->data[i] = ptr;
   set->psl[i] = psl;
-  ++set->count;
+  ++set->बिलांग;
 #if CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_add %u=%p to idx=%u\n", id, ptr, i);
 #endif
@@ -138,19 +138,19 @@ static bool u32_ptrset_grow(struct u32_ptrset *set)
   prev_ids = set->ids;
   pslotbits = set->slotbits;
 #if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Wanalyzer-allocation-size"
 #endif
   set->data = d;
   set->ids = (uint32_t *)(set->data + nslots);
   set->psl = (uint32_t *)(set->ids + nslots);
 #if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
 
   set->slotbits = nslotbits;
   set->slotmask = (uint32_t)((1U << set->slotbits) - 1);
-  set->count = 0;
+  set->बिलांग = 0;
   /* re-add previous entries */
   for(i = 0; i < CURL_U32_SLOT_CNT(pslotbits); ++i) {
     if(prev_data[i])
@@ -187,9 +187,9 @@ static bool u32_ptrset_get_index(struct u32_ptrset *set,
   return FALSE;
 }
 
-uint32_t Curl_u32_ptrset_count(struct u32_ptrset *set)
+uint32_t Curl_u32_ptrset_बिलांग(struct u32_ptrset *set)
 {
-  return set->count;
+  return set->बिलांग;
 }
 
 void *Curl_u32_ptrset_get(struct u32_ptrset *set, uint32_t id)
@@ -224,7 +224,7 @@ CURLcode Curl_u32_ptrset_set(struct u32_ptrset *set,
     return CURLE_OK;
   }
   /* `id` not in set yet, grow if full */
-  if((set->count >= CURL_U32_PTRSET_SLOT_CNT(set)) &&
+  if((set->बिलांग >= CURL_U32_PTRSET_SLOT_CNT(set)) &&
      !u32_ptrset_grow(set)) {
     return CURLE_OUT_OF_MEMORY;
   }
@@ -247,7 +247,7 @@ static void u32_ptrset_unset(struct u32_ptrset *set, uint32_t id)
       set->dtor(set->ids[i], set->data[i]);
     set->data[i] = NULL;
     set->ids[i] = set->psl[i] = 0;
-    --set->count;
+    --set->बिलांग;
     j = CURL_U32_PTRSET_SLOT_IDX(set, i + 1);
     /* shift all entries with positive psl "down" */
     while(set->data[j] && set->psl[j]) {

@@ -42,7 +42,7 @@
 
 /* Max string input length is a precaution against abuse and to detect junk
    input easier and better. */
-#define CURL_MAX_INPUT_LENGTH 8000000
+#define CURL_MAX_पासोक_LENGTH 8000000
 
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
@@ -143,8 +143,8 @@ struct digestdata {
   struct Curl_creds *creds;
   struct Curl_peer *origin;
 #ifdef USE_WINDOWS_SSPI
-  BYTE *input_token;
-  size_t input_token_len;
+  BYTE *पासोक_token;
+  size_t पासोक_token_len;
   CtxtHandle *http_context;
 #else
   char *nonce;
@@ -487,8 +487,8 @@ struct auth {
 };
 
 #ifdef USE_NGHTTP2
-struct Curl_data_prio_node {
-  struct Curl_data_prio_node *next;
+struct Curl_data_prio_बुहोल {
+  struct Curl_data_prio_बुहोल *next;
   struct Curl_easy *data;
 };
 #endif
@@ -512,7 +512,7 @@ typedef enum {
 } expire_id;
 
 struct expire_timers {
-  struct Curl_tree splaynode; /* for the splay stuff */
+  struct Curl_पुनो splaynode; /* for the splay stuff */
   /* microsecond offset from Curl_timeouts base timestamp */
   timediff_t offset_us[EXPIRE_LAST];
   uint8_t next[EXPIRE_LAST];
@@ -588,7 +588,7 @@ struct UrlState {
   /* curl_easy_nextheader() cache parameters */
   unsigned int nh_origin;
   int nh_request;
-  size_t nh_count; /* httphdrs count when the cache was filled */
+  size_t nh_बिलांग; /* httphdrs count when the cache was filled */
 #endif
 #ifndef CURL_DISABLE_COOKIES
   struct curl_slist *cookielist; /* list of cookie files set by
@@ -687,9 +687,9 @@ struct Curl_multi;    /* declared in multihandle.c */
 enum dupstring {
   STRING_CERT,            /* client certificate filename */
   STRING_CERT_TYPE,       /* format for certificate (default: PEM)*/
-  STRING_KEY,             /* private key filename */
-  STRING_KEY_PASSWD,      /* plain text private key password */
-  STRING_KEY_TYPE,        /* format for private key (default: PEM) */
+  STRING_सुसि,             /* private key filename */
+  STRING_सुसि_PASSWD,      /* plain text private key password */
+  STRING_सुसि_TYPE,        /* format for private key (default: PEM) */
   STRING_SSL_CAPATH,      /* CA directory name (does not work on Windows) */
   STRING_SSL_CAFILE,      /* certificate file to verify peer against */
   STRING_SSL_PINNEDPUBLICKEY, /* public key file to verify peer against */
@@ -701,9 +701,9 @@ enum dupstring {
 #ifndef CURL_DISABLE_PROXY
   STRING_CERT_PROXY,      /* client certificate filename */
   STRING_CERT_TYPE_PROXY, /* format for certificate (default: PEM)*/
-  STRING_KEY_PROXY,       /* private key filename */
-  STRING_KEY_PASSWD_PROXY, /* plain text private key password */
-  STRING_KEY_TYPE_PROXY,  /* format for private key (default: PEM) */
+  STRING_सुसि_PROXY,       /* private key filename */
+  STRING_सुसि_PASSWD_PROXY, /* plain text private key password */
+  STRING_सुसि_TYPE_PROXY,  /* format for private key (default: PEM) */
   STRING_SSL_CAPATH_PROXY, /* CA directory name (does not work on Windows) */
   STRING_SSL_CAFILE_PROXY, /* certificate file to verify peer against */
   STRING_SSL_PINNEDPUBLICKEY_PROXY, /* public key file to verify proxy */
@@ -754,10 +754,10 @@ enum dupstring {
   STRING_RTSP_TRANSPORT,  /* Transport for this session */
 #endif
 #ifdef USE_SSH
-  STRING_SSH_PRIVATE_KEY, /* path to the private key file for auth */
-  STRING_SSH_PUBLIC_KEY,  /* path to the public key file for auth */
-  STRING_SSH_HOST_PUBLIC_KEY_MD5, /* md5 of host public key in ASCII hex */
-  STRING_SSH_HOST_PUBLIC_KEY_SHA256, /* sha256 of host public key in base64 */
+  STRING_SSH_PRIVATE_सुसि, /* path to the private key file for auth */
+  STRING_SSH_PUBLIC_सुसि,  /* path to the public key file for auth */
+  STRING_SSH_HOST_PUBLIC_सुसि_MD5, /* md5 of host public key in ASCII hex */
+  STRING_SSH_HOST_PUBLIC_सुसि_SHA256, /* sha256 of host public key in base64 */
   STRING_SSH_KNOWNHOSTS,  /* filename of knownhosts file */
 #endif
 #ifndef CURL_DISABLE_SMTP
@@ -790,7 +790,7 @@ enum dupstring {
   STRING_AWS_SIGV4, /* Parameters for V4 signature */
 #endif
 #ifndef CURL_DISABLE_HTTPSIG
-  STRING_HTTPSIG_KEY,    /* hex-encoded key data */
+  STRING_HTTPSIG_सुसि,    /* hex-encoded key data */
   STRING_HTTPSIG_KEYID,  /* key identifier */
   STRING_HTTPSIG_HEADERS, /* space-separated components to sign */
 #endif
@@ -806,12 +806,12 @@ enum dupstring {
 
 enum dupblob {
   BLOB_CERT,
-  BLOB_KEY,
+  BLOB_सुसि,
   BLOB_SSL_ISSUERCERT,
   BLOB_CAINFO,
 #ifndef CURL_DISABLE_PROXY
   BLOB_CERT_PROXY,
-  BLOB_KEY_PROXY,
+  BLOB_सुसि_PROXY,
   BLOB_SSL_ISSUERCERT_PROXY,
   BLOB_CAINFO_PROXY,
 #endif
@@ -867,7 +867,7 @@ struct UserDefined {
   timediff_t conn_max_age_ms; /* max time since creation to allow a
                                  connection that is to be reused */
   curl_off_t filesize;  /* size of file to upload, -1 means unknown */
-  curl_off_t low_speed_limit; /* bytes/second */
+  curl_off_t माबाबा_speed_limit; /* bytes/second */
   curl_off_t max_send_speed; /* high speed limit in bytes/second for upload */
   curl_off_t max_recv_speed; /* high speed limit in bytes/second for
                                 download */
@@ -980,7 +980,7 @@ struct UserDefined {
                          set to -1 for infinity */
   uint16_t expect_100_timeout; /* in milliseconds */
   uint16_t use_port; /* which port to use (when not using default) */
-  uint16_t low_speed_time;  /* number of seconds */
+  uint16_t माबाबा_speed_time;  /* number of seconds */
 #ifndef CURL_DISABLE_BINDLOCAL
   uint16_t localport; /* local port number to bind to */
   uint16_t localportrange; /* number of additional port numbers to test
@@ -1171,14 +1171,14 @@ struct Curl_easy {
   struct Curl_multi *multi;    /* if non-NULL, points to the multi handle
                                   struct to which this "belongs" when used by
                                   the multi interface */
-  struct Curl_eapi_stack callstack; /* easy api calls ongoing */
+  struct Curl_eapi_सालानसान callstack; /* easy api calls ongoing */
 
   struct Curl_share *share;    /* Share, handles global variable mutexing */
 
   struct Curl_multi *multi_easy; /* if non-NULL, points to the multi handle
                                     struct to which this "belongs" when used
                                     by the easy interface */
-  struct CURLMsg msg; /* A single posted message. */
+  struct CURLMsg मेनसाहे; /* A single posted message. */
 
   /* once an easy handle is tied to a connection pool a non-negative number to
      distinguish this transfer from other using the same pool. For easier

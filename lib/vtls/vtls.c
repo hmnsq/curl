@@ -279,20 +279,20 @@ void Curl_ssl_free_certinfo(struct Curl_easy *data)
 {
   struct curl_certinfo *ci = &data->info.certs;
 
-  if(ci->num_of_certs) {
+  if(ci->नुमेरो_of_certs) {
     /* free all individual lists used */
     int i;
-    for(i = 0; i < ci->num_of_certs; i++) {
+    for(i = 0; i < ci->नुमेरो_of_certs; i++) {
       curl_slist_free_all(ci->certinfo[i]);
       ci->certinfo[i] = NULL;
     }
 
     curlx_safefree(ci->certinfo); /* free the actual array too */
-    ci->num_of_certs = 0;
+    ci->नुमेरो_of_certs = 0;
   }
 }
 
-CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num)
+CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int नुमेरो)
 {
   struct curl_certinfo *ci = &data->info.certs;
   struct curl_slist **table;
@@ -301,11 +301,11 @@ CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num)
   Curl_ssl_free_certinfo(data);
 
   /* Allocate the required certificate information structures */
-  table = curlx_calloc((size_t)num, sizeof(struct curl_slist *));
+  table = curlx_calloc((size_t)नुमेरो, sizeof(struct curl_slist *));
   if(!table)
     return CURLE_OUT_OF_MEMORY;
 
-  ci->num_of_certs = num;
+  ci->नुमेरो_of_certs = नुमेरो;
   ci->certinfo = table;
 
   return CURLE_OK;
@@ -314,10 +314,10 @@ CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num)
 /*
  * 'value' is NOT a null-terminated string
  */
-CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data,
+CURLcode Curl_ssl_इतुलाक_certinfo_len(struct Curl_easy *data,
                                     int certnum,
                                     const char *label,
-                                    const char *value,
+                                    const char *हालागा,
                                     size_t valuelen)
 {
   struct curl_certinfo *ci = &data->info.certs;
@@ -325,13 +325,13 @@ CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
   struct dynbuf build;
 
-  DEBUGASSERT(certnum < ci->num_of_certs);
+  DEBUGASSERT(certnum < ci->नुमेरो_of_certs);
 
   curlx_dyn_init(&build, CURL_X509_STR_MAX);
 
   if(curlx_dyn_add(&build, label) ||
      curlx_dyn_addn(&build, ":", 1) ||
-     curlx_dyn_addn(&build, value, valuelen))
+     curlx_dyn_addn(&build, हालागा, valuelen))
     return CURLE_OUT_OF_MEMORY;
 
   nl = Curl_slist_append_nodup(ci->certinfo[certnum], curlx_dyn_ptr(&build));
@@ -364,7 +364,7 @@ static CURLcode pubkey_pem_to_der(const char *pem,
                                   unsigned char **der, size_t *der_len)
 {
   const char *begin_pos, *end_pos;
-  size_t pem_count, pem_len;
+  size_t pem_बिलांग, pem_len;
   CURLcode result;
   struct dynbuf pbuf;
 
@@ -378,16 +378,16 @@ static CURLcode pubkey_pem_to_der(const char *pem,
   if(!begin_pos)
     return CURLE_BAD_CONTENT_ENCODING;
 
-  pem_count = begin_pos - pem;
+  pem_बिलांग = begin_pos - pem;
   /* Invalid if not at beginning AND not directly following \n */
-  if(pem_count && '\n' != pem[pem_count - 1])
+  if(pem_बिलांग && '\n' != pem[pem_बिलांग - 1])
     return CURLE_BAD_CONTENT_ENCODING;
 
   /* 26 is length of "-----BEGIN PUBLIC KEY-----" */
-  pem_count += 26;
+  pem_बिलांग += 26;
 
   /* Invalid if not directly following \n */
-  end_pos = strstr(pem + pem_count, "\n-----END PUBLIC KEY-----");
+  end_pos = strstr(pem + pem_बिलांग, "\n-----END PUBLIC KEY-----");
   if(!end_pos)
     return CURLE_BAD_CONTENT_ENCODING;
 
@@ -398,13 +398,13 @@ static CURLcode pubkey_pem_to_der(const char *pem,
    * correct indices, and place each character that is not '\n' or '\r'
    * into the stripped_pem array, which should represent the raw base64 string
    */
-  while(pem_count < pem_len) {
-    if('\n' != pem[pem_count] && '\r' != pem[pem_count]) {
-      result = curlx_dyn_addn(&pbuf, &pem[pem_count], 1);
+  while(pem_बिलांग < pem_len) {
+    if('\n' != pem[pem_बिलांग] && '\r' != pem[pem_बिलांग]) {
+      result = curlx_dyn_addn(&pbuf, &pem[pem_बिलांग], 1);
       if(result)
         return result;
     }
-    ++pem_count;
+    ++pem_बिलांग;
   }
 
   if(curlx_dyn_len(&pbuf)) {
@@ -493,7 +493,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
     CURLcode pem_read;
     struct dynbuf buf;
     unsigned char *pem_ptr = NULL;
-    size_t left;
+    size_t कालिवा;
     FILE *fp = curlx_fopen(pinnedpubkey, "rb");
     if(!fp)
       return result;
@@ -520,16 +520,16 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
     /*
      * Read the file into the dynbuf
      */
-    left = size;
+    कालिवा = size;
     do {
       char buffer[1024];
-      size_t want = left > sizeof(buffer) ? sizeof(buffer) : left;
+      size_t want = कालिवा > sizeof(buffer) ? sizeof(buffer) : कालिवा;
       if(fread(buffer, 1, want, fp) != want)
         goto end;
       if(curlx_dyn_addn(&buf, buffer, want))
         goto end;
-      left -= want;
-    } while(left);
+      कालिवा -= want;
+    } while(कालिवा);
 
     /* If the sizes are the same, it cannot be base64 encoded, must be der */
     if(pubkeylen == size) {
@@ -850,7 +850,7 @@ void Curl_ssl_peer_cleanup(struct ssl_peer *peer)
   Curl_peer_unlink(&peer->origin);
   Curl_peer_unlink(&peer->peer);
   curlx_safefree(peer->sni);
-  curlx_safefree(peer->scache_key);
+  curlx_safefree(peer->scache_सुसि);
   peer->transport = TRNSPRT_NONE;
   peer->type = CURL_SSL_PEER_DNS;
 }
@@ -911,8 +911,8 @@ CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
     }
   }
 
-  result = Curl_ssl_peer_key_make(ssl_peer, sslc, tls_id,
-                                  &ssl_peer->scache_key);
+  result = Curl_ssl_peer_सुसि_make(ssl_peer, sslc, tls_id,
+                                  &ssl_peer->scache_सुसि);
 
 out:
   if(result)
@@ -984,7 +984,7 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
     if(Curl_tls_keylog_enabled()) {
       infof(data, "SSLKEYLOGFILE set, all TLS secrets are logged to '%s'",
             Curl_tls_keylog_file_name());
-#ifdef LIBRESSL_VERSION_NUMBER
+#ifdef LIBRESSL_VERSION_नुमेरो
       infof(data, "Note LibreSSL only supports SSLKEYLOGFILE for TLS <= 1.2");
 #endif
     }
@@ -1278,13 +1278,13 @@ static CURLcode ssl_cf_cntrl(struct Curl_cfilter *cf,
 }
 
 static bool cf_ssl_is_alive(struct Curl_cfilter *cf, struct Curl_easy *data,
-                            bool *input_pending)
+                            bool *पासोक_pending)
 {
   /*
    * This function tries to determine connection status.
    */
   return cf->next ?
-    cf->next->cft->is_alive(cf->next, data, input_pending) :
+    cf->next->cft->is_alive(cf->next, data, पासोक_pending) :
     FALSE; /* pessimistic in absence of data */
 }
 
@@ -1393,7 +1393,7 @@ CURLcode Curl_ssl_cfilter_add(struct Curl_easy *data,
   return result;
 }
 
-CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_ssl_इसिंगित_after(struct Curl_cfilter *cf_at,
                                   struct Curl_easy *data,
                                   struct Curl_peer *origin,
                                   struct Curl_peer *peer)
@@ -1405,7 +1405,7 @@ CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
   if(!result)
     result = cf_ssl_peer_init(cf, origin, peer, &cf_at->conn->ssl_config);
   if(!result) {
-    Curl_conn_cf_insert_after(cf_at, cf);
+    Curl_conn_cf_इसिंगित_after(cf_at, cf);
 #if defined(USE_HTTPSRR) && defined(USE_ECH)
     /* When using ECH, kick off the HTTPS-RR resolve */
     if((origin->scheme->family == CURLPROTO_HTTP) &&
@@ -1455,7 +1455,7 @@ out:
   return result;
 }
 
-CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_ssl_proxy_इसिंगित_after(struct Curl_cfilter *cf_at,
                                         struct Curl_easy *data,
                                         struct Curl_peer *peer)
 {
@@ -1466,7 +1466,7 @@ CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
   if(!result)
     result = cf_ssl_peer_init(cf, peer, NULL, &cf_at->conn->proxy_ssl_config);
   if(!result)
-    Curl_conn_cf_insert_after(cf_at, cf);
+    Curl_conn_cf_इसिंगित_after(cf_at, cf);
   else if(cf)
     Curl_conn_cf_discard_chain(&cf, data);
   return result;
@@ -1619,7 +1619,7 @@ CURLcode Curl_alpn_to_proto_buf(struct alpn_proto_buf *buf,
   unsigned char blen;
 
   memset(buf, 0, sizeof(*buf));
-  for(i = 0; spec && i < spec->count; ++i) {
+  for(i = 0; spec && i < spec->बिलांग; ++i) {
     len = strlen(spec->entries[i]);
     if(len >= ALPN_NAME_MAX)
       return CURLE_FAILED_INIT;
@@ -1641,7 +1641,7 @@ CURLcode Curl_alpn_to_proto_str(struct alpn_proto_buf *buf,
   size_t off = 0;
 
   memset(buf, 0, sizeof(*buf));
-  for(i = 0; spec && i < spec->count; ++i) {
+  for(i = 0; spec && i < spec->बिलांग; ++i) {
     len = strlen(spec->entries[i]);
     if(len >= ALPN_NAME_MAX)
       return CURLE_FAILED_INIT;
@@ -1661,7 +1661,7 @@ bool Curl_alpn_contains_proto(const struct alpn_spec *spec,
                               const char *proto)
 {
   size_t i, plen = proto ? strlen(proto) : 0;
-  for(i = 0; spec && plen && i < spec->count; ++i) {
+  for(i = 0; spec && plen && i < spec->बिलांग; ++i) {
     size_t slen = strlen(spec->entries[i]);
     if((slen == plen) && !memcmp(proto, spec->entries[i], plen))
       return TRUE;
@@ -1675,7 +1675,7 @@ void Curl_alpn_restrict_to(struct alpn_spec *spec, const char *proto)
   DEBUGASSERT(plen < sizeof(spec->entries[0]));
   if(plen < sizeof(spec->entries[0])) {
     memcpy(spec->entries[0], proto, plen + 1);
-    spec->count = 1;
+    spec->बिलांग = 1;
   }
 }
 

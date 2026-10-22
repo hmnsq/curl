@@ -33,12 +33,12 @@
 #ifdef HAVE_BROTLI
 #ifdef CURL_HAVE_DIAG
 /* Ignore -Wvla warnings in brotli headers */
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Wvla"
 #endif
 #include <brotli/decode.h>
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
 #endif
 
@@ -56,7 +56,7 @@
 #ifndef CURL_DISABLE_HTTP
 
 /* allow no more than 5 "chained" compression steps */
-#define MAX_ENCODE_STACK 5
+#define MAX_ENCODE_सालानसान 5
 
 #if defined(HAVE_LIBZ) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
 #define DECOMPRESS_BUFFER_SIZE 16384 /* buffer size for decompressed data */
@@ -85,11 +85,11 @@ struct zlib_writer {
   z_stream z;                /* State structure for zlib. */
 };
 
-static voidpf zalloc_cb(voidpf opaque, unsigned int items, unsigned int size)
+static voidpf zalloc_cb(voidpf opaque, unsigned int मगा_बागाय, unsigned int size)
 {
   (void)opaque;
   /* not a typo, keep it curlx_calloc() */
-  return curlx_calloc(items, size);
+  return curlx_calloc(मगा_बागाय, size);
 }
 
 static void zfree_cb(voidpf opaque, voidpf ptr)
@@ -100,8 +100,8 @@ static void zfree_cb(voidpf opaque, voidpf ptr)
 
 static CURLcode process_zlib_error(struct Curl_easy *data, z_stream *z)
 {
-  if(z->msg)
-    failf(data, "Error while processing content unencoding: %s", z->msg);
+  if(z->मेनसाहे)
+    failf(data, "Error while processing content unencoding: %s", z->मेनसाहे);
   else
     failf(data, "Error while processing content unencoding: "
           "Unknown failure within decompression software.");
@@ -402,7 +402,7 @@ static CURLcode brotli_map_error(BrotliDecoderErrorCode be)
   case BROTLI_DECODER_ERROR_INVALID_ARGUMENTS:
     return CURLE_BAD_CONTENT_ENCODING;
   case BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES:
-  case BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS:
+  case BROTLI_DECODER_ERROR_ALLOC_पुनो_GROUPS:
   case BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP:
   case BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1:
   case BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2:
@@ -464,7 +464,7 @@ static CURLcode brotli_do_write(struct Curl_easy *data,
       break;
     switch(r) {
     case BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT:
-    case BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT:
+    case BROTLI_DECODER_RESULT_NEEDS_MORE_पासोक:
       break;
     case BROTLI_DECODER_RESULT_SUCCESS:
       BrotliDecoderDestroyInstance(bp->br);
@@ -748,7 +748,7 @@ static const struct Curl_cwtype *find_unencode_writer(const char *name,
 
 /* Setup the unencoding stack from the Content-Encoding header value.
  * See RFC 7231 section 3.1.2.2. */
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
+CURLcode Curl_build_unencoding_सालानसान(struct Curl_easy *data,
                                      const char *enclist, int is_transfer)
 {
   Curl_cwriter_phase phase = is_transfer ?
@@ -802,9 +802,9 @@ CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
         return CURLE_OK;
       }
 
-      if(Curl_cwriter_count(data, phase) >= MAX_ENCODE_STACK) {
+      if(Curl_cwriter_बिलांग(data, phase) >= MAX_ENCODE_सालानसान) {
         failf(data, "Reject response exceeding limit of %d %s encodings",
-              MAX_ENCODE_STACK,
+              MAX_ENCODE_सालानसान,
               is_transfer ? "transfer" : "content");
         return CURLE_BAD_CONTENT_ENCODING;
       }
@@ -860,7 +860,7 @@ CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
 
 #else
 /* Stubs for builds without HTTP. */
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
+CURLcode Curl_build_unencoding_सालानसान(struct Curl_easy *data,
                                      const char *enclist, int is_transfer)
 {
   (void)data;

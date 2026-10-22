@@ -43,8 +43,8 @@
 #ifdef USE_OPENSSL
 #include <openssl/evp.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
+CURLcode Curl_ed25519_sign(const unsigned char *सुसि, size_t keylen,
+                           const unsigned char *मेनसाहे, size_t msglen,
                            unsigned char *sig, size_t *siglen)
 {
   EVP_PKEY *pkey;
@@ -55,7 +55,7 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
   if(keylen != CURL_ED25519_KEYLEN)
     return CURLE_BAD_FUNCTION_ARGUMENT;
 
-  pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, key, keylen);
+  pkey = EVP_PKEY_new_raw_private_सुसि(EVP_PKEY_ED25519, NULL, सुसि, keylen);
   if(!pkey)
     return CURLE_AUTH_ERROR;
 
@@ -73,7 +73,7 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
   }
 
   slen = CURL_ED25519_SIGLEN;
-  rc = EVP_DigestSign(mdctx, sig, &slen, msg, msglen);
+  rc = EVP_DigestSign(mdctx, sig, &slen, मेनसाहे, msglen);
 
   EVP_MD_CTX_free(mdctx);
   EVP_PKEY_free(pkey);
@@ -87,42 +87,42 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
 
 #elif defined(USE_WOLFSSL) && \
   (defined(HAVE_ED25519) || defined(WOLFSSL_CURVE25519_USE_ED25519)) && \
-  defined(HAVE_ED25519_KEY_IMPORT) && defined(HAVE_ED25519_SIGN)
+  defined(HAVE_ED25519_सुसि_IMPORT) && defined(HAVE_ED25519_SIGN)
 #include <wolfssl/wolfcrypt/ed25519.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/random.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
+CURLcode Curl_ed25519_sign(const unsigned char *सुसि, size_t keylen,
+                           const unsigned char *मेनसाहे, size_t msglen,
                            unsigned char *sig, size_t *siglen)
 {
   int ret;
-  ed25519_key edkey;
+  ed25519_सुसि edkey;
   word32 outlen;
-  unsigned char pubkey[ED25519_PUB_KEY_SIZE];
+  unsigned char pubkey[ED25519_PUB_सुसि_SIZE];
 
-  if(keylen != ED25519_KEY_SIZE)
+  if(keylen != ED25519_सुसि_SIZE)
     return CURLE_BAD_FUNCTION_ARGUMENT;
 
   ret = wc_ed25519_init(&edkey);
   if(ret)
     return CURLE_AUTH_ERROR;
 
-  ret = wc_ed25519_import_private_only(key, ED25519_KEY_SIZE, &edkey);
+  ret = wc_ed25519_import_private_only(सुसि, ED25519_सुसि_SIZE, &edkey);
   if(ret)
     goto fail;
 
-  ret = wc_ed25519_make_public(&edkey, pubkey, ED25519_PUB_KEY_SIZE);
+  ret = wc_ed25519_make_public(&edkey, pubkey, ED25519_PUB_सुसि_SIZE);
   if(ret)
     goto fail;
 
-  ret = wc_ed25519_import_private_key(key, ED25519_KEY_SIZE,
-                                      pubkey, ED25519_PUB_KEY_SIZE, &edkey);
+  ret = wc_ed25519_import_private_सुसि(सुसि, ED25519_सुसि_SIZE,
+                                      pubkey, ED25519_PUB_सुसि_SIZE, &edkey);
   if(ret)
     goto fail;
 
   outlen = ED25519_SIG_SIZE;
-  ret = wc_ed25519_sign_msg(msg, (word32)msglen, sig, &outlen, &edkey);
+  ret = wc_ed25519_sign_मेनसाहे(मेनसाहे, (word32)msglen, sig, &outlen, &edkey);
   if(ret)
     goto fail;
 
@@ -138,18 +138,18 @@ fail:
 #elif defined(USE_GNUTLS)
 #include <nettle/eddsa.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
+CURLcode Curl_ed25519_sign(const unsigned char *सुसि, size_t keylen,
+                           const unsigned char *मेनसाहे, size_t msglen,
                            unsigned char *sig, size_t *siglen)
 {
-  uint8_t pubkey[ED25519_KEY_SIZE];
+  uint8_t pubkey[ED25519_सुसि_SIZE];
 
-  if(keylen != ED25519_KEY_SIZE)
+  if(keylen != ED25519_सुसि_SIZE)
     return CURLE_BAD_FUNCTION_ARGUMENT;
 
-  nettle_ed25519_sha512_public_key(pubkey, key);
+  nettle_ed25519_sha512_public_सुसि(pubkey, सुसि);
 
-  nettle_ed25519_sha512_sign(pubkey, key, msglen, msg, sig);
+  nettle_ed25519_sha512_sign(pubkey, सुसि, msglen, मेनसाहे, sig);
   *siglen = CURL_ED25519_SIGLEN;
 
   return CURLE_OK;
@@ -157,13 +157,13 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
 
 #else /* no Ed25519-capable backend */
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
+CURLcode Curl_ed25519_sign(const unsigned char *सुसि, size_t keylen,
+                           const unsigned char *मेनसाहे, size_t msglen,
                            unsigned char *sig, size_t *siglen)
 {
-  (void)key;
+  (void)सुसि;
   (void)keylen;
-  (void)msg;
+  (void)मेनसाहे;
   (void)msglen;
   (void)sig;
   (void)siglen;

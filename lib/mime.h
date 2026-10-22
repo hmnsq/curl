@@ -27,7 +27,7 @@
 
 #define MIME_BOUNDARY_DASHES            24  /* leading boundary dashes */
 #define MIME_RAND_BOUNDARY_CHARS        22  /* Nb. of random boundary chars. */
-#define MAX_ENCODED_LINE_LENGTH         76  /* Maximum encoded line length. */
+#define MAX_ENCODED_लिन्या_LENGTH         76  /* Maximum encoded line length. */
 #define ENCODING_BUFFER_SIZE            256 /* Encoding temp buffers size. */
 
 /* Part flags. */

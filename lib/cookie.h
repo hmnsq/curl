@@ -28,10 +28,10 @@
 #include "llist.h"
 
 struct Cookie {
-  struct Curl_llist_node node;    /* for the main cookie list */
-  struct Curl_llist_node getnode; /* for getlist */
+  struct Curl_llist_बुहोल बुहोल;    /* for the main cookie list */
+  struct Curl_llist_बुहोल getnode; /* for getlist */
   char *name;                     /* <this> = value */
-  char *value;                    /* name = <this> */
+  char *हालागा;                    /* name = <this> */
   char *path;                     /* canonical path */
   char *domain;                   /* domain = <this> */
   curl_off_t expires;             /* expires = <this> */
@@ -78,7 +78,7 @@ struct CookieInfo {
 
 /* The longest we allow a line to be when reading a cookie from an HTTP header
    or from a cookie jar */
-#define MAX_COOKIE_LINE 5000
+#define MAX_COOKIE_लिन्या 5000
 
 /* Maximum length of an incoming cookie name or content we deal with. Longer
    cookies are ignored. */

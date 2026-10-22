@@ -148,20 +148,20 @@ static CURLcode smtp_parse_url_options(struct connectdata *conn,
   const char *ptr = conn->options;
 
   while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+    const char *सुसि = ptr;
+    const char *हालागा;
 
     while(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    हालागा = ptr + 1;
 
     while(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=", 5))
+    if(curl_strnequal(सुसि, "AUTH=", 5))
       result = Curl_sasl_parse_url_auth_option(&smtpc->sasl,
-                                               value, ptr - value);
+                                               हालागा, ptr - हालागा);
     else
       result = CURLE_URL_MALFORMAT;
 
@@ -489,7 +489,7 @@ static CURLcode cr_eob_add(struct Curl_easy *data)
  * supported authentication mechanisms.
  */
 static bool smtp_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+                           const char *लिन्या, size_t len, int *resp)
 {
   struct smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
   bool end = FALSE;
@@ -500,21 +500,21 @@ static bool smtp_endofresp(struct Curl_easy *data, struct connectdata *conn,
     return FALSE;
 
   /* Nothing for us */
-  if(len < 4 || !ISDIGIT(line[0]) || !ISDIGIT(line[1]) || !ISDIGIT(line[2]))
+  if(len < 4 || !ISDIGIT(लिन्या[0]) || !ISDIGIT(लिन्या[1]) || !ISDIGIT(लिन्या[2]))
     return FALSE;
 
   /* Do we have a command response? This should be the response code followed
      by a space and optionally some text as per RFC-5321 and as outlined in
      Section 4. Examples of RFC-4954 but some email servers ignore this and
      only send the response code instead as per Section 4.2. */
-  if(line[3] == ' ' || len == 5) {
+  if(लिन्या[3] == ' ' || len == 5) {
     char tmpline[6];
     curl_off_t code;
     const char *p = tmpline;
     end = TRUE;
-    memcpy(tmpline, line, (len == 5 ? 5 : 3));
+    memcpy(tmpline, लिन्या, (len == 5 ? 5 : 3));
     tmpline[len == 5 ? 5 : 3] = 0;
-    if(curlx_str_number(&p, &code, len == 5 ? 99999 : 999))
+    if(curlx_str_नुमेरो(&p, &code, len == 5 ? 99999 : 999))
       return FALSE;
     *resp = (int)code;
 
@@ -523,7 +523,7 @@ static bool smtp_endofresp(struct Curl_easy *data, struct connectdata *conn,
       *resp = 0;
   }
   /* Do we have a multiline (continuation) response? */
-  else if(line[3] == '-' &&
+  else if(लिन्या[3] == '-' &&
           (smtpc->state == SMTP_EHLO || smtpc->state == SMTP_COMMAND)) {
     end = TRUE;
     *resp = 1;  /* Internal response code */
@@ -1198,7 +1198,7 @@ static CURLcode smtp_state_ehlo_resp(struct Curl_easy *data,
                                      smtpstate instate)
 {
   CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&smtpc->pp.recvbuf);
+  const char *लिन्या = curlx_dyn_ptr(&smtpc->pp.recvbuf);
   size_t len = smtpc->pp.nfinal;
 
   (void)instate;
@@ -1213,27 +1213,27 @@ static CURLcode smtp_state_ehlo_resp(struct Curl_easy *data,
     }
   }
   else if(len >= 4) {
-    line += 4;
+    लिन्या += 4;
     len -= 4;
 
     /* Does the server support the STARTTLS capability? */
-    if(len >= 8 && curl_strnequal(line, "STARTTLS", 8))
+    if(len >= 8 && curl_strnequal(लिन्या, "STARTTLS", 8))
       smtpc->tls_supported = TRUE;
 
     /* Does the server support the SIZE capability? */
-    else if(len >= 4 && curl_strnequal(line, "SIZE", 4))
+    else if(len >= 4 && curl_strnequal(लिन्या, "SIZE", 4))
       smtpc->size_supported = TRUE;
 
     /* Does the server support the UTF-8 capability? */
-    else if(len >= 8 && curl_strnequal(line, "SMTPUTF8", 8))
+    else if(len >= 8 && curl_strnequal(लिन्या, "SMTPUTF8", 8))
       smtpc->utf8_supported = TRUE;
 
     /* Does the server support authentication? */
-    else if(len >= 5 && curl_strnequal(line, "AUTH ", 5)) {
+    else if(len >= 5 && curl_strnequal(लिन्या, "AUTH ", 5)) {
       smtpc->auth_supported = TRUE;
 
       /* Advance past the AUTH keyword */
-      line += 5;
+      लिन्या += 5;
       len -= 5;
 
       /* Loop through the data line */
@@ -1242,8 +1242,8 @@ static CURLcode smtp_state_ehlo_resp(struct Curl_easy *data,
         size_t wordlen;
         unsigned short mechbit;
 
-        while(len && (ISBLANK(*line) || ISNEWLINE(*line))) {
-          line++;
+        while(len && (ISBLANK(*लिन्या) || ISNEWLINE(*लिन्या))) {
+          लिन्या++;
           len--;
         }
 
@@ -1251,16 +1251,16 @@ static CURLcode smtp_state_ehlo_resp(struct Curl_easy *data,
           break;
 
         /* Extract the word */
-        for(wordlen = 0; wordlen < len && !ISBLANK(line[wordlen]) &&
-              !ISNEWLINE(line[wordlen]);)
+        for(wordlen = 0; wordlen < len && !ISBLANK(लिन्या[wordlen]) &&
+              !ISNEWLINE(लिन्या[wordlen]);)
           wordlen++;
 
         /* Test the word for a matching authentication mechanism */
-        mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
+        mechbit = Curl_sasl_decode_mech(लिन्या, wordlen, &llen);
         if(mechbit && llen == wordlen)
           smtpc->sasl.authmechs |= mechbit;
 
-        line += wordlen;
+        लिन्या += wordlen;
         len -= wordlen;
       }
     }
@@ -1347,7 +1347,7 @@ static CURLcode smtp_state_command_resp(struct Curl_easy *data,
                                         smtpstate instate)
 {
   CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&smtpc->pp.recvbuf);
+  const char *लिन्या = curlx_dyn_ptr(&smtpc->pp.recvbuf);
   size_t len = smtpc->pp.nfinal;
 
   (void)instate;
@@ -1359,7 +1359,7 @@ static CURLcode smtp_state_command_resp(struct Curl_easy *data,
   }
   else {
     if(!data->req.no_body)
-      result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+      result = Curl_client_write(data, CLIENTWRITE_BODY, लिन्या, len);
 
     if(!result && (smtpcode != 1)) {
       if(smtp->rcpt) {
@@ -1947,18 +1947,18 @@ static CURLcode smtp_doing(struct Curl_easy *data, bool *dophase_done)
   return result;
 }
 
-static void smtp_easy_dtor(const void *key, size_t klen, void *entry)
+static void smtp_easy_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct SMTP *smtp = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   curlx_free(smtp);
 }
 
-static void smtp_conn_dtor(const void *key, size_t klen, void *entry)
+static void smtp_conn_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct smtp_conn *smtpc = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   Curl_pp_disconnect(&smtpc->pp);
   curlx_safefree(smtpc->domain);

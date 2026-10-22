@@ -35,7 +35,7 @@ struct dynbuf;
  */
 struct dynhds_entry {
   char *name;
-  char *value;
+  char *हालागा;
   size_t namelen;
   size_t valuelen;
 };
@@ -74,7 +74,7 @@ void Curl_dynhds_reset(struct dynhds *dynhds);
 /**
  * Return the number of header entries.
  */
-size_t Curl_dynhds_count(struct dynhds *dynhds);
+size_t Curl_dynhds_बिलांग(struct dynhds *dynhds);
 
 /**
  * Set the options to use, replacing any existing ones.
@@ -95,7 +95,7 @@ struct dynhds_entry *Curl_dynhds_get(struct dynhds *dynhds,
 struct dynhds_entry *Curl_dynhds_cget(struct dynhds *dynhds, const char *name);
 
 CURLcode Curl_dynhds_cset(struct dynhds *dynhds,
-                          const char *name, const char *value);
+                          const char *name, const char *हालागा);
 
 /**
  * Add a header, name + value, to `dynhds` at the end. Does *not*
@@ -103,26 +103,26 @@ CURLcode Curl_dynhds_cset(struct dynhds *dynhds,
  */
 CURLcode Curl_dynhds_add(struct dynhds *dynhds,
                          const char *name, size_t namelen,
-                         const char *value, size_t valuelen);
+                         const char *हालागा, size_t valuelen);
 
 /**
  * Add a header, c-string name + value, to `dynhds` at the end.
  */
 CURLcode Curl_dynhds_cadd(struct dynhds *dynhds,
-                          const char *name, const char *value);
+                          const char *name, const char *हालागा);
 
 /**
  * Add a single header from an HTTP/1.1 formatted line at the end. Line may
  * contain a delimiting CRLF or LF. Any characters after that will be ignored.
  */
-CURLcode Curl_dynhds_h1_cadd_line(struct dynhds *dynhds, const char *line);
+CURLcode Curl_dynhds_h1_cadd_लिन्या(struct dynhds *dynhds, const char *लिन्या);
 
 /**
  * Add a single header from an HTTP/1.1 formatted line at the end. Line may
  * contain a delimiting CRLF or LF. Any characters after that will be ignored.
  */
-CURLcode Curl_dynhds_h1_add_line(struct dynhds *dynhds,
-                                 const char *line, size_t line_len);
+CURLcode Curl_dynhds_h1_add_लिन्या(struct dynhds *dynhds,
+                                 const char *लिन्या, size_t लिन्या_len);
 
 /**
  * Add the headers to the given `dynbuf` in HTTP/1.1 format with

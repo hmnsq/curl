@@ -99,7 +99,7 @@
 CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
                                 struct Curl_easy *data,
                                 struct ssl_peer *peer,
-                                size_t num_certs,
+                                size_t नुमेरो_certs,
                                 Curl_vtls_get_cert_der *der_cb,
                                 void *cb_user_data,
                                 const unsigned char *ocsp_buf,
@@ -140,7 +140,7 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
     goto out;
   }
 
-  CFArrayAppendValue(policies, policy);
+  CFArray_Append_हालागा(policies, policy);
   CFRelease(policy);
   policy = NULL;
 
@@ -161,7 +161,7 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
           goto out;
         }
 
-        CFArrayAppendValue(policies, policy);
+        CFArray_Append_हालागा(policies, policy);
       }
     }
   }
@@ -175,13 +175,13 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
 
 #endif
 
-  cert_array = CFArrayCreateMutable(NULL, num_certs, &kCFTypeArrayCallBacks);
+  cert_array = CFArrayCreateMutable(NULL, नुमेरो_certs, &kCFTypeArrayCallBacks);
   if(!cert_array) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
-  for(i = 0; i < num_certs; i++) {
+  for(i = 0; i < नुमेरो_certs; i++) {
     SecCertificateRef cert;
     CFDataRef certdata;
     unsigned char *der;
@@ -204,7 +204,7 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
       goto out;
     }
 
-    CFArrayAppendValue(cert_array, cert);
+    CFArray_Append_हालागा(cert_array, cert);
     CFRelease(cert);
   }
 

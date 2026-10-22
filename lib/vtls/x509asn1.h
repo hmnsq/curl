@@ -89,16 +89,16 @@ struct Curl_asn1Element {
 struct Curl_X509certificate {
   struct Curl_asn1Element certificate;
   struct Curl_asn1Element version;
-  struct Curl_asn1Element serialNumber;
+  struct Curl_asn1Element serial_नुमेरो;
   struct Curl_asn1Element signatureAlgorithm;
   struct Curl_asn1Element signature;
   struct Curl_asn1Element issuer;
   struct Curl_asn1Element notBefore;
   struct Curl_asn1Element notAfter;
   struct Curl_asn1Element subject;
-  struct Curl_asn1Element subjectPublicKeyInfo;
-  struct Curl_asn1Element subjectPublicKeyAlgorithm;
-  struct Curl_asn1Element subjectPublicKey;
+  struct Curl_asn1Element subject_Public_सुसि_Info;
+  struct Curl_asn1Element subject_Public_सुसि_Algorithm;
+  struct Curl_asn1Element subject_Public_सुसि;
   struct Curl_asn1Element issuerUniqueID;
   struct Curl_asn1Element subjectUniqueID;
   struct Curl_asn1Element extensions;

@@ -39,7 +39,7 @@ extern time_t deltatime;
 #endif
 
 struct stsentry {
-  struct Curl_llist_node node;
+  struct Curl_llist_बुहोल बुहोल;
   curl_off_t expires; /* the timestamp of this entry's expiry */
   BIT(includeSubDomains);
   char host[1];

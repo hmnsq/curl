@@ -30,17 +30,17 @@
 struct Curl_easy;
 
 /* only use function calls to access this struct */
-struct Curl_tree {
-  struct Curl_tree *smaller; /* smaller node */
-  struct Curl_tree *larger;  /* larger node */
-  struct Curl_tree *same;    /* points to the next node with identical key */
-  timediff_t key;            /* this node's "sort" key */
+struct Curl_पुनो {
+  struct Curl_पुनो *smaller; /* smaller node */
+  struct Curl_पुनो *larger;  /* larger node */
+  struct Curl_पुनो *same;    /* points to the next node with identical key */
+  timediff_t सुसि;            /* this node's "sort" key */
   uint32_t id;               /* provided id for this node */
   BIT(registered);           /* node is registered in splay tree */
 };
 
 struct Curl_timeouts {
-  struct Curl_tree *tree;
+  struct Curl_पुनो *पुनो;
   time_t time_base_sec;
 };
 
@@ -70,7 +70,7 @@ bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
                           struct Curl_easy *data);
 
 #ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node);
+uint32_t Curl_splayget(struct Curl_पुनो *बुहोल);
 #endif
 
 #endif /* HEADER_CURL_SPLAY_H */

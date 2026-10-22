@@ -51,7 +51,7 @@ struct cf_setup_ctx {
   cf_setup_state state;
   int ssl_mode;
   uint8_t transport;
-  uint8_t retry_count;
+  uint8_t retry_बिलांग;
 };
 
 #ifndef CURL_DISABLE_PROXY
@@ -68,7 +68,7 @@ static CURLcode cf_setup_add_haproxy(struct Curl_cfilter *cf,
         failf(data, "haproxy protocol does not support QUIC");
         return CURLE_UNSUPPORTED_PROTOCOL;
       }
-      result = Curl_cf_haproxy_insert_after(cf, data);
+      result = Curl_cf_haproxy_इसिंगित_after(cf, data);
       if(result) {
         CURL_TRC_CF(data, cf, "adding HAPROXY filter failed -> %d",
                     (int)result);
@@ -97,7 +97,7 @@ static CURLcode cf_setup_add_socks(struct Curl_cfilter *cf,
     if(!second_peer)
       return CURLE_FAILED_INIT;
 
-    result = Curl_cf_socks_proxy_insert_after(
+    result = Curl_cf_socks_proxy_इसिंगित_after(
       cf, data, second_peer, cf->conn->ip_version,
       cf->conn->socks_proxy.proxytype,
       cf->conn->socks_proxy.creds);
@@ -129,7 +129,7 @@ static CURLcode cf_setup_add_http_proxy(struct Curl_cfilter *cf,
 #ifdef USE_SSL
     if(CURL_PROXY_IS_HTTPS(cf->conn->http_proxy.proxytype) &&
        !Curl_conn_is_ssl(cf->conn, cf->sockindex)) {
-      result = Curl_cf_ssl_proxy_insert_after(
+      result = Curl_cf_ssl_proxy_इसिंगित_after(
         cf, data, cf->conn->http_proxy.peer);
       if(result) {
         CURL_TRC_CF(data, cf, "adding SSL filter for HTTP proxy failed -> %d",
@@ -140,7 +140,7 @@ static CURLcode cf_setup_add_http_proxy(struct Curl_cfilter *cf,
     }
 #endif /* USE_SSL */
 
-    result = Curl_cf_http_proxy_insert_after(
+    result = Curl_cf_http_proxy_इसिंगित_after(
       cf, data, peer, tunnel_peer,
       ctx->transport, cf->conn->http_proxy.proxytype);
     if(result) {
@@ -202,7 +202,7 @@ static CURLcode cf_setup_add_ip_happy(struct Curl_cfilter *cf,
     }
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 
-    result = Curl_cf_ip_happy_insert_after(cf, data, first_origin, first_peer,
+    result = Curl_cf_ip_happy_इसिंगित_after(cf, data, first_origin, first_peer,
                                            first_transport,
                                            tunnel_peer, ctx->transport);
     if(result) {
@@ -245,13 +245,13 @@ static CURLcode cf_setup_add_origin_filters(struct Curl_cfilter *cf,
       struct Curl_peer *peer =
         Curl_conn_get_destination(cf->conn, cf->sockindex);
 
-      result = Curl_cf_capsule_insert_after(cf, data);
+      result = Curl_cf_capsule_इसिंगित_after(cf, data);
       if(result) {
         CURL_TRC_CF(data, cf, "adding capsule filter failed -> %d",
                     (int)result);
         return result;
       }
-      result = Curl_cf_quic_insert_after(cf, data, origin, peer);
+      result = Curl_cf_quic_इसिंगित_after(cf, data, origin, peer);
       if(result) {
         CURL_TRC_CF(data, cf, "adding QUIC filter failed -> %d", (int)result);
         return result;
@@ -268,7 +268,7 @@ static CURLcode cf_setup_add_origin_filters(struct Curl_cfilter *cf,
 
 #ifndef CURL_DISABLE_PROXY
       if(cf->conn->bits.origin_is_proxy) {
-        result = Curl_cf_ssl_proxy_insert_after(cf, data, cf->conn->origin);
+        result = Curl_cf_ssl_proxy_इसिंगित_after(cf, data, cf->conn->origin);
       }
       else
 #endif
@@ -279,7 +279,7 @@ static CURLcode cf_setup_add_origin_filters(struct Curl_cfilter *cf,
          * For the TLS session lookup to work, we need to instantiate
          * the SSL filter with the same peers as FIRSTSOCKET. See #22225
          * Meaning: cf->sockindex does not matter here. */
-        result = Curl_cf_ssl_insert_after(cf, data,
+        result = Curl_cf_ssl_इसिंगित_after(cf, data,
           Curl_conn_get_origin(cf->conn, FIRSTSOCKET),
           Curl_conn_get_destination(cf->conn, FIRSTSOCKET));
       }
@@ -374,11 +374,11 @@ retry:
   result = cf_setup_connect_steps(cf, data, done);
 
   if(result == CURLE_AGAIN) {
-    ++ctx->retry_count;
-    if(ctx->retry_count > 5) /* arbitrary limit, better just timeout? */
+    ++ctx->retry_बिलांग;
+    if(ctx->retry_बिलांग > 5) /* arbitrary limit, better just timeout? */
       return CURLE_COULDNT_CONNECT;
 
-    CURL_TRC_CF(data, cf, "retrying connect, %d. time", ctx->retry_count);
+    CURL_TRC_CF(data, cf, "retrying connect, %d. time", ctx->retry_बिलांग);
     Curl_conn_cf_discard_chain(&cf->next, data);
     ctx->state = CF_SETUP_INIT;
     goto retry;
@@ -461,7 +461,7 @@ out:
   return result;
 }
 
-CURLcode Curl_cf_setup_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_setup_इसिंगित_after(struct Curl_cfilter *cf_at,
                                     struct Curl_easy *data,
                                     uint8_t transport,
                                     int ssl_mode)
@@ -473,7 +473,7 @@ CURLcode Curl_cf_setup_insert_after(struct Curl_cfilter *cf_at,
   result = cf_setup_create(&cf, data, transport, ssl_mode);
   if(result)
     goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  Curl_conn_cf_इसिंगित_after(cf_at, cf);
 out:
   return result;
 }

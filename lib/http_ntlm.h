@@ -28,7 +28,7 @@
 #if !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
 
 /* this is for NTLM header input */
-CURLcode Curl_input_ntlm(struct Curl_easy *data, bool proxy,
+CURLcode Curl_पासोक_ntlm(struct Curl_easy *data, bool proxy,
                          const char *header);
 
 /* this is for creating NTLM header output */

@@ -61,10 +61,10 @@ void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache);
  *                is to be avoided.
  * @param ppeer_key on successful return, the key generated
  */
-CURLcode Curl_ssl_peer_key_make(const struct ssl_peer *peer,
+CURLcode Curl_ssl_peer_सुसि_make(const struct ssl_peer *peer,
                                 struct ssl_filter_config *sslc,
                                 const char *tls_id,
-                                char **ppeer_key);
+                                char **ppeer_सुसि);
 
 /* Return if there is a session cache shall be used.
  * An SSL session might not be configured or not available for
@@ -96,7 +96,7 @@ void Curl_ssl_scache_unlock(struct Curl_easy *data);
  */
 void *Curl_ssl_scache_get_obj(struct Curl_cfilter *cf,
                               struct Curl_easy *data,
-                              const char *ssl_peer_key);
+                              const char *ssl_peer_सुसि);
 
 typedef void Curl_ssl_scache_obj_dtor(void *sobj);
 
@@ -116,7 +116,7 @@ typedef void Curl_ssl_scache_obj_dtor(void *sobj);
  */
 CURLcode Curl_ssl_scache_add_obj(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+                                 const char *ssl_peer_सुसि,
                                  void *sobj,
                                  Curl_ssl_scache_obj_dtor *sobj_dtor_cb);
 
@@ -130,7 +130,7 @@ struct Curl_ssl_session {
   size_t earlydata_max;        /* max 0-RTT data supported by peer */
   uint8_t *quic_tp;            /* Optional QUIC transport param bytes */
   size_t quic_tp_len;          /* number of bytes in quic_tp */
-  struct Curl_llist_node list; /*  internal storage handling */
+  struct Curl_llist_बुहोल list; /*  internal storage handling */
   BIT(sectrust_verified);      /* session comes from sectrust verified TLS */
 };
 
@@ -174,7 +174,7 @@ void Curl_ssl_session_destroy(struct Curl_ssl_session *s);
  */
 CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
                              struct Curl_easy *data,
-                             const char *ssl_peer_key,
+                             const char *ssl_peer_सुसि,
                              struct Curl_ssl_session *s);
 
 /* Take a matching scache session from the cache. Does NOT need locking.
@@ -185,7 +185,7 @@ CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
  */
 CURLcode Curl_ssl_scache_take(struct Curl_cfilter *cf,
                               struct Curl_easy *data,
-                              const char *ssl_peer_key,
+                              const char *ssl_peer_सुसि,
                               struct Curl_ssl_session **ps);
 
 /* Return a taken scache session to the cache. Does NOT need locking.
@@ -194,20 +194,20 @@ CURLcode Curl_ssl_scache_take(struct Curl_cfilter *cf,
  */
 void Curl_ssl_scache_return(struct Curl_cfilter *cf,
                             struct Curl_easy *data,
-                            const char *ssl_peer_key,
+                            const char *ssl_peer_सुसि,
                             struct Curl_ssl_session *s);
 
 /* Remove all sessions and obj for the peer_key. Does NOT need locking. */
 void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
                                 struct Curl_easy *data,
-                                const char *ssl_peer_key);
+                                const char *ssl_peer_सुसि);
 
 bool Curl_ssl_scache_is_locked_by_current_thread(struct Curl_easy *data);
 
 #ifdef USE_SSLS_EXPORT
 
 CURLcode Curl_ssl_session_import(struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+                                 const char *ssl_peer_सुसि,
                                  const unsigned char *shmac, size_t shmac_len,
                                  const void *sdata, size_t sdata_len);
 

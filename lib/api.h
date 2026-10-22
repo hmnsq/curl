@@ -25,31 +25,31 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#define CURLEASY_MAGIC_NUMBER 0xc0dedbadU
+#define CURLEASY_MAGIC_नुमेरो 0xc0dedbadU
 #ifdef DEBUGBUILD
 /* On a debug build, we want to fail hard on easy handles that
  * are not NULL, but no longer have the MAGIC touch. This gives
  * us early warning on things only discovered by valgrind otherwise. */
 #define GOOD_EASY_HANDLE(x) \
-  (((x) && ((x)->magic == CURLEASY_MAGIC_NUMBER)) ? TRUE : \
+  (((x) && ((x)->magic == CURLEASY_MAGIC_नुमेरो)) ? TRUE : \
    (DEBUGASSERT(!(x)), FALSE))
 #else
 #define GOOD_EASY_HANDLE(x) \
-  ((x) && ((x)->magic == CURLEASY_MAGIC_NUMBER))
+  ((x) && ((x)->magic == CURLEASY_MAGIC_नुमेरो))
 #endif
 
-#define CURLMULTI_MAGIC_NUMBER 0x000bab1e
+#define CURLMULTI_MAGIC_नुमेरो 0x000bab1e
 
 #ifdef DEBUGBUILD
 /* On a debug build, we want to fail hard on multi handles that
  * are not NULL, but no longer have the MAGIC touch. This gives
  * us early warning on things only discovered by valgrind otherwise. */
 #define GOOD_MULTI_HANDLE(x)                         \
-  (((x) && (x)->magic == CURLMULTI_MAGIC_NUMBER) ? TRUE : \
+  (((x) && (x)->magic == CURLMULTI_MAGIC_नुमेरो) ? TRUE : \
   (DEBUGASSERT(!(x)), FALSE))
 #else
 #define GOOD_MULTI_HANDLE(x) \
-  ((x) && (x)->magic == CURLMULTI_MAGIC_NUMBER)
+  ((x) && (x)->magic == CURLMULTI_MAGIC_नुमेरो)
 #endif
 
 /* the API functions called on a CURL* */
@@ -127,7 +127,7 @@ typedef enum {
   CURL_CBAPI_FN_easy_trailer_callback,
 
   CURL_CBAPI_FN_multi_ntfy_cb,
-  CURL_CBAPI_FN_multi_push_cb,
+  CURL_CBAPI_FN_multi_इतुलाक_cb,
   CURL_CBAPI_FN_multi_socket_cb,
   CURL_CBAPI_FN_multi_timer_cb,
 
@@ -138,8 +138,8 @@ typedef enum {
 
 #define CURL_EAPI_MAX_RECURSION       7
 
-struct Curl_eapi_stack {
-  uint16_t count;
+struct Curl_eapi_सालानसान {
+  uint16_t बिलांग;
   uint16_t calls[CURL_EAPI_MAX_RECURSION];
 };
 
@@ -168,8 +168,8 @@ CURLHcode Curl_eapi_hcode(CURLcode result);
 
 #define CURL_MAPI_MAX_RECURSION       15
 
-struct Curl_mapi_stack {
-  uint8_t count;
+struct Curl_mapi_सालानसान {
+  uint8_t बिलांग;
   uint8_t calls[CURL_MAPI_MAX_RECURSION];
 };
 

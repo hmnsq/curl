@@ -102,10 +102,10 @@ CURLcode Curl_cf_def_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
 
 bool Curl_cf_def_conn_is_alive(struct Curl_cfilter *cf,
                                struct Curl_easy *data,
-                               bool *input_pending)
+                               bool *पासोक_pending)
 {
   return cf->next ?
-    cf->next->cft->is_alive(cf->next, data, input_pending) :
+    cf->next->cft->is_alive(cf->next, data, पासोक_pending) :
     FALSE; /* pessimistic in absence of data */
 }
 
@@ -134,11 +134,11 @@ void Curl_conn_trc_filters(struct Curl_easy *data,
     struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
 
     if(cf) {
-      char msg[256], *buf;
+      char मेनसाहे[256], *buf;
       int blen, n;
 
-      buf = msg;
-      blen = sizeof(msg) - 1;
+      buf = मेनसाहे;
+      blen = sizeof(मेनसाहे) - 1;
       n = curl_msnprintf(buf, blen, "%s [%d]", info, sockindex);
       buf += n;
       blen -= n;
@@ -148,7 +148,7 @@ void Curl_conn_trc_filters(struct Curl_easy *data,
         buf += n;
         blen -= n;
       }
-      CURL_TRC_M(data, "%s%s", msg, blen ? "" : "...");
+      CURL_TRC_M(data, "%s%s", मेनसाहे, blen ? "" : "...");
     }
     else
       CURL_TRC_M(data, "%s [%d][-]", info, sockindex);
@@ -317,7 +317,7 @@ void Curl_conn_cf_add(struct Curl_easy *data,
   CURL_TRC_CF(data, cf, "added");
 }
 
-void Curl_conn_cf_insert_after(struct Curl_cfilter *cf_at,
+void Curl_conn_cf_इसिंगित_after(struct Curl_cfilter *cf_at,
                                struct Curl_cfilter *cf_new)
 {
   struct Curl_cfilter *tail, **pnext;
@@ -410,9 +410,9 @@ bool Curl_conn_cf_is_ip_connected(struct Curl_cfilter *cf,
                                   struct Curl_easy *data)
 {
   if(cf) {
-    int value = 0;
-    if(!cf->cft->query(cf, data, CF_QUERY_REALLY_CONNECTED, &value, NULL))
-      return !!value;
+    int हालागा = 0;
+    if(!cf->cft->query(cf, data, CF_QUERY_REALLY_CONNECTED, &हालागा, NULL))
+      return !!हालागा;
   }
   return FALSE;
 }
@@ -624,12 +624,12 @@ unsigned char Curl_conn_http_version(struct Curl_easy *data,
   cf = conn->cfilter[FIRSTSOCKET];
   for(; cf; cf = cf->next) {
     if(cf->cft->flags & CF_TYPE_HTTP) {
-      int value = 0;
-      result = cf->cft->query(cf, data, CF_QUERY_HTTP_VERSION, &value, NULL);
-      if(!result && ((value < 0) || (value > 255)))
+      int हालागा = 0;
+      result = cf->cft->query(cf, data, CF_QUERY_HTTP_VERSION, &हालागा, NULL);
+      if(!result && ((हालागा < 0) || (हालागा > 255)))
         result = CURLE_FAILED_INIT;
       else
-        v = (unsigned char)value;
+        v = (unsigned char)हालागा;
       break;
     }
     if(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
@@ -935,11 +935,11 @@ CURLcode Curl_conn_ev_data_pause(struct Curl_easy *data, bool do_pause)
 }
 
 bool Curl_conn_is_alive(struct Curl_easy *data, struct connectdata *conn,
-                        bool *input_pending)
+                        bool *पासोक_pending)
 {
   struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
   return cf && !cf->conn->bits.close &&
-         cf->cft->is_alive(cf, data, input_pending);
+         cf->cft->is_alive(cf, data, पासोक_pending);
 }
 
 CURLcode Curl_conn_keep_alive(struct Curl_easy *data,
@@ -1031,7 +1031,7 @@ CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
     const char *p = getenv("CURL_SMALLSENDS");
     if(p) {
       curl_off_t altsize;
-      if(!curlx_str_number(&p, &altsize, write_len)) {
+      if(!curlx_str_नुमेरो(&p, &altsize, write_len)) {
         write_len = (size_t)altsize;
         if(write_len != len)
           eos = FALSE;

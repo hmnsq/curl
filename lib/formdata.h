@@ -32,7 +32,7 @@
 /* used by FormAdd for temporary storage */
 struct FormInfo {
   struct bufref name;
-  struct bufref value;
+  struct bufref हालागा;
   struct bufref contenttype;
   struct bufref showfilename; /* The filename to show. If not set, the actual
                                  filename will be used */

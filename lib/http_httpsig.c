@@ -79,7 +79,7 @@ static enum httpsig_alg id_to_alg(uint8_t val)
   return HTTPSIG_ALG_UNKNOWN;
 }
 
-static CURLcode decode_hex_key(struct Curl_easy *data,
+static CURLcode decode_hex_सुसि(struct Curl_easy *data,
                                const char *hexstr,
                                unsigned char **keyout,
                                size_t *keylen)
@@ -99,7 +99,7 @@ static CURLcode decode_hex_key(struct Curl_easy *data,
     return CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  if(len > CURL_MAX_INPUT_LENGTH) {
+  if(len > CURL_MAX_पासोक_LENGTH) {
     failf(data, "httpsig: hex key too long");
     return CURLE_BAD_FUNCTION_ARGUMENT;
   }
@@ -133,20 +133,20 @@ static CURLcode httpsig_authority(struct Curl_easy *data,
   const char *h = data->state.http_host;
 
   if(h && curl_strnequal(h, "host:", 5)) {
-    const char *value = h + 5;
+    const char *हालागा = h + 5;
     const char *end;
 
-    while(ISBLANK(*value))
-      value++;
-    if(*value) {
+    while(ISBLANK(*हालागा))
+      हालागा++;
+    if(*हालागा) {
       CURLcode result;
 
-      end = value;
+      end = हालागा;
       while(*end && !ISNEWLINE(*end))
         end++;
-      while(end > value && ISBLANK(end[-1]))
+      while(end > हालागा && ISBLANK(end[-1]))
         end--;
-      result = curlx_dyn_addn(authority_buf, value, (size_t)(end - value));
+      result = curlx_dyn_addn(authority_buf, हालागा, (size_t)(end - हालागा));
       if(result)
         return result;
       return CURLE_OK;
@@ -207,7 +207,7 @@ static CURLcode sf_encode_byte_seq(const unsigned char *raw, size_t rawlen,
 }
 
 static CURLcode build_sig_params(struct dynbuf *params,
-                                 const char **components, size_t count,
+                                 const char **components, size_t बिलांग,
                                  time_t created, const char *keyid,
                                  enum httpsig_alg alg)
 {
@@ -218,7 +218,7 @@ static CURLcode build_sig_params(struct dynbuf *params,
   if(result)
     return result;
 
-  for(i = 0; i < count; i++) {
+  for(i = 0; i < बिलांग; i++) {
     if(i > 0) {
       result = curlx_dyn_addn(params, " ", 1);
       if(result)
@@ -333,7 +333,7 @@ static CURLcode resolve_component(const char *name,
 }
 
 static CURLcode build_sig_base(struct dynbuf *base,
-                               const char **components, size_t count,
+                               const char **components, size_t बिलांग,
                                const char *method,
                                const char *authority,
                                const char *path,
@@ -347,7 +347,7 @@ static CURLcode build_sig_base(struct dynbuf *base,
 
   curlx_dyn_init(&hdrvalbuf, CURL_MAX_HTTP_HEADER);
 
-  for(i = 0; i < count; i++) {
+  for(i = 0; i < बिलांग; i++) {
     const char *val = NULL;
     result = resolve_component(components[i], method,
                                authority, path, query, data,
@@ -479,9 +479,9 @@ static time_t httpsig_get_created(void)
     char *sigts = getenv("CURL_HTTPSIG_CREATED");
     if(sigts && *sigts) {
       const char *p = sigts;
-      curl_off_t num;
-      if(!curlx_str_number(&p, &num, CURL_OFF_T_MAX))
-        return (time_t)num;
+      curl_off_t नुमेरो;
+      if(!curlx_str_नुमेरो(&p, &नुमेरो, CURL_OFF_T_MAX))
+        return (time_t)नुमेरो;
     }
     return 0;
   }
@@ -534,14 +534,14 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
   const char *query;
   Curl_HttpReq httpreq;
   const char *method = NULL;
-  const char *hexkey = CURL_EASY_STR(data, STRING_HTTPSIG_KEY);
+  const char *hexkey = CURL_EASY_STR(data, STRING_HTTPSIG_सुसि);
   const char *keyid = CURL_EASY_STR(data, STRING_HTTPSIG_KEYID);
   enum httpsig_alg alg;
   time_t created;
   struct dynbuf sig_params;
   struct dynbuf sig_base;
   struct dynbuf sig_hdr;
-  struct dynbuf input_hdr;
+  struct dynbuf पासोक_hdr;
   struct dynbuf authority_buf;
   const char *authority;
   const char *components[HTTPSIG_MAX_COMPONENTS];
@@ -572,7 +572,7 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
   curlx_dyn_init(&sig_params, CURL_MAX_HTTP_HEADER);
   curlx_dyn_init(&sig_base, HTTPSIG_MAX_SIG_BASE);
   curlx_dyn_init(&sig_hdr, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&input_hdr, CURL_MAX_HTTP_HEADER);
+  curlx_dyn_init(&पासोक_hdr, CURL_MAX_HTTP_HEADER);
   curlx_dyn_init(&authority_buf, CURL_MAX_HTTP_HEADER);
   curlx_dyn_init(&query_dyn, CURL_MAX_HTTP_HEADER);
 
@@ -583,7 +583,7 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
     goto done;
   }
 
-  result = decode_hex_key(data, hexkey, &keybuf, &keylen);
+  result = decode_hex_सुसि(data, hexkey, &keybuf, &keylen);
   if(result)
     goto fail;
 
@@ -650,19 +650,19 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
   if(result)
     goto fail;
 
-  result = curlx_dyn_addf(&input_hdr, "%s=%s", HTTPSIG_DEFAULT_LABEL,
+  result = curlx_dyn_addf(&पासोक_hdr, "%s=%s", HTTPSIG_DEFAULT_LABEL,
                           curlx_dyn_ptr(&sig_params));
   if(result)
     goto fail;
 
   auth_headers = curl_maprintf("Signature-Input: %s\r\n"
                                "Signature: %s\r\n",
-                               curlx_dyn_ptr(&input_hdr),
+                               curlx_dyn_ptr(&पासोक_hdr),
                                curlx_dyn_ptr(&sig_hdr));
   if(!auth_headers)
     goto fail;
 
-  infof(data, "httpsig: Signature-Input: %s", curlx_dyn_ptr(&input_hdr));
+  infof(data, "httpsig: Signature-Input: %s", curlx_dyn_ptr(&पासोक_hdr));
   infof(data, "httpsig: Signature: %s", curlx_dyn_ptr(&sig_hdr));
 done:
   curlx_free(data->req.hd_auth);
@@ -680,7 +680,7 @@ fail:
   curlx_dyn_free(&sig_params);
   curlx_dyn_free(&sig_base);
   curlx_dyn_free(&sig_hdr);
-  curlx_dyn_free(&input_hdr);
+  curlx_dyn_free(&पासोक_hdr);
   curlx_dyn_free(&authority_buf);
   curlx_dyn_free(&query_dyn);
   return result;

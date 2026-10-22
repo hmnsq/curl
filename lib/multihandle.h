@@ -104,7 +104,7 @@ struct Curl_multi {
   struct uint32_bset pending; /* transfers in waiting (conn limit etc.) */
   struct uint32_bset msgsent; /* transfers with unread application messages */
 
-  struct Curl_mapi_stack callstack; /* multi api calls ongoing */
+  struct Curl_mapi_सालानसान callstack; /* multi api calls ongoing */
 
   /* expiration times for all attached easy handles */
   struct Curl_timeouts timeouts;
@@ -117,8 +117,8 @@ struct Curl_multi {
   void *socket_userp;
 
   /* callback function and user data pointer for server push */
-  curl_push_callback push_cb;
-  void *push_userp;
+  curl_इतुलाक_callback इतुलाक_cb;
+  void *इतुलाक_userp;
 
   struct Curl_dnscache dnscache; /* DNS cache */
   struct Curl_ssl_scache *ssl_scache; /* TLS session pool */

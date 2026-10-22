@@ -67,7 +67,7 @@ static void digest_flush_stale(struct Curl_easy *data,
    WWW-Authenticate: Digest realm="testrealm", nonce="1053604598"
    Proxy-Authenticate: Digest realm="testrealm", nonce="1053604598"
  */
-CURLcode Curl_input_digest(struct Curl_easy *data,
+CURLcode Curl_पासोक_digest(struct Curl_easy *data,
                            bool proxy,
                            const char *header) /* rest of the *-authenticate:
                                                   header */
@@ -153,7 +153,7 @@ CURLcode Curl_output_digest(struct Curl_easy *data,
   curlx_safefree(*allocuserpwd);
 
 #ifdef USE_WINDOWS_SSPI
-  have_chlg = !!digest->input_token;
+  have_chlg = !!digest->पासोक_token;
 #else
   have_chlg = !!digest->nonce;
 #endif

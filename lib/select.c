@@ -59,9 +59,9 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
 
 #ifdef USE_WINSOCK
   /* Winsock select() cannot handle zero events. See the comment below. */
-  if((!fds_read || fds_read->fd_count == 0) &&
-     (!fds_write || fds_write->fd_count == 0) &&
-     (!fds_err || fds_err->fd_count == 0)) {
+  if((!fds_read || fds_read->fd_बिलांग == 0) &&
+     (!fds_write || fds_write->fd_बिलांग == 0) &&
+     (!fds_err || fds_err->fd_बिलांग == 0)) {
     /* no sockets, wait */
     return curlx_wait_ms(timeout_ms);
   }
@@ -83,9 +83,9 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
      many bits are set on an fd_set. Therefore, let's check it beforehand.
    */
   return select((int)maxfd + 1,
-                fds_read && fds_read->fd_count ? fds_read : NULL,
-                fds_write && fds_write->fd_count ? fds_write : NULL,
-                fds_err && fds_err->fd_count ? fds_err : NULL, ptimeout);
+                fds_read && fds_read->fd_बिलांग ? fds_read : NULL,
+                fds_write && fds_write->fd_बिलांग ? fds_write : NULL,
+                fds_err && fds_err->fd_बिलांग ? fds_err : NULL, ptimeout);
 #else
   return select((int)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
 #endif
@@ -119,7 +119,7 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
                       timediff_t timeout_ms) /* milliseconds to wait */
 {
   struct pollfd pfd[3];
-  int num;
+  int नुमेरो;
   int r;
 
   if((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
@@ -133,50 +133,50 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
      when function is called with a zero timeout or a negative timeout
      value indicating a blocking call should be performed. */
 
-  num = 0;
+  नुमेरो = 0;
   if(readfd0 != CURL_SOCKET_BAD) {
-    pfd[num].fd = readfd0;
-    pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+    pfd[नुमेरो].fd = readfd0;
+    pfd[नुमेरो].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
+    pfd[नुमेरो].revents = 0;
+    नुमेरो++;
   }
   if(readfd1 != CURL_SOCKET_BAD) {
-    pfd[num].fd = readfd1;
-    pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+    pfd[नुमेरो].fd = readfd1;
+    pfd[नुमेरो].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
+    pfd[नुमेरो].revents = 0;
+    नुमेरो++;
   }
   if(writefd != CURL_SOCKET_BAD) {
-    pfd[num].fd = writefd;
-    pfd[num].events = POLLWRNORM | POLLOUT | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+    pfd[नुमेरो].fd = writefd;
+    pfd[नुमेरो].events = POLLWRNORM | POLLOUT | POLLPRI;
+    pfd[नुमेरो].revents = 0;
+    नुमेरो++;
   }
 
-  r = Curl_poll(pfd, (unsigned int)num, timeout_ms);
+  r = Curl_poll(pfd, (unsigned int)नुमेरो, timeout_ms);
   if(r <= 0)
     return r;
 
   r = 0;
-  num = 0;
+  नुमेरो = 0;
   if(readfd0 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+    if(pfd[नुमेरो].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
       r |= CURL_CSELECT_IN;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+    if(pfd[नुमेरो].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
-    num++;
+    नुमेरो++;
   }
   if(readfd1 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+    if(pfd[नुमेरो].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
       r |= CURL_CSELECT_IN2;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+    if(pfd[नुमेरो].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
-    num++;
+    नुमेरो++;
   }
   if(writefd != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLWRNORM | POLLOUT))
+    if(pfd[नुमेरो].revents & (POLLWRNORM | POLLOUT))
       r |= CURL_CSELECT_OUT;
-    if(pfd[num].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
+    if(pfd[नुमेरो].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
   }
 
@@ -329,13 +329,13 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
 
 void Curl_pollfds_init(struct curl_pollfds *cpfds,
                        struct pollfd *static_pfds,
-                       unsigned int static_count)
+                       unsigned int static_बिलांग)
 {
   DEBUGASSERT(cpfds);
   memset(cpfds, 0, sizeof(*cpfds));
-  if(static_pfds && static_count) {
+  if(static_pfds && static_बिलांग) {
     cpfds->pfds = static_pfds;
-    cpfds->count = static_count;
+    cpfds->बिलांग = static_बिलांग;
   }
 }
 
@@ -349,7 +349,7 @@ void Curl_pollfds_cleanup(struct curl_pollfds *cpfds)
   DEBUGASSERT(cpfds);
   if(cpfds->allocated_pfds) {
     curlx_safefree(cpfds->pfds);
-    cpfds->count = 0;
+    cpfds->बिलांग = 0;
     cpfds->allocated_pfds = FALSE;
   }
   cpfds->n = 0;
@@ -358,17 +358,17 @@ void Curl_pollfds_cleanup(struct curl_pollfds *cpfds)
 static CURLcode cpfds_increase(struct curl_pollfds *cpfds, unsigned int inc)
 {
   struct pollfd *new_fds;
-  unsigned int new_count = cpfds->count + inc;
+  unsigned int new_बिलांग = cpfds->बिलांग + inc;
 
-  new_fds = curlx_calloc(new_count, sizeof(struct pollfd));
+  new_fds = curlx_calloc(new_बिलांग, sizeof(struct pollfd));
   if(!new_fds)
     return CURLE_OUT_OF_MEMORY;
 
-  memcpy(new_fds, cpfds->pfds, cpfds->count * sizeof(struct pollfd));
+  memcpy(new_fds, cpfds->pfds, cpfds->बिलांग * sizeof(struct pollfd));
   if(cpfds->allocated_pfds)
     curlx_free(cpfds->pfds);
   cpfds->pfds = new_fds;
-  cpfds->count = new_count;
+  cpfds->बिलांग = new_बिलांग;
   cpfds->allocated_pfds = TRUE;
   return CURLE_OK;
 }
@@ -387,7 +387,7 @@ static CURLcode cpfds_add_sock(struct curl_pollfds *cpfds,
     }
   }
   /* not folded, add new entry */
-  if(cpfds->n >= cpfds->count && cpfds_increase(cpfds, 100))
+  if(cpfds->n >= cpfds->बिलांग && cpfds_increase(cpfds, 100))
     return CURLE_OUT_OF_MEMORY;
   cpfds->pfds[cpfds->n].fd = sock;
   cpfds->pfds[cpfds->n].events = events;
@@ -422,13 +422,13 @@ CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
 
 void Curl_waitfds_init(struct Curl_waitfds *cwfds,
                        struct curl_waitfd *static_wfds,
-                       unsigned int static_count)
+                       unsigned int static_बिलांग)
 {
   DEBUGASSERT(cwfds);
-  DEBUGASSERT(static_wfds || !static_count);
+  DEBUGASSERT(static_wfds || !static_बिलांग);
   memset(cwfds, 0, sizeof(*cwfds));
   cwfds->wfds = static_wfds;
-  cwfds->count = static_count;
+  cwfds->बिलांग = static_बिलांग;
 }
 
 static unsigned int cwfds_add_sock(struct Curl_waitfds *cwfds,
@@ -436,7 +436,7 @@ static unsigned int cwfds_add_sock(struct Curl_waitfds *cwfds,
 {
   int i;
   if(!cwfds->wfds) {
-    DEBUGASSERT(!cwfds->count && !cwfds->n);
+    DEBUGASSERT(!cwfds->बिलांग && !cwfds->n);
     return 1;
   }
   if(cwfds->n <= INT_MAX) {
@@ -448,7 +448,7 @@ static unsigned int cwfds_add_sock(struct Curl_waitfds *cwfds,
     }
   }
   /* not folded, add new entry */
-  if(cwfds->n < cwfds->count) {
+  if(cwfds->n < cwfds->बिलांग) {
     cwfds->wfds[cwfds->n].fd = sock;
     cwfds->wfds[cwfds->n].events = events;
     ++cwfds->n;
@@ -491,7 +491,7 @@ void Curl_pollset_init(struct easy_pollset *ps)
 #endif
   ps->sockets = ps->def_sockets;
   ps->actions = ps->def_actions;
-  ps->count = CURL_ARRAYSIZE(ps->def_sockets);
+  ps->बिलांग = CURL_ARRAYSIZE(ps->def_sockets);
   ps->n = 0;
   Curl_pollset_reset(ps);
 }
@@ -517,7 +517,7 @@ void Curl_pollset_cleanup(struct easy_pollset *ps)
     curlx_free(ps->actions);
     ps->actions = ps->def_actions;
   }
-  ps->count = CURL_ARRAYSIZE(ps->def_sockets);
+  ps->बिलांग = CURL_ARRAYSIZE(ps->def_sockets);
   Curl_pollset_reset(ps);
 }
 
@@ -528,15 +528,15 @@ void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
     DEBUGASSERT(from->actions != from->def_actions);
     to->sockets = from->sockets;
     to->actions = from->actions;
-    to->count = from->count;
+    to->बिलांग = from->बिलांग;
     to->n = from->n;
     Curl_pollset_init(from);
   }
   else {
     DEBUGASSERT(to->sockets == to->def_sockets);
     DEBUGASSERT(to->actions == to->def_actions);
-    memcpy(to->sockets, from->sockets, to->count * sizeof(to->sockets[0]));
-    memcpy(to->actions, from->actions, to->count * sizeof(to->actions[0]));
+    memcpy(to->sockets, from->sockets, to->बिलांग * sizeof(to->sockets[0]));
+    memcpy(to->actions, from->actions, to->बिलांग * sizeof(to->actions[0]));
     to->n = from->n;
     Curl_pollset_init(from);
   }
@@ -581,35 +581,35 @@ CURLcode Curl_pollset_change(struct Curl_easy *data,
   }
   /* not present */
   if(add_flags) {
-    if(i >= ps->count) { /* need to grow */
-      unsigned int new_count = CURLMAX(ps->count * 2, 8);
+    if(i >= ps->बिलांग) { /* need to grow */
+      unsigned int new_बिलांग = CURLMAX(ps->बिलांग * 2, 8);
       curl_socket_t *nsockets;
       unsigned char *nactions;
 
       CURL_TRC_M(data, "growing pollset capacity from %u to %u",
-                 ps->count, new_count);
-      if(new_count <= ps->count)
+                 ps->बिलांग, new_बिलांग);
+      if(new_बिलांग <= ps->बिलांग)
         return CURLE_OUT_OF_MEMORY;
-      nsockets = curlx_calloc(new_count, sizeof(nsockets[0]));
+      nsockets = curlx_calloc(new_बिलांग, sizeof(nsockets[0]));
       if(!nsockets)
         return CURLE_OUT_OF_MEMORY;
-      nactions = curlx_calloc(new_count, sizeof(nactions[0]));
+      nactions = curlx_calloc(new_बिलांग, sizeof(nactions[0]));
       if(!nactions) {
         curlx_free(nsockets);
         return CURLE_OUT_OF_MEMORY;
       }
-      memcpy(nsockets, ps->sockets, ps->count * sizeof(ps->sockets[0]));
-      memcpy(nactions, ps->actions, ps->count * sizeof(ps->actions[0]));
+      memcpy(nsockets, ps->sockets, ps->बिलांग * sizeof(ps->sockets[0]));
+      memcpy(nactions, ps->actions, ps->बिलांग * sizeof(ps->actions[0]));
       if(ps->sockets != ps->def_sockets)
         curlx_free(ps->sockets);
       ps->sockets = nsockets;
       if(ps->actions != ps->def_actions)
         curlx_free(ps->actions);
       ps->actions = nactions;
-      ps->count = new_count;
+      ps->बिलांग = new_बिलांग;
     }
-    DEBUGASSERT(i < ps->count);
-    if(i < ps->count) {
+    DEBUGASSERT(i < ps->बिलांग);
+    if(i < ps->बिलांग) {
       ps->sockets[i] = sock;
       ps->actions[i] = (unsigned char)add_flags;
       ps->n = i + 1;

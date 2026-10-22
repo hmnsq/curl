@@ -161,7 +161,7 @@ static CURLcode bufcp_take(struct bufc_pool *pool,
   if(pool->spare) {
     chunk = pool->spare;
     pool->spare = chunk->next;
-    --pool->spare_count;
+    --pool->spare_बिलांग;
     chunk_reset(chunk);
     *pchunk = chunk;
     return CURLE_OK;
@@ -186,21 +186,21 @@ static CURLcode bufcp_take(struct bufc_pool *pool,
 static void bufcp_put(struct bufc_pool *pool,
                       struct buf_chunk *chunk)
 {
-  if(pool->spare_count >= pool->spare_max) {
+  if(pool->spare_बिलांग >= pool->spare_max) {
     curlx_free(chunk);
   }
   else {
     chunk_reset(chunk);
     chunk->next = pool->spare;
     pool->spare = chunk;
-    ++pool->spare_count;
+    ++pool->spare_बिलांग;
   }
 }
 
 void Curl_bufcp_free(struct bufc_pool *pool)
 {
   chunk_list_free(&pool->spare);
-  pool->spare_count = 0;
+  pool->spare_बिलांग = 0;
 }
 
 static void bufq_init(struct bufq *q, struct bufc_pool *pool,
@@ -237,7 +237,7 @@ void Curl_bufq_free(struct bufq *q)
   chunk_list_free(&q->head);
   chunk_list_free(&q->spare);
   q->tail = NULL;
-  q->chunk_count = 0;
+  q->chunk_बिलांग = 0;
 }
 
 void Curl_bufq_reset(struct bufq *q)
@@ -272,9 +272,9 @@ bool Curl_bufq_is_full(const struct bufq *q)
 {
   if(!q->tail || q->spare)
     return FALSE;
-  if(q->chunk_count < q->max_chunks)
+  if(q->chunk_बिलांग < q->max_chunks)
     return FALSE;
-  if(q->chunk_count > q->max_chunks)
+  if(q->chunk_बिलांग > q->max_chunks)
     return TRUE;
   /* we have no spares and cannot make more, is the tail full? */
   return chunk_is_full(q->tail);
@@ -291,13 +291,13 @@ static struct buf_chunk *get_spare(struct bufq *q)
     return chunk;
   }
 
-  if(q->chunk_count >= q->max_chunks && (!(q->opts & BUFQ_OPT_SOFT_LIMIT)))
+  if(q->chunk_बिलांग >= q->max_chunks && (!(q->opts & BUFQ_OPT_SOFT_LIMIT)))
     return NULL;
 
   if(q->pool) {
     if(bufcp_take(q->pool, &chunk))
       return NULL;
-    ++q->chunk_count;
+    ++q->chunk_बिलांग;
     return chunk;
   }
   else {
@@ -310,7 +310,7 @@ static struct buf_chunk *get_spare(struct bufq *q)
     if(!chunk)
       return NULL;
     chunk->dlen = q->chunk_size;
-    ++q->chunk_count;
+    ++q->chunk_बिलांग;
     return chunk;
   }
 }
@@ -326,15 +326,15 @@ static void prune_head(struct bufq *q)
       q->tail = q->head;
     if(q->pool) {
       bufcp_put(q->pool, chunk);
-      --q->chunk_count;
+      --q->chunk_बिलांग;
     }
-    else if((q->chunk_count > q->max_chunks) ||
+    else if((q->chunk_बिलांग > q->max_chunks) ||
             (q->opts & BUFQ_OPT_NO_SPARES)) {
       /* SOFT_LIMIT allowed us more than max. free spares until
        * we are at max again. Or free them if we are configured
        * to not use spares. */
       curlx_free(chunk);
-      --q->chunk_count;
+      --q->chunk_बिलांग;
     }
     else {
       chunk->next = q->spare;
@@ -376,7 +376,7 @@ CURLcode Curl_bufq_write(struct bufq *q,
   while(len) {
     tail = get_non_full_tail(q);
     if(!tail) {
-      if((q->chunk_count < q->max_chunks) || (q->opts & BUFQ_OPT_SOFT_LIMIT))
+      if((q->chunk_बिलांग < q->max_chunks) || (q->opts & BUFQ_OPT_SOFT_LIMIT))
         /* should have gotten a tail, but did not */
         return CURLE_OUT_OF_MEMORY;
       break;
@@ -559,7 +559,7 @@ CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
   *pnread = 0;
   tail = get_non_full_tail(q);
   if(!tail) {
-    if(q->chunk_count < q->max_chunks)
+    if(q->chunk_बिलांग < q->max_chunks)
       return CURLE_OUT_OF_MEMORY;
     /* full, blocked */
     return CURLE_AGAIN;

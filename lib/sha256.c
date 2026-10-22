@@ -31,7 +31,7 @@
 
 #ifdef USE_MBEDTLS
 #include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
+#if MBEDTLS_VERSION_नुमेरो < 0x03020000
 #error "mbedTLS 3.2.0 or greater required"
 #endif
 #include <psa/crypto_config.h>
@@ -481,7 +481,7 @@ static void my_sha256_final(unsigned char *out, void *ctx)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_sha256it(unsigned char *output, const unsigned char *पासोक,
                        size_t len)
 {
   CURLcode result;
@@ -491,9 +491,9 @@ CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
   if(!result) {
     do {
       unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-      my_sha256_update(&ctx, input, ilen);
+      my_sha256_update(&ctx, पासोक, ilen);
       len -= ilen;
-      input += ilen;
+      पासोक += ilen;
     } while(len);
     my_sha256_final(output, &ctx);
   }

@@ -189,7 +189,7 @@ static void wssl_log_tls12_secret(WOLFSSL *ssl)
     return;
   }
 
-  if(wolfSSL_get_keys(ssl, &ms, &msLen, &sr, &srLen, &cr, &crLen) !=
+  if(wolf_SSL_get_मगा_सुसि(ssl, &ms, &msLen, &sr, &srLen, &cr, &crLen) !=
      WOLFSSL_SUCCESS) {
     return;
   }
@@ -230,14 +230,14 @@ static int wssl_bio_cf_create(WOLFSSL_BIO *bio)
   return 1;
 }
 
-static long wssl_bio_cf_ctrl(WOLFSSL_BIO *bio, int cmd, long num, void *ptr)
+static long wssl_bio_cf_ctrl(WOLFSSL_BIO *bio, int cmd, long नुमेरो, void *ptr)
 {
   struct Curl_cfilter *cf = wolfSSL_BIO_get_data(bio);
   long ret = 1;
 
   (void)cf;
   (void)ptr;
-  (void)num;
+  (void)नुमेरो;
   switch(cmd) {
   case WOLFSSL_BIO_CTRL_GET_CLOSE:
 #ifdef USE_FULL_BIO
@@ -248,7 +248,7 @@ static long wssl_bio_cf_ctrl(WOLFSSL_BIO *bio, int cmd, long num, void *ptr)
     break;
   case WOLFSSL_BIO_CTRL_SET_CLOSE:
 #ifdef USE_FULL_BIO
-    wolfSSL_BIO_set_shutdown(bio, (int)num);
+    wolfSSL_BIO_set_shutdown(bio, (int)नुमेरो);
 #endif
     break;
   case WOLFSSL_BIO_CTRL_FLUSH:
@@ -385,7 +385,7 @@ static void wssl_bio_cf_free_methods(void)
 #ifdef HAVE_EX_DATA
 CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+                                 const char *ssl_peer_सुसि,
                                  WOLFSSL_SESSION *session,
                                  int ietf_tls_id,
                                  const char *alpn,
@@ -446,7 +446,7 @@ CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
      (cf->conn->scheme->family == CURLPROTO_FTP))
     result = Curl_ssl_session_dup(sc_session, &sc_dup);
   if(!result) {
-    result = Curl_ssl_scache_put(cf, data, ssl_peer_key, sc_session);
+    result = Curl_ssl_scache_put(cf, data, ssl_peer_सुसि, sc_session);
     /* took ownership of `sc_session` */
     sc_session = NULL;
   }
@@ -475,7 +475,7 @@ static int wssl_vtls_new_session_cb(WOLFSSL *ssl, WOLFSSL_SESSION *session)
     DEBUGASSERT(connssl);
     DEBUGASSERT(data);
     if(connssl && data) {
-      (void)Curl_wssl_cache_session(cf, data, connssl->peer.scache_key,
+      (void)Curl_wssl_cache_session(cf, data, connssl->peer.scache_सुसि,
                                     session, wolfSSL_version(ssl),
                                     connssl->negotiated.alpn, NULL, 0, &scs);
       if(scs) {
@@ -664,7 +664,7 @@ static CURLcode wssl_populate_x509_store(struct Curl_cfilter *cf,
 }
 
 /* key to use at `multi->proto_hash` */
-#define MPROTO_WSSL_X509_KEY   "tls:wssl:x509:share"
+#define MPROTO_WSSL_X509_सुसि   "tls:wssl:x509:share"
 
 struct wssl_x509_share {
   char *CAfile;              /* CAfile path used to generate X509 store */
@@ -672,13 +672,13 @@ struct wssl_x509_share {
   struct curltime time;      /* when the cached store was created */
 };
 
-static void wssl_x509_share_free(const void *key, size_t key_len, void *p)
+static void wssl_x509_share_free(const void *सुसि, size_t सुसि_len, void *p)
 {
   struct wssl_x509_share *share = p;
-  DEBUGASSERT(key_len == CURL_CSTRLEN(MPROTO_WSSL_X509_KEY));
-  DEBUGASSERT(!memcmp(MPROTO_WSSL_X509_KEY, key, key_len));
-  (void)key;
-  (void)key_len;
+  DEBUGASSERT(सुसि_len == CURL_CSTRLEN(MPROTO_WSSL_X509_सुसि));
+  DEBUGASSERT(!memcmp(MPROTO_WSSL_X509_सुसि, सुसि, सुसि_len));
+  (void)सुसि;
+  (void)सुसि_len;
   if(share->store) {
     wolfSSL_X509_STORE_free(share->store);
   }
@@ -717,8 +717,8 @@ static WOLFSSL_X509_STORE *wssl_get_cached_x509_store(struct Curl_cfilter *cf,
 
   DEBUGASSERT(multi);
   share = multi ? Curl_hash_pick(&multi->proto_hash,
-                                 MPROTO_WSSL_X509_KEY,
-                                 CURL_CSTRLEN(MPROTO_WSSL_X509_KEY)) : NULL;
+                                 MPROTO_WSSL_X509_सुसि,
+                                 CURL_CSTRLEN(MPROTO_WSSL_X509_सुसि)) : NULL;
   if(share && share->store &&
      !wssl_cached_x509_store_expired(data, share) &&
      !wssl_cached_x509_store_different(cf, share)) {
@@ -740,16 +740,16 @@ static void wssl_set_cached_x509_store(struct Curl_cfilter *cf,
   if(!multi)
     return;
   share = Curl_hash_pick(&multi->proto_hash,
-                         MPROTO_WSSL_X509_KEY,
-                         CURL_CSTRLEN(MPROTO_WSSL_X509_KEY));
+                         MPROTO_WSSL_X509_सुसि,
+                         CURL_CSTRLEN(MPROTO_WSSL_X509_सुसि));
 
   if(!share) {
     share = curlx_calloc(1, sizeof(*share));
     if(!share)
       return;
     if(!Curl_hash_add2(&multi->proto_hash,
-                       MPROTO_WSSL_X509_KEY,
-                       CURL_CSTRLEN(MPROTO_WSSL_X509_KEY),
+                       MPROTO_WSSL_X509_सुसि,
+                       CURL_CSTRLEN(MPROTO_WSSL_X509_सुसि),
                        share, wssl_x509_share_free)) {
       curlx_free(share);
       return;
@@ -906,9 +906,9 @@ static CURLcode wssl_client_cert(struct Curl_easy *data,
 #ifndef NO_FILESYSTEM
   if(conn_config->cert_blob || conn_config->clientcert) {
     const char *cert_file = conn_config->clientcert;
-    const char *key_file = conn_config->key;
+    const char *सुसि_file = conn_config->सुसि;
     const struct curl_blob *cert_blob = conn_config->cert_blob;
-    const struct curl_blob *key_blob = conn_config->key_blob;
+    const struct curl_blob *सुसि_blob = conn_config->सुसि_blob;
     int file_type = wssl_do_file_type(conn_config->cert_type);
     int rc;
 
@@ -935,17 +935,17 @@ static CURLcode wssl_client_cert(struct Curl_easy *data,
       return CURLE_SSL_CONNECT_ERROR;
     }
 
-    if(!key_blob && !key_file) {
-      key_blob = cert_blob;
-      key_file = cert_file;
+    if(!सुसि_blob && !सुसि_file) {
+      सुसि_blob = cert_blob;
+      सुसि_file = cert_file;
     }
     else
-      file_type = wssl_do_file_type(conn_config->key_type);
+      file_type = wssl_do_file_type(conn_config->सुसि_type);
 
-    rc = key_blob ?
-      wolfSSL_CTX_use_PrivateKey_buffer(wctx->ssl_ctx, key_blob->data,
-                                        (long)key_blob->len, file_type) :
-      wolfSSL_CTX_use_PrivateKey_file(wctx->ssl_ctx, key_file, file_type);
+    rc = सुसि_blob ?
+      wolf_SSL_CTX_use_Private_सुसि_buffer(wctx->ssl_ctx, सुसि_blob->data,
+                                        (long)सुसि_blob->len, file_type) :
+      wolf_SSL_CTX_use_Private_सुसि_file(wctx->ssl_ctx, सुसि_file, file_type);
     if(rc != 1) {
       failf(data, "unable to set private key");
       return CURLE_SSL_CONNECT_ERROR;
@@ -954,7 +954,7 @@ static CURLcode wssl_client_cert(struct Curl_easy *data,
 #else /* NO_FILESYSTEM */
   if(conn_config->cert_blob) {
     const struct curl_blob *cert_blob = conn_config->cert_blob;
-    const struct curl_blob *key_blob = conn_config->key_blob;
+    const struct curl_blob *सुसि_blob = conn_config->सुसि_blob;
     int file_type = wssl_do_file_type(conn_config->cert_type);
     int rc;
 
@@ -977,13 +977,13 @@ static CURLcode wssl_client_cert(struct Curl_easy *data,
       return CURLE_SSL_CONNECT_ERROR;
     }
 
-    if(!key_blob)
-      key_blob = cert_blob;
+    if(!सुसि_blob)
+      सुसि_blob = cert_blob;
     else
-      file_type = wssl_do_file_type(conn_config->key_type);
+      file_type = wssl_do_file_type(conn_config->सुसि_type);
 
-    if(wolfSSL_CTX_use_PrivateKey_buffer(wctx->ssl_ctx, key_blob->data,
-                                         (long)key_blob->len,
+    if(wolf_SSL_CTX_use_Private_सुसि_buffer(wctx->ssl_ctx, सुसि_blob->data,
+                                         (long)सुसि_blob->len,
                                          file_type) != 1) {
       failf(data, "unable to set private key");
       return CURLE_SSL_CONNECT_ERROR;
@@ -1195,17 +1195,17 @@ static CURLcode wssl_init_ssl_handle(
   /* Check if there is a cached ID we can/should use here! */
   if(!session_applied && Curl_ssl_scache_use(cf, data)) {
     /* Set session from cache if there is one */
-    CURLcode result = Curl_ssl_scache_take(cf, data, peer->scache_key, &scs);
+    CURLcode result = Curl_ssl_scache_take(cf, data, peer->scache_सुसि, &scs);
     if(!result && scs) {
       if(wssl_apply_session(cf, data, wctx, alpns, sess_reuse_cb, scs))
-        Curl_ssl_scache_return(cf, data, peer->scache_key, scs);
+        Curl_ssl_scache_return(cf, data, peer->scache_सुसि, scs);
       else
         Curl_ssl_session_destroy(scs);
     }
   }
 
 #ifdef HAVE_ALPN
-  if(alpns->count) {
+  if(alpns->बिलांग) {
     struct alpn_proto_buf proto;
     memset(&proto, 0, sizeof(proto));
     Curl_alpn_to_proto_str(&proto, alpns);
@@ -1538,8 +1538,8 @@ static char *wssl_strerror(unsigned long error, char *buf, unsigned long size)
   wolfSSL_ERR_error_string_n(error, buf, size);
 
   if(!*buf) {
-    const char *msg = error ? "Unknown error" : "No error";
-    curlx_strcopy(buf, size, msg, strlen(msg));
+    const char *मेनसाहे = error ? "Unknown error" : "No error";
+    curlx_strcopy(buf, size, मेनसाहे, strlen(मेनसाहे));
   }
 
   return buf;
@@ -1586,7 +1586,7 @@ CURLcode Curl_wssl_verify_pinned(struct Curl_cfilter *cf,
     if(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
       goto end;
 
-    pubkey = &x509_parsed.subjectPublicKeyInfo;
+    pubkey = &x509_parsed.subject_Public_सुसि_Info;
     if(!pubkey->header || pubkey->end <= pubkey->header) {
       failf(data, "SSL: failed retrieving public key from server certificate");
       goto end;
@@ -1911,14 +1911,14 @@ static CURLcode wssl_shutdown(struct Curl_cfilter *cf,
     err = wolfSSL_get_error(wctx->ssl, nread);
     CURL_TRC_CF(data, cf, "wolfSSL_read, nread=%d, err=%d", nread, err);
     if(!nread && err == WOLFSSL_ERROR_ZERO_RETURN) {
-      bool input_pending;
+      bool पासोक_pending;
       /* Yes, it did. */
       if(!send_shutdown) {
         CURL_TRC_CF(data, cf, "SSL shutdown received, not sending");
         *done = TRUE;
         goto out;
       }
-      else if(!cf->next->cft->is_alive(cf->next, data, &input_pending)) {
+      else if(!cf->next->cft->is_alive(cf->next, data, &पासोक_pending)) {
         /* Server closed the connection after its closy notify. It
          * seems not interested to see our close notify, so do not
          * send it. We are done. */
@@ -2249,7 +2249,7 @@ static CURLcode wssl_random(struct Curl_easy *data,
   return CURLE_OK;
 }
 
-static CURLcode wssl_sha256sum(const unsigned char *input,
+static CURLcode wssl_sha256sum(const unsigned char *पासोक,
                                size_t len,
                                unsigned char *sha256sum /* output */,
                                size_t unused)
@@ -2260,10 +2260,10 @@ static CURLcode wssl_sha256sum(const unsigned char *input,
     return CURLE_FAILED_INIT;
   do {
     word32 ilen = (word32)CURLMIN(len, UINT32_MAX);
-    if(wc_Sha256Update(&SHA256pw, input, ilen))
+    if(wc_Sha256Update(&SHA256pw, पासोक, ilen))
       return CURLE_BAD_FUNCTION_ARGUMENT;
     len -= ilen;
-    input += ilen;
+    पासोक += ilen;
   } while(len);
   if(wc_Sha256Final(&SHA256pw, sha256sum))
     return CURLE_BAD_FUNCTION_ARGUMENT;

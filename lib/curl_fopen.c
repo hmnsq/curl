@@ -56,7 +56,7 @@ static char *dirslash(const char *path)
   size_t n;
   struct dynbuf out;
   DEBUGASSERT(path);
-  curlx_dyn_init(&out, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&out, CURL_MAX_पासोक_LENGTH);
   n = strlen(path);
   if(n) {
     /* find the rightmost path separator, if any */

@@ -205,11 +205,11 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
   }
 
   /* Store the challenge for later use */
-  ntlm->input_token = curlx_memdup0(Curl_bufref_ptr(type2ref),
+  ntlm->पासोक_token = curlx_memdup0(Curl_bufref_ptr(type2ref),
                                     Curl_bufref_len(type2ref));
-  if(!ntlm->input_token)
+  if(!ntlm->पासोक_token)
     return CURLE_OUT_OF_MEMORY;
-  ntlm->input_token_len = Curl_bufref_len(type2ref);
+  ntlm->पासोक_token_len = Curl_bufref_len(type2ref);
 
   return CURLE_OK;
 }
@@ -251,8 +251,8 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   type_2_desc.cBuffers      = 1;
   type_2_desc.pBuffers      = &type_2_bufs[0];
   type_2_bufs[0].BufferType = SECBUFFER_TOKEN;
-  type_2_bufs[0].pvBuffer   = ntlm->input_token;
-  type_2_bufs[0].cbBuffer   = curlx_uztoul(ntlm->input_token_len);
+  type_2_bufs[0].pvBuffer   = ntlm->पासोक_token;
+  type_2_bufs[0].cbBuffer   = curlx_uztoul(ntlm->पासोक_token_len);
 
   /* SSL context comes from schannel.
    * When extended protection is used in IIS server,
@@ -341,7 +341,7 @@ void Curl_auth_cleanup_ntlm(struct ntlmdata *ntlm)
   ntlm->p_identity = NULL;
 
   /* Free the input and output tokens */
-  curlx_safefree(ntlm->input_token);
+  curlx_safefree(ntlm->पासोक_token);
   curlx_safefree(ntlm->output_token);
 
   /* Reset any variables */

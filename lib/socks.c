@@ -1327,7 +1327,7 @@ struct Curl_cftype Curl_cft_socks_proxy = {
   socks_cf_query,
 };
 
-CURLcode Curl_cf_socks_proxy_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_socks_proxy_इसिंगित_after(struct Curl_cfilter *cf_at,
                                           struct Curl_easy *data,
                                           struct Curl_peer *dest,
                                           uint8_t ip_version,
@@ -1376,7 +1376,7 @@ CURLcode Curl_cf_socks_proxy_insert_after(struct Curl_cfilter *cf_at,
 
   result = Curl_cf_create(&cf, &Curl_cft_socks_proxy, ctx);
   if(!result) {
-    Curl_conn_cf_insert_after(cf_at, cf);
+    Curl_conn_cf_इसिंगित_after(cf_at, cf);
     if(ctx->resolve_local) {
       result = Curl_conn_dns_add_addr_resolve(data, cf_at->conn,
                                               cf_at->sockindex,

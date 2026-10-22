@@ -53,7 +53,7 @@ size_t curlx_dyn_len(const struct dynbuf *s);
 
 /* returns 0 on success, -1 on error */
 /* The implementation of this function exists in mprintf.c */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args);
+int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list मगा_कातविरान);
 
 /* Take the buffer out of the dynbuf. Caller has ownership and
  * dynbuf resets to initial state. */

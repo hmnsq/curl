@@ -556,10 +556,10 @@ CURLcode Curl_unix2addr(const char *path, bool abstract,
  * require a bunch of structs I did not want to include in memdebug.c
  */
 void curl_dbg_freeaddrinfo(struct addrinfo *freethis,
-                           int line, const char *source)
+                           int लिन्या, const char *source)
 {
   curl_dbg_log("ADDR %s:%d freeaddrinfo(%p)\n",
-               source, line, (void *)freethis);
+               source, लिन्या, (void *)freethis);
 #ifdef USE_LWIPSOCK
   lwip_freeaddrinfo(freethis);
 #elif defined(USE_FAKE_GETADDRINFO)
@@ -590,7 +590,7 @@ int curl_dbg_getaddrinfo(const char *hostname,
                          const char *service,
                          const struct addrinfo *hints,
                          struct addrinfo **result,
-                         int line, const char *source)
+                         int लिन्या, const char *source)
 {
 #ifdef USE_LWIPSOCK
   int res = lwip_getaddrinfo(hostname, service, hints, result);
@@ -608,10 +608,10 @@ int curl_dbg_getaddrinfo(const char *hostname,
 #endif
   if(res == 0)
     /* success */
-    curl_dbg_log("ADDR %s:%d getaddrinfo() = %p\n", source, line,
+    curl_dbg_log("ADDR %s:%d getaddrinfo() = %p\n", source, लिन्या,
                  (void *)*result);
   else
-    curl_dbg_log("ADDR %s:%d getaddrinfo() failed\n", source, line);
+    curl_dbg_log("ADDR %s:%d getaddrinfo() failed\n", source, लिन्या);
   return res;
 }
 #endif /* CURL_MEMDEBUG && HAVE_GETADDRINFO */

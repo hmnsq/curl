@@ -74,24 +74,24 @@ const char *Curl_tls_keylog_file_name(void)
   return keylog_file_name;
 }
 
-bool Curl_tls_keylog_write_line(const char *line)
+bool Curl_tls_keylog_write_लिन्या(const char *लिन्या)
 {
   /* The current maximum valid keylog line length LF and NUL is 195. */
   size_t linelen;
   char buf[256];
 
-  if(!keylog_file_fp || !line) {
+  if(!keylog_file_fp || !लिन्या) {
     return FALSE;
   }
 
-  linelen = strlen(line);
+  linelen = strlen(लिन्या);
   if(linelen == 0 || linelen > sizeof(buf) - 2) {
     /* Empty line or too big to fit in an LF and NUL. */
     return FALSE;
   }
 
-  memcpy(buf, line, linelen);
-  if(line[linelen - 1] != '\n') {
+  memcpy(buf, लिन्या, linelen);
+  if(लिन्या[linelen - 1] != '\n') {
     buf[linelen++] = '\n';
   }
   buf[linelen] = '\0';
@@ -108,7 +108,7 @@ bool Curl_tls_keylog_write(const char *label,
                            const unsigned char *secret, size_t secretlen)
 {
   size_t pos, i;
-  unsigned char line[KEYLOG_LABEL_MAXLEN + 1 +
+  unsigned char लिन्या[KEYLOG_LABEL_MAXLEN + 1 +
                      (2 * CLIENT_RANDOM_SIZE) + 1 +
                      (2 * SECRET_MAXLEN) + 1 + 1];
   DEBUGASSERT(random_size >= CLIENT_RANDOM_SIZE);
@@ -123,27 +123,27 @@ bool Curl_tls_keylog_write(const char *label,
     return FALSE;
   }
 
-  memcpy(line, label, pos);
-  line[pos++] = ' ';
+  memcpy(लिन्या, label, pos);
+  लिन्या[pos++] = ' ';
 
   /* Client Random */
   for(i = 0; i < CLIENT_RANDOM_SIZE; i++) {
-    Curl_hexbyte(&line[pos], client_random[i]);
+    Curl_hexbyte(&लिन्या[pos], client_random[i]);
     pos += 2;
   }
-  line[pos++] = ' ';
+  लिन्या[pos++] = ' ';
 
   /* Secret */
   for(i = 0; i < secretlen; i++) {
-    Curl_hexbyte(&line[pos], secret[i]);
+    Curl_hexbyte(&लिन्या[pos], secret[i]);
     pos += 2;
   }
-  line[pos++] = '\n';
-  line[pos] = '\0';
+  लिन्या[pos++] = '\n';
+  लिन्या[pos] = '\0';
 
   /* Using fputs here instead of fprintf since libcurl's fprintf replacement
      may not be thread-safe. */
-  fputs((char *)line, keylog_file_fp);
+  fputs((char *)लिन्या, keylog_file_fp);
   return TRUE;
 }
 

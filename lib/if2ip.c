@@ -212,12 +212,12 @@ if2ip_result_t Curl_if2ip(int af,
 
 #if defined(CURL_HAVE_DIAG) && defined(_AIX)
 /* Suppress warning inside system headers */
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Wshift-sign-overflow"
 #endif
   if(ioctl(dummy, SIOCGIFADDR, &req) < 0) {
 #if defined(CURL_HAVE_DIAG) && defined(_AIX)
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
     sclose(dummy);
     /* With SIOCGIFADDR, we cannot tell the difference between an interface

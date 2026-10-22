@@ -67,7 +67,7 @@
 #define DICT_DEFINE3 "/LOOKUP:"
 
 #define DYN_DICT_WORD 10000
-static char *unescape_word(const char *input)
+static char *unescape_word(const char *पासोक)
 {
   struct dynbuf out;
   const char *ptr;
@@ -76,7 +76,7 @@ static char *unescape_word(const char *input)
 
   /* According to RFC2229 section 2.2, these letters need to be escaped with
      \[letter] */
-  for(ptr = input; *ptr; ptr++) {
+  for(ptr = पासोक; *ptr; ptr++) {
     char ch = *ptr;
     if((ch <= 32) || (ch == 127) ||
        (ch == '\'') || (ch == '\"') || (ch == '\\'))

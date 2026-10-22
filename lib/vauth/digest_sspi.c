@@ -251,15 +251,15 @@ CURLcode Curl_override_sspi_http_realm(const char *chlg,
   /* If domain is blank or unset, check challenge message for realm */
   if(!identity->Domain || !identity->DomainLength) {
     for(;;) {
-      struct Curl_str value;
+      struct Curl_str हालागा;
       char content[DIGEST_MAX_CONTENT_LENGTH];
 
       /* Pass all additional spaces here */
       curlx_str_passblanks(&chlg);
 
       /* Extract a value=content pair */
-      if(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
-        if(curlx_str_casecompare(&value, "realm")) {
+      if(Curl_auth_digest_get_pair(chlg, &हालागा, content, &chlg)) {
+        if(curlx_str_casecompare(&हालागा, "realm")) {
 
           /* Setup identity's domain and length */
           domain.tchar_ptr = curlx_convert_UTF8_to_tchar(content);
@@ -317,22 +317,22 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
 
   /* We had an input token before so if there is another one now that means we
      provided bad credentials in the previous request or it is stale. */
-  if(digest->input_token) {
+  if(digest->पासोक_token) {
     bool stale = FALSE;
     const char *p = chlg;
 
     /* Check for the 'stale' directive */
     for(;;) {
-      struct Curl_str value;
+      struct Curl_str हालागा;
       char content[DIGEST_MAX_CONTENT_LENGTH];
 
       while(*p && ISBLANK(*p))
         p++;
 
-      if(!Curl_auth_digest_get_pair(p, &value, content, &p))
+      if(!Curl_auth_digest_get_pair(p, &हालागा, content, &p))
         break;
 
-      if(curlx_str_casecompare(&value, "stale") &&
+      if(curlx_str_casecompare(&हालागा, "stale") &&
          curl_strequal(content, "true")) {
         stale = TRUE;
         break;
@@ -352,11 +352,11 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
   }
 
   /* Store the challenge for use later */
-  digest->input_token = (BYTE *)curlx_memdup(chlg, chlglen + 1);
-  if(!digest->input_token)
+  digest->पासोक_token = (BYTE *)curlx_memdup(chlg, chlglen + 1);
+  if(!digest->पासोक_token)
     return CURLE_OUT_OF_MEMORY;
 
-  digest->input_token_len = chlglen;
+  digest->पासोक_token_len = chlglen;
 
   return CURLE_OK;
 }
@@ -481,7 +481,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
       }
 
       /* Populate our identity domain */
-      if(Curl_override_sspi_http_realm((const char *)digest->input_token,
+      if(Curl_override_sspi_http_realm((const char *)digest->पासोक_token,
                                        &identity)) {
         Curl_sspi_free_identity(&identity);
         curlx_free(output_token);
@@ -516,8 +516,8 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     chlg_desc.cBuffers     = 3;
     chlg_desc.pBuffers     = chlg_buf;
     chlg_buf[0].BufferType = SECBUFFER_TOKEN;
-    chlg_buf[0].pvBuffer   = digest->input_token;
-    chlg_buf[0].cbBuffer   = curlx_uztoul(digest->input_token_len);
+    chlg_buf[0].pvBuffer   = digest->पासोक_token;
+    chlg_buf[0].cbBuffer   = curlx_uztoul(digest->पासोक_token_len);
     chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
     chlg_buf[1].pvBuffer   = CURL_UNCONST(request);
     chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char *)request));
@@ -616,10 +616,10 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
 void Curl_auth_digest_cleanup(struct digestdata *digest)
 {
   /* Free the input token */
-  curlx_safefree(digest->input_token);
+  curlx_safefree(digest->पासोक_token);
 
   /* Reset any variables */
-  digest->input_token_len = 0;
+  digest->पासोक_token_len = 0;
 
   /* Delete security context */
   if(digest->http_context) {

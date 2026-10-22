@@ -138,7 +138,7 @@ struct pop3_cmd {
   const char *name;
   unsigned short nlen;
   BIT(multiline); /* response is multi-line with last '.' line */
-  BIT(multiline_with_args); /* is multi-line when command has args */
+  BIT(multiline_with_मगा_कातविरान); /* is multi-line when command has args */
 };
 
 static const struct pop3_cmd pop3cmds[] = {
@@ -178,22 +178,22 @@ static CURLcode pop3_parse_url_options(struct connectdata *conn)
     return CURLE_FAILED_INIT;
 
   while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+    const char *सुसि = ptr;
+    const char *हालागा;
 
     while(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    हालागा = ptr + 1;
 
     while(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=", 5)) {
+    if(curl_strnequal(सुसि, "AUTH=", 5)) {
       result = Curl_sasl_parse_url_auth_option(&pop3c->sasl,
-                                               value, ptr - value);
+                                               हालागा, ptr - हालागा);
 
-      if(result && curl_strnequal(value, "+APOP", ptr - value)) {
+      if(result && curl_strnequal(हालागा, "+APOP", ptr - हालागा)) {
         pop3c->preftype = POP3_TYPE_APOP;
         pop3c->sasl.prefmech = SASL_AUTH_NONE;
         result = CURLE_OK;
@@ -272,7 +272,7 @@ static bool pop3_is_multiline(const char *cmdline)
       if(!cmdline[pop3cmds[i].nlen])
         return (bool)pop3cmds[i].multiline;
       else if(cmdline[pop3cmds[i].nlen] == ' ')
-        return (bool)pop3cmds[i].multiline_with_args;
+        return (bool)pop3cmds[i].multiline_with_मगा_कातविरान;
     }
   }
   /* Unknown command, assume multi-line for backward compatibility with
@@ -290,7 +290,7 @@ static bool pop3_is_multiline(const char *cmdline)
  * types and allowed SASL mechanisms.
  */
 static bool pop3_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+                           const char *लिन्या, size_t len, int *resp)
 {
   struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   (void)data;
@@ -299,7 +299,7 @@ static bool pop3_endofresp(struct Curl_easy *data, struct connectdata *conn,
     return TRUE;
 
   /* Do we have an error response? */
-  if(len >= 4 && !memcmp("-ERR", line, 4)) {
+  if(len >= 4 && !memcmp("-ERR", लिन्या, 4)) {
     *resp = '-';
 
     return TRUE;
@@ -309,8 +309,8 @@ static bool pop3_endofresp(struct Curl_easy *data, struct connectdata *conn,
   if(pop3c->state == POP3_CAPA) {
     /* Do we have the terminating line? Per RFC 2449 this is a line
        containing only a single dot */
-    if((len == 3 && line[0] == '.' && line[1] == '\r') ||
-       (len == 2 && line[0] == '.' && line[1] == '\n'))
+    if((len == 3 && लिन्या[0] == '.' && लिन्या[1] == '\r') ||
+       (len == 2 && लिन्या[0] == '.' && लिन्या[1] == '\n'))
       /* Treat the response as a success */
       *resp = '+';
     else
@@ -321,14 +321,14 @@ static bool pop3_endofresp(struct Curl_easy *data, struct connectdata *conn,
   }
 
   /* Do we have a success response? */
-  if(len >= 3 && !memcmp("+OK", line, 3)) {
+  if(len >= 3 && !memcmp("+OK", लिन्या, 3)) {
     *resp = '+';
 
     return TRUE;
   }
 
   /* Do we have a continuation response? */
-  if(len >= 1 && line[0] == '+') {
+  if(len >= 1 && लिन्या[0] == '+') {
     *resp = '*';
 
     return TRUE;
@@ -794,14 +794,14 @@ static CURLcode pop3_state_servergreet_resp(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
   struct connectdata *conn = data->conn;
   struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  const char *line;
+  const char *लिन्या;
   size_t len;
 
   (void)instate;
   if(!pop3c)
     return CURLE_FAILED_INIT;
 
-  line = curlx_dyn_ptr(&pop3c->pp.recvbuf);
+  लिन्या = curlx_dyn_ptr(&pop3c->pp.recvbuf);
   len = pop3c->pp.nfinal;
 
   if(pop3code != '+') {
@@ -814,10 +814,10 @@ static CURLcode pop3_state_servergreet_resp(struct Curl_easy *data,
     const char *gt = NULL;
 
     /* Look for the APOP timestamp */
-    lt = memchr(line, '<', len);
+    lt = memchr(लिन्या, '<', len);
     if(lt)
       /* search the remainder for '>' */
-      gt = memchr(lt, '>', len - (lt - line));
+      gt = memchr(lt, '>', len - (lt - लिन्या));
     if(gt) {
       /* the length of the timestamp, including the brackets */
       size_t timestamplen = gt - lt + 1;
@@ -849,32 +849,32 @@ static CURLcode pop3_state_capa_resp(struct Curl_easy *data, int pop3code,
   CURLcode result = CURLE_OK;
   struct connectdata *conn = data->conn;
   struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  const char *line;
+  const char *लिन्या;
   size_t len;
 
   (void)instate;
   if(!pop3c)
     return CURLE_FAILED_INIT;
 
-  line = curlx_dyn_ptr(&pop3c->pp.recvbuf);
+  लिन्या = curlx_dyn_ptr(&pop3c->pp.recvbuf);
   len = pop3c->pp.nfinal;
 
   /* Do we have an untagged continuation response? */
   if(pop3code == '*') {
     /* Does the server support the STLS capability? */
-    if(len >= 4 && curl_strnequal(line, "STLS", 4))
+    if(len >= 4 && curl_strnequal(लिन्या, "STLS", 4))
       pop3c->tls_supported = TRUE;
 
     /* Does the server support clear text authentication? */
-    else if(len >= 4 && curl_strnequal(line, "USER", 4))
+    else if(len >= 4 && curl_strnequal(लिन्या, "USER", 4))
       pop3c->authtypes |= POP3_TYPE_CLEARTEXT;
 
     /* Does the server support SASL based authentication? */
-    else if(len >= 5 && curl_strnequal(line, "SASL ", 5)) {
+    else if(len >= 5 && curl_strnequal(लिन्या, "SASL ", 5)) {
       pop3c->authtypes |= POP3_TYPE_SASL;
 
       /* Advance past the SASL keyword */
-      line += 5;
+      लिन्या += 5;
       len -= 5;
 
       /* Loop through the data line */
@@ -883,8 +883,8 @@ static CURLcode pop3_state_capa_resp(struct Curl_easy *data, int pop3code,
         size_t wordlen = 0;
         unsigned short mechbit;
 
-        while(len && (ISBLANK(*line) || ISNEWLINE(*line))) {
-          line++;
+        while(len && (ISBLANK(*लिन्या) || ISNEWLINE(*लिन्या))) {
+          लिन्या++;
           len--;
         }
 
@@ -892,16 +892,16 @@ static CURLcode pop3_state_capa_resp(struct Curl_easy *data, int pop3code,
           break;
 
         /* Extract the word */
-        while(wordlen < len && !ISBLANK(line[wordlen]) &&
-              !ISNEWLINE(line[wordlen]))
+        while(wordlen < len && !ISBLANK(लिन्या[wordlen]) &&
+              !ISNEWLINE(लिन्या[wordlen]))
           wordlen++;
 
         /* Test the word for a matching authentication mechanism */
-        mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
+        mechbit = Curl_sasl_decode_mech(लिन्या, wordlen, &llen);
         if(mechbit && llen == wordlen)
           pop3c->sasl.authmechs |= mechbit;
 
-        line += wordlen;
+        लिन्या += wordlen;
         len -= wordlen;
       }
     }
@@ -1650,10 +1650,10 @@ static CURLcode pop3_doing(struct Curl_easy *data, bool *dophase_done)
   return result;
 }
 
-static void pop3_easy_dtor(const void *key, size_t klen, void *entry)
+static void pop3_easy_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct POP3 *pop3 = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   DEBUGASSERT(pop3);
   /* Cleanup our per-request based variables */
@@ -1662,10 +1662,10 @@ static void pop3_easy_dtor(const void *key, size_t klen, void *entry)
   curlx_free(pop3);
 }
 
-static void pop3_conn_dtor(const void *key, size_t klen, void *entry)
+static void pop3_conn_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct pop3_conn *pop3c = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   DEBUGASSERT(pop3c);
   Curl_pp_disconnect(&pop3c->pp);

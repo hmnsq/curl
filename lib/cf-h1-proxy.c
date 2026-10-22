@@ -339,13 +339,13 @@ static CURLcode on_resp_header(struct Curl_cfilter *cf,
   if(checkprefix("Proxy-authenticate:", header) && (407 == k->httpcode)) {
 
     bool proxy = (k->httpcode == 407);
-    char *auth = Curl_copy_header_value(header);
+    char *auth = Curl_copy_header_हालागा(header);
     if(!auth)
       return CURLE_OUT_OF_MEMORY;
 
     CURL_TRC_CF(data, cf, "CONNECT%s: fwd auth header '%s'",
                 is_udp ? "-UDP" : "", header);
-    result = Curl_http_input_auth(data, proxy, auth);
+    result = Curl_http_पासोक_auth(data, proxy, auth);
 
     curlx_free(auth);
 
@@ -424,28 +424,28 @@ static CURLcode single_header(struct Curl_cfilter *cf,
 {
   CURLcode result = CURLE_OK;
   const char *linep = curlx_dyn_ptr(&ts->rcvbuf);
-  size_t line_len = curlx_dyn_len(&ts->rcvbuf); /* bytes in this line */
+  size_t लिन्या_len = curlx_dyn_len(&ts->rcvbuf); /* bytes in this line */
   const struct SingleRequest *k = &data->req;
   int writetype;
   ts->headerlines++;
 
   /* output debug if that is requested */
-  Curl_debug(data, CURLINFO_HEADER_IN, linep, line_len);
+  Curl_debug(data, CURLINFO_HEADER_IN, linep, लिन्या_len);
 
   /* a CONNECT response line is handed to the client as a header, so it must
      pass the same checks as a regular response header before delivery */
-  result = Curl_verify_header(data, linep, line_len);
+  result = Curl_verify_header(data, linep, लिन्या_len);
   if(result)
     return result;
 
   /* send the header to the callback */
   writetype = CLIENTWRITE_HEADER | CLIENTWRITE_CONNECT |
     (ts->headerlines == 1 ? CLIENTWRITE_STATUS : 0);
-  result = Curl_client_write(data, writetype, linep, line_len);
+  result = Curl_client_write(data, writetype, linep, लिन्या_len);
   if(result)
     return result;
 
-  result = Curl_bump_headersize(data, line_len, TRUE);
+  result = Curl_bump_headersize(data, लिन्या_len, TRUE);
   if(result)
     return result;
 
@@ -911,7 +911,7 @@ struct Curl_cftype Curl_cft_h1_proxy = {
   cf_h1_proxy_query,
 };
 
-CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_h1_proxy_इसिंगित_after(struct Curl_cfilter *cf_at,
                                        struct Curl_easy *data,
                                        struct Curl_peer *peer,
                                        struct Curl_peer *dest,
@@ -955,7 +955,7 @@ CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
     goto out;
   }
   ts = NULL;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  Curl_conn_cf_इसिंगित_after(cf_at, cf);
 
 out:
   tunnel_free(ts, data);

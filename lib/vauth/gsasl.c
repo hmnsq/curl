@@ -32,7 +32,7 @@
 
 #include <gsasl.h>
 
-#if GSASL_VERSION_NUMBER < 0x010600
+#if GSASL_VERSION_नुमेरो < 0x010600
 #error "libgsasl 1.6.0 or greater required"
 #endif
 
@@ -62,23 +62,23 @@ CURLcode Curl_auth_gsasl_start(struct Curl_easy *data,
                                struct Curl_creds *creds,
                                struct gsasldata *gsasl)
 {
-#if GSASL_VERSION_NUMBER >= 0x010b00
+#if GSASL_VERSION_नुमेरो >= 0x010b00
   int res;
   res =
 #endif
     gsasl_property_set(gsasl->client, GSASL_AUTHID, creds->user);
-#if GSASL_VERSION_NUMBER >= 0x010b00
+#if GSASL_VERSION_नुमेरो >= 0x010b00
   if(res != GSASL_OK) {
     failf(data, "setting AUTHID failed: %s", gsasl_strerror(res));
     return CURLE_OUT_OF_MEMORY;
   }
 #endif
 
-#if GSASL_VERSION_NUMBER >= 0x010b00
+#if GSASL_VERSION_नुमेरो >= 0x010b00
   res =
 #endif
     gsasl_property_set(gsasl->client, GSASL_PASSWORD, creds->passwd);
-#if GSASL_VERSION_NUMBER >= 0x010b00
+#if GSASL_VERSION_नुमेरो >= 0x010b00
   if(res != GSASL_OK) {
     failf(data, "setting PASSWORD failed: %s", gsasl_strerror(res));
     return CURLE_OUT_OF_MEMORY;

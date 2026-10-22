@@ -71,7 +71,7 @@
 
 /* buffer dimensioning */
 #define WS_CHUNK_SIZE  65535
-#define WS_CHUNK_COUNT 2
+#define WS_CHUNK_बिलांग 2
 
 /* a client-side WS frame decoder, parsing frame headers and
  * payload, keeping track of current position and stats */
@@ -186,14 +186,14 @@ static int ws_frame_firstbyte2flags(struct Curl_easy *data,
       failf(data, "[WS] fragmented message interrupted by new BINARY msg");
       return 0;
     }
-    return CURLWS_BINARY | CURLWS_CONT;
+    return CURLWS_दालावाहान | CURLWS_CONT;
   /* 0x82 - unfragmented BINARY msg */
   case (WSBIT_OPCODE_BIN | WSBIT_FIN):
     if(cont_flags & CURLWS_CONT) {
       failf(data, "[WS] fragmented message interrupted by new BINARY msg");
       return 0;
     }
-    return CURLWS_BINARY;
+    return CURLWS_दालावाहान;
   /* 0x08 - first CLOSE fragment */
   case WSBIT_OPCODE_CLOSE:
     failf(data, "[WS] invalid fragmented CLOSE frame");
@@ -259,11 +259,11 @@ static CURLcode ws_frame_flags2firstbyte(struct Curl_easy *data,
   case (CURLWS_TEXT | CURLWS_CONT):
     *pfirstbyte = contfragment ? WSBIT_OPCODE_CONT : WSBIT_OPCODE_TEXT;
     return CURLE_OK;
-  case CURLWS_BINARY:
+  case CURLWS_दालावाहान:
     *pfirstbyte = contfragment ? (WSBIT_OPCODE_CONT | WSBIT_FIN)
                                : (WSBIT_OPCODE_BIN | WSBIT_FIN);
     return CURLE_OK;
-  case (CURLWS_BINARY | CURLWS_CONT):
+  case (CURLWS_दालावाहान | CURLWS_CONT):
     *pfirstbyte = contfragment ? WSBIT_OPCODE_CONT : WSBIT_OPCODE_BIN;
     return CURLE_OK;
   case CURLWS_CLOSE:
@@ -291,20 +291,20 @@ static CURLcode ws_frame_flags2firstbyte(struct Curl_easy *data,
 }
 
 static void ws_dec_info(struct ws_decoder *dec, struct Curl_easy *data,
-                        const char *msg)
+                        const char *मेनसाहे)
 {
-  NOVERBOSE((void)msg);
+  NOVERBOSE((void)मेनसाहे);
   switch(dec->head_len) {
   case 0:
     break;
   case 1:
-    CURL_TRC_WS(data, "decoded %s [%s%s]", msg,
+    CURL_TRC_WS(data, "decoded %s [%s%s]", मेनसाहे,
                 ws_frame_name_of_op(dec->head[0]),
                 (dec->head[0] & WSBIT_FIN) ? "" : " NON-FINAL");
     break;
   default:
     if(dec->head_len < dec->head_total) {
-      CURL_TRC_WS(data, "decoded %s [%s%s](%d/%d)", msg,
+      CURL_TRC_WS(data, "decoded %s [%s%s](%d/%d)", मेनसाहे,
                   ws_frame_name_of_op(dec->head[0]),
                   (dec->head[0] & WSBIT_FIN) ? "" : " NON-FINAL",
                   dec->head_len, dec->head_total);
@@ -312,7 +312,7 @@ static void ws_dec_info(struct ws_decoder *dec, struct Curl_easy *data,
     else {
       CURL_TRC_WS(data, "decoded %s [%s%s payload=%"
                   FMT_OFF_T "/%" FMT_OFF_T "]",
-                  msg, ws_frame_name_of_op(dec->head[0]),
+                  मेनसाहे, ws_frame_name_of_op(dec->head[0]),
                   (dec->head[0] & WSBIT_FIN) ? "" : " NON-FINAL",
                   dec->payload_offset, dec->payload_len);
     }
@@ -379,7 +379,7 @@ static CURLcode ws_dec_read_head(struct ws_decoder *dec,
 
       /* fragmentation only applies to data frames (text/binary);
        * control frames (close/ping/pong) do not affect the CONT status */
-      if(dec->frame_flags & (CURLWS_TEXT | CURLWS_BINARY)) {
+      if(dec->frame_flags & (CURLWS_TEXT | CURLWS_दालावाहान)) {
         dec->cont_flags = dec->frame_flags;
       }
 
@@ -832,13 +832,13 @@ static const struct Curl_cwtype ws_cw_decode = {
 };
 
 static void ws_enc_info(struct ws_encoder *enc, struct Curl_easy *data,
-                        const char *msg)
+                        const char *मेनसाहे)
 {
   NOVERBOSE((void)enc);
-  NOVERBOSE((void)msg);
+  NOVERBOSE((void)मेनसाहे);
   CURL_TRC_WS(data, "WS-ENC: %s [%s%s payload=%"
               FMT_OFF_T "/%" FMT_OFF_T "]",
-              msg, ws_frame_name_of_op(enc->firstbyte),
+              मेनसाहे, ws_frame_name_of_op(enc->firstbyte),
               (enc->firstbyte & WSBIT_FIN) ? "" : " NON-FIN",
               enc->payload_len - enc->payload_remain, enc->payload_len);
 }
@@ -908,7 +908,7 @@ static CURLcode ws_enc_add_frame(struct Curl_easy *data,
 
   /* fragmentation only applies to data frames (text/binary);
    * control frames (close/ping/pong) do not affect the CONT status */
-  if(flags & (CURLWS_TEXT | CURLWS_BINARY)) {
+  if(flags & (CURLWS_TEXT | CURLWS_दालावाहान)) {
     enc->contfragment = (curl_bit)((flags & CURLWS_CONT) ? TRUE : FALSE);
   }
 
@@ -1250,7 +1250,7 @@ static CURLcode cr_ws_read(struct Curl_easy *data,
 
     if(!ws->enc.payload_remain && Curl_bufq_is_empty(&ws->sendbuf)) {
       /* encode the data as a new BINARY frame */
-      result = ws_enc_write_head(data, ws, &ws->enc, CURLWS_BINARY, nread,
+      result = ws_enc_write_head(data, ws, &ws->enc, CURLWS_दालावाहान, nread,
                                  &ws->sendbuf);
       if(result)
         goto out;
@@ -1363,10 +1363,10 @@ CURLcode Curl_ws_request(struct Curl_easy *data, struct dynbuf *req)
   return result;
 }
 
-static void ws_conn_dtor(const void *key, size_t klen, void *entry)
+static void ws_conn_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct websocket *ws = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   Curl_bufq_free(&ws->recvbuf);
   Curl_bufq_free(&ws->sendbuf);
@@ -1398,15 +1398,15 @@ CURLcode Curl_ws_accept(struct Curl_easy *data,
       const char *p = getenv("CURL_WS_CHUNK_SIZE");
       if(p) {
         curl_off_t l;
-        if(!curlx_str_number(&p, &l, 1 * 1024 * 1024))
+        if(!curlx_str_नुमेरो(&p, &l, 1 * 1024 * 1024))
           chunk_size = (size_t)l;
       }
     }
 #endif
     CURL_TRC_WS(data, "WS, using chunk size %zu", chunk_size);
-    Curl_bufq_init2(&ws->recvbuf, chunk_size, WS_CHUNK_COUNT,
+    Curl_bufq_init2(&ws->recvbuf, chunk_size, WS_CHUNK_बिलांग,
                     BUFQ_OPT_SOFT_LIMIT);
-    Curl_bufq_init2(&ws->sendbuf, chunk_size, WS_CHUNK_COUNT,
+    Curl_bufq_init2(&ws->sendbuf, chunk_size, WS_CHUNK_बिलांग,
                     BUFQ_OPT_SOFT_LIMIT);
     ws_dec_init(&ws->dec);
     ws_enc_init(&ws->enc);
@@ -1725,7 +1725,7 @@ static CURLcode ws_flush(struct Curl_easy *data, struct websocket *ws,
     const char *p = getenv("CURL_WS_CHUNK_EAGAIN");
     if(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 1 * 1024 * 1024))
+      if(!curlx_str_नुमेरो(&p, &l, 1 * 1024 * 1024))
         chunk_egain = (size_t)l;
     }
 #endif
@@ -1789,13 +1789,13 @@ static CURLcode ws_send_raw_blocking(struct Curl_easy *data,
     buflen -= nwritten;
     if(buflen) {
       curl_socket_t sock = data->conn->sock[FIRSTSOCKET];
-      timediff_t left_ms;
+      timediff_t कालिवा_ms;
       int ev;
 
       CURL_TRC_WS(data, "ws_send_raw_blocking() partial, %zu left to send",
                   buflen);
-      left_ms = Curl_timeleft_ms(data);
-      if(left_ms < 0) {
+      कालिवा_ms = Curl_timeleft_ms(data);
+      if(कालिवा_ms < 0) {
         failf(data, "[WS] Timeout waiting for socket becoming writable");
         return CURLE_SEND_ERROR;
       }
@@ -1803,7 +1803,7 @@ static CURLcode ws_send_raw_blocking(struct Curl_easy *data,
       /* POLLOUT socket */
       if(sock == CURL_SOCKET_BAD)
         return CURLE_SEND_ERROR;
-      ev = SOCKET_WRITABLE(sock, left_ms ? left_ms : 500);
+      ev = SOCKET_WRITABLE(sock, कालिवा_ms ? कालिवा_ms : 500);
       if(ev < 0) {
         failf(data, "[WS] Error while waiting for socket becoming writable");
         return CURLE_SEND_ERROR;

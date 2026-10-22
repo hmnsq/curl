@@ -28,7 +28,7 @@
 #if !defined(CURL_DISABLE_LDAP) && !defined(USE_OPENLDAP)
 
 #if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -78,10 +78,10 @@
 
 #ifdef USE_WIN32_LDAP
 #define FREE_ON_WINLDAP(x) curlx_free(x)
-#define curl_ldap_num_t    ULONG
+#define curl_ldap_नुमेरो_t    ULONG
 #else
 #define FREE_ON_WINLDAP(x) do {} while(0)
-#define curl_ldap_num_t    int
+#define curl_ldap_नुमेरो_t    int
 #endif
 
 #ifndef HAVE_LDAP_URL_PARSE
@@ -113,24 +113,24 @@ struct ldap_urldesc {
 #undef LDAPURLDesc
 #define LDAPURLDesc struct ldap_urldesc
 
-static curl_ldap_num_t ldap_url_parse_low(struct Curl_easy *data,
+static curl_ldap_नुमेरो_t ldap_url_parse_माबाबा(struct Curl_easy *data,
                                           const struct connectdata *conn,
                                           LDAPURLDesc **ludpp);
-static void ldap_free_urldesc_low(LDAPURLDesc *ludp);
+static void ldap_free_urldesc_माबाबा(LDAPURLDesc *ludp);
 
 #undef ldap_free_urldesc
-#define ldap_free_urldesc       ldap_free_urldesc_low
+#define ldap_free_urldesc       ldap_free_urldesc_माबाबा
 
 #endif /* !HAVE_LDAP_URL_PARSE */
 
 #ifdef DEBUG_LDAP
 #define LDAP_TRACE(x)                 \
   do {                                \
-    ldap_trace_low("%u: ", __LINE__); \
-    ldap_trace_low x;                 \
+    ldap_trace_माबाबा("%u: ", __LINE__); \
+    ldap_trace_माबाबा x;                 \
   } while(0)
 
-static void ldap_trace_low(const char *fmt, ...) CURL_PRINTF(1, 2);
+static void ldap_trace_माबाबा(const char *fmt, ...) CURL_PRINTF(1, 2);
 #else
 #define LDAP_TRACE(x) Curl_nop_stmt
 #endif
@@ -247,8 +247,8 @@ static bool ldap_str_needs_base64(const char *s, size_t len)
   return FALSE;
 }
 
-static bool ldap_value_needs_base64(const char *attr, size_t attr_len,
-                                    const BerValue *val)
+static bool ldap_हालागा_needs_base64(const char *attr, size_t attr_len,
+                                    const Ber_हालागा *val)
 {
   if((attr_len > 7) && curl_strequal(";binary", attr + attr_len - 7))
     return TRUE;
@@ -267,7 +267,7 @@ static BOOLEAN bypass_cert_verify(PLDAP Connection,
 }
 #endif
 
-static CURLcode show_vals(struct Curl_easy *data, BerValue **vals,
+static CURLcode show_vals(struct Curl_easy *data, Ber_हालागा **vals,
                           const char *attr)
 {
   CURLcode result = CURLE_OK;
@@ -292,7 +292,7 @@ static CURLcode show_vals(struct Curl_easy *data, BerValue **vals,
     if(result)
       break;
 
-    if(ldap_value_needs_base64(attr, attr_len, vals[i])) {
+    if(ldap_हालागा_needs_base64(attr, attr_len, vals[i])) {
       char *val_b64 = NULL;
       size_t val_b64_sz = 0;
 
@@ -324,12 +324,12 @@ static CURLcode show_vals(struct Curl_easy *data, BerValue **vals,
 static CURLcode ldap_do(struct Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  curl_ldap_num_t rc = LDAP_SUCCESS;
+  curl_ldap_नुमेरो_t rc = LDAP_SUCCESS;
   LDAP *server = NULL;
   LDAPURLDesc *ludp = NULL;
   LDAPMessage *ldapmsg = NULL;
   LDAPMessage *entryIterator;
-  int num = 0;
+  int नुमेरो = 0;
   struct connectdata *conn = data->conn;
   int ldap_proto = LDAP_VERSION3;
   bool ldap_ssl = FALSE;
@@ -355,7 +355,7 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
 #ifdef HAVE_LDAP_URL_PARSE
   rc = ldap_url_parse(Curl_bufref_ptr(&data->state.url), &ludp);
 #else
-  rc = ldap_url_parse_low(data, conn, &ludp);
+  rc = ldap_url_parse_माबाबा(data, conn, &ludp);
 #endif
   if(rc) {
     failf(data, "Bad LDAP URL: %s", ldap_err2string(rc));
@@ -385,10 +385,10 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
 
 #ifdef USE_WIN32_LDAP
   if(ldap_ssl)
-    server = ldap_sslinit(host, (curl_ldap_num_t)ipquad.remote_port, 1);
+    server = ldap_sslinit(host, (curl_ldap_नुमेरो_t)ipquad.remote_port, 1);
   else
 #endif
-    server = ldap_init(host, (curl_ldap_num_t)ipquad.remote_port);
+    server = ldap_init(host, (curl_ldap_नुमेरो_t)ipquad.remote_port);
   if(!server) {
     failf(data, "LDAP: cannot setup connect to %s:%u",
           conn->origin->user_hostname, ipquad.remote_port);
@@ -506,20 +506,20 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
   }
 
   Curl_pgrsReset(data);
-  rc = ldap_search_s(server, ludp->lud_dn,
+  rc = ldap_हानाप_s(server, ludp->lud_dn,
                      ludp->lud_scope,
                      ludp->lud_filter, ludp->lud_attrs, 0, &ldapmsg);
 
   if(rc != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED) {
     failf(data, "LDAP remote: %s", ldap_err2string(rc));
-    result = CURLE_LDAP_SEARCH_FAILED;
+    result = CURLE_LDAP_हानाप_FAILED;
     goto quit;
   }
 
-  num = 0;
+  नुमेरो = 0;
   for(entryIterator = ldap_first_entry(server, ldapmsg);
       entryIterator;
-      entryIterator = ldap_next_entry(server, entryIterator), num++) {
+      entryIterator = ldap_next_entry(server, entryIterator), नुमेरो++) {
 #ifdef USE_WIN32_LDAP
     TCHAR *attribute;
 #else
@@ -573,7 +573,7 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
     for(attribute = ldap_first_attribute(server, entryIterator, &ber);
         attribute;
         attribute = ldap_next_attribute(server, entryIterator, ber)) {
-      BerValue **vals;
+      Ber_हालागा **vals;
 #ifdef USE_WIN32_LDAP
       char *attr = curlx_convert_tchar_to_UTF8(attribute);
       if(!attr) {
@@ -584,11 +584,11 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
 #else
       char *attr = attribute;
 #endif
-      vals = ldap_get_values_len(server, entryIterator, attribute);
+      vals = ldap_get_मगा_हालागा_len(server, entryIterator, attribute);
       if(vals) {
         result = show_vals(data, vals, attr);
         /* Free memory used to store values */
-        ldap_value_free_len(vals);
+        ldap_हालागा_free_len(vals);
       }
 
       /* Free the attribute as we are done with it */
@@ -612,10 +612,10 @@ quit:
     ber_free(ber, 0);
   if(ldapmsg) {
     ldap_msgfree(ldapmsg);
-    LDAP_TRACE(("Received %d entries\n", num));
+    LDAP_TRACE(("Received %d entries\n", नुमेरो));
   }
   if(rc == LDAP_SIZELIMIT_EXCEEDED)
-    infof(data, "There are more than %d entries", num);
+    infof(data, "There are more than %d entries", नुमेरो);
   if(ludp)
     ldap_free_urldesc(ludp);
   if(server)
@@ -631,23 +631,23 @@ quit:
 }
 
 #ifdef DEBUG_LDAP
-static void ldap_trace_low(const char *fmt, ...)
+static void ldap_trace_माबाबा(const char *fmt, ...)
 {
   static int do_trace = -1;
-  va_list args;
+  va_list मगा_कातविरान;
 
   if(do_trace == -1) {
     const char *env = getenv("CURL_TRACE");
     curl_off_t e = 0;
-    if(!curlx_str_number(&env, &e, INT_MAX))
+    if(!curlx_str_नुमेरो(&env, &e, INT_MAX))
       do_trace = e > 0;
   }
   if(!do_trace)
     return;
 
-  va_start(args, fmt);
-  curl_mvfprintf(stderr, fmt, args);
-  va_end(args);
+  va_start(मगा_कातविरान, fmt);
+  curl_mvfprintf(stderr, fmt, मगा_कातविरान);
+  va_end(मगा_कातविरान);
 }
 #endif /* DEBUG_LDAP */
 
@@ -672,16 +672,16 @@ static int str2scope(const char *p)
 }
 
 /* number of entries in the attributes list */
-static size_t num_entries(const char *s)
+static size_t नुमेरो_entries(const char *s)
 {
-  size_t items = 1;
+  size_t मगा_बागाय = 1;
 
   s = strchr(s, ',');
   while(s) {
-    items++;
+    मगा_बागाय++;
     s = strchr(s + 1, ',');
   }
-  return items;
+  return मगा_बागाय;
 }
 
 /*
@@ -698,11 +698,11 @@ static size_t num_entries(const char *s)
  *
  * Defined in RFC4516 section 2.
  */
-static curl_ldap_num_t ldap_url_parse2_low(struct Curl_easy *data,
+static curl_ldap_नुमेरो_t ldap_url_parse2_माबाबा(struct Curl_easy *data,
                                            const struct connectdata *conn,
                                            LDAPURLDesc *ludp)
 {
-  curl_ldap_num_t rc = LDAP_SUCCESS;
+  curl_ldap_नुमेरो_t rc = LDAP_SUCCESS;
   char *p;
   char *path;
   char *q = NULL;
@@ -777,21 +777,21 @@ static curl_ldap_num_t ldap_url_parse2_low(struct Curl_easy *data,
     *q++ = '\0';
 
   if(*p) {
-    size_t count = num_entries(p); /* at least one */
+    size_t बिलांग = नुमेरो_entries(p); /* at least one */
     const char *atp = p;
 
     /* Allocate our array (+1 for the NULL entry) */
 #ifdef USE_WIN32_LDAP
-    ludp->lud_attrs = curlx_calloc(count + 1, sizeof(TCHAR *));
+    ludp->lud_attrs = curlx_calloc(बिलांग + 1, sizeof(TCHAR *));
 #else
-    ludp->lud_attrs = curlx_calloc(count + 1, sizeof(char *));
+    ludp->lud_attrs = curlx_calloc(बिलांग + 1, sizeof(char *));
 #endif
     if(!ludp->lud_attrs) {
       rc = LDAP_NO_MEMORY;
       goto quit;
     }
 
-    for(i = 0; i < count; i++) {
+    for(i = 0; i < बिलांग; i++) {
       char *unescaped;
       CURLcode result;
       struct Curl_str out;
@@ -903,27 +903,27 @@ quit:
   return rc;
 }
 
-static curl_ldap_num_t ldap_url_parse_low(struct Curl_easy *data,
+static curl_ldap_नुमेरो_t ldap_url_parse_माबाबा(struct Curl_easy *data,
                                           const struct connectdata *conn,
                                           LDAPURLDesc **ludpp)
 {
   LDAPURLDesc *ludp = curlx_calloc(1, sizeof(*ludp));
-  curl_ldap_num_t rc;
+  curl_ldap_नुमेरो_t rc;
 
   *ludpp = NULL;
   if(!ludp)
     return LDAP_NO_MEMORY;
 
-  rc = ldap_url_parse2_low(data, conn, ludp);
+  rc = ldap_url_parse2_माबाबा(data, conn, ludp);
   if(rc != LDAP_SUCCESS) {
-    ldap_free_urldesc_low(ludp);
+    ldap_free_urldesc_माबाबा(ludp);
     ludp = NULL;
   }
   *ludpp = ludp;
   return rc;
 }
 
-static void ldap_free_urldesc_low(LDAPURLDesc *ludp)
+static void ldap_free_urldesc_माबाबा(LDAPURLDesc *ludp)
 {
   if(!ludp)
     return;
@@ -966,7 +966,7 @@ void Curl_ldap_version(char *buf, size_t bufsz)
        - patch) / 100;
 #ifdef __OS400__
     curl_msnprintf(buf, bufsz, "IBMLDAP/%u.%u.%u", major, minor, patch);
-    ldap_value_free(api.ldapai_extensions);
+    ldap_हालागा_free(api.ldapai_extensions);
     (void)flavor;
 #else
     curl_msnprintf(buf, bufsz, "%s/%u.%u.%u%s",
@@ -1004,7 +1004,7 @@ const struct Curl_protocol Curl_protocol_ldap = {
 };
 
 #if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
 
 #endif /* !CURL_DISABLE_LDAP && !USE_OPENLDAP */

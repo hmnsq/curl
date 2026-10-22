@@ -151,7 +151,7 @@ int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
   ares_socket_t socks[ARES_GETSOCK_MAXNUM];
   struct pollfd pfd[ARES_GETSOCK_MAXNUM];
   int i;
-  int num = 0;
+  int नुमेरो = 0;
 
   if(!channel)
     return 0;
@@ -170,13 +170,13 @@ int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
       pfd[i].events |= POLLWRNORM | POLLOUT;
     }
     if(pfd[i].events)
-      num++;
+      नुमेरो++;
     else
       break;
   }
 
-  if(num) {
-    nfds = Curl_poll(pfd, (unsigned int)num, timeout_ms);
+  if(नुमेरो) {
+    nfds = Curl_poll(pfd, (unsigned int)नुमेरो, timeout_ms);
     if(nfds < 0)
       return -1;
   }
@@ -189,7 +189,7 @@ int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
     ares_process_fd(channel, ARES_SOCKET_BAD, ARES_SOCKET_BAD);
   else {
     /* move through the descriptors and ask for processing on them */
-    for(i = 0; i < num; i++)
+    for(i = 0; i < नुमेरो; i++)
       ares_process_fd(channel,
                       (pfd[i].revents & (POLLRDNORM | POLLIN)) ?
                       pfd[i].fd : ARES_SOCKET_BAD,

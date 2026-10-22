@@ -29,7 +29,7 @@
 #include "progress.h"
 #include "curl_share.h"
 
-#if !defined(PSL_VERSION_NUMBER) || PSL_VERSION_NUMBER < 0x001000
+#if !defined(PSL_VERSION_नुमेरो) || PSL_VERSION_नुमेरो < 0x001000
 #error "libpsl 0.16.0 or greater required"
 #endif
 

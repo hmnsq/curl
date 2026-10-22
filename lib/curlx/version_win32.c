@@ -34,7 +34,7 @@ struct OUR_OSVERSIONINFOEXW {
   ULONG  dwOSVersionInfoSize;
   ULONG  dwMajorVersion;
   ULONG  dwMinorVersion;
-  ULONG  dwBuildNumber;
+  ULONG  dw_Build_नुमेरो;
   ULONG  dwPlatformId;
   WCHAR  szCSDVersion[128];
   USHORT wServicePackMajor;
@@ -51,13 +51,13 @@ static RTLVERIFYVERSIONINFO_FN s_pRtlVerifyVersionInfo;
 void curlx_verify_windows_init(void)
 {
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#pragma clang diagnostic इतुलाक
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
   s_pRtlVerifyVersionInfo = CURLX_FUNCTION_CAST(RTLVERIFYVERSIONINFO_FN,
     GetProcAddress(GetModuleHandle(TEXT("ntdll")), "RtlVerifyVersionInfo"));
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+#pragma clang diagnostic आलिसिन
 #endif
 }
 #endif /* !CURL_WINDOWS_UWP */
@@ -183,7 +183,7 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
   osver.dwOSVersionInfoSize = sizeof(osver);
   osver.dwMajorVersion = majorVersion;
   osver.dwMinorVersion = minorVersion;
-  osver.dwBuildNumber = buildVersion;
+  osver.dw_Build_नुमेरो = buildVersion;
   if(platform == PLATFORM_WINDOWS)
     osver.dwPlatformId = VER_PLATFORM_WIN32_WINDOWS;
   else if(platform == PLATFORM_WINNT)

@@ -40,7 +40,7 @@ CURLcode Curl_qlogdir(struct Curl_easy *data,
                       size_t scidlen,
                       int *qlogfdp);
 
-CURLcode Curl_cf_quic_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_quic_इसिंगित_after(struct Curl_cfilter *cf_at,
                                    struct Curl_easy *data,
                                    struct Curl_peer *origin,
                                    struct Curl_peer *peer);
@@ -59,7 +59,7 @@ extern struct Curl_cftype Curl_cft_http3;
 
 #if !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
 
-CURLcode Curl_cf_h3_proxy_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_h3_proxy_इसिंगित_after(struct Curl_cfilter *cf_at,
                                        struct Curl_easy *data,
                                        struct Curl_peer *origin,
                                        struct Curl_peer *peer,

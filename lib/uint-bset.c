@@ -76,7 +76,7 @@ UNITTEST uint32_t uint32_bset_capacity(struct uint32_bset *bset)
 }
 #endif
 
-uint32_t Curl_uint32_bset_count(struct uint32_bset *bset)
+uint32_t Curl_uint32_bset_बिलांग(struct uint32_bset *bset)
 {
   uint32_t i;
   uint32_t n = 0;

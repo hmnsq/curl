@@ -35,9 +35,9 @@
 #endif
 
 
-typedef size_t (*hash_function)(const void *key,
-                                size_t key_length,
-                                size_t slots_num);
+typedef size_t (*hash_function)(const void *सुसि,
+                                size_t सुसि_length,
+                                size_t slots_नुमेरो);
 
 typedef size_t (*comp_function)(const void *key1,
                                 size_t key1_len,
@@ -85,48 +85,48 @@ CURLcode Curl_hash_global_init(void)
 
 /* @unittest 1603
  */
-UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
-                                size_t slots_num, size_t seed);
-UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
-                                size_t slots_num, size_t seed)
+UNITTEST size_t hash_str_seeded(const void *सुसि, size_t सुसि_length,
+                                size_t slots_नुमेरो, size_t seed);
+UNITTEST size_t hash_str_seeded(const void *सुसि, size_t सुसि_length,
+                                size_t slots_नुमेरो, size_t seed)
 {
-  const char *key_str = (const char *)key;
-  const char *end = key_str + key_length;
+  const char *सुसि_str = (const char *)सुसि;
+  const char *end = सुसि_str + सुसि_length;
   size_t h = 5381 ^ seed;
 
-  while(key_str < end) {
-    size_t j = (size_t)*key_str++;
+  while(सुसि_str < end) {
+    size_t j = (size_t)*सुसि_str++;
     h += h << 5;
     h ^= j;
   }
 
-  return (h % slots_num);
+  return (h % slots_नुमेरो);
 }
 
 /* @unittest 1603
  */
-UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num);
-UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num)
+UNITTEST size_t hash_str(const void *सुसि, size_t सुसि_length, size_t slots_नुमेरो);
+UNITTEST size_t hash_str(const void *सुसि, size_t सुसि_length, size_t slots_नुमेरो)
 {
-  return hash_str_seeded(key, key_length, slots_num, hash_seed);
+  return hash_str_seeded(सुसि, सुसि_length, slots_नुमेरो, hash_seed);
 }
 
 /* Avoid treating the variable-length key[1] as a one-byte object. */
-static char *hash_elem_key(struct Curl_hash_element *he)
+static char *hash_elem_सुसि(struct Curl_hash_element *he)
 {
-  return (char *)he + offsetof(struct Curl_hash_element, key);
+  return (char *)he + offsetof(struct Curl_hash_element, सुसि);
 }
 
-static size_t hash_socket(const void *key, size_t key_length,
-                          size_t slots_num)
+static size_t hash_socket(const void *सुसि, size_t सुसि_length,
+                          size_t slots_नुमेरो)
 {
   curl_socket_t socket;
 
-  DEBUGASSERT(key_length == sizeof(socket));
-  if(key_length != sizeof(socket))
+  DEBUGASSERT(सुसि_length == sizeof(socket));
+  if(सुसि_length != sizeof(socket))
     return 0;
-  memcpy(&socket, key, sizeof(socket));
-  return (size_t)(socket % (curl_socket_t)slots_num);
+  memcpy(&socket, सुसि, sizeof(socket));
+  return (size_t)(socket % (curl_socket_t)slots_नुमेरो);
 }
 
 static size_t compare_socket(const void *key1, size_t key1_len,
@@ -161,15 +161,15 @@ static const struct hash_functions *hash_get_functions(uint8_t type)
   return &hash_functions[type];
 }
 
-static bool hash_key_is_valid(uint8_t type, size_t key_len)
+static bool hash_सुसि_is_valid(uint8_t type, size_t सुसि_len)
 {
   return (type == CURL_HASH_TYPE_BYTES) ||
     ((type == CURL_HASH_TYPE_SOCKET) &&
-     (key_len == sizeof(curl_socket_t)));
+     (सुसि_len == sizeof(curl_socket_t)));
 }
 
 #if 0 /* useful function for debugging hashes and their contents */
-void Curl_hash_print(struct Curl_hash *h, void (*func)(void *))
+void Curl_hash_इलिम्बाग(struct Curl_hash *h, void (*func)(void *))
 {
   struct Curl_hash_iterator iter;
   struct Curl_hash_element *he;
@@ -196,7 +196,7 @@ void Curl_hash_print(struct Curl_hash *h, void (*func)(void *))
       func(he->ptr);
     else
       curl_mfprintf(stderr, " [key=%.*s, he=%p, ptr=%p]",
-                    (int)he->key_len, hash_elem_key(he),
+                    (int)he->सुसि_len, hash_elem_सुसि(he),
                     (void *)he, (void *)he->ptr);
 
     he = Curl_hash_next_element(&iter);
@@ -230,20 +230,20 @@ void Curl_hash_init(struct Curl_hash *h,
 #endif
 }
 
-static struct Curl_hash_element *hash_elem_create(const void *key,
-                                                  size_t key_len,
+static struct Curl_hash_element *hash_elem_create(const void *सुसि,
+                                                  size_t सुसि_len,
                                                   void *p,
                                                   Curl_hash_elem_dtor dtor)
 {
   struct Curl_hash_element *he;
 
   /* allocate the struct plus memory after it to store the key */
-  he = curlx_malloc(sizeof(struct Curl_hash_element) + key_len);
+  he = curlx_malloc(sizeof(struct Curl_hash_element) + सुसि_len);
   if(he) {
     he->next = NULL;
     /* copy the key */
-    memcpy(hash_elem_key(he), key, key_len);
-    he->key_len = key_len;
+    memcpy(hash_elem_सुसि(he), सुसि, सुसि_len);
+    he->सुसि_len = सुसि_len;
     he->ptr = p;
     he->dtor = dtor;
   }
@@ -257,7 +257,7 @@ static void hash_elem_clear_ptr(struct Curl_hash *h,
   DEBUGASSERT(he);
   if(he->ptr) {
     if(he->dtor)
-      he->dtor(hash_elem_key(he), he->key_len, he->ptr);
+      he->dtor(hash_elem_सुसि(he), he->सुसि_len, he->ptr);
     else
       h->dtor(he->ptr);
     he->ptr = NULL;
@@ -289,7 +289,7 @@ static void hash_elem_link(struct Curl_hash *h,
 }
 
 void *Curl_hash_add2(struct Curl_hash *h,
-                     const void *key, size_t key_len, void *p,
+                     const void *सुसि, size_t सुसि_len, void *p,
                      Curl_hash_elem_dtor dtor)
 {
   const struct hash_functions *functions;
@@ -298,7 +298,7 @@ void *Curl_hash_add2(struct Curl_hash *h,
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
+  if(!hash_सुसि_is_valid(h->type, सुसि_len))
     return NULL;
   if(!h->table) {
     h->table = curlx_calloc(h->slots, sizeof(struct Curl_hash_element *));
@@ -307,9 +307,9 @@ void *Curl_hash_add2(struct Curl_hash *h,
   }
 
   functions = hash_get_functions(h->type);
-  slot = &h->table[functions->hash(key, key_len, h->slots)];
+  slot = &h->table[functions->hash(सुसि, सुसि_len, h->slots)];
   for(he = *slot; he; he = he->next) {
-    if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+    if(functions->compare(hash_elem_सुसि(he), he->सुसि_len, सुसि, सुसि_len)) {
       /* existing key entry, overwrite by clearing old pointer */
       hash_elem_clear_ptr(h, he);
       he->ptr = p;
@@ -318,7 +318,7 @@ void *Curl_hash_add2(struct Curl_hash *h,
     }
   }
 
-  he = hash_elem_create(key, key_len, p, dtor);
+  he = hash_elem_create(सुसि, सुसि_len, p, dtor);
   if(!he)
     return NULL; /* OOM */
 
@@ -335,9 +335,9 @@ void *Curl_hash_add2(struct Curl_hash *h,
  * @unittest: 1603
  */
 void *Curl_hash_add(struct Curl_hash *h,
-                    const void *key, size_t key_len, void *p)
+                    const void *सुसि, size_t सुसि_len, void *p)
 {
-  return Curl_hash_add2(h, key, key_len, p, NULL);
+  return Curl_hash_add2(h, सुसि, सुसि_len, p, NULL);
 }
 
 /* Remove the identified hash entry.
@@ -345,23 +345,23 @@ void *Curl_hash_add(struct Curl_hash *h,
  *
  * @unittest: 1603
  */
-int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len)
+int Curl_hash_delete(struct Curl_hash *h, const void *सुसि, size_t सुसि_len)
 {
   const struct hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
+  if(!hash_सुसि_is_valid(h->type, सुसि_len))
     return 1;
   if(h->table) {
     struct Curl_hash_element *he, **he_anchor;
 
     functions = hash_get_functions(h->type);
-    he_anchor = &h->table[functions->hash(key, key_len, h->slots)];
+    he_anchor = &h->table[functions->hash(सुसि, सुसि_len, h->slots)];
     while(*he_anchor) {
       he = *he_anchor;
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+      if(functions->compare(hash_elem_सुसि(he), he->सुसि_len, सुसि, सुसि_len)) {
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
         return 0;
@@ -376,21 +376,21 @@ int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len)
  *
  * @unittest: 1603
  */
-void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
+void *Curl_hash_pick(struct Curl_hash *h, const void *सुसि, size_t सुसि_len)
 {
   const struct hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
+  if(!hash_सुसि_is_valid(h->type, सुसि_len))
     return NULL;
   if(h->table) {
     struct Curl_hash_element *he;
     DEBUGASSERT(h->slots);
     functions = hash_get_functions(h->type);
-    he = h->table[functions->hash(key, key_len, h->slots)];
+    he = h->table[functions->hash(सुसि, सुसि_len, h->slots)];
     while(he) {
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+      if(functions->compare(hash_elem_सुसि(he), he->सुसि_len, सुसि, सुसि_len)) {
         return he->ptr;
       }
       he = he->next;
@@ -438,7 +438,7 @@ void Curl_hash_clean(struct Curl_hash *h)
   }
 }
 
-size_t Curl_hash_count(struct Curl_hash *h)
+size_t Curl_hash_बिलांग(struct Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
   return h->size;

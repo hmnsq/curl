@@ -29,7 +29,7 @@
 
 #ifdef USE_OPENSSL
 #include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
+#if OPENSSL_VERSION_नुमेरो >= 0x30000000L && !defined(USE_AMISSL)
 /* OpenSSL 3.0.0 marks the MD4 functions as deprecated */
 #define OPENSSL_NO_MD4
 #else
@@ -61,9 +61,9 @@ static int my_md4_init(my_md4_ctx *ctx)
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *पासोक, unsigned int len)
 {
-  (void)EVP_DigestUpdate(*ctx, input, len);
+  (void)EVP_DigestUpdate(*ctx, पासोक, len);
 }
 
 static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
@@ -89,9 +89,9 @@ static int my_md4_init(my_md4_ctx *ctx)
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+                          const void *पासोक, unsigned long len)
 {
-  wc_Md4Update(ctx, input, (word32)len);
+  wc_Md4Update(ctx, पासोक, (word32)len);
 }
 
 static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
@@ -117,9 +117,9 @@ static int my_md4_init(my_md4_ctx *ctx)
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+                          const void *पासोक, unsigned long len)
 {
-  (void)CC_MD4_Update(ctx, input, (CC_LONG)len);
+  (void)CC_MD4_Update(ctx, पासोक, (CC_LONG)len);
 }
 
 static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
@@ -155,9 +155,9 @@ static int my_md4_init(my_md4_ctx *ctx)
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+                          const void *पासोक, unsigned long len)
 {
-  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned int)len, 0);
+  CryptHashData(ctx->hHash, (const BYTE *)पासोक, (unsigned int)len, 0);
 }
 
 static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
@@ -188,9 +188,9 @@ static int my_md4_init(my_md4_ctx *ctx)
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+                          const void *पासोक, unsigned long len)
 {
-  md4_update(ctx, len, input);
+  md4_update(ctx, len, पासोक);
 }
 
 static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
@@ -279,12 +279,12 @@ typedef struct md4_ctx my_md4_ctx;
  * the bit counters. There are no alignment requirements.
  */
 static const void *my_md4_body(my_md4_ctx *ctx,
-                               const void *input, unsigned long size)
+                               const void *पासोक, unsigned long size)
 {
   const unsigned char *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)input;
+  ptr = (const unsigned char *)पासोक;
 
   a = ctx->a;
   b = ctx->b;
@@ -383,7 +383,7 @@ static int my_md4_init(my_md4_ctx *ctx)
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+                          const void *पासोक, unsigned long len)
 {
   uint32_t saved_lo;
   unsigned long used;
@@ -400,22 +400,22 @@ static void my_md4_update(my_md4_ctx *ctx,
     unsigned long available = 64 - used;
 
     if(len < available) {
-      memcpy(&ctx->buffer[used], input, len);
+      memcpy(&ctx->buffer[used], पासोक, len);
       return;
     }
 
-    memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
+    memcpy(&ctx->buffer[used], पासोक, available);
+    पासोक = (const unsigned char *)पासोक + available;
     len -= available;
     my_md4_body(ctx, ctx->buffer, 64);
   }
 
   if(len >= 64) {
-    input = my_md4_body(ctx, input, len & ~(unsigned long)0x3f);
+    पासोक = my_md4_body(ctx, पासोक, len & ~(unsigned long)0x3f);
     len &= 0x3f;
   }
 
-  memcpy(ctx->buffer, input, len);
+  memcpy(ctx->buffer, पासोक, len);
 }
 
 static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
@@ -472,12 +472,12 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 #endif /* CRYPTO LIBS */
 
 CURLcode Curl_md4it(unsigned char *output,
-                    const unsigned char *input, const size_t len)
+                    const unsigned char *पासोक, const size_t len)
 {
   my_md4_ctx ctx;
   if(!my_md4_init(&ctx))
     return CURLE_FAILED_INIT;
-  my_md4_update(&ctx, input, curlx_uztoui(len));
+  my_md4_update(&ctx, पासोक, curlx_uztoui(len));
   my_md4_final(output, &ctx);
   return CURLE_OK;
 }

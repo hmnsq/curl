@@ -55,7 +55,7 @@ struct Curl_ssl_session;
 
 struct alpn_spec {
   char entries[ALPN_ENTRIES_MAX][ALPN_NAME_MAX];
-  size_t count; /* number of entries */
+  size_t बिलांग; /* number of entries */
 };
 
 struct alpn_proto_buf {
@@ -131,7 +131,7 @@ struct ssl_connect_data {
   int io_need;                      /* TLS signals special SEND/RECV needs */
   BIT(peer_closed);                 /* peer has closed connection */
   BIT(prefs_checked);               /* SSL preferences have been checked */
-  BIT(input_pending);               /* data for SSL_read() may be available */
+  BIT(पासोक_pending);               /* data for SSL_read() may be available */
   BIT(stats_reported);              /* connect times have been reported */
 };
 
@@ -176,7 +176,7 @@ struct Curl_ssl {
 
   struct curl_slist *(*engines_list)(struct Curl_easy *data);
 
-  CURLcode (*sha256sum)(const unsigned char *input, size_t inputlen,
+  CURLcode (*sha256sum)(const unsigned char *पासोक, size_t inputlen,
                         unsigned char *sha256sum, size_t sha256sumlen);
   CURLcode (*recv_plain)(struct Curl_cfilter *cf, struct Curl_easy *data,
                          char *buf, size_t len, size_t *pnread);

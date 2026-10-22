@@ -32,7 +32,7 @@
 
 #if defined(USE_OPENSSL) && \
   !defined(OPENSSL_IS_AWSLC) && !defined(OPENSSL_IS_BORINGSSL) && \
-  !defined(LIBRESSL_VERSION_NUMBER)
+  !defined(LIBRESSL_VERSION_नुमेरो)
 #define PREVENT_OPENSSL_MEMLEAK  /* non-fork OpenSSL */
 #endif
 

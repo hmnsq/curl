@@ -43,7 +43,7 @@ static const unsigned char hmac_ipad = 0x36;
 static const unsigned char hmac_opad = 0x5C;
 
 struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
+                                    const unsigned char *सुसि,
                                     unsigned int keylen)
 {
   size_t i;
@@ -66,10 +66,10 @@ struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
   if(keylen > hashparams->maxkeylen) {
     if(hashparams->hinit(ctxt->hashctxt1))
       goto fail;
-    hashparams->hupdate(ctxt->hashctxt1, key, keylen);
+    hashparams->hupdate(ctxt->hashctxt1, सुसि, keylen);
     hkey = (unsigned char *)ctxt->hashctxt2 + hashparams->ctxtsize;
     hashparams->hfinal(hkey, ctxt->hashctxt1);
-    key = hkey;
+    सुसि = hkey;
     keylen = hashparams->resultlen;
   }
 
@@ -79,9 +79,9 @@ struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
     goto fail;
 
   for(i = 0; i < keylen; i++) {
-    b = (unsigned char)(*key ^ hmac_ipad);
+    b = (unsigned char)(*सुसि ^ hmac_ipad);
     hashparams->hupdate(ctxt->hashctxt1, &b, 1);
-    b = (unsigned char)(*key++ ^ hmac_opad);
+    b = (unsigned char)(*सुसि++ ^ hmac_opad);
     hashparams->hupdate(ctxt->hashctxt2, &b, 1);
   }
 
@@ -141,14 +141,14 @@ int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
  * Returns CURLE_OK on success.
  */
 CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
+                     const unsigned char *सुसि, const size_t keylen,
                      const unsigned char *data, size_t datalen,
                      unsigned char *output)
 {
   struct HMAC_context *ctxt;
   if(keylen > UINT_MAX) /* unlikely to ever happen */
     return CURLE_BAD_FUNCTION_ARGUMENT;
-  ctxt = Curl_HMAC_init(hashparams, key, curlx_uztoui(keylen));
+  ctxt = Curl_HMAC_init(hashparams, सुसि, curlx_uztoui(keylen));
 
   if(!ctxt)
     return CURLE_OUT_OF_MEMORY;

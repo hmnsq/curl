@@ -56,7 +56,7 @@ struct HMAC_context {
 
 /* Prototypes. */
 struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
+                                    const unsigned char *सुसि,
                                     unsigned int keylen);
 void Curl_HMAC_update(struct HMAC_context *ctxt,
                       const unsigned char *data,
@@ -64,7 +64,7 @@ void Curl_HMAC_update(struct HMAC_context *ctxt,
 int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output);
 
 CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
+                     const unsigned char *सुसि, const size_t keylen,
                      const unsigned char *data, size_t datalen,
                      unsigned char *output);
 #endif

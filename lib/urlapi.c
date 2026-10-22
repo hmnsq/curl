@@ -253,9 +253,9 @@ size_t Curl_is_absolute_url(const char *url, char *buf, size_t buflen,
 }
 
 /* scan for byte values <= 31, 127 and maybe space */
-static bool badoctets(const char *input, size_t n, int flags)
+static bool badoctets(const char *पासोक, size_t n, int flags)
 {
-  const uint8_t *p = (const unsigned char *)input;
+  const uint8_t *p = (const unsigned char *)पासोक;
   const uint8_t control = flags & CURLU_ALLOW_SPACE ? 0x1f : 0x20;
   while(n--) {
     if(*p <= control || *p == 127)
@@ -355,7 +355,7 @@ UNITTEST CURLUcode parse_hostname_login(struct Curl_URL *u,
   else if(passwdp && badoctets(passwdp, strlen(passwdp), flags))
     ures = CURLUE_BAD_PASSWORD;
   else if(optionsp && badoctets(optionsp, strlen(optionsp), flags))
-    ures = CURLUE_MALFORMED_INPUT;
+    ures = CURLUE_MALFORMED_पासोक;
 
   userp = passwdp = optionsp = NULL;
 
@@ -400,7 +400,7 @@ UNITTEST CURLUcode parse_port(struct Curl_URL *u, struct dynbuf *host,
     /* this is a RFC2732-style specified IP-address */
     if(*portptr) {
       if(*portptr != ':')
-        return CURLUE_BAD_PORT_NUMBER;
+        return CURLUE_BAD_PORT_नुमेरो;
     }
     else
       portptr = NULL;
@@ -422,16 +422,16 @@ UNITTEST CURLUcode parse_port(struct Curl_URL *u, struct dynbuf *host,
     curlx_dyn_setlen(host, keep);
     portptr++;
     if(!*portptr)
-      return has_scheme ? CURLUE_OK : CURLUE_BAD_PORT_NUMBER;
+      return has_scheme ? CURLUE_OK : CURLUE_BAD_PORT_नुमेरो;
     if(*portptr == '\\')
       return CURLUE_BACKSLASH;
-    rc = curlx_str_number(&portptr, &port, 0xffff);
+    rc = curlx_str_नुमेरो(&portptr, &port, 0xffff);
     if(rc)
-      return CURLUE_BAD_PORT_NUMBER;
+      return CURLUE_BAD_PORT_नुमेरो;
     else if(*portptr == '\\')
       return CURLUE_BACKSLASH;
     else if(*portptr)
-      return CURLUE_BAD_PORT_NUMBER;
+      return CURLUE_BAD_PORT_नुमेरो;
 
     u->portnum = (uint16_t)port;
     u->port_present = TRUE;
@@ -591,10 +591,10 @@ UNITTEST int ipv4_normalize(struct dynbuf *host)
         rc = curlx_str_octal(&c, &l, UINT_MAX);
     }
     else
-      rc = curlx_str_number(&c, &l, UINT_MAX);
+      rc = curlx_str_नुमेरो(&c, &l, UINT_MAX);
 
     if(rc) {
-      if(!n || (rc != STRE_NO_NUM) || *c)
+      if(!n || (rc != STRE_NO_नुमेरो) || *c)
         return HOST_NAME;
       n--;
     }
@@ -753,7 +753,7 @@ CURLUcode Curl_url_set_authority(CURLU *u, const char *authority)
   struct dynbuf host;
 
   DEBUGASSERT(authority);
-  curlx_dyn_init(&host, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&host, CURL_MAX_पासोक_LENGTH);
 
   ures = parse_authority(u, authority, strlen(authority),
                          CURLU_DISALLOW_USER, &host, !!u->scheme);
@@ -831,18 +831,18 @@ static bool needs_dedotdot(const char *p, size_t pn)
  *
  * @unittest 1395
  */
-UNITTEST int dedotdotify(const char *input, size_t clen, char **outp);
-UNITTEST int dedotdotify(const char *input, size_t clen, char **outp)
+UNITTEST int dedotdotify(const char *पासोक, size_t clen, char **outp);
+UNITTEST int dedotdotify(const char *पासोक, size_t clen, char **outp)
 {
   struct dynbuf out;
   CURLcode result = CURLE_OK;
 
   /* variables for leading dot checks */
-  const char *dinput = input;
+  const char *dinput = पासोक;
   size_t dlen = clen;
 
   *outp = NULL;
-  if(!needs_dedotdot(input, clen))
+  if(!needs_dedotdot(पासोक, clen))
     return 0;
 
   curlx_dyn_init(&out, clen + 1);
@@ -852,7 +852,7 @@ UNITTEST int dedotdotify(const char *input, size_t clen, char **outp)
   if(is_dot(&dinput, &dlen)) {
     if(ISSLASH(*dinput)) {
       /* one dot followed by a slash */
-      input = dinput + 1;
+      पासोक = dinput + 1;
       clen = dlen - 1;
     }
 
@@ -864,15 +864,15 @@ UNITTEST int dedotdotify(const char *input, size_t clen, char **outp)
         goto end;
       else if(ISSLASH(*dinput)) {
         /* ../ */
-        input = dinput + 1;
+        पासोक = dinput + 1;
         clen = dlen - 1;
       }
     }
   }
 
   while(clen && !result) { /* until end of path content */
-    if(ISSLASH(*input)) {
-      const char *p = &input[1];
+    if(ISSLASH(*पासोक)) {
+      const char *p = &पासोक[1];
       size_t blen = clen - 1;
       /* if the input buffer begins with a prefix of "/./" or "/.", where "."
          is a complete path segment, then replace that prefix with "/" in the
@@ -883,7 +883,7 @@ UNITTEST int dedotdotify(const char *input, size_t clen, char **outp)
           break;
         }
         else if(ISSLASH(*p)) { /* /./ */
-          input = p;
+          पासोक = p;
           clen = blen;
           continue;
         }
@@ -904,7 +904,7 @@ UNITTEST int dedotdotify(const char *input, size_t clen, char **outp)
           }
 
           if(blen) { /* /../ */
-            input = p;
+            पासोक = p;
             clen = blen;
             continue;
           }
@@ -919,8 +919,8 @@ UNITTEST int dedotdotify(const char *input, size_t clen, char **outp)
        subsequent characters up to, but not including, the next "/" character
        or the end of the input buffer. */
 
-    result = curlx_dyn_addn(&out, input, 1);
-    input++;
+    result = curlx_dyn_addn(&out, पासोक, 1);
+    पासोक++;
     clen--;
   }
 end:
@@ -1039,7 +1039,7 @@ static CURLUcode parse_scheme(const char *url, CURLU *u, char *schemebuf,
   const char *schemep = NULL;
 
   if(schemelen) {
-    int num_slashes = 0;
+    int नुमेरो_slashes = 0;
     const char *p = &url[schemelen + 1];
     if(!Curl_getn_scheme(schemebuf, schemelen) &&
        !(flags & CURLU_NON_SUPPORT_SCHEME))
@@ -1049,17 +1049,17 @@ static CURLUcode parse_scheme(const char *url, CURLU *u, char *schemebuf,
       /* less than one */
       return CURLUE_BAD_SLASHES;
     if((flags & CURLU_NO_AUTHORITY)) {
-      while(ISSLASH(*p) && (num_slashes < 2)) {
+      while(ISSLASH(*p) && (नुमेरो_slashes < 2)) {
         p++;
-        num_slashes++;
+        नुमेरो_slashes++;
       }
     }
     else {
-      while(ISSLASH(*p) && (num_slashes < 4)) {
+      while(ISSLASH(*p) && (नुमेरो_slashes < 4)) {
         p++;
-        num_slashes++;
+        नुमेरो_slashes++;
       }
-      if(num_slashes > 3)
+      if(नुमेरो_slashes > 3)
         return CURLUE_BAD_SLASHES;
     }
 
@@ -1126,7 +1126,7 @@ static CURLUcode handle_fragment(CURLU *u, const char *fragment,
     /* skip the leading '#' in the copy but include the null-terminator */
     if(flags & CURLU_URLENCODE) {
       struct dynbuf enc;
-      curlx_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
+      curlx_dyn_init(&enc, CURL_MAX_पासोक_LENGTH);
       ures = urlencode_str(&enc, fragment + 1, fraglen - 1, TRUE, QUERY_NO);
       if(ures)
         return ures;
@@ -1151,7 +1151,7 @@ static CURLUcode handle_query(CURLU *u, const char *query,
     if(flags & CURLU_URLENCODE) {
       struct dynbuf enc;
       CURLUcode ures;
-      curlx_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
+      curlx_dyn_init(&enc, CURL_MAX_पासोक_LENGTH);
       /* skip the leading question mark */
       ures = urlencode_str(&enc, query + 1, qlen - 1, TRUE, QUERY_YES);
       if(ures)
@@ -1183,7 +1183,7 @@ static CURLUcode handle_path(CURLU *u, const char *path,
   CURLUcode ures;
   if(pathlen && (flags & CURLU_URLENCODE)) {
     struct dynbuf enc;
-    curlx_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
+    curlx_dyn_init(&enc, CURL_MAX_पासोक_LENGTH);
     ures = urlencode_str(&enc, path, pathlen, TRUE, QUERY_NO);
     if(ures)
       return ures;
@@ -1235,10 +1235,10 @@ static CURLUcode parseurl(const char *url, CURLU *u, unsigned int flags)
   DEBUGASSERT(url);
 
   urllen = strlen(url);
-  if(urllen > CURL_MAX_INPUT_LENGTH)
-    return CURLUE_MALFORMED_INPUT;
+  if(urllen > CURL_MAX_पासोक_LENGTH)
+    return CURLUE_MALFORMED_पासोक;
 
-  curlx_dyn_init(&host, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&host, CURL_MAX_पासोक_LENGTH);
 
   schemelen = Curl_is_absolute_url(url, schemebuf, sizeof(schemebuf),
                                    flags & (CURLU_GUESS_SCHEME |
@@ -1348,7 +1348,7 @@ static CURLUcode redirect_url(const char *base, const char *relurl,
   const char *protsep = base + strlen(scheme) + 3;
   DEBUGASSERT(base && relurl && u); /* all set here */
   if(!base)
-    return CURLUE_MALFORMED_INPUT; /* should never happen */
+    return CURLUE_MALFORMED_पासोक; /* should never happen */
 
   /* handle different relative URL types */
   switch(relurl[0]) {
@@ -1392,7 +1392,7 @@ static CURLUcode redirect_url(const char *base, const char *relurl,
   prelen = cutoff ? (size_t)(cutoff - base) : strlen(base);
 
   /* build new URL */
-  curlx_dyn_init(&urlbuf, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&urlbuf, CURL_MAX_पासोक_LENGTH);
 
   if(!curlx_dyn_addn(&urlbuf, base, prelen) &&
      !urlencode_str(&urlbuf, useurl, strlen(useurl), !host_changed,
@@ -1522,7 +1522,7 @@ static CURLUcode urlget_format(const CURLU *u, CURLUPart what,
   }
   if(urlencode) {
     struct dynbuf enc;
-    curlx_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
+    curlx_dyn_init(&enc, CURL_MAX_पासोक_LENGTH);
     uc = urlencode_str(&enc, part, partlen, TRUE, what == CURLUPART_QUERY ?
                        QUERY_YES : QUERY_NO);
     curlx_free(part);
@@ -1628,7 +1628,7 @@ static CURLUcode urlget_url(const CURLU *u, char **part, unsigned int flags)
         /* make it '[ host %25 zoneid ]' */
         struct dynbuf enc;
         size_t hostlen = strlen(u->host);
-        curlx_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
+        curlx_dyn_init(&enc, CURL_MAX_पासोक_LENGTH);
         if(curlx_dyn_addf(&enc, "%.*s%%25%s]", (int)hostlen - 1, u->host,
                           u->zoneid))
           return CURLUE_OUT_OF_MEMORY;
@@ -1825,10 +1825,10 @@ static CURLUcode set_url_port(CURLU *u, const char *provided_port)
   curl_off_t port;
   if(!ISDIGIT(provided_port[0]))
     /* not a number */
-    return CURLUE_BAD_PORT_NUMBER;
-  if(curlx_str_number(&provided_port, &port, 0xffff) || *provided_port)
+    return CURLUE_BAD_PORT_नुमेरो;
+  if(curlx_str_नुमेरो(&provided_port, &port, 0xffff) || *provided_port)
     /* weirdly provided number, not good! */
-    return CURLUE_BAD_PORT_NUMBER;
+    return CURLUE_BAD_PORT_नुमेरो;
   u->portnum = (uint16_t)port;
   u->port_present = TRUE;
   return CURLUE_OK;
@@ -1861,7 +1861,7 @@ static CURLUcode set_url(CURLU *u, const char *url, size_t part_size,
     }
     if(uc == CURLUE_OUT_OF_MEMORY)
       return uc;
-    return CURLUE_MALFORMED_INPUT;
+    return CURLUE_MALFORMED_पासोक;
   }
 
   /* if the new URL is absolute replace the existing with the new. */
@@ -2026,7 +2026,7 @@ static CURLUcode url_append_query(CURLU *u, struct dynbuf *encp)
     struct dynbuf qbuf;
     CURLcode result;
     const char *newp = curlx_dyn_ptr(encp);
-    curlx_dyn_init(&qbuf, CURL_MAX_INPUT_LENGTH);
+    curlx_dyn_init(&qbuf, CURL_MAX_पासोक_LENGTH);
 
     /* add original query */
     result = curlx_dyn_addn(&qbuf, u->query, querylen);
@@ -2073,7 +2073,7 @@ static CURLUcode url_sethost(CURLU *u, struct dynbuf *encp,
       bad = TRUE;
     else {
       struct dynbuf dbuf;
-      curlx_dyn_init(&dbuf, CURL_MAX_INPUT_LENGTH);
+      curlx_dyn_init(&dbuf, CURL_MAX_पासोक_LENGTH);
       if(curlx_dyn_addn(&dbuf, decoded, dlen))
         bad = TRUE;
       else if(ipv4_normalize(&dbuf) == HOST_IPV4) {
@@ -2115,9 +2115,9 @@ CURLUcode curl_url_set(CURLU *u, CURLUPart what,
     return urlset_clear(u, what);
 
   nalloc = strlen(part);
-  if(nalloc > CURL_MAX_INPUT_LENGTH)
+  if(nalloc > CURL_MAX_पासोक_LENGTH)
     /* excessive input length */
-    return CURLUE_MALFORMED_INPUT;
+    return CURLUE_MALFORMED_पासोक;
 
   switch(what) {
   case CURLUPART_SCHEME: {

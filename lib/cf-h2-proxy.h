@@ -27,7 +27,7 @@
 
 #if defined(USE_NGHTTP2) && !defined(CURL_DISABLE_PROXY)
 
-CURLcode Curl_cf_h2_proxy_insert_after(struct Curl_cfilter *cf,
+CURLcode Curl_cf_h2_proxy_इसिंगित_after(struct Curl_cfilter *cf,
                                        struct Curl_easy *data,
                                        struct Curl_peer *peer,
                                        struct Curl_peer *dest,

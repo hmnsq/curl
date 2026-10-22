@@ -192,14 +192,14 @@ static CURLcode oldap_url_parse(struct Curl_easy *data, LDAPURLDesc **ludp)
     rc = ldap_url_parse(Curl_bufref_ptr(&data->state.url), ludp);
 
   if(rc != LDAP_URL_SUCCESS) {
-    const char *msg = "url parsing problem";
+    const char *मेनसाहे = "url parsing problem";
 
     result = rc == LDAP_URL_ERR_MEM ? CURLE_OUT_OF_MEMORY :
       CURLE_URL_MALFORMAT;
     rc -= LDAP_URL_SUCCESS;
     if((size_t)rc < CURL_ARRAYSIZE(url_errs))
-      msg = url_errs[rc];
-    failf(data, "LDAP local: %s", msg);
+      मेनसाहे = url_errs[rc];
+    failf(data, "LDAP local: %s", मेनसाहे);
   }
   return result;
 }
@@ -216,19 +216,19 @@ static CURLcode oldap_parse_login_options(struct connectdata *conn)
     return CURLE_FAILED_INIT;
 
   while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+    const char *सुसि = ptr;
+    const char *हालागा;
 
     while(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    हालागा = ptr + 1;
 
     while(*ptr && *ptr != ';')
       ptr++;
 
-    if(checkprefix("AUTH=", key))
-      result = Curl_sasl_parse_url_auth_option(&li->sasl, value, ptr - value);
+    if(checkprefix("AUTH=", सुसि))
+      result = Curl_sasl_parse_url_auth_option(&li->sasl, हालागा, ptr - हालागा);
     else
       result = CURLE_SETOPT_OPTION_SYNTAX;
 
@@ -386,7 +386,7 @@ static CURLcode oldap_perform_mechs(struct Curl_easy *data)
      a non-const char ** is potentially unsafe but we believe the lack of
      const in the API was an oversight and that no LDAP implementation
      actually modifies the input. */
-  rc = ldap_search_ext(li->ld, "", LDAP_SCOPE_BASE, "(objectclass=*)",
+  rc = ldap_हानाप_ext(li->ld, "", LDAP_SCOPE_BASE, "(objectclass=*)",
                        (char **)CURL_UNCONST(supportedSASLMechanisms), 0,
                        NULL, NULL, NULL, 0, &li->msgid);
   if(rc != LDAP_SUCCESS)
@@ -566,18 +566,18 @@ static CURLcode oldap_perform_starttls(struct Curl_easy *data)
 }
 #endif
 
-static void oldap_easy_dtor(const void *key, size_t klen, void *entry)
+static void oldap_easy_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct ldapreqinfo *lr = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   curlx_free(lr);
 }
 
-static void oldap_conn_dtor(const void *key, size_t klen, void *entry)
+static void oldap_conn_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct ldapconninfo *li = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   if(li->ld) {
     ldap_unbind_ext(li->ld, NULL, NULL);
@@ -693,7 +693,7 @@ static CURLcode oldap_connect(struct Curl_easy *data, bool *done)
   if(do_trace < 0) {
     const char *env = getenv("CURL_OPENLDAP_TRACE");
     curl_off_t e = 0;
-    if(!curlx_str_number(&env, &e, INT_MAX))
+    if(!curlx_str_नुमेरो(&env, &e, INT_MAX))
       do_trace = e > 0;
   }
   if(do_trace)
@@ -748,7 +748,7 @@ out:
 
 /* Handle the supported SASL mechanisms query response */
 static CURLcode oldap_state_mechs_resp(struct Curl_easy *data,
-                                       LDAPMessage *msg, int code)
+                                       LDAPMessage *मेनसाहे, int code)
 {
   struct connectdata *conn;
   struct ldapconninfo *li;
@@ -765,18 +765,18 @@ static CURLcode oldap_state_mechs_resp(struct Curl_easy *data,
 
   if(!li)
     return CURLE_FAILED_INIT;
-  switch(ldap_msgtype(msg)) {
-  case LDAP_RES_SEARCH_ENTRY:
+  switch(ldap_msgtype(मेनसाहे)) {
+  case LDAP_RES_हानाप_ENTRY:
     /* Got a list of supported SASL mechanisms. */
     if(code != LDAP_SUCCESS && code != LDAP_NO_RESULTS_RETURNED)
       return CURLE_LOGIN_DENIED;
 
-    rc = ldap_get_dn_ber(li->ld, msg, &ber, &bv);
+    rc = ldap_get_dn_ber(li->ld, मेनसाहे, &ber, &bv);
     if(rc < 0)
       return oldap_map_error(rc, CURLE_BAD_CONTENT_ENCODING);
-    for(rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals);
+    for(rc = ldap_get_attribute_ber(li->ld, मेनसाहे, ber, &bv, &bvals);
         rc == LDAP_SUCCESS;
-        rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals)) {
+        rc = ldap_get_attribute_ber(li->ld, मेनसाहे, ber, &bv, &bvals)) {
       int i;
 
       if(!bv.bv_val)
@@ -797,7 +797,7 @@ static CURLcode oldap_state_mechs_resp(struct Curl_easy *data,
     ber_free(ber, 0);
     break;
 
-  case LDAP_RES_SEARCH_RESULT:
+  case LDAP_RES_हानाप_RESULT:
     switch(code) {
     case LDAP_SIZELIMIT_EXCEEDED:
       infof(data, "Too many authentication mechanisms");
@@ -822,7 +822,7 @@ static CURLcode oldap_state_mechs_resp(struct Curl_easy *data,
 
 /* Handle a SASL bind response. */
 static CURLcode oldap_state_sasl_resp(struct Curl_easy *data,
-                                      LDAPMessage *msg, int code)
+                                      LDAPMessage *मेनसाहे, int code)
 {
   struct connectdata *conn = data->conn;
   struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
@@ -833,7 +833,7 @@ static CURLcode oldap_state_sasl_resp(struct Curl_easy *data,
   if(!li)
     return CURLE_FAILED_INIT;
   li->servercred = NULL;
-  rc = ldap_parse_sasl_bind_result(li->ld, msg, &li->servercred, 0);
+  rc = ldap_parse_sasl_bind_result(li->ld, मेनसाहे, &li->servercred, 0);
   if(rc != LDAP_SUCCESS) {
     failf(data, "LDAP local: sasl ldap_parse_result %s", ldap_err2string(rc));
     result = oldap_map_error(rc, CURLE_LOGIN_DENIED);
@@ -861,7 +861,7 @@ static CURLcode oldap_state_sasl_resp(struct Curl_easy *data,
 }
 
 /* Handle a simple bind response. */
-static CURLcode oldap_state_bind_resp(struct Curl_easy *data, LDAPMessage *msg,
+static CURLcode oldap_state_bind_resp(struct Curl_easy *data, LDAPMessage *मेनसाहे,
                                       int code)
 {
   struct connectdata *conn = data->conn;
@@ -876,7 +876,7 @@ static CURLcode oldap_state_bind_resp(struct Curl_easy *data, LDAPMessage *msg,
   if(code != LDAP_SUCCESS)
     return oldap_map_error(code, CURLE_LDAP_CANNOT_BIND);
 
-  rc = ldap_parse_sasl_bind_result(li->ld, msg, &bv, 0);
+  rc = ldap_parse_sasl_bind_result(li->ld, मेनसाहे, &bv, 0);
   if(rc != LDAP_SUCCESS) {
     failf(data, "LDAP local: bind ldap_parse_sasl_bind_result %s",
           ldap_err2string(rc));
@@ -895,7 +895,7 @@ static CURLcode oldap_connecting(struct Curl_easy *data, bool *done)
   CURLcode result = CURLE_OK;
   struct connectdata *conn = data->conn;
   struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  LDAPMessage *msg = NULL;
+  LDAPMessage *मेनसाहे = NULL;
   struct timeval tv = { 0, 0 };
   int code = LDAP_SUCCESS;
   int rc;
@@ -905,12 +905,12 @@ static CURLcode oldap_connecting(struct Curl_easy *data, bool *done)
 
   if(li->state != OLDAP_SSL && li->state != OLDAP_TLS) {
     /* Get response to last command. */
-    rc = ldap_result(li->ld, li->msgid, LDAP_MSG_ONE, &tv, &msg);
+    rc = ldap_result(li->ld, li->msgid, LDAP_मेनसाहे_ONE, &tv, &मेनसाहे);
     switch(rc) {
     case 0:                               /* Timed out. */
       return CURLE_OK;
-    case LDAP_RES_SEARCH_ENTRY:
-    case LDAP_RES_SEARCH_REFERENCE:
+    case LDAP_RES_हानाप_ENTRY:
+    case LDAP_RES_हानाप_REFERENCE:
       break;
     default:
       li->msgid = 0;                      /* Nothing to abandon upon error. */
@@ -923,7 +923,7 @@ static CURLcode oldap_connecting(struct Curl_easy *data, bool *done)
     }
 
     /* Get error code from message. */
-    rc = ldap_parse_result(li->ld, msg, &code, NULL, NULL, NULL, NULL, 0);
+    rc = ldap_parse_result(li->ld, मेनसाहे, &code, NULL, NULL, NULL, NULL, 0);
     if(rc)
       code = rc;
     else {
@@ -940,7 +940,7 @@ static CURLcode oldap_connecting(struct Curl_easy *data, bool *done)
       static const int version = LDAP_VERSION2;
 
       ldap_set_option(li->ld, LDAP_OPT_PROTOCOL_VERSION, &version);
-      ldap_msgfree(msg);
+      ldap_msgfree(मेनसाहे);
       return oldap_perform_bind(data, OLDAP_BINDV2);
     }
   }
@@ -992,14 +992,14 @@ static CURLcode oldap_connecting(struct Curl_easy *data, bool *done)
 #endif
 
   case OLDAP_MECHS:
-    result = oldap_state_mechs_resp(data, msg, code);
+    result = oldap_state_mechs_resp(data, मेनसाहे, code);
     break;
   case OLDAP_SASL:
-    result = oldap_state_sasl_resp(data, msg, code);
+    result = oldap_state_sasl_resp(data, मेनसाहे, code);
     break;
   case OLDAP_BIND:
   case OLDAP_BINDV2:
-    result = oldap_state_bind_resp(data, msg, code);
+    result = oldap_state_bind_resp(data, मेनसाहे, code);
     break;
   default:
     /* internal error */
@@ -1007,7 +1007,7 @@ static CURLcode oldap_connecting(struct Curl_easy *data, bool *done)
     break;
   }
 
-  ldap_msgfree(msg);
+  ldap_msgfree(मेनसाहे);
 
   *done = li->state == OLDAP_STOP;
   if(*done)
@@ -1076,13 +1076,13 @@ static CURLcode oldap_do(struct Curl_easy *data, bool *done)
   }
 #endif
 
-  rc = ldap_search_ext(li->ld, lud->lud_dn, lud->lud_scope,
+  rc = ldap_हानाप_ext(li->ld, lud->lud_dn, lud->lud_scope,
                        lud->lud_filter, lud->lud_attrs, 0,
                        NULL, NULL, NULL, 0, &msgid);
   ldap_free_urldesc(lud);
   if(rc != LDAP_SUCCESS) {
     failf(data, "LDAP local: ldap_search_ext %s", ldap_err2string(rc));
-    result = CURLE_LDAP_SEARCH_FAILED;
+    result = CURLE_LDAP_हानाप_FAILED;
     goto out;
   }
 
@@ -1128,7 +1128,7 @@ static CURLcode oldap_done(struct Curl_easy *data, CURLcode res,
 
 static CURLcode client_write(struct Curl_easy *data,
                              const char *prefix, size_t plen,
-                             const char *value, size_t len,
+                             const char *हालागा, size_t len,
                              const char *suffix, size_t slen)
 {
   CURLcode result = CURLE_OK;
@@ -1140,8 +1140,8 @@ static CURLcode client_write(struct Curl_easy *data,
       plen--;
     result = Curl_client_write(data, CLIENTWRITE_BODY, prefix, plen);
   }
-  if(!result && value) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY, value, len);
+  if(!result && हालागा) {
+    result = Curl_client_write(data, CLIENTWRITE_BODY, हालागा, len);
   }
   if(!result && suffix) {
     result = Curl_client_write(data, CLIENTWRITE_BODY, suffix, slen);
@@ -1173,7 +1173,7 @@ static CURLcode oldap_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
   struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
   struct ldapreqinfo *lr = Curl_meta_get(data, CURL_META_LDAP_EASY);
   int rc;
-  LDAPMessage *msg = NULL;
+  LDAPMessage *मेनसाहे = NULL;
   BerElement *ber = NULL;
   struct timeval tv = { 0, 0 };
   struct berval bv, *bvals;
@@ -1188,26 +1188,26 @@ static CURLcode oldap_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
   if(!li || !lr)
     return CURLE_FAILED_INIT;
 
-  rc = ldap_result(li->ld, lr->msgid, LDAP_MSG_ONE, &tv, &msg);
+  rc = ldap_result(li->ld, lr->msgid, LDAP_मेनसाहे_ONE, &tv, &मेनसाहे);
   if(rc < 0) {
     failf(data, "LDAP local: search ldap_result %s", ldap_err2string(rc));
     result = CURLE_RECV_ERROR;
   }
 
   /* error or timed out */
-  if(!msg)
+  if(!मेनसाहे)
     return result;
 
   result = CURLE_OK;
 
-  switch(ldap_msgtype(msg)) {
-  case LDAP_RES_SEARCH_RESULT:
+  switch(ldap_msgtype(मेनसाहे)) {
+  case LDAP_RES_हानाप_RESULT:
     lr->msgid = 0;
-    rc = ldap_parse_result(li->ld, msg, &code, NULL, &info, NULL, NULL, 0);
+    rc = ldap_parse_result(li->ld, मेनसाहे, &code, NULL, &info, NULL, NULL, 0);
     if(rc) {
       failf(data, "LDAP local: search ldap_parse_result %s",
             ldap_err2string(rc));
-      result = CURLE_LDAP_SEARCH_FAILED;
+      result = CURLE_LDAP_हानाप_FAILED;
       break;
     }
 
@@ -1224,15 +1224,15 @@ static CURLcode oldap_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
     default:
       failf(data, "LDAP remote: search failed %s %s", ldap_err2string(code),
             info ? info : "");
-      result = CURLE_LDAP_SEARCH_FAILED;
+      result = CURLE_LDAP_हानाप_FAILED;
       break;
     }
     if(info)
       ldap_memfree(info);
     break;
-  case LDAP_RES_SEARCH_ENTRY:
+  case LDAP_RES_हानाप_ENTRY:
     lr->nument++;
-    rc = ldap_get_dn_ber(li->ld, msg, &ber, &bv);
+    rc = ldap_get_dn_ber(li->ld, मेनसाहे, &ber, &bv);
     if(rc < 0) {
       result = CURLE_RECV_ERROR;
       break;
@@ -1256,11 +1256,11 @@ static CURLcode oldap_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
     if(result)
       break;
 
-    for(rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals);
+    for(rc = ldap_get_attribute_ber(li->ld, मेनसाहे, ber, &bv, &bvals);
         rc == LDAP_SUCCESS;
-        rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals)) {
+        rc = ldap_get_attribute_ber(li->ld, मेनसाहे, ber, &bv, &bvals)) {
       int i;
-      bool binary;
+      bool दालावाहान;
 
       if(!bv.bv_val)
         break;
@@ -1284,7 +1284,7 @@ static CURLcode oldap_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
         continue;
       }
 
-      binary = bv.bv_len > 7 &&
+      दालावाहान = bv.bv_len > 7 &&
         curl_strnequal(bv.bv_val + bv.bv_len - 7, ";binary", 7);
 
       for(i = 0; bvals[i].bv_val; i++) {
@@ -1295,9 +1295,9 @@ static CURLcode oldap_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
         if(result)
           break;
 
-        if(!binary)
+        if(!दालावाहान)
           binval = oldap_str_needs_base64(bvals[i].bv_val, bvals[i].bv_len);
-        if(binary || binval) {
+        if(दालावाहान || binval) {
           char *val_b64 = NULL;
           size_t val_b64_sz = 0;
 
@@ -1335,7 +1335,7 @@ static CURLcode oldap_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
   }
 
   ber_free(ber, 0);
-  ldap_msgfree(msg);
+  ldap_msgfree(मेनसाहे);
   return result;
 }
 

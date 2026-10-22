@@ -49,7 +49,7 @@
 #include "headers.h"
 #include "curl_share.h"
 
-#if NGHTTP2_VERSION_NUM < 0x010f00
+#if NGHTTP2_VERSION_नुमेरो < 0x010f00
 #error "nghttp2 1.15.0 or greater required"
 #endif
 
@@ -110,7 +110,7 @@ struct cf_h2_ctx {
   BIT(conn_closed);
   BIT(rcvd_goaway);
   BIT(sent_goaway);
-  BIT(enable_push);
+  BIT(enable_इतुलाक);
   BIT(nw_out_blocked);
 };
 
@@ -129,9 +129,9 @@ struct h2_stream_ctx {
   curl_off_t xfer_id;  /* transfer `id` owning this stream */
   curl_off_t nrcvd_data;  /* number of DATA bytes received */
 
-  char **push_headers;       /* allocated array */
-  size_t push_headers_used;  /* number of entries filled in */
-  size_t push_headers_alloc; /* number of entries allocated */
+  char **इतुलाक_headers;       /* allocated array */
+  size_t इतुलाक_headers_used;  /* number of entries filled in */
+  size_t इतुलाक_headers_alloc; /* number of entries allocated */
 
   int32_t id; /* HTTP/2 protocol identifier for stream */
   uint32_t mid; /* transfer `mid` owning this stream */
@@ -150,13 +150,13 @@ struct h2_stream_ctx {
   BIT(write_paused);  /* stream write is paused */
 };
 
-static void free_push_headers(struct h2_stream_ctx *stream)
+static void free_इतुलाक_headers(struct h2_stream_ctx *stream)
 {
   size_t i;
-  for(i = 0; i < stream->push_headers_used; i++)
-    curlx_free(stream->push_headers[i]);
-  curlx_safefree(stream->push_headers);
-  stream->push_headers_used = 0;
+  for(i = 0; i < stream->इतुलाक_headers_used; i++)
+    curlx_free(stream->इतुलाक_headers[i]);
+  curlx_safefree(stream->इतुलाक_headers);
+  stream->इतुलाक_headers_used = 0;
 }
 
 static void h2_stream_ctx_free(struct h2_stream_ctx *stream)
@@ -164,7 +164,7 @@ static void h2_stream_ctx_free(struct h2_stream_ctx *stream)
   Curl_bufq_free(&stream->sendbuf);
   Curl_h1_req_parse_free(&stream->h1);
   Curl_dynhds_free(&stream->resp_trailers);
-  free_push_headers(stream);
+  free_इतुलाक_headers(stream);
   curlx_free(stream);
 }
 
@@ -219,14 +219,14 @@ static size_t populate_settings(nghttp2_settings_entry *iv,
                                 struct cf_h2_ctx *ctx)
 {
   iv[0].settings_id = NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS;
-  iv[0].value = Curl_multi_max_concurrent_streams(data->multi);
+  iv[0].हालागा = Curl_multi_max_concurrent_streams(data->multi);
 
   iv[1].settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
-  iv[1].value = cf_h2_initial_win_size(data);
+  iv[1].हालागा = cf_h2_initial_win_size(data);
   if(ctx)
-    ctx->initial_win_size = iv[1].value;
-  iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_PUSH;
-  iv[2].value = !!data->multi->push_cb;
+    ctx->initial_win_size = iv[1].हालागा;
+  iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_इतुलाक;
+  iv[2].हालागा = !!data->multi->इतुलाक_cb;
 
   return 3;
 }
@@ -248,7 +248,7 @@ static CURLcode cf_h2_update_settings(struct cf_h2_ctx *ctx,
 {
   nghttp2_settings_entry entry;
   entry.settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
-  entry.value = initial_win_size;
+  entry.हालागा = initial_win_size;
   if(Curl_ngh2_submit_settings(&ctx->ngh2, NGHTTP2_FLAG_NONE, &entry, 1))
     return CURLE_SEND_ERROR;
   ctx->initial_win_size = initial_win_size;
@@ -273,9 +273,9 @@ static struct h2_stream_ctx *h2_stream_ctx_create(struct cf_h2_ctx *ctx,
   stream->mid = data->mid;
   Curl_bufq_initp(&stream->sendbuf, &ctx->stream_bufcp,
                   H2_STREAM_SEND_CHUNKS, BUFQ_OPT_NONE);
-  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_LINE_LEN);
+  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_लिन्या_LEN);
   Curl_dynhds_init(&stream->resp_trailers,
-                   MAX_HTTP_RESP_HEADER_COUNT, DYN_HTTP_REQUEST);
+                   MAX_HTTP_RESP_HEADER_बिलांग, DYN_HTTP_REQUEST);
   stream->bodystarted = FALSE;
   stream->status_code = -1;
   stream->closed = FALSE;
@@ -487,7 +487,7 @@ static int h2_client_new(struct Curl_cfilter *cf,
     return rc;
   /* We handle window updates ourself to enforce buffer limits */
   nghttp2_option_set_no_auto_window_update(o, 1);
-#if NGHTTP2_VERSION_NUM >= 0x013200 /* with 1.50.0 */
+#if NGHTTP2_VERSION_नुमेरो >= 0x013200 /* with 1.50.0 */
   /* turn off RFC 9113 leading and trailing white spaces validation against
      HTTP field value. */
   nghttp2_option_set_no_rfc9113_leading_and_trailing_ws_validation(o, 1);
@@ -511,7 +511,7 @@ static int should_close_session(struct cf_h2_ctx *ctx)
  * This function returns 0 if it succeeds, or -1 and error code will
  * be assigned to *err.
  */
-static CURLcode h2_process_pending_input(struct Curl_cfilter *cf,
+static CURLcode h2_process_pending_पासोक(struct Curl_cfilter *cf,
                                          struct Curl_easy *data)
 {
   struct cf_h2_ctx *ctx = cf->ctx;
@@ -555,28 +555,28 @@ static CURLcode h2_process_pending_input(struct Curl_cfilter *cf,
  * and distinguish between closed and data.
  */
 static bool http2_connisalive(struct Curl_cfilter *cf, struct Curl_easy *data,
-                              bool *input_pending)
+                              bool *पासोक_pending)
 {
   struct cf_h2_ctx *ctx = cf->ctx;
   bool alive = TRUE;
 
-  *input_pending = FALSE;
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
+  *पासोक_pending = FALSE;
+  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, पासोक_pending))
     return FALSE;
 
-  if(*input_pending) {
+  if(*पासोक_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
     CURLcode result;
     size_t nread;
 
-    *input_pending = FALSE;
+    *पासोक_pending = FALSE;
     result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
     CURL_TRC_CF(data, cf, "connisalive, recv pending input -> %d, %zu",
                 (int)result, nread);
     if(!result) {
-      result = h2_process_pending_input(cf, data);
+      result = h2_process_pending_पासोक(cf, data);
       if(result)
         /* immediate error, considered dead */
         alive = FALSE;
@@ -671,21 +671,21 @@ static ssize_t send_callback(nghttp2_session *h2,
 struct curl_pushheaders {
   struct Curl_easy *data;
   struct h2_stream_ctx *stream;
-  const nghttp2_push_promise *frame;
+  const nghttp2_इतुलाक_promise *frame;
 };
 
 /*
  * push header access function. Only to be used from within the push callback
  */
-char *curl_pushheader_bynum(struct curl_pushheaders *h, size_t num)
+char *curl_pushheader_bynum(struct curl_pushheaders *h, size_t नुमेरो)
 {
   /* Verify that we got a good easy handle in the push header struct, mostly to
      detect rubbish input fast(er). */
   if(!h || !GOOD_EASY_HANDLE(h->data))
     return NULL;
   else {
-    if(h->stream && num < h->stream->push_headers_used)
-      return h->stream->push_headers[num];
+    if(h->stream && नुमेरो < h->stream->इतुलाक_headers_used)
+      return h->stream->इतुलाक_headers[नुमेरो];
   }
   return NULL;
 }
@@ -713,12 +713,12 @@ char *curl_pushheader_byname(struct curl_pushheaders *h, const char *name)
     return NULL;
 
   len = strlen(name);
-  for(i = 0; i < stream->push_headers_used; i++) {
-    if(!strncmp(name, stream->push_headers[i], len)) {
+  for(i = 0; i < stream->इतुलाक_headers_used; i++) {
+    if(!strncmp(name, stream->इतुलाक_headers[i], len)) {
       /* sub-match, make sure that it is followed by a colon */
-      if(stream->push_headers[i][len] != ':')
+      if(stream->इतुलाक_headers[i][len] != ':')
         continue;
-      return &stream->push_headers[i][len + 1];
+      return &stream->इतुलाक_headers[i][len + 1];
     }
   }
   return NULL;
@@ -819,16 +819,16 @@ static void discard_newhandle(struct Curl_cfilter *cf,
   (void)Curl_close(&newhandle);
 }
 
-static int push_promise(struct Curl_cfilter *cf,
+static int इतुलाक_promise(struct Curl_cfilter *cf,
                         struct Curl_easy *data,
-                        const nghttp2_push_promise *frame)
+                        const nghttp2_इतुलाक_promise *frame)
 {
   struct cf_h2_ctx *ctx = cf->ctx;
   int rv; /* one of the CURL_PUSH_* defines */
 
   CURL_TRC_CF(data, cf, "[%d] PUSH_PROMISE received",
               frame->promised_stream_id);
-  if(data->multi->push_cb) {
+  if(data->multi->इतुलाक_cb) {
     struct h2_stream_ctx *stream;
     struct h2_stream_ctx *newstream;
     struct curl_pushheaders heads;
@@ -838,7 +838,7 @@ static int push_promise(struct Curl_cfilter *cf,
     struct Curl_easy *newhandle = h2_duphandle(cf, data);
     if(!newhandle) {
       infof(data, "failed to duplicate handle");
-      rv = CURL_PUSH_DENY; /* FAIL HARD */
+      rv = CURL_इतुलाक_DENY; /* FAIL HARD */
       goto fail;
     }
 
@@ -846,7 +846,7 @@ static int push_promise(struct Curl_cfilter *cf,
     if(!stream) {
       failf(data, "Internal NULL stream");
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
+      rv = CURL_इतुलाक_DENY;
       goto fail;
     }
 
@@ -859,24 +859,24 @@ static int push_promise(struct Curl_cfilter *cf,
       CURL_TRC_CF(data, cf, "[%d] PUSH_PROMISE, failed to set URL -> %d",
                   frame->promised_stream_id, rv);
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
+      rv = CURL_इतुलाक_DENY;
       goto fail;
     }
 
     {
       struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, multi_push_cb);
-      rv = data->multi->push_cb(data, newhandle,
-                                stream->push_headers_used, &heads,
-                                data->multi->push_userp);
+      CURL_CBAPI_START(&guard, data, multi_इतुलाक_cb);
+      rv = data->multi->इतुलाक_cb(data, newhandle,
+                                stream->इतुलाक_headers_used, &heads,
+                                data->multi->इतुलाक_userp);
       CURL_CBAPI_END(&guard);
     }
 
     /* free the headers again */
-    free_push_headers(stream);
+    free_इतुलाक_headers(stream);
 
     if(rv) {
-      DEBUGASSERT((rv > CURL_PUSH_OK) && (rv <= CURL_PUSH_ERROROUT));
+      DEBUGASSERT((rv > CURL_इतुलाक_OK) && (rv <= CURL_इतुलाक_ERROROUT));
       /* denied, kill off the new handle again */
       CURL_TRC_CF(data, cf, "[%d] PUSH_PROMISE, denied by application -> %d",
                   frame->promised_stream_id, rv);
@@ -891,7 +891,7 @@ static int push_promise(struct Curl_cfilter *cf,
     if(mresult) {
       infof(data, "failed to add handle to multi");
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
+      rv = CURL_इतुलाक_DENY;
       goto fail;
     }
 
@@ -899,7 +899,7 @@ static int push_promise(struct Curl_cfilter *cf,
     if(result) {
       failf(data, "error setting up stream: %d", (int)result);
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
+      rv = CURL_इतुलाक_DENY;
       goto fail;
     }
 
@@ -917,7 +917,7 @@ static int push_promise(struct Curl_cfilter *cf,
             newstream->id);
       DEBUGASSERT(0);
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
+      rv = CURL_इतुलाक_DENY;
       goto fail;
     }
 
@@ -927,7 +927,7 @@ static int push_promise(struct Curl_cfilter *cf,
   }
   else {
     CURL_TRC_CF(data, cf, "Got PUSH_PROMISE, ignore it");
-    rv = CURL_PUSH_DENY;
+    rv = CURL_इतुलाक_DENY;
   }
 fail:
   return rv;
@@ -1036,15 +1036,15 @@ static CURLcode on_stream_frame(struct Curl_cfilter *cf,
 
     Curl_multi_mark_dirty(data);
     break;
-  case NGHTTP2_PUSH_PROMISE:
-    rv = push_promise(cf, data, &frame->push_promise);
+  case NGHTTP2_इतुलाक_PROMISE:
+    rv = इतुलाक_promise(cf, data, &frame->इतुलाक_promise);
     if(rv) { /* deny! */
-      DEBUGASSERT((rv > CURL_PUSH_OK) && (rv <= CURL_PUSH_ERROROUT));
+      DEBUGASSERT((rv > CURL_इतुलाक_OK) && (rv <= CURL_इतुलाक_ERROROUT));
       if(Curl_ngh2_is_fatal(&ctx->ngh2,
            Curl_ngh2_submit_rst_stream(&ctx->ngh2, NGHTTP2_FLAG_NONE,
-             frame->push_promise.promised_stream_id, NGHTTP2_CANCEL)))
+             frame->इतुलाक_promise.promised_stream_id, NGHTTP2_CANCEL)))
         return CURLE_SEND_ERROR;
-      else if(rv == CURL_PUSH_ERROROUT) {
+      else if(rv == CURL_इतुलाक_ERROROUT) {
         /* fail the parent transfer, not the whole session */
         CURL_TRC_CF(data, cf, "[%d] fail in PUSH_PROMISE received",
                     stream_id);
@@ -1094,7 +1094,7 @@ static CURLcode on_stream_frame(struct Curl_cfilter *cf,
 }
 
 #ifdef CURLVERBOSE
-int Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
+int Curl_nghttp2_fr_इलिम्बाग(const nghttp2_frame *frame, char *buffer,
                           size_t blen)
 {
   switch(frame->hd.type) {
@@ -1130,7 +1130,7 @@ int Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
     return curl_msnprintf(buffer, blen,
                           "FRAME[SETTINGS, len=%d]", (int)frame->hd.length);
   }
-  case NGHTTP2_PUSH_PROMISE:
+  case NGHTTP2_इतुलाक_PROMISE:
     return curl_msnprintf(buffer, blen,
                           "FRAME[PUSH_PROMISE, len=%d, hend=%d]",
                           (int)frame->hd.length,
@@ -1177,7 +1177,7 @@ static int on_frame_send(nghttp2_session *session, const nghttp2_frame *frame,
   if(Curl_trc_cf_is_verbose(cf, data)) {
     char buffer[256];
     int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
+    len = Curl_nghttp2_fr_इलिम्बाग(frame, buffer, sizeof(buffer) - 1);
     buffer[len] = 0;
     CURL_TRC_CF(data, cf, "[%d] -> %s", frame->hd.stream_id, buffer);
   }
@@ -1207,7 +1207,7 @@ static int on_frame_recv(nghttp2_session *session, const nghttp2_frame *frame,
   if(Curl_trc_cf_is_verbose(cf, data)) {
     char buffer[256];
     int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
+    len = Curl_nghttp2_fr_इलिम्बाग(frame, buffer, sizeof(buffer) - 1);
     buffer[len] = 0;
     CURL_TRC_CF(data, cf, "[%d] <- %s", frame->hd.stream_id, buffer);
   }
@@ -1223,12 +1223,12 @@ static int on_frame_recv(nghttp2_session *session, const nghttp2_frame *frame,
         ctx->max_concurrent_streams =
           Curl_ngh2_session_get_remote_settings(
             &ctx->ngh2, NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS);
-        ctx->enable_push = Curl_ngh2_session_get_remote_settings(
-          &ctx->ngh2, NGHTTP2_SETTINGS_ENABLE_PUSH) != 0;
+        ctx->enable_इतुलाक = Curl_ngh2_session_get_remote_settings(
+          &ctx->ngh2, NGHTTP2_SETTINGS_ENABLE_इतुलाक) != 0;
         CURL_TRC_CF(data, cf, "[0] MAX_CONCURRENT_STREAMS: %u",
                     ctx->max_concurrent_streams);
         CURL_TRC_CF(data, cf, "[0] ENABLE_PUSH: %s",
-                    ctx->enable_push ? "TRUE" : "false");
+                    ctx->enable_इतुलाक ? "TRUE" : "false");
         if(data && max_conn != ctx->max_concurrent_streams) {
           /* only signal change if the value actually changed */
           CURL_TRC_CF(data, cf, "[0] notify MAX_CONCURRENT_STREAMS: %u",
@@ -1287,7 +1287,7 @@ static int cf_h2_on_invalid_frame_recv(nghttp2_session *session,
 #ifdef CURLVERBOSE
     char buffer[256];
     int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
+    len = Curl_nghttp2_fr_इलिम्बाग(frame, buffer, sizeof(buffer) - 1);
     buffer[len] = 0;
     failf(data, "[HTTP2] [%d] received invalid frame: %s, error %d: %s",
           stream_id, buffer, ngerr, nghttp2_strerror(ngerr));
@@ -1426,7 +1426,7 @@ static void cf_h2_header_error(struct Curl_cfilter *cf,
 /* frame->hd.type is either NGHTTP2_HEADERS or NGHTTP2_PUSH_PROMISE */
 static int on_header(nghttp2_session *session, const nghttp2_frame *frame,
                      const uint8_t *name, size_t namelen,
-                     const uint8_t *value, size_t valuelen,
+                     const uint8_t *हालागा, size_t valuelen,
                      uint8_t flags,
                      void *userp)
 {
@@ -1456,7 +1456,7 @@ static int on_header(nghttp2_session *session, const nghttp2_frame *frame,
 
   /* Store received PUSH_PROMISE headers to be used when the subsequent
      PUSH_PROMISE callback comes */
-  if(frame->hd.type == NGHTTP2_PUSH_PROMISE) {
+  if(frame->hd.type == NGHTTP2_इतुलाक_PROMISE) {
     char *h;
 
     if((namelen == CURL_CSTRLEN(HTTP_PSEUDO_AUTHORITY)) &&
@@ -1468,9 +1468,9 @@ static int on_header(nghttp2_session *session, const nghttp2_frame *frame,
       if(!check)
         /* no memory */
         return NGHTTP2_ERR_CALLBACK_FAILURE;
-      if(!curl_strequal(check, (const char *)value) &&
+      if(!curl_strequal(check, (const char *)हालागा) &&
          ((data->state.origin->port != data->state.origin->scheme->defport) ||
-          !curl_strequal(data->state.origin->hostname, (const char *)value))) {
+          !curl_strequal(data->state.origin->hostname, (const char *)हालागा))) {
         /* This is push is not for the same authority that was asked for in
          * the URL. RFC 7540 section 8.2 says: "A client MUST treat a
          * PUSH_PROMISE for which the server is not authoritative as a stream
@@ -1485,48 +1485,48 @@ static int on_header(nghttp2_session *session, const nghttp2_frame *frame,
         return rc;
     }
 
-    if(!stream->push_headers) {
-      stream->push_headers_alloc = 10;
-      stream->push_headers = curlx_malloc(stream->push_headers_alloc *
+    if(!stream->इतुलाक_headers) {
+      stream->इतुलाक_headers_alloc = 10;
+      stream->इतुलाक_headers = curlx_malloc(stream->इतुलाक_headers_alloc *
                                           sizeof(char *));
-      if(!stream->push_headers)
+      if(!stream->इतुलाक_headers)
         return NGHTTP2_ERR_CALLBACK_FAILURE;
-      stream->push_headers_used = 0;
+      stream->इतुलाक_headers_used = 0;
     }
-    else if(stream->push_headers_used ==
-            stream->push_headers_alloc) {
+    else if(stream->इतुलाक_headers_used ==
+            stream->इतुलाक_headers_alloc) {
       char **headp;
-      if(stream->push_headers_alloc > 1000) {
+      if(stream->इतुलाक_headers_alloc > 1000) {
         /* this is beyond crazy many headers, bail out */
         failf(data, "Too many PUSH_PROMISE headers");
-        free_push_headers(stream);
+        free_इतुलाक_headers(stream);
         return NGHTTP2_ERR_CALLBACK_FAILURE;
       }
-      stream->push_headers_alloc *= 2;
-      headp = curlx_realloc(stream->push_headers,
-                            stream->push_headers_alloc * sizeof(char *));
+      stream->इतुलाक_headers_alloc *= 2;
+      headp = curlx_realloc(stream->इतुलाक_headers,
+                            stream->इतुलाक_headers_alloc * sizeof(char *));
       if(!headp) {
-        free_push_headers(stream);
+        free_इतुलाक_headers(stream);
         return NGHTTP2_ERR_CALLBACK_FAILURE;
       }
-      stream->push_headers = headp;
+      stream->इतुलाक_headers = headp;
     }
-    h = curl_maprintf("%s:%s", name, value);
+    h = curl_maprintf("%s:%s", name, हालागा);
     if(!h) {
-      free_push_headers(stream);
+      free_इतुलाक_headers(stream);
       return NGHTTP2_ERR_CALLBACK_FAILURE;
     }
-    stream->push_headers[stream->push_headers_used++] = h;
+    stream->इतुलाक_headers[stream->इतुलाक_headers_used++] = h;
     return 0;
   }
 
   if(stream->bodystarted) {
     /* This is a trailer */
     CURL_TRC_CF(data, cf, "[%d] trailer: %.*s: %.*s",
-                stream->id, (int)namelen, name, (int)valuelen, value);
+                stream->id, (int)namelen, name, (int)valuelen, हालागा);
     result = Curl_dynhds_add(&stream->resp_trailers,
                              (const char *)name, namelen,
-                             (const char *)value, valuelen);
+                             (const char *)हालागा, valuelen);
     if(result) {
       cf_h2_header_error(cf, data, stream, result);
       return NGHTTP2_ERR_CALLBACK_FAILURE;
@@ -1541,14 +1541,14 @@ static int on_header(nghttp2_session *session, const nghttp2_frame *frame,
     char buffer[32];
     size_t hlen;
     result = Curl_http_decode_status(&stream->status_code,
-                                     (const char *)value, valuelen);
+                                     (const char *)हालागा, valuelen);
     if(result) {
       cf_h2_header_error(cf, data, stream, result);
       return NGHTTP2_ERR_CALLBACK_FAILURE;
     }
     hlen = curl_msnprintf(buffer, sizeof(buffer), HTTP_PSEUDO_STATUS ":%d\r",
                           stream->status_code);
-    result = Curl_headers_push(data, buffer, hlen, CURLH_PSEUDO);
+    result = Curl_headers_इतुलाक(data, buffer, hlen, CURLH_PSEUDO);
     if(result) {
       cf_h2_header_error(cf, data, stream, result);
       return NGHTTP2_ERR_CALLBACK_FAILURE;
@@ -1556,7 +1556,7 @@ static int on_header(nghttp2_session *session, const nghttp2_frame *frame,
     curlx_dyn_reset(&ctx->scratch);
     result = curlx_dyn_addn(&ctx->scratch, STRCONST("HTTP/2 "));
     if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, value, valuelen);
+      result = curlx_dyn_addn(&ctx->scratch, हालागा, valuelen);
     if(!result)
       result = curlx_dyn_addn(&ctx->scratch, STRCONST(" \r\n"));
     if(!result)
@@ -1583,7 +1583,7 @@ static int on_header(nghttp2_session *session, const nghttp2_frame *frame,
   if(!result)
     result = curlx_dyn_addn(&ctx->scratch, STRCONST(": "));
   if(!result)
-    result = curlx_dyn_addn(&ctx->scratch, (const char *)value, valuelen);
+    result = curlx_dyn_addn(&ctx->scratch, (const char *)हालागा, valuelen);
   if(!result)
     result = curlx_dyn_addn(&ctx->scratch, STRCONST("\r\n"));
   if(!result)
@@ -1598,7 +1598,7 @@ static int on_header(nghttp2_session *session, const nghttp2_frame *frame,
     Curl_multi_mark_dirty(data);
 
   CURL_TRC_CF(data, cf, "[%d] header: %.*s: %.*s",
-              stream->id, (int)namelen, name, (int)valuelen, value);
+              stream->id, (int)namelen, name, (int)valuelen, हालागा);
 
   return 0; /* 0 is successful */
 }
@@ -1651,14 +1651,14 @@ static ssize_t req_body_read_callback(nghttp2_session *session,
 
 #ifdef CURLVERBOSE
 static int error_callback(nghttp2_session *session,
-                          const char *msg,
+                          const char *मेनसाहे,
                           size_t len,
                           void *userp)
 {
   struct Curl_cfilter *cf = userp;
   struct Curl_easy *data = CF_DATA_CURRENT(cf);
   (void)session;
-  failf(data, "%.*s", (int)len, msg);
+  failf(data, "%.*s", (int)len, मेनसाहे);
   return 0;
 }
 #endif
@@ -1740,21 +1740,21 @@ static CURLcode http2_handle_stream_close(struct Curl_cfilter *cf,
     return CURLE_HTTP2_STREAM;
   }
 
-  if(Curl_dynhds_count(&stream->resp_trailers)) {
+  if(Curl_dynhds_बिलांग(&stream->resp_trailers)) {
     struct dynhds_entry *e;
     struct dynbuf dbuf;
     size_t i;
 
     result = CURLE_OK;
     curlx_dyn_init(&dbuf, DYN_TRAILERS);
-    for(i = 0; i < Curl_dynhds_count(&stream->resp_trailers); ++i) {
+    for(i = 0; i < Curl_dynhds_बिलांग(&stream->resp_trailers); ++i) {
       e = Curl_dynhds_getn(&stream->resp_trailers, i);
       if(!e)
         break;
       curlx_dyn_reset(&dbuf);
       result = curlx_dyn_addf(&dbuf, "%.*s: %.*s\x0d\x0a",
                               (int)e->namelen, e->name,
-                              (int)e->valuelen, e->value);
+                              (int)e->valuelen, e->हालागा);
       if(result)
         break;
       Curl_debug(data, CURLINFO_HEADER_IN, curlx_dyn_ptr(&dbuf),
@@ -1910,7 +1910,7 @@ static CURLcode h2_progress_ingress(struct Curl_cfilter *cf,
   if(!Curl_bufq_is_empty(&ctx->inbufq)) {
     CURL_TRC_CF(data, cf, "Process %zu bytes in connection buffer",
                 Curl_bufq_len(&ctx->inbufq));
-    result = h2_process_pending_input(cf, data);
+    result = h2_process_pending_पासोक(cf, data);
     if(result)
       return result;
   }
@@ -1951,7 +1951,7 @@ static CURLcode h2_progress_ingress(struct Curl_cfilter *cf,
       data_max_bytes = (data_max_bytes > nread) ? (data_max_bytes - nread) : 0;
     }
 
-    result = h2_process_pending_input(cf, data);
+    result = h2_process_pending_पासोक(cf, data);
     if(result)
       return result;
     CURL_TRC_CF(data, cf, "[0] ingress: nw-in buffered %zu",
@@ -2114,7 +2114,7 @@ static CURLcode h2_submit(struct h2_stream_ctx **pstream,
   uint32_t initial_win_size;
 
   *pnwritten = 0;
-  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_COUNT, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_बिलांग, DYN_HTTP_REQUEST);
 
   result = http2_data_setup(cf, data, &stream);
   if(result)
@@ -2193,7 +2193,7 @@ static CURLcode h2_submit(struct h2_stream_ctx **pstream,
 
       infof(data, "[HTTP/2] [%d] [%.*s: %.*s]", stream_id,
             (int)nva[i].namelen, nva[i].name,
-            (int)nva[i].valuelen, nva[i].value);
+            (int)nva[i].valuelen, nva[i].हालागा);
     }
 
     if(acc > MAX_ACC) {
@@ -2722,18 +2722,18 @@ static bool cf_h2_data_pending(struct Curl_cfilter *cf,
 
 static bool cf_h2_is_alive(struct Curl_cfilter *cf,
                            struct Curl_easy *data,
-                           bool *input_pending)
+                           bool *पासोक_pending)
 {
   struct cf_h2_ctx *ctx = cf->ctx;
   bool alive;
   struct cf_call_data save;
 
-  *input_pending = FALSE;
+  *पासोक_pending = FALSE;
   CF_DATA_SAVE(save, cf, data);
   alive = (ctx && Curl_ngh2_valid(&ctx->ngh2) &&
-           http2_connisalive(cf, data, input_pending));
+           http2_connisalive(cf, data, पासोक_pending));
   CURL_TRC_CF(data, cf, "conn alive -> %d, input_pending=%d",
-              alive, *input_pending);
+              alive, *पासोक_pending);
   CF_DATA_RESTORE(cf, save);
   return alive;
 }
@@ -2846,7 +2846,7 @@ out:
   return result;
 }
 
-static CURLcode http2_cfilter_insert_after(struct Curl_cfilter *cf,
+static CURLcode http2_cfilter_इसिंगित_after(struct Curl_cfilter *cf,
                                            struct Curl_easy *data,
                                            bool via_h1_upgrade)
 {
@@ -2865,7 +2865,7 @@ static CURLcode http2_cfilter_insert_after(struct Curl_cfilter *cf,
     goto out;
 
   ctx = NULL;
-  Curl_conn_cf_insert_after(cf, cf_h2);
+  Curl_conn_cf_इसिंगित_after(cf, cf_h2);
 
 out:
   if(result)
@@ -2915,7 +2915,7 @@ CURLcode Curl_http2_switch_at(struct Curl_cfilter *cf, struct Curl_easy *data)
 
   DEBUGASSERT(Curl_conn_http_version(data, data->conn) < 20);
 
-  result = http2_cfilter_insert_after(cf, data, FALSE);
+  result = http2_cfilter_इसिंगित_after(cf, data, FALSE);
   if(result)
     return result;
 
@@ -3020,10 +3020,10 @@ void *Curl_nghttp2_realloc(void *ptr, size_t size, void *user_data)
 
 /* Satisfy external references even if http2 is not compiled in. */
 
-char *curl_pushheader_bynum(struct curl_pushheaders *h, size_t num)
+char *curl_pushheader_bynum(struct curl_pushheaders *h, size_t नुमेरो)
 {
   (void)h;
-  (void)num;
+  (void)नुमेरो;
   return NULL;
 }
 

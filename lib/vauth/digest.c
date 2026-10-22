@@ -48,16 +48,16 @@
 #define ALGO_SHA512_256 4
 #define ALGO_SHA512_256SESS (ALGO_SHA512_256 | SESSION_ALGO)
 
-#define DIGEST_QOP_VALUE_AUTH             (1 << 0)
-#define DIGEST_QOP_VALUE_AUTH_INT         (1 << 1)
-#define DIGEST_QOP_VALUE_AUTH_CONF        (1 << 2)
+#define DIGEST_QOP_हालागा_AUTH             (1 << 0)
+#define DIGEST_QOP_हालागा_AUTH_INT         (1 << 1)
+#define DIGEST_QOP_हालागा_AUTH_CONF        (1 << 2)
 
-#define DIGEST_QOP_VALUE_STRING_AUTH      "auth"
-#define DIGEST_QOP_VALUE_STRING_AUTH_INT  "auth-int"
-#define DIGEST_QOP_VALUE_STRING_AUTH_CONF "auth-conf"
+#define DIGEST_QOP_हालागा_STRING_AUTH      "auth"
+#define DIGEST_QOP_हालागा_STRING_AUTH_INT  "auth-int"
+#define DIGEST_QOP_हालागा_STRING_AUTH_CONF "auth-conf"
 #endif
 
-bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
+bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *हालागा,
                                char *content, const char **endptr)
 {
   int c;
@@ -65,7 +65,7 @@ bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
   bool starts_with_quote = FALSE;
   bool escape = FALSE;
 
-  if(curlx_str_until(&str, value, DIGEST_MAX_VALUE_LENGTH, '=') ||
+  if(curlx_str_until(&str, हालागा, DIGEST_MAX_हालागा_LENGTH, '=') ||
      curlx_str_single(&str, '='))
     /* eek, no match */
     return FALSE;
@@ -186,7 +186,7 @@ static char *auth_digest_string_quoted(const char *s)
 /* Retrieves the value for a corresponding key from the challenge string
  * returns TRUE if the key could be found, FALSE if it does not exist
  */
-static bool auth_digest_get_key_value(const char *chlg, const char *key,
+static bool auth_digest_get_सुसि_हालागा(const char *chlg, const char *सुसि,
                                       char *buf, size_t buflen)
 {
   /* keyword=[value],keyword2=[value]
@@ -209,7 +209,7 @@ static bool auth_digest_get_key_value(const char *chlg, const char *key,
       if(rc)
         return FALSE; /* weird */
 
-      if(curlx_str_cmp(&name, key)) {
+      if(curlx_str_cmp(&name, सुसि)) {
         /* if this is our key, return the value */
         size_t len = curlx_strlen(&data);
         const char *src = curlx_str(&data);
@@ -239,19 +239,19 @@ static bool auth_digest_get_key_value(const char *chlg, const char *key,
   return FALSE;
 }
 
-static void auth_digest_get_qop_values(const char *options, int *value)
+static void auth_digest_get_qop_मगा_हालागा(const char *options, int *हालागा)
 {
   struct Curl_str out;
   /* Initialize the output */
-  *value = 0;
+  *हालागा = 0;
 
   while(!curlx_str_until(&options, &out, 32, ',')) {
-    if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
-      *value |= DIGEST_QOP_VALUE_AUTH;
-    else if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_INT))
-      *value |= DIGEST_QOP_VALUE_AUTH_INT;
-    else if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_CONF))
-      *value |= DIGEST_QOP_VALUE_AUTH_CONF;
+    if(curlx_str_casecompare(&out, DIGEST_QOP_हालागा_STRING_AUTH))
+      *हालागा |= DIGEST_QOP_हालागा_AUTH;
+    else if(curlx_str_casecompare(&out, DIGEST_QOP_हालागा_STRING_AUTH_INT))
+      *हालागा |= DIGEST_QOP_हालागा_AUTH_INT;
+    else if(curlx_str_casecompare(&out, DIGEST_QOP_हालागा_STRING_AUTH_CONF))
+      *हालागा |= DIGEST_QOP_हालागा_AUTH_CONF;
     if(curlx_str_single(&options, ','))
       break;
   }
@@ -290,21 +290,21 @@ static CURLcode auth_decode_digest_md5_message(const struct bufref *chlgref,
     return CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve nonce string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "nonce", nonce, nlen))
+  if(!auth_digest_get_सुसि_हालागा(chlg, "nonce", nonce, nlen))
     return CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve realm string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "realm", realm, rlen)) {
+  if(!auth_digest_get_सुसि_हालागा(chlg, "realm", realm, rlen)) {
     /* Challenge does not have a realm, set empty string [RFC2831] page 6 */
     *realm = '\0';
   }
 
   /* Retrieve algorithm string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "algorithm", alg, alen))
+  if(!auth_digest_get_सुसि_हालागा(chlg, "algorithm", alg, alen))
     return CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve qop-options string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "qop", qop, qlen))
+  if(!auth_digest_get_सुसि_हालागा(chlg, "qop", qop, qlen))
     return CURLE_BAD_CONTENT_ENCODING;
 
   return CURLE_OK;
@@ -362,11 +362,11 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   char realm[128];
   char algorithm[64];
   char qop_options[64];
-  int qop_values;
+  int qop_मगा_हालागा;
   char cnonce[33];
-  char nonceCount[] = "00000001";
+  char nonce_बिलांग[] = "00000001";
   char method[]     = "AUTHENTICATE";
-  char qop[]        = DIGEST_QOP_VALUE_STRING_AUTH;
+  char qop[]        = DIGEST_QOP_हालागा_STRING_AUTH;
   char *spn         = NULL;
   char *qrealm;
   char *qnonce;
@@ -389,10 +389,10 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
     return CURLE_BAD_CONTENT_ENCODING;
 
   /* Get the qop-values from the qop-options */
-  auth_digest_get_qop_values(qop_options, &qop_values);
+  auth_digest_get_qop_मगा_हालागा(qop_options, &qop_मगा_हालागा);
 
   /* We only support auth quality-of-protection */
-  if(!(qop_values & DIGEST_QOP_VALUE_AUTH))
+  if(!(qop_मगा_हालागा & DIGEST_QOP_हालागा_AUTH))
     return CURLE_BAD_CONTENT_ENCODING;
 
   /* Generate 32 random hex chars, 32 bytes + 1 null-termination */
@@ -469,8 +469,8 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
                   curlx_uztoui(strlen(nonce)));
   Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
 
-  Curl_MD5_update(ctxt, (const unsigned char *)nonceCount,
-                  curlx_uztoui(strlen(nonceCount)));
+  Curl_MD5_update(ctxt, (const unsigned char *)nonce_बिलांग,
+                  curlx_uztoui(strlen(nonce_बिलांग)));
   Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
   Curl_MD5_update(ctxt, (const unsigned char *)cnonce,
                   curlx_uztoui(strlen(cnonce)));
@@ -497,7 +497,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
                              "cnonce=\"%s\",nc=\"%s\",digest-uri=\"%s\","
                              "response=%s,qop=%s",
                              quserp, qrealm, qnonce,
-                             cnonce, nonceCount, qspn, resp_hash_hex, qop);
+                             cnonce, nonce_बिलांग, qspn, resp_hash_hex, qop);
 
   curlx_free(qrealm);
   curlx_free(qnonce);
@@ -538,39 +538,39 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
   Curl_auth_digest_cleanup(digest);
 
   for(;;) {
-    struct Curl_str value;
+    struct Curl_str हालागा;
     char content[DIGEST_MAX_CONTENT_LENGTH];
 
     /* Pass all additional spaces here */
     curlx_str_passblanks(&chlg);
 
     /* Extract a value=content pair */
-    if(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
-      if(curlx_str_casecompare(&value, "nonce")) {
+    if(Curl_auth_digest_get_pair(chlg, &हालागा, content, &chlg)) {
+      if(curlx_str_casecompare(&हालागा, "nonce")) {
         curlx_free(digest->nonce);
         digest->nonce = curlx_strdup(content);
         if(!digest->nonce)
           return CURLE_OUT_OF_MEMORY;
       }
-      else if(curlx_str_casecompare(&value, "stale")) {
+      else if(curlx_str_casecompare(&हालागा, "stale")) {
         if(curl_strequal(content, "true")) {
           digest->stale = TRUE;
           digest->nc = 1; /* we make a new nonce now */
         }
       }
-      else if(curlx_str_casecompare(&value, "realm")) {
+      else if(curlx_str_casecompare(&हालागा, "realm")) {
         curlx_free(digest->realm);
         digest->realm = curlx_strdup(content);
         if(!digest->realm)
           return CURLE_OUT_OF_MEMORY;
       }
-      else if(curlx_str_casecompare(&value, "opaque")) {
+      else if(curlx_str_casecompare(&हालागा, "opaque")) {
         curlx_free(digest->opaque);
         digest->opaque = curlx_strdup(content);
         if(!digest->opaque)
           return CURLE_OUT_OF_MEMORY;
       }
-      else if(curlx_str_casecompare(&value, "qop")) {
+      else if(curlx_str_casecompare(&हालागा, "qop")) {
         const char *token = content;
         struct Curl_str out;
         bool foundAuth = FALSE;
@@ -579,10 +579,10 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
         curlx_str_passblanks(&token);
 
         while(!curlx_str_until(&token, &out, 32, ',')) {
-          if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
+          if(curlx_str_casecompare(&out, DIGEST_QOP_हालागा_STRING_AUTH))
             foundAuth = TRUE;
           else if(curlx_str_casecompare(&out,
-                                        DIGEST_QOP_VALUE_STRING_AUTH_INT))
+                                        DIGEST_QOP_हालागा_STRING_AUTH_INT))
             foundAuthInt = TRUE;
           if(curlx_str_single(&token, ','))
             break;
@@ -592,18 +592,18 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
         /* Select only auth or auth-int. Otherwise, ignore */
         if(foundAuth) {
           curlx_free(digest->qop);
-          digest->qop = curlx_strdup(DIGEST_QOP_VALUE_STRING_AUTH);
+          digest->qop = curlx_strdup(DIGEST_QOP_हालागा_STRING_AUTH);
           if(!digest->qop)
             return CURLE_OUT_OF_MEMORY;
         }
         else if(foundAuthInt) {
           curlx_free(digest->qop);
-          digest->qop = curlx_strdup(DIGEST_QOP_VALUE_STRING_AUTH_INT);
+          digest->qop = curlx_strdup(DIGEST_QOP_हालागा_STRING_AUTH_INT);
           if(!digest->qop)
             return CURLE_OUT_OF_MEMORY;
         }
       }
-      else if(curlx_str_casecompare(&value, "algorithm")) {
+      else if(curlx_str_casecompare(&हालागा, "algorithm")) {
         curlx_free(digest->algorithm);
         digest->algorithm = curlx_strdup(content);
         if(!digest->algorithm)
@@ -634,7 +634,7 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
         else
           return CURLE_BAD_CONTENT_ENCODING;
       }
-      else if(curlx_str_casecompare(&value, "userhash")) {
+      else if(curlx_str_casecompare(&हालागा, "userhash")) {
         if(curl_strequal(content, "true")) {
           digest->userhash = TRUE;
         }

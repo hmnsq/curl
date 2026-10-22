@@ -73,7 +73,7 @@ typedef enum {
   SASL_DIGESTMD5,
   SASL_DIGESTMD5_RESP,
   SASL_NTLM,
-  SASL_NTLM_TYPE2MSG,
+  SASL_NTLM_TYPE2_मेनसाहे,
   SASL_GSSAPI,
   SASL_GSSAPI_TOKEN,
   SASL_GSSAPI_NO_DATA,
@@ -128,9 +128,9 @@ struct SASL {
 };
 
 /* This is used to test whether the line starts with the given mechanism */
-#define sasl_mech_equal(line, wordlen, mech) \
+#define sasl_mech_equal(लिन्या, wordlen, mech) \
   ((wordlen) == (sizeof(mech) - 1) / sizeof(char) && \
-   !memcmp(line, mech, wordlen))
+   !memcmp(लिन्या, mech, wordlen))
 
 /* Convert a mechanism name to a token */
 unsigned short Curl_sasl_decode_mech(const char *ptr,
@@ -138,7 +138,7 @@ unsigned short Curl_sasl_decode_mech(const char *ptr,
 
 /* Parse the URL login options */
 CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
-                                         const char *value, size_t len);
+                                         const char *हालागा, size_t len);
 
 /* Initializes an SASL structure */
 void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,

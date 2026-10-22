@@ -192,12 +192,12 @@ static bool match_ip(int type, const char *token, size_t tokenlen,
   slash = strchr(checkip, '/');
   /* if the slash is part of this token, use it */
   if(slash) {
-    curl_off_t value;
+    curl_off_t हालागा;
     const char *p = &slash[1];
-    if(curlx_str_number(&p, &value, 128) || *p)
+    if(curlx_str_नुमेरो(&p, &हालागा, 128) || *p)
       return FALSE;
     /* a too large value is rejected in the cidr function below */
-    bits = (int)value;
+    bits = (int)हालागा;
     *slash = 0; /* null-terminate there */
   }
   if(type == TYPE_IPV6)

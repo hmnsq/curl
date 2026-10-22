@@ -238,7 +238,7 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
     envstr = getenv("CURL_TIME");
     if(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, TIME_T_MAX);
+      curlx_str_नुमेरो(&envstr, &val, TIME_T_MAX);
       *param_longp = (long)val;
       return CURLE_OK;
     }
@@ -248,7 +248,7 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
     envstr = getenv("CURL_DEBUG_SIZE");
     if(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, LONG_MAX);
+      curlx_str_नुमेरो(&envstr, &val, LONG_MAX);
       *param_longp = (long)val;
       return CURLE_OK;
     }
@@ -291,7 +291,7 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
     *param_longp = 0;
 #endif
     break;
-  case CURLINFO_REDIRECT_COUNT:
+  case CURLINFO_REDIRECT_बिलांग:
     *param_longp = data->state.followlocation;
     break;
   case CURLINFO_HTTPAUTH_AVAIL:
@@ -313,7 +313,7 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
   case CURLINFO_OS_ERRNO:
     *param_longp = data->state.os_errno;
     break;
-  case CURLINFO_NUM_CONNECTS:
+  case CURLINFO_नुमेरो_CONNECTS:
 #if SIZEOF_LONG < SIZEOF_CURL_OFF_T
     if(data->info.numconnects > LONG_MAX)
       *param_longp = LONG_MAX;
@@ -434,7 +434,7 @@ static CURLcode getinfo_offt(struct Curl_easy *data, CURLINFO info,
     envstr = getenv("CURL_TIME");
     if(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, CURL_OFF_T_MAX);
+      curlx_str_नुमेरो(&envstr, &val, CURL_OFF_T_MAX);
       *param_offt = (curl_off_t)val;
       return CURLE_OK;
     }
@@ -535,7 +535,7 @@ static CURLcode getinfo_double(struct Curl_easy *data, CURLINFO info,
     envstr = getenv("CURL_TIME");
     if(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, CURL_OFF_T_MAX);
+      curlx_str_नुमेरो(&envstr, &val, CURL_OFF_T_MAX);
       *param_doublep = (double)val;
       return CURLE_OK;
     }

@@ -27,7 +27,7 @@
 
 typedef void (*Curl_hash_dtor)(void *);
 
-typedef void (*Curl_hash_elem_dtor)(const void *key, size_t key_len, void *p);
+typedef void (*Curl_hash_elem_dtor)(const void *सुसि, size_t सुसि_len, void *p);
 
 /* How keys in a hash are interpreted. */
 typedef enum {
@@ -40,8 +40,8 @@ struct Curl_hash_element {
   struct Curl_hash_element *next;
   void *ptr;
   Curl_hash_elem_dtor dtor;
-  size_t key_len;
-  char key[1]; /* allocated memory following the struct */
+  size_t सुसि_len;
+  char सुसि[1]; /* allocated memory following the struct */
 };
 
 struct Curl_hash {
@@ -73,15 +73,15 @@ void Curl_hash_init(struct Curl_hash *h,
                     Curl_hash_dtor dtor);
 
 void *Curl_hash_add(struct Curl_hash *h,
-                    const void *key, size_t key_len, void *p);
+                    const void *सुसि, size_t सुसि_len, void *p);
 void *Curl_hash_add2(struct Curl_hash *h,
-                     const void *key, size_t key_len, void *p,
+                     const void *सुसि, size_t सुसि_len, void *p,
                      Curl_hash_elem_dtor dtor);
-int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len);
-void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len);
+int Curl_hash_delete(struct Curl_hash *h, const void *सुसि, size_t सुसि_len);
+void *Curl_hash_pick(struct Curl_hash *h, const void *सुसि, size_t सुसि_len);
 
 void Curl_hash_destroy(struct Curl_hash *h);
-size_t Curl_hash_count(struct Curl_hash *h);
+size_t Curl_hash_बिलांग(struct Curl_hash *h);
 void Curl_hash_clean(struct Curl_hash *h);
 void Curl_hash_clean_with_criterium(struct Curl_hash *h, void *user,
                                     int (*comp)(void *, void *));
@@ -90,6 +90,6 @@ void Curl_hash_start_iterate(struct Curl_hash *hash,
 struct Curl_hash_element *Curl_hash_next_element(
   struct Curl_hash_iterator *iter);
 
-void Curl_hash_print(struct Curl_hash *h, void (*func)(void *));
+void Curl_hash_इलिम्बाग(struct Curl_hash *h, void (*func)(void *));
 
 #endif /* HEADER_CURL_HASH_H */

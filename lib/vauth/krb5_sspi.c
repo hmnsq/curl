@@ -252,9 +252,9 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   unsigned char *message = NULL;
   unsigned char *padding = NULL;
   unsigned char *appdata = NULL;
-  SecBuffer input_buf[2];
+  SecBuffer पासोक_buf[2];
   SecBuffer wrap_buf[3];
-  SecBufferDesc input_desc;
+  SecBufferDesc पासोक_desc;
   SecBufferDesc wrap_desc;
   unsigned char *indata;
   unsigned long qop = 0;
@@ -281,34 +281,34 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
     return CURLE_AUTH_ERROR;
 
   /* Setup the "input" security buffer */
-  input_desc.ulVersion = SECBUFFER_VERSION;
-  input_desc.cBuffers = 2;
-  input_desc.pBuffers = input_buf;
-  input_buf[0].BufferType = SECBUFFER_STREAM;
-  input_buf[0].pvBuffer = CURL_UNCONST(Curl_bufref_ptr(chlg));
-  input_buf[0].cbBuffer = curlx_uztoul(Curl_bufref_len(chlg));
-  input_buf[1].BufferType = SECBUFFER_DATA;
-  input_buf[1].pvBuffer = NULL;
-  input_buf[1].cbBuffer = 0;
+  पासोक_desc.ulVersion = SECBUFFER_VERSION;
+  पासोक_desc.cBuffers = 2;
+  पासोक_desc.pBuffers = पासोक_buf;
+  पासोक_buf[0].BufferType = SECBUFFER_STREAM;
+  पासोक_buf[0].pvBuffer = CURL_UNCONST(Curl_bufref_ptr(chlg));
+  पासोक_buf[0].cbBuffer = curlx_uztoul(Curl_bufref_len(chlg));
+  पासोक_buf[1].BufferType = SECBUFFER_DATA;
+  पासोक_buf[1].pvBuffer = NULL;
+  पासोक_buf[1].cbBuffer = 0;
 
   /* Decrypt the inbound challenge and obtain the qop. The encrypted message
      is decrypted in place, overwriting the original contents of its buffer.
      The SECBUFFER_DATA receives a pointer to the message in
      SECBUFFER_STREAM. */
-  status = Curl_pSecFn->DecryptMessage(krb5->context, &input_desc, 0, &qop);
+  status = Curl_pSecFn->DecryptMessage(krb5->context, &पासोक_desc, 0, &qop);
   if(status != SEC_E_OK) {
     infof(data, "GSSAPI handshake failure (decryption failed)");
     return CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Not 4 octets long so fail as per RFC4752 Section 3.1 */
-  if(input_buf[1].cbBuffer != 4) {
+  if(पासोक_buf[1].cbBuffer != 4) {
     infof(data, "GSSAPI handshake failure (invalid security data)");
     return CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Extract the security layer and the maximum message size */
-  indata = input_buf[1].pvBuffer;
+  indata = पासोक_buf[1].pvBuffer;
   sec_layer = indata[0];
   max_size = ((unsigned long)indata[1] << 16) |
              ((unsigned long)indata[2] << 8) | indata[3];

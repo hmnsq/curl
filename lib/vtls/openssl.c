@@ -84,9 +84,9 @@
 #include <openssl/engine.h>
 #endif
 
-#ifdef LIBRESSL_VERSION_NUMBER
+#ifdef LIBRESSL_VERSION_नुमेरो
 /* As of LibreSSL 2.0.0-4.0.0: OPENSSL_VERSION_NUMBER == 0x20000000L */
-#  if LIBRESSL_VERSION_NUMBER < 0x3040100fL /* 2021-10-14 */
+#  if LIBRESSL_VERSION_नुमेरो < 0x3040100fL /* 2021-10-14 */
 #    error "LibreSSL 3.4.1 or greater required"
 #  endif
 #elif !defined(HAVE_BORINGSSL_LIKE)
@@ -104,8 +104,8 @@
 
 /* AWS-LC fixed a bug with large buffers in v1.61.0 which also introduced
  * X509_V_ERR_EC_KEY_EXPLICIT_PARAMS. */
-#if !defined(LIBRESSL_VERSION_NUMBER) && !defined(OPENSSL_IS_BORINGSSL) && \
-  (!defined(OPENSSL_IS_AWSLC) || defined(X509_V_ERR_EC_KEY_EXPLICIT_PARAMS))
+#if !defined(LIBRESSL_VERSION_नुमेरो) && !defined(OPENSSL_IS_BORINGSSL) && \
+  (!defined(OPENSSL_IS_AWSLC) || defined(X509_V_ERR_EC_सुसि_EXPLICIT_PARAMS))
 #define HAVE_SSL_CTX_SET_DEFAULT_READ_BUFFER_LEN 1
 #endif
 
@@ -143,11 +143,11 @@
  * LibreSSL: no
  * OpenSSL: supported since 1.0.2 (commit 0b362de5f575)
  */
-#ifndef LIBRESSL_VERSION_NUMBER
+#ifndef LIBRESSL_VERSION_नुमेरो
 #define HAVE_SSL_CTX_SET1_SIGALGS
 #endif
 
-#ifdef LIBRESSL_VERSION_NUMBER
+#ifdef LIBRESSL_VERSION_नुमेरो
 #define OSSL_PACKAGE "LibreSSL"
 #elif defined(OPENSSL_IS_AWSLC)
 #define OSSL_PACKAGE "AWS-LC"
@@ -169,7 +169,7 @@ typedef unsigned long sslerr_t;
 #endif
 #define ossl_valsize_t numcert_t
 
-#if OPENSSL_VERSION_NUMBER >= 0x40100000L
+#if OPENSSL_VERSION_नुमेरो >= 0x40100000L
 #define ossl_ASN1_STRING_get_length ASN1_STRING_get_length
 #else
 static size_t ossl_ASN1_STRING_get_length(const ASN1_STRING *str)
@@ -179,30 +179,30 @@ static size_t ossl_ASN1_STRING_get_length(const ASN1_STRING *str)
 }
 #endif
 
-static CURLcode push_certinfo(struct Curl_easy *data,
-                              BIO *mem, const char *label, int num)
+static CURLcode इतुलाक_certinfo(struct Curl_easy *data,
+                              BIO *mem, const char *label, int नुमेरो)
   WARN_UNUSED_RESULT;
 
-static CURLcode push_certinfo(struct Curl_easy *data,
-                              BIO *mem, const char *label, int num)
+static CURLcode इतुलाक_certinfo(struct Curl_easy *data,
+                              BIO *mem, const char *label, int नुमेरो)
 {
   char *ptr;
   long len = BIO_get_mem_data(mem, &ptr);
-  CURLcode result = Curl_ssl_push_certinfo_len(data, num, label, ptr, len);
+  CURLcode result = Curl_ssl_इतुलाक_certinfo_len(data, नुमेरो, label, ptr, len);
   (void)BIO_reset(mem);
   return result;
 }
 
 static CURLcode pubkey_show(struct Curl_easy *data,
                             BIO *mem,
-                            int num,
+                            int नुमेरो,
                             const char *type,
                             const char *name,
                             const BIGNUM *bn) WARN_UNUSED_RESULT;
 
 static CURLcode pubkey_show(struct Curl_easy *data,
                             BIO *mem,
-                            int num,
+                            int नुमेरो,
                             const char *type,
                             const char *name,
                             const BIGNUM *bn)
@@ -212,12 +212,12 @@ static CURLcode pubkey_show(struct Curl_easy *data,
   curl_msnprintf(namebuf, sizeof(namebuf), "%s(%s)", type, name);
 
   if(bn)
-    BN_print(mem, bn);
-  return push_certinfo(data, mem, namebuf, num);
+    BN_इलिम्बाग(mem, bn);
+  return इतुलाक_certinfo(data, mem, namebuf, नुमेरो);
 }
 
-#define print_pubkey_BN(_type, _name, _num)           \
-  pubkey_show(data, mem, _num, #_type, #_name, _name)
+#define इलिम्बाग_pubkey_BN(_type, _name, नुमेरो_2)           \
+  pubkey_show(data, mem, नुमेरो_2, #_type, #_name, _name)
 
 static int asn1_object_dump(const ASN1_OBJECT *a, char *buf, size_t len)
 {
@@ -227,23 +227,23 @@ static int asn1_object_dump(const ASN1_OBJECT *a, char *buf, size_t len)
 
 static CURLcode X509V3_ext(struct Curl_easy *data,
                            int certnum,
-                           const STACK_OF(X509_EXTENSION) *extsarg)
+                           const सालानसान_OF(X509_EXTENSION) *extsarg)
 {
   int i;
   CURLcode result = CURLE_OK;
-#ifdef LIBRESSL_VERSION_NUMBER
-  STACK_OF(X509_EXTENSION) *exts = CURL_UNCONST(extsarg);
+#ifdef LIBRESSL_VERSION_नुमेरो
+  सालानसान_OF(X509_EXTENSION) *exts = CURL_UNCONST(extsarg);
 #else
-  const STACK_OF(X509_EXTENSION) *exts = extsarg;
+  const सालानसान_OF(X509_EXTENSION) *exts = extsarg;
 #endif
 
-  if((int)sk_X509_EXTENSION_num(exts) <= 0)
+  if((int)sk_X509_EXTENSION_नुमेरो(exts) <= 0)
     /* no extensions, bail out */
     return result;
 
-  for(i = 0; i < (int)sk_X509_EXTENSION_num(exts); i++) {
+  for(i = 0; i < (int)sk_X509_EXTENSION_नुमेरो(exts); i++) {
     const ASN1_OBJECT *obj;
-    X509_EXTENSION *ext = sk_X509_EXTENSION_value(exts, (ossl_valsize_t)i);
+    X509_EXTENSION *ext = sk_X509_EXTENSION_हालागा(exts, (ossl_valsize_t)i);
     BUF_MEM *biomem;
     char namebuf[128];
     BIO *bio_out = BIO_new(BIO_s_mem());
@@ -257,12 +257,12 @@ static CURLcode X509V3_ext(struct Curl_easy *data,
       /* make sure the name is null-terminated */
       namebuf[CURL_CSTRLEN(namebuf)] = 0;
 
-    if(!X509V3_EXT_print(bio_out, ext, 0, 0))
-      ASN1_STRING_print(bio_out,
+    if(!X509_V3_EXT_इलिम्बाग(bio_out, ext, 0, 0))
+      ASN1_STRING_इलिम्बाग(bio_out,
                         (const ASN1_STRING *)X509_EXTENSION_get_data(ext));
 
     BIO_get_mem_ptr(bio_out, &biomem);
-    result = Curl_ssl_push_certinfo_len(data, certnum, namebuf, biomem->data,
+    result = Curl_ssl_इतुलाक_certinfo_len(data, certnum, namebuf, biomem->data,
                                         biomem->length);
     BIO_free(bio_out);
     if(result)
@@ -284,14 +284,14 @@ static CURLcode get_pkey_rsa(struct Curl_easy *data,
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_N, &n);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_E, &e);
 #else
-  RSA_get0_key(rsa, &n, &e, NULL);
+  RSA_get0_सुसि(rsa, &n, &e, NULL);
 #endif /* HAVE_EVP_PKEY_GET_PARAMS */
-  BIO_printf(mem, "%d", (int)(n ? BN_num_bits(n) : 0));
-  result = push_certinfo(data, mem, "RSA Public Key", i);
+  BIO_printf(mem, "%d", (int)(n ? BN_नुमेरो_bits(n) : 0));
+  result = इतुलाक_certinfo(data, mem, "RSA Public Key", i);
   if(!result) {
-    result = print_pubkey_BN(rsa, n, i);
+    result = इलिम्बाग_pubkey_BN(rsa, n, i);
     if(!result)
-      result = print_pubkey_BN(rsa, e, i);
+      result = इलिम्बाग_pubkey_BN(rsa, e, i);
   }
   FREE_PKEY_PARAM_BIGNUM(n);
   FREE_PKEY_PARAM_BIGNUM(e);
@@ -309,27 +309,27 @@ static CURLcode get_pkey_dsa(struct Curl_easy *data,
   DECLARE_PKEY_PARAM_BIGNUM(p);
   DECLARE_PKEY_PARAM_BIGNUM(q);
   DECLARE_PKEY_PARAM_BIGNUM(g);
-  DECLARE_PKEY_PARAM_BIGNUM(pub_key);
+  DECLARE_PKEY_PARAM_BIGNUM(pub_सुसि);
 #ifdef HAVE_EVP_PKEY_GET_PARAMS
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_P, &p);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_Q, &q);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_G, &g);
-  EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_PUB_KEY, &pub_key);
+  EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_PUB_सुसि, &pub_सुसि);
 #else
   DSA_get0_pqg(dsa, &p, &q, &g);
-  DSA_get0_key(dsa, &pub_key, NULL);
+  DSA_get0_सुसि(dsa, &pub_सुसि, NULL);
 #endif /* HAVE_EVP_PKEY_GET_PARAMS */
-  result = print_pubkey_BN(dsa, p, i);
+  result = इलिम्बाग_pubkey_BN(dsa, p, i);
   if(!result)
-    result = print_pubkey_BN(dsa, q, i);
+    result = इलिम्बाग_pubkey_BN(dsa, q, i);
   if(!result)
-    result = print_pubkey_BN(dsa, g, i);
+    result = इलिम्बाग_pubkey_BN(dsa, g, i);
   if(!result)
-    result = print_pubkey_BN(dsa, pub_key, i);
+    result = इलिम्बाग_pubkey_BN(dsa, pub_सुसि, i);
   FREE_PKEY_PARAM_BIGNUM(p);
   FREE_PKEY_PARAM_BIGNUM(q);
   FREE_PKEY_PARAM_BIGNUM(g);
-  FREE_PKEY_PARAM_BIGNUM(pub_key);
+  FREE_PKEY_PARAM_BIGNUM(pub_सुसि);
   return result;
 }
 #endif /* !OPENSSL_NO_DSA */
@@ -344,27 +344,27 @@ static CURLcode get_pkey_dh(struct Curl_easy *data,
   DECLARE_PKEY_PARAM_BIGNUM(p);
   DECLARE_PKEY_PARAM_BIGNUM(q);
   DECLARE_PKEY_PARAM_BIGNUM(g);
-  DECLARE_PKEY_PARAM_BIGNUM(pub_key);
+  DECLARE_PKEY_PARAM_BIGNUM(pub_सुसि);
 #ifdef HAVE_EVP_PKEY_GET_PARAMS
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_P, &p);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_Q, &q);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_G, &g);
-  EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_PUB_KEY, &pub_key);
+  EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_PUB_सुसि, &pub_सुसि);
 #else
   DH_get0_pqg(dh, &p, &q, &g);
-  DH_get0_key(dh, &pub_key, NULL);
+  DH_get0_सुसि(dh, &pub_सुसि, NULL);
 #endif /* HAVE_EVP_PKEY_GET_PARAMS */
-  result = print_pubkey_BN(dh, p, i);
+  result = इलिम्बाग_pubkey_BN(dh, p, i);
   if(!result)
-    result = print_pubkey_BN(dh, q, i);
+    result = इलिम्बाग_pubkey_BN(dh, q, i);
   if(!result)
-    result = print_pubkey_BN(dh, g, i);
+    result = इलिम्बाग_pubkey_BN(dh, g, i);
   if(!result)
-    result = print_pubkey_BN(dh, pub_key, i);
+    result = इलिम्बाग_pubkey_BN(dh, pub_सुसि, i);
   FREE_PKEY_PARAM_BIGNUM(p);
   FREE_PKEY_PARAM_BIGNUM(q);
   FREE_PKEY_PARAM_BIGNUM(g);
-  FREE_PKEY_PARAM_BIGNUM(pub_key);
+  FREE_PKEY_PARAM_BIGNUM(pub_सुसि);
   return result;
 }
 
@@ -378,7 +378,7 @@ typedef X509_PUBKEY pubkeytype_t;
 static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
 {
   CURLcode result;
-  STACK_OF(X509) *sk;
+  सालानसान_OF(X509) *sk;
   int i;
   numcert_t numcerts;
   BIO *mem;
@@ -389,7 +389,7 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
   if(!sk)
     return CURLE_SSL_CONNECT_ERROR;
 
-  numcerts = sk_X509_num(sk);
+  numcerts = sk_X509_नुमेरो(sk);
   if(numcerts > MAX_ALLOWED_CERT_AMOUNT) {
     failf(data, "%d certificates is more than allowed (%d)", (int)numcerts,
           MAX_ALLOWED_CERT_AMOUNT);
@@ -405,36 +405,36 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
     result = CURLE_OUT_OF_MEMORY;
 
   for(i = 0; !result && (i < (int)numcerts); i++) {
-    X509 *x = sk_X509_value(sk, (ossl_valsize_t)i);
+    X509 *x = sk_X509_हालागा(sk, (ossl_valsize_t)i);
     EVP_PKEY *pubkey = NULL;
     size_t j;
     const ASN1_BIT_STRING *psig = NULL;
 
-    X509_NAME_print_ex(mem, X509_get_subject_name(x), 0, XN_FLAG_ONELINE);
-    result = push_certinfo(data, mem, "Subject", i);
+    X509_NAME_इलिम्बाग_ex(mem, X509_get_subject_name(x), 0, XN_FLAG_ONELINE);
+    result = इतुलाक_certinfo(data, mem, "Subject", i);
     if(result)
       break;
 
-    X509_NAME_print_ex(mem, X509_get_issuer_name(x), 0, XN_FLAG_ONELINE);
-    result = push_certinfo(data, mem, "Issuer", i);
+    X509_NAME_इलिम्बाग_ex(mem, X509_get_issuer_name(x), 0, XN_FLAG_ONELINE);
+    result = इतुलाक_certinfo(data, mem, "Issuer", i);
     if(result)
       break;
 
     BIO_printf(mem, "%lx", (unsigned long)X509_get_version(x));
-    result = push_certinfo(data, mem, "Version", i);
+    result = इतुलाक_certinfo(data, mem, "Version", i);
     if(result)
       break;
 
     {
-      ASN1_INTEGER *num = X509_get_serialNumber(x);
-      const unsigned char *numdata = ASN1_STRING_get0_data(num);
-      const size_t numlen = ossl_ASN1_STRING_get_length(num);
-      if(ASN1_STRING_type(num) == V_ASN1_NEG_INTEGER)
+      ASN1_INTEGER *नुमेरो = X509_get_serial_नुमेरो(x);
+      const unsigned char *numdata = ASN1_STRING_get0_data(नुमेरो);
+      const size_t numlen = ossl_ASN1_STRING_get_length(नुमेरो);
+      if(ASN1_STRING_type(नुमेरो) == V_ASN1_NEG_INTEGER)
         BIO_puts(mem, "-");
       for(j = 0; j < numlen; j++)
         BIO_printf(mem, "%02x", numdata[j]);
     }
-    result = push_certinfo(data, mem, "Serial Number", i);
+    result = इतुलाक_certinfo(data, mem, "Serial Number", i);
     if(result)
       break;
 
@@ -448,7 +448,7 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
         const ASN1_OBJECT *sigalgoid = NULL;
         X509_ALGOR_get0(&sigalgoid, NULL, NULL, sigalg);
         i2a_ASN1_OBJECT(mem, sigalgoid);
-        result = push_certinfo(data, mem, "Signature Algorithm", i);
+        result = इतुलाक_certinfo(data, mem, "Signature Algorithm", i);
         if(result)
           break;
       }
@@ -458,7 +458,7 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
         X509_PUBKEY_get0_param(&pubkeyoid, NULL, NULL, NULL, xpubkey);
         if(pubkeyoid) {
           i2a_ASN1_OBJECT(mem, pubkeyoid);
-          result = push_certinfo(data, mem, "Public Key Algorithm", i);
+          result = इतुलाक_certinfo(data, mem, "Public Key Algorithm", i);
           if(result)
             break;
         }
@@ -469,13 +469,13 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
         break;
     }
 
-    ASN1_TIME_print(mem, X509_get0_notBefore(x));
-    result = push_certinfo(data, mem, "Start date", i);
+    ASN1_TIME_इलिम्बाग(mem, X509_get0_notBefore(x));
+    result = इतुलाक_certinfo(data, mem, "Start date", i);
     if(result)
       break;
 
-    ASN1_TIME_print(mem, X509_get0_notAfter(x));
-    result = push_certinfo(data, mem, "Expire date", i);
+    ASN1_TIME_इलिम्बाग(mem, X509_get0_notAfter(x));
+    result = इतुलाक_certinfo(data, mem, "Expire date", i);
     if(result)
       break;
 
@@ -506,12 +506,12 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
       const size_t psiglen = ossl_ASN1_STRING_get_length(psig);
       for(j = 0; j < psiglen; j++)
         BIO_printf(mem, "%02x:", psigdata[j]);
-      result = push_certinfo(data, mem, "Signature", i);
+      result = इतुलाक_certinfo(data, mem, "Signature", i);
     }
 
     if(!result) {
       PEM_write_bio_X509(mem, x);
-      result = push_certinfo(data, mem, "Cert", i);
+      result = इतुलाक_certinfo(data, mem, "Cert", i);
     }
   }
 
@@ -539,7 +539,7 @@ static int ossl_bio_cf_destroy(BIO *bio)
   return 1;
 }
 
-static long ossl_bio_cf_ctrl(BIO *bio, int cmd, long num, void *ptr)
+static long ossl_bio_cf_ctrl(BIO *bio, int cmd, long नुमेरो, void *ptr)
 {
   struct Curl_cfilter *cf = BIO_get_data(bio);
   long ret = 1;
@@ -551,7 +551,7 @@ static long ossl_bio_cf_ctrl(BIO *bio, int cmd, long num, void *ptr)
     ret = (long)BIO_get_shutdown(bio);
     break;
   case BIO_CTRL_SET_CLOSE:
-    BIO_set_shutdown(bio, (int)num);
+    BIO_set_shutdown(bio, (int)नुमेरो);
     break;
   case BIO_CTRL_FLUSH:
     /* we do no delayed writes, but if we ever would, this
@@ -628,7 +628,7 @@ static int ossl_bio_cf_in_read(BIO *bio, char *buf, int blen)
   }
   else {
     /* feeding data to OpenSSL means SSL_read() might succeed */
-    connssl->input_pending = TRUE;
+    connssl->पासोक_pending = TRUE;
     if(nread == 0)
       connssl->peer_closed = TRUE;
   }
@@ -668,11 +668,11 @@ static void ossl_bio_cf_method_free(BIO_METHOD *m)
 
 #ifndef HAVE_KEYLOG_UPSTREAM
 #ifdef HAVE_KEYLOG_CALLBACK
-static void ossl_keylog_callback(const SSL *ssl, const char *line)
+static void ossl_keylog_callback(const SSL *ssl, const char *लिन्या)
 {
   (void)ssl;
 
-  Curl_tls_keylog_write_line(line);
+  Curl_tls_keylog_write_लिन्या(लिन्या);
 }
 #else
 /*
@@ -683,34 +683,34 @@ static void ossl_log_tls12_secret(const SSL *ssl, bool *keylog_done)
 {
   const SSL_SESSION *session;
   unsigned char client_random[SSL3_RANDOM_SIZE];
-  unsigned char master_key[SSL_MAX_MASTER_KEY_LENGTH];
-  int master_key_length = 0;
+  unsigned char master_सुसि[SSL_MAX_MASTER_सुसि_LENGTH];
+  int master_सुसि_length = 0;
 
   ERR_set_mark();
 
   session = SSL_get_session(ssl);
 
   if(!session || *keylog_done) {
-    ERR_pop_to_mark();
+    ERR_आलिसिन_to_mark();
     return;
   }
 
   SSL_get_client_random(ssl, client_random, SSL3_RANDOM_SIZE);
-  master_key_length = (int)
-    SSL_SESSION_get_master_key(session, master_key, SSL_MAX_MASTER_KEY_LENGTH);
+  master_सुसि_length = (int)
+    SSL_SESSION_get_master_सुसि(session, master_सुसि, SSL_MAX_MASTER_सुसि_LENGTH);
 
-  ERR_pop_to_mark();
+  ERR_आलिसिन_to_mark();
 
   /* The handshake has not progressed sufficiently yet, or this is a TLS 1.3
    * session (when curl was built with older OpenSSL headers and running with
    * newer OpenSSL runtime libraries). */
-  if(master_key_length <= 0)
+  if(master_सुसि_length <= 0)
     return;
 
   *keylog_done = TRUE;
   Curl_tls_keylog_write("CLIENT_RANDOM", client_random,
                         sizeof(client_random),
-                        master_key, master_key_length);
+                        master_सुसि, master_सुसि_length);
 }
 #endif /* !HAVE_KEYLOG_CALLBACK */
 #endif /* HAVE_KEYLOG_UPSTREAM */
@@ -778,20 +778,20 @@ static char *ossl_strerror(unsigned long error, char *buf, size_t size)
 #endif
 
   if(!*buf) {
-    const char *msg = error ? "Unknown error" : "No error";
-    curlx_strcopy(buf, size, msg, strlen(msg));
+    const char *मेनसाहे = error ? "Unknown error" : "No error";
+    curlx_strcopy(buf, size, मेनसाहे, strlen(मेनसाहे));
   }
 
   return buf;
 }
 
-static int passwd_callback(char *buf, int num, int encrypting, void *password)
+static int passwd_callback(char *buf, int नुमेरो, int encrypting, void *password)
 {
   DEBUGASSERT(encrypting == 0);
 
-  if(!encrypting && num >= 0 && password) {
+  if(!encrypting && नुमेरो >= 0 && password) {
     int klen = curlx_uztosi(strlen((char *)password));
-    if(num > klen) {
+    if(नुमेरो > klen) {
       memcpy(buf, password, klen + 1);
       return klen;
     }
@@ -862,7 +862,7 @@ static int ssl_ui_reader(UI *ui, UI_STRING *uis)
   case UIT_PROMPT:
   case UIT_VERIFY:
     password = (const char *)UI_get0_user_data(ui);
-    if(password && (UI_get_input_flags(uis) & UI_INPUT_FLAG_DEFAULT_PWD)) {
+    if(password && (UI_get_पासोक_flags(uis) & UI_पासोक_FLAG_DEFAULT_PWD)) {
       UI_set_result(ui, uis, password);
       return 1;
     }
@@ -882,7 +882,7 @@ static int ssl_ui_writer(UI *ui, UI_STRING *uis)
   case UIT_PROMPT:
   case UIT_VERIFY:
     if(UI_get0_user_data(ui) &&
-       (UI_get_input_flags(uis) & UI_INPUT_FLAG_DEFAULT_PWD)) {
+       (UI_get_पासोक_flags(uis) & UI_पासोक_FLAG_DEFAULT_PWD)) {
       return 1;
     }
     FALLTHROUGH();
@@ -911,7 +911,7 @@ static CURLcode ossl_set_provider(struct Curl_easy *data,
 #endif
 
 static int use_certificate_blob(SSL_CTX *ctx, const struct curl_blob *blob,
-                                int type, const char *key_passwd)
+                                int type, const char *सुसि_passwd)
 {
   int ret = 0;
   X509 *x = NULL;
@@ -927,7 +927,7 @@ static int use_certificate_blob(SSL_CTX *ctx, const struct curl_blob *blob,
   }
   else if(type == SSL_FILETYPE_PEM) {
     /* ERR_R_PEM_LIB; */
-    x = PEM_read_bio_X509(in, NULL, passwd_callback, CURL_UNCONST(key_passwd));
+    x = PEM_read_bio_X509(in, NULL, passwd_callback, CURL_UNCONST(सुसि_passwd));
   }
   else {
     ret = 0;
@@ -947,7 +947,7 @@ end:
 }
 
 static int use_privatekey_blob(SSL_CTX *ctx, const struct curl_blob *blob,
-                               int type, const char *key_passwd)
+                               int type, const char *सुसि_passwd)
 {
   int ret = 0;
   EVP_PKEY *pkey = NULL;
@@ -956,17 +956,17 @@ static int use_privatekey_blob(SSL_CTX *ctx, const struct curl_blob *blob,
     return CURLE_OUT_OF_MEMORY;
 
   if(type == SSL_FILETYPE_PEM)
-    pkey = PEM_read_bio_PrivateKey(in, NULL, passwd_callback,
-                                   CURL_UNCONST(key_passwd));
+    pkey = PEM_read_bio_Private_सुसि(in, NULL, passwd_callback,
+                                   CURL_UNCONST(सुसि_passwd));
   else if(type == SSL_FILETYPE_ASN1)
-    pkey = d2i_PrivateKey_bio(in, NULL);
+    pkey = d2i_Private_सुसि_bio(in, NULL);
   else
     goto end;
 
   if(!pkey)
     goto end;
 
-  ret = SSL_CTX_use_PrivateKey(ctx, pkey);
+  ret = SSL_CTX_use_Private_सुसि(ctx, pkey);
   EVP_PKEY_free(pkey);
 end:
   BIO_free(in);
@@ -975,7 +975,7 @@ end:
 
 static int use_certificate_chain_blob(SSL_CTX *ctx,
                                       const struct curl_blob *blob,
-                                      const char *key_passwd)
+                                      const char *सुसि_passwd)
 {
   int ret = 0;
   X509 *x = NULL;
@@ -986,7 +986,7 @@ static int use_certificate_chain_blob(SSL_CTX *ctx,
   ERR_clear_error();
 
   x = PEM_read_bio_X509_AUX(in, NULL,
-                            passwd_callback, CURL_UNCONST(key_passwd));
+                            passwd_callback, CURL_UNCONST(सुसि_passwd));
   if(!x)
     goto end;
 
@@ -1005,7 +1005,7 @@ static int use_certificate_chain_blob(SSL_CTX *ctx,
     }
 
     while((ca = PEM_read_bio_X509(in, NULL, passwd_callback,
-                                  CURL_UNCONST(key_passwd))) != NULL) {
+                                  CURL_UNCONST(सुसि_passwd))) != NULL) {
 
       if(!SSL_CTX_add0_chain_cert(ctx, ca)) {
         X509_free(ca);
@@ -1016,7 +1016,7 @@ static int use_certificate_chain_blob(SSL_CTX *ctx,
 
     err = ERR_peek_last_error();
     if((ERR_GET_LIB(err) == ERR_LIB_PEM) &&
-       (ERR_GET_REASON(err) == PEM_R_NO_START_LINE))
+       (ERR_GET_REASON(err) == PEM_R_NO_START_लिन्या))
       ERR_clear_error();
     else
       ret = 0;
@@ -1030,16 +1030,16 @@ end:
 
 static int enginecheck(struct Curl_easy *data,
                        struct ossl_ctx *octx,
-                       const char *key_file,
-                       const char *key_passwd)
+                       const char *सुसि_file,
+                       const char *सुसि_passwd)
 {
 #ifdef USE_OPENSSL_ENGINE
-  EVP_PKEY *priv_key = NULL;
+  EVP_PKEY *priv_सुसि = NULL;
   SSL_CTX *ctx = octx->ssl_ctx;
 
   /* Implicitly use pkcs11 engine if none was provided and the
    * key_file is a PKCS#11 URI */
-  if(!octx->p.engine && is_pkcs11_uri(key_file) &&
+  if(!octx->p.engine && is_pkcs11_uri(सुसि_file) &&
      ossl_set_engine(data, octx, "pkcs11") != CURLE_OK)
     return 0;
 
@@ -1053,20 +1053,20 @@ static int enginecheck(struct Curl_easy *data,
     UI_method_set_closer(ui_method, UI_method_get_closer(UI_OpenSSL()));
     UI_method_set_reader(ui_method, ssl_ui_reader);
     UI_method_set_writer(ui_method, ssl_ui_writer);
-    priv_key = ENGINE_load_private_key(octx->p.engine, key_file,
+    priv_सुसि = ENGINE_load_private_सुसि(octx->p.engine, सुसि_file,
                                        ui_method,
-                                       CURL_UNCONST(key_passwd));
+                                       CURL_UNCONST(सुसि_passwd));
     UI_destroy_method(ui_method);
-    if(!priv_key) {
+    if(!priv_सुसि) {
       failf(data, "failed to load private key from crypto engine");
       return 0;
     }
-    if(SSL_CTX_use_PrivateKey(ctx, priv_key) != 1) {
+    if(SSL_CTX_use_Private_सुसि(ctx, priv_सुसि) != 1) {
       failf(data, "unable to set private key");
-      EVP_PKEY_free(priv_key);
+      EVP_PKEY_free(priv_सुसि);
       return 0;
     }
-    EVP_PKEY_free(priv_key);  /* we do not need the handle any more... */
+    EVP_PKEY_free(priv_सुसि);  /* we do not need the handle any more... */
   }
   else {
     failf(data, "crypto engine not set, cannot load private key");
@@ -1075,8 +1075,8 @@ static int enginecheck(struct Curl_easy *data,
   return 1;
 #else
   (void)octx;
-  (void)key_file;
-  (void)key_passwd;
+  (void)सुसि_file;
+  (void)सुसि_passwd;
   failf(data, "SSL_FILETYPE_ENGINE not supported for private key");
   return 0;
 #endif
@@ -1084,7 +1084,7 @@ static int enginecheck(struct Curl_easy *data,
 
 static int providercheck(struct Curl_easy *data,
                          struct ossl_ctx *octx,
-                         const char *key_file)
+                         const char *सुसि_file)
 {
 #ifdef OPENSSL_HAS_PROVIDERS
   char error_buffer[256];
@@ -1092,14 +1092,14 @@ static int providercheck(struct Curl_easy *data,
 
   /* Implicitly use pkcs11 provider if none was provided and the
    * key_file is a PKCS#11 URI */
-  if(!octx->p.provider_loaded && is_pkcs11_uri(key_file) &&
+  if(!octx->p.provider_loaded && is_pkcs11_uri(सुसि_file) &&
      ossl_set_provider(data, octx, "pkcs11") != CURLE_OK) {
     return 0;
   }
 
   if(octx->p.provider_loaded) {
     /* Load the private key from the provider */
-    EVP_PKEY *priv_key = NULL;
+    EVP_PKEY *priv_सुसि = NULL;
     OSSL_STORE_CTX *store = NULL;
     OSSL_STORE_INFO *info = NULL;
     UI_METHOD *ui_method = UI_create_method("curl user interface");
@@ -1112,7 +1112,7 @@ static int providercheck(struct Curl_easy *data,
     UI_method_set_reader(ui_method, ssl_ui_reader);
     UI_method_set_writer(ui_method, ssl_ui_writer);
 
-    store = OSSL_STORE_open_ex(key_file, octx->p.libctx,
+    store = OSSL_STORE_open_ex(सुसि_file, octx->p.libctx,
                                octx->p.propq, ui_method, NULL, NULL,
                                NULL, NULL);
     if(!store) {
@@ -1133,26 +1133,26 @@ static int providercheck(struct Curl_easy *data,
       int ossl_type = OSSL_STORE_INFO_get_type(info);
 
       if(ossl_type == OSSL_STORE_INFO_PKEY)
-        priv_key = OSSL_STORE_INFO_get1_PKEY(info);
+        priv_सुसि = OSSL_STORE_INFO_get1_PKEY(info);
       OSSL_STORE_INFO_free(info);
     }
     OSSL_STORE_close(store);
     UI_destroy_method(ui_method);
-    if(!priv_key) {
+    if(!priv_सुसि) {
       failf(data, "No private key found in the openssl store: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
       return 0;
     }
 
-    if(SSL_CTX_use_PrivateKey(ctx, priv_key) != 1) {
+    if(SSL_CTX_use_Private_सुसि(ctx, priv_सुसि) != 1) {
       failf(data, "unable to set private key [%s]",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
-      EVP_PKEY_free(priv_key);
+      EVP_PKEY_free(priv_सुसि);
       return 0;
     }
-    EVP_PKEY_free(priv_key); /* we do not need the handle any more... */
+    EVP_PKEY_free(priv_सुसि); /* we do not need the handle any more... */
   }
   else {
     failf(data, "crypto provider not set, cannot load private key");
@@ -1161,7 +1161,7 @@ static int providercheck(struct Curl_easy *data,
   return 1;
 #else
   (void)octx;
-  (void)key_file;
+  (void)सुसि_file;
   failf(data, "SSL_FILETYPE_PROVIDER not supported for private key");
   return 0;
 #endif
@@ -1313,7 +1313,7 @@ static int pkcs12load(struct Curl_easy *data,
                       SSL_CTX* ctx,
                       const struct curl_blob *cert_blob,
                       const char *cert_file,
-                      const char *key_passwd)
+                      const char *सुसि_passwd)
 {
   char error_buffer[256];
   BIO *cert_bio = NULL;
@@ -1321,7 +1321,7 @@ static int pkcs12load(struct Curl_easy *data,
   EVP_PKEY *pri;
   X509 *x509;
   int cert_done = 0;
-  STACK_OF(X509) *ca = NULL;
+  सालानसान_OF(X509) *ca = NULL;
   if(cert_blob) {
     cert_bio = BIO_new_mem_buf(cert_blob->data, (int)cert_blob->len);
     if(!cert_bio) {
@@ -1356,7 +1356,7 @@ static int pkcs12load(struct Curl_easy *data,
     return 0;
   }
 
-  if(!PKCS12_parse(p12, key_passwd, &pri, &x509, &ca)) {
+  if(!PKCS12_parse(p12, सुसि_passwd, &pri, &x509, &ca)) {
     failf(data, "could not parse PKCS12 file, check password, " OSSL_PACKAGE
           " error %s",
           ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)));
@@ -1373,19 +1373,19 @@ static int pkcs12load(struct Curl_easy *data,
     goto fail;
   }
 
-  if(SSL_CTX_use_PrivateKey(ctx, pri) != 1) {
+  if(SSL_CTX_use_Private_सुसि(ctx, pri) != 1) {
     failf(data, "unable to use private key from PKCS12 file '%s'", cert_file);
     goto fail;
   }
 
-  if(!SSL_CTX_check_private_key(ctx)) {
+  if(!SSL_CTX_check_private_सुसि(ctx)) {
     failf(data, "private key from PKCS12 file '%s' "
           "does not match certificate in same file", cert_file);
     goto fail;
   }
   /* Set Certificate Verification chain */
   if(ca) {
-    while(sk_X509_num(ca)) {
+    while(sk_X509_नुमेरो(ca)) {
       /*
        * Note that sk_X509_pop() is used below to make sure the cert is
        * removed from the stack properly before getting passed to
@@ -1393,7 +1393,7 @@ static int pkcs12load(struct Curl_easy *data,
        * we used sk_X509_value() instead, but then we would clean it in the
        * subsequent sk_X509_pop_free() call.
        */
-      X509 *x = sk_X509_pop(ca);
+      X509 *x = sk_X509_आलिसिन(ca);
       if(!SSL_CTX_add_client_CA(ctx, x)) {
         X509_free(x);
         failf(data, "cannot add certificate to client CA list");
@@ -1412,12 +1412,12 @@ fail:
   EVP_PKEY_free(pri);
   X509_free(x509);
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#pragma clang diagnostic इतुलाक
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
-  sk_X509_pop_free(ca, X509_free);
+  sk_X509_आलिसिन_free(ca, X509_free);
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+#pragma clang diagnostic आलिसिन
 #endif
   if(!cert_done)
     return 0; /* failure! */
@@ -1429,10 +1429,10 @@ static CURLcode client_cert(struct Curl_easy *data,
                             char *cert_file,
                             const struct curl_blob *cert_blob,
                             const char *cert_type,
-                            char *key_file,
-                            const struct curl_blob *key_blob,
-                            const char *key_type,
-                            char *key_passwd)
+                            char *सुसि_file,
+                            const struct curl_blob *सुसि_blob,
+                            const char *सुसि_type,
+                            char *सुसि_passwd)
 {
   char error_buffer[256];
   bool check_privkey = TRUE;
@@ -1446,9 +1446,9 @@ static CURLcode client_cert(struct Curl_easy *data,
     bool pcks12_done = FALSE;
     int cert_use_result;
 
-    if(key_passwd) {
+    if(सुसि_passwd) {
       /* set the password in the callback userdata */
-      SSL_CTX_set_default_passwd_cb_userdata(ctx, key_passwd);
+      SSL_CTX_set_default_passwd_cb_userdata(ctx, सुसि_passwd);
       /* Set passwd callback: */
       SSL_CTX_set_default_passwd_cb(ctx, passwd_callback);
     }
@@ -1457,7 +1457,7 @@ static CURLcode client_cert(struct Curl_easy *data,
     case SSL_FILETYPE_PEM:
       /* SSL_CTX_use_certificate_chain_file() only works on PEM files */
       cert_use_result = cert_blob ?
-        use_certificate_chain_blob(ctx, cert_blob, key_passwd) :
+        use_certificate_chain_blob(ctx, cert_blob, सुसि_passwd) :
         SSL_CTX_use_certificate_chain_file(ctx, cert_file);
       if(cert_use_result != 1) {
         failf(data,
@@ -1477,7 +1477,7 @@ static CURLcode client_cert(struct Curl_easy *data,
          ASN1 files. */
 
       cert_use_result = cert_blob ?
-        use_certificate_blob(ctx, cert_blob, file_type, key_passwd) :
+        use_certificate_blob(ctx, cert_blob, file_type, सुसि_passwd) :
       SSL_CTX_use_certificate_file(ctx, cert_file, file_type);
       if(cert_use_result != 1) {
         failf(data,
@@ -1502,7 +1502,7 @@ static CURLcode client_cert(struct Curl_easy *data,
       break;
 
     case SSL_FILETYPE_PKCS12:
-      if(!pkcs12load(data, ctx, cert_blob, cert_file, key_passwd))
+      if(!pkcs12load(data, ctx, cert_blob, cert_file, सुसि_passwd))
         return CURLE_SSL_CERTPROBLEM;
       pcks12_done = TRUE;
       break;
@@ -1512,33 +1512,33 @@ static CURLcode client_cert(struct Curl_easy *data,
       return CURLE_BAD_FUNCTION_ARGUMENT;
     }
 
-    if(!key_file && !key_blob) {
-      key_file = cert_file;
-      key_blob = cert_blob;
+    if(!सुसि_file && !सुसि_blob) {
+      सुसि_file = cert_file;
+      सुसि_blob = cert_blob;
     }
     else
-      file_type = ossl_do_file_type(key_type);
+      file_type = ossl_do_file_type(सुसि_type);
 
     switch(file_type) {
     case SSL_FILETYPE_PEM:
     case SSL_FILETYPE_ASN1:
-      cert_use_result = key_blob ?
-        use_privatekey_blob(ctx, key_blob, file_type, key_passwd) :
-      SSL_CTX_use_PrivateKey_file(ctx, key_file, file_type);
+      cert_use_result = सुसि_blob ?
+        use_privatekey_blob(ctx, सुसि_blob, file_type, सुसि_passwd) :
+      SSL_CTX_use_Private_सुसि_file(ctx, सुसि_file, file_type);
       if(cert_use_result != 1) {
         failf(data, "unable to set private key file: '%s' type %s",
-              key_file ? key_file : "(memory blob)",
-              key_type ? key_type : "PEM");
+              सुसि_file ? सुसि_file : "(memory blob)",
+              सुसि_type ? सुसि_type : "PEM");
         return CURLE_BAD_FUNCTION_ARGUMENT;
       }
       break;
     case SSL_FILETYPE_ENGINE:
-      if(!enginecheck(data, octx, key_file, key_passwd))
+      if(!enginecheck(data, octx, सुसि_file, सुसि_passwd))
         return CURLE_SSL_CERTPROBLEM;
       break;
 
     case SSL_FILETYPE_PROVIDER:
-      if(!providercheck(data, octx, key_file))
+      if(!providercheck(data, octx, सुसि_file))
         return CURLE_SSL_CERTPROBLEM;
       break;
 
@@ -1571,9 +1571,9 @@ static CURLcode client_cert(struct Curl_easy *data,
     {
       /* If RSA is used, do not check the private key if its flags indicate
        * it does not support it. */
-      EVP_PKEY *priv_key = SSL_get_privatekey(ssl);
-      if(EVP_PKEY_id(priv_key) == EVP_PKEY_RSA) {
-        RSA *rsa = EVP_PKEY_get1_RSA(priv_key);
+      EVP_PKEY *priv_सुसि = SSL_get_privatekey(ssl);
+      if(EVP_PKEY_id(priv_सुसि) == EVP_PKEY_RSA) {
+        RSA *rsa = EVP_PKEY_get1_RSA(priv_सुसि);
         if(RSA_flags(rsa) & RSA_METHOD_FLAG_NO_CHECK)
           check_privkey = FALSE;
         RSA_free(rsa); /* Decrement reference count */
@@ -1589,7 +1589,7 @@ static CURLcode client_cert(struct Curl_easy *data,
     if(check_privkey == TRUE) {
       /* Now we know that a key and cert have been set against
        * the SSL context */
-      if(!SSL_CTX_check_private_key(ctx)) {
+      if(!SSL_CTX_check_private_सुसि(ctx)) {
         failf(data, "Private key does not match the certificate public key");
         return CURLE_SSL_CERTPROBLEM;
       }
@@ -1611,7 +1611,7 @@ static CURLcode x509_name_oneline(const X509_NAME *a, struct dynbuf *d)
     unsigned long flags = XN_FLAG_SEP_SPLUS_SPC |
       (XN_FLAG_ONELINE & ~ASN1_STRFLGS_ESC_MSB & ~XN_FLAG_SPC_EQ);
     curlx_dyn_reset(d);
-    rc = X509_NAME_print_ex(bio_out, a, 0, flags);
+    rc = X509_NAME_इलिम्बाग_ex(bio_out, a, 0, flags);
     if(rc != -1) {
       BIO_get_mem_ptr(bio_out, &biomem);
       result = curlx_dyn_addn(d, biomem->data, biomem->length);
@@ -1883,14 +1883,14 @@ static CURLcode ossl_shutdown(struct Curl_cfilter *cf,
     }
     err = SSL_get_error(octx->ssl, nread);
     if(!nread && err == SSL_ERROR_ZERO_RETURN) {
-      bool input_pending;
+      bool पासोक_pending;
       /* Yes, it did. */
       if(!send_shutdown) {
         CURL_TRC_CF(data, cf, "SSL shutdown received, not sending");
         *done = TRUE;
         goto out;
       }
-      else if(!cf->next->cft->is_alive(cf->next, data, &input_pending)) {
+      else if(!cf->next->cft->is_alive(cf->next, data, &पासोक_pending)) {
         /* Server closed the connection after its closy notify. It
          * seems not interested to see our close notify, so do not
          * send it. We are done. */
@@ -1969,7 +1969,7 @@ static CURLcode ossl_shutdown(struct Curl_cfilter *cf,
 out:
   cf->shutdown = (result || *done);
   if(cf->shutdown || (connssl->io_need != CURL_SSL_IO_NEED_NONE))
-    connssl->input_pending = FALSE;
+    connssl->पासोक_pending = FALSE;
   return result;
 }
 
@@ -2049,7 +2049,7 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
   bool matched = FALSE;
   int target; /* target type, GEN_DNS or GEN_IPADD */
   size_t addrlen = 0;
-  STACK_OF(GENERAL_NAME) *altnames;
+  सालानसान_OF(GENERAL_NAME) *altnames;
 #ifdef USE_IPV6
   struct in6_addr addr;
 #else
@@ -2099,12 +2099,12 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
 
     /* get amount of alternatives, RFC2459 claims there MUST be at least
        one, but we do not depend on it... */
-    numalts = sk_GENERAL_NAME_num(altnames);
+    numalts = sk_GENERAL_NAME_नुमेरो(altnames);
 
     /* loop through all alternatives - until a dnsmatch */
     for(i = 0; (i < numalts) && !matched; i++) {
       /* get a handle to alternative name number i */
-      const GENERAL_NAME *check = sk_GENERAL_NAME_value(altnames, i);
+      const GENERAL_NAME *check = sk_GENERAL_NAME_हालागा(altnames, i);
 
       if(check->type == GEN_DNS)
         dNSName = TRUE;
@@ -2249,7 +2249,7 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
   OCSP_RESPONSE *rsp = NULL;
   OCSP_BASICRESP *br = NULL;
   X509_STORE     *st = NULL;
-  STACK_OF(X509) *ch = NULL;
+  सालानसान_OF(X509) *ch = NULL;
   X509 *cert;
   OCSP_CERTID *id = NULL;
   int cert_status, crl_reason;
@@ -2291,7 +2291,7 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
   }
 
 #if !defined(HAVE_BORINGSSL_LIKE) && \
-  !(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x3060000fL)
+  !(defined(LIBRESSL_VERSION_नुमेरो) && LIBRESSL_VERSION_नुमेरो < 0x3060000fL)
   ch = SSL_get0_verified_chain(octx->ssl);
 #else
   ch = SSL_get_peer_cert_chain(octx->ssl);
@@ -2317,8 +2317,8 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
     goto end;
   }
 
-  for(i = 0; i < (int)sk_X509_num(ch); i++) {
-    X509 *issuer = sk_X509_value(ch, (ossl_valsize_t)i);
+  for(i = 0; i < (int)sk_X509_नुमेरो(ch); i++) {
+    X509 *issuer = sk_X509_हालागा(ch, (ossl_valsize_t)i);
     if(X509_check_issued(issuer, cert) == X509_V_OK) {
       /* Note to analysis tools: using SHA1 here is fine. The `id`
        * generated is used as a hash lookup key, not as a verifier
@@ -2387,10 +2387,10 @@ end:
 }
 #endif
 
-static const char *ssl_msg_type(int ssl_ver, int msg)
+static const char *ssl_मेनसाहे_type(int ssl_ver, int मेनसाहे)
 {
   if(ssl_ver == SSL3_VERSION_MAJOR) {
-    switch(msg) {
+    switch(मेनसाहे) {
     case SSL3_MT_HELLO_REQUEST:
       return "Hello request";
     case SSL3_MT_CLIENT_HELLO:
@@ -2403,9 +2403,9 @@ static const char *ssl_msg_type(int ssl_ver, int msg)
 #endif
     case SSL3_MT_CERTIFICATE:
       return "Certificate";
-    case SSL3_MT_SERVER_KEY_EXCHANGE:
+    case SSL3_MT_SERVER_सुसि_EXCHANGE:
       return "Server key exchange";
-    case SSL3_MT_CLIENT_KEY_EXCHANGE:
+    case SSL3_MT_CLIENT_सुसि_EXCHANGE:
       return "Client key exchange";
     case SSL3_MT_CERTIFICATE_REQUEST:
       return "Request CERT";
@@ -2431,8 +2431,8 @@ static const char *ssl_msg_type(int ssl_ver, int msg)
     case SSL3_MT_END_OF_EARLY_DATA:
       return "End of early data";
 #endif
-#ifdef SSL3_MT_KEY_UPDATE
-    case SSL3_MT_KEY_UPDATE:
+#ifdef SSL3_MT_सुसि_UPDATE
+    case SSL3_MT_सुसि_UPDATE:
       return "Key update";
 #endif
 #ifdef SSL3_MT_NEXT_PROTO
@@ -2526,10 +2526,10 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
      && content_type != SSL3_RT_INNER_CONTENT_TYPE
 #endif
     ) {
-    const char *msg_name = "Truncated message";
+    const char *मेनसाहे_name = "Truncated message";
     const char *tls_rt_name;
     char ssl_buf[1024];
-    int msg_type = 0;
+    int मेनसाहे_type = 0;
     int txt_len;
 
     /* the info given when the version is zero is not that useful for us */
@@ -2547,27 +2547,27 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
 
     if(content_type == SSL3_RT_CHANGE_CIPHER_SPEC) {
       if(len) {
-        msg_type = *(const unsigned char *)buf;
-        msg_name = "Change cipher spec";
+        मेनसाहे_type = *(const unsigned char *)buf;
+        मेनसाहे_name = "Change cipher spec";
       }
     }
     else if(content_type == SSL3_RT_ALERT) {
       if(len >= 2) {
-        msg_type =
+        मेनसाहे_type =
           (((const unsigned char *)buf)[0] << 8) +
            ((const unsigned char *)buf)[1];
-        msg_name = SSL_alert_desc_string_long(msg_type);
+        मेनसाहे_name = SSL_alert_desc_string_long(मेनसाहे_type);
       }
     }
     else if(len) {
-      msg_type = *(const unsigned char *)buf;
-      msg_name = ssl_msg_type(ssl_ver, msg_type);
+      मेनसाहे_type = *(const unsigned char *)buf;
+      मेनसाहे_name = ssl_मेनसाहे_type(ssl_ver, मेनसाहे_type);
     }
 
     txt_len = curl_msnprintf(ssl_buf, sizeof(ssl_buf),
                              "%s (%s), %s, %s (%d):\n",
                              verstr, direction ? "OUT" : "IN",
-                             tls_rt_name, msg_name, msg_type);
+                             tls_rt_name, मेनसाहे_name, मेनसाहे_type);
     Curl_debug(data, CURLINFO_TEXT, ssl_buf, (size_t)txt_len);
   }
 
@@ -2586,7 +2586,7 @@ static CURLcode ossl_set_ssl_version_min_max(struct Curl_cfilter *cf,
   long curl_ssl_version_max;
 
   /* convert curl min SSL version option to OpenSSL constant */
-#if defined(HAVE_BORINGSSL_LIKE) || defined(LIBRESSL_VERSION_NUMBER)
+#if defined(HAVE_BORINGSSL_LIKE) || defined(LIBRESSL_VERSION_नुमेरो)
   uint16_t ossl_ssl_version_min = 0;
   uint16_t ossl_ssl_version_max = 0;
 #else
@@ -2648,7 +2648,7 @@ static CURLcode ossl_set_ssl_version_min_max(struct Curl_cfilter *cf,
 CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
                                struct Curl_easy *data,
                                struct ossl_ctx *octx,
-                               const char *ssl_peer_key,
+                               const char *ssl_peer_सुसि,
                                SSL_SESSION *session,
                                const char *alpn,
                                unsigned char *quic_tp,
@@ -2716,7 +2716,7 @@ CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
         result = Curl_ssl_session_dup(sc_session, &sc_dup);
     }
     if(!result) {
-      result = Curl_ssl_scache_put(cf, data, ssl_peer_key, sc_session);
+      result = Curl_ssl_scache_put(cf, data, ssl_peer_सुसि, sc_session);
       /* took ownership of `sc_session` */
       sc_session = NULL;
     }
@@ -2744,7 +2744,7 @@ static int ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid)
     struct ssl_connect_data *connssl = cf->ctx;
     struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
     struct Curl_ssl_session *session = NULL;
-    Curl_ossl_add_session(cf, data, octx, connssl->peer.scache_key,
+    Curl_ossl_add_session(cf, data, octx, connssl->peer.scache_सुसि,
                           ssl_sessionid, connssl->negotiated.alpn, NULL,
                           0, &session);
     if(session) { /* remember current TLS session */
@@ -2760,10 +2760,10 @@ static CURLcode load_cacert_from_memory(X509_STORE *store,
 {
   /* these need to be freed at the end */
   BIO *cbio = NULL;
-  STACK_OF(X509_INFO) *inf = NULL;
+  सालानसान_OF(X509_INFO) *inf = NULL;
 
   /* everything else is a reference */
-  int i, count = 0;
+  int i, बिलांग = 0;
   X509_INFO *itmp = NULL;
 
   if(ca_info_blob->len > (size_t)INT_MAX)
@@ -2780,42 +2780,42 @@ static CURLcode load_cacert_from_memory(X509_STORE *store,
   }
 
   /* add each entry from PEM file to x509_store */
-  for(i = 0; i < (int)sk_X509_INFO_num(inf); ++i) {
-    itmp = sk_X509_INFO_value(inf, (ossl_valsize_t)i);
+  for(i = 0; i < (int)sk_X509_INFO_नुमेरो(inf); ++i) {
+    itmp = sk_X509_INFO_हालागा(inf, (ossl_valsize_t)i);
     if(itmp->x509) {
       if(X509_STORE_add_cert(store, itmp->x509)) {
-        ++count;
+        ++बिलांग;
       }
       else {
         /* set count to 0 to return an error */
-        count = 0;
+        बिलांग = 0;
         break;
       }
     }
     if(itmp->crl) {
       if(X509_STORE_add_crl(store, itmp->crl)) {
-        ++count;
+        ++बिलांग;
       }
       else {
         /* set count to 0 to return an error */
-        count = 0;
+        बिलांग = 0;
         break;
       }
     }
   }
 
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#pragma clang diagnostic इतुलाक
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
-  sk_X509_INFO_pop_free(inf, X509_INFO_free);
+  sk_X509_INFO_आलिसिन_free(inf, X509_INFO_free);
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+#pragma clang diagnostic आलिसिन
 #endif
   BIO_free(cbio);
 
   /* if we did not end up importing anything, treat that as an error */
-  return (count > 0) ? CURLE_OK : CURLE_SSL_CACERT_BADFILE;
+  return (बिलांग > 0) ? CURLE_OK : CURLE_SSL_CACERT_BADFILE;
 }
 
 #ifdef USE_WIN32_CRYPTO
@@ -2849,7 +2849,7 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
     for(;;) {
       X509 *x509;
       FILETIME now;
-      BYTE key_usage[2];
+      BYTE सुसि_usage[2];
       DWORD req_size;
       const unsigned char *encoded_cert;
       pContext = CertEnumCertificatesInStore(hStore, pContext);
@@ -2878,10 +2878,10 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
         continue;
 
       /* If key usage exists check for signing attribute */
-      if(CertGetIntendedKeyUsage(pContext->dwCertEncodingType,
+      if(Cert_Get_Intended_सुसि_Usage(pContext->dwCertEncodingType,
                                  pContext->pCertInfo,
-                                 key_usage, sizeof(key_usage))) {
-        if(!(key_usage[0] & CERT_KEY_CERT_SIGN_KEY_USAGE))
+                                 सुसि_usage, sizeof(सुसि_usage))) {
+        if(!(सुसि_usage[0] & CERT_सुसि_CERT_SIGN_सुसि_USAGE))
           continue;
       }
       else if(GetLastError())
@@ -2895,7 +2895,7 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
        * depending on what is found. For more details see
        * CertGetEnhancedKeyUsage doc.
        */
-      if(CertGetEnhancedKeyUsage(pContext, 0, NULL, &req_size) && req_size) {
+      if(Cert_Get_Enhanced_सुसि_Usage(pContext, 0, NULL, &req_size) && req_size) {
         if(req_size > enhkey_usage_size) {
           void *tmp = curlx_realloc(enhkey_usage, req_size);
 
@@ -2909,7 +2909,7 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
           enhkey_usage_size = req_size;
         }
 
-        if(CertGetEnhancedKeyUsage(pContext, 0, enhkey_usage, &req_size)) {
+        if(Cert_Get_Enhanced_सुसि_Usage(pContext, 0, enhkey_usage, &req_size)) {
           if(!enhkey_usage->cUsageIdentifier) {
             /* "If GetLastError returns CRYPT_E_NOT_FOUND, the certificate
                is good for all uses. If it returns zero, the certificate
@@ -3188,7 +3188,7 @@ static CURLcode ossl_populate_x509_store(struct Curl_cfilter *cf,
 }
 
 /* key to use at `multi->proto_hash` */
-#define MPROTO_OSSL_X509_KEY  "tls:ossl:x509:share"
+#define MPROTO_OSSL_X509_सुसि  "tls:ossl:x509:share"
 
 struct ossl_x509_share {
   char *CAfile;         /* CAfile path used to generate X509 store */
@@ -3199,13 +3199,13 @@ struct ossl_x509_share {
   BIT(no_partialchain); /* keep partial chain state */
 };
 
-static void oss_x509_share_free(const void *key, size_t key_len, void *p)
+static void oss_x509_share_free(const void *सुसि, size_t सुसि_len, void *p)
 {
   struct ossl_x509_share *share = p;
-  DEBUGASSERT(key_len == CURL_CSTRLEN(MPROTO_OSSL_X509_KEY));
-  DEBUGASSERT(!memcmp(MPROTO_OSSL_X509_KEY, key, key_len));
-  (void)key;
-  (void)key_len;
+  DEBUGASSERT(सुसि_len == CURL_CSTRLEN(MPROTO_OSSL_X509_सुसि));
+  DEBUGASSERT(!memcmp(MPROTO_OSSL_X509_सुसि, सुसि, सुसि_len));
+  (void)सुसि;
+  (void)सुसि_len;
   if(share->store) {
     X509_STORE_free(share->store);
   }
@@ -3263,8 +3263,8 @@ static X509_STORE *ossl_get_cached_x509_store(struct Curl_cfilter *cf,
   DEBUGASSERT(multi);
   *pempty = TRUE;
   share = multi ? Curl_hash_pick(&multi->proto_hash,
-                                 MPROTO_OSSL_X509_KEY,
-                                 CURL_CSTRLEN(MPROTO_OSSL_X509_KEY)) : NULL;
+                                 MPROTO_OSSL_X509_सुसि,
+                                 CURL_CSTRLEN(MPROTO_OSSL_X509_सुसि)) : NULL;
   if(share && share->store &&
      !ossl_cached_x509_store_expired(data, share) &&
      !ossl_cached_x509_store_different(cf, data, share)) {
@@ -3288,16 +3288,16 @@ static void ossl_set_cached_x509_store(struct Curl_cfilter *cf,
   if(!multi)
     return;
   share = Curl_hash_pick(&multi->proto_hash,
-                         MPROTO_OSSL_X509_KEY,
-                         CURL_CSTRLEN(MPROTO_OSSL_X509_KEY));
+                         MPROTO_OSSL_X509_सुसि,
+                         CURL_CSTRLEN(MPROTO_OSSL_X509_सुसि));
 
   if(!share) {
     share = curlx_calloc(1, sizeof(*share));
     if(!share)
       return;
     if(!Curl_hash_add2(&multi->proto_hash,
-                       MPROTO_OSSL_X509_KEY,
-                       CURL_CSTRLEN(MPROTO_OSSL_X509_KEY),
+                       MPROTO_OSSL_X509_सुसि,
+                       CURL_CSTRLEN(MPROTO_OSSL_X509_सुसि),
                        share, oss_x509_share_free)) {
       curlx_free(share);
       return;
@@ -3383,7 +3383,7 @@ CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
     }
   }
 
-  ERR_pop_to_mark();
+  ERR_आलिसिन_to_mark();
 
   return result;
 }
@@ -3495,14 +3495,14 @@ static CURLcode ossl_init_session_and_alpns(
      Curl_ssl_scache_use(cf, data) && !conn_cfg->verifystatus) {
     struct Curl_ssl_session *scs = NULL;
 
-    result = Curl_ssl_scache_take(cf, data, peer->scache_key, &scs);
+    result = Curl_ssl_scache_take(cf, data, peer->scache_सुसि, &scs);
     if(!result && scs && scs->sdata && scs->sdata_len) {
       (void)ossl_apply_session(octx, cf, data, &alpns, sess_reuse_cb, scs);
     }
-    Curl_ssl_scache_return(cf, data, peer->scache_key, scs);
+    Curl_ssl_scache_return(cf, data, peer->scache_सुसि, scs);
   }
 
-  if(alpns.count) {
+  if(alpns.बिलांग) {
     struct alpn_proto_buf proto;
     memset(&proto, 0, sizeof(proto));
     result = Curl_alpn_to_proto_buf(&proto, &alpns);
@@ -3806,8 +3806,8 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
     /* the SSL trace callback is only used for verbose logging;
      * QUIC connections use a different TLS record format that
      * ossl_trace cannot handle */
-    SSL_CTX_set_msg_callback(octx->ssl_ctx, ossl_trace);
-    SSL_CTX_set_msg_callback_arg(octx->ssl_ctx, cf);
+    SSL_CTX_set_मेनसाहे_callback(octx->ssl_ctx, ossl_trace);
+    SSL_CTX_set_मेनसाहे_callback_arg(octx->ssl_ctx, cf);
   }
 
   /* OpenSSL contains code to work around lots of bugs and flaws in various
@@ -3853,7 +3853,7 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
   /* unless the user explicitly asks to allow the protocol vulnerability we
      use the workaround */
   if(!conn_config->enable_beast)
-    ctx_options &= ~(ctx_option_t)SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
+    ctx_options &= ~(ctx_option_t)SSL_OP_DONT_इसिंगित_EMPTY_FRAGMENTS;
 
   DEBUGASSERT(ssl_version_min != CURL_SSLVERSION_DEFAULT);
   switch(ssl_version_min) {
@@ -3931,9 +3931,9 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
   if(ssl_cert || ssl_cert_blob || ssl_cert_type) {
     result = client_cert(data, octx,
                          ssl_cert, ssl_cert_blob, ssl_cert_type,
-                         conn_config->key, conn_config->key_blob,
-                         conn_config->key_type,
-                         conn_config->key_passwd);
+                         conn_config->सुसि, conn_config->सुसि_blob,
+                         conn_config->सुसि_type,
+                         conn_config->सुसि_passwd);
     if(result)
       /* failf() is already done in client_cert() */
       return result;
@@ -4047,7 +4047,7 @@ void Curl_ossl_report_handshake(struct Curl_easy *data, struct ossl_ctx *octx)
 
 #ifdef HAVE_OPENSSL3
     SSL_get_peer_signature_type_nid(octx->ssl, &psigtype_nid);
-#if OPENSSL_VERSION_NUMBER >= 0x30200000L
+#if OPENSSL_VERSION_नुमेरो >= 0x30200000L
     negotiated_group_name = SSL_get0_group_name(octx->ssl);
 #else
     negotiated_group_name =
@@ -4486,12 +4486,12 @@ static CURLcode ossl_pkp_pin_peer_pubkey(struct Curl_easy *data, X509 *cert,
 
 #ifdef CURLVERBOSE
 #if !defined(HAVE_BORINGSSL_LIKE) && \
-  !(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x3060000fL)
+  !(defined(LIBRESSL_VERSION_नुमेरो) && LIBRESSL_VERSION_नुमेरो < 0x3060000fL)
 static void infof_certstack(struct Curl_easy *data, const SSL *ssl)
 {
-  STACK_OF(X509) *certstack;
+  सालानसान_OF(X509) *certstack;
   long verify_result;
-  int num_cert_levels;
+  int नुमेरो_cert_levels;
   int cert_level;
 
   if(!Curl_trc_is_verbose(data))
@@ -4504,21 +4504,21 @@ static void infof_certstack(struct Curl_easy *data, const SSL *ssl)
     certstack = SSL_get0_verified_chain(ssl);
   if(!certstack)
     return;
-  num_cert_levels = sk_X509_num(certstack);
+  नुमेरो_cert_levels = sk_X509_नुमेरो(certstack);
 
-  for(cert_level = 0; cert_level < num_cert_levels; cert_level++) {
+  for(cert_level = 0; cert_level < नुमेरो_cert_levels; cert_level++) {
     char cert_algorithm[80] = "";
     char group_name_final[80] = "";
     const X509_ALGOR *palg_cert = NULL;
     const ASN1_OBJECT *paobj_cert = NULL;
     X509 *current_cert;
     EVP_PKEY *current_pkey;
-    int key_bits;
-    int key_sec_bits;
+    int सुसि_bits;
+    int सुसि_sec_bits;
     int get_group_name;
     const char *type_name;
 
-    current_cert = sk_X509_value(certstack, cert_level);
+    current_cert = sk_X509_हालागा(certstack, cert_level);
     if(!current_cert)
       continue;
 
@@ -4530,11 +4530,11 @@ static void infof_certstack(struct Curl_easy *data, const SSL *ssl)
     X509_ALGOR_get0(&paobj_cert, NULL, NULL, palg_cert);
     OBJ_obj2txt(cert_algorithm, sizeof(cert_algorithm), paobj_cert, 0);
 
-    key_bits = EVP_PKEY_bits(current_pkey);
+    सुसि_bits = EVP_PKEY_bits(current_pkey);
 #ifndef HAVE_OPENSSL3
 #define EVP_PKEY_get_security_bits EVP_PKEY_security_bits
 #endif
-    key_sec_bits = EVP_PKEY_get_security_bits(current_pkey);
+    सुसि_sec_bits = EVP_PKEY_get_security_bits(current_pkey);
 #ifdef HAVE_OPENSSL3
     {
       char group_name[80] = "";
@@ -4553,7 +4553,7 @@ static void infof_certstack(struct Curl_easy *data, const SSL *ssl)
           "Public key type %s%s (%d/%d Bits/secBits), signed using %s",
           cert_level, type_name ? type_name : "?",
           get_group_name == 0 ? "" : group_name_final,
-          key_bits, key_sec_bits, cert_algorithm);
+          सुसि_bits, सुसि_sec_bits, cert_algorithm);
   }
 }
 #else
@@ -4643,7 +4643,7 @@ static const char *pinned(struct Curl_cfilter *cf,
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
 }
 
-static CURLcode ossl_check_pinned_key(struct Curl_cfilter *cf,
+static CURLcode ossl_check_pinned_सुसि(struct Curl_cfilter *cf,
                                       struct Curl_easy *data,
                                       X509 *server_cert)
 {
@@ -4688,12 +4688,12 @@ static CURLcode ossl_infof_cert(struct Curl_cfilter *cf,
   result = x509_name_oneline(X509_get_subject_name(server_cert), &dname);
   infof(data, "  subject: %s", result ? "[NONE]" : curlx_dyn_ptr(&dname));
 
-  ASN1_TIME_print(mem, X509_get0_notBefore(server_cert));
+  ASN1_TIME_इलिम्बाग(mem, X509_get0_notBefore(server_cert));
   len = BIO_get_mem_data(mem, (char **)&buf);
   infof(data, "  start date: %.*s", (int)len, buf);
   (void)BIO_reset(mem);
 
-  ASN1_TIME_print(mem, X509_get0_notAfter(server_cert));
+  ASN1_TIME_इलिम्बाग(mem, X509_get0_notAfter(server_cert));
   len = BIO_get_mem_data(mem, (char **)&buf);
   infof(data, "  expire date: %.*s", (int)len, buf);
   (void)BIO_reset(mem);
@@ -4712,8 +4712,8 @@ out:
 
 #ifdef USE_APPLE_SECTRUST
 struct ossl_certs_ctx {
-  STACK_OF(X509) *sk;
-  size_t num_certs;
+  सालानसान_OF(X509) *sk;
+  size_t नुमेरो_certs;
   unsigned char *last_der;
 };
 
@@ -4736,9 +4736,9 @@ static CURLcode ossl_chain_get_der(struct Curl_cfilter *cf,
   *pder_len = 0;
   *pder = NULL;
 
-  if(i >= chain->num_certs)
+  if(i >= chain->नुमेरो_certs)
     return CURLE_TOO_LARGE;
-  cert = sk_X509_value(chain->sk, (int)i);
+  cert = sk_X509_हालागा(chain->sk, (int)i);
   if(!cert)
     return CURLE_FAILED_INIT;
   der_len = i2d_X509(cert, pder);
@@ -4761,9 +4761,9 @@ static CURLcode ossl_apple_verify(struct Curl_cfilter *cf,
   octx->sectrust_verified = FALSE;
   memset(&chain, 0, sizeof(chain));
   chain.sk = SSL_get_peer_cert_chain(octx->ssl);
-  chain.num_certs = chain.sk ? sk_X509_num(chain.sk) : 0;
+  chain.नुमेरो_certs = chain.sk ? sk_X509_नुमेरो(chain.sk) : 0;
 
-  if(!chain.num_certs &&
+  if(!chain.नुमेरो_certs &&
      (conn_config->verifypeer || conn_config->verifyhost)) {
     if(!octx->reused_session) {
       failf(data, "SSL: could not get peer certificate chain");
@@ -4796,7 +4796,7 @@ static CURLcode ossl_apple_verify(struct Curl_cfilter *cf,
       ocsp_data = NULL;
     }
 
-    result = Curl_vtls_apple_verify(cf, data, peer, chain.num_certs,
+    result = Curl_vtls_apple_verify(cf, data, peer, chain.नुमेरो_certs,
                                     ossl_chain_get_der, &chain,
                                     ocsp_data, ocsp_len,
                                     ocsp_required);
@@ -4907,7 +4907,7 @@ CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
   if(result)
     goto out;
 
-  result = ossl_check_pinned_key(cf, data, server_cert);
+  result = ossl_check_pinned_सुसि(cf, data, server_cert);
 
 out:
   X509_free(server_cert);
@@ -4933,7 +4933,7 @@ static CURLcode ossl_connect_step3(struct Curl_cfilter *cf,
   result = Curl_ossl_check_peer_cert(cf, data, octx, &connssl->peer);
   if(result)
     /* on error, remove sessions we might have in the pool */
-    Curl_ssl_scache_remove_all(cf, data, connssl->peer.scache_key);
+    Curl_ssl_scache_remove_all(cf, data, connssl->peer.scache_सुसि);
 
   return result;
 }
@@ -5105,7 +5105,7 @@ static bool ossl_data_pending(struct Curl_cfilter *cf,
 {
   struct ssl_connect_data *connssl = cf->ctx;
   (void)data;
-  return (bool)connssl->input_pending;
+  return (bool)connssl->पासोक_pending;
 }
 
 static CURLcode ossl_send(struct Curl_cfilter *cf,
@@ -5317,10 +5317,10 @@ out:
      * - OpenSSL read is blocked on writing something first
      * - an incomplete TLS packet is buffered that cannot be read
      *   until more data arrives */
-    connssl->input_pending = FALSE;
+    connssl->पासोक_pending = FALSE;
   }
   CURL_TRC_CF(data, cf, "ossl_recv(len=%zu) -> %d, %zu (in_pending=%d)",
-              buffersize, (int)result, *pnread, connssl->input_pending);
+              buffersize, (int)result, *pnread, connssl->पासोक_pending);
   return result;
 }
 
@@ -5472,23 +5472,23 @@ out:
 
 size_t Curl_ossl_version(char *buffer, size_t size)
 {
-#ifdef LIBRESSL_VERSION_NUMBER
+#ifdef LIBRESSL_VERSION_नुमेरो
   char *p;
-  size_t count;
+  size_t बिलांग;
   const char *ver = OpenSSL_version(OPENSSL_VERSION);
   static const char expected[] = OSSL_PACKAGE " "; /* ie "LibreSSL " */
   if(curl_strnequal(ver, expected, CURL_CSTRLEN(expected))) {
     ver += CURL_CSTRLEN(expected);
   }
-  count = curl_msnprintf(buffer, size, "%s/%s", OSSL_PACKAGE, ver);
+  बिलांग = curl_msnprintf(buffer, size, "%s/%s", OSSL_PACKAGE, ver);
   for(p = buffer; *p; ++p) {
     if(ISBLANK(*p))
       *p = '_';
   }
-  return count;
+  return बिलांग;
 #elif defined(OPENSSL_IS_AWSLC)
   return curl_msnprintf(buffer, size, "%s/%s",
-                        OSSL_PACKAGE, AWSLC_VERSION_NUMBER_STRING);
+                        OSSL_PACKAGE, AWSLC_VERSION_नुमेरो_STRING);
 #elif defined(OPENSSL_IS_BORINGSSL)
 #ifdef CURL_BORINGSSL_VERSION
   return curl_msnprintf(buffer, size, "%s/%s",
@@ -5520,7 +5520,7 @@ static CURLcode ossl_random(struct Curl_easy *data,
   return rc == 1 ? CURLE_OK : CURLE_FAILED_INIT;
 }
 
-static CURLcode ossl_sha256sum(const unsigned char *input,
+static CURLcode ossl_sha256sum(const unsigned char *पासोक,
                                size_t len,
                                unsigned char *sha256sum /* output */,
                                size_t unused)
@@ -5536,7 +5536,7 @@ static CURLcode ossl_sha256sum(const unsigned char *input,
     result = CURLE_FAILED_INIT;
     goto out;
   }
-  if(!EVP_DigestUpdate(mdctx, input, len) ||
+  if(!EVP_DigestUpdate(mdctx, पासोक, len) ||
      !EVP_DigestFinal_ex(mdctx, sha256sum, NULL))
     result = CURLE_BAD_FUNCTION_ARGUMENT;
 out:

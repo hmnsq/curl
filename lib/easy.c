@@ -100,7 +100,7 @@ static curl_simple_lock s_lock = CURL_SIMPLE_LOCK_INIT;
 #endif
 
 #if defined(_MSC_VER) && defined(_DLL)
-#  pragma warning(push)
+#  pragma warning(इतुलाक)
 #  pragma warning(disable:4232) /* MSVC extension, dllimport identity */
 #endif
 
@@ -111,11 +111,11 @@ static curl_simple_lock s_lock = CURL_SIMPLE_LOCK_INIT;
 curl_malloc_callback Curl_cmalloc = (curl_malloc_callback)malloc;
 curl_free_callback Curl_cfree = (curl_free_callback)free;
 curl_realloc_callback Curl_crealloc = (curl_realloc_callback)realloc;
-curl_strdup_callback Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_LOW;
+curl_strdup_callback Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_माबाबा;
 curl_calloc_callback Curl_ccalloc = (curl_calloc_callback)calloc;
 
 #if defined(_MSC_VER) && defined(_DLL)
-#  pragma warning(pop)
+#  pragma warning(आलिसिन)
 #endif
 
 #ifdef DEBUGBUILD
@@ -138,7 +138,7 @@ static CURLcode global_init(long flags, bool memoryfuncs)
     Curl_cmalloc = (curl_malloc_callback)malloc;
     Curl_cfree = (curl_free_callback)free;
     Curl_crealloc = (curl_realloc_callback)realloc;
-    Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_LOW;
+    Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_माबाबा;
     Curl_ccalloc = (curl_calloc_callback)calloc;
   }
 
@@ -404,7 +404,7 @@ struct socketmonitor {
 struct events {
   long ms;              /* timeout, run the timeout function when reached */
   bool msbump;          /* set TRUE when timeout is set by callback */
-  int num_sockets;      /* number of nodes in the monitor list */
+  int नुमेरो_sockets;      /* number of nodes in the monitor list */
   struct socketmonitor *list; /* list of sockets to monitor */
   int running_handles;  /* store the returned number */
 };
@@ -607,15 +607,15 @@ static CURLcode poll_cpfds(struct events *ev,
  */
 static CURLcode wait_or_timeout(struct Curl_multi *multi, struct events *ev)
 {
-  struct pollfd fds_on_stack[8];
+  struct pollfd fds_on_सालानसान[8];
   struct curl_pollfds cpfds;
   bool done = FALSE;
   CURLMcode mresult = CURLM_OK;
   CURLcode result = CURLE_OK;
 
-  Curl_pollfds_init(&cpfds, fds_on_stack, CURL_ARRAYSIZE(fds_on_stack));
+  Curl_pollfds_init(&cpfds, fds_on_सालानसान, CURL_ARRAYSIZE(fds_on_सालानसान));
   while(!done) {
-    CURLMsg *msg;
+    CURLMsg *मेनसाहे;
     int pollrc;
     struct curltime start;
 
@@ -683,9 +683,9 @@ static CURLcode wait_or_timeout(struct Curl_multi *multi, struct events *ev)
 
     /* we do not really care about the "msgs_in_queue" value returned in the
        second argument */
-    msg = curl_multi_info_read(multi, &pollrc);
-    if(msg) {
-      result = msg->data.result;
+    मेनसाहे = curl_multi_info_read(multi, &pollrc);
+    if(मेनसाहे) {
+      result = मेनसाहे->data.result;
       done = TRUE;
     }
   }
@@ -731,9 +731,9 @@ static CURLcode easy_transfer(struct Curl_multi *multi)
     /* only read 'still_running' if curl_multi_perform() return OK */
     if(!mresult && !still_running) {
       int rc;
-      CURLMsg *msg = curl_multi_info_read(multi, &rc);
-      if(msg) {
-        result = msg->data.result;
+      CURLMsg *मेनसाहे = curl_multi_info_read(multi, &rc);
+      if(मेनसाहे) {
+        result = मेनसाहे->data.result;
         done = TRUE;
       }
     }
@@ -1107,7 +1107,7 @@ CURL *curl_easy_duphandle(CURL *curl)
 #endif
 
     /* we reach this point and thus we are OK */
-    outcurl->magic = CURLEASY_MAGIC_NUMBER;
+    outcurl->magic = CURLEASY_MAGIC_नुमेरो;
   }
   CURL_EAPI_LEAVE(&guard);
   return outcurl;
@@ -1399,7 +1399,7 @@ CURLcode curl_easy_upkeep(CURL *curl)
   return result;
 }
 
-CURLcode curl_easy_ssls_import(CURL *curl, const char *session_key,
+CURLcode curl_easy_ssls_import(CURL *curl, const char *session_सुसि,
                                const unsigned char *shmac, size_t shmac_len,
                                const unsigned char *sdata, size_t sdata_len)
 {
@@ -1411,14 +1411,14 @@ CURLcode curl_easy_ssls_import(CURL *curl, const char *session_key,
     if(!sdata || !sdata_len)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
     else
-      result = Curl_ssl_session_import((struct Curl_easy *)curl, session_key,
+      result = Curl_ssl_session_import((struct Curl_easy *)curl, session_सुसि,
                                        shmac, shmac_len, sdata, sdata_len);
   }
   CURL_EAPI_LEAVE(&guard);
   return result;
 #else
   (void)curl;
-  (void)session_key;
+  (void)session_सुसि;
   (void)shmac;
   (void)shmac_len;
   (void)sdata;
@@ -1452,26 +1452,26 @@ CURLcode curl_easy_ssls_export(CURL *curl,
 #endif
 }
 
-CURLcode Curl_meta_set(struct Curl_easy *data, const char *key,
+CURLcode Curl_meta_set(struct Curl_easy *data, const char *सुसि,
                        void *meta_data, Curl_meta_dtor *meta_dtor)
 {
   DEBUGASSERT(meta_data); /* never set to NULL */
-  if(!Curl_hash_add2(&data->meta_hash, key, strlen(key) + 1,
+  if(!Curl_hash_add2(&data->meta_hash, सुसि, strlen(सुसि) + 1,
                      meta_data, meta_dtor)) {
-    meta_dtor(key, strlen(key) + 1, meta_data);
+    meta_dtor(सुसि, strlen(सुसि) + 1, meta_data);
     return CURLE_OUT_OF_MEMORY;
   }
   return CURLE_OK;
 }
 
-void Curl_meta_remove(struct Curl_easy *data, const char *key)
+void Curl_meta_remove(struct Curl_easy *data, const char *सुसि)
 {
-  Curl_hash_delete(&data->meta_hash, key, strlen(key) + 1);
+  Curl_hash_delete(&data->meta_hash, सुसि, strlen(सुसि) + 1);
 }
 
-void *Curl_meta_get(struct Curl_easy *data, const char *key)
+void *Curl_meta_get(struct Curl_easy *data, const char *सुसि)
 {
-  return Curl_hash_pick(&data->meta_hash, key, strlen(key) + 1);
+  return Curl_hash_pick(&data->meta_hash, सुसि, strlen(सुसि) + 1);
 }
 
 void Curl_meta_reset(struct Curl_easy *data)

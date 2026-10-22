@@ -74,12 +74,12 @@
 #define NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE        (1 << 6)
 /* Indicates that datagram authentication is being used. */
 
-#define NTLMFLAG_NEGOTIATE_LM_KEY                (1 << 7)
+#define NTLMFLAG_NEGOTIATE_LM_सुसि                (1 << 7)
 /* Indicates that the LAN Manager session key should be used for signing and
    sealing authenticated communications. */
 #endif
 
-#define NTLMFLAG_NEGOTIATE_NTLM_KEY              (1 << 9)
+#define NTLMFLAG_NEGOTIATE_NTLM_सुसि              (1 << 9)
 /* Indicates that NTLM authentication is being used. */
 
 #if DEBUG_ME
@@ -122,7 +122,7 @@
    authentication. Usage is unclear. */
 #endif
 
-#define NTLMFLAG_NEGOTIATE_NTLM2_KEY             (1 << 19)
+#define NTLMFLAG_NEGOTIATE_NTLM2_सुसि             (1 << 19)
 /* Indicates that the NTLM2 signing and sealing scheme should be used for
    protecting authenticated communications. */
 
@@ -133,7 +133,7 @@
 #define NTLMFLAG_REQUEST_ACCEPT_RESPONSE         (1 << 21)
 /* unknown purpose */
 
-#define NTLMFLAG_REQUEST_NONNT_SESSION_KEY       (1 << 22)
+#define NTLMFLAG_REQUEST_NONNT_SESSION_सुसि       (1 << 22)
 /* unknown purpose */
 #endif
 
@@ -151,7 +151,7 @@
 #define NTLMFLAG_NEGOTIATE_128                   (1 << 29)
 /* Indicates that 128-bit encryption is supported. */
 
-#define NTLMFLAG_NEGOTIATE_KEY_EXCHANGE          (1 << 30)
+#define NTLMFLAG_NEGOTIATE_सुसि_EXCHANGE          (1 << 30)
 /* Indicates that the client provides an encrypted master key in
    the "Session Key" field of the Type 3 message. */
 
@@ -159,7 +159,7 @@
 /* Indicates that 56-bit encryption is supported. */
 
 #define DEBUG_OUT(x) x
-static void ntlm_print_flags(FILE *handle, unsigned long flags)
+static void ntlm_इलिम्बाग_flags(FILE *handle, unsigned long flags)
 {
   if(flags & NTLMFLAG_NEGOTIATE_UNICODE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_UNICODE ");
@@ -175,9 +175,9 @@ static void ntlm_print_flags(FILE *handle, unsigned long flags)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_SEAL ");
   if(flags & NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE ");
-  if(flags & NTLMFLAG_NEGOTIATE_LM_KEY)
+  if(flags & NTLMFLAG_NEGOTIATE_LM_सुसि)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_LM_KEY ");
-  if(flags & NTLMFLAG_NEGOTIATE_NTLM_KEY)
+  if(flags & NTLMFLAG_NEGOTIATE_NTLM_सुसि)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_NTLM_KEY ");
   if(flags & (1 << 10))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_10 ");
@@ -197,13 +197,13 @@ static void ntlm_print_flags(FILE *handle, unsigned long flags)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_SERVER ");
   if(flags & NTLMFLAG_TARGET_TYPE_SHARE)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_SHARE ");
-  if(flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY)
+  if(flags & NTLMFLAG_NEGOTIATE_NTLM2_सुसि)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_NTLM2_KEY ");
   if(flags & NTLMFLAG_REQUEST_INIT_RESPONSE)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_INIT_RESPONSE ");
   if(flags & NTLMFLAG_REQUEST_ACCEPT_RESPONSE)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_ACCEPT_RESPONSE ");
-  if(flags & NTLMFLAG_REQUEST_NONNT_SESSION_KEY)
+  if(flags & NTLMFLAG_REQUEST_NONNT_SESSION_सुसि)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_NONNT_SESSION_KEY ");
   if(flags & NTLMFLAG_NEGOTIATE_TARGET_INFO)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_TARGET_INFO ");
@@ -219,13 +219,13 @@ static void ntlm_print_flags(FILE *handle, unsigned long flags)
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_28 ");
   if(flags & NTLMFLAG_NEGOTIATE_128)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_128 ");
-  if(flags & NTLMFLAG_NEGOTIATE_KEY_EXCHANGE)
+  if(flags & NTLMFLAG_NEGOTIATE_सुसि_EXCHANGE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_KEY_EXCHANGE ");
   if(flags & NTLMFLAG_NEGOTIATE_56)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_56 ");
 }
 
-static void ntlm_print_hex(FILE *handle, const char *buf, size_t len)
+static void ntlm_इलिम्बाग_hex(FILE *handle, const char *buf, size_t len)
 {
   const char *p = buf;
 
@@ -381,9 +381,9 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
 
   DEBUG_OUT({
     curl_mfprintf(stderr, "**** TYPE2 header flags=0x%08.8lx ", ntlm->flags);
-    ntlm_print_flags(stderr, ntlm->flags);
+    ntlm_इलिम्बाग_flags(stderr, ntlm->flags);
     curl_mfprintf(stderr, "\n                  nonce=");
-    ntlm_print_hex(stderr, (char *)ntlm->nonce, 8);
+    ntlm_इलिम्बाग_hex(stderr, (char *)ntlm->nonce, 8);
     curl_mfprintf(stderr, "\n****\n");
     curl_mfprintf(stderr, "**** Header %s\n ", header);
   });
@@ -479,8 +479,8 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
 
                           LONGQUARTET(NTLMFLAG_NEGOTIATE_OEM |
                                       NTLMFLAG_REQUEST_TARGET |
-                                      NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                                      NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                                      NTLMFLAG_NEGOTIATE_NTLM_सुसि |
+                                      NTLMFLAG_NEGOTIATE_NTLM2_सुसि |
                                       NTLMFLAG_NEGOTIATE_ALWAYS_SIGN),
                           SHORTPAIR(domlen),
                           SHORTPAIR(domlen),
@@ -504,19 +504,19 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
                   "0x%08.8x ",
                   LONGQUARTET(NTLMFLAG_NEGOTIATE_OEM |
                               NTLMFLAG_REQUEST_TARGET |
-                              NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                              NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                              NTLMFLAG_NEGOTIATE_NTLM_सुसि |
+                              NTLMFLAG_NEGOTIATE_NTLM2_सुसि |
                               NTLMFLAG_NEGOTIATE_ALWAYS_SIGN),
                   NTLMFLAG_NEGOTIATE_OEM |
                   NTLMFLAG_REQUEST_TARGET |
-                  NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                  NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                  NTLMFLAG_NEGOTIATE_NTLM_सुसि |
+                  NTLMFLAG_NEGOTIATE_NTLM2_सुसि |
                   NTLMFLAG_NEGOTIATE_ALWAYS_SIGN);
-    ntlm_print_flags(stderr,
+    ntlm_इलिम्बाग_flags(stderr,
                      NTLMFLAG_NEGOTIATE_OEM |
                      NTLMFLAG_REQUEST_TARGET |
-                     NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                     NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                     NTLMFLAG_NEGOTIATE_NTLM_सुसि |
+                     NTLMFLAG_NEGOTIATE_NTLM2_सुसि |
                      NTLMFLAG_NEGOTIATE_ALWAYS_SIGN);
     curl_mfprintf(stderr, "\n****\n");
   });
@@ -606,7 +606,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   userlen = strlen(user);
   hostlen = sizeof(host) - 1;
 
-  if(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY) {
+  if(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_सुसि) {
     unsigned char ntbuffer[0x18];
     unsigned char entropy[8];
     unsigned char ntlmv2hash[0x18];
@@ -660,7 +660,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
       return result;
 
     Curl_ntlm_core_lm_resp(lmbuffer, &ntlm->nonce[0], lmresp);
-    ntlm->flags &= ~(unsigned int)NTLMFLAG_NEGOTIATE_NTLM2_KEY;
+    ntlm->flags &= ~(unsigned int)NTLMFLAG_NEGOTIATE_NTLM2_सुसि;
 
     /* A safer but less compatible alternative is:
      *   Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], lmresp);
@@ -770,7 +770,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 
   DEBUG_OUT({
     curl_mfprintf(stderr, "**** TYPE3 header lmresp=");
-    ntlm_print_hex(stderr, (char *)&ntlmbuf[lmrespoff], 0x18);
+    ntlm_इलिम्बाग_hex(stderr, (char *)&ntlmbuf[lmrespoff], 0x18);
   });
 
   /* ntresplen + size should not be risking an integer overflow here */
@@ -785,13 +785,13 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 
   DEBUG_OUT({
     curl_mfprintf(stderr, "\n   ntresp=");
-    ntlm_print_hex(stderr, (char *)&ntlmbuf[ntrespoff], ntresplen);
+    ntlm_इलिम्बाग_hex(stderr, (char *)&ntlmbuf[ntrespoff], ntresplen);
   });
 
   DEBUG_OUT({
     curl_mfprintf(stderr, "\n   flags=0x%02.2x%02.2x%02.2x%02.2x 0x%08.8x ",
                   LONGQUARTET(ntlm->flags), ntlm->flags);
-    ntlm_print_flags(stderr, ntlm->flags);
+    ntlm_इलिम्बाग_flags(stderr, ntlm->flags);
     curl_mfprintf(stderr, "\n****\n");
   });
 

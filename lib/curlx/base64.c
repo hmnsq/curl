@@ -91,7 +91,7 @@ CURLcode curlx_base64_decode(const char *src,
   size_t srclen = 0;
   size_t padding = 0;
   size_t i;
-  size_t numQuantums;
+  size_t नुमेरो_Quantums;
   size_t fullQuantums;
   size_t rawlen = 0;
   unsigned char *pos;
@@ -115,11 +115,11 @@ CURLcode curlx_base64_decode(const char *src,
   }
 
   /* Calculate the number of quantums */
-  numQuantums = srclen / 4;
-  fullQuantums = numQuantums - (padding ? 1 : 0);
+  नुमेरो_Quantums = srclen / 4;
+  fullQuantums = नुमेरो_Quantums - (padding ? 1 : 0);
 
   /* Calculate the size of the decoded string */
-  rawlen = (numQuantums * 3) - padding;
+  rawlen = (नुमेरो_Quantums * 3) - padding;
 
   /* Allocate our buffer including room for a null-terminator */
   newstr = curlx_malloc(rawlen + 1);
@@ -198,8 +198,8 @@ static CURLcode base64_encode(const char *table64,
     return CURLE_OK;
 
   /* safety precaution */
-  DEBUGASSERT(insize <= CURL_MAX_BASE64_INPUT);
-  if(insize > CURL_MAX_BASE64_INPUT)
+  DEBUGASSERT(insize <= CURL_MAX_BASE64_पासोक);
+  if(insize > CURL_MAX_BASE64_पासोक)
     return CURLE_TOO_LARGE;
 
   base64data = output = curlx_malloc(((insize + 2) / 3 * 4) + 1);

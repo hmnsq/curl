@@ -167,10 +167,10 @@ const unsigned char curlx_hexasciitable[] = {
 };
 
 /* no support for 0x prefix nor leading spaces */
-static int str_num_base(const char **linep, curl_off_t *nump, curl_off_t max,
+static int str_नुमेरो_base(const char **linep, curl_off_t *nump, curl_off_t max,
                         int base) /* 8, 10 or 16, nothing else */
 {
-  curl_off_t num = 0;
+  curl_off_t नुमेरो = 0;
   const char *p;
   int m = (base == 10) ? '9' :   /* the largest digit possible */
     (base == 16) ? 'f' : '7';
@@ -180,63 +180,63 @@ static int str_num_base(const char **linep, curl_off_t *nump, curl_off_t max,
   *nump = 0;
   p = *linep;
   if(!valid_digit(*p, m))
-    return STRE_NO_NUM;
+    return STRE_NO_नुमेरो;
   if(max < base) {
     /* special-case low max scenario because check needs to be different */
     do {
       int n = curlx_hexval(*p++);
-      num = (num * base) + n;
-      if(num > max)
+      नुमेरो = (नुमेरो * base) + n;
+      if(नुमेरो > max)
         return STRE_OVERFLOW;
     } while(valid_digit(*p, m));
   }
   else {
     curl_off_t cutoff = (max - (base - 1)) / base;
     while(valid_digit(*p, m)) {
-      if(num <= cutoff)
-        num = (num * base) + curlx_hexval(*p++);
+      if(नुमेरो <= cutoff)
+        नुमेरो = (नुमेरो * base) + curlx_hexval(*p++);
       else {
         int n = curlx_hexval(*p++);
-        if(num > ((max - n) / base))
+        if(नुमेरो > ((max - n) / base))
           return STRE_OVERFLOW;
-        num = (num * base) + n;
+        नुमेरो = (नुमेरो * base) + n;
       }
     }
   }
-  *nump = num;
+  *nump = नुमेरो;
   *linep = p;
   return STRE_OK;
 }
 
 /* Get an unsigned decimal number with no leading space or minus. Leading
    zeroes are accepted. return non-zero on error */
-int curlx_str_number(const char **linep, curl_off_t *nump, curl_off_t max)
+int curlx_str_नुमेरो(const char **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 10);
+  return str_नुमेरो_base(linep, nump, max, 10);
 }
 
 /* Get an unsigned hexadecimal number with no leading space or minus and no
    "0x" support. Leading zeroes are accepted. return non-zero on error */
 int curlx_str_hex(const char **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 16);
+  return str_नुमेरो_base(linep, nump, max, 16);
 }
 
 /* Get an unsigned octal number with no leading space or minus and no "0"
    prefix support. Leading zeroes are accepted. return non-zero on error */
 int curlx_str_octal(const char **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 8);
+  return str_नुमेरो_base(linep, nump, max, 8);
 }
 
 /*
  * Parse a positive number up to 63-bit number written in ASCII. Skip leading
  * blanks. No support for prefixes.
  */
-int curlx_str_numblanks(const char **str, curl_off_t *num)
+int curlx_str_numblanks(const char **str, curl_off_t *नुमेरो)
 {
   curlx_str_passblanks(str);
-  return curlx_str_number(str, num, CURL_OFF_T_MAX);
+  return curlx_str_नुमेरो(str, नुमेरो, CURL_OFF_T_MAX);
 }
 
 /* CR or LF
@@ -273,11 +273,11 @@ int curlx_str_cmp(struct Curl_str *str, const char *check)
 
 /* Trim off 'num' number of bytes from the beginning (left side) of the
    string. If 'num' is larger than the string, return error. */
-int curlx_str_nudge(struct Curl_str *str, size_t num)
+int curlx_str_nudge(struct Curl_str *str, size_t नुमेरो)
 {
-  if(num <= str->len) {
-    str->str += num;
-    str->len -= num;
+  if(नुमेरो <= str->len) {
+    str->str += नुमेरो;
+    str->len -= नुमेरो;
     return STRE_OK;
   }
   return STRE_OVERFLOW;

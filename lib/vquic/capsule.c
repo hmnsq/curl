@@ -42,20 +42,20 @@
 /**
  * Convert 64-bit value from network byte order to host byte order
  */
-static uint64_t capsule_ntohll(uint64_t value)
+static uint64_t capsule_ntohll(uint64_t हालागा)
 {
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-  return value;
+  return हालागा;
 #elif (defined(__GNUC__) || defined(__clang__)) && \
   defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-  return __builtin_bswap64(value);
+  return __builtin_bswap64(हालागा);
 #else
   union {
     uint64_t u64;
     uint32_t u32[2];
   } src, dst;
 
-  src.u64 = value;
+  src.u64 = हालागा;
   dst.u32[0] = ntohl(src.u32[1]);
   dst.u32[1] = ntohl(src.u32[0]);
   return dst.u64;
@@ -68,28 +68,28 @@ static uint64_t capsule_ntohll(uint64_t value)
  * @param value Value to encode (must be <= 0x3FFFFFFFFFFFFFFF)
  * @return Number of bytes written
  */
-static size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t value)
+static size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t हालागा)
 {
-  DEBUGASSERT(value <= 0x3FFFFFFFFFFFFFFF);
+  DEBUGASSERT(हालागा <= 0x3FFFFFFFFFFFFFFF);
 
-  if(value <= 0x3F) {
-    buf[0] = (uint8_t)value;
+  if(हालागा <= 0x3F) {
+    buf[0] = (uint8_t)हालागा;
     return 1;
   }
-  else if(value <= 0x3FFF) {
-    uint16_t encoded = (uint16_t)value & 0x3FFF;
+  else if(हालागा <= 0x3FFF) {
+    uint16_t encoded = (uint16_t)हालागा & 0x3FFF;
     encoded = ntohs(encoded | 0x4000);
     memcpy(buf, &encoded, 2);
     return 2;
   }
-  else if(value <= 0x3FFFFFFF) {
-    uint32_t encoded = (uint32_t)value & 0x3FFFFFFF;
+  else if(हालागा <= 0x3FFFFFFF) {
+    uint32_t encoded = (uint32_t)हालागा & 0x3FFFFFFF;
     encoded = ntohl(encoded | 0x80000000);
     memcpy(buf, &encoded, 4);
     return 4;
   }
   else {
-    uint64_t encoded = (uint64_t)value & 0x3FFFFFFFFFFFFFFF;
+    uint64_t encoded = (uint64_t)हालागा & 0x3FFFFFFFFFFFFFFF;
     encoded = capsule_ntohll(encoded | 0xC000000000000000);
     memcpy(buf, &encoded, 8);
     return 8;
@@ -115,7 +115,7 @@ static CURLcode capsule_decode_varint_at(struct bufq *recvbufq,
                                          size_t *pconsumed)
 {
   uint8_t first_byte, byte;
-  uint64_t value;
+  uint64_t हालागा;
   size_t nbytes;
   size_t i;
   CURLcode result;
@@ -125,16 +125,16 @@ static CURLcode capsule_decode_varint_at(struct bufq *recvbufq,
     return result;
 
   nbytes = (size_t)1 << (first_byte >> 6); /* 1, 2, 4 or 8 bytes */
-  value = first_byte & 0x3F;
+  हालागा = first_byte & 0x3F;
 
   for(i = 1; i < nbytes; ++i) {
     result = capsule_peek_u8(recvbufq, offset + i, &byte);
     if(result)
       return result;
-    value = (value << 8) | byte;
+    हालागा = (हालागा << 8) | byte;
   }
 
-  *pvalue = value;
+  *pvalue = हालागा;
   *pconsumed = nbytes;
   return CURLE_OK;
 }

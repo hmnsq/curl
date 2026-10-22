@@ -70,7 +70,7 @@ static struct curl_httppost *httppost_add(struct FormInfo *src,
   if(post) {
     post->name = CURL_UNCONST(Curl_bufref_ptr(&src->name));
     post->namelength = (long)namelength;
-    post->contents = CURL_UNCONST(Curl_bufref_ptr(&src->value));
+    post->contents = CURL_UNCONST(Curl_bufref_ptr(&src->हालागा));
     post->contentlen = src->contentslength;
     post->buffer = src->buffer;
     post->bufferlength = (long)src->bufferlength;
@@ -109,7 +109,7 @@ static struct FormInfo *forminfo_new(void)
 
   if(form_info) {
     Curl_bufref_init(&form_info->name);
-    Curl_bufref_init(&form_info->value);
+    Curl_bufref_init(&form_info->हालागा);
     Curl_bufref_init(&form_info->contenttype);
     Curl_bufref_init(&form_info->showfilename);
   }
@@ -120,13 +120,13 @@ static struct FormInfo *forminfo_new(void)
 /* Replace the target field data by a dynamic copy of it. */
 static CURLcode forminfo_copyfield(struct bufref *field, size_t len)
 {
-  const char *value = Curl_bufref_ptr(field);
+  const char *हालागा = Curl_bufref_ptr(field);
   CURLcode result = CURLE_OK;
 
-  if(value) {
+  if(हालागा) {
     if(!len)
-      len = strlen(value);
-    result = Curl_bufref_memdup0(field, value, len);
+      len = strlen(हालागा);
+    result = Curl_bufref_memdup0(field, हालागा, len);
   }
 
   return result;
@@ -156,7 +156,7 @@ static void free_formlist(struct FormInfo *ptr)
 {
   for(; ptr; ptr = ptr->more) {
     Curl_bufref_free(&ptr->name);
-    Curl_bufref_free(&ptr->value);
+    Curl_bufref_free(&ptr->हालागा);
     Curl_bufref_free(&ptr->contenttype);
     Curl_bufref_free(&ptr->showfilename);
   }
@@ -226,7 +226,7 @@ static CURLFORMcode formadd_check(struct FormInfo *first_form,
   for(form = first_form; form; form = form->more) {
     const char *name = Curl_bufref_ptr(&form->name);
 
-    if(((!name || !Curl_bufref_ptr(&form->value)) && !post) ||
+    if(((!name || !Curl_bufref_ptr(&form->हालागा)) && !post) ||
        (form->contentslength &&
         (form->flags & HTTPPOST_FILENAME)) ||
        ((form->flags & HTTPPOST_FILENAME) &&
@@ -245,7 +245,7 @@ static CURLFORMcode formadd_check(struct FormInfo *first_form,
         (form->flags & HTTPPOST_BUFFER)) &&
        !Curl_bufref_ptr(&form->contenttype)) {
       const char *f = Curl_bufref_ptr((form->flags & HTTPPOST_BUFFER) ?
-                                      &form->showfilename : &form->value);
+                                      &form->showfilename : &form->हालागा);
       const char *type = Curl_mime_contenttype(f);
       if(!type)
         type = prevtype;
@@ -266,7 +266,7 @@ static CURLFORMcode formadd_check(struct FormInfo *first_form,
     if(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE |
                         HTTPPOST_PTRCONTENTS | HTTPPOST_PTRBUFFER |
                         HTTPPOST_CALLBACK)) &&
-       forminfo_copyfield(&form->value, (size_t)form->contentslength))
+       forminfo_copyfield(&form->हालागा, (size_t)form->contentslength))
       return CURL_FORMADD_MEMORY;
     post = httppost_add(form, post, httppost, last_post);
 
@@ -329,7 +329,7 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
     if(forms) {
       /* get the upcoming option from the given array */
       option = forms->option;
-      avalue = (char *)CURL_UNCONST(forms->value);
+      avalue = (char *)CURL_UNCONST(forms->हालागा);
 
       forms++; /* advance this to next entry */
       if(CURLFORM_END == option) {
@@ -390,12 +390,12 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
       curr->flags |= HTTPPOST_PTRCONTENTS;
       FALLTHROUGH();
     case CURLFORM_COPYCONTENTS:
-      if(Curl_bufref_ptr(&curr->value))
+      if(Curl_bufref_ptr(&curr->हालागा))
         retval = CURL_FORMADD_OPTION_TWICE;
       else {
         avalue = form_ptr_arg(char *);
         if(avalue)
-          Curl_bufref_set(&curr->value, avalue, 0, NULL); /* No copy yet. */
+          Curl_bufref_set(&curr->हालागा, avalue, 0, NULL); /* No copy yet. */
         else
           retval = CURL_FORMADD_NULL;
       }
@@ -427,7 +427,7 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
       else {
         avalue = form_ptr_arg(char *);
         if(avalue) {
-          if(Curl_bufref_memdup0(&curr->value, avalue, strlen(avalue)))
+          if(Curl_bufref_memdup0(&curr->हालागा, avalue, strlen(avalue)))
             retval = CURL_FORMADD_MEMORY;
           else
             curr->flags |= HTTPPOST_READFILE;
@@ -440,12 +440,12 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
       /* We upload a file */
     case CURLFORM_FILE:
       avalue = form_ptr_arg(char *);
-      if(Curl_bufref_ptr(&curr->value)) {
+      if(Curl_bufref_ptr(&curr->हालागा)) {
         if(curr->flags & HTTPPOST_FILENAME) {
           if(avalue) {
             form = forminfo_new();
             if(!form ||
-               Curl_bufref_memdup0(&form->value, avalue, strlen(avalue))) {
+               Curl_bufref_memdup0(&form->हालागा, avalue, strlen(avalue))) {
               curlx_free(form);
               retval = CURL_FORMADD_MEMORY;
             }
@@ -463,7 +463,7 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
       }
       else {
         if(avalue) {
-          if(Curl_bufref_memdup0(&curr->value, avalue, strlen(avalue)))
+          if(Curl_bufref_memdup0(&curr->हालागा, avalue, strlen(avalue)))
             retval = CURL_FORMADD_MEMORY;
           else
             curr->flags |= HTTPPOST_FILENAME;
@@ -482,7 +482,7 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
         if(avalue) {
           curr->buffer = avalue; /* store for the moment */
           /* Make value non-NULL to be accepted as fine */
-          Curl_bufref_set(&curr->value, avalue, 0, NULL);
+          Curl_bufref_set(&curr->हालागा, avalue, 0, NULL);
         }
         else
           retval = CURL_FORMADD_NULL;
@@ -507,7 +507,7 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
           /* The following line is not strictly true but we derive a value
              from this later on and we need this non-NULL to be accepted as
              a fine form part */
-          Curl_bufref_set(&curr->value, avalue, 0, NULL);
+          Curl_bufref_set(&curr->हालागा, avalue, 0, NULL);
         }
         else
           retval = CURL_FORMADD_NULL;
@@ -796,7 +796,7 @@ CURLcode Curl_getformdata(CURL *data,
                to result as expected. This feature has been kept for backward
                compatibility: use of "-" pseudo filename should be avoided. */
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#pragma clang diagnostic इतुलाक
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
             result = curl_mime_data_cb(part, (curl_off_t)-1,
@@ -804,7 +804,7 @@ CURLcode Curl_getformdata(CURL *data,
                                        curlx_fseek,
                                        NULL, (void *)stdin);
 #if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+#pragma clang diagnostic आलिसिन
 #endif
           }
           else

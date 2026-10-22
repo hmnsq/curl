@@ -80,7 +80,7 @@ CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
                                         struct bufref *out);
 
 /* This is used to generate a LOGIN cleartext message */
-void Curl_auth_create_login_message(const char *value, struct bufref *out);
+void Curl_auth_create_login_message(const char *हालागा, struct bufref *out);
 
 /* This is used to generate an EXTERNAL cleartext message */
 void Curl_auth_create_external_message(const char *user, struct bufref *out);
@@ -171,8 +171,8 @@ struct ntlmdata {
   SEC_WINNT_AUTH_IDENTITY_EX *p_identity;
   size_t token_max;
   BYTE *output_token;
-  BYTE *input_token;
-  size_t input_token_len;
+  BYTE *पासोक_token;
+  size_t पासोक_token_len;
   TCHAR *spn;
 #else
   unsigned int flags;

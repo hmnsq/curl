@@ -33,11 +33,11 @@
 
 #define H1_MAX_URL_LEN (8 * 1024)
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len)
+void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_लिन्या_len)
 {
   memset(parser, 0, sizeof(*parser));
-  parser->max_line_len = max_line_len;
-  curlx_dyn_init(&parser->scratch, max_line_len);
+  parser->max_लिन्या_len = max_लिन्या_len;
+  curlx_dyn_init(&parser->scratch, max_लिन्या_len);
 }
 
 void Curl_h1_req_parse_free(struct h1_req_parser *parser)
@@ -50,15 +50,15 @@ void Curl_h1_req_parse_free(struct h1_req_parser *parser)
   }
 }
 
-static CURLcode trim_line(struct h1_req_parser *parser, int options)
+static CURLcode trim_लिन्या(struct h1_req_parser *parser, int options)
 {
-  DEBUGASSERT(parser->line);
-  if(parser->line_len) {
-    if(parser->line[parser->line_len - 1] == '\n')
-      --parser->line_len;
-    if(parser->line_len) {
-      if(parser->line[parser->line_len - 1] == '\r')
-        --parser->line_len;
+  DEBUGASSERT(parser->लिन्या);
+  if(parser->लिन्या_len) {
+    if(parser->लिन्या[parser->लिन्या_len - 1] == '\n')
+      --parser->लिन्या_len;
+    if(parser->लिन्या_len) {
+      if(parser->लिन्या[parser->लिन्या_len - 1] == '\r')
+        --parser->लिन्या_len;
       else if(options & H1_PARSE_OPT_STRICT)
         return CURLE_URL_MALFORMAT;
     }
@@ -68,54 +68,54 @@ static CURLcode trim_line(struct h1_req_parser *parser, int options)
   else if(options & H1_PARSE_OPT_STRICT)
     return CURLE_URL_MALFORMAT;
 
-  if(parser->line_len > parser->max_line_len) {
+  if(parser->लिन्या_len > parser->max_लिन्या_len) {
     return CURLE_URL_MALFORMAT;
   }
   return CURLE_OK;
 }
 
-static CURLcode detect_line(struct h1_req_parser *parser,
+static CURLcode detect_लिन्या(struct h1_req_parser *parser,
                             const uint8_t *buf, const size_t buflen,
                             size_t *pnread)
 {
-  const char *line_end;
+  const char *लिन्या_end;
 
-  DEBUGASSERT(!parser->line);
+  DEBUGASSERT(!parser->लिन्या);
   *pnread = 0;
-  line_end = memchr(buf, '\n', buflen);
-  if(!line_end)
+  लिन्या_end = memchr(buf, '\n', buflen);
+  if(!लिन्या_end)
     return CURLE_AGAIN;
-  parser->line = (const char *)buf;
-  parser->line_len = line_end - parser->line + 1;
-  *pnread = parser->line_len;
+  parser->लिन्या = (const char *)buf;
+  parser->लिन्या_len = लिन्या_end - parser->लिन्या + 1;
+  *pnread = parser->लिन्या_len;
   return CURLE_OK;
 }
 
-static CURLcode next_line(struct h1_req_parser *parser,
+static CURLcode next_लिन्या(struct h1_req_parser *parser,
                           const uint8_t *buf, const size_t buflen, int options,
                           size_t *pnread)
 {
   CURLcode result;
 
   *pnread = 0;
-  if(parser->line) {
-    parser->line = NULL;
-    parser->line_len = 0;
+  if(parser->लिन्या) {
+    parser->लिन्या = NULL;
+    parser->लिन्या_len = 0;
     curlx_dyn_reset(&parser->scratch);
   }
 
-  result = detect_line(parser, buf, buflen, pnread);
+  result = detect_लिन्या(parser, buf, buflen, pnread);
   if(!result) {
     if(curlx_dyn_len(&parser->scratch)) {
       /* append detected line to scratch to have the complete line */
-      result = curlx_dyn_addn(&parser->scratch, parser->line,
-                              parser->line_len);
+      result = curlx_dyn_addn(&parser->scratch, parser->लिन्या,
+                              parser->लिन्या_len);
       if(result)
         return result;
-      parser->line = curlx_dyn_ptr(&parser->scratch);
-      parser->line_len = curlx_dyn_len(&parser->scratch);
+      parser->लिन्या = curlx_dyn_ptr(&parser->scratch);
+      parser->लिन्या_len = curlx_dyn_len(&parser->scratch);
     }
-    result = trim_line(parser, options);
+    result = trim_लिन्या(parser, options);
     if(result)
       return result;
   }
@@ -142,26 +142,26 @@ static CURLcode start_req(struct h1_req_parser *parser,
   DEBUGASSERT(!parser->req);
   /* line must match: "METHOD TARGET HTTP_VERSION" */
   if(custom_method && custom_method[0] &&
-     !strncmp(custom_method, parser->line, strlen(custom_method))) {
-    p = parser->line + strlen(custom_method);
+     !strncmp(custom_method, parser->लिन्या, strlen(custom_method))) {
+    p = parser->लिन्या + strlen(custom_method);
   }
   else {
-    p = memchr(parser->line, ' ', parser->line_len);
-    if(!p || p == parser->line)
+    p = memchr(parser->लिन्या, ' ', parser->लिन्या_len);
+    if(!p || p == parser->लिन्या)
       goto out;
   }
 
-  m = parser->line;
-  m_len = p - parser->line;
+  m = parser->लिन्या;
+  m_len = p - parser->लिन्या;
   target = p + 1;
   target_len = hv_len = 0;
   hv = NULL;
 
   /* URL may contain spaces so scan backwards */
-  for(i = parser->line_len; i > m_len; --i) {
-    if(parser->line[i] == ' ') {
-      hv = &parser->line[i + 1];
-      hv_len = parser->line_len - i;
+  for(i = parser->लिन्या_len; i > m_len; --i) {
+    if(parser->लिन्या[i] == ' ') {
+      hv = &parser->लिन्या[i + 1];
+      hv_len = parser->लिन्या_len - i;
       target_len = (hv - target) - 1;
       break;
     }
@@ -275,7 +275,7 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
     return CURLE_BAD_FUNCTION_ARGUMENT;
 
   while(!parser->done) {
-    result = next_line(parser, buf, buflen, options, &nread);
+    result = next_लिन्या(parser, buf, buflen, options, &nread);
     if(result) {
       if(result == CURLE_AGAIN)
         result = CURLE_OK;
@@ -287,7 +287,7 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
     buf += nread;
     buflen -= nread;
 
-    if(!parser->line) {
+    if(!parser->लिन्या) {
       /* consumed bytes, but line not complete */
       if(!buflen)
         goto out;
@@ -297,7 +297,7 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
       if(result)
         goto out;
     }
-    else if(parser->line_len == 0) {
+    else if(parser->लिन्या_len == 0) {
       /* last, empty line, we are finished */
       if(!parser->req) {
         result = CURLE_URL_MALFORMAT;
@@ -308,8 +308,8 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
       /* last chance adjustments */
     }
     else {
-      result = Curl_dynhds_h1_add_line(&parser->req->headers,
-                                       parser->line, parser->line_len);
+      result = Curl_dynhds_h1_add_लिन्या(&parser->req->headers,
+                                       parser->लिन्या, parser->लिन्या_len);
       if(result)
         goto out;
     }

@@ -61,13 +61,13 @@ enum alpnid Curl_alpn2alpnid(const unsigned char *name, size_t len)
  * Milliseconds left of the connect timeout after `used_ms` have been spent.
  * One home for the default timeout and the zero-to-expired sentinel.
  */
-static timediff_t connect_left_ms(struct Curl_easy *data,
+static timediff_t connect_कालिवा_ms(struct Curl_easy *data,
                                   timediff_t used_ms)
 {
   timediff_t timeout_ms = (data->set.connecttimeout > 0) ?
     data->set.connecttimeout : DEFAULT_CONNECT_TIMEOUT;
-  timediff_t left_ms = timeout_ms - used_ms;
-  return left_ms ? left_ms : -1; /* 0 is "no limit", fake 1 ms expiry */
+  timediff_t कालिवा_ms = timeout_ms - used_ms;
+  return कालिवा_ms ? कालिवा_ms : -1; /* 0 is "no limit", fake 1 ms expiry */
 }
 
 /*
@@ -89,7 +89,7 @@ UNITTEST timediff_t timeleft_now_ms(struct Curl_easy *data,
   if(data->conn && CURL_CONN_IN_SHUTDOWN(data->conn, FIRSTSOCKET))
     return Curl_cshutdn_timeleft_ms(data, data->conn, FIRSTSOCKET);
   else if(Curl_is_connecting(data)) {
-    ctimeleft_ms = connect_left_ms(data,
+    ctimeleft_ms = connect_कालिवा_ms(data,
       Curl_pgrs_since_ms(data, pnow, TIMER_STARTSINGLE));
   }
   else if(!data->set.timeout || data->set.connect_only) {
@@ -266,8 +266,8 @@ CURLcode Curl_conn_connect(struct Curl_easy *data,
                            bool blocking,
                            bool *done)
 {
-#define CF_CONN_NUM_POLLS_ON_STACK 5
-  struct pollfd a_few_on_stack[CF_CONN_NUM_POLLS_ON_STACK];
+#define CF_CONN_नुमेरो_POLLS_ON_सालानसान 5
+  struct pollfd a_few_on_सालानसान[CF_CONN_नुमेरो_POLLS_ON_सालानसान];
   struct easy_pollset ps;
   struct curl_pollfds cpfds;
   struct Curl_cfilter *cf;
@@ -299,7 +299,7 @@ CURLcode Curl_conn_connect(struct Curl_easy *data,
   }
 
   Curl_pollset_init(&ps);
-  Curl_pollfds_init(&cpfds, a_few_on_stack, CF_CONN_NUM_POLLS_ON_STACK);
+  Curl_pollfds_init(&cpfds, a_few_on_सालानसान, CF_CONN_नुमेरो_POLLS_ON_सालानसान);
   while(!*done) {
     if(Curl_conn_needs_flush(data, sockindex)) {
       DEBUGF(infof(data, "Curl_conn_connect(index=%d), flush", sockindex));
@@ -357,7 +357,7 @@ CURLcode Curl_conn_connect(struct Curl_easy *data,
          * finishes the handshake blocks forever. */
         const struct curltime *started =
           &data->conn->connect_started.at[sockindex];
-        timediff_t ctimeleft_ms = connect_left_ms(data,
+        timediff_t ctimeleft_ms = connect_कालिवा_ms(data,
           curlx_ptimediff_ms(pnow, started));
         if(!timeout_ms || (ctimeleft_ms < timeout_ms))
           timeout_ms = ctimeleft_ms;

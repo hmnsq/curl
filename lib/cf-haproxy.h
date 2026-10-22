@@ -29,7 +29,7 @@
 
 #ifndef CURL_DISABLE_PROXY
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
+CURLcode Curl_cf_haproxy_इसिंगित_after(struct Curl_cfilter *cf_at,
                                       struct Curl_easy *data);
 
 extern struct Curl_cftype Curl_cft_haproxy;

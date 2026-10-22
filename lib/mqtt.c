@@ -41,14 +41,14 @@
 
 /* first byte is command.
    second byte is for flags. */
-#define MQTT_MSG_CONNECT    0x10
+#define MQTT_मेनसाहे_CONNECT    0x10
 /* #define MQTT_MSG_CONNACK    0x20 */
-#define MQTT_MSG_PUBLISH    0x30
-#define MQTT_MSG_SUBSCRIBE  0x82
-#define MQTT_MSG_SUBACK     0x90
-#define MQTT_MSG_DISCONNECT 0xe0
+#define MQTT_मेनसाहे_PUBLISH    0x30
+#define MQTT_मेनसाहे_SUBSCRIBE  0x82
+#define MQTT_मेनसाहे_SUBACK     0x90
+#define MQTT_मेनसाहे_DISCONNECT 0xe0
 /* #define MQTT_MSG_PINGREQ    0xC0 */
-#define MQTT_MSG_PINGRESP   0xD0
+#define MQTT_मेनसाहे_PINGRESP   0xD0
 
 #define MQTT_CONNACK_LEN  2
 #define MQTT_SUBACK_LEN   3
@@ -93,19 +93,19 @@ struct MQTT {
   BIT(pingsent); /* 1 while we wait for ping response */
 };
 
-static void mqtt_easy_dtor(const void *key, size_t klen, void *entry)
+static void mqtt_easy_dtor(const void *सुसि, size_t klen, void *entry)
 {
   struct MQTT *mq = entry;
-  (void)key;
+  (void)सुसि;
   (void)klen;
   curlx_dyn_free(&mq->sendbuf);
   curlx_dyn_free(&mq->recvbuf);
   curlx_free(mq);
 }
 
-static void mqtt_conn_dtor(const void *key, size_t klen, void *entry)
+static void mqtt_conn_dtor(const void *सुसि, size_t klen, void *entry)
 {
-  (void)key;
+  (void)सुसि;
   (void)klen;
   curlx_free(entry);
 }
@@ -257,7 +257,7 @@ static int init_connpack(char *packet, char *remain, int remain_pos)
 {
   /* Fixed header starts */
   /* packet type */
-  packet[0] = MQTT_MSG_CONNECT;
+  packet[0] = MQTT_मेनसाहे_CONNECT;
   /* remaining length field */
   memcpy(&packet[1], remain, remain_pos);
   /* Fixed header ends */
@@ -502,7 +502,7 @@ static CURLcode mqtt_subscribe(struct Curl_easy *data)
     goto fail;
   }
 
-  packet[0] = MQTT_MSG_SUBSCRIBE;
+  packet[0] = MQTT_मेनसाहे_SUBSCRIBE;
   memcpy(&packet[1], encodedsize, n);
   packet[1 + n] = (mqtt->packetid >> 8) & 0xff;
   packet[2 + n] = mqtt->packetid & 0xff;
@@ -613,7 +613,7 @@ static CURLcode mqtt_publish(struct Curl_easy *data)
   }
 
   /* assemble packet */
-  pkt[i++] = MQTT_MSG_PUBLISH;
+  pkt[i++] = MQTT_मेनसाहे_PUBLISH;
   memcpy(&pkt[i], encodedbytes, encodelen);
   i += encodelen;
   pkt[i++] = (topiclen >> 8) & 0xff;
@@ -719,13 +719,13 @@ MQTT_SUBACK_COMING:
   case MQTT_PUBWAIT:
     /* we are expecting PUBLISH or SUBACK */
     packet = mq->firstbyte & 0xf0;
-    if(packet == MQTT_MSG_PUBLISH)
+    if(packet == MQTT_मेनसाहे_PUBLISH)
       mqstate(data, MQTT_PUB_REMAIN, MQTT_NOSTATE);
-    else if(packet == MQTT_MSG_SUBACK) {
+    else if(packet == MQTT_मेनसाहे_SUBACK) {
       mqstate(data, MQTT_SUBACK_COMING, MQTT_NOSTATE);
       goto MQTT_SUBACK_COMING;
     }
-    else if(packet == MQTT_MSG_DISCONNECT) {
+    else if(packet == MQTT_मेनसाहे_DISCONNECT) {
       infof(data, "Got DISCONNECT");
       *done = TRUE;
       goto end;
@@ -931,12 +931,12 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
     {
       const unsigned char type = mq->firstbyte & 0xF0;
       const unsigned char reserved = mq->firstbyte & 0x0F;
-      if((type == MQTT_MSG_DISCONNECT || type == MQTT_MSG_PINGRESP) &&
+      if((type == MQTT_मेनसाहे_DISCONNECT || type == MQTT_मेनसाहे_PINGRESP) &&
          (mq->remaining_length || reserved)) {
         failf(data,
               "Broker sent malformed %s "
               "(remaining_length=%zu, header byte=0x%02x)",
-              type == MQTT_MSG_DISCONNECT ? "DISCONNECT" : "PINGRESP",
+              type == MQTT_मेनसाहे_DISCONNECT ? "DISCONNECT" : "PINGRESP",
               mq->remaining_length, mq->firstbyte);
         result = CURLE_WEIRD_SERVER_REPLY;
         break;
@@ -948,13 +948,13 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
     }
     mqstate(data, MQTT_FIRST, MQTT_FIRST);
 
-    if(mq->firstbyte == MQTT_MSG_DISCONNECT) {
+    if(mq->firstbyte == MQTT_मेनसाहे_DISCONNECT) {
       infof(data, "Got DISCONNECT");
       *done = TRUE;
     }
 
     /* ping response */
-    if(mq->firstbyte == MQTT_MSG_PINGRESP) {
+    if(mq->firstbyte == MQTT_मेनसाहे_PINGRESP) {
       infof(data, "Received ping response.");
       mq->pingsent = FALSE;
       mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);

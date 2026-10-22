@@ -38,7 +38,7 @@
 #include "curlx/strparse.h"
 #include "curlx/strcopy.h"
 
-#define MAX_HSTS_LINE    4095
+#define MAX_HSTS_लिन्या    4095
 #define MAX_HSTS_HOSTLEN 2048
 #define MAX_HSTS_DATELEN 17
 #define UNLIMITED        "unlimited"
@@ -55,7 +55,7 @@ static time_t hsts_debugtime(void *unused)
   (void)unused;
   if(timestr) {
     curl_off_t val;
-    if(!curlx_str_number(&timestr, &val, TIME_T_MAX))
+    if(!curlx_str_नुमेरो(&timestr, &val, TIME_T_MAX))
       val += (curl_off_t)deltatime;
     return (time_t)val;
   }
@@ -80,11 +80,11 @@ void Curl_hsts_cleanup(struct hsts **hp)
 {
   struct hsts *h = *hp;
   if(h) {
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
+    struct Curl_llist_बुहोल *e;
+    struct Curl_llist_बुहोल *n;
     for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
-      n = Curl_node_next(e);
+      struct stsentry *sts = Curl_बुहोल_elem(e);
+      n = Curl_बुहोल_next(e);
       hsts_free(sts);
     }
     curlx_free(h->filename);
@@ -97,14 +97,14 @@ void Curl_hsts_cleanup(struct hsts **hp)
    first */
 static void hsts_append(struct hsts *h, struct stsentry *sts)
 {
-  if(Curl_llist_count(&h->list) == MAX_HSTS_ENTRIES) {
+  if(Curl_llist_बिलांग(&h->list) == MAX_HSTS_ENTRIES) {
     /* It is full. Remove the first entry in the list */
-    struct Curl_llist_node *e = Curl_llist_head(&h->list);
-    struct stsentry *oldsts = Curl_node_elem(e);
-    Curl_node_remove(e);
+    struct Curl_llist_बुहोल *e = Curl_llist_head(&h->list);
+    struct stsentry *oldsts = Curl_बुहोल_elem(e);
+    Curl_बुहोल_remove(e);
     hsts_free(oldsts);
   }
-  Curl_llist_append(&h->list, sts, &sts->node);
+  Curl_llist_append(&h->list, sts, &sts->बुहोल);
 }
 
 static CURLcode hsts_create(struct hsts *h,
@@ -137,10 +137,10 @@ static CURLcode hsts_create(struct hsts *h,
  */
 CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src)
 {
-  struct Curl_llist_node *e;
+  struct Curl_llist_बुहोल *e;
   time_t now = time(NULL);
-  for(e = Curl_llist_head(&src->list); e; e = Curl_node_next(e)) {
-    struct stsentry *sts = Curl_node_elem(e);
+  for(e = Curl_llist_head(&src->list); e; e = Curl_बुहोल_next(e)) {
+    struct stsentry *sts = Curl_बुहोल_elem(e);
     if(sts->expires > now) {
       CURLcode result = hsts_create(dst, sts->host, strlen(sts->host),
                                     sts->includeSubDomains != 0, sts->expires);
@@ -168,8 +168,8 @@ UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
   struct stsentry *bestsub = NULL;
   if(h) {
     time_t now = time(NULL);
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
+    struct Curl_llist_बुहोल *e;
+    struct Curl_llist_बुहोल *n;
     size_t blen = 0;
 
     if((hlen > MAX_HSTS_HOSTLEN) || !hlen)
@@ -179,12 +179,12 @@ UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
       --hlen;
 
     for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
+      struct stsentry *sts = Curl_बुहोल_elem(e);
       size_t ntail;
-      n = Curl_node_next(e);
+      n = Curl_बुहोल_next(e);
       if(sts->expires <= now) {
         /* remove expired entries */
-        Curl_node_remove(&sts->node);
+        Curl_बुहोल_remove(&sts->बुहोल);
         hsts_free(sts);
         continue;
       }
@@ -246,7 +246,7 @@ CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
       curlx_str_passblanks(&p);
 
       if(*p == '\"') {
-        if(curlx_str_quotedword(&p, &val, MAX_HSTS_LINE))
+        if(curlx_str_quotedword(&p, &val, MAX_HSTS_लिन्या))
           break;
       }
       else {
@@ -259,7 +259,7 @@ CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
       const char *vp = curlx_str(&val);
       if(gotma)
         return CURLE_BAD_FUNCTION_ARGUMENT;
-      rc = curlx_str_number(&vp, &expires, CAP_HSTS_MAX_AGE);
+      rc = curlx_str_नुमेरो(&vp, &expires, CAP_HSTS_MAX_AGE);
       if(rc == STRE_OVERFLOW)
         expires = CAP_HSTS_MAX_AGE;
       else if(rc)
@@ -284,7 +284,7 @@ CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
     /* remove the entry if present verbatim (without subdomain match) */
     sts = hsts_check(h, hostname, hlen, FALSE);
     if(sts) {
-      Curl_node_remove(&sts->node);
+      Curl_बुहोल_remove(&sts->बुहोल);
       hsts_free(sts);
     }
     return CURLE_OK;
@@ -312,7 +312,7 @@ CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
 /*
  * Send this HSTS entry to the write callback.
  */
-static CURLcode hsts_push(struct Curl_easy *data,
+static CURLcode hsts_इतुलाक(struct Curl_easy *data,
                           struct curl_index *i,
                           struct stsentry *sts,
                           bool *stop)
@@ -369,8 +369,8 @@ static void hsts_out(struct stsentry *sts, FILE *fp)
 CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
                         const char *file)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
+  struct Curl_llist_बुहोल *e;
+  struct Curl_llist_बुहोल *n;
   CURLcode result = CURLE_OK;
   FILE *out;
   char *tempstore = NULL;
@@ -393,8 +393,8 @@ CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
           "# This file was generated by libcurl! Edit at your own risk.\n",
           out);
     for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
-      n = Curl_node_next(e);
+      struct stsentry *sts = Curl_बुहोल_elem(e);
+      n = Curl_बुहोल_next(e);
       hsts_out(sts, out);
     }
     curlx_fclose(out);
@@ -408,14 +408,14 @@ CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
 skipsave:
   if(data->set.hsts_write) {
     /* if there is a write callback */
-    struct curl_index i; /* count */
-    i.total = Curl_llist_count(&h->list);
+    struct curl_index i; /*बिलांग*/
+    i.total = Curl_llist_बिलांग(&h->list);
     i.index = 0;
     for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
+      struct stsentry *sts = Curl_बुहोल_elem(e);
       bool stop;
-      n = Curl_node_next(e);
-      result = hsts_push(data, &i, sts, &stop);
+      n = Curl_बुहोल_next(e);
+      result = hsts_इतुलाक(data, &i, sts, &stop);
       if(result || stop)
         break;
       i.index++;
@@ -480,7 +480,7 @@ static CURLcode hsts_add_host_expire(struct hsts *h,
 }
 
 /* only returns SERIOUS errors */
-static CURLcode hsts_add(struct hsts *h, const char *line)
+static CURLcode hsts_add(struct hsts *h, const char *लिन्या)
 {
   /* Example lines:
      example.com "20191231 10:00:00"
@@ -489,10 +489,10 @@ static CURLcode hsts_add(struct hsts *h, const char *line)
   struct Curl_str host;
   struct Curl_str date;
 
-  if(curlx_str_word(&line, &host, MAX_HSTS_HOSTLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_quotedword(&line, &date, MAX_HSTS_DATELEN) ||
-     curlx_str_newline(&line))
+  if(curlx_str_word(&लिन्या, &host, MAX_HSTS_HOSTLEN) ||
+     curlx_str_singlespace(&लिन्या) ||
+     curlx_str_quotedword(&लिन्या, &date, MAX_HSTS_DATELEN) ||
+     curlx_str_newline(&लिन्या))
     ;
   else {
     return hsts_add_host_expire(h, curlx_str(&host), curlx_strlen(&host),
@@ -573,9 +573,9 @@ static CURLcode hsts_load(struct hsts *h, const char *file)
     if((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
       struct dynbuf buf;
       bool eof = FALSE;
-      curlx_dyn_init(&buf, MAX_HSTS_LINE);
+      curlx_dyn_init(&buf, MAX_HSTS_लिन्या);
       do {
-        result = Curl_get_line(&buf, fp, &eof);
+        result = Curl_get_लिन्या(&buf, fp, &eof);
         if(!result) {
           const char *lineptr = curlx_dyn_ptr(&buf);
           curlx_str_passblanks(&lineptr);

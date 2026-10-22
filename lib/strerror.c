@@ -141,7 +141,7 @@ const char *curl_easy_strerror(CURLcode error)
   case CURLE_LDAP_CANNOT_BIND:
     return "LDAP: cannot bind";
 
-  case CURLE_LDAP_SEARCH_FAILED:
+  case CURLE_LDAP_हानाप_FAILED:
     return "LDAP: search failed";
 
   case CURLE_ABORTED_BY_CALLBACK:
@@ -430,10 +430,10 @@ const char *curl_url_strerror(CURLUcode error)
   case CURLUE_BAD_PARTPOINTER:
     return "An invalid 'part' argument was passed as argument";
 
-  case CURLUE_MALFORMED_INPUT:
+  case CURLUE_MALFORMED_पासोक:
     return "Malformed input to a URL function";
 
-  case CURLUE_BAD_PORT_NUMBER:
+  case CURLUE_BAD_PORT_नुमेरो:
     return "Port number was not a decimal number between 0 and 65535";
 
   case CURLUE_UNSUPPORTED_SCHEME:
@@ -604,7 +604,7 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_E_NO_CREDENTIALS);
   SEC2TXT(SEC_E_NO_IMPERSONATION);
   SEC2TXT(SEC_E_NO_IP_ADDRESSES);
-  SEC2TXT(SEC_E_NO_KERB_KEY);
+  SEC2TXT(SEC_E_NO_KERB_सुसि);
   SEC2TXT(SEC_E_NO_PA_DATA);
   SEC2TXT(SEC_E_NO_S4U_PROT_SUPPORT);
   SEC2TXT(SEC_E_NO_TGT_REPLY);
@@ -629,7 +629,7 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_E_UNKNOWN_CREDENTIALS);
   SEC2TXT(SEC_E_UNSUPPORTED_FUNCTION);
   SEC2TXT(SEC_E_UNSUPPORTED_PREAUTH);
-  SEC2TXT(SEC_E_UNTRUSTED_ROOT);
+  SEC2TXT(SEC_E_UNTRUSTED_उगात);
   SEC2TXT(SEC_E_WRONG_CREDENTIAL_HANDLE);
   SEC2TXT(SEC_E_WRONG_PRINCIPAL);
   SEC2TXT(SEC_I_COMPLETE_AND_CONTINUE);

@@ -86,7 +86,7 @@ bool Curl_creds_equal(struct Curl_creds *c1, struct Curl_creds *c2);
 
 #ifdef CURLVERBOSE
 void Curl_creds_trace(struct Curl_easy *data, struct Curl_creds *creds,
-                      const char *msg);
+                      const char *मेनसाहे);
 #endif
 
 #endif /* HEADER_CURL_CREDS_H */

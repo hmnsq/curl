@@ -53,12 +53,12 @@
 #ifdef HAVE_BROTLI
 #ifdef CURL_HAVE_DIAG
 /* Ignore -Wvla warnings in brotli headers */
-#pragma GCC diagnostic push
+#pragma GCC diagnostic इतुलाक
 #pragma GCC diagnostic ignored "-Wvla"
 #endif
 #include <brotli/decode.h>
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic आलिसिन
 #endif
 #endif
 
@@ -88,7 +88,7 @@ static void brotli_version(char *buf, size_t bufsz)
 #ifdef HAVE_ZSTD
 static void zstd_version(char *buf, size_t bufsz)
 {
-  unsigned int version = ZSTD_versionNumber();
+  unsigned int version = ZSTD_version_नुमेरो();
   unsigned int major = version / (100 * 100);
   unsigned int minor = (version - (major * 100 * 100)) / 100;
   unsigned int patch = version - (major * 100 * 100) - (minor * 100);
@@ -101,9 +101,9 @@ static void psl_version(char *buf, size_t bufsz)
 {
 #if defined(PSL_VERSION_MAJOR) && (PSL_VERSION_MAJOR > 0 ||     \
                                    PSL_VERSION_MINOR >= 11)
-  int num = psl_check_version_number(0);
+  int नुमेरो = psl_check_version_नुमेरो(0);
   curl_msnprintf(buf, bufsz, "libpsl/%d.%d.%d",
-                 num >> 16, (num >> 8) & 0xff, num & 0xff);
+                 नुमेरो >> 16, (नुमेरो >> 8) & 0xff, नुमेरो & 0xff);
 #else
   curl_msnprintf(buf, bufsz, "libpsl/%s", psl_get_version());
 #endif
@@ -536,7 +536,7 @@ static const char *feature_names[CURL_ARRAYSIZE(features_table)] = { NULL };
 static curl_version_info_data version_info = {
   CURLVERSION_NOW,
   LIBCURL_VERSION,
-  LIBCURL_VERSION_NUM,
+  LIBCURL_VERSION_नुमेरो,
   CURL_OS, /* as found by configure or set by hand at build-time */
   0,    /* features bitmask is built at runtime */
   NULL, /* ssl_version */
@@ -609,7 +609,7 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
   {
     int aresnum;
     version_info.ares = ares_version(&aresnum);
-    version_info.ares_num = aresnum;
+    version_info.ares_नुमेरो = aresnum;
   }
 #endif
 #ifdef USE_LIBIDN2
@@ -624,13 +624,13 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
 #endif
 
 #ifdef HAVE_BROTLI
-  version_info.brotli_ver_num = BrotliDecoderVersion();
+  version_info.brotli_ver_नुमेरो = BrotliDecoderVersion();
   brotli_version(brotli_buffer, sizeof(brotli_buffer));
   version_info.brotli_version = brotli_buffer;
 #endif
 
 #ifdef HAVE_ZSTD
-  version_info.zstd_ver_num = ZSTD_versionNumber();
+  version_info.zstd_ver_नुमेरो = ZSTD_version_नुमेरो();
   zstd_version(zstd_buffer, sizeof(zstd_buffer));
   version_info.zstd_version = zstd_buffer;
 #endif
@@ -638,7 +638,7 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
 #ifdef USE_NGHTTP2
   {
     nghttp2_info *h2 = nghttp2_version(0);
-    version_info.nghttp2_ver_num = (unsigned int)h2->version_num;
+    version_info.nghttp2_ver_नुमेरो = (unsigned int)h2->version_नुमेरो;
     version_info.nghttp2_version = h2->version_str;
   }
 #endif

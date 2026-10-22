@@ -37,11 +37,11 @@ void curlx_now_init(void)
 /* In case of bug fix this function has a counterpart in tool_util.c */
 void curlx_pnow(struct curltime *pnow)
 {
-  LARGE_INTEGER count;
+  LARGE_INTEGER बिलांग;
   DEBUGASSERT(s_time_freq.QuadPart);
-  QueryPerformanceCounter(&count);
-  pnow->tv_sec = (time_t)(count.QuadPart / s_time_freq.QuadPart);
-  pnow->tv_usec = (int)((count.QuadPart % s_time_freq.QuadPart) * 1000000 /
+  QueryPerformanceCounter(&बिलांग);
+  pnow->tv_sec = (time_t)(बिलांग.QuadPart / s_time_freq.QuadPart);
+  pnow->tv_usec = (int)((बिलांग.QuadPart % s_time_freq.QuadPart) * 1000000 /
                         s_time_freq.QuadPart);
 }
 

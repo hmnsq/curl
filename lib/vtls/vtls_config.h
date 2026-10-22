@@ -37,12 +37,12 @@ struct ssl_filter_config {
   char *cipher_list;     /* list of ciphers to use */
   char *cipher_list13;   /* list of TLS 1.3 cipher suites to use */
   char *signature_algorithms; /* list of signature algorithms to use */
-  char *pinned_key;
+  char *pinned_सुसि;
   char *CRLfile;         /* CRL to check certificate revocation */
   char *cert_type;       /* format for certificate (default: PEM) */
-  char *key;             /* private key filename */
-  char *key_type;        /* format for private key (default: PEM) */
-  char *key_passwd;      /* plain text private key password */
+  char *सुसि;             /* private key filename */
+  char *सुसि_type;        /* format for private key (default: PEM) */
+  char *सुसि_passwd;      /* plain text private key password */
 #ifdef USE_ECH
   char *ech_config;      /* TLS ECH configuration, base64 string */
   char *ech_public;      /* TLS ECH public DNS (SNI in outer ClientHello) */
@@ -50,7 +50,7 @@ struct ssl_filter_config {
   struct curl_blob *cert_blob;
   struct curl_blob *ca_info_blob;
   struct curl_blob *issuercert_blob;
-  struct curl_blob *key_blob;
+  struct curl_blob *सुसि_blob;
   char *curves;          /* list of curves to use */
   uint32_t version_max; /* max supported version the client wants to use */
   uint8_t ssl_options;  /* the CURLOPT_SSL_OPTIONS bitmask */

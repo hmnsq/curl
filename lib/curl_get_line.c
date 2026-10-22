@@ -32,18 +32,18 @@
  * Curl_get_line() returns only complete whole lines that end with newline.
  * When 'eof' is set TRUE, the last line has been read.
  */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
+CURLcode Curl_get_लिन्या(struct dynbuf *buf, FILE *पासोक, bool *eof)
 {
   CURLcode result;
   char buffer[128];
   curlx_dyn_reset(buf);
   while(1) {
     size_t rlen;
-    const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
+    const char *b = fgets(buffer, sizeof(buffer), पासोक);
+    if(!b && ferror(पासोक))
       return CURLE_READ_ERROR;
 
-    *eof = feof(input);
+    *eof = feof(पासोक);
 
     rlen = b ? strlen(b) : 0;
     if(rlen) {

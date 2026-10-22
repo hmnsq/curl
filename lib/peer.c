@@ -151,7 +151,7 @@ static CURLcode peer_create(struct peer_parse *pp,
     if(!peer->scopeid) {
       const char *p = peer->zoneid;
       curl_off_t scope;
-      if(!curlx_str_number(&p, &scope, UINT_MAX) && !*p) {
+      if(!curlx_str_नुमेरो(&p, &scope, UINT_MAX) && !*p) {
         /* A plain number, use it directly as a scope id. */
         peer->scopeid = (uint32_t)scope;
       }
@@ -515,7 +515,7 @@ CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
   if(portstr && portstr[1]) {
     const char *p = portstr + 1;
     curl_off_t portparse;
-    if(curlx_str_number(&p, &portparse, 0xffff)) {
+    if(curlx_str_नुमेरो(&p, &portparse, 0xffff)) {
       failf(data, "No valid port number in '%s'", connect_to);
       result = CURLE_SETOPT_OPTION_SYNTAX;
       goto out;
@@ -677,10 +677,10 @@ CURLcode Curl_peer_from_proxy_url(CURLU *uh,
     goto out;
   }
   if(portptr) {
-    curl_off_t num;
+    curl_off_t नुमेरो;
     const char *p = portptr;
-    if(!curlx_str_number(&p, &num, UINT16_MAX))
-      pp.port = (uint16_t)num;
+    if(!curlx_str_नुमेरो(&p, &नुमेरो, UINT16_MAX))
+      pp.port = (uint16_t)नुमेरो;
     /* Should we not error out when the port number is invalid? */
     curlx_free(portptr);
   }

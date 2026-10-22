@@ -201,7 +201,7 @@ static CURLcode xfer_send(struct Curl_easy *data,
       const char *p = getenv("CURL_SMALLREQSEND");
       if(p) {
         curl_off_t body_small;
-        if(!curlx_str_number(&p, &body_small, body_len))
+        if(!curlx_str_नुमेरो(&p, &body_small, body_len))
           blen = hds_len + (size_t)body_small;
       }
     }

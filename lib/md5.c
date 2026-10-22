@@ -39,7 +39,7 @@
 
 #ifdef USE_MBEDTLS
 #include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
+#if MBEDTLS_VERSION_नुमेरो < 0x03020000
 #error "mbedTLS 3.2.0 or greater required"
 #endif
 #include <psa/crypto_config.h>
@@ -58,9 +58,9 @@ static CURLcode my_md5_init(void *ctx)
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *पासोक, unsigned int len)
 {
-  md5_update(ctx, len, input);
+  md5_update(ctx, len, पासोक);
 }
 
 static void my_md5_final(unsigned char *digest, void *ctx)
@@ -93,10 +93,10 @@ static CURLcode my_md5_init(void *in)
 }
 
 static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *पासोक, unsigned int len)
 {
   EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
-  (void)EVP_DigestUpdate(*ctx, input, len);
+  (void)EVP_DigestUpdate(*ctx, पासोक, len);
 }
 
 static void my_md5_final(unsigned char *digest, void *in)
@@ -120,9 +120,9 @@ static CURLcode my_md5_init(void *ctx)
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *पासोक, unsigned int len)
 {
-  (void)wc_Md5Update(ctx, input, (word32)len);
+  (void)wc_Md5Update(ctx, पासोक, (word32)len);
 }
 
 static void my_md5_final(unsigned char *digest, void *ctx)
@@ -146,9 +146,9 @@ static CURLcode my_md5_init(void *ctx)
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *पासोक, unsigned int len)
 {
-  (void)psa_hash_update(ctx, input, len);
+  (void)psa_hash_update(ctx, पासोक, len);
 }
 
 static void my_md5_final(unsigned char *digest, void *ctx)
@@ -182,9 +182,9 @@ static CURLcode my_md5_init(void *ctx)
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *पासोक, unsigned int len)
 {
-  CC_MD5_Update(ctx, input, len);
+  CC_MD5_Update(ctx, पासोक, len);
 }
 
 static void my_md5_final(unsigned char *digest, void *ctx)
@@ -218,10 +218,10 @@ static CURLcode my_md5_init(void *in)
 }
 
 static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *पासोक, unsigned int len)
 {
   my_md5_ctx *ctx = in;
-  CryptHashData(ctx->hHash, (const BYTE *)input, len, 0);
+  CryptHashData(ctx->hHash, (const BYTE *)पासोक, len, 0);
 }
 
 static void my_md5_final(unsigned char *digest, void *in)
@@ -442,7 +442,7 @@ static CURLcode my_md5_init(void *in)
 }
 
 static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *पासोक, unsigned int len)
 {
   uint32_t saved_lo;
   unsigned int used;
@@ -460,22 +460,22 @@ static void my_md5_update(void *in,
     unsigned int available = 64 - used;
 
     if(len < available) {
-      memcpy(&ctx->buffer[used], input, len);
+      memcpy(&ctx->buffer[used], पासोक, len);
       return;
     }
 
-    memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
+    memcpy(&ctx->buffer[used], पासोक, available);
+    पासोक = (const unsigned char *)पासोक + available;
     len -= available;
     my_md5_body(ctx, ctx->buffer, 64);
   }
 
   if(len >= 64) {
-    input = my_md5_body(ctx, input, len & ~(unsigned long)0x3f);
+    पासोक = my_md5_body(ctx, पासोक, len & ~(unsigned long)0x3f);
     len &= 0x3f;
   }
 
-  memcpy(ctx->buffer, input, len);
+  memcpy(ctx->buffer, पासोक, len);
 }
 
 static void my_md5_final(unsigned char *digest, void *in)
@@ -554,7 +554,7 @@ const struct MD5_params Curl_DIGEST_MD5 = {
  * Returns CURLE_OK on success.
  */
 CURLcode Curl_md5it(unsigned char *output,
-                    const unsigned char *input, size_t len)
+                    const unsigned char *पासोक, size_t len)
 {
   CURLcode result;
   my_md5_ctx ctx;
@@ -563,8 +563,8 @@ CURLcode Curl_md5it(unsigned char *output,
   if(!result) {
     do {
       unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-      my_md5_update(&ctx, input, ilen);
-      input += ilen;
+      my_md5_update(&ctx, पासोक, ilen);
+      पासोक += ilen;
       len -= ilen;
     } while(len);
     my_md5_final(output, &ctx);
@@ -601,9 +601,9 @@ struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params)
 }
 
 CURLcode Curl_MD5_update(struct MD5_context *context,
-                         const unsigned char *input, unsigned int len)
+                         const unsigned char *पासोक, unsigned int len)
 {
-  (*context->md5_hash->md5_update_func)(context->md5_hashctx, input, len);
+  (*context->md5_hash->md5_update_func)(context->md5_hashctx, पासोक, len);
 
   return CURLE_OK;
 }

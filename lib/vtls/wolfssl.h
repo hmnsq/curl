@@ -80,7 +80,7 @@ CURLcode Curl_wssl_setup_x509_store(struct Curl_cfilter *cf,
 #ifdef HAVE_EX_DATA
 CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+                                 const char *ssl_peer_सुसि,
                                  struct WOLFSSL_SESSION *session,
                                  int ietf_tls_id,
                                  const char *alpn,
