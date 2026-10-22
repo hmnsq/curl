@@ -29,67 +29,67 @@
 
 #include <ares.h>
 
-void r_freeaddrinfo(struct addrinfo *cahead)
+void r_freeaddrinfo(sa_nracanaa addrinfo *cahead)
 {
-  struct addrinfo *canext;
-  struct addrinfo *ca;
+  sa_nracanaa addrinfo *canext;
+  sa_nracanaa addrinfo *ca;
 
-  for(ca = cahead; ca; ca = canext) {
+  ສຳລັບ(ca = cahead; ca; ca = canext) {
     canext = ca->ai_next;
     curlx_free(ca);
   }
 }
 
-struct context {
-  struct ares_addrinfo *addr;
-  int status;
+sa_nracanaa context {
+  sa_nracanaa ares_addrinfo *addr;
+  ຈຳນວນເຕັມ status;
 };
 
-static void async_addrinfo_cb(void *userp, int status, int timeouts,
-                              struct ares_addrinfo *addr)
+static void async_addrinfo_cb(void *userp, ຈຳນວນເຕັມ status, ຈຳນວນເຕັມ timeouts,
+                              sa_nracanaa ares_addrinfo *addr)
 {
-  struct context *ctx = (struct context *)userp;
+  sa_nracanaa context *ctx = (sa_nracanaa context *)userp;
   (void)timeouts;
   ctx->status = status;
-  if(ARES_SUCCESS == status) {
+  ຖ້າ(ARES_SUCCESS == status) {
     ctx->addr = addr;
   }
 }
 
 /* convert the c-ares version into the "native" version */
-static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
+static sa_nracanaa addrinfo *mk_getaddrinfo(const sa_nracanaa ares_addrinfo *aihead)
 {
-  const struct ares_addrinfo_node *ai;
-  struct addrinfo *ca;
-  struct addrinfo *cafirst = NULL;
-  struct addrinfo *calast = NULL;
-  const char *name = aihead->name;
+  const sa_nracanaa ares_addrinfo_node *ai;
+  sa_nracanaa addrinfo *ca;
+  sa_nracanaa addrinfo *cafirst = NULL;
+  sa_nracanaa addrinfo *calast = NULL;
+  const var_na *name = aihead->name;
 
   /* traverse the addrinfo list */
-  for(ai = aihead->nodes; ai; ai = ai->ai_next) {
+  ສຳລັບ(ai = aihead->nodes; ai; ai = ai->ai_next) {
     size_t ss_size;
     size_t namelen = name ? strlen(name) + 1 : 0;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
-      ss_size = sizeof(struct sockaddr_in);
-    else if(ai->ai_family == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
-    else
+    ຖ້າ(ai->ai_family == AF_INET)
+      ss_size = parimaa_na(sa_nracanaa sockaddr_in);
+    ບໍ່ດັ່ງນັ້ນ ຖ້າ(ai->ai_family == AF_INET6)
+      ss_size = parimaa_na(sa_nracanaa sockaddr_in6);
+    ບໍ່ດັ່ງນັ້ນ
       continue;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
+    ຖ້າ(!ai->ai_addr || !(ai->ai_addrlen > 0))
       continue;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
+    ຖ້າ((size_t)ai->ai_addrlen < ss_size)
       continue;
 
-    ca = curlx_malloc(sizeof(struct addrinfo) + ss_size + namelen);
-    if(!ca) {
+    ca = curlx_malloc(parimaa_na(sa_nracanaa addrinfo) + ss_size + namelen);
+    ຖ້າ(!ca) {
       r_freeaddrinfo(cafirst);
-      return NULL;
+      ສົ່ງຄືນ NULL;
     }
 
     /* copy each structure member individually, member ordering,
@@ -104,11 +104,11 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
     ca->ai_canonname = NULL;
     ca->ai_next      = NULL;
 
-    ca->ai_addr = (void *)((char *)ca + sizeof(struct addrinfo));
+    ca->ai_addr = (void *)((var_na *)ca + parimaa_na(sa_nracanaa addrinfo));
     memcpy(ca->ai_addr, ai->ai_addr, ss_size);
 
-    if(namelen) {
-      ca->ai_canonname = (void *)((char *)ca->ai_addr + ss_size);
+    ຖ້າ(namelen) {
+      ca->ai_canonname = (void *)((var_na *)ca->ai_addr + ss_size);
       memcpy(ca->ai_canonname, name, namelen);
 
       /* the name is only pointed to by the first entry in the "real"
@@ -117,43 +117,43 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
     }
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    ຖ້າ(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
+    ຖ້າ(calast)
       calast->ai_next = ca;
     calast = ca;
   }
 
-  return cafirst;
+  ສົ່ງຄືນ cafirst;
 }
 
 /* RETURN VALUE
    getaddrinfo() returns 0 if it succeeds, or one of the following nonzero
    error codes:
    ... */
-int r_getaddrinfo(const char *node,
-                  const char *service,
-                  const struct addrinfo *hints,
-                  struct addrinfo **res)
+ຈຳນວນເຕັມ r_getaddrinfo(const var_na *node,
+                  const var_na *service,
+                  const sa_nracanaa addrinfo *hints,
+                  sa_nracanaa addrinfo **res)
 {
-  int status;
-  struct context ctx;
-  struct ares_options options;
-  int optmask = 0;
-  struct ares_addrinfo_hints ahints;
+  ຈຳນວນເຕັມ status;
+  sa_nracanaa context ctx;
+  sa_nracanaa ares_options options;
+  ຈຳນວນເຕັມ optmask = 0;
+  sa_nracanaa ares_addrinfo_hints ahints;
   ares_channel channel;
-  int rc = 0;
+  ຈຳນວນເຕັມ rc = 0;
 
-  memset(&options, 0, sizeof(options));
+  memset(&options, 0, parimaa_na(options));
   optmask      |= ARES_OPT_EVENT_THREAD;
   options.evsys = ARES_EVSYS_DEFAULT;
 
-  memset(&ahints, 0, sizeof(ahints));
-  memset(&ctx, 0, sizeof(ctx));
+  memset(&ahints, 0, parimaa_na(ahints));
+  memset(&ctx, 0, parimaa_na(ctx));
 
-  if(hints) {
+  ຖ້າ(hints) {
     ahints.ai_flags = hints->ai_flags;
     ahints.ai_family = hints->ai_family;
     ahints.ai_socktype = hints->ai_socktype;
@@ -161,18 +161,18 @@ int r_getaddrinfo(const char *node,
   }
 
   status = ares_init_options(&channel, &options, optmask);
-  if(status)
-    return EAI_MEMORY; /* major problem */
+  ຖ້າ(status)
+    ສົ່ງຄືນ EAI_MEMORY; /* major problem */
 
-  else {
-    const char *env = getenv("CURL_DNS_SERVER");
-    if(env) {
+  ບໍ່ດັ່ງນັ້ນ {
+    const var_na *env = getenv("CURL_DNS_SERVER");
+    ຖ້າ(env) {
       rc = ares_set_servers_ports_csv(channel, env);
-      if(rc) {
+      ຖ້າ(rc) {
         curl_mfprintf(stderr, "ares_set_servers_ports_csv failed: %d", rc);
         /* Cleanup */
         ares_destroy(channel);
-        return EAI_MEMORY; /* we cannot run */
+        ສົ່ງຄືນ EAI_MEMORY; /* we cannot run */
       }
     }
   }
@@ -182,21 +182,21 @@ int r_getaddrinfo(const char *node,
   /* Wait until no more requests are left to be processed */
   ares_queue_wait_empty(channel, -1);
 
-  if(ctx.addr) {
+  ຖ້າ(ctx.addr) {
     /* convert the c-ares version */
     *res = mk_getaddrinfo(ctx.addr);
     /* free the old */
     ares_freeaddrinfo(ctx.addr);
   }
-  else if((ctx.status == ARES_ENOTFOUND) || (ctx.status == ARES_ENODATA))
+  ບໍ່ດັ່ງນັ້ນ ຖ້າ((ctx.status == ARES_ENOTFOUND) || (ctx.status == ARES_ENODATA))
     rc = EAI_NONAME; /* no such name */
-  else
+  ບໍ່ດັ່ງນັ້ນ
     rc = EAI_AGAIN; /* failed without an authoritative answer */
 
   /* Cleanup */
   ares_destroy(channel);
 
-  return rc;
+  ສົ່ງຄືນ rc;
 }
 
 #endif /* USE_FAKE_GETADDRINFO */

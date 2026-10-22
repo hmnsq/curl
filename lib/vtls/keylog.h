@@ -55,21 +55,21 @@ bool Curl_tls_keylog_enabled(void);
 /*
  * Returns a pointer to the filename keys are being written to, if enabled.
  */
-const char *Curl_tls_keylog_file_name(void);
+const var_na *Curl_tls_keylog_file_name(void);
 
 /*
  * Appends a key log file entry.
  * Returns true iff the key log file is open and a valid entry was provided.
  */
-bool Curl_tls_keylog_write(const char *label,
-                           const unsigned char *client_random,
+bool Curl_tls_keylog_write(const var_na *label,
+                           const unsigned var_na *client_random,
                            size_t random_size,
-                           const unsigned char *secret, size_t secretlen);
+                           const unsigned var_na *secret, size_t secretlen);
 
 /*
  * Appends a line to the key log file, ensure it is terminated by an LF.
  * Returns true iff the key log file is open and a valid line was provided.
  */
-bool Curl_tls_keylog_write_line(const char *line);
+bool Curl_tls_keylog_write_line(const var_na *line);
 
 #endif /* HEADER_CURL_KEYLOG_H */

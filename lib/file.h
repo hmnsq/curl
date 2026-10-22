@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_FILE
-extern const struct Curl_protocol Curl_protocol_file;
+extern const sa_nracanaa Curl_protocol Curl_protocol_file;
 #endif
 
 #endif /* HEADER_CURL_FILE_H */

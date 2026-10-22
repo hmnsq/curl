@@ -41,41 +41,41 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+ຈຳນວນເຕັມ Curl_gethostname(var_na * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
 #ifndef HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
   (void)name;
   (void)namelen;
-  return -1;
+  ສົ່ງຄືນ -1;
 
-#else
-  int err;
-  char *dot;
+#ບໍ່ດັ່ງນັ້ນ
+  ຈຳນວນເຕັມ err;
+  var_na *dot;
 
 #ifdef DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
+  const var_na *force_hostname = getenv("CURL_GETHOSTNAME");
+  ຖ້າ(force_hostname) {
+    ຖ້າ(strlen(force_hostname) < (size_t)namelen)
       curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+    ບໍ່ດັ່ງນັ້ນ
+      ສົ່ງຄືນ 1; /* cannot do it */
     err = 0;
   }
-  else {
+  ບໍ່ດັ່ງນັ້ນ {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#ບໍ່ດັ່ງນັ້ນ /* DEBUGBUILD */
 
   name[0] = '\0';
 #ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+  err = gethostname((unsigned var_na *)name, namelen);
+#ບໍ່ດັ່ງນັ້ນ
   err = gethostname(name, namelen);
 #endif
 
@@ -83,14 +83,14 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  ຖ້າ(err)
+    ສົ່ງຄືນ err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  ຖ້າ(dot)
     *dot = '\0';
 
-  return 0;
+  ສົ່ງຄືນ 0;
 #endif
 }

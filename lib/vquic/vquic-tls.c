@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_HTTP3) && \
+#ຖ້າ defined(USE_HTTP3) && \
   (defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL))
 
 #ifdef USE_OPENSSL
@@ -49,115 +49,115 @@
 #include "vtls/vtls_scache.h"
 #include "vquic/vquic-tls.h"
 
-CURLcode Curl_vquic_tls_peer_init(struct Curl_peer *origin,
-                                  struct Curl_peer *peer,
-                                  struct ssl_filter_config *sslc,
-                                  struct ssl_peer *ssl_peer)
+CURLcode Curl_vquic_tls_peer_init(sa_nracanaa Curl_peer *origin,
+                                  sa_nracanaa Curl_peer *peer,
+                                  sa_nracanaa ssl_filter_config *sslc,
+                                  sa_nracanaa ssl_peer *ssl_peer)
 {
-  char tls_id[80];
+  var_na tls_id[80];
 
 #ifdef USE_OPENSSL
-  Curl_ossl_version(tls_id, sizeof(tls_id));
+  Curl_ossl_version(tls_id, parimaa_na(tls_id));
 #elif defined(USE_GNUTLS)
-  Curl_gtls_version(tls_id, sizeof(tls_id));
+  Curl_gtls_version(tls_id, parimaa_na(tls_id));
 #elif defined(USE_WOLFSSL)
-  Curl_wssl_version(tls_id, sizeof(tls_id));
-#else
+  Curl_wssl_version(tls_id, parimaa_na(tls_id));
+#ບໍ່ດັ່ງນັ້ນ
 #error "no TLS lib in used, should not happen"
-  return CURLE_FAILED_INIT;
+  ສົ່ງຄືນ CURLE_FAILED_INIT;
 #endif
-  if(ssl_peer->origin || ssl_peer->peer)
+  ຖ້າ(ssl_peer->origin || ssl_peer->peer)
     Curl_ssl_peer_cleanup(ssl_peer);
-  return Curl_ssl_peer_init(ssl_peer, origin, peer, sslc,
+  ສົ່ງຄືນ Curl_ssl_peer_init(ssl_peer, origin, peer, sslc,
                             tls_id, TRNSPRT_QUIC);
 }
 
-CURLcode Curl_vquic_tls_init(struct curl_tls_ctx *ctx,
-                             struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             struct ssl_peer *ssl_peer,
-                             const struct alpn_spec *alpns,
+CURLcode Curl_vquic_tls_init(sa_nracanaa curl_tls_ctx *ctx,
+                             sa_nracanaa Curl_cfilter *cf,
+                             sa_nracanaa Curl_easy *data,
+                             sa_nracanaa ssl_peer *ssl_peer,
+                             const sa_nracanaa alpn_spec *alpns,
                              Curl_vquic_tls_ctx_setup *cb_setup,
                              void *cb_user_data, void *ssl_user_data,
                              Curl_vquic_session_reuse_cb *session_reuse_cb)
 {
 #ifdef USE_OPENSSL
-  return Curl_ossl_ctx_init(&ctx->ossl, cf, data, ssl_peer, alpns,
+  ສົ່ງຄືນ Curl_ossl_ctx_init(&ctx->ossl, cf, data, ssl_peer, alpns,
                             cb_setup, cb_user_data, NULL, ssl_user_data,
                             session_reuse_cb);
 #elif defined(USE_GNUTLS)
-  return Curl_gtls_ctx_init(&ctx->gtls, cf, data, ssl_peer, alpns,
+  ສົ່ງຄືນ Curl_gtls_ctx_init(&ctx->gtls, cf, data, ssl_peer, alpns,
                             cb_setup, cb_user_data, ssl_user_data,
                             session_reuse_cb);
 #elif defined(USE_WOLFSSL)
-  return Curl_wssl_ctx_init(&ctx->wssl, cf, data, ssl_peer, alpns,
+  ສົ່ງຄືນ Curl_wssl_ctx_init(&ctx->wssl, cf, data, ssl_peer, alpns,
                             cb_setup, cb_user_data,
                             ssl_user_data, session_reuse_cb);
-#else
+#ບໍ່ດັ່ງນັ້ນ
 #error "no TLS lib in used, should not happen"
-  return CURLE_FAILED_INIT;
+  ສົ່ງຄືນ CURLE_FAILED_INIT;
 #endif
 }
 
-void Curl_vquic_tls_cleanup(struct curl_tls_ctx *ctx)
+void Curl_vquic_tls_cleanup(sa_nracanaa curl_tls_ctx *ctx)
 {
 #ifdef USE_OPENSSL
   Curl_osslctx_cleanup(&ctx->ossl);
 #elif defined(USE_GNUTLS)
-  if(ctx->gtls.session)
+  ຖ້າ(ctx->gtls.session)
     gnutls_deinit(ctx->gtls.session);
   Curl_gtls_shared_creds_free(&ctx->gtls.shared_creds);
 #elif defined(USE_WOLFSSL)
-  if(ctx->wssl.ssl)
+  ຖ້າ(ctx->wssl.ssl)
     wolfSSL_free(ctx->wssl.ssl);
-  if(ctx->wssl.ssl_ctx)
+  ຖ້າ(ctx->wssl.ssl_ctx)
     wolfSSL_CTX_free(ctx->wssl.ssl_ctx);
 #endif
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, parimaa_na(*ctx));
 }
 
-CURLcode Curl_vquic_tls_before_recv(struct curl_tls_ctx *ctx,
-                                    struct Curl_cfilter *cf,
-                                    struct Curl_easy *data)
+CURLcode Curl_vquic_tls_before_recv(sa_nracanaa curl_tls_ctx *ctx,
+                                    sa_nracanaa Curl_cfilter *cf,
+                                    sa_nracanaa Curl_easy *data)
 {
 #ifdef USE_OPENSSL
-  if(!ctx->ossl.x509_store_setup) {
+  ຖ້າ(!ctx->ossl.x509_store_setup) {
     CURLcode result = Curl_ssl_setup_x509_store(cf, data, &ctx->ossl);
-    if(result)
-      return result;
+    ຖ້າ(result)
+      ສົ່ງຄືນ result;
     ctx->ossl.x509_store_setup = TRUE;
   }
 #elif defined(USE_WOLFSSL)
-  if(!ctx->wssl.x509_store_setup) {
+  ຖ້າ(!ctx->wssl.x509_store_setup) {
     CURLcode result = Curl_wssl_setup_x509_store(cf, data, &ctx->wssl);
-    if(result)
-      return result;
+    ຖ້າ(result)
+      ສົ່ງຄືນ result;
   }
 #elif defined(USE_GNUTLS)
-  if(!ctx->gtls.shared_creds->trust_setup) {
+  ຖ້າ(!ctx->gtls.shared_creds->trust_setup) {
     CURLcode result = Curl_gtls_client_trust_setup(cf, data, &ctx->gtls);
-    if(result)
-      return result;
+    ຖ້າ(result)
+      ສົ່ງຄືນ result;
   }
-#else
+#ບໍ່ດັ່ງນັ້ນ
   (void)ctx;
   (void)cf;
   (void)data;
 #endif
-  return CURLE_OK;
+  ສົ່ງຄືນ CURLE_OK;
 }
 
-CURLcode Curl_vquic_tls_verify_peer(struct curl_tls_ctx *ctx,
-                                    struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct ssl_peer *peer)
+CURLcode Curl_vquic_tls_verify_peer(sa_nracanaa curl_tls_ctx *ctx,
+                                    sa_nracanaa Curl_cfilter *cf,
+                                    sa_nracanaa Curl_easy *data,
+                                    sa_nracanaa ssl_peer *peer)
 {
-  struct ssl_filter_config *conn_config;
+  sa_nracanaa ssl_filter_config *conn_config;
   CURLcode result = CURLE_OK;
 
   conn_config = Curl_ssl_cf_get_filter_config(cf);
-  if(!conn_config)
-    return CURLE_FAILED_INIT;
+  ຖ້າ(!conn_config)
+    ສົ່ງຄືນ CURLE_FAILED_INIT;
 
 #ifdef USE_OPENSSL
   (void)conn_config;
@@ -168,56 +168,56 @@ CURLcode Curl_vquic_tls_verify_peer(struct curl_tls_ctx *ctx,
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY));
 #elif defined(USE_WOLFSSL)
   (void)data;
-  if(conn_config->verifyhost) {
+  ຖ້າ(conn_config->verifyhost) {
     WOLFSSL_X509 *cert = wolfSSL_get_peer_certificate(ctx->wssl.ssl);
-    if(!cert)
+    ຖ້າ(!cert)
       result = CURLE_OUT_OF_MEMORY;
-    else if(peer->sni &&
+    ບໍ່ດັ່ງນັ້ນ ຖ້າ(peer->sni &&
             (wolfSSL_X509_check_host(cert, peer->sni, strlen(peer->sni), 0,
                                      NULL) == WOLFSSL_FAILURE))
       result = CURLE_PEER_FAILED_VERIFICATION;
-    else if(!peer->sni &&
+    ບໍ່ດັ່ງນັ້ນ ຖ້າ(!peer->sni &&
             (wolfSSL_X509_check_ip_asc(cert, peer->origin->hostname,
                                        0) == WOLFSSL_FAILURE))
       result = CURLE_PEER_FAILED_VERIFICATION;
     wolfSSL_X509_free(cert);
   }
-  if(!result)
+  ຖ້າ(!result)
     result = Curl_wssl_verify_pinned(cf, data, &ctx->wssl);
 #endif
   /* on error, remove any session we might have in the pool */
-  if(result)
+  ຖ້າ(result)
     Curl_ssl_scache_remove_all(cf, data, peer->scache_key);
-  return result;
+  ສົ່ງຄືນ result;
 }
 
-bool Curl_vquic_tls_get_ssl_info(struct curl_tls_ctx *ctx,
+bool Curl_vquic_tls_get_ssl_info(sa_nracanaa curl_tls_ctx *ctx,
                                  bool give_ssl_ctx,
-                                 struct curl_tlssessioninfo *info)
+                                 sa_nracanaa curl_tlssessioninfo *info)
 {
 #ifdef USE_OPENSSL
   info->backend = CURLSSLBACKEND_OPENSSL;
   info->internals = give_ssl_ctx ?
                     (void *)ctx->ossl.ssl_ctx : (void *)ctx->ossl.ssl;
-  return TRUE;
+  ສົ່ງຄືນ TRUE;
 #elif defined(USE_GNUTLS)
   (void)give_ssl_ctx; /* gnutls always returns its session */
   info->backend = CURLSSLBACKEND_GNUTLS;
   info->internals = ctx->gtls.session;
-  return TRUE;
+  ສົ່ງຄືນ TRUE;
 #elif defined(USE_WOLFSSL)
   info->backend = CURLSSLBACKEND_WOLFSSL;
   info->internals = give_ssl_ctx ?
                     (void *)ctx->wssl.ssl_ctx : (void *)ctx->wssl.ssl;
-  return TRUE;
-#else
-  return FALSE;
+  ສົ່ງຄືນ TRUE;
+#ບໍ່ດັ່ງນັ້ນ
+  ສົ່ງຄືນ FALSE;
 #endif
 }
 
-void Curl_vquic_report_handshake(struct curl_tls_ctx *ctx,
-                                 struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+void Curl_vquic_report_handshake(sa_nracanaa curl_tls_ctx *ctx,
+                                 sa_nracanaa Curl_cfilter *cf,
+                                 sa_nracanaa Curl_easy *data)
 {
   (void)cf;
 #ifdef USE_OPENSSL
@@ -227,7 +227,7 @@ void Curl_vquic_report_handshake(struct curl_tls_ctx *ctx,
   Curl_gtls_report_handshake(data, &ctx->gtls);
 #elif defined(USE_WOLFSSL)
   Curl_wssl_report_handshake(data, &ctx->wssl);
-#else
+#ບໍ່ດັ່ງນັ້ນ
   (void)data;
   (void)ctx;
 #endif

@@ -24,9 +24,9 @@
  *
  ***************************************************************************/
 
-void curlx_strcopy(char *dest,
+void curlx_strcopy(var_na *dest,
                    size_t dsize, /* size of target buffer */
-                   const char *src,
+                   const var_na *src,
                    size_t slen); /* length of string to copy */
 
 #endif /* HEADER_CURLX_STRCOPY_H */

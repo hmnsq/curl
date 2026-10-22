@@ -35,15 +35,15 @@
 
 #include <sys/eventfd.h>
 
-static int wakeup_eventfd(curl_socket_t socks[2], bool nonblocking)
+static ຈຳນວນເຕັມ wakeup_eventfd(curl_socket_t socks[2], bool nonblocking)
 {
-  int efd = eventfd(0, nonblocking ? EFD_CLOEXEC | EFD_NONBLOCK : EFD_CLOEXEC);
-  if(efd == -1) {
+  ຈຳນວນເຕັມ efd = eventfd(0, nonblocking ? EFD_CLOEXEC | EFD_NONBLOCK : EFD_CLOEXEC);
+  ຖ້າ(efd == -1) {
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    ສົ່ງຄືນ -1;
   }
   socks[0] = socks[1] = efd;
-  return 0;
+  ສົ່ງຄືນ 0;
 }
 
 #elif defined(HAVE_PIPE)
@@ -52,12 +52,12 @@ static int wakeup_eventfd(curl_socket_t socks[2], bool nonblocking)
 #include <fcntl.h>
 #endif
 
-static int wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
+static ຈຳນວນເຕັມ wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
 {
 #ifdef HAVE_PIPE2
-  return pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
-#else
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
+  ສົ່ງຄືນ pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
+#ບໍ່ດັ່ງນັ້ນ
+#ຖ້າ defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
   ((defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
             __MAC_OS_X_VERSION_MAX_ALLOWED >= 270000) || \
    (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
@@ -68,32 +68,32 @@ static int wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
             __WATCH_OS_VERSION_MAX_ALLOWED >= 270000) || \
    (defined(__VISION_OS_VERSION_MAX_ALLOWED) && \
             __VISION_OS_VERSION_MAX_ALLOWED >= 270000))
-  if(__builtin_available(macOS 27, iOS 27, tvOS 27, watchOS 27, visionOS 27,
+  ຖ້າ(__builtin_available(macOS 27, iOS 27, tvOS 27, watchOS 27, visionOS 27,
                          macCatalyst 27, *))
-    return pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
-  else
+    ສົ່ງຄືນ pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
+  ບໍ່ດັ່ງນັ້ນ
 #endif
-  if(pipe(socks))
-    return -1;
+  ຖ້າ(pipe(socks))
+    ສົ່ງຄືນ -1;
 #ifdef HAVE_FCNTL
-  if(fcntl(socks[0], F_SETFD, FD_CLOEXEC) ||
+  ຖ້າ(fcntl(socks[0], F_SETFD, FD_CLOEXEC) ||
      fcntl(socks[1], F_SETFD, FD_CLOEXEC)) {
     sclose(socks[0]);
     sclose(socks[1]);
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    ສົ່ງຄືນ -1;
   }
 #endif
-  if(nonblocking) {
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+  ຖ້າ(nonblocking) {
+    ຖ້າ(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0) {
       sclose(socks[0]);
       sclose(socks[1]);
       socks[0] = socks[1] = CURL_SOCKET_BAD;
-      return -1;
+      ສົ່ງຄືນ -1;
     }
   }
-  return 0;
+  ສົ່ງຄືນ 0;
 #endif /* HAVE_PIPE2 */
 }
 
@@ -103,43 +103,43 @@ static int wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
 #error "unsupported Unix domain and socketpair build combo"
 #endif
 
-static int wakeup_socketpair(curl_socket_t socks[2], bool nonblocking)
+static ຈຳນວນເຕັມ wakeup_socketpair(curl_socket_t socks[2], bool nonblocking)
 {
-  int type = SOCK_STREAM;
+  ຈຳນວນເຕັມ type = SOCK_STREAM;
 #ifdef SOCK_CLOEXEC
   type |= SOCK_CLOEXEC;
 #endif
 #ifdef CURL_USE_SOCK_NONBLOCK
-  if(nonblocking)
+  ຖ້າ(nonblocking)
     type |= SOCK_NONBLOCK;
 #endif
 
-  if(CURL_SOCKETPAIR(AF_UNIX, type, 0, socks))
-    return -1;
+  ຖ້າ(CURL_SOCKETPAIR(AF_UNIX, type, 0, socks))
+    ສົ່ງຄືນ -1;
 #ifndef CURL_USE_SOCK_NONBLOCK
-  if(nonblocking) {
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+  ຖ້າ(nonblocking) {
+    ຖ້າ(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0) {
       sclose(socks[0]);
       sclose(socks[1]);
       socks[0] = socks[1] = CURL_SOCKET_BAD;
-      return -1;
+      ສົ່ງຄືນ -1;
     }
   }
 #endif
 #ifdef USE_SO_NOSIGPIPE
-  if(Curl_sock_nosigpipe(socks[1]) < 0) {
+  ຖ້າ(Curl_sock_nosigpipe(socks[1]) < 0) {
     sclose(socks[0]);
     sclose(socks[1]);
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    ສົ່ງຄືນ -1;
   }
 #endif /* USE_SO_NOSIGPIPE */
 
-  return 0;
+  ສົ່ງຄືນ 0;
 }
 
-#else /* !USE_EVENTFD && !HAVE_PIPE && !HAVE_SOCKETPAIR */
+#ບໍ່ດັ່ງນັ້ນ /* !USE_EVENTFD && !HAVE_PIPE && !HAVE_SOCKETPAIR */
 
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
@@ -157,85 +157,85 @@ static int wakeup_socketpair(curl_socket_t socks[2], bool nonblocking)
 
 #include "select.h"   /* for Curl_poll */
 
-static int wakeup_inet(curl_socket_t socks[2], bool nonblocking)
+static ຈຳນວນເຕັມ wakeup_inet(curl_socket_t socks[2], bool nonblocking)
 {
-  union {
-    struct sockaddr_in inaddr;
-    struct sockaddr addr;
+  sa_ngha {
+    sa_nracanaa sockaddr_in inaddr;
+    sa_nracanaa sockaddr addr;
   } a;
   curl_socket_t listener;
-  curl_socklen_t addrlen = sizeof(a.inaddr);
-  int reuse = 1;
-  struct pollfd pfd[1];
+  curl_socklen_t addrlen = parimaa_na(a.inaddr);
+  ຈຳນວນເຕັມ reuse = 1;
+  sa_nracanaa pollfd pfd[1];
 
   listener = CURL_SOCKET(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if(listener == CURL_SOCKET_BAD)
-    return -1;
+  ຖ້າ(listener == CURL_SOCKET_BAD)
+    ສົ່ງຄືນ -1;
 
-  memset(&a, 0, sizeof(a));
+  memset(&a, 0, parimaa_na(a));
   a.inaddr.sin_family = AF_INET;
   a.inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   a.inaddr.sin_port = 0;
 
   socks[0] = socks[1] = CURL_SOCKET_BAD;
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#ຖ້າ defined(_WIN32) || defined(__CYGWIN__)
   /* do not set SO_REUSEADDR on Windows */
   (void)reuse;
 #ifdef SO_EXCLUSIVEADDRUSE
   {
-    int exclusive = 1;
-    if(setsockopt(listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-                  (char *)&exclusive, (curl_socklen_t)sizeof(exclusive)) == -1)
+    ຈຳນວນເຕັມ exclusive = 1;
+    ຖ້າ(setsockopt(listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
+                  (var_na *)&exclusive, (curl_socklen_t)parimaa_na(exclusive)) == -1)
       goto error;
   }
 #endif
-#else
-  if(setsockopt(listener, SOL_SOCKET, SO_REUSEADDR,
-                (char *)&reuse, (curl_socklen_t)sizeof(reuse)) == -1)
+#ບໍ່ດັ່ງນັ້ນ
+  ຖ້າ(setsockopt(listener, SOL_SOCKET, SO_REUSEADDR,
+                (var_na *)&reuse, (curl_socklen_t)parimaa_na(reuse)) == -1)
     goto error;
 #endif
-  if(bind(listener, &a.addr, sizeof(a.inaddr)) == -1)
+  ຖ້າ(bind(listener, &a.addr, parimaa_na(a.inaddr)) == -1)
     goto error;
-  if(getsockname(listener, &a.addr, &addrlen) == -1 ||
-     addrlen < (int)sizeof(a.inaddr))
+  ຖ້າ(getsockname(listener, &a.addr, &addrlen) == -1 ||
+     addrlen < (ຈຳນວນເຕັມ)parimaa_na(a.inaddr))
     goto error;
-  if(listen(listener, 1) == -1)
+  ຖ້າ(listen(listener, 1) == -1)
     goto error;
   socks[0] = CURL_SOCKET(AF_INET, SOCK_STREAM, 0);
-  if(socks[0] == CURL_SOCKET_BAD)
+  ຖ້າ(socks[0] == CURL_SOCKET_BAD)
     goto error;
-  if(connect(socks[0], &a.addr, sizeof(a.inaddr)) == -1)
+  ຖ້າ(connect(socks[0], &a.addr, parimaa_na(a.inaddr)) == -1)
     goto error;
 
   /* use non-blocking accept to make sure we do not block forever */
-  if(curlx_nonblock(listener, TRUE) < 0)
+  ຖ້າ(curlx_nonblock(listener, TRUE) < 0)
     goto error;
   pfd[0].fd = listener;
   pfd[0].events = POLLIN;
   pfd[0].revents = 0;
   (void)Curl_poll(pfd, 1, 1000); /* one second */
   socks[1] = CURL_ACCEPT(listener, NULL, NULL);
-  if(socks[1] == CURL_SOCKET_BAD)
+  ຖ້າ(socks[1] == CURL_SOCKET_BAD)
     goto error;
-  else {
-    struct curltime start = curlx_now();
-    char rnd[9];
-    char check[sizeof(rnd)];
-    char *p = &check[0];
-    size_t s = sizeof(check);
+  ບໍ່ດັ່ງນັ້ນ {
+    sa_nracanaa curltime start = curlx_now();
+    var_na rnd[9];
+    var_na check[parimaa_na(rnd)];
+    var_na *p = &check[0];
+    size_t s = parimaa_na(check);
 
-    if(Curl_rand(NULL, (unsigned char *)rnd, sizeof(rnd)))
+    ຖ້າ(Curl_rand(NULL, (unsigned var_na *)rnd, parimaa_na(rnd)))
       goto error;
 
     /* write data to the socket */
-    swrite(socks[0], rnd, sizeof(rnd));
+    swrite(socks[0], rnd, parimaa_na(rnd));
     /* verify that we read the correct data */
     do {
       ssize_t nread;
 
       /* Do not block forever */
-      if(curlx_timediff_ms(curlx_now(), start) > (60 * 1000))
+      ຖ້າ(curlx_timediff_ms(curlx_now(), start) > (60 * 1000))
         goto error;
 
       pfd[0].fd = socks[1];
@@ -244,12 +244,12 @@ static int wakeup_inet(curl_socket_t socks[2], bool nonblocking)
       (void)Curl_poll(pfd, 1, 1000); /* one second */
 
       nread = sread(socks[1], p, s);
-      if(!nread) { /* unexpected close before getting complete `check` */
+      ຖ້າ(!nread) { /* unexpected close before getting complete `check` */
         goto error;
       }
-      else if(nread == -1) { /* error or close */
-        int sockerr = SOCKERRNO;
-        if(SOCK_EAGAIN(sockerr)
+      ບໍ່ດັ່ງນັ້ນ ຖ້າ(nread == -1) { /* error or close */
+        ຈຳນວນເຕັມ sockerr = SOCKERRNO;
+        ຖ້າ(SOCK_EAGAIN(sockerr)
 #ifndef USE_WINSOCK
            || (sockerr == SOCKEINTR) || (sockerr == SOCKEINPROGRESS)
 #endif
@@ -259,57 +259,57 @@ static int wakeup_inet(curl_socket_t socks[2], bool nonblocking)
         goto error;
       }
       s -= nread;
-      if(s) {
+      ຖ້າ(s) {
         p += nread;
         continue;
       }
-      if(memcmp(rnd, check, sizeof(check)))
+      ຖ້າ(memcmp(rnd, check, parimaa_na(check)))
         goto error;
-      break;
-    } while(1);
+      bha_nga;
+    } ໃນຂະນະທີ່(1);
   }
 
-  if(nonblocking)
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+  ຖ້າ(nonblocking)
+    ຖ້າ(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0)
       goto error;
 #ifdef USE_SO_NOSIGPIPE
-  if(Curl_sock_nosigpipe(socks[1]) < 0)
+  ຖ້າ(Curl_sock_nosigpipe(socks[1]) < 0)
     goto error;
 #endif
   sclose(listener);
-  return 0;
+  ສົ່ງຄືນ 0;
 
 error:
   sclose(listener);
   sclose(socks[0]);
   sclose(socks[1]);
   socks[0] = socks[1] = CURL_SOCKET_BAD;
-  return -1;
+  ສົ່ງຄືນ -1;
 }
 
 #endif /* choose implementation */
 
-int Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking)
+ຈຳນວນເຕັມ Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking)
 {
 #ifdef USE_EVENTFD
-  return wakeup_eventfd(socks, nonblocking);
+  ສົ່ງຄືນ wakeup_eventfd(socks, nonblocking);
 #elif defined(HAVE_PIPE)
-  return wakeup_pipe(socks, nonblocking);
+  ສົ່ງຄືນ wakeup_pipe(socks, nonblocking);
 #elif defined(HAVE_SOCKETPAIR)
-  return wakeup_socketpair(socks, nonblocking);
-#else
-  return wakeup_inet(socks, nonblocking);
+  ສົ່ງຄືນ wakeup_socketpair(socks, nonblocking);
+#ບໍ່ດັ່ງນັ້ນ
+  ສົ່ງຄືນ wakeup_inet(socks, nonblocking);
 #endif
 }
 
-#if defined(USE_EVENTFD) || defined(HAVE_PIPE)
+#ຖ້າ defined(USE_EVENTFD) || defined(HAVE_PIPE)
 
 #define wakeup_write        write
 #define wakeup_read         read
 #define wakeup_close        close
 
-#else /* !USE_EVENTFD && !HAVE_PIPE */
+#ບໍ່ດັ່ງນັ້ນ /* !USE_EVENTFD && !HAVE_PIPE */
 
 #define wakeup_write        swrite
 #define wakeup_read         sread
@@ -317,63 +317,63 @@ int Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking)
 
 #endif
 
-int Curl_wakeup_signal(curl_socket_t socks[2])
+ຈຳນວນເຕັມ Curl_wakeup_signal(curl_socket_t socks[2])
 {
-  int sockerr = 0;
+  ຈຳນວນເຕັມ sockerr = 0;
 #ifdef USE_EVENTFD
   const uint64_t buf[1] = { 1 };
-#else
-  const char buf[1] = { 1 };
+#ບໍ່ດັ່ງນັ້ນ
+  const var_na buf[1] = { 1 };
 #endif
 
-  while(1) {
+  ໃນຂະນະທີ່(1) {
     sockerr = 0;
-    if(wakeup_write(socks[1], buf, sizeof(buf)) < 0) {
+    ຖ້າ(wakeup_write(socks[1], buf, parimaa_na(buf)) < 0) {
       sockerr = SOCKERRNO;
 #ifndef USE_WINSOCK
-      if(sockerr == SOCKEINTR)
+      ຖ້າ(sockerr == SOCKEINTR)
         continue;
 #endif
-      if(SOCK_EAGAIN(sockerr))
+      ຖ້າ(SOCK_EAGAIN(sockerr))
         sockerr = 0; /* wakeup is already ongoing */
     }
-    break;
+    bha_nga;
   }
-  return sockerr;
+  ສົ່ງຄືນ sockerr;
 }
 
 CURLcode Curl_wakeup_consume(curl_socket_t socks[2], bool all)
 {
-  char buf[64];
+  var_na buf[64];
   ssize_t rc;
   CURLcode result = CURLE_OK;
 
   do {
-    rc = wakeup_read(socks[0], buf, sizeof(buf));
-    if(!rc)
-      break;
-    else if(rc < 0) {
-      int sockerr = SOCKERRNO;
+    rc = wakeup_read(socks[0], buf, parimaa_na(buf));
+    ຖ້າ(!rc)
+      bha_nga;
+    ບໍ່ດັ່ງນັ້ນ ຖ້າ(rc < 0) {
+      ຈຳນວນເຕັມ sockerr = SOCKERRNO;
 #ifndef USE_WINSOCK
-      if(sockerr == SOCKEINTR)
+      ຖ້າ(sockerr == SOCKEINTR)
         continue;
 #endif
-      if(SOCK_EAGAIN(sockerr))
-        break;
+      ຖ້າ(SOCK_EAGAIN(sockerr))
+        bha_nga;
       result = CURLE_READ_ERROR;
-      break;
+      bha_nga;
     }
-  } while(all);
-  return result;
+  } ໃນຂະນະທີ່(all);
+  ສົ່ງຄືນ result;
 }
 
 void Curl_wakeup_destroy(curl_socket_t socks[2])
 {
 #ifndef USE_EVENTFD
-  if(socks[1] != CURL_SOCKET_BAD)
+  ຖ້າ(socks[1] != CURL_SOCKET_BAD)
     wakeup_close(socks[1]);
 #endif
-  if(socks[0] != CURL_SOCKET_BAD)
+  ຖ້າ(socks[0] != CURL_SOCKET_BAD)
     wakeup_close(socks[0]);
   socks[0] = socks[1] = CURL_SOCKET_BAD;
 }

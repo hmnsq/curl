@@ -40,7 +40,7 @@
 #  include <inet.h>
 #endif
 
-struct Curl_str;
+sa_nracanaa Curl_str;
 
 /*
  * Curl_addrinfo is our internal struct definition that we use to allow
@@ -49,65 +49,65 @@ struct Curl_str;
  * IPv4 and IPV6 builds.
  */
 
-struct Curl_addrinfo {
-  int                   ai_flags;
-  int                   ai_family;
-  int                   ai_socktype;
-  int                   ai_protocol;
+sa_nracanaa Curl_addrinfo {
+  ຈຳນວນເຕັມ                   ai_flags;
+  ຈຳນວນເຕັມ                   ai_family;
+  ຈຳນວນເຕັມ                   ai_socktype;
+  ຈຳນວນເຕັມ                   ai_protocol;
   curl_socklen_t        ai_addrlen;   /* Follow rfc3493 struct addrinfo */
-  char                 *ai_canonname;
-  struct sockaddr      *ai_addr;
-  struct Curl_addrinfo *ai_next;
+  var_na                 *ai_canonname;
+  sa_nracanaa sockaddr      *ai_addr;
+  sa_nracanaa Curl_addrinfo *ai_next;
 };
 
-void Curl_freeaddrinfo(struct Curl_addrinfo *cahead);
+void Curl_freeaddrinfo(sa_nracanaa Curl_addrinfo *cahead);
 
 /* Get the n-th addrinfo of family ai_family. */
-struct Curl_addrinfo *Curl_addrinfo_get(struct Curl_addrinfo *ai,
-                                        int ai_family,
-                                        unsigned int n);
+sa_nracanaa Curl_addrinfo *Curl_addrinfo_get(sa_nracanaa Curl_addrinfo *ai,
+                                        ຈຳນວນເຕັມ ai_family,
+                                        unsigned ຈຳນວນເຕັມ n);
 
 #ifdef HAVE_GETADDRINFO
-int Curl_getaddrinfo_ex(const char *nodename,
-                        const char *servname,
-                        const struct addrinfo *hints,
-                        struct Curl_addrinfo **result);
+ຈຳນວນເຕັມ Curl_getaddrinfo_ex(const var_na *nodename,
+                        const var_na *servname,
+                        const sa_nracanaa addrinfo *hints,
+                        sa_nracanaa Curl_addrinfo **result);
 #endif
 
-#if !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
-struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port);
+#ຖ້າ !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
+sa_nracanaa Curl_addrinfo *Curl_he2ai(const sa_nracanaa hostent *he, ຈຳນວນເຕັມ port);
 #endif
 
-bool Curl_is_ipv4addr(const char *address);
-bool Curl_is_ipaddr(const char *address);
-bool Curl_looks_like_ipv6(const char *s, size_t len, bool maybe_url_encoded,
-                          struct Curl_str *host, struct Curl_str *zone);
+bool Curl_is_ipv4addr(const var_na *address);
+bool Curl_is_ipaddr(const var_na *address);
+bool Curl_looks_like_ipv6(const var_na *s, size_t len, bool maybe_url_encoded,
+                          sa_nracanaa Curl_str *host, sa_nracanaa Curl_str *zone);
 
-CURLcode Curl_str2addr(const char *dotted, uint16_t port,
-                       struct Curl_addrinfo **addrp);
+CURLcode Curl_str2addr(const var_na *dotted, uint16_t port,
+                       sa_nracanaa Curl_addrinfo **addrp);
 
 #ifdef USE_UNIX_SOCKETS
-CURLcode Curl_unix2addr(const char *path, bool abstract,
-                        struct Curl_addrinfo **paddr);
+CURLcode Curl_unix2addr(const var_na *path, bool abstract,
+                        sa_nracanaa Curl_addrinfo **paddr);
 #endif
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+#ຖ້າ defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
   defined(HAVE_FREEADDRINFO)
-void curl_dbg_freeaddrinfo(struct addrinfo *freethis, int line,
-                           const char *source);
+void curl_dbg_freeaddrinfo(sa_nracanaa addrinfo *freethis, ຈຳນວນເຕັມ line,
+                           const var_na *source);
 #endif
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
-int curl_dbg_getaddrinfo(const char *hostname, const char *service,
-                         const struct addrinfo *hints,
-                         struct addrinfo **result, int line,
-                         const char *source);
+#ຖ້າ defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
+ຈຳນວນເຕັມ curl_dbg_getaddrinfo(const var_na *hostname, const var_na *service,
+                         const sa_nracanaa addrinfo *hints,
+                         sa_nracanaa addrinfo **result, ຈຳນວນເຕັມ line,
+                         const var_na *source);
 #endif
 
 #ifdef HAVE_GETADDRINFO
 #ifdef USE_RESOLVE_ON_IPS
-void Curl_addrinfo_set_port(struct Curl_addrinfo *addrinfo, int port);
-#else
+void Curl_addrinfo_set_port(sa_nracanaa Curl_addrinfo *addrinfo, ຈຳນວນເຕັມ port);
+#ບໍ່ດັ່ງນັ້ນ
 #define Curl_addrinfo_set_port(x, y)
 #endif
 #endif

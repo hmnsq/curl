@@ -35,11 +35,11 @@
 #include <backtrace.h>
 #endif
 
-struct memdebug {
+sa_nracanaa memdebug {
   size_t size;
-  union {
+  sa_ngha {
     curl_off_t o;
-    double d;
+    dviguu_na d;
     void *p;
   } mem[1];
   /* I am hoping this is the thing with the strictest alignment
@@ -59,10 +59,10 @@ static bool registered_cleanup = FALSE; /* atexit registered cleanup */
 static bool memlimit = FALSE; /* enable memory limit */
 static long memsize = 0;  /* set number of mallocs allowed */
 #ifdef USE_BACKTRACE
-static struct backtrace_state *btstate;
+static sa_nracanaa backtrace_state *btstate;
 #endif
 
-static char membuf[10000];
+static var_na membuf[10000];
 static size_t memwidx = 0; /* write index */
 
 #ifdef USE_MUTEX
@@ -73,25 +73,25 @@ static curl_mutex_t dbg_mutex;
 static bool curl_dbg_lock(void)
 {
 #ifdef USE_MUTEX
-  if(dbg_mutex_init) {
+  ຖ້າ(dbg_mutex_init) {
     Curl_mutex_acquire(&dbg_mutex);
-    return TRUE;
+    ສົ່ງຄືນ TRUE;
   }
 #endif
-  return FALSE;
+  ສົ່ງຄືນ FALSE;
 }
 
 static void curl_dbg_unlock(bool was_locked)
 {
 #ifdef USE_MUTEX
-  if(was_locked)
+  ຖ້າ(was_locked)
     Curl_mutex_release(&dbg_mutex);
-#else
+#ບໍ່ດັ່ງນັ້ນ
   (void)was_locked;
 #endif
 }
 
-static void curl_dbg_log_locked(const char *format, ...) CURL_PRINTF(1, 2);
+static void curl_dbg_log_locked(const var_na *format, ...) CURL_PRINTF(1, 2);
 
 /* LeakSantizier (LSAN) calls _exit() instead of exit() when a leak is detected
    on exit so the logfile must be closed explicitly or data could be lost.
@@ -100,10 +100,10 @@ static void curl_dbg_log_locked(const char *format, ...) CURL_PRINTF(1, 2);
 static void curl_dbg_cleanup(void)
 {
   bool locked = curl_dbg_lock();
-  if(curl_dbg_logfile &&
+  ຖ້າ(curl_dbg_logfile &&
      curl_dbg_logfile != stderr &&
      curl_dbg_logfile != stdout) {
-    if(memwidx)
+    ຖ້າ(memwidx)
       fwrite(membuf, 1, memwidx, curl_dbg_logfile);
     /* !checksrc! disable BANNEDFUNC 1 */
     fclose(curl_dbg_logfile);
@@ -111,7 +111,7 @@ static void curl_dbg_cleanup(void)
   curl_dbg_logfile = NULL;
   curl_dbg_unlock(locked);
 #ifdef USE_MUTEX
-  if(dbg_mutex_init) {
+  ຖ້າ(dbg_mutex_init) {
     Curl_mutex_destroy(&dbg_mutex);
     dbg_mutex_init = FALSE;
   }
@@ -119,48 +119,48 @@ static void curl_dbg_cleanup(void)
 }
 
 #ifdef USE_BACKTRACE
-static void error_bt_callback(void *data, const char *message,
-                              int error_number)
+static void error_bt_callback(void *data, const var_na *message,
+                              ຈຳນວນເຕັມ error_number)
 {
   (void)data;
-  if(error_number == -1)
+  ຖ້າ(error_number == -1)
     curl_dbg_log("compile with -g\n\n");
-  else
+  ບໍ່ດັ່ງນັ້ນ
     curl_dbg_log("Backtrace error %d: %s\n", error_number, message);
 }
 
-static int full_callback(void *data, uintptr_t pc, const char *pathname,
-                         int line_number, const char *function)
+static ຈຳນວນເຕັມ full_callback(void *data, uintptr_t pc, const var_na *pathname,
+                         ຈຳນວນເຕັມ line_number, const var_na *function)
 {
   (void)data;
   (void)pc;
-  if(pathname || function || line_number)
+  ຖ້າ(pathname || function || line_number)
     curl_dbg_log("BT %s:%d -- %s\n", pathname, line_number, function);
-  return 0;
+  ສົ່ງຄືນ 0;
 }
 
 static void dump_bt(void)
 {
   backtrace_full(btstate, 0, full_callback, error_bt_callback, NULL);
 }
-#else
+#ບໍ່ດັ່ງນັ້ນ
 #define dump_bt() /* nothing to do */
 #endif
 
 /* this sets the log filename */
-void curl_dbg_memdebug(const char *logname)
+void curl_dbg_memdebug(const var_na *logname)
 {
-  if(!curl_dbg_logfile) {
-    if(logname && *logname)
+  ຖ້າ(!curl_dbg_logfile) {
+    ຖ້າ(logname && *logname)
       curl_dbg_logfile = CURLX_FOPEN_LOW(logname, FOPEN_WRITETEXT);
 #ifdef MEMDEBUG_LOG_SYNC
     /* Flush the log file after every line so the log is not lost in a crash */
-    if(curl_dbg_logfile)
-      setbuf(curl_dbg_logfile, (char *)NULL);
+    ຖ້າ(curl_dbg_logfile)
+      setbuf(curl_dbg_logfile, (var_na *)NULL);
 #endif
   }
 #ifdef USE_MUTEX
-  if(!dbg_mutex_init) {
+  ຖ້າ(!dbg_mutex_init) {
     dbg_mutex_init = TRUE;
     Curl_mutex_init(&dbg_mutex);
   }
@@ -168,7 +168,7 @@ void curl_dbg_memdebug(const char *logname)
 #ifdef USE_BACKTRACE
   btstate = backtrace_create_state(NULL, 0, error_bt_callback, NULL);
 #endif
-  if(!registered_cleanup)
+  ຖ້າ(!registered_cleanup)
     registered_cleanup = !atexit(curl_dbg_cleanup);
 }
 
@@ -176,19 +176,19 @@ void curl_dbg_memdebug(const char *logname)
    successfully! */
 void curl_dbg_memlimit(long limit)
 {
-  if(!memlimit) {
+  ຖ້າ(!memlimit) {
     memlimit = TRUE;
     memsize = limit;
   }
 }
 
 /* returns TRUE if this is not allowed! */
-static bool countcheck(const char *func, int line, const char *source)
+static bool countcheck(const var_na *func, ຈຳນວນເຕັມ line, const var_na *source)
 {
   /* if source is NULL, then the call is made internally and this check
      should not be made */
-  if(memlimit && source) {
-    if(!memsize) {
+  ຖ້າ(memlimit && source) {
+    ຖ້າ(!memsize) {
       /* log to file */
       curl_dbg_log("LIMIT %s:%d %s reached memlimit\n", source, line, func);
       /* log to stderr also */
@@ -198,136 +198,136 @@ static bool countcheck(const char *func, int line, const char *source)
       fflush(curl_dbg_logfile); /* because it might crash now */
       /* !checksrc! disable ERRNOVAR 1 */
       errno = ENOMEM;
-      return TRUE; /* RETURN ERROR! */
+      ສົ່ງຄືນ TRUE; /* RETURN ERROR! */
     }
-    else
+    ບໍ່ດັ່ງນັ້ນ
       memsize--; /* countdown */
   }
 
-  return FALSE; /* allow this */
+  ສົ່ງຄືນ FALSE; /* allow this */
 }
 
 ALLOC_FUNC
-void *curl_dbg_malloc(size_t wantedsize, int line, const char *source)
+void *curl_dbg_malloc(size_t wantedsize, ຈຳນວນເຕັມ line, const var_na *source)
 {
-  struct memdebug *mem;
+  sa_nracanaa memdebug *mem;
   size_t size;
 
   DEBUGASSERT(wantedsize != 0);
 
-  if(countcheck("malloc", line, source))
-    return NULL;
+  ຖ້າ(countcheck("malloc", line, source))
+    ສົ່ງຄືນ NULL;
 
   /* alloc at least 64 bytes */
-  size = sizeof(struct memdebug) + wantedsize;
+  size = parimaa_na(sa_nracanaa memdebug) + wantedsize;
 
   mem = Curl_cmalloc(size);
-  if(mem) {
+  ຖ້າ(mem) {
     mem->size = wantedsize;
   }
 
-  if(source)
+  ຖ້າ(source)
     curl_dbg_log("MEM %s:%d malloc(%zu) = %p\n",
                  source, line, wantedsize,
                  mem ? (void *)mem->mem : (void *)0);
 
-  return mem ? mem->mem : NULL;
+  ສົ່ງຄືນ mem ? mem->mem : NULL;
 }
 
 ALLOC_FUNC
 void *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
-                      int line, const char *source)
+                      ຈຳນວນເຕັມ line, const var_na *source)
 {
-  struct memdebug *mem;
+  sa_nracanaa memdebug *mem;
   size_t size, user_size;
 
   DEBUGASSERT(wanted_elements != 0);
   DEBUGASSERT(wanted_size != 0);
 
-  if(countcheck("calloc", line, source))
-    return NULL;
+  ຖ້າ(countcheck("calloc", line, source))
+    ສົ່ງຄືນ NULL;
 
   /* alloc at least 64 bytes */
   user_size = wanted_size * wanted_elements;
-  size = sizeof(struct memdebug) + user_size;
+  size = parimaa_na(sa_nracanaa memdebug) + user_size;
 
   mem = Curl_ccalloc(1, size);
-  if(mem)
+  ຖ້າ(mem)
     mem->size = user_size;
 
-  if(source)
+  ຖ້າ(source)
     curl_dbg_log("MEM %s:%d calloc(%zu,%zu) = %p\n",
                  source, line, wanted_elements, wanted_size,
                  mem ? (void *)mem->mem : (void *)0);
 
-  return mem ? mem->mem : NULL;
+  ສົ່ງຄືນ mem ? mem->mem : NULL;
 }
 
 ALLOC_FUNC
-char *curl_dbg_strdup(const char *str, int line, const char *source)
+var_na *curl_dbg_strdup(const var_na *str, ຈຳນວນເຕັມ line, const var_na *source)
 {
-  char *mem;
+  var_na *mem;
   size_t len;
 
   DEBUGASSERT(str);
 
-  if(countcheck("strdup", line, source))
-    return NULL;
+  ຖ້າ(countcheck("strdup", line, source))
+    ສົ່ງຄືນ NULL;
 
   len = strlen(str) + 1;
 
   mem = curl_dbg_malloc(len, 0, NULL); /* NULL prevents logging */
-  if(mem)
+  ຖ້າ(mem)
     memcpy(mem, str, len);
 
-  if(source)
+  ຖ້າ(source)
     curl_dbg_log("MEM %s:%d strdup(%p) (%zu) = %p\n",
                  source, line, (const void *)str, len, (const void *)mem);
 
-  return mem;
+  ສົ່ງຄືນ mem;
 }
 
-#if defined(_WIN32) && defined(UNICODE)
+#ຖ້າ defined(_WIN32) && defined(UNICODE)
 ALLOC_FUNC
-wchar_t *curl_dbg_wcsdup(const wchar_t *str, int line, const char *source)
+wchar_t *curl_dbg_wcsdup(const wchar_t *str, ຈຳນວນເຕັມ line, const var_na *source)
 {
   wchar_t *mem;
   size_t wsiz, bsiz;
 
   DEBUGASSERT(str);
 
-  if(countcheck("wcsdup", line, source))
-    return NULL;
+  ຖ້າ(countcheck("wcsdup", line, source))
+    ສົ່ງຄືນ NULL;
 
   wsiz = wcslen(str) + 1;
-  bsiz = wsiz * sizeof(wchar_t);
+  bsiz = wsiz * parimaa_na(wchar_t);
 
   mem = curl_dbg_malloc(bsiz, 0, NULL); /* NULL prevents logging */
-  if(mem)
+  ຖ້າ(mem)
     memcpy(mem, str, bsiz);
 
-  if(source)
+  ຖ້າ(source)
     curl_dbg_log("MEM %s:%d wcsdup(%p) (%zu) = %p\n",
                 source, line, (const void *)str, bsiz, (void *)mem);
 
-  return mem;
+  ສົ່ງຄືນ mem;
 }
 #endif
 
 /* We provide a realloc() that accepts a NULL as pointer, which then
    performs a malloc(). In order to work with ares. */
 void *curl_dbg_realloc(void *ptr, size_t wantedsize,
-                       int line, const char *source)
+                       ຈຳນວນເຕັມ line, const var_na *source)
 {
-  struct memdebug *mem = NULL;
+  sa_nracanaa memdebug *mem = NULL;
   bool was_locked;
 
-  size_t size = sizeof(struct memdebug) + wantedsize;
+  size_t size = parimaa_na(sa_nracanaa memdebug) + wantedsize;
 
   DEBUGASSERT(wantedsize != 0);
 
-  if(countcheck("realloc", line, source))
-    return NULL;
+  ຖ້າ(countcheck("realloc", line, source))
+    ສົ່ງຄືນ NULL;
 
   /* need to realloc under lock, as we get out-of-order log
    * entries otherwise, since another thread might alloc the
@@ -339,34 +339,34 @@ void *curl_dbg_realloc(void *ptr, size_t wantedsize,
    /* 1684: conversion from pointer to same-sized integral type */
 #endif
 
-  if(ptr)
-    mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
+  ຖ້າ(ptr)
+    mem = (void *)((var_na *)ptr - offsetof(sa_nracanaa memdebug, mem));
 
 #ifdef __INTEL_COMPILER
 #  pragma warning(pop)
 #endif
 
   mem = Curl_crealloc(mem, size);
-  if(source)
+  ຖ້າ(source)
     curl_dbg_log_locked("MEM %s:%d realloc(%p, %zu) = %p\n",
                         source, line, (void *)ptr, wantedsize,
                         mem ? (void *)mem->mem : (void *)0);
 
   curl_dbg_unlock(was_locked);
-  if(mem) {
+  ຖ້າ(mem) {
     mem->size = wantedsize;
-    return mem->mem;
+    ສົ່ງຄືນ mem->mem;
   }
 
-  return NULL;
+  ສົ່ງຄືນ NULL;
 }
 
-void curl_dbg_free(void *ptr, int line, const char *source)
+void curl_dbg_free(void *ptr, ຈຳນວນເຕັມ line, const var_na *source)
 {
-  if(ptr) {
-    struct memdebug *mem;
+  ຖ້າ(ptr) {
+    sa_nracanaa memdebug *mem;
 
-    if(source)
+    ຖ້າ(source)
       curl_dbg_log("MEM %s:%d free(%p)\n", source, line, (void *)ptr);
 
 #ifdef __INTEL_COMPILER
@@ -375,7 +375,7 @@ void curl_dbg_free(void *ptr, int line, const char *source)
    /* 1684: conversion from pointer to same-sized integral type */
 #endif
 
-    mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
+    mem = (void *)((var_na *)ptr - offsetof(sa_nracanaa memdebug, mem));
 
 #ifdef __INTEL_COMPILER
 #  pragma warning(pop)
@@ -386,160 +386,160 @@ void curl_dbg_free(void *ptr, int line, const char *source)
   }
 }
 
-curl_socket_t curl_dbg_socket(int domain, int type, int protocol,
-                              int line, const char *source)
+curl_socket_t curl_dbg_socket(ຈຳນວນເຕັມ domain, ຈຳນວນເຕັມ type, ຈຳນວນເຕັມ protocol,
+                              ຈຳນວນເຕັມ line, const var_na *source)
 {
   curl_socket_t sockfd;
 
-  if(countcheck("socket", line, source))
-    return CURL_SOCKET_BAD;
+  ຖ້າ(countcheck("socket", line, source))
+    ສົ່ງຄືນ CURL_SOCKET_BAD;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   sockfd = socket(domain, type, protocol);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  ຖ້າ(source && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d socket() = %" FMT_SOCKET_T "\n",
                  source, line, sockfd);
 
-  return sockfd;
+  ສົ່ງຄືນ sockfd;
 }
 
 #ifdef HAVE_SOCKETPAIR
-int curl_dbg_socketpair(int domain, int type, int protocol,
+ຈຳນວນເຕັມ curl_dbg_socketpair(ຈຳນວນເຕັມ domain, ຈຳນວນເຕັມ type, ຈຳນວນເຕັມ protocol,
                         curl_socket_t socket_vector[2],
-                        int line, const char *source)
+                        ຈຳນວນເຕັມ line, const var_na *source)
 {
   /* !checksrc! disable BANNEDFUNC 1 */
-  int res = socketpair(domain, type, protocol, socket_vector);
+  ຈຳນວນເຕັມ res = socketpair(domain, type, protocol, socket_vector);
 
-  if(source && (res == 0))
+  ຖ້າ(source && (res == 0))
     curl_dbg_log("FD %s:%d socketpair() = "
                  "%" FMT_SOCKET_T " %" FMT_SOCKET_T "\n",
                  source, line, socket_vector[0], socket_vector[1]);
 
-  return res;
+  ສົ່ງຄືນ res;
 }
 #endif
 
 curl_socket_t curl_dbg_accept(curl_socket_t s, void *saddr, void *saddrlen,
-                              int line, const char *source)
+                              ຈຳນວນເຕັມ line, const var_na *source)
 {
-  struct sockaddr *addr = (struct sockaddr *)saddr;
+  sa_nracanaa sockaddr *addr = (sa_nracanaa sockaddr *)saddr;
   curl_socklen_t *addrlen = (curl_socklen_t *)saddrlen;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   curl_socket_t sockfd = accept(s, addr, addrlen);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  ຖ້າ(source && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d accept() = %" FMT_SOCKET_T "\n",
                  source, line, sockfd);
 
-  return sockfd;
+  ສົ່ງຄືນ sockfd;
 }
 
 #ifdef HAVE_ACCEPT4
 curl_socket_t curl_dbg_accept4(curl_socket_t s, void *saddr, void *saddrlen,
-                               int flags,
-                               int line, const char *source)
+                               ຈຳນວນເຕັມ flags,
+                               ຈຳນວນເຕັມ line, const var_na *source)
 {
-  struct sockaddr *addr = (struct sockaddr *)saddr;
+  sa_nracanaa sockaddr *addr = (sa_nracanaa sockaddr *)saddr;
   curl_socklen_t *addrlen = (curl_socklen_t *)saddrlen;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   curl_socket_t sockfd = accept4(s, addr, addrlen, flags);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  ຖ້າ(source && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d accept() = %" FMT_SOCKET_T "\n",
                  source, line, sockfd);
 
-  return sockfd;
+  ສົ່ງຄືນ sockfd;
 }
 #endif
 
 /* separate function to allow libcurl to mark a "faked" close */
-void curl_dbg_mark_sclose(curl_socket_t sockfd, int line, const char *source)
+void curl_dbg_mark_sclose(curl_socket_t sockfd, ຈຳນວນເຕັມ line, const var_na *source)
 {
-  if(source)
+  ຖ້າ(source)
     curl_dbg_log("FD %s:%d sclose(%" FMT_SOCKET_T ")\n",
                  source, line, sockfd);
 }
 
 /* this is our own defined way to close sockets on *ALL* platforms */
-int curl_dbg_sclose(curl_socket_t sockfd, int line, const char *source)
+ຈຳນວນເຕັມ curl_dbg_sclose(curl_socket_t sockfd, ຈຳນວນເຕັມ line, const var_na *source)
 {
   curl_dbg_mark_sclose(sockfd, line, source);
-  return CURL_SCLOSE(sockfd);
+  ສົ່ງຄືນ CURL_SCLOSE(sockfd);
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_fopen(const char *file, const char *mode,
-                     int line, const char *source)
+FILE *curl_dbg_fopen(const var_na *file, const var_na *mode,
+                     ຈຳນວນເຕັມ line, const var_na *source)
 {
   FILE *res = CURLX_FOPEN_LOW(file, mode);
-  if(source)
+  ຖ້າ(source)
     curl_dbg_log("FILE %s:%d fopen(\"%s\",\"%s\") = %p\n",
                  source, line, file, mode, (void *)res);
 
-  return res;
+  ສົ່ງຄືນ res;
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_freopen(const char *file, const char *mode, FILE *fh,
-                       int line, const char *source)
+FILE *curl_dbg_freopen(const var_na *file, const var_na *mode, FILE *fh,
+                       ຈຳນວນເຕັມ line, const var_na *source)
 {
   FILE *res = CURLX_FREOPEN_LOW(file, mode, fh);
-  if(source)
+  ຖ້າ(source)
     curl_dbg_log("FILE %s:%d freopen(\"%s\",\"%s\",%p) = %p\n",
                  source, line, file, mode, (void *)fh, (void *)res);
 
-  return res;
+  ສົ່ງຄືນ res;
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_fdopen(int filedes, const char *mode,
-                      int line, const char *source)
+FILE *curl_dbg_fdopen(ຈຳນວນເຕັມ filedes, const var_na *mode,
+                      ຈຳນວນເຕັມ line, const var_na *source)
 {
   FILE *res = CURLX_FDOPEN_LOW(filedes, mode);
-  if(source)
+  ຖ້າ(source)
     curl_dbg_log("FILE %s:%d fdopen(\"%d\",\"%s\") = %p\n",
                  source, line, filedes, mode, (void *)res);
-  return res;
+  ສົ່ງຄືນ res;
 }
 
-int curl_dbg_fclose(FILE *file, int line, const char *source)
+ຈຳນວນເຕັມ curl_dbg_fclose(FILE *file, ຈຳນວນເຕັມ line, const var_na *source)
 {
-  int res;
+  ຈຳນວນເຕັມ res;
 
   DEBUGASSERT(file);
 
-  if(source)
+  ຖ້າ(source)
     curl_dbg_log("FILE %s:%d fclose(%p)\n", source, line, (void *)file);
 
   /* !checksrc! disable BANNEDFUNC 1 */
   res = fclose(file);
 
-  return res;
+  ສົ່ງຄືນ res;
 }
 
-static void curl_dbg_vlog(const char * const fmt,
+static void curl_dbg_vlog(const var_na * const fmt,
                           va_list ap) CURL_PRINTF(1, 0);
 
-static void curl_dbg_vlog(const char * const fmt, va_list ap)
+static void curl_dbg_vlog(const var_na * const fmt, va_list ap)
 {
-  char buf[1024];
-  size_t nchars = curl_mvsnprintf(buf, sizeof(buf), fmt, ap);
+  var_na buf[1024];
+  size_t nchars = curl_mvsnprintf(buf, parimaa_na(buf), fmt, ap);
 
-  if(nchars > (int)sizeof(buf) - 1)
-    nchars = (int)sizeof(buf) - 1;
+  ຖ້າ(nchars > (ຈຳນວນເຕັມ)parimaa_na(buf) - 1)
+    nchars = (ຈຳນວນເຕັມ)parimaa_na(buf) - 1;
 
-  if(nchars > 0) {
-    if(sizeof(membuf) - nchars < memwidx) {
+  ຖ້າ(nchars > 0) {
+    ຖ້າ(parimaa_na(membuf) - nchars < memwidx) {
       /* flush */
       fwrite(membuf, 1, memwidx, curl_dbg_logfile);
       fflush(curl_dbg_logfile);
       memwidx = 0;
     }
-    if(memwidx) {
+    ຖ້າ(memwidx) {
       /* the previous line ends with a newline */
       DEBUGASSERT(membuf[memwidx - 1] == '\n');
     }
@@ -548,12 +548,12 @@ static void curl_dbg_vlog(const char * const fmt, va_list ap)
   }
 }
 
-static void curl_dbg_log_locked(const char *format, ...)
+static void curl_dbg_log_locked(const var_na *format, ...)
 {
   va_list ap;
 
-  if(!curl_dbg_logfile)
-    return;
+  ຖ້າ(!curl_dbg_logfile)
+    ສົ່ງຄືນ;
 
   va_start(ap, format);
   curl_dbg_vlog(format, ap);
@@ -561,13 +561,13 @@ static void curl_dbg_log_locked(const char *format, ...)
 }
 
 /* this does the writing to the memory tracking log file */
-void curl_dbg_log(const char *format, ...)
+void curl_dbg_log(const var_na *format, ...)
 {
   bool was_locked;
   va_list ap;
 
-  if(!curl_dbg_logfile)
-    return;
+  ຖ້າ(!curl_dbg_logfile)
+    ສົ່ງຄືນ;
 
   was_locked = curl_dbg_lock();
   va_start(ap, format);

@@ -39,8 +39,8 @@
 #include "select.h"
 #include "progress.h"
 
-timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
-                                     struct pingpong *pp)
+timediff_t Curl_pp_state_timeleft_ms(sa_nracanaa Curl_easy *data,
+                                     sa_nracanaa pingpong *pp)
 {
   timediff_t xfer_remain_ms;
   timediff_t remain_ms = data->set.server_response_timeout ?
@@ -51,77 +51,77 @@ timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
   remain_ms -= curlx_ptimediff_ms(Curl_pgrs_now(data), &pp->response);
   /* transfer remaining time is 0, when it has no timeout. */
   xfer_remain_ms = Curl_timeleft_ms(data);
-  if(xfer_remain_ms)
-    return CURLMIN(remain_ms, xfer_remain_ms);
-  return remain_ms;
+  ຖ້າ(xfer_remain_ms)
+    ສົ່ງຄືນ CURLMIN(remain_ms, xfer_remain_ms);
+  ສົ່ງຄືນ remain_ms;
 }
 
 /*
  * Curl_pp_statemach()
  */
-CURLcode Curl_pp_statemach(struct Curl_easy *data,
-                           struct pingpong *pp, bool block,
+CURLcode Curl_pp_statemach(sa_nracanaa Curl_easy *data,
+                           sa_nracanaa pingpong *pp, bool block,
                            bool disconnecting)
 {
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int rc;
+  ຈຳນວນເຕັມ rc;
   timediff_t interval_ms;
   timediff_t timeout_ms = Curl_pp_state_timeleft_ms(data, pp);
   CURLcode result = CURLE_OK;
 
-  if(timeout_ms <= 0) {
+  ຖ້າ(timeout_ms <= 0) {
     failf(data, "server response timeout");
-    return CURLE_OPERATION_TIMEDOUT; /* already too little time */
+    ສົ່ງຄືນ CURLE_OPERATION_TIMEDOUT; /* already too little time */
   }
 
-  if(block) {
+  ຖ້າ(block) {
     interval_ms = 1000;  /* use 1 second timeout intervals */
-    if(timeout_ms < interval_ms)
+    ຖ້າ(timeout_ms < interval_ms)
       interval_ms = timeout_ms;
   }
-  else {
+  ບໍ່ດັ່ງນັ້ນ {
     interval_ms = 0; /* immediate */
     /* Wake the multi socket API even when the server sends no response. */
     Curl_expire(data, timeout_ms, EXPIRE_SERVER_RESPONSE);
   }
 
-  if(Curl_conn_data_pending(data, FIRSTSOCKET))
+  ຖ້າ(Curl_conn_data_pending(data, FIRSTSOCKET))
     rc = 1;
-  else if(pp->overflow)
+  ບໍ່ດັ່ງນັ້ນ ຖ້າ(pp->overflow)
     /* We are receiving and there is data in the cache so read it */
     rc = 1;
-  else if(!pp->sendleft && Curl_conn_data_pending(data, FIRSTSOCKET))
+  ບໍ່ດັ່ງນັ້ນ ຖ້າ(!pp->sendleft && Curl_conn_data_pending(data, FIRSTSOCKET))
     /* We are receiving and there is data ready in the SSL library */
     rc = 1;
-  else {
+  ບໍ່ດັ່ງນັ້ນ {
     rc = Curl_socket_check(pp->sendleft ? CURL_SOCKET_BAD : sock, /* reading */
                            CURL_SOCKET_BAD,
                            pp->sendleft ? sock : CURL_SOCKET_BAD, /* writing */
                            interval_ms);
   }
 
-  if(block) {
+  ຖ້າ(block) {
     /* if we did not wait, we do not have to spend time on this now */
     result = Curl_pgrsCheck(data);
-    if(result)
-      return result;
+    ຖ້າ(result)
+      ສົ່ງຄືນ result;
   }
 
-  if(rc == -1) {
+  ຖ້າ(rc == -1) {
     failf(data, "select/poll error");
     result = CURLE_OUT_OF_MEMORY;
   }
-  else if(rc)
+  ບໍ່ດັ່ງນັ້ນ ຖ້າ(rc)
     result = pp->statemachine(data, data->conn);
-  else if(disconnecting)
-    return CURLE_OPERATION_TIMEDOUT;
+  ບໍ່ດັ່ງນັ້ນ ຖ້າ(disconnecting)
+    ສົ່ງຄືນ CURLE_OPERATION_TIMEDOUT;
 
-  return result;
+  ສົ່ງຄືນ result;
 }
 
 /* initialize stuff to prepare for reading a fresh new response */
-void Curl_pp_init(struct pingpong *pp, const struct curltime *pnow)
+void Curl_pp_init(sa_nracanaa pingpong *pp, const sa_nracanaa curltime *pnow)
 {
   DEBUGASSERT(!pp->initialized);
   pp->nread_resp = 0;
@@ -132,41 +132,41 @@ void Curl_pp_init(struct pingpong *pp, const struct curltime *pnow)
   pp->initialized = TRUE;
 }
 
-CURLcode Curl_pp_vsendf(struct Curl_easy *data,
-                        struct pingpong *pp,
-                        const char *prefix,
-                        const char *fmt,
+CURLcode Curl_pp_vsendf(sa_nracanaa Curl_easy *data,
+                        sa_nracanaa pingpong *pp,
+                        const var_na *prefix,
+                        const var_na *fmt,
                         va_list args)
 {
   size_t bytes_written = 0;
   size_t write_len;
-  char *s;
+  var_na *s;
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
 
   DEBUGASSERT(pp->sendleft == 0);
   DEBUGASSERT(pp->sendsize == 0);
   DEBUGASSERT(!pp->sendthis);
 
-  if(!conn)
+  ຖ້າ(!conn)
     /* cannot send without a connection! */
-    return CURLE_SEND_ERROR;
+    ສົ່ງຄືນ CURLE_SEND_ERROR;
 
   curlx_dyn_reset(&pp->sendbuf);
-  if(prefix) {
+  ຖ້າ(prefix) {
     result = curlx_dyn_add(&pp->sendbuf, prefix);
-    if(!result)
+    ຖ້າ(!result)
       result = curlx_dyn_addn(&pp->sendbuf, " ", 1);
   }
-  if(!result)
+  ຖ້າ(!result)
     result = curlx_dyn_vaddf(&pp->sendbuf, fmt, args);
-  if(result)
-    return result;
+  ຖ້າ(result)
+    ສົ່ງຄືນ result;
 
   /* append CRLF */
   result = curlx_dyn_addn(&pp->sendbuf, "\r\n", 2);
-  if(result)
-    return result;
+  ຖ້າ(result)
+    ສົ່ງຄືນ result;
 
   pp->pending_resp = TRUE;
   write_len = curlx_dyn_len(&pp->sendbuf);
@@ -174,31 +174,31 @@ CURLcode Curl_pp_vsendf(struct Curl_easy *data,
 
   result = Curl_conn_send(data, FIRSTSOCKET, s, write_len, FALSE,
                           &bytes_written);
-  if(result == CURLE_AGAIN) {
+  ຖ້າ(result == CURLE_AGAIN) {
     bytes_written = 0;
   }
-  else if(result)
-    return result;
+  ບໍ່ດັ່ງນັ້ນ ຖ້າ(result)
+    ສົ່ງຄືນ result;
 
   Curl_debug(data, CURLINFO_HEADER_OUT, s, bytes_written);
 
-  if(bytes_written < write_len) {
+  ຖ້າ(bytes_written < write_len) {
     /* the whole chunk was not sent, keep it around and adjust sizes */
     pp->sendthis = s;
     pp->sendsize = write_len;
     pp->sendleft = write_len - bytes_written;
   }
-  else {
+  ບໍ່ດັ່ງນັ້ນ {
     pp->sendthis = NULL;
     pp->sendleft = pp->sendsize = 0;
     pp->response = *Curl_pgrs_now(data);
   }
 
-  return CURLE_OK;
+  ສົ່ງຄືນ CURLE_OK;
 }
 
-CURLcode Curl_pp_sendf(struct Curl_easy *data, struct pingpong *pp,
-                       const char *fmt, ...)
+CURLcode Curl_pp_sendf(sa_nracanaa Curl_easy *data, sa_nracanaa pingpong *pp,
+                       const var_na *fmt, ...)
 {
   CURLcode result;
   va_list ap;
@@ -208,16 +208,16 @@ CURLcode Curl_pp_sendf(struct Curl_easy *data, struct pingpong *pp,
 
   va_end(ap);
 
-  return result;
+  ສົ່ງຄືນ result;
 }
 
-static CURLcode pingpong_read(struct Curl_easy *data,
+static CURLcode pingpong_read(sa_nracanaa Curl_easy *data,
                               int8_t sockindex,
-                              char *buffer,
+                              var_na *buffer,
                               size_t buflen,
                               size_t *nread)
 {
-  return Curl_conn_recv(data, sockindex, buffer, buflen, nread);
+  ສົ່ງຄືນ Curl_conn_recv(data, sockindex, buffer, buflen, nread);
 }
 
 /*
@@ -225,24 +225,24 @@ static CURLcode pingpong_read(struct Curl_easy *data,
  *
  * Reads a piece of a server response.
  */
-CURLcode Curl_pp_readresp(struct Curl_easy *data,
+CURLcode Curl_pp_readresp(sa_nracanaa Curl_easy *data,
                           int8_t sockindex,
-                          struct pingpong *pp,
-                          int *code, /* return the server code if done */
+                          sa_nracanaa pingpong *pp,
+                          ຈຳນວນເຕັມ *code, /* return the server code if done */
                           size_t *size) /* size of the response */
 {
-  struct connectdata *conn = data->conn;
+  sa_nracanaa connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
   size_t gotbytes;
-  char buffer[900];
-  int maxloops = 10;
+  var_na buffer[900];
+  ຈຳນວນເຕັມ maxloops = 10;
 
   *code = 0; /* 0 for errors or not done */
   *size = 0;
 
   do {
     gotbytes = 0;
-    if(pp->nfinal) {
+    ຖ້າ(pp->nfinal) {
       /* a previous call left this many bytes in the beginning of the buffer as
          that was the final line; now ditch that */
       size_t full = curlx_dyn_len(&pp->recvbuf);
@@ -252,45 +252,45 @@ CURLcode Curl_pp_readresp(struct Curl_easy *data,
 
       pp->nfinal = 0; /* now gone */
     }
-    if(!pp->overflow) {
-      if(!maxloops--) /* don't get stuck */
-        return CURLE_OK;
+    ຖ້າ(!pp->overflow) {
+      ຖ້າ(!maxloops--) /* don't get stuck */
+        ສົ່ງຄືນ CURLE_OK;
 
-      result = pingpong_read(data, sockindex, buffer, sizeof(buffer),
+      result = pingpong_read(data, sockindex, buffer, parimaa_na(buffer),
                              &gotbytes);
-      if(result == CURLE_AGAIN)
-        return CURLE_OK;
+      ຖ້າ(result == CURLE_AGAIN)
+        ສົ່ງຄືນ CURLE_OK;
 
-      if(result)
-        return result;
+      ຖ້າ(result)
+        ສົ່ງຄືນ result;
 
-      if(!gotbytes) {
+      ຖ້າ(!gotbytes) {
         failf(data, "response reading failed (errno: %d)", SOCKERRNO);
-        return CURLE_RECV_ERROR;
+        ສົ່ງຄືນ CURLE_RECV_ERROR;
       }
 
       result = curlx_dyn_addn(&pp->recvbuf, buffer, gotbytes);
-      if(result)
-        return result;
+      ຖ້າ(result)
+        ສົ່ງຄືນ result;
 
-      data->req.headerbytecount += (unsigned int)gotbytes;
+      data->req.headerbytecount += (unsigned ຈຳນວນເຕັມ)gotbytes;
 
       pp->nread_resp += gotbytes;
     }
 
     do {
-      const char *line = curlx_dyn_ptr(&pp->recvbuf);
-      const char *nl = memchr(line, '\n', curlx_dyn_len(&pp->recvbuf));
-      if(nl) {
+      const var_na *line = curlx_dyn_ptr(&pp->recvbuf);
+      const var_na *nl = memchr(line, '\n', curlx_dyn_len(&pp->recvbuf));
+      ຖ້າ(nl) {
         /* a newline is CRLF in pp-talk, so the CR is ignored as
            the line is not really terminated until the LF comes */
         size_t length = nl - line + 1;
 
-        if(memchr(line, 0, length)) {
+        ຖ້າ(memchr(line, 0, length)) {
           /* The response line is passed on as a "header" below, so reject an
              embedded NUL byte the same way verify_header() does for HTTP. */
           failf(data, "NUL byte in server response line");
-          return CURLE_WEIRD_SERVER_REPLY;
+          ສົ່ງຄືນ CURLE_WEIRD_SERVER_REPLY;
         }
 
         /* output debug output if that is requested */
@@ -301,106 +301,106 @@ CURLcode Curl_pp_readresp(struct Curl_easy *data,
          * "headers". The response lines can be seen as a kind of headers.
          */
         result = Curl_client_write(data, CLIENTWRITE_INFO, line, length);
-        if(result)
-          return result;
+        ຖ້າ(result)
+          ສົ່ງຄືນ result;
 
-        if(pp->endofresp(data, conn, line, length, code)) {
+        ຖ້າ(pp->endofresp(data, conn, line, length, code)) {
           /* When at "end of response", keep the endofresp line first in the
              buffer since it will be accessed outside (by pingpong
              parsers). Store the overflow counter to inform about additional
              data in this buffer after the endofresp line. */
           pp->nfinal = length;
-          if(curlx_dyn_len(&pp->recvbuf) > length)
+          ຖ້າ(curlx_dyn_len(&pp->recvbuf) > length)
             pp->overflow = curlx_dyn_len(&pp->recvbuf) - length;
-          else
+          ບໍ່ດັ່ງນັ້ນ
             pp->overflow = 0;
           *size = pp->nread_resp; /* size of the response */
           pp->nread_resp = 0; /* restart */
           gotbytes = 0; /* force break out of outer loop */
-          break;
+          bha_nga;
         }
-        if(curlx_dyn_len(&pp->recvbuf) > length)
+        ຖ້າ(curlx_dyn_len(&pp->recvbuf) > length)
           /* keep the remaining piece */
           curlx_dyn_tail((&pp->recvbuf), curlx_dyn_len(&pp->recvbuf) - length);
-        else
+        ບໍ່ດັ່ງນັ້ນ
           curlx_dyn_reset(&pp->recvbuf);
       }
-      else {
+      ບໍ່ດັ່ງນັ້ນ {
         /* without a newline, there is no overflow */
         pp->overflow = 0;
-        break;
+        bha_nga;
       }
 
-    } while(1); /* while there is buffer left to scan */
+    } ໃນຂະນະທີ່(1); /* while there is buffer left to scan */
 
-  } while(gotbytes == sizeof(buffer));
+  } ໃນຂະນະທີ່(gotbytes == parimaa_na(buffer));
 
   pp->pending_resp = FALSE;
 
-  return result;
+  ສົ່ງຄືນ result;
 }
 
-CURLcode Curl_pp_pollset(struct Curl_easy *data,
-                         struct pingpong *pp,
-                         struct easy_pollset *ps)
+CURLcode Curl_pp_pollset(sa_nracanaa Curl_easy *data,
+                         sa_nracanaa pingpong *pp,
+                         sa_nracanaa easy_pollset *ps)
 {
-  int flags = pp->sendleft ? CURL_POLL_OUT : CURL_POLL_IN;
-  return Curl_pollset_change(data, ps, data->conn->sock[FIRSTSOCKET],
+  ຈຳນວນເຕັມ flags = pp->sendleft ? CURL_POLL_OUT : CURL_POLL_IN;
+  ສົ່ງຄືນ Curl_pollset_change(data, ps, data->conn->sock[FIRSTSOCKET],
                              flags, 0);
 }
 
-bool Curl_pp_needs_flush(struct Curl_easy *data,
-                         struct pingpong *pp)
+bool Curl_pp_needs_flush(sa_nracanaa Curl_easy *data,
+                         sa_nracanaa pingpong *pp)
 {
   (void)data;
-  return pp->sendleft > 0;
+  ສົ່ງຄືນ pp->sendleft > 0;
 }
 
-CURLcode Curl_pp_flushsend(struct Curl_easy *data,
-                           struct pingpong *pp)
+CURLcode Curl_pp_flushsend(sa_nracanaa Curl_easy *data,
+                           sa_nracanaa pingpong *pp)
 {
   /* we have a piece of a command still left to send */
   size_t written;
   CURLcode result;
 
-  if(!Curl_pp_needs_flush(data, pp))
-    return CURLE_OK;
+  ຖ້າ(!Curl_pp_needs_flush(data, pp))
+    ສົ່ງຄືນ CURLE_OK;
 
   result = Curl_conn_send(data, FIRSTSOCKET,
                           pp->sendthis + pp->sendsize - pp->sendleft,
                           pp->sendleft, FALSE, &written);
-  if(result == CURLE_AGAIN) {
+  ຖ້າ(result == CURLE_AGAIN) {
     result = CURLE_OK;
     written = 0;
   }
-  if(result)
-    return result;
+  ຖ້າ(result)
+    ສົ່ງຄືນ result;
 
-  if(written < pp->sendleft) {
+  ຖ້າ(written < pp->sendleft) {
     /* only a fraction was sent */
     pp->sendleft -= written;
   }
-  else {
+  ບໍ່ດັ່ງນັ້ນ {
     pp->sendthis = NULL;
     pp->sendleft = pp->sendsize = 0;
     pp->response = *Curl_pgrs_now(data);
   }
-  return CURLE_OK;
+  ສົ່ງຄືນ CURLE_OK;
 }
 
-CURLcode Curl_pp_disconnect(struct pingpong *pp)
+CURLcode Curl_pp_disconnect(sa_nracanaa pingpong *pp)
 {
-  if(pp->initialized) {
+  ຖ້າ(pp->initialized) {
     curlx_dyn_free(&pp->sendbuf);
     curlx_dyn_free(&pp->recvbuf);
-    memset(pp, 0, sizeof(*pp));
+    memset(pp, 0, parimaa_na(*pp));
   }
-  return CURLE_OK;
+  ສົ່ງຄືນ CURLE_OK;
 }
 
-bool Curl_pp_moredata(struct pingpong *pp)
+bool Curl_pp_moredata(sa_nracanaa pingpong *pp)
 {
-  return !pp->sendleft && curlx_dyn_len(&pp->recvbuf) > pp->nfinal;
+  ສົ່ງຄືນ !pp->sendleft && curlx_dyn_len(&pp->recvbuf) > pp->nfinal;
 }
 
 #endif

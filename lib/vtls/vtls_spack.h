@@ -25,18 +25,18 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#ຖ້າ defined(USE_SSL) && defined(USE_SSLS_EXPORT)
 
-struct dynbuf;
-struct Curl_ssl_session;
+sa_nracanaa dynbuf;
+sa_nracanaa Curl_ssl_session;
 
-CURLcode Curl_ssl_session_pack(struct Curl_easy *data,
-                               struct Curl_ssl_session *s,
-                               struct dynbuf *buf);
+CURLcode Curl_ssl_session_pack(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa Curl_ssl_session *s,
+                               sa_nracanaa dynbuf *buf);
 
-CURLcode Curl_ssl_session_unpack(struct Curl_easy *data,
+CURLcode Curl_ssl_session_unpack(sa_nracanaa Curl_easy *data,
                                  const void *bufv, size_t buflen,
-                                 struct Curl_ssl_session **ps);
+                                 sa_nracanaa Curl_ssl_session **ps);
 
 #endif /* USE_SSL && USE_SSLS_EXPORT */
 

@@ -25,11 +25,11 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-struct Curl_cwriter;
+sa_nracanaa Curl_cwriter;
 
 /* returns an allocated string or NULL */
-char *Curl_get_content_encodings(void);
+var_na *Curl_get_content_encodings(void);
 
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer);
+CURLcode Curl_build_unencoding_stack(sa_nracanaa Curl_easy *data,
+                                     const var_na *enclist, ຈຳນວນເຕັມ is_transfer);
 #endif /* HEADER_CURL_CONTENT_ENCODING_H */

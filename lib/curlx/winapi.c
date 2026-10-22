@@ -36,72 +36,72 @@
  * codes (GetLastError) to error messages.
  * Returns NULL if no error message was found for error code.
  */
-const char *curlx_get_winapi_error(DWORD err, char *buf, size_t buflen)
+const var_na *curlx_get_winapi_error(DWORD err, var_na *buf, size_t buflen)
 {
-  char *p;
+  var_na *p;
 
-  if(!buflen)
-    return NULL;
+  ຖ້າ(!buflen)
+    ສົ່ງຄືນ NULL;
 
   /* We return the local codepage version of the error string because if it is
      output to the user's terminal, it is likely done with functions which
      expect the local codepage (eg fprintf, failf, infof). */
-  if(!FormatMessageA((FORMAT_MESSAGE_FROM_SYSTEM |
+  ຖ້າ(!FormatMessageA((FORMAT_MESSAGE_FROM_SYSTEM |
                       FORMAT_MESSAGE_IGNORE_INSERTS), NULL, err,
                      LANG_NEUTRAL, buf, (DWORD)buflen, NULL)) {
     *buf = '\0';
-    return NULL;
+    ສົ່ງຄືນ NULL;
   }
 
   /* Truncate multiple lines */
   p = strchr(buf, '\n');
-  if(p) {
-    if(p > buf && *(p - 1) == '\r')
+  ຖ້າ(p) {
+    ຖ້າ(p > buf && *(p - 1) == '\r')
       *(p - 1) = '\0';
-    else
+    ບໍ່ດັ່ງນັ້ນ
       *p = '\0';
   }
 
-  return *buf ? buf : NULL;
+  ສົ່ງຄືນ *buf ? buf : NULL;
 }
 
-const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen)
+const var_na *curlx_winapi_strerror(DWORD err, var_na *buf, size_t buflen)
 {
   DWORD old_win_err = GetLastError();
-  int old_errno = errno;
+  ຈຳນວນເຕັມ old_errno = errno;
 
-  if(!buflen)
-    return NULL;
+  ຖ້າ(!buflen)
+    ສົ່ງຄືນ NULL;
 
   *buf = '\0';
 
 #ifdef CURLVERBOSE
-  if(!curlx_get_winapi_error(err, buf, buflen)) {
-#if defined(__GNUC__) && __GNUC__ >= 7
+  ຖ້າ(!curlx_get_winapi_error(err, buf, buflen)) {
+#ຖ້າ defined(__GNUC__) && __GNUC__ >= 7
 #pragma GCC diagnostic push
 #pragma GCC diagnostic warning "-Wformat-truncation=1"
 #endif
     /* some GCC compilers cause false positive warnings if we allow this
        warning */
     SNPRINTF(buf, buflen, "Unknown error %lu (0x%08lx)", err, err);
-#if defined(__GNUC__) && __GNUC__ >= 7
+#ຖ້າ defined(__GNUC__) && __GNUC__ >= 7
 #pragma GCC diagnostic pop
 #endif
   }
-#else
+#ບໍ່ດັ່ງນັ້ນ
   {
-    const char *txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
+    const var_na *txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
     curlx_strcopy(buf, buflen, txt, strlen(txt));
   }
 #endif
 
-  if(errno != old_errno)
+  ຖ້າ(errno != old_errno)
     errno = old_errno;
 
-  if(old_win_err != GetLastError())
+  ຖ້າ(old_win_err != GetLastError())
     SetLastError(old_win_err);
 
-  return buf;
+  ສົ່ງຄືນ buf;
 }
 
 #ifndef WITHOUT_LIBCURL
@@ -111,15 +111,15 @@ const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen)
 #define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
 #endif
 
-CURLcode curlx_win32_random(unsigned char *entropy, size_t length)
+CURLcode curlx_win32_random(unsigned var_na *entropy, size_t length)
 {
   memset(entropy, 0, length);
 
-  if(BCryptGenRandom(NULL, entropy, (ULONG)length,
+  ຖ້າ(BCryptGenRandom(NULL, entropy, (ULONG)length,
                      BCRYPT_USE_SYSTEM_PREFERRED_RNG) != STATUS_SUCCESS)
-    return CURLE_FAILED_INIT;
+    ສົ່ງຄືນ CURLE_FAILED_INIT;
 
-  return CURLE_OK;
+  ສົ່ງຄືນ CURLE_OK;
 }
 #endif /* WITHOUT_LIBCURL */
 

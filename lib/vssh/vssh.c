@@ -35,9 +35,9 @@
 #include "curlx/win32-fopen.h"
 
 #ifdef CURLVERBOSE
-const char *Curl_ssh_statename(sshstate state)
+const var_na *Curl_ssh_statename(sshstate state)
 {
-  static const char * const names[] = {
+  static const var_na * const names[] = {
     "SSH_STOP",
     "SSH_INIT",
     "SSH_S_STARTUP",
@@ -101,7 +101,7 @@ const char *Curl_ssh_statename(sshstate state)
   };
   /* a precaution to make sure the lists are in sync */
   DEBUGASSERT(CURL_ARRAYSIZE(names) == SSH_LAST);
-  return ((size_t)state < CURL_ARRAYSIZE(names)) ? names[state] : "";
+  ສົ່ງຄືນ ((size_t)state < CURL_ARRAYSIZE(names)) ? names[state] : "";
 }
 #endif /* CURLVERBOSE */
 
@@ -109,17 +109,17 @@ const char *Curl_ssh_statename(sshstate state)
  * SSH State machine related code
  */
 /* This is the ONLY way to change SSH state! */
-void Curl_ssh_set_state(struct Curl_easy *data,
-                        struct ssh_conn *sshc,
+void Curl_ssh_set_state(sa_nracanaa Curl_easy *data,
+                        sa_nracanaa ssh_conn *sshc,
                         sshstate nowstate)
 {
 #ifdef CURLVERBOSE
-  if(sshc->state != nowstate) {
+  ຖ້າ(sshc->state != nowstate) {
     CURL_TRC_SSH(data, "[%s] -> [%s]",
                  Curl_ssh_statename(sshc->state),
                  Curl_ssh_statename(nowstate));
   }
-#else
+#ບໍ່ດັ່ງນັ້ນ
   (void)data;
 #endif
   sshc->state = nowstate;
@@ -128,89 +128,89 @@ void Curl_ssh_set_state(struct Curl_easy *data,
 #define MAX_SSHPATH_LEN 100000 /* arbitrary */
 
 /* figure out the path to work with in this particular request */
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir, /* when SFTP is used */
-                             char **path) /* returns the  allocated
+CURLcode Curl_getworkingpath(sa_nracanaa Curl_easy *data,
+                             const var_na *homedir, /* when SFTP is used */
+                             var_na **path) /* returns the  allocated
                                              real path to work with */
 {
-  char *working_path;
+  var_na *working_path;
   size_t working_path_len;
-  struct dynbuf npath;
+  sa_nracanaa dynbuf npath;
   CURLcode result =
     Curl_urldecode(data->state.up.path, 0, &working_path,
                    &working_path_len, REJECT_ZERO);
-  if(result)
-    return result;
+  ຖ້າ(result)
+    ສົ່ງຄືນ result;
 
   /* new path to switch to in case we need to */
   curlx_dyn_init(&npath, MAX_SSHPATH_LEN);
 
   /* Check for /~/, indicating relative to the user's home directory */
-  if((data->conn->scheme->protocol & CURLPROTO_SCP) &&
+  ຖ້າ((data->conn->scheme->protocol & CURLPROTO_SCP) &&
      (working_path_len > 3) && (!memcmp(working_path, "/~/", 3))) {
     /* It is referenced to the home directory, so strip the leading '/~/' */
-    if(curlx_dyn_addn(&npath, &working_path[3], working_path_len - 3)) {
+    ຖ້າ(curlx_dyn_addn(&npath, &working_path[3], working_path_len - 3)) {
       curlx_free(working_path);
-      return CURLE_OUT_OF_MEMORY;
+      ສົ່ງຄືນ CURLE_OUT_OF_MEMORY;
     }
   }
-  else if((data->conn->scheme->protocol & CURLPROTO_SFTP) &&
+  ບໍ່ດັ່ງນັ້ນ ຖ້າ((data->conn->scheme->protocol & CURLPROTO_SFTP) &&
           (!strcmp("/~", working_path) ||
            ((working_path_len > 2) && !memcmp(working_path, "/~/", 3)))) {
-    if(curlx_dyn_add(&npath, homedir)) {
+    ຖ້າ(curlx_dyn_add(&npath, homedir)) {
       curlx_free(working_path);
-      return CURLE_OUT_OF_MEMORY;
+      ສົ່ງຄືນ CURLE_OUT_OF_MEMORY;
     }
-    if(working_path_len > 2) {
+    ຖ້າ(working_path_len > 2) {
       size_t len;
-      const char *p;
-      int copyfrom = 3;
+      const var_na *p;
+      ຈຳນວນເຕັມ copyfrom = 3;
       /* Copy a separating '/' if homedir does not end with one */
       len = curlx_dyn_len(&npath);
       p = curlx_dyn_ptr(&npath);
-      if(len && (p[len - 1] != '/'))
+      ຖ້າ(len && (p[len - 1] != '/'))
         copyfrom = 2;
 
-      if(curlx_dyn_addn(&npath, &working_path[copyfrom],
+      ຖ້າ(curlx_dyn_addn(&npath, &working_path[copyfrom],
                         working_path_len - copyfrom)) {
         curlx_free(working_path);
-        return CURLE_OUT_OF_MEMORY;
+        ສົ່ງຄືນ CURLE_OUT_OF_MEMORY;
       }
     }
-    else {
-      if(curlx_dyn_add(&npath, "/")) {
+    ບໍ່ດັ່ງນັ້ນ {
+      ຖ້າ(curlx_dyn_add(&npath, "/")) {
         curlx_free(working_path);
-        return CURLE_OUT_OF_MEMORY;
+        ສົ່ງຄືນ CURLE_OUT_OF_MEMORY;
       }
     }
   }
 
-  if(curlx_dyn_len(&npath)) {
+  ຖ້າ(curlx_dyn_len(&npath)) {
     curlx_free(working_path);
 
     /* store the pointer for the caller to receive */
     *path = curlx_dyn_ptr(&npath);
   }
-  else
+  ບໍ່ດັ່ງນັ້ນ
     *path = working_path;
   DEBUGASSERT(*path && (*path)[0]);
 
-  return CURLE_OK;
+  ສົ່ງຄືນ CURLE_OK;
 }
 
 #define MAX_PATHLENGTH 65535 /* arbitrary long */
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
+CURLcode Curl_get_pathname(const var_na **cpp, var_na **path, const var_na *homedir)
 {
-  const char *cp = *cpp;
-  struct dynbuf out;
+  const var_na *cp = *cpp;
+  sa_nracanaa dynbuf out;
   CURLcode result;
 
   DEBUGASSERT(homedir);
   *path = NULL;
   *cpp = NULL;
-  if(!*cp || !homedir)
-    return CURLE_QUOTE_ERROR;
+  ຖ້າ(!*cp || !homedir)
+    ສົ່ງຄືນ CURLE_QUOTE_ERROR;
 
   curlx_dyn_init(&out, MAX_PATHLENGTH);
 
@@ -218,59 +218,59 @@ CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
   curlx_str_passblanks(&cp);
 
   /* Check for quoted filenames */
-  if(*cp == '\"' || *cp == '\'') {
-    char quot = *cp++;
+  ຖ້າ(*cp == '\"' || *cp == '\'') {
+    var_na quot = *cp++;
 
     /* Search for terminating quote, unescape some chars */
-    while(*cp != quot) {
-      if(!*cp) /* End of string */
+    ໃນຂະນະທີ່(*cp != quot) {
+      ຖ້າ(!*cp) /* End of string */
         goto fail;
 
-      if(*cp == '\\') { /* Escaped characters */
+      ຖ້າ(*cp == '\\') { /* Escaped characters */
         cp++;
-        if(*cp != '\'' && *cp != '\"' && *cp != '\\')
+        ຖ້າ(*cp != '\'' && *cp != '\"' && *cp != '\\')
           goto fail;
       }
       result = curlx_dyn_addn(&out, cp, 1);
-      if(result)
-        return result;
+      ຖ້າ(result)
+        ສົ່ງຄືນ result;
       cp++;
     }
     cp++; /* pass the end quote */
 
-    if(!curlx_dyn_len(&out))
+    ຖ້າ(!curlx_dyn_len(&out))
       goto fail;
   }
-  else {
-    struct Curl_str word;
+  ບໍ່ດັ່ງນັ້ນ {
+    sa_nracanaa Curl_str word;
     bool content = FALSE;
-    int rc;
+    ຈຳນວນເຕັມ rc;
     /* Handling for relative path - prepend home directory */
-    if(cp[0] == '/' && cp[1] == '~' && cp[2] == '/') {
+    ຖ້າ(cp[0] == '/' && cp[1] == '~' && cp[2] == '/') {
       result = curlx_dyn_add(&out, homedir);
-      if(!result)
+      ຖ້າ(!result)
         result = curlx_dyn_addn(&out, "/", 1);
-      if(result)
-        return result;
+      ຖ້າ(result)
+        ສົ່ງຄືນ result;
       cp += 3;
       content = TRUE;
     }
     /* Read to end of filename - either to whitespace or terminator */
     rc = curlx_str_word(&cp, &word, MAX_PATHLENGTH);
-    if(rc) {
-      if(rc == STRE_BIG) {
+    ຖ້າ(rc) {
+      ຖ້າ(rc == STRE_BIG) {
         curlx_dyn_free(&out);
-        return CURLE_TOO_LARGE;
+        ສົ່ງຄືນ CURLE_TOO_LARGE;
       }
-      else if(!content)
+      ບໍ່ດັ່ງນັ້ນ ຖ້າ(!content)
         /* no path, no word, this is incorrect */
         goto fail;
     }
-    else {
+    ບໍ່ດັ່ງນັ້ນ {
       /* append the word */
       result = curlx_dyn_addn(&out, curlx_str(&word), curlx_strlen(&word));
-      if(result)
-        return result;
+      ຖ້າ(result)
+        ສົ່ງຄືນ result;
     }
   }
   /* skip whitespace */
@@ -280,132 +280,132 @@ CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
   *cpp = cp;
 
   *path = curlx_dyn_ptr(&out);
-  return CURLE_OK;
+  ສົ່ງຄືນ CURLE_OK;
 
 fail:
   curlx_dyn_free(&out);
-  return CURLE_QUOTE_ERROR;
+  ສົ່ງຄືນ CURLE_QUOTE_ERROR;
 }
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(sa_nracanaa Curl_easy *data,
+                        const var_na *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep)
 {
   curl_off_t from, to;
-  int to_t;
-  int from_t = curlx_str_number(&range, &from, CURL_OFF_T_MAX);
-  if(from_t == STRE_OVERFLOW)
-    return CURLE_RANGE_ERROR;
+  ຈຳນວນເຕັມ to_t;
+  ຈຳນວນເຕັມ from_t = curlx_str_number(&range, &from, CURL_OFF_T_MAX);
+  ຖ້າ(from_t == STRE_OVERFLOW)
+    ສົ່ງຄືນ CURLE_RANGE_ERROR;
   curlx_str_passblanks(&range);
   (void)curlx_str_single(&range, '-');
 
   to_t = curlx_str_numblanks(&range, &to);
-  if((to_t == STRE_OVERFLOW) || (to_t && from_t) || *range)
-    return CURLE_RANGE_ERROR;
+  ຖ້າ((to_t == STRE_OVERFLOW) || (to_t && from_t) || *range)
+    ສົ່ງຄືນ CURLE_RANGE_ERROR;
 
-  if(from_t) {
+  ຖ້າ(from_t) {
     /* no start point given, set from relative to end of file */
-    if(!to)
+    ຖ້າ(!to)
       /* "-0" is not a fine range */
-      return CURLE_RANGE_ERROR;
-    else if(to > filesize)
+      ສົ່ງຄືນ CURLE_RANGE_ERROR;
+    ບໍ່ດັ່ງນັ້ນ ຖ້າ(to > filesize)
       to = filesize;
     from = filesize - to;
     to = filesize - 1;
   }
-  else if(from > filesize) {
+  ບໍ່ດັ່ງນັ້ນ ຖ້າ(from > filesize) {
     failf(data, "Offset (%" FMT_OFF_T ") was beyond file size (%"
           FMT_OFF_T ")", from, filesize);
-    return CURLE_RANGE_ERROR;
+    ສົ່ງຄືນ CURLE_RANGE_ERROR;
   }
-  else if((to_t == STRE_NO_NUM) || (to >= filesize))
+  ບໍ່ດັ່ງນັ້ນ ຖ້າ((to_t == STRE_NO_NUM) || (to >= filesize))
     to = filesize - 1;
 
-  if(from > to) {
+  ຖ້າ(from > to) {
     failf(data, "Bad range: start offset larger than end offset");
-    return CURLE_RANGE_ERROR;
+    ສົ່ງຄືນ CURLE_RANGE_ERROR;
   }
-  if((to - from) == CURL_OFF_T_MAX)
-    return CURLE_RANGE_ERROR;
+  ຖ້າ((to - from) == CURL_OFF_T_MAX)
+    ສົ່ງຄືນ CURLE_RANGE_ERROR;
 
   *startp = from;
   *sizep = to - from + 1;
-  return CURLE_OK;
+  ສົ່ງຄືນ CURLE_OK;
 }
 
 /* called by the multi interface to figure out what socket(s) to wait for and
    for what actions in the DO_DONE, PERFORM and WAITPERFORM states */
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps)
+CURLcode Curl_ssh_pollset(sa_nracanaa Curl_easy *data, sa_nracanaa easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  sa_nracanaa connectdata *conn = data->conn;
+  sa_nracanaa ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int waitfor;
+  ຈຳນວນເຕັມ waitfor;
 
-  if(!sshc || (sock == CURL_SOCKET_BAD))
-    return CURLE_FAILED_INIT;
+  ຖ້າ(!sshc || (sock == CURL_SOCKET_BAD))
+    ສົ່ງຄືນ CURLE_FAILED_INIT;
 
   waitfor = sshc->waitfor ? sshc->waitfor : data->req.io_flags;
-  if(waitfor) {
-    int flags = 0;
-    if(waitfor & REQ_IO_RECV)
+  ຖ້າ(waitfor) {
+    ຈຳນວນເຕັມ flags = 0;
+    ຖ້າ(waitfor & REQ_IO_RECV)
       flags |= CURL_POLL_IN;
-    if(waitfor & REQ_IO_SEND)
+    ຖ້າ(waitfor & REQ_IO_SEND)
       flags |= CURL_POLL_OUT;
     DEBUGASSERT(flags);
-    CURL_TRC_SSH(data, "pollset, flags=%x", (unsigned int)flags);
-    return Curl_pollset_change(data, ps, sock, flags, 0);
+    CURL_TRC_SSH(data, "pollset, flags=%x", (unsigned ຈຳນວນເຕັມ)flags);
+    ສົ່ງຄືນ Curl_pollset_change(data, ps, sock, flags, 0);
   }
   /* While we still have a session, we listen incoming data. */
-  if(sshc->ssh_session)
-    return Curl_pollset_change(data, ps, sock, CURL_POLL_IN, 0);
-  return CURLE_OK;
+  ຖ້າ(sshc->ssh_session)
+    ສົ່ງຄືນ Curl_pollset_change(data, ps, sock, CURL_POLL_IN, 0);
+  ສົ່ງຄືນ CURLE_OK;
 }
 
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc)
+CURLcode Curl_ssh_setup_pkey(sa_nracanaa Curl_easy *data, sa_nracanaa ssh_conn *sshc)
 {
-  char *home = NULL;
-  if(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) {
-    const char *str;
+  var_na *home = NULL;
+  ຖ້າ(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) {
+    const var_na *str;
 
     sshc->pub_key = sshc->priv_key = NULL;
 
-    if(CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY)) {
+    ຖ້າ(CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY)) {
       sshc->priv_key = curlx_strdup(
         CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY));
-      if(!sshc->priv_key)
+      ຖ້າ(!sshc->priv_key)
         goto fail;
     }
-    else {
+    ບໍ່ດັ່ງນັ້ນ {
       /* To ponder about: should really the lib be messing about with the HOME
          environment variable etc? */
       curlx_struct_stat sbuf;
       home = curl_getenv("HOME");
 
       /* If no private key file is specified, try some common paths. */
-      if(home) {
+      ຖ້າ(home) {
         /* Try ~/.ssh first. */
         sshc->priv_key = curl_maprintf("%s/.ssh/id_rsa", home);
-        if(!sshc->priv_key)
+        ຖ້າ(!sshc->priv_key)
           goto fail;
-        else if(curlx_stat(sshc->priv_key, &sbuf)) {
+        ບໍ່ດັ່ງນັ້ນ ຖ້າ(curlx_stat(sshc->priv_key, &sbuf)) {
           curlx_free(sshc->priv_key);
           sshc->priv_key = curl_maprintf("%s/.ssh/id_dsa", home);
-          if(!sshc->priv_key)
+          ຖ້າ(!sshc->priv_key)
             goto fail;
-          else if(curlx_stat(sshc->priv_key, &sbuf)) {
+          ບໍ່ດັ່ງນັ້ນ ຖ້າ(curlx_stat(sshc->priv_key, &sbuf)) {
             curlx_safefree(sshc->priv_key);
           }
         }
         curlx_safefree(home);
       }
-      if(!sshc->priv_key) {
+      ຖ້າ(!sshc->priv_key) {
         /* Nothing found; try the current dir. */
         sshc->priv_key = curlx_strdup("id_rsa");
-        if(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
+        ຖ້າ(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
           curlx_free(sshc->priv_key);
           sshc->priv_key = curlx_strdup("id_dsa");
-          if(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
+          ຖ້າ(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
             curlx_free(sshc->priv_key);
             /* Out of guesses. Set to the empty string to avoid
              * surprising info messages. */
@@ -421,35 +421,35 @@ CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc)
      * by passing sshc->pub_key = NULL.
      */
     str = CURL_EASY_STR(data, STRING_SSH_PUBLIC_KEY);
-    if(str && *str) {  /* treat empty string the same way as NULL */
+    ຖ້າ(str && *str) {  /* treat empty string the same way as NULL */
       sshc->pub_key = curlx_strdup(str);
-      if(!sshc->pub_key)
+      ຖ້າ(!sshc->pub_key)
         goto fail;
     }
 
     {
-      const char *keypasswd = CURL_EASY_STR(data, STRING_KEY_PASSWD);
-      if(keypasswd) {
+      const var_na *keypasswd = CURL_EASY_STR(data, STRING_KEY_PASSWD);
+      ຖ້າ(keypasswd) {
         sshc->passphrase = curlx_strdup(keypasswd);
-        if(!sshc->passphrase)
+        ຖ້າ(!sshc->passphrase)
           goto fail;
       }
     }
 
-    if(sshc->pub_key)
+    ຖ້າ(sshc->pub_key)
       infof(data, "SSH: public key file '%s'", sshc->pub_key);
-    if(sshc->priv_key)
+    ຖ້າ(sshc->priv_key)
       infof(data, "SSH: private key file '%s'", sshc->priv_key);
-    else
+    ບໍ່ດັ່ງນັ້ນ
       infof(data, "SSH: public key auth without private key set!");
   }
-  return CURLE_OK;
+  ສົ່ງຄືນ CURLE_OK;
 
 fail:
   curlx_safefree(home);
   curlx_safefree(sshc->priv_key);
   curlx_safefree(sshc->pub_key);
-  return CURLE_OUT_OF_MEMORY;
+  ສົ່ງຄືນ CURLE_OUT_OF_MEMORY;
 }
 
 #endif /* USE_SSH */

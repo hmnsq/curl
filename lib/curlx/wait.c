@@ -51,40 +51,40 @@
  *   -1 = system call error, or invalid timeout value
  *    0 = specified timeout has elapsed, or interrupted
  */
-int curlx_wait_ms(timediff_t timeout_ms)
+ຈຳນວນເຕັມ curlx_wait_ms(timediff_t timeout_ms)
 {
-  int r = 0;
+  ຈຳນວນເຕັມ r = 0;
 
-  if(!timeout_ms)
-    return 0;
-  if(timeout_ms < 0) {
+  ຖ້າ(!timeout_ms)
+    ສົ່ງຄືນ 0;
+  ຖ້າ(timeout_ms < 0) {
     SET_SOCKERRNO(SOCKEINVAL);
-    return -1;
+    ສົ່ງຄືນ -1;
   }
 #ifdef MSDOS
-  delay((unsigned int)timeout_ms);
+  delay((unsigned ຈຳນວນເຕັມ)timeout_ms);
 #elif defined(_WIN32)
   /* prevent overflow, timeout_ms is typecast to ULONG/DWORD. */
-#if TIMEDIFF_T_MAX >= ULONG_MAX
-  if(timeout_ms >= ULONG_MAX)
+#ຖ້າ TIMEDIFF_T_MAX >= ULONG_MAX
+  ຖ້າ(timeout_ms >= ULONG_MAX)
     timeout_ms = ULONG_MAX - 1;
     /* do not use ULONG_MAX, because that is equal to INFINITE */
 #endif
   Sleep((DWORD)timeout_ms);
-#else
+#ບໍ່ດັ່ງນັ້ນ
   /* avoid using poll() for this since it behaves incorrectly with no sockets
      on Apple operating systems */
   {
-    struct timeval pending_tv;
+    sa_nracanaa timeval pending_tv;
     r = select(0, NULL, NULL, NULL, curlx_mstotv(&pending_tv, timeout_ms));
   }
 #endif /* _WIN32 */
-  if(r) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  ຖ້າ(r) {
+    ຖ້າ((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    else
+    ບໍ່ດັ່ງນັ້ນ
       r = -1;
   }
-  return r;
+  ສົ່ງຄືນ r;
 }
