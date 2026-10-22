@@ -21,35 +21,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#ضمن <netinet/in.h>
 #endif
 #ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
+#ضمن <netinet/in6.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#ضمن <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#ضمن <arpa/inet.h>
 #endif
 #ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
+#ضمن <sys/un.h>
 #endif
 
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#ضمن <in.h>
+#ضمن <inet.h>
 #endif
 
-#include <stddef.h>  /* for offsetof() */
+#ضمن <stddef.h>  /* for offsetof() */
 
-#include "curl_addrinfo.h"
-#include "fake_addrinfo.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#ضمن "curl_addrinfo.h"
+#ضمن "fake_addrinfo.h"
+#ضمن "curlx/inet_pton.h"
+#ضمن "curlx/strparse.h"
 
 /*
  * Curl_freeaddrinfo()
@@ -60,38 +60,38 @@
  * any function call which actually allocates a Curl_addrinfo struct.
  */
 
-#if defined(__INTEL_COMPILER) && (__INTEL_COMPILER == 910) &&     \
+#إذا defined(__INTEL_COMPILER) && (__INTEL_COMPILER == 910) &&     \
   defined(__OPTIMIZE__) && defined(__unix__) && defined(__i386__)
   /* workaround icc 9.1 optimizer issue */
-#  define vqualifier volatile
-#else
+#  define vqualifier متطاير
+#وإلا
 #  define vqualifier
 #endif
 
-void Curl_freeaddrinfo(struct Curl_addrinfo *cahead)
+فراغ Curl_freeaddrinfo(بنية Curl_addrinfo *cahead)
 {
-  struct Curl_addrinfo *vqualifier canext;
-  struct Curl_addrinfo *ca;
+  بنية Curl_addrinfo *vqualifier canext;
+  بنية Curl_addrinfo *ca;
 
-  for(ca = cahead; ca; ca = canext) {
+  لكل(ca = cahead; ca; ca = canext) {
     canext = ca->ai_next;
     curlx_free(ca);
   }
 }
 
-struct Curl_addrinfo *Curl_addrinfo_get(struct Curl_addrinfo *ai,
-                                        int ai_family,
-                                        unsigned int n)
+بنية Curl_addrinfo *Curl_addrinfo_get(بنية Curl_addrinfo *ai,
+                                        صحيح ai_family,
+                                        unsigned صحيح n)
 {
-  unsigned int i;
-  for(i = 0; ai; ai = ai->ai_next) {
-    if(ai->ai_family == ai_family) {
-      if(i == n)
-        return ai;
+  unsigned صحيح i;
+  لكل(i = 0; ai; ai = ai->ai_next) {
+    إذا(ai->ai_family == ai_family) {
+      إذا(i == n)
+        أرجع ai;
       ++i;
     }
   }
-  return NULL;
+  أرجع عدم;
 }
 
 #ifdef HAVE_GETADDRINFO
@@ -108,52 +108,52 @@ struct Curl_addrinfo *Curl_addrinfo_get(struct Curl_addrinfo *ai,
  * There should be no single call to system's getaddrinfo() in the
  * whole library, any such call should be 'routed' through this one.
  */
-int Curl_getaddrinfo_ex(const char *nodename,
-                        const char *servname,
-                        const struct addrinfo *hints,
-                        struct Curl_addrinfo **result)
+صحيح Curl_getaddrinfo_ex(ثابت حرف *nodename,
+                        ثابت حرف *servname,
+                        ثابت بنية addrinfo *hints,
+                        بنية Curl_addrinfo **result)
 {
-  const struct addrinfo *ai;
-  struct addrinfo *aihead;
-  struct Curl_addrinfo *cafirst = NULL;
-  struct Curl_addrinfo *calast = NULL;
-  struct Curl_addrinfo *ca;
+  ثابت بنية addrinfo *ai;
+  بنية addrinfo *aihead;
+  بنية Curl_addrinfo *cafirst = عدم;
+  بنية Curl_addrinfo *calast = عدم;
+  بنية Curl_addrinfo *ca;
   size_t ss_size;
-  int error;
+  صحيح error;
 
-  *result = NULL; /* assume failure */
+  *result = عدم; /* assume failure */
 
   error = CURL_GETADDRINFO(nodename, servname, hints, &aihead);
-  if(error)
-    return error;
+  إذا(error)
+    أرجع error;
 
   /* traverse the addrinfo list */
 
-  for(ai = aihead; ai; ai = ai->ai_next) {
+  لكل(ai = aihead; ai; ai = ai->ai_next) {
     size_t namelen = ai->ai_canonname ? strlen(ai->ai_canonname) + 1 : 0;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
-      ss_size = sizeof(struct sockaddr_in);
+    إذا(ai->ai_family == AF_INET)
+      ss_size = حجم(بنية sockaddr_in);
 #ifdef USE_IPV6
-    else if(ai->ai_family == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
+    وإلا إذا(ai->ai_family == AF_INET6)
+      ss_size = حجم(بنية sockaddr_in6);
 #endif
-    else
-      continue;
+    وإلا
+      استمر;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
-      continue;
+    إذا(!ai->ai_addr || !(ai->ai_addrlen > 0))
+      استمر;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
-      continue;
+    إذا((size_t)ai->ai_addrlen < ss_size)
+      استمر;
 
-    ca = curlx_malloc(sizeof(struct Curl_addrinfo) + ss_size + namelen);
-    if(!ca) {
+    ca = curlx_malloc(حجم(بنية Curl_addrinfo) + ss_size + namelen);
+    إذا(!ca) {
       error = EAI_MEMORY;
-      break;
+      اكسر;
     }
 
     /* copy each structure member individually, member ordering,
@@ -164,42 +164,42 @@ int Curl_getaddrinfo_ex(const char *nodename,
     ca->ai_socktype  = ai->ai_socktype;
     ca->ai_protocol  = ai->ai_protocol;
     ca->ai_addrlen   = (curl_socklen_t)ss_size;
-    ca->ai_addr      = NULL;
-    ca->ai_canonname = NULL;
-    ca->ai_next      = NULL;
+    ca->ai_addr      = عدم;
+    ca->ai_canonname = عدم;
+    ca->ai_next      = عدم;
 
-    ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
+    ca->ai_addr = (فراغ *)((حرف *)ca + حجم(بنية Curl_addrinfo));
     memcpy(ca->ai_addr, ai->ai_addr, ss_size);
 
-    if(namelen) {
-      ca->ai_canonname = (void *)((char *)ca->ai_addr + ss_size);
+    إذا(namelen) {
+      ca->ai_canonname = (فراغ *)((حرف *)ca->ai_addr + ss_size);
       memcpy(ca->ai_canonname, ai->ai_canonname, namelen);
     }
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    إذا(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
+    إذا(calast)
       calast->ai_next = ca;
     calast = ca;
   }
 
   /* destroy the addrinfo list */
-  if(aihead)
+  إذا(aihead)
     CURL_FREEADDRINFO(aihead);
 
   /* if we failed, also destroy the Curl_addrinfo list */
-  if(error) {
+  إذا(error) {
     Curl_freeaddrinfo(cafirst);
-    cafirst = NULL;
+    cafirst = عدم;
   }
-  else if(!cafirst) {
+  وإلا إذا(!cafirst) {
 #ifdef EAI_NONAME
     /* rfc3493 conformant */
     error = EAI_NONAME;
-#else
+#وإلا
     /* rfc3493 obsoleted */
     error = EAI_NODATA;
 #endif
@@ -211,7 +211,7 @@ int Curl_getaddrinfo_ex(const char *nodename,
   *result = cafirst;
 
   /* This is not a CURLcode */
-  return error;
+  أرجع error;
 }
 #endif /* HAVE_GETADDRINFO */
 
@@ -254,53 +254,53 @@ int Curl_getaddrinfo_ex(const char *nodename,
  *
  *     #define h_addr  h_addr_list[0]
  */
-#if !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
-struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port)
+#إذا !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
+بنية Curl_addrinfo *Curl_he2ai(ثابت بنية hostent *he, صحيح port)
 {
-  struct Curl_addrinfo *ai;
-  struct Curl_addrinfo *prevai = NULL;
-  struct Curl_addrinfo *firstai = NULL;
-  struct sockaddr_in *addr;
+  بنية Curl_addrinfo *ai;
+  بنية Curl_addrinfo *prevai = عدم;
+  بنية Curl_addrinfo *firstai = عدم;
+  بنية sockaddr_in *addr;
 #ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
+  بنية sockaddr_in6 *addr6;
 #endif
   CURLcode result = CURLE_OK;
-  int i;
-  char *curr;
+  صحيح i;
+  حرف *curr;
 
-  if(!he)
+  إذا(!he)
     /* no input == no output! */
-    return NULL;
+    أرجع عدم;
 
   DEBUGASSERT(he->h_name && he->h_addr_list);
 
-  for(i = 0; (curr = he->h_addr_list[i]) != NULL; i++) {
+  لكل(i = 0; (curr = he->h_addr_list[i]) != عدم; i++) {
     size_t ss_size;
     size_t namelen = strlen(he->h_name) + 1; /* include null-terminator */
 #ifdef USE_IPV6
-    if(he->h_addrtype == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
-    else
+    إذا(he->h_addrtype == AF_INET6)
+      ss_size = حجم(بنية sockaddr_in6);
+    وإلا
 #endif
-      ss_size = sizeof(struct sockaddr_in);
+      ss_size = حجم(بنية sockaddr_in);
 
     /* allocate memory to hold the struct, the address and the name */
-    ai = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + namelen);
-    if(!ai) {
+    ai = curlx_calloc(1, حجم(بنية Curl_addrinfo) + ss_size + namelen);
+    إذا(!ai) {
       result = CURLE_OUT_OF_MEMORY;
-      break;
+      اكسر;
     }
     /* put the address after the struct */
-    ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
+    ai->ai_addr = (فراغ *)((حرف *)ai + حجم(بنية Curl_addrinfo));
     /* then put the name after the address */
-    ai->ai_canonname = (char *)ai->ai_addr + ss_size;
+    ai->ai_canonname = (حرف *)ai->ai_addr + ss_size;
     memcpy(ai->ai_canonname, he->h_name, namelen);
 
-    if(!firstai)
+    إذا(!firstai)
       /* store the pointer we want to return from this function */
       firstai = ai;
 
-    if(prevai)
+    إذا(prevai)
       /* make the previous entry point to this */
       prevai->ai_next = ai;
 
@@ -314,35 +314,35 @@ struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port)
 
     /* leave the rest of the struct filled with zero */
 
-    switch(ai->ai_family) {
-    case AF_INET:
-      addr = (void *)ai->ai_addr; /* storage area for this info */
+    بدل(ai->ai_family) {
+    حالة AF_INET:
+      addr = (فراغ *)ai->ai_addr; /* storage area for this info */
 
-      memcpy(&addr->sin_addr, curr, sizeof(struct in_addr));
+      memcpy(&addr->sin_addr, curr, حجم(بنية in_addr));
       addr->sin_family = (CURL_SA_FAMILY_T)he->h_addrtype;
       addr->sin_port = htons((unsigned short)port);
-      break;
+      اكسر;
 
 #ifdef USE_IPV6
-    case AF_INET6:
-      addr6 = (void *)ai->ai_addr; /* storage area for this info */
+    حالة AF_INET6:
+      addr6 = (فراغ *)ai->ai_addr; /* storage area for this info */
 
-      memcpy(&addr6->sin6_addr, curr, sizeof(struct in6_addr));
+      memcpy(&addr6->sin6_addr, curr, حجم(بنية in6_addr));
       addr6->sin6_family = (CURL_SA_FAMILY_T)he->h_addrtype;
       addr6->sin6_port = htons((unsigned short)port);
-      break;
+      اكسر;
 #endif
     }
 
     prevai = ai;
   }
 
-  if(result) {
+  إذا(result) {
     Curl_freeaddrinfo(firstai);
-    firstai = NULL;
+    firstai = عدم;
   }
 
-  return firstai;
+  أرجع firstai;
 }
 #endif
 
@@ -354,151 +354,151 @@ struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port)
  * returns a Curl_addrinfo chain filled in correctly with information for the
  * given address/host
  */
-static CURLcode ip2addr(struct Curl_addrinfo **addrp, int af,
-                        const void *inaddr, const char *hostname, int port)
+ساكن CURLcode ip2addr(بنية Curl_addrinfo **addrp, صحيح af,
+                        ثابت فراغ *inaddr, ثابت حرف *hostname, صحيح port)
 {
-  struct Curl_addrinfo *ai;
+  بنية Curl_addrinfo *ai;
   size_t addrsize;
   size_t namelen;
-  struct sockaddr_in *addr;
+  بنية sockaddr_in *addr;
 #ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
+  بنية sockaddr_in6 *addr6;
 #endif
 
   DEBUGASSERT(inaddr && hostname);
 
   namelen = strlen(hostname) + 1;
-  *addrp = NULL;
+  *addrp = عدم;
 
-  if(af == AF_INET)
-    addrsize = sizeof(struct sockaddr_in);
+  إذا(af == AF_INET)
+    addrsize = حجم(بنية sockaddr_in);
 #ifdef USE_IPV6
-  else if(af == AF_INET6)
-    addrsize = sizeof(struct sockaddr_in6);
+  وإلا إذا(af == AF_INET6)
+    addrsize = حجم(بنية sockaddr_in6);
 #endif
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  وإلا
+    أرجع CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* allocate memory to hold the struct, the address and the name */
-  ai = curlx_calloc(1, sizeof(struct Curl_addrinfo) + addrsize + namelen);
-  if(!ai)
-    return CURLE_OUT_OF_MEMORY;
+  ai = curlx_calloc(1, حجم(بنية Curl_addrinfo) + addrsize + namelen);
+  إذا(!ai)
+    أرجع CURLE_OUT_OF_MEMORY;
   /* put the address after the struct */
-  ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
+  ai->ai_addr = (فراغ *)((حرف *)ai + حجم(بنية Curl_addrinfo));
   /* then put the name after the address */
-  ai->ai_canonname = (char *)ai->ai_addr + addrsize;
+  ai->ai_canonname = (حرف *)ai->ai_addr + addrsize;
   memcpy(ai->ai_canonname, hostname, namelen);
   ai->ai_family = af;
   ai->ai_socktype = SOCK_STREAM;
   ai->ai_addrlen = (curl_socklen_t)addrsize;
   /* leave the rest of the struct filled with zero */
 
-  switch(af) {
-  case AF_INET:
-    addr = (void *)ai->ai_addr; /* storage area for this info */
+  بدل(af) {
+  حالة AF_INET:
+    addr = (فراغ *)ai->ai_addr; /* storage area for this info */
 
-    memcpy(&addr->sin_addr, inaddr, sizeof(struct in_addr));
+    memcpy(&addr->sin_addr, inaddr, حجم(بنية in_addr));
     addr->sin_family = (CURL_SA_FAMILY_T)af;
     addr->sin_port = htons((unsigned short)port);
-    break;
+    اكسر;
 
 #ifdef USE_IPV6
-  case AF_INET6:
-    addr6 = (void *)ai->ai_addr; /* storage area for this info */
+  حالة AF_INET6:
+    addr6 = (فراغ *)ai->ai_addr; /* storage area for this info */
 
-    memcpy(&addr6->sin6_addr, inaddr, sizeof(struct in6_addr));
+    memcpy(&addr6->sin6_addr, inaddr, حجم(بنية in6_addr));
     addr6->sin6_family = (CURL_SA_FAMILY_T)af;
     addr6->sin6_port = htons((unsigned short)port);
-    break;
+    اكسر;
 #endif
   }
   *addrp = ai;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
  * Given an IPv4 or IPv6 dotted string address, this converts it to a proper
  * allocated Curl_addrinfo struct and returns it.
  */
-CURLcode Curl_str2addr(const char *dotted, uint16_t port,
-                       struct Curl_addrinfo **addrp)
+CURLcode Curl_str2addr(ثابت حرف *dotted, uint16_t port,
+                       بنية Curl_addrinfo **addrp)
 {
-  struct in_addr in;
-  if(curlx_inet_pton(AF_INET, dotted, &in) > 0)
+  بنية in_addr in;
+  إذا(curlx_inet_pton(AF_INET, dotted, &in) > 0)
     /* This is a dotted IP address 123.123.123.123-style */
-    return ip2addr(addrp, AF_INET, &in, dotted, port);
+    أرجع ip2addr(addrp, AF_INET, &in, dotted, port);
 #ifdef USE_IPV6
   {
-    struct in6_addr in6;
-    if(curlx_inet_pton(AF_INET6, dotted, &in6) > 0)
+    بنية in6_addr in6;
+    إذا(curlx_inet_pton(AF_INET6, dotted, &in6) > 0)
       /* This is a dotted IPv6 address ::1-style */
-      return ip2addr(addrp, AF_INET6, &in6, dotted, port);
+      أرجع ip2addr(addrp, AF_INET6, &in6, dotted, port);
   }
 #endif
-  return CURLE_BAD_FUNCTION_ARGUMENT; /* bad input format */
+  أرجع CURLE_BAD_FUNCTION_ARGUMENT; /* bad input format */
 }
 
-bool Curl_is_ipv4addr(const char *address)
+bool Curl_is_ipv4addr(ثابت حرف *address)
 {
-  struct in_addr in;
-  return (curlx_inet_pton(AF_INET, address, &in) > 0);
+  بنية in_addr in;
+  أرجع (curlx_inet_pton(AF_INET, address, &in) > 0);
 }
 
-bool Curl_is_ipaddr(const char *address)
+bool Curl_is_ipaddr(ثابت حرف *address)
 {
-  if(Curl_is_ipv4addr(address))
-    return TRUE;
+  إذا(Curl_is_ipv4addr(address))
+    أرجع TRUE;
 #ifdef USE_IPV6
   {
-    struct in6_addr in6;
-    if(curlx_inet_pton(AF_INET6, address, &in6) > 0)
+    بنية in6_addr in6;
+    إذا(curlx_inet_pton(AF_INET6, address, &in6) > 0)
       /* This is a dotted IPv6 address ::1-style */
-      return TRUE;
+      أرجع TRUE;
   }
 #endif
-  return FALSE;
+  أرجع FALSE;
 }
 
-bool Curl_looks_like_ipv6(const char *s, size_t len, bool maybe_url_encoded,
-                          struct Curl_str *host, struct Curl_str *zone)
+bool Curl_looks_like_ipv6(ثابت حرف *s, size_t len, bool maybe_url_encoded,
+                          بنية Curl_str *host, بنية Curl_str *zone)
 {
-  const char *zonep = NULL;
+  ثابت حرف *zonep = عدم;
   size_t i = 0, hlen = 0, zlen = 0;
 
-  if(host)
-    memset(host, 0, sizeof(*host));
-  if(zone)
-    memset(zone, 0, sizeof(*zone));
+  إذا(host)
+    memset(host, 0, حجم(*host));
+  إذا(zone)
+    memset(zone, 0, حجم(*zone));
 
-  for(i = 0; i < len; ++i, ++hlen) {
-    if(!s[i] || !(ISXDIGIT(s[i]) || (s[i] == ':') || (s[i] == '.')))
-      break;
+  لكل(i = 0; i < len; ++i, ++hlen) {
+    إذا(!s[i] || !(ISXDIGIT(s[i]) || (s[i] == ':') || (s[i] == '.')))
+      اكسر;
   }
 
-  if((i < len) && (s[i] == '%')) { /* address followed by a zone? */
+  إذا((i < len) && (s[i] == '%')) { /* address followed by a zone? */
     i += 1;
-    if(maybe_url_encoded && !strncmp("25", s + i, 2))
+    إذا(maybe_url_encoded && !strncmp("25", s + i, 2))
       i += 2;
     zonep = s + i;
-    for(; i < len; ++i, ++zlen) {
+    لكل(; i < len; ++i, ++zlen) {
       /* Allow unreserved characters as defined in RFC 3986 */
-      if(!s[i] || !(ISALPHA(s[i]) || ISXDIGIT(s[i]) || (s[i] == '-') ||
+      إذا(!s[i] || !(ISALPHA(s[i]) || ISXDIGIT(s[i]) || (s[i] == '-') ||
                     (s[i] == '.') || (s[i] == '_') || (s[i] == '~')))
-        break;
+        اكسر;
     }
   }
 
-  if(i != len)
-    return FALSE; /* invalid chars in zone */
-  if(host && hlen) {
+  إذا(i != len)
+    أرجع FALSE; /* invalid chars in zone */
+  إذا(host && hlen) {
     host->str = s;
     host->len = hlen;
   }
-  if(zone && zlen) {
+  إذا(zone && zlen) {
     zone->str = zonep;
     zone->len = zlen;
   }
-  return TRUE;
+  أرجع TRUE;
 }
 
 #ifdef USE_UNIX_SOCKETS
@@ -507,46 +507,46 @@ bool Curl_looks_like_ipv6(const char *s, size_t len, bool maybe_url_encoded,
  * struct initialized with this path.
  * Returns CURLE_TOO_LARGE when path is too long.
  */
-CURLcode Curl_unix2addr(const char *path, bool abstract,
-                        struct Curl_addrinfo **paddr)
+CURLcode Curl_unix2addr(ثابت حرف *path, bool abstract,
+                        بنية Curl_addrinfo **paddr)
 {
-  struct Curl_addrinfo *ai;
-  struct sockaddr_un *sa_un;
+  بنية Curl_addrinfo *ai;
+  بنية sockaddr_un *sa_un;
   size_t path_len;
 
-  *paddr = NULL;
+  *paddr = عدم;
 
   /* sun_path must be able to store the null-terminated path */
   path_len = strlen(path) + 1;
-  if(path_len > sizeof(sa_un->sun_path))
-    return CURLE_TOO_LARGE;
+  إذا(path_len > حجم(sa_un->sun_path))
+    أرجع CURLE_TOO_LARGE;
 
   ai = curlx_calloc(1,
-                    sizeof(struct Curl_addrinfo) + sizeof(struct sockaddr_un));
-  if(!ai)
-    return CURLE_OUT_OF_MEMORY;
+                    حجم(بنية Curl_addrinfo) + حجم(بنية sockaddr_un));
+  إذا(!ai)
+    أرجع CURLE_OUT_OF_MEMORY;
 
-  ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
-  sa_un = (void *)ai->ai_addr;
+  ai->ai_addr = (فراغ *)((حرف *)ai + حجم(بنية Curl_addrinfo));
+  sa_un = (فراغ *)ai->ai_addr;
   sa_un->sun_family = AF_UNIX;
 
   ai->ai_family = AF_UNIX;
   ai->ai_socktype = SOCK_STREAM; /* assume reliable transport for HTTP */
   ai->ai_addrlen = (curl_socklen_t)
-    ((offsetof(struct sockaddr_un, sun_path) + path_len) & 0x7FFFFFFF);
+    ((offsetof(بنية sockaddr_un, sun_path) + path_len) & 0x7FFFFFFF);
 
   /* Abstract Unix domain socket have NULL prefix instead of suffix */
-  if(abstract)
+  إذا(abstract)
     memcpy(sa_un->sun_path + 1, path, path_len - 1);
-  else
+  وإلا
     memcpy(sa_un->sun_path, path, path_len); /* copy NUL byte */
 
   *paddr = ai;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 #endif
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+#إذا defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
   defined(HAVE_FREEADDRINFO)
 /*
  * curl_dbg_freeaddrinfo()
@@ -555,30 +555,30 @@ CURLcode Curl_unix2addr(const char *path, bool abstract,
  * family otherwise present in memdebug.c. I put these ones here since they
  * require a bunch of structs I did not want to include in memdebug.c
  */
-void curl_dbg_freeaddrinfo(struct addrinfo *freethis,
-                           int line, const char *source)
+فراغ curl_dbg_freeaddrinfo(بنية addrinfo *freethis,
+                           صحيح هێڵ, ثابت حرف *source)
 {
   curl_dbg_log("ADDR %s:%d freeaddrinfo(%p)\n",
-               source, line, (void *)freethis);
+               source, هێڵ, (فراغ *)freethis);
 #ifdef USE_LWIPSOCK
   lwip_freeaddrinfo(freethis);
-#elif defined(USE_FAKE_GETADDRINFO)
+#وإلاإذا defined(USE_FAKE_GETADDRINFO)
   {
-    const char *env = getenv("CURL_DNS_SERVER");
-    if(env)
+    ثابت حرف *env = getenv("CURL_DNS_SERVER");
+    إذا(env)
       r_freeaddrinfo(freethis);
-    else
+    وإلا
       /* !checksrc! disable BANNEDFUNC 1 */
       freeaddrinfo(freethis);
   }
-#else
+#وإلا
   /* !checksrc! disable BANNEDFUNC 1 */
   freeaddrinfo(freethis);
 #endif
 }
 #endif /* CURL_MEMDEBUG && HAVE_FREEADDRINFO */
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
+#إذا defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
 /*
  * curl_dbg_getaddrinfo()
  *
@@ -586,60 +586,60 @@ void curl_dbg_freeaddrinfo(struct addrinfo *freethis,
  * family otherwise present in memdebug.c. I put these ones here since they
  * require a bunch of structs I did not want to include in memdebug.c
  */
-int curl_dbg_getaddrinfo(const char *hostname,
-                         const char *service,
-                         const struct addrinfo *hints,
-                         struct addrinfo **result,
-                         int line, const char *source)
+صحيح curl_dbg_getaddrinfo(ثابت حرف *hostname,
+                         ثابت حرف *service,
+                         ثابت بنية addrinfo *hints,
+                         بنية addrinfo **result,
+                         صحيح هێڵ, ثابت حرف *source)
 {
 #ifdef USE_LWIPSOCK
-  int res = lwip_getaddrinfo(hostname, service, hints, result);
-#elif defined(USE_FAKE_GETADDRINFO)
-  int res;
-  const char *env = getenv("CURL_DNS_SERVER");
-  if(env)
+  صحيح res = lwip_getaddrinfo(hostname, service, hints, result);
+#وإلاإذا defined(USE_FAKE_GETADDRINFO)
+  صحيح res;
+  ثابت حرف *env = getenv("CURL_DNS_SERVER");
+  إذا(env)
     res = r_getaddrinfo(hostname, service, hints, result);
-  else
+  وإلا
     /* !checksrc! disable BANNEDFUNC 1 */
     res = getaddrinfo(hostname, service, hints, result);
-#else
+#وإلا
   /* !checksrc! disable BANNEDFUNC 1 */
-  int res = getaddrinfo(hostname, service, hints, result);
+  صحيح res = getaddrinfo(hostname, service, hints, result);
 #endif
-  if(res == 0)
+  إذا(res == 0)
     /* success */
-    curl_dbg_log("ADDR %s:%d getaddrinfo() = %p\n", source, line,
-                 (void *)*result);
-  else
-    curl_dbg_log("ADDR %s:%d getaddrinfo() failed\n", source, line);
-  return res;
+    curl_dbg_log("ADDR %s:%d getaddrinfo() = %p\n", source, هێڵ,
+                 (فراغ *)*result);
+  وإلا
+    curl_dbg_log("ADDR %s:%d getaddrinfo() failed\n", source, هێڵ);
+  أرجع res;
 }
 #endif /* CURL_MEMDEBUG && HAVE_GETADDRINFO */
 
-#if defined(HAVE_GETADDRINFO) && defined(USE_RESOLVE_ON_IPS)
+#إذا defined(HAVE_GETADDRINFO) && defined(USE_RESOLVE_ON_IPS)
 /*
  * Works around the sin6_port is always zero bug on iOS 9.3.2 and macOS
  * 10.11.5.
  */
-void Curl_addrinfo_set_port(struct Curl_addrinfo *addrinfo, int port)
+فراغ Curl_addrinfo_set_port(بنية Curl_addrinfo *addrinfo, صحيح port)
 {
-  struct Curl_addrinfo *ca;
-  struct sockaddr_in *addr;
+  بنية Curl_addrinfo *ca;
+  بنية sockaddr_in *addr;
 #ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
+  بنية sockaddr_in6 *addr6;
 #endif
-  for(ca = addrinfo; ca; ca = ca->ai_next) {
-    switch(ca->ai_family) {
-    case AF_INET:
-      addr = (void *)ca->ai_addr; /* storage area for this info */
+  لكل(ca = addrinfo; ca; ca = ca->ai_next) {
+    بدل(ca->ai_family) {
+    حالة AF_INET:
+      addr = (فراغ *)ca->ai_addr; /* storage area for this info */
       addr->sin_port = htons((unsigned short)port);
-      break;
+      اكسر;
 
 #ifdef USE_IPV6
-    case AF_INET6:
-      addr6 = (void *)ca->ai_addr; /* storage area for this info */
+    حالة AF_INET6:
+      addr6 = (فراغ *)ca->ai_addr; /* storage area for this info */
       addr6->sin6_port = htons((unsigned short)port);
-      break;
+      اكسر;
 #endif
     }
   }
