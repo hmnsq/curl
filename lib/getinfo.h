@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-CURLcode Curl_getinfo(struct Curl_easy *data, CURLINFO info, ...);
-void Curl_initinfo(struct Curl_easy *data);
+CURLcode Curl_getinfo(संरचना Curl_easy *data, CURLINFO info, ...);
+शून्य Curl_initinfo(संरचना Curl_easy *data);
 
 #endif /* HEADER_CURL_GETINFO_H */
