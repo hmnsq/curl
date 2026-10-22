@@ -23,19 +23,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "llist.h"
+#ضمن "llist.h"
 
-struct Cookie {
-  struct Curl_llist_node node;    /* for the main cookie list */
-  struct Curl_llist_node getnode; /* for getlist */
-  char *name;                     /* <this> = value */
-  char *value;                    /* name = <this> */
-  char *path;                     /* canonical path */
-  char *domain;                   /* domain = <this> */
+بنية Cookie {
+  بنية Curl_llist_عقدة عقدة;    /* for the main cookie list */
+  بنية Curl_llist_عقدة getnode; /* for getlist */
+  حرف *name;                     /* <this> = value */
+  حرف *قيمة;                    /* name = <this> */
+  حرف *path;                     /* canonical path */
+  حرف *domain;                   /* domain = <this> */
   curl_off_t expires;             /* expires = <this> */
-  unsigned int creationtime;      /* time when the cookie was written */
+  unsigned صحيح creationtime;      /* time when the cookie was written */
   BIT(tailmatch);                 /* tail-match the domain name */
   BIT(secure);                    /* the 'secure' keyword was used */
   BIT(livecookie);                /* updated from server, not a stored file */
@@ -53,12 +53,12 @@ struct Cookie {
 
 #define COOKIE_HASH_SIZE 63
 
-struct CookieInfo {
+بنية CookieInfo {
   /* linked lists of cookies we know of */
-  struct Curl_llist cookielist[COOKIE_HASH_SIZE];
+  بنية Curl_llist cookielist[COOKIE_HASH_SIZE];
   curl_off_t next_expiration; /* the next time at which expiration happens */
-  unsigned int numcookies;    /* number of cookies in the "jar" */
-  unsigned int lastct;        /* last creation-time used in the jar */
+  unsigned صحيح numcookies;    /* number of cookies in the "jar" */
+  unsigned صحيح lastct;        /* last creation-time used in the jar */
   BIT(running);               /* state info, for cookie adding information */
   BIT(newsession); /* new session, discard session cookies on load */
 };
@@ -78,7 +78,7 @@ struct CookieInfo {
 
 /* The longest we allow a line to be when reading a cookie from an HTTP header
    or from a cookie jar */
-#define MAX_COOKIE_LINE 5000
+#define MAX_COOKIE_سطر 5000
 
 /* Maximum length of an incoming cookie name or content we deal with. Longer
    cookies are ignored. */
@@ -101,10 +101,10 @@ struct CookieInfo {
    keep the maximum HTTP request within the maximum allowed size. */
 #define MAX_COOKIE_SEND_AMOUNT 150
 
-struct Curl_easy;
-struct connectdata;
+بنية Curl_easy;
+بنية connectdata;
 
-bool Curl_secure_context(struct Curl_easy *data, const char *host);
+bool Curl_secure_context(بنية Curl_easy *data, ثابت حرف *host);
 
 /*
  * Add a cookie to the internal list of cookies. The domain and path arguments
@@ -117,33 +117,33 @@ bool Curl_secure_context(struct Curl_easy *data, const char *host);
 #define COOKIE_NOPSL      (1<<3) /* skip PSL check */
 #define COOKIE_NOSESSION  (1<<6) /* drop session cookies */
 
-CURLcode Curl_cookie_add(struct Curl_easy *data,
-                         struct CookieInfo *ci,
-                         const char *lineptr,
-                         const char *domain,
-                         const char *path,
-                         const int flags) WARN_UNUSED_RESULT;
-CURLcode Curl_cookie_getlist(struct Curl_easy *data,
-                             bool *okay, const char *host,
-                             struct Curl_llist *list) WARN_UNUSED_RESULT;
-void Curl_cookie_clearall(struct CookieInfo *ci);
-void Curl_cookie_clearsess(struct CookieInfo *ci);
+CURLcode Curl_cookie_add(بنية Curl_easy *data,
+                         بنية CookieInfo *ci,
+                         ثابت حرف *lineptr,
+                         ثابت حرف *domain,
+                         ثابت حرف *path,
+                         ثابت صحيح flags) WARN_UNUSED_RESULT;
+CURLcode Curl_cookie_getlist(بنية Curl_easy *data,
+                             bool *okay, ثابت حرف *host,
+                             بنية Curl_llist *list) WARN_UNUSED_RESULT;
+فراغ Curl_cookie_clearall(بنية CookieInfo *ci);
+فراغ Curl_cookie_clearsess(بنية CookieInfo *ci);
 
-#if defined(CURL_DISABLE_HTTP) || defined(CURL_DISABLE_COOKIES)
-#define Curl_cookie_list(x)      NULL
+#إذا defined(CURL_DISABLE_HTTP) || defined(CURL_DISABLE_COOKIES)
+#define Curl_cookie_list(x)      عدم
 #define Curl_cookie_loadfiles(x, y) CURLE_OK
-#define Curl_cookie_init()       NULL
+#define Curl_cookie_init()       عدم
 #define Curl_cookie_run(x)       Curl_nop_stmt
 #define Curl_cookie_cleanup(x)   Curl_nop_stmt
 #define Curl_flush_cookies(x, y) Curl_nop_stmt
-#else
-void Curl_flush_cookies(struct Curl_easy *data, bool cleanup);
-void Curl_cookie_cleanup(struct CookieInfo *ci);
-struct CookieInfo *Curl_cookie_init(void);
-struct curl_slist *Curl_cookie_list(struct Curl_easy *data);
-CURLcode Curl_cookie_loadfiles(struct Curl_easy *data,
-                               int flags) WARN_UNUSED_RESULT;
-void Curl_cookie_run(struct Curl_easy *data);
+#وإلا
+فراغ Curl_flush_cookies(بنية Curl_easy *data, bool cleanup);
+فراغ Curl_cookie_cleanup(بنية CookieInfo *ci);
+بنية CookieInfo *Curl_cookie_init(فراغ);
+بنية curl_slist *Curl_cookie_list(بنية Curl_easy *data);
+CURLcode Curl_cookie_loadfiles(بنية Curl_easy *data,
+                               صحيح flags) WARN_UNUSED_RESULT;
+فراغ Curl_cookie_run(بنية Curl_easy *data);
 #endif
 
 #endif /* HEADER_CURL_COOKIE_H */

@@ -24,6 +24,6 @@
  *
  ***************************************************************************/
 
-const char *curlx_strerror(int err, char *buf, size_t buflen);
+ثابت حرف *curlx_strerror(صحيح err, حرف *buf, size_t buflen);
 
 #endif /* HEADER_CURL_STRERR_H */

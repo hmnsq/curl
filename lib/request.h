@@ -24,12 +24,12 @@
  *
  ***************************************************************************/
 /* This file is for lib internal stuff */
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "bufq.h"
+#ضمن "bufq.h"
 
 /* forward declarations */
-struct UserDefined;
+بنية UserDefined;
 
 /* Bits on the io_flags member of SingleRequest */
 #define REQ_IO_RECV       (1 << 0) /* there is or may be data to read */
@@ -50,7 +50,7 @@ struct UserDefined;
 #define CURL_REQ_CLEAR_IO(d)  \
   ((d)->req.io_flags &= (uint8_t)~(REQ_IO_RECV | REQ_IO_SEND))
 
-enum expect100 {
+تعداد expect100 {
   EXP100_SEND_DATA,           /* enough waiting, send the body now */
   EXP100_AWAITING_CONTINUE,   /* waiting for the 100 Continue header */
   EXP100_SENDING_REQUEST,     /* still sending the request but will wait for
@@ -58,7 +58,7 @@ enum expect100 {
   EXP100_FAILED               /* used on 417 Expectation Failed */
 };
 
-enum upgrade101 {
+تعداد upgrade101 {
   UPGR101_NONE,               /* default state */
   UPGR101_WS,                 /* upgrade to WebSocket requested */
   UPGR101_H2,                 /* upgrade to HTTP/2 requested */
@@ -72,7 +72,7 @@ enum upgrade101 {
  * data here. This struct only keeps stuff that is interesting for *this*
  * request, as it will be cleared between multiple ones
  */
-struct SingleRequest {
+بنية SingleRequest {
   curl_off_t size;        /* -1 if unknown at this point */
   curl_off_t maxdownload; /* in bytes, the maximum amount of data to fetch,
                              -1 means unlimited */
@@ -81,19 +81,19 @@ struct SingleRequest {
   curl_off_t offset;            /* possible resume offset read from the
                                    Content-Range: header */
 
-  struct curltime start;         /* transfer started at this time */
-  unsigned int headerbytecount;  /* received server headers (not CONNECT
+  بنية curltime start;         /* transfer started at this time */
+  unsigned صحيح headerbytecount;  /* received server headers (not CONNECT
                                     headers) */
-  unsigned int allheadercount;   /* all received headers (server + CONNECT) */
-  unsigned int deductheadercount; /* this amount of bytes does not count when
+  unsigned صحيح allheadercount;   /* all received headers (server + CONNECT) */
+  unsigned صحيح deductheadercount; /* this amount of bytes does not count when
                                      we check if anything has been transferred
                                      at the end of a connection. We use this
                                      counter to make only a 100 reply (without
                                      a following second response code) result
                                      in a CURLE_GOT_NOTHING error code */
-  int headerline;               /* counts header lines to better track the
+  صحيح headerline;               /* counts header lines to better track the
                                    first one */
-  int httpcode;                 /* error code from the 'HTTP/1.? XXX' or
+  صحيح httpcode;                 /* error code from the 'HTTP/1.? XXX' or
                                    'RTSP/1.? XXX' line */
   uint8_t httpversion_sent;     /* Version in request (09, 10, 11, etc.) */
   uint8_t httpversion;          /* Version in response (09, 10, 11, etc.) */
@@ -102,32 +102,32 @@ struct SingleRequest {
 
   /* Client Writer stack, handles transfer- and content-encodings, protocol
    * checks, pausing by client callbacks. */
-  struct {
-    struct Curl_cwriter *stack;
+  بنية {
+    بنية Curl_cwriter *مكدس;
     BIT(paused);
   } writer;
   /* Client Reader stack, handles transfer- and content-encodings, protocol
    * checks, pausing by client callbacks. */
-  struct {
-    struct Curl_creader *stack;
+  بنية {
+    بنية Curl_creader *مكدس;
   } reader;
-  struct bufq sendbuf; /* data which needs to be send to the server */
+  بنية bufq sendbuf; /* data which needs to be send to the server */
   size_t sendbuf_hds_len; /* amount of header bytes in sendbuf */
   time_t timeofdoc;
-  char *location;   /* This points to an allocated version of the Location:
+  حرف *location;   /* This points to an allocated version of the Location:
                        header data */
-  char *newurl;     /* Set to the new URL to use when a redirect or a retry is
+  حرف *newurl;     /* Set to the new URL to use when a redirect or a retry is
                        wanted */
 
-  char *hd_auth;      /* Authorization header, full HTTP/1.x line */
+  حرف *hd_auth;      /* Authorization header, full HTTP/1.x line */
 #ifndef CURL_DISABLE_PROXY
-  char *hd_proxy_auth; /* Proxy-Authorization header, full HTTP/1.x line */
+  حرف *hd_proxy_auth; /* Proxy-Authorization header, full HTTP/1.x line */
 #endif
 #ifndef CURL_DISABLE_COOKIES
-  char *cookiehost;
+  حرف *cookiehost;
 #endif
 #ifndef CURL_DISABLE_COOKIES
-  unsigned char setcookies;
+  unsigned حرف setcookies;
 #endif
   BIT(header);        /* incoming data has HTTP header */
   BIT(done);          /* request is done, e.g. no more send/recv should
@@ -164,20 +164,20 @@ struct SingleRequest {
 /**
  * Initialize the state of the request for first use.
  */
-void Curl_req_init(struct SingleRequest *req);
+فراغ Curl_req_init(بنية SingleRequest *req);
 
 /**
  * The request is about to start. Record time and do a soft reset.
  */
-CURLcode Curl_req_start(struct SingleRequest *req,
-                        struct Curl_easy *data);
+CURLcode Curl_req_start(بنية SingleRequest *req,
+                        بنية Curl_easy *data);
 
 /**
  * The request may continue with a follow up. Reset
  * members, but keep start time for overall duration calc.
  */
-CURLcode Curl_req_soft_reset(struct SingleRequest *req,
-                             struct Curl_easy *data);
+CURLcode Curl_req_soft_reset(بنية SingleRequest *req,
+                             بنية Curl_easy *data);
 
 /**
  * The request is done. If not aborted, make sure that buffers are
@@ -186,19 +186,19 @@ CURLcode Curl_req_soft_reset(struct SingleRequest *req,
  * @param data       the transfer
  * @param aborted    TRUE iff the request was aborted/errored
  */
-CURLcode Curl_req_done(struct SingleRequest *req,
-                       struct Curl_easy *data, bool aborted);
+CURLcode Curl_req_done(بنية SingleRequest *req,
+                       بنية Curl_easy *data, bool aborted);
 
 /**
  * Free the state of the request, not usable afterwards.
  */
-void Curl_req_free(struct SingleRequest *req, struct Curl_easy *data);
+فراغ Curl_req_free(بنية SingleRequest *req, بنية Curl_easy *data);
 
 /**
  * Hard reset the state of the request to virgin state base on
  * transfer settings.
  */
-void Curl_req_hard_reset(struct SingleRequest *req, struct Curl_easy *data);
+فراغ Curl_req_hard_reset(بنية SingleRequest *req, بنية Curl_easy *data);
 
 /**
  * Send request headers. If not all could be sent
@@ -209,48 +209,48 @@ void Curl_req_hard_reset(struct SingleRequest *req, struct Curl_easy *data);
  * @param httpversion version used in request (09, 10, 11, etc.)
  * @return CURLE_OK (on blocking with *pnwritten == 0) or error.
  */
-CURLcode Curl_req_send(struct Curl_easy *data, struct dynbuf *req,
-                       unsigned char httpversion);
+CURLcode Curl_req_send(بنية Curl_easy *data, بنية dynbuf *req,
+                       unsigned حرف httpversion);
 
 /**
  * TRUE iff the request has sent all request headers and data.
  */
-bool Curl_req_done_sending(struct Curl_easy *data);
+bool Curl_req_done_sending(بنية Curl_easy *data);
 
 /*
  * Read more from client and flush all buffered request bytes.
  * @return CURLE_OK on success or the error on the sending.
  *         Never returns CURLE_AGAIN.
  */
-CURLcode Curl_req_send_more(struct Curl_easy *data);
+CURLcode Curl_req_send_more(بنية Curl_easy *data);
 
 /* TRUE if the request wants to send, e.g. is not done sending
  * and is not blocked. */
-bool Curl_req_want_send(struct Curl_easy *data);
+bool Curl_req_want_send(بنية Curl_easy *data);
 
 /* TRUE if the request wants to receive and is not blocked. */
-bool Curl_req_want_recv(struct Curl_easy *data);
+bool Curl_req_want_recv(بنية Curl_easy *data);
 
 /**
  * TRUE iff the request has no buffered bytes yet to send.
  */
-bool Curl_req_sendbuf_empty(struct Curl_easy *data);
+bool Curl_req_sendbuf_empty(بنية Curl_easy *data);
 
 /**
  * Stop sending any more request data to the server.
  * Clear the send buffer and mark request sending as done.
  */
-CURLcode Curl_req_abort_sending(struct Curl_easy *data);
+CURLcode Curl_req_abort_sending(بنية Curl_easy *data);
 
 /**
  * Stop sending and receiving any more request data.
  * Abort sending if not done.
  */
-CURLcode Curl_req_stop_send_recv(struct Curl_easy *data);
+CURLcode Curl_req_stop_send_recv(بنية Curl_easy *data);
 
 /**
  * Invoked when all request data has been uploaded.
  */
-CURLcode Curl_req_set_upload_done(struct Curl_easy *data);
+CURLcode Curl_req_set_upload_done(بنية Curl_easy *data);
 
 #endif /* HEADER_CURL_REQUEST_H */
