@@ -21,78 +21,78 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "headers.h"
-#include "strcase.h"
+#ضمن "urldata.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "headers.h"
+#ضمن "strcase.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
 
 /* Generate the curl_header struct for the user. This function MUST assign all
    struct fields in the output struct. */
-static void copy_header_external(struct Curl_header_store *hs,
+ساكن فراغ copy_header_external(بنية Curl_header_store *hs,
                                  size_t index,
                                  size_t amount,
-                                 struct Curl_llist_node *e,
-                                 struct curl_header *hout)
+                                 بنية Curl_llist_عقدة *e,
+                                 بنية curl_header *hout)
 {
-  struct curl_header *h = hout;
+  بنية curl_header *h = hout;
   h->name = hs->name;
-  h->value = hs->value;
+  h->قيمة = hs->قيمة;
   h->amount = amount;
   h->index = index;
   /* this will randomly OR a reserved bit for the sole purpose of making it
      impossible for applications to do == comparisons, as that would otherwise
      be tempting and then lead to the reserved bits not being reserved
      anymore. */
-  h->origin = (unsigned int)(hs->type | (1 << 27));
+  h->origin = (unsigned صحيح)(hs->type | (1 << 27));
   h->anchor = e;
 }
 
 /* public API */
 CURLHcode curl_easy_header(CURL *curl,
-                           const char *name,
+                           ثابت حرف *name,
                            size_t nameindex,
-                           unsigned int origin,
-                           int request,
-                           struct curl_header **hout)
+                           unsigned صحيح origin,
+                           صحيح request,
+                           بنية curl_header **hout)
 {
-  struct Curl_eapi_guard guard;
+  بنية Curl_eapi_guard guard;
   CURLHcode hresult = CURLHE_OK;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_header, &result)) {
-    struct Curl_easy *data = curl;
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *e_pick = NULL;
+  إذا(CURL_EAPI_ENTER(&guard, curl, easy_header, &result)) {
+    بنية Curl_easy *data = curl;
+    بنية Curl_llist_عقدة *e;
+    بنية Curl_llist_عقدة *e_pick = عدم;
     size_t match = 0;
     size_t amount = 0;
-    struct Curl_header_store *hs = NULL;
-    struct Curl_header_store *pick = NULL;
-    if(!name || !hout || !data ||
+    بنية Curl_header_store *hs = عدم;
+    بنية Curl_header_store *pick = عدم;
+    إذا(!name || !hout || !data ||
        (origin > (CURLH_HEADER | CURLH_TRAILER | CURLH_CONNECT | CURLH_1XX |
                   CURLH_PSEUDO)) || !origin || (request < -1)) {
       hresult = CURLHE_BAD_ARGUMENT;
-      goto out;
+      اذهب out;
     }
-    if(!Curl_llist_count(&data->state.httphdrs)) {
+    إذا(!Curl_llist_عدد(&data->state.httphdrs)) {
       hresult = CURLHE_NOHEADERS; /* no headers available */
-      goto out;
+      اذهب out;
     }
-    if(request > data->state.requests) {
+    إذا(request > data->state.requests) {
       hresult = CURLHE_NOREQUEST;
-      goto out;
+      اذهب out;
     }
-    if(request == -1)
+    إذا(request == -1)
       request = data->state.requests;
 
     /* we need a first round to count amount of this header */
-    for(e = Curl_llist_head(&data->state.httphdrs); e; e = Curl_node_next(e)) {
-      hs = Curl_node_elem(e);
-      if(curl_strequal(hs->name, name) &&
+    لكل(e = Curl_llist_head(&data->state.httphdrs); e; e = Curl_عقدة_next(e)) {
+      hs = Curl_عقدة_elem(e);
+      إذا(curl_strequal(hs->name, name) &&
          (hs->type & origin) &&
          (hs->request == request)) {
         amount++;
@@ -100,31 +100,31 @@ CURLHcode curl_easy_header(CURL *curl,
         e_pick = e;
       }
     }
-    if(!amount)
+    إذا(!amount)
       hresult = CURLHE_MISSING;
-    else if(nameindex >= amount)
+    وإلا إذا(nameindex >= amount)
       hresult = CURLHE_BADINDEX;
-    if(hresult)
-      goto out;
+    إذا(hresult)
+      اذهب out;
 
-    if(nameindex == amount - 1)
+    إذا(nameindex == amount - 1)
       /* if the last or only occurrence is what's asked for, then we know it */
       hs = pick;
-    else {
-      for(e = Curl_llist_head(&data->state.httphdrs); e;
-          e = Curl_node_next(e)) {
-        hs = Curl_node_elem(e);
-        if(curl_strequal(hs->name, name) &&
+    وإلا {
+      لكل(e = Curl_llist_head(&data->state.httphdrs); e;
+          e = Curl_عقدة_next(e)) {
+        hs = Curl_عقدة_elem(e);
+        إذا(curl_strequal(hs->name, name) &&
            (hs->type & origin) &&
            (hs->request == request) &&
            (match++ == nameindex)) {
           e_pick = e;
-          break;
+          اكسر;
         }
       }
-      if(!e) { /* this should not happen */
+      إذا(!e) { /* this should not happen */
         hresult = CURLHE_MISSING;
-        goto out;
+        اذهب out;
       }
     }
     /* this is the name we want */
@@ -135,72 +135,72 @@ CURLHcode curl_easy_header(CURL *curl,
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  if(result)
+  إذا(result)
     hresult = Curl_eapi_hcode(result);
-  return hresult;
+  أرجع hresult;
 }
 
-struct nextheader_cache_entry {
-  struct Curl_header_store *header;
+بنية nextheader_cache_entry {
+  بنية Curl_header_store *header;
   size_t order;
 };
 
-static int nextheader_compare(const void *p1, const void *p2)
+ساكن صحيح nextheader_compare(ثابت فراغ *p1, ثابت فراغ *p2)
 {
-  const struct nextheader_cache_entry *e1 = p1;
-  const struct nextheader_cache_entry *e2 = p2;
-  const struct Curl_header_store *h1 = e1->header;
-  const struct Curl_header_store *h2 = e2->header;
-  const char *n1 = h1->name;
-  const char *n2 = h2->name;
+  ثابت بنية nextheader_cache_entry *e1 = p1;
+  ثابت بنية nextheader_cache_entry *e2 = p2;
+  ثابت بنية Curl_header_store *h1 = e1->header;
+  ثابت بنية Curl_header_store *h2 = e2->header;
+  ثابت حرف *n1 = h1->name;
+  ثابت حرف *n2 = h2->name;
 
-  while(*n1 && *n2) {
-    unsigned char c1 = (unsigned char)Curl_raw_toupper(*n1++);
-    unsigned char c2 = (unsigned char)Curl_raw_toupper(*n2++);
-    if(c1 != c2)
-      return c1 > c2 ? 1 : -1;
+  طالما(*n1 && *n2) {
+    unsigned حرف c1 = (unsigned حرف)Curl_raw_toupper(*n1++);
+    unsigned حرف c2 = (unsigned حرف)Curl_raw_toupper(*n2++);
+    إذا(c1 != c2)
+      أرجع c1 > c2 ? 1 : -1;
   }
-  if(*n1)
-    return 1;
-  if(*n2)
-    return -1;
-  if(e1->order != e2->order)
-    return e1->order > e2->order ? 1 : -1;
-  return 0;
+  إذا(*n1)
+    أرجع 1;
+  إذا(*n2)
+    أرجع -1;
+  إذا(e1->order != e2->order)
+    أرجع e1->order > e2->order ? 1 : -1;
+  أرجع 0;
 }
 
-static bool nextheader_cache_build(struct Curl_easy *data,
-                                   unsigned int origin,
-                                   int request, size_t count)
+ساكن bool nextheader_cache_build(بنية Curl_easy *data,
+                                   unsigned صحيح origin,
+                                   صحيح request, size_t عدد)
 {
-  struct nextheader_cache_entry *headers;
-  struct Curl_llist_node *e;
+  بنية nextheader_cache_entry *headers;
+  بنية Curl_llist_عقدة *e;
   size_t i = 0;
   size_t first;
 
-  headers = curlx_malloc(sizeof(*headers) * count);
-  if(!headers)
-    return FALSE;
+  headers = curlx_malloc(حجم(*headers) * عدد);
+  إذا(!headers)
+    أرجع FALSE;
 
-  for(e = Curl_llist_head(&data->state.httphdrs); e;
-      e = Curl_node_next(e)) {
-    struct Curl_header_store *hs = Curl_node_elem(e);
-    if((hs->type & origin) && (hs->request == request)) {
+  لكل(e = Curl_llist_head(&data->state.httphdrs); e;
+      e = Curl_عقدة_next(e)) {
+    بنية Curl_header_store *hs = Curl_عقدة_elem(e);
+    إذا((hs->type & origin) && (hs->request == request)) {
       headers[i].header = hs;
       headers[i].order = i;
       i++;
     }
   }
 
-  qsort(headers, i, sizeof(*headers), nextheader_compare);
-  for(first = 0; first < i;) {
+  qsort(headers, i, حجم(*headers), nextheader_compare);
+  لكل(first = 0; first < i;) {
     size_t last = first + 1;
     size_t index;
-    while((last < i) &&
+    طالما((last < i) &&
           curl_strequal(headers[first].header->name,
                         headers[last].header->name))
       last++;
-    for(index = first; index < last; index++) {
+    لكل(index = first; index < last; index++) {
       headers[index].header->nh_amount = last - first;
       headers[index].header->nh_index = index - first;
     }
@@ -210,79 +210,79 @@ static bool nextheader_cache_build(struct Curl_easy *data,
 
   data->state.nh_origin = origin;
   data->state.nh_request = request;
-  data->state.nh_count = count;
-  return TRUE;
+  data->state.nh_عدد = عدد;
+  أرجع TRUE;
 }
 
 /* public API */
-struct curl_header *curl_easy_nextheader(CURL *curl,
-                                         unsigned int origin,
-                                         int request,
-                                         struct curl_header *prev)
+بنية curl_header *curl_easy_nextheader(CURL *curl,
+                                         unsigned صحيح origin,
+                                         صحيح request,
+                                         بنية curl_header *prev)
 {
-  struct Curl_eapi_guard guard;
-  struct curl_header *hd = NULL;
+  بنية Curl_eapi_guard guard;
+  بنية curl_header *hd = عدم;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &result)) {
-    struct Curl_easy *data = curl;
-    struct Curl_llist_node *pick;
-    struct Curl_llist_node *e;
-    struct Curl_header_store *hs;
+  إذا(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &result)) {
+    بنية Curl_easy *data = curl;
+    بنية Curl_llist_عقدة *pick;
+    بنية Curl_llist_عقدة *e;
+    بنية Curl_header_store *hs;
     size_t amount = 0;
     size_t index = 0;
-    size_t count;
+    size_t عدد;
 
-    if(request > data->state.requests)
-      goto out;
-    if(request == -1)
+    إذا(request > data->state.requests)
+      اذهب out;
+    إذا(request == -1)
       request = data->state.requests;
 
-    if(prev) {
+    إذا(prev) {
       pick = prev->anchor;
-      if(!pick)
+      إذا(!pick)
         /* something is wrong */
-        goto out;
-      pick = Curl_node_next(pick);
+        اذهب out;
+      pick = Curl_عقدة_next(pick);
     }
-    else
+    وإلا
       pick = Curl_llist_head(&data->state.httphdrs);
 
-    if(pick) {
+    إذا(pick) {
       /* make sure it is the next header of the desired type */
-      do {
-        hs = Curl_node_elem(pick);
-        if((hs->type & origin) && (hs->request == request))
-          break;
-        pick = Curl_node_next(pick);
-      } while(pick);
+      افعل {
+        hs = Curl_عقدة_elem(pick);
+        إذا((hs->type & origin) && (hs->request == request))
+          اكسر;
+        pick = Curl_عقدة_next(pick);
+      } طالما(pick);
     }
 
-    if(!pick)
+    إذا(!pick)
       /* no more headers available */
-      goto out;
+      اذهب out;
 
-    hs = Curl_node_elem(pick);
-    count = Curl_llist_count(&data->state.httphdrs);
+    hs = Curl_عقدة_elem(pick);
+    عدد = Curl_llist_عدد(&data->state.httphdrs);
 
-    if(((data->state.nh_count == count) &&
+    إذا(((data->state.nh_عدد == عدد) &&
         (data->state.nh_origin == origin) &&
         (data->state.nh_request == request)) ||
-       nextheader_cache_build(data, origin, request, count)) {
+       nextheader_cache_build(data, origin, request, عدد)) {
       amount = hs->nh_amount;
       index = hs->nh_index;
     }
-    else {
+    وإلا {
       /* count number of occurrences of this name within the mask and figure
          out the index for the currently selected entry */
-      for(e = Curl_llist_head(&data->state.httphdrs); e;
-          e = Curl_node_next(e)) {
-        struct Curl_header_store *check = Curl_node_elem(e);
-        if(curl_strequal(hs->name, check->name) &&
+      لكل(e = Curl_llist_head(&data->state.httphdrs); e;
+          e = Curl_عقدة_next(e)) {
+        بنية Curl_header_store *check = Curl_عقدة_elem(e);
+        إذا(curl_strequal(hs->name, check->name) &&
            (check->request == request) &&
            (check->type & origin))
           amount++;
-        if(e == pick)
+        إذا(e == pick)
           index = amount - 1;
       }
     }
@@ -292,42 +292,42 @@ struct curl_header *curl_easy_nextheader(CURL *curl,
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return hd;
+  أرجع hd;
 }
 
-static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
-                          char **name, char **value)
+ساكن CURLcode namevalue(حرف *header, size_t hlen, unsigned صحيح type,
+                          حرف **name, حرف **قيمة)
 {
-  char *end = header + hlen - 1; /* point to the last byte */
+  حرف *end = header + hlen - 1; /* point to the last byte */
   DEBUGASSERT(hlen);
   *name = header;
 
-  if(type == CURLH_PSEUDO) {
-    if(*header != ':')
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(type == CURLH_PSEUDO) {
+    إذا(*header != ':')
+      أرجع CURLE_BAD_FUNCTION_ARGUMENT;
     header++;
   }
 
   /* Find the end of the header name */
-  while(*header && (*header != ':'))
+  طالما(*header && (*header != ':'))
     ++header;
 
-  if(*header)
+  إذا(*header)
     /* Skip over colon, null it */
     *header++ = 0;
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  وإلا
+    أرجع CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* skip all leading blank letters */
-  while(ISBLANK(*header))
+  طالما(ISBLANK(*header))
     header++;
 
-  *value = header;
+  *قيمة = header;
 
   /* skip all trailing space letters */
-  while((end > header) && ISBLANK(*end))
+  طالما((end > header) && ISBLANK(*end))
     *end-- = 0; /* null-terminate */
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
@@ -335,178 +335,178 @@ static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
  * immediately before the header callback. The header is CRLF, CR or LF
  * terminated.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
+CURLcode Curl_headers_ادفع(بنية Curl_easy *data, ثابت حرف *header,
                            size_t hlen, /* length of header */
-                           unsigned char type)
+                           unsigned حرف type)
 {
-  char *value = NULL;
-  char *name = NULL;
-  struct Curl_header_store *hs;
+  حرف *قيمة = عدم;
+  حرف *name = عدم;
+  بنية Curl_header_store *hs;
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  const size_t ilen = hlen;
+  ثابت size_t ilen = hlen;
 
-  if((header[0] == '\r') || (header[0] == '\n'))
+  إذا((header[0] == '\r') || (header[0] == '\n'))
     /* ignore the body separator */
-    return CURLE_OK;
+    أرجع CURLE_OK;
 
   /* trim off newline characters */
-  if(hlen && (header[hlen - 1] == '\n'))
+  إذا(hlen && (header[hlen - 1] == '\n'))
     hlen--;
-  if(hlen && (header[hlen - 1] == '\r'))
+  إذا(hlen && (header[hlen - 1] == '\r'))
     hlen--;
-  if(hlen == ilen)
+  إذا(hlen == ilen)
     /* neither CR nor LF as terminator is not a valid header */
-    return CURLE_WEIRD_SERVER_REPLY;
+    أرجع CURLE_WEIRD_SERVER_REPLY;
 
-  if(ISBLANK(header[0])) {
+  إذا(ISBLANK(header[0])) {
     /* pass leading blanks */
-    while(hlen && ISBLANK(*header)) {
+    طالما(hlen && ISBLANK(*header)) {
       header++;
       hlen--;
     }
-    if(!hlen)
-      return CURLE_WEIRD_SERVER_REPLY;
+    إذا(!hlen)
+      أرجع CURLE_WEIRD_SERVER_REPLY;
   }
-  if(Curl_llist_count(&data->state.httphdrs) >= MAX_HTTP_RESP_HEADER_COUNT) {
+  إذا(Curl_llist_عدد(&data->state.httphdrs) >= MAX_HTTP_RESP_HEADER_عدد) {
     failf(data, "Too many response headers, %d is max",
-          MAX_HTTP_RESP_HEADER_COUNT);
-    return CURLE_TOO_LARGE;
+          MAX_HTTP_RESP_HEADER_عدد);
+    أرجع CURLE_TOO_LARGE;
   }
 
-  hs = curlx_calloc(1, sizeof(*hs) + hlen);
-  if(!hs)
-    return CURLE_OUT_OF_MEMORY;
+  hs = curlx_calloc(1, حجم(*hs) + hlen);
+  إذا(!hs)
+    أرجع CURLE_OUT_OF_MEMORY;
   memcpy(hs->buffer, header, hlen);
   hs->buffer[hlen] = 0; /* null-terminate */
 
-  result = namevalue(hs->buffer, hlen, type, &name, &value);
-  if(!result) {
+  result = namevalue(hs->buffer, hlen, type, &name, &قيمة);
+  إذا(!result) {
     hs->name = name;
-    hs->value = value;
+    hs->قيمة = قيمة;
     hs->type = type;
     hs->request = data->state.requests;
 
     /* insert this node into the list of headers */
-    Curl_llist_append(&data->state.httphdrs, hs, &hs->node);
+    Curl_llist_append(&data->state.httphdrs, hs, &hs->عقدة);
   }
-  else {
+  وإلا {
     failf(data, "Invalid response header");
     curlx_free(hs);
   }
-  return result;
+  أرجع result;
 }
 
 /*
  * Curl_headers_reset(). Reset the headers subsystem.
  */
-static void headers_reset(struct Curl_easy *data)
+ساكن فراغ headers_reset(بنية Curl_easy *data)
 {
-  Curl_llist_init(&data->state.httphdrs, NULL);
-  data->state.nh_count = 0;
+  Curl_llist_init(&data->state.httphdrs, عدم);
+  data->state.nh_عدد = 0;
 }
 
-struct hds_cw_collect_ctx {
-  struct Curl_cwriter super;
+بنية hds_cw_collect_ctx {
+  بنية Curl_cwriter super;
 };
 
-static CURLcode hds_cw_collect_write(struct Curl_easy *data,
-                                     struct Curl_cwriter *writer, int type,
-                                     const char *buf, size_t blen)
+ساكن CURLcode hds_cw_collect_write(بنية Curl_easy *data,
+                                     بنية Curl_cwriter *writer, صحيح type,
+                                     ثابت حرف *buf, size_t blen)
 {
-  if((type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS)) {
-    unsigned char htype = (unsigned char)
+  إذا((type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS)) {
+    unsigned حرف htype = (unsigned حرف)
       (type & CLIENTWRITE_CONNECT ? CURLH_CONNECT :
        (type & CLIENTWRITE_1XX ? CURLH_1XX :
         (type & CLIENTWRITE_TRAILER ? CURLH_TRAILER :
          CURLH_HEADER)));
-    CURLcode result = Curl_headers_push(data, buf, blen, htype);
+    CURLcode result = Curl_headers_ادفع(data, buf, blen, htype);
     CURL_TRC_WRITE(data, "header_collect pushed(type=%x, len=%zu) -> %d",
-                   htype, blen, (int)result);
-    if(result)
-      return result;
+                   htype, blen, (صحيح)result);
+    إذا(result)
+      أرجع result;
   }
-  return Curl_cwriter_write(data, writer->next, type, buf, blen);
+  أرجع Curl_cwriter_write(data, writer->next, type, buf, blen);
 }
 
-static const struct Curl_cwtype hds_cw_collect = {
+ساكن ثابت بنية Curl_cwtype hds_cw_collect = {
   "hds-collect",
-  NULL,
+  عدم,
   0,
   Curl_cwriter_def_init,
   hds_cw_collect_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct hds_cw_collect_ctx)
+  حجم(بنية hds_cw_collect_ctx)
 };
 
-CURLcode Curl_headers_init(struct Curl_easy *data)
+CURLcode Curl_headers_init(بنية Curl_easy *data)
 {
-  struct Curl_cwriter *writer;
+  بنية Curl_cwriter *writer;
   CURLcode result;
 
-  if(data->conn && (data->conn->scheme->protocol & PROTO_FAMILY_HTTP)) {
+  إذا(data->conn && (data->conn->scheme->protocol & PROTO_FAMILY_HTTP)) {
     /* avoid installing it twice */
-    if(Curl_cwriter_get_by_name(data, hds_cw_collect.name))
-      return CURLE_OK;
+    إذا(Curl_cwriter_get_by_name(data, hds_cw_collect.name))
+      أرجع CURLE_OK;
 
     result = Curl_cwriter_create(&writer, data, &hds_cw_collect,
                                  CURL_CW_PROTOCOL);
-    if(result)
-      return result;
+    إذا(result)
+      أرجع result;
 
     result = Curl_cwriter_add(data, writer);
-    if(result) {
+    إذا(result) {
       Curl_cwriter_free(data, writer);
-      return result;
+      أرجع result;
     }
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data)
+CURLcode Curl_headers_cleanup(بنية Curl_easy *data)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
+  بنية Curl_llist_عقدة *e;
+  بنية Curl_llist_عقدة *n;
 
-  for(e = Curl_llist_head(&data->state.httphdrs); e; e = n) {
-    struct Curl_header_store *hs = Curl_node_elem(e);
-    n = Curl_node_next(e);
+  لكل(e = Curl_llist_head(&data->state.httphdrs); e; e = n) {
+    بنية Curl_header_store *hs = Curl_عقدة_elem(e);
+    n = Curl_عقدة_next(e);
     curlx_free(hs);
   }
   headers_reset(data);
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-#else /* HTTP-disabled builds below */
+#وإلا /* HTTP-disabled builds below */
 
 CURLHcode curl_easy_header(CURL *easy,
-                           const char *name,
+                           ثابت حرف *name,
                            size_t index,
-                           unsigned int origin,
-                           int request,
-                           struct curl_header **hout)
+                           unsigned صحيح origin,
+                           صحيح request,
+                           بنية curl_header **hout)
 {
-  (void)easy;
-  (void)name;
-  (void)index;
-  (void)origin;
-  (void)request;
-  (void)hout;
-  return CURLHE_NOT_BUILT_IN;
+  (فراغ)easy;
+  (فراغ)name;
+  (فراغ)index;
+  (فراغ)origin;
+  (فراغ)request;
+  (فراغ)hout;
+  أرجع CURLHE_NOT_BUILT_IN;
 }
 
-struct curl_header *curl_easy_nextheader(CURL *easy,
-                                         unsigned int type,
-                                         int request,
-                                         struct curl_header *prev)
+بنية curl_header *curl_easy_nextheader(CURL *easy,
+                                         unsigned صحيح type,
+                                         صحيح request,
+                                         بنية curl_header *prev)
 {
-  (void)easy;
-  (void)type;
-  (void)request;
-  (void)prev;
-  return NULL;
+  (فراغ)easy;
+  (فراغ)type;
+  (فراغ)request;
+  (فراغ)prev;
+  أرجع عدم;
 }
 #endif

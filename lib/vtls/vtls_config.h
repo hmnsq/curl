@@ -23,35 +23,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct Curl_peer;
+بنية Curl_easy;
+بنية connectdata;
+بنية Curl_peer;
 
-struct ssl_filter_config {
-  char *CApath;          /* certificate directory (does not work on Windows) */
-  char *CAfile;          /* certificate to verify peer against */
-  char *issuercert;      /* optional issuer certificate filename */
-  char *clientcert;
-  char *cipher_list;     /* list of ciphers to use */
-  char *cipher_list13;   /* list of TLS 1.3 cipher suites to use */
-  char *signature_algorithms; /* list of signature algorithms to use */
-  char *pinned_key;
-  char *CRLfile;         /* CRL to check certificate revocation */
-  char *cert_type;       /* format for certificate (default: PEM) */
-  char *key;             /* private key filename */
-  char *key_type;        /* format for private key (default: PEM) */
-  char *key_passwd;      /* plain text private key password */
+بنية ssl_filter_config {
+  حرف *CApath;          /* certificate directory (does not work on Windows) */
+  حرف *CAfile;          /* certificate to verify peer against */
+  حرف *issuercert;      /* optional issuer certificate filename */
+  حرف *clientcert;
+  حرف *cipher_list;     /* list of ciphers to use */
+  حرف *cipher_list13;   /* list of TLS 1.3 cipher suites to use */
+  حرف *signature_algorithms; /* list of signature algorithms to use */
+  حرف *pinned_مفتاح;
+  حرف *CRLfile;         /* CRL to check certificate revocation */
+  حرف *cert_type;       /* format for certificate (default: PEM) */
+  حرف *مفتاح;             /* private key filename */
+  حرف *مفتاح_type;        /* format for private key (default: PEM) */
+  حرف *مفتاح_passwd;      /* plain text private key password */
 #ifdef USE_ECH
-  char *ech_config;      /* TLS ECH configuration, base64 string */
-  char *ech_public;      /* TLS ECH public DNS (SNI in outer ClientHello) */
+  حرف *ech_config;      /* TLS ECH configuration, base64 string */
+  حرف *ech_public;      /* TLS ECH public DNS (SNI in outer ClientHello) */
 #endif
-  struct curl_blob *cert_blob;
-  struct curl_blob *ca_info_blob;
-  struct curl_blob *issuercert_blob;
-  struct curl_blob *key_blob;
-  char *curves;          /* list of curves to use */
+  بنية curl_blob *cert_blob;
+  بنية curl_blob *ca_info_blob;
+  بنية curl_blob *issuercert_blob;
+  بنية curl_blob *مفتاح_blob;
+  حرف *curves;          /* list of curves to use */
   uint32_t version_max; /* max supported version the client wants to use */
   uint8_t ssl_options;  /* the CURLOPT_SSL_OPTIONS bitmask */
   uint8_t version;    /* what version the client wants to use */
@@ -74,7 +74,7 @@ struct ssl_filter_config {
                               list errors */
 };
 
-struct ssl_easy_config {
+بنية ssl_easy_config {
   long certverifyresult; /* result from the certificate verification */
   uint32_t version_max; /* max supported version the client wants to use */
   uint8_t version;    /* what version the client wants to use */
@@ -92,40 +92,40 @@ struct ssl_easy_config {
   BIT(custom_cablob); /* application has set custom CA blob */
 };
 
-void Curl_ssl_config_init(struct ssl_easy_config *sslc);
-void Curl_ssl_config_cleanup(struct ssl_filter_config *sslc);
+فراغ Curl_ssl_config_init(بنية ssl_easy_config *sslc);
+فراغ Curl_ssl_config_cleanup(بنية ssl_filter_config *sslc);
 
 /* Init the SSL filter configs *shallow* for connection matching
  * with origin and data's configuration settings. */
 CURLcode Curl_ssl_filter_config_tmp_init(
-  struct Curl_easy *data, struct Curl_peer *origin,
-  struct ssl_filter_config *ssl_origin,
-  struct ssl_filter_config *ssl_proxy);
+  بنية Curl_easy *data, بنية Curl_peer *origin,
+  بنية ssl_filter_config *ssl_origin,
+  بنية ssl_filter_config *ssl_proxy);
 
 /* Clone the given filter configs into the connection. */
-CURLcode Curl_ssl_conn_config_clone(struct ssl_filter_config *ssl_config,
-                                    struct ssl_filter_config *proxy_ssl_config,
-                                    struct connectdata *conn);
+CURLcode Curl_ssl_conn_config_clone(بنية ssl_filter_config *ssl_config,
+                                    بنية ssl_filter_config *proxy_ssl_config,
+                                    بنية connectdata *conn);
 
 /**
  * Free allocated resources in SSL configs (main + proxy) for
  * the given connection.
  */
-void Curl_ssl_conn_config_cleanup(struct connectdata *conn);
+فراغ Curl_ssl_conn_config_cleanup(بنية connectdata *conn);
 
 /**
  * Return TRUE if `conn_config` is functionally the
  * same as the one on `candidate`.
  * @param proxy   match the proxy SSL config or the main one
  */
-bool Curl_ssl_conn_config_match(struct Curl_easy *data,
-                                struct ssl_filter_config *conn_config,
-                                struct connectdata *candidate,
+bool Curl_ssl_conn_config_match(بنية Curl_easy *data,
+                                بنية ssl_filter_config *conn_config,
+                                بنية connectdata *candidate,
                                 bool proxy);
 
 /* Update certain connection SSL config flags after they have
  * been changed on the easy handle. Works for `verifypeer`,
  * `verifyhost` and `verifystatus`. */
-void Curl_ssl_conn_config_update(struct Curl_easy *data, bool for_proxy);
+فراغ Curl_ssl_conn_config_update(بنية Curl_easy *data, bool for_proxy);
 
 #endif /* HEADER_CURL_VTLS_CONFIG_H */
