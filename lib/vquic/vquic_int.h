@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef USE_HTTP3
 
-#include "bufq.h"
-#include "u32_ptrset.h"
+#अन्तर्भाव "bufq.h"
+#अन्तर्भाव "u32_ptrset.h"
 
 #define MAX_UDP_PAYLOAD_SIZE  1452
 
 /* definitions from RFC 9114, ch 8.1 */
-typedef enum {
+प्रकारनिर्देश गणना {
   CURL_H3_ERR_NO_ERROR = 0x0100,
   CURL_H3_ERR_GENERAL_PROTOCOL_ERROR = 0x0101,
   CURL_H3_ERR_INTERNAL_ERROR = 0x0102,
@@ -54,75 +54,75 @@ typedef enum {
 } vquic_h3_error;
 
 #ifdef CURLVERBOSE
-const char *Curl_vquic_h3_err_str(uint64_t error_code);
-#else
+ध्रुव वर्ण *Curl_vquic_h3_err_str(uint64_t error_code);
+#अन्यथा
 #define Curl_vquic_h3_err_str(x)   ""
 #endif /* CURLVERBOSE */
 
-struct cf_quic_ctx {
+संरचना cf_quic_ctx {
   curl_socket_t sockfd;               /* connected UDP socket */
-  struct sockaddr_storage local_addr; /* address socket is bound to */
+  संरचना sockaddr_storage local_addr; /* address socket is bound to */
   socklen_t local_addrlen;            /* length of local address */
 
-  struct bufq sendbuf;           /* buffer for sending one or more packets */
-  struct curltime first_byte_at; /* when first byte was recvd */
-  struct curltime last_op;       /* last (attempted) send/recv operation */
-  struct curltime last_io;       /* last successful socket IO */
-  size_t gsolen;                 /* length of individual packets in send buf */
-  size_t split_len;    /* if != 0, buffer length after which GSO differs */
-  size_t split_gsolen; /* length of individual packets after split_len */
+  संरचना bufq sendbuf;           /* buffer for sending one or more packets */
+  संरचना curltime first_byte_at; /* when first byte was recvd */
+  संरचना curltime last_op;       /* last (attempted) send/recv operation */
+  संरचना curltime last_io;       /* last successful socket IO */
+  माप_प्रकार gsolen;                 /* length of individual packets in send buf */
+  माप_प्रकार split_len;    /* if != 0, buffer length after which GSO differs */
+  माप_प्रकार split_gsolen; /* length of individual packets after split_len */
 #ifdef DEBUGBUILD
-  int wblock_percent;  /* percent of writes doing EAGAIN */
+  पूर्णाङ्क wblock_percent;  /* percent of writes doing EAGAIN */
 #endif
   BIT(got_first_byte); /* if first byte was received */
   BIT(no_gso);         /* do not use gso on sending */
 };
 
 #define H3_STREAM_CTX(ctx, data)                                        \
-  ((data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : NULL)
+  ((data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : रिक्त)
 
-CURLcode Curl_vquic_ctx_init(struct Curl_easy *data,
-                             struct cf_quic_ctx *qctx);
-void Curl_vquic_ctx_free(struct cf_quic_ctx *qctx);
+CURLcode Curl_vquic_ctx_init(संरचना Curl_easy *data,
+                             संरचना cf_quic_ctx *qctx);
+शून्य Curl_vquic_ctx_free(संरचना cf_quic_ctx *qctx);
 
-void Curl_vquic_ctx_set_time(struct cf_quic_ctx *qctx,
-                             const struct curltime *pnow);
+शून्य Curl_vquic_ctx_set_time(संरचना cf_quic_ctx *qctx,
+                             ध्रुव संरचना curltime *pnow);
 
-void Curl_vquic_ctx_update_time(struct cf_quic_ctx *qctx,
-                                const struct curltime *pnow);
+शून्य Curl_vquic_ctx_update_time(संरचना cf_quic_ctx *qctx,
+                                ध्रुव संरचना curltime *pnow);
 
-CURLcode Curl_vquic_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         struct cf_quic_ctx *qctx, size_t gsolen);
+CURLcode Curl_vquic_send(संरचना Curl_cfilter *cf, संरचना Curl_easy *data,
+                         संरचना cf_quic_ctx *qctx, माप_प्रकार gsolen);
 
-CURLcode Curl_vquic_send_tail_split(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct cf_quic_ctx *qctx, size_t gsolen,
-                                    size_t tail_len, size_t tail_gsolen);
+CURLcode Curl_vquic_send_tail_split(संरचना Curl_cfilter *cf,
+                                    संरचना Curl_easy *data,
+                                    संरचना cf_quic_ctx *qctx, माप_प्रकार gsolen,
+                                    माप_प्रकार tail_len, माप_प्रकार tail_gsolen);
 
-CURLcode Curl_vquic_flush(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          struct cf_quic_ctx *qctx);
+CURLcode Curl_vquic_flush(संरचना Curl_cfilter *cf, संरचना Curl_easy *data,
+                          संरचना cf_quic_ctx *qctx);
 
-typedef CURLcode Curl_vquic_recv_pkts_cb(const unsigned char *buf,
-                                         size_t buflen,
-                                         size_t gso_size,
-                                         struct sockaddr_storage *remote_addr,
+प्रकारनिर्देश CURLcode Curl_vquic_recv_pkts_cb(ध्रुव अचिन्हित वर्ण *buf,
+                                         माप_प्रकार buflen,
+                                         माप_प्रकार gso_size,
+                                         संरचना sockaddr_storage *remote_addr,
                                          socklen_t remote_addrlen, uint8_t ecn,
-                                         void *userp);
+                                         शून्य *userp);
 
-CURLcode Curl_vquic_recv_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
-                                 size_t max_pkts,
+CURLcode Curl_vquic_recv_packets(संरचना Curl_cfilter *cf,
+                                 संरचना Curl_easy *data,
+                                 संरचना cf_quic_ctx *qctx,
+                                 माप_प्रकार max_pkts,
                                  Curl_vquic_recv_pkts_cb *recv_cb,
-                                 void *userp);
+                                 शून्य *userp);
 
 #ifdef USE_NGTCP2
-struct ngtcp2_mem;
-struct ngtcp2_mem *Curl_ngtcp2_mem(void);
+संरचना ngtcp2_mem;
+संरचना ngtcp2_mem *Curl_ngtcp2_mem(शून्य);
 #endif
 #ifdef USE_NGHTTP3
-struct nghttp3_mem;
-struct nghttp3_mem *Curl_nghttp3_mem(void);
+संरचना nghttp3_mem;
+संरचना nghttp3_mem *Curl_nghttp3_mem(शून्य);
 #endif
 
 #endif /* !USE_HTTP3 */

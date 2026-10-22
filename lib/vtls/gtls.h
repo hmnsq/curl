@@ -23,93 +23,93 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef USE_GNUTLS
 
-#include <gnutls/gnutls.h>
+#अन्तर्भाव <gnutls/gnutls.h>
 
-#include "curlx/timeval.h"
+#अन्तर्भाव "curlx/timeval.h"
 
-struct Curl_easy;
-struct Curl_cfilter;
-struct alpn_spec;
-struct ssl_filter_config;
-struct ssl_easy_config;
-struct ssl_peer;
-struct ssl_connect_data;
-struct Curl_ssl_session;
+संरचना Curl_easy;
+संरचना Curl_cfilter;
+संरचना alpn_spec;
+संरचना ssl_filter_config;
+संरचना ssl_easy_config;
+संरचना ssl_peer;
+संरचना ssl_connect_data;
+संरचना Curl_ssl_session;
 
-struct gtls_shared_creds {
+संरचना gtls_shared_creds {
   gnutls_certificate_credentials_t creds;
-  char *CAfile; /* CAfile path used to generate X509 store */
-  struct curltime time; /* when the shared creds was created */
-  size_t refcount;
+  वर्ण *CAfile; /* CAfile path used to generate X509 store */
+  संरचना curltime समय; /* when the shared creds was created */
+  माप_प्रकार refcount;
   BIT(trust_setup); /* x509 anchors + CRLs have been set up */
 };
 
-CURLcode Curl_gtls_shared_creds_create(struct Curl_easy *data,
-                                       struct gtls_shared_creds **pcreds);
-CURLcode Curl_gtls_shared_creds_up_ref(struct gtls_shared_creds *creds);
-void Curl_gtls_shared_creds_free(struct gtls_shared_creds **pcreds);
+CURLcode Curl_gtls_shared_creds_create(संरचना Curl_easy *data,
+                                       संरचना gtls_shared_creds **pcreds);
+CURLcode Curl_gtls_shared_creds_up_ref(संरचना gtls_shared_creds *creds);
+शून्य Curl_gtls_shared_creds_free(संरचना gtls_shared_creds **pcreds);
 
-struct gtls_ctx {
+संरचना gtls_ctx {
   gnutls_session_t session;
-  struct gtls_shared_creds *shared_creds;
+  संरचना gtls_shared_creds *shared_creds;
   CURLcode io_result; /* result of last IO cfilter operation */
   BIT(sent_shutdown);
 };
 
-size_t Curl_gtls_version(char *buffer, size_t size);
+माप_प्रकार Curl_gtls_version(वर्ण *buffer, माप_प्रकार size);
 
-typedef CURLcode Curl_gtls_ctx_setup_cb(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data);
+प्रकारनिर्देश CURLcode Curl_gtls_ctx_setup_cb(संरचना Curl_cfilter *cf,
+                                        संरचना Curl_easy *data,
+                                        शून्य *user_data);
 
-typedef CURLcode Curl_gtls_init_session_reuse_cb(struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data,
-                                                 struct alpn_spec *alpns,
-                                                 struct Curl_ssl_session *scs,
+प्रकारनिर्देश CURLcode Curl_gtls_init_session_reuse_cb(संरचना Curl_cfilter *cf,
+                                                 संरचना Curl_easy *data,
+                                                 संरचना alpn_spec *alpns,
+                                                 संरचना Curl_ssl_session *scs,
                                                  bool *do_early_data);
 
-CURLcode Curl_gtls_ctx_init(struct gtls_ctx *gctx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
+CURLcode Curl_gtls_ctx_init(संरचना gtls_ctx *gctx,
+                            संरचना Curl_cfilter *cf,
+                            संरचना Curl_easy *data,
+                            संरचना ssl_peer *peer,
+                            ध्रुव संरचना alpn_spec *alpns_requested,
                             Curl_gtls_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
-                            void *ssl_user_data,
+                            शून्य *cb_user_data,
+                            शून्य *ssl_user_data,
                             Curl_gtls_init_session_reuse_cb *sess_reuse_cb);
 
-CURLcode Curl_gtls_client_trust_setup(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct gtls_ctx *gtls);
+CURLcode Curl_gtls_client_trust_setup(संरचना Curl_cfilter *cf,
+                                      संरचना Curl_easy *data,
+                                      संरचना gtls_ctx *gtls);
 
-CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+CURLcode Curl_gtls_verifyserver(संरचना Curl_cfilter *cf,
+                                संरचना Curl_easy *data,
                                 gnutls_session_t session,
-                                struct ssl_filter_config *config,
-                                struct ssl_easy_config *ssl_config,
-                                struct ssl_peer *peer,
-                                const char *pinned_key);
+                                संरचना ssl_filter_config *config,
+                                संरचना ssl_easy_config *ssl_config,
+                                संरचना ssl_peer *peer,
+                                ध्रुव वर्ण *pinned_कुंजी);
 
 /* Extract TLS session and place in cache, if configured. Return
  * a copy of the session if desired. */
-CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+CURLcode Curl_gtls_cache_session(संरचना Curl_cfilter *cf,
+                                 संरचना Curl_easy *data,
+                                 ध्रुव वर्ण *ssl_peer_कुंजी,
                                  gnutls_session_t session,
                                  curl_off_t valid_until,
-                                 const char *alpn,
-                                 unsigned char *quic_tp,
-                                 size_t quic_tp_len,
-                                 struct Curl_ssl_session **psession);
+                                 ध्रुव वर्ण *alpn,
+                                 अचिन्हित वर्ण *quic_tp,
+                                 माप_प्रकार quic_tp_len,
+                                 संरचना Curl_ssl_session **psession);
 
 /* Report properties of a successful handshake */
-void Curl_gtls_report_handshake(struct Curl_easy *data, struct gtls_ctx *gctx);
+शून्य Curl_gtls_report_handshake(संरचना Curl_easy *data, संरचना gtls_ctx *gctx);
 
-extern const struct Curl_ssl Curl_ssl_gnutls;
+बाह्य ध्रुव संरचना Curl_ssl Curl_ssl_gnutls;
 
 #endif /* USE_GNUTLS */
 #endif /* HEADER_CURL_GTLS_H */

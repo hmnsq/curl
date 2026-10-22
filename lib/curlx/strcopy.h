@@ -24,9 +24,9 @@
  *
  ***************************************************************************/
 
-void curlx_strcopy(char *dest,
-                   size_t dsize, /* size of target buffer */
-                   const char *src,
-                   size_t slen); /* length of string to copy */
+शून्य curlx_strcopy(वर्ण *dest,
+                   माप_प्रकार dsize, /* size of target buffer */
+                   ध्रुव वर्ण *src,
+                   माप_प्रकार slen); /* length of string to copy */
 
 #endif /* HEADER_CURLX_STRCOPY_H */
