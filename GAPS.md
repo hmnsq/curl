@@ -1,0 +1,546 @@
+# What is still missing
+
+76 languages. Each line says in how many languages it is missing.
+
+## Files in languages BURP cannot read yet
+
+- `.pl`: 1 files
+
+## Keywords with no word in a language's table
+
+- guru:__FILE__: 75
+- guru:size_t: 71
+- guru:stderr: 71
+- guru:strchr: 71
+- guru:time_t: 71
+- guru:va_arg: 71
+- guru:getenv: 71
+- guru:time: 71
+- guru:tm: 71
+- guru:FILE: 71
+- guru:va_list: 71
+- guru:memcmp: 71
+- guru:memchr: 71
+- guru:wchar_t: 71
+- guru:va_start: 71
+- guru:va_end: 71
+- guru:UINT_MAX: 71
+- guru:errno: 71
+- guru:close: 71
+- guru:LONG_MAX: 71
+- guru:SEEK_SET: 71
+- guru:memmove: 71
+- guru:readdir: 71
+- guru:fread: 71
+- guru:fwrite: 71
+- guru:strrchr: 71
+- guru:fseek: 71
+- guru:pause: 71
+- guru:strcspn: 71
+- guru:stdout: 71
+- guru:fputs: 71
+- guru:ULONG_MAX: 71
+- guru:offsetof: 71
+- guru:clock: 71
+- guru:SEEK_END: 71
+- guru:stdin: 71
+- guru:fflush: 71
+- guru:EOF: 71
+- guru:ftell: 71
+- guru:atexit: 71
+- guru:feof: 71
+- guru:realloc: 71
+- guru:fclose: 71
+- guru:USHRT_MAX: 71
+- guru:ferror: 71
+- guru:INT_MIN: 71
+- guru:mkdir: 71
+- guru:LONG_MIN: 71
+- guru:bsearch: 71
+- guru:SIG_IGN: 71
+- guru:setvbuf: 71
+- guru:SIGINT: 71
+- guru:fgets: 71
+- guru:NDEBUG: 71
+- guru:strerror: 71
+- guru:gmtime: 71
+- guru:fstat: 71
+- guru:fopen: 71
+- guru:freopen: 71
+- guru:rename: 71
+- guru:DIR: 71
+- guru:opendir: 71
+- guru:closedir: 71
+- guru:strftime: 71
+- guru:setbuf: 71
+- guru:SEEK_CUR: 71
+- guru:fputc: 71
+- guru:strspn: 71
+- guru:memset: 70
+- guru:strcmp: 70
+- guru:rand: 70
+- guru:qsort: 70
+- guru:puts: 70
+- guru:open: 70
+- guru:restrict: 67
+- guru:#endif: 66
+- guru:#define: 66
+- guru:#ifdef: 66
+- guru:#ifndef: 66
+- guru:#pragma: 66
+- guru:#undef: 66
+- guru:#error: 66
+- guru:unsigned: 62
+- guru:strlen: 62
+- guru:long: 62
+- guru:memcpy: 62
+- guru:short: 62
+- guru:strncmp: 62
+- guru:INT_MAX: 62
+- guru:strstr: 62
+- guru:malloc: 62
+- guru:calloc: 62
+- guru:putchar: 62
+- guru:main: 54
+- guru:const: 25
+- guru:void: 25
+- guru:static: 25
+- guru:NULL: 25
+- guru:goto: 25
+- guru:switch: 25
+- guru:default: 25
+- guru:typedef: 25
+- guru:#elif: 25
+- guru:continue: 25
+- guru:do: 25
+- guru:extern: 25
+- guru:free: 25
+- guru:read: 25
+- guru:write: 25
+- guru:raise: 25
+- guru:assert: 25
+- guru:for: 9
+- guru:struct: 9
+- guru:char: 9
+- guru:case: 9
+- guru:break: 9
+- guru:sizeof: 9
+- guru:enum: 9
+- guru:double: 9
+- guru:union: 9
+- guru:volatile: 9
+- guru:inline: 9
+- guru:signal: 9
+- guru:if: 1
+- guru:return: 1
+- guru:int: 1
+- guru:else: 1
+- guru:#if: 1
+- guru:#else: 1
+- guru:while: 1
+
+## Names with no dictionary entry (the most common first)
+
+- `cf`: 76
+- `ctx`: 76
+- `CURLcode`: 76
+- `Curl_easy`: 76
+- `conn`: 76
+- `i`: 76
+- `state`: 76
+- `CURLE_OK`: 76
+- `sshc`: 76
+- `defined`: 76
+- `len`: 76
+- `FALSE`: 76
+- `TRUE`: 76
+- `buf`: 76
+- `DEBUGASSERT`: 76
+- `failf`: 76
+- `rc`: 76
+- `s`: 76
+- `multi`: 76
+- `p`: 76
+- `Curl_cfilter`: 76
+- `peer`: 76
+- `req`: 76
+- `infof`: 76
+- `ptr`: 76
+- `n`: 76
+- `x`: 76
+- `backend`: 76
+- `curlx_free`: 76
+- `flags`: 76
+- `name`: 76
+- `connssl`: 76
+- `CURL_TRC_CF`: 76
+- `pp`: 76
+- `ftpc`: 76
+- `c`: 76
+- `connectdata`: 76
+- `blen`: 76
+- `id`: 76
+- `async`: 76
+- `a`: 76
+- `creds`: 76
+- `nread`: 76
+- `curl_off_t`: 76
+- `ps`: 76
+- `part`: 76
+- `hostname`: 76
+- `type`: 76
+- `conn_config`: 76
+- `e`: 76
+- `b`: 76
+- `origin`: 76
+- `sockindex`: 76
+- `scheme`: 76
+- `ts`: 76
+- `r`: 76
+- `m`: 76
+- `parser`: 76
+- `host`: 76
+- `ssl`: 76
+- `CURLE_FAILED_INIT`: 76
+- `str`: 76
+- `h`: 76
+- `octx`: 76
+- `u`: 76
+- `d`: 76
+- `curlx_safefree`: 76
+- `Curl_peer`: 76
+- `CURLE_AGAIN`: 76
+- `q`: 76
+- `chunk`: 76
+- `sock`: 76
+- `ngh2`: 76
+- `info`: 76
+- `timeout_ms`: 76
+- `src`: 76
+- `share`: 76
+- `nwritten`: 76
+- `digest`: 76
+- `timediff_t`: 76
+- `val`: 76
+- `guard`: 76
+- `rv`: 76
+- `reader`: 76
+- `ZERO_NULL`: 76
+- `ret`: 76
+- `arg`: 76
+- `sshp`: 76
+- `pnread`: 76
+- `mresult`: 76
+- `dynbuf`: 76
+- `addr`: 76
+- `imapc`: 76
+- `dest`: 76
+- `admin`: 76
+- `mid`: 76
+- `option`: 76
+- `error`: 76
+- `dns`: 76
+- `uc`: 76
+- `ai`: 76
+- `pnow`: 76
+- `tn`: 76
+- `FIRSTSOCKET`: 76
+- `define`: 76
+- `err`: 76
+- `writer`: 76
+- `pnwritten`: 76
+- `connected`: 76
+- `cpool`: 76
+- `dynhds`: 76
+- `smtpc`: 76
+- `sx`: 76
+- `k`: 76
+- `curltime`: 76
+- `dns_queries`: 76
+- `fmt`: 76
+- `resp`: 76
+- `buflen`: 76
+- `NOPE`: 76
+- `co`: 76
+- `TLS`: 76
+- `beg`: 76
+- `mem`: 76
+- `WITH`: 76
+- `curlx_dyn_addn`: 76
+- `user`: 76
+- `pop3c`: 76
+- `ws`: 76
+- `query`: 76
+- `curl_socket_t`: 76
+- `session`: 76
+- `ssh_conn`: 76
+- `fail`: 76
+- `CURL_EASY_STR`: 76
+- `sendbuf`: 76
+- `store`: 76
+- `curlx_dyn_ptr`: 76
+- `sockfd`: 76
+- `sasl`: 76
+- `res`: 76
+- `curlx_calloc`: 76
+- `imap`: 76
+- `file`: 76
+- `Curl_multi`: 76
+- `tpool`: 76
+- `STRCONST`: 76
+- `y`: 76
+- `tmp`: 76
+- `rr`: 76
+- `userp`: 76
+- `DEBUGBUILD`: 76
+- `FMT_OFF_T`: 76
+- `Curl_conn_meta_get`: 76
+- `li`: 76
+- `RSA`: 76
+- `url`: 76
+- `curl_msnprintf`: 76
+- `PSK`: 76
+- `cft`: 76
+- `nego`: 76
+- `list`: 76
+- `transport`: 76
+- `sctx`: 76
+- `ftp`: 76
+- `save`: 76
+- `SHA256`: 76
+- `alpn`: 76
+- `j`: 76
+- `proxy`: 76
+- `CURL_DISABLE_PROXY`: 76
+- `eos`: 76
+- `domain`: 76
+- `ch`: 76
+- `filename`: 76
+- `hd`: 76
+- `CURL_DISABLE_HTTP`: 76
+- `curlx_dyn_len`: 76
+- `namelen`: 76
+- `z`: 76
+- `ctxt`: 76
+- `ntlm`: 76
+- `bset`: 76
+- `Curl_addrinfo`: 76
+- `tunnel`: 76
+- `CURL_SOCKET_BAD`: 76
+- `context`: 76
+- `scache`: 76
+- `ca`: 76
+- `ssh_session`: 76
+- `Curl_str`: 76
+- `hlen`: 76
+- `Curl_creader`: 76
+- `dec`: 76
+- `timeouts`: 76
+- `needle`: 76
+- `CURLMcode`: 76
+- `DEBUGF`: 76
+- `cpfds`: 76
+- `CURLOT_LONG`: 76
+- `tqueue`: 76
+- `ssl_filter_config`: 76
+- `qconn`: 76
+- `wssl`: 76
+- `easy_pollset`: 76
+- `recvbuf`: 76
+- `curl_strequal`: 76
+- `sockerr`: 76
+- `CURLE_SSL_CONNECT_ERROR`: 76
+- `plen`: 76
+- `UNITTEST`: 76
+- `DWORD`: 76
+- `auth`: 76
+- `w`: 76
+- `cert`: 76
+- `SHA384`: 76
+- `httpreq`: 76
+- `SOCKERRNO`: 76
+- `CURLE_SEND_ERROR`: 76
+- `cleanup`: 76
+- `passwd`: 76
+- `curlx_dyn_free`: 76
+- `curl_mfprintf`: 76
+- `curl_slist`: 76
+- `infop`: 76
+- `GCM`: 76
+- `cshutdn`: 76
+- `param`: 76
+- `config`: 76
+- `CURLVERBOSE`: 76
+- `CURLE_RECV_ERROR`: 76
+- `l`: 76
+- `enc`: 76
+- `output_token`: 76
+- `curlx_strdup`: 76
+- `USE_IPV6`: 76
+- `Curl_pgrs_now`: 76
+- `diagnostic`: 76
+- `OM_uint32`: 76
+- `curlx_dyn_init`: 76
+- `check`: 76
+- `resume_from`: 76
+- `scs`: 76
+- `t`: 76
+- `fd`: 76
+- `ap`: 76
+- `presult`: 76
+- `Curl_pSecFn`: 76
+- `mq`: 76
+- `CBC`: 76
+- `CURLOT_STRING`: 76
+- `curl_mimepart`: 76
+- `sslc`: 76
+- `now`: 76
+- `sc`: 76
+- `USE_SSL`: 76
+- `pctx`: 76
+- `_WIN32`: 76
+- `ECDHE`: 76
+- `clen`: 76
+- `CURL_TRC_M`: 76
+- `Curl_cwriter`: 76
+- `QP_OK`: 76
+- `Curl_scheme`: 76
+- `ssl_peer`: 76
+- `curl_strnequal`: 76
+- `doh`: 76
+- `bufq`: 76
+- `bufref`: 76
+- `CURL_UNCONST`: 76
+- `service`: 76
+- `cmd`: 76
+- `gtls`: 76
+- `CURLE_COULDNT_CONNECT`: 76
+- `ai_family`: 76
+- `httpcode`: 76
+- `Curl_creds`: 76
+- `ares`: 76
+- `ip`: 76
+- `cp`: 76
+- `endif`: 76
+- `bs`: 76
+- `krb5`: 76
+- `pdns`: 76
+- `curl_maprintf`: 76
+- `curlx_malloc`: 76
+- `he`: 76
+- `qctx`: 76
+- `DHE`: 76
+- `curlx_dyn_addf`: 76
+- `Curl_setstropt`: 76
+- `SEC2TXT`: 76
+- `psl`: 76
+- `st`: 76
+- `CAfile`: 76
+- `elem`: 76
+- `tbl`: 76
+- `ssl_ctx`: 76
+- `curlx_strlen`: 76
+- `ftpcode`: 76
+
+## Comments with no translation
+
+- flags: 76
+- scheme: 76
+- protocol: 76
+- family: 76
+- defport: 76
+- CURLVERBOSE: 76
+- setup_connection: 76
+- do_more: 76
+- connect_it: 76
+- connecting: 76
+- doing: 76
+- proto_pollset: 76
+- doing_pollset: 76
+- domore_pollset: 76
+- perform_pollset: 76
+- disconnect: 76
+- write_resp: 76
+- write_resp_hd: 76
+- connection_is_dead: 76
+- follow: 76
+- !checksrc! disable BANNEDFUNC 1: 76
+- attach connection: 76
+- _WIN32: 76
+- !CURL_DISABLE_HTTP: 76
+- USE_SSL: 76
+- USE_HTTPSRR: 76
+- !CURL_DISABLE_PROXY: 76
+- !checksrc! disable ERRNOVAR 1: 76
+- no data to transfer: 76
+- error: 76
+- connect: 76
+- Release the package buffer as it is not required anymore: 76
+- shutdown: 76
+- failed: 76
+- !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP: 76
+- CURL_DISABLE_PROXY: 76
+- CURL_DISABLE_HTTP: 76
+- storage area for this info: 76
+- !CURL_DISABLE_FTP: 76
+- CURL_GSS_STUB: 76
+- USE_SSH: 76
+- meta key for storing protocol meta at easy handle: 76
+- cleanup: 76
+- internal error: 76
+- not done yet: 76
+- meta key for storing protocol meta at connection: 76
+- End of DO phase: 76
+- 2 zeroes: 76
+- not set by Curl_xfer_setup to preserve io_flags: 76
+- !checksrc! disable TYPEDEFSTRUCT 1: 76
+- DEBUGBUILD: 76
+- zlib state structure: 76
+- spellchecker:disable-line: 76
+- Generate our SPN: 76
+- init: 76
+- data_pending: 76
+- random: 76
+- cert_status_request: 76
+- adjust_pollset: 76
+- get_internals: 76
+- close_one: 76
+- close_all: 76
+- engines_list: 76
+- sha256sum: 76
+- recv decrypted data: 76
+- send data to encrypt: 76
+- get_channel_binding: 76
+- USE_UNIX_SOCKETS: 76
+- transfer: 76
+- success: 76
+- Expand the 56-bit key to 64 bits: 76
+- USE_THREADS: 76
+- null-terminate: 76
+- unconditionally: 76
+- never used: 76
+- switch: 76
+- run the state-machine: 76
+- default to false: 76
+- failure detected: 76
+- Ensure we have a valid challenge message: 76
+- Return the response.: 76
+- Reset any variables: 76
+- USE_CURL_ASYNC: 76
+- info: 76
+- non-NULL, maybe empty string: 76
+- Set the key parity to odd: 76
+- for debug purposes: 76
+- The service name: 76
+- Send authentication command: 76
+- Send authentication continuation: 76
+- Get SASL response message: 76
+- Code to receive upon authentication success: 76
+- USE_OPENSSL: 76
+- USE_WINDOWS_SSPI: 76
+- fail: 76
+- USE_NGHTTP2: 76
+- for the week day and month names: 76
+- do nothing state, stops the state machine: 76
+- now, decrease the size of the read: 76
+- start the first command in the DO phase: 76
