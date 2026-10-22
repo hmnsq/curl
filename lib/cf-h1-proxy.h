@@ -25,18 +25,18 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#ᬬᬾᬦ᭄ !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-struct Curl_peer;
+sa_nracanaa Curl_peer;
 
-CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *dest,
-                                       int httpversion,
+CURLcode Curl_cf_h1_proxy_insert_after(sa_nracanaa Curl_cfilter *cf_at,
+                                       sa_nracanaa Curl_easy *data,
+                                       sa_nracanaa Curl_peer *peer,
+                                       sa_nracanaa Curl_peer *dest,
+                                       puur_naa_nka httpversion,
                                        bool udp_tunnel);
 
-extern struct Curl_cftype Curl_cft_h1_proxy;
+extern sa_nracanaa Curl_cftype Curl_cft_h1_proxy;
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 

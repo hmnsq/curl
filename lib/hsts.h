@@ -25,49 +25,49 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-struct hsts;
+sa_nracanaa hsts;
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
+#ᬬᬾᬦ᭄ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
 #include "llist.h"
 
-struct Curl_peer;
+sa_nracanaa Curl_peer;
 
 #define MAX_HSTS_ENTRIES 10000
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
+#ᬬᬾᬦ᭄ defined(DEBUGBUILD) || defined(UNITTESTS)
 extern time_t deltatime;
 #endif
 
-struct stsentry {
-  struct Curl_llist_node node;
+sa_nracanaa stsentry {
+  sa_nracanaa Curl_llist_node node;
   curl_off_t expires; /* the timestamp of this entry's expiry */
   BIT(includeSubDomains);
-  char host[1];
+  var_na host[1];
 };
 
 /* The HSTS cache. Needs to be able to tailmatch hostnames. */
-struct hsts {
-  struct Curl_llist list;
-  char *filename;
-  unsigned int flags;
+sa_nracanaa hsts {
+  sa_nracanaa Curl_llist list;
+  var_na *filename;
+  unsigned puur_naa_nka flags;
 };
 
-struct hsts *Curl_hsts_init(void);
-void Curl_hsts_cleanup(struct hsts **hp);
-CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src);
-CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
-                         const char *header);
-CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
-                        const char *file);
-CURLcode Curl_hsts_loadfile(struct Curl_easy *data,
-                            struct hsts *h, const char *file);
-CURLcode Curl_hsts_loadcb(struct Curl_easy *data,
-                          struct hsts *h);
-CURLcode Curl_hsts_loadfiles(struct Curl_easy *data);
+sa_nracanaa hsts *Curl_hsts_init(void);
+void Curl_hsts_cleanup(sa_nracanaa hsts **hp);
+CURLcode Curl_hsts_copy(sa_nracanaa hsts *dst, sa_nracanaa hsts *src);
+CURLcode Curl_hsts_parse(sa_nracanaa hsts *h, const var_na *hostname,
+                         const var_na *header);
+CURLcode Curl_hsts_save(sa_nracanaa Curl_easy *data, sa_nracanaa hsts *h,
+                        const var_na *file);
+CURLcode Curl_hsts_loadfile(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa hsts *h, const var_na *file);
+CURLcode Curl_hsts_loadcb(sa_nracanaa Curl_easy *data,
+                          sa_nracanaa hsts *h);
+CURLcode Curl_hsts_loadfiles(sa_nracanaa Curl_easy *data);
 
-bool Curl_hsts_applies(struct hsts *h, const struct Curl_peer *dest);
+bool Curl_hsts_applies(sa_nracanaa hsts *h, const sa_nracanaa Curl_peer *dest);
 
-#else
+#ᬮᬶᬬ
 #define Curl_hsts_cleanup(x)
 #define Curl_hsts_loadcb(x, y) CURLE_OK
 #define Curl_hsts_save(x, y, z)

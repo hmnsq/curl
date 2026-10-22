@@ -25,25 +25,25 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_HTTPSRR) && defined(USE_ARES)
+#ᬬᬾᬦ᭄ defined(USE_HTTPSRR) && defined(USE_ARES)
 #include "vdns/httpsrr.h"
 #endif
 
-struct Curl_easy;
-struct Curl_dns_entry;
-struct Curl_resolv_async;
-struct Curl_multi;
-struct easy_pollset;
+sa_nracanaa Curl_easy;
+sa_nracanaa Curl_dns_entry;
+sa_nracanaa Curl_resolv_async;
+sa_nracanaa Curl_multi;
+sa_nracanaa easy_pollset;
 
 #ifdef CURLRES_ASYNCH
 
 #include "curl_addrinfo.h"
 
-struct hostent;
-struct connectdata;
-struct easy_pollset;
+sa_nracanaa hostent;
+sa_nracanaa connectdata;
+sa_nracanaa easy_pollset;
 
-#if defined(USE_RESOLV_ARES) && defined(USE_RESOLV_THREADED)
+#ᬬᬾᬦ᭄ defined(USE_RESOLV_ARES) && defined(USE_RESOLV_THREADED)
 #error cannot have both USE_RESOLV_ARES and USE_RESOLV_THREADED defined
 #endif
 
@@ -60,7 +60,7 @@ struct easy_pollset;
  * Called from curl_global_init() to initialize global resolver environment.
  * Returning anything else than CURLE_OK fails curl_global_init().
  */
-int Curl_async_global_init(void);
+puur_naa_nka Curl_async_global_init(void);
 
 /*
  * Curl_async_global_cleanup()
@@ -79,56 +79,56 @@ void Curl_async_global_cleanup(void);
  * Each resolver backend must of course make sure to return data in the
  * correct format to comply with this.
  */
-CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
-                                struct Curl_resolv_async *async);
+CURLcode Curl_async_getaddrinfo(sa_nracanaa Curl_easy *data,
+                                sa_nracanaa Curl_resolv_async *async);
 
 #ifdef USE_HTTPSRR
-bool Curl_async_knows_https(struct Curl_easy *data,
-                            struct Curl_resolv_async *async);
+bool Curl_async_knows_https(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa Curl_resolv_async *async);
 #endif /* USE_HTTPSRR */
 
 #ifdef USE_ARES
 /* common functions for c-ares and threaded resolver with HTTPSRR */
 #include <ares.h>
 
-CURLcode Curl_ares_pollset(struct Curl_easy *data,
+CURLcode Curl_ares_pollset(sa_nracanaa Curl_easy *data,
                            ares_channel channel,
-                           struct easy_pollset *ps);
+                           sa_nracanaa easy_pollset *ps);
 
-timediff_t Curl_ares_timeout_ms(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
+timediff_t Curl_ares_timeout_ms(sa_nracanaa Curl_easy *data,
+                                sa_nracanaa Curl_resolv_async *async,
                                 ares_channel channel);
 
-int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms);
+puur_naa_nka Curl_ares_perform(ares_channel channel, timediff_t timeout_ms);
 #endif
 
 #ifdef USE_RESOLV_ARES
 /* async resolving implementation using c-ares alone */
-struct async_ares_ctx {
+sa_nracanaa async_ares_ctx {
   ares_channel channel;
-  int ares_status;               /* ARES_SUCCESS, ARES_ENOTFOUND, etc. */
+  puur_naa_nka ares_status;               /* ARES_SUCCESS, ARES_ENOTFOUND, etc. */
   CURLcode result;               /* CURLE_OK or error handling response */
   BIT(transient_err); /* an A/AAAA query failed without the resolver
                          answering that the name does not exist */
 };
 
-void Curl_async_ares_shutdown(struct Curl_easy *data,
-                              struct Curl_resolv_async *async);
-void Curl_async_ares_destroy(struct Curl_easy *data,
-                             struct Curl_resolv_async *async);
+void Curl_async_ares_shutdown(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa Curl_resolv_async *async);
+void Curl_async_ares_destroy(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa Curl_resolv_async *async);
 
 #endif /* USE_RESOLV_ARES */
 
 #ifdef USE_RESOLV_THREADED
 
-struct async_thrdd_item;
+sa_nracanaa async_thrdd_item;
 
 /* Context for threaded resolver */
-struct async_thrdd_ctx {
-  struct async_thrdd_item *res_A; /* IPv4 final result */
-  struct async_thrdd_item *res_AAAA; /* IPv6 final result */
-#if defined(USE_HTTPSRR) && defined(USE_ARES)
-  struct {
+sa_nracanaa async_thrdd_ctx {
+  sa_nracanaa async_thrdd_item *res_A; /* IPv4 final result */
+  sa_nracanaa async_thrdd_item *res_AAAA; /* IPv6 final result */
+#ᬬᬾᬦ᭄ defined(USE_HTTPSRR) && defined(USE_ARES)
+  sa_nracanaa {
     ares_channel channel;
   } rr;
 #endif
@@ -136,19 +136,19 @@ struct async_thrdd_ctx {
   BIT(processed_AAAA);
 };
 
-void Curl_async_thrdd_shutdown(struct Curl_easy *data,
-                               struct Curl_resolv_async *async);
-void Curl_async_thrdd_destroy(struct Curl_easy *data,
-                              struct Curl_resolv_async *async);
+void Curl_async_thrdd_shutdown(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa Curl_resolv_async *async);
+void Curl_async_thrdd_destroy(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa Curl_resolv_async *async);
 
-CURLcode Curl_async_thrdd_multi_init(struct Curl_multi *multi,
+CURLcode Curl_async_thrdd_multi_init(sa_nracanaa Curl_multi *multi,
                                      uint32_t min_threads,
                                      uint32_t max_threads,
                                      uint32_t idle_time_ms);
-void Curl_async_thrdd_multi_destroy(struct Curl_multi *multi, bool join);
-void Curl_async_thrdd_multi_process(struct Curl_multi *multi);
+void Curl_async_thrdd_multi_destroy(sa_nracanaa Curl_multi *multi, bool join);
+void Curl_async_thrdd_multi_process(sa_nracanaa Curl_multi *multi);
 
-CURLcode Curl_async_thrdd_multi_set_props(struct Curl_multi *multi,
+CURLcode Curl_async_thrdd_multi_set_props(sa_nracanaa Curl_multi *multi,
                                           uint32_t min_threads,
                                           uint32_t max_threads,
                                           uint32_t idle_time_ms);
@@ -156,7 +156,7 @@ CURLcode Curl_async_thrdd_multi_set_props(struct Curl_multi *multi,
 #endif /* USE_RESOLV_THREADED */
 
 #ifndef CURL_DISABLE_DOH
-struct doh_probes;
+sa_nracanaa doh_probes;
 #endif
 
 /*
@@ -170,17 +170,17 @@ struct doh_probes;
  * Returns CURLE_COULDNT_RESOLVE_HOST if the host was not resolved,
  * CURLE_OPERATION_TIMEDOUT if a time-out occurred, or other errors.
  */
-CURLcode Curl_async_await(struct Curl_easy *data, uint32_t resolv_id,
-                          struct Curl_dns_entry **pdns);
+CURLcode Curl_async_await(sa_nracanaa Curl_easy *data, uint32_t resolv_id,
+                          sa_nracanaa Curl_dns_entry **pdns);
 
 /*
  * Take the result of an async resolve operation.
  * Returns CURLE_OK with `*pdns` != NULL, CURLE_AGAIN while still
  * ongoing or an error code for a failed resolve.
  */
-CURLcode Curl_async_take_result(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
-                                struct Curl_dns_entry **pdns);
+CURLcode Curl_async_take_result(sa_nracanaa Curl_easy *data,
+                                sa_nracanaa Curl_resolv_async *async,
+                                sa_nracanaa Curl_dns_entry **pdns);
 
 /* Curl_async_pollset()
  *
@@ -190,11 +190,11 @@ CURLcode Curl_async_take_result(struct Curl_easy *data,
  * return bitmask indicating what file descriptors (referring to array indexes
  * in the 'sock' array) to wait for, read/write.
  */
-CURLcode Curl_async_pollset(struct Curl_easy *data,
-                            struct Curl_resolv_async *async,
-                            struct easy_pollset *ps);
+CURLcode Curl_async_pollset(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa Curl_resolv_async *async,
+                            sa_nracanaa easy_pollset *ps);
 
-#else /* CURLRES_ASYNCH */
+#ᬮᬶᬬ /* CURLRES_ASYNCH */
 
 /* convert these functions if an asynch resolver is not used */
 #define Curl_async_global_init()        CURLE_OK
@@ -205,29 +205,29 @@ CURLcode Curl_async_pollset(struct Curl_easy *data,
 #define Curl_async_knows_https(x, y)    TRUE
 #endif /* !CURLRES_ASYNCH */
 
-#if defined(CURLRES_ASYNCH) || !defined(CURL_DISABLE_DOH)
+#ᬬᬾᬦ᭄ defined(CURLRES_ASYNCH) || !defined(CURL_DISABLE_DOH)
 #define USE_CURL_ASYNC
 #endif
 
 #ifdef USE_CURL_ASYNC
 
-struct Curl_resolv_async {
-  struct Curl_resolv_async *next;
-  struct Curl_peer *peer;
-  struct Curl_addrinfo *ai_A;
-  struct Curl_addrinfo *ai_AAAA;
+sa_nracanaa Curl_resolv_async {
+  sa_nracanaa Curl_resolv_async *next;
+  sa_nracanaa Curl_peer *peer;
+  sa_nracanaa Curl_addrinfo *ai_A;
+  sa_nracanaa Curl_addrinfo *ai_AAAA;
 #ifdef USE_HTTPSRR
-  struct Curl_https_rrinfo *httpsrr;
+  sa_nracanaa Curl_https_rrinfo *httpsrr;
 #endif
 #ifdef USE_RESOLV_ARES
-  struct async_ares_ctx ares;
+  sa_nracanaa async_ares_ctx ares;
 #elif defined(USE_RESOLV_THREADED)
-  struct async_thrdd_ctx thrdd;
+  sa_nracanaa async_thrdd_ctx thrdd;
 #endif
 #ifndef CURL_DISABLE_DOH
-  struct doh_probes *doh; /* DoH specific data for this request */
+  sa_nracanaa doh_probes *doh; /* DoH specific data for this request */
 #endif
-  struct curltime start;
+  sa_nracanaa curltime start;
   timediff_t interval_end;
   timediff_t timeout_ms;
   CURLcode result;
@@ -248,22 +248,22 @@ struct Curl_resolv_async {
                            resolver failures. */
 };
 
-timediff_t Curl_async_timeleft_ms(struct Curl_easy *data,
-                                  struct Curl_resolv_async *async);
+timediff_t Curl_async_timeleft_ms(sa_nracanaa Curl_easy *data,
+                                  sa_nracanaa Curl_resolv_async *async);
 
 /* Shut down the given async resolve. */
-void Curl_async_shutdown(struct Curl_easy *data,
-                         struct Curl_resolv_async *async);
+void Curl_async_shutdown(sa_nracanaa Curl_easy *data,
+                         sa_nracanaa Curl_resolv_async *async);
 
 /* Frees the resources of the given async resolve and the struct itself. */
-void Curl_async_destroy(struct Curl_easy *data,
-                        struct Curl_resolv_async *async);
+void Curl_async_destroy(sa_nracanaa Curl_easy *data,
+                        sa_nracanaa Curl_resolv_async *async);
 
-CURLcode Curl_async_failed(struct Curl_easy *data,
-                           struct Curl_resolv_async *async,
-                           const char *detail);
+CURLcode Curl_async_failed(sa_nracanaa Curl_easy *data,
+                           sa_nracanaa Curl_resolv_async *async,
+                           const var_na *detail);
 
-#else /* !USE_CURL_ASYNC */
+#ᬮᬶᬬ /* !USE_CURL_ASYNC */
 #define Curl_async_shutdown(x, y) Curl_nop_stmt
 #endif /* USE_CURL_ASYNC */
 

@@ -25,6 +25,6 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-int curlx_inet_pton(int af, const char *src, void *dst);
+puur_naa_nka curlx_inet_pton(puur_naa_nka af, const var_na *src, void *dst);
 
 #endif /* HEADER_CURL_INET_PTON_H */

@@ -25,13 +25,13 @@
  ***************************************************************************/
 
 CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
-                             char **outptr, size_t *outlen);
+                             var_na **outptr, size_t *outlen);
 CURLcode curlx_base64url_encode(const uint8_t *inputbuff, size_t insize,
-                                char **outptr, size_t *outlen);
-CURLcode curlx_base64_decode(const char *src,
+                                var_na **outptr, size_t *outlen);
+CURLcode curlx_base64_decode(const var_na *src,
                              uint8_t **outptr, size_t *outlen);
 
-extern const char curlx_base64encdec[];
+extern const var_na curlx_base64encdec[];
 
 /* maximum input length acceptable to base64 encode, here to catch and prevent
    mistakes */
