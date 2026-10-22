@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curl_gethostname.h"
-#include "curlx/strcopy.h"
+#ضمن "curl_gethostname.h"
+#ضمن "curlx/strcopy.h"
 
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
@@ -41,56 +41,56 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+صحيح Curl_gethostname(حرف * ثابت name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
-#ifndef HAVE_GETHOSTNAME
+#جے_بنا_تعریف HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
-  (void)name;
-  (void)namelen;
-  return -1;
+  (فراغ)name;
+  (فراغ)namelen;
+  أرجع -1;
 
-#else
-  int err;
-  char *dot;
+#وإلا
+  صحيح err;
+  حرف *dot;
 
-#ifdef DEBUGBUILD
+#جے_تعریف_شدہ DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
-      curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+  ثابت حرف *force_hostname = getenv("CURL_GETHOSTNAME");
+  إذا(force_hostname) {
+    إذا(لڑی_لمبائی(force_hostname) < (size_t)namelen)
+      curlx_strcopy(name, namelen, force_hostname, لڑی_لمبائی(force_hostname));
+    وإلا
+      أرجع 1; /* cannot do it */
     err = 0;
   }
-  else {
+  وإلا {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#وإلا /* DEBUGBUILD */
 
   name[0] = '\0';
-#ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+#جے_تعریف_شدہ __AMIGA__
+  err = gethostname((بنانشانی حرف *)name, namelen);
+#وإلا
   err = gethostname(name, namelen);
-#endif
+#جے_انت
 
-#endif
+#جے_انت
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  إذا(err)
+    أرجع err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  إذا(dot)
     *dot = '\0';
 
-  return 0;
-#endif
+  أرجع 0;
+#جے_انت
 }

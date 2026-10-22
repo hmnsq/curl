@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MIME_H
-#define HEADER_CURL_MIME_H
+#جے_بنا_تعریف سرخی_CURL_MIME_H
+#تعریف_کرو سرخی_CURL_MIME_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,34 +23,34 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#define MIME_BOUNDARY_DASHES            24  /* leading boundary dashes */
-#define MIME_RAND_BOUNDARY_CHARS        22  /* Nb. of random boundary chars. */
-#define MAX_ENCODED_LINE_LENGTH         76  /* Maximum encoded line length. */
-#define ENCODING_BUFFER_SIZE            256 /* Encoding temp buffers size. */
+#تعریف_کرو MIME_BOUNDARY_DASHES            24  /* leading boundary dashes */
+#تعریف_کرو MIME_RAND_BOUNDARY_CHARS        22  /* Nb. of random boundary chars. */
+#تعریف_کرو MAX_ENCODED_سطر_لمائی         76  /* Maximum encoded line length. */
+#تعریف_کرو ENCODING_بفر_ناپ            256 /* Encoding temp buffers size. */
 
 /* Part flags. */
-#define MIME_USERHEADERS_OWNER  (1 << 0)
-#define MIME_BODY_ONLY          (1 << 1)
-#define MIME_FAST_READ          (1 << 2)
+#تعریف_کرو MIME_USERHEADERS_OWNER  (1 << 0)
+#تعریف_کرو MIME_BODY_ONLY          (1 << 1)
+#تعریف_کرو MIME_FAST_READ          (1 << 2)
 
-#define FILE_CONTENTTYPE_DEFAULT        "application/octet-stream"
-#define MULTIPART_CONTENTTYPE_DEFAULT   "multipart/mixed"
-#define DISPOSITION_DEFAULT             "attachment"
+#تعریف_کرو FILE_CONTENTTYPE_DEFAULT        "application/octet-stream"
+#تعریف_کرو MULTIPART_CONTENTTYPE_DEFAULT   "multipart/mixed"
+#تعریف_کرو DISPOSITION_DEFAULT             "attachment"
 
 /* Part source kinds. */
-enum mimekind {
+تعداد mimekind {
   MIMEKIND_NONE = 0,            /* Part not set. */
-  MIMEKIND_DATA,                /* Allocated mime data. */
+  MIMEKIND_انکڑے,                /* Allocated mime data. */
   MIMEKIND_FILE,                /* Data from file. */
   MIMEKIND_CALLBACK,            /* Data from `read' callback. */
   MIMEKIND_MULTIPART,           /* Data is a mime subpart. */
-  MIMEKIND_LAST
+  MIMEKIND_آخری
 };
 
 /* Readback state tokens. */
-enum mimestate {
+تعداد mimestate {
   MIMESTATE_BEGIN,              /* Readback has not yet started. */
   MIMESTATE_CURLHEADERS,        /* In curl-generated headers. */
   MIMESTATE_USERHEADERS,        /* In caller's supplied headers. */
@@ -59,115 +59,115 @@ enum mimestate {
   MIMESTATE_BOUNDARY1,          /* In boundary prefix. */
   MIMESTATE_BOUNDARY2,          /* In boundary. */
   MIMESTATE_CONTENT,            /* In content. */
-  MIMESTATE_END,                /* End of part reached. */
-  MIMESTATE_LAST
+  MIMESTATE_سرا,                /* End of part reached. */
+  MIMESTATE_آخری
 };
 
 /* Mime headers strategies. */
-enum mimestrategy {
+تعداد mimestrategy {
   MIMESTRATEGY_MAIL,            /* Mime mail. */
   MIMESTRATEGY_FORM,            /* HTTP post form. */
-  MIMESTRATEGY_LAST
+  MIMESTRATEGY_آخری
 };
 
 /* Content transfer encoder. */
-struct mime_encoder {
-  const char *   name;          /* Encoding name. */
-  size_t         (*encodefunc)(char *buffer, size_t size, bool ateof,
+بنية mime_encoder {
+  ثابت حرف *   name;          /* Encoding name. */
+  size_t         (*encodefunc)(حرف *بفر, size_t ناپ, bool ateof,
                                curl_mimepart *part);  /* Encoded read. */
   curl_off_t     (*sizefunc)(curl_mimepart *part);  /* Encoded size. */
 };
 
 /* Content transfer encoder state. */
-struct mime_encoder_state {
+بنية mime_encoder_state {
   size_t         pos;           /* Position on output line. */
   size_t         bufbeg;        /* Next data index in input buffer. */
   size_t         bufend;        /* First unused byte index in input buffer. */
-  char           buf[ENCODING_BUFFER_SIZE]; /* Input buffer. */
+  حرف           buf[ENCODING_بفر_ناپ]; /* Input buffer. */
 };
 
 /* Mime readback state. */
-struct mime_state {
-  enum mimestate state;       /* Current state token. */
-  void *ptr;                  /* State-dependent pointer. */
-  curl_off_t offset;          /* State-dependent offset. */
+بنية mime_state {
+  تعداد mimestate state;       /* Current state token. */
+  فراغ *ptr;                  /* State-dependent pointer. */
+  curl_off_t وتھ;          /* State-dependent offset. */
 };
 
 /* Boundary string length. */
-#define MIME_BOUNDARY_LEN (MIME_BOUNDARY_DASHES + MIME_RAND_BOUNDARY_CHARS)
+#تعریف_کرو MIME_BOUNDARY_LEN (MIME_BOUNDARY_DASHES + MIME_RAND_BOUNDARY_CHARS)
 
 /* A mime multipart. */
-struct curl_mime {
-  curl_mimepart *parent;           /* Parent part. */
+بنية curl_mime {
+  curl_mimepart *ماپا;           /* Parent part. */
   curl_mimepart *firstpart;        /* First part. */
   curl_mimepart *lastpart;         /* Last part. */
-  char boundary[MIME_BOUNDARY_LEN + 1]; /* The part boundary. */
-  struct mime_state state;         /* Current readback state. */
+  حرف boundary[MIME_BOUNDARY_LEN + 1]; /* The part boundary. */
+  بنية mime_state state;         /* Current readback state. */
 };
 
 /* A mime part. */
-struct curl_mimepart {
-  curl_mime *parent;               /* Parent mime structure. */
+بنية curl_mimepart {
+  curl_mime *ماپا;               /* Parent mime structure. */
   curl_mimepart *nextpart;         /* Forward linked list. */
-  enum mimekind kind;              /* The part kind. */
-  unsigned int flags;              /* Flags. */
-  char *data;                      /* Memory data or filename. */
+  تعداد mimekind قسم;              /* The part kind. */
+  بنانشانی صحيح flags;              /* Flags. */
+  حرف *انکڑے;                      /* Memory data or filename. */
   curl_read_callback readfunc;     /* Read function. */
   curl_seek_callback seekfunc;     /* Seek function. */
   curl_free_callback freefunc;     /* Argument free function. */
-  void *arg;                       /* Argument to callback functions. */
+  فراغ *arg;                       /* Argument to callback functions. */
   FILE *fp;                        /* File pointer. */
-  struct curl_slist *curlheaders;  /* Part headers. */
-  struct curl_slist *userheaders;  /* Part headers. */
-  char *mimetype;                  /* Part mime type. */
-  char *filename;                  /* Remote filename. */
-  char *name;                      /* Data name. */
+  بنية curl_slist *curlheaders;  /* Part headers. */
+  بنية curl_slist *userheaders;  /* Part headers. */
+  حرف *mimetype;                  /* Part mime type. */
+  حرف *filename;                  /* Remote filename. */
+  حرف *name;                      /* Data name. */
   curl_off_t datasize;             /* Expected data size. */
-  struct mime_state state;         /* Current readback state. */
-  const struct mime_encoder *encoder; /* Content data encoder. */
-  struct mime_encoder_state encstate; /* Data encoder state. */
+  بنية mime_state state;         /* Current readback state. */
+  ثابت بنية mime_encoder *encoder; /* Content data encoder. */
+  بنية mime_encoder_state encstate; /* Data encoder state. */
   size_t lastreadstatus;           /* Last read callback returned status. */
 };
 
-CURLcode Curl_mime_add_header(struct curl_slist **slp, const char *fmt, ...)
+CURLcode Curl_mime_جوڑو_سرخی(بنية curl_slist **slp, ثابت حرف *fmt, ...)
   CURL_PRINTF(2, 3);
 
-#if !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
+#إذا !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
                                     !defined(CURL_DISABLE_SMTP) ||      \
                                     !defined(CURL_DISABLE_IMAP))
 
 /* Prototypes. */
-void Curl_mime_initpart(struct curl_mimepart *part);
-void Curl_mime_cleanpart(struct curl_mimepart *part);
-CURLcode Curl_mime_duppart(struct Curl_easy *data,
-                           struct curl_mimepart *dst,
-                           const curl_mimepart *src);
-CURLcode Curl_mime_set_subparts(struct curl_mimepart *part,
-                                struct curl_mime *subparts,
-                                int take_ownership);
-CURLcode Curl_mime_prepare_headers(struct Curl_easy *data,
-                                   struct curl_mimepart *part,
-                                   const char *contenttype,
-                                   const char *disposition,
-                                   enum mimestrategy strategy);
-size_t Curl_mime_read(char *buffer, size_t size, size_t nitems,
-                      void *instream);
-const char *Curl_mime_contenttype(const char *filename);
+فراغ Curl_mime_initpart(بنية curl_mimepart *part);
+فراغ Curl_mime_cleanpart(بنية curl_mimepart *part);
+CURLcode Curl_mime_duppart(بنية Curl_easy *انکڑے,
+                           بنية curl_mimepart *dst,
+                           ثابت curl_mimepart *src);
+CURLcode Curl_mime_سیٹ_subparts(بنية curl_mimepart *part,
+                                بنية curl_mime *subparts,
+                                صحيح take_ownership);
+CURLcode Curl_mime_prepare_سرخیاں(بنية Curl_easy *انکڑے,
+                                   بنية curl_mimepart *part,
+                                   ثابت حرف *contenttype,
+                                   ثابت حرف *disposition,
+                                   تعداد mimestrategy strategy);
+size_t Curl_mime_read(حرف *بفر, size_t ناپ, size_t nitems,
+                      فراغ *instream);
+ثابت حرف *Curl_mime_contenttype(ثابت حرف *filename);
 
 /**
  * Install a client reader as upload source that reads the given
  * mime part.
  */
-CURLcode Curl_creader_set_mime(struct Curl_easy *data, curl_mimepart *part);
+CURLcode Curl_creader_سیٹ_mime(بنية Curl_easy *انکڑے, curl_mimepart *part);
 
-#else /* if disabled */
-#define Curl_mime_initpart(x)
-#define Curl_mime_cleanpart(x)
-#define Curl_mime_duppart(x, y, z) CURLE_OK /* Nothing to duplicate. Succeed */
-#define Curl_mime_set_subparts(a, b, c)          CURLE_NOT_BUILT_IN
-#define Curl_mime_prepare_headers(a, b, c, d, e) CURLE_NOT_BUILT_IN
-#define Curl_mime_read                           NULL
-#define Curl_creader_set_mime(x, y) ((void)(x), CURLE_NOT_BUILT_IN)
-#endif
+#وإلا /* if disabled */
+#تعریف_کرو Curl_mime_initpart(x)
+#تعریف_کرو Curl_mime_cleanpart(x)
+#تعریف_کرو Curl_mime_duppart(x, y, z) CURLE_OK /* Nothing to duplicate. Succeed */
+#تعریف_کرو Curl_mime_سیٹ_subparts(a, b, c)          CURLE_NOT_BUILT_وچ
+#تعریف_کرو Curl_mime_prepare_سرخیاں(a, b, c, d, e) CURLE_NOT_BUILT_وچ
+#تعریف_کرو Curl_mime_read                           عدم
+#تعریف_کرو Curl_creader_سیٹ_mime(x, y) ((فراغ)(x), CURLE_NOT_BUILT_وچ)
+#جے_انت
 
-#endif /* HEADER_CURL_MIME_H */
+#جے_انت /* HEADER_CURL_MIME_H */

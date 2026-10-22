@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SASL_H
-#define HEADER_CURL_SASL_H
+#جے_بنا_تعریف سرخی_CURL_SASL_H
+#تعریف_کرو سرخی_CURL_SASL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,47 +23,47 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "bufref.h"
+#ضمن "bufref.h"
 
-struct Curl_easy;
-struct connectdata;
+بنية Curl_easy;
+بنية connectdata;
 
 /* Authentication mechanism flags */
-#define SASL_MECH_LOGIN             (1 << 0)
-#define SASL_MECH_PLAIN             (1 << 1)
-#define SASL_MECH_CRAM_MD5          (1 << 2)
-#define SASL_MECH_DIGEST_MD5        (1 << 3)
-#define SASL_MECH_GSSAPI            (1 << 4)
-#define SASL_MECH_EXTERNAL          (1 << 5)
-#define SASL_MECH_NTLM              (1 << 6)
-#define SASL_MECH_XOAUTH2           (1 << 7)
-#define SASL_MECH_OAUTHBEARER       (1 << 8)
-#define SASL_MECH_SCRAM_SHA_1       (1 << 9)
-#define SASL_MECH_SCRAM_SHA_256     (1 << 10)
+#تعریف_کرو SASL_MECH_LOGIN             (1 << 0)
+#تعریف_کرو SASL_MECH_PLAIN             (1 << 1)
+#تعریف_کرو SASL_MECH_CRAM_MD5          (1 << 2)
+#تعریف_کرو SASL_MECH_DIGEST_MD5        (1 << 3)
+#تعریف_کرو SASL_MECH_GSSAPI            (1 << 4)
+#تعریف_کرو SASL_MECH_EXTERNAL          (1 << 5)
+#تعریف_کرو SASL_MECH_NTLM              (1 << 6)
+#تعریف_کرو SASL_MECH_XOAUTH2           (1 << 7)
+#تعریف_کرو SASL_MECH_OAUTHBEARER       (1 << 8)
+#تعریف_کرو SASL_MECH_SCRAM_SHA_1       (1 << 9)
+#تعریف_کرو SASL_MECH_SCRAM_SHA_256     (1 << 10)
 
 /* Authentication mechanism values */
-#define SASL_AUTH_NONE          0
-#define SASL_AUTH_ANY           0xffff
-#define SASL_AUTH_DEFAULT       (SASL_AUTH_ANY & ~SASL_MECH_EXTERNAL)
+#تعریف_کرو SASL_AUTH_NONE          0
+#تعریف_کرو SASL_AUTH_ANY           0xffff
+#تعریف_کرو SASL_AUTH_DEFAULT       (SASL_AUTH_ANY & ~SASL_MECH_EXTERNAL)
 
 /* Authentication mechanism strings */
-#define SASL_MECH_STRING_LOGIN          "LOGIN"
-#define SASL_MECH_STRING_PLAIN          "PLAIN"
-#define SASL_MECH_STRING_CRAM_MD5       "CRAM-MD5"
-#define SASL_MECH_STRING_DIGEST_MD5     "DIGEST-MD5"
-#define SASL_MECH_STRING_GSSAPI         "GSSAPI"
-#define SASL_MECH_STRING_EXTERNAL       "EXTERNAL"
-#define SASL_MECH_STRING_NTLM           "NTLM"
-#define SASL_MECH_STRING_XOAUTH2        "XOAUTH2"
-#define SASL_MECH_STRING_OAUTHBEARER    "OAUTHBEARER"
-#define SASL_MECH_STRING_SCRAM_SHA_1    "SCRAM-SHA-1"
-#define SASL_MECH_STRING_SCRAM_SHA_256  "SCRAM-SHA-256"
+#تعریف_کرو SASL_MECH_STRING_LOGIN          "LOGIN"
+#تعریف_کرو SASL_MECH_STRING_PLAIN          "PLAIN"
+#تعریف_کرو SASL_MECH_STRING_CRAM_MD5       "CRAM-MD5"
+#تعریف_کرو SASL_MECH_STRING_DIGEST_MD5     "DIGEST-MD5"
+#تعریف_کرو SASL_MECH_STRING_GSSAPI         "GSSAPI"
+#تعریف_کرو SASL_MECH_STRING_EXTERNAL       "EXTERNAL"
+#تعریف_کرو SASL_MECH_STRING_NTLM           "NTLM"
+#تعریف_کرو SASL_MECH_STRING_XOAUTH2        "XOAUTH2"
+#تعریف_کرو SASL_MECH_STRING_OAUTHBEARER    "OAUTHBEARER"
+#تعریف_کرو SASL_MECH_STRING_SCRAM_SHA_1    "SCRAM-SHA-1"
+#تعریف_کرو SASL_MECH_STRING_SCRAM_SHA_256  "SCRAM-SHA-256"
 
 /* SASL flags */
-#define SASL_FLAG_BASE64        0x0001  /* Messages are base64-encoded */
+#تعریف_کرو SASL_FLAG_BASE64        0x0001  /* Messages are base64-encoded */
 
 /* SASL machine states */
-typedef enum {
+تعريفنوع تعداد {
   SASL_STOP,
   SASL_PLAIN,
   SASL_LOGIN,
@@ -73,10 +73,10 @@ typedef enum {
   SASL_DIGESTMD5,
   SASL_DIGESTMD5_RESP,
   SASL_NTLM,
-  SASL_NTLM_TYPE2MSG,
+  SASL_NTLM_TYPE2_پیغام,
   SASL_GSSAPI,
   SASL_GSSAPI_TOKEN,
-  SASL_GSSAPI_NO_DATA,
+  SASL_GSSAPI_NO_انکڑے,
   SASL_OAUTH2,
   SASL_OAUTH2_RESP,
   SASL_GSASL,
@@ -85,76 +85,76 @@ typedef enum {
 } saslstate;
 
 /* Progress indicator */
-typedef enum {
+تعريفنوع تعداد {
   SASL_IDLE,
   SASL_INPROGRESS,
-  SASL_DONE
+  SASL_پورا
 } saslprogress;
 
 /* Protocol dependent SASL parameters */
-struct SASLproto {
-  const char *service;     /* The service name */
-  CURLcode (*sendauth)(struct Curl_easy *data, const char *mech,
-                       const struct bufref *ir);
+بنية SASLproto {
+  ثابت حرف *service;     /* The service name */
+  CURLcode (*sendauth)(بنية Curl_easy *انکڑے, ثابت حرف *mech,
+                       ثابت بنية bufref *ir);
                            /* Send authentication command */
-  CURLcode (*contauth)(struct Curl_easy *data, const char *mech,
-                       const struct bufref *contauth);
+  CURLcode (*contauth)(بنية Curl_easy *انکڑے, ثابت حرف *mech,
+                       ثابت بنية bufref *contauth);
                            /* Send authentication continuation */
-  CURLcode (*cancelauth)(struct Curl_easy *data, const char *mech);
+  CURLcode (*cancelauth)(بنية Curl_easy *انکڑے, ثابت حرف *mech);
                            /* Cancel authentication. */
-  CURLcode (*getmessage)(struct Curl_easy *data, struct bufref *out);
+  CURLcode (*getmessage)(بنية Curl_easy *انکڑے, بنية bufref *باہرلا);
                            /* Get SASL response message */
   size_t maxirlen;         /* Maximum initial response + mechanism length,
                               or zero if no max. This is normally the max
                               command length - other characters count.
                               This has to be zero for non-base64 protocols. */
-  int contcode;            /* Code to receive when continuation is expected */
-  int finalcode;           /* Code to receive upon authentication success */
-  unsigned short defmechs; /* Mechanisms enabled by default */
-  unsigned short flags;    /* Configuration flags. */
+  صحيح contcode;            /* Code to receive when continuation is expected */
+  صحيح finalcode;           /* Code to receive upon authentication success */
+  بنانشانی چھوٹا defmechs; /* Mechanisms enabled by default */
+  بنانشانی چھوٹا flags;    /* Configuration flags. */
 };
 
 /* Per-connection parameters */
-struct SASL {
-  const struct SASLproto *params; /* Protocol dependent parameters */
+بنية SASL {
+  ثابت بنية SASLproto *params; /* Protocol dependent parameters */
   saslstate state;           /* Current machine state */
-  const char *curmech;       /* Current mechanism id. */
-  unsigned short authmechs;  /* Accepted authentication mechanisms */
-  unsigned short prefmech;   /* Preferred authentication mechanism */
-  unsigned short authused;   /* Auth mechanism used for the connection */
-  BIT(resetprefs);           /* For URL auth option parsing. */
-  BIT(mutual_auth);          /* Mutual authentication enabled (GSSAPI only) */
-  BIT(force_ir);             /* Protocol always supports initial response */
+  ثابت حرف *curmech;       /* Current mechanism id. */
+  بنانشانی چھوٹا authmechs;  /* Accepted authentication mechanisms */
+  بنانشانی چھوٹا prefmech;   /* Preferred authentication mechanism */
+  بنانشانی چھوٹا authused;   /* Auth mechanism used for the connection */
+  ثنائی_ہندسہ(resetprefs);           /* For URL auth option parsing. */
+  ثنائی_ہندسہ(mutual_auth);          /* Mutual authentication enabled (GSSAPI only) */
+  ثنائی_ہندسہ(force_ir);             /* Protocol always supports initial response */
 };
 
 /* This is used to test whether the line starts with the given mechanism */
-#define sasl_mech_equal(line, wordlen, mech) \
-  ((wordlen) == (sizeof(mech) - 1) / sizeof(char) && \
-   !memcmp(line, mech, wordlen))
+#تعریف_کرو sasl_mech_equal(سطر, wordlen, mech) \
+  ((wordlen) == (حجم(mech) - 1) / حجم(حرف) && \
+   !memcmp(سطر, mech, wordlen))
 
 /* Convert a mechanism name to a token */
-unsigned short Curl_sasl_decode_mech(const char *ptr,
+بنانشانی چھوٹا Curl_sasl_decode_mech(ثابت حرف *ptr,
                                      size_t maxlen, size_t *len);
 
 /* Parse the URL login options */
-CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
-                                         const char *value, size_t len);
+CURLcode Curl_sasl_parse_url_auth_option(بنية SASL *sasl,
+                                         ثابت حرف *قدر, size_t len);
 
 /* Initializes an SASL structure */
-void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
-                    const struct SASLproto *params);
+فراغ Curl_sasl_init(بنية SASL *sasl, بنية Curl_easy *انکڑے,
+                    ثابت بنية SASLproto *params);
 
 /* Check if we have enough auth data and capabilities to authenticate */
-bool Curl_sasl_can_authenticate(struct SASL *sasl, struct Curl_easy *data);
+bool Curl_sasl_can_authenticate(بنية SASL *sasl, بنية Curl_easy *انکڑے);
 
 /* Calculate the required login details for SASL authentication */
-CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
-                         bool force_ir, saslprogress *progress);
+CURLcode Curl_sasl_شروع(بنية SASL *sasl, بنية Curl_easy *انکڑے,
+                         bool force_ir, saslprogress *ترقی);
 
 /* Continue an SASL authentication */
-CURLcode Curl_sasl_continue(struct SASL *sasl, struct Curl_easy *data,
-                            int code, saslprogress *progress);
+CURLcode Curl_sasl_continue(بنية SASL *sasl, بنية Curl_easy *انکڑے,
+                            صحيح کوڈ, saslprogress *ترقی);
 
-CURLcode Curl_sasl_is_blocked(struct SASL *sasl, struct Curl_easy *data);
+CURLcode Curl_sasl_is_blocked(بنية SASL *sasl, بنية Curl_easy *انکڑے);
 
-#endif /* HEADER_CURL_SASL_H */
+#جے_انت /* HEADER_CURL_SASL_H */

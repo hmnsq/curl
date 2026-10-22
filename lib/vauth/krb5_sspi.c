@@ -23,12 +23,12 @@
  * RFC4752 The Kerberos V5 ("GSSAPI") SASL Mechanism
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && defined(USE_KERBEROS5)
+#إذا defined(USE_WINDOWS_SSPI) && defined(USE_KERBEROS5)
 
-#include "vauth/vauth.h"
-#include "curl_trc.h"
+#ضمن "vauth/vauth.h"
+#ضمن "curl_trc.h"
 
 /*
  * Curl_auth_is_gssapi_supported()
@@ -39,22 +39,22 @@
  *
  * Returns TRUE if Kerberos V5 is supported by Windows SSPI.
  */
-bool Curl_auth_is_gssapi_supported(void)
+bool Curl_auth_is_gssapi_supported(فراغ)
 {
   PSecPkgInfo SecurityPackage;
-  SECURITY_STATUS status;
+  SECURITY_حالت حالت;
 
   /* Query the security package for Kerberos */
-  status = Curl_pSecFn->QuerySecurityPackageInfo(
-                                 CURL_UNCONST(TEXT(SP_NAME_KERBEROS)),
+  حالت = Curl_pSecFn->QuerySecurityPackageInfo(
+                                 CURL_UNCONST(متن_2(SP_NAME_KERBEROS)),
                                  &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
-    Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+  إذا(حالت == SEC_E_OK) {
+    Curl_pSecFn->Free_Context_بفر(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  أرجع حالت == SEC_E_OK;
 }
 
 /*
@@ -78,148 +78,148 @@ bool Curl_auth_is_gssapi_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const char *default_service,
-                                              const char *host,
-                                              const bool mutual_auth,
-                                              const struct bufref *chlg,
-                                              struct kerberos5data *krb5,
-                                              struct bufref *out)
+CURLcode Curl_auth_create_gssapi_user_سنیہا(بنية Curl_easy *انکڑے,
+                                              بنية Curl_creds *creds,
+                                              ثابت حرف *default_service,
+                                              ثابت حرف *host,
+                                              ثابت bool mutual_auth,
+                                              ثابت بنية bufref *chlg,
+                                              بنية kerberos5data *krb5,
+                                              بنية bufref *باہرلا)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   CtxtHandle context;
   PSecPkgInfo SecurityPackage;
-  SecBuffer chlg_buf;
-  SecBuffer resp_buf;
-  SecBufferDesc chlg_desc;
-  SecBufferDesc resp_desc;
-  SECURITY_STATUS status;
-  unsigned long attrs;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  Sec_بفر chlg_buf;
+  Sec_بفر resp_buf;
+  Sec_بفر_Desc chlg_desc;
+  Sec_بفر_Desc resp_desc;
+  SECURITY_حالت حالت;
+  بنانشانی لما attrs;
+  ثابت حرف *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
-  if(!krb5->spn) {
+  إذا(!krb5->spn) {
     /* Generate our SPN */
-    krb5->spn = Curl_auth_build_spn(service, host, NULL);
-    if(!krb5->spn)
-      return CURLE_OUT_OF_MEMORY;
+    krb5->spn = Curl_auth_build_spn(service, host, عدم);
+    إذا(!krb5->spn)
+      أرجع CURLE_باہرلا_دا_حافظہ;
   }
 
-  if(!krb5->output_token) {
+  إذا(!krb5->output_token) {
     /* Query the security package for Kerberos */
-    status = Curl_pSecFn->QuerySecurityPackageInfo(
-                                 CURL_UNCONST(TEXT(SP_NAME_KERBEROS)),
+    حالت = Curl_pSecFn->QuerySecurityPackageInfo(
+                                 CURL_UNCONST(متن_2(SP_NAME_KERBEROS)),
                                  &SecurityPackage);
-    if(status != SEC_E_OK) {
-      failf(data, "SSPI: could not get auth info");
-      return CURLE_AUTH_ERROR;
+    إذا(حالت != SEC_E_OK) {
+      failf(انکڑے, "SSPI: could not get auth info");
+      أرجع CURLE_AUTH_ERROR;
     }
 
     krb5->token_max = SecurityPackage->cbMaxToken;
 
     /* Release the package buffer as it is not required anymore */
-    Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+    Curl_pSecFn->Free_Context_بفر(SecurityPackage);
 
     /* Allocate our response buffer */
     krb5->output_token = curlx_malloc(krb5->token_max);
-    if(!krb5->output_token)
-      return CURLE_OUT_OF_MEMORY;
+    إذا(!krb5->output_token)
+      أرجع CURLE_باہرلا_دا_حافظہ;
   }
 
-  if(!krb5->credentials) {
+  إذا(!krb5->credentials) {
     /* Do we have credentials to use or are we using single sign-on? */
-    if(Curl_creds_has_user(creds)) {
+    إذا(Curl_creds_has_user(creds)) {
       /* Populate our identity structure */
-      result = Curl_create_sspi_identity(
-        creds->user, creds->passwd, &krb5->identity);
-      if(result)
-        return result;
+      نتیجہ = Curl_create_sspi_پچھان_تت(
+        creds->user, creds->passwd, &krb5->پچھان_تت);
+      إذا(نتیجہ)
+        أرجع نتیجہ;
 
       /* Allow proper cleanup of the identity structure */
-      krb5->p_identity = &krb5->identity;
+      krb5->p_پچھان_تت = &krb5->پچھان_تت;
     }
-    else
+    وإلا
       /* Use the current Windows user */
-      krb5->p_identity = NULL;
+      krb5->p_پچھان_تت = عدم;
 
     /* Allocate our credentials handle */
-    krb5->credentials = curlx_calloc(1, sizeof(CredHandle));
-    if(!krb5->credentials)
-      return CURLE_OUT_OF_MEMORY;
+    krb5->credentials = curlx_calloc(1, حجم(CredHandle));
+    إذا(!krb5->credentials)
+      أرجع CURLE_باہرلا_دا_حافظہ;
 
     /* Acquire our credentials handle */
-    status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
-                                 CURL_UNCONST(TEXT(SP_NAME_KERBEROS)),
-                                 SECPKG_CRED_OUTBOUND, NULL,
-                                 krb5->p_identity, NULL, NULL,
-                                 krb5->credentials, NULL);
-    if(status != SEC_E_OK) {
+    حالت = Curl_pSecFn->AcquireCredentialsHandle(عدم,
+                                 CURL_UNCONST(متن_2(SP_NAME_KERBEROS)),
+                                 SECPKG_CRED_OUTBOUND, عدم,
+                                 krb5->p_پچھان_تت, عدم, عدم,
+                                 krb5->credentials, عدم);
+    إذا(حالت != SEC_E_OK) {
       curlx_safefree(krb5->credentials);
-      return CURLE_LOGIN_DENIED;
+      أرجع CURLE_LOGIN_DENIED;
     }
 
     /* Allocate our new context handle */
-    krb5->context = curlx_calloc(1, sizeof(CtxtHandle));
-    if(!krb5->context)
-      return CURLE_OUT_OF_MEMORY;
+    krb5->context = curlx_calloc(1, حجم(CtxtHandle));
+    إذا(!krb5->context)
+      أرجع CURLE_باہرلا_دا_حافظہ;
   }
 
-  if(chlg) {
-    if(!Curl_bufref_len(chlg)) {
-      infof(data, "GSSAPI handshake failure (empty challenge message)");
-      return CURLE_BAD_CONTENT_ENCODING;
+  إذا(chlg) {
+    إذا(!Curl_bufref_len(chlg)) {
+      infof(انکڑے, "GSSAPI handshake failure (empty challenge message)");
+      أرجع CURLE_BAD_CONTENT_ENCODING;
     }
 
     /* Setup the challenge "input" security buffer */
-    chlg_desc.ulVersion = SECBUFFER_VERSION;
+    chlg_desc.ul_نسخہ = SECBUFFER_نسخہ;
     chlg_desc.cBuffers  = 1;
     chlg_desc.pBuffers  = &chlg_buf;
-    chlg_buf.BufferType = SECBUFFER_TOKEN;
-    chlg_buf.pvBuffer   = CURL_UNCONST(Curl_bufref_ptr(chlg));
-    chlg_buf.cbBuffer   = curlx_uztoul(Curl_bufref_len(chlg));
+    chlg_buf.بفر_Type = SECBUFFER_TOKEN;
+    chlg_buf.pv_بفر   = CURL_UNCONST(Curl_bufref_ptr(chlg));
+    chlg_buf.cb_بفر   = curlx_uztoul(Curl_bufref_len(chlg));
   }
 
   /* Setup the response "output" security buffer */
-  resp_desc.ulVersion = SECBUFFER_VERSION;
+  resp_desc.ul_نسخہ = SECBUFFER_نسخہ;
   resp_desc.cBuffers  = 1;
   resp_desc.pBuffers  = &resp_buf;
-  resp_buf.BufferType = SECBUFFER_TOKEN;
-  resp_buf.pvBuffer   = krb5->output_token;
-  resp_buf.cbBuffer   = curlx_uztoul(krb5->token_max);
+  resp_buf.بفر_Type = SECBUFFER_TOKEN;
+  resp_buf.pv_بفر   = krb5->output_token;
+  resp_buf.cb_بفر   = curlx_uztoul(krb5->token_max);
 
   /* Generate our challenge-response message */
-  status = Curl_pSecFn->InitializeSecurityContext(krb5->credentials,
-                                               chlg ? krb5->context : NULL,
+  حالت = Curl_pSecFn->InitializeSecurityContext(krb5->credentials,
+                                               chlg ? krb5->context : عدم,
                                                krb5->spn,
                                                (mutual_auth ?
                                                 ISC_REQ_MUTUAL_AUTH : 0),
                                                0, SECURITY_NATIVE_DREP,
-                                               chlg ? &chlg_desc : NULL, 0,
+                                               chlg ? &chlg_desc : عدم, 0,
                                                &context,
-                                               &resp_desc, &attrs, NULL);
+                                               &resp_desc, &attrs, عدم);
 
-  if(status == SEC_E_INSUFFICIENT_MEMORY)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(حالت == SEC_E_INSUFFICIENT_حافظہ)
+    أرجع CURLE_باہرلا_دا_حافظہ;
 
-  if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED)
-    return CURLE_AUTH_ERROR;
+  إذا(حالت != SEC_E_OK && حالت != SEC_I_CONTINUE_NEEDED)
+    أرجع CURLE_AUTH_ERROR;
 
-  if(memcmp(&context, krb5->context, sizeof(context))) {
+  إذا(memcmp(&context, krb5->context, حجم(context))) {
     Curl_pSecFn->DeleteSecurityContext(krb5->context);
 
-    memcpy(krb5->context, &context, sizeof(context));
+    حافظہ_نقل(krb5->context, &context, حجم(context));
   }
 
-  if(resp_buf.cbBuffer) {
-    result = Curl_bufref_memdup0(out, resp_buf.pvBuffer, resp_buf.cbBuffer);
+  إذا(resp_buf.cb_بفر) {
+    نتیجہ = Curl_bufref_memdup0(باہرلا, resp_buf.pv_بفر, resp_buf.cb_بفر);
   }
-  else if(mutual_auth)
-    Curl_bufref_set(out, "", 0, NULL);
-  else
-    Curl_bufref_set(out, NULL, 0, NULL);
+  وإلا إذا(mutual_auth)
+    Curl_bufref_سیٹ(باہرلا, "", 0, عدم);
+  وإلا
+    Curl_bufref_سیٹ(باہرلا, عدم, 0, عدم);
 
-  return result;
+  أرجع نتیجہ;
 }
 
 /*
@@ -238,183 +238,183 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
-                                                  const char *authzid,
-                                                  const struct bufref *chlg,
-                                                  struct kerberos5data *krb5,
-                                                  struct bufref *out)
+CURLcode Curl_auth_create_gssapi_security_سنیہا(بنية Curl_easy *انکڑے,
+                                                  ثابت حرف *authzid,
+                                                  ثابت بنية bufref *chlg,
+                                                  بنية kerberos5data *krb5,
+                                                  بنية bufref *باہرلا)
 {
-  CURLcode result = CURLE_OK;
-  size_t offset = 0;
+  CURLcode نتیجہ = CURLE_OK;
+  size_t وتھ = 0;
   size_t messagelen = 0;
   size_t appdatalen = 0;
-  unsigned char *trailer = NULL;
-  unsigned char *message = NULL;
-  unsigned char *padding = NULL;
-  unsigned char *appdata = NULL;
-  SecBuffer input_buf[2];
-  SecBuffer wrap_buf[3];
-  SecBufferDesc input_desc;
-  SecBufferDesc wrap_desc;
-  unsigned char *indata;
-  unsigned long qop = 0;
-  unsigned long sec_layer = 0;
-  unsigned long max_size = 0;
+  بنانشانی حرف *trailer = عدم;
+  بنانشانی حرف *سنیہا = عدم;
+  بنانشانی حرف *padding = عدم;
+  بنانشانی حرف *appdata = عدم;
+  Sec_بفر داخلہ_buf[2];
+  Sec_بفر wrap_buf[3];
+  Sec_بفر_Desc داخلہ_desc;
+  Sec_بفر_Desc wrap_desc;
+  بنانشانی حرف *indata;
+  بنانشانی لما qop = 0;
+  بنانشانی لما sec_layer = 0;
+  بنانشانی لما max_ناپ = 0;
   SecPkgContext_Sizes sizes;
-  SECURITY_STATUS status;
+  SECURITY_حالت حالت;
 
   /* Ensure we have a valid challenge message */
   DEBUGASSERT(chlg);
-  if(!Curl_bufref_len(chlg)) {
-    infof(data, "GSSAPI handshake failure (empty security message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  إذا(!Curl_bufref_len(chlg)) {
+    infof(انکڑے, "GSSAPI handshake failure (empty security message)");
+    أرجع CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Get our response size information */
-  status = Curl_pSecFn->QueryContextAttributes(krb5->context,
+  حالت = Curl_pSecFn->Query_Context_گن(krb5->context,
                                                SECPKG_ATTR_SIZES, &sizes);
 
-  if(status == SEC_E_INSUFFICIENT_MEMORY)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(حالت == SEC_E_INSUFFICIENT_حافظہ)
+    أرجع CURLE_باہرلا_دا_حافظہ;
 
-  if(status != SEC_E_OK)
-    return CURLE_AUTH_ERROR;
+  إذا(حالت != SEC_E_OK)
+    أرجع CURLE_AUTH_ERROR;
 
   /* Setup the "input" security buffer */
-  input_desc.ulVersion = SECBUFFER_VERSION;
-  input_desc.cBuffers = 2;
-  input_desc.pBuffers = input_buf;
-  input_buf[0].BufferType = SECBUFFER_STREAM;
-  input_buf[0].pvBuffer = CURL_UNCONST(Curl_bufref_ptr(chlg));
-  input_buf[0].cbBuffer = curlx_uztoul(Curl_bufref_len(chlg));
-  input_buf[1].BufferType = SECBUFFER_DATA;
-  input_buf[1].pvBuffer = NULL;
-  input_buf[1].cbBuffer = 0;
+  داخلہ_desc.ul_نسخہ = SECBUFFER_نسخہ;
+  داخلہ_desc.cBuffers = 2;
+  داخلہ_desc.pBuffers = داخلہ_buf;
+  داخلہ_buf[0].بفر_Type = SECBUFFER_دھارا;
+  داخلہ_buf[0].pv_بفر = CURL_UNCONST(Curl_bufref_ptr(chlg));
+  داخلہ_buf[0].cb_بفر = curlx_uztoul(Curl_bufref_len(chlg));
+  داخلہ_buf[1].بفر_Type = SECBUFFER_انکڑے;
+  داخلہ_buf[1].pv_بفر = عدم;
+  داخلہ_buf[1].cb_بفر = 0;
 
   /* Decrypt the inbound challenge and obtain the qop. The encrypted message
      is decrypted in place, overwriting the original contents of its buffer.
      The SECBUFFER_DATA receives a pointer to the message in
      SECBUFFER_STREAM. */
-  status = Curl_pSecFn->DecryptMessage(krb5->context, &input_desc, 0, &qop);
-  if(status != SEC_E_OK) {
-    infof(data, "GSSAPI handshake failure (decryption failed)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  حالت = Curl_pSecFn->Decrypt_سنیہا(krb5->context, &داخلہ_desc, 0, &qop);
+  إذا(حالت != SEC_E_OK) {
+    infof(انکڑے, "GSSAPI handshake failure (decryption failed)");
+    أرجع CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Not 4 octets long so fail as per RFC4752 Section 3.1 */
-  if(input_buf[1].cbBuffer != 4) {
-    infof(data, "GSSAPI handshake failure (invalid security data)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  إذا(داخلہ_buf[1].cb_بفر != 4) {
+    infof(انکڑے, "GSSAPI handshake failure (invalid security data)");
+    أرجع CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Extract the security layer and the maximum message size */
-  indata = input_buf[1].pvBuffer;
+  indata = داخلہ_buf[1].pv_بفر;
   sec_layer = indata[0];
-  max_size = ((unsigned long)indata[1] << 16) |
-             ((unsigned long)indata[2] << 8) | indata[3];
+  max_ناپ = ((بنانشانی لما)indata[1] << 16) |
+             ((بنانشانی لما)indata[2] << 8) | indata[3];
 
   /* Process the security layer */
-  if(!(sec_layer & KERB_WRAP_NO_ENCRYPT)) {
-    infof(data, "GSSAPI handshake failure (invalid security layer)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  إذا(!(sec_layer & KERB_WRAP_NO_ENCRYPT)) {
+    infof(انکڑے, "GSSAPI handshake failure (invalid security layer)");
+    أرجع CURLE_BAD_CONTENT_ENCODING;
   }
   sec_layer &= KERB_WRAP_NO_ENCRYPT;  /* We do not support a security layer */
 
   /* Process the maximum message size the server can receive */
-  if(max_size > 0) {
+  إذا(max_ناپ > 0) {
     /* The server has told us it supports a maximum receive buffer, but as we
        do not require one unless we are encrypting data, we tell the server
        our receive buffer is zero. */
-    max_size = 0;
+    max_ناپ = 0;
   }
 
   /* Allocate the trailer */
   trailer = curlx_malloc(sizes.cbSecurityTrailer);
-  if(!trailer)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!trailer)
+    أرجع CURLE_باہرلا_دا_حافظہ;
 
   /* Allocate our message */
   messagelen = 4;
-  if(authzid)
-    messagelen += strlen(authzid);
-  message = curlx_malloc(messagelen);
-  if(!message) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  إذا(authzid)
+    messagelen += لڑی_لمبائی(authzid);
+  سنیہا = curlx_malloc(messagelen);
+  إذا(!سنیہا) {
+    نتیجہ = CURLE_باہرلا_دا_حافظہ;
+    اذهب باہرلا;
   }
 
   /* Populate the message with the security layer and client supported receive
      message size. */
-  message[0] = sec_layer & 0xFF;
-  message[1] = (max_size >> 16) & 0xFF;
-  message[2] = (max_size >> 8) & 0xFF;
-  message[3] = max_size & 0xFF;
+  سنیہا[0] = sec_layer & 0xFF;
+  سنیہا[1] = (max_ناپ >> 16) & 0xFF;
+  سنیہا[2] = (max_ناپ >> 8) & 0xFF;
+  سنیہا[3] = max_ناپ & 0xFF;
 
   /* If given, append the authorization identity. */
 
-  if(authzid && *authzid)
-    memcpy(message + 4, authzid, messagelen - 4);
+  إذا(authzid && *authzid)
+    حافظہ_نقل(سنیہا + 4, authzid, messagelen - 4);
 
   /* Allocate the padding */
-  padding = curlx_malloc(sizes.cbBlockSize);
-  if(!padding) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  padding = curlx_malloc(sizes.cb_بلاک_ناپ);
+  إذا(!padding) {
+    نتیجہ = CURLE_باہرلا_دا_حافظہ;
+    اذهب باہرلا;
   }
 
   /* Setup the "authentication data" security buffer */
-  wrap_desc.ulVersion    = SECBUFFER_VERSION;
+  wrap_desc.ul_نسخہ    = SECBUFFER_نسخہ;
   wrap_desc.cBuffers     = 3;
   wrap_desc.pBuffers     = wrap_buf;
-  wrap_buf[0].BufferType = SECBUFFER_TOKEN;
-  wrap_buf[0].pvBuffer   = trailer;
-  wrap_buf[0].cbBuffer   = sizes.cbSecurityTrailer;
-  wrap_buf[1].BufferType = SECBUFFER_DATA;
-  wrap_buf[1].pvBuffer   = message;
-  wrap_buf[1].cbBuffer   = curlx_uztoul(messagelen);
-  wrap_buf[2].BufferType = SECBUFFER_PADDING;
-  wrap_buf[2].pvBuffer   = padding;
-  wrap_buf[2].cbBuffer   = sizes.cbBlockSize;
+  wrap_buf[0].بفر_Type = SECBUFFER_TOKEN;
+  wrap_buf[0].pv_بفر   = trailer;
+  wrap_buf[0].cb_بفر   = sizes.cbSecurityTrailer;
+  wrap_buf[1].بفر_Type = SECBUFFER_انکڑے;
+  wrap_buf[1].pv_بفر   = سنیہا;
+  wrap_buf[1].cb_بفر   = curlx_uztoul(messagelen);
+  wrap_buf[2].بفر_Type = SECBUFFER_PADDING;
+  wrap_buf[2].pv_بفر   = padding;
+  wrap_buf[2].cb_بفر   = sizes.cb_بلاک_ناپ;
 
   /* Encrypt the data */
-  status = Curl_pSecFn->EncryptMessage(krb5->context, KERB_WRAP_NO_ENCRYPT,
+  حالت = Curl_pSecFn->Encrypt_سنیہا(krb5->context, KERB_WRAP_NO_ENCRYPT,
                                        &wrap_desc, 0);
-  if(status != SEC_E_OK) {
-    if(status == SEC_E_INSUFFICIENT_MEMORY)
-      result = CURLE_OUT_OF_MEMORY;
-    else
-      result = CURLE_AUTH_ERROR;
-    goto out;
+  إذا(حالت != SEC_E_OK) {
+    إذا(حالت == SEC_E_INSUFFICIENT_حافظہ)
+      نتیجہ = CURLE_باہرلا_دا_حافظہ;
+    وإلا
+      نتیجہ = CURLE_AUTH_ERROR;
+    اذهب باہرلا;
   }
 
   /* Allocate the encryption (wrap) buffer */
-  appdatalen = wrap_buf[0].cbBuffer + wrap_buf[1].cbBuffer +
-               wrap_buf[2].cbBuffer;
+  appdatalen = wrap_buf[0].cb_بفر + wrap_buf[1].cb_بفر +
+               wrap_buf[2].cb_بفر;
   appdata = curlx_malloc(appdatalen);
-  if(!appdata) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  إذا(!appdata) {
+    نتیجہ = CURLE_باہرلا_دا_حافظہ;
+    اذهب باہرلا;
   }
 
   /* Populate the encryption buffer */
-  memcpy(appdata, wrap_buf[0].pvBuffer, wrap_buf[0].cbBuffer);
-  offset += wrap_buf[0].cbBuffer;
-  memcpy(appdata + offset, wrap_buf[1].pvBuffer, wrap_buf[1].cbBuffer);
-  offset += wrap_buf[1].cbBuffer;
-  memcpy(appdata + offset, wrap_buf[2].pvBuffer, wrap_buf[2].cbBuffer);
+  حافظہ_نقل(appdata, wrap_buf[0].pv_بفر, wrap_buf[0].cb_بفر);
+  وتھ += wrap_buf[0].cb_بفر;
+  حافظہ_نقل(appdata + وتھ, wrap_buf[1].pv_بفر, wrap_buf[1].cb_بفر);
+  وتھ += wrap_buf[1].cb_بفر;
+  حافظہ_نقل(appdata + وتھ, wrap_buf[2].pv_بفر, wrap_buf[2].cb_بفر);
 
-out:
+باہرلا:
   /* Free all of our local buffers */
   curlx_free(padding);
-  curlx_free(message);
+  curlx_free(سنیہا);
   curlx_free(trailer);
 
-  if(result)
-    return result;
+  إذا(نتیجہ)
+    أرجع نتیجہ;
 
   /* Return the response. */
-  Curl_bufref_set(out, appdata, appdatalen, curl_free);
-  return CURLE_OK;
+  Curl_bufref_سیٹ(باہرلا, appdata, appdatalen, curl_free);
+  أرجع CURLE_OK;
 }
 
 /*
@@ -427,23 +427,23 @@ out:
  * krb5     [in/out] - The Kerberos 5 data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5)
+فراغ Curl_auth_cleanup_gssapi(بنية kerberos5data *krb5)
 {
   /* Free our security context */
-  if(krb5->context) {
+  إذا(krb5->context) {
     Curl_pSecFn->DeleteSecurityContext(krb5->context);
     curlx_safefree(krb5->context);
   }
 
   /* Free our credentials handle */
-  if(krb5->credentials) {
+  إذا(krb5->credentials) {
     Curl_pSecFn->FreeCredentialsHandle(krb5->credentials);
     curlx_safefree(krb5->credentials);
   }
 
   /* Free our identity */
-  Curl_sspi_free_identity(krb5->p_identity);
-  krb5->p_identity = NULL;
+  Curl_sspi_free_پچھان_تت(krb5->p_پچھان_تت);
+  krb5->p_پچھان_تت = عدم;
 
   /* Free the SPN and output token */
   curlx_safefree(krb5->spn);
@@ -453,4 +453,4 @@ void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5)
   krb5->token_max = 0;
 }
 
-#endif /* USE_WINDOWS_SSPI && USE_KERBEROS5 */
+#جے_انت /* USE_WINDOWS_SSPI && USE_KERBEROS5 */

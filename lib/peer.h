@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PEER_H
-#define HEADER_CURL_PEER_H
+#جے_بنا_تعریف سرخی_CURL_PEER_H
+#تعریف_کرو سرخی_CURL_PEER_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,23 +24,23 @@
  *
  ***************************************************************************/
 
-struct Curl_scheme;
+بنية Curl_scheme;
 
 /* if peer hostname starts with this, the peer is a unix domain socket
  * path, e.g. the remainder after 'localhost'. */
-#define CURL_PEER_UDS_PREFIX "localhost/"
+#تعریف_کرو CURL_PEER_UDS_اگیتر "localhost/"
 
-struct Curl_peer {
-  const struct Curl_scheme *scheme; /* url scheme */
-  char *hostname; /* normalized hostname (IDN decoded when supported) */
-  char *zoneid; /* NULL or IPv6 zone identifier */
+بنية Curl_peer {
+  ثابت بنية Curl_scheme *scheme; /* url scheme */
+  حرف *hostname; /* normalized hostname (IDN decoded when supported) */
+  حرف *zoneid; /* NULL or IPv6 zone identifier */
   uint32_t refcount;  /* created with 1, freed when dropping to 0 */
   uint32_t scopeid;  /* != 0, IPv6 scope to use */
-  uint16_t port;
-  BIT(unix_socket); /* hostname is a UDS path without the prefix */
-  BIT(abstract_uds); /* only TRUE when `unix_socket` also TRUE */
-  BIT(ipv6); /* hostname is an IPv6 address stripped of '[]' */
-  char user_hostname[1]; /* hostname supplied by user/url */
+  uint16_t پورٹ;
+  ثنائی_ہندسہ(unix_socket); /* hostname is a UDS path without the prefix */
+  ثنائی_ہندسہ(abstract_uds); /* only TRUE when `unix_socket` also TRUE */
+  ثنائی_ہندسہ(ipv6); /* hostname is an IPv6 address stripped of '[]' */
+  حرف user_hostname[1]; /* hostname supplied by user/url */
 };
 
 /* Create a new peer:
@@ -54,55 +54,55 @@ struct Curl_peer {
  * - `zoneid` IPv6 zone identifier or NULL
  * - `scopeid` IPv6 scopeid of zoneid, when known.
  */
-CURLcode Curl_peer_create(struct Curl_easy *data,
-                          const struct Curl_scheme *scheme,
-                          const char *hostname,
-                          uint16_t port,
-                          struct Curl_peer **ppeer);
+CURLcode Curl_peer_create(بنية Curl_easy *انکڑے,
+                          ثابت بنية Curl_scheme *scheme,
+                          ثابت حرف *hostname,
+                          uint16_t پورٹ,
+                          بنية Curl_peer **ppeer);
 
-#ifdef USE_UNIX_SOCKETS
-CURLcode Curl_peer_uds_create(const struct Curl_scheme *scheme,
-                              const char *path,
+#جے_تعریف_شدہ USE_UNIX_SOCKETS
+CURLcode Curl_peer_uds_create(ثابت بنية Curl_scheme *scheme,
+                              ثابت حرف *رستہ,
                               bool abstract_unix_socket,
-                              struct Curl_peer **ppeer);
-#endif
+                              بنية Curl_peer **ppeer);
+#جے_انت
 
 /* Unlink any peer in `*pdest`, assign src, increase src
  * refcount when not NULL. */
-void Curl_peer_link(struct Curl_peer **pdest, struct Curl_peer *src);
+فراغ Curl_peer_link(بنية Curl_peer **pdest, بنية Curl_peer *src);
 
 /* Drop a reference, peer may be passed as NULL */
-void Curl_peer_unlink(struct Curl_peer **ppeer);
+فراغ Curl_peer_unlink(بنية Curl_peer **ppeer);
 
 /* TRUE if both peers are NULL or have completely same properties. */
-bool Curl_peer_equal(struct Curl_peer *p1, struct Curl_peer *p2);
+bool Curl_peer_equal(بنية Curl_peer *p1, بنية Curl_peer *p2);
 
 /* TRUE if both peers are NULL or have same properties except the scheme. */
-bool Curl_peer_same_destination(struct Curl_peer *p1, struct Curl_peer *p2);
+bool Curl_peer_same_destination(بنية Curl_peer *p1, بنية Curl_peer *p2);
 
-CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
-                            uint16_t port_override,
+CURLcode Curl_peer_from_url(CURLU *uh, بنية Curl_easy *انکڑے,
+                            uint16_t پورٹ_override,
                             uint32_t scopeid_override,
-                            struct Curl_peer **ppeer);
+                            بنية Curl_peer **ppeer);
 
-CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
-                                   const struct Curl_peer *dest,
-                                   const char *connect_to,
-                                   struct Curl_peer **ppeer);
+CURLcode Curl_peer_from_connect_منزل(بنية Curl_easy *انکڑے,
+                                   ثابت بنية Curl_peer *dest,
+                                   ثابت حرف *connect_منزل,
+                                   بنية Curl_peer **ppeer);
 
-#ifndef CURL_DISABLE_PROXY
+#جے_بنا_تعریف CURL_DISABLE_PROXY
 
-CURLcode Curl_scheme_to_proxytype(struct Curl_easy *data,
-                                  const char *scheme,
+CURLcode Curl_scheme_منزل_proxytype(بنية Curl_easy *انکڑے,
+                                  ثابت حرف *scheme,
                                   uint8_t *proxytype,
-                                  const char *url);
+                                  ثابت حرف *url);
 
 CURLcode Curl_peer_from_proxy_url(CURLU *uh,
-                                  struct Curl_easy *data,
-                                  const char *url,
+                                  بنية Curl_easy *انکڑے,
+                                  ثابت حرف *url,
                                   uint8_t proxytype,
-                                  struct Curl_peer **ppeer,
+                                  بنية Curl_peer **ppeer,
                                   uint8_t *pproxytype);
-#endif /* !CURL_DISABLE_PROXY */
+#جے_انت /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_PEER_H */
+#جے_انت /* HEADER_CURL_PEER_H */

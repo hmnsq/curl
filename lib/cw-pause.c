@@ -21,206 +21,206 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "bufq.h"
-#include "cfilters.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "cw-pause.h"
+#ضمن "urldata.h"
+#ضمن "bufq.h"
+#ضمن "cfilters.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "cw-pause.h"
 
 
 /* body dynbuf sizes */
-#define CW_PAUSE_BUF_CHUNK         (16 * 1024)
+#تعریف_کرو CW_PAUSE_BUF_CHUNK         (16 * 1024)
 /* when content decoding, write data in chunks */
-#define CW_PAUSE_DEC_WRITE_CHUNK   4096
+#تعریف_کرو CW_PAUSE_DEC_WRITE_CHUNK   4096
 
-struct cw_pause_buf {
-  struct cw_pause_buf *next;
-  struct bufq b;
-  int type;
+بنية cw_pause_buf {
+  بنية cw_pause_buf *اگلا;
+  بنية bufq b;
+  صحيح type;
 };
 
-static struct cw_pause_buf *cw_pause_buf_create(int type, size_t buflen)
+ساكن بنية cw_pause_buf *cw_pause_buf_create(صحيح type, size_t buflen)
 {
-  struct cw_pause_buf *cwbuf = curlx_calloc(1, sizeof(*cwbuf));
-  if(cwbuf) {
+  بنية cw_pause_buf *cwbuf = curlx_calloc(1, حجم(*cwbuf));
+  إذا(cwbuf) {
     cwbuf->type = type;
-    if(type & CLIENTWRITE_BODY)
+    إذا(type & CLIENTWRITE_BODY)
       Curl_bufq_init2(&cwbuf->b, CW_PAUSE_BUF_CHUNK, 1,
-                      (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
-    else
+                      (BUFQ_OPT_SOFT_حد_بندی | BUFQ_OPT_NO_SPARES));
+    وإلا
       Curl_bufq_init(&cwbuf->b, buflen, 1);
   }
-  return cwbuf;
+  أرجع cwbuf;
 }
 
-static void cw_pause_buf_free(struct cw_pause_buf *cwbuf)
+ساكن فراغ cw_pause_buf_free(بنية cw_pause_buf *cwbuf)
 {
-  if(cwbuf) {
+  إذا(cwbuf) {
     Curl_bufq_free(&cwbuf->b);
     curlx_free(cwbuf);
   }
 }
 
-struct cw_pause_ctx {
-  struct Curl_cwriter super;
-  struct cw_pause_buf *buf;
-  struct cw_pause_buf *tail;
-  size_t buf_total;
+بنية cw_pause_ctx {
+  بنية Curl_cwriter super;
+  بنية cw_pause_buf *buf;
+  بنية cw_pause_buf *پوچھ;
+  size_t buf_کل;
 };
 
-static CURLcode cw_pause_init(struct Curl_easy *data,
-                              struct Curl_cwriter *writer)
+ساكن CURLcode cw_pause_init(بنية Curl_easy *انکڑے,
+                              بنية Curl_cwriter *writer)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
-  (void)data;
-  ctx->buf = NULL;
-  ctx->tail = NULL;
-  return CURLE_OK;
+  بنية cw_pause_ctx *ctx = writer->ctx;
+  (فراغ)انکڑے;
+  ctx->buf = عدم;
+  ctx->پوچھ = عدم;
+  أرجع CURLE_OK;
 }
 
-static void cw_pause_bufs_free(struct cw_pause_ctx *ctx)
+ساكن فراغ cw_pause_bufs_free(بنية cw_pause_ctx *ctx)
 {
-  while(ctx->buf) {
-    struct cw_pause_buf *next = ctx->buf->next;
+  طالما(ctx->buf) {
+    بنية cw_pause_buf *اگلا = ctx->buf->اگلا;
     cw_pause_buf_free(ctx->buf);
-    ctx->buf = next;
+    ctx->buf = اگلا;
   }
-  ctx->tail = NULL;
+  ctx->پوچھ = عدم;
 }
 
-static void cw_pause_close(struct Curl_easy *data, struct Curl_cwriter *writer)
+ساكن فراغ cw_pause_close(بنية Curl_easy *انکڑے, بنية Curl_cwriter *writer)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
+  بنية cw_pause_ctx *ctx = writer->ctx;
 
-  (void)data;
+  (فراغ)انکڑے;
   cw_pause_bufs_free(ctx);
 }
 
-static CURLcode cw_pause_flush(struct Curl_easy *data,
-                               struct Curl_cwriter *cw_pause)
+ساكن CURLcode cw_pause_flush(بنية Curl_easy *انکڑے,
+                               بنية Curl_cwriter *cw_pause)
 {
-  struct cw_pause_ctx *ctx = (struct cw_pause_ctx *)cw_pause;
-  CURLcode result = CURLE_OK;
+  بنية cw_pause_ctx *ctx = (بنية cw_pause_ctx *)cw_pause;
+  CURLcode نتیجہ = CURLE_OK;
 
   /* write the front of the chain until it blocks or gets empty */
-  while(ctx->buf && !Curl_cwriter_is_paused(data)) {
-    struct cw_pause_buf *first = ctx->buf;
+  طالما(ctx->buf && !Curl_cwriter_is_paused(انکڑے)) {
+    بنية cw_pause_buf *پہلا = ctx->buf;
     size_t blen, wlen = 0;
-    const unsigned char *buf = NULL;
+    ثابت بنانشانی حرف *buf = عدم;
 
-    if(Curl_bufq_peek(&first->b, &buf, &blen)) {
-      int wtype = first->type;
-      wlen = (first->type & CLIENTWRITE_BODY) ?
+    إذا(Curl_bufq_peek(&پہلا->b, &buf, &blen)) {
+      صحيح wtype = پہلا->type;
+      wlen = (پہلا->type & CLIENTWRITE_BODY) ?
              CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
       /* EOS only goes with the very last piece, same as in cw_pause_write */
-      if((wlen < Curl_bufq_len(&first->b)) || first->next)
+      إذا((wlen < Curl_bufq_len(&پہلا->b)) || پہلا->اگلا)
         wtype &= ~CLIENTWRITE_EOS;
-      result = Curl_cwriter_write(data, cw_pause->next, wtype,
-                                  (const char *)buf, wlen);
-      CURL_TRC_WRITE(data, "[PAUSE] flushed %zu/%zu bytes, type=%x -> %d",
-                     wlen, ctx->buf_total, (unsigned int)wtype,
-                     (int)result);
-      Curl_bufq_skip(&first->b, wlen);
-      DEBUGASSERT(ctx->buf_total >= wlen);
-      ctx->buf_total -= wlen;
-      if(result)
-        return result;
+      نتیجہ = Curl_cwriter_write(انکڑے, cw_pause->اگلا, wtype,
+                                  (ثابت حرف *)buf, wlen);
+      CURL_TRC_WRITE(انکڑے, "[PAUSE] flushed %zu/%zu bytes, type=%x -> %d",
+                     wlen, ctx->buf_کل, (بنانشانی صحيح)wtype,
+                     (صحيح)نتیجہ);
+      Curl_bufq_skip(&پہلا->b, wlen);
+      DEBUGASSERT(ctx->buf_کل >= wlen);
+      ctx->buf_کل -= wlen;
+      إذا(نتیجہ)
+        أرجع نتیجہ;
     }
-    else if(first->type & CLIENTWRITE_EOS) {
-      result = Curl_cwriter_write(data, cw_pause->next, first->type,
-                                  (const char *)buf, 0);
-      CURL_TRC_WRITE(data, "[PAUSE] flushed 0/%zu bytes, type=%x -> %d",
-                     ctx->buf_total, (unsigned int)first->type,
-                     (int)result);
+    وإلا إذا(پہلا->type & CLIENTWRITE_EOS) {
+      نتیجہ = Curl_cwriter_write(انکڑے, cw_pause->اگلا, پہلا->type,
+                                  (ثابت حرف *)buf, 0);
+      CURL_TRC_WRITE(انکڑے, "[PAUSE] flushed 0/%zu bytes, type=%x -> %d",
+                     ctx->buf_کل, (بنانشانی صحيح)پہلا->type,
+                     (صحيح)نتیجہ);
     }
 
-    if(Curl_bufq_is_empty(&first->b)) {
-      ctx->buf = first->next;
-      if(!ctx->buf)
-        ctx->tail = NULL;
-      cw_pause_buf_free(first);
+    إذا(Curl_bufq_is_خالی_تھاواں(&پہلا->b)) {
+      ctx->buf = پہلا->اگلا;
+      إذا(!ctx->buf)
+        ctx->پوچھ = عدم;
+      cw_pause_buf_free(پہلا);
     }
   }
 
-  if(!result)
-    result = Curl_cwriter_flush(data, cw_pause->next);
-  return result;
+  إذا(!نتیجہ)
+    نتیجہ = Curl_cwriter_flush(انکڑے, cw_pause->اگلا);
+  أرجع نتیجہ;
 }
 
-static CURLcode cw_pause_write(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
-                               const char *buf, size_t blen)
+ساكن CURLcode cw_pause_write(بنية Curl_easy *انکڑے,
+                               بنية Curl_cwriter *writer, صحيح type,
+                               ثابت حرف *buf, size_t blen)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
-  CURLcode result = CURLE_OK;
+  بنية cw_pause_ctx *ctx = writer->ctx;
+  CURLcode نتیجہ = CURLE_OK;
   size_t wlen = 0;
 
-  if(ctx->buf && !Curl_cwriter_is_paused(data)) {
-    result = cw_pause_flush(data, writer);
-    if(result)
-      return result;
+  إذا(ctx->buf && !Curl_cwriter_is_paused(انکڑے)) {
+    نتیجہ = cw_pause_flush(انکڑے, writer);
+    إذا(نتیجہ)
+      أرجع نتیجہ;
   }
 
-  while(!ctx->buf && !Curl_cwriter_is_paused(data)) {
-    int wtype = type;
+  طالما(!ctx->buf && !Curl_cwriter_is_paused(انکڑے)) {
+    صحيح wtype = type;
     DEBUGASSERT(!ctx->buf);
     /* content decoding might blow up size considerably, write smaller
      * chunks to make pausing need buffer less. */
     wlen = (type & CLIENTWRITE_BODY) ?
            CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
-    if(wlen < blen)
+    إذا(wlen < blen)
       wtype &= ~CLIENTWRITE_EOS;
-    result = Curl_cwriter_write(data, writer->next, wtype, buf, wlen);
-    if(result)
-      return result;
+    نتیجہ = Curl_cwriter_write(انکڑے, writer->اگلا, wtype, buf, wlen);
+    إذا(نتیجہ)
+      أرجع نتیجہ;
     buf += wlen;
     blen -= wlen;
-    if(!blen)
-      return result;
+    إذا(!blen)
+      أرجع نتیجہ;
   }
 
-  do {
+  افعل {
     size_t nwritten = 0;
-    if(ctx->tail && (ctx->tail->type == type) && (type & CLIENTWRITE_BODY)) {
+    إذا(ctx->پوچھ && (ctx->پوچھ->type == type) && (type & CLIENTWRITE_BODY)) {
       /* same type and body, append to tail buffer which has a soft
        * limit and should take everything up to OOM. */
-      result = Curl_bufq_cwrite(&ctx->tail->b, buf, blen, &nwritten);
+      نتیجہ = Curl_bufq_cwrite(&ctx->پوچھ->b, buf, blen, &nwritten);
     }
-    else {
+    وإلا {
       /* Need a new buf, type changed */
-      struct cw_pause_buf *cwbuf = cw_pause_buf_create(type, blen);
-      if(!cwbuf)
-        return CURLE_OUT_OF_MEMORY;
-      if(ctx->tail)
-        ctx->tail->next = cwbuf;
-      else
+      بنية cw_pause_buf *cwbuf = cw_pause_buf_create(type, blen);
+      إذا(!cwbuf)
+        أرجع CURLE_باہرلا_دا_حافظہ;
+      إذا(ctx->پوچھ)
+        ctx->پوچھ->اگلا = cwbuf;
+      وإلا
         ctx->buf = cwbuf;
-      ctx->tail = cwbuf;
-      result = Curl_bufq_cwrite(&ctx->tail->b, buf, blen, &nwritten);
+      ctx->پوچھ = cwbuf;
+      نتیجہ = Curl_bufq_cwrite(&ctx->پوچھ->b, buf, blen, &nwritten);
     }
-    CURL_TRC_WRITE(data, "[PAUSE] buffer %zu more bytes of type %x, "
-                   "total=%zu -> %d", nwritten, (unsigned int)type,
-                   ctx->buf_total + wlen, (int)result);
-    if(result)
-      return result;
+    CURL_TRC_WRITE(انکڑے, "[PAUSE] buffer %zu more bytes of type %x, "
+                   "total=%zu -> %d", nwritten, (بنانشانی صحيح)type,
+                   ctx->buf_کل + wlen, (صحيح)نتیجہ);
+    إذا(نتیجہ)
+      أرجع نتیجہ;
     buf += nwritten;
     blen -= nwritten;
-    ctx->buf_total += nwritten;
-  } while(blen);
+    ctx->buf_کل += nwritten;
+  } طالما(blen);
 
-  return result;
+  أرجع نتیجہ;
 }
 
-const struct Curl_cwtype Curl_cwt_pause = {
+ثابت بنية Curl_cwtype Curl_cwt_pause = {
   "cw-pause",
-  NULL,
+  عدم,
   0,
   cw_pause_init,
   cw_pause_write,
   cw_pause_flush,
   cw_pause_close,
-  sizeof(struct cw_pause_ctx)
+  حجم(بنية cw_pause_ctx)
 };

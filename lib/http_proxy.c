@@ -21,276 +21,276 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "http_proxy.h"
+#ضمن "http_proxy.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY)
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY)
 
-#include "curl_trc.h"
-#include "http.h"
-#include "url.h"
-#include "cfilters.h"
-#include "cf-h1-proxy.h"
-#include "cf-h2-proxy.h"
-#include "connect.h"
-#include "vauth/vauth.h"
-#include "vquic/vquic.h"
-#include "curlx/strparse.h"
+#ضمن "curl_trc.h"
+#ضمن "http.h"
+#ضمن "url.h"
+#ضمن "cfilters.h"
+#ضمن "cf-h1-proxy.h"
+#ضمن "cf-h2-proxy.h"
+#ضمن "connect.h"
+#ضمن "vauth/vauth.h"
+#ضمن "vquic/vquic.h"
+#ضمن "curlx/strparse.h"
 
-static CURLcode dynhds_add_custom(struct Curl_easy *data,
-                                  bool is_connect, int httpversion,
-                                  bool is_udp, struct dynhds *hds)
+ساكن CURLcode dynhds_جوڑو_custom(بنية Curl_easy *انکڑے,
+                                  bool is_connect, صحيح httpversion,
+                                  bool is_udp, بنية dynhds *hds)
 {
-  struct connectdata *conn = data->conn;
-  struct curl_slist *h[2];
-  struct curl_slist *headers;
-  int numlists = 1; /* by default */
-  int i;
+  بنية connectdata *conn = انکڑے->conn;
+  بنية curl_slist *h[2];
+  بنية curl_slist *سرخیاں;
+  صحيح numlists = 1; /* by default */
+  صحيح i;
 
-  enum Curl_proxy_use proxy;
+  تعداد Curl_proxy_use proxy;
 
-  if(is_connect && !is_udp)
-    proxy = HEADER_CONNECT;
-  else if(is_connect && is_udp)
-    proxy = HEADER_CONNECT_UDP;
-  else
-    proxy = conn->bits.origin_is_proxy ? HEADER_PROXY : HEADER_SERVER;
+  إذا(is_connect && !is_udp)
+    proxy = سرخی_CONNECT;
+  وإلا إذا(is_connect && is_udp)
+    proxy = سرخی_CONNECT_UDP;
+  وإلا
+    proxy = conn->بٹ.origin_is_proxy ? سرخی_PROXY : سرخی_SERVER;
 
-  switch(proxy) {
-  case HEADER_SERVER:
-    h[0] = data->set.headers;
-    break;
-  case HEADER_PROXY:
-    h[0] = data->set.headers;
-    if(data->set.sep_headers) {
-      h[1] = data->set.proxyheaders;
+  بدل(proxy) {
+  حالة سرخی_SERVER:
+    h[0] = انکڑے->سیٹ.سرخیاں;
+    اكسر;
+  حالة سرخی_PROXY:
+    h[0] = انکڑے->سیٹ.سرخیاں;
+    إذا(انکڑے->سیٹ.sep_سرخیاں) {
+      h[1] = انکڑے->سیٹ.proxyheaders;
       numlists++;
     }
-    break;
-  case HEADER_CONNECT:
-    if(data->set.sep_headers)
-      h[0] = data->set.proxyheaders;
-    else
-      h[0] = data->set.headers;
-    break;
-  case HEADER_CONNECT_UDP:
-    if(data->set.sep_headers)
-      h[0] = data->set.proxyheaders;
-    else
-      h[0] = data->set.headers;
-    break;
+    اكسر;
+  حالة سرخی_CONNECT:
+    إذا(انکڑے->سیٹ.sep_سرخیاں)
+      h[0] = انکڑے->سیٹ.proxyheaders;
+    وإلا
+      h[0] = انکڑے->سیٹ.سرخیاں;
+    اكسر;
+  حالة سرخی_CONNECT_UDP:
+    إذا(انکڑے->سیٹ.sep_سرخیاں)
+      h[0] = انکڑے->سیٹ.proxyheaders;
+    وإلا
+      h[0] = انکڑے->سیٹ.سرخیاں;
+    اكسر;
   }
 
   /* loop through one or two lists */
-  for(i = 0; i < numlists; i++) {
-    for(headers = h[i]; headers; headers = headers->next) {
-      struct Curl_str name;
-      const char *value = NULL;
+  لكل(i = 0; i < numlists; i++) {
+    لكل(سرخیاں = h[i]; سرخیاں; سرخیاں = سرخیاں->اگلا) {
+      بنية Curl_str name;
+      ثابت حرف *قدر = عدم;
       size_t valuelen = 0;
-      const char *ptr = headers->data;
+      ثابت حرف *ptr = سرخیاں->انکڑے;
 
       /* There are 2 quirks in place for custom headers:
        * 1. setting only 'name:' to suppress a header from being sent
        * 2. setting only 'name;' to send an empty (illegal) header
        */
-      if(!curlx_str_cspn(&ptr, &name, ";:")) {
-        if(!curlx_str_single(&ptr, ':')) {
+      إذا(!curlx_str_cspn(&ptr, &name, ";:")) {
+        إذا(!curlx_str_single(&ptr, ':')) {
           curlx_str_passblanks(&ptr);
-          if(*ptr) {
-            value = ptr;
-            valuelen = strlen(value);
+          إذا(*ptr) {
+            قدر = ptr;
+            valuelen = لڑی_لمبائی(قدر);
           }
-          else {
+          وإلا {
             /* quirk #1, suppress this header */
-            continue;
+            استمر;
           }
         }
-        else if(!curlx_str_single(&ptr, ';')) {
+        وإلا إذا(!curlx_str_single(&ptr, ';')) {
           curlx_str_passblanks(&ptr);
-          if(!*ptr) {
+          إذا(!*ptr) {
             /* quirk #2, send an empty header */
-            value = "";
+            قدر = "";
             valuelen = 0;
           }
-          else {
+          وإلا {
             /* this may be used for something else in the future,
              * ignore this for now */
-            continue;
+            استمر;
           }
         }
-        else
+        وإلا
           /* neither : nor ; in provided header value. We ignore this
            * silently */
-          continue;
+          استمر;
       }
-      else
+      وإلا
         /* no name, move on */
-        continue;
+        استمر;
 
-      DEBUGASSERT(curlx_strlen(&name) && value);
+      DEBUGASSERT(curlx_strlen(&name) && قدر);
       /* trim surrounding whitespace so a padded field name (e.g.
          `Authorization :`) cannot slip past the Authorization/Cookie check */
       curlx_str_trimblanks(&name);
-      if(!curlx_strlen(&name))
-        continue;
-      if(data->state.http_host &&
+      إذا(!curlx_strlen(&name))
+        استمر;
+      إذا(انکڑے->state.http_host &&
          /* a Host: header was sent already, do not pass on any custom Host:
             header as that will produce *two* in the same request! */
          curlx_str_casecompare(&name, "Host"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_FORM &&
+      وإلا إذا(انکڑے->state.httpreq == HTTPREQ_POST_FORM &&
               /* this header (extended by formdata.c) is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_MIME &&
+      وإلا إذا(انکڑے->state.httpreq == HTTPREQ_POST_MIME &&
               /* this header is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->req.authneg &&
+      وإلا إذا(انکڑے->req.authneg &&
               /* while doing auth neg, do not allow the custom length since
                  we will force length zero then */
               curlx_str_casecompare(&name, "Content-Length"))
         ;
-      else if((httpversion >= 20) &&
+      وإلا إذا((httpversion >= 20) &&
               curlx_str_casecompare(&name, "Transfer-Encoding"))
         ;
       /* HTTP/2 and HTTP/3 do not support chunked requests */
-      else if((curlx_str_casecompare(&name, "Authorization") ||
+      وإلا إذا((curlx_str_casecompare(&name, "Authorization") ||
                curlx_str_casecompare(&name, "Cookie")) &&
               /* be careful of sending this potentially sensitive header to
                  other hosts */
-              !Curl_auth_allowed_to_host(data))
+              !Curl_auth_allowed_منزل_host(انکڑے))
         ;
-      else {
-        CURLcode result =
-          Curl_dynhds_add(hds, curlx_str(&name), curlx_strlen(&name),
-                          value, valuelen);
-        if(result)
-          return result;
+      وإلا {
+        CURLcode نتیجہ =
+          Curl_dynhds_جوڑو(hds, curlx_str(&name), curlx_strlen(&name),
+                          قدر, valuelen);
+        إذا(نتیجہ)
+          أرجع نتیجہ;
       }
     }
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-struct cf_proxy_ctx {
-  struct Curl_peer *peer; /* proxy */
-  struct Curl_peer *tunnel_peer; /* tunnel destination */
+بنية cf_proxy_ctx {
+  بنية Curl_peer *peer; /* proxy */
+  بنية Curl_peer *tunnel_peer; /* tunnel destination */
   uint8_t proxytype;
   uint8_t tunnel_transport;
-  BIT(sub_filter_installed);
+  ثنائی_ہندسہ(sub_filter_installed);
 };
 
-static int proxy_http_ver_major(proxy_http_ver ver)
+ساكن صحيح proxy_http_ver_major(proxy_http_ver ver)
 {
-  switch(ver) {
-  case PROXY_HTTP_V1:
-    return 11;
-  case PROXY_HTTP_V2:
-    return 20;
-  case PROXY_HTTP_V3:
-    return 30;
+  بدل(ver) {
+  حالة PROXY_HTTP_V1:
+    أرجع 11;
+  حالة PROXY_HTTP_V2:
+    أرجع 20;
+  حالة PROXY_HTTP_V3:
+    أرجع 30;
   }
-  return 0;
+  أرجع 0;
 }
 
-static CURLcode http_proxy_create_CONNECT(struct httpreq **preq,
-                                          struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct Curl_peer *peer,
-                                          struct Curl_peer *dest,
+ساكن CURLcode http_proxy_create_CONNECT(بنية httpreq **preq,
+                                          بنية Curl_cfilter *cf,
+                                          بنية Curl_easy *انکڑے,
+                                          بنية Curl_peer *peer,
+                                          بنية Curl_peer *dest,
                                           proxy_http_ver ver)
 {
-  char *authority = NULL;
-  const char *ua;
-  int httpversion = proxy_http_ver_major(ver);
-  CURLcode result;
-  struct httpreq *req = NULL;
+  حرف *authority = عدم;
+  ثابت حرف *ua;
+  صحيح httpversion = proxy_http_ver_major(ver);
+  CURLcode نتیجہ;
+  بنية httpreq *req = عدم;
 
-  (void)peer;
+  (فراغ)peer;
   authority = curl_maprintf("%s%s%s:%u",
                             dest->ipv6 ? "[" : "",
                             dest->hostname,
                             dest->ipv6 ? "]" : "",
-                            dest->port);
-  if(!authority) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+                            dest->پورٹ);
+  إذا(!authority) {
+    نتیجہ = CURLE_باہرلا_دا_حافظہ;
+    اذهب باہرلا;
   }
 
-  result = Curl_http_req_make(&req, STRCONST("CONNECT"),
-                              NULL, 0, authority, strlen(authority),
-                              NULL, 0);
-  if(result)
-    goto out;
+  نتیجہ = Curl_http_req_make(&req, STRCONST("CONNECT"),
+                              عدم, 0, authority, لڑی_لمبائی(authority),
+                              عدم, 0);
+  إذا(نتیجہ)
+    اذهب باہرلا;
 
   /* Setup the proxy-authorization header, if any */
-  result = Curl_http_output_auth(data, cf->conn, req->method, HTTPREQ_GET,
-                                 req->authority, NULL, TRUE);
-  if(result)
-    goto out;
+  نتیجہ = Curl_http_output_auth(انکڑے, cf->conn, req->طریقہ, HTTPREQ_GET,
+                                 req->authority, عدم, TRUE);
+  إذا(نتیجہ)
+    اذهب باہرلا;
 
   /* If user is not overriding Host: header, we add for HTTP/1.x */
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Host"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Host", authority);
-    if(result)
-      goto out;
+  إذا(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(انکڑے, cf->conn, STRCONST("Host"))) {
+    نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, "Host", authority);
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
 
-  if(data->req.hd_proxy_auth) {
-    result = Curl_dynhds_h1_cadd_line(&req->headers,
-                                      data->req.hd_proxy_auth);
-    if(result)
-      goto out;
+  إذا(انکڑے->req.hd_proxy_auth) {
+    نتیجہ = Curl_dynhds_h1_cadd_سطر(&req->سرخیاں,
+                                      انکڑے->req.hd_proxy_auth);
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
 
-  ua = CURL_EASY_STR(data, STRING_USERAGENT);
-  if(!Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent")) &&
+  ua = CURL_EASY_STR(انکڑے, STRING_USERAGENT);
+  إذا(!Curl_checkProxyheaders(انکڑے, cf->conn, STRCONST("User-Agent")) &&
      ua && *ua) {
-    result = Curl_dynhds_cadd(&req->headers, "User-Agent", ua);
-    if(result)
-      goto out;
+    نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, "User-Agent", ua);
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
 
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Proxy-Connection"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Proxy-Connection", "Keep-Alive");
-    if(result)
-      goto out;
+  إذا(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(انکڑے, cf->conn, STRCONST("Proxy-Connection"))) {
+    نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, "Proxy-Connection", "Keep-Alive");
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
 
-  result = dynhds_add_custom(data, TRUE, httpversion,
-                             FALSE, &req->headers);
+  نتیجہ = dynhds_جوڑو_custom(انکڑے, TRUE, httpversion,
+                             FALSE, &req->سرخیاں);
 
-out:
-  if(result && req) {
+باہرلا:
+  إذا(نتیجہ && req) {
     Curl_http_req_free(req);
-    req = NULL;
+    req = عدم;
   }
   curlx_free(authority);
   *preq = req;
-  return result;
+  أرجع نتیجہ;
 }
 
-static CURLcode http_proxy_create_CONNECTUDP(struct httpreq **preq,
-                                             struct Curl_cfilter *cf,
-                                             struct Curl_easy *data,
-                                             struct Curl_peer *peer,
-                                             struct Curl_peer *dest,
+ساكن CURLcode http_proxy_create_CONNECTUDP(بنية httpreq **preq,
+                                             بنية Curl_cfilter *cf,
+                                             بنية Curl_easy *انکڑے,
+                                             بنية Curl_peer *peer,
+                                             بنية Curl_peer *dest,
                                              proxy_http_ver ver)
 {
-  const char *proxy_scheme = "http", *ua;
-  int httpversion = proxy_http_ver_major(ver);
-  char *authority = NULL;
-  char *path = NULL;
-  char *encoded_host = NULL;
-  struct httpreq *req = NULL;
-  CURLcode result;
+  ثابت حرف *proxy_scheme = "http", *ua;
+  صحيح httpversion = proxy_http_ver_major(ver);
+  حرف *authority = عدم;
+  حرف *رستہ = عدم;
+  حرف *encoded_host = عدم;
+  بنية httpreq *req = عدم;
+  CURLcode نتیجہ;
 
-  if(cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS ||
+  إذا(cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS ||
      cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS2 ||
      cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS3)
     proxy_scheme = "https";
@@ -299,419 +299,419 @@ static CURLcode http_proxy_create_CONNECTUDP(struct httpreq **preq,
                             peer->ipv6 ? "[" : "",
                             peer->hostname,
                             peer->ipv6 ? "]" : "",
-                            peer->port);
-  if(!authority) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+                            peer->پورٹ);
+  إذا(!authority) {
+    نتیجہ = CURLE_باہرلا_دا_حافظہ;
+    اذهب باہرلا;
   }
 
-  if(dest->ipv6) {
+  إذا(dest->ipv6) {
     /* RFC 9298: colons in IPv6 addresses MUST be percent-encoded
      * in the URI template (e.g. "2001:db8::1" -> "2001%3Adb8%3A%3A1") */
-    const char *s = dest->hostname;
-    char *d;
-    size_t hlen = strlen(s);
+    ثابت حرف *s = dest->hostname;
+    حرف *d;
+    size_t hlen = لڑی_لمبائی(s);
     encoded_host = curlx_malloc(hlen * 3 + 1);
-    if(!encoded_host) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    إذا(!encoded_host) {
+      نتیجہ = CURLE_باہرلا_دا_حافظہ;
+      اذهب باہرلا;
     }
     d = encoded_host;
-    while(*s) {
-      if(*s == ':') {
+    طالما(*s) {
+      إذا(*s == ':') {
         *d++ = '%';
         *d++ = '3';
         *d++ = 'A';
       }
-      else
+      وإلا
         *d++ = *s;
       s++;
     }
     *d = '\0';
-    path = curl_maprintf("/.well-known/masque/udp/%s/%u/",
-                         encoded_host, (unsigned int)dest->port);
+    رستہ = curl_maprintf("/.well-known/masque/udp/%s/%u/",
+                         encoded_host, (بنانشانی صحيح)dest->پورٹ);
   }
-  else {
-    path = curl_maprintf("/.well-known/masque/udp/%s/%u/",
-                         dest->hostname, (unsigned int)dest->port);
-  }
-
-  if(!path) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  وإلا {
+    رستہ = curl_maprintf("/.well-known/masque/udp/%s/%u/",
+                         dest->hostname, (بنانشانی صحيح)dest->پورٹ);
   }
 
-  if(ver == PROXY_HTTP_V1) {
-    result = Curl_http_req_make(&req, "GET", CURL_CSTRLEN("GET"),
-                                proxy_scheme, strlen(proxy_scheme),
-                                authority, strlen(authority),
-                                path, strlen(path));
-    if(result)
-      goto out;
+  إذا(!رستہ) {
+    نتیجہ = CURLE_باہرلا_دا_حافظہ;
+    اذهب باہرلا;
   }
-  else if(ver == PROXY_HTTP_V2 || ver == PROXY_HTTP_V3) {
-    result = Curl_http_req_make(&req, STRCONST("CONNECT"),
-                                proxy_scheme, strlen(proxy_scheme),
-                                authority, strlen(authority),
-                                path, strlen(path));
-    if(result)
-      goto out;
+
+  إذا(ver == PROXY_HTTP_V1) {
+    نتیجہ = Curl_http_req_make(&req, "GET", CURL_CSTRLEN("GET"),
+                                proxy_scheme, لڑی_لمبائی(proxy_scheme),
+                                authority, لڑی_لمبائی(authority),
+                                رستہ, لڑی_لمبائی(رستہ));
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
-  else {
-    result = CURLE_FAILED_INIT;
-    goto out;
+  وإلا إذا(ver == PROXY_HTTP_V2 || ver == PROXY_HTTP_V3) {
+    نتیجہ = Curl_http_req_make(&req, STRCONST("CONNECT"),
+                                proxy_scheme, لڑی_لمبائی(proxy_scheme),
+                                authority, لڑی_لمبائی(authority),
+                                رستہ, لڑی_لمبائی(رستہ));
+    إذا(نتیجہ)
+      اذهب باہرلا;
+  }
+  وإلا {
+    نتیجہ = CURLE_FAILED_INIT;
+    اذهب باہرلا;
   }
 
   /* Setup the proxy-authorization header, if any */
-  result = Curl_http_output_auth(data, cf->conn, req->method, HTTPREQ_GET,
-                                 req->authority, NULL, TRUE);
-  if(result)
-    goto out;
+  نتیجہ = Curl_http_output_auth(انکڑے, cf->conn, req->طریقہ, HTTPREQ_GET,
+                                 req->authority, عدم, TRUE);
+  إذا(نتیجہ)
+    اذهب باہرلا;
 
   /* If user is not overriding Host: header, we add for HTTP/1.x */
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Host"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Host", authority);
-    if(result)
-      goto out;
+  إذا(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(انکڑے, cf->conn, STRCONST("Host"))) {
+    نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, "Host", authority);
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
 
-  if(data->req.hd_proxy_auth) {
-    result = Curl_dynhds_h1_cadd_line(&req->headers,
-                                      data->req.hd_proxy_auth);
-    if(result)
-      goto out;
+  إذا(انکڑے->req.hd_proxy_auth) {
+    نتیجہ = Curl_dynhds_h1_cadd_سطر(&req->سرخیاں,
+                                      انکڑے->req.hd_proxy_auth);
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
 
-  ua = CURL_EASY_STR(data, STRING_USERAGENT);
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent")) &&
+  ua = CURL_EASY_STR(انکڑے, STRING_USERAGENT);
+  إذا(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(انکڑے, cf->conn, STRCONST("User-Agent")) &&
      ua && *ua) {
-    result = Curl_dynhds_cadd(&req->headers, "User-Agent", ua);
-    if(result)
-      goto out;
+    نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, "User-Agent", ua);
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
 
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Proxy-Connection"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Proxy-Connection", "Keep-Alive");
-    if(result)
-      goto out;
+  إذا(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(انکڑے, cf->conn, STRCONST("Proxy-Connection"))) {
+    نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, "Proxy-Connection", "Keep-Alive");
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
 
-  if(ver == PROXY_HTTP_V1) {
-    result = Curl_dynhds_cadd(&req->headers, "Connection", "Upgrade");
-    if(result)
-      goto out;
+  إذا(ver == PROXY_HTTP_V1) {
+    نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, "Connection", "Upgrade");
+    إذا(نتیجہ)
+      اذهب باہرلا;
 
-    result = Curl_dynhds_cadd(&req->headers, "Upgrade", "connect-udp");
-    if(result)
-      goto out;
+    نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, "Upgrade", "connect-udp");
+    إذا(نتیجہ)
+      اذهب باہرلا;
 
-    result = Curl_dynhds_cadd(&req->headers, "Capsule-Protocol", "?1");
-    if(result)
-      goto out;
+    نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, "Capsule-Protocol", "?1");
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
-  else {
-    result = Curl_dynhds_cadd(&req->headers, ":Protocol", "connect-udp");
-    if(result)
-      goto out;
+  وإلا {
+    نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, ":Protocol", "connect-udp");
+    إذا(نتیجہ)
+      اذهب باہرلا;
 
-    if(ver >= PROXY_HTTP_V2) {
-      result = Curl_dynhds_cadd(&req->headers, "Capsule-Protocol", "?1");
-      if(result)
-        goto out;
+    إذا(ver >= PROXY_HTTP_V2) {
+      نتیجہ = Curl_dynhds_cadd(&req->سرخیاں, "Capsule-Protocol", "?1");
+      إذا(نتیجہ)
+        اذهب باہرلا;
     }
   }
 
-  result = dynhds_add_custom(data, TRUE, httpversion,
-                             TRUE, &req->headers);
+  نتیجہ = dynhds_جوڑو_custom(انکڑے, TRUE, httpversion,
+                             TRUE, &req->سرخیاں);
 
-out:
-  if(result && req) {
+باہرلا:
+  إذا(نتیجہ && req) {
     Curl_http_req_free(req);
-    req = NULL;
+    req = عدم;
   }
   curlx_free(authority);
-  curlx_free(path);
+  curlx_free(رستہ);
   curlx_free(encoded_host);
   *preq = req;
-  return result;
+  أرجع نتیجہ;
 }
 
 CURLcode Curl_http_proxy_create_tunnel_request(
-    struct httpreq **preq, struct Curl_cfilter *cf,
-    struct Curl_easy *data, struct Curl_peer *peer, struct Curl_peer *dest,
+    بنية httpreq **preq, بنية Curl_cfilter *cf,
+    بنية Curl_easy *انکڑے, بنية Curl_peer *peer, بنية Curl_peer *dest,
     proxy_http_ver ver, bool udp_tunnel)
 {
-  CURLcode result = udp_tunnel ?
-    http_proxy_create_CONNECTUDP(preq, cf, data, peer, dest, ver) :
-    http_proxy_create_CONNECT(preq, cf, data, peer, dest, ver);
-  if(result)
-    return result;
+  CURLcode نتیجہ = udp_tunnel ?
+    http_proxy_create_CONNECTUDP(preq, cf, انکڑے, peer, dest, ver) :
+    http_proxy_create_CONNECT(preq, cf, انکڑے, peer, dest, ver);
+  إذا(نتیجہ)
+    أرجع نتیجہ;
 
-  infof(data, "Establishing %s proxy %stunnel to %s:%u",
+  infof(انکڑے, "Establishing %s proxy %stunnel to %s:%u",
         (ver == PROXY_HTTP_V2) ? "HTTP/2" :
         (ver == PROXY_HTTP_V3) ? "HTTP/3" : "HTTP",
         udp_tunnel ? "UDP " : "",
-        dest->user_hostname, dest->port);
-  return CURLE_OK;
+        dest->user_hostname, dest->پورٹ);
+  أرجع CURLE_OK;
 }
 
 CURLcode Curl_http_proxy_inspect_tunnel_response(
-    struct Curl_cfilter *cf, struct Curl_easy *data,
-    struct http_resp *resp, bool udp_tunnel,
-    proxy_inspect_result *presult)
+    بنية Curl_cfilter *cf, بنية Curl_easy *انکڑے,
+    بنية http_resp *resp, bool udp_tunnel,
+    proxy_inspect_نتیجہ *presult)
 {
-  struct dynhds_entry *capsule_protocol = NULL;
-  struct dynhds_entry *auth_reply = NULL;
-  size_t i, header_count;
-  CURLcode result = CURLE_OK;
+  بنية dynhds_اندراج *capsule_protocol = عدم;
+  بنية dynhds_اندراج *auth_جواب = عدم;
+  size_t i, سرخی_گنتی;
+  CURLcode نتیجہ = CURLE_OK;
 
   DEBUGASSERT(resp);
 
-  header_count = Curl_dynhds_count(&resp->headers);
-  infof(data, "CONNECT%s Response Status %d",
-        udp_tunnel ? "-UDP" : "", resp->status);
-  infof(data, "Response Headers (%zu total):", header_count);
-  for(i = 0; i < header_count; i++) {
-    struct dynhds_entry *entry = Curl_dynhds_getn(&resp->headers, i);
-    if(entry)
-      infof(data, "  %s: %s", entry->name, entry->value);
+  سرخی_گنتی = Curl_dynhds_گنتی(&resp->سرخیاں);
+  infof(انکڑے, "CONNECT%s Response Status %d",
+        udp_tunnel ? "-UDP" : "", resp->حالت);
+  infof(انکڑے, "Response Headers (%zu total):", سرخی_گنتی);
+  لكل(i = 0; i < سرخی_گنتی; i++) {
+    بنية dynhds_اندراج *اندراج = Curl_dynhds_getn(&resp->سرخیاں, i);
+    إذا(اندراج)
+      infof(انکڑے, "  %s: %s", اندراج->name, اندراج->قدر);
   }
 
-  if(resp->status == 407) {
-    auth_reply = Curl_dynhds_cget(&resp->headers, "Proxy-Authenticate");
+  إذا(resp->حالت == 407) {
+    auth_جواب = Curl_dynhds_cget(&resp->سرخیاں, "Proxy-Authenticate");
   }
 
-  if(auth_reply) {
-    CURL_TRC_CF(data, cf, "[0] CONNECT%s: fwd auth header '%s'",
-                udp_tunnel ? "-UDP" : "", auth_reply->value);
-    result = Curl_http_input_auth(data, resp->status == 407,
-                                  auth_reply->value);
-    if(result)
-      return result;
-    if(data->req.newurl) {
-      curlx_safefree(data->req.newurl);
+  إذا(auth_جواب) {
+    CURL_TRC_CF(انکڑے, cf, "[0] CONNECT%s: fwd auth header '%s'",
+                udp_tunnel ? "-UDP" : "", auth_جواب->قدر);
+    نتیجہ = Curl_http_داخلہ_auth(انکڑے, resp->حالت == 407,
+                                  auth_جواب->قدر);
+    إذا(نتیجہ)
+      أرجع نتیجہ;
+    إذا(انکڑے->req.newurl) {
+      curlx_safefree(انکڑے->req.newurl);
       *presult = PROXY_INSPECT_AUTH_RETRY;
-      return CURLE_OK;
+      أرجع CURLE_OK;
     }
   }
 
-  if(udp_tunnel) {
-    if(resp->status / 100 == 2) {
-      capsule_protocol = Curl_dynhds_cget(&resp->headers,
+  إذا(udp_tunnel) {
+    إذا(resp->حالت / 100 == 2) {
+      capsule_protocol = Curl_dynhds_cget(&resp->سرخیاں,
                                            "capsule-protocol");
-      if(capsule_protocol) {
-        if(!strncmp(capsule_protocol->value, "?1", 2) &&
-           !capsule_protocol->value[2]) {
-          infof(data, "CONNECT-UDP tunnel established, response %d",
-                resp->status);
+      إذا(capsule_protocol) {
+        إذا(!لڑی_مقابلہ(capsule_protocol->قدر, "?1", 2) &&
+           !capsule_protocol->قدر[2]) {
+          infof(انکڑے, "CONNECT-UDP tunnel established, response %d",
+                resp->حالت);
           *presult = PROXY_INSPECT_OK;
-          return CURLE_OK;
+          أرجع CURLE_OK;
         }
-        failf(data, "Failed to establish CONNECT-UDP tunnel, response %d, "
+        failf(انکڑے, "Failed to establish CONNECT-UDP tunnel, response %d, "
               "unsupported capsule-protocol value '%s'",
-              resp->status, capsule_protocol->value);
+              resp->حالت, capsule_protocol->قدر);
         *presult = PROXY_INSPECT_FAILED;
-        return CURLE_COULDNT_CONNECT;
+        أرجع CURLE_COULDNT_CONNECT;
       }
-      else {
+      وإلا {
         /* NOTE proxies may not set capsule protocol in the headers */
-        infof(data, "CONNECT-UDP tunnel established, response %d "
-                    "but no capsule-protocol header found", resp->status);
+        infof(انکڑے, "CONNECT-UDP tunnel established, response %d "
+                    "but no capsule-protocol header found", resp->حالت);
         *presult = PROXY_INSPECT_OK;
-        return CURLE_OK;
+        أرجع CURLE_OK;
       }
     }
-    else {
-      failf(data, "Failed to establish CONNECT-UDP tunnel, "
-                  "response %d", resp->status);
+    وإلا {
+      failf(انکڑے, "Failed to establish CONNECT-UDP tunnel, "
+                  "response %d", resp->حالت);
       *presult = PROXY_INSPECT_FAILED;
-      return CURLE_COULDNT_CONNECT;
+      أرجع CURLE_COULDNT_CONNECT;
     }
   }
 
-  if(resp->status / 100 == 2) {
-    infof(data, "CONNECT tunnel established, response %d", resp->status);
+  إذا(resp->حالت / 100 == 2) {
+    infof(انکڑے, "CONNECT tunnel established, response %d", resp->حالت);
     *presult = PROXY_INSPECT_OK;
-    return CURLE_OK;
+    أرجع CURLE_OK;
   }
 
   *presult = PROXY_INSPECT_FAILED;
-  return CURLE_COULDNT_CONNECT;
+  أرجع CURLE_COULDNT_CONNECT;
 }
 
-static CURLcode http_proxy_cf_connect(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      bool *done)
+ساكن CURLcode http_proxy_cf_connect(بنية Curl_cfilter *cf,
+                                      بنية Curl_easy *انکڑے,
+                                      bool *پورا)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
-  CURLcode result;
+  بنية cf_proxy_ctx *ctx = cf->ctx;
+  CURLcode نتیجہ;
   bool udp_tunnel = TRNSPRT_IS_DGRAM(ctx->tunnel_transport);
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  إذا(cf->connected) {
+    *پورا = TRUE;
+    أرجع CURLE_OK;
   }
 
-  CURL_TRC_CF(data, cf, "CONNECT%s", udp_tunnel ? "-UDP" : "");
+  CURL_TRC_CF(انکڑے, cf, "CONNECT%s", udp_tunnel ? "-UDP" : "");
 connect_sub:
   /* in case of h3_proxy, cf->next will be NULL initially */
-  if(cf->next) {
-    result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  إذا(cf->اگلا) {
+    نتیجہ = cf->اگلا->cft->do_connect(cf->اگلا, انکڑے, پورا);
+    إذا(نتیجہ || !*پورا)
+      أرجع نتیجہ;
   }
 
-  *done = FALSE;
-  if(!ctx->sub_filter_installed) {
-    const char *alpn = NULL;
+  *پورا = FALSE;
+  إذا(!ctx->sub_filter_installed) {
+    ثابت حرف *alpn = عدم;
 
     /* in case of h3_proxy, cf->next will be NULL initially */
-    if(cf->next) {
-      alpn = Curl_conn_cf_get_alpn_negotiated(cf->next, data);
+    إذا(cf->اگلا) {
+      alpn = Curl_conn_cf_get_alpn_negotiated(cf->اگلا, انکڑے);
     }
 
-    if(alpn)
-      infof(data, "CONNECT%s: '%s' negotiated",
+    إذا(alpn)
+      infof(انکڑے, "CONNECT%s: '%s' negotiated",
             udp_tunnel ? "-UDP" : "", alpn);
-    else if(!alpn) {
+    وإلا إذا(!alpn) {
       /* No ALPN, proxytype rules. Fake ALPN */
-      infof(data, "CONNECT%s: no ALPN negotiated", udp_tunnel ? "-UDP" : "");
-      switch(ctx->proxytype) {
-      case CURLPROXY_HTTP_1_0:
+      infof(انکڑے, "CONNECT%s: no ALPN negotiated", udp_tunnel ? "-UDP" : "");
+      بدل(ctx->proxytype) {
+      حالة CURLPROXY_HTTP_1_0:
         alpn = "http/1.0";
-        break;
-      case CURLPROXY_HTTPS2:
+        اكسر;
+      حالة CURLPROXY_HTTPS2:
         alpn = "h2";
-        break;
-      case CURLPROXY_HTTPS3:
+        اكسر;
+      حالة CURLPROXY_HTTPS3:
         alpn = "h3";
-        break;
-      default:
+        اكسر;
+      افتراضي:
         alpn = "http/1.1";
-        break;
+        اكسر;
       }
     }
 
-    if(!strcmp(alpn, "http/1.0")) {
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/1.0");
-      result = Curl_cf_h1_proxy_insert_after(cf, data, ctx->peer,
+    إذا(!strcmp(alpn, "http/1.0")) {
+      CURL_TRC_CF(انکڑے, cf, "installing subfilter for HTTP/1.0");
+      نتیجہ = Curl_cf_h1_proxy_داخل_کرو_after(cf, انکڑے, ctx->peer,
                                              ctx->tunnel_peer, 10, udp_tunnel);
-      if(result)
-        goto out;
+      إذا(نتیجہ)
+        اذهب باہرلا;
     }
-    else if(!strcmp(alpn, "http/1.1")) {
-      int httpversion = (ctx->proxytype == CURLPROXY_HTTP_1_0) ? 10 : 11;
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/1.%d",
+    وإلا إذا(!strcmp(alpn, "http/1.1")) {
+      صحيح httpversion = (ctx->proxytype == CURLPROXY_HTTP_1_0) ? 10 : 11;
+      CURL_TRC_CF(انکڑے, cf, "installing subfilter for HTTP/1.%d",
                   httpversion % 10);
-      result = Curl_cf_h1_proxy_insert_after(cf, data, ctx->peer,
+      نتیجہ = Curl_cf_h1_proxy_داخل_کرو_after(cf, انکڑے, ctx->peer,
                                              ctx->tunnel_peer,
                                              httpversion, udp_tunnel);
-      if(result)
-        goto out;
+      إذا(نتیجہ)
+        اذهب باہرلا;
     }
-#ifdef USE_NGHTTP2
-    else if(!strcmp(alpn, "h2")) {
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/2");
-      result = Curl_cf_h2_proxy_insert_after(cf, data, ctx->peer,
+#جے_تعریف_شدہ USE_NGHTTP2
+    وإلا إذا(!strcmp(alpn, "h2")) {
+      CURL_TRC_CF(انکڑے, cf, "installing subfilter for HTTP/2");
+      نتیجہ = Curl_cf_h2_proxy_داخل_کرو_after(cf, انکڑے, ctx->peer,
                                              ctx->tunnel_peer, udp_tunnel);
-      if(result)
-        goto out;
+      إذا(نتیجہ)
+        اذهب باہرلا;
     }
-#endif /* USE_NGHTTP2 */
-#if defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) && \
+#جے_انت /* USE_NGHTTP2 */
+#إذا defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) && \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
-    else if(!strcmp(alpn, "h3")) {
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/3");
-      result = Curl_cf_h3_proxy_insert_after(cf, data, ctx->peer, ctx->peer,
+    وإلا إذا(!strcmp(alpn, "h3")) {
+      CURL_TRC_CF(انکڑے, cf, "installing subfilter for HTTP/3");
+      نتیجہ = Curl_cf_h3_proxy_داخل_کرو_after(cf, انکڑے, ctx->peer, ctx->peer,
                                              ctx->tunnel_peer,
                                              ctx->tunnel_transport);
-      if(result)
-        goto out;
+      إذا(نتیجہ)
+        اذهب باہرلا;
     }
-#endif /* USE_PROXY_HTTP3 && USE_NGHTTP3 && USE_NGTCP2 && USE_OPENSSL */
-    else {
-      failf(data, "CONNECT%s: negotiated ALPN '%s' not supported",
+#جے_انت /* USE_PROXY_HTTP3 && USE_NGHTTP3 && USE_NGTCP2 && USE_OPENSSL */
+    وإلا {
+      failf(انکڑے, "CONNECT%s: negotiated ALPN '%s' not supported",
             udp_tunnel ? "-UDP" : "", alpn);
-      result = CURLE_COULDNT_CONNECT;
-      goto out;
+      نتیجہ = CURLE_COULDNT_CONNECT;
+      اذهب باہرلا;
     }
 
     ctx->sub_filter_installed = TRUE;
     /* after we installed the filter "below" us, we call connect
      * on out sub-chain again.
      */
-    goto connect_sub;
+    اذهب connect_sub;
   }
-  else {
+  وإلا {
     /* subchain connected and we had already installed the protocol filter.
      * This means the protocol tunnel is established, we are done. */
     DEBUGASSERT(ctx->sub_filter_installed);
-    result = CURLE_OK;
+    نتیجہ = CURLE_OK;
   }
 
-out:
-  if(!result) {
+باہرلا:
+  إذا(!نتیجہ) {
     cf->connected = TRUE;
-    *done = TRUE;
+    *پورا = TRUE;
   }
-  return result;
+  أرجع نتیجہ;
 }
 
-static CURLcode cf_http_proxy_query(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    int query, int *pres1, void *pres2)
+ساكن CURLcode cf_http_proxy_query(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *انکڑے,
+                                    صحيح query, صحيح *pres1, فراغ *pres2)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
-  switch(query) {
-  case CF_QUERY_HOST_PORT:
-    *pres1 = (int)ctx->tunnel_peer->port;
-    *((const char **)pres2) = ctx->tunnel_peer->hostname;
-    return CURLE_OK;
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  بنية cf_proxy_ctx *ctx = cf->ctx;
+  بدل(query) {
+  حالة CF_QUERY_HOST_پورٹ:
+    *pres1 = (صحيح)ctx->tunnel_peer->پورٹ;
+    *((ثابت حرف **)pres2) = ctx->tunnel_peer->hostname;
+    أرجع CURLE_OK;
+  حالة CF_QUERY_ALPN_NEGOTIATED: {
+    ثابت حرف **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = NULL;
-    return CURLE_OK;
+    *palpn = عدم;
+    أرجع CURLE_OK;
   }
-  default:
-    break;
+  افتراضي:
+    اكسر;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  أرجع cf->اگلا ?
+    cf->اگلا->cft->query(cf->اگلا, انکڑے, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static void cf_https_proxy_ctx_free(struct cf_proxy_ctx *ctx)
+ساكن فراغ cf_https_proxy_ctx_free(بنية cf_proxy_ctx *ctx)
 {
-  if(ctx) {
+  إذا(ctx) {
     Curl_peer_unlink(&ctx->peer);
     Curl_peer_unlink(&ctx->tunnel_peer);
     curlx_free(ctx);
   }
 }
 
-static void http_proxy_cf_destroy(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+ساكن فراغ http_proxy_cf_destroy(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *انکڑے)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
-  if(ctx) {
-    CURL_TRC_CF(data, cf, "destroy");
+  بنية cf_proxy_ctx *ctx = cf->ctx;
+  إذا(ctx) {
+    CURL_TRC_CF(انکڑے, cf, "destroy");
     cf_https_proxy_ctx_free(ctx);
   }
 }
 
-struct Curl_cftype Curl_cft_http_proxy = {
+بنية Curl_cftype Curl_cft_http_proxy = {
   "HTTP-PROXY",
-  CF_TYPE_IP_CONNECT | CF_TYPE_PROXY | CF_TYPE_SETUP,
+  CF_TYPE_IP_CONNECT | CF_TYPE_PROXY | CF_TYPE_تیاری,
   0,
   http_proxy_cf_destroy,
   http_proxy_cf_connect,
   Curl_cf_def_shutdown,
   Curl_cf_def_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_انکڑے_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -720,50 +720,50 @@ struct Curl_cftype Curl_cft_http_proxy = {
   cf_http_proxy_query,
 };
 
-CURLcode Curl_cf_http_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                         struct Curl_easy *data,
-                                         struct Curl_peer *peer,
-                                         struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_http_proxy_داخل_کرو_after(بنية Curl_cfilter *cf_at,
+                                         بنية Curl_easy *انکڑے,
+                                         بنية Curl_peer *peer,
+                                         بنية Curl_peer *tunnel_peer,
                                          uint8_t tunnel_transport,
                                          uint8_t proxytype)
 {
-  struct Curl_cfilter *cf;
-  struct cf_proxy_ctx *ctx = NULL;
-  CURLcode result;
+  بنية Curl_cfilter *cf;
+  بنية cf_proxy_ctx *ctx = عدم;
+  CURLcode نتیجہ;
 
-  (void)data;
-  if(!peer || !tunnel_peer)
-    return CURLE_FAILED_INIT;
+  (فراغ)انکڑے;
+  إذا(!peer || !tunnel_peer)
+    أرجع CURLE_FAILED_INIT;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتیجہ = CURLE_باہرلا_دا_حافظہ;
+    اذهب باہرلا;
   }
   Curl_peer_link(&ctx->peer, peer);
   Curl_peer_link(&ctx->tunnel_peer, tunnel_peer);
   ctx->proxytype = proxytype;
   ctx->tunnel_transport = tunnel_transport;
 
-  result = Curl_cf_create(&cf, &Curl_cft_http_proxy, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  نتیجہ = Curl_cf_create(&cf, &Curl_cft_http_proxy, ctx);
+  إذا(نتیجہ)
+    اذهب باہرلا;
+  ctx = عدم;
+  Curl_conn_cf_داخل_کرو_after(cf_at, cf);
 
-out:
+باہرلا:
   cf_https_proxy_ctx_free(ctx);
-  return result;
+  أرجع نتیجہ;
 }
 
 uint8_t Curl_http_proxy_transport(uint8_t proxytype)
 {
-  switch(proxytype) {
-  case CURLPROXY_HTTPS3:
-    return TRNSPRT_QUIC;
-  default:
-    return TRNSPRT_TCP;
+  بدل(proxytype) {
+  حالة CURLPROXY_HTTPS3:
+    أرجع TRNSPRT_QUIC;
+  افتراضي:
+    أرجع TRNSPRT_TCP;
   }
 }
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY */
+#جے_انت /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY */

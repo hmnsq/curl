@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SOCKETPAIR_H
-#define HEADER_CURL_SOCKETPAIR_H
+#جے_بنا_تعریف سرخی_CURL_SOCKETPAIR_H
+#تعریف_کرو سرخی_CURL_SOCKETPAIR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_SOCKETPAIR
+#جے_بنا_تعریف CURL_DISABLE_SOCKETPAIR
 
 /* return < 0 for failure to initialize */
-int Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking);
-void Curl_wakeup_destroy(curl_socket_t socks[2]);
+صحيح Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking);
+فراغ Curl_wakeup_destroy(curl_socket_t socks[2]);
 
 /* return 0 on success or errno on failure */
-int Curl_wakeup_signal(curl_socket_t socks[2]);
+صحيح Curl_wakeup_signal(curl_socket_t socks[2]);
 
 CURLcode Curl_wakeup_consume(curl_socket_t socks[2], bool all);
 
-#else
-#define Curl_wakeup_destroy(x) Curl_nop_stmt
-#endif
+#وإلا
+#تعریف_کرو Curl_wakeup_destroy(x) Curl_nop_stmt
+#جے_انت
 
-#endif /* HEADER_CURL_SOCKETPAIR_H */
+#جے_انت /* HEADER_CURL_SOCKETPAIR_H */

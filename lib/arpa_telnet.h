@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ARPA_TELNET_H
-#define HEADER_CURL_ARPA_TELNET_H
+#جے_بنا_تعریف سرخی_CURL_ARPA_TELNET_H
+#تعریف_کرو سرخی_CURL_ARPA_TELNET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,27 +23,27 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_TELNET
+#جے_بنا_تعریف CURL_DISABLE_TELNET
 /*
  * Telnet option defines. Add more here if in need.
  */
-#define CURL_TELOPT_BINARY      0   /* binary 8-bit data */
-#define CURL_TELOPT_ECHO        1   /* echo */
-#define CURL_TELOPT_SGA         3   /* Suppress Go Ahead */
-#define CURL_TELOPT_EXOPL       255 /* EXtended OPtions List */
-#define CURL_TELOPT_TTYPE       24  /* Terminal TYPE */
-#define CURL_TELOPT_NAWS        31  /* Negotiate About Window Size */
-#define CURL_TELOPT_XDISPLOC    35  /* X DISPlay LOCation */
-#define CURL_TELOPT_NEW_ENVIRON 39  /* NEW ENVIRONment variables */
+#تعریف_کرو CURL_TELOPT_ثنائی      0   /* binary 8-bit data */
+#تعریف_کرو CURL_TELOPT_ECHO        1   /* echo */
+#تعریف_کرو CURL_TELOPT_SGA         3   /* Suppress Go Ahead */
+#تعریف_کرو CURL_TELOPT_EXOPL       255 /* EXtended OPtions List */
+#تعریف_کرو CURL_TELOPT_TTYPE       24  /* Terminal TYPE */
+#تعریف_کرو CURL_TELOPT_NAWS        31  /* Negotiate About Window Size */
+#تعریف_کرو CURL_TELOPT_XDISPLOC    35  /* X DISPlay LOCation */
+#تعریف_کرو CURL_TELOPT_NEW_ENVIRON 39  /* NEW ENVIRONment variables */
 
-#define CURL_NEW_ENV_VAR   0
-#define CURL_NEW_ENV_VALUE 1
+#تعریف_کرو CURL_NEW_ENV_VAR   0
+#تعریف_کرو CURL_NEW_ENV_قدر 1
 
-#ifdef CURLVERBOSE
+#جے_تعریف_شدہ CURLVERBOSE
 /*
  * The telnet options represented as strings
  */
-static const char * const telnetoptions[] = {
+ساكن ثابت حرف * ثابت telnetoptions[] = {
   "BINARY",      "ECHO",           "RCP",           "SUPPRESS GO AHEAD",
   "NAME",        "STATUS",         "TIMING MARK",   "RCTE",
   "NAOL",        "NAOP",           "NAOCRD",        "NAOHTS",
@@ -55,62 +55,62 @@ static const char * const telnetoptions[] = {
   "TERM SPEED",  "LFLOW",          "LINEMODE",      "XDISPLOC",
   "OLD-ENVIRON", "AUTHENTICATION", "ENCRYPT",       "NEW-ENVIRON"
 };
-#define CURL_TELOPT(x) telnetoptions[x]
-#else
-#define CURL_TELOPT(x) ""
-#endif
+#تعریف_کرو CURL_TELOPT(x) telnetoptions[x]
+#وإلا
+#تعریف_کرو CURL_TELOPT(x) ""
+#جے_انت
 
-#define CURL_TELOPT_MAXIMUM CURL_TELOPT_NEW_ENVIRON
+#تعریف_کرو CURL_TELOPT_ودھ_توں_ودھ CURL_TELOPT_NEW_ENVIRON
 
-#define CURL_TELOPT_OK(x) ((x) <= CURL_TELOPT_MAXIMUM)
+#تعریف_کرو CURL_TELOPT_OK(x) ((x) <= CURL_TELOPT_ودھ_توں_ودھ)
 
-#define CURL_NTELOPTS 40
+#تعریف_کرو CURL_NTELOPTS 40
 
 /*
  * First some defines
  */
-#define CURL_xEOF 236 /* End Of File */
-#define CURL_SE   240 /* Sub negotiation End */
-#define CURL_NOP  241 /* No OPeration */
-#define CURL_DM   242 /* Data Mark */
-#define CURL_GA   249 /* Go Ahead, reverse the line */
-#define CURL_SB   250 /* SuBnegotiation */
-#define CURL_WILL 251 /* Our side WILL use this option */
-#define CURL_WONT 252 /* Our side will not use this option */
-#define CURL_DO   253 /* DO use this option! */
-#define CURL_DONT 254 /* DO NOT use this option! */
-#define CURL_IAC  255 /* Interpret As Command */
+#تعریف_کرو CURL_xEOF 236 /* End Of File */
+#تعریف_کرو CURL_SE   240 /* Sub negotiation End */
+#تعریف_کرو CURL_NOP  241 /* No OPeration */
+#تعریف_کرو CURL_DM   242 /* Data Mark */
+#تعریف_کرو CURL_GA   249 /* Go Ahead, reverse the line */
+#تعریف_کرو CURL_SB   250 /* SuBnegotiation */
+#تعریف_کرو CURL_WILL 251 /* Our side WILL use this option */
+#تعریف_کرو CURL_WONT 252 /* Our side will not use this option */
+#تعریف_کرو CURL_DO   253 /* DO use this option! */
+#تعریف_کرو CURL_DONT 254 /* DO NOT use this option! */
+#تعریف_کرو CURL_IAC  255 /* Interpret As Command */
 
-#ifdef CURLVERBOSE
+#جے_تعریف_شدہ CURLVERBOSE
 /*
  * Then those numbers represented as strings:
  */
-static const char * const telnetcmds[] = {
+ساكن ثابت حرف * ثابت telnetcmds[] = {
   "EOF",  "SUSP",  "ABORT", "EOR",  "SE",
   "NOP",  "DMARK", "BRK",   "IP",   "AO",
   "AYT",  "EC",    "EL",    "GA",   "SB",
   "WILL", "WONT",  "DO",    "DONT", "IAC"
 };
-#endif
+#جے_انت
 
-#define CURL_TELCMD_MINIMUM CURL_xEOF /* the first one */
-#define CURL_TELCMD_MAXIMUM CURL_IAC  /* surprise, 255 is the last one! ;-) */
+#تعریف_کرو CURL_TELCMD_MINIMUM CURL_xEOF /* the first one */
+#تعریف_کرو CURL_TELCMD_ودھ_توں_ودھ CURL_IAC  /* surprise, 255 is the last one! ;-) */
 
-#define CURL_TELQUAL_IS   0
-#define CURL_TELQUAL_SEND 1
-#define CURL_TELQUAL_INFO 2
-#define CURL_TELQUAL_NAME 3
+#تعریف_کرو CURL_TELQUAL_IS   0
+#تعریف_کرو CURL_TELQUAL_SEND 1
+#تعریف_کرو CURL_TELQUAL_INFO 2
+#تعریف_کرو CURL_TELQUAL_NAME 3
 
-#define CURL_TELCMD_OK(x)                        \
-  (((unsigned int)(x) >= CURL_TELCMD_MINIMUM) && \
-   ((unsigned int)(x) <= CURL_TELCMD_MAXIMUM))
+#تعریف_کرو CURL_TELCMD_OK(x)                        \
+  (((بنانشانی صحيح)(x) >= CURL_TELCMD_MINIMUM) && \
+   ((بنانشانی صحيح)(x) <= CURL_TELCMD_ودھ_توں_ودھ))
 
-#ifdef CURLVERBOSE
-#define CURL_TELCMD(x) telnetcmds[(x) - CURL_TELCMD_MINIMUM]
-#else
-#define CURL_TELCMD(x) ""
-#endif
+#جے_تعریف_شدہ CURLVERBOSE
+#تعریف_کرو CURL_TELCMD(x) telnetcmds[(x) - CURL_TELCMD_MINIMUM]
+#وإلا
+#تعریف_کرو CURL_TELCMD(x) ""
+#جے_انت
 
-#endif /* CURL_DISABLE_TELNET */
+#جے_انت /* CURL_DISABLE_TELNET */
 
-#endif /* HEADER_CURL_ARPA_TELNET_H */
+#جے_انت /* HEADER_CURL_ARPA_TELNET_H */

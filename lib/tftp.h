@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_TFTP_H
-#define HEADER_CURL_TFTP_H
+#جے_بنا_تعریف سرخی_CURL_TFTP_H
+#تعریف_کرو سرخی_CURL_TFTP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_TFTP
-extern const struct Curl_protocol Curl_protocol_tftp;
-#endif
+#جے_بنا_تعریف CURL_DISABLE_TFTP
+خارجي ثابت بنية Curl_protocol Curl_protocol_tftp;
+#جے_انت
 
-#define TFTP_BLKSIZE_MIN 8
-#define TFTP_BLKSIZE_MAX 65464
+#تعریف_کرو TFTP_BLKSIZE_MIN 8
+#تعریف_کرو TFTP_BLKSIZE_MAX 65464
 
-#endif /* HEADER_CURL_TFTP_H */
+#جے_انت /* HEADER_CURL_TFTP_H */

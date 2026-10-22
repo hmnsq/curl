@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_TRANSFER_H
-#define HEADER_CURL_TRANSFER_H
+#جے_بنا_تعریف سرخی_CURL_TRANSFER_H
+#تعریف_کرو سرخی_CURL_TRANSFER_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,19 +23,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#define Curl_headersep(x) ((((x) == ':') || ((x) == ';')))
+#تعریف_کرو Curl_headersep(x) ((((x) == ':') || ((x) == ';')))
 
-char *Curl_checkheaders(const struct Curl_easy *data,
-                        const char *thisheader,
-                        const size_t thislen);
+حرف *Curl_checkheaders(ثابت بنية Curl_easy *انکڑے,
+                        ثابت حرف *thisheader,
+                        ثابت size_t thislen);
 
-void Curl_init_CONNECT(struct Curl_easy *data);
+فراغ Curl_init_CONNECT(بنية Curl_easy *انکڑے);
 
-CURLcode Curl_pretransfer(struct Curl_easy *data);
+CURLcode Curl_pretransfer(بنية Curl_easy *انکڑے);
 
-CURLcode Curl_sendrecv(struct Curl_easy *data);
-CURLcode Curl_retry_request(struct Curl_easy *data, char **url);
-bool Curl_meets_timecondition(struct Curl_easy *data, time_t timeofdoc);
+CURLcode Curl_sendrecv(بنية Curl_easy *انکڑے);
+CURLcode Curl_retry_request(بنية Curl_easy *انکڑے, حرف **url);
+bool Curl_meets_timecondition(بنية Curl_easy *انکڑے, time_t timeofdoc);
 
 /**
  * Write the transfer raw response bytes, as received from the connection.
@@ -49,11 +49,11 @@ bool Curl_meets_timecondition(struct Curl_easy *data, time_t timeofdoc);
  * @param is_eos   TRUE iff the connection indicates this to be the last
  *                 bytes of the response
  */
-CURLcode Curl_xfer_write_resp(struct Curl_easy *data,
-                              const char *buf, size_t blen,
+CURLcode Curl_xfer_write_resp(بنية Curl_easy *انکڑے,
+                              ثابت حرف *buf, size_t blen,
                               bool is_eos);
 
-bool Curl_xfer_write_is_paused(struct Curl_easy *data);
+bool Curl_xfer_write_is_paused(بنية Curl_easy *انکڑے);
 
 /**
  * Write a single "header" line from a server response.
@@ -61,26 +61,26 @@ bool Curl_xfer_write_is_paused(struct Curl_easy *data);
  * @param hdlen    the length of the header line
  * @param is_eos   TRUE iff this is the end of the response
  */
-CURLcode Curl_xfer_write_resp_hd(struct Curl_easy *data,
-                                 const char *hd0, size_t hdlen, bool is_eos);
+CURLcode Curl_xfer_write_resp_hd(بنية Curl_easy *انکڑے,
+                                 ثابت حرف *hd0, size_t hdlen, bool is_eos);
 
 /* The transfer is neither receiving nor sending. */
-void Curl_xfer_setup_nop(struct Curl_easy *data);
+فراغ Curl_xfer_تیاری_nop(بنية Curl_easy *انکڑے);
 
 /* The transfer sends data on the given socket index */
-void Curl_xfer_setup_send(struct Curl_easy *data,
+فراغ Curl_xfer_تیاری_send(بنية Curl_easy *انکڑے,
                           int8_t sockindex);
 
 /* The transfer receives data on the given socket index, the
  * amount to receive (or -1 if unknown). */
-void Curl_xfer_setup_recv(struct Curl_easy *data,
+فراغ Curl_xfer_تیاری_recv(بنية Curl_easy *انکڑے,
                           int8_t sockindex,
-                          curl_off_t recv_size);
+                          curl_off_t recv_ناپ);
 
 /* *After* Curl_xfer_setup_xxx(), tell the transfer to shutdown the
  * connection at the end. Let the transfer either fail or ignore any
  * errors during shutdown. */
-void Curl_xfer_set_shutdown(struct Curl_easy *data,
+فراغ Curl_xfer_سیٹ_shutdown(بنية Curl_easy *انکڑے,
                             bool shutdown,
                             bool ignore_errors);
 
@@ -88,34 +88,34 @@ void Curl_xfer_set_shutdown(struct Curl_easy *data,
  * The transfer will use socket 1 to send/recv. `recv_size` is
  * the amount to receive or -1 if unknown.
  */
-void Curl_xfer_setup_sendrecv(struct Curl_easy *data,
+فراغ Curl_xfer_تیاری_sendrecv(بنية Curl_easy *انکڑے,
                               int8_t sockindex,
-                              curl_off_t recv_size);
+                              curl_off_t recv_ناپ);
 
 /**
  * Multi has set transfer to DONE. Last chance to trigger
  * missing response things like writing an EOS to the client.
  */
-CURLcode Curl_xfer_write_done(struct Curl_easy *data, bool premature);
+CURLcode Curl_xfer_write_پورا(بنية Curl_easy *انکڑے, bool premature);
 
 /**
  * Return TRUE iff transfer has pending data to send. Checks involved
  * connection filters.
  */
-bool Curl_xfer_needs_flush(struct Curl_easy *data);
+bool Curl_xfer_needs_flush(بنية Curl_easy *انکڑے);
 
 /**
  * Flush any pending send data on the transfer connection.
  */
-CURLcode Curl_xfer_flush(struct Curl_easy *data);
+CURLcode Curl_xfer_flush(بنية Curl_easy *انکڑے);
 
 /**
  * Send data on the socket/connection filter designated
  * for transfer's outgoing data.
  * Return CURLE_OK on blocking with (*pnwritten == 0).
  */
-CURLcode Curl_xfer_send(struct Curl_easy *data,
-                        const void *buf, size_t blen, bool eos,
+CURLcode Curl_xfer_send(بنية Curl_easy *انکڑے,
+                        ثابت فراغ *buf, size_t blen, bool eos,
                         size_t *pnwritten);
 
 /**
@@ -123,32 +123,32 @@ CURLcode Curl_xfer_send(struct Curl_easy *data,
  * for transfer's incoming data.
  * Return CURLE_AGAIN on blocking with (*pnrcvd == 0).
  */
-CURLcode Curl_xfer_recv(struct Curl_easy *data,
-                        char *buf, size_t blen,
+CURLcode Curl_xfer_recv(بنية Curl_easy *انکڑے,
+                        حرف *buf, size_t blen,
                         size_t *pnrcvd);
 
-CURLcode Curl_xfer_send_close(struct Curl_easy *data);
-CURLcode Curl_xfer_send_shutdown(struct Curl_easy *data, bool *done);
+CURLcode Curl_xfer_send_close(بنية Curl_easy *انکڑے);
+CURLcode Curl_xfer_send_shutdown(بنية Curl_easy *انکڑے, bool *پورا);
 
 /* Return TRUE if the transfer is not done, but further progress
  * is blocked. For example when it is only receiving and its writer
  * is PAUSED. */
-bool Curl_xfer_is_blocked(struct Curl_easy *data);
+bool Curl_xfer_is_blocked(بنية Curl_easy *انکڑے);
 
 /* Query if send/recv for transfer is paused. */
-bool Curl_xfer_send_is_paused(struct Curl_easy *data);
-bool Curl_xfer_recv_is_paused(struct Curl_easy *data);
+bool Curl_xfer_send_is_paused(بنية Curl_easy *انکڑے);
+bool Curl_xfer_recv_is_paused(بنية Curl_easy *انکڑے);
 
 /* Enable/Disable pausing of send/recv for the transfer. */
-CURLcode Curl_xfer_pause_send(struct Curl_easy *data, bool enable);
-CURLcode Curl_xfer_pause_recv(struct Curl_easy *data, bool enable);
+CURLcode Curl_xfer_pause_send(بنية Curl_easy *انکڑے, bool enable);
+CURLcode Curl_xfer_pause_recv(بنية Curl_easy *انکڑے, bool enable);
 
 /* TRUE if the transfer is secure, e.g. uses TLS and does not
  * use a forward proxy. */
-bool Curl_xfer_is_secure(struct Curl_easy *data);
+bool Curl_xfer_is_secure(بنية Curl_easy *انکڑے);
 
 /* Internal variant of the API function */
-CURLcode Curl_easy_recv(struct Curl_easy *data,
-                        void *buffer, size_t buflen, size_t *n);
+CURLcode Curl_easy_recv(بنية Curl_easy *انکڑے,
+                        فراغ *بفر, size_t buflen, size_t *n);
 
-#endif /* HEADER_CURL_TRANSFER_H */
+#جے_انت /* HEADER_CURL_TRANSFER_H */

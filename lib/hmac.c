@@ -23,13 +23,13 @@
  * RFC2104 Keyed-Hashing for Message Authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
+#إذا (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
   !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_SSL)
 
-#include "curl_hmac.h"
+#ضمن "curl_hmac.h"
 
 /*
  * Generic HMAC algorithm.
@@ -39,88 +39,88 @@
  * initialization.
  */
 
-static const unsigned char hmac_ipad = 0x36;
-static const unsigned char hmac_opad = 0x5C;
+ساكن ثابت بنانشانی حرف hmac_ipad = 0x36;
+ساكن ثابت بنانشانی حرف hmac_opad = 0x5C;
 
-struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
-                                    unsigned int keylen)
+بنية HMAC_context *Curl_HMAC_init(ثابت بنية HMAC_params *hashparams,
+                                    ثابت بنانشانی حرف *کلید,
+                                    بنانشانی صحيح keylen)
 {
   size_t i;
-  struct HMAC_context *ctxt;
-  unsigned char *hkey;
-  unsigned char b;
+  بنية HMAC_context *ctxt;
+  بنانشانی حرف *hkey;
+  بنانشانی حرف b;
 
   /* Create HMAC context. */
-  i = sizeof(*ctxt) + (2 * hashparams->ctxtsize) + hashparams->resultlen;
+  i = حجم(*ctxt) + (2 * hashparams->ctxtsize) + hashparams->resultlen;
   ctxt = curlx_malloc(i);
 
-  if(!ctxt)
-    return ctxt;
+  إذا(!ctxt)
+    أرجع ctxt;
 
   ctxt->hash = hashparams;
-  ctxt->hashctxt1 = (void *)(ctxt + 1);
-  ctxt->hashctxt2 = (void *)((char *)ctxt->hashctxt1 + hashparams->ctxtsize);
+  ctxt->hashctxt1 = (فراغ *)(ctxt + 1);
+  ctxt->hashctxt2 = (فراغ *)((حرف *)ctxt->hashctxt1 + hashparams->ctxtsize);
 
   /* If the key is too long, replace it by its hash digest. */
-  if(keylen > hashparams->maxkeylen) {
-    if(hashparams->hinit(ctxt->hashctxt1))
-      goto fail;
-    hashparams->hupdate(ctxt->hashctxt1, key, keylen);
-    hkey = (unsigned char *)ctxt->hashctxt2 + hashparams->ctxtsize;
+  إذا(keylen > hashparams->maxkeylen) {
+    إذا(hashparams->hinit(ctxt->hashctxt1))
+      اذهب fail;
+    hashparams->hupdate(ctxt->hashctxt1, کلید, keylen);
+    hkey = (بنانشانی حرف *)ctxt->hashctxt2 + hashparams->ctxtsize;
     hashparams->hfinal(hkey, ctxt->hashctxt1);
-    key = hkey;
+    کلید = hkey;
     keylen = hashparams->resultlen;
   }
 
   /* Prime the two hash contexts with the modified key. */
-  if(hashparams->hinit(ctxt->hashctxt1) ||
+  إذا(hashparams->hinit(ctxt->hashctxt1) ||
      hashparams->hinit(ctxt->hashctxt2))
-    goto fail;
+    اذهب fail;
 
-  for(i = 0; i < keylen; i++) {
-    b = (unsigned char)(*key ^ hmac_ipad);
+  لكل(i = 0; i < keylen; i++) {
+    b = (بنانشانی حرف)(*کلید ^ hmac_ipad);
     hashparams->hupdate(ctxt->hashctxt1, &b, 1);
-    b = (unsigned char)(*key++ ^ hmac_opad);
+    b = (بنانشانی حرف)(*کلید++ ^ hmac_opad);
     hashparams->hupdate(ctxt->hashctxt2, &b, 1);
   }
 
-  for(; i < hashparams->maxkeylen; i++) {
+  لكل(; i < hashparams->maxkeylen; i++) {
     hashparams->hupdate(ctxt->hashctxt1, &hmac_ipad, 1);
     hashparams->hupdate(ctxt->hashctxt2, &hmac_opad, 1);
   }
 
   /* Done, return pointer to HMAC context. */
-  return ctxt;
+  أرجع ctxt;
 
 fail:
   curlx_free(ctxt);
-  return NULL;
+  أرجع عدم;
 }
 
-void Curl_HMAC_update(struct HMAC_context *ctxt,
-                      const unsigned char *data,
-                      unsigned int len)
+فراغ Curl_HMAC_update(بنية HMAC_context *ctxt,
+                      ثابت بنانشانی حرف *انکڑے,
+                      بنانشانی صحيح len)
 {
   /* Update first hash calculation. */
-  ctxt->hash->hupdate(ctxt->hashctxt1, data, len);
+  ctxt->hash->hupdate(ctxt->hashctxt1, انکڑے, len);
 }
 
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
+صحيح Curl_HMAC_final(بنية HMAC_context *ctxt, بنانشانی حرف *output)
 {
-  const struct HMAC_params *hashparams = ctxt->hash;
+  ثابت بنية HMAC_params *hashparams = ctxt->hash;
 
   /* Do not get output if called with a null parameter: only release
      storage. */
 
-  if(!output)
-    output = (unsigned char *)ctxt->hashctxt2 + ctxt->hash->ctxtsize;
+  إذا(!output)
+    output = (بنانشانی حرف *)ctxt->hashctxt2 + ctxt->hash->ctxtsize;
 
   hashparams->hfinal(output, ctxt->hashctxt1);
   hashparams->hupdate(ctxt->hashctxt2, output, hashparams->resultlen);
   hashparams->hfinal(output, ctxt->hashctxt2);
   curlx_free(ctxt);
-  return 0;
+  أرجع 0;
 }
 
 /*
@@ -140,31 +140,31 @@ int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
-                     const unsigned char *data, size_t datalen,
-                     unsigned char *output)
+CURLcode Curl_hmacit(ثابت بنية HMAC_params *hashparams,
+                     ثابت بنانشانی حرف *کلید, ثابت size_t keylen,
+                     ثابت بنانشانی حرف *انکڑے, size_t datalen,
+                     بنانشانی حرف *output)
 {
-  struct HMAC_context *ctxt;
-  if(keylen > UINT_MAX) /* unlikely to ever happen */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  ctxt = Curl_HMAC_init(hashparams, key, curlx_uztoui(keylen));
+  بنية HMAC_context *ctxt;
+  إذا(keylen > UINT_MAX) /* unlikely to ever happen */
+    أرجع CURLE_BAD_FUNCTION_دلیل;
+  ctxt = Curl_HMAC_init(hashparams, کلید, curlx_uztoui(keylen));
 
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!ctxt)
+    أرجع CURLE_باہرلا_دا_حافظہ;
 
   /* Update the digest with the given challenge */
-  do {
-    unsigned int ilen = (unsigned int)CURLMIN(datalen, UINT_MAX);
-    Curl_HMAC_update(ctxt, data, ilen);
+  افعل {
+    بنانشانی صحيح ilen = (بنانشانی صحيح)CURLMIN(datalen, UINT_MAX);
+    Curl_HMAC_update(ctxt, انکڑے, ilen);
     datalen -= ilen;
-    data += ilen;
-  } while(datalen);
+    انکڑے += ilen;
+  } طالما(datalen);
 
   /* Finalise the digest */
   Curl_HMAC_final(ctxt, output);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-#endif /* Using NTLM (without SSPI) or AWS */
+#جے_انت /* Using NTLM (without SSPI) or AWS */

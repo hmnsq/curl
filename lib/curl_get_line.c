@@ -21,49 +21,49 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#إذا !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
-#include "curl_get_line.h"
+#ضمن "curl_get_line.h"
 
 /*
  * Curl_get_line() returns only complete whole lines that end with newline.
  * When 'eof' is set TRUE, the last line has been read.
  */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
+CURLcode Curl_get_سطر(بنية dynbuf *buf, FILE *داخلہ, bool *eof)
 {
-  CURLcode result;
-  char buffer[128];
+  CURLcode نتیجہ;
+  حرف بفر[128];
   curlx_dyn_reset(buf);
-  while(1) {
+  طالما(1) {
     size_t rlen;
-    const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+    ثابت حرف *b = fgets(بفر, حجم(بفر), داخلہ);
+    إذا(!b && ferror(داخلہ))
+      أرجع CURLE_READ_ERROR;
 
-    *eof = feof(input);
+    *eof = feof(داخلہ);
 
-    rlen = b ? strlen(b) : 0;
-    if(rlen) {
-      result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+    rlen = b ? لڑی_لمبائی(b) : 0;
+    إذا(rlen) {
+      نتیجہ = curlx_dyn_addn(buf, b, rlen);
+      إذا(نتیجہ)
         /* too long line or out of memory */
-        return result;
+        أرجع نتیجہ;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    إذا(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      أرجع CURLE_OK; /* all good */
+    إذا(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      أرجع curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */
 }
 
-#endif /* if not disabled */
+#جے_انت /* if not disabled */

@@ -21,17 +21,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "multiif.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "transfer.h"
-#include "cw-out.h"
-#include "cw-pause.h"
-#include "progress.h"
+#ضمن "urldata.h"
+#ضمن "cfilters.h"
+#ضمن "multiif.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "transfer.h"
+#ضمن "cw-out.h"
+#ضمن "cw-pause.h"
+#ضمن "progress.h"
 
 /**
  * OVERALL DESIGN of this client writer
@@ -63,452 +63,452 @@
  * The amount of bytes being buffered is limited by `DYN_PAUSE_BUFFER`
  * and when that is exceeded `CURLE_TOO_LARGE` is returned as error.
  */
-typedef enum {
-  CW_OUT_NONE,
-  CW_OUT_BODY,
-  CW_OUT_BODY_0LEN,
-  CW_OUT_HDS
-} cw_out_type;
+تعريفنوع تعداد {
+  CW_باہرلا_NONE,
+  CW_باہرلا_BODY,
+  CW_باہرلا_BODY_0_LEN,
+  CW_باہرلا_HDS
+} cw_باہرلا_type;
 
-struct cw_out_buf {
-  struct cw_out_buf *next;
-  struct dynbuf b;
-  cw_out_type type;
+بنية cw_باہرلا_buf {
+  بنية cw_باہرلا_buf *اگلا;
+  بنية dynbuf b;
+  cw_باہرلا_type type;
 };
 
-static struct cw_out_buf *cw_out_buf_create(cw_out_type otype)
+ساكن بنية cw_باہرلا_buf *cw_باہرلا_buf_create(cw_باہرلا_type otype)
 {
-  struct cw_out_buf *cwbuf = curlx_calloc(1, sizeof(*cwbuf));
-  if(cwbuf) {
+  بنية cw_باہرلا_buf *cwbuf = curlx_calloc(1, حجم(*cwbuf));
+  إذا(cwbuf) {
     cwbuf->type = otype;
-    curlx_dyn_init(&cwbuf->b, DYN_PAUSE_BUFFER);
+    curlx_dyn_init(&cwbuf->b, DYN_PAUSE_بفر);
   }
-  return cwbuf;
+  أرجع cwbuf;
 }
 
-static void cw_out_buf_free(struct cw_out_buf *cwbuf)
+ساكن فراغ cw_باہرلا_buf_free(بنية cw_باہرلا_buf *cwbuf)
 {
-  if(cwbuf) {
+  إذا(cwbuf) {
     curlx_dyn_free(&cwbuf->b);
     curlx_free(cwbuf);
   }
 }
 
-struct cw_out_ctx {
-  struct Curl_cwriter super;
-  struct cw_out_buf *buf;
-  struct cw_out_buf *tail;
+بنية cw_باہرلا_ctx {
+  بنية Curl_cwriter super;
+  بنية cw_باہرلا_buf *buf;
+  بنية cw_باہرلا_buf *پوچھ;
   size_t buffered_len;
-  BIT(errored);
+  ثنائی_ہندسہ(errored);
 };
 
-static CURLcode cw_out_init(struct Curl_easy *data,
-                            struct Curl_cwriter *writer)
+ساكن CURLcode cw_باہرلا_init(بنية Curl_easy *انکڑے,
+                            بنية Curl_cwriter *writer)
 {
-  struct cw_out_ctx *ctx = writer->ctx;
-  (void)data;
-  ctx->buf = NULL;
-  ctx->tail = NULL;
+  بنية cw_باہرلا_ctx *ctx = writer->ctx;
+  (فراغ)انکڑے;
+  ctx->buf = عدم;
+  ctx->پوچھ = عدم;
   ctx->buffered_len = 0;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static void cw_out_bufs_free(struct cw_out_ctx *ctx)
+ساكن فراغ cw_باہرلا_bufs_free(بنية cw_باہرلا_ctx *ctx)
 {
-  while(ctx->buf) {
-    struct cw_out_buf *next = ctx->buf->next;
-    cw_out_buf_free(ctx->buf);
-    ctx->buf = next;
+  طالما(ctx->buf) {
+    بنية cw_باہرلا_buf *اگلا = ctx->buf->اگلا;
+    cw_باہرلا_buf_free(ctx->buf);
+    ctx->buf = اگلا;
   }
-  ctx->tail = NULL;
+  ctx->پوچھ = عدم;
   ctx->buffered_len = 0;
 }
 
-static void cw_out_close(struct Curl_easy *data, struct Curl_cwriter *writer)
+ساكن فراغ cw_باہرلا_close(بنية Curl_easy *انکڑے, بنية Curl_cwriter *writer)
 {
-  struct cw_out_ctx *ctx = writer->ctx;
+  بنية cw_باہرلا_ctx *ctx = writer->ctx;
 
-  (void)data;
-  cw_out_bufs_free(ctx);
+  (فراغ)انکڑے;
+  cw_باہرلا_bufs_free(ctx);
 }
 
 /**
  * Return the current curl_write_callback and user_data for the buf type
  */
-static void cw_get_writefunc(struct Curl_easy *data, cw_out_type otype,
-                             curl_write_callback *pwcb, void **pwcb_data,
+ساكن فراغ cw_get_writefunc(بنية Curl_easy *انکڑے, cw_باہرلا_type otype,
+                             curl_write_callback *pwcb, فراغ **pwcb_انکڑے,
                              size_t *pmax_write, size_t *pmin_write)
 {
-  switch(otype) {
-  case CW_OUT_BODY:
-  case CW_OUT_BODY_0LEN:
-    if(Curl_ftp_listmode(data)) {
+  بدل(otype) {
+  حالة CW_باہرلا_BODY:
+  حالة CW_باہرلا_BODY_0_LEN:
+    إذا(Curl_ftp_listmode(انکڑے)) {
       *pwcb = Curl_ftp_parselist;
-      *pwcb_data = data;
+      *pwcb_انکڑے = انکڑے;
     }
-    else {
-      *pwcb = data->set.fwrite_func;
-      *pwcb_data = data->set.out;
+    وإلا {
+      *pwcb = انکڑے->سیٹ.fwrite_func;
+      *pwcb_انکڑے = انکڑے->سیٹ.باہرلا;
     }
-    *pmax_write = CURL_MAX_WRITE_SIZE;
+    *pmax_write = CURL_MAX_WRITE_ناپ;
     /* if we ever want buffering of BODY output, we can set `min_write`
      * the preferred size. The default should always be to pass data
      * to the client as it comes without delay */
     *pmin_write = 0;
-    break;
-  case CW_OUT_HDS:
-    *pwcb = data->set.fwrite_header ? data->set.fwrite_header :
-             (data->set.writeheader ? data->set.fwrite_func : NULL);
-    *pwcb_data = data->set.writeheader;
+    اكسر;
+  حالة CW_باہرلا_HDS:
+    *pwcb = انکڑے->سیٹ.fwrite_سرخی ? انکڑے->سیٹ.fwrite_سرخی :
+             (انکڑے->سیٹ.writeheader ? انکڑے->سیٹ.fwrite_func : عدم);
+    *pwcb_انکڑے = انکڑے->سیٹ.writeheader;
     *pmax_write = 0; /* do not chunk-write headers, write them as they are */
     *pmin_write = 0;
-    break;
-  default:
-    *pwcb = NULL;
-    *pwcb_data = NULL;
-    *pmax_write = CURL_MAX_WRITE_SIZE;
+    اكسر;
+  افتراضي:
+    *pwcb = عدم;
+    *pwcb_انکڑے = عدم;
+    *pmax_write = CURL_MAX_WRITE_ناپ;
     *pmin_write = 0;
   }
 }
 
-static CURLcode cw_out_cb_write(struct Curl_easy *data,
+ساكن CURLcode cw_باہرلا_cb_write(بنية Curl_easy *انکڑے,
                                 curl_write_callback wcb,
-                                void *wcb_data,
-                                cw_out_type otype,
-                                const char *buf, size_t blen,
+                                فراغ *wcb_انکڑے,
+                                cw_باہرلا_type otype,
+                                ثابت حرف *buf, size_t blen,
                                 size_t *pnwritten)
 {
   size_t nwritten;
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  NOVERBOSE((void)otype);
+  NOVERBOSE((فراغ)otype);
 
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(انکڑے->conn);
   *pnwritten = 0;
   {
-    struct Curl_mapi_guard guard;
-    CURL_CBAPI_START(&guard, data, easy_cw_out_cb);
-    nwritten = wcb((char *)CURL_UNCONST(buf), 1, blen, wcb_data);
-    CURL_CBAPI_END(&guard);
+    بنية Curl_mapi_guard guard;
+    CURL_CBAPI_شروع(&guard, انکڑے, easy_cw_باہرلا_cb);
+    nwritten = wcb((حرف *)CURL_UNCONST(buf), 1, blen, wcb_انکڑے);
+    CURL_CBAPI_سرا(&guard);
   }
-  CURL_TRC_WRITE(data, "[OUT] wrote %zu %s bytes, type=%x -> %zu",
-                 blen, (otype == CW_OUT_HDS) ? "header" : "body",
-                 (unsigned int)otype, nwritten);
-  if(nwritten == CURL_WRITEFUNC_PAUSE) {
-    if(data->conn->scheme->flags & PROTOPT_NONETWORK) {
+  CURL_TRC_WRITE(انکڑے, "[OUT] wrote %zu %s bytes, type=%x -> %zu",
+                 blen, (otype == CW_باہرلا_HDS) ? "header" : "body",
+                 (بنانشانی صحيح)otype, nwritten);
+  إذا(nwritten == CURL_WRITEFUNC_PAUSE) {
+    إذا(انکڑے->conn->scheme->flags & PROTOPT_NONETWORK) {
       /* Protocols that work without network cannot be paused. This is
          actually only file:// now, and it cannot pause since the transfer is
          not done using the "normal" procedure. */
-      failf(data, "Write callback asked for PAUSE when not supported");
-      return CURLE_WRITE_ERROR;
+      failf(انکڑے, "Write callback asked for PAUSE when not supported");
+      أرجع CURLE_WRITE_ERROR;
     }
-    data->req.writer.paused = TRUE;
-    CURL_TRC_WRITE(data, "[OUT] PAUSE requested by client");
-    result = Curl_xfer_pause_recv(data, TRUE);
-    return result ? result : CURLE_AGAIN;
+    انکڑے->req.writer.paused = TRUE;
+    CURL_TRC_WRITE(انکڑے, "[OUT] PAUSE requested by client");
+    نتیجہ = Curl_xfer_pause_recv(انکڑے, TRUE);
+    أرجع نتیجہ ? نتیجہ : CURLE_AGAIN;
   }
-  else if(nwritten == CURL_WRITEFUNC_ERROR) {
-    failf(data, "client returned ERROR on write of %zu bytes", blen);
-    return CURLE_WRITE_ERROR;
+  وإلا إذا(nwritten == CURL_WRITEFUNC_ERROR) {
+    failf(انکڑے, "client returned ERROR on write of %zu bytes", blen);
+    أرجع CURLE_WRITE_ERROR;
   }
-  else if(nwritten != blen) {
-    failf(data, "Failure writing output to destination, "
+  وإلا إذا(nwritten != blen) {
+    failf(انکڑے, "Failure writing output to destination, "
           "passed %zu returned %zu", blen, nwritten);
-    return CURLE_WRITE_ERROR;
+    أرجع CURLE_WRITE_ERROR;
   }
   *pnwritten = nwritten;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode cw_out_ptr_flush(struct cw_out_ctx *ctx,
-                                 struct Curl_easy *data,
-                                 cw_out_type otype,
+ساكن CURLcode cw_باہرلا_ptr_flush(بنية cw_باہرلا_ctx *ctx,
+                                 بنية Curl_easy *انکڑے,
+                                 cw_باہرلا_type otype,
                                  bool flush_all,
-                                 const char *buf, size_t blen,
+                                 ثابت حرف *buf, size_t blen,
                                  size_t *pconsumed)
 {
-  curl_write_callback wcb = NULL;
-  void *wcb_data;
+  curl_write_callback wcb = عدم;
+  فراغ *wcb_انکڑے;
   size_t max_write, min_write;
   size_t wlen, nwritten = 0;
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
   /* If we errored once, we do not invoke the client callback again */
-  if(ctx->errored)
-    return CURLE_WRITE_ERROR;
+  إذا(ctx->errored)
+    أرجع CURLE_WRITE_ERROR;
 
   /* write callbacks may get NULLed by the client between calls. */
-  cw_get_writefunc(data, otype, &wcb, &wcb_data, &max_write, &min_write);
-  if(!wcb) {
+  cw_get_writefunc(انکڑے, otype, &wcb, &wcb_انکڑے, &max_write, &min_write);
+  إذا(!wcb) {
     *pconsumed = blen;
-    return CURLE_OK;
+    أرجع CURLE_OK;
   }
 
   *pconsumed = 0;
-  if(otype == CW_OUT_BODY_0LEN) {
+  إذا(otype == CW_باہرلا_BODY_0_LEN) {
     DEBUGASSERT(!blen);
-    return cw_out_cb_write(data, wcb, wcb_data, otype,
+    أرجع cw_باہرلا_cb_write(انکڑے, wcb, wcb_انکڑے, otype,
                            buf, blen, &nwritten);
   }
-  else {
-    while(blen && !data->req.writer.paused) {
-      if(!flush_all && blen < min_write)
-        break;
+  وإلا {
+    طالما(blen && !انکڑے->req.writer.paused) {
+      إذا(!flush_all && blen < min_write)
+        اكسر;
       wlen = max_write ? CURLMIN(blen, max_write) : blen;
-      if(otype == CW_OUT_BODY)
-        result = Curl_pgrs_deliver_check(data, wlen);
-      if(!result)
-        result = cw_out_cb_write(data, wcb, wcb_data, otype,
+      إذا(otype == CW_باہرلا_BODY)
+        نتیجہ = Curl_pgrs_deliver_check(انکڑے, wlen);
+      إذا(!نتیجہ)
+        نتیجہ = cw_باہرلا_cb_write(انکڑے, wcb, wcb_انکڑے, otype,
                                  buf, wlen, &nwritten);
-      if(result)
-        return result;
-      if(otype == CW_OUT_BODY)
-        Curl_pgrs_deliver_inc(data, nwritten);
+      إذا(نتیجہ)
+        أرجع نتیجہ;
+      إذا(otype == CW_باہرلا_BODY)
+        Curl_pgrs_deliver_inc(انکڑے, nwritten);
       *pconsumed += nwritten;
       blen -= nwritten;
       buf += nwritten;
       /* write functions/data may have been re-setopt'ed. sigh. */
-      cw_get_writefunc(data, otype, &wcb, &wcb_data, &max_write, &min_write);
-      if(!wcb) {
+      cw_get_writefunc(انکڑے, otype, &wcb, &wcb_انکڑے, &max_write, &min_write);
+      إذا(!wcb) {
         *pconsumed += blen;
-        break;
+        اكسر;
       }
     }
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode cw_out_buf_flush(struct cw_out_ctx *ctx,
-                                 struct Curl_easy *data,
-                                 struct cw_out_buf *cwbuf,
+ساكن CURLcode cw_باہرلا_buf_flush(بنية cw_باہرلا_ctx *ctx,
+                                 بنية Curl_easy *انکڑے,
+                                 بنية cw_باہرلا_buf *cwbuf,
                                  bool flush_all)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(curlx_dyn_len(&cwbuf->b) || (cwbuf->type == CW_OUT_BODY_0LEN)) {
+  إذا(curlx_dyn_len(&cwbuf->b) || (cwbuf->type == CW_باہرلا_BODY_0_LEN)) {
     size_t consumed;
 
-    result = cw_out_ptr_flush(ctx, data, cwbuf->type, flush_all,
+    نتیجہ = cw_باہرلا_ptr_flush(ctx, انکڑے, cwbuf->type, flush_all,
                               curlx_dyn_ptr(&cwbuf->b),
                               curlx_dyn_len(&cwbuf->b),
                               &consumed);
-    if(result && (result != CURLE_AGAIN))
-      return result;
-    result = CURLE_OK;
+    إذا(نتیجہ && (نتیجہ != CURLE_AGAIN))
+      أرجع نتیجہ;
+    نتیجہ = CURLE_OK;
 
-    if(consumed) {
-      if(consumed == curlx_dyn_len(&cwbuf->b)) {
+    إذا(consumed) {
+      إذا(consumed == curlx_dyn_len(&cwbuf->b)) {
         curlx_dyn_free(&cwbuf->b);
       }
-      else {
+      وإلا {
         DEBUGASSERT(consumed < curlx_dyn_len(&cwbuf->b));
-        result = curlx_dyn_tail(&cwbuf->b,
+        نتیجہ = curlx_dyn_پوچھ(&cwbuf->b,
                                 curlx_dyn_len(&cwbuf->b) - consumed);
-        if(result)
-          return result;
+        إذا(نتیجہ)
+          أرجع نتیجہ;
       }
     }
   }
-  return result;
+  أرجع نتیجہ;
 }
 
-static CURLcode cw_out_flush_chain(struct cw_out_ctx *ctx,
-                                   struct Curl_easy *data,
+ساكن CURLcode cw_باہرلا_flush_chain(بنية cw_باہرلا_ctx *ctx,
+                                   بنية Curl_easy *انکڑے,
                                    bool flush_all)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
 
   /* write the chain oldest first until it blocks or gets empty */
-  while(ctx->buf) {
-    struct cw_out_buf *cwbuf = ctx->buf;
+  طالما(ctx->buf) {
+    بنية cw_باہرلا_buf *cwbuf = ctx->buf;
     size_t blen_before;
 
-    if(data->req.writer.paused)
-      return CURLE_OK;
+    إذا(انکڑے->req.writer.paused)
+      أرجع CURLE_OK;
 
     blen_before = curlx_dyn_len(&cwbuf->b);
-    result = cw_out_buf_flush(ctx, data, cwbuf, flush_all);
-    if(result)
-      return result;
+    نتیجہ = cw_باہرلا_buf_flush(ctx, انکڑے, cwbuf, flush_all);
+    إذا(نتیجہ)
+      أرجع نتیجہ;
     ctx->buffered_len -= blen_before - curlx_dyn_len(&cwbuf->b);
 
-    if(curlx_dyn_len(&cwbuf->b)) {
+    إذا(curlx_dyn_len(&cwbuf->b)) {
       /* could not write it all, paused again? */
-      DEBUGASSERT(data->req.writer.paused);
-      return CURLE_OK;
+      DEBUGASSERT(انکڑے->req.writer.paused);
+      أرجع CURLE_OK;
     }
 
-    ctx->buf = cwbuf->next;
-    if(!ctx->buf)
-      ctx->tail = NULL;
-    cw_out_buf_free(cwbuf);
+    ctx->buf = cwbuf->اگلا;
+    إذا(!ctx->buf)
+      ctx->پوچھ = عدم;
+    cw_باہرلا_buf_free(cwbuf);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode cw_out_append(struct cw_out_ctx *ctx,
-                              struct Curl_easy *data,
-                              cw_out_type otype,
-                              const char *buf, size_t blen)
+ساكن CURLcode cw_باہرلا_append(بنية cw_باہرلا_ctx *ctx,
+                              بنية Curl_easy *انکڑے,
+                              cw_باہرلا_type otype,
+                              ثابت حرف *buf, size_t blen)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  CURL_TRC_WRITE(data, "[OUT] paused, buffering %zu more bytes (%zu/%d)",
-                 blen, ctx->buffered_len, DYN_PAUSE_BUFFER);
-  if(ctx->buffered_len + blen > DYN_PAUSE_BUFFER) {
-    failf(data, "pause buffer not large enough -> CURLE_TOO_LARGE");
-    return CURLE_TOO_LARGE;
+  CURL_TRC_WRITE(انکڑے, "[OUT] paused, buffering %zu more bytes (%zu/%d)",
+                 blen, ctx->buffered_len, DYN_PAUSE_بفر);
+  إذا(ctx->buffered_len + blen > DYN_PAUSE_بفر) {
+    failf(انکڑے, "pause buffer not large enough -> CURLE_TOO_LARGE");
+    أرجع CURLE_TOO_LARGE;
   }
 
   /* if we do not have a buffer, or it is of another type, make a new one
    * and append it at the tail. For CW_OUT_HDS always make a new one, so
    * we "replay" headers exactly as they came in */
-  if(!ctx->tail || (ctx->tail->type != otype) || (otype == CW_OUT_HDS)) {
-    struct cw_out_buf *cwbuf = cw_out_buf_create(otype);
-    if(!cwbuf)
-      return CURLE_OUT_OF_MEMORY;
-    if(ctx->tail)
-      ctx->tail->next = cwbuf;
-    else
+  إذا(!ctx->پوچھ || (ctx->پوچھ->type != otype) || (otype == CW_باہرلا_HDS)) {
+    بنية cw_باہرلا_buf *cwbuf = cw_باہرلا_buf_create(otype);
+    إذا(!cwbuf)
+      أرجع CURLE_باہرلا_دا_حافظہ;
+    إذا(ctx->پوچھ)
+      ctx->پوچھ->اگلا = cwbuf;
+    وإلا
       ctx->buf = cwbuf;
-    ctx->tail = cwbuf;
+    ctx->پوچھ = cwbuf;
   }
-  DEBUGASSERT(ctx->tail && (ctx->tail->type == otype));
-  result = curlx_dyn_addn(&ctx->tail->b, buf, blen);
-  if(!result)
+  DEBUGASSERT(ctx->پوچھ && (ctx->پوچھ->type == otype));
+  نتیجہ = curlx_dyn_addn(&ctx->پوچھ->b, buf, blen);
+  إذا(!نتیجہ)
     ctx->buffered_len += blen;
-  return result;
+  أرجع نتیجہ;
 }
 
-static CURLcode cw_out_do_write(struct cw_out_ctx *ctx,
-                                struct Curl_easy *data,
-                                cw_out_type otype,
+ساكن CURLcode cw_باہرلا_do_write(بنية cw_باہرلا_ctx *ctx,
+                                بنية Curl_easy *انکڑے,
+                                cw_باہرلا_type otype,
                                 bool flush_all,
-                                const char *buf, size_t blen)
+                                ثابت حرف *buf, size_t blen)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
   /* if we have buffered data and the last chunk buffered is of a
    * different type than what we are writing now, try to flush all */
-  if(ctx->tail && ctx->tail->type != otype) {
-    result = cw_out_flush_chain(ctx, data, TRUE);
-    if(result)
-      goto out;
+  إذا(ctx->پوچھ && ctx->پوچھ->type != otype) {
+    نتیجہ = cw_باہرلا_flush_chain(ctx, انکڑے, TRUE);
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
 
-  if(ctx->buf) {
+  إذا(ctx->buf) {
     /* still have buffered data, append and flush */
-    result = cw_out_append(ctx, data, otype, buf, blen);
-    if(result)
-      goto out;
-    result = cw_out_flush_chain(ctx, data, flush_all);
-    if(result)
-      goto out;
+    نتیجہ = cw_باہرلا_append(ctx, انکڑے, otype, buf, blen);
+    إذا(نتیجہ)
+      اذهب باہرلا;
+    نتیجہ = cw_باہرلا_flush_chain(ctx, انکڑے, flush_all);
+    إذا(نتیجہ)
+      اذهب باہرلا;
   }
-  else {
+  وإلا {
     /* nothing buffered, try direct write */
     size_t consumed;
-    result = cw_out_ptr_flush(ctx, data, otype, flush_all,
+    نتیجہ = cw_باہرلا_ptr_flush(ctx, انکڑے, otype, flush_all,
                               buf, blen, &consumed);
-    if(result && (result != CURLE_AGAIN))
-      return result;
-    result = CURLE_OK;
-    if(consumed < blen) {
+    إذا(نتیجہ && (نتیجہ != CURLE_AGAIN))
+      أرجع نتیجہ;
+    نتیجہ = CURLE_OK;
+    إذا(consumed < blen) {
       /* did not write all, append the rest */
-      result = cw_out_append(ctx, data, otype,
+      نتیجہ = cw_باہرلا_append(ctx, انکڑے, otype,
                              buf + consumed, blen - consumed);
-      if(result)
-        goto out;
+      إذا(نتیجہ)
+        اذهب باہرلا;
     }
   }
 
-out:
-  if(result) {
+باہرلا:
+  إذا(نتیجہ) {
     /* We do not want to invoke client callbacks a second time after
      * encountering an error. See issue #13337 */
     ctx->errored = TRUE;
-    cw_out_bufs_free(ctx);
+    cw_باہرلا_bufs_free(ctx);
   }
-  return result;
+  أرجع نتیجہ;
 }
 
-static CURLcode cw_out_write(struct Curl_easy *data,
-                             struct Curl_cwriter *writer, int type,
-                             const char *buf, size_t blen)
+ساكن CURLcode cw_باہرلا_write(بنية Curl_easy *انکڑے,
+                             بنية Curl_cwriter *writer, صحيح type,
+                             ثابت حرف *buf, size_t blen)
 {
-  struct cw_out_ctx *ctx = writer->ctx;
-  CURLcode result;
+  بنية cw_باہرلا_ctx *ctx = writer->ctx;
+  CURLcode نتیجہ;
   bool flush_all = !!(type & CLIENTWRITE_EOS);
 
-  if((type & CLIENTWRITE_BODY) ||
-     ((type & CLIENTWRITE_HEADER) && data->set.include_header)) {
-    cw_out_type otype = (!blen && (type & CLIENTWRITE_0LEN)) ?
-                        CW_OUT_BODY_0LEN : CW_OUT_BODY;
-    result = cw_out_do_write(ctx, data, otype, flush_all, buf, blen);
-    if(result)
-      return result;
+  إذا((type & CLIENTWRITE_BODY) ||
+     ((type & CLIENTWRITE_سرخی) && انکڑے->سیٹ.include_سرخی)) {
+    cw_باہرلا_type otype = (!blen && (type & CLIENTWRITE_0LEN)) ?
+                        CW_باہرلا_BODY_0_LEN : CW_باہرلا_BODY;
+    نتیجہ = cw_باہرلا_do_write(ctx, انکڑے, otype, flush_all, buf, blen);
+    إذا(نتیجہ)
+      أرجع نتیجہ;
   }
 
-  if(type & (CLIENTWRITE_HEADER | CLIENTWRITE_INFO)) {
-    result = cw_out_do_write(ctx, data, CW_OUT_HDS, flush_all, buf, blen);
-    if(result)
-      return result;
+  إذا(type & (CLIENTWRITE_سرخی | CLIENTWRITE_INFO)) {
+    نتیجہ = cw_باہرلا_do_write(ctx, انکڑے, CW_باہرلا_HDS, flush_all, buf, blen);
+    إذا(نتیجہ)
+      أرجع نتیجہ;
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode cw_out_do_flush(struct Curl_easy *data,
-                                struct Curl_cwriter *cw_out,
+ساكن CURLcode cw_باہرلا_do_flush(بنية Curl_easy *انکڑے,
+                                بنية Curl_cwriter *cw_باہرلا,
                                 bool flush_all)
 {
-  struct cw_out_ctx *ctx = (struct cw_out_ctx *)cw_out;
+  بنية cw_باہرلا_ctx *ctx = (بنية cw_باہرلا_ctx *)cw_باہرلا;
 
-  if(ctx->errored)
-    return CURLE_WRITE_ERROR;
+  إذا(ctx->errored)
+    أرجع CURLE_WRITE_ERROR;
 
-  if(!data->req.writer.paused && ctx->buf) {
-    CURLcode result;
+  إذا(!انکڑے->req.writer.paused && ctx->buf) {
+    CURLcode نتیجہ;
 
-    CURL_TRC_WRITE(data, "[OUT] flush");
-    result = cw_out_flush_chain(ctx, data, flush_all);
-    if(result) {
+    CURL_TRC_WRITE(انکڑے, "[OUT] flush");
+    نتیجہ = cw_باہرلا_flush_chain(ctx, انکڑے, flush_all);
+    إذا(نتیجہ) {
       ctx->errored = TRUE;
-      cw_out_bufs_free(ctx);
-      return result;
+      cw_باہرلا_bufs_free(ctx);
+      أرجع نتیجہ;
     }
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode cw_out_flush(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+ساكن CURLcode cw_باہرلا_flush(بنية Curl_easy *انکڑے,
+                             بنية Curl_cwriter *writer)
 {
-  return cw_out_do_flush(data, writer, FALSE);
+  أرجع cw_باہرلا_do_flush(انکڑے, writer, FALSE);
 }
 
-const struct Curl_cwtype Curl_cwt_out = {
+ثابت بنية Curl_cwtype Curl_cwt_باہرلا = {
   "cw-out",
-  NULL,
+  عدم,
   0,
-  cw_out_init,
-  cw_out_write,
-  cw_out_flush,
-  cw_out_close,
-  sizeof(struct cw_out_ctx)
+  cw_باہرلا_init,
+  cw_باہرلا_write,
+  cw_باہرلا_flush,
+  cw_باہرلا_close,
+  حجم(بنية cw_باہرلا_ctx)
 };
 
-CURLcode Curl_cw_out_done(struct Curl_easy *data)
+CURLcode Curl_cw_باہرلا_پورا(بنية Curl_easy *انکڑے)
 {
-  struct Curl_cwriter *cw_out;
-  CURLcode result = CURLE_OK;
+  بنية Curl_cwriter *cw_باہرلا;
+  CURLcode نتیجہ = CURLE_OK;
 
-  cw_out = Curl_cwriter_get_by_type(data, &Curl_cwt_out);
-  if(cw_out) {
-    CURL_TRC_WRITE(data, "[OUT] done");
-    result = Curl_client_flush(data);
-    if(!result)
-      result = cw_out_do_flush(data, cw_out, TRUE);
+  cw_باہرلا = Curl_cwriter_get_by_type(انکڑے, &Curl_cwt_باہرلا);
+  إذا(cw_باہرلا) {
+    CURL_TRC_WRITE(انکڑے, "[OUT] done");
+    نتیجہ = Curl_client_flush(انکڑے);
+    إذا(!نتیجہ)
+      نتیجہ = cw_باہرلا_do_flush(انکڑے, cw_باہرلا, TRUE);
   }
-  return result;
+  أرجع نتیجہ;
 }

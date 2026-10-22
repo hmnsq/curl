@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_SETUP_H
-#define HEADER_CURL_CF_SETUP_H
+#جے_بنا_تعریف سرخی_CURL_CF_تیاری_H
+#تعریف_کرو سرخی_CURL_CF_تیاری_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,24 +23,24 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-struct Curl_dns_entry;
-struct ip_quadruple;
-struct Curl_peer;
-struct Curl_str;
+بنية Curl_dns_اندراج;
+بنية ip_quadruple;
+بنية Curl_peer;
+بنية Curl_str;
 
-CURLcode Curl_cf_setup_add(struct Curl_easy *data,
-                           struct connectdata *conn,
+CURLcode Curl_cf_تیاری_جوڑو(بنية Curl_easy *انکڑے,
+                           بنية connectdata *conn,
                            int8_t sockindex,
                            uint8_t transport,
-                           int ssl_mode);
+                           صحيح ssl_منوال);
 
-CURLcode Curl_cf_setup_insert_after(struct Curl_cfilter *cf_at,
-                                    struct Curl_easy *data,
+CURLcode Curl_cf_تیاری_داخل_کرو_after(بنية Curl_cfilter *cf_at,
+                                    بنية Curl_easy *انکڑے,
                                     uint8_t transport,
-                                    int ssl_mode);
+                                    صحيح ssl_منوال);
 
-extern struct Curl_cftype Curl_cft_setup;
+خارجي بنية Curl_cftype Curl_cft_تیاری;
 
-#endif /* HEADER_CURL_CF_SETUP_H */
+#جے_انت /* HEADER_CURL_CF_SETUP_H */

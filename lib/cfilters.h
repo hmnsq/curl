@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CFILTERS_H
-#define HEADER_CURL_CFILTERS_H
+#جے_بنا_تعریف سرخی_CURL_CFILTERS_H
+#تعریف_کرو سرخی_CURL_CFILTERS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,34 +23,34 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timediff.h"
+#ضمن "curlx/timediff.h"
 
-struct bufq;
-struct Curl_cfilter;
-struct Curl_easy;
-struct Curl_dns_entry;
-struct connectdata;
-struct ip_quadruple;
-struct curl_tlssessioninfo;
+بنية bufq;
+بنية Curl_cfilter;
+بنية Curl_easy;
+بنية Curl_dns_اندراج;
+بنية connectdata;
+بنية ip_quadruple;
+بنية curl_tlssessioninfo;
 
 /* Callback to destroy resources held by this filter instance.
  * Implementations MUST NOT chain calls to cf->next.
  */
-typedef void     Curl_cft_destroy_this(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data);
+تعريفنوع فراغ     Curl_cft_destroy_this(بنية Curl_cfilter *cf,
+                                       بنية Curl_easy *انکڑے);
 
 /* Callback to close the connection filter gracefully, non-blocking.
  * Implementations MUST NOT chain calls to cf->next.
  */
-typedef CURLcode Curl_cft_shutdown(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   bool *done);
+تعريفنوع CURLcode Curl_cft_shutdown(بنية Curl_cfilter *cf,
+                                   بنية Curl_easy *انکڑے,
+                                   bool *پورا);
 
-typedef CURLcode Curl_cft_connect(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool *done);
+تعريفنوع CURLcode Curl_cft_connect(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *انکڑے,
+                                  bool *پورا);
 
-struct easy_pollset;
+بنية easy_pollset;
 
 /* Passing in an easy_pollset for monitoring of sockets, let
  * filters add or remove sockets actions (CURL_POLL_OUT, CURL_POLL_IN).
@@ -75,32 +75,32 @@ struct easy_pollset;
  * @param data   the easy handle the pollset is about
  * @param ps     the pollset (inout) for the easy handle
  */
-typedef CURLcode Curl_cft_adjust_pollset(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct easy_pollset *ps);
+تعريفنوع CURLcode Curl_cft_adjust_pollset(بنية Curl_cfilter *cf,
+                                         بنية Curl_easy *انکڑے,
+                                         بنية easy_pollset *ps);
 
-typedef bool     Curl_cft_data_pending(struct Curl_cfilter *cf,
-                                       const struct Curl_easy *data);
+تعريفنوع bool     Curl_cft_انکڑے_pending(بنية Curl_cfilter *cf,
+                                       ثابت بنية Curl_easy *انکڑے);
 
-typedef CURLcode Curl_cft_send(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, /* transfer */
-                               const uint8_t *buf,     /* data to write */
+تعريفنوع CURLcode Curl_cft_send(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *انکڑے, /* transfer */
+                               ثابت uint8_t *buf,     /* data to write */
                                size_t len,             /* amount to write */
                                bool eos,               /* last chunk */
                                size_t *pnwritten);     /* how much sent */
 
-typedef CURLcode Curl_cft_recv(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, /* transfer */
-                               char *buf,              /* store data here */
+تعريفنوع CURLcode Curl_cft_recv(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *انکڑے, /* transfer */
+                               حرف *buf,              /* store data here */
                                size_t len,             /* amount to read */
                                size_t *pnread);        /* how much received */
 
-typedef bool     Curl_cft_conn_is_alive(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        bool *input_pending);
+تعريفنوع bool     Curl_cft_conn_is_alive(بنية Curl_cfilter *cf,
+                                        بنية Curl_easy *انکڑے,
+                                        bool *داخلہ_pending);
 
-typedef CURLcode Curl_cft_conn_keep_alive(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data);
+تعريفنوع CURLcode Curl_cft_conn_keep_alive(بنية Curl_cfilter *cf,
+                                          بنية Curl_easy *انکڑے);
 
 /**
  * Events/controls for connection filters, their arguments and
@@ -112,24 +112,24 @@ typedef CURLcode Curl_cft_conn_keep_alive(struct Curl_cfilter *cf,
  *           to all filters in the chain. Overall result is always CURLE_OK.
  */
 /*      data event                            arg1       arg2     return */
-#define CF_CTRL_DATA_SETUP              4  /* 0          NULL     first fail */
+#تعریف_کرو CF_CTRL_انکڑے_تیاری              4  /* 0          NULL     first fail */
 /* unused now                           5 */
-#define CF_CTRL_DATA_PAUSE              6  /* on/off     NULL     first fail */
-#define CF_CTRL_DATA_DONE               7  /* premature  NULL     ignored */
-#define CF_CTRL_DATA_DONE_SEND          8  /* 0          NULL     ignored */
+#تعریف_کرو CF_CTRL_انکڑے_PAUSE              6  /* on/off     NULL     first fail */
+#تعریف_کرو CF_CTRL_انکڑے_پورا               7  /* premature  NULL     ignored */
+#تعریف_کرو CF_CTRL_انکڑے_پورا_SEND          8  /* 0          NULL     ignored */
 /* update conn info at connection and data */
-#define CF_CTRL_CONN_INFO_UPDATE (256 + 0) /* 0          NULL     ignored */
-#define CF_CTRL_FORGET_SOCKET    (256 + 1) /* 0          NULL     ignored */
-#define CF_CTRL_FLUSH            (256 + 2) /* 0          NULL     first fail */
-#define CF_CTRL_REPORT_STATS     (256 + 3) /* 0          NULL     ignored */
+#تعریف_کرو CF_CTRL_CONN_INFO_UPDATE (256 + 0) /* 0          NULL     ignored */
+#تعریف_کرو CF_CTRL_FORGET_SOCKET    (256 + 1) /* 0          NULL     ignored */
+#تعریف_کرو CF_CTRL_FLUSH            (256 + 2) /* 0          NULL     first fail */
+#تعریف_کرو CF_CTRL_REPORT_STATS     (256 + 3) /* 0          NULL     ignored */
 
 /**
  * Handle event/control for the filter.
  * Implementations MUST NOT chain calls to cf->next.
  */
-typedef CURLcode Curl_cft_cntrl(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int event, int arg1, void *arg2);
+تعريفنوع CURLcode Curl_cft_cntrl(بنية Curl_cfilter *cf,
+                                بنية Curl_easy *انکڑے,
+                                صحيح event, صحيح arg1, فراغ *arg2);
 
 /**
  * Queries to ask via a `Curl_cft_query *query` method on a cfilter chain.
@@ -164,31 +164,31 @@ typedef CURLcode Curl_cft_cntrl(struct Curl_cfilter *cf,
  *                      first byte from the peer was received.
  */
 /*      query                             res1       res2     */
-#define CF_QUERY_MAX_CONCURRENT     1  /* number     -        */
-#define CF_QUERY_CONNECT_REPLY_MS   2  /* number     -        */
-#define CF_QUERY_SOCKET             3  /* -          curl_socket_t */
+#تعریف_کرو CF_QUERY_MAX_CONCURRENT     1  /* number     -        */
+#تعریف_کرو CF_QUERY_CONNECT_جواب_MS   2  /* number     -        */
+#تعریف_کرو CF_QUERY_SOCKET             3  /* -          curl_socket_t */
 /* unused 4 + 5 */
-#define CF_QUERY_STREAM_ERROR       6  /* error code - */
-#define CF_QUERY_NEED_FLUSH         7  /* TRUE/FALSE - */
-#define CF_QUERY_IP_INFO            8  /* TRUE/FALSE struct ip_quadruple */
-#define CF_QUERY_HTTP_VERSION       9  /* number (10/11/20/30)   - */
+#تعریف_کرو CF_QUERY_دھارا_ERROR       6  /* error code - */
+#تعریف_کرو CF_QUERY_NEED_FLUSH         7  /* TRUE/FALSE - */
+#تعریف_کرو CF_QUERY_IP_INFO            8  /* TRUE/FALSE struct ip_quadruple */
+#تعریف_کرو CF_QUERY_HTTP_نسخہ       9  /* number (10/11/20/30)   - */
 /* pass in a `const struct Curl_sockaddr_ex **` as `pres2`. Gets set
  * to NULL when not connected. */
-#define CF_QUERY_REMOTE_ADDR       10  /* -          `Curl_sockaddr_ex *` */
-#define CF_QUERY_HOST_PORT         11  /* port       const char * */
-#define CF_QUERY_SSL_INFO          12  /* -    struct curl_tlssessioninfo * */
-#define CF_QUERY_SSL_CTX_INFO      13  /* -    struct curl_tlssessioninfo * */
-#define CF_QUERY_TRANSPORT         14  /* TRNSPRT_*  - * */
-#define CF_QUERY_ALPN_NEGOTIATED   15  /* -          const char * */
-#define CF_QUERY_REALLY_CONNECTED  16  /* TRUE/FALSE - */
+#تعریف_کرو CF_QUERY_REMOTE_ADDR       10  /* -          `Curl_sockaddr_ex *` */
+#تعریف_کرو CF_QUERY_HOST_پورٹ         11  /* port       const char * */
+#تعریف_کرو CF_QUERY_SSL_INFO          12  /* -    struct curl_tlssessioninfo * */
+#تعریف_کرو CF_QUERY_SSL_CTX_INFO      13  /* -    struct curl_tlssessioninfo * */
+#تعریف_کرو CF_QUERY_TRANSPORT         14  /* TRNSPRT_*  - * */
+#تعریف_کرو CF_QUERY_ALPN_NEGOTIATED   15  /* -          const char * */
+#تعریف_کرو CF_QUERY_REALLY_CONNECTED  16  /* TRUE/FALSE - */
 
 /**
  * Query the cfilter for properties. Filters ignorant of a query will
  * pass it "down" the filter chain.
  */
-typedef CURLcode Curl_cft_query(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int query, int *pres1, void *pres2);
+تعريفنوع CURLcode Curl_cft_query(بنية Curl_cfilter *cf,
+                                بنية Curl_easy *انکڑے,
+                                صحيح query, صحيح *pres1, فراغ *pres2);
 
 /**
  * Type flags for connection filters. A filter can have none, one or
@@ -205,24 +205,24 @@ typedef CURLcode Curl_cft_query(struct Curl_cfilter *cf,
  *                     can be removed once connected
  * CF_TYPE_DNS         filter managing DNS resolve operations
  */
-#define CF_TYPE_IP_CONNECT  (1 << 0)
-#define CF_TYPE_SSL         (1 << 1)
-#define CF_TYPE_MULTIPLEX   (1 << 2)
-#define CF_TYPE_PROXY       (1 << 3)
-#define CF_TYPE_HTTP        (1 << 4)
-#define CF_TYPE_SETUP       (1 << 5)
-#define CF_TYPE_DNS         (1 << 6)
+#تعریف_کرو CF_TYPE_IP_CONNECT  (1 << 0)
+#تعریف_کرو CF_TYPE_SSL         (1 << 1)
+#تعریف_کرو CF_TYPE_MULTIPLEX   (1 << 2)
+#تعریف_کرو CF_TYPE_PROXY       (1 << 3)
+#تعریف_کرو CF_TYPE_HTTP        (1 << 4)
+#تعریف_کرو CF_TYPE_تیاری       (1 << 5)
+#تعریف_کرو CF_TYPE_DNS         (1 << 6)
 
 /* A connection filter type, e.g. specific implementation. */
-struct Curl_cftype {
-  const char *name;                        /* name of the filter type */
-  int flags;                               /* flags of filter type */
-  int log_level;                           /* log level for such filters */
+بنية Curl_cftype {
+  ثابت حرف *name;                        /* name of the filter type */
+  صحيح flags;                               /* flags of filter type */
+  صحيح log_level;                           /* log level for such filters */
   Curl_cft_destroy_this *destroy;          /* destroy resources of this cf */
   Curl_cft_connect *do_connect;            /* establish connection */
   Curl_cft_shutdown *do_shutdown;          /* shutdown conn */
   Curl_cft_adjust_pollset *adjust_pollset; /* adjust transfer poll set */
-  Curl_cft_data_pending *has_data_pending; /* conn has data pending */
+  Curl_cft_انکڑے_pending *has_انکڑے_pending; /* conn has data pending */
   Curl_cft_send *do_send;                  /* send data */
   Curl_cft_recv *do_recv;                  /* receive data */
   Curl_cft_cntrl *cntrl;                   /* events/control */
@@ -232,47 +232,47 @@ struct Curl_cftype {
 };
 
 /* A connection filter instance, e.g. registered at a connection */
-struct Curl_cfilter {
-  const struct Curl_cftype *cft; /* the type providing implementation */
-  struct Curl_cfilter *next;     /* next filter in chain */
-  void *ctx;                     /* filter type specific settings */
-  struct connectdata *conn;      /* the connection this filter belongs to */
+بنية Curl_cfilter {
+  ثابت بنية Curl_cftype *cft; /* the type providing implementation */
+  بنية Curl_cfilter *اگلا;     /* next filter in chain */
+  فراغ *ctx;                     /* filter type specific settings */
+  بنية connectdata *conn;      /* the connection this filter belongs to */
   int8_t sockindex;                 /* the index the filter is installed at */
-  BIT(connected);                /* != 0 iff this filter is connected */
-  BIT(shutdown);                 /* != 0 iff this filter has shut down */
+  ثنائی_ہندسہ(connected);                /* != 0 iff this filter is connected */
+  ثنائی_ہندسہ(shutdown);                 /* != 0 iff this filter has shut down */
 };
 
 /* Default implementations for the type functions, implementing nop. */
-void Curl_cf_def_destroy_this(struct Curl_cfilter *cf,
-                              struct Curl_easy *data);
+فراغ Curl_cf_def_destroy_this(بنية Curl_cfilter *cf,
+                              بنية Curl_easy *انکڑے);
 
 /* Default implementations for the type functions, implementing pass-through
  * the filter chain. */
-CURLcode Curl_cf_def_adjust_pollset(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct easy_pollset *ps);
-bool     Curl_cf_def_data_pending(struct Curl_cfilter *cf,
-                                  const struct Curl_easy *data);
-CURLcode Curl_cf_def_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          const uint8_t *buf, size_t len, bool eos,
+CURLcode Curl_cf_def_adjust_pollset(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *انکڑے,
+                                    بنية easy_pollset *ps);
+bool     Curl_cf_def_انکڑے_pending(بنية Curl_cfilter *cf,
+                                  ثابت بنية Curl_easy *انکڑے);
+CURLcode Curl_cf_def_send(بنية Curl_cfilter *cf, بنية Curl_easy *انکڑے,
+                          ثابت uint8_t *buf, size_t len, bool eos,
                           size_t *pnwritten);
-CURLcode Curl_cf_def_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          char *buf, size_t len, size_t *pnread);
-CURLcode Curl_cf_def_cntrl(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           int event, int arg1, void *arg2);
-bool     Curl_cf_def_conn_is_alive(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   bool *input_pending);
-CURLcode Curl_cf_def_conn_keep_alive(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data);
-CURLcode Curl_cf_def_query(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           int query, int *pres1, void *pres2);
-CURLcode Curl_cf_def_shutdown(struct Curl_cfilter *cf,
-                              struct Curl_easy *data, bool *done);
-CURLcode Curl_cf_def_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data, bool *done);
+CURLcode Curl_cf_def_recv(بنية Curl_cfilter *cf, بنية Curl_easy *انکڑے,
+                          حرف *buf, size_t len, size_t *pnread);
+CURLcode Curl_cf_def_cntrl(بنية Curl_cfilter *cf,
+                           بنية Curl_easy *انکڑے,
+                           صحيح event, صحيح arg1, فراغ *arg2);
+bool     Curl_cf_def_conn_is_alive(بنية Curl_cfilter *cf,
+                                   بنية Curl_easy *انکڑے,
+                                   bool *داخلہ_pending);
+CURLcode Curl_cf_def_conn_keep_alive(بنية Curl_cfilter *cf,
+                                     بنية Curl_easy *انکڑے);
+CURLcode Curl_cf_def_query(بنية Curl_cfilter *cf,
+                           بنية Curl_easy *انکڑے,
+                           صحيح query, صحيح *pres1, فراغ *pres2);
+CURLcode Curl_cf_def_shutdown(بنية Curl_cfilter *cf,
+                              بنية Curl_easy *انکڑے, bool *پورا);
+CURLcode Curl_cf_def_connect(بنية Curl_cfilter *cf,
+                              بنية Curl_easy *انکڑے, bool *پورا);
 
 /**
  * Create a new filter instance, unattached to the filter chain.
@@ -281,218 +281,218 @@ CURLcode Curl_cf_def_connect(struct Curl_cfilter *cf,
  * @param cft   the filter type
  * @param ctx  the type specific context to use
  */
-CURLcode Curl_cf_create(struct Curl_cfilter **pcf,
-                        const struct Curl_cftype *cft,
-                        void *ctx);
+CURLcode Curl_cf_create(بنية Curl_cfilter **pcf,
+                        ثابت بنية Curl_cftype *cft,
+                        فراغ *ctx);
 
 /**
  * Add a filter instance to the `sockindex` filter chain at connection
  * `conn`. The filter must not already be attached. It is inserted at
  * the start of the chain (top).
  */
-void Curl_conn_cf_add(struct Curl_easy *data,
-                      struct connectdata *conn,
+فراغ Curl_conn_cf_جوڑو(بنية Curl_easy *انکڑے,
+                      بنية connectdata *conn,
                       int8_t sockindex,
-                      struct Curl_cfilter *cf);
+                      بنية Curl_cfilter *cf);
 
 /**
  * Insert a filter (chain) after `cf_at`.
  * `cf_new` must not already be attached.
  */
-void Curl_conn_cf_insert_after(struct Curl_cfilter *cf_at,
-                               struct Curl_cfilter *cf_new);
+فراغ Curl_conn_cf_داخل_کرو_after(بنية Curl_cfilter *cf_at,
+                               بنية Curl_cfilter *cf_new);
 
 /**
  * Extract filter `*pcf` from its connection filter chain.
  * Destroy `*pcf`, even if it was not part of the chain and NULL it.
  * Returns TRUE of cf has been part of chain.
  */
-bool Curl_conn_cf_discard(struct Curl_cfilter **pcf,
-                          struct Curl_easy *data);
+bool Curl_conn_cf_discard(بنية Curl_cfilter **pcf,
+                          بنية Curl_easy *انکڑے);
 
 /**
  * Discard all cfilters starting with `*pcf` and clearing it afterwards.
  */
-void Curl_conn_cf_discard_chain(struct Curl_cfilter **pcf,
-                                struct Curl_easy *data);
+فراغ Curl_conn_cf_discard_chain(بنية Curl_cfilter **pcf,
+                                بنية Curl_easy *انکڑے);
 
 /**
  * Remove and destroy all filters at chain `sockindex` on connection `conn`.
  */
-void Curl_conn_cf_discard_all(struct Curl_easy *data,
-                              struct connectdata *conn, int8_t sockindex);
+فراغ Curl_conn_cf_discard_all(بنية Curl_easy *انکڑے,
+                              بنية connectdata *conn, int8_t sockindex);
 
-CURLcode Curl_conn_cf_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              bool *done);
-CURLcode Curl_conn_cf_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           const uint8_t *buf, size_t len, bool eos,
+CURLcode Curl_conn_cf_connect(بنية Curl_cfilter *cf,
+                              بنية Curl_easy *انکڑے,
+                              bool *پورا);
+CURLcode Curl_conn_cf_send(بنية Curl_cfilter *cf, بنية Curl_easy *انکڑے,
+                           ثابت uint8_t *buf, size_t len, bool eos,
                            size_t *pnwritten);
-CURLcode Curl_conn_cf_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           char *buf, size_t len, size_t *pnread);
-CURLcode Curl_conn_cf_cntrl(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            bool ignore_result,
-                            int event, int arg1, void *arg2);
+CURLcode Curl_conn_cf_recv(بنية Curl_cfilter *cf, بنية Curl_easy *انکڑے,
+                           حرف *buf, size_t len, size_t *pnread);
+CURLcode Curl_conn_cf_cntrl(بنية Curl_cfilter *cf,
+                            بنية Curl_easy *انکڑے,
+                            bool ignore_نتیجہ,
+                            صحيح event, صحيح arg1, فراغ *arg2);
 
 /**
  * Get the socket used by the filter chain starting at `cf`.
  * Returns CURL_SOCKET_BAD if not available.
  */
-curl_socket_t Curl_conn_cf_get_socket(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data);
+curl_socket_t Curl_conn_cf_get_socket(بنية Curl_cfilter *cf,
+                                      بنية Curl_easy *انکڑے);
 
-CURLcode Curl_conn_cf_get_ip_info(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool *is_ipv6, struct ip_quadruple *ipquad);
+CURLcode Curl_conn_cf_get_ip_info(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *انکڑے,
+                                  bool *is_ipv6, بنية ip_quadruple *ipquad);
 
-bool Curl_conn_cf_needs_flush(struct Curl_cfilter *cf,
-                              struct Curl_easy *data);
+bool Curl_conn_cf_needs_flush(بنية Curl_cfilter *cf,
+                              بنية Curl_easy *انکڑے);
 
-bool Curl_conn_cf_is_ip_connected(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data);
+bool Curl_conn_cf_is_ip_connected(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *انکڑے);
 
-unsigned char Curl_conn_cf_get_transport(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data);
+بنانشانی حرف Curl_conn_cf_get_transport(بنية Curl_cfilter *cf,
+                                         بنية Curl_easy *انکڑے);
 
-int Curl_socktype_for_transport(uint8_t transport);
-int Curl_protocol_for_transport(uint8_t transport);
+صحيح Curl_socktype_for_transport(uint8_t transport);
+صحيح Curl_protocol_for_transport(uint8_t transport);
 
-const char *Curl_conn_cf_get_alpn_negotiated(struct Curl_cfilter *cf,
-                                             struct Curl_easy *data);
+ثابت حرف *Curl_conn_cf_get_alpn_negotiated(بنية Curl_cfilter *cf,
+                                             بنية Curl_easy *انکڑے);
 
-#define CURL_CF_SSL_DEFAULT  (-1)
-#define CURL_CF_SSL_DISABLE  0
-#define CURL_CF_SSL_ENABLE   1
+#تعریف_کرو CURL_CF_SSL_DEFAULT  (-1)
+#تعریف_کرو CURL_CF_SSL_DISABLE  0
+#تعریف_کرو CURL_CF_SSL_ENABLE   1
 
 /**
  * Check if a filter chain at `sockindex` for connection `conn` exists.
  */
-bool Curl_conn_is_setup(struct connectdata *conn, int8_t sockindex);
+bool Curl_conn_is_تیاری(بنية connectdata *conn, int8_t sockindex);
 
 /**
  * Check if the filter chain at `sockindex` for connection `conn` is
  * completely connected.
  */
-bool Curl_conn_is_connected(struct connectdata *conn, int8_t sockindex);
+bool Curl_conn_is_connected(بنية connectdata *conn, int8_t sockindex);
 
 /**
  * Determine if we have reached the remote host on IP level, e.g.
  * have a TCP connection. This turns TRUE before a possible SSL
  * handshake has been started/done.
  */
-bool Curl_conn_is_ip_connected(struct Curl_easy *data, int8_t sockindex);
+bool Curl_conn_is_ip_connected(بنية Curl_easy *انکڑے, int8_t sockindex);
 
 /**
  * Determine if the connection is using SSL to the remote host
  * (or will be once connected). This will return FALSE, if SSL
  * is only used in proxying and not for the tunnel itself.
  */
-bool Curl_conn_is_ssl(struct connectdata *conn, int8_t sockindex);
+bool Curl_conn_is_ssl(بنية connectdata *conn, int8_t sockindex);
 
 /* Determine if the connection has one or more proxy filters.
  * e.g. is tunneling. */
-bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex);
+bool Curl_conn_is_tunneling(بنية connectdata *conn, int8_t sockindex);
 
 /*
  * Fill `info` with information about the TLS instance securing the connection
  * when available, otherwise e.g. when Curl_conn_is_ssl() is FALSE, return
  * FALSE. 'query' should be CF_QUERY_SSL_INFO or CF_QUERY_SSL_CTX_INFO.
  */
-bool Curl_conn_get_ssl_info(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            int query,
-                            struct curl_tlssessioninfo *info);
+bool Curl_conn_get_ssl_info(بنية Curl_easy *انکڑے,
+                            بنية connectdata *conn, int8_t sockindex,
+                            صحيح query,
+                            بنية curl_tlssessioninfo *info);
 
-CURLcode Curl_conn_get_ip_info(struct Curl_easy *data,
-                               struct connectdata *conn, int8_t sockindex,
-                               bool *is_ipv6, struct ip_quadruple *ipquad);
+CURLcode Curl_conn_get_ip_info(بنية Curl_easy *انکڑے,
+                               بنية connectdata *conn, int8_t sockindex,
+                               bool *is_ipv6, بنية ip_quadruple *ipquad);
 
 /**
  * Connection provides multiplexing of easy handles at `socketindex`.
  */
-bool Curl_conn_is_multiplex(struct connectdata *conn, int8_t sockindex);
+bool Curl_conn_is_multiplex(بنية connectdata *conn, int8_t sockindex);
 
 /**
  * Return the HTTP version used on the FIRSTSOCKET connection filters
  * or 0 if unknown. Value otherwise is 09, 10, 11, etc.
  */
-unsigned char Curl_conn_http_version(struct Curl_easy *data,
-                                     struct connectdata *conn);
+بنانشانی حرف Curl_conn_http_نسخہ(بنية Curl_easy *انکڑے,
+                                     بنية connectdata *conn);
 
 /* Get the TRNSPRT_* the connection is using */
-unsigned char Curl_conn_get_transport(struct Curl_easy *data,
-                                      struct connectdata *conn);
+بنانشانی حرف Curl_conn_get_transport(بنية Curl_easy *انکڑے,
+                                      بنية connectdata *conn);
 
 /* Get the negotiated ALPN protocol or NULL if none in play */
-const char *Curl_conn_get_alpn_negotiated(struct Curl_easy *data,
-                                          struct connectdata *conn);
+ثابت حرف *Curl_conn_get_alpn_negotiated(بنية Curl_easy *انکڑے,
+                                          بنية connectdata *conn);
 
-void Curl_conn_cntrl_update_info(struct Curl_easy *data,
-                                 struct connectdata *conn);
+فراغ Curl_conn_cntrl_update_info(بنية Curl_easy *انکڑے,
+                                 بنية connectdata *conn);
 
-void Curl_conn_cntrl_report_stats(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  int sockindex);
+فراغ Curl_conn_cntrl_report_stats(بنية Curl_easy *انکڑے,
+                                  بنية connectdata *conn,
+                                  صحيح sockindex);
 
-void Curl_conn_remove_setup_filters(struct Curl_easy *data,
+فراغ Curl_conn_remove_تیاری_filters(بنية Curl_easy *انکڑے,
                                     int8_t sockindex);
 
 /**
  * Return if data is pending in some connection filter at chain
  * `sockindex` for connection `data->conn`.
  */
-bool Curl_conn_data_pending(struct Curl_easy *data,
+bool Curl_conn_انکڑے_pending(بنية Curl_easy *انکڑے,
                             int8_t sockindex);
 
 /**
  * Return TRUE if any of the connection filters at chain `sockindex`
  * have data still to send.
  */
-bool Curl_conn_needs_flush(struct Curl_easy *data, int8_t sockindex);
+bool Curl_conn_needs_flush(بنية Curl_easy *انکڑے, int8_t sockindex);
 
 /**
  * Flush any pending data on the connection filters at chain `sockindex`.
  */
-CURLcode Curl_conn_flush(struct Curl_easy *data, int8_t sockindex);
+CURLcode Curl_conn_flush(بنية Curl_easy *انکڑے, int8_t sockindex);
 
 /**
  * Return the socket used on data's connection for FIRSTSOCKET,
  * querying filters if the whole chain has not connected yet.
  * Returns CURL_SOCKET_BAD if not available.
  */
-curl_socket_t Curl_conn_get_first_socket(struct Curl_easy *data);
+curl_socket_t Curl_conn_get_پہلا_socket(بنية Curl_easy *انکڑے);
 
 /* Return a pointer to the connected socket address or NULL. */
-const struct Curl_sockaddr_ex *
-Curl_conn_get_remote_addr(struct Curl_easy *data, int8_t sockindex);
+ثابت بنية Curl_sockaddr_ex *
+Curl_conn_get_remote_addr(بنية Curl_easy *انکڑے, int8_t sockindex);
 
 /**
  * Tell filters to forget about the socket at sockindex.
  */
-void Curl_conn_forget_socket(struct Curl_easy *data, int8_t sockindex);
+فراغ Curl_conn_forget_socket(بنية Curl_easy *انکڑے, int8_t sockindex);
 
 /**
  * Adjust the pollset for the filter chain starting at `cf`.
  */
-CURLcode Curl_conn_cf_adjust_pollset(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     struct easy_pollset *ps);
+CURLcode Curl_conn_cf_adjust_pollset(بنية Curl_cfilter *cf,
+                                     بنية Curl_easy *انکڑے,
+                                     بنية easy_pollset *ps);
 
 /**
  * Adjust pollset from filters installed at transfer's connection.
  */
-CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  struct easy_pollset *ps);
+CURLcode Curl_conn_adjust_pollset(بنية Curl_easy *انکڑے,
+                                  بنية connectdata *conn,
+                                  بنية easy_pollset *ps);
 
 /**
  * Curl_poll() the filter chain at `cf` with timeout `timeout_ms`.
  * Returns 0 on timeout, negative on error or number of sockets
  * with requested poll events.
  */
-int Curl_conn_cf_poll(struct Curl_cfilter *cf,
-                      struct Curl_easy *data,
+صحيح Curl_conn_cf_poll(بنية Curl_cfilter *cf,
+                      بنية Curl_easy *انکڑے,
                       timediff_t timeout_ms);
 
 /**
@@ -500,7 +500,7 @@ int Curl_conn_cf_poll(struct Curl_cfilter *cf,
  * `data->conn`. Copy at most `len` bytes into `buf`. Return the
  * actual number of bytes copied in `*pnread`or an error.
  */
-CURLcode Curl_cf_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
+CURLcode Curl_cf_recv(بنية Curl_easy *انکڑے, int8_t sockindex, حرف *buf,
                       size_t len, size_t *pnread);
 
 /**
@@ -508,8 +508,8 @@ CURLcode Curl_cf_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
  * at connection `data->conn`. Return the actual number of bytes written
  * in `*pnwritten` or on error.
  */
-CURLcode Curl_cf_send(struct Curl_easy *data, int8_t sockindex,
-                      const uint8_t *buf, size_t len, bool eos,
+CURLcode Curl_cf_send(بنية Curl_easy *انکڑے, int8_t sockindex,
+                      ثابت uint8_t *buf, size_t len, bool eos,
                       size_t *pnwritten);
 
 /**
@@ -517,9 +517,9 @@ CURLcode Curl_cf_send(struct Curl_easy *data, int8_t sockindex,
  * Convenience wrapper around `Curl_bufq_sipn()`,
  * so users do not have to implement a callback.
  */
-CURLcode Curl_cf_recv_bufq(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct bufq *bufq,
+CURLcode Curl_cf_recv_bufq(بنية Curl_cfilter *cf,
+                           بنية Curl_easy *انکڑے,
+                           بنية bufq *bufq,
                            size_t maxlen,
                            size_t *pnread);
 
@@ -528,46 +528,46 @@ CURLcode Curl_cf_recv_bufq(struct Curl_cfilter *cf,
  * A convenience wrapper around `Curl_bufq_write_pass()`,
  * so users do not have to implement a callback.
  */
-CURLcode Curl_cf_send_bufq(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct bufq *bufq,
-                           const unsigned char *buf, size_t blen,
+CURLcode Curl_cf_send_bufq(بنية Curl_cfilter *cf,
+                           بنية Curl_easy *انکڑے,
+                           بنية bufq *bufq,
+                           ثابت بنانشانی حرف *buf, size_t blen,
                            size_t *pnwritten);
 
 /**
  * Notify connection filters that they need to setup data for
  * a transfer.
  */
-CURLcode Curl_conn_ev_data_setup(struct Curl_easy *data);
+CURLcode Curl_conn_ev_انکڑے_تیاری(بنية Curl_easy *انکڑے);
 
 /**
  * Notify connection filters that the transfer represented by `data`
  * is done with sending data (e.g. has uploaded everything).
  */
-void Curl_conn_ev_data_done_send(struct Curl_easy *data);
+فراغ Curl_conn_ev_انکڑے_پورا_send(بنية Curl_easy *انکڑے);
 
 /**
  * Notify connection filters that the transfer represented by `data`
  * is finished - eventually premature, e.g. before being complete.
  */
-void Curl_conn_ev_data_done(struct Curl_easy *data, bool premature);
+فراغ Curl_conn_ev_انکڑے_پورا(بنية Curl_easy *انکڑے, bool premature);
 
 /**
  * Notify connection filters that the transfer of data is paused/unpaused.
  */
-CURLcode Curl_conn_ev_data_pause(struct Curl_easy *data, bool do_pause);
+CURLcode Curl_conn_ev_انکڑے_pause(بنية Curl_easy *انکڑے, bool do_pause);
 
 /**
  * Check if FIRSTSOCKET's cfilter chain deems connection alive.
  */
-bool Curl_conn_is_alive(struct Curl_easy *data, struct connectdata *conn,
-                        bool *input_pending);
+bool Curl_conn_is_alive(بنية Curl_easy *انکڑے, بنية connectdata *conn,
+                        bool *داخلہ_pending);
 
 /**
  * Try to upkeep the connection filters.
  */
-CURLcode Curl_conn_keep_alive(struct Curl_easy *data,
-                              struct connectdata *conn);
+CURLcode Curl_conn_keep_alive(بنية Curl_easy *انکڑے,
+                              بنية connectdata *conn);
 
 /**
  * Get the remote hostname and port that the connection is currently
@@ -577,49 +577,49 @@ CURLcode Curl_conn_keep_alive(struct Curl_easy *data,
  * During connect, when tunneling proxies are involved (http or socks),
  * it will be the name and port the proxy currently negotiates with.
  */
-void Curl_conn_get_current_host(struct Curl_easy *data, int8_t sockindex,
-                                const char **phost, int *pport);
+فراغ Curl_conn_get_current_host(بنية Curl_easy *انکڑے, int8_t sockindex,
+                                ثابت حرف **phost, صحيح *pport);
 
 /**
  * Get the maximum number of parallel transfers the connection
  * expects to be able to handle at `sockindex`.
  */
-size_t Curl_conn_get_max_concurrent(struct Curl_easy *data,
-                                    struct connectdata *conn,
+size_t Curl_conn_get_max_concurrent(بنية Curl_easy *انکڑے,
+                                    بنية connectdata *conn,
                                     int8_t sockindex);
 
 /**
  * Get the underlying error code for a transfer stream or 0 if not known.
  */
-int Curl_conn_get_stream_error(struct Curl_easy *data,
-                               struct connectdata *conn,
+صحيح Curl_conn_get_دھارا_error(بنية Curl_easy *انکڑے,
+                               بنية connectdata *conn,
                                int8_t sockindex);
 
-#ifdef CURLVERBOSE
-void Curl_conn_trc_filters(struct Curl_easy *data,
-                           int8_t sockindex, const char *info);
-#endif
+#جے_تعریف_شدہ CURLVERBOSE
+فراغ Curl_conn_trc_filters(بنية Curl_easy *انکڑے,
+                           int8_t sockindex, ثابت حرف *info);
+#جے_انت
 
 /**
  * Get the index of the given socket in the connection's sockets.
  * Useful in calling `Curl_conn_send()/Curl_conn_recv()` with the
  * correct socket index.
  */
-int8_t Curl_conn_sockindex(struct Curl_easy *data, curl_socket_t sockfd);
+int8_t Curl_conn_sockindex(بنية Curl_easy *انکڑے, curl_socket_t sockfd);
 
 /*
  * Receive data on the connection, using FIRSTSOCKET/SECONDARYSOCKET.
  * Return CURLE_AGAIN iff blocked on receiving.
  */
-CURLcode Curl_conn_recv(struct Curl_easy *data, int8_t sockindex,
-                        char *buf, size_t len, size_t *pnread);
+CURLcode Curl_conn_recv(بنية Curl_easy *انکڑے, int8_t sockindex,
+                        حرف *buf, size_t len, size_t *pnread);
 
 /*
  * Send data on the connection, using FIRSTSOCKET/SECONDARYSOCKET.
  * Return CURLE_AGAIN iff blocked on sending.
  */
-CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
-                        const void *buf, size_t len, bool eos,
+CURLcode Curl_conn_send(بنية Curl_easy *انکڑے, int8_t sockindex,
+                        ثابت فراغ *buf, size_t len, bool eos,
                         size_t *pnwritten);
 
 /**
@@ -641,11 +641,11 @@ CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
  * Finally, macro `CF_DATA_CURRENT` gives the easy handle of the current
  * invocation.
  */
-struct cf_call_data {
-  struct Curl_easy *data;
-#ifdef DEBUGBUILD
-  int depth;
-#endif
+بنية cf_call_انکڑے {
+  بنية Curl_easy *انکڑے;
+#جے_تعریف_شدہ DEBUGBUILD
+  صحيح ڈونگھائی;
+#جے_انت
 };
 
 /**
@@ -655,38 +655,38 @@ struct cf_call_data {
  * #define CF_CTX_CALL_DATA(cf)   -> struct cf_call_data instance
  */
 
-#ifdef DEBUGBUILD
+#جے_تعریف_شدہ DEBUGBUILD
 
-#define CF_DATA_SAVE(save, cf, data) \
-  do { \
-    (save) = CF_CTX_CALL_DATA(cf); \
-    DEBUGASSERT(!(save).data || (save).depth > 0); \
-    CF_CTX_CALL_DATA(cf).depth++;  \
-    CF_CTX_CALL_DATA(cf).data = (struct Curl_easy *)CURL_UNCONST(data); \
-  } while(0)
+#تعریف_کرو CF_انکڑے_SAVE(save, cf, انکڑے) \
+  افعل { \
+    (save) = CF_CTX_CALL_انکڑے(cf); \
+    DEBUGASSERT(!(save).انکڑے || (save).ڈونگھائی > 0); \
+    CF_CTX_CALL_انکڑے(cf).ڈونگھائی++;  \
+    CF_CTX_CALL_انکڑے(cf).انکڑے = (بنية Curl_easy *)CURL_UNCONST(انکڑے); \
+  } طالما(0)
 
-#define CF_DATA_RESTORE(cf, save) \
-  do { \
-    DEBUGASSERT(CF_CTX_CALL_DATA(cf).depth == (save).depth + 1); \
-    DEBUGASSERT(!(save).data || (save).depth > 0); \
-    CF_CTX_CALL_DATA(cf) = (save); \
-  } while(0)
+#تعریف_کرو CF_انکڑے_RESTORE(cf, save) \
+  افعل { \
+    DEBUGASSERT(CF_CTX_CALL_انکڑے(cf).ڈونگھائی == (save).ڈونگھائی + 1); \
+    DEBUGASSERT(!(save).انکڑے || (save).ڈونگھائی > 0); \
+    CF_CTX_CALL_انکڑے(cf) = (save); \
+  } طالما(0)
 
-#else /* DEBUGBUILD */
+#وإلا /* DEBUGBUILD */
 
-#define CF_DATA_SAVE(save, cf, data) \
-  do { \
-    (save) = CF_CTX_CALL_DATA(cf); \
-    CF_CTX_CALL_DATA(cf).data = (struct Curl_easy *)CURL_UNCONST(data); \
-  } while(0)
+#تعریف_کرو CF_انکڑے_SAVE(save, cf, انکڑے) \
+  افعل { \
+    (save) = CF_CTX_CALL_انکڑے(cf); \
+    CF_CTX_CALL_انکڑے(cf).انکڑے = (بنية Curl_easy *)CURL_UNCONST(انکڑے); \
+  } طالما(0)
 
-#define CF_DATA_RESTORE(cf, save) \
-  do { \
-    CF_CTX_CALL_DATA(cf) = (save); \
-  } while(0)
+#تعریف_کرو CF_انکڑے_RESTORE(cf, save) \
+  افعل { \
+    CF_CTX_CALL_انکڑے(cf) = (save); \
+  } طالما(0)
 
-#endif /* !DEBUGBUILD */
+#جے_انت /* !DEBUGBUILD */
 
-#define CF_DATA_CURRENT(cf) ((cf) ? (CF_CTX_CALL_DATA(cf).data) : NULL)
+#تعریف_کرو CF_انکڑے_CURRENT(cf) ((cf) ? (CF_CTX_CALL_انکڑے(cf).انکڑے) : عدم)
 
-#endif /* HEADER_CURL_CFILTERS_H */
+#جے_انت /* HEADER_CURL_CFILTERS_H */

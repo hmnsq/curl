@@ -21,110 +21,110 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curlx/warnless.h"
+#ضمن "curlx/warnless.h"
 
-#if defined(__INTEL_COMPILER) && defined(__unix__)
+#إذا defined(__INTEL_COMPILER) && defined(__unix__)
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#جے_تعریف_شدہ HAVE_NETINET_وچ_H
+#ضمن <netinet/in.h>
+#جے_انت
+#جے_تعریف_شدہ HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#جے_انت
 
-#endif /* __INTEL_COMPILER && __unix__ */
+#جے_انت /* __INTEL_COMPILER && __unix__ */
 
-#define CURL_MASK_UCHAR   ((unsigned char)~0)
+#تعریف_کرو CURL_نقاب_UCHAR   ((بنانشانی حرف)~0)
 
-#define CURL_MASK_USHORT  ((unsigned short)~0)
+#تعریف_کرو CURL_نقاب_USHORT  ((بنانشانی چھوٹا)~0)
 
-#define CURL_MASK_UINT    ((unsigned int)~0)
-#define CURL_MASK_SINT    (CURL_MASK_UINT >> 1)
+#تعریف_کرو CURL_نقاب_UINT    ((بنانشانی صحيح)~0)
+#تعریف_کرو CURL_نقاب_SINT    (CURL_نقاب_UINT >> 1)
 
-#define CURL_MASK_ULONG   ((unsigned long)~0)
+#تعریف_کرو CURL_نقاب_ULONG   ((بنانشانی لما)~0)
 
-#define CURL_MASK_USIZE_T ((size_t)~0)
-#define CURL_MASK_SSIZE_T (CURL_MASK_USIZE_T >> 1)
+#تعریف_کرو CURL_نقاب_USIZE_T ((size_t)~0)
+#تعریف_کرو CURL_نقاب_SSIZE_T (CURL_نقاب_USIZE_T >> 1)
 
-#ifdef __INTEL_COMPILER
-#pragma warning(push)
-#pragma warning(disable:810) /* conversion may lose significant bits */
-#endif
+#جے_تعریف_شدہ __INTEL_COMPILER
+#ہدایت warning(ڈالو)
+#ہدایت warning(disable:810) /* conversion may lose significant bits */
+#جے_انت
 
 /*
  * unsigned long to unsigned char
  */
-unsigned char curlx_ultouc(unsigned long ulnum)
+بنانشانی حرف curlx_ultouc(بنانشانی لما ulnum)
 {
-  DEBUGASSERT(ulnum <= (unsigned long)CURL_MASK_UCHAR);
-  return (unsigned char)(ulnum & (unsigned long)CURL_MASK_UCHAR);
+  DEBUGASSERT(ulnum <= (بنانشانی لما)CURL_نقاب_UCHAR);
+  أرجع (بنانشانی حرف)(ulnum & (بنانشانی لما)CURL_نقاب_UCHAR);
 }
 
 /*
  * unsigned size_t to signed int
  */
-int curlx_uztosi(size_t uznum)
+صحيح curlx_uztosi(size_t uznum)
 {
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_SINT);
-  return (int)(uznum & (size_t)CURL_MASK_SINT);
+  DEBUGASSERT(uznum <= (size_t)CURL_نقاب_SINT);
+  أرجع (صحيح)(uznum & (size_t)CURL_نقاب_SINT);
 }
 
 /*
  * unsigned size_t to unsigned long
  */
-unsigned long curlx_uztoul(size_t uznum)
+بنانشانی لما curlx_uztoul(size_t uznum)
 {
-#if ULONG_MAX < SIZE_MAX
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_ULONG);
-#endif
-  return (unsigned long)(uznum & (size_t)CURL_MASK_ULONG);
+#إذا ULONG_MAX < SIZE_MAX
+  DEBUGASSERT(uznum <= (size_t)CURL_نقاب_ULONG);
+#جے_انت
+  أرجع (بنانشانی لما)(uznum & (size_t)CURL_نقاب_ULONG);
 }
 
 /*
  * unsigned size_t to unsigned int
  */
-unsigned int curlx_uztoui(size_t uznum)
+بنانشانی صحيح curlx_uztoui(size_t uznum)
 {
-#if UINT_MAX < SIZE_MAX
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_UINT);
-#endif
-  return (unsigned int)(uznum & (size_t)CURL_MASK_UINT);
+#إذا UINT_MAX < SIZE_MAX
+  DEBUGASSERT(uznum <= (size_t)CURL_نقاب_UINT);
+#جے_انت
+  أرجع (بنانشانی صحيح)(uznum & (size_t)CURL_نقاب_UINT);
 }
 
 /*
  * signed long to signed int
  */
-int curlx_sltosi(long slnum)
+صحيح curlx_sltosi(لما slnum)
 {
   DEBUGASSERT(slnum >= 0);
-#if INT_MAX < LONG_MAX
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_SINT);
-#endif
-  return (int)(slnum & (long)CURL_MASK_SINT);
+#إذا ودھ_توں_ودھ_عدد < LONG_MAX
+  DEBUGASSERT((بنانشانی لما)slnum <= (بنانشانی لما)CURL_نقاب_SINT);
+#جے_انت
+  أرجع (صحيح)(slnum & (لما)CURL_نقاب_SINT);
 }
 
 /*
  * signed long to unsigned int
  */
-unsigned int curlx_sltoui(long slnum)
+بنانشانی صحيح curlx_sltoui(لما slnum)
 {
   DEBUGASSERT(slnum >= 0);
-#if UINT_MAX < LONG_MAX
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_UINT);
-#endif
-  return (unsigned int)(slnum & (long)CURL_MASK_UINT);
+#إذا UINT_MAX < LONG_MAX
+  DEBUGASSERT((بنانشانی لما)slnum <= (بنانشانی لما)CURL_نقاب_UINT);
+#جے_انت
+  أرجع (بنانشانی صحيح)(slnum & (لما)CURL_نقاب_UINT);
 }
 
 /*
  * signed long to unsigned short
  */
-unsigned short curlx_sltous(long slnum)
+بنانشانی چھوٹا curlx_sltous(لما slnum)
 {
   DEBUGASSERT(slnum >= 0);
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_USHORT);
-  return (unsigned short)(slnum & (long)CURL_MASK_USHORT);
+  DEBUGASSERT((بنانشانی لما)slnum <= (بنانشانی لما)CURL_نقاب_USHORT);
+  أرجع (بنانشانی چھوٹا)(slnum & (لما)CURL_نقاب_USHORT);
 }
 
 /*
@@ -132,8 +132,8 @@ unsigned short curlx_sltous(long slnum)
  */
 ssize_t curlx_uztosz(size_t uznum)
 {
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_SSIZE_T);
-  return (ssize_t)(uznum & (size_t)CURL_MASK_SSIZE_T);
+  DEBUGASSERT(uznum <= (size_t)CURL_نقاب_SSIZE_T);
+  أرجع (ssize_t)(uznum & (size_t)CURL_نقاب_SSIZE_T);
 }
 
 /*
@@ -142,101 +142,101 @@ ssize_t curlx_uztosz(size_t uznum)
 size_t curlx_sotouz(curl_off_t sonum)
 {
   DEBUGASSERT(sonum >= 0);
-  return (size_t)(sonum & (curl_off_t)CURL_MASK_USIZE_T);
+  أرجع (size_t)(sonum & (curl_off_t)CURL_نقاب_USIZE_T);
 }
 
 /*
  * signed ssize_t to signed int
  */
-int curlx_sztosi(ssize_t sznum)
+صحيح curlx_sztosi(ssize_t sznum)
 {
   DEBUGASSERT(sznum >= 0);
-#if INT_MAX < SSIZE_MAX
-  DEBUGASSERT((size_t)sznum <= (size_t)CURL_MASK_SINT);
-#endif
-  return (int)(sznum & (ssize_t)CURL_MASK_SINT);
+#إذا ودھ_توں_ودھ_عدد < SSIZE_MAX
+  DEBUGASSERT((size_t)sznum <= (size_t)CURL_نقاب_SINT);
+#جے_انت
+  أرجع (صحيح)(sznum & (ssize_t)CURL_نقاب_SINT);
 }
 
 /*
  * unsigned int to unsigned short
  */
-unsigned short curlx_uitous(unsigned int uinum)
+بنانشانی چھوٹا curlx_uitous(بنانشانی صحيح uinum)
 {
-  DEBUGASSERT(uinum <= (unsigned int)CURL_MASK_USHORT);
-  return (unsigned short)(uinum & (unsigned int)CURL_MASK_USHORT);
+  DEBUGASSERT(uinum <= (بنانشانی صحيح)CURL_نقاب_USHORT);
+  أرجع (بنانشانی چھوٹا)(uinum & (بنانشانی صحيح)CURL_نقاب_USHORT);
 }
 
 /*
  * signed int to unsigned size_t
  */
-size_t curlx_sitouz(int sinum)
+size_t curlx_sitouz(صحيح sinum)
 {
   DEBUGASSERT(sinum >= 0);
-  return (size_t)sinum;
+  أرجع (size_t)sinum;
 }
 
-#ifdef __INTEL_COMPILER
-#pragma warning(pop)
-#endif
+#جے_تعریف_شدہ __INTEL_COMPILER
+#ہدایت warning(نکالو)
+#جے_انت
 
-size_t curlx_uitouz(unsigned int uinum)
+size_t curlx_uitouz(بنانشانی صحيح uinum)
 {
-  return (size_t)uinum;
+  أرجع (size_t)uinum;
 }
 
 size_t curlx_sotouz_range(curl_off_t sonum, size_t uzmin, size_t uzmax)
 {
-  if(sonum < 0)
-    return uzmin;
-#if SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
-  if(sonum > SIZE_MAX)
-    return uzmax;
-#endif
-  return CURLMIN(CURLMAX((size_t)sonum, uzmin), uzmax);
+  إذا(sonum < 0)
+    أرجع uzmin;
+#إذا SIZEOF_CURL_OFF_T > SIZEOF_ناپ_T
+  إذا(sonum > SIZE_MAX)
+    أرجع uzmax;
+#جے_انت
+  أرجع CURLMIN(CURLMAX((size_t)sonum, uzmin), uzmax);
 }
 
 bool curlx_sztouz(ssize_t sznum, size_t *puznum)
 {
-  if(sznum < 0) {
+  إذا(sznum < 0) {
     *puznum = 0;
-    return FALSE;
+    أرجع FALSE;
   }
   *puznum = (size_t)sznum;
-  return TRUE;
+  أرجع TRUE;
 }
 
-bool curlx_sotouz_fits(curl_off_t sonum, size_t *puznum)
+bool curlx_sotouz_سماندا(curl_off_t sonum, size_t *puznum)
 {
-  if(sonum < 0) {
+  إذا(sonum < 0) {
     *puznum = 0;
-    return FALSE;
+    أرجع FALSE;
   }
-#if SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
-  if(sonum > SIZE_MAX) {
+#إذا SIZEOF_CURL_OFF_T > SIZEOF_ناپ_T
+  إذا(sonum > SIZE_MAX) {
     *puznum = 0;
-    return FALSE;
+    أرجع FALSE;
   }
-#endif
+#جے_انت
   *puznum = (size_t)sonum;
-  return TRUE;
+  أرجع TRUE;
 }
 
-bool curlx_sltouz(long slnum, size_t *puznum)
+bool curlx_sltouz(لما slnum, size_t *puznum)
 {
-  if(slnum < 0) {
+  إذا(slnum < 0) {
     *puznum = 0;
-    return FALSE;
+    أرجع FALSE;
   }
   /* We error in curl_setup.h if SIZEOF_LONG > SIZEOF_SIZE_T */
   *puznum = (size_t)slnum;
-  return TRUE;
+  أرجع TRUE;
 }
 
 curl_off_t curlx_uztoso(size_t uznum)
 {
-#if SIZEOF_SIZE_T >= SIZEOF_CURL_OFF_T
-  if(uznum > (size_t)CURL_OFF_T_MAX)
-    return CURL_OFF_T_MAX;
-#endif
-  return (curl_off_t)uznum;
+#إذا SIZEOF_ناپ_T >= SIZEOF_CURL_OFF_T
+  إذا(uznum > (size_t)CURL_OFF_T_MAX)
+    أرجع CURL_OFF_T_MAX;
+#جے_انت
+  أرجع (curl_off_t)uznum;
 }

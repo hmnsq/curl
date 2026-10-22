@@ -25,90 +25,90 @@
  * The Strict-Transport-Security header is defined in RFC 6797:
  * https://datatracker.ietf.org/doc/html/rfc6797
  */
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
-#include "urldata.h"
-#include "llist.h"
-#include "hsts.h"
-#include "curl_fopen.h"
-#include "curl_get_line.h"
-#include "parsedate.h"
-#include "curl_share.h"
-#include "curlx/strparse.h"
-#include "curlx/strcopy.h"
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
+#ضمن "urldata.h"
+#ضمن "llist.h"
+#ضمن "hsts.h"
+#ضمن "curl_fopen.h"
+#ضمن "curl_get_line.h"
+#ضمن "parsedate.h"
+#ضمن "curl_share.h"
+#ضمن "curlx/strparse.h"
+#ضمن "curlx/strcopy.h"
 
-#define MAX_HSTS_LINE    4095
-#define MAX_HSTS_HOSTLEN 2048
-#define MAX_HSTS_DATELEN 17
-#define UNLIMITED        "unlimited"
+#تعریف_کرو MAX_HSTS_سطر    4095
+#تعریف_کرو MAX_HSTS_HOSTLEN 2048
+#تعریف_کرو MAX_HSTS_DATELEN 17
+#تعریف_کرو UNLIMITED        "unlimited"
 
-#define CAP_HSTS_MAX_AGE (2*365*24*3600) /* two years cap */
+#تعریف_کرو CAP_HSTS_MAX_AGE (2*365*24*3600) /* two years cap */
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
+#إذا defined(DEBUGBUILD) || defined(UNITTESTS)
 /* to play well with debug builds, we can *set* a fixed time this will
    return */
 time_t deltatime; /* allow for "adjustments" for unit test purposes */
-static time_t hsts_debugtime(void *unused)
+ساكن time_t hsts_debugtime(فراغ *بن_ورتیا)
 {
-  const char *timestr = getenv("CURL_TIME");
-  (void)unused;
-  if(timestr) {
+  ثابت حرف *timestr = getenv("CURL_TIME");
+  (فراغ)بن_ورتیا;
+  إذا(timestr) {
     curl_off_t val;
-    if(!curlx_str_number(&timestr, &val, TIME_T_MAX))
+    إذا(!curlx_str_نمبر(&timestr, &val, ویلا_T_MAX))
       val += (curl_off_t)deltatime;
-    return (time_t)val;
+    أرجع (time_t)val;
   }
-  return time(NULL);
+  أرجع ویلا(عدم);
 }
-#undef time
-#define time(x) hsts_debugtime(x)
-#endif
+#تعریف_رد ویلا
+#تعریف_کرو ویلا(x) hsts_debugtime(x)
+#جے_انت
 
-struct hsts *Curl_hsts_init(void)
+بنية hsts *Curl_hsts_init(فراغ)
 {
-  struct hsts *h = curlx_calloc(1, sizeof(struct hsts));
-  if(h) {
-    Curl_llist_init(&h->list, NULL);
+  بنية hsts *h = curlx_calloc(1, حجم(بنية hsts));
+  إذا(h) {
+    Curl_llist_init(&h->list, عدم);
   }
-  return h;
+  أرجع h;
 }
 
-#define hsts_free(x) curlx_free(x)
+#تعریف_کرو hsts_free(x) curlx_free(x)
 
-void Curl_hsts_cleanup(struct hsts **hp)
+فراغ Curl_hsts_cleanup(بنية hsts **hp)
 {
-  struct hsts *h = *hp;
-  if(h) {
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
-      n = Curl_node_next(e);
+  بنية hsts *h = *hp;
+  إذا(h) {
+    بنية Curl_llist_گرہ *e;
+    بنية Curl_llist_گرہ *n;
+    لكل(e = Curl_llist_سر(&h->list); e; e = n) {
+      بنية stsentry *sts = Curl_گرہ_elem(e);
+      n = Curl_گرہ_اگلا(e);
       hsts_free(sts);
     }
     curlx_free(h->filename);
     curlx_free(h);
-    *hp = NULL;
+    *hp = عدم;
   }
 }
 
 /* append the new entry to the list after possibly removing an old entry
-   first */
-static void hsts_append(struct hsts *h, struct stsentry *sts)
+پہلا*/
+ساكن فراغ hsts_append(بنية hsts *h, بنية stsentry *sts)
 {
-  if(Curl_llist_count(&h->list) == MAX_HSTS_ENTRIES) {
+  إذا(Curl_llist_گنتی(&h->list) == MAX_HSTS_ENTRIES) {
     /* It is full. Remove the first entry in the list */
-    struct Curl_llist_node *e = Curl_llist_head(&h->list);
-    struct stsentry *oldsts = Curl_node_elem(e);
-    Curl_node_remove(e);
+    بنية Curl_llist_گرہ *e = Curl_llist_سر(&h->list);
+    بنية stsentry *oldsts = Curl_گرہ_elem(e);
+    Curl_گرہ_remove(e);
     hsts_free(oldsts);
   }
-  Curl_llist_append(&h->list, sts, &sts->node);
+  Curl_llist_append(&h->list, sts, &sts->گرہ);
 }
 
-static CURLcode hsts_create(struct hsts *h,
-                            const char *hostname,
+ساكن CURLcode hsts_create(بنية hsts *h,
+                            ثابت حرف *hostname,
                             size_t hlen,
                             bool subdomains,
                             curl_off_t expires)
@@ -116,39 +116,39 @@ static CURLcode hsts_create(struct hsts *h,
   DEBUGASSERT(h);
   DEBUGASSERT(hostname);
 
-  if(hlen && (hostname[hlen - 1] == '.'))
+  إذا(hlen && (hostname[hlen - 1] == '.'))
     /* strip off any trailing dot */
     --hlen;
-  if(hlen) {
-    struct stsentry *sts = curlx_calloc(1, sizeof(struct stsentry) + hlen);
-    if(!sts)
-      return CURLE_OUT_OF_MEMORY;
+  إذا(hlen) {
+    بنية stsentry *sts = curlx_calloc(1, حجم(بنية stsentry) + hlen);
+    إذا(!sts)
+      أرجع CURLE_باہرلا_دا_حافظہ;
     /* the null-terminator is already there */
-    memcpy(sts->host, hostname, hlen);
+    حافظہ_نقل(sts->host, hostname, hlen);
     sts->expires = expires;
     sts->includeSubDomains = subdomains;
     hsts_append(h, sts);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /* Copy all live entries from src into dst. Used by curl_easy_duphandle so the
  * clone inherits entries learned at runtime. E.g. Strict-Transport-Security.
  */
-CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src)
+CURLcode Curl_hsts_copy(بنية hsts *dst, بنية hsts *src)
 {
-  struct Curl_llist_node *e;
-  time_t now = time(NULL);
-  for(e = Curl_llist_head(&src->list); e; e = Curl_node_next(e)) {
-    struct stsentry *sts = Curl_node_elem(e);
-    if(sts->expires > now) {
-      CURLcode result = hsts_create(dst, sts->host, strlen(sts->host),
+  بنية Curl_llist_گرہ *e;
+  time_t now = ویلا(عدم);
+  لكل(e = Curl_llist_سر(&src->list); e; e = Curl_گرہ_اگلا(e)) {
+    بنية stsentry *sts = Curl_گرہ_elem(e);
+    إذا(sts->expires > now) {
+      CURLcode نتیجہ = hsts_create(dst, sts->host, لڑی_لمبائی(sts->host),
                                     sts->includeSubDomains != 0, sts->expires);
-      if(result)
-        return result;
+      إذا(نتیجہ)
+        أرجع نتیجہ;
     }
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
@@ -160,38 +160,38 @@ CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src)
  *
  * @unittest 1660
  */
-UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
+UNITTEST بنية stsentry *hsts_check(بنية hsts *h, ثابت حرف *hostname,
                                      size_t hlen, bool subdomain);
-UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
+UNITTEST بنية stsentry *hsts_check(بنية hsts *h, ثابت حرف *hostname,
                                      size_t hlen, bool subdomain)
 {
-  struct stsentry *bestsub = NULL;
-  if(h) {
-    time_t now = time(NULL);
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
+  بنية stsentry *bestsub = عدم;
+  إذا(h) {
+    time_t now = ویلا(عدم);
+    بنية Curl_llist_گرہ *e;
+    بنية Curl_llist_گرہ *n;
     size_t blen = 0;
 
-    if((hlen > MAX_HSTS_HOSTLEN) || !hlen)
-      return NULL;
-    if(hostname[hlen - 1] == '.')
+    إذا((hlen > MAX_HSTS_HOSTLEN) || !hlen)
+      أرجع عدم;
+    إذا(hostname[hlen - 1] == '.')
       /* remove the trailing dot */
       --hlen;
 
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
+    لكل(e = Curl_llist_سر(&h->list); e; e = n) {
+      بنية stsentry *sts = Curl_گرہ_elem(e);
       size_t ntail;
-      n = Curl_node_next(e);
-      if(sts->expires <= now) {
+      n = Curl_گرہ_اگلا(e);
+      إذا(sts->expires <= now) {
         /* remove expired entries */
-        Curl_node_remove(&sts->node);
+        Curl_گرہ_remove(&sts->گرہ);
         hsts_free(sts);
-        continue;
+        استمر;
       }
-      ntail = strlen(sts->host);
-      if((subdomain && sts->includeSubDomains) && (ntail < hlen)) {
+      ntail = لڑی_لمبائی(sts->host);
+      إذا((subdomain && sts->includeSubDomains) && (ntail < hlen)) {
         size_t offs = hlen - ntail;
-        if((hostname[offs - 1] == '.') &&
+        إذا((hostname[offs - 1] == '.') &&
            curl_strnequal(&hostname[offs], sts->host, ntail) &&
            (ntail > blen)) {
           /* save the tail match with the longest tail */
@@ -200,165 +200,165 @@ UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
         }
       }
       /* avoid curl_strequal because the hostname is not null-terminated */
-      if((hlen == ntail) && curl_strnequal(hostname, sts->host, hlen))
-        return sts;
+      إذا((hlen == ntail) && curl_strnequal(hostname, sts->host, hlen))
+        أرجع sts;
     }
   }
-  return bestsub;
+  أرجع bestsub;
 }
 
-CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
-                         const char *header)
+CURLcode Curl_hsts_parse(بنية hsts *h, ثابت حرف *hostname,
+                         ثابت حرف *سرخی)
 {
-  const char *p = header;
+  ثابت حرف *p = سرخی;
   curl_off_t expires = 0;
   bool gotma = FALSE;
   bool gotinc = FALSE;
   bool subdomains = FALSE;
-  struct stsentry *sts;
-  time_t now = time(NULL);
-  size_t hlen = strlen(hostname);
+  بنية stsentry *sts;
+  time_t now = ویلا(عدم);
+  size_t hlen = لڑی_لمبائی(hostname);
 
-  if(Curl_host_is_ipnum(hostname))
+  إذا(Curl_host_is_ipnum(hostname))
     /* "explicit IP address identification of all forms is excluded."
        / RFC 6797 */
-    return CURLE_OK;
+    أرجع CURLE_OK;
 
-  do {
-    struct Curl_str word;
-    struct Curl_str val = { 0 };
-    int rc;
-    bool assign = FALSE;
+  افعل {
+    بنية Curl_str لفظ;
+    بنية Curl_str val = { 0 };
+    صحيح rc;
+    bool سونپو = FALSE;
 
-    do {
+    افعل {
       curlx_str_passblanks(&p);
-      if(*p == ';')
+      إذا(*p == ';')
         p++;
-      else
-        break;
-    } while(1);
-    if(curlx_str_cspn(&p, &word, ";=\r\n \t"))
-      break;
+      وإلا
+        اكسر;
+    } طالما(1);
+    إذا(curlx_str_cspn(&p, &لفظ, ";=\r\n \t"))
+      اكسر;
 
     curlx_str_passblanks(&p);
-    if(!curlx_str_single(&p, '=')) {
-      assign = TRUE;
+    إذا(!curlx_str_single(&p, '=')) {
+      سونپو = TRUE;
       curlx_str_passblanks(&p);
 
-      if(*p == '\"') {
-        if(curlx_str_quotedword(&p, &val, MAX_HSTS_LINE))
-          break;
+      إذا(*p == '\"') {
+        إذا(curlx_str_quotedword(&p, &val, MAX_HSTS_سطر))
+          اكسر;
       }
-      else {
-        if(curlx_str_cspn(&p, &val, ", ;\r\n"))
-          break;
+      وإلا {
+        إذا(curlx_str_cspn(&p, &val, ", ;\r\n"))
+          اكسر;
       }
     }
 
-    if(assign && curlx_str_casecompare(&word, "max-age")) {
-      const char *vp = curlx_str(&val);
-      if(gotma)
-        return CURLE_BAD_FUNCTION_ARGUMENT;
-      rc = curlx_str_number(&vp, &expires, CAP_HSTS_MAX_AGE);
-      if(rc == STRE_OVERFLOW)
+    إذا(سونپو && curlx_str_casecompare(&لفظ, "max-age")) {
+      ثابت حرف *vp = curlx_str(&val);
+      إذا(gotma)
+        أرجع CURLE_BAD_FUNCTION_دلیل;
+      rc = curlx_str_نمبر(&vp, &expires, CAP_HSTS_MAX_AGE);
+      إذا(rc == STRE_حد_توں_ودھ)
         expires = CAP_HSTS_MAX_AGE;
-      else if(rc)
+      وإلا إذا(rc)
         /* invalid max-age */
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+        أرجع CURLE_BAD_FUNCTION_دلیل;
 
       gotma = TRUE;
     }
-    else if(curlx_str_casecompare(&word, "includesubdomains")) {
-      if(gotinc)
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+    وإلا إذا(curlx_str_casecompare(&لفظ, "includesubdomains")) {
+      إذا(gotinc)
+        أرجع CURLE_BAD_FUNCTION_دلیل;
       subdomains = TRUE;
       gotinc = TRUE;
     }
-  } while(*p);
+  } طالما(*p);
 
-  if(!gotma)
+  إذا(!gotma)
     /* max-age is mandatory */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    أرجع CURLE_BAD_FUNCTION_دلیل;
 
-  if(!expires) {
+  إذا(!expires) {
     /* remove the entry if present verbatim (without subdomain match) */
     sts = hsts_check(h, hostname, hlen, FALSE);
-    if(sts) {
-      Curl_node_remove(&sts->node);
+    إذا(sts) {
+      Curl_گرہ_remove(&sts->گرہ);
       hsts_free(sts);
     }
-    return CURLE_OK;
+    أرجع CURLE_OK;
   }
 
-  if(CURL_OFF_T_MAX - now < expires)
+  إذا(CURL_OFF_T_MAX - now < expires)
     /* would overflow, use maximum value */
     expires = CURL_OFF_T_MAX;
-  else
+  وإلا
     expires += now;
 
   /* check if it already exists */
   sts = hsts_check(h, hostname, hlen, FALSE);
-  if(sts) {
+  إذا(sts) {
     /* update these fields */
     sts->expires = expires;
     sts->includeSubDomains = subdomains;
   }
-  else
-    return hsts_create(h, hostname, hlen, subdomains, expires);
+  وإلا
+    أرجع hsts_create(h, hostname, hlen, subdomains, expires);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
  * Send this HSTS entry to the write callback.
  */
-static CURLcode hsts_push(struct Curl_easy *data,
-                          struct curl_index *i,
-                          struct stsentry *sts,
+ساكن CURLcode hsts_ڈالو(بنية Curl_easy *انکڑے,
+                          بنية curl_اشاریہ *i,
+                          بنية stsentry *sts,
                           bool *stop)
 {
-  struct curl_hstsentry e;
+  بنية curl_hstsentry e;
   CURLSTScode sc;
-  struct tm stamp;
-  CURLcode result;
+  بنية tm stamp;
+  CURLcode نتیجہ;
 
-  e.name = (char *)sts->host;
-  e.namelen = strlen(sts->host);
+  e.name = (حرف *)sts->host;
+  e.namelen = لڑی_لمبائی(sts->host);
   e.includeSubDomains = sts->includeSubDomains;
 
-  if(sts->expires != TIME_T_MAX) {
-    result = curlx_gmtime((time_t)sts->expires, &stamp);
-    if(result)
-      return result;
+  إذا(sts->expires != ویلا_T_MAX) {
+    نتیجہ = curlx_gmtime((time_t)sts->expires, &stamp);
+    إذا(نتیجہ)
+      أرجع نتیجہ;
 
-    curl_msnprintf(e.expire, sizeof(e.expire), "%d%02d%02d %02d:%02d:%02d",
+    curl_msnprintf(e.expire, حجم(e.expire), "%d%02d%02d %02d:%02d:%02d",
                    stamp.tm_year + 1900, stamp.tm_mon + 1, stamp.tm_mday,
                    stamp.tm_hour, stamp.tm_min, stamp.tm_sec);
   }
-  else
-    curlx_strcopy(e.expire, sizeof(e.expire), STRCONST(UNLIMITED));
+  وإلا
+    curlx_strcopy(e.expire, حجم(e.expire), STRCONST(UNLIMITED));
 
-  sc = data->set.hsts_write(data, &e, i, data->set.hsts_write_userp);
+  sc = انکڑے->سیٹ.hsts_write(انکڑے, &e, i, انکڑے->سیٹ.hsts_write_userp);
   *stop = (sc != CURLSTS_OK);
-  return sc == CURLSTS_FAIL ? CURLE_BAD_FUNCTION_ARGUMENT : CURLE_OK;
+  أرجع sc == CURLSTS_FAIL ? CURLE_BAD_FUNCTION_دلیل : CURLE_OK;
 }
 
 /*
  * Write this single hsts entry to a single output line
  */
-static void hsts_out(struct stsentry *sts, FILE *fp)
+ساكن فراغ hsts_باہرلا(بنية stsentry *sts, FILE *fp)
 {
-  struct tm stamp;
-  if(sts->expires != TIME_T_MAX) {
-    CURLcode result = curlx_gmtime((time_t)sts->expires, &stamp);
-    if(!result)
+  بنية tm stamp;
+  إذا(sts->expires != ویلا_T_MAX) {
+    CURLcode نتیجہ = curlx_gmtime((time_t)sts->expires, &stamp);
+    إذا(!نتیجہ)
       /* skip the entry if the date function fails */
       curl_mfprintf(fp, "%s%s \"%d%02d%02d %02d:%02d:%02d\"\n",
                     sts->includeSubDomains ? "." : "", sts->host,
                     stamp.tm_year + 1900, stamp.tm_mon + 1, stamp.tm_mday,
                     stamp.tm_hour, stamp.tm_min, stamp.tm_sec);
   }
-  else
+  وإلا
     curl_mfprintf(fp, "%s%s \"%s\"\n",
                   sts->includeSubDomains ? "." : "", sts->host, UNLIMITED);
 }
@@ -366,185 +366,185 @@ static void hsts_out(struct stsentry *sts, FILE *fp)
 /*
  * Curl_https_save() writes the HSTS cache to file and callback.
  */
-CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
-                        const char *file)
+CURLcode Curl_hsts_save(بنية Curl_easy *انکڑے, بنية hsts *h,
+                        ثابت حرف *file)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
-  CURLcode result = CURLE_OK;
-  FILE *out;
-  char *tempstore = NULL;
+  بنية Curl_llist_گرہ *e;
+  بنية Curl_llist_گرہ *n;
+  CURLcode نتیجہ = CURLE_OK;
+  FILE *باہرلا;
+  حرف *tempstore = عدم;
 
-  if(!h)
+  إذا(!h)
     /* no cache activated */
-    return CURLE_OK;
+    أرجع CURLE_OK;
 
   /* if no new name is given, use the one we stored from the load */
-  if(!file && h->filename)
+  إذا(!file && h->filename)
     file = h->filename;
 
-  if((h->flags & CURLHSTS_READONLYFILE) || !file || !file[0])
+  إذا((h->flags & CURLHSTS_READONLYFILE) || !file || !file[0])
     /* marked as read-only, no file or zero length filename */
-    goto skipsave;
+    اذهب skipsave;
 
-  result = Curl_fopen(data, file, &out, &tempstore);
-  if(!result) {
+  نتیجہ = Curl_fopen(انکڑے, file, &باہرلا, &tempstore);
+  إذا(!نتیجہ) {
     fputs("# Your HSTS cache. https://curl.se/docs/hsts.html\n"
           "# This file was generated by libcurl! Edit at your own risk.\n",
-          out);
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
-      n = Curl_node_next(e);
-      hsts_out(sts, out);
+          باہرلا);
+    لكل(e = Curl_llist_سر(&h->list); e; e = n) {
+      بنية stsentry *sts = Curl_گرہ_elem(e);
+      n = Curl_گرہ_اگلا(e);
+      hsts_باہرلا(sts, باہرلا);
     }
-    curlx_fclose(out);
-    if(!result && tempstore && curlx_rename(tempstore, file))
-      result = CURLE_WRITE_ERROR;
+    curlx_fclose(باہرلا);
+    إذا(!نتیجہ && tempstore && curlx_rename(tempstore, file))
+      نتیجہ = CURLE_WRITE_ERROR;
 
-    if(result && tempstore)
+    إذا(نتیجہ && tempstore)
       unlink(tempstore);
   }
   curlx_free(tempstore);
 skipsave:
-  if(data->set.hsts_write) {
+  إذا(انکڑے->سیٹ.hsts_write) {
     /* if there is a write callback */
-    struct curl_index i; /* count */
-    i.total = Curl_llist_count(&h->list);
-    i.index = 0;
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
+    بنية curl_اشاریہ i; /*گنتی*/
+    i.کل = Curl_llist_گنتی(&h->list);
+    i.اشاریہ = 0;
+    لكل(e = Curl_llist_سر(&h->list); e; e = n) {
+      بنية stsentry *sts = Curl_گرہ_elem(e);
       bool stop;
-      n = Curl_node_next(e);
-      result = hsts_push(data, &i, sts, &stop);
-      if(result || stop)
-        break;
-      i.index++;
+      n = Curl_گرہ_اگلا(e);
+      نتیجہ = hsts_ڈالو(انکڑے, &i, sts, &stop);
+      إذا(نتیجہ || stop)
+        اكسر;
+      i.اشاریہ++;
     }
   }
-  return result;
+  أرجع نتیجہ;
 }
 
 /* only returns SERIOUS errors */
-static CURLcode hsts_add_host_expire(struct hsts *h,
-                                     const char *host, size_t hostlen,
-                                     const char *expire, size_t explen,
+ساكن CURLcode hsts_جوڑو_host_expire(بنية hsts *h,
+                                     ثابت حرف *host, size_t hostlen,
+                                     ثابت حرف *expire, size_t explen,
                                      bool subdomain) /* default */
 {
-  CURLcode result = CURLE_OK;
-  struct stsentry *e;
-  char dbuf[MAX_HSTS_DATELEN + 1];
+  CURLcode نتیجہ = CURLE_OK;
+  بنية stsentry *e;
+  حرف dbuf[MAX_HSTS_DATELEN + 1];
   time_t expires = 0;
-  time_t now = time(NULL);
+  time_t now = ویلا(عدم);
 
   /* The date parser works on a null-terminated string. */
-  if(explen > MAX_HSTS_DATELEN)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  memcpy(dbuf, expire, explen);
+  إذا(explen > MAX_HSTS_DATELEN)
+    أرجع CURLE_BAD_FUNCTION_دلیل;
+  حافظہ_نقل(dbuf, expire, explen);
   dbuf[explen] = 0;
 
-  if(!strcmp(dbuf, UNLIMITED))
-    expires = TIME_T_MAX;
-  else
+  إذا(!strcmp(dbuf, UNLIMITED))
+    expires = ویلا_T_MAX;
+  وإلا
     Curl_getdate_capped(dbuf, &expires);
 
-  if(expires <= now)
+  إذا(expires <= now)
     /* this entry already expired */
-    return CURLE_OK;
+    أرجع CURLE_OK;
 
-  if(host[0] == '.') {
+  إذا(host[0] == '.') {
     host++;
     hostlen--;
     subdomain = TRUE;
   }
-  if(hostlen && (host[hostlen - 1] == '.'))
+  إذا(hostlen && (host[hostlen - 1] == '.'))
     /* strip off any trailing dot */
     hostlen--;
 
-  if(hostlen) {
+  إذا(hostlen) {
     /* only add it if not already present */
     e = hsts_check(h, host, hostlen, FALSE);
-    if(!e)
-      result = hsts_create(h, host, hostlen, subdomain, expires);
+    إذا(!e)
+      نتیجہ = hsts_create(h, host, hostlen, subdomain, expires);
     /* 'host' is not necessarily null-terminated */
-    else if((hostlen == strlen(e->host) &&
+    وإلا إذا((hostlen == لڑی_لمبائی(e->host) &&
              curl_strnequal(host, e->host, hostlen))) {
       /* the same hostname, use the largest expire time and keep the strictest
          subdomain policy */
-      if(expires > e->expires)
+      إذا(expires > e->expires)
         e->expires = expires;
-      if(subdomain)
+      إذا(subdomain)
         e->includeSubDomains = TRUE;
     }
   }
-  return result;
+  أرجع نتیجہ;
 }
 
 /* only returns SERIOUS errors */
-static CURLcode hsts_add(struct hsts *h, const char *line)
+ساكن CURLcode hsts_جوڑو(بنية hsts *h, ثابت حرف *سطر)
 {
   /* Example lines:
      example.com "20191231 10:00:00"
      .example.net "20191231 10:00:00"
    */
-  struct Curl_str host;
-  struct Curl_str date;
+  بنية Curl_str host;
+  بنية Curl_str date;
 
-  if(curlx_str_word(&line, &host, MAX_HSTS_HOSTLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_quotedword(&line, &date, MAX_HSTS_DATELEN) ||
-     curlx_str_newline(&line))
+  إذا(curlx_str_لفظ(&سطر, &host, MAX_HSTS_HOSTLEN) ||
+     curlx_str_singlespace(&سطر) ||
+     curlx_str_quotedword(&سطر, &date, MAX_HSTS_DATELEN) ||
+     curlx_str_newline(&سطر))
     ;
-  else {
-    return hsts_add_host_expire(h, curlx_str(&host), curlx_strlen(&host),
+  وإلا {
+    أرجع hsts_جوڑو_host_expire(h, curlx_str(&host), curlx_strlen(&host),
                                 curlx_str(&date), curlx_strlen(&date),
                                 FALSE);
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
  * Load HSTS data from callback.
  *
  */
-static CURLcode hsts_pull(struct Curl_easy *data, struct hsts *h)
+ساكن CURLcode hsts_pull(بنية Curl_easy *انکڑے, بنية hsts *h)
 {
   /* if the HSTS read callback is set, use it */
-  if(data->set.hsts_read) {
+  إذا(انکڑے->سیٹ.hsts_read) {
     CURLSTScode sc;
     DEBUGASSERT(h);
-    do {
-      char buffer[MAX_HSTS_HOSTLEN + 1];
-      struct curl_hstsentry e;
-      e.name = buffer;
-      e.namelen = sizeof(buffer) - 1;
+    افعل {
+      حرف بفر[MAX_HSTS_HOSTLEN + 1];
+      بنية curl_hstsentry e;
+      e.name = بفر;
+      e.namelen = حجم(بفر) - 1;
       e.includeSubDomains = FALSE; /* default */
       e.expire[0] = 0;
       e.expire[MAX_HSTS_DATELEN] = 0;
       e.name[0] = 0; /* to make it clean */
       e.name[MAX_HSTS_HOSTLEN] = 0;
-      sc = data->set.hsts_read(data, &e, data->set.hsts_read_userp);
-      if(sc == CURLSTS_OK) {
-        CURLcode result;
-        const char *date = e.expire;
-        if(!e.name[0] || e.expire[MAX_HSTS_DATELEN] ||
+      sc = انکڑے->سیٹ.hsts_read(انکڑے, &e, انکڑے->سیٹ.hsts_read_userp);
+      إذا(sc == CURLSTS_OK) {
+        CURLcode نتیجہ;
+        ثابت حرف *date = e.expire;
+        إذا(!e.name[0] || e.expire[MAX_HSTS_DATELEN] ||
            e.name[MAX_HSTS_HOSTLEN])
           /* bail out if no name was stored or if a null-terminator is gone */
-          return CURLE_BAD_FUNCTION_ARGUMENT;
-        if(!date[0])
+          أرجع CURLE_BAD_FUNCTION_دلیل;
+        إذا(!date[0])
           date = UNLIMITED;
-        result = hsts_add_host_expire(h, e.name, strlen(e.name),
-                                      date, strlen(date),
+        نتیجہ = hsts_جوڑو_host_expire(h, e.name, لڑی_لمبائی(e.name),
+                                      date, لڑی_لمبائی(date),
                                       /* bitfield to bool conversion: */
                                       e.includeSubDomains ? TRUE : FALSE);
-        if(result)
-          return result;
+        إذا(نتیجہ)
+          أرجع نتیجہ;
       }
-      else if(sc == CURLSTS_FAIL)
-        return CURLE_ABORTED_BY_CALLBACK;
-    } while(sc == CURLSTS_OK);
+      وإلا إذا(sc == CURLSTS_FAIL)
+        أرجع CURLE_ABORTED_BY_CALLBACK;
+    } طالما(sc == CURLSTS_OK);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
@@ -555,93 +555,93 @@ static CURLcode hsts_pull(struct Curl_easy *data, struct hsts *h)
  * handling to work completely. It will ignore individual syntactical errors
  * etc.
  */
-static CURLcode hsts_load(struct hsts *h, const char *file)
+ساكن CURLcode hsts_لدو(بنية hsts *h, ثابت حرف *file)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   FILE *fp;
 
   /* we need a private copy of the filename so that the hsts cache file
      name survives an easy handle reset */
   curlx_free(h->filename);
   h->filename = curlx_strdup(file);
-  if(!h->filename)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!h->filename)
+    أرجع CURLE_باہرلا_دا_حافظہ;
 
   fp = curlx_fopen(file, FOPEN_READTEXT);
-  if(fp) {
+  إذا(fp) {
     curlx_struct_stat stat;
-    if((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
-      struct dynbuf buf;
+    إذا((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_منوال)) {
+      بنية dynbuf buf;
       bool eof = FALSE;
-      curlx_dyn_init(&buf, MAX_HSTS_LINE);
-      do {
-        result = Curl_get_line(&buf, fp, &eof);
-        if(!result) {
-          const char *lineptr = curlx_dyn_ptr(&buf);
+      curlx_dyn_init(&buf, MAX_HSTS_سطر);
+      افعل {
+        نتیجہ = Curl_get_سطر(&buf, fp, &eof);
+        إذا(!نتیجہ) {
+          ثابت حرف *lineptr = curlx_dyn_ptr(&buf);
           curlx_str_passblanks(&lineptr);
 
           /* Skip empty or commented lines, since we know the line will have
              a trailing newline from Curl_get_line we can treat length 1 as
              empty. */
-          if((*lineptr == '#') || strlen(lineptr) <= 1)
-            continue;
+          إذا((*lineptr == '#') || لڑی_لمبائی(lineptr) <= 1)
+            استمر;
 
-          hsts_add(h, lineptr);
+          hsts_جوڑو(h, lineptr);
         }
-      } while(!result && !eof);
+      } طالما(!نتیجہ && !eof);
       curlx_dyn_free(&buf); /* free the line buffer */
     }
     curlx_fclose(fp);
   }
-  return result;
+  أرجع نتیجہ;
 }
 
 /*
  * Curl_hsts_loadfile() loads HSTS from file
  */
-CURLcode Curl_hsts_loadfile(struct Curl_easy *data,
-                            struct hsts *h, const char *file)
+CURLcode Curl_hsts_loadfile(بنية Curl_easy *انکڑے,
+                            بنية hsts *h, ثابت حرف *file)
 {
   DEBUGASSERT(h);
-  (void)data;
-  return hsts_load(h, file);
+  (فراغ)انکڑے;
+  أرجع hsts_لدو(h, file);
 }
 
 /*
  * Curl_hsts_loadcb() loads HSTS from callback
  */
-CURLcode Curl_hsts_loadcb(struct Curl_easy *data, struct hsts *h)
+CURLcode Curl_hsts_loadcb(بنية Curl_easy *انکڑے, بنية hsts *h)
 {
-  if(h)
-    return hsts_pull(data, h);
-  return CURLE_OK;
+  إذا(h)
+    أرجع hsts_pull(انکڑے, h);
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_hsts_loadfiles(struct Curl_easy *data)
+CURLcode Curl_hsts_loadfiles(بنية Curl_easy *انکڑے)
 {
-  CURLcode result = CURLE_OK;
-  struct curl_slist *l = data->state.hstslist;
-  if(l) {
-    Curl_share_lock(data, CURL_LOCK_DATA_HSTS, CURL_LOCK_ACCESS_SINGLE);
+  CURLcode نتیجہ = CURLE_OK;
+  بنية curl_slist *l = انکڑے->state.hstslist;
+  إذا(l) {
+    Curl_share_جندرا(انکڑے, CURL_جندرا_انکڑے_HSTS, CURL_جندرا_ACCESS_SINGLE);
 
-    while(l) {
-      result = Curl_hsts_loadfile(data, data->hsts, l->data);
-      if(result)
-        break;
-      l = l->next;
+    طالما(l) {
+      نتیجہ = Curl_hsts_loadfile(انکڑے, انکڑے->hsts, l->انکڑے);
+      إذا(نتیجہ)
+        اكسر;
+      l = l->اگلا;
     }
-    Curl_share_unlock(data, CURL_LOCK_DATA_HSTS);
+    Curl_share_unlock(انکڑے, CURL_جندرا_انکڑے_HSTS);
   }
-  return result;
+  أرجع نتیجہ;
 }
 
-bool Curl_hsts_applies(struct hsts *h, const struct Curl_peer *dest)
+bool Curl_hsts_applies(بنية hsts *h, ثابت بنية Curl_peer *dest)
 {
-  return !!hsts_check(h, dest->hostname, strlen(dest->hostname), TRUE);
+  أرجع !!hsts_check(h, dest->hostname, لڑی_لمبائی(dest->hostname), TRUE);
 }
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
-#undef time
-#endif
+#إذا defined(DEBUGBUILD) || defined(UNITTESTS)
+#تعریف_رد ویلا
+#جے_انت
 
-#endif /* CURL_DISABLE_HTTP || CURL_DISABLE_HSTS */
+#جے_انت /* CURL_DISABLE_HTTP || CURL_DISABLE_HSTS */

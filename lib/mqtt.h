@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MQTT_H
-#define HEADER_CURL_MQTT_H
+#جے_بنا_تعریف سرخی_CURL_MQTT_H
+#تعریف_کرو سرخی_CURL_MQTT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_MQTT
-extern const struct Curl_protocol Curl_protocol_mqtt;
-#ifdef USE_SSL
-extern const struct Curl_protocol Curl_protocol_mqtts;
-#endif
-#endif
+#جے_بنا_تعریف CURL_DISABLE_MQTT
+خارجي ثابت بنية Curl_protocol Curl_protocol_mqtt;
+#جے_تعریف_شدہ USE_SSL
+خارجي ثابت بنية Curl_protocol Curl_protocol_mqtts;
+#جے_انت
+#جے_انت
 
-#endif /* HEADER_CURL_MQTT_H */
+#جے_انت /* HEADER_CURL_MQTT_H */

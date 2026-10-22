@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HEADER_H
-#define HEADER_CURL_HEADER_H
+#جے_بنا_تعریف سرخی_CURL_سرخی_H
+#تعریف_کرو سرخی_CURL_سرخی_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,43 +23,43 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_سرخیاں_API)
 
-struct Curl_header_store {
-  struct Curl_llist_node node;
-  char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
+بنية Curl_سرخی_store {
+  بنية Curl_llist_گرہ گرہ;
+  حرف *name; /* points into 'buffer' */
+  حرف *قدر; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
-  size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
-  char buffer[1]; /* this is the raw header blob */
+  size_t nh_اشاریہ; /* cached index for curl_easy_nextheader() */
+  صحيح request; /* 0 is the first request, then 1.. 2.. */
+  بنانشانی حرف type; /* CURLH_* defines */
+  حرف بفر[1]; /* this is the raw header blob */
 };
 
 /*
  * Initialize header collecting for a transfer.
  * Add a client writer that catches CLIENTWRITE_HEADER writes.
  */
-CURLcode Curl_headers_init(struct Curl_easy *data);
+CURLcode Curl_سرخیاں_init(بنية Curl_easy *انکڑے);
 
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           size_t hlen, unsigned char type);
+CURLcode Curl_سرخیاں_ڈالو(بنية Curl_easy *انکڑے, ثابت حرف *سرخی,
+                           size_t hlen, بنانشانی حرف type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data);
+CURLcode Curl_سرخیاں_cleanup(بنية Curl_easy *انکڑے);
 
-#else
-#define Curl_headers_init(x)          CURLE_OK
-#define Curl_headers_push(x, y, z, a) \
-  ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
-#define Curl_headers_cleanup(x)       Curl_nop_stmt
-#endif
+#وإلا
+#تعریف_کرو Curl_سرخیاں_init(x)          CURLE_OK
+#تعریف_کرو Curl_سرخیاں_ڈالو(x, y, z, a) \
+  ((فراغ)(x), (فراغ)(y), (فراغ)(z), (فراغ)(a), CURLE_OK)
+#تعریف_کرو Curl_سرخیاں_cleanup(x)       Curl_nop_stmt
+#جے_انت
 
-#endif /* HEADER_CURL_HEADER_H */
+#جے_انت /* HEADER_CURL_HEADER_H */

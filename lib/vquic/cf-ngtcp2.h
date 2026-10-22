@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_CF_NGTCP2_H
-#define HEADER_CURL_VQUIC_CF_NGTCP2_H
+#جے_بنا_تعریف سرخی_CURL_VQUIC_CF_NGTCP2_H
+#تعریف_کرو سرخی_CURL_VQUIC_CF_NGTCP2_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,42 +23,42 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#إذا !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
-#ifdef HAVE_NETINET_UDP_H
-#include <netinet/udp.h>
-#endif
+#جے_تعریف_شدہ HAVE_NETINET_UDP_H
+#ضمن <netinet/udp.h>
+#جے_انت
 
-#include <ngtcp2/ngtcp2_crypto.h>
-#ifdef OPENSSL_QUIC_API2
-#include <ngtcp2/ngtcp2_crypto_ossl.h>
-#endif
-#include <nghttp3/nghttp3.h>
-#ifdef USE_OPENSSL
-#include <openssl/ssl.h>
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/quic.h>
-#endif
+#ضمن <ngtcp2/ngtcp2_crypto.h>
+#جے_تعریف_شدہ OPENSSL_QUIC_API2
+#ضمن <ngtcp2/ngtcp2_crypto_ossl.h>
+#جے_انت
+#ضمن <nghttp3/nghttp3.h>
+#جے_تعریف_شدہ USE_OPENSSL
+#ضمن <openssl/ssl.h>
+#وإلاإذا defined(USE_WOLFSSL)
+#ضمن <wolfssl/options.h>
+#ضمن <wolfssl/ssl.h>
+#ضمن <wolfssl/quic.h>
+#جے_انت
 
-struct Curl_cfilter;
+بنية Curl_cfilter;
 
-#include "urldata.h"
+#ضمن "urldata.h"
 
-CURLcode Curl_cf_ngtcp2_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_ngtcp2_create(بنية Curl_cfilter **pcf,
+                               بنية Curl_easy *انکڑے,
+                               بنية Curl_peer *origin,
+                               بنية Curl_peer *peer,
+                               بنية connectdata *conn,
+                               بنية Curl_sockaddr_ex *addr);
 
-CURLcode Curl_cf_ngtcp2_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
-#endif
+CURLcode Curl_cf_ngtcp2_داخل_کرو_after(بنية Curl_cfilter *cf_at,
+                                     بنية Curl_peer *origin,
+                                     بنية Curl_peer *peer,
+                                     بنية Curl_cfilter **pcf);
+#جے_انت
 
-#endif /* HEADER_CURL_VQUIC_CF_NGTCP2_H */
+#جے_انت /* HEADER_CURL_VQUIC_CF_NGTCP2_H */

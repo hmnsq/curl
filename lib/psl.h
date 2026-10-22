@@ -1,5 +1,5 @@
-#ifndef HEADER_PSL_H
-#define HEADER_PSL_H
+#جے_بنا_تعریف سرخی_PSL_H
+#تعریف_کرو سرخی_PSL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,29 +23,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifdef USE_LIBPSL
+#جے_تعریف_شدہ USE_LIBPSL
 
-#include <libpsl.h>
+#ضمن <libpsl.h>
 
-struct Curl_easy;
+بنية Curl_easy;
 
-#define PSL_TTL (72 * 3600)     /* PSL time to live before a refresh. */
+#تعریف_کرو PSL_TTL (72 * 3600)     /* PSL time to live before a refresh. */
 
-struct PslCache {
-  const psl_ctx_t *psl; /* The PSL. */
+بنية PslCache {
+  ثابت psl_ctx_t *psl; /* The PSL. */
   time_t expires; /* Time this PSL life expires. */
-  BIT(dynamic); /* PSL should be released when no longer needed. */
+  ثنائی_ہندسہ(dynamic); /* PSL should be released when no longer needed. */
 };
 
-const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy);
-void Curl_psl_release(struct Curl_easy *easy);
-void Curl_psl_destroy(struct PslCache *pslcache);
+ثابت psl_ctx_t *Curl_psl_use(بنية Curl_easy *easy);
+فراغ Curl_psl_release(بنية Curl_easy *easy);
+فراغ Curl_psl_destroy(بنية PslCache *pslcache);
 
-#else
+#وإلا
 
-#define Curl_psl_use(easy) NULL
-#define Curl_psl_release(easy)
-#define Curl_psl_destroy(pslcache)
+#تعریف_کرو Curl_psl_use(easy) عدم
+#تعریف_کرو Curl_psl_release(easy)
+#تعریف_کرو Curl_psl_destroy(pslcache)
 
-#endif /* USE_LIBPSL */
-#endif /* HEADER_PSL_H */
+#جے_انت /* USE_LIBPSL */
+#جے_انت /* HEADER_PSL_H */

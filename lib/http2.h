@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP2_H
-#define HEADER_CURL_HTTP2_H
+#جے_بنا_تعریف سرخی_CURL_HTTP2_H
+#تعریف_کرو سرخی_CURL_HTTP2_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_NGHTTP2
+#جے_تعریف_شدہ USE_NGHTTP2
 
 /* value for MAX_CONCURRENT_STREAMS we use until we get an updated setting
    from the peer */
-#define DEFAULT_MAX_CONCURRENT_STREAMS 100
+#تعریف_کرو DEFAULT_MAX_CONCURRENT_STREAMS 100
 
 /*
  * Store nghttp2 version info in this buffer.
  */
-void Curl_http2_ver(char *p, size_t len);
+فراغ Curl_http2_ver(حرف *p, size_t len);
 
-#ifdef CURLVERBOSE
-int Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
+#جے_تعریف_شدہ CURLVERBOSE
+صحيح Curl_nghttp2_fr_print(ثابت nghttp2_چوکھٹا *چوکھٹا, حرف *بفر,
                           size_t blen);
-#endif
+#جے_انت
 
-CURLcode Curl_http2_request_upgrade(struct dynbuf *req,
-                                    struct Curl_easy *data);
+CURLcode Curl_http2_request_upgrade(بنية dynbuf *req,
+                                    بنية Curl_easy *انکڑے);
 
 /* returns true if the HTTP/2 stream error was HTTP_1_1_REQUIRED */
-bool Curl_h2_http_1_1_error(struct Curl_easy *data);
+bool Curl_h2_http_1_1_error(بنية Curl_easy *انکڑے);
 
-bool Curl_http2_may_switch(struct Curl_easy *data);
+bool Curl_http2_may_switch(بنية Curl_easy *انکڑے);
 
-CURLcode Curl_http2_switch(struct Curl_easy *data);
+CURLcode Curl_http2_switch(بنية Curl_easy *انکڑے);
 
-CURLcode Curl_http2_switch_at(struct Curl_cfilter *cf, struct Curl_easy *data);
+CURLcode Curl_http2_switch_at(بنية Curl_cfilter *cf, بنية Curl_easy *انکڑے);
 
-CURLcode Curl_http2_upgrade(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            const char *mem, size_t nread);
+CURLcode Curl_http2_upgrade(بنية Curl_easy *انکڑے,
+                            بنية connectdata *conn, int8_t sockindex,
+                            ثابت حرف *mem, size_t nread);
 
-void *Curl_nghttp2_malloc(size_t size, void *user_data);
-void Curl_nghttp2_free(void *ptr, void *user_data);
-void *Curl_nghttp2_calloc(size_t nmemb, size_t size, void *user_data);
-void *Curl_nghttp2_realloc(void *ptr, size_t size, void *user_data);
+فراغ *Curl_nghttp2_malloc(size_t ناپ, فراغ *user_انکڑے);
+فراغ Curl_nghttp2_free(فراغ *ptr, فراغ *user_انکڑے);
+فراغ *Curl_nghttp2_calloc(size_t nmemb, size_t ناپ, فراغ *user_انکڑے);
+فراغ *Curl_nghttp2_realloc(فراغ *ptr, size_t ناپ, فراغ *user_انکڑے);
 
-extern struct Curl_cftype Curl_cft_nghttp2;
+خارجي بنية Curl_cftype Curl_cft_nghttp2;
 
-#else /* USE_NGHTTP2 */
+#وإلا /* USE_NGHTTP2 */
 
-#define Curl_http2_may_switch(a) FALSE
+#تعریف_کرو Curl_http2_may_switch(a) FALSE
 
-#define Curl_http2_request_upgrade(x, y)  CURLE_UNSUPPORTED_PROTOCOL
-#define Curl_http2_switch(a)              CURLE_UNSUPPORTED_PROTOCOL
-#define Curl_h2_http_1_1_error(x)         0
-#endif
+#تعریف_کرو Curl_http2_request_upgrade(x, y)  CURLE_UNSUPPORTED_PROTOCOL
+#تعریف_کرو Curl_http2_switch(a)              CURLE_UNSUPPORTED_PROTOCOL
+#تعریف_کرو Curl_h2_http_1_1_error(x)         0
+#جے_انت
 
-#endif /* HEADER_CURL_HTTP2_H */
+#جے_انت /* HEADER_CURL_HTTP2_H */

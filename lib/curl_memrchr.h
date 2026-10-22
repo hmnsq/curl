@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MEMRCHR_H
-#define HEADER_CURL_MEMRCHR_H
+#جے_بنا_تعریف سرخی_CURL_MEMRCHR_H
+#تعریف_کرو سرخی_CURL_MEMRCHR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef HAVE_MEMRCHR
+#جے_تعریف_شدہ HAVE_MEMRCHR
 
-#ifdef HAVE_STRINGS_H
+#جے_تعریف_شدہ HAVE_لڑیاں_H
 #  include <strings.h>
-#endif
+#جے_انت
 
-#else /* HAVE_MEMRCHR */
-void *Curl_memrchr(const void *s, int c, size_t n);
-#define memrchr(x, y, z)  Curl_memrchr(x, y, z)
+#وإلا /* HAVE_MEMRCHR */
+فراغ *Curl_memrchr(ثابت فراغ *s, صحيح c, size_t n);
+#تعریف_کرو memrchr(x, y, z)  Curl_memrchr(x, y, z)
 
-#endif /* HAVE_MEMRCHR */
+#جے_انت /* HAVE_MEMRCHR */
 
-#endif /* HEADER_CURL_MEMRCHR_H */
+#جے_انت /* HEADER_CURL_MEMRCHR_H */

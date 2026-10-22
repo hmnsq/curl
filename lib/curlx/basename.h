@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_BASENAME_H
-#define HEADER_CURLX_BASENAME_H
+#جے_بنا_تعریف سرخی_CURLX_BASENAME_H
+#تعریف_کرو سرخی_CURLX_BASENAME_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef HAVE_BASENAME
-char *curlx_basename(char *path);
-#else
+#جے_بنا_تعریف HAVE_BASENAME
+حرف *curlx_basename(حرف *رستہ);
+#وإلا
 
-#ifdef HAVE_LIBGEN_H
-#include <libgen.h>
-#endif
+#جے_تعریف_شدہ HAVE_LIBGEN_H
+#ضمن <libgen.h>
+#جے_انت
 
-#define curlx_basename(x) basename(x)
-#endif /* !HAVE_BASENAME */
+#تعریف_کرو curlx_basename(x) basename(x)
+#جے_انت /* !HAVE_BASENAME */
 
-#endif /* HEADER_CURLX_BASENAME_H */
+#جے_انت /* HEADER_CURLX_BASENAME_H */

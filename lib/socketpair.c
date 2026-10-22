@@ -21,43 +21,43 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "socketpair.h"
-#include "urldata.h"
-#include "rand.h"
-#include "curlx/nonblock.h"
+#ضمن "socketpair.h"
+#ضمن "urldata.h"
+#ضمن "rand.h"
+#ضمن "curlx/nonblock.h"
 
-#ifndef CURL_DISABLE_SOCKETPAIR
+#جے_بنا_تعریف CURL_DISABLE_SOCKETPAIR
 
 /* choose implementation */
-#ifdef USE_EVENTFD
+#جے_تعریف_شدہ USE_EVENTFD
 
-#include <sys/eventfd.h>
+#ضمن <sys/eventfd.h>
 
-static int wakeup_eventfd(curl_socket_t socks[2], bool nonblocking)
+ساكن صحيح wakeup_eventfd(curl_socket_t socks[2], bool nonblocking)
 {
-  int efd = eventfd(0, nonblocking ? EFD_CLOEXEC | EFD_NONBLOCK : EFD_CLOEXEC);
-  if(efd == -1) {
+  صحيح efd = eventfd(0, nonblocking ? EFD_CLOEXEC | EFD_NONBLOCK : EFD_CLOEXEC);
+  إذا(efd == -1) {
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    أرجع -1;
   }
   socks[0] = socks[1] = efd;
-  return 0;
+  أرجع 0;
 }
 
-#elif defined(HAVE_PIPE)
+#وإلاإذا defined(HAVE_PIPE)
 
-#ifdef HAVE_FCNTL
-#include <fcntl.h>
-#endif
+#جے_تعریف_شدہ HAVE_FCNTL
+#ضمن <fcntl.h>
+#جے_انت
 
-static int wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
+ساكن صحيح wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
 {
-#ifdef HAVE_PIPE2
-  return pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
-#else
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
+#جے_تعریف_شدہ HAVE_PIPE2
+  أرجع pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
+#وإلا
+#إذا defined(__APPLE__) && defined(HAVE_BUILTIN_دستیاب) && \
   ((defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
             __MAC_OS_X_VERSION_MAX_ALLOWED >= 270000) || \
    (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
@@ -68,314 +68,314 @@ static int wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
             __WATCH_OS_VERSION_MAX_ALLOWED >= 270000) || \
    (defined(__VISION_OS_VERSION_MAX_ALLOWED) && \
             __VISION_OS_VERSION_MAX_ALLOWED >= 270000))
-  if(__builtin_available(macOS 27, iOS 27, tvOS 27, watchOS 27, visionOS 27,
+  إذا(__builtin_available(macOS 27, iOS 27, tvOS 27, watchOS 27, visionOS 27,
                          macCatalyst 27, *))
-    return pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
-  else
-#endif
-  if(pipe(socks))
-    return -1;
-#ifdef HAVE_FCNTL
-  if(fcntl(socks[0], F_SETFD, FD_CLOEXEC) ||
+    أرجع pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
+  وإلا
+#جے_انت
+  إذا(pipe(socks))
+    أرجع -1;
+#جے_تعریف_شدہ HAVE_FCNTL
+  إذا(fcntl(socks[0], F_SETFD, FD_CLOEXEC) ||
      fcntl(socks[1], F_SETFD, FD_CLOEXEC)) {
     sclose(socks[0]);
     sclose(socks[1]);
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    أرجع -1;
   }
-#endif
-  if(nonblocking) {
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+#جے_انت
+  إذا(nonblocking) {
+    إذا(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0) {
       sclose(socks[0]);
       sclose(socks[1]);
       socks[0] = socks[1] = CURL_SOCKET_BAD;
-      return -1;
+      أرجع -1;
     }
   }
-  return 0;
-#endif /* HAVE_PIPE2 */
+  أرجع 0;
+#جے_انت /* HAVE_PIPE2 */
 }
 
-#elif defined(HAVE_SOCKETPAIR)  /* !USE_EVENTFD && !HAVE_PIPE */
+#وإلاإذا defined(HAVE_SOCKETPAIR)  /* !USE_EVENTFD && !HAVE_PIPE */
 
-#ifndef USE_UNIX_SOCKETS
-#error "unsupported Unix domain and socketpair build combo"
-#endif
+#جے_بنا_تعریف USE_UNIX_SOCKETS
+#غلطی "unsupported Unix domain and socketpair build combo"
+#جے_انت
 
-static int wakeup_socketpair(curl_socket_t socks[2], bool nonblocking)
+ساكن صحيح wakeup_socketpair(curl_socket_t socks[2], bool nonblocking)
 {
-  int type = SOCK_STREAM;
-#ifdef SOCK_CLOEXEC
+  صحيح type = SOCK_STREAM;
+#جے_تعریف_شدہ SOCK_CLOEXEC
   type |= SOCK_CLOEXEC;
-#endif
-#ifdef CURL_USE_SOCK_NONBLOCK
-  if(nonblocking)
+#جے_انت
+#جے_تعریف_شدہ CURL_USE_SOCK_NONBLOCK
+  إذا(nonblocking)
     type |= SOCK_NONBLOCK;
-#endif
+#جے_انت
 
-  if(CURL_SOCKETPAIR(AF_UNIX, type, 0, socks))
-    return -1;
-#ifndef CURL_USE_SOCK_NONBLOCK
-  if(nonblocking) {
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+  إذا(CURL_SOCKETPAIR(AF_UNIX, type, 0, socks))
+    أرجع -1;
+#جے_بنا_تعریف CURL_USE_SOCK_NONBLOCK
+  إذا(nonblocking) {
+    إذا(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0) {
       sclose(socks[0]);
       sclose(socks[1]);
       socks[0] = socks[1] = CURL_SOCKET_BAD;
-      return -1;
+      أرجع -1;
     }
   }
-#endif
-#ifdef USE_SO_NOSIGPIPE
-  if(Curl_sock_nosigpipe(socks[1]) < 0) {
+#جے_انت
+#جے_تعریف_شدہ USE_SO_NOSIGPIPE
+  إذا(Curl_sock_nosigpipe(socks[1]) < 0) {
     sclose(socks[0]);
     sclose(socks[1]);
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    أرجع -1;
   }
-#endif /* USE_SO_NOSIGPIPE */
+#جے_انت /* USE_SO_NOSIGPIPE */
 
-  return 0;
+  أرجع 0;
 }
 
-#else /* !USE_EVENTFD && !HAVE_PIPE && !HAVE_SOCKETPAIR */
+#وإلا /* !USE_EVENTFD && !HAVE_PIPE && !HAVE_SOCKETPAIR */
 
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h> /* for IPPROTO_TCP */
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#جے_تعریف_شدہ HAVE_NETDB_H
+#ضمن <netdb.h>
+#جے_انت
+#جے_تعریف_شدہ HAVE_NETINET_وچ_H
+#ضمن <netinet/in.h> /* for IPPROTO_TCP */
+#جے_انت
+#جے_تعریف_شدہ HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#جے_انت
 
-#ifndef INADDR_LOOPBACK
-#define INADDR_LOOPBACK 0x7f000001
-#endif
+#جے_بنا_تعریف INADDR_LOOPBACK
+#تعریف_کرو INADDR_LOOPBACK 0x7f000001
+#جے_انت
 
-#include "select.h"   /* for Curl_poll */
+#ضمن "select.h"   /* for Curl_poll */
 
-static int wakeup_inet(curl_socket_t socks[2], bool nonblocking)
+ساكن صحيح wakeup_inet(curl_socket_t socks[2], bool nonblocking)
 {
-  union {
-    struct sockaddr_in inaddr;
-    struct sockaddr addr;
+  اتحاد {
+    بنية sockaddr_in inaddr;
+    بنية sockaddr addr;
   } a;
   curl_socket_t listener;
-  curl_socklen_t addrlen = sizeof(a.inaddr);
-  int reuse = 1;
-  struct pollfd pfd[1];
+  curl_socklen_t addrlen = حجم(a.inaddr);
+  صحيح reuse = 1;
+  بنية pollfd pfd[1];
 
   listener = CURL_SOCKET(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if(listener == CURL_SOCKET_BAD)
-    return -1;
+  إذا(listener == CURL_SOCKET_BAD)
+    أرجع -1;
 
-  memset(&a, 0, sizeof(a));
+  memset(&a, 0, حجم(a));
   a.inaddr.sin_family = AF_INET;
   a.inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   a.inaddr.sin_port = 0;
 
   socks[0] = socks[1] = CURL_SOCKET_BAD;
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#إذا defined(_WIN32) || defined(__CYGWIN__)
   /* do not set SO_REUSEADDR on Windows */
-  (void)reuse;
-#ifdef SO_EXCLUSIVEADDRUSE
+  (فراغ)reuse;
+#جے_تعریف_شدہ SO_EXCLUSIVEADDRUSE
   {
-    int exclusive = 1;
-    if(setsockopt(listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-                  (char *)&exclusive, (curl_socklen_t)sizeof(exclusive)) == -1)
-      goto error;
+    صحيح exclusive = 1;
+    إذا(setsockopt(listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
+                  (حرف *)&exclusive, (curl_socklen_t)حجم(exclusive)) == -1)
+      اذهب error;
   }
-#endif
-#else
-  if(setsockopt(listener, SOL_SOCKET, SO_REUSEADDR,
-                (char *)&reuse, (curl_socklen_t)sizeof(reuse)) == -1)
-    goto error;
-#endif
-  if(bind(listener, &a.addr, sizeof(a.inaddr)) == -1)
-    goto error;
-  if(getsockname(listener, &a.addr, &addrlen) == -1 ||
-     addrlen < (int)sizeof(a.inaddr))
-    goto error;
-  if(listen(listener, 1) == -1)
-    goto error;
+#جے_انت
+#وإلا
+  إذا(setsockopt(listener, SOL_SOCKET, SO_REUSEADDR,
+                (حرف *)&reuse, (curl_socklen_t)حجم(reuse)) == -1)
+    اذهب error;
+#جے_انت
+  إذا(bind(listener, &a.addr, حجم(a.inaddr)) == -1)
+    اذهب error;
+  إذا(getsockname(listener, &a.addr, &addrlen) == -1 ||
+     addrlen < (صحيح)حجم(a.inaddr))
+    اذهب error;
+  إذا(listen(listener, 1) == -1)
+    اذهب error;
   socks[0] = CURL_SOCKET(AF_INET, SOCK_STREAM, 0);
-  if(socks[0] == CURL_SOCKET_BAD)
-    goto error;
-  if(connect(socks[0], &a.addr, sizeof(a.inaddr)) == -1)
-    goto error;
+  إذا(socks[0] == CURL_SOCKET_BAD)
+    اذهب error;
+  إذا(connect(socks[0], &a.addr, حجم(a.inaddr)) == -1)
+    اذهب error;
 
   /* use non-blocking accept to make sure we do not block forever */
-  if(curlx_nonblock(listener, TRUE) < 0)
-    goto error;
+  إذا(curlx_nonblock(listener, TRUE) < 0)
+    اذهب error;
   pfd[0].fd = listener;
   pfd[0].events = POLLIN;
   pfd[0].revents = 0;
-  (void)Curl_poll(pfd, 1, 1000); /* one second */
-  socks[1] = CURL_ACCEPT(listener, NULL, NULL);
-  if(socks[1] == CURL_SOCKET_BAD)
-    goto error;
-  else {
-    struct curltime start = curlx_now();
-    char rnd[9];
-    char check[sizeof(rnd)];
-    char *p = &check[0];
-    size_t s = sizeof(check);
+  (فراغ)Curl_poll(pfd, 1, 1000); /* one second */
+  socks[1] = CURL_ACCEPT(listener, عدم, عدم);
+  إذا(socks[1] == CURL_SOCKET_BAD)
+    اذهب error;
+  وإلا {
+    بنية curltime شروع = curlx_now();
+    حرف rnd[9];
+    حرف check[حجم(rnd)];
+    حرف *p = &check[0];
+    size_t s = حجم(check);
 
-    if(Curl_rand(NULL, (unsigned char *)rnd, sizeof(rnd)))
-      goto error;
+    إذا(Curl_rand(عدم, (بنانشانی حرف *)rnd, حجم(rnd)))
+      اذهب error;
 
     /* write data to the socket */
-    swrite(socks[0], rnd, sizeof(rnd));
+    swrite(socks[0], rnd, حجم(rnd));
     /* verify that we read the correct data */
-    do {
+    افعل {
       ssize_t nread;
 
       /* Do not block forever */
-      if(curlx_timediff_ms(curlx_now(), start) > (60 * 1000))
-        goto error;
+      إذا(curlx_timediff_ms(curlx_now(), شروع) > (60 * 1000))
+        اذهب error;
 
       pfd[0].fd = socks[1];
       pfd[0].events = POLLIN;
       pfd[0].revents = 0;
-      (void)Curl_poll(pfd, 1, 1000); /* one second */
+      (فراغ)Curl_poll(pfd, 1, 1000); /* one second */
 
       nread = sread(socks[1], p, s);
-      if(!nread) { /* unexpected close before getting complete `check` */
-        goto error;
+      إذا(!nread) { /* unexpected close before getting complete `check` */
+        اذهب error;
       }
-      else if(nread == -1) { /* error or close */
-        int sockerr = SOCKERRNO;
-        if(SOCK_EAGAIN(sockerr)
-#ifndef USE_WINSOCK
+      وإلا إذا(nread == -1) { /* error or close */
+        صحيح sockerr = SOCKERRNO;
+        إذا(SOCK_EAGAIN(sockerr)
+#جے_بنا_تعریف USE_WINSOCK
            || (sockerr == SOCKEINTR) || (sockerr == SOCKEINPROGRESS)
-#endif
+#جے_انت
           ) {
-          continue;
+          استمر;
         }
-        goto error;
+        اذهب error;
       }
       s -= nread;
-      if(s) {
+      إذا(s) {
         p += nread;
-        continue;
+        استمر;
       }
-      if(memcmp(rnd, check, sizeof(check)))
-        goto error;
-      break;
-    } while(1);
+      إذا(memcmp(rnd, check, حجم(check)))
+        اذهب error;
+      اكسر;
+    } طالما(1);
   }
 
-  if(nonblocking)
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+  إذا(nonblocking)
+    إذا(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0)
-      goto error;
-#ifdef USE_SO_NOSIGPIPE
-  if(Curl_sock_nosigpipe(socks[1]) < 0)
-    goto error;
-#endif
+      اذهب error;
+#جے_تعریف_شدہ USE_SO_NOSIGPIPE
+  إذا(Curl_sock_nosigpipe(socks[1]) < 0)
+    اذهب error;
+#جے_انت
   sclose(listener);
-  return 0;
+  أرجع 0;
 
 error:
   sclose(listener);
   sclose(socks[0]);
   sclose(socks[1]);
   socks[0] = socks[1] = CURL_SOCKET_BAD;
-  return -1;
+  أرجع -1;
 }
 
-#endif /* choose implementation */
+#جے_انت /* choose implementation */
 
-int Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking)
+صحيح Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking)
 {
-#ifdef USE_EVENTFD
-  return wakeup_eventfd(socks, nonblocking);
-#elif defined(HAVE_PIPE)
-  return wakeup_pipe(socks, nonblocking);
-#elif defined(HAVE_SOCKETPAIR)
-  return wakeup_socketpair(socks, nonblocking);
-#else
-  return wakeup_inet(socks, nonblocking);
-#endif
+#جے_تعریف_شدہ USE_EVENTFD
+  أرجع wakeup_eventfd(socks, nonblocking);
+#وإلاإذا defined(HAVE_PIPE)
+  أرجع wakeup_pipe(socks, nonblocking);
+#وإلاإذا defined(HAVE_SOCKETPAIR)
+  أرجع wakeup_socketpair(socks, nonblocking);
+#وإلا
+  أرجع wakeup_inet(socks, nonblocking);
+#جے_انت
 }
 
-#if defined(USE_EVENTFD) || defined(HAVE_PIPE)
+#إذا defined(USE_EVENTFD) || defined(HAVE_PIPE)
 
-#define wakeup_write        write
-#define wakeup_read         read
-#define wakeup_close        close
+#تعریف_کرو wakeup_write        اكتب
+#تعریف_کرو wakeup_read         اقرأ
+#تعریف_کرو wakeup_close        close
 
-#else /* !USE_EVENTFD && !HAVE_PIPE */
+#وإلا /* !USE_EVENTFD && !HAVE_PIPE */
 
-#define wakeup_write        swrite
-#define wakeup_read         sread
-#define wakeup_close        sclose
+#تعریف_کرو wakeup_write        swrite
+#تعریف_کرو wakeup_read         sread
+#تعریف_کرو wakeup_close        sclose
 
-#endif
+#جے_انت
 
-int Curl_wakeup_signal(curl_socket_t socks[2])
+صحيح Curl_wakeup_signal(curl_socket_t socks[2])
 {
-  int sockerr = 0;
-#ifdef USE_EVENTFD
-  const uint64_t buf[1] = { 1 };
-#else
-  const char buf[1] = { 1 };
-#endif
+  صحيح sockerr = 0;
+#جے_تعریف_شدہ USE_EVENTFD
+  ثابت uint64_t buf[1] = { 1 };
+#وإلا
+  ثابت حرف buf[1] = { 1 };
+#جے_انت
 
-  while(1) {
+  طالما(1) {
     sockerr = 0;
-    if(wakeup_write(socks[1], buf, sizeof(buf)) < 0) {
+    إذا(wakeup_write(socks[1], buf, حجم(buf)) < 0) {
       sockerr = SOCKERRNO;
-#ifndef USE_WINSOCK
-      if(sockerr == SOCKEINTR)
-        continue;
-#endif
-      if(SOCK_EAGAIN(sockerr))
+#جے_بنا_تعریف USE_WINSOCK
+      إذا(sockerr == SOCKEINTR)
+        استمر;
+#جے_انت
+      إذا(SOCK_EAGAIN(sockerr))
         sockerr = 0; /* wakeup is already ongoing */
     }
-    break;
+    اكسر;
   }
-  return sockerr;
+  أرجع sockerr;
 }
 
 CURLcode Curl_wakeup_consume(curl_socket_t socks[2], bool all)
 {
-  char buf[64];
+  حرف buf[64];
   ssize_t rc;
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
-  do {
-    rc = wakeup_read(socks[0], buf, sizeof(buf));
-    if(!rc)
-      break;
-    else if(rc < 0) {
-      int sockerr = SOCKERRNO;
-#ifndef USE_WINSOCK
-      if(sockerr == SOCKEINTR)
-        continue;
-#endif
-      if(SOCK_EAGAIN(sockerr))
-        break;
-      result = CURLE_READ_ERROR;
-      break;
+  افعل {
+    rc = wakeup_read(socks[0], buf, حجم(buf));
+    إذا(!rc)
+      اكسر;
+    وإلا إذا(rc < 0) {
+      صحيح sockerr = SOCKERRNO;
+#جے_بنا_تعریف USE_WINSOCK
+      إذا(sockerr == SOCKEINTR)
+        استمر;
+#جے_انت
+      إذا(SOCK_EAGAIN(sockerr))
+        اكسر;
+      نتیجہ = CURLE_READ_ERROR;
+      اكسر;
     }
-  } while(all);
-  return result;
+  } طالما(all);
+  أرجع نتیجہ;
 }
 
-void Curl_wakeup_destroy(curl_socket_t socks[2])
+فراغ Curl_wakeup_destroy(curl_socket_t socks[2])
 {
-#ifndef USE_EVENTFD
-  if(socks[1] != CURL_SOCKET_BAD)
+#جے_بنا_تعریف USE_EVENTFD
+  إذا(socks[1] != CURL_SOCKET_BAD)
     wakeup_close(socks[1]);
-#endif
-  if(socks[0] != CURL_SOCKET_BAD)
+#جے_انت
+  إذا(socks[0] != CURL_SOCKET_BAD)
     wakeup_close(socks[0]);
   socks[0] = socks[1] = CURL_SOCKET_BAD;
 }
 
-#endif /* !CURL_DISABLE_SOCKETPAIR */
+#جے_انت /* !CURL_DISABLE_SOCKETPAIR */

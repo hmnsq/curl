@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NETRC_H
-#define HEADER_CURL_NETRC_H
+#جے_بنا_تعریف سرخی_CURL_NETRC_H
+#تعریف_کرو سرخی_CURL_NETRC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,46 +23,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_NETRC
+#جے_بنا_تعریف CURL_DISABLE_NETRC
 
-#include "curlx/dynbuf.h"
+#ضمن "curlx/dynbuf.h"
 
-struct Curl_easy;
-struct Curl_creds;
+بنية Curl_easy;
+بنية Curl_creds;
 
-struct store_netrc {
-  struct dynbuf filebuf;
-  char *filename;
-  BIT(loaded);
+بنية store_netrc {
+  بنية dynbuf filebuf;
+  حرف *filename;
+  ثنائی_ہندسہ(loaded);
 };
 
-typedef enum {
+تعريفنوع تعداد {
   NETRC_OK,
-  NETRC_NO_MATCH,      /* no matching entry in the file */
+  NETRC_NO_میل,      /* no matching entry in the file */
   NETRC_SYNTAX_ERROR,  /* in the netrc file */
   NETRC_FILE_MISSING,  /* the netrc file does not exist */
-  NETRC_OUT_OF_MEMORY, /* while parsing netrc */
-  NETRC_LAST /* never used */
+  NETRC_باہرلا_دا_حافظہ, /* while parsing netrc */
+  NETRC_آخری /* never used */
 } NETRCcode;
 
-const char *Curl_netrc_strerror(NETRCcode ret);
-void Curl_netrc_init(struct store_netrc *store);
-void Curl_netrc_cleanup(struct store_netrc *store);
+ثابت حرف *Curl_netrc_strerror(NETRCcode ret);
+فراغ Curl_netrc_init(بنية store_netrc *store);
+فراغ Curl_netrc_cleanup(بنية store_netrc *store);
 
 /* Scan a netrc file for credentials matching hostname
  * and optional user. */
-NETRCcode Curl_netrc_scan(struct Curl_easy *data,
-                          struct store_netrc *store,
-                          const char *hostname,
-                          const char *user,
-                          const char *netrcfile,
-                          struct Curl_creds **pcreds);
-#else
+NETRCcode Curl_netrc_جانچ(بنية Curl_easy *انکڑے,
+                          بنية store_netrc *store,
+                          ثابت حرف *hostname,
+                          ثابت حرف *user,
+                          ثابت حرف *netrcfile,
+                          بنية Curl_creds **pcreds);
+#وإلا
 /* disabled */
-#define Curl_netrc_init(x)
-#define Curl_netrc_cleanup(x)
-#endif
+#تعریف_کرو Curl_netrc_init(x)
+#تعریف_کرو Curl_netrc_cleanup(x)
+#جے_انت
 
-#endif /* HEADER_CURL_NETRC_H */
+#جے_انت /* HEADER_CURL_NETRC_H */

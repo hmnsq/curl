@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_STRDUP_H
-#define HEADER_CURLX_STRDUP_H
+#جے_بنا_تعریف سرخی_CURLX_STRDUP_H
+#تعریف_کرو سرخی_CURLX_STRDUP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef _WIN32
-wchar_t *curlx_wcsdup(const wchar_t *src);  /* for curlx_tcsdup() */
-#endif
-void *curlx_memdup(const void *src, size_t length);
-void *curlx_memdup0(const char *src, size_t length);
-#endif /* HEADER_CURLX_STRDUP_H */
+#جے_تعریف_شدہ _WIN32
+wchar_t *curlx_wcsdup(ثابت wchar_t *src);  /* for curlx_tcsdup() */
+#جے_انت
+فراغ *curlx_memdup(ثابت فراغ *src, size_t لمائی);
+فراغ *curlx_memdup0(ثابت حرف *src, size_t لمائی);
+#جے_انت /* HEADER_CURLX_STRDUP_H */

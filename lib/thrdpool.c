@@ -21,61 +21,61 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_THREADS
+#جے_تعریف_شدہ USE_دھاگے
 
-#include "llist.h"
-#include "curl_threads.h"
-#include "curlx/timeval.h"
-#include "curlx/strparse.h"
-#include "thrdpool.h"
-#ifdef CURLVERBOSE
-#include "curl_trc.h"
-#include "urldata.h"
-#endif
+#ضمن "llist.h"
+#ضمن "curl_threads.h"
+#ضمن "curlx/timeval.h"
+#ضمن "curlx/strparse.h"
+#ضمن "thrdpool.h"
+#جے_تعریف_شدہ CURLVERBOSE
+#ضمن "curl_trc.h"
+#ضمن "urldata.h"
+#جے_انت
 
 
-struct thrdslot {
-  struct Curl_llist_node node;
-  struct curl_thrdpool *tpool;
+بنية thrdslot {
+  بنية Curl_llist_گرہ گرہ;
+  بنية curl_thrdpool *tpool;
   curl_thread_t thread;
   curl_cond_t await;
-  struct curltime starttime;
-  const char *work_description;
+  بنية curltime starttime;
+  ثابت حرف *work_description;
   timediff_t work_timeout_ms;
   uint32_t id;
-  BIT(running);
-  BIT(idle);
+  ثنائی_ہندسہ(running);
+  ثنائی_ہندسہ(idle);
 };
 
-struct curl_thrdpool {
-  const char *name;
+بنية curl_thrdpool {
+  ثابت حرف *name;
   uint64_t refcount;
-  curl_mutex_t lock;
+  curl_mutex_t جندرا;
   curl_cond_t await;
-  struct Curl_llist slots;
-  struct Curl_llist zombies;
-  Curl_thrdpool_take_item_cb *fn_take;
-  Curl_thrdpool_process_item_cb *fn_process;
-  Curl_thrdpool_return_item_cb *fn_return;
-  void *fn_user_data;
+  بنية Curl_llist slots;
+  بنية Curl_llist zombies;
+  Curl_thrdpool_take_شے_cb *fn_take;
+  Curl_thrdpool_process_شے_cb *fn_process;
+  Curl_thrdpool_return_شے_cb *fn_return;
+  فراغ *fn_user_انکڑے;
   CURLcode fatal_err;
-  uint32_t min_threads;
-  uint32_t max_threads;
-  uint32_t idle_time_ms;
-  uint32_t next_id;
-#ifdef DEBUGBUILD
-  int dbg_fail_starts; /* fail this many thread starts */
-#endif
-  BIT(aborted);
-  BIT(detached);
+  uint32_t min_دھاگے;
+  uint32_t max_دھاگے;
+  uint32_t idle_ویلا_ms;
+  uint32_t اگلا_id;
+#جے_تعریف_شدہ DEBUGBUILD
+  صحيح dbg_fail_starts; /* fail this many thread starts */
+#جے_انت
+  ثنائی_ہندسہ(aborted);
+  ثنائی_ہندسہ(detached);
 };
 
-static void thrdpool_join_zombies(struct curl_thrdpool *tpool);
-static bool thrdpool_unlink(struct curl_thrdpool *tpool, bool locked);
+ساكن فراغ thrdpool_join_zombies(بنية curl_thrdpool *tpool);
+ساكن bool thrdpool_unlink(بنية curl_thrdpool *tpool, bool locked);
 
-static void thrdslot_destroy(struct thrdslot *tslot)
+ساكن فراغ thrdslot_destroy(بنية thrdslot *tslot)
 {
   DEBUGASSERT(tslot->thread == curl_thread_t_null);
   DEBUGASSERT(!tslot->running);
@@ -83,47 +83,47 @@ static void thrdslot_destroy(struct thrdslot *tslot)
   curlx_free(tslot);
 }
 
-static void thrdslot_done(struct thrdslot *tslot)
+ساكن فراغ thrdslot_پورا(بنية thrdslot *tslot)
 {
-  struct curl_thrdpool *tpool = tslot->tpool;
+  بنية curl_thrdpool *tpool = tslot->tpool;
 
-  DEBUGASSERT(Curl_node_llist(&tslot->node) == &tpool->slots);
-  Curl_node_remove(&tslot->node);
+  DEBUGASSERT(Curl_گرہ_llist(&tslot->گرہ) == &tpool->slots);
+  Curl_گرہ_remove(&tslot->گرہ);
   tslot->running = FALSE;
-  Curl_llist_append(&tpool->zombies, tslot, &tslot->node);
+  Curl_llist_append(&tpool->zombies, tslot, &tslot->گرہ);
   Curl_cond_signal(&tpool->await);
 }
 
-static CURL_THREAD_RETURN_T CURL_STDCALL thrdslot_run(void *arg)
+ساكن CURL_THREAD_RETURN_T CURL_STDCALL thrdslot_لگاتار(فراغ *arg)
 {
-  struct thrdslot *tslot = arg;
-  struct curl_thrdpool *tpool = tslot->tpool;
-  void *item;
+  بنية thrdslot *tslot = arg;
+  بنية curl_thrdpool *tpool = tslot->tpool;
+  فراغ *شے;
 
-  Curl_mutex_acquire(&tpool->lock);
-  DEBUGASSERT(Curl_node_llist(&tslot->node) == &tpool->slots);
-  for(;;) {
-    while(!tpool->aborted) {
-      tslot->work_description = NULL;
+  Curl_mutex_acquire(&tpool->جندرا);
+  DEBUGASSERT(Curl_گرہ_llist(&tslot->گرہ) == &tpool->slots);
+  لكل(;;) {
+    طالما(!tpool->aborted) {
+      tslot->work_description = عدم;
       tslot->work_timeout_ms = 0;
-      item = tpool->fn_take(tpool->fn_user_data, &tslot->work_description,
+      شے = tpool->fn_take(tpool->fn_user_انکڑے, &tslot->work_description,
                             &tslot->work_timeout_ms);
-      if(!item)
-        break;
+      إذا(!شے)
+        اكسر;
       tslot->starttime = curlx_now();
       tslot->idle = FALSE;
-      Curl_mutex_release(&tpool->lock);
+      Curl_mutex_release(&tpool->جندرا);
 
-      tpool->fn_process(item);
+      tpool->fn_process(شے);
 
-      Curl_mutex_acquire(&tpool->lock);
-      tslot->work_description = NULL;
-      tpool->fn_return(item, tpool->aborted ? NULL : tpool->fn_user_data);
+      Curl_mutex_acquire(&tpool->جندرا);
+      tslot->work_description = عدم;
+      tpool->fn_return(شے, tpool->aborted ? عدم : tpool->fn_user_انکڑے);
     }
 
-    if(tpool->aborted ||
-       (Curl_llist_count(&tpool->slots) > tpool->max_threads))
-      goto out;
+    إذا(tpool->aborted ||
+       (Curl_llist_گنتی(&tpool->slots) > tpool->max_دھاگے))
+      اذهب باہرلا;
 
     tslot->idle = TRUE;
     tslot->starttime = curlx_now();
@@ -132,371 +132,371 @@ static CURL_THREAD_RETURN_T CURL_STDCALL thrdslot_run(void *arg)
     /* Only wait with idle timeout when we are above the minimum
      * number of threads. Otherwise short idle timeouts will keep
      * on activating threads that have no means to shut down. */
-    if((tpool->idle_time_ms > 0) &&
-       (Curl_llist_count(&tpool->slots) > tpool->min_threads)) {
-      CURLcode result = Curl_cond_timedwait(&tslot->await, &tpool->lock,
-                                            tpool->idle_time_ms);
-      if((result == CURLE_OPERATION_TIMEDOUT) &&
-         (Curl_llist_count(&tpool->slots) > tpool->min_threads)) {
-        goto out;
+    إذا((tpool->idle_ویلا_ms > 0) &&
+       (Curl_llist_گنتی(&tpool->slots) > tpool->min_دھاگے)) {
+      CURLcode نتیجہ = Curl_cond_timedwait(&tslot->await, &tpool->جندرا,
+                                            tpool->idle_ویلا_ms);
+      إذا((نتیجہ == CURLE_OPERATION_TIMEDOUT) &&
+         (Curl_llist_گنتی(&tpool->slots) > tpool->min_دھاگے)) {
+        اذهب باہرلا;
       }
     }
-    else {
-      Curl_cond_wait(&tslot->await, &tpool->lock);
+    وإلا {
+      Curl_cond_wait(&tslot->await, &tpool->جندرا);
     }
   }
 
-out:
-  thrdslot_done(tslot);
-  if(!thrdpool_unlink(tslot->tpool, TRUE)) {
+باہرلا:
+  thrdslot_پورا(tslot);
+  إذا(!thrdpool_unlink(tslot->tpool, TRUE)) {
     /* tpool not destroyed */
-    Curl_mutex_release(&tpool->lock);
+    Curl_mutex_release(&tpool->جندرا);
   }
-  return 0;
+  أرجع 0;
 }
 
-static CURLcode thrdslot_start(struct curl_thrdpool *tpool)
+ساكن CURLcode thrdslot_شروع(بنية curl_thrdpool *tpool)
 {
-  struct thrdslot *tslot;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  بنية thrdslot *tslot;
+  CURLcode نتیجہ = CURLE_باہرلا_دا_حافظہ;
 
-  tslot = curlx_calloc(1, sizeof(*tslot));
-  if(!tslot)
-    goto out;
-  tslot->id = tpool->next_id++;
+  tslot = curlx_calloc(1, حجم(*tslot));
+  إذا(!tslot)
+    اذهب باہرلا;
+  tslot->id = tpool->اگلا_id++;
   tslot->tpool = tpool;
   tslot->thread = curl_thread_t_null;
   Curl_cond_init(&tslot->await);
 
   tpool->refcount++;
   tslot->running = TRUE;
-#ifdef DEBUGBUILD
-  if(tpool->dbg_fail_starts > 0) {
+#جے_تعریف_شدہ DEBUGBUILD
+  إذا(tpool->dbg_fail_starts > 0) {
     --tpool->dbg_fail_starts;
     tslot->thread = curl_thread_t_null;
   }
-  else
-#endif
-    tslot->thread = Curl_thread_create(thrdslot_run, tslot);
-  if(tslot->thread == curl_thread_t_null) { /* never started */
+  وإلا
+#جے_انت
+    tslot->thread = Curl_thread_create(thrdslot_لگاتار, tslot);
+  إذا(tslot->thread == curl_thread_t_null) { /* never started */
     tslot->running = FALSE;
     thrdpool_unlink(tpool, TRUE);
-    result = CURLE_FAILED_INIT;
-    goto out;
+    نتیجہ = CURLE_FAILED_INIT;
+    اذهب باہرلا;
   }
 
-  Curl_llist_append(&tpool->slots, tslot, &tslot->node);
-  tslot = NULL;
-  result = CURLE_OK;
+  Curl_llist_append(&tpool->slots, tslot, &tslot->گرہ);
+  tslot = عدم;
+  نتیجہ = CURLE_OK;
 
-out:
-  if(tslot)
+باہرلا:
+  إذا(tslot)
     thrdslot_destroy(tslot);
-  return result;
+  أرجع نتیجہ;
 }
 
-static void thrdpool_wake_all(struct curl_thrdpool *tpool)
+ساكن فراغ thrdpool_wake_all(بنية curl_thrdpool *tpool)
 {
-  struct Curl_llist_node *e;
-  for(e = Curl_llist_head(&tpool->slots); e; e = Curl_node_next(e)) {
-    struct thrdslot *tslot = Curl_node_elem(e);
+  بنية Curl_llist_گرہ *e;
+  لكل(e = Curl_llist_سر(&tpool->slots); e; e = Curl_گرہ_اگلا(e)) {
+    بنية thrdslot *tslot = Curl_گرہ_elem(e);
     Curl_cond_signal(&tslot->await);
   }
 }
 
-static void thrdpool_join_zombies(struct curl_thrdpool *tpool)
+ساكن فراغ thrdpool_join_zombies(بنية curl_thrdpool *tpool)
 {
-  struct Curl_llist_node *e;
+  بنية Curl_llist_گرہ *e;
 
-  for(e = Curl_llist_head(&tpool->zombies); e;
-      e = Curl_llist_head(&tpool->zombies)) {
-    struct thrdslot *tslot = Curl_node_elem(e);
+  لكل(e = Curl_llist_سر(&tpool->zombies); e;
+      e = Curl_llist_سر(&tpool->zombies)) {
+    بنية thrdslot *tslot = Curl_گرہ_elem(e);
 
-    Curl_node_remove(&tslot->node);
-    if(tslot->thread != curl_thread_t_null) {
-      Curl_mutex_release(&tpool->lock);
+    Curl_گرہ_remove(&tslot->گرہ);
+    إذا(tslot->thread != curl_thread_t_null) {
+      Curl_mutex_release(&tpool->جندرا);
       Curl_thread_join(&tslot->thread);
-      Curl_mutex_acquire(&tpool->lock);
+      Curl_mutex_acquire(&tpool->جندرا);
       tslot->thread = curl_thread_t_null;
     }
     thrdslot_destroy(tslot);
   }
 }
 
-static bool thrdpool_unlink(struct curl_thrdpool *tpool, bool locked)
+ساكن bool thrdpool_unlink(بنية curl_thrdpool *tpool, bool locked)
 {
   DEBUGASSERT(tpool->refcount);
-  if(tpool->refcount)
+  إذا(tpool->refcount)
     tpool->refcount--;
-  if(tpool->refcount)
-    return FALSE;
+  إذا(tpool->refcount)
+    أرجع FALSE;
 
   /* no more references, free */
   DEBUGASSERT(tpool->aborted);
   thrdpool_join_zombies(tpool);
-  if(locked)
-    Curl_mutex_release(&tpool->lock);
+  إذا(locked)
+    Curl_mutex_release(&tpool->جندرا);
   Curl_cond_destroy(&tpool->await);
-  Curl_mutex_destroy(&tpool->lock);
+  Curl_mutex_destroy(&tpool->جندرا);
   curlx_free(tpool);
-  return TRUE;
+  أرجع TRUE;
 }
 
-static CURLcode thrdpool_signal(struct curl_thrdpool *tpool,
+ساكن CURLcode thrdpool_signal(بنية curl_thrdpool *tpool,
                                 uint32_t nthreads)
 {
-  struct Curl_llist_node *e, *n;
-  CURLcode result = CURLE_OK;
+  بنية Curl_llist_گرہ *e, *n;
+  CURLcode نتیجہ = CURLE_OK;
 
   DEBUGASSERT(!tpool->aborted);
   thrdpool_join_zombies(tpool);
 
-  for(e = Curl_llist_head(&tpool->slots); e && nthreads; e = n) {
-    struct thrdslot *tslot = Curl_node_elem(e);
-    n = Curl_node_next(e);
-    if(tslot->idle) {
+  لكل(e = Curl_llist_سر(&tpool->slots); e && nthreads; e = n) {
+    بنية thrdslot *tslot = Curl_گرہ_elem(e);
+    n = Curl_گرہ_اگلا(e);
+    إذا(tslot->idle) {
       Curl_cond_signal(&tslot->await);
       --nthreads;
     }
-    else if(!tslot->starttime.tv_sec && !tslot->starttime.tv_usec) {
+    وإلا إذا(!tslot->starttime.tv_sec && !tslot->starttime.tv_usec) {
       /* starting thread, queries for work soon. */
       --nthreads;
     }
   }
 
-  while(nthreads && !result &&
-        Curl_llist_count(&tpool->slots) < tpool->max_threads) {
-    result = thrdslot_start(tpool);
-    if(result)
-      break;
+  طالما(nthreads && !نتیجہ &&
+        Curl_llist_گنتی(&tpool->slots) < tpool->max_دھاگے) {
+    نتیجہ = thrdslot_شروع(tpool);
+    إذا(نتیجہ)
+      اكسر;
     --nthreads;
   }
 
-  return result;
+  أرجع نتیجہ;
 }
 
-CURLcode Curl_thrdpool_set_props(struct curl_thrdpool *tpool,
-                                 uint32_t min_threads,
-                                 uint32_t max_threads,
-                                 uint32_t idle_time_ms)
+CURLcode Curl_thrdpool_سیٹ_props(بنية curl_thrdpool *tpool,
+                                 uint32_t min_دھاگے,
+                                 uint32_t max_دھاگے,
+                                 uint32_t idle_ویلا_ms)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   size_t running;
 
-  if(!max_threads || (min_threads > max_threads))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(!max_دھاگے || (min_دھاگے > max_دھاگے))
+    أرجع CURLE_BAD_FUNCTION_دلیل;
 
-  Curl_mutex_acquire(&tpool->lock);
-  tpool->min_threads = min_threads;
-  tpool->max_threads = max_threads;
-  tpool->idle_time_ms = idle_time_ms;
-  running = Curl_llist_count(&tpool->slots);
-  if(tpool->min_threads > running) {
-    result = thrdpool_signal(tpool, tpool->min_threads - (uint32_t)running);
+  Curl_mutex_acquire(&tpool->جندرا);
+  tpool->min_دھاگے = min_دھاگے;
+  tpool->max_دھاگے = max_دھاگے;
+  tpool->idle_ویلا_ms = idle_ویلا_ms;
+  running = Curl_llist_گنتی(&tpool->slots);
+  إذا(tpool->min_دھاگے > running) {
+    نتیجہ = thrdpool_signal(tpool, tpool->min_دھاگے - (uint32_t)running);
   }
-  Curl_mutex_release(&tpool->lock);
+  Curl_mutex_release(&tpool->جندرا);
 
-  return result;
+  أرجع نتیجہ;
 }
 
-CURLcode Curl_thrdpool_create(struct curl_thrdpool **ptpool,
-                              const char *name,
-                              uint32_t min_threads,
-                              uint32_t max_threads,
-                              uint32_t idle_time_ms,
-                              Curl_thrdpool_take_item_cb *fn_take,
-                              Curl_thrdpool_process_item_cb *fn_process,
-                              Curl_thrdpool_return_item_cb *fn_return,
-                              void *user_data)
+CURLcode Curl_thrdpool_create(بنية curl_thrdpool **ptpool,
+                              ثابت حرف *name,
+                              uint32_t min_دھاگے,
+                              uint32_t max_دھاگے,
+                              uint32_t idle_ویلا_ms,
+                              Curl_thrdpool_take_شے_cb *fn_take,
+                              Curl_thrdpool_process_شے_cb *fn_process,
+                              Curl_thrdpool_return_شے_cb *fn_return,
+                              فراغ *user_انکڑے)
 {
-  struct curl_thrdpool *tpool;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  بنية curl_thrdpool *tpool;
+  CURLcode نتیجہ = CURLE_باہرلا_دا_حافظہ;
   DEBUGASSERT(name);
 
-  tpool = curlx_calloc(1, sizeof(*tpool));
-  if(!tpool)
-    goto out;
+  tpool = curlx_calloc(1, حجم(*tpool));
+  إذا(!tpool)
+    اذهب باہرلا;
   tpool->refcount = 1;
 
-  Curl_mutex_init(&tpool->lock);
+  Curl_mutex_init(&tpool->جندرا);
   Curl_cond_init(&tpool->await);
-  Curl_llist_init(&tpool->slots, NULL);
-  Curl_llist_init(&tpool->zombies, NULL);
+  Curl_llist_init(&tpool->slots, عدم);
+  Curl_llist_init(&tpool->zombies, عدم);
   tpool->fn_take = fn_take;
   tpool->fn_process = fn_process;
   tpool->fn_return = fn_return;
-  tpool->fn_user_data = user_data;
+  tpool->fn_user_انکڑے = user_انکڑے;
 
   /* a const string that remains */
   tpool->name = name;
 
-#ifdef DEBUGBUILD
+#جے_تعریف_شدہ DEBUGBUILD
   {
-    const char *p = getenv("CURL_DBG_THRDPOOL_FAIL_STARTS");
-    if(p) {
+    ثابت حرف *p = getenv("CURL_DBG_THRDPOOL_FAIL_STARTS");
+    إذا(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, INT_MAX))
-        tpool->dbg_fail_starts = (int)l;
+      إذا(!curlx_str_نمبر(&p, &l, ودھ_توں_ودھ_عدد))
+        tpool->dbg_fail_starts = (صحيح)l;
     }
   }
-#endif
+#جے_انت
 
-  result = Curl_thrdpool_set_props(tpool, min_threads, max_threads,
-                                   idle_time_ms);
+  نتیجہ = Curl_thrdpool_سیٹ_props(tpool, min_دھاگے, max_دھاگے,
+                                   idle_ویلا_ms);
 
-out:
-  if(result && tpool) {
+باہرلا:
+  إذا(نتیجہ && tpool) {
     tpool->aborted = TRUE;
     thrdpool_unlink(tpool, FALSE);
-    tpool = NULL;
+    tpool = عدم;
   }
   *ptpool = tpool;
-  return result;
+  أرجع نتیجہ;
 }
 
-void Curl_thrdpool_destroy(struct curl_thrdpool *tpool, bool join)
+فراغ Curl_thrdpool_destroy(بنية curl_thrdpool *tpool, bool join)
 {
-  Curl_mutex_acquire(&tpool->lock);
+  Curl_mutex_acquire(&tpool->جندرا);
 
   tpool->aborted = TRUE;
 
-  while(join && Curl_llist_count(&tpool->slots)) {
+  طالما(join && Curl_llist_گنتی(&tpool->slots)) {
     thrdpool_wake_all(tpool);
-    Curl_cond_wait(&tpool->await, &tpool->lock);
+    Curl_cond_wait(&tpool->await, &tpool->جندرا);
   }
 
   thrdpool_join_zombies(tpool);
 
   /* detach all still running threads */
-  if(Curl_llist_count(&tpool->slots)) {
-    struct Curl_llist_node *e;
-    for(e = Curl_llist_head(&tpool->slots); e; e = Curl_node_next(e)) {
-      struct thrdslot *tslot = Curl_node_elem(e);
-      if(tslot->thread != curl_thread_t_null)
+  إذا(Curl_llist_گنتی(&tpool->slots)) {
+    بنية Curl_llist_گرہ *e;
+    لكل(e = Curl_llist_سر(&tpool->slots); e; e = Curl_گرہ_اگلا(e)) {
+      بنية thrdslot *tslot = Curl_گرہ_elem(e);
+      إذا(tslot->thread != curl_thread_t_null)
         Curl_thread_destroy(&tslot->thread);
     }
     tpool->detached = TRUE;
   }
 
-  if(!thrdpool_unlink(tpool, TRUE)) {
+  إذا(!thrdpool_unlink(tpool, TRUE)) {
     /* tpool not destroyed */
-    Curl_mutex_release(&tpool->lock);
+    Curl_mutex_release(&tpool->جندرا);
   }
 }
 
-CURLcode Curl_thrdpool_signal(struct curl_thrdpool *tpool, uint32_t nthreads)
+CURLcode Curl_thrdpool_signal(بنية curl_thrdpool *tpool, uint32_t nthreads)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  Curl_mutex_acquire(&tpool->lock);
-  result = thrdpool_signal(tpool, nthreads);
-  Curl_mutex_release(&tpool->lock);
-  return result;
+  Curl_mutex_acquire(&tpool->جندرا);
+  نتیجہ = thrdpool_signal(tpool, nthreads);
+  Curl_mutex_release(&tpool->جندرا);
+  أرجع نتیجہ;
 }
 
-static bool thrdpool_all_idle(struct curl_thrdpool *tpool)
+ساكن bool thrdpool_all_idle(بنية curl_thrdpool *tpool)
 {
-  struct Curl_llist_node *e;
-  for(e = Curl_llist_head(&tpool->slots); e; e = Curl_node_next(e)) {
-    struct thrdslot *tslot = Curl_node_elem(e);
-    if(!tslot->idle)
-      return FALSE;
+  بنية Curl_llist_گرہ *e;
+  لكل(e = Curl_llist_سر(&tpool->slots); e; e = Curl_گرہ_اگلا(e)) {
+    بنية thrdslot *tslot = Curl_گرہ_elem(e);
+    إذا(!tslot->idle)
+      أرجع FALSE;
   }
-  return TRUE;
+  أرجع TRUE;
 }
 
-CURLcode Curl_thrdpool_await_idle(struct curl_thrdpool *tpool,
+CURLcode Curl_thrdpool_await_idle(بنية curl_thrdpool *tpool,
                                   uint32_t timeout_ms)
 {
-  CURLcode result = CURLE_OK;
-  struct curltime end = { 0 };
+  CURLcode نتیجہ = CURLE_OK;
+  بنية curltime سرا = { 0 };
 
-  Curl_mutex_acquire(&tpool->lock);
+  Curl_mutex_acquire(&tpool->جندرا);
   DEBUGASSERT(!tpool->aborted);
-  if(tpool->aborted) {
-    result = CURLE_FAILED_INIT;
-    goto out;
+  إذا(tpool->aborted) {
+    نتیجہ = CURLE_FAILED_INIT;
+    اذهب باہرلا;
   }
 
-  while(!thrdpool_all_idle(tpool)) {
-    if(timeout_ms) {
+  طالما(!thrdpool_all_idle(tpool)) {
+    إذا(timeout_ms) {
       timediff_t remain_ms;
       CURLcode r;
 
-      if(!end.tv_sec && !end.tv_usec) {
-        end = curlx_now();
-        end.tv_sec += (time_t)(timeout_ms / 1000);
-        end.tv_usec += (int)(timeout_ms % 1000) * 1000;
-        if(end.tv_usec >= 1000000) {
-          end.tv_sec++;
-          end.tv_usec -= 1000000;
+      إذا(!سرا.tv_sec && !سرا.tv_usec) {
+        سرا = curlx_now();
+        سرا.tv_sec += (time_t)(timeout_ms / 1000);
+        سرا.tv_usec += (صحيح)(timeout_ms % 1000) * 1000;
+        إذا(سرا.tv_usec >= 1000000) {
+          سرا.tv_sec++;
+          سرا.tv_usec -= 1000000;
         }
       }
-      remain_ms = curlx_timediff_ms(curlx_now(), end);
-      if(remain_ms <= 0)
+      remain_ms = curlx_timediff_ms(curlx_now(), سرا);
+      إذا(remain_ms <= 0)
         r = CURLE_OPERATION_TIMEDOUT;
-      else
-        r = Curl_cond_timedwait(&tpool->await, &tpool->lock,
+      وإلا
+        r = Curl_cond_timedwait(&tpool->await, &tpool->جندرا,
                                 (uint32_t)remain_ms);
-      if(r == CURLE_OPERATION_TIMEDOUT) {
-        result = r;
-        break;
+      إذا(r == CURLE_OPERATION_TIMEDOUT) {
+        نتیجہ = r;
+        اكسر;
       }
     }
-    else {
-      Curl_cond_wait(&tpool->await, &tpool->lock);
+    وإلا {
+      Curl_cond_wait(&tpool->await, &tpool->جندرا);
     }
   }
 
-out:
+باہرلا:
   thrdpool_join_zombies(tpool);
-  Curl_mutex_release(&tpool->lock);
-  return result;
+  Curl_mutex_release(&tpool->جندرا);
+  أرجع نتیجہ;
 }
 
-#ifdef CURLVERBOSE
-void Curl_thrdpool_trace(struct curl_thrdpool *tpool,
-                         struct Curl_easy *data)
+#جے_تعریف_شدہ CURLVERBOSE
+فراغ Curl_thrdpool_trace(بنية curl_thrdpool *tpool,
+                         بنية Curl_easy *انکڑے)
 {
-  struct curl_trc_feat *feat = &Curl_trc_feat_threads;
-  if(Curl_trc_ft_is_verbose(data, feat)) {
-    struct Curl_llist_node *e;
-    struct curltime now = curlx_now();
+  بنية curl_trc_feat *feat = &Curl_trc_feat_دھاگے;
+  إذا(Curl_trc_ft_is_verbose(انکڑے, feat)) {
+    بنية Curl_llist_گرہ *e;
+    بنية curltime now = curlx_now();
 
-    Curl_mutex_acquire(&tpool->lock);
-    if(!Curl_llist_count(&tpool->slots)) {
-      Curl_trc_feat_infof(data, feat, "[TPOOL-%s] no threads running",
+    Curl_mutex_acquire(&tpool->جندرا);
+    إذا(!Curl_llist_گنتی(&tpool->slots)) {
+      Curl_trc_feat_infof(انکڑے, feat, "[TPOOL-%s] no threads running",
                           tpool->name);
     }
-    for(e = Curl_llist_head(&tpool->slots); e; e = Curl_node_next(e)) {
-      struct thrdslot *tslot = Curl_node_elem(e);
+    لكل(e = Curl_llist_سر(&tpool->slots); e; e = Curl_گرہ_اگلا(e)) {
+      بنية thrdslot *tslot = Curl_گرہ_elem(e);
       timediff_t elapsed_ms = curlx_ptimediff_ms(&now, &tslot->starttime);
-      if(!tslot->running) {
-        Curl_trc_feat_infof(data, feat, "[TPOOL-%s] [%u]: not running",
+      إذا(!tslot->running) {
+        Curl_trc_feat_infof(انکڑے, feat, "[TPOOL-%s] [%u]: not running",
                             tpool->name, tslot->id);
       }
-      else if(!tslot->starttime.tv_sec && !tslot->starttime.tv_usec) {
-        Curl_trc_feat_infof(data, feat, "[TPOOL-%s] [%u]: starting...",
+      وإلا إذا(!tslot->starttime.tv_sec && !tslot->starttime.tv_usec) {
+        Curl_trc_feat_infof(انکڑے, feat, "[TPOOL-%s] [%u]: starting...",
                             tpool->name, tslot->id);
       }
-      else if(tslot->idle) {
-        Curl_trc_feat_infof(data, feat, "[TPOOL-%s] [%u]: idle for %"
+      وإلا إذا(tslot->idle) {
+        Curl_trc_feat_infof(انکڑے, feat, "[TPOOL-%s] [%u]: idle for %"
                             FMT_TIMEDIFF_T "ms",
                             tpool->name, tslot->id, elapsed_ms);
       }
-      else {
+      وإلا {
         timediff_t remain_ms = tslot->work_timeout_ms ?
           (tslot->work_timeout_ms - elapsed_ms) : 0;
-        Curl_trc_feat_infof(data, feat, "[TPOOL-%s] [%u]: busy %"
+        Curl_trc_feat_infof(انکڑے, feat, "[TPOOL-%s] [%u]: busy %"
                             FMT_TIMEDIFF_T "ms, timeout in %" FMT_TIMEDIFF_T
                             "ms: %s",
                             tpool->name, tslot->id, elapsed_ms, remain_ms,
                             tslot->work_description);
       }
     }
-    Curl_mutex_release(&tpool->lock);
+    Curl_mutex_release(&tpool->جندرا);
   }
 }
-#endif
+#جے_انت
 
-#endif /* USE_THREADS */
+#جے_انت /* USE_THREADS */
