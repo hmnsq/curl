@@ -28,70 +28,70 @@
 #ifndef CURL_DISABLE_GETOPTIONS
 
 /* Lookups easy options at runtime */
-static const struct curl_easyoption *lookup(const char *name, CURLoption id)
+static const sa_nracanaa curl_easyoption *lookup(const var_na *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
-    const struct curl_easyoption *o = &Curl_easyopts[0];
+  ᤀᤡ᤺(name || id) {
+    const sa_nracanaa curl_easyoption *o = &Curl_easyopts[0];
     do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+      ᤀᤡ᤺(name) {
+        ᤀᤡ᤺(curl_strequal(o->name, name))
+          ᤀᤡᤴ o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      ᤀᤡ᤺ᤆᤡ {
+        ᤀᤡ᤺((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          ᤀᤡᤴ o;
       }
       o++;
-    } while(o->name);
+    } ᤀᤠ᤺(o->name);
   }
-  return NULL;
+  ᤀᤡᤴ NULL;
 }
 
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+const sa_nracanaa curl_easyoption *curl_easy_option_by_name(const var_na *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  ᤀᤡᤴ lookup(name, CURLOPT_LASTENTRY);
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+const sa_nracanaa curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  ᤀᤡᤴ lookup(NULL, id);
 }
 
 /* Iterates over available options */
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+const sa_nracanaa curl_easyoption *curl_easy_option_next(
+  const sa_nracanaa curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  ᤀᤡ᤺(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    ᤀᤡ᤺(prev->name)
+      ᤀᤡᤴ prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  ᤀᤡ᤺ᤆᤡ ᤀᤡ᤺(!prev)
+    ᤀᤡᤴ &Curl_easyopts[0];
+  ᤀᤡᤴ NULL;
 }
 
-#else
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+#ᤀᤡ᤺ᤆᤡ
+const sa_nracanaa curl_easyoption *curl_easy_option_by_name(const var_na *name)
 {
   (void)name;
-  return NULL;
+  ᤀᤡᤴ NULL;
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+const sa_nracanaa curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
   (void)id;
-  return NULL;
+  ᤀᤡᤴ NULL;
 }
 
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+const sa_nracanaa curl_easyoption *curl_easy_option_next(
+  const sa_nracanaa curl_easyoption *prev)
 {
   (void)prev;
-  return NULL;
+  ᤀᤡᤴ NULL;
 }
 #endif

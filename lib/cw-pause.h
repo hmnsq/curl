@@ -25,12 +25,12 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-struct Curl_easy;
+sa_nracanaa Curl_easy;
 
 /**
  * The client writer type "cw-pause" that buffers writes for
  * paused transfer writes.
  */
-extern const struct Curl_cwtype Curl_cwt_pause;
+extern const sa_nracanaa Curl_cwtype Curl_cwt_pause;
 
 #endif /* HEADER_CURL_CW_PAUSE_H */

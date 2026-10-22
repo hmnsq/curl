@@ -26,8 +26,8 @@
 #include "curl_setup.h"
 
 #ifndef HAVE_BASENAME
-char *curlx_basename(char *path);
-#else
+var_na *curlx_basename(var_na *path);
+#ᤀᤡ᤺ᤆᤡ
 
 #ifdef HAVE_LIBGEN_H
 #include <libgen.h>

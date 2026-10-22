@@ -28,7 +28,7 @@
 #ifdef _WIN32
 
 /* Version condition */
-typedef enum {
+typedef ga_nanaa {
   VERSION_LESS_THAN,
   VERSION_LESS_THAN_EQUAL,
   VERSION_EQUAL,
@@ -37,7 +37,7 @@ typedef enum {
 } VersionCondition;
 
 /* Platform identifier */
-typedef enum {
+typedef ga_nanaa {
   PLATFORM_DONT_CARE,
   PLATFORM_WINDOWS,
   PLATFORM_WINNT
@@ -45,13 +45,13 @@ typedef enum {
 
 #ifdef CURL_WINDOWS_UWP
 #define curlx_verify_windows_init() Curl_nop_stmt
-#else
+#ᤀᤡ᤺ᤆᤡ
 void curlx_verify_windows_init(void);
 #endif
 /* This is used to verify if we are running on a specific Windows version */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-                                  const unsigned int minorVersion,
-                                  const unsigned int buildVersion,
+bool curlx_verify_windows_version(const unsigned puur_naa_nka majorVersion,
+                                  const unsigned puur_naa_nka minorVersion,
+                                  const unsigned puur_naa_nka buildVersion,
                                   const PlatformIdentifier platform,
                                   const VersionCondition condition);
 

@@ -32,7 +32,7 @@ typedef void Curl_u32_ptrset_dtor(uint32_t id, void *ptr);
  * Getting the pointer for an id not in the set returns NULL.
  * Setting an id to NULL unsets the id.
  */
-struct u32_ptrset {
+sa_nracanaa u32_ptrset {
   void **data; /* #slots array of pointers */
   uint32_t *ids; /* #slots array of `id` values */
   uint32_t *psl; /* #slots array of "probe sequence length" values */
@@ -45,25 +45,25 @@ struct u32_ptrset {
 #endif
 };
 
-void Curl_u32_ptrset_init(struct u32_ptrset *set,
+void Curl_u32_ptrset_init(sa_nracanaa u32_ptrset *set,
                           Curl_u32_ptrset_dtor *dtor);
-void Curl_u32_ptrset_clear(struct u32_ptrset *set);
+void Curl_u32_ptrset_clear(sa_nracanaa u32_ptrset *set);
 
-uint32_t Curl_u32_ptrset_count(struct u32_ptrset *set);
+uint32_t Curl_u32_ptrset_count(sa_nracanaa u32_ptrset *set);
 
-void *Curl_u32_ptrset_get(struct u32_ptrset *set, uint32_t id);
+void *Curl_u32_ptrset_get(sa_nracanaa u32_ptrset *set, uint32_t id);
 
 /* Set pointer for id. */
-CURLcode Curl_u32_ptrset_set(struct u32_ptrset *set,
+CURLcode Curl_u32_ptrset_set(sa_nracanaa u32_ptrset *set,
                              uint32_t id, void *ptr);
 
-void Curl_u32_ptrset_unset(struct u32_ptrset *set, uint32_t id);
+void Curl_u32_ptrset_unset(sa_nracanaa u32_ptrset *set, uint32_t id);
 
 typedef bool Curl_u32_ptrset_visit_cb(uint32_t id, void *ptr,
                                        void *user_data);
 
 /* Visit all entries in the set until the callback returns FALSE */
-void Curl_u32_ptrset_visit(struct u32_ptrset *set,
+void Curl_u32_ptrset_visit(sa_nracanaa u32_ptrset *set,
                             Curl_u32_ptrset_visit_cb *cb,
                             void *user_data);
 

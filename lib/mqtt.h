@@ -24,9 +24,9 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_MQTT
-extern const struct Curl_protocol Curl_protocol_mqtt;
+extern const sa_nracanaa Curl_protocol Curl_protocol_mqtt;
 #ifdef USE_SSL
-extern const struct Curl_protocol Curl_protocol_mqtts;
+extern const sa_nracanaa Curl_protocol Curl_protocol_mqtts;
 #endif
 #endif
 

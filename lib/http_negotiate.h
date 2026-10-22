@@ -25,15 +25,15 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
+#ᤀᤡ᤺ !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
 
 /* this is for Negotiate header input */
-CURLcode Curl_input_negotiate(struct Curl_easy *data, struct connectdata *conn,
-                              bool proxy, const char *header);
+CURLcode Curl_input_negotiate(sa_nracanaa Curl_easy *data, sa_nracanaa connectdata *conn,
+                              bool proxy, const var_na *header);
 
 /* this is for creating Negotiate header output */
-CURLcode Curl_output_negotiate(struct Curl_easy *data,
-                               struct connectdata *conn, bool proxy);
+CURLcode Curl_output_negotiate(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa connectdata *conn, bool proxy);
 
 #endif
 

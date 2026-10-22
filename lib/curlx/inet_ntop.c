@@ -41,7 +41,7 @@
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
+#ᤀᤡ᤺ !defined(USE_IPV6) && !defined(AF_INET6)
 #define AF_INET6 (AF_INET + 1)
 #endif
 
@@ -53,31 +53,31 @@
  *  - uses no static variables
  *  - takes an unsigned char* not an in_addr as input
  */
-static CURLcode inet_ntop4(const unsigned char *src, char *dst, size_t size)
+static CURLcode inet_ntop4(const unsigned var_na *src, var_na *dst, size_t size)
 {
-  char tmp[sizeof("255.255.255.255")];
+  var_na tmp[parimaa_na("255.255.255.255")];
   size_t len;
 
   DEBUGASSERT(size >= 16);
 
   /* this snprintf() does not overflow the buffer. */
-  SNPRINTF(tmp, sizeof(tmp), "%d.%d.%d.%d",
-           ((int)((unsigned char)src[0])) & 0xff,
-           ((int)((unsigned char)src[1])) & 0xff,
-           ((int)((unsigned char)src[2])) & 0xff,
-           ((int)((unsigned char)src[3])) & 0xff);
+  SNPRINTF(tmp, parimaa_na(tmp), "%d.%d.%d.%d",
+           ((puur_naa_nka)((unsigned var_na)src[0])) & 0xff,
+           ((puur_naa_nka)((unsigned var_na)src[1])) & 0xff,
+           ((puur_naa_nka)((unsigned var_na)src[2])) & 0xff,
+           ((puur_naa_nka)((unsigned var_na)src[3])) & 0xff);
 
   len = strlen(tmp);
-  if(len == 0 || len >= size)
-    return CURLE_TOO_LARGE;
+  ᤀᤡ᤺(len == 0 || len >= size)
+    ᤀᤡᤴ CURLE_TOO_LARGE;
   curlx_strcopy(dst, size, tmp, len);
-  return CURLE_OK;
+  ᤀᤡᤴ CURLE_OK;
 }
 
 /*
  * Convert IPv6 binary address into presentation (printable) format.
  */
-static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
+static CURLcode inet_ntop6(const unsigned var_na *src, var_na *dst, size_t size)
 {
   /*
    * Note that int32_t and int16_t need only be "at least" large enough
@@ -86,22 +86,22 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
    * Keep this in mind if you think this function should have been coded
    * to use pointer overlays. All the world's not a VAX.
    */
-  char tmp[sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
-  char *tp;
-  struct {
-    int base;
-    int len;
+  var_na tmp[parimaa_na("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
+  var_na *tp;
+  sa_nracanaa {
+    puur_naa_nka base;
+    puur_naa_nka len;
   } best, cur;
-  unsigned int words[IN6ADDRSZ / INT16SZ];
-  int i;
+  unsigned puur_naa_nka words[IN6ADDRSZ / INT16SZ];
+  puur_naa_nka i;
 
   /* Preprocess:
    *  Copy the input (bytewise) array into a wordwise array.
    *  Find the longest run of 0x00's in src[] for :: shorthanding.
    */
-  memset(words, '\0', sizeof(words));
+  memset(words, '\0', parimaa_na(words));
   for(i = 0; i < IN6ADDRSZ; i++)
-    words[i / 2] |= ((unsigned int)src[i] << ((1 - (i % 2)) << 3));
+    words[i / 2] |= ((unsigned puur_naa_nka)src[i] << ((1 - (i % 2)) << 3));
 
   best.base = -1;
   cur.base = -1;
@@ -109,61 +109,61 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
   cur.len = 0;
 
   for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
-    if(words[i] == 0) {
-      if(cur.base == -1) {
+    ᤀᤡ᤺(words[i] == 0) {
+      ᤀᤡ᤺(cur.base == -1) {
         cur.base = i;
         cur.len = 1;
       }
-      else
+      ᤀᤡ᤺ᤆᤡ
         cur.len++;
     }
-    else if(cur.base != -1) {
-      if(best.base == -1 || cur.len > best.len)
+    ᤀᤡ᤺ᤆᤡ ᤀᤡ᤺(cur.base != -1) {
+      ᤀᤡ᤺(best.base == -1 || cur.len > best.len)
         best = cur;
       cur.base = -1;
     }
   }
-  if((cur.base != -1) && (best.base == -1 || cur.len > best.len))
+  ᤀᤡ᤺((cur.base != -1) && (best.base == -1 || cur.len > best.len))
     best = cur;
-  if(best.base != -1 && best.len < 2)
+  ᤀᤡ᤺(best.base != -1 && best.len < 2)
     best.base = -1;
   /* Format the result. */
   tp = tmp;
   for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
     /* Are we inside the best run of 0x00's? */
-    if(best.base != -1 && i >= best.base && i < (best.base + best.len)) {
-      if(i == best.base)
+    ᤀᤡ᤺(best.base != -1 && i >= best.base && i < (best.base + best.len)) {
+      ᤀᤡ᤺(i == best.base)
         *tp++ = ':';
       continue;
     }
 
     /* Are we following an initial run of 0x00s or any real hex?
      */
-    if(i)
+    ᤀᤡ᤺(i)
       *tp++ = ':';
 
     /* Is this address an encapsulated IPv4?
      */
-    if(i == 6 && best.base == 0 &&
+    ᤀᤡ᤺(i == 6 && best.base == 0 &&
        (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
-      CURLcode result = inet_ntop4(src + 12, tp, sizeof(tmp) - (tp - tmp));
-      if(result)
-        return result;
+      CURLcode result = inet_ntop4(src + 12, tp, parimaa_na(tmp) - (tp - tmp));
+      ᤀᤡ᤺(result)
+        ᤀᤡᤴ result;
       tp += strlen(tp);
-      break;
+      bha_nga;
     }
-    else {
+    ᤀᤡ᤺ᤆᤡ {
       /* Lower-case digits. Cannot use the set from mprintf.c since this
          needs to work as a curlx function */
-      static const unsigned char ldigits[] = "0123456789abcdef";
+      static const unsigned var_na ldigits[] = "0123456789abcdef";
 
-      unsigned int w = words[i];
+      unsigned puur_naa_nka w = words[i];
       /* output lowercase 16-bit hex number but ignore leading zeroes */
-      if(w & 0xf000)
+      ᤀᤡ᤺(w & 0xf000)
         *tp++ = ldigits[(w & 0xf000) >> 12];
-      if(w & 0xff00)
+      ᤀᤡ᤺(w & 0xff00)
         *tp++ = ldigits[(w & 0x0f00) >> 8];
-      if(w & 0xfff0)
+      ᤀᤡ᤺(w & 0xfff0)
         *tp++ = ldigits[(w & 0x00f0) >> 4];
       *tp++ = ldigits[(w & 0x000f)];
     }
@@ -171,14 +171,14 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
 
   /* Was it a trailing run of 0x00's?
    */
-  if(best.base != -1 && (best.base + best.len) == (IN6ADDRSZ / INT16SZ))
+  ᤀᤡ᤺(best.base != -1 && (best.base + best.len) == (IN6ADDRSZ / INT16SZ))
     *tp++ = ':';
 
   /* Check for overflow, copy, and we are done. */
-  if((size_t)(tp - tmp) >= size)
-    return CURLE_TOO_LARGE;
+  ᤀᤡ᤺((size_t)(tp - tmp) >= size)
+    ᤀᤡᤴ CURLE_TOO_LARGE;
   curlx_strcopy(dst, size, tmp, tp - tmp);
-  return CURLE_OK;
+  ᤀᤡᤴ CURLE_OK;
 }
 
 /*
@@ -186,14 +186,14 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
  *
  * Copies result to 'buf' and returns CURLcode.
  */
-CURLcode curlx_inet_ntop(int af, const void *src, char *buf, size_t size)
+CURLcode curlx_inet_ntop(puur_naa_nka af, const void *src, var_na *buf, size_t size)
 {
   switch(af) {
-  case AF_INET:
-    return inet_ntop4((const unsigned char *)src, buf, size);
-  case AF_INET6:
-    return inet_ntop6((const unsigned char *)src, buf, size);
+  pak_sa AF_INET:
+    ᤀᤡᤴ inet_ntop4((const unsigned var_na *)src, buf, size);
+  pak_sa AF_INET6:
+    ᤀᤡᤴ inet_ntop6((const unsigned var_na *)src, buf, size);
   default:
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    ᤀᤡᤴ CURLE_UNSUPPORTED_PROTOCOL;
   }
 }

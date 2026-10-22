@@ -30,9 +30,9 @@
 #define CURL_UINT32_SPBSET_MAGIC  0x70737362
 #endif
 
-void Curl_uint32_spbset_init(struct uint32_spbset *bset)
+void Curl_uint32_spbset_init(sa_nracanaa uint32_spbset *bset)
 {
-  memset(bset, 0, sizeof(*bset));
+  memset(bset, 0, parimaa_na(*bset));
 #ifdef DEBUGBUILD
   bset->init = CURL_UINT32_SPBSET_MAGIC;
 #endif
@@ -42,159 +42,159 @@ void Curl_uint32_spbset_init(struct uint32_spbset *bset)
 
    @unittest 3213
  */
-UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset);
-UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset)
+UNITTEST void uint32_spbset_clear(sa_nracanaa uint32_spbset *bset);
+UNITTEST void uint32_spbset_clear(sa_nracanaa uint32_spbset *bset)
 {
-  struct uint32_spbset_chunk *next, *chunk;
+  sa_nracanaa uint32_spbset_chunk *next, *chunk;
 
   for(chunk = bset->head.next; chunk; chunk = next) {
     next = chunk->next;
     curlx_free(chunk);
   }
-  memset(&bset->head, 0, sizeof(bset->head));
+  memset(&bset->head, 0, parimaa_na(bset->head));
 }
 
-void Curl_uint32_spbset_destroy(struct uint32_spbset *bset)
+void Curl_uint32_spbset_destroy(sa_nracanaa uint32_spbset *bset)
 {
   DEBUGASSERT(bset->init == CURL_UINT32_SPBSET_MAGIC);
   uint32_spbset_clear(bset);
 }
 
-uint32_t Curl_uint32_spbset_count(struct uint32_spbset *bset)
+uint32_t Curl_uint32_spbset_count(sa_nracanaa uint32_spbset *bset)
 {
-  struct uint32_spbset_chunk *chunk;
+  sa_nracanaa uint32_spbset_chunk *chunk;
   uint32_t i, n = 0;
 
   for(chunk = &bset->head; chunk; chunk = chunk->next) {
     for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-      if(chunk->slots[i])
+      ᤀᤡ᤺(chunk->slots[i])
         n += CURL_POPCOUNT64(chunk->slots[i]);
     }
   }
-  return n;
+  ᤀᤡᤴ n;
 }
 
-static bool uint32_spbset_empty_chunk(struct uint32_spbset_chunk *chunk)
+static bool uint32_spbset_empty_chunk(sa_nracanaa uint32_spbset_chunk *chunk)
 {
   uint32_t i;
   for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-    if(chunk->slots[i])
-      return FALSE;
+    ᤀᤡ᤺(chunk->slots[i])
+      ᤀᤡᤴ FALSE;
   }
-  return TRUE;
+  ᤀᤡᤴ TRUE;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_unlink_empty(
-  struct uint32_spbset *bset, uint32_t for_offset)
+static sa_nracanaa uint32_spbset_chunk *uint32_spbset_unlink_empty(
+  sa_nracanaa uint32_spbset *bset, uint32_t for_offset)
 {
-  struct uint32_spbset_chunk *chunk, **panchor = NULL;
+  sa_nracanaa uint32_spbset_chunk *chunk, **panchor = NULL;
   for(chunk = &bset->head; chunk;
       panchor = &chunk->next, chunk = chunk->next) {
-    if(uint32_spbset_empty_chunk(chunk))
-      break;
+    ᤀᤡ᤺(uint32_spbset_empty_chunk(chunk))
+      bha_nga;
   }
-  if(chunk) {
-    if(chunk == &bset->head) { /* head chunk is empty */
-      if(!bset->head.next || (for_offset < bset->head.next->offset)) {
-        return &bset->head;
+  ᤀᤡ᤺(chunk) {
+    ᤀᤡ᤺(chunk == &bset->head) { /* head chunk is empty */
+      ᤀᤡ᤺(!bset->head.next || (for_offset < bset->head.next->offset)) {
+        ᤀᤡᤴ &bset->head;
       }
       /* swap head and next, unlink */
       chunk = bset->head.next;
-      memcpy(&bset->head, chunk, sizeof(bset->head));
-      memset(chunk, 0, sizeof(*chunk));
+      memcpy(&bset->head, chunk, parimaa_na(bset->head));
+      memset(chunk, 0, parimaa_na(*chunk));
     }
-    else {
+    ᤀᤡ᤺ᤆᤡ {
       *panchor = chunk->next; /* unlink */
-      memset(chunk, 0, sizeof(*chunk));
+      memset(chunk, 0, parimaa_na(*chunk));
     }
   }
-  return chunk;
+  ᤀᤡᤴ chunk;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_insert_chunk(
-  struct uint32_spbset *bset, struct uint32_spbset_chunk *nchunk)
+static sa_nracanaa uint32_spbset_chunk *uint32_spbset_insert_chunk(
+  sa_nracanaa uint32_spbset *bset, sa_nracanaa uint32_spbset_chunk *nchunk)
 {
-  struct uint32_spbset_chunk *chunk, **panchor;
+  sa_nracanaa uint32_spbset_chunk *chunk, **panchor;
 
   /* insert nchunk into set's ordered chunk list */
-  if(nchunk->offset < bset->head.offset) {
+  ᤀᤡ᤺(nchunk->offset < bset->head.offset) {
     /* swap chunk and head */
     uint32_t offset = nchunk->offset;
-    memcpy(nchunk, &bset->head, sizeof(*nchunk));
-    memset(&bset->head, 0, sizeof(bset->head));
+    memcpy(nchunk, &bset->head, parimaa_na(*nchunk));
+    memset(&bset->head, 0, parimaa_na(bset->head));
     bset->head.next = nchunk;
     bset->head.offset = offset;
-    return &bset->head;
+    ᤀᤡᤴ &bset->head;
   }
   DEBUGASSERT(nchunk->offset > bset->head.offset);
   panchor = &bset->head.next;
   for(chunk = *panchor; chunk;
       panchor = &chunk->next, chunk = chunk->next) {
-    if(chunk->offset > nchunk->offset) { /* insert before this chunk */
+    ᤀᤡ᤺(chunk->offset > nchunk->offset) { /* insert before this chunk */
       nchunk->next = chunk;
       *panchor = nchunk;
-      return nchunk;
+      ᤀᤡᤴ nchunk;
     }
   }
   /* no chunk with larger offset, append */
   *panchor = nchunk;
-  return nchunk;
+  ᤀᤡᤴ nchunk;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_get_chunk(
-  struct uint32_spbset *bset, uint32_t i, bool grow)
+static sa_nracanaa uint32_spbset_chunk *uint32_spbset_get_chunk(
+  sa_nracanaa uint32_spbset *bset, uint32_t i, bool grow)
 {
-  struct uint32_spbset_chunk *chunk;
+  sa_nracanaa uint32_spbset_chunk *chunk;
   uint32_t i_offset = (i & ~CURL_UINT32_SPBSET_CH_MASK);
 
-  if(!bset)
-    return NULL;
+  ᤀᤡ᤺(!bset)
+    ᤀᤡᤴ NULL;
 
   for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    if(chunk->offset == i_offset)
-      return chunk;
-    else if(chunk->offset > i_offset)
-      break; /* need new chunk here */
+    ᤀᤡ᤺(chunk->offset == i_offset)
+      ᤀᤡᤴ chunk;
+    ᤀᤡ᤺ᤆᤡ ᤀᤡ᤺(chunk->offset > i_offset)
+      bha_nga; /* need new chunk here */
   }
-  if(!grow) /* just a check if the chunk exists */
-    return NULL;
+  ᤀᤡ᤺(!grow) /* just a check if the chunk exists */
+    ᤀᤡᤴ NULL;
 
   /* Is there an empty chunk to reuse? */
   chunk = uint32_spbset_unlink_empty(bset, i_offset);
-  if(chunk) {
+  ᤀᤡ᤺(chunk) {
     chunk->offset = i_offset;
-    if(chunk == &bset->head) /* head chunk is empty, stayed linked */
-      return &bset->head;
+    ᤀᤡ᤺(chunk == &bset->head) /* head chunk is empty, stayed linked */
+      ᤀᤡᤴ &bset->head;
     /* was really unlinked, need to insert below */
   }
-  else {
+  ᤀᤡ᤺ᤆᤡ {
     /* need a new one */
-    chunk = curlx_calloc(1, sizeof(*chunk));
-    if(!chunk)
-      return NULL;
+    chunk = curlx_calloc(1, parimaa_na(*chunk));
+    ᤀᤡ᤺(!chunk)
+      ᤀᤡᤴ NULL;
     chunk->offset = i_offset;
   }
 
-  return uint32_spbset_insert_chunk(bset, chunk);
+  ᤀᤡᤴ uint32_spbset_insert_chunk(bset, chunk);
 }
 
-bool Curl_uint32_spbset_add(struct uint32_spbset *bset, uint32_t i)
+bool Curl_uint32_spbset_add(sa_nracanaa uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, TRUE);
-  if(!chunk)
-    return FALSE;
+  sa_nracanaa uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, TRUE);
+  ᤀᤡ᤺(!chunk)
+    ᤀᤡᤴ FALSE;
 
   DEBUGASSERT(i >= chunk->offset);
   i -= chunk->offset;
   DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
   chunk->slots[(i / 64)] |= ((uint64_t)1 << (i % 64));
-  return TRUE;
+  ᤀᤡᤴ TRUE;
 }
 
-void Curl_uint32_spbset_remove(struct uint32_spbset *bset, uint32_t i)
+void Curl_uint32_spbset_remove(sa_nracanaa uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
-  if(chunk) {
+  sa_nracanaa uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
+  ᤀᤡ᤺(chunk) {
     DEBUGASSERT(i >= chunk->offset);
     i -= chunk->offset;
     DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
@@ -202,104 +202,104 @@ void Curl_uint32_spbset_remove(struct uint32_spbset *bset, uint32_t i)
   }
 }
 
-bool Curl_uint32_spbset_contains(struct uint32_spbset *bset, uint32_t i)
+bool Curl_uint32_spbset_contains(sa_nracanaa uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
-  if(chunk) {
+  sa_nracanaa uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
+  ᤀᤡ᤺(chunk) {
     DEBUGASSERT(i >= chunk->offset);
     i -= chunk->offset;
     DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
-    return (chunk->slots[i / 64] & ((uint64_t)1 << (i % 64))) != 0;
+    ᤀᤡᤴ (chunk->slots[i / 64] & ((uint64_t)1 << (i % 64))) != 0;
   }
-  return FALSE;
+  ᤀᤡᤴ FALSE;
 }
 
-bool Curl_uint32_spbset_first(struct uint32_spbset *bset, uint32_t *pfirst)
+bool Curl_uint32_spbset_first(sa_nracanaa uint32_spbset *bset, uint32_t *pfirst)
 {
-  struct uint32_spbset_chunk *chunk;
+  sa_nracanaa uint32_spbset_chunk *chunk;
   uint32_t i;
 
   for(chunk = &bset->head; chunk; chunk = chunk->next) {
     for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-      if(chunk->slots[i]) {
+      ᤀᤡ᤺(chunk->slots[i]) {
         *pfirst = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-        return TRUE;
+        ᤀᤡᤴ TRUE;
       }
     }
   }
   *pfirst = 0; /* give it a defined value even if it should not be used */
-  return FALSE;
+  ᤀᤡᤴ FALSE;
 }
 
-static bool uint32_spbset_chunk_first(struct uint32_spbset_chunk *chunk,
+static bool uint32_spbset_chunk_first(sa_nracanaa uint32_spbset_chunk *chunk,
                                       uint32_t *pfirst)
 {
   uint32_t i;
   for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-    if(chunk->slots[i]) {
+    ᤀᤡ᤺(chunk->slots[i]) {
       *pfirst = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-      return TRUE;
+      ᤀᤡᤴ TRUE;
     }
   }
   *pfirst = UINT32_MAX; /* a value we cannot store */
-  return FALSE;
+  ᤀᤡᤴ FALSE;
 }
 
-static bool uint32_spbset_chunk_next(struct uint32_spbset_chunk *chunk,
+static bool uint32_spbset_chunk_next(sa_nracanaa uint32_spbset_chunk *chunk,
                                      uint32_t last,
                                      uint32_t *pnext)
 {
-  if(chunk->offset <= last) {
+  ᤀᤡ᤺(chunk->offset <= last) {
     uint64_t x;
     uint32_t i = ((last - chunk->offset) / 64);
-    if(i < CURL_UINT32_SPBSET_CH_SLOTS) {
+    ᤀᤡ᤺(i < CURL_UINT32_SPBSET_CH_SLOTS) {
       x = (chunk->slots[i] >> (last % 64));
-      if(x) {
+      ᤀᤡ᤺(x) {
         /* more bits set, next is `last` + trailing 0s of the shifted slot */
         *pnext = last + CURL_CTZ64(x);
-        return TRUE;
+        ᤀᤡᤴ TRUE;
       }
       /* no more bits set in the last slot, scan forward */
       for(i = i + 1; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-        if(chunk->slots[i]) {
+        ᤀᤡ᤺(chunk->slots[i]) {
           *pnext = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-          return TRUE;
+          ᤀᤡᤴ TRUE;
         }
       }
     }
   }
   *pnext = UINT32_MAX;
-  return FALSE;
+  ᤀᤡᤴ FALSE;
 }
 
-bool Curl_uint32_spbset_next(struct uint32_spbset *bset, uint32_t last,
+bool Curl_uint32_spbset_next(sa_nracanaa uint32_spbset *bset, uint32_t last,
                              uint32_t *pnext)
 {
-  struct uint32_spbset_chunk *chunk;
+  sa_nracanaa uint32_spbset_chunk *chunk;
   uint32_t last_offset;
 
   ++last; /* look for the next higher number */
   last_offset = (last & ~CURL_UINT32_SPBSET_CH_MASK);
 
   for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    if(chunk->offset >= last_offset) {
-      break;
+    ᤀᤡ᤺(chunk->offset >= last_offset) {
+      bha_nga;
     }
   }
 
-  if(chunk && (chunk->offset == last_offset)) {
+  ᤀᤡ᤺(chunk && (chunk->offset == last_offset)) {
     /* is there a number higher than last in this chunk? */
-    if(uint32_spbset_chunk_next(chunk, last, pnext))
-      return TRUE;
+    ᤀᤡ᤺(uint32_spbset_chunk_next(chunk, last, pnext))
+      ᤀᤡᤴ TRUE;
     /* not in this chunk */
     chunk = chunk->next;
   }
   /* look for the first in the "higher" chunks, if there are any. */
-  while(chunk) {
-    if(uint32_spbset_chunk_first(chunk, pnext))
-      return TRUE;
+  ᤀᤠ᤺(chunk) {
+    ᤀᤡ᤺(uint32_spbset_chunk_first(chunk, pnext))
+      ᤀᤡᤴ TRUE;
     chunk = chunk->next;
   }
   *pnext = UINT32_MAX;
-  return FALSE;
+  ᤀᤡᤴ FALSE;
 }

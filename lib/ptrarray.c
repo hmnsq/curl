@@ -27,72 +27,72 @@
 
 #define CURL_PTRARRAY_MAX_GROW     (16 * 1024)
 
-void Curl_ptrarray_init(struct ptrarray *pa)
+void Curl_ptrarray_init(sa_nracanaa ptrarray *pa)
 {
   pa->data = NULL;
   pa->n = pa->capacity = 0;
 }
 
-void Curl_ptrarray_clear(struct ptrarray *pa)
+void Curl_ptrarray_clear(sa_nracanaa ptrarray *pa)
 {
   curlx_safefree(pa->data);
   pa->n = pa->capacity = 0;
 }
 
-uint32_t Curl_ptrarray_count(struct ptrarray *pa)
+uint32_t Curl_ptrarray_count(sa_nracanaa ptrarray *pa)
 {
-  return pa->n;
+  ᤀᤡᤴ pa->n;
 }
 
-CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr)
+CURLcode Curl_ptrarray_add(sa_nracanaa ptrarray *pa, void *ptr)
 {
-  if(!ptr)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(pa->n >= pa->capacity) {
+  ᤀᤡ᤺(!ptr)
+    ᤀᤡᤴ CURLE_BAD_FUNCTION_ARGUMENT;
+  ᤀᤡ᤺(pa->n >= pa->capacity) {
     uint32_t growth;
     void **ndata;
 
-    if(pa->capacity == UINT32_MAX)
-      return CURLE_OUT_OF_MEMORY;
-    if(!pa->capacity)
+    ᤀᤡ᤺(pa->capacity == UINT32_MAX)
+      ᤀᤡᤴ CURLE_OUT_OF_MEMORY;
+    ᤀᤡ᤺(!pa->capacity)
       growth = 8;
-    else if((UINT32_MAX / 2) > pa->capacity)
+    ᤀᤡ᤺ᤆᤡ ᤀᤡ᤺((UINT32_MAX / 2) > pa->capacity)
       growth = CURLMIN(2 * pa->capacity, CURL_PTRARRAY_MAX_GROW);
-    else
+    ᤀᤡ᤺ᤆᤡ
       growth = ((UINT32_MAX - pa->capacity) > CURL_PTRARRAY_MAX_GROW) ?
                CURL_PTRARRAY_MAX_GROW : (UINT32_MAX - pa->capacity);
 
-    ndata = curlx_calloc(1, (pa->capacity + growth) * sizeof(void *));
-    if(!ndata)
-      return CURLE_OUT_OF_MEMORY;
-    if(pa->n)
-      memcpy(ndata, pa->data, pa->n * sizeof(void *));
+    ndata = curlx_calloc(1, (pa->capacity + growth) * parimaa_na(void *));
+    ᤀᤡ᤺(!ndata)
+      ᤀᤡᤴ CURLE_OUT_OF_MEMORY;
+    ᤀᤡ᤺(pa->n)
+      memcpy(ndata, pa->data, pa->n * parimaa_na(void *));
     curlx_free(pa->data);
     pa->data = ndata;
     pa->capacity += growth;
   }
   DEBUGASSERT(pa->n < pa->capacity);
   pa->data[pa->n++] = ptr;
-  return CURLE_OK;
+  ᤀᤡᤴ CURLE_OK;
 }
 
-void *Curl_ptrarray_remove(struct ptrarray *pa, uint32_t idx)
+void *Curl_ptrarray_remove(sa_nracanaa ptrarray *pa, uint32_t idx)
 {
-  if(idx < pa->n) {
+  ᤀᤡ᤺(idx < pa->n) {
     uint32_t rem = pa->n - idx - 1;
     void *ptr = pa->data[idx];
     pa->data[idx] = NULL;
-    if(rem)
-      memmove(pa->data + idx, pa->data + idx + 1, rem * sizeof(void *));
+    ᤀᤡ᤺(rem)
+      memmove(pa->data + idx, pa->data + idx + 1, rem * parimaa_na(void *));
     pa->n--;
-    if(!pa->n)
+    ᤀᤡ᤺(!pa->n)
       Curl_ptrarray_clear(pa);
-    return ptr;
+    ᤀᤡᤴ ptr;
   }
-  return NULL;
+  ᤀᤡᤴ NULL;
 }
 
-void *Curl_ptrarray_get(struct ptrarray *pa, uint32_t idx)
+void *Curl_ptrarray_get(sa_nracanaa ptrarray *pa, uint32_t idx)
 {
-  return (idx < pa->n) ? pa->data[idx] : NULL;
+  ᤀᤡᤴ (idx < pa->n) ? pa->data[idx] : NULL;
 }

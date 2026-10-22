@@ -27,15 +27,15 @@
 
 #include "fileinfo.h"
 
-struct fileinfo *Curl_fileinfo_alloc(void)
+sa_nracanaa fileinfo *Curl_fileinfo_alloc(void)
 {
-  return curlx_calloc(1, sizeof(struct fileinfo));
+  ᤀᤡᤴ curlx_calloc(1, parimaa_na(sa_nracanaa fileinfo));
 }
 
-void Curl_fileinfo_cleanup(struct fileinfo *finfo)
+void Curl_fileinfo_cleanup(sa_nracanaa fileinfo *finfo)
 {
-  if(!finfo)
-    return;
+  ᤀᤡ᤺(!finfo)
+    ᤀᤡᤴ;
 
   curlx_dyn_free(&finfo->buf);
   curlx_free(finfo);
