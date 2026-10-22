@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_SNPRINTF_H
-#define HEADER_CURLX_SNPRINTF_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURLX_SNPRINTF_H
+#నిర్వచించు శీర్షిక_CURLX_SNPRINTF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,23 +23,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
 /* Raw snprintf() for curlx */
 
-#ifdef _WIN32
-void curlx_win32_snprintf(char *buf, size_t maxlen, const char *fmt, ...)
+#నిర్వచితమైతే _WIN32
+శూన్య curlx_win32_snprintf(అక్షరం *buf, size_t maxlen, స్థిరరాశి అక్షరం *fmt, ...)
   CURL_PRINTF(3, 4);
-#endif
+#అయితే_ముగింపు
 
-#ifdef WITHOUT_LIBCURL /* when built for the test servers */
-#ifdef _WIN32
-#define SNPRINTF curlx_win32_snprintf
-#else
-#define SNPRINTF snprintf
-#endif
-#else /* !WITHOUT_LIBCURL */
-#include <curl/mprintf.h>
-#define SNPRINTF curl_msnprintf
-#endif /* WITHOUT_LIBCURL */
-#endif /* HEADER_CURLX_SNPRINTF_H */
+#నిర్వచితమైతే WITHOUT_LIBCURL /* when built for the test servers */
+#నిర్వచితమైతే _WIN32
+#నిర్వచించు SNPRINTF curlx_win32_snprintf
+#లేకపోతే
+#నిర్వచించు SNPRINTF snprintf
+#అయితే_ముగింపు
+#లేకపోతే /* !WITHOUT_LIBCURL */
+#అన్తర్భావ <curl/mprintf.h>
+#నిర్వచించు SNPRINTF curl_msnprintf
+#అయితే_ముగింపు /* WITHOUT_LIBCURL */
+#అయితే_ముగింపు /* HEADER_CURLX_SNPRINTF_H */

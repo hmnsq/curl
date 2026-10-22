@@ -21,1017 +21,1017 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "vquic/vquic.h"
-#include "vtls/vtls.h"
+#అన్తర్భావ "curl_setup.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "vquic/vquic.h"
+#అన్తర్భావ "vtls/vtls.h"
 
-#include "curl_trc.h"
+#అన్తర్భావ "curl_trc.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
 
-#ifdef HAVE_NETINET_UDP_H
-#include <netinet/udp.h>
-#endif
-#ifdef HAVE_NETINET_IP_H
-#include <netinet/ip.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_UDP_H
+#అన్తర్భావ <netinet/udp.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETINET_IP_H
+#అన్తర్భావ <netinet/ip.h>
+#అయితే_ముగింపు
 
-#ifdef USE_NGHTTP3
-#include <nghttp3/nghttp3.h>
-#endif
+#నిర్వచితమైతే USE_NGHTTP3
+#అన్తర్భావ <nghttp3/nghttp3.h>
+#అయితే_ముగింపు
 
-#if defined(USE_APPLE_FAST_UDP) && defined(__APPLE__)
-#include <sys/syscall.h>
-#if defined(SYS_recvmsg_x) && defined(SYS_sendmsg_x)
-#define HAVE_APPLE_MSG_X
-#endif
-#endif
+#ఒకవేళ defined(USE_APPLE_FAST_UDP) && defined(__APPLE__)
+#అన్తర్భావ <sys/syscall.h>
+#ఒకవేళ defined(SYS_recvmsg_x) && defined(SYS_sendmsg_x)
+#నిర్వచించు HAVE_APPLE_సందేశం_X
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#include "bufq.h"
-#include "curlx/dynbuf.h"
-#include "curlx/win32-fopen.h"
-#include "connect.h"
-#include "cfilters.h"
-#include "vdns/cf-dns.h"
-#include "vquic/cf-ngtcp2.h"
-#include "vquic/cf-ngtcp2-cmn.h"
-#include "vquic/cf-ngtcp2-proxy.h"
-#include "vquic/cf-quiche.h"
-#include "multiif.h"
-#include "progress.h"
-#include "rand.h"
-#include "vquic/vquic_int.h"
-#include "curlx/strerr.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "bufq.h"
+#అన్తర్భావ "curlx/dynbuf.h"
+#అన్తర్భావ "curlx/win32-fopen.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "vdns/cf-dns.h"
+#అన్తర్భావ "vquic/cf-ngtcp2.h"
+#అన్తర్భావ "vquic/cf-ngtcp2-cmn.h"
+#అన్తర్భావ "vquic/cf-ngtcp2-proxy.h"
+#అన్తర్భావ "vquic/cf-quiche.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "rand.h"
+#అన్తర్భావ "vquic/vquic_int.h"
+#అన్తర్భావ "curlx/strerr.h"
+#అన్తర్భావ "curlx/strparse.h"
 
 
-#define NW_CHUNK_SIZE     (64 * 1024)
-#define NW_SEND_CHUNKS    1
+#నిర్వచించు NW_CHUNK_కొలత     (64 * 1024)
+#నిర్వచించు NW_SEND_CHUNKS    1
 
-#ifdef HAVE_APPLE_MSG_X
+#నిర్వచితమైతే HAVE_APPLE_సందేశం_X
 
 /* this is `struct msghdr` with an additional field at the end */
-struct msghdr_x {
-  void *msg_name;           /* optional address */
+నిర్మాణం msghdr_x {
+  శూన్య *సందేశం_name;           /* optional address */
   socklen_t msg_namelen;    /* size of address */
-  struct iovec *msg_iov;    /* scatter/gather array */
-  int msg_iovlen;           /* # elements in msg_iov */
-  void *msg_control;        /* ancillary data, see below */
+  నిర్మాణం iovec *msg_iov;    /* scatter/gather array */
+  పూర్ణాంకం సందేశం_iovlen;           /* # elements in msg_iov */
+  శూన్య *సందేశం_control;        /* ancillary data, see below */
   socklen_t msg_controllen; /* ancillary data buffer len */
-  int msg_flags;            /* flags on received message */
-  size_t msg_datalen;       /* byte length of buffer in msg_iov */
+  పూర్ణాంకం సందేశం_flags;            /* flags on received message */
+  size_t సందేశం_datalen;       /* byte length of buffer in msg_iov */
 };
-#endif
+#అయితే_ముగింపు
 
-#ifdef CURLVERBOSE
-#ifdef HAVE_APPLE_MSG_X
-#define VQUIC_SEND_METHOD   "sendmsg_x"
-#elif defined(HAVE_SENDMSG)
-#define VQUIC_SEND_METHOD   "sendmsg"
-#else
-#define VQUIC_SEND_METHOD   "send"
-#endif
-#endif
+#నిర్వచితమైతే CURLVERBOSE
+#నిర్వచితమైతే HAVE_APPLE_సందేశం_X
+#నిర్వచించు VQUIC_SEND_పద్ధతి   "sendmsg_x"
+#లేదావేళ defined(HAVE_SENDMSG)
+#నిర్వచించు VQUIC_SEND_పద్ధతి   "sendmsg"
+#లేకపోతే
+#నిర్వచించు VQUIC_SEND_పద్ధతి   "send"
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-int Curl_vquic_init(void)
+పూర్ణాంకం Curl_vquic_init(శూన్య)
 {
-#if defined(USE_NGTCP2) && defined(OPENSSL_QUIC_API2)
-  if(ngtcp2_crypto_ossl_init())
-    return 0;
-#endif
+#ఒకవేళ defined(USE_NGTCP2) && defined(OPENSSL_QUIC_API2)
+  ఒకవేళ(ngtcp2_crypto_ossl_init())
+    తిరిగి 0;
+#అయితే_ముగింపు
 
-  return 1;
+  తిరిగి 1;
 }
 
-void Curl_vquic_cleanup(void)
+శూన్య Curl_vquic_cleanup(శూన్య)
 {
-#if defined(USE_NGTCP2) && defined(OPENSSL_QUIC_API2) && \
-  (NGTCP2_VERSION_NUM >= 0x011800)
+#ఒకవేళ defined(USE_NGTCP2) && defined(OPENSSL_QUIC_API2) && \
+  (NGTCP2_సంస్కరణ_అంకె >= 0x011800)
   ngtcp2_crypto_ossl_free();
-#endif
+#అయితే_ముగింపు
 }
 
-void Curl_quic_ver(char *p, size_t len)
+శూన్య Curl_quic_ver(అక్షరం *p, size_t len)
 {
-#if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#ఒకవేళ defined(USE_NGTCP2) && defined(USE_NGHTTP3)
   Curl_ngtcp2_ver(p, len);
-#elif defined(USE_QUICHE)
+#లేదావేళ defined(USE_QUICHE)
   Curl_quiche_ver(p, len);
-#endif
+#అయితే_ముగింపు
 }
 
-CURLcode Curl_vquic_ctx_init(struct Curl_easy *data,
-                             struct cf_quic_ctx *qctx)
+CURLcode Curl_vquic_ctx_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం cf_quic_ctx *qctx)
 {
-  Curl_bufq_init2(&qctx->sendbuf, NW_CHUNK_SIZE, NW_SEND_CHUNKS,
-                  BUFQ_OPT_SOFT_LIMIT);
-#if defined(__linux__) && defined(UDP_SEGMENT) && defined(HAVE_SENDMSG)
+  Curl_bufq_init2(&qctx->sendbuf, NW_CHUNK_కొలత, NW_SEND_CHUNKS,
+                  BUFQ_OPT_SOFT_హద్దు);
+#ఒకవేళ defined(__linux__) && defined(UDP_SEGMENT) && defined(HAVE_SENDMSG)
   qctx->no_gso = FALSE;
-#elif defined(HAVE_APPLE_MSG_X)
+#లేదావేళ defined(HAVE_APPLE_సందేశం_X)
   qctx->no_gso = FALSE;
-#else
+#లేకపోతే
   qctx->no_gso = TRUE;
-#endif
-#ifdef DEBUGBUILD
+#అయితే_ముగింపు
+#నిర్వచితమైతే DEBUGBUILD
   {
-    const char *p = getenv("CURL_DBG_QUIC_WBLOCK");
-    if(p) {
+    స్థిరరాశి అక్షరం *p = getenv("CURL_DBG_QUIC_WBLOCK");
+    ఒకవేళ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
-        qctx->wblock_percent = (int)l;
+      ఒకవేళ(!curlx_str_సంఖ్య(&p, &l, 100))
+        qctx->wblock_percent = (పూర్ణాంకం)l;
     }
   }
-#endif
-  Curl_vquic_ctx_set_time(qctx, Curl_pgrs_now(data));
+#అయితే_ముగింపు
+  Curl_vquic_ctx_సమితి_సమయం(qctx, Curl_pgrs_now(దత్తాంశం));
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-void Curl_vquic_ctx_free(struct cf_quic_ctx *qctx)
+శూన్య Curl_vquic_ctx_free(నిర్మాణం cf_quic_ctx *qctx)
 {
   Curl_bufq_free(&qctx->sendbuf);
 }
 
-void Curl_vquic_ctx_set_time(struct cf_quic_ctx *qctx,
-                             const struct curltime *pnow)
+శూన్య Curl_vquic_ctx_సమితి_సమయం(నిర్మాణం cf_quic_ctx *qctx,
+                             స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  qctx->last_op = *pnow;
+  qctx->చివరి_op = *pnow;
 }
 
-void Curl_vquic_ctx_update_time(struct cf_quic_ctx *qctx,
-                                const struct curltime *pnow)
+శూన్య Curl_vquic_ctx_update_సమయం(నిర్మాణం cf_quic_ctx *qctx,
+                                స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  qctx->last_op = *pnow;
+  qctx->చివరి_op = *pnow;
 }
 
-#ifdef HAVE_APPLE_MSG_X
-static CURLcode do_sendmsg(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct cf_quic_ctx *qctx,
-                           const uint8_t *pkt, size_t pktlen, size_t gsolen,
+#నిర్వచితమైతే HAVE_APPLE_సందేశం_X
+స్థిర CURLcode do_sendmsg(నిర్మాణం Curl_cfilter *cf,
+                           నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం cf_quic_ctx *qctx,
+                           స్థిరరాశి uint8_t *pkt, size_t pktlen, size_t gsolen,
                            size_t *psent)
 {
-#define MSG_X_SNUM  64
-  struct iovec msg_iov[MSG_X_SNUM];
-  struct msghdr_x mmsg[MSG_X_SNUM];
-  char errstr[STRERROR_LEN];
-  size_t n, i = 0, sent = 0;
-  int rc;
-  CURLcode result = CURLE_OK;
+#నిర్వచించు సందేశం_X_SNUM  64
+  నిర్మాణం iovec msg_iov[సందేశం_X_SNUM];
+  నిర్మాణం msghdr_x mmsg[సందేశం_X_SNUM];
+  అక్షరం errstr[STRERROR_LEN];
+  size_t n, i = 0, పంపిన = 0;
+  పూర్ణాంకం rc;
+  CURLcode ఫలితం = CURLE_OK;
   VERBOSE(size_t calls = 0);
 
   *psent = 0;
-  if(!pktlen)
-    return CURLE_OK;
-  if(!gsolen || (pktlen < gsolen))
+  ఒకవేళ(!pktlen)
+    తిరిగి CURLE_OK;
+  ఒకవేళ(!gsolen || (pktlen < gsolen))
     gsolen = pktlen;
   n = (pktlen + gsolen - 1) / gsolen;
-  while(i < n) {
-    size_t j, batch = CURLMIN(n - i, MSG_X_SNUM), pkts_sent = 0;
+  అయితే(i < n) {
+    size_t j, batch = CURLMIN(n - i, సందేశం_X_SNUM), pkts_పంపిన = 0;
 
-    for(j = 0; j < batch; ++j) {
-      const size_t offset = (i + j) * gsolen;
-      msg_iov[j].iov_base = CURL_UNCONST(pkt + offset);
-      msg_iov[j].iov_len = CURLMIN(gsolen, pktlen - offset);
-      memset(&mmsg[j], 0, sizeof(mmsg[j]));
+    కొరకు(j = 0; j < batch; ++j) {
+      స్థిరరాశి size_t స్థానభ్రంశం = (i + j) * gsolen;
+      msg_iov[j].iov_base = CURL_UNCONST(pkt + స్థానభ్రంశం);
+      msg_iov[j].iov_len = CURLMIN(gsolen, pktlen - స్థానభ్రంశం);
+      memset(&mmsg[j], 0, పరిమాణం(mmsg[j]));
       mmsg[j].msg_iov = &msg_iov[j];
-      mmsg[j].msg_iovlen = 1;
-      mmsg[j].msg_datalen = msg_iov[j].iov_len;
+      mmsg[j].సందేశం_iovlen = 1;
+      mmsg[j].సందేశం_datalen = msg_iov[j].iov_len;
     }
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-    while((rc = syscall(SYS_sendmsg_x, qctx->sockfd, &mmsg, batch, 0)) == -1 &&
+#ఒకవేళ defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#సూచన GCC diagnostic నెట్టు
+#సూచన GCC diagnostic ignored "-Wdeprecated-declarations"
+#అయితే_ముగింపు
+    అయితే((rc = syscall(SYS_sendmsg_x, qctx->sockfd, &mmsg, batch, 0)) == -1 &&
           (SOCKERRNO == SOCKEINTR))
       ;
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic pop
-#endif
+#ఒకవేళ defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#సూచన GCC diagnostic తీయి
+#అయితే_ముగింపు
 
-    if(rc < 0) {
-      if(SOCK_EAGAIN(SOCKERRNO)) {
-        CURL_TRC_CF(data, cf, "egress, sendmsg_x -> EAGAIN");
-        result = sent ? CURLE_OK : CURLE_AGAIN;
-        goto out;
+    ఒకవేళ(rc < 0) {
+      ఒకవేళ(SOCK_EAGAIN(SOCKERRNO)) {
+        CURL_TRC_CF(దత్తాంశం, cf, "egress, sendmsg_x -> EAGAIN");
+        ఫలితం = పంపిన ? CURLE_OK : CURLE_AGAIN;
+        వెళ్ళు బహిర్గతం;
       }
-      if(SOCKERRNO != SOCKEMSGSIZE) {
-        curlx_strerror(SOCKERRNO, errstr, sizeof(errstr));
-        failf(data, "QUIC: sendmsg_x() returned %d (errno=%d; %s)",
+      ఒకవేళ(SOCKERRNO != SOCKEMSGSIZE) {
+        curlx_strerror(SOCKERRNO, errstr, పరిమాణం(errstr));
+        failf(దత్తాంశం, "QUIC: sendmsg_x() returned %d (errno=%d; %s)",
               rc, SOCKERRNO, errstr);
-        result = CURLE_SEND_ERROR;
-        goto out;
+        ఫలితం = CURLE_SEND_ERROR;
+        వెళ్ళు బహిర్గతం;
       }
       /* Error was SOCKEMSGSIZE. Network stack does not accept the packet
        * length(s). This might be a PMTUD. Just drop it into the void
        * and fall through to the success handling. */
-      pkts_sent = batch;
+      pkts_పంపిన = batch;
     }
-    else
-      pkts_sent = CURLMIN((size_t)rc, batch);
+    లేకపోతే
+      pkts_పంపిన = CURLMIN((size_t)rc, batch);
 
     VERBOSE(++calls);
-    if(!pkts_sent) {  /* no packets of the current batch were sent */
-      result = sent ? CURLE_OK : CURLE_AGAIN;
-      goto out;
+    ఒకవేళ(!pkts_పంపిన) {  /* no packets of the current batch were sent */
+      ఫలితం = పంపిన ? CURLE_OK : CURLE_AGAIN;
+      వెళ్ళు బహిర్గతం;
     }
-    i += pkts_sent; /* Some have been sent */
-    for(j = 0; j < pkts_sent; ++j)
-      sent += msg_iov[j].iov_len;
-    if(pkts_sent < batch)
-      goto out; /* but not all of them */
+    i += pkts_పంపిన; /* Some have been sent */
+    కొరకు(j = 0; j < pkts_పంపిన; ++j)
+      పంపిన += msg_iov[j].iov_len;
+    ఒకవేళ(pkts_పంపిన < batch)
+      వెళ్ళు బహిర్గతం; /* but not all of them */
   }
 
-out:
-  *psent = sent;
-  if(sent || result)
-    CURL_TRC_CF(data, cf,
+బహిర్గతం:
+  *psent = పంపిన;
+  ఒకవేళ(పంపిన || ఫలితం)
+    CURL_TRC_CF(దత్తాంశం, cf,
                 "vquic_sendmsg_x(len=%zu, gso=%zu, packets=%zu, "
                 "calls=%zu) -> %d",
-                sent, gsolen, n, calls, (int)result);
-  return result;
+                పంపిన, gsolen, n, calls, (పూర్ణాంకం)ఫలితం);
+  తిరిగి ఫలితం;
 }
 
-#else /* HAVE_APPLE_MSG_X */
+#లేకపోతే /* HAVE_APPLE_MSG_X */
 
-static CURLcode send_packet_no_gso(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct cf_quic_ctx *qctx,
-                                   const uint8_t *pkt, size_t pktlen,
+స్థిర CURLcode send_packet_no_gso(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం cf_quic_ctx *qctx,
+                                   స్థిరరాశి uint8_t *pkt, size_t pktlen,
                                    size_t gsolen, size_t *psent);
 
-static CURLcode do_sendmsg(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct cf_quic_ctx *qctx,
-                           const uint8_t *pkt, size_t pktlen, size_t gsolen,
+స్థిర CURLcode do_sendmsg(నిర్మాణం Curl_cfilter *cf,
+                           నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం cf_quic_ctx *qctx,
+                           స్థిరరాశి uint8_t *pkt, size_t pktlen, size_t gsolen,
                            size_t *psent)
 {
-  CURLcode result = CURLE_OK;
-#ifdef HAVE_SENDMSG
-  struct iovec msg_iov;
-  struct msghdr msg = { 0 };
+  CURLcode ఫలితం = CURLE_OK;
+#నిర్వచితమైతే HAVE_SENDMSG
+  నిర్మాణం iovec msg_iov;
+  నిర్మాణం msghdr సందేశం = { 0 };
   ssize_t rv;
-#if defined(__linux__) && defined(UDP_SEGMENT)
-  uint8_t msg_ctrl[32];
-  struct cmsghdr *cm;
-#endif
+#ఒకవేళ defined(__linux__) && defined(UDP_SEGMENT)
+  uint8_t సందేశం_ctrl[32];
+  నిర్మాణం cmsghdr *cm;
+#అయితే_ముగింపు
 
   *psent = 0;
   msg_iov.iov_base = (uint8_t *)CURL_UNCONST(pkt);
   msg_iov.iov_len = pktlen;
-  msg.msg_iov = &msg_iov;
-  msg.msg_iovlen = 1;
+  సందేశం.msg_iov = &msg_iov;
+  సందేశం.సందేశం_iovlen = 1;
 
-#if defined(__linux__) && defined(UDP_SEGMENT)
-  if(pktlen > gsolen) {
+#ఒకవేళ defined(__linux__) && defined(UDP_SEGMENT)
+  ఒకవేళ(pktlen > gsolen) {
     /* Only set this, when we need it. macOS, for example,
      * does not seem to like a msg_control of length 0. */
-    memset(msg_ctrl, 0, sizeof(msg_ctrl));
-    msg.msg_control = msg_ctrl;
-    DEBUGASSERT(sizeof(msg_ctrl) >= CMSG_SPACE(sizeof(int)));
-    msg.msg_controllen = CMSG_SPACE(sizeof(int));
-    cm = CMSG_FIRSTHDR(&msg);
+    memset(సందేశం_ctrl, 0, పరిమాణం(సందేశం_ctrl));
+    సందేశం.సందేశం_control = సందేశం_ctrl;
+    DEBUGASSERT(పరిమాణం(సందేశం_ctrl) >= CMSG_SPACE(పరిమాణం(పూర్ణాంకం)));
+    సందేశం.msg_controllen = CMSG_SPACE(పరిమాణం(పూర్ణాంకం));
+    cm = CMSG_FIRSTHDR(&సందేశం);
     cm->cmsg_level = SOL_UDP;
     cm->cmsg_type = UDP_SEGMENT;
-    cm->cmsg_len = CMSG_LEN(sizeof(uint16_t));
-    *(uint16_t *)(void *)CMSG_DATA(cm) = gsolen & 0xffff;
+    cm->cmsg_len = CMSG_LEN(పరిమాణం(uint16_t));
+    *(uint16_t *)(శూన్య *)CMSG_DATA(cm) = gsolen & 0xffff;
   }
-#endif
+#అయితే_ముగింపు
 
-  while((rv = sendmsg(qctx->sockfd, &msg, 0)) == -1 && SOCKERRNO == SOCKEINTR)
+  అయితే((rv = sendmsg(qctx->sockfd, &సందేశం, 0)) == -1 && SOCKERRNO == SOCKEINTR)
     ;
 
-  if(!curlx_sztouz(rv, psent)) {
-    int sockerr = SOCKERRNO;
-    if(SOCK_EAGAIN(sockerr))
-      return CURLE_AGAIN;
-    switch(sockerr) {
-    case SOCKEMSGSIZE:
+  ఒకవేళ(!curlx_sztouz(rv, psent)) {
+    పూర్ణాంకం sockerr = SOCKERRNO;
+    ఒకవేళ(SOCK_EAGAIN(sockerr))
+      తిరిగి CURLE_AGAIN;
+    ఎంపిక(sockerr) {
+    స్థితి SOCKEMSGSIZE:
       /* UDP datagram is too large; caused by PMTUD. Let it be lost. */
       *psent = pktlen;
-      break;
-    case EIO:
-      if(pktlen > gsolen) {
+      ఆపు;
+    స్థితి EIO:
+      ఒకవేళ(pktlen > gsolen) {
         /* GSO failure */
-        infof(data, "sendmsg() returned %zd (errno %d); disable GSO", rv,
+        infof(దత్తాంశం, "sendmsg() returned %zd (errno %d); disable GSO", rv,
               sockerr);
         qctx->no_gso = TRUE;
-        return send_packet_no_gso(cf, data, qctx, pkt, pktlen, gsolen, psent);
+        తిరిగి send_packet_no_gso(cf, దత్తాంశం, qctx, pkt, pktlen, gsolen, psent);
       }
       FALLTHROUGH();
-    default:
-      failf(data, "sendmsg() returned %zd (errno %d)", rv, sockerr);
-      result = CURLE_SEND_ERROR;
-      goto out;
+    అప్రమేయ:
+      failf(దత్తాంశం, "sendmsg() returned %zd (errno %d)", rv, sockerr);
+      ఫలితం = CURLE_SEND_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
   }
-  else if(pktlen != *psent) {
-    failf(data, "sendmsg() sent only %zu/%zu bytes", *psent, pktlen);
-    result = CURLE_SEND_ERROR;
-    goto out;
+  లేకపోతే ఒకవేళ(pktlen != *psent) {
+    failf(దత్తాంశం, "sendmsg() sent only %zu/%zu bytes", *psent, pktlen);
+    ఫలితం = CURLE_SEND_ERROR;
+    వెళ్ళు బహిర్గతం;
   }
-#else
+#లేకపోతే
   ssize_t rv;
-  (void)gsolen;
+  (శూన్య)gsolen;
 
   *psent = 0;
 
-  while((rv = swrite(qctx->sockfd, pkt, pktlen)) == -1 &&
+  అయితే((rv = swrite(qctx->sockfd, pkt, pktlen)) == -1 &&
         SOCKERRNO == SOCKEINTR)
     ;
 
-  if(!curlx_sztouz(rv, psent)) {
-    if(SOCK_EAGAIN(SOCKERRNO)) {
-      result = CURLE_AGAIN;
-      goto out;
+  ఒకవేళ(!curlx_sztouz(rv, psent)) {
+    ఒకవేళ(SOCK_EAGAIN(SOCKERRNO)) {
+      ఫలితం = CURLE_AGAIN;
+      వెళ్ళు బహిర్గతం;
     }
-    else {
-      if(SOCKERRNO != SOCKEMSGSIZE) {
-        failf(data, "send() returned %zd (errno %d)", rv, SOCKERRNO);
-        result = CURLE_SEND_ERROR;
-        goto out;
+    లేకపోతే {
+      ఒకవేళ(SOCKERRNO != SOCKEMSGSIZE) {
+        failf(దత్తాంశం, "send() returned %zd (errno %d)", rv, SOCKERRNO);
+        ఫలితం = CURLE_SEND_ERROR;
+        వెళ్ళు బహిర్గతం;
       }
       /* UDP datagram is too large; caused by PMTUD. Let it be lost. */
       *psent = pktlen;
     }
   }
-#endif
-  (void)cf;
+#అయితే_ముగింపు
+  (శూన్య)cf;
 
-out:
-  CURL_TRC_CF(data, cf,
+బహిర్గతం:
+  CURL_TRC_CF(దత్తాంశం, cf,
               "vquic_%s(len=%zu, gso=%zu, calls=1) -> %d, sent=%zu",
-              VQUIC_SEND_METHOD, pktlen, gsolen, (int)result, *psent);
-  return result;
+              VQUIC_SEND_పద్ధతి, pktlen, gsolen, (పూర్ణాంకం)ఫలితం, *psent);
+  తిరిగి ఫలితం;
 }
 
-#endif /* !HAVE_APPLE_MSG_X */
+#అయితే_ముగింపు /* !HAVE_APPLE_MSG_X */
 
-static CURLcode send_packet_no_gso(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct cf_quic_ctx *qctx,
-                                   const uint8_t *pkt, size_t pktlen,
+స్థిర CURLcode send_packet_no_gso(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం cf_quic_ctx *qctx,
+                                   స్థిరరాశి uint8_t *pkt, size_t pktlen,
                                    size_t gsolen, size_t *psent)
 {
-  const uint8_t *p, *end = pkt + pktlen;
-  size_t sent, len;
-  CURLcode result = CURLE_OK;
+  స్థిరరాశి uint8_t *p, *చివర = pkt + pktlen;
+  size_t పంపిన, len;
+  CURLcode ఫలితం = CURLE_OK;
   VERBOSE(size_t calls = 0);
 
   *psent = 0;
 
-  for(p = pkt; p < end; p += gsolen) {
-    len = CURLMIN(gsolen, (size_t)(end - p));
-    result = do_sendmsg(cf, data, qctx, p, len, len, &sent);
-    if(result)
-      goto out;
-    *psent += sent;
+  కొరకు(p = pkt; p < చివర; p += gsolen) {
+    len = CURLMIN(gsolen, (size_t)(చివర - p));
+    ఫలితం = do_sendmsg(cf, దత్తాంశం, qctx, p, len, len, &పంపిన);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
+    *psent += పంపిన;
     VERBOSE(++calls);
   }
-out:
-  CURL_TRC_CF(data, cf,
+బహిర్గతం:
+  CURL_TRC_CF(దత్తాంశం, cf,
               "vquic_%s(len=%zu, gso=%zu, calls=%zu) -> %d, sent=%zu",
-              VQUIC_SEND_METHOD, pktlen, gsolen, calls, (int)result, *psent);
-  return result;
+              VQUIC_SEND_పద్ధతి, pktlen, gsolen, calls, (పూర్ణాంకం)ఫలితం, *psent);
+  తిరిగి ఫలితం;
 }
 
 /* Split QUIC payload by datagram (gso) boundaries when sending over a
  * non-UDP lower filter (for example CONNECT-UDP proxy tunnel). */
-static CURLcode send_packet_no_gso_cf(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      const uint8_t *pkt, size_t pktlen,
+స్థిర CURLcode send_packet_no_gso_cf(నిర్మాణం Curl_cfilter *cf,
+                                      నిర్మాణం Curl_easy *దత్తాంశం,
+                                      స్థిరరాశి uint8_t *pkt, size_t pktlen,
                                       size_t gsolen, size_t *psent)
 {
-  const uint8_t *p, *end = pkt + pktlen;
-  size_t sent, len;
-  CURLcode result = CURLE_OK;
+  స్థిరరాశి uint8_t *p, *చివర = pkt + pktlen;
+  size_t పంపిన, len;
+  CURLcode ఫలితం = CURLE_OK;
   VERBOSE(size_t calls = 0);
 
   *psent = 0;
 
   /* Send one datagram-sized chunk per call into the lower filter. */
-  for(p = pkt; p < end; p += len) {
-    len = CURLMIN(gsolen, (size_t)(end - p));
-    result = Curl_conn_cf_send(cf->next, data, p, len, FALSE, &sent);
+  కొరకు(p = pkt; p < చివర; p += len) {
+    len = CURLMIN(gsolen, (size_t)(చివర - p));
+    ఫలితం = Curl_conn_cf_send(cf->తదుపరి, దత్తాంశం, p, len, FALSE, &పంపిన);
     /* Report forward progress even if we return CURLE_AGAIN later. */
     VERBOSE(++calls);
     /* Preserve lower-filter errors (including CURLE_AGAIN). */
-    if(result)
-      goto out;
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
 
-    if(sent != len) {
+    ఒకవేళ(పంపిన != len) {
       /* We can only send the complete datagram, not parts. */
-      result = CURLE_SEND_ERROR;
-      goto out;
+      ఫలితం = CURLE_SEND_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
-    *psent += sent;
+    *psent += పంపిన;
   }
 
-out:
-  CURL_TRC_CF(data, cf,
+బహిర్గతం:
+  CURL_TRC_CF(దత్తాంశం, cf,
               "vquic_cf_send(len=%zu, gso=%zu, calls=%zu) -> %d, sent=%zu",
-              pktlen, gsolen, calls, (int)result, *psent);
-  return result;
+              pktlen, gsolen, calls, (పూర్ణాంకం)ఫలితం, *psent);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode vquic_send_packets(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct cf_quic_ctx *qctx,
-                                   const uint8_t *pkt, size_t pktlen,
+స్థిర CURLcode vquic_send_packets(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం cf_quic_ctx *qctx,
+                                   స్థిరరాశి uint8_t *pkt, size_t pktlen,
                                    size_t gsolen, size_t *psent)
 {
-  CURLcode result;
-#ifdef DEBUGBUILD
+  CURLcode ఫలితం;
+#నిర్వచితమైతే DEBUGBUILD
   /* simulate network blocking/partial writes */
-  if(qctx->wblock_percent > 0) {
-    unsigned char c;
+  ఒకవేళ(qctx->wblock_percent > 0) {
+    గుర్తులేని అక్షరం c;
     *psent = 0;
-    Curl_rand(data, &c, 1);
-    if(c >= ((100 - qctx->wblock_percent) * 256 / 100)) {
-      CURL_TRC_CF(data, cf, "vquic_flush() simulate EWOULDBLOCK");
-      return CURLE_AGAIN;
+    Curl_rand(దత్తాంశం, &c, 1);
+    ఒకవేళ(c >= ((100 - qctx->wblock_percent) * 256 / 100)) {
+      CURL_TRC_CF(దత్తాంశం, cf, "vquic_flush() simulate EWOULDBLOCK");
+      తిరిగి CURLE_AGAIN;
     }
   }
-#endif
-  if(qctx->no_gso && pktlen > gsolen) {
-    result = send_packet_no_gso(cf, data, qctx, pkt, pktlen, gsolen, psent);
+#అయితే_ముగింపు
+  ఒకవేళ(qctx->no_gso && pktlen > gsolen) {
+    ఫలితం = send_packet_no_gso(cf, దత్తాంశం, qctx, pkt, pktlen, gsolen, psent);
   }
-  else {
-    result = do_sendmsg(cf, data, qctx, pkt, pktlen, gsolen, psent);
+  లేకపోతే {
+    ఫలితం = do_sendmsg(cf, దత్తాంశం, qctx, pkt, pktlen, gsolen, psent);
   }
-  if(!result)
-    qctx->last_io = qctx->last_op;
-  return result;
+  ఒకవేళ(!ఫలితం)
+    qctx->చివరి_io = qctx->చివరి_op;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_vquic_flush(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          struct cf_quic_ctx *qctx)
+CURLcode Curl_vquic_flush(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                          నిర్మాణం cf_quic_ctx *qctx)
 {
-  const unsigned char *buf;
-  size_t blen, sent;
-  CURLcode result;
+  స్థిరరాశి గుర్తులేని అక్షరం *buf;
+  size_t blen, పంపిన;
+  CURLcode ఫలితం;
   size_t gsolen;
 
-  while(Curl_bufq_peek(&qctx->sendbuf, &buf, &blen)) {
+  అయితే(Curl_bufq_peek(&qctx->sendbuf, &buf, &blen)) {
     gsolen = qctx->gsolen;
-    if(qctx->split_len) {
-      gsolen = qctx->split_gsolen;
-      if(blen > qctx->split_len)
-        blen = qctx->split_len;
+    ఒకవేళ(qctx->విభజించు_len) {
+      gsolen = qctx->విభజించు_gsolen;
+      ఒకవేళ(blen > qctx->విభజించు_len)
+        blen = qctx->విభజించు_len;
     }
 
-    if(qctx->sockfd != CURL_SOCKET_BAD) {
+    ఒకవేళ(qctx->sockfd != CURL_SOCKET_BAD) {
       /* Direct UDP socket (via happy eyeballs) */
-      result = vquic_send_packets(cf, data, qctx, buf, blen, gsolen, &sent);
+      ఫలితం = vquic_send_packets(cf, దత్తాంశం, qctx, buf, blen, gsolen, &పంపిన);
     }
-    else {
+    లేకపోతే {
       /* Tunneled QUIC (CONNECT-UDP through proxy) */
-      if(gsolen && (blen > gsolen)) {
+      ఒకవేళ(gsolen && (blen > gsolen)) {
         /* Send one datagram at a time to preserve packet boundaries. */
-        result = send_packet_no_gso_cf(cf, data, buf, blen, gsolen, &sent);
+        ఫలితం = send_packet_no_gso_cf(cf, దత్తాంశం, buf, blen, gsolen, &పంపిన);
       }
-      else {
+      లేకపోతే {
         /* No GSO aggregate to split, regular lower-filter send is enough. */
-        result = Curl_conn_cf_send(cf->next, data, buf, blen, FALSE, &sent);
+        ఫలితం = Curl_conn_cf_send(cf->తదుపరి, దత్తాంశం, buf, blen, FALSE, &పంపిన);
       }
     }
 
-    if(result) {
-      if(result == CURLE_AGAIN) {
-        Curl_bufq_skip(&qctx->sendbuf, sent);
-        if(qctx->split_len)
-          qctx->split_len -= sent;
+    ఒకవేళ(ఫలితం) {
+      ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+        Curl_bufq_skip(&qctx->sendbuf, పంపిన);
+        ఒకవేళ(qctx->విభజించు_len)
+          qctx->విభజించు_len -= పంపిన;
       }
-      return result;
+      తిరిగి ఫలితం;
     }
-    Curl_bufq_skip(&qctx->sendbuf, sent);
-    if(qctx->split_len)
-      qctx->split_len -= sent;
+    Curl_bufq_skip(&qctx->sendbuf, పంపిన);
+    ఒకవేళ(qctx->విభజించు_len)
+      qctx->విభజించు_len -= పంపిన;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_vquic_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         struct cf_quic_ctx *qctx, size_t gsolen)
+CURLcode Curl_vquic_send(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                         నిర్మాణం cf_quic_ctx *qctx, size_t gsolen)
 {
   qctx->gsolen = gsolen;
-  return Curl_vquic_flush(cf, data, qctx);
+  తిరిగి Curl_vquic_flush(cf, దత్తాంశం, qctx);
 }
 
-CURLcode Curl_vquic_send_tail_split(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct cf_quic_ctx *qctx, size_t gsolen,
-                                    size_t tail_len, size_t tail_gsolen)
+CURLcode Curl_vquic_send_తోక_విభజించు(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం cf_quic_ctx *qctx, size_t gsolen,
+                                    size_t తోక_len, size_t తోక_gsolen)
 {
-  DEBUGASSERT(Curl_bufq_len(&qctx->sendbuf) > tail_len);
-  qctx->split_len = Curl_bufq_len(&qctx->sendbuf) - tail_len;
-  qctx->split_gsolen = gsolen;
-  qctx->gsolen = tail_gsolen;
-  CURL_TRC_CF(data, cf, "vquic_send_tail_split: [%zu gso=%zu][%zu gso=%zu]",
-              qctx->split_len, qctx->split_gsolen, tail_len, qctx->gsolen);
-  return Curl_vquic_flush(cf, data, qctx);
+  DEBUGASSERT(Curl_bufq_len(&qctx->sendbuf) > తోక_len);
+  qctx->విభజించు_len = Curl_bufq_len(&qctx->sendbuf) - తోక_len;
+  qctx->విభజించు_gsolen = gsolen;
+  qctx->gsolen = తోక_gsolen;
+  CURL_TRC_CF(దత్తాంశం, cf, "vquic_send_tail_split: [%zu gso=%zu][%zu gso=%zu]",
+              qctx->విభజించు_len, qctx->విభజించు_gsolen, తోక_len, qctx->gsolen);
+  తిరిగి Curl_vquic_flush(cf, దత్తాంశం, qctx);
 }
 
-#if (defined(HAVE_SENDMMSG) || defined(HAVE_SENDMSG)) && \
-  !defined(HAVE_APPLE_MSG_X)
-static size_t vquic_msghdr_get_udp_gro(struct msghdr *msg)
+#ఒకవేళ (defined(HAVE_SENDMMSG) || defined(HAVE_SENDMSG)) && \
+  !defined(HAVE_APPLE_సందేశం_X)
+స్థిర size_t vquic_msghdr_get_udp_gro(నిర్మాణం msghdr *సందేశం)
 {
-  int gso_size = 0;
-#if defined(__linux__) && defined(UDP_GRO)
-  struct cmsghdr *cmsg;
+  పూర్ణాంకం gso_కొలత = 0;
+#ఒకవేళ defined(__linux__) && defined(UDP_GRO)
+  నిర్మాణం cmsghdr *cmsg;
 
   /* Workaround musl CMSG_NXTHDR issue */
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-compare"
-#pragma clang diagnostic ignored "-Wcast-align"
-#endif
-  for(cmsg = CMSG_FIRSTHDR(msg); cmsg; cmsg = CMSG_NXTHDR(msg, cmsg)) {
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic pop
-#endif
-    if(cmsg->cmsg_level == SOL_UDP && cmsg->cmsg_type == UDP_GRO) {
-      memcpy(&gso_size, CMSG_DATA(cmsg), sizeof(gso_size));
+#ఒకవేళ defined(__clang__) && !defined(__GLIBC__)
+#సూచన clang diagnostic నెట్టు
+#సూచన clang diagnostic ignored "-Wsign-compare"
+#సూచన clang diagnostic ignored "-Wcast-align"
+#అయితే_ముగింపు
+  కొరకు(cmsg = CMSG_FIRSTHDR(సందేశం); cmsg; cmsg = CMSG_NXTHDR(సందేశం, cmsg)) {
+#ఒకవేళ defined(__clang__) && !defined(__GLIBC__)
+#సూచన clang diagnostic తీయి
+#అయితే_ముగింపు
+    ఒకవేళ(cmsg->cmsg_level == SOL_UDP && cmsg->cmsg_type == UDP_GRO) {
+      జ్ఞాపకం_నకలు(&gso_కొలత, CMSG_DATA(cmsg), పరిమాణం(gso_కొలత));
 
-      break;
+      ఆపు;
     }
   }
-#endif /* linux && UDP_GRO */
-  (void)msg;
+#అయితే_ముగింపు /* linux && UDP_GRO */
+  (శూన్య)సందేశం;
 
-  return (size_t)gso_size;
+  తిరిగి (size_t)gso_కొలత;
 }
-#endif /* (HAVE_SENDMMSG || HAVE_SENDMSG) && !HAVE_APPLE_MSG_X */
+#అయితే_ముగింపు /* (HAVE_SENDMMSG || HAVE_SENDMSG) && !HAVE_APPLE_MSG_X */
 
 /* IP_RECVTOS was added in the macOS 10.13 SDK */
-#if (defined(HAVE_SENDMMSG) || defined(HAVE_SENDMSG) || \
-  defined(HAVE_APPLE_MSG_X)) && \
+#ఒకవేళ (defined(HAVE_SENDMMSG) || defined(HAVE_SENDMSG) || \
+  defined(HAVE_APPLE_సందేశం_X)) && \
   ((defined(__APPLE__) && defined(IP_RECVTOS)) || \
    (!defined(__APPLE__) && defined(IP_TOS))) && \
-  defined(IPTOS_ECN_MASK)
-static uint8_t vquic_msghdr_get_ecn(struct msghdr *msg, int family)
+  defined(IPTOS_ECN_ముసుగు)
+స్థిర uint8_t vquic_msghdr_get_ecn(నిర్మాణం msghdr *సందేశం, పూర్ణాంకం family)
 {
-  struct cmsghdr *cmsg;
-  switch(family) {
-  case AF_INET:
+  నిర్మాణం cmsghdr *cmsg;
+  ఎంపిక(family) {
+  స్థితి AF_INET:
   /* Workaround musl CMSG_NXTHDR issue */
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-compare"
-#pragma clang diagnostic ignored "-Wcast-align"
-#endif
-    for(cmsg = CMSG_FIRSTHDR(msg); cmsg; cmsg = CMSG_NXTHDR(msg, cmsg)) {
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic pop
-#endif
-      if(cmsg->cmsg_level == IPPROTO_IP &&
-#ifdef __APPLE__
+#ఒకవేళ defined(__clang__) && !defined(__GLIBC__)
+#సూచన clang diagnostic నెట్టు
+#సూచన clang diagnostic ignored "-Wsign-compare"
+#సూచన clang diagnostic ignored "-Wcast-align"
+#అయితే_ముగింపు
+    కొరకు(cmsg = CMSG_FIRSTHDR(సందేశం); cmsg; cmsg = CMSG_NXTHDR(సందేశం, cmsg)) {
+#ఒకవేళ defined(__clang__) && !defined(__GLIBC__)
+#సూచన clang diagnostic తీయి
+#అయితే_ముగింపు
+      ఒకవేళ(cmsg->cmsg_level == IPPROTO_IP &&
+#నిర్వచితమైతే __APPLE__
           cmsg->cmsg_type == IP_RECVTOS
-#else
+#లేకపోతే
           cmsg->cmsg_type == IP_TOS
-#endif
+#అయితే_ముగింపు
           && cmsg->cmsg_len) {
-        return *(uint8_t *)(CMSG_DATA(cmsg)) & IPTOS_ECN_MASK;
+        తిరిగి *(uint8_t *)(CMSG_DATA(cmsg)) & IPTOS_ECN_ముసుగు;
       }
     }
-    break;
-  case AF_INET6:
+    ఆపు;
+  స్థితి AF_INET6:
   /* Workaround musl CMSG_NXTHDR issue */
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-compare"
-#pragma clang diagnostic ignored "-Wcast-align"
-#endif
-    for(cmsg = CMSG_FIRSTHDR(msg); cmsg; cmsg = CMSG_NXTHDR(msg, cmsg)) {
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic pop
-#endif
-      if(cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_TCLASS &&
+#ఒకవేళ defined(__clang__) && !defined(__GLIBC__)
+#సూచన clang diagnostic నెట్టు
+#సూచన clang diagnostic ignored "-Wsign-compare"
+#సూచన clang diagnostic ignored "-Wcast-align"
+#అయితే_ముగింపు
+    కొరకు(cmsg = CMSG_FIRSTHDR(సందేశం); cmsg; cmsg = CMSG_NXTHDR(సందేశం, cmsg)) {
+#ఒకవేళ defined(__clang__) && !defined(__GLIBC__)
+#సూచన clang diagnostic తీయి
+#అయితే_ముగింపు
+      ఒకవేళ(cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_TCLASS &&
          cmsg->cmsg_len) {
-        unsigned int tos;
+        గుర్తులేని పూర్ణాంకం tos;
 
-        memcpy(&tos, CMSG_DATA(cmsg), sizeof(int));
+        జ్ఞాపకం_నకలు(&tos, CMSG_DATA(cmsg), పరిమాణం(పూర్ణాంకం));
 
-        return (uint8_t)(tos & IPTOS_ECN_MASK);
+        తిరిగి (uint8_t)(tos & IPTOS_ECN_ముసుగు);
       }
     }
-    break;
+    ఆపు;
   }
-  return 0;
+  తిరిగి 0;
 }
-#else
-#define vquic_msghdr_get_ecn(a, b)      0
-#endif /* HAVE_SENDMMSG || HAVE_SENDMSG || HAVE_APPLE_MSG_X ... */
+#లేకపోతే
+#నిర్వచించు vquic_msghdr_get_ecn(a, b)      0
+#అయితే_ముగింపు /* HAVE_SENDMMSG || HAVE_SENDMSG || HAVE_APPLE_MSG_X ... */
 
-#ifdef HAVE_SENDMMSG
+#నిర్వచితమైతే HAVE_SENDMMSG
 
-static CURLcode recvmmsg_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
+స్థిర CURLcode recvmmsg_packets(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం cf_quic_ctx *qctx,
                                  size_t max_pkts,
-                                 Curl_vquic_recv_pkts_cb *recv_cb, void *userp,
+                                 Curl_vquic_recv_pkts_cb *recv_cb, శూన్య *userp,
                                  size_t *pnread)
 {
-#if defined(__linux__) && defined(UDP_GRO)
-#define MMSG_NUM  16
-#define UDP_GRO_CNT_MAX  64
-#define CMSG_PER_MSG_SIZE    (2 * CMSG_SPACE(sizeof(int)))
-#else
-#define MMSG_NUM  64
-#define UDP_GRO_CNT_MAX  1
-#define CMSG_PER_MSG_SIZE    CMSG_SPACE(sizeof(int))
-#endif
-#define MSG_BUF_SIZE  (UDP_GRO_CNT_MAX * 1500)
-  struct iovec msg_iov[MMSG_NUM];
-  struct mmsghdr mmsg[MMSG_NUM];
-  uint8_t msg_ctrl[MMSG_NUM * CMSG_PER_MSG_SIZE];
-  struct sockaddr_storage remote_addr[MMSG_NUM];
-  size_t total_nread = 0, pkts = 0;
-#ifdef CURLVERBOSE
+#ఒకవేళ defined(__linux__) && defined(UDP_GRO)
+#నిర్వచించు MMSG_అంకె  16
+#నిర్వచించు UDP_GRO_CNT_MAX  64
+#నిర్వచించు CMSG_చొప్పున_సందేశం_కొలత    (2 * CMSG_SPACE(పరిమాణం(పూర్ణాంకం)))
+#లేకపోతే
+#నిర్వచించు MMSG_అంకె  64
+#నిర్వచించు UDP_GRO_CNT_MAX  1
+#నిర్వచించు CMSG_చొప్పున_సందేశం_కొలత    CMSG_SPACE(పరిమాణం(పూర్ణాంకం))
+#అయితే_ముగింపు
+#నిర్వచించు సందేశం_BUF_కొలత  (UDP_GRO_CNT_MAX * 1500)
+  నిర్మాణం iovec msg_iov[MMSG_అంకె];
+  నిర్మాణం mmsghdr mmsg[MMSG_అంకె];
+  uint8_t సందేశం_ctrl[MMSG_అంకె * CMSG_చొప్పున_సందేశం_కొలత];
+  నిర్మాణం sockaddr_storage remote_addr[MMSG_అంకె];
+  size_t మొత్తం_nread = 0, pkts = 0;
+#నిర్వచితమైతే CURLVERBOSE
   size_t calls = 0;
-#endif
-  int mcount, i, n;
-  char errstr[STRERROR_LEN];
-  CURLcode result = CURLE_OK;
-  size_t gso_size;
-  char *sockbuf = NULL;
-  uint8_t (*bufs)[MSG_BUF_SIZE] = NULL;
+#అయితే_ముగింపు
+  పూర్ణాంకం mcount, i, n;
+  అక్షరం errstr[STRERROR_LEN];
+  CURLcode ఫలితం = CURLE_OK;
+  size_t gso_కొలత;
+  అక్షరం *sockbuf = ఖాళీ;
+  uint8_t (*bufs)[సందేశం_BUF_కొలత] = ఖాళీ;
   uint8_t ecn = 0;
 
   DEBUGASSERT(max_pkts > 0);
-  result = Curl_multi_xfer_sockbuf_borrow(data, MMSG_NUM * MSG_BUF_SIZE,
+  ఫలితం = Curl_multi_xfer_sockbuf_borrow(దత్తాంశం, MMSG_అంకె * సందేశం_BUF_కొలత,
                                           &sockbuf);
-  if(result)
-    goto out;
-  bufs = (uint8_t (*)[MSG_BUF_SIZE])sockbuf;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  bufs = (uint8_t (*)[సందేశం_BUF_కొలత])sockbuf;
 
-  total_nread = 0;
-  while(pkts < max_pkts) {
-    n = (int)CURLMIN(CURLMIN(MMSG_NUM, IOV_MAX), max_pkts);
-    memset(&mmsg, 0, sizeof(mmsg));
-    for(i = 0; i < n; ++i) {
+  మొత్తం_nread = 0;
+  అయితే(pkts < max_pkts) {
+    n = (పూర్ణాంకం)CURLMIN(CURLMIN(MMSG_అంకె, IOV_MAX), max_pkts);
+    memset(&mmsg, 0, పరిమాణం(mmsg));
+    కొరకు(i = 0; i < n; ++i) {
       msg_iov[i].iov_base = bufs[i];
-      msg_iov[i].iov_len = sizeof(bufs[i]);
-      mmsg[i].msg_hdr.msg_iov = &msg_iov[i];
-      mmsg[i].msg_hdr.msg_iovlen = 1;
-      mmsg[i].msg_hdr.msg_name = &remote_addr[i];
-      mmsg[i].msg_hdr.msg_namelen = sizeof(remote_addr[i]);
-      mmsg[i].msg_hdr.msg_control = &msg_ctrl[i * CMSG_PER_MSG_SIZE];
-      mmsg[i].msg_hdr.msg_controllen = CMSG_PER_MSG_SIZE;
+      msg_iov[i].iov_len = పరిమాణం(bufs[i]);
+      mmsg[i].సందేశం_hdr.msg_iov = &msg_iov[i];
+      mmsg[i].సందేశం_hdr.సందేశం_iovlen = 1;
+      mmsg[i].సందేశం_hdr.సందేశం_name = &remote_addr[i];
+      mmsg[i].సందేశం_hdr.msg_namelen = పరిమాణం(remote_addr[i]);
+      mmsg[i].సందేశం_hdr.సందేశం_control = &సందేశం_ctrl[i * CMSG_చొప్పున_సందేశం_కొలత];
+      mmsg[i].సందేశం_hdr.msg_controllen = CMSG_చొప్పున_సందేశం_కొలత;
     }
 
-    while((mcount = recvmmsg(qctx->sockfd, mmsg, n, 0, NULL)) == -1 &&
+    అయితే((mcount = recvmmsg(qctx->sockfd, mmsg, n, 0, ఖాళీ)) == -1 &&
           (SOCKERRNO == SOCKEINTR || SOCKERRNO == SOCKEMSGSIZE))
       ;
-    if(mcount == -1) {
-      if(SOCK_EAGAIN(SOCKERRNO)) {
-        CURL_TRC_CF(data, cf, "ingress, recvmmsg -> EAGAIN");
-        goto out;
+    ఒకవేళ(mcount == -1) {
+      ఒకవేళ(SOCK_EAGAIN(SOCKERRNO)) {
+        CURL_TRC_CF(దత్తాంశం, cf, "ingress, recvmmsg -> EAGAIN");
+        వెళ్ళు బహిర్గతం;
       }
-      if(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
-        struct ip_quadruple ip;
-        if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
-          failf(data, "QUIC: connection to %s port %u refused",
-                ip.remote_ip, ip.remote_port);
-        result = CURLE_COULDNT_CONNECT;
-        goto out;
+      ఒకవేళ(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
+        నిర్మాణం ip_quadruple ip;
+        ఒకవేళ(!Curl_cf_socket_peek(cf->తదుపరి, దత్తాంశం, ఖాళీ, ఖాళీ, &ip))
+          failf(దత్తాంశం, "QUIC: connection to %s port %u refused",
+                ip.remote_ip, ip.remote_పోర్టు);
+        ఫలితం = CURLE_COULDNT_CONNECT;
+        వెళ్ళు బహిర్గతం;
       }
-      curlx_strerror(SOCKERRNO, errstr, sizeof(errstr));
-      failf(data, "QUIC: recvmmsg() unexpectedly returned %d (errno=%d; %s)",
+      curlx_strerror(SOCKERRNO, errstr, పరిమాణం(errstr));
+      failf(దత్తాంశం, "QUIC: recvmmsg() unexpectedly returned %d (errno=%d; %s)",
             mcount, SOCKERRNO, errstr);
-      result = CURLE_RECV_ERROR;
-      goto out;
+      ఫలితం = CURLE_RECV_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
 
     VERBOSE(++calls);
-    for(i = 0; i < mcount; ++i) {
+    కొరకు(i = 0; i < mcount; ++i) {
       /* A zero-length UDP packet is no QUIC packet. Ignore. */
-      if(!mmsg[i].msg_len) {
+      ఒకవేళ(!mmsg[i].సందేశం_len) {
         ++pkts;
-        continue;
+        కొనసాగు;
       }
-      total_nread += mmsg[i].msg_len;
+      మొత్తం_nread += mmsg[i].సందేశం_len;
 
-      ecn = vquic_msghdr_get_ecn(&mmsg[i].msg_hdr, remote_addr[i].ss_family);
-      gso_size = vquic_msghdr_get_udp_gro(&mmsg[i].msg_hdr);
-      if(gso_size == 0)
-        gso_size = mmsg[i].msg_len;
+      ecn = vquic_msghdr_get_ecn(&mmsg[i].సందేశం_hdr, remote_addr[i].ss_family);
+      gso_కొలత = vquic_msghdr_get_udp_gro(&mmsg[i].సందేశం_hdr);
+      ఒకవేళ(gso_కొలత == 0)
+        gso_కొలత = mmsg[i].సందేశం_len;
 
-      result = recv_cb(bufs[i], mmsg[i].msg_len, gso_size,
-                       mmsg[i].msg_hdr.msg_name,
-                       mmsg[i].msg_hdr.msg_namelen, ecn, userp);
-      if(result)
-        goto out;
-      pkts += (mmsg[i].msg_len + gso_size - 1) / gso_size;
+      ఫలితం = recv_cb(bufs[i], mmsg[i].సందేశం_len, gso_కొలత,
+                       mmsg[i].సందేశం_hdr.సందేశం_name,
+                       mmsg[i].సందేశం_hdr.msg_namelen, ecn, userp);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
+      pkts += (mmsg[i].సందేశం_len + gso_కొలత - 1) / gso_కొలత;
     }
   }
 
-out:
-  if(total_nread || result)
-    CURL_TRC_CF(data, cf,
+బహిర్గతం:
+  ఒకవేళ(మొత్తం_nread || ఫలితం)
+    CURL_TRC_CF(దత్తాంశం, cf,
                 "vquic_recvmmsg(len=%zu, packets=%zu, calls=%zu) -> %d",
-                total_nread, pkts, calls, (int)result);
-  Curl_multi_xfer_sockbuf_release(data, sockbuf);
-  *pnread = total_nread;
-  return result;
+                మొత్తం_nread, pkts, calls, (పూర్ణాంకం)ఫలితం);
+  Curl_multi_xfer_sockbuf_release(దత్తాంశం, sockbuf);
+  *pnread = మొత్తం_nread;
+  తిరిగి ఫలితం;
 }
 
-#elif defined(HAVE_APPLE_MSG_X)
+#లేదావేళ defined(HAVE_APPLE_సందేశం_X)
 
-static CURLcode recvmsg_x_packets(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct cf_quic_ctx *qctx,
+స్థిర CURLcode recvmsg_x_packets(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం cf_quic_ctx *qctx,
                                   size_t max_pkts,
                                   Curl_vquic_recv_pkts_cb *recv_cb,
-                                  void *userp, size_t *pnread)
+                                  శూన్య *userp, size_t *pnread)
 {
-#define MSG_X_NUM  64
-#define MSG_BUF_SIZE  (2048)
-#define CMSG_PER_MSG_SIZE     CMSG_SPACE(sizeof(int))
-  struct iovec msg_iov[MSG_X_NUM];
-  struct msghdr_x mmsg[MSG_X_NUM];
-  uint8_t msg_ctrl[MSG_X_NUM * CMSG_PER_MSG_SIZE];
-  struct sockaddr_storage remote_addr[MSG_X_NUM];
-  size_t total_nread = 0, pkts = 0;
-#ifdef CURLVERBOSE
+#నిర్వచించు సందేశం_X_అంకె  64
+#నిర్వచించు సందేశం_BUF_కొలత  (2048)
+#నిర్వచించు CMSG_చొప్పున_సందేశం_కొలత     CMSG_SPACE(పరిమాణం(పూర్ణాంకం))
+  నిర్మాణం iovec msg_iov[సందేశం_X_అంకె];
+  నిర్మాణం msghdr_x mmsg[సందేశం_X_అంకె];
+  uint8_t సందేశం_ctrl[సందేశం_X_అంకె * CMSG_చొప్పున_సందేశం_కొలత];
+  నిర్మాణం sockaddr_storage remote_addr[సందేశం_X_అంకె];
+  size_t మొత్తం_nread = 0, pkts = 0;
+#నిర్వచితమైతే CURLVERBOSE
   size_t calls = 0;
-#endif
-  int mcount, i;
-  char errstr[STRERROR_LEN];
-  CURLcode result = CURLE_OK;
-  size_t gso_size;
-  char *sockbuf = NULL;
-  uint8_t (*bufs)[MSG_BUF_SIZE] = NULL;
+#అయితే_ముగింపు
+  పూర్ణాంకం mcount, i;
+  అక్షరం errstr[STRERROR_LEN];
+  CURLcode ఫలితం = CURLE_OK;
+  size_t gso_కొలత;
+  అక్షరం *sockbuf = ఖాళీ;
+  uint8_t (*bufs)[సందేశం_BUF_కొలత] = ఖాళీ;
   uint8_t ecn = 0;
 
   DEBUGASSERT(max_pkts > 0);
-  result = Curl_multi_xfer_sockbuf_borrow(data, MSG_X_NUM * MSG_BUF_SIZE,
+  ఫలితం = Curl_multi_xfer_sockbuf_borrow(దత్తాంశం, సందేశం_X_అంకె * సందేశం_BUF_కొలత,
                                           &sockbuf);
-  if(result)
-    goto out;
-  bufs = (uint8_t (*)[MSG_BUF_SIZE])sockbuf;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  bufs = (uint8_t (*)[సందేశం_BUF_కొలత])sockbuf;
 
-  total_nread = 0;
-  while(pkts < max_pkts) {
-    int n = (int)CURLMIN(CURLMIN(MSG_X_NUM, IOV_MAX), max_pkts);
-    memset(&mmsg, 0, sizeof(mmsg));
-    for(i = 0; i < n; ++i) {
+  మొత్తం_nread = 0;
+  అయితే(pkts < max_pkts) {
+    పూర్ణాంకం n = (పూర్ణాంకం)CURLMIN(CURLMIN(సందేశం_X_అంకె, IOV_MAX), max_pkts);
+    memset(&mmsg, 0, పరిమాణం(mmsg));
+    కొరకు(i = 0; i < n; ++i) {
       msg_iov[i].iov_base = bufs[i];
-      msg_iov[i].iov_len = sizeof(bufs[i]);
+      msg_iov[i].iov_len = పరిమాణం(bufs[i]);
       mmsg[i].msg_iov = &msg_iov[i];
-      mmsg[i].msg_iovlen = 1;
-      mmsg[i].msg_name = &remote_addr[i];
-      mmsg[i].msg_namelen = sizeof(remote_addr[i]);
-      mmsg[i].msg_control = &msg_ctrl[i * CMSG_PER_MSG_SIZE];
-      mmsg[i].msg_controllen = CMSG_PER_MSG_SIZE;
+      mmsg[i].సందేశం_iovlen = 1;
+      mmsg[i].సందేశం_name = &remote_addr[i];
+      mmsg[i].msg_namelen = పరిమాణం(remote_addr[i]);
+      mmsg[i].సందేశం_control = &సందేశం_ctrl[i * CMSG_చొప్పున_సందేశం_కొలత];
+      mmsg[i].msg_controllen = CMSG_చొప్పున_సందేశం_కొలత;
     }
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-    while((mcount = syscall(SYS_recvmsg_x, qctx->sockfd, mmsg, n, 0)) == -1 &&
+#ఒకవేళ defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#సూచన GCC diagnostic నెట్టు
+#సూచన GCC diagnostic ignored "-Wdeprecated-declarations"
+#అయితే_ముగింపు
+    అయితే((mcount = syscall(SYS_recvmsg_x, qctx->sockfd, mmsg, n, 0)) == -1 &&
           (SOCKERRNO == SOCKEINTR || SOCKERRNO == SOCKEMSGSIZE))
       ;
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic pop
-#endif
-    if(mcount == -1) {
-      if(SOCK_EAGAIN(SOCKERRNO)) {
-        CURL_TRC_CF(data, cf, "ingress, recvmsg_x -> EAGAIN");
-        goto out;
+#ఒకవేళ defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#సూచన GCC diagnostic తీయి
+#అయితే_ముగింపు
+    ఒకవేళ(mcount == -1) {
+      ఒకవేళ(SOCK_EAGAIN(SOCKERRNO)) {
+        CURL_TRC_CF(దత్తాంశం, cf, "ingress, recvmsg_x -> EAGAIN");
+        వెళ్ళు బహిర్గతం;
       }
-      if(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
-        struct ip_quadruple ip;
-        if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
-          failf(data, "QUIC: connection to %s port %u refused",
-                ip.remote_ip, ip.remote_port);
-        result = CURLE_COULDNT_CONNECT;
-        goto out;
+      ఒకవేళ(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
+        నిర్మాణం ip_quadruple ip;
+        ఒకవేళ(!Curl_cf_socket_peek(cf->తదుపరి, దత్తాంశం, ఖాళీ, ఖాళీ, &ip))
+          failf(దత్తాంశం, "QUIC: connection to %s port %u refused",
+                ip.remote_ip, ip.remote_పోర్టు);
+        ఫలితం = CURLE_COULDNT_CONNECT;
+        వెళ్ళు బహిర్గతం;
       }
-      curlx_strerror(SOCKERRNO, errstr, sizeof(errstr));
-      failf(data, "QUIC: recvmsg_x() unexpectedly returned %d (errno=%d; %s)",
+      curlx_strerror(SOCKERRNO, errstr, పరిమాణం(errstr));
+      failf(దత్తాంశం, "QUIC: recvmsg_x() unexpectedly returned %d (errno=%d; %s)",
             mcount, SOCKERRNO, errstr);
-      result = CURLE_RECV_ERROR;
-      goto out;
+      ఫలితం = CURLE_RECV_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
 
     VERBOSE(++calls);
-    for(i = 0; i < mcount; ++i) {
+    కొరకు(i = 0; i < mcount; ++i) {
       /* A zero-length UDP packet is no QUIC packet. Ignore. */
-      if(!mmsg[i].msg_datalen) {
+      ఒకవేళ(!mmsg[i].సందేశం_datalen) {
         ++pkts;
-        continue;
+        కొనసాగు;
       }
-      total_nread += mmsg[i].msg_datalen;
-      ecn = vquic_msghdr_get_ecn((struct msghdr *)&mmsg[i],
+      మొత్తం_nread += mmsg[i].సందేశం_datalen;
+      ecn = vquic_msghdr_get_ecn((నిర్మాణం msghdr *)&mmsg[i],
                                  remote_addr[i].ss_family);
-      gso_size = mmsg[i].msg_datalen;
+      gso_కొలత = mmsg[i].సందేశం_datalen;
 
-      result = recv_cb(bufs[i], mmsg[i].msg_datalen, gso_size,
-                       mmsg[i].msg_name,
+      ఫలితం = recv_cb(bufs[i], mmsg[i].సందేశం_datalen, gso_కొలత,
+                       mmsg[i].సందేశం_name,
                        mmsg[i].msg_namelen, ecn, userp);
-      if(result)
-        goto out;
-      pkts += (mmsg[i].msg_datalen + gso_size - 1) / gso_size;
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
+      pkts += (mmsg[i].సందేశం_datalen + gso_కొలత - 1) / gso_కొలత;
     }
   }
 
-out:
-  if(total_nread || result)
-    CURL_TRC_CF(data, cf,
+బహిర్గతం:
+  ఒకవేళ(మొత్తం_nread || ఫలితం)
+    CURL_TRC_CF(దత్తాంశం, cf,
                 "vquic_recvmsg_x(len=%zu, packets=%zu, calls=%zu) -> %d",
-                total_nread, pkts, calls, (int)result);
-  Curl_multi_xfer_sockbuf_release(data, sockbuf);
-  *pnread = total_nread;
-  return result;
+                మొత్తం_nread, pkts, calls, (పూర్ణాంకం)ఫలితం);
+  Curl_multi_xfer_sockbuf_release(దత్తాంశం, sockbuf);
+  *pnread = మొత్తం_nread;
+  తిరిగి ఫలితం;
 }
 
-#elif defined(HAVE_SENDMSG)
-static CURLcode recvmsg_packets(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct cf_quic_ctx *qctx,
+#లేదావేళ defined(HAVE_SENDMSG)
+స్థిర CURLcode recvmsg_packets(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం cf_quic_ctx *qctx,
                                 size_t max_pkts,
-                                Curl_vquic_recv_pkts_cb *recv_cb, void *userp,
+                                Curl_vquic_recv_pkts_cb *recv_cb, శూన్య *userp,
                                 size_t *pnread)
 {
-#define CMSG_PER_MSG_SIZE    CMSG_SPACE(sizeof(int))
-  struct iovec msg_iov;
-  struct msghdr msg;
+#నిర్వచించు CMSG_చొప్పున_సందేశం_కొలత    CMSG_SPACE(పరిమాణం(పూర్ణాంకం))
+  నిర్మాణం iovec msg_iov;
+  నిర్మాణం msghdr సందేశం;
   uint8_t buf[64 * 1024];
-  struct sockaddr_storage remote_addr;
-  size_t total_nread, pkts, calls;
+  నిర్మాణం sockaddr_storage remote_addr;
+  size_t మొత్తం_nread, pkts, calls;
   ssize_t rc;
   size_t nread;
-  char errstr[STRERROR_LEN];
-  CURLcode result = CURLE_OK;
-  uint8_t msg_ctrl[CMSG_PER_MSG_SIZE];
-  size_t gso_size;
+  అక్షరం errstr[STRERROR_LEN];
+  CURLcode ఫలితం = CURLE_OK;
+  uint8_t సందేశం_ctrl[CMSG_చొప్పున_సందేశం_కొలత];
+  size_t gso_కొలత;
   uint8_t ecn = 0;
 
   DEBUGASSERT(max_pkts > 0);
-  for(pkts = 0, total_nread = 0, calls = 0; pkts < max_pkts;) {
+  కొరకు(pkts = 0, మొత్తం_nread = 0, calls = 0; pkts < max_pkts;) {
     /* fully initialize this on each call to `recvmsg()`. There seem to
      * operating systems out there that mess with `msg_iov.iov_len`. */
-    memset(&msg, 0, sizeof(msg));
+    memset(&సందేశం, 0, పరిమాణం(సందేశం));
     msg_iov.iov_base = buf;
-    msg_iov.iov_len = sizeof(buf);
-    msg.msg_iov = &msg_iov;
-    msg.msg_iovlen = 1;
-    msg.msg_control = msg_ctrl;
-    msg.msg_name = &remote_addr;
-    msg.msg_namelen = sizeof(remote_addr);
-    msg.msg_controllen = CMSG_PER_MSG_SIZE;
+    msg_iov.iov_len = పరిమాణం(buf);
+    సందేశం.msg_iov = &msg_iov;
+    సందేశం.సందేశం_iovlen = 1;
+    సందేశం.సందేశం_control = సందేశం_ctrl;
+    సందేశం.సందేశం_name = &remote_addr;
+    సందేశం.msg_namelen = పరిమాణం(remote_addr);
+    సందేశం.msg_controllen = CMSG_చొప్పున_సందేశం_కొలత;
 
-    while((rc = recvmsg(qctx->sockfd, &msg, 0)) == -1 &&
+    అయితే((rc = recvmsg(qctx->sockfd, &సందేశం, 0)) == -1 &&
           (SOCKERRNO == SOCKEINTR || SOCKERRNO == SOCKEMSGSIZE))
       ;
-    if(!curlx_sztouz(rc, &nread)) {
-      if(SOCK_EAGAIN(SOCKERRNO)) {
-        goto out;
+    ఒకవేళ(!curlx_sztouz(rc, &nread)) {
+      ఒకవేళ(SOCK_EAGAIN(SOCKERRNO)) {
+        వెళ్ళు బహిర్గతం;
       }
-      if(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
-        struct ip_quadruple ip;
-        if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
-          failf(data, "QUIC: connection to %s port %u refused",
-                ip.remote_ip, ip.remote_port);
-        result = CURLE_COULDNT_CONNECT;
-        goto out;
+      ఒకవేళ(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
+        నిర్మాణం ip_quadruple ip;
+        ఒకవేళ(!Curl_cf_socket_peek(cf->తదుపరి, దత్తాంశం, ఖాళీ, ఖాళీ, &ip))
+          failf(దత్తాంశం, "QUIC: connection to %s port %u refused",
+                ip.remote_ip, ip.remote_పోర్టు);
+        ఫలితం = CURLE_COULDNT_CONNECT;
+        వెళ్ళు బహిర్గతం;
       }
-      curlx_strerror(SOCKERRNO, errstr, sizeof(errstr));
-      failf(data, "QUIC: recvmsg() unexpectedly returned %zd (errno=%d; %s)",
+      curlx_strerror(SOCKERRNO, errstr, పరిమాణం(errstr));
+      failf(దత్తాంశం, "QUIC: recvmsg() unexpectedly returned %zd (errno=%d; %s)",
             rc, SOCKERRNO, errstr);
-      result = CURLE_RECV_ERROR;
-      goto out;
+      ఫలితం = CURLE_RECV_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
 
-    total_nread += nread;
+    మొత్తం_nread += nread;
     ++calls;
 
     /* A 0-length UDP packet is no QUIC packet */
-    if(!nread) {
+    ఒకవేళ(!nread) {
       ++pkts;
-      continue;
+      కొనసాగు;
     }
 
-    ecn = vquic_msghdr_get_ecn(&msg, remote_addr.ss_family);
-    gso_size = vquic_msghdr_get_udp_gro(&msg);
-    if(gso_size == 0)
-      gso_size = nread;
+    ecn = vquic_msghdr_get_ecn(&సందేశం, remote_addr.ss_family);
+    gso_కొలత = vquic_msghdr_get_udp_gro(&సందేశం);
+    ఒకవేళ(gso_కొలత == 0)
+      gso_కొలత = nread;
 
-    result = recv_cb(buf, nread, gso_size,
-                     msg.msg_name, msg.msg_namelen, ecn, userp);
-    if(result)
-      goto out;
-    pkts += (nread + gso_size - 1) / gso_size;
+    ఫలితం = recv_cb(buf, nread, gso_కొలత,
+                     సందేశం.సందేశం_name, సందేశం.msg_namelen, ecn, userp);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
+    pkts += (nread + gso_కొలత - 1) / gso_కొలత;
   }
 
-out:
-  if(total_nread || result)
-    CURL_TRC_CF(data, cf,
+బహిర్గతం:
+  ఒకవేళ(మొత్తం_nread || ఫలితం)
+    CURL_TRC_CF(దత్తాంశం, cf,
                 "vquic_recvmsg(len=%zu, packets=%zu, calls=%zu) -> %d",
-                total_nread, pkts, calls, (int)result);
-  *pnread = total_nread;
-  return result;
+                మొత్తం_nread, pkts, calls, (పూర్ణాంకం)ఫలితం);
+  *pnread = మొత్తం_nread;
+  తిరిగి ఫలితం;
 }
 
-#else /* HAVE_SENDMMSG || HAVE_SENDMSG */
-static CURLcode recvfrom_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
+#లేకపోతే /* HAVE_SENDMMSG || HAVE_SENDMSG */
+స్థిర CURLcode recvfrom_packets(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం cf_quic_ctx *qctx,
                                  size_t max_pkts,
-                                 Curl_vquic_recv_pkts_cb *recv_cb, void *userp,
+                                 Curl_vquic_recv_pkts_cb *recv_cb, శూన్య *userp,
                                  size_t *pnread)
 {
   uint8_t buf[64 * 1024];
-  int bufsize = (int)sizeof(buf);
-  struct sockaddr_storage remote_addr;
-  socklen_t remote_addrlen = sizeof(remote_addr);
-  size_t total_nread, pkts, calls = 0, nread;
+  పూర్ణాంకం bufsize = (పూర్ణాంకం)పరిమాణం(buf);
+  నిర్మాణం sockaddr_storage remote_addr;
+  socklen_t remote_addrlen = పరిమాణం(remote_addr);
+  size_t మొత్తం_nread, pkts, calls = 0, nread;
   ssize_t rv;
-  char errstr[STRERROR_LEN];
-  CURLcode result = CURLE_OK;
+  అక్షరం errstr[STRERROR_LEN];
+  CURLcode ఫలితం = CURLE_OK;
 
   DEBUGASSERT(max_pkts > 0);
-  for(pkts = 0, total_nread = 0; pkts < max_pkts;) {
-    while((rv = recvfrom(qctx->sockfd, (char *)buf, bufsize, 0,
-                         (struct sockaddr *)&remote_addr,
+  కొరకు(pkts = 0, మొత్తం_nread = 0; pkts < max_pkts;) {
+    అయితే((rv = recvfrom(qctx->sockfd, (అక్షరం *)buf, bufsize, 0,
+                         (నిర్మాణం sockaddr *)&remote_addr,
                          &remote_addrlen)) == -1 &&
           (SOCKERRNO == SOCKEINTR || SOCKERRNO == SOCKEMSGSIZE))
       ;
-    if(!curlx_sztouz(rv, &nread)) {
-      if(SOCK_EAGAIN(SOCKERRNO)) {
-        CURL_TRC_CF(data, cf, "ingress, recvfrom -> EAGAIN");
-        goto out;
+    ఒకవేళ(!curlx_sztouz(rv, &nread)) {
+      ఒకవేళ(SOCK_EAGAIN(SOCKERRNO)) {
+        CURL_TRC_CF(దత్తాంశం, cf, "ingress, recvfrom -> EAGAIN");
+        వెళ్ళు బహిర్గతం;
       }
-      if(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
-        struct ip_quadruple ip;
-        if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
-          failf(data, "QUIC: connection to %s port %u refused",
-                ip.remote_ip, ip.remote_port);
-        result = CURLE_COULDNT_CONNECT;
-        goto out;
+      ఒకవేళ(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
+        నిర్మాణం ip_quadruple ip;
+        ఒకవేళ(!Curl_cf_socket_peek(cf->తదుపరి, దత్తాంశం, ఖాళీ, ఖాళీ, &ip))
+          failf(దత్తాంశం, "QUIC: connection to %s port %u refused",
+                ip.remote_ip, ip.remote_పోర్టు);
+        ఫలితం = CURLE_COULDNT_CONNECT;
+        వెళ్ళు బహిర్గతం;
       }
-      curlx_strerror(SOCKERRNO, errstr, sizeof(errstr));
-      failf(data, "QUIC: recvfrom() unexpectedly returned %zd (errno=%d; %s)",
+      curlx_strerror(SOCKERRNO, errstr, పరిమాణం(errstr));
+      failf(దత్తాంశం, "QUIC: recvfrom() unexpectedly returned %zd (errno=%d; %s)",
             rv, SOCKERRNO, errstr);
-      result = CURLE_RECV_ERROR;
-      goto out;
+      ఫలితం = CURLE_RECV_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
 
     ++pkts;
     ++calls;
 
     /* A 0-length UDP packet is no QUIC packet */
-    if(!nread)
-      continue;
+    ఒకవేళ(!nread)
+      కొనసాగు;
 
-    total_nread += nread;
-    result = recv_cb(buf, nread, nread, &remote_addr, remote_addrlen,
+    మొత్తం_nread += nread;
+    ఫలితం = recv_cb(buf, nread, nread, &remote_addr, remote_addrlen,
                      0, userp);
-    if(result)
-      goto out;
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-out:
-  if(total_nread || result)
-    CURL_TRC_CF(data, cf,
+బహిర్గతం:
+  ఒకవేళ(మొత్తం_nread || ఫలితం)
+    CURL_TRC_CF(దత్తాంశం, cf,
                 "vquic_recvfrom(len=%zu, packets=%zu, calls=%zu) -> %d",
-                total_nread, pkts, calls, (int)result);
-  *pnread = total_nread;
-  return result;
+                మొత్తం_nread, pkts, calls, (పూర్ణాంకం)ఫలితం);
+  *pnread = మొత్తం_nread;
+  తిరిగి ఫలితం;
 }
-#endif /* !HAVE_SENDMMSG && !HAVE_SENDMSG */
+#అయితే_ముగింపు /* !HAVE_SENDMMSG && !HAVE_SENDMSG */
 
-CURLcode Curl_vquic_recv_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
+CURLcode Curl_vquic_recv_packets(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం cf_quic_ctx *qctx,
                                  size_t max_pkts,
-                                 Curl_vquic_recv_pkts_cb *recv_cb, void *userp)
+                                 Curl_vquic_recv_pkts_cb *recv_cb, శూన్య *userp)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   size_t nread = 0;
-#ifdef HAVE_SENDMMSG
-  result = recvmmsg_packets(cf, data, qctx, max_pkts, recv_cb, userp, &nread);
-#elif defined(HAVE_APPLE_MSG_X)
-  result = recvmsg_x_packets(cf, data, qctx, max_pkts, recv_cb, userp,
+#నిర్వచితమైతే HAVE_SENDMMSG
+  ఫలితం = recvmmsg_packets(cf, దత్తాంశం, qctx, max_pkts, recv_cb, userp, &nread);
+#లేదావేళ defined(HAVE_APPLE_సందేశం_X)
+  ఫలితం = recvmsg_x_packets(cf, దత్తాంశం, qctx, max_pkts, recv_cb, userp,
                              &nread);
-#elif defined(HAVE_SENDMSG)
-  result = recvmsg_packets(cf, data, qctx, max_pkts, recv_cb, userp, &nread);
-#else
-  result = recvfrom_packets(cf, data, qctx, max_pkts, recv_cb, userp, &nread);
-#endif
-  if(!result) {
+#లేదావేళ defined(HAVE_SENDMSG)
+  ఫలితం = recvmsg_packets(cf, దత్తాంశం, qctx, max_pkts, recv_cb, userp, &nread);
+#లేకపోతే
+  ఫలితం = recvfrom_packets(cf, దత్తాంశం, qctx, max_pkts, recv_cb, userp, &nread);
+#అయితే_ముగింపు
+  ఒకవేళ(!ఫలితం) {
     /* EAGAIN is no error, only count actual packets as a reply */
-    if(!qctx->got_first_byte && nread) {
-      qctx->got_first_byte = TRUE;
-      qctx->first_byte_at = qctx->last_op;
+    ఒకవేళ(!qctx->got_మొదటి_byte && nread) {
+      qctx->got_మొదటి_byte = TRUE;
+      qctx->మొదటి_byte_at = qctx->చివరి_op;
     }
-    qctx->last_io = qctx->last_op;
+    qctx->చివరి_io = qctx->చివరి_op;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -1042,304 +1042,304 @@ CURLcode Curl_vquic_recv_packets(struct Curl_cfilter *cf,
  * create the file. Open file success is deemed by seeing if the returned fd
  * is != -1.
  */
-CURLcode Curl_qlogdir(struct Curl_easy *data,
-                      unsigned char *scid,
+CURLcode Curl_qlogdir(నిర్మాణం Curl_easy *దత్తాంశం,
+                      గుర్తులేని అక్షరం *scid,
                       size_t scidlen,
-                      int *qlogfdp)
+                      పూర్ణాంకం *qlogfdp)
 {
-  char *qlog_dir = curl_getenv("QLOGDIR");
+  అక్షరం *qlog_dir = curl_getenv("QLOGDIR");
   *qlogfdp = -1;
-  if(qlog_dir) {
-    struct dynbuf fname;
-    CURLcode result;
-    unsigned int i;
+  ఒకవేళ(qlog_dir) {
+    నిర్మాణం dynbuf fname;
+    CURLcode ఫలితం;
+    గుర్తులేని పూర్ణాంకం i;
     curlx_dyn_init(&fname, DYN_QLOG_NAME);
-    result = curlx_dyn_add(&fname, qlog_dir);
-    if(!result)
-      result = curlx_dyn_add(&fname, "/");
-    for(i = 0; (i < scidlen) && !result; i++) {
-      char hex[3];
+    ఫలితం = curlx_dyn_కూడు(&fname, qlog_dir);
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = curlx_dyn_కూడు(&fname, "/");
+    కొరకు(i = 0; (i < scidlen) && !ఫలితం; i++) {
+      అక్షరం hex[3];
       curl_msnprintf(hex, 3, "%02x", scid[i]);
-      result = curlx_dyn_add(&fname, hex);
+      ఫలితం = curlx_dyn_కూడు(&fname, hex);
     }
-    if(!result)
-      result = curlx_dyn_add(&fname, ".sqlog");
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = curlx_dyn_కూడు(&fname, ".sqlog");
 
-    if(!result) {
-      int qlogfd = curlx_open(curlx_dyn_ptr(&fname),
-                              O_WRONLY | O_CREAT | CURL_O_BINARY,
-#ifdef _WIN32
-                              data->set.new_file_perms & (_S_IREAD | _S_IWRITE)
-#else
-                              (mode_t)data->set.new_file_perms
-#endif
+    ఒకవేళ(!ఫలితం) {
+      పూర్ణాంకం qlogfd = curlx_open(curlx_dyn_ptr(&fname),
+                              O_WRONLY | O_CREAT | CURL_O_ద్విమాన,
+#నిర్వచితమైతే _WIN32
+                              దత్తాంశం->సమితి.new_file_perms & (_S_IREAD | _S_IWRITE)
+#లేకపోతే
+                              (mode_t)దత్తాంశం->సమితి.new_file_perms
+#అయితే_ముగింపు
                               );
-      if(qlogfd != -1)
+      ఒకవేళ(qlogfd != -1)
         *qlogfdp = qlogfd;
     }
     curlx_dyn_free(&fname);
     curlx_free(qlog_dir);
-    if(result)
-      return result;
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_cf_quic_insert_after(struct Curl_cfilter *cf_at,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer)
+CURLcode Curl_cf_quic_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం Curl_peer *origin,
+                                   నిర్మాణం Curl_peer *peer)
 {
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf = ఖాళీ;
+  CURLcode ఫలితం;
 
-  (void)data; /* not used in all cases and compilers are stupid */
-#if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
-  result = Curl_cf_ngtcp2_insert_after(cf_at, origin, peer, &cf);
-#elif defined(USE_QUICHE)
-  result = Curl_cf_quiche_insert_after(cf_at, origin, peer, &cf);
-#else
-  (void)cf)
-  (void)cf_at;
-  (void)origin;
-  (void)peer;
-  result = CURLE_NOT_BUILT_IN;
-#endif
+  (శూన్య)దత్తాంశం; /* not used in all cases and compilers are stupid */
+#ఒకవేళ defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+  ఫలితం = Curl_cf_ngtcp2_చొప్పించు_after(cf_at, origin, peer, &cf);
+#లేదావేళ defined(USE_QUICHE)
+  ఫలితం = Curl_cf_quiche_చొప్పించు_after(cf_at, origin, peer, &cf);
+#లేకపోతే
+  (శూన్య)cf)
+  (శూన్య)cf_at;
+  (శూన్య)origin;
+  (శూన్య)peer;
+  ఫలితం = CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
 
-#if defined(USE_HTTPSRR) && defined(USE_ECH)
+#ఒకవేళ defined(USE_HTTPSRR) && defined(USE_ECH)
   /* When using ECH, kick off the HTTPS-RR resolve */
-  if(!result && (origin->scheme->family == CURLPROTO_HTTP) &&
+  ఒకవేళ(!ఫలితం && (origin->scheme->family == CURLPROTO_HTTP) &&
      Curl_ssl_need_httpsrr(cf)) {
-    result = Curl_conn_dns_add_https_resolve(data, cf->conn,
+    ఫలితం = Curl_conn_dns_కూడు_https_resolve(దత్తాంశం, cf->conn,
                                              cf->sockindex, origin);
   }
-#endif /* USE_HTTPSRR && USE_ECH */
-  return result;
+#అయితే_ముగింపు /* USE_HTTPSRR && USE_ECH */
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_cf_quic_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_quic_create(నిర్మాణం Curl_cfilter **pcf,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Curl_peer *origin,
+                             నిర్మాణం Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             నిర్మాణం connectdata *conn,
+                             నిర్మాణం Curl_sockaddr_ex *addr,
+                             నిర్మాణం Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport)
 {
-  (void)transport_peer;
-  (void)tunnel_transport;
-  (void)tunnel_peer;
+  (శూన్య)transport_peer;
+  (శూన్య)tunnel_transport;
+  (శూన్య)tunnel_peer;
   DEBUGASSERT(transport_peer == TRNSPRT_QUIC);
-#if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
-  return Curl_cf_ngtcp2_create(pcf, data, origin, peer, conn, addr);
-#elif defined(USE_QUICHE)
-  return Curl_cf_quiche_create(pcf, data, origin, peer, conn, addr);
-#else
-  *pcf = NULL;
-  (void)data;
-  (void)origin;
-  (void)peer;
-  (void)conn;
-  (void)addr;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
-  return CURLE_NOT_BUILT_IN;
-#endif
+#ఒకవేళ defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+  తిరిగి Curl_cf_ngtcp2_create(pcf, దత్తాంశం, origin, peer, conn, addr);
+#లేదావేళ defined(USE_QUICHE)
+  తిరిగి Curl_cf_quiche_create(pcf, దత్తాంశం, origin, peer, conn, addr);
+#లేకపోతే
+  *pcf = ఖాళీ;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)origin;
+  (శూన్య)peer;
+  (శూన్య)conn;
+  (శూన్య)addr;
+  (శూన్య)tunnel_peer;
+  (శూన్య)tunnel_transport;
+  తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
 }
 
-#if !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
+#ఒకవేళ !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
 
-CURLcode Curl_cf_h3_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_h3_proxy_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                       నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం Curl_peer *origin,
+                                       నిర్మాణం Curl_peer *peer,
+                                       నిర్మాణం Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport)
 {
-#if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
-  return Curl_cf_ngtcp2_proxy_insert_after(cf_at, data, origin, peer,
+#ఒకవేళ defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+  తిరిగి Curl_cf_ngtcp2_proxy_చొప్పించు_after(cf_at, దత్తాంశం, origin, peer,
                                            tunnel_peer, tunnel_transport);
-#else
-  (void)cf_at;
-  (void)data;
-  (void)origin;
-  (void)peer;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
-  return CURLE_NOT_BUILT_IN;
-#endif
+#లేకపోతే
+  (శూన్య)cf_at;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)origin;
+  (శూన్య)peer;
+  (శూన్య)tunnel_peer;
+  (శూన్య)tunnel_transport;
+  తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
 }
 
-CURLcode Curl_cf_h3_proxy_create(struct Curl_cfilter **pcf,
-                                 struct Curl_easy *data,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
+CURLcode Curl_cf_h3_proxy_create(నిర్మాణం Curl_cfilter **pcf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం Curl_peer *origin,
+                                 నిర్మాణం Curl_peer *peer,
                                  uint8_t transport_peer,
-                                 struct connectdata *conn,
-                                 struct Curl_sockaddr_ex *addr,
-                                 struct Curl_peer *tunnel_peer,
+                                 నిర్మాణం connectdata *conn,
+                                 నిర్మాణం Curl_sockaddr_ex *addr,
+                                 నిర్మాణం Curl_peer *tunnel_peer,
                                  uint8_t tunnel_transport)
 {
   DEBUGASSERT(transport_peer == TRNSPRT_QUIC);
-#if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
-  return Curl_cf_ngtcp2_proxy_create(pcf, data, origin, peer, transport_peer,
+#ఒకవేళ defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+  తిరిగి Curl_cf_ngtcp2_proxy_create(pcf, దత్తాంశం, origin, peer, transport_peer,
                                      conn, addr,
                                      tunnel_peer, tunnel_transport);
-#else
-  *pcf = NULL;
-  (void)data;
-  (void)conn;
-  (void)addr;
-  (void)peer;
-  (void)transport_peer;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
-  return CURLE_NOT_BUILT_IN;
-#endif
+#లేకపోతే
+  *pcf = ఖాళీ;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)conn;
+  (శూన్య)addr;
+  (శూన్య)peer;
+  (శూన్య)transport_peer;
+  (శూన్య)tunnel_peer;
+  (శూన్య)tunnel_transport;
+  తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
 }
 
-#endif /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
 
-CURLcode Curl_conn_may_http3(struct Curl_easy *data,
-                             struct connectdata *conn)
+CURLcode Curl_conn_may_http3(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం connectdata *conn)
 {
-  if(Curl_conn_get_first_peer(conn, FIRSTSOCKET)->unix_socket) {
-    failf(data, "HTTP/3 cannot be used over UNIX domain sockets");
-    return CURLE_QUIC_CONNECT_ERROR;
+  ఒకవేళ(Curl_conn_get_మొదటి_peer(conn, FIRSTSOCKET)->unix_socket) {
+    failf(దత్తాంశం, "HTTP/3 cannot be used over UNIX domain sockets");
+    తిరిగి CURLE_QUIC_CONNECT_ERROR;
   }
-  if(!(data->state.origin->scheme->flags & PROTOPT_SSL)) {
-    failf(data, "HTTP/3 requested for non-HTTPS URL");
-    return CURLE_URL_MALFORMAT;
+  ఒకవేళ(!(దత్తాంశం->state.origin->scheme->flags & PROTOPT_SSL)) {
+    failf(దత్తాంశం, "HTTP/3 requested for non-HTTPS URL");
+    తిరిగి CURLE_URL_MALFORMAT;
   }
-#ifndef CURL_DISABLE_PROXY
-  if(conn->socks_proxy.peer) {
-    failf(data, "HTTP/3 is not supported over a SOCKS proxy");
-    return CURLE_URL_MALFORMAT;
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+  ఒకవేళ(conn->socks_proxy.peer) {
+    failf(దత్తాంశం, "HTTP/3 is not supported over a SOCKS proxy");
+    తిరిగి CURLE_URL_MALFORMAT;
   }
-#else
-  (void)conn;
-#endif
+#లేకపోతే
+  (శూన్య)conn;
+#అయితే_ముగింపు
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-#ifdef CURLVERBOSE
-const char *Curl_vquic_h3_err_str(uint64_t error_code)
+#నిర్వచితమైతే CURLVERBOSE
+స్థిరరాశి అక్షరం *Curl_vquic_h3_err_str(uint64_t error_సంకేతం)
 {
-  if(error_code <= UINT_MAX) {
-    switch((unsigned int)error_code) {
-    case CURL_H3_ERR_NO_ERROR:
-      return "NO_ERROR";
-    case CURL_H3_ERR_GENERAL_PROTOCOL_ERROR:
-      return "GENERAL_PROTOCOL_ERROR";
-    case CURL_H3_ERR_INTERNAL_ERROR:
-      return "INTERNAL_ERROR";
-    case CURL_H3_ERR_STREAM_CREATION_ERROR:
-      return "STREAM_CREATION_ERROR";
-    case CURL_H3_ERR_CLOSED_CRITICAL_STREAM:
-      return "CLOSED_CRITICAL_STREAM";
-    case CURL_H3_ERR_FRAME_UNEXPECTED:
-      return "FRAME_UNEXPECTED";
-    case CURL_H3_ERR_FRAME_ERROR:
-      return "FRAME_ERROR";
-    case CURL_H3_ERR_EXCESSIVE_LOAD:
-      return "EXCESSIVE_LOAD";
-    case CURL_H3_ERR_ID_ERROR:
-      return "ID_ERROR";
-    case CURL_H3_ERR_SETTINGS_ERROR:
-      return "SETTINGS_ERROR";
-    case CURL_H3_ERR_MISSING_SETTINGS:
-      return "MISSING_SETTINGS";
-    case CURL_H3_ERR_REQUEST_REJECTED:
-      return "REQUEST_REJECTED";
-    case CURL_H3_ERR_REQUEST_CANCELLED:
-      return "REQUEST_CANCELLED";
-    case CURL_H3_ERR_REQUEST_INCOMPLETE:
-      return "REQUEST_INCOMPLETE";
-    case CURL_H3_ERR_MESSAGE_ERROR:
-      return "MESSAGE_ERROR";
-    case CURL_H3_ERR_CONNECT_ERROR:
-      return "CONNECT_ERROR";
-    case CURL_H3_ERR_VERSION_FALLBACK:
-      return "VERSION_FALLBACK";
-    default:
-      break;
+  ఒకవేళ(error_సంకేతం <= UINT_MAX) {
+    ఎంపిక((గుర్తులేని పూర్ణాంకం)error_సంకేతం) {
+    స్థితి CURL_H3_ERR_NO_ERROR:
+      తిరిగి "NO_ERROR";
+    స్థితి CURL_H3_ERR_GENERAL_PROTOCOL_ERROR:
+      తిరిగి "GENERAL_PROTOCOL_ERROR";
+    స్థితి CURL_H3_ERR_అంతర్గత_ERROR:
+      తిరిగి "INTERNAL_ERROR";
+    స్థితి CURL_H3_ERR_ప్రవాహం_CREATION_ERROR:
+      తిరిగి "STREAM_CREATION_ERROR";
+    స్థితి CURL_H3_ERR_CLOSED_CRITICAL_ప్రవాహం:
+      తిరిగి "CLOSED_CRITICAL_STREAM";
+    స్థితి CURL_H3_ERR_చట్రం_UNEXPECTED:
+      తిరిగి "FRAME_UNEXPECTED";
+    స్థితి CURL_H3_ERR_చట్రం_ERROR:
+      తిరిగి "FRAME_ERROR";
+    స్థితి CURL_H3_ERR_EXCESSIVE_ఎక్కించు:
+      తిరిగి "EXCESSIVE_LOAD";
+    స్థితి CURL_H3_ERR_ID_ERROR:
+      తిరిగి "ID_ERROR";
+    స్థితి CURL_H3_ERR_SETTINGS_ERROR:
+      తిరిగి "SETTINGS_ERROR";
+    స్థితి CURL_H3_ERR_MISSING_SETTINGS:
+      తిరిగి "MISSING_SETTINGS";
+    స్థితి CURL_H3_ERR_REQUEST_REJECTED:
+      తిరిగి "REQUEST_REJECTED";
+    స్థితి CURL_H3_ERR_REQUEST_CANCELLED:
+      తిరిగి "REQUEST_CANCELLED";
+    స్థితి CURL_H3_ERR_REQUEST_INCOMPLETE:
+      తిరిగి "REQUEST_INCOMPLETE";
+    స్థితి CURL_H3_ERR_సందేశం_ERROR:
+      తిరిగి "MESSAGE_ERROR";
+    స్థితి CURL_H3_ERR_CONNECT_ERROR:
+      తిరిగి "CONNECT_ERROR";
+    స్థితి CURL_H3_ERR_సంస్కరణ_FALLBACK:
+      తిరిగి "VERSION_FALLBACK";
+    అప్రమేయ:
+      ఆపు;
     }
   }
   /* RFC 9114 ch. 8.1 + 9, reserved future error codes that are NO_ERROR */
-  if((error_code >= 0x21) && !((error_code - 0x21) % 0x1f))
-    return "NO_ERROR";
-  return "unknown";
+  ఒకవేళ((error_సంకేతం >= 0x21) && !((error_సంకేతం - 0x21) % 0x1f))
+    తిరిగి "NO_ERROR";
+  తిరిగి "unknown";
 }
-#endif /* CURLVERBOSE */
+#అయితే_ముగింపు /* CURLVERBOSE */
 
-#if defined(USE_NGTCP2) || defined(USE_NGHTTP3)
+#ఒకవేళ defined(USE_NGTCP2) || defined(USE_NGHTTP3)
 
-static void *vquic_ngtcp2_malloc(size_t size, void *user_data)
+స్థిర శూన్య *vquic_ngtcp2_malloc(size_t కొలత, శూన్య *user_దత్తాంశం)
 {
-  (void)user_data;
-  return Curl_cmalloc(size);
+  (శూన్య)user_దత్తాంశం;
+  తిరిగి Curl_cmalloc(కొలత);
 }
 
-static void vquic_ngtcp2_free(void *ptr, void *user_data)
+స్థిర శూన్య vquic_ngtcp2_free(శూన్య *ptr, శూన్య *user_దత్తాంశం)
 {
-  (void)user_data;
+  (శూన్య)user_దత్తాంశం;
   Curl_cfree(ptr);
 }
 
-static void *vquic_ngtcp2_calloc(size_t nmemb, size_t size, void *user_data)
+స్థిర శూన్య *vquic_ngtcp2_calloc(size_t nmemb, size_t కొలత, శూన్య *user_దత్తాంశం)
 {
-  (void)user_data;
-  return Curl_ccalloc(nmemb, size);
+  (శూన్య)user_దత్తాంశం;
+  తిరిగి Curl_ccalloc(nmemb, కొలత);
 }
 
-static void *vquic_ngtcp2_realloc(void *ptr, size_t size, void *user_data)
+స్థిర శూన్య *vquic_ngtcp2_realloc(శూన్య *ptr, size_t కొలత, శూన్య *user_దత్తాంశం)
 {
-  (void)user_data;
-  return Curl_crealloc(ptr, size);
+  (శూన్య)user_దత్తాంశం;
+  తిరిగి Curl_crealloc(ptr, కొలత);
 }
 
-#ifdef USE_NGTCP2
-static struct ngtcp2_mem vquic_ngtcp2_mem = {
-  NULL,
+#నిర్వచితమైతే USE_NGTCP2
+స్థిర నిర్మాణం ngtcp2_mem vquic_ngtcp2_mem = {
+  ఖాళీ,
   vquic_ngtcp2_malloc,
   vquic_ngtcp2_free,
   vquic_ngtcp2_calloc,
   vquic_ngtcp2_realloc
 };
-struct ngtcp2_mem *Curl_ngtcp2_mem(void)
+నిర్మాణం ngtcp2_mem *Curl_ngtcp2_mem(శూన్య)
 {
-  return &vquic_ngtcp2_mem;
+  తిరిగి &vquic_ngtcp2_mem;
 }
-#endif
+#అయితే_ముగింపు
 
-#ifdef USE_NGHTTP3
-static struct nghttp3_mem vquic_nghttp3_mem = {
-  NULL,
+#నిర్వచితమైతే USE_NGHTTP3
+స్థిర నిర్మాణం nghttp3_mem vquic_nghttp3_mem = {
+  ఖాళీ,
   vquic_ngtcp2_malloc,
   vquic_ngtcp2_free,
   vquic_ngtcp2_calloc,
   vquic_ngtcp2_realloc
 };
-struct nghttp3_mem *Curl_nghttp3_mem(void)
+నిర్మాణం nghttp3_mem *Curl_nghttp3_mem(శూన్య)
 {
-  return &vquic_nghttp3_mem;
+  తిరిగి &vquic_nghttp3_mem;
 }
-#endif
+#అయితే_ముగింపు
 
-#endif /* USE_NGTCP2 || USE_NGHTTP3 */
+#అయితే_ముగింపు /* USE_NGTCP2 || USE_NGHTTP3 */
 
-#else /* CURL_DISABLE_HTTP || !USE_HTTP3 */
+#లేకపోతే /* CURL_DISABLE_HTTP || !USE_HTTP3 */
 
-CURLcode Curl_conn_may_http3(struct Curl_easy *data,
-                             struct connectdata *conn)
+CURLcode Curl_conn_may_http3(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం connectdata *conn)
 {
-  (void)data;
-  (void)conn;
-  DEBUGF(infof(data, "QUIC is not supported in this build"));
-  return CURLE_NOT_BUILT_IN;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)conn;
+  DEBUGF(infof(దత్తాంశం, "QUIC is not supported in this build"));
+  తిరిగి CURLE_NOT_BUILT_లోపల;
 }
 
-#endif /* !CURL_DISABLE_HTTP && USE_HTTP3 */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP && USE_HTTP3 */

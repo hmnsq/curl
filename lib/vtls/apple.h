@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VTLS_APPLE_H
-#define HEADER_CURL_VTLS_APPLE_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_VTLS_APPLE_H
+#నిర్వచించు శీర్షిక_CURL_VTLS_APPLE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,37 +23,37 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_APPLE_SECTRUST
-struct Curl_cfilter;
-struct Curl_easy;
-struct ssl_peer;
+#నిర్వచితమైతే USE_APPLE_SECTRUST
+నిర్మాణం Curl_cfilter;
+నిర్మాణం Curl_easy;
+నిర్మాణం ssl_peer;
 
 /* Get the DER encoded i-th certificate in the server handshake */
-typedef CURLcode Curl_vtls_get_cert_der(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data,
+రకనిర్వచనం CURLcode Curl_vtls_get_cert_der(నిర్మాణం Curl_cfilter *cf,
+                                        నిర్మాణం Curl_easy *దత్తాంశం,
+                                        శూన్య *user_దత్తాంశం,
                                         size_t i,
-                                        unsigned char **pder,
+                                        గుర్తులేని అక్షరం **pder,
                                         size_t *pder_len);
 
 /* Ask Apple's Security framework to verify the certificate chain
  * send by the peer. On CURLE_OK it has been verified.
  */
-CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct ssl_peer *peer,
-                                size_t num_certs,
+CURLcode Curl_vtls_apple_verify(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం ssl_peer *peer,
+                                size_t అంకె_certs,
                                 Curl_vtls_get_cert_der *der_cb,
-                                void *cb_user_data,
-                                const unsigned char *ocsp_buf,
+                                శూన్య *cb_user_దత్తాంశం,
+                                స్థిరరాశి గుర్తులేని అక్షరం *ocsp_buf,
                                 size_t ocsp_len,
                                 bool require_ocsp);
 
-bool Curl_vtls_apple_verifies_ocsp(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data);
+bool Curl_vtls_apple_verifies_ocsp(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం);
 
-#endif /* USE_APPLE_SECTRUST */
+#అయితే_ముగింపు /* USE_APPLE_SECTRUST */
 
-#endif /* HEADER_CURL_VTLS_APPLE_H */
+#అయితే_ముగింపు /* HEADER_CURL_VTLS_APPLE_H */

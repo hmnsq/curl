@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-struct Curl_easy;
+నిర్మాణం Curl_easy;
 
-#include "formdata.h"
+#అన్తర్భావ "formdata.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
 
-#include "urldata.h" /* for struct Curl_easy */
-#include "mime.h"
-#include "curlx/strdup.h"
-#include "bufref.h"
-#include "curlx/win32-fopen.h"
+#అన్తర్భావ "urldata.h" /* for struct Curl_easy */
+#అన్తర్భావ "mime.h"
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "bufref.h"
+#అన్తర్భావ "curlx/win32-fopen.h"
 
 
-#define HTTPPOST_PTRNAME     CURL_HTTPPOST_PTRNAME
-#define HTTPPOST_FILENAME    CURL_HTTPPOST_FILENAME
-#define HTTPPOST_PTRCONTENTS CURL_HTTPPOST_PTRCONTENTS
-#define HTTPPOST_READFILE    CURL_HTTPPOST_READFILE
-#define HTTPPOST_PTRBUFFER   CURL_HTTPPOST_PTRBUFFER
-#define HTTPPOST_CALLBACK    CURL_HTTPPOST_CALLBACK
-#define HTTPPOST_BUFFER      CURL_HTTPPOST_BUFFER
+#నిర్వచించు HTTPPOST_PTRNAME     CURL_HTTPPOST_PTRNAME
+#నిర్వచించు HTTPPOST_FILENAME    CURL_HTTPPOST_FILENAME
+#నిర్వచించు HTTPPOST_PTRCONTENTS CURL_HTTPPOST_PTRCONTENTS
+#నిర్వచించు HTTPPOST_READFILE    CURL_HTTPPOST_READFILE
+#నిర్వచించు HTTPPOST_PTRBUFFER   CURL_HTTPPOST_PTRBUFFER
+#నిర్వచించు HTTPPOST_CALLBACK    CURL_HTTPPOST_CALLBACK
+#నిర్వచించు HTTPPOST_బఫరు      CURL_HTTPPOST_బఫరు
 
 /***************************************************************************
  *
@@ -54,82 +54,82 @@ struct Curl_easy;
  * Returns newly allocated HttpPost on success and NULL if malloc failed.
  *
  ***************************************************************************/
-static struct curl_httppost *httppost_add(struct FormInfo *src,
-                                          struct curl_httppost *parent_post,
-                                          struct curl_httppost **httppost,
-                                          struct curl_httppost **last_post)
+స్థిర నిర్మాణం curl_httppost *httppost_కూడు(నిర్మాణం FormInfo *src,
+                                          నిర్మాణం curl_httppost *మాతృ_post,
+                                          నిర్మాణం curl_httppost **httppost,
+                                          నిర్మాణం curl_httppost **చివరి_post)
 {
-  struct curl_httppost *post;
+  నిర్మాణం curl_httppost *post;
   size_t namelength = src->namelength;
-  if(!namelength && Curl_bufref_ptr(&src->name))
-    namelength = strlen(Curl_bufref_ptr(&src->name));
-  if((src->bufferlength > LONG_MAX) || (namelength > LONG_MAX))
+  ఒకవేళ(!namelength && Curl_bufref_ptr(&src->name))
+    namelength = అక్షరశ్రేణి_పొడవు(Curl_bufref_ptr(&src->name));
+  ఒకవేళ((src->bufferlength > LONG_MAX) || (namelength > LONG_MAX))
     /* avoid overflow in typecasts below */
-    return NULL;
-  post = curlx_calloc(1, sizeof(struct curl_httppost));
-  if(post) {
+    తిరిగి ఖాళీ;
+  post = curlx_calloc(1, పరిమాణం(నిర్మాణం curl_httppost));
+  ఒకవేళ(post) {
     post->name = CURL_UNCONST(Curl_bufref_ptr(&src->name));
-    post->namelength = (long)namelength;
-    post->contents = CURL_UNCONST(Curl_bufref_ptr(&src->value));
+    post->namelength = (దీర్ఘ)namelength;
+    post->contents = CURL_UNCONST(Curl_bufref_ptr(&src->విలువ));
     post->contentlen = src->contentslength;
-    post->buffer = src->buffer;
-    post->bufferlength = (long)src->bufferlength;
+    post->బఫరు = src->బఫరు;
+    post->bufferlength = (దీర్ఘ)src->bufferlength;
     post->contenttype = CURL_UNCONST(Curl_bufref_ptr(&src->contenttype));
     post->flags = src->flags | CURL_HTTPPOST_LARGE;
     post->contentheader = src->contentheader;
     post->showfilename = CURL_UNCONST(Curl_bufref_ptr(&src->showfilename));
     post->userp = src->userp;
   }
-  else
-    return NULL;
+  లేకపోతే
+    తిరిగి ఖాళీ;
 
-  if(parent_post) {
+  ఒకవేళ(మాతృ_post) {
     /* now, point our 'more' to the original 'more' */
-    post->more = parent_post->more;
+    post->మరిన్ని = మాతృ_post->మరిన్ని;
 
     /* then move the original 'more' to point to ourselves */
-    parent_post->more = post;
+    మాతృ_post->మరిన్ని = post;
   }
-  else {
+  లేకపోతే {
     /* make the previous point to this */
-    if(*last_post)
-      (*last_post)->next = post;
-    else
+    ఒకవేళ(*చివరి_post)
+      (*చివరి_post)->తదుపరి = post;
+    లేకపోతే
       (*httppost) = post;
 
-    (*last_post) = post;
+    (*చివరి_post) = post;
   }
-  return post;
+  తిరిగి post;
 }
 
 /* Allocate and initialize a new FormInfo structure. */
-static struct FormInfo *forminfo_new(void)
+స్థిర నిర్మాణం FormInfo *forminfo_new(శూన్య)
 {
-  struct FormInfo *form_info = curlx_calloc(1, sizeof(struct FormInfo));
+  నిర్మాణం FormInfo *form_info = curlx_calloc(1, పరిమాణం(నిర్మాణం FormInfo));
 
-  if(form_info) {
+  ఒకవేళ(form_info) {
     Curl_bufref_init(&form_info->name);
-    Curl_bufref_init(&form_info->value);
+    Curl_bufref_init(&form_info->విలువ);
     Curl_bufref_init(&form_info->contenttype);
     Curl_bufref_init(&form_info->showfilename);
   }
 
-  return form_info;
+  తిరిగి form_info;
 }
 
 /* Replace the target field data by a dynamic copy of it. */
-static CURLcode forminfo_copyfield(struct bufref *field, size_t len)
+స్థిర CURLcode forminfo_copyfield(నిర్మాణం bufref *క్షేత్రం, size_t len)
 {
-  const char *value = Curl_bufref_ptr(field);
-  CURLcode result = CURLE_OK;
+  స్థిరరాశి అక్షరం *విలువ = Curl_bufref_ptr(క్షేత్రం);
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(value) {
-    if(!len)
-      len = strlen(value);
-    result = Curl_bufref_memdup0(field, value, len);
+  ఒకవేళ(విలువ) {
+    ఒకవేళ(!len)
+      len = అక్షరశ్రేణి_పొడవు(విలువ);
+    ఫలితం = Curl_bufref_memdup0(క్షేత్రం, విలువ, len);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***************************************************************************
@@ -139,24 +139,24 @@ static CURLcode forminfo_copyfield(struct bufref *field, size_t len)
  * Adds a FormInfo structure to the list presented by parent.
  *
  ***************************************************************************/
-static void forminfo_add(struct FormInfo *form_info, struct FormInfo *parent)
+స్థిర శూన్య forminfo_కూడు(నిర్మాణం FormInfo *form_info, నిర్మాణం FormInfo *మాతృ)
 {
   form_info->flags |= HTTPPOST_FILENAME;
 
-  if(parent) {
+  ఒకవేళ(మాతృ) {
     /* now, point our 'more' to the original 'more' */
-    form_info->more = parent->more;
+    form_info->మరిన్ని = మాతృ->మరిన్ని;
 
     /* then move the original 'more' to point to ourselves */
-    parent->more = form_info;
+    మాతృ->మరిన్ని = form_info;
   }
 }
 
-static void free_formlist(struct FormInfo *ptr)
+స్థిర శూన్య free_formlist(నిర్మాణం FormInfo *ptr)
 {
-  for(; ptr; ptr = ptr->more) {
+  కొరకు(; ptr; ptr = ptr->మరిన్ని) {
     Curl_bufref_free(&ptr->name);
-    Curl_bufref_free(&ptr->value);
+    Curl_bufref_free(&ptr->విలువ);
     Curl_bufref_free(&ptr->contenttype);
     Curl_bufref_free(&ptr->showfilename);
   }
@@ -212,400 +212,400 @@ static void free_formlist(struct FormInfo *ptr)
  *
  ***************************************************************************/
 
-static CURLFORMcode formadd_check(struct FormInfo *first_form,
-                                  struct curl_httppost **httppost,
-                                  struct curl_httppost **last_post)
+స్థిర CURLFORMcode formadd_check(నిర్మాణం FormInfo *మొదటి_form,
+                                  నిర్మాణం curl_httppost **httppost,
+                                  నిర్మాణం curl_httppost **చివరి_post)
 {
-  const char *prevtype = NULL;
-  struct FormInfo *form = NULL;
-  struct curl_httppost *post = NULL;
+  స్థిరరాశి అక్షరం *prevtype = ఖాళీ;
+  నిర్మాణం FormInfo *form = ఖాళీ;
+  నిర్మాణం curl_httppost *post = ఖాళీ;
 
   /* go through the list, check for completeness and if everything is
    * alright add the HttpPost item otherwise set retval accordingly */
 
-  for(form = first_form; form; form = form->more) {
-    const char *name = Curl_bufref_ptr(&form->name);
+  కొరకు(form = మొదటి_form; form; form = form->మరిన్ని) {
+    స్థిరరాశి అక్షరం *name = Curl_bufref_ptr(&form->name);
 
-    if(((!name || !Curl_bufref_ptr(&form->value)) && !post) ||
+    ఒకవేళ(((!name || !Curl_bufref_ptr(&form->విలువ)) && !post) ||
        (form->contentslength &&
         (form->flags & HTTPPOST_FILENAME)) ||
        ((form->flags & HTTPPOST_FILENAME) &&
         (form->flags & HTTPPOST_PTRCONTENTS)) ||
 
-       (!form->buffer &&
-        (form->flags & HTTPPOST_BUFFER) &&
+       (!form->బఫరు &&
+        (form->flags & HTTPPOST_బఫరు) &&
         (form->flags & HTTPPOST_PTRBUFFER)) ||
 
        ((form->flags & HTTPPOST_READFILE) &&
         (form->flags & HTTPPOST_PTRCONTENTS))
       ) {
-      return CURL_FORMADD_INCOMPLETE;
+      తిరిగి CURL_FORMADD_INCOMPLETE;
     }
-    if(((form->flags & HTTPPOST_FILENAME) ||
-        (form->flags & HTTPPOST_BUFFER)) &&
+    ఒకవేళ(((form->flags & HTTPPOST_FILENAME) ||
+        (form->flags & HTTPPOST_బఫరు)) &&
        !Curl_bufref_ptr(&form->contenttype)) {
-      const char *f = Curl_bufref_ptr((form->flags & HTTPPOST_BUFFER) ?
-                                      &form->showfilename : &form->value);
-      const char *type = Curl_mime_contenttype(f);
-      if(!type)
+      స్థిరరాశి అక్షరం *f = Curl_bufref_ptr((form->flags & HTTPPOST_బఫరు) ?
+                                      &form->showfilename : &form->విలువ);
+      స్థిరరాశి అక్షరం *type = Curl_mime_contenttype(f);
+      ఒకవేళ(!type)
         type = prevtype;
-      if(!type)
+      ఒకవేళ(!type)
         type = FILE_CONTENTTYPE_DEFAULT;
 
       /* our contenttype is missing */
-      if(Curl_bufref_memdup0(&form->contenttype, type, strlen(type)))
-        return CURL_FORMADD_MEMORY;
+      ఒకవేళ(Curl_bufref_memdup0(&form->contenttype, type, అక్షరశ్రేణి_పొడవు(type)))
+        తిరిగి CURL_FORMADD_జ్ఞాపకం;
     }
-    if(name && form->namelength && memchr(name, 0, form->namelength))
-      return CURL_FORMADD_NULL;
-    if(!(form->flags & HTTPPOST_PTRNAME) &&
+    ఒకవేళ(name && form->namelength && memchr(name, 0, form->namelength))
+      తిరిగి CURL_FORMADD_NULL;
+    ఒకవేళ(!(form->flags & HTTPPOST_PTRNAME) &&
        /* Note that there is small risk that form->name is NULL here if the app
           passed in a bad combo, so we check for that. */
        forminfo_copyfield(&form->name, form->namelength))
-      return CURL_FORMADD_MEMORY;
-    if(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE |
+      తిరిగి CURL_FORMADD_జ్ఞాపకం;
+    ఒకవేళ(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE |
                         HTTPPOST_PTRCONTENTS | HTTPPOST_PTRBUFFER |
                         HTTPPOST_CALLBACK)) &&
-       forminfo_copyfield(&form->value, (size_t)form->contentslength))
-      return CURL_FORMADD_MEMORY;
-    post = httppost_add(form, post, httppost, last_post);
+       forminfo_copyfield(&form->విలువ, (size_t)form->contentslength))
+      తిరిగి CURL_FORMADD_జ్ఞాపకం;
+    post = httppost_కూడు(form, post, httppost, చివరి_post);
 
-    if(!post)
-      return CURL_FORMADD_MEMORY;
+    ఒకవేళ(!post)
+      తిరిగి CURL_FORMADD_జ్ఞాపకం;
 
-    if(Curl_bufref_ptr(&form->contenttype))
+    ఒకవేళ(Curl_bufref_ptr(&form->contenttype))
       prevtype = Curl_bufref_ptr(&form->contenttype);
   }
 
-  return CURL_FORMADD_OK;
+  తిరిగి CURL_FORMADD_OK;
 }
 
 /* Shallow cleanup. Remove the newly created chain, the structs only and not
    the content they point to */
-static void free_chain(struct curl_httppost *c)
+స్థిర శూన్య free_chain(నిర్మాణం curl_httppost *c)
 {
-  while(c) {
-    struct curl_httppost *next = c->next;
-    if(c->more)
-      free_chain(c->more);
+  అయితే(c) {
+    నిర్మాణం curl_httppost *తదుపరి = c->తదుపరి;
+    ఒకవేళ(c->మరిన్ని)
+      free_chain(c->మరిన్ని);
     curlx_free(c);
-    c = next;
+    c = తదుపరి;
   }
 }
 
-static CURLFORMcode formadd(struct curl_httppost **httppost,
-                            struct curl_httppost **last_post, va_list params)
+స్థిర CURLFORMcode formadd(నిర్మాణం curl_httppost **httppost,
+                            నిర్మాణం curl_httppost **చివరి_post, va_list params)
 {
-  struct FormInfo *first_form, *curr, *form = NULL;
+  నిర్మాణం FormInfo *మొదటి_form, *curr, *form = ఖాళీ;
   CURLFORMcode retval = CURL_FORMADD_OK;
   CURLformoption option;
-  const struct curl_forms *forms = NULL;
-  char *avalue = NULL;
-  struct curl_httppost *newchain = NULL;
-  struct curl_httppost *lastnode = NULL;
+  స్థిరరాశి నిర్మాణం curl_forms *forms = ఖాళీ;
+  అక్షరం *avalue = ఖాళీ;
+  నిర్మాణం curl_httppost *newchain = ఖాళీ;
+  నిర్మాణం curl_httppost *lastnode = ఖాళీ;
 
-#define form_ptr_arg(t) (forms ? (t)(void *)avalue : va_arg(params, t))
-#ifdef HAVE_UINTPTR_T
-#define form_int_arg(t) (forms ? (t)(uintptr_t)avalue : va_arg(params, t))
-#else
-#define form_int_arg(t) (forms ? (t)(void *)avalue : va_arg(params, t))
-#endif
+#నిర్వచించు form_ptr_arg(t) (forms ? (t)(శూన్య *)avalue : va_arg(params, t))
+#నిర్వచితమైతే HAVE_UINTPTR_T
+#నిర్వచించు form_int_arg(t) (forms ? (t)(uintptr_t)avalue : va_arg(params, t))
+#లేకపోతే
+#నిర్వచించు form_int_arg(t) (forms ? (t)(శూన్య *)avalue : va_arg(params, t))
+#అయితే_ముగింపు
 
   /*
    * We need to allocate the first struct to fill in.
    */
-  first_form = forminfo_new();
-  if(!first_form)
-    return CURL_FORMADD_MEMORY;
+  మొదటి_form = forminfo_new();
+  ఒకవేళ(!మొదటి_form)
+    తిరిగి CURL_FORMADD_జ్ఞాపకం;
 
-  curr = first_form;
+  curr = మొదటి_form;
 
   /*
    * Loop through all the options set. Break if we have an error to report.
    */
-  while(retval == CURL_FORMADD_OK) {
+  అయితే(retval == CURL_FORMADD_OK) {
 
     /* first see if we have more parts of the array param */
-    if(forms) {
+    ఒకవేళ(forms) {
       /* get the upcoming option from the given array */
       option = forms->option;
-      avalue = (char *)CURL_UNCONST(forms->value);
+      avalue = (అక్షరం *)CURL_UNCONST(forms->విలువ);
 
       forms++; /* advance this to next entry */
-      if(CURLFORM_END == option) {
+      ఒకవేళ(CURLFORM_చివర == option) {
         /* end of array state */
-        forms = NULL;
-        continue;
+        forms = ఖాళీ;
+        కొనసాగు;
       }
     }
-    else {
+    లేకపోతే {
       /* This is not array-state, get next option. This gets an 'int' with
          va_arg() because CURLformoption might be a smaller type than int and
          might cause compiler warnings and wrong behavior. */
-      option = (CURLformoption)va_arg(params, int);
-      if(CURLFORM_END == option)
-        break;
+      option = (CURLformoption)va_arg(params, పూర్ణాంకం);
+      ఒకవేళ(CURLFORM_చివర == option)
+        ఆపు;
     }
 
-    switch(option) {
-    case CURLFORM_ARRAY:
-      if(forms)
+    ఎంపిక(option) {
+    స్థితి CURLFORM_ARRAY:
+      ఒకవేళ(forms)
         /* we do not support an array from within an array */
         retval = CURL_FORMADD_ILLEGAL_ARRAY;
-      else {
-        forms = va_arg(params, struct curl_forms *);
-        if(!forms)
+      లేకపోతే {
+        forms = va_arg(params, నిర్మాణం curl_forms *);
+        ఒకవేళ(!forms)
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      ఆపు;
 
       /*
        * Set the Name property.
        */
-    case CURLFORM_PTRNAME:
+    స్థితి CURLFORM_PTRNAME:
       curr->flags |= HTTPPOST_PTRNAME;
       FALLTHROUGH();
-    case CURLFORM_COPYNAME:
-      if(Curl_bufref_ptr(&curr->name))
+    స్థితి CURLFORM_COPYNAME:
+      ఒకవేళ(Curl_bufref_ptr(&curr->name))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue)
-          Curl_bufref_set(&curr->name, avalue, 0, NULL); /* No copy yet. */
-        else
+      లేకపోతే {
+        avalue = form_ptr_arg(అక్షరం *);
+        ఒకవేళ(avalue)
+          Curl_bufref_సమితి(&curr->name, avalue, 0, ఖాళీ); /* No copy yet. */
+        లేకపోతే
           retval = CURL_FORMADD_NULL;
       }
-      break;
-    case CURLFORM_NAMELENGTH:
-      if(curr->namelength)
+      ఆపు;
+    స్థితి CURLFORM_NAMELENGTH:
+      ఒకవేళ(curr->namelength)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
-        curr->namelength = (size_t)form_int_arg(long);
-      break;
+      లేకపోతే
+        curr->namelength = (size_t)form_int_arg(దీర్ఘ);
+      ఆపు;
 
       /*
        * Set the contents property.
        */
-    case CURLFORM_PTRCONTENTS:
+    స్థితి CURLFORM_PTRCONTENTS:
       curr->flags |= HTTPPOST_PTRCONTENTS;
       FALLTHROUGH();
-    case CURLFORM_COPYCONTENTS:
-      if(Curl_bufref_ptr(&curr->value))
+    స్థితి CURLFORM_COPYCONTENTS:
+      ఒకవేళ(Curl_bufref_ptr(&curr->విలువ))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue)
-          Curl_bufref_set(&curr->value, avalue, 0, NULL); /* No copy yet. */
-        else
+      లేకపోతే {
+        avalue = form_ptr_arg(అక్షరం *);
+        ఒకవేళ(avalue)
+          Curl_bufref_సమితి(&curr->విలువ, avalue, 0, ఖాళీ); /* No copy yet. */
+        లేకపోతే
           retval = CURL_FORMADD_NULL;
       }
-      break;
-    case CURLFORM_CONTENTSLENGTH: {
-      long clen = form_int_arg(long);
-      if(clen < 0)
+      ఆపు;
+    స్థితి CURLFORM_CONTENTSLENGTH: {
+      దీర్ఘ clen = form_int_arg(దీర్ఘ);
+      ఒకవేళ(clen < 0)
         retval = CURL_FORMADD_INCOMPLETE;
-      else
+      లేకపోతే
         curr->contentslength = (curl_off_t)clen;
-      break;
+      ఆపు;
     }
 
-    case CURLFORM_CONTENTLEN: {
+    స్థితి CURLFORM_CONTENTLEN: {
       curl_off_t clen = form_int_arg(curl_off_t);
-      if(clen < 0)
+      ఒకవేళ(clen < 0)
         retval = CURL_FORMADD_INCOMPLETE;
-      else {
+      లేకపోతే {
         curr->flags |= CURL_HTTPPOST_LARGE;
         curr->contentslength = clen;
       }
-      break;
+      ఆపు;
     }
 
       /* Get contents from a given filename */
-    case CURLFORM_FILECONTENT:
-      if(curr->flags & (HTTPPOST_PTRCONTENTS | HTTPPOST_READFILE))
+    స్థితి CURLFORM_FILECONTENT:
+      ఒకవేళ(curr->flags & (HTTPPOST_PTRCONTENTS | HTTPPOST_READFILE))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
-          if(Curl_bufref_memdup0(&curr->value, avalue, strlen(avalue)))
-            retval = CURL_FORMADD_MEMORY;
-          else
+      లేకపోతే {
+        avalue = form_ptr_arg(అక్షరం *);
+        ఒకవేళ(avalue) {
+          ఒకవేళ(Curl_bufref_memdup0(&curr->విలువ, avalue, అక్షరశ్రేణి_పొడవు(avalue)))
+            retval = CURL_FORMADD_జ్ఞాపకం;
+          లేకపోతే
             curr->flags |= HTTPPOST_READFILE;
         }
-        else
+        లేకపోతే
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      ఆపు;
 
       /* We upload a file */
-    case CURLFORM_FILE:
-      avalue = form_ptr_arg(char *);
-      if(Curl_bufref_ptr(&curr->value)) {
-        if(curr->flags & HTTPPOST_FILENAME) {
-          if(avalue) {
+    స్థితి CURLFORM_FILE:
+      avalue = form_ptr_arg(అక్షరం *);
+      ఒకవేళ(Curl_bufref_ptr(&curr->విలువ)) {
+        ఒకవేళ(curr->flags & HTTPPOST_FILENAME) {
+          ఒకవేళ(avalue) {
             form = forminfo_new();
-            if(!form ||
-               Curl_bufref_memdup0(&form->value, avalue, strlen(avalue))) {
+            ఒకవేళ(!form ||
+               Curl_bufref_memdup0(&form->విలువ, avalue, అక్షరశ్రేణి_పొడవు(avalue))) {
               curlx_free(form);
-              retval = CURL_FORMADD_MEMORY;
+              retval = CURL_FORMADD_జ్ఞాపకం;
             }
-            else {
-              forminfo_add(form, curr);
+            లేకపోతే {
+              forminfo_కూడు(form, curr);
               curr = form;
-              form = NULL;
+              form = ఖాళీ;
             }
           }
-          else
+          లేకపోతే
             retval = CURL_FORMADD_NULL;
         }
-        else
+        లేకపోతే
           retval = CURL_FORMADD_OPTION_TWICE;
       }
-      else {
-        if(avalue) {
-          if(Curl_bufref_memdup0(&curr->value, avalue, strlen(avalue)))
-            retval = CURL_FORMADD_MEMORY;
-          else
+      లేకపోతే {
+        ఒకవేళ(avalue) {
+          ఒకవేళ(Curl_bufref_memdup0(&curr->విలువ, avalue, అక్షరశ్రేణి_పొడవు(avalue)))
+            retval = CURL_FORMADD_జ్ఞాపకం;
+          లేకపోతే
             curr->flags |= HTTPPOST_FILENAME;
         }
-        else
+        లేకపోతే
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      ఆపు;
 
-    case CURLFORM_BUFFERPTR:
-      curr->flags |= HTTPPOST_PTRBUFFER | HTTPPOST_BUFFER;
-      if(curr->buffer)
+    స్థితి CURLFORM_BUFFERPTR:
+      curr->flags |= HTTPPOST_PTRBUFFER | HTTPPOST_బఫరు;
+      ఒకవేళ(curr->బఫరు)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
-          curr->buffer = avalue; /* store for the moment */
+      లేకపోతే {
+        avalue = form_ptr_arg(అక్షరం *);
+        ఒకవేళ(avalue) {
+          curr->బఫరు = avalue; /* store for the moment */
           /* Make value non-NULL to be accepted as fine */
-          Curl_bufref_set(&curr->value, avalue, 0, NULL);
+          Curl_bufref_సమితి(&curr->విలువ, avalue, 0, ఖాళీ);
         }
-        else
+        లేకపోతే
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      ఆపు;
 
-    case CURLFORM_BUFFERLENGTH:
-      if(curr->bufferlength)
+    స్థితి CURLFORM_BUFFERLENGTH:
+      ఒకవేళ(curr->bufferlength)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
-        curr->bufferlength = (size_t)form_int_arg(long);
-      break;
+      లేకపోతే
+        curr->bufferlength = (size_t)form_int_arg(దీర్ఘ);
+      ఆపు;
 
-    case CURLFORM_STREAM:
+    స్థితి CURLFORM_ప్రవాహం:
       curr->flags |= HTTPPOST_CALLBACK;
-      if(curr->userp)
+      ఒకవేళ(curr->userp)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
+      లేకపోతే {
+        avalue = form_ptr_arg(అక్షరం *);
+        ఒకవేళ(avalue) {
           curr->userp = avalue;
           /* The following line is not strictly true but we derive a value
              from this later on and we need this non-NULL to be accepted as
              a fine form part */
-          Curl_bufref_set(&curr->value, avalue, 0, NULL);
+          Curl_bufref_సమితి(&curr->విలువ, avalue, 0, ఖాళీ);
         }
-        else
+        లేకపోతే
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      ఆపు;
 
-    case CURLFORM_CONTENTTYPE:
-      avalue = form_ptr_arg(char *);
-      if(Curl_bufref_ptr(&curr->contenttype)) {
-        if(curr->flags & HTTPPOST_FILENAME) {
-          if(avalue) {
+    స్థితి CURLFORM_CONTENTTYPE:
+      avalue = form_ptr_arg(అక్షరం *);
+      ఒకవేళ(Curl_bufref_ptr(&curr->contenttype)) {
+        ఒకవేళ(curr->flags & HTTPPOST_FILENAME) {
+          ఒకవేళ(avalue) {
             form = forminfo_new();
-            if(!form || Curl_bufref_memdup0(&form->contenttype, avalue,
-                                            strlen(avalue))) {
+            ఒకవేళ(!form || Curl_bufref_memdup0(&form->contenttype, avalue,
+                                            అక్షరశ్రేణి_పొడవు(avalue))) {
               curlx_free(form);
-              retval = CURL_FORMADD_MEMORY;
+              retval = CURL_FORMADD_జ్ఞాపకం;
             }
-            else {
-              forminfo_add(form, curr);
+            లేకపోతే {
+              forminfo_కూడు(form, curr);
               curr = form;
-              form = NULL;
+              form = ఖాళీ;
             }
           }
-          else
+          లేకపోతే
             retval = CURL_FORMADD_NULL;
         }
-        else
+        లేకపోతే
           retval = CURL_FORMADD_OPTION_TWICE;
       }
-      else if(avalue) {
-        if(Curl_bufref_memdup0(&curr->contenttype, avalue, strlen(avalue)))
-          retval = CURL_FORMADD_MEMORY;
+      లేకపోతే ఒకవేళ(avalue) {
+        ఒకవేళ(Curl_bufref_memdup0(&curr->contenttype, avalue, అక్షరశ్రేణి_పొడవు(avalue)))
+          retval = CURL_FORMADD_జ్ఞాపకం;
       }
-      else
+      లేకపోతే
         retval = CURL_FORMADD_NULL;
-      break;
+      ఆపు;
 
-    case CURLFORM_CONTENTHEADER: {
+    స్థితి CURLFORM_CONTENTHEADER: {
       /* this "cast increases required alignment of target type" but
          we consider it OK anyway */
-      struct curl_slist *list = form_ptr_arg(struct curl_slist *);
+      నిర్మాణం curl_slist *list = form_ptr_arg(నిర్మాణం curl_slist *);
 
-      if(curr->contentheader)
+      ఒకవేళ(curr->contentheader)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
+      లేకపోతే
         curr->contentheader = list;
 
-      break;
+      ఆపు;
     }
-    case CURLFORM_FILENAME:
-    case CURLFORM_BUFFER:
-      avalue = form_ptr_arg(char *);
-      if(!avalue)
+    స్థితి CURLFORM_FILENAME:
+    స్థితి CURLFORM_బఫరు:
+      avalue = form_ptr_arg(అక్షరం *);
+      ఒకవేళ(!avalue)
         retval = CURL_FORMADD_NULL;
-      else if(Curl_bufref_ptr(&curr->showfilename))
+      లేకపోతే ఒకవేళ(Curl_bufref_ptr(&curr->showfilename))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else if(Curl_bufref_memdup0(&curr->showfilename, avalue, strlen(avalue)))
-        retval = CURL_FORMADD_MEMORY;
-      break;
+      లేకపోతే ఒకవేళ(Curl_bufref_memdup0(&curr->showfilename, avalue, అక్షరశ్రేణి_పొడవు(avalue)))
+        retval = CURL_FORMADD_జ్ఞాపకం;
+      ఆపు;
 
-    default:
+    అప్రమేయ:
       retval = CURL_FORMADD_UNKNOWN_OPTION;
-      break;
+      ఆపు;
     }
   }
 
-  if(!retval)
-    retval = formadd_check(first_form, &newchain, &lastnode);
+  ఒకవేళ(!retval)
+    retval = formadd_check(మొదటి_form, &newchain, &lastnode);
 
-  if(retval)
+  ఒకవేళ(retval)
     /* On error, free allocated fields for all nodes of the FormInfo linked
        list without deallocating nodes. List nodes are deallocated later on */
-    free_formlist(first_form);
+    free_formlist(మొదటి_form);
 
   /* Always deallocate FormInfo linked list nodes without touching node
      fields given that these have either been deallocated or are owned
      now by the httppost linked list */
-  while(first_form) {
-    struct FormInfo *ptr = first_form->more;
-    curlx_free(first_form);
-    first_form = ptr;
+  అయితే(మొదటి_form) {
+    నిర్మాణం FormInfo *ptr = మొదటి_form->మరిన్ని;
+    curlx_free(మొదటి_form);
+    మొదటి_form = ptr;
   }
 
-  if(!retval) {
+  ఒకవేళ(!retval) {
     /* Only if all is fine, link the new chain into the provided list */
-    if(*last_post)
-      (*last_post)->next = newchain;
-    else
+    ఒకవేళ(*చివరి_post)
+      (*చివరి_post)->తదుపరి = newchain;
+    లేకపోతే
       (*httppost) = newchain;
 
-    (*last_post) = lastnode;
+    (*చివరి_post) = lastnode;
   }
-  else
+  లేకపోతే
     free_chain(newchain);
 
-  return retval;
-#undef form_ptr_arg
-#undef form_int_arg
+  తిరిగి retval;
+#నిర్వచనం_రద్దు form_ptr_arg
+#నిర్వచనం_రద్దు form_int_arg
 }
 
 /*
@@ -614,15 +614,15 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
  * @unittest: 1308
  */
 
-CURLFORMcode curl_formadd(struct curl_httppost **httppost,
-                          struct curl_httppost **last_post, ...)
+CURLFORMcode curl_formadd(నిర్మాణం curl_httppost **httppost,
+                          నిర్మాణం curl_httppost **చివరి_post, ...)
 {
   va_list arg;
   CURLFORMcode form;
-  va_start(arg, last_post);
-  form = formadd(httppost, last_post, arg);
+  va_start(arg, చివరి_post);
+  form = formadd(httppost, చివరి_post, arg);
   va_end(arg);
-  return form;
+  తిరిగి form;
 }
 
 /*
@@ -632,84 +632,84 @@ CURLFORMcode curl_formadd(struct curl_httppost **httppost,
  *
  * @unittest: 1308
  */
-int curl_formget(struct curl_httppost *form, void *arg,
+పూర్ణాంకం curl_formget(నిర్మాణం curl_httppost *form, శూన్య *arg,
                  curl_formget_callback append)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   curl_mimepart toppart;
 
   /* Validate callback is provided */
-  if(!append)
-    return (int)CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!append)
+    తిరిగి (పూర్ణాంకం)CURLE_BAD_FUNCTION_వాదం;
 
   Curl_mime_initpart(&toppart); /* default form is empty */
-  result = Curl_getformdata(NULL, &toppart, form, NULL);
-  if(!result)
-    result = Curl_mime_prepare_headers(NULL, &toppart, "multipart/form-data",
-                                       NULL, MIMESTRATEGY_FORM);
+  ఫలితం = Curl_getformdata(ఖాళీ, &toppart, form, ఖాళీ);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = Curl_mime_prepare_శీర్షికలు(ఖాళీ, &toppart, "multipart/form-data",
+                                       ఖాళీ, MIMESTRATEGY_FORM);
 
-  while(!result) {
-    char buffer[8192];
-    size_t nread = Curl_mime_read(buffer, 1, sizeof(buffer), &toppart);
+  అయితే(!ఫలితం) {
+    అక్షరం బఫరు[8192];
+    size_t nread = Curl_mime_read(బఫరు, 1, పరిమాణం(బఫరు), &toppart);
 
-    if(!nread)
-      break;
+    ఒకవేళ(!nread)
+      ఆపు;
 
-    if(nread > sizeof(buffer) || append(arg, buffer, nread) != nread) {
-      result = CURLE_READ_ERROR;
-      if(nread == CURL_READFUNC_ABORT)
-        result = CURLE_ABORTED_BY_CALLBACK;
+    ఒకవేళ(nread > పరిమాణం(బఫరు) || append(arg, బఫరు, nread) != nread) {
+      ఫలితం = CURLE_READ_ERROR;
+      ఒకవేళ(nread == CURL_READFUNC_ABORT)
+        ఫలితం = CURLE_ABORTED_BY_CALLBACK;
     }
   }
 
   Curl_mime_cleanpart(&toppart);
-  return (int)result;
+  తిరిగి (పూర్ణాంకం)ఫలితం;
 }
 
 /*
  * curl_formfree() is an external function to free up a whole form post
  * chain
  */
-void curl_formfree(struct curl_httppost *form)
+శూన్య curl_formfree(నిర్మాణం curl_httppost *form)
 {
-  struct curl_httppost *next;
+  నిర్మాణం curl_httppost *తదుపరి;
 
-  if(!form)
+  ఒకవేళ(!form)
     /* no form to free, get out of this */
-    return;
+    తిరిగి;
 
-  do {
-    next = form->next;  /* the following form line */
+  చేయి {
+    తదుపరి = form->తదుపరి;  /* the following form line */
 
     /* recurse to sub-contents */
-    curl_formfree(form->more);
+    curl_formfree(form->మరిన్ని);
 
-    if(!(form->flags & HTTPPOST_PTRNAME))
+    ఒకవేళ(!(form->flags & HTTPPOST_PTRNAME))
       curlx_free(form->name); /* free the name */
-    if(!(form->flags &
-         (HTTPPOST_PTRCONTENTS | HTTPPOST_BUFFER | HTTPPOST_CALLBACK)))
+    ఒకవేళ(!(form->flags &
+         (HTTPPOST_PTRCONTENTS | HTTPPOST_బఫరు | HTTPPOST_CALLBACK)))
       curlx_free(form->contents); /* free the contents */
     curlx_free(form->contenttype); /* free the content type */
     curlx_free(form->showfilename); /* free the faked filename */
     curlx_free(form);       /* free the struct */
-    form = next;
-  } while(form); /* continue */
+    form = తదుపరి;
+  } అయితే(form); /* continue */
 }
 
 /* Set mime part name, taking care of non null-terminated name string. */
-static CURLcode setname(curl_mimepart *part, const char *name, size_t len)
+స్థిర CURLcode setname(curl_mimepart *part, స్థిరరాశి అక్షరం *name, size_t len)
 {
-  char *zname;
-  CURLcode result;
+  అక్షరం *zname;
+  CURLcode ఫలితం;
 
-  if(!name || !len)
-    return curl_mime_name(part, name);
+  ఒకవేళ(!name || !len)
+    తిరిగి curl_mime_name(part, name);
   zname = curlx_memdup0(name, len);
-  if(!zname)
-    return CURLE_OUT_OF_MEMORY;
-  result = curl_mime_name(part, zname);
+  ఒకవేళ(!zname)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  ఫలితం = curl_mime_name(part, zname);
   curlx_free(zname);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -722,154 +722,154 @@ static CURLcode setname(curl_mimepart *part, const char *name, size_t len)
  * NULL pointer in the 'data' argument.
  */
 
-CURLcode Curl_getformdata(CURL *data,
+CURLcode Curl_getformdata(CURL *దత్తాంశం,
                           curl_mimepart *finalform,
-                          struct curl_httppost *post,
+                          నిర్మాణం curl_httppost *post,
                           curl_read_callback fread_func)
 {
-  CURLcode result = CURLE_OK;
-  curl_mime *form = NULL;
+  CURLcode ఫలితం = CURLE_OK;
+  curl_mime *form = ఖాళీ;
   curl_mimepart *part;
-  struct curl_httppost *file;
+  నిర్మాణం curl_httppost *file;
 
   Curl_mime_cleanpart(finalform); /* default form is empty */
 
-  if(!post)
-    return result; /* no input => no output! */
+  ఒకవేళ(!post)
+    తిరిగి ఫలితం; /* no input => no output! */
 
-  form = curl_mime_init(data);
-  if(!form)
-    result = CURLE_OUT_OF_MEMORY;
+  form = curl_mime_init(దత్తాంశం);
+  ఒకవేళ(!form)
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  if(!result)
-    result = curl_mime_subparts(finalform, form);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = curl_mime_subparts(finalform, form);
 
   /* Process each top part. */
-  for(; !result && post; post = post->next) {
+  కొరకు(; !ఫలితం && post; post = post->తదుపరి) {
     /* If we have more than a file here, create a mime subpart and fill it. */
     curl_mime *multipart = form;
-    if(post->more) {
+    ఒకవేళ(post->మరిన్ని) {
       part = curl_mime_addpart(form);
-      if(!part)
-        result = CURLE_OUT_OF_MEMORY;
-      if(!result)
-        result = setname(part, post->name, post->namelength);
-      if(!result) {
-        multipart = curl_mime_init(data);
-        if(!multipart)
-          result = CURLE_OUT_OF_MEMORY;
+      ఒకవేళ(!part)
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = setname(part, post->name, post->namelength);
+      ఒకవేళ(!ఫలితం) {
+        multipart = curl_mime_init(దత్తాంశం);
+        ఒకవేళ(!multipart)
+          ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
-      if(!result)
-        result = curl_mime_subparts(part, multipart);
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = curl_mime_subparts(part, multipart);
     }
 
     /* Generate all the part contents. */
-    for(file = post; !result && file; file = file->more) {
+    కొరకు(file = post; !ఫలితం && file; file = file->మరిన్ని) {
       /* Create the part. */
       part = curl_mime_addpart(multipart);
-      if(!part)
-        result = CURLE_OUT_OF_MEMORY;
+      ఒకవేళ(!part)
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
       /* Set the headers. */
-      if(!result)
-        result = curl_mime_headers(part, file->contentheader, 0);
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = curl_mime_శీర్షికలు(part, file->contentheader, 0);
 
       /* Set the content type. */
-      if(!result && file->contenttype)
-        result = curl_mime_type(part, file->contenttype);
+      ఒకవేళ(!ఫలితం && file->contenttype)
+        ఫలితం = curl_mime_type(part, file->contenttype);
 
       /* Set field name. */
-      if(!result && !post->more)
-        result = setname(part, post->name, post->namelength);
+      ఒకవేళ(!ఫలితం && !post->మరిన్ని)
+        ఫలితం = setname(part, post->name, post->namelength);
 
       /* Process contents. */
-      if(!result) {
+      ఒకవేళ(!ఫలితం) {
         curl_off_t clen = post->contentslength;
 
-        if(post->flags & CURL_HTTPPOST_LARGE)
+        ఒకవేళ(post->flags & CURL_HTTPPOST_LARGE)
           clen = post->contentlen;
 
-        if(post->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE)) {
-          if(!strcmp(file->contents, "-")) {
+        ఒకవేళ(post->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE)) {
+          ఒకవేళ(!strcmp(file->contents, "-")) {
             /* There are a few cases where the code below will not work; in
                particular, freopen(stdin) by the caller is not guaranteed
                to result as expected. This feature has been kept for backward
                compatibility: use of "-" pseudo filename should be avoided. */
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
-            result = curl_mime_data_cb(part, (curl_off_t)-1,
+#ఒకవేళ defined(__clang__) && __clang_major__ >= 16
+#సూచన clang diagnostic నెట్టు
+#సూచన clang diagnostic ignored "-Wcast-function-type-strict"
+#అయితే_ముగింపు
+            ఫలితం = curl_mime_దత్తాంశం_cb(part, (curl_off_t)-1,
                                        (curl_read_callback)fread,
                                        curlx_fseek,
-                                       NULL, (void *)stdin);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
+                                       ఖాళీ, (శూన్య *)stdin);
+#ఒకవేళ defined(__clang__) && __clang_major__ >= 16
+#సూచన clang diagnostic తీయి
+#అయితే_ముగింపు
           }
-          else
-            result = curl_mime_filedata(part, file->contents);
-          if(!result && (post->flags & HTTPPOST_READFILE))
-            result = curl_mime_filename(part, NULL);
+          లేకపోతే
+            ఫలితం = curl_mime_filedata(part, file->contents);
+          ఒకవేళ(!ఫలితం && (post->flags & HTTPPOST_READFILE))
+            ఫలితం = curl_mime_filename(part, ఖాళీ);
         }
-        else if(post->flags & HTTPPOST_BUFFER)
-          result = curl_mime_data(part, post->buffer,
+        లేకపోతే ఒకవేళ(post->flags & HTTPPOST_బఫరు)
+          ఫలితం = curl_mime_దత్తాంశం(part, post->బఫరు,
                                   post->bufferlength ?
                                   post->bufferlength : -1);
-        else if(post->flags & HTTPPOST_CALLBACK) {
+        లేకపోతే ఒకవేళ(post->flags & HTTPPOST_CALLBACK) {
           /* the contents should be read with the callback and the size is set
              with the contentslength */
-          if(!clen)
+          ఒకవేళ(!clen)
             clen = -1;
-          result = curl_mime_data_cb(part, clen,
-                                     fread_func, NULL, NULL, post->userp);
+          ఫలితం = curl_mime_దత్తాంశం_cb(part, clen,
+                                     fread_func, ఖాళీ, ఖాళీ, post->userp);
         }
-        else {
+        లేకపోతే {
           size_t uclen;
-          if(!clen)
+          ఒకవేళ(!clen)
             uclen = CURL_ZERO_TERMINATED;
-          else
+          లేకపోతే
             uclen = (size_t)clen;
-          result = curl_mime_data(part, post->contents, uclen);
+          ఫలితం = curl_mime_దత్తాంశం(part, post->contents, uclen);
         }
       }
 
       /* Set fake filename. */
-      if(!result && post->showfilename &&
-         (post->more || (post->flags & (HTTPPOST_FILENAME | HTTPPOST_BUFFER |
+      ఒకవేళ(!ఫలితం && post->showfilename &&
+         (post->మరిన్ని || (post->flags & (HTTPPOST_FILENAME | HTTPPOST_బఫరు |
                                         HTTPPOST_CALLBACK))))
-        result = curl_mime_filename(part, post->showfilename);
+        ఫలితం = curl_mime_filename(part, post->showfilename);
     }
   }
 
-  if(result)
+  ఒకవేళ(ఫలితం)
     Curl_mime_cleanpart(finalform);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#else /* if disabled */
-CURLFORMcode curl_formadd(struct curl_httppost **httppost,
-                          struct curl_httppost **last_post, ...)
+#లేకపోతే /* if disabled */
+CURLFORMcode curl_formadd(నిర్మాణం curl_httppost **httppost,
+                          నిర్మాణం curl_httppost **చివరి_post, ...)
 {
-  (void)httppost;
-  (void)last_post;
-  return CURL_FORMADD_DISABLED;
+  (శూన్య)httppost;
+  (శూన్య)చివరి_post;
+  తిరిగి CURL_FORMADD_DISABLED;
 }
 
-int curl_formget(struct curl_httppost *form, void *arg,
+పూర్ణాంకం curl_formget(నిర్మాణం curl_httppost *form, శూన్య *arg,
                  curl_formget_callback append)
 {
-  (void)form;
-  (void)arg;
-  (void)append;
-  return CURL_FORMADD_DISABLED;
+  (శూన్య)form;
+  (శూన్య)arg;
+  (శూన్య)append;
+  తిరిగి CURL_FORMADD_DISABLED;
 }
 
-void curl_formfree(struct curl_httppost *form)
+శూన్య curl_formfree(నిర్మాణం curl_httppost *form)
 {
-  (void)form;
+  (శూన్య)form;
   /* Nothing to do. */
 }
 
-#endif /* if disabled */
+#అయితే_ముగింపు /* if disabled */

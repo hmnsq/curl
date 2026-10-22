@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HEADER_H
-#define HEADER_CURL_HEADER_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_శీర్షిక_H
+#నిర్వచించు శీర్షిక_CURL_శీర్షిక_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,43 +23,43 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_శీర్షికలు_API)
 
-struct Curl_header_store {
-  struct Curl_llist_node node;
-  char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
+నిర్మాణం Curl_శీర్షిక_store {
+  నిర్మాణం Curl_llist_కణుపు కణుపు;
+  అక్షరం *name; /* points into 'buffer' */
+  అక్షరం *విలువ; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
-  size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
-  char buffer[1]; /* this is the raw header blob */
+  size_t nh_సూచీ; /* cached index for curl_easy_nextheader() */
+  పూర్ణాంకం request; /* 0 is the first request, then 1.. 2.. */
+  గుర్తులేని అక్షరం type; /* CURLH_* defines */
+  అక్షరం బఫరు[1]; /* this is the raw header blob */
 };
 
 /*
  * Initialize header collecting for a transfer.
  * Add a client writer that catches CLIENTWRITE_HEADER writes.
  */
-CURLcode Curl_headers_init(struct Curl_easy *data);
+CURLcode Curl_శీర్షికలు_init(నిర్మాణం Curl_easy *దత్తాంశం);
 
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           size_t hlen, unsigned char type);
+CURLcode Curl_శీర్షికలు_నెట్టు(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *శీర్షిక,
+                           size_t hlen, గుర్తులేని అక్షరం type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data);
+CURLcode Curl_శీర్షికలు_cleanup(నిర్మాణం Curl_easy *దత్తాంశం);
 
-#else
-#define Curl_headers_init(x)          CURLE_OK
-#define Curl_headers_push(x, y, z, a) \
-  ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
-#define Curl_headers_cleanup(x)       Curl_nop_stmt
-#endif
+#లేకపోతే
+#నిర్వచించు Curl_శీర్షికలు_init(x)          CURLE_OK
+#నిర్వచించు Curl_శీర్షికలు_నెట్టు(x, y, z, a) \
+  ((శూన్య)(x), (శూన్య)(y), (శూన్య)(z), (శూన్య)(a), CURLE_OK)
+#నిర్వచించు Curl_శీర్షికలు_cleanup(x)       Curl_nop_stmt
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_HEADER_H */
+#అయితే_ముగింపు /* HEADER_CURL_HEADER_H */

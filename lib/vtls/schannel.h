@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SCHANNEL_H
-#define HEADER_CURL_SCHANNEL_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_SCHANNEL_H
+#నిర్వచించు శీర్షిక_CURL_SCHANNEL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,22 +24,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_SCHANNEL
+#నిర్వచితమైతే USE_SCHANNEL
 
-#include <schannel.h>
+#అన్తర్భావ <schannel.h>
 
-#include "curl_sspi.h"
-#include "cfilters.h"
-#include "urldata.h"
+#అన్తర్భావ "curl_sspi.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "urldata.h"
 
-extern const struct Curl_ssl Curl_ssl_schannel;
+బాహ్య స్థిరరాశి నిర్మాణం Curl_ssl Curl_ssl_schannel;
 
-CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data);
+CURLcode Curl_verify_host(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం);
 
-CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data);
+CURLcode Curl_verify_certificate(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం);
 
-#endif /* USE_SCHANNEL */
-#endif /* HEADER_CURL_SCHANNEL_H */
+#అయితే_ముగింపు /* USE_SCHANNEL */
+#అయితే_ముగింపు /* HEADER_CURL_SCHANNEL_H */

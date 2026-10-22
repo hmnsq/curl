@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SETUP_H
-#define HEADER_CURL_SETUP_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_అమరిక_H
+#నిర్వచించు శీర్షిక_CURL_అమరిక_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,14 +24,14 @@
  *
  ***************************************************************************/
 
-#if defined(BUILDING_LIBCURL) && !defined(CURL_NO_OLDIES)
-#define CURL_NO_OLDIES
-#endif
+#ఒకవేళ defined(BUILDING_LIBCURL) && !defined(CURL_NO_OLDIES)
+#నిర్వచించు CURL_NO_OLDIES
+#అయితే_ముగింపు
 
 /* Set default _WIN32_WINNT */
-#ifdef __MINGW32__
-#include <_mingw.h>
-#endif
+#నిర్వచితమైతే __MINGW32__
+#అన్తర్భావ <_mingw.h>
+#అయితే_ముగింపు
 
 /* Workaround for Homebrew gcc 12.4.0, 13.3.0, 14.1.0, 14.2.0 (initial build)
    that started advertising the `availability` attribute, which then gets used
@@ -44,18 +44,18 @@
    Work it around by overriding the built-in feature-check macro used by the
    headers to enable the problematic attributes. This makes the feature check
    fail. Fixed in 14.2.0_1. Disable the workaround if the fix is detected. */
-#if defined(__APPLE__) && !defined(__clang__) && defined(__GNUC__) && \
+#ఒకవేళ defined(__APPLE__) && !defined(__clang__) && defined(__GNUC__) && \
   defined(__has_attribute)
-#  if !defined(__has_feature)  /* Keep this PP check separate from others */
+#  ఒకవేళ !defined(__has_feature)  /* Keep this PP check separate from others */
 #    define availability curl_pp_attribute_disabled
 #  elif !__has_feature(attribute_availability)
 #    define availability curl_pp_attribute_disabled
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#ifdef __APPLE__
-#include <sys/types.h>
-#include <TargetConditionals.h>
+#నిర్వచితమైతే __APPLE__
+#అన్తర్భావ <sys/types.h>
+#అన్తర్భావ <TargetConditionals.h>
 /* Fixup faulty target macro initialization in macOS SDK since v14.4 (as of
    15.0 beta). The SDK target detection in `TargetConditionals.h` correctly
    detects macOS, but fails to set the macro's old name `TARGET_OS_OSX`, then
@@ -66,42 +66,42 @@
    faulty dynamic detection. gcc is not affected (for now) because it lacks
    the necessary dynamic detection features, so the SDK falls back to
    a codepath that sets both the old and new macro to 1. */
-#if defined(TARGET_OS_MAC) && TARGET_OS_MAC && \
-  defined(TARGET_OS_OSX) && !TARGET_OS_OSX && \
-  (!defined(TARGET_OS_IPHONE) || !TARGET_OS_IPHONE) && \
-  (!defined(TARGET_OS_SIMULATOR) || !TARGET_OS_SIMULATOR)
-#undef TARGET_OS_OSX
-#define TARGET_OS_OSX TARGET_OS_MAC
-#endif
-#endif
+#ఒకవేళ defined(లక్ష్యం_OS_MAC) && లక్ష్యం_OS_MAC && \
+  defined(లక్ష్యం_OS_OSX) && !లక్ష్యం_OS_OSX && \
+  (!defined(లక్ష్యం_OS_IPHONE) || !లక్ష్యం_OS_IPHONE) && \
+  (!defined(లక్ష్యం_OS_SIMULATOR) || !లక్ష్యం_OS_SIMULATOR)
+#నిర్వచనం_రద్దు లక్ష్యం_OS_OSX
+#నిర్వచించు లక్ష్యం_OS_OSX లక్ష్యం_OS_MAC
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#if defined(__MINGW32__) && \
+#ఒకవేళ defined(__MINGW32__) && \
   (!defined(__MINGW64_VERSION_MAJOR) || (__MINGW64_VERSION_MAJOR < 3))
-#error "mingw-w64 3.0 or greater required"
-#endif
+#దోషం "mingw-w64 3.0 or greater required"
+#అయితే_ముగింపు
 
 /* Visual Studio 2010 is the minimum Visual Studio version we support.
    Workarounds for older versions of Visual Studio have been removed. */
-#if defined(_MSC_VER) && (_MSC_VER < 1600)
-#error "Ancient versions of Visual Studio are no longer supported due to bugs."
-#endif
+#ఒకవేళ defined(_MSC_VER) && (_MSC_VER < 1600)
+#దోషం "Ancient versions of Visual Studio are no longer supported due to bugs."
+#అయితే_ముగింపు
 
-#ifdef _MSC_VER
+#నిర్వచితమైతే _MSC_VER
 /* Disable Visual Studio warnings: 4127 "conditional expression is constant" */
-#pragma warning(disable:4127)
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS  /* for getenv(), sscanf(), vsnprintf() */
-#endif
-#endif /* _MSC_VER */
+#సూచన warning(disable:4127)
+#నిర్వచితం_కాకపోతే _CRT_SECURE_NO_WARNINGS
+#నిర్వచించు _CRT_SECURE_NO_WARNINGS  /* for getenv(), sscanf(), vsnprintf() */
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* _MSC_VER */
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 /*
  * Do not include unneeded stuff in Windows headers to avoid compiler
  * warnings and macro clashes.
  * Make sure to define this macro before including any Windows headers.
  */
-#  ifndef WIN32_LEAN_AND_MEAN
-#  define WIN32_LEAN_AND_MEAN
+#  ifndef WIN32_LEAN_AND_సగటు
+#  define WIN32_LEAN_AND_సగటు
 #  endif
 #  ifndef NOGDI
 #  define NOGDI
@@ -109,58 +109,58 @@
 
 /* Detect Windows App environment which has a restricted access
  * to the Win32 APIs. */
-#  if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
+#  ఒకవేళ (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
      defined(WINAPI_FAMILY)
 #    include <winapifamily.h>
-#    if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
-       !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#    ఒకవేళ WINAPI_FAMILY_విభజన(WINAPI_విభజన_APP) &&  \
+       !WINAPI_FAMILY_విభజన(WINAPI_విభజన_DESKTOP)
 #      define CURL_WINDOWS_UWP
 #    endif
 #  endif
 
 /* Mandatory to define SECURITY_WIN32 or SECURITY_KERNEL to indicating who is
    compiling the code. */
-#undef SECURITY_KERNEL
-#undef SECURITY_WIN32
-#define SECURITY_WIN32  /* for <sspi.h> */
-#endif
+#నిర్వచనం_రద్దు SECURITY_KERNEL
+#నిర్వచనం_రద్దు SECURITY_WIN32
+#నిర్వచించు SECURITY_WIN32  /* for <sspi.h> */
+#అయితే_ముగింపు
 
 /*
  * Include configuration script results or hand-crafted
  * configuration file for platforms which lack config tool.
  */
 
-#ifdef HAVE_CONFIG_H
+#నిర్వచితమైతే HAVE_CONFIG_H
 
-#include "curl_config.h"
+#అన్తర్భావ "curl_config.h"
 
-#else /* HAVE_CONFIG_H */
+#లేకపోతే /* HAVE_CONFIG_H */
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 #  include "config-win32.h"
-#endif
+#అయితే_ముగింపు
 
-#ifdef macintosh
+#నిర్వచితమైతే macintosh
 #  include "config-mac.h"
-#endif
+#అయితే_ముగింపు
 
-#ifdef __OS400__
+#నిర్వచితమైతే __OS400__
 #  include "config-os400.h"
-#endif
+#అయితే_ముగింపు
 
-#endif /* HAVE_CONFIG_H */
+#అయితే_ముగింపు /* HAVE_CONFIG_H */
 
-#ifdef _WIN32
-#  if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
-#    error The minimum build target is Windows Vista (0x0600)
+#నిర్వచితమైతే _WIN32
+#  ఒకవేళ defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
+#    error The minimum build లక్ష్యం is Windows Vista (0x0600)
 #  endif
 
-#  if !defined(CURL_WINDOWS_UWP) && (defined(_MSC_VER) || defined(__MINGW32__))
+#  ఒకవేళ !defined(CURL_WINDOWS_UWP) && (defined(_MSC_VER) || defined(__MINGW32__))
 #    ifndef HAVE_IF_NAMETOINDEX
 #    define HAVE_IF_NAMETOINDEX
 #    endif
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /* ================================================================ */
 /* Definition of preprocessor macros/symbols which modify compiler  */
@@ -171,39 +171,39 @@
 /* system header files in our config files, avoid this at any cost. */
 /* ================================================================ */
 
-#ifdef HAVE_LIBZ
+#నిర్వచితమైతే HAVE_LIBZ
 #  ifndef ZLIB_CONST
 #  define ZLIB_CONST  /* Use z_const. Supported by v1.2.5.2 or greater. */
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /*
  * AIX 4.3 and newer needs _THREAD_SAFE defined to build
  * proper reentrant code. Others may also need it.
  */
-#ifdef NEED_THREAD_SAFE
-#  ifndef _THREAD_SAFE
-#  define _THREAD_SAFE
+#నిర్వచితమైతే NEED_THREAD_సురక్షిత
+#  ifndef THREAD_సురక్షిత
+#  define THREAD_సురక్షిత
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /*
  * Tru64 needs _REENTRANT set for a few function prototypes and
  * things to appear in the system header files. Unixware needs it
  * to build proper reentrant code. Others may also need it.
  */
-#ifdef NEED_REENTRANT
+#నిర్వచితమైతే NEED_REENTRANT
 #  ifndef _REENTRANT
 #  define _REENTRANT
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /* Solaris needs this to get a POSIX-conformant getpwuid_r */
-#if defined(sun) || defined(__sun)
+#ఒకవేళ defined(sun) || defined(__sun)
 #  ifndef _POSIX_PTHREAD_SEMANTICS
 #  define _POSIX_PTHREAD_SEMANTICS 1
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /* ================================================================ */
 /*  If you need to include a system header file for your platform,  */
@@ -211,14 +211,14 @@
 /* ================================================================ */
 
 /* Give calloc a chance to be included early, so we do not redefine */
-#ifdef HAVE_THREADS_POSIX
+#నిర్వచితమైతే HAVE_దారాలు_POSIX
 #  include <pthread.h>
-#endif
+#అయితే_ముగింపు
 
 /*
  * When HTTP is disabled, disable HTTP-only features
  */
-#ifdef CURL_DISABLE_HTTP
+#నిర్వచితమైతే CURL_DISABLE_HTTP
 #  ifndef CURL_DISABLE_ALTSVC
 #  define CURL_DISABLE_ALTSVC
 #  endif
@@ -240,8 +240,8 @@
 #  ifndef CURL_DISABLE_FORM_API
 #  define CURL_DISABLE_FORM_API
 #  endif
-#  ifndef CURL_DISABLE_HEADERS_API
-#  define CURL_DISABLE_HEADERS_API
+#  ifndef CURL_DISABLE_శీర్షికలు_API
+#  define CURL_DISABLE_శీర్షికలు_API
 #  endif
 #  ifndef CURL_DISABLE_HSTS
 #  define CURL_DISABLE_HSTS
@@ -258,7 +258,7 @@
 #  ifndef CURL_DISABLE_WEBSOCKETS
 #  define CURL_DISABLE_WEBSOCKETS /* no WebSockets without HTTP present */
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /* ================================================================ */
 /* No system header file shall be included in this file before this */
@@ -268,27 +268,27 @@
 /*
  * OS/400 setup file includes some system headers.
  */
-#ifdef __OS400__
+#నిర్వచితమైతే __OS400__
 #  include "setup-os400.h"
-#endif
+#అయితే_ముగింపు
 
 /*
  * VMS setup file includes some system headers.
  */
-#ifdef __VMS
+#నిర్వచితమైతే __VMS
 #  include "setup-vms.h"
-#endif
+#అయితే_ముగింపు
 
 /*
  * Windows setup file includes some system headers.
  */
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 #  include "setup-win32.h"
-#endif
+#అయితే_ముగింపు
 
-#include <curl/system.h>
+#అన్తర్భావ <curl/system.h>
 
-#if !defined(HAVE_PIPE2) && \
+#ఒకవేళ !defined(HAVE_PIPE2) && \
   ((defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
             __MAC_OS_X_VERSION_MAX_ALLOWED >= 270000 && \
     defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
@@ -309,98 +309,98 @@
             __VISION_OS_VERSION_MAX_ALLOWED >= 270000 && \
     defined(__VISION_OS_VERSION_MIN_REQUIRED) && \
             __VISION_OS_VERSION_MIN_REQUIRED >= 270000))
-#define HAVE_PIPE2
-#endif
+#నిర్వచించు HAVE_PIPE2
+#అయితే_ముగింపు
 
 /* Helper macro to expand and concatenate two macros.
  * Direct macros concatenation does not work because macros
  * are not expanded before direct concatenation.
  */
-#define CURL_CONC_MACROS_(A, B) A ## B
-#define CURL_CONC_MACROS(A, B) CURL_CONC_MACROS_(A, B)
+#నిర్వచించు CURL_CONC_MACROS_(A, B) A ## B
+#నిర్వచించు CURL_CONC_MACROS(A, B) CURL_CONC_MACROS_(A, B)
 
 /* curl uses its own printf() function internally. It understands the GNU
  * format. Use this format, so that it matches the GNU format attribute we
  * use with the MinGW compiler, allowing it to verify them at compile-time.
  */
-#ifdef __MINGW32__
+#నిర్వచితమైతే __MINGW32__
 #  undef CURL_FORMAT_CURL_OFF_T
 #  undef CURL_FORMAT_CURL_OFF_TU
 #  define CURL_FORMAT_CURL_OFF_T   "lld"
 #  define CURL_FORMAT_CURL_OFF_TU  "llu"
-#endif
+#అయితే_ముగింపు
 
 /* based on logic in "curl/mprintf.h" */
-#if (defined(__GNUC__) || defined(__clang__) ||                 \
+#ఒకవేళ (defined(__GNUC__) || defined(__clang__) ||                 \
      defined(__IAR_SYSTEMS_ICC__)) &&                           \
   defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && \
   !defined(CURL_NO_FMT_CHECKS)
-#if defined(__MINGW32__) && !defined(__clang__)
-#define CURL_PRINTF(fmt, arg) __attribute__((format(gnu_printf, fmt, arg)))
-#else
-#define CURL_PRINTF(fmt, arg) __attribute__((format(__printf__, fmt, arg)))
-#endif
-#else
-#define CURL_PRINTF(fmt, arg)
-#endif
+#ఒకవేళ defined(__MINGW32__) && !defined(__clang__)
+#నిర్వచించు CURL_PRINTF(fmt, arg) __attribute__((format(gnu_printf, fmt, arg)))
+#లేకపోతే
+#నిర్వచించు CURL_PRINTF(fmt, arg) __attribute__((format(__printf__, fmt, arg)))
+#అయితే_ముగింపు
+#లేకపోతే
+#నిర్వచించు CURL_PRINTF(fmt, arg)
+#అయితే_ముగింపు
 
 /* Override default printf mask check rules in "curl/mprintf.h" */
-#define CURL_TEMP_PRINTF CURL_PRINTF
+#నిర్వచించు CURL_తాత్కాలిక_PRINTF CURL_PRINTF
 
 /* Workaround for mainline llvm v16 and earlier missing a built-in macro
    expected by macOS SDK v14 / Xcode v15 (2023) and newer.
    gcc (as of v14) is also missing it. */
-#if defined(__APPLE__) &&                                   \
+#ఒకవేళ defined(__APPLE__) &&                                   \
   ((!defined(__apple_build_version__) &&                    \
     defined(__clang__) && __clang_major__ < 17) ||          \
    (defined(__GNUC__) && __GNUC__ <= 14)) &&                \
   defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && \
   !defined(__ENVIRONMENT_OS_VERSION_MIN_REQUIRED__)
-#define __ENVIRONMENT_OS_VERSION_MIN_REQUIRED__ \
+#నిర్వచించు __ENVIRONMENT_OS_VERSION_MIN_REQUIRED__ \
   __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
-#endif
+#అయితే_ముగింపు
 
 /*
  * Use getaddrinfo to resolve the IPv4 address literal. If the current network
  * interface does not support IPv4, but supports IPv6, NAT64, and DNS64,
  * performing this task will result in a synthesized IPv6 address.
  */
-#if defined(__APPLE__) && !defined(USE_ARES)
+#ఒకవేళ defined(__APPLE__) && !defined(USE_ARES)
 #  define USE_RESOLVE_ON_IPS 1
-#  if TARGET_OS_MAC && !(defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) && \
+#  ఒకవేళ లక్ష్యం_OS_MAC && !(defined(లక్ష్యం_OS_IPHONE) && లక్ష్యం_OS_IPHONE) && \
      defined(USE_IPV6)
 #    define CURL_MACOS_CALL_COPYPROXIES 1
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#ifdef USE_ARES
+#నిర్వచితమైతే USE_ARES
 #  ifndef CARES_NO_DEPRECATED
 #  define CARES_NO_DEPRECATED  /* for ares_getsock() */
 #  endif
-#  if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && defined(_WIN32)
+#  ఒకవేళ defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && defined(_WIN32)
 #    define CARES_STATICLIB  /* define it before including ares.h */
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#ifdef USE_LWIPSOCK
+#నిర్వచితమైతే USE_LWIPSOCK
 #  include <lwip/init.h>
 #  include <lwip/sockets.h>
 #  include <lwip/netdb.h>
-#endif
+#అయితే_ముగింపు
 
-#ifdef macintosh
+#నిర్వచితమైతే macintosh
 #  include <extra/stricmp.h>
 #  include <extra/strdup.h>
-#endif
+#అయితే_ముగింపు
 
-#ifdef __AMIGA__
+#నిర్వచితమైతే __AMIGA__
 #  ifdef __amigaos4__
 #    define __USE_INLINE__
      /* use our own resolver which uses runtime feature detection */
 #    define CURLRES_AMIGA
      /* getaddrinfo() currently crashes bsdsocket.library, so disable */
 #    undef HAVE_GETADDRINFO
-#    if !(defined(__NEWLIB__) || \
+#    ఒకవేళ !(defined(__NEWLIB__) || \
           (defined(__CLIB2__) && defined(__THREAD_SAFE)))
        /* disable threaded resolver with clib2 - requires newlib or clib-ts */
 #      undef USE_RESOLV_THREADED
@@ -411,22 +411,22 @@
 #  include <proto/exec.h>
 #  include <proto/dos.h>
 #  include <unistd.h>
-#  if defined(HAVE_PROTO_BSDSOCKET_H) && \
+#  ఒకవేళ defined(HAVE_PROTO_BSDSOCKET_H) && \
     (!defined(__amigaos4__) || defined(USE_AMISSL))
      /* use bsdsocket.library directly, instead of libc networking functions */
 #    define _SYS_MBUF_H /* m_len define clashes with curl */
 #    include <proto/bsdsocket.h>
 #    ifdef __amigaos4__
-       int Curl_amiga_select(int nfds, fd_set *readfds, fd_set *writefds,
-                             fd_set *errorfds, struct timeval *timeout);
+       పూర్ణాంకం Curl_amiga_select(పూర్ణాంకం nfds, fd_set *readfds, fd_set *writefds,
+                             fd_set *errorfds, నిర్మాణం timeval *timeout);
 #      define select(a, b, c, d, e) Curl_amiga_select(a, b, c, d, e)
-#    else
+#    లేకపోతే
 #      define select(a, b, c, d, e) WaitSelect(a, b, c, d, e, 0)
 #    endif
      /* must not use libc's fcntl() on bsdsocket.library sockfds! */
 #    undef HAVE_FCNTL
 #    undef HAVE_FCNTL_O_NONBLOCK
-#  else
+#  లేకపోతే
      /* use libc networking and hence close() and fcntl() */
 #    undef HAVE_CLOSESOCKET_CAMEL
 #    undef HAVE_IOCTLSOCKET_CAMEL
@@ -436,48 +436,48 @@
  * with bsdsocket.library. This avoids the definition of those.
  */
 #  define __NO_NET_API
-#endif
+#అయితే_ముగింపు
 
 /* Whether to use eventfd() */
-#if defined(HAVE_EVENTFD) && defined(HAVE_SYS_EVENTFD_H)
-#define USE_EVENTFD
-#endif
+#ఒకవేళ defined(HAVE_EVENTFD) && defined(HAVE_SYS_EVENTFD_H)
+#నిర్వచించు USE_EVENTFD
+#అయితే_ముగింపు
 
-#ifdef SO_NOSIGPIPE
-#define USE_SO_NOSIGPIPE
-#endif
+#నిర్వచితమైతే SO_NOSIGPIPE
+#నిర్వచించు USE_SO_NOSIGPIPE
+#అయితే_ముగింపు
 
-#include <stdio.h>
-#include <assert.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <assert.h>
 
-#ifdef __TANDEM /* for ns*-tandem-nsk systems */
+#నిర్వచితమైతే __TANDEM /* for ns*-tandem-nsk systems */
 #  ifndef __LP64
 #    include <floss.h> /* FLOSS is only used for 32-bit builds. */
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#include <stdint.h>
-#define HAVE_UINTPTR_T  /* assume uintptr_t is provided by stdint.h */
+#అన్తర్భావ <stdint.h>
+#నిర్వచించు HAVE_UINTPTR_T  /* assume uintptr_t is provided by stdint.h */
 
-#ifdef __DJGPP__
+#నిర్వచితమైతే __DJGPP__
 /* By default, DJGPP provides this type as a version of 'unsigned long' which
    forces us to use a define use it in printf() format strings without
    warnings. long and int are both 32 bits for this platform. */
-#define uint32_t unsigned int
-#endif
+#నిర్వచించు uint32_t గుర్తులేని పూర్ణాంకం
+#అయితే_ముగింపు
 
 /* Disable uintptr_t for targets known to miss it from stdint.h */
-#ifdef __OS400__
-#undef HAVE_UINTPTR_T
-#endif
+#నిర్వచితమైతే __OS400__
+#నిర్వచనం_రద్దు HAVE_UINTPTR_T
+#అయితే_ముగింపు
 
-#include <limits.h>
+#అన్తర్భావ <limits.h>
 /* Include after setting system macros that may affect type sizes
    (e.g. 'off_t' or 'time_t'), or suppress warnings
    (e.g. '_CRT_SECURE_NO_WARNINGS`), but before including sys/stat.h */
-#include <sys/types.h>
+#అన్తర్భావ <sys/types.h>
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 #  ifdef HAVE_IO_H
 #  include <io.h>
 #  endif
@@ -485,52 +485,52 @@
    /* Large file (>2Gb) support using Win32 functions. */
 #  define curl_lseek                      _lseeki64
 #  define LSEEK_ERROR                     ((__int64)-1)
-#elif defined(__DJGPP__)
+#లేదావేళ defined(__DJGPP__)
    /* Requires DJGPP 2.04 */
 #  include <unistd.h>
 #  define curl_lseek                      llseek
-#  define LSEEK_ERROR                     ((offset_t)-1)
-#elif defined(__AMIGA__)
-#  define curl_lseek(fd, offset, whence)  lseek(fd, (off_t)(offset), whence)
+#  define LSEEK_ERROR                     ((స్థానభ్రంశం_t)-1)
+#లేదావేళ defined(__AMIGA__)
+#  define curl_lseek(fd, స్థానభ్రంశం, whence)  lseek(fd, (off_t)(స్థానభ్రంశం), whence)
 #  define LSEEK_ERROR                     ((off_t)-1)
-#else
+#లేకపోతే
 #  define curl_lseek                      lseek
 #  define LSEEK_ERROR                     ((off_t)-1)
-#endif
+#అయితే_ముగింపు
 
-#ifndef SIZEOF_TIME_T
+#నిర్వచితం_కాకపోతే SIZEOF_సమయం_T
 /* assume default size of time_t to be 32 bits */
-#define SIZEOF_TIME_T 4
-#endif
+#నిర్వచించు SIZEOF_సమయం_T 4
+#అయితే_ముగింపు
 
-#ifndef SIZEOF_CURL_SOCKET_T
+#నిర్వచితం_కాకపోతే SIZEOF_CURL_SOCKET_T
 /* configure and cmake check and set the define */
-#  if defined(USE_WINSOCK) && defined(_WIN64)
+#  ఒకవేళ defined(USE_WINSOCK) && defined(_WIN64)
 #    define SIZEOF_CURL_SOCKET_T 8
-#  else
+#  లేకపోతే
 /* default guess */
 #    define SIZEOF_CURL_SOCKET_T 4
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#if SIZEOF_CURL_SOCKET_T < 8
-#ifdef USE_WINSOCK
+#ఒకవేళ SIZEOF_CURL_SOCKET_T < 8
+#నిర్వచితమైతే USE_WINSOCK
 #  define FMT_SOCKET_T "u"
-#else
+#లేకపోతే
 #  define FMT_SOCKET_T "d"
-#endif
-#elif defined(USE_WINSOCK)
+#అయితే_ముగింపు
+#లేదావేళ defined(USE_WINSOCK)
 #  define FMT_SOCKET_T "zu"
-#else
+#లేకపోతే
 #  define FMT_SOCKET_T "qd"
-#endif
+#అయితే_ముగింపు
 
 /*
  * Default sizeof(off_t) in case it has not been defined in config file.
  */
 
-#ifndef SIZEOF_OFF_T
-#  if defined(__VMS) && !defined(__VAX)
+#నిర్వచితం_కాకపోతే SIZEOF_OFF_T
+#  ఒకవేళ defined(__VMS) && !defined(__VAX)
 #    ifdef _LARGEFILE
 #      define SIZEOF_OFF_T 8
 #    endif
@@ -539,121 +539,121 @@
 #      define SIZEOF_OFF_T 8
 #    endif
 #  elif defined(__MVS__) && defined(__IBMC__)
-#    if defined(_LP64) || defined(_LARGE_FILES)
+#    ఒకవేళ defined(_LP64) || defined(_LARGE_FILES)
 #      define SIZEOF_OFF_T 8
 #    endif
 #  elif defined(__370__) && defined(__IBMC__)
-#    if defined(_LP64) || defined(_LARGE_FILES)
+#    ఒకవేళ defined(_LP64) || defined(_LARGE_FILES)
 #      define SIZEOF_OFF_T 8
 #    endif
 #  endif
 #  ifndef SIZEOF_OFF_T
 #  define SIZEOF_OFF_T 4
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#if SIZEOF_CURL_OFF_T < 8
-#error "too small curl_off_t"
-#else
+#ఒకవేళ SIZEOF_CURL_OFF_T < 8
+#దోషం "too small curl_off_t"
+#లేకపోతే
    /* assume SIZEOF_CURL_OFF_T == 8 */
 #  define CURL_OFF_T_MAX 0x7FFFFFFFFFFFFFFF
-#endif
-#define CURL_OFF_T_MIN (-CURL_OFF_T_MAX - 1)
+#అయితే_ముగింపు
+#నిర్వచించు CURL_OFF_T_MIN (-CURL_OFF_T_MAX - 1)
 
-#define FMT_OFF_T  CURL_FORMAT_CURL_OFF_T
-#define FMT_OFF_TU CURL_FORMAT_CURL_OFF_TU
+#నిర్వచించు FMT_OFF_T  CURL_FORMAT_CURL_OFF_T
+#నిర్వచించు FMT_OFF_TU CURL_FORMAT_CURL_OFF_TU
 
-#if SIZEOF_TIME_T == 4
-#  ifdef HAVE_TIME_T_UNSIGNED
-#  define TIME_T_MAX UINT_MAX
-#  define TIME_T_MIN 0
-#  else
-#  define TIME_T_MAX INT_MAX
-#  define TIME_T_MIN INT_MIN
+#ఒకవేళ SIZEOF_సమయం_T == 4
+#  ifdef HAVE_సమయం_T_UNSIGNED
+#  define సమయం_T_MAX UINT_MAX
+#  define సమయం_T_MIN 0
+#  లేకపోతే
+#  define సమయం_T_MAX గరిష్ఠ_పూర్ణాంకం
+#  define సమయం_T_MIN INT_MIN
 #  endif
-#else
-#  ifdef HAVE_TIME_T_UNSIGNED
-#  define TIME_T_MAX 0xFFFFFFFFFFFFFFFF
-#  define TIME_T_MIN 0
-#  else
-#  define TIME_T_MAX 0x7FFFFFFFFFFFFFFF
-#  define TIME_T_MIN (-TIME_T_MAX - 1)
+#లేకపోతే
+#  ifdef HAVE_సమయం_T_UNSIGNED
+#  define సమయం_T_MAX 0xFFFFFFFFFFFFFFFF
+#  define సమయం_T_MIN 0
+#  లేకపోతే
+#  define సమయం_T_MAX 0x7FFFFFFFFFFFFFFF
+#  define సమయం_T_MIN (-సమయం_T_MAX - 1)
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#ifndef SIZE_MAX
+#నిర్వచితం_కాకపోతే SIZE_MAX
 /* some limits.h headers have this defined, some do not */
-#if defined(SIZEOF_SIZE_T) && (SIZEOF_SIZE_T > 4)
-#define SIZE_MAX 18446744073709551615U
-#else
-#define SIZE_MAX 4294967295U
-#endif
-#endif
+#ఒకవేళ defined(SIZEOF_కొలత_T) && (SIZEOF_కొలత_T > 4)
+#నిర్వచించు SIZE_MAX 18446744073709551615U
+#లేకపోతే
+#నిర్వచించు SIZE_MAX 4294967295U
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#ifndef SSIZE_MAX
+#నిర్వచితం_కాకపోతే SSIZE_MAX
 /* some limits.h headers have this defined, some do not */
-#if defined(SIZEOF_SIZE_T) && (SIZEOF_SIZE_T > 4)
-#define SSIZE_MAX 9223372036854775807
-#else
-#define SSIZE_MAX 2147483647
-#endif
-#endif
+#ఒకవేళ defined(SIZEOF_కొలత_T) && (SIZEOF_కొలత_T > 4)
+#నిర్వచించు SSIZE_MAX 9223372036854775807
+#లేకపోతే
+#నిర్వచించు SSIZE_MAX 2147483647
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#if SIZEOF_LONG > SIZEOF_SIZE_T
-#error "unexpected: 'long' is larger than 'size_t'"
-#endif
+#ఒకవేళ SIZEOF_LONG > SIZEOF_కొలత_T
+#దోషం "unexpected: 'long' is larger than 'size_t'"
+#అయితే_ముగింపు
 
 /*
  * Arg 2 type for gethostname in case it has not been defined in config file.
  */
-#ifndef GETHOSTNAME_TYPE_ARG2
+#నిర్వచితం_కాకపోతే GETHOSTNAME_TYPE_ARG2
 #  ifdef USE_WINSOCK
-#    define GETHOSTNAME_TYPE_ARG2 int
-#  else
+#    define GETHOSTNAME_TYPE_ARG2 పూర్ణాంకం
+#  లేకపోతే
 #    define GETHOSTNAME_TYPE_ARG2 size_t
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /* Below we define some functions. They should
    4. set the SIGALRM signal timeout
    5. set dir/file naming defines
  */
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 
 #  define DIR_CHAR      "\\"
 
-#else /* _WIN32 */
+#లేకపోతే /* _WIN32 */
 
 #  ifdef MSDOS  /* Watt-32 */
 
 #    include <sys/ioctl.h>
 #    define select(n, r, w, x, t)  select_s(n, r, w, x, t)
-#    define ioctl(x, y, z)         ioctlsocket(x, y, (char *)(z))
+#    define ioctl(x, y, z)         ioctlsocket(x, y, (అక్షరం *)(z))
 #    include <tcp.h>
-#    undef word
+#    undef మాట
 #    undef byte
 
 #  endif /* MSDOS */
 
 #  ifdef __minix
      /* Minix 3 versions up to at least 3.1.3 are missing these prototypes */
-     extern struct tm *gmtime_r(const time_t * const timep, struct tm *tmp);
+     బాహ్య నిర్మాణం tm *gmtime_r(స్థిరరాశి time_t * స్థిరరాశి timep, నిర్మాణం tm *tmp);
 #  endif
 
 #  define DIR_CHAR      "/"
 
-#endif /* _WIN32 */
+#అయితే_ముగింపు /* _WIN32 */
 
 /* We want to use mutex when available. */
-#if defined(HAVE_THREADS_POSIX) || defined(_WIN32)
-#define USE_MUTEX
-#endif
+#ఒకవేళ defined(HAVE_దారాలు_POSIX) || defined(_WIN32)
+#నిర్వచించు USE_MUTEX
+#అయితే_ముగింపు
 
 /* threaded resolver is the only feature requiring threads. */
-#ifdef USE_RESOLV_THREADED
-#define USE_THREADS
-#endif
+#నిర్వచితమైతే USE_RESOLV_THREADED
+#నిర్వచించు USE_దారాలు
+#అయితే_ముగింపు
 
 /* ---------------------------------------------------------------- */
 /*             resolver specialty compile-time defines              */
@@ -663,232 +663,232 @@
 /*
  * Mutually exclusive CURLRES_* definitions.
  */
-#if defined(USE_IPV6) && defined(HAVE_GETADDRINFO)
+#ఒకవేళ defined(USE_IPV6) && defined(HAVE_GETADDRINFO)
 #  define CURLRES_IPV6
-#elif defined(USE_IPV6) && (defined(_WIN32) || defined(__CYGWIN__))
+#లేదావేళ defined(USE_IPV6) && (defined(_WIN32) || defined(__CYGWIN__))
 /* assume on Windows that IPv6 without getaddrinfo is a broken build */
 #  error "Unexpected build: IPv6 is enabled but getaddrinfo was not found."
-#else
+#లేకపోతే
 #  define CURLRES_IPV4
-#endif
+#అయితే_ముగింపు
 
-#ifdef USE_RESOLV_THREADED
+#నిర్వచితమైతే USE_RESOLV_THREADED
 #  define CURLRES_ASYNCH
-#elif defined(USE_RESOLV_ARES)
+#లేదావేళ defined(USE_RESOLV_ARES)
 #  define CURLRES_ASYNCH
 /* now undef the stock libc functions to avoid them being used */
 #  undef HAVE_GETADDRINFO
 #  undef HAVE_FREEADDRINFO
-#else
+#లేకపోతే
 #  define CURLRES_SYNCH
-#endif
+#అయితే_ముగింపు
 
 /* ---------------------------------------------------------------- */
 
-#if defined(HAVE_LIBIDN2) && defined(HAVE_IDN2_H) && \
+#ఒకవేళ defined(HAVE_LIBIDN2) && defined(HAVE_IDN2_H) && \
   !defined(USE_WIN32_IDN) && !defined(USE_APPLE_IDN)
 /* The lib and header are present */
-#define USE_LIBIDN2
-#endif
+#నిర్వచించు USE_LIBIDN2
+#అయితే_ముగింపు
 
-#if defined(USE_LIBIDN2) && (defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN))
-#error "libidn2 cannot be enabled with WinIDN or AppleIDN, choose one."
-#endif
+#ఒకవేళ defined(USE_LIBIDN2) && (defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN))
+#దోషం "libidn2 cannot be enabled with WinIDN or AppleIDN, choose one."
+#అయితే_ముగింపు
 
-#if defined(USE_GNUTLS) || defined(USE_OPENSSL) || defined(USE_MBEDTLS) || \
+#ఒకవేళ defined(USE_GNUTLS) || defined(USE_OPENSSL) || defined(USE_MBEDTLS) || \
   defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || defined(USE_RUSTLS)
-#define USE_SSL    /* SSL support has been enabled */
-#endif
+#నిర్వచించు USE_SSL    /* SSL support has been enabled */
+#అయితే_ముగింపు
 
-#if defined(USE_OPENSSL) && defined(USE_WOLFSSL)
-#ifndef OPENSSL_COEXIST
-#define OPENSSL_COEXIST
-#endif
-#endif
+#ఒకవేళ defined(USE_OPENSSL) && defined(USE_WOLFSSL)
+#నిర్వచితం_కాకపోతే OPENSSL_COEXIST
+#నిర్వచించు OPENSSL_COEXIST
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#if defined(USE_WOLFSSL) && defined(USE_GNUTLS)
+#ఒకవేళ defined(USE_WOLFSSL) && defined(USE_GNUTLS)
 /* Avoid defining unprefixed wolfSSL SHA macros colliding with nettle ones */
-#define NO_OLD_WC_NAMES
-#endif
+#నిర్వచించు NO_OLD_WC_పేర్లు
+#అయితే_ముగింపు
 
 /* Single point where USE_SPNEGO definition might be defined */
-#if !defined(CURL_DISABLE_NEGOTIATE_AUTH) &&          \
+#ఒకవేళ !defined(CURL_DISABLE_NEGOTIATE_AUTH) &&          \
   (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
-#define USE_SPNEGO
-#endif
+#నిర్వచించు USE_SPNEGO
+#అయితే_ముగింపు
 
 /* Single point where USE_KERBEROS5 definition might be defined */
-#if !defined(CURL_DISABLE_KERBEROS_AUTH) &&           \
+#ఒకవేళ !defined(CURL_DISABLE_KERBEROS_AUTH) &&           \
   (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
-#define USE_KERBEROS5
-#endif
+#నిర్వచించు USE_KERBEROS5
+#అయితే_ముగింపు
 
 /* Single point where USE_NTLM definition might be defined */
-#ifdef CURL_ENABLE_NTLM
-#  if (defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)) ||   \
+#నిర్వచితమైతే CURL_ENABLE_NTLM
+#  ఒకవేళ (defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)) ||   \
   defined(USE_GNUTLS) ||                                           \
   (defined(USE_MBEDTLS) && defined(HAVE_MBEDTLS_DES_CRYPT_ECB)) || \
   defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO) ||         \
   (defined(USE_WOLFSSL) && defined(HAVE_WC_DES_ECBENCRYPT))
 #    define USE_CURL_NTLM_CORE
 #  endif
-#  if defined(USE_CURL_NTLM_CORE) || defined(USE_WINDOWS_SSPI)
+#  ఒకవేళ defined(USE_CURL_NTLM_CORE) || defined(USE_WINDOWS_SSPI)
 #    define USE_NTLM
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#if defined(USE_LIBSSH2) || defined(USE_LIBSSH)
-#define USE_SSH
-#endif
+#ఒకవేళ defined(USE_LIBSSH2) || defined(USE_LIBSSH)
+#నిర్వచించు USE_SSH
+#అయితే_ముగింపు
 
 /* GCC <4.6 does not support '#pragma GCC diagnostic push' and does not support
    'pragma GCC diagnostic' inside functions.
    Use CURL_HAVE_DIAG to guard the above in the curl codebase, instead of
    defined(__GNUC__) || defined(__clang__).
  */
-#if defined(__clang__) || (defined(__GNUC__) && \
+#ఒకవేళ defined(__clang__) || (defined(__GNUC__) && \
   ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))))
-#define CURL_HAVE_DIAG
-#endif
+#నిర్వచించు CURL_HAVE_DIAG
+#అయితే_ముగింపు
 
 /*
  * Provide a mechanism to silence picky compilers, such as gcc 4.6+.
  * Parameters should of course normally not be unused, but for example when
  * we have multiple implementations of the same interface it may happen.
  */
-#if defined(__GNUC__) && ((__GNUC__ >= 3) || \
+#ఒకవేళ defined(__GNUC__) && ((__GNUC__ >= 3) || \
   ((__GNUC__ == 2) && defined(__GNUC_MINOR__) && (__GNUC_MINOR__ >= 7)))
-#  define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-#elif defined(__IAR_SYSTEMS_ICC__) && (__VER__ >= 9040001)
-#  define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-#else
-#  define WARN_UNUSED_RESULT
-#endif
+#  define WARN_వాడని_ఫలితం __attribute__((warn_వాడని_ఫలితం))
+#లేదావేళ defined(__IAR_SYSTEMS_ICC__) && (__VER__ >= 9040001)
+#  define WARN_వాడని_ఫలితం __attribute__((warn_వాడని_ఫలితం))
+#లేకపోతే
+#  define WARN_వాడని_ఫలితం
+#అయితే_ముగింపు
 
 /* noreturn attribute */
 
-#ifndef CURL_NORETURN
-#if (defined(__GNUC__) && (__GNUC__ >= 3)) || defined(__clang__) || \
+#నిర్వచితం_కాకపోతే CURL_NORETURN
+#ఒకవేళ (defined(__GNUC__) && (__GNUC__ >= 3)) || defined(__clang__) || \
   defined(__IAR_SYSTEMS_ICC__)
 #  define CURL_NORETURN  __attribute__((__noreturn__))
-#elif defined(_MSC_VER)
+#లేదావేళ defined(_MSC_VER)
 #  define CURL_NORETURN  __declspec(noreturn)
-#else
+#లేకపోతే
 #  define CURL_NORETURN
-#endif
-#endif
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
 /* fallthrough attribute */
 
-#ifndef FALLTHROUGH
-#if (defined(__GNUC__) && __GNUC__ >= 7) ||     \
+#నిర్వచితం_కాకపోతే FALLTHROUGH
+#ఒకవేళ (defined(__GNUC__) && __GNUC__ >= 7) ||     \
   (defined(__clang__) && __clang_major__ >= 10)
 #  define FALLTHROUGH()  __attribute__((fallthrough))
-#else
-#  define FALLTHROUGH()  do {} while(0)
-#endif
-#endif
+#లేకపోతే
+#  define FALLTHROUGH()  చేయి {} అయితే(0)
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
 /*
  * Inclusion of common header files.
  */
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <stdarg.h>
+#అన్తర్భావ <time.h>
+#అన్తర్భావ <errno.h>
 
-#include <sys/stat.h>
+#అన్తర్భావ <sys/stat.h>
 
-#if !defined(_WIN32) || defined(__MINGW32__)
-#include <sys/time.h>
-#endif
+#ఒకవేళ !defined(_WIN32) || defined(__MINGW32__)
+#అన్తర్భావ <sys/time.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_IO_H
-#include <io.h>
-#endif
+#నిర్వచితమైతే HAVE_IO_H
+#అన్తర్భావ <io.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
+#నిర్వచితమైతే HAVE_FCNTL_H
+#అన్తర్భావ <fcntl.h>
+#అయితే_ముగింపు
 
-#if defined(HAVE_STDBOOL_H) && defined(HAVE_BOOL_T)
-#include <stdbool.h>
-#endif
+#ఒకవేళ defined(HAVE_STDBOOL_H) && defined(HAVE_BOOL_T)
+#అన్తర్భావ <stdbool.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+#నిర్వచితమైతే HAVE_UNISTD_H
+#అన్తర్భావ <unistd.h>
+#అయితే_ముగింపు
 
 /* Macro to strip 'const' without triggering a compiler warning.
    Use it for APIs that do not or cannot support the const qualifier. */
-#ifdef HAVE_UINTPTR_T
-#define CURL_UNCONST(p) ((void *)(uintptr_t)(const void *)(p))
-#else
-#define CURL_UNCONST(p) ((void *)(p))  /* Fall back to simple cast */
-#endif
+#నిర్వచితమైతే HAVE_UINTPTR_T
+#నిర్వచించు CURL_UNCONST(p) ((శూన్య *)(uintptr_t)(స్థిరరాశి శూన్య *)(p))
+#లేకపోతే
+#నిర్వచించు CURL_UNCONST(p) ((శూన్య *)(p))  /* Fall back to simple cast */
+#అయితే_ముగింపు
 
-#ifdef USE_SCHANNEL
+#నిర్వచితమైతే USE_SCHANNEL
 /* Must set this before <schannel.h> is included directly or indirectly by
    another Windows header. */
 #  define SCHANNEL_USE_BLACKLISTS  /* for SCH_CREDENTIALS */
 #  include <subauth.h>  /* for [P]UNICODE_STRING in SCH_CREDENTIALS */
-#endif
+#అయితే_ముగింపు
 
-#ifdef __hpux
-#  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
-#    ifdef _APP32_64BIT_OFF_T
-#      define OLD_APP32_64BIT_OFF_T _APP32_64BIT_OFF_T
-#      undef _APP32_64BIT_OFF_T
-#    else
-#      undef OLD_APP32_64BIT_OFF_T
+#నిర్వచితమైతే __hpux
+#  ఒకవేళ !defined(XOPEN_ఆధారం_EXTENDED) || defined(_KERNEL)
+#    ifdef APP32_64_బిట్టు_OFF_T
+#      define OLD_APP32_64_బిట్టు_OFF_T APP32_64_బిట్టు_OFF_T
+#      undef APP32_64_బిట్టు_OFF_T
+#    లేకపోతే
+#      undef OLD_APP32_64_బిట్టు_OFF_T
 #    endif
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#ifndef _WIN32
-#include <sys/socket.h>  /* also for MSG_NOSIGNAL */
-#endif
+#నిర్వచితం_కాకపోతే _WIN32
+#అన్తర్భావ <sys/socket.h>  /* also for MSG_NOSIGNAL */
+#అయితే_ముగింపు
 
-#include "functypes.h"
+#అన్తర్భావ "functypes.h"
 
-#ifdef __hpux
-#  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
-#    ifdef OLD_APP32_64BIT_OFF_T
-#      define _APP32_64BIT_OFF_T OLD_APP32_64BIT_OFF_T
-#      undef OLD_APP32_64BIT_OFF_T
+#నిర్వచితమైతే __hpux
+#  ఒకవేళ !defined(XOPEN_ఆధారం_EXTENDED) || defined(_KERNEL)
+#    ifdef OLD_APP32_64_బిట్టు_OFF_T
+#      define APP32_64_బిట్టు_OFF_T OLD_APP32_64_బిట్టు_OFF_T
+#      undef OLD_APP32_64_బిట్టు_OFF_T
 #    endif
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /*
  * Definition of timeval struct for platforms that do not have it.
  */
-#ifndef HAVE_STRUCT_TIMEVAL
-struct timeval {
-  long tv_sec;
-  long tv_usec;
+#నిర్వచితం_కాకపోతే HAVE_STRUCT_TIMEVAL
+నిర్మాణం timeval {
+  దీర్ఘ tv_sec;
+  దీర్ఘ tv_usec;
 };
-#endif
+#అయితే_ముగింపు
 
 /*
  * If we have the MSG_NOSIGNAL define, make sure we use
  * it as the fourth argument of function send()
  */
-#ifdef MSG_NOSIGNAL
-#define SEND_4TH_ARG MSG_NOSIGNAL
-#else
-#define SEND_4TH_ARG 0
-#endif
+#నిర్వచితమైతే MSG_NOSIGNAL
+#నిర్వచించు SEND_4TH_ARG MSG_NOSIGNAL
+#లేకపోతే
+#నిర్వచించు SEND_4TH_ARG 0
+#అయితే_ముగింపు
 
-#ifdef __minix
+#నిర్వచితమైతే __minix
 /* Minix does not support recv on TCP sockets */
-#define sread(x, y, z) (ssize_t)read((RECV_TYPE_ARG1)(x), \
+#నిర్వచించు sread(x, y, z) (ssize_t)పఠ((RECV_TYPE_ARG1)(x), \
                                      (RECV_TYPE_ARG2)(y), \
                                      (RECV_TYPE_ARG3)(z))
 
-#elif defined(HAVE_RECV)
+#లేదావేళ defined(HAVE_RECV)
 /*
  * The definitions for the return type and arguments types
  * of functions recv() and send() belong and come from the
@@ -912,72 +912,72 @@ struct timeval {
  * does not accept const.
  */
 
-#define sread(x, y, z) (ssize_t)recv((RECV_TYPE_ARG1)(x), \
+#నిర్వచించు sread(x, y, z) (ssize_t)recv((RECV_TYPE_ARG1)(x), \
                                      (RECV_TYPE_ARG2)(y), \
                                      (RECV_TYPE_ARG3)(z), \
                                      (RECV_TYPE_ARG4)(0))
-#else /* HAVE_RECV */
-#ifndef sread
-#error "Missing definition of macro sread"
-#endif
-#endif /* HAVE_RECV */
+#లేకపోతే /* HAVE_RECV */
+#నిర్వచితం_కాకపోతే sread
+#దోషం "Missing definition of macro sread"
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* HAVE_RECV */
 
-#ifdef __minix
+#నిర్వచితమైతే __minix
 /* Minix does not support send on TCP sockets */
-#define swrite(x, y, z) (ssize_t)write((SEND_TYPE_ARG1)(x), \
+#నిర్వచించు swrite(x, y, z) (ssize_t)లిఖ((SEND_TYPE_ARG1)(x), \
                                        (SEND_TYPE_ARG2)CURL_UNCONST(y), \
                                        (SEND_TYPE_ARG3)(z))
-#elif defined(HAVE_SEND)
-#ifdef SEND_NONCONST_ARG2
-#define swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
+#లేదావేళ defined(HAVE_SEND)
+#నిర్వచితమైతే SEND_NONCONST_ARG2
+#నిర్వచించు swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
                                       (SEND_TYPE_ARG2)CURL_UNCONST(y), \
                                       (SEND_TYPE_ARG3)(z), \
                                       (SEND_TYPE_ARG4)(SEND_4TH_ARG))
-#else
-#define swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
-                                      (const SEND_TYPE_ARG2)(y), \
+#లేకపోతే
+#నిర్వచించు swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
+                                      (స్థిరరాశి SEND_TYPE_ARG2)(y), \
                                       (SEND_TYPE_ARG3)(z), \
                                       (SEND_TYPE_ARG4)(SEND_4TH_ARG))
-#endif /* SEND_NONCONST_ARG2 */
-#else /* HAVE_SEND */
-#ifndef swrite
-#error "Missing definition of macro swrite"
-#endif
-#endif /* HAVE_SEND */
+#అయితే_ముగింపు /* SEND_NONCONST_ARG2 */
+#లేకపోతే /* HAVE_SEND */
+#నిర్వచితం_కాకపోతే swrite
+#దోషం "Missing definition of macro swrite"
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* HAVE_SEND */
 
 /*
  * Function-like macro definition used to close a socket.
  */
-#ifdef HAVE_CLOSESOCKET
+#నిర్వచితమైతే HAVE_CLOSESOCKET
 #  define CURL_SCLOSE(x)  closesocket(x)
-#elif defined(HAVE_CLOSESOCKET_CAMEL)
+#లేదావేళ defined(HAVE_CLOSESOCKET_CAMEL)
 #  define CURL_SCLOSE(x)  CloseSocket(x)
-#elif defined(MSDOS)  /* Watt-32 */
+#లేదావేళ defined(MSDOS)  /* Watt-32 */
 #  define CURL_SCLOSE(x)  close_s(x)
-#elif defined(USE_LWIPSOCK)
+#లేదావేళ defined(USE_LWIPSOCK)
 #  define CURL_SCLOSE(x)  lwip_close(x)
-#else
+#లేకపోతే
 #  define CURL_SCLOSE(x)  close(x)
-#endif
+#అయితే_ముగింపు
 
 /*
  * Stack-independent version of fcntl() on sockets:
  */
-#ifdef USE_LWIPSOCK
+#నిర్వచితమైతే USE_LWIPSOCK
 #  define sfcntl  lwip_fcntl
-#else
+#లేకపోతే
 #  define sfcntl  fcntl
-#endif
+#అయితే_ముగింపు
 
 /*
  * 'bool' stuff compatible with HP-UX headers.
  */
-#if defined(__hpux) && !defined(HAVE_BOOL_T)
-typedef int bool;
+#ఒకవేళ defined(__hpux) && !defined(HAVE_BOOL_T)
+రకనిర్వచనం పూర్ణాంకం bool;
 #  define false 0
 #  define true 1
 #  define HAVE_BOOL_T
-#endif
+#అయితే_ముగింపు
 
 /*
  * 'bool' exists on platforms with <stdbool.h>, i.e. C99 platforms.
@@ -985,12 +985,12 @@ typedef int bool;
  * On C99 platforms 'false' and 'true' also exist. Enum uses a
  * global namespace though, so use bool_false and bool_true.
  */
-#ifndef HAVE_BOOL_T
+#నిర్వచితం_కాకపోతే HAVE_BOOL_T
 /* This replacement type does not preserve C99 bool's normalization semantics:
    converting a non-zero value to C99 bool results in 1. This is significant
    when the value is assigned to a bit-field. Make sure to normalize manually
    in such cases. */
-typedef enum {
+రకనిర్వచనం గణన {
   bool_false = 0,
   bool_true = 1
 } bool;
@@ -1004,11 +1004,11 @@ typedef enum {
 #  define false bool_false
 #  define true  bool_true
 #  define HAVE_BOOL_T
-#endif
+#అయితే_ముగింపు
 
 /* the type we use for storing a single boolean bit */
-typedef unsigned int curl_bit;
-#define BIT(x) curl_bit x:1
+రకనిర్వచనం గుర్తులేని పూర్ణాంకం curl_బిట్టు;
+#నిర్వచించు బిట్టు(x) curl_బిట్టు x:1
 
 /*
  * Redefine TRUE and FALSE too, to catch current use. With this
@@ -1016,196 +1016,196 @@ typedef unsigned int curl_bit;
  * 'bool found = TRUE' will not. Change tested on IRIX/MIPSPro,
  * AIX 5.1/Xlc, Tru64 5.1/cc, w/make test too.
  */
-#ifndef TRUE
-#define TRUE true
-#endif
-#ifndef FALSE
-#define FALSE false
-#endif
+#నిర్వచితం_కాకపోతే TRUE
+#నిర్వచించు TRUE true
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే FALSE
+#నిర్వచించు FALSE false
+#అయితే_ముగింపు
 
-#include "curl_ctype.h"
+#అన్తర్భావ "curl_ctype.h"
 
-#if defined(DEBUGBUILD) && defined(NDEBUG)
-#error "Debug-enabled builds cannot be combined with NDEBUG"
-#endif
+#ఒకవేళ defined(DEBUGBUILD) && defined(NDEBUG)
+#దోషం "Debug-enabled builds cannot be combined with NDEBUG"
+#అయితే_ముగింపు
 
 /*
  * Macro used to include code only in debug builds.
  */
-#ifdef DEBUGBUILD
-#define DEBUGF(x) x
-#else
-#define DEBUGF(x) do {} while(0)
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+#నిర్వచించు DEBUGF(x) x
+#లేకపోతే
+#నిర్వచించు DEBUGF(x) చేయి {} అయితే(0)
+#అయితే_ముగింపు
 
 /*
  * Macro used to include assertion code only in debug builds.
  */
-#undef DEBUGASSERT
-#ifdef DEBUGBUILD
-#ifdef CURL_DEBUGASSERT
+#నిర్వచనం_రద్దు DEBUGASSERT
+#నిర్వచితమైతే DEBUGBUILD
+#నిర్వచితమైతే CURL_DEBUGASSERT
 /* External assertion handler for custom integrations */
-#define DEBUGASSERT(x) CURL_DEBUGASSERT(x)
-#else
-#define DEBUGASSERT(x) assert(x)
-#endif
-#else
-#define DEBUGASSERT(x) do {} while(0)
-#endif
+#నిర్వచించు DEBUGASSERT(x) CURL_DEBUGASSERT(x)
+#లేకపోతే
+#నిర్వచించు DEBUGASSERT(x) ప్రతిజ్ఞా(x)
+#అయితే_ముగింపు
+#లేకపోతే
+#నిర్వచించు DEBUGASSERT(x) చేయి {} అయితే(0)
+#అయితే_ముగింపు
 
 /* Macro to configure Visual Studio debug CRT to output errors to stderr and
    the debugger, replacing the interactive GUI dialog. */
-#if defined(_MSC_VER) && defined(_DEBUG) && defined(CURL_DEBUG_MSVC_CRTDBG)
-#include <crtdbg.h> /* for _CrtSetReportFile(), _CRT* macros */
-#define CURL_MSVC_CRTDBG_INIT()                                             \
-  do {                                                                      \
-    _set_error_mode(_OUT_TO_STDERR);  /* needs stdlib.h */                  \
-    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG); \
-    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);                    \
-    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);  \
-    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);                     \
-    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);   \
-    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);                      \
-  } while(0)
-#else
-#define CURL_MSVC_CRTDBG_INIT() do {} while(0)
-#endif
+#ఒకవేళ defined(_MSC_VER) && defined(_DEBUG) && defined(CURL_DEBUG_MSVC_CRTDBG)
+#అన్తర్భావ <crtdbg.h> /* for _CrtSetReportFile(), _CRT* macros */
+#నిర్వచించు CURL_MSVC_CRTDBG_INIT()                                             \
+  చేయి {                                                                      \
+    సమితి_error_బహుళకం(బహిర్గతం_గమ్యం_STDERR);  /* needs stdlib.h */                  \
+    Crt_సమితి_Report_బహుళకం(_CRT_ASSERT, CRTDBG_బహుళకం_FILE | CRTDBG_బహుళకం_DEBUG); \
+    Crt_సమితి_Report_File(_CRT_ASSERT, _CRTDBG_FILE_STDERR);                    \
+    Crt_సమితి_Report_బహుళకం(_CRT_ERROR, CRTDBG_బహుళకం_FILE | CRTDBG_బహుళకం_DEBUG);  \
+    Crt_సమితి_Report_File(_CRT_ERROR, _CRTDBG_FILE_STDERR);                     \
+    Crt_సమితి_Report_బహుళకం(_CRT_WARN, CRTDBG_బహుళకం_FILE | CRTDBG_బహుళకం_DEBUG);   \
+    Crt_సమితి_Report_File(_CRT_WARN, _CRTDBG_FILE_STDERR);                      \
+  } అయితే(0)
+#లేకపోతే
+#నిర్వచించు CURL_MSVC_CRTDBG_INIT() చేయి {} అయితే(0)
+#అయితే_ముగింపు
 
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
-#include <tlhelp32.h>
+#ఒకవేళ defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+#అన్తర్భావ <tlhelp32.h>
 /* Print the list of all loaded modules with full paths. */
-#define CURL_DUMP_MODULE_PATHS(printf_f)                               \
-  do {                                                                 \
-    HANDLE hnd = INVALID_HANDLE_VALUE;                                 \
+#నిర్వచించు CURL_DUMP_MODULE_PATHS(printf_f)                               \
+  చేయి {                                                                 \
+    HANDLE hnd = INVALID_HANDLE_విలువ;                                 \
     MODULEENTRY32 mod = { 0 };                                         \
                                                                        \
-    mod.dwSize = sizeof(MODULEENTRY32);                                \
+    mod.dw_కొలత = పరిమాణం(MODULEENTRY32);                                \
                                                                        \
-    do {                                                               \
+    చేయి {                                                               \
       hnd = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, 0);            \
-    } while(hnd == INVALID_HANDLE_VALUE &&                             \
-            GetLastError() == ERROR_BAD_LENGTH);                       \
+    } అయితే(hnd == INVALID_HANDLE_విలువ &&                             \
+            Get_చివరి_Error() == ERROR_BAD_నిడివి);                       \
                                                                        \
-    if(hnd == INVALID_HANDLE_VALUE)                                    \
-      goto error;                                                      \
+    ఒకవేళ(hnd == INVALID_HANDLE_విలువ)                                    \
+      వెళ్ళు error;                                                      \
                                                                        \
-    if(!Module32First(hnd, &mod))                                      \
-      goto error;                                                      \
+    ఒకవేళ(!Module32_మొదటి(hnd, &mod))                                      \
+      వెళ్ళు error;                                                      \
                                                                        \
-    do {                                                               \
-      char buffer[sizeof(mod.szExePath) * 2];                          \
-      char *path; /* points to stack allocated buffer */               \
-      if(sizeof(*mod.szExePath) > 1) {  /* _UNICODE */                 \
+    చేయి {                                                               \
+      అక్షరం బఫరు[పరిమాణం(mod.sz_Exe_మార్గం) * 2];                          \
+      అక్షరం *మార్గం; /* points to stack allocated buffer */               \
+      ఒకవేళ(పరిమాణం(*mod.sz_Exe_మార్గం) > 1) {  /* _UNICODE */                 \
         /* sizeof(mod.szExePath) is the max total bytes of   */        \
         /* wchars. the max total bytes of multibyte chars is */        \
         /* not more than twice that.                         */        \
-        if(!WideCharToMultiByte(CP_ACP, 0, (WCHAR *)mod.szExePath, -1, \
-                                buffer, sizeof(buffer), NULL, NULL))   \
-          goto error;                                                  \
-        path = (char *)buffer;                                         \
+        ఒకవేళ(!Wide_Char_గమ్యం_Multi_Byte(CP_ACP, 0, (WCHAR *)mod.sz_Exe_మార్గం, -1, \
+                                బఫరు, పరిమాణం(బఫరు), ఖాళీ, ఖాళీ))   \
+          వెళ్ళు error;                                                  \
+        మార్గం = (అక్షరం *)బఫరు;                                         \
       }                                                                \
-      else                                                             \
-        path = (char *)mod.szExePath;                                  \
-      (printf_f)("%s\n", path);                                        \
-    } while(Module32Next(hnd, &mod));                                  \
+      లేకపోతే                                                             \
+        మార్గం = (అక్షరం *)mod.sz_Exe_మార్గం;                                  \
+      (printf_f)("%s\n", మార్గం);                                        \
+    } అయితే(Module32_తదుపరి(hnd, &mod));                                  \
                                                                        \
 error:                                                                 \
-    if(hnd != INVALID_HANDLE_VALUE)                                    \
+    ఒకవేళ(hnd != INVALID_HANDLE_విలువ)                                    \
       CloseHandle(hnd);                                                \
-  } while(0)
-#else
-#define CURL_DUMP_MODULE_PATHS(printf_f) do {} while(0)
-#endif
+  } అయితే(0)
+#లేకపోతే
+#నిర్వచించు CURL_DUMP_MODULE_PATHS(printf_f) చేయి {} అయితే(0)
+#అయితే_ముగింపు
 
 /*
  * Macro SOCKERRNO / SET_SOCKERRNO() returns / sets the *socket-related* errno
  * (or equivalent) on this platform to hide platform details to code using it.
  */
-#ifdef USE_WINSOCK
-#define SOCKERRNO         ((int)WSAGetLastError())
-#define SET_SOCKERRNO(x)  WSASetLastError((int)(x))
-#else
-#define SOCKERRNO         errno
-#define SET_SOCKERRNO(x)  (errno = (x))
-#endif
+#నిర్వచితమైతే USE_WINSOCK
+#నిర్వచించు SOCKERRNO         ((పూర్ణాంకం)WSAGet_చివరి_Error())
+#నిర్వచించు సమితి_SOCKERRNO(x)  WSASet_చివరి_Error((పూర్ణాంకం)(x))
+#లేకపోతే
+#నిర్వచించు SOCKERRNO         errno
+#నిర్వచించు సమితి_SOCKERRNO(x)  (errno = (x))
+#అయితే_ముగింపు
 
 /*
  * Portable error number symbolic names defined to Winsock error codes.
  */
-#ifdef USE_WINSOCK
-#define SOCKEACCES        WSAEACCES
-#define SOCKEADDRINUSE    WSAEADDRINUSE
-#define SOCKEADDRNOTAVAIL WSAEADDRNOTAVAIL
-#define SOCKEAFNOSUPPORT  WSAEAFNOSUPPORT
-#define SOCKEBADF         WSAEBADF
-#define SOCKECONNREFUSED  WSAECONNREFUSED
-#define SOCKECONNRESET    WSAECONNRESET
-#define SOCKEINPROGRESS   WSAEINPROGRESS
-#define SOCKEINTR         WSAEINTR
-#define SOCKEINVAL        WSAEINVAL
-#define SOCKEISCONN       WSAEISCONN
-#define SOCKEMSGSIZE      WSAEMSGSIZE
+#నిర్వచితమైతే USE_WINSOCK
+#నిర్వచించు SOCKEACCES        WSAEACCES
+#నిర్వచించు SOCKEADDRINUSE    WSAEADDRINUSE
+#నిర్వచించు SOCKEADDRNOTAVAIL WSAEADDRNOTAVAIL
+#నిర్వచించు SOCKEAFNOSUPPORT  WSAEAFNOSUPPORT
+#నిర్వచించు SOCKEBADF         WSAEBADF
+#నిర్వచించు SOCKECONNREFUSED  WSAECONNREFUSED
+#నిర్వచించు SOCKECONNRESET    WSAECONNRESET
+#నిర్వచించు SOCKEINPROGRESS   WSAEINPROGRESS
+#నిర్వచించు SOCKEINTR         WSAEINTR
+#నిర్వచించు SOCKEINVAL        WSAEINVAL
+#నిర్వచించు SOCKEISCONN       WSAEISCONN
+#నిర్వచించు SOCKEMSGSIZE      WSAEMSGSIZE
 /* Use literal value to work around clang-tidy <=20 misreporting
    'readability-uppercase-literal-suffix' with mingw-w64 headers */
-#define SOCKENOMEM        8L  /* WSA_NOT_ENOUGH_MEMORY */
-#define SOCKETIMEDOUT     WSAETIMEDOUT
-#define SOCKEWOULDBLOCK   WSAEWOULDBLOCK
-#else
-#define SOCKEACCES        EACCES
-#define SOCKEADDRINUSE    EADDRINUSE
-#define SOCKEADDRNOTAVAIL EADDRNOTAVAIL
-#define SOCKEAFNOSUPPORT  EAFNOSUPPORT
-#define SOCKEBADF         EBADF
-#define SOCKECONNREFUSED  ECONNREFUSED
-#define SOCKECONNRESET    ECONNRESET
-#define SOCKEINPROGRESS   EINPROGRESS
-#define SOCKEINTR         EINTR
-#define SOCKEINVAL        EINVAL
-#define SOCKEISCONN       EISCONN
-#define SOCKEMSGSIZE      EMSGSIZE
-#define SOCKENOMEM        ENOMEM
-#ifdef ETIMEDOUT
-#define SOCKETIMEDOUT     ETIMEDOUT
-#endif
-#define SOCKEWOULDBLOCK   EWOULDBLOCK
-#endif
+#నిర్వచించు SOCKENOMEM        8L  /* WSA_NOT_ENOUGH_MEMORY */
+#నిర్వచించు SOCKETIMEDOUT     WSAETIMEDOUT
+#నిర్వచించు SOCKEWOULDBLOCK   WSAEWOULDBLOCK
+#లేకపోతే
+#నిర్వచించు SOCKEACCES        EACCES
+#నిర్వచించు SOCKEADDRINUSE    EADDRINUSE
+#నిర్వచించు SOCKEADDRNOTAVAIL EADDRNOTAVAIL
+#నిర్వచించు SOCKEAFNOSUPPORT  EAFNOSUPPORT
+#నిర్వచించు SOCKEBADF         EBADF
+#నిర్వచించు SOCKECONNREFUSED  ECONNREFUSED
+#నిర్వచించు SOCKECONNRESET    ECONNRESET
+#నిర్వచించు SOCKEINPROGRESS   EINPROGRESS
+#నిర్వచించు SOCKEINTR         EINTR
+#నిర్వచించు SOCKEINVAL        EINVAL
+#నిర్వచించు SOCKEISCONN       EISCONN
+#నిర్వచించు SOCKEMSGSIZE      EMSGSIZE
+#నిర్వచించు SOCKENOMEM        ENOMEM
+#నిర్వచితమైతే ETIMEDOUT
+#నిర్వచించు SOCKETIMEDOUT     ETIMEDOUT
+#అయితే_ముగింపు
+#నిర్వచించు SOCKEWOULDBLOCK   EWOULDBLOCK
+#అయితే_ముగింపు
 
 /* The socket error may be EWOULDBLOCK or on some systems EAGAIN when
    it returned due to its inability to send/read data without blocking.
    We treat both error codes the same here. */
-#if !defined(USE_WINSOCK) && EAGAIN != SOCKEWOULDBLOCK
-#define SOCK_EAGAIN(e) ((e) == SOCKEWOULDBLOCK || (e) == EAGAIN)
-#else
-#define SOCK_EAGAIN(e) ((e) == SOCKEWOULDBLOCK)
-#endif
+#ఒకవేళ !defined(USE_WINSOCK) && EAGAIN != SOCKEWOULDBLOCK
+#నిర్వచించు SOCK_EAGAIN(e) ((e) == SOCKEWOULDBLOCK || (e) == EAGAIN)
+#లేకపోతే
+#నిర్వచించు SOCK_EAGAIN(e) ((e) == SOCKEWOULDBLOCK)
+#అయితే_ముగింపు
 
 /*
  * Macro argv_item_t hides platform details to code using it.
  */
-#ifdef __VMS
-#define argv_item_t  __char_ptr32
-#elif defined(_UNICODE)
-#define argv_item_t  wchar_t *
-#else
-#define argv_item_t  char *
-#endif
+#నిర్వచితమైతే __VMS
+#నిర్వచించు argv_అంశం_t  __char_ptr32
+#లేదావేళ defined(_UNICODE)
+#నిర్వచించు argv_అంశం_t  wchar_t *
+#లేకపోతే
+#నిర్వచించు argv_అంశం_t  అక్షరం *
+#అయితే_ముగింపు
 
 /*
  * We use this ZERO_NULL to avoid picky compiler warnings,
  * when assigning a NULL pointer to a function pointer var.
  */
-#define ZERO_NULL 0
+#నిర్వచించు ZERO_NULL 0
 
 /*
  * Macros and functions to safely suppress warnings
  */
-#include "curlx/warnless.h"
+#అన్తర్భావ "curlx/warnless.h"
 
-#ifdef _WIN32
-#  undef read
-#  define read(fd, buf, count)  (ssize_t)_read(fd, buf, curlx_uztoui(count))
-#  undef write
-#  define write(fd, buf, count) (ssize_t)_write(fd, buf, curlx_uztoui(count))
+#నిర్వచితమైతే _WIN32
+#  undef పఠ
+#  define పఠ(fd, buf, లెక్క)  (ssize_t)_read(fd, buf, curlx_uztoui(లెక్క))
+#  undef లిఖ
+#  define లిఖ(fd, buf, లెక్క) (ssize_t)_write(fd, buf, curlx_uztoui(లెక్క))
 /* Avoid VS2005+ _CRT_NONSTDC_NO_DEPRECATE warnings about non-portable funcs */
 #  undef fileno
 #  define fileno(fh) _fileno(fh)
@@ -1213,395 +1213,395 @@ error:                                                                 \
 #  define unlink(fn) _unlink(fn)
 #  undef isatty
 #  define isatty(fd) _isatty(fd)
-#endif
+#అయితే_ముగింపు
 
 /*
  * Definition of our NOP statement Object-like macro
  */
-#ifndef Curl_nop_stmt
-#define Curl_nop_stmt do {} while(0)
-#endif
+#నిర్వచితం_కాకపోతే Curl_nop_stmt
+#నిర్వచించు Curl_nop_stmt చేయి {} అయితే(0)
+#అయితే_ముగింపు
 
 /*
  * Ensure that Winsock and lwIP TCP/IP stacks are not mixed.
  */
-#if defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H)
-#  if defined(SOCKET) || defined(USE_WINSOCK)
+#ఒకవేళ defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H)
+#  ఒకవేళ defined(SOCKET) || defined(USE_WINSOCK)
 #    error "Winsock and lwIP TCP/IP stack definitions shall not coexist"
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /*
  * shutdown() flags for systems that do not define them
  */
-#ifndef SHUT_RD
-#define SHUT_RD 0x00
-#endif
+#నిర్వచితం_కాకపోతే SHUT_RD
+#నిర్వచించు SHUT_RD 0x00
+#అయితే_ముగింపు
 
-#ifndef SHUT_WR
-#define SHUT_WR 0x01
-#endif
+#నిర్వచితం_కాకపోతే SHUT_WR
+#నిర్వచించు SHUT_WR 0x01
+#అయితే_ముగింపు
 
-#ifndef SHUT_RDWR
-#define SHUT_RDWR 0x02
-#endif
+#నిర్వచితం_కాకపోతే SHUT_RDWR
+#నిర్వచించు SHUT_RDWR 0x02
+#అయితే_ముగింపు
 
 /* Define S_ISREG if not defined by system headers, e.g. MSVC */
-#if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
-#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
-#endif
+#ఒకవేళ !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
+#నిర్వచించు S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#అయితే_ముగింపు
 
 /* Define S_ISDIR if not defined by system headers, e.g. MSVC */
-#if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
-#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
-#endif
+#ఒకవేళ !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
+#నిర్వచించు S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#అయితే_ముగింపు
 
 /* For MSVC (all versions as of VS2022) */
-#ifndef STDIN_FILENO
-#define STDIN_FILENO  fileno(stdin)
-#endif
-#ifndef STDOUT_FILENO
-#define STDOUT_FILENO  fileno(stdout)
-#endif
-#ifndef STDERR_FILENO
-#define STDERR_FILENO  fileno(stderr)
-#endif
+#నిర్వచితం_కాకపోతే STDIN_FILENO
+#నిర్వచించు STDIN_FILENO  fileno(stdin)
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే STDOUT_FILENO
+#నిర్వచించు STDOUT_FILENO  fileno(stdout)
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే STDERR_FILENO
+#నిర్వచించు STDERR_FILENO  fileno(stderr)
+#అయితే_ముగింపు
 
 /* Since O_BINARY is used in bitmasks, setting it to zero makes it usable in
    source code but yet it does not ruin anything */
-#ifdef _O_BINARY  /* for _WIN32 || MSDOS */
-#define CURL_O_BINARY _O_BINARY
-#elif defined(O_BINARY)  /* __CYGWIN__ */
-#define CURL_O_BINARY O_BINARY
-#else
-#define CURL_O_BINARY 0
-#endif
+#నిర్వచితమైతే O_ద్విమాన  /* for _WIN32 || MSDOS */
+#నిర్వచించు CURL_O_ద్విమాన O_ద్విమాన
+#లేదావేళ defined(O_ద్విమాన_2)  /* __CYGWIN__ */
+#నిర్వచించు CURL_O_ద్విమాన O_ద్విమాన_2
+#లేకపోతే
+#నిర్వచించు CURL_O_ద్విమాన 0
+#అయితే_ముగింపు
 
 /* Requires io.h when available */
-#ifdef MSDOS
-#define CURL_BINMODE(stream) (void)setmode(fileno(stream), CURL_O_BINARY)
-#elif defined(_WIN32) || defined(__CYGWIN__)
-#define CURL_BINMODE(stream) (void)_setmode(fileno(stream), CURL_O_BINARY)
-#else
-#define CURL_BINMODE(stream) (void)(stream)
-#endif
+#నిర్వచితమైతే MSDOS
+#నిర్వచించు CURL_BINMODE(ప్రవాహం) (శూన్య)setmode(fileno(ప్రవాహం), CURL_O_ద్విమాన)
+#లేదావేళ defined(_WIN32) || defined(__CYGWIN__)
+#నిర్వచించు CURL_BINMODE(ప్రవాహం) (శూన్య)_setmode(fileno(ప్రవాహం), CURL_O_ద్విమాన)
+#లేకపోతే
+#నిర్వచించు CURL_BINMODE(ప్రవాహం) (శూన్య)(ప్రవాహం)
+#అయితే_ముగింపు
 
 /* In Windows the default file mode is text but an application can override it.
    Therefore we specify it explicitly. https://github.com/curl/curl/pull/258 */
-#if defined(_WIN32) || defined(MSDOS)
-#define FOPEN_READTEXT   "rt"
-#define FOPEN_WRITETEXT  "wt"
-#define FOPEN_APPENDTEXT "at"
-#elif defined(__CYGWIN__)
+#ఒకవేళ defined(_WIN32) || defined(MSDOS)
+#నిర్వచించు FOPEN_READTEXT   "rt"
+#నిర్వచించు FOPEN_WRITETEXT  "wt"
+#నిర్వచించు FOPEN_APPENDTEXT "at"
+#లేదావేళ defined(__CYGWIN__)
 /* Cygwin has specific behavior we need to address when _WIN32 is not defined.
    https://cygwin.com/cygwin-ug-net/using-textbinary.html
    For write we want our output to have line endings of LF and be compatible
    with other Cygwin utilities. For read we want to handle input that may have
    line endings either CRLF or LF so 't' is appropriate. */
-#define FOPEN_READTEXT   "rt"
-#define FOPEN_WRITETEXT  "w"
-#define FOPEN_APPENDTEXT "a"
-#else
-#define FOPEN_READTEXT   "r"
-#define FOPEN_WRITETEXT  "w"
-#define FOPEN_APPENDTEXT "a"
-#endif
+#నిర్వచించు FOPEN_READTEXT   "rt"
+#నిర్వచించు FOPEN_WRITETEXT  "w"
+#నిర్వచించు FOPEN_APPENDTEXT "a"
+#లేకపోతే
+#నిర్వచించు FOPEN_READTEXT   "r"
+#నిర్వచించు FOPEN_WRITETEXT  "w"
+#నిర్వచించు FOPEN_APPENDTEXT "a"
+#అయితే_ముగింపు
 
 /* for systems that do not detect this in configure */
-#ifndef CURL_SA_FAMILY_T
+#నిర్వచితం_కాకపోతే CURL_SA_FAMILY_T
 #  ifdef USE_WINSOCK
-#    define CURL_SA_FAMILY_T ADDRESS_FAMILY
+#    define CURL_SA_FAMILY_T చిరునామా_FAMILY
 #  elif defined(HAVE_SA_FAMILY_T)
 #    define CURL_SA_FAMILY_T sa_family_t
 #  elif defined(__AMIGA__)
-#    define CURL_SA_FAMILY_T unsigned char
-#  else
+#    define CURL_SA_FAMILY_T గుర్తులేని అక్షరం
+#  లేకపోతే
 /* use a sensible default */
-#    define CURL_SA_FAMILY_T unsigned short
+#    define CURL_SA_FAMILY_T గుర్తులేని పొట్టి
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /* Some convenience macros to get the larger/smaller value out of two given.
    We prefix with CURL to prevent name collisions. */
-#define CURLMAX(x, y) ((x) > (y) ? (x) : (y))
-#define CURLMIN(x, y) ((x) < (y) ? (x) : (y))
+#నిర్వచించు CURLMAX(x, y) ((x) > (y) ? (x) : (y))
+#నిర్వచించు CURLMIN(x, y) ((x) < (y) ? (x) : (y))
 
 /* Convenience macro to provide the length of a string literal size without
    the null-terminator. Equivalent to strlen() for constant strings. */
-#define CURL_CSTRLEN(x) (sizeof(x) - 1)
+#నిర్వచించు CURL_CSTRLEN(x) (పరిమాణం(x) - 1)
 
 /* A convenience macro to provide both the string literal and the length of
    the string literal in one go, useful for functions that take "string,len"
    as their argument */
-#define STRCONST(x) x, CURL_CSTRLEN(x)
+#నిర్వచించు STRCONST(x) x, CURL_CSTRLEN(x)
 
-#define CURL_ARRAYSIZE(A) (sizeof(A) / sizeof((A)[0]))
+#నిర్వచించు CURL_ARRAYSIZE(A) (పరిమాణం(A) / పరిమాణం((A)[0]))
 
 /* Buffer size for error messages retrieved via
    curlx_strerror() and Curl_sspi_strerror() */
-#define STRERROR_LEN 256
+#నిర్వచించు STRERROR_LEN 256
 
-#ifndef CURL_DID_MEMORY_FUNC_TYPEDEFS /* only if not already done */
+#నిర్వచితం_కాకపోతే CURL_DID_జ్ఞాపకం_FUNC_TYPEDEFS /* only if not already done */
 /*
  * The following memory function replacement typedef's are COPIED from
  * curl/curl.h and MUST match the originals. We copy them to avoid having to
  * include curl/curl.h here. We avoid that include since it includes stdio.h
  * and other headers that may get messed up with defines done here.
  */
-typedef void *(*curl_malloc_callback)(size_t size);
-typedef void (*curl_free_callback)(void *ptr);
-typedef void *(*curl_realloc_callback)(void *ptr, size_t size);
-typedef char *(*curl_strdup_callback)(const char *str);
-typedef void *(*curl_calloc_callback)(size_t nmemb, size_t size);
-#define CURL_DID_MEMORY_FUNC_TYPEDEFS
-#endif
+రకనిర్వచనం శూన్య *(*curl_malloc_callback)(size_t కొలత);
+రకనిర్వచనం శూన్య (*curl_free_callback)(శూన్య *ptr);
+రకనిర్వచనం శూన్య *(*curl_realloc_callback)(శూన్య *ptr, size_t కొలత);
+రకనిర్వచనం అక్షరం *(*curl_strdup_callback)(స్థిరరాశి అక్షరం *str);
+రకనిర్వచనం శూన్య *(*curl_calloc_callback)(size_t nmemb, size_t కొలత);
+#నిర్వచించు CURL_DID_జ్ఞాపకం_FUNC_TYPEDEFS
+#అయితే_ముగింపు
 
-extern curl_malloc_callback Curl_cmalloc;
-extern curl_free_callback Curl_cfree;
-extern curl_realloc_callback Curl_crealloc;
-extern curl_strdup_callback Curl_cstrdup;
-extern curl_calloc_callback Curl_ccalloc;
+బాహ్య curl_malloc_callback Curl_cmalloc;
+బాహ్య curl_free_callback Curl_cfree;
+బాహ్య curl_realloc_callback Curl_crealloc;
+బాహ్య curl_strdup_callback Curl_cstrdup;
+బాహ్య curl_calloc_callback Curl_ccalloc;
 
 /*
  * curlx_safefree() defined as a macro to allow MemoryTracking feature
  * to log free() calls at same location where curlx_safefree() is used.
  * This macro also assigns NULL to given pointer when free'd.
  */
-#define curlx_safefree(ptr) \
-  do {                      \
+#నిర్వచించు curlx_safefree(ptr) \
+  చేయి {                      \
     curlx_free(ptr);        \
-    (ptr) = NULL;           \
-  } while(0)
+    (ptr) = ఖాళీ;           \
+  } అయితే(0)
 
-#include <curl/curl.h> /* for CURL_EXTERN, curl_socket_t, mprintf.h */
+#అన్తర్భావ <curl/curl.h> /* for CURL_EXTERN, curl_socket_t, mprintf.h */
 
-#ifdef DEBUGBUILD
-#define CURL_MEMDEBUG
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+#నిర్వచించు CURL_MEMDEBUG
+#అయితే_ముగింపు
 
-#ifdef CURL_MEMDEBUG
-#ifdef __clang__
+#నిర్వచితమైతే CURL_MEMDEBUG
+#నిర్వచితమైతే __clang__
 #  define ALLOC_FUNC         __attribute__((__malloc__))
-#  if __clang_major__ >= 4
-#  define ALLOC_SIZE(s)      __attribute__((__alloc_size__(s)))
+#  ఒకవేళ __clang_major__ >= 4
+#  define ALLOC_కొలత(s)      __attribute__((__alloc_size__(s)))
 #  define ALLOC_SIZE2(n, s)  __attribute__((__alloc_size__(n, s)))
-#  else
-#  define ALLOC_SIZE(s)
+#  లేకపోతే
+#  define ALLOC_కొలత(s)
 #  define ALLOC_SIZE2(n, s)
 #  endif
-#elif defined(__GNUC__) && __GNUC__ >= 3
+#లేదావేళ defined(__GNUC__) && __GNUC__ >= 3
 #  define ALLOC_FUNC         __attribute__((__malloc__))
-#  define ALLOC_SIZE(s)      __attribute__((__alloc_size__(s)))
+#  define ALLOC_కొలత(s)      __attribute__((__alloc_size__(s)))
 #  define ALLOC_SIZE2(n, s)  __attribute__((__alloc_size__(n, s)))
-#elif defined(_MSC_VER)
-#  define ALLOC_FUNC         __declspec(restrict)
-#  define ALLOC_SIZE(s)
+#లేదావేళ defined(_MSC_VER)
+#  define ALLOC_FUNC         __declspec(పరిమిత)
+#  define ALLOC_కొలత(s)
 #  define ALLOC_SIZE2(n, s)
-#else
+#లేకపోతే
 #  define ALLOC_FUNC
-#  define ALLOC_SIZE(s)
+#  define ALLOC_కొలత(s)
 #  define ALLOC_SIZE2(n, s)
-#endif
+#అయితే_ముగింపు
 
-extern FILE *curl_dbg_logfile;
+బాహ్య FILE *curl_dbg_logfile;
 
 /* memory functions */
-CURL_EXTERN void curl_dbg_free(void *ptr, int line, const char *source);
-CURL_EXTERN ALLOC_FUNC ALLOC_SIZE(1)
-  void *curl_dbg_malloc(size_t wantedsize, int line, const char *source);
+CURL_EXTERN శూన్య curl_dbg_free(శూన్య *ptr, పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+CURL_EXTERN ALLOC_FUNC ALLOC_కొలత(1)
+  శూన్య *curl_dbg_malloc(size_t wantedsize, పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
 CURL_EXTERN ALLOC_FUNC ALLOC_SIZE2(1, 2)
-  void *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
-                        int line, const char *source);
-CURL_EXTERN ALLOC_SIZE(2)
-  void *curl_dbg_realloc(void *ptr, size_t wantedsize, int line,
-                         const char *source);
+  శూన్య *curl_dbg_calloc(size_t wanted_elements, size_t wanted_కొలత,
+                        పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+CURL_EXTERN ALLOC_కొలత(2)
+  శూన్య *curl_dbg_realloc(శూన్య *ptr, size_t wantedsize, పూర్ణాంకం పంక్తి,
+                         స్థిరరాశి అక్షరం *ఆధారం);
 CURL_EXTERN ALLOC_FUNC
-  char *curl_dbg_strdup(const char *str, int line, const char *source);
-#if defined(_WIN32) && defined(UNICODE)
+  అక్షరం *curl_dbg_strdup(స్థిరరాశి అక్షరం *str, పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+#ఒకవేళ defined(_WIN32) && defined(UNICODE)
 CURL_EXTERN ALLOC_FUNC
-  wchar_t *curl_dbg_wcsdup(const wchar_t *str, int line, const char *source);
-#endif
+  wchar_t *curl_dbg_wcsdup(స్థిరరాశి wchar_t *str, పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+#అయితే_ముగింపు
 
-CURL_EXTERN void curl_dbg_memdebug(const char *logname);
-CURL_EXTERN void curl_dbg_memlimit(long limit);
-CURL_EXTERN void curl_dbg_log(const char *format, ...) CURL_PRINTF(1, 2);
+CURL_EXTERN శూన్య curl_dbg_memdebug(స్థిరరాశి అక్షరం *logname);
+CURL_EXTERN శూన్య curl_dbg_memlimit(దీర్ఘ హద్దు);
+CURL_EXTERN శూన్య curl_dbg_log(స్థిరరాశి అక్షరం *format, ...) CURL_PRINTF(1, 2);
 
 /* file descriptor manipulators */
-CURL_EXTERN curl_socket_t curl_dbg_socket(int domain, int type, int protocol,
-                                          int line, const char *source);
-CURL_EXTERN void curl_dbg_mark_sclose(curl_socket_t sockfd,
-                                      int line, const char *source);
-CURL_EXTERN int curl_dbg_sclose(curl_socket_t sockfd,
-                                int line, const char *source);
+CURL_EXTERN curl_socket_t curl_dbg_socket(పూర్ణాంకం domain, పూర్ణాంకం type, పూర్ణాంకం protocol,
+                                          పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+CURL_EXTERN శూన్య curl_dbg_mark_sclose(curl_socket_t sockfd,
+                                      పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+CURL_EXTERN పూర్ణాంకం curl_dbg_sclose(curl_socket_t sockfd,
+                                పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
 CURL_EXTERN curl_socket_t curl_dbg_accept(curl_socket_t s,
-                                          void *saddr, void *saddrlen,
-                                          int line, const char *source);
-#ifdef HAVE_ACCEPT4
-CURL_EXTERN curl_socket_t curl_dbg_accept4(curl_socket_t s, void *saddr,
-                                           void *saddrlen, int flags,
-                                           int line, const char *source);
-#endif
-#ifdef HAVE_SOCKETPAIR
-CURL_EXTERN int curl_dbg_socketpair(int domain, int type, int protocol,
-                                    curl_socket_t socket_vector[2],
-                                    int line, const char *source);
-#endif
+                                          శూన్య *saddr, శూన్య *saddrlen,
+                                          పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+#నిర్వచితమైతే HAVE_ACCEPT4
+CURL_EXTERN curl_socket_t curl_dbg_accept4(curl_socket_t s, శూన్య *saddr,
+                                           శూన్య *saddrlen, పూర్ణాంకం flags,
+                                           పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_SOCKETPAIR
+CURL_EXTERN పూర్ణాంకం curl_dbg_socketpair(పూర్ణాంకం domain, పూర్ణాంకం type, పూర్ణాంకం protocol,
+                                    curl_socket_t socket_సదిశ[2],
+                                    పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+#అయితే_ముగింపు
 
 /* FILE functions */
-CURL_EXTERN int curl_dbg_fclose(FILE *file, int line, const char *source);
-CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fopen(const char *file, const char *mode,
-                                            int line, const char *source);
-CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_freopen(const char *file,
-                                              const char *mode, FILE *fh,
-                                              int line, const char *source);
-CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
-                                             int line, const char *source);
+CURL_EXTERN పూర్ణాంకం curl_dbg_fclose(FILE *file, పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fopen(స్థిరరాశి అక్షరం *file, స్థిరరాశి అక్షరం *బహుళకం,
+                                            పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_freopen(స్థిరరాశి అక్షరం *file,
+                                              స్థిరరాశి అక్షరం *బహుళకం, FILE *fh,
+                                              పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
+CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(పూర్ణాంకం filedes, స్థిరరాశి అక్షరం *బహుళకం,
+                                             పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం);
 
-#define sclose(sockfd) curl_dbg_sclose(sockfd, __LINE__, __FILE__)
-#define fake_sclose(sockfd) curl_dbg_mark_sclose(sockfd, __LINE__, __FILE__)
+#నిర్వచించు sclose(sockfd) curl_dbg_sclose(sockfd, __LINE__, __FILE__)
+#నిర్వచించు fake_sclose(sockfd) curl_dbg_mark_sclose(sockfd, __LINE__, __FILE__)
 
-#define CURL_GETADDRINFO(host, serv, hint, res) \
+#నిర్వచించు CURL_GETADDRINFO(host, serv, hint, res) \
   curl_dbg_getaddrinfo(host, serv, hint, res, __LINE__, __FILE__)
-#define CURL_FREEADDRINFO(data) \
-  curl_dbg_freeaddrinfo(data, __LINE__, __FILE__)
-#define CURL_SOCKET(domain, type, protocol) \
-  curl_dbg_socket((int)(domain), type, protocol, __LINE__, __FILE__)
-#ifdef HAVE_SOCKETPAIR
-#define CURL_SOCKETPAIR(domain, type, protocol, socket_vector) \
-  curl_dbg_socketpair((int)(domain), type, protocol, socket_vector, \
+#నిర్వచించు CURL_FREEADDRINFO(దత్తాంశం) \
+  curl_dbg_freeaddrinfo(దత్తాంశం, __LINE__, __FILE__)
+#నిర్వచించు CURL_SOCKET(domain, type, protocol) \
+  curl_dbg_socket((పూర్ణాంకం)(domain), type, protocol, __LINE__, __FILE__)
+#నిర్వచితమైతే HAVE_SOCKETPAIR
+#నిర్వచించు CURL_SOCKETPAIR(domain, type, protocol, socket_సదిశ) \
+  curl_dbg_socketpair((పూర్ణాంకం)(domain), type, protocol, socket_సదిశ, \
                       __LINE__, __FILE__)
-#endif
-#define CURL_ACCEPT(sock, addr, len) \
+#అయితే_ముగింపు
+#నిర్వచించు CURL_ACCEPT(sock, addr, len) \
   curl_dbg_accept(sock, addr, len, __LINE__, __FILE__)
-#ifdef HAVE_ACCEPT4
-#define CURL_ACCEPT4(sock, addr, len, flags) \
+#నిర్వచితమైతే HAVE_ACCEPT4
+#నిర్వచించు CURL_ACCEPT4(sock, addr, len, flags) \
   curl_dbg_accept4(sock, addr, len, flags, __LINE__, __FILE__)
-#endif
+#అయితే_ముగింపు
 
-#else /* !CURL_MEMDEBUG */
+#లేకపోతే /* !CURL_MEMDEBUG */
 
-#define sclose(x) CURL_SCLOSE(x)
-#define fake_sclose(x) Curl_nop_stmt
+#నిర్వచించు sclose(x) CURL_SCLOSE(x)
+#నిర్వచించు fake_sclose(x) Curl_nop_stmt
 
-#define CURL_GETADDRINFO getaddrinfo
-#define CURL_FREEADDRINFO freeaddrinfo
-#define CURL_SOCKET socket
-#ifdef HAVE_SOCKETPAIR
-#define CURL_SOCKETPAIR socketpair
-#endif
-#define CURL_ACCEPT accept
-#ifdef HAVE_ACCEPT4
-#define CURL_ACCEPT4 accept4
-#endif
+#నిర్వచించు CURL_GETADDRINFO getaddrinfo
+#నిర్వచించు CURL_FREEADDRINFO freeaddrinfo
+#నిర్వచించు CURL_SOCKET socket
+#నిర్వచితమైతే HAVE_SOCKETPAIR
+#నిర్వచించు CURL_SOCKETPAIR socketpair
+#అయితే_ముగింపు
+#నిర్వచించు CURL_ACCEPT accept
+#నిర్వచితమైతే HAVE_ACCEPT4
+#నిర్వచించు CURL_ACCEPT4 accept4
+#అయితే_ముగింపు
 
-#endif /* CURL_MEMDEBUG */
+#అయితే_ముగింపు /* CURL_MEMDEBUG */
 
 /* Allocator macros */
 
-#ifdef _WIN32
-#define CURLX_STRDUP_LOW _strdup
-#else
-#define CURLX_STRDUP_LOW strdup
-#endif
+#నిర్వచితమైతే _WIN32
+#నిర్వచించు CURLX_STRDUP_దిగువ _strdup
+#లేకపోతే
+#నిర్వచించు CURLX_STRDUP_దిగువ strdup
+#అయితే_ముగింపు
 
-#ifdef CURL_MEMDEBUG
+#నిర్వచితమైతే CURL_MEMDEBUG
 
-#define curlx_strdup(ptr)          curl_dbg_strdup(ptr, __LINE__, __FILE__)
-#define curlx_malloc(size)         curl_dbg_malloc(size, __LINE__, __FILE__)
-#define curlx_calloc(nbelem, size) \
-  curl_dbg_calloc(nbelem, size, __LINE__, __FILE__)
-#define curlx_realloc(ptr, size) \
-  curl_dbg_realloc(ptr, size, __LINE__, __FILE__)
-#define curlx_free(ptr)            curl_dbg_free(ptr, __LINE__, __FILE__)
+#నిర్వచించు curlx_strdup(ptr)          curl_dbg_strdup(ptr, __LINE__, __FILE__)
+#నిర్వచించు curlx_malloc(కొలత)         curl_dbg_malloc(కొలత, __LINE__, __FILE__)
+#నిర్వచించు curlx_calloc(nbelem, కొలత) \
+  curl_dbg_calloc(nbelem, కొలత, __LINE__, __FILE__)
+#నిర్వచించు curlx_realloc(ptr, కొలత) \
+  curl_dbg_realloc(ptr, కొలత, __LINE__, __FILE__)
+#నిర్వచించు curlx_free(ptr)            curl_dbg_free(ptr, __LINE__, __FILE__)
 
-#ifdef _WIN32
-#ifdef UNICODE
-#define curlx_tcsdup(ptr)          curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
-#else
-#define curlx_tcsdup               curlx_strdup
-#endif
-#endif /* _WIN32 */
+#నిర్వచితమైతే _WIN32
+#నిర్వచితమైతే UNICODE
+#నిర్వచించు curlx_tcsdup(ptr)          curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
+#లేకపోతే
+#నిర్వచించు curlx_tcsdup               curlx_strdup
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* _WIN32 */
 
-#else /* !CURL_MEMDEBUG */
+#లేకపోతే /* !CURL_MEMDEBUG */
 
-#ifdef BUILDING_LIBCURL
-#define curlx_strdup               Curl_cstrdup
-#define curlx_malloc               Curl_cmalloc
-#define curlx_calloc               Curl_ccalloc
-#define curlx_realloc              Curl_crealloc
-#define curlx_free                 Curl_cfree
-#else /* !BUILDING_LIBCURL */
-#define curlx_strdup               CURLX_STRDUP_LOW
-#define curlx_malloc               malloc
-#define curlx_calloc               calloc
-#define curlx_realloc              realloc
-#define curlx_free                 free
-#endif /* BUILDING_LIBCURL */
+#నిర్వచితమైతే BUILDING_LIBCURL
+#నిర్వచించు curlx_strdup               Curl_cstrdup
+#నిర్వచించు curlx_malloc               Curl_cmalloc
+#నిర్వచించు curlx_calloc               Curl_ccalloc
+#నిర్వచించు curlx_realloc              Curl_crealloc
+#నిర్వచించు curlx_free                 Curl_cfree
+#లేకపోతే /* !BUILDING_LIBCURL */
+#నిర్వచించు curlx_strdup               CURLX_STRDUP_దిగువ
+#నిర్వచించు curlx_malloc               జ్ఞాపకం_ఇవ్వు
+#నిర్వచించు curlx_calloc               సున్నా_జ్ఞాపకం_ఇవ్వు
+#నిర్వచించు curlx_realloc              realloc
+#నిర్వచించు curlx_free                 విడుదల
+#అయితే_ముగింపు /* BUILDING_LIBCURL */
 
-#ifdef _WIN32
-#ifdef UNICODE
-#define curlx_tcsdup               curlx_wcsdup
-#else
-#define curlx_tcsdup               curlx_strdup
-#endif
-#endif /* _WIN32 */
+#నిర్వచితమైతే _WIN32
+#నిర్వచితమైతే UNICODE
+#నిర్వచించు curlx_tcsdup               curlx_wcsdup
+#లేకపోతే
+#నిర్వచించు curlx_tcsdup               curlx_strdup
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* _WIN32 */
 
-#endif /* CURL_MEMDEBUG */
+#అయితే_ముగింపు /* CURL_MEMDEBUG */
 
 /* Some versions of the Android NDK is missing the declaration */
-#if defined(HAVE_GETPWUID_R) && \
+#ఒకవేళ defined(HAVE_GETPWUID_R) && \
   defined(__ANDROID_API__) && (__ANDROID_API__ < 21)
-struct passwd;
-int getpwuid_r(uid_t uid, struct passwd *pwd, char *buf,
-               size_t buflen, struct passwd **result);
-#endif
+నిర్మాణం passwd;
+పూర్ణాంకం getpwuid_r(uid_t uid, నిర్మాణం passwd *pwd, అక్షరం *buf,
+               size_t buflen, నిర్మాణం passwd **ఫలితం);
+#అయితే_ముగింపు
 
-#ifdef UNITTESTS
-#define UNITTEST
-#else
-#define UNITTEST static
-#endif
+#నిర్వచితమైతే UNITTESTS
+#నిర్వచించు UNITTEST
+#లేకపోతే
+#నిర్వచించు UNITTEST స్థిర
+#అయితే_ముగింపు
 
-#ifdef USE_NGHTTP2
-#define USE_HTTP2
-#endif
+#నిర్వచితమైతే USE_NGHTTP2
+#నిర్వచించు USE_HTTP2
+#అయితే_ముగింపు
 
-#if (defined(USE_NGTCP2) && defined(USE_NGHTTP3)) || defined(USE_QUICHE)
+#ఒకవేళ (defined(USE_NGTCP2) && defined(USE_NGHTTP3)) || defined(USE_QUICHE)
 
-#ifdef CURL_WITH_MULTI_SSL
-#error "MultiSSL combined with QUIC is not supported"
-#endif
+#నిర్వచితమైతే CURL_WITH_MULTI_SSL
+#దోషం "MultiSSL combined with QUIC is not supported"
+#అయితే_ముగింపు
 
-#define USE_HTTP3
-#endif
+#నిర్వచించు USE_HTTP3
+#అయితే_ముగింపు
 
 /* WebAssembly builds have TCP_NODELAY, but runtime support is missing. */
-#ifndef __EMSCRIPTEN__
-#define CURL_TCP_NODELAY_SUPPORTED
-#endif
+#నిర్వచితం_కాకపోతే __EMSCRIPTEN__
+#నిర్వచించు CURL_TCP_NODELAY_SUPPORTED
+#అయితే_ముగింపు
 
 /* Certain Windows implementations are not aligned with what curl expects,
    so always use the local one on this platform. E.g. the mingw-w64
    implementation can return wrong results for non-ASCII inputs. */
-#if defined(HAVE_BASENAME) && defined(_WIN32)
-#undef HAVE_BASENAME
-#endif
+#ఒకవేళ defined(HAVE_BASENAME) && defined(_WIN32)
+#నిర్వచనం_రద్దు HAVE_BASENAME
+#అయితే_ముగింపు
 
-#if defined(USE_UNIX_SOCKETS) && defined(_WIN32)
+#ఒకవేళ defined(USE_UNIX_SOCKETS) && defined(_WIN32)
 /* Offered by mingw-w64 v10+, MS SDK 10.0.16299.0/VS2017 15.4+ */
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR >= 10)
+#ఒకవేళ defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR >= 10)
 #  include <afunix.h>
-#elif !defined(UNIX_PATH_MAX) /* Replicate logic present in afunix.h */
-#  define UNIX_PATH_MAX 108
+#లేదావేళ !defined(UNIX_మార్గం_MAX) /* Replicate logic present in afunix.h */
+#  define UNIX_మార్గం_MAX 108
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct sockaddr_un {
+రకనిర్వచనం నిర్మాణం sockaddr_un {
   CURL_SA_FAMILY_T sun_family;
-  char sun_path[UNIX_PATH_MAX];
+  అక్షరం sun_మార్గం[UNIX_మార్గం_MAX];
 } SOCKADDR_UN, *PSOCKADDR_UN;
-#endif
-#endif
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#ifdef USE_OPENSSL
+#నిర్వచితమైతే USE_OPENSSL
 /* OpenSSL 3 marks these functions deprecated but we have no replacements (yet)
    so tell the compiler to not warn for them:
    - DES_* (for NTLM)
@@ -1610,93 +1610,93 @@ typedef struct sockaddr_un {
 #  define OPENSSL_SUPPRESS_DEPRECATED
 #  ifdef _WIN32
 /* Silence LibreSSL warnings about wincrypt.h collision. Works in 3.8.2+ */
-#    ifndef LIBRESSL_DISABLE_OVERRIDE_WINCRYPT_DEFINES_WARNING
-#    define LIBRESSL_DISABLE_OVERRIDE_WINCRYPT_DEFINES_WARNING
+#    ifndef LIBRESSL_DISABLE_OVERRIDE_WINCRYPT_నిర్వచిస్తుంది_WARNING
+#    define LIBRESSL_DISABLE_OVERRIDE_WINCRYPT_నిర్వచిస్తుంది_WARNING
 #    endif
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#ifdef CURL_INLINE
+#నిర్వచితమైతే CURL_INLINE
 /* 'CURL_INLINE' defined, use as-is */
-#elif defined(inline)
-#  define CURL_INLINE inline /* 'inline' defined, assumed correct */
-#elif defined(__cplusplus)
+#లేదావేళ defined(అంతఃవరుస)
+#  define CURL_INLINE అంతఃవరుస /* 'inline' defined, assumed correct */
+#లేదావేళ defined(__cplusplus)
 /* The code is compiled with C++ compiler.
    C++ always supports 'inline'. */
-#  define CURL_INLINE inline /* 'inline' keyword supported */
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#  define CURL_INLINE అంతఃవరుస /* 'inline' keyword supported */
+#లేదావేళ defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 /* C99 (and later) supports 'inline' keyword */
-#  define CURL_INLINE inline /* 'inline' keyword supported */
-#elif defined(__GNUC__) && __GNUC__ >= 3
+#  define CURL_INLINE అంతఃవరుస /* 'inline' keyword supported */
+#లేదావేళ defined(__GNUC__) && __GNUC__ >= 3
 /* GCC supports '__inline__' as an extension */
 #  define CURL_INLINE __inline__
-#elif defined(_MSC_VER)
+#లేదావేళ defined(_MSC_VER)
 #  define CURL_INLINE __inline
-#else
+#లేకపోతే
 /* Probably 'inline' is not supported by compiler.
    Define to the empty string to be on the safe side. */
-#  define CURL_INLINE /* empty */
-#endif
+#  define CURL_INLINE /*ఖాళీలు*/
+#అయితే_ముగింపు
 
 /* Detect if compiler supports C99 variadic macros */
-#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || \
+#ఒకవేళ (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || \
   defined(_MSC_VER)
-#define CURL_HAVE_MACRO_VARARG
-#endif
+#నిర్వచించు CURL_HAVE_MACRO_VARARG
+#అయితే_ముగింపు
 
-#if !defined(CURL_HAVE_MACRO_VARARG) || \
-  (defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_STRINGS))
-#define CURLVERBOSE
-#define VERBOSE(x) x
-#define NOVERBOSE(x) Curl_nop_stmt
-#else
-#define VERBOSE(x) Curl_nop_stmt
-#define NOVERBOSE(x) x
-#endif
+#ఒకవేళ !defined(CURL_HAVE_MACRO_VARARG) || \
+  (defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_అక్షరశ్రేణులు))
+#నిర్వచించు CURLVERBOSE
+#నిర్వచించు VERBOSE(x) x
+#నిర్వచించు NOVERBOSE(x) Curl_nop_stmt
+#లేకపోతే
+#నిర్వచించు VERBOSE(x) Curl_nop_stmt
+#నిర్వచించు NOVERBOSE(x) x
+#అయితే_ముగింపు
 
 /* For FreeBSD it is included from curl/curl.h */
-#if defined(__DragonFly__) || defined(__OpenBSD__) || defined(__NetBSD__)
-#include <sys/param.h>  /* for __DragonFly_version, OpenBSD,
+#ఒకవేళ defined(__DragonFly__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#అన్తర్భావ <sys/param.h>  /* for __DragonFly_version, OpenBSD,
                            __NetBSD_Version__ */
-#endif
+#అయితే_ముగింపు
 
 /* NetBSD before 6.1 did not set SS_NBIO for SOCK_NONBLOCK. */
-#if defined(SOCK_NONBLOCK) && \
+#ఒకవేళ defined(SOCK_NONBLOCK) && \
   (!defined(__NetBSD__) || (__NetBSD_Version__ >= 601000000))
-#define CURL_USE_SOCK_NONBLOCK
-#endif
+#నిర్వచించు CURL_USE_SOCK_NONBLOCK
+#అయితే_ముగింపు
 
-#ifndef _CURL_LOCAL_MEMZERO /* to be removed after a couple of releases */
-#ifdef _WIN32
-#if defined(_MSC_VER) && defined(NTDDI_VERSION) && \
-  (NTDDI_VERSION >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
-#pragma comment(lib, "volatileaccessu.lib")
-#define curlx_memzero_low(buf, size)  SecureZeroMemory2(buf, size)
-#else
-#define curlx_memzero_low(buf, size)  SecureZeroMemory(buf, size)
-#endif
-#elif defined(HAVE_MEMSET_S)
-#define curlx_memzero_low(buf, size)  (void)memset_s(buf, size, 0, size)
-#elif defined(HAVE_MEMSET_EXPLICIT)
-#define curlx_memzero_low(buf, size)  (void)memset_explicit(buf, 0, size)
-#elif defined(__CYGWIN__) || \
+#నిర్వచితం_కాకపోతే _CURL_LOCAL_MEMZERO /* to be removed after a couple of releases */
+#నిర్వచితమైతే _WIN32
+#ఒకవేళ defined(_MSC_VER) && defined(NTDDI_సంస్కరణ) && \
+  (NTDDI_సంస్కరణ >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
+#సూచన comment(lib, "volatileaccessu.lib")
+#నిర్వచించు curlx_memzero_దిగువ(buf, కొలత)  SecureZeroMemory2(buf, కొలత)
+#లేకపోతే
+#నిర్వచించు curlx_memzero_దిగువ(buf, కొలత)  Secure_Zero_జ్ఞాపకం(buf, కొలత)
+#అయితే_ముగింపు
+#లేదావేళ defined(HAVE_MEMSET_S)
+#నిర్వచించు curlx_memzero_దిగువ(buf, కొలత)  (శూన్య)memset_s(buf, కొలత, 0, కొలత)
+#లేదావేళ defined(HAVE_MEMSET_EXPLICIT)
+#నిర్వచించు curlx_memzero_దిగువ(buf, కొలత)  (శూన్య)memset_explicit(buf, 0, కొలత)
+#లేదావేళ defined(__CYGWIN__) || \
   (defined(__NEWLIB__) && !defined(__CLIB2__)) || \
   (defined(__GLIBC__) && \
     (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 25))) || \
   (defined(__DragonFly__) && __DragonFly_version >= 500600 /* 5.6+ */) || \
   (defined(__FreeBSD__) && __FreeBSD_version >= 1100037 /* 11.0+ */) || \
   (defined(__OpenBSD__) && OpenBSD >= 201405 /* 5.5+ */)
-#define curlx_memzero_low(buf, size)  explicit_bzero(buf, size)
-#elif defined(__NetBSD__) && __NetBSD_Version__ >= 702000000 /* 7.2+ */
-#define curlx_memzero_low(buf, size)  (void)explicit_memset(buf, 0, size)
-#endif
-#endif /* !_CURL_LOCAL_MEMZERO */
+#నిర్వచించు curlx_memzero_దిగువ(buf, కొలత)  explicit_bzero(buf, కొలత)
+#లేదావేళ defined(__NetBSD__) && __NetBSD_Version__ >= 702000000 /* 7.2+ */
+#నిర్వచించు curlx_memzero_దిగువ(buf, కొలత)  (శూన్య)explicit_memset(buf, 0, కొలత)
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* !_CURL_LOCAL_MEMZERO */
 
-#ifndef curlx_memzero_low
-#define USE_CURLX_MEMZERO
-void curlx_memzero_low(void *buf, size_t size);
-#endif
-void curlx_memzero(void *buf, size_t size);
-void curlx_strzero(void *buf);
+#నిర్వచితం_కాకపోతే curlx_memzero_దిగువ
+#నిర్వచించు USE_CURLX_MEMZERO
+శూన్య curlx_memzero_దిగువ(శూన్య *buf, size_t కొలత);
+#అయితే_ముగింపు
+శూన్య curlx_memzero(శూన్య *buf, size_t కొలత);
+శూన్య curlx_strzero(శూన్య *buf);
 
-#endif /* HEADER_CURL_SETUP_H */
+#అయితే_ముగింపు /* HEADER_CURL_SETUP_H */

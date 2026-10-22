@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_CF_QUICHE_H
-#define HEADER_CURL_VQUIC_CF_QUICHE_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_VQUIC_CF_QUICHE_H
+#నిర్వచించు శీర్షిక_CURL_VQUIC_CF_QUICHE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,29 +23,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
 
-#include <quiche.h>
-#include <openssl/ssl.h>
+#అన్తర్భావ <quiche.h>
+#అన్తర్భావ <openssl/ssl.h>
 
-struct Curl_cfilter;
-struct Curl_easy;
+నిర్మాణం Curl_cfilter;
+నిర్మాణం Curl_easy;
 
-void Curl_quiche_ver(char *p, size_t len);
+శూన్య Curl_quiche_ver(అక్షరం *p, size_t len);
 
-CURLcode Curl_cf_quiche_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
-CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
+CURLcode Curl_cf_quiche_create(నిర్మాణం Curl_cfilter **pcf,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_peer *origin,
+                               నిర్మాణం Curl_peer *peer,
+                               నిర్మాణం connectdata *conn,
+                               నిర్మాణం Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_quiche_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                     నిర్మాణం Curl_peer *origin,
+                                     నిర్మాణం Curl_peer *peer,
+                                     నిర్మాణం Curl_cfilter **pcf);
 
-#endif
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_VQUIC_CF_QUICHE_H */
+#అయితే_ముగింపు /* HEADER_CURL_VQUIC_CF_QUICHE_H */

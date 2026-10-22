@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SOCKS_H
-#define HEADER_CURL_SOCKS_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_SOCKS_H
+#నిర్వచించు శీర్షిక_CURL_SOCKS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
 
-struct Curl_peer;
-struct Curl_creds;
+నిర్మాణం Curl_peer;
+నిర్మాణం Curl_creds;
 
 /*
  * Helper read-from-socket functions. Does the same as Curl_read() but it
@@ -36,34 +36,34 @@ struct Curl_creds;
  *
  * This is STUPID BLOCKING behavior
  */
-CURLcode Curl_blockread_all(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            char *buf,
+CURLcode Curl_blockread_all(నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_easy *దత్తాంశం,
+                            అక్షరం *buf,
                             size_t blen,
                             size_t *pnread);
 
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#ఒకవేళ defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
 /*
  * This function handles the SOCKS5 GSS-API negotiation and initialization
  */
-CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct Curl_creds *creds);
-#endif
+CURLcode Curl_SOCKS5_gssapi_negotiate(నిర్మాణం Curl_cfilter *cf,
+                                      నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం Curl_creds *creds);
+#అయితే_ముగింపు
 
 /* Insert a SOCKS filter after `cf_at` for connecting to `dest`.
  * Credentials are optional and NOT duplicated and are
  * expected to exist during connect phase.
  */
-CURLcode Curl_cf_socks_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                          struct Curl_easy *data,
-                                          struct Curl_peer *dest,
-                                          uint8_t ip_version,
+CURLcode Curl_cf_socks_proxy_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                          నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం Curl_peer *dest,
+                                          uint8_t ip_సంస్కరణ,
                                           uint8_t proxy_type,
-                                          struct Curl_creds *creds);
+                                          నిర్మాణం Curl_creds *creds);
 
-extern struct Curl_cftype Curl_cft_socks_proxy;
+బాహ్య నిర్మాణం Curl_cftype Curl_cft_socks_proxy;
 
-#endif /* !CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_SOCKS_H */
+#అయితే_ముగింపు /* HEADER_CURL_SOCKS_H */

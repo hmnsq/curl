@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_FOPEN_H
-#define HEADER_CURLX_FOPEN_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURLX_FOPEN_H
+#నిర్వచించు శీర్షిక_CURLX_FOPEN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,74 +23,74 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "curlx/multibyte.h"
+#అన్తర్భావ "curlx/multibyte.h"
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>  /* for open() and attributes */
-#endif
+#నిర్వచితమైతే HAVE_FCNTL_H
+#అన్తర్భావ <fcntl.h>  /* for open() and attributes */
+#అయితే_ముగింపు
 
-int curlx_fseek(void *stream, curl_off_t offset, int whence);
+పూర్ణాంకం curlx_fseek(శూన్య *ప్రవాహం, curl_off_t స్థానభ్రంశం, పూర్ణాంకం whence);
 
-#ifdef _WIN32
-#include <sys/stat.h>  /* for _fstati64(), struct _stati64 */
-#ifndef CURL_WINDOWS_UWP
-HANDLE curlx_CreateFile(const char *filename,
+#నిర్వచితమైతే _WIN32
+#అన్తర్భావ <sys/stat.h>  /* for _fstati64(), struct _stati64 */
+#నిర్వచితం_కాకపోతే CURL_WINDOWS_UWP
+HANDLE curlx_CreateFile(స్థిరరాశి అక్షరం *filename,
                         DWORD dwDesiredAccess,
-                        DWORD dwShareMode,
-                        LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+                        DWORD dw_Share_బహుళకం,
+                        LPSECURITY_లక్షణాలు lp_Security_లక్షణాలు,
                         DWORD dwCreationDisposition,
-                        DWORD dwFlagsAndAttributes,
+                        DWORD dw_Flags_And_లక్షణాలు,
                         HANDLE hTemplateFile);
-HANDLE curlx_FindFirstFile(const char *filename,
-                           WIN32_FIND_DATA *find_data);
-#endif /* !CURL_WINDOWS_UWP */
-#define curlx_fstat             _fstati64
-#define curlx_struct_stat       struct _stati64
-FILE *curlx_win32_fopen(const char *filename, const char *mode);
-FILE *curlx_win32_freopen(const char *filename, const char *mode, FILE *fp);
-int curlx_win32_stat(const char *path, curlx_struct_stat *buffer);
-int curlx_win32_open(const char *filename, int oflag, ...);
-int curlx_win32_rename(const char *oldpath, const char *newpath);
-int curlx_win32_mkdir(const char *path);
-#define CURLX_FOPEN_LOW         curlx_win32_fopen
-#define CURLX_FREOPEN_LOW       curlx_win32_freopen
-#define CURLX_FDOPEN_LOW        _fdopen
-#define curlx_stat              curlx_win32_stat
-#define curlx_open              curlx_win32_open
-#define curlx_close             _close
-#define curlx_rename            curlx_win32_rename
-#define curlx_mkdir(x, y)       curlx_win32_mkdir(x)
-#else
-#define curlx_fstat             fstat
-#define curlx_struct_stat       struct stat
-#define CURLX_FOPEN_LOW         fopen
-#define CURLX_FREOPEN_LOW       freopen
-#define CURLX_FDOPEN_LOW        fdopen
-#define curlx_stat              stat
-#define curlx_open              open
-#define curlx_close             close
-#define curlx_rename            rename
-#if defined(MSDOS) && !defined(__DJGPP__)
-#define curlx_mkdir(x, y)       mkdir(x)
-#else
-#define curlx_mkdir             mkdir
-#endif
-#endif
+HANDLE curlx_కనుగొను_మొదటి_File(స్థిరరాశి అక్షరం *filename,
+                           WIN32_కనుగొను_దత్తాంశం *కనుగొను_దత్తాంశం);
+#అయితే_ముగింపు /* !CURL_WINDOWS_UWP */
+#నిర్వచించు curlx_fstat             _fstati64
+#నిర్వచించు curlx_struct_stat       నిర్మాణం _stati64
+FILE *curlx_win32_fopen(స్థిరరాశి అక్షరం *filename, స్థిరరాశి అక్షరం *బహుళకం);
+FILE *curlx_win32_freopen(స్థిరరాశి అక్షరం *filename, స్థిరరాశి అక్షరం *బహుళకం, FILE *fp);
+పూర్ణాంకం curlx_win32_stat(స్థిరరాశి అక్షరం *మార్గం, curlx_struct_stat *బఫరు);
+పూర్ణాంకం curlx_win32_open(స్థిరరాశి అక్షరం *filename, పూర్ణాంకం oflag, ...);
+పూర్ణాంకం curlx_win32_rename(స్థిరరాశి అక్షరం *oldpath, స్థిరరాశి అక్షరం *newpath);
+పూర్ణాంకం curlx_win32_mkdir(స్థిరరాశి అక్షరం *మార్గం);
+#నిర్వచించు CURLX_FOPEN_దిగువ         curlx_win32_fopen
+#నిర్వచించు CURLX_FREOPEN_దిగువ       curlx_win32_freopen
+#నిర్వచించు CURLX_FDOPEN_దిగువ        _fdopen
+#నిర్వచించు curlx_stat              curlx_win32_stat
+#నిర్వచించు curlx_open              curlx_win32_open
+#నిర్వచించు curlx_close             _close
+#నిర్వచించు curlx_rename            curlx_win32_rename
+#నిర్వచించు curlx_mkdir(x, y)       curlx_win32_mkdir(x)
+#లేకపోతే
+#నిర్వచించు curlx_fstat             fstat
+#నిర్వచించు curlx_struct_stat       నిర్మాణం stat
+#నిర్వచించు CURLX_FOPEN_దిగువ         fopen
+#నిర్వచించు CURLX_FREOPEN_దిగువ       freopen
+#నిర్వచించు CURLX_FDOPEN_దిగువ        fdopen
+#నిర్వచించు curlx_stat              stat
+#నిర్వచించు curlx_open              open
+#నిర్వచించు curlx_close             close
+#నిర్వచించు curlx_rename            rename
+#ఒకవేళ defined(MSDOS) && !defined(__DJGPP__)
+#నిర్వచించు curlx_mkdir(x, y)       mkdir(x)
+#లేకపోతే
+#నిర్వచించు curlx_mkdir             mkdir
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#ifdef CURL_MEMDEBUG
-#define curlx_fopen(file, mode) curl_dbg_fopen(file, mode, __LINE__, __FILE__)
-#define curlx_freopen(file, mode, fh) \
-  curl_dbg_freopen(file, mode, fh, __LINE__, __FILE__)
-#define curlx_fdopen(file, mode) \
-  curl_dbg_fdopen(file, mode, __LINE__, __FILE__)
-#define curlx_fclose(file)      curl_dbg_fclose(file, __LINE__, __FILE__)
-#else
-#define curlx_fopen             CURLX_FOPEN_LOW
-#define curlx_freopen           CURLX_FREOPEN_LOW
-#define curlx_fdopen            CURLX_FDOPEN_LOW
-#define curlx_fclose            fclose
-#endif
+#నిర్వచితమైతే CURL_MEMDEBUG
+#నిర్వచించు curlx_fopen(file, బహుళకం) curl_dbg_fopen(file, బహుళకం, __LINE__, __FILE__)
+#నిర్వచించు curlx_freopen(file, బహుళకం, fh) \
+  curl_dbg_freopen(file, బహుళకం, fh, __LINE__, __FILE__)
+#నిర్వచించు curlx_fdopen(file, బహుళకం) \
+  curl_dbg_fdopen(file, బహుళకం, __LINE__, __FILE__)
+#నిర్వచించు curlx_fclose(file)      curl_dbg_fclose(file, __LINE__, __FILE__)
+#లేకపోతే
+#నిర్వచించు curlx_fopen             CURLX_FOPEN_దిగువ
+#నిర్వచించు curlx_freopen           CURLX_FREOPEN_దిగువ
+#నిర్వచించు curlx_fdopen            CURLX_FDOPEN_దిగువ
+#నిర్వచించు curlx_fclose            fclose
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURLX_FOPEN_H */
+#అయితే_ముగింపు /* HEADER_CURLX_FOPEN_H */

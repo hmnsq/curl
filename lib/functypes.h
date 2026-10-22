@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FUNCTYPES_H
-#define HEADER_CURL_FUNCTYPES_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_FUNCTYPES_H
+#నిర్వచించు శీర్షిక_CURL_FUNCTYPES_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -35,74 +35,74 @@
    2. For systems with config-*.h files, define them there.
  */
 
-#ifdef USE_WINSOCK
+#నిర్వచితమైతే USE_WINSOCK
 /* int recv(SOCKET, char *, int, int) */
-#define RECV_TYPE_ARG1 SOCKET
-#define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 int
-#define RECV_TYPE_RETV int
+#నిర్వచించు RECV_TYPE_ARG1 SOCKET
+#నిర్వచించు RECV_TYPE_ARG2 అక్షరం *
+#నిర్వచించు RECV_TYPE_ARG3 పూర్ణాంకం
+#నిర్వచించు RECV_TYPE_RETV పూర్ణాంకం
 
 /* int send(SOCKET, const char *, int, int); */
-#define SEND_TYPE_ARG1 SOCKET
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
+#నిర్వచించు SEND_TYPE_ARG1 SOCKET
+#నిర్వచించు SEND_TYPE_ARG2 అక్షరం *
+#నిర్వచించు SEND_TYPE_ARG3 పూర్ణాంకం
+#నిర్వచించు SEND_TYPE_RETV పూర్ణాంకం
 
-#elif defined(__AMIGA__) /* Any AmigaOS flavor */
+#లేదావేళ defined(__AMIGA__) /* Any AmigaOS flavor */
 
 /* long recv(long, char *, long, long); */
-#define RECV_TYPE_ARG1 long
-#define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 long
-#define RECV_TYPE_ARG4 long
-#define RECV_TYPE_RETV long
+#నిర్వచించు RECV_TYPE_ARG1 దీర్ఘ
+#నిర్వచించు RECV_TYPE_ARG2 అక్షరం *
+#నిర్వచించు RECV_TYPE_ARG3 దీర్ఘ
+#నిర్వచించు RECV_TYPE_ARG4 దీర్ఘ
+#నిర్వచించు RECV_TYPE_RETV దీర్ఘ
 
 /* int send(int, char *, int, int); */
-#define SEND_TYPE_ARG1 int
-#define SEND_NONCONST_ARG2
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
-#endif
+#నిర్వచించు SEND_TYPE_ARG1 పూర్ణాంకం
+#నిర్వచించు SEND_NONCONST_ARG2
+#నిర్వచించు SEND_TYPE_ARG2 అక్షరం *
+#నిర్వచించు SEND_TYPE_ARG3 పూర్ణాంకం
+#నిర్వచించు SEND_TYPE_RETV పూర్ణాంకం
+#అయితే_ముగింపు
 
-#ifndef RECV_TYPE_ARG1
-#define RECV_TYPE_ARG1 int
-#endif
+#నిర్వచితం_కాకపోతే RECV_TYPE_ARG1
+#నిర్వచించు RECV_TYPE_ARG1 పూర్ణాంకం
+#అయితే_ముగింపు
 
-#ifndef RECV_TYPE_ARG2
-#define RECV_TYPE_ARG2 void *
-#endif
+#నిర్వచితం_కాకపోతే RECV_TYPE_ARG2
+#నిర్వచించు RECV_TYPE_ARG2 శూన్య *
+#అయితే_ముగింపు
 
-#ifndef RECV_TYPE_ARG3
-#define RECV_TYPE_ARG3 size_t
-#endif
+#నిర్వచితం_కాకపోతే RECV_TYPE_ARG3
+#నిర్వచించు RECV_TYPE_ARG3 size_t
+#అయితే_ముగింపు
 
-#ifndef RECV_TYPE_ARG4
-#define RECV_TYPE_ARG4 int
-#endif
+#నిర్వచితం_కాకపోతే RECV_TYPE_ARG4
+#నిర్వచించు RECV_TYPE_ARG4 పూర్ణాంకం
+#అయితే_ముగింపు
 
-#ifndef RECV_TYPE_RETV
-#define RECV_TYPE_RETV ssize_t
-#endif
+#నిర్వచితం_కాకపోతే RECV_TYPE_RETV
+#నిర్వచించు RECV_TYPE_RETV ssize_t
+#అయితే_ముగింపు
 
-#ifndef SEND_TYPE_ARG1
-#define SEND_TYPE_ARG1 int
-#endif
+#నిర్వచితం_కాకపోతే SEND_TYPE_ARG1
+#నిర్వచించు SEND_TYPE_ARG1 పూర్ణాంకం
+#అయితే_ముగింపు
 
-#ifndef SEND_TYPE_ARG2
-#define SEND_TYPE_ARG2 void *
-#endif
+#నిర్వచితం_కాకపోతే SEND_TYPE_ARG2
+#నిర్వచించు SEND_TYPE_ARG2 శూన్య *
+#అయితే_ముగింపు
 
-#ifndef SEND_TYPE_ARG3
-#define SEND_TYPE_ARG3 size_t
-#endif
+#నిర్వచితం_కాకపోతే SEND_TYPE_ARG3
+#నిర్వచించు SEND_TYPE_ARG3 size_t
+#అయితే_ముగింపు
 
-#ifndef SEND_TYPE_ARG4
-#define SEND_TYPE_ARG4 int
-#endif
+#నిర్వచితం_కాకపోతే SEND_TYPE_ARG4
+#నిర్వచించు SEND_TYPE_ARG4 పూర్ణాంకం
+#అయితే_ముగింపు
 
-#ifndef SEND_TYPE_RETV
-#define SEND_TYPE_RETV ssize_t
-#endif
+#నిర్వచితం_కాకపోతే SEND_TYPE_RETV
+#నిర్వచించు SEND_TYPE_RETV ssize_t
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_FUNCTYPES_H */
+#అయితే_ముగింపు /* HEADER_CURL_FUNCTYPES_H */

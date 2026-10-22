@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_POP3_H
-#define HEADER_CURL_POP3_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_POP3_H
+#నిర్వచించు శీర్షిక_CURL_POP3_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_POP3
-extern const struct Curl_protocol Curl_protocol_pop3;
-#endif
+#నిర్వచితం_కాకపోతే CURL_DISABLE_POP3
+బాహ్య స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_pop3;
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_POP3_H */
+#అయితే_ముగింపు /* HEADER_CURL_POP3_H */

@@ -21,49 +21,49 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#ఒకవేళ !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
-#include "curl_get_line.h"
+#అన్తర్భావ "curl_get_line.h"
 
 /*
  * Curl_get_line() returns only complete whole lines that end with newline.
  * When 'eof' is set TRUE, the last line has been read.
  */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
+CURLcode Curl_get_పంక్తి(నిర్మాణం dynbuf *buf, FILE *ఆదానం, bool *eof)
 {
-  CURLcode result;
-  char buffer[128];
+  CURLcode ఫలితం;
+  అక్షరం బఫరు[128];
   curlx_dyn_reset(buf);
-  while(1) {
+  అయితే(1) {
     size_t rlen;
-    const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+    స్థిరరాశి అక్షరం *b = fgets(బఫరు, పరిమాణం(బఫరు), ఆదానం);
+    ఒకవేళ(!b && ferror(ఆదానం))
+      తిరిగి CURLE_READ_ERROR;
 
-    *eof = feof(input);
+    *eof = feof(ఆదానం);
 
-    rlen = b ? strlen(b) : 0;
-    if(rlen) {
-      result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+    rlen = b ? అక్షరశ్రేణి_పొడవు(b) : 0;
+    ఒకవేళ(rlen) {
+      ఫలితం = curlx_dyn_addn(buf, b, rlen);
+      ఒకవేళ(ఫలితం)
         /* too long line or out of memory */
-        return result;
+        తిరిగి ఫలితం;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    ఒకవేళ(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      తిరిగి CURLE_OK; /* all good */
+    ఒకవేళ(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      తిరిగి curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */
 }
 
-#endif /* if not disabled */
+#అయితే_ముగింపు /* if not disabled */

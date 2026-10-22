@@ -21,53 +21,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "strerror.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "cf-https-connect.h"
-#include "cf-setup.h"
-#include "multiif.h"
-#include "progress.h"
-#include "conncache.h"
-#include "multihandle.h"
-#include "select.h"
-#include "vdns/cf-dns.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "strerror.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "cf-https-connect.h"
+#అన్తర్భావ "cf-setup.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "conncache.h"
+#అన్తర్భావ "multihandle.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "vdns/cf-dns.h"
+#అన్తర్భావ "curlx/strparse.h"
 
-#if !defined(CURL_DISABLE_ALTSVC) || defined(USE_HTTPSRR)
+#ఒకవేళ !defined(CURL_DISABLE_ALTSVC) || defined(USE_HTTPSRR)
 
-enum alpnid Curl_alpn2alpnid(const unsigned char *name, size_t len)
+గణన alpnid Curl_alpn2alpnid(స్థిరరాశి గుర్తులేని అక్షరం *name, size_t len)
 {
-  if(len == 2) {
-    if(!memcmp(name, "h1", 2))
-      return ALPN_h1;
-    if(!memcmp(name, "h2", 2))
-      return ALPN_h2;
-    if(!memcmp(name, "h3", 2))
-      return ALPN_h3;
+  ఒకవేళ(len == 2) {
+    ఒకవేళ(!memcmp(name, "h1", 2))
+      తిరిగి ALPN_h1;
+    ఒకవేళ(!memcmp(name, "h2", 2))
+      తిరిగి ALPN_h2;
+    ఒకవేళ(!memcmp(name, "h3", 2))
+      తిరిగి ALPN_h3;
   }
-  else if(len == 8 && !memcmp(name, "http/1.1", 8))
-    return ALPN_h1;
-  return ALPN_none; /* unknown, probably rubbish input */
+  లేకపోతే ఒకవేళ(len == 8 && !memcmp(name, "http/1.1", 8))
+    తిరిగి ALPN_h1;
+  తిరిగి ALPN_none; /* unknown, probably rubbish input */
 }
 
-#endif
+#అయితే_ముగింపు
 
 /*
  * Milliseconds left of the connect timeout after `used_ms` have been spent.
  * One home for the default timeout and the zero-to-expired sentinel.
  */
-static timediff_t connect_left_ms(struct Curl_easy *data,
-                                  timediff_t used_ms)
+స్థిర timediff_t connect_ఎడమ_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  timediff_t వాడిన_ms)
 {
-  timediff_t timeout_ms = (data->set.connecttimeout > 0) ?
-    data->set.connecttimeout : DEFAULT_CONNECT_TIMEOUT;
-  timediff_t left_ms = timeout_ms - used_ms;
-  return left_ms ? left_ms : -1; /* 0 is "no limit", fake 1 ms expiry */
+  timediff_t timeout_ms = (దత్తాంశం->సమితి.connecttimeout > 0) ?
+    దత్తాంశం->సమితి.connecttimeout : DEFAULT_CONNECT_TIMEOUT;
+  timediff_t ఎడమ_ms = timeout_ms - వాడిన_ms;
+  తిరిగి ఎడమ_ms ? ఎడమ_ms : -1; /* 0 is "no limit", fake 1 ms expiry */
 }
 
 /*
@@ -78,47 +78,47 @@ static timediff_t connect_left_ms(struct Curl_easy *data,
  *
  * @unittest 1303
  */
-UNITTEST timediff_t timeleft_now_ms(struct Curl_easy *data,
-                                    const struct curltime *pnow);
-UNITTEST timediff_t timeleft_now_ms(struct Curl_easy *data,
-                                    const struct curltime *pnow)
+UNITTEST timediff_t timeleft_now_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    స్థిరరాశి నిర్మాణం curltime *pnow);
+UNITTEST timediff_t timeleft_now_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    స్థిరరాశి నిర్మాణం curltime *pnow)
 {
   timediff_t timeleft_ms = 0;
   timediff_t ctimeleft_ms = 0;
 
-  if(data->conn && CURL_CONN_IN_SHUTDOWN(data->conn, FIRSTSOCKET))
-    return Curl_cshutdn_timeleft_ms(data, data->conn, FIRSTSOCKET);
-  else if(Curl_is_connecting(data)) {
-    ctimeleft_ms = connect_left_ms(data,
-      Curl_pgrs_since_ms(data, pnow, TIMER_STARTSINGLE));
+  ఒకవేళ(దత్తాంశం->conn && CURL_CONN_లోపల_SHUTDOWN(దత్తాంశం->conn, FIRSTSOCKET))
+    తిరిగి Curl_cshutdn_timeleft_ms(దత్తాంశం, దత్తాంశం->conn, FIRSTSOCKET);
+  లేకపోతే ఒకవేళ(Curl_is_connecting(దత్తాంశం)) {
+    ctimeleft_ms = connect_ఎడమ_ms(దత్తాంశం,
+      Curl_pgrs_since_ms(దత్తాంశం, pnow, TIMER_STARTSINGLE));
   }
-  else if(!data->set.timeout || data->set.connect_only) {
-    return 0; /* no timeout in place or checked, return "no limit" */
+  లేకపోతే ఒకవేళ(!దత్తాంశం->సమితి.timeout || దత్తాంశం->సమితి.connect_only) {
+    తిరిగి 0; /* no timeout in place or checked, return "no limit" */
   }
 
-  if(data->set.timeout) {
-    timeleft_ms = data->set.timeout -
-                  Curl_pgrs_since_ms(data, pnow, TIMER_STARTOP);
-    if(!timeleft_ms)
+  ఒకవేళ(దత్తాంశం->సమితి.timeout) {
+    timeleft_ms = దత్తాంశం->సమితి.timeout -
+                  Curl_pgrs_since_ms(దత్తాంశం, pnow, TIMER_STARTOP);
+    ఒకవేళ(!timeleft_ms)
       timeleft_ms = -1; /* 0 is "no limit", fake 1 ms expiry */
   }
 
-  if(!ctimeleft_ms)
-    return timeleft_ms;
-  else if(!timeleft_ms)
-    return ctimeleft_ms;
-  return CURLMIN(ctimeleft_ms, timeleft_ms);
+  ఒకవేళ(!ctimeleft_ms)
+    తిరిగి timeleft_ms;
+  లేకపోతే ఒకవేళ(!timeleft_ms)
+    తిరిగి ctimeleft_ms;
+  తిరిగి CURLMIN(ctimeleft_ms, timeleft_ms);
 }
 
-timediff_t Curl_timeleft_ms(struct Curl_easy *data)
+timediff_t Curl_timeleft_ms(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return timeleft_now_ms(data, Curl_pgrs_now(data));
+  తిరిగి timeleft_now_ms(దత్తాంశం, Curl_pgrs_now(దత్తాంశం));
 }
 
-timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
-                                const struct curltime *pnow)
+timediff_t Curl_timeleft_now_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                                స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  return timeleft_now_ms(data, pnow);
+  తిరిగి timeleft_now_ms(దత్తాంశం, pnow);
 }
 
 /*
@@ -127,317 +127,317 @@ timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
  *
  * The returned socket will be CURL_SOCKET_BAD in case of failure!
  */
-curl_socket_t Curl_getconnectinfo(struct Curl_easy *data,
-                                  struct connectdata **connp)
+curl_socket_t Curl_getconnectinfo(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం connectdata **connp)
 {
   /* this works for an easy handle:
    * - that has been used for curl_easy_perform()
    * - that is associated with a multi handle, and whose connection
    *   was detached with CURLOPT_CONNECT_ONLY
    */
-  struct connectdata *conn = Curl_cpool_get_last_conn(data);
-  if(connp)
+  నిర్మాణం connectdata *conn = Curl_cpool_get_చివరి_conn(దత్తాంశం);
+  ఒకవేళ(connp)
     *connp = conn;
-  return conn ? conn->sock[FIRSTSOCKET] : CURL_SOCKET_BAD;
+  తిరిగి conn ? conn->sock[FIRSTSOCKET] : CURL_SOCKET_BAD;
 }
 
-void Curl_conncontrol(struct connectdata *conn, int ctrl)
+శూన్య Curl_conncontrol(నిర్మాణం connectdata *conn, పూర్ణాంకం ctrl)
 {
-  if(!conn) {
+  ఒకవేళ(!conn) {
     DEBUGASSERT(0);
-    return;
+    తిరిగి;
   }
-  switch(ctrl) {
-    case CONNCTRL_CONN_KEEP:
-      conn->bits.close = FALSE;
-      break;
-    case CONNCTRL_CONN_CLOSE:
-      conn->bits.close = TRUE;
-      break;
-    case CONNCTRL_STREAM_CLOSE:
+  ఎంపిక(ctrl) {
+    స్థితి CONNCTRL_CONN_KEEP:
+      conn->బిట్లు.close = FALSE;
+      ఆపు;
+    స్థితి CONNCTRL_CONN_CLOSE:
+      conn->బిట్లు.close = TRUE;
+      ఆపు;
+    స్థితి CONNCTRL_ప్రవాహం_CLOSE:
       /* stream close when multiplexing does not affect connection */
-      if(!Curl_conn_is_multiplex(conn, FIRSTSOCKET))
-        conn->bits.close = TRUE;
-      break;
-    default:
+      ఒకవేళ(!Curl_conn_is_multiplex(conn, FIRSTSOCKET))
+        conn->బిట్లు.close = TRUE;
+      ఆపు;
+    అప్రమేయ:
       DEBUGASSERT(0);
-      break;
+      ఆపు;
   }
 }
 
-CURLcode Curl_conn_setup(struct Curl_easy *data,
-                         struct connectdata *conn,
+CURLcode Curl_conn_అమరిక(నిర్మాణం Curl_easy *దత్తాంశం,
+                         నిర్మాణం connectdata *conn,
                          int8_t sockindex,
-                         int ssl_mode)
+                         పూర్ణాంకం ssl_బహుళకం)
 {
-  struct Curl_peer *first_peer = Curl_conn_get_first_peer(conn, sockindex);
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_peer *మొదటి_peer = Curl_conn_get_మొదటి_peer(conn, sockindex);
+  CURLcode ఫలితం = CURLE_OK;
   uint8_t dns_queries;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(దత్తాంశం);
   DEBUGASSERT(conn->scheme);
   DEBUGASSERT(!conn->cfilter[sockindex]);
 
-  if(!first_peer)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!మొదటి_peer)
+    తిరిగి CURLE_FAILED_INIT;
 
-#ifndef CURL_DISABLE_HTTP
-  if(!conn->cfilter[sockindex] &&
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
+  ఒకవేళ(!conn->cfilter[sockindex] &&
      conn->scheme->protocol == CURLPROTO_HTTPS) {
-    DEBUGASSERT(ssl_mode != CURL_CF_SSL_DISABLE);
-    result = Curl_cf_https_setup(
-      data, Curl_conn_get_destination(conn, sockindex), conn, sockindex);
-    if(result)
-      goto out;
+    DEBUGASSERT(ssl_బహుళకం != CURL_CF_SSL_DISABLE);
+    ఫలితం = Curl_cf_https_అమరిక(
+      దత్తాంశం, Curl_conn_get_destination(conn, sockindex), conn, sockindex);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
-#endif /* !CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP */
 
   /* Still no cfilter set, apply default. */
-  if(!conn->cfilter[sockindex]) {
-    result = Curl_cf_setup_add(data, conn, sockindex,
-                               conn->transport_wanted, ssl_mode);
-    if(result)
-      goto out;
+  ఒకవేళ(!conn->cfilter[sockindex]) {
+    ఫలితం = Curl_cf_అమరిక_కూడు(దత్తాంశం, conn, sockindex,
+                               conn->transport_wanted, ssl_బహుళకం);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
   /* Whatever the filter chain will be in the end, it will need the
    * resolving of `first_peer`. Add that now so the resolve is started
    * right away. */
-  dns_queries = Curl_resolv_dns_queries(data, conn->ip_version);
-  result = Curl_conn_dns_add_addr_resolve(data, conn, sockindex,
-                                          first_peer, dns_queries,
+  dns_queries = Curl_resolv_dns_queries(దత్తాంశం, conn->ip_సంస్కరణ);
+  ఫలితం = Curl_conn_dns_కూడు_addr_resolve(దత్తాంశం, conn, sockindex,
+                                          మొదటి_peer, dns_queries,
                                           conn->transport_wanted);
-  if(result)
-    goto out;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
   DEBUGASSERT(conn->cfilter[sockindex]);
-out:
-  return result;
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-#ifdef CURLVERBOSE
-static CURLcode conn_connect_trace(struct Curl_easy *data,
-                                   struct Curl_cfilter *cf)
+#నిర్వచితమైతే CURLVERBOSE
+స్థిర CURLcode conn_connect_trace(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం Curl_cfilter *cf)
 {
-  if(Curl_trc_is_verbose(data)) {
-    struct ip_quadruple ipquad;
+  ఒకవేళ(Curl_trc_is_verbose(దత్తాంశం)) {
+    నిర్మాణం ip_quadruple ipquad;
     bool is_ipv6;
-    CURLcode result;
+    CURLcode ఫలితం;
 
-    result = Curl_conn_cf_get_ip_info(cf, data, &is_ipv6, &ipquad);
-    if(result)
-      return result;
+    ఫలితం = Curl_conn_cf_get_ip_info(cf, దత్తాంశం, &is_ipv6, &ipquad);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
 
-    infof(data, "Established %sconnection to %s (%s port %u) from %s port %u ",
+    infof(దత్తాంశం, "Established %sconnection to %s (%s port %u) from %s port %u ",
           (cf->sockindex == SECONDARYSOCKET) ? "2nd " : "",
-          CURL_CONN_HOST_DISPNAME(data->conn),
-          ipquad.remote_ip, ipquad.remote_port,
-          ipquad.local_ip, ipquad.local_port);
+          CURL_CONN_HOST_DISPNAME(దత్తాంశం->conn),
+          ipquad.remote_ip, ipquad.remote_పోర్టు,
+          ipquad.local_ip, ipquad.local_పోర్టు);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
-#endif
+#అయితే_ముగింపు
 
 /**
  * Update connection statistics
  */
-static void conn_report_stats(struct Curl_easy *data, int sockindex)
+స్థిర శూన్య conn_report_stats(నిర్మాణం Curl_easy *దత్తాంశం, పూర్ణాంకం sockindex)
 {
   /* We do gather stats for the second socket...yet */
-  if(sockindex == FIRSTSOCKET) {
-    Curl_conn_cntrl_report_stats(data, data->conn, sockindex);
+  ఒకవేళ(sockindex == FIRSTSOCKET) {
+    Curl_conn_cntrl_report_stats(దత్తాంశం, దత్తాంశం->conn, sockindex);
   }
 }
 
-void Curl_conn_report_failed(struct Curl_easy *data, int8_t sockindex)
+శూన్య Curl_conn_report_failed(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex)
 {
-  if(!data->conn || (sockindex != FIRSTSOCKET))
-    return;
+  ఒకవేళ(!దత్తాంశం->conn || (sockindex != FIRSTSOCKET))
+    తిరిగి;
   /* Only filters connected at IP level have info to update. Filters
    * still racing for a connection, like happy eyeballing, pass it on
    * to a connected one only. */
-  (void)Curl_conn_cf_cntrl(data->conn->cfilter[sockindex], data, TRUE,
-                           CF_CTRL_CONN_INFO_UPDATE, 0, NULL);
-  conn_report_stats(data, sockindex);
+  (శూన్య)Curl_conn_cf_cntrl(దత్తాంశం->conn->cfilter[sockindex], దత్తాంశం, TRUE,
+                           CF_CTRL_CONN_INFO_UPDATE, 0, ఖాళీ);
+  conn_report_stats(దత్తాంశం, sockindex);
 }
 
-CURLcode Curl_conn_connect(struct Curl_easy *data,
+CURLcode Curl_conn_connect(నిర్మాణం Curl_easy *దత్తాంశం,
                            int8_t sockindex,
                            bool blocking,
-                           bool *done)
+                           bool *పూర్తి)
 {
-#define CF_CONN_NUM_POLLS_ON_STACK 5
-  struct pollfd a_few_on_stack[CF_CONN_NUM_POLLS_ON_STACK];
-  struct easy_pollset ps;
-  struct curl_pollfds cpfds;
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+#నిర్వచించు CF_CONN_అంకె_POLLS_ON_దొంతర 5
+  నిర్మాణం pollfd a_few_on_దొంతర[CF_CONN_అంకె_POLLS_ON_దొంతర];
+  నిర్మాణం easy_pollset ps;
+  నిర్మాణం curl_pollfds cpfds;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం = CURLE_OK;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(దత్తాంశం->conn);
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
 
-  if(data->conn->scheme->flags & PROTOPT_NONETWORK) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(దత్తాంశం->conn->scheme->flags & PROTOPT_NONETWORK) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  cf = data->conn->cfilter[sockindex];
-  if(!cf) {
-    *done = FALSE;
-    return CURLE_FAILED_INIT;
+  cf = దత్తాంశం->conn->cfilter[sockindex];
+  ఒకవేళ(!cf) {
+    *పూర్తి = FALSE;
+    తిరిగి CURLE_FAILED_INIT;
   }
 
-  *done = (bool)cf->connected;
-  if(*done)
-    return CURLE_OK;
+  *పూర్తి = (bool)cf->connected;
+  ఒకవేళ(*పూర్తి)
+    తిరిగి CURLE_OK;
 
-  if(!data->conn->connect_started.set[sockindex]) {
-    data->conn->connect_started.at[sockindex] = *Curl_pgrs_now(data);
-    data->conn->connect_started.set[sockindex] = TRUE;
+  ఒకవేళ(!దత్తాంశం->conn->connect_started.సమితి[sockindex]) {
+    దత్తాంశం->conn->connect_started.at[sockindex] = *Curl_pgrs_now(దత్తాంశం);
+    దత్తాంశం->conn->connect_started.సమితి[sockindex] = TRUE;
   }
 
   Curl_pollset_init(&ps);
-  Curl_pollfds_init(&cpfds, a_few_on_stack, CF_CONN_NUM_POLLS_ON_STACK);
-  while(!*done) {
-    if(Curl_conn_needs_flush(data, sockindex)) {
-      DEBUGF(infof(data, "Curl_conn_connect(index=%d), flush", sockindex));
-      result = Curl_conn_flush(data, sockindex);
-      if(result && (result != CURLE_AGAIN))
-        goto out;
+  Curl_pollfds_init(&cpfds, a_few_on_దొంతర, CF_CONN_అంకె_POLLS_ON_దొంతర);
+  అయితే(!*పూర్తి) {
+    ఒకవేళ(Curl_conn_needs_flush(దత్తాంశం, sockindex)) {
+      DEBUGF(infof(దత్తాంశం, "Curl_conn_connect(index=%d), flush", sockindex));
+      ఫలితం = Curl_conn_flush(దత్తాంశం, sockindex);
+      ఒకవేళ(ఫలితం && (ఫలితం != CURLE_AGAIN))
+        వెళ్ళు బహిర్గతం;
     }
 
-    result = cf->cft->do_connect(cf, data, done);
-    CURL_TRC_CF(data, cf, "Curl_conn_connect(block=%d) -> %d, done=%d",
-                blocking, (int)result, *done);
-    if(!result && *done) {
+    ఫలితం = cf->cft->do_connect(cf, దత్తాంశం, పూర్తి);
+    CURL_TRC_CF(దత్తాంశం, cf, "Curl_conn_connect(block=%d) -> %d, done=%d",
+                blocking, (పూర్ణాంకం)ఫలితం, *పూర్తి);
+    ఒకవేళ(!ఫలితం && *పూర్తి) {
       /* A final sanity check on connection security */
-      if((data->state.origin->scheme->flags & PROTOPT_SSL) &&
+      ఒకవేళ((దత్తాంశం->state.origin->scheme->flags & PROTOPT_SSL) &&
          (sockindex == FIRSTSOCKET) &&
-         !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
+         !Curl_conn_is_ssl(దత్తాంశం->conn, FIRSTSOCKET)) {
         DEBUGASSERT(0);
-        failf(data, "transfer requires SSL, but not connected via SSL");
-        result = CURLE_FAILED_INIT;
-        goto out;
+        failf(దత్తాంశం, "transfer requires SSL, but not connected via SSL");
+        ఫలితం = CURLE_FAILED_INIT;
+        వెళ్ళు బహిర్గతం;
       }
       /* Now that the complete filter chain is connected, let all filters
        * persist information at the connection. E.g. cf-socket sets the
        * socket and ip related information. */
-      Curl_conn_cntrl_update_info(data, data->conn);
-      conn_report_stats(data, sockindex);
-      Curl_cpool_conn_was_used(data, data->conn, Curl_pgrs_now(data));
-      VERBOSE(result = conn_connect_trace(data, cf));
-      VERBOSE(Curl_conn_trc_filters(data, sockindex, "connected"));
-      Curl_conn_remove_setup_filters(data, sockindex);
-      VERBOSE(Curl_conn_trc_filters(data, sockindex, "reduced to"));
-      goto out;
+      Curl_conn_cntrl_update_info(దత్తాంశం, దత్తాంశం->conn);
+      conn_report_stats(దత్తాంశం, sockindex);
+      Curl_cpool_conn_was_వాడిన(దత్తాంశం, దత్తాంశం->conn, Curl_pgrs_now(దత్తాంశం));
+      VERBOSE(ఫలితం = conn_connect_trace(దత్తాంశం, cf));
+      VERBOSE(Curl_conn_trc_filters(దత్తాంశం, sockindex, "connected"));
+      Curl_conn_remove_అమరిక_filters(దత్తాంశం, sockindex);
+      VERBOSE(Curl_conn_trc_filters(దత్తాంశం, sockindex, "reduced to"));
+      వెళ్ళు బహిర్గతం;
     }
-    else if(result) {
-      CURL_TRC_CF(data, cf, "Curl_conn_connect(), filter returned %d",
-                  (int)result);
-      VERBOSE(Curl_conn_trc_filters(data, sockindex, "failed to connect"));
-      Curl_conn_report_failed(data, sockindex);
-      goto out;
+    లేకపోతే ఒకవేళ(ఫలితం) {
+      CURL_TRC_CF(దత్తాంశం, cf, "Curl_conn_connect(), filter returned %d",
+                  (పూర్ణాంకం)ఫలితం);
+      VERBOSE(Curl_conn_trc_filters(దత్తాంశం, sockindex, "failed to connect"));
+      Curl_conn_report_failed(దత్తాంశం, sockindex);
+      వెళ్ళు బహిర్గతం;
     }
 
-    if(!blocking)
-      goto out;
-    else {
+    ఒకవేళ(!blocking)
+      వెళ్ళు బహిర్గతం;
+    లేకపోతే {
       /* check allowed time left */
-      const struct curltime *pnow = Curl_pgrs_now(data);
-      timediff_t timeout_ms = Curl_timeleft_now_ms(data, pnow);
-      curl_socket_t sockfd = Curl_conn_cf_get_socket(cf, data);
-      int rc;
+      స్థిరరాశి నిర్మాణం curltime *pnow = Curl_pgrs_now(దత్తాంశం);
+      timediff_t timeout_ms = Curl_timeleft_now_ms(దత్తాంశం, pnow);
+      curl_socket_t sockfd = Curl_conn_cf_get_socket(cf, దత్తాంశం);
+      పూర్ణాంకం rc;
 
-      if(!Curl_is_connecting(data)) {
+      ఒకవేళ(!Curl_is_connecting(దత్తాంశం)) {
         /* Past MSTATE_DO, e.g. an FTP data connection handshake in DO_MORE,
          * timeleft_now_ms() leaves the connect timeout out. Bound the wait
          * by this socket's whole connect phase, or a peer that never
          * finishes the handshake blocks forever. */
-        const struct curltime *started =
-          &data->conn->connect_started.at[sockindex];
-        timediff_t ctimeleft_ms = connect_left_ms(data,
+        స్థిరరాశి నిర్మాణం curltime *started =
+          &దత్తాంశం->conn->connect_started.at[sockindex];
+        timediff_t ctimeleft_ms = connect_ఎడమ_ms(దత్తాంశం,
           curlx_ptimediff_ms(pnow, started));
-        if(!timeout_ms || (ctimeleft_ms < timeout_ms))
+        ఒకవేళ(!timeout_ms || (ctimeleft_ms < timeout_ms))
           timeout_ms = ctimeleft_ms;
       }
 
-      if(timeout_ms < 0) {
+      ఒకవేళ(timeout_ms < 0) {
         /* no need to continue if time already is up */
-        failf(data, "connect timeout");
-        result = CURLE_OPERATION_TIMEDOUT;
-        goto out;
+        failf(దత్తాంశం, "connect timeout");
+        ఫలితం = CURLE_OPERATION_TIMEDOUT;
+        వెళ్ళు బహిర్గతం;
       }
 
-      CURL_TRC_CF(data, cf, "Curl_conn_connect(block=1), do poll");
+      CURL_TRC_CF(దత్తాంశం, cf, "Curl_conn_connect(block=1), do poll");
       Curl_pollset_reset(&ps);
       Curl_pollfds_reset(&cpfds);
       /* In general, we want to send after connect, wait on that. */
-      if(sockfd != CURL_SOCKET_BAD)
-        result = Curl_pollset_set_out_only(data, &ps, sockfd);
-      if(!result)
-        result = Curl_conn_adjust_pollset(data, data->conn, &ps);
-      if(result)
-        goto out;
-      result = Curl_pollfds_add_ps(&cpfds, &ps);
-      if(result)
-        goto out;
+      ఒకవేళ(sockfd != CURL_SOCKET_BAD)
+        ఫలితం = Curl_pollset_సమితి_బహిర్గతం_only(దత్తాంశం, &ps, sockfd);
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = Curl_conn_adjust_pollset(దత్తాంశం, దత్తాంశం->conn, &ps);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
+      ఫలితం = Curl_pollfds_కూడు_ps(&cpfds, &ps);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
 
       rc = Curl_poll(cpfds.pfds, cpfds.n,
                      CURLMIN(timeout_ms ? timeout_ms : 1000,
                              (cpfds.n ? 1000 : 10)));
-      CURL_TRC_CF(data, cf, "Curl_conn_connect(block=1), Curl_poll() -> %d",
+      CURL_TRC_CF(దత్తాంశం, cf, "Curl_conn_connect(block=1), Curl_poll() -> %d",
                   rc);
-      if(rc < 0) {
-        result = CURLE_COULDNT_CONNECT;
-        goto out;
+      ఒకవేళ(rc < 0) {
+        ఫలితం = CURLE_COULDNT_CONNECT;
+        వెళ్ళు బహిర్గతం;
       }
       /* continue iterating */
     }
   }
 
-out:
+బహిర్గతం:
   Curl_pollset_cleanup(&ps);
   Curl_pollfds_cleanup(&cpfds);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-void Curl_conn_set_multiplex(struct connectdata *conn)
+శూన్య Curl_conn_సమితి_multiplex(నిర్మాణం connectdata *conn)
 {
-  if(!conn->bits.multiplex) {
-    conn->bits.multiplex = TRUE;
-    if(conn->attached_multi) {
+  ఒకవేళ(!conn->బిట్లు.multiplex) {
+    conn->బిట్లు.multiplex = TRUE;
+    ఒకవేళ(conn->attached_multi) {
       Curl_multi_connchanged(conn->attached_multi);
     }
   }
 }
 
-struct Curl_peer *Curl_conn_get_origin(struct connectdata *conn,
+నిర్మాణం Curl_peer *Curl_conn_get_origin(నిర్మాణం connectdata *conn,
                                        int8_t sockindex)
 {
-  return (sockindex == SECONDARYSOCKET) ?
+  తిరిగి (sockindex == SECONDARYSOCKET) ?
     conn->origin2 : conn->origin;
 }
 
-struct Curl_peer *Curl_conn_get_destination(struct connectdata *conn,
+నిర్మాణం Curl_peer *Curl_conn_get_destination(నిర్మాణం connectdata *conn,
                                             int8_t sockindex)
 {
-  return (sockindex == SECONDARYSOCKET) ?
-    (conn->via_peer2 ? conn->via_peer2 : conn->origin2) :
-    (conn->via_peer ? conn->via_peer : conn->origin);
+  తిరిగి (sockindex == SECONDARYSOCKET) ?
+    (conn->ద్వారా_peer2 ? conn->ద్వారా_peer2 : conn->origin2) :
+    (conn->ద్వారా_peer ? conn->ద్వారా_peer : conn->origin);
 }
 
-struct Curl_peer *Curl_conn_get_first_peer(struct connectdata *conn,
+నిర్మాణం Curl_peer *Curl_conn_get_మొదటి_peer(నిర్మాణం connectdata *conn,
                                            int8_t sockindex)
 {
-#ifndef CURL_DISABLE_PROXY
-  if(conn->socks_proxy.peer)
-    return conn->socks_proxy.peer;
-  if(conn->http_proxy.peer)
-    return conn->http_proxy.peer;
-#endif
-  return (sockindex == SECONDARYSOCKET) ?
-    (conn->via_peer2 ? conn->via_peer2 : conn->origin2) :
-    (conn->via_peer ? conn->via_peer : conn->origin);
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+  ఒకవేళ(conn->socks_proxy.peer)
+    తిరిగి conn->socks_proxy.peer;
+  ఒకవేళ(conn->http_proxy.peer)
+    తిరిగి conn->http_proxy.peer;
+#అయితే_ముగింపు
+  తిరిగి (sockindex == SECONDARYSOCKET) ?
+    (conn->ద్వారా_peer2 ? conn->ద్వారా_peer2 : conn->origin2) :
+    (conn->ద్వారా_peer ? conn->ద్వారా_peer : conn->origin);
 }

@@ -21,206 +21,206 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "bufq.h"
-#include "cfilters.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "cw-pause.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "bufq.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "sendf.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "cw-pause.h"
 
 
 /* body dynbuf sizes */
-#define CW_PAUSE_BUF_CHUNK         (16 * 1024)
+#నిర్వచించు CW_PAUSE_BUF_CHUNK         (16 * 1024)
 /* when content decoding, write data in chunks */
-#define CW_PAUSE_DEC_WRITE_CHUNK   4096
+#నిర్వచించు CW_PAUSE_DEC_WRITE_CHUNK   4096
 
-struct cw_pause_buf {
-  struct cw_pause_buf *next;
-  struct bufq b;
-  int type;
+నిర్మాణం cw_pause_buf {
+  నిర్మాణం cw_pause_buf *తదుపరి;
+  నిర్మాణం bufq b;
+  పూర్ణాంకం type;
 };
 
-static struct cw_pause_buf *cw_pause_buf_create(int type, size_t buflen)
+స్థిర నిర్మాణం cw_pause_buf *cw_pause_buf_create(పూర్ణాంకం type, size_t buflen)
 {
-  struct cw_pause_buf *cwbuf = curlx_calloc(1, sizeof(*cwbuf));
-  if(cwbuf) {
+  నిర్మాణం cw_pause_buf *cwbuf = curlx_calloc(1, పరిమాణం(*cwbuf));
+  ఒకవేళ(cwbuf) {
     cwbuf->type = type;
-    if(type & CLIENTWRITE_BODY)
+    ఒకవేళ(type & CLIENTWRITE_BODY)
       Curl_bufq_init2(&cwbuf->b, CW_PAUSE_BUF_CHUNK, 1,
-                      (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
-    else
+                      (BUFQ_OPT_SOFT_హద్దు | BUFQ_OPT_NO_SPARES));
+    లేకపోతే
       Curl_bufq_init(&cwbuf->b, buflen, 1);
   }
-  return cwbuf;
+  తిరిగి cwbuf;
 }
 
-static void cw_pause_buf_free(struct cw_pause_buf *cwbuf)
+స్థిర శూన్య cw_pause_buf_free(నిర్మాణం cw_pause_buf *cwbuf)
 {
-  if(cwbuf) {
+  ఒకవేళ(cwbuf) {
     Curl_bufq_free(&cwbuf->b);
     curlx_free(cwbuf);
   }
 }
 
-struct cw_pause_ctx {
-  struct Curl_cwriter super;
-  struct cw_pause_buf *buf;
-  struct cw_pause_buf *tail;
-  size_t buf_total;
+నిర్మాణం cw_pause_ctx {
+  నిర్మాణం Curl_cwriter super;
+  నిర్మాణం cw_pause_buf *buf;
+  నిర్మాణం cw_pause_buf *తోక;
+  size_t buf_మొత్తం;
 };
 
-static CURLcode cw_pause_init(struct Curl_easy *data,
-                              struct Curl_cwriter *writer)
+స్థిర CURLcode cw_pause_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_cwriter *writer)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
-  (void)data;
-  ctx->buf = NULL;
-  ctx->tail = NULL;
-  return CURLE_OK;
+  నిర్మాణం cw_pause_ctx *ctx = writer->ctx;
+  (శూన్య)దత్తాంశం;
+  ctx->buf = ఖాళీ;
+  ctx->తోక = ఖాళీ;
+  తిరిగి CURLE_OK;
 }
 
-static void cw_pause_bufs_free(struct cw_pause_ctx *ctx)
+స్థిర శూన్య cw_pause_bufs_free(నిర్మాణం cw_pause_ctx *ctx)
 {
-  while(ctx->buf) {
-    struct cw_pause_buf *next = ctx->buf->next;
+  అయితే(ctx->buf) {
+    నిర్మాణం cw_pause_buf *తదుపరి = ctx->buf->తదుపరి;
     cw_pause_buf_free(ctx->buf);
-    ctx->buf = next;
+    ctx->buf = తదుపరి;
   }
-  ctx->tail = NULL;
+  ctx->తోక = ఖాళీ;
 }
 
-static void cw_pause_close(struct Curl_easy *data, struct Curl_cwriter *writer)
+స్థిర శూన్య cw_pause_close(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం Curl_cwriter *writer)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
+  నిర్మాణం cw_pause_ctx *ctx = writer->ctx;
 
-  (void)data;
+  (శూన్య)దత్తాంశం;
   cw_pause_bufs_free(ctx);
 }
 
-static CURLcode cw_pause_flush(struct Curl_easy *data,
-                               struct Curl_cwriter *cw_pause)
+స్థిర CURLcode cw_pause_flush(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_cwriter *cw_pause)
 {
-  struct cw_pause_ctx *ctx = (struct cw_pause_ctx *)cw_pause;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cw_pause_ctx *ctx = (నిర్మాణం cw_pause_ctx *)cw_pause;
+  CURLcode ఫలితం = CURLE_OK;
 
   /* write the front of the chain until it blocks or gets empty */
-  while(ctx->buf && !Curl_cwriter_is_paused(data)) {
-    struct cw_pause_buf *first = ctx->buf;
+  అయితే(ctx->buf && !Curl_cwriter_is_paused(దత్తాంశం)) {
+    నిర్మాణం cw_pause_buf *మొదటి = ctx->buf;
     size_t blen, wlen = 0;
-    const unsigned char *buf = NULL;
+    స్థిరరాశి గుర్తులేని అక్షరం *buf = ఖాళీ;
 
-    if(Curl_bufq_peek(&first->b, &buf, &blen)) {
-      int wtype = first->type;
-      wlen = (first->type & CLIENTWRITE_BODY) ?
+    ఒకవేళ(Curl_bufq_peek(&మొదటి->b, &buf, &blen)) {
+      పూర్ణాంకం wtype = మొదటి->type;
+      wlen = (మొదటి->type & CLIENTWRITE_BODY) ?
              CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
       /* EOS only goes with the very last piece, same as in cw_pause_write */
-      if((wlen < Curl_bufq_len(&first->b)) || first->next)
+      ఒకవేళ((wlen < Curl_bufq_len(&మొదటి->b)) || మొదటి->తదుపరి)
         wtype &= ~CLIENTWRITE_EOS;
-      result = Curl_cwriter_write(data, cw_pause->next, wtype,
-                                  (const char *)buf, wlen);
-      CURL_TRC_WRITE(data, "[PAUSE] flushed %zu/%zu bytes, type=%x -> %d",
-                     wlen, ctx->buf_total, (unsigned int)wtype,
-                     (int)result);
-      Curl_bufq_skip(&first->b, wlen);
-      DEBUGASSERT(ctx->buf_total >= wlen);
-      ctx->buf_total -= wlen;
-      if(result)
-        return result;
+      ఫలితం = Curl_cwriter_write(దత్తాంశం, cw_pause->తదుపరి, wtype,
+                                  (స్థిరరాశి అక్షరం *)buf, wlen);
+      CURL_TRC_WRITE(దత్తాంశం, "[PAUSE] flushed %zu/%zu bytes, type=%x -> %d",
+                     wlen, ctx->buf_మొత్తం, (గుర్తులేని పూర్ణాంకం)wtype,
+                     (పూర్ణాంకం)ఫలితం);
+      Curl_bufq_skip(&మొదటి->b, wlen);
+      DEBUGASSERT(ctx->buf_మొత్తం >= wlen);
+      ctx->buf_మొత్తం -= wlen;
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
     }
-    else if(first->type & CLIENTWRITE_EOS) {
-      result = Curl_cwriter_write(data, cw_pause->next, first->type,
-                                  (const char *)buf, 0);
-      CURL_TRC_WRITE(data, "[PAUSE] flushed 0/%zu bytes, type=%x -> %d",
-                     ctx->buf_total, (unsigned int)first->type,
-                     (int)result);
+    లేకపోతే ఒకవేళ(మొదటి->type & CLIENTWRITE_EOS) {
+      ఫలితం = Curl_cwriter_write(దత్తాంశం, cw_pause->తదుపరి, మొదటి->type,
+                                  (స్థిరరాశి అక్షరం *)buf, 0);
+      CURL_TRC_WRITE(దత్తాంశం, "[PAUSE] flushed 0/%zu bytes, type=%x -> %d",
+                     ctx->buf_మొత్తం, (గుర్తులేని పూర్ణాంకం)మొదటి->type,
+                     (పూర్ణాంకం)ఫలితం);
     }
 
-    if(Curl_bufq_is_empty(&first->b)) {
-      ctx->buf = first->next;
-      if(!ctx->buf)
-        ctx->tail = NULL;
-      cw_pause_buf_free(first);
+    ఒకవేళ(Curl_bufq_is_ఖాళీలు(&మొదటి->b)) {
+      ctx->buf = మొదటి->తదుపరి;
+      ఒకవేళ(!ctx->buf)
+        ctx->తోక = ఖాళీ;
+      cw_pause_buf_free(మొదటి);
     }
   }
 
-  if(!result)
-    result = Curl_cwriter_flush(data, cw_pause->next);
-  return result;
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = Curl_cwriter_flush(దత్తాంశం, cw_pause->తదుపరి);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cw_pause_write(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
-                               const char *buf, size_t blen)
+స్థిర CURLcode cw_pause_write(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_cwriter *writer, పూర్ణాంకం type,
+                               స్థిరరాశి అక్షరం *buf, size_t blen)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cw_pause_ctx *ctx = writer->ctx;
+  CURLcode ఫలితం = CURLE_OK;
   size_t wlen = 0;
 
-  if(ctx->buf && !Curl_cwriter_is_paused(data)) {
-    result = cw_pause_flush(data, writer);
-    if(result)
-      return result;
+  ఒకవేళ(ctx->buf && !Curl_cwriter_is_paused(దత్తాంశం)) {
+    ఫలితం = cw_pause_flush(దత్తాంశం, writer);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  while(!ctx->buf && !Curl_cwriter_is_paused(data)) {
-    int wtype = type;
+  అయితే(!ctx->buf && !Curl_cwriter_is_paused(దత్తాంశం)) {
+    పూర్ణాంకం wtype = type;
     DEBUGASSERT(!ctx->buf);
     /* content decoding might blow up size considerably, write smaller
      * chunks to make pausing need buffer less. */
     wlen = (type & CLIENTWRITE_BODY) ?
            CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
-    if(wlen < blen)
+    ఒకవేళ(wlen < blen)
       wtype &= ~CLIENTWRITE_EOS;
-    result = Curl_cwriter_write(data, writer->next, wtype, buf, wlen);
-    if(result)
-      return result;
+    ఫలితం = Curl_cwriter_write(దత్తాంశం, writer->తదుపరి, wtype, buf, wlen);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
     buf += wlen;
     blen -= wlen;
-    if(!blen)
-      return result;
+    ఒకవేళ(!blen)
+      తిరిగి ఫలితం;
   }
 
-  do {
+  చేయి {
     size_t nwritten = 0;
-    if(ctx->tail && (ctx->tail->type == type) && (type & CLIENTWRITE_BODY)) {
+    ఒకవేళ(ctx->తోక && (ctx->తోక->type == type) && (type & CLIENTWRITE_BODY)) {
       /* same type and body, append to tail buffer which has a soft
        * limit and should take everything up to OOM. */
-      result = Curl_bufq_cwrite(&ctx->tail->b, buf, blen, &nwritten);
+      ఫలితం = Curl_bufq_cwrite(&ctx->తోక->b, buf, blen, &nwritten);
     }
-    else {
+    లేకపోతే {
       /* Need a new buf, type changed */
-      struct cw_pause_buf *cwbuf = cw_pause_buf_create(type, blen);
-      if(!cwbuf)
-        return CURLE_OUT_OF_MEMORY;
-      if(ctx->tail)
-        ctx->tail->next = cwbuf;
-      else
+      నిర్మాణం cw_pause_buf *cwbuf = cw_pause_buf_create(type, blen);
+      ఒకవేళ(!cwbuf)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      ఒకవేళ(ctx->తోక)
+        ctx->తోక->తదుపరి = cwbuf;
+      లేకపోతే
         ctx->buf = cwbuf;
-      ctx->tail = cwbuf;
-      result = Curl_bufq_cwrite(&ctx->tail->b, buf, blen, &nwritten);
+      ctx->తోక = cwbuf;
+      ఫలితం = Curl_bufq_cwrite(&ctx->తోక->b, buf, blen, &nwritten);
     }
-    CURL_TRC_WRITE(data, "[PAUSE] buffer %zu more bytes of type %x, "
-                   "total=%zu -> %d", nwritten, (unsigned int)type,
-                   ctx->buf_total + wlen, (int)result);
-    if(result)
-      return result;
+    CURL_TRC_WRITE(దత్తాంశం, "[PAUSE] buffer %zu more bytes of type %x, "
+                   "total=%zu -> %d", nwritten, (గుర్తులేని పూర్ణాంకం)type,
+                   ctx->buf_మొత్తం + wlen, (పూర్ణాంకం)ఫలితం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
     buf += nwritten;
     blen -= nwritten;
-    ctx->buf_total += nwritten;
-  } while(blen);
+    ctx->buf_మొత్తం += nwritten;
+  } అయితే(blen);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-const struct Curl_cwtype Curl_cwt_pause = {
+స్థిరరాశి నిర్మాణం Curl_cwtype Curl_cwt_pause = {
   "cw-pause",
-  NULL,
+  ఖాళీ,
   0,
   cw_pause_init,
   cw_pause_write,
   cw_pause_flush,
   cw_pause_close,
-  sizeof(struct cw_pause_ctx)
+  పరిమాణం(నిర్మాణం cw_pause_ctx)
 };

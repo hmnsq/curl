@@ -21,58 +21,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if defined(_WIN32) && defined(UNICODE)
+#ఒకవేళ defined(_WIN32) && defined(UNICODE)
 
-#include "curlx/multibyte.h"
+#అన్తర్భావ "curlx/multibyte.h"
 
 /*
  * MultiByte conversions using Windows kernel32 library.
  */
 
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8)
+wchar_t *curlx_convert_UTF8_గమ్యం_wchar(స్థిరరాశి అక్షరం *str_utf8)
 {
-  wchar_t *str_w = NULL;
+  wchar_t *str_w = ఖాళీ;
 
-  if(str_utf8) {
-    int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                        str_utf8, -1, NULL, 0);
-    if(str_w_len > 0) {
-      str_w = curlx_malloc(str_w_len * sizeof(wchar_t));
-      if(str_w) {
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+  ఒకవేళ(str_utf8) {
+    పూర్ణాంకం str_w_len = Multi_Byte_గమ్యం_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                        str_utf8, -1, ఖాళీ, 0);
+    ఒకవేళ(str_w_len > 0) {
+      str_w = curlx_malloc(str_w_len * పరిమాణం(wchar_t));
+      ఒకవేళ(str_w) {
+        ఒకవేళ(Multi_Byte_గమ్యం_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
                                str_utf8, -1, str_w, str_w_len) == 0) {
           curlx_free(str_w);
-          return NULL;
+          తిరిగి ఖాళీ;
         }
       }
     }
   }
 
-  return str_w;
+  తిరిగి str_w;
 }
 
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w)
+అక్షరం *curlx_convert_wchar_గమ్యం_UTF8(స్థిరరాశి wchar_t *str_w)
 {
-  char *str_utf8 = NULL;
+  అక్షరం *str_utf8 = ఖాళీ;
 
-  if(str_w) {
-    int bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
-                                    NULL, 0, NULL, NULL);
-    if(bytes > 0) {
-      str_utf8 = curlx_malloc(bytes);
-      if(str_utf8) {
-        if(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
-                               NULL, NULL) == 0) {
+  ఒకవేళ(str_w) {
+    పూర్ణాంకం బైట్లు = Wide_Char_గమ్యం_Multi_Byte(CP_UTF8, 0, str_w, -1,
+                                    ఖాళీ, 0, ఖాళీ, ఖాళీ);
+    ఒకవేళ(బైట్లు > 0) {
+      str_utf8 = curlx_malloc(బైట్లు);
+      ఒకవేళ(str_utf8) {
+        ఒకవేళ(Wide_Char_గమ్యం_Multi_Byte(CP_UTF8, 0, str_w, -1, str_utf8, బైట్లు,
+                               ఖాళీ, ఖాళీ) == 0) {
           curlx_free(str_utf8);
-          return NULL;
+          తిరిగి ఖాళీ;
         }
       }
     }
   }
 
-  return str_utf8;
+  తిరిగి str_utf8;
 }
 
-#endif /* _WIN32 && UNICODE */
+#అయితే_ముగింపు /* _WIN32 && UNICODE */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTPSRR_H
-#define HEADER_CURL_HTTPSRR_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_HTTPSRR_H
+#నిర్వచించు శీర్షిక_CURL_HTTPSRR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,79 +23,79 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_ARES
-#include <ares.h>
-#endif
+#నిర్వచితమైతే USE_ARES
+#అన్తర్భావ <ares.h>
+#అయితే_ముగింపు
 
-#ifdef USE_HTTPSRR
+#నిర్వచితమైతే USE_HTTPSRR
 
-#define CURL_MAXLEN_HOST_NAME 253
-#define MAX_HTTPSRR_ALPNS     4
+#నిర్వచించు CURL_MAXLEN_HOST_NAME 253
+#నిర్వచించు MAX_HTTPSRR_ALPNS     4
 
-struct Curl_easy;
-struct dynbuf;
+నిర్మాణం Curl_easy;
+నిర్మాణం dynbuf;
 
-struct Curl_https_rrinfo {
+నిర్మాణం Curl_https_rrinfo {
   /*
    * Fields from HTTPS RR. The only mandatory fields are priority and target.
    * See https://datatracker.ietf.org/doc/html/rfc9460#section-14.3.2
    */
-  char *target;
-  unsigned char *ipv4hints; /* keytag = 4 */
+  అక్షరం *లక్ష్యం;
+  గుర్తులేని అక్షరం *ipv4hints; /* keytag = 4 */
   size_t ipv4hints_len;
-  unsigned char *echconfiglist; /* keytag = 5 */
+  గుర్తులేని అక్షరం *echconfiglist; /* keytag = 5 */
   size_t echconfiglist_len;
-  unsigned char *ipv6hints; /* keytag = 6 */
+  గుర్తులేని అక్షరం *ipv6hints; /* keytag = 6 */
   size_t ipv6hints_len;
-  unsigned char alpns[MAX_HTTPSRR_ALPNS]; /* keytag = 1 */
+  గుర్తులేని అక్షరం alpns[MAX_HTTPSRR_ALPNS]; /* keytag = 1 */
   /* store parsed alpnid entries in the array, end with ALPN_none */
-  uint16_t port;
-  uint16_t priority;
-  BIT(no_def_alpn); /* keytag = 2 */
-  BIT(mandatory); /* keytag = 0 */
-  BIT(port_set); /* port value has been assigned */
+  uint16_t పోర్టు;
+  uint16_t ప్రాధాన్యత;
+  బిట్టు(no_def_alpn); /* keytag = 2 */
+  బిట్టు(mandatory); /* keytag = 0 */
+  బిట్టు(పోర్టు_సమితి); /* port value has been assigned */
 };
 
-CURLcode Curl_httpsrr_set(struct Curl_https_rrinfo *rr,
-                          uint16_t rrkey, const uint8_t *val, size_t vlen);
+CURLcode Curl_httpsrr_సమితి(నిర్మాణం Curl_https_rrinfo *rr,
+                          uint16_t rrkey, స్థిరరాశి uint8_t *val, size_t vlen);
 
-void Curl_httpsrr_destroy(struct Curl_https_rrinfo *rrinfo);
+శూన్య Curl_httpsrr_destroy(నిర్మాణం Curl_https_rrinfo *rrinfo);
 
 /* TRUE if the record is applicable to the transfer and its connection. */
-bool Curl_httpsrr_applicable(struct Curl_easy *data,
-                             const struct Curl_https_rrinfo *rr);
+bool Curl_httpsrr_applicable(నిర్మాణం Curl_easy *దత్తాంశం,
+                             స్థిరరాశి నిర్మాణం Curl_https_rrinfo *rr);
 
 /* TRUE if the record is applicable to the given peer. */
-bool Curl_httpsrr_is_for_peer(struct Curl_peer *peer,
-                              const struct Curl_https_rrinfo *rr);
+bool Curl_httpsrr_is_for_peer(నిర్మాణం Curl_peer *peer,
+                              స్థిరరాశి నిర్మాణం Curl_https_rrinfo *rr);
 
 /*
  * Code points for DNS wire format SvcParams as per RFC 9460
  */
-#define HTTPS_RR_CODE_MANDATORY       0x00
-#define HTTPS_RR_CODE_ALPN            0x01
-#define HTTPS_RR_CODE_NO_DEF_ALPN     0x02
-#define HTTPS_RR_CODE_PORT            0x03
-#define HTTPS_RR_CODE_IPV4            0x04
-#define HTTPS_RR_CODE_ECH             0x05
-#define HTTPS_RR_CODE_IPV6            0x06
+#నిర్వచించు HTTPS_RR_సంకేతం_MANDATORY       0x00
+#నిర్వచించు HTTPS_RR_సంకేతం_ALPN            0x01
+#నిర్వచించు HTTPS_RR_సంకేతం_NO_DEF_ALPN     0x02
+#నిర్వచించు HTTPS_RR_సంకేతం_పోర్టు            0x03
+#నిర్వచించు HTTPS_RR_సంకేతం_IPV4            0x04
+#నిర్వచించు HTTPS_RR_సంకేతం_ECH             0x05
+#నిర్వచించు HTTPS_RR_సంకేతం_IPV6            0x06
 
-#ifdef USE_ARES
-CURLcode Curl_httpsrr_from_ares(const ares_dns_record_t *dnsrec,
-                                struct Curl_https_rrinfo **phinfo);
-#endif /* USE_ARES */
+#నిర్వచితమైతే USE_ARES
+CURLcode Curl_httpsrr_from_ares(స్థిరరాశి ares_dns_రికార్డు_t *dnsrec,
+                                నిర్మాణం Curl_https_rrinfo **phinfo);
+#అయితే_ముగింపు /* USE_ARES */
 
-#ifdef CURLVERBOSE
-CURLcode Curl_httpsrr_print(struct dynbuf *tmp,
-                            struct Curl_https_rrinfo *rr);
-void Curl_httpsrr_trace(struct Curl_easy *data,
-                        struct Curl_https_rrinfo *rr);
-#else
-#define Curl_httpsrr_trace(a, b) Curl_nop_stmt
-#endif
+#నిర్వచితమైతే CURLVERBOSE
+CURLcode Curl_httpsrr_print(నిర్మాణం dynbuf *tmp,
+                            నిర్మాణం Curl_https_rrinfo *rr);
+శూన్య Curl_httpsrr_trace(నిర్మాణం Curl_easy *దత్తాంశం,
+                        నిర్మాణం Curl_https_rrinfo *rr);
+#లేకపోతే
+#నిర్వచించు Curl_httpsrr_trace(a, b) Curl_nop_stmt
+#అయితే_ముగింపు
 
-#endif /* USE_HTTPSRR */
+#అయితే_ముగింపు /* USE_HTTPSRR */
 
-#endif /* HEADER_CURL_HTTPSRR_H */
+#అయితే_ముగింపు /* HEADER_CURL_HTTPSRR_H */

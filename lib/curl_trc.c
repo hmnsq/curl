@@ -21,150 +21,150 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "curl_trc.h"
-#include "urldata.h"
-#include "cfilters.h"
-#include "multiif.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "multiif.h"
 
-#include "cf-recvbuf.h"
-#include "cf-socket.h"
-#include "cf-setup.h"
-#include "http2.h"
-#include "http_proxy.h"
-#include "cf-h1-proxy.h"
-#include "cf-h2-proxy.h"
-#include "cf-haproxy.h"
-#include "cf-https-connect.h"
-#include "cf-ip-happy.h"
-#include "progress.h"
-#include "socks.h"
-#include "curlx/strparse.h"
-#include "vdns/cf-dns.h"
-#include "vtls/vtls.h"
-#include "vquic/vquic.h"
-#include "curlx/strcopy.h"
+#అన్తర్భావ "cf-recvbuf.h"
+#అన్తర్భావ "cf-socket.h"
+#అన్తర్భావ "cf-setup.h"
+#అన్తర్భావ "http2.h"
+#అన్తర్భావ "http_proxy.h"
+#అన్తర్భావ "cf-h1-proxy.h"
+#అన్తర్భావ "cf-h2-proxy.h"
+#అన్తర్భావ "cf-haproxy.h"
+#అన్తర్భావ "cf-https-connect.h"
+#అన్తర్భావ "cf-ip-happy.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "socks.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "vdns/cf-dns.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "vquic/vquic.h"
+#అన్తర్భావ "curlx/strcopy.h"
 
-static void trc_write(struct Curl_easy *data, curl_infotype type,
-                      const char *ptr, size_t size)
+స్థిర శూన్య trc_write(నిర్మాణం Curl_easy *దత్తాంశం, curl_infotype type,
+                      స్థిరరాశి అక్షరం *ptr, size_t కొలత)
 {
-  if(data->set.verbose) {
-    if(data->set.fdebug) {
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_fdebug);
-      (void)(*data->set.fdebug)(data, type, CURL_UNCONST(ptr), size,
-                                data->set.debugdata);
-      CURL_CBAPI_END(&guard);
+  ఒకవేళ(దత్తాంశం->సమితి.verbose) {
+    ఒకవేళ(దత్తాంశం->సమితి.fdebug) {
+      నిర్మాణం Curl_mapi_guard guard;
+      CURL_CBAPI_ప్రారంభం(&guard, దత్తాంశం, easy_fdebug);
+      (శూన్య)(*దత్తాంశం->సమితి.fdebug)(దత్తాంశం, type, CURL_UNCONST(ptr), కొలత,
+                                దత్తాంశం->సమితి.debugdata);
+      CURL_CBAPI_చివర(&guard);
     }
-    else {
-      static const char s_infotype[CURLINFO_END][3] = {
+    లేకపోతే {
+      స్థిర స్థిరరాశి అక్షరం s_infotype[CURLINFO_చివర][3] = {
         "* ", "< ", "> ", "{ ", "} ", "{ ", "} " };
-      switch(type) {
-      case CURLINFO_TEXT:
-      case CURLINFO_HEADER_OUT:
-      case CURLINFO_HEADER_IN:
-        fwrite(s_infotype[type], 2, 1, data->set.err);
-        fwrite(ptr, size, 1, data->set.err);
-        break;
-      default: /* nada */
-        break;
+      ఎంపిక(type) {
+      స్థితి CURLINFO_పాఠ్యం:
+      స్థితి CURLINFO_శీర్షిక_బహిర్గతం:
+      స్థితి CURLINFO_శీర్షిక_లోపల:
+        fwrite(s_infotype[type], 2, 1, దత్తాంశం->సమితి.err);
+        fwrite(ptr, కొలత, 1, దత్తాంశం->సమితి.err);
+        ఆపు;
+      అప్రమేయ: /* nada */
+        ఆపు;
       }
     }
   }
 }
 
 /* max length we trace before ending in '...' */
-#define TRC_LINE_MAX 2048
+#నిర్వచించు TRC_పంక్తి_MAX 2048
 
-#define CURL_TRC_FMT_IDSC   "[x-%" CURL_FORMAT_CURL_OFF_T "] "
-#define CURL_TRC_FMT_IDSD   "[%" CURL_FORMAT_CURL_OFF_T "-x] "
-#define CURL_TRC_FMT_IDSDC  "[%" CURL_FORMAT_CURL_OFF_T "-%" \
+#నిర్వచించు CURL_TRC_FMT_IDSC   "[x-%" CURL_FORMAT_CURL_OFF_T "] "
+#నిర్వచించు CURL_TRC_FMT_IDSD   "[%" CURL_FORMAT_CURL_OFF_T "-x] "
+#నిర్వచించు CURL_TRC_FMT_IDSDC  "[%" CURL_FORMAT_CURL_OFF_T "-%" \
                             CURL_FORMAT_CURL_OFF_T "] "
 
-static struct curl_trc_feat Curl_trc_feat_ids = {
+స్థిర నిర్మాణం curl_trc_feat Curl_trc_feat_ids = {
   "LIB-IDS",
   CURL_LOG_LVL_NONE,
 };
-#define CURL_TRC_IDS(data) \
-  (Curl_trc_is_verbose(data) && \
+#నిర్వచించు CURL_TRC_IDS(దత్తాంశం) \
+  (Curl_trc_is_verbose(దత్తాంశం) && \
   Curl_trc_feat_ids.log_level >= CURL_LOG_LVL_INFO)
 
-static size_t trc_print_ids(struct Curl_easy *data, char *buf, size_t maxlen)
+స్థిర size_t trc_print_ids(నిర్మాణం Curl_easy *దత్తాంశం, అక్షరం *buf, size_t maxlen)
 {
-  curl_off_t cid = data->state.last_conn_id;
-  if(data->id >= 0) {
-    if(cid >= 0)
-      return curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSDC, data->id, cid);
-    else
-      return curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSD, data->id);
+  curl_off_t cid = దత్తాంశం->state.చివరి_conn_id;
+  ఒకవేళ(దత్తాంశం->id >= 0) {
+    ఒకవేళ(cid >= 0)
+      తిరిగి curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSDC, దత్తాంశం->id, cid);
+    లేకపోతే
+      తిరిగి curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSD, దత్తాంశం->id);
   }
-  else if(cid >= 0)
-    return curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSC, cid);
-  else {
-    return curl_msnprintf(buf, maxlen, "[x-x] ");
+  లేకపోతే ఒకవేళ(cid >= 0)
+    తిరిగి curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSC, cid);
+  లేకపోతే {
+    తిరిగి curl_msnprintf(buf, maxlen, "[x-x] ");
   }
 }
 
-static size_t trc_end_buf(char *buf, size_t len, size_t maxlen, bool addnl)
+స్థిర size_t trc_చివర_buf(అక్షరం *buf, size_t len, size_t maxlen, bool addnl)
 {
   /* make sure we end the trace line in `buf` properly. It needs
    * to end with a null-terminator '\0' or '\n\0' */
-  if(len >= (maxlen - (addnl ? 2 : 1))) {
+  ఒకవేళ(len >= (maxlen - (addnl ? 2 : 1))) {
     len = maxlen - 5;
     buf[len++] = '.';
     buf[len++] = '.';
     buf[len++] = '.';
     buf[len++] = '\n';
   }
-  else if(addnl)
+  లేకపోతే ఒకవేళ(addnl)
     buf[len++] = '\n';
   buf[len] = '\0';
-  return len;
+  తిరిగి len;
 }
 
-void Curl_debug(struct Curl_easy *data, curl_infotype type,
-                const char *ptr, size_t size)
+శూన్య Curl_debug(నిర్మాణం Curl_easy *దత్తాంశం, curl_infotype type,
+                స్థిరరాశి అక్షరం *ptr, size_t కొలత)
 {
-  if(data->set.verbose) {
-    static const char s_infotype[CURLINFO_END][3] = {
+  ఒకవేళ(దత్తాంశం->సమితి.verbose) {
+    స్థిర స్థిరరాశి అక్షరం s_infotype[CURLINFO_చివర][3] = {
       "* ", "< ", "> ", "{ ", "} ", "{ ", "} " };
-    char buf[TRC_LINE_MAX];
+    అక్షరం buf[TRC_పంక్తి_MAX];
     size_t len;
-    if(data->set.fdebug) {
-      struct Curl_mapi_guard guard;
-      if(CURL_TRC_IDS(data) && (size < TRC_LINE_MAX)) {
-        len = trc_print_ids(data, buf, TRC_LINE_MAX);
-        len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "%.*s",
-                              (int)size, ptr);
-        len = trc_end_buf(buf, len, TRC_LINE_MAX, FALSE);
-        CURL_CBAPI_START(&guard, data, easy_fdebug);
-        (void)(*data->set.fdebug)(data, type, buf, len, data->set.debugdata);
-        CURL_CBAPI_END(&guard);
+    ఒకవేళ(దత్తాంశం->సమితి.fdebug) {
+      నిర్మాణం Curl_mapi_guard guard;
+      ఒకవేళ(CURL_TRC_IDS(దత్తాంశం) && (కొలత < TRC_పంక్తి_MAX)) {
+        len = trc_print_ids(దత్తాంశం, buf, TRC_పంక్తి_MAX);
+        len += curl_msnprintf(buf + len, TRC_పంక్తి_MAX - len, "%.*s",
+                              (పూర్ణాంకం)కొలత, ptr);
+        len = trc_చివర_buf(buf, len, TRC_పంక్తి_MAX, FALSE);
+        CURL_CBAPI_ప్రారంభం(&guard, దత్తాంశం, easy_fdebug);
+        (శూన్య)(*దత్తాంశం->సమితి.fdebug)(దత్తాంశం, type, buf, len, దత్తాంశం->సమితి.debugdata);
+        CURL_CBAPI_చివర(&guard);
       }
-      else {
-        CURL_CBAPI_START(&guard, data, easy_fdebug);
-        (void)(*data->set.fdebug)(data, type, CURL_UNCONST(ptr),
-                                  size, data->set.debugdata);
-        CURL_CBAPI_END(&guard);
+      లేకపోతే {
+        CURL_CBAPI_ప్రారంభం(&guard, దత్తాంశం, easy_fdebug);
+        (శూన్య)(*దత్తాంశం->సమితి.fdebug)(దత్తాంశం, type, CURL_UNCONST(ptr),
+                                  కొలత, దత్తాంశం->సమితి.debugdata);
+        CURL_CBAPI_చివర(&guard);
       }
     }
-    else {
-      switch(type) {
-      case CURLINFO_TEXT:
-      case CURLINFO_HEADER_OUT:
-      case CURLINFO_HEADER_IN:
-#ifndef CURL_DISABLE_VERBOSE_STRINGS
-        if(CURL_TRC_IDS(data)) {
-          len = trc_print_ids(data, buf, TRC_LINE_MAX);
-          fwrite(buf, len, 1, data->set.err);
+    లేకపోతే {
+      ఎంపిక(type) {
+      స్థితి CURLINFO_పాఠ్యం:
+      స్థితి CURLINFO_శీర్షిక_బహిర్గతం:
+      స్థితి CURLINFO_శీర్షిక_లోపల:
+#నిర్వచితం_కాకపోతే CURL_DISABLE_VERBOSE_అక్షరశ్రేణులు
+        ఒకవేళ(CURL_TRC_IDS(దత్తాంశం)) {
+          len = trc_print_ids(దత్తాంశం, buf, TRC_పంక్తి_MAX);
+          fwrite(buf, len, 1, దత్తాంశం->సమితి.err);
         }
-#endif
-        fwrite(s_infotype[type], 2, 1, data->set.err);
-        fwrite(ptr, size, 1, data->set.err);
-        break;
-      default: /* nada */
-        break;
+#అయితే_ముగింపు
+        fwrite(s_infotype[type], 2, 1, దత్తాంశం->సమితి.err);
+        fwrite(ptr, కొలత, 1, దత్తాంశం->సమితి.err);
+        ఆపు;
+      అప్రమేయ: /* nada */
+        ఆపు;
       }
     }
   }
@@ -173,137 +173,137 @@ void Curl_debug(struct Curl_easy *data, curl_infotype type,
 /* Curl_failf() is for messages stating why we failed.
  * The message SHALL NOT include any LF or CR.
  */
-void Curl_failf(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_failf(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(data->set.verbose || data->set.errorbuffer) {
+  ఒకవేళ(దత్తాంశం->సమితి.verbose || దత్తాంశం->సమితి.errorbuffer) {
     va_list ap;
     size_t len;
-    char error[CURL_ERROR_SIZE + 2];
+    అక్షరం error[CURL_ERROR_కొలత + 2];
     va_start(ap, fmt);
-    len = curl_mvsnprintf(error, CURL_ERROR_SIZE, fmt, ap);
+    len = curl_mvsnprintf(error, CURL_ERROR_కొలత, fmt, ap);
 
-    if(data->set.errorbuffer && !data->state.errorbuf) {
-      curlx_strcopy(data->set.errorbuffer, CURL_ERROR_SIZE, error, len);
-      data->state.errorbuf = TRUE; /* wrote error string */
+    ఒకవేళ(దత్తాంశం->సమితి.errorbuffer && !దత్తాంశం->state.errorbuf) {
+      curlx_strcopy(దత్తాంశం->సమితి.errorbuffer, CURL_ERROR_కొలత, error, len);
+      దత్తాంశం->state.errorbuf = TRUE; /* wrote error string */
     }
     error[len++] = '\n';
     error[len] = '\0';
-    trc_write(data, CURLINFO_TEXT, error, len);
+    trc_write(దత్తాంశం, CURLINFO_పాఠ్యం, error, len);
     va_end(ap);
   }
 }
 
-void Curl_reset_fail(struct Curl_easy *data)
+శూన్య Curl_reset_fail(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(data->set.errorbuffer)
-    data->set.errorbuffer[0] = 0;
-  data->state.errorbuf = FALSE;
+  ఒకవేళ(దత్తాంశం->సమితి.errorbuffer)
+    దత్తాంశం->సమితి.errorbuffer[0] = 0;
+  దత్తాంశం->state.errorbuf = FALSE;
 }
 
-#ifdef CURLVERBOSE
-struct curl_trc_feat Curl_trc_feat_multi = {
+#నిర్వచితమైతే CURLVERBOSE
+నిర్మాణం curl_trc_feat Curl_trc_feat_multi = {
   "MULTI",
   CURL_LOG_LVL_NONE,
 };
-struct curl_trc_feat Curl_trc_feat_read = {
+నిర్మాణం curl_trc_feat Curl_trc_feat_read = {
   "READ",
   CURL_LOG_LVL_NONE,
 };
-struct curl_trc_feat Curl_trc_feat_write = {
+నిర్మాణం curl_trc_feat Curl_trc_feat_write = {
   "WRITE",
   CURL_LOG_LVL_NONE,
 };
-struct curl_trc_feat Curl_trc_feat_dns = {
+నిర్మాణం curl_trc_feat Curl_trc_feat_dns = {
   "DNS",
   CURL_LOG_LVL_NONE,
 };
-#ifndef CURL_DISABLE_DOH
-struct curl_trc_feat Curl_trc_feat_doh = {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DOH
+నిర్మాణం curl_trc_feat Curl_trc_feat_doh = {
   "DoH",
   CURL_LOG_LVL_NONE,
 };
-#endif
-struct curl_trc_feat Curl_trc_feat_timer = {
+#అయితే_ముగింపు
+నిర్మాణం curl_trc_feat Curl_trc_feat_timer = {
   "TIMER",
   CURL_LOG_LVL_NONE,
 };
-#ifdef USE_THREADS
-struct curl_trc_feat Curl_trc_feat_threads = {
+#నిర్వచితమైతే USE_దారాలు
+నిర్మాణం curl_trc_feat Curl_trc_feat_దారాలు = {
   "THREADS",
   CURL_LOG_LVL_NONE,
 };
-#endif
-#endif
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#ifndef CURL_DISABLE_VERBOSE_STRINGS
+#నిర్వచితం_కాకపోతే CURL_DISABLE_VERBOSE_అక్షరశ్రేణులు
 
-static void trc_infof(struct Curl_easy *data,
-                      struct curl_trc_feat *feat,
-                      const char *opt_id, int opt_id_idx,
-                      const char * const fmt, va_list ap) CURL_PRINTF(5, 0);
+స్థిర శూన్య trc_infof(నిర్మాణం Curl_easy *దత్తాంశం,
+                      నిర్మాణం curl_trc_feat *feat,
+                      స్థిరరాశి అక్షరం *opt_id, పూర్ణాంకం opt_id_idx,
+                      స్థిరరాశి అక్షరం * స్థిరరాశి fmt, va_list ap) CURL_PRINTF(5, 0);
 
-static void trc_infof(struct Curl_easy *data,
-                      struct curl_trc_feat *feat,
-                      const char *opt_id, int opt_id_idx,
-                      const char * const fmt, va_list ap)
+స్థిర శూన్య trc_infof(నిర్మాణం Curl_easy *దత్తాంశం,
+                      నిర్మాణం curl_trc_feat *feat,
+                      స్థిరరాశి అక్షరం *opt_id, పూర్ణాంకం opt_id_idx,
+                      స్థిరరాశి అక్షరం * స్థిరరాశి fmt, va_list ap)
 {
   size_t len = 0;
-  char buf[TRC_LINE_MAX];
+  అక్షరం buf[TRC_పంక్తి_MAX];
 
-  if(CURL_TRC_IDS(data))
-    len += trc_print_ids(data, buf + len, TRC_LINE_MAX - len);
-  if(feat)
-    len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s] ", feat->name);
-  if(opt_id) {
-    if(opt_id_idx > 0)
-      len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s-%d] ",
+  ఒకవేళ(CURL_TRC_IDS(దత్తాంశం))
+    len += trc_print_ids(దత్తాంశం, buf + len, TRC_పంక్తి_MAX - len);
+  ఒకవేళ(feat)
+    len += curl_msnprintf(buf + len, TRC_పంక్తి_MAX - len, "[%s] ", feat->name);
+  ఒకవేళ(opt_id) {
+    ఒకవేళ(opt_id_idx > 0)
+      len += curl_msnprintf(buf + len, TRC_పంక్తి_MAX - len, "[%s-%d] ",
                             opt_id, opt_id_idx);
-    else
-      len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s] ", opt_id);
+    లేకపోతే
+      len += curl_msnprintf(buf + len, TRC_పంక్తి_MAX - len, "[%s] ", opt_id);
   }
-  len += curl_mvsnprintf(buf + len, TRC_LINE_MAX - len, fmt, ap);
-  len = trc_end_buf(buf, len, TRC_LINE_MAX, TRUE);
-  trc_write(data, CURLINFO_TEXT, buf, len);
+  len += curl_mvsnprintf(buf + len, TRC_పంక్తి_MAX - len, fmt, ap);
+  len = trc_చివర_buf(buf, len, TRC_పంక్తి_MAX, TRUE);
+  trc_write(దత్తాంశం, CURLINFO_పాఠ్యం, buf, len);
 }
 
-void Curl_infof(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_infof(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_is_verbose(data)) {
+  ఒకవేళ(Curl_trc_is_verbose(దత్తాంశం)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, data->state.feat, NULL, 0, fmt, ap);
+    trc_infof(దత్తాంశం, దత్తాంశం->state.feat, ఖాళీ, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
-                       const char *fmt, ...)
+శూన్య Curl_trc_cf_infof(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి నిర్మాణం Curl_cfilter *cf,
+                       స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(cf);
-  if(Curl_trc_cf_is_verbose(cf, data)) {
+  ఒకవేళ(Curl_trc_cf_is_verbose(cf, దత్తాంశం)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, data->state.feat, cf->cft->name, cf->sockindex, fmt, ap);
+    trc_infof(దత్తాంశం, దత్తాంశం->state.feat, cf->cft->name, cf->sockindex, fmt, ap);
     va_end(ap);
   }
 }
 
-void Curl_trc_feat_infof(struct Curl_easy *data,
-                         struct curl_trc_feat *feat,
-                         const char *fmt, ...)
+శూన్య Curl_trc_feat_infof(నిర్మాణం Curl_easy *దత్తాంశం,
+                         నిర్మాణం curl_trc_feat *feat,
+                         స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(feat);
-  if(Curl_trc_ft_is_verbose(data, feat)) {
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, feat)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, feat, NULL, 0, fmt, ap);
+    trc_infof(దత్తాంశం, feat, ఖాళీ, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-static const char * const Curl_trc_timer_names[] = {
+స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి Curl_trc_timer_పేర్లు[] = {
   "100_TIMEOUT",
   "ASYNC_NAME",
   "CONNECTTIMEOUT",
@@ -319,42 +319,42 @@ static const char * const Curl_trc_timer_names[] = {
   "SERVER_RESPONSE",
 };
 
-static const char *trc_timer_name(int tid)
+స్థిర స్థిరరాశి అక్షరం *trc_timer_name(పూర్ణాంకం tid)
 {
-  if((tid >= 0) && ((size_t)tid < CURL_ARRAYSIZE(Curl_trc_timer_names)))
-    return Curl_trc_timer_names[(size_t)tid];
-  return "TIMER-???";
+  ఒకవేళ((tid >= 0) && ((size_t)tid < CURL_ARRAYSIZE(Curl_trc_timer_పేర్లు)))
+    తిరిగి Curl_trc_timer_పేర్లు[(size_t)tid];
+  తిరిగి "TIMER-???";
 }
 
-void Curl_trc_timer(struct Curl_easy *data, int tid, const char *fmt, ...)
+శూన్య Curl_trc_timer(నిర్మాణం Curl_easy *దత్తాంశం, పూర్ణాంకం tid, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_timer)) {
-    const char *tname = trc_timer_name(tid);
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_timer)) {
+    స్థిరరాశి అక్షరం *tname = trc_timer_name(tid);
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_timer, tname, 0, fmt, ap);
+    trc_infof(దత్తాంశం, &Curl_trc_feat_timer, tname, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-void Curl_trc_easy_timers(struct Curl_easy *data)
+శూన్య Curl_trc_easy_timers(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(CURL_TRC_TIMER_is_verbose(data) && data->multi) {
-    if(data->state.timeouts.first < EXPIRE_LAST) {
-      struct expire_timers *timeouts = &data->state.timeouts;
-      timediff_t base_us =
-        Curl_timeouts_offset_us(&data->multi->timeouts, Curl_pgrs_now(data));
-      uint8_t id = data->state.timeouts.first;
-      for(; id < EXPIRE_LAST; id = timeouts->next[id]) {
-        CURL_TRC_TIMER(data, id, "expires in %" FMT_TIMEDIFF_T "us",
-                       timeouts->offset_us[id] - base_us);
+  ఒకవేళ(CURL_TRC_TIMER_is_verbose(దత్తాంశం) && దత్తాంశం->multi) {
+    ఒకవేళ(దత్తాంశం->state.timeouts.మొదటి < EXPIRE_చివరి) {
+      నిర్మాణం expire_timers *timeouts = &దత్తాంశం->state.timeouts;
+      timediff_t పునాది_us =
+        Curl_timeouts_స్థానభ్రంశం_us(&దత్తాంశం->multi->timeouts, Curl_pgrs_now(దత్తాంశం));
+      uint8_t id = దత్తాంశం->state.timeouts.మొదటి;
+      కొరకు(; id < EXPIRE_చివరి; id = timeouts->తదుపరి[id]) {
+        CURL_TRC_TIMER(దత్తాంశం, id, "expires in %" FMT_TIMEDIFF_T "us",
+                       timeouts->స్థానభ్రంశం_us[id] - పునాది_us);
       }
     }
   }
 }
 
-static const char * const Curl_trc_mstate_names[] = {
+స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి Curl_trc_mstate_పేర్లు[] = {
   "INIT",
   "PENDING",
   "SETUP",
@@ -373,409 +373,409 @@ static const char * const Curl_trc_mstate_names[] = {
   "MSGSENT",
 };
 
-const char *Curl_trc_mstate_name(int state)
+స్థిరరాశి అక్షరం *Curl_trc_mstate_name(పూర్ణాంకం state)
 {
-  if((state >= 0) && ((size_t)state < CURL_ARRAYSIZE(Curl_trc_mstate_names)))
-    return Curl_trc_mstate_names[(size_t)state];
-  return "?";
+  ఒకవేళ((state >= 0) && ((size_t)state < CURL_ARRAYSIZE(Curl_trc_mstate_పేర్లు)))
+    తిరిగి Curl_trc_mstate_పేర్లు[(size_t)state];
+  తిరిగి "?";
 }
 
-void Curl_trc_multi(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_multi(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_multi)) {
-    const char *sname = (data->id >= 0) ?
-                        Curl_trc_mstate_name(data->mstate) : NULL;
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_multi)) {
+    స్థిరరాశి అక్షరం *sname = (దత్తాంశం->id >= 0) ?
+                        Curl_trc_mstate_name(దత్తాంశం->mstate) : ఖాళీ;
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_multi, sname, 0, fmt, ap);
+    trc_infof(దత్తాంశం, &Curl_trc_feat_multi, sname, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-void Curl_trc_read(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_read(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_read)) {
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_read)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_read, NULL, 0, fmt, ap);
+    trc_infof(దత్తాంశం, &Curl_trc_feat_read, ఖాళీ, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-void Curl_trc_write(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_write(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_write)) {
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_write)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_write, NULL, 0, fmt, ap);
+    trc_infof(దత్తాంశం, &Curl_trc_feat_write, ఖాళీ, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-void Curl_trc_dns(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_dns(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_dns)) {
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_dns)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_dns, NULL, 0, fmt, ap);
+    trc_infof(దత్తాంశం, &Curl_trc_feat_dns, ఖాళీ, 0, fmt, ap);
     va_end(ap);
   }
 }
 
-#ifndef CURL_DISABLE_FTP
-struct curl_trc_feat Curl_trc_feat_ftp = {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_FTP
+నిర్మాణం curl_trc_feat Curl_trc_feat_ftp = {
   "FTP",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ftp(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_ftp(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ftp)) {
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_ftp)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ftp, NULL, 0, fmt, ap);
+    trc_infof(దత్తాంశం, &Curl_trc_feat_ftp, ఖాళీ, 0, fmt, ap);
     va_end(ap);
   }
 }
-#endif /* !CURL_DISABLE_FTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_FTP */
 
-#ifndef CURL_DISABLE_SMTP
-struct curl_trc_feat Curl_trc_feat_smtp = {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_SMTP
+నిర్మాణం curl_trc_feat Curl_trc_feat_smtp = {
   "SMTP",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_smtp(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_smtp(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_smtp)) {
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_smtp)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_smtp, NULL, 0, fmt, ap);
+    trc_infof(దత్తాంశం, &Curl_trc_feat_smtp, ఖాళీ, 0, fmt, ap);
     va_end(ap);
   }
 }
-#endif /* !CURL_DISABLE_SMTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_SMTP */
 
-#ifdef USE_SSL
-struct curl_trc_feat Curl_trc_feat_ssls = {
+#నిర్వచితమైతే USE_SSL
+నిర్మాణం curl_trc_feat Curl_trc_feat_ssls = {
   "SSLS",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ssls(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_ssls(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssls)) {
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_ssls)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ssls, NULL, 0, fmt, ap);
+    trc_infof(దత్తాంశం, &Curl_trc_feat_ssls, ఖాళీ, 0, fmt, ap);
     va_end(ap);
   }
 }
-#endif /* USE_SSL */
+#అయితే_ముగింపు /* USE_SSL */
 
-#ifdef USE_SSH
-struct curl_trc_feat Curl_trc_feat_ssh = {
+#నిర్వచితమైతే USE_SSH
+నిర్మాణం curl_trc_feat Curl_trc_feat_ssh = {
   "SSH",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ssh(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_ssh(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssh)) {
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_ssh)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ssh, NULL, 0, fmt, ap);
+    trc_infof(దత్తాంశం, &Curl_trc_feat_ssh, ఖాళీ, 0, fmt, ap);
     va_end(ap);
   }
 }
-#endif /* USE_SSH */
+#అయితే_ముగింపు /* USE_SSH */
 
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-struct curl_trc_feat Curl_trc_feat_ws = {
+#ఒకవేళ !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+నిర్మాణం curl_trc_feat Curl_trc_feat_ws = {
   "WS",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ws(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_ws(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
   DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ws)) {
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_ws)) {
     va_list ap;
     va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ws, NULL, 0, fmt, ap);
+    trc_infof(దత్తాంశం, &Curl_trc_feat_ws, ఖాళీ, 0, fmt, ap);
     va_end(ap);
   }
 }
-#endif /* !CURL_DISABLE_WEBSOCKETS && !CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_WEBSOCKETS && !CURL_DISABLE_HTTP */
 
-#define TRC_CT_NONE        0
-#define TRC_CT_PROTOCOL    (1 << 0)
-#define TRC_CT_NETWORK     (1 << 1)
-#define TRC_CT_PROXY       (1 << 2)
-#define TRC_CT_INTERNALS   (1 << 3)
+#నిర్వచించు TRC_CT_NONE        0
+#నిర్వచించు TRC_CT_PROTOCOL    (1 << 0)
+#నిర్వచించు TRC_CT_జాలం     (1 << 1)
+#నిర్వచించు TRC_CT_PROXY       (1 << 2)
+#నిర్వచించు TRC_CT_INTERNALS   (1 << 3)
 
-struct trc_feat_def {
-  struct curl_trc_feat *feat;
-  unsigned int category;
+నిర్మాణం trc_feat_def {
+  నిర్మాణం curl_trc_feat *feat;
+  గుర్తులేని పూర్ణాంకం category;
 };
 
-static struct trc_feat_def trc_feats[] = {
+స్థిర నిర్మాణం trc_feat_def trc_feats[] = {
   { &Curl_trc_feat_ids,       TRC_CT_INTERNALS },
-  { &Curl_trc_feat_multi,     TRC_CT_NETWORK },
+  { &Curl_trc_feat_multi,     TRC_CT_జాలం },
   { &Curl_trc_feat_read,      TRC_CT_NONE },
   { &Curl_trc_feat_write,     TRC_CT_NONE },
-  { &Curl_trc_feat_dns,       TRC_CT_NETWORK },
-#ifndef CURL_DISABLE_DOH
-  { &Curl_trc_feat_doh,       TRC_CT_NETWORK },
-#endif
-  { &Curl_trc_feat_timer,     TRC_CT_NETWORK },
-#ifdef USE_THREADS
-  { &Curl_trc_feat_threads,   TRC_CT_NONE },
-#endif
-#ifndef CURL_DISABLE_FTP
+  { &Curl_trc_feat_dns,       TRC_CT_జాలం },
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DOH
+  { &Curl_trc_feat_doh,       TRC_CT_జాలం },
+#అయితే_ముగింపు
+  { &Curl_trc_feat_timer,     TRC_CT_జాలం },
+#నిర్వచితమైతే USE_దారాలు
+  { &Curl_trc_feat_దారాలు,   TRC_CT_NONE },
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_FTP
   { &Curl_trc_feat_ftp,       TRC_CT_PROTOCOL },
-#endif
-#ifndef CURL_DISABLE_SMTP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_SMTP
   { &Curl_trc_feat_smtp,      TRC_CT_PROTOCOL },
-#endif
-#ifdef USE_SSL
-  { &Curl_trc_feat_ssls,      TRC_CT_NETWORK },
-#endif
-#ifdef USE_SSH
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSL
+  { &Curl_trc_feat_ssls,      TRC_CT_జాలం },
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSH
   { &Curl_trc_feat_ssh,       TRC_CT_PROTOCOL },
-#endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#అయితే_ముగింపు
+#ఒకవేళ !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
   { &Curl_trc_feat_ws,        TRC_CT_PROTOCOL },
-#endif
+#అయితే_ముగింపు
 };
 
-struct trc_cft_def {
-  struct Curl_cftype *cft;
-  unsigned int category;
+నిర్మాణం trc_cft_def {
+  నిర్మాణం Curl_cftype *cft;
+  గుర్తులేని పూర్ణాంకం category;
 };
 
-static struct trc_cft_def trc_cfts[] = {
-  { &Curl_cft_dns,            TRC_CT_NETWORK },
-  { &Curl_cft_tcp,            TRC_CT_NETWORK },
-  { &Curl_cft_udp,            TRC_CT_NETWORK },
-  { &Curl_cft_unix,           TRC_CT_NETWORK },
-  { &Curl_cft_tcp_accept,     TRC_CT_NETWORK },
-  { &Curl_cft_ip_happy,       TRC_CT_NETWORK },
-#ifndef CURL_DISABLE_WEBSOCKETS
+స్థిర నిర్మాణం trc_cft_def trc_cfts[] = {
+  { &Curl_cft_dns,            TRC_CT_జాలం },
+  { &Curl_cft_tcp,            TRC_CT_జాలం },
+  { &Curl_cft_udp,            TRC_CT_జాలం },
+  { &Curl_cft_unix,           TRC_CT_జాలం },
+  { &Curl_cft_tcp_accept,     TRC_CT_జాలం },
+  { &Curl_cft_ip_happy,       TRC_CT_జాలం },
+#నిర్వచితం_కాకపోతే CURL_DISABLE_WEBSOCKETS
   { &Curl_cft_recvbuf,        TRC_CT_PROTOCOL },
-#endif
-  { &Curl_cft_setup,          TRC_CT_PROTOCOL },
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+#అయితే_ముగింపు
+  { &Curl_cft_అమరిక,          TRC_CT_PROTOCOL },
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
   { &Curl_cft_nghttp2,        TRC_CT_PROTOCOL },
-#endif
-#ifdef USE_SSL
-  { &Curl_cft_ssl,            TRC_CT_NETWORK },
-#ifndef CURL_DISABLE_PROXY
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSL
+  { &Curl_cft_ssl,            TRC_CT_జాలం },
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
   { &Curl_cft_ssl_proxy,      TRC_CT_PROXY },
-#endif
-#endif
-#ifndef CURL_DISABLE_PROXY
-#ifndef CURL_DISABLE_HTTP
+#అయితే_ముగింపు
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
   { &Curl_cft_h1_proxy,       TRC_CT_PROXY },
-#ifdef USE_NGHTTP2
+#నిర్వచితమైతే USE_NGHTTP2
   { &Curl_cft_h2_proxy,       TRC_CT_PROXY },
-#endif
-#if defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3)
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3)
   { &Curl_cft_h3_proxy,       TRC_CT_PROXY },
-#endif
+#అయితే_ముగింపు
   { &Curl_cft_http_proxy,     TRC_CT_PROXY },
-#endif /* !CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP */
   { &Curl_cft_haproxy,        TRC_CT_PROXY },
   { &Curl_cft_socks_proxy,    TRC_CT_PROXY },
-#endif /* !CURL_DISABLE_PROXY */
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY */
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   { &Curl_cft_http3,          TRC_CT_PROTOCOL },
-#endif
-#ifndef CURL_DISABLE_HTTP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
   { &Curl_cft_http_connect,   TRC_CT_PROTOCOL },
-#endif
+#అయితే_ముగింపు
 };
 
-static void trc_apply_level_by_name(struct Curl_str *token, int lvl)
+స్థిర శూన్య trc_apply_level_by_name(నిర్మాణం Curl_str *token, పూర్ణాంకం lvl)
 {
   size_t i;
 
-  for(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
-    if(curlx_str_casecompare(token, trc_cfts[i].cft->name)) {
+  కొరకు(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
+    ఒకవేళ(curlx_str_casecompare(token, trc_cfts[i].cft->name)) {
       trc_cfts[i].cft->log_level = lvl;
-      break;
+      ఆపు;
     }
   }
-  for(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
-    if(curlx_str_casecompare(token, trc_feats[i].feat->name)) {
+  కొరకు(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
+    ఒకవేళ(curlx_str_casecompare(token, trc_feats[i].feat->name)) {
       trc_feats[i].feat->log_level = lvl;
-      break;
+      ఆపు;
     }
   }
 }
 
-static void trc_apply_level_by_category(unsigned int category, int lvl)
+స్థిర శూన్య trc_apply_level_by_category(గుర్తులేని పూర్ణాంకం category, పూర్ణాంకం lvl)
 {
   size_t i;
 
-  for(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
-    if(!category || (trc_cfts[i].category & category))
+  కొరకు(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
+    ఒకవేళ(!category || (trc_cfts[i].category & category))
       trc_cfts[i].cft->log_level = lvl;
   }
-  for(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
-    if(!category || (trc_feats[i].category & category))
+  కొరకు(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
+    ఒకవేళ(!category || (trc_feats[i].category & category))
       trc_feats[i].feat->log_level = lvl;
   }
 }
 
-static CURLcode trc_opt(const char *config)
+స్థిర CURLcode trc_opt(స్థిరరాశి అక్షరం *config)
 {
-  struct Curl_str out;
-  while(!curlx_str_until(&config, &out, 32, ',')) {
-    int lvl = CURL_LOG_LVL_INFO;
-    const char *token = curlx_str(&out);
+  నిర్మాణం Curl_str బహిర్గతం;
+  అయితే(!curlx_str_until(&config, &బహిర్గతం, 32, ',')) {
+    పూర్ణాంకం lvl = CURL_LOG_LVL_INFO;
+    స్థిరరాశి అక్షరం *token = curlx_str(&బహిర్గతం);
 
-    if(*token == '-') {
+    ఒకవేళ(*token == '-') {
       lvl = CURL_LOG_LVL_NONE;
-      curlx_str_nudge(&out, 1);
+      curlx_str_nudge(&బహిర్గతం, 1);
     }
-    else if(*token == '+')
-      curlx_str_nudge(&out, 1);
+    లేకపోతే ఒకవేళ(*token == '+')
+      curlx_str_nudge(&బహిర్గతం, 1);
 
-    if(curlx_str_casecompare(&out, "all"))
+    ఒకవేళ(curlx_str_casecompare(&బహిర్గతం, "all"))
       trc_apply_level_by_category(TRC_CT_NONE, lvl);
-    else if(curlx_str_casecompare(&out, "protocol"))
+    లేకపోతే ఒకవేళ(curlx_str_casecompare(&బహిర్గతం, "protocol"))
       trc_apply_level_by_category(TRC_CT_PROTOCOL, lvl);
-    else if(curlx_str_casecompare(&out, "network"))
-      trc_apply_level_by_category(TRC_CT_NETWORK, lvl);
-    else if(curlx_str_casecompare(&out, "proxy"))
+    లేకపోతే ఒకవేళ(curlx_str_casecompare(&బహిర్గతం, "network"))
+      trc_apply_level_by_category(TRC_CT_జాలం, lvl);
+    లేకపోతే ఒకవేళ(curlx_str_casecompare(&బహిర్గతం, "proxy"))
       trc_apply_level_by_category(TRC_CT_PROXY, lvl);
-    else
-      trc_apply_level_by_name(&out, lvl);
+    లేకపోతే
+      trc_apply_level_by_name(&బహిర్గతం, lvl);
 
-    if(curlx_str_single(&config, ','))
-      break;
+    ఒకవేళ(curlx_str_single(&config, ','))
+      ఆపు;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_trc_opt(const char *config)
+CURLcode Curl_trc_opt(స్థిరరాశి అక్షరం *config)
 {
-  CURLcode result = config ? trc_opt(config) : CURLE_OK;
-#ifdef DEBUGBUILD
+  CURLcode ఫలితం = config ? trc_opt(config) : CURLE_OK;
+#నిర్వచితమైతే DEBUGBUILD
   /* CURL_DEBUG can override anything */
-  if(!result) {
-    const char *dbg_config = getenv("CURL_DEBUG");
-    if(dbg_config)
-      result = trc_opt(dbg_config);
+  ఒకవేళ(!ఫలితం) {
+    స్థిరరాశి అక్షరం *dbg_config = getenv("CURL_DEBUG");
+    ఒకవేళ(dbg_config)
+      ఫలితం = trc_opt(dbg_config);
   }
-#endif /* DEBUGBUILD */
-  return result;
+#అయితే_ముగింపు /* DEBUGBUILD */
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_trc_init(void)
+CURLcode Curl_trc_init(శూన్య)
 {
-#ifdef DEBUGBUILD
-  return Curl_trc_opt(NULL);
-#else
-  return CURLE_OK;
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+  తిరిగి Curl_trc_opt(ఖాళీ);
+#లేకపోతే
+  తిరిగి CURLE_OK;
+#అయితే_ముగింపు
 }
 
-#else /* CURL_DISABLE_VERBOSE_STRINGS */
+#లేకపోతే /* CURL_DISABLE_VERBOSE_STRINGS */
 
-CURLcode Curl_trc_init(void)
+CURLcode Curl_trc_init(శూన్య)
 {
-  return CURLE_OK;
-}
-
-void Curl_infof(struct Curl_easy *data, const char *fmt, ...)
-{
-  (void)data;
-  (void)fmt;
+  తిరిగి CURLE_OK;
 }
 
-void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
-                       const char *fmt, ...)
+శూన్య Curl_infof(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
-  (void)data;
-  (void)cf;
-  (void)fmt;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)fmt;
 }
 
-void Curl_trc_multi(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_cf_infof(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి నిర్మాణం Curl_cfilter *cf,
+                       స్థిరరాశి అక్షరం *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)cf;
+  (శూన్య)fmt;
 }
 
-void Curl_trc_write(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_multi(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)fmt;
 }
 
-void Curl_trc_dns(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_write(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)fmt;
 }
 
-void Curl_trc_timer(struct Curl_easy *data, int tid, const char *fmt, ...)
+శూన్య Curl_trc_dns(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
-  (void)data;
-  (void)tid;
-  (void)fmt;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)fmt;
 }
 
-void Curl_trc_read(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_timer(నిర్మాణం Curl_easy *దత్తాంశం, పూర్ణాంకం tid, స్థిరరాశి అక్షరం *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)tid;
+  (శూన్య)fmt;
 }
 
-#ifndef CURL_DISABLE_FTP
-void Curl_trc_ftp(struct Curl_easy *data, const char *fmt, ...)
+శూన్య Curl_trc_read(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)fmt;
 }
-#endif
-#ifndef CURL_DISABLE_SMTP
-void Curl_trc_smtp(struct Curl_easy *data, const char *fmt, ...)
-{
-  (void)data;
-  (void)fmt;
-}
-#endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-void Curl_trc_ws(struct Curl_easy *data, const char *fmt, ...)
-{
-  (void)data;
-  (void)fmt;
-}
-#endif
-#ifdef USE_SSH
-void Curl_trc_ssh(struct Curl_easy *data, const char *fmt, ...)
-{
-  (void)data;
-  (void)fmt;
-}
-#endif
-#ifdef USE_SSL
-void Curl_trc_ssls(struct Curl_easy *data, const char *fmt, ...)
-{
-  (void)data;
-  (void)fmt;
-}
-#endif
 
-#endif /* !CURL_DISABLE_VERBOSE_STRINGS */
+#నిర్వచితం_కాకపోతే CURL_DISABLE_FTP
+శూన్య Curl_trc_ftp(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
+{
+  (శూన్య)దత్తాంశం;
+  (శూన్య)fmt;
+}
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_SMTP
+శూన్య Curl_trc_smtp(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
+{
+  (శూన్య)దత్తాంశం;
+  (శూన్య)fmt;
+}
+#అయితే_ముగింపు
+#ఒకవేళ !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+శూన్య Curl_trc_ws(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
+{
+  (శూన్య)దత్తాంశం;
+  (శూన్య)fmt;
+}
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSH
+శూన్య Curl_trc_ssh(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
+{
+  (శూన్య)దత్తాంశం;
+  (శూన్య)fmt;
+}
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSL
+శూన్య Curl_trc_ssls(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *fmt, ...)
+{
+  (శూన్య)దత్తాంశం;
+  (శూన్య)fmt;
+}
+#అయితే_ముగింపు
+
+#అయితే_ముగింపు /* !CURL_DISABLE_VERBOSE_STRINGS */

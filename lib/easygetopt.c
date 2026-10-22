@@ -21,77 +21,77 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "easyoptions.h"
+#అన్తర్భావ "easyoptions.h"
 
-#ifndef CURL_DISABLE_GETOPTIONS
+#నిర్వచితం_కాకపోతే CURL_DISABLE_GETOPTIONS
 
 /* Lookups easy options at runtime */
-static const struct curl_easyoption *lookup(const char *name, CURLoption id)
+స్థిర స్థిరరాశి నిర్మాణం curl_easyoption *lookup(స్థిరరాశి అక్షరం *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
-    const struct curl_easyoption *o = &Curl_easyopts[0];
-    do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+  ఒకవేళ(name || id) {
+    స్థిరరాశి నిర్మాణం curl_easyoption *o = &Curl_easyopts[0];
+    చేయి {
+      ఒకవేళ(name) {
+        ఒకవేళ(curl_strequal(o->name, name))
+          తిరిగి o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      లేకపోతే {
+        ఒకవేళ((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          తిరిగి o;
       }
       o++;
-    } while(o->name);
+    } అయితే(o->name);
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+స్థిరరాశి నిర్మాణం curl_easyoption *curl_easy_option_by_name(స్థిరరాశి అక్షరం *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  తిరిగి lookup(name, CURLOPT_LASTENTRY);
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+స్థిరరాశి నిర్మాణం curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  తిరిగి lookup(ఖాళీ, id);
 }
 
 /* Iterates over available options */
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+స్థిరరాశి నిర్మాణం curl_easyoption *curl_easy_option_తదుపరి(
+  స్థిరరాశి నిర్మాణం curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  ఒకవేళ(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    ఒకవేళ(prev->name)
+      తిరిగి prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  లేకపోతే ఒకవేళ(!prev)
+    తిరిగి &Curl_easyopts[0];
+  తిరిగి ఖాళీ;
 }
 
-#else
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+#లేకపోతే
+స్థిరరాశి నిర్మాణం curl_easyoption *curl_easy_option_by_name(స్థిరరాశి అక్షరం *name)
 {
-  (void)name;
-  return NULL;
+  (శూన్య)name;
+  తిరిగి ఖాళీ;
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+స్థిరరాశి నిర్మాణం curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  (void)id;
-  return NULL;
+  (శూన్య)id;
+  తిరిగి ఖాళీ;
 }
 
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+స్థిరరాశి నిర్మాణం curl_easyoption *curl_easy_option_తదుపరి(
+  స్థిరరాశి నిర్మాణం curl_easyoption *prev)
 {
-  (void)prev;
-  return NULL;
+  (శూన్య)prev;
+  తిరిగి ఖాళీ;
 }
-#endif
+#అయితే_ముగింపు

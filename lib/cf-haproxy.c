@@ -21,40 +21,40 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "cf-haproxy.h"
-#include "connect.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "select.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "cf-haproxy.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "curl_addrinfo.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "select.h"
 
 
-typedef enum {
+రకనిర్వచనం గణన {
   HAPROXY_INIT,     /* init/default/no tunnel state */
   HAPROXY_SEND,     /* data_out being sent */
-  HAPROXY_DONE      /* all work done */
+  HAPROXY_పూర్తి      /* all work done */
 } haproxy_state;
 
-struct cf_haproxy_ctx {
-  int state;
-  struct dynbuf data_out;
+నిర్మాణం cf_haproxy_ctx {
+  పూర్ణాంకం state;
+  నిర్మాణం dynbuf దత్తాంశం_బహిర్గతం;
 };
 
-static void cf_haproxy_ctx_free(struct cf_haproxy_ctx *ctx)
+స్థిర శూన్య cf_haproxy_ctx_free(నిర్మాణం cf_haproxy_ctx *ctx)
 {
-  if(ctx) {
-    curlx_dyn_free(&ctx->data_out);
+  ఒకవేళ(ctx) {
+    curlx_dyn_free(&ctx->దత్తాంశం_బహిర్గతం);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data)
+స్థిర CURLcode cf_haproxy_date_బహిర్గతం_సమితి(నిర్మాణం Curl_cfilter *cf,
+                                        నిర్మాణం Curl_easy *దత్తాంశం)
 {
   /* We fake a client connection report to the upstream server
    * with the HAProxy protocol, reporting the client's source
@@ -62,132 +62,132 @@ static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
    * addresses: either the ones used to talk to the upstream
    *            OR the value supplied by the user
    * ports: the ports used in the upstream connection */
-  const char *client_source_ip;
-  const char *client_dest_ip;
-  struct cf_haproxy_ctx *ctx = cf->ctx;
-  CURLcode result;
-  struct ip_quadruple ipquad;
+  స్థిరరాశి అక్షరం *client_ఆధారం_ip;
+  స్థిరరాశి అక్షరం *client_dest_ip;
+  నిర్మాణం cf_haproxy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం;
+  నిర్మాణం ip_quadruple ipquad;
   bool is_ipv6;
 
   DEBUGASSERT(ctx);
   DEBUGASSERT(ctx->state == HAPROXY_INIT);
-#ifdef USE_UNIX_SOCKETS
-  if(Curl_conn_get_first_peer(cf->conn, cf->sockindex)->unix_socket)
+#నిర్వచితమైతే USE_UNIX_SOCKETS
+  ఒకవేళ(Curl_conn_get_మొదటి_peer(cf->conn, cf->sockindex)->unix_socket)
     /* the buffer is large enough to hold this! */
-    result = curlx_dyn_addn(&ctx->data_out, STRCONST("PROXY UNKNOWN\r\n"));
-  else {
-#endif /* USE_UNIX_SOCKETS */
-  result = Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad);
-  if(result)
-    return result;
+    ఫలితం = curlx_dyn_addn(&ctx->దత్తాంశం_బహిర్గతం, STRCONST("PROXY UNKNOWN\r\n"));
+  లేకపోతే {
+#అయితే_ముగింపు /* USE_UNIX_SOCKETS */
+  ఫలితం = Curl_conn_cf_get_ip_info(cf->తదుపరి, దత్తాంశం, &is_ipv6, &ipquad);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  client_source_ip = CURL_EASY_STR(data, STRING_HAPROXY_CLIENT_IP);
-  if(client_source_ip) {
-    client_dest_ip = client_source_ip;
-    is_ipv6 = !Curl_is_ipv4addr(client_source_ip);
+  client_ఆధారం_ip = CURL_EASY_STR(దత్తాంశం, STRING_HAPROXY_CLIENT_IP);
+  ఒకవేళ(client_ఆధారం_ip) {
+    client_dest_ip = client_ఆధారం_ip;
+    is_ipv6 = !Curl_is_ipv4addr(client_ఆధారం_ip);
   }
-  else {
-    client_source_ip = ipquad.local_ip;
+  లేకపోతే {
+    client_ఆధారం_ip = ipquad.local_ip;
     client_dest_ip = ipquad.remote_ip;
   }
 
-  result = curlx_dyn_addf(&ctx->data_out, "PROXY %s %s %s %d %d\r\n",
+  ఫలితం = curlx_dyn_addf(&ctx->దత్తాంశం_బహిర్గతం, "PROXY %s %s %s %d %d\r\n",
                           is_ipv6 ? "TCP6" : "TCP4",
-                          client_source_ip, client_dest_ip,
-                          ipquad.local_port, ipquad.remote_port);
+                          client_ఆధారం_ip, client_dest_ip,
+                          ipquad.local_పోర్టు, ipquad.remote_పోర్టు);
 
-#ifdef USE_UNIX_SOCKETS
+#నిర్వచితమైతే USE_UNIX_SOCKETS
   }
-#endif /* USE_UNIX_SOCKETS */
-  return result;
+#అయితే_ముగింపు /* USE_UNIX_SOCKETS */
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_haproxy_connect(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   bool *done)
+స్థిర CURLcode cf_haproxy_connect(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   bool *పూర్తి)
 {
-  struct cf_haproxy_ctx *ctx = cf->ctx;
-  CURLcode result;
+  నిర్మాణం cf_haproxy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం;
   size_t len;
 
   DEBUGASSERT(ctx);
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->connected) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  result = cf->next->cft->do_connect(cf->next, data, done);
-  if(result || !*done)
-    return result;
+  ఫలితం = cf->తదుపరి->cft->do_connect(cf->తదుపరి, దత్తాంశం, పూర్తి);
+  ఒకవేళ(ఫలితం || !*పూర్తి)
+    తిరిగి ఫలితం;
 
-  switch(ctx->state) {
-  case HAPROXY_INIT:
-    result = cf_haproxy_date_out_set(cf, data);
-    if(result)
-      goto out;
+  ఎంపిక(ctx->state) {
+  స్థితి HAPROXY_INIT:
+    ఫలితం = cf_haproxy_date_బహిర్గతం_సమితి(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
     ctx->state = HAPROXY_SEND;
     FALLTHROUGH();
-  case HAPROXY_SEND:
-    len = curlx_dyn_len(&ctx->data_out);
-    if(len > 0) {
+  స్థితి HAPROXY_SEND:
+    len = curlx_dyn_len(&ctx->దత్తాంశం_బహిర్గతం);
+    ఒకవేళ(len > 0) {
       size_t nwritten;
-      result = Curl_conn_cf_send(cf->next, data,
-                                 curlx_dyn_uptr(&ctx->data_out), len, FALSE,
+      ఫలితం = Curl_conn_cf_send(cf->తదుపరి, దత్తాంశం,
+                                 curlx_dyn_uptr(&ctx->దత్తాంశం_బహిర్గతం), len, FALSE,
                                  &nwritten);
-      if(result) {
-        if(result != CURLE_AGAIN)
-          goto out;
-        result = CURLE_OK;
+      ఒకవేళ(ఫలితం) {
+        ఒకవేళ(ఫలితం != CURLE_AGAIN)
+          వెళ్ళు బహిర్గతం;
+        ఫలితం = CURLE_OK;
         nwritten = 0;
       }
-      curlx_dyn_tail(&ctx->data_out, len - nwritten);
-      if(curlx_dyn_len(&ctx->data_out) > 0) {
-        result = CURLE_OK;
-        goto out;
+      curlx_dyn_తోక(&ctx->దత్తాంశం_బహిర్గతం, len - nwritten);
+      ఒకవేళ(curlx_dyn_len(&ctx->దత్తాంశం_బహిర్గతం) > 0) {
+        ఫలితం = CURLE_OK;
+        వెళ్ళు బహిర్గతం;
       }
     }
-    ctx->state = HAPROXY_DONE;
+    ctx->state = HAPROXY_పూర్తి;
     FALLTHROUGH();
-  default:
-    curlx_dyn_free(&ctx->data_out);
-    break;
+  అప్రమేయ:
+    curlx_dyn_free(&ctx->దత్తాంశం_బహిర్గతం);
+    ఆపు;
   }
 
-out:
-  *done = (!result) && (ctx->state == HAPROXY_DONE);
-  cf->connected = *done;
-  return result;
+బహిర్గతం:
+  *పూర్తి = (!ఫలితం) && (ctx->state == HAPROXY_పూర్తి);
+  cf->connected = *పూర్తి;
+  తిరిగి ఫలితం;
 }
 
-static void cf_haproxy_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+స్థిర శూన్య cf_haproxy_destroy(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  CURL_TRC_CF(data, cf, "destroy");
+  CURL_TRC_CF(దత్తాంశం, cf, "destroy");
   cf_haproxy_ctx_free(cf->ctx);
 }
 
-static CURLcode cf_haproxy_adjust_pollset(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+స్థిర CURLcode cf_haproxy_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                          నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం easy_pollset *ps)
 {
-  if(cf->next->connected && !cf->connected) {
+  ఒకవేళ(cf->తదుపరి->connected && !cf->connected) {
     /* If we are not connected, but the filter "below" is
      * and not waiting on something, we are sending. */
-    return Curl_pollset_set_out_only(
-      data, ps, Curl_conn_cf_get_socket(cf, data));
+    తిరిగి Curl_pollset_సమితి_బహిర్గతం_only(
+      దత్తాంశం, ps, Curl_conn_cf_get_socket(cf, దత్తాంశం));
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-struct Curl_cftype Curl_cft_haproxy = {
+నిర్మాణం Curl_cftype Curl_cft_haproxy = {
   "HAPROXY",
-  CF_TYPE_PROXY | CF_TYPE_SETUP,
+  CF_TYPE_PROXY | CF_TYPE_అమరిక,
   0,
   cf_haproxy_destroy,
   cf_haproxy_connect,
   Curl_cf_def_shutdown,
   cf_haproxy_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_దత్తాంశం_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -196,46 +196,46 @@ struct Curl_cftype Curl_cft_haproxy = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_haproxy_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data)
+స్థిర CURLcode cf_haproxy_create(నిర్మాణం Curl_cfilter **pcf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_haproxy_ctx *ctx;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf = ఖాళీ;
+  నిర్మాణం cf_haproxy_ctx *ctx;
+  CURLcode ఫలితం;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (శూన్య)దత్తాంశం;
+  ctx = curlx_calloc(1, పరిమాణం(*ctx));
+  ఒకవేళ(!ctx) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
   ctx->state = HAPROXY_INIT;
-  curlx_dyn_init(&ctx->data_out, DYN_HAXPROXY);
+  curlx_dyn_init(&ctx->దత్తాంశం_బహిర్గతం, DYN_HAXPROXY);
 
-  result = Curl_cf_create(&cf, &Curl_cft_haproxy, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  ఫలితం = Curl_cf_create(&cf, &Curl_cft_haproxy, ctx);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  ctx = ఖాళీ;
 
-out:
+బహిర్గతం:
   cf_haproxy_ctx_free(ctx);
-  *pcf = result ? NULL : cf;
-  return result;
+  *pcf = ఫలితం ? ఖాళీ : cf;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data)
+CURLcode Curl_cf_haproxy_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                      నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం;
 
-  result = cf_haproxy_create(&cf, data);
-  if(result)
-    goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  ఫలితం = cf_haproxy_create(&cf, దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  Curl_conn_cf_చొప్పించు_after(cf_at, cf);
 
-out:
-  return result;
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-#endif /* !CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY */

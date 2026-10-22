@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_TFTP_H
-#define HEADER_CURL_TFTP_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_TFTP_H
+#నిర్వచించు శీర్షిక_CURL_TFTP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_TFTP
-extern const struct Curl_protocol Curl_protocol_tftp;
-#endif
+#నిర్వచితం_కాకపోతే CURL_DISABLE_TFTP
+బాహ్య స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_tftp;
+#అయితే_ముగింపు
 
-#define TFTP_BLKSIZE_MIN 8
-#define TFTP_BLKSIZE_MAX 65464
+#నిర్వచించు TFTP_BLKSIZE_MIN 8
+#నిర్వచించు TFTP_BLKSIZE_MAX 65464
 
-#endif /* HEADER_CURL_TFTP_H */
+#అయితే_ముగింపు /* HEADER_CURL_TFTP_H */

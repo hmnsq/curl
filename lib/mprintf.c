@@ -21,33 +21,33 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "curlx/dynbuf.h"
-#include "curl_printf.h"
-#include "curlx/strparse.h"
-#include "curlx/snprintf.h"  /* for curlx_win32_snprintf() */
+#అన్తర్భావ "curlx/dynbuf.h"
+#అన్తర్భావ "curl_printf.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "curlx/snprintf.h"  /* for curlx_win32_snprintf() */
 
-#define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
+#నిర్వచించు BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
                         fit negative DBL_MAX (317 letters) */
-#define MAX_PARAMETERS 128 /* number of input arguments */
-#define MAX_SEGMENTS   128 /* number of output segments */
+#నిర్వచించు MAX_PARAMETERS 128 /* number of input arguments */
+#నిర్వచించు MAX_SEGMENTS   128 /* number of output segments */
 
 /* Lower-case digits. */
-const unsigned char Curl_ldigits[] = "0123456789abcdef";
+స్థిరరాశి గుర్తులేని అక్షరం Curl_ldigits[] = "0123456789abcdef";
 
 /* Upper-case digits. */
-const unsigned char Curl_udigits[] = "0123456789ABCDEF";
+స్థిరరాశి గుర్తులేని అక్షరం Curl_udigits[] = "0123456789ABCDEF";
 
-#define OUTCHAR(x)                        \
-  do {                                    \
-    if(stream((unsigned char)(x), userp)) \
-      return TRUE;                        \
+#నిర్వచించు OUTCHAR(x)                        \
+  చేయి {                                    \
+    ఒకవేళ(ప్రవాహం((గుర్తులేని అక్షరం)(x), userp)) \
+      తిరిగి TRUE;                        \
     (*donep)++;                           \
-  } while(0)
+  } అయితే(0)
 
 /* Data type to read from the arglist */
-typedef enum {
+రకనిర్వచనం గణన {
   MTYPE_STRING,
   MTYPE_PTR,
   MTYPE_INTPTR,
@@ -59,15 +59,15 @@ typedef enum {
   MTYPE_LONGLONGU,
   MTYPE_DOUBLE,
   MTYPE_LONGDOUBLE,
-  MTYPE_WIDTH,
+  MTYPE_వెడల్పు,
   MTYPE_PRECISION
 } FormatType;
 
 /* conversion and display flags */
-enum {
+గణన {
   FLAGS_SPACE      = 1 << 0,
   FLAGS_SHOWSIGN   = 1 << 1,
-  FLAGS_LEFT       = 1 << 2,
+  FLAGS_ఎడమ       = 1 << 2,
   FLAGS_ALT        = 1 << 3,
   FLAGS_SHORT      = 1 << 4,
   FLAGS_LONG       = 1 << 5,
@@ -77,8 +77,8 @@ enum {
   FLAGS_UNSIGNED   = 1 << 9,
   FLAGS_OCTAL      = 1 << 10,
   FLAGS_HEX        = 1 << 11,
-  FLAGS_UPPER      = 1 << 12,
-  FLAGS_WIDTH      = 1 << 13, /* '*' or '*<num>$' used */
+  FLAGS_పై      = 1 << 12,
+  FLAGS_వెడల్పు      = 1 << 13, /* '*' or '*<num>$' used */
   FLAGS_WIDTHPARAM = 1 << 14, /* width PARAMETER was specified */
   FLAGS_PREC       = 1 << 15, /* precision was specified */
   FLAGS_PRECPARAM  = 1 << 16, /* precision PARAMETER was specified */
@@ -88,7 +88,7 @@ enum {
   FLAGS_SUBSTR     = 1 << 20  /* no input, only substring */
 };
 
-enum {
+గణన {
   DOLLAR_UNKNOWN,
   DOLLAR_NOPE,
   DOLLAR_USE
@@ -97,32 +97,32 @@ enum {
 /*
  * Describes an input va_arg type and hold its value.
  */
-struct va_input {
+నిర్మాణం va_ఆదానం {
   FormatType type; /* FormatType */
-  union {
-    const char *str;
-    void *ptr;
+  సంఘం {
+    స్థిరరాశి అక్షరం *str;
+    శూన్య *ptr;
     int64_t nums; /* signed */
     uint64_t numu; /* unsigned */
-    double dnum;
+    ద్విగుణ dnum;
   } val;
 };
 
 /*
  * Describes an output segment.
  */
-struct outsegment {
-  int width;     /* width OR width parameter number */
-  int precision; /* precision OR precision parameter number */
-  unsigned int flags;
-  unsigned int input; /* input argument array index */
-  const char *start; /* format string start to output */
+నిర్మాణం outsegment {
+  పూర్ణాంకం వెడల్పు;     /* width OR width parameter number */
+  పూర్ణాంకం precision; /* precision OR precision parameter number */
+  గుర్తులేని పూర్ణాంకం flags;
+  గుర్తులేని పూర్ణాంకం ఆదానం; /* input argument array index */
+  స్థిరరాశి అక్షరం *ప్రారంభం; /* format string start to output */
   size_t outlen;     /* number of bytes from the format string to output */
 };
 
-struct nsprintf {
-  char *buffer;
-  size_t length;
+నిర్మాణం nsprintf {
+  అక్షరం *బఫరు;
+  size_t నిడివి;
   size_t max;
 };
 
@@ -130,16 +130,16 @@ struct nsprintf {
    dynbuf append overhead (bounds checks, growth, memcpy, null-termination)
    once per byte dominates formatting. 512 bytes of stack holds a typical
    request line or header in a single flush. */
-#define ASPRINTF_STAGE_SIZE 512
+#నిర్వచించు ASPRINTF_STAGE_కొలత 512
 
-struct asprintf {
-  struct dynbuf *b;
-  char merr;
+నిర్మాణం asprintf {
+  నిర్మాణం dynbuf *b;
+  అక్షరం merr;
   size_t nstage;
-  unsigned char stage[ASPRINTF_STAGE_SIZE];
+  గుర్తులేని అక్షరం stage[ASPRINTF_STAGE_కొలత];
 };
 
-struct ioprintf {
+నిర్మాణం ioprintf {
   FILE *fd;
   bool error;
 };
@@ -148,18 +148,18 @@ struct ioprintf {
  *
  * returns -1 if no valid number was provided.
  */
-static int dollarstring(const char *p, const char **end)
+స్థిర పూర్ణాంకం dollarstring(స్థిరరాశి అక్షరం *p, స్థిరరాశి అక్షరం **చివర)
 {
-  curl_off_t num;
-  if(curlx_str_number(&p, &num, MAX_PARAMETERS) ||
-     curlx_str_single(&p, '$') || !num)
-    return -1;
-  *end = p;
-  return (int)num - 1;
+  curl_off_t అంకె;
+  ఒకవేళ(curlx_str_సంఖ్య(&p, &అంకె, MAX_PARAMETERS) ||
+     curlx_str_single(&p, '$') || !అంకె)
+    తిరిగి -1;
+  *చివర = p;
+  తిరిగి (పూర్ణాంకం)అంకె - 1;
 }
 
-#define is_arg_used(x, y)   ((x)[(y) / 8] & (1 << ((y) & 7)))
-#define mark_arg_used(x, y) ((x)[(y) / 8] |= (unsigned char)(1 << ((y) & 7)))
+#నిర్వచించు is_arg_వాడిన(x, y)   ((x)[(y) / 8] & (1 << ((y) & 7)))
+#నిర్వచించు mark_arg_వాడిన(x, y) ((x)[(y) / 8] |= (గుర్తులేని అక్షరం)(1 << ((y) & 7)))
 
 /*
  * Parse the format string.
@@ -169,551 +169,551 @@ static int dollarstring(const char *p, const char **end)
  * Returns zero on success.
  */
 
-#define PFMT_OK          0
-#define PFMT_DOLLAR      1 /* bad dollar for main param */
-#define PFMT_DOLLARWIDTH 2 /* bad dollar use for width */
-#define PFMT_DOLLARPREC  3 /* bad dollar use for precision */
-#define PFMT_MANYARGS    4 /* too many input arguments used */
-#define PFMT_PREC        5 /* precision overflow */
-#define PFMT_PRECMIX     6 /* bad mix of precision specifiers */
-#define PFMT_WIDTH       7 /* width overflow */
-#define PFMT_INPUTGAP    8 /* gap in arguments */
-#define PFMT_WIDTHARG    9 /* attempted to use same arg twice, for width */
-#define PFMT_PRECARG    10 /* attempted to use same arg twice, for prec */
-#define PFMT_MANYSEGS   11 /* maxed out output segments */
+#నిర్వచించు PFMT_OK          0
+#నిర్వచించు PFMT_DOLLAR      1 /* bad dollar for main param */
+#నిర్వచించు PFMT_DOLLARWIDTH 2 /* bad dollar use for width */
+#నిర్వచించు PFMT_DOLLARPREC  3 /* bad dollar use for precision */
+#నిర్వచించు PFMT_MANYARGS    4 /* too many input arguments used */
+#నిర్వచించు PFMT_PREC        5 /* precision overflow */
+#నిర్వచించు PFMT_PRECMIX     6 /* bad mix of precision specifiers */
+#నిర్వచించు PFMT_వెడల్పు       7 /* width overflow */
+#నిర్వచించు PFMT_INPUTGAP    8 /* gap in arguments */
+#నిర్వచించు PFMT_WIDTHARG    9 /* attempted to use same arg twice, for width */
+#నిర్వచించు PFMT_PRECARG    10 /* attempted to use same arg twice, for prec */
+#నిర్వచించు PFMT_MANYSEGS   11 /* maxed out output segments */
 
-static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
-                       int *precp, int *widthp)
+స్థిర పూర్ణాంకం parse_flags(స్థిరరాశి అక్షరం **fmtp, గుర్తులేని పూర్ణాంకం *flagsp, పూర్ణాంకం use_dollar,
+                       పూర్ణాంకం *precp, పూర్ణాంకం *widthp)
 {
-  const char *fmt = *fmtp;
+  స్థిరరాశి అక్షరం *fmt = *fmtp;
   bool loopit = TRUE;
-  unsigned int flags = 0;
-  int width = 0;
-  int precision = 0;
+  గుర్తులేని పూర్ణాంకం flags = 0;
+  పూర్ణాంకం వెడల్పు = 0;
+  పూర్ణాంకం precision = 0;
 
   /* Handle the flags */
-  do {
-    switch(*fmt++) {
-    case ' ':
+  చేయి {
+    ఎంపిక(*fmt++) {
+    స్థితి ' ':
       flags |= FLAGS_SPACE;
-      break;
-    case '+':
+      ఆపు;
+    స్థితి '+':
       flags |= FLAGS_SHOWSIGN;
-      break;
-    case '-':
-      flags |= FLAGS_LEFT;
-      flags &= ~(unsigned int)FLAGS_PAD_NIL;
-      break;
-    case '#':
+      ఆపు;
+    స్థితి '-':
+      flags |= FLAGS_ఎడమ;
+      flags &= ~(గుర్తులేని పూర్ణాంకం)FLAGS_PAD_NIL;
+      ఆపు;
+    స్థితి '#':
       flags |= FLAGS_ALT;
-      break;
-    case '.':
-      if('*' == *fmt) {
+      ఆపు;
+    స్థితి '.':
+      ఒకవేళ('*' == *fmt) {
         /* The precision is picked from a specified parameter */
         flags |= FLAGS_PRECPARAM;
         fmt++;
 
-        if(use_dollar == DOLLAR_USE) {
+        ఒకవేళ(use_dollar == DOLLAR_USE) {
           precision = dollarstring(fmt, &fmt);
-          if(precision < 0)
+          ఒకవేళ(precision < 0)
             /* illegal combo */
-            return PFMT_DOLLARPREC;
+            తిరిగి PFMT_DOLLARPREC;
         }
-        else
+        లేకపోతే
           /* get it from the next argument */
           precision = -1;
       }
-      else {
+      లేకపోతే {
         bool is_neg;
-        curl_off_t num;
+        curl_off_t అంకె;
         flags |= FLAGS_PREC;
         is_neg = ('-' == *fmt);
-        if(is_neg)
+        ఒకవేళ(is_neg)
           fmt++;
-        if(curlx_str_number(&fmt, &num, INT_MAX))
-          return PFMT_PREC;
-        precision = (int)num;
-        if(is_neg)
+        ఒకవేళ(curlx_str_సంఖ్య(&fmt, &అంకె, గరిష్ఠ_పూర్ణాంకం))
+          తిరిగి PFMT_PREC;
+        precision = (పూర్ణాంకం)అంకె;
+        ఒకవేళ(is_neg)
           precision = -precision;
       }
-      if((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
+      ఒకవేళ((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
          (FLAGS_PREC | FLAGS_PRECPARAM))
         /* it is not permitted to use both kinds of precision for the same
-           argument */
-        return PFMT_PRECMIX;
-      break;
-    case 'h':
+వాదం*/
+        తిరిగి PFMT_PRECMIX;
+      ఆపు;
+    స్థితి 'h':
       flags |= FLAGS_SHORT;
-      break;
-#ifdef _WIN32
-    case 'I':
+      ఆపు;
+#నిర్వచితమైతే _WIN32
+    స్థితి 'I':
       /* Non-ANSI integer extensions I32 I64 */
-      if((fmt[0] == '3') && (fmt[1] == '2')) {
+      ఒకవేళ((fmt[0] == '3') && (fmt[1] == '2')) {
         flags |= FLAGS_LONG;
         fmt += 2;
       }
-      else if((fmt[0] == '6') && (fmt[1] == '4')) {
+      లేకపోతే ఒకవేళ((fmt[0] == '6') && (fmt[1] == '4')) {
         flags |= FLAGS_LONGLONG;
         fmt += 2;
       }
-      else {
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+      లేకపోతే {
+#ఒకవేళ SIZEOF_కొలత_T > SIZEOF_LONG
         flags |= FLAGS_LONGLONG;
-#else
+#లేకపోతే
         flags |= FLAGS_LONG;
-#endif
+#అయితే_ముగింపు
       }
-      break;
-#endif /* _WIN32 */
-    case 'l':
-      if(flags & FLAGS_LONG)
+      ఆపు;
+#అయితే_ముగింపు /* _WIN32 */
+    స్థితి 'l':
+      ఒకవేళ(flags & FLAGS_LONG)
         flags |= FLAGS_LONGLONG;
-      else
+      లేకపోతే
         flags |= FLAGS_LONG;
-      break;
-    case 'L':
+      ఆపు;
+    స్థితి 'L':
       flags |= FLAGS_LONGDOUBLE;
-      break;
-    case 'q':
+      ఆపు;
+    స్థితి 'q':
       flags |= FLAGS_LONGLONG;
-      break;
-    case 'z':
+      ఆపు;
+    స్థితి 'z':
       /* the code below generates a warning if -Wunreachable-code is
-         used */
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+వాడిన*/
+#ఒకవేళ SIZEOF_కొలత_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#లేకపోతే
       flags |= FLAGS_LONG;
-#endif
-      break;
-    case 'O':
-#if SIZEOF_CURL_OFF_T > SIZEOF_LONG
+#అయితే_ముగింపు
+      ఆపు;
+    స్థితి 'O':
+#ఒకవేళ SIZEOF_CURL_OFF_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#లేకపోతే
       flags |= FLAGS_LONG;
-#endif
-      break;
-    case '0':
-      if(!(flags & FLAGS_LEFT))
+#అయితే_ముగింపు
+      ఆపు;
+    స్థితి '0':
+      ఒకవేళ(!(flags & FLAGS_ఎడమ))
         flags |= FLAGS_PAD_NIL;
       FALLTHROUGH();
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9': {
-      curl_off_t num;
-      flags |= FLAGS_WIDTH;
+    స్థితి '1':
+    స్థితి '2':
+    స్థితి '3':
+    స్థితి '4':
+    స్థితి '5':
+    స్థితి '6':
+    స్థితి '7':
+    స్థితి '8':
+    స్థితి '9': {
+      curl_off_t అంకె;
+      flags |= FLAGS_వెడల్పు;
       fmt--;
-      if(curlx_str_number(&fmt, &num, INT_MAX))
-        return PFMT_WIDTH;
-      width = (int)num;
-      break;
+      ఒకవేళ(curlx_str_సంఖ్య(&fmt, &అంకె, గరిష్ఠ_పూర్ణాంకం))
+        తిరిగి PFMT_వెడల్పు;
+      వెడల్పు = (పూర్ణాంకం)అంకె;
+      ఆపు;
     }
-    case '*':  /* read width from argument list */
+    స్థితి '*':  /* read width from argument list */
       flags |= FLAGS_WIDTHPARAM;
-      if(use_dollar == DOLLAR_USE) {
-        width = dollarstring(fmt, &fmt);
-        if(width < 0)
+      ఒకవేళ(use_dollar == DOLLAR_USE) {
+        వెడల్పు = dollarstring(fmt, &fmt);
+        ఒకవేళ(వెడల్పు < 0)
           /* illegal combo */
-          return PFMT_DOLLARWIDTH;
+          తిరిగి PFMT_DOLLARWIDTH;
       }
-      else
+      లేకపోతే
         /* pick from the next argument */
-        width = -1;
-      break;
-    default:
+        వెడల్పు = -1;
+      ఆపు;
+    అప్రమేయ:
       loopit = FALSE;
       fmt--;
-      break;
+      ఆపు;
     } /* switch */
-  } while(loopit); /* do */
+  } అయితే(loopit); /* do */
   *flagsp = flags;
   *precp = precision;
-  *widthp = width;
+  *widthp = వెడల్పు;
   *fmtp = fmt;
-  return PFMT_OK;
+  తిరిగి PFMT_OK;
 }
 
-static bool parse_conversion(const char f, unsigned int *flagp,
+స్థిర bool parse_conversion(స్థిరరాశి అక్షరం f, గుర్తులేని పూర్ణాంకం *flagp,
                              FormatType *typep)
 {
-  unsigned int flags = *flagp;
+  గుర్తులేని పూర్ణాంకం flags = *flagp;
   FormatType type;
-  switch(f) {
-  case 'S':
+  ఎంపిక(f) {
+  స్థితి 'S':
     flags |= FLAGS_ALT;
     type = MTYPE_STRING;
-    break;
-  case 's':
+    ఆపు;
+  స్థితి 's':
     type = MTYPE_STRING;
-    break;
-  case 'n':
+    ఆపు;
+  స్థితి 'n':
     type = MTYPE_INTPTR;
-    break;
-  case 'p':
+    ఆపు;
+  స్థితి 'p':
     type = MTYPE_PTR;
-    break;
-  case 'd':
-  case 'i':
-    if(flags & FLAGS_LONGLONG)
+    ఆపు;
+  స్థితి 'd':
+  స్థితి 'i':
+    ఒకవేళ(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONG;
-    else if(flags & FLAGS_LONG)
+    లేకపోతే ఒకవేళ(flags & FLAGS_LONG)
       type = MTYPE_LONG;
-    else
+    లేకపోతే
       type = MTYPE_INT;
-    break;
-  case 'u':
-    if(flags & FLAGS_LONGLONG)
+    ఆపు;
+  స్థితి 'u':
+    ఒకవేళ(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    లేకపోతే ఒకవేళ(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    లేకపోతే
       type = MTYPE_INTU;
     flags |= FLAGS_UNSIGNED;
-    break;
-  case 'o':
-    if(flags & FLAGS_LONGLONG)
+    ఆపు;
+  స్థితి 'o':
+    ఒకవేళ(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    లేకపోతే ఒకవేళ(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    లేకపోతే
       type = MTYPE_INTU;
     flags |= FLAGS_OCTAL | FLAGS_UNSIGNED;
-    break;
-  case 'x':
-    if(flags & FLAGS_LONGLONG)
+    ఆపు;
+  స్థితి 'x':
+    ఒకవేళ(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    లేకపోతే ఒకవేళ(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    లేకపోతే
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UNSIGNED;
-    break;
-  case 'X':
-    if(flags & FLAGS_LONGLONG)
+    ఆపు;
+  స్థితి 'X':
+    ఒకవేళ(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    లేకపోతే ఒకవేళ(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    లేకపోతే
       type = MTYPE_INTU;
-    flags |= FLAGS_HEX | FLAGS_UPPER | FLAGS_UNSIGNED;
-    break;
-  case 'c':
+    flags |= FLAGS_HEX | FLAGS_పై | FLAGS_UNSIGNED;
+    ఆపు;
+  స్థితి 'c':
     type = MTYPE_INT;
     flags |= FLAGS_CHAR;
-    break;
-  case 'f':
+    ఆపు;
+  స్థితి 'f':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
-    break;
-  case 'F':
+    ఆపు;
+  స్థితి 'F':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
-    flags |= FLAGS_UPPER;
-    break;
-  case 'e':
+    flags |= FLAGS_పై;
+    ఆపు;
+  స్థితి 'e':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATE;
-    break;
-  case 'E':
+    ఆపు;
+  స్థితి 'E':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
-    flags |= FLAGS_FLOATE | FLAGS_UPPER;
-    break;
-  case 'g':
+    flags |= FLAGS_FLOATE | FLAGS_పై;
+    ఆపు;
+  స్థితి 'g':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATG;
-    break;
-  case 'G':
+    ఆపు;
+  స్థితి 'G':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
-    flags |= FLAGS_FLOATG | FLAGS_UPPER;
-    break;
-  default:
+    flags |= FLAGS_FLOATG | FLAGS_పై;
+    ఆపు;
+  అప్రమేయ:
     /* invalid instruction, disregard and continue */
-    return TRUE;
+    తిరిగి TRUE;
   } /* switch */
 
   *flagp |= flags;
   *typep = type;
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static int parsefmt(const char *format,
-                    struct outsegment *out,
-                    struct va_input *in,
-                    int *opieces,
-                    int *ipieces, va_list arglist)
+స్థిర పూర్ణాంకం parsefmt(స్థిరరాశి అక్షరం *format,
+                    నిర్మాణం outsegment *బహిర్గతం,
+                    నిర్మాణం va_ఆదానం *లోపల,
+                    పూర్ణాంకం *opieces,
+                    పూర్ణాంకం *ipieces, va_list arglist)
 {
-  const char *fmt = format;
-  int param_num = 0;
-  int max_param = -1;
-  int i;
-  int ocount = 0;
-  unsigned char usedinput[MAX_PARAMETERS / 8];
+  స్థిరరాశి అక్షరం *fmt = format;
+  పూర్ణాంకం param_అంకె = 0;
+  పూర్ణాంకం max_param = -1;
+  పూర్ణాంకం i;
+  పూర్ణాంకం ocount = 0;
+  గుర్తులేని అక్షరం usedinput[MAX_PARAMETERS / 8];
   size_t outlen = 0;
-  struct outsegment *optr;
-  int use_dollar = DOLLAR_UNKNOWN;
-  const char *start = fmt;
+  నిర్మాణం outsegment *optr;
+  పూర్ణాంకం use_dollar = DOLLAR_UNKNOWN;
+  స్థిరరాశి అక్షరం *ప్రారంభం = fmt;
 
   /* clear, set a bit for each used input */
-  memset(usedinput, 0, sizeof(usedinput));
+  memset(usedinput, 0, పరిమాణం(usedinput));
 
-  while(*fmt) {
-    if(*fmt == '%') {
-      struct va_input *iptr;
+  అయితే(*fmt) {
+    ఒకవేళ(*fmt == '%') {
+      నిర్మాణం va_ఆదానం *iptr;
       FormatType type;
-      unsigned int flags = 0;
-      int width = 0;
-      int precision = 0;
-      int param = -1;
-      int rc;
+      గుర్తులేని పూర్ణాంకం flags = 0;
+      పూర్ణాంకం వెడల్పు = 0;
+      పూర్ణాంకం precision = 0;
+      పూర్ణాంకం param = -1;
+      పూర్ణాంకం rc;
       fmt++;
-      outlen = (size_t)(fmt - start - 1);
-      if(*fmt == '%') {
+      outlen = (size_t)(fmt - ప్రారంభం - 1);
+      ఒకవేళ(*fmt == '%') {
         /* this means a %% that should be output only as %. Create an output
            segment. */
-        if(outlen) {
-          optr = &out[ocount++];
-          if(ocount > MAX_SEGMENTS)
-            return PFMT_MANYSEGS;
-          optr->input = 0;
+        ఒకవేళ(outlen) {
+          optr = &బహిర్గతం[ocount++];
+          ఒకవేళ(ocount > MAX_SEGMENTS)
+            తిరిగి PFMT_MANYSEGS;
+          optr->ఆదానం = 0;
           optr->flags = FLAGS_SUBSTR;
-          optr->start = start;
+          optr->ప్రారంభం = ప్రారంభం;
           optr->outlen = outlen;
         }
-        start = fmt;
+        ప్రారంభం = fmt;
         fmt++;
-        continue; /* while */
+        కొనసాగు; /* while */
       }
 
-      if(use_dollar != DOLLAR_NOPE) {
+      ఒకవేళ(use_dollar != DOLLAR_NOPE) {
         param = dollarstring(fmt, &fmt);
-        if(param < 0) {
-          if(use_dollar == DOLLAR_USE)
+        ఒకవేళ(param < 0) {
+          ఒకవేళ(use_dollar == DOLLAR_USE)
             /* illegal combo */
-            return PFMT_DOLLAR;
+            తిరిగి PFMT_DOLLAR;
 
           /* we got no positional, get the next arg */
           param = -1;
           use_dollar = DOLLAR_NOPE;
         }
-        else
+        లేకపోతే
           use_dollar = DOLLAR_USE;
       }
 
-      rc = parse_flags(&fmt, &flags, use_dollar, &precision, &width);
-      if(rc)
-        return rc;
+      rc = parse_flags(&fmt, &flags, use_dollar, &precision, &వెడల్పు);
+      ఒకవేళ(rc)
+        తిరిగి rc;
 
-      if(parse_conversion(*fmt, &flags, &type))
-        continue;
+      ఒకవేళ(parse_conversion(*fmt, &flags, &type))
+        కొనసాగు;
 
-      if(flags & FLAGS_WIDTHPARAM) {
-        if(width < 0)
-          width = param_num++;
-        else {
+      ఒకవేళ(flags & FLAGS_WIDTHPARAM) {
+        ఒకవేళ(వెడల్పు < 0)
+          వెడల్పు = param_అంకె++;
+        లేకపోతే {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, width))
-            return PFMT_WIDTHARG;
+          ఒకవేళ(is_arg_వాడిన(usedinput, వెడల్పు))
+            తిరిగి PFMT_WIDTHARG;
         }
-        if(width >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(width >= max_param)
-          max_param = width;
+        ఒకవేళ(వెడల్పు >= MAX_PARAMETERS)
+          తిరిగి PFMT_MANYARGS;
+        ఒకవేళ(వెడల్పు >= max_param)
+          max_param = వెడల్పు;
 
-        in[width].type = MTYPE_WIDTH;
+        లోపల[వెడల్పు].type = MTYPE_వెడల్పు;
         /* mark as used */
-        mark_arg_used(usedinput, width);
+        mark_arg_వాడిన(usedinput, వెడల్పు);
       }
 
-      if(flags & FLAGS_PRECPARAM) {
-        if(precision < 0)
-          precision = param_num++;
-        else {
+      ఒకవేళ(flags & FLAGS_PRECPARAM) {
+        ఒకవేళ(precision < 0)
+          precision = param_అంకె++;
+        లేకపోతే {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, precision))
-            return PFMT_PRECARG;
+          ఒకవేళ(is_arg_వాడిన(usedinput, precision))
+            తిరిగి PFMT_PRECARG;
         }
-        if(precision >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(precision >= max_param)
+        ఒకవేళ(precision >= MAX_PARAMETERS)
+          తిరిగి PFMT_MANYARGS;
+        ఒకవేళ(precision >= max_param)
           max_param = precision;
 
-        in[precision].type = MTYPE_PRECISION;
-        mark_arg_used(usedinput, precision);
+        లోపల[precision].type = MTYPE_PRECISION;
+        mark_arg_వాడిన(usedinput, precision);
       }
 
       /* Handle the specifier */
-      if(param < 0)
-        param = param_num++;
-      if(param >= MAX_PARAMETERS)
-        return PFMT_MANYARGS;
-      if(param >= max_param)
+      ఒకవేళ(param < 0)
+        param = param_అంకె++;
+      ఒకవేళ(param >= MAX_PARAMETERS)
+        తిరిగి PFMT_MANYARGS;
+      ఒకవేళ(param >= max_param)
         max_param = param;
 
-      iptr = &in[param];
+      iptr = &లోపల[param];
       iptr->type = type;
 
       /* mark this input as used */
-      mark_arg_used(usedinput, param);
+      mark_arg_వాడిన(usedinput, param);
 
       fmt++;
-      optr = &out[ocount++];
-      if(ocount > MAX_SEGMENTS)
-        return PFMT_MANYSEGS;
-      optr->input = (unsigned int)param;
+      optr = &బహిర్గతం[ocount++];
+      ఒకవేళ(ocount > MAX_SEGMENTS)
+        తిరిగి PFMT_MANYSEGS;
+      optr->ఆదానం = (గుర్తులేని పూర్ణాంకం)param;
       optr->flags = flags;
-      optr->width = width;
+      optr->వెడల్పు = వెడల్పు;
       optr->precision = precision;
-      optr->start = start;
+      optr->ప్రారంభం = ప్రారంభం;
       optr->outlen = outlen;
-      start = fmt;
+      ప్రారంభం = fmt;
     }
-    else
+    లేకపోతే
       fmt++;
   }
 
   /* is there a trailing piece */
-  outlen = (size_t)(fmt - start);
-  if(outlen) {
-    optr = &out[ocount++];
-    if(ocount > MAX_SEGMENTS)
-      return PFMT_MANYSEGS;
-    optr->input = 0;
+  outlen = (size_t)(fmt - ప్రారంభం);
+  ఒకవేళ(outlen) {
+    optr = &బహిర్గతం[ocount++];
+    ఒకవేళ(ocount > MAX_SEGMENTS)
+      తిరిగి PFMT_MANYSEGS;
+    optr->ఆదానం = 0;
     optr->flags = FLAGS_SUBSTR;
-    optr->start = start;
+    optr->ప్రారంభం = ప్రారంభం;
     optr->outlen = outlen;
   }
 
   /* Read the arg list parameters into our data list */
-  for(i = 0; i < max_param + 1; i++) {
-    struct va_input *iptr = &in[i];
-    if(!is_arg_used(usedinput, i))
+  కొరకు(i = 0; i < max_param + 1; i++) {
+    నిర్మాణం va_ఆదానం *iptr = &లోపల[i];
+    ఒకవేళ(!is_arg_వాడిన(usedinput, i))
       /* bad input */
-      return PFMT_INPUTGAP;
+      తిరిగి PFMT_INPUTGAP;
 
     /* based on the type, read the correct argument */
-    switch(iptr->type) {
-    case MTYPE_STRING:
-      iptr->val.str = va_arg(arglist, const char *);
-      break;
+    ఎంపిక(iptr->type) {
+    స్థితి MTYPE_STRING:
+      iptr->val.str = va_arg(arglist, స్థిరరాశి అక్షరం *);
+      ఆపు;
 
-    case MTYPE_INTPTR:
-    case MTYPE_PTR:
-      iptr->val.ptr = va_arg(arglist, void *);
-      break;
+    స్థితి MTYPE_INTPTR:
+    స్థితి MTYPE_PTR:
+      iptr->val.ptr = va_arg(arglist, శూన్య *);
+      ఆపు;
 
-    case MTYPE_LONGLONGU:
+    స్థితి MTYPE_LONGLONGU:
       iptr->val.numu = va_arg(arglist, uint64_t);
-      break;
+      ఆపు;
 
-    case MTYPE_LONGLONG:
+    స్థితి MTYPE_LONGLONG:
       iptr->val.nums = va_arg(arglist, int64_t);
-      break;
+      ఆపు;
 
-    case MTYPE_LONGU:
-      iptr->val.numu = va_arg(arglist, unsigned long);
-      break;
+    స్థితి MTYPE_LONGU:
+      iptr->val.numu = va_arg(arglist, గుర్తులేని దీర్ఘ);
+      ఆపు;
 
-    case MTYPE_LONG:
-      iptr->val.nums = va_arg(arglist, long);
-      break;
+    స్థితి MTYPE_LONG:
+      iptr->val.nums = va_arg(arglist, దీర్ఘ);
+      ఆపు;
 
-    case MTYPE_INTU:
-      iptr->val.numu = va_arg(arglist, unsigned int);
-      break;
+    స్థితి MTYPE_INTU:
+      iptr->val.numu = va_arg(arglist, గుర్తులేని పూర్ణాంకం);
+      ఆపు;
 
-    case MTYPE_INT:
-    case MTYPE_WIDTH:
-    case MTYPE_PRECISION:
-      iptr->val.nums = va_arg(arglist, int);
-      break;
+    స్థితి MTYPE_INT:
+    స్థితి MTYPE_వెడల్పు:
+    స్థితి MTYPE_PRECISION:
+      iptr->val.nums = va_arg(arglist, పూర్ణాంకం);
+      ఆపు;
 
-    case MTYPE_DOUBLE:
-      iptr->val.dnum = va_arg(arglist, double);
-      break;
+    స్థితి MTYPE_DOUBLE:
+      iptr->val.dnum = va_arg(arglist, ద్విగుణ);
+      ఆపు;
 
-    case MTYPE_LONGDOUBLE:
-      iptr->val.dnum = (double)va_arg(arglist, long double);
-      break;
+    స్థితి MTYPE_LONGDOUBLE:
+      iptr->val.dnum = (ద్విగుణ)va_arg(arglist, దీర్ఘ ద్విగుణ);
+      ఆపు;
 
-    default:
-      DEBUGASSERT(NULL); /* unexpected */
-      break;
+    అప్రమేయ:
+      DEBUGASSERT(ఖాళీ); /* unexpected */
+      ఆపు;
     }
   }
   *ipieces = max_param + 1;
   *opieces = ocount;
 
-  return PFMT_OK;
+  తిరిగి PFMT_OK;
 }
 
-struct mproperty {
-  int width;            /* Width of a field. */
-  int prec;             /* Precision of a field. */
-  unsigned int flags;
+నిర్మాణం mproperty {
+  పూర్ణాంకం వెడల్పు;            /* Width of a field. */
+  పూర్ణాంకం prec;             /* Precision of a field. */
+  గుర్తులేని పూర్ణాంకం flags;
 };
 
 /* block output callback: consume up to 'len' bytes, return the number of
    bytes accepted. Accepting fewer than 'len' bytes aborts formatting, like
    the byte callback returning failure. May be NULL, in which case output
    falls back to the per-byte 'stream' callback. */
-typedef size_t (*mp_streamn)(const unsigned char *buf, size_t len, void *f);
+రకనిర్వచనం size_t (*mp_streamn)(స్థిరరాశి గుర్తులేని అక్షరం *buf, size_t len, శూన్య *f);
 
 /* commit any output the sink is holding. Returns non-zero on failure. Sinks
    whose accepted bytes are already committed do not need one. */
-typedef int (*mp_flush)(void *f);
+రకనిర్వచనం పూర్ణాంకం (*mp_flush)(శూన్య *f);
 
 /* emit a run of bytes through the block callback when available, else byte
    by byte. Returns TRUE to abort formatting (mirroring OUTCHAR). */
-static bool stream_run(void *userp,
-                       int (*stream)(unsigned char, void *),
+స్థిర bool ప్రవాహం_నిరంతరం(శూన్య *userp,
+                       పూర్ణాంకం (*ప్రవాహం)(గుర్తులేని అక్షరం, శూన్య *),
                        mp_streamn streamn,
-                       const unsigned char *buf, size_t len, int *donep)
+                       స్థిరరాశి గుర్తులేని అక్షరం *buf, size_t len, పూర్ణాంకం *donep)
 {
-  if(!len)
-    return FALSE;
-  if(streamn) {
+  ఒకవేళ(!len)
+    తిరిగి FALSE;
+  ఒకవేళ(streamn) {
     size_t n = streamn(buf, len, userp);
-    *donep += (int)n;
-    return n != len;
+    *donep += (పూర్ణాంకం)n;
+    తిరిగి n != len;
   }
-  while(len--) {
-    if(stream(*buf++, userp))
-      return TRUE;
+  అయితే(len--) {
+    ఒకవేళ(ప్రవాహం(*buf++, userp))
+      తిరిగి TRUE;
     (*donep)++;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
 /* Padding is always spaces or zeros, so it comes from a constant rather than a
    buffer that has to be filled first. 16 keeps every width used in the tree to
    a single run; wider padding loops. */
-static const char pad_spaces[] = "                ";
-static const char pad_zeros[] = "0000000000000000";
-#define PAD_RUN 16 /* strlen() of both of the above */
+స్థిర స్థిరరాశి అక్షరం pad_spaces[] = "                ";
+స్థిర స్థిరరాశి అక్షరం pad_zeros[] = "0000000000000000";
+#నిర్వచించు PAD_నిరంతరం 16 /* strlen() of both of the above */
 
 /* emit 'num' copies of the pad byte. Returns TRUE to abort formatting. */
-static bool stream_pad(void *userp,
-                       int (*stream)(unsigned char, void *),
+స్థిర bool ప్రవాహం_pad(శూన్య *userp,
+                       పూర్ణాంకం (*ప్రవాహం)(గుర్తులేని అక్షరం, శూన్య *),
                        mp_streamn streamn,
-                       unsigned char pad, int num, int *donep)
+                       గుర్తులేని అక్షరం pad, పూర్ణాంకం అంకె, పూర్ణాంకం *donep)
 {
-  const unsigned char *src;
-  if(num <= 0)
-    return FALSE;
-  if(pad == '0')
-    src = (const unsigned char *)pad_zeros;
-  else
-    src = (const unsigned char *)pad_spaces;
-  while(num > PAD_RUN) {
-    if(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
-      return TRUE;
-    num -= PAD_RUN;
+  స్థిరరాశి గుర్తులేని అక్షరం *src;
+  ఒకవేళ(అంకె <= 0)
+    తిరిగి FALSE;
+  ఒకవేళ(pad == '0')
+    src = (స్థిరరాశి గుర్తులేని అక్షరం *)pad_zeros;
+  లేకపోతే
+    src = (స్థిరరాశి గుర్తులేని అక్షరం *)pad_spaces;
+  అయితే(అంకె > PAD_నిరంతరం) {
+    ఒకవేళ(ప్రవాహం_నిరంతరం(userp, ప్రవాహం, streamn, src, PAD_నిరంతరం, donep))
+      తిరిగి TRUE;
+    అంకె -= PAD_నిరంతరం;
   }
-  return stream_run(userp, stream, streamn, src, (size_t)num, donep);
+  తిరిగి ప్రవాహం_నిరంతరం(userp, ప్రవాహం, streamn, src, (size_t)అంకె, donep);
 }
 
 /* emit the leading null-terminated part of a run of at most 'len' bytes.
@@ -722,353 +722,353 @@ static bool stream_pad(void *userp,
    A byte loop and not memchr(): 'len' is the requested precision, which
    out_string() does not clamp to the string length, so "%.64s" on a 10-byte
    string arrives with len == 64 and memchr() would read past the object. */
-static bool stream_zrun(void *userp,
-                        int (*stream)(unsigned char, void *),
+స్థిర bool ప్రవాహం_zrun(శూన్య *userp,
+                        పూర్ణాంకం (*ప్రవాహం)(గుర్తులేని అక్షరం, శూన్య *),
                         mp_streamn streamn,
-                        const char *str, size_t len, int *donep)
+                        స్థిరరాశి అక్షరం *str, size_t len, పూర్ణాంకం *donep)
 {
   size_t n = 0;
-  while(n < len && str[n])
+  అయితే(n < len && str[n])
     n++;
-  return stream_run(userp, stream, streamn,
-                    (const unsigned char *)str, n, donep);
+  తిరిగి ప్రవాహం_నిరంతరం(userp, ప్రవాహం, streamn,
+                    (స్థిరరాశి గుర్తులేని అక్షరం *)str, n, donep);
 }
 
-static bool out_double(void *userp,
-                       int (*stream)(unsigned char, void *),
+స్థిర bool బహిర్గతం_double(శూన్య *userp,
+                       పూర్ణాంకం (*ప్రవాహం)(గుర్తులేని అక్షరం, శూన్య *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       double dnum,
-                       char *work, int *donep)
+                       నిర్మాణం mproperty *p,
+                       ద్విగుణ dnum,
+                       అక్షరం *work, పూర్ణాంకం *donep)
 {
-  char fmt[32] = "%";
-  char *fptr = &fmt[1];
-  size_t left = sizeof(fmt) - strlen(fmt);
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  అక్షరం fmt[32] = "%";
+  అక్షరం *fptr = &fmt[1];
+  size_t ఎడమ = పరిమాణం(fmt) - అక్షరశ్రేణి_పొడవు(fmt);
+  పూర్ణాంకం flags = p->flags;
+  పూర్ణాంకం వెడల్పు = p->వెడల్పు;
+  పూర్ణాంకం prec = p->prec;
 
-  if(flags & FLAGS_LEFT)
+  ఒకవేళ(flags & FLAGS_ఎడమ)
     *fptr++ = '-';
-  if(flags & FLAGS_SHOWSIGN)
+  ఒకవేళ(flags & FLAGS_SHOWSIGN)
     *fptr++ = '+';
-  if(flags & FLAGS_SPACE)
+  ఒకవేళ(flags & FLAGS_SPACE)
     *fptr++ = ' ';
-  if(flags & FLAGS_ALT)
+  ఒకవేళ(flags & FLAGS_ALT)
     *fptr++ = '#';
 
   *fptr = 0;
 
-  if(width >= 0) {
+  ఒకవేళ(వెడల్పు >= 0) {
     size_t dlen;
-    if(width >= BUFFSIZE)
-      width = BUFFSIZE - 1;
+    ఒకవేళ(వెడల్పు >= BUFFSIZE)
+      వెడల్పు = BUFFSIZE - 1;
     /* RECURSIVE USAGE */
-    dlen = (size_t)curl_msnprintf(fptr, left, "%d", width);
+    dlen = (size_t)curl_msnprintf(fptr, ఎడమ, "%d", వెడల్పు);
     fptr += dlen;
-    left -= dlen;
+    ఎడమ -= dlen;
   }
-  if(prec >= 0) {
+  ఒకవేళ(prec >= 0) {
     /* for each digit in the integer part, we can have one less
        precision */
-    int maxprec = BUFFSIZE - 1;
-    double val = dnum;
-    int len;
-    if(prec > maxprec)
+    పూర్ణాంకం maxprec = BUFFSIZE - 1;
+    ద్విగుణ val = dnum;
+    పూర్ణాంకం len;
+    ఒకవేళ(prec > maxprec)
       prec = maxprec - 1;
-    if(width > 0 && prec <= width)
-      maxprec -= width;
-    while(maxprec && (val >= 10.0)) {
+    ఒకవేళ(వెడల్పు > 0 && prec <= వెడల్పు)
+      maxprec -= వెడల్పు;
+    అయితే(maxprec && (val >= 10.0)) {
       val /= 10;
       maxprec--;
     }
 
-    if(prec > maxprec)
+    ఒకవేళ(prec > maxprec)
       prec = maxprec - 1;
-    if(prec < 0)
+    ఒకవేళ(prec < 0)
       prec = 0;
     /* RECURSIVE USAGE */
-    len = curl_msnprintf(fptr, left, ".%d", prec);
+    len = curl_msnprintf(fptr, ఎడమ, ".%d", prec);
     fptr += len;
   }
-  if(flags & FLAGS_LONG)
+  ఒకవేళ(flags & FLAGS_LONG)
     *fptr++ = 'l';
 
-  if(flags & FLAGS_FLOATE)
-    *fptr++ = (char)((flags & FLAGS_UPPER) ? 'E' : 'e');
-  else if(flags & FLAGS_FLOATG)
-    *fptr++ = (char)((flags & FLAGS_UPPER) ? 'G' : 'g');
-  else
-    *fptr++ = (flags & FLAGS_UPPER) ? 'F' : 'f';
+  ఒకవేళ(flags & FLAGS_FLOATE)
+    *fptr++ = (అక్షరం)((flags & FLAGS_పై) ? 'E' : 'e');
+  లేకపోతే ఒకవేళ(flags & FLAGS_FLOATG)
+    *fptr++ = (అక్షరం)((flags & FLAGS_పై) ? 'G' : 'g');
+  లేకపోతే
+    *fptr++ = (flags & FLAGS_పై) ? 'F' : 'f';
 
   *fptr = 0; /* and a final null-termination */
 
   /* NOTE NOTE NOTE!! Not all sprintf implementations return number of
      output characters */
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#endif
-#ifdef _WIN32
+#నిర్వచితమైతే CURL_HAVE_DIAG
+#సూచన GCC diagnostic నెట్టు
+#సూచన GCC diagnostic ignored "-Wformat-nonliteral"
+#అయితే_ముగింపు
+#నిర్వచితమైతే _WIN32
   curlx_win32_snprintf(work, BUFFSIZE, fmt, dnum);
-#else
+#లేకపోతే
   /* !checksrc! disable BANNEDFUNC 1 */
   snprintf(work, BUFFSIZE, fmt, dnum);
-#endif
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
-#endif
-  DEBUGASSERT(strlen(work) < BUFFSIZE);
-  return stream_run(userp, stream, streamn,
-                    (const unsigned char *)work, strlen(work), donep);
+#అయితే_ముగింపు
+#నిర్వచితమైతే CURL_HAVE_DIAG
+#సూచన GCC diagnostic తీయి
+#అయితే_ముగింపు
+  DEBUGASSERT(అక్షరశ్రేణి_పొడవు(work) < BUFFSIZE);
+  తిరిగి ప్రవాహం_నిరంతరం(userp, ప్రవాహం, streamn,
+                    (స్థిరరాశి గుర్తులేని అక్షరం *)work, అక్షరశ్రేణి_పొడవు(work), donep);
 }
 
-static bool out_number(void *userp,
-                       int (*stream)(unsigned char, void *),
+స్థిర bool బహిర్గతం_సంఖ్య(శూన్య *userp,
+                       పూర్ణాంకం (*ప్రవాహం)(గుర్తులేని అక్షరం, శూన్య *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       uint64_t num,
+                       నిర్మాణం mproperty *p,
+                       uint64_t అంకె,
                        int64_t nums,
-                       char *work, int *donep)
+                       అక్షరం *work, పూర్ణాంకం *donep)
 {
-  const unsigned char *digits = Curl_ldigits;
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  స్థిరరాశి గుర్తులేని అక్షరం *digits = Curl_ldigits;
+  పూర్ణాంకం flags = p->flags;
+  పూర్ణాంకం వెడల్పు = p->వెడల్పు;
+  పూర్ణాంకం prec = p->prec;
   bool is_alt = flags & FLAGS_ALT;
   bool is_neg = FALSE;
-  int base = 10;
+  పూర్ణాంకం పునాది = 10;
 
   /* 'workend' points to the final buffer byte position, but with an extra
      byte as margin to avoid the (FALSE?) warning Coverity gives us
      otherwise */
-  char *workend = &work[BUFFSIZE - 2];
-  char *w;
+  అక్షరం *workend = &work[BUFFSIZE - 2];
+  అక్షరం *w;
 
-  if(flags & FLAGS_CHAR) {
+  ఒకవేళ(flags & FLAGS_CHAR) {
     /* Character. */
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
-      width = 1;
+    ఒకవేళ(!(flags & FLAGS_ఎడమ)) {
+      ఒకవేళ(ప్రవాహం_pad(userp, ప్రవాహం, streamn, ' ', వెడల్పు - 1, donep))
+        తిరిగి TRUE;
+      వెడల్పు = 1;
     }
-    OUTCHAR((char)num);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    OUTCHAR((అక్షరం)అంకె);
+    ఒకవేళ(flags & FLAGS_ఎడమ) {
+      ఒకవేళ(ప్రవాహం_pad(userp, ప్రవాహం, streamn, ' ', వెడల్పు - 1, donep))
+        తిరిగి TRUE;
     }
-    return FALSE;
+    తిరిగి FALSE;
   }
-  if(flags & FLAGS_OCTAL)
+  ఒకవేళ(flags & FLAGS_OCTAL)
     /* Octal unsigned integer */
-    base = 8;
+    పునాది = 8;
 
-  else if(flags & FLAGS_HEX) {
+  లేకపోతే ఒకవేళ(flags & FLAGS_HEX) {
     /* Hexadecimal unsigned integer */
-    digits = (flags & FLAGS_UPPER) ? Curl_udigits : Curl_ldigits;
-    base = 16;
+    digits = (flags & FLAGS_పై) ? Curl_udigits : Curl_ldigits;
+    పునాది = 16;
   }
-  else if(flags & FLAGS_UNSIGNED)
+  లేకపోతే ఒకవేళ(flags & FLAGS_UNSIGNED)
     /* Decimal unsigned integer */
     ;
 
-  else {
+  లేకపోతే {
     /* Decimal integer. */
     is_neg = (nums < 0);
-    if(is_neg) {
+    ఒకవేళ(is_neg) {
       /* signed_num might fail to hold absolute negative minimum by 1 */
-      int64_t signed_num; /* Used to convert negative in positive. */
-      signed_num = nums + (int64_t)1;
-      signed_num = -signed_num;
-      num = (uint64_t)signed_num;
-      num += (uint64_t)1;
+      int64_t signed_అంకె; /* Used to convert negative in positive. */
+      signed_అంకె = nums + (int64_t)1;
+      signed_అంకె = -signed_అంకె;
+      అంకె = (uint64_t)signed_అంకె;
+      అంకె += (uint64_t)1;
     }
   }
 
   /* Supply a default precision if none was given. */
-  if(prec == -1)
+  ఒకవేళ(prec == -1)
     prec = 1;
 
   /* Put the number in WORK. */
   w = workend;
-  DEBUGASSERT(base <= 16);
-  switch(base) {
-  case 10:
-    while(num > 0) {
-      *w-- = (char)('0' + (num % 10));
-      num /= 10;
+  DEBUGASSERT(పునాది <= 16);
+  ఎంపిక(పునాది) {
+  స్థితి 10:
+    అయితే(అంకె > 0) {
+      *w-- = (అక్షరం)('0' + (అంకె % 10));
+      అంకె /= 10;
     }
-    break;
-  default:
-    while(num > 0) {
-      *w-- = digits[num % base];
-      num /= base;
+    ఆపు;
+  అప్రమేయ:
+    అయితే(అంకె > 0) {
+      *w-- = digits[అంకె % పునాది];
+      అంకె /= పునాది;
     }
-    break;
+    ఆపు;
   }
-  width -= (int)(workend - w);
-  prec -= (int)(workend - w);
+  వెడల్పు -= (పూర్ణాంకం)(workend - w);
+  prec -= (పూర్ణాంకం)(workend - w);
 
-  if(is_alt && base == 8 && prec <= 0) {
+  ఒకవేళ(is_alt && పునాది == 8 && prec <= 0) {
     *w-- = '0';
-    --width;
+    --వెడల్పు;
   }
 
-  if(prec > 0) {
-    width -= prec;
-    while(prec-- > 0 && w >= work)
+  ఒకవేళ(prec > 0) {
+    వెడల్పు -= prec;
+    అయితే(prec-- > 0 && w >= work)
       *w-- = '0';
   }
 
-  if(is_alt && base == 16)
-    width -= 2;
+  ఒకవేళ(is_alt && పునాది == 16)
+    వెడల్పు -= 2;
 
-  if(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
-    --width;
+  ఒకవేళ(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
+    --వెడల్పు;
 
-  if(!(flags & FLAGS_LEFT) && !(flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
-    width = 0;
+  ఒకవేళ(!(flags & FLAGS_ఎడమ) && !(flags & FLAGS_PAD_NIL)) {
+    ఒకవేళ(ప్రవాహం_pad(userp, ప్రవాహం, streamn, ' ', వెడల్పు, donep))
+      తిరిగి TRUE;
+    వెడల్పు = 0;
   }
 
-  if(is_neg)
+  ఒకవేళ(is_neg)
     OUTCHAR('-');
-  else if(flags & FLAGS_SHOWSIGN)
+  లేకపోతే ఒకవేళ(flags & FLAGS_SHOWSIGN)
     OUTCHAR('+');
-  else if(flags & FLAGS_SPACE)
+  లేకపోతే ఒకవేళ(flags & FLAGS_SPACE)
     OUTCHAR(' ');
 
-  if(is_alt && base == 16) {
+  ఒకవేళ(is_alt && పునాది == 16) {
     OUTCHAR('0');
-    if(flags & FLAGS_UPPER)
+    ఒకవేళ(flags & FLAGS_పై)
       OUTCHAR('X');
-    else
+    లేకపోతే
       OUTCHAR('x');
   }
 
-  if(!(flags & FLAGS_LEFT) && (flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, '0', width, donep))
-      return TRUE;
-    width = 0;
+  ఒకవేళ(!(flags & FLAGS_ఎడమ) && (flags & FLAGS_PAD_NIL)) {
+    ఒకవేళ(ప్రవాహం_pad(userp, ప్రవాహం, streamn, '0', వెడల్పు, donep))
+      తిరిగి TRUE;
+    వెడల్పు = 0;
   }
 
   /* Write the number. */
-  if(stream_run(userp, stream, streamn, (const unsigned char *)w + 1,
+  ఒకవేళ(ప్రవాహం_నిరంతరం(userp, ప్రవాహం, streamn, (స్థిరరాశి గుర్తులేని అక్షరం *)w + 1,
                 (size_t)(workend - w), donep))
-    return TRUE;
+    తిరిగి TRUE;
 
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  ఒకవేళ(flags & FLAGS_ఎడమ) {
+    ఒకవేళ(ప్రవాహం_pad(userp, ప్రవాహం, streamn, ' ', వెడల్పు, donep))
+      తిరిగి TRUE;
   }
 
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static const char nilstr[] = "(nil)";
+స్థిర స్థిరరాశి అక్షరం nilstr[] = "(nil)";
 
-static bool out_string(void *userp,
-                       int (*stream)(unsigned char, void *),
+స్థిర bool బహిర్గతం_string(శూన్య *userp,
+                       పూర్ణాంకం (*ప్రవాహం)(గుర్తులేని అక్షరం, శూన్య *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       const char *str,
-                       int *donep)
+                       నిర్మాణం mproperty *p,
+                       స్థిరరాశి అక్షరం *str,
+                       పూర్ణాంకం *donep)
 {
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  పూర్ణాంకం flags = p->flags;
+  పూర్ణాంకం వెడల్పు = p->వెడల్పు;
+  పూర్ణాంకం prec = p->prec;
   size_t len;
 
-  if(!str) {
+  ఒకవేళ(!str) {
     /* Write null string if there is space. */
-    if(prec == -1 || prec >= (int)CURL_CSTRLEN(nilstr)) {
+    ఒకవేళ(prec == -1 || prec >= (పూర్ణాంకం)CURL_CSTRLEN(nilstr)) {
       str = nilstr;
       len = CURL_CSTRLEN(nilstr);
       /* Disable quotes around (nil) */
-      flags &= ~(unsigned int)FLAGS_ALT;
+      flags &= ~(గుర్తులేని పూర్ణాంకం)FLAGS_ALT;
     }
-    else {
+    లేకపోతే {
       str = "";
       len = 0;
     }
   }
-  else if(prec != -1)
+  లేకపోతే ఒకవేళ(prec != -1)
     len = (size_t)prec;
-  else if(*str == '\0')
+  లేకపోతే ఒకవేళ(*str == '\0')
     len = 0;
-  else
-    len = strlen(str);
+  లేకపోతే
+    len = అక్షరశ్రేణి_పొడవు(str);
 
-  width -= (len > INT_MAX) ? INT_MAX : (int)len;
+  వెడల్పు -= (len > గరిష్ఠ_పూర్ణాంకం) ? గరిష్ఠ_పూర్ణాంకం : (పూర్ణాంకం)len;
 
-  if(flags & FLAGS_ALT)
+  ఒకవేళ(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  if(!(flags & FLAGS_LEFT)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
-    width = 0;
+  ఒకవేళ(!(flags & FLAGS_ఎడమ)) {
+    ఒకవేళ(ప్రవాహం_pad(userp, ప్రవాహం, streamn, ' ', వెడల్పు, donep))
+      తిరిగి TRUE;
+    వెడల్పు = 0;
   }
 
   /* With no precision, len is already the exact length; emit it without
      scanning again. With precision, scan up to len but stop at NUL, since
      the string may be shorter or the buffer may not be null-terminated. */
-  if(prec == -1) {
-    if(stream_run(userp, stream, streamn,
-                  (const unsigned char *)str, len, donep))
-      return TRUE;
+  ఒకవేళ(prec == -1) {
+    ఒకవేళ(ప్రవాహం_నిరంతరం(userp, ప్రవాహం, streamn,
+                  (స్థిరరాశి గుర్తులేని అక్షరం *)str, len, donep))
+      తిరిగి TRUE;
   }
-  else if(stream_zrun(userp, stream, streamn, str, len, donep))
-    return TRUE;
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  లేకపోతే ఒకవేళ(ప్రవాహం_zrun(userp, ప్రవాహం, streamn, str, len, donep))
+    తిరిగి TRUE;
+  ఒకవేళ(flags & FLAGS_ఎడమ) {
+    ఒకవేళ(ప్రవాహం_pad(userp, ప్రవాహం, streamn, ' ', వెడల్పు, donep))
+      తిరిగి TRUE;
   }
 
-  if(flags & FLAGS_ALT)
+  ఒకవేళ(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static bool out_pointer(void *userp,
-                        int (*stream)(unsigned char, void *),
+స్థిర bool బహిర్గతం_సూచిక(శూన్య *userp,
+                        పూర్ణాంకం (*ప్రవాహం)(గుర్తులేని అక్షరం, శూన్య *),
                         mp_streamn streamn,
-                        struct mproperty *p,
-                        const char *ptr,
-                        char *work,
-                        int *donep)
+                        నిర్మాణం mproperty *p,
+                        స్థిరరాశి అక్షరం *ptr,
+                        అక్షరం *work,
+                        పూర్ణాంకం *donep)
 {
   /* Generic pointer. */
-  if(ptr) {
-    size_t num = (size_t)ptr;
+  ఒకవేళ(ptr) {
+    size_t అంకె = (size_t)ptr;
 
     /* If the pointer is not NULL, write it as a %#x spec. */
     p->flags |= FLAGS_HEX | FLAGS_ALT;
-    if(out_number(userp, stream, streamn, p, num, 0, work, donep))
-      return TRUE;
+    ఒకవేళ(బహిర్గతం_సంఖ్య(userp, ప్రవాహం, streamn, p, అంకె, 0, work, donep))
+      తిరిగి TRUE;
   }
-  else {
+  లేకపోతే {
     /* Write "(nil)" for a nil pointer. */
-    int width = p->width;
-    int flags = p->flags;
+    పూర్ణాంకం వెడల్పు = p->వెడల్పు;
+    పూర్ణాంకం flags = p->flags;
 
-    width -= (int)CURL_CSTRLEN(nilstr);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
-      width = 0;
+    వెడల్పు -= (పూర్ణాంకం)CURL_CSTRLEN(nilstr);
+    ఒకవేళ(flags & FLAGS_ఎడమ) {
+      ఒకవేళ(ప్రవాహం_pad(userp, ప్రవాహం, streamn, ' ', వెడల్పు, donep))
+        తిరిగి TRUE;
+      వెడల్పు = 0;
     }
-    if(stream_run(userp, stream, streamn, (const unsigned char *)nilstr,
-                  sizeof(nilstr) - 1, donep))
-      return TRUE;
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+    ఒకవేళ(ప్రవాహం_నిరంతరం(userp, ప్రవాహం, streamn, (స్థిరరాశి గుర్తులేని అక్షరం *)nilstr,
+                  పరిమాణం(nilstr) - 1, donep))
+      తిరిగి TRUE;
+    ఒకవేళ(!(flags & FLAGS_ఎడమ)) {
+      ఒకవేళ(ప్రవాహం_pad(userp, ప్రవాహం, streamn, ' ', వెడల్పు, donep))
+        తిరిగి TRUE;
     }
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
 /*
@@ -1086,433 +1086,433 @@ static bool out_pointer(void *userp,
  *
  * All output is sent to the 'stream()' callback, one byte at a time.
  */
-static int formatf(void *userp, /* untouched by format(), sent to the
+స్థిర పూర్ణాంకం formatf(శూన్య *userp, /* untouched by format(), sent to the
                                    stream() function in the second argument */
                    /* function pointer called for each output character */
-                   int (*stream)(unsigned char, void *),
+                   పూర్ణాంకం (*ప్రవాహం)(గుర్తులేని అక్షరం, శూన్య *),
                    /* optional block-output function pointer */
                    mp_streamn streamn,
                    /* optional, commits output the sink is holding */
                    mp_flush flush,
-                   const char *format, /* %-formatted string */
+                   స్థిరరాశి అక్షరం *format, /* %-formatted string */
                    va_list ap_save) /* list of parameters */
 {
-  int done = 0;   /* number of characters written */
-  int i;
-  int ocount = 0; /* number of output segments */
-  int icount = 0; /* number of input arguments */
+  పూర్ణాంకం పూర్తి = 0;   /* number of characters written */
+  పూర్ణాంకం i;
+  పూర్ణాంకం ocount = 0; /* number of output segments */
+  పూర్ణాంకం icount = 0; /* number of input arguments */
 
-  struct outsegment output[MAX_SEGMENTS];
-  struct va_input input[MAX_PARAMETERS];
-  char work[BUFFSIZE + 2];
+  నిర్మాణం outsegment output[MAX_SEGMENTS];
+  నిర్మాణం va_ఆదానం ఆదానం[MAX_PARAMETERS];
+  అక్షరం work[BUFFSIZE + 2];
 
   /* Parse the format string */
-  if(parsefmt(format, output, input, &ocount, &icount, ap_save))
-    return 0;
+  ఒకవేళ(parsefmt(format, output, ఆదానం, &ocount, &icount, ap_save))
+    తిరిగి 0;
 
-  for(i = 0; i < ocount; i++) {
-    struct outsegment *optr = &output[i];
-    struct va_input *iptr = &input[optr->input];
-    struct mproperty p;
+  కొరకు(i = 0; i < ocount; i++) {
+    నిర్మాణం outsegment *optr = &output[i];
+    నిర్మాణం va_ఆదానం *iptr = &ఆదానం[optr->ఆదానం];
+    నిర్మాణం mproperty p;
     size_t outlen = optr->outlen;
 
-    if(outlen) {
-      if(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
-        return done;
-      if(optr->flags & FLAGS_SUBSTR)
+    ఒకవేళ(outlen) {
+      ఒకవేళ(ప్రవాహం_zrun(userp, ప్రవాహం, streamn, optr->ప్రారంభం, outlen, &పూర్తి))
+        తిరిగి పూర్తి;
+      ఒకవేళ(optr->flags & FLAGS_SUBSTR)
         /* this is a substring */
-        continue;
+        కొనసాగు;
     }
 
     p.flags = optr->flags;
 
     /* pick up the specified width */
-    if(p.flags & FLAGS_WIDTHPARAM) {
-      p.width = (int)input[optr->width].val.nums;
-      if(p.width < 0) {
+    ఒకవేళ(p.flags & FLAGS_WIDTHPARAM) {
+      p.వెడల్పు = (పూర్ణాంకం)ఆదానం[optr->వెడల్పు].val.nums;
+      ఒకవేళ(p.వెడల్పు < 0) {
         /* "A negative field width is taken as a '-' flag followed by a
            positive field width." */
-        if(p.width == INT_MIN)
-          p.width = INT_MAX;
-        else
-          p.width = -p.width;
-        p.flags |= FLAGS_LEFT;
-        p.flags &= ~(unsigned int)FLAGS_PAD_NIL;
+        ఒకవేళ(p.వెడల్పు == INT_MIN)
+          p.వెడల్పు = గరిష్ఠ_పూర్ణాంకం;
+        లేకపోతే
+          p.వెడల్పు = -p.వెడల్పు;
+        p.flags |= FLAGS_ఎడమ;
+        p.flags &= ~(గుర్తులేని పూర్ణాంకం)FLAGS_PAD_NIL;
       }
     }
-    else
-      p.width = optr->width;
+    లేకపోతే
+      p.వెడల్పు = optr->వెడల్పు;
 
     /* pick up the specified precision */
-    if(p.flags & FLAGS_PRECPARAM) {
-      p.prec = (int)input[optr->precision].val.nums;
-      if(p.prec < 0)
+    ఒకవేళ(p.flags & FLAGS_PRECPARAM) {
+      p.prec = (పూర్ణాంకం)ఆదానం[optr->precision].val.nums;
+      ఒకవేళ(p.prec < 0)
         /* "A negative precision is taken as if the precision were
            omitted." */
         p.prec = -1;
     }
-    else if(p.flags & FLAGS_PREC)
+    లేకపోతే ఒకవేళ(p.flags & FLAGS_PREC)
       p.prec = optr->precision;
-    else
+    లేకపోతే
       p.prec = -1;
 
-    switch(iptr->type) {
-    case MTYPE_INTU:
-    case MTYPE_LONGU:
-    case MTYPE_LONGLONGU:
+    ఎంపిక(iptr->type) {
+    స్థితి MTYPE_INTU:
+    స్థితి MTYPE_LONGU:
+    స్థితి MTYPE_LONGLONGU:
       p.flags |= FLAGS_UNSIGNED;
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu, 0, work,
-                    &done))
-        return done;
-      break;
+      ఒకవేళ(బహిర్గతం_సంఖ్య(userp, ప్రవాహం, streamn, &p, iptr->val.numu, 0, work,
+                    &పూర్తి))
+        తిరిగి పూర్తి;
+      ఆపు;
 
-    case MTYPE_INT:
-    case MTYPE_LONG:
-    case MTYPE_LONGLONG:
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu,
-                    iptr->val.nums, work, &done))
-        return done;
-      break;
+    స్థితి MTYPE_INT:
+    స్థితి MTYPE_LONG:
+    స్థితి MTYPE_LONGLONG:
+      ఒకవేళ(బహిర్గతం_సంఖ్య(userp, ప్రవాహం, streamn, &p, iptr->val.numu,
+                    iptr->val.nums, work, &పూర్తి))
+        తిరిగి పూర్తి;
+      ఆపు;
 
-    case MTYPE_STRING:
-      if(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
-        return done;
-      break;
+    స్థితి MTYPE_STRING:
+      ఒకవేళ(బహిర్గతం_string(userp, ప్రవాహం, streamn, &p, iptr->val.str, &పూర్తి))
+        తిరిగి పూర్తి;
+      ఆపు;
 
-    case MTYPE_PTR:
-      if(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
-                     &done))
-        return done;
-      break;
+    స్థితి MTYPE_PTR:
+      ఒకవేళ(బహిర్గతం_సూచిక(userp, ప్రవాహం, streamn, &p, iptr->val.ptr, work,
+                     &పూర్తి))
+        తిరిగి పూర్తి;
+      ఆపు;
 
-    case MTYPE_DOUBLE:
-    case MTYPE_LONGDOUBLE:
-      if(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
-                    &done))
-        return done;
-      break;
+    స్థితి MTYPE_DOUBLE:
+    స్థితి MTYPE_LONGDOUBLE:
+      ఒకవేళ(బహిర్గతం_double(userp, ప్రవాహం, streamn, &p, iptr->val.dnum, work,
+                    &పూర్తి))
+        తిరిగి పూర్తి;
+      ఆపు;
 
-    case MTYPE_INTPTR:
+    స్థితి MTYPE_INTPTR:
       /* %n is observable by the caller, so commit what is pending first and
          perform it only if that succeeded, as a sink that never holds output
          would. */
-      if(flush && flush(userp))
-        return done;
+      ఒకవేళ(flush && flush(userp))
+        తిరిగి పూర్తి;
       /* Answer the count of characters written. */
-      if(p.flags & FLAGS_LONGLONG)
-        *(int64_t *)iptr->val.ptr = (int64_t)done;
-      else if(p.flags & FLAGS_LONG)
-        *(long *)iptr->val.ptr = (long)done;
-      else if(!(p.flags & FLAGS_SHORT))
-        *(int *)iptr->val.ptr = done;
-      else
-        *(short *)iptr->val.ptr = (short)done;
-      break;
+      ఒకవేళ(p.flags & FLAGS_LONGLONG)
+        *(int64_t *)iptr->val.ptr = (int64_t)పూర్తి;
+      లేకపోతే ఒకవేళ(p.flags & FLAGS_LONG)
+        *(దీర్ఘ *)iptr->val.ptr = (దీర్ఘ)పూర్తి;
+      లేకపోతే ఒకవేళ(!(p.flags & FLAGS_SHORT))
+        *(పూర్ణాంకం *)iptr->val.ptr = పూర్తి;
+      లేకపోతే
+        *(పొట్టి *)iptr->val.ptr = (పొట్టి)పూర్తి;
+      ఆపు;
 
-    default:
-      break;
+    అప్రమేయ:
+      ఆపు;
     }
   }
-  return done;
+  తిరిగి పూర్తి;
 }
 
 /* fputc() look-alike */
-static int addbyter(unsigned char outc, void *f)
+స్థిర పూర్ణాంకం addbyter(గుర్తులేని అక్షరం outc, శూన్య *f)
 {
-  struct nsprintf *infop = f;
-  if(infop->length < infop->max) {
+  నిర్మాణం nsprintf *infop = f;
+  ఒకవేళ(infop->నిడివి < infop->max) {
     /* only do this if we have not reached max length yet */
-    *infop->buffer++ = (char)outc; /* store */
-    infop->length++; /* we are now one byte larger */
-    return 0;     /* fputc() returns like this on success */
+    *infop->బఫరు++ = (అక్షరం)outc; /* store */
+    infop->నిడివి++; /* we are now one byte larger */
+    తిరిగి 0;     /* fputc() returns like this on success */
   }
-  return 1;
+  తిరిగి 1;
 }
 
 /* block variant of addbyter */
-static size_t addrun(const unsigned char *buf, size_t len, void *f)
+స్థిర size_t addrun(స్థిరరాశి గుర్తులేని అక్షరం *buf, size_t len, శూన్య *f)
 {
-  struct nsprintf *infop = f;
-  size_t fit = infop->max - infop->length;
-  if(len > fit)
+  నిర్మాణం nsprintf *infop = f;
+  size_t fit = infop->max - infop->నిడివి;
+  ఒకవేళ(len > fit)
     len = fit;
-  if(len) {
-    memcpy(infop->buffer, buf, len);
-    infop->buffer += len;
-    infop->length += len;
+  ఒకవేళ(len) {
+    జ్ఞాపకం_నకలు(infop->బఫరు, buf, len);
+    infop->బఫరు += len;
+    infop->నిడివి += len;
   }
-  return len;
+  తిరిగి len;
 }
 
-int curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
-                    va_list args)
+పూర్ణాంకం curl_mvsnprintf(అక్షరం *బఫరు, size_t maxlength, స్థిరరాశి అక్షరం *format,
+                    va_list వాదనలు)
 {
-  int retcode;
-  struct nsprintf info;
+  పూర్ణాంకం retcode;
+  నిర్మాణం nsprintf info;
 
-  info.buffer = buffer;
-  info.length = 0;
+  info.బఫరు = బఫరు;
+  info.నిడివి = 0;
   info.max = maxlength;
 
-  retcode = formatf(&info, addbyter, addrun, NULL, format, args);
-  if(info.max) {
+  retcode = formatf(&info, addbyter, addrun, ఖాళీ, format, వాదనలు);
+  ఒకవేళ(info.max) {
     /* we null-terminate this */
-    if(info.max == info.length) {
+    ఒకవేళ(info.max == info.నిడివి) {
       /* we are at maximum, scrap the last letter */
-      info.buffer[-1] = 0;
+      info.బఫరు[-1] = 0;
       DEBUGASSERT(retcode);
       retcode--; /* do not count the NUL byte */
     }
-    else
-      info.buffer[0] = 0;
+    లేకపోతే
+      info.బఫరు[0] = 0;
   }
-  return retcode;
+  తిరిగి retcode;
 }
 
-int curl_msnprintf(char *buffer, size_t maxlength, const char *format, ...)
+పూర్ణాంకం curl_msnprintf(అక్షరం *బఫరు, size_t maxlength, స్థిరరాశి అక్షరం *format, ...)
 {
-  int retcode;
-  va_list args; /* argument pointer */
-  va_start(args, format);
-  retcode = curl_mvsnprintf(buffer, maxlength, format, args);
-  va_end(args);
-  return retcode;
+  పూర్ణాంకం retcode;
+  va_list వాదనలు; /* argument pointer */
+  va_start(వాదనలు, format);
+  retcode = curl_mvsnprintf(బఫరు, maxlength, format, వాదనలు);
+  va_end(వాదనలు);
+  తిరిగి retcode;
 }
 
 /* append the staged bytes to the dynbuf. Returns 1 on failure (and sets
    merr), 0 on success. */
-static int alloc_flush(void *f)
+స్థిర పూర్ణాంకం alloc_flush(శూన్య *f)
 {
-  struct asprintf *infop = f;
-  if(infop->nstage) {
-    CURLcode result = curlx_dyn_addn(infop->b, infop->stage, infop->nstage);
+  నిర్మాణం asprintf *infop = f;
+  ఒకవేళ(infop->nstage) {
+    CURLcode ఫలితం = curlx_dyn_addn(infop->b, infop->stage, infop->nstage);
     infop->nstage = 0;
-    if(result) {
-      infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-      return 1; /* fail */
+    ఒకవేళ(ఫలితం) {
+      infop->merr = ఫలితం == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
+      తిరిగి 1; /* fail */
     }
   }
-  return 0;
+  తిరిగి 0;
 }
 
 /* append directly, bypassing the stage. Returns 1 on failure. */
-static int alloc_addn(struct asprintf *infop, const unsigned char *buf,
+స్థిర పూర్ణాంకం alloc_addn(నిర్మాణం asprintf *infop, స్థిరరాశి గుర్తులేని అక్షరం *buf,
                       size_t len)
 {
-  CURLcode result = curlx_dyn_addn(infop->b, buf, len);
-  if(result) {
-    infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-    return 1; /* fail */
+  CURLcode ఫలితం = curlx_dyn_addn(infop->b, buf, len);
+  ఒకవేళ(ఫలితం) {
+    infop->merr = ఫలితం == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
+    తిరిగి 1; /* fail */
   }
-  return 0;
+  తిరిగి 0;
 }
 
 /* TRUE if 'more' additional bytes still fit the dynbuf size limit, counting
    what is already staged. curlx_dyn_addn() rejects an append when
    len + leng + 1 exceeds it. */
-static bool alloc_fits(struct asprintf *infop, size_t more)
+స్థిర bool alloc_సరిపోతుంది(నిర్మాణం asprintf *infop, size_t మరిన్ని)
 {
-  return (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
+  తిరిగి (infop->b->leng + infop->nstage + మరిన్ని + 1) <= infop->b->toobig;
 }
 
 /* fputc() look-alike */
-static int alloc_addbyter(unsigned char outc, void *f)
+స్థిర పూర్ణాంకం alloc_addbyter(గుర్తులేని అక్షరం outc, శూన్య *f)
 {
-  struct asprintf *infop = f;
-  if(infop->nstage == sizeof(infop->stage) && alloc_flush(infop))
-    return 1; /* fail */
-  if(!alloc_fits(infop, 1)) {
+  నిర్మాణం asprintf *infop = f;
+  ఒకవేళ(infop->nstage == పరిమాణం(infop->stage) && alloc_flush(infop))
+    తిరిగి 1; /* fail */
+  ఒకవేళ(!alloc_సరిపోతుంది(infop, 1)) {
     /* Does not fit the dynbuf size limit. Flush and append this byte on
        its own, so the limit is reported at exactly this byte and formatting
        stops where it would without staging. %n depends on that. */
-    if(alloc_flush(infop))
-      return 1;
-    return alloc_addn(infop, &outc, 1);
+    ఒకవేళ(alloc_flush(infop))
+      తిరిగి 1;
+    తిరిగి alloc_addn(infop, &outc, 1);
   }
   infop->stage[infop->nstage++] = outc;
-  return 0;
+  తిరిగి 0;
 }
 
 /* block variant of alloc_addbyter */
-static size_t alloc_addrun(const unsigned char *buf, size_t len, void *f)
+స్థిర size_t alloc_addrun(స్థిరరాశి గుర్తులేని అక్షరం *buf, size_t len, శూన్య *f)
 {
-  struct asprintf *infop = f;
+  నిర్మాణం asprintf *infop = f;
   size_t accepted = 0;
-  while(accepted < len) {
-    size_t room = sizeof(infop->stage) - infop->nstage;
+  అయితే(accepted < len) {
+    size_t స్థలం = పరిమాణం(infop->stage) - infop->nstage;
     size_t n;
-    if(!room) {
-      if(alloc_flush(infop))
-        return accepted; /* accepted < len aborts formatting */
-      room = sizeof(infop->stage);
+    ఒకవేళ(!స్థలం) {
+      ఒకవేళ(alloc_flush(infop))
+        తిరిగి accepted; /* accepted < len aborts formatting */
+      స్థలం = పరిమాణం(infop->stage);
     }
     n = len - accepted;
-    if(n > room)
-      n = room;
-    if(!alloc_fits(infop, n)) {
+    ఒకవేళ(n > స్థలం)
+      n = స్థలం;
+    ఒకవేళ(!alloc_సరిపోతుంది(infop, n)) {
       /* Run does not fit the dynbuf size limit. Stage what does, then
          append the first byte that does not on its own, so the limit is
          reported at exactly that byte. */
-      size_t fits = infop->b->toobig - infop->b->leng - infop->nstage - 1;
-      if(fits) {
-        memcpy(&infop->stage[infop->nstage], buf + accepted, fits);
-        infop->nstage += fits;
-        accepted += fits;
+      size_t సరిపోతుంది = infop->b->toobig - infop->b->leng - infop->nstage - 1;
+      ఒకవేళ(సరిపోతుంది) {
+        జ్ఞాపకం_నకలు(&infop->stage[infop->nstage], buf + accepted, సరిపోతుంది);
+        infop->nstage += సరిపోతుంది;
+        accepted += సరిపోతుంది;
       }
-      if(alloc_flush(infop))
-        return accepted;
-      if(alloc_addn(infop, buf + accepted, 1))
-        return accepted; /* accepted < len aborts formatting */
+      ఒకవేళ(alloc_flush(infop))
+        తిరిగి accepted;
+      ఒకవేళ(alloc_addn(infop, buf + accepted, 1))
+        తిరిగి accepted; /* accepted < len aborts formatting */
       accepted++;
-      continue;
+      కొనసాగు;
     }
-    memcpy(&infop->stage[infop->nstage], buf + accepted, n);
+    జ్ఞాపకం_నకలు(&infop->stage[infop->nstage], buf + accepted, n);
     infop->nstage += n;
     accepted += n;
   }
-  return accepted;
+  తిరిగి accepted;
 }
 
 /* appends the formatted string, returns MERR error code */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
+పూర్ణాంకం curlx_dyn_vprintf(నిర్మాణం dynbuf *dyn, స్థిరరాశి అక్షరం *format, va_list వాదనలు)
 {
-  struct asprintf info;
+  నిర్మాణం asprintf info;
   info.b = dyn;
   info.merr = MERR_OK;
   info.nstage = 0;
 
-  (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
-                format, args);
-  if(!info.merr)
-    (void)alloc_flush(&info);
-  if(info.merr) {
+  (శూన్య)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
+                format, వాదనలు);
+  ఒకవేళ(!info.merr)
+    (శూన్య)alloc_flush(&info);
+  ఒకవేళ(info.merr) {
     curlx_dyn_free(info.b);
-    return info.merr;
+    తిరిగి info.merr;
   }
-  return 0;
+  తిరిగి 0;
 }
 
-char *curl_mvaprintf(const char *format, va_list args)
+అక్షరం *curl_mvaprintf(స్థిరరాశి అక్షరం *format, va_list వాదనలు)
 {
-  struct asprintf info;
-  struct dynbuf dyn;
+  నిర్మాణం asprintf info;
+  నిర్మాణం dynbuf dyn;
   info.b = &dyn;
   curlx_dyn_init(info.b, DYN_APRINTF);
   info.merr = MERR_OK;
   info.nstage = 0;
 
-  (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
-                format, args);
-  if(!info.merr)
-    (void)alloc_flush(&info);
-  if(info.merr) {
+  (శూన్య)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
+                format, వాదనలు);
+  ఒకవేళ(!info.merr)
+    (శూన్య)alloc_flush(&info);
+  ఒకవేళ(info.merr) {
     curlx_dyn_free(info.b);
-    return NULL;
+    తిరిగి ఖాళీ;
   }
-  if(curlx_dyn_len(info.b))
-    return curlx_dyn_ptr(info.b);
-  return curlx_strdup("");
+  ఒకవేళ(curlx_dyn_len(info.b))
+    తిరిగి curlx_dyn_ptr(info.b);
+  తిరిగి curlx_strdup("");
 }
 
-char *curl_maprintf(const char *format, ...)
+అక్షరం *curl_maprintf(స్థిరరాశి అక్షరం *format, ...)
 {
-  va_list args;
-  char *s;
-  va_start(args, format);
-  s = curl_mvaprintf(format, args);
-  va_end(args);
-  return s;
+  va_list వాదనలు;
+  అక్షరం *s;
+  va_start(వాదనలు, format);
+  s = curl_mvaprintf(format, వాదనలు);
+  va_end(వాదనలు);
+  తిరిగి s;
 }
 
-static int storebuffer(unsigned char outc, void *f)
+స్థిర పూర్ణాంకం storebuffer(గుర్తులేని అక్షరం outc, శూన్య *f)
 {
-  char **buffer = f;
-  **buffer = (char)outc;
-  (*buffer)++;
-  return 0;
+  అక్షరం **బఫరు = f;
+  **బఫరు = (అక్షరం)outc;
+  (*బఫరు)++;
+  తిరిగి 0;
 }
 
 /* block variant of storebuffer */
-static size_t storerun(const unsigned char *buf, size_t len, void *f)
+స్థిర size_t storerun(స్థిరరాశి గుర్తులేని అక్షరం *buf, size_t len, శూన్య *f)
 {
-  char **buffer = f;
-  memcpy(*buffer, buf, len);
-  *buffer += len;
-  return len;
+  అక్షరం **బఫరు = f;
+  జ్ఞాపకం_నకలు(*బఫరు, buf, len);
+  *బఫరు += len;
+  తిరిగి len;
 }
 
-int curl_msprintf(char *buffer, const char *format, ...)
+పూర్ణాంకం curl_msprintf(అక్షరం *బఫరు, స్థిరరాశి అక్షరం *format, ...)
 {
-  va_list args; /* argument pointer */
-  int retcode;
-  va_start(args, format);
-  retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
-  va_end(args);
-  *buffer = 0; /* we null-terminate this */
-  return retcode;
+  va_list వాదనలు; /* argument pointer */
+  పూర్ణాంకం retcode;
+  va_start(వాదనలు, format);
+  retcode = formatf(&బఫరు, storebuffer, storerun, ఖాళీ, format, వాదనలు);
+  va_end(వాదనలు);
+  *బఫరు = 0; /* we null-terminate this */
+  తిరిగి retcode;
 }
 
-static int fputc_wrapper(unsigned char outc, void *f)
+స్థిర పూర్ణాంకం fputc_wrapper(గుర్తులేని అక్షరం outc, శూన్య *f)
 {
-  struct ioprintf *i = f;
-  int out = outc;
+  నిర్మాణం ioprintf *i = f;
+  పూర్ణాంకం బహిర్గతం = outc;
   FILE *s = i->fd;
-  int rc = fputc(out, s);
+  పూర్ణాంకం rc = fputc(బహిర్గతం, s);
   i->error = (rc == EOF);
-  return (rc == EOF);
+  తిరిగి (rc == EOF);
 }
 
 /* block variant of fputc_wrapper */
-static size_t fwrite_wrapper(const unsigned char *buf, size_t len, void *f)
+స్థిర size_t fwrite_wrapper(స్థిరరాశి గుర్తులేని అక్షరం *buf, size_t len, శూన్య *f)
 {
-  struct ioprintf *i = f;
+  నిర్మాణం ioprintf *i = f;
   size_t n;
   FILE *s = i->fd;
   n = fwrite(buf, 1, len, s);
   i->error = (n != len);
-  return n;
+  తిరిగి n;
 }
 
-int curl_mvfprintf(FILE *fd, const char *format, va_list args)
+పూర్ణాంకం curl_mvfprintf(FILE *fd, స్థిరరాశి అక్షరం *format, va_list వాదనలు)
 {
-  struct ioprintf info;
-  int n;
+  నిర్మాణం ioprintf info;
+  పూర్ణాంకం n;
   info.fd = fd;
   info.error = FALSE;
-  n = formatf(&info, fputc_wrapper, fwrite_wrapper, NULL, format, args);
-  if(info.error)
-    return -1;
-  return n;
+  n = formatf(&info, fputc_wrapper, fwrite_wrapper, ఖాళీ, format, వాదనలు);
+  ఒకవేళ(info.error)
+    తిరిగి -1;
+  తిరిగి n;
 }
 
-int curl_mfprintf(FILE *fd, const char *format, ...)
+పూర్ణాంకం curl_mfprintf(FILE *fd, స్థిరరాశి అక్షరం *format, ...)
 {
-  va_list args; /* argument pointer */
-  int n;
-  va_start(args, format);
-  n = curl_mvfprintf(fd, format, args);
-  va_end(args);
-  return n;
+  va_list వాదనలు; /* argument pointer */
+  పూర్ణాంకం n;
+  va_start(వాదనలు, format);
+  n = curl_mvfprintf(fd, format, వాదనలు);
+  va_end(వాదనలు);
+  తిరిగి n;
 }
 
-int curl_mprintf(const char *format, ...)
+పూర్ణాంకం curl_mprintf(స్థిరరాశి అక్షరం *format, ...)
 {
-  va_list args; /* argument pointer */
-  int n;
-  va_start(args, format);
-  n = curl_mvfprintf(stdout, format, args);
-  va_end(args);
-  return n;
+  va_list వాదనలు; /* argument pointer */
+  పూర్ణాంకం n;
+  va_start(వాదనలు, format);
+  n = curl_mvfprintf(stdout, format, వాదనలు);
+  va_end(వాదనలు);
+  తిరిగి n;
 }
 
-int curl_mvsprintf(char *buffer, const char *format, va_list args)
+పూర్ణాంకం curl_mvsprintf(అక్షరం *బఫరు, స్థిరరాశి అక్షరం *format, va_list వాదనలు)
 {
-  int retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
-  *buffer = 0; /* we null-terminate this */
-  return retcode;
+  పూర్ణాంకం retcode = formatf(&బఫరు, storebuffer, storerun, ఖాళీ, format, వాదనలు);
+  *బఫరు = 0; /* we null-terminate this */
+  తిరిగి retcode;
 }
 
-int curl_mvprintf(const char *format, va_list args)
+పూర్ణాంకం curl_mvprintf(స్థిరరాశి అక్షరం *format, va_list వాదనలు)
 {
-  return curl_mvfprintf(stdout, format, args);
+  తిరిగి curl_mvfprintf(stdout, format, వాదనలు);
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MD5_H
-#define HEADER_CURL_MD5_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_MD5_H
+#నిర్వచించు శీర్షిక_CURL_MD5_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,44 +24,44 @@
  *
  ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
+#ఒకవేళ (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "curl_hmac.h"
+#అన్తర్భావ "curl_hmac.h"
 
-#define MD5_DIGEST_LEN  16
+#నిర్వచించు MD5_DIGEST_LEN  16
 
-typedef CURLcode (*Curl_MD5_init_func)(void *context);
-typedef void (*Curl_MD5_update_func)(void *context,
-                                     const unsigned char *data,
-                                     unsigned int len);
-typedef void (*Curl_MD5_final_func)(unsigned char *result, void *context);
+రకనిర్వచనం CURLcode (*Curl_MD5_init_func)(శూన్య *context);
+రకనిర్వచనం శూన్య (*Curl_MD5_update_func)(శూన్య *context,
+                                     స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం,
+                                     గుర్తులేని పూర్ణాంకం len);
+రకనిర్వచనం శూన్య (*Curl_MD5_final_func)(గుర్తులేని అక్షరం *ఫలితం, శూన్య *context);
 
-struct MD5_params {
+నిర్మాణం MD5_params {
   Curl_MD5_init_func md5_init_func;     /* Initialize context procedure */
   Curl_MD5_update_func md5_update_func; /* Update context with data */
   Curl_MD5_final_func md5_final_func;   /* Get final result procedure */
-  unsigned int md5_ctxtsize;            /* Context structure size */
-  unsigned int md5_resultlen;           /* Result length (bytes) */
+  గుర్తులేని పూర్ణాంకం md5_ctxtsize;            /* Context structure size */
+  గుర్తులేని పూర్ణాంకం md5_resultlen;           /* Result length (bytes) */
 };
 
-struct MD5_context {
-  const struct MD5_params *md5_hash;  /* Hash function definition */
-  void *md5_hashctx;                  /* Hash function context */
+నిర్మాణం MD5_context {
+  స్థిరరాశి నిర్మాణం MD5_params *md5_hash;  /* Hash function definition */
+  శూన్య *md5_hashctx;                  /* Hash function context */
 };
 
-extern const struct MD5_params Curl_DIGEST_MD5;
-extern const struct HMAC_params Curl_HMAC_MD5;
+బాహ్య స్థిరరాశి నిర్మాణం MD5_params Curl_DIGEST_MD5;
+బాహ్య స్థిరరాశి నిర్మాణం HMAC_params Curl_HMAC_MD5;
 
-CURLcode Curl_md5it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_md5it(గుర్తులేని అక్షరం *output, స్థిరరాశి గుర్తులేని అక్షరం *ఆదానం,
                     size_t len);
 
-struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params);
-CURLcode Curl_MD5_update(struct MD5_context *context,
-                         const unsigned char *input,
-                         unsigned int len);
-CURLcode Curl_MD5_final(struct MD5_context *context, unsigned char *result);
+నిర్మాణం MD5_context *Curl_MD5_init(స్థిరరాశి నిర్మాణం MD5_params *md5params);
+CURLcode Curl_MD5_update(నిర్మాణం MD5_context *context,
+                         స్థిరరాశి గుర్తులేని అక్షరం *ఆదానం,
+                         గుర్తులేని పూర్ణాంకం len);
+CURLcode Curl_MD5_final(నిర్మాణం MD5_context *context, గుర్తులేని అక్షరం *ఫలితం);
 
-#endif
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_MD5_H */
+#అయితే_ముగింపు /* HEADER_CURL_MD5_H */

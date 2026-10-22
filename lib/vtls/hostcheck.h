@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HOSTCHECK_H
-#define HEADER_CURL_HOSTCHECK_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_HOSTCHECK_H
+#నిర్వచించు శీర్షిక_CURL_HOSTCHECK_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if defined(USE_OPENSSL) || defined(USE_SCHANNEL)
+#ఒకవేళ defined(USE_OPENSSL) || defined(USE_SCHANNEL)
 
 /* returns TRUE if there is a match */
-bool Curl_cert_hostcheck(const char *match, size_t matchlen,
-                         const char *hostname, size_t hostlen);
+bool Curl_cert_hostcheck(స్థిరరాశి అక్షరం *సరిపోలిక, size_t matchlen,
+                         స్థిరరాశి అక్షరం *hostname, size_t hostlen);
 
-#endif
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_HOSTCHECK_H */
+#అయితే_ముగింపు /* HEADER_CURL_HOSTCHECK_H */

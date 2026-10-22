@@ -21,29 +21,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "bufref.h"
-#include "curlx/strdup.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "bufref.h"
+#అన్తర్భావ "curlx/strdup.h"
 
-#ifdef DEBUGBUILD
-#define SIGNATURE 0x5c48e9b2    /* Random pattern. */
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+#నిర్వచించు SIGNATURE 0x5c48e9b2    /* Random pattern. */
+#అయితే_ముగింపు
 
 /*
  * Init a bufref struct.
  */
-void Curl_bufref_init(struct bufref *br)
+శూన్య Curl_bufref_init(నిర్మాణం bufref *br)
 {
   DEBUGASSERT(br);
-  br->dtor = NULL;
-  br->ptr = NULL;
+  br->dtor = ఖాళీ;
+  br->ptr = ఖాళీ;
   br->len = 0;
 
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   br->signature = SIGNATURE;
-#endif
+#అయితే_ముగింపు
 }
 
 /*
@@ -51,17 +51,17 @@ void Curl_bufref_init(struct bufref *br)
  * 'signature' field and thus this buffer reference can be reused.
  */
 
-void Curl_bufref_free(struct bufref *br)
+శూన్య Curl_bufref_free(నిర్మాణం bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  if(br->ptr && br->dtor)
+  ఒకవేళ(br->ptr && br->dtor)
     br->dtor(CURL_UNCONST(br->ptr));
 
-  br->dtor = NULL;
-  br->ptr = NULL;
+  br->dtor = ఖాళీ;
+  br->ptr = ఖాళీ;
   br->len = 0;
 }
 
@@ -69,14 +69,14 @@ void Curl_bufref_free(struct bufref *br)
  * Set the buffer reference to new values. The previously referenced buffer
  * is released before assignment.
  */
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *))
+శూన్య Curl_bufref_సమితి(నిర్మాణం bufref *br, స్థిరరాశి శూన్య *ptr, size_t len,
+                     శూన్య (*dtor)(శూన్య *))
 {
   DEBUGASSERT(ptr || !len);
-  DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
+  DEBUGASSERT(len <= CURL_MAX_ఆదానం_నిడివి);
 
   Curl_bufref_free(br);
-  br->ptr = (const unsigned char *)ptr;
+  br->ptr = (స్థిరరాశి గుర్తులేని అక్షరం *)ptr;
   br->len = len;
   br->dtor = dtor;
 }
@@ -84,55 +84,55 @@ void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
 /*
  * Get a pointer to the referenced buffer.
  */
-const unsigned char *Curl_bufref_uptr(const struct bufref *br)
+స్థిరరాశి గుర్తులేని అక్షరం *Curl_bufref_uptr(స్థిరరాశి నిర్మాణం bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return br->ptr;
+  తిరిగి br->ptr;
 }
 
 /*
  * Get a pointer to the referenced string.
  */
-const char *Curl_bufref_ptr(const struct bufref *br)
+స్థిరరాశి అక్షరం *Curl_bufref_ptr(స్థిరరాశి నిర్మాణం bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return (const char *)br->ptr;
+  తిరిగి (స్థిరరాశి అక్షరం *)br->ptr;
 }
 
 /*
  * Get the length of the referenced buffer data.
  */
-size_t Curl_bufref_len(const struct bufref *br)
+size_t Curl_bufref_len(స్థిరరాశి నిర్మాణం bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return br->len;
+  తిరిగి br->len;
 }
 
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len)
+CURLcode Curl_bufref_memdup0(నిర్మాణం bufref *br, స్థిరరాశి శూన్య *ptr, size_t len)
 {
-  unsigned char *cpy = NULL;
+  గుర్తులేని అక్షరం *cpy = ఖాళీ;
 
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
   DEBUGASSERT(ptr || !len);
-  DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
+  DEBUGASSERT(len <= CURL_MAX_ఆదానం_నిడివి);
 
-  if(ptr) {
+  ఒకవేళ(ptr) {
     cpy = curlx_memdup0(ptr, len);
-    if(!cpy)
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(!cpy)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  Curl_bufref_set(br, cpy, len, curl_free);
-  return CURLE_OK;
+  Curl_bufref_సమితి(br, cpy, len, curl_free);
+  తిరిగి CURLE_OK;
 }

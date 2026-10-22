@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_STRCOPY_H
-#define HEADER_CURLX_STRCOPY_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURLX_STRCOPY_H
+#నిర్వచించు శీర్షిక_CURLX_STRCOPY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,9 +24,9 @@
  *
  ***************************************************************************/
 
-void curlx_strcopy(char *dest,
+శూన్య curlx_strcopy(అక్షరం *dest,
                    size_t dsize, /* size of target buffer */
-                   const char *src,
+                   స్థిరరాశి అక్షరం *src,
                    size_t slen); /* length of string to copy */
 
-#endif /* HEADER_CURLX_STRCOPY_H */
+#అయితే_ముగింపు /* HEADER_CURLX_STRCOPY_H */

@@ -21,55 +21,55 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
 /***********************************************************************
  * Only for threaded name resolves builds
  **********************************************************************/
-#ifdef USE_RESOLV_THREADED
+#నిర్వచితమైతే USE_RESOLV_THREADED
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే __VMS
+#అన్తర్భావ <in.h>
+#అన్తర్భావ <inet.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_GETADDRINFO
-#define RESOLVER_ENOMEM  EAI_MEMORY  /* = WSA_NOT_ENOUGH_MEMORY on Windows */
-#else
-#define RESOLVER_ENOMEM  SOCKENOMEM
-#endif
+#నిర్వచితమైతే HAVE_GETADDRINFO
+#నిర్వచించు RESOLVER_ENOMEM  EAI_MEMORY  /* = WSA_NOT_ENOUGH_MEMORY on Windows */
+#లేకపోతే
+#నిర్వచించు RESOLVER_ENOMEM  SOCKENOMEM
+#అయితే_ముగింపు
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "url.h"
-#include "multiif.h"
-#include "curl_threads.h"
-#include "progress.h"
-#include "rand.h"
-#include "select.h"
-#include "thrdqueue.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
-#include "curlx/strparse.h"
-#include "curlx/wait.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "curl_addrinfo.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "curl_threads.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "rand.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "thrdqueue.h"
+#అన్తర్భావ "vdns/hostip.h"
+#అన్తర్భావ "vdns/httpsrr.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "curlx/wait.h"
 
-#ifdef USE_ARES
-#include <ares.h>
-#ifdef USE_HTTPSRR
-#define USE_HTTPSRR_ARES  /* the combo */
-#endif
-#endif
+#నిర్వచితమైతే USE_ARES
+#అన్తర్భావ <ares.h>
+#నిర్వచితమైతే USE_HTTPSRR
+#నిర్వచించు USE_HTTPSRR_ARES  /* the combo */
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
 
 /*
@@ -77,14 +77,14 @@
  * Called from curl_global_init() to initialize global resolver environment.
  * Does nothing here.
  */
-int Curl_async_global_init(void)
+పూర్ణాంకం Curl_async_global_init(శూన్య)
 {
-#if defined(USE_ARES) && defined(CARES_HAVE_ARES_LIBRARY_INIT)
-  if(ares_library_init(ARES_LIB_INIT_ALL)) {
-    return CURLE_FAILED_INIT;
+#ఒకవేళ defined(USE_ARES) && defined(CARES_HAVE_ARES_LIBRARY_INIT)
+  ఒకవేళ(ares_library_init(ARES_LIB_INIT_ALL)) {
+    తిరిగి CURLE_FAILED_INIT;
   }
-#endif
-  return CURLE_OK;
+#అయితే_ముగింపు
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -92,761 +92,761 @@ int Curl_async_global_init(void)
  * Called from curl_global_cleanup() to destroy global resolver environment.
  * Does nothing here.
  */
-void Curl_async_global_cleanup(void)
+శూన్య Curl_async_global_cleanup(శూన్య)
 {
-#if defined(USE_ARES) && defined(CARES_HAVE_ARES_LIBRARY_INIT)
+#ఒకవేళ defined(USE_ARES) && defined(CARES_HAVE_ARES_LIBRARY_INIT)
   ares_library_cleanup();
-#endif
+#అయితే_ముగింపు
 }
 
-#ifdef CURLVERBOSE
-#define CURL_ASYN_ITEM_DESC_LEN   64
-#define async_item_description(x)   (x)->description
-#else
-#define async_item_description(x)   NULL
-#endif
+#నిర్వచితమైతే CURLVERBOSE
+#నిర్వచించు CURL_ASYN_అంశం_DESC_LEN   64
+#నిర్వచించు async_అంశం_description(x)   (x)->description
+#లేకపోతే
+#నిర్వచించు async_అంశం_description(x)   ఖాళీ
+#అయితే_ముగింపు
 
-struct async_thrdd_item {
-  struct Curl_addrinfo *res;
-#ifdef CURLVERBOSE
-  char description[CURL_ASYN_ITEM_DESC_LEN];
-#endif
-  int sockerr;
+నిర్మాణం async_thrdd_అంశం {
+  నిర్మాణం Curl_addrinfo *res;
+#నిర్వచితమైతే CURLVERBOSE
+  అక్షరం description[CURL_ASYN_అంశం_DESC_LEN];
+#అయితే_ముగింపు
+  పూర్ణాంకం sockerr;
   uint32_t mid;
   uint32_t resolv_id;
-  uint16_t port;
+  uint16_t పోర్టు;
   uint8_t transport;
   uint8_t dns_queries;
-  BIT(negative); /* resolver answered that the name does not exist */
-#ifdef DEBUGBUILD
+  బిట్టు(negative); /* resolver answered that the name does not exist */
+#నిర్వచితమైతే DEBUGBUILD
   uint32_t delay_ms;
   uint32_t delay_fail_ms;
-  BIT(dbg_negative);
-#endif
-  char hostname[1];
+  బిట్టు(dbg_negative);
+#అయితే_ముగింపు
+  అక్షరం hostname[1];
 };
 
 /* Give up reference to add_ctx */
-static void async_thrdd_item_destroy(struct async_thrdd_item *item)
+స్థిర శూన్య async_thrdd_అంశం_destroy(నిర్మాణం async_thrdd_అంశం *అంశం)
 {
-  if(item) {
-    if(item->res)
-      Curl_freeaddrinfo(item->res);
-    curlx_free(item);
+  ఒకవేళ(అంశం) {
+    ఒకవేళ(అంశం->res)
+      Curl_freeaddrinfo(అంశం->res);
+    curlx_free(అంశం);
   }
 }
 
 /* Initialize context for threaded resolver */
-static struct async_thrdd_item *async_thrdd_item_create(
-  struct Curl_easy *data,
+స్థిర నిర్మాణం async_thrdd_అంశం *async_thrdd_అంశం_create(
+  నిర్మాణం Curl_easy *దత్తాంశం,
   uint32_t resolv_id, uint8_t dns_queries,
-  const char *hostname, uint16_t port,
+  స్థిరరాశి అక్షరం *hostname, uint16_t పోర్టు,
   uint8_t transport)
 {
-  size_t hostlen = strlen(hostname);
-  struct async_thrdd_item *item;
+  size_t hostlen = అక్షరశ్రేణి_పొడవు(hostname);
+  నిర్మాణం async_thrdd_అంశం *అంశం;
 
-  item = curlx_calloc(1, sizeof(*item) + hostlen);
-  if(!item)
-    return NULL;
+  అంశం = curlx_calloc(1, పరిమాణం(*అంశం) + hostlen);
+  ఒకవేళ(!అంశం)
+    తిరిగి ఖాళీ;
 
-  if(hostlen) /* null-terminator of name already in struct size */
-    memcpy(item->hostname, hostname, hostlen);
-  item->mid = data->mid;
-  item->resolv_id = resolv_id;
-  item->dns_queries = dns_queries;
-  item->port = port;
-  item->transport = transport;
+  ఒకవేళ(hostlen) /* null-terminator of name already in struct size */
+    జ్ఞాపకం_నకలు(అంశం->hostname, hostname, hostlen);
+  అంశం->mid = దత్తాంశం->mid;
+  అంశం->resolv_id = resolv_id;
+  అంశం->dns_queries = dns_queries;
+  అంశం->పోర్టు = పోర్టు;
+  అంశం->transport = transport;
 
-#ifdef CURLVERBOSE
-  curl_msnprintf(item->description, sizeof(item->description),
+#నిర్వచితమైతే CURLVERBOSE
+  curl_msnprintf(అంశం->description, పరిమాణం(అంశం->description),
                  "[%" FMT_OFF_T "/%u] %s %s:%u",
-                 data->id, item->resolv_id,
+                 దత్తాంశం->id, అంశం->resolv_id,
                  Curl_resolv_query_str(dns_queries),
-                 item->hostname, item->port);
-#endif
+                 అంశం->hostname, అంశం->పోర్టు);
+#అయితే_ముగింపు
 
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   {
-    const char *p = getenv("CURL_DBG_RESOLV_DELAY");
-    if(p) {
+    స్థిరరాశి అక్షరం *p = getenv("CURL_DBG_RESOLV_DELAY");
+    ఒకవేళ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
-        item->delay_ms = (uint32_t)l;
+      ఒకవేళ(!curlx_str_సంఖ్య(&p, &l, UINT32_MAX)) {
+        అంశం->delay_ms = (uint32_t)l;
       }
     }
     p = getenv("CURL_DBG_RESOLV_FAIL_DELAY");
-    if(p) {
+    ఒకవేళ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
-        unsigned char c = 0;
-        Curl_rand_bytes(data, FALSE, &c, 1);
-        item->delay_fail_ms = (uint32_t)l + c;
+      ఒకవేళ(!curlx_str_సంఖ్య(&p, &l, UINT32_MAX)) {
+        గుర్తులేని అక్షరం c = 0;
+        Curl_rand_బైట్లు(దత్తాంశం, FALSE, &c, 1);
+        అంశం->delay_fail_ms = (uint32_t)l + c;
       }
     }
-    if(getenv("CURL_DBG_RESOLV_FAIL_NEGATIVE"))
-      item->dbg_negative = TRUE;
+    ఒకవేళ(getenv("CURL_DBG_RESOLV_FAIL_NEGATIVE"))
+      అంశం->dbg_negative = TRUE;
   }
-#endif
+#అయితే_ముగింపు
 
-  return item;
+  తిరిగి అంశం;
 }
 
-#ifdef USE_HTTPSRR_ARES
+#నిర్వచితమైతే USE_HTTPSRR_ARES
 
-static void async_thrdd_rr_done(void *user_data, ares_status_t status,
+స్థిర శూన్య async_thrdd_rr_పూర్తి(శూన్య *user_దత్తాంశం, ares_స్థితి_t స్థితి_2,
                                 size_t timeouts,
-                                const ares_dns_record_t *dnsrec)
+                                స్థిరరాశి ares_dns_రికార్డు_t *dnsrec)
 {
-  struct Curl_resolv_async *async = user_data;
-  struct async_thrdd_ctx *thrdd = async ? &async->thrdd : NULL;
+  నిర్మాణం Curl_resolv_async *async = user_దత్తాంశం;
+  నిర్మాణం async_thrdd_ctx *thrdd = async ? &async->thrdd : ఖాళీ;
 
-  (void)timeouts;
-  if(!thrdd)
-    return;
+  (శూన్య)timeouts;
+  ఒకవేళ(!thrdd)
+    తిరిగి;
 
   async->dns_responses |= CURL_DNSQ_HTTPS;
   async->queries_ongoing--;
-  async->done = !async->queries_ongoing;
-  if((ARES_SUCCESS == status) && dnsrec)
-    async->result = Curl_httpsrr_from_ares(dnsrec, &async->httpsrr);
+  async->పూర్తి = !async->queries_ongoing;
+  ఒకవేళ((ARES_SUCCESS == స్థితి_2) && dnsrec)
+    async->ఫలితం = Curl_httpsrr_from_ares(dnsrec, &async->httpsrr);
 }
 
 /* Initialize the c-ares channel used for the HTTPS RR side-query, without
  * submitting any query on it yet. */
-static CURLcode async_rr_init(struct Curl_easy *data,
-                              struct Curl_resolv_async *async)
+స్థిర CURLcode async_rr_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_resolv_async *async)
 {
-  struct async_thrdd_ctx *thrdd = &async->thrdd;
-  int status;
+  నిర్మాణం async_thrdd_ctx *thrdd = &async->thrdd;
+  పూర్ణాంకం స్థితి_2;
 
-  (void)data;
+  (శూన్య)దత్తాంశం;
   DEBUGASSERT(!thrdd->rr.channel);
-  status = ares_init_options(&thrdd->rr.channel, NULL, 0);
-  if(status != ARES_SUCCESS) {
-    thrdd->rr.channel = NULL;
-    return CURLE_FAILED_INIT;
+  స్థితి_2 = ares_init_options(&thrdd->rr.channel, ఖాళీ, 0);
+  ఒకవేళ(స్థితి_2 != ARES_SUCCESS) {
+    thrdd->rr.channel = ఖాళీ;
+    తిరిగి CURLE_FAILED_INIT;
   }
-#ifdef DEBUGBUILD
-  if(getenv("CURL_DNS_SERVER")) {
-    const char *servers = getenv("CURL_DNS_SERVER");
-    status = ares_set_servers_ports_csv(thrdd->rr.channel, servers);
-    if(status)
-      return CURLE_FAILED_INIT;
+#నిర్వచితమైతే DEBUGBUILD
+  ఒకవేళ(getenv("CURL_DNS_SERVER")) {
+    స్థిరరాశి అక్షరం *servers = getenv("CURL_DNS_SERVER");
+    స్థితి_2 = ares_సమితి_servers_ports_csv(thrdd->rr.channel, servers);
+    ఒకవేళ(స్థితి_2)
+      తిరిగి CURLE_FAILED_INIT;
   }
-#endif
-  return CURLE_OK;
+#అయితే_ముగింపు
+  తిరిగి CURLE_OK;
 }
 
 /* Submit the HTTPS RR query on the already initialized channel. */
-static CURLcode async_rr_start(struct Curl_easy *data,
-                               struct Curl_resolv_async *async)
+స్థిర CURLcode async_rr_ప్రారంభం(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_resolv_async *async)
 {
-  struct async_thrdd_ctx *thrdd = &async->thrdd;
-  char *https_name = NULL;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం async_thrdd_ctx *thrdd = &async->thrdd;
+  అక్షరం *https_name = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(async->peer->port != 443) {
+  ఒకవేళ(async->peer->పోర్టు != 443) {
     https_name = curl_maprintf("_%u._https.%s",
-                               async->peer->port, async->peer->hostname);
-    if(!https_name) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+                               async->peer->పోర్టు, async->peer->hostname);
+    ఒకవేళ(!https_name) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
   async->queries_ongoing++;
   ares_query_dnsrec(thrdd->rr.channel,
                     https_name ? https_name : async->peer->hostname,
-                    ARES_CLASS_IN, ARES_REC_TYPE_HTTPS,
-                    async_thrdd_rr_done, async, NULL);
-  CURL_TRC_DNS(data, "[HTTPS] query records for %s",
+                    ARES_CLASS_లోపల, ARES_REC_TYPE_HTTPS,
+                    async_thrdd_rr_పూర్తి, async, ఖాళీ);
+  CURL_TRC_DNS(దత్తాంశం, "[HTTPS] query records for %s",
                https_name ? https_name : async->peer->hostname);
 
-out:
+బహిర్గతం:
   curlx_free(https_name);
-  return result;
+  తిరిగి ఫలితం;
 }
-#endif
+#అయితే_ముగింపు
 
-void Curl_async_thrdd_shutdown(struct Curl_easy *data,
-                               struct Curl_resolv_async *async)
+శూన్య Curl_async_thrdd_shutdown(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_resolv_async *async)
 {
-  Curl_async_thrdd_destroy(data, async);
+  Curl_async_thrdd_destroy(దత్తాంశం, async);
 }
 
-struct async_thrdd_match_ctx {
+నిర్మాణం async_thrdd_సరిపోలిక_ctx {
   uint32_t mid;
   uint32_t resolv_id;
 };
 
-static bool async_thrdd_match_item(void *qitem, void *match_data)
+స్థిర bool async_thrdd_సరిపోలిక_అంశం(శూన్య *qitem, శూన్య *సరిపోలిక_దత్తాంశం)
 {
-  const struct async_thrdd_match_ctx *ctx = match_data;
-  struct async_thrdd_item *item = qitem;
-  return (item->mid == ctx->mid) && (item->resolv_id == ctx->resolv_id);
+  స్థిరరాశి నిర్మాణం async_thrdd_సరిపోలిక_ctx *ctx = సరిపోలిక_దత్తాంశం;
+  నిర్మాణం async_thrdd_అంశం *అంశం = qitem;
+  తిరిగి (అంశం->mid == ctx->mid) && (అంశం->resolv_id == ctx->resolv_id);
 }
 
-void Curl_async_thrdd_destroy(struct Curl_easy *data,
-                              struct Curl_resolv_async *async)
+శూన్య Curl_async_thrdd_destroy(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_resolv_async *async)
 {
-  (void)data;
-  if(async->queries_ongoing && !async->done &&
-     data->multi && data->multi->resolv_thrdq) {
+  (శూన్య)దత్తాంశం;
+  ఒకవేళ(async->queries_ongoing && !async->పూర్తి &&
+     దత్తాంశం->multi && దత్తాంశం->multi->resolv_thrdq) {
     /* Remove any resolve items still queued */
-    struct async_thrdd_match_ctx mctx;
-    mctx.mid = data->mid;
+    నిర్మాణం async_thrdd_సరిపోలిక_ctx mctx;
+    mctx.mid = దత్తాంశం->mid;
     mctx.resolv_id = async->id;
-    Curl_thrdq_clear(data->multi->resolv_thrdq,
-                     async_thrdd_match_item, &mctx);
+    Curl_thrdq_clear(దత్తాంశం->multi->resolv_thrdq,
+                     async_thrdd_సరిపోలిక_అంశం, &mctx);
   }
-#ifdef USE_HTTPSRR_ARES
-  if(async->thrdd.rr.channel) {
+#నిర్వచితమైతే USE_HTTPSRR_ARES
+  ఒకవేళ(async->thrdd.rr.channel) {
     ares_destroy(async->thrdd.rr.channel);
-    async->thrdd.rr.channel = NULL;
+    async->thrdd.rr.channel = ఖాళీ;
   }
-#endif
-  async_thrdd_item_destroy(async->thrdd.res_A);
-  async->thrdd.res_A = NULL;
-  async_thrdd_item_destroy(async->thrdd.res_AAAA);
-  async->thrdd.res_AAAA = NULL;
+#అయితే_ముగింపు
+  async_thrdd_అంశం_destroy(async->thrdd.res_A);
+  async->thrdd.res_A = ఖాళీ;
+  async_thrdd_అంశం_destroy(async->thrdd.res_AAAA);
+  async->thrdd.res_AAAA = ఖాళీ;
 }
 
 /*
  * Waits for a resolve to finish. This function should be avoided since using
  * this risk getting the multi interface to "hang".
  */
-CURLcode Curl_async_await(struct Curl_easy *data, uint32_t resolv_id,
-                          struct Curl_dns_entry **pdns)
+CURLcode Curl_async_await(నిర్మాణం Curl_easy *దత్తాంశం, uint32_t resolv_id,
+                          నిర్మాణం Curl_dns_నమోదు **pdns)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  struct async_thrdd_ctx *thrdd = async ? &async->thrdd : NULL;
+  నిర్మాణం Curl_resolv_async *async = Curl_async_get(దత్తాంశం, resolv_id);
+  నిర్మాణం async_thrdd_ctx *thrdd = async ? &async->thrdd : ఖాళీ;
   timediff_t milli, ms;
-  CURLcode result = CURLE_AGAIN;
+  CURLcode ఫలితం = CURLE_AGAIN;
 
-  if(!thrdd)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!thrdd)
+    తిరిగి CURLE_FAILED_INIT;
 
-  while(result == CURLE_AGAIN) {
-    while(async->queries_ongoing && !async->done) {
-      Curl_async_thrdd_multi_process(data->multi);
-      if(async->done)
-        break;
+  అయితే(ఫలితం == CURLE_AGAIN) {
+    అయితే(async->queries_ongoing && !async->పూర్తి) {
+      Curl_async_thrdd_multi_process(దత్తాంశం->multi);
+      ఒకవేళ(async->పూర్తి)
+        ఆపు;
 
-      ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &async->start);
-      if(ms < 3)
+      ms = curlx_ptimediff_ms(Curl_pgrs_now(దత్తాంశం), &async->ప్రారంభం);
+      ఒకవేళ(ms < 3)
         milli = 0;
-      else if(ms <= 50)
+      లేకపోతే ఒకవేళ(ms <= 50)
         milli = ms / 3;
-      else if(ms <= 250)
+      లేకపోతే ఒకవేళ(ms <= 250)
         milli = 50;
-      else
+      లేకపోతే
         milli = 200;
-      CURL_TRC_DNS(data, "await, waiting %" FMT_TIMEDIFF_T "ms", milli);
+      CURL_TRC_DNS(దత్తాంశం, "await, waiting %" FMT_TIMEDIFF_T "ms", milli);
       curlx_wait_ms(milli);
     }
-    result = Curl_async_take_result(data, async, pdns);
+    ఫలితం = Curl_async_take_ఫలితం(దత్తాంశం, async, pdns);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#ifdef HAVE_GETADDRINFO
+#నిర్వచితమైతే HAVE_GETADDRINFO
 
 /* Was the getaddrinfo() failure an authoritative negative answer,
    i.e. the resolver responded that the name (or its data) does not
    exist? Transient failures like EAI_AGAIN and local troubles must
    not count as negative answers. */
-static bool gai_negative(int rc)
+స్థిర bool gai_negative(పూర్ణాంకం rc)
 {
-  switch(rc) {
-#ifdef EAI_NONAME
-  case EAI_NONAME:
-#endif
-#if defined(EAI_NODATA) && \
+  ఎంపిక(rc) {
+#నిర్వచితమైతే EAI_NONAME
+  స్థితి EAI_NONAME:
+#అయితే_ముగింపు
+#ఒకవేళ defined(EAI_NODATA) && \
   (!defined(EAI_NONAME) || (EAI_NODATA != EAI_NONAME))
-  case EAI_NODATA:
-#endif
-    return TRUE;
-  default:
-    return FALSE;
+  స్థితి EAI_NODATA:
+#అయితే_ముగింపు
+    తిరిగి TRUE;
+  అప్రమేయ:
+    తిరిగి FALSE;
   }
 }
 
 /* Process the item, using Curl_getaddrinfo_ex() */
-static void async_thrdd_item_process(void *arg)
+స్థిర శూన్య async_thrdd_అంశం_process(శూన్య *arg)
 {
-  struct async_thrdd_item *item = arg;
-  struct addrinfo hints;
-  char service[12];
-  int pf = PF_INET;
-  int rc;
+  నిర్మాణం async_thrdd_అంశం *అంశం = arg;
+  నిర్మాణం addrinfo hints;
+  అక్షరం service[12];
+  పూర్ణాంకం pf = PF_INET;
+  పూర్ణాంకం rc;
 
-#ifdef DEBUGBUILD
-  if(item->delay_ms) {
-    curlx_wait_ms(item->delay_ms);
+#నిర్వచితమైతే DEBUGBUILD
+  ఒకవేళ(అంశం->delay_ms) {
+    curlx_wait_ms(అంశం->delay_ms);
   }
-  if(item->delay_fail_ms) {
-    curlx_wait_ms(item->delay_fail_ms);
-    item->negative = item->dbg_negative;
-    return;
+  ఒకవేళ(అంశం->delay_fail_ms) {
+    curlx_wait_ms(అంశం->delay_fail_ms);
+    అంశం->negative = అంశం->dbg_negative;
+    తిరిగి;
   }
-#endif
+#అయితే_ముగింపు
 
-  memset(&hints, 0, sizeof(hints));
-#ifdef CURLRES_IPV6
-  if(item->dns_queries & CURL_DNSQ_AAAA) {
-    pf = (item->dns_queries & CURL_DNSQ_A) ? PF_UNSPEC : PF_INET6;
+  memset(&hints, 0, పరిమాణం(hints));
+#నిర్వచితమైతే CURLRES_IPV6
+  ఒకవేళ(అంశం->dns_queries & CURL_DNSQ_AAAA) {
+    pf = (అంశం->dns_queries & CURL_DNSQ_A) ? PF_UNSPEC : PF_INET6;
   }
-#endif
+#అయితే_ముగింపు
   hints.ai_family = pf;
-  hints.ai_socktype = Curl_socktype_for_transport(item->transport);
-  hints.ai_protocol = Curl_protocol_for_transport(item->transport);
-#ifdef __APPLE__
+  hints.ai_socktype = Curl_socktype_for_transport(అంశం->transport);
+  hints.ai_protocol = Curl_protocol_for_transport(అంశం->transport);
+#నిర్వచితమైతే __APPLE__
   /* If we leave `ai_flags == 0` then macOS is looking for IPV4MAPPED
    * when doing AAAA queries. We do not want this "help". */
   hints.ai_flags = AI_ADDRCONFIG;
-#endif
+#అయితే_ముగింపు
 
-  curl_msnprintf(service, sizeof(service), "%u", item->port);
-#ifdef AI_NUMERICSERV
+  curl_msnprintf(service, పరిమాణం(service), "%u", అంశం->పోర్టు);
+#నిర్వచితమైతే AI_NUMERICSERV
   hints.ai_flags |= AI_NUMERICSERV;
-#endif
+#అయితే_ముగింపు
 
-  rc = Curl_getaddrinfo_ex(item->hostname, service, &hints, &item->res);
-  if(rc) {
-    item->sockerr = SOCKERRNO ? SOCKERRNO : rc;
-    if(item->sockerr == 0)
-      item->sockerr = RESOLVER_ENOMEM;
-    item->negative = gai_negative(rc);
+  rc = Curl_getaddrinfo_ex(అంశం->hostname, service, &hints, &అంశం->res);
+  ఒకవేళ(rc) {
+    అంశం->sockerr = SOCKERRNO ? SOCKERRNO : rc;
+    ఒకవేళ(అంశం->sockerr == 0)
+      అంశం->sockerr = RESOLVER_ENOMEM;
+    అంశం->negative = gai_negative(rc);
   }
-  else {
-    Curl_addrinfo_set_port(item->res, item->port);
+  లేకపోతే {
+    Curl_addrinfo_సమితి_పోర్టు(అంశం->res, అంశం->పోర్టు);
   }
 }
 
-#else /* HAVE_GETADDRINFO */
+#లేకపోతే /* HAVE_GETADDRINFO */
 
 /* Process the item, using Curl_ipv4_resolve_r() */
-static void async_thrdd_item_process(void *arg)
+స్థిర శూన్య async_thrdd_అంశం_process(శూన్య *arg)
 {
-  struct async_thrdd_item *item = arg;
+  నిర్మాణం async_thrdd_అంశం *అంశం = arg;
 
-#ifdef DEBUGBUILD
-  if(item->delay_ms) {
-    curlx_wait_ms(item->delay_ms);
+#నిర్వచితమైతే DEBUGBUILD
+  ఒకవేళ(అంశం->delay_ms) {
+    curlx_wait_ms(అంశం->delay_ms);
   }
-  if(item->delay_fail_ms) {
-    curlx_wait_ms(item->delay_fail_ms);
-    item->negative = item->dbg_negative;
-    return;
+  ఒకవేళ(అంశం->delay_fail_ms) {
+    curlx_wait_ms(అంశం->delay_fail_ms);
+    అంశం->negative = అంశం->dbg_negative;
+    తిరిగి;
   }
-#endif
-  item->res = Curl_ipv4_resolve_r(item->hostname, item->port);
-  if(!item->res) {
-    item->sockerr = SOCKERRNO;
-    if(item->sockerr == 0)
-      item->sockerr = RESOLVER_ENOMEM;
+#అయితే_ముగింపు
+  అంశం->res = Curl_ipv4_resolve_r(అంశం->hostname, అంశం->పోర్టు);
+  ఒకవేళ(!అంశం->res) {
+    అంశం->sockerr = SOCKERRNO;
+    ఒకవేళ(అంశం->sockerr == 0)
+      అంశం->sockerr = RESOLVER_ENOMEM;
     /* this resolver cannot tell a transient failure from an
        authoritative negative answer, treat it as before */
-    item->negative = TRUE;
+    అంశం->negative = TRUE;
   }
 }
 
-#endif /* HAVE_GETADDRINFO */
+#అయితే_ముగింపు /* HAVE_GETADDRINFO */
 
-#ifdef ENABLE_INTERNAL_WAKEUP
-static void async_thrdd_event(const struct curl_thrdq *tqueue,
+#నిర్వచితమైతే ENABLE_అంతర్గత_WAKEUP
+స్థిర శూన్య async_thrdd_event(స్థిరరాశి నిర్మాణం curl_thrdq *tqueue,
                               Curl_thrdq_event ev,
-                              void *user_data)
+                              శూన్య *user_దత్తాంశం)
 {
-  struct Curl_multi *multi = user_data;
-  (void)tqueue;
-  switch(ev) {
-  case CURL_THRDQ_EV_ITEM_DONE:
-    Curl_multi_wakeup_internal(multi);
-    break;
-  default:
-    break;
+  నిర్మాణం Curl_multi *multi = user_దత్తాంశం;
+  (శూన్య)tqueue;
+  ఎంపిక(ev) {
+  స్థితి CURL_THRDQ_EV_అంశం_పూర్తి:
+    Curl_multi_wakeup_అంతర్గత(multi);
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
 }
-#else
-#define async_thrdd_event   NULL
-#endif
+#లేకపోతే
+#నిర్వచించు async_thrdd_event   ఖాళీ
+#అయితే_ముగింపు
 
-static void async_thrdd_item_free(void *item)
+స్థిర శూన్య async_thrdd_అంశం_free(శూన్య *అంశం)
 {
-  async_thrdd_item_destroy(item);
+  async_thrdd_అంశం_destroy(అంశం);
 }
 
 /* Create a thread queue for processing resolv items */
-CURLcode Curl_async_thrdd_multi_init(struct Curl_multi *multi,
-                                     uint32_t min_threads,
-                                     uint32_t max_threads,
-                                     uint32_t idle_time_ms)
+CURLcode Curl_async_thrdd_multi_init(నిర్మాణం Curl_multi *multi,
+                                     uint32_t min_దారాలు,
+                                     uint32_t max_దారాలు,
+                                     uint32_t idle_సమయం_ms)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   DEBUGASSERT(!multi->resolv_thrdq);
-  result = Curl_thrdq_create(&multi->resolv_thrdq, "DNS",
-                             min_threads, max_threads, idle_time_ms,
-                             async_thrdd_item_free,
-                             async_thrdd_item_process,
+  ఫలితం = Curl_thrdq_create(&multi->resolv_thrdq, "DNS",
+                             min_దారాలు, max_దారాలు, idle_సమయం_ms,
+                             async_thrdd_అంశం_free,
+                             async_thrdd_అంశం_process,
                              async_thrdd_event,
                              multi);
-#ifdef DEBUGBUILD
-  if(!result) {
-    const char *p = getenv("CURL_DBG_RESOLV_MAX_THREADS");
-    if(p) {
+#నిర్వచితమైతే DEBUGBUILD
+  ఒకవేళ(!ఫలితం) {
+    స్థిరరాశి అక్షరం *p = getenv("CURL_DBG_RESOLV_MAX_THREADS");
+    ఒకవేళ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
-        result = Curl_async_thrdd_multi_set_props(
-          multi, min_threads, (uint32_t)l, idle_time_ms);
+      ఒకవేళ(!curlx_str_సంఖ్య(&p, &l, UINT32_MAX)) {
+        ఫలితం = Curl_async_thrdd_multi_సమితి_props(
+          multi, min_దారాలు, (uint32_t)l, idle_సమయం_ms);
       }
     }
   }
-#endif
-  return result;
+#అయితే_ముగింపు
+  తిరిగి ఫలితం;
 }
 
 /* Tear down the thread queue, joining active threads or detaching them */
-void Curl_async_thrdd_multi_destroy(struct Curl_multi *multi, bool join)
+శూన్య Curl_async_thrdd_multi_destroy(నిర్మాణం Curl_multi *multi, bool join)
 {
-  if(multi->resolv_thrdq) {
-#ifdef CURLVERBOSE
+  ఒకవేళ(multi->resolv_thrdq) {
+#నిర్వచితమైతే CURLVERBOSE
     CURL_TRC_DNS(multi->admin, "destroy thread queue+pool, join=%d", join);
     CURL_THRDQ_TRACE(multi->resolv_thrdq, multi->admin);
-#endif
+#అయితే_ముగింపు
     Curl_thrdq_destroy(multi->resolv_thrdq, join);
-    multi->resolv_thrdq = NULL;
+    multi->resolv_thrdq = ఖాళీ;
   }
 }
 
-#ifdef CURLVERBOSE
-static void async_thrdd_report_item(struct Curl_easy *data,
-                                    struct async_thrdd_item *item)
+#నిర్వచితమైతే CURLVERBOSE
+స్థిర శూన్య async_thrdd_report_అంశం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం async_thrdd_అంశం *అంశం)
 {
-  char buf[MAX_IPADR_LEN];
-  struct dynbuf tmp;
-  const char *sep = "";
-  const struct Curl_addrinfo *ai = item->res;
-  CURLcode result;
-  int ai_family;
-#ifdef USE_IPV6
-  ai_family = (item->dns_queries & CURL_DNSQ_AAAA) ? AF_INET6 : AF_INET;
-#else
+  అక్షరం buf[MAX_IPADR_LEN];
+  నిర్మాణం dynbuf tmp;
+  స్థిరరాశి అక్షరం *sep = "";
+  స్థిరరాశి నిర్మాణం Curl_addrinfo *ai = అంశం->res;
+  CURLcode ఫలితం;
+  పూర్ణాంకం ai_family;
+#నిర్వచితమైతే USE_IPV6
+  ai_family = (అంశం->dns_queries & CURL_DNSQ_AAAA) ? AF_INET6 : AF_INET;
+#లేకపోతే
   ai_family = AF_INET;
-#endif
+#అయితే_ముగింపు
 
-  if(!CURL_TRC_DNS_is_verbose(data))
-    return;
+  ఒకవేళ(!CURL_TRC_DNS_is_verbose(దత్తాంశం))
+    తిరిగి;
 
   curlx_dyn_init(&tmp, 1024);
-  for(; ai; ai = ai->ai_next) {
-    if(ai->ai_family == ai_family) {
-      Curl_printable_address(ai, buf, sizeof(buf));
-      result = curlx_dyn_addf(&tmp, "%s%s", sep, buf);
-      if(result) {
-        CURL_TRC_DNS(data, "too many IP, cannot show");
-        goto out;
+  కొరకు(; ai; ai = ai->ai_తదుపరి) {
+    ఒకవేళ(ai->ai_family == ai_family) {
+      Curl_printable_చిరునామా(ai, buf, పరిమాణం(buf));
+      ఫలితం = curlx_dyn_addf(&tmp, "%s%s", sep, buf);
+      ఒకవేళ(ఫలితం) {
+        CURL_TRC_DNS(దత్తాంశం, "too many IP, cannot show");
+        వెళ్ళు బహిర్గతం;
       }
       sep = ", ";
     }
   }
 
-  CURL_TRC_DNS(data, "Host %s:%u resolved IPv%c: %s",
-               item->hostname, item->port,
-               (item->dns_queries & CURL_DNSQ_AAAA) ? '6' : '4',
+  CURL_TRC_DNS(దత్తాంశం, "Host %s:%u resolved IPv%c: %s",
+               అంశం->hostname, అంశం->పోర్టు,
+               (అంశం->dns_queries & CURL_DNSQ_AAAA) ? '6' : '4',
                (curlx_dyn_len(&tmp) ? curlx_dyn_ptr(&tmp) : "(none)"));
-out:
+బహిర్గతం:
   curlx_dyn_free(&tmp);
 }
-#endif /* CURLVERBOSE */
+#అయితే_ముగింపు /* CURLVERBOSE */
 
 /* Process the receiving end of the thread queue, dispatching
  * processed items to their transfer when it can still be found
  * and has an `async` state present. Otherwise, destroy the item. */
-void Curl_async_thrdd_multi_process(struct Curl_multi *multi)
+శూన్య Curl_async_thrdd_multi_process(నిర్మాణం Curl_multi *multi)
 {
-  struct Curl_easy *data;
-  void *qitem;
+  నిర్మాణం Curl_easy *దత్తాంశం;
+  శూన్య *qitem;
 
-  while(!Curl_thrdq_recv(multi->resolv_thrdq, &qitem)) {
+  అయితే(!Curl_thrdq_recv(multi->resolv_thrdq, &qitem)) {
     /* dispatch resolve result */
-    struct async_thrdd_item *item = qitem;
-    struct Curl_resolv_async *async = NULL;
+    నిర్మాణం async_thrdd_అంశం *అంశం = qitem;
+    నిర్మాణం Curl_resolv_async *async = ఖాళీ;
 
-    data = Curl_multi_get_easy(multi, item->mid);
-    if(data)
-      async = Curl_async_get(data, item->resolv_id);
-    if(async) {
-      struct async_thrdd_item **pdest = &async->thrdd.res_A;
+    దత్తాంశం = Curl_multi_get_easy(multi, అంశం->mid);
+    ఒకవేళ(దత్తాంశం)
+      async = Curl_async_get(దత్తాంశం, అంశం->resolv_id);
+    ఒకవేళ(async) {
+      నిర్మాణం async_thrdd_అంశం **pdest = &async->thrdd.res_A;
 
-#ifdef CURLRES_IPV6
-      if(item->dns_queries & CURL_DNSQ_AAAA)
+#నిర్వచితమైతే CURLRES_IPV6
+      ఒకవేళ(అంశం->dns_queries & CURL_DNSQ_AAAA)
         pdest = &async->thrdd.res_AAAA;
-#endif
-      if(!*pdest) {
-        *pdest = item;
-        item = NULL;
+#అయితే_ముగింపు
+      ఒకవేళ(!*pdest) {
+        *pdest = అంశం;
+        అంశం = ఖాళీ;
       }
-      else
+      లేకపోతే
         DEBUGASSERT(0); /* should not receive duplicates here */
 
       --async->queries_ongoing;
-      Curl_multi_mark_dirty(data);
+      Curl_multi_mark_dirty(దత్తాంశం);
     }
-    async_thrdd_item_free(item);
+    async_thrdd_అంశం_free(అంశం);
   }
   CURL_THRDQ_TRACE(multi->resolv_thrdq, multi->admin);
 }
 
-CURLcode Curl_async_thrdd_multi_set_props(struct Curl_multi *multi,
-                                          uint32_t min_threads,
-                                          uint32_t max_threads,
-                                          uint32_t idle_time_ms)
+CURLcode Curl_async_thrdd_multi_సమితి_props(నిర్మాణం Curl_multi *multi,
+                                          uint32_t min_దారాలు,
+                                          uint32_t max_దారాలు,
+                                          uint32_t idle_సమయం_ms)
 {
-  return Curl_thrdq_set_props(multi->resolv_thrdq,
-                              min_threads, max_threads, idle_time_ms);
+  తిరిగి Curl_thrdq_సమితి_props(multi->resolv_thrdq,
+                              min_దారాలు, max_దారాలు, idle_సమయం_ms);
 }
 
-static CURLcode async_thrdd_query(struct Curl_easy *data,
-                                  struct Curl_resolv_async *async,
+స్థిర CURLcode async_thrdd_query(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం Curl_resolv_async *async,
                                   uint8_t dns_queries)
 {
-  struct async_thrdd_item *item;
-  CURLcode result;
+  నిర్మాణం async_thrdd_అంశం *అంశం;
+  CURLcode ఫలితం;
 
-  item = async_thrdd_item_create(data, async->id, dns_queries,
-                                 async->peer->hostname, async->peer->port,
+  అంశం = async_thrdd_అంశం_create(దత్తాంశం, async->id, dns_queries,
+                                 async->peer->hostname, async->peer->పోర్టు,
                                  async->transport);
-  if(!item) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ఒకవేళ(!అంశం) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
-  CURL_TRC_DNS(data, "queueing query %s", item->description);
-  result = Curl_thrdq_send(data->multi->resolv_thrdq, item,
-                           async_item_description(item), async->timeout_ms);
-  if(result)
-    goto out;
-  item = NULL;
+  CURL_TRC_DNS(దత్తాంశం, "queueing query %s", అంశం->description);
+  ఫలితం = Curl_thrdq_send(దత్తాంశం->multi->resolv_thrdq, అంశం,
+                           async_అంశం_description(అంశం), async->timeout_ms);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  అంశం = ఖాళీ;
   async->queries_ongoing++;
 
-out:
-  if(item)
-    async_thrdd_item_free(item);
-  return result;
+బహిర్గతం:
+  ఒకవేళ(అంశం)
+    async_thrdd_అంశం_free(అంశం);
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
-                                struct Curl_resolv_async *async)
+CURLcode Curl_async_getaddrinfo(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం Curl_resolv_async *async)
 {
-  CURLcode result = CURLE_FAILED_INIT;
-  void *resolver = NULL;
+  CURLcode ఫలితం = CURLE_FAILED_INIT;
+  శూన్య *resolver = ఖాళీ;
 
-  if(async->queries_ongoing || async->done)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(async->queries_ongoing || async->పూర్తి)
+    తిరిగి CURLE_FAILED_INIT;
 
-#ifdef USE_HTTPSRR_ARES
+#నిర్వచితమైతే USE_HTTPSRR_ARES
   DEBUGASSERT(!async->thrdd.rr.channel);
-  if((async->dns_queries & CURL_DNSQ_HTTPS) && !async->is_ipaddr) {
-    result = async_rr_init(data, async);
-    if(result)
-      goto out;
+  ఒకవేళ((async->dns_queries & CURL_DNSQ_HTTPS) && !async->is_ipaddr) {
+    ఫలితం = async_rr_init(దత్తాంశం, async);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
     resolver = async->thrdd.rr.channel;
   }
-#endif
+#అయితే_ముగింపు
 
-  result = Curl_resolv_announce_start(data, resolver);
-  if(result)
-    return result;
+  ఫలితం = Curl_resolv_announce_ప్రారంభం(దత్తాంశం, resolver);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-#ifdef USE_HTTPSRR_ARES
-  if(resolver) {
-    result = async_rr_start(data, async);
-    if(result)
-      goto out;
+#నిర్వచితమైతే USE_HTTPSRR_ARES
+  ఒకవేళ(resolver) {
+    ఫలితం = async_rr_ప్రారంభం(దత్తాంశం, async);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
-#endif
+#అయితే_ముగింపు
 
-#ifdef CURLRES_IPV6
+#నిర్వచితమైతే CURLRES_IPV6
   /* Do not start an AAAA query for an IPv4 address when
    * we will start an A query for it. */
-  if((async->dns_queries & CURL_DNSQ_AAAA) &&
+  ఒకవేళ((async->dns_queries & CURL_DNSQ_AAAA) &&
      !(async->is_ipv4addr && (async->dns_queries & CURL_DNSQ_A))) {
-    result = async_thrdd_query(data, async, CURL_DNSQ_AAAA);
-    if(result)
-      goto out;
+    ఫలితం = async_thrdd_query(దత్తాంశం, async, CURL_DNSQ_AAAA);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
-#endif
-  if(async->dns_queries & CURL_DNSQ_A) {
-    result = async_thrdd_query(data, async, CURL_DNSQ_A);
-    if(result)
-      goto out;
+#అయితే_ముగింపు
+  ఒకవేళ(async->dns_queries & CURL_DNSQ_A) {
+    ఫలితం = async_thrdd_query(దత్తాంశం, async, CURL_DNSQ_A);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  CURL_THRDQ_TRACE(data->multi->resolv_thrdq, data);
+  CURL_THRDQ_TRACE(దత్తాంశం->multi->resolv_thrdq, దత్తాంశం);
 
-out:
-  if(!async->queries_ongoing)
-    async->done = TRUE;
+బహిర్గతం:
+  ఒకవేళ(!async->queries_ongoing)
+    async->పూర్తి = TRUE;
 
-  if(result)
-    CURL_TRC_DNS(data, "error queueing query %s:%d -> %d",
-                 async->peer->hostname, async->peer->port, (int)result);
-  return result;
+  ఒకవేళ(ఫలితం)
+    CURL_TRC_DNS(దత్తాంశం, "error queueing query %s:%d -> %d",
+                 async->peer->hostname, async->peer->పోర్టు, (పూర్ణాంకం)ఫలితం);
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_async_pollset(struct Curl_easy *data,
-                            struct Curl_resolv_async *async,
-                            struct easy_pollset *ps)
+CURLcode Curl_async_pollset(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం Curl_resolv_async *async,
+                            నిర్మాణం easy_pollset *ps)
 {
   timediff_t timeout_ms;
 
-  timeout_ms = Curl_async_timeleft_ms(data, async);
-#ifdef USE_HTTPSRR_ARES
-  if(async->thrdd.rr.channel) {
-    CURLcode result = Curl_ares_pollset(data, async->thrdd.rr.channel, ps);
-    if(result)
-      return result;
-    timeout_ms = Curl_ares_timeout_ms(data, async, async->thrdd.rr.channel);
+  timeout_ms = Curl_async_timeleft_ms(దత్తాంశం, async);
+#నిర్వచితమైతే USE_HTTPSRR_ARES
+  ఒకవేళ(async->thrdd.rr.channel) {
+    CURLcode ఫలితం = Curl_ares_pollset(దత్తాంశం, async->thrdd.rr.channel, ps);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
+    timeout_ms = Curl_ares_timeout_ms(దత్తాంశం, async, async->thrdd.rr.channel);
   }
-#else
-  (void)ps;
-#endif
+#లేకపోతే
+  (శూన్య)ps;
+#అయితే_ముగింపు
 
-  if(!async->done) {
-    const struct curltime *pnow = Curl_pgrs_now(data);
-#ifndef ENABLE_INTERNAL_WAKEUP
+  ఒకవేళ(!async->పూర్తి) {
+    స్థిరరాశి నిర్మాణం curltime *pnow = Curl_pgrs_now(దత్తాంశం);
+#నిర్వచితం_కాకపోతే ENABLE_అంతర్గత_WAKEUP
     timediff_t stutter_ms, elapsed_ms;
-    elapsed_ms = curlx_ptimediff_ms(pnow, &async->start);
-    if(elapsed_ms < 3)
+    elapsed_ms = curlx_ptimediff_ms(pnow, &async->ప్రారంభం);
+    ఒకవేళ(elapsed_ms < 3)
       stutter_ms = 1;
-    else if(elapsed_ms <= 50)
+    లేకపోతే ఒకవేళ(elapsed_ms <= 50)
       stutter_ms = elapsed_ms / 3;
-    else if(elapsed_ms <= 250)
+    లేకపోతే ఒకవేళ(elapsed_ms <= 250)
       stutter_ms = 50;
-    else
+    లేకపోతే
       stutter_ms = 200;
     timeout_ms = CURLMIN(stutter_ms, timeout_ms);
-#else
-    if(async->queries_ongoing &&
-       !Curl_thrdq_check_started(data->multi->resolv_thrdq)) {
+#లేకపోతే
+    ఒకవేళ(async->queries_ongoing &&
+       !Curl_thrdq_check_started(దత్తాంశం->multi->resolv_thrdq)) {
       /* The queue has items but starting a worker thread to process
          them just failed again; expire soon to check once more,
          instead of sleeping on the full resolve timeout. */
-      CURL_TRC_DNS(data, "resolver thread start failed again, retrying");
+      CURL_TRC_DNS(దత్తాంశం, "resolver thread start failed again, retrying");
       timeout_ms = CURLMIN(100, timeout_ms);
     }
-#endif
-    Curl_expire_set(data, EXPIRE_ASYNC_NAME, timeout_ms, pnow);
+#అయితే_ముగింపు
+    Curl_expire_సమితి(దత్తాంశం, EXPIRE_ASYNC_NAME, timeout_ms, pnow);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-#if defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
-static bool async_thrdd_item_missing_scope(struct Curl_easy *data,
-                                           struct async_thrdd_item *item)
+#ఒకవేళ defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
+స్థిర bool async_thrdd_అంశం_missing_scope(నిర్మాణం Curl_easy *దత్తాంశం,
+                                           నిర్మాణం async_thrdd_అంశం *అంశం)
 {
-  const struct Curl_addrinfo *ai;
+  స్థిరరాశి నిర్మాణం Curl_addrinfo *ai;
 
   /* scope id already globally set */
-  if(data->conn && data->conn->scope_id)
-    return FALSE;
+  ఒకవేళ(దత్తాంశం->conn && దత్తాంశం->conn->scope_id)
+    తిరిగి FALSE;
 
-  for(ai = item->res; ai; ai = ai->ai_next) {
-    if(ai->ai_family == AF_INET6) {
-      struct sockaddr_in6 *sa6 = (void *)ai->ai_addr;
-      if(IN6_IS_ADDR_LINKLOCAL(&sa6->sin6_addr) && !sa6->sin6_scope_id)
-        return TRUE;
+  కొరకు(ai = అంశం->res; ai; ai = ai->ai_తదుపరి) {
+    ఒకవేళ(ai->ai_family == AF_INET6) {
+      నిర్మాణం sockaddr_in6 *sa6 = (శూన్య *)ai->ai_addr;
+      ఒకవేళ(IN6_IS_ADDR_LINKLOCAL(&sa6->sin6_addr) && !sa6->sin6_scope_id)
+        తిరిగి TRUE;
     }
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static void async_thrdd_item_strip_results(struct async_thrdd_item *item,
-                                           int ai_family)
+స్థిర శూన్య async_thrdd_అంశం_strip_results(నిర్మాణం async_thrdd_అంశం *అంశం,
+                                           పూర్ణాంకం ai_family)
 {
-  struct Curl_addrinfo *ai = item->res, **panchor = &item->res;
-  while(ai) {
-    if(ai->ai_family == ai_family) {
-      *panchor = ai->ai_next;
-      ai->ai_next = NULL;
+  నిర్మాణం Curl_addrinfo *ai = అంశం->res, **panchor = &అంశం->res;
+  అయితే(ai) {
+    ఒకవేళ(ai->ai_family == ai_family) {
+      *panchor = ai->ai_తదుపరి;
+      ai->ai_తదుపరి = ఖాళీ;
       Curl_freeaddrinfo(ai);
       ai = *panchor;
     }
-    else {
-      panchor = &ai->ai_next;
-      ai = ai->ai_next;
+    లేకపోతే {
+      panchor = &ai->ai_తదుపరి;
+      ai = ai->ai_తదుపరి;
     }
   }
 }
 
-#endif /* USE_IPV6 && HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID */
+#అయితే_ముగింపు /* USE_IPV6 && HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID */
 
-static CURLcode async_thrdd_check_done(struct Curl_easy *data,
-                                       struct Curl_resolv_async *async)
+స్థిర CURLcode async_thrdd_check_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం Curl_resolv_async *async)
 {
-  struct async_thrdd_ctx *thrdd = &async->thrdd;
+  నిర్మాణం async_thrdd_ctx *thrdd = &async->thrdd;
 
-  (void)data;
-  if(thrdd->res_A && !thrdd->processed_A) {
-    VERBOSE(async_thrdd_report_item(data, thrdd->res_A));
+  (శూన్య)దత్తాంశం;
+  ఒకవేళ(thrdd->res_A && !thrdd->processed_A) {
+    VERBOSE(async_thrdd_report_అంశం(దత్తాంశం, thrdd->res_A));
     /* move addrinfos to the async result member */
     async->dns_responses |= thrdd->res_A->dns_queries;
     async->ai_A = thrdd->res_A->res;
-    thrdd->res_A->res = NULL;
+    thrdd->res_A->res = ఖాళీ;
     thrdd->processed_A = TRUE;
   }
 
-  if(thrdd->res_AAAA && !thrdd->processed_AAAA) {
-#if defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
+  ఒకవేళ(thrdd->res_AAAA && !thrdd->processed_AAAA) {
+#ఒకవేళ defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
     /* do we accept the incoming AAAA response? */
-    if(!(thrdd->res_AAAA->dns_queries & CURL_DNSQ_A) &&
-       async_thrdd_item_missing_scope(data, thrdd->res_AAAA)) {
+    ఒకవేళ(!(thrdd->res_AAAA->dns_queries & CURL_DNSQ_A) &&
+       async_thrdd_అంశం_missing_scope(దత్తాంశం, thrdd->res_AAAA)) {
       /* We queried "only" AF_INET6. This may be problematic when the
        * result has ipv6 link-local addresses and did not give
        * any scope id for it. glibc has a long outstanding bug
        * <https://sourceware.org/bugzilla/show_bug.cgi?id=14413>
        * that gives scope ids only on AF_UNSPEC queries. */
-      struct async_thrdd_item *item = thrdd->res_AAAA;
-      CURLcode result;
+      నిర్మాణం async_thrdd_అంశం *అంశం = thrdd->res_AAAA;
+      CURLcode ఫలితం;
 
       /* Reuse the item and queue it again, this time with added
        * CURL_DNSQ_A which resolves using AF_UNSPEC. */
-      thrdd->res_AAAA = NULL;
-      item->dns_queries |= CURL_DNSQ_A;
-      if(item->res) {
-        Curl_freeaddrinfo(item->res);
-        item->res = NULL;
+      thrdd->res_AAAA = ఖాళీ;
+      అంశం->dns_queries |= CURL_DNSQ_A;
+      ఒకవేళ(అంశం->res) {
+        Curl_freeaddrinfo(అంశం->res);
+        అంశం->res = ఖాళీ;
       }
 
-      CURL_TRC_DNS(data, "re-queueing query %s for AF_UNSPEC resolve",
-                   item->description);
-      result = Curl_thrdq_send(data->multi->resolv_thrdq, item,
-                               async_item_description(item),
+      CURL_TRC_DNS(దత్తాంశం, "re-queueing query %s for AF_UNSPEC resolve",
+                   అంశం->description);
+      ఫలితం = Curl_thrdq_send(దత్తాంశం->multi->resolv_thrdq, అంశం,
+                               async_అంశం_description(అంశం),
                                async->timeout_ms);
-      if(result) {
-        async_thrdd_item_free(item);
-        return result;
+      ఒకవేళ(ఫలితం) {
+        async_thrdd_అంశం_free(అంశం);
+        తిరిగి ఫలితం;
       }
       async->queries_ongoing++;
-      return CURLE_AGAIN;
+      తిరిగి CURLE_AGAIN;
     }
     /* accepting the AAAA result, strip it of any AF_INET entries,
      * as we might have resolved it with AF_UNSPEC. */
-    async_thrdd_item_strip_results(thrdd->res_AAAA, AF_INET);
-#endif /* USE_IPV6 && HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID */
-    VERBOSE(async_thrdd_report_item(data, thrdd->res_AAAA));
+    async_thrdd_అంశం_strip_results(thrdd->res_AAAA, AF_INET);
+#అయితే_ముగింపు /* USE_IPV6 && HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID */
+    VERBOSE(async_thrdd_report_అంశం(దత్తాంశం, thrdd->res_AAAA));
     /* move addrinfos to the async result member */
     async->dns_responses |= thrdd->res_AAAA->dns_queries;
     async->ai_AAAA = thrdd->res_AAAA->res;
-    thrdd->res_AAAA->res = NULL;
+    thrdd->res_AAAA->res = ఖాళీ;
     thrdd->processed_AAAA = TRUE;
   }
 
-  if(async->queries_ongoing)
-    return CURLE_AGAIN;
-  async->done = TRUE;
-  return CURLE_OK;
+  ఒకవేళ(async->queries_ongoing)
+    తిరిగి CURLE_AGAIN;
+  async->పూర్తి = TRUE;
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -854,92 +854,92 @@ static CURLcode async_thrdd_check_done(struct Curl_easy *data,
  * name resolve request has completed. It should also make sure to time-out if
  * the operation seems to take too long.
  */
-CURLcode Curl_async_take_result(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
-                                struct Curl_dns_entry **pdns)
+CURLcode Curl_async_take_ఫలితం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం Curl_resolv_async *async,
+                                నిర్మాణం Curl_dns_నమోదు **pdns)
 {
-  struct async_thrdd_ctx *thrdd = &async->thrdd;
-  struct Curl_dns_entry *dns = NULL;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం async_thrdd_ctx *thrdd = &async->thrdd;
+  నిర్మాణం Curl_dns_నమోదు *dns = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
 
   DEBUGASSERT(pdns);
-  *pdns = NULL;
+  *pdns = ఖాళీ;
 
-#ifdef USE_HTTPSRR_ARES
+#నిర్వచితమైతే USE_HTTPSRR_ARES
   /* best effort, ignore errors */
-  if(thrdd->rr.channel)
-    (void)Curl_ares_perform(thrdd->rr.channel, 0);
-#endif
-#ifndef ENABLE_INTERNAL_WAKEUP
-  Curl_async_thrdd_multi_process(data->multi);
-#endif
+  ఒకవేళ(thrdd->rr.channel)
+    (శూన్య)Curl_ares_perform(thrdd->rr.channel, 0);
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే ENABLE_అంతర్గత_WAKEUP
+  Curl_async_thrdd_multi_process(దత్తాంశం->multi);
+#అయితే_ముగింపు
 
-  result = async_thrdd_check_done(data, async);
-  if(result)
-    return result;
+  ఫలితం = async_thrdd_check_పూర్తి(దత్తాంశం, async);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  Curl_expire_clear(data, EXPIRE_ASYNC_NAME);
+  Curl_expire_clear(దత్తాంశం, EXPIRE_ASYNC_NAME);
 
   /* A failure is an authoritative negative answer, eligible for
      negative caching, only when every A/AAAA query performed came
      back answering that the name does not exist. A query that
      failed transiently or never returned is not an answer. */
   {
-    const uint8_t ip_queries =
+    స్థిరరాశి uint8_t ip_queries =
       async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA);
     bool negative = (async->dns_responses & ip_queries) == ip_queries;
-    if(thrdd->res_A && (async->ai_A || !thrdd->res_A->negative))
+    ఒకవేళ(thrdd->res_A && (async->ai_A || !thrdd->res_A->negative))
       negative = FALSE;
-    if(thrdd->res_AAAA && (async->ai_AAAA || !thrdd->res_AAAA->negative))
+    ఒకవేళ(thrdd->res_AAAA && (async->ai_AAAA || !thrdd->res_AAAA->negative))
       negative = FALSE;
-    if(!thrdd->res_A && !thrdd->res_AAAA)
+    ఒకవేళ(!thrdd->res_A && !thrdd->res_AAAA)
       negative = FALSE;
     async->negative_answer = negative;
   }
 
-  if(async->result) {
-    result = async->result;
-    goto out;
+  ఒకవేళ(async->ఫలితం) {
+    ఫలితం = async->ఫలితం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(async->ai_A || async->ai_AAAA) {
+  ఒకవేళ(async->ai_A || async->ai_AAAA) {
     dns = Curl_dnsc_mk_addr2(
-      data, async->dns_queries, &async->ai_A, &async->ai_AAAA, async->peer);
-    if(!dns) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      దత్తాంశం, async->dns_queries, &async->ai_A, &async->ai_AAAA, async->peer);
+    ఒకవేళ(!dns) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-#ifdef USE_HTTPSRR_ARES
-  if(!dns && thrdd->rr.channel) {
-    Curl_httpsrr_trace(data, async->httpsrr);
-    dns = Curl_dnsc_mk_https(data, &async->httpsrr, async->peer);
-    if(!dns) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+#నిర్వచితమైతే USE_HTTPSRR_ARES
+  ఒకవేళ(!dns && thrdd->rr.channel) {
+    Curl_httpsrr_trace(దత్తాంశం, async->httpsrr);
+    dns = Curl_dnsc_mk_https(దత్తాంశం, &async->httpsrr, async->peer);
+    ఒకవేళ(!dns) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
   }
-#endif
+#అయితే_ముగింపు
 
-  if(dns) {
+  ఒకవేళ(dns) {
     *pdns = dns;
-    dns = NULL;
+    dns = ఖాళీ;
   }
-  CURL_THRDQ_TRACE(data->multi->resolv_thrdq, data);
+  CURL_THRDQ_TRACE(దత్తాంశం->multi->resolv_thrdq, దత్తాంశం);
 
-out:
-  Curl_dns_entry_unlink(data, &dns);
-  Curl_async_thrdd_shutdown(data, async);
-  if(!result && !*pdns)
-    result = Curl_async_failed(data, async, NULL);
-  if(result &&
-     (result != CURLE_COULDNT_RESOLVE_HOST) &&
-     (result != CURLE_COULDNT_RESOLVE_PROXY)) {
-    CURL_TRC_DNS(data, "Error %d resolving %s:%d",
-                 (int)result, async->peer->hostname, async->peer->port);
+బహిర్గతం:
+  Curl_dns_నమోదు_unlink(దత్తాంశం, &dns);
+  Curl_async_thrdd_shutdown(దత్తాంశం, async);
+  ఒకవేళ(!ఫలితం && !*pdns)
+    ఫలితం = Curl_async_failed(దత్తాంశం, async, ఖాళీ);
+  ఒకవేళ(ఫలితం &&
+     (ఫలితం != CURLE_COULDNT_RESOLVE_HOST) &&
+     (ఫలితం != CURLE_COULDNT_RESOLVE_PROXY)) {
+    CURL_TRC_DNS(దత్తాంశం, "Error %d resolving %s:%d",
+                 (పూర్ణాంకం)ఫలితం, async->peer->hostname, async->peer->పోర్టు);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif /* USE_RESOLV_THREADED */
+#అయితే_ముగింపు /* USE_RESOLV_THREADED */

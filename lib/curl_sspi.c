@@ -21,16 +21,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_WINDOWS_SSPI
+#నిర్వచితమైతే USE_WINDOWS_SSPI
 
-#include "curl_sspi.h"
-#include "curlx/strdup.h"
-#include "curlx/multibyte.h"
+#అన్తర్భావ "curl_sspi.h"
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "curlx/multibyte.h"
 
 /* Pointer to SSPI dispatch table */
-PSecurityFunctionTable Curl_pSecFn = NULL;
+PSecurity_Function_పట్టిక Curl_pSecFn = ఖాళీ;
 
 /*
  * Curl_sspi_global_init()
@@ -49,17 +49,17 @@ PSecurityFunctionTable Curl_pSecFn = NULL;
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_sspi_global_init(void)
+CURLcode Curl_sspi_global_init(శూన్య)
 {
   /* If security interface is not yet initialized try to do this */
-  if(!Curl_pSecFn) {
+  ఒకవేళ(!Curl_pSecFn) {
     /* Get pointer to Security Service Provider Interface dispatch table */
     Curl_pSecFn = InitSecurityInterface();
-    if(!Curl_pSecFn)
-      return CURLE_FAILED_INIT;
+    ఒకవేళ(!Curl_pSecFn)
+      తిరిగి CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -71,10 +71,10 @@ CURLcode Curl_sspi_global_init(void)
  *
  * None.
  */
-void Curl_sspi_global_cleanup(void)
+శూన్య Curl_sspi_global_cleanup(శూన్య)
 {
-  if(Curl_pSecFn) {
-    Curl_pSecFn = NULL;
+  ఒకవేళ(Curl_pSecFn) {
+    Curl_pSecFn = ఖాళీ;
   }
 }
 
@@ -92,8 +92,8 @@ void Curl_sspi_global_cleanup(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
-                                   SEC_WINNT_AUTH_IDENTITY_EX *identity)
+CURLcode Curl_create_sspi_తటస్థం(స్థిరరాశి అక్షరం *userp, స్థిరరాశి అక్షరం *passwdp,
+                                   SEC_WINNT_AUTH_తటస్థం_EX *తటస్థం)
 {
   xcharp_u useranddomain;
   xcharp_u user, dup_user;
@@ -102,88 +102,88 @@ CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
   size_t domlen = 0;
   size_t pwlen;
 
-  domain.const_tchar_ptr = _TEXT("");
+  domain.const_tchar_ptr = పాఠ్యం("");
 
   /* Initialize the identity */
-  memset(identity, 0, sizeof(*identity));
-  identity->Version = SEC_WINNT_AUTH_IDENTITY_VERSION;
-  identity->Length = sizeof(*identity);
+  memset(తటస్థం, 0, పరిమాణం(*తటస్థం));
+  తటస్థం->సంస్కరణ = SEC_WINNT_AUTH_తటస్థం_సంస్కరణ;
+  తటస్థం->నిడివి_2 = పరిమాణం(*తటస్థం);
 
-  useranddomain.tchar_ptr = curlx_convert_UTF8_to_tchar(userp);
-  if(!useranddomain.tchar_ptr)
-    return CURLE_OUT_OF_MEMORY;
+  useranddomain.tchar_ptr = curlx_convert_UTF8_గమ్యం_tchar(userp);
+  ఒకవేళ(!useranddomain.tchar_ptr)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, _TEXT('\\'));
-  if(!user.const_tchar_ptr)
-    user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, _TEXT('/'));
+  user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, పాఠ్యం('\\'));
+  ఒకవేళ(!user.const_tchar_ptr)
+    user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, పాఠ్యం('/'));
 
-  if(user.tchar_ptr) {
+  ఒకవేళ(user.tchar_ptr) {
     domain.tchar_ptr = useranddomain.tchar_ptr;
     domlen = user.tchar_ptr - useranddomain.tchar_ptr;
     user.tchar_ptr++;
   }
-  else {
+  లేకపోతే {
     user.tchar_ptr = useranddomain.tchar_ptr;
-    domain.const_tchar_ptr = _TEXT("");
+    domain.const_tchar_ptr = పాఠ్యం("");
     domlen = 0;
   }
 
   /* Setup the identity's user and length */
   dup_user.tchar_ptr = curlx_tcsdup(user.tchar_ptr);
-  if(!dup_user.tchar_ptr) {
+  ఒకవేళ(!dup_user.tchar_ptr) {
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
   /* Setup the identity's domain and length */
-  dup_domain.tchar_ptr = curlx_malloc(sizeof(TCHAR) * (domlen + 1));
-  if(!dup_domain.tchar_ptr) {
+  dup_domain.tchar_ptr = curlx_malloc(పరిమాణం(TCHAR) * (domlen + 1));
+  ఒకవేళ(!dup_domain.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
-  if(_tcsncpy_s(dup_domain.tchar_ptr, domlen + 1, domain.tchar_ptr, domlen)) {
+  ఒకవేళ(_tcsncpy_s(dup_domain.tchar_ptr, domlen + 1, domain.tchar_ptr, domlen)) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
   curlx_free(useranddomain.tchar_ptr);
 
   /* Setup the identity's password and length */
-  passwd.tchar_ptr = curlx_convert_UTF8_to_tchar(passwdp);
-  if(!passwd.tchar_ptr) {
+  passwd.tchar_ptr = curlx_convert_UTF8_గమ్యం_tchar(passwdp);
+  ఒకవేళ(!passwd.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
   pwlen = _tcslen(passwd.tchar_ptr);
   dup_passwd.tchar_ptr = curlx_tcsdup(passwd.tchar_ptr);
-  if(!dup_passwd.tchar_ptr) {
+  ఒకవేళ(!dup_passwd.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
-    curlx_memzero(passwd.tchar_ptr, pwlen * sizeof(*passwd.tchar_ptr));
+    curlx_memzero(passwd.tchar_ptr, pwlen * పరిమాణం(*passwd.tchar_ptr));
     curlx_free(passwd.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
-  identity->Password = dup_passwd.tbyte_ptr;
-  identity->PasswordLength = curlx_uztoul(pwlen);
-  dup_passwd.tchar_ptr = NULL;
+  తటస్థం->Password = dup_passwd.tbyte_ptr;
+  తటస్థం->Password_నిడివి = curlx_uztoul(pwlen);
+  dup_passwd.tchar_ptr = ఖాళీ;
 
-  curlx_memzero(passwd.tchar_ptr, pwlen * sizeof(*passwd.tchar_ptr));
+  curlx_memzero(passwd.tchar_ptr, pwlen * పరిమాణం(*passwd.tchar_ptr));
   curlx_free(passwd.tchar_ptr);
 
-  identity->User = dup_user.tbyte_ptr;
-  identity->UserLength = curlx_uztoul(_tcslen(dup_user.tchar_ptr));
-  dup_user.tchar_ptr = NULL;
-  identity->Domain = dup_domain.tbyte_ptr;
-  identity->DomainLength = curlx_uztoul(domlen);
-  dup_domain.tchar_ptr = NULL;
+  తటస్థం->User = dup_user.tbyte_ptr;
+  తటస్థం->User_నిడివి = curlx_uztoul(_tcslen(dup_user.tchar_ptr));
+  dup_user.tchar_ptr = ఖాళీ;
+  తటస్థం->Domain = dup_domain.tbyte_ptr;
+  తటస్థం->Domain_నిడివి = curlx_uztoul(domlen);
+  dup_domain.tchar_ptr = ఖాళీ;
 
-  identity->Flags = CURL_SEC_WINNT_AUTH_IDENTITY;
+  తటస్థం->Flags = CURL_SEC_WINNT_AUTH_తటస్థం;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -195,15 +195,15 @@ CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
  *
  * identity [in/out] - The identity structure.
  */
-void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY_EX *identity)
+శూన్య Curl_sspi_free_తటస్థం(SEC_WINNT_AUTH_తటస్థం_EX *తటస్థం)
 {
-  if(identity) {
-    curlx_safefree(identity->User);
-    curlx_memzero(identity->Password,
-                  identity->PasswordLength * sizeof(*identity->Password));
-    curlx_safefree(identity->Password);
-    curlx_safefree(identity->Domain);
+  ఒకవేళ(తటస్థం) {
+    curlx_safefree(తటస్థం->User);
+    curlx_memzero(తటస్థం->Password,
+                  తటస్థం->Password_నిడివి * పరిమాణం(*తటస్థం->Password));
+    curlx_safefree(తటస్థం->Password);
+    curlx_safefree(తటస్థం->Domain);
   }
 }
 
-#endif /* USE_WINDOWS_SSPI */
+#అయితే_ముగింపు /* USE_WINDOWS_SSPI */

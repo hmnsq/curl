@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_SOCKET_H
-#define HEADER_CURL_CF_SOCKET_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_CF_SOCKET_H
+#నిర్వచించు శీర్షిక_CURL_CF_SOCKET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,26 +23,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-struct Curl_addrinfo;
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_sockaddr_ex;
-struct ip_quadruple;
+నిర్మాణం Curl_addrinfo;
+నిర్మాణం Curl_cfilter;
+నిర్మాణం Curl_easy;
+నిర్మాణం connectdata;
+నిర్మాణం Curl_sockaddr_ex;
+నిర్మాణం ip_quadruple;
 
-#define curl_sa_addr    addr.sa
-#define curl_sa_addrbuf addr.buf
+#నిర్వచించు curl_sa_addr    addr.sa
+#నిర్వచించు curl_sa_addrbuf addr.buf
 
 /*
  * Parse interface option, and return the interface name and the host part.
  */
-CURLcode Curl_parse_interface(const char *input,
-                              char **dev, char **iface, char **host);
+CURLcode Curl_parse_interface(స్థిరరాశి అక్షరం *ఆదానం,
+                              అక్షరం **dev, అక్షరం **iface, అక్షరం **host);
 
-CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,
-                                  const struct Curl_addrinfo *ai,
+CURLcode Curl_socket_addr_from_ai(నిర్మాణం Curl_sockaddr_ex *addr,
+                                  స్థిరరాశి నిర్మాణం Curl_addrinfo *ai,
                                   uint8_t transport);
 
 /*
@@ -52,18 +52,18 @@ CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,
  * socket callback is set, used that!
  *
  */
-CURLcode Curl_socket_open(struct Curl_easy *data,
-                          const struct Curl_addrinfo *ai,
-                          struct Curl_sockaddr_ex *addr,
+CURLcode Curl_socket_open(నిర్మాణం Curl_easy *దత్తాంశం,
+                          స్థిరరాశి నిర్మాణం Curl_addrinfo *ai,
+                          నిర్మాణం Curl_sockaddr_ex *addr,
                           uint8_t transport,
                           curl_socket_t *sockfd);
 
-#ifdef USE_SO_NOSIGPIPE
+#నిర్వచితమైతే USE_SO_NOSIGPIPE
 /* Set SO_NOSIGPIPE on socket, return < 0 on error. */
-int Curl_sock_nosigpipe(curl_socket_t sockfd);
-#endif
+పూర్ణాంకం Curl_sock_nosigpipe(curl_socket_t sockfd);
+#అయితే_ముగింపు
 
-int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
+పూర్ణాంకం Curl_socket_close(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం connectdata *conn,
                       curl_socket_t sock);
 
 /**
@@ -73,14 +73,14 @@ int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_tcp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_tcp_create(నిర్మాణం Curl_cfilter **pcf,
+                            నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం Curl_peer *origin,
+                            నిర్మాణం Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            నిర్మాణం connectdata *conn,
+                            నిర్మాణం Curl_sockaddr_ex *addr,
+                            నిర్మాణం Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport);
 
 /**
@@ -90,14 +90,14 @@ CURLcode Curl_cf_tcp_create(struct Curl_cfilter **pcf,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_udp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_udp_create(నిర్మాణం Curl_cfilter **pcf,
+                            నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం Curl_peer *origin,
+                            నిర్మాణం Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            నిర్మాణం connectdata *conn,
+                            నిర్మాణం Curl_sockaddr_ex *addr,
+                            నిర్మాణం Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport);
 
 /**
@@ -107,21 +107,21 @@ CURLcode Curl_cf_udp_create(struct Curl_cfilter **pcf,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_unix_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_unix_create(నిర్మాణం Curl_cfilter **pcf,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Curl_peer *origin,
+                             నిర్మాణం Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             నిర్మాణం connectdata *conn,
+                             నిర్మాణం Curl_sockaddr_ex *addr,
+                             నిర్మాణం Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport);
 
 /**
  * Creates a cfilter that keeps a listening socket.
  */
-CURLcode Curl_conn_tcp_listen_set(struct Curl_easy *data,
-                                  struct connectdata *conn,
+CURLcode Curl_conn_tcp_listen_సమితి(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం connectdata *conn,
                                   int8_t sockindex,
                                   curl_socket_t *s);
 
@@ -129,7 +129,7 @@ CURLcode Curl_conn_tcp_listen_set(struct Curl_easy *data,
  * Return TRUE iff the last filter at `sockindex` was set via
  * Curl_conn_tcp_listen_set().
  */
-bool Curl_conn_is_tcp_listen(struct Curl_easy *data,
+bool Curl_conn_is_tcp_listen(నిర్మాణం Curl_easy *దత్తాంశం,
                              int8_t sockindex);
 
 /**
@@ -140,15 +140,15 @@ bool Curl_conn_is_tcp_listen(struct Curl_easy *data,
  * @param pip               pointer to get IP quadruple or NULL
  * Returns error if the filter is of invalid type.
  */
-CURLcode Curl_cf_socket_peek(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
+CURLcode Curl_cf_socket_peek(నిర్మాణం Curl_cfilter *cf,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
                              curl_socket_t *psock,
-                             const struct Curl_sockaddr_ex **paddr,
-                             struct ip_quadruple *pip) WARN_UNUSED_RESULT;
+                             స్థిరరాశి నిర్మాణం Curl_sockaddr_ex **paddr,
+                             నిర్మాణం ip_quadruple *pip) WARN_వాడని_ఫలితం;
 
-extern struct Curl_cftype Curl_cft_tcp;
-extern struct Curl_cftype Curl_cft_udp;
-extern struct Curl_cftype Curl_cft_unix;
-extern struct Curl_cftype Curl_cft_tcp_accept;
+బాహ్య నిర్మాణం Curl_cftype Curl_cft_tcp;
+బాహ్య నిర్మాణం Curl_cftype Curl_cft_udp;
+బాహ్య నిర్మాణం Curl_cftype Curl_cft_unix;
+బాహ్య నిర్మాణం Curl_cftype Curl_cft_tcp_accept;
 
-#endif /* HEADER_CURL_CF_SOCKET_H */
+#అయితే_ముగింపు /* HEADER_CURL_CF_SOCKET_H */

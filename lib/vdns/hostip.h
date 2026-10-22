@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HOSTIP_H
-#define HEADER_CURL_HOSTIP_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_HOSTIP_H
+#నిర్వచించు శీర్షిక_CURL_HOSTIP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,71 +23,71 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "hash.h"
-#include "curlx/timeval.h" /* for curltime, timediff_t */
+#అన్తర్భావ "hash.h"
+#అన్తర్భావ "curlx/timeval.h" /* for curltime, timediff_t */
 
 /* Allocate enough memory to hold the full name information structs and
  * everything. OSF1 is known to require at least 8872 bytes. The buffer
  * required for storing all possible aliases and IP numbers is according to
  * Stevens' Unix Network Programming 2nd edition, p. 304: 8192 bytes!
  */
-#define CURL_HOSTENT_SIZE 9000
+#నిర్వచించు CURL_HOSTENT_కొలత 9000
 
-#define CURL_TIMEOUT_RESOLVE_MS (300 * 1000)
+#నిర్వచించు CURL_TIMEOUT_RESOLVE_MS (300 * 1000)
 
-struct addrinfo;
-struct hostent;
-struct Curl_easy;
-struct connectdata;
-struct easy_pollset;
-struct Curl_https_rrinfo;
-struct Curl_multi;
-struct Curl_dns_entry;
-struct Curl_peer;
+నిర్మాణం addrinfo;
+నిర్మాణం hostent;
+నిర్మాణం Curl_easy;
+నిర్మాణం connectdata;
+నిర్మాణం easy_pollset;
+నిర్మాణం Curl_https_rrinfo;
+నిర్మాణం Curl_multi;
+నిర్మాణం Curl_dns_నమోదు;
+నిర్మాణం Curl_peer;
 
 /* DNS query types */
-#define CURL_DNSQ_A           (1U << 0)
-#define CURL_DNSQ_AAAA        (1U << 1)
-#define CURL_DNSQ_HTTPS       (1U << 2)
+#నిర్వచించు CURL_DNSQ_A           (1U << 0)
+#నిర్వచించు CURL_DNSQ_AAAA        (1U << 1)
+#నిర్వచించు CURL_DNSQ_HTTPS       (1U << 2)
 
-#define CURL_DNSQ_ADDR        (uint8_t)(CURL_DNSQ_A | CURL_DNSQ_AAAA)
-#define CURL_DNSQ_IS_ADDR(x)  (uint8_t)((x)&(CURL_DNSQ_ADDR))
+#నిర్వచించు CURL_DNSQ_ADDR        (uint8_t)(CURL_DNSQ_A | CURL_DNSQ_AAAA)
+#నిర్వచించు CURL_DNSQ_IS_ADDR(x)  (uint8_t)((x)&(CURL_DNSQ_ADDR))
 
-#ifdef CURLVERBOSE
-const char *Curl_resolv_query_str(uint8_t dns_queries);
-#endif
+#నిర్వచితమైతే CURLVERBOSE
+స్థిరరాశి అక్షరం *Curl_resolv_query_str(uint8_t dns_queries);
+#అయితే_ముగింపు
 
 /* Return CURL_DNSQ_* bits for the transfer and ip_version. */
-uint8_t Curl_resolv_dns_queries(struct Curl_easy *data, uint8_t ip_version);
+uint8_t Curl_resolv_dns_queries(నిర్మాణం Curl_easy *దత్తాంశం, uint8_t ip_సంస్కరణ);
 
-enum alpnid {
+గణన alpnid {
   ALPN_none = 0,
   ALPN_h1 = CURLALTSVC_H1,
   ALPN_h2 = CURLALTSVC_H2,
   ALPN_h3 = CURLALTSVC_H3
 };
 
-bool Curl_host_is_ipnum(const char *hostname);
+bool Curl_host_is_ipnum(స్థిరరాశి అక్షరం *hostname);
 
-#ifdef USE_IPV6
+#నిర్వచితమైతే USE_IPV6
 /* probe if it seems to work */
-CURLcode Curl_probeipv6(struct Curl_multi *multi);
-#else
-#define Curl_probeipv6(x) CURLE_OK
-#endif
+CURLcode Curl_probeipv6(నిర్మాణం Curl_multi *multi);
+#లేకపోతే
+#నిర్వచించు Curl_probeipv6(x) CURLE_OK
+#అయితే_ముగింపు
 
 /* IPv4 thread-safe resolve function used for synch and asynch builds */
-struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname, uint16_t port);
+నిర్మాణం Curl_addrinfo *Curl_ipv4_resolve_r(స్థిరరాశి అక్షరం *hostname, uint16_t పోర్టు);
 
 /*
  * Curl_printable_address() returns a printable version of the 1st address
  * given in the 'ai' argument. The result will be stored in the buf that is
  * bufsize bytes big.
  */
-void Curl_printable_address(const struct Curl_addrinfo *ai,
-                            char *buf, size_t bufsize);
+శూన్య Curl_printable_చిరునామా(స్థిరరాశి నిర్మాణం Curl_addrinfo *ai,
+                            అక్షరం *buf, size_t bufsize);
 
 /* Start DNS resolving for the given parameters. Returns
  * - CURLE_OK: `*pdns` is the resolved DNS entry (needs to be unlinked).
@@ -96,64 +96,64 @@ void Curl_printable_address(const struct Curl_addrinfo *ai,
  *             `presolv_id` is the identifier for querying results later.
  * - other: the operation failed, `*pdns` is NULL, `*presolv_id` is 0.
  */
-CURLcode Curl_resolv(struct Curl_easy *data,
-                     struct Curl_peer *peer,
+CURLcode Curl_resolv(నిర్మాణం Curl_easy *దత్తాంశం,
+                     నిర్మాణం Curl_peer *peer,
                      uint8_t dns_queries,
                      uint8_t transport,
                      bool for_proxy,
                      timediff_t timeout_ms,
                      uint32_t *presolv_id,
-                     struct Curl_dns_entry **pdns);
+                     నిర్మాణం Curl_dns_నమోదు **pdns);
 
-CURLcode Curl_resolv_blocking(struct Curl_easy *data,
+CURLcode Curl_resolv_blocking(నిర్మాణం Curl_easy *దత్తాంశం,
                               uint8_t dns_queries,
-                              const char *hostname,
-                              uint16_t port,
+                              స్థిరరాశి అక్షరం *hostname,
+                              uint16_t పోర్టు,
                               uint8_t transport,
-                              struct Curl_dns_entry **pdns);
+                              నిర్మాణం Curl_dns_నమోదు **pdns);
 
 /* Announce start of a resolve operation to application callback,
  * passing the resolver implementation (maybe NULL). */
-CURLcode Curl_resolv_announce_start(struct Curl_easy *data,
-                                    void *resolver);
+CURLcode Curl_resolv_announce_ప్రారంభం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    శూన్య *resolver);
 
-#ifdef USE_CURL_ASYNC
+#నిర్వచితమైతే USE_CURL_ASYNC
 
-CURLcode Curl_resolv_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps);
+CURLcode Curl_resolv_pollset(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం easy_pollset *ps);
 
 /* Get the `async` struct for the given `resolv_id`, if it exists. */
-struct Curl_resolv_async *Curl_async_get(struct Curl_easy *data,
+నిర్మాణం Curl_resolv_async *Curl_async_get(నిర్మాణం Curl_easy *దత్తాంశం,
                                          uint32_t resolv_id);
 
 /* Shut down all resolves of the given easy handle. */
-void Curl_resolv_shutdown_all(struct Curl_easy *data);
+శూన్య Curl_resolv_shutdown_all(నిర్మాణం Curl_easy *దత్తాంశం);
 
 /* Destroy all resolve resources of the given easy handle. */
-void Curl_resolv_destroy_all(struct Curl_easy *data);
+శూన్య Curl_resolv_destroy_all(నిర్మాణం Curl_easy *దత్తాంశం);
 
-CURLcode Curl_resolv_take_result(struct Curl_easy *data, uint32_t resolv_id,
-                                 struct Curl_dns_entry **pdns);
+CURLcode Curl_resolv_take_ఫలితం(నిర్మాణం Curl_easy *దత్తాంశం, uint32_t resolv_id,
+                                 నిర్మాణం Curl_dns_నమోదు **pdns);
 
-void Curl_resolv_destroy(struct Curl_easy *data, uint32_t resolv_id);
+శూన్య Curl_resolv_destroy(నిర్మాణం Curl_easy *దత్తాంశం, uint32_t resolv_id);
 
 /* How much time has gone by since start of resolve.
  * Returns CURL_TIMEOUT_RESOLVE_MS if `resolv_id` is no longer valid. */
-timediff_t Curl_resolv_elapsed_ms(struct Curl_easy *data,
+timediff_t Curl_resolv_elapsed_ms(నిర్మాణం Curl_easy *దత్తాంశం,
                                   uint32_t resolv_id,
-                                  const struct curltime *pnow);
+                                  స్థిరరాశి నిర్మాణం curltime *pnow);
 
 /* Return TRUE if `resolv_id` has answers (positive or negative) to
  * all queries in `dns_queries`.
  * Queries not requested are considered answered. */
-bool Curl_resolv_has_answers(struct Curl_easy *data,
+bool Curl_resolv_has_answers(నిర్మాణం Curl_easy *దత్తాంశం,
                              uint32_t resolv_id, uint8_t dns_queries);
 
-const struct Curl_addrinfo *Curl_resolv_get_ai(struct Curl_easy *data,
+స్థిరరాశి నిర్మాణం Curl_addrinfo *Curl_resolv_get_ai(నిర్మాణం Curl_easy *దత్తాంశం,
                                                uint32_t resolv_id,
-                                               int ai_family,
-                                               unsigned int index);
-#ifdef USE_HTTPSRR
+                                               పూర్ణాంకం ai_family,
+                                               గుర్తులేని పూర్ణాంకం సూచీ);
+#నిర్వచితమైతే USE_HTTPSRR
 
 /* Start DNS resolving for HTTPS records. Returns
  * - CURLE_OK: `*pdns` is the resolved DNS entry (needs to be unlinked).
@@ -162,43 +162,43 @@ const struct Curl_addrinfo *Curl_resolv_get_ai(struct Curl_easy *data,
  *             `presolv_id` is the identifier for querying results later.
  * - other: the operation failed, `*pdns` is NULL, `*presolv_id` is 0.
  */
-CURLcode Curl_resolv_https(struct Curl_easy *data,
-                           struct Curl_peer *peer,
+CURLcode Curl_resolv_https(నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం Curl_peer *peer,
                            bool for_proxy,
                            timediff_t timeout_ms,
                            uint32_t *presolv_id,
-                           struct Curl_dns_entry **pdns);
+                           నిర్మాణం Curl_dns_నమోదు **pdns);
 
 
-const struct Curl_https_rrinfo *Curl_resolv_get_https(struct Curl_easy *data,
+స్థిరరాశి నిర్మాణం Curl_https_rrinfo *Curl_resolv_get_https(నిర్మాణం Curl_easy *దత్తాంశం,
                                                       uint32_t resolv_id);
-bool Curl_resolv_knows_https(struct Curl_easy *data, uint32_t resolv_id);
-#endif /* USE_HTTPSRR */
+bool Curl_resolv_knows_https(నిర్మాణం Curl_easy *దత్తాంశం, uint32_t resolv_id);
+#అయితే_ముగింపు /* USE_HTTPSRR */
 
-#else /* !USE_CURL_ASYNC */
-#define Curl_resolv_shutdown_all(x)      Curl_nop_stmt
-#define Curl_resolv_destroy_all(x)       Curl_nop_stmt
-#define Curl_resolv_take_result(x, y, z) CURLE_NOT_BUILT_IN
-#define Curl_resolv_elapsed_ms(x, y, z)  CURL_TIMEOUT_RESOLVE_MS
-#define Curl_resolv_has_answers(x, y, z) TRUE
-#define Curl_resolv_get_ai(x, y, z, a)   NULL
-#define Curl_resolv_get_https(x, y)      NULL
-#define Curl_resolv_knows_https(x, y)    TRUE
-#define Curl_resolv_pollset(x, y)        CURLE_OK
-#define Curl_resolv_destroy(x, y)        Curl_nop_stmt
-#endif /* USE_CURL_ASYNC */
+#లేకపోతే /* !USE_CURL_ASYNC */
+#నిర్వచించు Curl_resolv_shutdown_all(x)      Curl_nop_stmt
+#నిర్వచించు Curl_resolv_destroy_all(x)       Curl_nop_stmt
+#నిర్వచించు Curl_resolv_take_ఫలితం(x, y, z) CURLE_NOT_BUILT_లోపల
+#నిర్వచించు Curl_resolv_elapsed_ms(x, y, z)  CURL_TIMEOUT_RESOLVE_MS
+#నిర్వచించు Curl_resolv_has_answers(x, y, z) TRUE
+#నిర్వచించు Curl_resolv_get_ai(x, y, z, a)   ఖాళీ
+#నిర్వచించు Curl_resolv_get_https(x, y)      ఖాళీ
+#నిర్వచించు Curl_resolv_knows_https(x, y)    TRUE
+#నిర్వచించు Curl_resolv_pollset(x, y)        CURLE_OK
+#నిర్వచించు Curl_resolv_destroy(x, y)        Curl_nop_stmt
+#అయితే_ముగింపు /* USE_CURL_ASYNC */
 
-#ifdef CURLRES_SYNCH
+#నిర్వచితమైతే CURLRES_SYNCH
 /*
  * Curl_sync_getaddrinfo() is the non-async low-level name resolve API.
  * There are several versions of this function - depending on IPV6
  * support and platform.
  */
-struct Curl_addrinfo *Curl_sync_getaddrinfo(struct Curl_easy *data,
+నిర్మాణం Curl_addrinfo *Curl_sync_getaddrinfo(నిర్మాణం Curl_easy *దత్తాంశం,
                                             uint8_t dns_queries,
-                                            const char *hostname,
-                                            uint16_t port,
+                                            స్థిరరాశి అక్షరం *hostname,
+                                            uint16_t పోర్టు,
                                             uint8_t transport);
-#endif
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_HOSTIP_H */
+#అయితే_ముగింపు /* HEADER_CURL_HOSTIP_H */

@@ -21,14 +21,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#ఒకవేళ !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS)
 
-#include "urldata.h"
-#include "rand.h"
-#include "curl_fopen.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "rand.h"
+#అన్తర్భావ "curl_fopen.h"
 
 /* The dirslash() function breaks a null-terminated pathname string into
    directory and filename components then returns the directory component up
@@ -40,38 +40,38 @@
    The input path to this function is expected to have a filename part.
  */
 
-#ifdef _WIN32
-#define PATHSEP   "\\"
-#define IS_SEP(x) (((x) == '/') || ((x) == '\\'))
-#elif defined(MSDOS) || defined(OS2)
-#define PATHSEP   "\\"
-#define IS_SEP(x) ((x) == '\\')
-#else
-#define PATHSEP   "/"
-#define IS_SEP(x) ((x) == '/')
-#endif
+#నిర్వచితమైతే _WIN32
+#నిర్వచించు PATHSEP   "\\"
+#నిర్వచించు IS_SEP(x) (((x) == '/') || ((x) == '\\'))
+#లేదావేళ defined(MSDOS) || defined(OS2)
+#నిర్వచించు PATHSEP   "\\"
+#నిర్వచించు IS_SEP(x) ((x) == '\\')
+#లేకపోతే
+#నిర్వచించు PATHSEP   "/"
+#నిర్వచించు IS_SEP(x) ((x) == '/')
+#అయితే_ముగింపు
 
-static char *dirslash(const char *path)
+స్థిర అక్షరం *dirslash(స్థిరరాశి అక్షరం *మార్గం)
 {
   size_t n;
-  struct dynbuf out;
-  DEBUGASSERT(path);
-  curlx_dyn_init(&out, CURL_MAX_INPUT_LENGTH);
-  n = strlen(path);
-  if(n) {
+  నిర్మాణం dynbuf బహిర్గతం;
+  DEBUGASSERT(మార్గం);
+  curlx_dyn_init(&బహిర్గతం, CURL_MAX_ఆదానం_నిడివి);
+  n = అక్షరశ్రేణి_పొడవు(మార్గం);
+  ఒకవేళ(n) {
     /* find the rightmost path separator, if any */
-    while(n && !IS_SEP(path[n - 1]))
+    అయితే(n && !IS_SEP(మార్గం[n - 1]))
       --n;
     /* skip over all the path separators, if any */
-    while(n && IS_SEP(path[n - 1]))
+    అయితే(n && IS_SEP(మార్గం[n - 1]))
       --n;
   }
-  if(curlx_dyn_addn(&out, path, n))
-    return NULL;
+  ఒకవేళ(curlx_dyn_addn(&బహిర్గతం, మార్గం, n))
+    తిరిగి ఖాళీ;
   /* if there was a directory, append a single trailing slash */
-  if(n && curlx_dyn_addn(&out, PATHSEP, 1))
-    return NULL;
-  return curlx_dyn_ptr(&out);
+  ఒకవేళ(n && curlx_dyn_addn(&బహిర్గతం, PATHSEP, 1))
+    తిరిగి ఖాళీ;
+  తిరిగి curlx_dyn_ptr(&బహిర్గతం);
 }
 
 /*
@@ -81,85 +81,85 @@ static char *dirslash(const char *path)
  * file. if 'tempname' is non-NULL, it needs a rename after the file is
  * written.
  */
-CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
-                    FILE **fh, char **tempname)
+CURLcode Curl_fopen(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *filename,
+                    FILE **fh, అక్షరం **tempname)
 {
-  CURLcode result = CURLE_WRITE_ERROR;
-  unsigned char randbuf[41];
-  char *tempstore = NULL;
-#ifndef _WIN32
+  CURLcode ఫలితం = CURLE_WRITE_ERROR;
+  గుర్తులేని అక్షరం randbuf[41];
+  అక్షరం *tempstore = ఖాళీ;
+#నిర్వచితం_కాకపోతే _WIN32
   curlx_struct_stat sb;
-#endif
-  int fd = -1;
-  char *dir = NULL;
-  *tempname = NULL;
+#అయితే_ముగింపు
+  పూర్ణాంకం fd = -1;
+  అక్షరం *dir = ఖాళీ;
+  *tempname = ఖాళీ;
 
-#ifndef _WIN32
+#నిర్వచితం_కాకపోతే _WIN32
   *fh = curlx_fopen(filename, FOPEN_WRITETEXT);
-  if(!*fh)
-    goto fail;
-  if(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
-    return CURLE_OK;
+  ఒకవేళ(!*fh)
+    వెళ్ళు fail;
+  ఒకవేళ(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_బహుళకం)) {
+    తిరిగి CURLE_OK;
   }
   curlx_fclose(*fh);
-#endif /* !_WIN32 */
-  *fh = NULL;
+#అయితే_ముగింపు /* !_WIN32 */
+  *fh = ఖాళీ;
 
-  result = Curl_rand_alnum(data, randbuf, sizeof(randbuf));
-  if(result)
-    goto fail;
+  ఫలితం = Curl_rand_alnum(దత్తాంశం, randbuf, పరిమాణం(randbuf));
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
   dir = dirslash(filename);
-  if(dir) {
+  ఒకవేళ(dir) {
     /* The temp filename should not end up too long for the target file
        system */
     tempstore = curl_maprintf("%s%s.tmp", dir, randbuf);
     curlx_free(dir);
   }
 
-  if(!tempstore) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  ఒకవేళ(!tempstore) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు fail;
   }
 
-  result = CURLE_WRITE_ERROR;
-#ifdef _WIN32
+  ఫలితం = CURLE_WRITE_ERROR;
+#నిర్వచితమైతే _WIN32
   fd = curlx_open(tempstore, _O_WRONLY | _O_CREAT | _O_EXCL,
                   _S_IREAD | _S_IWRITE);
-#else
+#లేకపోతే
   fd = curlx_open(tempstore, O_WRONLY | O_CREAT | O_EXCL,
                   (mode_t)(S_IRUSR | S_IWUSR | 0600));
-#endif
-  if(fd == -1)
-    goto fail;
+#అయితే_ముగింపు
+  ఒకవేళ(fd == -1)
+    వెళ్ళు fail;
 
-#ifdef HAVE_FCHMOD
+#నిర్వచితమైతే HAVE_FCHMOD
   {
     curlx_struct_stat nsb;
-    if((curlx_fstat(fd, &nsb) != -1) &&
+    ఒకవేళ((curlx_fstat(fd, &nsb) != -1) &&
        (nsb.st_uid == sb.st_uid) && (nsb.st_gid == sb.st_gid)) {
       /* if the user and group are the same, clone the original mode */
-      if(fchmod(fd, (mode_t)sb.st_mode) == -1)
-        goto fail;
+      ఒకవేళ(fchmod(fd, (mode_t)sb.st_బహుళకం) == -1)
+        వెళ్ళు fail;
     }
   }
-#endif
+#అయితే_ముగింపు
 
   *fh = curlx_fdopen(fd, FOPEN_WRITETEXT);
-  if(!*fh)
-    goto fail;
+  ఒకవేళ(!*fh)
+    వెళ్ళు fail;
 
   *tempname = tempstore;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 
 fail:
-  if(fd != -1) {
+  ఒకవేళ(fd != -1) {
     curlx_close(fd);
     unlink(tempstore);
   }
 
   curlx_free(tempstore);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif /* !disabled */
+#అయితే_ముగింపు /* !disabled */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FORMDATA_H
-#define HEADER_CURL_FORMDATA_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_FORMDATA_H
+#నిర్వచించు శీర్షిక_CURL_FORMDATA_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,33 +23,33 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_FORM_API
+#నిర్వచితం_కాకపోతే CURL_DISABLE_FORM_API
 
-#include "bufref.h"
+#అన్తర్భావ "bufref.h"
 
 /* used by FormAdd for temporary storage */
-struct FormInfo {
-  struct bufref name;
-  struct bufref value;
-  struct bufref contenttype;
-  struct bufref showfilename; /* The filename to show. If not set, the actual
+నిర్మాణం FormInfo {
+  నిర్మాణం bufref name;
+  నిర్మాణం bufref విలువ;
+  నిర్మాణం bufref contenttype;
+  నిర్మాణం bufref showfilename; /* The filename to show. If not set, the actual
                                  filename will be used */
-  char *buffer;      /* pointer to existing buffer used for file upload */
-  char *userp;        /* pointer for the read callback */
-  struct FormInfo *more;
-  struct curl_slist *contentheader;
+  అక్షరం *బఫరు;      /* pointer to existing buffer used for file upload */
+  అక్షరం *userp;        /* pointer for the read callback */
+  నిర్మాణం FormInfo *మరిన్ని;
+  నిర్మాణం curl_slist *contentheader;
   curl_off_t contentslength;
   size_t namelength;
   size_t bufferlength;
-  unsigned char flags;
+  గుర్తులేని అక్షరం flags;
 };
 
-CURLcode Curl_getformdata(CURL *data,
+CURLcode Curl_getformdata(CURL *దత్తాంశం,
                           curl_mimepart *finalform,
-                          struct curl_httppost *post,
+                          నిర్మాణం curl_httppost *post,
                           curl_read_callback fread_func);
-#endif /* CURL_DISABLE_FORM_API */
+#అయితే_ముగింపు /* CURL_DISABLE_FORM_API */
 
-#endif /* HEADER_CURL_FORMDATA_H */
+#అయితే_ముగింపు /* HEADER_CURL_FORMDATA_H */

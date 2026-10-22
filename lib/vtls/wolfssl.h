@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WOLFSSL_H
-#define HEADER_CURL_WOLFSSL_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_WOLFSSL_H
+#నిర్వచించు శీర్షిక_CURL_WOLFSSL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,77 +23,77 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_WOLFSSL
+#నిర్వచితమైతే USE_WOLFSSL
 
-#include "urldata.h"
+#అన్తర్భావ "urldata.h"
 
-#include <wolfssl/options.h>
+#అన్తర్భావ <wolfssl/options.h>
 
-struct alpn_spec;
-struct ssl_peer;
-struct Curl_ssl_session;
+నిర్మాణం alpn_spec;
+నిర్మాణం ssl_peer;
+నిర్మాణం Curl_ssl_session;
 
-struct WOLFSSL;
-struct WOLFSSL_CTX;
-struct WOLFSSL_SESSION;
+నిర్మాణం WOLFSSL;
+నిర్మాణం WOLFSSL_CTX;
+నిర్మాణం WOLFSSL_SESSION;
 
-extern const struct Curl_ssl Curl_ssl_wolfssl;
+బాహ్య స్థిరరాశి నిర్మాణం Curl_ssl Curl_ssl_wolfssl;
 
-struct wssl_ctx {
-  struct WOLFSSL_CTX *ssl_ctx;
-  struct WOLFSSL *ssl;
-  CURLcode io_result;      /* result of last BIO cfilter operation */
-  CURLcode hs_result;      /* result of handshake */
-  int io_send_blocked_len; /* length of last BIO write that EAGAIN-ed */
-  BIT(x509_store_setup);   /* x509 store has been set up */
-  BIT(shutting_down);      /* TLS is being shut down */
+నిర్మాణం wssl_ctx {
+  నిర్మాణం WOLFSSL_CTX *ssl_ctx;
+  నిర్మాణం WOLFSSL *ssl;
+  CURLcode io_ఫలితం;      /* result of last BIO cfilter operation */
+  CURLcode hs_ఫలితం;      /* result of handshake */
+  పూర్ణాంకం io_send_blocked_len; /* length of last BIO write that EAGAIN-ed */
+  బిట్టు(x509_store_అమరిక);   /* x509 store has been set up */
+  బిట్టు(shutting_కిందికి);      /* TLS is being shut down */
 };
 
-size_t Curl_wssl_version(char *buffer, size_t size);
+size_t Curl_wssl_సంస్కరణ(అక్షరం *బఫరు, size_t కొలత);
 
-typedef CURLcode Curl_wssl_ctx_setup_cb(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data);
+రకనిర్వచనం CURLcode Curl_wssl_ctx_అమరిక_cb(నిర్మాణం Curl_cfilter *cf,
+                                        నిర్మాణం Curl_easy *దత్తాంశం,
+                                        శూన్య *user_దత్తాంశం);
 
-typedef CURLcode Curl_wssl_init_session_reuse_cb(struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data,
-                                                 struct alpn_spec *alpns,
-                                                 struct Curl_ssl_session *scs,
-                                                 bool *do_early_data);
+రకనిర్వచనం CURLcode Curl_wssl_init_session_reuse_cb(నిర్మాణం Curl_cfilter *cf,
+                                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                                 నిర్మాణం alpn_spec *alpns,
+                                                 నిర్మాణం Curl_ssl_session *scs,
+                                                 bool *do_early_దత్తాంశం);
 
-CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
-                            Curl_wssl_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
-                            void *ssl_user_data,
+CURLcode Curl_wssl_ctx_init(నిర్మాణం wssl_ctx *wctx,
+                            నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం ssl_peer *peer,
+                            స్థిరరాశి నిర్మాణం alpn_spec *alpns_requested,
+                            Curl_wssl_ctx_అమరిక_cb *cb_అమరిక,
+                            శూన్య *cb_user_దత్తాంశం,
+                            శూన్య *ssl_user_దత్తాంశం,
                             Curl_wssl_init_session_reuse_cb *sess_reuse_cb);
 
-CURLcode Curl_wssl_setup_x509_store(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct wssl_ctx *wssl);
+CURLcode Curl_wssl_అమరిక_x509_store(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం wssl_ctx *wssl);
 
-#ifdef HAVE_EX_DATA
-CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 struct WOLFSSL_SESSION *session,
-                                 int ietf_tls_id,
-                                 const char *alpn,
-                                 unsigned char *quic_tp,
+#నిర్వచితమైతే HAVE_EX_దత్తాంశం
+CURLcode Curl_wssl_cache_session(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 స్థిరరాశి అక్షరం *ssl_peer_కీలకం,
+                                 నిర్మాణం WOLFSSL_SESSION *session,
+                                 పూర్ణాంకం ietf_tls_id,
+                                 స్థిరరాశి అక్షరం *alpn,
+                                 గుర్తులేని అక్షరం *quic_tp,
                                  size_t quic_tp_len,
-                                 struct Curl_ssl_session **pscs);
-#endif
+                                 నిర్మాణం Curl_ssl_session **pscs);
+#అయితే_ముగింపు
 
-CURLcode Curl_wssl_verify_pinned(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct wssl_ctx *wssl);
+CURLcode Curl_wssl_verify_pinned(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం wssl_ctx *wssl);
 
-void Curl_wssl_report_handshake(struct Curl_easy *data, struct wssl_ctx *wssl);
+శూన్య Curl_wssl_report_handshake(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం wssl_ctx *wssl);
 
-#endif /* USE_WOLFSSL */
-#endif /* HEADER_CURL_WOLFSSL_H */
+#అయితే_ముగింపు /* USE_WOLFSSL */
+#అయితే_ముగింపు /* HEADER_CURL_WOLFSSL_H */

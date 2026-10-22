@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MACOS_H
-#define HEADER_CURL_MACOS_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_MACOS_H
+#నిర్వచించు శీర్షిక_CURL_MACOS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef CURL_MACOS_CALL_COPYPROXIES
-CURLcode Curl_macos_init(void);
-#else
-#define Curl_macos_init() CURLE_OK
-#endif
+#నిర్వచితమైతే CURL_MACOS_CALL_COPYPROXIES
+CURLcode Curl_macos_init(శూన్య);
+#లేకపోతే
+#నిర్వచించు Curl_macos_init() CURLE_OK
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_MACOS_H */
+#అయితే_ముగింపు /* HEADER_CURL_MACOS_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_AWS_SIGV4_H
-#define HEADER_CURL_HTTP_AWS_SIGV4_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_HTTP_AWS_SIGV4_H
+#నిర్వచించు శీర్షిక_CURL_HTTP_AWS_SIGV4_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "curlx/dynbuf.h"
-#include "urldata.h"
+#అన్తర్భావ "curlx/dynbuf.h"
+#అన్తర్భావ "urldata.h"
 
 /* this is for creating aws_sigv4 header output */
-CURLcode Curl_output_aws_sigv4(struct Curl_easy *data);
+CURLcode Curl_output_aws_sigv4(నిర్మాణం Curl_easy *దత్తాంశం);
 
-#endif /* HEADER_CURL_HTTP_AWS_SIGV4_H */
+#అయితే_ముగింపు /* HEADER_CURL_HTTP_AWS_SIGV4_H */

@@ -21,669 +21,669 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
-#include "urldata.h"
-#include "http_httpsig.h"
-#include "curl_ed25519.h"
-#include "curl_hmac.h"
-#include "curl_sha256.h"
-#include "http.h"
-#include "transfer.h"
-#include "curl_trc.h"
-#include "slist.h"
-#include "curlx/dynbuf.h"
-#include "curlx/base64.h"
-#include "curlx/strdup.h"
-#include "curlx/strparse.h"
-#include "strcase.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "http_httpsig.h"
+#అన్తర్భావ "curl_ed25519.h"
+#అన్తర్భావ "curl_hmac.h"
+#అన్తర్భావ "curl_sha256.h"
+#అన్తర్భావ "http.h"
+#అన్తర్భావ "transfer.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "slist.h"
+#అన్తర్భావ "curlx/dynbuf.h"
+#అన్తర్భావ "curlx/base64.h"
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "strcase.h"
 
-#include <time.h>
+#అన్తర్భావ <time.h>
 
-#define HTTPSIG_MAX_SIG_BASE   CURL_MAX_HTTP_HEADER
-#define HTTPSIG_MAX_COMPONENTS 16
-#define HTTPSIG_MAX_RAW_SIG    CURL_ED25519_SIGLEN
-#define HTTPSIG_DEFAULT_LABEL  "sig1"
+#నిర్వచించు HTTPSIG_MAX_SIG_పునాది   CURL_MAX_HTTP_శీర్షిక
+#నిర్వచించు HTTPSIG_MAX_COMPONENTS 16
+#నిర్వచించు HTTPSIG_MAX_RAW_SIG    CURL_ED25519_SIGLEN
+#నిర్వచించు HTTPSIG_DEFAULT_LABEL  "sig1"
 
-enum httpsig_alg {
+గణన httpsig_alg {
   HTTPSIG_ALG_ED25519,
   HTTPSIG_ALG_HMAC_SHA256,
   HTTPSIG_ALG_UNKNOWN
 };
 
-static const char *alg_to_str(enum httpsig_alg alg)
+స్థిర స్థిరరాశి అక్షరం *alg_గమ్యం_str(గణన httpsig_alg alg)
 {
-  switch(alg) {
-  case HTTPSIG_ALG_ED25519:
-    return "ed25519";
-  case HTTPSIG_ALG_HMAC_SHA256:
-    return "hmac-sha256";
-  default:
-    break;
+  ఎంపిక(alg) {
+  స్థితి HTTPSIG_ALG_ED25519:
+    తిరిగి "ed25519";
+  స్థితి HTTPSIG_ALG_HMAC_SHA256:
+    తిరిగి "hmac-sha256";
+  అప్రమేయ:
+    ఆపు;
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-static enum httpsig_alg id_to_alg(uint8_t val)
+స్థిర గణన httpsig_alg id_గమ్యం_alg(uint8_t val)
 {
-  switch(val) {
-  case CURLHTTPSIG_ED25519:
-    return HTTPSIG_ALG_ED25519;
-  case CURLHTTPSIG_HMAC_SHA256:
-    return HTTPSIG_ALG_HMAC_SHA256;
-  default:
-    break;
+  ఎంపిక(val) {
+  స్థితి CURLHTTPSIG_ED25519:
+    తిరిగి HTTPSIG_ALG_ED25519;
+  స్థితి CURLHTTPSIG_HMAC_SHA256:
+    తిరిగి HTTPSIG_ALG_HMAC_SHA256;
+  అప్రమేయ:
+    ఆపు;
   }
-  return HTTPSIG_ALG_UNKNOWN;
+  తిరిగి HTTPSIG_ALG_UNKNOWN;
 }
 
-static CURLcode decode_hex_key(struct Curl_easy *data,
-                               const char *hexstr,
-                               unsigned char **keyout,
+స్థిర CURLcode decode_hex_కీలకం(నిర్మాణం Curl_easy *దత్తాంశం,
+                               స్థిరరాశి అక్షరం *hexstr,
+                               గుర్తులేని అక్షరం **keyout,
                                size_t *keylen)
 {
   size_t len, i;
-  unsigned char *keybuf;
+  గుర్తులేని అక్షరం *keybuf;
 
-  *keyout = NULL;
+  *keyout = ఖాళీ;
   *keylen = 0;
 
-  len = strlen(hexstr);
-  while(len > 0 && ISNEWLINE(hexstr[len - 1]))
+  len = అక్షరశ్రేణి_పొడవు(hexstr);
+  అయితే(len > 0 && ISNEWLINE(hexstr[len - 1]))
     len--;
 
-  if(len == 0 || (len & 1) != 0) {
-    failf(data, "httpsig: invalid hex key (length %zu)", len);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(len == 0 || (len & 1) != 0) {
+    failf(దత్తాంశం, "httpsig: invalid hex key (length %zu)", len);
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
 
-  if(len > CURL_MAX_INPUT_LENGTH) {
-    failf(data, "httpsig: hex key too long");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(len > CURL_MAX_ఆదానం_నిడివి) {
+    failf(దత్తాంశం, "httpsig: hex key too long");
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
 
   keybuf = curlx_malloc(len / 2);
-  if(!keybuf)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!keybuf)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  for(i = 0; i < len; i += 2) {
-    if(!ISXDIGIT(hexstr[i]) || !ISXDIGIT(hexstr[i + 1])) {
-      failf(data, "httpsig: invalid hex at position %zu ('%c%c')",
+  కొరకు(i = 0; i < len; i += 2) {
+    ఒకవేళ(!ISXDIGIT(hexstr[i]) || !ISXDIGIT(hexstr[i + 1])) {
+      failf(దత్తాంశం, "httpsig: invalid hex at position %zu ('%c%c')",
             i, hexstr[i], hexstr[i + 1]);
       curlx_free(keybuf);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      తిరిగి CURLE_BAD_FUNCTION_వాదం;
     }
-    keybuf[i / 2] = (unsigned char)((curlx_hexval(hexstr[i]) << 4) |
+    keybuf[i / 2] = (గుర్తులేని అక్షరం)((curlx_hexval(hexstr[i]) << 4) |
                                      curlx_hexval(hexstr[i + 1]));
   }
 
   *keyout = keybuf;
   *keylen = len / 2;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* @authority matches the Host header field-value when available (RFC 9421).
    data->state.http_host is produced by http_set_aptr_host() before auth. */
-static CURLcode httpsig_authority(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  struct dynbuf *authority_buf)
+స్థిర CURLcode httpsig_authority(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం connectdata *conn,
+                                  నిర్మాణం dynbuf *authority_buf)
 {
-  const char *h = data->state.http_host;
+  స్థిరరాశి అక్షరం *h = దత్తాంశం->state.http_host;
 
-  if(h && curl_strnequal(h, "host:", 5)) {
-    const char *value = h + 5;
-    const char *end;
+  ఒకవేళ(h && curl_strnequal(h, "host:", 5)) {
+    స్థిరరాశి అక్షరం *విలువ = h + 5;
+    స్థిరరాశి అక్షరం *చివర;
 
-    while(ISBLANK(*value))
-      value++;
-    if(*value) {
-      CURLcode result;
+    అయితే(ISBLANK(*విలువ))
+      విలువ++;
+    ఒకవేళ(*విలువ) {
+      CURLcode ఫలితం;
 
-      end = value;
-      while(*end && !ISNEWLINE(*end))
-        end++;
-      while(end > value && ISBLANK(end[-1]))
-        end--;
-      result = curlx_dyn_addn(authority_buf, value, (size_t)(end - value));
-      if(result)
-        return result;
-      return CURLE_OK;
+      చివర = విలువ;
+      అయితే(*చివర && !ISNEWLINE(*చివర))
+        చివర++;
+      అయితే(చివర > విలువ && ISBLANK(చివర[-1]))
+        చివర--;
+      ఫలితం = curlx_dyn_addn(authority_buf, విలువ, (size_t)(చివర - విలువ));
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
+      తిరిగి CURLE_OK;
     }
   }
 
   {
-    const char *hostname = conn->origin->hostname;
-    uint16_t port = conn->origin->port;
+    స్థిరరాశి అక్షరం *hostname = conn->origin->hostname;
+    uint16_t పోర్టు = conn->origin->పోర్టు;
 
-    if((conn->origin->scheme->defport != port) && port)
-      return curlx_dyn_addf(authority_buf, "%s:%u", hostname, port);
-    return curlx_dyn_add(authority_buf, hostname);
+    ఒకవేళ((conn->origin->scheme->defport != పోర్టు) && పోర్టు)
+      తిరిగి curlx_dyn_addf(authority_buf, "%s:%u", hostname, పోర్టు);
+    తిరిగి curlx_dyn_కూడు(authority_buf, hostname);
   }
 }
 
-static CURLcode sf_append_quoted(struct dynbuf *buf, const char *str)
+స్థిర CURLcode sf_append_quoted(నిర్మాణం dynbuf *buf, స్థిరరాశి అక్షరం *str)
 {
-  CURLcode result = curlx_dyn_addn(buf, "\"", 1);
-  if(result)
-    return result;
-  while(*str) {
-    if(ISCNTRL(*str))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(*str == '\\' || *str == '"') {
-      result = curlx_dyn_addn(buf, "\\", 1);
-      if(result)
-        return result;
+  CURLcode ఫలితం = curlx_dyn_addn(buf, "\"", 1);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
+  అయితే(*str) {
+    ఒకవేళ(ISCNTRL(*str))
+      తిరిగి CURLE_BAD_FUNCTION_వాదం;
+    ఒకవేళ(*str == '\\' || *str == '"') {
+      ఫలితం = curlx_dyn_addn(buf, "\\", 1);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
     }
-    result = curlx_dyn_addn(buf, str, 1);
-    if(result)
-      return result;
+    ఫలితం = curlx_dyn_addn(buf, str, 1);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
     str++;
   }
-  return curlx_dyn_addn(buf, "\"", 1);
+  తిరిగి curlx_dyn_addn(buf, "\"", 1);
 }
 
 /* base64-encode raw bytes into an RFC 8941 byte sequence (:base64:) */
-static CURLcode sf_encode_byte_seq(const unsigned char *raw, size_t rawlen,
-                                   struct dynbuf *out)
+స్థిర CURLcode sf_encode_byte_seq(స్థిరరాశి గుర్తులేని అక్షరం *raw, size_t rawlen,
+                                   నిర్మాణం dynbuf *బహిర్గతం)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   size_t b64len;
-  char *b64;
+  అక్షరం *b64;
 
-  result = curlx_base64_encode(raw, rawlen, &b64, &b64len);
-  if(result)
-    return result;
+  ఫలితం = curlx_base64_encode(raw, rawlen, &b64, &b64len);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  result = curlx_dyn_addn(out, ":", 1);
-  if(!result)
-    result = curlx_dyn_addn(out, b64, b64len);
-  if(!result)
-    result = curlx_dyn_addn(out, ":", 1);
+  ఫలితం = curlx_dyn_addn(బహిర్గతం, ":", 1);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = curlx_dyn_addn(బహిర్గతం, b64, b64len);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = curlx_dyn_addn(బహిర్గతం, ":", 1);
 
   curlx_free(b64);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode build_sig_params(struct dynbuf *params,
-                                 const char **components, size_t count,
-                                 time_t created, const char *keyid,
-                                 enum httpsig_alg alg)
+స్థిర CURLcode build_sig_params(నిర్మాణం dynbuf *params,
+                                 స్థిరరాశి అక్షరం **components, size_t లెక్క,
+                                 time_t created, స్థిరరాశి అక్షరం *keyid,
+                                 గణన httpsig_alg alg)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   size_t i;
 
-  result = curlx_dyn_addn(params, "(", 1);
-  if(result)
-    return result;
+  ఫలితం = curlx_dyn_addn(params, "(", 1);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  for(i = 0; i < count; i++) {
-    if(i > 0) {
-      result = curlx_dyn_addn(params, " ", 1);
-      if(result)
-        return result;
+  కొరకు(i = 0; i < లెక్క; i++) {
+    ఒకవేళ(i > 0) {
+      ఫలితం = curlx_dyn_addn(params, " ", 1);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
     }
-    result = sf_append_quoted(params, components[i]);
-    if(result)
-      return result;
+    ఫలితం = sf_append_quoted(params, components[i]);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  result = curlx_dyn_addn(params, ")", 1);
-  if(result)
-    return result;
+  ఫలితం = curlx_dyn_addn(params, ")", 1);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  result = curlx_dyn_addf(params, ";created=%lld", (long long)created);
-  if(result)
-    return result;
+  ఫలితం = curlx_dyn_addf(params, ";created=%lld", (దీర్ఘ దీర్ఘ)created);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  if(keyid && *keyid) {
-    result = curlx_dyn_add(params, ";keyid=");
-    if(result)
-      return result;
-    result = sf_append_quoted(params, keyid);
-    if(result)
-      return result;
+  ఒకవేళ(keyid && *keyid) {
+    ఫలితం = curlx_dyn_కూడు(params, ";keyid=");
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
+    ఫలితం = sf_append_quoted(params, keyid);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  result = curlx_dyn_addf(params, ";alg=\"%s\"", alg_to_str(alg));
-  return result;
+  ఫలితం = curlx_dyn_addf(params, ";alg=\"%s\"", alg_గమ్యం_str(alg));
+  తిరిగి ఫలితం;
 }
 
 /* strings defined by RFC 9421 */
-#define SIG_METHOD    "@method"
-#define SIG_AUTHORITY "@authority"
-#define SIG_PATH      "@path"
-#define SIG_QUERY     "@query"
+#నిర్వచించు SIG_పద్ధతి    "@method"
+#నిర్వచించు SIG_AUTHORITY "@authority"
+#నిర్వచించు SIG_మార్గం      "@path"
+#నిర్వచించు SIG_QUERY     "@query"
 
 /* Resolve a component identifier to its value.
  * For headers, we walk the full user-supplied header list to combine
  * duplicate field values with ", " per RFC 9421 Section 2.1. Each
  * individual value is trimmed of leading/trailing OWS and the trailing
  * \r\n. The combined result is written into the caller-provided buffer. */
-static CURLcode resolve_component(const char *name,
-                                  const char *method,
-                                  const char *authority,
-                                  const char *path,
-                                  const char *query,
-                                  struct Curl_easy *data,
-                                  struct dynbuf *valbuf,
-                                  const char **out)
+స్థిర CURLcode resolve_component(స్థిరరాశి అక్షరం *name,
+                                  స్థిరరాశి అక్షరం *పద్ధతి,
+                                  స్థిరరాశి అక్షరం *authority,
+                                  స్థిరరాశి అక్షరం *మార్గం,
+                                  స్థిరరాశి అక్షరం *query,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం dynbuf *valbuf,
+                                  స్థిరరాశి అక్షరం **బహిర్గతం)
 {
-  *out = NULL;
+  *బహిర్గతం = ఖాళీ;
 
-  if(name[0] == '@') {
-    if(curl_strequal(name, SIG_METHOD))
-      *out = method;
-    else if(curl_strequal(name, SIG_AUTHORITY))
-      *out = authority;
-    else if(curl_strequal(name, SIG_PATH))
-      *out = path;
-    else if(curl_strequal(name, SIG_QUERY))
-      *out = query;
-    else {
-      failf(data, "httpsig: unsupported derived component '%s'", name);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(name[0] == '@') {
+    ఒకవేళ(curl_strequal(name, SIG_పద్ధతి))
+      *బహిర్గతం = పద్ధతి;
+    లేకపోతే ఒకవేళ(curl_strequal(name, SIG_AUTHORITY))
+      *బహిర్గతం = authority;
+    లేకపోతే ఒకవేళ(curl_strequal(name, SIG_మార్గం))
+      *బహిర్గతం = మార్గం;
+    లేకపోతే ఒకవేళ(curl_strequal(name, SIG_QUERY))
+      *బహిర్గతం = query;
+    లేకపోతే {
+      failf(దత్తాంశం, "httpsig: unsupported derived component '%s'", name);
+      తిరిగి CURLE_BAD_FUNCTION_వాదం;
     }
-    if(!*out) {
-      failf(data, "httpsig: derived component '%s' has no value", name);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    ఒకవేళ(!*బహిర్గతం) {
+      failf(దత్తాంశం, "httpsig: derived component '%s' has no value", name);
+      తిరిగి CURLE_BAD_FUNCTION_వాదం;
     }
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
   }
-  else {
+  లేకపోతే {
     /* RFC 9421 Section 2.1: walk all user-supplied headers and combine
        duplicate field values with ", " per HTTP field combination rules. */
-    struct curl_slist *head;
-    size_t namelen = strlen(name);
-    bool found = FALSE;
+    నిర్మాణం curl_slist *తల;
+    size_t namelen = అక్షరశ్రేణి_పొడవు(name);
+    bool దొరికింది = FALSE;
 
     curlx_dyn_reset(valbuf);
 
-    for(head = data->set.headers; head; head = head->next) {
-      if(curl_strnequal(head->data, name, namelen) &&
-         Curl_headersep(head->data[namelen])) {
-        const char *p = strchr(head->data, ':');
-        if(p) {
-          CURLcode result;
-          struct Curl_str content;
-          curlx_str_assign(&content, p + 1, strlen(p + 1));
+    కొరకు(తల = దత్తాంశం->సమితి.శీర్షికలు; తల; తల = తల->తదుపరి) {
+      ఒకవేళ(curl_strnequal(తల->దత్తాంశం, name, namelen) &&
+         Curl_headersep(తల->దత్తాంశం[namelen])) {
+        స్థిరరాశి అక్షరం *p = strchr(తల->దత్తాంశం, ':');
+        ఒకవేళ(p) {
+          CURLcode ఫలితం;
+          నిర్మాణం Curl_str content;
+          curlx_str_కేటాయించు(&content, p + 1, అక్షరశ్రేణి_పొడవు(p + 1));
           curlx_str_trimblanks(&content);
-          if(found) {
-            result = curlx_dyn_addn(valbuf, ", ", 2);
-            if(result)
-              return result;
+          ఒకవేళ(దొరికింది) {
+            ఫలితం = curlx_dyn_addn(valbuf, ", ", 2);
+            ఒకవేళ(ఫలితం)
+              తిరిగి ఫలితం;
           }
-          result = curlx_dyn_addn(valbuf, curlx_str(&content),
+          ఫలితం = curlx_dyn_addn(valbuf, curlx_str(&content),
                                   curlx_strlen(&content));
-          if(result)
-            return result;
-          found = TRUE;
+          ఒకవేళ(ఫలితం)
+            తిరిగి ఫలితం;
+          దొరికింది = TRUE;
         }
       }
     }
 
-    if(found) {
-      *out = curlx_dyn_ptr(valbuf);
-      return CURLE_OK;
+    ఒకవేళ(దొరికింది) {
+      *బహిర్గతం = curlx_dyn_ptr(valbuf);
+      తిరిగి CURLE_OK;
     }
-    failf(data, "httpsig: header '%s' not found in request", name);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    failf(దత్తాంశం, "httpsig: header '%s' not found in request", name);
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
 }
 
-static CURLcode build_sig_base(struct dynbuf *base,
-                               const char **components, size_t count,
-                               const char *method,
-                               const char *authority,
-                               const char *path,
-                               const char *query,
-                               struct Curl_easy *data,
-                               const char *sig_params)
+స్థిర CURLcode build_sig_పునాది(నిర్మాణం dynbuf *పునాది,
+                               స్థిరరాశి అక్షరం **components, size_t లెక్క,
+                               స్థిరరాశి అక్షరం *పద్ధతి,
+                               స్థిరరాశి అక్షరం *authority,
+                               స్థిరరాశి అక్షరం *మార్గం,
+                               స్థిరరాశి అక్షరం *query,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               స్థిరరాశి అక్షరం *sig_params)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   size_t i;
-  struct dynbuf hdrvalbuf;
+  నిర్మాణం dynbuf hdrvalbuf;
 
-  curlx_dyn_init(&hdrvalbuf, CURL_MAX_HTTP_HEADER);
+  curlx_dyn_init(&hdrvalbuf, CURL_MAX_HTTP_శీర్షిక);
 
-  for(i = 0; i < count; i++) {
-    const char *val = NULL;
-    result = resolve_component(components[i], method,
-                               authority, path, query, data,
+  కొరకు(i = 0; i < లెక్క; i++) {
+    స్థిరరాశి అక్షరం *val = ఖాళీ;
+    ఫలితం = resolve_component(components[i], పద్ధతి,
+                               authority, మార్గం, query, దత్తాంశం,
                                &hdrvalbuf, &val);
-    if(result || !val) {
-      failf(data, "httpsig: cannot resolve component '%s'", components[i]);
+    ఒకవేళ(ఫలితం || !val) {
+      failf(దత్తాంశం, "httpsig: cannot resolve component '%s'", components[i]);
       curlx_dyn_free(&hdrvalbuf);
-      return result ? result : CURLE_BAD_FUNCTION_ARGUMENT;
+      తిరిగి ఫలితం ? ఫలితం : CURLE_BAD_FUNCTION_వాదం;
     }
 
-    result = curlx_dyn_addf(base, "\"%s\": %s\n", components[i], val);
-    if(result) {
+    ఫలితం = curlx_dyn_addf(పునాది, "\"%s\": %s\n", components[i], val);
+    ఒకవేళ(ఫలితం) {
       curlx_dyn_free(&hdrvalbuf);
-      return result;
+      తిరిగి ఫలితం;
     }
   }
 
   curlx_dyn_free(&hdrvalbuf);
-  result = curlx_dyn_addf(base, "\"@signature-params\": %s", sig_params);
-  return result;
+  ఫలితం = curlx_dyn_addf(పునాది, "\"@signature-params\": %s", sig_params);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode parse_components(struct Curl_easy *data,
-                                 const char *query,
-                                 const char **components,
-                                 size_t *ncomp_out,
-                                 char **hdrs_copy_out)
+స్థిర CURLcode parse_components(నిర్మాణం Curl_easy *దత్తాంశం,
+                                 స్థిరరాశి అక్షరం *query,
+                                 స్థిరరాశి అక్షరం **components,
+                                 size_t *ncomp_బహిర్గతం,
+                                 అక్షరం **hdrs_copy_బహిర్గతం)
 {
-  const char *hdrs = CURL_EASY_STR(data, STRING_HTTPSIG_HEADERS);
+  స్థిరరాశి అక్షరం *hdrs = CURL_EASY_STR(దత్తాంశం, STRING_HTTPSIG_శీర్షికలు);
   size_t ncomp = 0;
 
-  *hdrs_copy_out = NULL;
-  if(hdrs && *hdrs) {
-    char *p;
-    char *hdrs_copy = curlx_strdup(hdrs);
-    if(!hdrs_copy)
-      return CURLE_OUT_OF_MEMORY;
-    *hdrs_copy_out = hdrs_copy;
+  *hdrs_copy_బహిర్గతం = ఖాళీ;
+  ఒకవేళ(hdrs && *hdrs) {
+    అక్షరం *p;
+    అక్షరం *hdrs_copy = curlx_strdup(hdrs);
+    ఒకవేళ(!hdrs_copy)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    *hdrs_copy_బహిర్గతం = hdrs_copy;
     p = hdrs_copy;
-    while(*p && ncomp < HTTPSIG_MAX_COMPONENTS) {
-      char *start;
+    అయితే(*p && ncomp < HTTPSIG_MAX_COMPONENTS) {
+      అక్షరం *ప్రారంభం;
       size_t tlen = 0;
-      const char *p2 = p;
+      స్థిరరాశి అక్షరం *p2 = p;
 
       curlx_str_passblanks(&p2);
-      if(!*p2)
-        break;
-      p = start = CURL_UNCONST(p2);
-      while(*p && !ISBLANK(*p)) {
-        if((*p == '\"') || (*p == '\\'))
-          return CURLE_BAD_FUNCTION_ARGUMENT;
+      ఒకవేళ(!*p2)
+        ఆపు;
+      p = ప్రారంభం = CURL_UNCONST(p2);
+      అయితే(*p && !ISBLANK(*p)) {
+        ఒకవేళ((*p == '\"') || (*p == '\\'))
+          తిరిగి CURLE_BAD_FUNCTION_వాదం;
         p++;
         tlen++;
       }
-      if(*p)
+      ఒకవేళ(*p)
         *p++ = '\0';
 
-      if(tlen && start[tlen - 1] == ':') {
+      ఒకవేళ(tlen && ప్రారంభం[tlen - 1] == ':') {
         /* Header field: drop the trailing ':' marker. RFC 9421 field
            names are canonically lowercase (Section 2.1). */
-        start[--tlen] = '\0';
-        if(!tlen) {
-          failf(data, "httpsig: empty header component name");
-          return CURLE_BAD_FUNCTION_ARGUMENT;
+        ప్రారంభం[--tlen] = '\0';
+        ఒకవేళ(!tlen) {
+          failf(దత్తాంశం, "httpsig: empty header component name");
+          తిరిగి CURLE_BAD_FUNCTION_వాదం;
         }
-        Curl_strntolower(start, start, tlen);
-        components[ncomp++] = start;
+        Curl_strntolower(ప్రారంభం, ప్రారంభం, tlen);
+        components[ncomp++] = ప్రారంభం;
       }
-      else {
+      లేకపోతే {
         /* Derived component: map the bare name to its canonical RFC 9421
            '@'-prefixed identifier (Section 2.2). */
-        Curl_strntolower(start, start, tlen);
-        if(!strcmp(start, "method"))
-          components[ncomp++] = SIG_METHOD;
-        else if(!strcmp(start, "authority"))
+        Curl_strntolower(ప్రారంభం, ప్రారంభం, tlen);
+        ఒకవేళ(!strcmp(ప్రారంభం, "method"))
+          components[ncomp++] = SIG_పద్ధతి;
+        లేకపోతే ఒకవేళ(!strcmp(ప్రారంభం, "authority"))
           components[ncomp++] = SIG_AUTHORITY;
-        else if(!strcmp(start, "path"))
-          components[ncomp++] = SIG_PATH;
-        else if(!strcmp(start, "query"))
+        లేకపోతే ఒకవేళ(!strcmp(ప్రారంభం, "path"))
+          components[ncomp++] = SIG_మార్గం;
+        లేకపోతే ఒకవేళ(!strcmp(ప్రారంభం, "query"))
           components[ncomp++] = SIG_QUERY;
-        else {
-          failf(data, "httpsig: unknown component '%s'", start);
-          return CURLE_BAD_FUNCTION_ARGUMENT;
+        లేకపోతే {
+          failf(దత్తాంశం, "httpsig: unknown component '%s'", ప్రారంభం);
+          తిరిగి CURLE_BAD_FUNCTION_వాదం;
         }
       }
     }
-    if(!ncomp) {
-      failf(data, "httpsig: no signature components specified");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    ఒకవేళ(!ncomp) {
+      failf(దత్తాంశం, "httpsig: no signature components specified");
+      తిరిగి CURLE_BAD_FUNCTION_వాదం;
     }
-    if(*p) {
-      failf(data, "httpsig: too many signature components (max %u)",
-            (unsigned int)HTTPSIG_MAX_COMPONENTS);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    ఒకవేళ(*p) {
+      failf(దత్తాంశం, "httpsig: too many signature components (max %u)",
+            (గుర్తులేని పూర్ణాంకం)HTTPSIG_MAX_COMPONENTS);
+      తిరిగి CURLE_BAD_FUNCTION_వాదం;
     }
 
     /* RFC 9421 Section 2: each covered component MUST occur only once */
     {
       size_t i, j;
 
-      for(i = 0; i < ncomp; i++) {
-        for(j = i + 1; j < ncomp; j++) {
-          if(!strcmp(components[i], components[j])) {
-            failf(data, "httpsig: duplicate signature component '%s'",
+      కొరకు(i = 0; i < ncomp; i++) {
+        కొరకు(j = i + 1; j < ncomp; j++) {
+          ఒకవేళ(!strcmp(components[i], components[j])) {
+            failf(దత్తాంశం, "httpsig: duplicate signature component '%s'",
                   components[i]);
-            return CURLE_BAD_FUNCTION_ARGUMENT;
+            తిరిగి CURLE_BAD_FUNCTION_వాదం;
           }
         }
       }
     }
   }
-  else {
-    components[ncomp++] = SIG_METHOD;
+  లేకపోతే {
+    components[ncomp++] = SIG_పద్ధతి;
     components[ncomp++] = SIG_AUTHORITY;
-    components[ncomp++] = SIG_PATH;
-    if(query)
+    components[ncomp++] = SIG_మార్గం;
+    ఒకవేళ(query)
       components[ncomp++] = SIG_QUERY;
   }
 
-  *ncomp_out = ncomp;
-  return CURLE_OK;
+  *ncomp_బహిర్గతం = ncomp;
+  తిరిగి CURLE_OK;
 }
 
-static time_t httpsig_get_created(void)
+స్థిర time_t httpsig_get_created(శూన్య)
 {
-#ifdef DEBUGBUILD
-  char *force = getenv("CURL_FORCETIME");
-  if(force && *force) {
-    char *sigts = getenv("CURL_HTTPSIG_CREATED");
-    if(sigts && *sigts) {
-      const char *p = sigts;
-      curl_off_t num;
-      if(!curlx_str_number(&p, &num, CURL_OFF_T_MAX))
-        return (time_t)num;
+#నిర్వచితమైతే DEBUGBUILD
+  అక్షరం *force = getenv("CURL_FORCETIME");
+  ఒకవేళ(force && *force) {
+    అక్షరం *sigts = getenv("CURL_HTTPSIG_CREATED");
+    ఒకవేళ(sigts && *sigts) {
+      స్థిరరాశి అక్షరం *p = sigts;
+      curl_off_t అంకె;
+      ఒకవేళ(!curlx_str_సంఖ్య(&p, &అంకె, CURL_OFF_T_MAX))
+        తిరిగి (time_t)అంకె;
     }
-    return 0;
+    తిరిగి 0;
   }
-#endif
-  return time(NULL);
+#అయితే_ముగింపు
+  తిరిగి సమయం(ఖాళీ);
 }
 
-static CURLcode httpsig_sign_base(struct Curl_easy *data,
-                                  enum httpsig_alg alg,
-                                  const unsigned char *keybuf,
+స్థిర CURLcode httpsig_sign_పునాది(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  గణన httpsig_alg alg,
+                                  స్థిరరాశి గుర్తులేని అక్షరం *keybuf,
                                   size_t keylen,
-                                  const struct dynbuf *sig_base,
-                                  unsigned char *raw_sig,
+                                  స్థిరరాశి నిర్మాణం dynbuf *sig_పునాది,
+                                  గుర్తులేని అక్షరం *raw_sig,
                                   size_t *raw_sig_len)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  switch(alg) {
-  case HTTPSIG_ALG_ED25519:
-    result = Curl_ed25519_sign(
+  ఎంపిక(alg) {
+  స్థితి HTTPSIG_ALG_ED25519:
+    ఫలితం = Curl_ed25519_sign(
       keybuf, keylen,
-      (const unsigned char *)curlx_dyn_ptr(sig_base),
-      curlx_dyn_len(sig_base),
+      (స్థిరరాశి గుర్తులేని అక్షరం *)curlx_dyn_ptr(sig_పునాది),
+      curlx_dyn_len(sig_పునాది),
       raw_sig, raw_sig_len);
-    break;
-  case HTTPSIG_ALG_HMAC_SHA256:
-    result = Curl_hmacit(&Curl_HMAC_SHA256, keybuf, keylen,
-                         (const unsigned char *)curlx_dyn_ptr(sig_base),
-                         curlx_dyn_len(sig_base), raw_sig);
-    if(!result)
-      *raw_sig_len = CURL_SHA256_DIGEST_LENGTH;
-    break;
-  default:
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    break;
+    ఆపు;
+  స్థితి HTTPSIG_ALG_HMAC_SHA256:
+    ఫలితం = Curl_hmacit(&Curl_HMAC_SHA256, keybuf, keylen,
+                         (స్థిరరాశి గుర్తులేని అక్షరం *)curlx_dyn_ptr(sig_పునాది),
+                         curlx_dyn_len(sig_పునాది), raw_sig);
+    ఒకవేళ(!ఫలితం)
+      *raw_sig_len = CURL_SHA256_DIGEST_నిడివి;
+    ఆపు;
+  అప్రమేయ:
+    ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+    ఆపు;
   }
 
-  if(result && result == CURLE_NOT_BUILT_IN) {
-    failf(data, "httpsig: algorithm '%s' not supported by TLS backend",
-          alg_to_str(alg));
+  ఒకవేళ(ఫలితం && ఫలితం == CURLE_NOT_BUILT_లోపల) {
+    failf(దత్తాంశం, "httpsig: algorithm '%s' not supported by TLS backend",
+          alg_గమ్యం_str(alg));
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_output_httpsig(struct Curl_easy *data)
+CURLcode Curl_output_httpsig(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  struct connectdata *conn = data->conn;
-  const char *path;
-  const char *query;
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  స్థిరరాశి అక్షరం *మార్గం;
+  స్థిరరాశి అక్షరం *query;
   Curl_HttpReq httpreq;
-  const char *method = NULL;
-  const char *hexkey = CURL_EASY_STR(data, STRING_HTTPSIG_KEY);
-  const char *keyid = CURL_EASY_STR(data, STRING_HTTPSIG_KEYID);
-  enum httpsig_alg alg;
+  స్థిరరాశి అక్షరం *పద్ధతి = ఖాళీ;
+  స్థిరరాశి అక్షరం *hexkey = CURL_EASY_STR(దత్తాంశం, STRING_HTTPSIG_కీలకం);
+  స్థిరరాశి అక్షరం *keyid = CURL_EASY_STR(దత్తాంశం, STRING_HTTPSIG_KEYID);
+  గణన httpsig_alg alg;
   time_t created;
-  struct dynbuf sig_params;
-  struct dynbuf sig_base;
-  struct dynbuf sig_hdr;
-  struct dynbuf input_hdr;
-  struct dynbuf authority_buf;
-  const char *authority;
-  const char *components[HTTPSIG_MAX_COMPONENTS];
+  నిర్మాణం dynbuf sig_params;
+  నిర్మాణం dynbuf sig_పునాది;
+  నిర్మాణం dynbuf sig_hdr;
+  నిర్మాణం dynbuf ఆదానం_hdr;
+  నిర్మాణం dynbuf authority_buf;
+  స్థిరరాశి అక్షరం *authority;
+  స్థిరరాశి అక్షరం *components[HTTPSIG_MAX_COMPONENTS];
   size_t ncomp = 0;
-  unsigned char *keybuf = NULL;
+  గుర్తులేని అక్షరం *keybuf = ఖాళీ;
   size_t keylen = 0;
-  unsigned char raw_sig[HTTPSIG_MAX_RAW_SIG];
+  గుర్తులేని అక్షరం raw_sig[HTTPSIG_MAX_RAW_SIG];
   size_t raw_sig_len = 0;
-  char *auth_headers = NULL;
-  char *hdrs_copy = NULL;
-  struct dynbuf query_dyn;
+  అక్షరం *auth_శీర్షికలు = ఖాళీ;
+  అక్షరం *hdrs_copy = ఖాళీ;
+  నిర్మాణం dynbuf query_dyn;
 
-  alg = id_to_alg(data->set.httpsig_algorithm);
-  if(alg == HTTPSIG_ALG_UNKNOWN) {
-    failf(data, "httpsig: CURLOPT_HTTPSIG_ALGORITHM is required");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  alg = id_గమ్యం_alg(దత్తాంశం->సమితి.httpsig_algorithm);
+  ఒకవేళ(alg == HTTPSIG_ALG_UNKNOWN) {
+    failf(దత్తాంశం, "httpsig: CURLOPT_HTTPSIG_ALGORITHM is required");
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
 
-  if(!hexkey || !*hexkey) {
-    failf(data, "httpsig: CURLOPT_HTTPSIG_KEY is required");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!hexkey || !*hexkey) {
+    failf(దత్తాంశం, "httpsig: CURLOPT_HTTPSIG_KEY is required");
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
-  if(!keyid || !*keyid) {
-    failf(data, "httpsig: CURLOPT_HTTPSIG_KEYID is required");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!keyid || !*keyid) {
+    failf(దత్తాంశం, "httpsig: CURLOPT_HTTPSIG_KEYID is required");
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
 
-  curlx_dyn_init(&sig_params, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&sig_base, HTTPSIG_MAX_SIG_BASE);
-  curlx_dyn_init(&sig_hdr, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&input_hdr, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&authority_buf, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&query_dyn, CURL_MAX_HTTP_HEADER);
+  curlx_dyn_init(&sig_params, CURL_MAX_HTTP_శీర్షిక);
+  curlx_dyn_init(&sig_పునాది, HTTPSIG_MAX_SIG_పునాది);
+  curlx_dyn_init(&sig_hdr, CURL_MAX_HTTP_శీర్షిక);
+  curlx_dyn_init(&ఆదానం_hdr, CURL_MAX_HTTP_శీర్షిక);
+  curlx_dyn_init(&authority_buf, CURL_MAX_HTTP_శీర్షిక);
+  curlx_dyn_init(&query_dyn, CURL_MAX_HTTP_శీర్షిక);
 
-  if(Curl_checkheaders(data, STRCONST("Signature")) ||
-     Curl_checkheaders(data, STRCONST("Signature-Input"))) {
+  ఒకవేళ(Curl_checkheaders(దత్తాంశం, STRCONST("Signature")) ||
+     Curl_checkheaders(దత్తాంశం, STRCONST("Signature-Input"))) {
     /* user provides their own Signature / Signature-Input headers, consider
        this done */
-    goto done;
+    వెళ్ళు పూర్తి;
   }
 
-  result = decode_hex_key(data, hexkey, &keybuf, &keylen);
-  if(result)
-    goto fail;
+  ఫలితం = decode_hex_కీలకం(దత్తాంశం, hexkey, &keybuf, &keylen);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  if(alg == HTTPSIG_ALG_ED25519 && keylen != 32) {
-    failf(data, "httpsig: ed25519 requires a 32-byte key (got %zu)", keylen);
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto fail;
+  ఒకవేళ(alg == HTTPSIG_ALG_ED25519 && keylen != 32) {
+    failf(దత్తాంశం, "httpsig: ed25519 requires a 32-byte key (got %zu)", keylen);
+    ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+    వెళ్ళు fail;
   }
 
-  Curl_http_method(data, &method, &httpreq);
+  Curl_http_పద్ధతి(దత్తాంశం, &పద్ధతి, &httpreq);
 
-  path = data->state.up.path;
-  if(!path || !*path)
-    path = "/";
+  మార్గం = దత్తాంశం->state.పైకి.మార్గం;
+  ఒకవేళ(!మార్గం || !*మార్గం)
+    మార్గం = "/";
 
-  query = data->state.up.query;
+  query = దత్తాంశం->state.పైకి.query;
 
-  result = httpsig_authority(data, conn, &authority_buf);
-  if(result)
-    goto fail;
+  ఫలితం = httpsig_authority(దత్తాంశం, conn, &authority_buf);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
   authority = curlx_dyn_ptr(&authority_buf);
 
   /* Build @query value: RFC 9421 Section 2.2.7 - always starts with "?" */
-  if(query && *query)
-    result = curlx_dyn_addf(&query_dyn, "?%s", query);
-  else
-    result = curlx_dyn_add(&query_dyn, "?");
-  if(result)
-    goto fail;
+  ఒకవేళ(query && *query)
+    ఫలితం = curlx_dyn_addf(&query_dyn, "?%s", query);
+  లేకపోతే
+    ఫలితం = curlx_dyn_కూడు(&query_dyn, "?");
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  result = parse_components(data, query, components, &ncomp, &hdrs_copy);
-  if(result)
-    goto fail;
+  ఫలితం = parse_components(దత్తాంశం, query, components, &ncomp, &hdrs_copy);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
   created = httpsig_get_created();
 
-  result = build_sig_params(&sig_params, components, ncomp,
+  ఫలితం = build_sig_params(&sig_params, components, ncomp,
                             created, keyid, alg);
-  if(result)
-    goto fail;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  infof(data, "httpsig: Signature-Input params: %s",
+  infof(దత్తాంశం, "httpsig: Signature-Input params: %s",
         curlx_dyn_ptr(&sig_params));
 
-  result = build_sig_base(&sig_base, components, ncomp,
-                          method, authority, path,
+  ఫలితం = build_sig_పునాది(&sig_పునాది, components, ncomp,
+                          పద్ధతి, authority, మార్గం,
                           curlx_dyn_ptr(&query_dyn),
-                          data, curlx_dyn_ptr(&sig_params));
-  if(result)
-    goto fail;
+                          దత్తాంశం, curlx_dyn_ptr(&sig_params));
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  infof(data, "httpsig: Signature base: [%s]",
-        curlx_dyn_ptr(&sig_base));
+  infof(దత్తాంశం, "httpsig: Signature base: [%s]",
+        curlx_dyn_ptr(&sig_పునాది));
 
-  result = httpsig_sign_base(data, alg, keybuf, keylen, &sig_base,
+  ఫలితం = httpsig_sign_పునాది(దత్తాంశం, alg, keybuf, keylen, &sig_పునాది,
                              raw_sig, &raw_sig_len);
-  if(result)
-    goto fail;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  result = curlx_dyn_add(&sig_hdr, HTTPSIG_DEFAULT_LABEL "=");
-  if(result)
-    goto fail;
-  result = sf_encode_byte_seq(raw_sig, raw_sig_len, &sig_hdr);
-  if(result)
-    goto fail;
+  ఫలితం = curlx_dyn_కూడు(&sig_hdr, HTTPSIG_DEFAULT_LABEL "=");
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
+  ఫలితం = sf_encode_byte_seq(raw_sig, raw_sig_len, &sig_hdr);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  result = curlx_dyn_addf(&input_hdr, "%s=%s", HTTPSIG_DEFAULT_LABEL,
+  ఫలితం = curlx_dyn_addf(&ఆదానం_hdr, "%s=%s", HTTPSIG_DEFAULT_LABEL,
                           curlx_dyn_ptr(&sig_params));
-  if(result)
-    goto fail;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  auth_headers = curl_maprintf("Signature-Input: %s\r\n"
+  auth_శీర్షికలు = curl_maprintf("Signature-Input: %s\r\n"
                                "Signature: %s\r\n",
-                               curlx_dyn_ptr(&input_hdr),
+                               curlx_dyn_ptr(&ఆదానం_hdr),
                                curlx_dyn_ptr(&sig_hdr));
-  if(!auth_headers)
-    goto fail;
+  ఒకవేళ(!auth_శీర్షికలు)
+    వెళ్ళు fail;
 
-  infof(data, "httpsig: Signature-Input: %s", curlx_dyn_ptr(&input_hdr));
-  infof(data, "httpsig: Signature: %s", curlx_dyn_ptr(&sig_hdr));
-done:
-  curlx_free(data->req.hd_auth);
-  data->req.hd_auth = auth_headers;
-  data->state.authhost.done = TRUE;
-  result = CURLE_OK;
+  infof(దత్తాంశం, "httpsig: Signature-Input: %s", curlx_dyn_ptr(&ఆదానం_hdr));
+  infof(దత్తాంశం, "httpsig: Signature: %s", curlx_dyn_ptr(&sig_hdr));
+పూర్తి:
+  curlx_free(దత్తాంశం->req.hd_auth);
+  దత్తాంశం->req.hd_auth = auth_శీర్షికలు;
+  దత్తాంశం->state.authhost.పూర్తి = TRUE;
+  ఫలితం = CURLE_OK;
 
 fail:
-  if(keybuf) {
+  ఒకవేళ(keybuf) {
     memset(keybuf, 0, keylen);
     curlx_free(keybuf);
   }
-  memset(raw_sig, 0, sizeof(raw_sig));
+  memset(raw_sig, 0, పరిమాణం(raw_sig));
   curlx_free(hdrs_copy);
   curlx_dyn_free(&sig_params);
-  curlx_dyn_free(&sig_base);
+  curlx_dyn_free(&sig_పునాది);
   curlx_dyn_free(&sig_hdr);
-  curlx_dyn_free(&input_hdr);
+  curlx_dyn_free(&ఆదానం_hdr);
   curlx_dyn_free(&authority_buf);
   curlx_dyn_free(&query_dyn);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */

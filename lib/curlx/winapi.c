@@ -21,106 +21,106 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
 /*
  * curlx_winapi_strerror:
  * Variant of curlx_strerror if the error code is definitely Windows API.
  */
-#ifdef _WIN32
-#include "curlx/winapi.h"
-#include "curlx/snprintf.h"
-#include "curlx/strcopy.h"
+#నిర్వచితమైతే _WIN32
+#అన్తర్భావ "curlx/winapi.h"
+#అన్తర్భావ "curlx/snprintf.h"
+#అన్తర్భావ "curlx/strcopy.h"
 
 /* This is a helper function for curlx_strerror that converts Windows API error
  * codes (GetLastError) to error messages.
  * Returns NULL if no error message was found for error code.
  */
-const char *curlx_get_winapi_error(DWORD err, char *buf, size_t buflen)
+స్థిరరాశి అక్షరం *curlx_get_winapi_error(DWORD err, అక్షరం *buf, size_t buflen)
 {
-  char *p;
+  అక్షరం *p;
 
-  if(!buflen)
-    return NULL;
+  ఒకవేళ(!buflen)
+    తిరిగి ఖాళీ;
 
   /* We return the local codepage version of the error string because if it is
      output to the user's terminal, it is likely done with functions which
      expect the local codepage (eg fprintf, failf, infof). */
-  if(!FormatMessageA((FORMAT_MESSAGE_FROM_SYSTEM |
-                      FORMAT_MESSAGE_IGNORE_INSERTS), NULL, err,
-                     LANG_NEUTRAL, buf, (DWORD)buflen, NULL)) {
+  ఒకవేళ(!Format_సందేశం_A((FORMAT_సందేశం_FROM_SYSTEM |
+                      FORMAT_సందేశం_IGNORE_INSERTS), ఖాళీ, err,
+                     LANG_NEUTRAL, buf, (DWORD)buflen, ఖాళీ)) {
     *buf = '\0';
-    return NULL;
+    తిరిగి ఖాళీ;
   }
 
   /* Truncate multiple lines */
   p = strchr(buf, '\n');
-  if(p) {
-    if(p > buf && *(p - 1) == '\r')
+  ఒకవేళ(p) {
+    ఒకవేళ(p > buf && *(p - 1) == '\r')
       *(p - 1) = '\0';
-    else
+    లేకపోతే
       *p = '\0';
   }
 
-  return *buf ? buf : NULL;
+  తిరిగి *buf ? buf : ఖాళీ;
 }
 
-const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen)
+స్థిరరాశి అక్షరం *curlx_winapi_strerror(DWORD err, అక్షరం *buf, size_t buflen)
 {
-  DWORD old_win_err = GetLastError();
-  int old_errno = errno;
+  DWORD old_win_err = Get_చివరి_Error();
+  పూర్ణాంకం old_errno = errno;
 
-  if(!buflen)
-    return NULL;
+  ఒకవేళ(!buflen)
+    తిరిగి ఖాళీ;
 
   *buf = '\0';
 
-#ifdef CURLVERBOSE
-  if(!curlx_get_winapi_error(err, buf, buflen)) {
-#if defined(__GNUC__) && __GNUC__ >= 7
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wformat-truncation=1"
-#endif
+#నిర్వచితమైతే CURLVERBOSE
+  ఒకవేళ(!curlx_get_winapi_error(err, buf, buflen)) {
+#ఒకవేళ defined(__GNUC__) && __GNUC__ >= 7
+#సూచన GCC diagnostic నెట్టు
+#సూచన GCC diagnostic warning "-Wformat-truncation=1"
+#అయితే_ముగింపు
     /* some GCC compilers cause false positive warnings if we allow this
        warning */
     SNPRINTF(buf, buflen, "Unknown error %lu (0x%08lx)", err, err);
-#if defined(__GNUC__) && __GNUC__ >= 7
-#pragma GCC diagnostic pop
-#endif
+#ఒకవేళ defined(__GNUC__) && __GNUC__ >= 7
+#సూచన GCC diagnostic తీయి
+#అయితే_ముగింపు
   }
-#else
+#లేకపోతే
   {
-    const char *txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
-    curlx_strcopy(buf, buflen, txt, strlen(txt));
+    స్థిరరాశి అక్షరం *txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
+    curlx_strcopy(buf, buflen, txt, అక్షరశ్రేణి_పొడవు(txt));
   }
-#endif
+#అయితే_ముగింపు
 
-  if(errno != old_errno)
+  ఒకవేళ(errno != old_errno)
     errno = old_errno;
 
-  if(old_win_err != GetLastError())
-    SetLastError(old_win_err);
+  ఒకవేళ(old_win_err != Get_చివరి_Error())
+    సమితి_చివరి_Error(old_win_err);
 
-  return buf;
+  తిరిగి buf;
 }
 
-#ifndef WITHOUT_LIBCURL
+#నిర్వచితం_కాకపోతే WITHOUT_LIBCURL
 
-#include <bcrypt.h>
-#ifndef STATUS_SUCCESS
-#define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
-#endif
+#అన్తర్భావ <bcrypt.h>
+#నిర్వచితం_కాకపోతే స్థితి_SUCCESS
+#నిర్వచించు స్థితి_SUCCESS ((NTSTATUS)0x00000000L)
+#అయితే_ముగింపు
 
-CURLcode curlx_win32_random(unsigned char *entropy, size_t length)
+CURLcode curlx_win32_random(గుర్తులేని అక్షరం *entropy, size_t నిడివి)
 {
-  memset(entropy, 0, length);
+  memset(entropy, 0, నిడివి);
 
-  if(BCryptGenRandom(NULL, entropy, (ULONG)length,
-                     BCRYPT_USE_SYSTEM_PREFERRED_RNG) != STATUS_SUCCESS)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(BCryptGenRandom(ఖాళీ, entropy, (ULONG)నిడివి,
+                     BCRYPT_USE_SYSTEM_PREFERRED_RNG) != స్థితి_SUCCESS)
+    తిరిగి CURLE_FAILED_INIT;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
-#endif /* WITHOUT_LIBCURL */
+#అయితే_ముగింపు /* WITHOUT_LIBCURL */
 
-#endif /* _WIN32 */
+#అయితే_ముగింపు /* _WIN32 */

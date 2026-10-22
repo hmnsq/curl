@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GET_LINE_H
-#define HEADER_CURL_GET_LINE_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_GET_పంక్తి_H
+#నిర్వచించు శీర్షిక_CURL_GET_పంక్తి_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/dynbuf.h"
+#అన్తర్భావ "curlx/dynbuf.h"
 
 /* Curl_get_line() returns complete lines that end with a newline. */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof);
+CURLcode Curl_get_పంక్తి(నిర్మాణం dynbuf *buf, FILE *ఆదానం, bool *eof);
 
-#endif /* HEADER_CURL_GET_LINE_H */
+#అయితే_ముగింపు /* HEADER_CURL_GET_LINE_H */

@@ -21,15 +21,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef __AMIGA__
+#నిర్వచితమైతే __AMIGA__
 
-#include "vdns/hostip.h"
-#include "curl_addrinfo.h"
-#include "amigaos.h"
+#అన్తర్భావ "vdns/hostip.h"
+#అన్తర్భావ "curl_addrinfo.h"
+#అన్తర్భావ "amigaos.h"
 
-#ifdef HAVE_PROTO_BSDSOCKET_H
+#నిర్వచితమైతే HAVE_PROTO_BSDSOCKET_H
 #  ifdef __amigaos4__
 #    include <bsdsocket/socketbasetags.h>
 #  elif !defined(USE_AMISSL)
@@ -38,11 +38,11 @@
 #  ifdef __libnix__
 #    include <stabs.h>
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#ifdef HAVE_PROTO_BSDSOCKET_H
+#నిర్వచితమైతే HAVE_PROTO_BSDSOCKET_H
 
-#ifdef __amigaos4__
+#నిర్వచితమైతే __amigaos4__
 /*
  * AmigaOS 4.x specific code
  */
@@ -61,29 +61,29 @@
  * gethostbyname().
  */
 
-#include <proto/bsdsocket.h>
+#అన్తర్భావ <proto/bsdsocket.h>
 
-static struct SocketIFace *__CurlISocket = NULL;
-static uint32 SocketFeatures = 0;
+స్థిర నిర్మాణం SocketIFace *__CurlISocket = ఖాళీ;
+స్థిర uint32 SocketFeatures = 0;
 
-#define HAVE_BSDSOCKET_GETHOSTBYNAME_R 0x01
-#define HAVE_BSDSOCKET_GETADDRINFO     0x02
+#నిర్వచించు HAVE_BSDSOCKET_GETHOSTBYNAME_R 0x01
+#నిర్వచించు HAVE_BSDSOCKET_GETADDRINFO     0x02
 
-CURLcode Curl_amiga_init(void)
+CURLcode Curl_amiga_init(శూన్య)
 {
-  struct SocketIFace *ISocket;
-  struct Library *base = OpenLibrary("bsdsocket.library", 4);
+  నిర్మాణం SocketIFace *ISocket;
+  నిర్మాణం Library *పునాది = OpenLibrary("bsdsocket.library", 4);
 
-  if(base) {
-    ISocket = (struct SocketIFace *)GetInterface(base, "main", 1, NULL);
-    if(ISocket) {
+  ఒకవేళ(పునాది) {
+    ISocket = (నిర్మాణం SocketIFace *)GetInterface(పునాది, "main", 1, ఖాళీ);
+    ఒకవేళ(ISocket) {
       ULONG enabled = 0;
 
-      SocketBaseTags(SBTM_SETVAL(SBTC_CAN_SHARE_LIBRARY_BASES), TRUE,
+      Socket_పునాది_ట్యాగులు(SBTM_SETVAL(SBTC_CAN_SHARE_LIBRARY_BASES), TRUE,
                      SBTM_GETREF(SBTC_HAVE_GETHOSTADDR_R_API), (ULONG)&enabled,
-                     TAG_DONE);
+                     ట్యాగ్_పూర్తి);
 
-      if(enabled) {
+      ఒకవేళ(enabled) {
         SocketFeatures |= HAVE_BSDSOCKET_GETHOSTBYNAME_R;
       }
 
@@ -91,25 +91,25 @@ CURLcode Curl_amiga_init(void)
 
       atexit(Curl_amiga_cleanup);
 
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
     }
-    CloseLibrary(base);
+    CloseLibrary(పునాది);
   }
 
-  return CURLE_FAILED_INIT;
+  తిరిగి CURLE_FAILED_INIT;
 }
 
-void Curl_amiga_cleanup(void)
+శూన్య Curl_amiga_cleanup(శూన్య)
 {
-  if(__CurlISocket) {
-    struct Library *base = __CurlISocket->Data.LibBase;
-    DropInterface((struct Interface *)__CurlISocket);
-    CloseLibrary(base);
-    __CurlISocket = NULL;
+  ఒకవేళ(__CurlISocket) {
+    నిర్మాణం Library *పునాది = __CurlISocket->దత్తాంశం_2.Lib_పునాది;
+    DropInterface((నిర్మాణం Interface *)__CurlISocket);
+    CloseLibrary(పునాది);
+    __CurlISocket = ఖాళీ;
   }
 }
 
-#ifdef CURLRES_AMIGA
+#నిర్వచితమైతే CURLRES_AMIGA
 /*
  * Because we need to handle the different cases in hostip4.c at runtime,
  * not at compile-time, based on what was detected in Curl_amiga_init(),
@@ -118,122 +118,122 @@ void Curl_amiga_cleanup(void)
  * allocates memory also.
  */
 
-struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname, uint16_t port)
+నిర్మాణం Curl_addrinfo *Curl_ipv4_resolve_r(స్థిరరాశి అక్షరం *hostname, uint16_t పోర్టు)
 {
-  struct Curl_addrinfo *ai = NULL;
-  struct hostent *h;
-  struct SocketIFace *ISocket = __CurlISocket;
+  నిర్మాణం Curl_addrinfo *ai = ఖాళీ;
+  నిర్మాణం hostent *h;
+  నిర్మాణం SocketIFace *ISocket = __CurlISocket;
 
-  if(SocketFeatures & HAVE_BSDSOCKET_GETHOSTBYNAME_R) {
+  ఒకవేళ(SocketFeatures & HAVE_BSDSOCKET_GETHOSTBYNAME_R) {
     LONG h_errnop = 0;
-    struct hostent *buf;
+    నిర్మాణం hostent *buf;
 
-    buf = curlx_calloc(1, CURL_HOSTENT_SIZE);
-    if(buf) {
+    buf = curlx_calloc(1, CURL_HOSTENT_కొలత);
+    ఒకవేళ(buf) {
       h = gethostbyname_r((STRPTR)hostname, buf,
-                          (char *)buf + sizeof(struct hostent),
-                          CURL_HOSTENT_SIZE - sizeof(struct hostent),
+                          (అక్షరం *)buf + పరిమాణం(నిర్మాణం hostent),
+                          CURL_HOSTENT_కొలత - పరిమాణం(నిర్మాణం hostent),
                           &h_errnop);
-      if(h) {
-        ai = Curl_he2ai(h, port);
+      ఒకవేళ(h) {
+        ai = Curl_he2ai(h, పోర్టు);
       }
       curlx_free(buf);
     }
   }
-  else {
-#ifdef USE_RESOLV_THREADED
+  లేకపోతే {
+#నిర్వచితమైతే USE_RESOLV_THREADED
     /* gethostbyname() is not thread-safe, so we need to reopen bsdsocket
      * on the thread's context
      */
-    struct Library *base = OpenLibrary("bsdsocket.library", 4);
-    if(base) {
-      ISocket = (struct SocketIFace *)GetInterface(base, "main", 1, NULL);
-      if(ISocket) {
+    నిర్మాణం Library *పునాది = OpenLibrary("bsdsocket.library", 4);
+    ఒకవేళ(పునాది) {
+      ISocket = (నిర్మాణం SocketIFace *)GetInterface(పునాది, "main", 1, ఖాళీ);
+      ఒకవేళ(ISocket) {
         h = gethostbyname((STRPTR)hostname);
-        if(h) {
-          ai = Curl_he2ai(h, port);
+        ఒకవేళ(h) {
+          ai = Curl_he2ai(h, పోర్టు);
         }
-        DropInterface((struct Interface *)ISocket);
+        DropInterface((నిర్మాణం Interface *)ISocket);
       }
-      CloseLibrary(base);
+      CloseLibrary(పునాది);
     }
-#else
+#లేకపోతే
     /* not using threaded resolver - safe to use this as-is */
     h = gethostbyname(hostname);
-    if(h) {
-      ai = Curl_he2ai(h, port);
+    ఒకవేళ(h) {
+      ai = Curl_he2ai(h, పోర్టు);
     }
-#endif
+#అయితే_ముగింపు
   }
 
-  return ai;
+  తిరిగి ai;
 }
-#endif /* CURLRES_AMIGA */
+#అయితే_ముగింపు /* CURLRES_AMIGA */
 
-#ifdef USE_AMISSL
-#include <signal.h>
-int Curl_amiga_select(int nfds, fd_set *readfds, fd_set *writefds,
-                      fd_set *errorfds, struct timeval *timeout)
+#నిర్వచితమైతే USE_AMISSL
+#అన్తర్భావ <signal.h>
+పూర్ణాంకం Curl_amiga_select(పూర్ణాంకం nfds, fd_set *readfds, fd_set *writefds,
+                      fd_set *errorfds, నిర్మాణం timeval *timeout)
 {
-  int r = WaitSelect(nfds, readfds, writefds, errorfds, timeout, 0);
+  పూర్ణాంకం r = WaitSelect(nfds, readfds, writefds, errorfds, timeout, 0);
   /* Ensure Ctrl-C signal is actioned */
-  if((r == -1) && (SOCKERRNO == SOCKEINTR))
-    raise(SIGINT);
-  return r;
+  ఒకవేళ((r == -1) && (SOCKERRNO == SOCKEINTR))
+    లేపు(SIGINT);
+  తిరిగి r;
 }
-#endif /* USE_AMISSL */
+#అయితే_ముగింపు /* USE_AMISSL */
 
-#elif !defined(USE_AMISSL) /* __amigaos4__ */
+#లేదావేళ !defined(USE_AMISSL) /* __amigaos4__ */
 /*
  * Amiga OS3 specific code
  */
 
-struct Library *SocketBase = NULL;
+నిర్మాణం Library *Socket_పునాది = ఖాళీ;
 
-#ifdef __libnix__
-void __request(const char *msg);
-#define CURL_AMIGA_REQUEST(msg)  __request(msg)
-#else
-#define CURL_AMIGA_REQUEST(msg)  Printf((const unsigned char *)(msg "\n\a"), 0)
-#endif
+#నిర్వచితమైతే __libnix__
+శూన్య __request(స్థిరరాశి అక్షరం *సందేశం);
+#నిర్వచించు CURL_AMIGA_REQUEST(సందేశం)  __request(సందేశం)
+#లేకపోతే
+#నిర్వచించు CURL_AMIGA_REQUEST(సందేశం)  Printf((స్థిరరాశి గుర్తులేని అక్షరం *)(సందేశం "\n\a"), 0)
+#అయితే_ముగింపు
 
-void Curl_amiga_cleanup(void)
+శూన్య Curl_amiga_cleanup(శూన్య)
 {
-  if(SocketBase) {
-    CloseLibrary(SocketBase);
-    SocketBase = NULL;
+  ఒకవేళ(Socket_పునాది) {
+    CloseLibrary(Socket_పునాది);
+    Socket_పునాది = ఖాళీ;
   }
 }
 
-CURLcode Curl_amiga_init(void)
+CURLcode Curl_amiga_init(శూన్య)
 {
-  if(!SocketBase)
-    SocketBase = OpenLibrary((const unsigned char *)"bsdsocket.library", 4);
+  ఒకవేళ(!Socket_పునాది)
+    Socket_పునాది = OpenLibrary((స్థిరరాశి గుర్తులేని అక్షరం *)"bsdsocket.library", 4);
 
-  if(!SocketBase) {
+  ఒకవేళ(!Socket_పునాది) {
     CURL_AMIGA_REQUEST("No TCP/IP Stack running!");
-    return CURLE_FAILED_INIT;
+    తిరిగి CURLE_FAILED_INIT;
   }
 
-  if(SocketBaseTags(SBTM_SETVAL(SBTC_ERRNOPTR(sizeof(errno))), (ULONG)&errno,
-                    SBTM_SETVAL(SBTC_LOGTAGPTR), (ULONG)"curl", TAG_DONE)) {
+  ఒకవేళ(Socket_పునాది_ట్యాగులు(SBTM_SETVAL(SBTC_ERRNOPTR(పరిమాణం(errno))), (ULONG)&errno,
+                    SBTM_SETVAL(SBTC_LOGTAGPTR), (ULONG)"curl", ట్యాగ్_పూర్తి)) {
     CURL_AMIGA_REQUEST("SocketBaseTags ERROR");
-    return CURLE_FAILED_INIT;
+    తిరిగి CURLE_FAILED_INIT;
   }
 
-#ifndef __libnix__
+#నిర్వచితం_కాకపోతే __libnix__
   atexit(Curl_amiga_cleanup);
-#endif
+#అయితే_ముగింపు
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-#ifdef __libnix__
+#నిర్వచితమైతే __libnix__
 ADD2EXIT(Curl_amiga_cleanup, -50);
-#endif
+#అయితే_ముగింపు
 
-#endif /* !USE_AMISSL */
+#అయితే_ముగింపు /* !USE_AMISSL */
 
-#endif /* HAVE_PROTO_BSDSOCKET_H */
+#అయితే_ముగింపు /* HAVE_PROTO_BSDSOCKET_H */
 
-#endif /* __AMIGA__ */
+#అయితే_ముగింపు /* __AMIGA__ */

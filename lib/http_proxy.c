@@ -21,276 +21,276 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "http_proxy.h"
+#అన్తర్భావ "http_proxy.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY)
 
-#include "curl_trc.h"
-#include "http.h"
-#include "url.h"
-#include "cfilters.h"
-#include "cf-h1-proxy.h"
-#include "cf-h2-proxy.h"
-#include "connect.h"
-#include "vauth/vauth.h"
-#include "vquic/vquic.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "http.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "cf-h1-proxy.h"
+#అన్తర్భావ "cf-h2-proxy.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "vauth/vauth.h"
+#అన్తర్భావ "vquic/vquic.h"
+#అన్తర్భావ "curlx/strparse.h"
 
-static CURLcode dynhds_add_custom(struct Curl_easy *data,
-                                  bool is_connect, int httpversion,
-                                  bool is_udp, struct dynhds *hds)
+స్థిర CURLcode dynhds_కూడు_custom(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  bool is_connect, పూర్ణాంకం httpversion,
+                                  bool is_udp, నిర్మాణం dynhds *hds)
 {
-  struct connectdata *conn = data->conn;
-  struct curl_slist *h[2];
-  struct curl_slist *headers;
-  int numlists = 1; /* by default */
-  int i;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం curl_slist *h[2];
+  నిర్మాణం curl_slist *శీర్షికలు;
+  పూర్ణాంకం numlists = 1; /* by default */
+  పూర్ణాంకం i;
 
-  enum Curl_proxy_use proxy;
+  గణన Curl_proxy_use proxy;
 
-  if(is_connect && !is_udp)
-    proxy = HEADER_CONNECT;
-  else if(is_connect && is_udp)
-    proxy = HEADER_CONNECT_UDP;
-  else
-    proxy = conn->bits.origin_is_proxy ? HEADER_PROXY : HEADER_SERVER;
+  ఒకవేళ(is_connect && !is_udp)
+    proxy = శీర్షిక_CONNECT;
+  లేకపోతే ఒకవేళ(is_connect && is_udp)
+    proxy = శీర్షిక_CONNECT_UDP;
+  లేకపోతే
+    proxy = conn->బిట్లు.origin_is_proxy ? శీర్షిక_PROXY : శీర్షిక_SERVER;
 
-  switch(proxy) {
-  case HEADER_SERVER:
-    h[0] = data->set.headers;
-    break;
-  case HEADER_PROXY:
-    h[0] = data->set.headers;
-    if(data->set.sep_headers) {
-      h[1] = data->set.proxyheaders;
+  ఎంపిక(proxy) {
+  స్థితి శీర్షిక_SERVER:
+    h[0] = దత్తాంశం->సమితి.శీర్షికలు;
+    ఆపు;
+  స్థితి శీర్షిక_PROXY:
+    h[0] = దత్తాంశం->సమితి.శీర్షికలు;
+    ఒకవేళ(దత్తాంశం->సమితి.sep_శీర్షికలు) {
+      h[1] = దత్తాంశం->సమితి.proxyheaders;
       numlists++;
     }
-    break;
-  case HEADER_CONNECT:
-    if(data->set.sep_headers)
-      h[0] = data->set.proxyheaders;
-    else
-      h[0] = data->set.headers;
-    break;
-  case HEADER_CONNECT_UDP:
-    if(data->set.sep_headers)
-      h[0] = data->set.proxyheaders;
-    else
-      h[0] = data->set.headers;
-    break;
+    ఆపు;
+  స్థితి శీర్షిక_CONNECT:
+    ఒకవేళ(దత్తాంశం->సమితి.sep_శీర్షికలు)
+      h[0] = దత్తాంశం->సమితి.proxyheaders;
+    లేకపోతే
+      h[0] = దత్తాంశం->సమితి.శీర్షికలు;
+    ఆపు;
+  స్థితి శీర్షిక_CONNECT_UDP:
+    ఒకవేళ(దత్తాంశం->సమితి.sep_శీర్షికలు)
+      h[0] = దత్తాంశం->సమితి.proxyheaders;
+    లేకపోతే
+      h[0] = దత్తాంశం->సమితి.శీర్షికలు;
+    ఆపు;
   }
 
   /* loop through one or two lists */
-  for(i = 0; i < numlists; i++) {
-    for(headers = h[i]; headers; headers = headers->next) {
-      struct Curl_str name;
-      const char *value = NULL;
+  కొరకు(i = 0; i < numlists; i++) {
+    కొరకు(శీర్షికలు = h[i]; శీర్షికలు; శీర్షికలు = శీర్షికలు->తదుపరి) {
+      నిర్మాణం Curl_str name;
+      స్థిరరాశి అక్షరం *విలువ = ఖాళీ;
       size_t valuelen = 0;
-      const char *ptr = headers->data;
+      స్థిరరాశి అక్షరం *ptr = శీర్షికలు->దత్తాంశం;
 
       /* There are 2 quirks in place for custom headers:
        * 1. setting only 'name:' to suppress a header from being sent
        * 2. setting only 'name;' to send an empty (illegal) header
        */
-      if(!curlx_str_cspn(&ptr, &name, ";:")) {
-        if(!curlx_str_single(&ptr, ':')) {
+      ఒకవేళ(!curlx_str_cspn(&ptr, &name, ";:")) {
+        ఒకవేళ(!curlx_str_single(&ptr, ':')) {
           curlx_str_passblanks(&ptr);
-          if(*ptr) {
-            value = ptr;
-            valuelen = strlen(value);
+          ఒకవేళ(*ptr) {
+            విలువ = ptr;
+            valuelen = అక్షరశ్రేణి_పొడవు(విలువ);
           }
-          else {
+          లేకపోతే {
             /* quirk #1, suppress this header */
-            continue;
+            కొనసాగు;
           }
         }
-        else if(!curlx_str_single(&ptr, ';')) {
+        లేకపోతే ఒకవేళ(!curlx_str_single(&ptr, ';')) {
           curlx_str_passblanks(&ptr);
-          if(!*ptr) {
+          ఒకవేళ(!*ptr) {
             /* quirk #2, send an empty header */
-            value = "";
+            విలువ = "";
             valuelen = 0;
           }
-          else {
+          లేకపోతే {
             /* this may be used for something else in the future,
              * ignore this for now */
-            continue;
+            కొనసాగు;
           }
         }
-        else
+        లేకపోతే
           /* neither : nor ; in provided header value. We ignore this
            * silently */
-          continue;
+          కొనసాగు;
       }
-      else
+      లేకపోతే
         /* no name, move on */
-        continue;
+        కొనసాగు;
 
-      DEBUGASSERT(curlx_strlen(&name) && value);
+      DEBUGASSERT(curlx_strlen(&name) && విలువ);
       /* trim surrounding whitespace so a padded field name (e.g.
          `Authorization :`) cannot slip past the Authorization/Cookie check */
       curlx_str_trimblanks(&name);
-      if(!curlx_strlen(&name))
-        continue;
-      if(data->state.http_host &&
+      ఒకవేళ(!curlx_strlen(&name))
+        కొనసాగు;
+      ఒకవేళ(దత్తాంశం->state.http_host &&
          /* a Host: header was sent already, do not pass on any custom Host:
             header as that will produce *two* in the same request! */
          curlx_str_casecompare(&name, "Host"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_FORM &&
+      లేకపోతే ఒకవేళ(దత్తాంశం->state.httpreq == HTTPREQ_POST_FORM &&
               /* this header (extended by formdata.c) is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_MIME &&
+      లేకపోతే ఒకవేళ(దత్తాంశం->state.httpreq == HTTPREQ_POST_MIME &&
               /* this header is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->req.authneg &&
+      లేకపోతే ఒకవేళ(దత్తాంశం->req.authneg &&
               /* while doing auth neg, do not allow the custom length since
                  we will force length zero then */
               curlx_str_casecompare(&name, "Content-Length"))
         ;
-      else if((httpversion >= 20) &&
+      లేకపోతే ఒకవేళ((httpversion >= 20) &&
               curlx_str_casecompare(&name, "Transfer-Encoding"))
         ;
       /* HTTP/2 and HTTP/3 do not support chunked requests */
-      else if((curlx_str_casecompare(&name, "Authorization") ||
+      లేకపోతే ఒకవేళ((curlx_str_casecompare(&name, "Authorization") ||
                curlx_str_casecompare(&name, "Cookie")) &&
               /* be careful of sending this potentially sensitive header to
                  other hosts */
-              !Curl_auth_allowed_to_host(data))
+              !Curl_auth_allowed_గమ్యం_host(దత్తాంశం))
         ;
-      else {
-        CURLcode result =
-          Curl_dynhds_add(hds, curlx_str(&name), curlx_strlen(&name),
-                          value, valuelen);
-        if(result)
-          return result;
+      లేకపోతే {
+        CURLcode ఫలితం =
+          Curl_dynhds_కూడు(hds, curlx_str(&name), curlx_strlen(&name),
+                          విలువ, valuelen);
+        ఒకవేళ(ఫలితం)
+          తిరిగి ఫలితం;
       }
     }
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-struct cf_proxy_ctx {
-  struct Curl_peer *peer; /* proxy */
-  struct Curl_peer *tunnel_peer; /* tunnel destination */
+నిర్మాణం cf_proxy_ctx {
+  నిర్మాణం Curl_peer *peer; /* proxy */
+  నిర్మాణం Curl_peer *tunnel_peer; /* tunnel destination */
   uint8_t proxytype;
   uint8_t tunnel_transport;
-  BIT(sub_filter_installed);
+  బిట్టు(sub_filter_installed);
 };
 
-static int proxy_http_ver_major(proxy_http_ver ver)
+స్థిర పూర్ణాంకం proxy_http_ver_major(proxy_http_ver ver)
 {
-  switch(ver) {
-  case PROXY_HTTP_V1:
-    return 11;
-  case PROXY_HTTP_V2:
-    return 20;
-  case PROXY_HTTP_V3:
-    return 30;
+  ఎంపిక(ver) {
+  స్థితి PROXY_HTTP_V1:
+    తిరిగి 11;
+  స్థితి PROXY_HTTP_V2:
+    తిరిగి 20;
+  స్థితి PROXY_HTTP_V3:
+    తిరిగి 30;
   }
-  return 0;
+  తిరిగి 0;
 }
 
-static CURLcode http_proxy_create_CONNECT(struct httpreq **preq,
-                                          struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct Curl_peer *peer,
-                                          struct Curl_peer *dest,
+స్థిర CURLcode http_proxy_create_CONNECT(నిర్మాణం httpreq **preq,
+                                          నిర్మాణం Curl_cfilter *cf,
+                                          నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం Curl_peer *peer,
+                                          నిర్మాణం Curl_peer *dest,
                                           proxy_http_ver ver)
 {
-  char *authority = NULL;
-  const char *ua;
-  int httpversion = proxy_http_ver_major(ver);
-  CURLcode result;
-  struct httpreq *req = NULL;
+  అక్షరం *authority = ఖాళీ;
+  స్థిరరాశి అక్షరం *ua;
+  పూర్ణాంకం httpversion = proxy_http_ver_major(ver);
+  CURLcode ఫలితం;
+  నిర్మాణం httpreq *req = ఖాళీ;
 
-  (void)peer;
+  (శూన్య)peer;
   authority = curl_maprintf("%s%s%s:%u",
                             dest->ipv6 ? "[" : "",
                             dest->hostname,
                             dest->ipv6 ? "]" : "",
-                            dest->port);
-  if(!authority) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+                            dest->పోర్టు);
+  ఒకవేళ(!authority) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  result = Curl_http_req_make(&req, STRCONST("CONNECT"),
-                              NULL, 0, authority, strlen(authority),
-                              NULL, 0);
-  if(result)
-    goto out;
+  ఫలితం = Curl_http_req_make(&req, STRCONST("CONNECT"),
+                              ఖాళీ, 0, authority, అక్షరశ్రేణి_పొడవు(authority),
+                              ఖాళీ, 0);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
   /* Setup the proxy-authorization header, if any */
-  result = Curl_http_output_auth(data, cf->conn, req->method, HTTPREQ_GET,
-                                 req->authority, NULL, TRUE);
-  if(result)
-    goto out;
+  ఫలితం = Curl_http_output_auth(దత్తాంశం, cf->conn, req->పద్ధతి, HTTPREQ_GET,
+                                 req->authority, ఖాళీ, TRUE);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
   /* If user is not overriding Host: header, we add for HTTP/1.x */
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Host"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Host", authority);
-    if(result)
-      goto out;
+  ఒకవేళ(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(దత్తాంశం, cf->conn, STRCONST("Host"))) {
+    ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, "Host", authority);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  if(data->req.hd_proxy_auth) {
-    result = Curl_dynhds_h1_cadd_line(&req->headers,
-                                      data->req.hd_proxy_auth);
-    if(result)
-      goto out;
+  ఒకవేళ(దత్తాంశం->req.hd_proxy_auth) {
+    ఫలితం = Curl_dynhds_h1_cadd_పంక్తి(&req->శీర్షికలు,
+                                      దత్తాంశం->req.hd_proxy_auth);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  ua = CURL_EASY_STR(data, STRING_USERAGENT);
-  if(!Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent")) &&
+  ua = CURL_EASY_STR(దత్తాంశం, STRING_USERAGENT);
+  ఒకవేళ(!Curl_checkProxyheaders(దత్తాంశం, cf->conn, STRCONST("User-Agent")) &&
      ua && *ua) {
-    result = Curl_dynhds_cadd(&req->headers, "User-Agent", ua);
-    if(result)
-      goto out;
+    ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, "User-Agent", ua);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Proxy-Connection"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Proxy-Connection", "Keep-Alive");
-    if(result)
-      goto out;
+  ఒకవేళ(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(దత్తాంశం, cf->conn, STRCONST("Proxy-Connection"))) {
+    ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, "Proxy-Connection", "Keep-Alive");
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  result = dynhds_add_custom(data, TRUE, httpversion,
-                             FALSE, &req->headers);
+  ఫలితం = dynhds_కూడు_custom(దత్తాంశం, TRUE, httpversion,
+                             FALSE, &req->శీర్షికలు);
 
-out:
-  if(result && req) {
+బహిర్గతం:
+  ఒకవేళ(ఫలితం && req) {
     Curl_http_req_free(req);
-    req = NULL;
+    req = ఖాళీ;
   }
   curlx_free(authority);
   *preq = req;
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode http_proxy_create_CONNECTUDP(struct httpreq **preq,
-                                             struct Curl_cfilter *cf,
-                                             struct Curl_easy *data,
-                                             struct Curl_peer *peer,
-                                             struct Curl_peer *dest,
+స్థిర CURLcode http_proxy_create_CONNECTUDP(నిర్మాణం httpreq **preq,
+                                             నిర్మాణం Curl_cfilter *cf,
+                                             నిర్మాణం Curl_easy *దత్తాంశం,
+                                             నిర్మాణం Curl_peer *peer,
+                                             నిర్మాణం Curl_peer *dest,
                                              proxy_http_ver ver)
 {
-  const char *proxy_scheme = "http", *ua;
-  int httpversion = proxy_http_ver_major(ver);
-  char *authority = NULL;
-  char *path = NULL;
-  char *encoded_host = NULL;
-  struct httpreq *req = NULL;
-  CURLcode result;
+  స్థిరరాశి అక్షరం *proxy_scheme = "http", *ua;
+  పూర్ణాంకం httpversion = proxy_http_ver_major(ver);
+  అక్షరం *authority = ఖాళీ;
+  అక్షరం *మార్గం = ఖాళీ;
+  అక్షరం *encoded_host = ఖాళీ;
+  నిర్మాణం httpreq *req = ఖాళీ;
+  CURLcode ఫలితం;
 
-  if(cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS ||
+  ఒకవేళ(cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS ||
      cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS2 ||
      cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS3)
     proxy_scheme = "https";
@@ -299,419 +299,419 @@ static CURLcode http_proxy_create_CONNECTUDP(struct httpreq **preq,
                             peer->ipv6 ? "[" : "",
                             peer->hostname,
                             peer->ipv6 ? "]" : "",
-                            peer->port);
-  if(!authority) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+                            peer->పోర్టు);
+  ఒకవేళ(!authority) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(dest->ipv6) {
+  ఒకవేళ(dest->ipv6) {
     /* RFC 9298: colons in IPv6 addresses MUST be percent-encoded
      * in the URI template (e.g. "2001:db8::1" -> "2001%3Adb8%3A%3A1") */
-    const char *s = dest->hostname;
-    char *d;
-    size_t hlen = strlen(s);
+    స్థిరరాశి అక్షరం *s = dest->hostname;
+    అక్షరం *d;
+    size_t hlen = అక్షరశ్రేణి_పొడవు(s);
     encoded_host = curlx_malloc(hlen * 3 + 1);
-    if(!encoded_host) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    ఒకవేళ(!encoded_host) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
     d = encoded_host;
-    while(*s) {
-      if(*s == ':') {
+    అయితే(*s) {
+      ఒకవేళ(*s == ':') {
         *d++ = '%';
         *d++ = '3';
         *d++ = 'A';
       }
-      else
+      లేకపోతే
         *d++ = *s;
       s++;
     }
     *d = '\0';
-    path = curl_maprintf("/.well-known/masque/udp/%s/%u/",
-                         encoded_host, (unsigned int)dest->port);
+    మార్గం = curl_maprintf("/.well-known/masque/udp/%s/%u/",
+                         encoded_host, (గుర్తులేని పూర్ణాంకం)dest->పోర్టు);
   }
-  else {
-    path = curl_maprintf("/.well-known/masque/udp/%s/%u/",
-                         dest->hostname, (unsigned int)dest->port);
-  }
-
-  if(!path) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  లేకపోతే {
+    మార్గం = curl_maprintf("/.well-known/masque/udp/%s/%u/",
+                         dest->hostname, (గుర్తులేని పూర్ణాంకం)dest->పోర్టు);
   }
 
-  if(ver == PROXY_HTTP_V1) {
-    result = Curl_http_req_make(&req, "GET", CURL_CSTRLEN("GET"),
-                                proxy_scheme, strlen(proxy_scheme),
-                                authority, strlen(authority),
-                                path, strlen(path));
-    if(result)
-      goto out;
+  ఒకవేళ(!మార్గం) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
-  else if(ver == PROXY_HTTP_V2 || ver == PROXY_HTTP_V3) {
-    result = Curl_http_req_make(&req, STRCONST("CONNECT"),
-                                proxy_scheme, strlen(proxy_scheme),
-                                authority, strlen(authority),
-                                path, strlen(path));
-    if(result)
-      goto out;
+
+  ఒకవేళ(ver == PROXY_HTTP_V1) {
+    ఫలితం = Curl_http_req_make(&req, "GET", CURL_CSTRLEN("GET"),
+                                proxy_scheme, అక్షరశ్రేణి_పొడవు(proxy_scheme),
+                                authority, అక్షరశ్రేణి_పొడవు(authority),
+                                మార్గం, అక్షరశ్రేణి_పొడవు(మార్గం));
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
-  else {
-    result = CURLE_FAILED_INIT;
-    goto out;
+  లేకపోతే ఒకవేళ(ver == PROXY_HTTP_V2 || ver == PROXY_HTTP_V3) {
+    ఫలితం = Curl_http_req_make(&req, STRCONST("CONNECT"),
+                                proxy_scheme, అక్షరశ్రేణి_పొడవు(proxy_scheme),
+                                authority, అక్షరశ్రేణి_పొడవు(authority),
+                                మార్గం, అక్షరశ్రేణి_పొడవు(మార్గం));
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
+  }
+  లేకపోతే {
+    ఫలితం = CURLE_FAILED_INIT;
+    వెళ్ళు బహిర్గతం;
   }
 
   /* Setup the proxy-authorization header, if any */
-  result = Curl_http_output_auth(data, cf->conn, req->method, HTTPREQ_GET,
-                                 req->authority, NULL, TRUE);
-  if(result)
-    goto out;
+  ఫలితం = Curl_http_output_auth(దత్తాంశం, cf->conn, req->పద్ధతి, HTTPREQ_GET,
+                                 req->authority, ఖాళీ, TRUE);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
   /* If user is not overriding Host: header, we add for HTTP/1.x */
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Host"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Host", authority);
-    if(result)
-      goto out;
+  ఒకవేళ(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(దత్తాంశం, cf->conn, STRCONST("Host"))) {
+    ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, "Host", authority);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  if(data->req.hd_proxy_auth) {
-    result = Curl_dynhds_h1_cadd_line(&req->headers,
-                                      data->req.hd_proxy_auth);
-    if(result)
-      goto out;
+  ఒకవేళ(దత్తాంశం->req.hd_proxy_auth) {
+    ఫలితం = Curl_dynhds_h1_cadd_పంక్తి(&req->శీర్షికలు,
+                                      దత్తాంశం->req.hd_proxy_auth);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  ua = CURL_EASY_STR(data, STRING_USERAGENT);
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent")) &&
+  ua = CURL_EASY_STR(దత్తాంశం, STRING_USERAGENT);
+  ఒకవేళ(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(దత్తాంశం, cf->conn, STRCONST("User-Agent")) &&
      ua && *ua) {
-    result = Curl_dynhds_cadd(&req->headers, "User-Agent", ua);
-    if(result)
-      goto out;
+    ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, "User-Agent", ua);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Proxy-Connection"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Proxy-Connection", "Keep-Alive");
-    if(result)
-      goto out;
+  ఒకవేళ(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(దత్తాంశం, cf->conn, STRCONST("Proxy-Connection"))) {
+    ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, "Proxy-Connection", "Keep-Alive");
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  if(ver == PROXY_HTTP_V1) {
-    result = Curl_dynhds_cadd(&req->headers, "Connection", "Upgrade");
-    if(result)
-      goto out;
+  ఒకవేళ(ver == PROXY_HTTP_V1) {
+    ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, "Connection", "Upgrade");
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
 
-    result = Curl_dynhds_cadd(&req->headers, "Upgrade", "connect-udp");
-    if(result)
-      goto out;
+    ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, "Upgrade", "connect-udp");
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
 
-    result = Curl_dynhds_cadd(&req->headers, "Capsule-Protocol", "?1");
-    if(result)
-      goto out;
+    ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, "Capsule-Protocol", "?1");
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
-  else {
-    result = Curl_dynhds_cadd(&req->headers, ":Protocol", "connect-udp");
-    if(result)
-      goto out;
+  లేకపోతే {
+    ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, ":Protocol", "connect-udp");
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
 
-    if(ver >= PROXY_HTTP_V2) {
-      result = Curl_dynhds_cadd(&req->headers, "Capsule-Protocol", "?1");
-      if(result)
-        goto out;
+    ఒకవేళ(ver >= PROXY_HTTP_V2) {
+      ఫలితం = Curl_dynhds_cadd(&req->శీర్షికలు, "Capsule-Protocol", "?1");
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
     }
   }
 
-  result = dynhds_add_custom(data, TRUE, httpversion,
-                             TRUE, &req->headers);
+  ఫలితం = dynhds_కూడు_custom(దత్తాంశం, TRUE, httpversion,
+                             TRUE, &req->శీర్షికలు);
 
-out:
-  if(result && req) {
+బహిర్గతం:
+  ఒకవేళ(ఫలితం && req) {
     Curl_http_req_free(req);
-    req = NULL;
+    req = ఖాళీ;
   }
   curlx_free(authority);
-  curlx_free(path);
+  curlx_free(మార్గం);
   curlx_free(encoded_host);
   *preq = req;
-  return result;
+  తిరిగి ఫలితం;
 }
 
 CURLcode Curl_http_proxy_create_tunnel_request(
-    struct httpreq **preq, struct Curl_cfilter *cf,
-    struct Curl_easy *data, struct Curl_peer *peer, struct Curl_peer *dest,
+    నిర్మాణం httpreq **preq, నిర్మాణం Curl_cfilter *cf,
+    నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం Curl_peer *peer, నిర్మాణం Curl_peer *dest,
     proxy_http_ver ver, bool udp_tunnel)
 {
-  CURLcode result = udp_tunnel ?
-    http_proxy_create_CONNECTUDP(preq, cf, data, peer, dest, ver) :
-    http_proxy_create_CONNECT(preq, cf, data, peer, dest, ver);
-  if(result)
-    return result;
+  CURLcode ఫలితం = udp_tunnel ?
+    http_proxy_create_CONNECTUDP(preq, cf, దత్తాంశం, peer, dest, ver) :
+    http_proxy_create_CONNECT(preq, cf, దత్తాంశం, peer, dest, ver);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  infof(data, "Establishing %s proxy %stunnel to %s:%u",
+  infof(దత్తాంశం, "Establishing %s proxy %stunnel to %s:%u",
         (ver == PROXY_HTTP_V2) ? "HTTP/2" :
         (ver == PROXY_HTTP_V3) ? "HTTP/3" : "HTTP",
         udp_tunnel ? "UDP " : "",
-        dest->user_hostname, dest->port);
-  return CURLE_OK;
+        dest->user_hostname, dest->పోర్టు);
+  తిరిగి CURLE_OK;
 }
 
 CURLcode Curl_http_proxy_inspect_tunnel_response(
-    struct Curl_cfilter *cf, struct Curl_easy *data,
-    struct http_resp *resp, bool udp_tunnel,
-    proxy_inspect_result *presult)
+    నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+    నిర్మాణం http_resp *resp, bool udp_tunnel,
+    proxy_inspect_ఫలితం *presult)
 {
-  struct dynhds_entry *capsule_protocol = NULL;
-  struct dynhds_entry *auth_reply = NULL;
-  size_t i, header_count;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం dynhds_నమోదు *capsule_protocol = ఖాళీ;
+  నిర్మాణం dynhds_నమోదు *auth_జవాబు = ఖాళీ;
+  size_t i, శీర్షిక_లెక్క;
+  CURLcode ఫలితం = CURLE_OK;
 
   DEBUGASSERT(resp);
 
-  header_count = Curl_dynhds_count(&resp->headers);
-  infof(data, "CONNECT%s Response Status %d",
-        udp_tunnel ? "-UDP" : "", resp->status);
-  infof(data, "Response Headers (%zu total):", header_count);
-  for(i = 0; i < header_count; i++) {
-    struct dynhds_entry *entry = Curl_dynhds_getn(&resp->headers, i);
-    if(entry)
-      infof(data, "  %s: %s", entry->name, entry->value);
+  శీర్షిక_లెక్క = Curl_dynhds_లెక్క(&resp->శీర్షికలు);
+  infof(దత్తాంశం, "CONNECT%s Response Status %d",
+        udp_tunnel ? "-UDP" : "", resp->స్థితి_2);
+  infof(దత్తాంశం, "Response Headers (%zu total):", శీర్షిక_లెక్క);
+  కొరకు(i = 0; i < శీర్షిక_లెక్క; i++) {
+    నిర్మాణం dynhds_నమోదు *నమోదు_2 = Curl_dynhds_getn(&resp->శీర్షికలు, i);
+    ఒకవేళ(నమోదు_2)
+      infof(దత్తాంశం, "  %s: %s", నమోదు_2->name, నమోదు_2->విలువ);
   }
 
-  if(resp->status == 407) {
-    auth_reply = Curl_dynhds_cget(&resp->headers, "Proxy-Authenticate");
+  ఒకవేళ(resp->స్థితి_2 == 407) {
+    auth_జవాబు = Curl_dynhds_cget(&resp->శీర్షికలు, "Proxy-Authenticate");
   }
 
-  if(auth_reply) {
-    CURL_TRC_CF(data, cf, "[0] CONNECT%s: fwd auth header '%s'",
-                udp_tunnel ? "-UDP" : "", auth_reply->value);
-    result = Curl_http_input_auth(data, resp->status == 407,
-                                  auth_reply->value);
-    if(result)
-      return result;
-    if(data->req.newurl) {
-      curlx_safefree(data->req.newurl);
+  ఒకవేళ(auth_జవాబు) {
+    CURL_TRC_CF(దత్తాంశం, cf, "[0] CONNECT%s: fwd auth header '%s'",
+                udp_tunnel ? "-UDP" : "", auth_జవాబు->విలువ);
+    ఫలితం = Curl_http_ఆదానం_auth(దత్తాంశం, resp->స్థితి_2 == 407,
+                                  auth_జవాబు->విలువ);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
+    ఒకవేళ(దత్తాంశం->req.newurl) {
+      curlx_safefree(దత్తాంశం->req.newurl);
       *presult = PROXY_INSPECT_AUTH_RETRY;
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
     }
   }
 
-  if(udp_tunnel) {
-    if(resp->status / 100 == 2) {
-      capsule_protocol = Curl_dynhds_cget(&resp->headers,
+  ఒకవేళ(udp_tunnel) {
+    ఒకవేళ(resp->స్థితి_2 / 100 == 2) {
+      capsule_protocol = Curl_dynhds_cget(&resp->శీర్షికలు,
                                            "capsule-protocol");
-      if(capsule_protocol) {
-        if(!strncmp(capsule_protocol->value, "?1", 2) &&
-           !capsule_protocol->value[2]) {
-          infof(data, "CONNECT-UDP tunnel established, response %d",
-                resp->status);
+      ఒకవేళ(capsule_protocol) {
+        ఒకవేళ(!అక్షరశ్రేణి_పోలిక(capsule_protocol->విలువ, "?1", 2) &&
+           !capsule_protocol->విలువ[2]) {
+          infof(దత్తాంశం, "CONNECT-UDP tunnel established, response %d",
+                resp->స్థితి_2);
           *presult = PROXY_INSPECT_OK;
-          return CURLE_OK;
+          తిరిగి CURLE_OK;
         }
-        failf(data, "Failed to establish CONNECT-UDP tunnel, response %d, "
+        failf(దత్తాంశం, "Failed to establish CONNECT-UDP tunnel, response %d, "
               "unsupported capsule-protocol value '%s'",
-              resp->status, capsule_protocol->value);
+              resp->స్థితి_2, capsule_protocol->విలువ);
         *presult = PROXY_INSPECT_FAILED;
-        return CURLE_COULDNT_CONNECT;
+        తిరిగి CURLE_COULDNT_CONNECT;
       }
-      else {
+      లేకపోతే {
         /* NOTE proxies may not set capsule protocol in the headers */
-        infof(data, "CONNECT-UDP tunnel established, response %d "
-                    "but no capsule-protocol header found", resp->status);
+        infof(దత్తాంశం, "CONNECT-UDP tunnel established, response %d "
+                    "but no capsule-protocol header found", resp->స్థితి_2);
         *presult = PROXY_INSPECT_OK;
-        return CURLE_OK;
+        తిరిగి CURLE_OK;
       }
     }
-    else {
-      failf(data, "Failed to establish CONNECT-UDP tunnel, "
-                  "response %d", resp->status);
+    లేకపోతే {
+      failf(దత్తాంశం, "Failed to establish CONNECT-UDP tunnel, "
+                  "response %d", resp->స్థితి_2);
       *presult = PROXY_INSPECT_FAILED;
-      return CURLE_COULDNT_CONNECT;
+      తిరిగి CURLE_COULDNT_CONNECT;
     }
   }
 
-  if(resp->status / 100 == 2) {
-    infof(data, "CONNECT tunnel established, response %d", resp->status);
+  ఒకవేళ(resp->స్థితి_2 / 100 == 2) {
+    infof(దత్తాంశం, "CONNECT tunnel established, response %d", resp->స్థితి_2);
     *presult = PROXY_INSPECT_OK;
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
   }
 
   *presult = PROXY_INSPECT_FAILED;
-  return CURLE_COULDNT_CONNECT;
+  తిరిగి CURLE_COULDNT_CONNECT;
 }
 
-static CURLcode http_proxy_cf_connect(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      bool *done)
+స్థిర CURLcode http_proxy_cf_connect(నిర్మాణం Curl_cfilter *cf,
+                                      నిర్మాణం Curl_easy *దత్తాంశం,
+                                      bool *పూర్తి)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
-  CURLcode result;
+  నిర్మాణం cf_proxy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం;
   bool udp_tunnel = TRNSPRT_IS_DGRAM(ctx->tunnel_transport);
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->connected) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  CURL_TRC_CF(data, cf, "CONNECT%s", udp_tunnel ? "-UDP" : "");
+  CURL_TRC_CF(దత్తాంశం, cf, "CONNECT%s", udp_tunnel ? "-UDP" : "");
 connect_sub:
   /* in case of h3_proxy, cf->next will be NULL initially */
-  if(cf->next) {
-    result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  ఒకవేళ(cf->తదుపరి) {
+    ఫలితం = cf->తదుపరి->cft->do_connect(cf->తదుపరి, దత్తాంశం, పూర్తి);
+    ఒకవేళ(ఫలితం || !*పూర్తి)
+      తిరిగి ఫలితం;
   }
 
-  *done = FALSE;
-  if(!ctx->sub_filter_installed) {
-    const char *alpn = NULL;
+  *పూర్తి = FALSE;
+  ఒకవేళ(!ctx->sub_filter_installed) {
+    స్థిరరాశి అక్షరం *alpn = ఖాళీ;
 
     /* in case of h3_proxy, cf->next will be NULL initially */
-    if(cf->next) {
-      alpn = Curl_conn_cf_get_alpn_negotiated(cf->next, data);
+    ఒకవేళ(cf->తదుపరి) {
+      alpn = Curl_conn_cf_get_alpn_negotiated(cf->తదుపరి, దత్తాంశం);
     }
 
-    if(alpn)
-      infof(data, "CONNECT%s: '%s' negotiated",
+    ఒకవేళ(alpn)
+      infof(దత్తాంశం, "CONNECT%s: '%s' negotiated",
             udp_tunnel ? "-UDP" : "", alpn);
-    else if(!alpn) {
+    లేకపోతే ఒకవేళ(!alpn) {
       /* No ALPN, proxytype rules. Fake ALPN */
-      infof(data, "CONNECT%s: no ALPN negotiated", udp_tunnel ? "-UDP" : "");
-      switch(ctx->proxytype) {
-      case CURLPROXY_HTTP_1_0:
+      infof(దత్తాంశం, "CONNECT%s: no ALPN negotiated", udp_tunnel ? "-UDP" : "");
+      ఎంపిక(ctx->proxytype) {
+      స్థితి CURLPROXY_HTTP_1_0:
         alpn = "http/1.0";
-        break;
-      case CURLPROXY_HTTPS2:
+        ఆపు;
+      స్థితి CURLPROXY_HTTPS2:
         alpn = "h2";
-        break;
-      case CURLPROXY_HTTPS3:
+        ఆపు;
+      స్థితి CURLPROXY_HTTPS3:
         alpn = "h3";
-        break;
-      default:
+        ఆపు;
+      అప్రమేయ:
         alpn = "http/1.1";
-        break;
+        ఆపు;
       }
     }
 
-    if(!strcmp(alpn, "http/1.0")) {
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/1.0");
-      result = Curl_cf_h1_proxy_insert_after(cf, data, ctx->peer,
+    ఒకవేళ(!strcmp(alpn, "http/1.0")) {
+      CURL_TRC_CF(దత్తాంశం, cf, "installing subfilter for HTTP/1.0");
+      ఫలితం = Curl_cf_h1_proxy_చొప్పించు_after(cf, దత్తాంశం, ctx->peer,
                                              ctx->tunnel_peer, 10, udp_tunnel);
-      if(result)
-        goto out;
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
     }
-    else if(!strcmp(alpn, "http/1.1")) {
-      int httpversion = (ctx->proxytype == CURLPROXY_HTTP_1_0) ? 10 : 11;
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/1.%d",
+    లేకపోతే ఒకవేళ(!strcmp(alpn, "http/1.1")) {
+      పూర్ణాంకం httpversion = (ctx->proxytype == CURLPROXY_HTTP_1_0) ? 10 : 11;
+      CURL_TRC_CF(దత్తాంశం, cf, "installing subfilter for HTTP/1.%d",
                   httpversion % 10);
-      result = Curl_cf_h1_proxy_insert_after(cf, data, ctx->peer,
+      ఫలితం = Curl_cf_h1_proxy_చొప్పించు_after(cf, దత్తాంశం, ctx->peer,
                                              ctx->tunnel_peer,
                                              httpversion, udp_tunnel);
-      if(result)
-        goto out;
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
     }
-#ifdef USE_NGHTTP2
-    else if(!strcmp(alpn, "h2")) {
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/2");
-      result = Curl_cf_h2_proxy_insert_after(cf, data, ctx->peer,
+#నిర్వచితమైతే USE_NGHTTP2
+    లేకపోతే ఒకవేళ(!strcmp(alpn, "h2")) {
+      CURL_TRC_CF(దత్తాంశం, cf, "installing subfilter for HTTP/2");
+      ఫలితం = Curl_cf_h2_proxy_చొప్పించు_after(cf, దత్తాంశం, ctx->peer,
                                              ctx->tunnel_peer, udp_tunnel);
-      if(result)
-        goto out;
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
     }
-#endif /* USE_NGHTTP2 */
-#if defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) && \
+#అయితే_ముగింపు /* USE_NGHTTP2 */
+#ఒకవేళ defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) && \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
-    else if(!strcmp(alpn, "h3")) {
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/3");
-      result = Curl_cf_h3_proxy_insert_after(cf, data, ctx->peer, ctx->peer,
+    లేకపోతే ఒకవేళ(!strcmp(alpn, "h3")) {
+      CURL_TRC_CF(దత్తాంశం, cf, "installing subfilter for HTTP/3");
+      ఫలితం = Curl_cf_h3_proxy_చొప్పించు_after(cf, దత్తాంశం, ctx->peer, ctx->peer,
                                              ctx->tunnel_peer,
                                              ctx->tunnel_transport);
-      if(result)
-        goto out;
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
     }
-#endif /* USE_PROXY_HTTP3 && USE_NGHTTP3 && USE_NGTCP2 && USE_OPENSSL */
-    else {
-      failf(data, "CONNECT%s: negotiated ALPN '%s' not supported",
+#అయితే_ముగింపు /* USE_PROXY_HTTP3 && USE_NGHTTP3 && USE_NGTCP2 && USE_OPENSSL */
+    లేకపోతే {
+      failf(దత్తాంశం, "CONNECT%s: negotiated ALPN '%s' not supported",
             udp_tunnel ? "-UDP" : "", alpn);
-      result = CURLE_COULDNT_CONNECT;
-      goto out;
+      ఫలితం = CURLE_COULDNT_CONNECT;
+      వెళ్ళు బహిర్గతం;
     }
 
     ctx->sub_filter_installed = TRUE;
     /* after we installed the filter "below" us, we call connect
      * on out sub-chain again.
      */
-    goto connect_sub;
+    వెళ్ళు connect_sub;
   }
-  else {
+  లేకపోతే {
     /* subchain connected and we had already installed the protocol filter.
      * This means the protocol tunnel is established, we are done. */
     DEBUGASSERT(ctx->sub_filter_installed);
-    result = CURLE_OK;
+    ఫలితం = CURLE_OK;
   }
 
-out:
-  if(!result) {
+బహిర్గతం:
+  ఒకవేళ(!ఫలితం) {
     cf->connected = TRUE;
-    *done = TRUE;
+    *పూర్తి = TRUE;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_http_proxy_query(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    int query, int *pres1, void *pres2)
+స్థిర CURLcode cf_http_proxy_query(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    పూర్ణాంకం query, పూర్ణాంకం *pres1, శూన్య *pres2)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
-  switch(query) {
-  case CF_QUERY_HOST_PORT:
-    *pres1 = (int)ctx->tunnel_peer->port;
-    *((const char **)pres2) = ctx->tunnel_peer->hostname;
-    return CURLE_OK;
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  నిర్మాణం cf_proxy_ctx *ctx = cf->ctx;
+  ఎంపిక(query) {
+  స్థితి CF_QUERY_HOST_పోర్టు:
+    *pres1 = (పూర్ణాంకం)ctx->tunnel_peer->పోర్టు;
+    *((స్థిరరాశి అక్షరం **)pres2) = ctx->tunnel_peer->hostname;
+    తిరిగి CURLE_OK;
+  స్థితి CF_QUERY_ALPN_NEGOTIATED: {
+    స్థిరరాశి అక్షరం **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = NULL;
-    return CURLE_OK;
+    *palpn = ఖాళీ;
+    తిరిగి CURLE_OK;
   }
-  default:
-    break;
+  అప్రమేయ:
+    ఆపు;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->query(cf->తదుపరి, దత్తాంశం, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static void cf_https_proxy_ctx_free(struct cf_proxy_ctx *ctx)
+స్థిర శూన్య cf_https_proxy_ctx_free(నిర్మాణం cf_proxy_ctx *ctx)
 {
-  if(ctx) {
+  ఒకవేళ(ctx) {
     Curl_peer_unlink(&ctx->peer);
     Curl_peer_unlink(&ctx->tunnel_peer);
     curlx_free(ctx);
   }
 }
 
-static void http_proxy_cf_destroy(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+స్థిర శూన్య http_proxy_cf_destroy(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
-  if(ctx) {
-    CURL_TRC_CF(data, cf, "destroy");
+  నిర్మాణం cf_proxy_ctx *ctx = cf->ctx;
+  ఒకవేళ(ctx) {
+    CURL_TRC_CF(దత్తాంశం, cf, "destroy");
     cf_https_proxy_ctx_free(ctx);
   }
 }
 
-struct Curl_cftype Curl_cft_http_proxy = {
+నిర్మాణం Curl_cftype Curl_cft_http_proxy = {
   "HTTP-PROXY",
-  CF_TYPE_IP_CONNECT | CF_TYPE_PROXY | CF_TYPE_SETUP,
+  CF_TYPE_IP_CONNECT | CF_TYPE_PROXY | CF_TYPE_అమరిక,
   0,
   http_proxy_cf_destroy,
   http_proxy_cf_connect,
   Curl_cf_def_shutdown,
   Curl_cf_def_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_దత్తాంశం_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -720,50 +720,50 @@ struct Curl_cftype Curl_cft_http_proxy = {
   cf_http_proxy_query,
 };
 
-CURLcode Curl_cf_http_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                         struct Curl_easy *data,
-                                         struct Curl_peer *peer,
-                                         struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_http_proxy_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                         నిర్మాణం Curl_easy *దత్తాంశం,
+                                         నిర్మాణం Curl_peer *peer,
+                                         నిర్మాణం Curl_peer *tunnel_peer,
                                          uint8_t tunnel_transport,
                                          uint8_t proxytype)
 {
-  struct Curl_cfilter *cf;
-  struct cf_proxy_ctx *ctx = NULL;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf;
+  నిర్మాణం cf_proxy_ctx *ctx = ఖాళీ;
+  CURLcode ఫలితం;
 
-  (void)data;
-  if(!peer || !tunnel_peer)
-    return CURLE_FAILED_INIT;
+  (శూన్య)దత్తాంశం;
+  ఒకవేళ(!peer || !tunnel_peer)
+    తిరిగి CURLE_FAILED_INIT;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, పరిమాణం(*ctx));
+  ఒకవేళ(!ctx) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
   Curl_peer_link(&ctx->peer, peer);
   Curl_peer_link(&ctx->tunnel_peer, tunnel_peer);
   ctx->proxytype = proxytype;
   ctx->tunnel_transport = tunnel_transport;
 
-  result = Curl_cf_create(&cf, &Curl_cft_http_proxy, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  ఫలితం = Curl_cf_create(&cf, &Curl_cft_http_proxy, ctx);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  ctx = ఖాళీ;
+  Curl_conn_cf_చొప్పించు_after(cf_at, cf);
 
-out:
+బహిర్గతం:
   cf_https_proxy_ctx_free(ctx);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 uint8_t Curl_http_proxy_transport(uint8_t proxytype)
 {
-  switch(proxytype) {
-  case CURLPROXY_HTTPS3:
-    return TRNSPRT_QUIC;
-  default:
-    return TRNSPRT_TCP;
+  ఎంపిక(proxytype) {
+  స్థితి CURLPROXY_HTTPS3:
+    తిరిగి TRNSPRT_QUIC;
+  అప్రమేయ:
+    తిరిగి TRNSPRT_TCP;
   }
 }
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY */

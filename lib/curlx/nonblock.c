@@ -21,72 +21,72 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
+#నిర్వచితమైతే HAVE_SYS_IOCTL_H
+#అన్తర్భావ <sys/ioctl.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_FCNTL_H
+#అన్తర్భావ <fcntl.h>
+#అయితే_ముగింపు
 
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#నిర్వచితమైతే __VMS
+#అన్తర్భావ <in.h>
+#అన్తర్భావ <inet.h>
+#అయితే_ముగింపు
 
-#include "curlx/nonblock.h"
+#అన్తర్భావ "curlx/nonblock.h"
 
 /*
  * curlx_nonblock() set the given socket to either blocking or non-blocking
  * mode based on the 'nonblock' boolean argument. This function is highly
  * portable.
  */
-int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
-                   int nonblock   /* TRUE or FALSE */)
+పూర్ణాంకం curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
+                   పూర్ణాంకం nonblock   /* TRUE or FALSE */)
 {
-#ifdef HAVE_FCNTL_O_NONBLOCK
+#నిర్వచితమైతే HAVE_FCNTL_O_NONBLOCK
   /* most recent Unix versions */
-  int flags;
+  పూర్ణాంకం flags;
   flags = sfcntl(sockfd, F_GETFL, 0);
-  if(flags < 0)
-    return -1;
+  ఒకవేళ(flags < 0)
+    తిరిగి -1;
   /* Check if the current file status flags have already satisfied
    * the request, if so, it is no need to call fcntl() to replicate it.
    */
-  if(!!(flags & O_NONBLOCK) == !!nonblock)
-    return 0;
-  if(nonblock)
+  ఒకవేళ(!!(flags & O_NONBLOCK) == !!nonblock)
+    తిరిగి 0;
+  ఒకవేళ(nonblock)
     flags |= O_NONBLOCK;
-  else
+  లేకపోతే
     flags &= ~O_NONBLOCK;
-  return sfcntl(sockfd, F_SETFL, flags);
+  తిరిగి sfcntl(sockfd, F_SETFL, flags);
 
-#elif defined(HAVE_IOCTLSOCKET_CAMEL_FIONBIO)
+#లేదావేళ defined(HAVE_IOCTLSOCKET_CAMEL_FIONBIO)
 
   /* Amiga */
-  long flags = nonblock ? 1L : 0L;
-  return IoctlSocket(sockfd, FIONBIO, (char *)&flags);
+  దీర్ఘ flags = nonblock ? 1L : 0L;
+  తిరిగి IoctlSocket(sockfd, FIONBIO, (అక్షరం *)&flags);
 
-#elif defined(HAVE_IOCTL_FIONBIO)
+#లేదావేళ defined(HAVE_IOCTL_FIONBIO)
 
   /* older Unix versions */
-  int flags = nonblock ? 1 : 0;
-  return ioctl(sockfd, FIONBIO, &flags);
+  పూర్ణాంకం flags = nonblock ? 1 : 0;
+  తిరిగి ioctl(sockfd, FIONBIO, &flags);
 
-#elif defined(HAVE_IOCTLSOCKET_FIONBIO)
+#లేదావేళ defined(HAVE_IOCTLSOCKET_FIONBIO)
 
   /* Windows */
-  unsigned long flags = nonblock ? 1UL : 0UL;
-  return ioctlsocket(sockfd, (long)FIONBIO, &flags);
+  గుర్తులేని దీర్ఘ flags = nonblock ? 1UL : 0UL;
+  తిరిగి ioctlsocket(sockfd, (దీర్ఘ)FIONBIO, &flags);
 
-#elif defined(HAVE_SETSOCKOPT_SO_NONBLOCK)
+#లేదావేళ defined(HAVE_SETSOCKOPT_SO_NONBLOCK)
 
   /* Orbis OS */
-  long b = nonblock ? 1L : 0L;
-  return setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
+  దీర్ఘ b = nonblock ? 1L : 0L;
+  తిరిగి setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, పరిమాణం(b));
 
-#else
-#error "no non-blocking method was found/used/set"
-#endif
+#లేకపోతే
+#దోషం "no non-blocking method was found/used/set"
+#అయితే_ముగింపు
 }

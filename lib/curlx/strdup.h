@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_STRDUP_H
-#define HEADER_CURLX_STRDUP_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURLX_STRDUP_H
+#నిర్వచించు శీర్షిక_CURLX_STRDUP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef _WIN32
-wchar_t *curlx_wcsdup(const wchar_t *src);  /* for curlx_tcsdup() */
-#endif
-void *curlx_memdup(const void *src, size_t length);
-void *curlx_memdup0(const char *src, size_t length);
-#endif /* HEADER_CURLX_STRDUP_H */
+#నిర్వచితమైతే _WIN32
+wchar_t *curlx_wcsdup(స్థిరరాశి wchar_t *src);  /* for curlx_tcsdup() */
+#అయితే_ముగింపు
+శూన్య *curlx_memdup(స్థిరరాశి శూన్య *src, size_t నిడివి);
+శూన్య *curlx_memdup0(స్థిరరాశి అక్షరం *src, size_t నిడివి);
+#అయితే_ముగింపు /* HEADER_CURLX_STRDUP_H */

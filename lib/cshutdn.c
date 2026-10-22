@@ -22,222 +22,222 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "progress.h"
-#include "multiif.h"
-#include "multi_ev.h"
-#include "curl_trc.h"
-#include "cshutdn.h"
-#include "sigpipe.h"
-#include "connect.h"
-#include "select.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "multi_ev.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "cshutdn.h"
+#అన్తర్భావ "sigpipe.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "curlx/strparse.h"
 
 
-#define DEFAULT_SHUTDOWN_TIMEOUT_MS   (2 * 1000)
+#నిర్వచించు DEFAULT_SHUTDOWN_TIMEOUT_MS   (2 * 1000)
 
-void Curl_cshutdn_start_timer(struct Curl_easy *data, int8_t sockindex,
-                              int timeout_ms)
+శూన్య Curl_cshutdn_ప్రారంభం_timer(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                              పూర్ణాంకం timeout_ms)
 {
-  struct connectdata *conn = data->conn;
-  const struct curltime *pnow = Curl_pgrs_now(data);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  స్థిరరాశి నిర్మాణం curltime *pnow = Curl_pgrs_now(దత్తాంశం);
 
   DEBUGASSERT(conn);
-  conn->shutdown.start_ms[sockindex] =
+  conn->shutdown.ప్రారంభం_ms[sockindex] =
     curlx_ptimediff_ms(pnow, &conn->created);
   conn->shutdown.timeout_ms = (timeout_ms > 0) ?
     (timediff_t)timeout_ms :
-    ((data->set.shutdowntimeout > 0) ?
-     data->set.shutdowntimeout : DEFAULT_SHUTDOWN_TIMEOUT_MS);
+    ((దత్తాంశం->సమితి.shutdowntimeout > 0) ?
+     దత్తాంశం->సమితి.shutdowntimeout : DEFAULT_SHUTDOWN_TIMEOUT_MS);
   /* Set a timer, unless we operate on the admin handle */
-  if(data->mid)
-    Curl_expire_set(data, EXPIRE_SHUTDOWN, conn->shutdown.timeout_ms, pnow);
-  CURL_TRC_M(data, "shutdown start on%s connection",
+  ఒకవేళ(దత్తాంశం->mid)
+    Curl_expire_సమితి(దత్తాంశం, EXPIRE_SHUTDOWN, conn->shutdown.timeout_ms, pnow);
+  CURL_TRC_M(దత్తాంశం, "shutdown start on%s connection",
              sockindex ? " secondary" : "");
 }
 
-timediff_t Curl_cshutdn_timeleft_ms(struct Curl_easy *data,
-                                    struct connectdata *conn,
+timediff_t Curl_cshutdn_timeleft_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం connectdata *conn,
                                     int8_t sockindex)
 {
-  timediff_t left_ms;
+  timediff_t ఎడమ_ms;
 
-  if(conn->shutdown.start_ms[sockindex] < 0)
-    return 0; /* not started or no limits */
+  ఒకవేళ(conn->shutdown.ప్రారంభం_ms[sockindex] < 0)
+    తిరిగి 0; /* not started or no limits */
 
-  left_ms = conn->shutdown.timeout_ms -
-            (curlx_ptimediff_ms(Curl_pgrs_now(data), &conn->created) -
-             conn->shutdown.start_ms[sockindex]);
-  return left_ms ? left_ms : -1;
+  ఎడమ_ms = conn->shutdown.timeout_ms -
+            (curlx_ptimediff_ms(Curl_pgrs_now(దత్తాంశం), &conn->created) -
+             conn->shutdown.ప్రారంభం_ms[sockindex]);
+  తిరిగి ఎడమ_ms ? ఎడమ_ms : -1;
 }
 
-static timediff_t cshutdn_conn_timeleft(struct Curl_easy *data,
-                                        struct connectdata *conn)
+స్థిర timediff_t cshutdn_conn_timeleft(నిర్మాణం Curl_easy *దత్తాంశం,
+                                        నిర్మాణం connectdata *conn)
 {
-  timediff_t left_ms = 0, ms;
+  timediff_t ఎడమ_ms = 0, ms;
   int8_t i;
 
-  for(i = 0; conn->shutdown.timeout_ms && (i < 2); ++i) {
-    if(conn->shutdown.start_ms[i] < 0)
-      continue;
-    ms = Curl_cshutdn_timeleft_ms(data, conn, i);
-    if(ms && (!left_ms || ms < left_ms))
-      left_ms = ms;
+  కొరకు(i = 0; conn->shutdown.timeout_ms && (i < 2); ++i) {
+    ఒకవేళ(conn->shutdown.ప్రారంభం_ms[i] < 0)
+      కొనసాగు;
+    ms = Curl_cshutdn_timeleft_ms(దత్తాంశం, conn, i);
+    ఒకవేళ(ms && (!ఎడమ_ms || ms < ఎడమ_ms))
+      ఎడమ_ms = ms;
   }
-  return left_ms;
+  తిరిగి ఎడమ_ms;
 }
 
-void Curl_cshutdn_clear_timer(struct Curl_easy *data, int8_t sockindex)
+శూన్య Curl_cshutdn_clear_timer(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex)
 {
-  data->conn->shutdown.start_ms[sockindex] = -1;
+  దత్తాంశం->conn->shutdown.ప్రారంభం_ms[sockindex] = -1;
 }
 
-static void cshutdn_run_conn_handler(struct Curl_easy *data,
-                                     struct connectdata *conn)
+స్థిర శూన్య cshutdn_నిరంతరం_conn_handler(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం connectdata *conn)
 {
-  if(!conn->bits.shutdown_handler) {
+  ఒకవేళ(!conn->బిట్లు.shutdown_handler) {
 
-    if(conn->scheme && conn->scheme->run->disconnect) {
+    ఒకవేళ(conn->scheme && conn->scheme->నిరంతరం->disconnect) {
       /* Some disconnect handlers do a blocking wait on server responses.
        * FTP/IMAP/SMTP and SFTP are among them. When using the internal
        * handle, set an overall short timeout so we do not hang for the
        * default 120 seconds. */
-      if(data->state.internal) {
-        data->set.timeout = DEFAULT_SHUTDOWN_TIMEOUT_MS;
-        Curl_pgrsTime(data, TIMER_STARTOP);
+      ఒకవేళ(దత్తాంశం->state.అంతర్గత) {
+        దత్తాంశం->సమితి.timeout = DEFAULT_SHUTDOWN_TIMEOUT_MS;
+        Curl_pgrs_సమయం(దత్తాంశం, TIMER_STARTOP);
       }
 
       /* This is set if protocol-specific cleanups should be made */
-      DEBUGF(infof(data, "connection #%" FMT_OFF_T
+      DEBUGF(infof(దత్తాంశం, "connection #%" FMT_OFF_T
                    ", shutdown protocol handler (aborted=%d)",
-                   conn->connection_id, conn->bits.aborted));
+                   conn->connection_id, conn->బిట్లు.aborted));
       /* There are protocol handlers that block on retrieving
        * server responses here (FTP). Set a short timeout. */
-      conn->scheme->run->disconnect(data, conn, (bool)conn->bits.aborted);
+      conn->scheme->నిరంతరం->disconnect(దత్తాంశం, conn, (bool)conn->బిట్లు.aborted);
     }
 
-    conn->bits.shutdown_handler = TRUE;
+    conn->బిట్లు.shutdown_handler = TRUE;
   }
 }
 
-CURLcode Curl_cshutdn_try_once_idx(struct Curl_easy *data,
-                                   int8_t sockindex, bool *done)
+CURLcode Curl_cshutdn_try_once_idx(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   int8_t sockindex, bool *పూర్తి)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం = CURLE_OK;
   timediff_t timeout_ms;
 
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(దత్తాంశం->conn);
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
 
   /* Get the first connected filter that is not shut down already. */
-  cf = data->conn->cfilter[sockindex];
-  while(cf && (!cf->connected || cf->shutdown))
-    cf = cf->next;
+  cf = దత్తాంశం->conn->cfilter[sockindex];
+  అయితే(cf && (!cf->connected || cf->shutdown))
+    cf = cf->తదుపరి;
 
-  if(!cf) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(!cf) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  *done = FALSE;
-  if(!CURL_CONN_IN_SHUTDOWN(data->conn, sockindex)) {
-    Curl_cshutdn_start_timer(data, sockindex, 0);
+  *పూర్తి = FALSE;
+  ఒకవేళ(!CURL_CONN_లోపల_SHUTDOWN(దత్తాంశం->conn, sockindex)) {
+    Curl_cshutdn_ప్రారంభం_timer(దత్తాంశం, sockindex, 0);
   }
-  else {
-    timeout_ms = Curl_cshutdn_timeleft_ms(data, data->conn, sockindex);
-    if(timeout_ms < 0) {
+  లేకపోతే {
+    timeout_ms = Curl_cshutdn_timeleft_ms(దత్తాంశం, దత్తాంశం->conn, sockindex);
+    ఒకవేళ(timeout_ms < 0) {
       /* info message, since this might be regarded as acceptable */
-      infof(data, "shutdown timeout");
-      return CURLE_OPERATION_TIMEDOUT;
+      infof(దత్తాంశం, "shutdown timeout");
+      తిరిగి CURLE_OPERATION_TIMEDOUT;
     }
   }
 
-  while(cf) {
-    if(!cf->shutdown) {
+  అయితే(cf) {
+    ఒకవేళ(!cf->shutdown) {
       bool cfdone = FALSE;
-      result = cf->cft->do_shutdown(cf, data, &cfdone);
-      if(result) {
-        CURL_TRC_CF(data, cf, "shut down failed with %d", (int)result);
-        return result;
+      ఫలితం = cf->cft->do_shutdown(cf, దత్తాంశం, &cfdone);
+      ఒకవేళ(ఫలితం) {
+        CURL_TRC_CF(దత్తాంశం, cf, "shut down failed with %d", (పూర్ణాంకం)ఫలితం);
+        తిరిగి ఫలితం;
       }
-      else if(!cfdone) {
-        CURL_TRC_CF(data, cf, "shut down not done yet");
-        return CURLE_OK;
+      లేకపోతే ఒకవేళ(!cfdone) {
+        CURL_TRC_CF(దత్తాంశం, cf, "shut down not done yet");
+        తిరిగి CURLE_OK;
       }
-      CURL_TRC_CF(data, cf, "shut down successfully");
+      CURL_TRC_CF(దత్తాంశం, cf, "shut down successfully");
       cf->shutdown = TRUE;
     }
-    cf = cf->next;
+    cf = cf->తదుపరి;
   }
-  *done = (!result);
-  return result;
+  *పూర్తి = (!ఫలితం);
+  తిరిగి ఫలితం;
 }
 
-static void cshutdn_run_once(struct Curl_easy *data,
-                             struct connectdata *conn,
-                             bool *done)
+స్థిర శూన్య cshutdn_నిరంతరం_once(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం connectdata *conn,
+                             bool *పూర్తి)
 {
   CURLcode r1, r2;
   bool done1, done2;
 
   /* We expect to be attached when called */
-  DEBUGASSERT(data->conn == conn);
+  DEBUGASSERT(దత్తాంశం->conn == conn);
 
-  if(!CURL_CONN_IN_SHUTDOWN(conn, FIRSTSOCKET)) {
-    Curl_cshutdn_start_timer(data, FIRSTSOCKET, 0);
+  ఒకవేళ(!CURL_CONN_లోపల_SHUTDOWN(conn, FIRSTSOCKET)) {
+    Curl_cshutdn_ప్రారంభం_timer(దత్తాంశం, FIRSTSOCKET, 0);
   }
 
-  cshutdn_run_conn_handler(data, conn);
+  cshutdn_నిరంతరం_conn_handler(దత్తాంశం, conn);
 
-  if(conn->bits.shutdown_filters) {
-    *done = TRUE;
-    return;
+  ఒకవేళ(conn->బిట్లు.shutdown_filters) {
+    *పూర్తి = TRUE;
+    తిరిగి;
   }
 
-  if(!conn->bits.connect_only && Curl_conn_is_connected(conn, FIRSTSOCKET))
-    r1 = Curl_cshutdn_try_once_idx(data, FIRSTSOCKET, &done1);
-  else {
+  ఒకవేళ(!conn->బిట్లు.connect_only && Curl_conn_is_connected(conn, FIRSTSOCKET))
+    r1 = Curl_cshutdn_try_once_idx(దత్తాంశం, FIRSTSOCKET, &done1);
+  లేకపోతే {
     r1 = CURLE_OK;
     done1 = TRUE;
   }
 
-  if(!conn->bits.connect_only && Curl_conn_is_connected(conn, SECONDARYSOCKET))
-    r2 = Curl_cshutdn_try_once_idx(data, SECONDARYSOCKET, &done2);
-  else {
+  ఒకవేళ(!conn->బిట్లు.connect_only && Curl_conn_is_connected(conn, SECONDARYSOCKET))
+    r2 = Curl_cshutdn_try_once_idx(దత్తాంశం, SECONDARYSOCKET, &done2);
+  లేకపోతే {
     r2 = CURLE_OK;
     done2 = TRUE;
   }
 
   /* we are done when any failed or both report success */
-  *done = (r1 || r2 || (done1 && done2));
-  if(*done)
-    conn->bits.shutdown_filters = TRUE;
+  *పూర్తి = (r1 || r2 || (done1 && done2));
+  ఒకవేళ(*పూర్తి)
+    conn->బిట్లు.shutdown_filters = TRUE;
 }
 
-void Curl_cshutdn_try_once(struct Curl_easy *admin,
-                           struct connectdata *conn,
-                           bool *done)
+శూన్య Curl_cshutdn_try_once(నిర్మాణం Curl_easy *admin,
+                           నిర్మాణం connectdata *conn,
+                           bool *పూర్తి)
 {
   DEBUGASSERT(!admin->conn);
   DEBUGASSERT(!admin->mid);
   Curl_attach_connection(admin, conn, FALSE);
-  cshutdn_run_once(admin, conn, done);
-  CURL_TRC_M(admin, "[SHUTDOWN] shutdown, done=%d", *done);
+  cshutdn_నిరంతరం_once(admin, conn, పూర్తి);
+  CURL_TRC_M(admin, "[SHUTDOWN] shutdown, done=%d", *పూర్తి);
   Curl_detach_connection(admin);
 }
 
-void Curl_cshutdn_terminate(struct Curl_easy *admin,
-                            struct connectdata *conn,
+శూన్య Curl_cshutdn_terminate(నిర్మాణం Curl_easy *admin,
+                            నిర్మాణం connectdata *conn,
                             bool do_shutdown)
 {
-  bool done;
+  bool పూర్తి;
 
   /* there must be a connection to close */
   DEBUGASSERT(conn);
@@ -249,308 +249,308 @@ void Curl_cshutdn_terminate(struct Curl_easy *admin,
 
   Curl_attach_connection(admin, conn, FALSE);
 
-  cshutdn_run_conn_handler(admin, conn);
-  if(do_shutdown) {
+  cshutdn_నిరంతరం_conn_handler(admin, conn);
+  ఒకవేళ(do_shutdown) {
     /* Make a last attempt to shutdown handlers and filters, if
      * not done so already. */
-    cshutdn_run_once(admin, conn, &done);
+    cshutdn_నిరంతరం_once(admin, conn, &పూర్తి);
   }
   CURL_TRC_M(admin, "[SHUTDOWN] %sclosing connection #%" FMT_OFF_T,
-             conn->bits.shutdown_filters ? "" : "force ",
+             conn->బిట్లు.shutdown_filters ? "" : "force ",
              conn->connection_id);
   Curl_conn_cf_discard_all(admin, conn, SECONDARYSOCKET);
   Curl_conn_cf_discard_all(admin, conn, FIRSTSOCKET);
   Curl_detach_connection(admin);
 
-  if(admin->multi)
-    Curl_multi_ev_conn_done(admin->multi, admin, conn);
+  ఒకవేళ(admin->multi)
+    Curl_multi_ev_conn_పూర్తి(admin->multi, admin, conn);
   Curl_conn_free(admin, conn);
 
-  if(admin->multi) {
+  ఒకవేళ(admin->multi) {
     CURL_TRC_M(admin, "[SHUTDOWN] trigger multi connchanged");
     Curl_multi_connchanged(admin->multi);
   }
 }
 
-static size_t cshutdn_destroy_oldest(struct cshutdn *cshutdn,
-                                     struct Curl_easy *admin,
-                                     const char *destination,
-                                     size_t count)
+స్థిర size_t cshutdn_destroy_oldest(నిర్మాణం cshutdn *cshutdn,
+                                     నిర్మాణం Curl_easy *admin,
+                                     స్థిరరాశి అక్షరం *destination,
+                                     size_t లెక్క)
 {
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  నిర్మాణం Curl_sigpipe_ctx sigpipe_ctx;
   size_t removed = 0;
   uint32_t i = 0;
 
   sigpipe_init(&sigpipe_ctx);
-  while((removed < count) && (i < CURL_PTRARRAY_COUNT(&cshutdn->conns))) {
-    struct connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-    if(!destination || !strcmp(destination, conn->destination)) {
+  అయితే((removed < లెక్క) && (i < CURL_PTRARRAY_లెక్క(&cshutdn->conns))) {
+    నిర్మాణం connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
+    ఒకవేళ(!destination || !strcmp(destination, conn->destination)) {
       Curl_ptrarray_remove(&cshutdn->conns, i);
       sigpipe_apply(admin, &sigpipe_ctx);
       Curl_cshutdn_terminate(admin, conn, FALSE);
       ++removed;
     }
-    else
+    లేకపోతే
       ++i;
   }
   sigpipe_restore(&sigpipe_ctx);
-  return removed;
+  తిరిగి removed;
 }
 
-size_t Curl_cshutdn_close_oldest(struct cshutdn *cshutdn,
-                               struct Curl_easy *admin,
-                               const char *destination,
-                               size_t count)
+size_t Curl_cshutdn_close_oldest(నిర్మాణం cshutdn *cshutdn,
+                               నిర్మాణం Curl_easy *admin,
+                               స్థిరరాశి అక్షరం *destination,
+                               size_t లెక్క)
 {
-  if(cshutdn) {
-    return cshutdn_destroy_oldest(cshutdn, admin, destination, count);
+  ఒకవేళ(cshutdn) {
+    తిరిగి cshutdn_destroy_oldest(cshutdn, admin, destination, లెక్క);
   }
-  return 0;
+  తిరిగి 0;
 }
 
-#define NUM_POLLS_ON_STACK 10
+#నిర్వచించు అంకె_POLLS_ON_దొంతర 10
 
-static CURLcode cshutdn_wait(struct cshutdn *cshutdn,
-                             struct Curl_easy *admin,
-                             int timeout_ms)
+స్థిర CURLcode cshutdn_wait(నిర్మాణం cshutdn *cshutdn,
+                             నిర్మాణం Curl_easy *admin,
+                             పూర్ణాంకం timeout_ms)
 {
-  struct pollfd a_few_on_stack[NUM_POLLS_ON_STACK];
-  struct curl_pollfds cpfds;
-  CURLcode result;
+  నిర్మాణం pollfd a_few_on_దొంతర[అంకె_POLLS_ON_దొంతర];
+  నిర్మాణం curl_pollfds cpfds;
+  CURLcode ఫలితం;
 
-  Curl_pollfds_init(&cpfds, a_few_on_stack, NUM_POLLS_ON_STACK);
+  Curl_pollfds_init(&cpfds, a_few_on_దొంతర, అంకె_POLLS_ON_దొంతర);
 
-  result = Curl_cshutdn_add_pollfds(cshutdn, admin, &cpfds);
-  if(result)
-    goto out;
+  ఫలితం = Curl_cshutdn_కూడు_pollfds(cshutdn, admin, &cpfds);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
   Curl_poll(cpfds.pfds, cpfds.n, CURLMIN(timeout_ms, 1000));
 
-out:
+బహిర్గతం:
   Curl_pollfds_cleanup(&cpfds);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static void cshutdn_perform(struct cshutdn *cshutdn,
-                            struct Curl_easy *admin,
-                            struct Curl_sigpipe_ctx *sigpipe_ctx)
+స్థిర శూన్య cshutdn_perform(నిర్మాణం cshutdn *cshutdn,
+                            నిర్మాణం Curl_easy *admin,
+                            నిర్మాణం Curl_sigpipe_ctx *sigpipe_ctx)
 {
-  struct connectdata *conn;
-  timediff_t next_expire_ms = 0, ms;
+  నిర్మాణం connectdata *conn;
+  timediff_t తదుపరి_expire_ms = 0, ms;
   uint32_t i = 0;
-  bool done;
+  bool పూర్తి;
 
-  if(!CURL_PTRARRAY_COUNT(&cshutdn->conns))
-    return;
+  ఒకవేళ(!CURL_PTRARRAY_లెక్క(&cshutdn->conns))
+    తిరిగి;
 
   CURL_TRC_M(admin, "[SHUTDOWN] perform on %u connections",
-             CURL_PTRARRAY_COUNT(&cshutdn->conns));
+             CURL_PTRARRAY_లెక్క(&cshutdn->conns));
   sigpipe_apply(admin, sigpipe_ctx);
-  while(i < CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+  అయితే(i < CURL_PTRARRAY_లెక్క(&cshutdn->conns)) {
     conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-    Curl_cshutdn_try_once(admin, conn, &done);
-    if(done) {
+    Curl_cshutdn_try_once(admin, conn, &పూర్తి);
+    ఒకవేళ(పూర్తి) {
       Curl_ptrarray_remove(&cshutdn->conns, i);
       Curl_cshutdn_terminate(admin, conn, FALSE);
     }
-    else {
+    లేకపోతే {
       ++i;
       /* idata has one timer list, but maybe more than one connection.
        * Set EXPIRE_SHUTDOWN to the smallest time left for all. */
       ms = cshutdn_conn_timeleft(admin, conn);
-      if(ms && (!next_expire_ms || (ms < next_expire_ms)))
-        next_expire_ms = ms;
+      ఒకవేళ(ms && (!తదుపరి_expire_ms || (ms < తదుపరి_expire_ms)))
+        తదుపరి_expire_ms = ms;
     }
   }
 
-  if(next_expire_ms)
-    Curl_expire(admin, next_expire_ms, EXPIRE_SHUTDOWN);
+  ఒకవేళ(తదుపరి_expire_ms)
+    Curl_expire(admin, తదుపరి_expire_ms, EXPIRE_SHUTDOWN);
 }
 
-static void cshutdn_terminate_all(struct cshutdn *cshutdn,
-                                  struct Curl_easy *admin,
-                                  int timeout_ms)
+స్థిర శూన్య cshutdn_terminate_all(నిర్మాణం cshutdn *cshutdn,
+                                  నిర్మాణం Curl_easy *admin,
+                                  పూర్ణాంకం timeout_ms)
 {
-  struct curltime started = *Curl_pgrs_now(admin);
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  నిర్మాణం curltime started = *Curl_pgrs_now(admin);
+  నిర్మాణం Curl_sigpipe_ctx sigpipe_ctx;
 
   CURL_TRC_M(admin, "[SHUTDOWN] shutdown all");
   sigpipe_init(&sigpipe_ctx);
 
-  while(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+  అయితే(CURL_PTRARRAY_లెక్క(&cshutdn->conns)) {
     timediff_t spent_ms;
-    int remain_ms;
+    పూర్ణాంకం remain_ms;
 
     cshutdn_perform(cshutdn, admin, &sigpipe_ctx);
 
-    if(!CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+    ఒకవేళ(!CURL_PTRARRAY_లెక్క(&cshutdn->conns)) {
       CURL_TRC_M(admin, "[SHUTDOWN] shutdown finished cleanly");
-      break;
+      ఆపు;
     }
 
     /* wait for activity, timeout or "nothing" */
     spent_ms = curlx_ptimediff_ms(Curl_pgrs_now(admin), &started);
-    if(spent_ms >= (timediff_t)timeout_ms) {
+    ఒకవేళ(spent_ms >= (timediff_t)timeout_ms) {
       CURL_TRC_M(admin, "[SHUTDOWN] shutdown finished, %s",
                  (timeout_ms > 0) ? "timeout" : "best effort done");
-      break;
+      ఆపు;
     }
 
-    remain_ms = timeout_ms - (int)spent_ms;
-    if(cshutdn_wait(cshutdn, admin, remain_ms)) {
+    remain_ms = timeout_ms - (పూర్ణాంకం)spent_ms;
+    ఒకవేళ(cshutdn_wait(cshutdn, admin, remain_ms)) {
       CURL_TRC_M(admin, "[SHUTDOWN] shutdown finished, aborted");
-      break;
+      ఆపు;
     }
   }
 
   /* Terminate any remaining. */
-  while(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct connectdata *conn = Curl_ptrarray_remove(&cshutdn->conns, 0);
+  అయితే(CURL_PTRARRAY_లెక్క(&cshutdn->conns)) {
+    నిర్మాణం connectdata *conn = Curl_ptrarray_remove(&cshutdn->conns, 0);
     Curl_cshutdn_terminate(admin, conn, FALSE);
   }
-  DEBUGASSERT(!CURL_PTRARRAY_COUNT(&cshutdn->conns));
+  DEBUGASSERT(!CURL_PTRARRAY_లెక్క(&cshutdn->conns));
 
   sigpipe_restore(&sigpipe_ctx);
 }
 
-void Curl_cshutdn_init(struct cshutdn *cshutdn)
+శూన్య Curl_cshutdn_init(నిర్మాణం cshutdn *cshutdn)
 {
   Curl_ptrarray_init(&cshutdn->conns);
 }
 
-void Curl_cshutdn_destroy(struct cshutdn *cshutdn,
-                          struct Curl_easy *admin)
+శూన్య Curl_cshutdn_destroy(నిర్మాణం cshutdn *cshutdn,
+                          నిర్మాణం Curl_easy *admin)
 {
-  if(admin) {
-    int timeout_ms = 0;
+  ఒకవేళ(admin) {
+    పూర్ణాంకం timeout_ms = 0;
     /* for testing, run graceful shutdown */
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
     {
-      const char *p = getenv("CURL_GRACEFUL_SHUTDOWN");
-      if(p) {
+      స్థిరరాశి అక్షరం *p = getenv("CURL_GRACEFUL_SHUTDOWN");
+      ఒకవేళ(p) {
         curl_off_t l;
-        if(!curlx_str_number(&p, &l, INT_MAX))
-          timeout_ms = (int)l;
+        ఒకవేళ(!curlx_str_సంఖ్య(&p, &l, గరిష్ఠ_పూర్ణాంకం))
+          timeout_ms = (పూర్ణాంకం)l;
       }
     }
-#endif
-    if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+#అయితే_ముగింపు
+    ఒకవేళ(CURL_PTRARRAY_లెక్క(&cshutdn->conns)) {
       CURL_TRC_M(admin, "[SHUTDOWN] destroy, %u connections, timeout=%dms",
-                 CURL_PTRARRAY_COUNT(&cshutdn->conns), timeout_ms);
+                 CURL_PTRARRAY_లెక్క(&cshutdn->conns), timeout_ms);
       cshutdn_terminate_all(cshutdn, admin, timeout_ms);
     }
   }
 }
 
-size_t Curl_cshutdn_count(struct cshutdn *cshutdn)
+size_t Curl_cshutdn_లెక్క(నిర్మాణం cshutdn *cshutdn)
 {
-  if(cshutdn) {
-    return CURL_PTRARRAY_COUNT(&cshutdn->conns);
+  ఒకవేళ(cshutdn) {
+    తిరిగి CURL_PTRARRAY_లెక్క(&cshutdn->conns);
   }
-  return 0;
+  తిరిగి 0;
 }
 
-size_t Curl_cshutdn_dest_count(struct cshutdn *cshutdn,
-                               const char *destination)
+size_t Curl_cshutdn_dest_లెక్క(నిర్మాణం cshutdn *cshutdn,
+                               స్థిరరాశి అక్షరం *destination)
 {
-  if(cshutdn) {
+  ఒకవేళ(cshutdn) {
     size_t n = 0;
     uint32_t i = 0;
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
-      struct connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-      if(!strcmp(destination, conn->destination))
+    కొరకు(i = 0; i < CURL_PTRARRAY_లెక్క(&cshutdn->conns); ++i) {
+      నిర్మాణం connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
+      ఒకవేళ(!strcmp(destination, conn->destination))
         ++n;
     }
-    return n;
+    తిరిగి n;
   }
-  return 0;
+  తిరిగి 0;
 }
 
-static CURLMcode cshutdn_update_ev(struct Curl_multi *multi,
-                                   struct connectdata *conn)
+స్థిర CURLMcode cshutdn_update_ev(నిర్మాణం Curl_multi *multi,
+                                   నిర్మాణం connectdata *conn)
 {
   CURLMcode mresult;
   Curl_attach_connection(multi->admin, conn, FALSE);
   mresult = Curl_multi_ev_assess_conn(multi, multi->admin, conn);
   Curl_detach_connection(multi->admin);
-  return mresult;
+  తిరిగి mresult;
 }
 
-void Curl_cshutdn_add(struct cshutdn *cshutdn,
-                      struct Curl_multi *multi,
-                      struct connectdata *conn,
+శూన్య Curl_cshutdn_కూడు(నిర్మాణం cshutdn *cshutdn,
+                      నిర్మాణం Curl_multi *multi,
+                      నిర్మాణం connectdata *conn,
                       size_t max_shutdowns)
 {
-  struct Curl_easy *admin = multi->admin;
+  నిర్మాణం Curl_easy *admin = multi->admin;
 
   /* Add the connection to our shutdown list for non-blocking shutdown
    * during multi processing. */
-  if(max_shutdowns <= CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+  ఒకవేళ(max_shutdowns <= CURL_PTRARRAY_లెక్క(&cshutdn->conns)) {
     CURL_TRC_M(admin, "[SHUTDOWN] discarding oldest shutdown connection "
                "due to shutdown limit of %zu", max_shutdowns);
-    cshutdn_destroy_oldest(cshutdn, admin, NULL, 1);
+    cshutdn_destroy_oldest(cshutdn, admin, ఖాళీ, 1);
   }
 
-  if(multi->socket_cb && cshutdn_update_ev(multi, conn)) {
+  ఒకవేళ(multi->socket_cb && cshutdn_update_ev(multi, conn)) {
     CURL_TRC_M(admin, "[SHUTDOWN] update events failed, discarding #%"
                FMT_OFF_T, conn->connection_id);
     Curl_cshutdn_terminate(admin, conn, FALSE);
-    return;
+    తిరిగి;
   }
 
-  if(Curl_ptrarray_add(&cshutdn->conns, conn)) {
+  ఒకవేళ(Curl_ptrarray_కూడు(&cshutdn->conns, conn)) {
     CURL_TRC_M(admin, "[SHUTDOWN] adding failed, discarding #%"
                FMT_OFF_T, conn->connection_id);
     Curl_cshutdn_terminate(admin, conn, FALSE);
-    return;
+    తిరిగి;
   }
   CURL_TRC_M(admin, "[SHUTDOWN] added #%" FMT_OFF_T
              " to shutdowns, now %u conns in shutdown",
-             conn->connection_id, CURL_PTRARRAY_COUNT(&cshutdn->conns));
+             conn->connection_id, CURL_PTRARRAY_లెక్క(&cshutdn->conns));
 }
 
-void Curl_cshutdn_perform(struct cshutdn *cshutdn,
-                          struct Curl_easy *admin,
-                          struct Curl_sigpipe_ctx *sigpipe_ctx)
+శూన్య Curl_cshutdn_perform(నిర్మాణం cshutdn *cshutdn,
+                          నిర్మాణం Curl_easy *admin,
+                          నిర్మాణం Curl_sigpipe_ctx *sigpipe_ctx)
 {
   cshutdn_perform(cshutdn, admin, sigpipe_ctx);
 }
 
 /* return fd_set info about the shutdown connections */
-void Curl_cshutdn_setfds(struct cshutdn *cshutdn,
-                         struct Curl_easy *admin,
-                         fd_set *read_fd_set, fd_set *write_fd_set,
-                         int *maxfd)
+శూన్య Curl_cshutdn_setfds(నిర్మాణం cshutdn *cshutdn,
+                         నిర్మాణం Curl_easy *admin,
+                         fd_set *read_fd_సమితి, fd_set *write_fd_సమితి,
+                         పూర్ణాంకం *maxfd)
 {
-  if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct easy_pollset ps;
+  ఒకవేళ(CURL_PTRARRAY_లెక్క(&cshutdn->conns)) {
+    నిర్మాణం easy_pollset ps;
     uint32_t i;
 
     Curl_pollset_init(&ps);
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
-      unsigned int j;
-      struct connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-      CURLcode result;
+    కొరకు(i = 0; i < CURL_PTRARRAY_లెక్క(&cshutdn->conns); ++i) {
+      గుర్తులేని పూర్ణాంకం j;
+      నిర్మాణం connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
+      CURLcode ఫలితం;
 
       Curl_pollset_reset(&ps);
       Curl_attach_connection(admin, conn, FALSE);
-      result = Curl_conn_adjust_pollset(admin, conn, &ps);
+      ఫలితం = Curl_conn_adjust_pollset(admin, conn, &ps);
       Curl_detach_connection(admin);
 
-      if(result)
-        continue;
+      ఒకవేళ(ఫలితం)
+        కొనసాగు;
 
-      for(j = 0; j < ps.n; j++) {
+      కొరకు(j = 0; j < ps.n; j++) {
         curl_socket_t sock = ps.sockets[j];
-        if(!FDSET_SOCK(sock))
-          continue;
-        if(ps.actions[j] & CURL_POLL_IN)
-          FD_SET(sock, read_fd_set);
-        if(ps.actions[j] & CURL_POLL_OUT)
-          FD_SET(sock, write_fd_set);
-        if((ps.actions[j] & (CURL_POLL_OUT | CURL_POLL_IN)) &&
-           ((int)sock > *maxfd))
-          *maxfd = (int)sock;
+        ఒకవేళ(!FDSET_SOCK(sock))
+          కొనసాగు;
+        ఒకవేళ(ps.actions[j] & CURL_POLL_లోపల)
+          FD_SET(sock, read_fd_సమితి);
+        ఒకవేళ(ps.actions[j] & CURL_POLL_బహిర్గతం)
+          FD_SET(sock, write_fd_సమితి);
+        ఒకవేళ((ps.actions[j] & (CURL_POLL_బహిర్గతం | CURL_POLL_లోపల)) &&
+           ((పూర్ణాంకం)sock > *maxfd))
+          *maxfd = (పూర్ణాంకం)sock;
       }
     }
     Curl_pollset_cleanup(&ps);
@@ -558,63 +558,63 @@ void Curl_cshutdn_setfds(struct cshutdn *cshutdn,
 }
 
 /* return information about the shutdown connections */
-unsigned int Curl_cshutdn_add_waitfds(struct cshutdn *cshutdn,
-                                      struct Curl_easy *admin,
-                                      struct Curl_waitfds *cwfds)
+గుర్తులేని పూర్ణాంకం Curl_cshutdn_కూడు_waitfds(నిర్మాణం cshutdn *cshutdn,
+                                      నిర్మాణం Curl_easy *admin,
+                                      నిర్మాణం Curl_waitfds *cwfds)
 {
-  unsigned int need = 0;
+  గుర్తులేని పూర్ణాంకం need = 0;
 
-  if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct easy_pollset ps;
-    struct connectdata *conn;
+  ఒకవేళ(CURL_PTRARRAY_లెక్క(&cshutdn->conns)) {
+    నిర్మాణం easy_pollset ps;
+    నిర్మాణం connectdata *conn;
     uint32_t i;
-    CURLcode result;
+    CURLcode ఫలితం;
 
     Curl_pollset_init(&ps);
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
+    కొరకు(i = 0; i < CURL_PTRARRAY_లెక్క(&cshutdn->conns); ++i) {
       conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
       Curl_pollset_reset(&ps);
       Curl_attach_connection(admin, conn, FALSE);
-      result = Curl_conn_adjust_pollset(admin, conn, &ps);
+      ఫలితం = Curl_conn_adjust_pollset(admin, conn, &ps);
       Curl_detach_connection(admin);
 
-      if(!result)
-        need += Curl_waitfds_add_ps(cwfds, &ps);
+      ఒకవేళ(!ఫలితం)
+        need += Curl_waitfds_కూడు_ps(cwfds, &ps);
     }
     Curl_pollset_cleanup(&ps);
   }
-  return need;
+  తిరిగి need;
 }
 
-CURLcode Curl_cshutdn_add_pollfds(struct cshutdn *cshutdn,
-                                  struct Curl_easy *admin,
-                                  struct curl_pollfds *cpfds)
+CURLcode Curl_cshutdn_కూడు_pollfds(నిర్మాణం cshutdn *cshutdn,
+                                  నిర్మాణం Curl_easy *admin,
+                                  నిర్మాణం curl_pollfds *cpfds)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct easy_pollset ps;
-    struct connectdata *conn;
+  ఒకవేళ(CURL_PTRARRAY_లెక్క(&cshutdn->conns)) {
+    నిర్మాణం easy_pollset ps;
+    నిర్మాణం connectdata *conn;
     uint32_t i;
 
     Curl_pollset_init(&ps);
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
+    కొరకు(i = 0; i < CURL_PTRARRAY_లెక్క(&cshutdn->conns); ++i) {
       conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
       Curl_pollset_reset(&ps);
       Curl_attach_connection(admin, conn, FALSE);
-      result = Curl_conn_adjust_pollset(admin, conn, &ps);
+      ఫలితం = Curl_conn_adjust_pollset(admin, conn, &ps);
       Curl_detach_connection(admin);
 
-      if(!result)
-        result = Curl_pollfds_add_ps(cpfds, &ps);
-      if(result) {
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = Curl_pollfds_కూడు_ps(cpfds, &ps);
+      ఒకవేళ(ఫలితం) {
         Curl_pollset_cleanup(&ps);
         Curl_pollfds_cleanup(cpfds);
-        goto out;
+        వెళ్ళు బహిర్గతం;
       }
     }
     Curl_pollset_cleanup(&ps);
   }
-out:
-  return result;
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }

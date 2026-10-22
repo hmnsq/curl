@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SHA256_H
-#define HEADER_CURL_SHA256_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_SHA256_H
+#నిర్వచించు శీర్షిక_CURL_SHA256_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,23 +24,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_HTTPSIG) ||     \
+#ఒకవేళ !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_HTTPSIG) ||     \
   !defined(CURL_DISABLE_DIGEST_AUTH) ||                                 \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
-#include "curl_hmac.h"
+#అన్తర్భావ "curl_hmac.h"
 
-extern const struct HMAC_params Curl_HMAC_SHA256;
+బాహ్య స్థిరరాశి నిర్మాణం HMAC_params Curl_HMAC_SHA256;
 
-#ifndef CURL_SHA256_DIGEST_LENGTH
-#define CURL_SHA256_DIGEST_LENGTH 32 /* fixed size */
-#endif
+#నిర్వచితం_కాకపోతే CURL_SHA256_DIGEST_నిడివి
+#నిర్వచించు CURL_SHA256_DIGEST_నిడివి 32 /* fixed size */
+#అయితే_ముగింపు
 
-CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_sha256it(గుర్తులేని అక్షరం *output, స్థిరరాశి గుర్తులేని అక్షరం *ఆదానం,
                        size_t len);
 
-#endif
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_SHA256_H */
+#అయితే_ముగింపు /* HEADER_CURL_SHA256_H */

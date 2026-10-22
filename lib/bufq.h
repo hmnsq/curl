@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_BUFQ_H
-#define HEADER_CURL_BUFQ_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_BUFQ_H
+#నిర్వచించు శీర్షిక_CURL_BUFQ_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
 /**
  * A chunk of bytes for reading and writing.
  * The size is fixed a creation with read and write offset
  * for where unread content is.
  */
-struct buf_chunk {
-  struct buf_chunk *next;  /* to keep it in a list */
+నిర్మాణం buf_chunk {
+  నిర్మాణం buf_chunk *తదుపరి;  /* to keep it in a list */
   size_t dlen;             /* the amount of allocated x.data[] */
-  size_t r_offset;         /* first unread bytes */
-  size_t w_offset;         /* one after last written byte */
-  union {
-    uint8_t data[1];       /* the buffer for `dlen` bytes */
-    void *dummy;           /* alignment */
+  size_t r_స్థానభ్రంశం;         /* first unread bytes */
+  size_t w_స్థానభ్రంశం;         /* one after last written byte */
+  సంఘం {
+    uint8_t దత్తాంశం[1];       /* the buffer for `dlen` bytes */
+    శూన్య *dummy;           /* alignment */
   } x;
 };
 
@@ -47,17 +47,17 @@ struct buf_chunk {
  * The same pool can be shared by many `bufq` instances. A pool is not thread
  * safe. All bufqs using it are supposed to operate in the same thread.
  */
-struct bufc_pool {
-  struct buf_chunk *spare;  /* list of available spare chunks */
-  size_t chunk_size;        /* the size of chunks in this pool */
-  size_t spare_count;       /* current number of spare chunks in list */
-  size_t spare_max;         /* max number of spares to keep */
+నిర్మాణం bufc_pool {
+  నిర్మాణం buf_chunk *అదనపు;  /* list of available spare chunks */
+  size_t chunk_కొలత;        /* the size of chunks in this pool */
+  size_t అదనపు_లెక్క;       /* current number of spare chunks in list */
+  size_t అదనపు_max;         /* max number of spares to keep */
 };
 
-void Curl_bufcp_init(struct bufc_pool *pool,
-                     size_t chunk_size, size_t spare_max);
+శూన్య Curl_bufcp_init(నిర్మాణం bufc_pool *pool,
+                     size_t chunk_కొలత, size_t అదనపు_max);
 
-void Curl_bufcp_free(struct bufc_pool *pool);
+శూన్య Curl_bufcp_free(నిర్మాణం bufc_pool *pool);
 
 /**
  * A queue of byte chunks for reading and writing.
@@ -88,96 +88,96 @@ void Curl_bufcp_free(struct bufc_pool *pool);
  * When providing a pool to a bufq, all chunk creation and spare handling
  * will be delegated to that pool.
  */
-struct bufq {
-  struct buf_chunk *head;       /* chunk with bytes to read from */
-  struct buf_chunk *tail;       /* chunk to write to */
-  struct buf_chunk *spare;      /* list of free chunks, unless `pool` */
-  struct bufc_pool *pool;       /* optional pool for free chunks */
-  size_t chunk_count;           /* current number of chunks in `head+spare` */
+నిర్మాణం bufq {
+  నిర్మాణం buf_chunk *తల;       /* chunk with bytes to read from */
+  నిర్మాణం buf_chunk *తోక;       /* chunk to write to */
+  నిర్మాణం buf_chunk *అదనపు;      /* list of free chunks, unless `pool` */
+  నిర్మాణం bufc_pool *pool;       /* optional pool for free chunks */
+  size_t chunk_లెక్క;           /* current number of chunks in `head+spare` */
   size_t max_chunks;            /* max `head` chunks to use */
-  size_t chunk_size;            /* size of chunks to manage */
-  int opts;                     /* options for handling queue, see below */
+  size_t chunk_కొలత;            /* size of chunks to manage */
+  పూర్ణాంకం opts;                     /* options for handling queue, see below */
 };
 
 /**
  * Default behaviour: chunk limit is "hard", meaning attempts to write
  * more bytes than can be hold in `max_chunks` is refused and will return
  * -1, CURLE_AGAIN. */
-#define BUFQ_OPT_NONE        0
+#నిర్వచించు BUFQ_OPT_NONE        0
 /**
  * Make `max_chunks` a "soft" limit. A bufq will report that it is "full"
  * when `max_chunks` are used, but allows writing beyond this limit.
  */
-#define BUFQ_OPT_SOFT_LIMIT  (1 << 0)
+#నిర్వచించు BUFQ_OPT_SOFT_హద్దు  (1 << 0)
 /**
  * Do not keep spare chunks.
  */
-#define BUFQ_OPT_NO_SPARES   (1 << 1)
+#నిర్వచించు BUFQ_OPT_NO_SPARES   (1 << 1)
 
 /**
  * Initialize a buffer queue that can hold up to `max_chunks` buffers
  * each of size `chunk_size`. The bufq will not allow writing of
  * more bytes than can be held in `max_chunks`.
  */
-void Curl_bufq_init(struct bufq *q, size_t chunk_size, size_t max_chunks);
+శూన్య Curl_bufq_init(నిర్మాణం bufq *q, size_t chunk_కొలత, size_t max_chunks);
 
 /**
  * Initialize a buffer queue that can hold up to `max_chunks` buffers
  * each of size `chunk_size` with the given options. See `BUFQ_OPT_*`.
  */
-void Curl_bufq_init2(struct bufq *q, size_t chunk_size,
-                     size_t max_chunks, int opts);
+శూన్య Curl_bufq_init2(నిర్మాణం bufq *q, size_t chunk_కొలత,
+                     size_t max_chunks, పూర్ణాంకం opts);
 
-void Curl_bufq_initp(struct bufq *q, struct bufc_pool *pool,
-                     size_t max_chunks, int opts);
+శూన్య Curl_bufq_initp(నిర్మాణం bufq *q, నిర్మాణం bufc_pool *pool,
+                     size_t max_chunks, పూర్ణాంకం opts);
 
 /**
  * Reset the buffer queue to be empty. Keep any allocated buffer chunks
  * around.
  */
-void Curl_bufq_reset(struct bufq *q);
+శూన్య Curl_bufq_reset(నిర్మాణం bufq *q);
 
 /**
  * Free all resources held by the buffer queue.
  */
-void Curl_bufq_free(struct bufq *q);
+శూన్య Curl_bufq_free(నిర్మాణం bufq *q);
 
 /**
  * Return the total amount of data in the queue.
  */
-size_t Curl_bufq_len(const struct bufq *q);
+size_t Curl_bufq_len(స్థిరరాశి నిర్మాణం bufq *q);
 
 /**
  * Returns TRUE iff there is no data in the buffer queue.
  */
-bool Curl_bufq_is_empty(const struct bufq *q);
+bool Curl_bufq_is_ఖాళీలు(స్థిరరాశి నిర్మాణం bufq *q);
 
 /**
  * Returns TRUE iff there is no space left in the buffer queue.
  */
-bool Curl_bufq_is_full(const struct bufq *q);
+bool Curl_bufq_is_నిండిన(స్థిరరాశి నిర్మాణం bufq *q);
 
 /**
  * Write buf to the end of the buffer queue. The buf is copied
  * and the amount of copied bytes is returned.
  * CURLE_AGAIN is returned if the buffer queue is full.
  */
-CURLcode Curl_bufq_write(struct bufq *q,
-                         const uint8_t *buf, size_t len,
+CURLcode Curl_bufq_write(నిర్మాణం bufq *q,
+                         స్థిరరాశి uint8_t *buf, size_t len,
                          size_t *pnwritten);
 
-CURLcode Curl_bufq_cwrite(struct bufq *q,
-                          const char *buf, size_t len,
+CURLcode Curl_bufq_cwrite(నిర్మాణం bufq *q,
+                          స్థిరరాశి అక్షరం *buf, size_t len,
                           size_t *pnwritten);
 
 /**
  * Read buf from the start of the buffer queue. The buf is copied
  * and the amount of copied bytes is returned.
  */
-CURLcode Curl_bufq_read(struct bufq *q, uint8_t *buf, size_t len,
+CURLcode Curl_bufq_read(నిర్మాణం bufq *q, uint8_t *buf, size_t len,
                         size_t *pnread);
 
-CURLcode Curl_bufq_cread(struct bufq *q, char *buf, size_t len,
+CURLcode Curl_bufq_cread(నిర్మాణం bufq *q, అక్షరం *buf, size_t len,
                          size_t *pnread);
 
 /**
@@ -189,20 +189,20 @@ CURLcode Curl_bufq_cread(struct bufq *q, char *buf, size_t len,
  * Repeated calls return the same information until the buffer queue
  * is modified, see `Curl_bufq_skip()``
  */
-bool Curl_bufq_peek(struct bufq *q,
-                    const uint8_t **pbuf, size_t *plen);
+bool Curl_bufq_peek(నిర్మాణం bufq *q,
+                    స్థిరరాశి uint8_t **pbuf, size_t *plen);
 
-bool Curl_bufq_peek_at(struct bufq *q, size_t offset,
-                       const uint8_t **pbuf, size_t *plen);
+bool Curl_bufq_peek_at(నిర్మాణం bufq *q, size_t స్థానభ్రంశం,
+                       స్థిరరాశి uint8_t **pbuf, size_t *plen);
 
 /**
  * Tell the buffer queue to discard `amount` buf bytes at the head of the
  * queue. Skipping more buf than is currently buffered will empty the queue.
  */
-void Curl_bufq_skip(struct bufq *q, size_t amount);
+శూన్య Curl_bufq_skip(నిర్మాణం bufq *q, size_t amount);
 
-typedef CURLcode Curl_bufq_writer(void *writer_ctx,
-                                  const uint8_t *buf, size_t len,
+రకనిర్వచనం CURLcode Curl_bufq_writer(శూన్య *writer_ctx,
+                                  స్థిరరాశి uint8_t *buf, size_t len,
                                   size_t *pwritten);
 
 /**
@@ -214,10 +214,10 @@ typedef CURLcode Curl_bufq_writer(void *writer_ctx,
  * Note that in case of a -1 chunks may have been written and
  * the buffer queue will have different length than before.
  */
-CURLcode Curl_bufq_pass(struct bufq *q, Curl_bufq_writer *writer,
-                        void *writer_ctx, size_t *pwritten);
+CURLcode Curl_bufq_pass(నిర్మాణం bufq *q, Curl_bufq_writer *writer,
+                        శూన్య *writer_ctx, size_t *pwritten);
 
-typedef CURLcode Curl_bufq_reader(void *reader_ctx,
+రకనిర్వచనం CURLcode Curl_bufq_reader(శూన్య *reader_ctx,
                                   uint8_t *buf, size_t len,
                                   size_t *pnread);
 
@@ -229,8 +229,8 @@ typedef CURLcode Curl_bufq_reader(void *reader_ctx,
  * Note that in case of an error chunks may have been read and
  * the buffer queue will have different length than before.
  */
-CURLcode Curl_bufq_slurp(struct bufq *q, Curl_bufq_reader *reader,
-                         void *reader_ctx, size_t *pnread);
+CURLcode Curl_bufq_slurp(నిర్మాణం bufq *q, Curl_bufq_reader *reader,
+                         శూన్య *reader_ctx, size_t *pnread);
 
 /**
  * Read *once* up to `max_len` bytes and append it to the buffer.
@@ -238,8 +238,8 @@ CURLcode Curl_bufq_slurp(struct bufq *q, Curl_bufq_reader *reader,
  * Returns the total amount of buf read (may be 0) or -1 on other
  * reader errors.
  */
-CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
-                        Curl_bufq_reader *reader, void *reader_ctx,
+CURLcode Curl_bufq_sipn(నిర్మాణం bufq *q, size_t max_len,
+                        Curl_bufq_reader *reader, శూన్య *reader_ctx,
                         size_t *pnread);
 
 /**
@@ -249,9 +249,9 @@ CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
  * on or is placed into the buffer, depending on `len` and current
  * amount buffered, chunk size, etc.
  */
-CURLcode Curl_bufq_write_pass(struct bufq *q,
-                              const uint8_t *buf, size_t len,
-                              Curl_bufq_writer *writer, void *writer_ctx,
+CURLcode Curl_bufq_write_pass(నిర్మాణం bufq *q,
+                              స్థిరరాశి uint8_t *buf, size_t len,
+                              Curl_bufq_writer *writer, శూన్య *writer_ctx,
                               size_t *pwritten);
 
-#endif /* HEADER_CURL_BUFQ_H */
+#అయితే_ముగింపు /* HEADER_CURL_BUFQ_H */

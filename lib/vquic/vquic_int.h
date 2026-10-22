@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_QUIC_INT_H
-#define HEADER_CURL_VQUIC_QUIC_INT_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_VQUIC_QUIC_INT_H
+#నిర్వచించు శీర్షిక_CURL_VQUIC_QUIC_INT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,108 +23,108 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_HTTP3
+#నిర్వచితమైతే USE_HTTP3
 
-#include "bufq.h"
-#include "u32_ptrset.h"
+#అన్తర్భావ "bufq.h"
+#అన్తర్భావ "u32_ptrset.h"
 
-#define MAX_UDP_PAYLOAD_SIZE  1452
+#నిర్వచించు MAX_UDP_PAYLOAD_కొలత  1452
 
 /* definitions from RFC 9114, ch 8.1 */
-typedef enum {
+రకనిర్వచనం గణన {
   CURL_H3_ERR_NO_ERROR = 0x0100,
   CURL_H3_ERR_GENERAL_PROTOCOL_ERROR = 0x0101,
-  CURL_H3_ERR_INTERNAL_ERROR = 0x0102,
-  CURL_H3_ERR_STREAM_CREATION_ERROR = 0x0103,
-  CURL_H3_ERR_CLOSED_CRITICAL_STREAM = 0x0104,
-  CURL_H3_ERR_FRAME_UNEXPECTED = 0x0105,
-  CURL_H3_ERR_FRAME_ERROR = 0x0106,
-  CURL_H3_ERR_EXCESSIVE_LOAD = 0x0107,
+  CURL_H3_ERR_అంతర్గత_ERROR = 0x0102,
+  CURL_H3_ERR_ప్రవాహం_CREATION_ERROR = 0x0103,
+  CURL_H3_ERR_CLOSED_CRITICAL_ప్రవాహం = 0x0104,
+  CURL_H3_ERR_చట్రం_UNEXPECTED = 0x0105,
+  CURL_H3_ERR_చట్రం_ERROR = 0x0106,
+  CURL_H3_ERR_EXCESSIVE_ఎక్కించు = 0x0107,
   CURL_H3_ERR_ID_ERROR = 0x0108,
   CURL_H3_ERR_SETTINGS_ERROR = 0x0109,
   CURL_H3_ERR_MISSING_SETTINGS = 0x010a,
   CURL_H3_ERR_REQUEST_REJECTED = 0x010b,
   CURL_H3_ERR_REQUEST_CANCELLED = 0x010c,
   CURL_H3_ERR_REQUEST_INCOMPLETE = 0x010d,
-  CURL_H3_ERR_MESSAGE_ERROR = 0x010e,
+  CURL_H3_ERR_సందేశం_ERROR = 0x010e,
   CURL_H3_ERR_CONNECT_ERROR = 0x010f,
-  CURL_H3_ERR_VERSION_FALLBACK = 0x0110,
+  CURL_H3_ERR_సంస్కరణ_FALLBACK = 0x0110,
 } vquic_h3_error;
 
-#ifdef CURLVERBOSE
-const char *Curl_vquic_h3_err_str(uint64_t error_code);
-#else
-#define Curl_vquic_h3_err_str(x)   ""
-#endif /* CURLVERBOSE */
+#నిర్వచితమైతే CURLVERBOSE
+స్థిరరాశి అక్షరం *Curl_vquic_h3_err_str(uint64_t error_సంకేతం);
+#లేకపోతే
+#నిర్వచించు Curl_vquic_h3_err_str(x)   ""
+#అయితే_ముగింపు /* CURLVERBOSE */
 
-struct cf_quic_ctx {
+నిర్మాణం cf_quic_ctx {
   curl_socket_t sockfd;               /* connected UDP socket */
-  struct sockaddr_storage local_addr; /* address socket is bound to */
+  నిర్మాణం sockaddr_storage local_addr; /* address socket is bound to */
   socklen_t local_addrlen;            /* length of local address */
 
-  struct bufq sendbuf;           /* buffer for sending one or more packets */
-  struct curltime first_byte_at; /* when first byte was recvd */
-  struct curltime last_op;       /* last (attempted) send/recv operation */
-  struct curltime last_io;       /* last successful socket IO */
+  నిర్మాణం bufq sendbuf;           /* buffer for sending one or more packets */
+  నిర్మాణం curltime మొదటి_byte_at; /* when first byte was recvd */
+  నిర్మాణం curltime చివరి_op;       /* last (attempted) send/recv operation */
+  నిర్మాణం curltime చివరి_io;       /* last successful socket IO */
   size_t gsolen;                 /* length of individual packets in send buf */
-  size_t split_len;    /* if != 0, buffer length after which GSO differs */
-  size_t split_gsolen; /* length of individual packets after split_len */
-#ifdef DEBUGBUILD
-  int wblock_percent;  /* percent of writes doing EAGAIN */
-#endif
-  BIT(got_first_byte); /* if first byte was received */
-  BIT(no_gso);         /* do not use gso on sending */
+  size_t విభజించు_len;    /* if != 0, buffer length after which GSO differs */
+  size_t విభజించు_gsolen; /* length of individual packets after split_len */
+#నిర్వచితమైతే DEBUGBUILD
+  పూర్ణాంకం wblock_percent;  /* percent of writes doing EAGAIN */
+#అయితే_ముగింపు
+  బిట్టు(got_మొదటి_byte); /* if first byte was received */
+  బిట్టు(no_gso);         /* do not use gso on sending */
 };
 
-#define H3_STREAM_CTX(ctx, data)                                        \
-  ((data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : NULL)
+#నిర్వచించు H3_ప్రవాహం_CTX(ctx, దత్తాంశం)                                        \
+  ((దత్తాంశం) ? Curl_u32_ptrset_get(&(ctx)->streams, (దత్తాంశం)->mid) : ఖాళీ)
 
-CURLcode Curl_vquic_ctx_init(struct Curl_easy *data,
-                             struct cf_quic_ctx *qctx);
-void Curl_vquic_ctx_free(struct cf_quic_ctx *qctx);
+CURLcode Curl_vquic_ctx_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం cf_quic_ctx *qctx);
+శూన్య Curl_vquic_ctx_free(నిర్మాణం cf_quic_ctx *qctx);
 
-void Curl_vquic_ctx_set_time(struct cf_quic_ctx *qctx,
-                             const struct curltime *pnow);
+శూన్య Curl_vquic_ctx_సమితి_సమయం(నిర్మాణం cf_quic_ctx *qctx,
+                             స్థిరరాశి నిర్మాణం curltime *pnow);
 
-void Curl_vquic_ctx_update_time(struct cf_quic_ctx *qctx,
-                                const struct curltime *pnow);
+శూన్య Curl_vquic_ctx_update_సమయం(నిర్మాణం cf_quic_ctx *qctx,
+                                స్థిరరాశి నిర్మాణం curltime *pnow);
 
-CURLcode Curl_vquic_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         struct cf_quic_ctx *qctx, size_t gsolen);
+CURLcode Curl_vquic_send(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                         నిర్మాణం cf_quic_ctx *qctx, size_t gsolen);
 
-CURLcode Curl_vquic_send_tail_split(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct cf_quic_ctx *qctx, size_t gsolen,
-                                    size_t tail_len, size_t tail_gsolen);
+CURLcode Curl_vquic_send_తోక_విభజించు(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం cf_quic_ctx *qctx, size_t gsolen,
+                                    size_t తోక_len, size_t తోక_gsolen);
 
-CURLcode Curl_vquic_flush(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          struct cf_quic_ctx *qctx);
+CURLcode Curl_vquic_flush(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                          నిర్మాణం cf_quic_ctx *qctx);
 
-typedef CURLcode Curl_vquic_recv_pkts_cb(const unsigned char *buf,
+రకనిర్వచనం CURLcode Curl_vquic_recv_pkts_cb(స్థిరరాశి గుర్తులేని అక్షరం *buf,
                                          size_t buflen,
-                                         size_t gso_size,
-                                         struct sockaddr_storage *remote_addr,
+                                         size_t gso_కొలత,
+                                         నిర్మాణం sockaddr_storage *remote_addr,
                                          socklen_t remote_addrlen, uint8_t ecn,
-                                         void *userp);
+                                         శూన్య *userp);
 
-CURLcode Curl_vquic_recv_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
+CURLcode Curl_vquic_recv_packets(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం cf_quic_ctx *qctx,
                                  size_t max_pkts,
                                  Curl_vquic_recv_pkts_cb *recv_cb,
-                                 void *userp);
+                                 శూన్య *userp);
 
-#ifdef USE_NGTCP2
-struct ngtcp2_mem;
-struct ngtcp2_mem *Curl_ngtcp2_mem(void);
-#endif
-#ifdef USE_NGHTTP3
-struct nghttp3_mem;
-struct nghttp3_mem *Curl_nghttp3_mem(void);
-#endif
+#నిర్వచితమైతే USE_NGTCP2
+నిర్మాణం ngtcp2_mem;
+నిర్మాణం ngtcp2_mem *Curl_ngtcp2_mem(శూన్య);
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_NGHTTP3
+నిర్మాణం nghttp3_mem;
+నిర్మాణం nghttp3_mem *Curl_nghttp3_mem(శూన్య);
+#అయితే_ముగింపు
 
-#endif /* !USE_HTTP3 */
+#అయితే_ముగింపు /* !USE_HTTP3 */
 
-#endif /* HEADER_CURL_VQUIC_QUIC_INT_H */
+#అయితే_ముగింపు /* HEADER_CURL_VQUIC_QUIC_INT_H */

@@ -21,64 +21,64 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_WEBSOCKETS
+#నిర్వచితం_కాకపోతే CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-#include "urldata.h"
-#include "bufq.h"
-#include "cfilters.h"
-#include "cf-recvbuf.h"
-#include "curl_trc.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "bufq.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "cf-recvbuf.h"
+#అన్తర్భావ "curl_trc.h"
 
-#define CURL_CF_RECVBUF_CHUNK     (16 * 1024)
+#నిర్వచించు CURL_CF_RECVBUF_CHUNK     (16 * 1024)
 
-struct cf_recvbuf_ctx {
-  struct bufq recvbuf;
+నిర్మాణం cf_recvbuf_ctx {
+  నిర్మాణం bufq recvbuf;
 };
 
-static void cf_recvbuf_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+స్థిర శూన్య cf_recvbuf_destroy(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  నిర్మాణం cf_recvbuf_ctx *ctx = cf->ctx;
+  (శూన్య)దత్తాంశం;
+  ఒకవేళ(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_recvbuf_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+స్థిర CURLcode cf_recvbuf_recv(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                అక్షరం *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf)) {
-    return Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
+  ఒకవేళ(!Curl_bufq_is_ఖాళీలు(&ctx->recvbuf)) {
+    తిరిగి Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
   }
 
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  ఒకవేళ(cf->తదుపరి)
+    తిరిగి cf->తదుపరి->cft->do_recv(cf->తదుపరి, దత్తాంశం, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  తిరిగి CURLE_RECV_ERROR;
 }
 
-static bool cf_recvbuf_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+స్థిర bool cf_recvbuf_దత్తాంశం_pending(నిర్మాణం Curl_cfilter *cf,
+                                    స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
+  ఒకవేళ(!Curl_bufq_is_ఖాళీలు(&ctx->recvbuf))
+    తిరిగి TRUE;
 
-  return cf->next ?
-    cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->has_దత్తాంశం_pending(cf->తదుపరి, దత్తాంశం) : FALSE;
 }
 
-struct Curl_cftype Curl_cft_recvbuf = {
+నిర్మాణం Curl_cftype Curl_cft_recvbuf = {
   "RECVBUF",
   0,
   CURL_LOG_LVL_NONE,
@@ -86,7 +86,7 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_connect,
   Curl_cf_def_shutdown,
   Curl_cf_def_adjust_pollset,
-  cf_recvbuf_data_pending,
+  cf_recvbuf_దత్తాంశం_pending,
   Curl_cf_def_send,
   cf_recvbuf_recv,
   Curl_cf_def_cntrl,
@@ -95,63 +95,63 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  const uint8_t *buf, size_t blen)
+స్థిర CURLcode cf_recvbuf_create(నిర్మాణం Curl_cfilter **pcf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  స్థిరరాశి uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_recvbuf_ctx *ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_cfilter *cf = ఖాళీ;
+  నిర్మాణం cf_recvbuf_ctx *ctx;
+  CURLcode ఫలితం = CURLE_OK;
   size_t nwritten = 0;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (శూన్య)దత్తాంశం;
+  ctx = curlx_calloc(1, పరిమాణం(*ctx));
+  ఒకవేళ(!ctx) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
   Curl_bufq_init2(&ctx->recvbuf, CURL_CF_RECVBUF_CHUNK,
                   (blen / CURL_CF_RECVBUF_CHUNK) + 1,
-                  (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
-  result = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
-  if(result)
-    goto out;
-  if(nwritten != blen) {
-    result = CURLE_FAILED_INIT;
-    goto out;
+                  (BUFQ_OPT_SOFT_హద్దు | BUFQ_OPT_NO_SPARES));
+  ఫలితం = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  ఒకవేళ(nwritten != blen) {
+    ఫలితం = CURLE_FAILED_INIT;
+    వెళ్ళు బహిర్గతం;
   }
 
-  result = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  ఫలితం = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  ctx = ఖాళీ;
 
-out:
-  *pcf = result ? NULL : cf;
-  if(ctx) {
+బహిర్గతం:
+  *pcf = ఫలితం ? ఖాళీ : cf;
+  ఒకవేళ(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_కూడు(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం connectdata *conn,
                              int8_t sockindex,
-                             const uint8_t *buf, size_t blen)
+                             స్థిరరాశి uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం = CURLE_OK;
 
-  DEBUGASSERT(data);
-  result = cf_recvbuf_create(&cf, data, buf, blen);
-  if(result)
-    goto out;
+  DEBUGASSERT(దత్తాంశం);
+  ఫలితం = cf_recvbuf_create(&cf, దత్తాంశం, buf, blen);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
   cf->connected = Curl_conn_is_connected(conn, sockindex);
-  Curl_conn_cf_add(data, conn, sockindex, cf);
-out:
-  return result;
+  Curl_conn_cf_కూడు(దత్తాంశం, conn, sockindex, cf);
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-#endif /* !CURL_DISABLE_WEBSOCKETS */
+#అయితే_ముగింపు /* !CURL_DISABLE_WEBSOCKETS */

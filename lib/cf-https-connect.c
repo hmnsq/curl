@@ -21,26 +21,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "cfilters.h"
-#include "cf-setup.h"
-#include "connect.h"
-#include "multiif.h"
-#include "cf-https-connect.h"
-#include "http2.h"
-#include "progress.h"
-#include "select.h"
-#include "vdns/cf-dns.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
-#include "vquic/vquic.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "cf-setup.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "cf-https-connect.h"
+#అన్తర్భావ "http2.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "vdns/cf-dns.h"
+#అన్తర్భావ "vdns/hostip.h"
+#అన్తర్భావ "vdns/httpsrr.h"
+#అన్తర్భావ "vquic/vquic.h"
 
-typedef enum {
+రకనిర్వచనం గణన {
   CF_HC_RESOLV,
   CF_HC_INIT,
   CF_HC_CONNECT,
@@ -48,694 +48,694 @@ typedef enum {
   CF_HC_FAILURE
 } cf_hc_state;
 
-struct cf_hc_baller {
-  const char *name;
-  struct Curl_cfilter *cf;
-  CURLcode result;
-  int reply_ms;
+నిర్మాణం cf_hc_baller {
+  స్థిరరాశి అక్షరం *name;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం;
+  పూర్ణాంకం జవాబు_ms;
   uint8_t transport;
-  enum alpnid alpn_id;
-  BIT(shutdown);
+  గణన alpnid alpn_id;
+  బిట్టు(shutdown);
 };
 
-static void cf_hc_baller_discard(struct cf_hc_baller *b,
-                                 struct Curl_easy *data)
+స్థిర శూన్య cf_hc_baller_discard(నిర్మాణం cf_hc_baller *b,
+                                 నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(b->cf) {
-    Curl_conn_cf_discard_chain(&b->cf, data);
-    b->cf = NULL;
+  ఒకవేళ(b->cf) {
+    Curl_conn_cf_discard_chain(&b->cf, దత్తాంశం);
+    b->cf = ఖాళీ;
   }
 }
 
-static bool cf_hc_baller_is_connecting(struct cf_hc_baller *b)
+స్థిర bool cf_hc_baller_is_connecting(నిర్మాణం cf_hc_baller *b)
 {
-  return b->cf && !b->result;
+  తిరిగి b->cf && !b->ఫలితం;
 }
 
-static bool cf_hc_baller_has_started(struct cf_hc_baller *b)
+స్థిర bool cf_hc_baller_has_started(నిర్మాణం cf_hc_baller *b)
 {
-  return !!b->cf;
+  తిరిగి !!b->cf;
 }
 
-static int cf_hc_baller_reply_ms(struct cf_hc_baller *b,
-                                 struct Curl_easy *data)
+స్థిర పూర్ణాంకం cf_hc_baller_జవాబు_ms(నిర్మాణం cf_hc_baller *b,
+                                 నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(b->cf && (b->reply_ms < 0))
-    b->cf->cft->query(b->cf, data, CF_QUERY_CONNECT_REPLY_MS,
-                      &b->reply_ms, NULL);
-  return b->reply_ms;
+  ఒకవేళ(b->cf && (b->జవాబు_ms < 0))
+    b->cf->cft->query(b->cf, దత్తాంశం, CF_QUERY_CONNECT_జవాబు_MS,
+                      &b->జవాబు_ms, ఖాళీ);
+  తిరిగి b->జవాబు_ms;
 }
 
-static bool cf_hc_baller_data_pending(struct cf_hc_baller *b,
-                                      const struct Curl_easy *data)
+స్థిర bool cf_hc_baller_దత్తాంశం_pending(నిర్మాణం cf_hc_baller *b,
+                                      స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return b->cf && !b->result && b->cf->cft->has_data_pending(b->cf, data);
+  తిరిగి b->cf && !b->ఫలితం && b->cf->cft->has_దత్తాంశం_pending(b->cf, దత్తాంశం);
 }
 
-static bool cf_hc_baller_needs_flush(struct cf_hc_baller *b,
-                                     struct Curl_easy *data)
+స్థిర bool cf_hc_baller_needs_flush(నిర్మాణం cf_hc_baller *b,
+                                     నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return b->cf && !b->result && Curl_conn_cf_needs_flush(b->cf, data);
+  తిరిగి b->cf && !b->ఫలితం && Curl_conn_cf_needs_flush(b->cf, దత్తాంశం);
 }
 
-static CURLcode cf_hc_baller_cntrl(struct cf_hc_baller *b,
-                                   struct Curl_easy *data,
-                                   int event, int arg1, void *arg2)
+స్థిర CURLcode cf_hc_baller_cntrl(నిర్మాణం cf_hc_baller *b,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   పూర్ణాంకం event, పూర్ణాంకం arg1, శూన్య *arg2)
 {
-  if(b->cf && !b->result)
-    return Curl_conn_cf_cntrl(b->cf, data, FALSE, event, arg1, arg2);
-  return CURLE_OK;
+  ఒకవేళ(b->cf && !b->ఫలితం)
+    తిరిగి Curl_conn_cf_cntrl(b->cf, దత్తాంశం, FALSE, event, arg1, arg2);
+  తిరిగి CURLE_OK;
 }
 
-struct cf_hc_ctx {
+నిర్మాణం cf_hc_ctx {
   cf_hc_state state;
-  struct Curl_peer *destination; /* who we ultimately want to talk to */
-  struct curltime started;  /* when connect started */
-  CURLcode result;          /* overall result */
-  CURLcode check_h3_result;
-  struct cf_hc_baller ballers[2];
-  size_t baller_count;
+  నిర్మాణం Curl_peer *destination; /* who we ultimately want to talk to */
+  నిర్మాణం curltime started;  /* when connect started */
+  CURLcode ఫలితం;          /* overall result */
+  CURLcode check_h3_ఫలితం;
+  నిర్మాణం cf_hc_baller ballers[2];
+  size_t baller_లెక్క;
   timediff_t soft_eyeballs_timeout_ms;
   timediff_t hard_eyeballs_timeout_ms;
   uint8_t def_transport;
-  BIT(httpsrr_resolved);
-  BIT(checked_h3);
-  BIT(ballers_complete);
+  బిట్టు(httpsrr_resolved);
+  బిట్టు(checked_h3);
+  బిట్టు(ballers_complete);
 };
 
-static void cf_hc_ctx_destroy(struct Curl_easy *data,
-                              struct cf_hc_ctx *ctx)
+స్థిర శూన్య cf_hc_ctx_destroy(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం cf_hc_ctx *ctx)
 {
-  if(ctx) {
+  ఒకవేళ(ctx) {
     size_t i;
-    for(i = 0; i < ctx->baller_count; ++i)
-      cf_hc_baller_discard(&ctx->ballers[i], data);
+    కొరకు(i = 0; i < ctx->baller_లెక్క; ++i)
+      cf_hc_baller_discard(&ctx->ballers[i], దత్తాంశం);
     Curl_peer_unlink(&ctx->destination);
     curlx_free(ctx);
   }
 }
 
-static void cf_hc_baller_assign(struct cf_hc_baller *b,
-                                enum alpnid alpn_id,
+స్థిర శూన్య cf_hc_baller_కేటాయించు(నిర్మాణం cf_hc_baller *b,
+                                గణన alpnid alpn_id,
                                 uint8_t def_transport)
 {
   b->alpn_id = alpn_id;
   b->transport = def_transport;
-  b->cf = NULL;
-  b->result = CURLE_OK;
-  b->reply_ms = -1;
+  b->cf = ఖాళీ;
+  b->ఫలితం = CURLE_OK;
+  b->జవాబు_ms = -1;
   b->shutdown = FALSE;
-  switch(b->alpn_id) {
-  case ALPN_h3:
+  ఎంపిక(b->alpn_id) {
+  స్థితి ALPN_h3:
     b->name = "h3";
     b->transport = TRNSPRT_QUIC;
-    break;
-  case ALPN_h2:
+    ఆపు;
+  స్థితి ALPN_h2:
     b->name = "h2";
-    break;
-  case ALPN_h1:
+    ఆపు;
+  స్థితి ALPN_h1:
     b->name = "h1";
-    break;
-  case ALPN_none:
+    ఆపు;
+  స్థితి ALPN_none:
     b->name = "no-alpn";
-    break;
-  default:
-    b->result = CURLE_FAILED_INIT;
-    break;
+    ఆపు;
+  అప్రమేయ:
+    b->ఫలితం = CURLE_FAILED_INIT;
+    ఆపు;
   }
 }
 
-static void cf_hc_baller_init(struct cf_hc_baller *b,
-                              struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+స్థిర శూన్య cf_hc_baller_init(నిర్మాణం cf_hc_baller *b,
+                              నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Curl_cfilter *save = cf->next;
+  నిర్మాణం Curl_cfilter *save = cf->తదుపరి;
 
-  cf->next = NULL;
-  b->result = Curl_cf_setup_insert_after(cf, data, b->transport,
+  cf->తదుపరి = ఖాళీ;
+  b->ఫలితం = Curl_cf_అమరిక_చొప్పించు_after(cf, దత్తాంశం, b->transport,
                                          CURL_CF_SSL_ENABLE);
-  b->cf = cf->next;
-  cf->next = save;
+  b->cf = cf->తదుపరి;
+  cf->తదుపరి = save;
 }
 
-static CURLcode cf_hc_baller_connect(struct cf_hc_baller *b,
-                                     struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     bool *done)
+స్థిర CURLcode cf_hc_baller_connect(నిర్మాణం cf_hc_baller *b,
+                                     నిర్మాణం Curl_cfilter *cf,
+                                     నిర్మాణం Curl_easy *దత్తాంశం,
+                                     bool *పూర్తి)
 {
-  struct Curl_cfilter *save = cf->next;
+  నిర్మాణం Curl_cfilter *save = cf->తదుపరి;
 
-  cf->next = b->cf;
-  b->result = Curl_conn_cf_connect(cf->next, data, done);
-  b->cf = cf->next; /* it might mutate */
-  cf->next = save;
-  return b->result;
+  cf->తదుపరి = b->cf;
+  b->ఫలితం = Curl_conn_cf_connect(cf->తదుపరి, దత్తాంశం, పూర్తి);
+  b->cf = cf->తదుపరి; /* it might mutate */
+  cf->తదుపరి = save;
+  తిరిగి b->ఫలితం;
 }
 
-static CURLcode baller_connected(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_hc_baller *winner)
+స్థిర CURLcode baller_connected(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం cf_hc_baller *winner)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
 
   /* Make the winner's connection filter out own sub-filter, check, move,
    * close all remaining. */
-  if(cf->next) {
+  ఒకవేళ(cf->తదుపరి) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    తిరిగి CURLE_FAILED_INIT;
   }
-  if(!winner->cf) {
+  ఒకవేళ(!winner->cf) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    తిరిగి CURLE_FAILED_INIT;
   }
 
-  cf->next = winner->cf;
-  winner->cf = NULL;
+  cf->తదుపరి = winner->cf;
+  winner->cf = ఖాళీ;
   ctx->state = CF_HC_SUCCESS;
   cf->connected = TRUE;
 
   /* ballers may have failf()'d, the winner resets it, so our
    * errorbuf is clean again. */
-  Curl_reset_fail(data);
+  Curl_reset_fail(దత్తాంశం);
 
-#ifdef USE_NGHTTP2
+#నిర్వచితమైతే USE_NGHTTP2
   {
     /* For a negotiated HTTP/2 connection insert the h2 filter. */
-    const char *alpn = Curl_conn_cf_get_alpn_negotiated(cf->next, data);
-    if(alpn && !strcmp("h2", alpn)) {
-      CURLcode result = Curl_http2_switch_at(cf, data);
-      if(result) {
+    స్థిరరాశి అక్షరం *alpn = Curl_conn_cf_get_alpn_negotiated(cf->తదుపరి, దత్తాంశం);
+    ఒకవేళ(alpn && !strcmp("h2", alpn)) {
+      CURLcode ఫలితం = Curl_http2_switch_at(cf, దత్తాంశం);
+      ఒకవేళ(ఫలితం) {
         ctx->state = CF_HC_FAILURE;
-        ctx->result = result;
-        return result;
+        ctx->ఫలితం = ఫలితం;
+        తిరిగి ఫలితం;
       }
     }
   }
-#endif
-  return CURLE_OK;
+#అయితే_ముగింపు
+  తిరిగి CURLE_OK;
 }
 
-static bool time_to_start_baller2(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  const struct curltime *pnow)
+స్థిర bool సమయం_గమ్యం_ప్రారంభం_baller2(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
   timediff_t elapsed_ms;
 
-  if(ctx->baller_count < 2)
-    return FALSE;
-  else if(cf_hc_baller_has_started(&ctx->ballers[1]))
-    return FALSE;
-  else if(ctx->ballers[0].result) {
-    CURL_TRC_CF(data, cf, "%s baller failed, starting %s",
+  ఒకవేళ(ctx->baller_లెక్క < 2)
+    తిరిగి FALSE;
+  లేకపోతే ఒకవేళ(cf_hc_baller_has_started(&ctx->ballers[1]))
+    తిరిగి FALSE;
+  లేకపోతే ఒకవేళ(ctx->ballers[0].ఫలితం) {
+    CURL_TRC_CF(దత్తాంశం, cf, "%s baller failed, starting %s",
                 ctx->ballers[0].name, ctx->ballers[1].name);
-    return TRUE;
+    తిరిగి TRUE;
   }
 
   elapsed_ms = curlx_ptimediff_ms(pnow, &ctx->started);
-  if(elapsed_ms >= ctx->hard_eyeballs_timeout_ms) {
-    CURL_TRC_CF(data, cf, "%s inconclusive after %" FMT_TIMEDIFF_T ", "
+  ఒకవేళ(elapsed_ms >= ctx->hard_eyeballs_timeout_ms) {
+    CURL_TRC_CF(దత్తాంశం, cf, "%s inconclusive after %" FMT_TIMEDIFF_T ", "
                 "starting %s", ctx->ballers[0].name,
                 ctx->hard_eyeballs_timeout_ms, ctx->ballers[1].name);
-    return TRUE;
+    తిరిగి TRUE;
   }
-  else if(elapsed_ms >= ctx->soft_eyeballs_timeout_ms) {
-    if(cf_hc_baller_reply_ms(&ctx->ballers[0], data) < 0) {
-      CURL_TRC_CF(data, cf, "%s has not seen any data after %"
+  లేకపోతే ఒకవేళ(elapsed_ms >= ctx->soft_eyeballs_timeout_ms) {
+    ఒకవేళ(cf_hc_baller_జవాబు_ms(&ctx->ballers[0], దత్తాంశం) < 0) {
+      CURL_TRC_CF(దత్తాంశం, cf, "%s has not seen any data after %"
                   FMT_TIMEDIFF_T "ms, starting %s",
                   ctx->ballers[0].name, ctx->soft_eyeballs_timeout_ms,
                   ctx->ballers[1].name);
-      return TRUE;
+      తిరిగి TRUE;
     }
     /* set the effective hard timeout again */
-    Curl_expire_set(data, EXPIRE_ALPN_EYEBALLS,
+    Curl_expire_సమితి(దత్తాంశం, EXPIRE_ALPN_EYEBALLS,
                     ctx->hard_eyeballs_timeout_ms - elapsed_ms, pnow);
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static bool cf_hc_may_h3(struct Curl_cfilter *cf,
-                         struct Curl_easy *data)
+స్థిర bool cf_hc_may_h3(నిర్మాణం Curl_cfilter *cf,
+                         నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
-  if(!ctx->checked_h3) {
-    ctx->check_h3_result =
-      Curl_conn_may_http3(data, cf->conn);
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
+  ఒకవేళ(!ctx->checked_h3) {
+    ctx->check_h3_ఫలితం =
+      Curl_conn_may_http3(దత్తాంశం, cf->conn);
     ctx->checked_h3 = TRUE;
   }
-  return !ctx->check_h3_result;
+  తిరిగి !ctx->check_h3_ఫలితం;
 }
 
-static enum alpnid cf_hc_get_httpsrr_alpn(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          enum alpnid not_this_one)
+స్థిర గణన alpnid cf_hc_get_httpsrr_alpn(నిర్మాణం Curl_cfilter *cf,
+                                          నిర్మాణం Curl_easy *దత్తాంశం,
+                                          గణన alpnid not_this_one)
 {
-#ifdef USE_HTTPSRR
-  struct cf_hc_ctx *ctx = cf->ctx;
+#నిర్వచితమైతే USE_HTTPSRR
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
   /* Is there an HTTPSRR use its ALPNs here.
    * We are here after having selected a connection to a host+port and
    * can no longer change that. Any HTTPSRR advice for other hosts and ports
    * we need to ignore. */
-  const struct Curl_https_rrinfo *rr;
+  స్థిరరాశి నిర్మాణం Curl_https_rrinfo *rr;
   size_t i;
 
   /* Do we have HTTPS-RR information? */
-  rr = Curl_conn_dns_get_https(data, cf->sockindex, ctx->destination);
+  rr = Curl_conn_dns_get_https(దత్తాంశం, cf->sockindex, ctx->destination);
 
-  CURL_TRC_CF(data, cf, "HTTPS-RR %savailable", rr ? "" : "not ");
+  CURL_TRC_CF(దత్తాంశం, cf, "HTTPS-RR %savailable", rr ? "" : "not ");
   /* We do not support `rr->no_def_alpn`. */
-  if(Curl_httpsrr_applicable(data, rr) && !rr->no_def_alpn) {
-    for(i = 0; i < CURL_ARRAYSIZE(rr->alpns); ++i) {
-      enum alpnid alpn_rr = (enum alpnid)rr->alpns[i];
-      if(alpn_rr == not_this_one) /* do not want this one */
-        continue;
-      switch(alpn_rr) {
-      case ALPN_h3:
-        if((data->state.http_neg.allowed & CURL_HTTP_V3x) &&
-           cf_hc_may_h3(cf, data)) {
-          return alpn_rr;
+  ఒకవేళ(Curl_httpsrr_applicable(దత్తాంశం, rr) && !rr->no_def_alpn) {
+    కొరకు(i = 0; i < CURL_ARRAYSIZE(rr->alpns); ++i) {
+      గణన alpnid alpn_rr = (గణన alpnid)rr->alpns[i];
+      ఒకవేళ(alpn_rr == not_this_one) /* do not want this one */
+        కొనసాగు;
+      ఎంపిక(alpn_rr) {
+      స్థితి ALPN_h3:
+        ఒకవేళ((దత్తాంశం->state.http_neg.allowed & CURL_HTTP_V3x) &&
+           cf_hc_may_h3(cf, దత్తాంశం)) {
+          తిరిగి alpn_rr;
         }
-        break;
-      case ALPN_h2:
-        if(data->state.http_neg.allowed & CURL_HTTP_V2x) {
-          return alpn_rr;
+        ఆపు;
+      స్థితి ALPN_h2:
+        ఒకవేళ(దత్తాంశం->state.http_neg.allowed & CURL_HTTP_V2x) {
+          తిరిగి alpn_rr;
         }
-        break;
-      case ALPN_h1:
-        if(data->state.http_neg.allowed & CURL_HTTP_V1x) {
-          return alpn_rr;
+        ఆపు;
+      స్థితి ALPN_h1:
+        ఒకవేళ(దత్తాంశం->state.http_neg.allowed & CURL_HTTP_V1x) {
+          తిరిగి alpn_rr;
         }
-        break;
-      default: /* ignore */
-        break;
+        ఆపు;
+      అప్రమేయ: /* ignore */
+        ఆపు;
       }
     }
   }
-#else
-  (void)cf;
-  (void)data;
-  (void)not_this_one;
-#endif
-  return ALPN_none;
+#లేకపోతే
+  (శూన్య)cf;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)not_this_one;
+#అయితే_ముగింపు
+  తిరిగి ALPN_none;
 }
 
-static enum alpnid cf_hc_get_pref_alpn(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       enum alpnid not_this_one)
+స్థిర గణన alpnid cf_hc_get_pref_alpn(నిర్మాణం Curl_cfilter *cf,
+                                       నిర్మాణం Curl_easy *దత్తాంశం,
+                                       గణన alpnid not_this_one)
 {
-  if((data->state.http_neg.preferred & data->state.http_neg.allowed)) {
-    switch(data->state.http_neg.preferred) {
-    case CURL_HTTP_V3x:
-      if(cf_hc_may_h3(cf, data) && (ALPN_h3 != not_this_one))
-        return ALPN_h3;
-      break;
-    case CURL_HTTP_V2x:
-      if(ALPN_h2 != not_this_one)
-        return ALPN_h2;
-      break;
-    case CURL_HTTP_V1x:
+  ఒకవేళ((దత్తాంశం->state.http_neg.preferred & దత్తాంశం->state.http_neg.allowed)) {
+    ఎంపిక(దత్తాంశం->state.http_neg.preferred) {
+    స్థితి CURL_HTTP_V3x:
+      ఒకవేళ(cf_hc_may_h3(cf, దత్తాంశం) && (ALPN_h3 != not_this_one))
+        తిరిగి ALPN_h3;
+      ఆపు;
+    స్థితి CURL_HTTP_V2x:
+      ఒకవేళ(ALPN_h2 != not_this_one)
+        తిరిగి ALPN_h2;
+      ఆపు;
+    స్థితి CURL_HTTP_V1x:
       /* If we are trying h2 already, h1 is already used as fallback */
-      if((ALPN_h1 != not_this_one) && (ALPN_h2 != not_this_one))
-        return ALPN_h1;
-      break;
-    default:
-      break;
+      ఒకవేళ((ALPN_h1 != not_this_one) && (ALPN_h2 != not_this_one))
+        తిరిగి ALPN_h1;
+      ఆపు;
+    అప్రమేయ:
+      ఆపు;
     }
   }
-  return ALPN_none;
+  తిరిగి ALPN_none;
 }
 
-static enum alpnid cf_hc_get_first_alpn(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
+స్థిర గణన alpnid cf_hc_get_మొదటి_alpn(నిర్మాణం Curl_cfilter *cf,
+                                        నిర్మాణం Curl_easy *దత్తాంశం,
                                         http_majors choices,
-                                        enum alpnid not_this_one)
+                                        గణన alpnid not_this_one)
 {
   /* When told to not try h2, we also do not try h1 and vice versa */
   bool allow_h1_or_h2 = (not_this_one != ALPN_h1) &&
                         (not_this_one != ALPN_h2);
-  if((ALPN_h3 != not_this_one) && (choices & CURL_HTTP_V3x) &&
-     cf_hc_may_h3(cf, data)) {
-    return ALPN_h3;
+  ఒకవేళ((ALPN_h3 != not_this_one) && (choices & CURL_HTTP_V3x) &&
+     cf_hc_may_h3(cf, దత్తాంశం)) {
+    తిరిగి ALPN_h3;
   }
-  if(allow_h1_or_h2 && (choices & CURL_HTTP_V2x)) {
-    return ALPN_h2;
+  ఒకవేళ(allow_h1_or_h2 && (choices & CURL_HTTP_V2x)) {
+    తిరిగి ALPN_h2;
   }
-  if(allow_h1_or_h2 && (choices & CURL_HTTP_V1x)) {
-    return ALPN_h1;
+  ఒకవేళ(allow_h1_or_h2 && (choices & CURL_HTTP_V1x)) {
+    తిరిగి ALPN_h1;
   }
-  return ALPN_none;
+  తిరిగి ALPN_none;
 }
 
-static CURLcode cf_hc_set_baller1(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+స్థిర CURLcode cf_hc_సమితి_baller1(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
-  enum alpnid alpn1 = ALPN_none;
-  VERBOSE(const char *source = "HTTPS-RR");
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
+  గణన alpnid alpn1 = ALPN_none;
+  VERBOSE(స్థిరరాశి అక్షరం *ఆధారం = "HTTPS-RR");
 
-  DEBUGASSERT(cf->conn->bits.tls_enable_alpn);
+  DEBUGASSERT(cf->conn->బిట్లు.tls_enable_alpn);
 
-  alpn1 = cf_hc_get_httpsrr_alpn(cf, data, ALPN_none);
-  if(alpn1 == ALPN_none) {
+  alpn1 = cf_hc_get_httpsrr_alpn(cf, దత్తాంశం, ALPN_none);
+  ఒకవేళ(alpn1 == ALPN_none) {
     /* preference is configured and allowed, can we use it? */
-    VERBOSE(source = "preferred version");
-    alpn1 = cf_hc_get_pref_alpn(cf, data, ALPN_none);
+    VERBOSE(ఆధారం = "preferred version");
+    alpn1 = cf_hc_get_pref_alpn(cf, దత్తాంశం, ALPN_none);
   }
-  if(alpn1 == ALPN_none) {
-    VERBOSE(source = "wanted versions");
-    alpn1 = cf_hc_get_first_alpn(cf, data,
-                                 data->state.http_neg.wanted,
+  ఒకవేళ(alpn1 == ALPN_none) {
+    VERBOSE(ఆధారం = "wanted versions");
+    alpn1 = cf_hc_get_మొదటి_alpn(cf, దత్తాంశం,
+                                 దత్తాంశం->state.http_neg.wanted,
                                  ALPN_none);
   }
-  if(alpn1 == ALPN_none) {
-    VERBOSE(source = "allowed versions");
-    alpn1 = cf_hc_get_first_alpn(cf, data,
-                                 data->state.http_neg.allowed,
+  ఒకవేళ(alpn1 == ALPN_none) {
+    VERBOSE(ఆధారం = "allowed versions");
+    alpn1 = cf_hc_get_మొదటి_alpn(cf, దత్తాంశం,
+                                 దత్తాంశం->state.http_neg.allowed,
                                  ALPN_none);
   }
 
-  if(alpn1 == ALPN_none) {
+  ఒకవేళ(alpn1 == ALPN_none) {
     /* None of the wanted/allowed HTTP versions could be chosen */
-    if(ctx->check_h3_result) {
-      CURL_TRC_CF(data, cf, "unable to use HTTP/3");
-      return ctx->check_h3_result;
+    ఒకవేళ(ctx->check_h3_ఫలితం) {
+      CURL_TRC_CF(దత్తాంశం, cf, "unable to use HTTP/3");
+      తిరిగి ctx->check_h3_ఫలితం;
     }
-    CURL_TRC_CF(data, cf, "unable to select HTTP version");
-    return CURLE_FAILED_INIT;
+    CURL_TRC_CF(దత్తాంశం, cf, "unable to select HTTP version");
+    తిరిగి CURLE_FAILED_INIT;
   }
 
-  cf_hc_baller_assign(&ctx->ballers[0], alpn1, ctx->def_transport);
-  ctx->baller_count = 1;
-  CURL_TRC_CF(data, cf, "1st attempt uses %s from %s",
-              ctx->ballers[0].name, source);
+  cf_hc_baller_కేటాయించు(&ctx->ballers[0], alpn1, ctx->def_transport);
+  ctx->baller_లెక్క = 1;
+  CURL_TRC_CF(దత్తాంశం, cf, "1st attempt uses %s from %s",
+              ctx->ballers[0].name, ఆధారం);
 
-  switch(alpn1) {
-  case ALPN_h1:
+  ఎంపిక(alpn1) {
+  స్థితి ALPN_h1:
     /* We really want h1, switch off h2 to make it disappear in ALPN */
-    data->state.http_neg.wanted &= (uint8_t)~CURL_HTTP_V2x;
-    break;
-  default:
-    break;
+    దత్తాంశం->state.http_neg.wanted &= (uint8_t)~CURL_HTTP_V2x;
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static void cf_hc_set_baller2(struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+స్థిర శూన్య cf_hc_సమితి_baller2(నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
-  enum alpnid alpn2 = ALPN_none, alpn1 = ctx->ballers[0].alpn_id;
-  VERBOSE(const char *source = "HTTPS-RR");
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
+  గణన alpnid alpn2 = ALPN_none, alpn1 = ctx->ballers[0].alpn_id;
+  VERBOSE(స్థిరరాశి అక్షరం *ఆధారం = "HTTPS-RR");
 
-  if(ctx->ballers_complete)
-    return; /* already done */
-  if(!ctx->httpsrr_resolved)
-    return; /* HTTPS-RR pending */
+  ఒకవేళ(ctx->ballers_complete)
+    తిరిగి; /* already done */
+  ఒకవేళ(!ctx->httpsrr_resolved)
+    తిరిగి; /* HTTPS-RR pending */
 
-  alpn2 = cf_hc_get_httpsrr_alpn(cf, data, alpn1);
-  if(alpn2 == ALPN_none) {
+  alpn2 = cf_hc_get_httpsrr_alpn(cf, దత్తాంశం, alpn1);
+  ఒకవేళ(alpn2 == ALPN_none) {
     /* preference is configured and allowed, can we use it? */
-    VERBOSE(source = "preferred version");
-    alpn2 = cf_hc_get_pref_alpn(cf, data, alpn1);
+    VERBOSE(ఆధారం = "preferred version");
+    alpn2 = cf_hc_get_pref_alpn(cf, దత్తాంశం, alpn1);
   }
-  if(alpn2 == ALPN_none) {
-    VERBOSE(source = "wanted versions");
-    alpn2 = cf_hc_get_first_alpn(cf, data,
-                                 data->state.http_neg.wanted,
+  ఒకవేళ(alpn2 == ALPN_none) {
+    VERBOSE(ఆధారం = "wanted versions");
+    alpn2 = cf_hc_get_మొదటి_alpn(cf, దత్తాంశం,
+                                 దత్తాంశం->state.http_neg.wanted,
                                  alpn1);
   }
 
-  if(alpn2 != ALPN_none) {
-    cf_hc_baller_assign(&ctx->ballers[1], alpn2, ctx->def_transport);
-    ctx->baller_count = 2;
-    CURL_TRC_CF(data, cf, "2nd attempt uses %s from %s",
-                ctx->ballers[1].name, source);
+  ఒకవేళ(alpn2 != ALPN_none) {
+    cf_hc_baller_కేటాయించు(&ctx->ballers[1], alpn2, ctx->def_transport);
+    ctx->baller_లెక్క = 2;
+    CURL_TRC_CF(దత్తాంశం, cf, "2nd attempt uses %s from %s",
+                ctx->ballers[1].name, ఆధారం);
   }
   ctx->ballers_complete = TRUE;
 }
 
-static CURLcode cf_hc_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              bool *done)
+స్థిర CURLcode cf_hc_connect(నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *దత్తాంశం,
+                              bool *పూర్తి)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  const struct curltime *pnow = NULL;
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
+  స్థిరరాశి నిర్మాణం curltime *pnow = ఖాళీ;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->connected) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  *done = FALSE;
+  *పూర్తి = FALSE;
 
-  if(!ctx->httpsrr_resolved) {
+  ఒకవేళ(!ctx->httpsrr_resolved) {
     ctx->httpsrr_resolved = Curl_conn_dns_resolved_https(
-      data, cf->sockindex, ctx->destination);
-#ifdef DEBUGBUILD
-    if(!ctx->httpsrr_resolved && getenv("CURL_DBG_AWAIT_HTTPSRR")) {
-      CURL_TRC_CF(data, cf, "awaiting HTTPS-RR");
-      return CURLE_OK;
+      దత్తాంశం, cf->sockindex, ctx->destination);
+#నిర్వచితమైతే DEBUGBUILD
+    ఒకవేళ(!ctx->httpsrr_resolved && getenv("CURL_DBG_AWAIT_HTTPSRR")) {
+      CURL_TRC_CF(దత్తాంశం, cf, "awaiting HTTPS-RR");
+      తిరిగి CURLE_OK;
     }
-#endif
+#అయితే_ముగింపు
   }
 
-  switch(ctx->state) {
-  case CF_HC_RESOLV:
+  ఎంపిక(ctx->state) {
+  స్థితి CF_HC_RESOLV:
     ctx->state = CF_HC_INIT;
     FALLTHROUGH();
 
-  case CF_HC_INIT:
-    DEBUGASSERT(!cf->next);
-    CURL_TRC_CF(data, cf, "connect, init");
-    result = cf_hc_set_baller1(cf, data);
-    if(result) {
-      ctx->result = result;
+  స్థితి CF_HC_INIT:
+    DEBUGASSERT(!cf->తదుపరి);
+    CURL_TRC_CF(దత్తాంశం, cf, "connect, init");
+    ఫలితం = cf_hc_సమితి_baller1(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం) {
+      ctx->ఫలితం = ఫలితం;
       ctx->state = CF_HC_FAILURE;
-      goto out;
+      వెళ్ళు బహిర్గతం;
     }
-    cf_hc_set_baller2(cf, data);
-    pnow = Curl_pgrs_now(data);
+    cf_hc_సమితి_baller2(cf, దత్తాంశం);
+    pnow = Curl_pgrs_now(దత్తాంశం);
     ctx->started = *pnow;
-    cf_hc_baller_init(&ctx->ballers[0], cf, data);
-    if((ctx->baller_count > 1) || !ctx->ballers_complete) {
-      Curl_expire_set(data, EXPIRE_ALPN_EYEBALLS,
+    cf_hc_baller_init(&ctx->ballers[0], cf, దత్తాంశం);
+    ఒకవేళ((ctx->baller_లెక్క > 1) || !ctx->ballers_complete) {
+      Curl_expire_సమితి(దత్తాంశం, EXPIRE_ALPN_EYEBALLS,
                       ctx->soft_eyeballs_timeout_ms, pnow);
     }
     ctx->state = CF_HC_CONNECT;
     FALLTHROUGH();
 
-  case CF_HC_CONNECT:
-    if(!ctx->ballers_complete)
-      cf_hc_set_baller2(cf, data);
+  స్థితి CF_HC_CONNECT:
+    ఒకవేళ(!ctx->ballers_complete)
+      cf_hc_సమితి_baller2(cf, దత్తాంశం);
 
-    if(cf_hc_baller_is_connecting(&ctx->ballers[0])) {
-      result = cf_hc_baller_connect(&ctx->ballers[0], cf, data, done);
-      if(!result && *done) {
-        result = baller_connected(cf, data, &ctx->ballers[0]);
-        goto out;
+    ఒకవేళ(cf_hc_baller_is_connecting(&ctx->ballers[0])) {
+      ఫలితం = cf_hc_baller_connect(&ctx->ballers[0], cf, దత్తాంశం, పూర్తి);
+      ఒకవేళ(!ఫలితం && *పూర్తి) {
+        ఫలితం = baller_connected(cf, దత్తాంశం, &ctx->ballers[0]);
+        వెళ్ళు బహిర్గతం;
       }
     }
 
-    pnow = Curl_pgrs_now(data);
-    if(time_to_start_baller2(cf, data, pnow)) {
-      cf_hc_baller_init(&ctx->ballers[1], cf, data);
+    pnow = Curl_pgrs_now(దత్తాంశం);
+    ఒకవేళ(సమయం_గమ్యం_ప్రారంభం_baller2(cf, దత్తాంశం, pnow)) {
+      cf_hc_baller_init(&ctx->ballers[1], cf, దత్తాంశం);
     }
 
-    if(cf_hc_baller_is_connecting(&ctx->ballers[1])) {
-      result = cf_hc_baller_connect(&ctx->ballers[1], cf, data, done);
-      if(!result && *done) {
-        result = baller_connected(cf, data, &ctx->ballers[1]);
-        goto out;
+    ఒకవేళ(cf_hc_baller_is_connecting(&ctx->ballers[1])) {
+      ఫలితం = cf_hc_baller_connect(&ctx->ballers[1], cf, దత్తాంశం, పూర్తి);
+      ఒకవేళ(!ఫలితం && *పూర్తి) {
+        ఫలితం = baller_connected(cf, దత్తాంశం, &ctx->ballers[1]);
+        వెళ్ళు బహిర్గతం;
       }
     }
 
-    if(ctx->ballers[0].result &&
-       (ctx->ballers[1].result ||
-        (ctx->ballers_complete && (ctx->baller_count < 2)))) {
+    ఒకవేళ(ctx->ballers[0].ఫలితం &&
+       (ctx->ballers[1].ఫలితం ||
+        (ctx->ballers_complete && (ctx->baller_లెక్క < 2)))) {
       /* all have failed. we give up */
-      CURL_TRC_CF(data, cf, "connect, all attempts failed");
-      ctx->result = result = ctx->ballers[0].result;
+      CURL_TRC_CF(దత్తాంశం, cf, "connect, all attempts failed");
+      ctx->ఫలితం = ఫలితం = ctx->ballers[0].ఫలితం;
       ctx->state = CF_HC_FAILURE;
-      goto out;
+      వెళ్ళు బహిర్గతం;
     }
-    result = CURLE_OK;
-    *done = FALSE;
-    break;
+    ఫలితం = CURLE_OK;
+    *పూర్తి = FALSE;
+    ఆపు;
 
-  case CF_HC_FAILURE:
-    result = ctx->result;
+  స్థితి CF_HC_FAILURE:
+    ఫలితం = ctx->ఫలితం;
     cf->connected = FALSE;
-    *done = FALSE;
-    break;
+    *పూర్తి = FALSE;
+    ఆపు;
 
-  case CF_HC_SUCCESS:
-    result = CURLE_OK;
+  స్థితి CF_HC_SUCCESS:
+    ఫలితం = CURLE_OK;
     cf->connected = TRUE;
-    *done = TRUE;
-    break;
+    *పూర్తి = TRUE;
+    ఆపు;
   }
 
-out:
-  CURL_TRC_CF(data, cf, "connect -> %d, done=%d", (int)result, *done);
-  return result;
+బహిర్గతం:
+  CURL_TRC_CF(దత్తాంశం, cf, "connect -> %d, done=%d", (పూర్ణాంకం)ఫలితం, *పూర్తి);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_hc_shutdown(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, bool *done)
+స్థిర CURLcode cf_hc_shutdown(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
   size_t i;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  DEBUGASSERT(data);
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  DEBUGASSERT(దత్తాంశం);
+  ఒకవేళ(cf->connected) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
   /* shutdown all ballers that have not done so already. If one fails,
    * continue shutting down others until all are shutdown. */
-  for(i = 0; i < ctx->baller_count; i++) {
-    struct cf_hc_baller *b = &ctx->ballers[i];
+  కొరకు(i = 0; i < ctx->baller_లెక్క; i++) {
+    నిర్మాణం cf_hc_baller *b = &ctx->ballers[i];
     bool bdone = FALSE;
-    if(!cf_hc_baller_is_connecting(b) || b->shutdown)
-      continue;
-    b->result = b->cf->cft->do_shutdown(b->cf, data, &bdone);
-    if(b->result || bdone)
+    ఒకవేళ(!cf_hc_baller_is_connecting(b) || b->shutdown)
+      కొనసాగు;
+    b->ఫలితం = b->cf->cft->do_shutdown(b->cf, దత్తాంశం, &bdone);
+    ఒకవేళ(b->ఫలితం || bdone)
       b->shutdown = TRUE; /* treat a failed shutdown as done */
   }
 
-  *done = TRUE;
-  for(i = 0; i < ctx->baller_count; i++) {
-    if(!ctx->ballers[i].shutdown)
-      *done = FALSE;
+  *పూర్తి = TRUE;
+  కొరకు(i = 0; i < ctx->baller_లెక్క; i++) {
+    ఒకవేళ(!ctx->ballers[i].shutdown)
+      *పూర్తి = FALSE;
   }
-  if(*done) {
-    for(i = 0; i < ctx->baller_count; i++) {
-      if(ctx->ballers[i].result)
-        result = ctx->ballers[i].result;
+  ఒకవేళ(*పూర్తి) {
+    కొరకు(i = 0; i < ctx->baller_లెక్క; i++) {
+      ఒకవేళ(ctx->ballers[i].ఫలితం)
+        ఫలితం = ctx->ballers[i].ఫలితం;
     }
   }
-  CURL_TRC_CF(data, cf, "shutdown -> %d, done=%d", (int)result, *done);
-  return result;
+  CURL_TRC_CF(దత్తాంశం, cf, "shutdown -> %d, done=%d", (పూర్ణాంకం)ఫలితం, *పూర్తి);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_hc_adjust_pollset(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     struct easy_pollset *ps)
+స్థిర CURLcode cf_hc_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                     నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం easy_pollset *ps)
 {
-  CURLcode result = CURLE_OK;
-  if(!cf->connected) {
-    struct cf_hc_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
+  ఒకవేళ(!cf->connected) {
+    నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
     size_t i;
 
-    for(i = 0; (i < ctx->baller_count) && !result; i++) {
-      struct cf_hc_baller *b = &ctx->ballers[i];
-      if(!cf_hc_baller_is_connecting(b))
-        continue;
-      result = Curl_conn_cf_adjust_pollset(b->cf, data, ps);
+    కొరకు(i = 0; (i < ctx->baller_లెక్క) && !ఫలితం; i++) {
+      నిర్మాణం cf_hc_baller *b = &ctx->ballers[i];
+      ఒకవేళ(!cf_hc_baller_is_connecting(b))
+        కొనసాగు;
+      ఫలితం = Curl_conn_cf_adjust_pollset(b->cf, దత్తాంశం, ps);
     }
-    CURL_TRC_CF(data, cf, "adjust_pollset -> %d, %u socks", (int)result,
+    CURL_TRC_CF(దత్తాంశం, cf, "adjust_pollset -> %d, %u socks", (పూర్ణాంకం)ఫలితం,
                 ps->n);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static bool cf_hc_data_pending(struct Curl_cfilter *cf,
-                               const struct Curl_easy *data)
+స్థిర bool cf_hc_దత్తాంశం_pending(నిర్మాణం Curl_cfilter *cf,
+                               స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
   size_t i;
 
-  if(cf->connected)
-    return cf->next->cft->has_data_pending(cf->next, data);
+  ఒకవేళ(cf->connected)
+    తిరిగి cf->తదుపరి->cft->has_దత్తాంశం_pending(cf->తదుపరి, దత్తాంశం);
 
-  for(i = 0; i < ctx->baller_count; i++)
-    if(cf_hc_baller_data_pending(&ctx->ballers[i], data))
-      return TRUE;
-  return FALSE;
+  కొరకు(i = 0; i < ctx->baller_లెక్క; i++)
+    ఒకవేళ(cf_hc_baller_దత్తాంశం_pending(&ctx->ballers[i], దత్తాంశం))
+      తిరిగి TRUE;
+  తిరిగి FALSE;
 }
 
-static CURLcode cf_hc_query(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            int query, int *pres1, void *pres2)
+స్థిర CURLcode cf_hc_query(నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_easy *దత్తాంశం,
+                            పూర్ణాంకం query, పూర్ణాంకం *pres1, శూన్య *pres2)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
   size_t i;
 
-  if(!cf->connected) {
-    switch(query) {
-    case CF_QUERY_NEED_FLUSH: {
-      for(i = 0; i < ctx->baller_count; i++)
-        if(cf_hc_baller_needs_flush(&ctx->ballers[i], data)) {
+  ఒకవేళ(!cf->connected) {
+    ఎంపిక(query) {
+    స్థితి CF_QUERY_NEED_FLUSH: {
+      కొరకు(i = 0; i < ctx->baller_లెక్క; i++)
+        ఒకవేళ(cf_hc_baller_needs_flush(&ctx->ballers[i], దత్తాంశం)) {
           *pres1 = TRUE;
-          return CURLE_OK;
+          తిరిగి CURLE_OK;
         }
-      break;
+      ఆపు;
     }
-    default:
-      break;
+    అప్రమేయ:
+      ఆపు;
     }
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->query(cf->తదుపరి, దత్తాంశం, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode cf_hc_cntrl(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            int event, int arg1, void *arg2)
+స్థిర CURLcode cf_hc_cntrl(నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_easy *దత్తాంశం,
+                            పూర్ణాంకం event, పూర్ణాంకం arg1, శూన్య *arg2)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
   size_t i;
 
-  if(!cf->connected) {
-    switch(event) {
-    case CF_CTRL_REPORT_STATS:
-    case CF_CTRL_CONN_INFO_UPDATE:
-      for(i = 0; i < ctx->baller_count; i++) {
+  ఒకవేళ(!cf->connected) {
+    ఎంపిక(event) {
+    స్థితి CF_CTRL_REPORT_STATS:
+    స్థితి CF_CTRL_CONN_INFO_UPDATE:
+      కొరకు(i = 0; i < ctx->baller_లెక్క; i++) {
         /* Make the first baller that connected at network level report */
-        if(Curl_conn_cf_is_ip_connected(ctx->ballers[i].cf, data)) {
-          Curl_conn_cf_cntrl(ctx->ballers[i].cf, data, TRUE,
+        ఒకవేళ(Curl_conn_cf_is_ip_connected(ctx->ballers[i].cf, దత్తాంశం)) {
+          Curl_conn_cf_cntrl(ctx->ballers[i].cf, దత్తాంశం, TRUE,
                              event, arg1, arg2);
-          break;
+          ఆపు;
         }
       }
-      break;
-    default:
-      for(i = 0; i < ctx->baller_count; i++) {
-        result = cf_hc_baller_cntrl(&ctx->ballers[i], data, event, arg1, arg2);
-        if(result && (result != CURLE_AGAIN))
-          goto out;
+      ఆపు;
+    అప్రమేయ:
+      కొరకు(i = 0; i < ctx->baller_లెక్క; i++) {
+        ఫలితం = cf_hc_baller_cntrl(&ctx->ballers[i], దత్తాంశం, event, arg1, arg2);
+        ఒకవేళ(ఫలితం && (ఫలితం != CURLE_AGAIN))
+          వెళ్ళు బహిర్గతం;
       }
-      result = CURLE_OK;
-      break;
+      ఫలితం = CURLE_OK;
+      ఆపు;
     }
   }
-out:
-  return result;
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-static void cf_hc_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+స్థిర శూన్య cf_hc_destroy(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_hc_ctx *ctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
-  cf_hc_ctx_destroy(data, ctx);
+  CURL_TRC_CF(దత్తాంశం, cf, "destroy");
+  cf_hc_ctx_destroy(దత్తాంశం, ctx);
 }
 
-struct Curl_cftype Curl_cft_http_connect = {
+నిర్మాణం Curl_cftype Curl_cft_http_connect = {
   "HTTPS-CONNECT",
-  CF_TYPE_SETUP,
+  CF_TYPE_అమరిక,
   CURL_LOG_LVL_NONE,
   cf_hc_destroy,
   cf_hc_connect,
   cf_hc_shutdown,
   cf_hc_adjust_pollset,
-  cf_hc_data_pending,
+  cf_hc_దత్తాంశం_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   cf_hc_cntrl,
@@ -744,82 +744,82 @@ struct Curl_cftype Curl_cft_http_connect = {
   cf_hc_query,
 };
 
-static CURLcode cf_hc_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *destination,
+స్థిర CURLcode cf_hc_create(నిర్మాణం Curl_cfilter **pcf,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Curl_peer *destination,
                              uint8_t def_transport)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_hc_ctx *ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_cfilter *cf = ఖాళీ;
+  నిర్మాణం cf_hc_ctx *ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, పరిమాణం(*ctx));
+  ఒకవేళ(!ctx) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
   Curl_peer_link(&ctx->destination, destination);
   ctx->def_transport = def_transport;
-  ctx->hard_eyeballs_timeout_ms = data->set.happy_eyeballs_timeout;
-  ctx->soft_eyeballs_timeout_ms = data->set.happy_eyeballs_timeout / 2;
+  ctx->hard_eyeballs_timeout_ms = దత్తాంశం->సమితి.happy_eyeballs_timeout;
+  ctx->soft_eyeballs_timeout_ms = దత్తాంశం->సమితి.happy_eyeballs_timeout / 2;
 
-  result = Curl_cf_create(&cf, &Curl_cft_http_connect, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  ఫలితం = Curl_cf_create(&cf, &Curl_cft_http_connect, ctx);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  ctx = ఖాళీ;
 
-out:
-  *pcf = result ? NULL : cf;
-  cf_hc_ctx_destroy(data, ctx);
-  return result;
+బహిర్గతం:
+  *pcf = ఫలితం ? ఖాళీ : cf;
+  cf_hc_ctx_destroy(దత్తాంశం, ctx);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_hc_add(struct Curl_easy *data,
-                          struct Curl_peer *destination,
-                          struct connectdata *conn,
+స్థిర CURLcode cf_hc_కూడు(నిర్మాణం Curl_easy *దత్తాంశం,
+                          నిర్మాణం Curl_peer *destination,
+                          నిర్మాణం connectdata *conn,
                           int8_t sockindex,
                           uint8_t def_transport)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం = CURLE_OK;
 
-  DEBUGASSERT(data);
-  result = cf_hc_create(&cf, data, destination, def_transport);
-  if(result)
-    goto out;
-  Curl_conn_cf_add(data, conn, sockindex, cf);
+  DEBUGASSERT(దత్తాంశం);
+  ఫలితం = cf_hc_create(&cf, దత్తాంశం, destination, def_transport);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  Curl_conn_cf_కూడు(దత్తాంశం, conn, sockindex, cf);
 
-#ifdef USE_HTTPSRR
-  result = Curl_conn_dns_add_https_resolve(data, cf->conn, cf->sockindex,
+#నిర్వచితమైతే USE_HTTPSRR
+  ఫలితం = Curl_conn_dns_కూడు_https_resolve(దత్తాంశం, cf->conn, cf->sockindex,
                                            destination);
-#endif
-out:
-  return result;
+#అయితే_ముగింపు
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_cf_https_setup(struct Curl_easy *data,
-                             struct Curl_peer *destination,
-                             struct connectdata *conn,
+CURLcode Curl_cf_https_అమరిక(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Curl_peer *destination,
+                             నిర్మాణం connectdata *conn,
                              int8_t sockindex)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
   DEBUGASSERT(conn->scheme->protocol == CURLPROTO_HTTPS);
 
   /* This filter is intended for HTTPS using ALPN and does
    * not support HTTPS Eyeballing to a proxy. */
-  if((conn->scheme->protocol != CURLPROTO_HTTPS) ||
-#ifndef CURL_DISABLE_PROXY
-     conn->bits.origin_is_proxy ||
-#endif
-     !conn->bits.tls_enable_alpn)
-    goto out;
+  ఒకవేళ((conn->scheme->protocol != CURLPROTO_HTTPS) ||
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+     conn->బిట్లు.origin_is_proxy ||
+#అయితే_ముగింపు
+     !conn->బిట్లు.tls_enable_alpn)
+    వెళ్ళు బహిర్గతం;
 
-  result = cf_hc_add(data, destination, conn, sockindex,
+  ఫలితం = cf_hc_కూడు(దత్తాంశం, destination, conn, sockindex,
                      conn->transport_wanted);
 
-out:
-  return result;
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-#endif /* !CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP */

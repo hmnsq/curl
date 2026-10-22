@@ -17,33 +17,33 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#నిర్వచితమైతే HAVE_SYS_PARAM_H
+#అన్తర్భావ <sys/param.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
 
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "curlx/inet_pton.h"
+#అన్తర్భావ "curlx/strparse.h"
 
-#define IN6ADDRSZ       16
-#define INADDRSZ         4
-#define INT16SZ          2
+#నిర్వచించు IN6ADDRSZ       16
+#నిర్వచించు INADDRSZ         4
+#నిర్వచించు INT16SZ          2
 
 /*
  * If USE_IPV6 is disabled, we still want to parse IPv6 addresses, so make
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
-#define AF_INET6 (AF_INET + 1)
-#endif
+#ఒకవేళ !defined(USE_IPV6) && !defined(AF_INET6)
+#నిర్వచించు AF_INET6 (AF_INET + 1)
+#అయితే_ముగింపు
 
 /*
  * WARNING: Do not even consider trying to compile this on a system where
@@ -59,43 +59,43 @@
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, unsigned char *dst)
+స్థిర పూర్ణాంకం inet_pton4(స్థిరరాశి అక్షరం *src, గుర్తులేని అక్షరం *dst)
 {
-  int saw_digit, octets, ch;
-  unsigned char tmp[INADDRSZ], *tp;
+  పూర్ణాంకం saw_digit, octets, ch;
+  గుర్తులేని అక్షరం tmp[INADDRSZ], *tp;
 
   saw_digit = 0;
   octets = 0;
   tp = tmp;
   *tp = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISDIGIT(ch)) {
-      unsigned int val = (*tp * 10) + (ch - '0');
+  అయితే((ch = (గుర్తులేని అక్షరం)*src++) != '\0') {
+    ఒకవేళ(ISDIGIT(ch)) {
+      గుర్తులేని పూర్ణాంకం val = (*tp * 10) + (ch - '0');
 
-      if(saw_digit && *tp == 0)
-        return 0;
-      if(val > 255)
-        return 0;
-      *tp = (unsigned char)val;
-      if(!saw_digit) {
-        if(++octets > 4)
-          return 0;
+      ఒకవేళ(saw_digit && *tp == 0)
+        తిరిగి 0;
+      ఒకవేళ(val > 255)
+        తిరిగి 0;
+      *tp = (గుర్తులేని అక్షరం)val;
+      ఒకవేళ(!saw_digit) {
+        ఒకవేళ(++octets > 4)
+          తిరిగి 0;
         saw_digit = 1;
       }
     }
-    else if(ch == '.' && saw_digit) {
-      if(octets == 4)
-        return 0;
+    లేకపోతే ఒకవేళ(ch == '.' && saw_digit) {
+      ఒకవేళ(octets == 4)
+        తిరిగి 0;
       *++tp = 0;
       saw_digit = 0;
     }
-    else
-      return 0;
+    లేకపోతే
+      తిరిగి 0;
   }
-  if(octets < 4)
-    return 0;
-  memcpy(dst, tmp, INADDRSZ);
-  return 1;
+  ఒకవేళ(octets < 4)
+    తిరిగి 0;
+  జ్ఞాపకం_నకలు(dst, tmp, INADDRSZ);
+  తిరిగి 1;
 }
 
 /* int inet_pton6(src, dst)
@@ -110,82 +110,82 @@ static int inet_pton4(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, unsigned char *dst)
+స్థిర పూర్ణాంకం inet_pton6(స్థిరరాశి అక్షరం *src, గుర్తులేని అక్షరం *dst)
 {
-  unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
-  const char *curtok;
-  int ch, saw_xdigit;
+  గుర్తులేని అక్షరం tmp[IN6ADDRSZ], *tp, *endp, *colonp;
+  స్థిరరాశి అక్షరం *curtok;
+  పూర్ణాంకం ch, saw_xdigit;
   size_t val;
 
   memset((tp = tmp), 0, IN6ADDRSZ);
   endp = tp + IN6ADDRSZ;
-  colonp = NULL;
+  colonp = ఖాళీ;
   /* Leading :: requires some special handling. */
-  if(*src == ':' && *++src != ':')
-    return 0;
+  ఒకవేళ(*src == ':' && *++src != ':')
+    తిరిగి 0;
   curtok = src;
   saw_xdigit = 0;
   val = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISXDIGIT(ch)) {
+  అయితే((ch = (గుర్తులేని అక్షరం)*src++) != '\0') {
+    ఒకవేళ(ISXDIGIT(ch)) {
       val <<= 4;
       val |= curlx_hexval(ch);
-      if(++saw_xdigit > 4)
-        return 0;
-      continue;
+      ఒకవేళ(++saw_xdigit > 4)
+        తిరిగి 0;
+      కొనసాగు;
     }
-    if(ch == ':') {
+    ఒకవేళ(ch == ':') {
       curtok = src;
-      if(!saw_xdigit) {
-        if(colonp)
-          return 0;
+      ఒకవేళ(!saw_xdigit) {
+        ఒకవేళ(colonp)
+          తిరిగి 0;
         colonp = tp;
-        continue;
+        కొనసాగు;
       }
-      if(!*src)
-        return 0;
-      if(tp + INT16SZ > endp)
-        return 0;
-      *tp++ = (unsigned char)((val >> 8) & 0xff);
-      *tp++ = (unsigned char)(val & 0xff);
+      ఒకవేళ(!*src)
+        తిరిగి 0;
+      ఒకవేళ(tp + INT16SZ > endp)
+        తిరిగి 0;
+      *tp++ = (గుర్తులేని అక్షరం)((val >> 8) & 0xff);
+      *tp++ = (గుర్తులేని అక్షరం)(val & 0xff);
       saw_xdigit = 0;
       val = 0;
-      continue;
+      కొనసాగు;
     }
-    if(ch == '.' && ((tp + INADDRSZ) <= endp) &&
+    ఒకవేళ(ch == '.' && ((tp + INADDRSZ) <= endp) &&
        inet_pton4(curtok, tp) > 0) {
       tp += INADDRSZ;
       saw_xdigit = 0;
-      break;    /* '\0' was seen by inet_pton4(). */
+      ఆపు;    /* '\0' was seen by inet_pton4(). */
     }
-    return 0;
+    తిరిగి 0;
   }
-  if(saw_xdigit) {
-    if(tp + INT16SZ > endp)
-      return 0;
-    *tp++ = (unsigned char)((val >> 8) & 0xff);
-    *tp++ = (unsigned char)(val & 0xff);
+  ఒకవేళ(saw_xdigit) {
+    ఒకవేళ(tp + INT16SZ > endp)
+      తిరిగి 0;
+    *tp++ = (గుర్తులేని అక్షరం)((val >> 8) & 0xff);
+    *tp++ = (గుర్తులేని అక్షరం)(val & 0xff);
   }
-  if(colonp) {
+  ఒకవేళ(colonp) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we do the shift by hand.
      */
-    const ssize_t n = tp - colonp;
+    స్థిరరాశి ssize_t n = tp - colonp;
     ssize_t i;
 
-    if(tp == endp)
-      return 0;
-    for(i = 1; i <= n; i++) {
+    ఒకవేళ(tp == endp)
+      తిరిగి 0;
+    కొరకు(i = 1; i <= n; i++) {
       *(endp - i) = *(colonp + n - i);
       *(colonp + n - i) = 0;
     }
     tp = endp;
   }
-  if(tp != endp)
-    return 0;
-  memcpy(dst, tmp, IN6ADDRSZ);
-  return 1;
+  ఒకవేళ(tp != endp)
+    తిరిగి 0;
+  జ్ఞాపకం_నకలు(dst, tmp, IN6ADDRSZ);
+  తిరిగి 1;
 }
 
 /*
@@ -200,15 +200,15 @@ static int inet_pton6(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-int curlx_inet_pton(int af, const char *src, void *dst)
+పూర్ణాంకం curlx_inet_pton(పూర్ణాంకం af, స్థిరరాశి అక్షరం *src, శూన్య *dst)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_pton4(src, (unsigned char *)dst);
-  case AF_INET6:
-    return inet_pton6(src, (unsigned char *)dst);
-  default:
-    return -1;
+  ఎంపిక(af) {
+  స్థితి AF_INET:
+    తిరిగి inet_pton4(src, (గుర్తులేని అక్షరం *)dst);
+  స్థితి AF_INET6:
+    తిరిగి inet_pton6(src, (గుర్తులేని అక్షరం *)dst);
+  అప్రమేయ:
+    తిరిగి -1;
   }
   /* NOTREACHED */
 }

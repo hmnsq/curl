@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRERROR_H
-#define HEADER_CURL_STRERROR_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_STRERROR_H
+#నిర్వచించు శీర్షిక_CURL_STRERROR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,10 +23,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_WINDOWS_SSPI
-const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen);
-#endif
+#నిర్వచితమైతే USE_WINDOWS_SSPI
+స్థిరరాశి అక్షరం *Curl_sspi_strerror(SECURITY_స్థితి err, అక్షరం *buf, size_t buflen);
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_STRERROR_H */
+#అయితే_ముగింపు /* HEADER_CURL_STRERROR_H */

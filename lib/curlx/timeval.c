@@ -21,34 +21,34 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timeval.h"
+#అన్తర్భావ "curlx/timeval.h"
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 
-static LARGE_INTEGER s_time_freq;
+స్థిర LARGE_INTEGER s_సమయం_freq;
 
 /* For tool or tests, we must initialize before calling curlx_now().
    Providing this function here is wrong. */
-void curlx_now_init(void)
+శూన్య curlx_now_init(శూన్య)
 {
-  QueryPerformanceFrequency(&s_time_freq);
+  QueryPerformanceFrequency(&s_సమయం_freq);
 }
 
 /* In case of bug fix this function has a counterpart in tool_util.c */
-void curlx_pnow(struct curltime *pnow)
+శూన్య curlx_pnow(నిర్మాణం curltime *pnow)
 {
-  LARGE_INTEGER count;
-  DEBUGASSERT(s_time_freq.QuadPart);
-  QueryPerformanceCounter(&count);
-  pnow->tv_sec = (time_t)(count.QuadPart / s_time_freq.QuadPart);
-  pnow->tv_usec = (int)((count.QuadPart % s_time_freq.QuadPart) * 1000000 /
-                        s_time_freq.QuadPart);
+  LARGE_INTEGER లెక్క;
+  DEBUGASSERT(s_సమయం_freq.QuadPart);
+  QueryPerformanceCounter(&లెక్క);
+  pnow->tv_sec = (time_t)(లెక్క.QuadPart / s_సమయం_freq.QuadPart);
+  pnow->tv_usec = (పూర్ణాంకం)((లెక్క.QuadPart % s_సమయం_freq.QuadPart) * 1000000 /
+                        s_సమయం_freq.QuadPart);
 }
 
-#elif defined(HAVE_CLOCK_GETTIME_MONOTONIC) || \
+#లేదావేళ defined(HAVE_CLOCK_GETTIME_MONOTONIC) || \
   defined(HAVE_CLOCK_GETTIME_MONOTONIC_RAW)
 
-void curlx_pnow(struct curltime *pnow)
+శూన్య curlx_pnow(నిర్మాణం curltime *pnow)
 {
   /*
    * clock_gettime() is granted to be increased monotonically when the
@@ -57,67 +57,67 @@ void curlx_pnow(struct curltime *pnow)
    * in any case the time starting point does not change once that the
    * system has started up.
    */
-  struct timespec tsnow;
+  నిర్మాణం timespec tsnow;
 
   /*
    * clock_gettime() may be defined by Apple's SDK as weak symbol thus
    * code compiles but fails during runtime if clock_gettime() is
    * called on unsupported OS version.
    */
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
-  (HAVE_BUILTIN_AVAILABLE == 1)
+#ఒకవేళ defined(__APPLE__) && defined(HAVE_BUILTIN_అందుబాటు) && \
+  (HAVE_BUILTIN_అందుబాటు == 1)
   bool have_clock_gettime = FALSE;
-  if(__builtin_available(macOS 10.12, iOS 10, tvOS 10, watchOS 3, *))
+  ఒకవేళ(__builtin_available(macOS 10.12, iOS 10, tvOS 10, watchOS 3, *))
     have_clock_gettime = TRUE;
-#endif
+#అయితే_ముగింపు
 
-#ifdef HAVE_CLOCK_GETTIME_MONOTONIC_RAW
-  if(
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
-  (HAVE_BUILTIN_AVAILABLE == 1)
+#నిర్వచితమైతే HAVE_CLOCK_GETTIME_MONOTONIC_RAW
+  ఒకవేళ(
+#ఒకవేళ defined(__APPLE__) && defined(HAVE_BUILTIN_అందుబాటు) && \
+  (HAVE_BUILTIN_అందుబాటు == 1)
     have_clock_gettime &&
-#endif
+#అయితే_ముగింపు
     (clock_gettime(CLOCK_MONOTONIC_RAW, &tsnow) == 0)) {
     pnow->tv_sec = tsnow.tv_sec;
-    pnow->tv_usec = (int)(tsnow.tv_nsec / 1000);
+    pnow->tv_usec = (పూర్ణాంకం)(tsnow.tv_nsec / 1000);
   }
-  else
-#endif
+  లేకపోతే
+#అయితే_ముగింపు
 
-  if(
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
-  (HAVE_BUILTIN_AVAILABLE == 1)
+  ఒకవేళ(
+#ఒకవేళ defined(__APPLE__) && defined(HAVE_BUILTIN_అందుబాటు) && \
+  (HAVE_BUILTIN_అందుబాటు == 1)
     have_clock_gettime &&
-#endif
+#అయితే_ముగింపు
     (clock_gettime(CLOCK_MONOTONIC, &tsnow) == 0)) {
     pnow->tv_sec = tsnow.tv_sec;
-    pnow->tv_usec = (int)(tsnow.tv_nsec / 1000);
+    pnow->tv_usec = (పూర్ణాంకం)(tsnow.tv_nsec / 1000);
   }
   /*
    * Even when the configure process has truly detected monotonic clock
    * availability, it might happen that it is not actually available at
    * runtime. When this occurs, fallback to other time source.
    */
-#ifdef HAVE_GETTIMEOFDAY
-  else {
-    struct timeval now;
-    (void)gettimeofday(&now, NULL);
+#నిర్వచితమైతే HAVE_GETTIMEOFDAY
+  లేకపోతే {
+    నిర్మాణం timeval now;
+    (శూన్య)gettimeofday(&now, ఖాళీ);
     pnow->tv_sec = now.tv_sec;
-    pnow->tv_usec = (int)now.tv_usec;
+    pnow->tv_usec = (పూర్ణాంకం)now.tv_usec;
   }
-#else
-  else {
-    pnow->tv_sec = time(NULL);
+#లేకపోతే
+  లేకపోతే {
+    pnow->tv_sec = సమయం(ఖాళీ);
     pnow->tv_usec = 0;
   }
-#endif
+#అయితే_ముగింపు
 }
 
-#elif defined(HAVE_MACH_ABSOLUTE_TIME)
+#లేదావేళ defined(HAVE_MACH_ABSOLUTE_సమయం)
 
-#include <mach/mach_time.h>
+#అన్తర్భావ <mach/mach_time.h>
 
-void curlx_pnow(struct curltime *pnow)
+శూన్య curlx_pnow(నిర్మాణం curltime *pnow)
 {
   /*
    * Monotonic timer on macOS is provided by mach_absolute_time(), which
@@ -125,56 +125,56 @@ void curlx_pnow(struct curltime *pnow)
    * To convert to nanoseconds, one must use conversion factors specified by
    * mach_timebase_info().
    */
-  static mach_timebase_info_data_t timebase;
+  స్థిర mach_timebase_info_దత్తాంశం_t timebase;
   uint64_t usecs;
 
-  if(timebase.denom == 0)
-    (void)mach_timebase_info(&timebase);
+  ఒకవేళ(timebase.denom == 0)
+    (శూన్య)mach_timebase_info(&timebase);
 
-  usecs = mach_absolute_time();
+  usecs = mach_absolute_సమయం();
   usecs *= timebase.numer; /* spellchecker:disable-line */
   usecs /= timebase.denom;
   usecs /= 1000;
 
   pnow->tv_sec = usecs / 1000000;
-  pnow->tv_usec = (int)(usecs % 1000000);
+  pnow->tv_usec = (పూర్ణాంకం)(usecs % 1000000);
 }
 
-#elif defined(HAVE_GETTIMEOFDAY)
+#లేదావేళ defined(HAVE_GETTIMEOFDAY)
 
-void curlx_pnow(struct curltime *pnow)
+శూన్య curlx_pnow(నిర్మాణం curltime *pnow)
 {
   /*
    * gettimeofday() is not granted to be increased monotonically, due to
    * clock drifting and external source time synchronization it can jump
    * forward or backward in time.
    */
-  struct timeval now;
-  (void)gettimeofday(&now, NULL);
+  నిర్మాణం timeval now;
+  (శూన్య)gettimeofday(&now, ఖాళీ);
   pnow->tv_sec = now.tv_sec;
-  pnow->tv_usec = (int)now.tv_usec;
+  pnow->tv_usec = (పూర్ణాంకం)now.tv_usec;
 }
 
-#else
+#లేకపోతే
 
-void curlx_pnow(struct curltime *pnow)
+శూన్య curlx_pnow(నిర్మాణం curltime *pnow)
 {
   /*
    * time() returns the value of time in seconds since the Epoch.
    */
-  pnow->tv_sec = time(NULL);
+  pnow->tv_sec = సమయం(ఖాళీ);
   pnow->tv_usec = 0;
-  if(!pnow->tv_sec) /* avoid a `now` fully zero */
+  ఒకవేళ(!pnow->tv_sec) /* avoid a `now` fully zero */
     pnow->tv_usec = 1;
 }
 
-#endif
+#అయితే_ముగింపు
 
-struct curltime curlx_now(void)
+నిర్మాణం curltime curlx_now(శూన్య)
 {
-  struct curltime now;
+  నిర్మాణం curltime now;
   curlx_pnow(&now);
-  return now;
+  తిరిగి now;
 }
 
 /*
@@ -183,94 +183,94 @@ struct curltime curlx_now(void)
  *
  * @unittest: 1323
  */
-timediff_t curlx_ptimediff_ms(const struct curltime *newer,
-                              const struct curltime *older)
+timediff_t curlx_ptimediff_ms(స్థిరరాశి నిర్మాణం curltime *newer,
+                              స్థిరరాశి నిర్మాణం curltime *older)
 {
   timediff_t diff = (timediff_t)newer->tv_sec - older->tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000) + ((newer->tv_usec - older->tv_usec) / 1000);
+  ఒకవేళ(diff >= (TIMEDIFF_T_MAX / 1000))
+    తిరిగి TIMEDIFF_T_MAX;
+  లేకపోతే ఒకవేళ(diff <= (TIMEDIFF_T_MIN / 1000))
+    తిరిగి TIMEDIFF_T_MIN;
+  తిరిగి (diff * 1000) + ((newer->tv_usec - older->tv_usec) / 1000);
 }
 
-timediff_t curlx_timediff_ms(struct curltime newer, struct curltime older)
+timediff_t curlx_timediff_ms(నిర్మాణం curltime newer, నిర్మాణం curltime older)
 {
-  return curlx_ptimediff_ms(&newer, &older);
+  తిరిగి curlx_ptimediff_ms(&newer, &older);
 }
 
 /*
  * Returns: time difference in number of milliseconds, rounded up.
  * For too large diffs it returns max value.
  */
-timediff_t curlx_timediff_ceil_ms(struct curltime newer,
-                                  struct curltime older)
+timediff_t curlx_timediff_ceil_ms(నిర్మాణం curltime newer,
+                                  నిర్మాణం curltime older)
 {
   timediff_t diff = (timediff_t)newer.tv_sec - older.tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000) + ((newer.tv_usec - older.tv_usec + 999) / 1000);
+  ఒకవేళ(diff >= (TIMEDIFF_T_MAX / 1000))
+    తిరిగి TIMEDIFF_T_MAX;
+  లేకపోతే ఒకవేళ(diff <= (TIMEDIFF_T_MIN / 1000))
+    తిరిగి TIMEDIFF_T_MIN;
+  తిరిగి (diff * 1000) + ((newer.tv_usec - older.tv_usec + 999) / 1000);
 }
 
-timediff_t curlx_us_to_ceil_ms(timediff_t us)
+timediff_t curlx_us_గమ్యం_ceil_ms(timediff_t us)
 {
-  return (us / 1000) + ((us > 0) && (us % 1000));
+  తిరిగి (us / 1000) + ((us > 0) && (us % 1000));
 }
 
 /*
  * Returns: time difference in number of microseconds. For too large diffs it
  * returns max value.
  */
-timediff_t curlx_ptimediff_us(const struct curltime *newer,
-                              const struct curltime *older)
+timediff_t curlx_ptimediff_us(స్థిరరాశి నిర్మాణం curltime *newer,
+                              స్థిరరాశి నిర్మాణం curltime *older)
 {
   timediff_t diff = (timediff_t)newer->tv_sec - older->tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000000) + newer->tv_usec - older->tv_usec;
+  ఒకవేళ(diff >= (TIMEDIFF_T_MAX / 1000000))
+    తిరిగి TIMEDIFF_T_MAX;
+  లేకపోతే ఒకవేళ(diff <= (TIMEDIFF_T_MIN / 1000000))
+    తిరిగి TIMEDIFF_T_MIN;
+  తిరిగి (diff * 1000000) + newer->tv_usec - older->tv_usec;
 }
 
-timediff_t curlx_timediff_us(struct curltime newer, struct curltime older)
+timediff_t curlx_timediff_us(నిర్మాణం curltime newer, నిర్మాణం curltime older)
 {
-  return curlx_ptimediff_us(&newer, &older);
+  తిరిగి curlx_ptimediff_us(&newer, &older);
 }
 
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 3)
-#include <sec_api/time_s.h>  /* for _gmtime32_s(), _gmtime64_s() */
-#ifdef _USE_32BIT_TIME_T
-#define gmtime_s _gmtime32_s
-#else
-#define gmtime_s _gmtime64_s
-#endif
-#endif
+#ఒకవేళ defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 3)
+#అన్తర్భావ <sec_api/time_s.h>  /* for _gmtime32_s(), _gmtime64_s() */
+#నిర్వచితమైతే USE_32_బిట్టు_సమయం_T
+#నిర్వచించు gmtime_s _gmtime32_s
+#లేకపోతే
+#నిర్వచించు gmtime_s _gmtime64_s
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
 /*
  * curlx_gmtime() is a gmtime() replacement for portability. Do not use
  * the gmtime_s(), gmtime_r() or gmtime() functions anywhere else but here.
  */
-CURLcode curlx_gmtime(time_t intime, struct tm *store)
+CURLcode curlx_gmtime(time_t intime, నిర్మాణం tm *store)
 {
-#ifdef _WIN32
-  if(gmtime_s(store, &intime)) /* thread-safe */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#elif defined(HAVE_GMTIME_R)
-  const struct tm *tm;
+#నిర్వచితమైతే _WIN32
+  ఒకవేళ(gmtime_s(store, &intime)) /* thread-safe */
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+#లేదావేళ defined(HAVE_GMTIME_R)
+  స్థిరరాశి నిర్మాణం tm *tm;
   tm = gmtime_r(&intime, store); /* thread-safe */
-  if(!tm)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#else
-  const struct tm *tm;
+  ఒకవేళ(!tm)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+#లేకపోతే
+  స్థిరరాశి నిర్మాణం tm *tm;
   /* !checksrc! disable BANNEDFUNC 1 */
   tm = gmtime(&intime); /* not thread-safe */
-  if(tm)
+  ఒకవేళ(tm)
     *store = *tm; /* copy the pointed struct to the local copy */
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#endif
+  లేకపోతే
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+#అయితే_ముగింపు
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }

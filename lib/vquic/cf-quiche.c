@@ -21,120 +21,120 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
-#include <quiche.h>
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#అన్తర్భావ <quiche.h>
+#అన్తర్భావ <openssl/err.h>
+#అన్తర్భావ <openssl/ssl.h>
 
-#include "bufq.h"
-#include "u32_ptrset.h"
-#include "urldata.h"
-#include "cfilters.h"
-#include "cf-socket.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "multiif.h"
-#include "connect.h"
-#include "progress.h"
-#include "select.h"
-#include "http.h"
-#include "http1.h"
-#include "sockaddr.h"
-#include "vdns/cf-dns.h"
-#include "vquic/vquic.h"
-#include "vquic/vquic_int.h"
-#include "vquic/vquic-tls.h"
-#include "vquic/cf-quiche.h"
-#include "transfer.h"
-#include "url.h"
-#include "bufref.h"
-#include "vtls/openssl.h"
-#include "vtls/vtls.h"
+#అన్తర్భావ "bufq.h"
+#అన్తర్భావ "u32_ptrset.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "cf-socket.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "rand.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "http.h"
+#అన్తర్భావ "http1.h"
+#అన్తర్భావ "sockaddr.h"
+#అన్తర్భావ "vdns/cf-dns.h"
+#అన్తర్భావ "vquic/vquic.h"
+#అన్తర్భావ "vquic/vquic_int.h"
+#అన్తర్భావ "vquic/vquic-tls.h"
+#అన్తర్భావ "vquic/cf-quiche.h"
+#అన్తర్భావ "transfer.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "bufref.h"
+#అన్తర్భావ "vtls/openssl.h"
+#అన్తర్భావ "vtls/vtls.h"
 
 /* HTTP/3 error values defined in RFC 9114, ch. 8.1 */
-#define CURL_H3_NO_ERROR  0x0100
+#నిర్వచించు CURL_H3_NO_ERROR  0x0100
 
-#define MAX_PKT_BURST          10
+#నిర్వచించు MAX_PKT_వ్యవధి          10
 
-#define QUIC_MAX_STREAMS       100
+#నిర్వచించు QUIC_MAX_STREAMS       100
 
-#define H3_STREAM_WINDOW_SIZE  (1024 * 128)
-#define H3_STREAM_CHUNK_SIZE   (1024 * 16)
+#నిర్వచించు H3_ప్రవాహం_కిటికీ_కొలత  (1024 * 128)
+#నిర్వచించు H3_ప్రవాహం_CHUNK_కొలత   (1024 * 16)
 /* Receive and Send max number of chunks follows from the
  * chunk size and window size */
-#define H3_STREAM_RECV_CHUNKS \
-  (H3_STREAM_WINDOW_SIZE / H3_STREAM_CHUNK_SIZE)
+#నిర్వచించు H3_ప్రవాహం_RECV_CHUNKS \
+  (H3_ప్రవాహం_కిటికీ_కొలత / H3_ప్రవాహం_CHUNK_కొలత)
 
 /*
  * Store quiche version info in this buffer.
  */
-void Curl_quiche_ver(char *p, size_t len)
+శూన్య Curl_quiche_ver(అక్షరం *p, size_t len)
 {
-  (void)curl_msnprintf(p, len, "quiche/%s", quiche_version());
+  (శూన్య)curl_msnprintf(p, len, "quiche/%s", quiche_సంస్కరణ());
 }
 
-struct cf_quiche_ctx {
-  struct cf_quic_ctx q;
-  struct ssl_peer ssl_peer;
-  struct curl_tls_ctx tls;
+నిర్మాణం cf_quiche_ctx {
+  నిర్మాణం cf_quic_ctx q;
+  నిర్మాణం ssl_peer ssl_peer;
+  నిర్మాణం curl_tls_ctx tls;
   quiche_conn *qconn;
   quiche_config *cfg;
   quiche_h3_conn *h3c;
   quiche_h3_config *h3config;
   uint8_t scid[QUICHE_MAX_CONN_ID_LEN];
-  struct curltime started_at;        /* time the current attempt started */
-  struct curltime handshake_at;      /* time connect handshake finished */
-  struct u32_ptrset streams;         /* set of `data->mid` + `stream_ctx` */
-  struct dynbuf h1hdr;               /* temp buffer for header construction */
-  struct bufq writebuf;              /* temp buffer for writing bodies */
-  curl_off_t data_recvd;
-  BIT(initialized);
-  BIT(goaway);                       /* got GOAWAY from server */
-  BIT(x509_store_setup);             /* if x509 store has been set up */
-  BIT(shutdown_started);             /* queued shutdown packets */
-  BIT(stats_reported);               /* connect statistics reported */
+  నిర్మాణం curltime started_at;        /* time the current attempt started */
+  నిర్మాణం curltime handshake_at;      /* time connect handshake finished */
+  నిర్మాణం u32_ptrset streams;         /* set of `data->mid` + `stream_ctx` */
+  నిర్మాణం dynbuf h1hdr;               /* temp buffer for header construction */
+  నిర్మాణం bufq writebuf;              /* temp buffer for writing bodies */
+  curl_off_t దత్తాంశం_recvd;
+  బిట్టు(initialized);
+  బిట్టు(goaway);                       /* got GOAWAY from server */
+  బిట్టు(x509_store_అమరిక);             /* if x509 store has been set up */
+  బిట్టు(shutdown_started);             /* queued shutdown packets */
+  బిట్టు(stats_reported);               /* connect statistics reported */
 };
 
-#ifdef DEBUG_QUICHE
+#నిర్వచితమైతే DEBUG_QUICHE
 /* initialize debug log callback only once */
-static int debug_log_init = 0;
-static void quiche_debug_log(const char *line, void *argp)
+స్థిర పూర్ణాంకం debug_log_init = 0;
+స్థిర శూన్య quiche_debug_log(స్థిరరాశి అక్షరం *పంక్తి, శూన్య *argp)
 {
-  (void)argp;
-  curl_mfprintf(stderr, "%s\n", line);
+  (శూన్య)argp;
+  curl_mfprintf(stderr, "%s\n", పంక్తి);
 }
-#endif
+#అయితే_ముగింపు
 
-static void h3_stream_set_free(uint32_t id, void *stream);
+స్థిర శూన్య h3_ప్రవాహం_సమితి_free(uint32_t id, శూన్య *ప్రవాహం);
 
-static CURLcode cf_quiche_ctx_init(struct cf_quiche_ctx *ctx,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer,
-                                   struct ssl_filter_config *sslc)
+స్థిర CURLcode cf_quiche_ctx_init(నిర్మాణం cf_quiche_ctx *ctx,
+                                   నిర్మాణం Curl_peer *origin,
+                                   నిర్మాణం Curl_peer *peer,
+                                   నిర్మాణం ssl_filter_config *sslc)
 {
   DEBUGASSERT(!ctx->initialized);
-#ifdef DEBUG_QUICHE
-  if(!debug_log_init) {
-    quiche_enable_debug_logging(quiche_debug_log, NULL);
+#నిర్వచితమైతే DEBUG_QUICHE
+  ఒకవేళ(!debug_log_init) {
+    quiche_enable_debug_logging(quiche_debug_log, ఖాళీ);
     debug_log_init = 1;
   }
-#endif
-  curlx_dyn_init(&ctx->h1hdr, CURL_MAX_HTTP_HEADER);
-  Curl_u32_ptrset_init(&ctx->streams, h3_stream_set_free);
-  Curl_bufq_init2(&ctx->writebuf, H3_STREAM_CHUNK_SIZE, H3_STREAM_RECV_CHUNKS,
-                  BUFQ_OPT_SOFT_LIMIT);
-  ctx->data_recvd = 0;
+#అయితే_ముగింపు
+  curlx_dyn_init(&ctx->h1hdr, CURL_MAX_HTTP_శీర్షిక);
+  Curl_u32_ptrset_init(&ctx->streams, h3_ప్రవాహం_సమితి_free);
+  Curl_bufq_init2(&ctx->writebuf, H3_ప్రవాహం_CHUNK_కొలత, H3_ప్రవాహం_RECV_CHUNKS,
+                  BUFQ_OPT_SOFT_హద్దు);
+  ctx->దత్తాంశం_recvd = 0;
   ctx->initialized = TRUE;
-  return Curl_vquic_tls_peer_init(origin, peer, sslc, &ctx->ssl_peer);
+  తిరిగి Curl_vquic_tls_peer_init(origin, peer, sslc, &ctx->ssl_peer);
 }
 
-static void cf_quiche_ctx_free(struct cf_quiche_ctx *ctx)
+స్థిర శూన్య cf_quiche_ctx_free(నిర్మాణం cf_quiche_ctx *ctx)
 {
-  if(ctx && ctx->initialized) {
+  ఒకవేళ(ctx && ctx->initialized) {
     /* quiche freed it */
-    ctx->tls.ossl.ssl = NULL;
+    ctx->tls.ossl.ssl = ఖాళీ;
     Curl_vquic_tls_cleanup(&ctx->tls);
     Curl_ssl_peer_cleanup(&ctx->ssl_peer);
     Curl_vquic_ctx_free(&ctx->q);
@@ -145,195 +145,195 @@ static void cf_quiche_ctx_free(struct cf_quiche_ctx *ctx)
   curlx_free(ctx);
 }
 
-static void cf_quiche_ctx_close(struct cf_quiche_ctx *ctx)
+స్థిర శూన్య cf_quiche_ctx_close(నిర్మాణం cf_quiche_ctx *ctx)
 {
-  if(ctx->h3c) {
+  ఒకవేళ(ctx->h3c) {
     quiche_h3_conn_free(ctx->h3c);
-    ctx->h3c = NULL;
+    ctx->h3c = ఖాళీ;
   }
-  if(ctx->h3config) {
+  ఒకవేళ(ctx->h3config) {
     quiche_h3_config_free(ctx->h3config);
-    ctx->h3config = NULL;
+    ctx->h3config = ఖాళీ;
   }
-  if(ctx->qconn) {
+  ఒకవేళ(ctx->qconn) {
     quiche_conn_free(ctx->qconn);
-    ctx->qconn = NULL;
+    ctx->qconn = ఖాళీ;
   }
-  if(ctx->cfg) {
+  ఒకవేళ(ctx->cfg) {
     quiche_config_free(ctx->cfg);
-    ctx->cfg = NULL;
+    ctx->cfg = ఖాళీ;
   }
   Curl_ssl_peer_cleanup(&ctx->ssl_peer);
 }
 
-static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
-                                struct Curl_easy *data);
+స్థిర CURLcode cf_flush_egress(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం);
 
 /**
  * All about the H3 internals of a stream
  */
-struct h3_stream_ctx {
+నిర్మాణం h3_ప్రవాహం_ctx {
   uint64_t id;             /* HTTP/3 protocol stream identifier */
-  struct h1_req_parser h1; /* h1 request parsing */
+  నిర్మాణం h1_req_parser h1; /* h1 request parsing */
   uint64_t error3;         /* HTTP/3 stream error code */
-  int32_t status_code;     /* HTTP status code */
-  CURLcode xfer_result;    /* result from cf_quiche_write_(hd/body) */
-  BIT(opened);             /* TRUE after stream has been opened */
-  BIT(closed);             /* TRUE on stream close */
-  BIT(reset);              /* TRUE on stream reset */
-  BIT(send_closed);        /* stream is locally closed */
-  BIT(resp_hds_complete);  /* final response has been received */
-  BIT(resp_got_header);    /* TRUE when h3 stream has recvd some HEADER */
-  BIT(quic_flow_blocked);  /* stream is blocked by QUIC flow control */
+  int32_t స్థితి_సంకేతం;     /* HTTP status code */
+  CURLcode xfer_ఫలితం;    /* result from cf_quiche_write_(hd/body) */
+  బిట్టు(opened);             /* TRUE after stream has been opened */
+  బిట్టు(closed);             /* TRUE on stream close */
+  బిట్టు(reset);              /* TRUE on stream reset */
+  బిట్టు(send_closed);        /* stream is locally closed */
+  బిట్టు(resp_hds_complete);  /* final response has been received */
+  బిట్టు(resp_got_శీర్షిక);    /* TRUE when h3 stream has recvd some HEADER */
+  బిట్టు(quic_flow_blocked);  /* stream is blocked by QUIC flow control */
 };
 
-static void h3_stream_ctx_free(struct h3_stream_ctx *stream)
+స్థిర శూన్య h3_ప్రవాహం_ctx_free(నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం)
 {
-  Curl_h1_req_parse_free(&stream->h1);
-  curlx_free(stream);
+  Curl_h1_req_parse_free(&ప్రవాహం->h1);
+  curlx_free(ప్రవాహం);
 }
 
-static void h3_stream_set_free(uint32_t id, void *stream)
+స్థిర శూన్య h3_ప్రవాహం_సమితి_free(uint32_t id, శూన్య *ప్రవాహం)
 {
-  (void)id;
-  DEBUGASSERT(stream);
-  h3_stream_ctx_free((struct h3_stream_ctx *)stream);
+  (శూన్య)id;
+  DEBUGASSERT(ప్రవాహం);
+  h3_ప్రవాహం_ctx_free((నిర్మాణం h3_ప్రవాహం_ctx *)ప్రవాహం);
 }
 
-typedef bool cf_quiche_svisit(struct Curl_cfilter *cf,
-                              struct Curl_easy *sdata,
-                              struct h3_stream_ctx *stream,
-                              void *user_data);
+రకనిర్వచనం bool cf_quiche_svisit(నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *sdata,
+                              నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం,
+                              శూన్య *user_దత్తాంశం);
 
-struct cf_quiche_visit_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_multi *multi;
+నిర్మాణం cf_quiche_సందర్శించు_ctx {
+  నిర్మాణం Curl_cfilter *cf;
+  నిర్మాణం Curl_multi *multi;
   cf_quiche_svisit *cb;
-  void *user_data;
+  శూన్య *user_దత్తాంశం;
 };
 
-static bool cf_quiche_stream_do(uint32_t mid, void *val, void *user_data)
+స్థిర bool cf_quiche_ప్రవాహం_do(uint32_t mid, శూన్య *val, శూన్య *user_దత్తాంశం)
 {
-  struct cf_quiche_visit_ctx *vctx = user_data;
-  struct h3_stream_ctx *stream = val;
-  struct Curl_easy *sdata = Curl_multi_get_easy(vctx->multi, mid);
-  if(sdata)
-    return vctx->cb(vctx->cf, sdata, stream, vctx->user_data);
-  return TRUE;
+  నిర్మాణం cf_quiche_సందర్శించు_ctx *vctx = user_దత్తాంశం;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = val;
+  నిర్మాణం Curl_easy *sdata = Curl_multi_get_easy(vctx->multi, mid);
+  ఒకవేళ(sdata)
+    తిరిగి vctx->cb(vctx->cf, sdata, ప్రవాహం, vctx->user_దత్తాంశం);
+  తిరిగి TRUE;
 }
 
-static void cf_quiche_for_all_streams(struct Curl_cfilter *cf,
-                                      struct Curl_multi *multi,
+స్థిర శూన్య cf_quiche_for_all_streams(నిర్మాణం Curl_cfilter *cf,
+                                      నిర్మాణం Curl_multi *multi,
                                       cf_quiche_svisit *do_cb,
-                                      void *user_data)
+                                      శూన్య *user_దత్తాంశం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct cf_quiche_visit_ctx vctx;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_quiche_సందర్శించు_ctx vctx;
   vctx.cf = cf;
   vctx.multi = multi;
   vctx.cb = do_cb;
-  vctx.user_data = user_data;
-  Curl_u32_ptrset_visit(&ctx->streams, cf_quiche_stream_do, &vctx);
+  vctx.user_దత్తాంశం = user_దత్తాంశం;
+  Curl_u32_ptrset_సందర్శించు(&ctx->streams, cf_quiche_ప్రవాహం_do, &vctx);
 }
 
-static bool cf_quiche_do_resume(struct Curl_cfilter *cf,
-                                struct Curl_easy *sdata,
-                                struct h3_stream_ctx *stream,
-                                void *user_data)
+స్థిర bool cf_quiche_do_resume(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *sdata,
+                                నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం,
+                                శూన్య *user_దత్తాంశం)
 {
-  (void)user_data;
-  if(stream->quic_flow_blocked) {
-    stream->quic_flow_blocked = FALSE;
+  (శూన్య)user_దత్తాంశం;
+  ఒకవేళ(ప్రవాహం->quic_flow_blocked) {
+    ప్రవాహం->quic_flow_blocked = FALSE;
     Curl_multi_mark_dirty(sdata);
-    CURL_TRC_CF(sdata, cf, "[%" PRIu64 "] unblock", stream->id);
+    CURL_TRC_CF(sdata, cf, "[%" PRIu64 "] unblock", ప్రవాహం->id);
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-static bool cf_quiche_do_expire(struct Curl_cfilter *cf,
-                                struct Curl_easy *sdata,
-                                struct h3_stream_ctx *stream,
-                                void *user_data)
+స్థిర bool cf_quiche_do_expire(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *sdata,
+                                నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం,
+                                శూన్య *user_దత్తాంశం)
 {
-  (void)user_data;
+  (శూన్య)user_దత్తాంశం;
   CURL_TRC_CF(sdata, cf, "conn closed, mark as dirty");
-  stream->xfer_result = CURLE_SEND_ERROR;
+  ప్రవాహం->xfer_ఫలితం = CURLE_SEND_ERROR;
   Curl_multi_mark_dirty(sdata);
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-static CURLcode h3_data_setup(struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+స్థిర CURLcode h3_దత్తాంశం_అమరిక(నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
 
-  if(stream)
-    return CURLE_OK;
+  ఒకవేళ(ప్రవాహం)
+    తిరిగి CURLE_OK;
 
-  stream = curlx_calloc(1, sizeof(*stream));
-  if(!stream)
-    return CURLE_OUT_OF_MEMORY;
+  ప్రవాహం = curlx_calloc(1, పరిమాణం(*ప్రవాహం));
+  ఒకవేళ(!ప్రవాహం)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  stream->id = -1;
-  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_LINE_LEN);
+  ప్రవాహం->id = -1;
+  Curl_h1_req_parse_init(&ప్రవాహం->h1, H1_PARSE_DEFAULT_MAX_పంక్తి_LEN);
 
-  if(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
-    h3_stream_ctx_free(stream);
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(Curl_u32_ptrset_సమితి(&ctx->streams, దత్తాంశం->mid, ప్రవాహం)) {
+    h3_ప్రవాహం_ctx_free(ప్రవాహం);
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static void cf_quiche_stream_close(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct h3_stream_ctx *stream)
+స్థిర శూన్య cf_quiche_ప్రవాహం_close(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  CURLcode result;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం;
 
-  if(ctx->qconn && !stream->closed) {
-    quiche_conn_stream_shutdown(ctx->qconn, stream->id,
+  ఒకవేళ(ctx->qconn && !ప్రవాహం->closed) {
+    quiche_conn_ప్రవాహం_shutdown(ctx->qconn, ప్రవాహం->id,
                                 QUICHE_SHUTDOWN_READ, CURL_H3_NO_ERROR);
-    if(!stream->send_closed) {
-      quiche_conn_stream_shutdown(ctx->qconn, stream->id,
+    ఒకవేళ(!ప్రవాహం->send_closed) {
+      quiche_conn_ప్రవాహం_shutdown(ctx->qconn, ప్రవాహం->id,
                                   QUICHE_SHUTDOWN_WRITE, CURL_H3_NO_ERROR);
-      stream->send_closed = TRUE;
+      ప్రవాహం->send_closed = TRUE;
     }
-    stream->closed = TRUE;
-    result = cf_flush_egress(cf, data);
-    if(result)
-      CURL_TRC_CF(data, cf, "[%" PRIu64 "] stream close, flush egress -> %d",
-                  stream->id, (int)result);
+    ప్రవాహం->closed = TRUE;
+    ఫలితం = cf_flush_egress(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] stream close, flush egress -> %d",
+                  ప్రవాహం->id, (పూర్ణాంకం)ఫలితం);
   }
 }
 
-static void h3_data_done(struct Curl_cfilter *cf, struct Curl_easy *data)
+స్థిర శూన్య h3_దత్తాంశం_పూర్తి(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
 
-  (void)cf;
-  if(stream) {
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] easy handle is done", stream->id);
-    cf_quiche_stream_close(cf, data, stream);
-    Curl_u32_ptrset_unset(&ctx->streams, data->mid);
+  (శూన్య)cf;
+  ఒకవేళ(ప్రవాహం) {
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] easy handle is done", ప్రవాహం->id);
+    cf_quiche_ప్రవాహం_close(cf, దత్తాంశం, ప్రవాహం);
+    Curl_u32_ptrset_unset(&ctx->streams, దత్తాంశం->mid);
   }
 }
 
-static void cf_quiche_expire_conn_closed(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+స్థిర శూన్య cf_quiche_expire_conn_closed(నిర్మాణం Curl_cfilter *cf,
+                                         నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  DEBUGASSERT(data->multi);
-  CURL_TRC_CF(data, cf, "conn closed, expire all transfers");
-  cf_quiche_for_all_streams(cf, data->multi, cf_quiche_do_expire, NULL);
+  DEBUGASSERT(దత్తాంశం->multi);
+  CURL_TRC_CF(దత్తాంశం, cf, "conn closed, expire all transfers");
+  cf_quiche_for_all_streams(cf, దత్తాంశం->multi, cf_quiche_do_expire, ఖాళీ);
 }
 
-static void cf_quiche_write_hd(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h3_stream_ctx *stream,
-                               const char *buf, size_t blen, bool eos)
+స్థిర శూన్య cf_quiche_write_hd(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం,
+                               స్థిరరాశి అక్షరం *buf, size_t blen, bool eos)
 {
   /* This function returns no error intentionally, but records
    * the result at the stream, skipping further writes once the
@@ -341,798 +341,798 @@ static void cf_quiche_write_hd(struct Curl_cfilter *cf,
    * The stream is subsequently cancelled "higher up" in the filter's
    * send/recv callbacks. Closing the stream here leads to SEND/RECV
    * errors in other places that then overwrite the transfer's result. */
-  if(!stream->xfer_result) {
-    stream->xfer_result = Curl_xfer_write_resp_hd(data, buf, blen, eos);
-    if(stream->xfer_result)
-      CURL_TRC_CF(data, cf, "[%" PRIu64 "] error %d writing %zu "
-                  "bytes of headers", stream->id, (int)stream->xfer_result,
+  ఒకవేళ(!ప్రవాహం->xfer_ఫలితం) {
+    ప్రవాహం->xfer_ఫలితం = Curl_xfer_write_resp_hd(దత్తాంశం, buf, blen, eos);
+    ఒకవేళ(ప్రవాహం->xfer_ఫలితం)
+      CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] error %d writing %zu "
+                  "bytes of headers", ప్రవాహం->id, (పూర్ణాంకం)ప్రవాహం->xfer_ఫలితం,
                   blen);
   }
 }
 
-struct cb_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_easy *data;
-  struct h3_stream_ctx *stream;
+నిర్మాణం cb_ctx {
+  నిర్మాణం Curl_cfilter *cf;
+  నిర్మాణం Curl_easy *దత్తాంశం;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం;
 };
 
-static bool is_valid_h3_header(const uint8_t *hdr, size_t hlen)
+స్థిర bool is_valid_h3_శీర్షిక(స్థిరరాశి uint8_t *hdr, size_t hlen)
 {
-  while(hlen--) {
-    switch(*hdr++) {
-    case '\n':
-    case '\r':
-    case '\0':
-      return FALSE;
+  అయితే(hlen--) {
+    ఎంపిక(*hdr++) {
+    స్థితి '\n':
+    స్థితి '\r':
+    స్థితి '\0':
+      తిరిగి FALSE;
     }
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-static int cb_each_header(uint8_t *name, size_t name_len,
-                          uint8_t *value, size_t value_len,
-                          void *argp)
+స్థిర పూర్ణాంకం cb_each_శీర్షిక(uint8_t *name, size_t name_len,
+                          uint8_t *విలువ, size_t విలువ_len,
+                          శూన్య *argp)
 {
-  struct cb_ctx *x = argp;
-  struct Curl_cfilter *cf = x->cf;
-  struct Curl_easy *data = x->data;
-  struct h3_stream_ctx *stream = x->stream;
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cb_ctx *x = argp;
+  నిర్మాణం Curl_cfilter *cf = x->cf;
+  నిర్మాణం Curl_easy *దత్తాంశం = x->దత్తాంశం;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = x->ప్రవాహం;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!stream || stream->xfer_result)
-    return 1; /* abort iteration */
+  ఒకవేళ(!ప్రవాహం || ప్రవాహం->xfer_ఫలితం)
+    తిరిగి 1; /* abort iteration */
 
-  if((name_len == 7) && !strncmp(HTTP_PSEUDO_STATUS, (char *)name, 7) &&
-     is_valid_h3_header(value, value_len)) {
+  ఒకవేళ((name_len == 7) && !అక్షరశ్రేణి_పోలిక(HTTP_PSEUDO_స్థితి, (అక్షరం *)name, 7) &&
+     is_valid_h3_శీర్షిక(విలువ, విలువ_len)) {
     curlx_dyn_reset(&ctx->h1hdr);
-    result = Curl_http_decode_status(&stream->status_code,
-                                     (const char *)value, value_len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->h1hdr, STRCONST("HTTP/3 "));
-    if(!result)
-      result = curlx_dyn_addn(&ctx->h1hdr, (const char *)value, value_len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->h1hdr, STRCONST(" \r\n"));
-    if(!result)
-      cf_quiche_write_hd(cf, data, stream, curlx_dyn_ptr(&ctx->h1hdr),
+    ఫలితం = Curl_http_decode_స్థితి(&ప్రవాహం->స్థితి_సంకేతం,
+                                     (స్థిరరాశి అక్షరం *)విలువ, విలువ_len);
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = curlx_dyn_addn(&ctx->h1hdr, STRCONST("HTTP/3 "));
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = curlx_dyn_addn(&ctx->h1hdr, (స్థిరరాశి అక్షరం *)విలువ, విలువ_len);
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = curlx_dyn_addn(&ctx->h1hdr, STRCONST(" \r\n"));
+    ఒకవేళ(!ఫలితం)
+      cf_quiche_write_hd(cf, దత్తాంశం, ప్రవాహం, curlx_dyn_ptr(&ctx->h1hdr),
                          curlx_dyn_len(&ctx->h1hdr), FALSE);
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] status: %s",
-                stream->id, curlx_dyn_ptr(&ctx->h1hdr));
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] status: %s",
+                ప్రవాహం->id, curlx_dyn_ptr(&ctx->h1hdr));
   }
-  else {
-    if(is_valid_h3_header(value, value_len) &&
-       is_valid_h3_header(name, name_len)) {
+  లేకపోతే {
+    ఒకవేళ(is_valid_h3_శీర్షిక(విలువ, విలువ_len) &&
+       is_valid_h3_శీర్షిక(name, name_len)) {
       /* store as an HTTP1-style header */
-      CURL_TRC_CF(data, cf, "[%" PRIu64 "] header: %.*s: %.*s",
-                  stream->id, (int)name_len, name,
-                  (int)value_len, value);
+      CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] header: %.*s: %.*s",
+                  ప్రవాహం->id, (పూర్ణాంకం)name_len, name,
+                  (పూర్ణాంకం)విలువ_len, విలువ);
       curlx_dyn_reset(&ctx->h1hdr);
-      result = curlx_dyn_addn(&ctx->h1hdr, (const char *)name, name_len);
-      if(!result)
-        result = curlx_dyn_addn(&ctx->h1hdr, STRCONST(": "));
-      if(!result)
-        result = curlx_dyn_addn(&ctx->h1hdr, (const char *)value, value_len);
-      if(!result)
-        result = curlx_dyn_addn(&ctx->h1hdr, STRCONST("\r\n"));
-      if(!result)
-        cf_quiche_write_hd(cf, data, stream, curlx_dyn_ptr(&ctx->h1hdr),
+      ఫలితం = curlx_dyn_addn(&ctx->h1hdr, (స్థిరరాశి అక్షరం *)name, name_len);
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = curlx_dyn_addn(&ctx->h1hdr, STRCONST(": "));
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = curlx_dyn_addn(&ctx->h1hdr, (స్థిరరాశి అక్షరం *)విలువ, విలువ_len);
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = curlx_dyn_addn(&ctx->h1hdr, STRCONST("\r\n"));
+      ఒకవేళ(!ఫలితం)
+        cf_quiche_write_hd(cf, దత్తాంశం, ప్రవాహం, curlx_dyn_ptr(&ctx->h1hdr),
                            curlx_dyn_len(&ctx->h1hdr), FALSE);
     }
-    else
-      CURL_TRC_CF(x->data, x->cf, "[%" PRIu64 "] ignore %zu bytes bad header",
-                  stream->id, value_len + name_len);
+    లేకపోతే
+      CURL_TRC_CF(x->దత్తాంశం, x->cf, "[%" PRIu64 "] ignore %zu bytes bad header",
+                  ప్రవాహం->id, విలువ_len + name_len);
   }
 
-  if(result) {
-    CURL_TRC_CF(x->data, x->cf, "[%" PRIu64 "] on header error %d",
-                stream->id, (int)result);
-    if(!stream->xfer_result)
-      stream->xfer_result = result;
+  ఒకవేళ(ఫలితం) {
+    CURL_TRC_CF(x->దత్తాంశం, x->cf, "[%" PRIu64 "] on header error %d",
+                ప్రవాహం->id, (పూర్ణాంకం)ఫలితం);
+    ఒకవేళ(!ప్రవాహం->xfer_ఫలితం)
+      ప్రవాహం->xfer_ఫలితం = ఫలితం;
   }
-  return stream->xfer_result ? 1 : 0;
+  తిరిగి ప్రవాహం->xfer_ఫలితం ? 1 : 0;
 }
 
-static CURLcode stream_resp_read(void *reader_ctx,
-                                 unsigned char *buf, size_t len,
+స్థిర CURLcode ప్రవాహం_resp_read(శూన్య *reader_ctx,
+                                 గుర్తులేని అక్షరం *buf, size_t len,
                                  size_t *pnread)
 {
-  struct cb_ctx *x = reader_ctx;
-  struct cf_quiche_ctx *ctx = x->cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, x->data);
+  నిర్మాణం cb_ctx *x = reader_ctx;
+  నిర్మాణం cf_quiche_ctx *ctx = x->cf->ctx;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = H3_ప్రవాహం_CTX(ctx, x->దత్తాంశం);
   ssize_t nread;
 
   *pnread = 0;
-  if(!stream)
-    return CURLE_RECV_ERROR;
+  ఒకవేళ(!ప్రవాహం)
+    తిరిగి CURLE_RECV_ERROR;
 
-  nread = quiche_h3_recv_body(ctx->h3c, ctx->qconn, stream->id, buf, len);
-  if(!curlx_sztouz(nread, pnread))
-    return CURLE_AGAIN;
-  return CURLE_OK;
+  nread = quiche_h3_recv_body(ctx->h3c, ctx->qconn, ప్రవాహం->id, buf, len);
+  ఒకవేళ(!curlx_sztouz(nread, pnread))
+    తిరిగి CURLE_AGAIN;
+  తిరిగి CURLE_OK;
 }
 
-static void cf_quiche_flush_body(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct h3_stream_ctx *stream)
+స్థిర శూన్య cf_quiche_flush_body(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  const uint8_t *buf;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  స్థిరరాశి uint8_t *buf;
   size_t blen;
 
-  while(stream && !stream->xfer_result) {
-    if(Curl_bufq_peek(&ctx->writebuf, &buf, &blen)) {
-      stream->xfer_result = Curl_xfer_write_resp(
-        data, (const char *)buf, blen, FALSE);
+  అయితే(ప్రవాహం && !ప్రవాహం->xfer_ఫలితం) {
+    ఒకవేళ(Curl_bufq_peek(&ctx->writebuf, &buf, &blen)) {
+      ప్రవాహం->xfer_ఫలితం = Curl_xfer_write_resp(
+        దత్తాంశం, (స్థిరరాశి అక్షరం *)buf, blen, FALSE);
       Curl_bufq_skip(&ctx->writebuf, blen);
-      if(stream->xfer_result) {
-        CURL_TRC_CF(data, cf, "[%" PRIu64 "] error %d writing %zu bytes"
-                    " of data", stream->id, (int)stream->xfer_result, blen);
+      ఒకవేళ(ప్రవాహం->xfer_ఫలితం) {
+        CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] error %d writing %zu bytes"
+                    " of data", ప్రవాహం->id, (పూర్ణాంకం)ప్రవాహం->xfer_ఫలితం, blen);
       }
     }
-    else
-      break;
+    లేకపోతే
+      ఆపు;
   }
   Curl_bufq_reset(&ctx->writebuf);
 }
 
-static void cf_quiche_recv_body(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct h3_stream_ctx *stream)
+స్థిర శూన్య cf_quiche_recv_body(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
   size_t nread;
-  struct cb_ctx cb_ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cb_ctx cb_ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!stream)
-    return;
+  ఒకవేళ(!ప్రవాహం)
+    తిరిగి;
 
   /* Even when the transfer has already errored, we need to receive
    * the data from quiche, as quiche otherwise gets stuck and
    * raise events to receive over and over again. */
   cb_ctx.cf = cf;
-  cb_ctx.data = data;
-  cb_ctx.stream = stream;
+  cb_ctx.దత్తాంశం = దత్తాంశం;
+  cb_ctx.ప్రవాహం = ప్రవాహం;
   Curl_bufq_reset(&ctx->writebuf);
-  while(!result) {
-    result = Curl_bufq_slurp(&ctx->writebuf,
-                             stream_resp_read, &cb_ctx, &nread);
-    if(!result)
-      cf_quiche_flush_body(cf, data, stream);
-    else if(result == CURLE_AGAIN)
-      break;
-    else if(result) {
-      CURL_TRC_CF(data, cf, "[%" PRIu64 "] recv_body error %d",
-                  stream->id, (int)result);
-      failf(data, "[%" PRIu64 "] Error %d in HTTP/3 response body for stream",
-            stream->id, (int)result);
-      stream->closed = TRUE;
-      stream->reset = TRUE;
-      stream->send_closed = TRUE;
-      if(!stream->xfer_result)
-        stream->xfer_result = result;
+  అయితే(!ఫలితం) {
+    ఫలితం = Curl_bufq_slurp(&ctx->writebuf,
+                             ప్రవాహం_resp_read, &cb_ctx, &nread);
+    ఒకవేళ(!ఫలితం)
+      cf_quiche_flush_body(cf, దత్తాంశం, ప్రవాహం);
+    లేకపోతే ఒకవేళ(ఫలితం == CURLE_AGAIN)
+      ఆపు;
+    లేకపోతే ఒకవేళ(ఫలితం) {
+      CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] recv_body error %d",
+                  ప్రవాహం->id, (పూర్ణాంకం)ఫలితం);
+      failf(దత్తాంశం, "[%" PRIu64 "] Error %d in HTTP/3 response body for stream",
+            ప్రవాహం->id, (పూర్ణాంకం)ఫలితం);
+      ప్రవాహం->closed = TRUE;
+      ప్రవాహం->reset = TRUE;
+      ప్రవాహం->send_closed = TRUE;
+      ఒకవేళ(!ప్రవాహం->xfer_ఫలితం)
+        ప్రవాహం->xfer_ఫలితం = ఫలితం;
     }
   }
-  cf_quiche_flush_body(cf, data, stream);
+  cf_quiche_flush_body(cf, దత్తాంశం, ప్రవాహం);
 }
 
-static void cf_quiche_process_ev(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct h3_stream_ctx *stream,
+స్థిర శూన్య cf_quiche_process_ev(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం,
                                  quiche_h3_event *ev)
 {
-  enum quiche_h3_event_type type;
+  గణన quiche_h3_event_type type;
 
-  if(!stream)
-    return;
+  ఒకవేళ(!ప్రవాహం)
+    తిరిగి;
 
   type = quiche_h3_event_type(ev);
 
-  switch(type) {
-  case QUICHE_H3_EVENT_HEADERS: {
-    struct cb_ctx cb_ctx;
-    stream->resp_got_header = TRUE;
+  ఎంపిక(type) {
+  స్థితి QUICHE_H3_EVENT_శీర్షికలు: {
+    నిర్మాణం cb_ctx cb_ctx;
+    ప్రవాహం->resp_got_శీర్షిక = TRUE;
     cb_ctx.cf = cf;
-    cb_ctx.data = data;
-    cb_ctx.stream = stream;
-    quiche_h3_event_for_each_header(ev, cb_each_header, &cb_ctx);
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] <- [HEADERS]", stream->id);
-    Curl_multi_mark_dirty(data);
-    break;
+    cb_ctx.దత్తాంశం = దత్తాంశం;
+    cb_ctx.ప్రవాహం = ప్రవాహం;
+    quiche_h3_event_for_each_శీర్షిక(ev, cb_each_శీర్షిక, &cb_ctx);
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] <- [HEADERS]", ప్రవాహం->id);
+    Curl_multi_mark_dirty(దత్తాంశం);
+    ఆపు;
   }
-  case QUICHE_H3_EVENT_DATA:
-    if(!stream->resp_hds_complete) {
-      stream->resp_hds_complete = TRUE;
-      cf_quiche_write_hd(cf, data, stream, "\r\n", 2, FALSE);
+  స్థితి QUICHE_H3_EVENT_దత్తాంశం:
+    ఒకవేళ(!ప్రవాహం->resp_hds_complete) {
+      ప్రవాహం->resp_hds_complete = TRUE;
+      cf_quiche_write_hd(cf, దత్తాంశం, ప్రవాహం, "\r\n", 2, FALSE);
     }
-    cf_quiche_recv_body(cf, data, stream);
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] <- [DATA]", stream->id);
-    Curl_multi_mark_dirty(data);
-    break;
+    cf_quiche_recv_body(cf, దత్తాంశం, ప్రవాహం);
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] <- [DATA]", ప్రవాహం->id);
+    Curl_multi_mark_dirty(దత్తాంశం);
+    ఆపు;
 
-  case QUICHE_H3_EVENT_RESET:
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] RESET", stream->id);
-    stream->closed = TRUE;
-    stream->reset = TRUE;
-    stream->send_closed = TRUE;
-    Curl_multi_mark_dirty(data);
-    break;
+  స్థితి QUICHE_H3_EVENT_RESET:
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] RESET", ప్రవాహం->id);
+    ప్రవాహం->closed = TRUE;
+    ప్రవాహం->reset = TRUE;
+    ప్రవాహం->send_closed = TRUE;
+    Curl_multi_mark_dirty(దత్తాంశం);
+    ఆపు;
 
-  case QUICHE_H3_EVENT_FINISHED:
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] CLOSED", stream->id);
-    if(!stream->resp_hds_complete) {
-      stream->resp_hds_complete = TRUE;
-      cf_quiche_write_hd(cf, data, stream, "\r\n", 2, TRUE);
+  స్థితి QUICHE_H3_EVENT_ముగిసిన:
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] CLOSED", ప్రవాహం->id);
+    ఒకవేళ(!ప్రవాహం->resp_hds_complete) {
+      ప్రవాహం->resp_hds_complete = TRUE;
+      cf_quiche_write_hd(cf, దత్తాంశం, ప్రవాహం, "\r\n", 2, TRUE);
     }
-    stream->closed = TRUE;
-    Curl_multi_mark_dirty(data);
-    break;
+    ప్రవాహం->closed = TRUE;
+    Curl_multi_mark_dirty(దత్తాంశం);
+    ఆపు;
 
-  case QUICHE_H3_EVENT_GOAWAY:
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] <- [GOAWAY]", stream->id);
-    break;
+  స్థితి QUICHE_H3_EVENT_GOAWAY:
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] <- [GOAWAY]", ప్రవాహం->id);
+    ఆపు;
 
-  default:
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] recv, unhandled event %d",
-                stream->id, (int)type);
-    break;
+  అప్రమేయ:
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] recv, unhandled event %d",
+                ప్రవాహం->id, (పూర్ణాంకం)type);
+    ఆపు;
   }
 }
 
-struct cf_quiche_disp_ctx {
-  uint64_t stream_id;
-  struct Curl_cfilter *cf;
-  struct Curl_multi *multi;
+నిర్మాణం cf_quiche_disp_ctx {
+  uint64_t ప్రవాహం_id;
+  నిర్మాణం Curl_cfilter *cf;
+  నిర్మాణం Curl_multi *multi;
   quiche_h3_event *ev;
 };
 
-static bool cf_quiche_disp_event(uint32_t mid, void *val, void *user_data)
+స్థిర bool cf_quiche_disp_event(uint32_t mid, శూన్య *val, శూన్య *user_దత్తాంశం)
 {
-  struct cf_quiche_disp_ctx *dctx = user_data;
-  struct h3_stream_ctx *stream = val;
+  నిర్మాణం cf_quiche_disp_ctx *dctx = user_దత్తాంశం;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = val;
 
-  if(stream->id == dctx->stream_id) {
-    struct Curl_easy *sdata = Curl_multi_get_easy(dctx->multi, mid);
-    if(sdata)
-      cf_quiche_process_ev(dctx->cf, sdata, stream, dctx->ev);
-    return FALSE; /* stop iterating */
+  ఒకవేళ(ప్రవాహం->id == dctx->ప్రవాహం_id) {
+    నిర్మాణం Curl_easy *sdata = Curl_multi_get_easy(dctx->multi, mid);
+    ఒకవేళ(sdata)
+      cf_quiche_process_ev(dctx->cf, sdata, ప్రవాహం, dctx->ev);
+    తిరిగి FALSE; /* stop iterating */
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-static CURLcode cf_poll_events(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+స్థిర CURLcode cf_poll_events(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = NULL;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = ఖాళీ;
   quiche_h3_event *ev;
 
   /* Take in the events and distribute them to the transfers. */
-  while(ctx->h3c) {
+  అయితే(ctx->h3c) {
     int64_t rv = quiche_h3_conn_poll(ctx->h3c, ctx->qconn, &ev);
-    if(rv == QUICHE_H3_ERR_DONE) {
-      break;
+    ఒకవేళ(rv == QUICHE_H3_ERR_పూర్తి) {
+      ఆపు;
     }
-    else if(rv < 0) {
-      CURL_TRC_CF(data, cf, "error poll: %" PRId64, rv);
-      return CURLE_HTTP3;
+    లేకపోతే ఒకవేళ(rv < 0) {
+      CURL_TRC_CF(దత్తాంశం, cf, "error poll: %" PRId64, rv);
+      తిరిగి CURLE_HTTP3;
     }
-    else {
-      stream = H3_STREAM_CTX(ctx, data);
-      if(stream && stream->id == (uint64_t)rv) {
+    లేకపోతే {
+      ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
+      ఒకవేళ(ప్రవాహం && ప్రవాహం->id == (uint64_t)rv) {
         /* event for calling transfer */
-        cf_quiche_process_ev(cf, data, stream, ev);
+        cf_quiche_process_ev(cf, దత్తాంశం, ప్రవాహం, ev);
         quiche_h3_event_free(ev);
-        if(stream->xfer_result)
-          return stream->xfer_result;
+        ఒకవేళ(ప్రవాహం->xfer_ఫలితం)
+          తిరిగి ప్రవాహం->xfer_ఫలితం;
       }
-      else {
+      లేకపోతే {
         /* another transfer, do not return errors, as they are not for
          * the calling transfer */
-        struct cf_quiche_disp_ctx dctx;
-        dctx.stream_id = (uint64_t)rv;
+        నిర్మాణం cf_quiche_disp_ctx dctx;
+        dctx.ప్రవాహం_id = (uint64_t)rv;
         dctx.cf = cf;
-        dctx.multi = data->multi;
+        dctx.multi = దత్తాంశం->multi;
         dctx.ev = ev;
-        Curl_u32_ptrset_visit(&ctx->streams, cf_quiche_disp_event, &dctx);
+        Curl_u32_ptrset_సందర్శించు(&ctx->streams, cf_quiche_disp_event, &dctx);
         quiche_h3_event_free(ev);
       }
     }
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-struct recv_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_easy *data;
-  int pkts;
+నిర్మాణం recv_ctx {
+  నిర్మాణం Curl_cfilter *cf;
+  నిర్మాణం Curl_easy *దత్తాంశం;
+  పూర్ణాంకం pkts;
 };
 
-static CURLcode cf_quiche_recv_pkts(const unsigned char *buf, size_t buflen,
-                                    size_t gso_size,
-                                    struct sockaddr_storage *remote_addr,
+స్థిర CURLcode cf_quiche_recv_pkts(స్థిరరాశి గుర్తులేని అక్షరం *buf, size_t buflen,
+                                    size_t gso_కొలత,
+                                    నిర్మాణం sockaddr_storage *remote_addr,
                                     socklen_t remote_addrlen, uint8_t ecn,
-                                    void *userp)
+                                    శూన్య *userp)
 {
-  struct recv_ctx *r = userp;
-  struct cf_quiche_ctx *ctx = r->cf->ctx;
+  నిర్మాణం recv_ctx *r = userp;
+  నిర్మాణం cf_quiche_ctx *ctx = r->cf->ctx;
   quiche_recv_info recv_info;
-  size_t pktlen, offset, nread;
+  size_t pktlen, స్థానభ్రంశం, nread;
   ssize_t rv;
 
-  (void)ecn;
+  (శూన్య)ecn;
 
-  recv_info.to = (struct sockaddr *)&ctx->q.local_addr;
-  recv_info.to_len = ctx->q.local_addrlen;
-  recv_info.from = (struct sockaddr *)remote_addr;
+  recv_info.గమ్యం = (నిర్మాణం sockaddr *)&ctx->q.local_addr;
+  recv_info.గమ్యం_len = ctx->q.local_addrlen;
+  recv_info.from = (నిర్మాణం sockaddr *)remote_addr;
   recv_info.from_len = remote_addrlen;
 
-  for(offset = 0; offset < buflen; offset += gso_size) {
-    pktlen = ((offset + gso_size) <= buflen) ? gso_size : (buflen - offset);
+  కొరకు(స్థానభ్రంశం = 0; స్థానభ్రంశం < buflen; స్థానభ్రంశం += gso_కొలత) {
+    pktlen = ((స్థానభ్రంశం + gso_కొలత) <= buflen) ? gso_కొలత : (buflen - స్థానభ్రంశం);
     rv = quiche_conn_recv(ctx->qconn,
-                          (unsigned char *)CURL_UNCONST(buf + offset),
+                          (గుర్తులేని అక్షరం *)CURL_UNCONST(buf + స్థానభ్రంశం),
                           pktlen, &recv_info);
-    if(!curlx_sztouz(rv, &nread)) {
-      if(QUICHE_ERR_DONE == rv) {
-        if(quiche_conn_is_draining(ctx->qconn)) {
-          CURL_TRC_CF(r->data, r->cf, "ingress, connection is draining");
-          return CURLE_RECV_ERROR;
+    ఒకవేళ(!curlx_sztouz(rv, &nread)) {
+      ఒకవేళ(QUICHE_ERR_పూర్తి == rv) {
+        ఒకవేళ(quiche_conn_is_draining(ctx->qconn)) {
+          CURL_TRC_CF(r->దత్తాంశం, r->cf, "ingress, connection is draining");
+          తిరిగి CURLE_RECV_ERROR;
         }
-        if(quiche_conn_is_closed(ctx->qconn)) {
-          CURL_TRC_CF(r->data, r->cf, "ingress, connection is closed");
-          return CURLE_RECV_ERROR;
+        ఒకవేళ(quiche_conn_is_closed(ctx->qconn)) {
+          CURL_TRC_CF(r->దత్తాంశం, r->cf, "ingress, connection is closed");
+          తిరిగి CURLE_RECV_ERROR;
         }
-        CURL_TRC_CF(r->data, r->cf, "ingress, quiche is DONE");
-        return CURLE_OK;
+        CURL_TRC_CF(r->దత్తాంశం, r->cf, "ingress, quiche is DONE");
+        తిరిగి CURLE_OK;
       }
-      else if(QUICHE_ERR_TLS_FAIL == rv) {
-        long verify_ok = SSL_get_verify_result(ctx->tls.ossl.ssl);
-        if(verify_ok != X509_V_OK) {
-          failf(r->data, "SSL certificate problem: %s",
+      లేకపోతే ఒకవేళ(QUICHE_ERR_TLS_FAIL == rv) {
+        దీర్ఘ verify_ok = SSL_get_verify_ఫలితం(ctx->tls.ossl.ssl);
+        ఒకవేళ(verify_ok != X509_V_OK) {
+          failf(r->దత్తాంశం, "SSL certificate problem: %s",
                 X509_verify_cert_error_string(verify_ok));
-          return CURLE_PEER_FAILED_VERIFICATION;
+          తిరిగి CURLE_PEER_FAILED_VERIFICATION;
         }
-        failf(r->data, "ingress, quiche reports TLS fail");
-        return CURLE_RECV_ERROR;
+        failf(r->దత్తాంశం, "ingress, quiche reports TLS fail");
+        తిరిగి CURLE_RECV_ERROR;
       }
-      else {
-        failf(r->data, "quiche reports error %zd on receive", rv);
-        return CURLE_RECV_ERROR;
+      లేకపోతే {
+        failf(r->దత్తాంశం, "quiche reports error %zd on receive", rv);
+        తిరిగి CURLE_RECV_ERROR;
       }
     }
-    else if(nread < pktlen) {
-      CURL_TRC_CF(r->data, r->cf, "ingress, quiche only read %zu/%zu bytes",
+    లేకపోతే ఒకవేళ(nread < pktlen) {
+      CURL_TRC_CF(r->దత్తాంశం, r->cf, "ingress, quiche only read %zu/%zu bytes",
                   nread, pktlen);
     }
     ++r->pkts;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode cf_process_ingress(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+స్థిర CURLcode cf_process_ingress(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct recv_ctx rctx;
-  CURLcode result;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం recv_ctx rctx;
+  CURLcode ఫలితం;
 
   DEBUGASSERT(ctx->qconn);
-  result = Curl_vquic_tls_before_recv(&ctx->tls, cf, data);
-  if(result)
-    return result;
+  ఫలితం = Curl_vquic_tls_before_recv(&ctx->tls, cf, దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   rctx.cf = cf;
-  rctx.data = data;
+  rctx.దత్తాంశం = దత్తాంశం;
   rctx.pkts = 0;
 
-  result = Curl_vquic_recv_packets(cf, data, &ctx->q, 1000,
+  ఫలితం = Curl_vquic_recv_packets(cf, దత్తాంశం, &ctx->q, 1000,
                                    cf_quiche_recv_pkts, &rctx);
-  if(result)
-    return result;
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  if(rctx.pkts > 0) {
+  ఒకవేళ(rctx.pkts > 0) {
     /* quiche digested ingress packets. It might have opened flow control
      * windows again. */
-    DEBUGASSERT(data->multi);
-    cf_quiche_for_all_streams(cf, data->multi, cf_quiche_do_resume, NULL);
+    DEBUGASSERT(దత్తాంశం->multi);
+    cf_quiche_for_all_streams(cf, దత్తాంశం->multi, cf_quiche_do_resume, ఖాళీ);
   }
-  return cf_poll_events(cf, data);
+  తిరిగి cf_poll_events(cf, దత్తాంశం);
 }
 
-struct read_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_easy *data;
+నిర్మాణం read_ctx {
+  నిర్మాణం Curl_cfilter *cf;
+  నిర్మాణం Curl_easy *దత్తాంశం;
   quiche_send_info send_info;
 };
 
-static CURLcode read_pkt_to_send(void *userp,
-                                 unsigned char *buf, size_t buflen,
+స్థిర CURLcode read_pkt_గమ్యం_send(శూన్య *userp,
+                                 గుర్తులేని అక్షరం *buf, size_t buflen,
                                  size_t *pnread)
 {
-  struct read_ctx *x = userp;
-  struct cf_quiche_ctx *ctx = x->cf->ctx;
+  నిర్మాణం read_ctx *x = userp;
+  నిర్మాణం cf_quiche_ctx *ctx = x->cf->ctx;
   ssize_t rv;
 
   *pnread = 0;
   rv = quiche_conn_send(ctx->qconn, buf, buflen, &x->send_info);
-  if(rv == QUICHE_ERR_DONE)
-    return CURLE_AGAIN;
+  ఒకవేళ(rv == QUICHE_ERR_పూర్తి)
+    తిరిగి CURLE_AGAIN;
 
-  if(!curlx_sztouz(rv, pnread)) {
-    failf(x->data, "quiche_conn_send returned %zd", rv);
-    return CURLE_SEND_ERROR;
+  ఒకవేళ(!curlx_sztouz(rv, pnread)) {
+    failf(x->దత్తాంశం, "quiche_conn_send returned %zd", rv);
+    తిరిగి CURLE_SEND_ERROR;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
  * flush_egress drains the buffers and sends off data.
  * Calls failf() on errors.
  */
-static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+స్థిర CURLcode cf_flush_egress(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
   size_t nread;
-  CURLcode result;
+  CURLcode ఫలితం;
   int64_t expiry_ns;
   int64_t timeout_ns;
-  struct read_ctx readx;
-  size_t pkt_count, gsolen;
+  నిర్మాణం read_ctx readx;
+  size_t pkt_లెక్క, gsolen;
 
   expiry_ns = quiche_conn_timeout_as_nanos(ctx->qconn);
-  if(!expiry_ns) {
+  ఒకవేళ(!expiry_ns) {
     quiche_conn_on_timeout(ctx->qconn);
-    if(quiche_conn_is_closed(ctx->qconn)) {
-      if(quiche_conn_is_timed_out(ctx->qconn))
-        failf(data, "connection closed by idle timeout");
-      else
-        failf(data, "connection closed by server");
+    ఒకవేళ(quiche_conn_is_closed(ctx->qconn)) {
+      ఒకవేళ(quiche_conn_is_timed_బహిర్గతం(ctx->qconn))
+        failf(దత్తాంశం, "connection closed by idle timeout");
+      లేకపోతే
+        failf(దత్తాంశం, "connection closed by server");
       /* Connection timed out, expire all transfers belonging to it
        * as it does not get any more POLL events here. */
-      cf_quiche_expire_conn_closed(cf, data);
-      return CURLE_SEND_ERROR;
+      cf_quiche_expire_conn_closed(cf, దత్తాంశం);
+      తిరిగి CURLE_SEND_ERROR;
     }
   }
 
-  result = Curl_vquic_flush(cf, data, &ctx->q);
-  if(result) {
-    if(result == CURLE_AGAIN) {
-      Curl_expire(data, 1, EXPIRE_QUIC);
-      return CURLE_OK;
+  ఫలితం = Curl_vquic_flush(cf, దత్తాంశం, &ctx->q);
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+      Curl_expire(దత్తాంశం, 1, EXPIRE_QUIC);
+      తిరిగి CURLE_OK;
     }
-    return result;
+    తిరిగి ఫలితం;
   }
 
   readx.cf = cf;
-  readx.data = data;
-  memset(&readx.send_info, 0, sizeof(readx.send_info));
-  pkt_count = 0;
-  gsolen = quiche_conn_max_send_udp_payload_size(ctx->qconn);
-  for(;;) {
+  readx.దత్తాంశం = దత్తాంశం;
+  memset(&readx.send_info, 0, పరిమాణం(readx.send_info));
+  pkt_లెక్క = 0;
+  gsolen = quiche_conn_max_send_udp_payload_కొలత(ctx->qconn);
+  కొరకు(;;) {
     /* add the next packet to send, if any, to our buffer */
-    result = Curl_bufq_sipn(&ctx->q.sendbuf, 0,
-                            read_pkt_to_send, &readx, &nread);
-    if(result) {
-      if(result != CURLE_AGAIN)
-        return result;
+    ఫలితం = Curl_bufq_sipn(&ctx->q.sendbuf, 0,
+                            read_pkt_గమ్యం_send, &readx, &nread);
+    ఒకవేళ(ఫలితం) {
+      ఒకవేళ(ఫలితం != CURLE_AGAIN)
+        తిరిగి ఫలితం;
       /* Nothing more to add, flush and leave */
-      result = Curl_vquic_send(cf, data, &ctx->q, gsolen);
-      if(result) {
-        if(result == CURLE_AGAIN) {
-          Curl_expire(data, 1, EXPIRE_QUIC);
-          return CURLE_OK;
+      ఫలితం = Curl_vquic_send(cf, దత్తాంశం, &ctx->q, gsolen);
+      ఒకవేళ(ఫలితం) {
+        ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+          Curl_expire(దత్తాంశం, 1, EXPIRE_QUIC);
+          తిరిగి CURLE_OK;
         }
-        return result;
+        తిరిగి ఫలితం;
       }
-      goto out;
+      వెళ్ళు బహిర్గతం;
     }
 
-    ++pkt_count;
-    if(nread < gsolen || pkt_count >= MAX_PKT_BURST) {
-      result = Curl_vquic_send(cf, data, &ctx->q, gsolen);
-      if(result) {
-        if(result == CURLE_AGAIN) {
-          Curl_expire(data, 1, EXPIRE_QUIC);
-          return CURLE_OK;
+    ++pkt_లెక్క;
+    ఒకవేళ(nread < gsolen || pkt_లెక్క >= MAX_PKT_వ్యవధి) {
+      ఫలితం = Curl_vquic_send(cf, దత్తాంశం, &ctx->q, gsolen);
+      ఒకవేళ(ఫలితం) {
+        ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+          Curl_expire(దత్తాంశం, 1, EXPIRE_QUIC);
+          తిరిగి CURLE_OK;
         }
-        goto out;
+        వెళ్ళు బహిర్గతం;
       }
-      pkt_count = 0;
+      pkt_లెక్క = 0;
     }
   }
 
-out:
+బహిర్గతం:
   timeout_ns = quiche_conn_timeout_as_nanos(ctx->qconn);
-  if(timeout_ns % 1000000)
+  ఒకవేళ(timeout_ns % 1000000)
     timeout_ns += 1000000;
   /* expire resolution is milliseconds */
-  Curl_expire(data, (timeout_ns / 1000000), EXPIRE_QUIC);
-  return result;
+  Curl_expire(దత్తాంశం, (timeout_ns / 1000000), EXPIRE_QUIC);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode recv_closed_stream(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
+స్థిర CURLcode recv_closed_ప్రవాహం(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
                                    size_t *pnread)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
+  CURLcode ఫలితం = CURLE_OK;
 
-  DEBUGASSERT(stream);
+  DEBUGASSERT(ప్రవాహం);
   *pnread = 0;
-  if(stream->reset) {
-    if(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
-      infof(data, "HTTP/3 stream %" PRIu64 " refused by server, try again "
-            "on a new connection", stream->id);
+  ఒకవేళ(ప్రవాహం->reset) {
+    ఒకవేళ(ప్రవాహం->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
+      infof(దత్తాంశం, "HTTP/3 stream %" PRIu64 " refused by server, try again "
+            "on a new connection", ప్రవాహం->id);
       connclose(cf->conn); /* do not use this anymore */
-      data->state.refused_stream = TRUE;
-      return CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
+      దత్తాంశం->state.refused_ప్రవాహం = TRUE;
+      తిరిగి CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
     }
-    else if(stream->resp_hds_complete && data->req.no_body) {
-        CURL_TRC_CF(data, cf, "[%" PRIu64 "] error after response headers, "
+    లేకపోతే ఒకవేళ(ప్రవాహం->resp_hds_complete && దత్తాంశం->req.no_body) {
+        CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] error after response headers, "
                     "but we did not want a body anyway, ignore error 0x%"
-                    PRIx64 " %s", stream->id, stream->error3,
-                    Curl_vquic_h3_err_str(stream->error3));
-        return CURLE_OK;
+                    PRIx64 " %s", ప్రవాహం->id, ప్రవాహం->error3,
+                    Curl_vquic_h3_err_str(ప్రవాహం->error3));
+        తిరిగి CURLE_OK;
     }
-    failf(data, "HTTP/3 stream %" PRIu64 " reset by server (error 0x%" PRIx64
-          " %s)", stream->id, stream->error3,
-          Curl_vquic_h3_err_str(stream->error3));
-    result = data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] cf_recv, was reset -> %d",
-                stream->id, (int)result);
+    failf(దత్తాంశం, "HTTP/3 stream %" PRIu64 " reset by server (error 0x%" PRIx64
+          " %s)", ప్రవాహం->id, ప్రవాహం->error3,
+          Curl_vquic_h3_err_str(ప్రవాహం->error3));
+    ఫలితం = దత్తాంశం->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] cf_recv, was reset -> %d",
+                ప్రవాహం->id, (పూర్ణాంకం)ఫలితం);
   }
-  else if(!stream->resp_got_header) {
-    failf(data, "HTTP/3 stream %" PRIu64 " was closed cleanly, but before "
+  లేకపోతే ఒకవేళ(!ప్రవాహం->resp_got_శీర్షిక) {
+    failf(దత్తాంశం, "HTTP/3 stream %" PRIu64 " was closed cleanly, but before "
           "getting all response header fields, treated as error",
-          stream->id);
-    result = CURLE_HTTP3;
+          ప్రవాహం->id);
+    ఫలితం = CURLE_HTTP3;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_quiche_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               char *buf, size_t blen, size_t *pnread)
+స్థిర CURLcode cf_quiche_recv(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                               అక్షరం *buf, size_t blen, size_t *pnread)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
+  CURLcode ఫలితం = CURLE_OK;
 
   *pnread = 0;
-  (void)buf;
-  (void)blen;
-  Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
+  (శూన్య)buf;
+  (శూన్య)blen;
+  Curl_vquic_ctx_update_సమయం(&ctx->q, Curl_pgrs_now(దత్తాంశం));
 
-  if(!stream)
-    return CURLE_RECV_ERROR;
+  ఒకవేళ(!ప్రవాహం)
+    తిరిగి CURLE_RECV_ERROR;
 
-  result = cf_process_ingress(cf, data);
-  if(result) {
-    CURL_TRC_CF(data, cf, "cf_recv, error on ingress");
-    goto out;
+  ఫలితం = cf_process_ingress(cf, దత్తాంశం);
+  ఒకవేళ(ఫలితం) {
+    CURL_TRC_CF(దత్తాంశం, cf, "cf_recv, error on ingress");
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(stream->xfer_result) {
-    cf_quiche_stream_close(cf, data, stream);
-    result = stream->xfer_result;
-    goto out;
+  ఒకవేళ(ప్రవాహం->xfer_ఫలితం) {
+    cf_quiche_ప్రవాహం_close(cf, దత్తాంశం, ప్రవాహం);
+    ఫలితం = ప్రవాహం->xfer_ఫలితం;
+    వెళ్ళు బహిర్గతం;
   }
-  else if(stream->closed)
-    result = recv_closed_stream(cf, data, pnread);
-  else if(quiche_conn_is_draining(ctx->qconn)) {
-    failf(data, "QUIC connection is draining");
-    result = CURLE_HTTP3;
+  లేకపోతే ఒకవేళ(ప్రవాహం->closed)
+    ఫలితం = recv_closed_ప్రవాహం(cf, దత్తాంశం, pnread);
+  లేకపోతే ఒకవేళ(quiche_conn_is_draining(ctx->qconn)) {
+    failf(దత్తాంశం, "QUIC connection is draining");
+    ఫలితం = CURLE_HTTP3;
   }
-  else
-    result = CURLE_AGAIN;
+  లేకపోతే
+    ఫలితం = CURLE_AGAIN;
 
-out:
-  result = Curl_1st_fatal(result, cf_flush_egress(cf, data));
-  if(*pnread > 0)
-    ctx->data_recvd += *pnread;
-  CURL_TRC_CF(data, cf, "[%" PRIu64 "] cf_recv(len=%zu) -> %d, %zu, total=%"
-              FMT_OFF_T, stream->id, blen, (int)result, *pnread,
-              ctx->data_recvd);
-  return result;
+బహిర్గతం:
+  ఫలితం = Curl_1st_fatal(ఫలితం, cf_flush_egress(cf, దత్తాంశం));
+  ఒకవేళ(*pnread > 0)
+    ctx->దత్తాంశం_recvd += *pnread;
+  CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] cf_recv(len=%zu) -> %d, %zu, total=%"
+              FMT_OFF_T, ప్రవాహం->id, blen, (పూర్ణాంకం)ఫలితం, *pnread,
+              ctx->దత్తాంశం_recvd);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_quiche_send_body(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct h3_stream_ctx *stream,
-                                    const uint8_t *buf, size_t len, bool eos,
+స్థిర CURLcode cf_quiche_send_body(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం,
+                                    స్థిరరాశి uint8_t *buf, size_t len, bool eos,
                                     size_t *pnwritten)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
   ssize_t rv;
 
   *pnwritten = 0;
-  rv = quiche_h3_send_body(ctx->h3c, ctx->qconn, stream->id,
+  rv = quiche_h3_send_body(ctx->h3c, ctx->qconn, ప్రవాహం->id,
                            (uint8_t *)CURL_UNCONST(buf), len, eos);
-  if(rv == QUICHE_H3_ERR_DONE || (rv == 0 && len > 0)) {
+  ఒకవేళ(rv == QUICHE_H3_ERR_పూర్తి || (rv == 0 && len > 0)) {
     /* Blocked on flow control and should HOLD sending.
        When do we open again? */
-    if(!quiche_conn_stream_writable(ctx->qconn, stream->id, len)) {
-      CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) "
-                  "-> window exhausted", stream->id, len);
-      stream->quic_flow_blocked = TRUE;
+    ఒకవేళ(!quiche_conn_ప్రవాహం_writable(ctx->qconn, ప్రవాహం->id, len)) {
+      CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] send_body(len=%zu) "
+                  "-> window exhausted", ప్రవాహం->id, len);
+      ప్రవాహం->quic_flow_blocked = TRUE;
     }
-    return CURLE_AGAIN;
+    తిరిగి CURLE_AGAIN;
   }
-  else if(rv == QUICHE_H3_TRANSPORT_ERR_INVALID_STREAM_STATE) {
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) "
-                "-> invalid stream state", stream->id, len);
-    return CURLE_HTTP3;
+  లేకపోతే ఒకవేళ(rv == QUICHE_H3_TRANSPORT_ERR_INVALID_ప్రవాహం_STATE) {
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] send_body(len=%zu) "
+                "-> invalid stream state", ప్రవాహం->id, len);
+    తిరిగి CURLE_HTTP3;
   }
-  else if(rv == QUICHE_H3_TRANSPORT_ERR_FINAL_SIZE) {
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) -> exceeds size",
-                stream->id, len);
-    return CURLE_SEND_ERROR;
+  లేకపోతే ఒకవేళ(rv == QUICHE_H3_TRANSPORT_ERR_FINAL_కొలత) {
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] send_body(len=%zu) -> exceeds size",
+                ప్రవాహం->id, len);
+    తిరిగి CURLE_SEND_ERROR;
   }
-  else if(!curlx_sztouz(rv, pnwritten)) {
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) -> quiche err %zd",
-                stream->id, len, rv);
-    return CURLE_SEND_ERROR;
+  లేకపోతే ఒకవేళ(!curlx_sztouz(rv, pnwritten)) {
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] send_body(len=%zu) -> quiche err %zd",
+                ప్రవాహం->id, len, rv);
+    తిరిగి CURLE_SEND_ERROR;
   }
-  else {
-    if(eos && (len == *pnwritten))
-      stream->send_closed = TRUE;
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] send body(len=%zu, eos=%d) -> %zu",
-                stream->id, len, stream->send_closed, *pnwritten);
-    return CURLE_OK;
+  లేకపోతే {
+    ఒకవేళ(eos && (len == *pnwritten))
+      ప్రవాహం->send_closed = TRUE;
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] send body(len=%zu, eos=%d) -> %zu",
+                ప్రవాహం->id, len, ప్రవాహం->send_closed, *pnwritten);
+    తిరిగి CURLE_OK;
   }
 }
 
-static CURLcode h3_open_stream(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               const uint8_t *buf, size_t blen, bool eos,
+స్థిర CURLcode h3_open_ప్రవాహం(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               స్థిరరాశి uint8_t *buf, size_t blen, bool eos,
                                size_t *pnwritten)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
   size_t nheader, i;
   int64_t rv;
-  struct dynhds h2_headers;
-  quiche_h3_header *nva = NULL;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం dynhds h2_శీర్షికలు;
+  quiche_h3_శీర్షిక *nva = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
 
   *pnwritten = 0;
-  if(!stream) {
-    result = h3_data_setup(cf, data);
-    if(result)
-      return result;
-    stream = H3_STREAM_CTX(ctx, data);
-    DEBUGASSERT(stream);
+  ఒకవేళ(!ప్రవాహం) {
+    ఫలితం = h3_దత్తాంశం_అమరిక(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
+    ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
+    DEBUGASSERT(ప్రవాహం);
   }
 
-  Curl_dynhds_init(&h2_headers, 0, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&h2_శీర్షికలు, 0, DYN_HTTP_REQUEST);
 
-  DEBUGASSERT(stream);
+  DEBUGASSERT(ప్రవాహం);
 
-  result = Curl_h1_req_parse_read(&stream->h1, buf, blen, NULL,
-    !data->state.http_ignorecustom ?
-    CURL_EASY_STR(data, STRING_CUSTOMREQUEST) : NULL,
+  ఫలితం = Curl_h1_req_parse_read(&ప్రవాహం->h1, buf, blen, ఖాళీ,
+    !దత్తాంశం->state.http_ignorecustom ?
+    CURL_EASY_STR(దత్తాంశం, STRING_CUSTOMREQUEST) : ఖాళీ,
     0, pnwritten);
-  if(result)
-    goto out;
-  if(!stream->h1.done) {
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  ఒకవేళ(!ప్రవాహం->h1.పూర్తి) {
     /* need more data */
-    goto out;
+    వెళ్ళు బహిర్గతం;
   }
-  DEBUGASSERT(stream->h1.req);
+  DEBUGASSERT(ప్రవాహం->h1.req);
 
-  result = Curl_http_req_to_h2(&h2_headers, stream->h1.req, data);
-  if(result)
-    goto out;
+  ఫలితం = Curl_http_req_గమ్యం_h2(&h2_శీర్షికలు, ప్రవాహం->h1.req, దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
   /* no longer needed */
-  Curl_h1_req_parse_free(&stream->h1);
+  Curl_h1_req_parse_free(&ప్రవాహం->h1);
 
-  nheader = Curl_dynhds_count(&h2_headers);
-  nva = curlx_malloc(sizeof(quiche_h3_header) * nheader);
-  if(!nva) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  nheader = Curl_dynhds_లెక్క(&h2_శీర్షికలు);
+  nva = curlx_malloc(పరిమాణం(quiche_h3_శీర్షిక) * nheader);
+  ఒకవేళ(!nva) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  for(i = 0; i < nheader; ++i) {
-    struct dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
-    nva[i].name = (unsigned char *)e->name;
+  కొరకు(i = 0; i < nheader; ++i) {
+    నిర్మాణం dynhds_నమోదు *e = Curl_dynhds_getn(&h2_శీర్షికలు, i);
+    nva[i].name = (గుర్తులేని అక్షరం *)e->name;
     nva[i].name_len = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
-    nva[i].value_len = e->valuelen;
+    nva[i].విలువ = (గుర్తులేని అక్షరం *)e->విలువ;
+    nva[i].విలువ_len = e->valuelen;
   }
 
   buf += *pnwritten;
   blen -= *pnwritten;
 
-  if(eos && !blen)
-    stream->send_closed = TRUE;
+  ఒకవేళ(eos && !blen)
+    ప్రవాహం->send_closed = TRUE;
 
   rv = quiche_h3_send_request(ctx->h3c, ctx->qconn, nva, nheader,
-                              stream->send_closed);
-  CURL_TRC_CF(data, cf, "quiche_send_request() -> %" PRId64, rv);
-  if(rv < 0) {
-    if(QUICHE_H3_ERR_STREAM_BLOCKED == rv) {
+                              ప్రవాహం->send_closed);
+  CURL_TRC_CF(దత్తాంశం, cf, "quiche_send_request() -> %" PRId64, rv);
+  ఒకవేళ(rv < 0) {
+    ఒకవేళ(QUICHE_H3_ERR_ప్రవాహం_BLOCKED == rv) {
       /* quiche seems to report this error if the connection window is
        * exhausted. Which happens frequently and intermittent. */
-      CURL_TRC_CF(data, cf, "[%" PRIu64 "] blocked", stream->id);
-      stream->quic_flow_blocked = TRUE;
-      result = CURLE_AGAIN;
-      goto out;
+      CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] blocked", ప్రవాహం->id);
+      ప్రవాహం->quic_flow_blocked = TRUE;
+      ఫలితం = CURLE_AGAIN;
+      వెళ్ళు బహిర్గతం;
     }
-    else {
-      CURL_TRC_CF(data, cf, "send_request(%s) -> %" PRId64,
-                  Curl_bufref_ptr(&data->state.url), rv);
+    లేకపోతే {
+      CURL_TRC_CF(దత్తాంశం, cf, "send_request(%s) -> %" PRId64,
+                  Curl_bufref_ptr(&దత్తాంశం->state.url), rv);
     }
-    result = CURLE_SEND_ERROR;
-    goto out;
+    ఫలితం = CURLE_SEND_ERROR;
+    వెళ్ళు బహిర్గతం;
   }
 
-  DEBUGASSERT(!stream->opened);
-  stream->id = (uint64_t)rv;
-  stream->opened = TRUE;
-  stream->closed = FALSE;
-  stream->reset = FALSE;
+  DEBUGASSERT(!ప్రవాహం->opened);
+  ప్రవాహం->id = (uint64_t)rv;
+  ప్రవాహం->opened = TRUE;
+  ప్రవాహం->closed = FALSE;
+  ప్రవాహం->reset = FALSE;
 
-  if(Curl_trc_is_verbose(data)) {
-    infof(data, "[HTTP/3] [%" PRIu64 "] OPENED stream for %s",
-          stream->id, Curl_bufref_ptr(&data->state.url));
-    for(i = 0; i < nheader; ++i) {
-      infof(data, "[HTTP/3] [%" PRIu64 "] [%.*s: %.*s]", stream->id,
-            (int)nva[i].name_len, nva[i].name,
-            (int)nva[i].value_len, nva[i].value);
+  ఒకవేళ(Curl_trc_is_verbose(దత్తాంశం)) {
+    infof(దత్తాంశం, "[HTTP/3] [%" PRIu64 "] OPENED stream for %s",
+          ప్రవాహం->id, Curl_bufref_ptr(&దత్తాంశం->state.url));
+    కొరకు(i = 0; i < nheader; ++i) {
+      infof(దత్తాంశం, "[HTTP/3] [%" PRIu64 "] [%.*s: %.*s]", ప్రవాహం->id,
+            (పూర్ణాంకం)nva[i].name_len, nva[i].name,
+            (పూర్ణాంకం)nva[i].విలువ_len, nva[i].విలువ);
     }
   }
 
-  if(blen) {  /* after the headers, there was request BODY data */
+  ఒకవేళ(blen) {  /* after the headers, there was request BODY data */
     size_t nwritten;
     CURLcode r2 = CURLE_OK;
 
-    r2 = cf_quiche_send_body(cf, data, stream, buf, blen, eos, &nwritten);
-    if(r2 && (r2 != CURLE_AGAIN)) {  /* real error, fail */
-      result = r2;
+    r2 = cf_quiche_send_body(cf, దత్తాంశం, ప్రవాహం, buf, blen, eos, &nwritten);
+    ఒకవేళ(r2 && (r2 != CURLE_AGAIN)) {  /* real error, fail */
+      ఫలితం = r2;
     }
-    else if(nwritten > 0) {
+    లేకపోతే ఒకవేళ(nwritten > 0) {
       *pnwritten += nwritten;
     }
   }
 
-out:
+బహిర్గతం:
   curlx_free(nva);
-  Curl_dynhds_free(&h2_headers);
-  return result;
+  Curl_dynhds_free(&h2_శీర్షికలు);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_quiche_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               const uint8_t *buf, size_t len, bool eos,
+స్థిర CURLcode cf_quiche_send(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                               స్థిరరాశి uint8_t *buf, size_t len, bool eos,
                                size_t *pnwritten)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-  CURLcode result;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
+  CURLcode ఫలితం;
 
   *pnwritten = 0;
-  Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
+  Curl_vquic_ctx_update_సమయం(&ctx->q, Curl_pgrs_now(దత్తాంశం));
 
-  result = cf_process_ingress(cf, data);
-  if(result)
-    goto out;
+  ఫలితం = cf_process_ingress(cf, దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
-  if(!stream || !stream->opened) {
-    result = h3_open_stream(cf, data, buf, len, eos, pnwritten);
-    if(result)
-      goto out;
-    stream = H3_STREAM_CTX(ctx, data);
+  ఒకవేళ(!ప్రవాహం || !ప్రవాహం->opened) {
+    ఫలితం = h3_open_ప్రవాహం(cf, దత్తాంశం, buf, len, eos, pnwritten);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
+    ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
   }
-  else if(stream->xfer_result) {
-    cf_quiche_stream_close(cf, data, stream);
-    result = stream->xfer_result;
+  లేకపోతే ఒకవేళ(ప్రవాహం->xfer_ఫలితం) {
+    cf_quiche_ప్రవాహం_close(cf, దత్తాంశం, ప్రవాహం);
+    ఫలితం = ప్రవాహం->xfer_ఫలితం;
   }
-  else if(stream->closed) {
-    if(stream->resp_hds_complete) {
+  లేకపోతే ఒకవేళ(ప్రవాహం->closed) {
+    ఒకవేళ(ప్రవాహం->resp_hds_complete) {
       /* sending request body on a stream that has been closed by the
        * server. If the server has send us a final response, we should
        * silently discard the send data.
@@ -1141,487 +1141,487 @@ static CURLcode cf_quiche_send(struct Curl_cfilter *cf, struct Curl_easy *data,
        * sending the 30x response.
        * This is sort of a race: had the transfer loop called recv first,
        * it would see the response and stop/discard sending on its own- */
-      CURL_TRC_CF(data, cf, "[%" PRIu64 "] discarding data "
-                  "on closed stream with response", stream->id);
-      result = CURLE_OK;
+      CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] discarding data "
+                  "on closed stream with response", ప్రవాహం->id);
+      ఫలితం = CURLE_OK;
       *pnwritten = len;
-      goto out;
+      వెళ్ళు బహిర్గతం;
     }
-    CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) "
-                "-> stream closed", stream->id, len);
-    result = CURLE_HTTP3;
-    goto out;
+    CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] send_body(len=%zu) "
+                "-> stream closed", ప్రవాహం->id, len);
+    ఫలితం = CURLE_HTTP3;
+    వెళ్ళు బహిర్గతం;
   }
-  else {
-    result = cf_quiche_send_body(cf, data, stream, buf, len, eos, pnwritten);
+  లేకపోతే {
+    ఫలితం = cf_quiche_send_body(cf, దత్తాంశం, ప్రవాహం, buf, len, eos, pnwritten);
   }
 
-out:
-  result = Curl_1st_fatal(result, cf_flush_egress(cf, data));
+బహిర్గతం:
+  ఫలితం = Curl_1st_fatal(ఫలితం, cf_flush_egress(cf, దత్తాంశం));
 
-  CURL_TRC_CF(data, cf, "[%" PRIu64 "] cf_send(len=%zu) -> %d, %zu",
-              stream ? stream->id : (uint64_t)~0, len,
-              (int)result, *pnwritten);
-  return result;
+  CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] cf_send(len=%zu) -> %d, %zu",
+              ప్రవాహం ? ప్రవాహం->id : (uint64_t)~0, len,
+              (పూర్ణాంకం)ఫలితం, *pnwritten);
+  తిరిగి ఫలితం;
 }
 
-static bool stream_is_writable(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+స్థిర bool ప్రవాహం_is_writable(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
 
-  return stream && (quiche_conn_stream_writable(
-    ctx->qconn, stream->id, 1) > 0);
+  తిరిగి ప్రవాహం && (quiche_conn_ప్రవాహం_writable(
+    ctx->qconn, ప్రవాహం->id, 1) > 0);
 }
 
-static CURLcode cf_quiche_adjust_pollset(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct easy_pollset *ps)
+స్థిర CURLcode cf_quiche_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                         నిర్మాణం Curl_easy *దత్తాంశం,
+                                         నిర్మాణం easy_pollset *ps)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
   bool want_recv, want_send;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!ctx->qconn)
-    return CURLE_OK;
+  ఒకవేళ(!ctx->qconn)
+    తిరిగి CURLE_OK;
 
-  Curl_pollset_check(data, ps, ctx->q.sockfd, &want_recv, &want_send);
-  if(want_recv || want_send) {
-    struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  Curl_pollset_check(దత్తాంశం, ps, ctx->q.sockfd, &want_recv, &want_send);
+  ఒకవేళ(want_recv || want_send) {
+    నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
     bool c_exhaust, s_exhaust;
 
     c_exhaust = FALSE; /* Have not found any call in quiche that tells
                           us if the connection itself is blocked */
-    s_exhaust = want_send && stream && stream->opened &&
-                (stream->quic_flow_blocked || !stream_is_writable(cf, data));
+    s_exhaust = want_send && ప్రవాహం && ప్రవాహం->opened &&
+                (ప్రవాహం->quic_flow_blocked || !ప్రవాహం_is_writable(cf, దత్తాంశం));
     want_recv = (want_recv || c_exhaust || s_exhaust);
     want_send = (!s_exhaust && want_send) ||
-                 !Curl_bufq_is_empty(&ctx->q.sendbuf);
+                 !Curl_bufq_is_ఖాళీలు(&ctx->q.sendbuf);
 
-    result = Curl_pollset_set(data, ps, ctx->q.sockfd, want_recv, want_send);
+    ఫలితం = Curl_pollset_సమితి(దత్తాంశం, ps, ctx->q.sockfd, want_recv, want_send);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode h3_data_pause(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+స్థిర CURLcode h3_దత్తాంశం_pause(నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *దత్తాంశం,
                               bool pause)
 {
   /* There seems to exist no API in quiche to shrink/enlarge the streams
    * windows. As we do in HTTP/2. */
-  (void)cf;
-  if(!pause) {
-    Curl_multi_mark_dirty(data);
+  (శూన్య)cf;
+  ఒకవేళ(!pause) {
+    Curl_multi_mark_dirty(దత్తాంశం);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode cf_quiche_cntrl(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int event, int arg1, void *arg2)
+స్థిర CURLcode cf_quiche_cntrl(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                పూర్ణాంకం event, పూర్ణాంకం arg1, శూన్య *arg2)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_DATA_SETUP:
-    break;
-  case CF_CTRL_DATA_PAUSE:
-    result = h3_data_pause(cf, data, (arg1 != 0));
-    break;
-  case CF_CTRL_DATA_DONE:
-    h3_data_done(cf, data);
-    break;
-  case CF_CTRL_DATA_DONE_SEND: {
-    struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-    if(stream && !stream->send_closed) {
-      unsigned char body[1];
-      size_t sent;
+  (శూన్య)arg1;
+  (శూన్య)arg2;
+  ఎంపిక(event) {
+  స్థితి CF_CTRL_దత్తాంశం_అమరిక:
+    ఆపు;
+  స్థితి CF_CTRL_దత్తాంశం_PAUSE:
+    ఫలితం = h3_దత్తాంశం_pause(cf, దత్తాంశం, (arg1 != 0));
+    ఆపు;
+  స్థితి CF_CTRL_దత్తాంశం_పూర్తి:
+    h3_దత్తాంశం_పూర్తి(cf, దత్తాంశం);
+    ఆపు;
+  స్థితి CF_CTRL_దత్తాంశం_పూర్తి_SEND: {
+    నిర్మాణం h3_ప్రవాహం_ctx *ప్రవాహం = H3_ప్రవాహం_CTX(ctx, దత్తాంశం);
+    ఒకవేళ(ప్రవాహం && !ప్రవాహం->send_closed) {
+      గుర్తులేని అక్షరం body[1];
+      size_t పంపిన;
 
-      stream->send_closed = TRUE;
+      ప్రవాహం->send_closed = TRUE;
       body[0] = 'X';
-      result = cf_quiche_send(cf, data, body, 0, TRUE, &sent);
-      CURL_TRC_CF(data, cf, "[%" PRIu64 "] DONE_SEND -> %d, %zu",
-                  stream->id, (int)result, sent);
+      ఫలితం = cf_quiche_send(cf, దత్తాంశం, body, 0, TRUE, &పంపిన);
+      CURL_TRC_CF(దత్తాంశం, cf, "[%" PRIu64 "] DONE_SEND -> %d, %zu",
+                  ప్రవాహం->id, (పూర్ణాంకం)ఫలితం, పంపిన);
     }
-    break;
+    ఆపు;
   }
-  case CF_CTRL_CONN_INFO_UPDATE:
-    if(!cf->sockindex && cf->connected) {
-      cf->conn->httpversion_seen = 30;
-      Curl_conn_set_multiplex(cf->conn);
+  స్థితి CF_CTRL_CONN_INFO_UPDATE:
+    ఒకవేళ(!cf->sockindex && cf->connected) {
+      cf->conn->httpversion_చూసిన = 30;
+      Curl_conn_సమితి_multiplex(cf->conn);
     }
-    break;
-  case CF_CTRL_REPORT_STATS:
-    if(cf->connected && !ctx->stats_reported &&
+    ఆపు;
+  స్థితి CF_CTRL_REPORT_STATS:
+    ఒకవేళ(cf->connected && !ctx->stats_reported &&
        (ctx->handshake_at.tv_sec || ctx->handshake_at.tv_usec)) {
-      Curl_pgrsTimeWas(data, TIMER_CONNECT, ctx->q.first_byte_at);
-      Curl_pgrsTimeWas(data, TIMER_APPCONNECT, ctx->handshake_at);
+      Curl_pgrs_సమయం_Was(దత్తాంశం, TIMER_CONNECT, ctx->q.మొదటి_byte_at);
+      Curl_pgrs_సమయం_Was(దత్తాంశం, TIMER_APPCONNECT, ctx->handshake_at);
       ctx->stats_reported = TRUE;
     }
-    break;
-  default:
-    break;
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_quiche_ctx_open(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+స్థిర CURLcode cf_quiche_ctx_open(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  int rv;
-  CURLcode result;
-  const struct Curl_sockaddr_ex *sockaddr;
-  static const struct alpn_spec ALPN_SPEC_H3 = { { "h3" }, 1 };
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  పూర్ణాంకం rv;
+  CURLcode ఫలితం;
+  స్థిరరాశి నిర్మాణం Curl_sockaddr_ex *sockaddr;
+  స్థిర స్థిరరాశి నిర్మాణం alpn_spec ALPN_SPEC_H3 = { { "h3" }, 1 };
 
   DEBUGASSERT(ctx->q.sockfd != CURL_SOCKET_BAD);
   DEBUGASSERT(ctx->initialized);
 
-  result = Curl_vquic_ctx_init(data, &ctx->q);
-  if(result)
-    return result;
+  ఫలితం = Curl_vquic_ctx_init(దత్తాంశం, &ctx->q);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  ctx->cfg = quiche_config_new(QUICHE_PROTOCOL_VERSION);
-  if(!ctx->cfg) {
-    failf(data, "cannot create quiche config");
-    return CURLE_FAILED_INIT;
+  ctx->cfg = quiche_config_new(QUICHE_PROTOCOL_సంస్కరణ);
+  ఒకవేళ(!ctx->cfg) {
+    failf(దత్తాంశం, "cannot create quiche config");
+    తిరిగి CURLE_FAILED_INIT;
   }
   quiche_config_enable_pacing(ctx->cfg, FALSE);
-  quiche_config_set_initial_max_data(ctx->cfg, (1 * 1024 * 1024)
+  quiche_config_సమితి_initial_max_దత్తాంశం(ctx->cfg, (1 * 1024 * 1024)
     /* (QUIC_MAX_STREAMS/2) * H3_STREAM_WINDOW_SIZE */);
-  quiche_config_set_initial_max_streams_bidi(ctx->cfg, QUIC_MAX_STREAMS);
-  quiche_config_set_initial_max_streams_uni(ctx->cfg, QUIC_MAX_STREAMS);
-  quiche_config_set_initial_max_stream_data_bidi_local(ctx->cfg,
-    H3_STREAM_WINDOW_SIZE);
-  quiche_config_set_initial_max_stream_data_bidi_remote(ctx->cfg,
-    H3_STREAM_WINDOW_SIZE);
-  quiche_config_set_initial_max_stream_data_uni(ctx->cfg,
-    H3_STREAM_WINDOW_SIZE);
-  quiche_config_set_disable_active_migration(ctx->cfg, TRUE);
+  quiche_config_సమితి_initial_max_streams_bidi(ctx->cfg, QUIC_MAX_STREAMS);
+  quiche_config_సమితి_initial_max_streams_uni(ctx->cfg, QUIC_MAX_STREAMS);
+  quiche_config_సమితి_initial_max_ప్రవాహం_దత్తాంశం_bidi_local(ctx->cfg,
+    H3_ప్రవాహం_కిటికీ_కొలత);
+  quiche_config_సమితి_initial_max_ప్రవాహం_దత్తాంశం_bidi_remote(ctx->cfg,
+    H3_ప్రవాహం_కిటికీ_కొలత);
+  quiche_config_సమితి_initial_max_ప్రవాహం_దత్తాంశం_uni(ctx->cfg,
+    H3_ప్రవాహం_కిటికీ_కొలత);
+  quiche_config_సమితి_disable_చురుకైన_migration(ctx->cfg, TRUE);
 
-  quiche_config_set_max_connection_window(ctx->cfg,
-    10 * QUIC_MAX_STREAMS * H3_STREAM_WINDOW_SIZE);
-  quiche_config_set_max_stream_window(ctx->cfg, 10 * H3_STREAM_WINDOW_SIZE);
-  quiche_config_set_application_protos(ctx->cfg,
+  quiche_config_సమితి_max_connection_కిటికీ(ctx->cfg,
+    10 * QUIC_MAX_STREAMS * H3_ప్రవాహం_కిటికీ_కొలత);
+  quiche_config_సమితి_max_ప్రవాహం_కిటికీ(ctx->cfg, 10 * H3_ప్రవాహం_కిటికీ_కొలత);
+  quiche_config_సమితి_application_protos(ctx->cfg,
                       (uint8_t *)CURL_UNCONST(QUICHE_H3_APPLICATION_PROTOCOL),
                                  CURL_CSTRLEN(QUICHE_H3_APPLICATION_PROTOCOL));
 
-  result = Curl_vquic_tls_init(&ctx->tls, cf, data, &ctx->ssl_peer,
-                               &ALPN_SPEC_H3, NULL, NULL, cf, NULL);
-  if(result)
-    return result;
+  ఫలితం = Curl_vquic_tls_init(&ctx->tls, cf, దత్తాంశం, &ctx->ssl_peer,
+                               &ALPN_SPEC_H3, ఖాళీ, ఖాళీ, cf, ఖాళీ);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  result = Curl_rand(data, ctx->scid, sizeof(ctx->scid));
-  if(result)
-    return result;
+  ఫలితం = Curl_rand(దత్తాంశం, ctx->scid, పరిమాణం(ctx->scid));
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  if(Curl_cf_socket_peek(cf->next, data, &ctx->q.sockfd, &sockaddr, NULL))
-    return CURLE_QUIC_CONNECT_ERROR;
+  ఒకవేళ(Curl_cf_socket_peek(cf->తదుపరి, దత్తాంశం, &ctx->q.sockfd, &sockaddr, ఖాళీ))
+    తిరిగి CURLE_QUIC_CONNECT_ERROR;
 
-  ctx->q.local_addrlen = sizeof(ctx->q.local_addr);
-  rv = getsockname(ctx->q.sockfd, (struct sockaddr *)&ctx->q.local_addr,
+  ctx->q.local_addrlen = పరిమాణం(ctx->q.local_addr);
+  rv = getsockname(ctx->q.sockfd, (నిర్మాణం sockaddr *)&ctx->q.local_addr,
                    &ctx->q.local_addrlen);
-  if(rv == -1)
-    return CURLE_QUIC_CONNECT_ERROR;
+  ఒకవేళ(rv == -1)
+    తిరిగి CURLE_QUIC_CONNECT_ERROR;
 
-  ctx->qconn = quiche_conn_new_with_tls((const uint8_t *)ctx->scid,
-                                        sizeof(ctx->scid), NULL, 0,
-                                        (struct sockaddr *)&ctx->q.local_addr,
+  ctx->qconn = quiche_conn_new_with_tls((స్థిరరాశి uint8_t *)ctx->scid,
+                                        పరిమాణం(ctx->scid), ఖాళీ, 0,
+                                        (నిర్మాణం sockaddr *)&ctx->q.local_addr,
                                         ctx->q.local_addrlen,
                                         &sockaddr->curl_sa_addr,
                                         sockaddr->addrlen,
                                         ctx->cfg, ctx->tls.ossl.ssl, FALSE);
-  if(!ctx->qconn) {
-    failf(data, "cannot create quiche connection");
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!ctx->qconn) {
+    failf(దత్తాంశం, "cannot create quiche connection");
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
   /* Known to not work on Windows */
-#if !defined(_WIN32) && defined(HAVE_QUICHE_CONN_SET_QLOG_FD)
+#ఒకవేళ !defined(_WIN32) && defined(HAVE_QUICHE_CONN_సమితి_QLOG_FD)
   {
-    int qfd;
-    (void)Curl_qlogdir(data, ctx->scid, sizeof(ctx->scid), &qfd);
-    if(qfd != -1)
-      quiche_conn_set_qlog_fd(ctx->qconn, qfd, "qlog title", "curl qlog");
+    పూర్ణాంకం qfd;
+    (శూన్య)Curl_qlogdir(దత్తాంశం, ctx->scid, పరిమాణం(ctx->scid), &qfd);
+    ఒకవేళ(qfd != -1)
+      quiche_conn_సమితి_qlog_fd(ctx->qconn, qfd, "qlog title", "curl qlog");
   }
-#endif
+#అయితే_ముగింపు
 
-  result = cf_flush_egress(cf, data);
-  if(result)
-    return result;
+  ఫలితం = cf_flush_egress(cf, దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   {
-    unsigned char alpn_protocols[] = QUICHE_H3_APPLICATION_PROTOCOL;
-    unsigned alpn_len, offset = 0;
+    గుర్తులేని అక్షరం alpn_protocols[] = QUICHE_H3_APPLICATION_PROTOCOL;
+    గుర్తులేని alpn_len, స్థానభ్రంశం = 0;
 
     /* Replace each ALPN length prefix by a comma. */
-    while(offset < CURL_CSTRLEN(alpn_protocols)) {
-      alpn_len = alpn_protocols[offset];
-      alpn_protocols[offset] = ',';
-      offset += 1 + alpn_len;
+    అయితే(స్థానభ్రంశం < CURL_CSTRLEN(alpn_protocols)) {
+      alpn_len = alpn_protocols[స్థానభ్రంశం];
+      alpn_protocols[స్థానభ్రంశం] = ',';
+      స్థానభ్రంశం += 1 + alpn_len;
     }
 
-    CURL_TRC_CF(data, cf, "Sent QUIC client Initial, ALPN: %s",
+    CURL_TRC_CF(దత్తాంశం, cf, "Sent QUIC client Initial, ALPN: %s",
                 alpn_protocols + 1);
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode cf_quiche_verify_peer(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+స్థిర CURLcode cf_quiche_verify_peer(నిర్మాణం Curl_cfilter *cf,
+                                      నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  return Curl_vquic_tls_verify_peer(&ctx->tls, cf, data, &ctx->ssl_peer);
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  తిరిగి Curl_vquic_tls_verify_peer(&ctx->tls, cf, దత్తాంశం, &ctx->ssl_peer);
 }
 
-static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool *done)
+స్థిర CURLcode cf_quiche_connect(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  bool *పూర్తి)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->connected) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
   /* Connect the UDP filter first */
-  if(!cf->next->connected) {
-    result = Curl_conn_cf_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  ఒకవేళ(!cf->తదుపరి->connected) {
+    ఫలితం = Curl_conn_cf_connect(cf->తదుపరి, దత్తాంశం, పూర్తి);
+    ఒకవేళ(ఫలితం || !*పూర్తి)
+      తిరిగి ఫలితం;
   }
 
-  *done = FALSE;
-  if(Curl_ssl_need_httpsrr(cf) &&
-     !Curl_conn_dns_resolved_https(data, cf->sockindex, ctx->ssl_peer.peer)) {
-    CURL_TRC_CF(data, cf, "need HTTPS-RR, delaying connect");
-    return CURLE_OK;
+  *పూర్తి = FALSE;
+  ఒకవేళ(Curl_ssl_need_httpsrr(cf) &&
+     !Curl_conn_dns_resolved_https(దత్తాంశం, cf->sockindex, ctx->ssl_peer.peer)) {
+    CURL_TRC_CF(దత్తాంశం, cf, "need HTTPS-RR, delaying connect");
+    తిరిగి CURLE_OK;
   }
 
-  Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
+  Curl_vquic_ctx_update_సమయం(&ctx->q, Curl_pgrs_now(దత్తాంశం));
 
-  if(!ctx->qconn) {
-    result = cf_quiche_ctx_open(cf, data);
-    if(result)
-      goto out;
-    ctx->started_at = ctx->q.last_op;
-    result = cf_flush_egress(cf, data);
+  ఒకవేళ(!ctx->qconn) {
+    ఫలితం = cf_quiche_ctx_open(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
+    ctx->started_at = ctx->q.చివరి_op;
+    ఫలితం = cf_flush_egress(cf, దత్తాంశం);
     /* we do not expect to be able to recv anything yet */
-    goto out;
+    వెళ్ళు బహిర్గతం;
   }
 
-  result = cf_process_ingress(cf, data);
-  if(result)
-    goto out;
+  ఫలితం = cf_process_ingress(cf, దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
-  result = cf_flush_egress(cf, data);
-  if(result)
-    goto out;
+  ఫలితం = cf_flush_egress(cf, దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
-  if(quiche_conn_is_established(ctx->qconn)) {
-    ctx->handshake_at = ctx->q.last_op;
-    CURL_TRC_CF(data, cf, "handshake complete after %" FMT_TIMEDIFF_T "ms",
+  ఒకవేళ(quiche_conn_is_established(ctx->qconn)) {
+    ctx->handshake_at = ctx->q.చివరి_op;
+    CURL_TRC_CF(దత్తాంశం, cf, "handshake complete after %" FMT_TIMEDIFF_T "ms",
                 curlx_ptimediff_ms(&ctx->handshake_at, &ctx->started_at));
-    result = cf_quiche_verify_peer(cf, data);
-    if(!result) {
-      CURL_TRC_CF(data, cf, "peer verified");
+    ఫలితం = cf_quiche_verify_peer(cf, దత్తాంశం);
+    ఒకవేళ(!ఫలితం) {
+      CURL_TRC_CF(దత్తాంశం, cf, "peer verified");
       ctx->h3config = quiche_h3_config_new();
-      if(!ctx->h3config) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      ఒకవేళ(!ctx->h3config) {
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు బహిర్గతం;
       }
       /* quiche 0.29.3+ rejects response headers larger than 32 KiB by
          default. Allow as much as curl itself accepts. */
-      quiche_h3_config_set_max_field_section_size(ctx->h3config,
-                                                  MAX_HTTP_RESP_HEADER_SIZE);
+      quiche_h3_config_సమితి_max_క్షేత్రం_section_కొలత(ctx->h3config,
+                                                  MAX_HTTP_RESP_శీర్షిక_కొలత);
 
       /* Create a new HTTP/3 connection on the QUIC connection. */
       ctx->h3c = quiche_h3_conn_new_with_transport(ctx->qconn, ctx->h3config);
-      if(!ctx->h3c) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      ఒకవేళ(!ctx->h3c) {
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు బహిర్గతం;
       }
       cf->connected = TRUE;
-      *done = TRUE;
+      *పూర్తి = TRUE;
     }
   }
-  else if(quiche_conn_is_draining(ctx->qconn)) {
+  లేకపోతే ఒకవేళ(quiche_conn_is_draining(ctx->qconn)) {
     /* When a QUIC server instance is shutting down, it may send us a
      * CONNECTION_CLOSE right away. Our connection then enters the DRAINING
      * state. The CONNECT may work in the near future again. Indicate
      * that as a "weird" reply. */
-    result = CURLE_WEIRD_SERVER_REPLY;
+    ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
   }
 
-out:
-#ifdef CURLVERBOSE
-  if(result && result != CURLE_AGAIN) {
-    struct ip_quadruple ip;
+బహిర్గతం:
+#నిర్వచితమైతే CURLVERBOSE
+  ఒకవేళ(ఫలితం && ఫలితం != CURLE_AGAIN) {
+    నిర్మాణం ip_quadruple ip;
 
-    if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
-      infof(data, "connect to %s port %u failed: %s",
-            ip.remote_ip, ip.remote_port, curl_easy_strerror(result));
-    else
-      infof(data, "connect failed: %s", curl_easy_strerror(result));
+    ఒకవేళ(!Curl_cf_socket_peek(cf->తదుపరి, దత్తాంశం, ఖాళీ, ఖాళీ, &ip))
+      infof(దత్తాంశం, "connect to %s port %u failed: %s",
+            ip.remote_ip, ip.remote_పోర్టు, curl_easy_strerror(ఫలితం));
+    లేకపోతే
+      infof(దత్తాంశం, "connect failed: %s", curl_easy_strerror(ఫలితం));
   }
-#endif
-  return result;
+#అయితే_ముగింపు
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_quiche_shutdown(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data, bool *done)
+స్థిర CURLcode cf_quiche_shutdown(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(cf->shutdown || !ctx || !ctx->qconn) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->shutdown || !ctx || !ctx->qconn) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  *done = FALSE;
-  if(!ctx->shutdown_started) {
-    int err;
+  *పూర్తి = FALSE;
+  ఒకవేళ(!ctx->shutdown_started) {
+    పూర్ణాంకం err;
 
     ctx->shutdown_started = TRUE;
-    Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
-    err = quiche_conn_close(ctx->qconn, TRUE, 0, NULL, 0);
-    if(err) {
-      CURL_TRC_CF(data, cf, "error %d adding shutdown packet, "
+    Curl_vquic_ctx_update_సమయం(&ctx->q, Curl_pgrs_now(దత్తాంశం));
+    err = quiche_conn_close(ctx->qconn, TRUE, 0, ఖాళీ, 0);
+    ఒకవేళ(err) {
+      CURL_TRC_CF(దత్తాంశం, cf, "error %d adding shutdown packet, "
                   "aborting shutdown", err);
-      result = CURLE_SEND_ERROR;
-      goto out;
+      ఫలితం = CURLE_SEND_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  if(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
-    CURL_TRC_CF(data, cf, "shutdown, flushing sendbuf");
-    result = cf_flush_egress(cf, data);
-    if(result)
-      goto out;
+  ఒకవేళ(!Curl_bufq_is_ఖాళీలు(&ctx->q.sendbuf)) {
+    CURL_TRC_CF(దత్తాంశం, cf, "shutdown, flushing sendbuf");
+    ఫలితం = cf_flush_egress(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  if(Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+  ఒకవేళ(Curl_bufq_is_ఖాళీలు(&ctx->q.sendbuf)) {
     /* sent everything, quiche does not seem to support a graceful shutdown
      * waiting for a reply, so we are done. */
-    CURL_TRC_CF(data, cf, "shutdown completely sent off, done");
-    *done = TRUE;
+    CURL_TRC_CF(దత్తాంశం, cf, "shutdown completely sent off, done");
+    *పూర్తి = TRUE;
   }
-  else {
-    CURL_TRC_CF(data, cf, "shutdown sending blocked");
+  లేకపోతే {
+    CURL_TRC_CF(దత్తాంశం, cf, "shutdown sending blocked");
   }
 
-out:
-  return result;
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-static void cf_quiche_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+స్థిర శూన్య cf_quiche_destroy(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  (void)data;
-  if(cf->ctx) {
+  (శూన్య)దత్తాంశం;
+  ఒకవేళ(cf->ctx) {
     cf_quiche_ctx_close(cf->ctx);
     cf_quiche_ctx_free(cf->ctx);
-    cf->ctx = NULL;
+    cf->ctx = ఖాళీ;
   }
 }
 
-static CURLcode cf_quiche_query(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int query, int *pres1, void *pres2)
+స్థిర CURLcode cf_quiche_query(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                పూర్ణాంకం query, పూర్ణాంకం *pres1, శూన్య *pres2)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
 
-  switch(query) {
-  case CF_QUERY_MAX_CONCURRENT: {
+  ఎంపిక(query) {
+  స్థితి CF_QUERY_MAX_CONCURRENT: {
     uint64_t max_streams = cf->conn->attached_xfers;
-    if(!ctx->goaway && ctx->qconn) {
-      max_streams += quiche_conn_peer_streams_left_bidi(ctx->qconn);
+    ఒకవేళ(!ctx->goaway && ctx->qconn) {
+      max_streams += quiche_conn_peer_streams_ఎడమ_bidi(ctx->qconn);
     }
-    *pres1 = (max_streams > INT_MAX) ? INT_MAX : (int)max_streams;
-    CURL_TRC_CF(data, cf, "query conn[%" FMT_OFF_T "]: "
+    *pres1 = (max_streams > గరిష్ఠ_పూర్ణాంకం) ? గరిష్ఠ_పూర్ణాంకం : (పూర్ణాంకం)max_streams;
+    CURL_TRC_CF(దత్తాంశం, cf, "query conn[%" FMT_OFF_T "]: "
                 "MAX_CONCURRENT -> %d (%u in use)",
                 cf->conn->connection_id, *pres1, cf->conn->attached_xfers);
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
   }
-  case CF_QUERY_CONNECT_REPLY_MS:
-    if(ctx->q.got_first_byte) {
-      timediff_t ms = curlx_ptimediff_ms(&ctx->q.first_byte_at,
+  స్థితి CF_QUERY_CONNECT_జవాబు_MS:
+    ఒకవేళ(ctx->q.got_మొదటి_byte) {
+      timediff_t ms = curlx_ptimediff_ms(&ctx->q.మొదటి_byte_at,
                                          &ctx->started_at);
-      *pres1 = (ms < INT_MAX) ? (int)ms : INT_MAX;
+      *pres1 = (ms < గరిష్ఠ_పూర్ణాంకం) ? (పూర్ణాంకం)ms : గరిష్ఠ_పూర్ణాంకం;
     }
-    else
+    లేకపోతే
       *pres1 = -1;
-    return CURLE_OK;
-  case CF_QUERY_HTTP_VERSION:
+    తిరిగి CURLE_OK;
+  స్థితి CF_QUERY_HTTP_సంస్కరణ:
     *pres1 = 30;
-    return CURLE_OK;
-  case CF_QUERY_SSL_INFO:
-  case CF_QUERY_SSL_CTX_INFO: {
-    struct curl_tlssessioninfo *info = pres2;
-    if(Curl_vquic_tls_get_ssl_info(&ctx->tls,
+    తిరిగి CURLE_OK;
+  స్థితి CF_QUERY_SSL_INFO:
+  స్థితి CF_QUERY_SSL_CTX_INFO: {
+    నిర్మాణం curl_tlssessioninfo *info = pres2;
+    ఒకవేళ(Curl_vquic_tls_get_ssl_info(&ctx->tls,
                                    (query == CF_QUERY_SSL_CTX_INFO), info))
-      return CURLE_OK;
-    break;
+      తిరిగి CURLE_OK;
+    ఆపు;
   }
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  స్థితి CF_QUERY_ALPN_NEGOTIATED: {
+    స్థిరరాశి అక్షరం **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = cf->connected ? "h3" : NULL;
-    return CURLE_OK;
+    *palpn = cf->connected ? "h3" : ఖాళీ;
+    తిరిగి CURLE_OK;
   }
-  default:
-    break;
+  అప్రమేయ:
+    ఆపు;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->query(cf->తదుపరి, దత్తాంశం, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static bool cf_quiche_conn_is_alive(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    bool *input_pending)
+స్థిర bool cf_quiche_conn_is_alive(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    bool *ఆదానం_pending)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_quiche_ctx *ctx = cf->ctx;
   bool alive = TRUE;
 
-  *input_pending = FALSE;
-  if(!ctx->qconn)
-    return FALSE;
+  *ఆదానం_pending = FALSE;
+  ఒకవేళ(!ctx->qconn)
+    తిరిగి FALSE;
 
-  if(quiche_conn_is_closed(ctx->qconn)) {
-    if(quiche_conn_is_timed_out(ctx->qconn))
-      CURL_TRC_CF(data, cf, "connection was closed due to idle timeout");
-    else
-      CURL_TRC_CF(data, cf, "connection is closed");
-    return FALSE;
+  ఒకవేళ(quiche_conn_is_closed(ctx->qconn)) {
+    ఒకవేళ(quiche_conn_is_timed_బహిర్గతం(ctx->qconn))
+      CURL_TRC_CF(దత్తాంశం, cf, "connection was closed due to idle timeout");
+    లేకపోతే
+      CURL_TRC_CF(దత్తాంశం, cf, "connection is closed");
+    తిరిగి FALSE;
   }
 
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
-    return FALSE;
+  ఒకవేళ(!cf->తదుపరి || !cf->తదుపరి->cft->is_alive(cf->తదుపరి, దత్తాంశం, ఆదానం_pending))
+    తిరిగి FALSE;
 
-  if(*input_pending) {
+  ఒకవేళ(*ఆదానం_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
-    *input_pending = FALSE;
-    if(cf_process_ingress(cf, data))
+    *ఆదానం_pending = FALSE;
+    ఒకవేళ(cf_process_ingress(cf, దత్తాంశం))
       alive = FALSE;
-    else {
+    లేకపోతే {
       alive = TRUE;
     }
   }
 
-  return alive;
+  తిరిగి alive;
 }
 
-struct Curl_cftype Curl_cft_http3 = {
+నిర్మాణం Curl_cftype Curl_cft_http3 = {
   "HTTP/3",
   CF_TYPE_IP_CONNECT | CF_TYPE_SSL | CF_TYPE_MULTIPLEX | CF_TYPE_HTTP,
   0,
@@ -1629,7 +1629,7 @@ struct Curl_cftype Curl_cft_http3 = {
   cf_quiche_connect,
   cf_quiche_shutdown,
   cf_quiche_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_దత్తాంశం_pending,
   cf_quiche_send,
   cf_quiche_recv,
   cf_quiche_cntrl,
@@ -1638,77 +1638,77 @@ struct Curl_cftype Curl_cft_http3 = {
   cf_quiche_query,
 };
 
-CURLcode Curl_cf_quiche_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr)
+CURLcode Curl_cf_quiche_create(నిర్మాణం Curl_cfilter **pcf,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_peer *origin,
+                               నిర్మాణం Curl_peer *peer,
+                               నిర్మాణం connectdata *conn,
+                               నిర్మాణం Curl_sockaddr_ex *addr)
 {
-  struct cf_quiche_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  నిర్మాణం cf_quiche_ctx *ctx = ఖాళీ;
+  నిర్మాణం Curl_cfilter *cf = ఖాళీ;
+  CURLcode ఫలితం;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, పరిమాణం(*ctx));
+  ఒకవేళ(!ctx) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
-  result = cf_quiche_ctx_init(ctx, origin, peer, &conn->ssl_config);
-  if(!result)
-    result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
-    goto out;
+  ఫలితం = cf_quiche_ctx_init(ctx, origin, peer, &conn->ssl_config);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
   cf->conn = conn;
 
-  result = Curl_cf_udp_create(&cf->next, data, origin, peer, TRNSPRT_QUIC,
-                              conn, addr, NULL, TRNSPRT_QUIC);
-  if(result)
-    goto out;
-  cf->next->conn = cf->conn;
-  cf->next->sockindex = cf->sockindex;
+  ఫలితం = Curl_cf_udp_create(&cf->తదుపరి, దత్తాంశం, origin, peer, TRNSPRT_QUIC,
+                              conn, addr, ఖాళీ, TRNSPRT_QUIC);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  cf->తదుపరి->conn = cf->conn;
+  cf->తదుపరి->sockindex = cf->sockindex;
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
-    if(cf)
-      Curl_conn_cf_discard_chain(&cf, data);
-    else if(ctx)
+బహిర్గతం:
+  *pcf = (!ఫలితం) ? cf : ఖాళీ;
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(cf)
+      Curl_conn_cf_discard_chain(&cf, దత్తాంశం);
+    లేకపోతే ఒకవేళ(ctx)
       cf_quiche_ctx_free(ctx);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf)
+CURLcode Curl_cf_quiche_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                     నిర్మాణం Curl_peer *origin,
+                                     నిర్మాణం Curl_peer *peer,
+                                     నిర్మాణం Curl_cfilter **pcf)
 {
-  struct cf_quiche_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  నిర్మాణం cf_quiche_ctx *ctx = ఖాళీ;
+  నిర్మాణం Curl_cfilter *cf = ఖాళీ;
+  CURLcode ఫలితం;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, పరిమాణం(*ctx));
+  ఒకవేళ(!ctx) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
-  result = cf_quiche_ctx_init(ctx, origin, peer, &cf_at->conn->ssl_config);
-  if(!result)
-    result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
-    goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  ఫలితం = cf_quiche_ctx_init(ctx, origin, peer, &cf_at->conn->ssl_config);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  Curl_conn_cf_చొప్పించు_after(cf_at, cf);
 
-out:
-  if(result) {
+బహిర్గతం:
+  ఒకవేళ(ఫలితం) {
     curlx_safefree(cf);
-    if(ctx)
+    ఒకవేళ(ctx)
       cf_quiche_ctx_free(ctx);
   }
   *pcf = cf;
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif
+#అయితే_ముగింపు

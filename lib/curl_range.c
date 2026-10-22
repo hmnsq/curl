@@ -21,71 +21,71 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "curl_range.h"
-#include "curl_trc.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "curl_range.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "curlx/strparse.h"
 
 /* Only include this function if one or more of FTP, FILE are enabled. */
-#if !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
+#ఒకవేళ !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
 
 /* Check if this is a range download, and if so, set the internal variables
    properly. */
-CURLcode Curl_range(struct Curl_easy *data)
+CURLcode Curl_range(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(data->state.use_range && data->state.range) {
-    curl_off_t from, to;
-    bool first_num = TRUE;
-    const char *p = data->state.range;
-    if(curlx_str_number(&p, &from, CURL_OFF_T_MAX))
-      first_num = FALSE;
+  ఒకవేళ(దత్తాంశం->state.use_range && దత్తాంశం->state.range) {
+    curl_off_t from, గమ్యం;
+    bool మొదటి_అంకె = TRUE;
+    స్థిరరాశి అక్షరం *p = దత్తాంశం->state.range;
+    ఒకవేళ(curlx_str_సంఖ్య(&p, &from, CURL_OFF_T_MAX))
+      మొదటి_అంకె = FALSE;
 
-    if(curlx_str_single(&p, '-'))
+    ఒకవేళ(curlx_str_single(&p, '-'))
       /* no leading dash or after the first number is an error */
-      return CURLE_RANGE_ERROR;
+      తిరిగి CURLE_RANGE_ERROR;
 
-    if(curlx_str_number(&p, &to, CURL_OFF_T_MAX)) {
+    ఒకవేళ(curlx_str_సంఖ్య(&p, &గమ్యం, CURL_OFF_T_MAX)) {
       /* no second number */
       /* X - */
-      data->state.resume_from = from;
-      DEBUGF(infof(data, "RANGE %" FMT_OFF_T " to end of file", from));
+      దత్తాంశం->state.resume_from = from;
+      DEBUGF(infof(దత్తాంశం, "RANGE %" FMT_OFF_T " to end of file", from));
     }
-    else if(!first_num) {
+    లేకపోతే ఒకవేళ(!మొదటి_అంకె) {
       /* -Y */
-      if(!to)
+      ఒకవేళ(!గమ్యం)
         /* "-0" is wrong */
-        return CURLE_RANGE_ERROR;
+        తిరిగి CURLE_RANGE_ERROR;
 
-      data->req.maxdownload = to;
-      data->state.resume_from = -to;
-      DEBUGF(infof(data, "RANGE the last %" FMT_OFF_T " bytes", to));
+      దత్తాంశం->req.maxdownload = గమ్యం;
+      దత్తాంశం->state.resume_from = -గమ్యం;
+      DEBUGF(infof(దత్తాంశం, "RANGE the last %" FMT_OFF_T " bytes", గమ్యం));
     }
-    else {
+    లేకపోతే {
       /* X-Y */
       curl_off_t totalsize;
 
       /* Ensure the range is sensible - to should follow from. */
-      if(from > to)
-        return CURLE_RANGE_ERROR;
+      ఒకవేళ(from > గమ్యం)
+        తిరిగి CURLE_RANGE_ERROR;
 
-      totalsize = to - from;
-      if(totalsize == CURL_OFF_T_MAX)
-        return CURLE_RANGE_ERROR;
+      totalsize = గమ్యం - from;
+      ఒకవేళ(totalsize == CURL_OFF_T_MAX)
+        తిరిగి CURLE_RANGE_ERROR;
 
-      data->req.maxdownload = totalsize + 1; /* include last byte */
-      data->state.resume_from = from;
-      DEBUGF(infof(data, "RANGE from %" FMT_OFF_T
+      దత్తాంశం->req.maxdownload = totalsize + 1; /* include last byte */
+      దత్తాంశం->state.resume_from = from;
+      DEBUGF(infof(దత్తాంశం, "RANGE from %" FMT_OFF_T
                    " getting %" FMT_OFF_T " bytes",
-                   from, data->req.maxdownload));
+                   from, దత్తాంశం->req.maxdownload));
     }
-    DEBUGF(infof(data, "range-download from %" FMT_OFF_T
+    DEBUGF(infof(దత్తాంశం, "range-download from %" FMT_OFF_T
                  " to %" FMT_OFF_T ", totally %" FMT_OFF_T " bytes",
-                 from, to, data->req.maxdownload));
+                 from, గమ్యం, దత్తాంశం->req.maxdownload));
   }
-  else
-    data->req.maxdownload = -1;
-  return CURLE_OK;
+  లేకపోతే
+    దత్తాంశం->req.maxdownload = -1;
+  తిరిగి CURLE_OK;
 }
 
-#endif
+#అయితే_ముగింపు

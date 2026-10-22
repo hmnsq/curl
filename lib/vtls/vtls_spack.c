@@ -21,80 +21,80 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#ఒకవేళ defined(USE_SSL) && defined(USE_SSLS_EXPORT)
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/vtls_spack.h"
-#include "curlx/strdup.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "vtls/vtls_scache.h"
+#అన్తర్భావ "vtls/vtls_spack.h"
+#అన్తర్భావ "curlx/strdup.h"
 
-#define CURL_SPACK_VERSION       0x01
-#define CURL_SPACK_IETF_ID       0x02
-#define CURL_SPACK_VALID_UNTIL   0x03
-#define CURL_SPACK_TICKET        0x04
-#define CURL_SPACK_ALPN          0x05
-#define CURL_SPACK_EARLYDATA     0x06
-#define CURL_SPACK_QUICTP        0x07
-#define CURL_SPACK_SECTRUST      0x08
+#నిర్వచించు CURL_SPACK_సంస్కరణ       0x01
+#నిర్వచించు CURL_SPACK_IETF_ID       0x02
+#నిర్వచించు CURL_SPACK_VALID_UNTIL   0x03
+#నిర్వచించు CURL_SPACK_TICKET        0x04
+#నిర్వచించు CURL_SPACK_ALPN          0x05
+#నిర్వచించు CURL_SPACK_EARLYDATA     0x06
+#నిర్వచించు CURL_SPACK_QUICTP        0x07
+#నిర్వచించు CURL_SPACK_SECTRUST      0x08
 
-static CURLcode spack_enc8(struct dynbuf *buf, uint8_t b)
+స్థిర CURLcode spack_enc8(నిర్మాణం dynbuf *buf, uint8_t b)
 {
-  return curlx_dyn_addn(buf, &b, 1);
+  తిరిగి curlx_dyn_addn(buf, &b, 1);
 }
 
-static CURLcode spack_dec8(uint8_t *val, const uint8_t **src,
-                           const uint8_t *end)
+స్థిర CURLcode spack_dec8(uint8_t *val, స్థిరరాశి uint8_t **src,
+                           స్థిరరాశి uint8_t *చివర)
 {
-  if(end - *src < 1)
-    return CURLE_READ_ERROR;
+  ఒకవేళ(చివర - *src < 1)
+    తిరిగి CURLE_READ_ERROR;
   *val = **src;
   *src += 1;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode spack_enc16(struct dynbuf *buf, uint16_t val)
+స్థిర CURLcode spack_enc16(నిర్మాణం dynbuf *buf, uint16_t val)
 {
   uint8_t nval[2];
   nval[0] = (uint8_t)(val >> 8);
   nval[1] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  తిరిగి curlx_dyn_addn(buf, nval, పరిమాణం(nval));
 }
 
-static CURLcode spack_dec16(uint16_t *val, const uint8_t **src,
-                            const uint8_t *end)
+స్థిర CURLcode spack_dec16(uint16_t *val, స్థిరరాశి uint8_t **src,
+                            స్థిరరాశి uint8_t *చివర)
 {
-  if(end - *src < 2)
-    return CURLE_READ_ERROR;
+  ఒకవేళ(చివర - *src < 2)
+    తిరిగి CURLE_READ_ERROR;
   *val = (uint16_t)((*src)[0] << 8 | (*src)[1]);
   *src += 2;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode spack_enc32(struct dynbuf *buf, uint32_t val)
+స్థిర CURLcode spack_enc32(నిర్మాణం dynbuf *buf, uint32_t val)
 {
   uint8_t nval[4];
   nval[0] = (uint8_t)(val >> 24);
   nval[1] = (uint8_t)(val >> 16);
   nval[2] = (uint8_t)(val >> 8);
   nval[3] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  తిరిగి curlx_dyn_addn(buf, nval, పరిమాణం(nval));
 }
 
-static CURLcode spack_dec32(uint32_t *val, const uint8_t **src,
-                            const uint8_t *end)
+స్థిర CURLcode spack_dec32(uint32_t *val, స్థిరరాశి uint8_t **src,
+                            స్థిరరాశి uint8_t *చివర)
 {
-  if(end - *src < 4)
-    return CURLE_READ_ERROR;
+  ఒకవేళ(చివర - *src < 4)
+    తిరిగి CURLE_READ_ERROR;
   *val = (uint32_t)(*src)[0] << 24 | (uint32_t)(*src)[1] << 16 |
          (uint32_t)(*src)[2] << 8 | (*src)[3];
   *src += 4;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode spack_enc64(struct dynbuf *buf, uint64_t val)
+స్థిర CURLcode spack_enc64(నిర్మాణం dynbuf *buf, uint64_t val)
 {
   uint8_t nval[8];
   nval[0] = (uint8_t)(val >> 56);
@@ -105,232 +105,232 @@ static CURLcode spack_enc64(struct dynbuf *buf, uint64_t val)
   nval[5] = (uint8_t)(val >> 16);
   nval[6] = (uint8_t)(val >> 8);
   nval[7] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  తిరిగి curlx_dyn_addn(buf, nval, పరిమాణం(nval));
 }
 
-static CURLcode spack_dec64(uint64_t *val, const uint8_t **src,
-                            const uint8_t *end)
+స్థిర CURLcode spack_dec64(uint64_t *val, స్థిరరాశి uint8_t **src,
+                            స్థిరరాశి uint8_t *చివర)
 {
-  if(end - *src < 8)
-    return CURLE_READ_ERROR;
+  ఒకవేళ(చివర - *src < 8)
+    తిరిగి CURLE_READ_ERROR;
   *val = (uint64_t)(*src)[0] << 56 | (uint64_t)(*src)[1] << 48 |
          (uint64_t)(*src)[2] << 40 | (uint64_t)(*src)[3] << 32 |
          (uint64_t)(*src)[4] << 24 | (uint64_t)(*src)[5] << 16 |
          (uint64_t)(*src)[6] << 8 | (*src)[7];
   *src += 8;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode spack_encstr16(struct dynbuf *buf, const char *s)
+స్థిర CURLcode spack_encstr16(నిర్మాణం dynbuf *buf, స్థిరరాశి అక్షరం *s)
 {
-  size_t slen = strlen(s);
-  CURLcode result;
-  if(slen > UINT16_MAX)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  result = spack_enc16(buf, (uint16_t)slen);
-  if(!result) {
-    result = curlx_dyn_addn(buf, s, slen);
+  size_t slen = అక్షరశ్రేణి_పొడవు(s);
+  CURLcode ఫలితం;
+  ఒకవేళ(slen > UINT16_MAX)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+  ఫలితం = spack_enc16(buf, (uint16_t)slen);
+  ఒకవేళ(!ఫలితం) {
+    ఫలితం = curlx_dyn_addn(buf, s, slen);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode spack_decstr16(char **val, const uint8_t **src,
-                               const uint8_t *end)
+స్థిర CURLcode spack_decstr16(అక్షరం **val, స్థిరరాశి uint8_t **src,
+                               స్థిరరాశి uint8_t *చివర)
 {
   uint16_t slen;
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  *val = NULL;
-  result = spack_dec16(&slen, src, end);
-  if(result)
-    return result;
-  if(end - *src < slen)
-    return CURLE_READ_ERROR;
-  *val = curlx_memdup0((const char *)(*src), slen);
+  *val = ఖాళీ;
+  ఫలితం = spack_dec16(&slen, src, చివర);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
+  ఒకవేళ(చివర - *src < slen)
+    తిరిగి CURLE_READ_ERROR;
+  *val = curlx_memdup0((స్థిరరాశి అక్షరం *)(*src), slen);
   *src += slen;
-  return *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  తిరిగి *val ? CURLE_OK : CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 }
 
-static CURLcode spack_encdata16(struct dynbuf *buf, const uint8_t *data,
-                                size_t data_len)
+స్థిర CURLcode spack_encdata16(నిర్మాణం dynbuf *buf, స్థిరరాశి uint8_t *దత్తాంశం,
+                                size_t దత్తాంశం_len)
 {
-  CURLcode result;
-  if(data_len > UINT16_MAX)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  result = spack_enc16(buf, (uint16_t)data_len);
-  if(!result) {
-    result = curlx_dyn_addn(buf, data, data_len);
+  CURLcode ఫలితం;
+  ఒకవేళ(దత్తాంశం_len > UINT16_MAX)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+  ఫలితం = spack_enc16(buf, (uint16_t)దత్తాంశం_len);
+  ఒకవేళ(!ఫలితం) {
+    ఫలితం = curlx_dyn_addn(buf, దత్తాంశం, దత్తాంశం_len);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode spack_decdata16(uint8_t **val, size_t *val_len,
-                                const uint8_t **src, const uint8_t *end)
+స్థిర CURLcode spack_decdata16(uint8_t **val, size_t *val_len,
+                                స్థిరరాశి uint8_t **src, స్థిరరాశి uint8_t *చివర)
 {
-  uint16_t data_len;
-  CURLcode result;
+  uint16_t దత్తాంశం_len;
+  CURLcode ఫలితం;
 
-  *val = NULL;
-  result = spack_dec16(&data_len, src, end);
-  if(result)
-    return result;
-  if(end - *src < data_len)
-    return CURLE_READ_ERROR;
-  *val = curlx_memdup0((const char *)(*src), data_len);
-  *val_len = data_len;
-  *src += data_len;
-  return *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  *val = ఖాళీ;
+  ఫలితం = spack_dec16(&దత్తాంశం_len, src, చివర);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
+  ఒకవేళ(చివర - *src < దత్తాంశం_len)
+    తిరిగి CURLE_READ_ERROR;
+  *val = curlx_memdup0((స్థిరరాశి అక్షరం *)(*src), దత్తాంశం_len);
+  *val_len = దత్తాంశం_len;
+  *src += దత్తాంశం_len;
+  తిరిగి *val ? CURLE_OK : CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 }
 
-CURLcode Curl_ssl_session_pack(struct Curl_easy *data,
-                               struct Curl_ssl_session *s,
-                               struct dynbuf *buf)
+CURLcode Curl_ssl_session_pack(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_ssl_session *s,
+                               నిర్మాణం dynbuf *buf)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   DEBUGASSERT(s->sdata);
   DEBUGASSERT(s->sdata_len);
 
-  if(s->valid_until < 0)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(s->valid_until < 0)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
 
-  result = spack_enc8(buf, CURL_SPACK_VERSION);
-  if(!result)
-    result = spack_enc8(buf, CURL_SPACK_TICKET);
-  if(!result)
-    result = spack_encdata16(buf, s->sdata, s->sdata_len);
-  if(!result)
-    result = spack_enc8(buf, CURL_SPACK_IETF_ID);
-  if(!result)
-    result = spack_enc16(buf, (uint16_t)s->ietf_tls_id);
-  if(!result)
-    result = spack_enc8(buf, CURL_SPACK_VALID_UNTIL);
-  if(!result)
-    result = spack_enc64(buf, (uint64_t)s->valid_until);
-  if(!result && s->alpn) {
-    result = spack_enc8(buf, CURL_SPACK_ALPN);
-    if(!result)
-      result = spack_encstr16(buf, s->alpn);
+  ఫలితం = spack_enc8(buf, CURL_SPACK_సంస్కరణ);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = spack_enc8(buf, CURL_SPACK_TICKET);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = spack_encdata16(buf, s->sdata, s->sdata_len);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = spack_enc8(buf, CURL_SPACK_IETF_ID);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = spack_enc16(buf, (uint16_t)s->ietf_tls_id);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = spack_enc8(buf, CURL_SPACK_VALID_UNTIL);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = spack_enc64(buf, (uint64_t)s->valid_until);
+  ఒకవేళ(!ఫలితం && s->alpn) {
+    ఫలితం = spack_enc8(buf, CURL_SPACK_ALPN);
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = spack_encstr16(buf, s->alpn);
   }
-  if(!result && s->earlydata_max) {
-    if(s->earlydata_max > UINT32_MAX)
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-    if(!result)
-      result = spack_enc8(buf, CURL_SPACK_EARLYDATA);
-    if(!result)
-      result = spack_enc32(buf, (uint32_t)s->earlydata_max);
+  ఒకవేళ(!ఫలితం && s->earlydata_max) {
+    ఒకవేళ(s->earlydata_max > UINT32_MAX)
+      ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = spack_enc8(buf, CURL_SPACK_EARLYDATA);
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = spack_enc32(buf, (uint32_t)s->earlydata_max);
   }
-  if(!result && s->sectrust_verified) {
-    result = spack_enc8(buf, CURL_SPACK_SECTRUST);
+  ఒకవేళ(!ఫలితం && s->sectrust_verified) {
+    ఫలితం = spack_enc8(buf, CURL_SPACK_SECTRUST);
   }
-  if(!result && s->quic_tp && s->quic_tp_len) {
-    result = spack_enc8(buf, CURL_SPACK_QUICTP);
-    if(!result)
-      result = spack_encdata16(buf, s->quic_tp, s->quic_tp_len);
+  ఒకవేళ(!ఫలితం && s->quic_tp && s->quic_tp_len) {
+    ఫలితం = spack_enc8(buf, CURL_SPACK_QUICTP);
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = spack_encdata16(buf, s->quic_tp, s->quic_tp_len);
   }
 
-  if(result)
-    CURL_TRC_SSLS(data, "error packing data: %d", (int)result);
-  return result;
+  ఒకవేళ(ఫలితం)
+    CURL_TRC_SSLS(దత్తాంశం, "error packing data: %d", (పూర్ణాంకం)ఫలితం);
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_ssl_session_unpack(struct Curl_easy *data,
-                                 const void *bufv, size_t buflen,
-                                 struct Curl_ssl_session **ps)
+CURLcode Curl_ssl_session_unpack(నిర్మాణం Curl_easy *దత్తాంశం,
+                                 స్థిరరాశి శూన్య *bufv, size_t buflen,
+                                 నిర్మాణం Curl_ssl_session **ps)
 {
-  struct Curl_ssl_session *s = NULL;
-  const unsigned char *buf = (const unsigned char *)bufv;
-  const unsigned char *end = buf + buflen;
+  నిర్మాణం Curl_ssl_session *s = ఖాళీ;
+  స్థిరరాశి గుర్తులేని అక్షరం *buf = (స్థిరరాశి గుర్తులేని అక్షరం *)bufv;
+  స్థిరరాశి గుర్తులేని అక్షరం *చివర = buf + buflen;
   uint8_t val8, *pval8;
   uint16_t val16;
   uint32_t val32;
   uint64_t val64;
   size_t dlen;
-  CURLcode result;
+  CURLcode ఫలితం;
 
   DEBUGASSERT(ps);
   DEBUGASSERT(buf);
   DEBUGASSERT(buflen);
-  *ps = NULL;
+  *ps = ఖాళీ;
 
-  result = spack_dec8(&val8, &buf, end);
-  if(result)
-    goto out;
-  if(val8 != CURL_SPACK_VERSION) {
-    result = CURLE_READ_ERROR;
-    goto out;
+  ఫలితం = spack_dec8(&val8, &buf, చివర);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  ఒకవేళ(val8 != CURL_SPACK_సంస్కరణ) {
+    ఫలితం = CURLE_READ_ERROR;
+    వెళ్ళు బహిర్గతం;
   }
 
-  s = curlx_calloc(1, sizeof(*s));
-  if(!s) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  s = curlx_calloc(1, పరిమాణం(*s));
+  ఒకవేళ(!s) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  while(buf < end) {
-    result = spack_dec8(&val8, &buf, end);
-    if(result)
-      goto out;
+  అయితే(buf < చివర) {
+    ఫలితం = spack_dec8(&val8, &buf, చివర);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
 
-    switch(val8) {
-    case CURL_SPACK_ALPN:
+    ఎంపిక(val8) {
+    స్థితి CURL_SPACK_ALPN:
       curlx_free(s->alpn);
-      result = spack_decstr16(&s->alpn, &buf, end);
-      if(result)
-        goto out;
-      break;
-    case CURL_SPACK_EARLYDATA:
-      result = spack_dec32(&val32, &buf, end);
-      if(result)
-        goto out;
+      ఫలితం = spack_decstr16(&s->alpn, &buf, చివర);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
+      ఆపు;
+    స్థితి CURL_SPACK_EARLYDATA:
+      ఫలితం = spack_dec32(&val32, &buf, చివర);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
       s->earlydata_max = val32;
-      break;
-    case CURL_SPACK_IETF_ID:
-      result = spack_dec16(&val16, &buf, end);
-      if(result)
-        goto out;
+      ఆపు;
+    స్థితి CURL_SPACK_IETF_ID:
+      ఫలితం = spack_dec16(&val16, &buf, చివర);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
       s->ietf_tls_id = val16;
-      break;
-    case CURL_SPACK_QUICTP: {
-      result = spack_decdata16(&pval8, &dlen, &buf, end);
-      if(result)
-        goto out;
+      ఆపు;
+    స్థితి CURL_SPACK_QUICTP: {
+      ఫలితం = spack_decdata16(&pval8, &dlen, &buf, చివర);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
       curlx_free(s->quic_tp);
       s->quic_tp = pval8;
       s->quic_tp_len = dlen;
-      break;
+      ఆపు;
     }
-    case CURL_SPACK_TICKET: {
-      result = spack_decdata16(&pval8, &dlen, &buf, end);
-      if(result)
-        goto out;
+    స్థితి CURL_SPACK_TICKET: {
+      ఫలితం = spack_decdata16(&pval8, &dlen, &buf, చివర);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
       curlx_free(s->sdata);
       s->sdata = pval8;
       s->sdata_len = dlen;
-      break;
+      ఆపు;
     }
-    case CURL_SPACK_VALID_UNTIL:
-      result = spack_dec64(&val64, &buf, end);
-      if(result)
-        goto out;
+    స్థితి CURL_SPACK_VALID_UNTIL:
+      ఫలితం = spack_dec64(&val64, &buf, చివర);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
       s->valid_until = (curl_off_t)val64;
-      break;
-    case CURL_SPACK_SECTRUST:
+      ఆపు;
+    స్థితి CURL_SPACK_SECTRUST:
       s->sectrust_verified = TRUE;
-      break;
-    default:  /* unknown tag */
-      result = CURLE_READ_ERROR;
-      goto out;
+      ఆపు;
+    అప్రమేయ:  /* unknown tag */
+      ఫలితం = CURLE_READ_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-out:
-  if(result) {
-    CURL_TRC_SSLS(data, "error unpacking data: %d", (int)result);
+బహిర్గతం:
+  ఒకవేళ(ఫలితం) {
+    CURL_TRC_SSLS(దత్తాంశం, "error unpacking data: %d", (పూర్ణాంకం)ఫలితం);
     Curl_ssl_session_destroy(s);
   }
-  else
+  లేకపోతే
     *ps = s;
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif /* USE_SSL && USE_SSLS_EXPORT */
+#అయితే_ముగింపు /* USE_SSL && USE_SSLS_EXPORT */

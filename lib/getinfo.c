@@ -21,16 +21,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "getinfo.h"
-#include "cfilters.h"
-#include "vtls/vtls.h"
-#include "connect.h" /* Curl_getconnectinfo() */
-#include "bufref.h"
-#include "url.h" /* Curl_uc_to_curlcode() */
-#include "curlx/strparse.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "getinfo.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "connect.h" /* Curl_getconnectinfo() */
+#అన్తర్భావ "bufref.h"
+#అన్తర్భావ "url.h" /* Curl_uc_to_curlcode() */
+#అన్తర్భావ "curlx/strparse.h"
 
 /*
  * Initialize statistical and informational data.
@@ -39,13 +39,13 @@
  * beginning of a perform session. It must reset the session-info variables,
  * in particular all variables in struct PureInfo.
  */
-void Curl_initinfo(struct Curl_easy *data)
+శూన్య Curl_initinfo(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Progress *pro = &data->progress;
-  struct PureInfo *info = &data->info;
+  నిర్మాణం పురోగతి_2 *pro = &దత్తాంశం->పురోగతి;
+  నిర్మాణం శుద్ధ_Info *info = &దత్తాంశం->info;
 
-  memset(&pro->delta, 0, sizeof(pro->delta));
-  memset(&pro->total, 0, sizeof(pro->total));
+  memset(&pro->delta, 0, పరిమాణం(pro->delta));
+  memset(&pro->మొత్తం, 0, పరిమాణం(pro->మొత్తం));
   pro->startransfer_added = FALSE;
 
   info->httpcode = 0;
@@ -54,8 +54,8 @@ void Curl_initinfo(struct Curl_easy *data)
   info->filetime = -1; /* -1 is an illegal time and thus means unknown */
   info->timecond = FALSE;
 
-  info->header_size = 0;
-  info->request_size = 0;
+  info->శీర్షిక_కొలత = 0;
+  info->request_కొలత = 0;
   info->proxyauthavail = 0;
   info->httpauthavail = 0;
   info->proxyauthpicked = 0;
@@ -66,648 +66,648 @@ void Curl_initinfo(struct Curl_easy *data)
   curlx_safefree(info->wouldredirect);
   curlx_safefree(info->effective_url);
 
-  memset(&info->primary, 0, sizeof(info->primary));
+  memset(&info->primary, 0, పరిమాణం(info->primary));
   info->retry_after = 0;
 
   info->conn_scheme = 0;
   info->conn_protocol = 0;
-  info->used_proxy = 0;
+  info->వాడిన_proxy = 0;
 
-#ifdef USE_SSL
-  Curl_ssl_free_certinfo(data);
-#endif
+#నిర్వచితమైతే USE_SSL
+  Curl_ssl_free_certinfo(దత్తాంశం);
+#అయితే_ముగింపు
 }
 
-static CURLcode effective_url(struct Curl_easy *data,
-                              const char **param_charp)
+స్థిర CURLcode effective_url(నిర్మాణం Curl_easy *దత్తాంశం,
+                              స్థిరరాశి అక్షరం **param_charp)
 {
-  const char *s = Curl_bufref_ptr(&data->state.url);
+  స్థిరరాశి అక్షరం *s = Curl_bufref_ptr(&దత్తాంశం->state.url);
   /* never return the URL unfiltered */
-  *param_charp = s ? NULL : "";
-  if(s) {
-    char *url = NULL;
+  *param_charp = s ? ఖాళీ : "";
+  ఒకవేళ(s) {
+    అక్షరం *url = ఖాళీ;
     /* Make a copy of the URL without credentials */
     CURLU *u = curl_url();
     CURLUcode uc;
-    if(!u)
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(!u)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-    uc = curl_url_set(u, CURLUPART_URL, s,
+    uc = curl_url_సమితి(u, CURLUPART_URL, s,
                       CURLU_NON_SUPPORT_SCHEME |
-                      (data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
-    if(!uc)
-      uc = curl_url_set(u, CURLUPART_USER, NULL, 0);
-    if(!uc)
-      uc = curl_url_set(u, CURLUPART_PASSWORD, NULL, 0);
-    if(!uc)
-      uc = curl_url_get(u, CURLUPART_URL, &url, CURLU_GET_EMPTY);
+                      (దత్తాంశం->సమితి.మార్గం_as_is ? CURLU_మార్గం_AS_IS : 0));
+    ఒకవేళ(!uc)
+      uc = curl_url_సమితి(u, CURLUPART_USER, ఖాళీ, 0);
+    ఒకవేళ(!uc)
+      uc = curl_url_సమితి(u, CURLUPART_PASSWORD, ఖాళీ, 0);
+    ఒకవేళ(!uc)
+      uc = curl_url_get(u, CURLUPART_URL, &url, CURLU_GET_ఖాళీలు);
 
     curl_url_cleanup(u);
 
-    if(uc || !url)
-      return uc ? Curl_uc_to_curlcode(uc) : CURLE_OUT_OF_MEMORY;
-    if(strcmp(url, s)) {
+    ఒకవేళ(uc || !url)
+      తిరిగి uc ? Curl_uc_గమ్యం_curlcode(uc) : CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    ఒకవేళ(strcmp(url, s)) {
       /* they are different */
-      curlx_free(data->info.effective_url);
-      data->info.effective_url = url;
+      curlx_free(దత్తాంశం->info.effective_url);
+      దత్తాంశం->info.effective_url = url;
       *param_charp = url;
     }
-    else {
+    లేకపోతే {
       curl_free(url);
       *param_charp = s;
     }
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode getinfo_char(struct Curl_easy *data, CURLINFO info,
-                             const char **param_charp)
+స్థిర CURLcode getinfo_char(నిర్మాణం Curl_easy *దత్తాంశం, CURLINFO info,
+                             స్థిరరాశి అక్షరం **param_charp)
 {
-  switch(info) {
-  case CURLINFO_EFFECTIVE_URL:
-    return effective_url(data, param_charp);
-  case CURLINFO_EFFECTIVE_METHOD: {
-    const char *m = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
-    if(!m) {
-      if(data->set.opt_no_body)
+  ఎంపిక(info) {
+  స్థితి CURLINFO_EFFECTIVE_URL:
+    తిరిగి effective_url(దత్తాంశం, param_charp);
+  స్థితి CURLINFO_EFFECTIVE_పద్ధతి: {
+    స్థిరరాశి అక్షరం *m = CURL_EASY_STR(దత్తాంశం, STRING_CUSTOMREQUEST);
+    ఒకవేళ(!m) {
+      ఒకవేళ(దత్తాంశం->సమితి.opt_no_body)
         m = "HEAD";
-#ifndef CURL_DISABLE_HTTP
-      else {
-        switch(data->state.httpreq) {
-        case HTTPREQ_POST:
-        case HTTPREQ_POST_FORM:
-        case HTTPREQ_POST_MIME:
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
+      లేకపోతే {
+        ఎంపిక(దత్తాంశం->state.httpreq) {
+        స్థితి HTTPREQ_POST:
+        స్థితి HTTPREQ_POST_FORM:
+        స్థితి HTTPREQ_POST_MIME:
           m = "POST";
-          break;
-        case HTTPREQ_PUT:
+          ఆపు;
+        స్థితి HTTPREQ_PUT:
           m = "PUT";
-          break;
-        default: /* this should never happen */
-        case HTTPREQ_GET:
+          ఆపు;
+        అప్రమేయ: /* this should never happen */
+        స్థితి HTTPREQ_GET:
           m = "GET";
-          break;
-        case HTTPREQ_HEAD:
+          ఆపు;
+        స్థితి HTTPREQ_తల:
           m = "HEAD";
-          break;
+          ఆపు;
         }
       }
-#endif
+#అయితే_ముగింపు
     }
     *param_charp = m;
   }
-    break;
-  case CURLINFO_CONTENT_TYPE:
-    *param_charp = data->info.contenttype;
-    break;
-  case CURLINFO_PRIVATE:
-    *param_charp = (const char *)data->set.private_data;
-    break;
-  case CURLINFO_FTP_ENTRY_PATH:
+    ఆపు;
+  స్థితి CURLINFO_CONTENT_TYPE:
+    *param_charp = దత్తాంశం->info.contenttype;
+    ఆపు;
+  స్థితి CURLINFO_వ్యక్తిగత:
+    *param_charp = (స్థిరరాశి అక్షరం *)దత్తాంశం->సమితి.వ్యక్తిగత_దత్తాంశం;
+    ఆపు;
+  స్థితి CURLINFO_FTP_నమోదు_మార్గం:
     /* Return the entrypath string from the most recent connection.
        This pointer was copied from the connectdata structure by FTP.
        The actual string may be freed by subsequent libcurl calls so
        it must be copied to a safer area before the next libcurl call.
        Callers must never free it themselves. */
-    *param_charp = data->state.most_recent_ftp_entrypath;
-    break;
-  case CURLINFO_REDIRECT_URL:
+    *param_charp = దత్తాంశం->state.most_recent_ftp_entrypath;
+    ఆపు;
+  స్థితి CURLINFO_REDIRECT_URL:
     /* Return the URL this request would have been redirected to if that
        option had been enabled! */
-    *param_charp = data->info.wouldredirect;
-    break;
-  case CURLINFO_REFERER:
+    *param_charp = దత్తాంశం->info.wouldredirect;
+    ఆపు;
+  స్థితి CURLINFO_REFERER:
     /* Return the referrer header for this request, or NULL if unset */
-    *param_charp = Curl_bufref_ptr(&data->state.referer);
-    break;
-  case CURLINFO_PRIMARY_IP:
+    *param_charp = Curl_bufref_ptr(&దత్తాంశం->state.referer);
+    ఆపు;
+  స్థితి CURLINFO_PRIMARY_IP:
     /* Return the ip address of the most recent (primary) connection */
-    *param_charp = data->info.primary.remote_ip;
-    break;
-  case CURLINFO_LOCAL_IP:
+    *param_charp = దత్తాంశం->info.primary.remote_ip;
+    ఆపు;
+  స్థితి CURLINFO_LOCAL_IP:
     /* Return the source/local ip address of the most recent (primary)
        connection */
-    *param_charp = data->info.primary.local_ip;
-    break;
-  case CURLINFO_RTSP_SESSION_ID:
-#ifndef CURL_DISABLE_RTSP
-    *param_charp = CURL_EASY_STR(data, STRING_RTSP_SESSION_ID);
-#else
-    *param_charp = NULL;
-#endif
-    break;
-  case CURLINFO_SCHEME:
-    *param_charp = data->info.conn_scheme;
-    break;
-  case CURLINFO_CAPATH:
-#ifdef CURL_CA_PATH
-    *param_charp = CURL_CA_PATH;
-#else
-    *param_charp = NULL;
-#endif
-    break;
-  case CURLINFO_CAINFO:
-#ifdef CURL_CA_BUNDLE
+    *param_charp = దత్తాంశం->info.primary.local_ip;
+    ఆపు;
+  స్థితి CURLINFO_RTSP_SESSION_ID:
+#నిర్వచితం_కాకపోతే CURL_DISABLE_RTSP
+    *param_charp = CURL_EASY_STR(దత్తాంశం, STRING_RTSP_SESSION_ID);
+#లేకపోతే
+    *param_charp = ఖాళీ;
+#అయితే_ముగింపు
+    ఆపు;
+  స్థితి CURLINFO_SCHEME:
+    *param_charp = దత్తాంశం->info.conn_scheme;
+    ఆపు;
+  స్థితి CURLINFO_CAPATH:
+#నిర్వచితమైతే CURL_CA_మార్గం
+    *param_charp = CURL_CA_మార్గం;
+#లేకపోతే
+    *param_charp = ఖాళీ;
+#అయితే_ముగింపు
+    ఆపు;
+  స్థితి CURLINFO_CAINFO:
+#నిర్వచితమైతే CURL_CA_BUNDLE
     *param_charp = CURL_CA_BUNDLE;
-#else
-    *param_charp = NULL;
-#endif
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+#లేకపోతే
+    *param_charp = ఖాళీ;
+#అయితే_ముగింపు
+    ఆపు;
+  అప్రమేయ:
+    తిరిగి CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
-                             long *param_longp)
+స్థిర CURLcode getinfo_long(నిర్మాణం Curl_easy *దత్తాంశం, CURLINFO info,
+                             దీర్ఘ *param_longp)
 {
   curl_socket_t sockfd;
 
-  union {
-    unsigned long *to_ulong;
-    long          *to_long;
+  సంఘం {
+    గుర్తులేని దీర్ఘ *గమ్యం_ulong;
+    దీర్ఘ          *గమ్యం_long;
   } lptr;
 
-#ifdef DEBUGBUILD
-  const char *envstr;
+#నిర్వచితమైతే DEBUGBUILD
+  స్థిరరాశి అక్షరం *envstr;
 
   /* use another variable for this to allow different values */
-  switch(info) {
-  case CURLINFO_LOCAL_PORT:
+  ఎంపిక(info) {
+  స్థితి CURLINFO_LOCAL_పోర్టు:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    ఒకవేళ(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, TIME_T_MAX);
-      *param_longp = (long)val;
-      return CURLE_OK;
+      curlx_str_సంఖ్య(&envstr, &val, సమయం_T_MAX);
+      *param_longp = (దీర్ఘ)val;
+      తిరిగి CURLE_OK;
     }
-    break;
-  case CURLINFO_HEADER_SIZE:
-  case CURLINFO_REQUEST_SIZE:
+    ఆపు;
+  స్థితి CURLINFO_శీర్షిక_కొలత:
+  స్థితి CURLINFO_REQUEST_కొలత:
     envstr = getenv("CURL_DEBUG_SIZE");
-    if(envstr) {
+    ఒకవేళ(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, LONG_MAX);
-      *param_longp = (long)val;
-      return CURLE_OK;
+      curlx_str_సంఖ్య(&envstr, &val, LONG_MAX);
+      *param_longp = (దీర్ఘ)val;
+      తిరిగి CURLE_OK;
     }
-    break;
-  default:
-    break;
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
-#endif
+#అయితే_ముగింపు
 
-  switch(info) {
-  case CURLINFO_RESPONSE_CODE:
-    *param_longp = data->info.httpcode;
-    break;
-  case CURLINFO_HTTP_CONNECTCODE:
-    *param_longp = data->info.httpproxycode;
-    break;
-  case CURLINFO_FILETIME:
-    if(data->info.filetime > LONG_MAX)
+  ఎంపిక(info) {
+  స్థితి CURLINFO_RESPONSE_సంకేతం:
+    *param_longp = దత్తాంశం->info.httpcode;
+    ఆపు;
+  స్థితి CURLINFO_HTTP_CONNECTCODE:
+    *param_longp = దత్తాంశం->info.httpproxycode;
+    ఆపు;
+  స్థితి CURLINFO_FILETIME:
+    ఒకవేళ(దత్తాంశం->info.filetime > LONG_MAX)
       *param_longp = LONG_MAX;
-#if !defined(MSDOS) && !defined(__AMIGA__)
-    else if(data->info.filetime < LONG_MIN)
+#ఒకవేళ !defined(MSDOS) && !defined(__AMIGA__)
+    లేకపోతే ఒకవేళ(దత్తాంశం->info.filetime < LONG_MIN)
       *param_longp = LONG_MIN;
-#endif
-    else
-      *param_longp = (long)data->info.filetime;
-    break;
-  case CURLINFO_HEADER_SIZE:
-    *param_longp = (long)data->info.header_size;
-    break;
-  case CURLINFO_REQUEST_SIZE:
-    *param_longp = (long)data->info.request_size;
-    break;
-  case CURLINFO_SSL_VERIFYRESULT:
-    *param_longp = data->set.ssl.certverifyresult;
-    break;
-  case CURLINFO_PROXY_SSL_VERIFYRESULT:
-#ifndef CURL_DISABLE_PROXY
-    *param_longp = data->set.proxy_ssl.certverifyresult;
-#else
+#అయితే_ముగింపు
+    లేకపోతే
+      *param_longp = (దీర్ఘ)దత్తాంశం->info.filetime;
+    ఆపు;
+  స్థితి CURLINFO_శీర్షిక_కొలత:
+    *param_longp = (దీర్ఘ)దత్తాంశం->info.శీర్షిక_కొలత;
+    ఆపు;
+  స్థితి CURLINFO_REQUEST_కొలత:
+    *param_longp = (దీర్ఘ)దత్తాంశం->info.request_కొలత;
+    ఆపు;
+  స్థితి CURLINFO_SSL_VERIFYRESULT:
+    *param_longp = దత్తాంశం->సమితి.ssl.certverifyresult;
+    ఆపు;
+  స్థితి CURLINFO_PROXY_SSL_VERIFYRESULT:
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+    *param_longp = దత్తాంశం->సమితి.proxy_ssl.certverifyresult;
+#లేకపోతే
     *param_longp = 0;
-#endif
-    break;
-  case CURLINFO_REDIRECT_COUNT:
-    *param_longp = data->state.followlocation;
-    break;
-  case CURLINFO_HTTPAUTH_AVAIL:
-    lptr.to_long = param_longp;
-    *lptr.to_ulong = data->info.httpauthavail;
-    break;
-  case CURLINFO_PROXYAUTH_AVAIL:
-    lptr.to_long = param_longp;
-    *lptr.to_ulong = data->info.proxyauthavail;
-    break;
-  case CURLINFO_HTTPAUTH_USED:
-    lptr.to_long = param_longp;
-    *lptr.to_ulong = data->info.httpauthpicked;
-    break;
-  case CURLINFO_PROXYAUTH_USED:
-    lptr.to_long = param_longp;
-    *lptr.to_ulong = data->info.proxyauthpicked;
-    break;
-  case CURLINFO_OS_ERRNO:
-    *param_longp = data->state.os_errno;
-    break;
-  case CURLINFO_NUM_CONNECTS:
-#if SIZEOF_LONG < SIZEOF_CURL_OFF_T
-    if(data->info.numconnects > LONG_MAX)
+#అయితే_ముగింపు
+    ఆపు;
+  స్థితి CURLINFO_REDIRECT_లెక్క:
+    *param_longp = దత్తాంశం->state.followlocation;
+    ఆపు;
+  స్థితి CURLINFO_HTTPAUTH_AVAIL:
+    lptr.గమ్యం_long = param_longp;
+    *lptr.గమ్యం_ulong = దత్తాంశం->info.httpauthavail;
+    ఆపు;
+  స్థితి CURLINFO_PROXYAUTH_AVAIL:
+    lptr.గమ్యం_long = param_longp;
+    *lptr.గమ్యం_ulong = దత్తాంశం->info.proxyauthavail;
+    ఆపు;
+  స్థితి CURLINFO_HTTPAUTH_వాడిన:
+    lptr.గమ్యం_long = param_longp;
+    *lptr.గమ్యం_ulong = దత్తాంశం->info.httpauthpicked;
+    ఆపు;
+  స్థితి CURLINFO_PROXYAUTH_వాడిన:
+    lptr.గమ్యం_long = param_longp;
+    *lptr.గమ్యం_ulong = దత్తాంశం->info.proxyauthpicked;
+    ఆపు;
+  స్థితి CURLINFO_OS_ERRNO:
+    *param_longp = దత్తాంశం->state.os_errno;
+    ఆపు;
+  స్థితి CURLINFO_అంకె_CONNECTS:
+#ఒకవేళ SIZEOF_LONG < SIZEOF_CURL_OFF_T
+    ఒకవేళ(దత్తాంశం->info.numconnects > LONG_MAX)
       *param_longp = LONG_MAX;
-    else
-#endif
-      *param_longp = (long)data->info.numconnects;
-    break;
-  case CURLINFO_LASTSOCKET:
-    sockfd = Curl_getconnectinfo(data, NULL);
+    లేకపోతే
+#అయితే_ముగింపు
+      *param_longp = (దీర్ఘ)దత్తాంశం->info.numconnects;
+    ఆపు;
+  స్థితి CURLINFO_LASTSOCKET:
+    sockfd = Curl_getconnectinfo(దత్తాంశం, ఖాళీ);
 
     /* note: this is not a good conversion for systems with 64-bit sockets and
        32-bit longs */
-    if(sockfd != CURL_SOCKET_BAD)
-      *param_longp = (long)sockfd;
-    else
+    ఒకవేళ(sockfd != CURL_SOCKET_BAD)
+      *param_longp = (దీర్ఘ)sockfd;
+    లేకపోతే
       /* this interface is documented to return -1 in case of badness, which
          may not be the same as the CURL_SOCKET_BAD value */
       *param_longp = -1;
-    break;
-  case CURLINFO_PRIMARY_PORT:
+    ఆపు;
+  స్థితి CURLINFO_PRIMARY_పోర్టు:
     /* Return the (remote) port of the most recent (primary) connection */
-    if(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
-      *param_longp = data->info.primary.remote_port;
-    else
+    ఒకవేళ(CUR_IP_QUAD_HAS_PORTS(&దత్తాంశం->info.primary))
+      *param_longp = దత్తాంశం->info.primary.remote_పోర్టు;
+    లేకపోతే
       *param_longp = -1;
-    break;
-  case CURLINFO_LOCAL_PORT:
+    ఆపు;
+  స్థితి CURLINFO_LOCAL_పోర్టు:
     /* Return the local port of the most recent (primary) connection */
-    if(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
-      *param_longp = data->info.primary.local_port;
-    else
+    ఒకవేళ(CUR_IP_QUAD_HAS_PORTS(&దత్తాంశం->info.primary))
+      *param_longp = దత్తాంశం->info.primary.local_పోర్టు;
+    లేకపోతే
       *param_longp = -1;
-    break;
-  case CURLINFO_PROXY_ERROR:
-    *param_longp = (long)data->info.pxcode;
-    break;
-  case CURLINFO_CONDITION_UNMET:
-    if(data->info.httpcode == 304)
+    ఆపు;
+  స్థితి CURLINFO_PROXY_ERROR:
+    *param_longp = (దీర్ఘ)దత్తాంశం->info.pxcode;
+    ఆపు;
+  స్థితి CURLINFO_CONDITION_UNMET:
+    ఒకవేళ(దత్తాంశం->info.httpcode == 304)
       *param_longp = 1L;
-    else
+    లేకపోతే
       /* return if the condition prevented the document to get transferred */
-      *param_longp = data->info.timecond ? 1L : 0L;
-    break;
-#ifndef CURL_DISABLE_RTSP
-  case CURLINFO_RTSP_CLIENT_CSEQ:
-    *param_longp = data->state.rtsp_next_client_CSeq;
-    break;
-  case CURLINFO_RTSP_SERVER_CSEQ:
-    *param_longp = data->state.rtsp_next_server_CSeq;
-    break;
-  case CURLINFO_RTSP_CSEQ_RECV:
-    *param_longp = data->state.rtsp_CSeq_recv;
-    break;
-#else
-  case CURLINFO_RTSP_CLIENT_CSEQ:
-  case CURLINFO_RTSP_SERVER_CSEQ:
-  case CURLINFO_RTSP_CSEQ_RECV:
+      *param_longp = దత్తాంశం->info.timecond ? 1L : 0L;
+    ఆపు;
+#నిర్వచితం_కాకపోతే CURL_DISABLE_RTSP
+  స్థితి CURLINFO_RTSP_CLIENT_CSEQ:
+    *param_longp = దత్తాంశం->state.rtsp_తదుపరి_client_CSeq;
+    ఆపు;
+  స్థితి CURLINFO_RTSP_SERVER_CSEQ:
+    *param_longp = దత్తాంశం->state.rtsp_తదుపరి_server_CSeq;
+    ఆపు;
+  స్థితి CURLINFO_RTSP_CSEQ_RECV:
+    *param_longp = దత్తాంశం->state.rtsp_CSeq_recv;
+    ఆపు;
+#లేకపోతే
+  స్థితి CURLINFO_RTSP_CLIENT_CSEQ:
+  స్థితి CURLINFO_RTSP_SERVER_CSEQ:
+  స్థితి CURLINFO_RTSP_CSEQ_RECV:
     *param_longp = 0;
-    break;
-#endif
-  case CURLINFO_HTTP_VERSION:
-    switch(data->info.httpversion) {
-    case 10:
-      *param_longp = CURL_HTTP_VERSION_1_0;
-      break;
-    case 11:
-      *param_longp = CURL_HTTP_VERSION_1_1;
-      break;
-    case 20:
-      *param_longp = CURL_HTTP_VERSION_2_0;
-      break;
-    case 30:
-      *param_longp = CURL_HTTP_VERSION_3;
-      break;
-    default:
-      *param_longp = CURL_HTTP_VERSION_NONE;
-      break;
+    ఆపు;
+#అయితే_ముగింపు
+  స్థితి CURLINFO_HTTP_సంస్కరణ:
+    ఎంపిక(దత్తాంశం->info.httpversion) {
+    స్థితి 10:
+      *param_longp = CURL_HTTP_సంస్కరణ_1_0;
+      ఆపు;
+    స్థితి 11:
+      *param_longp = CURL_HTTP_సంస్కరణ_1_1;
+      ఆపు;
+    స్థితి 20:
+      *param_longp = CURL_HTTP_సంస్కరణ_2_0;
+      ఆపు;
+    స్థితి 30:
+      *param_longp = CURL_HTTP_సంస్కరణ_3;
+      ఆపు;
+    అప్రమేయ:
+      *param_longp = CURL_HTTP_సంస్కరణ_NONE;
+      ఆపు;
     }
-    break;
-  case CURLINFO_PROTOCOL:
-    *param_longp = (long)data->info.conn_protocol;
-    break;
-  case CURLINFO_USED_PROXY:
+    ఆపు;
+  స్థితి CURLINFO_PROTOCOL:
+    *param_longp = (దీర్ఘ)దత్తాంశం->info.conn_protocol;
+    ఆపు;
+  స్థితి CURLINFO_వాడిన_PROXY:
     *param_longp =
-#ifdef CURL_DISABLE_PROXY
+#నిర్వచితమైతే CURL_DISABLE_PROXY
       0
-#else
-      data->info.used_proxy
-#endif
+#లేకపోతే
+      దత్తాంశం->info.వాడిన_proxy
+#అయితే_ముగింపు
       ;
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    ఆపు;
+  అప్రమేయ:
+    తిరిగి CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-#define DOUBLE_SECS(x) ((double)(x) / 1000000)
+#నిర్వచించు DOUBLE_SECS(x) ((ద్విగుణ)(x) / 1000000)
 
-static CURLcode getinfo_offt(struct Curl_easy *data, CURLINFO info,
+స్థిర CURLcode getinfo_offt(నిర్మాణం Curl_easy *దత్తాంశం, CURLINFO info,
                              curl_off_t *param_offt)
 {
-#ifdef DEBUGBUILD
-  const char *envstr;
-  switch(info) {
-  case CURLINFO_TOTAL_TIME_T:
-  case CURLINFO_NAMELOOKUP_TIME_T:
-  case CURLINFO_CONNECT_TIME_T:
-  case CURLINFO_APPCONNECT_TIME_T:
-  case CURLINFO_PRETRANSFER_TIME_T:
-  case CURLINFO_POSTTRANSFER_TIME_T:
-  case CURLINFO_QUEUE_TIME_T:
-  case CURLINFO_STARTTRANSFER_TIME_T:
-  case CURLINFO_REDIRECT_TIME_T:
-  case CURLINFO_SPEED_DOWNLOAD_T:
-  case CURLINFO_SPEED_UPLOAD_T:
+#నిర్వచితమైతే DEBUGBUILD
+  స్థిరరాశి అక్షరం *envstr;
+  ఎంపిక(info) {
+  స్థితి CURLINFO_మొత్తం_సమయం_T:
+  స్థితి CURLINFO_NAMELOOKUP_సమయం_T:
+  స్థితి CURLINFO_CONNECT_సమయం_T:
+  స్థితి CURLINFO_APPCONNECT_సమయం_T:
+  స్థితి CURLINFO_PRETRANSFER_సమయం_T:
+  స్థితి CURLINFO_POSTTRANSFER_సమయం_T:
+  స్థితి CURLINFO_వరుస_సమయం_T:
+  స్థితి CURLINFO_STARTTRANSFER_సమయం_T:
+  స్థితి CURLINFO_REDIRECT_సమయం_T:
+  స్థితి CURLINFO_వేగం_DOWNLOAD_T:
+  స్థితి CURLINFO_వేగం_UPLOAD_T:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    ఒకవేళ(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, CURL_OFF_T_MAX);
+      curlx_str_సంఖ్య(&envstr, &val, CURL_OFF_T_MAX);
       *param_offt = (curl_off_t)val;
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
     }
-    break;
-  default:
-    break;
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
-#endif
-  switch(info) {
-  case CURLINFO_FILETIME_T:
-    *param_offt = (curl_off_t)data->info.filetime;
-    break;
-  case CURLINFO_SIZE_DELIVERED:
-    *param_offt = data->progress.deliver;
-    break;
-  case CURLINFO_SIZE_UPLOAD_T:
-    *param_offt = data->progress.ul.cur_size;
-    break;
-  case CURLINFO_SIZE_DOWNLOAD_T:
-    *param_offt = data->progress.dl.cur_size;
-    break;
-  case CURLINFO_SPEED_DOWNLOAD_T:
-    *param_offt = data->progress.dl.speed;
-    break;
-  case CURLINFO_SPEED_UPLOAD_T:
-    *param_offt = data->progress.ul.speed;
-    break;
-  case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
-    *param_offt = data->progress.dl_size_known ?
-      data->progress.dl.total_size : -1;
-    break;
-  case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
-    *param_offt = data->progress.ul_size_known ?
-      data->progress.ul.total_size : -1;
-    break;
-   case CURLINFO_TOTAL_TIME_T:
-    *param_offt = data->progress.total.spent_us;
-    break;
-  case CURLINFO_NAMELOOKUP_TIME_T:
-    *param_offt = data->progress.total.nslookup_us;
-    break;
-  case CURLINFO_CONNECT_TIME_T:
-    *param_offt = data->progress.total.connect_us;
-    break;
-  case CURLINFO_APPCONNECT_TIME_T:
-    *param_offt = data->progress.total.appconnect_us;
-    break;
-  case CURLINFO_PRETRANSFER_TIME_T:
-    *param_offt = data->progress.total.pretransfer_us;
-    break;
-  case CURLINFO_POSTTRANSFER_TIME_T:
-    *param_offt = data->progress.total.posttransfer_us;
-    break;
-  case CURLINFO_STARTTRANSFER_TIME_T:
-    *param_offt = data->progress.total.starttransfer_us;
-    break;
-  case CURLINFO_QUEUE_TIME_T:
-    *param_offt = data->progress.total.queued_us;
-    break;
-  case CURLINFO_REDIRECT_TIME_T:
-    *param_offt = data->progress.delta.startredirect_us;
-    break;
-  case CURLINFO_RETRY_AFTER:
-    *param_offt = data->info.retry_after;
-    break;
-  case CURLINFO_XFER_ID:
-    *param_offt = data->id;
-    break;
-  case CURLINFO_CONN_ID:
-    *param_offt = data->state.last_conn_id;
-    break;
-  case CURLINFO_EARLYDATA_SENT_T:
-    *param_offt = data->progress.earlydata_sent;
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+#అయితే_ముగింపు
+  ఎంపిక(info) {
+  స్థితి CURLINFO_FILETIME_T:
+    *param_offt = (curl_off_t)దత్తాంశం->info.filetime;
+    ఆపు;
+  స్థితి CURLINFO_కొలత_DELIVERED:
+    *param_offt = దత్తాంశం->పురోగతి.deliver;
+    ఆపు;
+  స్థితి CURLINFO_కొలత_UPLOAD_T:
+    *param_offt = దత్తాంశం->పురోగతి.ul.cur_కొలత;
+    ఆపు;
+  స్థితి CURLINFO_కొలత_DOWNLOAD_T:
+    *param_offt = దత్తాంశం->పురోగతి.dl.cur_కొలత;
+    ఆపు;
+  స్థితి CURLINFO_వేగం_DOWNLOAD_T:
+    *param_offt = దత్తాంశం->పురోగతి.dl.వేగం;
+    ఆపు;
+  స్థితి CURLINFO_వేగం_UPLOAD_T:
+    *param_offt = దత్తాంశం->పురోగతి.ul.వేగం;
+    ఆపు;
+  స్థితి CURLINFO_CONTENT_నిడివి_DOWNLOAD_T:
+    *param_offt = దత్తాంశం->పురోగతి.dl_కొలత_తెలిసిన ?
+      దత్తాంశం->పురోగతి.dl.మొత్తం_కొలత : -1;
+    ఆపు;
+  స్థితి CURLINFO_CONTENT_నిడివి_UPLOAD_T:
+    *param_offt = దత్తాంశం->పురోగతి.ul_కొలత_తెలిసిన ?
+      దత్తాంశం->పురోగతి.ul.మొత్తం_కొలత : -1;
+    ఆపు;
+   స్థితి CURLINFO_మొత్తం_సమయం_T:
+    *param_offt = దత్తాంశం->పురోగతి.మొత్తం.spent_us;
+    ఆపు;
+  స్థితి CURLINFO_NAMELOOKUP_సమయం_T:
+    *param_offt = దత్తాంశం->పురోగతి.మొత్తం.nslookup_us;
+    ఆపు;
+  స్థితి CURLINFO_CONNECT_సమయం_T:
+    *param_offt = దత్తాంశం->పురోగతి.మొత్తం.connect_us;
+    ఆపు;
+  స్థితి CURLINFO_APPCONNECT_సమయం_T:
+    *param_offt = దత్తాంశం->పురోగతి.మొత్తం.appconnect_us;
+    ఆపు;
+  స్థితి CURLINFO_PRETRANSFER_సమయం_T:
+    *param_offt = దత్తాంశం->పురోగతి.మొత్తం.pretransfer_us;
+    ఆపు;
+  స్థితి CURLINFO_POSTTRANSFER_సమయం_T:
+    *param_offt = దత్తాంశం->పురోగతి.మొత్తం.posttransfer_us;
+    ఆపు;
+  స్థితి CURLINFO_STARTTRANSFER_సమయం_T:
+    *param_offt = దత్తాంశం->పురోగతి.మొత్తం.starttransfer_us;
+    ఆపు;
+  స్థితి CURLINFO_వరుస_సమయం_T:
+    *param_offt = దత్తాంశం->పురోగతి.మొత్తం.queued_us;
+    ఆపు;
+  స్థితి CURLINFO_REDIRECT_సమయం_T:
+    *param_offt = దత్తాంశం->పురోగతి.delta.startredirect_us;
+    ఆపు;
+  స్థితి CURLINFO_RETRY_AFTER:
+    *param_offt = దత్తాంశం->info.retry_after;
+    ఆపు;
+  స్థితి CURLINFO_XFER_ID:
+    *param_offt = దత్తాంశం->id;
+    ఆపు;
+  స్థితి CURLINFO_CONN_ID:
+    *param_offt = దత్తాంశం->state.చివరి_conn_id;
+    ఆపు;
+  స్థితి CURLINFO_EARLYDATA_పంపిన_T:
+    *param_offt = దత్తాంశం->పురోగతి.earlydata_పంపిన;
+    ఆపు;
+  అప్రమేయ:
+    తిరిగి CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode getinfo_double(struct Curl_easy *data, CURLINFO info,
-                               double *param_doublep)
+స్థిర CURLcode getinfo_double(నిర్మాణం Curl_easy *దత్తాంశం, CURLINFO info,
+                               ద్విగుణ *param_doublep)
 {
-#ifdef DEBUGBUILD
-  const char *envstr;
+#నిర్వచితమైతే DEBUGBUILD
+  స్థిరరాశి అక్షరం *envstr;
 
-  switch(info) {
-  case CURLINFO_TOTAL_TIME:
-  case CURLINFO_NAMELOOKUP_TIME:
-  case CURLINFO_CONNECT_TIME:
-  case CURLINFO_APPCONNECT_TIME:
-  case CURLINFO_PRETRANSFER_TIME:
-  case CURLINFO_STARTTRANSFER_TIME:
-  case CURLINFO_REDIRECT_TIME:
-  case CURLINFO_SPEED_DOWNLOAD:
-  case CURLINFO_SPEED_UPLOAD:
+  ఎంపిక(info) {
+  స్థితి CURLINFO_మొత్తం_సమయం:
+  స్థితి CURLINFO_NAMELOOKUP_సమయం:
+  స్థితి CURLINFO_CONNECT_సమయం:
+  స్థితి CURLINFO_APPCONNECT_సమయం:
+  స్థితి CURLINFO_PRETRANSFER_సమయం:
+  స్థితి CURLINFO_STARTTRANSFER_సమయం:
+  స్థితి CURLINFO_REDIRECT_సమయం:
+  స్థితి CURLINFO_వేగం_DOWNLOAD:
+  స్థితి CURLINFO_వేగం_UPLOAD:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    ఒకవేళ(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, CURL_OFF_T_MAX);
-      *param_doublep = (double)val;
-      return CURLE_OK;
+      curlx_str_సంఖ్య(&envstr, &val, CURL_OFF_T_MAX);
+      *param_doublep = (ద్విగుణ)val;
+      తిరిగి CURLE_OK;
     }
-    break;
-  default:
-    break;
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
-#endif
-  switch(info) {
-  case CURLINFO_TOTAL_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.spent_us);
-    break;
-  case CURLINFO_NAMELOOKUP_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.nslookup_us);
-    break;
-  case CURLINFO_CONNECT_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.connect_us);
-    break;
-  case CURLINFO_APPCONNECT_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.appconnect_us);
-    break;
-  case CURLINFO_PRETRANSFER_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.pretransfer_us);
-    break;
-  case CURLINFO_STARTTRANSFER_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.total.starttransfer_us);
-    break;
-  case CURLINFO_SIZE_UPLOAD:
-    *param_doublep = (double)data->progress.ul.cur_size;
-    break;
-  case CURLINFO_SIZE_DOWNLOAD:
-    *param_doublep = (double)data->progress.dl.cur_size;
-    break;
-  case CURLINFO_SPEED_DOWNLOAD:
-    *param_doublep = (double)data->progress.dl.speed;
-    break;
-  case CURLINFO_SPEED_UPLOAD:
-    *param_doublep = (double)data->progress.ul.speed;
-    break;
-  case CURLINFO_CONTENT_LENGTH_DOWNLOAD:
-    *param_doublep = data->progress.dl_size_known ?
-      (double)data->progress.dl.total_size : -1;
-    break;
-  case CURLINFO_CONTENT_LENGTH_UPLOAD:
-    *param_doublep = data->progress.ul_size_known ?
-      (double)data->progress.ul.total_size : -1;
-    break;
-  case CURLINFO_REDIRECT_TIME:
-    *param_doublep = DOUBLE_SECS(data->progress.delta.startredirect_us);
-    break;
+#అయితే_ముగింపు
+  ఎంపిక(info) {
+  స్థితి CURLINFO_మొత్తం_సమయం:
+    *param_doublep = DOUBLE_SECS(దత్తాంశం->పురోగతి.మొత్తం.spent_us);
+    ఆపు;
+  స్థితి CURLINFO_NAMELOOKUP_సమయం:
+    *param_doublep = DOUBLE_SECS(దత్తాంశం->పురోగతి.మొత్తం.nslookup_us);
+    ఆపు;
+  స్థితి CURLINFO_CONNECT_సమయం:
+    *param_doublep = DOUBLE_SECS(దత్తాంశం->పురోగతి.మొత్తం.connect_us);
+    ఆపు;
+  స్థితి CURLINFO_APPCONNECT_సమయం:
+    *param_doublep = DOUBLE_SECS(దత్తాంశం->పురోగతి.మొత్తం.appconnect_us);
+    ఆపు;
+  స్థితి CURLINFO_PRETRANSFER_సమయం:
+    *param_doublep = DOUBLE_SECS(దత్తాంశం->పురోగతి.మొత్తం.pretransfer_us);
+    ఆపు;
+  స్థితి CURLINFO_STARTTRANSFER_సమయం:
+    *param_doublep = DOUBLE_SECS(దత్తాంశం->పురోగతి.మొత్తం.starttransfer_us);
+    ఆపు;
+  స్థితి CURLINFO_కొలత_UPLOAD:
+    *param_doublep = (ద్విగుణ)దత్తాంశం->పురోగతి.ul.cur_కొలత;
+    ఆపు;
+  స్థితి CURLINFO_కొలత_DOWNLOAD:
+    *param_doublep = (ద్విగుణ)దత్తాంశం->పురోగతి.dl.cur_కొలత;
+    ఆపు;
+  స్థితి CURLINFO_వేగం_DOWNLOAD:
+    *param_doublep = (ద్విగుణ)దత్తాంశం->పురోగతి.dl.వేగం;
+    ఆపు;
+  స్థితి CURLINFO_వేగం_UPLOAD:
+    *param_doublep = (ద్విగుణ)దత్తాంశం->పురోగతి.ul.వేగం;
+    ఆపు;
+  స్థితి CURLINFO_CONTENT_నిడివి_DOWNLOAD:
+    *param_doublep = దత్తాంశం->పురోగతి.dl_కొలత_తెలిసిన ?
+      (ద్విగుణ)దత్తాంశం->పురోగతి.dl.మొత్తం_కొలత : -1;
+    ఆపు;
+  స్థితి CURLINFO_CONTENT_నిడివి_UPLOAD:
+    *param_doublep = దత్తాంశం->పురోగతి.ul_కొలత_తెలిసిన ?
+      (ద్విగుణ)దత్తాంశం->పురోగతి.ul.మొత్తం_కొలత : -1;
+    ఆపు;
+  స్థితి CURLINFO_REDIRECT_సమయం:
+    *param_doublep = DOUBLE_SECS(దత్తాంశం->పురోగతి.delta.startredirect_us);
+    ఆపు;
 
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  అప్రమేయ:
+    తిరిగి CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode getinfo_slist(struct Curl_easy *data, CURLINFO info,
-                              struct curl_slist **param_slistp)
+స్థిర CURLcode getinfo_slist(నిర్మాణం Curl_easy *దత్తాంశం, CURLINFO info,
+                              నిర్మాణం curl_slist **param_slistp)
 {
-  union {
-    struct curl_certinfo *to_certinfo;
-    struct curl_slist    *to_slist;
+  సంఘం {
+    నిర్మాణం curl_certinfo *గమ్యం_certinfo;
+    నిర్మాణం curl_slist    *గమ్యం_slist;
   } ptr;
 
-  switch(info) {
-  case CURLINFO_SSL_ENGINES:
-    *param_slistp = Curl_ssl_engines_list(data);
-    break;
-  case CURLINFO_COOKIELIST:
-    *param_slistp = Curl_cookie_list(data);
-    break;
-  case CURLINFO_CERTINFO:
+  ఎంపిక(info) {
+  స్థితి CURLINFO_SSL_ENGINES:
+    *param_slistp = Curl_ssl_engines_list(దత్తాంశం);
+    ఆపు;
+  స్థితి CURLINFO_COOKIELIST:
+    *param_slistp = Curl_cookie_list(దత్తాంశం);
+    ఆపు;
+  స్థితి CURLINFO_CERTINFO:
     /* Return the a pointer to the certinfo struct. Not really an slist
        pointer but we can pretend it is here */
-    ptr.to_certinfo = &data->info.certs;
-    *param_slistp = ptr.to_slist;
-    break;
-  case CURLINFO_TLS_SESSION:
-  case CURLINFO_TLS_SSL_PTR: {
-    int query = (info == CURLINFO_TLS_SSL_PTR) ?
+    ptr.గమ్యం_certinfo = &దత్తాంశం->info.certs;
+    *param_slistp = ptr.గమ్యం_slist;
+    ఆపు;
+  స్థితి CURLINFO_TLS_SESSION:
+  స్థితి CURLINFO_TLS_SSL_PTR: {
+    పూర్ణాంకం query = (info == CURLINFO_TLS_SSL_PTR) ?
       CF_QUERY_SSL_INFO : CF_QUERY_SSL_CTX_INFO;
-    struct curl_tlssessioninfo **tsip = (struct curl_tlssessioninfo **)
+    నిర్మాణం curl_tlssessioninfo **tsip = (నిర్మాణం curl_tlssessioninfo **)
       param_slistp;
-    struct curl_tlssessioninfo *tsi = &data->tsi;
+    నిర్మాణం curl_tlssessioninfo *tsi = &దత్తాంశం->tsi;
 
     /* we are exposing a pointer to internal memory with unknown
      * lifetime here. */
     *tsip = tsi;
-    if(!Curl_conn_get_ssl_info(data, data->conn, FIRSTSOCKET, query, tsi)) {
+    ఒకవేళ(!Curl_conn_get_ssl_info(దత్తాంశం, దత్తాంశం->conn, FIRSTSOCKET, query, tsi)) {
       tsi->backend = Curl_ssl_backend();
-      tsi->internals = NULL;
+      tsi->internals = ఖాళీ;
     }
   }
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    ఆపు;
+  అప్రమేయ:
+    తిరిగి CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode getinfo_socket(struct Curl_easy *data, CURLINFO info,
+స్థిర CURLcode getinfo_socket(నిర్మాణం Curl_easy *దత్తాంశం, CURLINFO info,
                                curl_socket_t *param_socketp)
 {
-  switch(info) {
-  case CURLINFO_ACTIVESOCKET:
-    *param_socketp = Curl_getconnectinfo(data, NULL);
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  ఎంపిక(info) {
+  స్థితి CURLINFO_ACTIVESOCKET:
+    *param_socketp = Curl_getconnectinfo(దత్తాంశం, ఖాళీ);
+    ఆపు;
+  అప్రమేయ:
+    తిరిగి CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_getinfo(struct Curl_easy *data, CURLINFO info, ...)
+CURLcode Curl_getinfo(నిర్మాణం Curl_easy *దత్తాంశం, CURLINFO info, ...)
 {
   va_list arg;
-  long *param_longp = NULL;
-  double *param_doublep = NULL;
-  curl_off_t *param_offt = NULL;
-  const char **param_charp = NULL;
-  struct curl_slist **param_slistp = NULL;
-  curl_socket_t *param_socketp = NULL;
-  int type;
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
+  దీర్ఘ *param_longp = ఖాళీ;
+  ద్విగుణ *param_doublep = ఖాళీ;
+  curl_off_t *param_offt = ఖాళీ;
+  స్థిరరాశి అక్షరం **param_charp = ఖాళీ;
+  నిర్మాణం curl_slist **param_slistp = ఖాళీ;
+  curl_socket_t *param_socketp = ఖాళీ;
+  పూర్ణాంకం type;
+  CURLcode ఫలితం = CURLE_BAD_FUNCTION_వాదం;
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!దత్తాంశం)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
 
   va_start(arg, info);
 
-  type = CURLINFO_TYPEMASK & (int)info;
-  switch(type) {
-  case CURLINFO_STRING:
-    param_charp = va_arg(arg, const char **);
-    if(param_charp)
-      result = getinfo_char(data, info, param_charp);
-    break;
-  case CURLINFO_LONG:
-    param_longp = va_arg(arg, long *);
-    if(param_longp)
-      result = getinfo_long(data, info, param_longp);
-    break;
-  case CURLINFO_DOUBLE:
-    param_doublep = va_arg(arg, double *);
-    if(param_doublep)
-      result = getinfo_double(data, info, param_doublep);
-    break;
-  case CURLINFO_OFF_T:
+  type = CURLINFO_TYPEMASK & (పూర్ణాంకం)info;
+  ఎంపిక(type) {
+  స్థితి CURLINFO_STRING:
+    param_charp = va_arg(arg, స్థిరరాశి అక్షరం **);
+    ఒకవేళ(param_charp)
+      ఫలితం = getinfo_char(దత్తాంశం, info, param_charp);
+    ఆపు;
+  స్థితి CURLINFO_LONG:
+    param_longp = va_arg(arg, దీర్ఘ *);
+    ఒకవేళ(param_longp)
+      ఫలితం = getinfo_long(దత్తాంశం, info, param_longp);
+    ఆపు;
+  స్థితి CURLINFO_DOUBLE:
+    param_doublep = va_arg(arg, ద్విగుణ *);
+    ఒకవేళ(param_doublep)
+      ఫలితం = getinfo_double(దత్తాంశం, info, param_doublep);
+    ఆపు;
+  స్థితి CURLINFO_OFF_T:
     param_offt = va_arg(arg, curl_off_t *);
-    if(param_offt)
-      result = getinfo_offt(data, info, param_offt);
-    break;
-  case CURLINFO_SLIST:
-    param_slistp = va_arg(arg, struct curl_slist **);
-    if(param_slistp)
-      result = getinfo_slist(data, info, param_slistp);
-    break;
-  case CURLINFO_SOCKET:
+    ఒకవేళ(param_offt)
+      ఫలితం = getinfo_offt(దత్తాంశం, info, param_offt);
+    ఆపు;
+  స్థితి CURLINFO_SLIST:
+    param_slistp = va_arg(arg, నిర్మాణం curl_slist **);
+    ఒకవేళ(param_slistp)
+      ఫలితం = getinfo_slist(దత్తాంశం, info, param_slistp);
+    ఆపు;
+  స్థితి CURLINFO_SOCKET:
     param_socketp = va_arg(arg, curl_socket_t *);
-    if(param_socketp)
-      result = getinfo_socket(data, info, param_socketp);
-    break;
-  default:
-    result = CURLE_UNKNOWN_OPTION;
-    break;
+    ఒకవేళ(param_socketp)
+      ఫలితం = getinfo_socket(దత్తాంశం, info, param_socketp);
+    ఆపు;
+  అప్రమేయ:
+    ఫలితం = CURLE_UNKNOWN_OPTION;
+    ఆపు;
   }
 
   va_end(arg);
 
-  return result;
+  తిరిగి ఫలితం;
 }

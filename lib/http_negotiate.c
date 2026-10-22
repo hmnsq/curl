@@ -21,246 +21,246 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "http_negotiate.h"
-#include "vauth/vauth.h"
-#include "vtls/vtls.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "http_negotiate.h"
+#అన్తర్భావ "vauth/vauth.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "curlx/strparse.h"
 
 
-static void http_auth_nego_reset(struct connectdata *conn,
-                                 struct negotiatedata *neg_ctx,
+స్థిర శూన్య http_auth_nego_reset(నిర్మాణం connectdata *conn,
+                                 నిర్మాణం negotiatedata *neg_ctx,
                                  bool proxy)
 {
-  if(proxy)
+  ఒకవేళ(proxy)
     conn->proxy_negotiate_state = CURL_NEGO_AUTH_NONE;
-  else {
+  లేకపోతే {
     conn->http_negotiate_state = CURL_NEGO_AUTH_NONE;
     Curl_peer_unlink(&conn->creds_origin);
     Curl_creds_unlink(&conn->creds);
   }
-  if(neg_ctx)
+  ఒకవేళ(neg_ctx)
     Curl_auth_cleanup_spnego(neg_ctx);
 }
 
-CURLcode Curl_input_negotiate(struct Curl_easy *data, struct connectdata *conn,
-                              bool proxy, const char *header)
+CURLcode Curl_ఆదానం_negotiate(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం connectdata *conn,
+                              bool proxy, స్థిరరాశి అక్షరం *శీర్షిక)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   size_t len;
 
   /* Point to credentials and host */
-  struct Curl_creds *creds = NULL;
-  const char *host;
+  నిర్మాణం Curl_creds *creds = ఖాళీ;
+  స్థిరరాశి అక్షరం *host;
 
   /* Point to the correct struct with this */
-  struct negotiatedata *neg_ctx;
+  నిర్మాణం negotiatedata *neg_ctx;
   uint8_t state;
 
-  if(proxy) {
-#ifndef CURL_DISABLE_PROXY
+  ఒకవేళ(proxy) {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
     creds = conn->http_proxy.creds;
     host = conn->http_proxy.peer->hostname;
     state = conn->proxy_negotiate_state;
-#else
-    return CURLE_NOT_BUILT_IN;
-#endif
+#లేకపోతే
+    తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
   }
-  else {
-    creds = data->state.creds;
-    host = data->state.origin->hostname;
+  లేకపోతే {
+    creds = దత్తాంశం->state.creds;
+    host = దత్తాంశం->state.origin->hostname;
     state = conn->http_negotiate_state;
   }
 
   neg_ctx = Curl_auth_nego_get(conn, proxy);
-  if(!neg_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!neg_ctx)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* Obtain the input token, if any */
-  header += CURL_CSTRLEN("Negotiate");
-  curlx_str_passblanks(&header);
+  శీర్షిక += CURL_CSTRLEN("Negotiate");
+  curlx_str_passblanks(&శీర్షిక);
 
-  len = strlen(header);
+  len = అక్షరశ్రేణి_పొడవు(శీర్షిక);
   neg_ctx->havenegdata = len != 0;
-  if(!len) {
-    if(state == CURL_NEGO_AUTH_SUCC) {
-      infof(data, "Negotiate auth restarted");
+  ఒకవేళ(!len) {
+    ఒకవేళ(state == CURL_NEGO_AUTH_SUCC) {
+      infof(దత్తాంశం, "Negotiate auth restarted");
       http_auth_nego_reset(conn, neg_ctx, proxy);
     }
-    else if(state != CURL_NEGO_AUTH_NONE) {
+    లేకపోతే ఒకవేళ(state != CURL_NEGO_AUTH_NONE) {
       /* The server rejected our authentication and has not supplied any more
       negotiation mechanisms */
       http_auth_nego_reset(conn, neg_ctx, proxy);
-      return CURLE_LOGIN_DENIED;
+      తిరిగి CURLE_LOGIN_DENIED;
     }
   }
 
   /* Supports SSL channel binding for Windows ISS extended protection */
-#ifdef USE_WINDOWS_SSPI
+#నిర్వచితమైతే USE_WINDOWS_SSPI
   neg_ctx->sslContext = conn->sslContext;
-#endif
+#అయితే_ముగింపు
   /* Check if the connection is using SSL and get the channel binding data */
-#ifdef GSS_C_CHANNEL_BOUND_FLAG
-#ifdef USE_SSL
-  curlx_dyn_init(&neg_ctx->channel_binding_data, SSL_CB_MAX_SIZE + 1);
-  if(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
-    result = Curl_ssl_get_channel_binding(data, FIRSTSOCKET,
-                                          &neg_ctx->channel_binding_data);
-    if(result) {
+#నిర్వచితమైతే GSS_C_CHANNEL_BOUND_FLAG
+#నిర్వచితమైతే USE_SSL
+  curlx_dyn_init(&neg_ctx->channel_binding_దత్తాంశం, SSL_CB_MAX_కొలత + 1);
+  ఒకవేళ(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+    ఫలితం = Curl_ssl_get_channel_binding(దత్తాంశం, FIRSTSOCKET,
+                                          &neg_ctx->channel_binding_దత్తాంశం);
+    ఒకవేళ(ఫలితం) {
       http_auth_nego_reset(conn, neg_ctx, proxy);
-      return result;
+      తిరిగి ఫలితం;
     }
   }
-#else
-  curlx_dyn_init(&neg_ctx->channel_binding_data, 1);
-#endif /* USE_SSL */
-#endif /* GSS_C_CHANNEL_BOUND_FLAG */
+#లేకపోతే
+  curlx_dyn_init(&neg_ctx->channel_binding_దత్తాంశం, 1);
+#అయితే_ముగింపు /* USE_SSL */
+#అయితే_ముగింపు /* GSS_C_CHANNEL_BOUND_FLAG */
 
   /* Initialize the security context and decode our challenge */
-  result = Curl_auth_decode_spnego_message(data, creds, "HTTP",
-                                           host, header, neg_ctx);
+  ఫలితం = Curl_auth_decode_spnego_సందేశం(దత్తాంశం, creds, "HTTP",
+                                           host, శీర్షిక, neg_ctx);
 
-#ifdef GSS_C_CHANNEL_BOUND_FLAG
-  curlx_dyn_free(&neg_ctx->channel_binding_data);
-#endif
+#నిర్వచితమైతే GSS_C_CHANNEL_BOUND_FLAG
+  curlx_dyn_free(&neg_ctx->channel_binding_దత్తాంశం);
+#అయితే_ముగింపు
 
-  if(result)
+  ఒకవేళ(ఫలితం)
     http_auth_nego_reset(conn, neg_ctx, proxy);
 
-  if(!result && !proxy) {
+  ఒకవేళ(!ఫలితం && !proxy) {
     /* Start it up. From this time onwards, the connection is tied
      * tp the credentials used. */
-    if(conn->creds_origin &&
-       !Curl_peer_equal(conn->creds_origin, data->state.origin)) {
+    ఒకవేళ(conn->creds_origin &&
+       !Curl_peer_equal(conn->creds_origin, దత్తాంశం->state.origin)) {
       DEBUGASSERT(0); /* should not happen. */
-      return CURLE_FAILED_INIT;
+      తిరిగి CURLE_FAILED_INIT;
     }
-    if(conn->creds && !Curl_creds_same(creds, conn->creds)) {
+    ఒకవేళ(conn->creds && !Curl_creds_same(creds, conn->creds)) {
       DEBUGASSERT(0); /* should not happen. */
-      return CURLE_FAILED_INIT;
+      తిరిగి CURLE_FAILED_INIT;
     }
-    Curl_peer_link(&conn->creds_origin, data->state.origin);
+    Curl_peer_link(&conn->creds_origin, దత్తాంశం->state.origin);
     Curl_creds_link(&conn->creds, creds);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_output_negotiate(struct Curl_easy *data,
-                               struct connectdata *conn, bool proxy)
+CURLcode Curl_output_negotiate(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం connectdata *conn, bool proxy)
 {
-  struct negotiatedata *neg_ctx;
-  struct auth *authp;
+  నిర్మాణం negotiatedata *neg_ctx;
+  నిర్మాణం auth *authp;
   uint8_t *state;
-  char *base64 = NULL;
+  అక్షరం *base64 = ఖాళీ;
   size_t len = 0;
-  char *userp;
-  CURLcode result;
+  అక్షరం *userp;
+  CURLcode ఫలితం;
 
-  if(proxy) {
-#ifndef CURL_DISABLE_PROXY
-    authp = &data->state.authproxy;
+  ఒకవేళ(proxy) {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+    authp = &దత్తాంశం->state.authproxy;
     state = &conn->proxy_negotiate_state;
-#else
-    return CURLE_NOT_BUILT_IN;
-#endif
+#లేకపోతే
+    తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
   }
-  else {
-    authp = &data->state.authhost;
+  లేకపోతే {
+    authp = &దత్తాంశం->state.authhost;
     state = &conn->http_negotiate_state;
   }
   neg_ctx = Curl_auth_nego_get(conn, proxy);
-  if(!neg_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!neg_ctx)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  authp->done = FALSE;
+  authp->పూర్తి = FALSE;
 
-  if(*state == CURL_NEGO_AUTH_RECV) {
-    if(neg_ctx->havenegdata) {
+  ఒకవేళ(*state == CURL_NEGO_AUTH_RECV) {
+    ఒకవేళ(neg_ctx->havenegdata) {
       neg_ctx->havemultiplerequests = TRUE;
     }
   }
-  else if(*state == CURL_NEGO_AUTH_SUCC) {
-    if(!neg_ctx->havenoauthpersist) {
+  లేకపోతే ఒకవేళ(*state == CURL_NEGO_AUTH_SUCC) {
+    ఒకవేళ(!neg_ctx->havenoauthpersist) {
       neg_ctx->noauthpersist = !neg_ctx->havemultiplerequests;
     }
   }
 
-  if(neg_ctx->noauthpersist ||
-     (*state != CURL_NEGO_AUTH_DONE && *state != CURL_NEGO_AUTH_SUCC)) {
+  ఒకవేళ(neg_ctx->noauthpersist ||
+     (*state != CURL_NEGO_AUTH_పూర్తి && *state != CURL_NEGO_AUTH_SUCC)) {
 
-    if(neg_ctx->noauthpersist && *state == CURL_NEGO_AUTH_SUCC) {
-      infof(data, "Curl_output_negotiate, "
+    ఒకవేళ(neg_ctx->noauthpersist && *state == CURL_NEGO_AUTH_SUCC) {
+      infof(దత్తాంశం, "Curl_output_negotiate, "
             "no persistent authentication: cleanup existing context");
       http_auth_nego_reset(conn, neg_ctx, proxy);
     }
-    if(!neg_ctx->context) {
-      result = Curl_input_negotiate(data, conn, proxy, "Negotiate");
-      if(result == CURLE_AUTH_ERROR) {
+    ఒకవేళ(!neg_ctx->context) {
+      ఫలితం = Curl_ఆదానం_negotiate(దత్తాంశం, conn, proxy, "Negotiate");
+      ఒకవేళ(ఫలితం == CURLE_AUTH_ERROR) {
         /* negotiate auth failed, let's continue unauthenticated to stay
          * compatible with the behavior before curl-7_64_0-158-g6c6035532 */
-        authp->done = TRUE;
-        return CURLE_OK;
+        authp->పూర్తి = TRUE;
+        తిరిగి CURLE_OK;
       }
-      else if(result)
-        return result;
+      లేకపోతే ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
     }
 
-    result = Curl_auth_create_spnego_message(neg_ctx, &base64, &len);
-    if(result)
-      return result;
+    ఫలితం = Curl_auth_create_spnego_సందేశం(neg_ctx, &base64, &len);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
 
     userp = curl_maprintf("%sAuthorization: Negotiate %s\r\n",
                           proxy ? "Proxy-" : "", base64);
 
-    if(proxy) {
-#ifndef CURL_DISABLE_PROXY
-      curlx_free(data->req.hd_proxy_auth);
-      data->req.hd_proxy_auth = userp;
-#endif
+    ఒకవేళ(proxy) {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+      curlx_free(దత్తాంశం->req.hd_proxy_auth);
+      దత్తాంశం->req.hd_proxy_auth = userp;
+#అయితే_ముగింపు
     }
-    else {
-      curlx_free(data->req.hd_auth);
-      data->req.hd_auth = userp;
+    లేకపోతే {
+      curlx_free(దత్తాంశం->req.hd_auth);
+      దత్తాంశం->req.hd_auth = userp;
     }
 
     curlx_free(base64);
 
-    if(!userp) {
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(!userp) {
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
 
-    *state = CURL_NEGO_AUTH_SENT;
-#ifdef HAVE_GSSAPI
-    if(neg_ctx->status == GSS_S_COMPLETE ||
-       neg_ctx->status == GSS_S_CONTINUE_NEEDED) {
-      *state = CURL_NEGO_AUTH_DONE;
+    *state = CURL_NEGO_AUTH_పంపిన;
+#నిర్వచితమైతే HAVE_GSSAPI
+    ఒకవేళ(neg_ctx->స్థితి_2 == GSS_S_COMPLETE ||
+       neg_ctx->స్థితి_2 == GSS_S_CONTINUE_NEEDED) {
+      *state = CURL_NEGO_AUTH_పూర్తి;
     }
-#else
-#ifdef USE_WINDOWS_SSPI
-    if(neg_ctx->status == SEC_E_OK ||
-       neg_ctx->status == SEC_I_CONTINUE_NEEDED) {
-      *state = CURL_NEGO_AUTH_DONE;
+#లేకపోతే
+#నిర్వచితమైతే USE_WINDOWS_SSPI
+    ఒకవేళ(neg_ctx->స్థితి_2 == SEC_E_OK ||
+       neg_ctx->స్థితి_2 == SEC_I_CONTINUE_NEEDED) {
+      *state = CURL_NEGO_AUTH_పూర్తి;
     }
-#endif
-#endif
+#అయితే_ముగింపు
+#అయితే_ముగింపు
   }
 
-  if(*state == CURL_NEGO_AUTH_DONE || *state == CURL_NEGO_AUTH_SUCC) {
+  ఒకవేళ(*state == CURL_NEGO_AUTH_పూర్తి || *state == CURL_NEGO_AUTH_SUCC) {
     /* connection is already authenticated,
      * do not send a header in future requests */
-    authp->done = TRUE;
+    authp->పూర్తి = TRUE;
   }
 
   neg_ctx->havenegdata = FALSE;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-#endif /* !CURL_DISABLE_HTTP && USE_SPNEGO */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP && USE_SPNEGO */

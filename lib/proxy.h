@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PROXY_H
-#define HEADER_CURL_PROXY_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_PROXY_H
+#నిర్వచించు శీర్షిక_CURL_PROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,37 +23,37 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
 
-struct Curl_easy;
-struct Curl_peer;
-struct Curl_creds;
-struct connectdata;
+నిర్మాణం Curl_easy;
+నిర్మాణం Curl_peer;
+నిర్మాణం Curl_creds;
+నిర్మాణం connectdata;
 
-struct proxy_info {
-  struct Curl_peer *peer; /* proxy to this peer */
-  struct Curl_creds *creds; /* use these credentials, maybe NULL */
+నిర్మాణం proxy_info {
+  నిర్మాణం Curl_peer *peer; /* proxy to this peer */
+  నిర్మాణం Curl_creds *creds; /* use these credentials, maybe NULL */
   uint8_t proxytype; /* what kind of proxy that is in use */
 };
 
-#define CURL_PROXY_IS_HTTPS(t)  \
+#నిర్వచించు CURL_PROXY_IS_HTTPS(t)  \
   (((t) == CURLPROXY_HTTPS) ||  \
    ((t) == CURLPROXY_HTTPS2) || \
    ((t) == CURLPROXY_HTTPS3))
 
-#define CURL_PROXY_IS_HTTP(t)   \
+#నిర్వచించు CURL_PROXY_IS_HTTP(t)   \
   (((t) == CURLPROXY_HTTP) ||   \
    ((t) == CURLPROXY_HTTP_1_0))
 
-#define CURL_PROXY_IS_ANY_HTTP(t) \
+#నిర్వచించు CURL_PROXY_IS_ANY_HTTP(t) \
   (CURL_PROXY_IS_HTTP(t) ||       \
    CURL_PROXY_IS_HTTPS(t))
 
-CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
-                              struct connectdata *conn);
+CURLcode Curl_proxy_init_conn(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం connectdata *conn);
 
-#endif /* !CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_PROXY_H */
+#అయితే_ముగింపు /* HEADER_CURL_PROXY_H */

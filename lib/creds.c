@@ -21,143 +21,143 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include <stddef.h>  /* for offsetof() */
+#అన్తర్భావ <stddef.h>  /* for offsetof() */
 
-#include "creds.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "urldata.h"
+#అన్తర్భావ "creds.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "strcase.h"
+#అన్తర్భావ "urldata.h"
 
 
-CURLcode Curl_creds_create(const char *user,
-                           const char *passwd,
-                           const char *oauth_bearer,
-                           const char *sasl_authzid,
-                           const char *sasl_service,
-                           uint8_t source,
-                           struct Curl_creds **pcreds)
+CURLcode Curl_creds_create(స్థిరరాశి అక్షరం *user,
+                           స్థిరరాశి అక్షరం *passwd,
+                           స్థిరరాశి అక్షరం *oauth_bearer,
+                           స్థిరరాశి అక్షరం *sasl_authzid,
+                           స్థిరరాశి అక్షరం *sasl_service,
+                           uint8_t ఆధారం,
+                           నిర్మాణం Curl_creds **pcreds)
 {
-  struct Curl_creds *creds = NULL;
-  size_t ulen = user ? strlen(user) : 0;
-  size_t plen = passwd ? strlen(passwd) : 0;
-  size_t olen = oauth_bearer ? strlen(oauth_bearer) : 0;
-  size_t salen = sasl_authzid ? strlen(sasl_authzid) : 0;
-  size_t sslen = sasl_service ? strlen(sasl_service) : 0;
-  char *s, *buf;
+  నిర్మాణం Curl_creds *creds = ఖాళీ;
+  size_t ulen = user ? అక్షరశ్రేణి_పొడవు(user) : 0;
+  size_t plen = passwd ? అక్షరశ్రేణి_పొడవు(passwd) : 0;
+  size_t olen = oauth_bearer ? అక్షరశ్రేణి_పొడవు(oauth_bearer) : 0;
+  size_t salen = sasl_authzid ? అక్షరశ్రేణి_పొడవు(sasl_authzid) : 0;
+  size_t sslen = sasl_service ? అక్షరశ్రేణి_పొడవు(sasl_service) : 0;
+  అక్షరం *s, *buf;
   size_t bufsize;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
   Curl_creds_unlink(pcreds);
 
   /* Everything empty/NULL, this is the NULL credential */
-  if(!user && !passwd && !olen && !salen && !sslen)
-    goto out;
+  ఒకవేళ(!user && !passwd && !olen && !salen && !sslen)
+    వెళ్ళు బహిర్గతం;
 
-  if((ulen > CURL_MAX_INPUT_LENGTH) ||
-     (plen > CURL_MAX_INPUT_LENGTH) ||
-     (olen > CURL_MAX_INPUT_LENGTH) ||
-     (salen > CURL_MAX_INPUT_LENGTH) ||
-     (sslen > CURL_MAX_INPUT_LENGTH)) {
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+  ఒకవేళ((ulen > CURL_MAX_ఆదానం_నిడివి) ||
+     (plen > CURL_MAX_ఆదానం_నిడివి) ||
+     (olen > CURL_MAX_ఆదానం_నిడివి) ||
+     (salen > CURL_MAX_ఆదానం_నిడివి) ||
+     (sslen > CURL_MAX_ఆదానం_నిడివి)) {
+    ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+    వెళ్ళు బహిర్గతం;
   }
 
   /* null-terminator for user already part of struct */
   bufsize = ulen + plen + 1 + olen + 1 + salen + 1 + sslen + 1;
-  creds = curlx_calloc(1, sizeof(*creds) + bufsize);
-  if(!creds) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  creds = curlx_calloc(1, పరిమాణం(*creds) + bufsize);
+  ఒకవేళ(!creds) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
   creds->bufsize = bufsize;
   creds->refcount = 1;
-  creds->source = source;
+  creds->ఆధారం = ఆధారం;
   /* Some compilers try to be too smart about our dynamic struct size */
-  buf = ((char *)creds) + offsetof(struct Curl_creds, buf);
+  buf = ((అక్షరం *)creds) + offsetof(నిర్మాణం Curl_creds, buf);
   creds->user = s = buf;
-  if(ulen)
-    memcpy(s, user, ulen + 1);
+  ఒకవేళ(ulen)
+    జ్ఞాపకం_నకలు(s, user, ulen + 1);
   creds->passwd = s = buf + ulen + 1;
-  if(plen)
-    memcpy(s, passwd, plen + 1);
+  ఒకవేళ(plen)
+    జ్ఞాపకం_నకలు(s, passwd, plen + 1);
   creds->oauth_bearer = s = buf + ulen + 1 + plen + 1;
-  if(olen)
-    memcpy(s, oauth_bearer, olen + 1);
+  ఒకవేళ(olen)
+    జ్ఞాపకం_నకలు(s, oauth_bearer, olen + 1);
   creds->sasl_authzid = s = buf + ulen + 1 + plen + 1 + olen + 1;
-  if(salen)
-    memcpy(s, sasl_authzid, salen + 1);
+  ఒకవేళ(salen)
+    జ్ఞాపకం_నకలు(s, sasl_authzid, salen + 1);
   creds->sasl_service = s = buf + ulen + 1 + plen + 1 + olen + 1 + salen + 1;
-  if(sslen)
-    memcpy(s, sasl_service, sslen + 1);
+  ఒకవేళ(sslen)
+    జ్ఞాపకం_నకలు(s, sasl_service, sslen + 1);
 
-out:
-  if(!result)
+బహిర్గతం:
+  ఒకవేళ(!ఫలితం)
     *pcreds = creds;
-  else
+  లేకపోతే
     Curl_creds_unlink(&creds);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_creds_merge(const char *user,
-                          const char *passwd,
-                          struct Curl_creds *creds_in,
-                          uint8_t source,
-                          struct Curl_creds **pcreds_out)
+CURLcode Curl_creds_విలీనం(స్థిరరాశి అక్షరం *user,
+                          స్థిరరాశి అక్షరం *passwd,
+                          నిర్మాణం Curl_creds *creds_లోపల,
+                          uint8_t ఆధారం,
+                          నిర్మాణం Curl_creds **pcreds_బహిర్గతం)
 {
-  struct Curl_creds *creds_out = NULL;
-  CURLcode result;
+  నిర్మాణం Curl_creds *creds_బహిర్గతం = ఖాళీ;
+  CURLcode ఫలితం;
 
-  if(!creds_in) {
-    result = Curl_creds_create(user, passwd, NULL, NULL, NULL,
-                               source, &creds_out);
+  ఒకవేళ(!creds_లోపల) {
+    ఫలితం = Curl_creds_create(user, passwd, ఖాళీ, ఖాళీ, ఖాళీ,
+                               ఆధారం, &creds_బహిర్గతం);
   }
-  else {
-    result = Curl_creds_create(user ? user : Curl_creds_user(creds_in),
-                               passwd ? passwd : Curl_creds_passwd(creds_in),
-                               Curl_creds_oauth_bearer(creds_in),
-                               Curl_creds_sasl_authzid(creds_in),
-                               Curl_creds_sasl_service(creds_in),
-                               source, &creds_out);
+  లేకపోతే {
+    ఫలితం = Curl_creds_create(user ? user : Curl_creds_user(creds_లోపల),
+                               passwd ? passwd : Curl_creds_passwd(creds_లోపల),
+                               Curl_creds_oauth_bearer(creds_లోపల),
+                               Curl_creds_sasl_authzid(creds_లోపల),
+                               Curl_creds_sasl_service(creds_లోపల),
+                               ఆధారం, &creds_బహిర్గతం);
   }
-  Curl_creds_link(pcreds_out, creds_out);
-  Curl_creds_unlink(&creds_out);
-  return result;
+  Curl_creds_link(pcreds_బహిర్గతం, creds_బహిర్గతం);
+  Curl_creds_unlink(&creds_బహిర్గతం);
+  తిరిగి ఫలితం;
 }
 
-void Curl_creds_link(struct Curl_creds **pdest, struct Curl_creds *src)
+శూన్య Curl_creds_link(నిర్మాణం Curl_creds **pdest, నిర్మాణం Curl_creds *src)
 {
-  if(*pdest != src) {
+  ఒకవేళ(*pdest != src) {
     Curl_creds_unlink(pdest);
     *pdest = src;
-    if(src) {
+    ఒకవేళ(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
   }
 }
 
-void Curl_creds_unlink(struct Curl_creds **pcreds)
+శూన్య Curl_creds_unlink(నిర్మాణం Curl_creds **pcreds)
 {
-  if(*pcreds) {
-    struct Curl_creds *creds = *pcreds;
+  ఒకవేళ(*pcreds) {
+    నిర్మాణం Curl_creds *creds = *pcreds;
 
     DEBUGASSERT(creds->refcount);
-    *pcreds = NULL;
-    if(creds->refcount)
+    *pcreds = ఖాళీ;
+    ఒకవేళ(creds->refcount)
       creds->refcount--;
-    if(!creds->refcount) {
-      curlx_memzero(creds, sizeof(*creds) + creds->bufsize);
+    ఒకవేళ(!creds->refcount) {
+      curlx_memzero(creds, పరిమాణం(*creds) + creds->bufsize);
       curlx_free(creds);
     }
   }
 }
 
-bool Curl_creds_same(struct Curl_creds *c1, struct Curl_creds *c2)
+bool Curl_creds_same(నిర్మాణం Curl_creds *c1, నిర్మాణం Curl_creds *c2)
 {
-  return (c1 == c2) ||
+  తిరిగి (c1 == c2) ||
          (c1 && c2 &&
           !Curl_timestrcmp(c1->user, c2->user) &&
           !Curl_timestrcmp(c1->passwd, c2->passwd) &&
@@ -166,27 +166,27 @@ bool Curl_creds_same(struct Curl_creds *c1, struct Curl_creds *c2)
           !Curl_timestrcmp(c1->sasl_service, c2->sasl_service));
 }
 
-bool Curl_creds_equal(struct Curl_creds *c1, struct Curl_creds *c2)
+bool Curl_creds_equal(నిర్మాణం Curl_creds *c1, నిర్మాణం Curl_creds *c2)
 {
-  return Curl_creds_same(c1, c2) &&
-         ((c1 == c2) || (c1 && c2 && (c1->source == c2->source)));
+  తిరిగి Curl_creds_same(c1, c2) &&
+         ((c1 == c2) || (c1 && c2 && (c1->ఆధారం == c2->ఆధారం)));
 }
 
-#ifdef CURLVERBOSE
-void Curl_creds_trace(struct Curl_easy *data, struct Curl_creds *creds,
-                      const char *msg)
+#నిర్వచితమైతే CURLVERBOSE
+శూన్య Curl_creds_trace(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం Curl_creds *creds,
+                      స్థిరరాశి అక్షరం *సందేశం)
 {
-  if(creds) {
-    CURL_TRC_M(data, "%s: user=%s, passwd=%s, "
+  ఒకవేళ(creds) {
+    CURL_TRC_M(దత్తాంశం, "%s: user=%s, passwd=%s, "
                "sasl_authzid=%s, oauth_bearer=%s, source=%d",
-               msg,
+               సందేశం,
                Curl_creds_user(creds),
                Curl_creds_has_passwd(creds) ? "***" : "",
                Curl_creds_sasl_authzid(creds),
                Curl_creds_has_oauth_bearer(creds) ? "***" : "",
-               creds->source);
+               creds->ఆధారం);
   }
-  else
-    CURL_TRC_M(data, "%s: -", msg);
+  లేకపోతే
+    CURL_TRC_M(దత్తాంశం, "%s: -", సందేశం);
 }
-#endif
+#అయితే_ముగింపు

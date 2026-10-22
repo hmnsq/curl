@@ -21,36 +21,36 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "llist.h"
+#అన్తర్భావ "llist.h"
 
-#ifdef DEBUGBUILD
-#define LLISTINIT 0x100cc001 /* random pattern */
-#define NODEINIT  0x12344321 /* random pattern */
-#define NODEREM   0x54321012 /* random pattern */
+#నిర్వచితమైతే DEBUGBUILD
+#నిర్వచించు LLISTINIT 0x100cc001 /* random pattern */
+#నిర్వచించు NODEINIT  0x12344321 /* random pattern */
+#నిర్వచించు NODEREM   0x54321012 /* random pattern */
 
-#define VERIFYNODE(x) verifynode(x)
-static struct Curl_llist_node *verifynode(struct Curl_llist_node *n)
+#నిర్వచించు VERIFYNODE(x) verifynode(x)
+స్థిర నిర్మాణం Curl_llist_కణుపు *verifynode(నిర్మాణం Curl_llist_కణుపు *n)
 {
   DEBUGASSERT(!n || (n->_init == NODEINIT));
-  return n;
+  తిరిగి n;
 }
-#else
-#define VERIFYNODE(x) x
-#endif
+#లేకపోతే
+#నిర్వచించు VERIFYNODE(x) x
+#అయితే_ముగింపు
 /*
  * @unittest 1300
  */
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
+శూన్య Curl_llist_init(నిర్మాణం Curl_llist *l, Curl_llist_dtor dtor)
 {
-  l->_size = 0;
+  l->కొలత_2 = 0;
   l->_dtor = dtor;
-  l->_head = NULL;
-  l->_tail = NULL;
-#ifdef DEBUGBUILD
+  l->తల_2 = ఖాళీ;
+  l->తోక_2 = ఖాళీ;
+#నిర్వచితమైతే DEBUGBUILD
   l->_init = LLISTINIT;
-#endif
+#అయితే_ముగింపు
 }
 
 /*
@@ -64,48 +64,48 @@ void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
  *
  * @unittest 1300
  */
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, const void *p,
-                                struct Curl_llist_node *ne);
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, /* may be NULL */
-                                const void *p,
-                                struct Curl_llist_node *ne)
+UNITTEST శూన్య llist_చొప్పించు_తదుపరి(నిర్మాణం Curl_llist *list,
+                                నిర్మాణం Curl_llist_కణుపు *e, స్థిరరాశి శూన్య *p,
+                                నిర్మాణం Curl_llist_కణుపు *ne);
+UNITTEST శూన్య llist_చొప్పించు_తదుపరి(నిర్మాణం Curl_llist *list,
+                                నిర్మాణం Curl_llist_కణుపు *e, /* may be NULL */
+                                స్థిరరాశి శూన్య *p,
+                                నిర్మాణం Curl_llist_కణుపు *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(ne);
 
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   ne->_init = NODEINIT;
-#endif
+#అయితే_ముగింపు
   ne->_ptr = CURL_UNCONST(p);
   ne->_list = list;
-  if(list->_size == 0) {
-    list->_head = ne;
-    list->_head->_prev = NULL;
-    list->_head->_next = NULL;
-    list->_tail = ne;
+  ఒకవేళ(list->కొలత_2 == 0) {
+    list->తల_2 = ne;
+    list->తల_2->_prev = ఖాళీ;
+    list->తల_2->తదుపరి_2 = ఖాళీ;
+    list->తోక_2 = ne;
   }
-  else {
+  లేకపోతే {
     /* if 'e' is NULL here, we insert the new element first in the list */
-    ne->_next = e ? e->_next : list->_head;
+    ne->తదుపరి_2 = e ? e->తదుపరి_2 : list->తల_2;
     ne->_prev = e;
-    if(!e) {
-      list->_head->_prev = ne;
-      list->_head = ne;
+    ఒకవేళ(!e) {
+      list->తల_2->_prev = ne;
+      list->తల_2 = ne;
     }
-    else if(e->_next) {
-      e->_next->_prev = ne;
+    లేకపోతే ఒకవేళ(e->తదుపరి_2) {
+      e->తదుపరి_2->_prev = ne;
     }
-    else {
-      list->_tail = ne;
+    లేకపోతే {
+      list->తోక_2 = ne;
     }
-    if(e)
-      e->_next = ne;
+    ఒకవేళ(e)
+      e->తదుపరి_2 = ne;
   }
 
-  ++list->_size;
+  ++list->కొలత_2;
 }
 
 /*
@@ -117,157 +117,157 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
  *
  * @unittest 1300
  */
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne)
+శూన్య Curl_llist_append(నిర్మాణం Curl_llist *list, స్థిరరాశి శూన్య *p,
+                       నిర్మాణం Curl_llist_కణుపు *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(ne);
-  llist_insert_next(list, list->_tail, p, ne);
+  llist_చొప్పించు_తదుపరి(list, list->తోక_2, p, ne);
 }
 
-void *Curl_node_take_elem(struct Curl_llist_node *e)
+శూన్య *Curl_కణుపు_take_elem(నిర్మాణం Curl_llist_కణుపు *e)
 {
-  void *ptr;
-  struct Curl_llist *list;
-  if(!e)
-    return NULL;
+  శూన్య *ptr;
+  నిర్మాణం Curl_llist *list;
+  ఒకవేళ(!e)
+    తిరిగి ఖాళీ;
 
   list = e->_list;
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  DEBUGASSERT(list->_size);
+  DEBUGASSERT(list->కొలత_2);
   DEBUGASSERT(e->_init == NODEINIT);
-  if(list) {
-    if(e == list->_head) {
-      list->_head = e->_next;
+  ఒకవేళ(list) {
+    ఒకవేళ(e == list->తల_2) {
+      list->తల_2 = e->తదుపరి_2;
 
-      if(!list->_head)
-        list->_tail = NULL;
-      else
-        e->_next->_prev = NULL;
+      ఒకవేళ(!list->తల_2)
+        list->తోక_2 = ఖాళీ;
+      లేకపోతే
+        e->తదుపరి_2->_prev = ఖాళీ;
     }
-    else {
-      if(e->_prev)
-        e->_prev->_next = e->_next;
+    లేకపోతే {
+      ఒకవేళ(e->_prev)
+        e->_prev->తదుపరి_2 = e->తదుపరి_2;
 
-      if(!e->_next)
-        list->_tail = e->_prev;
-      else
-        e->_next->_prev = e->_prev;
+      ఒకవేళ(!e->తదుపరి_2)
+        list->తోక_2 = e->_prev;
+      లేకపోతే
+        e->తదుపరి_2->_prev = e->_prev;
     }
-    --list->_size;
+    --list->కొలత_2;
   }
   ptr = e->_ptr;
 
-  e->_list = NULL;
-  e->_ptr  = NULL;
-  e->_prev = NULL;
-  e->_next = NULL;
-#ifdef DEBUGBUILD
+  e->_list = ఖాళీ;
+  e->_ptr  = ఖాళీ;
+  e->_prev = ఖాళీ;
+  e->తదుపరి_2 = ఖాళీ;
+#నిర్వచితమైతే DEBUGBUILD
   e->_init = NODEREM; /* specific pattern on remove - not zero */
-#endif
+#అయితే_ముగింపు
 
-  return ptr;
+  తిరిగి ptr;
 }
 
-static void node_uremove(struct Curl_llist_node *e, void *user)
+స్థిర శూన్య కణుపు_uremove(నిర్మాణం Curl_llist_కణుపు *e, శూన్య *user)
 {
-  struct Curl_llist *list;
-  void *ptr;
-  if(!e)
-    return;
+  నిర్మాణం Curl_llist *list;
+  శూన్య *ptr;
+  ఒకవేళ(!e)
+    తిరిగి;
 
   list = e->_list;
   DEBUGASSERT(list);
-  if(list) {
-    ptr = Curl_node_take_elem(e);
-    if(list->_dtor)
+  ఒకవేళ(list) {
+    ptr = Curl_కణుపు_take_elem(e);
+    ఒకవేళ(list->_dtor)
       list->_dtor(user, ptr);
   }
 }
 
-void Curl_node_remove(struct Curl_llist_node *e)
+శూన్య Curl_కణుపు_remove(నిర్మాణం Curl_llist_కణుపు *e)
 {
-  node_uremove(e, NULL);
+  కణుపు_uremove(e, ఖాళీ);
 }
 
-void Curl_llist_destroy(struct Curl_llist *list, void *user)
+శూన్య Curl_llist_destroy(నిర్మాణం Curl_llist *list, శూన్య *user)
 {
-  if(list) {
+  ఒకవేళ(list) {
     DEBUGASSERT(list->_init == LLISTINIT);
-    while(list->_size > 0)
-      node_uremove(list->_tail, user);
+    అయితే(list->కొలత_2 > 0)
+      కణుపు_uremove(list->తోక_2, user);
   }
 }
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
+నిర్మాణం Curl_llist_కణుపు *Curl_llist_తల(స్థిరరాశి నిర్మాణం Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_head);
+  తిరిగి VERIFYNODE(list->తల_2);
 }
 
-#ifdef UNITTESTS
+#నిర్వచితమైతే UNITTESTS
 /* llist_tail() returns the last 'struct Curl_llist_node *', which might be
    NULL
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list);
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list)
+UNITTEST నిర్మాణం Curl_llist_కణుపు *llist_తోక(స్థిరరాశి నిర్మాణం Curl_llist *list);
+UNITTEST నిర్మాణం Curl_llist_కణుపు *llist_తోక(స్థిరరాశి నిర్మాణం Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_tail);
+  తిరిగి VERIFYNODE(list->తోక_2);
 }
-#endif
+#అయితే_ముగింపు
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list)
+size_t Curl_llist_లెక్క(స్థిరరాశి నిర్మాణం Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return list->_size;
+  తిరిగి list->కొలత_2;
 }
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n)
+శూన్య *Curl_కణుపు_elem(స్థిరరాశి నిర్మాణం Curl_llist_కణుపు *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return n->_ptr;
+  తిరిగి n->_ptr;
 }
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
+నిర్మాణం Curl_llist_కణుపు *Curl_కణుపు_తదుపరి(స్థిరరాశి నిర్మాణం Curl_llist_కణుపు *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_next);
+  తిరిగి VERIFYNODE(n->తదుపరి_2);
 }
 
-#ifdef UNITTESTS
+#నిర్వచితమైతే UNITTESTS
 /* llist_node_prev() returns the previous element in a list from a given
    Curl_llist_node
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n);
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n)
+UNITTEST నిర్మాణం Curl_llist_కణుపు *llist_కణుపు_prev(
+  స్థిరరాశి నిర్మాణం Curl_llist_కణుపు *n);
+UNITTEST నిర్మాణం Curl_llist_కణుపు *llist_కణుపు_prev(
+  స్థిరరాశి నిర్మాణం Curl_llist_కణుపు *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_prev);
+  తిరిగి VERIFYNODE(n->_prev);
 }
-#endif
+#అయితే_ముగింపు
 
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n)
+నిర్మాణం Curl_llist *Curl_కణుపు_llist(స్థిరరాశి నిర్మాణం Curl_llist_కణుపు *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(!n->_list || n->_init == NODEINIT);
-  return n->_list;
+  తిరిగి n->_list;
 }

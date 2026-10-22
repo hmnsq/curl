@@ -21,24 +21,24 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "u32_ptrset.h"
+#అన్తర్భావ "u32_ptrset.h"
 
 /* random patterns for API verification */
-#ifdef DEBUGBUILD
-#define CURL_U32_PTRSET_MAGIC 0x75703272
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+#నిర్వచించు CURL_U32_PTRSET_MAGIC 0x75703272
+#అయితే_ముగింపు
 
-#define CURL_U32_PTRSET_DEBUG      0
+#నిర్వచించు CURL_U32_PTRSET_DEBUG      0
 
-#ifndef CURL_SWAP
-#define CURL_SWAP(a, b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
-#endif
+#నిర్వచితం_కాకపోతే CURL_మార్పిడి
+#నిర్వచించు CURL_మార్పిడి(a, b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
+#అయితే_ముగింపు
 
-#define CURL_U32_SLOT_CNT(bits)        ((bits) ? (1U << (bits)) : 0)
-#define CURL_U32_PTRSET_SLOT_CNT(s)    CURL_U32_SLOT_CNT((s)->slotbits)
-#define CURL_U32_PTRSET_SLOT_IDX(s, i) (uint32_t)((i) & (s)->slotmask)
+#నిర్వచించు CURL_U32_స్థానం_CNT(బిట్లు)        ((బిట్లు) ? (1U << (బిట్లు)) : 0)
+#నిర్వచించు CURL_U32_PTRSET_స్థానం_CNT(s)    CURL_U32_స్థానం_CNT((s)->slotbits)
+#నిర్వచించు CURL_U32_PTRSET_స్థానం_IDX(s, i) (uint32_t)((i) & (s)->slotmask)
 
 /* A hashset for tuples (id, ptr) using Robin Hood Hashing.
  * <https://www.cs.cornell.edu/courses/JavaAndDS/files/hashing_RobinHood.pdf>
@@ -60,220 +60,220 @@
  *     the existing entry has a lower psl makes a swap. Put the new entry
  *     and its psl there, take the previous entry and its psl and find
  *     the next best slot for the previous entry. */
-void Curl_u32_ptrset_init(struct u32_ptrset *set,
+శూన్య Curl_u32_ptrset_init(నిర్మాణం u32_ptrset *సమితి,
                           Curl_u32_ptrset_dtor *dtor)
 {
-  memset(set, 0, sizeof(*set));
-  set->dtor = dtor;
-#ifdef DEBUGBUILD
-  set->init = CURL_U32_PTRSET_MAGIC;
-#endif
+  memset(సమితి, 0, పరిమాణం(*సమితి));
+  సమితి->dtor = dtor;
+#నిర్వచితమైతే DEBUGBUILD
+  సమితి->init = CURL_U32_PTRSET_MAGIC;
+#అయితే_ముగింపు
 }
 
-void Curl_u32_ptrset_clear(struct u32_ptrset *set)
+శూన్య Curl_u32_ptrset_clear(నిర్మాణం u32_ptrset *సమితి)
 {
   uint32_t i;
-  DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(set->dtor)
-    for(i = 0; i < CURL_U32_PTRSET_SLOT_CNT(set); ++i)
-      if(set->data[i])
-        set->dtor(set->ids[i], set->data[i]);
+  DEBUGASSERT(సమితి->init == CURL_U32_PTRSET_MAGIC);
+  ఒకవేళ(సమితి->dtor)
+    కొరకు(i = 0; i < CURL_U32_PTRSET_స్థానం_CNT(సమితి); ++i)
+      ఒకవేళ(సమితి->దత్తాంశం[i])
+        సమితి->dtor(సమితి->ids[i], సమితి->దత్తాంశం[i]);
 
-  curlx_safefree(set->data);
-  Curl_u32_ptrset_init(set, set->dtor);
+  curlx_safefree(సమితి->దత్తాంశం);
+  Curl_u32_ptrset_init(సమితి, సమితి->dtor);
 }
 
-static void u32_ptrset_add(struct u32_ptrset *set, uint32_t id, void *ptr)
+స్థిర శూన్య u32_ptrset_కూడు(నిర్మాణం u32_ptrset *సమితి, uint32_t id, శూన్య *ptr)
 {
-  uint32_t i = CURL_U32_PTRSET_SLOT_IDX(set, id);
+  uint32_t i = CURL_U32_PTRSET_స్థానం_IDX(సమితి, id);
   uint32_t psl = 0;
-  while(set->data[i]) {
-    if(psl > set->psl[i]) { /* SWAP */
-      void *tmpdata;
-#if CURL_U32_PTRSET_DEBUG
+  అయితే(సమితి->దత్తాంశం[i]) {
+    ఒకవేళ(psl > సమితి->psl[i]) { /*మార్పిడి*/
+      శూన్య *tmpdata;
+#ఒకవేళ CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_add %u=%p to idx=%u\n", id, ptr, i);
-#endif
-      tmpdata = set->data[i];
-      set->data[i] = ptr;
+#అయితే_ముగింపు
+      tmpdata = సమితి->దత్తాంశం[i];
+      సమితి->దత్తాంశం[i] = ptr;
       ptr = tmpdata;
-      CURL_SWAP(set->psl[i], psl);
-      CURL_SWAP(set->ids[i], id);
+      CURL_మార్పిడి(సమితి->psl[i], psl);
+      CURL_మార్పిడి(సమితి->ids[i], id);
     }
-    i = CURL_U32_PTRSET_SLOT_IDX(set, i + 1);
+    i = CURL_U32_PTRSET_స్థానం_IDX(సమితి, i + 1);
     ++psl;
   }
-  set->ids[i] = id;
-  set->data[i] = ptr;
-  set->psl[i] = psl;
-  ++set->count;
-#if CURL_U32_PTRSET_DEBUG
+  సమితి->ids[i] = id;
+  సమితి->దత్తాంశం[i] = ptr;
+  సమితి->psl[i] = psl;
+  ++సమితి->లెక్క;
+#ఒకవేళ CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_add %u=%p to idx=%u\n", id, ptr, i);
-#endif
+#అయితే_ముగింపు
 }
 
-static bool u32_ptrset_grow(struct u32_ptrset *set)
+స్థిర bool u32_ptrset_grow(నిర్మాణం u32_ptrset *సమితి)
 {
   uint32_t i, *prev_ids;
   uint8_t nslotbits, pslotbits;
-  void **prev_data;
+  శూన్య **prev_దత్తాంశం;
   size_t nslots;
-  const size_t slot_size = (sizeof(void *) + (2 * sizeof(uint32_t)));
-  void *d;
+  స్థిరరాశి size_t స్థానం_కొలత = (పరిమాణం(శూన్య *) + (2 * పరిమాణం(uint32_t)));
+  శూన్య *d;
 
-  if(set->slotbits >= 31)
-    return FALSE;
-  nslotbits = set->slotbits ? (uint8_t)(set->slotbits + 1) : 5;
-  nslots = CURL_U32_SLOT_CNT(nslotbits);
-  if(nslots > (SIZE_MAX / slot_size)) /* 32-bit arch may trigger here */
-    return FALSE;
-#if CURL_U32_PTRSET_DEBUG
+  ఒకవేళ(సమితి->slotbits >= 31)
+    తిరిగి FALSE;
+  nslotbits = సమితి->slotbits ? (uint8_t)(సమితి->slotbits + 1) : 5;
+  nslots = CURL_U32_స్థానం_CNT(nslotbits);
+  ఒకవేళ(nslots > (SIZE_MAX / స్థానం_కొలత)) /* 32-bit arch may trigger here */
+    తిరిగి FALSE;
+#ఒకవేళ CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_grow from bits=%d to %d, slots=%zu\n",
-                set->slotbits, nslotbits, nslots);
-#endif
-  d = curlx_calloc(1, nslots * slot_size);
-  if(!d)
-    return FALSE;
+                సమితి->slotbits, nslotbits, nslots);
+#అయితే_ముగింపు
+  d = curlx_calloc(1, nslots * స్థానం_కొలత);
+  ఒకవేళ(!d)
+    తిరిగి FALSE;
 
-  prev_data = set->data;
-  prev_ids = set->ids;
-  pslotbits = set->slotbits;
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-allocation-size"
-#endif
-  set->data = d;
-  set->ids = (uint32_t *)(set->data + nslots);
-  set->psl = (uint32_t *)(set->ids + nslots);
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
-#endif
+  prev_దత్తాంశం = సమితి->దత్తాంశం;
+  prev_ids = సమితి->ids;
+  pslotbits = సమితి->slotbits;
+#ఒకవేళ defined(__GNUC__) && __GNUC__ >= 13
+#సూచన GCC diagnostic నెట్టు
+#సూచన GCC diagnostic ignored "-Wanalyzer-allocation-size"
+#అయితే_ముగింపు
+  సమితి->దత్తాంశం = d;
+  సమితి->ids = (uint32_t *)(సమితి->దత్తాంశం + nslots);
+  సమితి->psl = (uint32_t *)(సమితి->ids + nslots);
+#ఒకవేళ defined(__GNUC__) && __GNUC__ >= 13
+#సూచన GCC diagnostic తీయి
+#అయితే_ముగింపు
 
-  set->slotbits = nslotbits;
-  set->slotmask = (uint32_t)((1U << set->slotbits) - 1);
-  set->count = 0;
+  సమితి->slotbits = nslotbits;
+  సమితి->slotmask = (uint32_t)((1U << సమితి->slotbits) - 1);
+  సమితి->లెక్క = 0;
   /* re-add previous entries */
-  for(i = 0; i < CURL_U32_SLOT_CNT(pslotbits); ++i) {
-    if(prev_data[i])
-      u32_ptrset_add(set, prev_ids[i], prev_data[i]);
+  కొరకు(i = 0; i < CURL_U32_స్థానం_CNT(pslotbits); ++i) {
+    ఒకవేళ(prev_దత్తాంశం[i])
+      u32_ptrset_కూడు(సమితి, prev_ids[i], prev_దత్తాంశం[i]);
   }
-  if(prev_data)
-    curlx_free(prev_data);
-  return TRUE;
+  ఒకవేళ(prev_దత్తాంశం)
+    curlx_free(prev_దత్తాంశం);
+  తిరిగి TRUE;
 }
 
-static bool u32_ptrset_get_index(struct u32_ptrset *set,
+స్థిర bool u32_ptrset_get_సూచీ(నిర్మాణం u32_ptrset *సమితి,
                                  uint32_t id, uint32_t *pindex)
 {
-  uint32_t i = CURL_U32_PTRSET_SLOT_IDX(set, id);
+  uint32_t i = CURL_U32_PTRSET_స్థానం_IDX(సమితి, id);
   uint32_t psl = 0;
-  if(!set->data)
-    return FALSE;
-  while(set->data[i] && (psl <= set->psl[i])) {
-    if(set->ids[i] == id) {
+  ఒకవేళ(!సమితి->దత్తాంశం)
+    తిరిగి FALSE;
+  అయితే(సమితి->దత్తాంశం[i] && (psl <= సమితి->psl[i])) {
+    ఒకవేళ(సమితి->ids[i] == id) {
       *pindex = i;
-#if CURL_U32_PTRSET_DEBUG
+#ఒకవేళ CURL_U32_PTRSET_DEBUG
       curl_mfprintf(stderr, "u32_ptrset_index %u=%p at idx=%u\n",
-                    id, set->data[i], i);
-#endif
-      return TRUE;
+                    id, సమితి->దత్తాంశం[i], i);
+#అయితే_ముగింపు
+      తిరిగి TRUE;
     }
-    i = CURL_U32_PTRSET_SLOT_IDX(set, i + 1);
+    i = CURL_U32_PTRSET_స్థానం_IDX(సమితి, i + 1);
     ++psl;
   }
-#if CURL_U32_PTRSET_DEBUG
+#ఒకవేళ CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_index %u not found\n", id);
-#endif
+#అయితే_ముగింపు
   *pindex = 0;
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-uint32_t Curl_u32_ptrset_count(struct u32_ptrset *set)
+uint32_t Curl_u32_ptrset_లెక్క(నిర్మాణం u32_ptrset *సమితి)
 {
-  return set->count;
+  తిరిగి సమితి->లెక్క;
 }
 
-void *Curl_u32_ptrset_get(struct u32_ptrset *set, uint32_t id)
-{
-  uint32_t i;
-  DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(u32_ptrset_get_index(set, id, &i))
-    return set->data[i];
-  return NULL;
-}
-
-CURLcode Curl_u32_ptrset_set(struct u32_ptrset *set,
-                             uint32_t id, void *ptr)
+శూన్య *Curl_u32_ptrset_get(నిర్మాణం u32_ptrset *సమితి, uint32_t id)
 {
   uint32_t i;
+  DEBUGASSERT(సమితి->init == CURL_U32_PTRSET_MAGIC);
+  ఒకవేళ(u32_ptrset_get_సూచీ(సమితి, id, &i))
+    తిరిగి సమితి->దత్తాంశం[i];
+  తిరిగి ఖాళీ;
+}
 
-  DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(!ptr) {
-    Curl_u32_ptrset_unset(set, id);
-    return CURLE_OK;
+CURLcode Curl_u32_ptrset_సమితి(నిర్మాణం u32_ptrset *సమితి,
+                             uint32_t id, శూన్య *ptr)
+{
+  uint32_t i;
+
+  DEBUGASSERT(సమితి->init == CURL_U32_PTRSET_MAGIC);
+  ఒకవేళ(!ptr) {
+    Curl_u32_ptrset_unset(సమితి, id);
+    తిరిగి CURLE_OK;
   }
 
-  if(u32_ptrset_get_index(set, id, &i)) {
+  ఒకవేళ(u32_ptrset_get_సూచీ(సమితి, id, &i)) {
     /* `id` is in set, replace value */
-    if(set->dtor && (set->data[i] != ptr))
-      set->dtor(set->ids[i], set->data[i]);
-#if CURL_U32_PTRSET_DEBUG
+    ఒకవేళ(సమితి->dtor && (సమితి->దత్తాంశం[i] != ptr))
+      సమితి->dtor(సమితి->ids[i], సమితి->దత్తాంశం[i]);
+#ఒకవేళ CURL_U32_PTRSET_DEBUG
     curl_mfprintf(stderr, "u32_ptrset_set replace %u=%p at idx=%u\n",
                   id, ptr, i);
-#endif
-    set->data[i] = ptr;
-    return CURLE_OK;
+#అయితే_ముగింపు
+    సమితి->దత్తాంశం[i] = ptr;
+    తిరిగి CURLE_OK;
   }
   /* `id` not in set yet, grow if full */
-  if((set->count >= CURL_U32_PTRSET_SLOT_CNT(set)) &&
-     !u32_ptrset_grow(set)) {
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ((సమితి->లెక్క >= CURL_U32_PTRSET_స్థానం_CNT(సమితి)) &&
+     !u32_ptrset_grow(సమితి)) {
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  u32_ptrset_add(set, id, ptr);
-  return CURLE_OK;
+  u32_ptrset_కూడు(సమితి, id, ptr);
+  తిరిగి CURLE_OK;
 }
 
-static void u32_ptrset_unset(struct u32_ptrset *set, uint32_t id)
+స్థిర శూన్య u32_ptrset_unset(నిర్మాణం u32_ptrset *సమితి, uint32_t id)
 {
   uint32_t i, j;
 
-  DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(u32_ptrset_get_index(set, id, &i)) {
+  DEBUGASSERT(సమితి->init == CURL_U32_PTRSET_MAGIC);
+  ఒకవేళ(u32_ptrset_get_సూచీ(సమితి, id, &i)) {
     /* `id` is in set */
-#if CURL_U32_PTRSET_DEBUG
+#ఒకవేళ CURL_U32_PTRSET_DEBUG
     curl_mfprintf(stderr, "u32_ptrset_unset %u at idx=%u\n", id, i);
-#endif
-    if(set->dtor)
-      set->dtor(set->ids[i], set->data[i]);
-    set->data[i] = NULL;
-    set->ids[i] = set->psl[i] = 0;
-    --set->count;
-    j = CURL_U32_PTRSET_SLOT_IDX(set, i + 1);
+#అయితే_ముగింపు
+    ఒకవేళ(సమితి->dtor)
+      సమితి->dtor(సమితి->ids[i], సమితి->దత్తాంశం[i]);
+    సమితి->దత్తాంశం[i] = ఖాళీ;
+    సమితి->ids[i] = సమితి->psl[i] = 0;
+    --సమితి->లెక్క;
+    j = CURL_U32_PTRSET_స్థానం_IDX(సమితి, i + 1);
     /* shift all entries with positive psl "down" */
-    while(set->data[j] && set->psl[j]) {
-      set->data[i] = set->data[j];
-      set->ids[i] = set->ids[j];
-      set->psl[i] = set->psl[j] - 1;
-      set->data[j] = NULL;
-      set->ids[j] = set->psl[j] = 0;
+    అయితే(సమితి->దత్తాంశం[j] && సమితి->psl[j]) {
+      సమితి->దత్తాంశం[i] = సమితి->దత్తాంశం[j];
+      సమితి->ids[i] = సమితి->ids[j];
+      సమితి->psl[i] = సమితి->psl[j] - 1;
+      సమితి->దత్తాంశం[j] = ఖాళీ;
+      సమితి->ids[j] = సమితి->psl[j] = 0;
       i = j;
-      j = CURL_U32_PTRSET_SLOT_IDX(set, i + 1);
+      j = CURL_U32_PTRSET_స్థానం_IDX(సమితి, i + 1);
     }
   }
 }
 
-void Curl_u32_ptrset_unset(struct u32_ptrset *set, uint32_t id)
+శూన్య Curl_u32_ptrset_unset(నిర్మాణం u32_ptrset *సమితి, uint32_t id)
 {
-  u32_ptrset_unset(set, id);
+  u32_ptrset_unset(సమితి, id);
 }
 
-void Curl_u32_ptrset_visit(struct u32_ptrset *set,
-                            Curl_u32_ptrset_visit_cb *cb,
-                            void *user_data)
+శూన్య Curl_u32_ptrset_సందర్శించు(నిర్మాణం u32_ptrset *సమితి,
+                            Curl_u32_ptrset_సందర్శించు_cb *cb,
+                            శూన్య *user_దత్తాంశం)
 {
   uint32_t i;
-  for(i = 0; i < CURL_U32_PTRSET_SLOT_CNT(set); ++i) {
-    if(set->data[i] && !cb(set->ids[i], set->data[i], user_data))
-      break;
+  కొరకు(i = 0; i < CURL_U32_PTRSET_స్థానం_CNT(సమితి); ++i) {
+    ఒకవేళ(సమితి->దత్తాంశం[i] && !cb(సమితి->ids[i], సమితి->దత్తాంశం[i], user_దత్తాంశం))
+      ఆపు;
   }
 }

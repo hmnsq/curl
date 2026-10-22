@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SETUP_VMS_H
-#define HEADER_CURL_SETUP_VMS_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_అమరిక_VMS_H
+#నిర్వచించు శీర్షిక_CURL_అమరిక_VMS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -29,103 +29,103 @@
 /*                  Also need upper case symbols for system services, and   */
 /*                  OpenSSL, and some Kerberos image                        */
 
-#ifdef __DECC
-#pragma message save
-#pragma message disable dollarid
-#endif
+#నిర్వచితమైతే __DECC
+#సూచన సందేశం_2 save
+#సూచన సందేశం_2 disable dollarid
+#అయితే_ముగింపు
 
 /* Hide the stuff we are overriding */
-#define getenv decc_getenv
-#ifdef __DECC
-#  if __INITIAL_POINTER_SIZE != 64
+#నిర్వచించు getenv decc_getenv
+#నిర్వచితమైతే __DECC
+#  ఒకవేళ __INITIAL_POINTER_SIZE != 64
 #    define getpwuid decc_getpwuid
 #  endif
-#endif
-#include <stdlib.h>
-char *decc$getenv(const char *__name);
-#include <pwd.h>
+#అయితే_ముగింపు
+#అన్తర్భావ <stdlib.h>
+అక్షరం *decc$getenv(స్థిరరాశి అక్షరం *__name);
+#అన్తర్భావ <pwd.h>
 
-#include <string.h>
-#include <unixlib.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <unixlib.h>
 
-#undef getenv
-#undef getpwuid
-#define getenv   vms_getenv
-#define getpwuid vms_getpwuid
+#నిర్వచనం_రద్దు getenv
+#నిర్వచనం_రద్దు getpwuid
+#నిర్వచించు getenv   vms_getenv
+#నిర్వచించు getpwuid vms_getpwuid
 
 /* VAX needs these in upper case when compiling exact case */
-#define sys$assign SYS$ASSIGN
-#define sys$dassgn SYS$DASSGN
-#define sys$qiow   SYS$QIOW
+#నిర్వచించు sys$కేటాయించు SYS$కేటాయించు_2
+#నిర్వచించు sys$dassgn SYS$DASSGN
+#నిర్వచించు sys$qiow   SYS$QIOW
 
-#ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#నిర్వచితమైతే __DECC
+#  ఒకవేళ __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __save
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#if __USE_LONG_GID_T
+#ఒకవేళ __USE_LONG_GID_T
 #  define decc_getpwuid DECC$__LONG_GID_GETPWUID
-#else
-#  if __INITIAL_POINTER_SIZE
+#లేకపోతే
+#  ఒకవేళ __INITIAL_POINTER_SIZE
 #    define decc_getpwuid decc$__32_getpwuid
-#  else
+#  లేకపోతే
 #    define decc_getpwuid decc$getpwuid
 #  endif
-#endif
+#అయితే_ముగింపు
 
-struct passwd *decc_getpwuid(uid_t uid);
+నిర్మాణం passwd *decc_getpwuid(uid_t uid);
 
-#ifdef __DECC
-#  if __INITIAL_POINTER_SIZE == 32
+#నిర్వచితమైతే __DECC
+#  ఒకవేళ __INITIAL_POINTER_SIZE == 32
 /* Translate the path, but only if the path is a VMS file specification */
 /* The translation is usually only needed for older versions of VMS */
-static char *vms_translate_path(const char *path)
+స్థిర అక్షరం *vms_translate_మార్గం(స్థిరరాశి అక్షరం *మార్గం)
 {
-  char *unix_path;
-  char *test_str;
+  అక్షరం *unix_మార్గం;
+  అక్షరం *test_str;
 
   /* See if the result is in VMS format, if not, we are done */
   /* Assume that this is a PATH, not some data */
-  test_str = strpbrk(path, ":[<^");
-  if(!test_str) {
-    return (char *)path;
+  test_str = strpbrk(మార్గం, ":[<^");
+  ఒకవేళ(!test_str) {
+    తిరిగి (అక్షరం *)మార్గం;
   }
 
-  unix_path = decc$translate_vms(path);
+  unix_మార్గం = decc$translate_vms(మార్గం);
 
-  if((int)unix_path <= 0) {
+  ఒకవేళ((పూర్ణాంకం)unix_మార్గం <= 0) {
     /* We can not translate it, so return the original string */
-    return (char *)path;
+    తిరిగి (అక్షరం *)మార్గం;
   }
 }
-#  else
+#  లేకపోతే
    /* VMS translate path is actually not needed on the current 64-bit */
    /* VMS platforms, so instead of figuring out the pointer settings */
    /* Change it to a noop */
-#  define vms_translate_path(__path) __path
+#  define vms_translate_మార్గం(__path) __path
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#నిర్వచితమైతే __DECC
+#  ఒకవేళ __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __restore
 #  endif
-#endif
+#అయితే_ముగింపు
 
-static char *vms_getenv(const char *envvar)
+స్థిర అక్షరం *vms_getenv(స్థిరరాశి అక్షరం *envvar)
 {
-  char *result;
-  char *vms_path;
+  అక్షరం *ఫలితం;
+  అక్షరం *vms_మార్గం;
 
   /* first use the DECC getenv() function */
-  result = decc$getenv(envvar);
-  if(!result) {
-    return result;
+  ఫలితం = decc$getenv(envvar);
+  ఒకవేళ(!ఫలితం) {
+    తిరిగి ఫలితం;
   }
 
-  vms_path = result;
-  result = vms_translate_path(vms_path);
+  vms_మార్గం = ఫలితం;
+  ఫలితం = vms_translate_మార్గం(vms_మార్గం);
 
   /* note that if you backport this to use VAX C RTL, that the VAX C RTL */
   /* may do a malloc(2048) for each call to getenv(), so you will need   */
@@ -133,41 +133,41 @@ static char *vms_getenv(const char *envvar)
   /* Do not do a free() for DEC C RTL builds, which should be used for */
   /* VMS 5.5-2 and later, even if using GCC */
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static struct passwd vms_passwd_cache;
+స్థిర నిర్మాణం passwd vms_passwd_cache;
 
-static struct passwd *vms_getpwuid(uid_t uid)
+స్థిర నిర్మాణం passwd *vms_getpwuid(uid_t uid)
 {
-  struct passwd *my_passwd;
+  నిర్మాణం passwd *my_passwd;
 
 /* Hack needed to support 64-bit builds, decc_getpwnam is 32-bit only */
-#ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
-  __char_ptr32 unix_path;
-#  else
-  char *unix_path;
+#నిర్వచితమైతే __DECC
+#  ఒకవేళ __INITIAL_POINTER_SIZE
+  __char_ptr32 unix_మార్గం;
+#  లేకపోతే
+  అక్షరం *unix_మార్గం;
 #  endif
-#else
-  char *unix_path;
-#endif
+#లేకపోతే
+  అక్షరం *unix_మార్గం;
+#అయితే_ముగింపు
 
   my_passwd = decc_getpwuid(uid);
-  if(!my_passwd) {
-    return my_passwd;
+  ఒకవేళ(!my_passwd) {
+    తిరిగి my_passwd;
   }
 
-  unix_path = vms_translate_path(my_passwd->pw_dir);
+  unix_మార్గం = vms_translate_మార్గం(my_passwd->pw_dir);
 
-  if((long)unix_path <= 0) {
+  ఒకవేళ((దీర్ఘ)unix_మార్గం <= 0) {
     /* We can not translate it, so return the original string */
-    return my_passwd;
+    తిరిగి my_passwd;
   }
 
   /* If no changes needed, return it */
-  if(unix_path == my_passwd->pw_dir) {
-    return my_passwd;
+  ఒకవేళ(unix_మార్గం == my_passwd->pw_dir) {
+    తిరిగి my_passwd;
   }
 
   /* Need to copy the structure returned */
@@ -176,221 +176,221 @@ static struct passwd *vms_getpwuid(uid_t uid)
   vms_passwd_cache.pw_name = my_passwd->pw_name;
   vms_passwd_cache.pw_uid = my_passwd->pw_uid;
   vms_passwd_cache.pw_gid = my_passwd->pw_uid;
-  vms_passwd_cache.pw_dir = unix_path;
+  vms_passwd_cache.pw_dir = unix_మార్గం;
   vms_passwd_cache.pw_shell = my_passwd->pw_shell;
 
-  return &vms_passwd_cache;
+  తిరిగి &vms_passwd_cache;
 }
 
-#ifdef __DECC
-#pragma message restore
-#endif
+#నిర్వచితమైతే __DECC
+#సూచన సందేశం_2 restore
+#అయితే_ముగింపు
 
 /* Bug - VMS OpenSSL and Kerberos universal symbols are in uppercase only */
 /* VMS libraries should have universal symbols in exact and uppercase */
 
-#define ASN1_INTEGER_get           ASN1_INTEGER_GET
-#define ASN1_STRING_data           ASN1_STRING_DATA
-#define ASN1_STRING_length         ASN1_STRING_LENGTH
-#define ASN1_STRING_print          ASN1_STRING_PRINT
-#define ASN1_STRING_to_UTF8        ASN1_STRING_TO_UTF8
-#define ASN1_STRING_type           ASN1_STRING_TYPE
-#define BIO_ctrl                   BIO_CTRL
-#define BIO_free                   BIO_FREE
-#define BIO_new                    BIO_NEW
-#define BIO_s_mem                  BIO_S_MEM
-#define BN_bn2bin                  BN_BN2BIN
-#define BN_num_bits                BN_NUM_BITS
-#define CRYPTO_cleanup_all_ex_data CRYPTO_CLEANUP_ALL_EX_DATA
-#define CRYPTO_free                CRYPTO_FREE
-#define CRYPTO_malloc              CRYPTO_MALLOC
-#define CONF_modules_load_file     CONF_MODULES_LOAD_FILE
-#ifdef __VAX
+#నిర్వచించు ASN1_INTEGER_get           ASN1_INTEGER_GET
+#నిర్వచించు ASN1_STRING_దత్తాంశం           ASN1_STRING_దత్తాంశం_2
+#నిర్వచించు ASN1_STRING_నిడివి         ASN1_STRING_నిడివి_2
+#నిర్వచించు ASN1_STRING_print          ASN1_STRING_PRINT
+#నిర్వచించు ASN1_STRING_గమ్యం_UTF8        ASN1_STRING_గమ్యం_UTF8_2
+#నిర్వచించు ASN1_STRING_type           ASN1_STRING_TYPE
+#నిర్వచించు BIO_ctrl                   BIO_CTRL
+#నిర్వచించు BIO_free                   BIO_FREE
+#నిర్వచించు BIO_new                    BIO_NEW
+#నిర్వచించు BIO_s_mem                  BIO_S_MEM
+#నిర్వచించు BN_bn2bin                  BN_BN2BIN
+#నిర్వచించు BN_అంకె_బిట్లు                BN_అంకె_బిట్లు_2
+#నిర్వచించు CRYPTO_cleanup_all_ex_దత్తాంశం CRYPTO_CLEANUP_ALL_EX_దత్తాంశం
+#నిర్వచించు CRYPTO_free                CRYPTO_FREE
+#నిర్వచించు CRYPTO_malloc              CRYPTO_MALLOC
+#నిర్వచించు CONF_modules_ఎక్కించు_file     CONF_MODULES_ఎక్కించు_FILE
+#నిర్వచితమైతే __VAX
 #  ifdef VMS_OLD_SSL
   /* Ancient OpenSSL on VAX/VMS missing this constant */
 #    define CONF_MFLAGS_IGNORE_MISSING_FILE 0x10
-#    undef CONF_modules_load_file
-static int CONF_modules_load_file(const char *filename,
-                                  const char *appname,
-                                  unsigned long flags) {
-  return 1;
+#    undef CONF_modules_ఎక్కించు_file
+స్థిర పూర్ణాంకం CONF_modules_ఎక్కించు_file(స్థిరరాశి అక్షరం *filename,
+                                  స్థిరరాశి అక్షరం *appname,
+                                  గుర్తులేని దీర్ఘ flags) {
+  తిరిగి 1;
 }
 #  endif
-#endif
-#define DES_ecb_encrypt             DES_ECB_ENCRYPT
-#define DES_set_key                 DES_SET_KEY
-#define DES_set_odd_parity          DES_SET_ODD_PARITY
-#define ENGINE_ctrl                 ENGINE_CTRL
-#define ENGINE_ctrl_cmd             ENGINE_CTRL_CMD
-#define ENGINE_finish               ENGINE_FINISH
-#define ENGINE_free                 ENGINE_FREE
-#define ENGINE_get_first            ENGINE_GET_FIRST
-#define ENGINE_get_id               ENGINE_GET_ID
-#define ENGINE_get_next             ENGINE_GET_NEXT
-#define ENGINE_init                 ENGINE_INIT
-#define ENGINE_load_builtin_engines ENGINE_LOAD_BUILTIN_ENGINES
-#define ENGINE_load_private_key     ENGINE_LOAD_PRIVATE_KEY
-#define ENGINE_set_default          ENGINE_SET_DEFAULT
-#define ERR_clear_error             ERR_CLEAR_ERROR
-#define ERR_error_string            ERR_ERROR_STRING
-#define ERR_error_string_n          ERR_ERROR_STRING_N
-#define ERR_free_strings            ERR_FREE_STRINGS
-#define ERR_get_error               ERR_GET_ERROR
-#define ERR_peek_error              ERR_PEEK_ERROR
-#define ERR_remove_state            ERR_REMOVE_STATE
-#define EVP_PKEY_copy_parameters    EVP_PKEY_COPY_PARAMETERS
-#define EVP_PKEY_free               EVP_PKEY_FREE
-#define EVP_cleanup                 EVP_CLEANUP
-#define GENERAL_NAMES_free          GENERAL_NAMES_FREE
-#define i2d_X509_PUBKEY             I2D_X509_PUBKEY
-#define MD4_Final                   MD4_FINAL
-#define MD4_Init                    MD4_INIT
-#define MD4_Update                  MD4_UPDATE
-#define MD5_Final                   MD5_FINAL
-#define MD5_Init                    MD5_INIT
-#define MD5_Update                  MD5_UPDATE
-#define OPENSSL_add_all_algo_noconf OPENSSL_ADD_ALL_ALGO_NOCONF
-#ifndef __VAX
-#define OPENSSL_load_builtin_modules OPENSSL_LOAD_BUILTIN_MODULES
-#endif
-#define PEM_read_X509                   PEM_READ_X509
-#define PEM_write_bio_X509              PEM_WRITE_BIO_X509
-#define PKCS12_free                     PKCS12_FREE
-#define PKCS12_parse                    PKCS12_PARSE
-#define RAND_add                        RAND_ADD
-#define RAND_bytes                      RAND_BYTES
-#define RAND_file_name                  RAND_FILE_NAME
-#define RAND_load_file                  RAND_LOAD_FILE
-#define RAND_status                     RAND_STATUS
-#define SSL_CIPHER_get_name             SSL_CIPHER_GET_NAME
-#define SSL_CTX_add_client_CA           SSL_CTX_ADD_CLIENT_CA
-#define SSL_CTX_callback_ctrl           SSL_CTX_CALLBACK_CTRL
-#define SSL_CTX_check_private_key       SSL_CTX_CHECK_PRIVATE_KEY
-#define SSL_CTX_ctrl                    SSL_CTX_CTRL
-#define SSL_CTX_free                    SSL_CTX_FREE
-#define SSL_CTX_get_cert_store          SSL_CTX_GET_CERT_STORE
-#define SSL_CTX_load_verify_locations   SSL_CTX_LOAD_VERIFY_LOCATIONS
-#define SSL_CTX_new                     SSL_CTX_NEW
-#define SSL_CTX_set_cipher_list         SSL_CTX_SET_CIPHER_LIST
-#define SSL_CTX_set_def_passwd_cb_ud    SSL_CTX_SET_DEF_PASSWD_CB_UD
-#define SSL_CTX_set_default_passwd_cb   SSL_CTX_SET_DEFAULT_PASSWD_CB
-#define SSL_CTX_set_msg_callback        SSL_CTX_SET_MSG_CALLBACK
-#define SSL_CTX_set_verify              SSL_CTX_SET_VERIFY
-#define SSL_CTX_use_PrivateKey          SSL_CTX_USE_PRIVATEKEY
-#define SSL_CTX_use_PrivateKey_file     SSL_CTX_USE_PRIVATEKEY_FILE
-#define SSL_CTX_use_cert_chain_file     SSL_CTX_USE_CERT_CHAIN_FILE
-#define SSL_CTX_use_certificate         SSL_CTX_USE_CERTIFICATE
-#define SSL_CTX_use_certificate_file    SSL_CTX_USE_CERTIFICATE_FILE
-#define SSL_SESSION_free                SSL_SESSION_FREE
-#define SSL_connect                     SSL_CONNECT
-#define SSL_free                        SSL_FREE
-#define SSL_get1_session                SSL_GET1_SESSION
-#define SSL_get_certificate             SSL_GET_CERTIFICATE
-#define SSL_get_current_cipher          SSL_GET_CURRENT_CIPHER
-#define SSL_get_error                   SSL_GET_ERROR
-#define SSL_get_peer_cert_chain         SSL_GET_PEER_CERT_CHAIN
-#define SSL_get_peer_certificate        SSL_GET_PEER_CERTIFICATE
-#define SSL_get_privatekey              SSL_GET_PRIVATEKEY
-#define SSL_get_session                 SSL_GET_SESSION
-#define SSL_get_shutdown                SSL_GET_SHUTDOWN
-#define SSL_get_verify_result           SSL_GET_VERIFY_RESULT
-#define SSL_library_init                SSL_LIBRARY_INIT
-#define SSL_load_error_strings          SSL_LOAD_ERROR_STRINGS
-#define SSL_new                         SSL_NEW
-#define SSL_peek                        SSL_PEEK
-#define SSL_pending                     SSL_PENDING
-#define SSL_read                        SSL_READ
-#define SSL_set_connect_state           SSL_SET_CONNECT_STATE
-#define SSL_set_fd                      SSL_SET_FD
-#define SSL_set_session                 SSL_SET_SESSION
-#define SSL_shutdown                    SSL_SHUTDOWN
-#define SSL_version                     SSL_VERSION
-#define SSL_write                       SSL_WRITE
-#define SSLeay                          SSLEAY
-#define SSLv23_client_method            SSLV23_CLIENT_METHOD
-#define SSLv3_client_method             SSLV3_CLIENT_METHOD
-#define TLSv1_client_method             TLSV1_CLIENT_METHOD
-#define UI_create_method                UI_CREATE_METHOD
-#define UI_destroy_method               UI_DESTROY_METHOD
-#define UI_get0_user_data               UI_GET0_USER_DATA
-#define UI_get_input_flags              UI_GET_INPUT_FLAGS
-#define UI_get_string_type              UI_GET_STRING_TYPE
-#define UI_create_method                UI_CREATE_METHOD
-#define UI_destroy_method               UI_DESTROY_METHOD
-#define UI_method_get_closer            UI_METHOD_GET_CLOSER
-#define UI_method_get_opener            UI_METHOD_GET_OPENER
-#define UI_method_get_reader            UI_METHOD_GET_READER
-#define UI_method_get_writer            UI_METHOD_GET_WRITER
-#define UI_method_set_closer            UI_METHOD_SET_CLOSER
-#define UI_method_set_opener            UI_METHOD_SET_OPENER
-#define UI_method_set_reader            UI_METHOD_SET_READER
-#define UI_method_set_writer            UI_METHOD_SET_WRITER
-#define UI_OpenSSL                      UI_OPENSSL
-#define UI_set_result                   UI_SET_RESULT
-#define X509V3_EXT_print                X509V3_EXT_PRINT
-#define X509_EXTENSION_get_critical     X509_EXTENSION_GET_CRITICAL
-#define X509_EXTENSION_get_data         X509_EXTENSION_GET_DATA
-#define X509_EXTENSION_get_object       X509_EXTENSION_GET_OBJECT
-#define X509_LOOKUP_file                X509_LOOKUP_FILE
-#define X509_NAME_ENTRY_get_data        X509_NAME_ENTRY_GET_DATA
-#define X509_NAME_get_entry             X509_NAME_GET_ENTRY
-#define X509_NAME_get_index_by_NID      X509_NAME_GET_INDEX_BY_NID
-#define X509_NAME_print_ex              X509_NAME_PRINT_EX
-#define X509_STORE_CTX_get_current_cert X509_STORE_CTX_GET_CURRENT_CERT
-#define X509_STORE_add_lookup           X509_STORE_ADD_LOOKUP
-#define X509_STORE_set_flags            X509_STORE_SET_FLAGS
-#define X509_check_issued               X509_CHECK_ISSUED
-#define X509_free                       X509_FREE
-#define X509_get_ext_d2i                X509_GET_EXT_D2I
-#define X509_get_issuer_name            X509_GET_ISSUER_NAME
-#define X509_get_pubkey                 X509_GET_PUBKEY
-#define X509_get_serialNumber           X509_GET_SERIALNUMBER
-#define X509_get_subject_name           X509_GET_SUBJECT_NAME
-#define X509_load_crl_file              X509_LOAD_CRL_FILE
-#define X509_verify_cert_error_string   X509_VERIFY_CERT_ERROR_STRING
-#define d2i_PKCS12_fp                   D2I_PKCS12_FP
-#define i2t_ASN1_OBJECT                 I2T_ASN1_OBJECT
-#define sk_num                          SK_NUM
-#define sk_pop                          SK_POP
-#define sk_pop_free                     SK_POP_FREE
-#define sk_value                        SK_VALUE
-#define SHA256_Final  SHA256_FINAL
-#define SHA256_Init   SHA256_INIT
-#define SHA256_Update SHA256_UPDATE
+#అయితే_ముగింపు
+#నిర్వచించు DES_ecb_encrypt             DES_ECB_ENCRYPT
+#నిర్వచించు DES_సమితి_కీలకం                 DES_సమితి_కీలకం_2
+#నిర్వచించు DES_సమితి_odd_parity          DES_సమితి_ODD_PARITY
+#నిర్వచించు ENGINE_ctrl                 ENGINE_CTRL
+#నిర్వచించు ENGINE_ctrl_cmd             ENGINE_CTRL_CMD
+#నిర్వచించు ENGINE_ముగింపు               ENGINE_ముగింపు_2
+#నిర్వచించు ENGINE_free                 ENGINE_FREE
+#నిర్వచించు ENGINE_get_మొదటి            ENGINE_GET_మొదటి
+#నిర్వచించు ENGINE_get_id               ENGINE_GET_ID
+#నిర్వచించు ENGINE_get_తదుపరి             ENGINE_GET_తదుపరి
+#నిర్వచించు ENGINE_init                 ENGINE_INIT
+#నిర్వచించు ENGINE_ఎక్కించు_builtin_engines ENGINE_ఎక్కించు_BUILTIN_ENGINES
+#నిర్వచించు ENGINE_ఎక్కించు_వ్యక్తిగత_కీలకం     ENGINE_ఎక్కించు_వ్యక్తిగత_కీలకం_2
+#నిర్వచించు ENGINE_సమితి_default          ENGINE_సమితి_DEFAULT
+#నిర్వచించు ERR_clear_error             ERR_CLEAR_ERROR
+#నిర్వచించు ERR_error_string            ERR_ERROR_STRING
+#నిర్వచించు ERR_error_string_n          ERR_ERROR_STRING_N
+#నిర్వచించు ERR_free_అక్షరశ్రేణులు            ERR_FREE_అక్షరశ్రేణులు
+#నిర్వచించు ERR_get_error               ERR_GET_ERROR
+#నిర్వచించు ERR_peek_error              ERR_PEEK_ERROR
+#నిర్వచించు ERR_remove_state            ERR_REMOVE_STATE
+#నిర్వచించు EVP_PKEY_copy_parameters    EVP_PKEY_COPY_PARAMETERS
+#నిర్వచించు EVP_PKEY_free               EVP_PKEY_FREE
+#నిర్వచించు EVP_cleanup                 EVP_CLEANUP
+#నిర్వచించు GENERAL_పేర్లు_free          GENERAL_పేర్లు_FREE
+#నిర్వచించు i2d_X509_PUBKEY             I2D_X509_PUBKEY
+#నిర్వచించు MD4_Final                   MD4_FINAL
+#నిర్వచించు MD4_Init                    MD4_INIT
+#నిర్వచించు MD4_Update                  MD4_UPDATE
+#నిర్వచించు MD5_Final                   MD5_FINAL
+#నిర్వచించు MD5_Init                    MD5_INIT
+#నిర్వచించు MD5_Update                  MD5_UPDATE
+#నిర్వచించు OPENSSL_కూడు_all_algo_noconf OPENSSL_కూడు_ALL_ALGO_NOCONF
+#నిర్వచితం_కాకపోతే __VAX
+#నిర్వచించు OPENSSL_ఎక్కించు_builtin_modules OPENSSL_ఎక్కించు_BUILTIN_MODULES
+#అయితే_ముగింపు
+#నిర్వచించు PEM_read_X509                   PEM_READ_X509
+#నిర్వచించు PEM_write_bio_X509              PEM_WRITE_BIO_X509
+#నిర్వచించు PKCS12_free                     PKCS12_FREE
+#నిర్వచించు PKCS12_parse                    PKCS12_PARSE
+#నిర్వచించు RAND_కూడు                        RAND_కూడు_2
+#నిర్వచించు RAND_బైట్లు                      RAND_బైట్లు_2
+#నిర్వచించు RAND_file_name                  RAND_FILE_NAME
+#నిర్వచించు RAND_ఎక్కించు_file                  RAND_ఎక్కించు_FILE
+#నిర్వచించు RAND_స్థితి                     RAND_స్థితి_2
+#నిర్వచించు SSL_CIPHER_get_name             SSL_CIPHER_GET_NAME
+#నిర్వచించు SSL_CTX_కూడు_client_CA           SSL_CTX_కూడు_CLIENT_CA
+#నిర్వచించు SSL_CTX_callback_ctrl           SSL_CTX_CALLBACK_CTRL
+#నిర్వచించు SSL_CTX_check_వ్యక్తిగత_కీలకం       SSL_CTX_CHECK_వ్యక్తిగత_కీలకం
+#నిర్వచించు SSL_CTX_ctrl                    SSL_CTX_CTRL
+#నిర్వచించు SSL_CTX_free                    SSL_CTX_FREE
+#నిర్వచించు SSL_CTX_get_cert_store          SSL_CTX_GET_CERT_STORE
+#నిర్వచించు SSL_CTX_ఎక్కించు_verify_locations   SSL_CTX_ఎక్కించు_VERIFY_LOCATIONS
+#నిర్వచించు SSL_CTX_new                     SSL_CTX_NEW
+#నిర్వచించు SSL_CTX_సమితి_cipher_list         SSL_CTX_సమితి_CIPHER_LIST
+#నిర్వచించు SSL_CTX_సమితి_def_passwd_cb_ud    SSL_CTX_సమితి_DEF_PASSWD_CB_UD
+#నిర్వచించు SSL_CTX_సమితి_default_passwd_cb   SSL_CTX_సమితి_DEFAULT_PASSWD_CB
+#నిర్వచించు SSL_CTX_సమితి_సందేశం_callback        SSL_CTX_సమితి_సందేశం_CALLBACK
+#నిర్వచించు SSL_CTX_సమితి_verify              SSL_CTX_సమితి_VERIFY
+#నిర్వచించు SSL_CTX_use_వ్యక్తిగత_కీలకం          SSL_CTX_USE_PRIVATEKEY
+#నిర్వచించు SSL_CTX_use_వ్యక్తిగత_కీలకం_file     SSL_CTX_USE_PRIVATEKEY_FILE
+#నిర్వచించు SSL_CTX_use_cert_chain_file     SSL_CTX_USE_CERT_CHAIN_FILE
+#నిర్వచించు SSL_CTX_use_certificate         SSL_CTX_USE_CERTIFICATE
+#నిర్వచించు SSL_CTX_use_certificate_file    SSL_CTX_USE_CERTIFICATE_FILE
+#నిర్వచించు SSL_SESSION_free                SSL_SESSION_FREE
+#నిర్వచించు SSL_connect                     SSL_CONNECT
+#నిర్వచించు SSL_free                        SSL_FREE
+#నిర్వచించు SSL_get1_session                SSL_GET1_SESSION
+#నిర్వచించు SSL_get_certificate             SSL_GET_CERTIFICATE
+#నిర్వచించు SSL_get_current_cipher          SSL_GET_CURRENT_CIPHER
+#నిర్వచించు SSL_get_error                   SSL_GET_ERROR
+#నిర్వచించు SSL_get_peer_cert_chain         SSL_GET_PEER_CERT_CHAIN
+#నిర్వచించు SSL_get_peer_certificate        SSL_GET_PEER_CERTIFICATE
+#నిర్వచించు SSL_get_privatekey              SSL_GET_PRIVATEKEY
+#నిర్వచించు SSL_get_session                 SSL_GET_SESSION
+#నిర్వచించు SSL_get_shutdown                SSL_GET_SHUTDOWN
+#నిర్వచించు SSL_get_verify_ఫలితం           SSL_GET_VERIFY_ఫలితం
+#నిర్వచించు SSL_library_init                SSL_LIBRARY_INIT
+#నిర్వచించు SSL_ఎక్కించు_error_అక్షరశ్రేణులు          SSL_ఎక్కించు_ERROR_అక్షరశ్రేణులు
+#నిర్వచించు SSL_new                         SSL_NEW
+#నిర్వచించు SSL_peek                        SSL_PEEK
+#నిర్వచించు SSL_pending                     SSL_PENDING
+#నిర్వచించు SSL_read                        SSL_READ
+#నిర్వచించు SSL_సమితి_connect_state           SSL_సమితి_CONNECT_STATE
+#నిర్వచించు SSL_సమితి_fd                      SSL_సమితి_FD
+#నిర్వచించు SSL_సమితి_session                 SSL_సమితి_SESSION
+#నిర్వచించు SSL_shutdown                    SSL_SHUTDOWN
+#నిర్వచించు SSL_సంస్కరణ                     SSL_సంస్కరణ_2
+#నిర్వచించు SSL_write                       SSL_WRITE
+#నిర్వచించు SSLeay                          SSLEAY
+#నిర్వచించు SSLv23_client_పద్ధతి            SSLV23_CLIENT_పద్ధతి
+#నిర్వచించు SSLv3_client_పద్ధతి             SSLV3_CLIENT_పద్ధతి
+#నిర్వచించు TLSv1_client_పద్ధతి             TLSV1_CLIENT_పద్ధతి
+#నిర్వచించు UI_create_పద్ధతి                UI_CREATE_పద్ధతి
+#నిర్వచించు UI_destroy_పద్ధతి               UI_DESTROY_పద్ధతి
+#నిర్వచించు UI_get0_user_దత్తాంశం               UI_GET0_USER_దత్తాంశం
+#నిర్వచించు UI_get_ఆదానం_flags              UI_GET_ఆదానం_FLAGS
+#నిర్వచించు UI_get_string_type              UI_GET_STRING_TYPE
+#నిర్వచించు UI_create_పద్ధతి                UI_CREATE_పద్ధతి
+#నిర్వచించు UI_destroy_పద్ధతి               UI_DESTROY_పద్ధతి
+#నిర్వచించు UI_పద్ధతి_get_closer            UI_పద్ధతి_GET_CLOSER
+#నిర్వచించు UI_పద్ధతి_get_opener            UI_పద్ధతి_GET_OPENER
+#నిర్వచించు UI_పద్ధతి_get_reader            UI_పద్ధతి_GET_READER
+#నిర్వచించు UI_పద్ధతి_get_writer            UI_పద్ధతి_GET_WRITER
+#నిర్వచించు UI_పద్ధతి_సమితి_closer            UI_పద్ధతి_సమితి_CLOSER
+#నిర్వచించు UI_పద్ధతి_సమితి_opener            UI_పద్ధతి_సమితి_OPENER
+#నిర్వచించు UI_పద్ధతి_సమితి_reader            UI_పద్ధతి_సమితి_READER
+#నిర్వచించు UI_పద్ధతి_సమితి_writer            UI_పద్ధతి_సమితి_WRITER
+#నిర్వచించు UI_OpenSSL                      UI_OPENSSL
+#నిర్వచించు UI_సమితి_ఫలితం                   UI_సమితి_ఫలితం_2
+#నిర్వచించు X509V3_EXT_print                X509V3_EXT_PRINT
+#నిర్వచించు X509_EXTENSION_get_critical     X509_EXTENSION_GET_CRITICAL
+#నిర్వచించు X509_EXTENSION_get_దత్తాంశం         X509_EXTENSION_GET_దత్తాంశం
+#నిర్వచించు X509_EXTENSION_get_object       X509_EXTENSION_GET_OBJECT
+#నిర్వచించు X509_LOOKUP_file                X509_LOOKUP_FILE
+#నిర్వచించు X509_NAME_నమోదు_get_దత్తాంశం        X509_NAME_నమోదు_GET_దత్తాంశం
+#నిర్వచించు X509_NAME_get_నమోదు             X509_NAME_GET_నమోదు
+#నిర్వచించు X509_NAME_get_సూచీ_by_NID      X509_NAME_GET_సూచీ_BY_NID
+#నిర్వచించు X509_NAME_print_ex              X509_NAME_PRINT_EX
+#నిర్వచించు X509_STORE_CTX_get_current_cert X509_STORE_CTX_GET_CURRENT_CERT
+#నిర్వచించు X509_STORE_కూడు_lookup           X509_STORE_కూడు_LOOKUP
+#నిర్వచించు X509_STORE_సమితి_flags            X509_STORE_సమితి_FLAGS
+#నిర్వచించు X509_check_issued               X509_CHECK_ISSUED
+#నిర్వచించు X509_free                       X509_FREE
+#నిర్వచించు X509_get_ext_d2i                X509_GET_EXT_D2I
+#నిర్వచించు X509_get_issuer_name            X509_GET_ISSUER_NAME
+#నిర్వచించు X509_get_pubkey                 X509_GET_PUBKEY
+#నిర్వచించు X509_get_serial_సంఖ్య           X509_GET_SERIALNUMBER
+#నిర్వచించు X509_get_subject_name           X509_GET_SUBJECT_NAME
+#నిర్వచించు X509_ఎక్కించు_crl_file              X509_ఎక్కించు_CRL_FILE
+#నిర్వచించు X509_verify_cert_error_string   X509_VERIFY_CERT_ERROR_STRING
+#నిర్వచించు d2i_PKCS12_fp                   D2I_PKCS12_FP
+#నిర్వచించు i2t_ASN1_OBJECT                 I2T_ASN1_OBJECT
+#నిర్వచించు sk_అంకె                          SK_అంకె
+#నిర్వచించు sk_తీయి                          SK_తీయి
+#నిర్వచించు sk_తీయి_free                     SK_తీయి_FREE
+#నిర్వచించు sk_విలువ                        SK_విలువ
+#నిర్వచించు SHA256_Final  SHA256_FINAL
+#నిర్వచించు SHA256_Init   SHA256_INIT
+#నిర్వచించు SHA256_Update SHA256_UPDATE
 
-#define USE_UPPERCASE_GSSAPI 1
-#define gss_seal             GSS_SEAL
-#define gss_unseal           GSS_UNSEAL
+#నిర్వచించు USE_UPPERCASE_GSSAPI 1
+#నిర్వచించు gss_seal             GSS_SEAL
+#నిర్వచించు gss_unseal           GSS_UNSEAL
 
-#define USE_UPPERCASE_KRBAPI 1
+#నిర్వచించు USE_UPPERCASE_KRBAPI 1
 
 /* AI_NUMERICHOST needed for IP V6 support in curl */
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#ifndef AI_NUMERICHOST
-#undef USE_IPV6
-#endif
-#endif
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#నిర్వచితం_కాకపోతే AI_NUMERICHOST
+#నిర్వచనం_రద్దు USE_IPV6
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
 /* VAX symbols are always in uppercase */
-#ifdef __VAX
-#define inflate       INFLATE
-#define inflateEnd    INFLATEEND
-#define inflateInit2_ INFLATEINIT2_
-#define inflateInit_  INFLATEINIT_
-#define zlibVersion   ZLIBVERSION
-#endif
+#నిర్వచితమైతే __VAX
+#నిర్వచించు inflate       INFLATE
+#నిర్వచించు inflate_చివర    INFLATEEND
+#నిర్వచించు inflateInit2_ INFLATEINIT2_
+#నిర్వచించు inflateInit_  INFLATEINIT_
+#నిర్వచించు zlib_సంస్కరణ   ZLIBVERSION
+#అయితే_ముగింపు
 
 /* Older VAX OpenSSL port defines these as Macros */
 /* Need to include the headers first and then redefine */
 /* that way a newer port will also work if some one has one */
-#ifdef __VAX
+#నిర్వచితమైతే __VAX
 
 #  include <openssl/evp.h>
-#  ifndef OpenSSL_add_all_algorithms
-#    define OpenSSL_add_all_algorithms OPENSSL_ADD_ALL_ALGORITHMS
-     void OPENSSL_ADD_ALL_ALGORITHMS(void);
+#  ifndef Open_SSL_కూడు_all_algorithms
+#    define Open_SSL_కూడు_all_algorithms OPENSSL_కూడు_ALL_ALGORITHMS
+     శూన్య OPENSSL_కూడు_ALL_ALGORITHMS(శూన్య);
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_SETUP_VMS_H */
+#అయితే_ముగింపు /* HEADER_CURL_SETUP_VMS_H */

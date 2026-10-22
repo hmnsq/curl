@@ -24,20 +24,20 @@
 
 /* Base64 encoding/decoding */
 
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "curlx/base64.h"
+#అన్తర్భావ "curlx/base64.h"
 
 /* ---- Base64 Encoding/Decoding Table --- */
-const char curlx_base64encdec[] =
+స్థిరరాశి అక్షరం curlx_base64encdec[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /* The Base 64 encoding with a URL and filename safe alphabet, RFC 4648
    section 5 */
-static const char base64url[] =
+స్థిర స్థిరరాశి అక్షరం base64url[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-static const unsigned char decodetable[256] = {
+స్థిర స్థిరరాశి గుర్తులేని అక్షరం decodetable[256] = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -85,87 +85,87 @@ static const unsigned char decodetable[256] = {
  *
  * @unittest: 1302
  */
-CURLcode curlx_base64_decode(const char *src,
+CURLcode curlx_base64_decode(స్థిరరాశి అక్షరం *src,
                              uint8_t **outptr, size_t *outlen)
 {
   size_t srclen = 0;
   size_t padding = 0;
   size_t i;
-  size_t numQuantums;
-  size_t fullQuantums;
+  size_t అంకె_Quantums;
+  size_t నిండిన_Quantums;
   size_t rawlen = 0;
-  unsigned char *pos;
-  unsigned char *newstr;
+  గుర్తులేని అక్షరం *pos;
+  గుర్తులేని అక్షరం *newstr;
 
-  *outptr = NULL;
+  *outptr = ఖాళీ;
   *outlen = 0;
-  srclen = strlen(src);
+  srclen = అక్షరశ్రేణి_పొడవు(src);
 
   /* Check the length of the input string is valid */
-  if(!srclen || srclen % 4)
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!srclen || srclen % 4)
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
   /* srclen is at least 4 here */
-  while(src[srclen - 1 - padding] == '=') {
+  అయితే(src[srclen - 1 - padding] == '=') {
     /* count padding characters */
     padding++;
     /* A maximum of two = padding characters is allowed */
-    if(padding > 2)
-      return CURLE_BAD_CONTENT_ENCODING;
+    ఒకవేళ(padding > 2)
+      తిరిగి CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Calculate the number of quantums */
-  numQuantums = srclen / 4;
-  fullQuantums = numQuantums - (padding ? 1 : 0);
+  అంకె_Quantums = srclen / 4;
+  నిండిన_Quantums = అంకె_Quantums - (padding ? 1 : 0);
 
   /* Calculate the size of the decoded string */
-  rawlen = (numQuantums * 3) - padding;
+  rawlen = (అంకె_Quantums * 3) - padding;
 
   /* Allocate our buffer including room for a null-terminator */
   newstr = curlx_malloc(rawlen + 1);
-  if(!newstr)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!newstr)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   pos = newstr;
 
   /* Decode the complete quantums first */
-  for(i = 0; i < fullQuantums; i++) {
-    unsigned char v0 = decodetable[(unsigned char)src[0]];
-    unsigned char v1 = decodetable[(unsigned char)src[1]];
-    unsigned char v2 = decodetable[(unsigned char)src[2]];
-    unsigned char v3 = decodetable[(unsigned char)src[3]];
-    if((v0 | v1 | v2 | v3) & 0x80)
-      goto bad;
-    pos[0] = (unsigned char)((v0 << 2) | (v1 >> 4));
-    pos[1] = (unsigned char)((v1 << 4) | (v2 >> 2));
-    pos[2] = (unsigned char)((v2 << 6) | v3);
+  కొరకు(i = 0; i < నిండిన_Quantums; i++) {
+    గుర్తులేని అక్షరం v0 = decodetable[(గుర్తులేని అక్షరం)src[0]];
+    గుర్తులేని అక్షరం v1 = decodetable[(గుర్తులేని అక్షరం)src[1]];
+    గుర్తులేని అక్షరం v2 = decodetable[(గుర్తులేని అక్షరం)src[2]];
+    గుర్తులేని అక్షరం v3 = decodetable[(గుర్తులేని అక్షరం)src[3]];
+    ఒకవేళ((v0 | v1 | v2 | v3) & 0x80)
+      వెళ్ళు bad;
+    pos[0] = (గుర్తులేని అక్షరం)((v0 << 2) | (v1 >> 4));
+    pos[1] = (గుర్తులేని అక్షరం)((v1 << 4) | (v2 >> 2));
+    pos[2] = (గుర్తులేని అక్షరం)((v2 << 6) | v3);
     pos += 3;
     src += 4;
   }
-  if(padding) {
+  ఒకవేళ(padding) {
     /* this means either 8 or 16 bits output */
-    unsigned char val;
-    unsigned int x = 0;
-    int j;
+    గుర్తులేని అక్షరం val;
+    గుర్తులేని పూర్ణాంకం x = 0;
+    పూర్ణాంకం j;
     size_t padc = 0;
-    for(j = 0; j < 4; j++) {
-      if(*src == '=') {
+    కొరకు(j = 0; j < 4; j++) {
+      ఒకవేళ(*src == '=') {
         x <<= 6;
         src++;
-        if(++padc > padding)
+        ఒకవేళ(++padc > padding)
           /* this is a badly placed '=' symbol! */
-          goto bad;
+          వెళ్ళు bad;
       }
-      else {
-        val = decodetable[(unsigned char)*src++];
-        if(val == 0xff) /* bad symbol */
-          goto bad;
+      లేకపోతే {
+        val = decodetable[(గుర్తులేని అక్షరం)*src++];
+        ఒకవేళ(val == 0xff) /* bad symbol */
+          వెళ్ళు bad;
         x = (x << 6) | val;
       }
     }
-    if(padding == 1)
-      pos[1] = (unsigned char)((x >> 8) & 0xff);
-    pos[0] = (unsigned char)((x >> 16) & 0xff);
+    ఒకవేళ(padding == 1)
+      pos[1] = (గుర్తులేని అక్షరం)((x >> 8) & 0xff);
+    pos[0] = (గుర్తులేని అక్షరం)((x >> 16) & 0xff);
     pos += 3 - padding;
   }
 
@@ -176,64 +176,64 @@ CURLcode curlx_base64_decode(const char *src,
   *outptr = newstr;
   *outlen = rawlen;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 bad:
   curlx_free(newstr);
-  return CURLE_BAD_CONTENT_ENCODING;
+  తిరిగి CURLE_BAD_CONTENT_ENCODING;
 }
 
-static CURLcode base64_encode(const char *table64,
+స్థిర CURLcode base64_encode(స్థిరరాశి అక్షరం *table64,
                               uint8_t padbyte,
-                              const uint8_t *inputbuff, size_t insize,
-                              char **outptr, size_t *outlen)
+                              స్థిరరాశి uint8_t *inputbuff, size_t insize,
+                              అక్షరం **outptr, size_t *outlen)
 {
-  char *output;
-  char *base64data;
-  const unsigned char *in = (const unsigned char *)inputbuff;
+  అక్షరం *output;
+  అక్షరం *base64data;
+  స్థిరరాశి గుర్తులేని అక్షరం *లోపల = (స్థిరరాశి గుర్తులేని అక్షరం *)inputbuff;
 
-  *outptr = NULL;
+  *outptr = ఖాళీ;
   *outlen = 0;
 
-  if(!insize)
-    return CURLE_OK;
+  ఒకవేళ(!insize)
+    తిరిగి CURLE_OK;
 
   /* safety precaution */
-  DEBUGASSERT(insize <= CURL_MAX_BASE64_INPUT);
-  if(insize > CURL_MAX_BASE64_INPUT)
-    return CURLE_TOO_LARGE;
+  DEBUGASSERT(insize <= CURL_MAX_BASE64_ఆదానం);
+  ఒకవేళ(insize > CURL_MAX_BASE64_ఆదానం)
+    తిరిగి CURLE_TOO_LARGE;
 
   base64data = output = curlx_malloc(((insize + 2) / 3 * 4) + 1);
-  if(!output)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!output)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  while(insize >= 3) {
+  అయితే(insize >= 3) {
     /* Load all three input bytes before storing output, avoiding reloads when
        the compiler cannot rule out aliasing. Extract four 6-bit indices from
        the packed value; byte-wise loads avoid alignment and endian issues. */
-    uint32_t bits = ((uint32_t)in[0] << 16) |
-      ((uint32_t)in[1] << 8) | in[2];
-    *output++ = table64[bits >> 18];
-    *output++ = table64[(bits >> 12) & 0x3F];
-    *output++ = table64[(bits >> 6) & 0x3F];
-    *output++ = table64[bits & 0x3F];
+    uint32_t బిట్లు = ((uint32_t)లోపల[0] << 16) |
+      ((uint32_t)లోపల[1] << 8) | లోపల[2];
+    *output++ = table64[బిట్లు >> 18];
+    *output++ = table64[(బిట్లు >> 12) & 0x3F];
+    *output++ = table64[(బిట్లు >> 6) & 0x3F];
+    *output++ = table64[బిట్లు & 0x3F];
     insize -= 3;
-    in += 3;
+    లోపల += 3;
   }
-  if(insize) {
+  ఒకవేళ(insize) {
     /* this is only one or two bytes now */
-    *output++ = table64[in[0] >> 2];
-    if(insize == 1) {
-      *output++ = table64[((in[0] & 0x03) << 4)];
-      if(padbyte) {
+    *output++ = table64[లోపల[0] >> 2];
+    ఒకవేళ(insize == 1) {
+      *output++ = table64[((లోపల[0] & 0x03) << 4)];
+      ఒకవేళ(padbyte) {
         *output++ = padbyte;
         *output++ = padbyte;
       }
     }
-    else {
+    లేకపోతే {
       /* insize == 2 */
-      *output++ = table64[((in[0] & 0x03) << 4) | ((in[1] & 0xF0) >> 4)];
-      *output++ = table64[((in[1] & 0x0F) << 2)];
-      if(padbyte)
+      *output++ = table64[((లోపల[0] & 0x03) << 4) | ((లోపల[1] & 0xF0) >> 4)];
+      *output++ = table64[((లోపల[1] & 0x0F) << 2)];
+      ఒకవేళ(padbyte)
         *output++ = padbyte;
     }
   }
@@ -247,7 +247,7 @@ static CURLcode base64_encode(const char *table64,
   /* Return the length of the new data */
   *outlen = (size_t)(output - base64data);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -263,10 +263,10 @@ static CURLcode base64_encode(const char *table64,
  *
  * @unittest: 1302
  */
-CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
-                             char **outptr, size_t *outlen)
+CURLcode curlx_base64_encode(స్థిరరాశి uint8_t *inputbuff, size_t insize,
+                             అక్షరం **outptr, size_t *outlen)
 {
-  return base64_encode(curlx_base64encdec, '=',
+  తిరిగి base64_encode(curlx_base64encdec, '=',
                        inputbuff, insize, outptr, outlen);
 }
 
@@ -285,8 +285,8 @@ CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
  *
  * @unittest: 1302
  */
-CURLcode curlx_base64url_encode(const uint8_t *inputbuff, size_t insize,
-                                char **outptr, size_t *outlen)
+CURLcode curlx_base64url_encode(స్థిరరాశి uint8_t *inputbuff, size_t insize,
+                                అక్షరం **outptr, size_t *outlen)
 {
-  return base64_encode(base64url, 0, inputbuff, insize, outptr, outlen);
+  తిరిగి base64_encode(base64url, 0, inputbuff, insize, outptr, outlen);
 }

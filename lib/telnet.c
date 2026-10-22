@@ -21,80 +21,80 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "telnet.h"
+#అన్తర్భావ "curl_setup.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "telnet.h"
 
-#ifndef CURL_DISABLE_TELNET
+#నిర్వచితం_కాకపోతే CURL_DISABLE_TELNET
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NET_IF_H
+#అన్తర్భావ <net/if.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_SYS_IOCTL_H
+#అన్తర్భావ <sys/ioctl.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#నిర్వచితమైతే HAVE_SYS_PARAM_H
+#అన్తర్భావ <sys/param.h>
+#అయితే_ముగింపు
 
-#include "url.h"
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "arpa_telnet.h"
-#include "connect.h"
-#include "select.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "transfer.h"
+#అన్తర్భావ "sendf.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "arpa_telnet.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "curlx/strparse.h"
 
-#define SUBBUFSIZE 512
+#నిర్వచించు SUBBUFSIZE 512
 
-#define CURL_SB_CLEAR(x) (x)->subpointer = (x)->subbuffer
-#define CURL_SB_TERM(x)            \
-  do {                             \
+#నిర్వచించు CURL_SB_CLEAR(x) (x)->subpointer = (x)->subbuffer
+#నిర్వచించు CURL_SB_పదం(x)            \
+  చేయి {                             \
     (x)->subend = (x)->subpointer; \
     CURL_SB_CLEAR(x);              \
-  } while(0)
-#define CURL_SB_ACCUM(x, c)                                         \
-  do {                                                              \
-    if((x)->subpointer < ((x)->subbuffer + sizeof((x)->subbuffer))) \
+  } అయితే(0)
+#నిర్వచించు CURL_SB_ACCUM(x, c)                                         \
+  చేయి {                                                              \
+    ఒకవేళ((x)->subpointer < ((x)->subbuffer + పరిమాణం((x)->subbuffer))) \
       *(x)->subpointer++ = (c);                                     \
-  } while(0)
+  } అయితే(0)
 
-#define CURL_SB_GET(x) ((*(x)->subpointer++) & 0xff)
-#define CURL_SB_LEN(x) ((x)->subend - (x)->subpointer)
+#నిర్వచించు CURL_SB_GET(x) ((*(x)->subpointer++) & 0xff)
+#నిర్వచించు CURL_SB_LEN(x) ((x)->subend - (x)->subpointer)
 
 /* For posterity:
 #define CURL_SB_PEEK(x) (*(x)->subpointer & 0xff)
 #define CURL_SB_EOF(x)  ((x)->subpointer >= (x)->subend) */
 
 /* For negotiation compliant to RFC 1143 */
-#define CURL_NO          0
-#define CURL_YES         1
-#define CURL_WANTYES     2
-#define CURL_WANTNO      3
+#నిర్వచించు CURL_NO          0
+#నిర్వచించు CURL_YES         1
+#నిర్వచించు CURL_WANTYES     2
+#నిర్వచించు CURL_WANTNO      3
 
-#define CURL_EMPTY       0
-#define CURL_OPPOSITE    1
+#నిర్వచించు CURL_ఖాళీలు       0
+#నిర్వచించు CURL_OPPOSITE    1
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_TELNET_EASY   "meta:proto:telnet:easy"
+#నిర్వచించు CURL_META_TELNET_EASY   "meta:proto:telnet:easy"
 
 /*
  * Telnet receiver states for fsm
  */
-typedef enum {
-  CURL_TS_DATA = 0,
+రకనిర్వచనం గణన {
+  CURL_TS_దత్తాంశం = 0,
   CURL_TS_IAC,
   CURL_TS_WILL,
   CURL_TS_WONT,
@@ -105,89 +105,89 @@ typedef enum {
   CURL_TS_SE    /* looking for sub-option end */
 } TelnetReceive;
 
-struct TELNET {
-  int please_negotiate;
-  int already_negotiated;
-  int us[256];
-  int usq[256];
-  int us_preferred[256];
-  int him[256];
-  int himq[256];
-  int him_preferred[256];
-  int subnegotiation[256];
-  const char *subopt_ttype;          /* Set with suboption TTYPE */
-  const char *subopt_xdisploc;       /* Set with suboption XDISPLOC */
-  unsigned short subopt_wsx;         /* Set with suboption NAWS */
-  unsigned short subopt_wsy;         /* Set with suboption NAWS */
+నిర్మాణం TELNET {
+  పూర్ణాంకం please_negotiate;
+  పూర్ణాంకం already_negotiated;
+  పూర్ణాంకం us[256];
+  పూర్ణాంకం usq[256];
+  పూర్ణాంకం us_preferred[256];
+  పూర్ణాంకం him[256];
+  పూర్ణాంకం himq[256];
+  పూర్ణాంకం him_preferred[256];
+  పూర్ణాంకం subnegotiation[256];
+  స్థిరరాశి అక్షరం *subopt_ttype;          /* Set with suboption TTYPE */
+  స్థిరరాశి అక్షరం *subopt_xdisploc;       /* Set with suboption XDISPLOC */
+  గుర్తులేని పొట్టి subopt_wsx;         /* Set with suboption NAWS */
+  గుర్తులేని పొట్టి subopt_wsy;         /* Set with suboption NAWS */
   TelnetReceive telrcv_state;
-  struct curl_slist *telnet_vars;    /* Environment variables */
-  struct dynbuf out;                 /* output buffer */
+  నిర్మాణం curl_slist *telnet_vars;    /* Environment variables */
+  నిర్మాణం dynbuf బహిర్గతం;                 /* output buffer */
 
   /* suboptions */
-  unsigned char subbuffer[SUBBUFSIZE];
-  unsigned char *subpointer, *subend;      /* buffer for sub-options */
+  గుర్తులేని అక్షరం subbuffer[SUBBUFSIZE];
+  గుర్తులేని అక్షరం *subpointer, *subend;      /* buffer for sub-options */
 };
 
-#ifndef CURLVERBOSE
-#define printoption(a, b, c, d) Curl_nop_stmt
-#else
-static void printoption(struct Curl_easy *data,
-                        const char *direction, int cmd, int option)
+#నిర్వచితం_కాకపోతే CURLVERBOSE
+#నిర్వచించు printoption(a, b, c, d) Curl_nop_stmt
+#లేకపోతే
+స్థిర శూన్య printoption(నిర్మాణం Curl_easy *దత్తాంశం,
+                        స్థిరరాశి అక్షరం *direction, పూర్ణాంకం cmd, పూర్ణాంకం option)
 {
-  if(data->set.verbose) {
-    if(cmd == CURL_IAC) {
-      if(CURL_TELCMD_OK(option))
-        infof(data, "%s IAC %s", direction, CURL_TELCMD(option));
-      else
-        infof(data, "%s IAC %d", direction, option);
+  ఒకవేళ(దత్తాంశం->సమితి.verbose) {
+    ఒకవేళ(cmd == CURL_IAC) {
+      ఒకవేళ(CURL_TELCMD_OK(option))
+        infof(దత్తాంశం, "%s IAC %s", direction, CURL_TELCMD(option));
+      లేకపోతే
+        infof(దత్తాంశం, "%s IAC %d", direction, option);
     }
-    else {
-      const char *fmt = (cmd == CURL_WILL) ? "WILL" :
+    లేకపోతే {
+      స్థిరరాశి అక్షరం *fmt = (cmd == CURL_WILL) ? "WILL" :
                         (cmd == CURL_WONT) ? "WONT" :
                         (cmd == CURL_DO) ? "DO" :
                         (cmd == CURL_DONT) ? "DONT" : 0;
-      if(fmt) {
-        const char *opt;
-        if(CURL_TELOPT_OK(option))
+      ఒకవేళ(fmt) {
+        స్థిరరాశి అక్షరం *opt;
+        ఒకవేళ(CURL_TELOPT_OK(option))
           opt = CURL_TELOPT(option);
-        else if(option == CURL_TELOPT_EXOPL)
+        లేకపోతే ఒకవేళ(option == CURL_TELOPT_EXOPL)
           opt = "EXOPL";
-        else
-          opt = NULL;
+        లేకపోతే
+          opt = ఖాళీ;
 
-        if(opt)
-          infof(data, "%s %s %s", direction, fmt, opt);
-        else
-          infof(data, "%s %s %d", direction, fmt, option);
+        ఒకవేళ(opt)
+          infof(దత్తాంశం, "%s %s %s", direction, fmt, opt);
+        లేకపోతే
+          infof(దత్తాంశం, "%s %s %d", direction, fmt, option);
       }
-      else
-        infof(data, "%s %d %d", direction, cmd, option);
+      లేకపోతే
+        infof(దత్తాంశం, "%s %d %d", direction, cmd, option);
     }
   }
 }
-#endif /* !CURLVERBOSE */
+#అయితే_ముగింపు /* !CURLVERBOSE */
 
-static void telnet_easy_dtor(const void *key, size_t klen, void *entry)
+స్థిర శూన్య telnet_easy_dtor(స్థిరరాశి శూన్య *కీలకం, size_t klen, శూన్య *నమోదు_2)
 {
-  struct TELNET *tn = entry;
-  (void)key;
-  (void)klen;
+  నిర్మాణం TELNET *tn = నమోదు_2;
+  (శూన్య)కీలకం;
+  (శూన్య)klen;
   curl_slist_free_all(tn->telnet_vars);
-  curlx_dyn_free(&tn->out);
+  curlx_dyn_free(&tn->బహిర్గతం);
   curlx_free(tn);
 }
 
-static CURLcode init_telnet(struct Curl_easy *data)
+స్థిర CURLcode init_telnet(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct TELNET *tn;
+  నిర్మాణం TELNET *tn;
 
-  tn = curlx_calloc(1, sizeof(struct TELNET));
-  if(!tn)
-    return CURLE_OUT_OF_MEMORY;
+  tn = curlx_calloc(1, పరిమాణం(నిర్మాణం TELNET));
+  ఒకవేళ(!tn)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  curlx_dyn_init(&tn->out, 0xffff);
+  curlx_dyn_init(&tn->బహిర్గతం, 0xffff);
 
-  tn->telrcv_state = CURL_TS_DATA;
+  tn->telrcv_state = CURL_TS_దత్తాంశం;
 
   /* Init suboptions */
   CURL_SB_CLEAR(tn);
@@ -199,8 +199,8 @@ static CURLcode init_telnet(struct Curl_easy *data)
   /* To be compliant with previous releases of libcurl we enable this option
      by default. This behavior can be changed with the "BINARY" option in
      CURLOPT_TELNETOPTIONS */
-  tn->us_preferred[CURL_TELOPT_BINARY] = CURL_YES;
-  tn->him_preferred[CURL_TELOPT_BINARY] = CURL_YES;
+  tn->us_preferred[CURL_TELOPT_ద్విమాన] = CURL_YES;
+  tn->him_preferred[CURL_TELOPT_ద్విమాన] = CURL_YES;
 
   /* We must allow the server to echo what we sent but it is not necessary
      to request the server to do so (it might force the server to close
@@ -219,448 +219,448 @@ static CURLcode init_telnet(struct Curl_easy *data)
      that may have been sent using the TERMINAL TYPE Telnet option). */
   tn->subnegotiation[CURL_TELOPT_NAWS] = CURL_YES;
 
-  return Curl_meta_set(data, CURL_META_TELNET_EASY, tn, telnet_easy_dtor);
+  తిరిగి Curl_meta_సమితి(దత్తాంశం, CURL_META_TELNET_EASY, tn, telnet_easy_dtor);
 }
 
-static void send_negotiation(struct Curl_easy *data, int cmd, int option)
+స్థిర శూన్య send_negotiation(నిర్మాణం Curl_easy *దత్తాంశం, పూర్ణాంకం cmd, పూర్ణాంకం option)
 {
-  unsigned char buf[3];
+  గుర్తులేని అక్షరం buf[3];
   size_t nwritten;
-  CURLcode result;
+  CURLcode ఫలితం;
 
   buf[0] = CURL_IAC;
-  buf[1] = (unsigned char)cmd;
-  buf[2] = (unsigned char)option;
+  buf[1] = (గుర్తులేని అక్షరం)cmd;
+  buf[2] = (గుర్తులేని అక్షరం)option;
 
-  result = Curl_xfer_send(data, buf, 3, FALSE, &nwritten);
-  if(result)
-    failf(data, "Sending data failed: %s", curl_easy_strerror(result));
+  ఫలితం = Curl_xfer_send(దత్తాంశం, buf, 3, FALSE, &nwritten);
+  ఒకవేళ(ఫలితం)
+    failf(దత్తాంశం, "Sending data failed: %s", curl_easy_strerror(ఫలితం));
 
-  printoption(data, "SENT", cmd, option);
+  printoption(దత్తాంశం, "SENT", cmd, option);
 }
 
-static void set_remote_option(struct Curl_easy *data, struct TELNET *tn,
-                              int option, int newstate)
+స్థిర శూన్య సమితి_remote_option(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం TELNET *tn,
+                              పూర్ణాంకం option, పూర్ణాంకం newstate)
 {
-  if(newstate == CURL_YES) {
-    switch(tn->him[option]) {
-    case CURL_NO:
+  ఒకవేళ(newstate == CURL_YES) {
+    ఎంపిక(tn->him[option]) {
+    స్థితి CURL_NO:
       tn->him[option] = CURL_WANTYES;
-      send_negotiation(data, CURL_DO, option);
-      break;
+      send_negotiation(దత్తాంశం, CURL_DO, option);
+      ఆపు;
 
-    case CURL_YES:
+    స్థితి CURL_YES:
       /* Already enabled */
-      break;
+      ఆపు;
 
-    case CURL_WANTNO:
-      switch(tn->himq[option]) {
-      case CURL_EMPTY:
+    స్థితి CURL_WANTNO:
+      ఎంపిక(tn->himq[option]) {
+      స్థితి CURL_ఖాళీలు:
         /* Already negotiating for CURL_YES, queue the request */
         tn->himq[option] = CURL_OPPOSITE;
-        break;
-      case CURL_OPPOSITE:
+        ఆపు;
+      స్థితి CURL_OPPOSITE:
         /* Error: already queued an enable request */
-        break;
+        ఆపు;
       }
-      break;
+      ఆపు;
 
-    case CURL_WANTYES:
-      switch(tn->himq[option]) {
-      case CURL_EMPTY:
+    స్థితి CURL_WANTYES:
+      ఎంపిక(tn->himq[option]) {
+      స్థితి CURL_ఖాళీలు:
         /* Error: already negotiating for enable */
-        break;
-      case CURL_OPPOSITE:
-        tn->himq[option] = CURL_EMPTY;
-        break;
+        ఆపు;
+      స్థితి CURL_OPPOSITE:
+        tn->himq[option] = CURL_ఖాళీలు;
+        ఆపు;
       }
-      break;
+      ఆపు;
     }
   }
-  else { /* NO */
-    switch(tn->him[option]) {
-    case CURL_NO:
+  లేకపోతే { /* NO */
+    ఎంపిక(tn->him[option]) {
+    స్థితి CURL_NO:
       /* Already disabled */
-      break;
+      ఆపు;
 
-    case CURL_YES:
+    స్థితి CURL_YES:
       tn->him[option] = CURL_WANTNO;
-      send_negotiation(data, CURL_DONT, option);
-      break;
+      send_negotiation(దత్తాంశం, CURL_DONT, option);
+      ఆపు;
 
-    case CURL_WANTNO:
-      switch(tn->himq[option]) {
-      case CURL_EMPTY:
+    స్థితి CURL_WANTNO:
+      ఎంపిక(tn->himq[option]) {
+      స్థితి CURL_ఖాళీలు:
         /* Already negotiating for NO */
-        break;
-      case CURL_OPPOSITE:
-        tn->himq[option] = CURL_EMPTY;
-        break;
+        ఆపు;
+      స్థితి CURL_OPPOSITE:
+        tn->himq[option] = CURL_ఖాళీలు;
+        ఆపు;
       }
-      break;
+      ఆపు;
 
-    case CURL_WANTYES:
-      switch(tn->himq[option]) {
-      case CURL_EMPTY:
+    స్థితి CURL_WANTYES:
+      ఎంపిక(tn->himq[option]) {
+      స్థితి CURL_ఖాళీలు:
         tn->himq[option] = CURL_OPPOSITE;
-        break;
-      case CURL_OPPOSITE:
-        break;
+        ఆపు;
+      స్థితి CURL_OPPOSITE:
+        ఆపు;
       }
-      break;
+      ఆపు;
     }
   }
 }
 
-static void set_local_option(struct Curl_easy *data, struct TELNET *tn,
-                             int option, int newstate)
+స్థిర శూన్య సమితి_local_option(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం TELNET *tn,
+                             పూర్ణాంకం option, పూర్ణాంకం newstate)
 {
-  if(newstate == CURL_YES) {
-    switch(tn->us[option]) {
-    case CURL_NO:
+  ఒకవేళ(newstate == CURL_YES) {
+    ఎంపిక(tn->us[option]) {
+    స్థితి CURL_NO:
       tn->us[option] = CURL_WANTYES;
-      send_negotiation(data, CURL_WILL, option);
-      break;
+      send_negotiation(దత్తాంశం, CURL_WILL, option);
+      ఆపు;
 
-    case CURL_YES:
+    స్థితి CURL_YES:
       /* Already enabled */
-      break;
+      ఆపు;
 
-    case CURL_WANTNO:
-      switch(tn->usq[option]) {
-      case CURL_EMPTY:
+    స్థితి CURL_WANTNO:
+      ఎంపిక(tn->usq[option]) {
+      స్థితి CURL_ఖాళీలు:
         /* Already negotiating for CURL_YES, queue the request */
         tn->usq[option] = CURL_OPPOSITE;
-        break;
-      case CURL_OPPOSITE:
+        ఆపు;
+      స్థితి CURL_OPPOSITE:
         /* Error: already queued an enable request */
-        break;
+        ఆపు;
       }
-      break;
+      ఆపు;
 
-    case CURL_WANTYES:
-      switch(tn->usq[option]) {
-      case CURL_EMPTY:
+    స్థితి CURL_WANTYES:
+      ఎంపిక(tn->usq[option]) {
+      స్థితి CURL_ఖాళీలు:
         /* Error: already negotiating for enable */
-        break;
-      case CURL_OPPOSITE:
-        tn->usq[option] = CURL_EMPTY;
-        break;
+        ఆపు;
+      స్థితి CURL_OPPOSITE:
+        tn->usq[option] = CURL_ఖాళీలు;
+        ఆపు;
       }
-      break;
+      ఆపు;
     }
   }
-  else { /* NO */
-    switch(tn->us[option]) {
-    case CURL_NO:
+  లేకపోతే { /* NO */
+    ఎంపిక(tn->us[option]) {
+    స్థితి CURL_NO:
       /* Already disabled */
-      break;
+      ఆపు;
 
-    case CURL_YES:
+    స్థితి CURL_YES:
       tn->us[option] = CURL_WANTNO;
-      send_negotiation(data, CURL_WONT, option);
-      break;
+      send_negotiation(దత్తాంశం, CURL_WONT, option);
+      ఆపు;
 
-    case CURL_WANTNO:
-      switch(tn->usq[option]) {
-      case CURL_EMPTY:
+    స్థితి CURL_WANTNO:
+      ఎంపిక(tn->usq[option]) {
+      స్థితి CURL_ఖాళీలు:
         /* Already negotiating for NO */
-        break;
-      case CURL_OPPOSITE:
-        tn->usq[option] = CURL_EMPTY;
-        break;
+        ఆపు;
+      స్థితి CURL_OPPOSITE:
+        tn->usq[option] = CURL_ఖాళీలు;
+        ఆపు;
       }
-      break;
+      ఆపు;
 
-    case CURL_WANTYES:
-      switch(tn->usq[option]) {
-      case CURL_EMPTY:
+    స్థితి CURL_WANTYES:
+      ఎంపిక(tn->usq[option]) {
+      స్థితి CURL_ఖాళీలు:
         tn->usq[option] = CURL_OPPOSITE;
-        break;
-      case CURL_OPPOSITE:
-        break;
+        ఆపు;
+      స్థితి CURL_OPPOSITE:
+        ఆపు;
       }
-      break;
+      ఆపు;
     }
   }
 }
 
-static void telnet_negotiate(struct Curl_easy *data, struct TELNET *tn)
+స్థిర శూన్య telnet_negotiate(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం TELNET *tn)
 {
-  int i;
+  పూర్ణాంకం i;
 
-  for(i = 0; i < CURL_NTELOPTS; i++) {
-    if(i == CURL_TELOPT_ECHO)
-      continue;
+  కొరకు(i = 0; i < CURL_NTELOPTS; i++) {
+    ఒకవేళ(i == CURL_TELOPT_ECHO)
+      కొనసాగు;
 
-    if(tn->us_preferred[i] == CURL_YES)
-      set_local_option(data, tn, i, CURL_YES);
+    ఒకవేళ(tn->us_preferred[i] == CURL_YES)
+      సమితి_local_option(దత్తాంశం, tn, i, CURL_YES);
 
-    if(tn->him_preferred[i] == CURL_YES)
-      set_remote_option(data, tn, i, CURL_YES);
+    ఒకవేళ(tn->him_preferred[i] == CURL_YES)
+      సమితి_remote_option(దత్తాంశం, tn, i, CURL_YES);
   }
 }
 
-static void rec_will(struct Curl_easy *data, struct TELNET *tn, int option)
+స్థిర శూన్య rec_will(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం TELNET *tn, పూర్ణాంకం option)
 {
-  switch(tn->him[option]) {
-  case CURL_NO:
-    if(tn->him_preferred[option] == CURL_YES) {
+  ఎంపిక(tn->him[option]) {
+  స్థితి CURL_NO:
+    ఒకవేళ(tn->him_preferred[option] == CURL_YES) {
       tn->him[option] = CURL_YES;
-      send_negotiation(data, CURL_DO, option);
+      send_negotiation(దత్తాంశం, CURL_DO, option);
     }
-    else
-      send_negotiation(data, CURL_DONT, option);
+    లేకపోతే
+      send_negotiation(దత్తాంశం, CURL_DONT, option);
 
-    break;
+    ఆపు;
 
-  case CURL_YES:
+  స్థితి CURL_YES:
     /* Already enabled */
-    break;
+    ఆపు;
 
-  case CURL_WANTNO:
-    switch(tn->himq[option]) {
-    case CURL_EMPTY:
+  స్థితి CURL_WANTNO:
+    ఎంపిక(tn->himq[option]) {
+    స్థితి CURL_ఖాళీలు:
       /* Error: DONT answered by WILL */
       tn->him[option] = CURL_NO;
-      break;
-    case CURL_OPPOSITE:
+      ఆపు;
+    స్థితి CURL_OPPOSITE:
       /* Error: DONT answered by WILL */
       tn->him[option] = CURL_YES;
-      tn->himq[option] = CURL_EMPTY;
-      break;
+      tn->himq[option] = CURL_ఖాళీలు;
+      ఆపు;
     }
-    break;
+    ఆపు;
 
-  case CURL_WANTYES:
-    switch(tn->himq[option]) {
-    case CURL_EMPTY:
+  స్థితి CURL_WANTYES:
+    ఎంపిక(tn->himq[option]) {
+    స్థితి CURL_ఖాళీలు:
       tn->him[option] = CURL_YES;
-      break;
-    case CURL_OPPOSITE:
+      ఆపు;
+    స్థితి CURL_OPPOSITE:
       tn->him[option] = CURL_WANTNO;
-      tn->himq[option] = CURL_EMPTY;
-      send_negotiation(data, CURL_DONT, option);
-      break;
+      tn->himq[option] = CURL_ఖాళీలు;
+      send_negotiation(దత్తాంశం, CURL_DONT, option);
+      ఆపు;
     }
-    break;
+    ఆపు;
   }
 }
 
-static void rec_wont(struct Curl_easy *data, struct TELNET *tn, int option)
+స్థిర శూన్య rec_wont(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం TELNET *tn, పూర్ణాంకం option)
 {
-  switch(tn->him[option]) {
-  case CURL_NO:
+  ఎంపిక(tn->him[option]) {
+  స్థితి CURL_NO:
     /* Already disabled */
-    break;
+    ఆపు;
 
-  case CURL_YES:
+  స్థితి CURL_YES:
     tn->him[option] = CURL_NO;
-    send_negotiation(data, CURL_DONT, option);
-    break;
+    send_negotiation(దత్తాంశం, CURL_DONT, option);
+    ఆపు;
 
-  case CURL_WANTNO:
-    switch(tn->himq[option]) {
-    case CURL_EMPTY:
+  స్థితి CURL_WANTNO:
+    ఎంపిక(tn->himq[option]) {
+    స్థితి CURL_ఖాళీలు:
       tn->him[option] = CURL_NO;
-      break;
+      ఆపు;
 
-    case CURL_OPPOSITE:
+    స్థితి CURL_OPPOSITE:
       tn->him[option] = CURL_WANTYES;
-      tn->himq[option] = CURL_EMPTY;
-      send_negotiation(data, CURL_DO, option);
-      break;
+      tn->himq[option] = CURL_ఖాళీలు;
+      send_negotiation(దత్తాంశం, CURL_DO, option);
+      ఆపు;
     }
-    break;
+    ఆపు;
 
-  case CURL_WANTYES:
-    switch(tn->himq[option]) {
-    case CURL_EMPTY:
+  స్థితి CURL_WANTYES:
+    ఎంపిక(tn->himq[option]) {
+    స్థితి CURL_ఖాళీలు:
       tn->him[option] = CURL_NO;
-      break;
-    case CURL_OPPOSITE:
+      ఆపు;
+    స్థితి CURL_OPPOSITE:
       tn->him[option] = CURL_NO;
-      tn->himq[option] = CURL_EMPTY;
-      break;
+      tn->himq[option] = CURL_ఖాళీలు;
+      ఆపు;
     }
-    break;
+    ఆపు;
   }
 }
 
-static void printsub(struct Curl_easy *data,
-                     int direction,                /* '<' or '>' */
-                     const unsigned char *pointer, /* ptr to suboption data */
-                     size_t length)                /* suboption data length */
+స్థిర శూన్య printsub(నిర్మాణం Curl_easy *దత్తాంశం,
+                     పూర్ణాంకం direction,                /* '<' or '>' */
+                     స్థిరరాశి గుర్తులేని అక్షరం *సూచిక, /* ptr to suboption data */
+                     size_t నిడివి)                /* suboption data length */
 {
-  if(data->set.verbose) {
-    unsigned int i = 0;
-    if(direction) {
-      infof(data, "%s IAC SB ", (direction == '<') ? "RCVD" : "SENT");
-      if(length >= 3) {
-        int j;
+  ఒకవేళ(దత్తాంశం->సమితి.verbose) {
+    గుర్తులేని పూర్ణాంకం i = 0;
+    ఒకవేళ(direction) {
+      infof(దత్తాంశం, "%s IAC SB ", (direction == '<') ? "RCVD" : "SENT");
+      ఒకవేళ(నిడివి >= 3) {
+        పూర్ణాంకం j;
 
-        i = pointer[length - 2];
-        j = pointer[length - 1];
+        i = సూచిక[నిడివి - 2];
+        j = సూచిక[నిడివి - 1];
 
-        if(i != CURL_IAC || j != CURL_SE) {
-          infof(data, "(terminated by ");
-          if(CURL_TELOPT_OK(i))
-            infof(data, "%s ", CURL_TELOPT(i));
-          else if(CURL_TELCMD_OK(i))
-            infof(data, "%s ", CURL_TELCMD(i));
-          else
-            infof(data, "%u ", i);
-          if(CURL_TELOPT_OK(j))
-            infof(data, "%s", CURL_TELOPT(j));
-          else if(CURL_TELCMD_OK(j))
-            infof(data, "%s", CURL_TELCMD(j));
-          else
-            infof(data, "%d", j);
-          infof(data, ", not IAC SE) ");
+        ఒకవేళ(i != CURL_IAC || j != CURL_SE) {
+          infof(దత్తాంశం, "(terminated by ");
+          ఒకవేళ(CURL_TELOPT_OK(i))
+            infof(దత్తాంశం, "%s ", CURL_TELOPT(i));
+          లేకపోతే ఒకవేళ(CURL_TELCMD_OK(i))
+            infof(దత్తాంశం, "%s ", CURL_TELCMD(i));
+          లేకపోతే
+            infof(దత్తాంశం, "%u ", i);
+          ఒకవేళ(CURL_TELOPT_OK(j))
+            infof(దత్తాంశం, "%s", CURL_TELOPT(j));
+          లేకపోతే ఒకవేళ(CURL_TELCMD_OK(j))
+            infof(దత్తాంశం, "%s", CURL_TELCMD(j));
+          లేకపోతే
+            infof(దత్తాంశం, "%d", j);
+          infof(దత్తాంశం, ", not IAC SE) ");
         }
       }
-      if(length >= 2)
-        length -= 2;
-      else /* bad input */
-        return;
+      ఒకవేళ(నిడివి >= 2)
+        నిడివి -= 2;
+      లేకపోతే /* bad input */
+        తిరిగి;
     }
-    if(length <= 1) {
-      infof(data, "(Empty suboption?)");
-      return;
+    ఒకవేళ(నిడివి <= 1) {
+      infof(దత్తాంశం, "(Empty suboption?)");
+      తిరిగి;
     }
 
-    if(CURL_TELOPT_OK(pointer[0])) {
-      switch(pointer[0]) {
-      case CURL_TELOPT_TTYPE:
-      case CURL_TELOPT_XDISPLOC:
-      case CURL_TELOPT_NEW_ENVIRON:
-      case CURL_TELOPT_NAWS:
-        infof(data, "%s", CURL_TELOPT(pointer[0]));
-        break;
-      default:
-        infof(data, "%s (unsupported)", CURL_TELOPT(pointer[0]));
-        break;
+    ఒకవేళ(CURL_TELOPT_OK(సూచిక[0])) {
+      ఎంపిక(సూచిక[0]) {
+      స్థితి CURL_TELOPT_TTYPE:
+      స్థితి CURL_TELOPT_XDISPLOC:
+      స్థితి CURL_TELOPT_NEW_ENVIRON:
+      స్థితి CURL_TELOPT_NAWS:
+        infof(దత్తాంశం, "%s", CURL_TELOPT(సూచిక[0]));
+        ఆపు;
+      అప్రమేయ:
+        infof(దత్తాంశం, "%s (unsupported)", CURL_TELOPT(సూచిక[0]));
+        ఆపు;
       }
     }
-    else
-      infof(data, "%d (unknown)", pointer[0]);
+    లేకపోతే
+      infof(దత్తాంశం, "%d (unknown)", సూచిక[0]);
 
-    switch(pointer[0]) {
-    case CURL_TELOPT_NAWS:
-      if(length > 4)
-        infof(data, "Width: %d ; Height: %d", (pointer[1] << 8) | pointer[2],
-              (pointer[3] << 8) | pointer[4]);
-      break;
-    default:
-      switch(pointer[1]) {
-      case CURL_TELQUAL_IS:
-        infof(data, " IS");
-        break;
-      case CURL_TELQUAL_SEND:
-        infof(data, " SEND");
-        break;
-      case CURL_TELQUAL_INFO:
-        infof(data, " INFO/REPLY");
-        break;
-      case CURL_TELQUAL_NAME:
-        infof(data, " NAME");
-        break;
+    ఎంపిక(సూచిక[0]) {
+    స్థితి CURL_TELOPT_NAWS:
+      ఒకవేళ(నిడివి > 4)
+        infof(దత్తాంశం, "Width: %d ; Height: %d", (సూచిక[1] << 8) | సూచిక[2],
+              (సూచిక[3] << 8) | సూచిక[4]);
+      ఆపు;
+    అప్రమేయ:
+      ఎంపిక(సూచిక[1]) {
+      స్థితి CURL_TELQUAL_IS:
+        infof(దత్తాంశం, " IS");
+        ఆపు;
+      స్థితి CURL_TELQUAL_SEND:
+        infof(దత్తాంశం, " SEND");
+        ఆపు;
+      స్థితి CURL_TELQUAL_INFO:
+        infof(దత్తాంశం, " INFO/REPLY");
+        ఆపు;
+      స్థితి CURL_TELQUAL_NAME:
+        infof(దత్తాంశం, " NAME");
+        ఆపు;
       }
 
-      switch(pointer[0]) {
-      case CURL_TELOPT_TTYPE:
-      case CURL_TELOPT_XDISPLOC:
-        infof(data, " \"%.*s\"",
-              (int)((length > 2) ? (length - 2) : 0), &pointer[2]);
-        break;
-      case CURL_TELOPT_NEW_ENVIRON:
-        if(pointer[1] == CURL_TELQUAL_IS) {
-          infof(data, " ");
-          for(i = 3; i < length; i++) {
-            switch(pointer[i]) {
-            case CURL_NEW_ENV_VAR:
-              infof(data, ", ");
-              break;
-            case CURL_NEW_ENV_VALUE:
-              infof(data, " = ");
-              break;
-            default:
-              infof(data, "%c", pointer[i]);
-              break;
+      ఎంపిక(సూచిక[0]) {
+      స్థితి CURL_TELOPT_TTYPE:
+      స్థితి CURL_TELOPT_XDISPLOC:
+        infof(దత్తాంశం, " \"%.*s\"",
+              (పూర్ణాంకం)((నిడివి > 2) ? (నిడివి - 2) : 0), &సూచిక[2]);
+        ఆపు;
+      స్థితి CURL_TELOPT_NEW_ENVIRON:
+        ఒకవేళ(సూచిక[1] == CURL_TELQUAL_IS) {
+          infof(దత్తాంశం, " ");
+          కొరకు(i = 3; i < నిడివి; i++) {
+            ఎంపిక(సూచిక[i]) {
+            స్థితి CURL_NEW_ENV_VAR:
+              infof(దత్తాంశం, ", ");
+              ఆపు;
+            స్థితి CURL_NEW_ENV_విలువ:
+              infof(దత్తాంశం, " = ");
+              ఆపు;
+            అప్రమేయ:
+              infof(దత్తాంశం, "%c", సూచిక[i]);
+              ఆపు;
             }
           }
         }
-        break;
-      default:
-        for(i = 2; i < length; i++)
-          infof(data, " %.2x", pointer[i]);
-        break;
+        ఆపు;
+      అప్రమేయ:
+        కొరకు(i = 2; i < నిడివి; i++)
+          infof(దత్తాంశం, " %.2x", సూచిక[i]);
+        ఆపు;
       }
     }
   }
 }
 
 /* Escape and send a telnet data block */
-static CURLcode send_telnet_data(struct Curl_easy *data,
-                                 struct TELNET *tn,
-                                 const char *buffer, ssize_t nread)
+స్థిర CURLcode send_telnet_దత్తాంశం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం TELNET *tn,
+                                 స్థిరరాశి అక్షరం *బఫరు, ssize_t nread)
 {
   size_t i, outlen;
-  const unsigned char *outbuf;
-  CURLcode result = CURLE_OK;
-  size_t bytes_written;
-  size_t total_written = 0;
-  struct connectdata *conn = data->conn;
+  స్థిరరాశి గుర్తులేని అక్షరం *outbuf;
+  CURLcode ఫలితం = CURLE_OK;
+  size_t బైట్లు_written;
+  size_t మొత్తం_written = 0;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
 
   DEBUGASSERT(tn);
   DEBUGASSERT(nread > 0);
-  if(nread < 0)
-    return CURLE_TOO_LARGE;
+  ఒకవేళ(nread < 0)
+    తిరిగి CURLE_TOO_LARGE;
 
-  if(memchr(buffer, CURL_IAC, nread)) {
+  ఒకవేళ(memchr(బఫరు, CURL_IAC, nread)) {
     /* only use the escape buffer when necessary */
-    curlx_dyn_reset(&tn->out);
+    curlx_dyn_reset(&tn->బహిర్గతం);
 
-    for(i = 0; i < (size_t)nread && !result; i++) {
-      result = curlx_dyn_addn(&tn->out, &buffer[i], 1);
-      if(!result && ((unsigned char)buffer[i] == CURL_IAC))
+    కొరకు(i = 0; i < (size_t)nread && !ఫలితం; i++) {
+      ఫలితం = curlx_dyn_addn(&tn->బహిర్గతం, &బఫరు[i], 1);
+      ఒకవేళ(!ఫలితం && ((గుర్తులేని అక్షరం)బఫరు[i] == CURL_IAC))
         /* IAC is FF in hex */
-        result = curlx_dyn_addn(&tn->out, "\xff", 1);
+        ఫలితం = curlx_dyn_addn(&tn->బహిర్గతం, "\xff", 1);
     }
 
-    outlen = curlx_dyn_len(&tn->out);
-    outbuf = curlx_dyn_uptr(&tn->out);
+    outlen = curlx_dyn_len(&tn->బహిర్గతం);
+    outbuf = curlx_dyn_uptr(&tn->బహిర్గతం);
   }
-  else {
+  లేకపోతే {
     outlen = (size_t)nread;
-    outbuf = (const unsigned char *)buffer;
+    outbuf = (స్థిరరాశి గుర్తులేని అక్షరం *)బఫరు;
   }
-  while(!result && total_written < outlen) {
+  అయితే(!ఫలితం && మొత్తం_written < outlen) {
     /* Make sure socket is writable to avoid EWOULDBLOCK condition */
-    struct pollfd pfd[1];
-    timediff_t timeout_ms = Curl_timeleft_ms(data);
+    నిర్మాణం pollfd pfd[1];
+    timediff_t timeout_ms = Curl_timeleft_ms(దత్తాంశం);
     pfd[0].fd = conn->sock[FIRSTSOCKET];
     pfd[0].events = POLLOUT;
-    if(timeout_ms < 0)
-      return CURLE_OPERATION_TIMEDOUT;
+    ఒకవేళ(timeout_ms < 0)
+      తిరిగి CURLE_OPERATION_TIMEDOUT;
     /* 0 means no timeout configured; pass -1 to poll for infinite wait */
-    switch(Curl_poll(pfd, 1, timeout_ms ? timeout_ms : -1)) {
-    case -1:                    /* error, abort writing */
-      result = CURLE_SEND_ERROR;
-      break;
-    case 0:                     /* timeout */
-      result = CURLE_OPERATION_TIMEDOUT;
-      break;
-    default:                    /* write! */
-      bytes_written = 0;
-      result = Curl_xfer_send(data, outbuf + total_written,
-                              outlen - total_written, FALSE, &bytes_written);
-      total_written += bytes_written;
-      break;
+    ఎంపిక(Curl_poll(pfd, 1, timeout_ms ? timeout_ms : -1)) {
+    స్థితి -1:                    /* error, abort writing */
+      ఫలితం = CURLE_SEND_ERROR;
+      ఆపు;
+    స్థితి 0:                     /* timeout */
+      ఫలితం = CURLE_OPERATION_TIMEDOUT;
+      ఆపు;
+    అప్రమేయ:                    /* write! */
+      బైట్లు_written = 0;
+      ఫలితం = Curl_xfer_send(దత్తాంశం, outbuf + మొత్తం_written,
+                              outlen - మొత్తం_written, FALSE, &బైట్లు_written);
+      మొత్తం_written += బైట్లు_written;
+      ఆపు;
     }
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -668,16 +668,16 @@ static CURLcode send_telnet_data(struct Curl_easy *data,
  *
  * Send suboption information to the server side.
  */
-static void sendsuboption(struct Curl_easy *data,
-                          struct TELNET *tn, int option)
+స్థిర శూన్య sendsuboption(నిర్మాణం Curl_easy *దత్తాంశం,
+                          నిర్మాణం TELNET *tn, పూర్ణాంకం option)
 {
   size_t nwritten;
-  unsigned short x, y;
-  const unsigned char *uc1, *uc2;
-  CURLcode result;
+  గుర్తులేని పొట్టి x, y;
+  స్థిరరాశి గుర్తులేని అక్షరం *uc1, *uc2;
+  CURLcode ఫలితం;
 
-  switch(option) {
-  case CURL_TELOPT_NAWS:
+  ఎంపిక(option) {
+  స్థితి CURL_TELOPT_NAWS:
     /* We prepare data to be sent */
     CURL_SB_CLEAR(tn);
     CURL_SB_ACCUM(tn, CURL_IAC);
@@ -687,8 +687,8 @@ static void sendsuboption(struct Curl_easy *data,
     /* Window size must be sent according to the 'network order' */
     x = htons(tn->subopt_wsx);
     y = htons(tn->subopt_wsy);
-    uc1 = (const unsigned char *)&x;
-    uc2 = (const unsigned char *)&y;
+    uc1 = (స్థిరరాశి గుర్తులేని అక్షరం *)&x;
+    uc2 = (స్థిరరాశి గుర్తులేని అక్షరం *)&y;
     CURL_SB_ACCUM(tn, uc1[0]);
     CURL_SB_ACCUM(tn, uc1[1]);
     CURL_SB_ACCUM(tn, uc2[0]);
@@ -696,270 +696,270 @@ static void sendsuboption(struct Curl_easy *data,
 
     CURL_SB_ACCUM(tn, CURL_IAC);
     CURL_SB_ACCUM(tn, CURL_SE);
-    CURL_SB_TERM(tn);
+    CURL_SB_పదం(tn);
     /* data suboption is now ready */
 
-    printsub(data, '>', (const unsigned char *)tn->subbuffer + 2,
+    printsub(దత్తాంశం, '>', (స్థిరరాశి గుర్తులేని అక్షరం *)tn->subbuffer + 2,
              CURL_SB_LEN(tn) - 2);
 
     /* we send the header of the suboption... */
-    result = Curl_xfer_send(data, tn->subbuffer, 3, FALSE, &nwritten);
-    if(result)
-      failf(data, "Sending data failed: %s", curl_easy_strerror(result));
+    ఫలితం = Curl_xfer_send(దత్తాంశం, tn->subbuffer, 3, FALSE, &nwritten);
+    ఒకవేళ(ఫలితం)
+      failf(దత్తాంశం, "Sending data failed: %s", curl_easy_strerror(ఫలితం));
     /* ... then the window size with the send_telnet_data() function
        to deal with 0xFF cases ... */
-    send_telnet_data(data, tn, (const char *)tn->subbuffer + 3, 4);
+    send_telnet_దత్తాంశం(దత్తాంశం, tn, (స్థిరరాశి అక్షరం *)tn->subbuffer + 3, 4);
     /* ... and the footer */
-    result = Curl_xfer_send(data, tn->subbuffer + 7, 2, FALSE, &nwritten);
-    if(result)
-      failf(data, "Sending data failed: %s", curl_easy_strerror(result));
-    break;
+    ఫలితం = Curl_xfer_send(దత్తాంశం, tn->subbuffer + 7, 2, FALSE, &nwritten);
+    ఒకవేళ(ఫలితం)
+      failf(దత్తాంశం, "Sending data failed: %s", curl_easy_strerror(ఫలితం));
+    ఆపు;
   }
 }
 
-static void rec_do(struct Curl_easy *data, struct TELNET *tn, int option)
+స్థిర శూన్య rec_do(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం TELNET *tn, పూర్ణాంకం option)
 {
-  switch(tn->us[option]) {
-  case CURL_NO:
-    if(tn->us_preferred[option] == CURL_YES) {
+  ఎంపిక(tn->us[option]) {
+  స్థితి CURL_NO:
+    ఒకవేళ(tn->us_preferred[option] == CURL_YES) {
       tn->us[option] = CURL_YES;
-      send_negotiation(data, CURL_WILL, option);
-      if(tn->subnegotiation[option] == CURL_YES)
+      send_negotiation(దత్తాంశం, CURL_WILL, option);
+      ఒకవేళ(tn->subnegotiation[option] == CURL_YES)
         /* transmission of data option */
-        sendsuboption(data, tn, option);
+        sendsuboption(దత్తాంశం, tn, option);
     }
-    else if(tn->subnegotiation[option] == CURL_YES) {
+    లేకపోతే ఒకవేళ(tn->subnegotiation[option] == CURL_YES) {
       /* send information to achieve this option */
       tn->us[option] = CURL_YES;
-      send_negotiation(data, CURL_WILL, option);
-      sendsuboption(data, tn, option);
+      send_negotiation(దత్తాంశం, CURL_WILL, option);
+      sendsuboption(దత్తాంశం, tn, option);
     }
-    else
-      send_negotiation(data, CURL_WONT, option);
-    break;
+    లేకపోతే
+      send_negotiation(దత్తాంశం, CURL_WONT, option);
+    ఆపు;
 
-  case CURL_YES:
+  స్థితి CURL_YES:
     /* Already enabled */
-    break;
+    ఆపు;
 
-  case CURL_WANTNO:
-    switch(tn->usq[option]) {
-    case CURL_EMPTY:
+  స్థితి CURL_WANTNO:
+    ఎంపిక(tn->usq[option]) {
+    స్థితి CURL_ఖాళీలు:
       /* Error: DONT answered by WILL */
       tn->us[option] = CURL_NO;
-      break;
-    case CURL_OPPOSITE:
+      ఆపు;
+    స్థితి CURL_OPPOSITE:
       /* Error: DONT answered by WILL */
       tn->us[option] = CURL_YES;
-      tn->usq[option] = CURL_EMPTY;
-      break;
+      tn->usq[option] = CURL_ఖాళీలు;
+      ఆపు;
     }
-    break;
+    ఆపు;
 
-  case CURL_WANTYES:
-    switch(tn->usq[option]) {
-    case CURL_EMPTY:
+  స్థితి CURL_WANTYES:
+    ఎంపిక(tn->usq[option]) {
+    స్థితి CURL_ఖాళీలు:
       tn->us[option] = CURL_YES;
-      if(tn->subnegotiation[option] == CURL_YES) {
+      ఒకవేళ(tn->subnegotiation[option] == CURL_YES) {
         /* transmission of data option */
-        sendsuboption(data, tn, option);
+        sendsuboption(దత్తాంశం, tn, option);
       }
-      break;
-    case CURL_OPPOSITE:
+      ఆపు;
+    స్థితి CURL_OPPOSITE:
       tn->us[option] = CURL_WANTNO;
-      tn->usq[option] = CURL_EMPTY;
-      send_negotiation(data, CURL_WONT, option);
-      break;
+      tn->usq[option] = CURL_ఖాళీలు;
+      send_negotiation(దత్తాంశం, CURL_WONT, option);
+      ఆపు;
     }
-    break;
+    ఆపు;
   }
 }
 
-static void rec_dont(struct Curl_easy *data, struct TELNET *tn, int option)
+స్థిర శూన్య rec_dont(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం TELNET *tn, పూర్ణాంకం option)
 {
-  switch(tn->us[option]) {
-  case CURL_NO:
+  ఎంపిక(tn->us[option]) {
+  స్థితి CURL_NO:
     /* Already disabled */
-    break;
+    ఆపు;
 
-  case CURL_YES:
+  స్థితి CURL_YES:
     tn->us[option] = CURL_NO;
-    send_negotiation(data, CURL_WONT, option);
-    break;
+    send_negotiation(దత్తాంశం, CURL_WONT, option);
+    ఆపు;
 
-  case CURL_WANTNO:
-    switch(tn->usq[option]) {
-    case CURL_EMPTY:
+  స్థితి CURL_WANTNO:
+    ఎంపిక(tn->usq[option]) {
+    స్థితి CURL_ఖాళీలు:
       tn->us[option] = CURL_NO;
-      break;
+      ఆపు;
 
-    case CURL_OPPOSITE:
+    స్థితి CURL_OPPOSITE:
       tn->us[option] = CURL_WANTYES;
-      tn->usq[option] = CURL_EMPTY;
-      send_negotiation(data, CURL_WILL, option);
-      break;
+      tn->usq[option] = CURL_ఖాళీలు;
+      send_negotiation(దత్తాంశం, CURL_WILL, option);
+      ఆపు;
     }
-    break;
+    ఆపు;
 
-  case CURL_WANTYES:
-    switch(tn->usq[option]) {
-    case CURL_EMPTY:
+  స్థితి CURL_WANTYES:
+    ఎంపిక(tn->usq[option]) {
+    స్థితి CURL_ఖాళీలు:
       tn->us[option] = CURL_NO;
-      break;
-    case CURL_OPPOSITE:
+      ఆపు;
+    స్థితి CURL_OPPOSITE:
       tn->us[option] = CURL_NO;
-      tn->usq[option] = CURL_EMPTY;
-      break;
+      tn->usq[option] = CURL_ఖాళీలు;
+      ఆపు;
     }
-    break;
+    ఆపు;
   }
 }
 
-static bool str_is_nonascii(const char *str)
+స్థిర bool str_is_nonascii(స్థిరరాశి అక్షరం *str)
 {
-  char c;
-  while((c = *str++) != 0)
-    if(c & 0x80)
-      return TRUE;
+  అక్షరం c;
+  అయితే((c = *str++) != 0)
+    ఒకవేళ(c & 0x80)
+      తిరిగి TRUE;
 
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static CURLcode check_telnet_options(struct Curl_easy *data,
-                                     struct TELNET *tn)
+స్థిర CURLcode check_telnet_options(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం TELNET *tn)
 {
-  struct curl_slist *head;
-  struct curl_slist *beg;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం curl_slist *తల;
+  నిర్మాణం curl_slist *beg;
+  CURLcode ఫలితం = CURLE_OK;
 
   /* Add the username as an environment variable if it
      was given on the command line */
-  if(data->state.creds) {
-    char buffer[256];
-    if(str_is_nonascii(Curl_creds_user(data->conn->creds))) {
-      DEBUGF(infof(data, "set a non ASCII username in telnet"));
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(దత్తాంశం->state.creds) {
+    అక్షరం బఫరు[256];
+    ఒకవేళ(str_is_nonascii(Curl_creds_user(దత్తాంశం->conn->creds))) {
+      DEBUGF(infof(దత్తాంశం, "set a non ASCII username in telnet"));
+      తిరిగి CURLE_BAD_FUNCTION_వాదం;
     }
-    curl_msnprintf(buffer, sizeof(buffer), "USER,%s",
-                   Curl_creds_user(data->conn->creds));
-    beg = curl_slist_append(tn->telnet_vars, buffer);
-    if(!beg) {
+    curl_msnprintf(బఫరు, పరిమాణం(బఫరు), "USER,%s",
+                   Curl_creds_user(దత్తాంశం->conn->creds));
+    beg = curl_slist_append(tn->telnet_vars, బఫరు);
+    ఒకవేళ(!beg) {
       curl_slist_free_all(tn->telnet_vars);
-      tn->telnet_vars = NULL;
-      return CURLE_OUT_OF_MEMORY;
+      tn->telnet_vars = ఖాళీ;
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
     tn->telnet_vars = beg;
     tn->us_preferred[CURL_TELOPT_NEW_ENVIRON] = CURL_YES;
   }
 
-  for(head = data->set.telnet_options; head && !result; head = head->next) {
+  కొరకు(తల = దత్తాంశం->సమితి.telnet_options; తల && !ఫలితం; తల = తల->తదుపరి) {
     size_t olen;
-    const char *option = head->data;
-    const char *arg;
-    const char *sep = strchr(option, '=');
-    if(sep) {
+    స్థిరరాశి అక్షరం *option = తల->దత్తాంశం;
+    స్థిరరాశి అక్షరం *arg;
+    స్థిరరాశి అక్షరం *sep = strchr(option, '=');
+    ఒకవేళ(sep) {
       olen = sep - option;
       arg = ++sep;
-      if(str_is_nonascii(arg))
-        continue;
-      switch(olen) {
-      case 5:
+      ఒకవేళ(str_is_nonascii(arg))
+        కొనసాగు;
+      ఎంపిక(olen) {
+      స్థితి 5:
         /* Terminal type */
-        if(curl_strnequal(option, "TTYPE", 5)) {
+        ఒకవేళ(curl_strnequal(option, "TTYPE", 5)) {
           tn->subopt_ttype = arg;
           tn->us_preferred[CURL_TELOPT_TTYPE] = CURL_YES;
-          break;
+          ఆపు;
         }
-        result = CURLE_UNKNOWN_OPTION;
-        break;
+        ఫలితం = CURLE_UNKNOWN_OPTION;
+        ఆపు;
 
-      case 8:
+      స్థితి 8:
         /* Display variable */
-        if(curl_strnequal(option, "XDISPLOC", 8)) {
+        ఒకవేళ(curl_strnequal(option, "XDISPLOC", 8)) {
           tn->subopt_xdisploc = arg;
           tn->us_preferred[CURL_TELOPT_XDISPLOC] = CURL_YES;
-          break;
+          ఆపు;
         }
-        result = CURLE_UNKNOWN_OPTION;
-        break;
+        ఫలితం = CURLE_UNKNOWN_OPTION;
+        ఆపు;
 
-      case 7:
+      స్థితి 7:
         /* Environment variable */
-        if(curl_strnequal(option, "NEW_ENV", 7)) {
+        ఒకవేళ(curl_strnequal(option, "NEW_ENV", 7)) {
           beg = curl_slist_append(tn->telnet_vars, arg);
-          if(!beg) {
-            result = CURLE_OUT_OF_MEMORY;
-            break;
+          ఒకవేళ(!beg) {
+            ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+            ఆపు;
           }
           tn->telnet_vars = beg;
           tn->us_preferred[CURL_TELOPT_NEW_ENVIRON] = CURL_YES;
         }
-        else
-          result = CURLE_UNKNOWN_OPTION;
-        break;
+        లేకపోతే
+          ఫలితం = CURLE_UNKNOWN_OPTION;
+        ఆపు;
 
-      case 2:
+      స్థితి 2:
         /* Window Size */
-        if(curl_strnequal(option, "WS", 2)) {
-          const char *p = arg;
+        ఒకవేళ(curl_strnequal(option, "WS", 2)) {
+          స్థిరరాశి అక్షరం *p = arg;
           curl_off_t x = 0;
           curl_off_t y = 0;
-          if(curlx_str_number(&p, &x, 0xffff) ||
+          ఒకవేళ(curlx_str_సంఖ్య(&p, &x, 0xffff) ||
              curlx_str_single(&p, 'x') ||
-             curlx_str_number(&p, &y, 0xffff)) {
-            failf(data, "Syntax error in telnet option: %s", head->data);
-            result = CURLE_SETOPT_OPTION_SYNTAX;
+             curlx_str_సంఖ్య(&p, &y, 0xffff)) {
+            failf(దత్తాంశం, "Syntax error in telnet option: %s", తల->దత్తాంశం);
+            ఫలితం = CURLE_SETOPT_OPTION_SYNTAX;
           }
-          else {
-            tn->subopt_wsx = (unsigned short)x;
-            tn->subopt_wsy = (unsigned short)y;
+          లేకపోతే {
+            tn->subopt_wsx = (గుర్తులేని పొట్టి)x;
+            tn->subopt_wsy = (గుర్తులేని పొట్టి)y;
             tn->us_preferred[CURL_TELOPT_NAWS] = CURL_YES;
           }
         }
-        else
-          result = CURLE_UNKNOWN_OPTION;
-        break;
+        లేకపోతే
+          ఫలితం = CURLE_UNKNOWN_OPTION;
+        ఆపు;
 
-      case 6:
+      స్థితి 6:
         /* To take care or not of the 8th bit in data exchange */
-        if(curl_strnequal(option, "BINARY", 6)) {
-          const char *p = arg;
-          curl_off_t binary_option;
-          if(!curlx_str_number(&p, &binary_option, 1) &&
-             (binary_option != 1)) {
-            tn->us_preferred[CURL_TELOPT_BINARY] = CURL_NO;
-            tn->him_preferred[CURL_TELOPT_BINARY] = CURL_NO;
+        ఒకవేళ(curl_strnequal(option, "BINARY", 6)) {
+          స్థిరరాశి అక్షరం *p = arg;
+          curl_off_t ద్విమాన_option;
+          ఒకవేళ(!curlx_str_సంఖ్య(&p, &ద్విమాన_option, 1) &&
+             (ద్విమాన_option != 1)) {
+            tn->us_preferred[CURL_TELOPT_ద్విమాన] = CURL_NO;
+            tn->him_preferred[CURL_TELOPT_ద్విమాన] = CURL_NO;
           }
         }
-        else
-          result = CURLE_UNKNOWN_OPTION;
-        break;
-      default:
-        failf(data, "Unknown telnet option %s", head->data);
-        result = CURLE_UNKNOWN_OPTION;
-        break;
+        లేకపోతే
+          ఫలితం = CURLE_UNKNOWN_OPTION;
+        ఆపు;
+      అప్రమేయ:
+        failf(దత్తాంశం, "Unknown telnet option %s", తల->దత్తాంశం);
+        ఫలితం = CURLE_UNKNOWN_OPTION;
+        ఆపు;
       }
     }
-    else {
-      failf(data, "Syntax error in telnet option: %s", head->data);
-      result = CURLE_SETOPT_OPTION_SYNTAX;
+    లేకపోతే {
+      failf(దత్తాంశం, "Syntax error in telnet option: %s", తల->దత్తాంశం);
+      ఫలితం = CURLE_SETOPT_OPTION_SYNTAX;
     }
   }
 
-  if(result) {
+  ఒకవేళ(ఫలితం) {
     curl_slist_free_all(tn->telnet_vars);
-    tn->telnet_vars = NULL;
+    tn->telnet_vars = ఖాళీ;
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* if the option contains an IAC code, it should be escaped in the output, but
    as we cannot think of any legit way to send that as part of the content we
    rather ban its use instead */
-static bool bad_option(const char *data)
+స్థిర bool bad_option(స్థిరరాశి అక్షరం *దత్తాంశం)
 {
-  return !data || !!strchr(data, CURL_IAC);
+  తిరిగి !దత్తాంశం || !!strchr(దత్తాంశం, CURL_IAC);
 }
 
 /*
@@ -968,293 +968,293 @@ static bool bad_option(const char *data)
  * Look at the sub-option buffer, and try to be helpful to the other
  * side.
  */
-static CURLcode suboption(struct Curl_easy *data, struct TELNET *tn)
+స్థిర CURLcode suboption(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం TELNET *tn)
 {
-  struct curl_slist *v;
-  unsigned char temp[2048];
+  నిర్మాణం curl_slist *v;
+  గుర్తులేని అక్షరం తాత్కాలిక[2048];
   size_t nwritten;
   size_t len;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!CURL_SB_LEN(tn)) /* ignore empty suboption */
-    return CURLE_OK;
+  ఒకవేళ(!CURL_SB_LEN(tn)) /* ignore empty suboption */
+    తిరిగి CURLE_OK;
 
-  printsub(data, '<', (const unsigned char *)tn->subbuffer,
+  printsub(దత్తాంశం, '<', (స్థిరరాశి గుర్తులేని అక్షరం *)tn->subbuffer,
            CURL_SB_LEN(tn) + 2);
-  switch(CURL_SB_GET(tn)) {
-  case CURL_TELOPT_TTYPE:
-    if(bad_option(tn->subopt_ttype))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(strlen(tn->subopt_ttype) > 1000) {
-      failf(data, "Too long telnet TTYPE");
-      return CURLE_SEND_ERROR;
+  ఎంపిక(CURL_SB_GET(tn)) {
+  స్థితి CURL_TELOPT_TTYPE:
+    ఒకవేళ(bad_option(tn->subopt_ttype))
+      తిరిగి CURLE_BAD_FUNCTION_వాదం;
+    ఒకవేళ(అక్షరశ్రేణి_పొడవు(tn->subopt_ttype) > 1000) {
+      failf(దత్తాంశం, "Too long telnet TTYPE");
+      తిరిగి CURLE_SEND_ERROR;
     }
-    len = curl_msnprintf((char *)temp, sizeof(temp), "%c%c%c%c%s%c%c",
+    len = curl_msnprintf((అక్షరం *)తాత్కాలిక, పరిమాణం(తాత్కాలిక), "%c%c%c%c%s%c%c",
                          CURL_IAC, CURL_SB, CURL_TELOPT_TTYPE,
                          CURL_TELQUAL_IS, tn->subopt_ttype, CURL_IAC,
                          CURL_SE);
-    result = Curl_xfer_send(data, temp, len, FALSE, &nwritten);
-    if(result) {
-      failf(data, "Sending data failed: %s", curl_easy_strerror(result));
-      return result;
+    ఫలితం = Curl_xfer_send(దత్తాంశం, తాత్కాలిక, len, FALSE, &nwritten);
+    ఒకవేళ(ఫలితం) {
+      failf(దత్తాంశం, "Sending data failed: %s", curl_easy_strerror(ఫలితం));
+      తిరిగి ఫలితం;
     }
-    printsub(data, '>', &temp[2], len-2);
-    break;
-  case CURL_TELOPT_XDISPLOC:
-    if(bad_option(tn->subopt_xdisploc))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(strlen(tn->subopt_xdisploc) > 1000) {
-      failf(data, "Too long telnet XDISPLOC");
-      return CURLE_SEND_ERROR;
+    printsub(దత్తాంశం, '>', &తాత్కాలిక[2], len-2);
+    ఆపు;
+  స్థితి CURL_TELOPT_XDISPLOC:
+    ఒకవేళ(bad_option(tn->subopt_xdisploc))
+      తిరిగి CURLE_BAD_FUNCTION_వాదం;
+    ఒకవేళ(అక్షరశ్రేణి_పొడవు(tn->subopt_xdisploc) > 1000) {
+      failf(దత్తాంశం, "Too long telnet XDISPLOC");
+      తిరిగి CURLE_SEND_ERROR;
     }
-    len = curl_msnprintf((char *)temp, sizeof(temp), "%c%c%c%c%s%c%c",
+    len = curl_msnprintf((అక్షరం *)తాత్కాలిక, పరిమాణం(తాత్కాలిక), "%c%c%c%c%s%c%c",
                          CURL_IAC, CURL_SB, CURL_TELOPT_XDISPLOC,
                          CURL_TELQUAL_IS, tn->subopt_xdisploc, CURL_IAC,
                          CURL_SE);
-    result = Curl_xfer_send(data, temp, len, FALSE, &nwritten);
-    if(result) {
-      failf(data, "Sending data failed: %s", curl_easy_strerror(result));
-      return result;
+    ఫలితం = Curl_xfer_send(దత్తాంశం, తాత్కాలిక, len, FALSE, &nwritten);
+    ఒకవేళ(ఫలితం) {
+      failf(దత్తాంశం, "Sending data failed: %s", curl_easy_strerror(ఫలితం));
+      తిరిగి ఫలితం;
     }
-    printsub(data, '>', &temp[2], len - 2);
-    break;
-  case CURL_TELOPT_NEW_ENVIRON:
-    len = curl_msnprintf((char *)temp, sizeof(temp), "%c%c%c%c",
+    printsub(దత్తాంశం, '>', &తాత్కాలిక[2], len - 2);
+    ఆపు;
+  స్థితి CURL_TELOPT_NEW_ENVIRON:
+    len = curl_msnprintf((అక్షరం *)తాత్కాలిక, పరిమాణం(తాత్కాలిక), "%c%c%c%c",
                          CURL_IAC, CURL_SB, CURL_TELOPT_NEW_ENVIRON,
                          CURL_TELQUAL_IS);
-    for(v = tn->telnet_vars; v; v = v->next) {
-      size_t tmplen = (strlen(v->data) + 1);
-      if(bad_option(v->data))
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+    కొరకు(v = tn->telnet_vars; v; v = v->తదుపరి) {
+      size_t tmplen = (అక్షరశ్రేణి_పొడవు(v->దత్తాంశం) + 1);
+      ఒకవేళ(bad_option(v->దత్తాంశం))
+        తిరిగి CURLE_BAD_FUNCTION_వాదం;
       /* Add the variable if it fits */
-      if(len + tmplen < sizeof(temp) - 6) {
-        const char *s = strchr(v->data, ',');
-        if(!s)
-          len += curl_msnprintf((char *)&temp[len], sizeof(temp) - len,
-                                "%c%s", CURL_NEW_ENV_VAR, v->data);
-        else {
-          size_t vlen = s - v->data;
-          len += curl_msnprintf((char *)&temp[len], sizeof(temp) - len,
+      ఒకవేళ(len + tmplen < పరిమాణం(తాత్కాలిక) - 6) {
+        స్థిరరాశి అక్షరం *s = strchr(v->దత్తాంశం, ',');
+        ఒకవేళ(!s)
+          len += curl_msnprintf((అక్షరం *)&తాత్కాలిక[len], పరిమాణం(తాత్కాలిక) - len,
+                                "%c%s", CURL_NEW_ENV_VAR, v->దత్తాంశం);
+        లేకపోతే {
+          size_t vlen = s - v->దత్తాంశం;
+          len += curl_msnprintf((అక్షరం *)&తాత్కాలిక[len], పరిమాణం(తాత్కాలిక) - len,
                                 "%c%.*s%c%s", CURL_NEW_ENV_VAR,
-                                (int)vlen, v->data, CURL_NEW_ENV_VALUE, ++s);
+                                (పూర్ణాంకం)vlen, v->దత్తాంశం, CURL_NEW_ENV_విలువ, ++s);
         }
       }
     }
-    curl_msnprintf((char *)&temp[len], sizeof(temp) - len,
+    curl_msnprintf((అక్షరం *)&తాత్కాలిక[len], పరిమాణం(తాత్కాలిక) - len,
                    "%c%c", CURL_IAC, CURL_SE);
     len += 2;
-    result = Curl_xfer_send(data, temp, len, FALSE, &nwritten);
-    if(result) {
-      failf(data, "Sending data failed: %s", curl_easy_strerror(result));
-      return result;
+    ఫలితం = Curl_xfer_send(దత్తాంశం, తాత్కాలిక, len, FALSE, &nwritten);
+    ఒకవేళ(ఫలితం) {
+      failf(దత్తాంశం, "Sending data failed: %s", curl_easy_strerror(ఫలితం));
+      తిరిగి ఫలితం;
     }
-    printsub(data, '>', &temp[2], len - 2);
-    break;
+    printsub(దత్తాంశం, '>', &తాత్కాలిక[2], len - 2);
+    ఆపు;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode telrcv(struct Curl_easy *data,
-                       struct TELNET *tn,
-                       const unsigned char *inbuf, /* Data received from
+స్థిర CURLcode telrcv(నిర్మాణం Curl_easy *దత్తాంశం,
+                       నిర్మాణం TELNET *tn,
+                       స్థిరరాశి గుర్తులేని అక్షరం *inbuf, /* Data received from
                                                       socket */
-                       ssize_t count)              /* Number of bytes
+                       ssize_t లెక్క)              /* Number of bytes
                                                       received */
 {
-  unsigned char c;
-  CURLcode result;
-  int in = 0;
-  int startwrite = -1;
+  గుర్తులేని అక్షరం c;
+  CURLcode ఫలితం;
+  పూర్ణాంకం లోపల = 0;
+  పూర్ణాంకం startwrite = -1;
 
-#define startskipping()                                          \
-  if(startwrite >= 0) {                                          \
-    result = Curl_client_write(data,                             \
+#నిర్వచించు startskipping()                                          \
+  ఒకవేళ(startwrite >= 0) {                                          \
+    ఫలితం = Curl_client_write(దత్తాంశం,                             \
                                CLIENTWRITE_BODY,                 \
-                               (const char *)&inbuf[startwrite], \
-                               in-startwrite);                   \
-    if(result)                                                   \
-      return result;                                             \
+                               (స్థిరరాశి అక్షరం *)&inbuf[startwrite], \
+                               లోపల-startwrite);                   \
+    ఒకవేళ(ఫలితం)                                                   \
+      తిరిగి ఫలితం;                                             \
   }                                                              \
   startwrite = -1
 
-#define writebyte()  \
-  if(startwrite < 0) \
-    startwrite = in
+#నిర్వచించు writebyte()  \
+  ఒకవేళ(startwrite < 0) \
+    startwrite = లోపల
 
-#define bufferflush() startskipping()
+#నిర్వచించు bufferflush() startskipping()
 
-  while(count--) {
-    c = inbuf[in];
+  అయితే(లెక్క--) {
+    c = inbuf[లోపల];
 
-    switch(tn->telrcv_state) {
-    case CURL_TS_CR:
-      tn->telrcv_state = CURL_TS_DATA;
-      if(c == '\0') {
+    ఎంపిక(tn->telrcv_state) {
+    స్థితి CURL_TS_CR:
+      tn->telrcv_state = CURL_TS_దత్తాంశం;
+      ఒకవేళ(c == '\0') {
         startskipping();
-        break;   /* Ignore \0 after CR */
+        ఆపు;   /* Ignore \0 after CR */
       }
       writebyte();
-      break;
+      ఆపు;
 
-    case CURL_TS_DATA:
-      if(c == CURL_IAC) {
+    స్థితి CURL_TS_దత్తాంశం:
+      ఒకవేళ(c == CURL_IAC) {
         tn->telrcv_state = CURL_TS_IAC;
         startskipping();
-        break;
+        ఆపు;
       }
-      else if(c == '\r')
+      లేకపోతే ఒకవేళ(c == '\r')
         tn->telrcv_state = CURL_TS_CR;
       writebyte();
-      break;
+      ఆపు;
 
-    case CURL_TS_IAC:
+    స్థితి CURL_TS_IAC:
       DEBUGASSERT(startwrite < 0);
-      switch(c) {
-      case CURL_WILL:
+      ఎంపిక(c) {
+      స్థితి CURL_WILL:
         tn->telrcv_state = CURL_TS_WILL;
-        break;
-      case CURL_WONT:
+        ఆపు;
+      స్థితి CURL_WONT:
         tn->telrcv_state = CURL_TS_WONT;
-        break;
-      case CURL_DO:
+        ఆపు;
+      స్థితి CURL_DO:
         tn->telrcv_state = CURL_TS_DO;
-        break;
-      case CURL_DONT:
+        ఆపు;
+      స్థితి CURL_DONT:
         tn->telrcv_state = CURL_TS_DONT;
-        break;
-      case CURL_SB:
+        ఆపు;
+      స్థితి CURL_SB:
         CURL_SB_CLEAR(tn);
         tn->telrcv_state = CURL_TS_SB;
-        break;
-      case CURL_IAC:
-        tn->telrcv_state = CURL_TS_DATA;
+        ఆపు;
+      స్థితి CURL_IAC:
+        tn->telrcv_state = CURL_TS_దత్తాంశం;
         writebyte();
-        break;
-      case CURL_DM:
-      case CURL_NOP:
-      case CURL_GA:
-      default:
-        tn->telrcv_state = CURL_TS_DATA;
-        printoption(data, "RCVD", CURL_IAC, c);
-        break;
+        ఆపు;
+      స్థితి CURL_DM:
+      స్థితి CURL_NOP:
+      స్థితి CURL_GA:
+      అప్రమేయ:
+        tn->telrcv_state = CURL_TS_దత్తాంశం;
+        printoption(దత్తాంశం, "RCVD", CURL_IAC, c);
+        ఆపు;
       }
-      break;
+      ఆపు;
 
-    case CURL_TS_WILL:
-      printoption(data, "RCVD", CURL_WILL, c);
+    స్థితి CURL_TS_WILL:
+      printoption(దత్తాంశం, "RCVD", CURL_WILL, c);
       tn->please_negotiate = 1;
-      rec_will(data, tn, c);
-      tn->telrcv_state = CURL_TS_DATA;
-      break;
+      rec_will(దత్తాంశం, tn, c);
+      tn->telrcv_state = CURL_TS_దత్తాంశం;
+      ఆపు;
 
-    case CURL_TS_WONT:
-      printoption(data, "RCVD", CURL_WONT, c);
+    స్థితి CURL_TS_WONT:
+      printoption(దత్తాంశం, "RCVD", CURL_WONT, c);
       tn->please_negotiate = 1;
-      rec_wont(data, tn, c);
-      tn->telrcv_state = CURL_TS_DATA;
-      break;
+      rec_wont(దత్తాంశం, tn, c);
+      tn->telrcv_state = CURL_TS_దత్తాంశం;
+      ఆపు;
 
-    case CURL_TS_DO:
-      printoption(data, "RCVD", CURL_DO, c);
+    స్థితి CURL_TS_DO:
+      printoption(దత్తాంశం, "RCVD", CURL_DO, c);
       tn->please_negotiate = 1;
-      rec_do(data, tn, c);
-      tn->telrcv_state = CURL_TS_DATA;
-      break;
+      rec_do(దత్తాంశం, tn, c);
+      tn->telrcv_state = CURL_TS_దత్తాంశం;
+      ఆపు;
 
-    case CURL_TS_DONT:
-      printoption(data, "RCVD", CURL_DONT, c);
+    స్థితి CURL_TS_DONT:
+      printoption(దత్తాంశం, "RCVD", CURL_DONT, c);
       tn->please_negotiate = 1;
-      rec_dont(data, tn, c);
-      tn->telrcv_state = CURL_TS_DATA;
-      break;
+      rec_dont(దత్తాంశం, tn, c);
+      tn->telrcv_state = CURL_TS_దత్తాంశం;
+      ఆపు;
 
-    case CURL_TS_SB:
-      if(c == CURL_IAC)
+    స్థితి CURL_TS_SB:
+      ఒకవేళ(c == CURL_IAC)
         tn->telrcv_state = CURL_TS_SE;
-      else
+      లేకపోతే
         CURL_SB_ACCUM(tn, c);
-      break;
+      ఆపు;
 
-    case CURL_TS_SE:
-      if(c != CURL_SE) {
-        if(c != CURL_IAC) {
+    స్థితి CURL_TS_SE:
+      ఒకవేళ(c != CURL_SE) {
+        ఒకవేళ(c != CURL_IAC) {
           /*
            * This is an error. We only expect to get "IAC IAC" or "IAC SE".
            * Several things may have happened. An IAC was not doubled, the IAC
            * SE was left off, or another option got inserted into the
            * suboption are all possibilities.
            */
-          failf(data, "telnet: suboption error");
-          return CURLE_RECV_ERROR;
+          failf(దత్తాంశం, "telnet: suboption error");
+          తిరిగి CURLE_RECV_ERROR;
         }
         CURL_SB_ACCUM(tn, c);
         tn->telrcv_state = CURL_TS_SB;
       }
-      else {
+      లేకపోతే {
         CURL_SB_ACCUM(tn, CURL_IAC);
         CURL_SB_ACCUM(tn, CURL_SE);
         tn->subpointer -= 2;
-        CURL_SB_TERM(tn);
-        result = suboption(data, tn);   /* handle sub-option */
-        if(result)
-          return result;
-        tn->telrcv_state = CURL_TS_DATA;
+        CURL_SB_పదం(tn);
+        ఫలితం = suboption(దత్తాంశం, tn);   /* handle sub-option */
+        ఒకవేళ(ఫలితం)
+          తిరిగి ఫలితం;
+        tn->telrcv_state = CURL_TS_దత్తాంశం;
       }
-      break;
+      ఆపు;
     }
-    ++in;
+    ++లోపల;
   }
   bufferflush();
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode telnet_done(struct Curl_easy *data,
-                            CURLcode status, bool premature)
+స్థిర CURLcode telnet_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం,
+                            CURLcode స్థితి_2, bool premature)
 {
-  (void)status;
-  (void)premature;
-  Curl_meta_remove(data, CURL_META_TELNET_EASY);
-  return CURLE_OK;
+  (శూన్య)స్థితి_2;
+  (శూన్య)premature;
+  Curl_meta_remove(దత్తాంశం, CURL_META_TELNET_EASY);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode telnet_do(struct Curl_easy *data, bool *done)
+స్థిర CURLcode telnet_do(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  CURLcode result;
-  struct connectdata *conn = data->conn;
+  CURLcode ఫలితం;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
   curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
-#ifdef USE_WINSOCK
+#నిర్వచితమైతే USE_WINSOCK
   WSAEVENT event_handle;
   WSANETWORKEVENTS events;
   HANDLE stdin_handle;
   HANDLE objs[2];
-  DWORD obj_count;
+  DWORD obj_లెక్క;
   DWORD wait_timeout;
   DWORD readfile_read;
-#else
+#లేకపోతే
   timediff_t interval_ms;
-  struct pollfd pfd[2];
-  int poll_cnt;
+  నిర్మాణం pollfd pfd[2];
+  పూర్ణాంకం poll_cnt;
   ssize_t snread;
-#endif
+#అయితే_ముగింపు
   bool keepon = TRUE;
-  char buffer[4 * 1024];
-  struct TELNET *tn;
+  అక్షరం బఫరు[4 * 1024];
+  నిర్మాణం TELNET *tn;
 
-  *done = TRUE; /* unconditionally */
+  *పూర్తి = TRUE; /* unconditionally */
 
-  result = init_telnet(data);
-  if(result)
-    return result;
+  ఫలితం = init_telnet(దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  tn = Curl_meta_get(data, CURL_META_TELNET_EASY);
-  if(!tn)
-    return CURLE_FAILED_INIT;
+  tn = Curl_meta_get(దత్తాంశం, CURL_META_TELNET_EASY);
+  ఒకవేళ(!tn)
+    తిరిగి CURLE_FAILED_INIT;
 
-  result = check_telnet_options(data, tn);
-  if(result)
-    return result;
+  ఫలితం = check_telnet_options(దత్తాంశం, tn);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-#ifdef USE_WINSOCK
+#నిర్వచితమైతే USE_WINSOCK
   /* We want to wait for both stdin and the socket. Since
    * the select() function in Winsock only works on sockets
    * we have to use the WaitForMultipleObjects() call.
@@ -1262,19 +1262,19 @@ static CURLcode telnet_do(struct Curl_easy *data, bool *done)
 
   /* First, create a sockets event object */
   event_handle = WSACreateEvent();
-  if(event_handle == WSA_INVALID_EVENT) {
-    failf(data, "WSACreateEvent failed (%d)", SOCKERRNO);
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(event_handle == WSA_INVALID_EVENT) {
+    failf(దత్తాంశం, "WSACreateEvent failed (%d)", SOCKERRNO);
+    తిరిగి CURLE_FAILED_INIT;
   }
 
   /* Tell Winsock what events we want to listen to */
-  if(WSAEventSelect(sockfd, event_handle, FD_READ | FD_CLOSE)) {
+  ఒకవేళ(WSAEventSelect(sockfd, event_handle, FD_READ | FD_CLOSE)) {
     WSACloseEvent(event_handle);
-    return CURLE_RECV_ERROR;
+    తిరిగి CURLE_RECV_ERROR;
   }
 
   /* Then get the Windows file handle for stdin */
-  stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+  stdin_handle = GetStdHandle(STD_ఆదానం_HANDLE);
 
   /* Create the list of objects to wait for */
   objs[0] = event_handle;
@@ -1282,288 +1282,288 @@ static CURLcode telnet_do(struct Curl_easy *data, bool *done)
 
   /* If stdin_handle is a pipe, use PeekNamedPipe() method to check it,
      else use the old WaitForMultipleObjects() way */
-  if(GetFileType(stdin_handle) == FILE_TYPE_PIPE || data->set.is_fread_set) {
+  ఒకవేళ(GetFileType(stdin_handle) == FILE_TYPE_PIPE || దత్తాంశం->సమితి.is_fread_సమితి) {
     /* Do not wait for stdin_handle, wait for event_handle */
-    obj_count = 1;
+    obj_లెక్క = 1;
     /* Check stdin_handle per 100 milliseconds */
     wait_timeout = 100;
   }
-  else {
-    obj_count = 2;
+  లేకపోతే {
+    obj_లెక్క = 2;
     wait_timeout = 1000;
   }
 
   /* Keep on listening and act on events */
-  while(keepon) {
-    const DWORD buf_size = (DWORD)sizeof(buffer);
-    DWORD waitret = WaitForMultipleObjects(obj_count, objs,
+  అయితే(keepon) {
+    స్థిరరాశి DWORD buf_కొలత = (DWORD)పరిమాణం(బఫరు);
+    DWORD waitret = Wait_For_గుణిజం_Objects(obj_లెక్క, objs,
                                            FALSE, wait_timeout);
-    switch(waitret) {
+    ఎంపిక(waitret) {
 
-    case WAIT_TIMEOUT: {
-      for(;;) {
-        if(data->set.is_fread_set) {
+    స్థితి WAIT_TIMEOUT: {
+      కొరకు(;;) {
+        ఒకవేళ(దత్తాంశం->సమితి.is_fread_సమితి) {
           size_t n;
           /* read from user-supplied method */
-          n = data->state.fread_func(buffer, 1, buf_size, data->state.in);
-          if(n == CURL_READFUNC_ABORT) {
-            failf(data, "operation aborted by callback");
+          n = దత్తాంశం->state.fread_func(బఫరు, 1, buf_కొలత, దత్తాంశం->state.లోపల);
+          ఒకవేళ(n == CURL_READFUNC_ABORT) {
+            failf(దత్తాంశం, "operation aborted by callback");
             keepon = FALSE;
-            result = CURLE_ABORTED_BY_CALLBACK;
-            break;
+            ఫలితం = CURLE_ABORTED_BY_CALLBACK;
+            ఆపు;
           }
 
-          if(n == CURL_READFUNC_PAUSE)
-            break;
+          ఒకవేళ(n == CURL_READFUNC_PAUSE)
+            ఆపు;
 
-          if(n == 0)                        /* no bytes */
-            break;
+          ఒకవేళ(n == 0)                        /* no bytes */
+            ఆపు;
 
           /* fall through with number of bytes read */
           readfile_read = (DWORD)n;
         }
-        else {
+        లేకపోతే {
           /* read from stdin */
-          if(!PeekNamedPipe(stdin_handle, NULL, 0, NULL,
-                            &readfile_read, NULL)) {
+          ఒకవేళ(!PeekNamedPipe(stdin_handle, ఖాళీ, 0, ఖాళీ,
+                            &readfile_read, ఖాళీ)) {
             keepon = FALSE;
-            result = CURLE_READ_ERROR;
-            break;
+            ఫలితం = CURLE_READ_ERROR;
+            ఆపు;
           }
 
-          if(!readfile_read)
-            break;
+          ఒకవేళ(!readfile_read)
+            ఆపు;
 
-          if(!ReadFile(stdin_handle, buffer, buf_size, &readfile_read, NULL)) {
+          ఒకవేళ(!ReadFile(stdin_handle, బఫరు, buf_కొలత, &readfile_read, ఖాళీ)) {
             keepon = FALSE;
-            result = CURLE_READ_ERROR;
-            break;
+            ఫలితం = CURLE_READ_ERROR;
+            ఆపు;
           }
         }
 
-        result = send_telnet_data(data, tn, buffer, readfile_read);
-        if(result) {
+        ఫలితం = send_telnet_దత్తాంశం(దత్తాంశం, tn, బఫరు, readfile_read);
+        ఒకవేళ(ఫలితం) {
           keepon = FALSE;
-          break;
+          ఆపు;
         }
       }
     }
-    break;
+    ఆపు;
 
-    case WAIT_OBJECT_0 + 1: {
-      if(!ReadFile(stdin_handle, buffer, buf_size, &readfile_read, NULL)) {
+    స్థితి WAIT_OBJECT_0 + 1: {
+      ఒకవేళ(!ReadFile(stdin_handle, బఫరు, buf_కొలత, &readfile_read, ఖాళీ)) {
         keepon = FALSE;
-        result = CURLE_READ_ERROR;
-        break;
+        ఫలితం = CURLE_READ_ERROR;
+        ఆపు;
       }
 
-      result = send_telnet_data(data, tn, buffer, readfile_read);
-      if(result) {
+      ఫలితం = send_telnet_దత్తాంశం(దత్తాంశం, tn, బఫరు, readfile_read);
+      ఒకవేళ(ఫలితం) {
         keepon = FALSE;
-        break;
+        ఆపు;
       }
     }
-    break;
+    ఆపు;
 
-    case WAIT_OBJECT_0: {
-      events.lNetworkEvents = 0;
-      if(WSAEnumNetworkEvents(sockfd, event_handle, &events) != 0) {
-        int sockerr = SOCKERRNO;
-        if(sockerr != SOCKEINPROGRESS) {
-          infof(data, "WSAEnumNetworkEvents failed (%d)", sockerr);
+    స్థితి WAIT_OBJECT_0: {
+      events.l_జాలం_Events = 0;
+      ఒకవేళ(WSAEnum_జాలం_Events(sockfd, event_handle, &events) != 0) {
+        పూర్ణాంకం sockerr = SOCKERRNO;
+        ఒకవేళ(sockerr != SOCKEINPROGRESS) {
+          infof(దత్తాంశం, "WSAEnumNetworkEvents failed (%d)", sockerr);
           keepon = FALSE;
-          result = CURLE_READ_ERROR;
+          ఫలితం = CURLE_READ_ERROR;
         }
-        break;
+        ఆపు;
       }
-      if(events.lNetworkEvents & FD_READ) {
+      ఒకవేళ(events.l_జాలం_Events & FD_READ) {
         /* read data from network */
         size_t nread;
-        result = Curl_xfer_recv(data, buffer, sizeof(buffer), &nread);
+        ఫలితం = Curl_xfer_recv(దత్తాంశం, బఫరు, పరిమాణం(బఫరు), &nread);
         /* read would have blocked. Loop again */
-        if(result == CURLE_AGAIN)
-          break;
+        ఒకవేళ(ఫలితం == CURLE_AGAIN)
+          ఆపు;
         /* returned not-zero, this an error */
-        else if(result) {
+        లేకపోతే ఒకవేళ(ఫలితం) {
           keepon = FALSE;
-          break;
+          ఆపు;
         }
         /* returned zero but actually received 0 or less here,
            the server closed the connection and we bail out */
-        else if(!nread) {
+        లేకపోతే ఒకవేళ(!nread) {
           keepon = FALSE;
-          break;
+          ఆపు;
         }
 
-        result = telrcv(data, tn, (unsigned char *)buffer, nread);
-        if(result) {
+        ఫలితం = telrcv(దత్తాంశం, tn, (గుర్తులేని అక్షరం *)బఫరు, nread);
+        ఒకవేళ(ఫలితం) {
           keepon = FALSE;
-          break;
+          ఆపు;
         }
 
         /* Negotiate if the peer has started negotiating,
            otherwise do not. We do not want to speak telnet with
            non-telnet servers, like POP or SMTP. */
-        if(tn->please_negotiate && !tn->already_negotiated) {
-          telnet_negotiate(data, tn);
+        ఒకవేళ(tn->please_negotiate && !tn->already_negotiated) {
+          telnet_negotiate(దత్తాంశం, tn);
           tn->already_negotiated = 1;
         }
       }
-      if(events.lNetworkEvents & FD_CLOSE) {
+      ఒకవేళ(events.l_జాలం_Events & FD_CLOSE) {
         keepon = FALSE;
       }
-      break;
+      ఆపు;
     }
     } /* switch */
 
-    if(Curl_timeleft_ms(data) < 0) {
-      failf(data, "Time-out");
-      result = CURLE_OPERATION_TIMEDOUT;
+    ఒకవేళ(Curl_timeleft_ms(దత్తాంశం) < 0) {
+      failf(దత్తాంశం, "Time-out");
+      ఫలితం = CURLE_OPERATION_TIMEDOUT;
       keepon = FALSE;
     }
   }
 
   /* We called WSACreateEvent, so call WSACloseEvent */
-  if(!WSACloseEvent(event_handle)) {
-    infof(data, "WSACloseEvent failed (%d)", SOCKERRNO);
+  ఒకవేళ(!WSACloseEvent(event_handle)) {
+    infof(దత్తాంశం, "WSACloseEvent failed (%d)", SOCKERRNO);
   }
-#else
+#లేకపోతే
   pfd[0].fd = sockfd;
   pfd[0].events = POLLIN;
 
-  if(data->set.is_fread_set) {
+  ఒకవేళ(దత్తాంశం->సమితి.is_fread_సమితి) {
     poll_cnt = 1;
     interval_ms = 100; /* poll user-supplied read function */
   }
-  else {
+  లేకపోతే {
     /* really using fread, so infile is a FILE* */
-    pfd[1].fd = fileno((FILE *)data->state.in);
+    pfd[1].fd = fileno((FILE *)దత్తాంశం->state.లోపల);
     pfd[1].events = POLLIN;
     poll_cnt = 2;
     interval_ms = 1 * 1000;
-    if(pfd[1].fd < 0) {
-      failf(data, "cannot read input");
-      result = CURLE_RECV_ERROR;
+    ఒకవేళ(pfd[1].fd < 0) {
+      failf(దత్తాంశం, "cannot read input");
+      ఫలితం = CURLE_RECV_ERROR;
       keepon = FALSE;
     }
   }
 
-  while(keepon) {
-    DEBUGF(infof(data, "telnet_do, poll %d fds", poll_cnt));
-    switch(Curl_poll(pfd, (unsigned int)poll_cnt, interval_ms)) {
-    case -1:                    /* error, stop reading */
-      result = CURLE_RECV_ERROR;
+  అయితే(keepon) {
+    DEBUGF(infof(దత్తాంశం, "telnet_do, poll %d fds", poll_cnt));
+    ఎంపిక(Curl_poll(pfd, (గుర్తులేని పూర్ణాంకం)poll_cnt, interval_ms)) {
+    స్థితి -1:                    /* error, stop reading */
+      ఫలితం = CURLE_RECV_ERROR;
       keepon = FALSE;
-      continue;
-    case 0:                     /* timeout */
+      కొనసాగు;
+    స్థితి 0:                     /* timeout */
       pfd[0].revents = 0;
       pfd[1].revents = 0;
       FALLTHROUGH();
-    default:                    /* read! */
-      if(pfd[0].revents & POLLIN) {
+    అప్రమేయ:                    /* read! */
+      ఒకవేళ(pfd[0].revents & POLLIN) {
         /* read data from network */
         size_t nread;
-        result = Curl_xfer_recv(data, buffer, sizeof(buffer), &nread);
+        ఫలితం = Curl_xfer_recv(దత్తాంశం, బఫరు, పరిమాణం(బఫరు), &nread);
         /* read would have blocked. Loop again */
-        if(result == CURLE_AGAIN)
-          break;
+        ఒకవేళ(ఫలితం == CURLE_AGAIN)
+          ఆపు;
         /* returned not-zero, this an error */
-        if(result) {
+        ఒకవేళ(ఫలితం) {
           keepon = FALSE;
           /* In test 1452, macOS sees a ECONNRESET sometimes? Is this the
            * telnet test server not shutting down the socket in a clean way?
            * Seems to be timing related, happens more on slow debug build */
-          if(data->state.os_errno == SOCKECONNRESET) {
-            DEBUGF(infof(data, "telnet_do, unexpected ECONNRESET on recv"));
+          ఒకవేళ(దత్తాంశం->state.os_errno == SOCKECONNRESET) {
+            DEBUGF(infof(దత్తాంశం, "telnet_do, unexpected ECONNRESET on recv"));
           }
-          break;
+          ఆపు;
         }
         /* returned zero but actually received 0 or less here,
            the server closed the connection and we bail out */
-        else if(!nread) {
+        లేకపోతే ఒకవేళ(!nread) {
           keepon = FALSE;
-          break;
+          ఆపు;
         }
 
-        Curl_pgrs_download_inc(data, nread);
-        result = telrcv(data, tn, (unsigned char *)buffer, nread);
-        if(result) {
+        Curl_pgrs_download_inc(దత్తాంశం, nread);
+        ఫలితం = telrcv(దత్తాంశం, tn, (గుర్తులేని అక్షరం *)బఫరు, nread);
+        ఒకవేళ(ఫలితం) {
           keepon = FALSE;
-          break;
+          ఆపు;
         }
 
         /* Negotiate if the peer has started negotiating,
            otherwise do not. We do not want to speak telnet with
            non-telnet servers, like POP or SMTP. */
-        if(tn->please_negotiate && !tn->already_negotiated) {
-          telnet_negotiate(data, tn);
+        ఒకవేళ(tn->please_negotiate && !tn->already_negotiated) {
+          telnet_negotiate(దత్తాంశం, tn);
           tn->already_negotiated = 1;
         }
       }
 
       snread = 0;
-      if(poll_cnt == 2) {
-        if(pfd[1].revents & POLLIN) { /* read from in file */
-          snread = read(pfd[1].fd, buffer, sizeof(buffer));
+      ఒకవేళ(poll_cnt == 2) {
+        ఒకవేళ(pfd[1].revents & POLLIN) { /* read from in file */
+          snread = పఠ(pfd[1].fd, బఫరు, పరిమాణం(బఫరు));
         }
       }
-      else {
+      లేకపోతే {
         /* read from user-supplied method */
-        snread = (int)data->state.fread_func(buffer, 1, sizeof(buffer),
-                                             data->state.in);
-        if(snread == CURL_READFUNC_ABORT) {
-          failf(data, "operation aborted by callback");
-          result = CURLE_ABORTED_BY_CALLBACK;
+        snread = (పూర్ణాంకం)దత్తాంశం->state.fread_func(బఫరు, 1, పరిమాణం(బఫరు),
+                                             దత్తాంశం->state.లోపల);
+        ఒకవేళ(snread == CURL_READFUNC_ABORT) {
+          failf(దత్తాంశం, "operation aborted by callback");
+          ఫలితం = CURLE_ABORTED_BY_CALLBACK;
           keepon = FALSE;
-          break;
+          ఆపు;
         }
-        if(snread == CURL_READFUNC_PAUSE)
-          break;
+        ఒకవేళ(snread == CURL_READFUNC_PAUSE)
+          ఆపు;
       }
 
-      if(snread > 0) {
-        result = send_telnet_data(data, tn, buffer, snread);
-        if(result) {
+      ఒకవేళ(snread > 0) {
+        ఫలితం = send_telnet_దత్తాంశం(దత్తాంశం, tn, బఫరు, snread);
+        ఒకవేళ(ఫలితం) {
           keepon = FALSE;
-          break;
+          ఆపు;
         }
-        Curl_pgrs_upload_inc(data, (size_t)snread);
+        Curl_pgrs_upload_inc(దత్తాంశం, (size_t)snread);
       }
-      else if(snread < 0) {
-        failf(data, "Failed to read input");
-        result = CURLE_READ_ERROR;
+      లేకపోతే ఒకవేళ(snread < 0) {
+        failf(దత్తాంశం, "Failed to read input");
+        ఫలితం = CURLE_READ_ERROR;
         keepon = FALSE;
       }
 
-      break;
+      ఆపు;
     } /* poll switch statement */
 
-    if(Curl_timeleft_ms(data) < 0) {
-      failf(data, "Time-out");
-      result = CURLE_OPERATION_TIMEDOUT;
+    ఒకవేళ(Curl_timeleft_ms(దత్తాంశం) < 0) {
+      failf(దత్తాంశం, "Time-out");
+      ఫలితం = CURLE_OPERATION_TIMEDOUT;
       keepon = FALSE;
     }
 
-    if(!result) {
-      result = Curl_pgrsUpdate(data);
-      if(result)
+    ఒకవేళ(!ఫలితం) {
+      ఫలితం = Curl_pgrsUpdate(దత్తాంశం);
+      ఒకవేళ(ఫలితం)
         keepon = FALSE;
     }
   }
-#endif
+#అయితే_ముగింపు
   /* mark this as "no further transfer wanted" */
-  Curl_xfer_setup_nop(data);
+  Curl_xfer_అమరిక_nop(దత్తాంశం);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
  * TELNET protocol handler.
  */
-const struct Curl_protocol Curl_protocol_telnet = {
+స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_telnet = {
   ZERO_NULL,                            /* setup_connection */
   telnet_do,                            /* do_it */
-  telnet_done,                          /* done */
+  telnet_పూర్తి,                          /* done */
   ZERO_NULL,                            /* do_more */
   ZERO_NULL,                            /* connect_it */
   ZERO_NULL,                            /* connecting */
@@ -1580,4 +1580,4 @@ const struct Curl_protocol Curl_protocol_telnet = {
   ZERO_NULL,                            /* follow */
 };
 
-#endif /* !CURL_DISABLE_TELNET */
+#అయితే_ముగింపు /* !CURL_DISABLE_TELNET */

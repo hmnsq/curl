@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_CURL_NTLM_CORE
+#నిర్వచితమైతే USE_CURL_NTLM_CORE
 
 /*
  * NTLM details:
@@ -49,56 +49,56 @@
      in NTLM type-3 messages.
  */
 
-#ifdef USE_GNUTLS
-#include <nettle/version.h>
-#if NETTLE_VERSION_MAJOR < 4
-#define USE_GNUTLS_DES
-#endif
-#endif
+#నిర్వచితమైతే USE_GNUTLS
+#అన్తర్భావ <nettle/version.h>
+#ఒకవేళ NETTLE_సంస్కరణ_MAJOR < 4
+#నిర్వచించు USE_GNUTLS_DES
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#if defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)
+#ఒకవేళ defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)
 
 #  include <openssl/des.h>
 #  ifdef OPENSSL_IS_AWSLC  /* for versions 1.2.0 to 1.30.1 */
-#    define DES_set_key_unchecked (void)DES_set_key
+#    define DES_సమితి_కీలకం_unchecked (శూన్య)DES_సమితి_కీలకం
 #  endif
 #  define USE_OPENSSL_DES
 
-#elif defined(USE_WOLFSSL) && defined(HAVE_WC_DES_ECBENCRYPT)
+#లేదావేళ defined(USE_WOLFSSL) && defined(HAVE_WC_DES_ECBENCRYPT)
 
 #  include <wolfssl/options.h>
 #  include <wolfssl/wolfcrypt/des3.h>
 #  define USE_WOLFSSL_DES
 
-#elif defined(USE_GNUTLS_DES)
+#లేదావేళ defined(USE_GNUTLS_DES)
 #  include <nettle/des.h>
-#  define USE_CURL_DES_SET_ODD_PARITY
-#elif defined(USE_MBEDTLS) && defined(HAVE_MBEDTLS_DES_CRYPT_ECB)
+#  define USE_CURL_DES_సమితి_ODD_PARITY
+#లేదావేళ defined(USE_MBEDTLS) && defined(HAVE_MBEDTLS_DES_CRYPT_ECB)
 #  include <mbedtls/version.h>
-#  if MBEDTLS_VERSION_NUMBER < 0x03020000
+#  ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య < 0x03020000
 #  error "mbedTLS 3.2.0 or greater required"
 #  endif
 #  include <mbedtls/des.h>
 #  define USE_MBEDTLS_DES
-#elif defined(USE_OS400CRYPTO)
+#లేదావేళ defined(USE_OS400CRYPTO)
 #  include "cipher.mih"  /* mih/cipher */
-#  define USE_CURL_DES_SET_ODD_PARITY
-#elif defined(USE_WIN32_CRYPTO)
+#  define USE_CURL_DES_సమితి_ODD_PARITY
+#లేదావేళ defined(USE_WIN32_CRYPTO)
 #  include <wincrypt.h>
-#  define USE_CURL_DES_SET_ODD_PARITY
-#else
+#  define USE_CURL_DES_సమితి_ODD_PARITY
+#లేకపోతే
 #  error "cannot compile NTLM support without a crypto library with DES."
-#endif
+#అయితే_ముగింపు
 
-#include "urldata.h"
-#include "strcase.h"
-#include "curl_ntlm_core.h"
-#include "curl_md5.h"
-#include "curl_hmac.h"
-#include "curl_md4.h"
-#include "vauth/vauth.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "strcase.h"
+#అన్తర్భావ "curl_ntlm_core.h"
+#అన్తర్భావ "curl_md5.h"
+#అన్తర్భావ "curl_hmac.h"
+#అన్తర్భావ "curl_md4.h"
+#అన్తర్భావ "vauth/vauth.h"
 
-#ifdef USE_CURL_DES_SET_ODD_PARITY
+#నిర్వచితమైతే USE_CURL_DES_సమితి_ODD_PARITY
 /*
  * curl_des_set_odd_parity()
  *
@@ -117,288 +117,288 @@
  *                        odd parity.
  * len         [in]     - The length of the data.
  */
-static void curl_des_set_odd_parity(unsigned char *bytes, size_t len)
+స్థిర శూన్య curl_des_సమితి_odd_parity(గుర్తులేని అక్షరం *బైట్లు, size_t len)
 {
   size_t i;
 
-  for(i = 0; i < len; i++) {
-    unsigned char b = bytes[i];
+  కొరకు(i = 0; i < len; i++) {
+    గుర్తులేని అక్షరం b = బైట్లు[i];
 
     bool needs_parity = (((b >> 7) ^ (b >> 6) ^ (b >> 5) ^
                           (b >> 4) ^ (b >> 3) ^ (b >> 2) ^
                           (b >> 1)) & 0x01) == 0;
 
-    if(needs_parity)
-      bytes[i] |= 0x01;
-    else
-      bytes[i] &= 0xfe;
+    ఒకవేళ(needs_parity)
+      బైట్లు[i] |= 0x01;
+    లేకపోతే
+      బైట్లు[i] &= 0xfe;
   }
 }
-#endif /* USE_CURL_DES_SET_ODD_PARITY */
+#అయితే_ముగింపు /* USE_CURL_DES_SET_ODD_PARITY */
 
 /*
  * Turns a 56-bit key into being 64-bit wide.
  */
-static void extend_key_56_to_64(const unsigned char *key_56, char *key)
+స్థిర శూన్య extend_కీలకం_56_గమ్యం_64(స్థిరరాశి గుర్తులేని అక్షరం *కీలకం_56, అక్షరం *కీలకం)
 {
-  key[0] = (char)key_56[0];
-  key[1] = (char)(((key_56[0] << 7) & 0xFF) | (key_56[1] >> 1));
-  key[2] = (char)(((key_56[1] << 6) & 0xFF) | (key_56[2] >> 2));
-  key[3] = (char)(((key_56[2] << 5) & 0xFF) | (key_56[3] >> 3));
-  key[4] = (char)(((key_56[3] << 4) & 0xFF) | (key_56[4] >> 4));
-  key[5] = (char)(((key_56[4] << 3) & 0xFF) | (key_56[5] >> 5));
-  key[6] = (char)(((key_56[5] << 2) & 0xFF) | (key_56[6] >> 6));
-  key[7] = (char)((key_56[6] << 1) & 0xFF);
+  కీలకం[0] = (అక్షరం)కీలకం_56[0];
+  కీలకం[1] = (అక్షరం)(((కీలకం_56[0] << 7) & 0xFF) | (కీలకం_56[1] >> 1));
+  కీలకం[2] = (అక్షరం)(((కీలకం_56[1] << 6) & 0xFF) | (కీలకం_56[2] >> 2));
+  కీలకం[3] = (అక్షరం)(((కీలకం_56[2] << 5) & 0xFF) | (కీలకం_56[3] >> 3));
+  కీలకం[4] = (అక్షరం)(((కీలకం_56[3] << 4) & 0xFF) | (కీలకం_56[4] >> 4));
+  కీలకం[5] = (అక్షరం)(((కీలకం_56[4] << 3) & 0xFF) | (కీలకం_56[5] >> 5));
+  కీలకం[6] = (అక్షరం)(((కీలకం_56[5] << 2) & 0xFF) | (కీలకం_56[6] >> 6));
+  కీలకం[7] = (అక్షరం)((కీలకం_56[6] << 1) & 0xFF);
 }
 
-#ifdef USE_OPENSSL_DES
+#నిర్వచితమైతే USE_OPENSSL_DES
 /*
  * Turns a 56-bit key into a 64-bit, odd parity key and sets the key. The
  * key schedule ks is also set.
  */
-static void setup_des_key(const unsigned char *key_56, DES_key_schedule *ks)
+స్థిర శూన్య అమరిక_des_కీలకం(స్థిరరాశి గుర్తులేని అక్షరం *కీలకం_56, DES_కీలకం_కాలపట్టిక *ks)
 {
-  DES_cblock key;
+  DES_cblock కీలకం;
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, (char *)&key);
+  extend_కీలకం_56_గమ్యం_64(కీలకం_56, (అక్షరం *)&కీలకం);
 
   /* Set the key parity to odd */
-  DES_set_odd_parity(&key);
+  DES_సమితి_odd_parity(&కీలకం);
 
   /* Set the key */
-  DES_set_key_unchecked(&key, ks);
+  DES_సమితి_కీలకం_unchecked(&కీలకం, ks);
 }
 
-#elif defined(USE_WOLFSSL_DES)
-static void setup_des_key(const unsigned char *key_56, Des *des)
+#లేదావేళ defined(USE_WOLFSSL_DES)
+స్థిర శూన్య అమరిక_des_కీలకం(స్థిరరాశి గుర్తులేని అక్షరం *కీలకం_56, Des *des)
 {
-  byte key[8];
+  byte కీలకం[8];
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, (char *)key);
+  extend_కీలకం_56_గమ్యం_64(కీలకం_56, (అక్షరం *)కీలకం);
 
   /* Set the key */
-  wc_Des_SetKey(des, key, NULL, 0);
+  wc_Des_సమితి_కీలకం(des, కీలకం, ఖాళీ, 0);
 }
 
-#elif defined(USE_GNUTLS_DES)
-static void setup_des_key(const unsigned char *key_56, struct des_ctx *des)
+#లేదావేళ defined(USE_GNUTLS_DES)
+స్థిర శూన్య అమరిక_des_కీలకం(స్థిరరాశి గుర్తులేని అక్షరం *కీలకం_56, నిర్మాణం des_ctx *des)
 {
-  char key[8];
+  అక్షరం కీలకం[8];
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, key);
+  extend_కీలకం_56_గమ్యం_64(కీలకం_56, కీలకం);
 
   /* Set the key parity to odd */
-  curl_des_set_odd_parity((unsigned char *)key, sizeof(key));
+  curl_des_సమితి_odd_parity((గుర్తులేని అక్షరం *)కీలకం, పరిమాణం(కీలకం));
 
   /* Set the key */
-  des_set_key(des, (const uint8_t *)key);
+  des_సమితి_కీలకం(des, (స్థిరరాశి uint8_t *)కీలకం);
 }
 
-#elif defined(USE_MBEDTLS_DES)
-static bool encrypt_des(const unsigned char *in, unsigned char *out,
-                        const unsigned char *key_56)
+#లేదావేళ defined(USE_MBEDTLS_DES)
+స్థిర bool encrypt_des(స్థిరరాశి గుర్తులేని అక్షరం *లోపల, గుర్తులేని అక్షరం *బహిర్గతం,
+                        స్థిరరాశి గుర్తులేని అక్షరం *కీలకం_56)
 {
   mbedtls_des_context ctx;
-  char key[8];
+  అక్షరం కీలకం[8];
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, key);
+  extend_కీలకం_56_గమ్యం_64(కీలకం_56, కీలకం);
 
   /* Set the key parity to odd */
-  mbedtls_des_key_set_parity((unsigned char *)key);
+  mbedtls_des_కీలకం_సమితి_parity((గుర్తులేని అక్షరం *)కీలకం);
 
   /* Perform the encryption */
   mbedtls_des_init(&ctx);
-  mbedtls_des_setkey_enc(&ctx, (unsigned char *)key);
-  return mbedtls_des_crypt_ecb(&ctx, in, out) == 0;
+  mbedtls_des_setkey_enc(&ctx, (గుర్తులేని అక్షరం *)కీలకం);
+  తిరిగి mbedtls_des_crypt_ecb(&ctx, లోపల, బహిర్గతం) == 0;
 }
 
-#elif defined(USE_OS400CRYPTO)
-static bool encrypt_des(const unsigned char *in, unsigned char *out,
-                        const unsigned char *key_56)
+#లేదావేళ defined(USE_OS400CRYPTO)
+స్థిర bool encrypt_des(స్థిరరాశి గుర్తులేని అక్షరం *లోపల, గుర్తులేని అక్షరం *బహిర్గతం,
+                        స్థిరరాశి గుర్తులేని అక్షరం *కీలకం_56)
 {
-  char key[8];
+  అక్షరం కీలకం[8];
   _CIPHER_Control_T ctl;
 
   /* Setup the cipher control structure */
   ctl.Func_ID = ENCRYPT_ONLY;
-  ctl.Data_Len = sizeof(key);
+  ctl.దత్తాంశం_Len = పరిమాణం(కీలకం);
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, ctl.Crypto_Key);
+  extend_కీలకం_56_గమ్యం_64(కీలకం_56, ctl.Crypto_కీలకం);
 
   /* Set the key parity to odd */
-  curl_des_set_odd_parity((unsigned char *)ctl.Crypto_Key, ctl.Data_Len);
+  curl_des_సమితి_odd_parity((గుర్తులేని అక్షరం *)ctl.Crypto_కీలకం, ctl.దత్తాంశం_Len);
 
   /* Perform the encryption */
-  _CIPHER((_SPCPTR *)&out, &ctl, (_SPCPTR *)&in);
+  _CIPHER((_SPCPTR *)&బహిర్గతం, &ctl, (_SPCPTR *)&లోపల);
 
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-static bool encrypt_des(const unsigned char *in, unsigned char *out,
-                        const unsigned char *key_56)
+#లేదావేళ defined(USE_WIN32_CRYPTO)
+స్థిర bool encrypt_des(స్థిరరాశి గుర్తులేని అక్షరం *లోపల, గుర్తులేని అక్షరం *బహిర్గతం,
+                        స్థిరరాశి గుర్తులేని అక్షరం *కీలకం_56)
 {
   HCRYPTPROV hprov;
   HCRYPTKEY hkey;
-  struct {
+  నిర్మాణం {
     BLOBHEADER hdr;
-    unsigned int len;
-    char key[8];
+    గుర్తులేని పూర్ణాంకం len;
+    అక్షరం కీలకం[8];
   } blob;
   DWORD len = 8;
   BOOL res;
 
   /* Acquire the crypto provider */
-  if(!CryptAcquireContext(&hprov, NULL, NULL, PROV_RSA_FULL,
+  ఒకవేళ(!CryptAcquireContext(&hprov, ఖాళీ, ఖాళీ, PROV_RSA_నిండిన,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return FALSE;
+    తిరిగి FALSE;
 
   /* Setup the key blob structure */
-  memset(&blob, 0, sizeof(blob));
+  memset(&blob, 0, పరిమాణం(blob));
   blob.hdr.bType = PLAINTEXTKEYBLOB;
-  blob.hdr.bVersion = 2;
-  blob.hdr.aiKeyAlg = CALG_DES;
-  blob.len = sizeof(blob.key);
+  blob.hdr.b_సంస్కరణ = 2;
+  blob.hdr.ai_కీలకం_Alg = CALG_DES;
+  blob.len = పరిమాణం(blob.కీలకం);
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, blob.key);
+  extend_కీలకం_56_గమ్యం_64(కీలకం_56, blob.కీలకం);
 
   /* Set the key parity to odd */
-  curl_des_set_odd_parity((unsigned char *)blob.key, sizeof(blob.key));
+  curl_des_సమితి_odd_parity((గుర్తులేని అక్షరం *)blob.కీలకం, పరిమాణం(blob.కీలకం));
 
   /* Import the key */
-  if(!CryptImportKey(hprov, (BYTE *)&blob, sizeof(blob), 0, 0, &hkey)) {
+  ఒకవేళ(!Crypt_Import_కీలకం(hprov, (BYTE *)&blob, పరిమాణం(blob), 0, 0, &hkey)) {
     CryptReleaseContext(hprov, 0);
 
-    return FALSE;
+    తిరిగి FALSE;
   }
 
-  memcpy(out, in, 8);
+  జ్ఞాపకం_నకలు(బహిర్గతం, లోపల, 8);
 
   /* Perform the encryption */
-  res = CryptEncrypt(hkey, 0, FALSE, 0, out, &len, len);
+  res = CryptEncrypt(hkey, 0, FALSE, 0, బహిర్గతం, &len, len);
 
-  CryptDestroyKey(hkey);
+  Crypt_Destroy_కీలకం(hkey);
   CryptReleaseContext(hprov, 0);
 
-  return res;
+  తిరిగి res;
 }
 
-#endif /* crypto backends */
+#అయితే_ముగింపు /* crypto backends */
 
 /*
  * takes a 21-byte array and treats it as 3 56-bit DES keys. The
  * 8-byte plaintext is encrypted with each key and the resulting 24
  * bytes are stored in the results array.
  */
-void Curl_ntlm_core_lm_resp(const unsigned char *keys,
-                            const unsigned char *plaintext,
-                            unsigned char *results)
+శూన్య Curl_ntlm_core_lm_resp(స్థిరరాశి గుర్తులేని అక్షరం *కీలకాలు,
+                            స్థిరరాశి గుర్తులేని అక్షరం *plaintext,
+                            గుర్తులేని అక్షరం *results)
 {
-#ifdef USE_OPENSSL_DES
-  DES_key_schedule ks;
+#నిర్వచితమైతే USE_OPENSSL_DES
+  DES_కీలకం_కాలపట్టిక ks;
 
-  setup_des_key(keys, &ks);
+  అమరిక_des_కీలకం(కీలకాలు, &ks);
   DES_ecb_encrypt((DES_cblock *)CURL_UNCONST(plaintext),
                   (DES_cblock *)results, &ks, DES_ENCRYPT);
 
-  setup_des_key(keys + 7, &ks);
+  అమరిక_des_కీలకం(కీలకాలు + 7, &ks);
   DES_ecb_encrypt((DES_cblock *)CURL_UNCONST(plaintext),
                   (DES_cblock *)(results + 8), &ks, DES_ENCRYPT);
 
-  setup_des_key(keys + 14, &ks);
+  అమరిక_des_కీలకం(కీలకాలు + 14, &ks);
   DES_ecb_encrypt((DES_cblock *)CURL_UNCONST(plaintext),
                   (DES_cblock *)(results + 16), &ks, DES_ENCRYPT);
-#elif defined(USE_WOLFSSL_DES)
+#లేదావేళ defined(USE_WOLFSSL_DES)
   Des des;
-  setup_des_key(keys, &des);
-  wc_Des_EcbEncrypt(&des, results, plaintext, DES_KEY_SIZE);
-  setup_des_key(keys + 7, &des);
-  wc_Des_EcbEncrypt(&des, results + 8, plaintext, DES_KEY_SIZE);
-  setup_des_key(keys + 14, &des);
-  wc_Des_EcbEncrypt(&des, results + 16, plaintext, DES_KEY_SIZE);
-#elif defined(USE_GNUTLS_DES)
-  struct des_ctx des;
-  setup_des_key(keys, &des);
+  అమరిక_des_కీలకం(కీలకాలు, &des);
+  wc_Des_EcbEncrypt(&des, results, plaintext, DES_కీలకం_కొలత);
+  అమరిక_des_కీలకం(కీలకాలు + 7, &des);
+  wc_Des_EcbEncrypt(&des, results + 8, plaintext, DES_కీలకం_కొలత);
+  అమరిక_des_కీలకం(కీలకాలు + 14, &des);
+  wc_Des_EcbEncrypt(&des, results + 16, plaintext, DES_కీలకం_కొలత);
+#లేదావేళ defined(USE_GNUTLS_DES)
+  నిర్మాణం des_ctx des;
+  అమరిక_des_కీలకం(కీలకాలు, &des);
   des_encrypt(&des, 8, results, plaintext);
-  setup_des_key(keys + 7, &des);
+  అమరిక_des_కీలకం(కీలకాలు + 7, &des);
   des_encrypt(&des, 8, results + 8, plaintext);
-  setup_des_key(keys + 14, &des);
+  అమరిక_des_కీలకం(కీలకాలు + 14, &des);
   des_encrypt(&des, 8, results + 16, plaintext);
-#elif defined(USE_MBEDTLS_DES) || defined(USE_OS400CRYPTO) || \
+#లేదావేళ defined(USE_MBEDTLS_DES) || defined(USE_OS400CRYPTO) || \
   defined(USE_WIN32_CRYPTO)
-  encrypt_des(plaintext, results, keys);
-  encrypt_des(plaintext, results + 8, keys + 7);
-  encrypt_des(plaintext, results + 16, keys + 14);
-#else
-  (void)keys;
-  (void)plaintext;
-  (void)results;
-#endif
+  encrypt_des(plaintext, results, కీలకాలు);
+  encrypt_des(plaintext, results + 8, కీలకాలు + 7);
+  encrypt_des(plaintext, results + 16, కీలకాలు + 14);
+#లేకపోతే
+  (శూన్య)కీలకాలు;
+  (శూన్య)plaintext;
+  (శూన్య)results;
+#అయితే_ముగింపు
 }
 
 /*
  * Set up lanmanager hashed password
  */
-CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
-                                   unsigned char *lmbuffer /* 21 bytes */)
+CURLcode Curl_ntlm_core_mk_lm_hash(స్థిరరాశి అక్షరం *password,
+                                   గుర్తులేని అక్షరం *lmbuffer /* 21 bytes */)
 {
-  unsigned char pw[14];
-  static const unsigned char magic[] = {
+  గుర్తులేని అక్షరం pw[14];
+  స్థిర స్థిరరాశి గుర్తులేని అక్షరం magic[] = {
     0x4B, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25 /* i.e. KGS!@#$% */
   };
-  size_t len = CURLMIN(strlen(password), 14);
+  size_t len = CURLMIN(అక్షరశ్రేణి_పొడవు(password), 14);
 
-  Curl_strntoupper((char *)pw, password, len);
+  Curl_strntoupper((అక్షరం *)pw, password, len);
   memset(&pw[len], 0, 14 - len);
 
   {
     /* Create LanManager hashed password. */
-#ifdef USE_OPENSSL_DES
-    DES_key_schedule ks;
+#నిర్వచితమైతే USE_OPENSSL_DES
+    DES_కీలకం_కాలపట్టిక ks;
 
-    setup_des_key(pw, &ks);
+    అమరిక_des_కీలకం(pw, &ks);
     DES_ecb_encrypt((DES_cblock *)CURL_UNCONST(magic),
                     (DES_cblock *)lmbuffer, &ks, DES_ENCRYPT);
 
-    setup_des_key(pw + 7, &ks);
+    అమరిక_des_కీలకం(pw + 7, &ks);
     DES_ecb_encrypt((DES_cblock *)CURL_UNCONST(magic),
                     (DES_cblock *)(lmbuffer + 8), &ks, DES_ENCRYPT);
-#elif defined(USE_WOLFSSL_DES)
+#లేదావేళ defined(USE_WOLFSSL_DES)
     Des des;
-    setup_des_key(pw, &des);
-    wc_Des_EcbEncrypt(&des, lmbuffer, magic, DES_KEY_SIZE);
-    setup_des_key(pw + 7, &des);
-    wc_Des_EcbEncrypt(&des, lmbuffer + 8, magic, DES_KEY_SIZE);
-#elif defined(USE_GNUTLS_DES)
-    struct des_ctx des;
-    setup_des_key(pw, &des);
+    అమరిక_des_కీలకం(pw, &des);
+    wc_Des_EcbEncrypt(&des, lmbuffer, magic, DES_కీలకం_కొలత);
+    అమరిక_des_కీలకం(pw + 7, &des);
+    wc_Des_EcbEncrypt(&des, lmbuffer + 8, magic, DES_కీలకం_కొలత);
+#లేదావేళ defined(USE_GNUTLS_DES)
+    నిర్మాణం des_ctx des;
+    అమరిక_des_కీలకం(pw, &des);
     des_encrypt(&des, 8, lmbuffer, magic);
-    setup_des_key(pw + 7, &des);
+    అమరిక_des_కీలకం(pw + 7, &des);
     des_encrypt(&des, 8, lmbuffer + 8, magic);
-#elif defined(USE_MBEDTLS_DES) || defined(USE_OS400CRYPTO) || \
+#లేదావేళ defined(USE_MBEDTLS_DES) || defined(USE_OS400CRYPTO) || \
   defined(USE_WIN32_CRYPTO)
     encrypt_des(magic, lmbuffer, pw);
     encrypt_des(magic, lmbuffer + 8, pw + 7);
-#endif
+#అయితే_ముగింపు
 
     memset(lmbuffer + 16, 0, 21 - 16);
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static void ascii_to_unicode_le(unsigned char *dest, const char *src,
+స్థిర శూన్య ascii_గమ్యం_unicode_le(గుర్తులేని అక్షరం *dest, స్థిరరాశి అక్షరం *src,
                                 size_t srclen)
 {
   size_t i;
-  for(i = 0; i < srclen; i++) {
-    dest[2 * i] = (unsigned char)src[i];
+  కొరకు(i = 0; i < srclen; i++) {
+    dest[2 * i] = (గుర్తులేని అక్షరం)src[i];
     dest[(2 * i) + 1] = '\0';
   }
 }
@@ -407,91 +407,91 @@ static void ascii_to_unicode_le(unsigned char *dest, const char *src,
  * Set up nt hashed passwords
  * @unittest: 1600
  */
-CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
-                                   unsigned char *ntbuffer /* 21 bytes */)
+CURLcode Curl_ntlm_core_mk_nt_hash(స్థిరరాశి అక్షరం *password,
+                                   గుర్తులేని అక్షరం *ntbuffer /* 21 bytes */)
 {
-  size_t len = strlen(password);
-  unsigned char *pw;
-  CURLcode result;
-  if(len > SIZE_MAX / 2) /* avoid integer overflow */
-    return CURLE_OUT_OF_MEMORY;
-  pw = len ? curlx_malloc(len * 2) : (unsigned char *)curlx_strdup("");
-  if(!pw)
-    return CURLE_OUT_OF_MEMORY;
+  size_t len = అక్షరశ్రేణి_పొడవు(password);
+  గుర్తులేని అక్షరం *pw;
+  CURLcode ఫలితం;
+  ఒకవేళ(len > SIZE_MAX / 2) /* avoid integer overflow */
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  pw = len ? curlx_malloc(len * 2) : (గుర్తులేని అక్షరం *)curlx_strdup("");
+  ఒకవేళ(!pw)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  ascii_to_unicode_le(pw, password, len);
+  ascii_గమ్యం_unicode_le(pw, password, len);
 
   /* Create NT hashed password. */
-  result = Curl_md4it(ntbuffer, pw, 2 * len);
-  if(!result)
+  ఫలితం = Curl_md4it(ntbuffer, pw, 2 * len);
+  ఒకవేళ(!ఫలితం)
     memset(ntbuffer + 16, 0, 21 - 16);
 
   curlx_free(pw);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#ifndef USE_WINDOWS_SSPI
+#నిర్వచితం_కాకపోతే USE_WINDOWS_SSPI
 
-#define NTLMv2_BLOB_SIGNATURE "\x01\x01\x00\x00"
-#define NTLMv2_BLOB_LEN       (44 - 16 + ntlm->target_info_len + 4)
+#నిర్వచించు NTLMv2_BLOB_SIGNATURE "\x01\x01\x00\x00"
+#నిర్వచించు NTLMv2_BLOB_LEN       (44 - 16 + ntlm->లక్ష్యం_info_len + 4)
 
 /* Timestamp in tenths of a microsecond since January 1, 1601 00:00:00 UTC. */
-struct ms_filetime {
-  unsigned int dwLowDateTime;
-  unsigned int dwHighDateTime;
+నిర్మాణం ms_filetime {
+  గుర్తులేని పూర్ణాంకం dw_దిగువ_Date_సమయం;
+  గుర్తులేని పూర్ణాంకం dw_ఎగువ_Date_సమయం;
 };
 
 /* Convert a time_t to an MS FILETIME (MS-DTYP section 2.3.3). */
-static void time2filetime(struct ms_filetime *ft, time_t t)
+స్థిర శూన్య time2filetime(నిర్మాణం ms_filetime *ft, time_t t)
 {
-#if SIZEOF_TIME_T > 4
+#ఒకవేళ SIZEOF_సమయం_T > 4
   t = (t + (curl_off_t)11644473600) * 10000000;
-  ft->dwLowDateTime = (unsigned int)(t & 0xFFFFFFFF);
-  ft->dwHighDateTime = (unsigned int)(t >> 32);
-#else
-  unsigned int r, s;
-  unsigned int i;
+  ft->dw_దిగువ_Date_సమయం = (గుర్తులేని పూర్ణాంకం)(t & 0xFFFFFFFF);
+  ft->dw_ఎగువ_Date_సమయం = (గుర్తులేని పూర్ణాంకం)(t >> 32);
+#లేకపోతే
+  గుర్తులేని పూర్ణాంకం r, s;
+  గుర్తులేని పూర్ణాంకం i;
 
-  ft->dwLowDateTime = (unsigned int)(t & 0xFFFFFFFF);
-  ft->dwHighDateTime = 0;
+  ft->dw_దిగువ_Date_సమయం = (గుర్తులేని పూర్ణాంకం)(t & 0xFFFFFFFF);
+  ft->dw_ఎగువ_Date_సమయం = 0;
 
-#ifndef HAVE_TIME_T_UNSIGNED
+#నిర్వచితం_కాకపోతే HAVE_సమయం_T_UNSIGNED
   /* Extend sign if needed. */
-  if(ft->dwLowDateTime & 0x80000000)
-    ft->dwHighDateTime = ~(unsigned int)0;
-#endif
+  ఒకవేళ(ft->dw_దిగువ_Date_సమయం & 0x80000000)
+    ft->dw_ఎగువ_Date_సమయం = ~(గుర్తులేని పూర్ణాంకం)0;
+#అయితే_ముగింపు
 
   /* Bias seconds to Jan 1, 1601.
      134774 days = 11644473600 seconds = 0x2B6109100 */
-  r = ft->dwLowDateTime;
-  ft->dwLowDateTime = (ft->dwLowDateTime + 0xB6109100U) & 0xFFFFFFFF;
-  ft->dwHighDateTime += ft->dwLowDateTime < r ? 0x03 : 0x02;
+  r = ft->dw_దిగువ_Date_సమయం;
+  ft->dw_దిగువ_Date_సమయం = (ft->dw_దిగువ_Date_సమయం + 0xB6109100U) & 0xFFFFFFFF;
+  ft->dw_ఎగువ_Date_సమయం += ft->dw_దిగువ_Date_సమయం < r ? 0x03 : 0x02;
 
   /* Convert to tenths of microseconds. */
-  ft->dwHighDateTime *= 10000000;
+  ft->dw_ఎగువ_Date_సమయం *= 10000000;
   i = 32;
-  do {
+  చేయి {
     i -= 8;
-    s = ((ft->dwLowDateTime >> i) & 0xFF) * (10000000 - 1);
+    s = ((ft->dw_దిగువ_Date_సమయం >> i) & 0xFF) * (10000000 - 1);
     r = (s << i) & 0xFFFFFFFF;
     s >>= 1;   /* Split shift to avoid width overflow. */
     s >>= 31 - i;
-    ft->dwLowDateTime = (ft->dwLowDateTime + r) & 0xFFFFFFFF;
-    if(ft->dwLowDateTime < r)
+    ft->dw_దిగువ_Date_సమయం = (ft->dw_దిగువ_Date_సమయం + r) & 0xFFFFFFFF;
+    ఒకవేళ(ft->dw_దిగువ_Date_సమయం < r)
       s++;
-    ft->dwHighDateTime += s;
-  } while(i);
-  ft->dwHighDateTime &= 0xFFFFFFFF;
-#endif
+    ft->dw_ఎగువ_Date_సమయం += s;
+  } అయితే(i);
+  ft->dw_ఎగువ_Date_సమయం &= 0xFFFFFFFF;
+#అయితే_ముగింపు
 }
 
-static void ascii_uppercase_to_unicode_le(unsigned char *dest,
-                                          const char *src, size_t srclen)
+స్థిర శూన్య ascii_uppercase_గమ్యం_unicode_le(గుర్తులేని అక్షరం *dest,
+                                          స్థిరరాశి అక్షరం *src, size_t srclen)
 {
   size_t i;
-  for(i = 0; i < srclen; i++) {
-    dest[2 * i] = (unsigned char)(Curl_raw_toupper(src[i]));
+  కొరకు(i = 0; i < srclen; i++) {
+    dest[2 * i] = (గుర్తులేని అక్షరం)(Curl_raw_toupper(src[i]));
     dest[(2 * i) + 1] = '\0';
   }
 }
@@ -499,33 +499,33 @@ static void ascii_uppercase_to_unicode_le(unsigned char *dest,
 /* This creates the NTLMv2 hash by using NTLM hash as the key and Unicode
  * (uppercase UserName + Domain) as the data
  */
-CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
-                                       const char *domain, size_t domlen,
-                                       unsigned char *ntlmhash,
-                                       unsigned char *ntlmv2hash)
+CURLcode Curl_ntlm_core_mk_ntlmv2_hash(స్థిరరాశి అక్షరం *user, size_t userlen,
+                                       స్థిరరాశి అక్షరం *domain, size_t domlen,
+                                       గుర్తులేని అక్షరం *ntlmhash,
+                                       గుర్తులేని అక్షరం *ntlmv2hash)
 {
   /* Unicode representation */
-  size_t identity_len;
-  unsigned char *identity;
-  CURLcode result = CURLE_OK;
+  size_t తటస్థం_len;
+  గుర్తులేని అక్షరం *తటస్థం;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if((userlen > CURL_MAX_INPUT_LENGTH) || (domlen > CURL_MAX_INPUT_LENGTH))
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ((userlen > CURL_MAX_ఆదానం_నిడివి) || (domlen > CURL_MAX_ఆదానం_నిడివి))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  identity_len = (userlen + domlen) * 2;
-  identity = curlx_malloc(identity_len + 1);
+  తటస్థం_len = (userlen + domlen) * 2;
+  తటస్థం = curlx_malloc(తటస్థం_len + 1);
 
-  if(!identity)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!తటస్థం)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  ascii_uppercase_to_unicode_le(identity, user, userlen);
-  ascii_to_unicode_le(identity + (userlen << 1), domain, domlen);
+  ascii_uppercase_గమ్యం_unicode_le(తటస్థం, user, userlen);
+  ascii_గమ్యం_unicode_le(తటస్థం + (userlen << 1), domain, domlen);
 
-  result = Curl_hmacit(&Curl_HMAC_MD5, ntlmhash, 16, identity, identity_len,
+  ఫలితం = Curl_hmacit(&Curl_HMAC_MD5, ntlmhash, 16, తటస్థం, తటస్థం_len,
                        ntlmv2hash);
-  curlx_free(identity);
+  curlx_free(తటస్థం);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -545,11 +545,11 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
-                                       const unsigned char *challenge_client,
-                                       const struct ntlmdata *ntlm,
-                                       unsigned char **ntresp,
-                                       unsigned int *ntresp_len)
+CURLcode Curl_ntlm_core_mk_ntlmv2_resp(స్థిరరాశి గుర్తులేని అక్షరం *ntlmv2hash,
+                                       స్థిరరాశి గుర్తులేని అక్షరం *challenge_client,
+                                       స్థిరరాశి నిర్మాణం ntlmdata *ntlm,
+                                       గుర్తులేని అక్షరం **ntresp,
+                                       గుర్తులేని పూర్ణాంకం *ntresp_len)
 {
   /* NTLMv2 response structure:
   -----------------------------------------------------------------------------
@@ -566,62 +566,62 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
   -----------------------------------------------------------------------------
   */
 
-  unsigned int len = 0;
-  unsigned char *ptr = NULL;
-  unsigned char hmac_output[HMAC_MD5_LENGTH];
-  struct ms_filetime tw;
+  గుర్తులేని పూర్ణాంకం len = 0;
+  గుర్తులేని అక్షరం *ptr = ఖాళీ;
+  గుర్తులేని అక్షరం hmac_output[HMAC_MD5_నిడివి];
+  నిర్మాణం ms_filetime tw;
 
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
   /* Calculate the timestamp */
-#ifdef DEBUGBUILD
-  char *force_timestamp = getenv("CURL_FORCETIME");
-  if(force_timestamp)
+#నిర్వచితమైతే DEBUGBUILD
+  అక్షరం *force_timestamp = getenv("CURL_FORCETIME");
+  ఒకవేళ(force_timestamp)
     time2filetime(&tw, (time_t)0);
-  else
-#endif
-    time2filetime(&tw, time(NULL));
+  లేకపోతే
+#అయితే_ముగింపు
+    time2filetime(&tw, సమయం(ఖాళీ));
 
   /* Calculate the response len */
-  len = HMAC_MD5_LENGTH + NTLMv2_BLOB_LEN;
+  len = HMAC_MD5_నిడివి + NTLMv2_BLOB_LEN;
 
   /* Allocate the response */
   ptr = curlx_calloc(1, len);
-  if(!ptr)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!ptr)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* Create the BLOB structure */
-  curl_msnprintf((char *)ptr + HMAC_MD5_LENGTH, NTLMv2_BLOB_LEN,
+  curl_msnprintf((అక్షరం *)ptr + HMAC_MD5_నిడివి, NTLMv2_BLOB_LEN,
                  "%c%c%c%c"           /* NTLMv2_BLOB_SIGNATURE */
                  "%c%c%c%c"           /* Reserved = 0 */
                  "%c%c%c%c%c%c%c%c",  /* Timestamp */
                  NTLMv2_BLOB_SIGNATURE[0], NTLMv2_BLOB_SIGNATURE[1],
                  NTLMv2_BLOB_SIGNATURE[2], NTLMv2_BLOB_SIGNATURE[3],
                  0, 0, 0, 0,
-                 LONGQUARTET(tw.dwLowDateTime),
-                 LONGQUARTET(tw.dwHighDateTime));
+                 LONGQUARTET(tw.dw_దిగువ_Date_సమయం),
+                 LONGQUARTET(tw.dw_ఎగువ_Date_సమయం));
 
-  memcpy(ptr + 32, challenge_client, 8);
-  if(ntlm->target_info_len)
-    memcpy(ptr + 44, ntlm->target_info, ntlm->target_info_len);
+  జ్ఞాపకం_నకలు(ptr + 32, challenge_client, 8);
+  ఒకవేళ(ntlm->లక్ష్యం_info_len)
+    జ్ఞాపకం_నకలు(ptr + 44, ntlm->లక్ష్యం_info, ntlm->లక్ష్యం_info_len);
 
   /* Concatenate the Type 2 challenge with the BLOB and do HMAC MD5 */
-  memcpy(ptr + 8, &ntlm->nonce[0], 8);
-  result = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, HMAC_MD5_LENGTH, ptr + 8,
+  జ్ఞాపకం_నకలు(ptr + 8, &ntlm->nonce[0], 8);
+  ఫలితం = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, HMAC_MD5_నిడివి, ptr + 8,
                        NTLMv2_BLOB_LEN + 8, hmac_output);
-  if(result) {
+  ఒకవేళ(ఫలితం) {
     curlx_free(ptr);
-    return result;
+    తిరిగి ఫలితం;
   }
 
   /* Concatenate the HMAC MD5 output  with the BLOB */
-  memcpy(ptr, hmac_output, HMAC_MD5_LENGTH);
+  జ్ఞాపకం_నకలు(ptr, hmac_output, HMAC_MD5_నిడివి);
 
   /* Return the response */
   *ntresp = ptr;
   *ntresp_len = len;
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -638,30 +638,30 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
-                                     const unsigned char *challenge_client,
-                                     const unsigned char *challenge_server,
-                                     unsigned char *lmresp)
+CURLcode Curl_ntlm_core_mk_lmv2_resp(స్థిరరాశి గుర్తులేని అక్షరం *ntlmv2hash,
+                                     స్థిరరాశి గుర్తులేని అక్షరం *challenge_client,
+                                     స్థిరరాశి గుర్తులేని అక్షరం *challenge_server,
+                                     గుర్తులేని అక్షరం *lmresp)
 {
-  unsigned char data[16];
-  unsigned char hmac_output[16];
-  CURLcode result = CURLE_OK;
+  గుర్తులేని అక్షరం దత్తాంశం[16];
+  గుర్తులేని అక్షరం hmac_output[16];
+  CURLcode ఫలితం = CURLE_OK;
 
-  memcpy(&data[0], challenge_server, 8);
-  memcpy(&data[8], challenge_client, 8);
+  జ్ఞాపకం_నకలు(&దత్తాంశం[0], challenge_server, 8);
+  జ్ఞాపకం_నకలు(&దత్తాంశం[8], challenge_client, 8);
 
-  result = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, 16, &data[0], 16,
+  ఫలితం = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, 16, &దత్తాంశం[0], 16,
                        hmac_output);
-  if(result)
-    return result;
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* Concatenate the HMAC MD5 output with the client nonce */
-  memcpy(lmresp, hmac_output, 16);
-  memcpy(lmresp + 16, challenge_client, 8);
+  జ్ఞాపకం_నకలు(lmresp, hmac_output, 16);
+  జ్ఞాపకం_నకలు(lmresp + 16, challenge_client, 8);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif /* !USE_WINDOWS_SSPI */
+#అయితే_ముగింపు /* !USE_WINDOWS_SSPI */
 
-#endif /* USE_CURL_NTLM_CORE */
+#అయితే_ముగింపు /* USE_CURL_NTLM_CORE */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ASYN_H
-#define HEADER_CURL_ASYN_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_ASYN_H
+#నిర్వచించు శీర్షిక_CURL_ASYN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,29 +23,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if defined(USE_HTTPSRR) && defined(USE_ARES)
-#include "vdns/httpsrr.h"
-#endif
+#ఒకవేళ defined(USE_HTTPSRR) && defined(USE_ARES)
+#అన్తర్భావ "vdns/httpsrr.h"
+#అయితే_ముగింపు
 
-struct Curl_easy;
-struct Curl_dns_entry;
-struct Curl_resolv_async;
-struct Curl_multi;
-struct easy_pollset;
+నిర్మాణం Curl_easy;
+నిర్మాణం Curl_dns_నమోదు;
+నిర్మాణం Curl_resolv_async;
+నిర్మాణం Curl_multi;
+నిర్మాణం easy_pollset;
 
-#ifdef CURLRES_ASYNCH
+#నిర్వచితమైతే CURLRES_ASYNCH
 
-#include "curl_addrinfo.h"
+#అన్తర్భావ "curl_addrinfo.h"
 
-struct hostent;
-struct connectdata;
-struct easy_pollset;
+నిర్మాణం hostent;
+నిర్మాణం connectdata;
+నిర్మాణం easy_pollset;
 
-#if defined(USE_RESOLV_ARES) && defined(USE_RESOLV_THREADED)
-#error cannot have both USE_RESOLV_ARES and USE_RESOLV_THREADED defined
-#endif
+#ఒకవేళ defined(USE_RESOLV_ARES) && defined(USE_RESOLV_THREADED)
+#దోషం cannot have both USE_RESOLV_ARES and USE_RESOLV_THREADED defined
+#అయితే_ముగింపు
 
 /*
  * This header defines all functions in the internal asynch resolver interface.
@@ -60,13 +60,13 @@ struct easy_pollset;
  * Called from curl_global_init() to initialize global resolver environment.
  * Returning anything else than CURLE_OK fails curl_global_init().
  */
-int Curl_async_global_init(void);
+పూర్ణాంకం Curl_async_global_init(శూన్య);
 
 /*
  * Curl_async_global_cleanup()
  * Called from curl_global_cleanup() to destroy global resolver environment.
  */
-void Curl_async_global_cleanup(void);
+శూన్య Curl_async_global_cleanup(శూన్య);
 
 /*
  * Curl_async_getaddrinfo() - when using this resolver
@@ -79,85 +79,85 @@ void Curl_async_global_cleanup(void);
  * Each resolver backend must of course make sure to return data in the
  * correct format to comply with this.
  */
-CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
-                                struct Curl_resolv_async *async);
+CURLcode Curl_async_getaddrinfo(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం Curl_resolv_async *async);
 
-#ifdef USE_HTTPSRR
-bool Curl_async_knows_https(struct Curl_easy *data,
-                            struct Curl_resolv_async *async);
-#endif /* USE_HTTPSRR */
+#నిర్వచితమైతే USE_HTTPSRR
+bool Curl_async_knows_https(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం Curl_resolv_async *async);
+#అయితే_ముగింపు /* USE_HTTPSRR */
 
-#ifdef USE_ARES
+#నిర్వచితమైతే USE_ARES
 /* common functions for c-ares and threaded resolver with HTTPSRR */
-#include <ares.h>
+#అన్తర్భావ <ares.h>
 
-CURLcode Curl_ares_pollset(struct Curl_easy *data,
+CURLcode Curl_ares_pollset(నిర్మాణం Curl_easy *దత్తాంశం,
                            ares_channel channel,
-                           struct easy_pollset *ps);
+                           నిర్మాణం easy_pollset *ps);
 
-timediff_t Curl_ares_timeout_ms(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
+timediff_t Curl_ares_timeout_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం Curl_resolv_async *async,
                                 ares_channel channel);
 
-int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms);
-#endif
+పూర్ణాంకం Curl_ares_perform(ares_channel channel, timediff_t timeout_ms);
+#అయితే_ముగింపు
 
-#ifdef USE_RESOLV_ARES
+#నిర్వచితమైతే USE_RESOLV_ARES
 /* async resolving implementation using c-ares alone */
-struct async_ares_ctx {
+నిర్మాణం async_ares_ctx {
   ares_channel channel;
-  int ares_status;               /* ARES_SUCCESS, ARES_ENOTFOUND, etc. */
-  CURLcode result;               /* CURLE_OK or error handling response */
-  BIT(transient_err); /* an A/AAAA query failed without the resolver
+  పూర్ణాంకం ares_స్థితి;               /* ARES_SUCCESS, ARES_ENOTFOUND, etc. */
+  CURLcode ఫలితం;               /* CURLE_OK or error handling response */
+  బిట్టు(transient_err); /* an A/AAAA query failed without the resolver
                          answering that the name does not exist */
 };
 
-void Curl_async_ares_shutdown(struct Curl_easy *data,
-                              struct Curl_resolv_async *async);
-void Curl_async_ares_destroy(struct Curl_easy *data,
-                             struct Curl_resolv_async *async);
+శూన్య Curl_async_ares_shutdown(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_resolv_async *async);
+శూన్య Curl_async_ares_destroy(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Curl_resolv_async *async);
 
-#endif /* USE_RESOLV_ARES */
+#అయితే_ముగింపు /* USE_RESOLV_ARES */
 
-#ifdef USE_RESOLV_THREADED
+#నిర్వచితమైతే USE_RESOLV_THREADED
 
-struct async_thrdd_item;
+నిర్మాణం async_thrdd_అంశం;
 
 /* Context for threaded resolver */
-struct async_thrdd_ctx {
-  struct async_thrdd_item *res_A; /* IPv4 final result */
-  struct async_thrdd_item *res_AAAA; /* IPv6 final result */
-#if defined(USE_HTTPSRR) && defined(USE_ARES)
-  struct {
+నిర్మాణం async_thrdd_ctx {
+  నిర్మాణం async_thrdd_అంశం *res_A; /* IPv4 final result */
+  నిర్మాణం async_thrdd_అంశం *res_AAAA; /* IPv6 final result */
+#ఒకవేళ defined(USE_HTTPSRR) && defined(USE_ARES)
+  నిర్మాణం {
     ares_channel channel;
   } rr;
-#endif
-  BIT(processed_A);
-  BIT(processed_AAAA);
+#అయితే_ముగింపు
+  బిట్టు(processed_A);
+  బిట్టు(processed_AAAA);
 };
 
-void Curl_async_thrdd_shutdown(struct Curl_easy *data,
-                               struct Curl_resolv_async *async);
-void Curl_async_thrdd_destroy(struct Curl_easy *data,
-                              struct Curl_resolv_async *async);
+శూన్య Curl_async_thrdd_shutdown(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_resolv_async *async);
+శూన్య Curl_async_thrdd_destroy(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_resolv_async *async);
 
-CURLcode Curl_async_thrdd_multi_init(struct Curl_multi *multi,
-                                     uint32_t min_threads,
-                                     uint32_t max_threads,
-                                     uint32_t idle_time_ms);
-void Curl_async_thrdd_multi_destroy(struct Curl_multi *multi, bool join);
-void Curl_async_thrdd_multi_process(struct Curl_multi *multi);
+CURLcode Curl_async_thrdd_multi_init(నిర్మాణం Curl_multi *multi,
+                                     uint32_t min_దారాలు,
+                                     uint32_t max_దారాలు,
+                                     uint32_t idle_సమయం_ms);
+శూన్య Curl_async_thrdd_multi_destroy(నిర్మాణం Curl_multi *multi, bool join);
+శూన్య Curl_async_thrdd_multi_process(నిర్మాణం Curl_multi *multi);
 
-CURLcode Curl_async_thrdd_multi_set_props(struct Curl_multi *multi,
-                                          uint32_t min_threads,
-                                          uint32_t max_threads,
-                                          uint32_t idle_time_ms);
+CURLcode Curl_async_thrdd_multi_సమితి_props(నిర్మాణం Curl_multi *multi,
+                                          uint32_t min_దారాలు,
+                                          uint32_t max_దారాలు,
+                                          uint32_t idle_సమయం_ms);
 
-#endif /* USE_RESOLV_THREADED */
+#అయితే_ముగింపు /* USE_RESOLV_THREADED */
 
-#ifndef CURL_DISABLE_DOH
-struct doh_probes;
-#endif
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DOH
+నిర్మాణం doh_probes;
+#అయితే_ముగింపు
 
 /*
  * Curl_async_await()
@@ -170,17 +170,17 @@ struct doh_probes;
  * Returns CURLE_COULDNT_RESOLVE_HOST if the host was not resolved,
  * CURLE_OPERATION_TIMEDOUT if a time-out occurred, or other errors.
  */
-CURLcode Curl_async_await(struct Curl_easy *data, uint32_t resolv_id,
-                          struct Curl_dns_entry **pdns);
+CURLcode Curl_async_await(నిర్మాణం Curl_easy *దత్తాంశం, uint32_t resolv_id,
+                          నిర్మాణం Curl_dns_నమోదు **pdns);
 
 /*
  * Take the result of an async resolve operation.
  * Returns CURLE_OK with `*pdns` != NULL, CURLE_AGAIN while still
  * ongoing or an error code for a failed resolve.
  */
-CURLcode Curl_async_take_result(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
-                                struct Curl_dns_entry **pdns);
+CURLcode Curl_async_take_ఫలితం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం Curl_resolv_async *async,
+                                నిర్మాణం Curl_dns_నమోదు **pdns);
 
 /* Curl_async_pollset()
  *
@@ -190,82 +190,82 @@ CURLcode Curl_async_take_result(struct Curl_easy *data,
  * return bitmask indicating what file descriptors (referring to array indexes
  * in the 'sock' array) to wait for, read/write.
  */
-CURLcode Curl_async_pollset(struct Curl_easy *data,
-                            struct Curl_resolv_async *async,
-                            struct easy_pollset *ps);
+CURLcode Curl_async_pollset(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం Curl_resolv_async *async,
+                            నిర్మాణం easy_pollset *ps);
 
-#else /* CURLRES_ASYNCH */
+#లేకపోతే /* CURLRES_ASYNCH */
 
 /* convert these functions if an asynch resolver is not used */
-#define Curl_async_global_init()        CURLE_OK
-#define Curl_async_global_cleanup()     Curl_nop_stmt
-#define Curl_async_await(a, b, c)       CURLE_COULDNT_RESOLVE_HOST
-#define Curl_async_take_result(x, y, z) CURLE_COULDNT_RESOLVE_HOST
-#define Curl_async_pollset(x, y, z)     CURLE_OK
-#define Curl_async_knows_https(x, y)    TRUE
-#endif /* !CURLRES_ASYNCH */
+#నిర్వచించు Curl_async_global_init()        CURLE_OK
+#నిర్వచించు Curl_async_global_cleanup()     Curl_nop_stmt
+#నిర్వచించు Curl_async_await(a, b, c)       CURLE_COULDNT_RESOLVE_HOST
+#నిర్వచించు Curl_async_take_ఫలితం(x, y, z) CURLE_COULDNT_RESOLVE_HOST
+#నిర్వచించు Curl_async_pollset(x, y, z)     CURLE_OK
+#నిర్వచించు Curl_async_knows_https(x, y)    TRUE
+#అయితే_ముగింపు /* !CURLRES_ASYNCH */
 
-#if defined(CURLRES_ASYNCH) || !defined(CURL_DISABLE_DOH)
-#define USE_CURL_ASYNC
-#endif
+#ఒకవేళ defined(CURLRES_ASYNCH) || !defined(CURL_DISABLE_DOH)
+#నిర్వచించు USE_CURL_ASYNC
+#అయితే_ముగింపు
 
-#ifdef USE_CURL_ASYNC
+#నిర్వచితమైతే USE_CURL_ASYNC
 
-struct Curl_resolv_async {
-  struct Curl_resolv_async *next;
-  struct Curl_peer *peer;
-  struct Curl_addrinfo *ai_A;
-  struct Curl_addrinfo *ai_AAAA;
-#ifdef USE_HTTPSRR
-  struct Curl_https_rrinfo *httpsrr;
-#endif
-#ifdef USE_RESOLV_ARES
-  struct async_ares_ctx ares;
-#elif defined(USE_RESOLV_THREADED)
-  struct async_thrdd_ctx thrdd;
-#endif
-#ifndef CURL_DISABLE_DOH
-  struct doh_probes *doh; /* DoH specific data for this request */
-#endif
-  struct curltime start;
-  timediff_t interval_end;
+నిర్మాణం Curl_resolv_async {
+  నిర్మాణం Curl_resolv_async *తదుపరి;
+  నిర్మాణం Curl_peer *peer;
+  నిర్మాణం Curl_addrinfo *ai_A;
+  నిర్మాణం Curl_addrinfo *ai_AAAA;
+#నిర్వచితమైతే USE_HTTPSRR
+  నిర్మాణం Curl_https_rrinfo *httpsrr;
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_RESOLV_ARES
+  నిర్మాణం async_ares_ctx ares;
+#లేదావేళ defined(USE_RESOLV_THREADED)
+  నిర్మాణం async_thrdd_ctx thrdd;
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DOH
+  నిర్మాణం doh_probes *doh; /* DoH specific data for this request */
+#అయితే_ముగింపు
+  నిర్మాణం curltime ప్రారంభం;
+  timediff_t interval_చివర;
   timediff_t timeout_ms;
-  CURLcode result;
+  CURLcode ఫలితం;
   uint32_t poll_interval;
   uint32_t id; /* unique id per easy handle of the resolve operation */
   uint8_t dns_queries; /* what queries are being performed */
   uint8_t dns_responses; /* what queries had responses so far. */
   uint8_t transport;
   uint8_t queries_ongoing;
-  BIT(is_ipaddr);
-  BIT(is_ipv4addr);
-  BIT(for_proxy);
-  BIT(done);
-  BIT(shutdown);
-  BIT(negative_answer); /* resolver answered that the name does not
+  బిట్టు(is_ipaddr);
+  బిట్టు(is_ipv4addr);
+  బిట్టు(for_proxy);
+  బిట్టు(పూర్తి);
+  బిట్టు(shutdown);
+  బిట్టు(negative_answer); /* resolver answered that the name does not
                            exist. Only such failures may be cached as
                            negative entries, not transient or local
                            resolver failures. */
 };
 
-timediff_t Curl_async_timeleft_ms(struct Curl_easy *data,
-                                  struct Curl_resolv_async *async);
+timediff_t Curl_async_timeleft_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం Curl_resolv_async *async);
 
 /* Shut down the given async resolve. */
-void Curl_async_shutdown(struct Curl_easy *data,
-                         struct Curl_resolv_async *async);
+శూన్య Curl_async_shutdown(నిర్మాణం Curl_easy *దత్తాంశం,
+                         నిర్మాణం Curl_resolv_async *async);
 
 /* Frees the resources of the given async resolve and the struct itself. */
-void Curl_async_destroy(struct Curl_easy *data,
-                        struct Curl_resolv_async *async);
+శూన్య Curl_async_destroy(నిర్మాణం Curl_easy *దత్తాంశం,
+                        నిర్మాణం Curl_resolv_async *async);
 
-CURLcode Curl_async_failed(struct Curl_easy *data,
-                           struct Curl_resolv_async *async,
-                           const char *detail);
+CURLcode Curl_async_failed(నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం Curl_resolv_async *async,
+                           స్థిరరాశి అక్షరం *detail);
 
-#else /* !USE_CURL_ASYNC */
-#define Curl_async_shutdown(x, y) Curl_nop_stmt
-#endif /* USE_CURL_ASYNC */
+#లేకపోతే /* !USE_CURL_ASYNC */
+#నిర్వచించు Curl_async_shutdown(x, y) Curl_nop_stmt
+#అయితే_ముగింపు /* USE_CURL_ASYNC */
 
 /********** end of generic resolver interface functions *****************/
-#endif /* HEADER_CURL_ASYN_H */
+#అయితే_ముగింపు /* HEADER_CURL_ASYN_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ED25519_H
-#define HEADER_CURL_ED25519_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_ED25519_H
+#నిర్వచించు శీర్షిక_CURL_ED25519_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
-#define CURL_ED25519_SIGLEN 64
-#define CURL_ED25519_KEYLEN 32
+#నిర్వచించు CURL_ED25519_SIGLEN 64
+#నిర్వచించు CURL_ED25519_KEYLEN 32
 
 /* Sign with Ed25519 (RFC 8032).
  * key/keylen: raw 32-byte private seed
@@ -36,9 +36,9 @@
  * sig: output buffer (at least CURL_ED25519_SIGLEN bytes)
  * siglen: out - actual signature length on success
  * Returns CURLE_OK or CURLE_NOT_BUILT_IN if no backend supports Ed25519. */
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen);
+CURLcode Curl_ed25519_sign(స్థిరరాశి గుర్తులేని అక్షరం *కీలకం, size_t keylen,
+                           స్థిరరాశి గుర్తులేని అక్షరం *సందేశం, size_t msglen,
+                           గుర్తులేని అక్షరం *sig, size_t *siglen);
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
-#endif /* HEADER_CURL_ED25519_H */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
+#అయితే_ముగింపు /* HEADER_CURL_ED25519_H */

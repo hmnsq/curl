@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SHARE_H
-#define HEADER_CURL_SHARE_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_SHARE_H
+#నిర్వచించు శీర్షిక_CURL_SHARE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,78 +23,78 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "curl_threads.h"
-#include "cookie.h"
-#include "psl.h"
-#include "urldata.h"
-#include "conncache.h"
+#అన్తర్భావ "curl_threads.h"
+#అన్తర్భావ "cookie.h"
+#అన్తర్భావ "psl.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "conncache.h"
 
-struct Curl_easy;
-struct Curl_ssl_scache;
+నిర్మాణం Curl_easy;
+నిర్మాణం Curl_ssl_scache;
 
-#define CURL_GOOD_SHARE 0x7e117a1e
-#define GOOD_SHARE_HANDLE(x) ((x) && (x)->magic == CURL_GOOD_SHARE)
+#నిర్వచించు CURL_GOOD_SHARE 0x7e117a1e
+#నిర్వచించు GOOD_SHARE_HANDLE(x) ((x) && (x)->magic == CURL_GOOD_SHARE)
 
-#define CURL_SHARE_KEEP_CONNECT(s)                          \
-  ((s) && ((s)->specifier & (1 << CURL_LOCK_DATA_CONNECT)))
+#నిర్వచించు CURL_SHARE_KEEP_CONNECT(s)                          \
+  ((s) && ((s)->specifier & (1 << CURL_తాళం_దత్తాంశం_CONNECT)))
 
 /* this struct is libcurl-private, do not export details */
-struct Curl_share {
-  unsigned int magic; /* CURL_GOOD_SHARE */
-  unsigned int specifier;
+నిర్మాణం Curl_share {
+  గుర్తులేని పూర్ణాంకం magic; /* CURL_GOOD_SHARE */
+  గుర్తులేని పూర్ణాంకం specifier;
 
-  uint32_t ref_count;
-#ifdef USE_MUTEX
+  uint32_t ref_లెక్క;
+#నిర్వచితమైతే USE_MUTEX
    /* do `ref_count` and `has_been_shared` checks using this mutex. */
-  curl_mutex_t lock;
-  int has_been_shared;
-#else
+  curl_mutex_t తాళం;
+  పూర్ణాంకం has_been_shared;
+#లేకపోతే
   /* this only ever goes from FALSE -> TRUE once. We need to check
    * this without being able to use the `lockfunc`. */
-  volatile int has_been_shared;
-#endif
-  curl_lock_function lockfunc;
+  అస్థిర పూర్ణాంకం has_been_shared;
+#అయితే_ముగింపు
+  curl_తాళం_function lockfunc;
   curl_unlock_function unlockfunc;
-  void *clientdata;
-  struct Curl_easy *admin;
+  శూన్య *clientdata;
+  నిర్మాణం Curl_easy *admin;
 
-  struct cpool cpool;
-  struct Curl_dnscache dnscache; /* DNS cache */
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-  struct CookieInfo *cookies;
-#endif
-#ifdef USE_LIBPSL
-  struct PslCache psl;
-#endif
-#ifndef CURL_DISABLE_HSTS
-  struct hsts *hsts;
-#endif
-#ifdef USE_SSL
-  struct Curl_ssl_scache *ssl_scache;
-#endif
+  నిర్మాణం cpool cpool;
+  నిర్మాణం Curl_dnscache dnscache; /* DNS cache */
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+  నిర్మాణం CookieInfo *cookies;
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_LIBPSL
+  నిర్మాణం PslCache psl;
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HSTS
+  నిర్మాణం hsts *hsts;
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSL
+  నిర్మాణం Curl_ssl_scache *ssl_scache;
+#అయితే_ముగింపు
 };
 
-CURLSHcode Curl_share_lock(struct Curl_easy *data, curl_lock_data type,
-                           curl_lock_access accesstype);
-CURLSHcode Curl_share_unlock(struct Curl_easy *data, curl_lock_data type);
+CURLSHcode Curl_share_తాళం(నిర్మాణం Curl_easy *దత్తాంశం, curl_తాళం_దత్తాంశం type,
+                           curl_తాళం_access accesstype);
+CURLSHcode Curl_share_unlock(నిర్మాణం Curl_easy *దత్తాంశం, curl_తాళం_దత్తాంశం type);
 
-CURLSHcode Curl_share_lock_share(struct Curl_share *share,
-                                 struct Curl_easy *data,
-                                 curl_lock_data type,
-                                 curl_lock_access accesstype);
-CURLSHcode Curl_share_unlock_share(struct Curl_share *share,
-                                   struct Curl_easy *data,
-                                   curl_lock_data type);
+CURLSHcode Curl_share_తాళం_share(నిర్మాణం Curl_share *share,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 curl_తాళం_దత్తాంశం type,
+                                 curl_తాళం_access accesstype);
+CURLSHcode Curl_share_unlock_share(నిర్మాణం Curl_share *share,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   curl_తాళం_దత్తాంశం type);
 
 /* convenience macro to check if this handle is using a shared SSL spool */
-#define CURL_SHARE_ssl_scache(data)                                \
-  ((data)->share &&                                                \
-   ((data)->share->specifier & (1 << CURL_LOCK_DATA_SSL_SESSION)))
+#నిర్వచించు CURL_SHARE_ssl_scache(దత్తాంశం)                                \
+  ((దత్తాంశం)->share &&                                                \
+   ((దత్తాంశం)->share->specifier & (1 << CURL_తాళం_దత్తాంశం_SSL_SESSION)))
 
-CURLcode Curl_share_easy_unlink(struct Curl_easy *data);
-CURLcode Curl_share_easy_link(struct Curl_easy *data,
-                              struct Curl_share *share);
+CURLcode Curl_share_easy_unlink(నిర్మాణం Curl_easy *దత్తాంశం);
+CURLcode Curl_share_easy_link(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_share *share);
 
-#endif /* HEADER_CURL_SHARE_H */
+#అయితే_ముగింపు /* HEADER_CURL_SHARE_H */

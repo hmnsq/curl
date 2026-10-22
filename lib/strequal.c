@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "strcase.h"
+#అన్తర్భావ "strcase.h"
 
 /*
  * curl_strequal() is for doing "raw" case insensitive strings. This is meant
@@ -32,35 +32,35 @@
  * further explanations as to why this function is necessary.
  */
 
-static int casecompare(const char *first, const char *second)
+స్థిర పూర్ణాంకం casecompare(స్థిరరాశి అక్షరం *మొదటి, స్థిరరాశి అక్షరం *రెండవ)
 {
-  while(*first) {
-    if(Curl_raw_toupper(*first) != Curl_raw_toupper(*second))
+  అయితే(*మొదటి) {
+    ఒకవేళ(Curl_raw_toupper(*మొదటి) != Curl_raw_toupper(*రెండవ))
       /* get out of the loop as soon as they do not match */
-      return 0;
-    first++;
-    second++;
+      తిరిగి 0;
+    మొదటి++;
+    రెండవ++;
   }
   /* If we are here either the strings are the same or the length is different.
      We can test if the "current" character is non-zero for one and zero
      for the other. Note that the characters may not be exactly the same even
      if they match, we only want to compare zero-ness. */
-  return !*first == !*second;
+  తిరిగి !*మొదటి == !*రెండవ;
 }
 
-static int ncasecompare(const char *first, const char *second, size_t max)
+స్థిర పూర్ణాంకం ncasecompare(స్థిరరాశి అక్షరం *మొదటి, స్థిరరాశి అక్షరం *రెండవ, size_t max)
 {
-  while(*first && max) {
-    if(Curl_raw_toupper(*first) != Curl_raw_toupper(*second))
-      return 0;
+  అయితే(*మొదటి && max) {
+    ఒకవేళ(Curl_raw_toupper(*మొదటి) != Curl_raw_toupper(*రెండవ))
+      తిరిగి 0;
     max--;
-    first++;
-    second++;
+    మొదటి++;
+    రెండవ++;
   }
-  if(max == 0)
-    return 1; /* they are equal this far */
+  ఒకవేళ(max == 0)
+    తిరిగి 1; /* they are equal this far */
 
-  return Curl_raw_toupper(*first) == Curl_raw_toupper(*second);
+  తిరిగి Curl_raw_toupper(*మొదటి) == Curl_raw_toupper(*రెండవ);
 }
 
 /*
@@ -73,23 +73,23 @@ static int ncasecompare(const char *first, const char *second, size_t max)
  */
 
 /* --- public function --- */
-int curl_strequal(const char *s1, const char *s2)
+పూర్ణాంకం curl_strequal(స్థిరరాశి అక్షరం *s1, స్థిరరాశి అక్షరం *s2)
 {
-  if(s1 && s2)
+  ఒకవేళ(s1 && s2)
     /* both pointers point to something then compare them */
-    return casecompare(s1, s2);
+    తిరిగి casecompare(s1, s2);
 
   /* if both pointers are NULL then treat them as equal */
-  return NULL == s1 && NULL == s2;
+  తిరిగి ఖాళీ == s1 && ఖాళీ == s2;
 }
 
 /* --- public function --- */
-int curl_strnequal(const char *s1, const char *s2, size_t n)
+పూర్ణాంకం curl_strnequal(స్థిరరాశి అక్షరం *s1, స్థిరరాశి అక్షరం *s2, size_t n)
 {
-  if(s1 && s2)
+  ఒకవేళ(s1 && s2)
     /* both pointers point to something then compare them */
-    return ncasecompare(s1, s2, n);
+    తిరిగి ncasecompare(s1, s2, n);
 
   /* if both pointers are NULL then treat them as equal if max is non-zero */
-  return NULL == s1 && NULL == s2 && n;
+  తిరిగి ఖాళీ == s1 && ఖాళీ == s2 && n;
 }

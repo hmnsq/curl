@@ -21,22 +21,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
-#endif
+#నిర్వచితమైతే HAVE_SYS_SELECT_H
+#అన్తర్భావ <sys/select.h>
+#లేదావేళ defined(HAVE_UNISTD_H)
+#అన్తర్భావ <unistd.h>
+#అయితే_ముగింపు
 
-#include "urldata.h"
-#include "connect.h"
-#include "select.h"
-#include "curl_trc.h"
-#include "curlx/timediff.h"
-#include "curlx/wait.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "curlx/timediff.h"
+#అన్తర్భావ "curlx/wait.h"
 
-#ifndef HAVE_POLL  /* use select() */
+#నిర్వచితం_కాకపోతే HAVE_POLL  /* use select() */
 /*
  * This is a wrapper around select() to aid in Windows compatibility. A
  * negative timeout value makes this function wait indefinitely, unless no
@@ -48,28 +48,28 @@
  *    0 = timeout
  *    N = number of signalled file descriptors
  */
-static int our_select(curl_socket_t maxfd,   /* highest socket number */
+స్థిర పూర్ణాంకం our_select(curl_socket_t maxfd,   /* highest socket number */
                       fd_set *fds_read,      /* sockets ready for reading */
                       fd_set *fds_write,     /* sockets ready for writing */
                       fd_set *fds_err,       /* sockets with errors */
                       timediff_t timeout_ms) /* milliseconds to wait */
 {
-  struct timeval pending_tv;
-  struct timeval *ptimeout;
+  నిర్మాణం timeval pending_tv;
+  నిర్మాణం timeval *ptimeout;
 
-#ifdef USE_WINSOCK
+#నిర్వచితమైతే USE_WINSOCK
   /* Winsock select() cannot handle zero events. See the comment below. */
-  if((!fds_read || fds_read->fd_count == 0) &&
-     (!fds_write || fds_write->fd_count == 0) &&
-     (!fds_err || fds_err->fd_count == 0)) {
+  ఒకవేళ((!fds_read || fds_read->fd_లెక్క == 0) &&
+     (!fds_write || fds_write->fd_లెక్క == 0) &&
+     (!fds_err || fds_err->fd_లెక్క == 0)) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    తిరిగి curlx_wait_ms(timeout_ms);
   }
-#endif
+#అయితే_ముగింపు
 
   ptimeout = curlx_mstotv(&pending_tv, timeout_ms);
 
-#ifdef USE_WINSOCK
+#నిర్వచితమైతే USE_WINSOCK
   /* Winsock select() must not be called with an fd_set that contains zero
      fd flags, or it will return WSAEINVAL. It also cannot be called with
      no fd_sets at all!  From the documentation:
@@ -82,16 +82,16 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
      calling this an error. Luckily, with Winsock, we can _also_ ask how
      many bits are set on an fd_set. Therefore, let's check it beforehand.
    */
-  return select((int)maxfd + 1,
-                fds_read && fds_read->fd_count ? fds_read : NULL,
-                fds_write && fds_write->fd_count ? fds_write : NULL,
-                fds_err && fds_err->fd_count ? fds_err : NULL, ptimeout);
-#else
-  return select((int)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
-#endif
+  తిరిగి select((పూర్ణాంకం)maxfd + 1,
+                fds_read && fds_read->fd_లెక్క ? fds_read : ఖాళీ,
+                fds_write && fds_write->fd_లెక్క ? fds_write : ఖాళీ,
+                fds_err && fds_err->fd_లెక్క ? fds_err : ఖాళీ, ptimeout);
+#లేకపోతే
+  తిరిగి select((పూర్ణాంకం)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
+#అయితే_ముగింపు
 }
 
-#endif
+#అయితే_ముగింపు
 
 /*
  * Wait for read or write events on a set of file descriptors. It uses poll()
@@ -113,19 +113,19 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
  * CURL_CSELECT_OUT - write socket is writable
  * CURL_CSELECT_ERR - an error condition occurred
  */
-int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
+పూర్ణాంకం Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
                       curl_socket_t readfd1,
                       curl_socket_t writefd, /* socket to write to */
                       timediff_t timeout_ms) /* milliseconds to wait */
 {
-  struct pollfd pfd[3];
-  int num;
-  int r;
+  నిర్మాణం pollfd pfd[3];
+  పూర్ణాంకం అంకె;
+  పూర్ణాంకం r;
 
-  if((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
+  ఒకవేళ((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
      (writefd == CURL_SOCKET_BAD)) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    తిరిగి curlx_wait_ms(timeout_ms);
   }
 
   /* Avoid initial timestamp, avoid curlx_now() call, when elapsed
@@ -133,54 +133,54 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
      when function is called with a zero timeout or a negative timeout
      value indicating a blocking call should be performed. */
 
-  num = 0;
-  if(readfd0 != CURL_SOCKET_BAD) {
-    pfd[num].fd = readfd0;
-    pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+  అంకె = 0;
+  ఒకవేళ(readfd0 != CURL_SOCKET_BAD) {
+    pfd[అంకె].fd = readfd0;
+    pfd[అంకె].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
+    pfd[అంకె].revents = 0;
+    అంకె++;
   }
-  if(readfd1 != CURL_SOCKET_BAD) {
-    pfd[num].fd = readfd1;
-    pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+  ఒకవేళ(readfd1 != CURL_SOCKET_BAD) {
+    pfd[అంకె].fd = readfd1;
+    pfd[అంకె].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
+    pfd[అంకె].revents = 0;
+    అంకె++;
   }
-  if(writefd != CURL_SOCKET_BAD) {
-    pfd[num].fd = writefd;
-    pfd[num].events = POLLWRNORM | POLLOUT | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+  ఒకవేళ(writefd != CURL_SOCKET_BAD) {
+    pfd[అంకె].fd = writefd;
+    pfd[అంకె].events = POLLWRNORM | POLLOUT | POLLPRI;
+    pfd[అంకె].revents = 0;
+    అంకె++;
   }
 
-  r = Curl_poll(pfd, (unsigned int)num, timeout_ms);
-  if(r <= 0)
-    return r;
+  r = Curl_poll(pfd, (గుర్తులేని పూర్ణాంకం)అంకె, timeout_ms);
+  ఒకవేళ(r <= 0)
+    తిరిగి r;
 
   r = 0;
-  num = 0;
-  if(readfd0 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
-      r |= CURL_CSELECT_IN;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+  అంకె = 0;
+  ఒకవేళ(readfd0 != CURL_SOCKET_BAD) {
+    ఒకవేళ(pfd[అంకె].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+      r |= CURL_CSELECT_లోపల;
+    ఒకవేళ(pfd[అంకె].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
-    num++;
+    అంకె++;
   }
-  if(readfd1 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+  ఒకవేళ(readfd1 != CURL_SOCKET_BAD) {
+    ఒకవేళ(pfd[అంకె].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
       r |= CURL_CSELECT_IN2;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+    ఒకవేళ(pfd[అంకె].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
-    num++;
+    అంకె++;
   }
-  if(writefd != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLWRNORM | POLLOUT))
-      r |= CURL_CSELECT_OUT;
-    if(pfd[num].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
+  ఒకవేళ(writefd != CURL_SOCKET_BAD) {
+    ఒకవేళ(pfd[అంకె].revents & (POLLWRNORM | POLLOUT))
+      r |= CURL_CSELECT_బహిర్గతం;
+    ఒకవేళ(pfd[అంకె].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
   }
 
-  return r;
+  తిరిగి r;
 }
 
 /*
@@ -196,31 +196,31 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
+పూర్ణాంకం Curl_poll(నిర్మాణం pollfd ufds[], గుర్తులేని పూర్ణాంకం nfds, timediff_t timeout_ms)
 {
-#ifdef HAVE_POLL
-  int pending_ms;
-#else
+#నిర్వచితమైతే HAVE_POLL
+  పూర్ణాంకం pending_ms;
+#లేకపోతే
   fd_set fds_read;
   fd_set fds_write;
   fd_set fds_err;
   curl_socket_t maxfd;
-#endif
+#అయితే_ముగింపు
   bool fds_none = TRUE;
-  unsigned int i;
-  int r;
+  గుర్తులేని పూర్ణాంకం i;
+  పూర్ణాంకం r;
 
-  if(ufds) {
-    for(i = 0; i < nfds; i++) {
-      if(ufds[i].fd != CURL_SOCKET_BAD) {
+  ఒకవేళ(ufds) {
+    కొరకు(i = 0; i < nfds; i++) {
+      ఒకవేళ(ufds[i].fd != CURL_SOCKET_BAD) {
         fds_none = FALSE;
-        break;
+        ఆపు;
       }
     }
   }
-  if(fds_none) {
+  ఒకవేళ(fds_none) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    తిరిగి curlx_wait_ms(timeout_ms);
   }
 
   /* Avoid initial timestamp, avoid curlx_now() call, when elapsed
@@ -228,57 +228,57 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
      when function is called with a zero timeout or a negative timeout
      value indicating a blocking call should be performed. */
 
-#ifdef HAVE_POLL
+#నిర్వచితమైతే HAVE_POLL
 
   /* prevent overflow, timeout_ms is typecast to int. */
-#if TIMEDIFF_T_MAX > INT_MAX
-  if(timeout_ms > INT_MAX)
-    timeout_ms = INT_MAX;
-#endif
-  if(timeout_ms > 0)
-    pending_ms = (int)timeout_ms;
-  else if(timeout_ms < 0)
+#ఒకవేళ TIMEDIFF_T_MAX > గరిష్ఠ_పూర్ణాంకం
+  ఒకవేళ(timeout_ms > గరిష్ఠ_పూర్ణాంకం)
+    timeout_ms = గరిష్ఠ_పూర్ణాంకం;
+#అయితే_ముగింపు
+  ఒకవేళ(timeout_ms > 0)
+    pending_ms = (పూర్ణాంకం)timeout_ms;
+  లేకపోతే ఒకవేళ(timeout_ms < 0)
     pending_ms = -1;
-  else
+  లేకపోతే
     pending_ms = 0;
   r = poll(ufds, nfds, pending_ms);
-  if(r <= 0) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  ఒకవేళ(r <= 0) {
+    ఒకవేళ((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    return r;
+    తిరిగి r;
   }
 
-  for(i = 0; i < nfds; i++) {
-    if(ufds[i].fd == CURL_SOCKET_BAD)
-      continue;
-    if(ufds[i].revents & POLLHUP)
+  కొరకు(i = 0; i < nfds; i++) {
+    ఒకవేళ(ufds[i].fd == CURL_SOCKET_BAD)
+      కొనసాగు;
+    ఒకవేళ(ufds[i].revents & POLLHUP)
       ufds[i].revents |= POLLIN;
-    if(ufds[i].revents & POLLERR)
+    ఒకవేళ(ufds[i].revents & POLLERR)
       ufds[i].revents |= POLLIN | POLLOUT;
   }
 
-#else /* !HAVE_POLL */
+#లేకపోతే /* !HAVE_POLL */
 
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_err);
   maxfd = (curl_socket_t)-1;
 
-  for(i = 0; i < nfds; i++) {
+  కొరకు(i = 0; i < nfds; i++) {
     ufds[i].revents = 0;
-    if(ufds[i].fd == CURL_SOCKET_BAD)
-      continue;
+    ఒకవేళ(ufds[i].fd == CURL_SOCKET_BAD)
+      కొనసాగు;
     VERIFY_SOCK(ufds[i].fd);
-    if(ufds[i].events & (POLLIN | POLLOUT | POLLPRI |
+    ఒకవేళ(ufds[i].events & (POLLIN | POLLOUT | POLLPRI |
                          POLLRDNORM | POLLWRNORM | POLLRDBAND)) {
-      if(ufds[i].fd > maxfd)
+      ఒకవేళ(ufds[i].fd > maxfd)
         maxfd = ufds[i].fd;
-      if(ufds[i].events & (POLLRDNORM | POLLIN))
+      ఒకవేళ(ufds[i].events & (POLLRDNORM | POLLIN))
         FD_SET(ufds[i].fd, &fds_read);
-      if(ufds[i].events & (POLLWRNORM | POLLOUT))
+      ఒకవేళ(ufds[i].events & (POLLWRNORM | POLLOUT))
         FD_SET(ufds[i].fd, &fds_write);
-      if(ufds[i].events & (POLLRDBAND | POLLPRI))
+      ఒకవేళ(ufds[i].events & (POLLRDBAND | POLLPRI))
         FD_SET(ufds[i].fd, &fds_err);
     }
   }
@@ -288,256 +288,256 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
      curl_socket_t is unsigned in such cases and thus -1 is the largest
      value). */
   r = our_select(maxfd, &fds_read, &fds_write, &fds_err, timeout_ms);
-  if(r <= 0) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  ఒకవేళ(r <= 0) {
+    ఒకవేళ((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    return r;
+    తిరిగి r;
   }
 
   r = 0;
-  for(i = 0; i < nfds; i++) {
+  కొరకు(i = 0; i < nfds; i++) {
     ufds[i].revents = 0;
-    if(ufds[i].fd == CURL_SOCKET_BAD)
-      continue;
-    if(FD_ISSET(ufds[i].fd, &fds_read)) {
-      if(ufds[i].events & POLLRDNORM)
+    ఒకవేళ(ufds[i].fd == CURL_SOCKET_BAD)
+      కొనసాగు;
+    ఒకవేళ(FD_ISSET(ufds[i].fd, &fds_read)) {
+      ఒకవేళ(ufds[i].events & POLLRDNORM)
         ufds[i].revents |= POLLRDNORM;
-      if(ufds[i].events & POLLIN)
+      ఒకవేళ(ufds[i].events & POLLIN)
         ufds[i].revents |= POLLIN;
     }
-    if(FD_ISSET(ufds[i].fd, &fds_write)) {
-      if(ufds[i].events & POLLWRNORM)
+    ఒకవేళ(FD_ISSET(ufds[i].fd, &fds_write)) {
+      ఒకవేళ(ufds[i].events & POLLWRNORM)
         ufds[i].revents |= POLLWRNORM;
-      if(ufds[i].events & POLLOUT)
+      ఒకవేళ(ufds[i].events & POLLOUT)
         ufds[i].revents |= POLLOUT;
     }
-    if(FD_ISSET(ufds[i].fd, &fds_err)) {
-      if(ufds[i].events & POLLRDBAND)
+    ఒకవేళ(FD_ISSET(ufds[i].fd, &fds_err)) {
+      ఒకవేళ(ufds[i].events & POLLRDBAND)
         ufds[i].revents |= POLLRDBAND;
-      if(ufds[i].events & POLLPRI)
+      ఒకవేళ(ufds[i].events & POLLPRI)
         ufds[i].revents |= POLLPRI;
     }
-    if(ufds[i].revents)
+    ఒకవేళ(ufds[i].revents)
       r++;
   }
 
-#endif /* HAVE_POLL */
+#అయితే_ముగింపు /* HAVE_POLL */
 
-  return r;
+  తిరిగి r;
 }
 
-void Curl_pollfds_init(struct curl_pollfds *cpfds,
-                       struct pollfd *static_pfds,
-                       unsigned int static_count)
+శూన్య Curl_pollfds_init(నిర్మాణం curl_pollfds *cpfds,
+                       నిర్మాణం pollfd *static_pfds,
+                       గుర్తులేని పూర్ణాంకం static_లెక్క)
 {
   DEBUGASSERT(cpfds);
-  memset(cpfds, 0, sizeof(*cpfds));
-  if(static_pfds && static_count) {
+  memset(cpfds, 0, పరిమాణం(*cpfds));
+  ఒకవేళ(static_pfds && static_లెక్క) {
     cpfds->pfds = static_pfds;
-    cpfds->count = static_count;
+    cpfds->లెక్క = static_లెక్క;
   }
 }
 
-void Curl_pollfds_reset(struct curl_pollfds *cpfds)
+శూన్య Curl_pollfds_reset(నిర్మాణం curl_pollfds *cpfds)
 {
   cpfds->n = 0;
 }
 
-void Curl_pollfds_cleanup(struct curl_pollfds *cpfds)
+శూన్య Curl_pollfds_cleanup(నిర్మాణం curl_pollfds *cpfds)
 {
   DEBUGASSERT(cpfds);
-  if(cpfds->allocated_pfds) {
+  ఒకవేళ(cpfds->allocated_pfds) {
     curlx_safefree(cpfds->pfds);
-    cpfds->count = 0;
+    cpfds->లెక్క = 0;
     cpfds->allocated_pfds = FALSE;
   }
   cpfds->n = 0;
 }
 
-static CURLcode cpfds_increase(struct curl_pollfds *cpfds, unsigned int inc)
+స్థిర CURLcode cpfds_increase(నిర్మాణం curl_pollfds *cpfds, గుర్తులేని పూర్ణాంకం inc)
 {
-  struct pollfd *new_fds;
-  unsigned int new_count = cpfds->count + inc;
+  నిర్మాణం pollfd *new_fds;
+  గుర్తులేని పూర్ణాంకం new_లెక్క = cpfds->లెక్క + inc;
 
-  new_fds = curlx_calloc(new_count, sizeof(struct pollfd));
-  if(!new_fds)
-    return CURLE_OUT_OF_MEMORY;
+  new_fds = curlx_calloc(new_లెక్క, పరిమాణం(నిర్మాణం pollfd));
+  ఒకవేళ(!new_fds)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  memcpy(new_fds, cpfds->pfds, cpfds->count * sizeof(struct pollfd));
-  if(cpfds->allocated_pfds)
+  జ్ఞాపకం_నకలు(new_fds, cpfds->pfds, cpfds->లెక్క * పరిమాణం(నిర్మాణం pollfd));
+  ఒకవేళ(cpfds->allocated_pfds)
     curlx_free(cpfds->pfds);
   cpfds->pfds = new_fds;
-  cpfds->count = new_count;
+  cpfds->లెక్క = new_లెక్క;
   cpfds->allocated_pfds = TRUE;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode cpfds_add_sock(struct curl_pollfds *cpfds,
-                               curl_socket_t sock, short events, bool fold)
+స్థిర CURLcode cpfds_కూడు_sock(నిర్మాణం curl_pollfds *cpfds,
+                               curl_socket_t sock, పొట్టి events, bool fold)
 {
-  int i;
+  పూర్ణాంకం i;
 
-  if(fold && cpfds->n <= INT_MAX) {
-    for(i = (int)cpfds->n - 1; i >= 0; --i) {
-      if(sock == cpfds->pfds[i].fd) {
+  ఒకవేళ(fold && cpfds->n <= గరిష్ఠ_పూర్ణాంకం) {
+    కొరకు(i = (పూర్ణాంకం)cpfds->n - 1; i >= 0; --i) {
+      ఒకవేళ(sock == cpfds->pfds[i].fd) {
         cpfds->pfds[i].events |= events;
-        return CURLE_OK;
+        తిరిగి CURLE_OK;
       }
     }
   }
   /* not folded, add new entry */
-  if(cpfds->n >= cpfds->count && cpfds_increase(cpfds, 100))
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(cpfds->n >= cpfds->లెక్క && cpfds_increase(cpfds, 100))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   cpfds->pfds[cpfds->n].fd = sock;
   cpfds->pfds[cpfds->n].events = events;
   ++cpfds->n;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
-                               curl_socket_t sock, short events)
+CURLcode Curl_pollfds_కూడు_sock(నిర్మాణం curl_pollfds *cpfds,
+                               curl_socket_t sock, పొట్టి events)
 {
-  return cpfds_add_sock(cpfds, sock, events, FALSE);
+  తిరిగి cpfds_కూడు_sock(cpfds, sock, events, FALSE);
 }
 
-CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
-                             struct easy_pollset *ps)
+CURLcode Curl_pollfds_కూడు_ps(నిర్మాణం curl_pollfds *cpfds,
+                             నిర్మాణం easy_pollset *ps)
 {
   size_t i;
 
   DEBUGASSERT(cpfds);
   DEBUGASSERT(ps);
-  for(i = 0; i < ps->n; i++) {
-    short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN)
+  కొరకు(i = 0; i < ps->n; i++) {
+    పొట్టి events = 0;
+    ఒకవేళ(ps->actions[i] & CURL_POLL_లోపల)
       events |= POLLIN;
-    if(ps->actions[i] & CURL_POLL_OUT)
+    ఒకవేళ(ps->actions[i] & CURL_POLL_బహిర్గతం)
       events |= POLLOUT;
-    if(events && cpfds_add_sock(cpfds, ps->sockets[i], events, TRUE))
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(events && cpfds_కూడు_sock(cpfds, ps->sockets[i], events, TRUE))
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-void Curl_waitfds_init(struct Curl_waitfds *cwfds,
-                       struct curl_waitfd *static_wfds,
-                       unsigned int static_count)
+శూన్య Curl_waitfds_init(నిర్మాణం Curl_waitfds *cwfds,
+                       నిర్మాణం curl_waitfd *static_wfds,
+                       గుర్తులేని పూర్ణాంకం static_లెక్క)
 {
   DEBUGASSERT(cwfds);
-  DEBUGASSERT(static_wfds || !static_count);
-  memset(cwfds, 0, sizeof(*cwfds));
+  DEBUGASSERT(static_wfds || !static_లెక్క);
+  memset(cwfds, 0, పరిమాణం(*cwfds));
   cwfds->wfds = static_wfds;
-  cwfds->count = static_count;
+  cwfds->లెక్క = static_లెక్క;
 }
 
-static unsigned int cwfds_add_sock(struct Curl_waitfds *cwfds,
-                                   curl_socket_t sock, short events)
+స్థిర గుర్తులేని పూర్ణాంకం cwfds_కూడు_sock(నిర్మాణం Curl_waitfds *cwfds,
+                                   curl_socket_t sock, పొట్టి events)
 {
-  int i;
-  if(!cwfds->wfds) {
-    DEBUGASSERT(!cwfds->count && !cwfds->n);
-    return 1;
+  పూర్ణాంకం i;
+  ఒకవేళ(!cwfds->wfds) {
+    DEBUGASSERT(!cwfds->లెక్క && !cwfds->n);
+    తిరిగి 1;
   }
-  if(cwfds->n <= INT_MAX) {
-    for(i = (int)cwfds->n - 1; i >= 0; --i) {
-      if(sock == cwfds->wfds[i].fd) {
+  ఒకవేళ(cwfds->n <= గరిష్ఠ_పూర్ణాంకం) {
+    కొరకు(i = (పూర్ణాంకం)cwfds->n - 1; i >= 0; --i) {
+      ఒకవేళ(sock == cwfds->wfds[i].fd) {
         cwfds->wfds[i].events |= events;
-        return 0;
+        తిరిగి 0;
       }
     }
   }
   /* not folded, add new entry */
-  if(cwfds->n < cwfds->count) {
+  ఒకవేళ(cwfds->n < cwfds->లెక్క) {
     cwfds->wfds[cwfds->n].fd = sock;
     cwfds->wfds[cwfds->n].events = events;
     ++cwfds->n;
   }
-  return 1;
+  తిరిగి 1;
 }
 
-unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
-                                 struct easy_pollset *ps)
+గుర్తులేని పూర్ణాంకం Curl_waitfds_కూడు_ps(నిర్మాణం Curl_waitfds *cwfds,
+                                 నిర్మాణం easy_pollset *ps)
 {
   size_t i;
-  unsigned int need = 0;
+  గుర్తులేని పూర్ణాంకం need = 0;
 
   DEBUGASSERT(cwfds);
   DEBUGASSERT(ps);
-  for(i = 0; i < ps->n; i++) {
-    short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN)
+  కొరకు(i = 0; i < ps->n; i++) {
+    పొట్టి events = 0;
+    ఒకవేళ(ps->actions[i] & CURL_POLL_లోపల)
       events |= CURL_WAIT_POLLIN;
-    if(ps->actions[i] & CURL_POLL_OUT)
+    ఒకవేళ(ps->actions[i] & CURL_POLL_బహిర్గతం)
       events |= CURL_WAIT_POLLOUT;
-    if(events)
-      need += cwfds_add_sock(cwfds, ps->sockets[i], events);
+    ఒకవేళ(events)
+      need += cwfds_కూడు_sock(cwfds, ps->sockets[i], events);
   }
-  return need;
+  తిరిగి need;
 }
 
-void Curl_pollset_reset(struct easy_pollset *ps)
+శూన్య Curl_pollset_reset(నిర్మాణం easy_pollset *ps)
 {
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
-#endif
+#అయితే_ముగింపు
   ps->n = 0;
 }
 
-void Curl_pollset_init(struct easy_pollset *ps)
+శూన్య Curl_pollset_init(నిర్మాణం easy_pollset *ps)
 {
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   ps->init = CURL_EASY_POLLSET_MAGIC;
-#endif
+#అయితే_ముగింపు
   ps->sockets = ps->def_sockets;
   ps->actions = ps->def_actions;
-  ps->count = CURL_ARRAYSIZE(ps->def_sockets);
+  ps->లెక్క = CURL_ARRAYSIZE(ps->def_sockets);
   ps->n = 0;
   Curl_pollset_reset(ps);
 }
 
-struct easy_pollset *Curl_pollset_create(void)
+నిర్మాణం easy_pollset *Curl_pollset_create(శూన్య)
 {
-  struct easy_pollset *ps = curlx_calloc(1, sizeof(*ps));
-  if(ps)
+  నిర్మాణం easy_pollset *ps = curlx_calloc(1, పరిమాణం(*ps));
+  ఒకవేళ(ps)
     Curl_pollset_init(ps);
-  return ps;
+  తిరిగి ps;
 }
 
-void Curl_pollset_cleanup(struct easy_pollset *ps)
+శూన్య Curl_pollset_cleanup(నిర్మాణం easy_pollset *ps)
 {
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
-#endif
-  if(ps->sockets != ps->def_sockets) {
+#అయితే_ముగింపు
+  ఒకవేళ(ps->sockets != ps->def_sockets) {
     curlx_free(ps->sockets);
     ps->sockets = ps->def_sockets;
   }
-  if(ps->actions != ps->def_actions) {
+  ఒకవేళ(ps->actions != ps->def_actions) {
     curlx_free(ps->actions);
     ps->actions = ps->def_actions;
   }
-  ps->count = CURL_ARRAYSIZE(ps->def_sockets);
+  ps->లెక్క = CURL_ARRAYSIZE(ps->def_sockets);
   Curl_pollset_reset(ps);
 }
 
-void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
+శూన్య Curl_pollset_move(నిర్మాణం easy_pollset *గమ్యం, నిర్మాణం easy_pollset *from)
 {
-  Curl_pollset_cleanup(to); /* deallocate anything in to */
-  if(from->sockets != from->def_sockets) {
+  Curl_pollset_cleanup(గమ్యం); /* deallocate anything in to */
+  ఒకవేళ(from->sockets != from->def_sockets) {
     DEBUGASSERT(from->actions != from->def_actions);
-    to->sockets = from->sockets;
-    to->actions = from->actions;
-    to->count = from->count;
-    to->n = from->n;
+    గమ్యం->sockets = from->sockets;
+    గమ్యం->actions = from->actions;
+    గమ్యం->లెక్క = from->లెక్క;
+    గమ్యం->n = from->n;
     Curl_pollset_init(from);
   }
-  else {
-    DEBUGASSERT(to->sockets == to->def_sockets);
-    DEBUGASSERT(to->actions == to->def_actions);
-    memcpy(to->sockets, from->sockets, to->count * sizeof(to->sockets[0]));
-    memcpy(to->actions, from->actions, to->count * sizeof(to->actions[0]));
-    to->n = from->n;
+  లేకపోతే {
+    DEBUGASSERT(గమ్యం->sockets == గమ్యం->def_sockets);
+    DEBUGASSERT(గమ్యం->actions == గమ్యం->def_actions);
+    జ్ఞాపకం_నకలు(గమ్యం->sockets, from->sockets, గమ్యం->లెక్క * పరిమాణం(గమ్యం->sockets[0]));
+    జ్ఞాపకం_నకలు(గమ్యం->actions, from->actions, గమ్యం->లెక్క * పరిమాణం(గమ్యం->actions[0]));
+    గమ్యం->n = from->n;
     Curl_pollset_init(from);
   }
 }
@@ -545,103 +545,103 @@ void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
 /**
  *
  */
-CURLcode Curl_pollset_change(struct Curl_easy *data,
-                             struct easy_pollset *ps, curl_socket_t sock,
-                             int add_flags, int remove_flags)
+CURLcode Curl_pollset_change(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం easy_pollset *ps, curl_socket_t sock,
+                             పూర్ణాంకం కూడు_flags, పూర్ణాంకం remove_flags)
 {
-  unsigned int i;
+  గుర్తులేని పూర్ణాంకం i;
 
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
-#endif
+#అయితే_ముగింపు
 
   DEBUGASSERT(VALID_SOCK(sock));
-  if(!VALID_SOCK(sock))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!VALID_SOCK(sock))
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
 
-  DEBUGASSERT(add_flags <= (CURL_POLL_IN | CURL_POLL_OUT));
-  DEBUGASSERT(remove_flags <= (CURL_POLL_IN | CURL_POLL_OUT));
-  DEBUGASSERT((add_flags & remove_flags) == 0); /* no overlap */
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      ps->actions[i] &= (unsigned char)(~remove_flags);
-      ps->actions[i] |= (unsigned char)add_flags;
+  DEBUGASSERT(కూడు_flags <= (CURL_POLL_లోపల | CURL_POLL_బహిర్గతం));
+  DEBUGASSERT(remove_flags <= (CURL_POLL_లోపల | CURL_POLL_బహిర్గతం));
+  DEBUGASSERT((కూడు_flags & remove_flags) == 0); /* no overlap */
+  కొరకు(i = 0; i < ps->n; ++i) {
+    ఒకవేళ(ps->sockets[i] == sock) {
+      ps->actions[i] &= (గుర్తులేని అక్షరం)(~remove_flags);
+      ps->actions[i] |= (గుర్తులేని అక్షరం)కూడు_flags;
       /* all gone? remove socket */
-      if(!ps->actions[i]) {
-        if((i + 1) < ps->n) {
+      ఒకవేళ(!ps->actions[i]) {
+        ఒకవేళ((i + 1) < ps->n) {
           memmove(&ps->sockets[i], &ps->sockets[i + 1],
-                  (ps->n - (i + 1)) * sizeof(ps->sockets[0]));
+                  (ps->n - (i + 1)) * పరిమాణం(ps->sockets[0]));
           memmove(&ps->actions[i], &ps->actions[i + 1],
-                  (ps->n - (i + 1)) * sizeof(ps->actions[0]));
+                  (ps->n - (i + 1)) * పరిమాణం(ps->actions[0]));
         }
         --ps->n;
       }
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
     }
   }
   /* not present */
-  if(add_flags) {
-    if(i >= ps->count) { /* need to grow */
-      unsigned int new_count = CURLMAX(ps->count * 2, 8);
+  ఒకవేళ(కూడు_flags) {
+    ఒకవేళ(i >= ps->లెక్క) { /* need to grow */
+      గుర్తులేని పూర్ణాంకం new_లెక్క = CURLMAX(ps->లెక్క * 2, 8);
       curl_socket_t *nsockets;
-      unsigned char *nactions;
+      గుర్తులేని అక్షరం *nactions;
 
-      CURL_TRC_M(data, "growing pollset capacity from %u to %u",
-                 ps->count, new_count);
-      if(new_count <= ps->count)
-        return CURLE_OUT_OF_MEMORY;
-      nsockets = curlx_calloc(new_count, sizeof(nsockets[0]));
-      if(!nsockets)
-        return CURLE_OUT_OF_MEMORY;
-      nactions = curlx_calloc(new_count, sizeof(nactions[0]));
-      if(!nactions) {
+      CURL_TRC_M(దత్తాంశం, "growing pollset capacity from %u to %u",
+                 ps->లెక్క, new_లెక్క);
+      ఒకవేళ(new_లెక్క <= ps->లెక్క)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      nsockets = curlx_calloc(new_లెక్క, పరిమాణం(nsockets[0]));
+      ఒకవేళ(!nsockets)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      nactions = curlx_calloc(new_లెక్క, పరిమాణం(nactions[0]));
+      ఒకవేళ(!nactions) {
         curlx_free(nsockets);
-        return CURLE_OUT_OF_MEMORY;
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
-      memcpy(nsockets, ps->sockets, ps->count * sizeof(ps->sockets[0]));
-      memcpy(nactions, ps->actions, ps->count * sizeof(ps->actions[0]));
-      if(ps->sockets != ps->def_sockets)
+      జ్ఞాపకం_నకలు(nsockets, ps->sockets, ps->లెక్క * పరిమాణం(ps->sockets[0]));
+      జ్ఞాపకం_నకలు(nactions, ps->actions, ps->లెక్క * పరిమాణం(ps->actions[0]));
+      ఒకవేళ(ps->sockets != ps->def_sockets)
         curlx_free(ps->sockets);
       ps->sockets = nsockets;
-      if(ps->actions != ps->def_actions)
+      ఒకవేళ(ps->actions != ps->def_actions)
         curlx_free(ps->actions);
       ps->actions = nactions;
-      ps->count = new_count;
+      ps->లెక్క = new_లెక్క;
     }
-    DEBUGASSERT(i < ps->count);
-    if(i < ps->count) {
+    DEBUGASSERT(i < ps->లెక్క);
+    ఒకవేళ(i < ps->లెక్క) {
       ps->sockets[i] = sock;
-      ps->actions[i] = (unsigned char)add_flags;
+      ps->actions[i] = (గుర్తులేని అక్షరం)కూడు_flags;
       ps->n = i + 1;
     }
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_pollset_set(struct Curl_easy *data,
-                          struct easy_pollset *ps, curl_socket_t sock,
-                          bool do_in, bool do_out)
+CURLcode Curl_pollset_సమితి(నిర్మాణం Curl_easy *దత్తాంశం,
+                          నిర్మాణం easy_pollset *ps, curl_socket_t sock,
+                          bool do_లోపల, bool do_బహిర్గతం)
 {
-  return Curl_pollset_change(data, ps, sock,
-                             (do_in ? CURL_POLL_IN : 0) |
-                             (do_out ? CURL_POLL_OUT : 0),
-                             (!do_in ? CURL_POLL_IN : 0) |
-                             (!do_out ? CURL_POLL_OUT : 0));
+  తిరిగి Curl_pollset_change(దత్తాంశం, ps, sock,
+                             (do_లోపల ? CURL_POLL_లోపల : 0) |
+                             (do_బహిర్గతం ? CURL_POLL_బహిర్గతం : 0),
+                             (!do_లోపల ? CURL_POLL_లోపల : 0) |
+                             (!do_బహిర్గతం ? CURL_POLL_బహిర్గతం : 0));
 }
 
-void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock)
+శూన్య Curl_pollset_remove(నిర్మాణం easy_pollset *ps, curl_socket_t sock)
 {
-  unsigned int i;
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      if((i + 1) < ps->n) {
+  గుర్తులేని పూర్ణాంకం i;
+  కొరకు(i = 0; i < ps->n; ++i) {
+    ఒకవేళ(ps->sockets[i] == sock) {
+      ఒకవేళ((i + 1) < ps->n) {
         memmove(&ps->sockets[i], &ps->sockets[i + 1],
-                (ps->n - (i + 1)) * sizeof(ps->sockets[0]));
+                (ps->n - (i + 1)) * పరిమాణం(ps->sockets[0]));
         memmove(&ps->actions[i], &ps->actions[i + 1],
-                (ps->n - (i + 1)) * sizeof(ps->actions[0]));
+                (ps->n - (i + 1)) * పరిమాణం(ps->actions[0]));
       }
       --ps->n;
-      return;
+      తిరిగి;
     }
   }
 }
@@ -652,35 +652,35 @@ void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock)
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_pollset_poll(struct Curl_easy *data,
-                      struct easy_pollset *ps,
+పూర్ణాంకం Curl_pollset_poll(నిర్మాణం Curl_easy *దత్తాంశం,
+                      నిర్మాణం easy_pollset *ps,
                       timediff_t timeout_ms)
 {
-  struct pollfd *pfds;
-  unsigned int i, npfds;
-  int rc;
+  నిర్మాణం pollfd *pfds;
+  గుర్తులేని పూర్ణాంకం i, npfds;
+  పూర్ణాంకం rc;
 
-  (void)data;
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  (శూన్య)దత్తాంశం;
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(దత్తాంశం->conn);
 
-  if(!ps->n)
-    return curlx_wait_ms(timeout_ms);
+  ఒకవేళ(!ps->n)
+    తిరిగి curlx_wait_ms(timeout_ms);
 
-  pfds = curlx_calloc(ps->n, sizeof(*pfds));
-  if(!pfds)
-    return -1;
+  pfds = curlx_calloc(ps->n, పరిమాణం(*pfds));
+  ఒకవేళ(!pfds)
+    తిరిగి -1;
 
   npfds = 0;
-  for(i = 0; i < ps->n; ++i) {
-    short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN) {
+  కొరకు(i = 0; i < ps->n; ++i) {
+    పొట్టి events = 0;
+    ఒకవేళ(ps->actions[i] & CURL_POLL_లోపల) {
       events |= POLLIN;
     }
-    if(ps->actions[i] & CURL_POLL_OUT) {
+    ఒకవేళ(ps->actions[i] & CURL_POLL_బహిర్గతం) {
       events |= POLLOUT;
     }
-    if(events) {
+    ఒకవేళ(events) {
       pfds[npfds].fd = ps->sockets[i];
       pfds[npfds].events = events;
       ++npfds;
@@ -689,49 +689,49 @@ int Curl_pollset_poll(struct Curl_easy *data,
 
   rc = Curl_poll(pfds, npfds, timeout_ms);
   curlx_free(pfds);
-  return rc;
+  తిరిగి rc;
 }
 
-void Curl_pollset_check(struct Curl_easy *data,
-                        struct easy_pollset *ps, curl_socket_t sock,
+శూన్య Curl_pollset_check(నిర్మాణం Curl_easy *దత్తాంశం,
+                        నిర్మాణం easy_pollset *ps, curl_socket_t sock,
                         bool *pwant_read, bool *pwant_write)
 {
-  unsigned int i;
+  గుర్తులేని పూర్ణాంకం i;
 
-  (void)data;
+  (శూన్య)దత్తాంశం;
   DEBUGASSERT(VALID_SOCK(sock));
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      *pwant_read = !!(ps->actions[i] & CURL_POLL_IN);
-      *pwant_write = !!(ps->actions[i] & CURL_POLL_OUT);
-      return;
+  కొరకు(i = 0; i < ps->n; ++i) {
+    ఒకవేళ(ps->sockets[i] == sock) {
+      *pwant_read = !!(ps->actions[i] & CURL_POLL_లోపల);
+      *pwant_write = !!(ps->actions[i] & CURL_POLL_బహిర్గతం);
+      తిరిగి;
     }
   }
   *pwant_read = *pwant_write = FALSE;
 }
 
-bool Curl_pollset_want_recv(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_recv(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం easy_pollset *ps,
                             curl_socket_t sock)
 {
-  unsigned int i;
-  (void)data;
-  for(i = 0; i < ps->n; ++i) {
-    if((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_IN))
-      return TRUE;
+  గుర్తులేని పూర్ణాంకం i;
+  (శూన్య)దత్తాంశం;
+  కొరకు(i = 0; i < ps->n; ++i) {
+    ఒకవేళ((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_లోపల))
+      తిరిగి TRUE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-bool Curl_pollset_want_send(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_send(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం easy_pollset *ps,
                             curl_socket_t sock)
 {
-  unsigned int i;
-  (void)data;
-  for(i = 0; i < ps->n; ++i) {
-    if((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_OUT))
-      return TRUE;
+  గుర్తులేని పూర్ణాంకం i;
+  (శూన్య)దత్తాంశం;
+  కొరకు(i = 0; i < ps->n; ++i) {
+    ఒకవేళ((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_బహిర్గతం))
+      తిరిగి TRUE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }

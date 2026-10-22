@@ -21,37 +21,37 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
 /***********************************************************************
  * Only for IPv6-enabled builds
  **********************************************************************/
-#ifdef CURLRES_IPV6
+#నిర్వచితమైతే CURLRES_IPV6
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే __VMS
+#అన్తర్భావ <in.h>
+#అన్తర్భావ <inet.h>
+#అయితే_ముగింపు
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "url.h"
-#include "vdns/hostip.h"
-#include "curlx/inet_pton.h"
-#include "connect.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "curl_addrinfo.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "vdns/hostip.h"
+#అన్తర్భావ "curlx/inet_pton.h"
+#అన్తర్భావ "connect.h"
 
-#ifdef CURLRES_SYNCH
+#నిర్వచితమైతే CURLRES_SYNCH
 
 /*
  * Curl_sync_getaddrinfo() when built IPv6-enabled (non-threading and
@@ -62,59 +62,59 @@
  * to memory we need to free after use. That memory *MUST* be freed with
  * Curl_freeaddrinfo(), nothing else.
  */
-struct Curl_addrinfo *Curl_sync_getaddrinfo(struct Curl_easy *data,
+నిర్మాణం Curl_addrinfo *Curl_sync_getaddrinfo(నిర్మాణం Curl_easy *దత్తాంశం,
                                             uint8_t dns_queries,
-                                            const char *hostname,
-                                            uint16_t port,
+                                            స్థిరరాశి అక్షరం *hostname,
+                                            uint16_t పోర్టు,
                                             uint8_t transport)
 {
-  struct addrinfo hints;
-  struct Curl_addrinfo *res;
-  int error;
-  char sbuf[12];
-  char *sbufptr = NULL;
-#ifndef USE_RESOLVE_ON_IPS
-  char addrbuf[128];
-#endif
-  int pf = PF_INET;
+  నిర్మాణం addrinfo hints;
+  నిర్మాణం Curl_addrinfo *res;
+  పూర్ణాంకం error;
+  అక్షరం sbuf[12];
+  అక్షరం *sbufptr = ఖాళీ;
+#నిర్వచితం_కాకపోతే USE_RESOLVE_ON_IPS
+  అక్షరం addrbuf[128];
+#అయితే_ముగింపు
+  పూర్ణాంకం pf = PF_INET;
 
-  if(dns_queries & CURL_DNSQ_AAAA)
+  ఒకవేళ(dns_queries & CURL_DNSQ_AAAA)
     pf = PF_UNSPEC;
 
-  memset(&hints, 0, sizeof(hints));
+  memset(&hints, 0, పరిమాణం(hints));
   hints.ai_family = pf;
   hints.ai_socktype = (transport == TRNSPRT_TCP) ?
     SOCK_STREAM : SOCK_DGRAM;
 
-#ifndef USE_RESOLVE_ON_IPS
+#నిర్వచితం_కాకపోతే USE_RESOLVE_ON_IPS
   /*
    * The AI_NUMERICHOST must not be set to get synthesized IPv6 address from
    * an IPv4 address on iOS and macOS.
    */
-  if((curlx_inet_pton(AF_INET, hostname, addrbuf) == 1) ||
+  ఒకవేళ((curlx_inet_pton(AF_INET, hostname, addrbuf) == 1) ||
      (curlx_inet_pton(AF_INET6, hostname, addrbuf) == 1)) {
     /* the given address is numerical only, prevent a reverse lookup */
     hints.ai_flags = AI_NUMERICHOST;
   }
-#endif
+#అయితే_ముగింపు
 
-  if(port) {
-    curl_msnprintf(sbuf, sizeof(sbuf), "%d", port);
+  ఒకవేళ(పోర్టు) {
+    curl_msnprintf(sbuf, పరిమాణం(sbuf), "%d", పోర్టు);
     sbufptr = sbuf;
   }
 
   error = Curl_getaddrinfo_ex(hostname, sbufptr, &hints, &res);
-  if(error) {
-    infof(data, "getaddrinfo(3) failed for %s:%d", hostname, port);
-    return NULL;
+  ఒకవేళ(error) {
+    infof(దత్తాంశం, "getaddrinfo(3) failed for %s:%d", hostname, పోర్టు);
+    తిరిగి ఖాళీ;
   }
 
-  if(port) {
-    Curl_addrinfo_set_port(res, port);
+  ఒకవేళ(పోర్టు) {
+    Curl_addrinfo_సమితి_పోర్టు(res, పోర్టు);
   }
 
-  return res;
+  తిరిగి res;
 }
-#endif /* CURLRES_SYNCH */
+#అయితే_ముగింపు /* CURLRES_SYNCH */
 
-#endif /* CURLRES_IPV6 */
+#అయితే_ముగింపు /* CURLRES_IPV6 */

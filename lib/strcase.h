@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRCASE_H
-#define HEADER_CURL_STRCASE_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_STRCASE_H
+#నిర్వచించు శీర్షిక_CURL_STRCASE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,35 +23,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
 /* Mapping tables for plain ASCII case conversion, defined in strcase.c.
    Declared here so the conversions below inline at every call site without
    relying on LTO or a unity build: casecompare() invokes one of them twice
    per byte compared, where the call costs more than the lookup itself. */
-extern const unsigned char Curl_touppermap[256];
-extern const unsigned char Curl_tolowermap[256];
+బాహ్య స్థిరరాశి గుర్తులేని అక్షరం Curl_touppermap[256];
+బాహ్య స్థిరరాశి గుర్తులేని అక్షరం Curl_tolowermap[256];
 
 /* Portable, consistent toupper/tolower. Do not use toupper()/tolower() from
    <ctype.h>, whose behavior is altered by the current locale. */
-static CURL_INLINE char Curl_raw_toupper(char in)
+స్థిర CURL_INLINE అక్షరం Curl_raw_toupper(అక్షరం లోపల)
 {
-  return (char)Curl_touppermap[(unsigned char)in];
+  తిరిగి (అక్షరం)Curl_touppermap[(గుర్తులేని అక్షరం)లోపల];
 }
 
-static CURL_INLINE char Curl_raw_tolower(char in)
+స్థిర CURL_INLINE అక్షరం Curl_raw_tolower(అక్షరం లోపల)
 {
-  return (char)Curl_tolowermap[(unsigned char)in];
+  తిరిగి (అక్షరం)Curl_tolowermap[(గుర్తులేని అక్షరం)లోపల];
 }
 
 /* checkprefix() is a shorter version of the above, used when the first
    argument is the string literal */
-#define checkprefix(a, b) curl_strnequal(b, STRCONST(a))
+#నిర్వచించు checkprefix(a, b) curl_strnequal(b, STRCONST(a))
 
-void Curl_strntoupper(char *dest, const char *src, size_t n);
-void Curl_strntolower(char *dest, const char *src, size_t n);
+శూన్య Curl_strntoupper(అక్షరం *dest, స్థిరరాశి అక్షరం *src, size_t n);
+శూన్య Curl_strntolower(అక్షరం *dest, స్థిరరాశి అక్షరం *src, size_t n);
 
-bool Curl_safecmp(const char *a, const char *b);
-int Curl_timestrcmp(const char *a, const char *b);
+bool Curl_safecmp(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b);
+పూర్ణాంకం Curl_timestrcmp(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b);
 
-#endif /* HEADER_CURL_STRCASE_H */
+#అయితే_ముగింపు /* HEADER_CURL_STRCASE_H */

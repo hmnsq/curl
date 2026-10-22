@@ -21,250 +21,250 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NET_IF_H
+#అన్తర్భావ <net/if.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_SYS_IOCTL_H
+#అన్తర్భావ <sys/ioctl.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#నిర్వచితమైతే HAVE_SYS_PARAM_H
+#అన్తర్భావ <sys/param.h>
+#అయితే_ముగింపు
 
-#include "urldata.h"
-#include "api.h"
-#include "transfer.h"
-#include "vdns/hostip.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_scache.h"
-#include "vquic/vquic.h"
-#include "url.h"
-#include "getinfo.h"
-#include "curlx/strdup.h"
-#include "easyif.h"
-#include "multiif.h"
-#include "multi_ev.h"
-#include "select.h"
-#include "cfilters.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "connect.h" /* for Curl_getconnectinfo */
-#include "slist.h"
-#include "mime.h"
-#include "amigaos.h"
-#include "macos.h"
-#include "curlx/wait.h"
-#include "sigpipe.h"
-#include "vssh/ssh.h"
-#include "setopt.h"
-#include "http_digest.h"
-#include "curlx/dynbuf.h"
-#include "bufref.h"
-#include "altsvc.h"
-#include "hsts.h"
-#include "curl_sspi.h" /* Curl_sspi_global_init()/Curl_sspi_global_cleanup() */
-#include "curlx/timeval.h" /* for curlx_now_init() */
-#include "curlx/version_win32.h" /* for curlx_verify_windows_init() */
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "api.h"
+#అన్తర్భావ "transfer.h"
+#అన్తర్భావ "vdns/hostip.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "vtls/vtls_scache.h"
+#అన్తర్భావ "vquic/vquic.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "getinfo.h"
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "easyif.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "multi_ev.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "sendf.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "connect.h" /* for Curl_getconnectinfo */
+#అన్తర్భావ "slist.h"
+#అన్తర్భావ "mime.h"
+#అన్తర్భావ "amigaos.h"
+#అన్తర్భావ "macos.h"
+#అన్తర్భావ "curlx/wait.h"
+#అన్తర్భావ "sigpipe.h"
+#అన్తర్భావ "vssh/ssh.h"
+#అన్తర్భావ "setopt.h"
+#అన్తర్భావ "http_digest.h"
+#అన్తర్భావ "curlx/dynbuf.h"
+#అన్తర్భావ "bufref.h"
+#అన్తర్భావ "altsvc.h"
+#అన్తర్భావ "hsts.h"
+#అన్తర్భావ "curl_sspi.h" /* Curl_sspi_global_init()/Curl_sspi_global_cleanup() */
+#అన్తర్భావ "curlx/timeval.h" /* for curlx_now_init() */
+#అన్తర్భావ "curlx/version_win32.h" /* for curlx_verify_windows_init() */
 
-#include "easy_lock.h"
+#అన్తర్భావ "easy_lock.h"
 
 /* true globals -- for curl_global_init() and curl_global_cleanup() */
-static unsigned int initialized;
-#ifdef USE_WINSOCK
-static bool winsock_initialized;
-#endif
+స్థిర గుర్తులేని పూర్ణాంకం initialized;
+#నిర్వచితమైతే USE_WINSOCK
+స్థిర bool winsock_initialized;
+#అయితే_ముగింపు
 
-#ifdef GLOBAL_INIT_IS_THREADSAFE
+#నిర్వచితమైతే GLOBAL_INIT_IS_THREADSAFE
 
-static curl_simple_lock s_lock = CURL_SIMPLE_LOCK_INIT;
-#define global_init_lock()   curl_simple_lock_lock(&s_lock)
-#define global_init_unlock() curl_simple_lock_unlock(&s_lock)
+స్థిర curl_simple_తాళం s_తాళం = CURL_SIMPLE_తాళం_INIT;
+#నిర్వచించు global_init_తాళం()   curl_simple_తాళం_తాళం(&s_తాళం)
+#నిర్వచించు global_init_unlock() curl_simple_తాళం_unlock(&s_తాళం)
 
-#else
+#లేకపోతే
 
-#define global_init_lock()
-#define global_init_unlock()
+#నిర్వచించు global_init_తాళం()
+#నిర్వచించు global_init_unlock()
 
-#endif
+#అయితే_ముగింపు
 
-#if defined(_MSC_VER) && defined(_DLL)
-#  pragma warning(push)
+#ఒకవేళ defined(_MSC_VER) && defined(_DLL)
+#  pragma warning(నెట్టు)
 #  pragma warning(disable:4232) /* MSVC extension, dllimport identity */
-#endif
+#అయితే_ముగింపు
 
 /*
  * If a memory-using function (like curl_getenv) is used before
  * curl_global_init() is called, we need to have these pointers set already.
  */
-curl_malloc_callback Curl_cmalloc = (curl_malloc_callback)malloc;
-curl_free_callback Curl_cfree = (curl_free_callback)free;
+curl_malloc_callback Curl_cmalloc = (curl_malloc_callback)జ్ఞాపకం_ఇవ్వు;
+curl_free_callback Curl_cfree = (curl_free_callback)విడుదల;
 curl_realloc_callback Curl_crealloc = (curl_realloc_callback)realloc;
-curl_strdup_callback Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_LOW;
-curl_calloc_callback Curl_ccalloc = (curl_calloc_callback)calloc;
+curl_strdup_callback Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_దిగువ;
+curl_calloc_callback Curl_ccalloc = (curl_calloc_callback)సున్నా_జ్ఞాపకం_ఇవ్వు;
 
-#if defined(_MSC_VER) && defined(_DLL)
-#  pragma warning(pop)
-#endif
+#ఒకవేళ defined(_MSC_VER) && defined(_DLL)
+#  pragma warning(తీయి)
+#అయితే_ముగింపు
 
-#ifdef DEBUGBUILD
-static char *leakpointer;
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+స్థిర అక్షరం *leakpointer;
+#అయితే_ముగింపు
 
 /**
  * curl_global_init() globally initializes curl given a bitwise set of the
  * different features of what to initialize.
  */
-static CURLcode global_init(long flags, bool memoryfuncs)
+స్థిర CURLcode global_init(దీర్ఘ flags, bool memoryfuncs)
 {
-  (void)flags;
+  (శూన్య)flags;
 
-  if(initialized++)
-    return CURLE_OK;
+  ఒకవేళ(initialized++)
+    తిరిగి CURLE_OK;
 
-  if(memoryfuncs) {
+  ఒకవేళ(memoryfuncs) {
     /* Setup the default memory functions here (again) */
-    Curl_cmalloc = (curl_malloc_callback)malloc;
-    Curl_cfree = (curl_free_callback)free;
+    Curl_cmalloc = (curl_malloc_callback)జ్ఞాపకం_ఇవ్వు;
+    Curl_cfree = (curl_free_callback)విడుదల;
     Curl_crealloc = (curl_realloc_callback)realloc;
-    Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_LOW;
-    Curl_ccalloc = (curl_calloc_callback)calloc;
+    Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_దిగువ;
+    Curl_ccalloc = (curl_calloc_callback)సున్నా_జ్ఞాపకం_ఇవ్వు;
   }
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
   curlx_verify_windows_init();
   curlx_now_init();
-#endif
+#అయితే_ముగింపు
 
-  if(Curl_trc_init()) {
+  ఒకవేళ(Curl_trc_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_trc_init failed\n"));
-    goto fail;
+    వెళ్ళు fail;
   }
 
-#ifdef USE_WINDOWS_SSPI
-  if(Curl_sspi_global_init()) {
+#నిర్వచితమైతే USE_WINDOWS_SSPI
+  ఒకవేళ(Curl_sspi_global_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_sspi_global_init() failed\n"));
-    goto fail;
+    వెళ్ళు fail;
   }
-#endif
+#అయితే_ముగింపు
 
-#ifdef USE_WINSOCK
+#నిర్వచితమైతే USE_WINSOCK
   /* CURL_GLOBAL_WINSOCK controls the *optional* part of the Windows
      initialization which is for the Windows sockets library (Winsock). */
-  if(flags & CURL_GLOBAL_WINSOCK) {
+  ఒకవేళ(flags & CURL_GLOBAL_WINSOCK) {
     WSADATA wsa;
-    if(WSAStartup(MAKEWORD(2, 2), &wsa)) {
+    ఒకవేళ(WSAStartup(MAKEWORD(2, 2), &wsa)) {
       DEBUGF(curl_mfprintf(stderr, "Error: WSAStartup() failed\n"));
-      goto fail;
+      వెళ్ళు fail;
     }
     winsock_initialized = TRUE;
   }
-#endif
+#అయితే_ముగింపు
 
-  if(!Curl_ssl_init()) {
+  ఒకవేళ(!Curl_ssl_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_ssl_init failed\n"));
-    goto fail;
+    వెళ్ళు fail;
   }
 
-  if(Curl_hash_global_init()) {
+  ఒకవేళ(Curl_hash_global_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_hash_global_init failed\n"));
-    goto fail;
+    వెళ్ళు fail;
   }
 
-  if(!Curl_vquic_init()) {
+  ఒకవేళ(!Curl_vquic_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_vquic_init failed\n"));
-    goto fail;
+    వెళ్ళు fail;
   }
 
-  if(Curl_amiga_init()) {
+  ఒకవేళ(Curl_amiga_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_amiga_init failed\n"));
-    goto fail;
+    వెళ్ళు fail;
   }
 
-  if(Curl_macos_init()) {
+  ఒకవేళ(Curl_macos_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_macos_init failed\n"));
-    goto fail;
+    వెళ్ళు fail;
   }
 
-  if(Curl_async_global_init()) {
+  ఒకవేళ(Curl_async_global_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_async_global_init failed\n"));
-    goto fail;
+    వెళ్ళు fail;
   }
 
-  if(Curl_ssh_init()) {
+  ఒకవేళ(Curl_ssh_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_ssh_init failed\n"));
-    goto fail;
+    వెళ్ళు fail;
   }
 
-#ifdef DEBUGBUILD
-  if(getenv("CURL_GLOBAL_INIT"))
+#నిర్వచితమైతే DEBUGBUILD
+  ఒకవేళ(getenv("CURL_GLOBAL_INIT"))
     /* alloc data that will leak if *cleanup() is not called! */
     leakpointer = curlx_malloc(1);
-#endif
+#అయితే_ముగింపు
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 
 fail:
-#ifdef USE_WINSOCK
-  if(winsock_initialized) {
+#నిర్వచితమైతే USE_WINSOCK
+  ఒకవేళ(winsock_initialized) {
     WSACleanup();
     winsock_initialized = FALSE;
   }
-#endif
+#అయితే_ముగింపు
   initialized--; /* undo the increase */
-  return CURLE_FAILED_INIT;
+  తిరిగి CURLE_FAILED_INIT;
 }
 
 /**
  * curl_global_init() globally initializes curl given a bitwise set of the
  * different features of what to initialize.
  */
-CURLcode curl_global_init(long flags)
+CURLcode curl_global_init(దీర్ఘ flags)
 {
-  CURLcode result;
-  global_init_lock();
+  CURLcode ఫలితం;
+  global_init_తాళం();
 
-  result = global_init(flags, TRUE);
+  ఫలితం = global_init(flags, TRUE);
 
   global_init_unlock();
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
  * curl_global_init_mem() globally initializes curl and also registers the
  * user provided callback routines.
  */
-CURLcode curl_global_init_mem(long flags, curl_malloc_callback m,
+CURLcode curl_global_init_mem(దీర్ఘ flags, curl_malloc_callback m,
                               curl_free_callback f, curl_realloc_callback r,
                               curl_strdup_callback s, curl_calloc_callback c)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
 
   /* Invalid input, return immediately */
-  if(!m || !f || !r || !s || !c)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!m || !f || !r || !s || !c)
+    తిరిగి CURLE_FAILED_INIT;
 
-  global_init_lock();
+  global_init_తాళం();
 
-  if(initialized) {
+  ఒకవేళ(initialized) {
     /* Already initialized, do not do it again, but bump the variable anyway to
        work like curl_global_init() and require the same amount of cleanup
        calls. */
     initialized++;
     global_init_unlock();
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
   }
 
   /* set memory functions before global_init() in case it wants memory
@@ -276,28 +276,28 @@ CURLcode curl_global_init_mem(long flags, curl_malloc_callback m,
   Curl_ccalloc = c;
 
   /* Call the actual init function, but without setting */
-  result = global_init(flags, FALSE);
+  ఫలితం = global_init(flags, FALSE);
 
   global_init_unlock();
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /**
  * curl_global_cleanup() globally cleanups curl.
  */
-void curl_global_cleanup(void)
+శూన్య curl_global_cleanup(శూన్య)
 {
-  global_init_lock();
+  global_init_తాళం();
 
-  if(!initialized) {
+  ఒకవేళ(!initialized) {
     global_init_unlock();
-    return;
+    తిరిగి;
   }
 
-  if(--initialized) {
+  ఒకవేళ(--initialized) {
     global_init_unlock();
-    return;
+    తిరిగి;
   }
 
   Curl_ssh_cleanup();
@@ -306,20 +306,20 @@ void curl_global_cleanup(void)
   Curl_async_global_cleanup();
   Curl_amiga_cleanup();
 
-#ifdef USE_WINSOCK
-  if(winsock_initialized) {
+#నిర్వచితమైతే USE_WINSOCK
+  ఒకవేళ(winsock_initialized) {
     WSACleanup();
     winsock_initialized = FALSE;
   }
-#endif
+#అయితే_ముగింపు
 
-#ifdef USE_WINDOWS_SSPI
+#నిర్వచితమైతే USE_WINDOWS_SSPI
   Curl_sspi_global_cleanup();
-#endif
+#అయితే_ముగింపు
 
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   curlx_free(leakpointer);
-#endif
+#అయితే_ముగింపు
 
   global_init_unlock();
 }
@@ -327,137 +327,137 @@ void curl_global_cleanup(void)
 /**
  * curl_global_trace() globally initializes curl logging.
  */
-CURLcode curl_global_trace(const char *config)
+CURLcode curl_global_trace(స్థిరరాశి అక్షరం *config)
 {
-#ifndef CURL_DISABLE_VERBOSE_STRINGS
-  CURLcode result;
-  global_init_lock();
+#నిర్వచితం_కాకపోతే CURL_DISABLE_VERBOSE_అక్షరశ్రేణులు
+  CURLcode ఫలితం;
+  global_init_తాళం();
 
-  result = Curl_trc_opt(config);
+  ఫలితం = Curl_trc_opt(config);
 
   global_init_unlock();
 
-  return result;
-#else
-  (void)config;
-  return CURLE_OK;
-#endif
+  తిరిగి ఫలితం;
+#లేకపోతే
+  (శూన్య)config;
+  తిరిగి CURLE_OK;
+#అయితే_ముగింపు
 }
 
 /*
  * curl_global_sslset() globally initializes the SSL backend to use.
  */
-CURLsslset curl_global_sslset(curl_sslbackend id, const char *name,
-                              const curl_ssl_backend ***avail)
+CURLsslset curl_global_sslset(curl_sslbackend id, స్థిరరాశి అక్షరం *name,
+                              స్థిరరాశి curl_ssl_backend ***avail)
 {
   CURLsslset rc;
 
-  global_init_lock();
+  global_init_తాళం();
 
   rc = Curl_init_sslset_nolock(id, name, avail);
 
   global_init_unlock();
 
-  return rc;
+  తిరిగి rc;
 }
 
 /*
  * curl_easy_init() is the external interface to alloc, setup and init an
  * easy handle that is returned. If anything goes wrong, NULL is returned.
  */
-CURL *curl_easy_init(void)
+CURL *curl_easy_init(శూన్య)
 {
-  CURLcode result;
-  struct Curl_easy *data;
+  CURLcode ఫలితం;
+  నిర్మాణం Curl_easy *దత్తాంశం;
 
   /* Make sure we inited the global SSL stuff */
-  global_init_lock();
+  global_init_తాళం();
 
-  if(!initialized) {
-    result = global_init(CURL_GLOBAL_DEFAULT, TRUE);
-    if(result) {
+  ఒకవేళ(!initialized) {
+    ఫలితం = global_init(CURL_GLOBAL_DEFAULT, TRUE);
+    ఒకవేళ(ఫలితం) {
       /* something in the global init failed, return nothing */
       DEBUGF(curl_mfprintf(stderr, "Error: curl_global_init failed\n"));
       global_init_unlock();
-      return NULL;
+      తిరిగి ఖాళీ;
     }
   }
   global_init_unlock();
 
   /* We use Curl_open() with undefined URL so far */
-  result = Curl_open(&data);
-  if(result) {
+  ఫలితం = Curl_open(&దత్తాంశం);
+  ఒకవేళ(ఫలితం) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_open failed\n"));
-    return NULL;
+    తిరిగి ఖాళీ;
   }
 
-  return data;
+  తిరిగి దత్తాంశం;
 }
 
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
 
-struct socketmonitor {
-  struct socketmonitor *next; /* the next node in the list or NULL */
-  struct pollfd socket; /* socket info of what to monitor */
+నిర్మాణం socketmonitor {
+  నిర్మాణం socketmonitor *తదుపరి; /* the next node in the list or NULL */
+  నిర్మాణం pollfd socket; /* socket info of what to monitor */
 };
 
-struct events {
-  long ms;              /* timeout, run the timeout function when reached */
+నిర్మాణం events {
+  దీర్ఘ ms;              /* timeout, run the timeout function when reached */
   bool msbump;          /* set TRUE when timeout is set by callback */
-  int num_sockets;      /* number of nodes in the monitor list */
-  struct socketmonitor *list; /* list of sockets to monitor */
-  int running_handles;  /* store the returned number */
+  పూర్ణాంకం అంకె_sockets;      /* number of nodes in the monitor list */
+  నిర్మాణం socketmonitor *list; /* list of sockets to monitor */
+  పూర్ణాంకం running_handles;  /* store the returned number */
 };
 
-#define DEBUG_EV_POLL   0
+#నిర్వచించు DEBUG_EV_POLL   0
 
 /* events_timer
  *
  * Callback that gets called with a new value when the timeout should be
  * updated.
  */
-static int events_timer(CURLM *multi,    /* multi handle */
-                        long timeout_ms, /* see above */
-                        void *userp)     /* private callback pointer */
+స్థిర పూర్ణాంకం events_timer(CURLM *multi,    /* multi handle */
+                        దీర్ఘ timeout_ms, /* see above */
+                        శూన్య *userp)     /* private callback pointer */
 {
-  struct events *ev = userp;
-  (void)multi;
-#if DEBUG_EV_POLL
+  నిర్మాణం events *ev = userp;
+  (శూన్య)multi;
+#ఒకవేళ DEBUG_EV_POLL
   curl_mfprintf(stderr, "events_timer: set timeout %ldms\n", timeout_ms);
-#endif
+#అయితే_ముగింపు
   ev->ms = timeout_ms;
   ev->msbump = TRUE;
-  return 0;
+  తిరిగి 0;
 }
 
 /* poll2cselect
  *
  * convert from poll() bit definitions to libcurl's CURL_CSELECT_* ones
  */
-static int poll2cselect(int pollmask)
+స్థిర పూర్ణాంకం poll2cselect(పూర్ణాంకం pollmask)
 {
-  int omask = 0;
-  if(pollmask & POLLIN)
-    omask |= CURL_CSELECT_IN;
-  if(pollmask & POLLOUT)
-    omask |= CURL_CSELECT_OUT;
-  if(pollmask & POLLERR)
+  పూర్ణాంకం omask = 0;
+  ఒకవేళ(pollmask & POLLIN)
+    omask |= CURL_CSELECT_లోపల;
+  ఒకవేళ(pollmask & POLLOUT)
+    omask |= CURL_CSELECT_బహిర్గతం;
+  ఒకవేళ(pollmask & POLLERR)
     omask |= CURL_CSELECT_ERR;
-  return omask;
+  తిరిగి omask;
 }
 
 /* socketcb2poll
  *
  * convert from libcurl' CURL_POLL_* bit definitions to poll()'s
  */
-static short socketcb2poll(int pollmask)
+స్థిర పొట్టి socketcb2poll(పూర్ణాంకం pollmask)
 {
-  short omask = 0;
-  if(pollmask & CURL_POLL_IN)
+  పొట్టి omask = 0;
+  ఒకవేళ(pollmask & CURL_POLL_లోపల)
     omask |= POLLIN;
-  if(pollmask & CURL_POLL_OUT)
+  ఒకవేళ(pollmask & CURL_POLL_బహిర్గతం)
     omask |= POLLOUT;
-  return omask;
+  తిరిగి omask;
 }
 
 /* events_socket
@@ -465,78 +465,78 @@ static short socketcb2poll(int pollmask)
  * Callback that gets called with information about socket activity to
  * monitor.
  */
-static int events_socket(CURL *easy,      /* easy handle */
+స్థిర పూర్ణాంకం events_socket(CURL *easy,      /* easy handle */
                          curl_socket_t s, /* socket */
-                         int what,        /* see above */
-                         void *userp,     /* private callback
-                                             pointer */
-                         void *socketp)   /* private socket
-                                             pointer */
+                         పూర్ణాంకం what,        /* see above */
+                         శూన్య *userp,     /* private callback
+సూచిక*/
+                         శూన్య *socketp)   /* private socket
+సూచిక*/
 {
-  struct events *ev = userp;
-  struct socketmonitor *m;
-  struct socketmonitor *prev = NULL;
-  bool found = FALSE;
-  struct Curl_easy *data = easy;
+  నిర్మాణం events *ev = userp;
+  నిర్మాణం socketmonitor *m;
+  నిర్మాణం socketmonitor *prev = ఖాళీ;
+  bool దొరికింది = FALSE;
+  నిర్మాణం Curl_easy *దత్తాంశం = easy;
 
-#ifdef CURL_DISABLE_VERBOSE_STRINGS
-  (void)easy;
-#endif
-  (void)socketp;
+#నిర్వచితమైతే CURL_DISABLE_VERBOSE_అక్షరశ్రేణులు
+  (శూన్య)easy;
+#అయితే_ముగింపు
+  (శూన్య)socketp;
 
   m = ev->list;
-  while(m) {
-    if(m->socket.fd == s) {
-      found = TRUE;
-      if(what == CURL_POLL_REMOVE) {
-        struct socketmonitor *nxt = m->next;
+  అయితే(m) {
+    ఒకవేళ(m->socket.fd == s) {
+      దొరికింది = TRUE;
+      ఒకవేళ(what == CURL_POLL_REMOVE) {
+        నిర్మాణం socketmonitor *nxt = m->తదుపరి;
         /* remove this node from the list of monitored sockets */
-        if(prev)
-          prev->next = nxt;
-        else
+        ఒకవేళ(prev)
+          prev->తదుపరి = nxt;
+        లేకపోతే
           ev->list = nxt;
         curlx_free(m);
-        infof(data, "socket cb: socket %" FMT_SOCKET_T " REMOVED", s);
+        infof(దత్తాంశం, "socket cb: socket %" FMT_SOCKET_T " REMOVED", s);
       }
-      else {
+      లేకపోతే {
         /* The socket 's' is already being monitored, update the activity
            mask. Convert from libcurl bitmask to the poll one. */
         m->socket.events = socketcb2poll(what);
-        infof(data, "socket cb: socket %" FMT_SOCKET_T " UPDATED as %s%s", s,
-              (what & CURL_POLL_IN) ? "IN" : "",
-              (what & CURL_POLL_OUT) ? "OUT" : "");
+        infof(దత్తాంశం, "socket cb: socket %" FMT_SOCKET_T " UPDATED as %s%s", s,
+              (what & CURL_POLL_లోపల) ? "IN" : "",
+              (what & CURL_POLL_బహిర్గతం) ? "OUT" : "");
       }
-      break;
+      ఆపు;
     }
     prev = m;
-    m = m->next; /* move to next node */
+    m = m->తదుపరి; /* move to next node */
   }
 
-  if(!found) {
-    if(what == CURL_POLL_REMOVE) {
+  ఒకవేళ(!దొరికింది) {
+    ఒకవేళ(what == CURL_POLL_REMOVE) {
       /* should not happen if our logic is correct, but is no drama. */
-      DEBUGF(infof(data, "socket cb: asked to REMOVE socket %"
+      DEBUGF(infof(దత్తాంశం, "socket cb: asked to REMOVE socket %"
                    FMT_SOCKET_T "but not present!", s));
       DEBUGASSERT(0);
     }
-    else {
-      m = curlx_malloc(sizeof(struct socketmonitor));
-      if(m) {
-        m->next = ev->list;
+    లేకపోతే {
+      m = curlx_malloc(పరిమాణం(నిర్మాణం socketmonitor));
+      ఒకవేళ(m) {
+        m->తదుపరి = ev->list;
         m->socket.fd = s;
         m->socket.events = socketcb2poll(what);
         m->socket.revents = 0;
         ev->list = m;
-        infof(data, "socket cb: socket %" FMT_SOCKET_T " ADDED as %s%s", s,
-              (what & CURL_POLL_IN) ? "IN" : "",
-              (what & CURL_POLL_OUT) ? "OUT" : "");
+        infof(దత్తాంశం, "socket cb: socket %" FMT_SOCKET_T " ADDED as %s%s", s,
+              (what & CURL_POLL_లోపల) ? "IN" : "",
+              (what & CURL_POLL_బహిర్గతం) ? "OUT" : "");
       }
-      else
-        return CURLE_OUT_OF_MEMORY;
+      లేకపోతే
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
   }
 
-  return 0;
+  తిరిగి 0;
 }
 
 /*
@@ -544,7 +544,7 @@ static int events_socket(CURL *easy,      /* easy handle */
  *
  * Do the multi handle setups that only event-based transfers need.
  */
-static void events_setup(struct Curl_multi *multi, struct events *ev)
+స్థిర శూన్య events_అమరిక(నిర్మాణం Curl_multi *multi, నిర్మాణం events *ev)
 {
   /* timer callback */
   curl_multi_setopt(multi, CURLMOPT_TIMERFUNCTION, events_timer);
@@ -555,100 +555,100 @@ static void events_setup(struct Curl_multi *multi, struct events *ev)
   curl_multi_setopt(multi, CURLMOPT_SOCKETDATA, ev);
 }
 
-static CURLcode populate_cpfds(struct curl_pollfds *cpfds, struct events *ev)
+స్థిర CURLcode populate_cpfds(నిర్మాణం curl_pollfds *cpfds, నిర్మాణం events *ev)
 {
-  struct socketmonitor *m;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం socketmonitor *m;
+  CURLcode ఫలితం = CURLE_OK;
 
   Curl_pollfds_reset(cpfds);
-  for(m = ev->list; m && !result; m = m->next) {
-    result = Curl_pollfds_add_sock(cpfds, m->socket.fd, m->socket.events);
-#if DEBUG_EV_POLL
-    if(!result)
+  కొరకు(m = ev->list; m && !ఫలితం; m = m->తదుపరి) {
+    ఫలితం = Curl_pollfds_కూడు_sock(cpfds, m->socket.fd, m->socket.events);
+#ఒకవేళ DEBUG_EV_POLL
+    ఒకవేళ(!ఫలితం)
       curl_mfprintf(stderr, "poll() %d check socket %d\n",
                     cpfds->n - 1, cpfds->pfds[cpfds->n - 1].fd);
-#endif
+#అయితే_ముగింపు
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode poll_cpfds(struct events *ev,
-                           struct curl_pollfds *cpfds,
-                           int *pollrc)
+స్థిర CURLcode poll_cpfds(నిర్మాణం events *ev,
+                           నిర్మాణం curl_pollfds *cpfds,
+                           పూర్ణాంకం *pollrc)
 {
-  if(cpfds->n) {
+  ఒకవేళ(cpfds->n) {
     /* wait for activity or timeout */
-#if DEBUG_EV_POLL
+#ఒకవేళ DEBUG_EV_POLL
     curl_mfprintf(stderr, "poll(numfds=%u, timeout=%ldms)\n",
                   cpfds->n, ev->ms);
-#endif
+#అయితే_ముగింపు
     *pollrc = Curl_poll(cpfds->pfds, cpfds->n, ev->ms);
-#if DEBUG_EV_POLL
+#ఒకవేళ DEBUG_EV_POLL
     curl_mfprintf(stderr, "poll(numfds=%u, timeout=%ldms) -> %d\n",
                   cpfds->n, ev->ms, *pollrc);
-#endif
-    if(*pollrc < 0)
-      return CURLE_UNRECOVERABLE_POLL;
+#అయితే_ముగింపు
+    ఒకవేళ(*pollrc < 0)
+      తిరిగి CURLE_UNRECOVERABLE_POLL;
   }
-  else {
-#if DEBUG_EV_POLL
+  లేకపోతే {
+#ఒకవేళ DEBUG_EV_POLL
     curl_mfprintf(stderr, "poll, but no fds, wait timeout=%ldms\n", ev->ms);
-#endif
+#అయితే_ముగింపు
     *pollrc = 0;
-    if(ev->ms > 0)
+    ఒకవేళ(ev->ms > 0)
       curlx_wait_ms(ev->ms);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* wait_or_timeout()
  *
  * waits for activity on any of the given sockets, or the timeout to trigger.
  */
-static CURLcode wait_or_timeout(struct Curl_multi *multi, struct events *ev)
+స్థిర CURLcode wait_or_timeout(నిర్మాణం Curl_multi *multi, నిర్మాణం events *ev)
 {
-  struct pollfd fds_on_stack[8];
-  struct curl_pollfds cpfds;
-  bool done = FALSE;
+  నిర్మాణం pollfd fds_on_దొంతర[8];
+  నిర్మాణం curl_pollfds cpfds;
+  bool పూర్తి = FALSE;
   CURLMcode mresult = CURLM_OK;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  Curl_pollfds_init(&cpfds, fds_on_stack, CURL_ARRAYSIZE(fds_on_stack));
-  while(!done) {
-    CURLMsg *msg;
-    int pollrc;
-    struct curltime start;
+  Curl_pollfds_init(&cpfds, fds_on_దొంతర, CURL_ARRAYSIZE(fds_on_దొంతర));
+  అయితే(!పూర్తి) {
+    CURLMsg *సందేశం;
+    పూర్ణాంకం pollrc;
+    నిర్మాణం curltime ప్రారంభం;
 
-    result = populate_cpfds(&cpfds, ev);
-    if(result)
-      goto out;
+    ఫలితం = populate_cpfds(&cpfds, ev);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
 
     /* get the time stamp to use to figure out how long poll takes */
-    curlx_pnow(&start);
+    curlx_pnow(&ప్రారంభం);
 
-    result = poll_cpfds(ev, &cpfds, &pollrc);
-    if(result)
-      goto out;
+    ఫలితం = poll_cpfds(ev, &cpfds, &pollrc);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
 
     ev->msbump = FALSE; /* reset here */
 
-    if(!pollrc) {
+    ఒకవేళ(!pollrc) {
       /* timeout! */
       ev->ms = 0;
-#if DEBUG_EV_POLL
+#ఒకవేళ DEBUG_EV_POLL
       curl_mfprintf(stderr, "call curl_multi_socket_action(TIMEOUT)\n");
-#endif
+#అయితే_ముగింపు
       mresult = curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0,
                                          &ev->running_handles);
     }
-    else {
+    లేకపోతే {
       /* here pollrc is > 0 */
       /* loop over the monitored sockets to see which ones had activity */
-      unsigned int i;
-      for(i = 0; i < cpfds.n; i++) {
-        if(cpfds.pfds[i].revents) {
+      గుర్తులేని పూర్ణాంకం i;
+      కొరకు(i = 0; i < cpfds.n; i++) {
+        ఒకవేళ(cpfds.pfds[i].revents) {
           /* socket activity, tell libcurl */
-          int act = poll2cselect(cpfds.pfds[i].revents); /* convert */
+          పూర్ణాంకం act = poll2cselect(cpfds.pfds[i].revents); /* convert */
 
           /* sending infof "randomly" to the first easy handle */
           infof(multi->admin, "call curl_multi_socket_action(socket "
@@ -658,96 +658,96 @@ static CURLcode wait_or_timeout(struct Curl_multi *multi, struct events *ev)
         }
       }
 
-      if(!ev->msbump && ev->ms >= 0) {
+      ఒకవేళ(!ev->msbump && ev->ms >= 0) {
         /* If nothing updated the timeout, we decrease it by the spent time.
          * If it was updated, it has the new timeout time stored already.
          */
-        timediff_t spent_ms = curlx_timediff_ms(curlx_now(), start);
-        if(spent_ms > 0) {
-#if DEBUG_EV_POLL
+        timediff_t spent_ms = curlx_timediff_ms(curlx_now(), ప్రారంభం);
+        ఒకవేళ(spent_ms > 0) {
+#ఒకవేళ DEBUG_EV_POLL
         curl_mfprintf(stderr, "poll timeout %ldms not updated, decrease by "
-                      "time spent %ldms\n", ev->ms, (long)spent_ms);
-#endif
-          if(spent_ms > ev->ms)
+                      "time spent %ldms\n", ev->ms, (దీర్ఘ)spent_ms);
+#అయితే_ముగింపు
+          ఒకవేళ(spent_ms > ev->ms)
             ev->ms = 0;
-          else
-            ev->ms -= (long)spent_ms;
+          లేకపోతే
+            ev->ms -= (దీర్ఘ)spent_ms;
         }
       }
     }
 
-    if(mresult) {
-      result = CURLE_URL_MALFORMAT;
-      goto out;
+    ఒకవేళ(mresult) {
+      ఫలితం = CURLE_URL_MALFORMAT;
+      వెళ్ళు బహిర్గతం;
     }
 
     /* we do not really care about the "msgs_in_queue" value returned in the
        second argument */
-    msg = curl_multi_info_read(multi, &pollrc);
-    if(msg) {
-      result = msg->data.result;
-      done = TRUE;
+    సందేశం = curl_multi_info_read(multi, &pollrc);
+    ఒకవేళ(సందేశం) {
+      ఫలితం = సందేశం->దత్తాంశం.ఫలితం;
+      పూర్తి = TRUE;
     }
   }
-out:
+బహిర్గతం:
   Curl_pollfds_cleanup(&cpfds);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* easy_events()
  *
  * Runs a transfer in a blocking manner using the events-based API
  */
-static CURLcode easy_events(struct Curl_multi *multi)
+స్థిర CURLcode easy_events(నిర్మాణం Curl_multi *multi)
 {
   /* this struct is made static to allow it to be used after this function
      returns and curl_multi_remove_handle() is called */
-  static struct events evs = { -1, FALSE, 0, NULL, 0 };
+  స్థిర నిర్మాణం events evs = { -1, FALSE, 0, ఖాళీ, 0 };
 
   /* if running event-based, do some further multi inits */
-  events_setup(multi, &evs);
+  events_అమరిక(multi, &evs);
 
-  return wait_or_timeout(multi, &evs);
+  తిరిగి wait_or_timeout(multi, &evs);
 }
-#else /* DEBUGBUILD */
+#లేకపోతే /* DEBUGBUILD */
 /* when not built with debug, this function does not exist */
-#define easy_events(x) CURLE_NOT_BUILT_IN
-#endif
+#నిర్వచించు easy_events(x) CURLE_NOT_BUILT_లోపల
+#అయితే_ముగింపు
 
-static CURLcode easy_transfer(struct Curl_multi *multi)
+స్థిర CURLcode easy_transfer(నిర్మాణం Curl_multi *multi)
 {
-  bool done = FALSE;
+  bool పూర్తి = FALSE;
   CURLMcode mresult = CURLM_OK;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  while(!done && !mresult) {
-    int still_running = 0;
+  అయితే(!పూర్తి && !mresult) {
+    పూర్ణాంకం still_running = 0;
 
-    mresult = curl_multi_poll(multi, NULL, 0, 1000, NULL);
+    mresult = curl_multi_poll(multi, ఖాళీ, 0, 1000, ఖాళీ);
 
-    if(!mresult)
+    ఒకవేళ(!mresult)
       mresult = curl_multi_perform(multi, &still_running);
 
     /* only read 'still_running' if curl_multi_perform() return OK */
-    if(!mresult && !still_running) {
-      int rc;
-      CURLMsg *msg = curl_multi_info_read(multi, &rc);
-      if(msg) {
-        result = msg->data.result;
-        done = TRUE;
+    ఒకవేళ(!mresult && !still_running) {
+      పూర్ణాంకం rc;
+      CURLMsg *సందేశం = curl_multi_info_read(multi, &rc);
+      ఒకవేళ(సందేశం) {
+        ఫలితం = సందేశం->దత్తాంశం.ఫలితం;
+        పూర్తి = TRUE;
       }
     }
   }
 
   /* Make sure to return some kind of error if there was a multi problem */
-  if(mresult) {
-    result = (mresult == CURLM_OUT_OF_MEMORY) ? CURLE_OUT_OF_MEMORY :
+  ఒకవేళ(mresult) {
+    ఫలితం = (mresult == CURLM_బహిర్గతం_యొక్క_జ్ఞాపకం) ? CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం :
       /* The other multi errors should never happen, so return
          something suitably generic */
-      CURLE_BAD_FUNCTION_ARGUMENT;
+      CURLE_BAD_FUNCTION_వాదం;
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -767,79 +767,79 @@ static CURLcode easy_transfer(struct Curl_multi *multi)
  * DEBUG: if 'events' is set TRUE, this function will use a replacement engine
  * instead of curl_multi_perform() and use curl_multi_socket_action().
  */
-static CURLcode easy_perform(struct Curl_easy *data, bool events)
+స్థిర CURLcode easy_perform(నిర్మాణం Curl_easy *దత్తాంశం, bool events)
 {
-  struct Curl_multi *multi;
+  నిర్మాణం Curl_multi *multi;
   CURLMcode mresult;
-  CURLcode result = CURLE_OK;
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం Curl_sigpipe_ctx sigpipe_ctx;
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!దత్తాంశం)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
 
-  if(data->set.errorbuffer)
+  ఒకవేళ(దత్తాంశం->సమితి.errorbuffer)
     /* clear this as early as possible */
-    data->set.errorbuffer[0] = 0;
+    దత్తాంశం->సమితి.errorbuffer[0] = 0;
 
-  data->state.os_errno = 0;
+  దత్తాంశం->state.os_errno = 0;
 
-  if(data->multi) {
-    failf(data, "easy handle already used in multi handle");
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(దత్తాంశం->multi) {
+    failf(దత్తాంశం, "easy handle already used in multi handle");
+    తిరిగి CURLE_FAILED_INIT;
   }
 
   /* if the handle has a connection still attached (it is/was a connect-only
      handle) then disconnect before performing */
-  if(data->conn) {
-    struct connectdata *conn = data->conn;
-    Curl_detach_connection(data);
-    Curl_conn_close(data, conn, TRUE);
-    DEBUGASSERT(!data->conn);
+  ఒకవేళ(దత్తాంశం->conn) {
+    నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+    Curl_detach_connection(దత్తాంశం);
+    Curl_conn_close(దత్తాంశం, conn, TRUE);
+    DEBUGASSERT(!దత్తాంశం->conn);
   }
 
-  if(data->multi_easy)
-    multi = data->multi_easy;
-  else {
+  ఒకవేళ(దత్తాంశం->multi_easy)
+    multi = దత్తాంశం->multi_easy;
+  లేకపోతే {
     /* this multi handle will only ever have a single easy handle attached to
        it, so make it use minimal hash sizes */
     multi = Curl_multi_handle(16, 1, 3, 7, 3);
-    if(!multi)
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(!multi)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  if(Curl_api_multi_is_in_callback(multi))
-    return CURLE_RECURSIVE_API_CALL;
+  ఒకవేళ(Curl_api_multi_is_లోపల_callback(multi))
+    తిరిగి CURLE_RECURSIVE_API_CALL;
 
   /* Copy relevant easy options to the multi handle */
-  curl_multi_setopt(multi, CURLMOPT_MAXCONNECTS, (long)data->set.maxconnects);
-  curl_multi_setopt(multi, CURLMOPT_QUICK_EXIT, (long)data->set.quick_exit);
+  curl_multi_setopt(multi, CURLMOPT_MAXCONNECTS, (దీర్ఘ)దత్తాంశం->సమితి.maxconnects);
+  curl_multi_setopt(multi, CURLMOPT_శీఘ్ర_EXIT, (దీర్ఘ)దత్తాంశం->సమితి.quick_exit);
 
-  data->multi_easy = NULL; /* pretend it does not exist */
-  mresult = Curl_multi_add_handle(multi, data);
-  if(mresult) {
+  దత్తాంశం->multi_easy = ఖాళీ; /* pretend it does not exist */
+  mresult = Curl_multi_కూడు_handle(multi, దత్తాంశం);
+  ఒకవేళ(mresult) {
     curl_multi_cleanup(multi);
-    if(mresult == CURLM_OUT_OF_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
-    return CURLE_FAILED_INIT;
+    ఒకవేళ(mresult == CURLM_బహిర్గతం_యొక్క_జ్ఞాపకం)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    తిరిగి CURLE_FAILED_INIT;
   }
 
   /* assign this after curl_multi_add_handle() */
-  data->multi_easy = multi;
+  దత్తాంశం->multi_easy = multi;
 
   sigpipe_init(&sigpipe_ctx);
-  sigpipe_apply(data, &sigpipe_ctx);
+  sigpipe_apply(దత్తాంశం, &sigpipe_ctx);
 
   /* run the transfer */
-  result = events ? easy_events(multi) : easy_transfer(multi);
+  ఫలితం = events ? easy_events(multi) : easy_transfer(multi);
 
   /* ignoring the return code is not nice, but atm we cannot really handle
      a failure here, room for future improvement! */
-  (void)Curl_multi_remove_handle(multi, data);
+  (శూన్య)Curl_multi_remove_handle(multi, దత్తాంశం);
 
   sigpipe_restore(&sigpipe_ctx);
 
   /* The multi handle is kept alive, owned by the easy handle */
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -848,47 +848,47 @@ static CURLcode easy_perform(struct Curl_easy *data, bool events)
  */
 CURLcode curl_easy_perform(CURL *curl)
 {
-  struct Curl_eapi_guard guard = { 0 };
-  CURLcode result;
+  నిర్మాణం Curl_eapi_guard guard = { 0 };
+  CURLcode ఫలితం;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_perform, &result)) {
-    result = easy_perform(curl, FALSE);
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_perform, &ఫలితం)) {
+    ఫలితం = easy_perform(curl, FALSE);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
 /*
  * curl_easy_perform_ev() is the external interface that performs a blocking
  * transfer using the event-based API internally.
  */
-CURLcode curl_easy_perform_ev(struct Curl_easy *easy)
+CURLcode curl_easy_perform_ev(నిర్మాణం Curl_easy *easy)
 {
-  struct Curl_eapi_guard guard;
-  CURLcode result;
+  నిర్మాణం Curl_eapi_guard guard;
+  CURLcode ఫలితం;
 
-  if(CURL_EAPI_ENTER(&guard, easy, easy_perform_ev, &result)) {
-    result = easy_perform(easy, TRUE);
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, easy, easy_perform_ev, &ఫలితం)) {
+    ఫలితం = easy_perform(easy, TRUE);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  తిరిగి ఫలితం;
 }
-#endif
+#అయితే_ముగింపు
 
 /*
  * curl_easy_cleanup() is the external interface to cleaning/freeing the given
  * easy handle.
  */
-void curl_easy_cleanup(CURL *curl)
+శూన్య curl_easy_cleanup(CURL *curl)
 {
-  struct Curl_eapi_guard guard;
+  నిర్మాణం Curl_eapi_guard guard;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_cleanup, NULL)) {
-    struct Curl_easy *data = curl;
-    struct Curl_sigpipe_ctx sigpipe_ctx;
-    sigpipe_ignore(data, &sigpipe_ctx);
-    Curl_close(&data);
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_cleanup, ఖాళీ)) {
+    నిర్మాణం Curl_easy *దత్తాంశం = curl;
+    నిర్మాణం Curl_sigpipe_ctx sigpipe_ctx;
+    sigpipe_ignore(దత్తాంశం, &sigpipe_ctx);
+    Curl_close(&దత్తాంశం);
     sigpipe_restore(&sigpipe_ctx);
   }
   CURL_EAPI_LEAVE(&guard);
@@ -898,96 +898,96 @@ void curl_easy_cleanup(CURL *curl)
  * curl_easy_getinfo() is an external interface that allows an app to retrieve
  * information from a performed transfer and similar.
  */
-#undef curl_easy_getinfo
+#నిర్వచనం_రద్దు curl_easy_getinfo
 CURLcode curl_easy_getinfo(CURL *curl, CURLINFO info, ...)
 {
-  struct Curl_eapi_guard guard;
-  CURLcode result;
+  నిర్మాణం Curl_eapi_guard guard;
+  CURLcode ఫలితం;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_getinfo, &result)) {
-    struct Curl_easy *data = curl;
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_getinfo, &ఫలితం)) {
+    నిర్మాణం Curl_easy *దత్తాంశం = curl;
     va_list arg;
-    void *paramp;
+    శూన్య *paramp;
 
     va_start(arg, info);
-    paramp = va_arg(arg, void *);
+    paramp = va_arg(arg, శూన్య *);
 
-    result = Curl_getinfo(data, info, paramp);
+    ఫలితం = Curl_getinfo(దత్తాంశం, info, paramp);
 
     va_end(arg);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode dupset(struct Curl_easy *dst, struct Curl_easy *src)
+స్థిర CURLcode dupset(నిర్మాణం Curl_easy *dst, నిర్మాణం Curl_easy *src)
 {
-  CURLcode result = CURLE_OK;
-  enum dupblob j;
+  CURLcode ఫలితం = CURLE_OK;
+  గణన dupblob j;
 
   /* Copy src->set into dst->set first, then deal with the strings
      afterwards */
-  dst->set = src->set;
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  dst->set.mimepostp = NULL;
-#endif
-  dst->set.str_copypostfields = NULL;
+  dst->సమితి = src->సమితి;
+#ఒకవేళ !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  dst->సమితి.mimepostp = ఖాళీ;
+#అయితే_ముగింపు
+  dst->సమితి.str_copypostfields = ఖాళీ;
 
-  Curl_u8_strset_init(&dst->set.strings);
+  Curl_u8_strset_init(&dst->సమితి.అక్షరశ్రేణులు);
   /* clear all dest string and blob pointers first, in case we error out
      mid-function */
-  memset(dst->set.blobs, 0, BLOB_LAST * sizeof(struct curl_blob *));
+  memset(dst->సమితి.blobs, 0, BLOB_చివరి * పరిమాణం(నిర్మాణం curl_blob *));
 
   /* duplicate all strings */
-  result = Curl_u8_strset_copy(&dst->set.strings, &src->set.strings);
-  if(result)
-    return result;
+  ఫలితం = Curl_u8_strset_copy(&dst->సమితి.అక్షరశ్రేణులు, &src->సమితి.అక్షరశ్రేణులు);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* duplicate all blobs */
-  for(j = (enum dupblob)0; j < BLOB_LAST; j++) {
-    result = Curl_setblobopt(&dst->set.blobs[j], src->set.blobs[j]);
-    if(result)
-      return result;
+  కొరకు(j = (గణన dupblob)0; j < BLOB_చివరి; j++) {
+    ఫలితం = Curl_setblobopt(&dst->సమితి.blobs[j], src->సమితి.blobs[j]);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
   /* duplicate memory areas pointed to */
-  if(src->set.str_copypostfields) {
-    if(src->set.postfieldsize == -1)
-      dst->set.str_copypostfields = curlx_strdup(src->set.str_copypostfields);
-    else
+  ఒకవేళ(src->సమితి.str_copypostfields) {
+    ఒకవేళ(src->సమితి.postfieldsize == -1)
+      dst->సమితి.str_copypostfields = curlx_strdup(src->సమితి.str_copypostfields);
+    లేకపోతే
       /* postfieldsize is curl_off_t, curlx_memdup0() takes a size_t ... */
-      dst->set.str_copypostfields =
-        curlx_memdup0(src->set.str_copypostfields,
-                      curlx_sotouz(src->set.postfieldsize));
-    if(!dst->set.str_copypostfields)
-      return CURLE_OUT_OF_MEMORY;
+      dst->సమితి.str_copypostfields =
+        curlx_memdup0(src->సమితి.str_copypostfields,
+                      curlx_sotouz(src->సమితి.postfieldsize));
+    ఒకవేళ(!dst->సమితి.str_copypostfields)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     /* point to the new copy */
-    dst->set.postfields = dst->set.str_copypostfields;
+    dst->సమితి.postfields = dst->సమితి.str_copypostfields;
   }
 
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  if(src->set.mimepostp) {
+#ఒకవేళ !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  ఒకవేళ(src->సమితి.mimepostp) {
     /* Duplicate mime data. Get a mimepost struct for the clone as well */
-    dst->set.mimepostp = curlx_malloc(sizeof(*dst->set.mimepostp));
-    if(!dst->set.mimepostp)
-      return CURLE_OUT_OF_MEMORY;
+    dst->సమితి.mimepostp = curlx_malloc(పరిమాణం(*dst->సమితి.mimepostp));
+    ఒకవేళ(!dst->సమితి.mimepostp)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-    Curl_mime_initpart(dst->set.mimepostp);
-    result = Curl_mime_duppart(dst, dst->set.mimepostp, src->set.mimepostp);
-    if(result)
-      return result;
+    Curl_mime_initpart(dst->సమితి.mimepostp);
+    ఫలితం = Curl_mime_duppart(dst, dst->సమితి.mimepostp, src->సమితి.mimepostp);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
-#endif
+#అయితే_ముగింపు
 
-  if(src->set.resolve)
-    dst->state.resolve = dst->set.resolve;
+  ఒకవేళ(src->సమితి.resolve)
+    dst->state.resolve = dst->సమితి.resolve;
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static void dupeasy_meta_freeentry(void *p)
+స్థిర శూన్య dupeasy_meta_freeentry(శూన్య *p)
 {
-  (void)p;
+  (శూన్య)p;
   /* Always FALSE. Cannot use a 0 assert here since compilers
    * are not in agreement if they then want a NORETURN attribute or
    * not. *sigh* */
@@ -1001,122 +1001,122 @@ static void dupeasy_meta_freeentry(void *p)
  */
 CURL *curl_easy_duphandle(CURL *curl)
 {
-  struct Curl_eapi_guard guard;
-  struct Curl_easy *outcurl = NULL;
+  నిర్మాణం Curl_eapi_guard guard;
+  నిర్మాణం Curl_easy *outcurl = ఖాళీ;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_duphandle, NULL)) {
-    struct Curl_easy *data = curl;
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_duphandle, ఖాళీ)) {
+    నిర్మాణం Curl_easy *దత్తాంశం = curl;
 
-    outcurl = curlx_calloc(1, sizeof(struct Curl_easy));
-    if(!outcurl)
-      goto fail;
+    outcurl = curlx_calloc(1, పరిమాణం(నిర్మాణం Curl_easy));
+    ఒకవేళ(!outcurl)
+      వెళ్ళు fail;
 
     /*
      * We setup a few buffers we need. We should probably make them
      * get setup on-demand in the code, as that would probably decrease
      * the likeliness of us forgetting to init a buffer here in the future.
      */
-    outcurl->set.buffer_size = data->set.buffer_size;
+    outcurl->సమితి.బఫరు_కొలత = దత్తాంశం->సమితి.బఫరు_కొలత;
 
-    Curl_hash_init(&outcurl->meta_hash, 23, CURL_HASH_TYPE_BYTES,
+    Curl_hash_init(&outcurl->meta_hash, 23, CURL_HASH_TYPE_బైట్లు,
                    dupeasy_meta_freeentry);
-    curlx_dyn_init(&outcurl->state.headerb, CURL_MAX_HTTP_HEADER);
+    curlx_dyn_init(&outcurl->state.headerb, CURL_MAX_HTTP_శీర్షిక);
     Curl_bufref_init(&outcurl->state.url);
     Curl_bufref_init(&outcurl->state.referer);
     Curl_netrc_init(&outcurl->state.netrc);
 
     /* the connection pool is setup on demand */
-    outcurl->state.last_conn_id = -1;
-    outcurl->state.last_cpid = UINT32_MAX;
+    outcurl->state.చివరి_conn_id = -1;
+    outcurl->state.చివరి_cpid = UINT32_MAX;
     outcurl->id = -1;
     outcurl->mid = UINT32_MAX;
     outcurl->master_mid = UINT32_MAX;
 
-#ifndef CURL_DISABLE_HTTP
-    Curl_llist_init(&outcurl->state.httphdrs, NULL);
-#endif
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
+    Curl_llist_init(&outcurl->state.httphdrs, ఖాళీ);
+#అయితే_ముగింపు
     Curl_initinfo(outcurl);
 
     /* copy all userdefined values */
-    if(dupset(outcurl, data))
-      goto fail;
+    ఒకవేళ(dupset(outcurl, దత్తాంశం))
+      వెళ్ళు fail;
 
-    outcurl->progress.hide     = data->progress.hide;
-    outcurl->progress.callback = data->progress.callback;
+    outcurl->పురోగతి.hide     = దత్తాంశం->పురోగతి.hide;
+    outcurl->పురోగతి.callback = దత్తాంశం->పురోగతి.callback;
 
-#ifndef CURL_DISABLE_COOKIES
-    outcurl->state.cookielist = NULL;
-    if(data->cookies && data->state.cookie_engine) {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_COOKIES
+    outcurl->state.cookielist = ఖాళీ;
+    ఒకవేళ(దత్తాంశం->cookies && దత్తాంశం->state.cookie_engine) {
       /* If cookies are enabled in the parent handle, we enable them
          in the clone as well! */
       outcurl->cookies = Curl_cookie_init();
-      if(!outcurl->cookies)
-        goto fail;
+      ఒకవేళ(!outcurl->cookies)
+        వెళ్ళు fail;
       outcurl->state.cookie_engine = TRUE;
     }
 
-    if(data->state.cookielist) {
-      outcurl->state.cookielist = Curl_slist_duplicate(data->state.cookielist);
-      if(!outcurl->state.cookielist)
-        goto fail;
+    ఒకవేళ(దత్తాంశం->state.cookielist) {
+      outcurl->state.cookielist = Curl_slist_duplicate(దత్తాంశం->state.cookielist);
+      ఒకవేళ(!outcurl->state.cookielist)
+        వెళ్ళు fail;
     }
-#endif
+#అయితే_ముగింపు
 
-    if(Curl_bufref_ptr(&data->state.url)) {
-      Curl_bufref_set(&outcurl->state.url,
-                      Curl_bufref_dup(&data->state.url), 0,
+    ఒకవేళ(Curl_bufref_ptr(&దత్తాంశం->state.url)) {
+      Curl_bufref_సమితి(&outcurl->state.url,
+                      Curl_bufref_dup(&దత్తాంశం->state.url), 0,
                       curl_free);
-      if(!Curl_bufref_ptr(&outcurl->state.url))
-        goto fail;
+      ఒకవేళ(!Curl_bufref_ptr(&outcurl->state.url))
+        వెళ్ళు fail;
     }
-    if(Curl_bufref_ptr(&data->state.referer)) {
-      Curl_bufref_set(&outcurl->state.referer,
-                      Curl_bufref_dup(&data->state.referer), 0,
+    ఒకవేళ(Curl_bufref_ptr(&దత్తాంశం->state.referer)) {
+      Curl_bufref_సమితి(&outcurl->state.referer,
+                      Curl_bufref_dup(&దత్తాంశం->state.referer), 0,
                       curl_free);
-      if(!Curl_bufref_ptr(&outcurl->state.referer))
-        goto fail;
+      ఒకవేళ(!Curl_bufref_ptr(&outcurl->state.referer))
+        వెళ్ళు fail;
     }
 
-#ifndef CURL_DISABLE_ALTSVC
-    if(data->asi) {
-      const char *str;
+#నిర్వచితం_కాకపోతే CURL_DISABLE_ALTSVC
+    ఒకవేళ(దత్తాంశం->asi) {
+      స్థిరరాశి అక్షరం *str;
       outcurl->asi = Curl_altsvc_init();
-      if(!outcurl->asi)
-        goto fail;
+      ఒకవేళ(!outcurl->asi)
+        వెళ్ళు fail;
       str = CURL_EASY_STR(outcurl, STRING_ALTSVC);
-      if(str)
-        (void)Curl_altsvc_load(outcurl->asi, str);
+      ఒకవేళ(str)
+        (శూన్య)Curl_altsvc_ఎక్కించు(outcurl->asi, str);
     }
-#endif
-#ifndef CURL_DISABLE_HSTS
-    if(data->hsts) {
-      const char *str;
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HSTS
+    ఒకవేళ(దత్తాంశం->hsts) {
+      స్థిరరాశి అక్షరం *str;
       outcurl->hsts = Curl_hsts_init();
-      if(!outcurl->hsts)
-        goto fail;
+      ఒకవేళ(!outcurl->hsts)
+        వెళ్ళు fail;
       str = CURL_EASY_STR(outcurl, STRING_HSTS);
-      if(str)
-        (void)Curl_hsts_loadfile(outcurl, outcurl->hsts, str);
-      (void)Curl_hsts_loadcb(outcurl, outcurl->hsts);
+      ఒకవేళ(str)
+        (శూన్య)Curl_hsts_loadfile(outcurl, outcurl->hsts, str);
+      (శూన్య)Curl_hsts_loadcb(outcurl, outcurl->hsts);
 
       /* Copy entries learned at runtime. (E.g. Strict-Transport-Security
          headers.) */
-      if(Curl_hsts_copy(outcurl->hsts, data->hsts))
-        goto fail;
+      ఒకవేళ(Curl_hsts_copy(outcurl->hsts, దత్తాంశం->hsts))
+        వెళ్ళు fail;
     }
-#endif
+#అయితే_ముగింపు
 
     /* we reach this point and thus we are OK */
-    outcurl->magic = CURLEASY_MAGIC_NUMBER;
+    outcurl->magic = CURLEASY_MAGIC_సంఖ్య;
   }
   CURL_EAPI_LEAVE(&guard);
-  return outcurl;
+  తిరిగి outcurl;
 
 fail:
-  if(outcurl) {
-#ifndef CURL_DISABLE_COOKIES
+  ఒకవేళ(outcurl) {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_COOKIES
     curlx_free(outcurl->cookies);
-#endif
+#అయితే_ముగింపు
     curlx_dyn_free(&outcurl->state.headerb);
     Curl_altsvc_cleanup(&outcurl->asi);
     Curl_hsts_cleanup(&outcurl->hsts);
@@ -1125,48 +1125,48 @@ fail:
   }
 
   CURL_EAPI_LEAVE(&guard);
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
 /*
  * curl_easy_reset() is an external interface that allows an app to re-
  * initialize a session handle to the default values.
  */
-void curl_easy_reset(CURL *curl)
+శూన్య curl_easy_reset(CURL *curl)
 {
-  struct Curl_eapi_guard guard;
+  నిర్మాణం Curl_eapi_guard guard;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_reset, NULL)) {
-    struct Curl_easy *data = curl;
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_reset, ఖాళీ)) {
+    నిర్మాణం Curl_easy *దత్తాంశం = curl;
 
-    data->state.last_conn_id = -1; /* clear remembered connection id */
-    data->state.last_cpid = UINT32_MAX;
-    Curl_req_hard_reset(&data->req, data);
-    Curl_hash_clean(&data->meta_hash);
+    దత్తాంశం->state.చివరి_conn_id = -1; /* clear remembered connection id */
+    దత్తాంశం->state.చివరి_cpid = UINT32_MAX;
+    Curl_req_hard_reset(&దత్తాంశం->req, దత్తాంశం);
+    Curl_hash_clean(&దత్తాంశం->meta_hash);
 
     /* clear all meta data */
-    Curl_meta_reset(data);
+    Curl_meta_reset(దత్తాంశం);
     /* zero out UserDefined data: */
-    Curl_freeset(data);
-    memset(&data->set, 0, sizeof(struct UserDefined));
-    Curl_init_userdefined(data);
+    Curl_freeset(దత్తాంశం);
+    memset(&దత్తాంశం->సమితి, 0, పరిమాణం(నిర్మాణం UserDefined));
+    Curl_init_userdefined(దత్తాంశం);
 
     /* zero out Progress data: */
-    memset(&data->progress, 0, sizeof(struct Progress));
+    memset(&దత్తాంశం->పురోగతి, 0, పరిమాణం(నిర్మాణం పురోగతి_2));
 
     /* zero out PureInfo data: */
-    Curl_initinfo(data);
+    Curl_initinfo(దత్తాంశం);
 
-    data->progress.hide = TRUE;
+    దత్తాంశం->పురోగతి.hide = TRUE;
 
     /* zero out authentication data: */
-    memset(&data->state.authhost, 0, sizeof(struct auth));
-    memset(&data->state.authproxy, 0, sizeof(struct auth));
+    memset(&దత్తాంశం->state.authhost, 0, పరిమాణం(నిర్మాణం auth));
+    memset(&దత్తాంశం->state.authproxy, 0, పరిమాణం(నిర్మాణం auth));
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
-    Curl_http_auth_cleanup_digest(data);
-#endif
-    data->master_mid = UINT32_MAX;
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+    Curl_http_auth_cleanup_digest(దత్తాంశం);
+#అయితే_ముగింపు
+    దత్తాంశం->master_mid = UINT32_MAX;
   }
   CURL_EAPI_LEAVE(&guard);
 }
@@ -1184,86 +1184,86 @@ void curl_easy_reset(CURL *curl)
  * NOTE: This is one of few API functions that are allowed to be called from
  * within a callback.
  */
-CURLcode curl_easy_pause(CURL *curl, int action)
+CURLcode curl_easy_pause(CURL *curl, పూర్ణాంకం action)
 {
-  struct Curl_eapi_guard guard;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_eapi_guard guard;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_pause, &result)) {
-    bool changed = FALSE;
-    struct Curl_easy *data = curl;
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_pause, &ఫలితం)) {
+    bool మారింది = FALSE;
+    నిర్మాణం Curl_easy *దత్తాంశం = curl;
     bool recv_paused, recv_paused_new;
     bool send_paused, send_paused_new;
 
-    if(!data->conn) {
+    ఒకవేళ(!దత్తాంశం->conn) {
       /* crazy input, do not continue */
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+      వెళ్ళు బహిర్గతం;
     }
 
-    recv_paused = Curl_xfer_recv_is_paused(data);
+    recv_paused = Curl_xfer_recv_is_paused(దత్తాంశం);
     recv_paused_new = (action & CURLPAUSE_RECV);
-    send_paused = Curl_xfer_send_is_paused(data);
+    send_paused = Curl_xfer_send_is_paused(దత్తాంశం);
     send_paused_new = (action & CURLPAUSE_SEND);
 
-    if((send_paused != send_paused_new) ||
-       (send_paused_new != Curl_creader_is_paused(data))) {
-      changed = TRUE;
-      result = Curl_1st_fatal(
-        result, Curl_xfer_pause_send(data, send_paused_new));
+    ఒకవేళ((send_paused != send_paused_new) ||
+       (send_paused_new != Curl_creader_is_paused(దత్తాంశం))) {
+      మారింది = TRUE;
+      ఫలితం = Curl_1st_fatal(
+        ఫలితం, Curl_xfer_pause_send(దత్తాంశం, send_paused_new));
     }
 
-    if(recv_paused != recv_paused_new) {
-      changed = TRUE;
-      result = Curl_1st_fatal(
-        result, Curl_xfer_pause_recv(data, recv_paused_new));
+    ఒకవేళ(recv_paused != recv_paused_new) {
+      మారింది = TRUE;
+      ఫలితం = Curl_1st_fatal(
+        ఫలితం, Curl_xfer_pause_recv(దత్తాంశం, recv_paused_new));
     }
 
     /* If not completely pausing both directions, run again in any case. */
-    if(!Curl_xfer_is_blocked(data)) {
+    ఒకవేళ(!Curl_xfer_is_blocked(దత్తాంశం)) {
       /* reset the too-slow time keeper */
-      data->state.keeps_speed.tv_sec = 0;
-      if(data->multi) {
-        Curl_multi_mark_dirty(data); /* make it run */
+      దత్తాంశం->state.keeps_వేగం.tv_sec = 0;
+      ఒకవేళ(దత్తాంశం->multi) {
+        Curl_multi_mark_dirty(దత్తాంశం); /* make it run */
         /* On changes, tell application to update its timers. */
-        if(changed && Curl_update_timer(data->multi) && !result)
-          result = CURLE_ABORTED_BY_CALLBACK;
+        ఒకవేళ(మారింది && Curl_update_timer(దత్తాంశం->multi) && !ఫలితం)
+          ఫలితం = CURLE_ABORTED_BY_CALLBACK;
       }
     }
 
-    if(!result && changed && !data->state.done && data->multi &&
+    ఒకవేళ(!ఫలితం && మారింది && !దత్తాంశం->state.పూర్తి && దత్తాంశం->multi &&
        /* pause/unpausing may result in multi event changes */
-       Curl_multi_ev_assess_xfer(data->multi, data))
-      result = CURLE_ABORTED_BY_CALLBACK;
+       Curl_multi_ev_assess_xfer(దత్తాంశం->multi, దత్తాంశం))
+      ఫలితం = CURLE_ABORTED_BY_CALLBACK;
   }
-out:
+బహిర్గతం:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode easy_connection(struct Curl_easy *data,
-                                struct connectdata **connp)
+స్థిర CURLcode easy_connection(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం connectdata **connp)
 {
   curl_socket_t sfd;
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!దత్తాంశం)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
 
   /* only allow these to be called on handles with CURLOPT_CONNECT_ONLY */
-  if(!data->set.connect_only) {
-    failf(data, "CONNECT_ONLY is required");
-    return CURLE_UNSUPPORTED_PROTOCOL;
+  ఒకవేళ(!దత్తాంశం->సమితి.connect_only) {
+    failf(దత్తాంశం, "CONNECT_ONLY is required");
+    తిరిగి CURLE_UNSUPPORTED_PROTOCOL;
   }
 
-  sfd = Curl_getconnectinfo(data, connp);
+  sfd = Curl_getconnectinfo(దత్తాంశం, connp);
 
-  if(sfd == CURL_SOCKET_BAD) {
-    failf(data, "Failed to get last socket used for connection #%" FMT_OFF_T,
-          data->state.last_conn_id);
-    return CURLE_UNSUPPORTED_PROTOCOL;
+  ఒకవేళ(sfd == CURL_SOCKET_BAD) {
+    failf(దత్తాంశం, "Failed to get last socket used for connection #%" FMT_OFF_T,
+          దత్తాంశం->state.చివరి_conn_id);
+    తిరిగి CURLE_UNSUPPORTED_PROTOCOL;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -1271,116 +1271,116 @@ static CURLcode easy_connection(struct Curl_easy *data,
  * curl_easy_perform() with CURLOPT_CONNECT_ONLY option.
  * Returns CURLE_OK on success, error code on error.
  */
-CURLcode Curl_easy_recv(struct Curl_easy *data,
-                        void *buffer, size_t buflen, size_t *n)
+CURLcode Curl_easy_recv(నిర్మాణం Curl_easy *దత్తాంశం,
+                        శూన్య *బఫరు, size_t buflen, size_t *n)
 {
-  CURLcode result;
-  struct connectdata *c;
+  CURLcode ఫలితం;
+  నిర్మాణం connectdata *c;
 
-  result = easy_connection(data, &c);
-  if(result)
-    return result;
+  ఫలితం = easy_connection(దత్తాంశం, &c);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  if(!data->conn)
+  ఒకవేళ(!దత్తాంశం->conn)
     /* on first invoke, the transfer has been detached from the connection and
        needs to be reattached */
-    Curl_attach_connection(data, c, TRUE);
+    Curl_attach_connection(దత్తాంశం, c, TRUE);
 
   *n = 0;
-  return Curl_conn_recv(data, FIRSTSOCKET, buffer, buflen, n);
+  తిరిగి Curl_conn_recv(దత్తాంశం, FIRSTSOCKET, బఫరు, buflen, n);
 }
 
-CURLcode curl_easy_recv(CURL *curl, void *buffer, size_t buflen, size_t *n)
+CURLcode curl_easy_recv(CURL *curl, శూన్య *బఫరు, size_t buflen, size_t *n)
 {
-  struct Curl_eapi_guard guard;
-  CURLcode result;
+  నిర్మాణం Curl_eapi_guard guard;
+  CURLcode ఫలితం;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_recv, &result)) {
-    if(!n || (buflen && !buffer)) {
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_recv, &ఫలితం)) {
+    ఒకవేళ(!n || (buflen && !బఫరు)) {
+      ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+      వెళ్ళు బహిర్గతం;
     }
-    result = Curl_easy_recv(curl, buffer, buflen, n);
+    ఫలితం = Curl_easy_recv(curl, బఫరు, buflen, n);
   }
-out:
+బహిర్గతం:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#ifndef CURL_DISABLE_WEBSOCKETS
-CURLcode Curl_connect_only_attach(struct Curl_easy *data)
+#నిర్వచితం_కాకపోతే CURL_DISABLE_WEBSOCKETS
+CURLcode Curl_connect_only_attach(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  CURLcode result;
-  struct connectdata *c = NULL;
+  CURLcode ఫలితం;
+  నిర్మాణం connectdata *c = ఖాళీ;
 
-  result = easy_connection(data, &c);
-  if(result)
-    return result;
+  ఫలితం = easy_connection(దత్తాంశం, &c);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  if(!data->conn)
+  ఒకవేళ(!దత్తాంశం->conn)
     /* on first invoke, the transfer has been detached from the connection and
        needs to be reattached */
-    Curl_attach_connection(data, c, TRUE);
+    Curl_attach_connection(దత్తాంశం, c, TRUE);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
-#endif /* !CURL_DISABLE_WEBSOCKETS */
+#అయితే_ముగింపు /* !CURL_DISABLE_WEBSOCKETS */
 
 /*
  * Sends data over the connected socket.
  *
  * This is the private internal version of curl_easy_send()
  */
-CURLcode Curl_senddata(struct Curl_easy *data, const void *buffer,
+CURLcode Curl_senddata(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి శూన్య *బఫరు,
                        size_t buflen, size_t *n)
 {
-  CURLcode result;
-  struct connectdata *c = NULL;
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  CURLcode ఫలితం;
+  నిర్మాణం connectdata *c = ఖాళీ;
+  నిర్మాణం Curl_sigpipe_ctx sigpipe_ctx;
 
   *n = 0;
-  result = easy_connection(data, &c);
-  if(result)
-    return result;
+  ఫలితం = easy_connection(దత్తాంశం, &c);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  if(!data->conn)
+  ఒకవేళ(!దత్తాంశం->conn)
     /* on first invoke, the transfer has been detached from the connection and
        needs to be reattached */
-    Curl_attach_connection(data, c, TRUE);
+    Curl_attach_connection(దత్తాంశం, c, TRUE);
 
-  sigpipe_ignore(data, &sigpipe_ctx);
-  result = Curl_conn_send(data, FIRSTSOCKET, buffer, buflen, FALSE, n);
+  sigpipe_ignore(దత్తాంశం, &sigpipe_ctx);
+  ఫలితం = Curl_conn_send(దత్తాంశం, FIRSTSOCKET, బఫరు, buflen, FALSE, n);
   sigpipe_restore(&sigpipe_ctx);
 
-  if(result && result != CURLE_AGAIN)
-    return CURLE_SEND_ERROR;
-  return result;
+  ఒకవేళ(ఫలితం && ఫలితం != CURLE_AGAIN)
+    తిరిగి CURLE_SEND_ERROR;
+  తిరిగి ఫలితం;
 }
 
 /*
  * Sends data over the connected socket. Use after successful
  * curl_easy_perform() with CURLOPT_CONNECT_ONLY option.
  */
-CURLcode curl_easy_send(CURL *curl, const void *buffer, size_t buflen,
+CURLcode curl_easy_send(CURL *curl, స్థిరరాశి శూన్య *బఫరు, size_t buflen,
                         size_t *n)
 {
-  struct Curl_eapi_guard guard;
-  CURLcode result;
+  నిర్మాణం Curl_eapi_guard guard;
+  CURLcode ఫలితం;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_send, &result)) {
-    struct Curl_easy *data = curl;
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_send, &ఫలితం)) {
+    నిర్మాణం Curl_easy *దత్తాంశం = curl;
     size_t written = 0;
 
-    if(!n || (buflen && !buffer)) {
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+    ఒకవేళ(!n || (buflen && !బఫరు)) {
+      ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+      వెళ్ళు బహిర్గతం;
     }
-    result = Curl_senddata(data, buffer, buflen, &written);
+    ఫలితం = Curl_senddata(దత్తాంశం, బఫరు, buflen, &written);
     *n = written;
   }
-out:
+బహిర్గతం:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -1388,93 +1388,93 @@ out:
  */
 CURLcode curl_easy_upkeep(CURL *curl)
 {
-  struct Curl_eapi_guard guard;
-  CURLcode result;
+  నిర్మాణం Curl_eapi_guard guard;
+  CURLcode ఫలితం;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_upkeep, &result)) {
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_upkeep, &ఫలితం)) {
     /* Use the common function to keep connections alive. */
-    result = Curl_cpool_upkeep((struct Curl_easy *)curl);
+    ఫలితం = Curl_cpool_upkeep((నిర్మాణం Curl_easy *)curl);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode curl_easy_ssls_import(CURL *curl, const char *session_key,
-                               const unsigned char *shmac, size_t shmac_len,
-                               const unsigned char *sdata, size_t sdata_len)
+CURLcode curl_easy_ssls_import(CURL *curl, స్థిరరాశి అక్షరం *session_కీలకం,
+                               స్థిరరాశి గుర్తులేని అక్షరం *shmac, size_t shmac_len,
+                               స్థిరరాశి గుర్తులేని అక్షరం *sdata, size_t sdata_len)
 {
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
-  struct Curl_eapi_guard guard;
-  CURLcode result;
+#ఒకవేళ defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+  నిర్మాణం Curl_eapi_guard guard;
+  CURLcode ఫలితం;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_ssls_import, &result)) {
-    if(!sdata || !sdata_len)
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      result = Curl_ssl_session_import((struct Curl_easy *)curl, session_key,
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_ssls_import, &ఫలితం)) {
+    ఒకవేళ(!sdata || !sdata_len)
+      ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+    లేకపోతే
+      ఫలితం = Curl_ssl_session_import((నిర్మాణం Curl_easy *)curl, session_కీలకం,
                                        shmac, shmac_len, sdata, sdata_len);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
-#else
-  (void)curl;
-  (void)session_key;
-  (void)shmac;
-  (void)shmac_len;
-  (void)sdata;
-  (void)sdata_len;
-  return CURLE_NOT_BUILT_IN;
-#endif
+  తిరిగి ఫలితం;
+#లేకపోతే
+  (శూన్య)curl;
+  (శూన్య)session_కీలకం;
+  (శూన్య)shmac;
+  (శూన్య)shmac_len;
+  (శూన్య)sdata;
+  (శూన్య)sdata_len;
+  తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
 }
 
 CURLcode curl_easy_ssls_export(CURL *curl,
                                curl_ssls_export_cb *export_fn,
-                               void *userptr)
+                               శూన్య *userptr)
 {
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
-  struct Curl_eapi_guard guard;
-  CURLcode result;
+#ఒకవేళ defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+  నిర్మాణం Curl_eapi_guard guard;
+  CURLcode ఫలితం;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_ssls_export, &result)) {
-    if(!export_fn)
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      result = Curl_ssl_session_export((struct Curl_easy *)curl,
+  ఒకవేళ(CURL_EAPI_ENTER(&guard, curl, easy_ssls_export, &ఫలితం)) {
+    ఒకవేళ(!export_fn)
+      ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+    లేకపోతే
+      ఫలితం = Curl_ssl_session_export((నిర్మాణం Curl_easy *)curl,
                                        export_fn, userptr);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
-#else
-  (void)curl;
-  (void)export_fn;
-  (void)userptr;
-  return CURLE_NOT_BUILT_IN;
-#endif
+  తిరిగి ఫలితం;
+#లేకపోతే
+  (శూన్య)curl;
+  (శూన్య)export_fn;
+  (శూన్య)userptr;
+  తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
 }
 
-CURLcode Curl_meta_set(struct Curl_easy *data, const char *key,
-                       void *meta_data, Curl_meta_dtor *meta_dtor)
+CURLcode Curl_meta_సమితి(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *కీలకం,
+                       శూన్య *meta_దత్తాంశం, Curl_meta_dtor *meta_dtor)
 {
-  DEBUGASSERT(meta_data); /* never set to NULL */
-  if(!Curl_hash_add2(&data->meta_hash, key, strlen(key) + 1,
-                     meta_data, meta_dtor)) {
-    meta_dtor(key, strlen(key) + 1, meta_data);
-    return CURLE_OUT_OF_MEMORY;
+  DEBUGASSERT(meta_దత్తాంశం); /* never set to NULL */
+  ఒకవేళ(!Curl_hash_add2(&దత్తాంశం->meta_hash, కీలకం, అక్షరశ్రేణి_పొడవు(కీలకం) + 1,
+                     meta_దత్తాంశం, meta_dtor)) {
+    meta_dtor(కీలకం, అక్షరశ్రేణి_పొడవు(కీలకం) + 1, meta_దత్తాంశం);
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-void Curl_meta_remove(struct Curl_easy *data, const char *key)
+శూన్య Curl_meta_remove(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *కీలకం)
 {
-  Curl_hash_delete(&data->meta_hash, key, strlen(key) + 1);
+  Curl_hash_delete(&దత్తాంశం->meta_hash, కీలకం, అక్షరశ్రేణి_పొడవు(కీలకం) + 1);
 }
 
-void *Curl_meta_get(struct Curl_easy *data, const char *key)
+శూన్య *Curl_meta_get(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *కీలకం)
 {
-  return Curl_hash_pick(&data->meta_hash, key, strlen(key) + 1);
+  తిరిగి Curl_hash_pick(&దత్తాంశం->meta_hash, కీలకం, అక్షరశ్రేణి_పొడవు(కీలకం) + 1);
 }
 
-void Curl_meta_reset(struct Curl_easy *data)
+శూన్య Curl_meta_reset(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  Curl_hash_clean(&data->meta_hash);
+  Curl_hash_clean(&దత్తాంశం->meta_hash);
 }

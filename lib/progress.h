@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PROGRESS_H
-#define HEADER_CURL_PROGRESS_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_పురోగతి_H
+#నిర్వచించు శీర్షిక_CURL_పురోగతి_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timeval.h"
+#అన్తర్భావ "curlx/timeval.h"
 
-struct Curl_easy;
+నిర్మాణం Curl_easy;
 
-typedef enum {
+రకనిర్వచనం గణన {
   TIMER_NONE,
   TIMER_STARTOP,
   TIMER_STARTSINGLE, /* start of transfer, might get queued */
@@ -39,55 +39,55 @@ typedef enum {
   TIMER_STARTTRANSFER,
   TIMER_POSTRANSFER,
   TIMER_REDIRECT,
-  TIMER_LAST /* must be last */
+  TIMER_చివరి /* must be last */
 } timerid;
 
 /* Get the current timestamp of the transfer */
-const struct curltime *Curl_pgrs_now(struct Curl_easy *data);
+స్థిరరాశి నిర్మాణం curltime *Curl_pgrs_now(నిర్మాణం Curl_easy *దత్తాంశం);
 
-int Curl_pgrsDone(struct Curl_easy *data, const struct curltime *pnow);
-void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow);
-void Curl_pgrsSetDownloadSize(struct Curl_easy *data, curl_off_t size);
-void Curl_pgrsSetUploadSize(struct Curl_easy *data, curl_off_t size);
-CURLcode Curl_pgrs_deliver_check(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_deliver_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_download_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_upload_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrsSetUploadCounter(struct Curl_easy *data, curl_off_t size);
+పూర్ణాంకం Curl_pgrs_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి నిర్మాణం curltime *pnow);
+శూన్య Curl_pgrs_ప్రారంభం(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి నిర్మాణం curltime *pnow);
+శూన్య Curl_pgrs_సమితి_Download_కొలత(నిర్మాణం Curl_easy *దత్తాంశం, curl_off_t కొలత);
+శూన్య Curl_pgrs_సమితి_Upload_కొలత(నిర్మాణం Curl_easy *దత్తాంశం, curl_off_t కొలత);
+CURLcode Curl_pgrs_deliver_check(నిర్మాణం Curl_easy *దత్తాంశం, size_t delta);
+శూన్య Curl_pgrs_deliver_inc(నిర్మాణం Curl_easy *దత్తాంశం, size_t delta);
+శూన్య Curl_pgrs_download_inc(నిర్మాణం Curl_easy *దత్తాంశం, size_t delta);
+శూన్య Curl_pgrs_upload_inc(నిర్మాణం Curl_easy *దత్తాంశం, size_t delta);
+శూన్య Curl_pgrs_సమితి_Upload_Counter(నిర్మాణం Curl_easy *దత్తాంశం, curl_off_t కొలత);
 
 /* perform progress update, invoking callbacks at intervals */
-CURLcode Curl_pgrsUpdate(struct Curl_easy *data);
-CURLcode Curl_pgrsUpdateX(struct Curl_easy *data, const struct curltime *pnow);
+CURLcode Curl_pgrsUpdate(నిర్మాణం Curl_easy *దత్తాంశం);
+CURLcode Curl_pgrsUpdateX(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి నిర్మాణం curltime *pnow);
 /* perform progress update, no callbacks invoked */
-void Curl_pgrsUpdate_nometer(struct Curl_easy *data);
+శూన్య Curl_pgrsUpdate_nometer(నిర్మాణం Curl_easy *దత్తాంశం);
 /* perform progress update with callbacks and speed checks */
-CURLcode Curl_pgrsCheck(struct Curl_easy *data);
-CURLcode Curl_pgrsCheckX(struct Curl_easy *data, const struct curltime *pnow);
+CURLcode Curl_pgrsCheck(నిర్మాణం Curl_easy *దత్తాంశం);
+CURLcode Curl_pgrsCheckX(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి నిర్మాణం curltime *pnow);
 
 /* Inform progress/speedcheck about receive/send pausing */
-void Curl_pgrsRecvPause(struct Curl_easy *data, bool enable);
-void Curl_pgrsSendPause(struct Curl_easy *data, bool enable);
+శూన్య Curl_pgrsRecvPause(నిర్మాణం Curl_easy *దత్తాంశం, bool enable);
+శూన్య Curl_pgrsSendPause(నిర్మాణం Curl_easy *దత్తాంశం, bool enable);
 
 /* Reset sizes and counters for up- and download. */
-void Curl_pgrsReset(struct Curl_easy *data);
+శూన్య Curl_pgrsReset(నిర్మాణం Curl_easy *దత్తాంశం);
 /* Reset sizes for up- and download. */
-void Curl_pgrsResetTransferSizes(struct Curl_easy *data);
+శూన్య Curl_pgrsResetTransferSizes(నిర్మాణం Curl_easy *దత్తాంశం);
 
-void Curl_pgrsTime(struct Curl_easy *data, timerid timer);
+శూన్య Curl_pgrs_సమయం(నిర్మాణం Curl_easy *దత్తాంశం, timerid timer);
 /**
  * Update progress timer with the elapsed time from its start to `timestamp`.
  * This allows updating timers later and is used by happy eyeballing, where
  * we only want to record the winner's times.
  */
-void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
-                      struct curltime timestamp);
+శూన్య Curl_pgrs_సమయం_Was(నిర్మాణం Curl_easy *దత్తాంశం, timerid timer,
+                      నిర్మాణం curltime timestamp);
 
-void Curl_pgrsEarlyData(struct Curl_easy *data, curl_off_t sent);
+శూన్య Curl_pgrs_Early_దత్తాంశం(నిర్మాణం Curl_easy *దత్తాంశం, curl_off_t పంపిన);
 
-void Curl_pgrsCompleted(struct Curl_easy *data);
+శూన్య Curl_pgrsCompleted(నిర్మాణం Curl_easy *దత్తాంశం);
 
-timediff_t Curl_pgrs_since_ms(struct Curl_easy *data,
-                              const struct curltime *pnow,
+timediff_t Curl_pgrs_since_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                              స్థిరరాశి నిర్మాణం curltime *pnow,
                               timerid timer);
 
-#endif /* HEADER_CURL_PROGRESS_H */
+#అయితే_ముగింపు /* HEADER_CURL_PROGRESS_H */

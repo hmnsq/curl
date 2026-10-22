@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONFIG_MAC_H
-#define HEADER_CURL_CONFIG_MAC_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_CONFIG_MAC_H
+#నిర్వచించు శీర్షిక_CURL_CONFIG_MAC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -30,54 +30,54 @@
 /*   On macOS you must run configure to generate curl_config.h file    */
 /* =================================================================== */
 
-#ifndef CURL_OS
-#define CURL_OS "mac"
-#endif
+#నిర్వచితం_కాకపోతే CURL_OS
+#నిర్వచించు CURL_OS "mac"
+#అయితే_ముగింపు
 
-#include <ConditionalMacros.h>
+#అన్తర్భావ <ConditionalMacros.h>
 
 /* Define if you want the built-in manual */
-#define USE_MANUAL              1
+#నిర్వచించు USE_MANUAL              1
 
-#define HAVE_NETINET_IN_H       1
-#define HAVE_NETDB_H            1
-#define HAVE_ARPA_INET_H        1
-#define HAVE_UNISTD_H           1
-#define HAVE_NET_IF_H           1
-#define HAVE_SYS_TYPES_H        1
-#define HAVE_GETTIMEOFDAY       1
-#define HAVE_FCNTL_H            1
-#define HAVE_UTIME_H            1
-#define HAVE_SYS_UTIME_H        1
-#define HAVE_SYS_IOCTL_H        1
-#define HAVE_ALARM              1
-#define HAVE_UTIME              1
-#define HAVE_SOCKET             1
-#define HAVE_STRUCT_TIMEVAL     1
+#నిర్వచించు HAVE_NETINET_లోపల_H       1
+#నిర్వచించు HAVE_NETDB_H            1
+#నిర్వచించు HAVE_ARPA_INET_H        1
+#నిర్వచించు HAVE_UNISTD_H           1
+#నిర్వచించు HAVE_NET_IF_H           1
+#నిర్వచించు HAVE_SYS_TYPES_H        1
+#నిర్వచించు HAVE_GETTIMEOFDAY       1
+#నిర్వచించు HAVE_FCNTL_H            1
+#నిర్వచించు HAVE_UTIME_H            1
+#నిర్వచించు HAVE_SYS_UTIME_H        1
+#నిర్వచించు HAVE_SYS_IOCTL_H        1
+#నిర్వచించు HAVE_ALARM              1
+#నిర్వచించు HAVE_UTIME              1
+#నిర్వచించు HAVE_SOCKET             1
+#నిర్వచించు HAVE_STRUCT_TIMEVAL     1
 
-#define HAVE_SIGACTION          1
+#నిర్వచించు HAVE_SIGACTION          1
 
-#define CURL_DISABLE_LDAP
+#నిర్వచించు CURL_DISABLE_LDAP
 
-#define HAVE_IOCTL_FIONBIO      1
+#నిర్వచించు HAVE_IOCTL_FIONBIO      1
 
-#define SIZEOF_INT              4
-#define SIZEOF_LONG             4
-#define SIZEOF_SIZE_T           4
-#define SIZEOF_CURL_OFF_T       8
+#నిర్వచించు SIZEOF_INT              4
+#నిర్వచించు SIZEOF_LONG             4
+#నిర్వచించు SIZEOF_కొలత_T           4
+#నిర్వచించు SIZEOF_CURL_OFF_T       8
 
-#define HAVE_RECV 1
-#define RECV_TYPE_ARG1 int
-#define RECV_TYPE_ARG2 void *
-#define RECV_TYPE_ARG3 size_t
-#define RECV_TYPE_ARG4 int
-#define RECV_TYPE_RETV ssize_t
+#నిర్వచించు HAVE_RECV 1
+#నిర్వచించు RECV_TYPE_ARG1 పూర్ణాంకం
+#నిర్వచించు RECV_TYPE_ARG2 శూన్య *
+#నిర్వచించు RECV_TYPE_ARG3 size_t
+#నిర్వచించు RECV_TYPE_ARG4 పూర్ణాంకం
+#నిర్వచించు RECV_TYPE_RETV ssize_t
 
-#define HAVE_SEND 1
-#define SEND_TYPE_ARG1 int
-#define SEND_TYPE_ARG2 void *
-#define SEND_TYPE_ARG3 size_t
-#define SEND_TYPE_ARG4 int
-#define SEND_TYPE_RETV ssize_t
+#నిర్వచించు HAVE_SEND 1
+#నిర్వచించు SEND_TYPE_ARG1 పూర్ణాంకం
+#నిర్వచించు SEND_TYPE_ARG2 శూన్య *
+#నిర్వచించు SEND_TYPE_ARG3 size_t
+#నిర్వచించు SEND_TYPE_ARG4 పూర్ణాంకం
+#నిర్వచించు SEND_TYPE_RETV ssize_t
 
-#endif /* HEADER_CURL_CONFIG_MAC_H */
+#అయితే_ముగింపు /* HEADER_CURL_CONFIG_MAC_H */

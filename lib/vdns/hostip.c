@@ -21,69 +21,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETINET_IN6_H
+#అన్తర్భావ <netinet/in6.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే __VMS
+#అన్తర్భావ <in.h>
+#అన్తర్భావ <inet.h>
+#అయితే_ముగింపు
 
-#include <setjmp.h>  /* for sigjmp_buf, sigsetjmp() */
-#include <signal.h>
+#అన్తర్భావ <setjmp.h>  /* for sigjmp_buf, sigsetjmp() */
+#అన్తర్భావ <signal.h>
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "url.h"
-#include "multiif.h"
-#include "progress.h"
-#include "select.h"
-#include "strcase.h"
-#include "easy_lock.h"
-#include "vdns/dnscache.h"
-#include "vdns/doh.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
-#include "curlx/inet_ntop.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strcopy.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curl_addrinfo.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "strcase.h"
+#అన్తర్భావ "easy_lock.h"
+#అన్తర్భావ "vdns/dnscache.h"
+#అన్తర్భావ "vdns/doh.h"
+#అన్తర్భావ "vdns/hostip.h"
+#అన్తర్భావ "vdns/httpsrr.h"
+#అన్తర్భావ "curlx/inet_ntop.h"
+#అన్తర్భావ "curlx/inet_pton.h"
+#అన్తర్భావ "curlx/strcopy.h"
+#అన్తర్భావ "curlx/strparse.h"
 
-#if defined(CURLRES_SYNCH) &&                   \
+#ఒకవేళ defined(CURLRES_SYNCH) &&                   \
   defined(HAVE_ALARM) &&                        \
   defined(SIGALRM) &&                           \
   defined(HAVE_SIGSETJMP) &&                    \
   defined(GLOBAL_INIT_IS_THREADSAFE)
 /* alarm-based timeouts can only be used with all the dependencies satisfied */
-#define USE_ALARM_TIMEOUT
-#endif
+#నిర్వచించు USE_ALARM_TIMEOUT
+#అయితే_ముగింపు
 
-#define RESOLV_FAIL(for_proxy) \
+#నిర్వచించు RESOLV_FAIL(for_proxy) \
   ((for_proxy) ? CURLE_COULDNT_RESOLVE_PROXY : CURLE_COULDNT_RESOLVE_HOST)
 
-#define IS_RESOLV_FAIL(result) \
-  (((result) == CURLE_COULDNT_RESOLVE_HOST) || \
-   ((result) == CURLE_COULDNT_RESOLVE_PROXY))
+#నిర్వచించు IS_RESOLV_FAIL(ఫలితం) \
+  (((ఫలితం) == CURLE_COULDNT_RESOLVE_HOST) || \
+   ((ఫలితం) == CURLE_COULDNT_RESOLVE_PROXY))
 /*
  * ipv6works() returns TRUE if IPv6 seems to work.
  */
-#ifdef USE_IPV6
-static bool ipv6works(struct Curl_easy *data);
-#else
-#define ipv6works(x) FALSE
-#endif
+#నిర్వచితమైతే USE_IPV6
+స్థిర bool ipv6works(నిర్మాణం Curl_easy *దత్తాంశం);
+#లేకపోతే
+#నిర్వచించు ipv6works(x) FALSE
+#అయితే_ముగింపు
 
 /*
  * hostip.c explained
@@ -122,48 +122,48 @@ static bool ipv6works(struct Curl_easy *data);
  * CURLRES_* defines based on the config*.h and curl_setup.h defines.
  */
 
-uint8_t Curl_resolv_dns_queries(struct Curl_easy *data, uint8_t ip_version)
+uint8_t Curl_resolv_dns_queries(నిర్మాణం Curl_easy *దత్తాంశం, uint8_t ip_సంస్కరణ)
 {
-  (void)data;
-  switch(ip_version) {
-  case CURL_IPRESOLVE_V6:
-    return CURL_DNSQ_AAAA;
-  case CURL_IPRESOLVE_V4:
-    return CURL_DNSQ_A;
-  default:
-    if(ipv6works(data))
-      return (CURL_DNSQ_A | CURL_DNSQ_AAAA);
-    else
-      return CURL_DNSQ_A;
+  (శూన్య)దత్తాంశం;
+  ఎంపిక(ip_సంస్కరణ) {
+  స్థితి CURL_IPRESOLVE_V6:
+    తిరిగి CURL_DNSQ_AAAA;
+  స్థితి CURL_IPRESOLVE_V4:
+    తిరిగి CURL_DNSQ_A;
+  అప్రమేయ:
+    ఒకవేళ(ipv6works(దత్తాంశం))
+      తిరిగి (CURL_DNSQ_A | CURL_DNSQ_AAAA);
+    లేకపోతే
+      తిరిగి CURL_DNSQ_A;
   }
 }
 
-#ifdef CURLVERBOSE
-const char *Curl_resolv_query_str(uint8_t dns_queries)
+#నిర్వచితమైతే CURLVERBOSE
+స్థిరరాశి అక్షరం *Curl_resolv_query_str(uint8_t dns_queries)
 {
-  switch(dns_queries) {
-  case (CURL_DNSQ_A | CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
-    return "A+AAAA+HTTPS";
-  case (CURL_DNSQ_A | CURL_DNSQ_AAAA):
-    return "A+AAAA";
-  case (CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
-    return "AAAA+HTTPS";
-  case (CURL_DNSQ_AAAA):
-    return "AAAA";
-  case (CURL_DNSQ_A | CURL_DNSQ_HTTPS):
-    return "A+HTTPS";
-  case (CURL_DNSQ_A):
-    return "A";
-  case (CURL_DNSQ_HTTPS):
-    return "HTTPS";
-  case 0:
-    return "-";
-  default:
+  ఎంపిక(dns_queries) {
+  స్థితి (CURL_DNSQ_A | CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
+    తిరిగి "A+AAAA+HTTPS";
+  స్థితి (CURL_DNSQ_A | CURL_DNSQ_AAAA):
+    తిరిగి "A+AAAA";
+  స్థితి (CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
+    తిరిగి "AAAA+HTTPS";
+  స్థితి (CURL_DNSQ_AAAA):
+    తిరిగి "AAAA";
+  స్థితి (CURL_DNSQ_A | CURL_DNSQ_HTTPS):
+    తిరిగి "A+HTTPS";
+  స్థితి (CURL_DNSQ_A):
+    తిరిగి "A";
+  స్థితి (CURL_DNSQ_HTTPS):
+    తిరిగి "HTTPS";
+  స్థితి 0:
+    తిరిగి "-";
+  అప్రమేయ:
     DEBUGASSERT(0);
-    return "???";
+    తిరిగి "???";
   }
 }
-#endif
+#అయితే_ముగింపు
 
 /*
  * Curl_printable_address() stores a printable version of the 1st address
@@ -172,712 +172,712 @@ const char *Curl_resolv_query_str(uint8_t dns_queries)
  *
  * If the conversion fails, the target buffer is empty.
  */
-void Curl_printable_address(const struct Curl_addrinfo *ai, char *buf,
+శూన్య Curl_printable_చిరునామా(స్థిరరాశి నిర్మాణం Curl_addrinfo *ai, అక్షరం *buf,
                             size_t bufsize)
 {
   DEBUGASSERT(bufsize);
   buf[0] = 0;
 
-  switch(ai->ai_family) {
-  case AF_INET: {
-    const struct sockaddr_in *sa4 = (const void *)ai->ai_addr;
-    const struct in_addr *ipaddr4 = &sa4->sin_addr;
-    (void)curlx_inet_ntop(ai->ai_family, (const void *)ipaddr4, buf, bufsize);
-    break;
+  ఎంపిక(ai->ai_family) {
+  స్థితి AF_INET: {
+    స్థిరరాశి నిర్మాణం sockaddr_in *sa4 = (స్థిరరాశి శూన్య *)ai->ai_addr;
+    స్థిరరాశి నిర్మాణం in_addr *ipaddr4 = &sa4->sin_addr;
+    (శూన్య)curlx_inet_ntop(ai->ai_family, (స్థిరరాశి శూన్య *)ipaddr4, buf, bufsize);
+    ఆపు;
   }
-#ifdef USE_IPV6
-  case AF_INET6: {
-    const struct sockaddr_in6 *sa6 = (const void *)ai->ai_addr;
-    const struct in6_addr *ipaddr6 = &sa6->sin6_addr;
-    (void)curlx_inet_ntop(ai->ai_family, (const void *)ipaddr6, buf, bufsize);
-    break;
+#నిర్వచితమైతే USE_IPV6
+  స్థితి AF_INET6: {
+    స్థిరరాశి నిర్మాణం sockaddr_in6 *sa6 = (స్థిరరాశి శూన్య *)ai->ai_addr;
+    స్థిరరాశి నిర్మాణం in6_addr *ipaddr6 = &sa6->sin6_addr;
+    (శూన్య)curlx_inet_ntop(ai->ai_family, (స్థిరరాశి శూన్య *)ipaddr6, buf, bufsize);
+    ఆపు;
   }
-#endif
-  default:
-    break;
+#అయితే_ముగింపు
+  అప్రమేయ:
+    ఆపు;
   }
 }
 
-#ifdef USE_ALARM_TIMEOUT
+#నిర్వచితమైతే USE_ALARM_TIMEOUT
 /* Beware this is a global and unique instance. This is used to store the
    return address that we can jump back to from inside a signal handler. This
    is not thread-safe stuff. */
-static sigjmp_buf curl_jmpenv;
-static curl_simple_lock curl_jmpenv_lock = CURL_SIMPLE_LOCK_INIT;
-#endif
+స్థిర sigjmp_buf curl_jmpenv;
+స్థిర curl_simple_తాళం curl_jmpenv_తాళం = CURL_SIMPLE_తాళం_INIT;
+#అయితే_ముగింపు
 
-#ifdef USE_IPV6
+#నిర్వచితమైతే USE_IPV6
 /* return a static IPv6 ::1 for the name */
-static struct Curl_addrinfo *get_localhost6(uint16_t port, const char *name)
+స్థిర నిర్మాణం Curl_addrinfo *get_localhost6(uint16_t పోర్టు, స్థిరరాశి అక్షరం *name)
 {
-  struct Curl_addrinfo *ca;
-  const size_t ss_size = sizeof(struct sockaddr_in6);
-  const size_t hostlen = strlen(name);
-  struct sockaddr_in6 sa6;
-  unsigned char ipv6[16];
-  unsigned short port16 = (unsigned short)(port & 0xffff);
-  ca = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1);
-  if(!ca)
-    return NULL;
+  నిర్మాణం Curl_addrinfo *ca;
+  స్థిరరాశి size_t ss_కొలత = పరిమాణం(నిర్మాణం sockaddr_in6);
+  స్థిరరాశి size_t hostlen = అక్షరశ్రేణి_పొడవు(name);
+  నిర్మాణం sockaddr_in6 sa6;
+  గుర్తులేని అక్షరం ipv6[16];
+  గుర్తులేని పొట్టి port16 = (గుర్తులేని పొట్టి)(పోర్టు & 0xffff);
+  ca = curlx_calloc(1, పరిమాణం(నిర్మాణం Curl_addrinfo) + ss_కొలత + hostlen + 1);
+  ఒకవేళ(!ca)
+    తిరిగి ఖాళీ;
 
-  memset(&sa6, 0, sizeof(sa6));
+  memset(&sa6, 0, పరిమాణం(sa6));
   sa6.sin6_family = AF_INET6;
   sa6.sin6_port = htons(port16);
 
-  (void)curlx_inet_pton(AF_INET6, "::1", ipv6);
-  memcpy(&sa6.sin6_addr, ipv6, sizeof(ipv6));
+  (శూన్య)curlx_inet_pton(AF_INET6, "::1", ipv6);
+  జ్ఞాపకం_నకలు(&sa6.sin6_addr, ipv6, పరిమాణం(ipv6));
 
   ca->ai_flags     = 0;
   ca->ai_family    = AF_INET6;
   ca->ai_socktype  = SOCK_STREAM;
   ca->ai_protocol  = IPPROTO_TCP;
-  ca->ai_addrlen   = (curl_socklen_t)ss_size;
-  ca->ai_next      = NULL;
-  ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
-  memcpy(ca->ai_addr, &sa6, ss_size);
-  ca->ai_canonname = (char *)ca->ai_addr + ss_size;
+  ca->ai_addrlen   = (curl_socklen_t)ss_కొలత;
+  ca->ai_తదుపరి      = ఖాళీ;
+  ca->ai_addr = (శూన్య *)((అక్షరం *)ca + పరిమాణం(నిర్మాణం Curl_addrinfo));
+  జ్ఞాపకం_నకలు(ca->ai_addr, &sa6, ss_కొలత);
+  ca->ai_canonname = (అక్షరం *)ca->ai_addr + ss_కొలత;
   curlx_strcopy(ca->ai_canonname, hostlen + 1, name, hostlen);
-  return ca;
+  తిరిగి ca;
 }
-#else
-#define get_localhost6(x, y) NULL
-#endif
+#లేకపోతే
+#నిర్వచించు get_localhost6(x, y) ఖాళీ
+#అయితే_ముగింపు
 
 /* return a static IPv4 127.0.0.1 for the given name */
-static struct Curl_addrinfo *get_localhost(uint16_t port, const char *name)
+స్థిర నిర్మాణం Curl_addrinfo *get_localhost(uint16_t పోర్టు, స్థిరరాశి అక్షరం *name)
 {
-  struct Curl_addrinfo *ca;
-  struct Curl_addrinfo *ca6;
-  const size_t ss_size = sizeof(struct sockaddr_in);
-  const size_t hostlen = strlen(name);
-  struct sockaddr_in sa;
-  unsigned int ipv4;
-  unsigned short port16 = (unsigned short)(port & 0xffff);
+  నిర్మాణం Curl_addrinfo *ca;
+  నిర్మాణం Curl_addrinfo *ca6;
+  స్థిరరాశి size_t ss_కొలత = పరిమాణం(నిర్మాణం sockaddr_in);
+  స్థిరరాశి size_t hostlen = అక్షరశ్రేణి_పొడవు(name);
+  నిర్మాణం sockaddr_in sa;
+  గుర్తులేని పూర్ణాంకం ipv4;
+  గుర్తులేని పొట్టి port16 = (గుర్తులేని పొట్టి)(పోర్టు & 0xffff);
 
   /* memset to clear the sa.sin_zero field */
-  memset(&sa, 0, sizeof(sa));
+  memset(&sa, 0, పరిమాణం(sa));
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port16);
-  if(curlx_inet_pton(AF_INET, "127.0.0.1", (char *)&ipv4) < 1)
-    return NULL;
-  memcpy(&sa.sin_addr, &ipv4, sizeof(ipv4));
+  ఒకవేళ(curlx_inet_pton(AF_INET, "127.0.0.1", (అక్షరం *)&ipv4) < 1)
+    తిరిగి ఖాళీ;
+  జ్ఞాపకం_నకలు(&sa.sin_addr, &ipv4, పరిమాణం(ipv4));
 
-  ca = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1);
-  if(!ca)
-    return NULL;
+  ca = curlx_calloc(1, పరిమాణం(నిర్మాణం Curl_addrinfo) + ss_కొలత + hostlen + 1);
+  ఒకవేళ(!ca)
+    తిరిగి ఖాళీ;
   ca->ai_flags     = 0;
   ca->ai_family    = AF_INET;
   ca->ai_socktype  = SOCK_STREAM;
   ca->ai_protocol  = IPPROTO_TCP;
-  ca->ai_addrlen   = (curl_socklen_t)ss_size;
-  ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
-  memcpy(ca->ai_addr, &sa, ss_size);
-  ca->ai_canonname = (char *)ca->ai_addr + ss_size;
+  ca->ai_addrlen   = (curl_socklen_t)ss_కొలత;
+  ca->ai_addr = (శూన్య *)((అక్షరం *)ca + పరిమాణం(నిర్మాణం Curl_addrinfo));
+  జ్ఞాపకం_నకలు(ca->ai_addr, &sa, ss_కొలత);
+  ca->ai_canonname = (అక్షరం *)ca->ai_addr + ss_కొలత;
   curlx_strcopy(ca->ai_canonname, hostlen + 1, name, hostlen);
 
-  ca6 = get_localhost6(port, name);
-  if(!ca6)
-    return ca;
-  ca6->ai_next = ca;
-  return ca6;
+  ca6 = get_localhost6(పోర్టు, name);
+  ఒకవేళ(!ca6)
+    తిరిగి ca;
+  ca6->ai_తదుపరి = ca;
+  తిరిగి ca6;
 }
 
-#ifdef USE_IPV6
+#నిర్వచితమైతే USE_IPV6
 /* the nature of most systems is that IPv6 status does not come and go during a
    program's lifetime so we only probe the first time and then we have the
    info kept for fast reuse */
-CURLcode Curl_probeipv6(struct Curl_multi *multi)
+CURLcode Curl_probeipv6(నిర్మాణం Curl_multi *multi)
 {
   /* probe to see if we have a working IPv6 stack */
   curl_socket_t s = CURL_SOCKET(PF_INET6, SOCK_DGRAM, 0);
-  multi->ipv6_works = FALSE;
-  if(s == CURL_SOCKET_BAD) {
-    if(SOCKERRNO == SOCKENOMEM)
-      return CURLE_OUT_OF_MEMORY;
+  multi->ipv6_పనిచేస్తుంది = FALSE;
+  ఒకవేళ(s == CURL_SOCKET_BAD) {
+    ఒకవేళ(SOCKERRNO == SOCKENOMEM)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
-  else {
-    multi->ipv6_works = TRUE;
+  లేకపోతే {
+    multi->ipv6_పనిచేస్తుంది = TRUE;
     sclose(s);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
  * ipv6works() returns TRUE if IPv6 seems to work.
  */
-static bool ipv6works(struct Curl_easy *data)
+స్థిర bool ipv6works(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->multi);
-  return data ? data->multi->ipv6_works : FALSE;
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(దత్తాంశం->multi);
+  తిరిగి దత్తాంశం ? దత్తాంశం->multi->ipv6_పనిచేస్తుంది : FALSE;
 }
-#endif /* USE_IPV6 */
+#అయితే_ముగింపు /* USE_IPV6 */
 
 /*
  * Curl_host_is_ipnum() returns TRUE if the given string is a numerical IPv4
  * (or IPv6 if supported) address.
  */
-bool Curl_host_is_ipnum(const char *hostname)
+bool Curl_host_is_ipnum(స్థిరరాశి అక్షరం *hostname)
 {
-  struct in_addr in;
-#ifdef USE_IPV6
-  struct in6_addr in6;
-#endif
-  if(curlx_inet_pton(AF_INET, hostname, &in) > 0
-#ifdef USE_IPV6
+  నిర్మాణం in_addr లోపల;
+#నిర్వచితమైతే USE_IPV6
+  నిర్మాణం in6_addr in6;
+#అయితే_ముగింపు
+  ఒకవేళ(curlx_inet_pton(AF_INET, hostname, &లోపల) > 0
+#నిర్వచితమైతే USE_IPV6
      || curlx_inet_pton(AF_INET6, hostname, &in6) > 0
-#endif
+#అయితే_ముగింపు
     )
-    return TRUE;
-  return FALSE;
+    తిరిగి TRUE;
+  తిరిగి FALSE;
 }
 
 /* return TRUE if 'part' is a case insensitive tail of 'full' */
-static bool tailmatch(const char *full, size_t flen,
-                      const char *part, size_t plen)
+స్థిర bool tailmatch(స్థిరరాశి అక్షరం *నిండిన, size_t flen,
+                      స్థిరరాశి అక్షరం *part, size_t plen)
 {
-  if(plen > flen)
-    return FALSE;
-  return curl_strnequal(part, &full[flen - plen], plen);
+  ఒకవేళ(plen > flen)
+    తిరిగి FALSE;
+  తిరిగి curl_strnequal(part, &నిండిన[flen - plen], plen);
 }
 
-static CURLcode hostip_resolv_failed(struct Curl_easy *data,
-                                     struct Curl_peer *peer,
+స్థిర CURLcode hostip_resolv_failed(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం Curl_peer *peer,
                                      bool for_proxy)
 {
-  failf(data, "Could not resolve %s: %s",
+  failf(దత్తాంశం, "Could not resolve %s: %s",
         for_proxy ? "proxy" : "host", peer->hostname);
-  return RESOLV_FAIL(for_proxy);
+  తిరిగి RESOLV_FAIL(for_proxy);
 }
 
-static bool can_resolve_dns_queries(struct Curl_easy *data,
+స్థిర bool can_resolve_dns_queries(నిర్మాణం Curl_easy *దత్తాంశం,
                                     uint8_t dns_queries)
 {
-  (void)data;
-  if((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) && !ipv6works(data))
-    return FALSE;
-  return TRUE;
+  (శూన్య)దత్తాంశం;
+  ఒకవేళ((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) && !ipv6works(దత్తాంశం))
+    తిరిగి FALSE;
+  తిరిగి TRUE;
 }
 
-CURLcode Curl_resolv_announce_start(struct Curl_easy *data,
-                                    void *resolver)
+CURLcode Curl_resolv_announce_ప్రారంభం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    శూన్య *resolver)
 {
-  if(data->set.resolver_start) {
-    struct Curl_mapi_guard guard;
-    int rc;
+  ఒకవేళ(దత్తాంశం->సమితి.resolver_ప్రారంభం) {
+    నిర్మాణం Curl_mapi_guard guard;
+    పూర్ణాంకం rc;
 
-    CURL_TRC_DNS(data, "announcing resolve to application");
-    CURL_CBAPI_START(&guard, data, easy_resolver_start);
-    rc = data->set.resolver_start(resolver, NULL,
-                                  data->set.resolver_start_client);
-    CURL_CBAPI_END(&guard);
-    if(rc) {
-      CURL_TRC_DNS(data, "application aborted resolve");
-      return CURLE_ABORTED_BY_CALLBACK;
+    CURL_TRC_DNS(దత్తాంశం, "announcing resolve to application");
+    CURL_CBAPI_ప్రారంభం(&guard, దత్తాంశం, easy_resolver_ప్రారంభం);
+    rc = దత్తాంశం->సమితి.resolver_ప్రారంభం(resolver, ఖాళీ,
+                                  దత్తాంశం->సమితి.resolver_ప్రారంభం_client);
+    CURL_CBAPI_చివర(&guard);
+    ఒకవేళ(rc) {
+      CURL_TRC_DNS(దత్తాంశం, "application aborted resolve");
+      తిరిగి CURLE_ABORTED_BY_CALLBACK;
     }
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-#ifdef USE_CURL_ASYNC
+#నిర్వచితమైతే USE_CURL_ASYNC
 
-static struct Curl_resolv_async *hostip_async_new(struct Curl_easy *data,
+స్థిర నిర్మాణం Curl_resolv_async *hostip_async_new(నిర్మాణం Curl_easy *దత్తాంశం,
                                                   uint8_t dns_queries,
-                                                  struct Curl_peer *peer,
+                                                  నిర్మాణం Curl_peer *peer,
                                                   uint8_t transport,
                                                   bool for_proxy,
                                                   timediff_t timeout_ms)
 {
-  struct Curl_resolv_async *async;
+  నిర్మాణం Curl_resolv_async *async;
 
-  if(!data->multi) {
+  ఒకవేళ(!దత్తాంశం->multi) {
     DEBUGASSERT(0);
-    return NULL;
+    తిరిగి ఖాళీ;
   }
 
   /* struct size already includes the null-terminator for hostname */
-  async = curlx_calloc(1, sizeof(*async));
-  if(!async)
-    return NULL;
+  async = curlx_calloc(1, పరిమాణం(*async));
+  ఒకవేళ(!async)
+    తిరిగి ఖాళీ;
 
   /* Give every async resolve operation a "unique" id. This may
    * wrap around after a long time, making collisions highly unlikely.
    * As we keep the async structs at the easy handle, chances of
    * easy `mid plus resolv->id` colliding should be astronomical.
    * `resolv_id == 0` is never used. */
-  if(data->multi->last_resolv_id == UINT32_MAX)
-    data->multi->last_resolv_id = 1; /* wrap around */
-  else
-    data->multi->last_resolv_id++;
-  async->id = data->multi->last_resolv_id;
+  ఒకవేళ(దత్తాంశం->multi->చివరి_resolv_id == UINT32_MAX)
+    దత్తాంశం->multi->చివరి_resolv_id = 1; /* wrap around */
+  లేకపోతే
+    దత్తాంశం->multi->చివరి_resolv_id++;
+  async->id = దత్తాంశం->multi->చివరి_resolv_id;
   Curl_peer_link(&async->peer, peer);
   async->dns_queries = dns_queries;
   async->transport = transport;
   async->for_proxy = for_proxy;
-  async->start = *Curl_pgrs_now(data);
+  async->ప్రారంభం = *Curl_pgrs_now(దత్తాంశం);
   async->timeout_ms = timeout_ms;
   async->is_ipaddr = Curl_is_ipaddr(peer->hostname);
-  if(async->is_ipaddr)
+  ఒకవేళ(async->is_ipaddr)
     async->is_ipv4addr = Curl_is_ipv4addr(peer->hostname);
 
-  return async;
+  తిరిగి async;
 }
 
-static CURLcode hostip_resolv_take_result(struct Curl_easy *data,
-                                          struct Curl_resolv_async *async,
-                                          struct Curl_dns_entry **pdns)
+స్థిర CURLcode hostip_resolv_take_ఫలితం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం Curl_resolv_async *async,
+                                          నిర్మాణం Curl_dns_నమోదు **pdns)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
 
   /* If async resolving is ongoing, this must be set */
-  if(!async)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!async)
+    తిరిగి CURLE_FAILED_INIT;
 
-#ifndef CURL_DISABLE_DOH
-  if(async->doh)
-    result = Curl_doh_take_result(data, async, pdns);
-  else
-#endif
-  result = Curl_async_take_result(data, async, pdns);
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DOH
+  ఒకవేళ(async->doh)
+    ఫలితం = Curl_doh_take_ఫలితం(దత్తాంశం, async, pdns);
+  లేకపోతే
+#అయితే_ముగింపు
+  ఫలితం = Curl_async_take_ఫలితం(దత్తాంశం, async, pdns);
 
-  if(result == CURLE_AGAIN) {
-    CURL_TRC_DNS(data, "[%s] resolve incomplete, responses=%s, "
+  ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+    CURL_TRC_DNS(దత్తాంశం, "[%s] resolve incomplete, responses=%s, "
                  "ongoing=%d for %s:%d",
                  Curl_resolv_query_str(async->dns_queries),
                  Curl_resolv_query_str(async->dns_responses),
                  async->queries_ongoing,
-                 async->peer->hostname, async->peer->port);
-    result = CURLE_OK;
+                 async->peer->hostname, async->peer->పోర్టు);
+    ఫలితం = CURLE_OK;
   }
-  else if(IS_RESOLV_FAIL(result)) {
-    result = Curl_async_failed(data, async, NULL);
+  లేకపోతే ఒకవేళ(IS_RESOLV_FAIL(ఫలితం)) {
+    ఫలితం = Curl_async_failed(దత్తాంశం, async, ఖాళీ);
   }
-  else if(result) {
+  లేకపోతే ఒకవేళ(ఫలితం) {
     /* a local failure, not a resolve answer. Keep the error as it
        is so it does not get treated as one. */
-    CURL_TRC_DNS(data, "[%s] resolve error %d for %s:%u",
+    CURL_TRC_DNS(దత్తాంశం, "[%s] resolve error %d for %s:%u",
                  Curl_resolv_query_str(async->dns_queries),
-                 (int)result, async->peer->hostname, async->peer->port);
+                 (పూర్ణాంకం)ఫలితం, async->peer->hostname, async->peer->పోర్టు);
   }
-  else {
-    CURL_TRC_DNS(data, "[%s] resolve complete for %s:%u",
+  లేకపోతే {
+    CURL_TRC_DNS(దత్తాంశం, "[%s] resolve complete for %s:%u",
                  Curl_resolv_query_str(async->dns_queries),
-                 async->peer->hostname, async->peer->port);
+                 async->peer->hostname, async->peer->పోర్టు);
     DEBUGASSERT(*pdns);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-timediff_t Curl_resolv_elapsed_ms(struct Curl_easy *data,
+timediff_t Curl_resolv_elapsed_ms(నిర్మాణం Curl_easy *దత్తాంశం,
                                   uint32_t resolv_id,
-                                  const struct curltime *pnow)
+                                  స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(!async)
-    return CURL_TIMEOUT_RESOLVE_MS;
-  return curlx_ptimediff_ms(pnow, &async->start);
+  నిర్మాణం Curl_resolv_async *async = Curl_async_get(దత్తాంశం, resolv_id);
+  ఒకవేళ(!async)
+    తిరిగి CURL_TIMEOUT_RESOLVE_MS;
+  తిరిగి curlx_ptimediff_ms(pnow, &async->ప్రారంభం);
 }
 
-bool Curl_resolv_has_answers(struct Curl_easy *data,
+bool Curl_resolv_has_answers(నిర్మాణం Curl_easy *దత్తాంశం,
                              uint32_t resolv_id, uint8_t dns_queries)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
+  నిర్మాణం Curl_resolv_async *async = Curl_async_get(దత్తాంశం, resolv_id);
   uint8_t check_queries;
   /* a no longer existing/running resolve has all answers. */
-  if(!async || async->done)
-    return TRUE;
+  ఒకవేళ(!async || async->పూర్తి)
+    తిరిగి TRUE;
   /* Relevant are only queries undertaken. Others are considered answered. */
   check_queries = (dns_queries & async->dns_queries);
-  if((check_queries & async->dns_responses) != check_queries) {
-    return FALSE;
+  ఒకవేళ((check_queries & async->dns_responses) != check_queries) {
+    తిరిగి FALSE;
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-const struct Curl_addrinfo *Curl_resolv_get_ai(struct Curl_easy *data,
+స్థిరరాశి నిర్మాణం Curl_addrinfo *Curl_resolv_get_ai(నిర్మాణం Curl_easy *దత్తాంశం,
                                                uint32_t resolv_id,
-                                               int ai_family,
-                                               unsigned int index)
+                                               పూర్ణాంకం ai_family,
+                                               గుర్తులేని పూర్ణాంకం సూచీ)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(!async || !CURL_DNSQ_IS_ADDR(async->dns_queries))
-    return NULL;
-  switch(ai_family) {
-  case AF_INET:
-    return Curl_addrinfo_get(async->ai_A, ai_family, index);
-#ifdef USE_IPV6
-  case AF_INET6:
-    return Curl_addrinfo_get(async->ai_AAAA, ai_family, index);
-#endif
-  default:
-    return NULL;
+  నిర్మాణం Curl_resolv_async *async = Curl_async_get(దత్తాంశం, resolv_id);
+  ఒకవేళ(!async || !CURL_DNSQ_IS_ADDR(async->dns_queries))
+    తిరిగి ఖాళీ;
+  ఎంపిక(ai_family) {
+  స్థితి AF_INET:
+    తిరిగి Curl_addrinfo_get(async->ai_A, ai_family, సూచీ);
+#నిర్వచితమైతే USE_IPV6
+  స్థితి AF_INET6:
+    తిరిగి Curl_addrinfo_get(async->ai_AAAA, ai_family, సూచీ);
+#అయితే_ముగింపు
+  అప్రమేయ:
+    తిరిగి ఖాళీ;
   }
 }
 
-#ifdef USE_HTTPSRR
+#నిర్వచితమైతే USE_HTTPSRR
 
-CURLcode Curl_resolv_https(struct Curl_easy *data,
-                           struct Curl_peer *peer,
+CURLcode Curl_resolv_https(నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం Curl_peer *peer,
                            bool for_proxy,
                            timediff_t timeout_ms,
                            uint32_t *presolv_id,
-                           struct Curl_dns_entry **pdns)
+                           నిర్మాణం Curl_dns_నమోదు **pdns)
 {
-  return Curl_resolv(data, peer, CURL_DNSQ_HTTPS, TRNSPRT_TCP,
+  తిరిగి Curl_resolv(దత్తాంశం, peer, CURL_DNSQ_HTTPS, TRNSPRT_TCP,
                      for_proxy, timeout_ms, presolv_id, pdns);
 }
 
-const struct Curl_https_rrinfo *
-Curl_resolv_get_https(struct Curl_easy *data, uint32_t resolv_id)
+స్థిరరాశి నిర్మాణం Curl_https_rrinfo *
+Curl_resolv_get_https(నిర్మాణం Curl_easy *దత్తాంశం, uint32_t resolv_id)
 {
-  struct Curl_resolv_async *async;
-  if(!Curl_resolv_knows_https(data, resolv_id))
-    return NULL;
-  async = Curl_async_get(data, resolv_id);
-  return async ? async->httpsrr : NULL;
+  నిర్మాణం Curl_resolv_async *async;
+  ఒకవేళ(!Curl_resolv_knows_https(దత్తాంశం, resolv_id))
+    తిరిగి ఖాళీ;
+  async = Curl_async_get(దత్తాంశం, resolv_id);
+  తిరిగి async ? async->httpsrr : ఖాళీ;
 }
 
-bool Curl_resolv_knows_https(struct Curl_easy *data, uint32_t resolv_id)
+bool Curl_resolv_knows_https(నిర్మాణం Curl_easy *దత్తాంశం, uint32_t resolv_id)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(async && (async->dns_queries & CURL_DNSQ_HTTPS))
-    return ((async->dns_responses & CURL_DNSQ_HTTPS) ||
+  నిర్మాణం Curl_resolv_async *async = Curl_async_get(దత్తాంశం, resolv_id);
+  ఒకవేళ(async && (async->dns_queries & CURL_DNSQ_HTTPS))
+    తిరిగి ((async->dns_responses & CURL_DNSQ_HTTPS) ||
             !async->queries_ongoing);
-  return TRUE; /* we know it will never come */
+  తిరిగి TRUE; /* we know it will never come */
 }
 
-#endif /* USE_HTTPSRR */
+#అయితే_ముగింపు /* USE_HTTPSRR */
 
-#endif /* USE_CURL_ASYNC */
+#అయితే_ముగింపు /* USE_CURL_ASYNC */
 
 /* Start resolving. `*pnegative` is only meaningful when this returns
    a CURLE_COULDNT_RESOLVE_* failure: TRUE when the resolver answered
    that the name does not exist, FALSE on transient or local failures
    that must not be cached as negative entries. */
-static CURLcode hostip_resolv_start(struct Curl_easy *data,
+స్థిర CURLcode hostip_resolv_ప్రారంభం(నిర్మాణం Curl_easy *దత్తాంశం,
                                     uint8_t dns_queries,
-                                    struct Curl_peer *peer,
+                                    నిర్మాణం Curl_peer *peer,
                                     uint8_t transport,
                                     bool for_proxy,
                                     timediff_t timeout_ms,
                                     bool allowDOH,
                                     uint32_t *presolv_id,
-                                    struct Curl_dns_entry **pdns,
+                                    నిర్మాణం Curl_dns_నమోదు **pdns,
                                     bool *pnegative)
 {
-#ifdef USE_CURL_ASYNC
-  struct Curl_resolv_async *async = NULL;
-#endif
-  struct Curl_addrinfo *addr = NULL;
+#నిర్వచితమైతే USE_CURL_ASYNC
+  నిర్మాణం Curl_resolv_async *async = ఖాళీ;
+#అయితే_ముగింపు
+  నిర్మాణం Curl_addrinfo *addr = ఖాళీ;
   size_t hostname_len;
   bool addr_queries = (dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA));
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
   *pnegative = FALSE;
 
-  (void)timeout_ms; /* not in all ifdefs */
+  (శూన్య)timeout_ms; /* not in all ifdefs */
   *presolv_id = 0;
-  *pdns = NULL;
+  *pdns = ఖాళీ;
 
   /* Check for "known" things to resolve ourselves. */
-  if(addr_queries) {
-#ifndef USE_RESOLVE_ON_IPS
-    if(Curl_is_ipaddr(peer->hostname)) {
+  ఒకవేళ(addr_queries) {
+#నిర్వచితం_కాకపోతే USE_RESOLVE_ON_IPS
+    ఒకవేళ(Curl_is_ipaddr(peer->hostname)) {
       /* test655 verifies that the announce is done, even though there
        * is no real resolving. So, keep doing this. */
-      result = Curl_resolv_announce_start(data, NULL);
-      if(result)
-        goto out;
+      ఫలితం = Curl_resolv_announce_ప్రారంభం(దత్తాంశం, ఖాళీ);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
       /* shortcut literal IP addresses, if we are not told to resolve them. */
-      result = Curl_str2addr(peer->hostname, peer->port, &addr);
-      goto out;
+      ఫలితం = Curl_str2addr(peer->hostname, peer->పోర్టు, &addr);
+      వెళ్ళు బహిర్గతం;
     }
-#endif
+#అయితే_ముగింపు
 
-    hostname_len = strlen(peer->hostname);
-    if(curl_strequal(peer->hostname, "localhost") ||
+    hostname_len = అక్షరశ్రేణి_పొడవు(peer->hostname);
+    ఒకవేళ(curl_strequal(peer->hostname, "localhost") ||
        curl_strequal(peer->hostname, "localhost.") ||
        tailmatch(peer->hostname, hostname_len, STRCONST(".localhost")) ||
        tailmatch(peer->hostname, hostname_len, STRCONST(".localhost."))) {
-      result = Curl_resolv_announce_start(data, NULL);
-      if(result)
-        goto out;
-      addr = get_localhost(peer->port, peer->hostname);
-      if(!addr)
-        result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      ఫలితం = Curl_resolv_announce_ప్రారంభం(దత్తాంశం, ఖాళీ);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
+      addr = get_localhost(peer->పోర్టు, peer->hostname);
+      ఒకవేళ(!addr)
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
   }
-#ifndef CURL_DISABLE_DOH
-  if(!Curl_is_ipaddr(peer->hostname) && allowDOH && data->set.doh) {
-    result = Curl_resolv_announce_start(data, NULL);
-    if(result)
-      goto out;
-    if(!async) {
-      async = hostip_async_new(data, dns_queries, peer, transport,
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DOH
+  ఒకవేళ(!Curl_is_ipaddr(peer->hostname) && allowDOH && దత్తాంశం->సమితి.doh) {
+    ఫలితం = Curl_resolv_announce_ప్రారంభం(దత్తాంశం, ఖాళీ);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
+    ఒకవేళ(!async) {
+      async = hostip_async_new(దత్తాంశం, dns_queries, peer, transport,
                                for_proxy, timeout_ms);
-      if(!async) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      ఒకవేళ(!async) {
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు బహిర్గతం;
       }
     }
-    result = Curl_doh(data, async);
-    goto out;
+    ఫలితం = Curl_doh(దత్తాంశం, async);
+    వెళ్ళు బహిర్గతం;
   }
-#else
-  (void)allowDOH;
-#endif
+#లేకపోతే
+  (శూన్య)allowDOH;
+#అయితే_ముగింపు
 
   /* Can we provide the requested IP specifics in resolving? */
-  if(!can_resolve_dns_queries(data, dns_queries)) {
-    result = RESOLV_FAIL(for_proxy);
-    goto out;
+  ఒకవేళ(!can_resolve_dns_queries(దత్తాంశం, dns_queries)) {
+    ఫలితం = RESOLV_FAIL(for_proxy);
+    వెళ్ళు బహిర్గతం;
   }
 
-#ifdef CURLRES_ASYNCH
-  (void)addr;
-  if(!async) {
-    async = hostip_async_new(data, dns_queries, peer, transport,
+#నిర్వచితమైతే CURLRES_ASYNCH
+  (శూన్య)addr;
+  ఒకవేళ(!async) {
+    async = hostip_async_new(దత్తాంశం, dns_queries, peer, transport,
                              for_proxy, timeout_ms);
-    if(!async) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    ఒకవేళ(!async) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
   }
-  result = Curl_async_getaddrinfo(data, async);
-  if(result == CURLE_AGAIN) {
+  ఫలితం = Curl_async_getaddrinfo(దత్తాంశం, async);
+  ఒకవేళ(ఫలితం == CURLE_AGAIN) {
     /* the answer might be there already. Check. */
-    CURLcode r2 = hostip_resolv_take_result(data, async, pdns);
-    if(r2)
-      result = r2;
-    else if(*pdns)
-      result = CURLE_OK;
+    CURLcode r2 = hostip_resolv_take_ఫలితం(దత్తాంశం, async, pdns);
+    ఒకవేళ(r2)
+      ఫలితం = r2;
+    లేకపోతే ఒకవేళ(*pdns)
+      ఫలితం = CURLE_OK;
   }
-#else
-  result = Curl_resolv_announce_start(data, NULL);
-  if(result)
-    goto out;
-  addr = Curl_sync_getaddrinfo(data, dns_queries, peer->hostname, peer->port,
+#లేకపోతే
+  ఫలితం = Curl_resolv_announce_ప్రారంభం(దత్తాంశం, ఖాళీ);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  addr = Curl_sync_getaddrinfo(దత్తాంశం, dns_queries, peer->hostname, peer->పోర్టు,
                                transport);
-  if(!addr) {
-    result = RESOLV_FAIL(for_proxy);
+  ఒకవేళ(!addr) {
+    ఫలితం = RESOLV_FAIL(for_proxy);
     /* the synchronous resolvers do not tell a transient failure from
        an authoritative negative answer, treat it as before */
     *pnegative = TRUE;
   }
-#endif
+#అయితే_ముగింపు
 
-out:
-  if(!result) {
-    if(addr) {
+బహిర్గతం:
+  ఒకవేళ(!ఫలితం) {
+    ఒకవేళ(addr) {
       /* we got a response, create a dns entry, add to cache, return */
       DEBUGASSERT(!*pdns);
-      *pdns = Curl_dnsc_mk_addr(data, dns_queries, &addr, peer);
-      if(!*pdns)
-        result = CURLE_OUT_OF_MEMORY;
+      *pdns = Curl_dnsc_mk_addr(దత్తాంశం, dns_queries, &addr, peer);
+      ఒకవేళ(!*pdns)
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
-    else if(!*pdns)
-      result = CURLE_AGAIN;
+    లేకపోతే ఒకవేళ(!*pdns)
+      ఫలితం = CURLE_AGAIN;
   }
-  else if(*pdns)
-    Curl_dns_entry_unlink(data, pdns);
-  else if(addr)
+  లేకపోతే ఒకవేళ(*pdns)
+    Curl_dns_నమోదు_unlink(దత్తాంశం, pdns);
+  లేకపోతే ఒకవేళ(addr)
     Curl_freeaddrinfo(addr);
 
-#ifdef USE_CURL_ASYNC
-  if(async) {
-    if(result == CURLE_AGAIN) { /* still need it, link, return id. */
+#నిర్వచితమైతే USE_CURL_ASYNC
+  ఒకవేళ(async) {
+    ఒకవేళ(ఫలితం == CURLE_AGAIN) { /* still need it, link, return id. */
       *presolv_id = async->id;
-      async->next = data->state.async;
-      data->state.async = async;
+      async->తదుపరి = దత్తాంశం->state.async;
+      దత్తాంశం->state.async = async;
     }
-    else {
+    లేకపోతే {
       *pnegative = !!async->negative_answer;
-      Curl_async_destroy(data, async);
+      Curl_async_destroy(దత్తాంశం, async);
     }
   }
-#endif
-  return result;
+#అయితే_ముగింపు
+  తిరిగి ఫలితం;
 }
 
-static CURLcode hostip_resolv(struct Curl_easy *data,
+స్థిర CURLcode hostip_resolv(నిర్మాణం Curl_easy *దత్తాంశం,
                               uint8_t dns_queries,
-                              struct Curl_peer *peer,
+                              నిర్మాణం Curl_peer *peer,
                               uint8_t transport,
                               bool for_proxy,
                               timediff_t timeout_ms,
                               bool allowDOH,
                               uint32_t *presolv_id,
-                              struct Curl_dns_entry **pdns)
+                              నిర్మాణం Curl_dns_నమోదు **pdns)
 {
   size_t hostname_len;
-  CURLcode result = RESOLV_FAIL(for_proxy);
+  CURLcode ఫలితం = RESOLV_FAIL(for_proxy);
   bool cache_dns = FALSE;
   bool negative = FALSE;
 
-  (void)timeout_ms; /* not used in all ifdefs */
+  (శూన్య)timeout_ms; /* not used in all ifdefs */
   *presolv_id = 0;
-  *pdns = NULL;
+  *pdns = ఖాళీ;
 
-#ifdef CURL_DISABLE_DOH
-  (void)allowDOH;
-#endif
+#నిర్వచితమైతే CURL_DISABLE_DOH
+  (శూన్య)allowDOH;
+#అయితే_ముగింపు
 
   /* We should intentionally error and not resolve .onion TLDs */
-  hostname_len = strlen(peer->hostname);
+  hostname_len = అక్షరశ్రేణి_పొడవు(peer->hostname);
   DEBUGASSERT(hostname_len);
-  if(hostname_len >= 7 &&
+  ఒకవేళ(hostname_len >= 7 &&
      (curl_strequal(&peer->hostname[hostname_len - 6], ".onion") ||
       curl_strequal(&peer->hostname[hostname_len - 7], ".onion."))) {
-    failf(data, "Not resolving .onion address (RFC 7686)");
-    goto out;
+    failf(దత్తాంశం, "Not resolving .onion address (RFC 7686)");
+    వెళ్ళు బహిర్గతం;
   }
 
-#ifdef DEBUGBUILD
-  CURL_TRC_DNS(data, "[%s] hostip_resolv(%s:%u)",
-               Curl_resolv_query_str(dns_queries), peer->hostname, peer->port);
-  if((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) &&
+#నిర్వచితమైతే DEBUGBUILD
+  CURL_TRC_DNS(దత్తాంశం, "[%s] hostip_resolv(%s:%u)",
+               Curl_resolv_query_str(dns_queries), peer->hostname, peer->పోర్టు);
+  ఒకవేళ((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) &&
      getenv("CURL_DBG_RESOLV_FAIL_IPV6")) {
-    infof(data, "DEBUG fail ipv6 resolve");
-    result = hostip_resolv_failed(data, peer, for_proxy);
-    goto out;
+    infof(దత్తాంశం, "DEBUG fail ipv6 resolve");
+    ఫలితం = hostip_resolv_failed(దత్తాంశం, peer, for_proxy);
+    వెళ్ళు బహిర్గతం;
   }
-#endif
+#అయితే_ముగింపు
   /* Let's check our DNS cache first */
-  result = Curl_dnscache_get(data, dns_queries, peer, pdns);
-  if(*pdns) {
-    infof(data, "Hostname %s was found in DNS cache", peer->hostname);
-    result = CURLE_OK;
+  ఫలితం = Curl_dnscache_get(దత్తాంశం, dns_queries, peer, pdns);
+  ఒకవేళ(*pdns) {
+    infof(దత్తాంశం, "Hostname %s was found in DNS cache", peer->hostname);
+    ఫలితం = CURLE_OK;
   }
-  else if(result) {
-    infof(data, "Negative DNS entry");
-    result = hostip_resolv_failed(data, peer, for_proxy);
+  లేకపోతే ఒకవేళ(ఫలితం) {
+    infof(దత్తాంశం, "Negative DNS entry");
+    ఫలితం = hostip_resolv_failed(దత్తాంశం, peer, for_proxy);
   }
-  else {
+  లేకపోతే {
     /* No luck, we need to start resolving. */
     cache_dns = TRUE;
-    result = hostip_resolv_start(data, dns_queries, peer, transport,
+    ఫలితం = hostip_resolv_ప్రారంభం(దత్తాంశం, dns_queries, peer, transport,
                                  for_proxy, timeout_ms, allowDOH,
                                  presolv_id, pdns, &negative);
-    CURL_TRC_DNS(data, "[%s] hostip_resolv started -> %d",
-                 Curl_resolv_query_str(dns_queries), (int)result);
+    CURL_TRC_DNS(దత్తాంశం, "[%s] hostip_resolv started -> %d",
+                 Curl_resolv_query_str(dns_queries), (పూర్ణాంకం)ఫలితం);
   }
 
-out:
-  if(result && (result != CURLE_AGAIN)) {
-    Curl_dns_entry_unlink(data, pdns);
-    if(IS_RESOLV_FAIL(result)) {
-      if(cache_dns && negative)
-        Curl_dnscache_add_negative(data, dns_queries, peer);
-      if(dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
-        failf(data, "Could not resolve: %s:%u", peer->hostname, peer->port);
+బహిర్గతం:
+  ఒకవేళ(ఫలితం && (ఫలితం != CURLE_AGAIN)) {
+    Curl_dns_నమోదు_unlink(దత్తాంశం, pdns);
+    ఒకవేళ(IS_RESOLV_FAIL(ఫలితం)) {
+      ఒకవేళ(cache_dns && negative)
+        Curl_dnscache_కూడు_negative(దత్తాంశం, dns_queries, peer);
+      ఒకవేళ(dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+        failf(దత్తాంశం, "Could not resolve: %s:%u", peer->hostname, peer->పోర్టు);
     }
-    else {
-      failf(data, "Error %d resolving %s:%u",
-            (int)result, peer->hostname, peer->port);
+    లేకపోతే {
+      failf(దత్తాంశం, "Error %d resolving %s:%u",
+            (పూర్ణాంకం)ఫలితం, peer->hostname, peer->పోర్టు);
     }
   }
-  else if(cache_dns && *pdns) {
-    result = Curl_dnscache_add(data, *pdns);
-    if(result)
-      Curl_dns_entry_unlink(data, pdns);
+  లేకపోతే ఒకవేళ(cache_dns && *pdns) {
+    ఫలితం = Curl_dnscache_కూడు(దత్తాంశం, *pdns);
+    ఒకవేళ(ఫలితం)
+      Curl_dns_నమోదు_unlink(దత్తాంశం, pdns);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_resolv_blocking(struct Curl_easy *data,
+CURLcode Curl_resolv_blocking(నిర్మాణం Curl_easy *దత్తాంశం,
                               uint8_t dns_queries,
-                              const char *hostname,
-                              uint16_t port,
+                              స్థిరరాశి అక్షరం *hostname,
+                              uint16_t పోర్టు,
                               uint8_t transport,
-                              struct Curl_dns_entry **pdns)
+                              నిర్మాణం Curl_dns_నమోదు **pdns)
 {
-  struct Curl_peer *peer = NULL;
-  CURLcode result;
+  నిర్మాణం Curl_peer *peer = ఖాళీ;
+  CURLcode ఫలితం;
   uint32_t resolv_id;
 
   DEBUGASSERT(hostname && *hostname);
-  *pdns = NULL;
+  *pdns = ఖాళీ;
 
-  result = Curl_peer_create(data, data->conn->scheme, hostname, port, &peer);
-  if(result)
-    goto out;
+  ఫలితం = Curl_peer_create(దత్తాంశం, దత్తాంశం->conn->scheme, hostname, పోర్టు, &peer);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
   /* We cannot do a blocking resolve using DoH currently */
-  result = hostip_resolv(data, dns_queries, peer, transport, FALSE, 0, FALSE,
+  ఫలితం = hostip_resolv(దత్తాంశం, dns_queries, peer, transport, FALSE, 0, FALSE,
                          &resolv_id, pdns);
-  switch(result) {
-  case CURLE_OK:
+  ఎంపిక(ఫలితం) {
+  స్థితి CURLE_OK:
     DEBUGASSERT(*pdns);
-    break;
-#ifdef USE_CURL_ASYNC
-  case CURLE_AGAIN:
+    ఆపు;
+#నిర్వచితమైతే USE_CURL_ASYNC
+  స్థితి CURLE_AGAIN:
     DEBUGASSERT(!*pdns);
-    result = Curl_async_await(data, resolv_id, pdns);
-    Curl_resolv_destroy(data, resolv_id);
-    break;
-#endif
-  default:
-    break;
+    ఫలితం = Curl_async_await(దత్తాంశం, resolv_id, pdns);
+    Curl_resolv_destroy(దత్తాంశం, resolv_id);
+    ఆపు;
+#అయితే_ముగింపు
+  అప్రమేయ:
+    ఆపు;
   }
 
-out:
+బహిర్గతం:
   Curl_peer_unlink(&peer);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#ifdef USE_ALARM_TIMEOUT
+#నిర్వచితమైతే USE_ALARM_TIMEOUT
 /*
  * This signal handler jumps back into the main libcurl code and continues
  * execution. This effectively causes the remainder of the application to run
  * within a signal handler which is nonportable and could lead to problems.
  */
-CURL_NORETURN static void alarmfunc(int sig)
+CURL_NORETURN స్థిర శూన్య alarmfunc(పూర్ణాంకం sig)
 {
-  (void)sig;
+  (శూన్య)sig;
   siglongjmp(curl_jmpenv, 1);
 }
 
-static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
+స్థిర CURLcode resolv_alarm_timeout(నిర్మాణం Curl_easy *దత్తాంశం,
                                      uint8_t dns_queries,
-                                     struct Curl_peer *peer,
+                                     నిర్మాణం Curl_peer *peer,
                                      uint8_t transport,
                                      bool for_proxy,
                                      timediff_t timeout_ms,
                                      uint32_t *presolv_id,
-                                     struct Curl_dns_entry **entry)
+                                     నిర్మాణం Curl_dns_నమోదు **నమోదు_2)
 {
-#ifdef HAVE_SIGACTION
-  struct sigaction keep_sigact; /* store the old struct here */
-  volatile bool keep_copysig = FALSE; /* whether old sigact has been saved */
-  struct sigaction sigact;
-#else
-#ifdef HAVE_SIGNAL
-  void (*keep_sigact)(int);       /* store the old handler here */
-#endif /* HAVE_SIGNAL */
-#endif /* HAVE_SIGACTION */
-  volatile long timeout;
-  volatile unsigned int prev_alarm = 0;
-  CURLcode result;
+#నిర్వచితమైతే HAVE_SIGACTION
+  నిర్మాణం sigaction keep_sigact; /* store the old struct here */
+  అస్థిర bool keep_copysig = FALSE; /* whether old sigact has been saved */
+  నిర్మాణం sigaction sigact;
+#లేకపోతే
+#నిర్వచితమైతే HAVE_SIGNAL
+  శూన్య (*keep_sigact)(పూర్ణాంకం);       /* store the old handler here */
+#అయితే_ముగింపు /* HAVE_SIGNAL */
+#అయితే_ముగింపు /* HAVE_SIGACTION */
+  అస్థిర దీర్ఘ timeout;
+  అస్థిర గుర్తులేని పూర్ణాంకం prev_alarm = 0;
+  CURLcode ఫలితం;
 
   DEBUGASSERT(peer->hostname && *peer->hostname);
   DEBUGASSERT(timeout_ms > 0);
-  DEBUGASSERT(!data->set.no_signal);
-#ifndef CURL_DISABLE_DOH
-  DEBUGASSERT(!data->set.doh);
-#endif
+  DEBUGASSERT(!దత్తాంశం->సమితి.no_signal);
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DOH
+  DEBUGASSERT(!దత్తాంశం->సమితి.doh);
+#అయితే_ముగింపు
 
-  *entry = NULL;
-  timeout = (timeout_ms > LONG_MAX) ? LONG_MAX : (long)timeout_ms;
-  if(timeout < 1000) {
+  *నమోదు_2 = ఖాళీ;
+  timeout = (timeout_ms > LONG_MAX) ? LONG_MAX : (దీర్ఘ)timeout_ms;
+  ఒకవేళ(timeout < 1000) {
     /* The alarm() function only provides integer second resolution, so if
        we want to wait less than one second we must bail out already now. */
-    failf(data,
+    failf(దత్తాంశం,
           "remaining timeout of %ld too small to resolve via SIGALRM method",
           timeout);
-    return CURLE_OPERATION_TIMEDOUT;
+    తిరిగి CURLE_OPERATION_TIMEDOUT;
   }
   /* This allows us to time-out from the name resolver, as the timeout
      will generate a signal and we will siglongjmp() from that here.
@@ -885,36 +885,36 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
      This should be the last thing we do before calling Curl_resolv(),
      as otherwise we would have to worry about variables that get modified
      before we invoke Curl_resolv() (and thus use "volatile"). */
-  curl_simple_lock_lock(&curl_jmpenv_lock);
+  curl_simple_తాళం_తాళం(&curl_jmpenv_తాళం);
 
-  if(sigsetjmp(curl_jmpenv, 1)) {
+  ఒకవేళ(sigsetjmp(curl_jmpenv, 1)) {
     /* this is coming from a siglongjmp() after an alarm signal */
-    failf(data, "name lookup timed out");
-    result = CURLE_OPERATION_TIMEDOUT;
-    goto clean_up;
+    failf(దత్తాంశం, "name lookup timed out");
+    ఫలితం = CURLE_OPERATION_TIMEDOUT;
+    వెళ్ళు clean_పైకి;
   }
-  else {
+  లేకపోతే {
     /*************************************************************
      * Set signal handler to catch SIGALRM
      * Store the old value to be able to set it back later!
      *************************************************************/
-#ifdef HAVE_SIGACTION
-    sigaction(SIGALRM, NULL, &sigact);
+#నిర్వచితమైతే HAVE_SIGACTION
+    sigaction(SIGALRM, ఖాళీ, &sigact);
     keep_sigact = sigact;
     keep_copysig = TRUE; /* yes, we have a copy */
     sigact.sa_handler = alarmfunc;
-#ifdef SA_RESTART
+#నిర్వచితమైతే SA_RESTART
     /* HP-UX does not have SA_RESTART but defaults to that behavior! */
     sigact.sa_flags &= ~SA_RESTART;
-#endif
+#అయితే_ముగింపు
     /* now set the new struct */
-    sigaction(SIGALRM, &sigact, NULL);
-#else /* HAVE_SIGACTION */
+    sigaction(SIGALRM, &sigact, ఖాళీ);
+#లేకపోతే /* HAVE_SIGACTION */
     /* no sigaction(), revert to the much lamer signal() */
-#ifdef HAVE_SIGNAL
-    keep_sigact = signal(SIGALRM, alarmfunc);
-#endif
-#endif /* HAVE_SIGACTION */
+#నిర్వచితమైతే HAVE_SIGNAL
+    keep_sigact = సంకేతం(SIGALRM, alarmfunc);
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* HAVE_SIGACTION */
 
     /* alarm() makes a signal get sent when the timeout fires off, and that
        will abort system calls */
@@ -923,83 +923,83 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
 
   /* Perform the actual name resolution. This might be interrupted by an
    * alarm if it takes too long. */
-  result = hostip_resolv(data, dns_queries, peer, transport,
-                         for_proxy, timeout_ms, FALSE, presolv_id, entry);
+  ఫలితం = hostip_resolv(దత్తాంశం, dns_queries, peer, transport,
+                         for_proxy, timeout_ms, FALSE, presolv_id, నమోదు_2);
 
-clean_up:
-  if(!prev_alarm)
+clean_పైకి:
+  ఒకవేళ(!prev_alarm)
     /* deactivate a possibly active alarm before uninstalling the handler */
     alarm(0);
 
-#ifdef HAVE_SIGACTION
-  if(keep_copysig) {
+#నిర్వచితమైతే HAVE_SIGACTION
+  ఒకవేళ(keep_copysig) {
     /* we got a struct as it looked before, now put that one back nice
        and clean */
-    sigaction(SIGALRM, &keep_sigact, NULL); /* put it back */
+    sigaction(SIGALRM, &keep_sigact, ఖాళీ); /* put it back */
   }
-#else
-#ifdef HAVE_SIGNAL
+#లేకపోతే
+#నిర్వచితమైతే HAVE_SIGNAL
   /* restore the previous SIGALRM handler */
-  signal(SIGALRM, keep_sigact);
-#endif
-#endif /* HAVE_SIGACTION */
+  సంకేతం(SIGALRM, keep_sigact);
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* HAVE_SIGACTION */
 
-  curl_simple_lock_unlock(&curl_jmpenv_lock);
+  curl_simple_తాళం_unlock(&curl_jmpenv_తాళం);
 
   /* switch back the alarm() to either zero or to what it was before minus
      the time we spent until now! */
-  if(prev_alarm) {
+  ఒకవేళ(prev_alarm) {
     /* there was an alarm() set before us, now put it back */
     timediff_t elapsed_secs =
-      Curl_cpool_conn_age_ms(data, data->conn, Curl_pgrs_now(data)) / 1000;
+      Curl_cpool_conn_age_ms(దత్తాంశం, దత్తాంశం->conn, Curl_pgrs_now(దత్తాంశం)) / 1000;
 
     /* the alarm period is counted in even number of seconds */
-    unsigned long alarm_set = (unsigned long)(prev_alarm - elapsed_secs);
+    గుర్తులేని దీర్ఘ alarm_సమితి = (గుర్తులేని దీర్ఘ)(prev_alarm - elapsed_secs);
 
-    if(!alarm_set ||
-       ((alarm_set >= 0x80000000) && (prev_alarm < 0x80000000))) {
+    ఒకవేళ(!alarm_సమితి ||
+       ((alarm_సమితి >= 0x80000000) && (prev_alarm < 0x80000000))) {
       /* if the alarm time-left reached zero or turned "negative" (counted
          with unsigned values), we should fire off a SIGALRM here, but we
          will not, and zero would be to switch it off so we never set it to
          less than 1! */
       alarm(1);
-      result = CURLE_OPERATION_TIMEDOUT;
-      failf(data, "Previous alarm fired off");
+      ఫలితం = CURLE_OPERATION_TIMEDOUT;
+      failf(దత్తాంశం, "Previous alarm fired off");
     }
-    else
-      alarm((unsigned int)alarm_set);
+    లేకపోతే
+      alarm((గుర్తులేని పూర్ణాంకం)alarm_సమితి);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif /* USE_ALARM_TIMEOUT */
+#అయితే_ముగింపు /* USE_ALARM_TIMEOUT */
 
-#ifdef USE_UNIX_SOCKETS
-static CURLcode resolv_unix(struct Curl_easy *data,
-                            struct Curl_peer *peer,
-                            struct Curl_dns_entry **pdns)
+#నిర్వచితమైతే USE_UNIX_SOCKETS
+స్థిర CURLcode resolv_unix(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం Curl_peer *peer,
+                            నిర్మాణం Curl_dns_నమోదు **pdns)
 {
-  struct Curl_addrinfo *addr;
-  CURLcode result;
+  నిర్మాణం Curl_addrinfo *addr;
+  CURLcode ఫలితం;
 
   DEBUGASSERT(peer->unix_socket);
-  *pdns = NULL;
+  *pdns = ఖాళీ;
 
-  result = Curl_unix2addr(peer->hostname, (bool)peer->abstract_uds, &addr);
-  if(result) {
-    if(result == CURLE_TOO_LARGE) {
+  ఫలితం = Curl_unix2addr(peer->hostname, (bool)peer->abstract_uds, &addr);
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(ఫలితం == CURLE_TOO_LARGE) {
       /* Long paths are not supported for now */
-      failf(data, "Unix socket path too long: '%s'", peer->hostname);
-      result = CURLE_COULDNT_RESOLVE_HOST;
+      failf(దత్తాంశం, "Unix socket path too long: '%s'", peer->hostname);
+      ఫలితం = CURLE_COULDNT_RESOLVE_HOST;
     }
-    return result;
+    తిరిగి ఫలితం;
   }
 
-  *pdns = Curl_dnsc_mk_addr(data, 0, &addr, peer);
-  return *pdns ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  *pdns = Curl_dnsc_mk_addr(దత్తాంశం, 0, &addr, peer);
+  తిరిగి *pdns ? CURLE_OK : CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 }
-#endif /* USE_UNIX_SOCKETS */
+#అయితే_ముగింపు /* USE_UNIX_SOCKETS */
 
 /*
  * Curl_resolv() is the main name resolve function within libcurl. It resolves
@@ -1021,163 +1021,163 @@ static CURLcode resolv_unix(struct Curl_easy *data,
  * CURLE_AGAIN = resolving in progress, *pdns == NULL
  * any other CURLcode error, *pdns == NULL
  */
-CURLcode Curl_resolv(struct Curl_easy *data,
-                     struct Curl_peer *peer,
+CURLcode Curl_resolv(నిర్మాణం Curl_easy *దత్తాంశం,
+                     నిర్మాణం Curl_peer *peer,
                      uint8_t dns_queries,
                      uint8_t transport,
                      bool for_proxy,
                      timediff_t timeout_ms,
                      uint32_t *presolv_id,
-                     struct Curl_dns_entry **pdns)
+                     నిర్మాణం Curl_dns_నమోదు **pdns)
 {
   *presolv_id = 0;
-  *pdns = NULL;
+  *pdns = ఖాళీ;
 
-  if(timeout_ms < 0)
+  ఒకవేళ(timeout_ms < 0)
     /* got an already expired timeout */
-    return CURLE_OPERATION_TIMEDOUT;
-  else if(!timeout_ms)
+    తిరిగి CURLE_OPERATION_TIMEDOUT;
+  లేకపోతే ఒకవేళ(!timeout_ms)
     timeout_ms = CURL_TIMEOUT_RESOLVE_MS;
 
-#ifdef USE_UNIX_SOCKETS
-  if((dns_queries & CURL_DNSQ_ADDR) && peer->unix_socket)
-    return resolv_unix(data, peer, pdns);
-#else
-  if(peer->unix_socket)
-    return hostip_resolv_failed(data, peer, for_proxy);
-#endif
+#నిర్వచితమైతే USE_UNIX_SOCKETS
+  ఒకవేళ((dns_queries & CURL_DNSQ_ADDR) && peer->unix_socket)
+    తిరిగి resolv_unix(దత్తాంశం, peer, pdns);
+#లేకపోతే
+  ఒకవేళ(peer->unix_socket)
+    తిరిగి hostip_resolv_failed(దత్తాంశం, peer, for_proxy);
+#అయితే_ముగింపు
 
-#ifdef USE_ALARM_TIMEOUT
-  if(dns_queries & CURL_DNSQ_ADDR) {
-    if(timeout_ms && data->set.no_signal) {
+#నిర్వచితమైతే USE_ALARM_TIMEOUT
+  ఒకవేళ(dns_queries & CURL_DNSQ_ADDR) {
+    ఒకవేళ(timeout_ms && దత్తాంశం->సమితి.no_signal) {
       /* Cannot use ALARM when signals are disabled */
       timeout_ms = 0;
     }
-    if(timeout_ms && !Curl_doh_wanted(data)) {
-      return resolv_alarm_timeout(data, dns_queries, peer, transport,
+    ఒకవేళ(timeout_ms && !Curl_doh_wanted(దత్తాంశం)) {
+      తిరిగి resolv_alarm_timeout(దత్తాంశం, dns_queries, peer, transport,
                                   for_proxy, timeout_ms, presolv_id, pdns);
     }
   }
-#endif /* !USE_ALARM_TIMEOUT */
+#అయితే_ముగింపు /* !USE_ALARM_TIMEOUT */
 
-#ifndef CURLRES_ASYNCH
-  if(timeout_ms)
-    infof(data, "timeout on name lookup is not supported");
-#endif
+#నిర్వచితం_కాకపోతే CURLRES_ASYNCH
+  ఒకవేళ(timeout_ms)
+    infof(దత్తాంశం, "timeout on name lookup is not supported");
+#అయితే_ముగింపు
 
-  return hostip_resolv(data, dns_queries, peer, transport,
+  తిరిగి hostip_resolv(దత్తాంశం, dns_queries, peer, transport,
                        for_proxy, timeout_ms, TRUE, presolv_id, pdns);
 }
 
-#ifdef USE_CURL_ASYNC
+#నిర్వచితమైతే USE_CURL_ASYNC
 
-struct Curl_resolv_async *Curl_async_get(struct Curl_easy *data,
+నిర్మాణం Curl_resolv_async *Curl_async_get(నిర్మాణం Curl_easy *దత్తాంశం,
                                          uint32_t resolv_id)
 {
-  struct Curl_resolv_async *async = data->state.async;
-  for(; async; async = async->next) {
-    if(async->id == resolv_id)
-      return async;
+  నిర్మాణం Curl_resolv_async *async = దత్తాంశం->state.async;
+  కొరకు(; async; async = async->తదుపరి) {
+    ఒకవేళ(async->id == resolv_id)
+      తిరిగి async;
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-CURLcode Curl_resolv_take_result(struct Curl_easy *data, uint32_t resolv_id,
-                                 struct Curl_dns_entry **pdns)
+CURLcode Curl_resolv_take_ఫలితం(నిర్మాణం Curl_easy *దత్తాంశం, uint32_t resolv_id,
+                                 నిర్మాణం Curl_dns_నమోదు **pdns)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  CURLcode result;
+  నిర్మాణం Curl_resolv_async *async = Curl_async_get(దత్తాంశం, resolv_id);
+  CURLcode ఫలితం;
 
   /* If async resolving is ongoing, this must be set */
-  if(!async)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!async)
+    తిరిగి CURLE_FAILED_INIT;
 
   /* check if we have the name resolved by now (from someone else) */
-  result = Curl_dnscache_get(data, async->dns_queries, async->peer, pdns);
-  if(*pdns) {
+  ఫలితం = Curl_dnscache_get(దత్తాంశం, async->dns_queries, async->peer, pdns);
+  ఒకవేళ(*pdns) {
     /* Tell a possibly async resolver we no longer need the results. */
-    infof(data, "Hostname '%s' was found in DNS cache", async->peer->hostname);
-    Curl_async_shutdown(data, async);
-    return CURLE_OK;
+    infof(దత్తాంశం, "Hostname '%s' was found in DNS cache", async->peer->hostname);
+    Curl_async_shutdown(దత్తాంశం, async);
+    తిరిగి CURLE_OK;
   }
-  else if(result) {
-    Curl_async_shutdown(data, async);
-    return Curl_async_failed(data, async, NULL);
+  లేకపోతే ఒకవేళ(ఫలితం) {
+    Curl_async_shutdown(దత్తాంశం, async);
+    తిరిగి Curl_async_failed(దత్తాంశం, async, ఖాళీ);
   }
 
-  result = hostip_resolv_take_result(data, async, pdns);
+  ఫలితం = hostip_resolv_take_ఫలితం(దత్తాంశం, async, pdns);
 
-  if(*pdns) {
+  ఒకవేళ(*pdns) {
     /* Add to cache */
-    result = Curl_dnscache_add(data, *pdns);
-    if(result)
-      Curl_dns_entry_unlink(data, pdns);
+    ఫలితం = Curl_dnscache_కూడు(దత్తాంశం, *pdns);
+    ఒకవేళ(ఫలితం)
+      Curl_dns_నమోదు_unlink(దత్తాంశం, pdns);
   }
-  else if(IS_RESOLV_FAIL(result)) {
+  లేకపోతే ఒకవేళ(IS_RESOLV_FAIL(ఫలితం)) {
     /* Only cache the failure when the resolver answered that the
        name does not exist. Transient failures, e.g. an unreachable
        or overloaded DNS server or local resource shortages, say
        nothing about the name and would poison the cache for every
        transfer using it. */
-    if(async->negative_answer)
-      Curl_dnscache_add_negative(data, async->dns_queries, async->peer);
-    if(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
-      failf(data, "Could not resolve: %s:%u",
-            async->peer->hostname, async->peer->port);
+    ఒకవేళ(async->negative_answer)
+      Curl_dnscache_కూడు_negative(దత్తాంశం, async->dns_queries, async->peer);
+    ఒకవేళ(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+      failf(దత్తాంశం, "Could not resolve: %s:%u",
+            async->peer->hostname, async->peer->పోర్టు);
   }
-  else if(result) {
-    failf(data, "Error %d resolving %s:%u",
-          (int)result, async->peer->hostname, async->peer->port);
+  లేకపోతే ఒకవేళ(ఫలితం) {
+    failf(దత్తాంశం, "Error %d resolving %s:%u",
+          (పూర్ణాంకం)ఫలితం, async->peer->hostname, async->peer->పోర్టు);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_resolv_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+CURLcode Curl_resolv_pollset(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం easy_pollset *ps)
 {
-  struct Curl_resolv_async *async = data->state.async;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_resolv_async *async = దత్తాంశం->state.async;
+  CURLcode ఫలితం = CURLE_OK;
 
-  (void)ps;
-  for(; async && !result; async = async->next) {
-#ifndef CURL_DISABLE_DOH
-    if(async->doh) /* DoH has nothing for the pollset */
-      continue;
-#endif
-    result = Curl_async_pollset(data, async, ps);
+  (శూన్య)ps;
+  కొరకు(; async && !ఫలితం; async = async->తదుపరి) {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DOH
+    ఒకవేళ(async->doh) /* DoH has nothing for the pollset */
+      కొనసాగు;
+#అయితే_ముగింపు
+    ఫలితం = Curl_async_pollset(దత్తాంశం, async, ps);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-void Curl_resolv_destroy(struct Curl_easy *data, uint32_t resolv_id)
+శూన్య Curl_resolv_destroy(నిర్మాణం Curl_easy *దత్తాంశం, uint32_t resolv_id)
 {
-  struct Curl_resolv_async **panchor = &data->state.async;
+  నిర్మాణం Curl_resolv_async **panchor = &దత్తాంశం->state.async;
 
-  for(; *panchor; panchor = &(*panchor)->next) {
-    struct Curl_resolv_async *async = *panchor;
-    if(async->id == resolv_id) {
-      *panchor = async->next;
-      Curl_async_destroy(data, async);
-      break;
+  కొరకు(; *panchor; panchor = &(*panchor)->తదుపరి) {
+    నిర్మాణం Curl_resolv_async *async = *panchor;
+    ఒకవేళ(async->id == resolv_id) {
+      *panchor = async->తదుపరి;
+      Curl_async_destroy(దత్తాంశం, async);
+      ఆపు;
     }
   }
 }
 
-void Curl_resolv_shutdown_all(struct Curl_easy *data)
+శూన్య Curl_resolv_shutdown_all(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Curl_resolv_async *async = data->state.async;
-  for(; async; async = async->next) {
-    Curl_async_shutdown(data, async);
+  నిర్మాణం Curl_resolv_async *async = దత్తాంశం->state.async;
+  కొరకు(; async; async = async->తదుపరి) {
+    Curl_async_shutdown(దత్తాంశం, async);
   }
 }
 
-void Curl_resolv_destroy_all(struct Curl_easy *data)
+శూన్య Curl_resolv_destroy_all(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  while(data->state.async) {
-    struct Curl_resolv_async *async = data->state.async;
-    data->state.async = async->next;
-    Curl_async_destroy(data, async);
+  అయితే(దత్తాంశం->state.async) {
+    నిర్మాణం Curl_resolv_async *async = దత్తాంశం->state.async;
+    దత్తాంశం->state.async = async->తదుపరి;
+    Curl_async_destroy(దత్తాంశం, async);
   }
 }
 
-#endif /* USE_CURL_ASYNC */
+#అయితే_ముగింపు /* USE_CURL_ASYNC */

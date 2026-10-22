@@ -21,301 +21,301 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-#include <nghttp2/nghttp2.h>
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+#అన్తర్భావ <nghttp2/nghttp2.h>
 
-#include "urldata.h"
-#include "ngh2_shim.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "ngh2_shim.h"
 
 
-bool Curl_ngh2_valid(struct curl_ngh2 *ngh2)
+bool Curl_ngh2_valid(నిర్మాణం curl_ngh2 *ngh2)
 {
-  return ngh2->s && !ngh2->fatal_rv;
+  తిరిగి ngh2->s && !ngh2->fatal_rv;
 }
 
-bool Curl_ngh2_is_fatal(struct curl_ngh2 *ngh2, int rv)
+bool Curl_ngh2_is_fatal(నిర్మాణం curl_ngh2 *ngh2, పూర్ణాంకం rv)
 {
-  if(ngh2->fatal_rv)
-    return TRUE;
-  if(nghttp2_is_fatal(rv)) {
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి TRUE;
+  ఒకవేళ(nghttp2_is_fatal(rv)) {
     ngh2->fatal_rv = rv;
-    return TRUE;
+    తిరిగి TRUE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-int Curl_ngh2_fatal(struct curl_ngh2 *ngh2)
+పూర్ణాంకం Curl_ngh2_fatal(నిర్మాణం curl_ngh2 *ngh2)
 {
-  return ngh2->fatal_rv;
+  తిరిగి ngh2->fatal_rv;
 }
 
-static int ngh2_check(struct curl_ngh2 *ngh2, int rv)
+స్థిర పూర్ణాంకం ngh2_check(నిర్మాణం curl_ngh2 *ngh2, పూర్ణాంకం rv)
 {
-  if(nghttp2_is_fatal(rv))
+  ఒకవేళ(nghttp2_is_fatal(rv))
     ngh2->fatal_rv = rv;
-  return rv;
+  తిరిగి rv;
 }
 
-static int32_t ngh2_check32(struct curl_ngh2 *ngh2, int32_t rv)
+స్థిర int32_t ngh2_check32(నిర్మాణం curl_ngh2 *ngh2, int32_t rv)
 {
-  if((rv < 0) && nghttp2_is_fatal((int)rv))
-    ngh2->fatal_rv = (int)rv;
-  return rv;
+  ఒకవేళ((rv < 0) && nghttp2_is_fatal((పూర్ణాంకం)rv))
+    ngh2->fatal_rv = (పూర్ణాంకం)rv;
+  తిరిగి rv;
 }
 
-static ssize_t ngh2_checks(struct curl_ngh2 *ngh2, ssize_t rv)
+స్థిర ssize_t ngh2_checks(నిర్మాణం curl_ngh2 *ngh2, ssize_t rv)
 {
-  if((rv < 0) && nghttp2_is_fatal((int)rv))
-    ngh2->fatal_rv = (int)rv;
-  return rv;
+  ఒకవేళ((rv < 0) && nghttp2_is_fatal((పూర్ణాంకం)rv))
+    ngh2->fatal_rv = (పూర్ణాంకం)rv;
+  తిరిగి rv;
 }
 
-void Curl_ngh2_del(struct curl_ngh2 *ngh2)
+శూన్య Curl_ngh2_del(నిర్మాణం curl_ngh2 *ngh2)
 {
-  if(ngh2->s) {
+  ఒకవేళ(ngh2->s) {
     nghttp2_session_del(ngh2->s);
-    ngh2->s = NULL;
+    ngh2->s = ఖాళీ;
   }
 }
 
-int Curl_ngh2_submit_settings(struct curl_ngh2 *ngh2,
+పూర్ణాంకం Curl_ngh2_submit_settings(నిర్మాణం curl_ngh2 *ngh2,
                               uint8_t flags,
-                              const nghttp2_settings_entry *iv,
+                              స్థిరరాశి nghttp2_settings_నమోదు *iv,
                               size_t niv)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2, nghttp2_submit_settings(ngh2->s, flags, iv, niv));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2, nghttp2_submit_settings(ngh2->s, flags, iv, niv));
 }
 
-void *Curl_ngh2_session_get_stream_user_data(struct curl_ngh2 *ngh2,
-                                             int32_t stream_id)
+శూన్య *Curl_ngh2_session_get_ప్రవాహం_user_దత్తాంశం(నిర్మాణం curl_ngh2 *ngh2,
+                                             int32_t ప్రవాహం_id)
 {
-  if(ngh2->fatal_rv)
-    return NULL;
-  return nghttp2_session_get_stream_user_data(ngh2->s, stream_id);
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ఖాళీ;
+  తిరిగి nghttp2_session_get_ప్రవాహం_user_దత్తాంశం(ngh2->s, ప్రవాహం_id);
 }
 
-int Curl_ngh2_session_set_stream_user_data(
-  struct curl_ngh2 *ngh2, int32_t stream_id, void *stream_user_data)
+పూర్ణాంకం Curl_ngh2_session_సమితి_ప్రవాహం_user_దత్తాంశం(
+  నిర్మాణం curl_ngh2 *ngh2, int32_t ప్రవాహం_id, శూన్య *ప్రవాహం_user_దత్తాంశం)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2,
-    nghttp2_session_set_stream_user_data(
-      ngh2->s, stream_id, stream_user_data));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2,
+    nghttp2_session_సమితి_ప్రవాహం_user_దత్తాంశం(
+      ngh2->s, ప్రవాహం_id, ప్రవాహం_user_దత్తాంశం));
 }
 
 uint32_t Curl_ngh2_session_get_remote_settings(
-  struct curl_ngh2 *ngh2, nghttp2_settings_id id)
+  నిర్మాణం curl_ngh2 *ngh2, nghttp2_settings_id id)
 {
-  if(!Curl_ngh2_valid(ngh2))
-    return 0;
-  return nghttp2_session_get_remote_settings(ngh2->s, id);
+  ఒకవేళ(!Curl_ngh2_valid(ngh2))
+    తిరిగి 0;
+  తిరిగి nghttp2_session_get_remote_settings(ngh2->s, id);
 }
 
-int32_t Curl_ngh2_session_get_stream_effective_local_window_size(
-  struct curl_ngh2 *ngh2, int32_t stream_id)
+int32_t Curl_ngh2_session_get_ప్రవాహం_effective_local_కిటికీ_కొలత(
+  నిర్మాణం curl_ngh2 *ngh2, int32_t ప్రవాహం_id)
 {
-  if(ngh2->fatal_rv)
-    return 0;
-  return nghttp2_session_get_stream_effective_local_window_size(
-    ngh2->s, stream_id);
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి 0;
+  తిరిగి nghttp2_session_get_ప్రవాహం_effective_local_కిటికీ_కొలత(
+    ngh2->s, ప్రవాహం_id);
 }
 
-int32_t Curl_ngh2_session_get_local_window_size(
-  struct curl_ngh2 *ngh2)
+int32_t Curl_ngh2_session_get_local_కిటికీ_కొలత(
+  నిర్మాణం curl_ngh2 *ngh2)
 {
-  if(ngh2->fatal_rv)
-    return 0;
-  return nghttp2_session_get_local_window_size(ngh2->s);
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి 0;
+  తిరిగి nghttp2_session_get_local_కిటికీ_కొలత(ngh2->s);
 }
 
-int32_t Curl_ngh2_session_get_stream_remote_window_size(
-  struct curl_ngh2 *ngh2, int32_t stream_id)
+int32_t Curl_ngh2_session_get_ప్రవాహం_remote_కిటికీ_కొలత(
+  నిర్మాణం curl_ngh2 *ngh2, int32_t ప్రవాహం_id)
 {
-  if(ngh2->fatal_rv)
-    return 0;
-  return nghttp2_session_get_stream_remote_window_size(ngh2->s, stream_id);
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి 0;
+  తిరిగి nghttp2_session_get_ప్రవాహం_remote_కిటికీ_కొలత(ngh2->s, ప్రవాహం_id);
 }
 
-int32_t Curl_ngh2_session_get_remote_window_size(
-  struct curl_ngh2 *ngh2)
+int32_t Curl_ngh2_session_get_remote_కిటికీ_కొలత(
+  నిర్మాణం curl_ngh2 *ngh2)
 {
-  if(ngh2->fatal_rv)
-    return 0;
-  return nghttp2_session_get_remote_window_size(ngh2->s);
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి 0;
+  తిరిగి nghttp2_session_get_remote_కిటికీ_కొలత(ngh2->s);
 }
 
-int Curl_ngh2_session_set_local_window_size(
-  struct curl_ngh2 *ngh2, uint8_t flags,
-  int32_t stream_id, int32_t window_size)
+పూర్ణాంకం Curl_ngh2_session_సమితి_local_కిటికీ_కొలత(
+  నిర్మాణం curl_ngh2 *ngh2, uint8_t flags,
+  int32_t ప్రవాహం_id, int32_t కిటికీ_కొలత)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2, nghttp2_session_set_local_window_size(
-    ngh2->s, flags, stream_id, window_size));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2, nghttp2_session_సమితి_local_కిటికీ_కొలత(
+    ngh2->s, flags, ప్రవాహం_id, కిటికీ_కొలత));
 }
 
-int Curl_ngh2_submit_window_update(struct curl_ngh2 *ngh2,
+పూర్ణాంకం Curl_ngh2_submit_కిటికీ_update(నిర్మాణం curl_ngh2 *ngh2,
   uint8_t flags,
-  int32_t stream_id,
-  int32_t window_size_increment)
+  int32_t ప్రవాహం_id,
+  int32_t కిటికీ_కొలత_increment)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2, nghttp2_submit_window_update(
-    ngh2->s, flags, stream_id, window_size_increment));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2, nghttp2_submit_కిటికీ_update(
+    ngh2->s, flags, ప్రవాహం_id, కిటికీ_కొలత_increment));
 }
 
-int Curl_ngh2_submit_rst_stream(
-  struct curl_ngh2 *ngh2, uint8_t flags,
-  int32_t stream_id, uint32_t error_code)
+పూర్ణాంకం Curl_ngh2_submit_rst_ప్రవాహం(
+  నిర్మాణం curl_ngh2 *ngh2, uint8_t flags,
+  int32_t ప్రవాహం_id, uint32_t error_సంకేతం)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2, nghttp2_submit_rst_stream(
-    ngh2->s, flags, stream_id, error_code));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2, nghttp2_submit_rst_ప్రవాహం(
+    ngh2->s, flags, ప్రవాహం_id, error_సంకేతం));
 }
 
-int Curl_ngh2_session_send(struct curl_ngh2 *ngh2)
+పూర్ణాంకం Curl_ngh2_session_send(నిర్మాణం curl_ngh2 *ngh2)
 {
-  int rv;
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
+  పూర్ణాంకం rv;
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
   rv = ngh2_check(ngh2, nghttp2_session_send(ngh2->s));
   /* a callback might trigger a fatal state without session_send()
    * noticing. Check again. */
-  return ngh2->fatal_rv ? ngh2->fatal_rv : rv;
+  తిరిగి ngh2->fatal_rv ? ngh2->fatal_rv : rv;
 }
 
-int Curl_ngh2_session_client_new3(
-  struct curl_ngh2 *ngh2, const nghttp2_session_callbacks *callbacks,
-  void *user_data, const nghttp2_option *option, nghttp2_mem *mem)
+పూర్ణాంకం Curl_ngh2_session_client_new3(
+  నిర్మాణం curl_ngh2 *ngh2, స్థిరరాశి nghttp2_session_callbacks *callbacks,
+  శూన్య *user_దత్తాంశం, స్థిరరాశి nghttp2_option *option, nghttp2_mem *mem)
 {
-  if(ngh2->s)
+  ఒకవేళ(ngh2->s)
     ngh2->fatal_rv = NGHTTP2_ERR_FATAL;
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2,
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2,
     nghttp2_session_client_new3(
-      &(ngh2->s), callbacks, user_data, option, mem));
+      &(ngh2->s), callbacks, user_దత్తాంశం, option, mem));
 }
 
-int Curl_ngh2_session_want_read(struct curl_ngh2 *ngh2)
+పూర్ణాంకం Curl_ngh2_session_want_read(నిర్మాణం curl_ngh2 *ngh2)
 {
-  if(!Curl_ngh2_valid(ngh2))
-    return 0;
-  return nghttp2_session_want_read(ngh2->s);
+  ఒకవేళ(!Curl_ngh2_valid(ngh2))
+    తిరిగి 0;
+  తిరిగి nghttp2_session_want_read(ngh2->s);
 }
 
-int Curl_ngh2_session_want_write(struct curl_ngh2 *ngh2)
+పూర్ణాంకం Curl_ngh2_session_want_write(నిర్మాణం curl_ngh2 *ngh2)
 {
-  if(!Curl_ngh2_valid(ngh2))
-    return 0;
-  return nghttp2_session_want_write(ngh2->s);
+  ఒకవేళ(!Curl_ngh2_valid(ngh2))
+    తిరిగి 0;
+  తిరిగి nghttp2_session_want_write(ngh2->s);
 }
 
 ssize_t Curl_ngh2_session_mem_recv(
-  struct curl_ngh2 *ngh2, const uint8_t *in, size_t inlen)
+  నిర్మాణం curl_ngh2 *ngh2, స్థిరరాశి uint8_t *లోపల, size_t inlen)
 {
   ssize_t rv;
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  rv = ngh2_checks(ngh2, nghttp2_session_mem_recv(ngh2->s, in, inlen));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  rv = ngh2_checks(ngh2, nghttp2_session_mem_recv(ngh2->s, లోపల, inlen));
   /* the session might encounter a fatal state in a callback,
    * but session_mem_rec() might not notice and return a non-error.
    * Check again. */
-  return ngh2->fatal_rv ? ngh2->fatal_rv : rv;
+  తిరిగి ngh2->fatal_rv ? ngh2->fatal_rv : rv;
 }
 
-int Curl_ngh2_session_check_request_allowed(struct curl_ngh2 *ngh2)
+పూర్ణాంకం Curl_ngh2_session_check_request_allowed(నిర్మాణం curl_ngh2 *ngh2)
 {
-  if(!Curl_ngh2_valid(ngh2))
-    return 0;
-  return nghttp2_session_check_request_allowed(ngh2->s);
+  ఒకవేళ(!Curl_ngh2_valid(ngh2))
+    తిరిగి 0;
+  తిరిగి nghttp2_session_check_request_allowed(ngh2->s);
 }
 
-int Curl_ngh2_submit_ping(
-  struct curl_ngh2 *ngh2, uint8_t flags, const uint8_t *opaque_data)
+పూర్ణాంకం Curl_ngh2_submit_ping(
+  నిర్మాణం curl_ngh2 *ngh2, uint8_t flags, స్థిరరాశి uint8_t *opaque_దత్తాంశం)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2,
-    nghttp2_submit_ping(ngh2->s, flags, opaque_data));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2,
+    nghttp2_submit_ping(ngh2->s, flags, opaque_దత్తాంశం));
 }
 
-int32_t Curl_ngh2_session_get_stream_effective_recv_data_length(
-  struct curl_ngh2 *ngh2, int32_t stream_id)
+int32_t Curl_ngh2_session_get_ప్రవాహం_effective_recv_దత్తాంశం_నిడివి(
+  నిర్మాణం curl_ngh2 *ngh2, int32_t ప్రవాహం_id)
 {
-  if(!Curl_ngh2_valid(ngh2))
-    return 0;
-  return nghttp2_session_get_stream_effective_recv_data_length(
-    ngh2->s, stream_id);
+  ఒకవేళ(!Curl_ngh2_valid(ngh2))
+    తిరిగి 0;
+  తిరిగి nghttp2_session_get_ప్రవాహం_effective_recv_దత్తాంశం_నిడివి(
+    ngh2->s, ప్రవాహం_id);
 }
 
-int Curl_ngh2_session_resume_data(
-  struct curl_ngh2 *ngh2, int32_t stream_id)
+పూర్ణాంకం Curl_ngh2_session_resume_దత్తాంశం(
+  నిర్మాణం curl_ngh2 *ngh2, int32_t ప్రవాహం_id)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2,
-    nghttp2_session_resume_data(ngh2->s, stream_id));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2,
+    nghttp2_session_resume_దత్తాంశం(ngh2->s, ప్రవాహం_id));
 }
 
-int Curl_ngh2_session_consume(
-  struct curl_ngh2 *ngh2, int32_t stream_id, size_t size)
+పూర్ణాంకం Curl_ngh2_session_consume(
+  నిర్మాణం curl_ngh2 *ngh2, int32_t ప్రవాహం_id, size_t కొలత)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2,
-    nghttp2_session_consume(ngh2->s, stream_id, size));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2,
+    nghttp2_session_consume(ngh2->s, ప్రవాహం_id, కొలత));
 }
 
-int Curl_ngh2_submit_priority(
-  struct curl_ngh2 *ngh2, uint8_t flags,
-  int32_t stream_id, const nghttp2_priority_spec *pri_spec)
+పూర్ణాంకం Curl_ngh2_submit_ప్రాధాన్యత(
+  నిర్మాణం curl_ngh2 *ngh2, uint8_t flags,
+  int32_t ప్రవాహం_id, స్థిరరాశి nghttp2_ప్రాధాన్యత_spec *pri_spec)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2,
-    nghttp2_submit_priority(ngh2->s, flags, stream_id, pri_spec));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2,
+    nghttp2_submit_ప్రాధాన్యత(ngh2->s, flags, ప్రవాహం_id, pri_spec));
 }
 
 int32_t Curl_ngh2_submit_request(
-  struct curl_ngh2 *ngh2, const nghttp2_priority_spec *pri_spec,
-  const nghttp2_nv *nva, size_t nvlen, const nghttp2_data_provider *data_prd,
-  void *stream_user_data)
+  నిర్మాణం curl_ngh2 *ngh2, స్థిరరాశి nghttp2_ప్రాధాన్యత_spec *pri_spec,
+  స్థిరరాశి nghttp2_nv *nva, size_t nvlen, స్థిరరాశి nghttp2_దత్తాంశం_provider *దత్తాంశం_prd,
+  శూన్య *ప్రవాహం_user_దత్తాంశం)
 {
-  if(ngh2->fatal_rv)
-    return (int32_t)ngh2->fatal_rv;
-  return ngh2_check32(ngh2,
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి (int32_t)ngh2->fatal_rv;
+  తిరిగి ngh2_check32(ngh2,
     nghttp2_submit_request(ngh2->s, pri_spec, nva, nvlen,
-      data_prd, stream_user_data));
+      దత్తాంశం_prd, ప్రవాహం_user_దత్తాంశం));
 }
 
-int Curl_ngh2_session_upgrade2(
-  struct curl_ngh2 *ngh2, const uint8_t *settings_payload,
-  size_t settings_payloadlen, int head_request, void *stream_user_data)
+పూర్ణాంకం Curl_ngh2_session_upgrade2(
+  నిర్మాణం curl_ngh2 *ngh2, స్థిరరాశి uint8_t *settings_payload,
+  size_t settings_payloadlen, పూర్ణాంకం తల_request, శూన్య *ప్రవాహం_user_దత్తాంశం)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2,
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2,
     nghttp2_session_upgrade2(ngh2->s, settings_payload,
-      settings_payloadlen, head_request, stream_user_data));
+      settings_payloadlen, తల_request, ప్రవాహం_user_దత్తాంశం));
 }
 
-int Curl_ngh2_submit_goaway(
-  struct curl_ngh2 *ngh2, uint8_t flags, int32_t last_stream_id,
-  uint32_t error_code, const uint8_t *opaque_data, size_t opaque_data_len)
+పూర్ణాంకం Curl_ngh2_submit_goaway(
+  నిర్మాణం curl_ngh2 *ngh2, uint8_t flags, int32_t చివరి_ప్రవాహం_id,
+  uint32_t error_సంకేతం, స్థిరరాశి uint8_t *opaque_దత్తాంశం, size_t opaque_దత్తాంశం_len)
 {
-  if(ngh2->fatal_rv)
-    return ngh2->fatal_rv;
-  return ngh2_check(ngh2,
-    nghttp2_submit_goaway(ngh2->s, flags, last_stream_id, error_code,
-    opaque_data, opaque_data_len));
+  ఒకవేళ(ngh2->fatal_rv)
+    తిరిగి ngh2->fatal_rv;
+  తిరిగి ngh2_check(ngh2,
+    nghttp2_submit_goaway(ngh2->s, flags, చివరి_ప్రవాహం_id, error_సంకేతం,
+    opaque_దత్తాంశం, opaque_దత్తాంశం_len));
 }
 
-#endif /* !CURL_DISABLE_HTTP && USE_NGHTTP2 */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP && USE_NGHTTP2 */

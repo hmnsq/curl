@@ -22,44 +22,44 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#ఒకవేళ !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>  /* for htons() */
-#endif
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>  /* for htons() */
+#అయితే_ముగింపు
 
-#include <curl/curl.h>
-#include "urldata.h"
-#include "curlx/dynbuf.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "vquic/capsule.h"
+#అన్తర్భావ <curl/curl.h>
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curlx/dynbuf.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "bufq.h"
+#అన్తర్భావ "vquic/capsule.h"
 
 
 /**
  * Convert 64-bit value from network byte order to host byte order
  */
-static uint64_t capsule_ntohll(uint64_t value)
+స్థిర uint64_t capsule_ntohll(uint64_t విలువ)
 {
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-  return value;
-#elif (defined(__GNUC__) || defined(__clang__)) && \
+#ఒకవేళ defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+  తిరిగి విలువ;
+#లేదావేళ (defined(__GNUC__) || defined(__clang__)) && \
   defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-  return __builtin_bswap64(value);
-#else
-  union {
+  తిరిగి __builtin_bswap64(విలువ);
+#లేకపోతే
+  సంఘం {
     uint64_t u64;
     uint32_t u32[2];
   } src, dst;
 
-  src.u64 = value;
+  src.u64 = విలువ;
   dst.u32[0] = ntohl(src.u32[1]);
   dst.u32[1] = ntohl(src.u32[0]);
-  return dst.u64;
-#endif
+  తిరిగి dst.u64;
+#అయితే_ముగింపు
 }
 
 /**
@@ -68,75 +68,75 @@ static uint64_t capsule_ntohll(uint64_t value)
  * @param value Value to encode (must be <= 0x3FFFFFFFFFFFFFFF)
  * @return Number of bytes written
  */
-static size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t value)
+స్థిర size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t విలువ)
 {
-  DEBUGASSERT(value <= 0x3FFFFFFFFFFFFFFF);
+  DEBUGASSERT(విలువ <= 0x3FFFFFFFFFFFFFFF);
 
-  if(value <= 0x3F) {
-    buf[0] = (uint8_t)value;
-    return 1;
+  ఒకవేళ(విలువ <= 0x3F) {
+    buf[0] = (uint8_t)విలువ;
+    తిరిగి 1;
   }
-  else if(value <= 0x3FFF) {
-    uint16_t encoded = (uint16_t)value & 0x3FFF;
+  లేకపోతే ఒకవేళ(విలువ <= 0x3FFF) {
+    uint16_t encoded = (uint16_t)విలువ & 0x3FFF;
     encoded = ntohs(encoded | 0x4000);
-    memcpy(buf, &encoded, 2);
-    return 2;
+    జ్ఞాపకం_నకలు(buf, &encoded, 2);
+    తిరిగి 2;
   }
-  else if(value <= 0x3FFFFFFF) {
-    uint32_t encoded = (uint32_t)value & 0x3FFFFFFF;
+  లేకపోతే ఒకవేళ(విలువ <= 0x3FFFFFFF) {
+    uint32_t encoded = (uint32_t)విలువ & 0x3FFFFFFF;
     encoded = ntohl(encoded | 0x80000000);
-    memcpy(buf, &encoded, 4);
-    return 4;
+    జ్ఞాపకం_నకలు(buf, &encoded, 4);
+    తిరిగి 4;
   }
-  else {
-    uint64_t encoded = (uint64_t)value & 0x3FFFFFFFFFFFFFFF;
+  లేకపోతే {
+    uint64_t encoded = (uint64_t)విలువ & 0x3FFFFFFFFFFFFFFF;
     encoded = capsule_ntohll(encoded | 0xC000000000000000);
-    memcpy(buf, &encoded, 8);
-    return 8;
+    జ్ఞాపకం_నకలు(buf, &encoded, 8);
+    తిరిగి 8;
   }
 }
 
-static CURLcode capsule_peek_u8(struct bufq *recvbufq,
-                                size_t offset,
+స్థిర CURLcode capsule_peek_u8(నిర్మాణం bufq *recvbufq,
+                                size_t స్థానభ్రంశం,
                                 uint8_t *pbyte)
 {
-  const unsigned char *peek = NULL;
+  స్థిరరాశి గుర్తులేని అక్షరం *peek = ఖాళీ;
   size_t peeklen = 0;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &peek, &peeklen) || !peeklen)
-    return CURLE_AGAIN;
+  ఒకవేళ(!Curl_bufq_peek_at(recvbufq, స్థానభ్రంశం, &peek, &peeklen) || !peeklen)
+    తిరిగి CURLE_AGAIN;
   *pbyte = peek[0];
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode capsule_decode_varint_at(struct bufq *recvbufq,
-                                         size_t offset,
+స్థిర CURLcode capsule_decode_varint_at(నిర్మాణం bufq *recvbufq,
+                                         size_t స్థానభ్రంశం,
                                          uint64_t *pvalue,
                                          size_t *pconsumed)
 {
-  uint8_t first_byte, byte;
-  uint64_t value;
+  uint8_t మొదటి_byte, byte;
+  uint64_t విలువ;
   size_t nbytes;
   size_t i;
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  result = capsule_peek_u8(recvbufq, offset, &first_byte);
-  if(result)
-    return result;
+  ఫలితం = capsule_peek_u8(recvbufq, స్థానభ్రంశం, &మొదటి_byte);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  nbytes = (size_t)1 << (first_byte >> 6); /* 1, 2, 4 or 8 bytes */
-  value = first_byte & 0x3F;
+  nbytes = (size_t)1 << (మొదటి_byte >> 6); /* 1, 2, 4 or 8 bytes */
+  విలువ = మొదటి_byte & 0x3F;
 
-  for(i = 1; i < nbytes; ++i) {
-    result = capsule_peek_u8(recvbufq, offset + i, &byte);
-    if(result)
-      return result;
-    value = (value << 8) | byte;
+  కొరకు(i = 1; i < nbytes; ++i) {
+    ఫలితం = capsule_peek_u8(recvbufq, స్థానభ్రంశం + i, &byte);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
+    విలువ = (విలువ << 8) | byte;
   }
 
-  *pvalue = value;
+  *pvalue = విలువ;
   *pconsumed = nbytes;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /**
@@ -154,154 +154,154 @@ UNITTEST size_t capsule_encap_udp_hdr(uint8_t *hdr, size_t hdrlen,
                                       size_t payload_len)
 {
   size_t off = 0;
-  DEBUGASSERT(hdrlen >= HTTP_CAPSULE_HEADER_MAX_SIZE);
-  if(hdrlen < HTTP_CAPSULE_HEADER_MAX_SIZE)
-    return 0;
+  DEBUGASSERT(hdrlen >= HTTP_CAPSULE_శీర్షిక_MAX_కొలత);
+  ఒకవేళ(hdrlen < HTTP_CAPSULE_శీర్షిక_MAX_కొలత)
+    తిరిగి 0;
   hdr[off++] = 0; /* capsule type: HTTP Datagram */
   off += capsule_encode_varint_buf(hdr + off, (uint64_t)payload_len + 1);
   hdr[off++] = 0; /* context ID */
-  return off;
+  తిరిగి off;
 }
 
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen)
+CURLcode Curl_capsule_encap_udp_datagram(నిర్మాణం bufq *q,
+                                         స్థిరరాశి శూన్య *buf, size_t blen)
 {
-  CURLcode result;
-  uint8_t hdr[HTTP_CAPSULE_HEADER_MAX_SIZE];
+  CURLcode ఫలితం;
+  uint8_t hdr[HTTP_CAPSULE_శీర్షిక_MAX_కొలత];
   size_t hdr_len, nwritten;
 
-  hdr_len = capsule_encap_udp_hdr(hdr, sizeof(hdr), blen);
+  hdr_len = capsule_encap_udp_hdr(hdr, పరిమాణం(hdr), blen);
   DEBUGASSERT(hdr_len);
-  if(!hdr_len)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!hdr_len)
+    తిరిగి CURLE_FAILED_INIT;
 
-  result = Curl_bufq_write(q, hdr, hdr_len, &nwritten);
-  if(!result && (nwritten != hdr_len))
-    return CURLE_WRITE_ERROR;
-  if(!result) {
-    result = Curl_bufq_write(q, buf, blen, &nwritten);
-    if(!result && (nwritten != blen))
-      return CURLE_WRITE_ERROR;
+  ఫలితం = Curl_bufq_write(q, hdr, hdr_len, &nwritten);
+  ఒకవేళ(!ఫలితం && (nwritten != hdr_len))
+    తిరిగి CURLE_WRITE_ERROR;
+  ఒకవేళ(!ఫలితం) {
+    ఫలితం = Curl_bufq_write(q, buf, blen, &nwritten);
+    ఒకవేళ(!ఫలితం && (nwritten != blen))
+      తిరిగి CURLE_WRITE_ERROR;
   }
-  if(result == CURLE_AGAIN)
-    return CURLE_WRITE_ERROR;
-  return result;
+  ఒకవేళ(ఫలితం == CURLE_AGAIN)
+    తిరిగి CURLE_WRITE_ERROR;
+  తిరిగి ఫలితం;
 }
 
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం bufq *recvbufq,
+                                    గుర్తులేని అక్షరం *buf, size_t len,
                                     CURLcode *err)
 {
-  const unsigned char *context_id, *capsule_type;
-  size_t read_size, varint_len;
-  uint64_t capsule_length;
-  size_t offset, payload_len;
-  size_t bytes_read = 0;
-  CURLcode result = CURLE_OK;
+  స్థిరరాశి గుర్తులేని అక్షరం *context_id, *capsule_type;
+  size_t read_కొలత, varint_len;
+  uint64_t capsule_నిడివి;
+  size_t స్థానభ్రంశం, payload_len;
+  size_t బైట్లు_read = 0;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!len) {
-    *err = CURLE_BAD_FUNCTION_ARGUMENT;
-    return 0;
+  ఒకవేళ(!len) {
+    *err = CURLE_BAD_FUNCTION_వాదం;
+    తిరిగి 0;
   }
 
-  if(Curl_bufq_is_empty(recvbufq)) {
+  ఒకవేళ(Curl_bufq_is_ఖాళీలు(recvbufq)) {
     *err = CURLE_AGAIN;
-    return 0;
+    తిరిగి 0;
   }
 
-  if(!Curl_bufq_peek(recvbufq, &capsule_type, &read_size) || !read_size) {
+  ఒకవేళ(!Curl_bufq_peek(recvbufq, &capsule_type, &read_కొలత) || !read_కొలత) {
     *err = CURLE_AGAIN;
-    return 0;
+    తిరిగి 0;
   }
 
-  if(capsule_type[0]) {
-    infof(data, "Error! Invalid capsule type: %d", capsule_type[0]);
+  ఒకవేళ(capsule_type[0]) {
+    infof(దత్తాంశం, "Error! Invalid capsule type: %d", capsule_type[0]);
     Curl_bufq_skip(recvbufq, 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    తిరిగి 0;
   }
 
-  offset = 1;
-  result = capsule_decode_varint_at(recvbufq, offset, &capsule_length,
+  స్థానభ్రంశం = 1;
+  ఫలితం = capsule_decode_varint_at(recvbufq, స్థానభ్రంశం, &capsule_నిడివి,
                                     &varint_len);
-  if(result == CURLE_AGAIN) {
+  ఒకవేళ(ఫలితం == CURLE_AGAIN) {
     *err = CURLE_AGAIN;
-    return 0;
+    తిరిగి 0;
   }
-  else if(result) {
+  లేకపోతే ఒకవేళ(ఫలితం) {
     *err = CURLE_RECV_ERROR;
-    return 0;
+    తిరిగి 0;
   }
-  offset += varint_len;
+  స్థానభ్రంశం += varint_len;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &context_id, &read_size) ||
-     !read_size) {
+  ఒకవేళ(!Curl_bufq_peek_at(recvbufq, స్థానభ్రంశం, &context_id, &read_కొలత) ||
+     !read_కొలత) {
     *err = CURLE_AGAIN;
-    return 0;
+    తిరిగి 0;
   }
 
-  if(*context_id) {
-    infof(data, "Error! Invalid context ID: %02x", *context_id);
-    Curl_bufq_skip(recvbufq, offset + 1);
+  ఒకవేళ(*context_id) {
+    infof(దత్తాంశం, "Error! Invalid context ID: %02x", *context_id);
+    Curl_bufq_skip(recvbufq, స్థానభ్రంశం + 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    తిరిగి 0;
   }
-  offset += 1;
+  స్థానభ్రంశం += 1;
 
-  if(!capsule_length) {
-    infof(data, "Error! Invalid capsule length: 0");
-    Curl_bufq_skip(recvbufq, offset);
+  ఒకవేళ(!capsule_నిడివి) {
+    infof(దత్తాంశం, "Error! Invalid capsule length: 0");
+    Curl_bufq_skip(recvbufq, స్థానభ్రంశం);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    తిరిగి 0;
   }
-  if(capsule_length - 1 > (uint64_t)(SIZE_MAX - offset)) {
-    infof(data, "Error! Capsule length too large: %" CURL_FORMAT_CURL_OFF_T,
-          (curl_off_t)capsule_length);
+  ఒకవేళ(capsule_నిడివి - 1 > (uint64_t)(SIZE_MAX - స్థానభ్రంశం)) {
+    infof(దత్తాంశం, "Error! Capsule length too large: %" CURL_FORMAT_CURL_OFF_T,
+          (curl_off_t)capsule_నిడివి);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    తిరిగి 0;
   }
-  payload_len = (size_t)(capsule_length - 1);
+  payload_len = (size_t)(capsule_నిడివి - 1);
 
-  if(payload_len > len) {
-    infof(data, "UDP payload does not fit destination buffer: %zu > %zu",
+  ఒకవేళ(payload_len > len) {
+    infof(దత్తాంశం, "UDP payload does not fit destination buffer: %zu > %zu",
           payload_len, len);
-    Curl_bufq_skip(recvbufq, offset + payload_len);
+    Curl_bufq_skip(recvbufq, స్థానభ్రంశం + payload_len);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    తిరిగి 0;
   }
 
-  if(Curl_bufq_len(recvbufq) < offset + payload_len) {
-    if(Curl_bufq_is_full(recvbufq)) {
-      infof(data, "Error! Capsule does not fit the receive buffer: %zu",
+  ఒకవేళ(Curl_bufq_len(recvbufq) < స్థానభ్రంశం + payload_len) {
+    ఒకవేళ(Curl_bufq_is_నిండిన(recvbufq)) {
+      infof(దత్తాంశం, "Error! Capsule does not fit the receive buffer: %zu",
             payload_len);
       *err = CURLE_RECV_ERROR;
-      return 0;
+      తిరిగి 0;
     }
     *err = CURLE_AGAIN;
-    return 0;
+    తిరిగి 0;
   }
 
-  Curl_bufq_skip(recvbufq, offset);
-  if(!payload_len) {
+  Curl_bufq_skip(recvbufq, స్థానభ్రంశం);
+  ఒకవేళ(!payload_len) {
     *err = CURLE_OK;
-    return 0;
+    తిరిగి 0;
   }
-  result = Curl_bufq_read(recvbufq, buf, payload_len, &bytes_read);
-  if(result || (bytes_read != payload_len)) {
-    infof(data, "Error! Read less than expected %zu %zu",
-          payload_len, bytes_read);
+  ఫలితం = Curl_bufq_read(recvbufq, buf, payload_len, &బైట్లు_read);
+  ఒకవేళ(ఫలితం || (బైట్లు_read != payload_len)) {
+    infof(దత్తాంశం, "Error! Read less than expected %zu %zu",
+          payload_len, బైట్లు_read);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    తిరిగి 0;
   }
 
-  if(cf && data) {
-    CURL_TRC_CF(data, cf, "Processed UDP capsule raw: size=%zu "
+  ఒకవేళ(cf && దత్తాంశం) {
+    CURL_TRC_CF(దత్తాంశం, cf, "Processed UDP capsule raw: size=%zu "
                 "length_left %zu", payload_len, Curl_bufq_len(recvbufq));
   }
   *err = CURLE_OK;
-  return bytes_read;
+  తిరిగి బైట్లు_read;
 }
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

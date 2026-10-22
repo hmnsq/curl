@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_UINT_SPBSET_H
-#define HEADER_CURL_UINT_SPBSET_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_UINT_SPBSET_H
+#నిర్వచించు శీర్షిక_CURL_UINT_SPBSET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
 /* A "sparse" bitset for uint32_t values.
  * It can hold any uint32_t value.
@@ -34,45 +34,45 @@
  */
 
 /* 4 slots = 256 bits, keep this a 2^n value. */
-#define CURL_UINT32_SPBSET_CH_SLOTS  4
-#define CURL_UINT32_SPBSET_CH_MASK   ((CURL_UINT32_SPBSET_CH_SLOTS * 64) - 1)
+#నిర్వచించు CURL_UINT32_SPBSET_CH_SLOTS  4
+#నిర్వచించు CURL_UINT32_SPBSET_CH_ముసుగు   ((CURL_UINT32_SPBSET_CH_SLOTS * 64) - 1)
 
 /* store the uint value from offset to
  * (offset + (CURL_UINT32_SPBSET_CHUNK_SLOTS * 64) - 1 */
-struct uint32_spbset_chunk {
-  struct uint32_spbset_chunk *next;
+నిర్మాణం uint32_spbset_chunk {
+  నిర్మాణం uint32_spbset_chunk *తదుపరి;
   uint64_t slots[CURL_UINT32_SPBSET_CH_SLOTS];
-  uint32_t offset;
+  uint32_t స్థానభ్రంశం;
 };
 
-struct uint32_spbset {
-  struct uint32_spbset_chunk head;
-#ifdef DEBUGBUILD
-  int init;
-#endif
+నిర్మాణం uint32_spbset {
+  నిర్మాణం uint32_spbset_chunk తల;
+#నిర్వచితమైతే DEBUGBUILD
+  పూర్ణాంకం init;
+#అయితే_ముగింపు
 };
 
-void Curl_uint32_spbset_init(struct uint32_spbset *bset);
+శూన్య Curl_uint32_spbset_init(నిర్మాణం uint32_spbset *bset);
 
-void Curl_uint32_spbset_destroy(struct uint32_spbset *bset);
+శూన్య Curl_uint32_spbset_destroy(నిర్మాణం uint32_spbset *bset);
 
 /* Get the cardinality of the bitset, e.g. numbers present in the set. */
-uint32_t Curl_uint32_spbset_count(struct uint32_spbset *bset);
+uint32_t Curl_uint32_spbset_లెక్క(నిర్మాణం uint32_spbset *bset);
 
 /* Add the number `i` to the bitset.
  * Numbers can be added more than once, without making a difference.
  * Returns FALSE if allocations failed. */
-bool Curl_uint32_spbset_add(struct uint32_spbset *bset, uint32_t i);
+bool Curl_uint32_spbset_కూడు(నిర్మాణం uint32_spbset *bset, uint32_t i);
 
 /* Remove the number `i` from the bitset. */
-void Curl_uint32_spbset_remove(struct uint32_spbset *bset, uint32_t i);
+శూన్య Curl_uint32_spbset_remove(నిర్మాణం uint32_spbset *bset, uint32_t i);
 
 /* Return TRUE if the bitset contains number `i`. */
-bool Curl_uint32_spbset_contains(struct uint32_spbset *bset, uint32_t i);
+bool Curl_uint32_spbset_కలిగియుంది(నిర్మాణం uint32_spbset *bset, uint32_t i);
 
 /* Get the first number in the bitset, e.g. the smallest.
  * Returns FALSE when the bitset is empty. */
-bool Curl_uint32_spbset_first(struct uint32_spbset *bset, uint32_t *pfirst);
+bool Curl_uint32_spbset_మొదటి(నిర్మాణం uint32_spbset *bset, uint32_t *pfirst);
 
 /* Get the next number in the bitset, following `last` in natural order.
  * Put another way, this is the smallest number greater than `last` in
@@ -85,7 +85,7 @@ bool Curl_uint32_spbset_first(struct uint32_spbset *bset, uint32_t *pfirst);
  * - added numbers lower than 'last' will not show up.
  * - removed numbers lower or equal to 'last' will not show up.
  * - removed numbers higher than 'last' will not be visited. */
-bool Curl_uint32_spbset_next(struct uint32_spbset *bset, uint32_t last,
+bool Curl_uint32_spbset_తదుపరి(నిర్మాణం uint32_spbset *bset, uint32_t చివరి,
                              uint32_t *pnext);
 
-#endif /* HEADER_CURL_UINT_SPBSET_H */
+#అయితే_ముగింపు /* HEADER_CURL_UINT_SPBSET_H */

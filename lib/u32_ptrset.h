@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_U32_PTRSET_H
-#define HEADER_CURL_U32_PTRSET_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_U32_PTRSET_H
+#నిర్వచించు శీర్షిక_CURL_U32_PTRSET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,48 +23,48 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-typedef void Curl_u32_ptrset_dtor(uint32_t id, void *ptr);
+రకనిర్వచనం శూన్య Curl_u32_ptrset_dtor(uint32_t id, శూన్య *ptr);
 
 /* A set that can hold up to INT32_MAX+1 pointers identified by an `id'.
  * Setting a pointer for an existing id replaces the previous one.
  * Getting the pointer for an id not in the set returns NULL.
  * Setting an id to NULL unsets the id.
  */
-struct u32_ptrset {
-  void **data; /* #slots array of pointers */
+నిర్మాణం u32_ptrset {
+  శూన్య **దత్తాంశం; /* #slots array of pointers */
   uint32_t *ids; /* #slots array of `id` values */
   uint32_t *psl; /* #slots array of "probe sequence length" values */
   uint32_t slotmask;
-  uint32_t count;
+  uint32_t లెక్క;
   Curl_u32_ptrset_dtor *dtor;
   uint8_t slotbits;
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   int32_t init;
-#endif
+#అయితే_ముగింపు
 };
 
-void Curl_u32_ptrset_init(struct u32_ptrset *set,
+శూన్య Curl_u32_ptrset_init(నిర్మాణం u32_ptrset *సమితి,
                           Curl_u32_ptrset_dtor *dtor);
-void Curl_u32_ptrset_clear(struct u32_ptrset *set);
+శూన్య Curl_u32_ptrset_clear(నిర్మాణం u32_ptrset *సమితి);
 
-uint32_t Curl_u32_ptrset_count(struct u32_ptrset *set);
+uint32_t Curl_u32_ptrset_లెక్క(నిర్మాణం u32_ptrset *సమితి);
 
-void *Curl_u32_ptrset_get(struct u32_ptrset *set, uint32_t id);
+శూన్య *Curl_u32_ptrset_get(నిర్మాణం u32_ptrset *సమితి, uint32_t id);
 
 /* Set pointer for id. */
-CURLcode Curl_u32_ptrset_set(struct u32_ptrset *set,
-                             uint32_t id, void *ptr);
+CURLcode Curl_u32_ptrset_సమితి(నిర్మాణం u32_ptrset *సమితి,
+                             uint32_t id, శూన్య *ptr);
 
-void Curl_u32_ptrset_unset(struct u32_ptrset *set, uint32_t id);
+శూన్య Curl_u32_ptrset_unset(నిర్మాణం u32_ptrset *సమితి, uint32_t id);
 
-typedef bool Curl_u32_ptrset_visit_cb(uint32_t id, void *ptr,
-                                       void *user_data);
+రకనిర్వచనం bool Curl_u32_ptrset_సందర్శించు_cb(uint32_t id, శూన్య *ptr,
+                                       శూన్య *user_దత్తాంశం);
 
 /* Visit all entries in the set until the callback returns FALSE */
-void Curl_u32_ptrset_visit(struct u32_ptrset *set,
-                            Curl_u32_ptrset_visit_cb *cb,
-                            void *user_data);
+శూన్య Curl_u32_ptrset_సందర్శించు(నిర్మాణం u32_ptrset *సమితి,
+                            Curl_u32_ptrset_సందర్శించు_cb *cb,
+                            శూన్య *user_దత్తాంశం);
 
-#endif /* HEADER_CURL_U32_PTRSET_H */
+#అయితే_ముగింపు /* HEADER_CURL_U32_PTRSET_H */

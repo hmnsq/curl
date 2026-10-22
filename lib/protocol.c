@@ -21,594 +21,594 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "protocol.h"
-#include "strcase.h"
+#అన్తర్భావ "protocol.h"
+#అన్తర్భావ "strcase.h"
 
-#include "dict.h"
-#include "file.h"
-#include "ftp.h"
-#include "gopher.h"
-#include "http.h"
-#include "imap.h"
-#include "curl_ldap.h"
-#include "mqtt.h"
-#include "pop3.h"
-#include "rtsp.h"
-#include "smtp.h"
-#include "telnet.h"
-#include "tftp.h"
-#include "ws.h"
-#include "vssh/ssh.h"
+#అన్తర్భావ "dict.h"
+#అన్తర్భావ "file.h"
+#అన్తర్భావ "ftp.h"
+#అన్తర్భావ "gopher.h"
+#అన్తర్భావ "http.h"
+#అన్తర్భావ "imap.h"
+#అన్తర్భావ "curl_ldap.h"
+#అన్తర్భావ "mqtt.h"
+#అన్తర్భావ "pop3.h"
+#అన్తర్భావ "rtsp.h"
+#అన్తర్భావ "smtp.h"
+#అన్తర్భావ "telnet.h"
+#అన్తర్భావ "tftp.h"
+#అన్తర్భావ "ws.h"
+#అన్తర్భావ "vssh/ssh.h"
 
 
 /* All URI schemes known to libcurl, but not necessarily implemented
  * by protocol handlers. */
-const struct Curl_scheme Curl_scheme_dict = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_dict = {
   "dict",                               /* scheme */
-#ifdef CURL_DISABLE_DICT
+#నిర్వచితమైతే CURL_DISABLE_DICT
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_dict,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_DICT,                       /* protocol */
   CURLPROTO_DICT,                       /* family */
   PROTOPT_NONE | PROTOPT_NOURLQUERY,    /* flags */
-  PORT_DICT,                            /* defport */
+  పోర్టు_DICT,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_file = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_file = {
   "file",                               /* scheme */
-#ifdef CURL_DISABLE_FILE
+#నిర్వచితమైతే CURL_DISABLE_FILE
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_file,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_FILE,                       /* protocol */
   CURLPROTO_FILE,                       /* family */
   PROTOPT_NONETWORK | PROTOPT_NOURLQUERY, /* flags */
   0                                     /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ftp = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_ftp = {
   "ftp",                           /* scheme */
-#ifdef CURL_DISABLE_FTP
+#నిర్వచితమైతే CURL_DISABLE_FTP
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_ftp,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_FTP,                   /* protocol */
   CURLPROTO_FTP,                   /* family */
   PROTOPT_DUAL | PROTOPT_CLOSEACTION | PROTOPT_NEEDSPWD |
   PROTOPT_NOURLQUERY | PROTOPT_PROXY_AS_HTTP |
   PROTOPT_WILDCARD | PROTOPT_SSL_REUSE |
   PROTOPT_CONN_REUSE, /* flags */
-  PORT_FTP,                        /* defport */
+  పోర్టు_FTP,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ftps = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_ftps = {
   "ftps",                          /* scheme */
-#if defined(CURL_DISABLE_FTP) || !defined(USE_SSL)
+#ఒకవేళ defined(CURL_DISABLE_FTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_ftp,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_FTPS,                  /* protocol */
   CURLPROTO_FTP,                   /* family */
   PROTOPT_SSL | PROTOPT_DUAL | PROTOPT_CLOSEACTION |
   PROTOPT_NEEDSPWD | PROTOPT_NOURLQUERY | PROTOPT_WILDCARD |
   PROTOPT_CONN_REUSE, /* flags */
-  PORT_FTPS,                       /* defport */
+  పోర్టు_FTPS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_gopher = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_gopher = {
   "gopher",                             /* scheme */
-#ifdef CURL_DISABLE_GOPHER
+#నిర్వచితమైతే CURL_DISABLE_GOPHER
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_gopher,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_GOPHER,                     /* protocol */
   CURLPROTO_GOPHER,                     /* family */
   PROTOPT_NONE,                         /* flags */
-  PORT_GOPHER,                          /* defport */
+  పోర్టు_GOPHER,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_gophers = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_gophers = {
   "gophers",                            /* scheme */
-#if defined(CURL_DISABLE_GOPHER) || !defined(USE_SSL)
+#ఒకవేళ defined(CURL_DISABLE_GOPHER) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_gophers,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_GOPHERS,                    /* protocol */
   CURLPROTO_GOPHER,                     /* family */
   PROTOPT_SSL,                          /* flags */
-  PORT_GOPHER,                          /* defport */
+  పోర్టు_GOPHER,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_http = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_http = {
   "http",                               /* scheme */
-#ifdef CURL_DISABLE_HTTP
+#నిర్వచితమైతే CURL_DISABLE_HTTP
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_http,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_HTTP,                       /* protocol */
   CURLPROTO_HTTP,                       /* family */
   PROTOPT_CREDSPERREQUEST |             /* flags */
   PROTOPT_USERPWDCTRL | PROTOPT_CONN_REUSE,
-  PORT_HTTP,                            /* defport */
+  పోర్టు_HTTP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_https = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_https = {
   "https",                              /* scheme */
-#if defined(CURL_DISABLE_HTTP) || !defined(USE_SSL)
+#ఒకవేళ defined(CURL_DISABLE_HTTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_http,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_HTTPS,                      /* protocol */
   CURLPROTO_HTTP,                       /* family */
   PROTOPT_SSL | PROTOPT_CREDSPERREQUEST | PROTOPT_ALPN | /* flags */
   PROTOPT_USERPWDCTRL | PROTOPT_CONN_REUSE |
   PROTOPT_HTTP_PROXY_TUNNEL,
-  PORT_HTTPS,                           /* defport */
+  పోర్టు_HTTPS,                           /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_imap = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_imap = {
   "imap",                           /* scheme */
-#ifdef CURL_DISABLE_IMAP
+#నిర్వచితమైతే CURL_DISABLE_IMAP
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_imap,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_IMAP,                   /* protocol */
   CURLPROTO_IMAP,                   /* family */
   PROTOPT_CLOSEACTION |             /* flags */
   PROTOPT_URLOPTIONS | PROTOPT_SSL_REUSE |
   PROTOPT_CONN_REUSE,
-  PORT_IMAP,                        /* defport */
+  పోర్టు_IMAP,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_imaps = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_imaps = {
   "imaps",                          /* scheme */
-#if defined(CURL_DISABLE_IMAP) || !defined(USE_SSL)
+#ఒకవేళ defined(CURL_DISABLE_IMAP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_imap,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_IMAPS,                  /* protocol */
   CURLPROTO_IMAP,                   /* family */
   PROTOPT_CLOSEACTION | PROTOPT_SSL | /* flags */
   PROTOPT_URLOPTIONS | PROTOPT_CONN_REUSE,
-  PORT_IMAPS,                       /* defport */
+  పోర్టు_IMAPS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ldap = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_ldap = {
   "ldap",                               /* scheme */
-#ifdef CURL_DISABLE_LDAP
+#నిర్వచితమైతే CURL_DISABLE_LDAP
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_ldap,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_LDAP,                       /* protocol */
   CURLPROTO_LDAP,                       /* family */
   PROTOPT_SSL_REUSE,                    /* flags */
-  PORT_LDAP,                            /* defport */
+  పోర్టు_LDAP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ldaps = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_ldaps = {
   "ldaps",                              /* scheme */
-#if defined(CURL_DISABLE_LDAP) || !defined(HAVE_LDAP_SSL)
+#ఒకవేళ defined(CURL_DISABLE_LDAP) || !defined(HAVE_LDAP_SSL)
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_ldap,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_LDAPS,                      /* protocol */
   CURLPROTO_LDAP,                       /* family */
   PROTOPT_SSL,                          /* flags */
-  PORT_LDAPS,                           /* defport */
+  పోర్టు_LDAPS,                           /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_mqtt = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_mqtt = {
   "mqtt",                             /* scheme */
-#ifdef CURL_DISABLE_MQTT
+#నిర్వచితమైతే CURL_DISABLE_MQTT
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_mqtt,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_MQTT,                     /* protocol */
   CURLPROTO_MQTT,                     /* family */
   PROTOPT_NONE,                       /* flags */
-  PORT_MQTT,                          /* defport */
+  పోర్టు_MQTT,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_mqtts = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_mqtts = {
   "mqtts",                            /* scheme */
-#if defined(CURL_DISABLE_MQTT) || !defined(USE_SSL)
+#ఒకవేళ defined(CURL_DISABLE_MQTT) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_mqtts,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_MQTTS,                    /* protocol */
   CURLPROTO_MQTT,                     /* family */
   PROTOPT_SSL,                        /* flags */
-  PORT_MQTTS,                         /* defport */
+  పోర్టు_MQTTS,                         /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_pop3 = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_pop3 = {
   "pop3",                           /* scheme */
-#ifdef CURL_DISABLE_POP3
+#నిర్వచితమైతే CURL_DISABLE_POP3
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_pop3,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_POP3,                   /* protocol */
   CURLPROTO_POP3,                   /* family */
   PROTOPT_CLOSEACTION | PROTOPT_NOURLQUERY | /* flags */
   PROTOPT_URLOPTIONS | PROTOPT_SSL_REUSE | PROTOPT_CONN_REUSE,
-  PORT_POP3,                        /* defport */
+  పోర్టు_POP3,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_pop3s = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_pop3s = {
   "pop3s",                          /* scheme */
-#if defined(CURL_DISABLE_POP3) || !defined(USE_SSL)
+#ఒకవేళ defined(CURL_DISABLE_POP3) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_pop3,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_POP3S,                  /* protocol */
   CURLPROTO_POP3,                   /* family */
   PROTOPT_CLOSEACTION | PROTOPT_SSL | /* flags */
   PROTOPT_NOURLQUERY | PROTOPT_URLOPTIONS | PROTOPT_CONN_REUSE,
-  PORT_POP3S,                       /* defport */
+  పోర్టు_POP3_S,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_rtsp = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_rtsp = {
   "rtsp",                               /* scheme */
-#ifdef CURL_DISABLE_RTSP
+#నిర్వచితమైతే CURL_DISABLE_RTSP
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_rtsp,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_RTSP,                       /* protocol */
   CURLPROTO_RTSP,                       /* family */
   PROTOPT_CONN_REUSE,                   /* flags */
-  PORT_RTSP,                            /* defport */
+  పోర్టు_RTSP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_sftp = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_sftp = {
   "sftp",                               /* scheme */
-#ifndef USE_SSH
-  NULL,
-#else
+#నిర్వచితం_కాకపోతే USE_SSH
+  ఖాళీ,
+#లేకపోతే
   &Curl_protocol_sftp,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_SFTP,                       /* protocol */
   CURLPROTO_SFTP,                       /* family */
   PROTOPT_DIRLOCK | PROTOPT_CLOSEACTION | /* flags */
   PROTOPT_NOURLQUERY | PROTOPT_CONN_REUSE,
-  PORT_SSH                              /* defport */
+  పోర్టు_SSH                              /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_scp = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_scp = {
   "scp",                                /* scheme */
-#ifndef USE_SSH
-  NULL,
-#else
+#నిర్వచితం_కాకపోతే USE_SSH
+  ఖాళీ,
+#లేకపోతే
   &Curl_protocol_scp,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_SCP,                        /* protocol */
   CURLPROTO_SCP,                        /* family */
   PROTOPT_DIRLOCK | PROTOPT_CLOSEACTION | /* flags */
   PROTOPT_NOURLQUERY | PROTOPT_CONN_REUSE,
-  PORT_SSH,                             /* defport */
+  పోర్టు_SSH,                             /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_smtp = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_smtp = {
   "smtp",                           /* scheme */
-#ifdef CURL_DISABLE_SMTP
+#నిర్వచితమైతే CURL_DISABLE_SMTP
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_smtp,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_SMTP,                   /* protocol */
   CURLPROTO_SMTP,                   /* family */
   PROTOPT_CLOSEACTION | PROTOPT_NOURLQUERY | /* flags */
   PROTOPT_URLOPTIONS | PROTOPT_SSL_REUSE | PROTOPT_CONN_REUSE,
-  PORT_SMTP,                        /* defport */
+  పోర్టు_SMTP,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_smtps = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_smtps = {
   "smtps",                          /* scheme */
-#if defined(CURL_DISABLE_SMTP) || !defined(USE_SSL)
+#ఒకవేళ defined(CURL_DISABLE_SMTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_smtp,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_SMTPS,                  /* protocol */
   CURLPROTO_SMTP,                   /* family */
   PROTOPT_CLOSEACTION | PROTOPT_SSL | /* flags */
   PROTOPT_NOURLQUERY | PROTOPT_URLOPTIONS | PROTOPT_CONN_REUSE,
-  PORT_SMTPS,                       /* defport */
+  పోర్టు_SMTPS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_socks = {
   "socks",                          /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
   CURLPROTO_SOCKS,                  /* family */
   PROTOPT_NO_TRANSFER,              /* flags */
-  PORT_SOCKS,                       /* defport */
+  పోర్టు_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks4 = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_socks4 = {
   "socks4",                         /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
   CURLPROTO_SOCKS,                  /* family */
   PROTOPT_NO_TRANSFER,              /* flags */
-  PORT_SOCKS,                       /* defport */
+  పోర్టు_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks4a = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_socks4a = {
   "socks4a",                        /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
   CURLPROTO_SOCKS,                  /* family */
   PROTOPT_NO_TRANSFER,              /* flags */
-  PORT_SOCKS,                       /* defport */
+  పోర్టు_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks5 = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_socks5 = {
   "socks5",                         /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
   CURLPROTO_SOCKS,                  /* family */
   PROTOPT_NO_TRANSFER,              /* flags */
-  PORT_SOCKS,                       /* defport */
+  పోర్టు_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks5h = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_socks5h = {
   "socks5h",                         /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
   CURLPROTO_SOCKS,                  /* family */
   PROTOPT_NO_TRANSFER,              /* flags */
-  PORT_SOCKS,                       /* defport */
+  పోర్టు_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_telnet = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_telnet = {
   "telnet",                             /* scheme */
-#ifdef CURL_DISABLE_TELNET
+#నిర్వచితమైతే CURL_DISABLE_TELNET
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_telnet,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_TELNET,                     /* protocol */
   CURLPROTO_TELNET,                     /* family */
   PROTOPT_NONE | PROTOPT_NOURLQUERY,    /* flags */
-  PORT_TELNET,                          /* defport */
+  పోర్టు_TELNET,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_tftp = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_tftp = {
   "tftp",                               /* scheme */
-#ifdef CURL_DISABLE_TFTP
+#నిర్వచితమైతే CURL_DISABLE_TFTP
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_tftp,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_TFTP,                       /* protocol */
   CURLPROTO_TFTP,                       /* family */
   PROTOPT_NOTCPPROXY | PROTOPT_NOURLQUERY, /* flags */
-  PORT_TFTP,                            /* defport */
+  పోర్టు_TFTP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ws = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_ws = {
   "ws",                                 /* scheme */
-#if defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP)
+#ఒకవేళ defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP)
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_ws,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_WS,                         /* protocol */
   CURLPROTO_HTTP,                       /* family */
   PROTOPT_CREDSPERREQUEST |             /* flags */
   PROTOPT_USERPWDCTRL | PROTOPT_HTTP_PROXY_TUNNEL,
-  PORT_HTTP                             /* defport */
+  పోర్టు_HTTP                             /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_wss = {
+స్థిరరాశి నిర్మాణం Curl_scheme Curl_scheme_wss = {
   "wss",                                /* scheme */
-#if defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP) || \
+#ఒకవేళ defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP) || \
   !defined(USE_SSL)
   ZERO_NULL,
-#else
+#లేకపోతే
   &Curl_protocol_ws,
-#endif
+#అయితే_ముగింపు
   CURLPROTO_WSS,                        /* protocol */
   CURLPROTO_HTTP,                       /* family */
   PROTOPT_SSL | PROTOPT_CREDSPERREQUEST | /* flags */
   PROTOPT_USERPWDCTRL | PROTOPT_HTTP_PROXY_TUNNEL,
-  PORT_HTTPS                            /* defport */
+  పోర్టు_HTTPS                            /* defport */
 };
 
-static const struct Curl_scheme *two_letter_scheme(const char *scheme)
+స్థిర స్థిరరాశి నిర్మాణం Curl_scheme *two_letter_scheme(స్థిరరాశి అక్షరం *scheme)
 {
-  if((Curl_raw_tolower(scheme[0]) == 'w') &&
+  ఒకవేళ((Curl_raw_tolower(scheme[0]) == 'w') &&
      (Curl_raw_tolower(scheme[1]) == 's'))
-    return &Curl_scheme_ws;
-  return NULL;
+    తిరిగి &Curl_scheme_ws;
+  తిరిగి ఖాళీ;
 }
 
-static const struct Curl_scheme *three_letter_scheme(const char *scheme)
+స్థిర స్థిరరాశి నిర్మాణం Curl_scheme *three_letter_scheme(స్థిరరాశి అక్షరం *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  char s1 = Curl_raw_tolower(scheme[1]);
-  char s2 = Curl_raw_tolower(scheme[2]);
-  if(s0 == 'f') {
-    if(s1 == 't' && s2 == 'p')
-      return &Curl_scheme_ftp;
+  అక్షరం s0 = Curl_raw_tolower(scheme[0]);
+  అక్షరం s1 = Curl_raw_tolower(scheme[1]);
+  అక్షరం s2 = Curl_raw_tolower(scheme[2]);
+  ఒకవేళ(s0 == 'f') {
+    ఒకవేళ(s1 == 't' && s2 == 'p')
+      తిరిగి &Curl_scheme_ftp;
   }
-  else if(s0 == 'w') {
-    if(s1 == 's' && s2 == 's')
-      return &Curl_scheme_wss;
+  లేకపోతే ఒకవేళ(s0 == 'w') {
+    ఒకవేళ(s1 == 's' && s2 == 's')
+      తిరిగి &Curl_scheme_wss;
   }
-  else if(s0 == 's') {
-    if(s1 == 'c' && s2 == 'p')
-      return &Curl_scheme_scp;
+  లేకపోతే ఒకవేళ(s0 == 's') {
+    ఒకవేళ(s1 == 'c' && s2 == 'p')
+      తిరిగి &Curl_scheme_scp;
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-static const struct Curl_scheme *four_letter_scheme(const char *scheme)
+స్థిర స్థిరరాశి నిర్మాణం Curl_scheme *four_letter_scheme(స్థిరరాశి అక్షరం *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  char s1 = Curl_raw_tolower(scheme[1]);
-  char s2 = Curl_raw_tolower(scheme[2]);
-  char s3 = Curl_raw_tolower(scheme[3]);
-  if(s3 == 'p') {
-    if(s0 == 'h') {
-      if(s1 == 't' && s2 == 't')
-        return &Curl_scheme_http;
+  అక్షరం s0 = Curl_raw_tolower(scheme[0]);
+  అక్షరం s1 = Curl_raw_tolower(scheme[1]);
+  అక్షరం s2 = Curl_raw_tolower(scheme[2]);
+  అక్షరం s3 = Curl_raw_tolower(scheme[3]);
+  ఒకవేళ(s3 == 'p') {
+    ఒకవేళ(s0 == 'h') {
+      ఒకవేళ(s1 == 't' && s2 == 't')
+        తిరిగి &Curl_scheme_http;
     }
-    else if(s0 == 'i') {
-      if(s1 == 'm' && s2 == 'a')
-        return &Curl_scheme_imap;
+    లేకపోతే ఒకవేళ(s0 == 'i') {
+      ఒకవేళ(s1 == 'm' && s2 == 'a')
+        తిరిగి &Curl_scheme_imap;
     }
-    else if(s0 == 'l') {
-      if(s1 == 'd' && s2 == 'a')
-        return &Curl_scheme_ldap;
+    లేకపోతే ఒకవేళ(s0 == 'l') {
+      ఒకవేళ(s1 == 'd' && s2 == 'a')
+        తిరిగి &Curl_scheme_ldap;
     }
-    else if(s0 == 'r') {
-      if(s1 == 't' && s2 == 's')
-        return &Curl_scheme_rtsp;
+    లేకపోతే ఒకవేళ(s0 == 'r') {
+      ఒకవేళ(s1 == 't' && s2 == 's')
+        తిరిగి &Curl_scheme_rtsp;
     }
-    else if(s0 == 't') {
-      if(s1 == 'f' && s2 == 't')
-        return &Curl_scheme_tftp;
+    లేకపోతే ఒకవేళ(s0 == 't') {
+      ఒకవేళ(s1 == 'f' && s2 == 't')
+        తిరిగి &Curl_scheme_tftp;
     }
-    else if(s0 == 's') {
-      if(s1 == 'f' && s2 == 't')
-        return &Curl_scheme_sftp;
-      if(s1 == 'm' && s2 == 't')
-        return &Curl_scheme_smtp;
+    లేకపోతే ఒకవేళ(s0 == 's') {
+      ఒకవేళ(s1 == 'f' && s2 == 't')
+        తిరిగి &Curl_scheme_sftp;
+      ఒకవేళ(s1 == 'm' && s2 == 't')
+        తిరిగి &Curl_scheme_smtp;
     }
   }
-  else if(s0 == 'f') {
-    if(s1 == 't' && s2 == 'p' && s3 == 's')
-      return &Curl_scheme_ftps;
-    if(s1 == 'i' && s2 == 'l' && s3 == 'e')
-      return &Curl_scheme_file;
+  లేకపోతే ఒకవేళ(s0 == 'f') {
+    ఒకవేళ(s1 == 't' && s2 == 'p' && s3 == 's')
+      తిరిగి &Curl_scheme_ftps;
+    ఒకవేళ(s1 == 'i' && s2 == 'l' && s3 == 'e')
+      తిరిగి &Curl_scheme_file;
   }
-  else if(s0 == 'm') {
-    if(s1 == 'q' && s2 == 't' && s3 == 't')
-      return &Curl_scheme_mqtt;
+  లేకపోతే ఒకవేళ(s0 == 'm') {
+    ఒకవేళ(s1 == 'q' && s2 == 't' && s3 == 't')
+      తిరిగి &Curl_scheme_mqtt;
   }
-  else if(s0 == 'p') {
-    if(s1 == 'o' && s2 == 'p' && s3 == '3')
-      return &Curl_scheme_pop3;
+  లేకపోతే ఒకవేళ(s0 == 'p') {
+    ఒకవేళ(s1 == 'o' && s2 == 'p' && s3 == '3')
+      తిరిగి &Curl_scheme_pop3;
   }
-  else if(s0 == 'd') {
-    if(s1 == 'i' && s2 == 'c' && s3 == 't')
-      return &Curl_scheme_dict;
+  లేకపోతే ఒకవేళ(s0 == 'd') {
+    ఒకవేళ(s1 == 'i' && s2 == 'c' && s3 == 't')
+      తిరిగి &Curl_scheme_dict;
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-static const struct Curl_scheme *five_letter_scheme(const char *scheme)
+స్థిర స్థిరరాశి నిర్మాణం Curl_scheme *five_letter_scheme(స్థిరరాశి అక్షరం *scheme)
 {
-  char s4 = Curl_raw_tolower(scheme[4]);
-  if(s4 == 's') {
-    char s0 = Curl_raw_tolower(scheme[0]);
-    char s1 = Curl_raw_tolower(scheme[1]);
-    char s2 = Curl_raw_tolower(scheme[2]);
-    char s3 = Curl_raw_tolower(scheme[3]);
-    if(s3 == 'p') {
-      switch(s0) {
-      case 'h':
-        if(s1 == 't' && s2 == 't')
-          return &Curl_scheme_https;
-        break;
-      case 'l':
-        if(s1 == 'd' && s2 == 'a')
-          return &Curl_scheme_ldaps;
-        break;
-      case 'i':
-        if(s1 == 'm' && s2 == 'a')
-          return &Curl_scheme_imaps;
-        break;
-      case 's':
-        if(s1 == 'm' && s2 == 't')
-          return &Curl_scheme_smtps;
-        break;
-      default:
-        break;
+  అక్షరం s4 = Curl_raw_tolower(scheme[4]);
+  ఒకవేళ(s4 == 's') {
+    అక్షరం s0 = Curl_raw_tolower(scheme[0]);
+    అక్షరం s1 = Curl_raw_tolower(scheme[1]);
+    అక్షరం s2 = Curl_raw_tolower(scheme[2]);
+    అక్షరం s3 = Curl_raw_tolower(scheme[3]);
+    ఒకవేళ(s3 == 'p') {
+      ఎంపిక(s0) {
+      స్థితి 'h':
+        ఒకవేళ(s1 == 't' && s2 == 't')
+          తిరిగి &Curl_scheme_https;
+        ఆపు;
+      స్థితి 'l':
+        ఒకవేళ(s1 == 'd' && s2 == 'a')
+          తిరిగి &Curl_scheme_ldaps;
+        ఆపు;
+      స్థితి 'i':
+        ఒకవేళ(s1 == 'm' && s2 == 'a')
+          తిరిగి &Curl_scheme_imaps;
+        ఆపు;
+      స్థితి 's':
+        ఒకవేళ(s1 == 'm' && s2 == 't')
+          తిరిగి &Curl_scheme_smtps;
+        ఆపు;
+      అప్రమేయ:
+        ఆపు;
       }
     }
-    else if(s0 == 'p') {
-      if(s1 == 'o' && s2 == 'p' && s3 == '3')
-        return &Curl_scheme_pop3s;
+    లేకపోతే ఒకవేళ(s0 == 'p') {
+      ఒకవేళ(s1 == 'o' && s2 == 'p' && s3 == '3')
+        తిరిగి &Curl_scheme_pop3s;
     }
-    else if(s0 == 'm') {
-      if(s1 == 'q' && s2 == 't' && s3 == 't')
-        return &Curl_scheme_mqtts;
+    లేకపోతే ఒకవేళ(s0 == 'm') {
+      ఒకవేళ(s1 == 'q' && s2 == 't' && s3 == 't')
+        తిరిగి &Curl_scheme_mqtts;
     }
-    else if(s0 == 's') {
-      if(s1 == 'o' && s2 == 'c' && s3 == 'k')
-        return &Curl_scheme_socks;
+    లేకపోతే ఒకవేళ(s0 == 's') {
+      ఒకవేళ(s1 == 'o' && s2 == 'c' && s3 == 'k')
+        తిరిగి &Curl_scheme_socks;
     }
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-static const struct Curl_scheme *six_letter_scheme(const char *scheme)
+స్థిర స్థిరరాశి నిర్మాణం Curl_scheme *six_letter_scheme(స్థిరరాశి అక్షరం *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  switch(s0) {
-  case 's':
-    if(curl_strnequal("ocks4", &scheme[1], 5))
-      return &Curl_scheme_socks4;
-    if(curl_strnequal("ocks5", &scheme[1], 5))
-      return &Curl_scheme_socks5;
-    break;
-  case 'g':
-    if(curl_strnequal("opher", &scheme[1], 5))
-      return &Curl_scheme_gopher;
-    break;
-  case 't':
-    if(curl_strnequal("elnet", &scheme[1], 5))
-      return &Curl_scheme_telnet;
-    break;
+  అక్షరం s0 = Curl_raw_tolower(scheme[0]);
+  ఎంపిక(s0) {
+  స్థితి 's':
+    ఒకవేళ(curl_strnequal("ocks4", &scheme[1], 5))
+      తిరిగి &Curl_scheme_socks4;
+    ఒకవేళ(curl_strnequal("ocks5", &scheme[1], 5))
+      తిరిగి &Curl_scheme_socks5;
+    ఆపు;
+  స్థితి 'g':
+    ఒకవేళ(curl_strnequal("opher", &scheme[1], 5))
+      తిరిగి &Curl_scheme_gopher;
+    ఆపు;
+  స్థితి 't':
+    ఒకవేళ(curl_strnequal("elnet", &scheme[1], 5))
+      తిరిగి &Curl_scheme_telnet;
+    ఆపు;
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-static const struct Curl_scheme *seven_letter_scheme(const char *scheme)
+స్థిర స్థిరరాశి నిర్మాణం Curl_scheme *seven_letter_scheme(స్థిరరాశి అక్షరం *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  if(s0 == 's') {
-    if(curl_strnequal("ocks4a", &scheme[1], 6))
-      return &Curl_scheme_socks4a;
-    if(curl_strnequal("ocks5h", &scheme[1], 6))
-      return &Curl_scheme_socks5h;
+  అక్షరం s0 = Curl_raw_tolower(scheme[0]);
+  ఒకవేళ(s0 == 's') {
+    ఒకవేళ(curl_strnequal("ocks4a", &scheme[1], 6))
+      తిరిగి &Curl_scheme_socks4a;
+    ఒకవేళ(curl_strnequal("ocks5h", &scheme[1], 6))
+      తిరిగి &Curl_scheme_socks5h;
   }
-  else if(s0 == 'g') {
-    if(curl_strnequal("ophers", &scheme[1], 6))
-      return &Curl_scheme_gophers;
+  లేకపోతే ఒకవేళ(s0 == 'g') {
+    ఒకవేళ(curl_strnequal("ophers", &scheme[1], 6))
+      తిరిగి &Curl_scheme_gophers;
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
 /* Returns a struct scheme pointer if the name is a known scheme. Check the
    ->run struct field for non-NULL to figure out if an implementation is
    present. */
-const struct Curl_scheme *Curl_getn_scheme(const char *scheme, size_t len)
+స్థిరరాశి నిర్మాణం Curl_scheme *Curl_getn_scheme(స్థిరరాశి అక్షరం *scheme, size_t len)
 {
-  typedef const struct Curl_scheme *(*letterfunc)(const char *ptr);
-  static const letterfunc parse[] = {
+  రకనిర్వచనం స్థిరరాశి నిర్మాణం Curl_scheme *(*letterfunc)(స్థిరరాశి అక్షరం *ptr);
+  స్థిర స్థిరరాశి letterfunc parse[] = {
     two_letter_scheme,
     three_letter_scheme,
     four_letter_scheme,
@@ -617,13 +617,13 @@ const struct Curl_scheme *Curl_getn_scheme(const char *scheme, size_t len)
     seven_letter_scheme
   };
 
-  if(len < 2 || len > 7)
-    return NULL;
+  ఒకవేళ(len < 2 || len > 7)
+    తిరిగి ఖాళీ;
 
-  return parse[len - 2](scheme);
+  తిరిగి parse[len - 2](scheme);
 }
 
-const struct Curl_scheme *Curl_get_scheme(const char *scheme)
+స్థిరరాశి నిర్మాణం Curl_scheme *Curl_get_scheme(స్థిరరాశి అక్షరం *scheme)
 {
-  return Curl_getn_scheme(scheme, strlen(scheme));
+  తిరిగి Curl_getn_scheme(scheme, అక్షరశ్రేణి_పొడవు(scheme));
 }

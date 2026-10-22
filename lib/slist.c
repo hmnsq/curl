@@ -21,25 +21,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "slist.h"
+#అన్తర్భావ "slist.h"
 
 /* returns last node in linked list */
-static struct curl_slist *slist_get_last(struct curl_slist *list)
+స్థిర నిర్మాణం curl_slist *slist_get_చివరి(నిర్మాణం curl_slist *list)
 {
-  struct curl_slist *item;
+  నిర్మాణం curl_slist *అంశం;
 
   /* if caller passed us a NULL, return now */
-  if(!list)
-    return NULL;
+  ఒకవేళ(!list)
+    తిరిగి ఖాళీ;
 
   /* loop through to find the last item */
-  item = list;
-  while(item->next) {
-    item = item->next;
+  అంశం = list;
+  అయితే(అంశం->తదుపరి) {
+    అంశం = అంశం->తదుపరి;
   }
-  return item;
+  తిరిగి అంశం;
 }
 
 /*
@@ -51,28 +51,28 @@ static struct curl_slist *slist_get_last(struct curl_slist *list)
  * If an error occurs, NULL is returned and the string argument is NOT
  * released.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data)
+నిర్మాణం curl_slist *Curl_slist_append_nodup(నిర్మాణం curl_slist *list,
+                                           స్థిరరాశి అక్షరం *దత్తాంశం)
 {
-  struct curl_slist *last;
-  struct curl_slist *new_item;
+  నిర్మాణం curl_slist *చివరి;
+  నిర్మాణం curl_slist *new_అంశం;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(దత్తాంశం);
 
-  new_item = curlx_malloc(sizeof(struct curl_slist));
-  if(!new_item)
-    return NULL;
+  new_అంశం = curlx_malloc(పరిమాణం(నిర్మాణం curl_slist));
+  ఒకవేళ(!new_అంశం)
+    తిరిగి ఖాళీ;
 
-  new_item->next = NULL;
-  new_item->data = CURL_UNCONST(data);
+  new_అంశం->తదుపరి = ఖాళీ;
+  new_అంశం->దత్తాంశం = CURL_UNCONST(దత్తాంశం);
 
   /* if this is the first item, then new_item *is* the list */
-  if(!list)
-    return new_item;
+  ఒకవేళ(!list)
+    తిరిగి new_అంశం;
 
-  last = slist_get_last(list);
-  last->next = new_item;
-  return list;
+  చివరి = slist_get_చివరి(list);
+  చివరి->తదుపరి = new_అంశం;
+  తిరిగి list;
 }
 
 /*
@@ -82,18 +82,18 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
  * bothersome, then create a separate _init function and call it
  * appropriately from within the program.
  */
-struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
+నిర్మాణం curl_slist *curl_slist_append(నిర్మాణం curl_slist *list, స్థిరరాశి అక్షరం *దత్తాంశం)
 {
-  char *dupdata = curlx_strdup(data);
+  అక్షరం *dupdata = curlx_strdup(దత్తాంశం);
 
-  if(!dupdata)
-    return NULL;
+  ఒకవేళ(!dupdata)
+    తిరిగి ఖాళీ;
 
   list = Curl_slist_append_nodup(list, dupdata);
-  if(!list)
+  ఒకవేళ(!list)
     curlx_free(dupdata);
 
-  return list;
+  తిరిగి list;
 }
 
 /*
@@ -101,40 +101,40 @@ struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist)
+నిర్మాణం curl_slist *Curl_slist_duplicate(నిర్మాణం curl_slist *inlist)
 {
-  struct curl_slist *outlist = NULL;
-  struct curl_slist **tail = &outlist;
+  నిర్మాణం curl_slist *outlist = ఖాళీ;
+  నిర్మాణం curl_slist **తోక = &outlist;
 
-  while(inlist) {
-    struct curl_slist *tmp = curl_slist_append(NULL, inlist->data);
+  అయితే(inlist) {
+    నిర్మాణం curl_slist *tmp = curl_slist_append(ఖాళీ, inlist->దత్తాంశం);
 
-    if(!tmp) {
+    ఒకవేళ(!tmp) {
       curl_slist_free_all(outlist);
-      return NULL;
+      తిరిగి ఖాళీ;
     }
 
-    *tail = tmp;
-    tail = &tmp->next;
-    inlist = inlist->next;
+    *తోక = tmp;
+    తోక = &tmp->తదుపరి;
+    inlist = inlist->తదుపరి;
   }
-  return outlist;
+  తిరిగి outlist;
 }
 
 /* be nice and clean up resources */
-void curl_slist_free_all(struct curl_slist *list)
+శూన్య curl_slist_free_all(నిర్మాణం curl_slist *list)
 {
-  struct curl_slist *next;
-  struct curl_slist *item;
+  నిర్మాణం curl_slist *తదుపరి;
+  నిర్మాణం curl_slist *అంశం;
 
-  if(!list)
-    return;
+  ఒకవేళ(!list)
+    తిరిగి;
 
-  item = list;
-  do {
-    next = item->next;
-    curlx_safefree(item->data);
-    curlx_free(item);
-    item = next;
-  } while(next);
+  అంశం = list;
+  చేయి {
+    తదుపరి = అంశం->తదుపరి;
+    curlx_safefree(అంశం->దత్తాంశం);
+    curlx_free(అంశం);
+    అంశం = తదుపరి;
+  } అయితే(తదుపరి);
 }

@@ -22,20 +22,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
+#ఒకవేళ !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
-#include "curl_sha256.h"
+#అన్తర్భావ "curl_sha256.h"
 
-#ifdef USE_MBEDTLS
-#include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
-#error "mbedTLS 3.2.0 or greater required"
-#endif
-#include <psa/crypto_config.h>
-#endif
+#నిర్వచితమైతే USE_MBEDTLS
+#అన్తర్భావ <mbedtls/version.h>
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య < 0x03020000
+#దోషం "mbedTLS 3.2.0 or greater required"
+#అయితే_ముగింపు
+#అన్తర్భావ <psa/crypto_config.h>
+#అయితే_ముగింపు
 
 /* Please keep the SSL backend-specific #if branches in this order:
  *
@@ -50,241 +50,241 @@
  * file even if multiple backends are enabled at the same time.
  */
 
-#ifdef USE_OPENSSL
-#include <openssl/evp.h>
+#నిర్వచితమైతే USE_OPENSSL
+#అన్తర్భావ <openssl/evp.h>
 
-struct ossl_sha256_ctx {
+నిర్మాణం ossl_sha256_ctx {
   EVP_MD_CTX *openssl_ctx;
 };
-typedef struct ossl_sha256_ctx my_sha256_ctx;
+రకనిర్వచనం నిర్మాణం ossl_sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+స్థిర CURLcode my_sha256_init(శూన్య *లోపల)
 {
-  my_sha256_ctx *ctx = (my_sha256_ctx *)in;
+  my_sha256_ctx *ctx = (my_sha256_ctx *)లోపల;
   ctx->openssl_ctx = EVP_MD_CTX_new();
-  if(!ctx->openssl_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!ctx->openssl_ctx)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  if(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), NULL)) {
+  ఒకవేళ(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), ఖాళీ)) {
     EVP_MD_CTX_free(ctx->openssl_ctx);
-    return CURLE_FAILED_INIT;
+    తిరిగి CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+స్థిర శూన్య my_sha256_update(శూన్య *లోపల,
+                             స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం,
+                             గుర్తులేని పూర్ణాంకం నిడివి)
 {
-  my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  EVP_DigestUpdate(ctx->openssl_ctx, data, length);
+  my_sha256_ctx *ctx = (my_sha256_ctx *)లోపల;
+  EVP_DigestUpdate(ctx->openssl_ctx, దత్తాంశం, నిడివి);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+స్థిర శూన్య my_sha256_final(గుర్తులేని అక్షరం *digest, శూన్య *లోపల)
 {
-  my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  EVP_DigestFinal_ex(ctx->openssl_ctx, digest, NULL);
+  my_sha256_ctx *ctx = (my_sha256_ctx *)లోపల;
+  EVP_DigestFinal_ex(ctx->openssl_ctx, digest, ఖాళీ);
   EVP_MD_CTX_free(ctx->openssl_ctx);
 }
 
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/sha256.h>
+#లేదావేళ defined(USE_WOLFSSL)
+#అన్తర్భావ <wolfssl/options.h>
+#అన్తర్భావ <wolfssl/wolfcrypt/sha256.h>
 
-typedef struct wc_Sha256 my_sha256_ctx;
+రకనిర్వచనం నిర్మాణం wc_Sha256 my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+స్థిర CURLcode my_sha256_init(శూన్య *లోపల)
 {
-  if(wc_InitSha256(in))
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  ఒకవేళ(wc_InitSha256(లోపల))
+    తిరిగి CURLE_FAILED_INIT;
+  తిరిగి CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+స్థిర శూన్య my_sha256_update(శూన్య *లోపల,
+                             స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం,
+                             గుర్తులేని పూర్ణాంకం నిడివి)
 {
-  (void)wc_Sha256Update(in, data, (word32)length);
+  (శూన్య)wc_Sha256Update(లోపల, దత్తాంశం, (word32)నిడివి);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+స్థిర శూన్య my_sha256_final(గుర్తులేని అక్షరం *digest, శూన్య *లోపల)
 {
-  (void)wc_Sha256Final(in, digest);
+  (శూన్య)wc_Sha256Final(లోపల, digest);
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/sha2.h>
-#include <nettle/version.h>
+#లేదావేళ defined(USE_GNUTLS)
+#అన్తర్భావ <nettle/sha2.h>
+#అన్తర్భావ <nettle/version.h>
 
-typedef struct sha256_ctx my_sha256_ctx;
+రకనిర్వచనం నిర్మాణం sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+స్థిర CURLcode my_sha256_init(శూన్య *ctx)
 {
   sha256_init(ctx);
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+స్థిర శూన్య my_sha256_update(శూన్య *ctx,
+                             స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం,
+                             గుర్తులేని పూర్ణాంకం నిడివి)
 {
-  sha256_update(ctx, length, data);
+  sha256_update(ctx, నిడివి, దత్తాంశం);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+స్థిర శూన్య my_sha256_final(గుర్తులేని అక్షరం *digest, శూన్య *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#ఒకవేళ NETTLE_సంస్కరణ_MAJOR >= 4
   sha256_digest(ctx, digest);
-#else
-  sha256_digest(ctx, SHA256_DIGEST_SIZE, digest);
-#endif
+#లేకపోతే
+  sha256_digest(ctx, SHA256_DIGEST_కొలత, digest);
+#అయితే_ముగింపు
 }
 
-#elif defined(USE_MBEDTLS) && \
+#లేదావేళ defined(USE_MBEDTLS) && \
   defined(PSA_WANT_ALG_SHA_256) && PSA_WANT_ALG_SHA_256
-#include <psa/crypto.h>
+#అన్తర్భావ <psa/crypto.h>
 
-typedef psa_hash_operation_t my_sha256_ctx;
+రకనిర్వచనం psa_hash_operation_t my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+స్థిర CURLcode my_sha256_init(శూన్య *ctx)
 {
   psa_hash_operation_t *pctx = (psa_hash_operation_t *)ctx;
   *pctx = psa_hash_operation_init();
-  if(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ఒకవేళ(psa_hash_అమరిక(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  తిరిగి CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+స్థిర శూన్య my_sha256_update(శూన్య *ctx,
+                             స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం,
+                             గుర్తులేని పూర్ణాంకం నిడివి)
 {
-  (void)psa_hash_update(ctx, data, length);
+  (శూన్య)psa_hash_update(ctx, దత్తాంశం, నిడివి);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+స్థిర శూన్య my_sha256_final(గుర్తులేని అక్షరం *digest, శూన్య *ctx)
 {
-  size_t actual_length;
-  (void)psa_hash_finish(ctx, digest, CURL_SHA256_DIGEST_LENGTH,
-                        &actual_length);
+  size_t actual_నిడివి;
+  (శూన్య)psa_hash_ముగింపు(ctx, digest, CURL_SHA256_DIGEST_నిడివి,
+                        &actual_నిడివి);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#లేదావేళ (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040) || \
       (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000)
-#include <CommonCrypto/CommonDigest.h>
+#అన్తర్భావ <CommonCrypto/CommonDigest.h>
 
-typedef CC_SHA256_CTX my_sha256_ctx;
+రకనిర్వచనం CC_SHA256_CTX my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+స్థిర CURLcode my_sha256_init(శూన్య *ctx)
 {
-  (void)CC_SHA256_Init(ctx);  /* always returns 1 */
-  return CURLE_OK;
+  (శూన్య)CC_SHA256_Init(ctx);  /* always returns 1 */
+  తిరిగి CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+స్థిర శూన్య my_sha256_update(శూన్య *ctx,
+                             స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం,
+                             గుర్తులేని పూర్ణాంకం నిడివి)
 {
-  (void)CC_SHA256_Update(ctx, data, length);
+  (శూన్య)CC_SHA256_Update(ctx, దత్తాంశం, నిడివి);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+స్థిర శూన్య my_sha256_final(గుర్తులేని అక్షరం *digest, శూన్య *ctx)
 {
-  (void)CC_SHA256_Final(digest, ctx);
+  (శూన్య)CC_SHA256_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#లేదావేళ defined(USE_WIN32_CRYPTO)
+#అన్తర్భావ <wincrypt.h>
 
-struct sha256_ctx {
+నిర్మాణం sha256_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct sha256_ctx my_sha256_ctx;
+రకనిర్వచనం నిర్మాణం sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+స్థిర CURLcode my_sha256_init(శూన్య *లోపల)
 {
-  my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_AES,
+  my_sha256_ctx *ctx = (my_sha256_ctx *)లోపల;
+  ఒకవేళ(!CryptAcquireContext(&ctx->hCryptProv, ఖాళీ, ఖాళీ, PROV_RSA_AES,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
+  ఒకవేళ(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return CURLE_FAILED_INIT;
+    తిరిగి CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+స్థిర శూన్య my_sha256_update(శూన్య *లోపల,
+                             స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం,
+                             గుర్తులేని పూర్ణాంకం నిడివి)
 {
-  my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  CryptHashData(ctx->hHash, (const BYTE *)data, length, 0);
+  my_sha256_ctx *ctx = (my_sha256_ctx *)లోపల;
+  Crypt_Hash_దత్తాంశం(ctx->hHash, (స్థిరరాశి BYTE *)దత్తాంశం, నిడివి, 0);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+స్థిర శూన్య my_sha256_final(గుర్తులేని అక్షరం *digest, శూన్య *లోపల)
 {
-  my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  unsigned long length = 0;
+  my_sha256_ctx *ctx = (my_sha256_ctx *)లోపల;
+  గుర్తులేని దీర్ఘ నిడివి = 0;
 
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == CURL_SHA256_DIGEST_LENGTH)
-    CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, ఖాళీ, &నిడివి, 0);
+  ఒకవేళ(నిడివి == CURL_SHA256_DIGEST_నిడివి)
+    CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &నిడివి, 0);
 
-  if(ctx->hHash)
+  ఒకవేళ(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  ఒకవేళ(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#else
+#లేకపోతే
 
 /* When no other crypto library is available we use this code segment */
 
 /* This is based on the SHA256 implementation in LibTomCrypt that was released
  * into public domain. */
 
-#define WPA_GET_BE32(a)              \
-  ((((unsigned long)(a)[0]) << 24) | \
-   (((unsigned long)(a)[1]) << 16) | \
-   (((unsigned long)(a)[2]) <<  8) | \
-    ((unsigned long)(a)[3]))
-#define WPA_PUT_BE32(a, val)                                         \
-  do {                                                               \
-    (a)[0] = (unsigned char)((((unsigned long)(val)) >> 24) & 0xff); \
-    (a)[1] = (unsigned char)((((unsigned long)(val)) >> 16) & 0xff); \
-    (a)[2] = (unsigned char)((((unsigned long)(val)) >>  8) & 0xff); \
-    (a)[3] = (unsigned char)(((unsigned long)(val)) & 0xff);         \
-  } while(0)
+#నిర్వచించు WPA_GET_BE32(a)              \
+  ((((గుర్తులేని దీర్ఘ)(a)[0]) << 24) | \
+   (((గుర్తులేని దీర్ఘ)(a)[1]) << 16) | \
+   (((గుర్తులేని దీర్ఘ)(a)[2]) <<  8) | \
+    ((గుర్తులేని దీర్ఘ)(a)[3]))
+#నిర్వచించు WPA_PUT_BE32(a, val)                                         \
+  చేయి {                                                               \
+    (a)[0] = (గుర్తులేని అక్షరం)((((గుర్తులేని దీర్ఘ)(val)) >> 24) & 0xff); \
+    (a)[1] = (గుర్తులేని అక్షరం)((((గుర్తులేని దీర్ఘ)(val)) >> 16) & 0xff); \
+    (a)[2] = (గుర్తులేని అక్షరం)((((గుర్తులేని దీర్ఘ)(val)) >>  8) & 0xff); \
+    (a)[3] = (గుర్తులేని అక్షరం)(((గుర్తులేని దీర్ఘ)(val)) & 0xff);         \
+  } అయితే(0)
 
-#define WPA_PUT_BE64(a, val)                            \
-  do {                                                  \
-    (a)[0] = (unsigned char)(((uint64_t)(val)) >> 56);  \
-    (a)[1] = (unsigned char)(((uint64_t)(val)) >> 48);  \
-    (a)[2] = (unsigned char)(((uint64_t)(val)) >> 40);  \
-    (a)[3] = (unsigned char)(((uint64_t)(val)) >> 32);  \
-    (a)[4] = (unsigned char)(((uint64_t)(val)) >> 24);  \
-    (a)[5] = (unsigned char)(((uint64_t)(val)) >> 16);  \
-    (a)[6] = (unsigned char)(((uint64_t)(val)) >>  8);  \
-    (a)[7] = (unsigned char)(((uint64_t)(val)) & 0xff); \
-  } while(0)
+#నిర్వచించు WPA_PUT_BE64(a, val)                            \
+  చేయి {                                                  \
+    (a)[0] = (గుర్తులేని అక్షరం)(((uint64_t)(val)) >> 56);  \
+    (a)[1] = (గుర్తులేని అక్షరం)(((uint64_t)(val)) >> 48);  \
+    (a)[2] = (గుర్తులేని అక్షరం)(((uint64_t)(val)) >> 40);  \
+    (a)[3] = (గుర్తులేని అక్షరం)(((uint64_t)(val)) >> 32);  \
+    (a)[4] = (గుర్తులేని అక్షరం)(((uint64_t)(val)) >> 24);  \
+    (a)[5] = (గుర్తులేని అక్షరం)(((uint64_t)(val)) >> 16);  \
+    (a)[6] = (గుర్తులేని అక్షరం)(((uint64_t)(val)) >>  8);  \
+    (a)[7] = (గుర్తులేని అక్షరం)(((uint64_t)(val)) & 0xff); \
+  } అయితే(0)
 
-struct sha256_state {
-  uint64_t length;
-  unsigned long state[8], curlen;
-  unsigned char buf[64];
+నిర్మాణం sha256_state {
+  uint64_t నిడివి;
+  గుర్తులేని దీర్ఘ state[8], curlen;
+  గుర్తులేని అక్షరం buf[64];
 };
-typedef struct sha256_state my_sha256_ctx;
+రకనిర్వచనం నిర్మాణం sha256_state my_sha256_ctx;
 
 /* The K array */
-static const unsigned long K[64] = {
+స్థిర స్థిరరాశి గుర్తులేని దీర్ఘ K[64] = {
   0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL, 0x3956c25bUL,
   0x59f111f1UL, 0x923f82a4UL, 0xab1c5ed5UL, 0xd807aa98UL, 0x12835b01UL,
   0x243185beUL, 0x550c7dc3UL, 0x72be5d74UL, 0x80deb1feUL, 0x9bdc06a7UL,
@@ -301,49 +301,49 @@ static const unsigned long K[64] = {
 };
 
 /* Various logical functions */
-#define RORc(x, y) \
-  (((((unsigned long)(x) & 0xFFFFFFFFUL) >> (unsigned long)((y) & 31)) | \
-     ((unsigned long)(x) << (unsigned long)(32 - ((y) & 31)))) & 0xFFFFFFFFUL)
+#నిర్వచించు RORc(x, y) \
+  (((((గుర్తులేని దీర్ఘ)(x) & 0xFFFFFFFFUL) >> (గుర్తులేని దీర్ఘ)((y) & 31)) | \
+     ((గుర్తులేని దీర్ఘ)(x) << (గుర్తులేని దీర్ఘ)(32 - ((y) & 31)))) & 0xFFFFFFFFUL)
 
-#define Sha256_Ch(x, y, z)  (z ^ (x & (y ^ z)))
-#define Sha256_Maj(x, y, z) (((x | y) & z) | (x & y))
-#define Sha256_S(x, n)      RORc(x, n)
-#define Sha256_R(x, n)      (((x) & 0xFFFFFFFFUL) >> (n))
+#నిర్వచించు Sha256_Ch(x, y, z)  (z ^ (x & (y ^ z)))
+#నిర్వచించు Sha256_Maj(x, y, z) (((x | y) & z) | (x & y))
+#నిర్వచించు Sha256_S(x, n)      RORc(x, n)
+#నిర్వచించు Sha256_R(x, n)      (((x) & 0xFFFFFFFFUL) >> (n))
 
-#define Sigma0(x)         (Sha256_S(x, 2) ^ Sha256_S(x, 13) ^ Sha256_S(x, 22))
-#define Sigma1(x)         (Sha256_S(x, 6) ^ Sha256_S(x, 11) ^ Sha256_S(x, 25))
-#define Gamma0(x)         (Sha256_S(x, 7) ^ Sha256_S(x, 18) ^ Sha256_R(x, 3))
-#define Gamma1(x)         (Sha256_S(x, 17) ^ Sha256_S(x, 19) ^ Sha256_R(x, 10))
+#నిర్వచించు Sigma0(x)         (Sha256_S(x, 2) ^ Sha256_S(x, 13) ^ Sha256_S(x, 22))
+#నిర్వచించు Sigma1(x)         (Sha256_S(x, 6) ^ Sha256_S(x, 11) ^ Sha256_S(x, 25))
+#నిర్వచించు Gamma0(x)         (Sha256_S(x, 7) ^ Sha256_S(x, 18) ^ Sha256_R(x, 3))
+#నిర్వచించు Gamma1(x)         (Sha256_S(x, 17) ^ Sha256_S(x, 19) ^ Sha256_R(x, 10))
 
 /* Compress 512 bits */
-static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
+స్థిర పూర్ణాంకం sha256_compress(నిర్మాణం sha256_state *md, స్థిరరాశి గుర్తులేని అక్షరం *buf)
 {
-  unsigned long S[8], W[64];
-  int i;
+  గుర్తులేని దీర్ఘ S[8], W[64];
+  పూర్ణాంకం i;
 
   /* Copy state into S */
-  for(i = 0; i < 8; i++) {
+  కొరకు(i = 0; i < 8; i++) {
     S[i] = md->state[i];
   }
   /* copy the state into 512 bits into W[0..15] */
-  for(i = 0; i < 16; i++)
+  కొరకు(i = 0; i < 16; i++)
     W[i] = WPA_GET_BE32(buf + (4 * i));
   /* fill W[16..63] */
-  for(i = 16; i < 64; i++) {
+  కొరకు(i = 16; i < 64; i++) {
     W[i] = Gamma1(W[i - 2]) + W[i - 7] + Gamma0(W[i - 15]) + W[i - 16];
   }
 
   /* Compress */
-#define RND(a, b, c, d, e, f, g, h, i)                                   \
-  do {                                                                   \
-    unsigned long t0 = h + Sigma1(e) + Sha256_Ch(e, f, g) + K[i] + W[i]; \
-    unsigned long t1 = Sigma0(a) + Sha256_Maj(a, b, c);                  \
+#నిర్వచించు RND(a, b, c, d, e, f, g, h, i)                                   \
+  చేయి {                                                                   \
+    గుర్తులేని దీర్ఘ t0 = h + Sigma1(e) + Sha256_Ch(e, f, g) + K[i] + W[i]; \
+    గుర్తులేని దీర్ఘ t1 = Sigma0(a) + Sha256_Maj(a, b, c);                  \
     d += t0;                                                             \
     h = t0 + t1;                                                         \
-  } while(0)
+  } అయితే(0)
 
-  for(i = 0; i < 64; ++i) {
-    unsigned long t;
+  కొరకు(i = 0; i < 64; ++i) {
+    గుర్తులేని దీర్ఘ t;
     RND(S[0], S[1], S[2], S[3], S[4], S[5], S[6], S[7], i);
     t = S[7];
     S[7] = S[6];
@@ -357,19 +357,19 @@ static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
   }
 
   /* Feedback */
-  for(i = 0; i < 8; i++) {
+  కొరకు(i = 0; i < 8; i++) {
     md->state[i] = md->state[i] + S[i];
   }
 
-  return 0;
+  తిరిగి 0;
 }
 
 /* Initialize the hash state */
-static CURLcode my_sha256_init(void *in)
+స్థిర CURLcode my_sha256_init(శూన్య *లోపల)
 {
-  struct sha256_state *md = (struct sha256_state *)in;
+  నిర్మాణం sha256_state *md = (నిర్మాణం sha256_state *)లోపల;
   md->curlen = 0;
-  md->length = 0;
+  md->నిడివి = 0;
   md->state[0] = 0x6A09E667UL;
   md->state[1] = 0xBB67AE85UL;
   md->state[2] = 0x3C6EF372UL;
@@ -379,7 +379,7 @@ static CURLcode my_sha256_init(void *in)
   md->state[6] = 0x1F83D9ABUL;
   md->state[7] = 0x5BE0CD19UL;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* Process a block of memory though the hash
@@ -387,34 +387,34 @@ static CURLcode my_sha256_init(void *in)
    @param in     The data to hash
    @param inlen  The length of the data (octets)
  */
-static void my_sha256_update(void *ctx,
-                             const unsigned char *in,
-                             unsigned int len)
+స్థిర శూన్య my_sha256_update(శూన్య *ctx,
+                             స్థిరరాశి గుర్తులేని అక్షరం *లోపల,
+                             గుర్తులేని పూర్ణాంకం len)
 {
-  unsigned long inlen = len;
-  unsigned long n;
-  struct sha256_state *md = (struct sha256_state *)ctx;
-#define CURL_SHA256_BLOCK_SIZE 64
-  if(md->curlen > sizeof(md->buf))
-    return;
-  while(inlen > 0) {
-    if(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
-      if(sha256_compress(md, in) < 0)
-        return;
-      md->length += CURL_SHA256_BLOCK_SIZE * 8;
-      in += CURL_SHA256_BLOCK_SIZE;
-      inlen -= CURL_SHA256_BLOCK_SIZE;
+  గుర్తులేని దీర్ఘ inlen = len;
+  గుర్తులేని దీర్ఘ n;
+  నిర్మాణం sha256_state *md = (నిర్మాణం sha256_state *)ctx;
+#నిర్వచించు CURL_SHA256_ఖండం_కొలత 64
+  ఒకవేళ(md->curlen > పరిమాణం(md->buf))
+    తిరిగి;
+  అయితే(inlen > 0) {
+    ఒకవేళ(md->curlen == 0 && inlen >= CURL_SHA256_ఖండం_కొలత) {
+      ఒకవేళ(sha256_compress(md, లోపల) < 0)
+        తిరిగి;
+      md->నిడివి += CURL_SHA256_ఖండం_కొలత * 8;
+      లోపల += CURL_SHA256_ఖండం_కొలత;
+      inlen -= CURL_SHA256_ఖండం_కొలత;
     }
-    else {
-      n = CURLMIN(inlen, (CURL_SHA256_BLOCK_SIZE - md->curlen));
-      memcpy(md->buf + md->curlen, in, n);
+    లేకపోతే {
+      n = CURLMIN(inlen, (CURL_SHA256_ఖండం_కొలత - md->curlen));
+      జ్ఞాపకం_నకలు(md->buf + md->curlen, లోపల, n);
       md->curlen += n;
-      in += n;
+      లోపల += n;
       inlen -= n;
-      if(md->curlen == CURL_SHA256_BLOCK_SIZE) {
-        if(sha256_compress(md, md->buf) < 0)
-          return;
-        md->length += 8 * CURL_SHA256_BLOCK_SIZE;
+      ఒకవేళ(md->curlen == CURL_SHA256_ఖండం_కొలత) {
+        ఒకవేళ(sha256_compress(md, md->buf) < 0)
+          తిరిగి;
+        md->నిడివి += 8 * CURL_SHA256_ఖండం_కొలత;
         md->curlen = 0;
       }
     }
@@ -426,26 +426,26 @@ static void my_sha256_update(void *ctx,
    @param out [out] The destination of the hash (32 bytes)
    @return 0 if successful
  */
-static void my_sha256_final(unsigned char *out, void *ctx)
+స్థిర శూన్య my_sha256_final(గుర్తులేని అక్షరం *బహిర్గతం, శూన్య *ctx)
 {
-  struct sha256_state *md = ctx;
-  int i;
+  నిర్మాణం sha256_state *md = ctx;
+  పూర్ణాంకం i;
 
-  if(md->curlen >= sizeof(md->buf))
-    return;
+  ఒకవేళ(md->curlen >= పరిమాణం(md->buf))
+    తిరిగి;
 
   /* Increase the length of the message */
-  md->length += md->curlen * 8;
+  md->నిడివి += md->curlen * 8;
 
   /* Append the '1' bit */
-  md->buf[md->curlen++] = (unsigned char)0x80;
+  md->buf[md->curlen++] = (గుర్తులేని అక్షరం)0x80;
 
   /* If the length is currently above 56 bytes we append zeros
    * then compress. Then we can fall back to padding zeros and length
    * encoding like normal.
    */
-  if(md->curlen > 56) {
-    while(md->curlen < 64) {
+  ఒకవేళ(md->curlen > 56) {
+    అయితే(md->curlen < 64) {
       md->buf[md->curlen++] = 0;
     }
     sha256_compress(md, md->buf);
@@ -453,20 +453,20 @@ static void my_sha256_final(unsigned char *out, void *ctx)
   }
 
   /* Pad up to 56 bytes of zeroes */
-  while(md->curlen < 56) {
+  అయితే(md->curlen < 56) {
     md->buf[md->curlen++] = 0;
   }
 
   /* Store length */
-  WPA_PUT_BE64(md->buf + 56, md->length);
+  WPA_PUT_BE64(md->buf + 56, md->నిడివి);
   sha256_compress(md, md->buf);
 
   /* Copy output */
-  for(i = 0; i < 8; i++)
-    WPA_PUT_BE32(out + (4 * i), md->state[i]);
+  కొరకు(i = 0; i < 8; i++)
+    WPA_PUT_BE32(బహిర్గతం + (4 * i), md->state[i]);
 }
 
-#endif /* CRYPTO LIBS */
+#అయితే_ముగింపు /* CRYPTO LIBS */
 
 /*
  * Curl_sha256it()
@@ -481,32 +481,32 @@ static void my_sha256_final(unsigned char *out, void *ctx)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_sha256it(గుర్తులేని అక్షరం *output, స్థిరరాశి గుర్తులేని అక్షరం *ఆదానం,
                        size_t len)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   my_sha256_ctx ctx;
 
-  result = my_sha256_init(&ctx);
-  if(!result) {
-    do {
-      unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-      my_sha256_update(&ctx, input, ilen);
+  ఫలితం = my_sha256_init(&ctx);
+  ఒకవేళ(!ఫలితం) {
+    చేయి {
+      గుర్తులేని పూర్ణాంకం ilen = (గుర్తులేని పూర్ణాంకం)CURLMIN(len, UINT_MAX);
+      my_sha256_update(&ctx, ఆదానం, ilen);
       len -= ilen;
-      input += ilen;
-    } while(len);
+      ఆదానం += ilen;
+    } అయితే(len);
     my_sha256_final(output, &ctx);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-const struct HMAC_params Curl_HMAC_SHA256 = {
+స్థిరరాశి నిర్మాణం HMAC_params Curl_HMAC_SHA256 = {
   my_sha256_init,        /* Hash initialization function. */
   my_sha256_update,      /* Hash update function. */
   my_sha256_final,       /* Hash computation end function. */
-  sizeof(my_sha256_ctx), /* Size of hash context structure. */
+  పరిమాణం(my_sha256_ctx), /* Size of hash context structure. */
   64,                    /* Maximum key length. */
   32                     /* Result size. */
 };
 
-#endif /* AWS, DIGEST, or libssh2 */
+#అయితే_ముగింపు /* AWS, DIGEST, or libssh2 */

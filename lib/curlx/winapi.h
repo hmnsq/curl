@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_WINAPI_H
-#define HEADER_CURLX_WINAPI_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURLX_WINAPI_H
+#నిర్వచించు శీర్షిక_CURLX_WINAPI_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,11 +24,11 @@
  *
  ***************************************************************************/
 
-#ifdef _WIN32
-#define WINAPI_ERROR_LEN 100
-const char *curlx_get_winapi_error(DWORD err, char *buf, size_t buflen);
-const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen);
-CURLcode curlx_win32_random(unsigned char *entropy, size_t length);
-#endif
+#నిర్వచితమైతే _WIN32
+#నిర్వచించు WINAPI_ERROR_LEN 100
+స్థిరరాశి అక్షరం *curlx_get_winapi_error(DWORD err, అక్షరం *buf, size_t buflen);
+స్థిరరాశి అక్షరం *curlx_winapi_strerror(DWORD err, అక్షరం *buf, size_t buflen);
+CURLcode curlx_win32_random(గుర్తులేని అక్షరం *entropy, size_t నిడివి);
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURLX_WINAPI_H */
+#అయితే_ముగింపు /* HEADER_CURLX_WINAPI_H */

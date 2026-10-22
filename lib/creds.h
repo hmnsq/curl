@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CREDS_H
-#define HEADER_CURL_CREDS_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_CREDS_H
+#నిర్వచించు శీర్షిక_CURL_CREDS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,69 +24,69 @@
  *
  ***************************************************************************/
 
-struct Curl_easy;
+నిర్మాణం Curl_easy;
 
-#define CREDS_NONE   0 /* used for default username/passwd */
-#define CREDS_URL    1 /* username/passwd from URL */
-#define CREDS_OPTION 2 /* username/passwd set with a CURLOPT_ */
-#define CREDS_NETRC  3 /* username/passwd found in netrc */
+#నిర్వచించు CREDS_NONE   0 /* used for default username/passwd */
+#నిర్వచించు CREDS_URL    1 /* username/passwd from URL */
+#నిర్వచించు CREDS_OPTION 2 /* username/passwd set with a CURLOPT_ */
+#నిర్వచించు CREDS_NETRC  3 /* username/passwd found in netrc */
 
-struct Curl_creds {
-  const char *user; /* non-NULL, maybe empty string */
-  const char *passwd; /* non-NULL, maybe empty string */
-  const char *oauth_bearer; /* non-NULL, maybe empty string */
-  const char *sasl_authzid; /* non-NULL, maybe empty string */
-  const char *sasl_service; /* non-NULL, maybe empty string */
+నిర్మాణం Curl_creds {
+  స్థిరరాశి అక్షరం *user; /* non-NULL, maybe empty string */
+  స్థిరరాశి అక్షరం *passwd; /* non-NULL, maybe empty string */
+  స్థిరరాశి అక్షరం *oauth_bearer; /* non-NULL, maybe empty string */
+  స్థిరరాశి అక్షరం *sasl_authzid; /* non-NULL, maybe empty string */
+  స్థిరరాశి అక్షరం *sasl_service; /* non-NULL, maybe empty string */
   uint32_t refcount;
-  uint8_t source; /* CREDS_* value */
+  uint8_t ఆధారం; /* CREDS_* value */
   size_t bufsize; /* extra bytes added to sizeof(struct Curl_creds) */
-  char buf[1];
+  అక్షరం buf[1];
 };
 
-CURLcode Curl_creds_create(const char *user,
-                           const char *passwd,
-                           const char *oauth_bearer,
-                           const char *sasl_authzid,
-                           const char *sasl_service,
-                           uint8_t source,
-                           struct Curl_creds **pcreds);
+CURLcode Curl_creds_create(స్థిరరాశి అక్షరం *user,
+                           స్థిరరాశి అక్షరం *passwd,
+                           స్థిరరాశి అక్షరం *oauth_bearer,
+                           స్థిరరాశి అక్షరం *sasl_authzid,
+                           స్థిరరాశి అక్షరం *sasl_service,
+                           uint8_t ఆధారం,
+                           నిర్మాణం Curl_creds **pcreds);
 
 /* Create credentials by overriding `user` and/or `passwd` in `creds_in` */
-CURLcode Curl_creds_merge(const char *user,
-                          const char *passwd,
-                          struct Curl_creds *creds_in,
-                          uint8_t source,
-                          struct Curl_creds **pcreds_out);
+CURLcode Curl_creds_విలీనం(స్థిరరాశి అక్షరం *user,
+                          స్థిరరాశి అక్షరం *passwd,
+                          నిర్మాణం Curl_creds *creds_లోపల,
+                          uint8_t ఆధారం,
+                          నిర్మాణం Curl_creds **pcreds_బహిర్గతం);
 
 /* Unlink any creds in `*pdest`, assign src, increase src
  * refcount when not NULL. */
-void Curl_creds_link(struct Curl_creds **pdest, struct Curl_creds *src);
+శూన్య Curl_creds_link(నిర్మాణం Curl_creds **pdest, నిర్మాణం Curl_creds *src);
 
 /* Drop a reference, creds may be passed as NULL */
-void Curl_creds_unlink(struct Curl_creds **pcreds);
+శూన్య Curl_creds_unlink(నిర్మాణం Curl_creds **pcreds);
 
 /* TRUE if both creds are NULL or have same values, except source. */
-bool Curl_creds_same(struct Curl_creds *c1, struct Curl_creds *c2);
+bool Curl_creds_same(నిర్మాణం Curl_creds *c1, నిర్మాణం Curl_creds *c2);
 
 /* TRUE if both creds are NULL or have all values equal. */
-bool Curl_creds_equal(struct Curl_creds *c1, struct Curl_creds *c2);
+bool Curl_creds_equal(నిర్మాణం Curl_creds *c1, నిర్మాణం Curl_creds *c2);
 
 /* Provides properties for creds or, if creds is NULL, the empty string */
-#define Curl_creds_has_user(c)           ((c) && (c)->user[0])
-#define Curl_creds_has_passwd(c)         ((c) && (c)->passwd[0])
-#define Curl_creds_has_user_or_pass(c) \
+#నిర్వచించు Curl_creds_has_user(c)           ((c) && (c)->user[0])
+#నిర్వచించు Curl_creds_has_passwd(c)         ((c) && (c)->passwd[0])
+#నిర్వచించు Curl_creds_has_user_or_pass(c) \
     ((c) && ((c)->user[0] || (c)->passwd[0]))
-#define Curl_creds_has_oauth_bearer(c)   ((c) && (c)->oauth_bearer[0])
-#define Curl_creds_has_sasl_service(c)   ((c) && (c)->sasl_service[0])
-#define Curl_creds_user(c)               ((c) ? (c)->user : "")
-#define Curl_creds_passwd(c)             ((c) ? (c)->passwd : "")
-#define Curl_creds_oauth_bearer(c)       ((c) ? (c)->oauth_bearer : "")
-#define Curl_creds_sasl_authzid(c)       ((c) ? (c)->sasl_authzid : "")
-#define Curl_creds_sasl_service(c)       ((c) ? (c)->sasl_service : "")
+#నిర్వచించు Curl_creds_has_oauth_bearer(c)   ((c) && (c)->oauth_bearer[0])
+#నిర్వచించు Curl_creds_has_sasl_service(c)   ((c) && (c)->sasl_service[0])
+#నిర్వచించు Curl_creds_user(c)               ((c) ? (c)->user : "")
+#నిర్వచించు Curl_creds_passwd(c)             ((c) ? (c)->passwd : "")
+#నిర్వచించు Curl_creds_oauth_bearer(c)       ((c) ? (c)->oauth_bearer : "")
+#నిర్వచించు Curl_creds_sasl_authzid(c)       ((c) ? (c)->sasl_authzid : "")
+#నిర్వచించు Curl_creds_sasl_service(c)       ((c) ? (c)->sasl_service : "")
 
-#ifdef CURLVERBOSE
-void Curl_creds_trace(struct Curl_easy *data, struct Curl_creds *creds,
-                      const char *msg);
-#endif
+#నిర్వచితమైతే CURLVERBOSE
+శూన్య Curl_creds_trace(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం Curl_creds *creds,
+                      స్థిరరాశి అక్షరం *సందేశం);
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_CREDS_H */
+#అయితే_ముగింపు /* HEADER_CURL_CREDS_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NTLM_CORE_H
-#define HEADER_CURL_NTLM_CORE_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_NTLM_CORE_H
+#నిర్వచించు శీర్షిక_CURL_NTLM_CORE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,51 +23,51 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_CURL_NTLM_CORE
+#నిర్వచితమైతే USE_CURL_NTLM_CORE
 
-struct ntlmdata;
+నిర్మాణం ntlmdata;
 
 /* Helpers to generate function byte arguments in little endian order */
-#define SHORTPAIR(x)   ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff))
-#define LONGQUARTET(x) ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff)), \
-  ((int)(((x) >> 16) & 0xff)), ((int)(((x) >> 24) & 0xff))
+#నిర్వచించు SHORTPAIR(x)   ((పూర్ణాంకం)((x) & 0xff)), ((పూర్ణాంకం)(((x) >> 8) & 0xff))
+#నిర్వచించు LONGQUARTET(x) ((పూర్ణాంకం)((x) & 0xff)), ((పూర్ణాంకం)(((x) >> 8) & 0xff)), \
+  ((పూర్ణాంకం)(((x) >> 16) & 0xff)), ((పూర్ణాంకం)(((x) >> 24) & 0xff))
 
-void Curl_ntlm_core_lm_resp(const unsigned char *keys,
-                            const unsigned char *plaintext,
-                            unsigned char *results);
+శూన్య Curl_ntlm_core_lm_resp(స్థిరరాశి గుర్తులేని అక్షరం *కీలకాలు,
+                            స్థిరరాశి గుర్తులేని అక్షరం *plaintext,
+                            గుర్తులేని అక్షరం *results);
 
-CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
-                                   unsigned char *lmbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_lm_hash(స్థిరరాశి అక్షరం *password,
+                                   గుర్తులేని అక్షరం *lmbuffer /* 21 bytes */);
 
-CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
-                                   unsigned char *ntbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_nt_hash(స్థిరరాశి అక్షరం *password,
+                                   గుర్తులేని అక్షరం *ntbuffer /* 21 bytes */);
 
-#ifndef USE_WINDOWS_SSPI
+#నిర్వచితం_కాకపోతే USE_WINDOWS_SSPI
 
-CURLcode Curl_hmac_md5(const unsigned char *key, unsigned int keylen,
-                       const unsigned char *data, unsigned int datalen,
-                       unsigned char *output);
+CURLcode Curl_hmac_md5(స్థిరరాశి గుర్తులేని అక్షరం *కీలకం, గుర్తులేని పూర్ణాంకం keylen,
+                       స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం, గుర్తులేని పూర్ణాంకం datalen,
+                       గుర్తులేని అక్షరం *output);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
-                                       const char *domain, size_t domlen,
-                                       unsigned char *ntlmhash,
-                                       unsigned char *ntlmv2hash);
+CURLcode Curl_ntlm_core_mk_ntlmv2_hash(స్థిరరాశి అక్షరం *user, size_t userlen,
+                                       స్థిరరాశి అక్షరం *domain, size_t domlen,
+                                       గుర్తులేని అక్షరం *ntlmhash,
+                                       గుర్తులేని అక్షరం *ntlmv2hash);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
-                                       const unsigned char *challenge_client,
-                                       const struct ntlmdata *ntlm,
-                                       unsigned char **ntresp,
-                                       unsigned int *ntresp_len);
+CURLcode Curl_ntlm_core_mk_ntlmv2_resp(స్థిరరాశి గుర్తులేని అక్షరం *ntlmv2hash,
+                                       స్థిరరాశి గుర్తులేని అక్షరం *challenge_client,
+                                       స్థిరరాశి నిర్మాణం ntlmdata *ntlm,
+                                       గుర్తులేని అక్షరం **ntresp,
+                                       గుర్తులేని పూర్ణాంకం *ntresp_len);
 
-CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
-                                     const unsigned char *challenge_client,
-                                     const unsigned char *challenge_server,
-                                     unsigned char *lmresp);
+CURLcode Curl_ntlm_core_mk_lmv2_resp(స్థిరరాశి గుర్తులేని అక్షరం *ntlmv2hash,
+                                     స్థిరరాశి గుర్తులేని అక్షరం *challenge_client,
+                                     స్థిరరాశి గుర్తులేని అక్షరం *challenge_server,
+                                     గుర్తులేని అక్షరం *lmresp);
 
-#endif /* !USE_WINDOWS_SSPI */
+#అయితే_ముగింపు /* !USE_WINDOWS_SSPI */
 
-#endif /* USE_CURL_NTLM_CORE */
+#అయితే_ముగింపు /* USE_CURL_NTLM_CORE */
 
-#endif /* HEADER_CURL_NTLM_CORE_H */
+#అయితే_ముగింపు /* HEADER_CURL_NTLM_CORE_H */

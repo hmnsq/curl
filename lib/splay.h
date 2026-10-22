@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SPLAY_H
-#define HEADER_CURL_SPLAY_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_SPLAY_H
+#నిర్వచించు శీర్షిక_CURL_SPLAY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "curlx/timeval.h"
+#అన్తర్భావ "curlx/timeval.h"
 
-struct Curl_easy;
+నిర్మాణం Curl_easy;
 
 /* only use function calls to access this struct */
-struct Curl_tree {
-  struct Curl_tree *smaller; /* smaller node */
-  struct Curl_tree *larger;  /* larger node */
-  struct Curl_tree *same;    /* points to the next node with identical key */
-  timediff_t key;            /* this node's "sort" key */
+నిర్మాణం Curl_వృక్షం {
+  నిర్మాణం Curl_వృక్షం *smaller; /* smaller node */
+  నిర్మాణం Curl_వృక్షం *larger;  /* larger node */
+  నిర్మాణం Curl_వృక్షం *same;    /* points to the next node with identical key */
+  timediff_t కీలకం;            /* this node's "sort" key */
   uint32_t id;               /* provided id for this node */
-  BIT(registered);           /* node is registered in splay tree */
+  బిట్టు(registered);           /* node is registered in splay tree */
 };
 
-struct Curl_timeouts {
-  struct Curl_tree *tree;
-  time_t time_base_sec;
+నిర్మాణం Curl_timeouts {
+  నిర్మాణం Curl_వృక్షం *వృక్షం;
+  time_t సమయం_పునాది_sec;
 };
 
-void Curl_timeouts_init(struct Curl_timeouts *timeouts,
-                        const struct curltime *ptime_base);
+శూన్య Curl_timeouts_init(నిర్మాణం Curl_timeouts *timeouts,
+                        స్థిరరాశి నిర్మాణం curltime *ptime_పునాది);
 
-bool Curl_timeouts_has(struct Curl_easy *data);
+bool Curl_timeouts_has(నిర్మాణం Curl_easy *దత్తాంశం);
 
-timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
-                                   const struct curltime *pts);
+timediff_t Curl_timeouts_స్థానభ్రంశం_us(నిర్మాణం Curl_timeouts *timeouts,
+                                   స్థిరరాశి నిర్మాణం curltime *pts);
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
-                          const struct curltime *pnow,
-                          timediff_t *pexpire_offset_us,
+పూర్ణాంకం Curl_timeouts_తదుపరి_ms(నిర్మాణం Curl_timeouts *timeouts,
+                          స్థిరరాశి నిర్మాణం curltime *pnow,
+                          timediff_t *pexpire_స్థానభ్రంశం_us,
                           uint32_t *pmid);
 
-bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
-                                  const struct curltime *ts,
+bool Curl_timeouts_remove_expired(నిర్మాణం Curl_timeouts *timeouts,
+                                  స్థిరరాశి నిర్మాణం curltime *ts,
                                   uint32_t *pmid);
 
-void Curl_timeouts_add(struct Curl_timeouts *timeouts,
-                       struct Curl_easy *data,
-                       timediff_t offset_us);
+శూన్య Curl_timeouts_కూడు(నిర్మాణం Curl_timeouts *timeouts,
+                       నిర్మాణం Curl_easy *దత్తాంశం,
+                       timediff_t స్థానభ్రంశం_us);
 
 /* Returns TRUE if data was registered in timeouts before */
-bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
-                          struct Curl_easy *data);
+bool Curl_timeouts_remove(నిర్మాణం Curl_timeouts *timeouts,
+                          నిర్మాణం Curl_easy *దత్తాంశం);
 
-#ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node);
-#endif
+#నిర్వచితమైతే UNITTESTS
+uint32_t Curl_splayget(నిర్మాణం Curl_వృక్షం *కణుపు);
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_SPLAY_H */
+#అయితే_ముగింపు /* HEADER_CURL_SPLAY_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SOCKETPAIR_H
-#define HEADER_CURL_SOCKETPAIR_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_SOCKETPAIR_H
+#నిర్వచించు శీర్షిక_CURL_SOCKETPAIR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_SOCKETPAIR
+#నిర్వచితం_కాకపోతే CURL_DISABLE_SOCKETPAIR
 
 /* return < 0 for failure to initialize */
-int Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking);
-void Curl_wakeup_destroy(curl_socket_t socks[2]);
+పూర్ణాంకం Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking);
+శూన్య Curl_wakeup_destroy(curl_socket_t socks[2]);
 
 /* return 0 on success or errno on failure */
-int Curl_wakeup_signal(curl_socket_t socks[2]);
+పూర్ణాంకం Curl_wakeup_signal(curl_socket_t socks[2]);
 
 CURLcode Curl_wakeup_consume(curl_socket_t socks[2], bool all);
 
-#else
-#define Curl_wakeup_destroy(x) Curl_nop_stmt
-#endif
+#లేకపోతే
+#నిర్వచించు Curl_wakeup_destroy(x) Curl_nop_stmt
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_SOCKETPAIR_H */
+#అయితే_ముగింపు /* HEADER_CURL_SOCKETPAIR_H */

@@ -21,15 +21,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef _WIN32
-#include <wchar.h>
-#endif
+#నిర్వచితమైతే _WIN32
+#అన్తర్భావ <wchar.h>
+#అయితే_ముగింపు
 
-#include "curlx/strdup.h"
+#అన్తర్భావ "curlx/strdup.h"
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 /***************************************************************************
  *
  * curlx_wcsdup(source)
@@ -40,16 +40,16 @@
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-wchar_t *curlx_wcsdup(const wchar_t *src)
+wchar_t *curlx_wcsdup(స్థిరరాశి wchar_t *src)
 {
-  size_t length = wcslen(src);
+  size_t నిడివి = wcslen(src);
 
-  if(length > (SIZE_MAX / sizeof(wchar_t)) - 1)
-    return (wchar_t *)NULL; /* integer overflow */
+  ఒకవేళ(నిడివి > (SIZE_MAX / పరిమాణం(wchar_t)) - 1)
+    తిరిగి (wchar_t *)ఖాళీ; /* integer overflow */
 
-  return (wchar_t *)curlx_memdup(src, (length + 1) * sizeof(wchar_t));
+  తిరిగి (wchar_t *)curlx_memdup(src, (నిడివి + 1) * పరిమాణం(wchar_t));
 }
-#endif
+#అయితే_ముగింపు
 
 /***************************************************************************
  *
@@ -61,15 +61,15 @@ wchar_t *curlx_wcsdup(const wchar_t *src)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup(const void *src, size_t length)
+శూన్య *curlx_memdup(స్థిరరాశి శూన్య *src, size_t నిడివి)
 {
-  void *buffer = curlx_malloc(length);
-  if(!buffer)
-    return NULL; /* fail */
+  శూన్య *బఫరు = curlx_malloc(నిడివి);
+  ఒకవేళ(!బఫరు)
+    తిరిగి ఖాళీ; /* fail */
 
-  memcpy(buffer, src, length);
+  జ్ఞాపకం_నకలు(బఫరు, src, నిడివి);
 
-  return buffer;
+  తిరిగి బఫరు;
 }
 
 /***************************************************************************
@@ -82,42 +82,42 @@ void *curlx_memdup(const void *src, size_t length)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup0(const char *src, size_t length)
+శూన్య *curlx_memdup0(స్థిరరాశి అక్షరం *src, size_t నిడివి)
 {
-  char *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : NULL;
-  if(!buf)
-    return NULL;
-  if(length) {
+  అక్షరం *buf = (నిడివి < SIZE_MAX) ? curlx_malloc(నిడివి + 1) : ఖాళీ;
+  ఒకవేళ(!buf)
+    తిరిగి ఖాళీ;
+  ఒకవేళ(నిడివి) {
     DEBUGASSERT(src); /* must never be NULL */
-    memcpy(buf, src, length);
+    జ్ఞాపకం_నకలు(buf, src, నిడివి);
   }
-  buf[length] = 0;
-  return buf;
+  buf[నిడివి] = 0;
+  తిరిగి buf;
 }
 
-#ifdef USE_CURLX_MEMZERO
-static void *(* const volatile p_curlx_memset)(void *buf, int val,
-                                               size_t size) = memset;
+#నిర్వచితమైతే USE_CURLX_MEMZERO
+స్థిర శూన్య *(* స్థిరరాశి అస్థిర p_curlx_memset)(శూన్య *buf, పూర్ణాంకం val,
+                                               size_t కొలత) = memset;
 
 /* Local fallback in case there is no system function to securely zero a memory
    buffer. */
-void curlx_memzero_low(void *buf, size_t size)
+శూన్య curlx_memzero_దిగువ(శూన్య *buf, size_t కొలత)
 {
-  if(buf)
-    p_curlx_memset(buf, 0, size);
+  ఒకవేళ(buf)
+    p_curlx_memset(buf, 0, కొలత);
 }
-#endif
+#అయితే_ముగింపు
 
 /* Fill 'buf' with zeroes. */
-void curlx_memzero(void *buf, size_t size)
+శూన్య curlx_memzero(శూన్య *buf, size_t కొలత)
 {
-  if(buf)
-    curlx_memzero_low(buf, size);
+  ఒకవేళ(buf)
+    curlx_memzero_దిగువ(buf, కొలత);
 }
 
 /* Fill 'buf' with zeroes, where 'buf' is null-terminated. */
-void curlx_strzero(void *buf)
+శూన్య curlx_strzero(శూన్య *buf)
 {
-  if(buf)
-    curlx_memzero_low(buf, strlen(buf));
+  ఒకవేళ(buf)
+    curlx_memzero_దిగువ(buf, అక్షరశ్రేణి_పొడవు(buf));
 }

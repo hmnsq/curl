@@ -23,12 +23,12 @@
  * RFC4752 The Kerberos V5 ("GSSAPI") SASL Mechanism
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && defined(USE_KERBEROS5)
+#ఒకవేళ defined(USE_WINDOWS_SSPI) && defined(USE_KERBEROS5)
 
-#include "vauth/vauth.h"
-#include "curl_trc.h"
+#అన్తర్భావ "vauth/vauth.h"
+#అన్తర్భావ "curl_trc.h"
 
 /*
  * Curl_auth_is_gssapi_supported()
@@ -39,22 +39,22 @@
  *
  * Returns TRUE if Kerberos V5 is supported by Windows SSPI.
  */
-bool Curl_auth_is_gssapi_supported(void)
+bool Curl_auth_is_gssapi_supported(శూన్య)
 {
   PSecPkgInfo SecurityPackage;
-  SECURITY_STATUS status;
+  SECURITY_స్థితి స్థితి_2;
 
   /* Query the security package for Kerberos */
-  status = Curl_pSecFn->QuerySecurityPackageInfo(
-                                 CURL_UNCONST(TEXT(SP_NAME_KERBEROS)),
+  స్థితి_2 = Curl_pSecFn->QuerySecurityPackageInfo(
+                                 CURL_UNCONST(పాఠ్యం_2(SP_NAME_KERBEROS)),
                                  &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
-    Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+  ఒకవేళ(స్థితి_2 == SEC_E_OK) {
+    Curl_pSecFn->Free_Context_బఫరు(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  తిరిగి స్థితి_2 == SEC_E_OK;
 }
 
 /*
@@ -78,148 +78,148 @@ bool Curl_auth_is_gssapi_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const char *default_service,
-                                              const char *host,
-                                              const bool mutual_auth,
-                                              const struct bufref *chlg,
-                                              struct kerberos5data *krb5,
-                                              struct bufref *out)
+CURLcode Curl_auth_create_gssapi_user_సందేశం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                              నిర్మాణం Curl_creds *creds,
+                                              స్థిరరాశి అక్షరం *default_service,
+                                              స్థిరరాశి అక్షరం *host,
+                                              స్థిరరాశి bool mutual_auth,
+                                              స్థిరరాశి నిర్మాణం bufref *chlg,
+                                              నిర్మాణం kerberos5data *krb5,
+                                              నిర్మాణం bufref *బహిర్గతం)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
   CtxtHandle context;
   PSecPkgInfo SecurityPackage;
-  SecBuffer chlg_buf;
-  SecBuffer resp_buf;
-  SecBufferDesc chlg_desc;
-  SecBufferDesc resp_desc;
-  SECURITY_STATUS status;
-  unsigned long attrs;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  Sec_బఫరు chlg_buf;
+  Sec_బఫరు resp_buf;
+  Sec_బఫరు_Desc chlg_desc;
+  Sec_బఫరు_Desc resp_desc;
+  SECURITY_స్థితి స్థితి_2;
+  గుర్తులేని దీర్ఘ attrs;
+  స్థిరరాశి అక్షరం *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
-  if(!krb5->spn) {
+  ఒకవేళ(!krb5->spn) {
     /* Generate our SPN */
-    krb5->spn = Curl_auth_build_spn(service, host, NULL);
-    if(!krb5->spn)
-      return CURLE_OUT_OF_MEMORY;
+    krb5->spn = Curl_auth_build_spn(service, host, ఖాళీ);
+    ఒకవేళ(!krb5->spn)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  if(!krb5->output_token) {
+  ఒకవేళ(!krb5->output_token) {
     /* Query the security package for Kerberos */
-    status = Curl_pSecFn->QuerySecurityPackageInfo(
-                                 CURL_UNCONST(TEXT(SP_NAME_KERBEROS)),
+    స్థితి_2 = Curl_pSecFn->QuerySecurityPackageInfo(
+                                 CURL_UNCONST(పాఠ్యం_2(SP_NAME_KERBEROS)),
                                  &SecurityPackage);
-    if(status != SEC_E_OK) {
-      failf(data, "SSPI: could not get auth info");
-      return CURLE_AUTH_ERROR;
+    ఒకవేళ(స్థితి_2 != SEC_E_OK) {
+      failf(దత్తాంశం, "SSPI: could not get auth info");
+      తిరిగి CURLE_AUTH_ERROR;
     }
 
     krb5->token_max = SecurityPackage->cbMaxToken;
 
     /* Release the package buffer as it is not required anymore */
-    Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+    Curl_pSecFn->Free_Context_బఫరు(SecurityPackage);
 
     /* Allocate our response buffer */
     krb5->output_token = curlx_malloc(krb5->token_max);
-    if(!krb5->output_token)
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(!krb5->output_token)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  if(!krb5->credentials) {
+  ఒకవేళ(!krb5->credentials) {
     /* Do we have credentials to use or are we using single sign-on? */
-    if(Curl_creds_has_user(creds)) {
+    ఒకవేళ(Curl_creds_has_user(creds)) {
       /* Populate our identity structure */
-      result = Curl_create_sspi_identity(
-        creds->user, creds->passwd, &krb5->identity);
-      if(result)
-        return result;
+      ఫలితం = Curl_create_sspi_తటస్థం(
+        creds->user, creds->passwd, &krb5->తటస్థం);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
 
       /* Allow proper cleanup of the identity structure */
-      krb5->p_identity = &krb5->identity;
+      krb5->p_తటస్థం = &krb5->తటస్థం;
     }
-    else
+    లేకపోతే
       /* Use the current Windows user */
-      krb5->p_identity = NULL;
+      krb5->p_తటస్థం = ఖాళీ;
 
     /* Allocate our credentials handle */
-    krb5->credentials = curlx_calloc(1, sizeof(CredHandle));
-    if(!krb5->credentials)
-      return CURLE_OUT_OF_MEMORY;
+    krb5->credentials = curlx_calloc(1, పరిమాణం(CredHandle));
+    ఒకవేళ(!krb5->credentials)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
     /* Acquire our credentials handle */
-    status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
-                                 CURL_UNCONST(TEXT(SP_NAME_KERBEROS)),
-                                 SECPKG_CRED_OUTBOUND, NULL,
-                                 krb5->p_identity, NULL, NULL,
-                                 krb5->credentials, NULL);
-    if(status != SEC_E_OK) {
+    స్థితి_2 = Curl_pSecFn->AcquireCredentialsHandle(ఖాళీ,
+                                 CURL_UNCONST(పాఠ్యం_2(SP_NAME_KERBEROS)),
+                                 SECPKG_CRED_OUTBOUND, ఖాళీ,
+                                 krb5->p_తటస్థం, ఖాళీ, ఖాళీ,
+                                 krb5->credentials, ఖాళీ);
+    ఒకవేళ(స్థితి_2 != SEC_E_OK) {
       curlx_safefree(krb5->credentials);
-      return CURLE_LOGIN_DENIED;
+      తిరిగి CURLE_LOGIN_DENIED;
     }
 
     /* Allocate our new context handle */
-    krb5->context = curlx_calloc(1, sizeof(CtxtHandle));
-    if(!krb5->context)
-      return CURLE_OUT_OF_MEMORY;
+    krb5->context = curlx_calloc(1, పరిమాణం(CtxtHandle));
+    ఒకవేళ(!krb5->context)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  if(chlg) {
-    if(!Curl_bufref_len(chlg)) {
-      infof(data, "GSSAPI handshake failure (empty challenge message)");
-      return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(chlg) {
+    ఒకవేళ(!Curl_bufref_len(chlg)) {
+      infof(దత్తాంశం, "GSSAPI handshake failure (empty challenge message)");
+      తిరిగి CURLE_BAD_CONTENT_ENCODING;
     }
 
     /* Setup the challenge "input" security buffer */
-    chlg_desc.ulVersion = SECBUFFER_VERSION;
+    chlg_desc.ul_సంస్కరణ = SECBUFFER_సంస్కరణ;
     chlg_desc.cBuffers  = 1;
     chlg_desc.pBuffers  = &chlg_buf;
-    chlg_buf.BufferType = SECBUFFER_TOKEN;
-    chlg_buf.pvBuffer   = CURL_UNCONST(Curl_bufref_ptr(chlg));
-    chlg_buf.cbBuffer   = curlx_uztoul(Curl_bufref_len(chlg));
+    chlg_buf.బఫరు_Type = SECBUFFER_TOKEN;
+    chlg_buf.pv_బఫరు   = CURL_UNCONST(Curl_bufref_ptr(chlg));
+    chlg_buf.cb_బఫరు   = curlx_uztoul(Curl_bufref_len(chlg));
   }
 
   /* Setup the response "output" security buffer */
-  resp_desc.ulVersion = SECBUFFER_VERSION;
+  resp_desc.ul_సంస్కరణ = SECBUFFER_సంస్కరణ;
   resp_desc.cBuffers  = 1;
   resp_desc.pBuffers  = &resp_buf;
-  resp_buf.BufferType = SECBUFFER_TOKEN;
-  resp_buf.pvBuffer   = krb5->output_token;
-  resp_buf.cbBuffer   = curlx_uztoul(krb5->token_max);
+  resp_buf.బఫరు_Type = SECBUFFER_TOKEN;
+  resp_buf.pv_బఫరు   = krb5->output_token;
+  resp_buf.cb_బఫరు   = curlx_uztoul(krb5->token_max);
 
   /* Generate our challenge-response message */
-  status = Curl_pSecFn->InitializeSecurityContext(krb5->credentials,
-                                               chlg ? krb5->context : NULL,
+  స్థితి_2 = Curl_pSecFn->InitializeSecurityContext(krb5->credentials,
+                                               chlg ? krb5->context : ఖాళీ,
                                                krb5->spn,
                                                (mutual_auth ?
                                                 ISC_REQ_MUTUAL_AUTH : 0),
                                                0, SECURITY_NATIVE_DREP,
-                                               chlg ? &chlg_desc : NULL, 0,
+                                               chlg ? &chlg_desc : ఖాళీ, 0,
                                                &context,
-                                               &resp_desc, &attrs, NULL);
+                                               &resp_desc, &attrs, ఖాళీ);
 
-  if(status == SEC_E_INSUFFICIENT_MEMORY)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(స్థితి_2 == SEC_E_INSUFFICIENT_జ్ఞాపకం)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED)
-    return CURLE_AUTH_ERROR;
+  ఒకవేళ(స్థితి_2 != SEC_E_OK && స్థితి_2 != SEC_I_CONTINUE_NEEDED)
+    తిరిగి CURLE_AUTH_ERROR;
 
-  if(memcmp(&context, krb5->context, sizeof(context))) {
+  ఒకవేళ(memcmp(&context, krb5->context, పరిమాణం(context))) {
     Curl_pSecFn->DeleteSecurityContext(krb5->context);
 
-    memcpy(krb5->context, &context, sizeof(context));
+    జ్ఞాపకం_నకలు(krb5->context, &context, పరిమాణం(context));
   }
 
-  if(resp_buf.cbBuffer) {
-    result = Curl_bufref_memdup0(out, resp_buf.pvBuffer, resp_buf.cbBuffer);
+  ఒకవేళ(resp_buf.cb_బఫరు) {
+    ఫలితం = Curl_bufref_memdup0(బహిర్గతం, resp_buf.pv_బఫరు, resp_buf.cb_బఫరు);
   }
-  else if(mutual_auth)
-    Curl_bufref_set(out, "", 0, NULL);
-  else
-    Curl_bufref_set(out, NULL, 0, NULL);
+  లేకపోతే ఒకవేళ(mutual_auth)
+    Curl_bufref_సమితి(బహిర్గతం, "", 0, ఖాళీ);
+  లేకపోతే
+    Curl_bufref_సమితి(బహిర్గతం, ఖాళీ, 0, ఖాళీ);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -238,183 +238,183 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
-                                                  const char *authzid,
-                                                  const struct bufref *chlg,
-                                                  struct kerberos5data *krb5,
-                                                  struct bufref *out)
+CURLcode Curl_auth_create_gssapi_security_సందేశం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                                  స్థిరరాశి అక్షరం *authzid,
+                                                  స్థిరరాశి నిర్మాణం bufref *chlg,
+                                                  నిర్మాణం kerberos5data *krb5,
+                                                  నిర్మాణం bufref *బహిర్గతం)
 {
-  CURLcode result = CURLE_OK;
-  size_t offset = 0;
+  CURLcode ఫలితం = CURLE_OK;
+  size_t స్థానభ్రంశం = 0;
   size_t messagelen = 0;
   size_t appdatalen = 0;
-  unsigned char *trailer = NULL;
-  unsigned char *message = NULL;
-  unsigned char *padding = NULL;
-  unsigned char *appdata = NULL;
-  SecBuffer input_buf[2];
-  SecBuffer wrap_buf[3];
-  SecBufferDesc input_desc;
-  SecBufferDesc wrap_desc;
-  unsigned char *indata;
-  unsigned long qop = 0;
-  unsigned long sec_layer = 0;
-  unsigned long max_size = 0;
+  గుర్తులేని అక్షరం *trailer = ఖాళీ;
+  గుర్తులేని అక్షరం *సందేశం_2 = ఖాళీ;
+  గుర్తులేని అక్షరం *padding = ఖాళీ;
+  గుర్తులేని అక్షరం *appdata = ఖాళీ;
+  Sec_బఫరు ఆదానం_buf[2];
+  Sec_బఫరు wrap_buf[3];
+  Sec_బఫరు_Desc ఆదానం_desc;
+  Sec_బఫరు_Desc wrap_desc;
+  గుర్తులేని అక్షరం *indata;
+  గుర్తులేని దీర్ఘ qop = 0;
+  గుర్తులేని దీర్ఘ sec_layer = 0;
+  గుర్తులేని దీర్ఘ max_కొలత = 0;
   SecPkgContext_Sizes sizes;
-  SECURITY_STATUS status;
+  SECURITY_స్థితి స్థితి_2;
 
   /* Ensure we have a valid challenge message */
   DEBUGASSERT(chlg);
-  if(!Curl_bufref_len(chlg)) {
-    infof(data, "GSSAPI handshake failure (empty security message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!Curl_bufref_len(chlg)) {
+    infof(దత్తాంశం, "GSSAPI handshake failure (empty security message)");
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Get our response size information */
-  status = Curl_pSecFn->QueryContextAttributes(krb5->context,
+  స్థితి_2 = Curl_pSecFn->Query_Context_లక్షణాలు(krb5->context,
                                                SECPKG_ATTR_SIZES, &sizes);
 
-  if(status == SEC_E_INSUFFICIENT_MEMORY)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(స్థితి_2 == SEC_E_INSUFFICIENT_జ్ఞాపకం)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  if(status != SEC_E_OK)
-    return CURLE_AUTH_ERROR;
+  ఒకవేళ(స్థితి_2 != SEC_E_OK)
+    తిరిగి CURLE_AUTH_ERROR;
 
   /* Setup the "input" security buffer */
-  input_desc.ulVersion = SECBUFFER_VERSION;
-  input_desc.cBuffers = 2;
-  input_desc.pBuffers = input_buf;
-  input_buf[0].BufferType = SECBUFFER_STREAM;
-  input_buf[0].pvBuffer = CURL_UNCONST(Curl_bufref_ptr(chlg));
-  input_buf[0].cbBuffer = curlx_uztoul(Curl_bufref_len(chlg));
-  input_buf[1].BufferType = SECBUFFER_DATA;
-  input_buf[1].pvBuffer = NULL;
-  input_buf[1].cbBuffer = 0;
+  ఆదానం_desc.ul_సంస్కరణ = SECBUFFER_సంస్కరణ;
+  ఆదానం_desc.cBuffers = 2;
+  ఆదానం_desc.pBuffers = ఆదానం_buf;
+  ఆదానం_buf[0].బఫరు_Type = SECBUFFER_ప్రవాహం;
+  ఆదానం_buf[0].pv_బఫరు = CURL_UNCONST(Curl_bufref_ptr(chlg));
+  ఆదానం_buf[0].cb_బఫరు = curlx_uztoul(Curl_bufref_len(chlg));
+  ఆదానం_buf[1].బఫరు_Type = SECBUFFER_దత్తాంశం;
+  ఆదానం_buf[1].pv_బఫరు = ఖాళీ;
+  ఆదానం_buf[1].cb_బఫరు = 0;
 
   /* Decrypt the inbound challenge and obtain the qop. The encrypted message
      is decrypted in place, overwriting the original contents of its buffer.
      The SECBUFFER_DATA receives a pointer to the message in
      SECBUFFER_STREAM. */
-  status = Curl_pSecFn->DecryptMessage(krb5->context, &input_desc, 0, &qop);
-  if(status != SEC_E_OK) {
-    infof(data, "GSSAPI handshake failure (decryption failed)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  స్థితి_2 = Curl_pSecFn->Decrypt_సందేశం(krb5->context, &ఆదానం_desc, 0, &qop);
+  ఒకవేళ(స్థితి_2 != SEC_E_OK) {
+    infof(దత్తాంశం, "GSSAPI handshake failure (decryption failed)");
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Not 4 octets long so fail as per RFC4752 Section 3.1 */
-  if(input_buf[1].cbBuffer != 4) {
-    infof(data, "GSSAPI handshake failure (invalid security data)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(ఆదానం_buf[1].cb_బఫరు != 4) {
+    infof(దత్తాంశం, "GSSAPI handshake failure (invalid security data)");
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Extract the security layer and the maximum message size */
-  indata = input_buf[1].pvBuffer;
+  indata = ఆదానం_buf[1].pv_బఫరు;
   sec_layer = indata[0];
-  max_size = ((unsigned long)indata[1] << 16) |
-             ((unsigned long)indata[2] << 8) | indata[3];
+  max_కొలత = ((గుర్తులేని దీర్ఘ)indata[1] << 16) |
+             ((గుర్తులేని దీర్ఘ)indata[2] << 8) | indata[3];
 
   /* Process the security layer */
-  if(!(sec_layer & KERB_WRAP_NO_ENCRYPT)) {
-    infof(data, "GSSAPI handshake failure (invalid security layer)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!(sec_layer & KERB_WRAP_NO_ENCRYPT)) {
+    infof(దత్తాంశం, "GSSAPI handshake failure (invalid security layer)");
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
   }
   sec_layer &= KERB_WRAP_NO_ENCRYPT;  /* We do not support a security layer */
 
   /* Process the maximum message size the server can receive */
-  if(max_size > 0) {
+  ఒకవేళ(max_కొలత > 0) {
     /* The server has told us it supports a maximum receive buffer, but as we
        do not require one unless we are encrypting data, we tell the server
        our receive buffer is zero. */
-    max_size = 0;
+    max_కొలత = 0;
   }
 
   /* Allocate the trailer */
   trailer = curlx_malloc(sizes.cbSecurityTrailer);
-  if(!trailer)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!trailer)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* Allocate our message */
   messagelen = 4;
-  if(authzid)
-    messagelen += strlen(authzid);
-  message = curlx_malloc(messagelen);
-  if(!message) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ఒకవేళ(authzid)
+    messagelen += అక్షరశ్రేణి_పొడవు(authzid);
+  సందేశం_2 = curlx_malloc(messagelen);
+  ఒకవేళ(!సందేశం_2) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
   /* Populate the message with the security layer and client supported receive
      message size. */
-  message[0] = sec_layer & 0xFF;
-  message[1] = (max_size >> 16) & 0xFF;
-  message[2] = (max_size >> 8) & 0xFF;
-  message[3] = max_size & 0xFF;
+  సందేశం_2[0] = sec_layer & 0xFF;
+  సందేశం_2[1] = (max_కొలత >> 16) & 0xFF;
+  సందేశం_2[2] = (max_కొలత >> 8) & 0xFF;
+  సందేశం_2[3] = max_కొలత & 0xFF;
 
   /* If given, append the authorization identity. */
 
-  if(authzid && *authzid)
-    memcpy(message + 4, authzid, messagelen - 4);
+  ఒకవేళ(authzid && *authzid)
+    జ్ఞాపకం_నకలు(సందేశం_2 + 4, authzid, messagelen - 4);
 
   /* Allocate the padding */
-  padding = curlx_malloc(sizes.cbBlockSize);
-  if(!padding) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  padding = curlx_malloc(sizes.cb_ఖండం_కొలత);
+  ఒకవేళ(!padding) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
   /* Setup the "authentication data" security buffer */
-  wrap_desc.ulVersion    = SECBUFFER_VERSION;
+  wrap_desc.ul_సంస్కరణ    = SECBUFFER_సంస్కరణ;
   wrap_desc.cBuffers     = 3;
   wrap_desc.pBuffers     = wrap_buf;
-  wrap_buf[0].BufferType = SECBUFFER_TOKEN;
-  wrap_buf[0].pvBuffer   = trailer;
-  wrap_buf[0].cbBuffer   = sizes.cbSecurityTrailer;
-  wrap_buf[1].BufferType = SECBUFFER_DATA;
-  wrap_buf[1].pvBuffer   = message;
-  wrap_buf[1].cbBuffer   = curlx_uztoul(messagelen);
-  wrap_buf[2].BufferType = SECBUFFER_PADDING;
-  wrap_buf[2].pvBuffer   = padding;
-  wrap_buf[2].cbBuffer   = sizes.cbBlockSize;
+  wrap_buf[0].బఫరు_Type = SECBUFFER_TOKEN;
+  wrap_buf[0].pv_బఫరు   = trailer;
+  wrap_buf[0].cb_బఫరు   = sizes.cbSecurityTrailer;
+  wrap_buf[1].బఫరు_Type = SECBUFFER_దత్తాంశం;
+  wrap_buf[1].pv_బఫరు   = సందేశం_2;
+  wrap_buf[1].cb_బఫరు   = curlx_uztoul(messagelen);
+  wrap_buf[2].బఫరు_Type = SECBUFFER_PADDING;
+  wrap_buf[2].pv_బఫరు   = padding;
+  wrap_buf[2].cb_బఫరు   = sizes.cb_ఖండం_కొలత;
 
   /* Encrypt the data */
-  status = Curl_pSecFn->EncryptMessage(krb5->context, KERB_WRAP_NO_ENCRYPT,
+  స్థితి_2 = Curl_pSecFn->Encrypt_సందేశం(krb5->context, KERB_WRAP_NO_ENCRYPT,
                                        &wrap_desc, 0);
-  if(status != SEC_E_OK) {
-    if(status == SEC_E_INSUFFICIENT_MEMORY)
-      result = CURLE_OUT_OF_MEMORY;
-    else
-      result = CURLE_AUTH_ERROR;
-    goto out;
+  ఒకవేళ(స్థితి_2 != SEC_E_OK) {
+    ఒకవేళ(స్థితి_2 == SEC_E_INSUFFICIENT_జ్ఞాపకం)
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    లేకపోతే
+      ఫలితం = CURLE_AUTH_ERROR;
+    వెళ్ళు బహిర్గతం;
   }
 
   /* Allocate the encryption (wrap) buffer */
-  appdatalen = wrap_buf[0].cbBuffer + wrap_buf[1].cbBuffer +
-               wrap_buf[2].cbBuffer;
+  appdatalen = wrap_buf[0].cb_బఫరు + wrap_buf[1].cb_బఫరు +
+               wrap_buf[2].cb_బఫరు;
   appdata = curlx_malloc(appdatalen);
-  if(!appdata) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ఒకవేళ(!appdata) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
   /* Populate the encryption buffer */
-  memcpy(appdata, wrap_buf[0].pvBuffer, wrap_buf[0].cbBuffer);
-  offset += wrap_buf[0].cbBuffer;
-  memcpy(appdata + offset, wrap_buf[1].pvBuffer, wrap_buf[1].cbBuffer);
-  offset += wrap_buf[1].cbBuffer;
-  memcpy(appdata + offset, wrap_buf[2].pvBuffer, wrap_buf[2].cbBuffer);
+  జ్ఞాపకం_నకలు(appdata, wrap_buf[0].pv_బఫరు, wrap_buf[0].cb_బఫరు);
+  స్థానభ్రంశం += wrap_buf[0].cb_బఫరు;
+  జ్ఞాపకం_నకలు(appdata + స్థానభ్రంశం, wrap_buf[1].pv_బఫరు, wrap_buf[1].cb_బఫరు);
+  స్థానభ్రంశం += wrap_buf[1].cb_బఫరు;
+  జ్ఞాపకం_నకలు(appdata + స్థానభ్రంశం, wrap_buf[2].pv_బఫరు, wrap_buf[2].cb_బఫరు);
 
-out:
+బహిర్గతం:
   /* Free all of our local buffers */
   curlx_free(padding);
-  curlx_free(message);
+  curlx_free(సందేశం_2);
   curlx_free(trailer);
 
-  if(result)
-    return result;
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* Return the response. */
-  Curl_bufref_set(out, appdata, appdatalen, curl_free);
-  return CURLE_OK;
+  Curl_bufref_సమితి(బహిర్గతం, appdata, appdatalen, curl_free);
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -427,23 +427,23 @@ out:
  * krb5     [in/out] - The Kerberos 5 data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5)
+శూన్య Curl_auth_cleanup_gssapi(నిర్మాణం kerberos5data *krb5)
 {
   /* Free our security context */
-  if(krb5->context) {
+  ఒకవేళ(krb5->context) {
     Curl_pSecFn->DeleteSecurityContext(krb5->context);
     curlx_safefree(krb5->context);
   }
 
   /* Free our credentials handle */
-  if(krb5->credentials) {
+  ఒకవేళ(krb5->credentials) {
     Curl_pSecFn->FreeCredentialsHandle(krb5->credentials);
     curlx_safefree(krb5->credentials);
   }
 
   /* Free our identity */
-  Curl_sspi_free_identity(krb5->p_identity);
-  krb5->p_identity = NULL;
+  Curl_sspi_free_తటస్థం(krb5->p_తటస్థం);
+  krb5->p_తటస్థం = ఖాళీ;
 
   /* Free the SPN and output token */
   curlx_safefree(krb5->spn);
@@ -453,4 +453,4 @@ void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5)
   krb5->token_max = 0;
 }
 
-#endif /* USE_WINDOWS_SSPI && USE_KERBEROS5 */
+#అయితే_ముగింపు /* USE_WINDOWS_SSPI && USE_KERBEROS5 */

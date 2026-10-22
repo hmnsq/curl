@@ -21,242 +21,242 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_SYS_SOCKIO_H
-#include <sys/sockio.h>
-#endif
-#ifdef HAVE_IFADDRS_H
-#include <ifaddrs.h>
-#endif
-#ifdef HAVE_STROPTS_H
-#include <stropts.h>
-#endif
-#ifdef __VMS
-#include <inet.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NET_IF_H
+#అన్తర్భావ <net/if.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_SYS_IOCTL_H
+#అన్తర్భావ <sys/ioctl.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_SYS_SOCKIO_H
+#అన్తర్భావ <sys/sockio.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_IFADDRS_H
+#అన్తర్భావ <ifaddrs.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_STROPTS_H
+#అన్తర్భావ <stropts.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే __VMS
+#అన్తర్భావ <inet.h>
+#అయితే_ముగింపు
 
-#include "curlx/inet_ntop.h"
-#include "if2ip.h"
+#అన్తర్భావ "curlx/inet_ntop.h"
+#అన్తర్భావ "if2ip.h"
 
 /* ------------------------------------------------------------------ */
 
-#ifdef USE_IPV6
+#నిర్వచితమైతే USE_IPV6
 /* Return the scope of the given address. */
-unsigned int Curl_ipv6_scope(const struct sockaddr *sa)
+గుర్తులేని పూర్ణాంకం Curl_ipv6_scope(స్థిరరాశి నిర్మాణం sockaddr *sa)
 {
-  if(sa->sa_family == AF_INET6) {
-    const struct sockaddr_in6 *sa6 =
-      (const struct sockaddr_in6 *)(const void *)sa;
-    const unsigned char *b = sa6->sin6_addr.s6_addr;
-    unsigned short w = (unsigned short)((b[0] << 8) | b[1]);
+  ఒకవేళ(sa->sa_family == AF_INET6) {
+    స్థిరరాశి నిర్మాణం sockaddr_in6 *sa6 =
+      (స్థిరరాశి నిర్మాణం sockaddr_in6 *)(స్థిరరాశి శూన్య *)sa;
+    స్థిరరాశి గుర్తులేని అక్షరం *b = sa6->sin6_addr.s6_addr;
+    గుర్తులేని పొట్టి w = (గుర్తులేని పొట్టి)((b[0] << 8) | b[1]);
 
-    if((b[0] & 0xFE) == 0xFC) /* Handle ULAs */
-      return IPV6_SCOPE_UNIQUELOCAL;
-    switch(w & 0xFFC0) {
-    case 0xFE80:
-      return IPV6_SCOPE_LINKLOCAL;
-    case 0xFEC0:
-      return IPV6_SCOPE_SITELOCAL;
-    case 0x0000:
+    ఒకవేళ((b[0] & 0xFE) == 0xFC) /* Handle ULAs */
+      తిరిగి IPV6_SCOPE_UNIQUELOCAL;
+    ఎంపిక(w & 0xFFC0) {
+    స్థితి 0xFE80:
+      తిరిగి IPV6_SCOPE_LINKLOCAL;
+    స్థితి 0xFEC0:
+      తిరిగి IPV6_SCOPE_SITELOCAL;
+    స్థితి 0x0000:
       w = b[1] | b[2] | b[3] | b[4] | b[5] | b[6] | b[7] | b[8] | b[9] |
           b[10] | b[11] | b[12] | b[13] | b[14];
-      if(w || b[15] != 0x01)
-        break;
-      return IPV6_SCOPE_NODELOCAL;
-    default:
-      break;
+      ఒకవేళ(w || b[15] != 0x01)
+        ఆపు;
+      తిరిగి IPV6_SCOPE_NODELOCAL;
+    అప్రమేయ:
+      ఆపు;
     }
   }
-  return IPV6_SCOPE_GLOBAL;
+  తిరిగి IPV6_SCOPE_GLOBAL;
 }
-#endif
+#అయితే_ముగింపు
 
-#if !defined(CURL_DISABLE_BINDLOCAL) || !defined(CURL_DISABLE_FTP)
+#ఒకవేళ !defined(CURL_DISABLE_BINDLOCAL) || !defined(CURL_DISABLE_FTP)
 
-#ifdef HAVE_GETIFADDRS
+#నిర్వచితమైతే HAVE_GETIFADDRS
 
-if2ip_result_t Curl_if2ip(int af,
-#ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
-#endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+if2ip_ఫలితం_t Curl_if2ip(పూర్ణాంకం af,
+#నిర్వచితమైతే USE_IPV6
+                          గుర్తులేని పూర్ణాంకం remote_scope,
+                          గుర్తులేని పూర్ణాంకం local_scope_id,
+#అయితే_ముగింపు
+                          స్థిరరాశి అక్షరం *interf,
+                          అక్షరం *buf, size_t buf_కొలత)
 {
-  struct ifaddrs *iface, *head;
-  if2ip_result_t res = IF2IP_NOT_FOUND;
+  నిర్మాణం ifaddrs *iface, *తల;
+  if2ip_ఫలితం_t res = IF2_IP_NOT_దొరికింది;
 
-#if defined(USE_IPV6) && !defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
-  (void)local_scope_id;
-#endif
+#ఒకవేళ defined(USE_IPV6) && !defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
+  (శూన్య)local_scope_id;
+#అయితే_ముగింపు
 
-  if(getifaddrs(&head) >= 0) {
-    for(iface = head; iface; iface = iface->ifa_next) {
-      if(iface->ifa_addr) {
-        if(iface->ifa_addr->sa_family == af) {
-          if(!strcmp(iface->ifa_name, interf)) {
-            void *addr;
-            char scope[12] = "";
-            char ipstr[64];
-            CURLcode result;
-#ifdef USE_IPV6
-            if(af == AF_INET6) {
-#ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-              unsigned int scopeid = 0;
-#endif
-              unsigned int ifscope = Curl_ipv6_scope(iface->ifa_addr);
+  ఒకవేళ(getifaddrs(&తల) >= 0) {
+    కొరకు(iface = తల; iface; iface = iface->ifa_తదుపరి) {
+      ఒకవేళ(iface->ifa_addr) {
+        ఒకవేళ(iface->ifa_addr->sa_family == af) {
+          ఒకవేళ(!strcmp(iface->ifa_name, interf)) {
+            శూన్య *addr;
+            అక్షరం scope[12] = "";
+            అక్షరం ipstr[64];
+            CURLcode ఫలితం;
+#నిర్వచితమైతే USE_IPV6
+            ఒకవేళ(af == AF_INET6) {
+#నిర్వచితమైతే HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
+              గుర్తులేని పూర్ణాంకం scopeid = 0;
+#అయితే_ముగింపు
+              గుర్తులేని పూర్ణాంకం ifscope = Curl_ipv6_scope(iface->ifa_addr);
 
-              if(ifscope != remote_scope) {
+              ఒకవేళ(ifscope != remote_scope) {
                 /* We are interested only in interface addresses whose scope
                    matches the remote address we want to connect to: global
                    for global, link-local for link-local, etc... */
-                if(res == IF2IP_NOT_FOUND)
+                ఒకవేళ(res == IF2_IP_NOT_దొరికింది)
                   res = IF2IP_AF_NOT_SUPPORTED;
-                continue;
+                కొనసాగు;
               }
 
               addr =
-                &((struct sockaddr_in6 *)(void *)iface->ifa_addr)->sin6_addr;
-#ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
+                &((నిర్మాణం sockaddr_in6 *)(శూన్య *)iface->ifa_addr)->sin6_addr;
+#నిర్వచితమైతే HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
               /* Include the scope of this interface as part of the address */
-              scopeid = ((struct sockaddr_in6 *)(void *)iface->ifa_addr)
+              scopeid = ((నిర్మాణం sockaddr_in6 *)(శూన్య *)iface->ifa_addr)
                           ->sin6_scope_id;
 
               /* If given, scope id should match. */
-              if(local_scope_id && scopeid != local_scope_id) {
-                if(res == IF2IP_NOT_FOUND)
+              ఒకవేళ(local_scope_id && scopeid != local_scope_id) {
+                ఒకవేళ(res == IF2_IP_NOT_దొరికింది)
                   res = IF2IP_AF_NOT_SUPPORTED;
 
-                continue;
+                కొనసాగు;
               }
 
-              if(scopeid)
-                curl_msnprintf(scope, sizeof(scope), "%%%u", scopeid);
-#endif
+              ఒకవేళ(scopeid)
+                curl_msnprintf(scope, పరిమాణం(scope), "%%%u", scopeid);
+#అయితే_ముగింపు
             }
-            else
-#endif
+            లేకపోతే
+#అయితే_ముగింపు
               addr =
-                &((struct sockaddr_in *)(void *)iface->ifa_addr)->sin_addr;
-            res = IF2IP_FOUND;
-            result = curlx_inet_ntop(af, addr, ipstr, sizeof(ipstr));
-            curl_msnprintf(buf, buf_size, "%s%s", result ? "" : ipstr, scope);
-            break;
+                &((నిర్మాణం sockaddr_in *)(శూన్య *)iface->ifa_addr)->sin_addr;
+            res = IF2_IP_దొరికింది;
+            ఫలితం = curlx_inet_ntop(af, addr, ipstr, పరిమాణం(ipstr));
+            curl_msnprintf(buf, buf_కొలత, "%s%s", ఫలితం ? "" : ipstr, scope);
+            ఆపు;
           }
         }
-        else if((res == IF2IP_NOT_FOUND) &&
+        లేకపోతే ఒకవేళ((res == IF2_IP_NOT_దొరికింది) &&
                 !strcmp(iface->ifa_name, interf)) {
           res = IF2IP_AF_NOT_SUPPORTED;
         }
       }
     }
 
-    freeifaddrs(head);
+    freeifaddrs(తల);
   }
 
-  return res;
+  తిరిగి res;
 }
 
-#elif defined(HAVE_IOCTL_SIOCGIFADDR)
+#లేదావేళ defined(HAVE_IOCTL_SIOCGIFADDR)
 
-if2ip_result_t Curl_if2ip(int af,
-#ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
-#endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+if2ip_ఫలితం_t Curl_if2ip(పూర్ణాంకం af,
+#నిర్వచితమైతే USE_IPV6
+                          గుర్తులేని పూర్ణాంకం remote_scope,
+                          గుర్తులేని పూర్ణాంకం local_scope_id,
+#అయితే_ముగింపు
+                          స్థిరరాశి అక్షరం *interf,
+                          అక్షరం *buf, size_t buf_కొలత)
 {
-  struct ifreq req;
-  struct in_addr in;
-  struct sockaddr_in *s;
+  నిర్మాణం ifreq req;
+  నిర్మాణం in_addr లోపల;
+  నిర్మాణం sockaddr_in *s;
   curl_socket_t dummy;
   size_t len;
-  CURLcode result;
+  CURLcode ఫలితం;
 
-#ifdef USE_IPV6
-  (void)remote_scope;
-  (void)local_scope_id;
-#endif
+#నిర్వచితమైతే USE_IPV6
+  (శూన్య)remote_scope;
+  (శూన్య)local_scope_id;
+#అయితే_ముగింపు
 
-  if(!interf || (af != AF_INET))
-    return IF2IP_NOT_FOUND;
+  ఒకవేళ(!interf || (af != AF_INET))
+    తిరిగి IF2_IP_NOT_దొరికింది;
 
-  len = strlen(interf);
-  if(len >= sizeof(req.ifr_name))
-    return IF2IP_NOT_FOUND;
+  len = అక్షరశ్రేణి_పొడవు(interf);
+  ఒకవేళ(len >= పరిమాణం(req.ifr_name))
+    తిరిగి IF2_IP_NOT_దొరికింది;
 
   dummy = CURL_SOCKET(AF_INET, SOCK_STREAM, 0);
-  if(dummy == CURL_SOCKET_BAD)
-    return IF2IP_NOT_FOUND;
+  ఒకవేళ(dummy == CURL_SOCKET_BAD)
+    తిరిగి IF2_IP_NOT_దొరికింది;
 
-  memset(&req, 0, sizeof(req));
-  memcpy(req.ifr_name, interf, len + 1);
+  memset(&req, 0, పరిమాణం(req));
+  జ్ఞాపకం_నకలు(req.ifr_name, interf, len + 1);
   req.ifr_addr.sa_family = AF_INET;
 
-#if defined(CURL_HAVE_DIAG) && defined(_AIX)
+#ఒకవేళ defined(CURL_HAVE_DIAG) && defined(_AIX)
 /* Suppress warning inside system headers */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wshift-sign-overflow"
-#endif
-  if(ioctl(dummy, SIOCGIFADDR, &req) < 0) {
-#if defined(CURL_HAVE_DIAG) && defined(_AIX)
-#pragma GCC diagnostic pop
-#endif
+#సూచన GCC diagnostic నెట్టు
+#సూచన GCC diagnostic ignored "-Wshift-sign-overflow"
+#అయితే_ముగింపు
+  ఒకవేళ(ioctl(dummy, SIOCGIFADDR, &req) < 0) {
+#ఒకవేళ defined(CURL_HAVE_DIAG) && defined(_AIX)
+#సూచన GCC diagnostic తీయి
+#అయితే_ముగింపు
     sclose(dummy);
     /* With SIOCGIFADDR, we cannot tell the difference between an interface
        that does not exist and an interface that has no address of the
        correct family. Assume the interface does not exist */
-    return IF2IP_NOT_FOUND;
+    తిరిగి IF2_IP_NOT_దొరికింది;
   }
 
-  s = (struct sockaddr_in *)(void *)&req.ifr_addr;
-  memcpy(&in, &s->sin_addr, sizeof(in));
-  result = curlx_inet_ntop(s->sin_family, &in, buf, buf_size);
+  s = (నిర్మాణం sockaddr_in *)(శూన్య *)&req.ifr_addr;
+  జ్ఞాపకం_నకలు(&లోపల, &s->sin_addr, పరిమాణం(లోపల));
+  ఫలితం = curlx_inet_ntop(s->sin_family, &లోపల, buf, buf_కొలత);
 
   sclose(dummy);
-  if(result)
-    return IF2IP_NOT_FOUND;
-  return IF2IP_FOUND;
+  ఒకవేళ(ఫలితం)
+    తిరిగి IF2_IP_NOT_దొరికింది;
+  తిరిగి IF2_IP_దొరికింది;
 }
 
-#else
+#లేకపోతే
 
-if2ip_result_t Curl_if2ip(int af,
-#ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
-#endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+if2ip_ఫలితం_t Curl_if2ip(పూర్ణాంకం af,
+#నిర్వచితమైతే USE_IPV6
+                          గుర్తులేని పూర్ణాంకం remote_scope,
+                          గుర్తులేని పూర్ణాంకం local_scope_id,
+#అయితే_ముగింపు
+                          స్థిరరాశి అక్షరం *interf,
+                          అక్షరం *buf, size_t buf_కొలత)
 {
-  (void)af;
-#ifdef USE_IPV6
-  (void)remote_scope;
-  (void)local_scope_id;
-#endif
-  (void)interf;
-  (void)buf;
-  (void)buf_size;
-  return IF2IP_NOT_FOUND;
+  (శూన్య)af;
+#నిర్వచితమైతే USE_IPV6
+  (శూన్య)remote_scope;
+  (శూన్య)local_scope_id;
+#అయితే_ముగింపు
+  (శూన్య)interf;
+  (శూన్య)buf;
+  (శూన్య)buf_కొలత;
+  తిరిగి IF2_IP_NOT_దొరికింది;
 }
 
-#endif
+#అయితే_ముగింపు
 
-#endif /* CURL_DISABLE_BINDLOCAL && CURL_DISABLE_FTP */
+#అయితే_ముగింపు /* CURL_DISABLE_BINDLOCAL && CURL_DISABLE_FTP */

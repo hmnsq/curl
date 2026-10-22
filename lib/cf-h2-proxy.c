@@ -21,42 +21,42 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_NGHTTP2)
 
-#include <nghttp2/nghttp2.h>
+#అన్తర్భావ <nghttp2/nghttp2.h>
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "curlx/dynbuf.h"
-#include "dynhds.h"
-#include "http2.h"
-#include "http_proxy.h"
-#include "multiif.h"
-#include "ngh2_shim.h"
-#include "sendf.h"
-#include "select.h"
-#include "cf-h2-proxy.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "bufq.h"
+#అన్తర్భావ "curlx/dynbuf.h"
+#అన్తర్భావ "dynhds.h"
+#అన్తర్భావ "http2.h"
+#అన్తర్భావ "http_proxy.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "ngh2_shim.h"
+#అన్తర్భావ "sendf.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "cf-h2-proxy.h"
 
-#define PROXY_H2_CHUNK_SIZE  (16 * 1024)
+#నిర్వచించు PROXY_H2_CHUNK_కొలత  (16 * 1024)
 
-#define PROXY_HTTP2_HUGE_WINDOW_SIZE (100 * 1024 * 1024)
-#define H2_TUNNEL_WINDOW_SIZE        (10 * 1024 * 1024)
+#నిర్వచించు PROXY_HTTP2_HUGE_కిటికీ_కొలత (100 * 1024 * 1024)
+#నిర్వచించు H2_TUNNEL_కిటికీ_కొలత        (10 * 1024 * 1024)
 
-#define PROXY_H2_NW_RECV_CHUNKS   (H2_TUNNEL_WINDOW_SIZE / PROXY_H2_CHUNK_SIZE)
-#define PROXY_H2_NW_SEND_CHUNKS   1
+#నిర్వచించు PROXY_H2_NW_RECV_CHUNKS   (H2_TUNNEL_కిటికీ_కొలత / PROXY_H2_CHUNK_కొలత)
+#నిర్వచించు PROXY_H2_NW_SEND_CHUNKS   1
 
-#define H2_TUNNEL_RECV_CHUNKS   (H2_TUNNEL_WINDOW_SIZE / PROXY_H2_CHUNK_SIZE)
-#define H2_TUNNEL_SEND_CHUNKS   ((128 * 1024) / PROXY_H2_CHUNK_SIZE)
+#నిర్వచించు H2_TUNNEL_RECV_CHUNKS   (H2_TUNNEL_కిటికీ_కొలత / PROXY_H2_CHUNK_కొలత)
+#నిర్వచించు H2_TUNNEL_SEND_CHUNKS   ((128 * 1024) / PROXY_H2_CHUNK_కొలత)
 
 
-typedef enum {
+రకనిర్వచనం గణన {
   H2_TUNNEL_INIT,     /* init/default/no tunnel state */
   H2_TUNNEL_CONNECT,  /* CONNECT request is being send */
   H2_TUNNEL_RESPONSE, /* CONNECT response received completely */
@@ -64,46 +64,46 @@ typedef enum {
   H2_TUNNEL_FAILED
 } h2_tunnel_state;
 
-struct tunnel_stream {
-  struct http_resp *resp;
-  struct bufq recvbuf;
-  struct bufq sendbuf;
-  char *authority;
-  int32_t stream_id;
+నిర్మాణం tunnel_ప్రవాహం {
+  నిర్మాణం http_resp *resp;
+  నిర్మాణం bufq recvbuf;
+  నిర్మాణం bufq sendbuf;
+  అక్షరం *authority;
+  int32_t ప్రవాహం_id;
   uint32_t error;
   h2_tunnel_state state;
-  BIT(has_final_response);
-  BIT(closed);
-  BIT(reset);
+  బిట్టు(has_final_response);
+  బిట్టు(closed);
+  బిట్టు(reset);
 };
 
-static CURLcode tunnel_stream_init(struct tunnel_stream *ts,
-                                   struct Curl_peer *dest)
+స్థిర CURLcode tunnel_ప్రవాహం_init(నిర్మాణం tunnel_ప్రవాహం *ts,
+                                   నిర్మాణం Curl_peer *dest)
 {
   ts->state = H2_TUNNEL_INIT;
-  ts->stream_id = -1;
-  Curl_bufq_init2(&ts->recvbuf, PROXY_H2_CHUNK_SIZE, H2_TUNNEL_RECV_CHUNKS,
-                  BUFQ_OPT_SOFT_LIMIT);
-  Curl_bufq_init(&ts->sendbuf, PROXY_H2_CHUNK_SIZE, H2_TUNNEL_SEND_CHUNKS);
+  ts->ప్రవాహం_id = -1;
+  Curl_bufq_init2(&ts->recvbuf, PROXY_H2_CHUNK_కొలత, H2_TUNNEL_RECV_CHUNKS,
+                  BUFQ_OPT_SOFT_హద్దు);
+  Curl_bufq_init(&ts->sendbuf, PROXY_H2_CHUNK_కొలత, H2_TUNNEL_SEND_CHUNKS);
 
   /* host:port with IPv6 support */
   ts->authority = curl_maprintf("%s%s%s:%u", dest->ipv6 ? "[" : "",
                                 dest->hostname,
                                 dest->ipv6 ? "]" : "",
-                                dest->port);
-  if(!ts->authority)
-    return CURLE_OUT_OF_MEMORY;
+                                dest->పోర్టు);
+  ఒకవేళ(!ts->authority)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static void tunnel_stream_reset(struct tunnel_stream *ts)
+స్థిర శూన్య tunnel_ప్రవాహం_reset(నిర్మాణం tunnel_ప్రవాహం *ts)
 {
   Curl_http_resp_free(ts->resp);
-  ts->resp = NULL;
+  ts->resp = ఖాళీ;
   Curl_bufq_reset(&ts->recvbuf);
   Curl_bufq_reset(&ts->sendbuf);
-  ts->stream_id = -1;
+  ts->ప్రవాహం_id = -1;
   ts->error = 0;
   ts->has_final_response = FALSE;
   ts->closed = FALSE;
@@ -111,199 +111,199 @@ static void tunnel_stream_reset(struct tunnel_stream *ts)
   ts->state = H2_TUNNEL_INIT;
 }
 
-static void tunnel_stream_clear(struct tunnel_stream *ts)
+స్థిర శూన్య tunnel_ప్రవాహం_clear(నిర్మాణం tunnel_ప్రవాహం *ts)
 {
   Curl_http_resp_free(ts->resp);
   Curl_bufq_free(&ts->recvbuf);
   Curl_bufq_free(&ts->sendbuf);
   curlx_safefree(ts->authority);
-  memset(ts, 0, sizeof(*ts));
+  memset(ts, 0, పరిమాణం(*ts));
   ts->state = H2_TUNNEL_INIT;
 }
 
-static void h2_tunnel_go_state(struct Curl_cfilter *cf,
-                               struct tunnel_stream *ts,
+స్థిర శూన్య h2_tunnel_go_state(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం tunnel_ప్రవాహం *ts,
                                h2_tunnel_state new_state,
-                               struct Curl_easy *data,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
                                bool udp_tunnel)
 {
-  (void)cf;
-  (void)udp_tunnel;
+  (శూన్య)cf;
+  (శూన్య)udp_tunnel;
 
-  if(ts->state == new_state)
-    return;
+  ఒకవేళ(ts->state == new_state)
+    తిరిగి;
   /* leaving this one */
-  switch(ts->state) {
-  case H2_TUNNEL_CONNECT:
-    data->req.ignorebody = FALSE;
-    break;
-  default:
-    break;
+  ఎంపిక(ts->state) {
+  స్థితి H2_TUNNEL_CONNECT:
+    దత్తాంశం->req.ignorebody = FALSE;
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
   /* entering this one */
-  switch(new_state) {
-  case H2_TUNNEL_INIT:
-    CURL_TRC_CF(data, cf, "[%d] new tunnel state 'init'", ts->stream_id);
-    tunnel_stream_reset(ts);
-    break;
+  ఎంపిక(new_state) {
+  స్థితి H2_TUNNEL_INIT:
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] new tunnel state 'init'", ts->ప్రవాహం_id);
+    tunnel_ప్రవాహం_reset(ts);
+    ఆపు;
 
-  case H2_TUNNEL_CONNECT:
-    CURL_TRC_CF(data, cf, "[%d] new tunnel state 'connect'", ts->stream_id);
+  స్థితి H2_TUNNEL_CONNECT:
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] new tunnel state 'connect'", ts->ప్రవాహం_id);
     ts->state = H2_TUNNEL_CONNECT;
-    break;
+    ఆపు;
 
-  case H2_TUNNEL_RESPONSE:
-    CURL_TRC_CF(data, cf, "[%d] new tunnel state 'response'", ts->stream_id);
+  స్థితి H2_TUNNEL_RESPONSE:
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] new tunnel state 'response'", ts->ప్రవాహం_id);
     ts->state = H2_TUNNEL_RESPONSE;
-    break;
+    ఆపు;
 
-  case H2_TUNNEL_ESTABLISHED:
-    CURL_TRC_CF(data, cf, "[%d] new tunnel state 'established'",
-                ts->stream_id);
-    infof(data, "CONNECT%s phase completed for HTTP/2 proxy",
+  స్థితి H2_TUNNEL_ESTABLISHED:
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] new tunnel state 'established'",
+                ts->ప్రవాహం_id);
+    infof(దత్తాంశం, "CONNECT%s phase completed for HTTP/2 proxy",
           udp_tunnel ? "-UDP" : "");
-    data->state.authproxy.done = TRUE;
-    data->state.authproxy.multipass = FALSE;
+    దత్తాంశం->state.authproxy.పూర్తి = TRUE;
+    దత్తాంశం->state.authproxy.multipass = FALSE;
     FALLTHROUGH();
-  case H2_TUNNEL_FAILED:
-    if(new_state == H2_TUNNEL_FAILED)
-      CURL_TRC_CF(data, cf, "[%d] new tunnel state 'failed'", ts->stream_id);
+  స్థితి H2_TUNNEL_FAILED:
+    ఒకవేళ(new_state == H2_TUNNEL_FAILED)
+      CURL_TRC_CF(దత్తాంశం, cf, "[%d] new tunnel state 'failed'", ts->ప్రవాహం_id);
     ts->state = new_state;
     /* If a proxy-authorization header was used for the proxy, then we should
        make sure that it is not accidentally used for the document request
        after we have connected. Let's thus free and clear it here. */
-    curlx_safefree(data->req.hd_proxy_auth);
-    break;
+    curlx_safefree(దత్తాంశం->req.hd_proxy_auth);
+    ఆపు;
   }
 }
 
-struct cf_h2_proxy_ctx {
-  struct curl_ngh2 ngh2;
+నిర్మాణం cf_h2_proxy_ctx {
+  నిర్మాణం curl_ngh2 ngh2;
   /* The easy handle used in the current filter call, cleared at return */
-  struct cf_call_data call_data;
+  నిర్మాణం cf_call_దత్తాంశం call_దత్తాంశం;
 
-  struct bufq inbufq;  /* network receive buffer */
-  struct bufq outbufq; /* network send buffer */
+  నిర్మాణం bufq inbufq;  /* network receive buffer */
+  నిర్మాణం bufq outbufq; /* network send buffer */
 
-  struct Curl_peer *peer; /* proxy we talk to */
-  struct Curl_peer *dest; /* where to tunnel to */
-  struct tunnel_stream tunnel; /* our tunnel CONNECT stream */
+  నిర్మాణం Curl_peer *peer; /* proxy we talk to */
+  నిర్మాణం Curl_peer *dest; /* where to tunnel to */
+  నిర్మాణం tunnel_ప్రవాహం tunnel; /* our tunnel CONNECT stream */
   int32_t goaway_error;
   int32_t remote_max_sid;
-  BIT(conn_closed);
-  BIT(rcvd_goaway);
-  BIT(sent_goaway);
-  BIT(nw_out_blocked);
-  BIT(udp_tunnel);
+  బిట్టు(conn_closed);
+  బిట్టు(rcvd_goaway);
+  బిట్టు(పంపిన_goaway);
+  బిట్టు(nw_బహిర్గతం_blocked);
+  బిట్టు(udp_tunnel);
 };
 
 /* How to access `call_data` from a cf_h2 filter */
-#undef CF_CTX_CALL_DATA
-#define CF_CTX_CALL_DATA(cf) ((struct cf_h2_proxy_ctx *)(cf)->ctx)->call_data
+#నిర్వచనం_రద్దు CF_CTX_CALL_దత్తాంశం
+#నిర్వచించు CF_CTX_CALL_దత్తాంశం(cf) ((నిర్మాణం cf_h2_proxy_ctx *)(cf)->ctx)->call_దత్తాంశం
 
-static void cf_h2_proxy_ctx_clear(struct cf_h2_proxy_ctx *ctx)
+స్థిర శూన్య cf_h2_proxy_ctx_clear(నిర్మాణం cf_h2_proxy_ctx *ctx)
 {
-  struct cf_call_data save = ctx->call_data;
+  నిర్మాణం cf_call_దత్తాంశం save = ctx->call_దత్తాంశం;
 
   Curl_ngh2_del(&ctx->ngh2);
   Curl_bufq_free(&ctx->inbufq);
   Curl_bufq_free(&ctx->outbufq);
   Curl_peer_unlink(&ctx->peer);
   Curl_peer_unlink(&ctx->dest);
-  tunnel_stream_clear(&ctx->tunnel);
-  memset(ctx, 0, sizeof(*ctx));
-  ctx->call_data = save;
+  tunnel_ప్రవాహం_clear(&ctx->tunnel);
+  memset(ctx, 0, పరిమాణం(*ctx));
+  ctx->call_దత్తాంశం = save;
 }
 
-static void cf_h2_proxy_ctx_free(struct cf_h2_proxy_ctx *ctx)
+స్థిర శూన్య cf_h2_proxy_ctx_free(నిర్మాణం cf_h2_proxy_ctx *ctx)
 {
-  if(ctx) {
+  ఒకవేళ(ctx) {
     cf_h2_proxy_ctx_clear(ctx);
     curlx_free(ctx);
   }
 }
 
-static void drain_tunnel(struct Curl_cfilter *cf,
-                         struct Curl_easy *data,
-                         struct tunnel_stream *tunnel)
+స్థిర శూన్య drain_tunnel(నిర్మాణం Curl_cfilter *cf,
+                         నిర్మాణం Curl_easy *దత్తాంశం,
+                         నిర్మాణం tunnel_ప్రవాహం *tunnel)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  (void)cf;
-  if(!tunnel->closed && !tunnel->reset &&
-     (!Curl_bufq_is_empty(&ctx->tunnel.sendbuf) ||
-      !Curl_bufq_is_empty(&ctx->tunnel.recvbuf)))
-    Curl_multi_mark_dirty(data);
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  (శూన్య)cf;
+  ఒకవేళ(!tunnel->closed && !tunnel->reset &&
+     (!Curl_bufq_is_ఖాళీలు(&ctx->tunnel.sendbuf) ||
+      !Curl_bufq_is_ఖాళీలు(&ctx->tunnel.recvbuf)))
+    Curl_multi_mark_dirty(దత్తాంశం);
 }
 
-static CURLcode proxy_h2_nw_out_writer(void *writer_ctx,
-                                       const uint8_t *buf, size_t buflen,
+స్థిర CURLcode proxy_h2_nw_బహిర్గతం_writer(శూన్య *writer_ctx,
+                                       స్థిరరాశి uint8_t *buf, size_t buflen,
                                        size_t *pnwritten)
 {
-  struct Curl_cfilter *cf = writer_ctx;
+  నిర్మాణం Curl_cfilter *cf = writer_ctx;
   *pnwritten = 0;
-  if(cf) {
-    struct Curl_easy *data = CF_DATA_CURRENT(cf);
-    CURLcode result;
-    result = Curl_conn_cf_send(cf->next, data, buf, buflen, FALSE, pnwritten);
-    CURL_TRC_CF(data, cf, "[0] nw_out_writer(len=%zu) -> %d, %zu",
-                buflen, (int)result, *pnwritten);
-    return result;
+  ఒకవేళ(cf) {
+    నిర్మాణం Curl_easy *దత్తాంశం = CF_దత్తాంశం_CURRENT(cf);
+    CURLcode ఫలితం;
+    ఫలితం = Curl_conn_cf_send(cf->తదుపరి, దత్తాంశం, buf, buflen, FALSE, pnwritten);
+    CURL_TRC_CF(దత్తాంశం, cf, "[0] nw_out_writer(len=%zu) -> %d, %zu",
+                buflen, (పూర్ణాంకం)ఫలితం, *pnwritten);
+    తిరిగి ఫలితం;
   }
-  return CURLE_FAILED_INIT;
+  తిరిగి CURLE_FAILED_INIT;
 }
 
-static int proxy_h2_client_new(struct Curl_cfilter *cf,
+స్థిర పూర్ణాంకం proxy_h2_client_new(నిర్మాణం Curl_cfilter *cf,
                                nghttp2_session_callbacks *cbs)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
   nghttp2_option *o;
-  nghttp2_mem mem = { NULL, Curl_nghttp2_malloc, Curl_nghttp2_free,
+  nghttp2_mem mem = { ఖాళీ, Curl_nghttp2_malloc, Curl_nghttp2_free,
                       Curl_nghttp2_calloc, Curl_nghttp2_realloc };
 
-  int rc = nghttp2_option_new(&o);
-  if(rc)
-    return rc;
+  పూర్ణాంకం rc = nghttp2_option_new(&o);
+  ఒకవేళ(rc)
+    తిరిగి rc;
   /* We handle window updates ourself to enforce buffer limits */
-  nghttp2_option_set_no_auto_window_update(o, 1);
-#if NGHTTP2_VERSION_NUM >= 0x013200 /* with 1.50.0 */
+  nghttp2_option_సమితి_no_auto_కిటికీ_update(o, 1);
+#ఒకవేళ NGHTTP2_సంస్కరణ_అంకె >= 0x013200 /* with 1.50.0 */
   /* turn off RFC 9113 leading and trailing white spaces validation against
      HTTP field value. */
-  nghttp2_option_set_no_rfc9113_leading_and_trailing_ws_validation(o, 1);
-#endif
+  nghttp2_option_సమితి_no_rfc9113_leading_and_trailing_ws_validation(o, 1);
+#అయితే_ముగింపు
   rc = Curl_ngh2_session_client_new3(&ctx->ngh2, cbs, cf, o, &mem);
   nghttp2_option_del(o);
-  return rc;
+  తిరిగి rc;
 }
 
-static int proxy_h2_should_close_session(struct cf_h2_proxy_ctx *ctx)
+స్థిర పూర్ణాంకం proxy_h2_should_close_session(నిర్మాణం cf_h2_proxy_ctx *ctx)
 {
-  return !Curl_ngh2_valid(&ctx->ngh2) ||
+  తిరిగి !Curl_ngh2_valid(&ctx->ngh2) ||
     (!Curl_ngh2_session_want_read(&ctx->ngh2) &&
      !Curl_ngh2_session_want_write(&ctx->ngh2));
 }
 
-static CURLcode proxy_h2_nw_out_flush(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+స్థిర CURLcode proxy_h2_nw_బహిర్గతం_flush(నిర్మాణం Curl_cfilter *cf,
+                                      నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
   size_t nwritten;
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  if(Curl_bufq_is_empty(&ctx->outbufq))
-    return CURLE_OK;
+  ఒకవేళ(Curl_bufq_is_ఖాళీలు(&ctx->outbufq))
+    తిరిగి CURLE_OK;
 
-  result = Curl_bufq_pass(&ctx->outbufq, proxy_h2_nw_out_writer, cf,
+  ఫలితం = Curl_bufq_pass(&ctx->outbufq, proxy_h2_nw_బహిర్గతం_writer, cf,
                           &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
-      CURL_TRC_CF(data, cf, "[0] flush nw send buffer(%zu) -> EAGAIN",
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+      CURL_TRC_CF(దత్తాంశం, cf, "[0] flush nw send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->outbufq));
-      ctx->nw_out_blocked = 1;
+      ctx->nw_బహిర్గతం_blocked = 1;
     }
-    return result;
+    తిరిగి ఫలితం;
   }
-  CURL_TRC_CF(data, cf, "[0] nw send buffer flushed");
-  return Curl_bufq_is_empty(&ctx->outbufq) ? CURLE_OK : CURLE_AGAIN;
+  CURL_TRC_CF(దత్తాంశం, cf, "[0] nw send buffer flushed");
+  తిరిగి Curl_bufq_is_ఖాళీలు(&ctx->outbufq) ? CURLE_OK : CURLE_AGAIN;
 }
 
 /*
@@ -311,1167 +311,1167 @@ static CURLcode proxy_h2_nw_out_flush(struct Curl_cfilter *cf,
  * This function returns 0 if it succeeds, or -1 and error code will
  * be assigned to *err.
  */
-static CURLcode proxy_h2_process_pending_input(struct Curl_cfilter *cf,
-                                               struct Curl_easy *data)
+స్థిర CURLcode proxy_h2_process_pending_ఆదానం(నిర్మాణం Curl_cfilter *cf,
+                                               నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  const unsigned char *buf;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  స్థిరరాశి గుర్తులేని అక్షరం *buf;
   size_t blen, nread;
   ssize_t rv;
 
-  while(Curl_bufq_peek(&ctx->inbufq, &buf, &blen)) {
+  అయితే(Curl_bufq_peek(&ctx->inbufq, &buf, &blen)) {
 
-    rv = Curl_ngh2_session_mem_recv(&ctx->ngh2, (const uint8_t *)buf, blen);
-    CURL_TRC_CF(data, cf, "[0] %zu bytes to nghttp2 -> %zd", blen, rv);
-    if(!curlx_sztouz(rv, &nread)) {
-      failf(data,
+    rv = Curl_ngh2_session_mem_recv(&ctx->ngh2, (స్థిరరాశి uint8_t *)buf, blen);
+    CURL_TRC_CF(దత్తాంశం, cf, "[0] %zu bytes to nghttp2 -> %zd", blen, rv);
+    ఒకవేళ(!curlx_sztouz(rv, &nread)) {
+      failf(దత్తాంశం,
             "process_pending_input: nghttp2_session_mem_recv() returned "
-            "%zd:%s", rv, nghttp2_strerror((int)rv));
-      return CURLE_RECV_ERROR;
+            "%zd:%s", rv, nghttp2_strerror((పూర్ణాంకం)rv));
+      తిరిగి CURLE_RECV_ERROR;
     }
-    else if(!nread) {
+    లేకపోతే ఒకవేళ(!nread) {
       /* nghttp2 does not want to process more, but has no error. This
        * probably cannot happen, but be safe. */
-      break;
+      ఆపు;
     }
     Curl_bufq_skip(&ctx->inbufq, nread);
-    if(Curl_bufq_is_empty(&ctx->inbufq)) {
-      CURL_TRC_CF(data, cf, "[0] all data in connection buffer processed");
-      break;
+    ఒకవేళ(Curl_bufq_is_ఖాళీలు(&ctx->inbufq)) {
+      CURL_TRC_CF(దత్తాంశం, cf, "[0] all data in connection buffer processed");
+      ఆపు;
     }
-    else {
-      CURL_TRC_CF(data, cf, "[0] process_pending_input: %zu bytes left "
+    లేకపోతే {
+      CURL_TRC_CF(దత్తాంశం, cf, "[0] process_pending_input: %zu bytes left "
                   "in connection buffer", Curl_bufq_len(&ctx->inbufq));
     }
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode proxy_h2_progress_ingress(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data)
+స్థిర CURLcode proxy_h2_పురోగతి_ingress(నిర్మాణం Curl_cfilter *cf,
+                                          నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
   size_t nread;
 
   /* Process network input buffer first */
-  if(!Curl_bufq_is_empty(&ctx->inbufq)) {
-    CURL_TRC_CF(data, cf, "[0] process %zu bytes in connection buffer",
+  ఒకవేళ(!Curl_bufq_is_ఖాళీలు(&ctx->inbufq)) {
+    CURL_TRC_CF(దత్తాంశం, cf, "[0] process %zu bytes in connection buffer",
                 Curl_bufq_len(&ctx->inbufq));
-    result = proxy_h2_process_pending_input(cf, data);
-    if(result)
-      return result;
+    ఫలితం = proxy_h2_process_pending_ఆదానం(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
   /* Receive data from the "lower" filters, e.g. network until
    * it is time to stop or we have enough data for this stream */
-  while(!ctx->conn_closed &&                /* not closed the connection */
+  అయితే(!ctx->conn_closed &&                /* not closed the connection */
         !ctx->tunnel.closed &&              /* nor the tunnel */
-        Curl_bufq_is_empty(&ctx->inbufq) && /* and we consumed our input */
-        !Curl_bufq_is_full(&ctx->tunnel.recvbuf)) {
+        Curl_bufq_is_ఖాళీలు(&ctx->inbufq) && /* and we consumed our input */
+        !Curl_bufq_is_నిండిన(&ctx->tunnel.recvbuf)) {
 
-    result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
-    CURL_TRC_CF(data, cf, "[0] read %zu bytes nw data -> %d, %zu",
-                Curl_bufq_len(&ctx->inbufq), (int)result, nread);
-    if(result) {
-      if(result != CURLE_AGAIN) {
-        failf(data, "Failed receiving HTTP2 proxy data");
-        return result;
+    ఫలితం = Curl_cf_recv_bufq(cf->తదుపరి, దత్తాంశం, &ctx->inbufq, 0, &nread);
+    CURL_TRC_CF(దత్తాంశం, cf, "[0] read %zu bytes nw data -> %d, %zu",
+                Curl_bufq_len(&ctx->inbufq), (పూర్ణాంకం)ఫలితం, nread);
+    ఒకవేళ(ఫలితం) {
+      ఒకవేళ(ఫలితం != CURLE_AGAIN) {
+        failf(దత్తాంశం, "Failed receiving HTTP2 proxy data");
+        తిరిగి ఫలితం;
       }
-      break;
+      ఆపు;
     }
-    else if(nread == 0) {
-      CURL_TRC_CF(data, cf, "server closed connection");
+    లేకపోతే ఒకవేళ(nread == 0) {
+      CURL_TRC_CF(దత్తాంశం, cf, "server closed connection");
       ctx->conn_closed = TRUE;
-      break;
+      ఆపు;
     }
 
-    result = proxy_h2_process_pending_input(cf, data);
-    if(result)
-      return result;
+    ఫలితం = proxy_h2_process_pending_ఆదానం(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode proxy_h2_progress_egress(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+స్థిర CURLcode proxy_h2_పురోగతి_egress(నిర్మాణం Curl_cfilter *cf,
+                                         నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  int rv = 0;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  పూర్ణాంకం rv = 0;
 
-  ctx->nw_out_blocked = 0;
-  while(!rv && !ctx->nw_out_blocked &&
+  ctx->nw_బహిర్గతం_blocked = 0;
+  అయితే(!rv && !ctx->nw_బహిర్గతం_blocked &&
         Curl_ngh2_session_want_write(&ctx->ngh2))
     rv = Curl_ngh2_session_send(&ctx->ngh2);
 
-  if(Curl_ngh2_is_fatal(&ctx->ngh2, rv)) {
+  ఒకవేళ(Curl_ngh2_is_fatal(&ctx->ngh2, rv)) {
     VERBOSE(rv = Curl_ngh2_fatal(&ctx->ngh2));
-    CURL_TRC_CF(data, cf, "[0] nghttp2_session_send error (%s)%d",
+    CURL_TRC_CF(దత్తాంశం, cf, "[0] nghttp2_session_send error (%s)%d",
                 nghttp2_strerror(rv), rv);
-    return CURLE_SEND_ERROR;
+    తిరిగి CURLE_SEND_ERROR;
   }
-  return proxy_h2_nw_out_flush(cf, data);
+  తిరిగి proxy_h2_nw_బహిర్గతం_flush(cf, దత్తాంశం);
 }
 
-static ssize_t on_session_send(nghttp2_session *h2,
-                               const uint8_t *buf, size_t blen, int flags,
-                               void *userp)
+స్థిర ssize_t on_session_send(nghttp2_session *h2,
+                               స్థిరరాశి uint8_t *buf, size_t blen, పూర్ణాంకం flags,
+                               శూన్య *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  నిర్మాణం Curl_cfilter *cf = userp;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం Curl_easy *దత్తాంశం = CF_దత్తాంశం_CURRENT(cf);
   size_t nwritten;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  (void)h2;
-  (void)flags;
-  DEBUGASSERT(data);
+  (శూన్య)h2;
+  (శూన్య)flags;
+  DEBUGASSERT(దత్తాంశం);
 
-  result = Curl_bufq_write_pass(&ctx->outbufq, buf, blen,
-                                proxy_h2_nw_out_writer, cf, &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
-      ctx->nw_out_blocked = 1;
-      return NGHTTP2_ERR_WOULDBLOCK;
+  ఫలితం = Curl_bufq_write_pass(&ctx->outbufq, buf, blen,
+                                proxy_h2_nw_బహిర్గతం_writer, cf, &nwritten);
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+      ctx->nw_బహిర్గతం_blocked = 1;
+      తిరిగి NGHTTP2_ERR_WOULDBLOCK;
     }
-    failf(data, "Failed sending HTTP2 data");
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    failf(దత్తాంశం, "Failed sending HTTP2 data");
+    తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  if(!nwritten)
-    return NGHTTP2_ERR_WOULDBLOCK;
+  ఒకవేళ(!nwritten)
+    తిరిగి NGHTTP2_ERR_WOULDBLOCK;
 
-  return (nwritten > SSIZE_MAX) ?
+  తిరిగి (nwritten > SSIZE_MAX) ?
     NGHTTP2_ERR_CALLBACK_FAILURE : (ssize_t)nwritten;
 }
 
-#ifdef CURLVERBOSE
-static int proxy_h2_on_frame_send(nghttp2_session *session,
-                                  const nghttp2_frame *frame,
-                                  void *userp)
+#నిర్వచితమైతే CURLVERBOSE
+స్థిర పూర్ణాంకం proxy_h2_on_చట్రం_send(nghttp2_session *session,
+                                  స్థిరరాశి nghttp2_చట్రం *చట్రం,
+                                  శూన్య *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  నిర్మాణం Curl_cfilter *cf = userp;
+  నిర్మాణం Curl_easy *దత్తాంశం = CF_దత్తాంశం_CURRENT(cf);
 
-  (void)session;
-  DEBUGASSERT(data);
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
-    buffer[len] = 0;
-    CURL_TRC_CF(data, cf, "[%d] -> %s", frame->hd.stream_id, buffer);
+  (శూన్య)session;
+  DEBUGASSERT(దత్తాంశం);
+  ఒకవేళ(Curl_trc_cf_is_verbose(cf, దత్తాంశం)) {
+    అక్షరం బఫరు[256];
+    పూర్ణాంకం len;
+    len = Curl_nghttp2_fr_print(చట్రం, బఫరు, పరిమాణం(బఫరు) - 1);
+    బఫరు[len] = 0;
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] -> %s", చట్రం->hd.ప్రవాహం_id, బఫరు);
   }
-  return 0;
+  తిరిగి 0;
 }
-#endif /* CURLVERBOSE */
+#అయితే_ముగింపు /* CURLVERBOSE */
 
-static int proxy_h2_on_frame_recv(nghttp2_session *session,
-                                  const nghttp2_frame *frame,
-                                  void *userp)
+స్థిర పూర్ణాంకం proxy_h2_on_చట్రం_recv(nghttp2_session *session,
+                                  స్థిరరాశి nghttp2_చట్రం *చట్రం,
+                                  శూన్య *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  int32_t stream_id = frame->hd.stream_id;
+  నిర్మాణం Curl_cfilter *cf = userp;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం Curl_easy *దత్తాంశం = CF_దత్తాంశం_CURRENT(cf);
+  int32_t ప్రవాహం_id = చట్రం->hd.ప్రవాహం_id;
 
-  (void)session;
-  DEBUGASSERT(data);
-#ifdef CURLVERBOSE
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
-    buffer[len] = 0;
-    CURL_TRC_CF(data, cf, "[%d] <- %s", frame->hd.stream_id, buffer);
+  (శూన్య)session;
+  DEBUGASSERT(దత్తాంశం);
+#నిర్వచితమైతే CURLVERBOSE
+  ఒకవేళ(Curl_trc_cf_is_verbose(cf, దత్తాంశం)) {
+    అక్షరం బఫరు[256];
+    పూర్ణాంకం len;
+    len = Curl_nghttp2_fr_print(చట్రం, బఫరు, పరిమాణం(బఫరు) - 1);
+    బఫరు[len] = 0;
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] <- %s", చట్రం->hd.ప్రవాహం_id, బఫరు);
   }
-#endif /* CURLVERBOSE */
+#అయితే_ముగింపు /* CURLVERBOSE */
 
-  if(!stream_id) {
+  ఒకవేళ(!ప్రవాహం_id) {
     /* stream ID zero is for connection-oriented stuff */
-    DEBUGASSERT(data);
-    switch(frame->hd.type) {
-    case NGHTTP2_SETTINGS:
+    DEBUGASSERT(దత్తాంశం);
+    ఎంపిక(చట్రం->hd.type) {
+    స్థితి NGHTTP2_SETTINGS:
       /* Since the initial stream window is 64K, a request might be on HOLD,
        * due to exhaustion. The (initial) SETTINGS may announce a much larger
        * window and *assume* that we treat this like a WINDOW_UPDATE. Some
        * servers send an explicit WINDOW_UPDATE, but not all seem to do that.
        * To be safe, we UNHOLD a stream in order not to stall. */
-      if(CURL_REQ_WANT_SEND(data)) {
-        drain_tunnel(cf, data, &ctx->tunnel);
+      ఒకవేళ(CURL_REQ_WANT_SEND(దత్తాంశం)) {
+        drain_tunnel(cf, దత్తాంశం, &ctx->tunnel);
       }
-      break;
-    case NGHTTP2_GOAWAY:
+      ఆపు;
+    స్థితి NGHTTP2_GOAWAY:
       ctx->rcvd_goaway = TRUE;
-      ctx->remote_max_sid = frame->goaway.last_stream_id;
-      if(data) {
-        infof(data, "received GOAWAY, error=%u, last_stream=%d",
-              frame->goaway.error_code, ctx->remote_max_sid);
+      ctx->remote_max_sid = చట్రం->goaway.చివరి_ప్రవాహం_id;
+      ఒకవేళ(దత్తాంశం) {
+        infof(దత్తాంశం, "received GOAWAY, error=%u, last_stream=%d",
+              చట్రం->goaway.error_సంకేతం, ctx->remote_max_sid);
       }
-      break;
-    default:
-      break;
+      ఆపు;
+    అప్రమేయ:
+      ఆపు;
     }
-    return 0;
+    తిరిగి 0;
   }
 
-  if(stream_id != ctx->tunnel.stream_id) {
-    CURL_TRC_CF(data, cf, "[%d] rcvd FRAME not for tunnel", stream_id);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  ఒకవేళ(ప్రవాహం_id != ctx->tunnel.ప్రవాహం_id) {
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] rcvd FRAME not for tunnel", ప్రవాహం_id);
+    తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  switch(frame->hd.type) {
-  case NGHTTP2_HEADERS:
+  ఎంపిక(చట్రం->hd.type) {
+  స్థితి NGHTTP2_శీర్షికలు:
     /* nghttp2 guarantees that :status is received, and we store it to
        stream->status_code. Fuzzing has proven this can still be reached
        without status code having been set. */
-    if(!ctx->tunnel.resp)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+    ఒకవేళ(!ctx->tunnel.resp)
+      తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
     /* Only final status code signals the end of header */
-    CURL_TRC_CF(data, cf, "[%d] got http status: %d",
-                stream_id, ctx->tunnel.resp->status);
-    if(!ctx->tunnel.has_final_response && ctx->tunnel.resp->status / 100 != 1)
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] got http status: %d",
+                ప్రవాహం_id, ctx->tunnel.resp->స్థితి_2);
+    ఒకవేళ(!ctx->tunnel.has_final_response && ctx->tunnel.resp->స్థితి_2 / 100 != 1)
       ctx->tunnel.has_final_response = TRUE;
-    break;
-  case NGHTTP2_WINDOW_UPDATE:
-    if(CURL_REQ_WANT_SEND(data)) {
-      drain_tunnel(cf, data, &ctx->tunnel);
+    ఆపు;
+  స్థితి NGHTTP2_కిటికీ_UPDATE:
+    ఒకవేళ(CURL_REQ_WANT_SEND(దత్తాంశం)) {
+      drain_tunnel(cf, దత్తాంశం, &ctx->tunnel);
     }
-    break;
-  case NGHTTP2_RST_STREAM:
-    if(frame->rst_stream.error_code)
+    ఆపు;
+  స్థితి NGHTTP2_RST_ప్రవాహం:
+    ఒకవేళ(చట్రం->rst_ప్రవాహం.error_సంకేతం)
       ctx->tunnel.reset = TRUE;
-    break;
-  default:
-    break;
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
-  return 0;
+  తిరిగి 0;
 }
 
-static int proxy_h2_on_header(nghttp2_session *session,
-                              const nghttp2_frame *frame,
-                              const uint8_t *name, size_t namelen,
-                              const uint8_t *value, size_t valuelen,
+స్థిర పూర్ణాంకం proxy_h2_on_శీర్షిక(nghttp2_session *session,
+                              స్థిరరాశి nghttp2_చట్రం *చట్రం,
+                              స్థిరరాశి uint8_t *name, size_t namelen,
+                              స్థిరరాశి uint8_t *విలువ, size_t valuelen,
                               uint8_t flags,
-                              void *userp)
+                              శూన్య *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  int32_t stream_id = frame->hd.stream_id;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf = userp;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం Curl_easy *దత్తాంశం = CF_దత్తాంశం_CURRENT(cf);
+  int32_t ప్రవాహం_id = చట్రం->hd.ప్రవాహం_id;
+  CURLcode ఫలితం;
 
-  (void)flags;
-  (void)session;
-  DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
-  if(stream_id != ctx->tunnel.stream_id) {
-    CURL_TRC_CF(data, cf, "[%d] header for non-tunnel stream: "
-                "%.*s: %.*s", stream_id,
-                (int)namelen, name, (int)valuelen, value);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  (శూన్య)flags;
+  (శూన్య)session;
+  DEBUGASSERT(ప్రవాహం_id); /* should never be a zero stream ID here */
+  ఒకవేళ(ప్రవాహం_id != ctx->tunnel.ప్రవాహం_id) {
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] header for non-tunnel stream: "
+                "%.*s: %.*s", ప్రవాహం_id,
+                (పూర్ణాంకం)namelen, name, (పూర్ణాంకం)valuelen, విలువ);
+    తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  if(frame->hd.type == NGHTTP2_PUSH_PROMISE)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  ఒకవేళ(చట్రం->hd.type == NGHTTP2_నెట్టు_PROMISE)
+    తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  if(ctx->tunnel.has_final_response) {
+  ఒకవేళ(ctx->tunnel.has_final_response) {
     /* we do not do anything with trailers for tunnel streams */
-    return 0;
+    తిరిగి 0;
   }
 
-  if(namelen == CURL_CSTRLEN(HTTP_PSEUDO_STATUS) &&
-     !memcmp(HTTP_PSEUDO_STATUS, name, namelen)) {
-    int32_t http_status;
-    struct http_resp *resp;
+  ఒకవేళ(namelen == CURL_CSTRLEN(HTTP_PSEUDO_స్థితి) &&
+     !memcmp(HTTP_PSEUDO_స్థితి, name, namelen)) {
+    int32_t http_స్థితి;
+    నిర్మాణం http_resp *resp;
 
     /* status: always comes first, we might get more than one response,
      * discard previous, interim responses */
-    result = Curl_http_decode_status(&http_status,
-                                    (const char *)value, valuelen);
-    if(result)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-    result = Curl_http_resp_make(&resp, http_status, NULL);
-    if(result)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-    if(ctx->tunnel.resp)
+    ఫలితం = Curl_http_decode_స్థితి(&http_స్థితి,
+                                    (స్థిరరాశి అక్షరం *)విలువ, valuelen);
+    ఒకవేళ(ఫలితం)
+      తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
+    ఫలితం = Curl_http_resp_make(&resp, http_స్థితి, ఖాళీ);
+    ఒకవేళ(ఫలితం)
+      తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
+    ఒకవేళ(ctx->tunnel.resp)
       Curl_http_resp_free(ctx->tunnel.resp);
     ctx->tunnel.resp = resp;
-    CURL_TRC_CF(data, cf, "[%d] status: HTTP/2 %03d",
-                stream_id, ctx->tunnel.resp->status);
-    return 0;
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] status: HTTP/2 %03d",
+                ప్రవాహం_id, ctx->tunnel.resp->స్థితి_2);
+    తిరిగి 0;
   }
 
-  if(!ctx->tunnel.resp)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  ఒకవేళ(!ctx->tunnel.resp)
+    తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  result = Curl_dynhds_add(&ctx->tunnel.resp->headers,
-                           (const char *)name, namelen,
-                           (const char *)value, valuelen);
-  if(result)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  ఫలితం = Curl_dynhds_కూడు(&ctx->tunnel.resp->శీర్షికలు,
+                           (స్థిరరాశి అక్షరం *)name, namelen,
+                           (స్థిరరాశి అక్షరం *)విలువ, valuelen);
+  ఒకవేళ(ఫలితం)
+    తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  CURL_TRC_CF(data, cf, "[%d] header: %.*s: %.*s",
-              stream_id, (int)namelen, name, (int)valuelen, value);
+  CURL_TRC_CF(దత్తాంశం, cf, "[%d] header: %.*s: %.*s",
+              ప్రవాహం_id, (పూర్ణాంకం)namelen, name, (పూర్ణాంకం)valuelen, విలువ);
 
-  return 0; /* 0 is successful */
+  తిరిగి 0; /* 0 is successful */
 }
 
-static ssize_t tunnel_send_callback(nghttp2_session *session,
-                                    int32_t stream_id,
-                                    uint8_t *buf, size_t length,
-                                    uint32_t *data_flags,
-                                    nghttp2_data_source *source,
-                                    void *userp)
+స్థిర ssize_t tunnel_send_callback(nghttp2_session *session,
+                                    int32_t ప్రవాహం_id,
+                                    uint8_t *buf, size_t నిడివి,
+                                    uint32_t *దత్తాంశం_flags,
+                                    nghttp2_దత్తాంశం_ఆధారం *ఆధారం,
+                                    శూన్య *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  struct tunnel_stream *ts;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf = userp;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం Curl_easy *దత్తాంశం = CF_దత్తాంశం_CURRENT(cf);
+  నిర్మాణం tunnel_ప్రవాహం *ts;
+  CURLcode ఫలితం;
   size_t nread;
 
-  (void)session;
-  (void)source;
-  (void)ctx;
+  (శూన్య)session;
+  (శూన్య)ఆధారం;
+  (శూన్య)ctx;
 
-  if(!stream_id)
-    return NGHTTP2_ERR_INVALID_ARGUMENT;
+  ఒకవేళ(!ప్రవాహం_id)
+    తిరిగి NGHTTP2_ERR_INVALID_వాదం;
 
-  ts = Curl_ngh2_session_get_stream_user_data(&ctx->ngh2, stream_id);
-  if(!ts)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  ts = Curl_ngh2_session_get_ప్రవాహం_user_దత్తాంశం(&ctx->ngh2, ప్రవాహం_id);
+  ఒకవేళ(!ts)
+    తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
   DEBUGASSERT(ts == &ctx->tunnel);
 
-  result = Curl_bufq_read(&ts->sendbuf, buf, length, &nread);
-  if(result) {
-    if(result != CURLE_AGAIN)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-    return NGHTTP2_ERR_DEFERRED;
+  ఫలితం = Curl_bufq_read(&ts->sendbuf, buf, నిడివి, &nread);
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(ఫలితం != CURLE_AGAIN)
+      తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
+    తిరిగి NGHTTP2_ERR_DEFERRED;
   }
-  if(ts->closed && Curl_bufq_is_empty(&ts->sendbuf))
-    *data_flags = NGHTTP2_DATA_FLAG_EOF;
+  ఒకవేళ(ts->closed && Curl_bufq_is_ఖాళీలు(&ts->sendbuf))
+    *దత్తాంశం_flags = NGHTTP2_దత్తాంశం_FLAG_EOF;
 
-  CURL_TRC_CF(data, cf, "[%d] tunnel_send_callback -> %zu",
-              ts->stream_id, nread);
-  return (nread  > SSIZE_MAX) ?
+  CURL_TRC_CF(దత్తాంశం, cf, "[%d] tunnel_send_callback -> %zu",
+              ts->ప్రవాహం_id, nread);
+  తిరిగి (nread  > SSIZE_MAX) ?
     NGHTTP2_ERR_CALLBACK_FAILURE : (ssize_t)nread;
 }
 
-static int tunnel_recv_callback(nghttp2_session *session, uint8_t flags,
-                                int32_t stream_id,
-                                const uint8_t *mem, size_t len, void *userp)
+స్థిర పూర్ణాంకం tunnel_recv_callback(nghttp2_session *session, uint8_t flags,
+                                int32_t ప్రవాహం_id,
+                                స్థిరరాశి uint8_t *mem, size_t len, శూన్య *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం Curl_cfilter *cf = userp;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
   size_t nwritten;
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  (void)flags;
-  (void)session;
-  DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
+  (శూన్య)flags;
+  (శూన్య)session;
+  DEBUGASSERT(ప్రవాహం_id); /* should never be a zero stream ID here */
 
-  if(stream_id != ctx->tunnel.stream_id)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  ఒకవేళ(ప్రవాహం_id != ctx->tunnel.ప్రవాహం_id)
+    తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  result = Curl_bufq_write(&ctx->tunnel.recvbuf, mem, len, &nwritten);
-  if(result) {
-    if(result != CURLE_AGAIN)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-#ifdef DEBUGBUILD
+  ఫలితం = Curl_bufq_write(&ctx->tunnel.recvbuf, mem, len, &nwritten);
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(ఫలితం != CURLE_AGAIN)
+      తిరిగి NGHTTP2_ERR_CALLBACK_FAILURE;
+#నిర్వచితమైతే DEBUGBUILD
     nwritten = 0;
-#endif
+#అయితే_ముగింపు
   }
   /* tunnel.recbuf has soft limit, any success MUST add all data */
   DEBUGASSERT(nwritten == len);
-  return 0;
+  తిరిగి 0;
 }
 
-static int proxy_h2_on_stream_close(nghttp2_session *session,
-                                    int32_t stream_id,
-                                    uint32_t error_code, void *userp)
+స్థిర పూర్ణాంకం proxy_h2_on_ప్రవాహం_close(nghttp2_session *session,
+                                    int32_t ప్రవాహం_id,
+                                    uint32_t error_సంకేతం, శూన్య *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  నిర్మాణం Curl_cfilter *cf = userp;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం Curl_easy *దత్తాంశం = CF_దత్తాంశం_CURRENT(cf);
 
-  (void)session;
+  (శూన్య)session;
 
-  if(stream_id != ctx->tunnel.stream_id)
-    return 0;
+  ఒకవేళ(ప్రవాహం_id != ctx->tunnel.ప్రవాహం_id)
+    తిరిగి 0;
 
-  CURL_TRC_CF(data, cf, "[%d] proxy_h2_on_stream_close, %s (err %u)",
-              stream_id, nghttp2_http2_strerror(error_code), error_code);
+  CURL_TRC_CF(దత్తాంశం, cf, "[%d] proxy_h2_on_stream_close, %s (err %u)",
+              ప్రవాహం_id, nghttp2_http2_strerror(error_సంకేతం), error_సంకేతం);
   ctx->tunnel.closed = TRUE;
-  ctx->tunnel.error = error_code;
-  if(error_code)
+  ctx->tunnel.error = error_సంకేతం;
+  ఒకవేళ(error_సంకేతం)
     ctx->tunnel.reset = TRUE;
 
-  return 0;
+  తిరిగి 0;
 }
 
-static CURLcode proxy_h2_submit(
+స్థిర CURLcode proxy_h2_submit(
   int32_t *pstream_id,
-  struct Curl_cfilter *cf,
-  struct Curl_easy *data,
-  struct curl_ngh2 *ngh2,
-  struct httpreq *req,
-  const nghttp2_priority_spec *pri_spec,
-  void *stream_user_data,
-  nghttp2_data_source_read_callback read_callback,
-  void *read_ctx)
+  నిర్మాణం Curl_cfilter *cf,
+  నిర్మాణం Curl_easy *దత్తాంశం,
+  నిర్మాణం curl_ngh2 *ngh2,
+  నిర్మాణం httpreq *req,
+  స్థిరరాశి nghttp2_ప్రాధాన్యత_spec *pri_spec,
+  శూన్య *ప్రవాహం_user_దత్తాంశం,
+  nghttp2_దత్తాంశం_ఆధారం_read_callback read_callback,
+  శూన్య *read_ctx)
 {
-  struct dynhds h2_headers;
-  nghttp2_nv *nva = NULL;
-  int32_t stream_id = -1;
+  నిర్మాణం dynhds h2_శీర్షికలు;
+  nghttp2_nv *nva = ఖాళీ;
+  int32_t ప్రవాహం_id = -1;
   size_t nheader;
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  (void)cf;
-  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_COUNT, DYN_HTTP_REQUEST);
-  result = Curl_http_req_to_h2(&h2_headers, req, data);
-  if(result)
-    goto out;
+  (శూన్య)cf;
+  Curl_dynhds_init(&h2_శీర్షికలు, MAX_HTTP_RESP_శీర్షిక_లెక్క, DYN_HTTP_REQUEST);
+  ఫలితం = Curl_http_req_గమ్యం_h2(&h2_శీర్షికలు, req, దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
-  nva = Curl_dynhds_to_nva(&h2_headers, &nheader);
-  if(!nva) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  nva = Curl_dynhds_గమ్యం_nva(&h2_శీర్షికలు, &nheader);
+  ఒకవేళ(!nva) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(read_callback) {
-    nghttp2_data_provider data_prd;
+  ఒకవేళ(read_callback) {
+    nghttp2_దత్తాంశం_provider దత్తాంశం_prd;
 
-    data_prd.read_callback = read_callback;
-    data_prd.source.ptr = read_ctx;
-    stream_id = Curl_ngh2_submit_request(
-      ngh2, pri_spec, nva, nheader, &data_prd, stream_user_data);
+    దత్తాంశం_prd.read_callback = read_callback;
+    దత్తాంశం_prd.ఆధారం.ptr = read_ctx;
+    ప్రవాహం_id = Curl_ngh2_submit_request(
+      ngh2, pri_spec, nva, nheader, &దత్తాంశం_prd, ప్రవాహం_user_దత్తాంశం);
   }
-  else {
-    stream_id = Curl_ngh2_submit_request(
-      ngh2, pri_spec, nva, nheader, NULL, stream_user_data);
+  లేకపోతే {
+    ప్రవాహం_id = Curl_ngh2_submit_request(
+      ngh2, pri_spec, nva, nheader, ఖాళీ, ప్రవాహం_user_దత్తాంశం);
   }
 
-  if(stream_id < 0) {
-    failf(data, "nghttp2_session_upgrade2() failed: %s(%d)",
-          nghttp2_strerror(stream_id), stream_id);
-    result = CURLE_SEND_ERROR;
-    goto out;
+  ఒకవేళ(ప్రవాహం_id < 0) {
+    failf(దత్తాంశం, "nghttp2_session_upgrade2() failed: %s(%d)",
+          nghttp2_strerror(ప్రవాహం_id), ప్రవాహం_id);
+    ఫలితం = CURLE_SEND_ERROR;
+    వెళ్ళు బహిర్గతం;
   }
-  result = CURLE_OK;
+  ఫలితం = CURLE_OK;
 
-out:
+బహిర్గతం:
   curlx_free(nva);
-  Curl_dynhds_free(&h2_headers);
-  *pstream_id = stream_id;
-  return result;
+  Curl_dynhds_free(&h2_శీర్షికలు);
+  *pstream_id = ప్రవాహం_id;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode submit_CONNECT(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct tunnel_stream *ts)
+స్థిర CURLcode submit_CONNECT(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం tunnel_ప్రవాహం *ts)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result;
-  struct httpreq *req = NULL;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం;
+  నిర్మాణం httpreq *req = ఖాళీ;
 
-  result = Curl_http_proxy_create_tunnel_request(&req, cf, data,
+  ఫలితం = Curl_http_proxy_create_tunnel_request(&req, cf, దత్తాంశం,
                                                  ctx->peer, ctx->dest,
                                                   PROXY_HTTP_V2,
                                                   (bool)ctx->udp_tunnel);
-  if(result)
-    goto out;
-  result = Curl_creader_set_null(data);
-  if(result)
-    goto out;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  ఫలితం = Curl_creader_సమితి_null(దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
-  result = proxy_h2_submit(&ts->stream_id, cf, data, &ctx->ngh2, req,
-                           NULL, ts, tunnel_send_callback, cf);
-  if(result) {
-    CURL_TRC_CF(data, cf, "[%d] send, nghttp2_submit_request error: %s",
-                ts->stream_id, nghttp2_strerror(ts->stream_id));
+  ఫలితం = proxy_h2_submit(&ts->ప్రవాహం_id, cf, దత్తాంశం, &ctx->ngh2, req,
+                           ఖాళీ, ts, tunnel_send_callback, cf);
+  ఒకవేళ(ఫలితం) {
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] send, nghttp2_submit_request error: %s",
+                ts->ప్రవాహం_id, nghttp2_strerror(ts->ప్రవాహం_id));
   }
 
-out:
-  if(req)
+బహిర్గతం:
+  ఒకవేళ(req)
     Curl_http_req_free(req);
-  if(result)
-    failf(data, "Failed sending CONNECT to proxy");
-  return result;
+  ఒకవేళ(ఫలితం)
+    failf(దత్తాంశం, "Failed sending CONNECT to proxy");
+  తిరిగి ఫలితం;
 }
 
-static CURLcode inspect_response(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct tunnel_stream *ts)
+స్థిర CURLcode inspect_response(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం tunnel_ప్రవాహం *ts)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  proxy_inspect_result res;
-  CURLcode result;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  proxy_inspect_ఫలితం res;
+  CURLcode ఫలితం;
 
-  result = Curl_http_proxy_inspect_tunnel_response(
-      cf, data, ts->resp, (bool)ctx->udp_tunnel, &res);
-  if(result)
-    return result;
-  switch(res) {
-  case PROXY_INSPECT_OK:
-    h2_tunnel_go_state(cf, ts, H2_TUNNEL_ESTABLISHED, data,
+  ఫలితం = Curl_http_proxy_inspect_tunnel_response(
+      cf, దత్తాంశం, ts->resp, (bool)ctx->udp_tunnel, &res);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
+  ఎంపిక(res) {
+  స్థితి PROXY_INSPECT_OK:
+    h2_tunnel_go_state(cf, ts, H2_TUNNEL_ESTABLISHED, దత్తాంశం,
                        (bool)ctx->udp_tunnel);
-    break;
-  case PROXY_INSPECT_FAILED:
-    h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, data,
+    ఆపు;
+  స్థితి PROXY_INSPECT_FAILED:
+    h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, దత్తాంశం,
                        (bool)ctx->udp_tunnel);
-    result = CURLE_COULDNT_CONNECT;
-    break;
-  case PROXY_INSPECT_AUTH_RETRY:
-    h2_tunnel_go_state(cf, ts, H2_TUNNEL_INIT, data,
+    ఫలితం = CURLE_COULDNT_CONNECT;
+    ఆపు;
+  స్థితి PROXY_INSPECT_AUTH_RETRY:
+    h2_tunnel_go_state(cf, ts, H2_TUNNEL_INIT, దత్తాంశం,
                        (bool)ctx->udp_tunnel);
-    break;
+    ఆపు;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode H2_CONNECT(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct tunnel_stream *ts)
+స్థిర CURLcode H2_CONNECT(నిర్మాణం Curl_cfilter *cf,
+                           నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం tunnel_ప్రవాహం *ts)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
   DEBUGASSERT(ts);
   DEBUGASSERT(ts->authority);
-  if(ctx->conn_closed) {
-    failf(data, "proxy closed connection");
-    return CURLE_COULDNT_CONNECT;
+  ఒకవేళ(ctx->conn_closed) {
+    failf(దత్తాంశం, "proxy closed connection");
+    తిరిగి CURLE_COULDNT_CONNECT;
   }
 
-  do {
-    switch(ts->state) {
-    case H2_TUNNEL_INIT:
+  చేయి {
+    ఎంపిక(ts->state) {
+    స్థితి H2_TUNNEL_INIT:
       /* Prepare the CONNECT request and make a first attempt to send. */
-      CURL_TRC_CF(data, cf, "[0] CONNECT start for %s", ts->authority);
-      result = submit_CONNECT(cf, data, ts);
-      if(result)
-        goto out;
-      h2_tunnel_go_state(cf, ts, H2_TUNNEL_CONNECT, data,
+      CURL_TRC_CF(దత్తాంశం, cf, "[0] CONNECT start for %s", ts->authority);
+      ఫలితం = submit_CONNECT(cf, దత్తాంశం, ts);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
+      h2_tunnel_go_state(cf, ts, H2_TUNNEL_CONNECT, దత్తాంశం,
                          (bool)ctx->udp_tunnel);
       FALLTHROUGH();
 
-    case H2_TUNNEL_CONNECT:
+    స్థితి H2_TUNNEL_CONNECT:
       /* see that the request is completely sent */
-      result = proxy_h2_progress_ingress(cf, data);
-      if(!result)
-        result = proxy_h2_progress_egress(cf, data);
-      if(result && result != CURLE_AGAIN) {
-        h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, data,
+      ఫలితం = proxy_h2_పురోగతి_ingress(cf, దత్తాంశం);
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = proxy_h2_పురోగతి_egress(cf, దత్తాంశం);
+      ఒకవేళ(ఫలితం && ఫలితం != CURLE_AGAIN) {
+        h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, దత్తాంశం,
                            (bool)ctx->udp_tunnel);
-        break;
+        ఆపు;
       }
 
-      if(ts->has_final_response) {
-        h2_tunnel_go_state(cf, ts, H2_TUNNEL_RESPONSE, data,
+      ఒకవేళ(ts->has_final_response) {
+        h2_tunnel_go_state(cf, ts, H2_TUNNEL_RESPONSE, దత్తాంశం,
                            (bool)ctx->udp_tunnel);
       }
-      else {
-        result = CURLE_OK;
-        goto out;
+      లేకపోతే {
+        ఫలితం = CURLE_OK;
+        వెళ్ళు బహిర్గతం;
       }
       FALLTHROUGH();
 
-    case H2_TUNNEL_RESPONSE:
+    స్థితి H2_TUNNEL_RESPONSE:
       DEBUGASSERT(ts->has_final_response);
-      result = inspect_response(cf, data, ts);
-      if(result)
-        goto out;
-      break;
+      ఫలితం = inspect_response(cf, దత్తాంశం, ts);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
+      ఆపు;
 
-    case H2_TUNNEL_ESTABLISHED:
-      return CURLE_OK;
+    స్థితి H2_TUNNEL_ESTABLISHED:
+      తిరిగి CURLE_OK;
 
-    case H2_TUNNEL_FAILED:
-      return CURLE_RECV_ERROR;
+    స్థితి H2_TUNNEL_FAILED:
+      తిరిగి CURLE_RECV_ERROR;
 
-    default:
-      break;
+    అప్రమేయ:
+      ఆపు;
     }
 
-  } while(ts->state == H2_TUNNEL_INIT);
+  } అయితే(ts->state == H2_TUNNEL_INIT);
 
-out:
-  if((result && (result != CURLE_AGAIN)) || ctx->tunnel.closed)
-    h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, data,
+బహిర్గతం:
+  ఒకవేళ((ఫలితం && (ఫలితం != CURLE_AGAIN)) || ctx->tunnel.closed)
+    h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, దత్తాంశం,
                        (bool)ctx->udp_tunnel);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
  * Initialize the cfilter context
  */
-static CURLcode cf_h2_proxy_ctx_init(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data)
+స్థిర CURLcode cf_h2_proxy_ctx_init(నిర్మాణం Curl_cfilter *cf,
+                                     నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  nghttp2_session_callbacks *cbs = NULL;
-  int rc;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  nghttp2_session_callbacks *cbs = ఖాళీ;
+  పూర్ణాంకం rc;
 
   DEBUGASSERT(!ctx->ngh2.s);
-  memset(&ctx->tunnel, 0, sizeof(ctx->tunnel));
+  memset(&ctx->tunnel, 0, పరిమాణం(ctx->tunnel));
 
-  Curl_bufq_init(&ctx->inbufq, PROXY_H2_CHUNK_SIZE, PROXY_H2_NW_RECV_CHUNKS);
-  Curl_bufq_init(&ctx->outbufq, PROXY_H2_CHUNK_SIZE, PROXY_H2_NW_SEND_CHUNKS);
+  Curl_bufq_init(&ctx->inbufq, PROXY_H2_CHUNK_కొలత, PROXY_H2_NW_RECV_CHUNKS);
+  Curl_bufq_init(&ctx->outbufq, PROXY_H2_CHUNK_కొలత, PROXY_H2_NW_SEND_CHUNKS);
   ctx->remote_max_sid = INT32_MAX;
 
-  if(tunnel_stream_init(&ctx->tunnel, ctx->dest))
-    goto out;
+  ఒకవేళ(tunnel_ప్రవాహం_init(&ctx->tunnel, ctx->dest))
+    వెళ్ళు బహిర్గతం;
 
   rc = nghttp2_session_callbacks_new(&cbs);
-  if(rc) {
-    failf(data, "Could not initialize nghttp2 callbacks");
-    goto out;
+  ఒకవేళ(rc) {
+    failf(దత్తాంశం, "Could not initialize nghttp2 callbacks");
+    వెళ్ళు బహిర్గతం;
   }
 
-  nghttp2_session_callbacks_set_send_callback(cbs, on_session_send);
-  nghttp2_session_callbacks_set_on_frame_recv_callback(
-    cbs, proxy_h2_on_frame_recv);
-#ifdef CURLVERBOSE
-  nghttp2_session_callbacks_set_on_frame_send_callback(cbs,
-                                                       proxy_h2_on_frame_send);
-#endif
-  nghttp2_session_callbacks_set_on_data_chunk_recv_callback(
+  nghttp2_session_callbacks_సమితి_send_callback(cbs, on_session_send);
+  nghttp2_session_callbacks_సమితి_on_చట్రం_recv_callback(
+    cbs, proxy_h2_on_చట్రం_recv);
+#నిర్వచితమైతే CURLVERBOSE
+  nghttp2_session_callbacks_సమితి_on_చట్రం_send_callback(cbs,
+                                                       proxy_h2_on_చట్రం_send);
+#అయితే_ముగింపు
+  nghttp2_session_callbacks_సమితి_on_దత్తాంశం_chunk_recv_callback(
     cbs, tunnel_recv_callback);
-  nghttp2_session_callbacks_set_on_stream_close_callback(
-    cbs, proxy_h2_on_stream_close);
-  nghttp2_session_callbacks_set_on_header_callback(cbs, proxy_h2_on_header);
+  nghttp2_session_callbacks_సమితి_on_ప్రవాహం_close_callback(
+    cbs, proxy_h2_on_ప్రవాహం_close);
+  nghttp2_session_callbacks_సమితి_on_శీర్షిక_callback(cbs, proxy_h2_on_శీర్షిక);
 
   /* The nghttp2 session is not yet setup, do it */
   rc = proxy_h2_client_new(cf, cbs);
-  if(rc) {
-    failf(data, "Could not initialize nghttp2");
-    goto out;
+  ఒకవేళ(rc) {
+    failf(దత్తాంశం, "Could not initialize nghttp2");
+    వెళ్ళు బహిర్గతం;
   }
 
   {
-    nghttp2_settings_entry iv[3];
+    nghttp2_settings_నమోదు iv[3];
 
     iv[0].settings_id = NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS;
-    iv[0].value = Curl_multi_max_concurrent_streams(data->multi);
-    iv[1].settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
-    iv[1].value = H2_TUNNEL_WINDOW_SIZE;
-    iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_PUSH;
-    iv[2].value = 0;
+    iv[0].విలువ = Curl_multi_max_concurrent_streams(దత్తాంశం->multi);
+    iv[1].settings_id = NGHTTP2_SETTINGS_INITIAL_కిటికీ_కొలత;
+    iv[1].విలువ = H2_TUNNEL_కిటికీ_కొలత;
+    iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_నెట్టు;
+    iv[2].విలువ = 0;
     rc = Curl_ngh2_submit_settings(&ctx->ngh2, NGHTTP2_FLAG_NONE, iv, 3);
-    if(rc) {
-      failf(data, "nghttp2_submit_settings() failed: %s(%d)",
+    ఒకవేళ(rc) {
+      failf(దత్తాంశం, "nghttp2_submit_settings() failed: %s(%d)",
             nghttp2_strerror(rc), rc);
-      result = CURLE_HTTP2;
-      goto out;
+      ఫలితం = CURLE_HTTP2;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  rc = Curl_ngh2_session_set_local_window_size(
-    &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, PROXY_HTTP2_HUGE_WINDOW_SIZE);
-  if(rc) {
-    failf(data, "nghttp2_session_set_local_window_size() failed: %s(%d)",
+  rc = Curl_ngh2_session_సమితి_local_కిటికీ_కొలత(
+    &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, PROXY_HTTP2_HUGE_కిటికీ_కొలత);
+  ఒకవేళ(rc) {
+    failf(దత్తాంశం, "nghttp2_session_set_local_window_size() failed: %s(%d)",
           nghttp2_strerror(rc), rc);
-    result = CURLE_HTTP2;
-    goto out;
+    ఫలితం = CURLE_HTTP2;
+    వెళ్ళు బహిర్గతం;
   }
 
   /* all set, traffic will be send on connect */
-  result = CURLE_OK;
+  ఫలితం = CURLE_OK;
 
-out:
-  if(cbs)
+బహిర్గతం:
+  ఒకవేళ(cbs)
     nghttp2_session_callbacks_del(cbs);
-  CURL_TRC_CF(data, cf, "[0] init proxy ctx -> %d", (int)result);
-  return result;
+  CURL_TRC_CF(దత్తాంశం, cf, "[0] init proxy ctx -> %d", (పూర్ణాంకం)ఫలితం);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_h2_proxy_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    bool *done)
+స్థిర CURLcode cf_h2_proxy_connect(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    bool *పూర్తి)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  struct cf_call_data save;
-  struct tunnel_stream *ts = &ctx->tunnel;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  నిర్మాణం tunnel_ప్రవాహం *ts = &ctx->tunnel;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->connected) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
   /* Connect the lower filters first */
-  if(!cf->next->connected) {
-    result = Curl_conn_cf_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  ఒకవేళ(!cf->తదుపరి->connected) {
+    ఫలితం = Curl_conn_cf_connect(cf->తదుపరి, దత్తాంశం, పూర్తి);
+    ఒకవేళ(ఫలితం || !*పూర్తి)
+      తిరిగి ఫలితం;
   }
 
-  *done = FALSE;
+  *పూర్తి = FALSE;
 
-  CF_DATA_SAVE(save, cf, data);
-  if(!ctx->ngh2.s) {
-    result = cf_h2_proxy_ctx_init(cf, data);
-    if(result)
-      goto out;
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
+  ఒకవేళ(!ctx->ngh2.s) {
+    ఫలితం = cf_h2_proxy_ctx_init(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
   DEBUGASSERT(ts->authority);
 
-  if(Curl_timeleft_ms(data) < 0) {
-    failf(data, "Proxy CONNECT aborted due to timeout");
-    result = CURLE_OPERATION_TIMEDOUT;
-    goto out;
+  ఒకవేళ(Curl_timeleft_ms(దత్తాంశం) < 0) {
+    failf(దత్తాంశం, "Proxy CONNECT aborted due to timeout");
+    ఫలితం = CURLE_OPERATION_TIMEDOUT;
+    వెళ్ళు బహిర్గతం;
   }
 
   /* for the secondary socket (FTP), use the "connect to host"
    * but ignore the "connect to port" (use the secondary port)
    */
-  result = H2_CONNECT(cf, data, ts);
+  ఫలితం = H2_CONNECT(cf, దత్తాంశం, ts);
 
-out:
-  *done = (result == CURLE_OK) && (ts->state == H2_TUNNEL_ESTABLISHED);
-  if(*done) {
+బహిర్గతం:
+  *పూర్తి = (ఫలితం == CURLE_OK) && (ts->state == H2_TUNNEL_ESTABLISHED);
+  ఒకవేళ(*పూర్తి) {
     cf->connected = TRUE;
     /* The real request will follow the CONNECT, reset request partially */
-    Curl_req_soft_reset(&data->req, data);
-    Curl_client_reset(data);
+    Curl_req_soft_reset(&దత్తాంశం->req, దత్తాంశం);
+    Curl_client_reset(దత్తాంశం);
   }
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_దత్తాంశం_RESTORE(cf, save);
+  తిరిగి ఫలితం;
 }
 
-static void cf_h2_proxy_destroy(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+స్థిర శూన్య cf_h2_proxy_destroy(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
 
-  (void)data;
-  if(ctx) {
+  (శూన్య)దత్తాంశం;
+  ఒకవేళ(ctx) {
     cf_h2_proxy_ctx_free(ctx);
-    cf->ctx = NULL;
+    cf->ctx = ఖాళీ;
   }
 }
 
-static CURLcode cf_h2_proxy_shutdown(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data, bool *done)
+స్థిర CURLcode cf_h2_proxy_shutdown(నిర్మాణం Curl_cfilter *cf,
+                                     నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
-  int rv;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  CURLcode ఫలితం;
+  పూర్ణాంకం rv;
 
-  if(!cf->connected || !Curl_ngh2_valid(&ctx->ngh2) ||
+  ఒకవేళ(!cf->connected || !Curl_ngh2_valid(&ctx->ngh2) ||
      cf->shutdown || ctx->conn_closed) {
-    *done = TRUE;
-    return CURLE_OK;
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
 
-  if(!ctx->sent_goaway) {
+  ఒకవేళ(!ctx->పంపిన_goaway) {
     rv = Curl_ngh2_submit_goaway(
       &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, 0,
-      (const uint8_t *)"shutdown", sizeof("shutdown"));
-    if(rv) {
-      failf(data, "nghttp2_submit_goaway() failed: %s(%d)",
+      (స్థిరరాశి uint8_t *)"shutdown", పరిమాణం("shutdown"));
+    ఒకవేళ(rv) {
+      failf(దత్తాంశం, "nghttp2_submit_goaway() failed: %s(%d)",
             nghttp2_strerror(rv), rv);
-      result = CURLE_SEND_ERROR;
-      goto out;
+      ఫలితం = CURLE_SEND_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
-    ctx->sent_goaway = TRUE;
+    ctx->పంపిన_goaway = TRUE;
   }
   /* GOAWAY submitted, process egress and ingress until nghttp2 is done. */
-  result = CURLE_OK;
-  if(Curl_ngh2_session_want_write(&ctx->ngh2))
-    result = proxy_h2_progress_egress(cf, data);
-  if(!result && Curl_ngh2_session_want_read(&ctx->ngh2))
-    result = proxy_h2_progress_ingress(cf, data);
+  ఫలితం = CURLE_OK;
+  ఒకవేళ(Curl_ngh2_session_want_write(&ctx->ngh2))
+    ఫలితం = proxy_h2_పురోగతి_egress(cf, దత్తాంశం);
+  ఒకవేళ(!ఫలితం && Curl_ngh2_session_want_read(&ctx->ngh2))
+    ఫలితం = proxy_h2_పురోగతి_ingress(cf, దత్తాంశం);
 
-  *done = (ctx->conn_closed ||
-           (!result && !Curl_ngh2_session_want_write(&ctx->ngh2) &&
+  *పూర్తి = (ctx->conn_closed ||
+           (!ఫలితం && !Curl_ngh2_session_want_write(&ctx->ngh2) &&
             !Curl_ngh2_session_want_read(&ctx->ngh2)));
-out:
-  CF_DATA_RESTORE(cf, save);
-  cf->shutdown = (result || *done);
-  return result;
+బహిర్గతం:
+  CF_దత్తాంశం_RESTORE(cf, save);
+  cf->shutdown = (ఫలితం || *పూర్తి);
+  తిరిగి ఫలితం;
 }
 
-static bool cf_h2_proxy_data_pending(struct Curl_cfilter *cf,
-                                     const struct Curl_easy *data)
+స్థిర bool cf_h2_proxy_దత్తాంశం_pending(నిర్మాణం Curl_cfilter *cf,
+                                     స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  if((ctx && !Curl_bufq_is_empty(&ctx->inbufq)) ||
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  ఒకవేళ((ctx && !Curl_bufq_is_ఖాళీలు(&ctx->inbufq)) ||
      (ctx && ctx->tunnel.state == H2_TUNNEL_ESTABLISHED &&
-      !Curl_bufq_is_empty(&ctx->tunnel.recvbuf)))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+      !Curl_bufq_is_ఖాళీలు(&ctx->tunnel.recvbuf)))
+    తిరిగి TRUE;
+  తిరిగి cf->తదుపరి ? cf->తదుపరి->cft->has_దత్తాంశం_pending(cf->తదుపరి, దత్తాంశం) : FALSE;
 }
 
-static CURLcode cf_h2_proxy_adjust_pollset(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
-                                           struct easy_pollset *ps)
+స్థిర CURLcode cf_h2_proxy_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                           నిర్మాణం Curl_easy *దత్తాంశం,
+                                           నిర్మాణం easy_pollset *ps)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  curl_socket_t sock = Curl_conn_cf_get_socket(cf, దత్తాంశం);
   bool want_recv, want_send;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!cf->connected && Curl_ngh2_valid(&ctx->ngh2)) {
+  ఒకవేళ(!cf->connected && Curl_ngh2_valid(&ctx->ngh2)) {
     want_send = Curl_ngh2_session_want_write(&ctx->ngh2) ||
-                !Curl_bufq_is_empty(&ctx->outbufq) ||
-                !Curl_bufq_is_empty(&ctx->tunnel.sendbuf);
+                !Curl_bufq_is_ఖాళీలు(&ctx->outbufq) ||
+                !Curl_bufq_is_ఖాళీలు(&ctx->tunnel.sendbuf);
     want_recv = Curl_ngh2_session_want_read(&ctx->ngh2);
   }
-  else
-    Curl_pollset_check(data, ps, sock, &want_recv, &want_send);
+  లేకపోతే
+    Curl_pollset_check(దత్తాంశం, ps, sock, &want_recv, &want_send);
 
-  if(Curl_ngh2_valid(&ctx->ngh2) && (want_recv || want_send)) {
+  ఒకవేళ(Curl_ngh2_valid(&ctx->ngh2) && (want_recv || want_send)) {
     bool c_exhaust, s_exhaust;
 
-    CF_DATA_SAVE(save, cf, data);
-    c_exhaust = !Curl_ngh2_session_get_remote_window_size(&ctx->ngh2);
-    s_exhaust = ctx->tunnel.stream_id >= 0 &&
-                !Curl_ngh2_session_get_stream_remote_window_size(
-                  &ctx->ngh2, ctx->tunnel.stream_id);
+    CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
+    c_exhaust = !Curl_ngh2_session_get_remote_కిటికీ_కొలత(&ctx->ngh2);
+    s_exhaust = ctx->tunnel.ప్రవాహం_id >= 0 &&
+                !Curl_ngh2_session_get_ప్రవాహం_remote_కిటికీ_కొలత(
+                  &ctx->ngh2, ctx->tunnel.ప్రవాహం_id);
     want_recv = (want_recv || c_exhaust || s_exhaust);
     want_send = (!s_exhaust && want_send) ||
                 (!c_exhaust && Curl_ngh2_session_want_write(&ctx->ngh2)) ||
-                !Curl_bufq_is_empty(&ctx->outbufq) ||
-                !Curl_bufq_is_empty(&ctx->tunnel.sendbuf);
+                !Curl_bufq_is_ఖాళీలు(&ctx->outbufq) ||
+                !Curl_bufq_is_ఖాళీలు(&ctx->tunnel.sendbuf);
 
-    result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
-    CURL_TRC_CF(data, cf, "adjust_pollset, want_recv=%d want_send=%d -> %d",
-                want_recv, want_send, (int)result);
-    CF_DATA_RESTORE(cf, save);
+    ఫలితం = Curl_pollset_సమితి(దత్తాంశం, ps, sock, want_recv, want_send);
+    CURL_TRC_CF(దత్తాంశం, cf, "adjust_pollset, want_recv=%d want_send=%d -> %d",
+                want_recv, want_send, (పూర్ణాంకం)ఫలితం);
+    CF_దత్తాంశం_RESTORE(cf, save);
   }
-  else if(ctx->sent_goaway && !cf->shutdown) {
+  లేకపోతే ఒకవేళ(ctx->పంపిన_goaway && !cf->shutdown) {
     /* shutdown in progress */
-    CF_DATA_SAVE(save, cf, data);
+    CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
     want_send = Curl_ngh2_session_want_write(&ctx->ngh2) ||
-                !Curl_bufq_is_empty(&ctx->outbufq) ||
-                !Curl_bufq_is_empty(&ctx->tunnel.sendbuf);
+                !Curl_bufq_is_ఖాళీలు(&ctx->outbufq) ||
+                !Curl_bufq_is_ఖాళీలు(&ctx->tunnel.sendbuf);
     want_recv = Curl_ngh2_session_want_read(&ctx->ngh2);
-    result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
-    CURL_TRC_CF(data, cf, "adjust_pollset, want_recv=%d want_send=%d -> %d",
-                want_recv, want_send, (int)result);
-    CF_DATA_RESTORE(cf, save);
+    ఫలితం = Curl_pollset_సమితి(దత్తాంశం, ps, sock, want_recv, want_send);
+    CURL_TRC_CF(దత్తాంశం, cf, "adjust_pollset, want_recv=%d want_send=%d -> %d",
+                want_recv, want_send, (పూర్ణాంకం)ఫలితం);
+    CF_దత్తాంశం_RESTORE(cf, save);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode h2_handle_tunnel_close(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
+స్థిర CURLcode h2_handle_tunnel_close(నిర్మాణం Curl_cfilter *cf,
+                                       నిర్మాణం Curl_easy *దత్తాంశం,
                                        size_t *pnread)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
 
   *pnread = 0;
-  if(ctx->tunnel.error) {
-    failf(data, "HTTP/2 stream %d reset by %s (error 0x%x %s)",
-          ctx->tunnel.stream_id, ctx->tunnel.reset ? "server" : "curl",
+  ఒకవేళ(ctx->tunnel.error) {
+    failf(దత్తాంశం, "HTTP/2 stream %d reset by %s (error 0x%x %s)",
+          ctx->tunnel.ప్రవాహం_id, ctx->tunnel.reset ? "server" : "curl",
           ctx->tunnel.error, nghttp2_http2_strerror(ctx->tunnel.error));
-    return CURLE_RECV_ERROR;
+    తిరిగి CURLE_RECV_ERROR;
   }
 
-  CURL_TRC_CF(data, cf, "[%d] handle_tunnel_close -> 0",
-              ctx->tunnel.stream_id);
-  return CURLE_OK;
+  CURL_TRC_CF(దత్తాంశం, cf, "[%d] handle_tunnel_close -> 0",
+              ctx->tunnel.ప్రవాహం_id);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode tunnel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                            char *buf, size_t len, size_t *pnread)
+స్థిర CURLcode tunnel_recv(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                            అక్షరం *buf, size_t len, size_t *pnread)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_AGAIN;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_AGAIN;
 
   *pnread = 0;
-  if(!Curl_bufq_is_empty(&ctx->tunnel.recvbuf))
-    result = Curl_bufq_cread(&ctx->tunnel.recvbuf, buf, len, pnread);
-  else {
-    if(ctx->tunnel.closed) {
-      result = h2_handle_tunnel_close(cf, data, pnread);
+  ఒకవేళ(!Curl_bufq_is_ఖాళీలు(&ctx->tunnel.recvbuf))
+    ఫలితం = Curl_bufq_cread(&ctx->tunnel.recvbuf, buf, len, pnread);
+  లేకపోతే {
+    ఒకవేళ(ctx->tunnel.closed) {
+      ఫలితం = h2_handle_tunnel_close(cf, దత్తాంశం, pnread);
     }
-    else if(ctx->tunnel.reset ||
-            (ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) ||
+    లేకపోతే ఒకవేళ(ctx->tunnel.reset ||
+            (ctx->conn_closed && Curl_bufq_is_ఖాళీలు(&ctx->inbufq)) ||
             (ctx->rcvd_goaway &&
-             ctx->remote_max_sid < ctx->tunnel.stream_id)) {
-      result = CURLE_RECV_ERROR;
+             ctx->remote_max_sid < ctx->tunnel.ప్రవాహం_id)) {
+      ఫలితం = CURLE_RECV_ERROR;
     }
-    else
-      result = CURLE_AGAIN;
+    లేకపోతే
+      ఫలితం = CURLE_AGAIN;
   }
 
-  CURL_TRC_CF(data, cf, "[%d] tunnel_recv(len=%zu) -> %d, %zu",
-              ctx->tunnel.stream_id, len, (int)result, *pnread);
-  return result;
+  CURL_TRC_CF(దత్తాంశం, cf, "[%d] tunnel_recv(len=%zu) -> %d, %zu",
+              ctx->tunnel.ప్రవాహం_id, len, (పూర్ణాంకం)ఫలితం, *pnread);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_h2_proxy_recv(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 char *buf, size_t len,
+స్థిర CURLcode cf_h2_proxy_recv(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 అక్షరం *buf, size_t len,
                                  size_t *pnread)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  CURLcode ఫలితం;
 
   *pnread = 0;
-  CF_DATA_SAVE(save, cf, data);
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
 
-  if(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
-    result = CURLE_RECV_ERROR;
-    goto out;
+  ఒకవేళ(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
+    ఫలితం = CURLE_RECV_ERROR;
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(Curl_bufq_is_empty(&ctx->tunnel.recvbuf)) {
-    result = proxy_h2_progress_ingress(cf, data);
-    if(result)
-      goto out;
+  ఒకవేళ(Curl_bufq_is_ఖాళీలు(&ctx->tunnel.recvbuf)) {
+    ఫలితం = proxy_h2_పురోగతి_ingress(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  result = tunnel_recv(cf, data, buf, len, pnread);
+  ఫలితం = tunnel_recv(cf, దత్తాంశం, buf, len, pnread);
 
-  if(!result) {
-    CURL_TRC_CF(data, cf, "[%d] increase window by %zu",
-                ctx->tunnel.stream_id, *pnread);
-    Curl_ngh2_session_consume(&ctx->ngh2, ctx->tunnel.stream_id, *pnread);
+  ఒకవేళ(!ఫలితం) {
+    CURL_TRC_CF(దత్తాంశం, cf, "[%d] increase window by %zu",
+                ctx->tunnel.ప్రవాహం_id, *pnread);
+    Curl_ngh2_session_consume(&ctx->ngh2, ctx->tunnel.ప్రవాహం_id, *pnread);
   }
 
-  result = Curl_1st_fatal(result, proxy_h2_progress_egress(cf, data));
+  ఫలితం = Curl_1st_fatal(ఫలితం, proxy_h2_పురోగతి_egress(cf, దత్తాంశం));
 
-out:
-  if((!Curl_bufq_is_empty(&ctx->tunnel.recvbuf) ||
-      !Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) &&
-     (!result || (result == CURLE_AGAIN))) {
+బహిర్గతం:
+  ఒకవేళ((!Curl_bufq_is_ఖాళీలు(&ctx->tunnel.recvbuf) ||
+      !Curl_bufq_is_ఖాళీలు(&ctx->tunnel.sendbuf)) &&
+     (!ఫలితం || (ఫలితం == CURLE_AGAIN))) {
     /* data pending and no fatal error to report. Need to trigger
      * draining to avoid stalling when no socket events happen. */
-    drain_tunnel(cf, data, &ctx->tunnel);
+    drain_tunnel(cf, దత్తాంశం, &ctx->tunnel);
   }
-  CURL_TRC_CF(data, cf, "[%d] cf_recv(len=%zu) -> %d, %zu",
-              ctx->tunnel.stream_id, len, (int)result, *pnread);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CURL_TRC_CF(దత్తాంశం, cf, "[%d] cf_recv(len=%zu) -> %d, %zu",
+              ctx->tunnel.ప్రవాహం_id, len, (పూర్ణాంకం)ఫలితం, *pnread);
+  CF_దత్తాంశం_RESTORE(cf, save);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_h2_proxy_send(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const uint8_t *buf, size_t len, bool eos,
+స్థిర CURLcode cf_h2_proxy_send(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 స్థిరరాశి uint8_t *buf, size_t len, bool eos,
                                  size_t *pnwritten)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  CURLcode ఫలితం;
 
-  (void)eos;
+  (శూన్య)eos;
   *pnwritten = 0;
-  CF_DATA_SAVE(save, cf, data);
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
 
-  if(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
-    result = CURLE_SEND_ERROR;
-    goto out;
+  ఒకవేళ(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
+    ఫలితం = CURLE_SEND_ERROR;
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(ctx->tunnel.closed) {
-    result = CURLE_SEND_ERROR;
-    goto out;
+  ఒకవేళ(ctx->tunnel.closed) {
+    ఫలితం = CURLE_SEND_ERROR;
+    వెళ్ళు బహిర్గతం;
   }
 
-  result = Curl_bufq_write(&ctx->tunnel.sendbuf, buf, len, pnwritten);
-  CURL_TRC_CF(data, cf, "cf_send(), bufq_write %d, %zu", (int)result,
+  ఫలితం = Curl_bufq_write(&ctx->tunnel.sendbuf, buf, len, pnwritten);
+  CURL_TRC_CF(దత్తాంశం, cf, "cf_send(), bufq_write %d, %zu", (పూర్ణాంకం)ఫలితం,
               *pnwritten);
-  if(result && (result != CURLE_AGAIN))
-    goto out;
+  ఒకవేళ(ఫలితం && (ఫలితం != CURLE_AGAIN))
+    వెళ్ళు బహిర్గతం;
 
-  if(!Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
+  ఒకవేళ(!Curl_bufq_is_ఖాళీలు(&ctx->tunnel.sendbuf)) {
     /* req body data is buffered, resume the potentially suspended stream */
-    if(Curl_ngh2_is_fatal(&ctx->ngh2,
-         Curl_ngh2_session_resume_data(&ctx->ngh2, ctx->tunnel.stream_id))) {
-      result = CURLE_SEND_ERROR;
-      goto out;
+    ఒకవేళ(Curl_ngh2_is_fatal(&ctx->ngh2,
+         Curl_ngh2_session_resume_దత్తాంశం(&ctx->ngh2, ctx->tunnel.ప్రవాహం_id))) {
+      ఫలితం = CURLE_SEND_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  result = Curl_1st_fatal(result, proxy_h2_progress_ingress(cf, data));
-  result = Curl_1st_fatal(result, proxy_h2_progress_egress(cf, data));
+  ఫలితం = Curl_1st_fatal(ఫలితం, proxy_h2_పురోగతి_ingress(cf, దత్తాంశం));
+  ఫలితం = Curl_1st_fatal(ఫలితం, proxy_h2_పురోగతి_egress(cf, దత్తాంశం));
 
-  if(!result && proxy_h2_should_close_session(ctx)) {
+  ఒకవేళ(!ఫలితం && proxy_h2_should_close_session(ctx)) {
     /* nghttp2 thinks this session is done. If the stream has not been
      * closed, this is an error state for out transfer */
-    if(ctx->tunnel.closed) {
-      result = CURLE_SEND_ERROR;
+    ఒకవేళ(ctx->tunnel.closed) {
+      ఫలితం = CURLE_SEND_ERROR;
     }
-    else {
-      CURL_TRC_CF(data, cf, "[0] send: nothing to do in this session");
-      result = CURLE_HTTP2;
+    లేకపోతే {
+      CURL_TRC_CF(దత్తాంశం, cf, "[0] send: nothing to do in this session");
+      ఫలితం = CURLE_HTTP2;
     }
   }
 
-out:
-  if((!Curl_bufq_is_empty(&ctx->tunnel.recvbuf) ||
-      !Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) &&
-     (!result || (result == CURLE_AGAIN))) {
+బహిర్గతం:
+  ఒకవేళ((!Curl_bufq_is_ఖాళీలు(&ctx->tunnel.recvbuf) ||
+      !Curl_bufq_is_ఖాళీలు(&ctx->tunnel.sendbuf)) &&
+     (!ఫలితం || (ఫలితం == CURLE_AGAIN))) {
     /* data pending and no fatal error to report. Need to trigger
      * draining to avoid stalling when no socket events happen. */
-    drain_tunnel(cf, data, &ctx->tunnel);
+    drain_tunnel(cf, దత్తాంశం, &ctx->tunnel);
   }
-  CURL_TRC_CF(data, cf, "[%d] cf_send(len=%zu) -> %d, %zu, "
+  CURL_TRC_CF(దత్తాంశం, cf, "[%d] cf_send(len=%zu) -> %d, %zu, "
               "h2 windows %d-%d (stream-conn), buffers %zu-%zu (stream-conn)",
-              ctx->tunnel.stream_id, len, (int)result, *pnwritten,
-              Curl_ngh2_session_get_stream_remote_window_size(
-                &ctx->ngh2, ctx->tunnel.stream_id),
-              Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
+              ctx->tunnel.ప్రవాహం_id, len, (పూర్ణాంకం)ఫలితం, *pnwritten,
+              Curl_ngh2_session_get_ప్రవాహం_remote_కిటికీ_కొలత(
+                &ctx->ngh2, ctx->tunnel.ప్రవాహం_id),
+              Curl_ngh2_session_get_remote_కిటికీ_కొలత(&ctx->ngh2),
               Curl_bufq_len(&ctx->tunnel.sendbuf),
               Curl_bufq_len(&ctx->outbufq));
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_దత్తాంశం_RESTORE(cf, save);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_h2_proxy_flush(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+స్థిర CURLcode cf_h2_proxy_flush(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  CURLcode ఫలితం = CURLE_OK;
 
-  CF_DATA_SAVE(save, cf, data);
-  if(!Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
+  ఒకవేళ(!Curl_bufq_is_ఖాళీలు(&ctx->tunnel.sendbuf)) {
     /* resume the potentially suspended tunnel */
-    if(Curl_ngh2_is_fatal(&ctx->ngh2,
-         Curl_ngh2_session_resume_data(&ctx->ngh2, ctx->tunnel.stream_id))) {
-      result = CURLE_SEND_ERROR;
-      goto out;
+    ఒకవేళ(Curl_ngh2_is_fatal(&ctx->ngh2,
+         Curl_ngh2_session_resume_దత్తాంశం(&ctx->ngh2, ctx->tunnel.ప్రవాహం_id))) {
+      ఫలితం = CURLE_SEND_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  result = proxy_h2_progress_egress(cf, data);
+  ఫలితం = proxy_h2_పురోగతి_egress(cf, దత్తాంశం);
 
-out:
-  CURL_TRC_CF(data, cf, "[%d] flush -> %d, "
+బహిర్గతం:
+  CURL_TRC_CF(దత్తాంశం, cf, "[%d] flush -> %d, "
               "h2 windows %d-%d (stream-conn), buffers %zu-%zu (stream-conn)",
-              ctx->tunnel.stream_id, (int)result,
-              Curl_ngh2_session_get_stream_remote_window_size(
-                &ctx->ngh2, ctx->tunnel.stream_id),
-              Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
+              ctx->tunnel.ప్రవాహం_id, (పూర్ణాంకం)ఫలితం,
+              Curl_ngh2_session_get_ప్రవాహం_remote_కిటికీ_కొలత(
+                &ctx->ngh2, ctx->tunnel.ప్రవాహం_id),
+              Curl_ngh2_session_get_remote_కిటికీ_కొలత(&ctx->ngh2),
               Curl_bufq_len(&ctx->tunnel.sendbuf),
               Curl_bufq_len(&ctx->outbufq));
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_దత్తాంశం_RESTORE(cf, save);
+  తిరిగి ఫలితం;
 }
 
-static bool proxy_h2_connisalive(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 bool *input_pending)
+స్థిర bool proxy_h2_connisalive(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 bool *ఆదానం_pending)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
   bool alive = TRUE;
 
-  *input_pending = FALSE;
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
-    return FALSE;
+  *ఆదానం_pending = FALSE;
+  ఒకవేళ(!cf->తదుపరి || !cf->తదుపరి->cft->is_alive(cf->తదుపరి, దత్తాంశం, ఆదానం_pending))
+    తిరిగి FALSE;
 
-  if(*input_pending) {
+  ఒకవేళ(*ఆదానం_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
-    CURLcode result;
+    CURLcode ఫలితం;
     size_t nread;
 
-    *input_pending = FALSE;
-    result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
-    if(!result) {
-      if(proxy_h2_process_pending_input(cf, data))
+    *ఆదానం_pending = FALSE;
+    ఫలితం = Curl_cf_recv_bufq(cf->తదుపరి, దత్తాంశం, &ctx->inbufq, 0, &nread);
+    ఒకవేళ(!ఫలితం) {
+      ఒకవేళ(proxy_h2_process_pending_ఆదానం(cf, దత్తాంశం))
         /* immediate error, considered dead */
         alive = FALSE;
-      else {
+      లేకపోతే {
         alive = !proxy_h2_should_close_session(ctx);
       }
     }
-    else if(result != CURLE_AGAIN) {
+    లేకపోతే ఒకవేళ(ఫలితం != CURLE_AGAIN) {
       /* the read failed so let's say this is dead anyway */
       alive = FALSE;
     }
   }
 
-  return alive;
+  తిరిగి alive;
 }
 
-static bool cf_h2_proxy_is_alive(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 bool *input_pending)
+స్థిర bool cf_h2_proxy_is_alive(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 bool *ఆదానం_pending)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
   bool alive;
-  struct cf_call_data save;
+  నిర్మాణం cf_call_దత్తాంశం save;
 
-  *input_pending = FALSE;
-  CF_DATA_SAVE(save, cf, data);
+  *ఆదానం_pending = FALSE;
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
   alive = (ctx && Curl_ngh2_valid(&ctx->ngh2) &&
-          proxy_h2_connisalive(cf, data, input_pending));
-  CURL_TRC_CF(data, cf, "[0] conn alive -> %d, input_pending=%d",
-              alive, *input_pending);
-  CF_DATA_RESTORE(cf, save);
-  return alive;
+          proxy_h2_connisalive(cf, దత్తాంశం, ఆదానం_pending));
+  CURL_TRC_CF(దత్తాంశం, cf, "[0] conn alive -> %d, input_pending=%d",
+              alive, *ఆదానం_pending);
+  CF_దత్తాంశం_RESTORE(cf, save);
+  తిరిగి alive;
 }
 
-static CURLcode cf_h2_proxy_query(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2)
+స్థిర CURLcode cf_h2_proxy_query(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  పూర్ణాంకం query, పూర్ణాంకం *pres1, శూన్య *pres2)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_h2_proxy_ctx *ctx = cf->ctx;
 
-  switch(query) {
-  case CF_QUERY_HOST_PORT:
-    *pres1 = (int)ctx->dest->port;
-    *((const char **)pres2) = ctx->dest->hostname;
-    return CURLE_OK;
-  case CF_QUERY_NEED_FLUSH: {
-    if(!Curl_bufq_is_empty(&ctx->outbufq) ||
-       !Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
-      CURL_TRC_CF(data, cf, "needs flush");
+  ఎంపిక(query) {
+  స్థితి CF_QUERY_HOST_పోర్టు:
+    *pres1 = (పూర్ణాంకం)ctx->dest->పోర్టు;
+    *((స్థిరరాశి అక్షరం **)pres2) = ctx->dest->hostname;
+    తిరిగి CURLE_OK;
+  స్థితి CF_QUERY_NEED_FLUSH: {
+    ఒకవేళ(!Curl_bufq_is_ఖాళీలు(&ctx->outbufq) ||
+       !Curl_bufq_is_ఖాళీలు(&ctx->tunnel.sendbuf)) {
+      CURL_TRC_CF(దత్తాంశం, cf, "needs flush");
       *pres1 = TRUE;
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
     }
-    break;
+    ఆపు;
   }
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  స్థితి CF_QUERY_ALPN_NEGOTIATED: {
+    స్థిరరాశి అక్షరం **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = NULL;
-    return CURLE_OK;
+    *palpn = ఖాళీ;
+    తిరిగి CURLE_OK;
   }
-  default:
-    break;
+  అప్రమేయ:
+    ఆపు;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->query(cf->తదుపరి, దత్తాంశం, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode cf_h2_proxy_cntrl(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int event, int arg1, void *arg2)
+స్థిర CURLcode cf_h2_proxy_cntrl(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  పూర్ణాంకం event, పూర్ణాంకం arg1, శూన్య *arg2)
 {
-  CURLcode result = CURLE_OK;
-  struct cf_call_data save;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం cf_call_దత్తాంశం save;
 
-  (void)arg1;
-  (void)arg2;
+  (శూన్య)arg1;
+  (శూన్య)arg2;
 
-  switch(event) {
-  case CF_CTRL_FLUSH:
-    CF_DATA_SAVE(save, cf, data);
-    result = cf_h2_proxy_flush(cf, data);
-    CF_DATA_RESTORE(cf, save);
-    break;
-  default:
-    break;
+  ఎంపిక(event) {
+  స్థితి CF_CTRL_FLUSH:
+    CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
+    ఫలితం = cf_h2_proxy_flush(cf, దత్తాంశం);
+    CF_దత్తాంశం_RESTORE(cf, save);
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-struct Curl_cftype Curl_cft_h2_proxy = {
+నిర్మాణం Curl_cftype Curl_cft_h2_proxy = {
   "H2-PROXY",
   CF_TYPE_IP_CONNECT | CF_TYPE_PROXY,
   CURL_LOG_LVL_NONE,
@@ -1479,7 +1479,7 @@ struct Curl_cftype Curl_cft_h2_proxy = {
   cf_h2_proxy_connect,
   cf_h2_proxy_shutdown,
   cf_h2_proxy_adjust_pollset,
-  cf_h2_proxy_data_pending,
+  cf_h2_proxy_దత్తాంశం_pending,
   cf_h2_proxy_send,
   cf_h2_proxy_recv,
   cf_h2_proxy_cntrl,
@@ -1488,33 +1488,33 @@ struct Curl_cftype Curl_cft_h2_proxy = {
   cf_h2_proxy_query,
 };
 
-CURLcode Curl_cf_h2_proxy_insert_after(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *dest,
+CURLcode Curl_cf_h2_proxy_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf,
+                                       నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం Curl_peer *peer,
+                                       నిర్మాణం Curl_peer *dest,
                                        bool udp_tunnel)
 {
-  struct Curl_cfilter *cf_h2_proxy = NULL;
-  struct cf_h2_proxy_ctx *ctx;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  నిర్మాణం Curl_cfilter *cf_h2_proxy = ఖాళీ;
+  నిర్మాణం cf_h2_proxy_ctx *ctx;
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    goto out;
+  (శూన్య)దత్తాంశం;
+  ctx = curlx_calloc(1, పరిమాణం(*ctx));
+  ఒకవేళ(!ctx)
+    వెళ్ళు బహిర్గతం;
   Curl_peer_link(&ctx->peer, peer);
   Curl_peer_link(&ctx->dest, dest);
   ctx->udp_tunnel = udp_tunnel;
 
-  result = Curl_cf_create(&cf_h2_proxy, &Curl_cft_h2_proxy, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
-  Curl_conn_cf_insert_after(cf, cf_h2_proxy);
+  ఫలితం = Curl_cf_create(&cf_h2_proxy, &Curl_cft_h2_proxy, ctx);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
+  ctx = ఖాళీ;
+  Curl_conn_cf_చొప్పించు_after(cf, cf_h2_proxy);
 
-out:
+బహిర్గతం:
   cf_h2_proxy_ctx_free(ctx);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY && USE_NGHTTP2 */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY && USE_NGHTTP2 */

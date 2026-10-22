@@ -34,51 +34,51 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "imap.h"
+#అన్తర్భావ "curl_setup.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "imap.h"
 
-#ifndef CURL_DISABLE_IMAP
+#నిర్వచితం_కాకపోతే CURL_DISABLE_IMAP
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే __VMS
+#అన్తర్భావ <in.h>
+#అన్తర్భావ <inet.h>
+#అయితే_ముగింపు
 
-#include "curlx/dynbuf.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "escape.h"
-#include "pingpong.h"
-#include "mime.h"
-#include "curlx/strparse.h"
-#include "strcase.h"
-#include "vtls/vtls.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "select.h"
-#include "url.h"
-#include "bufref.h"
-#include "curl_sasl.h"
-#include "curlx/strcopy.h"
+#అన్తర్భావ "curlx/dynbuf.h"
+#అన్తర్భావ "sendf.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "transfer.h"
+#అన్తర్భావ "escape.h"
+#అన్తర్భావ "pingpong.h"
+#అన్తర్భావ "mime.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "strcase.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "bufref.h"
+#అన్తర్భావ "curl_sasl.h"
+#అన్తర్భావ "curlx/strcopy.h"
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_IMAP_EASY   "meta:proto:imap:easy"
+#నిర్వచించు CURL_META_IMAP_EASY   "meta:proto:imap:easy"
 /* meta key for storing protocol meta at connection */
-#define CURL_META_IMAP_CONN   "meta:proto:imap:conn"
+#నిర్వచించు CURL_META_IMAP_CONN   "meta:proto:imap:conn"
 
-typedef enum {
+రకనిర్వచనం గణన {
   IMAP_STOP,         /* do nothing state, stops the state machine */
   IMAP_SERVERGREET,  /* waiting for the initial greeting immediately after
                         a connect */
@@ -94,54 +94,54 @@ typedef enum {
   IMAP_FETCH_FINAL,
   IMAP_APPEND,
   IMAP_APPEND_FINAL,
-  IMAP_SEARCH,
+  IMAP_శోధన,
   IMAP_LOGOUT,
-  IMAP_LAST          /* never used */
+  IMAP_చివరి          /* never used */
 } imapstate;
 
 /* imap_conn is used for struct connection-oriented data */
-struct imap_conn {
-  struct pingpong pp;
-  struct SASL sasl;           /* SASL-related parameters */
-  char *mailbox;              /* The last selected mailbox */
+నిర్మాణం imap_conn {
+  నిర్మాణం pingpong pp;
+  నిర్మాణం SASL sasl;           /* SASL-related parameters */
+  అక్షరం *mailbox;              /* The last selected mailbox */
   imapstate state;            /* Always use imap.c:state() to change state! */
-  unsigned int mb_uidvalidity; /* UIDVALIDITY parsed from select response */
-  char resptag[5];            /* Response tag to wait for */
-  unsigned char preftype;     /* Preferred authentication type */
-  unsigned char cmdid;        /* Last used command ID */
-  BIT(ssldone);               /* Is connect() over SSL done? */
-  BIT(preauth);               /* Is this connection PREAUTH? */
-  BIT(tls_supported);         /* StartTLS capability supported by server */
-  BIT(login_disabled);        /* LOGIN command disabled by server */
-  BIT(ir_supported);          /* Initial response supported by server */
-  BIT(mb_uidvalidity_set);
+  గుర్తులేని పూర్ణాంకం mb_uidvalidity; /* UIDVALIDITY parsed from select response */
+  అక్షరం resptag[5];            /* Response tag to wait for */
+  గుర్తులేని అక్షరం preftype;     /* Preferred authentication type */
+  గుర్తులేని అక్షరం cmdid;        /* Last used command ID */
+  బిట్టు(ssldone);               /* Is connect() over SSL done? */
+  బిట్టు(preauth);               /* Is this connection PREAUTH? */
+  బిట్టు(tls_supported);         /* StartTLS capability supported by server */
+  బిట్టు(login_disabled);        /* LOGIN command disabled by server */
+  బిట్టు(ir_supported);          /* Initial response supported by server */
+  బిట్టు(mb_uidvalidity_సమితి);
 };
 
 /* This IMAP struct is used in the Curl_easy. All IMAP data that is
    connection-oriented must be in imap_conn to properly deal with the fact that
    perhaps the Curl_easy is changed between the times the connection is
    used. */
-struct IMAP {
+నిర్మాణం IMAP {
   curl_pp_transfer transfer;
-  char *mailbox;          /* Mailbox to select */
-  char *uid;              /* Message UID to fetch */
-  char *mindex;           /* Index in mail box of mail to fetch */
-  char *section;          /* Message SECTION to fetch */
-  char *partial;          /* Message PARTIAL to fetch */
-  char *query;            /* Query to search for */
-  char *custom;           /* Custom request */
-  char *custom_params;    /* Parameters for the custom request */
-  unsigned int uidvalidity; /* UIDVALIDITY to check in select */
-  BIT(uidvalidity_set);
+  అక్షరం *mailbox;          /* Mailbox to select */
+  అక్షరం *uid;              /* Message UID to fetch */
+  అక్షరం *mindex;           /* Index in mail box of mail to fetch */
+  అక్షరం *section;          /* Message SECTION to fetch */
+  అక్షరం *partial;          /* Message PARTIAL to fetch */
+  అక్షరం *query;            /* Query to search for */
+  అక్షరం *custom;           /* Custom request */
+  అక్షరం *custom_params;    /* Parameters for the custom request */
+  గుర్తులేని పూర్ణాంకం uidvalidity; /* UIDVALIDITY to check in select */
+  బిట్టు(uidvalidity_సమితి);
 };
 
-#define IMAP_RESP_OK       1
-#define IMAP_RESP_NOT_OK   2
-#define IMAP_RESP_PREAUTH  3
+#నిర్వచించు IMAP_RESP_OK       1
+#నిర్వచించు IMAP_RESP_NOT_OK   2
+#నిర్వచించు IMAP_RESP_PREAUTH  3
 
-struct ulbits {
-  int bit;
-  const char *flag;
+నిర్మాణం ulbits {
+  పూర్ణాంకం బిట్టు_2;
+  స్థిరరాశి అక్షరం *flag;
 };
 
 /***********************************************************************
@@ -152,27 +152,27 @@ struct ulbits {
  *
  * Designed to never block.
  */
-static CURLcode imap_sendf(struct Curl_easy *data,
-                           struct imap_conn *imapc,
-                           const char *fmt, ...) CURL_PRINTF(3, 4);
-static CURLcode imap_sendf(struct Curl_easy *data,
-                           struct imap_conn *imapc,
-                           const char *fmt, ...)
+స్థిర CURLcode imap_sendf(నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం imap_conn *imapc,
+                           స్థిరరాశి అక్షరం *fmt, ...) CURL_PRINTF(3, 4);
+స్థిర CURLcode imap_sendf(నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం imap_conn *imapc,
+                           స్థిరరాశి అక్షరం *fmt, ...)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
   va_list ap;
 
   DEBUGASSERT(fmt);
 
   /* Calculate the tag based on the connection ID and command ID */
-  curl_msnprintf(imapc->resptag, sizeof(imapc->resptag), "%c%03d",
-                 'A' + curlx_sltosi((long)(data->conn->connection_id % 26)),
+  curl_msnprintf(imapc->resptag, పరిమాణం(imapc->resptag), "%c%03d",
+                 'A' + curlx_sltosi((దీర్ఘ)(దత్తాంశం->conn->connection_id % 26)),
                  ++imapc->cmdid);
 
   va_start(ap, fmt);
-  result = Curl_pp_vsendf(data, &imapc->pp, imapc->resptag, fmt, ap);
+  ఫలితం = Curl_pp_vsendf(దత్తాంశం, &imapc->pp, imapc->resptag, fmt, ap);
   va_end(ap);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -185,67 +185,67 @@ static CURLcode imap_sendf(struct Curl_easy *data,
  * The returned string needs to be freed.
  *
  */
-static char *imap_atom(const char *str, bool escape_only)
+స్థిర అక్షరం *imap_atom(స్థిరరాశి అక్షరం *str, bool escape_only)
 {
-  struct dynbuf line;
+  నిర్మాణం dynbuf పంక్తి;
   size_t nclean;
   size_t len;
 
-  if(!str)
-    return NULL;
+  ఒకవేళ(!str)
+    తిరిగి ఖాళీ;
 
-  len = strlen(str);
+  len = అక్షరశ్రేణి_పొడవు(str);
   nclean = strcspn(str, "() {%*]\\\"");
-  if(len == nclean)
+  ఒకవేళ(len == nclean)
     /* nothing to escape, return a strdup */
-    return curlx_strdup(str);
+    తిరిగి curlx_strdup(str);
 
-  curlx_dyn_init(&line, 2000);
+  curlx_dyn_init(&పంక్తి, 2000);
 
-  if(!escape_only && curlx_dyn_addn(&line, "\"", 1))
-    return NULL;
+  ఒకవేళ(!escape_only && curlx_dyn_addn(&పంక్తి, "\"", 1))
+    తిరిగి ఖాళీ;
 
-  while(*str) {
-    if((*str == '\\' || *str == '"') &&
-       curlx_dyn_addn(&line, "\\", 1))
-      return NULL;
-    if(curlx_dyn_addn(&line, str, 1))
-      return NULL;
+  అయితే(*str) {
+    ఒకవేళ((*str == '\\' || *str == '"') &&
+       curlx_dyn_addn(&పంక్తి, "\\", 1))
+      తిరిగి ఖాళీ;
+    ఒకవేళ(curlx_dyn_addn(&పంక్తి, str, 1))
+      తిరిగి ఖాళీ;
     str++;
   }
 
-  if(!escape_only && curlx_dyn_addn(&line, "\"", 1))
-    return NULL;
+  ఒకవేళ(!escape_only && curlx_dyn_addn(&పంక్తి, "\"", 1))
+    తిరిగి ఖాళీ;
 
-  return curlx_dyn_ptr(&line);
+  తిరిగి curlx_dyn_ptr(&పంక్తి);
 }
 
 /*
  * Finds the start of a literal '{size}' in line, skipping over quoted strings.
  */
-static const char *imap_find_literal(const char *line, size_t len)
+స్థిర స్థిరరాశి అక్షరం *imap_కనుగొను_literal(స్థిరరాశి అక్షరం *పంక్తి, size_t len)
 {
-  const char *end = line + len;
-  bool in_quote = FALSE;
+  స్థిరరాశి అక్షరం *చివర = పంక్తి + len;
+  bool లోపల_quote = FALSE;
 
-  while(line < end) {
-    if(in_quote) {
-      if(*line == '\\' && (line + 1) < end) {
-        line += 2;
-        continue;
+  అయితే(పంక్తి < చివర) {
+    ఒకవేళ(లోపల_quote) {
+      ఒకవేళ(*పంక్తి == '\\' && (పంక్తి + 1) < చివర) {
+        పంక్తి += 2;
+        కొనసాగు;
       }
-      if(*line == '"')
-        in_quote = FALSE;
+      ఒకవేళ(*పంక్తి == '"')
+        లోపల_quote = FALSE;
     }
-    else {
-      if(*line == '"')
-        in_quote = TRUE;
-      else if(*line == '{')
-        return line;
+    లేకపోతే {
+      ఒకవేళ(*పంక్తి == '"')
+        లోపల_quote = TRUE;
+      లేకపోతే ఒకవేళ(*పంక్తి == '{')
+        తిరిగి పంక్తి;
     }
-    line++;
+    పంక్తి++;
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
 /***********************************************************************
@@ -258,35 +258,35 @@ static const char *imap_find_literal(const char *line, size_t len)
  *
  * The "* " marker is assumed to have already been checked by the caller.
  */
-static bool imap_matchresp(const char *line, size_t len, const char *cmd)
+స్థిర bool imap_matchresp(స్థిరరాశి అక్షరం *పంక్తి, size_t len, స్థిరరాశి అక్షరం *cmd)
 {
-  const char *end = line + len;
-  size_t cmd_len = strlen(cmd);
+  స్థిరరాశి అక్షరం *చివర = పంక్తి + len;
+  size_t cmd_len = అక్షరశ్రేణి_పొడవు(cmd);
 
   /* Skip the untagged response marker */
-  line += 2;
+  పంక్తి += 2;
 
   /* Do we have a number after the marker? */
-  if(line < end && ISDIGIT(*line)) {
+  ఒకవేళ(పంక్తి < చివర && ISDIGIT(*పంక్తి)) {
     /* Skip the number */
-    do
-      line++;
-    while(line < end && ISDIGIT(*line));
+    చేయి
+      పంక్తి++;
+    అయితే(పంక్తి < చివర && ISDIGIT(*పంక్తి));
 
     /* Do we have the space character? */
-    if(line == end || *line != ' ')
-      return FALSE;
+    ఒకవేళ(పంక్తి == చివర || *పంక్తి != ' ')
+      తిరిగి FALSE;
 
-    line++;
+    పంక్తి++;
   }
 
   /* Does the command name match and is it followed by a space character or at
      the end of line? */
-  if(line + cmd_len <= end && curl_strnequal(line, cmd, cmd_len) &&
-     (line[cmd_len] == ' ' || line + cmd_len + 2 == end))
-    return TRUE;
+  ఒకవేళ(పంక్తి + cmd_len <= చివర && curl_strnequal(పంక్తి, cmd, cmd_len) &&
+     (పంక్తి[cmd_len] == ' ' || పంక్తి + cmd_len + 2 == చివర))
+    తిరిగి TRUE;
 
-  return FALSE;
+  తిరిగి FALSE;
 }
 
 /***********************************************************************
@@ -296,50 +296,50 @@ static bool imap_matchresp(const char *line, size_t len, const char *cmd)
  * Checks whether the given string is a valid tagged, untagged or continuation
  * response which can be processed by the response handler.
  */
-static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+స్థిర bool imap_endofresp(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం connectdata *conn,
+                           స్థిరరాశి అక్షరం *పంక్తి, size_t len, పూర్ణాంకం *resp)
 {
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
-  const char *id;
+  నిర్మాణం imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  నిర్మాణం IMAP *imap = Curl_meta_get(దత్తాంశం, CURL_META_IMAP_EASY);
+  స్థిరరాశి అక్షరం *id;
   size_t id_len;
 
   DEBUGASSERT(imapc);
   DEBUGASSERT(imap);
-  if(!imapc || !imap)
-    return FALSE;
+  ఒకవేళ(!imapc || !imap)
+    తిరిగి FALSE;
 
   /* Do we have a tagged command response? */
   id = imapc->resptag;
-  id_len = strlen(id);
-  if(len >= id_len + 1 && !memcmp(id, line, id_len) && line[id_len] == ' ') {
-    line += id_len + 1;
+  id_len = అక్షరశ్రేణి_పొడవు(id);
+  ఒకవేళ(len >= id_len + 1 && !memcmp(id, పంక్తి, id_len) && పంక్తి[id_len] == ' ') {
+    పంక్తి += id_len + 1;
     len -= id_len + 1;
 
-    if(len >= 2 && !memcmp(line, "OK", 2))
+    ఒకవేళ(len >= 2 && !memcmp(పంక్తి, "OK", 2))
       *resp = IMAP_RESP_OK;
-    else if(len >= 7 && !memcmp(line, "PREAUTH", 7))
+    లేకపోతే ఒకవేళ(len >= 7 && !memcmp(పంక్తి, "PREAUTH", 7))
       *resp = IMAP_RESP_PREAUTH;
-    else
+    లేకపోతే
       *resp = IMAP_RESP_NOT_OK;
 
-    return TRUE;
+    తిరిగి TRUE;
   }
 
   /* Do we have an untagged command response? */
-  if(len >= 2 && !memcmp("* ", line, 2)) {
-    switch(imapc->state) {
+  ఒకవేళ(len >= 2 && !memcmp("* ", పంక్తి, 2)) {
+    ఎంపిక(imapc->state) {
     /* States which are interested in untagged responses */
-    case IMAP_CAPABILITY:
-      if(!imap_matchresp(line, len, "CAPABILITY"))
-        return FALSE;
-      break;
+    స్థితి IMAP_CAPABILITY:
+      ఒకవేళ(!imap_matchresp(పంక్తి, len, "CAPABILITY"))
+        తిరిగి FALSE;
+      ఆపు;
 
-    case IMAP_LIST:
-      if((!imap->custom && !imap_matchresp(line, len, "LIST")) ||
-         (imap->custom && !imap_matchresp(line, len, imap->custom) &&
+    స్థితి IMAP_LIST:
+      ఒకవేళ((!imap->custom && !imap_matchresp(పంక్తి, len, "LIST")) ||
+         (imap->custom && !imap_matchresp(పంక్తి, len, imap->custom) &&
           (!curl_strequal(imap->custom, "STORE") ||
-           !imap_matchresp(line, len, "FETCH")) &&
+           !imap_matchresp(పంక్తి, len, "FETCH")) &&
           !curl_strequal(imap->custom, "SELECT") &&
           !curl_strequal(imap->custom, "EXAMINE") &&
           !curl_strequal(imap->custom, "SEARCH") &&
@@ -348,56 +348,56 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
           !curl_strequal(imap->custom, "UID") &&
           !curl_strequal(imap->custom, "GETQUOTAROOT") &&
           !curl_strequal(imap->custom, "NOOP")))
-        return FALSE;
-      break;
+        తిరిగి FALSE;
+      ఆపు;
 
-    case IMAP_SELECT:
+    స్థితి IMAP_SELECT:
       /* SELECT is special in that its untagged responses do not have a
          common prefix so accept anything! */
-      break;
+      ఆపు;
 
-    case IMAP_FETCH:
-      if(!imap_matchresp(line, len, "FETCH"))
-        return FALSE;
-      break;
+    స్థితి IMAP_FETCH:
+      ఒకవేళ(!imap_matchresp(పంక్తి, len, "FETCH"))
+        తిరిగి FALSE;
+      ఆపు;
 
-    case IMAP_SEARCH:
-      if(!imap_matchresp(line, len, "SEARCH"))
-        return FALSE;
-      break;
+    స్థితి IMAP_శోధన:
+      ఒకవేళ(!imap_matchresp(పంక్తి, len, "SEARCH"))
+        తిరిగి FALSE;
+      ఆపు;
 
     /* Ignore other untagged responses */
-    default:
-      return FALSE;
+    అప్రమేయ:
+      తిరిగి FALSE;
     }
 
     *resp = '*';
-    return TRUE;
+    తిరిగి TRUE;
   }
 
   /* Do we have a continuation response? This should be a + symbol followed by
      a space and optionally some text as per RFC-3501 for the AUTHENTICATE and
      APPEND commands and as outlined in Section 4. Examples of RFC-4959 but
      some email servers ignore this and only send a single + instead. */
-  if(!imap->custom && ((len == 3 && line[0] == '+') ||
-                       (len >= 2 && !memcmp("+ ", line, 2)))) {
-    switch(imapc->state) {
+  ఒకవేళ(!imap->custom && ((len == 3 && పంక్తి[0] == '+') ||
+                       (len >= 2 && !memcmp("+ ", పంక్తి, 2)))) {
+    ఎంపిక(imapc->state) {
     /* States which are interested in continuation responses */
-    case IMAP_AUTHENTICATE:
-    case IMAP_APPEND:
+    స్థితి IMAP_AUTHENTICATE:
+    స్థితి IMAP_APPEND:
       *resp = '+';
-      break;
+      ఆపు;
 
-    default:
-      failf(data, "Unexpected continuation response");
+    అప్రమేయ:
+      failf(దత్తాంశం, "Unexpected continuation response");
       *resp = -1;
-      break;
+      ఆపు;
     }
 
-    return TRUE;
+    తిరిగి TRUE;
   }
 
-  return FALSE; /* Nothing for us */
+  తిరిగి FALSE; /* Nothing for us */
 }
 
 /***********************************************************************
@@ -406,38 +406,38 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
  *
  * Gets the authentication message from the response buffer.
  */
-static CURLcode imap_get_message(struct Curl_easy *data, struct bufref *out)
+స్థిర CURLcode imap_get_సందేశం(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం bufref *బహిర్గతం)
 {
-  struct imap_conn *imapc =
-    Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
-  char *message;
+  నిర్మాణం imap_conn *imapc =
+    Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_IMAP_CONN);
+  అక్షరం *సందేశం_2;
   size_t len;
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!imapc)
+    తిరిగి CURLE_FAILED_INIT;
 
-  message = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  సందేశం_2 = curlx_dyn_ptr(&imapc->pp.recvbuf);
   len = imapc->pp.nfinal;
-  if(len > 2) {
+  ఒకవేళ(len > 2) {
     /* Find the start of the message */
     len -= 2;
-    for(message += 2; ISBLANK(*message); message++, len--)
+    కొరకు(సందేశం_2 += 2; ISBLANK(*సందేశం_2); సందేశం_2++, len--)
       ;
 
     /* Find the end of the message */
-    while(len--)
-      if(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
-        break;
+    అయితే(len--)
+      ఒకవేళ(!ISNEWLINE(సందేశం_2[len]) && !ISBLANK(సందేశం_2[len]))
+        ఆపు;
 
     /* Terminate the message */
-    message[++len] = '\0';
-    Curl_bufref_set(out, message, len, NULL);
+    సందేశం_2[++len] = '\0';
+    Curl_bufref_సమితి(బహిర్గతం, సందేశం_2, len, ఖాళీ);
   }
-  else
+  లేకపోతే
     /* junk input => zero length output */
-    Curl_bufref_set(out, "", 0, NULL);
+    Curl_bufref_సమితి(బహిర్గతం, "", 0, ఖాళీ);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /***********************************************************************
@@ -446,13 +446,13 @@ static CURLcode imap_get_message(struct Curl_easy *data, struct bufref *out)
  *
  * This is the ONLY way to change IMAP state!
  */
-static void imap_state(struct Curl_easy *data,
-                       struct imap_conn *imapc,
+స్థిర శూన్య imap_state(నిర్మాణం Curl_easy *దత్తాంశం,
+                       నిర్మాణం imap_conn *imapc,
                        imapstate newstate)
 {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#ఒకవేళ defined(DEBUGBUILD) && defined(CURLVERBOSE)
   /* for debug purposes */
-  static const char * const names[] = {
+  స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి పేర్లు[] = {
     "STOP",
     "SERVERGREET",
     "CAPABILITY",
@@ -468,15 +468,15 @@ static void imap_state(struct Curl_easy *data,
     "APPEND_FINAL",
     "SEARCH",
     "LOGOUT",
-    /* LAST */
+    /*చివరి*/
   };
 
-  if(imapc->state != newstate)
-    infof(data, "IMAP %p state change from %s to %s",
-          (void *)imapc, names[imapc->state], names[newstate]);
-#else
-  (void)data;
-#endif
+  ఒకవేళ(imapc->state != newstate)
+    infof(దత్తాంశం, "IMAP %p state change from %s to %s",
+          (శూన్య *)imapc, పేర్లు[imapc->state], పేర్లు[newstate]);
+#లేకపోతే
+  (శూన్య)దత్తాంశం;
+#అయితే_ముగింపు
   imapc->state = newstate;
 }
 
@@ -487,22 +487,22 @@ static void imap_state(struct Curl_easy *data,
  * Sends the CAPABILITY command in order to obtain a list of server side
  * supported capabilities.
  */
-static CURLcode imap_perform_capability(struct Curl_easy *data,
-                                        struct imap_conn *imapc)
+స్థిర CURLcode imap_perform_capability(నిర్మాణం Curl_easy *దత్తాంశం,
+                                        నిర్మాణం imap_conn *imapc)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
   imapc->sasl.authmechs = SASL_AUTH_NONE; /* No known auth. mechanisms yet */
   imapc->sasl.authused = SASL_AUTH_NONE;  /* Clear the auth. mechanism used */
   imapc->tls_supported = FALSE;           /* Clear the TLS capability */
 
   /* Send the CAPABILITY command */
-  result = imap_sendf(data, imapc, "CAPABILITY");
+  ఫలితం = imap_sendf(దత్తాంశం, imapc, "CAPABILITY");
 
-  if(!result)
-    imap_state(data, imapc, IMAP_CAPABILITY);
+  ఒకవేళ(!ఫలితం)
+    imap_state(దత్తాంశం, imapc, IMAP_CAPABILITY);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -511,16 +511,16 @@ static CURLcode imap_perform_capability(struct Curl_easy *data,
  *
  * Sends the STARTTLS command to start the upgrade to TLS.
  */
-static CURLcode imap_perform_starttls(struct Curl_easy *data,
-                                      struct imap_conn *imapc)
+స్థిర CURLcode imap_perform_starttls(నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం imap_conn *imapc)
 {
   /* Send the STARTTLS command */
-  CURLcode result = imap_sendf(data, imapc, "STARTTLS");
+  CURLcode ఫలితం = imap_sendf(దత్తాంశం, imapc, "STARTTLS");
 
-  if(!result)
-    imap_state(data, imapc, IMAP_STARTTLS);
+  ఒకవేళ(!ఫలితం)
+    imap_state(దత్తాంశం, imapc, IMAP_STARTTLS);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -529,41 +529,41 @@ static CURLcode imap_perform_starttls(struct Curl_easy *data,
  *
  * Performs the upgrade to TLS.
  */
-static CURLcode imap_perform_upgrade_tls(struct Curl_easy *data,
-                                         struct imap_conn *imapc,
-                                         struct connectdata *conn)
+స్థిర CURLcode imap_perform_upgrade_tls(నిర్మాణం Curl_easy *దత్తాంశం,
+                                         నిర్మాణం imap_conn *imapc,
+                                         నిర్మాణం connectdata *conn)
 {
-#ifdef USE_SSL
+#నిర్వచితమైతే USE_SSL
   /* Start the SSL connection */
-  CURLcode result;
+  CURLcode ఫలితం;
   bool ssldone = FALSE;
 
-  if(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
-    result = Curl_ssl_cfilter_add(
-      data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
-      goto out;
+  ఒకవేళ(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+    ఫలితం = Curl_ssl_cfilter_కూడు(
+      దత్తాంశం, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
     /* Change the connection handler */
     conn->scheme = &Curl_scheme_imaps;
   }
 
   DEBUGASSERT(!imapc->ssldone);
-  result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
-  DEBUGF(infof(data, "imap_perform_upgrade_tls, connect -> %d, %d",
-               (int)result, ssldone));
-  if(!result && ssldone) {
+  ఫలితం = Curl_conn_connect(దత్తాంశం, FIRSTSOCKET, FALSE, &ssldone);
+  DEBUGF(infof(దత్తాంశం, "imap_perform_upgrade_tls, connect -> %d, %d",
+               (పూర్ణాంకం)ఫలితం, ssldone));
+  ఒకవేళ(!ఫలితం && ssldone) {
     imapc->ssldone = ssldone;
     /* perform CAPA now, changes imapc->state out of IMAP_UPGRADETLS */
-    result = imap_perform_capability(data, imapc);
+    ఫలితం = imap_perform_capability(దత్తాంశం, imapc);
   }
-out:
-  return result;
-#else
-  (void)data;
-  (void)imapc;
-  (void)conn;
-  return CURLE_NOT_BUILT_IN;
-#endif
+బహిర్గతం:
+  తిరిగి ఫలితం;
+#లేకపోతే
+  (శూన్య)దత్తాంశం;
+  (శూన్య)imapc;
+  (శూన్య)conn;
+  తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
 }
 
 /***********************************************************************
@@ -572,20 +572,20 @@ out:
  *
  * Sends a clear text LOGIN command to authenticate with.
  */
-static CURLcode imap_perform_login(struct Curl_easy *data,
-                                   struct imap_conn *imapc,
-                                   struct connectdata *conn)
+స్థిర CURLcode imap_perform_login(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం imap_conn *imapc,
+                                   నిర్మాణం connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
-  char *user;
-  char *passwd;
+  CURLcode ఫలితం = CURLE_OK;
+  అక్షరం *user;
+  అక్షరం *passwd;
 
   /* Check we have a username and password to authenticate with and end the
      connect phase if we do not */
-  if(!conn->creds) {
-    imap_state(data, imapc, IMAP_STOP);
+  ఒకవేళ(!conn->creds) {
+    imap_state(దత్తాంశం, imapc, IMAP_STOP);
 
-    return result;
+    తిరిగి ఫలితం;
   }
 
   /* Make sure the username and password are in the correct atom format */
@@ -593,17 +593,17 @@ static CURLcode imap_perform_login(struct Curl_easy *data,
   passwd = imap_atom(Curl_creds_passwd(conn->creds), FALSE);
 
   /* Send the LOGIN command */
-  result = imap_sendf(data, imapc, "LOGIN %s %s", user ? user : "",
+  ఫలితం = imap_sendf(దత్తాంశం, imapc, "LOGIN %s %s", user ? user : "",
                       passwd ? passwd : "");
 
   curlx_free(user);
   curlx_strzero(passwd);
   curlx_free(passwd);
 
-  if(!result)
-    imap_state(data, imapc, IMAP_LOGIN);
+  ఒకవేళ(!ఫలితం)
+    imap_state(దత్తాంశం, imapc, IMAP_LOGIN);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -613,28 +613,28 @@ static CURLcode imap_perform_login(struct Curl_easy *data,
  * Sends an AUTHENTICATE command allowing the client to login with the given
  * SASL authentication mechanism.
  */
-static CURLcode imap_perform_authenticate(struct Curl_easy *data,
-                                          const char *mech,
-                                          const struct bufref *initresp)
+స్థిర CURLcode imap_perform_authenticate(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          స్థిరరాశి అక్షరం *mech,
+                                          స్థిరరాశి నిర్మాణం bufref *initresp)
 {
-  struct imap_conn *imapc =
-    Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
-  CURLcode result = CURLE_OK;
-  const char *ir = Curl_bufref_ptr(initresp);
+  నిర్మాణం imap_conn *imapc =
+    Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_IMAP_CONN);
+  CURLcode ఫలితం = CURLE_OK;
+  స్థిరరాశి అక్షరం *ir = Curl_bufref_ptr(initresp);
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  if(ir) {
+  ఒకవేళ(!imapc)
+    తిరిగి CURLE_FAILED_INIT;
+  ఒకవేళ(ir) {
     /* Send the AUTHENTICATE command with the initial response */
-    result = imap_sendf(data, imapc, "AUTHENTICATE %s %s",
+    ఫలితం = imap_sendf(దత్తాంశం, imapc, "AUTHENTICATE %s %s",
                         mech, *ir ? ir : "=");
   }
-  else {
+  లేకపోతే {
     /* Send the AUTHENTICATE command */
-    result = imap_sendf(data, imapc, "AUTHENTICATE %s", mech);
+    ఫలితం = imap_sendf(దత్తాంశం, imapc, "AUTHENTICATE %s", mech);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -643,17 +643,17 @@ static CURLcode imap_perform_authenticate(struct Curl_easy *data,
  *
  * Sends SASL continuation data.
  */
-static CURLcode imap_continue_authenticate(struct Curl_easy *data,
-                                           const char *mech,
-                                           const struct bufref *resp)
+స్థిర CURLcode imap_continue_authenticate(నిర్మాణం Curl_easy *దత్తాంశం,
+                                           స్థిరరాశి అక్షరం *mech,
+                                           స్థిరరాశి నిర్మాణం bufref *resp)
 {
-  struct imap_conn *imapc =
-    Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
+  నిర్మాణం imap_conn *imapc =
+    Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_IMAP_CONN);
 
-  (void)mech;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &imapc->pp, "%s", Curl_bufref_ptr(resp));
+  (శూన్య)mech;
+  ఒకవేళ(!imapc)
+    తిరిగి CURLE_FAILED_INIT;
+  తిరిగి Curl_pp_sendf(దత్తాంశం, &imapc->pp, "%s", Curl_bufref_ptr(resp));
 }
 
 /***********************************************************************
@@ -662,16 +662,16 @@ static CURLcode imap_continue_authenticate(struct Curl_easy *data,
  *
  * Sends SASL cancellation.
  */
-static CURLcode imap_cancel_authenticate(struct Curl_easy *data,
-                                         const char *mech)
+స్థిర CURLcode imap_cancel_authenticate(నిర్మాణం Curl_easy *దత్తాంశం,
+                                         స్థిరరాశి అక్షరం *mech)
 {
-  struct imap_conn *imapc =
-    Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
+  నిర్మాణం imap_conn *imapc =
+    Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_IMAP_CONN);
 
-  (void)mech;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &imapc->pp, "*");
+  (శూన్య)mech;
+  ఒకవేళ(!imapc)
+    తిరిగి CURLE_FAILED_INIT;
+  తిరిగి Curl_pp_sendf(దత్తాంశం, &imapc->pp, "*");
 }
 
 /***********************************************************************
@@ -682,34 +682,34 @@ static CURLcode imap_cancel_authenticate(struct Curl_easy *data,
  * authentication mechanism, falling back to clear text should a common
  * mechanism not be available between the client and server.
  */
-static CURLcode imap_perform_authentication(struct Curl_easy *data,
-                                            struct imap_conn *imapc)
+స్థిర CURLcode imap_perform_authentication(నిర్మాణం Curl_easy *దత్తాంశం,
+                                            నిర్మాణం imap_conn *imapc)
 {
-  CURLcode result = CURLE_OK;
-  saslprogress progress;
+  CURLcode ఫలితం = CURLE_OK;
+  saslprogress పురోగతి;
 
   /* Check if already authenticated OR if there is enough data to authenticate
      with and end the connect phase if we do not */
-  if(imapc->preauth ||
-     !Curl_sasl_can_authenticate(&imapc->sasl, data)) {
-    imap_state(data, imapc, IMAP_STOP);
-    return result;
+  ఒకవేళ(imapc->preauth ||
+     !Curl_sasl_can_authenticate(&imapc->sasl, దత్తాంశం)) {
+    imap_state(దత్తాంశం, imapc, IMAP_STOP);
+    తిరిగి ఫలితం;
   }
 
   /* Calculate the SASL login details */
-  result = Curl_sasl_start(&imapc->sasl, data, (bool)imapc->ir_supported,
-                           &progress);
-  if(!result) {
-    if(progress == SASL_INPROGRESS)
-      imap_state(data, imapc, IMAP_AUTHENTICATE);
-    else if(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
+  ఫలితం = Curl_sasl_ప్రారంభం(&imapc->sasl, దత్తాంశం, (bool)imapc->ir_supported,
+                           &పురోగతి);
+  ఒకవేళ(!ఫలితం) {
+    ఒకవేళ(పురోగతి == SASL_INPROGRESS)
+      imap_state(దత్తాంశం, imapc, IMAP_AUTHENTICATE);
+    లేకపోతే ఒకవేళ(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
       /* Perform clear text authentication */
-      result = imap_perform_login(data, imapc, data->conn);
-    else
-      result = Curl_sasl_is_blocked(&imapc->sasl, data);
+      ఫలితం = imap_perform_login(దత్తాంశం, imapc, దత్తాంశం->conn);
+    లేకపోతే
+      ఫలితం = Curl_sasl_is_blocked(&imapc->sasl, దత్తాంశం);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -718,33 +718,33 @@ static CURLcode imap_perform_authentication(struct Curl_easy *data,
  *
  * Sends a LIST command or an alternative custom request.
  */
-static CURLcode imap_perform_list(struct Curl_easy *data,
-                                  struct imap_conn *imapc,
-                                  struct IMAP *imap)
+స్థిర CURLcode imap_perform_list(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం imap_conn *imapc,
+                                  నిర్మాణం IMAP *imap)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(imap->custom)
+  ఒకవేళ(imap->custom)
     /* Send the custom request */
-    result = imap_sendf(data, imapc, "%s%s", imap->custom,
+    ఫలితం = imap_sendf(దత్తాంశం, imapc, "%s%s", imap->custom,
                         imap->custom_params ? imap->custom_params : "");
-  else {
+  లేకపోతే {
     /* Make sure the mailbox is in the correct atom format if necessary */
-    char *mailbox = imap->mailbox ? imap_atom(imap->mailbox, TRUE)
+    అక్షరం *mailbox = imap->mailbox ? imap_atom(imap->mailbox, TRUE)
                                   : curlx_strdup("");
-    if(!mailbox)
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(!mailbox)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
     /* Send the LIST command */
-    result = imap_sendf(data, imapc, "LIST \"%s\" *", mailbox);
+    ఫలితం = imap_sendf(దత్తాంశం, imapc, "LIST \"%s\" *", mailbox);
 
     curlx_free(mailbox);
   }
 
-  if(!result)
-    imap_state(data, imapc, IMAP_LIST);
+  ఒకవేళ(!ఫలితం)
+    imap_state(దత్తాంశం, imapc, IMAP_LIST);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -753,37 +753,37 @@ static CURLcode imap_perform_list(struct Curl_easy *data,
  *
  * Sends a SELECT command to ask the server to change the selected mailbox.
  */
-static CURLcode imap_perform_select(struct Curl_easy *data,
-                                    struct imap_conn *imapc,
-                                    struct IMAP *imap)
+స్థిర CURLcode imap_perform_select(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం imap_conn *imapc,
+                                    నిర్మాణం IMAP *imap)
 {
-  CURLcode result = CURLE_OK;
-  char *mailbox;
+  CURLcode ఫలితం = CURLE_OK;
+  అక్షరం *mailbox;
 
   /* Invalidate old information as we are switching mailboxes */
   curlx_safefree(imapc->mailbox);
-  imapc->mb_uidvalidity_set = FALSE;
+  imapc->mb_uidvalidity_సమితి = FALSE;
 
   /* Check we have a mailbox */
-  if(!imap->mailbox) {
-    failf(data, "Cannot SELECT without a mailbox.");
-    return CURLE_URL_MALFORMAT;
+  ఒకవేళ(!imap->mailbox) {
+    failf(దత్తాంశం, "Cannot SELECT without a mailbox.");
+    తిరిగి CURLE_URL_MALFORMAT;
   }
 
   /* Make sure the mailbox is in the correct atom format */
   mailbox = imap_atom(imap->mailbox, FALSE);
-  if(!mailbox)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!mailbox)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* Send the SELECT command */
-  result = imap_sendf(data, imapc, "SELECT %s", mailbox);
+  ఫలితం = imap_sendf(దత్తాంశం, imapc, "SELECT %s", mailbox);
 
   curlx_free(mailbox);
 
-  if(!result)
-    imap_state(data, imapc, IMAP_SELECT);
+  ఒకవేళ(!ఫలితం)
+    imap_state(దత్తాంశం, imapc, IMAP_SELECT);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -792,41 +792,41 @@ static CURLcode imap_perform_select(struct Curl_easy *data,
  *
  * Sends a FETCH command to initiate the download of a message.
  */
-static CURLcode imap_perform_fetch(struct Curl_easy *data,
-                                   struct imap_conn *imapc,
-                                   struct IMAP *imap)
+స్థిర CURLcode imap_perform_fetch(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం imap_conn *imapc,
+                                   నిర్మాణం IMAP *imap)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
   /* Check we have a UID */
-  if(imap->uid) {
+  ఒకవేళ(imap->uid) {
 
     /* Send the FETCH command */
-    if(imap->partial)
-      result = imap_sendf(data, imapc, "UID FETCH %s BODY[%s]<%s>",
+    ఒకవేళ(imap->partial)
+      ఫలితం = imap_sendf(దత్తాంశం, imapc, "UID FETCH %s BODY[%s]<%s>",
                           imap->uid, imap->section ? imap->section : "",
                           imap->partial);
-    else
-      result = imap_sendf(data, imapc, "UID FETCH %s BODY[%s]",
+    లేకపోతే
+      ఫలితం = imap_sendf(దత్తాంశం, imapc, "UID FETCH %s BODY[%s]",
                           imap->uid, imap->section ? imap->section : "");
   }
-  else if(imap->mindex) {
+  లేకపోతే ఒకవేళ(imap->mindex) {
     /* Send the FETCH command */
-    if(imap->partial)
-      result = imap_sendf(data, imapc, "FETCH %s BODY[%s]<%s>",
+    ఒకవేళ(imap->partial)
+      ఫలితం = imap_sendf(దత్తాంశం, imapc, "FETCH %s BODY[%s]<%s>",
                           imap->mindex, imap->section ? imap->section : "",
                           imap->partial);
-    else
-      result = imap_sendf(data, imapc, "FETCH %s BODY[%s]",
+    లేకపోతే
+      ఫలితం = imap_sendf(దత్తాంశం, imapc, "FETCH %s BODY[%s]",
                           imap->mindex, imap->section ? imap->section : "");
   }
-  else {
-    failf(data, "Cannot FETCH without a UID.");
-    return CURLE_URL_MALFORMAT;
+  లేకపోతే {
+    failf(దత్తాంశం, "Cannot FETCH without a UID.");
+    తిరిగి CURLE_URL_MALFORMAT;
   }
-  if(!result)
-    imap_state(data, imapc, IMAP_FETCH);
+  ఒకవేళ(!ఫలితం)
+    imap_state(దత్తాంశం, imapc, IMAP_FETCH);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -835,108 +835,108 @@ static CURLcode imap_perform_fetch(struct Curl_easy *data,
  *
  * Sends an APPEND command to initiate the upload of a message.
  */
-static CURLcode imap_perform_append(struct Curl_easy *data,
-                                    struct imap_conn *imapc,
-                                    struct IMAP *imap)
+స్థిర CURLcode imap_perform_append(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం imap_conn *imapc,
+                                    నిర్మాణం IMAP *imap)
 {
-  CURLcode result = CURLE_OK;
-  char *mailbox;
-  struct dynbuf flags;
+  CURLcode ఫలితం = CURLE_OK;
+  అక్షరం *mailbox;
+  నిర్మాణం dynbuf flags;
 
   /* Check we have a mailbox */
-  if(!imap->mailbox) {
-    failf(data, "Cannot APPEND without a mailbox.");
-    return CURLE_URL_MALFORMAT;
+  ఒకవేళ(!imap->mailbox) {
+    failf(దత్తాంశం, "Cannot APPEND without a mailbox.");
+    తిరిగి CURLE_URL_MALFORMAT;
   }
 
-#ifndef CURL_DISABLE_MIME
+#నిర్వచితం_కాకపోతే CURL_DISABLE_MIME
   /* Prepare the mime data if some. */
-  if(IS_MIME_POST(data)) {
-    curl_mimepart *postp = data->set.mimepostp;
+  ఒకవేళ(IS_MIME_POST(దత్తాంశం)) {
+    curl_mimepart *postp = దత్తాంశం->సమితి.mimepostp;
 
     /* Use the whole structure as data. */
-    postp->flags &= ~(unsigned int)MIME_BODY_ONLY;
+    postp->flags &= ~(గుర్తులేని పూర్ణాంకం)MIME_BODY_ONLY;
 
     /* Add external headers and mime version. */
-    curl_mime_headers(postp, data->set.headers, 0);
-    result = Curl_mime_prepare_headers(data, postp, NULL,
-                                       NULL, MIMESTRATEGY_MAIL);
+    curl_mime_శీర్షికలు(postp, దత్తాంశం->సమితి.శీర్షికలు, 0);
+    ఫలితం = Curl_mime_prepare_శీర్షికలు(దత్తాంశం, postp, ఖాళీ,
+                                       ఖాళీ, MIMESTRATEGY_MAIL);
 
-    if(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
-      result = Curl_mime_add_header(&postp->curlheaders, "Mime-Version: 1.0");
-    if(!result)
-      result = Curl_creader_set_mime(data, postp);
-    if(result)
-      return result;
+    ఒకవేళ(!ఫలితం && !Curl_checkheaders(దత్తాంశం, STRCONST("Mime-Version")))
+      ఫలితం = Curl_mime_కూడు_శీర్షిక(&postp->curlheaders, "Mime-Version: 1.0");
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = Curl_creader_సమితి_mime(దత్తాంశం, postp);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
-  else
-#endif
+  లేకపోతే
+#అయితే_ముగింపు
   {
-    result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
-      return result;
+    ఫలితం = Curl_creader_సమితి_fread(దత్తాంశం, దత్తాంశం->state.infilesize);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
   /* Check we know the size of the upload. This takes all readers
    * into account. Especially crlf conversions which make the size
    * unpredictable, e.g. -1. */
-  data->state.infilesize = Curl_creader_total_length(data);
-  if(data->state.infilesize < 0) {
-    if(data->set.crlf)
-      failf(data, "Cannot APPEND with CRLF conversion making size unknown");
-    else
-      failf(data, "Cannot APPEND with unknown input file size");
-    return CURLE_UPLOAD_FAILED;
+  దత్తాంశం->state.infilesize = Curl_creader_మొత్తం_నిడివి(దత్తాంశం);
+  ఒకవేళ(దత్తాంశం->state.infilesize < 0) {
+    ఒకవేళ(దత్తాంశం->సమితి.crlf)
+      failf(దత్తాంశం, "Cannot APPEND with CRLF conversion making size unknown");
+    లేకపోతే
+      failf(దత్తాంశం, "Cannot APPEND with unknown input file size");
+    తిరిగి CURLE_UPLOAD_FAILED;
   }
 
   /* Make sure the mailbox is in the correct atom format */
   mailbox = imap_atom(imap->mailbox, FALSE);
-  if(!mailbox)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!mailbox)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* Generate flags string and send the APPEND command */
   curlx_dyn_init(&flags, 100);
-  if(data->set.upload_flags) {
-    int i;
-    struct ulbits ulflag[] = {
+  ఒకవేళ(దత్తాంశం->సమితి.upload_flags) {
+    పూర్ణాంకం i;
+    నిర్మాణం ulbits ulflag[] = {
       { CURLULFLAG_ANSWERED, "Answered" },
       { CURLULFLAG_DELETED, "Deleted" },
       { CURLULFLAG_DRAFT, "Draft" },
       { CURLULFLAG_FLAGGED, "Flagged" },
-      { CURLULFLAG_SEEN, "Seen" },
-      { 0, NULL }
+      { CURLULFLAG_చూసిన, "Seen" },
+      { 0, ఖాళీ }
     };
 
-    result = CURLE_OUT_OF_MEMORY;
-    if(curlx_dyn_add(&flags, " (")) {
-      goto cleanup;
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    ఒకవేళ(curlx_dyn_కూడు(&flags, " (")) {
+      వెళ్ళు cleanup;
     }
 
-    for(i = 0; ulflag[i].bit; i++) {
-      if(data->set.upload_flags & ulflag[i].bit &&
-         ((curlx_dyn_len(&flags) > 2 && curlx_dyn_add(&flags, " ")) ||
-          curlx_dyn_add(&flags, "\\") ||
-          curlx_dyn_add(&flags, ulflag[i].flag)))
-        goto cleanup;
+    కొరకు(i = 0; ulflag[i].బిట్టు_2; i++) {
+      ఒకవేళ(దత్తాంశం->సమితి.upload_flags & ulflag[i].బిట్టు_2 &&
+         ((curlx_dyn_len(&flags) > 2 && curlx_dyn_కూడు(&flags, " ")) ||
+          curlx_dyn_కూడు(&flags, "\\") ||
+          curlx_dyn_కూడు(&flags, ulflag[i].flag)))
+        వెళ్ళు cleanup;
     }
 
-    if(curlx_dyn_add(&flags, ")"))
-      goto cleanup;
+    ఒకవేళ(curlx_dyn_కూడు(&flags, ")"))
+      వెళ్ళు cleanup;
   }
-  else if(curlx_dyn_add(&flags, ""))
-    goto cleanup;
+  లేకపోతే ఒకవేళ(curlx_dyn_కూడు(&flags, ""))
+    వెళ్ళు cleanup;
 
-  result = imap_sendf(data, imapc, "APPEND %s%s {%" FMT_OFF_T "}",
-                      mailbox, curlx_dyn_ptr(&flags), data->state.infilesize);
+  ఫలితం = imap_sendf(దత్తాంశం, imapc, "APPEND %s%s {%" FMT_OFF_T "}",
+                      mailbox, curlx_dyn_ptr(&flags), దత్తాంశం->state.infilesize);
 
 cleanup:
   curlx_dyn_free(&flags);
   curlx_free(mailbox);
 
-  if(!result)
-    imap_state(data, imapc, IMAP_APPEND);
+  ఒకవేళ(!ఫలితం)
+    imap_state(దత్తాంశం, imapc, IMAP_APPEND);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -945,25 +945,25 @@ cleanup:
  *
  * Sends a SEARCH command.
  */
-static CURLcode imap_perform_search(struct Curl_easy *data,
-                                    struct imap_conn *imapc,
-                                    struct IMAP *imap)
+స్థిర CURLcode imap_perform_శోధన(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం imap_conn *imapc,
+                                    నిర్మాణం IMAP *imap)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
   /* Check we have a query string */
-  if(!imap->query) {
-    failf(data, "Cannot SEARCH without a query string.");
-    return CURLE_URL_MALFORMAT;
+  ఒకవేళ(!imap->query) {
+    failf(దత్తాంశం, "Cannot SEARCH without a query string.");
+    తిరిగి CURLE_URL_MALFORMAT;
   }
 
   /* Send the SEARCH command */
-  result = imap_sendf(data, imapc, "SEARCH %s", imap->query);
+  ఫలితం = imap_sendf(దత్తాంశం, imapc, "SEARCH %s", imap->query);
 
-  if(!result)
-    imap_state(data, imapc, IMAP_SEARCH);
+  ఒకవేళ(!ఫలితం)
+    imap_state(దత్తాంశం, imapc, IMAP_శోధన);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -972,715 +972,715 @@ static CURLcode imap_perform_search(struct Curl_easy *data,
  *
  * Performs the logout action prior to sclose() being called.
  */
-static CURLcode imap_perform_logout(struct Curl_easy *data,
-                                    struct imap_conn *imapc)
+స్థిర CURLcode imap_perform_logout(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం imap_conn *imapc)
 {
   /* Send the LOGOUT command */
-  CURLcode result = imap_sendf(data, imapc, "LOGOUT");
+  CURLcode ఫలితం = imap_sendf(దత్తాంశం, imapc, "LOGOUT");
 
-  if(!result)
-    imap_state(data, imapc, IMAP_LOGOUT);
+  ఒకవేళ(!ఫలితం)
+    imap_state(దత్తాంశం, imapc, IMAP_LOGOUT);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* For the initial server greeting */
-static CURLcode imap_state_servergreet_resp(struct Curl_easy *data,
-                                            struct imap_conn *imapc,
-                                            int imapcode,
+స్థిర CURLcode imap_state_servergreet_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                            నిర్మాణం imap_conn *imapc,
+                                            పూర్ణాంకం imapcode,
                                             imapstate instate)
 {
-  (void)instate;
+  (శూన్య)instate;
 
-  if(imapcode == IMAP_RESP_PREAUTH) {
+  ఒకవేళ(imapcode == IMAP_RESP_PREAUTH) {
     /* PREAUTH */
     imapc->preauth = TRUE;
-    infof(data, "PREAUTH connection, already authenticated");
+    infof(దత్తాంశం, "PREAUTH connection, already authenticated");
   }
-  else if(imapcode != IMAP_RESP_OK) {
-    failf(data, "Got unexpected imap-server response");
-    return CURLE_WEIRD_SERVER_REPLY;
+  లేకపోతే ఒకవేళ(imapcode != IMAP_RESP_OK) {
+    failf(దత్తాంశం, "Got unexpected imap-server response");
+    తిరిగి CURLE_WEIRD_SERVER_జవాబు;
   }
 
-  return imap_perform_capability(data, imapc);
+  తిరిగి imap_perform_capability(దత్తాంశం, imapc);
 }
 
 /* For CAPABILITY responses */
-static CURLcode imap_state_capability_resp(struct Curl_easy *data,
-                                           struct imap_conn *imapc,
-                                           int imapcode,
+స్థిర CURLcode imap_state_capability_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                           నిర్మాణం imap_conn *imapc,
+                                           పూర్ణాంకం imapcode,
                                            imapstate instate)
 {
-  CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  CURLcode ఫలితం = CURLE_OK;
+  స్థిరరాశి అక్షరం *పంక్తి = curlx_dyn_ptr(&imapc->pp.recvbuf);
 
-  (void)instate;
+  (శూన్య)instate;
 
   /* Do we have an untagged response? */
-  if(imapcode == '*') {
-    line += 2;
+  ఒకవేళ(imapcode == '*') {
+    పంక్తి += 2;
 
     /* Loop through the data line */
-    for(;;) {
+    కొరకు(;;) {
       size_t wordlen;
-      while(*line && (ISBLANK(*line) || ISNEWLINE(*line)))
-        line++;
+      అయితే(*పంక్తి && (ISBLANK(*పంక్తి) || ISNEWLINE(*పంక్తి)))
+        పంక్తి++;
 
-      if(!*line)
-        break;
+      ఒకవేళ(!*పంక్తి)
+        ఆపు;
 
       /* Extract the word */
-      for(wordlen = 0; line[wordlen] && !ISBLANK(line[wordlen]) &&
-                       !ISNEWLINE(line[wordlen]);)
+      కొరకు(wordlen = 0; పంక్తి[wordlen] && !ISBLANK(పంక్తి[wordlen]) &&
+                       !ISNEWLINE(పంక్తి[wordlen]);)
         wordlen++;
 
       /* Does the server support the STARTTLS capability? */
-      if(wordlen == 8 && curl_strnequal(line, "STARTTLS", 8))
+      ఒకవేళ(wordlen == 8 && curl_strnequal(పంక్తి, "STARTTLS", 8))
         imapc->tls_supported = TRUE;
 
       /* Has the server explicitly disabled clear text authentication? */
-      else if(wordlen == 13 && curl_strnequal(line, "LOGINDISABLED", 13))
+      లేకపోతే ఒకవేళ(wordlen == 13 && curl_strnequal(పంక్తి, "LOGINDISABLED", 13))
         imapc->login_disabled = TRUE;
 
       /* Does the server support the SASL-IR capability? */
-      else if(wordlen == 7 && curl_strnequal(line, "SASL-IR", 7))
+      లేకపోతే ఒకవేళ(wordlen == 7 && curl_strnequal(పంక్తి, "SASL-IR", 7))
         imapc->ir_supported = TRUE;
 
       /* Do we have a SASL based authentication mechanism? */
-      else if(wordlen > 5 && curl_strnequal(line, "AUTH=", 5)) {
+      లేకపోతే ఒకవేళ(wordlen > 5 && curl_strnequal(పంక్తి, "AUTH=", 5)) {
         size_t llen;
-        unsigned short mechbit;
+        గుర్తులేని పొట్టి mechbit;
 
-        line += 5;
+        పంక్తి += 5;
         wordlen -= 5;
 
         /* Test the word for a matching authentication mechanism */
-        mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
-        if(mechbit && llen == wordlen)
+        mechbit = Curl_sasl_decode_mech(పంక్తి, wordlen, &llen);
+        ఒకవేళ(mechbit && llen == wordlen)
           imapc->sasl.authmechs |= mechbit;
       }
 
-      line += wordlen;
+      పంక్తి += wordlen;
     }
   }
-  else if(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
+  లేకపోతే ఒకవేళ(దత్తాంశం->సమితి.use_ssl && !Curl_conn_is_ssl(దత్తాంశం->conn, FIRSTSOCKET)) {
     /* PREAUTH is not compatible with STARTTLS. */
-    if(imapcode == IMAP_RESP_OK && imapc->tls_supported && !imapc->preauth) {
+    ఒకవేళ(imapcode == IMAP_RESP_OK && imapc->tls_supported && !imapc->preauth) {
       /* Switch to TLS connection now */
-      result = imap_perform_starttls(data, imapc);
+      ఫలితం = imap_perform_starttls(దత్తాంశం, imapc);
     }
-    else if(data->set.use_ssl <= CURLUSESSL_TRY)
-      result = imap_perform_authentication(data, imapc);
-    else {
-      failf(data, "STARTTLS not available.");
-      result = CURLE_USE_SSL_FAILED;
+    లేకపోతే ఒకవేళ(దత్తాంశం->సమితి.use_ssl <= CURLUSESSL_TRY)
+      ఫలితం = imap_perform_authentication(దత్తాంశం, imapc);
+    లేకపోతే {
+      failf(దత్తాంశం, "STARTTLS not available.");
+      ఫలితం = CURLE_USE_SSL_FAILED;
     }
   }
-  else
-    result = imap_perform_authentication(data, imapc);
+  లేకపోతే
+    ఫలితం = imap_perform_authentication(దత్తాంశం, imapc);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* For STARTTLS responses */
-static CURLcode imap_state_starttls_resp(struct Curl_easy *data,
-                                         struct imap_conn *imapc,
-                                         int imapcode,
+స్థిర CURLcode imap_state_starttls_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                         నిర్మాణం imap_conn *imapc,
+                                         పూర్ణాంకం imapcode,
                                          imapstate instate)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  (void)instate;
+  (శూన్య)instate;
 
   /* Pipelining in response is forbidden. */
-  if(imapc->pp.overflow)
-    return CURLE_WEIRD_SERVER_REPLY;
+  ఒకవేళ(imapc->pp.అధికప్రవాహం)
+    తిరిగి CURLE_WEIRD_SERVER_జవాబు;
 
-  if(imapcode != IMAP_RESP_OK) {
-    if(data->set.use_ssl != CURLUSESSL_TRY) {
-      failf(data, "STARTTLS denied");
-      result = CURLE_USE_SSL_FAILED;
+  ఒకవేళ(imapcode != IMAP_RESP_OK) {
+    ఒకవేళ(దత్తాంశం->సమితి.use_ssl != CURLUSESSL_TRY) {
+      failf(దత్తాంశం, "STARTTLS denied");
+      ఫలితం = CURLE_USE_SSL_FAILED;
     }
-    else
-      result = imap_perform_authentication(data, imapc);
+    లేకపోతే
+      ఫలితం = imap_perform_authentication(దత్తాంశం, imapc);
   }
-  else
-    imap_state(data, imapc, IMAP_UPGRADETLS);
+  లేకపోతే
+    imap_state(దత్తాంశం, imapc, IMAP_UPGRADETLS);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* For SASL authentication responses */
-static CURLcode imap_state_auth_resp(struct Curl_easy *data,
-                                     struct imap_conn *imapc,
-                                     int imapcode,
+స్థిర CURLcode imap_state_auth_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం imap_conn *imapc,
+                                     పూర్ణాంకం imapcode,
                                      imapstate instate)
 {
-  CURLcode result = CURLE_OK;
-  saslprogress progress;
+  CURLcode ఫలితం = CURLE_OK;
+  saslprogress పురోగతి;
 
-  (void)instate;
+  (శూన్య)instate;
 
-  result = Curl_sasl_continue(&imapc->sasl, data, imapcode, &progress);
-  if(!result)
-    switch(progress) {
-    case SASL_DONE:
-      imap_state(data, imapc, IMAP_STOP);  /* Authenticated */
-      break;
-    case SASL_IDLE:            /* No mechanism left after cancellation */
-      if(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
+  ఫలితం = Curl_sasl_continue(&imapc->sasl, దత్తాంశం, imapcode, &పురోగతి);
+  ఒకవేళ(!ఫలితం)
+    ఎంపిక(పురోగతి) {
+    స్థితి SASL_పూర్తి:
+      imap_state(దత్తాంశం, imapc, IMAP_STOP);  /* Authenticated */
+      ఆపు;
+    స్థితి SASL_IDLE:            /* No mechanism left after cancellation */
+      ఒకవేళ(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
         /* Perform clear text authentication */
-        result = imap_perform_login(data, imapc, data->conn);
-      else {
-        failf(data, "Authentication cancelled");
-        result = CURLE_LOGIN_DENIED;
+        ఫలితం = imap_perform_login(దత్తాంశం, imapc, దత్తాంశం->conn);
+      లేకపోతే {
+        failf(దత్తాంశం, "Authentication cancelled");
+        ఫలితం = CURLE_LOGIN_DENIED;
       }
-      break;
-    default:
-      break;
+      ఆపు;
+    అప్రమేయ:
+      ఆపు;
     }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* For LOGIN responses */
-static CURLcode imap_state_login_resp(struct Curl_easy *data,
-                                      struct imap_conn *imapc,
-                                      int imapcode,
+స్థిర CURLcode imap_state_login_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం imap_conn *imapc,
+                                      పూర్ణాంకం imapcode,
                                       imapstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode ఫలితం = CURLE_OK;
+  (శూన్య)instate;
 
-  if(imapcode != IMAP_RESP_OK) {
-    failf(data, "Access denied. %c", imapcode);
-    result = CURLE_LOGIN_DENIED;
+  ఒకవేళ(imapcode != IMAP_RESP_OK) {
+    failf(దత్తాంశం, "Access denied. %c", imapcode);
+    ఫలితం = CURLE_LOGIN_DENIED;
   }
-  else
+  లేకపోతే
     /* End of connect phase */
-    imap_state(data, imapc, IMAP_STOP);
+    imap_state(దత్తాంశం, imapc, IMAP_STOP);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* Detect IMAP listings vs. downloading a single email */
-static bool is_custom_fetch_listing_match(const char *params)
+స్థిర bool is_custom_fetch_listing_సరిపోలిక(స్థిరరాశి అక్షరం *params)
 {
   /* match " 1:* (FLAGS ..." or " 1,2,3 (FLAGS ..." */
-  if(*params++ != ' ')
-    return FALSE;
+  ఒకవేళ(*params++ != ' ')
+    తిరిగి FALSE;
 
-  while(ISDIGIT(*params)) {
+  అయితే(ISDIGIT(*params)) {
     params++;
-    if(*params == 0)
-      return FALSE;
+    ఒకవేళ(*params == 0)
+      తిరిగి FALSE;
   }
-  if(*params == ':')
-    return TRUE;
-  if(*params == ',')
-    return TRUE;
-  return FALSE;
+  ఒకవేళ(*params == ':')
+    తిరిగి TRUE;
+  ఒకవేళ(*params == ',')
+    తిరిగి TRUE;
+  తిరిగి FALSE;
 }
 
-static bool is_custom_fetch_listing(struct IMAP *imap)
+స్థిర bool is_custom_fetch_listing(నిర్మాణం IMAP *imap)
 {
   /* filter out "UID FETCH 1:* (FLAGS ..." queries to list emails */
-  if(!imap->custom)
-    return FALSE;
-  else if(curl_strequal(imap->custom, "FETCH") && imap->custom_params) {
-    const char *p = imap->custom_params;
-    return is_custom_fetch_listing_match(p);
+  ఒకవేళ(!imap->custom)
+    తిరిగి FALSE;
+  లేకపోతే ఒకవేళ(curl_strequal(imap->custom, "FETCH") && imap->custom_params) {
+    స్థిరరాశి అక్షరం *p = imap->custom_params;
+    తిరిగి is_custom_fetch_listing_సరిపోలిక(p);
   }
-  else if(curl_strequal(imap->custom, "UID") && imap->custom_params &&
+  లేకపోతే ఒకవేళ(curl_strequal(imap->custom, "UID") && imap->custom_params &&
           curl_strnequal(imap->custom_params, " FETCH ", 7)) {
-    const char *p = imap->custom_params + 6;
-    return is_custom_fetch_listing_match(p);
+    స్థిరరాశి అక్షరం *p = imap->custom_params + 6;
+    తిరిగి is_custom_fetch_listing_సరిపోలిక(p);
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
 /* For LIST and SEARCH responses */
-static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
-                                           struct imap_conn *imapc,
-                                           int imapcode,
+స్థిర CURLcode imap_state_listsearch_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                           నిర్మాణం imap_conn *imapc,
+                                           పూర్ణాంకం imapcode,
                                            imapstate instate)
 {
-  CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  CURLcode ఫలితం = CURLE_OK;
+  స్థిరరాశి అక్షరం *పంక్తి = curlx_dyn_ptr(&imapc->pp.recvbuf);
   size_t len = imapc->pp.nfinal;
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  నిర్మాణం IMAP *imap = Curl_meta_get(దత్తాంశం, CURL_META_IMAP_EASY);
 
   DEBUGASSERT(imap);
-  if(!imap)
-    return CURLE_FAILED_INIT;
-  (void)instate;
+  ఒకవేళ(!imap)
+    తిరిగి CURLE_FAILED_INIT;
+  (శూన్య)instate;
 
-  if(imapcode == '*' && is_custom_fetch_listing(imap)) {
+  ఒకవేళ(imapcode == '*' && is_custom_fetch_listing(imap)) {
     /* custom FETCH or UID FETCH for listing is not handled here */
   }
-  else if(imapcode == '*') {
+  లేకపోతే ఒకవేళ(imapcode == '*') {
     /* Check if this response contains a literal (e.g. FETCH responses with
        body data). Literal syntax is {size}\r\n */
-    const char *cr = memchr(line, '\r', len);
-    size_t line_len = cr ? (size_t)(cr - line) : len;
-    const char *ptr = imap_find_literal(line, line_len);
-    if(ptr) {
-      curl_off_t size = 0;
+    స్థిరరాశి అక్షరం *cr = memchr(పంక్తి, '\r', len);
+    size_t పంక్తి_len = cr ? (size_t)(cr - పంక్తి) : len;
+    స్థిరరాశి అక్షరం *ptr = imap_కనుగొను_literal(పంక్తి, పంక్తి_len);
+    ఒకవేళ(ptr) {
+      curl_off_t కొలత = 0;
       bool parsed = FALSE;
       ptr++;
-      if(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
+      ఒకవేళ(!curlx_str_సంఖ్య(&ptr, &కొలత, CURL_OFF_T_MAX) &&
          !curlx_str_single(&ptr, '}'))
         parsed = TRUE;
 
-      if(parsed) {
-        struct pingpong *pp = &imapc->pp;
-        size_t buffer_len = curlx_dyn_len(&pp->recvbuf);
-        size_t after_header = buffer_len - pp->nfinal;
+      ఒకవేళ(parsed) {
+        నిర్మాణం pingpong *pp = &imapc->pp;
+        size_t బఫరు_len = curlx_dyn_len(&pp->recvbuf);
+        size_t after_శీర్షిక = బఫరు_len - pp->nfinal;
 
         /* This is a literal response, setup to receive the body data */
-        infof(data, "Found %" FMT_OFF_T " bytes to download", size);
+        infof(దత్తాంశం, "Found %" FMT_OFF_T " bytes to download", కొలత);
 
         /* First write the header line */
-        result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
-        if(result)
-          return result;
+        ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_BODY, పంక్తి, len);
+        ఒకవేళ(ఫలితం)
+          తిరిగి ఫలితం;
 
         /* Handle data already in buffer after the header line */
-        if(after_header > 0) {
+        ఒకవేళ(after_శీర్షిక > 0) {
           /* There is already data in the buffer that is part of the literal
              body or subsequent responses */
-          size_t chunk = after_header;
+          size_t chunk = after_శీర్షిక;
 
           /* Keep only the data after the header line */
-          curlx_dyn_tail(&pp->recvbuf, chunk);
+          curlx_dyn_తోక(&pp->recvbuf, chunk);
           pp->nfinal = 0; /* done */
 
           /* Limit chunk to the literal size */
-          if((curl_off_t)chunk > size)
-            chunk = (size_t)size;
+          ఒకవేళ((curl_off_t)chunk > కొలత)
+            chunk = (size_t)కొలత;
 
-          if(chunk) {
+          ఒకవేళ(chunk) {
             /* Write the literal body data */
-            result = Curl_client_write(data, CLIENTWRITE_BODY,
+            ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_BODY,
                                        curlx_dyn_ptr(&pp->recvbuf), chunk);
-            if(result)
-              return result;
+            ఒకవేళ(ఫలితం)
+              తిరిగి ఫలితం;
           }
 
           /* Handle remaining data in buffer (either more literal data or
              subsequent responses) */
-          if(after_header > chunk) {
+          ఒకవేళ(after_శీర్షిక > chunk) {
             /* Keep the data after the literal body */
-            pp->overflow = after_header - chunk;
-            curlx_dyn_tail(&pp->recvbuf, pp->overflow);
+            pp->అధికప్రవాహం = after_శీర్షిక - chunk;
+            curlx_dyn_తోక(&pp->recvbuf, pp->అధికప్రవాహం);
           }
-          else {
-            pp->overflow = 0;
+          లేకపోతే {
+            pp->అధికప్రవాహం = 0;
             curlx_dyn_reset(&pp->recvbuf);
           }
         }
-        else {
+        లేకపోతే {
           /* No data in buffer yet, reset overflow */
-          pp->overflow = 0;
+          pp->అధికప్రవాహం = 0;
         }
 
-        if((CURL_OFF_T_MAX - size) < (curl_off_t)len)
+        ఒకవేళ((CURL_OFF_T_MAX - కొలత) < (curl_off_t)len)
           /* unlikely to actually be a transfer this big, but avoid integer
-             overflow */
-          size = CURL_OFF_T_MAX;
-        else
-          size += len;
+అధికప్రవాహం*/
+          కొలత = CURL_OFF_T_MAX;
+        లేకపోతే
+          కొలత += len;
 
         /* Progress size includes both header line and literal body */
-        Curl_pgrsSetDownloadSize(data, size);
+        Curl_pgrs_సమితి_Download_కొలత(దత్తాంశం, కొలత);
 
-        if(data->req.bytecount == size)
+        ఒకవేళ(దత్తాంశం->req.bytecount == కొలత)
           /* All data already transferred (header + literal body) */
-          Curl_xfer_setup_nop(data);
-        else {
+          Curl_xfer_అమరిక_nop(దత్తాంశం);
+        లేకపోతే {
           /* Setup to receive the literal body data.
              maxdownload and transfer size include both header line and
              literal body */
-          data->req.maxdownload = size;
-          Curl_xfer_setup_recv(data, FIRSTSOCKET, size);
+          దత్తాంశం->req.maxdownload = కొలత;
+          Curl_xfer_అమరిక_recv(దత్తాంశం, FIRSTSOCKET, కొలత);
         }
         /* End of DO phase */
-        imap_state(data, imapc, IMAP_STOP);
+        imap_state(దత్తాంశం, imapc, IMAP_STOP);
       }
-      else {
+      లేకపోతే {
         /* Failed to parse literal, write the line */
-        result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+        ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_BODY, పంక్తి, len);
       }
     }
-    else {
+    లేకపోతే {
       /* No literal, write the line as-is */
-      result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+      ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_BODY, పంక్తి, len);
     }
   }
-  else if(imapcode != IMAP_RESP_OK)
-    result = CURLE_QUOTE_ERROR;
-  else
+  లేకపోతే ఒకవేళ(imapcode != IMAP_RESP_OK)
+    ఫలితం = CURLE_QUOTE_ERROR;
+  లేకపోతే
     /* End of DO phase */
-    imap_state(data, imapc, IMAP_STOP);
+    imap_state(దత్తాంశం, imapc, IMAP_STOP);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* For SELECT responses */
-static CURLcode imap_state_select_resp(struct Curl_easy *data,
-                                       struct imap_conn *imapc,
-                                       struct IMAP *imap,
-                                       int imapcode,
+స్థిర CURLcode imap_state_select_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం imap_conn *imapc,
+                                       నిర్మాణం IMAP *imap,
+                                       పూర్ణాంకం imapcode,
                                        imapstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode ఫలితం = CURLE_OK;
+  (శూన్య)instate;
 
-  if(imapcode == '*') {
+  ఒకవేళ(imapcode == '*') {
     /* See if this is an UIDVALIDITY response */
-    const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+    స్థిరరాశి అక్షరం *పంక్తి = curlx_dyn_ptr(&imapc->pp.recvbuf);
     size_t len = curlx_dyn_len(&imapc->pp.recvbuf);
-    if((len >= 18) && checkprefix("OK [UIDVALIDITY ", &line[2])) {
-      curl_off_t value;
-      const char *p = &line[2] + CURL_CSTRLEN("OK [UIDVALIDITY ");
-      if(!curlx_str_number(&p, &value, UINT_MAX)) {
-        imapc->mb_uidvalidity = (unsigned int)value;
-        imapc->mb_uidvalidity_set = TRUE;
+    ఒకవేళ((len >= 18) && checkprefix("OK [UIDVALIDITY ", &పంక్తి[2])) {
+      curl_off_t విలువ;
+      స్థిరరాశి అక్షరం *p = &పంక్తి[2] + CURL_CSTRLEN("OK [UIDVALIDITY ");
+      ఒకవేళ(!curlx_str_సంఖ్య(&p, &విలువ, UINT_MAX)) {
+        imapc->mb_uidvalidity = (గుర్తులేని పూర్ణాంకం)విలువ;
+        imapc->mb_uidvalidity_సమితి = TRUE;
       }
     }
   }
-  else if(imapcode == IMAP_RESP_OK) {
+  లేకపోతే ఒకవేళ(imapcode == IMAP_RESP_OK) {
     /* Check if the UIDVALIDITY has been specified and matches */
-    if(imap->uidvalidity_set && imapc->mb_uidvalidity_set &&
+    ఒకవేళ(imap->uidvalidity_సమితి && imapc->mb_uidvalidity_సమితి &&
        (imap->uidvalidity != imapc->mb_uidvalidity)) {
-      failf(data, "Mailbox UIDVALIDITY has changed");
-      result = CURLE_REMOTE_FILE_NOT_FOUND;
+      failf(దత్తాంశం, "Mailbox UIDVALIDITY has changed");
+      ఫలితం = CURLE_REMOTE_FILE_NOT_దొరికింది;
     }
-    else {
+    లేకపోతే {
       /* Note the currently opened mailbox on this connection */
       DEBUGASSERT(!imapc->mailbox);
       imapc->mailbox = curlx_strdup(imap->mailbox);
-      if(!imapc->mailbox)
-        return CURLE_OUT_OF_MEMORY;
+      ఒకవేళ(!imapc->mailbox)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-      if(imap->custom)
-        result = imap_perform_list(data, imapc, imap);
-      else if(imap->query)
-        result = imap_perform_search(data, imapc, imap);
-      else
-        result = imap_perform_fetch(data, imapc, imap);
+      ఒకవేళ(imap->custom)
+        ఫలితం = imap_perform_list(దత్తాంశం, imapc, imap);
+      లేకపోతే ఒకవేళ(imap->query)
+        ఫలితం = imap_perform_శోధన(దత్తాంశం, imapc, imap);
+      లేకపోతే
+        ఫలితం = imap_perform_fetch(దత్తాంశం, imapc, imap);
     }
   }
-  else {
-    failf(data, "Select failed");
-    result = CURLE_LOGIN_DENIED;
+  లేకపోతే {
+    failf(దత్తాంశం, "Select failed");
+    ఫలితం = CURLE_LOGIN_DENIED;
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* For the (first line of the) FETCH responses */
-static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
-                                      struct imap_conn *imapc,
-                                      int imapcode,
+స్థిర CURLcode imap_state_fetch_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం imap_conn *imapc,
+                                      పూర్ణాంకం imapcode,
                                       imapstate instate)
 {
-  CURLcode result = CURLE_OK;
-  struct pingpong *pp = &imapc->pp;
-  const char *ptr = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం pingpong *pp = &imapc->pp;
+  స్థిరరాశి అక్షరం *ptr = curlx_dyn_ptr(&imapc->pp.recvbuf);
   size_t len = imapc->pp.nfinal;
   bool parsed = FALSE;
-  curl_off_t size = 0;
+  curl_off_t కొలత = 0;
 
-  (void)instate;
+  (శూన్య)instate;
 
-  if(imapcode != '*') {
-    Curl_pgrsSetDownloadSize(data, -1);
-    imap_state(data, imapc, IMAP_STOP);
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+  ఒకవేళ(imapcode != '*') {
+    Curl_pgrs_సమితి_Download_కొలత(దత్తాంశం, -1);
+    imap_state(దత్తాంశం, imapc, IMAP_STOP);
+    తిరిగి CURLE_REMOTE_FILE_NOT_దొరికింది;
   }
 
   /* Something like this is received "* 1 FETCH (BODY[TEXT] {2021}\r" so parse
      the continuation data contained within the curly brackets */
-  ptr = imap_find_literal(ptr, len);
-  if(ptr) {
+  ptr = imap_కనుగొను_literal(ptr, len);
+  ఒకవేళ(ptr) {
     ptr++;
-    if(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
+    ఒకవేళ(!curlx_str_సంఖ్య(&ptr, &కొలత, CURL_OFF_T_MAX) &&
        !curlx_str_single(&ptr, '}'))
       parsed = TRUE;
   }
 
-  if(parsed) {
-    infof(data, "Found %" FMT_OFF_T " bytes to download", size);
-    Curl_pgrsSetDownloadSize(data, size);
+  ఒకవేళ(parsed) {
+    infof(దత్తాంశం, "Found %" FMT_OFF_T " bytes to download", కొలత);
+    Curl_pgrs_సమితి_Download_కొలత(దత్తాంశం, కొలత);
 
-    if(pp->overflow) {
+    ఒకవేళ(pp->అధికప్రవాహం) {
       /* At this point there is a data in the receive buffer that is body
          content, send it as body and then skip it. Do note that there may
          even be additional "headers" after the body. */
-      size_t chunk = pp->overflow;
+      size_t chunk = pp->అధికప్రవాహం;
 
       /* keep only the overflow */
-      curlx_dyn_tail(&pp->recvbuf, chunk);
+      curlx_dyn_తోక(&pp->recvbuf, chunk);
       pp->nfinal = 0; /* done */
 
-      if((curl_off_t)chunk > size)
+      ఒకవేళ((curl_off_t)chunk > కొలత)
         /* The conversion from curl_off_t to size_t is always fine here */
-        chunk = (size_t)size;
+        chunk = (size_t)కొలత;
 
-      if(!chunk) {
+      ఒకవేళ(!chunk) {
         /* no size, we are done with the data */
-        imap_state(data, imapc, IMAP_STOP);
-        return CURLE_OK;
+        imap_state(దత్తాంశం, imapc, IMAP_STOP);
+        తిరిగి CURLE_OK;
       }
-      result = Curl_client_write(data, CLIENTWRITE_BODY,
+      ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_BODY,
                                  curlx_dyn_ptr(&pp->recvbuf), chunk);
-      if(result)
-        return result;
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
 
-      infof(data, "Written %zu bytes, %" FMT_OFF_T
-            " bytes are left for transfer", chunk, (curl_off_t)(size - chunk));
+      infof(దత్తాంశం, "Written %zu bytes, %" FMT_OFF_T
+            " bytes are left for transfer", chunk, (curl_off_t)(కొలత - chunk));
 
       /* Have we used the entire overflow or part of it?*/
-      if(pp->overflow > chunk) {
+      ఒకవేళ(pp->అధికప్రవాహం > chunk) {
         /* remember the remaining trailing overflow data */
-        pp->overflow -= chunk;
-        curlx_dyn_tail(&pp->recvbuf, pp->overflow);
+        pp->అధికప్రవాహం -= chunk;
+        curlx_dyn_తోక(&pp->recvbuf, pp->అధికప్రవాహం);
       }
-      else {
-        pp->overflow = 0; /* handled */
+      లేకపోతే {
+        pp->అధికప్రవాహం = 0; /* handled */
         /* Free the cache */
         curlx_dyn_reset(&pp->recvbuf);
       }
     }
 
-    if(data->req.bytecount == size)
+    ఒకవేళ(దత్తాంశం->req.bytecount == కొలత)
       /* The entire data is already transferred! */
-      Curl_xfer_setup_nop(data);
-    else {
+      Curl_xfer_అమరిక_nop(దత్తాంశం);
+    లేకపోతే {
       /* IMAP download */
-      data->req.maxdownload = size;
-      Curl_xfer_setup_recv(data, FIRSTSOCKET, size);
+      దత్తాంశం->req.maxdownload = కొలత;
+      Curl_xfer_అమరిక_recv(దత్తాంశం, FIRSTSOCKET, కొలత);
     }
   }
-  else {
+  లేకపోతే {
     /* We do not know how to parse this line */
-    failf(data, "Failed to parse FETCH response.");
-    result = CURLE_WEIRD_SERVER_REPLY;
+    failf(దత్తాంశం, "Failed to parse FETCH response.");
+    ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
   }
 
   /* End of DO phase */
-  imap_state(data, imapc, IMAP_STOP);
+  imap_state(దత్తాంశం, imapc, IMAP_STOP);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* For final FETCH responses performed after the download */
-static CURLcode imap_state_fetch_final_resp(struct Curl_easy *data,
-                                            struct imap_conn *imapc,
-                                            int imapcode,
+స్థిర CURLcode imap_state_fetch_final_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                            నిర్మాణం imap_conn *imapc,
+                                            పూర్ణాంకం imapcode,
                                             imapstate instate)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  (void)instate;
+  (శూన్య)instate;
 
-  if(imapcode != IMAP_RESP_OK)
-    result = CURLE_WEIRD_SERVER_REPLY;
-  else
+  ఒకవేళ(imapcode != IMAP_RESP_OK)
+    ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+  లేకపోతే
     /* End of DONE phase */
-    imap_state(data, imapc, IMAP_STOP);
+    imap_state(దత్తాంశం, imapc, IMAP_STOP);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* For APPEND responses */
-static CURLcode imap_state_append_resp(struct Curl_easy *data,
-                                       struct imap_conn *imapc,
-                                       int imapcode,
+స్థిర CURLcode imap_state_append_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం imap_conn *imapc,
+                                       పూర్ణాంకం imapcode,
                                        imapstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode ఫలితం = CURLE_OK;
+  (శూన్య)instate;
 
-  if(imapcode != '+') {
-    result = CURLE_UPLOAD_FAILED;
+  ఒకవేళ(imapcode != '+') {
+    ఫలితం = CURLE_UPLOAD_FAILED;
   }
-  else {
+  లేకపోతే {
     /* Set the progress upload size */
-    Curl_pgrsSetUploadSize(data, data->state.infilesize);
+    Curl_pgrs_సమితి_Upload_కొలత(దత్తాంశం, దత్తాంశం->state.infilesize);
 
     /* IMAP upload */
-    Curl_xfer_setup_send(data, FIRSTSOCKET);
+    Curl_xfer_అమరిక_send(దత్తాంశం, FIRSTSOCKET);
 
     /* End of DO phase */
-    imap_state(data, imapc, IMAP_STOP);
+    imap_state(దత్తాంశం, imapc, IMAP_STOP);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* For final APPEND responses performed after the upload */
-static CURLcode imap_state_append_final_resp(struct Curl_easy *data,
-                                             struct imap_conn *imapc,
-                                             int imapcode,
+స్థిర CURLcode imap_state_append_final_resp(నిర్మాణం Curl_easy *దత్తాంశం,
+                                             నిర్మాణం imap_conn *imapc,
+                                             పూర్ణాంకం imapcode,
                                              imapstate instate)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  (void)instate;
+  (శూన్య)instate;
 
-  if(imapcode != IMAP_RESP_OK)
-    result = CURLE_UPLOAD_FAILED;
-  else
+  ఒకవేళ(imapcode != IMAP_RESP_OK)
+    ఫలితం = CURLE_UPLOAD_FAILED;
+  లేకపోతే
     /* End of DONE phase */
-    imap_state(data, imapc, IMAP_STOP);
+    imap_state(దత్తాంశం, imapc, IMAP_STOP);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode imap_pp_statemachine(struct Curl_easy *data,
-                                     struct connectdata *conn)
+స్థిర CURLcode imap_pp_statemachine(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
-  int imapcode;
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
-  struct pingpong *pp;
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం imapcode;
+  నిర్మాణం imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  నిర్మాణం IMAP *imap = Curl_meta_get(దత్తాంశం, CURL_META_IMAP_EASY);
+  నిర్మాణం pingpong *pp;
   size_t nread = 0;
 
-  if(!imapc || !imap)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!imapc || !imap)
+    తిరిగి CURLE_FAILED_INIT;
   pp = &imapc->pp;
   /* Busy upgrading the connection; right now all I/O is SSL/TLS, not IMAP */
 upgrade_tls:
-  if(imapc->state == IMAP_UPGRADETLS) {
-    result = imap_perform_upgrade_tls(data, imapc, conn);
-    if(result || (imapc->state == IMAP_UPGRADETLS))
-      return result;
+  ఒకవేళ(imapc->state == IMAP_UPGRADETLS) {
+    ఫలితం = imap_perform_upgrade_tls(దత్తాంశం, imapc, conn);
+    ఒకవేళ(ఫలితం || (imapc->state == IMAP_UPGRADETLS))
+      తిరిగి ఫలితం;
   }
 
   /* Flush any data that needs to be sent */
-  if(pp->sendleft)
-    return Curl_pp_flushsend(data, pp);
+  ఒకవేళ(pp->sendleft)
+    తిరిగి Curl_pp_flushsend(దత్తాంశం, pp);
 
-  do {
+  చేయి {
     /* Read the response from the server */
-    result = Curl_pp_readresp(data, FIRSTSOCKET, pp, &imapcode, &nread);
-    if(result)
-      return result;
+    ఫలితం = Curl_pp_readresp(దత్తాంశం, FIRSTSOCKET, pp, &imapcode, &nread);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
 
     /* Was there an error parsing the response line? */
-    if(imapcode == -1)
-      return CURLE_WEIRD_SERVER_REPLY;
+    ఒకవేళ(imapcode == -1)
+      తిరిగి CURLE_WEIRD_SERVER_జవాబు;
 
-    if(!imapcode)
-      break;
+    ఒకవేళ(!imapcode)
+      ఆపు;
 
     /* We have now received a full IMAP server response */
-    switch(imapc->state) {
-    case IMAP_SERVERGREET:
-      result = imap_state_servergreet_resp(data, imapc,
+    ఎంపిక(imapc->state) {
+    స్థితి IMAP_SERVERGREET:
+      ఫలితం = imap_state_servergreet_resp(దత్తాంశం, imapc,
                                            imapcode, imapc->state);
-      break;
+      ఆపు;
 
-    case IMAP_CAPABILITY:
-      result = imap_state_capability_resp(data, imapc, imapcode, imapc->state);
-      break;
+    స్థితి IMAP_CAPABILITY:
+      ఫలితం = imap_state_capability_resp(దత్తాంశం, imapc, imapcode, imapc->state);
+      ఆపు;
 
-    case IMAP_STARTTLS:
-      result = imap_state_starttls_resp(data, imapc, imapcode, imapc->state);
+    స్థితి IMAP_STARTTLS:
+      ఫలితం = imap_state_starttls_resp(దత్తాంశం, imapc, imapcode, imapc->state);
       /* During UPGRADETLS, leave the read loop as we need to connect
        * (e.g. TLS handshake) before we continue sending/receiving. */
-      if(!result && (imapc->state == IMAP_UPGRADETLS))
-        goto upgrade_tls;
-      break;
+      ఒకవేళ(!ఫలితం && (imapc->state == IMAP_UPGRADETLS))
+        వెళ్ళు upgrade_tls;
+      ఆపు;
 
-    case IMAP_AUTHENTICATE:
-      result = imap_state_auth_resp(data, imapc, imapcode, imapc->state);
-      break;
+    స్థితి IMAP_AUTHENTICATE:
+      ఫలితం = imap_state_auth_resp(దత్తాంశం, imapc, imapcode, imapc->state);
+      ఆపు;
 
-    case IMAP_LOGIN:
-      result = imap_state_login_resp(data, imapc, imapcode, imapc->state);
-      break;
+    స్థితి IMAP_LOGIN:
+      ఫలితం = imap_state_login_resp(దత్తాంశం, imapc, imapcode, imapc->state);
+      ఆపు;
 
-    case IMAP_LIST:
-    case IMAP_SEARCH:
-      result = imap_state_listsearch_resp(data, imapc, imapcode, imapc->state);
-      break;
+    స్థితి IMAP_LIST:
+    స్థితి IMAP_శోధన:
+      ఫలితం = imap_state_listsearch_resp(దత్తాంశం, imapc, imapcode, imapc->state);
+      ఆపు;
 
-    case IMAP_SELECT:
-      result = imap_state_select_resp(data, imapc, imap,
+    స్థితి IMAP_SELECT:
+      ఫలితం = imap_state_select_resp(దత్తాంశం, imapc, imap,
                                       imapcode, imapc->state);
-      break;
+      ఆపు;
 
-    case IMAP_FETCH:
-      result = imap_state_fetch_resp(data, imapc, imapcode, imapc->state);
-      break;
+    స్థితి IMAP_FETCH:
+      ఫలితం = imap_state_fetch_resp(దత్తాంశం, imapc, imapcode, imapc->state);
+      ఆపు;
 
-    case IMAP_FETCH_FINAL:
-      result = imap_state_fetch_final_resp(data, imapc,
+    స్థితి IMAP_FETCH_FINAL:
+      ఫలితం = imap_state_fetch_final_resp(దత్తాంశం, imapc,
                                            imapcode, imapc->state);
-      break;
+      ఆపు;
 
-    case IMAP_APPEND:
-      result = imap_state_append_resp(data, imapc, imapcode, imapc->state);
-      break;
+    స్థితి IMAP_APPEND:
+      ఫలితం = imap_state_append_resp(దత్తాంశం, imapc, imapcode, imapc->state);
+      ఆపు;
 
-    case IMAP_APPEND_FINAL:
-      result = imap_state_append_final_resp(data, imapc,
+    స్థితి IMAP_APPEND_FINAL:
+      ఫలితం = imap_state_append_final_resp(దత్తాంశం, imapc,
                                             imapcode, imapc->state);
-      break;
+      ఆపు;
 
-    case IMAP_LOGOUT:
-    default:
+    స్థితి IMAP_LOGOUT:
+    అప్రమేయ:
       /* internal error */
-      imap_state(data, imapc, IMAP_STOP);
-      break;
+      imap_state(దత్తాంశం, imapc, IMAP_STOP);
+      ఆపు;
     }
-  } while(!result && imapc->state != IMAP_STOP && Curl_pp_moredata(pp));
+  } అయితే(!ఫలితం && imapc->state != IMAP_STOP && Curl_pp_moredata(pp));
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* Called repeatedly until done from multi.c */
-static CURLcode imap_multi_statemach(struct Curl_easy *data, bool *done)
+స్థిర CURLcode imap_multi_statemach(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  CURLcode result = CURLE_OK;
-  struct imap_conn *imapc =
-    Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం imap_conn *imapc =
+    Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_IMAP_CONN);
 
-  *done = FALSE;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  result = Curl_pp_statemach(data, &imapc->pp, FALSE, FALSE);
-  *done = (imapc->state == IMAP_STOP);
+  *పూర్తి = FALSE;
+  ఒకవేళ(!imapc)
+    తిరిగి CURLE_FAILED_INIT;
+  ఫలితం = Curl_pp_statemach(దత్తాంశం, &imapc->pp, FALSE, FALSE);
+  *పూర్తి = (imapc->state == IMAP_STOP);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode imap_block_statemach(struct Curl_easy *data,
-                                     struct imap_conn *imapc,
+స్థిర CURLcode imap_ఖండం_statemach(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం imap_conn *imapc,
                                      bool disconnecting)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  while(imapc->state != IMAP_STOP && !result)
-    result = Curl_pp_statemach(data, &imapc->pp, TRUE, disconnecting);
+  అయితే(imapc->state != IMAP_STOP && !ఫలితం)
+    ఫలితం = Curl_pp_statemach(దత్తాంశం, &imapc->pp, TRUE, disconnecting);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* For the IMAP "protocol connect" and "doing" phases only */
-static CURLcode imap_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+స్థిర CURLcode imap_pollset(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం easy_pollset *ps)
 {
-  struct imap_conn *imapc =
-    Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
-  return imapc ? Curl_pp_pollset(data, &imapc->pp, ps) : CURLE_OK;
+  నిర్మాణం imap_conn *imapc =
+    Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_IMAP_CONN);
+  తిరిగి imapc ? Curl_pp_pollset(దత్తాంశం, &imapc->pp, ps) : CURLE_OK;
 }
 
-static void imap_easy_reset(struct IMAP *imap)
+స్థిర శూన్య imap_easy_reset(నిర్మాణం IMAP *imap)
 {
   curlx_safefree(imap->mailbox);
   curlx_safefree(imap->uid);
@@ -1690,7 +1690,7 @@ static void imap_easy_reset(struct IMAP *imap)
   curlx_safefree(imap->query);
   curlx_safefree(imap->custom);
   curlx_safefree(imap->custom_params);
-  imap->uidvalidity_set = FALSE;
+  imap->uidvalidity_సమితి = FALSE;
   /* Clear the transfer mode for the next request */
   imap->transfer = PPTRANSFER_BODY;
 }
@@ -1702,11 +1702,11 @@ static void imap_easy_reset(struct IMAP *imap)
  * Portable test of whether the specified char is a "bchar" as defined in the
  * grammar of RFC-5092.
  */
-static bool imap_is_bchar(char ch)
+స్థిర bool imap_is_bchar(అక్షరం ch)
 {
   /* Performing the alnum check first with macro is faster because of ASCII
      arithmetic */
-  return ch && (ISALNUM(ch) || strchr(":@/&=-._~!$\'()*+,%", ch));
+  తిరిగి ch && (ISALNUM(ch) || strchr(":@/&=-._~!$\'()*+,%", ch));
 }
 
 /***********************************************************************
@@ -1715,61 +1715,61 @@ static bool imap_is_bchar(char ch)
  *
  * Parse the URL login options.
  */
-static CURLcode imap_parse_url_options(struct connectdata *conn,
-                                       struct imap_conn *imapc)
+స్థిర CURLcode imap_parse_url_options(నిర్మాణం connectdata *conn,
+                                       నిర్మాణం imap_conn *imapc)
 {
-  CURLcode result = CURLE_OK;
-  const char *ptr = conn->options;
+  CURLcode ఫలితం = CURLE_OK;
+  స్థిరరాశి అక్షరం *ptr = conn->options;
   bool prefer_login = FALSE;
 
-  while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+  అయితే(!ఫలితం && ptr && *ptr) {
+    స్థిరరాశి అక్షరం *కీలకం = ptr;
+    స్థిరరాశి అక్షరం *విలువ;
 
-    while(*ptr && *ptr != '=')
+    అయితే(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    విలువ = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    అయితే(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=+LOGIN", 11)) {
+    ఒకవేళ(curl_strnequal(కీలకం, "AUTH=+LOGIN", 11)) {
       /* User prefers plaintext LOGIN over any SASL, including SASL LOGIN */
       prefer_login = TRUE;
       imapc->sasl.prefmech = SASL_AUTH_NONE;
     }
-    else if(curl_strnequal(key, "AUTH=", 5)) {
+    లేకపోతే ఒకవేళ(curl_strnequal(కీలకం, "AUTH=", 5)) {
       prefer_login = FALSE;
-      result = Curl_sasl_parse_url_auth_option(&imapc->sasl,
-                                               value, ptr - value);
+      ఫలితం = Curl_sasl_parse_url_auth_option(&imapc->sasl,
+                                               విలువ, ptr - విలువ);
     }
-    else {
+    లేకపోతే {
       prefer_login = FALSE;
-      result = CURLE_URL_MALFORMAT;
+      ఫలితం = CURLE_URL_MALFORMAT;
     }
 
-    if(*ptr == ';')
+    ఒకవేళ(*ptr == ';')
       ptr++;
   }
 
-  if(prefer_login)
+  ఒకవేళ(prefer_login)
     imapc->preftype = IMAP_TYPE_CLEARTEXT;
-  else {
-    switch(imapc->sasl.prefmech) {
-    case SASL_AUTH_NONE:
+  లేకపోతే {
+    ఎంపిక(imapc->sasl.prefmech) {
+    స్థితి SASL_AUTH_NONE:
       imapc->preftype = IMAP_TYPE_NONE;
-      break;
-    case SASL_AUTH_DEFAULT:
+      ఆపు;
+    స్థితి SASL_AUTH_DEFAULT:
       imapc->preftype = IMAP_TYPE_ANY;
-      break;
-    default:
+      ఆపు;
+    అప్రమేయ:
       imapc->preftype = IMAP_TYPE_SASL;
-      break;
+      ఆపు;
     }
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -1779,123 +1779,123 @@ static CURLcode imap_parse_url_options(struct connectdata *conn,
  * Parse the URL path into separate path components.
  *
  */
-static CURLcode imap_parse_url_path(struct Curl_easy *data,
-                                    struct IMAP *imap)
+స్థిర CURLcode imap_parse_url_మార్గం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం IMAP *imap)
 {
   /* The imap struct is already initialized in imap_connect() */
-  CURLcode result = CURLE_OK;
-  const char *begin = &data->state.up.path[1]; /* skip leading slash */
-  const char *ptr = begin;
+  CURLcode ఫలితం = CURLE_OK;
+  స్థిరరాశి అక్షరం *begin = &దత్తాంశం->state.పైకి.మార్గం[1]; /* skip leading slash */
+  స్థిరరాశి అక్షరం *ptr = begin;
 
   /* See how much of the URL is a valid path and decode it */
-  while(imap_is_bchar(*ptr))
+  అయితే(imap_is_bchar(*ptr))
     ptr++;
 
-  if(ptr != begin) {
+  ఒకవేళ(ptr != begin) {
     /* Remove the trailing slash if present */
-    const char *end = ptr;
-    if(end > begin && end[-1] == '/')
-      end--;
+    స్థిరరాశి అక్షరం *చివర = ptr;
+    ఒకవేళ(చివర > begin && చివర[-1] == '/')
+      చివర--;
 
-    result = Curl_urldecode(begin, end - begin, &imap->mailbox, NULL,
+    ఫలితం = Curl_urldecode(begin, చివర - begin, &imap->mailbox, ఖాళీ,
                             REJECT_CTRL);
-    if(result)
-      return result;
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
-  else
-    imap->mailbox = NULL;
+  లేకపోతే
+    imap->mailbox = ఖాళీ;
 
   /* There can be any number of parameters in the form ";NAME=VALUE" */
-  while(*ptr == ';') {
-    char *name;
-    char *value;
+  అయితే(*ptr == ';') {
+    అక్షరం *name;
+    అక్షరం *విలువ;
     size_t valuelen;
 
     /* Find the length of the name parameter */
     begin = ++ptr;
-    while(*ptr && *ptr != '=')
+    అయితే(*ptr && *ptr != '=')
       ptr++;
 
-    if(!*ptr)
-      return CURLE_URL_MALFORMAT;
+    ఒకవేళ(!*ptr)
+      తిరిగి CURLE_URL_MALFORMAT;
 
     /* Decode the name parameter */
-    result = Curl_urldecode(begin, ptr - begin, &name, NULL,
+    ఫలితం = Curl_urldecode(begin, ptr - begin, &name, ఖాళీ,
                             REJECT_CTRL);
-    if(result)
-      return result;
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
 
     /* Find the length of the value parameter */
     begin = ++ptr;
-    while(imap_is_bchar(*ptr))
+    అయితే(imap_is_bchar(*ptr))
       ptr++;
 
     /* Decode the value parameter */
-    result = Curl_urldecode(begin, ptr - begin, &value, &valuelen,
+    ఫలితం = Curl_urldecode(begin, ptr - begin, &విలువ, &valuelen,
                             REJECT_CTRL);
-    if(result) {
+    ఒకవేళ(ఫలితం) {
       curlx_free(name);
-      return result;
+      తిరిగి ఫలితం;
     }
 
-    DEBUGF(infof(data, "IMAP URL parameter '%s' = '%s'", name, value));
+    DEBUGF(infof(దత్తాంశం, "IMAP URL parameter '%s' = '%s'", name, విలువ));
 
     /* Process the known hierarchical parameters (UIDVALIDITY, UID, SECTION
        and PARTIAL) stripping of the trailing slash character if it is
        present.
 
        Note: Unknown parameters trigger a URL_MALFORMAT error. */
-    if(valuelen > 0 && value[valuelen - 1] == '/')
-      value[valuelen - 1] = '\0';
-    if(valuelen) {
-      if(curl_strequal(name, "UIDVALIDITY") && !imap->uidvalidity_set) {
-        curl_off_t num;
-        const char *p = (const char *)value;
-        if(!curlx_str_number(&p, &num, UINT_MAX)) {
-          imap->uidvalidity = (unsigned int)num;
-          imap->uidvalidity_set = TRUE;
+    ఒకవేళ(valuelen > 0 && విలువ[valuelen - 1] == '/')
+      విలువ[valuelen - 1] = '\0';
+    ఒకవేళ(valuelen) {
+      ఒకవేళ(curl_strequal(name, "UIDVALIDITY") && !imap->uidvalidity_సమితి) {
+        curl_off_t అంకె;
+        స్థిరరాశి అక్షరం *p = (స్థిరరాశి అక్షరం *)విలువ;
+        ఒకవేళ(!curlx_str_సంఖ్య(&p, &అంకె, UINT_MAX)) {
+          imap->uidvalidity = (గుర్తులేని పూర్ణాంకం)అంకె;
+          imap->uidvalidity_సమితి = TRUE;
         }
-        curlx_free(value);
+        curlx_free(విలువ);
       }
-      else if(curl_strequal(name, "UID") && !imap->uid) {
-        imap->uid = value;
+      లేకపోతే ఒకవేళ(curl_strequal(name, "UID") && !imap->uid) {
+        imap->uid = విలువ;
       }
-      else if(curl_strequal(name, "MAILINDEX") && !imap->mindex) {
-        imap->mindex = value;
+      లేకపోతే ఒకవేళ(curl_strequal(name, "MAILINDEX") && !imap->mindex) {
+        imap->mindex = విలువ;
       }
-      else if(curl_strequal(name, "SECTION") && !imap->section) {
-        imap->section = value;
+      లేకపోతే ఒకవేళ(curl_strequal(name, "SECTION") && !imap->section) {
+        imap->section = విలువ;
       }
-      else if(curl_strequal(name, "PARTIAL") && !imap->partial) {
-        imap->partial = value;
+      లేకపోతే ఒకవేళ(curl_strequal(name, "PARTIAL") && !imap->partial) {
+        imap->partial = విలువ;
       }
-      else {
+      లేకపోతే {
         curlx_free(name);
-        curlx_free(value);
-        return CURLE_URL_MALFORMAT;
+        curlx_free(విలువ);
+        తిరిగి CURLE_URL_MALFORMAT;
       }
     }
-    else
+    లేకపోతే
       /* blank? */
-      curlx_free(value);
+      curlx_free(విలువ);
     curlx_free(name);
   }
 
   /* Does the URL contain a query parameter? Only valid when we have a mailbox
      and no UID as per RFC-5092 */
-  if(imap->mailbox && !imap->uid && !imap->mindex) {
+  ఒకవేళ(imap->mailbox && !imap->uid && !imap->mindex) {
     /* Get the query parameter, URL decoded */
-    CURLUcode uc = curl_url_get(data->state.uh, CURLUPART_QUERY, &imap->query,
+    CURLUcode uc = curl_url_get(దత్తాంశం->state.uh, CURLUPART_QUERY, &imap->query,
                                 CURLU_URLDECODE);
-    if(uc == CURLUE_OUT_OF_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(uc == CURLUE_బహిర్గతం_యొక్క_జ్ఞాపకం)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
   /* Any extra stuff at the end of the URL is an error */
-  if(*ptr)
-    return CURLE_URL_MALFORMAT;
+  ఒకవేళ(*ptr)
+    తిరిగి CURLE_URL_MALFORMAT;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /***********************************************************************
@@ -1904,34 +1904,34 @@ static CURLcode imap_parse_url_path(struct Curl_easy *data,
  *
  * Parse the custom request.
  */
-static CURLcode imap_parse_custom_request(struct Curl_easy *data,
-                                          struct IMAP *imap)
+స్థిర CURLcode imap_parse_custom_request(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం IMAP *imap)
 {
-  CURLcode result = CURLE_OK;
-  const char *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  CURLcode ఫలితం = CURLE_OK;
+  స్థిరరాశి అక్షరం *custom = CURL_EASY_STR(దత్తాంశం, STRING_CUSTOMREQUEST);
 
-  if(custom) {
+  ఒకవేళ(custom) {
     /* URL decode the custom request */
-    result = Curl_urldecode(custom, 0, &imap->custom, NULL, REJECT_CTRL);
+    ఫలితం = Curl_urldecode(custom, 0, &imap->custom, ఖాళీ, REJECT_CTRL);
 
     /* Extract the parameters if specified */
-    if(!result) {
-      const char *params = imap->custom;
+    ఒకవేళ(!ఫలితం) {
+      స్థిరరాశి అక్షరం *params = imap->custom;
 
-      while(*params && *params != ' ')
+      అయితే(*params && *params != ' ')
         params++;
 
-      if(*params) {
+      ఒకవేళ(*params) {
         imap->custom_params = curlx_strdup(params);
         imap->custom[params - imap->custom] = '\0';
 
-        if(!imap->custom_params)
-          result = CURLE_OUT_OF_MEMORY;
+        ఒకవేళ(!imap->custom_params)
+          ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
     }
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -1944,30 +1944,30 @@ static CURLcode imap_parse_custom_request(struct Curl_easy *data,
  * The variable 'done' points to will be TRUE if the protocol-layer connect
  * phase is done when this function returns, or FALSE if not.
  */
-static CURLcode imap_connect(struct Curl_easy *data, bool *done)
+స్థిర CURLcode imap_connect(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  struct imap_conn *imapc =
-    Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
-  CURLcode result = CURLE_OK;
+  నిర్మాణం imap_conn *imapc =
+    Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_IMAP_CONN);
+  CURLcode ఫలితం = CURLE_OK;
 
-  *done = FALSE; /* default to not done yet */
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  *పూర్తి = FALSE; /* default to not done yet */
+  ఒకవేళ(!imapc)
+    తిరిగి CURLE_FAILED_INIT;
 
   /* Parse the URL options */
-  result = imap_parse_url_options(data->conn, imapc);
-  if(result)
-    return result;
+  ఫలితం = imap_parse_url_options(దత్తాంశం->conn, imapc);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* Start off waiting for the server greeting response */
-  imap_state(data, imapc, IMAP_SERVERGREET);
+  imap_state(దత్తాంశం, imapc, IMAP_SERVERGREET);
 
   /* Start off with an response id of '*' */
-  curlx_strcopy(imapc->resptag, sizeof(imapc->resptag), STRCONST("*"));
+  curlx_strcopy(imapc->resptag, పరిమాణం(imapc->resptag), STRCONST("*"));
 
-  result = imap_multi_statemach(data, done);
+  ఫలితం = imap_multi_statemach(దత్తాంశం, పూర్తి);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -1979,48 +1979,48 @@ static CURLcode imap_connect(struct Curl_easy *data, bool *done)
  *
  * Input argument is already checked for validity.
  */
-static CURLcode imap_done(struct Curl_easy *data, CURLcode status,
+స్థిర CURLcode imap_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం, CURLcode స్థితి_2,
                           bool premature)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  నిర్మాణం IMAP *imap = Curl_meta_get(దత్తాంశం, CURL_META_IMAP_EASY);
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  if(!imap)
-    return CURLE_OK;
+  ఒకవేళ(!imapc)
+    తిరిగి CURLE_FAILED_INIT;
+  ఒకవేళ(!imap)
+    తిరిగి CURLE_OK;
 
-  if(status || premature) {
-    CURL_TRC_M(data, "IMAP done, not finalizing transfer");
+  ఒకవేళ(స్థితి_2 || premature) {
+    CURL_TRC_M(దత్తాంశం, "IMAP done, not finalizing transfer");
     connclose(conn); /* marked for closure */
-    result = status;         /* use the already set error code */
+    ఫలితం = స్థితి_2;         /* use the already set error code */
   }
-  else if(!data->set.connect_only &&
+  లేకపోతే ఒకవేళ(!దత్తాంశం->సమితి.connect_only &&
           ((!imap->custom && (imap->uid || imap->mindex)) ||
-           (imap->custom && data->req.maxdownload > 0) ||
-           data->state.upload || IS_MIME_POST(data))) {
+           (imap->custom && దత్తాంశం->req.maxdownload > 0) ||
+           దత్తాంశం->state.upload || IS_MIME_POST(దత్తాంశం))) {
     /* Handle responses after FETCH or APPEND transfer has finished.
        For custom commands, check if we set up a download which indicates
        a FETCH-like command with literal data. */
 
-    if(!data->state.upload && !IS_MIME_POST(data))
-      imap_state(data, imapc, IMAP_FETCH_FINAL);
-    else {
+    ఒకవేళ(!దత్తాంశం->state.upload && !IS_MIME_POST(దత్తాంశం))
+      imap_state(దత్తాంశం, imapc, IMAP_FETCH_FINAL);
+    లేకపోతే {
       /* End the APPEND command first by sending an empty line */
-      result = Curl_pp_sendf(data, &imapc->pp, "%s", "");
-      if(!result)
-        imap_state(data, imapc, IMAP_APPEND_FINAL);
+      ఫలితం = Curl_pp_sendf(దత్తాంశం, &imapc->pp, "%s", "");
+      ఒకవేళ(!ఫలితం)
+        imap_state(దత్తాంశం, imapc, IMAP_APPEND_FINAL);
     }
 
     /* Run the state-machine */
-    if(!result)
-      result = imap_block_statemach(data, imapc, FALSE);
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = imap_ఖండం_statemach(దత్తాంశం, imapc, FALSE);
   }
 
   imap_easy_reset(imap);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -2030,84 +2030,84 @@ static CURLcode imap_done(struct Curl_easy *data, CURLcode status,
  * This is the actual DO function for IMAP. Fetch or append a message, or do
  * other things according to the options previously setup.
  */
-static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
-                             bool *dophase_done)
+స్థిర CURLcode imap_perform(నిర్మాణం Curl_easy *దత్తాంశం, bool *connected,
+                             bool *dophase_పూర్తి)
 {
   /* This is IMAP and no proxy */
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  నిర్మాణం IMAP *imap = Curl_meta_get(దత్తాంశం, CURL_META_IMAP_EASY);
   bool selected = FALSE;
 
-  DEBUGF(infof(data, "DO phase starts"));
-  if(!imapc || !imap)
-    return CURLE_FAILED_INIT;
+  DEBUGF(infof(దత్తాంశం, "DO phase starts"));
+  ఒకవేళ(!imapc || !imap)
+    తిరిగి CURLE_FAILED_INIT;
 
-  if(data->req.no_body) {
+  ఒకవేళ(దత్తాంశం->req.no_body) {
     /* Requested no body means no transfer */
     imap->transfer = PPTRANSFER_INFO;
   }
 
-  *dophase_done = FALSE; /* not done yet */
+  *dophase_పూర్తి = FALSE; /* not done yet */
 
   /* Determine if the requested mailbox (with the same UIDVALIDITY if set)
      has already been selected on this connection */
-  if(imap->mailbox && imapc->mailbox &&
+  ఒకవేళ(imap->mailbox && imapc->mailbox &&
      (!strcmp(imap->mailbox, imapc->mailbox) ||
       (curl_strequal(imap->mailbox, "INBOX") &&
        curl_strequal(imapc->mailbox, "INBOX"))) &&
-     (!imap->uidvalidity_set || !imapc->mb_uidvalidity_set ||
+     (!imap->uidvalidity_సమితి || !imapc->mb_uidvalidity_సమితి ||
       (imap->uidvalidity == imapc->mb_uidvalidity)))
     selected = TRUE;
 
   /* Start the first command in the DO phase */
-  if(data->state.upload || IS_MIME_POST(data))
+  ఒకవేళ(దత్తాంశం->state.upload || IS_MIME_POST(దత్తాంశం))
     /* APPEND can be executed directly */
-    result = imap_perform_append(data, imapc, imap);
-  else if(imap->custom && (selected || !imap->mailbox))
+    ఫలితం = imap_perform_append(దత్తాంశం, imapc, imap);
+  లేకపోతే ఒకవేళ(imap->custom && (selected || !imap->mailbox))
     /* Custom command using the same mailbox or no mailbox */
-    result = imap_perform_list(data, imapc, imap);
-  else if(!imap->custom && selected && (imap->uid || imap->mindex))
+    ఫలితం = imap_perform_list(దత్తాంశం, imapc, imap);
+  లేకపోతే ఒకవేళ(!imap->custom && selected && (imap->uid || imap->mindex))
     /* FETCH from the same mailbox */
-    result = imap_perform_fetch(data, imapc, imap);
-  else if(!imap->custom && selected && imap->query)
+    ఫలితం = imap_perform_fetch(దత్తాంశం, imapc, imap);
+  లేకపోతే ఒకవేళ(!imap->custom && selected && imap->query)
     /* SEARCH the current mailbox */
-    result = imap_perform_search(data, imapc, imap);
-  else if(imap->mailbox && !selected &&
+    ఫలితం = imap_perform_శోధన(దత్తాంశం, imapc, imap);
+  లేకపోతే ఒకవేళ(imap->mailbox && !selected &&
           (imap->custom || imap->uid || imap->mindex || imap->query))
     /* SELECT the mailbox */
-    result = imap_perform_select(data, imapc, imap);
-  else
+    ఫలితం = imap_perform_select(దత్తాంశం, imapc, imap);
+  లేకపోతే
     /* LIST */
-    result = imap_perform_list(data, imapc, imap);
+    ఫలితం = imap_perform_list(దత్తాంశం, imapc, imap);
 
-  if(result)
-    return result;
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* Run the state-machine */
-  result = imap_multi_statemach(data, dophase_done);
+  ఫలితం = imap_multi_statemach(దత్తాంశం, dophase_పూర్తి);
 
   *connected = Curl_conn_is_connected(conn, FIRSTSOCKET);
 
-  if(*dophase_done)
-    DEBUGF(infof(data, "DO phase is complete"));
+  ఒకవేళ(*dophase_పూర్తి)
+    DEBUGF(infof(దత్తాంశం, "DO phase is complete"));
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* Call this when the DO phase has completed */
-static CURLcode imap_dophase_done(struct Curl_easy *data,
-                                  struct IMAP *imap,
+స్థిర CURLcode imap_dophase_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం IMAP *imap,
                                   bool connected)
 {
-  (void)connected;
+  (శూన్య)connected;
 
-  if(imap->transfer != PPTRANSFER_BODY)
+  ఒకవేళ(imap->transfer != PPTRANSFER_BODY)
     /* no data to transfer */
-    Curl_xfer_setup_nop(data);
+    Curl_xfer_అమరిక_nop(దత్తాంశం);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /***********************************************************************
@@ -2119,27 +2119,27 @@ static CURLcode imap_dophase_done(struct Curl_easy *data,
  * Performs all commands done before a regular transfer between a local and a
  * remote host.
  */
-static CURLcode imap_regular_transfer(struct Curl_easy *data,
-                                      struct IMAP *imap,
-                                      bool *dophase_done)
+స్థిర CURLcode imap_regular_transfer(నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం IMAP *imap,
+                                      bool *dophase_పూర్తి)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
   bool connected = FALSE;
 
   /* Make sure size is unknown at this point */
-  data->req.size = -1;
+  దత్తాంశం->req.కొలత = -1;
 
   /* Set the progress data */
-  Curl_pgrsReset(data);
+  Curl_pgrsReset(దత్తాంశం);
 
   /* Carry out the perform */
-  result = imap_perform(data, &connected, dophase_done);
+  ఫలితం = imap_perform(దత్తాంశం, &connected, dophase_పూర్తి);
 
   /* Perform post DO phase operations if necessary */
-  if(!result && *dophase_done)
-    result = imap_dophase_done(data, imap, connected);
+  ఒకవేళ(!ఫలితం && *dophase_పూర్తి)
+    ఫలితం = imap_dophase_పూర్తి(దత్తాంశం, imap, connected);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -2151,27 +2151,27 @@ static CURLcode imap_regular_transfer(struct Curl_easy *data,
  *
  * The input argument is already checked for validity.
  */
-static CURLcode imap_do(struct Curl_easy *data, bool *done)
+స్థిర CURLcode imap_do(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
-  CURLcode result = CURLE_OK;
-  *done = FALSE; /* default to false */
+  నిర్మాణం IMAP *imap = Curl_meta_get(దత్తాంశం, CURL_META_IMAP_EASY);
+  CURLcode ఫలితం = CURLE_OK;
+  *పూర్తి = FALSE; /* default to false */
 
-  if(!imap)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!imap)
+    తిరిగి CURLE_FAILED_INIT;
   /* Parse the URL path */
-  result = imap_parse_url_path(data, imap);
-  if(result)
-    return result;
+  ఫలితం = imap_parse_url_మార్గం(దత్తాంశం, imap);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* Parse the custom request */
-  result = imap_parse_custom_request(data, imap);
-  if(result)
-    return result;
+  ఫలితం = imap_parse_custom_request(దత్తాంశం, imap);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  result = imap_regular_transfer(data, imap, done);
+  ఫలితం = imap_regular_transfer(దత్తాంశం, imap, పూర్తి);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /***********************************************************************
@@ -2181,71 +2181,71 @@ static CURLcode imap_do(struct Curl_easy *data, bool *done)
  * Disconnect from an IMAP server. Cleanup protocol-specific per-connection
  * resources. BLOCKING.
  */
-static CURLcode imap_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn, bool dead_connection)
+స్థిర CURLcode imap_disconnect(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం connectdata *conn, bool dead_connection)
 {
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  నిర్మాణం imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
 
-  if(imapc &&
+  ఒకవేళ(imapc &&
      /* We cannot send quit unconditionally. If this connection is stale or
         bad in any way (pingpong has pending data to send),
         sending quit and waiting around here will make the
         disconnect wait in vain and cause more problems than we need to. */
-     !dead_connection && conn->bits.protoconnstart &&
-     !Curl_pp_needs_flush(data, &imapc->pp) &&
-     !imap_perform_logout(data, imapc))
-    (void)imap_block_statemach(data, imapc, TRUE); /* ignore errors */
+     !dead_connection && conn->బిట్లు.protoconnstart &&
+     !Curl_pp_needs_flush(దత్తాంశం, &imapc->pp) &&
+     !imap_perform_logout(దత్తాంశం, imapc))
+    (శూన్య)imap_ఖండం_statemach(దత్తాంశం, imapc, TRUE); /* ignore errors */
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* Called from multi.c while DOing */
-static CURLcode imap_doing(struct Curl_easy *data, bool *dophase_done)
+స్థిర CURLcode imap_doing(నిర్మాణం Curl_easy *దత్తాంశం, bool *dophase_పూర్తి)
 {
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
-  CURLcode result;
+  నిర్మాణం IMAP *imap = Curl_meta_get(దత్తాంశం, CURL_META_IMAP_EASY);
+  CURLcode ఫలితం;
 
-  if(!imap)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!imap)
+    తిరిగి CURLE_FAILED_INIT;
 
-  result = imap_multi_statemach(data, dophase_done);
-  if(result)
-    DEBUGF(infof(data, "DO phase failed"));
-  else if(*dophase_done) {
-    result = imap_dophase_done(data, imap, FALSE /* not connected */);
+  ఫలితం = imap_multi_statemach(దత్తాంశం, dophase_పూర్తి);
+  ఒకవేళ(ఫలితం)
+    DEBUGF(infof(దత్తాంశం, "DO phase failed"));
+  లేకపోతే ఒకవేళ(*dophase_పూర్తి) {
+    ఫలితం = imap_dophase_పూర్తి(దత్తాంశం, imap, FALSE /* not connected */);
 
-    DEBUGF(infof(data, "DO phase is complete"));
+    DEBUGF(infof(దత్తాంశం, "DO phase is complete"));
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static void imap_easy_dtor(const void *key, size_t klen, void *entry)
+స్థిర శూన్య imap_easy_dtor(స్థిరరాశి శూన్య *కీలకం, size_t klen, శూన్య *నమోదు_2)
 {
-  struct IMAP *imap = entry;
-  (void)key;
-  (void)klen;
+  నిర్మాణం IMAP *imap = నమోదు_2;
+  (శూన్య)కీలకం;
+  (శూన్య)klen;
   imap_easy_reset(imap);
   curlx_free(imap);
 }
 
-static void imap_conn_dtor(const void *key, size_t klen, void *entry)
+స్థిర శూన్య imap_conn_dtor(స్థిరరాశి శూన్య *కీలకం, size_t klen, శూన్య *నమోదు_2)
 {
-  struct imap_conn *imapc = entry;
-  (void)key;
-  (void)klen;
+  నిర్మాణం imap_conn *imapc = నమోదు_2;
+  (శూన్య)కీలకం;
+  (శూన్య)klen;
   Curl_pp_disconnect(&imapc->pp);
   curlx_safefree(imapc->mailbox);
   curlx_free(imapc);
 }
 
 /* SASL parameters for the imap protocol */
-static const struct SASLproto saslimap = {
+స్థిర స్థిరరాశి నిర్మాణం SASLproto saslimap = {
   "imap",                     /* The service name */
   imap_perform_authenticate,  /* Send authentication command */
   imap_continue_authenticate, /* Send authentication continuation */
   imap_cancel_authenticate,   /* Send authentication cancellation */
-  imap_get_message,           /* Get SASL response message */
+  imap_get_సందేశం,           /* Get SASL response message */
   0,                          /* No maximum initial response length */
   '+',                        /* Code received when continuation is expected */
   IMAP_RESP_OK,               /* Code to receive upon authentication success */
@@ -2253,44 +2253,44 @@ static const struct SASLproto saslimap = {
   SASL_FLAG_BASE64            /* Configuration flags */
 };
 
-static CURLcode imap_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+స్థిర CURLcode imap_అమరిక_connection(నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం connectdata *conn)
 {
-  struct imap_conn *imapc;
-  struct pingpong *pp;
-  struct IMAP *imap;
+  నిర్మాణం imap_conn *imapc;
+  నిర్మాణం pingpong *pp;
+  నిర్మాణం IMAP *imap;
 
-  imapc = curlx_calloc(1, sizeof(*imapc));
-  if(!imapc)
-    return CURLE_OUT_OF_MEMORY;
+  imapc = curlx_calloc(1, పరిమాణం(*imapc));
+  ఒకవేళ(!imapc)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   pp = &imapc->pp;
-  PINGPONG_SETUP(pp, imap_pp_statemachine, imap_endofresp);
+  PINGPONG_అమరిక(pp, imap_pp_statemachine, imap_endofresp);
 
   /* Set the default preferred authentication type and mechanism */
   imapc->preftype = IMAP_TYPE_ANY;
-  Curl_sasl_init(&imapc->sasl, data, &saslimap);
+  Curl_sasl_init(&imapc->sasl, దత్తాంశం, &saslimap);
 
-  Curl_pp_init(pp, Curl_pgrs_now(data));
+  Curl_pp_init(pp, Curl_pgrs_now(దత్తాంశం));
 
-  if(Curl_conn_meta_set(conn, CURL_META_IMAP_CONN, imapc, imap_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(Curl_conn_meta_సమితి(conn, CURL_META_IMAP_CONN, imapc, imap_conn_dtor))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  imap = curlx_calloc(1, sizeof(struct IMAP));
-  if(!imap ||
-     Curl_meta_set(data, CURL_META_IMAP_EASY, imap, imap_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  imap = curlx_calloc(1, పరిమాణం(నిర్మాణం IMAP));
+  ఒకవేళ(!imap ||
+     Curl_meta_సమితి(దత్తాంశం, CURL_META_IMAP_EASY, imap, imap_easy_dtor))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
  * IMAP protocol.
  */
-const struct Curl_protocol Curl_protocol_imap = {
-  imap_setup_connection,            /* setup_connection */
+స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_imap = {
+  imap_అమరిక_connection,            /* setup_connection */
   imap_do,                          /* do_it */
-  imap_done,                        /* done */
+  imap_పూర్తి,                        /* done */
   ZERO_NULL,                        /* do_more */
   imap_connect,                     /* connect_it */
   imap_multi_statemach,             /* connecting */
@@ -2307,4 +2307,4 @@ const struct Curl_protocol Curl_protocol_imap = {
   ZERO_NULL,                        /* follow */
 };
 
-#endif /* CURL_DISABLE_IMAP */
+#అయితే_ముగింపు /* CURL_DISABLE_IMAP */

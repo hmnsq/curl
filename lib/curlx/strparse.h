@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRPARSE_H
-#define HEADER_CURL_STRPARSE_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_STRPARSE_H
+#నిర్వచించు శీర్షిక_CURL_STRPARSE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,91 +23,91 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#define STRE_OK       0
-#define STRE_BIG      1
-#define STRE_SHORT    2
-#define STRE_BEGQUOTE 3
-#define STRE_ENDQUOTE 4
-#define STRE_BYTE     5
-#define STRE_NEWLINE  6
-#define STRE_OVERFLOW 7
-#define STRE_NO_NUM   8
+#నిర్వచించు STRE_OK       0
+#నిర్వచించు STRE_BIG      1
+#నిర్వచించు STRE_SHORT    2
+#నిర్వచించు STRE_BEGQUOTE 3
+#నిర్వచించు STRE_ENDQUOTE 4
+#నిర్వచించు STRE_BYTE     5
+#నిర్వచించు STRE_NEWLINE  6
+#నిర్వచించు STRE_అధికప్రవాహం 7
+#నిర్వచించు STRE_NO_అంకె   8
 
 /* public struct, but all accesses should be done using the provided
    functions */
-struct Curl_str {
-  const char *str;
+నిర్మాణం Curl_str {
+  స్థిరరాశి అక్షరం *str;
   size_t len;
 };
 
-void curlx_str_init(struct Curl_str *out);
-void curlx_str_assign(struct Curl_str *out, const char *str, size_t len);
-void curlx_str_trim(struct Curl_str *out, size_t len);
+శూన్య curlx_str_init(నిర్మాణం Curl_str *బహిర్గతం);
+శూన్య curlx_str_కేటాయించు(నిర్మాణం Curl_str *బహిర్గతం, స్థిరరాశి అక్షరం *str, size_t len);
+శూన్య curlx_str_trim(నిర్మాణం Curl_str *బహిర్గతం, size_t len);
 
-#define curlx_str(x)    ((x)->str)
-#define curlx_strlen(x) ((x)->len)
+#నిర్వచించు curlx_str(x)    ((x)->str)
+#నిర్వచించు curlx_strlen(x) ((x)->len)
 
 /* Get a word until the first space
    return non-zero on error */
-int curlx_str_word(const char **linep, struct Curl_str *out, const size_t max);
+పూర్ణాంకం curlx_str_మాట(స్థిరరాశి అక్షరం **linep, నిర్మాణం Curl_str *బహిర్గతం, స్థిరరాశి size_t max);
 
 /* Get a word until the first DELIM or end of string
    return non-zero on error */
-int curlx_str_until(const char **linep, struct Curl_str *out, const size_t max,
-                    char delim);
+పూర్ణాంకం curlx_str_until(స్థిరరాశి అక్షరం **linep, నిర్మాణం Curl_str *బహిర్గతం, స్థిరరాశి size_t max,
+                    అక్షరం delim);
 
 /* Get a word until a newline byte or end of string. At least one byte long.
    return non-zero on error */
-int curlx_str_untilnl(const char **linep, struct Curl_str *out,
-                      const size_t max);
+పూర్ణాంకం curlx_str_untilnl(స్థిరరాశి అక్షరం **linep, నిర్మాణం Curl_str *బహిర్గతం,
+                      స్థిరరాశి size_t max);
 
 /* Get a "quoted" word. Escaped quotes are supported.
    return non-zero on error */
-int curlx_str_quotedword(const char **linep, struct Curl_str *out,
-                         const size_t max);
+పూర్ణాంకం curlx_str_quotedword(స్థిరరాశి అక్షరం **linep, నిర్మాణం Curl_str *బహిర్గతం,
+                         స్థిరరాశి size_t max);
 
 /* Advance over a single character.
    return non-zero on error */
-int curlx_str_single(const char **linep, char byte);
+పూర్ణాంకం curlx_str_single(స్థిరరాశి అక్షరం **linep, అక్షరం byte);
 
 /* Advance over a single space.
    return non-zero on error */
-int curlx_str_singlespace(const char **linep);
+పూర్ణాంకం curlx_str_singlespace(స్థిరరాశి అక్షరం **linep);
 
 /* Get an unsigned decimal number. Return non-zero on error */
-int curlx_str_number(const char **linep, curl_off_t *nump, curl_off_t max);
+పూర్ణాంకం curlx_str_సంఖ్య(స్థిరరాశి అక్షరం **linep, curl_off_t *nump, curl_off_t max);
 
 /* As above with CURL_OFF_T_MAX but also pass leading blanks */
-int curlx_str_numblanks(const char **str, curl_off_t *num);
+పూర్ణాంకం curlx_str_numblanks(స్థిరరాశి అక్షరం **str, curl_off_t *అంకె);
 
 /* Get an unsigned hexadecimal number. Return non-zero on error */
-int curlx_str_hex(const char **linep, curl_off_t *nump, curl_off_t max);
+పూర్ణాంకం curlx_str_hex(స్థిరరాశి అక్షరం **linep, curl_off_t *nump, curl_off_t max);
 
 /* Get an unsigned octal number. Return non-zero on error */
-int curlx_str_octal(const char **linep, curl_off_t *nump, curl_off_t max);
+పూర్ణాంకం curlx_str_octal(స్థిరరాశి అక్షరం **linep, curl_off_t *nump, curl_off_t max);
 
 /* Check for CR or LF
    return non-zero on error */
-int curlx_str_newline(const char **linep);
+పూర్ణాంకం curlx_str_newline(స్థిరరాశి అక్షరం **linep);
 
 /* case insensitive compare that the parsed string matches the
    given string. */
-int curlx_str_casecompare(struct Curl_str *str, const char *check);
-int curlx_str_cmp(struct Curl_str *str, const char *check);
+పూర్ణాంకం curlx_str_casecompare(నిర్మాణం Curl_str *str, స్థిరరాశి అక్షరం *check);
+పూర్ణాంకం curlx_str_cmp(నిర్మాణం Curl_str *str, స్థిరరాశి అక్షరం *check);
 
-int curlx_str_nudge(struct Curl_str *str, size_t num);
+పూర్ణాంకం curlx_str_nudge(నిర్మాణం Curl_str *str, size_t అంకె);
 
-int curlx_str_cspn(const char **linep, struct Curl_str *out,
-                   const char *reject);
-void curlx_str_trimblanks(struct Curl_str *out);
-void curlx_str_passblanks(const char **linep);
+పూర్ణాంకం curlx_str_cspn(స్థిరరాశి అక్షరం **linep, నిర్మాణం Curl_str *బహిర్గతం,
+                   స్థిరరాశి అక్షరం *reject);
+శూన్య curlx_str_trimblanks(నిర్మాణం Curl_str *బహిర్గతం);
+శూన్య curlx_str_passblanks(స్థిరరాశి అక్షరం **linep);
 
 /* given a hexadecimal letter, return the binary value. '0' returns 0, 'a'
    returns 10. THIS ONLY WORKS ON VALID HEXADECIMAL LETTER INPUT. Verify
    before calling this. */
-extern const unsigned char curlx_hexasciitable[];
-#define curlx_hexval(x) (unsigned char)(curlx_hexasciitable[(x) - '0'] & 0x0f)
+బాహ్య స్థిరరాశి గుర్తులేని అక్షరం curlx_hexasciitable[];
+#నిర్వచించు curlx_hexval(x) (గుర్తులేని అక్షరం)(curlx_hexasciitable[(x) - '0'] & 0x0f)
 
-#endif /* HEADER_CURL_STRPARSE_H */
+#అయితే_ముగింపు /* HEADER_CURL_STRPARSE_H */

@@ -21,35 +21,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETINET_IN6_H
+#అన్తర్భావ <netinet/in6.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_SYS_UN_H
+#అన్తర్భావ <sys/un.h>
+#అయితే_ముగింపు
 
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#నిర్వచితమైతే __VMS
+#అన్తర్భావ <in.h>
+#అన్తర్భావ <inet.h>
+#అయితే_ముగింపు
 
-#include <stddef.h>  /* for offsetof() */
+#అన్తర్భావ <stddef.h>  /* for offsetof() */
 
-#include "curl_addrinfo.h"
-#include "fake_addrinfo.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "curl_addrinfo.h"
+#అన్తర్భావ "fake_addrinfo.h"
+#అన్తర్భావ "curlx/inet_pton.h"
+#అన్తర్భావ "curlx/strparse.h"
 
 /*
  * Curl_freeaddrinfo()
@@ -60,41 +60,41 @@
  * any function call which actually allocates a Curl_addrinfo struct.
  */
 
-#if defined(__INTEL_COMPILER) && (__INTEL_COMPILER == 910) &&     \
+#ఒకవేళ defined(__INTEL_COMPILER) && (__INTEL_COMPILER == 910) &&     \
   defined(__OPTIMIZE__) && defined(__unix__) && defined(__i386__)
   /* workaround icc 9.1 optimizer issue */
-#  define vqualifier volatile
-#else
+#  define vqualifier అస్థిర
+#లేకపోతే
 #  define vqualifier
-#endif
+#అయితే_ముగింపు
 
-void Curl_freeaddrinfo(struct Curl_addrinfo *cahead)
+శూన్య Curl_freeaddrinfo(నిర్మాణం Curl_addrinfo *cahead)
 {
-  struct Curl_addrinfo *vqualifier canext;
-  struct Curl_addrinfo *ca;
+  నిర్మాణం Curl_addrinfo *vqualifier canext;
+  నిర్మాణం Curl_addrinfo *ca;
 
-  for(ca = cahead; ca; ca = canext) {
-    canext = ca->ai_next;
+  కొరకు(ca = cahead; ca; ca = canext) {
+    canext = ca->ai_తదుపరి;
     curlx_free(ca);
   }
 }
 
-struct Curl_addrinfo *Curl_addrinfo_get(struct Curl_addrinfo *ai,
-                                        int ai_family,
-                                        unsigned int n)
+నిర్మాణం Curl_addrinfo *Curl_addrinfo_get(నిర్మాణం Curl_addrinfo *ai,
+                                        పూర్ణాంకం ai_family,
+                                        గుర్తులేని పూర్ణాంకం n)
 {
-  unsigned int i;
-  for(i = 0; ai; ai = ai->ai_next) {
-    if(ai->ai_family == ai_family) {
-      if(i == n)
-        return ai;
+  గుర్తులేని పూర్ణాంకం i;
+  కొరకు(i = 0; ai; ai = ai->ai_తదుపరి) {
+    ఒకవేళ(ai->ai_family == ai_family) {
+      ఒకవేళ(i == n)
+        తిరిగి ai;
       ++i;
     }
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-#ifdef HAVE_GETADDRINFO
+#నిర్వచితమైతే HAVE_GETADDRINFO
 /*
  * Curl_getaddrinfo_ex()
  *
@@ -108,52 +108,52 @@ struct Curl_addrinfo *Curl_addrinfo_get(struct Curl_addrinfo *ai,
  * There should be no single call to system's getaddrinfo() in the
  * whole library, any such call should be 'routed' through this one.
  */
-int Curl_getaddrinfo_ex(const char *nodename,
-                        const char *servname,
-                        const struct addrinfo *hints,
-                        struct Curl_addrinfo **result)
+పూర్ణాంకం Curl_getaddrinfo_ex(స్థిరరాశి అక్షరం *nodename,
+                        స్థిరరాశి అక్షరం *servname,
+                        స్థిరరాశి నిర్మాణం addrinfo *hints,
+                        నిర్మాణం Curl_addrinfo **ఫలితం)
 {
-  const struct addrinfo *ai;
-  struct addrinfo *aihead;
-  struct Curl_addrinfo *cafirst = NULL;
-  struct Curl_addrinfo *calast = NULL;
-  struct Curl_addrinfo *ca;
-  size_t ss_size;
-  int error;
+  స్థిరరాశి నిర్మాణం addrinfo *ai;
+  నిర్మాణం addrinfo *aihead;
+  నిర్మాణం Curl_addrinfo *cafirst = ఖాళీ;
+  నిర్మాణం Curl_addrinfo *calast = ఖాళీ;
+  నిర్మాణం Curl_addrinfo *ca;
+  size_t ss_కొలత;
+  పూర్ణాంకం error;
 
-  *result = NULL; /* assume failure */
+  *ఫలితం = ఖాళీ; /* assume failure */
 
   error = CURL_GETADDRINFO(nodename, servname, hints, &aihead);
-  if(error)
-    return error;
+  ఒకవేళ(error)
+    తిరిగి error;
 
   /* traverse the addrinfo list */
 
-  for(ai = aihead; ai; ai = ai->ai_next) {
-    size_t namelen = ai->ai_canonname ? strlen(ai->ai_canonname) + 1 : 0;
+  కొరకు(ai = aihead; ai; ai = ai->ai_తదుపరి) {
+    size_t namelen = ai->ai_canonname ? అక్షరశ్రేణి_పొడవు(ai->ai_canonname) + 1 : 0;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
-      ss_size = sizeof(struct sockaddr_in);
-#ifdef USE_IPV6
-    else if(ai->ai_family == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
-#endif
-    else
-      continue;
+    ఒకవేళ(ai->ai_family == AF_INET)
+      ss_కొలత = పరిమాణం(నిర్మాణం sockaddr_in);
+#నిర్వచితమైతే USE_IPV6
+    లేకపోతే ఒకవేళ(ai->ai_family == AF_INET6)
+      ss_కొలత = పరిమాణం(నిర్మాణం sockaddr_in6);
+#అయితే_ముగింపు
+    లేకపోతే
+      కొనసాగు;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
-      continue;
+    ఒకవేళ(!ai->ai_addr || !(ai->ai_addrlen > 0))
+      కొనసాగు;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
-      continue;
+    ఒకవేళ((size_t)ai->ai_addrlen < ss_కొలత)
+      కొనసాగు;
 
-    ca = curlx_malloc(sizeof(struct Curl_addrinfo) + ss_size + namelen);
-    if(!ca) {
+    ca = curlx_malloc(పరిమాణం(నిర్మాణం Curl_addrinfo) + ss_కొలత + namelen);
+    ఒకవేళ(!ca) {
       error = EAI_MEMORY;
-      break;
+      ఆపు;
     }
 
     /* copy each structure member individually, member ordering,
@@ -163,57 +163,57 @@ int Curl_getaddrinfo_ex(const char *nodename,
     ca->ai_family    = ai->ai_family;
     ca->ai_socktype  = ai->ai_socktype;
     ca->ai_protocol  = ai->ai_protocol;
-    ca->ai_addrlen   = (curl_socklen_t)ss_size;
-    ca->ai_addr      = NULL;
-    ca->ai_canonname = NULL;
-    ca->ai_next      = NULL;
+    ca->ai_addrlen   = (curl_socklen_t)ss_కొలత;
+    ca->ai_addr      = ఖాళీ;
+    ca->ai_canonname = ఖాళీ;
+    ca->ai_తదుపరి      = ఖాళీ;
 
-    ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
-    memcpy(ca->ai_addr, ai->ai_addr, ss_size);
+    ca->ai_addr = (శూన్య *)((అక్షరం *)ca + పరిమాణం(నిర్మాణం Curl_addrinfo));
+    జ్ఞాపకం_నకలు(ca->ai_addr, ai->ai_addr, ss_కొలత);
 
-    if(namelen) {
-      ca->ai_canonname = (void *)((char *)ca->ai_addr + ss_size);
-      memcpy(ca->ai_canonname, ai->ai_canonname, namelen);
+    ఒకవేళ(namelen) {
+      ca->ai_canonname = (శూన్య *)((అక్షరం *)ca->ai_addr + ss_కొలత);
+      జ్ఞాపకం_నకలు(ca->ai_canonname, ai->ai_canonname, namelen);
     }
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    ఒకవేళ(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
-      calast->ai_next = ca;
+    ఒకవేళ(calast)
+      calast->ai_తదుపరి = ca;
     calast = ca;
   }
 
   /* destroy the addrinfo list */
-  if(aihead)
+  ఒకవేళ(aihead)
     CURL_FREEADDRINFO(aihead);
 
   /* if we failed, also destroy the Curl_addrinfo list */
-  if(error) {
+  ఒకవేళ(error) {
     Curl_freeaddrinfo(cafirst);
-    cafirst = NULL;
+    cafirst = ఖాళీ;
   }
-  else if(!cafirst) {
-#ifdef EAI_NONAME
+  లేకపోతే ఒకవేళ(!cafirst) {
+#నిర్వచితమైతే EAI_NONAME
     /* rfc3493 conformant */
     error = EAI_NONAME;
-#else
+#లేకపోతే
     /* rfc3493 obsoleted */
     error = EAI_NODATA;
-#endif
-#ifdef USE_WINSOCK
-    SET_SOCKERRNO(error);
-#endif
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_WINSOCK
+    సమితి_SOCKERRNO(error);
+#అయితే_ముగింపు
   }
 
-  *result = cafirst;
+  *ఫలితం = cafirst;
 
   /* This is not a CURLcode */
-  return error;
+  తిరిగి error;
 }
-#endif /* HAVE_GETADDRINFO */
+#అయితే_ముగింపు /* HAVE_GETADDRINFO */
 
 /*
  * Curl_he2ai()
@@ -254,55 +254,55 @@ int Curl_getaddrinfo_ex(const char *nodename,
  *
  *     #define h_addr  h_addr_list[0]
  */
-#if !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
-struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port)
+#ఒకవేళ !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
+నిర్మాణం Curl_addrinfo *Curl_he2ai(స్థిరరాశి నిర్మాణం hostent *he, పూర్ణాంకం పోర్టు)
 {
-  struct Curl_addrinfo *ai;
-  struct Curl_addrinfo *prevai = NULL;
-  struct Curl_addrinfo *firstai = NULL;
-  struct sockaddr_in *addr;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
-#endif
-  CURLcode result = CURLE_OK;
-  int i;
-  char *curr;
+  నిర్మాణం Curl_addrinfo *ai;
+  నిర్మాణం Curl_addrinfo *prevai = ఖాళీ;
+  నిర్మాణం Curl_addrinfo *firstai = ఖాళీ;
+  నిర్మాణం sockaddr_in *addr;
+#నిర్వచితమైతే USE_IPV6
+  నిర్మాణం sockaddr_in6 *addr6;
+#అయితే_ముగింపు
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం i;
+  అక్షరం *curr;
 
-  if(!he)
+  ఒకవేళ(!he)
     /* no input == no output! */
-    return NULL;
+    తిరిగి ఖాళీ;
 
   DEBUGASSERT(he->h_name && he->h_addr_list);
 
-  for(i = 0; (curr = he->h_addr_list[i]) != NULL; i++) {
-    size_t ss_size;
-    size_t namelen = strlen(he->h_name) + 1; /* include null-terminator */
-#ifdef USE_IPV6
-    if(he->h_addrtype == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
-    else
-#endif
-      ss_size = sizeof(struct sockaddr_in);
+  కొరకు(i = 0; (curr = he->h_addr_list[i]) != ఖాళీ; i++) {
+    size_t ss_కొలత;
+    size_t namelen = అక్షరశ్రేణి_పొడవు(he->h_name) + 1; /* include null-terminator */
+#నిర్వచితమైతే USE_IPV6
+    ఒకవేళ(he->h_addrtype == AF_INET6)
+      ss_కొలత = పరిమాణం(నిర్మాణం sockaddr_in6);
+    లేకపోతే
+#అయితే_ముగింపు
+      ss_కొలత = పరిమాణం(నిర్మాణం sockaddr_in);
 
     /* allocate memory to hold the struct, the address and the name */
-    ai = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + namelen);
-    if(!ai) {
-      result = CURLE_OUT_OF_MEMORY;
-      break;
+    ai = curlx_calloc(1, పరిమాణం(నిర్మాణం Curl_addrinfo) + ss_కొలత + namelen);
+    ఒకవేళ(!ai) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      ఆపు;
     }
     /* put the address after the struct */
-    ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
+    ai->ai_addr = (శూన్య *)((అక్షరం *)ai + పరిమాణం(నిర్మాణం Curl_addrinfo));
     /* then put the name after the address */
-    ai->ai_canonname = (char *)ai->ai_addr + ss_size;
-    memcpy(ai->ai_canonname, he->h_name, namelen);
+    ai->ai_canonname = (అక్షరం *)ai->ai_addr + ss_కొలత;
+    జ్ఞాపకం_నకలు(ai->ai_canonname, he->h_name, namelen);
 
-    if(!firstai)
+    ఒకవేళ(!firstai)
       /* store the pointer we want to return from this function */
       firstai = ai;
 
-    if(prevai)
+    ఒకవేళ(prevai)
       /* make the previous entry point to this */
-      prevai->ai_next = ai;
+      prevai->ai_తదుపరి = ai;
 
     ai->ai_family = he->h_addrtype;
 
@@ -310,41 +310,41 @@ struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port)
        the type must be ignored and conn->socktype be used instead! */
     ai->ai_socktype = SOCK_STREAM;
 
-    ai->ai_addrlen = (curl_socklen_t)ss_size;
+    ai->ai_addrlen = (curl_socklen_t)ss_కొలత;
 
     /* leave the rest of the struct filled with zero */
 
-    switch(ai->ai_family) {
-    case AF_INET:
-      addr = (void *)ai->ai_addr; /* storage area for this info */
+    ఎంపిక(ai->ai_family) {
+    స్థితి AF_INET:
+      addr = (శూన్య *)ai->ai_addr; /* storage area for this info */
 
-      memcpy(&addr->sin_addr, curr, sizeof(struct in_addr));
+      జ్ఞాపకం_నకలు(&addr->sin_addr, curr, పరిమాణం(నిర్మాణం in_addr));
       addr->sin_family = (CURL_SA_FAMILY_T)he->h_addrtype;
-      addr->sin_port = htons((unsigned short)port);
-      break;
+      addr->sin_port = htons((గుర్తులేని పొట్టి)పోర్టు);
+      ఆపు;
 
-#ifdef USE_IPV6
-    case AF_INET6:
-      addr6 = (void *)ai->ai_addr; /* storage area for this info */
+#నిర్వచితమైతే USE_IPV6
+    స్థితి AF_INET6:
+      addr6 = (శూన్య *)ai->ai_addr; /* storage area for this info */
 
-      memcpy(&addr6->sin6_addr, curr, sizeof(struct in6_addr));
+      జ్ఞాపకం_నకలు(&addr6->sin6_addr, curr, పరిమాణం(నిర్మాణం in6_addr));
       addr6->sin6_family = (CURL_SA_FAMILY_T)he->h_addrtype;
-      addr6->sin6_port = htons((unsigned short)port);
-      break;
-#endif
+      addr6->sin6_port = htons((గుర్తులేని పొట్టి)పోర్టు);
+      ఆపు;
+#అయితే_ముగింపు
     }
 
     prevai = ai;
   }
 
-  if(result) {
+  ఒకవేళ(ఫలితం) {
     Curl_freeaddrinfo(firstai);
-    firstai = NULL;
+    firstai = ఖాళీ;
   }
 
-  return firstai;
+  తిరిగి firstai;
 }
-#endif
+#అయితే_ముగింపు
 
 /*
  * ip2addr()
@@ -354,199 +354,199 @@ struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port)
  * returns a Curl_addrinfo chain filled in correctly with information for the
  * given address/host
  */
-static CURLcode ip2addr(struct Curl_addrinfo **addrp, int af,
-                        const void *inaddr, const char *hostname, int port)
+స్థిర CURLcode ip2addr(నిర్మాణం Curl_addrinfo **addrp, పూర్ణాంకం af,
+                        స్థిరరాశి శూన్య *inaddr, స్థిరరాశి అక్షరం *hostname, పూర్ణాంకం పోర్టు)
 {
-  struct Curl_addrinfo *ai;
+  నిర్మాణం Curl_addrinfo *ai;
   size_t addrsize;
   size_t namelen;
-  struct sockaddr_in *addr;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
-#endif
+  నిర్మాణం sockaddr_in *addr;
+#నిర్వచితమైతే USE_IPV6
+  నిర్మాణం sockaddr_in6 *addr6;
+#అయితే_ముగింపు
 
   DEBUGASSERT(inaddr && hostname);
 
-  namelen = strlen(hostname) + 1;
-  *addrp = NULL;
+  namelen = అక్షరశ్రేణి_పొడవు(hostname) + 1;
+  *addrp = ఖాళీ;
 
-  if(af == AF_INET)
-    addrsize = sizeof(struct sockaddr_in);
-#ifdef USE_IPV6
-  else if(af == AF_INET6)
-    addrsize = sizeof(struct sockaddr_in6);
-#endif
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(af == AF_INET)
+    addrsize = పరిమాణం(నిర్మాణం sockaddr_in);
+#నిర్వచితమైతే USE_IPV6
+  లేకపోతే ఒకవేళ(af == AF_INET6)
+    addrsize = పరిమాణం(నిర్మాణం sockaddr_in6);
+#అయితే_ముగింపు
+  లేకపోతే
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
 
   /* allocate memory to hold the struct, the address and the name */
-  ai = curlx_calloc(1, sizeof(struct Curl_addrinfo) + addrsize + namelen);
-  if(!ai)
-    return CURLE_OUT_OF_MEMORY;
+  ai = curlx_calloc(1, పరిమాణం(నిర్మాణం Curl_addrinfo) + addrsize + namelen);
+  ఒకవేళ(!ai)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   /* put the address after the struct */
-  ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
+  ai->ai_addr = (శూన్య *)((అక్షరం *)ai + పరిమాణం(నిర్మాణం Curl_addrinfo));
   /* then put the name after the address */
-  ai->ai_canonname = (char *)ai->ai_addr + addrsize;
-  memcpy(ai->ai_canonname, hostname, namelen);
+  ai->ai_canonname = (అక్షరం *)ai->ai_addr + addrsize;
+  జ్ఞాపకం_నకలు(ai->ai_canonname, hostname, namelen);
   ai->ai_family = af;
   ai->ai_socktype = SOCK_STREAM;
   ai->ai_addrlen = (curl_socklen_t)addrsize;
   /* leave the rest of the struct filled with zero */
 
-  switch(af) {
-  case AF_INET:
-    addr = (void *)ai->ai_addr; /* storage area for this info */
+  ఎంపిక(af) {
+  స్థితి AF_INET:
+    addr = (శూన్య *)ai->ai_addr; /* storage area for this info */
 
-    memcpy(&addr->sin_addr, inaddr, sizeof(struct in_addr));
+    జ్ఞాపకం_నకలు(&addr->sin_addr, inaddr, పరిమాణం(నిర్మాణం in_addr));
     addr->sin_family = (CURL_SA_FAMILY_T)af;
-    addr->sin_port = htons((unsigned short)port);
-    break;
+    addr->sin_port = htons((గుర్తులేని పొట్టి)పోర్టు);
+    ఆపు;
 
-#ifdef USE_IPV6
-  case AF_INET6:
-    addr6 = (void *)ai->ai_addr; /* storage area for this info */
+#నిర్వచితమైతే USE_IPV6
+  స్థితి AF_INET6:
+    addr6 = (శూన్య *)ai->ai_addr; /* storage area for this info */
 
-    memcpy(&addr6->sin6_addr, inaddr, sizeof(struct in6_addr));
+    జ్ఞాపకం_నకలు(&addr6->sin6_addr, inaddr, పరిమాణం(నిర్మాణం in6_addr));
     addr6->sin6_family = (CURL_SA_FAMILY_T)af;
-    addr6->sin6_port = htons((unsigned short)port);
-    break;
-#endif
+    addr6->sin6_port = htons((గుర్తులేని పొట్టి)పోర్టు);
+    ఆపు;
+#అయితే_ముగింపు
   }
   *addrp = ai;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
  * Given an IPv4 or IPv6 dotted string address, this converts it to a proper
  * allocated Curl_addrinfo struct and returns it.
  */
-CURLcode Curl_str2addr(const char *dotted, uint16_t port,
-                       struct Curl_addrinfo **addrp)
+CURLcode Curl_str2addr(స్థిరరాశి అక్షరం *dotted, uint16_t పోర్టు,
+                       నిర్మాణం Curl_addrinfo **addrp)
 {
-  struct in_addr in;
-  if(curlx_inet_pton(AF_INET, dotted, &in) > 0)
+  నిర్మాణం in_addr లోపల;
+  ఒకవేళ(curlx_inet_pton(AF_INET, dotted, &లోపల) > 0)
     /* This is a dotted IP address 123.123.123.123-style */
-    return ip2addr(addrp, AF_INET, &in, dotted, port);
-#ifdef USE_IPV6
+    తిరిగి ip2addr(addrp, AF_INET, &లోపల, dotted, పోర్టు);
+#నిర్వచితమైతే USE_IPV6
   {
-    struct in6_addr in6;
-    if(curlx_inet_pton(AF_INET6, dotted, &in6) > 0)
+    నిర్మాణం in6_addr in6;
+    ఒకవేళ(curlx_inet_pton(AF_INET6, dotted, &in6) > 0)
       /* This is a dotted IPv6 address ::1-style */
-      return ip2addr(addrp, AF_INET6, &in6, dotted, port);
+      తిరిగి ip2addr(addrp, AF_INET6, &in6, dotted, పోర్టు);
   }
-#endif
-  return CURLE_BAD_FUNCTION_ARGUMENT; /* bad input format */
+#అయితే_ముగింపు
+  తిరిగి CURLE_BAD_FUNCTION_వాదం; /* bad input format */
 }
 
-bool Curl_is_ipv4addr(const char *address)
+bool Curl_is_ipv4addr(స్థిరరాశి అక్షరం *చిరునామా)
 {
-  struct in_addr in;
-  return (curlx_inet_pton(AF_INET, address, &in) > 0);
+  నిర్మాణం in_addr లోపల;
+  తిరిగి (curlx_inet_pton(AF_INET, చిరునామా, &లోపల) > 0);
 }
 
-bool Curl_is_ipaddr(const char *address)
+bool Curl_is_ipaddr(స్థిరరాశి అక్షరం *చిరునామా)
 {
-  if(Curl_is_ipv4addr(address))
-    return TRUE;
-#ifdef USE_IPV6
+  ఒకవేళ(Curl_is_ipv4addr(చిరునామా))
+    తిరిగి TRUE;
+#నిర్వచితమైతే USE_IPV6
   {
-    struct in6_addr in6;
-    if(curlx_inet_pton(AF_INET6, address, &in6) > 0)
+    నిర్మాణం in6_addr in6;
+    ఒకవేళ(curlx_inet_pton(AF_INET6, చిరునామా, &in6) > 0)
       /* This is a dotted IPv6 address ::1-style */
-      return TRUE;
+      తిరిగి TRUE;
   }
-#endif
-  return FALSE;
+#అయితే_ముగింపు
+  తిరిగి FALSE;
 }
 
-bool Curl_looks_like_ipv6(const char *s, size_t len, bool maybe_url_encoded,
-                          struct Curl_str *host, struct Curl_str *zone)
+bool Curl_looks_like_ipv6(స్థిరరాశి అక్షరం *s, size_t len, bool maybe_url_encoded,
+                          నిర్మాణం Curl_str *host, నిర్మాణం Curl_str *zone)
 {
-  const char *zonep = NULL;
+  స్థిరరాశి అక్షరం *zonep = ఖాళీ;
   size_t i = 0, hlen = 0, zlen = 0;
 
-  if(host)
-    memset(host, 0, sizeof(*host));
-  if(zone)
-    memset(zone, 0, sizeof(*zone));
+  ఒకవేళ(host)
+    memset(host, 0, పరిమాణం(*host));
+  ఒకవేళ(zone)
+    memset(zone, 0, పరిమాణం(*zone));
 
-  for(i = 0; i < len; ++i, ++hlen) {
-    if(!s[i] || !(ISXDIGIT(s[i]) || (s[i] == ':') || (s[i] == '.')))
-      break;
+  కొరకు(i = 0; i < len; ++i, ++hlen) {
+    ఒకవేళ(!s[i] || !(ISXDIGIT(s[i]) || (s[i] == ':') || (s[i] == '.')))
+      ఆపు;
   }
 
-  if((i < len) && (s[i] == '%')) { /* address followed by a zone? */
+  ఒకవేళ((i < len) && (s[i] == '%')) { /* address followed by a zone? */
     i += 1;
-    if(maybe_url_encoded && !strncmp("25", s + i, 2))
+    ఒకవేళ(maybe_url_encoded && !అక్షరశ్రేణి_పోలిక("25", s + i, 2))
       i += 2;
     zonep = s + i;
-    for(; i < len; ++i, ++zlen) {
+    కొరకు(; i < len; ++i, ++zlen) {
       /* Allow unreserved characters as defined in RFC 3986 */
-      if(!s[i] || !(ISALPHA(s[i]) || ISXDIGIT(s[i]) || (s[i] == '-') ||
+      ఒకవేళ(!s[i] || !(ISALPHA(s[i]) || ISXDIGIT(s[i]) || (s[i] == '-') ||
                     (s[i] == '.') || (s[i] == '_') || (s[i] == '~')))
-        break;
+        ఆపు;
     }
   }
 
-  if(i != len)
-    return FALSE; /* invalid chars in zone */
-  if(host && hlen) {
+  ఒకవేళ(i != len)
+    తిరిగి FALSE; /* invalid chars in zone */
+  ఒకవేళ(host && hlen) {
     host->str = s;
     host->len = hlen;
   }
-  if(zone && zlen) {
+  ఒకవేళ(zone && zlen) {
     zone->str = zonep;
     zone->len = zlen;
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-#ifdef USE_UNIX_SOCKETS
+#నిర్వచితమైతే USE_UNIX_SOCKETS
 /**
  * Given a path to a Unix domain socket, return a newly allocated Curl_addrinfo
  * struct initialized with this path.
  * Returns CURLE_TOO_LARGE when path is too long.
  */
-CURLcode Curl_unix2addr(const char *path, bool abstract,
-                        struct Curl_addrinfo **paddr)
+CURLcode Curl_unix2addr(స్థిరరాశి అక్షరం *మార్గం, bool abstract,
+                        నిర్మాణం Curl_addrinfo **paddr)
 {
-  struct Curl_addrinfo *ai;
-  struct sockaddr_un *sa_un;
-  size_t path_len;
+  నిర్మాణం Curl_addrinfo *ai;
+  నిర్మాణం sockaddr_un *sa_un;
+  size_t మార్గం_len;
 
-  *paddr = NULL;
+  *paddr = ఖాళీ;
 
   /* sun_path must be able to store the null-terminated path */
-  path_len = strlen(path) + 1;
-  if(path_len > sizeof(sa_un->sun_path))
-    return CURLE_TOO_LARGE;
+  మార్గం_len = అక్షరశ్రేణి_పొడవు(మార్గం) + 1;
+  ఒకవేళ(మార్గం_len > పరిమాణం(sa_un->sun_మార్గం))
+    తిరిగి CURLE_TOO_LARGE;
 
   ai = curlx_calloc(1,
-                    sizeof(struct Curl_addrinfo) + sizeof(struct sockaddr_un));
-  if(!ai)
-    return CURLE_OUT_OF_MEMORY;
+                    పరిమాణం(నిర్మాణం Curl_addrinfo) + పరిమాణం(నిర్మాణం sockaddr_un));
+  ఒకవేళ(!ai)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
-  sa_un = (void *)ai->ai_addr;
+  ai->ai_addr = (శూన్య *)((అక్షరం *)ai + పరిమాణం(నిర్మాణం Curl_addrinfo));
+  sa_un = (శూన్య *)ai->ai_addr;
   sa_un->sun_family = AF_UNIX;
 
   ai->ai_family = AF_UNIX;
   ai->ai_socktype = SOCK_STREAM; /* assume reliable transport for HTTP */
   ai->ai_addrlen = (curl_socklen_t)
-    ((offsetof(struct sockaddr_un, sun_path) + path_len) & 0x7FFFFFFF);
+    ((offsetof(నిర్మాణం sockaddr_un, sun_మార్గం) + మార్గం_len) & 0x7FFFFFFF);
 
   /* Abstract Unix domain socket have NULL prefix instead of suffix */
-  if(abstract)
-    memcpy(sa_un->sun_path + 1, path, path_len - 1);
-  else
-    memcpy(sa_un->sun_path, path, path_len); /* copy NUL byte */
+  ఒకవేళ(abstract)
+    జ్ఞాపకం_నకలు(sa_un->sun_మార్గం + 1, మార్గం, మార్గం_len - 1);
+  లేకపోతే
+    జ్ఞాపకం_నకలు(sa_un->sun_మార్గం, మార్గం, మార్గం_len); /* copy NUL byte */
 
   *paddr = ai;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
-#endif
+#అయితే_ముగింపు
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+#ఒకవేళ defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
   defined(HAVE_FREEADDRINFO)
 /*
  * curl_dbg_freeaddrinfo()
@@ -555,30 +555,30 @@ CURLcode Curl_unix2addr(const char *path, bool abstract,
  * family otherwise present in memdebug.c. I put these ones here since they
  * require a bunch of structs I did not want to include in memdebug.c
  */
-void curl_dbg_freeaddrinfo(struct addrinfo *freethis,
-                           int line, const char *source)
+శూన్య curl_dbg_freeaddrinfo(నిర్మాణం addrinfo *freethis,
+                           పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం)
 {
   curl_dbg_log("ADDR %s:%d freeaddrinfo(%p)\n",
-               source, line, (void *)freethis);
-#ifdef USE_LWIPSOCK
+               ఆధారం, పంక్తి, (శూన్య *)freethis);
+#నిర్వచితమైతే USE_LWIPSOCK
   lwip_freeaddrinfo(freethis);
-#elif defined(USE_FAKE_GETADDRINFO)
+#లేదావేళ defined(USE_FAKE_GETADDRINFO)
   {
-    const char *env = getenv("CURL_DNS_SERVER");
-    if(env)
+    స్థిరరాశి అక్షరం *env = getenv("CURL_DNS_SERVER");
+    ఒకవేళ(env)
       r_freeaddrinfo(freethis);
-    else
+    లేకపోతే
       /* !checksrc! disable BANNEDFUNC 1 */
       freeaddrinfo(freethis);
   }
-#else
+#లేకపోతే
   /* !checksrc! disable BANNEDFUNC 1 */
   freeaddrinfo(freethis);
-#endif
+#అయితే_ముగింపు
 }
-#endif /* CURL_MEMDEBUG && HAVE_FREEADDRINFO */
+#అయితే_ముగింపు /* CURL_MEMDEBUG && HAVE_FREEADDRINFO */
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
+#ఒకవేళ defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
 /*
  * curl_dbg_getaddrinfo()
  *
@@ -586,62 +586,62 @@ void curl_dbg_freeaddrinfo(struct addrinfo *freethis,
  * family otherwise present in memdebug.c. I put these ones here since they
  * require a bunch of structs I did not want to include in memdebug.c
  */
-int curl_dbg_getaddrinfo(const char *hostname,
-                         const char *service,
-                         const struct addrinfo *hints,
-                         struct addrinfo **result,
-                         int line, const char *source)
+పూర్ణాంకం curl_dbg_getaddrinfo(స్థిరరాశి అక్షరం *hostname,
+                         స్థిరరాశి అక్షరం *service,
+                         స్థిరరాశి నిర్మాణం addrinfo *hints,
+                         నిర్మాణం addrinfo **ఫలితం,
+                         పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *ఆధారం)
 {
-#ifdef USE_LWIPSOCK
-  int res = lwip_getaddrinfo(hostname, service, hints, result);
-#elif defined(USE_FAKE_GETADDRINFO)
-  int res;
-  const char *env = getenv("CURL_DNS_SERVER");
-  if(env)
-    res = r_getaddrinfo(hostname, service, hints, result);
-  else
+#నిర్వచితమైతే USE_LWIPSOCK
+  పూర్ణాంకం res = lwip_getaddrinfo(hostname, service, hints, ఫలితం);
+#లేదావేళ defined(USE_FAKE_GETADDRINFO)
+  పూర్ణాంకం res;
+  స్థిరరాశి అక్షరం *env = getenv("CURL_DNS_SERVER");
+  ఒకవేళ(env)
+    res = r_getaddrinfo(hostname, service, hints, ఫలితం);
+  లేకపోతే
     /* !checksrc! disable BANNEDFUNC 1 */
-    res = getaddrinfo(hostname, service, hints, result);
-#else
+    res = getaddrinfo(hostname, service, hints, ఫలితం);
+#లేకపోతే
   /* !checksrc! disable BANNEDFUNC 1 */
-  int res = getaddrinfo(hostname, service, hints, result);
-#endif
-  if(res == 0)
+  పూర్ణాంకం res = getaddrinfo(hostname, service, hints, ఫలితం);
+#అయితే_ముగింపు
+  ఒకవేళ(res == 0)
     /* success */
-    curl_dbg_log("ADDR %s:%d getaddrinfo() = %p\n", source, line,
-                 (void *)*result);
-  else
-    curl_dbg_log("ADDR %s:%d getaddrinfo() failed\n", source, line);
-  return res;
+    curl_dbg_log("ADDR %s:%d getaddrinfo() = %p\n", ఆధారం, పంక్తి,
+                 (శూన్య *)*ఫలితం);
+  లేకపోతే
+    curl_dbg_log("ADDR %s:%d getaddrinfo() failed\n", ఆధారం, పంక్తి);
+  తిరిగి res;
 }
-#endif /* CURL_MEMDEBUG && HAVE_GETADDRINFO */
+#అయితే_ముగింపు /* CURL_MEMDEBUG && HAVE_GETADDRINFO */
 
-#if defined(HAVE_GETADDRINFO) && defined(USE_RESOLVE_ON_IPS)
+#ఒకవేళ defined(HAVE_GETADDRINFO) && defined(USE_RESOLVE_ON_IPS)
 /*
  * Works around the sin6_port is always zero bug on iOS 9.3.2 and macOS
  * 10.11.5.
  */
-void Curl_addrinfo_set_port(struct Curl_addrinfo *addrinfo, int port)
+శూన్య Curl_addrinfo_సమితి_పోర్టు(నిర్మాణం Curl_addrinfo *addrinfo, పూర్ణాంకం పోర్టు)
 {
-  struct Curl_addrinfo *ca;
-  struct sockaddr_in *addr;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
-#endif
-  for(ca = addrinfo; ca; ca = ca->ai_next) {
-    switch(ca->ai_family) {
-    case AF_INET:
-      addr = (void *)ca->ai_addr; /* storage area for this info */
-      addr->sin_port = htons((unsigned short)port);
-      break;
+  నిర్మాణం Curl_addrinfo *ca;
+  నిర్మాణం sockaddr_in *addr;
+#నిర్వచితమైతే USE_IPV6
+  నిర్మాణం sockaddr_in6 *addr6;
+#అయితే_ముగింపు
+  కొరకు(ca = addrinfo; ca; ca = ca->ai_తదుపరి) {
+    ఎంపిక(ca->ai_family) {
+    స్థితి AF_INET:
+      addr = (శూన్య *)ca->ai_addr; /* storage area for this info */
+      addr->sin_port = htons((గుర్తులేని పొట్టి)పోర్టు);
+      ఆపు;
 
-#ifdef USE_IPV6
-    case AF_INET6:
-      addr6 = (void *)ca->ai_addr; /* storage area for this info */
-      addr6->sin6_port = htons((unsigned short)port);
-      break;
-#endif
+#నిర్వచితమైతే USE_IPV6
+    స్థితి AF_INET6:
+      addr6 = (శూన్య *)ca->ai_addr; /* storage area for this info */
+      addr6->sin6_port = htons((గుర్తులేని పొట్టి)పోర్టు);
+      ఆపు;
+#అయితే_ముగింపు
     }
   }
 }
-#endif
+#అయితే_ముగింపు

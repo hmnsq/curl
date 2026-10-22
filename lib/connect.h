@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONNECT_H
-#define HEADER_CURL_CONNECT_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_CONNECT_H
+#నిర్వచించు శీర్షిక_CURL_CONNECT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,23 +23,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "vdns/hostip.h"
-#include "curlx/timeval.h"
+#అన్తర్భావ "vdns/hostip.h"
+#అన్తర్భావ "curlx/timeval.h"
 
-struct Curl_peer;
-struct Curl_str;
+నిర్మాణం Curl_peer;
+నిర్మాణం Curl_str;
 
-enum alpnid Curl_alpn2alpnid(const unsigned char *name, size_t len);
+గణన alpnid Curl_alpn2alpnid(స్థిరరాశి గుర్తులేని అక్షరం *name, size_t len);
 
 /* generic function that returns how much time there is left to run, according
    to the timeouts set */
-timediff_t Curl_timeleft_ms(struct Curl_easy *data);
-timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
-                                const struct curltime *pnow);
+timediff_t Curl_timeleft_ms(నిర్మాణం Curl_easy *దత్తాంశం);
+timediff_t Curl_timeleft_now_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                                స్థిరరాశి నిర్మాణం curltime *pnow);
 
-#define DEFAULT_CONNECT_TIMEOUT 300000 /* milliseconds == five minutes */
+#నిర్వచించు DEFAULT_CONNECT_TIMEOUT 300000 /* milliseconds == five minutes */
 
 /*
  * Used to extract socket and connectdata struct for the most recent
@@ -47,8 +47,8 @@ timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
  *
  * The returned socket will be CURL_SOCKET_BAD in case of failure!
  */
-curl_socket_t Curl_getconnectinfo(struct Curl_easy *data,
-                                  struct connectdata **connp);
+curl_socket_t Curl_getconnectinfo(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం connectdata **connp);
 
 /*
  * Curl_conncontrol() manipulates the `conn->bits.close` bit on
@@ -59,25 +59,25 @@ curl_socket_t Curl_getconnectinfo(struct Curl_easy *data,
  *                          multiplexed
  * The call does *NOT* cause any immediate connection close.
  */
-#define CONNCTRL_CONN_KEEP       0
-#define CONNCTRL_CONN_CLOSE      1
-#define CONNCTRL_STREAM_CLOSE    2
+#నిర్వచించు CONNCTRL_CONN_KEEP       0
+#నిర్వచించు CONNCTRL_CONN_CLOSE      1
+#నిర్వచించు CONNCTRL_ప్రవాహం_CLOSE    2
 
-void Curl_conncontrol(struct connectdata *conn, int ctrl);
+శూన్య Curl_conncontrol(నిర్మాణం connectdata *conn, పూర్ణాంకం ctrl);
 
-#define streamclose(x) Curl_conncontrol((x), CONNCTRL_STREAM_CLOSE)
-#define connclose(x)   Curl_conncontrol((x), CONNCTRL_CONN_CLOSE)
-#define connkeep(x)    Curl_conncontrol((x), CONNCTRL_CONN_KEEP)
+#నిర్వచించు streamclose(x) Curl_conncontrol((x), CONNCTRL_ప్రవాహం_CLOSE)
+#నిర్వచించు connclose(x)   Curl_conncontrol((x), CONNCTRL_CONN_CLOSE)
+#నిర్వచించు connkeep(x)    Curl_conncontrol((x), CONNCTRL_CONN_KEEP)
 
 /**
  * Setup the cfilters at `sockindex` in connection `conn`.
  * If no filter chain is installed yet, inspects the configuration
  * in `data` and `conn` to install a suitable filter chain.
  */
-CURLcode Curl_conn_setup(struct Curl_easy *data,
-                         struct connectdata *conn,
+CURLcode Curl_conn_అమరిక(నిర్మాణం Curl_easy *దత్తాంశం,
+                         నిర్మాణం connectdata *conn,
                          int8_t sockindex,
-                         int ssl_mode);
+                         పూర్ణాంకం ssl_బహుళకం);
 
 /**
  * Bring the filter chain at `sockindex` for connection `data->conn` into
@@ -86,32 +86,32 @@ CURLcode Curl_conn_setup(struct Curl_easy *data,
  * When not `blocking`, calls may return without error and `*done != TRUE`,
  * while the individual filters negotiated the connection.
  */
-CURLcode Curl_conn_connect(struct Curl_easy *data, int8_t sockindex,
-                           bool blocking, bool *done);
+CURLcode Curl_conn_connect(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                           bool blocking, bool *పూర్తి);
 
 /**
  * The filter chain at `sockindex` failed to connect, e.g. the TLS handshake
  * timed out. Let the filters that did connect, like the TCP socket, report
  * their IP information and stats to the transfer.
  */
-void Curl_conn_report_failed(struct Curl_easy *data, int8_t sockindex);
+శూన్య Curl_conn_report_failed(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex);
 
 /* Set conn to allow multiplexing. */
-void Curl_conn_set_multiplex(struct connectdata *conn);
+శూన్య Curl_conn_సమితి_multiplex(నిర్మాణం connectdata *conn);
 
 /* Get the origin peer at sockindex. */
-struct Curl_peer *Curl_conn_get_origin(struct connectdata *conn,
+నిర్మాణం Curl_peer *Curl_conn_get_origin(నిర్మాణం connectdata *conn,
                                        int8_t sockindex);
 
 /* Get the peer the connection actually connects to at sockindex.
  * Often the same as "origin", but can be redirected via "connect-to"
  * or "alt-svc". May tunnel through proxies. */
-struct Curl_peer *Curl_conn_get_destination(struct connectdata *conn,
+నిర్మాణం Curl_peer *Curl_conn_get_destination(నిర్మాణం connectdata *conn,
                                             int8_t sockindex);
 
 /* Get the peer curl connects its socket to.
  * Can be origin, "connect-to" or the first proxy. */
-struct Curl_peer *Curl_conn_get_first_peer(struct connectdata *conn,
+నిర్మాణం Curl_peer *Curl_conn_get_మొదటి_peer(నిర్మాణం connectdata *conn,
                                            int8_t sockindex);
 
-#endif /* HEADER_CURL_CONNECT_H */
+#అయితే_ముగింపు /* HEADER_CURL_CONNECT_H */

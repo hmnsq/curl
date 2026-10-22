@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRERR_H
-#define HEADER_CURL_STRERR_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_STRERR_H
+#నిర్వచించు శీర్షిక_CURL_STRERR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,6 +24,6 @@
  *
  ***************************************************************************/
 
-const char *curlx_strerror(int err, char *buf, size_t buflen);
+స్థిరరాశి అక్షరం *curlx_strerror(పూర్ణాంకం err, అక్షరం *buf, size_t buflen);
 
-#endif /* HEADER_CURL_STRERR_H */
+#అయితే_ముగింపు /* HEADER_CURL_STRERR_H */

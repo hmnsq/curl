@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NETRC_H
-#define HEADER_CURL_NETRC_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_NETRC_H
+#నిర్వచించు శీర్షిక_CURL_NETRC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,46 +23,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_NETRC
+#నిర్వచితం_కాకపోతే CURL_DISABLE_NETRC
 
-#include "curlx/dynbuf.h"
+#అన్తర్భావ "curlx/dynbuf.h"
 
-struct Curl_easy;
-struct Curl_creds;
+నిర్మాణం Curl_easy;
+నిర్మాణం Curl_creds;
 
-struct store_netrc {
-  struct dynbuf filebuf;
-  char *filename;
-  BIT(loaded);
+నిర్మాణం store_netrc {
+  నిర్మాణం dynbuf filebuf;
+  అక్షరం *filename;
+  బిట్టు(loaded);
 };
 
-typedef enum {
+రకనిర్వచనం గణన {
   NETRC_OK,
-  NETRC_NO_MATCH,      /* no matching entry in the file */
+  NETRC_NO_సరిపోలిక,      /* no matching entry in the file */
   NETRC_SYNTAX_ERROR,  /* in the netrc file */
   NETRC_FILE_MISSING,  /* the netrc file does not exist */
-  NETRC_OUT_OF_MEMORY, /* while parsing netrc */
-  NETRC_LAST /* never used */
+  NETRC_బహిర్గతం_యొక్క_జ్ఞాపకం, /* while parsing netrc */
+  NETRC_చివరి /* never used */
 } NETRCcode;
 
-const char *Curl_netrc_strerror(NETRCcode ret);
-void Curl_netrc_init(struct store_netrc *store);
-void Curl_netrc_cleanup(struct store_netrc *store);
+స్థిరరాశి అక్షరం *Curl_netrc_strerror(NETRCcode ret);
+శూన్య Curl_netrc_init(నిర్మాణం store_netrc *store);
+శూన్య Curl_netrc_cleanup(నిర్మాణం store_netrc *store);
 
 /* Scan a netrc file for credentials matching hostname
  * and optional user. */
-NETRCcode Curl_netrc_scan(struct Curl_easy *data,
-                          struct store_netrc *store,
-                          const char *hostname,
-                          const char *user,
-                          const char *netrcfile,
-                          struct Curl_creds **pcreds);
-#else
+NETRCcode Curl_netrc_పరిశీలన(నిర్మాణం Curl_easy *దత్తాంశం,
+                          నిర్మాణం store_netrc *store,
+                          స్థిరరాశి అక్షరం *hostname,
+                          స్థిరరాశి అక్షరం *user,
+                          స్థిరరాశి అక్షరం *netrcfile,
+                          నిర్మాణం Curl_creds **pcreds);
+#లేకపోతే
 /* disabled */
-#define Curl_netrc_init(x)
-#define Curl_netrc_cleanup(x)
-#endif
+#నిర్వచించు Curl_netrc_init(x)
+#నిర్వచించు Curl_netrc_cleanup(x)
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_NETRC_H */
+#అయితే_ముగింపు /* HEADER_CURL_NETRC_H */

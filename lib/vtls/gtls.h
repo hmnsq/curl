@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GTLS_H
-#define HEADER_CURL_GTLS_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_GTLS_H
+#నిర్వచించు శీర్షిక_CURL_GTLS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,93 +23,93 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_GNUTLS
+#నిర్వచితమైతే USE_GNUTLS
 
-#include <gnutls/gnutls.h>
+#అన్తర్భావ <gnutls/gnutls.h>
 
-#include "curlx/timeval.h"
+#అన్తర్భావ "curlx/timeval.h"
 
-struct Curl_easy;
-struct Curl_cfilter;
-struct alpn_spec;
-struct ssl_filter_config;
-struct ssl_easy_config;
-struct ssl_peer;
-struct ssl_connect_data;
-struct Curl_ssl_session;
+నిర్మాణం Curl_easy;
+నిర్మాణం Curl_cfilter;
+నిర్మాణం alpn_spec;
+నిర్మాణం ssl_filter_config;
+నిర్మాణం ssl_easy_config;
+నిర్మాణం ssl_peer;
+నిర్మాణం ssl_connect_దత్తాంశం;
+నిర్మాణం Curl_ssl_session;
 
-struct gtls_shared_creds {
+నిర్మాణం gtls_shared_creds {
   gnutls_certificate_credentials_t creds;
-  char *CAfile; /* CAfile path used to generate X509 store */
-  struct curltime time; /* when the shared creds was created */
+  అక్షరం *CAfile; /* CAfile path used to generate X509 store */
+  నిర్మాణం curltime సమయం; /* when the shared creds was created */
   size_t refcount;
-  BIT(trust_setup); /* x509 anchors + CRLs have been set up */
+  బిట్టు(trust_అమరిక); /* x509 anchors + CRLs have been set up */
 };
 
-CURLcode Curl_gtls_shared_creds_create(struct Curl_easy *data,
-                                       struct gtls_shared_creds **pcreds);
-CURLcode Curl_gtls_shared_creds_up_ref(struct gtls_shared_creds *creds);
-void Curl_gtls_shared_creds_free(struct gtls_shared_creds **pcreds);
+CURLcode Curl_gtls_shared_creds_create(నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం gtls_shared_creds **pcreds);
+CURLcode Curl_gtls_shared_creds_పైకి_ref(నిర్మాణం gtls_shared_creds *creds);
+శూన్య Curl_gtls_shared_creds_free(నిర్మాణం gtls_shared_creds **pcreds);
 
-struct gtls_ctx {
+నిర్మాణం gtls_ctx {
   gnutls_session_t session;
-  struct gtls_shared_creds *shared_creds;
-  CURLcode io_result; /* result of last IO cfilter operation */
-  BIT(sent_shutdown);
+  నిర్మాణం gtls_shared_creds *shared_creds;
+  CURLcode io_ఫలితం; /* result of last IO cfilter operation */
+  బిట్టు(పంపిన_shutdown);
 };
 
-size_t Curl_gtls_version(char *buffer, size_t size);
+size_t Curl_gtls_సంస్కరణ(అక్షరం *బఫరు, size_t కొలత);
 
-typedef CURLcode Curl_gtls_ctx_setup_cb(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data);
+రకనిర్వచనం CURLcode Curl_gtls_ctx_అమరిక_cb(నిర్మాణం Curl_cfilter *cf,
+                                        నిర్మాణం Curl_easy *దత్తాంశం,
+                                        శూన్య *user_దత్తాంశం);
 
-typedef CURLcode Curl_gtls_init_session_reuse_cb(struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data,
-                                                 struct alpn_spec *alpns,
-                                                 struct Curl_ssl_session *scs,
-                                                 bool *do_early_data);
+రకనిర్వచనం CURLcode Curl_gtls_init_session_reuse_cb(నిర్మాణం Curl_cfilter *cf,
+                                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                                 నిర్మాణం alpn_spec *alpns,
+                                                 నిర్మాణం Curl_ssl_session *scs,
+                                                 bool *do_early_దత్తాంశం);
 
-CURLcode Curl_gtls_ctx_init(struct gtls_ctx *gctx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
-                            Curl_gtls_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
-                            void *ssl_user_data,
+CURLcode Curl_gtls_ctx_init(నిర్మాణం gtls_ctx *gctx,
+                            నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం ssl_peer *peer,
+                            స్థిరరాశి నిర్మాణం alpn_spec *alpns_requested,
+                            Curl_gtls_ctx_అమరిక_cb *cb_అమరిక,
+                            శూన్య *cb_user_దత్తాంశం,
+                            శూన్య *ssl_user_దత్తాంశం,
                             Curl_gtls_init_session_reuse_cb *sess_reuse_cb);
 
-CURLcode Curl_gtls_client_trust_setup(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct gtls_ctx *gtls);
+CURLcode Curl_gtls_client_trust_అమరిక(నిర్మాణం Curl_cfilter *cf,
+                                      నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం gtls_ctx *gtls);
 
-CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+CURLcode Curl_gtls_verifyserver(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
                                 gnutls_session_t session,
-                                struct ssl_filter_config *config,
-                                struct ssl_easy_config *ssl_config,
-                                struct ssl_peer *peer,
-                                const char *pinned_key);
+                                నిర్మాణం ssl_filter_config *config,
+                                నిర్మాణం ssl_easy_config *ssl_config,
+                                నిర్మాణం ssl_peer *peer,
+                                స్థిరరాశి అక్షరం *pinned_కీలకం);
 
 /* Extract TLS session and place in cache, if configured. Return
  * a copy of the session if desired. */
-CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+CURLcode Curl_gtls_cache_session(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 స్థిరరాశి అక్షరం *ssl_peer_కీలకం,
                                  gnutls_session_t session,
                                  curl_off_t valid_until,
-                                 const char *alpn,
-                                 unsigned char *quic_tp,
+                                 స్థిరరాశి అక్షరం *alpn,
+                                 గుర్తులేని అక్షరం *quic_tp,
                                  size_t quic_tp_len,
-                                 struct Curl_ssl_session **psession);
+                                 నిర్మాణం Curl_ssl_session **psession);
 
 /* Report properties of a successful handshake */
-void Curl_gtls_report_handshake(struct Curl_easy *data, struct gtls_ctx *gctx);
+శూన్య Curl_gtls_report_handshake(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం gtls_ctx *gctx);
 
-extern const struct Curl_ssl Curl_ssl_gnutls;
+బాహ్య స్థిరరాశి నిర్మాణం Curl_ssl Curl_ssl_gnutls;
 
-#endif /* USE_GNUTLS */
-#endif /* HEADER_CURL_GTLS_H */
+#అయితే_ముగింపు /* USE_GNUTLS */
+#అయితే_ముగింపు /* HEADER_CURL_GTLS_H */

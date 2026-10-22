@@ -27,68 +27,68 @@
  * Source file for Schannel-specific certificate verification. This code should
  * only be invoked by code in schannel.c.
  */
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_SCHANNEL
+#నిర్వచితమైతే USE_SCHANNEL
 
-#ifndef USE_WINDOWS_SSPI
-#error "cannot compile Schannel support without SSPI."
-#endif
+#నిర్వచితం_కాకపోతే USE_WINDOWS_SSPI
+#దోషం "cannot compile Schannel support without SSPI."
+#అయితే_ముగింపు
 
-#include "vtls/schannel.h"
-#include "vtls/schannel_int.h"
+#అన్తర్భావ "vtls/schannel.h"
+#అన్తర్భావ "vtls/schannel_int.h"
 
-#include "vtls/hostcheck.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "curl_trc.h"
-#include "strerror.h"
-#include "curlx/win32-fopen.h"
-#include "curlx/inet_pton.h"
-#include "curlx/multibyte.h"
-#include "curlx/version_win32.h"
-#include "curlx/winapi.h"
+#అన్తర్భావ "vtls/hostcheck.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "vtls/vtls_int.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "strerror.h"
+#అన్తర్భావ "curlx/win32-fopen.h"
+#అన్తర్భావ "curlx/inet_pton.h"
+#అన్తర్భావ "curlx/multibyte.h"
+#అన్తర్భావ "curlx/version_win32.h"
+#అన్తర్భావ "curlx/winapi.h"
 
-#define BACKEND ((struct schannel_ssl_backend_data *)connssl->backend)
+#నిర్వచించు BACKEND ((నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend)
 
-#define MAX_CAFILE_SIZE (1024 * 1024) /* 1 MiB */
-#define BEGIN_CERT      "-----BEGIN CERTIFICATE-----"
-#define END_CERT        "\n-----END CERTIFICATE-----"
+#నిర్వచించు MAX_CAFILE_కొలత (1024 * 1024) /* 1 MiB */
+#నిర్వచించు BEGIN_CERT      "-----BEGIN CERTIFICATE-----"
+#నిర్వచించు చివర_CERT        "\n-----END CERTIFICATE-----"
 
-struct cert_chain_engine_config_win8 {
-  DWORD cbSize;
-  HCERTSTORE hRestrictedRoot;
+నిర్మాణం cert_chain_engine_config_win8 {
+  DWORD cb_కొలత;
+  HCERTSTORE h_Restricted_మూలం;
   HCERTSTORE hRestrictedTrust;
   HCERTSTORE hRestrictedOther;
   DWORD cAdditionalStore;
   HCERTSTORE *rghAdditionalStore;
   DWORD dwFlags;
   DWORD dwUrlRetrievalTimeout;
-  DWORD MaximumCachedCertificates;
-  DWORD CycleDetectionModulus;
-  HCERTSTORE hExclusiveRoot;
+  DWORD గరిష్ఠ_Cached_Certificates;
+  DWORD చక్రం_Detection_Modulus;
+  HCERTSTORE h_Exclusive_మూలం;
   HCERTSTORE hExclusiveTrustedPeople;
   DWORD dwExclusiveFlags;
 };
 
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
-#ifndef CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG
-#define CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG 0x00000001
-#endif
+#నిర్వచితం_కాకపోతే CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG
+#నిర్వచించు CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG 0x00000001
+#అయితే_ముగింపు
 
 /* Legacy structure to supply size to Win7 clients */
-struct cert_chain_engine_config_win7 {
-  DWORD cbSize;
-  HCERTSTORE hRestrictedRoot;
+నిర్మాణం cert_chain_engine_config_win7 {
+  DWORD cb_కొలత;
+  HCERTSTORE h_Restricted_మూలం;
   HCERTSTORE hRestrictedTrust;
   HCERTSTORE hRestrictedOther;
   DWORD cAdditionalStore;
   HCERTSTORE *rghAdditionalStore;
   DWORD dwFlags;
   DWORD dwUrlRetrievalTimeout;
-  DWORD MaximumCachedCertificates;
-  DWORD CycleDetectionModulus;
-  HCERTSTORE hExclusiveRoot;
+  DWORD గరిష్ఠ_Cached_Certificates;
+  DWORD చక్రం_Detection_Modulus;
+  HCERTSTORE h_Exclusive_మూలం;
   HCERTSTORE hExclusiveTrustedPeople;
 };
 
@@ -97,108 +97,108 @@ struct cert_chain_engine_config_win7 {
  * Similar of macOS/Linux memmem (not available on Visual Studio).
  * Return position of beginning of first occurrence or NULL if not found
  */
-static const char *c_memmem(const void *haystack, size_t haystacklen,
-                            const void *needle, size_t needlelen)
+స్థిర స్థిరరాశి అక్షరం *c_memmem(స్థిరరాశి శూన్య *haystack, size_t haystacklen,
+                            స్థిరరాశి శూన్య *needle, size_t needlelen)
 {
-  const char *p;
-  char first;
-  const char *str_limit = (const char *)haystack + haystacklen;
-  if(!needlelen || needlelen > haystacklen)
-    return NULL;
-  first = *(const char *)needle;
-  for(p = (const char *)haystack; p <= (str_limit - needlelen); p++)
-    if((*p == first) && !memcmp(p, needle, needlelen))
-      return p;
+  స్థిరరాశి అక్షరం *p;
+  అక్షరం మొదటి;
+  స్థిరరాశి అక్షరం *str_హద్దు = (స్థిరరాశి అక్షరం *)haystack + haystacklen;
+  ఒకవేళ(!needlelen || needlelen > haystacklen)
+    తిరిగి ఖాళీ;
+  మొదటి = *(స్థిరరాశి అక్షరం *)needle;
+  కొరకు(p = (స్థిరరాశి అక్షరం *)haystack; p <= (str_హద్దు - needlelen); p++)
+    ఒకవేళ((*p == మొదటి) && !memcmp(p, needle, needlelen))
+      తిరిగి p;
 
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
-                                        const char *ca_buffer,
-                                        size_t ca_buffer_size,
-                                        const char *ca_file_text,
-                                        struct Curl_easy *data)
+స్థిర CURLcode కూడు_certs_దత్తాంశం_గమ్యం_store(HCERTSTORE trust_store,
+                                        స్థిరరాశి అక్షరం *ca_బఫరు,
+                                        size_t ca_బఫరు_కొలత,
+                                        స్థిరరాశి అక్షరం *ca_file_పాఠ్యం,
+                                        నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  const size_t begin_cert_len = CURL_CSTRLEN(BEGIN_CERT);
-  const size_t end_cert_len = CURL_CSTRLEN(END_CERT);
-  CURLcode result = CURLE_OK;
-  int num_certs = 0;
-  bool more_certs = 1;
-  const char *current_ca_file_ptr = ca_buffer;
-  const char *ca_buffer_limit = ca_buffer + ca_buffer_size;
+  స్థిరరాశి size_t begin_cert_len = CURL_CSTRLEN(BEGIN_CERT);
+  స్థిరరాశి size_t చివర_cert_len = CURL_CSTRLEN(చివర_CERT);
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం అంకె_certs = 0;
+  bool మరిన్ని_certs = 1;
+  స్థిరరాశి అక్షరం *current_ca_file_ptr = ca_బఫరు;
+  స్థిరరాశి అక్షరం *ca_బఫరు_హద్దు = ca_బఫరు + ca_బఫరు_కొలత;
 
-  while(more_certs && (current_ca_file_ptr < ca_buffer_limit)) {
-    const char *begin_cert_ptr = c_memmem(current_ca_file_ptr,
-                                          ca_buffer_limit -
+  అయితే(మరిన్ని_certs && (current_ca_file_ptr < ca_బఫరు_హద్దు)) {
+    స్థిరరాశి అక్షరం *begin_cert_ptr = c_memmem(current_ca_file_ptr,
+                                          ca_బఫరు_హద్దు -
                                           current_ca_file_ptr - 1,
                                           BEGIN_CERT,
                                           begin_cert_len);
-    if(!begin_cert_ptr || !ISNEWLINE(begin_cert_ptr[begin_cert_len])) {
-      more_certs = 0;
+    ఒకవేళ(!begin_cert_ptr || !ISNEWLINE(begin_cert_ptr[begin_cert_len])) {
+      మరిన్ని_certs = 0;
     }
-    else {
-      const char *end_cert_ptr = c_memmem(begin_cert_ptr,
-                                          ca_buffer_limit-begin_cert_ptr,
-                                          END_CERT,
-                                          end_cert_len);
-      if(!end_cert_ptr) {
-        failf(data,
+    లేకపోతే {
+      స్థిరరాశి అక్షరం *చివర_cert_ptr = c_memmem(begin_cert_ptr,
+                                          ca_బఫరు_హద్దు-begin_cert_ptr,
+                                          చివర_CERT,
+                                          చివర_cert_len);
+      ఒకవేళ(!చివర_cert_ptr) {
+        failf(దత్తాంశం,
               "schannel: CA file '%s' is not correctly formatted",
-              ca_file_text);
-        result = CURLE_SSL_CACERT_BADFILE;
-        more_certs = 0;
+              ca_file_పాఠ్యం);
+        ఫలితం = CURLE_SSL_CACERT_BADFILE;
+        మరిన్ని_certs = 0;
       }
-      else {
+      లేకపోతే {
         CERT_BLOB cert_blob;
-        const CERT_CONTEXT *cert_context = NULL;
-        BOOL add_cert_result = FALSE;
-        DWORD cert_size =
-          (DWORD)((end_cert_ptr + end_cert_len) - begin_cert_ptr);
+        స్థిరరాశి CERT_CONTEXT *cert_context = ఖాళీ;
+        BOOL కూడు_cert_ఫలితం = FALSE;
+        DWORD cert_కొలత =
+          (DWORD)((చివర_cert_ptr + చివర_cert_len) - begin_cert_ptr);
 
-        cert_blob.pbData = (BYTE *)CURL_UNCONST(begin_cert_ptr);
-        cert_blob.cbData = cert_size;
+        cert_blob.pb_దత్తాంశం = (BYTE *)CURL_UNCONST(begin_cert_ptr);
+        cert_blob.cb_దత్తాంశం = cert_కొలత;
         /* Caution: CryptQueryObject() is deprecated */
-        if(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB,
+        ఒకవేళ(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB,
                              &cert_blob,
                              CERT_QUERY_CONTENT_FLAG_CERT,
                              CERT_QUERY_FORMAT_FLAG_BASE64_ENCODED,
                              0,
-                             NULL,
-                             NULL,
-                             NULL,
-                             NULL,
-                             NULL,
-                             (const void **)&cert_context)) {
-          char buffer[WINAPI_ERROR_LEN];
-          failf(data,
+                             ఖాళీ,
+                             ఖాళీ,
+                             ఖాళీ,
+                             ఖాళీ,
+                             ఖాళీ,
+                             (స్థిరరాశి శూన్య **)&cert_context)) {
+          అక్షరం బఫరు[WINAPI_ERROR_LEN];
+          failf(దత్తాంశం,
                 "schannel: failed to extract certificate from CA file "
                 "'%s': %s",
-                ca_file_text,
-                curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-          result = CURLE_SSL_CACERT_BADFILE;
-          more_certs = 0;
+                ca_file_పాఠ్యం,
+                curlx_winapi_strerror(Get_చివరి_Error(), బఫరు, పరిమాణం(బఫరు)));
+          ఫలితం = CURLE_SSL_CACERT_BADFILE;
+          మరిన్ని_certs = 0;
         }
-        else {
-          current_ca_file_ptr = begin_cert_ptr + cert_size;
+        లేకపోతే {
+          current_ca_file_ptr = begin_cert_ptr + cert_కొలత;
 
-          add_cert_result =
-            CertAddCertificateContextToStore(trust_store,
+          కూడు_cert_ఫలితం =
+            Cert_కూడు_Certificate_Context_గమ్యం_Store(trust_store,
                                              cert_context,
-                                             CERT_STORE_ADD_ALWAYS,
-                                             NULL);
-          if(!add_cert_result) {
-            char buffer[WINAPI_ERROR_LEN];
-            failf(data,
+                                             CERT_STORE_కూడు_ALWAYS,
+                                             ఖాళీ);
+          ఒకవేళ(!కూడు_cert_ఫలితం) {
+            అక్షరం బఫరు[WINAPI_ERROR_LEN];
+            failf(దత్తాంశం,
                   "schannel: failed to add certificate from CA file '%s' "
                   "to certificate store: %s",
-                  ca_file_text,
-                  curlx_winapi_strerror(GetLastError(), buffer,
-                                        sizeof(buffer)));
-            result = CURLE_SSL_CACERT_BADFILE;
-            more_certs = 0;
+                  ca_file_పాఠ్యం,
+                  curlx_winapi_strerror(Get_చివరి_Error(), బఫరు,
+                                        పరిమాణం(బఫరు)));
+            ఫలితం = CURLE_SSL_CACERT_BADFILE;
+            మరిన్ని_certs = 0;
           }
-          else {
-            num_certs++;
+          లేకపోతే {
+            అంకె_certs++;
           }
 
           CertFreeCertificateContext(cert_context);
@@ -207,28 +207,28 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
     }
   }
 
-  if(result == CURLE_OK) {
-    if(!num_certs) {
-      infof(data, "schannel: did not add any certificates from CA file '%s'",
-            ca_file_text);
+  ఒకవేళ(ఫలితం == CURLE_OK) {
+    ఒకవేళ(!అంకె_certs) {
+      infof(దత్తాంశం, "schannel: did not add any certificates from CA file '%s'",
+            ca_file_పాఠ్యం);
     }
-    else {
-      infof(data, "schannel: added %d certificate(s) from CA file '%s'",
-            num_certs, ca_file_text);
+    లేకపోతే {
+      infof(దత్తాంశం, "schannel: added %d certificate(s) from CA file '%s'",
+            అంకె_certs, ca_file_పాఠ్యం);
     }
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
-                                        const char *ca_file,
-                                        struct Curl_easy *data)
+స్థిర CURLcode కూడు_certs_file_గమ్యం_store(HCERTSTORE trust_store,
+                                        స్థిరరాశి అక్షరం *ca_file,
+                                        నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   FILE *ca_file_handle;
-  char *ca_file_buffer = NULL;
-  long ca_file_bufsize = 0;
-  long total_bytes_read = 0;
+  అక్షరం *ca_file_బఫరు = ఖాళీ;
+  దీర్ఘ ca_file_bufsize = 0;
+  దీర్ఘ మొత్తం_బైట్లు_read = 0;
 
   /*
    * Read the CA file completely into memory before parsing it. This
@@ -236,80 +236,80 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
    * small ( < 1 MiB ).
    */
   ca_file_handle = curlx_fopen(ca_file, "rb");
-  if(!ca_file_handle) {
-    failf(data, "schannel: failed to open CA file '%s'", ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  ఒకవేళ(!ca_file_handle) {
+    failf(దత్తాంశం, "schannel: failed to open CA file '%s'", ca_file);
+    ఫలితం = CURLE_SSL_CACERT_BADFILE;
+    వెళ్ళు cleanup;
   }
 
-  if(curlx_fseek(ca_file_handle, 0, SEEK_END)) {
-    failf(data, "schannel: failed seeking to end of CA file '%s'", ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  ఒకవేళ(curlx_fseek(ca_file_handle, 0, SEEK_END)) {
+    failf(దత్తాంశం, "schannel: failed seeking to end of CA file '%s'", ca_file);
+    ఫలితం = CURLE_SSL_CACERT_BADFILE;
+    వెళ్ళు cleanup;
   }
 
   ca_file_bufsize = ftell(ca_file_handle);
 
-  if(curlx_fseek(ca_file_handle, 0, SEEK_SET)) {
-    failf(data, "schannel: failed seeking to beginning of CA file '%s'",
+  ఒకవేళ(curlx_fseek(ca_file_handle, 0, SEEK_SET)) {
+    failf(దత్తాంశం, "schannel: failed seeking to beginning of CA file '%s'",
           ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+    ఫలితం = CURLE_SSL_CACERT_BADFILE;
+    వెళ్ళు cleanup;
   }
 
-  if(ca_file_bufsize < 0) {
-    failf(data, "schannel: failed to get length of CA file '%s'", ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  ఒకవేళ(ca_file_bufsize < 0) {
+    failf(దత్తాంశం, "schannel: failed to get length of CA file '%s'", ca_file);
+    ఫలితం = CURLE_SSL_CACERT_BADFILE;
+    వెళ్ళు cleanup;
   }
 
-  if(ca_file_bufsize > MAX_CAFILE_SIZE) {
-    failf(data, "schannel: CA file exceeds max size of %d bytes",
-          MAX_CAFILE_SIZE);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  ఒకవేళ(ca_file_bufsize > MAX_CAFILE_కొలత) {
+    failf(దత్తాంశం, "schannel: CA file exceeds max size of %d bytes",
+          MAX_CAFILE_కొలత);
+    ఫలితం = CURLE_SSL_CACERT_BADFILE;
+    వెళ్ళు cleanup;
   }
 
-  ca_file_buffer = curlx_malloc(ca_file_bufsize + 1);
-  if(!ca_file_buffer) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto cleanup;
+  ca_file_బఫరు = curlx_malloc(ca_file_bufsize + 1);
+  ఒకవేళ(!ca_file_బఫరు) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు cleanup;
   }
 
-  while(total_bytes_read < ca_file_bufsize) {
-    size_t nread = fread(ca_file_buffer + total_bytes_read, 1,
-                         ca_file_bufsize - total_bytes_read, ca_file_handle);
+  అయితే(మొత్తం_బైట్లు_read < ca_file_bufsize) {
+    size_t nread = fread(ca_file_బఫరు + మొత్తం_బైట్లు_read, 1,
+                         ca_file_bufsize - మొత్తం_బైట్లు_read, ca_file_handle);
 
-    if(ferror(ca_file_handle)) {
-      failf(data, "schannel: failed to read from CA file '%s'", ca_file);
-      result = CURLE_SSL_CACERT_BADFILE;
-      goto cleanup;
+    ఒకవేళ(ferror(ca_file_handle)) {
+      failf(దత్తాంశం, "schannel: failed to read from CA file '%s'", ca_file);
+      ఫలితం = CURLE_SSL_CACERT_BADFILE;
+      వెళ్ళు cleanup;
     }
 
-    if(nread == 0) {
+    ఒకవేళ(nread == 0) {
       /* Premature EOF -- adjust the bufsize to the new value */
-      ca_file_bufsize = total_bytes_read;
+      ca_file_bufsize = మొత్తం_బైట్లు_read;
     }
-    else {
-      total_bytes_read += (long)nread;
+    లేకపోతే {
+      మొత్తం_బైట్లు_read += (దీర్ఘ)nread;
     }
   }
 
   /* null-terminate the buffer */
-  ca_file_buffer[ca_file_bufsize] = '\0';
+  ca_file_బఫరు[ca_file_bufsize] = '\0';
 
-  result = add_certs_data_to_store(trust_store,
-                                   ca_file_buffer, ca_file_bufsize,
+  ఫలితం = కూడు_certs_దత్తాంశం_గమ్యం_store(trust_store,
+                                   ca_file_బఫరు, ca_file_bufsize,
                                    ca_file,
-                                   data);
+                                   దత్తాంశం);
 
 cleanup:
-  if(ca_file_handle) {
+  ఒకవేళ(ca_file_handle) {
     curlx_fclose(ca_file_handle);
   }
-  curlx_safefree(ca_file_buffer);
+  curlx_safefree(ca_file_బఫరు);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -319,87 +319,87 @@ cleanup:
  * null-terminated. If no DNS names are found, a single null-terminated empty
  * string is returned.
  */
-static DWORD cert_get_name_string(struct Curl_easy *data,
+స్థిర DWORD cert_get_name_string(నిర్మాణం Curl_easy *దత్తాంశం,
                                   CERT_CONTEXT *cert_context,
-                                  LPTSTR host_names,
-                                  DWORD length,
+                                  LPTSTR host_పేర్లు,
+                                  DWORD నిడివి,
                                   PCERT_ALT_NAME_INFO alt_name_info,
                                   BOOL Win8_compat)
 {
-  DWORD actual_length = 0;
+  DWORD actual_నిడివి = 0;
   BOOL compute_content = FALSE;
-  LPTSTR current_pos = NULL;
+  LPTSTR current_pos = ఖాళీ;
   DWORD i;
 
   /* CERT_NAME_SEARCH_ALL_NAMES_FLAG is available from Windows 8 onwards. */
-  if(Win8_compat) {
+  ఒకవేళ(Win8_compat) {
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
-#ifndef CERT_NAME_SEARCH_ALL_NAMES_FLAG
-#define CERT_NAME_SEARCH_ALL_NAMES_FLAG 0x2
-#endif
+#నిర్వచితం_కాకపోతే CERT_NAME_శోధన_ALL_పేర్లు_FLAG
+#నిర్వచించు CERT_NAME_శోధన_ALL_పేర్లు_FLAG 0x2
+#అయితే_ముగింపు
     /* CertGetNameString provides the 8-bit character string without
      * any decoding */
     DWORD name_flags =
-      CERT_NAME_DISABLE_IE4_UTF8_FLAG | CERT_NAME_SEARCH_ALL_NAMES_FLAG;
-    actual_length = CertGetNameString(cert_context,
+      CERT_NAME_DISABLE_IE4_UTF8_FLAG | CERT_NAME_శోధన_ALL_పేర్లు_FLAG;
+    actual_నిడివి = CertGetNameString(cert_context,
                                       CERT_NAME_DNS_TYPE,
                                       name_flags,
-                                      NULL,
-                                      host_names,
-                                      length);
-    return actual_length;
+                                      ఖాళీ,
+                                      host_పేర్లు,
+                                      నిడివి);
+    తిరిగి actual_నిడివి;
   }
 
-  if(!alt_name_info)
-    return 0;
+  ఒకవేళ(!alt_name_info)
+    తిరిగి 0;
 
-  compute_content = host_names && length != 0;
+  compute_content = host_పేర్లు && నిడివి != 0;
 
   /* Initialize default return values. */
-  actual_length = 1;
-  if(compute_content) {
-    *host_names = '\0';
+  actual_నిడివి = 1;
+  ఒకవేళ(compute_content) {
+    *host_పేర్లు = '\0';
   }
 
-  current_pos = host_names;
+  current_pos = host_పేర్లు;
 
   /* Iterate over the alternate names and populate host_names. */
-  for(i = 0; i < alt_name_info->cAltEntry; i++) {
-    const CERT_ALT_NAME_ENTRY *entry = &alt_name_info->rgAltEntry[i];
-    wchar_t *dns_w = NULL;
-    size_t current_length = 0;
+  కొరకు(i = 0; i < alt_name_info->c_Alt_నమోదు; i++) {
+    స్థిరరాశి CERT_ALT_NAME_నమోదు *నమోదు_2 = &alt_name_info->rg_Alt_నమోదు[i];
+    wchar_t *dns_w = ఖాళీ;
+    size_t current_నిడివి = 0;
 
-    if(entry->dwAltNameChoice != CERT_ALT_NAME_DNS_NAME) {
-      continue;
+    ఒకవేళ(నమోదు_2->dwAltNameChoice != CERT_ALT_NAME_DNS_NAME) {
+      కొనసాగు;
     }
-    if(!entry->pwszDNSName) {
-      infof(data, "schannel: Empty DNS name.");
-      continue;
+    ఒకవేళ(!నమోదు_2->pwszDNSName) {
+      infof(దత్తాంశం, "schannel: Empty DNS name.");
+      కొనసాగు;
     }
-    current_length = wcslen(entry->pwszDNSName) + 1;
-    if(!compute_content) {
-      actual_length += (DWORD)current_length;
-      continue;
+    current_నిడివి = wcslen(నమోదు_2->pwszDNSName) + 1;
+    ఒకవేళ(!compute_content) {
+      actual_నిడివి += (DWORD)current_నిడివి;
+      కొనసాగు;
     }
     /* Sanity check to prevent buffer overrun. */
-    if((actual_length + current_length) > length) {
-      failf(data, "schannel: Not enough memory to list all hostnames.");
-      break;
+    ఒకవేళ((actual_నిడివి + current_నిడివి) > నిడివి) {
+      failf(దత్తాంశం, "schannel: Not enough memory to list all hostnames.");
+      ఆపు;
     }
-    dns_w = entry->pwszDNSName;
+    dns_w = నమోదు_2->pwszDNSName;
     /* pwszDNSName is in ia5 string format and hence does not contain any
      * non-ASCII characters. */
-    while(*dns_w != '\0') {
+    అయితే(*dns_w != '\0') {
       *current_pos++ = (TCHAR)(*dns_w++);
     }
     *current_pos++ = '\0';
-    actual_length += (DWORD)current_length;
+    actual_నిడివి += (DWORD)current_నిడివి;
   }
-  if(compute_content) {
+  ఒకవేళ(compute_content) {
     /* Last string has double null-terminator. */
     *current_pos = '\0';
   }
-  return actual_length;
+  తిరిగి actual_నిడివి;
 }
 
 /*
@@ -407,254 +407,254 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
  * and populates the buffer with IPv4/IPv6 info.
  */
 
-static bool get_num_host_info(struct num_ip_data *ip_blob, LPCSTR hostname)
+స్థిర bool get_అంకె_host_info(నిర్మాణం అంకె_ip_దత్తాంశం *ip_blob, LPCSTR hostname)
 {
-  struct in_addr ia;
-  int res = curlx_inet_pton(AF_INET, hostname, &ia);
-  if(res) {
-    ip_blob->size = sizeof(struct in_addr);
-    memcpy(&ip_blob->bData.ia, &ia, sizeof(struct in_addr));
-    return TRUE;
+  నిర్మాణం in_addr ia;
+  పూర్ణాంకం res = curlx_inet_pton(AF_INET, hostname, &ia);
+  ఒకవేళ(res) {
+    ip_blob->కొలత = పరిమాణం(నిర్మాణం in_addr);
+    జ్ఞాపకం_నకలు(&ip_blob->b_దత్తాంశం.ia, &ia, పరిమాణం(నిర్మాణం in_addr));
+    తిరిగి TRUE;
   }
-  else {
-    struct in6_addr ia6;
+  లేకపోతే {
+    నిర్మాణం in6_addr ia6;
     res = curlx_inet_pton(AF_INET6, hostname, &ia6);
-    if(res) {
-      ip_blob->size = sizeof(struct in6_addr);
-      memcpy(&ip_blob->bData.ia6, &ia6, sizeof(struct in6_addr));
-      return TRUE;
+    ఒకవేళ(res) {
+      ip_blob->కొలత = పరిమాణం(నిర్మాణం in6_addr);
+      జ్ఞాపకం_నకలు(&ip_blob->b_దత్తాంశం.ia6, &ia6, పరిమాణం(నిర్మాణం in6_addr));
+      తిరిగి TRUE;
     }
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static bool get_alt_name_info(struct Curl_easy *data,
+స్థిర bool get_alt_name_info(నిర్మాణం Curl_easy *దత్తాంశం,
                               PCCERT_CONTEXT ctx,
                               PCERT_ALT_NAME_INFO *alt_name_info,
-                              LPDWORD alt_name_info_size)
+                              LPDWORD alt_name_info_కొలత)
 {
-  PCERT_INFO cert_info = NULL;
-  PCERT_EXTENSION extension = NULL;
-  CRYPT_DECODE_PARA decode_para = { sizeof(CRYPT_DECODE_PARA), NULL, NULL };
+  PCERT_INFO cert_info = ఖాళీ;
+  PCERT_EXTENSION extension = ఖాళీ;
+  CRYPT_DECODE_PARA decode_para = { పరిమాణం(CRYPT_DECODE_PARA), ఖాళీ, ఖాళీ };
 
-  if(!ctx) {
-    failf(data, "schannel: Null certificate context.");
-    return FALSE;
+  ఒకవేళ(!ctx) {
+    failf(దత్తాంశం, "schannel: Null certificate context.");
+    తిరిగి FALSE;
   }
 
   cert_info = ctx->pCertInfo;
-  if(!cert_info) {
-    failf(data, "schannel: Null certificate info.");
-    return FALSE;
+  ఒకవేళ(!cert_info) {
+    failf(దత్తాంశం, "schannel: Null certificate info.");
+    తిరిగి FALSE;
   }
 
-  extension = CertFindExtension(szOID_SUBJECT_ALT_NAME2,
+  extension = Cert_కనుగొను_Extension(szOID_SUBJECT_ALT_NAME2,
                                 cert_info->cExtension,
                                 cert_info->rgExtension);
-  if(!extension) {
-    failf(data, "schannel: CertFindExtension() returned no extension.");
-    return FALSE;
+  ఒకవేళ(!extension) {
+    failf(దత్తాంశం, "schannel: CertFindExtension() returned no extension.");
+    తిరిగి FALSE;
   }
 
-  if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+  ఒకవేళ(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                           szOID_SUBJECT_ALT_NAME2,
-                          extension->Value.pbData,
-                          extension->Value.cbData,
+                          extension->విలువ_2.pb_దత్తాంశం,
+                          extension->విలువ_2.cb_దత్తాంశం,
                           CRYPT_DECODE_ALLOC_FLAG | CRYPT_DECODE_NOCOPY_FLAG,
                           &decode_para,
                           alt_name_info,
-                          alt_name_info_size)) {
-    failf(data, "schannel: CryptDecodeObjectEx() returned no alternate name "
+                          alt_name_info_కొలత)) {
+    failf(దత్తాంశం, "schannel: CryptDecodeObjectEx() returned no alternate name "
           "information.");
-    return FALSE;
+    తిరిగి FALSE;
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
 
 /* Verify the server's hostname */
-CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
+CURLcode Curl_verify_host(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  CURLcode result = CURLE_PEER_FAILED_VERIFICATION;
-  struct ssl_connect_data *connssl = cf->ctx;
-  CERT_CONTEXT *pCertContextServer = NULL;
-  SECURITY_STATUS sspi_status;
-  TCHAR *cert_hostname_buff = NULL;
-  size_t cert_hostname_buff_index = 0;
-  const char *conn_hostname = connssl->peer.origin->hostname;
-  size_t hostlen = strlen(conn_hostname);
+  CURLcode ఫలితం = CURLE_PEER_FAILED_VERIFICATION;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  CERT_CONTEXT *pCertContextServer = ఖాళీ;
+  SECURITY_స్థితి sspi_స్థితి;
+  TCHAR *cert_hostname_buff = ఖాళీ;
+  size_t cert_hostname_buff_సూచీ = 0;
+  స్థిరరాశి అక్షరం *conn_hostname = connssl->peer.origin->hostname;
+  size_t hostlen = అక్షరశ్రేణి_పొడవు(conn_hostname);
   DWORD len = 0;
   DWORD actual_len = 0;
-  PCERT_ALT_NAME_INFO alt_name_info = NULL;
-  DWORD alt_name_info_size = 0;
-  struct num_ip_data ip_blob = { 0 };
+  PCERT_ALT_NAME_INFO alt_name_info = ఖాళీ;
+  DWORD alt_name_info_కొలత = 0;
+  నిర్మాణం అంకె_ip_దత్తాంశం ip_blob = { 0 };
   bool Win8_compat;
-  struct num_ip_data *p = &ip_blob;
+  నిర్మాణం అంకె_ip_దత్తాంశం *p = &ip_blob;
   DWORD i;
 
-  sspi_status =
-    Curl_pSecFn->QueryContextAttributes(&BACKEND->ctxt->ctxt_handle,
+  sspi_స్థితి =
+    Curl_pSecFn->Query_Context_లక్షణాలు(&BACKEND->ctxt->ctxt_handle,
                                         SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                         &pCertContextServer);
 
-  if((sspi_status != SEC_E_OK) || !pCertContextServer) {
-    char buffer[WINAPI_ERROR_LEN];
-    failf(data, "schannel: Failed to read remote certificate context: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    goto cleanup;
+  ఒకవేళ((sspi_స్థితి != SEC_E_OK) || !pCertContextServer) {
+    అక్షరం బఫరు[WINAPI_ERROR_LEN];
+    failf(దత్తాంశం, "schannel: Failed to read remote certificate context: %s",
+          Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+    వెళ్ళు cleanup;
   }
 
-  Win8_compat = curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
-                                             VERSION_GREATER_THAN_EQUAL);
-  if(get_num_host_info(p, conn_hostname) || !Win8_compat) {
-    if(!get_alt_name_info(data, pCertContextServer,
-                          &alt_name_info, &alt_name_info_size)) {
-      goto cleanup;
+  Win8_compat = curlx_verify_windows_సంస్కరణ(6, 2, 0, PLATFORM_WINNT,
+                                             సంస్కరణ_GREATER_THAN_EQUAL);
+  ఒకవేళ(get_అంకె_host_info(p, conn_hostname) || !Win8_compat) {
+    ఒకవేళ(!get_alt_name_info(దత్తాంశం, pCertContextServer,
+                          &alt_name_info, &alt_name_info_కొలత)) {
+      వెళ్ళు cleanup;
     }
   }
 
-  if(p->size && alt_name_info) {
-    for(i = 0; i < alt_name_info->cAltEntry; ++i) {
-      PCERT_ALT_NAME_ENTRY entry = &alt_name_info->rgAltEntry[i];
-      if(entry->dwAltNameChoice == CERT_ALT_NAME_IP_ADDRESS) {
-        if(entry->IPAddress.cbData == p->size) {
-          if(!memcmp(entry->IPAddress.pbData, &p->bData,
-                     entry->IPAddress.cbData)) {
-            result = CURLE_OK;
-            infof(data,
+  ఒకవేళ(p->కొలత && alt_name_info) {
+    కొరకు(i = 0; i < alt_name_info->c_Alt_నమోదు; ++i) {
+      PCERT_ALT_NAME_నమోదు నమోదు_2 = &alt_name_info->rg_Alt_నమోదు[i];
+      ఒకవేళ(నమోదు_2->dwAltNameChoice == CERT_ALT_NAME_IP_చిరునామా) {
+        ఒకవేళ(నమోదు_2->IPAddress.cb_దత్తాంశం == p->కొలత) {
+          ఒకవేళ(!memcmp(నమోదు_2->IPAddress.pb_దత్తాంశం, &p->b_దత్తాంశం,
+                     నమోదు_2->IPAddress.cb_దత్తాంశం)) {
+            ఫలితం = CURLE_OK;
+            infof(దత్తాంశం,
              "schannel: connection hostname (%s) matched cert's IP address!",
              conn_hostname);
-            break;
+            ఆపు;
           }
         }
       }
     }
   }
-  else {
+  లేకపోతే {
     /* Determine the size of the string needed for the cert hostname */
-    len = cert_get_name_string(data, pCertContextServer,
-                               NULL, 0, alt_name_info, Win8_compat);
-    if(len == 0) {
-      failf(data,
+    len = cert_get_name_string(దత్తాంశం, pCertContextServer,
+                               ఖాళీ, 0, alt_name_info, Win8_compat);
+    ఒకవేళ(len == 0) {
+      failf(దత్తాంశం,
             "schannel: CertGetNameString() returned no "
             "certificate name information");
-      goto cleanup;
+      వెళ్ళు cleanup;
     }
 
     /* CertGetNameString guarantees that the returned name does not contain
      * embedded NUL bytes. This appears to be undocumented behavior.
      */
-    cert_hostname_buff = curlx_malloc(len * sizeof(TCHAR));
-    if(!cert_hostname_buff) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto cleanup;
+    cert_hostname_buff = curlx_malloc(len * పరిమాణం(TCHAR));
+    ఒకవేళ(!cert_hostname_buff) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు cleanup;
     }
-    actual_len = cert_get_name_string(data, pCertContextServer,
+    actual_len = cert_get_name_string(దత్తాంశం, pCertContextServer,
                                       (LPTSTR)cert_hostname_buff, len,
                                       alt_name_info, Win8_compat);
 
     /* Sanity check */
-    if(actual_len != len) {
-      failf(data,
+    ఒకవేళ(actual_len != len) {
+      failf(దత్తాంశం,
             "schannel: CertGetNameString() returned certificate "
             "name information of unexpected size");
-      goto cleanup;
+      వెళ్ళు cleanup;
     }
 
     /* cert_hostname_buff contains all DNS names, where each name is
      * null-terminated and the last DNS name is double null-terminated. Due to
      * this encoding, use the length of the buffer to iterate over all names.
      */
-    while(cert_hostname_buff_index < len &&
-          cert_hostname_buff[cert_hostname_buff_index] != TEXT('\0') &&
-          result == CURLE_PEER_FAILED_VERIFICATION) {
-      char *cert_hostname;
+    అయితే(cert_hostname_buff_సూచీ < len &&
+          cert_hostname_buff[cert_hostname_buff_సూచీ] != పాఠ్యం_2('\0') &&
+          ఫలితం == CURLE_PEER_FAILED_VERIFICATION) {
+      అక్షరం *cert_hostname;
 
       /* Comparing the cert name and the connection hostname encoded as UTF-8
        * is acceptable since both values are assumed to use ASCII
        * (or some equivalent) encoding
        */
-      cert_hostname = curlx_convert_tchar_to_UTF8(
-        &cert_hostname_buff[cert_hostname_buff_index]);
-      if(!cert_hostname) {
-        result = CURLE_OUT_OF_MEMORY;
+      cert_hostname = curlx_convert_tchar_గమ్యం_UTF8(
+        &cert_hostname_buff[cert_hostname_buff_సూచీ]);
+      ఒకవేళ(!cert_hostname) {
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
-      else {
-        if(Curl_cert_hostcheck(cert_hostname, strlen(cert_hostname),
+      లేకపోతే {
+        ఒకవేళ(Curl_cert_hostcheck(cert_hostname, అక్షరశ్రేణి_పొడవు(cert_hostname),
                                conn_hostname, hostlen)) {
-          infof(data, "schannel: connection hostname (%s) validated "
+          infof(దత్తాంశం, "schannel: connection hostname (%s) validated "
                 "against certificate name (%s)",
                 conn_hostname, cert_hostname);
-          result = CURLE_OK;
+          ఫలితం = CURLE_OK;
         }
-        else {
+        లేకపోతే {
           size_t cert_hostname_len;
 
-          infof(data,
+          infof(దత్తాంశం,
                 "schannel: connection hostname (%s) did not match "
                 "against certificate name (%s)",
                 conn_hostname, cert_hostname);
 
           cert_hostname_len =
-            _tcslen(&cert_hostname_buff[cert_hostname_buff_index]);
+            _tcslen(&cert_hostname_buff[cert_hostname_buff_సూచీ]);
 
           /* Move on to next cert name */
-          cert_hostname_buff_index += cert_hostname_len + 1;
+          cert_hostname_buff_సూచీ += cert_hostname_len + 1;
 
-          result = CURLE_PEER_FAILED_VERIFICATION;
+          ఫలితం = CURLE_PEER_FAILED_VERIFICATION;
         }
         curlx_free(cert_hostname);
       }
     }
 
-    if(result == CURLE_PEER_FAILED_VERIFICATION) {
-      failf(data,
+    ఒకవేళ(ఫలితం == CURLE_PEER_FAILED_VERIFICATION) {
+      failf(దత్తాంశం,
             "schannel: CertGetNameString() failed to match "
             "connection hostname (%s) against server certificate names",
             conn_hostname);
     }
-    else if(result != CURLE_OK)
-      failf(data, "schannel: server certificate name verification failed");
+    లేకపోతే ఒకవేళ(ఫలితం != CURLE_OK)
+      failf(దత్తాంశం, "schannel: server certificate name verification failed");
   }
 
 cleanup:
   LocalFree(alt_name_info);
   curlx_safefree(cert_hostname_buff);
 
-  if(pCertContextServer)
+  ఒకవేళ(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* Verify the server's certificate and hostname */
-CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+CURLcode Curl_verify_certificate(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  SECURITY_STATUS sspi_status;
-  CURLcode result = CURLE_OK;
-  CERT_CONTEXT *pCertContextServer = NULL;
-  const CERT_CHAIN_CONTEXT *pChainContext = NULL;
-  HCERTCHAINENGINE cert_chain_engine = NULL;
-  HCERTSTORE trust_store = NULL;
-  HCERTSTORE own_trust_store = NULL;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  SECURITY_స్థితి sspi_స్థితి;
+  CURLcode ఫలితం = CURLE_OK;
+  CERT_CONTEXT *pCertContextServer = ఖాళీ;
+  స్థిరరాశి CERT_CHAIN_CONTEXT *pChainContext = ఖాళీ;
+  HCERTCHAINENGINE cert_chain_engine = ఖాళీ;
+  HCERTSTORE trust_store = ఖాళీ;
+  HCERTSTORE own_trust_store = ఖాళీ;
 
   DEBUGASSERT(BACKEND);
 
-  sspi_status =
-    Curl_pSecFn->QueryContextAttributes(&BACKEND->ctxt->ctxt_handle,
+  sspi_స్థితి =
+    Curl_pSecFn->Query_Context_లక్షణాలు(&BACKEND->ctxt->ctxt_handle,
                                         SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                         &pCertContextServer);
 
-  if((sspi_status != SEC_E_OK) || !pCertContextServer) {
-    char buffer[WINAPI_ERROR_LEN];
-    failf(data, "schannel: Failed to read remote certificate context: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    result = CURLE_PEER_FAILED_VERIFICATION;
+  ఒకవేళ((sspi_స్థితి != SEC_E_OK) || !pCertContextServer) {
+    అక్షరం బఫరు[WINAPI_ERROR_LEN];
+    failf(దత్తాంశం, "schannel: Failed to read remote certificate context: %s",
+          Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+    ఫలితం = CURLE_PEER_FAILED_VERIFICATION;
   }
 
-  if(result == CURLE_OK &&
+  ఒకవేళ(ఫలితం == CURLE_OK &&
      (conn_config->CAfile || conn_config->ca_info_blob) &&
      BACKEND->use_manual_cred_validation) {
     /*
@@ -662,173 +662,173 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
      * trusted certificates. This is only supported on Windows 7+.
      */
 
-    if(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
-                                    VERSION_LESS_THAN)) {
-      failf(data, "schannel: this version of Windows is too old to support "
+    ఒకవేళ(curlx_verify_windows_సంస్కరణ(6, 1, 0, PLATFORM_WINNT,
+                                    సంస్కరణ_LESS_THAN)) {
+      failf(దత్తాంశం, "schannel: this version of Windows is too old to support "
             "certificate verification via CA bundle file.");
-      result = CURLE_SSL_CACERT_BADFILE;
+      ఫలితం = CURLE_SSL_CACERT_BADFILE;
     }
-    else {
+    లేకపోతే {
       /* try cache */
-      trust_store = Curl_schannel_get_cached_cert_store(cf, data);
+      trust_store = Curl_schannel_get_cached_cert_store(cf, దత్తాంశం);
 
-      if(trust_store) {
-        infof(data, "schannel: reusing certificate store from cache");
+      ఒకవేళ(trust_store) {
+        infof(దత్తాంశం, "schannel: reusing certificate store from cache");
       }
-      else {
+      లేకపోతే {
         /* Open the certificate store */
-        trust_store = CertOpenStore(CERT_STORE_PROV_MEMORY,
+        trust_store = CertOpenStore(CERT_STORE_PROV_జ్ఞాపకం,
                                     0,
-                                    (HCRYPTPROV)NULL,
+                                    (HCRYPTPROV)ఖాళీ,
                                     CERT_STORE_CREATE_NEW_FLAG,
-                                    NULL);
-        if(!trust_store) {
-          char buffer[WINAPI_ERROR_LEN];
-          failf(data, "schannel: failed to create certificate store: %s",
-                curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-          result = CURLE_SSL_CACERT_BADFILE;
+                                    ఖాళీ);
+        ఒకవేళ(!trust_store) {
+          అక్షరం బఫరు[WINAPI_ERROR_LEN];
+          failf(దత్తాంశం, "schannel: failed to create certificate store: %s",
+                curlx_winapi_strerror(Get_చివరి_Error(), బఫరు, పరిమాణం(బఫరు)));
+          ఫలితం = CURLE_SSL_CACERT_BADFILE;
         }
-        else {
-          const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
+        లేకపోతే {
+          స్థిరరాశి నిర్మాణం curl_blob *ca_info_blob = conn_config->ca_info_blob;
           own_trust_store = trust_store;
 
-          if(ca_info_blob) {
-            result = add_certs_data_to_store(trust_store,
-                                             (const char *)ca_info_blob->data,
+          ఒకవేళ(ca_info_blob) {
+            ఫలితం = కూడు_certs_దత్తాంశం_గమ్యం_store(trust_store,
+                                             (స్థిరరాశి అక్షరం *)ca_info_blob->దత్తాంశం,
                                              ca_info_blob->len,
                                              "(memory blob)",
-                                             data);
+                                             దత్తాంశం);
           }
-          else {
-            result = add_certs_file_to_store(trust_store,
+          లేకపోతే {
+            ఫలితం = కూడు_certs_file_గమ్యం_store(trust_store,
                                              conn_config->CAfile,
-                                             data);
+                                             దత్తాంశం);
           }
-          if(result == CURLE_OK) {
-            if(Curl_schannel_set_cached_cert_store(cf, data, trust_store)) {
-              own_trust_store = NULL;
+          ఒకవేళ(ఫలితం == CURLE_OK) {
+            ఒకవేళ(Curl_schannel_సమితి_cached_cert_store(cf, దత్తాంశం, trust_store)) {
+              own_trust_store = ఖాళీ;
             }
           }
         }
       }
     }
 
-    if(result == CURLE_OK) {
-      struct cert_chain_engine_config_win8 engine_config;
-      BOOL create_engine_result;
+    ఒకవేళ(ఫలితం == CURLE_OK) {
+      నిర్మాణం cert_chain_engine_config_win8 engine_config;
+      BOOL create_engine_ఫలితం;
 
-      memset(&engine_config, 0, sizeof(engine_config));
-      engine_config.hExclusiveRoot = trust_store;
+      memset(&engine_config, 0, పరిమాణం(engine_config));
+      engine_config.h_Exclusive_మూలం = trust_store;
 
       /* Win8/Server2012 allows us to match partial chains */
-      if(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
-                                      VERSION_GREATER_THAN_EQUAL) &&
+      ఒకవేళ(curlx_verify_windows_సంస్కరణ(6, 2, 0, PLATFORM_WINNT,
+                                      సంస్కరణ_GREATER_THAN_EQUAL) &&
          !conn_config->no_partialchain) {
-        engine_config.cbSize = sizeof(engine_config);
+        engine_config.cb_కొలత = పరిమాణం(engine_config);
         engine_config.dwExclusiveFlags = CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG;
       }
-      else
-        engine_config.cbSize = sizeof(struct cert_chain_engine_config_win7);
+      లేకపోతే
+        engine_config.cb_కొలత = పరిమాణం(నిర్మాణం cert_chain_engine_config_win7);
 
       /* CertCreateCertificateChainEngine checks the expected size of the
        * CERT_CHAIN_ENGINE_CONFIG structure and fail if the specified size
        * does not match the expected size. When this occurs, it indicates that
        * CAINFO is not supported on the version of Windows in use.
        */
-      create_engine_result =
+      create_engine_ఫలితం =
         CertCreateCertificateChainEngine(
           (CERT_CHAIN_ENGINE_CONFIG *)&engine_config, &cert_chain_engine);
-      if(!create_engine_result) {
-        char buffer[WINAPI_ERROR_LEN];
-        failf(data,
+      ఒకవేళ(!create_engine_ఫలితం) {
+        అక్షరం బఫరు[WINAPI_ERROR_LEN];
+        failf(దత్తాంశం,
               "schannel: failed to create certificate chain engine: %s",
-              curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-        result = CURLE_SSL_CACERT_BADFILE;
+              curlx_winapi_strerror(Get_చివరి_Error(), బఫరు, పరిమాణం(బఫరు)));
+        ఫలితం = CURLE_SSL_CACERT_BADFILE;
       }
     }
   }
 
-  if(result == CURLE_OK) {
+  ఒకవేళ(ఫలితం == CURLE_OK) {
     CERT_CHAIN_PARA ChainPara;
     LPSTR serverAuthOID = CURL_UNCONST(szOID_PKIX_KP_SERVER_AUTH);
 
-    memset(&ChainPara, 0, sizeof(ChainPara));
-    ChainPara.cbSize = sizeof(ChainPara);
-    ChainPara.RequestedUsage.dwType = USAGE_MATCH_TYPE_AND;
+    memset(&ChainPara, 0, పరిమాణం(ChainPara));
+    ChainPara.cb_కొలత = పరిమాణం(ChainPara);
+    ChainPara.RequestedUsage.dwType = USAGE_సరిపోలిక_TYPE_AND;
     ChainPara.RequestedUsage.Usage.cUsageIdentifier = 1;
     ChainPara.RequestedUsage.Usage.rgpszUsageIdentifier = &serverAuthOID;
 
-    if(!CertGetCertificateChain(cert_chain_engine,
+    ఒకవేళ(!CertGetCertificateChain(cert_chain_engine,
                                 pCertContextServer,
-                                NULL,
+                                ఖాళీ,
                                 pCertContextServer->hCertStore,
                                 &ChainPara,
                                 (conn_config->no_revoke ? 0 :
                                  CERT_CHAIN_REVOCATION_CHECK_CHAIN),
-                                NULL,
+                                ఖాళీ,
                                 &pChainContext)) {
-      char buffer[WINAPI_ERROR_LEN];
-      failf(data, "schannel: failed to get the certificate chain: %s",
-            curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-      pChainContext = NULL;
-      result = CURLE_PEER_FAILED_VERIFICATION;
+      అక్షరం బఫరు[WINAPI_ERROR_LEN];
+      failf(దత్తాంశం, "schannel: failed to get the certificate chain: %s",
+            curlx_winapi_strerror(Get_చివరి_Error(), బఫరు, పరిమాణం(బఫరు)));
+      pChainContext = ఖాళీ;
+      ఫలితం = CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    if(result == CURLE_OK) {
+    ఒకవేళ(ఫలితం == CURLE_OK) {
       CERT_SIMPLE_CHAIN *pSimpleChain = pChainContext->rgpChain[0];
-      DWORD dwTrustErrorMask = ~(DWORD)(CERT_TRUST_IS_NOT_TIME_NESTED);
-      dwTrustErrorMask &= pSimpleChain->TrustStatus.dwErrorStatus;
+      DWORD dw_Trust_Error_ముసుగు = ~(DWORD)(CERT_TRUST_IS_NOT_సమయం_NESTED);
+      dw_Trust_Error_ముసుగు &= pSimpleChain->Trust_స్థితి.dw_Error_స్థితి;
 
-      if(conn_config->revoke_best_effort) {
+      ఒకవేళ(conn_config->revoke_ఉత్తమ_effort) {
         /* Ignore errors when root certificates are missing the revocation
          * list URL, or when the list could not be downloaded because the
          * server is currently unreachable. */
-        dwTrustErrorMask &= ~(DWORD)(CERT_TRUST_REVOCATION_STATUS_UNKNOWN |
+        dw_Trust_Error_ముసుగు &= ~(DWORD)(CERT_TRUST_REVOCATION_స్థితి_UNKNOWN |
                                      CERT_TRUST_IS_OFFLINE_REVOCATION);
       }
 
-      if(dwTrustErrorMask) {
-        if(dwTrustErrorMask & CERT_TRUST_IS_REVOKED)
-          failf(data, "schannel: trust for this certificate or one of "
+      ఒకవేళ(dw_Trust_Error_ముసుగు) {
+        ఒకవేళ(dw_Trust_Error_ముసుగు & CERT_TRUST_IS_REVOKED)
+          failf(దత్తాంశం, "schannel: trust for this certificate or one of "
                 "the certificates in the certificate chain has been revoked");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_PARTIAL_CHAIN)
-          failf(data, "schannel: the certificate chain is incomplete");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_UNTRUSTED_ROOT)
-          failf(data, "schannel: the certificate or certificate chain is "
+        లేకపోతే ఒకవేళ(dw_Trust_Error_ముసుగు & CERT_TRUST_IS_PARTIAL_CHAIN)
+          failf(దత్తాంశం, "schannel: the certificate chain is incomplete");
+        లేకపోతే ఒకవేళ(dw_Trust_Error_ముసుగు & CERT_TRUST_IS_UNTRUSTED_మూలం)
+          failf(దత్తాంశం, "schannel: the certificate or certificate chain is "
                 "based on an untrusted root");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_NOT_TIME_VALID)
-          failf(data, "schannel: this certificate or one of the certificates "
+        లేకపోతే ఒకవేళ(dw_Trust_Error_ముసుగు & CERT_TRUST_IS_NOT_సమయం_VALID)
+          failf(దత్తాంశం, "schannel: this certificate or one of the certificates "
                 "in the certificate chain is not time valid");
-        else if(dwTrustErrorMask & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
-          failf(data, "schannel: the revocation status is unknown");
-        else
-          failf(data, "schannel: error 0x%08lx", dwTrustErrorMask);
-        result = CURLE_PEER_FAILED_VERIFICATION;
+        లేకపోతే ఒకవేళ(dw_Trust_Error_ముసుగు & CERT_TRUST_REVOCATION_స్థితి_UNKNOWN)
+          failf(దత్తాంశం, "schannel: the revocation status is unknown");
+        లేకపోతే
+          failf(దత్తాంశం, "schannel: error 0x%08lx", dw_Trust_Error_ముసుగు);
+        ఫలితం = CURLE_PEER_FAILED_VERIFICATION;
       }
     }
   }
 
-  if(result == CURLE_OK) {
-    if(conn_config->verifyhost) {
-      result = Curl_verify_host(cf, data);
+  ఒకవేళ(ఫలితం == CURLE_OK) {
+    ఒకవేళ(conn_config->verifyhost) {
+      ఫలితం = Curl_verify_host(cf, దత్తాంశం);
     }
   }
 
-  if(cert_chain_engine) {
+  ఒకవేళ(cert_chain_engine) {
     CertFreeCertificateChainEngine(cert_chain_engine);
   }
 
-  if(own_trust_store) {
+  ఒకవేళ(own_trust_store) {
     CertCloseStore(own_trust_store, 0);
   }
 
-  if(pChainContext)
+  ఒకవేళ(pChainContext)
     CertFreeCertificateChain(pChainContext);
 
-  if(pCertContextServer)
+  ఒకవేళ(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif /* USE_SCHANNEL */
+#అయితే_ముగింపు /* USE_SCHANNEL */

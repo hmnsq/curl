@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_RAND_H
-#define HEADER_CURL_RAND_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_RAND_H
+#నిర్వచించు శీర్షిక_CURL_RAND_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,32 +23,32 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-struct Curl_easy;
+నిర్మాణం Curl_easy;
 
-CURLcode Curl_rand_bytes(struct Curl_easy *data,
-#ifdef DEBUGBUILD
+CURLcode Curl_rand_బైట్లు(నిర్మాణం Curl_easy *దత్తాంశం,
+#నిర్వచితమైతే DEBUGBUILD
                          bool env_override,
-#endif
-                         unsigned char *rnd, size_t num);
+#అయితే_ముగింపు
+                         గుర్తులేని అక్షరం *rnd, size_t అంకె);
 
-#ifdef DEBUGBUILD
-#define Curl_rand(a, b, c) Curl_rand_bytes(a, TRUE, b, c)
-#else
-#define Curl_rand(a, b, c) Curl_rand_bytes(a, b, c)
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+#నిర్వచించు Curl_rand(a, b, c) Curl_rand_బైట్లు(a, TRUE, b, c)
+#లేకపోతే
+#నిర్వచించు Curl_rand(a, b, c) Curl_rand_బైట్లు(a, b, c)
+#అయితే_ముగింపు
 
 /*
  * Curl_rand_hex() fills the 'rnd' buffer with a given 'num' size with random
  * hexadecimal digits PLUS a null-terminator byte. It must be an odd number
  * size.
  */
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num);
+CURLcode Curl_rand_hex(నిర్మాణం Curl_easy *దత్తాంశం, గుర్తులేని అక్షరం *rnd, size_t అంకె);
 
 /*
  * Curl_rand_alnum() fills the 'rnd' buffer with a given 'num' size with random
  * alphanumerical chars PLUS a null-terminator byte.
  */
-CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
-                         size_t num);
+CURLcode Curl_rand_alnum(నిర్మాణం Curl_easy *దత్తాంశం, గుర్తులేని అక్షరం *rnd,
+                         size_t అంకె);
 
-#endif /* HEADER_CURL_RAND_H */
+#అయితే_ముగింపు /* HEADER_CURL_RAND_H */

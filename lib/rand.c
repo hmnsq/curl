@@ -21,53 +21,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "escape.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "rand.h"
+#అన్తర్భావ "escape.h"
 
-#include "curlx/winapi.h"
+#అన్తర్భావ "curlx/winapi.h"
 
-#ifndef USE_SSL
+#నిర్వచితం_కాకపోతే USE_SSL
 /* ---- possibly non-cryptographic version following ---- */
-static CURLcode weak_random(struct Curl_easy *data,
-                            unsigned char *entropy,
-                            size_t length) /* always 4, size of int */
+స్థిర CURLcode weak_random(నిర్మాణం Curl_easy *దత్తాంశం,
+                            గుర్తులేని అక్షరం *entropy,
+                            size_t నిడివి) /* always 4, size of int */
 {
-  unsigned int r;
-  DEBUGASSERT(length == sizeof(int));
+  గుర్తులేని పూర్ణాంకం r;
+  DEBUGASSERT(నిడివి == పరిమాణం(పూర్ణాంకం));
 
   /* Trying cryptographically secure functions first */
-#ifdef _WIN32
-  (void)data;
+#నిర్వచితమైతే _WIN32
+  (శూన్య)దత్తాంశం;
   {
-    CURLcode result = curlx_win32_random(entropy, length);
-    if(result != CURLE_NOT_BUILT_IN)
-      return result;
+    CURLcode ఫలితం = curlx_win32_random(entropy, నిడివి);
+    ఒకవేళ(ఫలితం != CURLE_NOT_BUILT_లోపల)
+      తిరిగి ఫలితం;
   }
-#endif
+#అయితే_ముగింపు
 
-#ifdef HAVE_ARC4RANDOM
-  (void)data;
-  r = (unsigned int)arc4random();
-  memcpy(entropy, &r, length);
-#else
-  infof(data, "WARNING: using weak random seed");
+#నిర్వచితమైతే HAVE_ARC4RANDOM
+  (శూన్య)దత్తాంశం;
+  r = (గుర్తులేని పూర్ణాంకం)arc4random();
+  జ్ఞాపకం_నకలు(entropy, &r, నిడివి);
+#లేకపోతే
+  infof(దత్తాంశం, "WARNING: using weak random seed");
   {
-    static unsigned int randseed;
-    static bool seeded = FALSE;
-    unsigned int rnd;
-    if(!seeded) {
-      struct curltime now;
+    స్థిర గుర్తులేని పూర్ణాంకం randseed;
+    స్థిర bool seeded = FALSE;
+    గుర్తులేని పూర్ణాంకం rnd;
+    ఒకవేళ(!seeded) {
+      నిర్మాణం curltime now;
       curlx_pnow(&now);
-      randseed += (unsigned int)now.tv_usec + (unsigned int)now.tv_sec;
+      randseed += (గుర్తులేని పూర్ణాంకం)now.tv_usec + (గుర్తులేని పూర్ణాంకం)now.tv_sec;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
@@ -77,48 +77,48 @@ static CURLcode weak_random(struct Curl_easy *data,
     /* Return an unsigned 32-bit pseudo-random number. */
     r = randseed = randseed * 1103515245 + 12345;
     rnd = (r << 16) | ((r >> 16) & 0xFFFF);
-    memcpy(entropy, &rnd, length);
+    జ్ఞాపకం_నకలు(entropy, &rnd, నిడివి);
   }
-#endif
-  return CURLE_OK;
+#అయితే_ముగింపు
+  తిరిగి CURLE_OK;
 }
-#endif
+#అయితే_ముగింపు
 
-static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
+స్థిర CURLcode randit(నిర్మాణం Curl_easy *దత్తాంశం, గుర్తులేని పూర్ణాంకం *rnd,
                        bool env_override)
 {
-#ifdef DEBUGBUILD
-  if(env_override) {
-    char *force_entropy = getenv("CURL_ENTROPY");
-    if(force_entropy) {
-      static unsigned int randseed;
-      static bool seeded = FALSE;
+#నిర్వచితమైతే DEBUGBUILD
+  ఒకవేళ(env_override) {
+    అక్షరం *force_entropy = getenv("CURL_ENTROPY");
+    ఒకవేళ(force_entropy) {
+      స్థిర గుర్తులేని పూర్ణాంకం randseed;
+      స్థిర bool seeded = FALSE;
 
-      if(!seeded) {
-        unsigned int seed = 0;
-        size_t elen = strlen(force_entropy);
-        size_t clen = sizeof(seed);
+      ఒకవేళ(!seeded) {
+        గుర్తులేని పూర్ణాంకం విత్తనం = 0;
+        size_t elen = అక్షరశ్రేణి_పొడవు(force_entropy);
+        size_t clen = పరిమాణం(విత్తనం);
         size_t min = elen < clen ? elen : clen;
-        memcpy((char *)&seed, force_entropy, min);
-        randseed = ntohl(seed);
+        జ్ఞాపకం_నకలు((అక్షరం *)&విత్తనం, force_entropy, min);
+        randseed = ntohl(విత్తనం);
         seeded = TRUE;
       }
-      else
+      లేకపోతే
         randseed++;
       *rnd = randseed;
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
     }
   }
-#else
-  (void)env_override;
-#endif
+#లేకపోతే
+  (శూన్య)env_override;
+#అయితే_ముగింపు
 
   /* data may be NULL! */
-#ifdef USE_SSL
-  return Curl_ssl_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#else
-  return weak_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#endif
+#నిర్వచితమైతే USE_SSL
+  తిరిగి Curl_ssl_random(దత్తాంశం, (గుర్తులేని అక్షరం *)rnd, పరిమాణం(*rnd));
+#లేకపోతే
+  తిరిగి weak_random(దత్తాంశం, (గుర్తులేని అక్షరం *)rnd, పరిమాణం(*rnd));
+#అయితే_ముగింపు
 }
 
 /*
@@ -136,36 +136,36 @@ static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
  *
  */
 
-CURLcode Curl_rand_bytes(struct Curl_easy *data,
-#ifdef DEBUGBUILD
+CURLcode Curl_rand_బైట్లు(నిర్మాణం Curl_easy *దత్తాంశం,
+#నిర్వచితమైతే DEBUGBUILD
                          bool env_override,
-#endif
-                         unsigned char *rnd, size_t num)
+#అయితే_ముగింపు
+                         గుర్తులేని అక్షరం *rnd, size_t అంకె)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-#ifndef DEBUGBUILD
-  const bool env_override = FALSE;
-#endif
+  CURLcode ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+#నిర్వచితం_కాకపోతే DEBUGBUILD
+  స్థిరరాశి bool env_override = FALSE;
+#అయితే_ముగింపు
 
-  DEBUGASSERT(num);
+  DEBUGASSERT(అంకె);
 
-  while(num) {
-    unsigned int r;
-    size_t left = num < sizeof(unsigned int) ? num : sizeof(unsigned int);
+  అయితే(అంకె) {
+    గుర్తులేని పూర్ణాంకం r;
+    size_t ఎడమ = అంకె < పరిమాణం(గుర్తులేని పూర్ణాంకం) ? అంకె : పరిమాణం(గుర్తులేని పూర్ణాంకం);
 
-    result = randit(data, &r, env_override);
-    if(result)
-      return result;
+    ఫలితం = randit(దత్తాంశం, &r, env_override);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
 
-    while(left) {
-      *rnd++ = (unsigned char)(r & 0xFF);
+    అయితే(ఎడమ) {
+      *rnd++ = (గుర్తులేని అక్షరం)(r & 0xFF);
       r >>= 8;
-      --num;
-      --left;
+      --అంకె;
+      --ఎడమ;
     }
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -174,26 +174,26 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
  * size.
  */
 
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
+CURLcode Curl_rand_hex(నిర్మాణం Curl_easy *దత్తాంశం, గుర్తులేని అక్షరం *rnd, size_t అంకె)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  unsigned char buffer[128];
-  DEBUGASSERT(num > 1);
+  CURLcode ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+  గుర్తులేని అక్షరం బఫరు[128];
+  DEBUGASSERT(అంకె > 1);
 
-  if((num / 2 >= sizeof(buffer)) || !(num & 1)) {
+  ఒకవేళ((అంకె / 2 >= పరిమాణం(బఫరు)) || !(అంకె & 1)) {
     /* make sure it fits in the local buffer and that it is an odd number! */
-    DEBUGF(infof(data, "invalid buffer size with Curl_rand_hex"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    DEBUGF(infof(దత్తాంశం, "invalid buffer size with Curl_rand_hex"));
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
 
-  num--; /* save one for null-termination */
+  అంకె--; /* save one for null-termination */
 
-  result = Curl_rand(data, buffer, num / 2);
-  if(result)
-    return result;
+  ఫలితం = Curl_rand(దత్తాంశం, బఫరు, అంకె / 2);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  Curl_hexencode(buffer, num / 2, rnd, num + 1);
-  return result;
+  Curl_hexencode(బఫరు, అంకె / 2, rnd, అంకె + 1);
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -201,30 +201,30 @@ CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
  * alphanumerical chars PLUS a null-terminator byte.
  */
 
-static const char alnum[] =
+స్థిర స్థిరరాశి అక్షరం alnum[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
-                         size_t num)
+CURLcode Curl_rand_alnum(నిర్మాణం Curl_easy *దత్తాంశం, గుర్తులేని అక్షరం *rnd,
+                         size_t అంకె)
 {
-  CURLcode result = CURLE_OK;
-  const unsigned int alnumspace = CURL_CSTRLEN(alnum);
-  unsigned int r;
-  DEBUGASSERT(num > 1);
+  CURLcode ఫలితం = CURLE_OK;
+  స్థిరరాశి గుర్తులేని పూర్ణాంకం alnumspace = CURL_CSTRLEN(alnum);
+  గుర్తులేని పూర్ణాంకం r;
+  DEBUGASSERT(అంకె > 1);
 
-  num--; /* save one for null-termination */
+  అంకె--; /* save one for null-termination */
 
-  while(num) {
-    do {
-      result = randit(data, &r, TRUE);
-      if(result)
-        return result;
-    } while(r >= (UINT_MAX - UINT_MAX % alnumspace));
+  అయితే(అంకె) {
+    చేయి {
+      ఫలితం = randit(దత్తాంశం, &r, TRUE);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
+    } అయితే(r >= (UINT_MAX - UINT_MAX % alnumspace));
 
-    *rnd++ = (unsigned char)alnum[r % alnumspace];
-    num--;
+    *rnd++ = (గుర్తులేని అక్షరం)alnum[r % alnumspace];
+    అంకె--;
   }
   *rnd = 0;
 
-  return result;
+  తిరిగి ఫలితం;
 }

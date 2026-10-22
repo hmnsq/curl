@@ -38,109 +38,109 @@
    https://httpd.apache.org/docs/2.0/ssl/ssl_intro.html
  */
 
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "cfilters.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "cfilters.h"
 
-#include "vtls/vtls.h" /* generic SSL protos etc */
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/keylog.h"
+#అన్తర్భావ "vtls/vtls.h" /* generic SSL protos etc */
+#అన్తర్భావ "vtls/vtls_int.h"
+#అన్తర్భావ "vtls/vtls_scache.h"
+#అన్తర్భావ "vtls/keylog.h"
 
-#include "vtls/openssl.h"        /* OpenSSL versions */
-#include "vtls/gtls.h"           /* GnuTLS versions */
-#include "vtls/wolfssl.h"        /* wolfSSL versions */
-#include "vtls/schannel.h"       /* Schannel SSPI version */
-#include "vtls/mbedtls.h"        /* mbedTLS versions */
-#include "vtls/rustls.h"         /* Rustls versions */
+#అన్తర్భావ "vtls/openssl.h"        /* OpenSSL versions */
+#అన్తర్భావ "vtls/gtls.h"           /* GnuTLS versions */
+#అన్తర్భావ "vtls/wolfssl.h"        /* wolfSSL versions */
+#అన్తర్భావ "vtls/schannel.h"       /* Schannel SSPI version */
+#అన్తర్భావ "vtls/mbedtls.h"        /* mbedTLS versions */
+#అన్తర్భావ "vtls/rustls.h"         /* Rustls versions */
 
-#include "slist.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "url.h"
-#include "progress.h"
-#include "curlx/win32-fopen.h"
-#include "curl_sha256.h"
-#include "curlx/base64.h"
-#include "curlx/inet_pton.h"
-#include "connect.h"
-#include "select.h"
-#include "setopt.h"
-#include "vdns/cf-dns.h"
-#include "curlx/strdup.h"
-#include "curlx/strcopy.h"
+#అన్తర్భావ "slist.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "strcase.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "curlx/win32-fopen.h"
+#అన్తర్భావ "curl_sha256.h"
+#అన్తర్భావ "curlx/base64.h"
+#అన్తర్భావ "curlx/inet_pton.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "setopt.h"
+#అన్తర్భావ "vdns/cf-dns.h"
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "curlx/strcopy.h"
 
-#ifdef USE_APPLE_SECTRUST
-#include <Security/Security.h>
-#endif
+#నిర్వచితమైతే USE_APPLE_SECTRUST
+#అన్తర్భావ <Security/Security.h>
+#అయితే_ముగింపు
 
-#ifdef USE_SSL
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_PROXY)
-static const struct alpn_spec ALPN_SPEC_H11 = {
+#నిర్వచితమైతే USE_SSL
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_PROXY)
+స్థిర స్థిరరాశి నిర్మాణం alpn_spec ALPN_SPEC_H11 = {
   { ALPN_HTTP_1_1 }, 1
 };
-static const struct alpn_spec ALPN_SPEC_H10_H11 = {
+స్థిర స్థిరరాశి నిర్మాణం alpn_spec ALPN_SPEC_H10_H11 = {
   { ALPN_HTTP_1_0, ALPN_HTTP_1_1 }, 2
 };
-#ifdef USE_HTTP2
-static const struct alpn_spec ALPN_SPEC_H2 = {
+#నిర్వచితమైతే USE_HTTP2
+స్థిర స్థిరరాశి నిర్మాణం alpn_spec ALPN_SPEC_H2 = {
   { ALPN_H2 }, 1
 };
-static const struct alpn_spec ALPN_SPEC_H2_H11 = {
+స్థిర స్థిరరాశి నిర్మాణం alpn_spec ALPN_SPEC_H2_H11 = {
   { ALPN_H2, ALPN_HTTP_1_1 }, 2
 };
-static const struct alpn_spec ALPN_SPEC_H11_H2 = {
+స్థిర స్థిరరాశి నిర్మాణం alpn_spec ALPN_SPEC_H11_H2 = {
   { ALPN_HTTP_1_1, ALPN_H2 }, 2
 };
-#endif /* USE_HTTP2 */
+#అయితే_ముగింపు /* USE_HTTP2 */
 
-static const struct alpn_spec *alpn_get_spec(http_majors wanted,
+స్థిర స్థిరరాశి నిర్మాణం alpn_spec *alpn_get_spec(http_majors wanted,
                                              http_majors preferred,
                                              bool only_http_10,
                                              bool use_alpn)
 {
-  if(!use_alpn)
-    return NULL;
+  ఒకవేళ(!use_alpn)
+    తిరిగి ఖాళీ;
   /* If HTTP/1.0 is the wanted protocol then use ALPN http/1.0 and http/1.1.
      This is for compatibility reasons since some HTTP/1.0 servers with old
      ALPN implementations understand ALPN http/1.1 but not http/1.0. */
-  if(only_http_10 && (wanted & CURL_HTTP_V1x))
-    return &ALPN_SPEC_H10_H11;
-#ifdef USE_HTTP2
-  if(wanted & CURL_HTTP_V2x) {
-    if(wanted & CURL_HTTP_V1x)
-      return (preferred == CURL_HTTP_V1x) ?
+  ఒకవేళ(only_http_10 && (wanted & CURL_HTTP_V1x))
+    తిరిగి &ALPN_SPEC_H10_H11;
+#నిర్వచితమైతే USE_HTTP2
+  ఒకవేళ(wanted & CURL_HTTP_V2x) {
+    ఒకవేళ(wanted & CURL_HTTP_V1x)
+      తిరిగి (preferred == CURL_HTTP_V1x) ?
         &ALPN_SPEC_H11_H2 : &ALPN_SPEC_H2_H11;
-    return &ALPN_SPEC_H2;
+    తిరిగి &ALPN_SPEC_H2;
   }
-#else
-  (void)wanted;
-  (void)preferred;
-#endif
-  return &ALPN_SPEC_H11;
+#లేకపోతే
+  (శూన్య)wanted;
+  (శూన్య)preferred;
+#అయితే_ముగింపు
+  తిరిగి &ALPN_SPEC_H11;
 }
-#endif /* !CURL_DISABLE_HTTP || !CURL_DISABLE_PROXY */
-#endif /* USE_SSL */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP || !CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* USE_SSL */
 
-#ifdef USE_SSL
-static int multissl_setup(const struct Curl_ssl *backend);
-#endif
+#నిర్వచితమైతే USE_SSL
+స్థిర పూర్ణాంకం multissl_అమరిక(స్థిరరాశి నిర్మాణం Curl_ssl *backend);
+#అయితే_ముగింపు
 
-curl_sslbackend Curl_ssl_backend(void)
+curl_sslbackend Curl_ssl_backend(శూన్య)
 {
-#ifdef USE_SSL
-  multissl_setup(NULL);
-  return Curl_ssl->info.id;
-#else
-  return CURLSSLBACKEND_NONE;
-#endif
+#నిర్వచితమైతే USE_SSL
+  multissl_అమరిక(ఖాళీ);
+  తిరిగి Curl_ssl->info.id;
+#లేకపోతే
+  తిరిగి CURLSSLBACKEND_NONE;
+#అయితే_ముగింపు
 }
 
-#ifdef USE_SSL
+#నిర్వచితమైతే USE_SSL
 
 /* "global" init done? */
-static bool init_ssl = FALSE;
+స్థిర bool init_ssl = FALSE;
 
 /**
  * Global SSL init
@@ -148,67 +148,67 @@ static bool init_ssl = FALSE;
  * @retval 0 error initializing SSL
  * @retval 1 SSL initialized successfully
  */
-int Curl_ssl_init(void)
+పూర్ణాంకం Curl_ssl_init(శూన్య)
 {
   /* make sure this is only done once */
-  if(init_ssl)
-    return 1;
+  ఒకవేళ(init_ssl)
+    తిరిగి 1;
   init_ssl = TRUE; /* never again */
 
-  if(Curl_ssl->init)
-    return Curl_ssl->init();
-  return 1;
+  ఒకవేళ(Curl_ssl->init)
+    తిరిగి Curl_ssl->init();
+  తిరిగి 1;
 }
 
-static bool ssl_prefs_check(struct Curl_cfilter *cf,
-                            struct Curl_easy *data)
+స్థిర bool ssl_prefs_check(నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   /* check for CURLOPT_SSLVERSION invalid parameter value */
-  if(conn_config->version >= CURL_SSLVERSION_LAST) {
-    failf(data, "Unrecognized parameter value passed via CURLOPT_SSLVERSION");
-    return FALSE;
+  ఒకవేళ(conn_config->సంస్కరణ_2 >= CURL_SSLVERSION_చివరి) {
+    failf(దత్తాంశం, "Unrecognized parameter value passed via CURLOPT_SSLVERSION");
+    తిరిగి FALSE;
   }
 
-  switch(conn_config->version_max) {
-  case CURL_SSLVERSION_MAX_NONE:
-  case CURL_SSLVERSION_MAX_DEFAULT:
-    break;
+  ఎంపిక(conn_config->సంస్కరణ_max) {
+  స్థితి CURL_SSLVERSION_MAX_NONE:
+  స్థితి CURL_SSLVERSION_MAX_DEFAULT:
+    ఆపు;
 
-  default:
-    if((conn_config->version_max >> 16) < conn_config->version) {
-      failf(data, "CURL_SSLVERSION_MAX incompatible with CURL_SSLVERSION");
-      return FALSE;
+  అప్రమేయ:
+    ఒకవేళ((conn_config->సంస్కరణ_max >> 16) < conn_config->సంస్కరణ_2) {
+      failf(దత్తాంశం, "CURL_SSLVERSION_MAX incompatible with CURL_SSLVERSION");
+      తిరిగి FALSE;
     }
   }
 
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-static struct ssl_connect_data *cf_ctx_new(struct Curl_easy *data,
-                                           const struct alpn_spec *alpn)
+స్థిర నిర్మాణం ssl_connect_దత్తాంశం *cf_ctx_new(నిర్మాణం Curl_easy *దత్తాంశం,
+                                           స్థిరరాశి నిర్మాణం alpn_spec *alpn)
 {
-  struct ssl_connect_data *ctx;
+  నిర్మాణం ssl_connect_దత్తాంశం *ctx;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    return NULL;
+  (శూన్య)దత్తాంశం;
+  ctx = curlx_calloc(1, పరిమాణం(*ctx));
+  ఒకవేళ(!ctx)
+    తిరిగి ఖాళీ;
 
   ctx->ssl_impl = Curl_ssl;
   ctx->alpn = alpn;
   Curl_bufq_init2(&ctx->earlydata, CURL_SSL_EARLY_MAX, 1, BUFQ_OPT_NO_SPARES);
-  ctx->backend = curlx_calloc(1, ctx->ssl_impl->sizeof_ssl_backend_data);
-  if(!ctx->backend) {
+  ctx->backend = curlx_calloc(1, ctx->ssl_impl->sizeof_ssl_backend_దత్తాంశం);
+  ఒకవేళ(!ctx->backend) {
     curlx_free(ctx);
-    return NULL;
+    తిరిగి ఖాళీ;
   }
-  return ctx;
+  తిరిగి ctx;
 }
 
-static void cf_ctx_free(struct ssl_connect_data *ctx)
+స్థిర శూన్య cf_ctx_free(నిర్మాణం ssl_connect_దత్తాంశం *ctx)
 {
-  if(ctx) {
+  ఒకవేళ(ctx) {
     curlx_safefree(ctx->negotiated.alpn);
     Curl_bufq_free(&ctx->earlydata);
     curlx_free(ctx->backend);
@@ -216,533 +216,533 @@ static void cf_ctx_free(struct ssl_connect_data *ctx)
   }
 }
 
-CURLcode Curl_ssl_get_channel_binding(struct Curl_easy *data, int8_t sockindex,
-                                      struct dynbuf *binding)
+CURLcode Curl_ssl_get_channel_binding(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                                      నిర్మాణం dynbuf *binding)
 {
-  if(Curl_ssl->get_channel_binding)
-    return Curl_ssl->get_channel_binding(data, sockindex, binding);
-  return CURLE_OK;
+  ఒకవేళ(Curl_ssl->get_channel_binding)
+    తిరిగి Curl_ssl->get_channel_binding(దత్తాంశం, sockindex, binding);
+  తిరిగి CURLE_OK;
 }
 
-void Curl_ssl_close_all(struct Curl_easy *data)
+శూన్య Curl_ssl_close_all(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(Curl_ssl->close_all)
-    Curl_ssl->close_all(data);
+  ఒకవేళ(Curl_ssl->close_all)
+    Curl_ssl->close_all(దత్తాంశం);
 }
 
-CURLcode Curl_ssl_adjust_pollset(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct easy_pollset *ps)
+CURLcode Curl_ssl_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం easy_pollset *ps)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
 
-  if(connssl->io_need) {
-    curl_socket_t sock = Curl_conn_cf_get_socket(cf->next, data);
-    CURLcode result = CURLE_OK;
-    if(sock != CURL_SOCKET_BAD) {
-      if(connssl->io_need & CURL_SSL_IO_NEED_SEND) {
-        result = Curl_pollset_set_out_only(data, ps, sock);
-        CURL_TRC_CF(data, cf, "adjust_pollset, POLLOUT fd=%" FMT_SOCKET_T,
+  ఒకవేళ(connssl->io_need) {
+    curl_socket_t sock = Curl_conn_cf_get_socket(cf->తదుపరి, దత్తాంశం);
+    CURLcode ఫలితం = CURLE_OK;
+    ఒకవేళ(sock != CURL_SOCKET_BAD) {
+      ఒకవేళ(connssl->io_need & CURL_SSL_IO_NEED_SEND) {
+        ఫలితం = Curl_pollset_సమితి_బహిర్గతం_only(దత్తాంశం, ps, sock);
+        CURL_TRC_CF(దత్తాంశం, cf, "adjust_pollset, POLLOUT fd=%" FMT_SOCKET_T,
                     sock);
       }
-      else {
-        result = Curl_pollset_set_in_only(data, ps, sock);
-        CURL_TRC_CF(data, cf, "adjust_pollset, POLLIN fd=%" FMT_SOCKET_T,
+      లేకపోతే {
+        ఫలితం = Curl_pollset_సమితి_లోపల_only(దత్తాంశం, ps, sock);
+        CURL_TRC_CF(దత్తాంశం, cf, "adjust_pollset, POLLIN fd=%" FMT_SOCKET_T,
                     sock);
       }
     }
-    return result;
+    తిరిగి ఫలితం;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* Return list of OpenSSL crypto engine names. */
-struct curl_slist *Curl_ssl_engines_list(struct Curl_easy *data)
+నిర్మాణం curl_slist *Curl_ssl_engines_list(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(Curl_ssl->engines_list)
-    return Curl_ssl->engines_list(data);
-  return NULL;
+  ఒకవేళ(Curl_ssl->engines_list)
+    తిరిగి Curl_ssl->engines_list(దత్తాంశం);
+  తిరిగి ఖాళీ;
 }
 
-static size_t multissl_version(char *buffer, size_t size);
+స్థిర size_t multissl_సంస్కరణ(అక్షరం *బఫరు, size_t కొలత);
 
-void Curl_ssl_version(char *buffer, size_t size)
+శూన్య Curl_ssl_సంస్కరణ(అక్షరం *బఫరు, size_t కొలత)
 {
-#ifdef CURL_WITH_MULTI_SSL
-  (void)multissl_version(buffer, size);
-#else
-  (void)Curl_ssl->version(buffer, size);
-#endif
+#నిర్వచితమైతే CURL_WITH_MULTI_SSL
+  (శూన్య)multissl_సంస్కరణ(బఫరు, కొలత);
+#లేకపోతే
+  (శూన్య)Curl_ssl->సంస్కరణ_2(బఫరు, కొలత);
+#అయితే_ముగింపు
 }
 
-void Curl_ssl_free_certinfo(struct Curl_easy *data)
+శూన్య Curl_ssl_free_certinfo(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct curl_certinfo *ci = &data->info.certs;
+  నిర్మాణం curl_certinfo *ci = &దత్తాంశం->info.certs;
 
-  if(ci->num_of_certs) {
+  ఒకవేళ(ci->అంకె_యొక్క_certs) {
     /* free all individual lists used */
-    int i;
-    for(i = 0; i < ci->num_of_certs; i++) {
+    పూర్ణాంకం i;
+    కొరకు(i = 0; i < ci->అంకె_యొక్క_certs; i++) {
       curl_slist_free_all(ci->certinfo[i]);
-      ci->certinfo[i] = NULL;
+      ci->certinfo[i] = ఖాళీ;
     }
 
     curlx_safefree(ci->certinfo); /* free the actual array too */
-    ci->num_of_certs = 0;
+    ci->అంకె_యొక్క_certs = 0;
   }
 }
 
-CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num)
+CURLcode Curl_ssl_init_certinfo(నిర్మాణం Curl_easy *దత్తాంశం, పూర్ణాంకం అంకె)
 {
-  struct curl_certinfo *ci = &data->info.certs;
-  struct curl_slist **table;
+  నిర్మాణం curl_certinfo *ci = &దత్తాంశం->info.certs;
+  నిర్మాణం curl_slist **పట్టిక;
 
   /* Free any previous certificate information structures */
-  Curl_ssl_free_certinfo(data);
+  Curl_ssl_free_certinfo(దత్తాంశం);
 
   /* Allocate the required certificate information structures */
-  table = curlx_calloc((size_t)num, sizeof(struct curl_slist *));
-  if(!table)
-    return CURLE_OUT_OF_MEMORY;
+  పట్టిక = curlx_calloc((size_t)అంకె, పరిమాణం(నిర్మాణం curl_slist *));
+  ఒకవేళ(!పట్టిక)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  ci->num_of_certs = num;
-  ci->certinfo = table;
+  ci->అంకె_యొక్క_certs = అంకె;
+  ci->certinfo = పట్టిక;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
  * 'value' is NOT a null-terminated string
  */
-CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data,
-                                    int certnum,
-                                    const char *label,
-                                    const char *value,
+CURLcode Curl_ssl_నెట్టు_certinfo_len(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    పూర్ణాంకం certnum,
+                                    స్థిరరాశి అక్షరం *label,
+                                    స్థిరరాశి అక్షరం *విలువ,
                                     size_t valuelen)
 {
-  struct curl_certinfo *ci = &data->info.certs;
-  struct curl_slist *nl;
-  CURLcode result = CURLE_OK;
-  struct dynbuf build;
+  నిర్మాణం curl_certinfo *ci = &దత్తాంశం->info.certs;
+  నిర్మాణం curl_slist *nl;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం dynbuf build;
 
-  DEBUGASSERT(certnum < ci->num_of_certs);
+  DEBUGASSERT(certnum < ci->అంకె_యొక్క_certs);
 
   curlx_dyn_init(&build, CURL_X509_STR_MAX);
 
-  if(curlx_dyn_add(&build, label) ||
+  ఒకవేళ(curlx_dyn_కూడు(&build, label) ||
      curlx_dyn_addn(&build, ":", 1) ||
-     curlx_dyn_addn(&build, value, valuelen))
-    return CURLE_OUT_OF_MEMORY;
+     curlx_dyn_addn(&build, విలువ, valuelen))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   nl = Curl_slist_append_nodup(ci->certinfo[certnum], curlx_dyn_ptr(&build));
-  if(!nl) {
+  ఒకవేళ(!nl) {
     curlx_dyn_free(&build);
     curl_slist_free_all(ci->certinfo[certnum]);
-    result = CURLE_OUT_OF_MEMORY;
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
   ci->certinfo[certnum] = nl;
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* get length bytes of randomness */
-CURLcode Curl_ssl_random(struct Curl_easy *data,
-                         unsigned char *buffer, size_t length)
+CURLcode Curl_ssl_random(నిర్మాణం Curl_easy *దత్తాంశం,
+                         గుర్తులేని అక్షరం *బఫరు, size_t నిడివి)
 {
-  DEBUGASSERT(length == sizeof(int));
-  if(Curl_ssl->random)
-    return Curl_ssl->random(data, buffer, length);
-  else
-    return CURLE_NOT_BUILT_IN;
+  DEBUGASSERT(నిడివి == పరిమాణం(పూర్ణాంకం));
+  ఒకవేళ(Curl_ssl->random)
+    తిరిగి Curl_ssl->random(దత్తాంశం, బఫరు, నిడివి);
+  లేకపోతే
+    తిరిగి CURLE_NOT_BUILT_లోపల;
 }
 
 /*
  * Public key pem to der conversion
  */
 
-static CURLcode pubkey_pem_to_der(const char *pem,
-                                  unsigned char **der, size_t *der_len)
+స్థిర CURLcode pubkey_pem_గమ్యం_der(స్థిరరాశి అక్షరం *pem,
+                                  గుర్తులేని అక్షరం **der, size_t *der_len)
 {
-  const char *begin_pos, *end_pos;
-  size_t pem_count, pem_len;
-  CURLcode result;
-  struct dynbuf pbuf;
+  స్థిరరాశి అక్షరం *begin_pos, *చివర_pos;
+  size_t pem_లెక్క, pem_len;
+  CURLcode ఫలితం;
+  నిర్మాణం dynbuf pbuf;
 
   /* if no pem, exit. */
-  if(!pem)
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!pem)
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
-  curlx_dyn_init(&pbuf, MAX_PINNED_PUBKEY_SIZE);
+  curlx_dyn_init(&pbuf, MAX_PINNED_PUBKEY_కొలత);
 
-  begin_pos = strstr(pem, "-----BEGIN PUBLIC KEY-----");
-  if(!begin_pos)
-    return CURLE_BAD_CONTENT_ENCODING;
+  begin_pos = అక్షరశ్రేణి_శోధన(pem, "-----BEGIN PUBLIC KEY-----");
+  ఒకవేళ(!begin_pos)
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
-  pem_count = begin_pos - pem;
+  pem_లెక్క = begin_pos - pem;
   /* Invalid if not at beginning AND not directly following \n */
-  if(pem_count && '\n' != pem[pem_count - 1])
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(pem_లెక్క && '\n' != pem[pem_లెక్క - 1])
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
   /* 26 is length of "-----BEGIN PUBLIC KEY-----" */
-  pem_count += 26;
+  pem_లెక్క += 26;
 
   /* Invalid if not directly following \n */
-  end_pos = strstr(pem + pem_count, "\n-----END PUBLIC KEY-----");
-  if(!end_pos)
-    return CURLE_BAD_CONTENT_ENCODING;
+  చివర_pos = అక్షరశ్రేణి_శోధన(pem + pem_లెక్క, "\n-----END PUBLIC KEY-----");
+  ఒకవేళ(!చివర_pos)
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
-  pem_len = end_pos - pem;
+  pem_len = చివర_pos - pem;
 
   /*
    * Here we loop through the pem array one character at a time between the
    * correct indices, and place each character that is not '\n' or '\r'
    * into the stripped_pem array, which should represent the raw base64 string
    */
-  while(pem_count < pem_len) {
-    if('\n' != pem[pem_count] && '\r' != pem[pem_count]) {
-      result = curlx_dyn_addn(&pbuf, &pem[pem_count], 1);
-      if(result)
-        return result;
+  అయితే(pem_లెక్క < pem_len) {
+    ఒకవేళ('\n' != pem[pem_లెక్క] && '\r' != pem[pem_లెక్క]) {
+      ఫలితం = curlx_dyn_addn(&pbuf, &pem[pem_లెక్క], 1);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
     }
-    ++pem_count;
+    ++pem_లెక్క;
   }
 
-  if(curlx_dyn_len(&pbuf)) {
-    result = curlx_base64_decode(curlx_dyn_ptr(&pbuf), der, der_len);
+  ఒకవేళ(curlx_dyn_len(&pbuf)) {
+    ఫలితం = curlx_base64_decode(curlx_dyn_ptr(&pbuf), der, der_len);
     curlx_dyn_free(&pbuf);
   }
-  else
-    result = CURLE_BAD_CONTENT_ENCODING;
+  లేకపోతే
+    ఫలితం = CURLE_BAD_CONTENT_ENCODING;
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
  * Generic pinned public key check.
  */
 
-CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
-                              const char *pinnedpubkey,
-                              const unsigned char *pubkey, size_t pubkeylen)
+CURLcode Curl_pin_peer_pubkey(నిర్మాణం Curl_easy *దత్తాంశం,
+                              స్థిరరాశి అక్షరం *pinnedpubkey,
+                              స్థిరరాశి గుర్తులేని అక్షరం *pubkey, size_t pubkeylen)
 {
-  CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
+  CURLcode ఫలితం = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
-  if(!pubkey || !pubkeylen)
-    return result;
+  ఒకవేళ(!pinnedpubkey)
+    తిరిగి CURLE_OK;
+  ఒకవేళ(!pubkey || !pubkeylen)
+    తిరిగి ఫలితం;
 
   /* only do this if pinnedpubkey starts with "sha256//", length 8 */
-  if(!strncmp(pinnedpubkey, "sha256//", 8)) {
+  ఒకవేళ(!అక్షరశ్రేణి_పోలిక(pinnedpubkey, "sha256//", 8)) {
     CURLcode encode;
-    char *cert_hash = NULL;
-    const char *pinned_hash, *end_pos;
+    అక్షరం *cert_hash = ఖాళీ;
+    స్థిరరాశి అక్షరం *pinned_hash, *చివర_pos;
     size_t cert_hash_len = 0, pinned_hash_len;
-    unsigned char *sha256sumdigest;
+    గుర్తులేని అక్షరం *sha256sumdigest;
 
-    if(!Curl_ssl->sha256sum) {
+    ఒకవేళ(!Curl_ssl->sha256sum) {
       /* without sha256 support, this cannot match */
-      return result;
+      తిరిగి ఫలితం;
     }
 
     /* compute sha256sum of public key */
-    sha256sumdigest = curlx_malloc(CURL_SHA256_DIGEST_LENGTH);
-    if(!sha256sumdigest)
-      return CURLE_OUT_OF_MEMORY;
+    sha256sumdigest = curlx_malloc(CURL_SHA256_DIGEST_నిడివి);
+    ఒకవేళ(!sha256sumdigest)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     encode = Curl_ssl->sha256sum(pubkey, pubkeylen,
-                                 sha256sumdigest, CURL_SHA256_DIGEST_LENGTH);
+                                 sha256sumdigest, CURL_SHA256_DIGEST_నిడివి);
 
-    if(!encode)
+    ఒకవేళ(!encode)
       encode = curlx_base64_encode(sha256sumdigest,
-                                   CURL_SHA256_DIGEST_LENGTH,
+                                   CURL_SHA256_DIGEST_నిడివి,
                                    &cert_hash, &cert_hash_len);
     curlx_safefree(sha256sumdigest);
 
-    if(encode)
-      return encode;
+    ఒకవేళ(encode)
+      తిరిగి encode;
 
-    infof(data, " public key hash: sha256//%s", cert_hash);
+    infof(దత్తాంశం, " public key hash: sha256//%s", cert_hash);
 
     pinned_hash = pinnedpubkey;
-    while(pinned_hash &&
-          !strncmp(pinned_hash, "sha256//", CURL_CSTRLEN("sha256//"))) {
+    అయితే(pinned_hash &&
+          !అక్షరశ్రేణి_పోలిక(pinned_hash, "sha256//", CURL_CSTRLEN("sha256//"))) {
       pinned_hash = pinned_hash + CURL_CSTRLEN("sha256//");
-      end_pos = strchr(pinned_hash, ';');
-      pinned_hash_len = end_pos ?
-                        (size_t)(end_pos - pinned_hash) : strlen(pinned_hash);
+      చివర_pos = strchr(pinned_hash, ';');
+      pinned_hash_len = చివర_pos ?
+                        (size_t)(చివర_pos - pinned_hash) : అక్షరశ్రేణి_పొడవు(pinned_hash);
 
       /* compare base64 sha256 digests */
-      if(cert_hash_len == pinned_hash_len &&
+      ఒకవేళ(cert_hash_len == pinned_hash_len &&
          !memcmp(cert_hash, pinned_hash, cert_hash_len)) {
-        DEBUGF(infof(data, "public key hash matches pinned value"));
-        result = CURLE_OK;
-        break;
+        DEBUGF(infof(దత్తాంశం, "public key hash matches pinned value"));
+        ఫలితం = CURLE_OK;
+        ఆపు;
       }
 
-      DEBUGF(infof(data, "public key hash does not match 'sha256//%.*s'",
-                   (int)pinned_hash_len, pinned_hash));
+      DEBUGF(infof(దత్తాంశం, "public key hash does not match 'sha256//%.*s'",
+                   (పూర్ణాంకం)pinned_hash_len, pinned_hash));
       /* next one or we are at the end */
-      pinned_hash = end_pos ? (end_pos + 1) : NULL;
+      pinned_hash = చివర_pos ? (చివర_pos + 1) : ఖాళీ;
     }
     curlx_safefree(cert_hash);
   }
-  else {
-    long filesize;
-    size_t size, pem_len;
+  లేకపోతే {
+    దీర్ఘ filesize;
+    size_t కొలత, pem_len;
     CURLcode pem_read;
-    struct dynbuf buf;
-    unsigned char *pem_ptr = NULL;
-    size_t left;
+    నిర్మాణం dynbuf buf;
+    గుర్తులేని అక్షరం *pem_ptr = ఖాళీ;
+    size_t ఎడమ;
     FILE *fp = curlx_fopen(pinnedpubkey, "rb");
-    if(!fp)
-      return result;
+    ఒకవేళ(!fp)
+      తిరిగి ఫలితం;
 
-    curlx_dyn_init(&buf, MAX_PINNED_PUBKEY_SIZE);
+    curlx_dyn_init(&buf, MAX_PINNED_PUBKEY_కొలత);
 
     /* Determine the file's size */
-    if(fseek(fp, 0, SEEK_END))
-      goto end;
+    ఒకవేళ(fseek(fp, 0, SEEK_END))
+      వెళ్ళు చివర;
     filesize = ftell(fp);
-    if(fseek(fp, 0, SEEK_SET))
-      goto end;
-    if(filesize < 0 || filesize > MAX_PINNED_PUBKEY_SIZE)
-      goto end;
+    ఒకవేళ(fseek(fp, 0, SEEK_SET))
+      వెళ్ళు చివర;
+    ఒకవేళ(filesize < 0 || filesize > MAX_PINNED_PUBKEY_కొలత)
+      వెళ్ళు చివర;
 
     /*
      * if the size of our certificate is bigger than the file
      * size then it cannot match
      */
-    size = curlx_sotouz((curl_off_t)filesize);
-    if(pubkeylen > size)
-      goto end;
+    కొలత = curlx_sotouz((curl_off_t)filesize);
+    ఒకవేళ(pubkeylen > కొలత)
+      వెళ్ళు చివర;
 
     /*
      * Read the file into the dynbuf
      */
-    left = size;
-    do {
-      char buffer[1024];
-      size_t want = left > sizeof(buffer) ? sizeof(buffer) : left;
-      if(fread(buffer, 1, want, fp) != want)
-        goto end;
-      if(curlx_dyn_addn(&buf, buffer, want))
-        goto end;
-      left -= want;
-    } while(left);
+    ఎడమ = కొలత;
+    చేయి {
+      అక్షరం బఫరు[1024];
+      size_t want = ఎడమ > పరిమాణం(బఫరు) ? పరిమాణం(బఫరు) : ఎడమ;
+      ఒకవేళ(fread(బఫరు, 1, want, fp) != want)
+        వెళ్ళు చివర;
+      ఒకవేళ(curlx_dyn_addn(&buf, బఫరు, want))
+        వెళ్ళు చివర;
+      ఎడమ -= want;
+    } అయితే(ఎడమ);
 
     /* If the sizes are the same, it cannot be base64 encoded, must be der */
-    if(pubkeylen == size) {
-      if(!memcmp(pubkey, curlx_dyn_ptr(&buf), pubkeylen))
-        result = CURLE_OK;
-      goto end;
+    ఒకవేళ(pubkeylen == కొలత) {
+      ఒకవేళ(!memcmp(pubkey, curlx_dyn_ptr(&buf), pubkeylen))
+        ఫలితం = CURLE_OK;
+      వెళ్ళు చివర;
     }
 
     /*
      * Otherwise we assume it is PEM and try to decode it after placing
      * null-terminator
      */
-    pem_read = pubkey_pem_to_der(curlx_dyn_ptr(&buf), &pem_ptr, &pem_len);
+    pem_read = pubkey_pem_గమ్యం_der(curlx_dyn_ptr(&buf), &pem_ptr, &pem_len);
     /* if it was not read successfully, exit */
-    if(pem_read)
-      goto end;
+    ఒకవేళ(pem_read)
+      వెళ్ళు చివర;
 
     /*
      * if the size of our certificate does not match the size of
      * the decoded file, they cannot be the same, otherwise compare
      */
-    if(pubkeylen == pem_len && !memcmp(pubkey, pem_ptr, pubkeylen))
-      result = CURLE_OK;
-end:
+    ఒకవేళ(pubkeylen == pem_len && !memcmp(pubkey, pem_ptr, pubkeylen))
+      ఫలితం = CURLE_OK;
+చివర:
     curlx_dyn_free(&buf);
     curlx_safefree(pem_ptr);
     curlx_fclose(fp);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
  * Check whether the SSL backend supports the status_request extension.
  */
-bool Curl_ssl_cert_status_request(void)
+bool Curl_ssl_cert_స్థితి_request(శూన్య)
 {
-  if(Curl_ssl->cert_status_request)
-    return Curl_ssl->cert_status_request();
-  return FALSE;
+  ఒకవేళ(Curl_ssl->cert_స్థితి_request)
+    తిరిగి Curl_ssl->cert_స్థితి_request();
+  తిరిగి FALSE;
 }
 
-static int multissl_init(void)
+స్థిర పూర్ణాంకం multissl_init(శూన్య)
 {
-  if(multissl_setup(NULL))
-    return 1;
-  if(Curl_ssl->init)
-    return Curl_ssl->init();
-  return 1;
+  ఒకవేళ(multissl_అమరిక(ఖాళీ))
+    తిరిగి 1;
+  ఒకవేళ(Curl_ssl->init)
+    తిరిగి Curl_ssl->init();
+  తిరిగి 1;
 }
 
-static CURLcode multissl_random(struct Curl_easy *data,
-                                unsigned char *entropy, size_t length)
+స్థిర CURLcode multissl_random(నిర్మాణం Curl_easy *దత్తాంశం,
+                                గుర్తులేని అక్షరం *entropy, size_t నిడివి)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->random(data, entropy, length);
+  ఒకవేళ(multissl_అమరిక(ఖాళీ))
+    తిరిగి CURLE_FAILED_INIT;
+  తిరిగి Curl_ssl->random(దత్తాంశం, entropy, నిడివి);
 }
 
-static CURLcode multissl_connect(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data, bool *done)
+స్థిర CURLcode multissl_connect(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->do_connect(cf, data, done);
+  ఒకవేళ(multissl_అమరిక(ఖాళీ))
+    తిరిగి CURLE_FAILED_INIT;
+  తిరిగి Curl_ssl->do_connect(cf, దత్తాంశం, పూర్తి);
 }
 
-static CURLcode multissl_adjust_pollset(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct easy_pollset *ps)
+స్థిర CURLcode multissl_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                        నిర్మాణం Curl_easy *దత్తాంశం,
+                                        నిర్మాణం easy_pollset *ps)
 {
-  if(multissl_setup(NULL))
-    return CURLE_OK;
-  return Curl_ssl->adjust_pollset(cf, data, ps);
+  ఒకవేళ(multissl_అమరిక(ఖాళీ))
+    తిరిగి CURLE_OK;
+  తిరిగి Curl_ssl->adjust_pollset(cf, దత్తాంశం, ps);
 }
 
-static void *multissl_get_internals(struct ssl_connect_data *connssl,
+స్థిర శూన్య *multissl_get_internals(నిర్మాణం ssl_connect_దత్తాంశం *connssl,
                                     CURLINFO info)
 {
-  if(multissl_setup(NULL))
-    return NULL;
-  return Curl_ssl->get_internals(connssl, info);
+  ఒకవేళ(multissl_అమరిక(ఖాళీ))
+    తిరిగి ఖాళీ;
+  తిరిగి Curl_ssl->get_internals(connssl, info);
 }
 
-static void multissl_close(struct Curl_cfilter *cf, struct Curl_easy *data)
+స్థిర శూన్య multissl_close(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(multissl_setup(NULL))
-    return;
-  Curl_ssl->close(cf, data);
+  ఒకవేళ(multissl_అమరిక(ఖాళీ))
+    తిరిగి;
+  Curl_ssl->close(cf, దత్తాంశం);
 }
 
-static CURLcode multissl_recv_plain(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    char *buf, size_t len, size_t *pnread)
+స్థిర CURLcode multissl_recv_plain(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    అక్షరం *buf, size_t len, size_t *pnread)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->recv_plain(cf, data, buf, len, pnread);
+  ఒకవేళ(multissl_అమరిక(ఖాళీ))
+    తిరిగి CURLE_FAILED_INIT;
+  తిరిగి Curl_ssl->recv_plain(cf, దత్తాంశం, buf, len, pnread);
 }
 
-static CURLcode multissl_send_plain(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    const void *mem, size_t len,
+స్థిర CURLcode multissl_send_plain(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    స్థిరరాశి శూన్య *mem, size_t len,
                                     size_t *pnwritten)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->send_plain(cf, data, mem, len, pnwritten);
+  ఒకవేళ(multissl_అమరిక(ఖాళీ))
+    తిరిగి CURLE_FAILED_INIT;
+  తిరిగి Curl_ssl->send_plain(cf, దత్తాంశం, mem, len, pnwritten);
 }
 
-static const struct Curl_ssl Curl_ssl_multi = {
+స్థిర స్థిరరాశి నిర్మాణం Curl_ssl Curl_ssl_multi = {
   { CURLSSLBACKEND_NONE, "multi" },  /* info */
   0, /* supports nothing */
   (size_t)-1, /* something insanely large to be on the safe side */
 
   multissl_init,                     /* init */
-  NULL,                              /* cleanup */
-  multissl_version,                  /* version */
-  NULL,                              /* shutdown */
-  NULL,                              /* data_pending */
+  ఖాళీ,                              /* cleanup */
+  multissl_సంస్కరణ,                  /*సంస్కరణ*/
+  ఖాళీ,                              /* shutdown */
+  ఖాళీ,                              /* data_pending */
   multissl_random,                   /* random */
-  NULL,                              /* cert_status_request */
+  ఖాళీ,                              /* cert_status_request */
   multissl_connect,                  /* connect */
   multissl_adjust_pollset,           /* adjust_pollset */
   multissl_get_internals,            /* get_internals */
   multissl_close,                    /* close_one */
-  NULL,                              /* close_all */
-  NULL,                              /* engines_list */
-  NULL,                              /* sha256sum */
+  ఖాళీ,                              /* close_all */
+  ఖాళీ,                              /* engines_list */
+  ఖాళీ,                              /* sha256sum */
   multissl_recv_plain,               /* recv decrypted data */
   multissl_send_plain,               /* send data to encrypt */
-  NULL,                              /* get_channel_binding */
+  ఖాళీ,                              /* get_channel_binding */
 };
 
-const struct Curl_ssl *Curl_ssl =
-#ifdef CURL_WITH_MULTI_SSL
+స్థిరరాశి నిర్మాణం Curl_ssl *Curl_ssl =
+#నిర్వచితమైతే CURL_WITH_MULTI_SSL
   &Curl_ssl_multi;
-#elif defined(USE_WOLFSSL)
+#లేదావేళ defined(USE_WOLFSSL)
   &Curl_ssl_wolfssl;
-#elif defined(USE_GNUTLS)
+#లేదావేళ defined(USE_GNUTLS)
   &Curl_ssl_gnutls;
-#elif defined(USE_MBEDTLS)
+#లేదావేళ defined(USE_MBEDTLS)
   &Curl_ssl_mbedtls;
-#elif defined(USE_RUSTLS)
+#లేదావేళ defined(USE_RUSTLS)
   &Curl_ssl_rustls;
-#elif defined(USE_OPENSSL)
+#లేదావేళ defined(USE_OPENSSL)
   &Curl_ssl_openssl;
-#elif defined(USE_SCHANNEL)
+#లేదావేళ defined(USE_SCHANNEL)
   &Curl_ssl_schannel;
-#else
-#error "Missing struct Curl_ssl for selected SSL backend"
-#endif
+#లేకపోతే
+#దోషం "Missing struct Curl_ssl for selected SSL backend"
+#అయితే_ముగింపు
 
-static const struct Curl_ssl *available_backends[] = {
-#ifdef USE_WOLFSSL
+స్థిర స్థిరరాశి నిర్మాణం Curl_ssl *అందుబాటు_backends[] = {
+#నిర్వచితమైతే USE_WOLFSSL
   &Curl_ssl_wolfssl,
-#endif
-#ifdef USE_GNUTLS
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_GNUTLS
   &Curl_ssl_gnutls,
-#endif
-#ifdef USE_MBEDTLS
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_MBEDTLS
   &Curl_ssl_mbedtls,
-#endif
-#ifdef USE_OPENSSL
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_OPENSSL
   &Curl_ssl_openssl,
-#endif
-#ifdef USE_SCHANNEL
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SCHANNEL
   &Curl_ssl_schannel,
-#endif
-#ifdef USE_RUSTLS
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_RUSTLS
   &Curl_ssl_rustls,
-#endif
-  NULL
+#అయితే_ముగింపు
+  ఖాళీ
 };
 
 /* Global cleanup */
-void Curl_ssl_cleanup(void)
+శూన్య Curl_ssl_cleanup(శూన్య)
 {
-  if(init_ssl) {
+  ఒకవేళ(init_ssl) {
     /* only cleanup if we did a previous init */
-    if(Curl_ssl->cleanup)
+    ఒకవేళ(Curl_ssl->cleanup)
       Curl_ssl->cleanup();
-#ifdef CURL_WITH_MULTI_SSL
+#నిర్వచితమైతే CURL_WITH_MULTI_SSL
     Curl_ssl = &Curl_ssl_multi;
-#endif
+#అయితే_ముగింపు
     init_ssl = FALSE;
   }
 }
 
-static size_t multissl_version(char *buffer, size_t size)
+స్థిర size_t multissl_సంస్కరణ(అక్షరం *బఫరు, size_t కొలత)
 {
-  static const struct Curl_ssl *selected;
-  static char backends[200];
-  static size_t backends_len;
-  const struct Curl_ssl *current;
+  స్థిర స్థిరరాశి నిర్మాణం Curl_ssl *selected;
+  స్థిర అక్షరం backends[200];
+  స్థిర size_t backends_len;
+  స్థిరరాశి నిర్మాణం Curl_ssl *current;
 
-  current = Curl_ssl == &Curl_ssl_multi ? available_backends[0] : Curl_ssl;
+  current = Curl_ssl == &Curl_ssl_multi ? అందుబాటు_backends[0] : Curl_ssl;
 
-  if(current != selected) {
-    char *p = backends;
-    const char *end = backends + sizeof(backends);
-    int i;
+  ఒకవేళ(current != selected) {
+    అక్షరం *p = backends;
+    స్థిరరాశి అక్షరం *చివర = backends + పరిమాణం(backends);
+    పూర్ణాంకం i;
 
     selected = current;
 
     backends[0] = '\0';
 
-    for(i = 0; available_backends[i]; ++i) {
-      char vb[200];
-      bool paren = (selected != available_backends[i]);
+    కొరకు(i = 0; అందుబాటు_backends[i]; ++i) {
+      అక్షరం vb[200];
+      bool paren = (selected != అందుబాటు_backends[i]);
 
-      if(available_backends[i]->version(vb, sizeof(vb))) {
-        p += curl_msnprintf(p, end - p, "%s%s%s%s", (p != backends ? " " : ""),
+      ఒకవేళ(అందుబాటు_backends[i]->సంస్కరణ_2(vb, పరిమాణం(vb))) {
+        p += curl_msnprintf(p, చివర - p, "%s%s%s%s", (p != backends ? " " : ""),
                             (paren ? "(" : ""), vb, (paren ? ")" : ""));
       }
     }
@@ -750,143 +750,143 @@ static size_t multissl_version(char *buffer, size_t size)
     backends_len = p - backends;
   }
 
-  if(size) {
-    curlx_strcopy(buffer, size, backends, backends_len);
+  ఒకవేళ(కొలత) {
+    curlx_strcopy(బఫరు, కొలత, backends, backends_len);
   }
-  return 0;
+  తిరిగి 0;
 }
 
-static int multissl_setup(const struct Curl_ssl *backend)
+స్థిర పూర్ణాంకం multissl_అమరిక(స్థిరరాశి నిర్మాణం Curl_ssl *backend)
 {
-  int i;
-  char *env;
+  పూర్ణాంకం i;
+  అక్షరం *env;
 
-  if(Curl_ssl != &Curl_ssl_multi)
-    return 1;
+  ఒకవేళ(Curl_ssl != &Curl_ssl_multi)
+    తిరిగి 1;
 
-  if(backend) {
+  ఒకవేళ(backend) {
     Curl_ssl = backend;
-    return 0;
+    తిరిగి 0;
   }
 
-  if(!available_backends[0])
-    return 1;
+  ఒకవేళ(!అందుబాటు_backends[0])
+    తిరిగి 1;
 
   env = curl_getenv("CURL_SSL_BACKEND");
-  if(env) {
-    for(i = 0; available_backends[i]; i++) {
-      if(curl_strequal(env, available_backends[i]->info.name)) {
-        Curl_ssl = available_backends[i];
+  ఒకవేళ(env) {
+    కొరకు(i = 0; అందుబాటు_backends[i]; i++) {
+      ఒకవేళ(curl_strequal(env, అందుబాటు_backends[i]->info.name)) {
+        Curl_ssl = అందుబాటు_backends[i];
         curlx_free(env);
-        return 0;
+        తిరిగి 0;
       }
     }
   }
 
-#ifdef CURL_DEFAULT_SSL_BACKEND
-  for(i = 0; available_backends[i]; i++) {
-    if(curl_strequal(CURL_DEFAULT_SSL_BACKEND,
-                     available_backends[i]->info.name)) {
-      Curl_ssl = available_backends[i];
+#నిర్వచితమైతే CURL_DEFAULT_SSL_BACKEND
+  కొరకు(i = 0; అందుబాటు_backends[i]; i++) {
+    ఒకవేళ(curl_strequal(CURL_DEFAULT_SSL_BACKEND,
+                     అందుబాటు_backends[i]->info.name)) {
+      Curl_ssl = అందుబాటు_backends[i];
       curlx_free(env);
-      return 0;
+      తిరిగి 0;
     }
   }
-#endif
+#అయితే_ముగింపు
 
   /* Fall back to first available backend */
-  Curl_ssl = available_backends[0];
+  Curl_ssl = అందుబాటు_backends[0];
   curlx_free(env);
-  return 0;
+  తిరిగి 0;
 }
 
 /* This function is used to select the SSL backend to use. It is called by
    curl_global_sslset (easy.c) which uses the global init lock. */
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
-                                   const curl_ssl_backend ***avail)
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, స్థిరరాశి అక్షరం *name,
+                                   స్థిరరాశి curl_ssl_backend ***avail)
 {
-  int i;
+  పూర్ణాంకం i;
 
-  if(avail)
-    *avail = (const curl_ssl_backend **)&available_backends;
+  ఒకవేళ(avail)
+    *avail = (స్థిరరాశి curl_ssl_backend **)&అందుబాటు_backends;
 
-  if(Curl_ssl != &Curl_ssl_multi)
-    return id == Curl_ssl->info.id ||
+  ఒకవేళ(Curl_ssl != &Curl_ssl_multi)
+    తిరిగి id == Curl_ssl->info.id ||
            (name && curl_strequal(name, Curl_ssl->info.name)) ?
            CURLSSLSET_OK :
-#ifdef CURL_WITH_MULTI_SSL
+#నిర్వచితమైతే CURL_WITH_MULTI_SSL
            CURLSSLSET_TOO_LATE;
-#else
+#లేకపోతే
            CURLSSLSET_UNKNOWN_BACKEND;
-#endif
+#అయితే_ముగింపు
 
-  for(i = 0; available_backends[i]; i++) {
-    if(available_backends[i]->info.id == id ||
-       (name && curl_strequal(available_backends[i]->info.name, name))) {
-      multissl_setup(available_backends[i]);
-      return CURLSSLSET_OK;
+  కొరకు(i = 0; అందుబాటు_backends[i]; i++) {
+    ఒకవేళ(అందుబాటు_backends[i]->info.id == id ||
+       (name && curl_strequal(అందుబాటు_backends[i]->info.name, name))) {
+      multissl_అమరిక(అందుబాటు_backends[i]);
+      తిరిగి CURLSSLSET_OK;
     }
   }
 
-  return CURLSSLSET_UNKNOWN_BACKEND;
+  తిరిగి CURLSSLSET_UNKNOWN_BACKEND;
 }
 
-#else /* USE_SSL */
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
-                                   const curl_ssl_backend ***avail)
+#లేకపోతే /* USE_SSL */
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, స్థిరరాశి అక్షరం *name,
+                                   స్థిరరాశి curl_ssl_backend ***avail)
 {
-  (void)id;
-  (void)name;
-  (void)avail;
-  return CURLSSLSET_NO_BACKENDS;
+  (శూన్య)id;
+  (శూన్య)name;
+  (శూన్య)avail;
+  తిరిగి CURLSSLSET_NO_BACKENDS;
 }
 
-#endif /* !USE_SSL */
+#అయితే_ముగింపు /* !USE_SSL */
 
-#ifdef USE_SSL
+#నిర్వచితమైతే USE_SSL
 
-void Curl_ssl_peer_cleanup(struct ssl_peer *peer)
+శూన్య Curl_ssl_peer_cleanup(నిర్మాణం ssl_peer *peer)
 {
   Curl_peer_unlink(&peer->origin);
   Curl_peer_unlink(&peer->peer);
   curlx_safefree(peer->sni);
-  curlx_safefree(peer->scache_key);
+  curlx_safefree(peer->scache_కీలకం);
   peer->transport = TRNSPRT_NONE;
   peer->type = CURL_SSL_PEER_DNS;
 }
 
-static ssl_peer_type get_peer_type(const char *hostname)
+స్థిర ssl_peer_type get_peer_type(స్థిరరాశి అక్షరం *hostname)
 {
-  if(hostname && hostname[0]) {
-#ifdef USE_IPV6
-    struct in6_addr addr;
-#else
-    struct in_addr addr;
-#endif
-    if(curlx_inet_pton(AF_INET, hostname, &addr))
-      return CURL_SSL_PEER_IPV4;
-#ifdef USE_IPV6
-    else if(curlx_inet_pton(AF_INET6, hostname, &addr)) {
-      return CURL_SSL_PEER_IPV6;
+  ఒకవేళ(hostname && hostname[0]) {
+#నిర్వచితమైతే USE_IPV6
+    నిర్మాణం in6_addr addr;
+#లేకపోతే
+    నిర్మాణం in_addr addr;
+#అయితే_ముగింపు
+    ఒకవేళ(curlx_inet_pton(AF_INET, hostname, &addr))
+      తిరిగి CURL_SSL_PEER_IPV4;
+#నిర్వచితమైతే USE_IPV6
+    లేకపోతే ఒకవేళ(curlx_inet_pton(AF_INET6, hostname, &addr)) {
+      తిరిగి CURL_SSL_PEER_IPV6;
     }
-#endif
+#అయితే_ముగింపు
   }
-  return CURL_SSL_PEER_DNS;
+  తిరిగి CURL_SSL_PEER_DNS;
 }
 
-CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
-                            struct ssl_filter_config *sslc,
-                            const char *tls_id,
+CURLcode Curl_ssl_peer_init(నిర్మాణం ssl_peer *ssl_peer,
+                            నిర్మాణం Curl_peer *origin,
+                            నిర్మాణం Curl_peer *peer,
+                            నిర్మాణం ssl_filter_config *sslc,
+                            స్థిరరాశి అక్షరం *tls_id,
                             uint8_t transport)
 {
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* We expect a clean struct, e.g. called only ONCE */
-  if(!ssl_peer || !origin) {
+  ఒకవేళ(!ssl_peer || !origin) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    తిరిగి CURLE_FAILED_INIT;
   }
   DEBUGASSERT(!ssl_peer->origin);
   DEBUGASSERT(!ssl_peer->peer);
@@ -896,97 +896,97 @@ CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
   Curl_peer_link(&ssl_peer->origin, origin);
   Curl_peer_link(&ssl_peer->peer, peer);
   ssl_peer->type = get_peer_type(origin->hostname);
-  if(ssl_peer->type == CURL_SSL_PEER_DNS) {
+  ఒకవేళ(ssl_peer->type == CURL_SSL_PEER_DNS) {
     /* not an IP address, normalize according to RCC 6066 ch. 3,
      * max len of SNI is 2^16-1, no trailing dot */
-    size_t len = strlen(origin->hostname);
-    if(len && (origin->hostname[len - 1] == '.'))
+    size_t len = అక్షరశ్రేణి_పొడవు(origin->hostname);
+    ఒకవేళ(len && (origin->hostname[len - 1] == '.'))
       len--;
-    if(len < USHRT_MAX) {
+    ఒకవేళ(len < USHRT_MAX) {
       ssl_peer->sni = curlx_calloc(1, len + 1);
-      if(!ssl_peer->sni)
-        goto out;
+      ఒకవేళ(!ssl_peer->sni)
+        వెళ్ళు బహిర్గతం;
       Curl_strntolower(ssl_peer->sni, origin->hostname, len);
       ssl_peer->sni[len] = 0;
     }
   }
 
-  result = Curl_ssl_peer_key_make(ssl_peer, sslc, tls_id,
-                                  &ssl_peer->scache_key);
+  ఫలితం = Curl_ssl_peer_కీలకం_make(ssl_peer, sslc, tls_id,
+                                  &ssl_peer->scache_కీలకం);
 
-out:
-  if(result)
+బహిర్గతం:
+  ఒకవేళ(ఫలితం)
     Curl_ssl_peer_cleanup(ssl_peer);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static void ssl_cf_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+స్థిర శూన్య ssl_cf_destroy(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  if(connssl) {
-    connssl->ssl_impl->close(cf, data);
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  ఒకవేళ(connssl) {
+    connssl->ssl_impl->close(cf, దత్తాంశం);
     connssl->state = ssl_connection_none;
     connssl->connecting_state = ssl_connect_1;
     connssl->prefs_checked = FALSE;
     Curl_ssl_peer_cleanup(&connssl->peer);
     Curl_ssl_session_destroy(connssl->session);
     cf_ctx_free(connssl);
-    cf->ctx = NULL;
+    cf->ctx = ఖాళీ;
   }
   cf->connected = FALSE;
 }
 
-static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               bool *done)
+స్థిర CURLcode ssl_cf_connect(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               bool *పూర్తి)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  CURLcode ఫలితం;
 
-  if(cf->connected && (connssl->state != ssl_connection_deferred)) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->connected && (connssl->state != ssl_connection_deferred)) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  if(!cf->next || !connssl->peer.origin) {
-    *done = FALSE;
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!cf->తదుపరి || !connssl->peer.origin) {
+    *పూర్తి = FALSE;
+    తిరిగి CURLE_FAILED_INIT;
   }
 
-  if(!cf->next->connected) {
-    result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  ఒకవేళ(!cf->తదుపరి->connected) {
+    ఫలితం = cf->తదుపరి->cft->do_connect(cf->తదుపరి, దత్తాంశం, పూర్తి);
+    ఒకవేళ(ఫలితం || !*పూర్తి)
+      తిరిగి ఫలితం;
   }
 
-  CF_DATA_SAVE(save, cf, data);
-  CURL_TRC_CF(data, cf, "cf_connect()");
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
+  CURL_TRC_CF(దత్తాంశం, cf, "cf_connect()");
   DEBUGASSERT(connssl);
 
-  *done = FALSE;
+  *పూర్తి = FALSE;
 
-  if(!connssl->prefs_checked) {
-    if(!ssl_prefs_check(cf, data)) {
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+  ఒకవేళ(!connssl->prefs_checked) {
+    ఒకవేళ(!ssl_prefs_check(cf, దత్తాంశం)) {
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
     connssl->prefs_checked = TRUE;
   }
 
-  result = connssl->ssl_impl->do_connect(cf, data, done);
+  ఫలితం = connssl->ssl_impl->do_connect(cf, దత్తాంశం, పూర్తి);
 
-  if(!result && *done) {
+  ఒకవేళ(!ఫలితం && *పూర్తి) {
     cf->connected = TRUE;
-    if(connssl->state == ssl_connection_complete) {
-      connssl->handshake_done = *Curl_pgrs_now(data);
+    ఒకవేళ(connssl->state == ssl_connection_complete) {
+      connssl->handshake_పూర్తి = *Curl_pgrs_now(దత్తాంశం);
     }
-    if(Curl_tls_keylog_enabled()) {
-      infof(data, "SSLKEYLOGFILE set, all TLS secrets are logged to '%s'",
+    ఒకవేళ(Curl_tls_keylog_enabled()) {
+      infof(దత్తాంశం, "SSLKEYLOGFILE set, all TLS secrets are logged to '%s'",
             Curl_tls_keylog_file_name());
-#ifdef LIBRESSL_VERSION_NUMBER
-      infof(data, "Note LibreSSL only supports SSLKEYLOGFILE for TLS <= 1.2");
-#endif
+#నిర్వచితమైతే LIBRESSL_సంస్కరణ_సంఖ్య
+      infof(దత్తాంశం, "Note LibreSSL only supports SSLKEYLOGFILE for TLS <= 1.2");
+#అయితే_ముగింపు
     }
     /* Connection can be deferred when sending early data */
     DEBUGASSERT(connssl->state == ssl_connection_complete ||
@@ -994,136 +994,136 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
     DEBUGASSERT(connssl->state != ssl_connection_deferred ||
                 connssl->earlydata_state > ssl_earlydata_none);
   }
-out:
-  CURL_TRC_CF(data, cf, "cf_connect() -> %d, done=%d", (int)result, *done);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+బహిర్గతం:
+  CURL_TRC_CF(దత్తాంశం, cf, "cf_connect() -> %d, done=%d", (పూర్ణాంకం)ఫలితం, *పూర్తి);
+  CF_దత్తాంశం_RESTORE(cf, save);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssl_cf_set_earlydata(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     const void *buf, size_t blen)
+స్థిర CURLcode ssl_cf_సమితి_earlydata(నిర్మాణం Curl_cfilter *cf,
+                                     నిర్మాణం Curl_easy *దత్తాంశం,
+                                     స్థిరరాశి శూన్య *buf, size_t blen)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
   size_t nwritten = 0;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_await);
-  DEBUGASSERT(Curl_bufq_is_empty(&connssl->earlydata));
-  if(blen) {
-    if(blen > connssl->earlydata_max)
+  DEBUGASSERT(Curl_bufq_is_ఖాళీలు(&connssl->earlydata));
+  ఒకవేళ(blen) {
+    ఒకవేళ(blen > connssl->earlydata_max)
       blen = connssl->earlydata_max;
-    result = Curl_bufq_write(&connssl->earlydata, buf, blen, &nwritten);
-    CURL_TRC_CF(data, cf, "ssl_cf_set_earlydata(len=%zu) -> %zu",
+    ఫలితం = Curl_bufq_write(&connssl->earlydata, buf, blen, &nwritten);
+    CURL_TRC_CF(దత్తాంశం, cf, "ssl_cf_set_earlydata(len=%zu) -> %zu",
                 blen, nwritten);
-    if(result)
-      return result;
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssl_cf_connect_deferred(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        const void *buf, size_t blen,
-                                        bool *done)
+స్థిర CURLcode ssl_cf_connect_deferred(నిర్మాణం Curl_cfilter *cf,
+                                        నిర్మాణం Curl_easy *దత్తాంశం,
+                                        స్థిరరాశి శూన్య *buf, size_t blen,
+                                        bool *పూర్తి)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
   DEBUGASSERT(connssl->state == ssl_connection_deferred);
-  *done = FALSE;
-  if(connssl->earlydata_state == ssl_earlydata_await) {
-    result = ssl_cf_set_earlydata(cf, data, buf, blen);
-    if(result)
-      return result;
+  *పూర్తి = FALSE;
+  ఒకవేళ(connssl->earlydata_state == ssl_earlydata_await) {
+    ఫలితం = ssl_cf_సమితి_earlydata(cf, దత్తాంశం, buf, blen);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
     /* we buffered any early data we would like to send. Actually
      * do the connect now which sends it and performs the handshake. */
     connssl->earlydata_state = ssl_earlydata_sending;
     connssl->earlydata_skip = Curl_bufq_len(&connssl->earlydata);
   }
 
-  result = ssl_cf_connect(cf, data, done);
+  ఫలితం = ssl_cf_connect(cf, దత్తాంశం, పూర్తి);
 
-  if(!result && *done) {
-    if(!connssl->stats_reported && (cf->cft == &Curl_cft_ssl)) {
-      Curl_pgrsTimeWas(data, TIMER_APPCONNECT, connssl->handshake_done);
+  ఒకవేళ(!ఫలితం && *పూర్తి) {
+    ఒకవేళ(!connssl->stats_reported && (cf->cft == &Curl_cft_ssl)) {
+      Curl_pgrs_సమయం_Was(దత్తాంశం, TIMER_APPCONNECT, connssl->handshake_పూర్తి);
       connssl->stats_reported = TRUE;
     }
-    switch(connssl->earlydata_state) {
-    case ssl_earlydata_none:
-      break;
-    case ssl_earlydata_accepted:
-      if(!Curl_ssl_cf_is_proxy(cf))
-        Curl_pgrsEarlyData(data, (curl_off_t)connssl->earlydata_skip);
-      infof(data, "Server accepted %zu bytes of TLS early data.",
+    ఎంపిక(connssl->earlydata_state) {
+    స్థితి ssl_earlydata_none:
+      ఆపు;
+    స్థితి ssl_earlydata_accepted:
+      ఒకవేళ(!Curl_ssl_cf_is_proxy(cf))
+        Curl_pgrs_Early_దత్తాంశం(దత్తాంశం, (curl_off_t)connssl->earlydata_skip);
+      infof(దత్తాంశం, "Server accepted %zu bytes of TLS early data.",
             connssl->earlydata_skip);
-      break;
-    case ssl_earlydata_rejected:
-      if(!Curl_ssl_cf_is_proxy(cf))
-        Curl_pgrsEarlyData(data, -(curl_off_t)connssl->earlydata_skip);
-      infof(data, "Server rejected TLS early data.");
+      ఆపు;
+    స్థితి ssl_earlydata_rejected:
+      ఒకవేళ(!Curl_ssl_cf_is_proxy(cf))
+        Curl_pgrs_Early_దత్తాంశం(దత్తాంశం, -(curl_off_t)connssl->earlydata_skip);
+      infof(దత్తాంశం, "Server rejected TLS early data.");
       connssl->earlydata_skip = 0;
-      break;
-    default:
+      ఆపు;
+    అప్రమేయ:
       /* This should not happen. Either we do not use early data or we
        * should know if it was accepted or not. */
-      DEBUGASSERT(NULL);
-      break;
+      DEBUGASSERT(ఖాళీ);
+      ఆపు;
     }
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static bool ssl_cf_data_pending(struct Curl_cfilter *cf,
-                                const struct Curl_easy *data)
+స్థిర bool ssl_cf_దత్తాంశం_pending(నిర్మాణం Curl_cfilter *cf,
+                                స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
   bool pending;
 
-  CF_DATA_SAVE(save, cf, data);
-  if(connssl->ssl_impl->data_pending &&
-     connssl->ssl_impl->data_pending(cf, data))
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
+  ఒకవేళ(connssl->ssl_impl->దత్తాంశం_pending &&
+     connssl->ssl_impl->దత్తాంశం_pending(cf, దత్తాంశం))
     pending = TRUE;
-  else
-    pending = cf->next->cft->has_data_pending(cf->next, data);
-  CF_DATA_RESTORE(cf, save);
-  return pending;
+  లేకపోతే
+    pending = cf->తదుపరి->cft->has_దత్తాంశం_pending(cf->తదుపరి, దత్తాంశం);
+  CF_దత్తాంశం_RESTORE(cf, save);
+  తిరిగి pending;
 }
 
-static CURLcode ssl_cf_send(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            const uint8_t *buf, size_t blen,
+స్థిర CURLcode ssl_cf_send(నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_easy *దత్తాంశం,
+                            స్థిరరాశి uint8_t *buf, size_t blen,
                             bool eos, size_t *pnwritten)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  CURLcode ఫలితం = CURLE_OK;
 
-  (void)eos;
+  (శూన్య)eos;
   *pnwritten = 0;
-  CF_DATA_SAVE(save, cf, data);
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
 
-  if(connssl->state == ssl_connection_deferred) {
-    bool done = FALSE;
-    result = ssl_cf_connect_deferred(cf, data, buf, blen, &done);
-    if(result)
-      goto out;
-    else if(!done) {
-      result = CURLE_AGAIN;
-      goto out;
+  ఒకవేళ(connssl->state == ssl_connection_deferred) {
+    bool పూర్తి = FALSE;
+    ఫలితం = ssl_cf_connect_deferred(cf, దత్తాంశం, buf, blen, &పూర్తి);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
+    లేకపోతే ఒకవేళ(!పూర్తి) {
+      ఫలితం = CURLE_AGAIN;
+      వెళ్ళు బహిర్గతం;
     }
     DEBUGASSERT(connssl->state == ssl_connection_complete);
   }
 
-  if(connssl->earlydata_skip) {
-    if(connssl->earlydata_skip >= blen) {
+  ఒకవేళ(connssl->earlydata_skip) {
+    ఒకవేళ(connssl->earlydata_skip >= blen) {
       connssl->earlydata_skip -= blen;
-      result = CURLE_OK;
+      ఫలితం = CURLE_OK;
       *pnwritten = blen;
-      goto out;
+      వెళ్ళు బహిర్గతం;
     }
-    else {
+    లేకపోతే {
       *pnwritten = connssl->earlydata_skip;
       buf = buf + connssl->earlydata_skip;
       blen -= connssl->earlydata_skip;
@@ -1132,163 +1132,163 @@ static CURLcode ssl_cf_send(struct Curl_cfilter *cf,
   }
 
   /* OpenSSL and maybe other TLS libs do not like 0-length writes. Skip. */
-  if(blen > 0) {
+  ఒకవేళ(blen > 0) {
     size_t nwritten;
-    result = connssl->ssl_impl->send_plain(cf, data, buf, blen, &nwritten);
-    if(!result)
+    ఫలితం = connssl->ssl_impl->send_plain(cf, దత్తాంశం, buf, blen, &nwritten);
+    ఒకవేళ(!ఫలితం)
       *pnwritten += nwritten;
   }
 
-out:
-  CF_DATA_RESTORE(cf, save);
-  return result;
+బహిర్గతం:
+  CF_దత్తాంశం_RESTORE(cf, save);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssl_cf_recv(struct Curl_cfilter *cf,
-                            struct Curl_easy *data, char *buf, size_t len,
+స్థిర CURLcode ssl_cf_recv(నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_easy *దత్తాంశం, అక్షరం *buf, size_t len,
                             size_t *pnread)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  CURLcode ఫలితం = CURLE_OK;
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
   *pnread = 0;
-  if(connssl->state == ssl_connection_deferred) {
-    bool done = FALSE;
-    result = ssl_cf_connect_deferred(cf, data, NULL, 0, &done);
-    if(result)
-      goto out;
-    else if(!done) {
-      result = CURLE_AGAIN;
-      goto out;
+  ఒకవేళ(connssl->state == ssl_connection_deferred) {
+    bool పూర్తి = FALSE;
+    ఫలితం = ssl_cf_connect_deferred(cf, దత్తాంశం, ఖాళీ, 0, &పూర్తి);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
+    లేకపోతే ఒకవేళ(!పూర్తి) {
+      ఫలితం = CURLE_AGAIN;
+      వెళ్ళు బహిర్గతం;
     }
     DEBUGASSERT(connssl->state == ssl_connection_complete);
   }
 
-  result = connssl->ssl_impl->recv_plain(cf, data, buf, len, pnread);
+  ఫలితం = connssl->ssl_impl->recv_plain(cf, దత్తాంశం, buf, len, pnread);
 
-out:
-  CF_DATA_RESTORE(cf, save);
-  return result;
+బహిర్గతం:
+  CF_దత్తాంశం_RESTORE(cf, save);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssl_cf_shutdown(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                bool *done)
+స్థిర CURLcode ssl_cf_shutdown(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                bool *పూర్తి)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
-  *done = TRUE;
+  *పూర్తి = TRUE;
   /* If we have done the SSL handshake, shut down the connection cleanly */
-  if(cf->connected && (connssl->state == ssl_connection_complete) &&
-     !cf->shutdown && Curl_ssl->shut_down) {
-    struct cf_call_data save;
+  ఒకవేళ(cf->connected && (connssl->state == ssl_connection_complete) &&
+     !cf->shutdown && Curl_ssl->shut_కిందికి) {
+    నిర్మాణం cf_call_దత్తాంశం save;
 
-    CF_DATA_SAVE(save, cf, data);
-    result = connssl->ssl_impl->shut_down(cf, data, TRUE, done);
-    CURL_TRC_CF(data, cf, "cf_shutdown -> %d, done=%d", (int)result, *done);
-    CF_DATA_RESTORE(cf, save);
-    cf->shutdown = (result || *done);
+    CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
+    ఫలితం = connssl->ssl_impl->shut_కిందికి(cf, దత్తాంశం, TRUE, పూర్తి);
+    CURL_TRC_CF(దత్తాంశం, cf, "cf_shutdown -> %d, done=%d", (పూర్ణాంకం)ఫలితం, *పూర్తి);
+    CF_దత్తాంశం_RESTORE(cf, save);
+    cf->shutdown = (ఫలితం || *పూర్తి);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssl_cf_adjust_pollset(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct easy_pollset *ps)
+స్థిర CURLcode ssl_cf_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                      నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం easy_pollset *ps)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  CURLcode ఫలితం;
 
-  CF_DATA_SAVE(save, cf, data);
-  result = connssl->ssl_impl->adjust_pollset(cf, data, ps);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
+  ఫలితం = connssl->ssl_impl->adjust_pollset(cf, దత్తాంశం, ps);
+  CF_దత్తాంశం_RESTORE(cf, save);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssl_cf_query(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             int query, int *pres1, void *pres2)
+స్థిర CURLcode ssl_cf_query(నిర్మాణం Curl_cfilter *cf,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             పూర్ణాంకం query, పూర్ణాంకం *pres1, శూన్య *pres2)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
 
-  switch(query) {
-  case CF_QUERY_SSL_INFO:
-  case CF_QUERY_SSL_CTX_INFO:
-    if(!Curl_ssl_cf_is_proxy(cf)) {
-      struct curl_tlssessioninfo *info = pres2;
-      struct cf_call_data save;
-      CF_DATA_SAVE(save, cf, data);
+  ఎంపిక(query) {
+  స్థితి CF_QUERY_SSL_INFO:
+  స్థితి CF_QUERY_SSL_CTX_INFO:
+    ఒకవేళ(!Curl_ssl_cf_is_proxy(cf)) {
+      నిర్మాణం curl_tlssessioninfo *info = pres2;
+      నిర్మాణం cf_call_దత్తాంశం save;
+      CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
       info->backend = Curl_ssl_backend();
       info->internals = connssl->ssl_impl->get_internals(
         cf->ctx, (query == CF_QUERY_SSL_INFO) ?
         CURLINFO_TLS_SSL_PTR : CURLINFO_TLS_SESSION);
-      CF_DATA_RESTORE(cf, save);
-      return CURLE_OK;
+      CF_దత్తాంశం_RESTORE(cf, save);
+      తిరిగి CURLE_OK;
     }
-    break;
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+    ఆపు;
+  స్థితి CF_QUERY_ALPN_NEGOTIATED: {
+    స్థిరరాశి అక్షరం **palpn = pres2;
     DEBUGASSERT(palpn);
     *palpn = connssl->negotiated.alpn;
-    CURL_TRC_CF(data, cf, "query ALPN: returning '%s'", *palpn);
-    return CURLE_OK;
+    CURL_TRC_CF(దత్తాంశం, cf, "query ALPN: returning '%s'", *palpn);
+    తిరిగి CURLE_OK;
   }
-  default:
-    break;
+  అప్రమేయ:
+    ఆపు;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->query(cf->తదుపరి, దత్తాంశం, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode ssl_cf_cntrl(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             int event, int arg1, void *arg2)
+స్థిర CURLcode ssl_cf_cntrl(నిర్మాణం Curl_cfilter *cf,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             పూర్ణాంకం event, పూర్ణాంకం arg1, శూన్య *arg2)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
 
-  (void)arg1;
-  (void)arg2;
-  (void)data;
-  switch(event) {
-  case CF_CTRL_CONN_INFO_UPDATE:
-    if(connssl->negotiated.alpn && !cf->sockindex) {
-      if(!strcmp("http/1.1", connssl->negotiated.alpn))
-        cf->conn->httpversion_seen = 11;
-      else if(!strcmp("h2", connssl->negotiated.alpn))
-        cf->conn->httpversion_seen = 20;
-      else if(!strcmp("h3", connssl->negotiated.alpn))
-        cf->conn->httpversion_seen = 30;
+  (శూన్య)arg1;
+  (శూన్య)arg2;
+  (శూన్య)దత్తాంశం;
+  ఎంపిక(event) {
+  స్థితి CF_CTRL_CONN_INFO_UPDATE:
+    ఒకవేళ(connssl->negotiated.alpn && !cf->sockindex) {
+      ఒకవేళ(!strcmp("http/1.1", connssl->negotiated.alpn))
+        cf->conn->httpversion_చూసిన = 11;
+      లేకపోతే ఒకవేళ(!strcmp("h2", connssl->negotiated.alpn))
+        cf->conn->httpversion_చూసిన = 20;
+      లేకపోతే ఒకవేళ(!strcmp("h3", connssl->negotiated.alpn))
+        cf->conn->httpversion_చూసిన = 30;
     }
-    break;
-  case CF_CTRL_REPORT_STATS:
-    if(cf->connected && !connssl->stats_reported &&
+    ఆపు;
+  స్థితి CF_CTRL_REPORT_STATS:
+    ఒకవేళ(cf->connected && !connssl->stats_reported &&
        (cf->cft == &Curl_cft_ssl) &&
-       (connssl->handshake_done.tv_sec || connssl->handshake_done.tv_usec)) {
-      Curl_pgrsTimeWas(data, TIMER_APPCONNECT, connssl->handshake_done);
+       (connssl->handshake_పూర్తి.tv_sec || connssl->handshake_పూర్తి.tv_usec)) {
+      Curl_pgrs_సమయం_Was(దత్తాంశం, TIMER_APPCONNECT, connssl->handshake_పూర్తి);
       connssl->stats_reported = TRUE;
     }
-    break;
+    ఆపు;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static bool cf_ssl_is_alive(struct Curl_cfilter *cf, struct Curl_easy *data,
-                            bool *input_pending)
+స్థిర bool cf_ssl_is_alive(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                            bool *ఆదానం_pending)
 {
   /*
    * This function tries to determine connection status.
    */
-  return cf->next ?
-    cf->next->cft->is_alive(cf->next, data, input_pending) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->is_alive(cf->తదుపరి, దత్తాంశం, ఆదానం_pending) :
     FALSE; /* pessimistic in absence of data */
 }
 
-struct Curl_cftype Curl_cft_ssl = {
+నిర్మాణం Curl_cftype Curl_cft_ssl = {
   "SSL",
   CF_TYPE_SSL,
   CURL_LOG_LVL_NONE,
@@ -1296,7 +1296,7 @@ struct Curl_cftype Curl_cft_ssl = {
   ssl_cf_connect,
   ssl_cf_shutdown,
   ssl_cf_adjust_pollset,
-  ssl_cf_data_pending,
+  ssl_cf_దత్తాంశం_pending,
   ssl_cf_send,
   ssl_cf_recv,
   ssl_cf_cntrl,
@@ -1305,9 +1305,9 @@ struct Curl_cftype Curl_cft_ssl = {
   ssl_cf_query,
 };
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
 
-struct Curl_cftype Curl_cft_ssl_proxy = {
+నిర్మాణం Curl_cftype Curl_cft_ssl_proxy = {
   "SSL-PROXY",
   CF_TYPE_SSL | CF_TYPE_PROXY,
   CURL_LOG_LVL_NONE,
@@ -1315,7 +1315,7 @@ struct Curl_cftype Curl_cft_ssl_proxy = {
   ssl_cf_connect,
   ssl_cf_shutdown,
   ssl_cf_adjust_pollset,
-  ssl_cf_data_pending,
+  ssl_cf_దత్తాంశం_pending,
   ssl_cf_send,
   ssl_cf_recv,
   Curl_cf_def_cntrl,
@@ -1324,491 +1324,491 @@ struct Curl_cftype Curl_cft_ssl_proxy = {
   ssl_cf_query,
 };
 
-#endif /* !CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY */
 
-static CURLcode cf_ssl_create(struct Curl_cfilter **pcf,
-                              struct Curl_easy *data,
-                              struct connectdata *conn)
+స్థిర CURLcode cf_ssl_create(నిర్మాణం Curl_cfilter **pcf,
+                              నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct ssl_connect_data *ctx;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf = ఖాళీ;
+  నిర్మాణం ssl_connect_దత్తాంశం *ctx;
+  CURLcode ఫలితం;
 
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(దత్తాంశం->conn);
 
-#ifdef CURL_DISABLE_HTTP
-  (void)conn;
+#నిర్వచితమైతే CURL_DISABLE_HTTP
+  (శూన్య)conn;
   /* We only support ALPN for HTTP so far. */
-  DEBUGASSERT(!conn->bits.tls_enable_alpn);
-  ctx = cf_ctx_new(data, NULL);
-#else
-  ctx = cf_ctx_new(data, alpn_get_spec(data->state.http_neg.wanted,
-                                       data->state.http_neg.preferred,
-                                       (bool)data->state.http_neg.only_10,
-                                       (bool)conn->bits.tls_enable_alpn));
-#endif
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  DEBUGASSERT(!conn->బిట్లు.tls_enable_alpn);
+  ctx = cf_ctx_new(దత్తాంశం, ఖాళీ);
+#లేకపోతే
+  ctx = cf_ctx_new(దత్తాంశం, alpn_get_spec(దత్తాంశం->state.http_neg.wanted,
+                                       దత్తాంశం->state.http_neg.preferred,
+                                       (bool)దత్తాంశం->state.http_neg.only_10,
+                                       (bool)conn->బిట్లు.tls_enable_alpn));
+#అయితే_ముగింపు
+  ఒకవేళ(!ctx) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  result = Curl_cf_create(&cf, &Curl_cft_ssl, ctx);
+  ఫలితం = Curl_cf_create(&cf, &Curl_cft_ssl, ctx);
 
-out:
-  if(result)
+బహిర్గతం:
+  ఒకవేళ(ఫలితం)
     cf_ctx_free(ctx);
-  *pcf = result ? NULL : cf;
-  return result;
+  *pcf = ఫలితం ? ఖాళీ : cf;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_ssl_peer_init(struct Curl_cfilter *cf,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
-                                 struct ssl_filter_config *sslc)
+స్థిర CURLcode cf_ssl_peer_init(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_peer *origin,
+                                 నిర్మాణం Curl_peer *peer,
+                                 నిర్మాణం ssl_filter_config *sslc)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  char tls_id[80];
-  connssl->ssl_impl->version(tls_id, sizeof(tls_id) - 1);
-  return Curl_ssl_peer_init(&connssl->peer, origin, peer, sslc,
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  అక్షరం tls_id[80];
+  connssl->ssl_impl->సంస్కరణ_2(tls_id, పరిమాణం(tls_id) - 1);
+  తిరిగి Curl_ssl_peer_init(&connssl->peer, origin, peer, sslc,
                             tls_id, TRNSPRT_TCP);
 }
 
-CURLcode Curl_ssl_cfilter_add(struct Curl_easy *data,
-                              struct Curl_peer *origin,
-                              struct connectdata *conn,
+CURLcode Curl_ssl_cfilter_కూడు(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_peer *origin,
+                              నిర్మాణం connectdata *conn,
                               int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
-  struct Curl_peer *peer = (sockindex == SECONDARYSOCKET) ?
-    conn->via_peer2 : conn->via_peer;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf;
+  నిర్మాణం Curl_peer *peer = (sockindex == SECONDARYSOCKET) ?
+    conn->ద్వారా_peer2 : conn->ద్వారా_peer;
+  CURLcode ఫలితం;
 
-  result = cf_ssl_create(&cf, data, conn);
-  if(!result)
-    result = cf_ssl_peer_init(cf, origin, peer, &conn->ssl_config);
-  if(!result)
-    Curl_conn_cf_add(data, conn, sockindex, cf);
-  else if(cf)
-    Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  ఫలితం = cf_ssl_create(&cf, దత్తాంశం, conn);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = cf_ssl_peer_init(cf, origin, peer, &conn->ssl_config);
+  ఒకవేళ(!ఫలితం)
+    Curl_conn_cf_కూడు(దత్తాంశం, conn, sockindex, cf);
+  లేకపోతే ఒకవేళ(cf)
+    Curl_conn_cf_discard_chain(&cf, దత్తాంశం);
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
-                                  struct Curl_easy *data,
-                                  struct Curl_peer *origin,
-                                  struct Curl_peer *peer)
+CURLcode Curl_cf_ssl_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం Curl_peer *origin,
+                                  నిర్మాణం Curl_peer *peer)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం;
 
-  result = cf_ssl_create(&cf, data, cf_at->conn);
-  if(!result)
-    result = cf_ssl_peer_init(cf, origin, peer, &cf_at->conn->ssl_config);
-  if(!result) {
-    Curl_conn_cf_insert_after(cf_at, cf);
-#if defined(USE_HTTPSRR) && defined(USE_ECH)
+  ఫలితం = cf_ssl_create(&cf, దత్తాంశం, cf_at->conn);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = cf_ssl_peer_init(cf, origin, peer, &cf_at->conn->ssl_config);
+  ఒకవేళ(!ఫలితం) {
+    Curl_conn_cf_చొప్పించు_after(cf_at, cf);
+#ఒకవేళ defined(USE_HTTPSRR) && defined(USE_ECH)
     /* When using ECH, kick off the HTTPS-RR resolve */
-    if((origin->scheme->family == CURLPROTO_HTTP) &&
+    ఒకవేళ((origin->scheme->family == CURLPROTO_HTTP) &&
        Curl_ssl_need_httpsrr(cf)) {
-      result = Curl_conn_dns_add_https_resolve(data, cf->conn, cf->sockindex,
+      ఫలితం = Curl_conn_dns_కూడు_https_resolve(దత్తాంశం, cf->conn, cf->sockindex,
                                                origin);
     }
-#endif /* USE_HTTPSRR && USE_ECH */
+#అయితే_ముగింపు /* USE_HTTPSRR && USE_ECH */
   }
-  else if(cf)
-    Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  లేకపోతే ఒకవేళ(cf)
+    Curl_conn_cf_discard_chain(&cf, దత్తాంశం);
+  తిరిగి ఫలితం;
 }
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
 
-static CURLcode cf_ssl_proxy_create(struct Curl_cfilter **pcf,
-                                    struct Curl_easy *data,
-                                    struct connectdata *conn)
+స్థిర CURLcode cf_ssl_proxy_create(నిర్మాణం Curl_cfilter **pcf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct ssl_connect_data *ctx;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf = ఖాళీ;
+  నిర్మాణం ssl_connect_దత్తాంశం *ctx;
+  CURLcode ఫలితం;
   /* ALPN is default, but if user explicitly disables it, obey */
-  bool use_alpn = (bool)data->set.ssl_enable_alpn;
+  bool use_alpn = (bool)దత్తాంశం->సమితి.ssl_enable_alpn;
   http_majors wanted = CURL_HTTP_V1x;
 
-  (void)conn;
-#ifdef USE_HTTP2
-  if(conn->http_proxy.proxytype == CURLPROXY_HTTPS2) {
+  (శూన్య)conn;
+#నిర్వచితమైతే USE_HTTP2
+  ఒకవేళ(conn->http_proxy.proxytype == CURLPROXY_HTTPS2) {
     use_alpn = TRUE;
     wanted = (CURL_HTTP_V1x | CURL_HTTP_V2x);
   }
-#endif
+#అయితే_ముగింపు
 
-  ctx = cf_ctx_new(data, alpn_get_spec(wanted, 0, FALSE, use_alpn));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = cf_ctx_new(దత్తాంశం, alpn_get_spec(wanted, 0, FALSE, use_alpn));
+  ఒకవేళ(!ctx) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
-  result = Curl_cf_create(&cf, &Curl_cft_ssl_proxy, ctx);
+  ఫలితం = Curl_cf_create(&cf, &Curl_cft_ssl_proxy, ctx);
 
-out:
-  if(result)
+బహిర్గతం:
+  ఒకవేళ(ఫలితం)
     cf_ctx_free(ctx);
-  *pcf = result ? NULL : cf;
-  return result;
+  *pcf = ఫలితం ? ఖాళీ : cf;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                        struct Curl_easy *data,
-                                        struct Curl_peer *peer)
+CURLcode Curl_cf_ssl_proxy_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                        నిర్మాణం Curl_easy *దత్తాంశం,
+                                        నిర్మాణం Curl_peer *peer)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం;
 
-  result = cf_ssl_proxy_create(&cf, data, cf_at->conn);
-  if(!result)
-    result = cf_ssl_peer_init(cf, peer, NULL, &cf_at->conn->proxy_ssl_config);
-  if(!result)
-    Curl_conn_cf_insert_after(cf_at, cf);
-  else if(cf)
-    Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  ఫలితం = cf_ssl_proxy_create(&cf, దత్తాంశం, cf_at->conn);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = cf_ssl_peer_init(cf, peer, ఖాళీ, &cf_at->conn->proxy_ssl_config);
+  ఒకవేళ(!ఫలితం)
+    Curl_conn_cf_చొప్పించు_after(cf_at, cf);
+  లేకపోతే ఒకవేళ(cf)
+    Curl_conn_cf_discard_chain(&cf, దత్తాంశం);
+  తిరిగి ఫలితం;
 }
 
-#endif /* !CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY */
 
-bool Curl_ssl_supports(struct Curl_easy *data, unsigned int ssl_option)
+bool Curl_ssl_supports(నిర్మాణం Curl_easy *దత్తాంశం, గుర్తులేని పూర్ణాంకం ssl_option)
 {
-  (void)data;
-  return (Curl_ssl->supports & ssl_option);
+  (శూన్య)దత్తాంశం;
+  తిరిగి (Curl_ssl->supports & ssl_option);
 }
 
-#ifdef USE_ECH
-bool Curl_ssl_ech_enabled(struct Curl_cfilter *cf)
+#నిర్వచితమైతే USE_ECH
+bool Curl_ssl_ech_enabled(నిర్మాణం Curl_cfilter *cf)
 {
-  if(Curl_ssl->supports & SSLSUPP_ECH) {
-    struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-    return !!conn_config->ech;
+  ఒకవేళ(Curl_ssl->supports & SSLSUPP_ECH) {
+    నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+    తిరిగి !!conn_config->ech;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-bool Curl_ssl_need_httpsrr(struct Curl_cfilter *cf)
+bool Curl_ssl_need_httpsrr(నిర్మాణం Curl_cfilter *cf)
 {
-  if(Curl_ssl->supports & SSLSUPP_ECH) {
-    struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-    if(!conn_config->ech)
-      return FALSE;
-    if((conn_config->ech == CURLECH_GREASE) || conn_config->ech_config)
-      return FALSE;
-    return TRUE;
+  ఒకవేళ(Curl_ssl->supports & SSLSUPP_ECH) {
+    నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+    ఒకవేళ(!conn_config->ech)
+      తిరిగి FALSE;
+    ఒకవేళ((conn_config->ech == CURLECH_GREASE) || conn_config->ech_config)
+      తిరిగి FALSE;
+    తిరిగి TRUE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
-#endif
+#అయితే_ముగింపు
 
-static CURLcode vtls_shutdown_blocking(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       bool send_shutdown, bool *done)
+స్థిర CURLcode vtls_shutdown_blocking(నిర్మాణం Curl_cfilter *cf,
+                                       నిర్మాణం Curl_easy *దత్తాంశం,
+                                       bool send_shutdown, bool *పూర్తి)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం cf_call_దత్తాంశం save;
+  CURLcode ఫలితం = CURLE_OK;
   timediff_t timeout_ms;
-  int what, loop = 10;
+  పూర్ణాంకం what, loop = 10;
 
-  if(cf->shutdown) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->shutdown) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
-  CF_DATA_SAVE(save, cf, data);
+  CF_దత్తాంశం_SAVE(save, cf, దత్తాంశం);
 
-  *done = FALSE;
-  while(!result && !*done && loop--) {
-    timeout_ms = Curl_cshutdn_timeleft_ms(data, cf->conn, cf->sockindex);
+  *పూర్తి = FALSE;
+  అయితే(!ఫలితం && !*పూర్తి && loop--) {
+    timeout_ms = Curl_cshutdn_timeleft_ms(దత్తాంశం, cf->conn, cf->sockindex);
 
-    if(timeout_ms < 0) {
+    ఒకవేళ(timeout_ms < 0) {
       /* no need to continue if time is already up */
-      failf(data, "SSL shutdown timeout");
-      result = CURLE_OPERATION_TIMEDOUT;
-      goto out;
+      failf(దత్తాంశం, "SSL shutdown timeout");
+      ఫలితం = CURLE_OPERATION_TIMEDOUT;
+      వెళ్ళు బహిర్గతం;
     }
 
-    result = connssl->ssl_impl->shut_down(cf, data, send_shutdown, done);
-    if(result || *done)
-      goto out;
+    ఫలితం = connssl->ssl_impl->shut_కిందికి(cf, దత్తాంశం, send_shutdown, పూర్తి);
+    ఒకవేళ(ఫలితం || *పూర్తి)
+      వెళ్ళు బహిర్గతం;
 
-    if(connssl->io_need) {
-      what = Curl_conn_cf_poll(cf, data, timeout_ms);
-      if(what < 0) {
+    ఒకవేళ(connssl->io_need) {
+      what = Curl_conn_cf_poll(cf, దత్తాంశం, timeout_ms);
+      ఒకవేళ(what < 0) {
         /* fatal error */
-        failf(data, "select/poll on SSL socket, errno: %d", SOCKERRNO);
-        result = CURLE_RECV_ERROR;
-        goto out;
+        failf(దత్తాంశం, "select/poll on SSL socket, errno: %d", SOCKERRNO);
+        ఫలితం = CURLE_RECV_ERROR;
+        వెళ్ళు బహిర్గతం;
       }
-      else if(what == 0) {
+      లేకపోతే ఒకవేళ(what == 0) {
         /* timeout */
-        failf(data, "SSL shutdown timeout");
-        result = CURLE_OPERATION_TIMEDOUT;
-        goto out;
+        failf(దత్తాంశం, "SSL shutdown timeout");
+        ఫలితం = CURLE_OPERATION_TIMEDOUT;
+        వెళ్ళు బహిర్గతం;
       }
       /* socket is readable or writable */
     }
   }
-out:
-  CF_DATA_RESTORE(cf, save);
-  cf->shutdown = (result || *done);
-  return result;
+బహిర్గతం:
+  CF_దత్తాంశం_RESTORE(cf, save);
+  cf->shutdown = (ఫలితం || *పూర్తి);
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_ssl_cfilter_remove(struct Curl_easy *data,
+CURLcode Curl_ssl_cfilter_remove(నిర్మాణం Curl_easy *దత్తాంశం,
                                  int8_t sockindex, bool send_shutdown)
 {
-  struct Curl_cfilter *cf, *head;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_cfilter *cf, *తల;
+  CURLcode ఫలితం = CURLE_OK;
 
-  head = data->conn ? data->conn->cfilter[sockindex] : NULL;
-  for(cf = head; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_ssl) {
-      bool done;
-      CURL_TRC_CF(data, cf, "shutdown and remove SSL, start");
-      Curl_cshutdn_start_timer(data, sockindex, 0);
-      result = vtls_shutdown_blocking(cf, data, send_shutdown, &done);
-      Curl_cshutdn_clear_timer(data, sockindex);
-      if(!result && !done) /* blocking failed? */
-        result = CURLE_SSL_SHUTDOWN_FAILED;
-      Curl_conn_cf_discard(&cf, data);
-      CURL_TRC_CF(data, cf, "shutdown and remove SSL, done -> %d",
-                  (int)result);
-      break;
+  తల = దత్తాంశం->conn ? దత్తాంశం->conn->cfilter[sockindex] : ఖాళీ;
+  కొరకు(cf = తల; cf; cf = cf->తదుపరి) {
+    ఒకవేళ(cf->cft == &Curl_cft_ssl) {
+      bool పూర్తి;
+      CURL_TRC_CF(దత్తాంశం, cf, "shutdown and remove SSL, start");
+      Curl_cshutdn_ప్రారంభం_timer(దత్తాంశం, sockindex, 0);
+      ఫలితం = vtls_shutdown_blocking(cf, దత్తాంశం, send_shutdown, &పూర్తి);
+      Curl_cshutdn_clear_timer(దత్తాంశం, sockindex);
+      ఒకవేళ(!ఫలితం && !పూర్తి) /* blocking failed? */
+        ఫలితం = CURLE_SSL_SHUTDOWN_FAILED;
+      Curl_conn_cf_discard(&cf, దత్తాంశం);
+      CURL_TRC_CF(దత్తాంశం, cf, "shutdown and remove SSL, done -> %d",
+                  (పూర్ణాంకం)ఫలితం);
+      ఆపు;
     }
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-bool Curl_ssl_cf_is_proxy(struct Curl_cfilter *cf)
+bool Curl_ssl_cf_is_proxy(నిర్మాణం Curl_cfilter *cf)
 {
-  return (cf->cft->flags & CF_TYPE_SSL) && (cf->cft->flags & CF_TYPE_PROXY);
+  తిరిగి (cf->cft->flags & CF_TYPE_SSL) && (cf->cft->flags & CF_TYPE_PROXY);
 }
 
-struct ssl_easy_config *
-Curl_ssl_cf_get_easy_config(struct Curl_cfilter *cf,
-                            struct Curl_easy *data)
+నిర్మాణం ssl_easy_config *
+Curl_ssl_cf_get_easy_config(నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_easy *దత్తాంశం)
 {
-#ifdef CURL_DISABLE_PROXY
-  (void)cf;
-  return &data->set.ssl;
-#else
-  return Curl_ssl_cf_is_proxy(cf) ? &data->set.proxy_ssl : &data->set.ssl;
-#endif
+#నిర్వచితమైతే CURL_DISABLE_PROXY
+  (శూన్య)cf;
+  తిరిగి &దత్తాంశం->సమితి.ssl;
+#లేకపోతే
+  తిరిగి Curl_ssl_cf_is_proxy(cf) ? &దత్తాంశం->సమితి.proxy_ssl : &దత్తాంశం->సమితి.ssl;
+#అయితే_ముగింపు
 }
 
-struct ssl_filter_config *
-Curl_ssl_cf_get_filter_config(struct Curl_cfilter *cf)
+నిర్మాణం ssl_filter_config *
+Curl_ssl_cf_get_filter_config(నిర్మాణం Curl_cfilter *cf)
 {
-#ifdef CURL_DISABLE_PROXY
-  return &cf->conn->ssl_config;
-#else
-  return Curl_ssl_cf_is_proxy(cf) ?
+#నిర్వచితమైతే CURL_DISABLE_PROXY
+  తిరిగి &cf->conn->ssl_config;
+#లేకపోతే
+  తిరిగి Curl_ssl_cf_is_proxy(cf) ?
     &cf->conn->proxy_ssl_config : &cf->conn->ssl_config;
-#endif
+#అయితే_ముగింపు
 }
 
-CURLcode Curl_alpn_to_proto_buf(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec)
+CURLcode Curl_alpn_గమ్యం_proto_buf(నిర్మాణం alpn_proto_buf *buf,
+                                స్థిరరాశి నిర్మాణం alpn_spec *spec)
 {
   size_t i, len;
-  int off = 0;
-  unsigned char blen;
+  పూర్ణాంకం off = 0;
+  గుర్తులేని అక్షరం blen;
 
-  memset(buf, 0, sizeof(*buf));
-  for(i = 0; spec && i < spec->count; ++i) {
-    len = strlen(spec->entries[i]);
-    if(len >= ALPN_NAME_MAX)
-      return CURLE_FAILED_INIT;
-    blen = (unsigned char)len;
-    if(off + blen + 1 >= (int)sizeof(buf->data))
-      return CURLE_FAILED_INIT;
-    buf->data[off++] = blen;
-    memcpy(buf->data + off, spec->entries[i], blen);
+  memset(buf, 0, పరిమాణం(*buf));
+  కొరకు(i = 0; spec && i < spec->లెక్క; ++i) {
+    len = అక్షరశ్రేణి_పొడవు(spec->entries[i]);
+    ఒకవేళ(len >= ALPN_NAME_MAX)
+      తిరిగి CURLE_FAILED_INIT;
+    blen = (గుర్తులేని అక్షరం)len;
+    ఒకవేళ(off + blen + 1 >= (పూర్ణాంకం)పరిమాణం(buf->దత్తాంశం))
+      తిరిగి CURLE_FAILED_INIT;
+    buf->దత్తాంశం[off++] = blen;
+    జ్ఞాపకం_నకలు(buf->దత్తాంశం + off, spec->entries[i], blen);
     off += blen;
   }
   buf->len = off;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_alpn_to_proto_str(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec)
+CURLcode Curl_alpn_గమ్యం_proto_str(నిర్మాణం alpn_proto_buf *buf,
+                                స్థిరరాశి నిర్మాణం alpn_spec *spec)
 {
   size_t i, len;
   size_t off = 0;
 
-  memset(buf, 0, sizeof(*buf));
-  for(i = 0; spec && i < spec->count; ++i) {
-    len = strlen(spec->entries[i]);
-    if(len >= ALPN_NAME_MAX)
-      return CURLE_FAILED_INIT;
-    if(off + len + 2 >= sizeof(buf->data))
-      return CURLE_FAILED_INIT;
-    if(off)
-      buf->data[off++] = ',';
-    memcpy(buf->data + off, spec->entries[i], len);
+  memset(buf, 0, పరిమాణం(*buf));
+  కొరకు(i = 0; spec && i < spec->లెక్క; ++i) {
+    len = అక్షరశ్రేణి_పొడవు(spec->entries[i]);
+    ఒకవేళ(len >= ALPN_NAME_MAX)
+      తిరిగి CURLE_FAILED_INIT;
+    ఒకవేళ(off + len + 2 >= పరిమాణం(buf->దత్తాంశం))
+      తిరిగి CURLE_FAILED_INIT;
+    ఒకవేళ(off)
+      buf->దత్తాంశం[off++] = ',';
+    జ్ఞాపకం_నకలు(buf->దత్తాంశం + off, spec->entries[i], len);
     off += len;
   }
-  buf->data[off] = '\0';
-  buf->len = (int)off;
-  return CURLE_OK;
+  buf->దత్తాంశం[off] = '\0';
+  buf->len = (పూర్ణాంకం)off;
+  తిరిగి CURLE_OK;
 }
 
-bool Curl_alpn_contains_proto(const struct alpn_spec *spec,
-                              const char *proto)
+bool Curl_alpn_కలిగియుంది_proto(స్థిరరాశి నిర్మాణం alpn_spec *spec,
+                              స్థిరరాశి అక్షరం *proto)
 {
-  size_t i, plen = proto ? strlen(proto) : 0;
-  for(i = 0; spec && plen && i < spec->count; ++i) {
-    size_t slen = strlen(spec->entries[i]);
-    if((slen == plen) && !memcmp(proto, spec->entries[i], plen))
-      return TRUE;
+  size_t i, plen = proto ? అక్షరశ్రేణి_పొడవు(proto) : 0;
+  కొరకు(i = 0; spec && plen && i < spec->లెక్క; ++i) {
+    size_t slen = అక్షరశ్రేణి_పొడవు(spec->entries[i]);
+    ఒకవేళ((slen == plen) && !memcmp(proto, spec->entries[i], plen))
+      తిరిగి TRUE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-void Curl_alpn_restrict_to(struct alpn_spec *spec, const char *proto)
+శూన్య Curl_alpn_restrict_గమ్యం(నిర్మాణం alpn_spec *spec, స్థిరరాశి అక్షరం *proto)
 {
-  size_t plen = strlen(proto);
-  DEBUGASSERT(plen < sizeof(spec->entries[0]));
-  if(plen < sizeof(spec->entries[0])) {
-    memcpy(spec->entries[0], proto, plen + 1);
-    spec->count = 1;
+  size_t plen = అక్షరశ్రేణి_పొడవు(proto);
+  DEBUGASSERT(plen < పరిమాణం(spec->entries[0]));
+  ఒకవేళ(plen < పరిమాణం(spec->entries[0])) {
+    జ్ఞాపకం_నకలు(spec->entries[0], proto, plen + 1);
+    spec->లెక్క = 1;
   }
 }
 
-void Curl_alpn_copy(struct alpn_spec *dest, const struct alpn_spec *src)
+శూన్య Curl_alpn_copy(నిర్మాణం alpn_spec *dest, స్థిరరాశి నిర్మాణం alpn_spec *src)
 {
-  if(src)
-    memcpy(dest, src, sizeof(*dest));
-  else
-    memset(dest, 0, sizeof(*dest));
+  ఒకవేళ(src)
+    జ్ఞాపకం_నకలు(dest, src, పరిమాణం(*dest));
+  లేకపోతే
+    memset(dest, 0, పరిమాణం(*dest));
 }
 
-CURLcode Curl_alpn_set_negotiated(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct ssl_connect_data *connssl,
-                                  const unsigned char *proto,
+CURLcode Curl_alpn_సమితి_negotiated(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం ssl_connect_దత్తాంశం *connssl,
+                                  స్థిరరాశి గుర్తులేని అక్షరం *proto,
                                   size_t proto_len)
 {
-  CURLcode result = CURLE_OK;
-  (void)cf;
+  CURLcode ఫలితం = CURLE_OK;
+  (శూన్య)cf;
 
-  if(connssl->negotiated.alpn) {
+  ఒకవేళ(connssl->negotiated.alpn) {
     /* When we ask for a specific ALPN protocol, we need the confirmation
      * of it by the server, as we have installed protocol handler and
      * connection filter chain for exactly this protocol. */
-    if(!proto_len) {
-      failf(data, "ALPN: asked for '%s' from previous session, "
+    ఒకవేళ(!proto_len) {
+      failf(దత్తాంశం, "ALPN: asked for '%s' from previous session, "
             "but server did not confirm it. Refusing to continue.",
             connssl->negotiated.alpn);
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
-    else if(!proto) {
+    లేకపోతే ఒకవేళ(!proto) {
       DEBUGASSERT(0); /* with length, we need a pointer */
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
-    else if((strlen(connssl->negotiated.alpn) != proto_len) ||
+    లేకపోతే ఒకవేళ((అక్షరశ్రేణి_పొడవు(connssl->negotiated.alpn) != proto_len) ||
             memcmp(connssl->negotiated.alpn, proto, proto_len)) {
-      failf(data, "ALPN: asked for '%s' from previous session, but server "
+      failf(దత్తాంశం, "ALPN: asked for '%s' from previous session, but server "
             "selected '%.*s'. Refusing to continue.",
-            connssl->negotiated.alpn, (int)proto_len, proto);
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+            connssl->negotiated.alpn, (పూర్ణాంకం)proto_len, proto);
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
     /* ALPN is exactly what we asked for, done. */
-    infof(data, "ALPN: server confirmed to use '%s'",
+    infof(దత్తాంశం, "ALPN: server confirmed to use '%s'",
           connssl->negotiated.alpn);
-    goto out;
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(proto && proto_len) {
-    if(memchr(proto, '\0', proto_len)) {
-      failf(data, "ALPN: server selected protocol contains NUL. "
+  ఒకవేళ(proto && proto_len) {
+    ఒకవేళ(memchr(proto, '\0', proto_len)) {
+      failf(దత్తాంశం, "ALPN: server selected protocol contains NUL. "
                   "Refusing to continue.");
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
-    connssl->negotiated.alpn = curlx_memdup0((const char *)proto, proto_len);
-    if(!connssl->negotiated.alpn)
-      return CURLE_OUT_OF_MEMORY;
+    connssl->negotiated.alpn = curlx_memdup0((స్థిరరాశి అక్షరం *)proto, proto_len);
+    ఒకవేళ(!connssl->negotiated.alpn)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  if(proto && proto_len) {
-    if(connssl->state == ssl_connection_deferred)
-      infof(data, VTLS_INFOF_ALPN_DEFERRED, (int)proto_len, proto);
-    else
-      infof(data, VTLS_INFOF_ALPN_ACCEPTED, (int)proto_len, proto);
+  ఒకవేళ(proto && proto_len) {
+    ఒకవేళ(connssl->state == ssl_connection_deferred)
+      infof(దత్తాంశం, VTLS_INFOF_ALPN_DEFERRED, (పూర్ణాంకం)proto_len, proto);
+    లేకపోతే
+      infof(దత్తాంశం, VTLS_INFOF_ALPN_ACCEPTED, (పూర్ణాంకం)proto_len, proto);
   }
-  else {
-    if(connssl->state == ssl_connection_deferred)
-      infof(data, VTLS_INFOF_NO_ALPN_DEFERRED);
-    else
-      infof(data, VTLS_INFOF_NO_ALPN);
+  లేకపోతే {
+    ఒకవేళ(connssl->state == ssl_connection_deferred)
+      infof(దత్తాంశం, VTLS_INFOF_NO_ALPN_DEFERRED);
+    లేకపోతే
+      infof(దత్తాంశం, VTLS_INFOF_NO_ALPN);
   }
 
-out:
-  return result;
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_on_session_reuse(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct alpn_spec *alpns,
-                               struct Curl_ssl_session *scs,
-                               bool *do_early_data, bool early_data_allowed)
+CURLcode Curl_on_session_reuse(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం alpn_spec *alpns,
+                               నిర్మాణం Curl_ssl_session *scs,
+                               bool *do_early_దత్తాంశం, bool early_దత్తాంశం_allowed)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
-  *do_early_data = FALSE;
+  *do_early_దత్తాంశం = FALSE;
 
-  if(!early_data_allowed) {
-    CURL_TRC_CF(data, cf, "SSL session does not allow earlydata");
+  ఒకవేళ(!early_దత్తాంశం_allowed) {
+    CURL_TRC_CF(దత్తాంశం, cf, "SSL session does not allow earlydata");
   }
-  else if(!Curl_alpn_contains_proto(alpns, scs->alpn)) {
-    CURL_TRC_CF(data, cf, "SSL session has different ALPN, no early data");
+  లేకపోతే ఒకవేళ(!Curl_alpn_కలిగియుంది_proto(alpns, scs->alpn)) {
+    CURL_TRC_CF(దత్తాంశం, cf, "SSL session has different ALPN, no early data");
   }
-  else {
-    infof(data, "SSL session allows %zu bytes of early data, "
+  లేకపోతే {
+    infof(దత్తాంశం, "SSL session allows %zu bytes of early data, "
           "reusing ALPN '%s'", connssl->earlydata_max, scs->alpn);
     connssl->earlydata_state = ssl_earlydata_await;
     connssl->state = ssl_connection_deferred;
-    result = Curl_alpn_set_negotiated(cf, data, connssl,
-                                      (const unsigned char *)scs->alpn,
-                                      scs->alpn ? strlen(scs->alpn) : 0);
-    *do_early_data = !result;
+    ఫలితం = Curl_alpn_సమితి_negotiated(cf, దత్తాంశం, connssl,
+                                      (స్థిరరాశి గుర్తులేని అక్షరం *)scs->alpn,
+                                      scs->alpn ? అక్షరశ్రేణి_పొడవు(scs->alpn) : 0);
+    *do_early_దత్తాంశం = !ఫలితం;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-struct Curl_ssl_session *Curl_ssl_get_cf_session(struct Curl_easy *data,
-                                                 const struct Curl_cftype *cft,
+నిర్మాణం Curl_ssl_session *Curl_ssl_get_cf_session(నిర్మాణం Curl_easy *దత్తాంశం,
+                                                 స్థిరరాశి నిర్మాణం Curl_cftype *cft,
                                                  int8_t sockindex)
 {
-  if(data->conn &&
-#ifndef CURL_DISABLE_PROXY
+  ఒకవేళ(దత్తాంశం->conn &&
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
      ((cft == &Curl_cft_ssl) || (cft == &Curl_cft_ssl_proxy))) {
-#else
+#లేకపోతే
      (cft == &Curl_cft_ssl)) {
-#endif
-    struct Curl_cfilter *cf1 = data->conn->cfilter[sockindex];
-    for(; cf1; cf1 = cf1->next) {
+#అయితే_ముగింపు
+    నిర్మాణం Curl_cfilter *cf1 = దత్తాంశం->conn->cfilter[sockindex];
+    కొరకు(; cf1; cf1 = cf1->తదుపరి) {
       /* A tunneling proxy does not offer end2end encryption, even if
        * it does SSL itself (e.g. QUIC H3 proxy) */
-      if(cf1->cft == cft)
-        break;
+      ఒకవేళ(cf1->cft == cft)
+        ఆపు;
     }
-    if(cf1) {
-      struct ssl_connect_data *connssl = cf1->ctx;
-      if(connssl)
-        return connssl->session;
+    ఒకవేళ(cf1) {
+      నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf1->ctx;
+      ఒకవేళ(connssl)
+        తిరిగి connssl->session;
     }
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-#endif /* USE_SSL */
+#అయితే_ముగింపు /* USE_SSL */

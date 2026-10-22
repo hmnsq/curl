@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MEMRCHR_H
-#define HEADER_CURL_MEMRCHR_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_MEMRCHR_H
+#నిర్వచించు శీర్షిక_CURL_MEMRCHR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_MEMRCHR
+#నిర్వచితమైతే HAVE_MEMRCHR
 
-#ifdef HAVE_STRINGS_H
+#నిర్వచితమైతే HAVE_అక్షరశ్రేణులు_H
 #  include <strings.h>
-#endif
+#అయితే_ముగింపు
 
-#else /* HAVE_MEMRCHR */
-void *Curl_memrchr(const void *s, int c, size_t n);
-#define memrchr(x, y, z)  Curl_memrchr(x, y, z)
+#లేకపోతే /* HAVE_MEMRCHR */
+శూన్య *Curl_memrchr(స్థిరరాశి శూన్య *s, పూర్ణాంకం c, size_t n);
+#నిర్వచించు memrchr(x, y, z)  Curl_memrchr(x, y, z)
 
-#endif /* HAVE_MEMRCHR */
+#అయితే_ముగింపు /* HAVE_MEMRCHR */
 
-#endif /* HEADER_CURL_MEMRCHR_H */
+#అయితే_ముగింపు /* HEADER_CURL_MEMRCHR_H */

@@ -24,236 +24,236 @@
  * RFC7616 DIGEST-SHA256, DIGEST-SHA512-256 authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DIGEST_AUTH
 
-#include "vauth/vauth.h"
-#include "vauth/digest.h"
-#include "curlx/base64.h"
-#include "curl_md5.h"
-#include "curl_sha256.h"
-#include "curl_sha512_256.h"
-#include "curlx/strparse.h"
-#include "rand.h"
-#include "escape.h"
+#అన్తర్భావ "vauth/vauth.h"
+#అన్తర్భావ "vauth/digest.h"
+#అన్తర్భావ "curlx/base64.h"
+#అన్తర్భావ "curl_md5.h"
+#అన్తర్భావ "curl_sha256.h"
+#అన్తర్భావ "curl_sha512_256.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "rand.h"
+#అన్తర్భావ "escape.h"
 
-#ifndef USE_WINDOWS_SSPI
-#define SESSION_ALGO 1 /* for algos with this bit set */
+#నిర్వచితం_కాకపోతే USE_WINDOWS_SSPI
+#నిర్వచించు SESSION_ALGO 1 /* for algos with this bit set */
 
-#define ALGO_MD5 0
-#define ALGO_MD5SESS (ALGO_MD5 | SESSION_ALGO)
-#define ALGO_SHA256 2
-#define ALGO_SHA256SESS (ALGO_SHA256 | SESSION_ALGO)
-#define ALGO_SHA512_256 4
-#define ALGO_SHA512_256SESS (ALGO_SHA512_256 | SESSION_ALGO)
+#నిర్వచించు ALGO_MD5 0
+#నిర్వచించు ALGO_MD5SESS (ALGO_MD5 | SESSION_ALGO)
+#నిర్వచించు ALGO_SHA256 2
+#నిర్వచించు ALGO_SHA256SESS (ALGO_SHA256 | SESSION_ALGO)
+#నిర్వచించు ALGO_SHA512_256 4
+#నిర్వచించు ALGO_SHA512_256SESS (ALGO_SHA512_256 | SESSION_ALGO)
 
-#define DIGEST_QOP_VALUE_AUTH             (1 << 0)
-#define DIGEST_QOP_VALUE_AUTH_INT         (1 << 1)
-#define DIGEST_QOP_VALUE_AUTH_CONF        (1 << 2)
+#నిర్వచించు DIGEST_QOP_విలువ_AUTH             (1 << 0)
+#నిర్వచించు DIGEST_QOP_విలువ_AUTH_INT         (1 << 1)
+#నిర్వచించు DIGEST_QOP_విలువ_AUTH_CONF        (1 << 2)
 
-#define DIGEST_QOP_VALUE_STRING_AUTH      "auth"
-#define DIGEST_QOP_VALUE_STRING_AUTH_INT  "auth-int"
-#define DIGEST_QOP_VALUE_STRING_AUTH_CONF "auth-conf"
-#endif
+#నిర్వచించు DIGEST_QOP_విలువ_STRING_AUTH      "auth"
+#నిర్వచించు DIGEST_QOP_విలువ_STRING_AUTH_INT  "auth-int"
+#నిర్వచించు DIGEST_QOP_విలువ_STRING_AUTH_CONF "auth-conf"
+#అయితే_ముగింపు
 
-bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
-                               char *content, const char **endptr)
+bool Curl_auth_digest_get_pair(స్థిరరాశి అక్షరం *str, నిర్మాణం Curl_str *విలువ,
+                               అక్షరం *content, స్థిరరాశి అక్షరం **endptr)
 {
-  int c;
-  size_t content_length = 0;
+  పూర్ణాంకం c;
+  size_t content_నిడివి = 0;
   bool starts_with_quote = FALSE;
   bool escape = FALSE;
 
-  if(curlx_str_until(&str, value, DIGEST_MAX_VALUE_LENGTH, '=') ||
+  ఒకవేళ(curlx_str_until(&str, విలువ, DIGEST_MAX_విలువ_నిడివి, '=') ||
      curlx_str_single(&str, '='))
     /* eek, no match */
-    return FALSE;
+    తిరిగి FALSE;
 
-  if('\"' == *str) {
+  ఒకవేళ('\"' == *str) {
     /* This starts with a quote so it must end with one as well! */
     str++;
     starts_with_quote = TRUE;
   }
 
-  for(c = DIGEST_MAX_CONTENT_LENGTH; *str && c--; str++) {
-    if(!escape) {
-      switch(*str) {
-      case '\\':
-        if(starts_with_quote) {
+  కొరకు(c = DIGEST_MAX_CONTENT_నిడివి; *str && c--; str++) {
+    ఒకవేళ(!escape) {
+      ఎంపిక(*str) {
+      స్థితి '\\':
+        ఒకవేళ(starts_with_quote) {
           /* the start of an escaped quote */
           escape = TRUE;
-          continue;
+          కొనసాగు;
         }
-        break;
+        ఆపు;
 
-      case ',':
-        if(!starts_with_quote) {
+      స్థితి ',':
+        ఒకవేళ(!starts_with_quote) {
           /* This signals the end of the content if we did not get a starting
              quote and then we do "sloppy" parsing */
           c = 0; /* the end */
-          continue;
+          కొనసాగు;
         }
-        break;
+        ఆపు;
 
-      case '\r':
-      case '\n':
+      స్థితి '\r':
+      స్థితి '\n':
         /* end of string */
-        if(starts_with_quote)
-          return FALSE; /* No closing quote */
+        ఒకవేళ(starts_with_quote)
+          తిరిగి FALSE; /* No closing quote */
         c = 0;
-        continue;
+        కొనసాగు;
 
-      case '\"':
-        if(starts_with_quote) {
+      స్థితి '\"':
+        ఒకవేళ(starts_with_quote) {
           /* end of string */
           c = 0;
-          continue;
+          కొనసాగు;
         }
-        else
-          return FALSE;
+        లేకపోతే
+          తిరిగి FALSE;
       }
     }
 
-    if(content_length >= DIGEST_MAX_CONTENT_LENGTH - 1) {
+    ఒకవేళ(content_నిడివి >= DIGEST_MAX_CONTENT_నిడివి - 1) {
       /* no room for this byte plus the terminator */
-      return FALSE;
+      తిరిగి FALSE;
     }
 
     escape = FALSE;
     *content++ = *str;
-    content_length++;
+    content_నిడివి++;
   }
 
-  if(escape)
-    return FALSE; /* No character after backslash */
+  ఒకవేళ(escape)
+    తిరిగి FALSE; /* No character after backslash */
 
   *content = 0;
   *endptr = str;
 
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-#ifndef USE_WINDOWS_SSPI
+#నిర్వచితం_కాకపోతే USE_WINDOWS_SSPI
 /* Convert MD5 chunk to RFC2617 (section 3.1.3) -suitable ASCII string */
-static void auth_digest_md5_to_ascii(
-  const unsigned char *source, /* 16 bytes */
-  unsigned char *dest)         /* 33 bytes */
+స్థిర శూన్య auth_digest_md5_గమ్యం_ascii(
+  స్థిరరాశి గుర్తులేని అక్షరం *ఆధారం, /* 16 bytes */
+  గుర్తులేని అక్షరం *dest)         /* 33 bytes */
 {
-  int i;
-  for(i = 0; i < 16; i++)
-    curl_msnprintf((char *)&dest[i * 2], 3, "%02x", source[i]);
+  పూర్ణాంకం i;
+  కొరకు(i = 0; i < 16; i++)
+    curl_msnprintf((అక్షరం *)&dest[i * 2], 3, "%02x", ఆధారం[i]);
 }
 
 /* Convert sha256 or SHA-512/256 chunk to RFC7616 -suitable ASCII string */
-static void auth_digest_sha256_to_ascii(
-  const unsigned char *source, /* 32 bytes */
-  unsigned char *dest)         /* 65 bytes */
+స్థిర శూన్య auth_digest_sha256_గమ్యం_ascii(
+  స్థిరరాశి గుర్తులేని అక్షరం *ఆధారం, /* 32 bytes */
+  గుర్తులేని అక్షరం *dest)         /* 65 bytes */
 {
-  int i;
-  for(i = 0; i < 32; i++)
-    curl_msnprintf((char *)&dest[i * 2], 3, "%02x", source[i]);
+  పూర్ణాంకం i;
+  కొరకు(i = 0; i < 32; i++)
+    curl_msnprintf((అక్షరం *)&dest[i * 2], 3, "%02x", ఆధారం[i]);
 }
 
 /* Perform quoted-string escaping as described in RFC2616 and its errata */
-static char *auth_digest_string_quoted(const char *s)
+స్థిర అక్షరం *auth_digest_string_quoted(స్థిరరాశి అక్షరం *s)
 {
-  struct dynbuf out;
-  curlx_dyn_init(&out, 2048);
-  if(!*s) /* for zero length input, make sure we return an empty string */
-    return curlx_strdup("");
-  while(*s) {
-    CURLcode result;
-    if(*s == '"' || *s == '\\') {
-      result = curlx_dyn_addn(&out, "\\", 1);
-      if(!result)
-        result = curlx_dyn_addn(&out, s, 1);
+  నిర్మాణం dynbuf బహిర్గతం;
+  curlx_dyn_init(&బహిర్గతం, 2048);
+  ఒకవేళ(!*s) /* for zero length input, make sure we return an empty string */
+    తిరిగి curlx_strdup("");
+  అయితే(*s) {
+    CURLcode ఫలితం;
+    ఒకవేళ(*s == '"' || *s == '\\') {
+      ఫలితం = curlx_dyn_addn(&బహిర్గతం, "\\", 1);
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = curlx_dyn_addn(&బహిర్గతం, s, 1);
     }
-    else if((*s < ' ') || (*s > 0x7e)) {
-      unsigned char buf[3] = { '%' };
-      Curl_hexbyte(&buf[1], (unsigned char)*s);
-      result = curlx_dyn_addn(&out, buf, 3);
+    లేకపోతే ఒకవేళ((*s < ' ') || (*s > 0x7e)) {
+      గుర్తులేని అక్షరం buf[3] = { '%' };
+      Curl_hexbyte(&buf[1], (గుర్తులేని అక్షరం)*s);
+      ఫలితం = curlx_dyn_addn(&బహిర్గతం, buf, 3);
     }
-    else
-      result = curlx_dyn_addn(&out, s, 1);
-    if(result)
-      return NULL;
+    లేకపోతే
+      ఫలితం = curlx_dyn_addn(&బహిర్గతం, s, 1);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఖాళీ;
     s++;
   }
-  return curlx_dyn_ptr(&out);
+  తిరిగి curlx_dyn_ptr(&బహిర్గతం);
 }
 
 /* Retrieves the value for a corresponding key from the challenge string
  * returns TRUE if the key could be found, FALSE if it does not exist
  */
-static bool auth_digest_get_key_value(const char *chlg, const char *key,
-                                      char *buf, size_t buflen)
+స్థిర bool auth_digest_get_కీలకం_విలువ(స్థిరరాశి అక్షరం *chlg, స్థిరరాశి అక్షరం *కీలకం,
+                                      అక్షరం *buf, size_t buflen)
 {
   /* keyword=[value],keyword2=[value]
      The values may or may not be quoted.
    */
 
-  do {
-    struct Curl_str data;
-    struct Curl_str name;
+  చేయి {
+    నిర్మాణం Curl_str దత్తాంశం;
+    నిర్మాణం Curl_str name;
 
     curlx_str_passblanks(&chlg);
 
-    if(!curlx_str_until(&chlg, &name, 64, '=') &&
+    ఒకవేళ(!curlx_str_until(&chlg, &name, 64, '=') &&
        !curlx_str_single(&chlg, '=')) {
       /* this is the key, get the value, possibly quoted */
-      int rc = curlx_str_quotedword(&chlg, &data, 256);
-      if(rc == STRE_BEGQUOTE)
+      పూర్ణాంకం rc = curlx_str_quotedword(&chlg, &దత్తాంశం, 256);
+      ఒకవేళ(rc == STRE_BEGQUOTE)
         /* try unquoted until comma */
-        rc = curlx_str_until(&chlg, &data, 256, ',');
-      if(rc)
-        return FALSE; /* weird */
+        rc = curlx_str_until(&chlg, &దత్తాంశం, 256, ',');
+      ఒకవేళ(rc)
+        తిరిగి FALSE; /* weird */
 
-      if(curlx_str_cmp(&name, key)) {
+      ఒకవేళ(curlx_str_cmp(&name, కీలకం)) {
         /* if this is our key, return the value */
-        size_t len = curlx_strlen(&data);
-        const char *src = curlx_str(&data);
+        size_t len = curlx_strlen(&దత్తాంశం);
+        స్థిరరాశి అక్షరం *src = curlx_str(&దత్తాంశం);
         size_t i;
         size_t outlen = 0;
 
-        if(len >= buflen)
+        ఒకవేళ(len >= buflen)
           /* does not fit */
-          return FALSE;
+          తిరిగి FALSE;
 
-        for(i = 0; i < len; i++) {
-          if(src[i] == '\\' && i + 1 < len) {
+        కొరకు(i = 0; i < len; i++) {
+          ఒకవేళ(src[i] == '\\' && i + 1 < len) {
             i++; /* skip backslash */
           }
           buf[outlen++] = src[i];
         }
         buf[outlen] = 0;
-        return TRUE;
+        తిరిగి TRUE;
       }
-      if(curlx_str_single(&chlg, ','))
-        return FALSE;
+      ఒకవేళ(curlx_str_single(&chlg, ','))
+        తిరిగి FALSE;
     }
-    else /* odd syntax */
-      break;
-  } while(1);
+    లేకపోతే /* odd syntax */
+      ఆపు;
+  } అయితే(1);
 
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static void auth_digest_get_qop_values(const char *options, int *value)
+స్థిర శూన్య auth_digest_get_qop_విలువలు(స్థిరరాశి అక్షరం *options, పూర్ణాంకం *విలువ)
 {
-  struct Curl_str out;
+  నిర్మాణం Curl_str బహిర్గతం;
   /* Initialize the output */
-  *value = 0;
+  *విలువ = 0;
 
-  while(!curlx_str_until(&options, &out, 32, ',')) {
-    if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
-      *value |= DIGEST_QOP_VALUE_AUTH;
-    else if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_INT))
-      *value |= DIGEST_QOP_VALUE_AUTH_INT;
-    else if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_CONF))
-      *value |= DIGEST_QOP_VALUE_AUTH_CONF;
-    if(curlx_str_single(&options, ','))
-      break;
+  అయితే(!curlx_str_until(&options, &బహిర్గతం, 32, ',')) {
+    ఒకవేళ(curlx_str_casecompare(&బహిర్గతం, DIGEST_QOP_విలువ_STRING_AUTH))
+      *విలువ |= DIGEST_QOP_విలువ_AUTH;
+    లేకపోతే ఒకవేళ(curlx_str_casecompare(&బహిర్గతం, DIGEST_QOP_విలువ_STRING_AUTH_INT))
+      *విలువ |= DIGEST_QOP_విలువ_AUTH_INT;
+    లేకపోతే ఒకవేళ(curlx_str_casecompare(&బహిర్గతం, DIGEST_QOP_విలువ_STRING_AUTH_CONF))
+      *విలువ |= DIGEST_QOP_విలువ_AUTH_CONF;
+    ఒకవేళ(curlx_str_single(&options, ','))
+      ఆపు;
   }
 }
 
@@ -277,37 +277,37 @@ static void auth_digest_get_qop_values(const char *options, int *value)
  *
  * Returns CURLE_OK on success.
  */
-static CURLcode auth_decode_digest_md5_message(const struct bufref *chlgref,
-                                               char *nonce, size_t nlen,
-                                               char *realm, size_t rlen,
-                                               char *alg, size_t alen,
-                                               char *qop, size_t qlen)
+స్థిర CURLcode auth_decode_digest_md5_సందేశం(స్థిరరాశి నిర్మాణం bufref *chlgref,
+                                               అక్షరం *nonce, size_t nlen,
+                                               అక్షరం *realm, size_t rlen,
+                                               అక్షరం *alg, size_t alen,
+                                               అక్షరం *qop, size_t qlen)
 {
-  const char *chlg = Curl_bufref_ptr(chlgref);
+  స్థిరరాశి అక్షరం *chlg = Curl_bufref_ptr(chlgref);
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlgref))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!Curl_bufref_len(chlgref))
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve nonce string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "nonce", nonce, nlen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!auth_digest_get_కీలకం_విలువ(chlg, "nonce", nonce, nlen))
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve realm string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "realm", realm, rlen)) {
+  ఒకవేళ(!auth_digest_get_కీలకం_విలువ(chlg, "realm", realm, rlen)) {
     /* Challenge does not have a realm, set empty string [RFC2831] page 6 */
     *realm = '\0';
   }
 
   /* Retrieve algorithm string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "algorithm", alg, alen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!auth_digest_get_కీలకం_విలువ(chlg, "algorithm", alg, alen))
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve qop-options string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "qop", qop, qlen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!auth_digest_get_కీలకం_విలువ(chlg, "qop", qop, qlen))
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -319,9 +319,9 @@ static CURLcode auth_decode_digest_md5_message(const struct bufref *chlgref,
  *
  * Returns TRUE as DIGEST as handled by libcurl.
  */
-bool Curl_auth_is_digest_supported(void)
+bool Curl_auth_is_digest_supported(శూన్య)
 {
-  return TRUE;
+  తిరిగి TRUE;
 }
 
 /*
@@ -341,148 +341,148 @@ bool Curl_auth_is_digest_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
-                                             const struct bufref *chlg,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_digest_md5_సందేశం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                             స్థిరరాశి నిర్మాణం bufref *chlg,
+                                             నిర్మాణం Curl_creds *creds,
+                                             స్థిరరాశి అక్షరం *default_service,
+                                             నిర్మాణం bufref *బహిర్గతం)
 {
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  స్థిరరాశి అక్షరం *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
   size_t i;
-  struct MD5_context *ctxt;
-  const char *userp = Curl_creds_user(creds);
-  const char *passwdp = Curl_creds_passwd(creds);
-  char *response = NULL;
-  unsigned char digest[MD5_DIGEST_LEN];
-  char HA1_hex[(2 * MD5_DIGEST_LEN) + 1];
-  char HA2_hex[(2 * MD5_DIGEST_LEN) + 1];
-  char resp_hash_hex[(2 * MD5_DIGEST_LEN) + 1];
-  char nonce[64];
-  char realm[128];
-  char algorithm[64];
-  char qop_options[64];
-  int qop_values;
-  char cnonce[33];
-  char nonceCount[] = "00000001";
-  char method[]     = "AUTHENTICATE";
-  char qop[]        = DIGEST_QOP_VALUE_STRING_AUTH;
-  char *spn         = NULL;
-  char *qrealm;
-  char *qnonce;
-  char *quserp;
-  char *qspn;
+  నిర్మాణం MD5_context *ctxt;
+  స్థిరరాశి అక్షరం *userp = Curl_creds_user(creds);
+  స్థిరరాశి అక్షరం *passwdp = Curl_creds_passwd(creds);
+  అక్షరం *response = ఖాళీ;
+  గుర్తులేని అక్షరం digest[MD5_DIGEST_LEN];
+  అక్షరం HA1_hex[(2 * MD5_DIGEST_LEN) + 1];
+  అక్షరం HA2_hex[(2 * MD5_DIGEST_LEN) + 1];
+  అక్షరం resp_hash_hex[(2 * MD5_DIGEST_LEN) + 1];
+  అక్షరం nonce[64];
+  అక్షరం realm[128];
+  అక్షరం algorithm[64];
+  అక్షరం qop_options[64];
+  పూర్ణాంకం qop_విలువలు;
+  అక్షరం cnonce[33];
+  అక్షరం nonce_లెక్క[] = "00000001";
+  అక్షరం పద్ధతి[]     = "AUTHENTICATE";
+  అక్షరం qop[]        = DIGEST_QOP_విలువ_STRING_AUTH;
+  అక్షరం *spn         = ఖాళీ;
+  అక్షరం *qrealm;
+  అక్షరం *qnonce;
+  అక్షరం *quserp;
+  అక్షరం *qspn;
 
   /* Decode the challenge message */
-  CURLcode result = auth_decode_digest_md5_message(chlg,
-                                                   nonce, sizeof(nonce),
-                                                   realm, sizeof(realm),
+  CURLcode ఫలితం = auth_decode_digest_md5_సందేశం(chlg,
+                                                   nonce, పరిమాణం(nonce),
+                                                   realm, పరిమాణం(realm),
                                                    algorithm,
-                                                   sizeof(algorithm),
+                                                   పరిమాణం(algorithm),
                                                    qop_options,
-                                                   sizeof(qop_options));
-  if(result)
-    return result;
+                                                   పరిమాణం(qop_options));
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* We only support md5 sessions */
-  if(strcmp(algorithm, "md5-sess"))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(strcmp(algorithm, "md5-sess"))
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
   /* Get the qop-values from the qop-options */
-  auth_digest_get_qop_values(qop_options, &qop_values);
+  auth_digest_get_qop_విలువలు(qop_options, &qop_విలువలు);
 
   /* We only support auth quality-of-protection */
-  if(!(qop_values & DIGEST_QOP_VALUE_AUTH))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!(qop_విలువలు & DIGEST_QOP_విలువ_AUTH))
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
   /* Generate 32 random hex chars, 32 bytes + 1 null-termination */
-  result = Curl_rand_hex(data, (unsigned char *)cnonce, sizeof(cnonce));
-  if(result)
-    return result;
+  ఫలితం = Curl_rand_hex(దత్తాంశం, (గుర్తులేని అక్షరం *)cnonce, పరిమాణం(cnonce));
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* Good so far, now calculate A1 and H(A1) according to RFC 2831 */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!ctxt)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  Curl_MD5_update(ctxt, (const unsigned char *)userp,
-                  curlx_uztoui(strlen(userp)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)realm,
-                  curlx_uztoui(strlen(realm)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)passwdp,
-                  curlx_uztoui(strlen(passwdp)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)userp,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(userp)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)":", 1);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)realm,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(realm)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)":", 1);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)passwdp,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(passwdp)));
   Curl_MD5_final(ctxt, digest);
 
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!ctxt)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  Curl_MD5_update(ctxt, (const unsigned char *)digest, MD5_DIGEST_LEN);
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)nonce,
-                  curlx_uztoui(strlen(nonce)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)cnonce,
-                  curlx_uztoui(strlen(cnonce)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)digest, MD5_DIGEST_LEN);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)":", 1);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)nonce,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(nonce)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)":", 1);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)cnonce,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(cnonce)));
   Curl_MD5_final(ctxt, digest);
 
   /* Convert calculated 16 octet hex into 32 bytes string */
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  కొరకు(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&HA1_hex[2 * i], 3, "%02x", digest[i]);
 
   /* Generate our SPN */
-  spn = Curl_auth_build_spn(service, data->state.origin->hostname, NULL);
-  if(!spn)
-    return CURLE_OUT_OF_MEMORY;
+  spn = Curl_auth_build_spn(service, దత్తాంశం->state.origin->hostname, ఖాళీ);
+  ఒకవేళ(!spn)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* Calculate H(A2) */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt) {
+  ఒకవేళ(!ctxt) {
     curlx_free(spn);
 
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  Curl_MD5_update(ctxt, (const unsigned char *)method,
-                  curlx_uztoui(strlen(method)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)spn,
-                  curlx_uztoui(strlen(spn)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)పద్ధతి,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(పద్ధతి)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)":", 1);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)spn,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(spn)));
   Curl_MD5_final(ctxt, digest);
 
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  కొరకు(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&HA2_hex[2 * i], 3, "%02x", digest[i]);
 
   /* Now calculate the response hash */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt) {
+  ఒకవేళ(!ctxt) {
     curlx_free(spn);
 
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  Curl_MD5_update(ctxt, (const unsigned char *)HA1_hex, 2 * MD5_DIGEST_LEN);
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)nonce,
-                  curlx_uztoui(strlen(nonce)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)HA1_hex, 2 * MD5_DIGEST_LEN);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)":", 1);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)nonce,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(nonce)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)":", 1);
 
-  Curl_MD5_update(ctxt, (const unsigned char *)nonceCount,
-                  curlx_uztoui(strlen(nonceCount)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)cnonce,
-                  curlx_uztoui(strlen(cnonce)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)qop,
-                  curlx_uztoui(strlen(qop)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)nonce_లెక్క,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(nonce_లెక్క)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)":", 1);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)cnonce,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(cnonce)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)":", 1);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)qop,
+                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(qop)));
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)":", 1);
 
-  Curl_MD5_update(ctxt, (const unsigned char *)HA2_hex, 2 * MD5_DIGEST_LEN);
+  Curl_MD5_update(ctxt, (స్థిరరాశి గుర్తులేని అక్షరం *)HA2_hex, 2 * MD5_DIGEST_LEN);
   Curl_MD5_final(ctxt, digest);
 
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  కొరకు(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&resp_hash_hex[2 * i], 3, "%02x", digest[i]);
 
   /* escape double quotes and backslashes in the username, realm, nonce and
@@ -491,25 +491,25 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   qnonce = auth_digest_string_quoted(nonce);
   quserp = auth_digest_string_quoted(userp);
   qspn = auth_digest_string_quoted(spn);
-  if(qrealm && qnonce && quserp && qspn)
+  ఒకవేళ(qrealm && qnonce && quserp && qspn)
     /* Generate the response */
     response = curl_maprintf("username=\"%s\",realm=\"%s\",nonce=\"%s\","
                              "cnonce=\"%s\",nc=\"%s\",digest-uri=\"%s\","
                              "response=%s,qop=%s",
                              quserp, qrealm, qnonce,
-                             cnonce, nonceCount, qspn, resp_hash_hex, qop);
+                             cnonce, nonce_లెక్క, qspn, resp_hash_hex, qop);
 
   curlx_free(qrealm);
   curlx_free(qnonce);
   curlx_free(quserp);
   curlx_free(spn);
   curlx_free(qspn);
-  if(!response)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!response)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* Return the response. */
-  Curl_bufref_set(out, response, strlen(response), curl_free);
-  return result;
+  Curl_bufref_సమితి(బహిర్గతం, response, అక్షరశ్రేణి_పొడవు(response), curl_free);
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -525,149 +525,149 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
-                                              struct digestdata *digest)
+CURLcode Curl_auth_decode_digest_http_సందేశం(స్థిరరాశి అక్షరం *chlg,
+                                              నిర్మాణం digestdata *digest)
 {
   bool before = FALSE; /* got a nonce before */
 
   /* If we already have received a nonce, keep that in mind */
-  if(digest->nonce)
+  ఒకవేళ(digest->nonce)
     before = TRUE;
 
   /* Clean up any former leftovers and initialize to defaults */
   Curl_auth_digest_cleanup(digest);
 
-  for(;;) {
-    struct Curl_str value;
-    char content[DIGEST_MAX_CONTENT_LENGTH];
+  కొరకు(;;) {
+    నిర్మాణం Curl_str విలువ;
+    అక్షరం content[DIGEST_MAX_CONTENT_నిడివి];
 
     /* Pass all additional spaces here */
     curlx_str_passblanks(&chlg);
 
     /* Extract a value=content pair */
-    if(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
-      if(curlx_str_casecompare(&value, "nonce")) {
+    ఒకవేళ(Curl_auth_digest_get_pair(chlg, &విలువ, content, &chlg)) {
+      ఒకవేళ(curlx_str_casecompare(&విలువ, "nonce")) {
         curlx_free(digest->nonce);
         digest->nonce = curlx_strdup(content);
-        if(!digest->nonce)
-          return CURLE_OUT_OF_MEMORY;
+        ఒకవేళ(!digest->nonce)
+          తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
-      else if(curlx_str_casecompare(&value, "stale")) {
-        if(curl_strequal(content, "true")) {
+      లేకపోతే ఒకవేళ(curlx_str_casecompare(&విలువ, "stale")) {
+        ఒకవేళ(curl_strequal(content, "true")) {
           digest->stale = TRUE;
           digest->nc = 1; /* we make a new nonce now */
         }
       }
-      else if(curlx_str_casecompare(&value, "realm")) {
+      లేకపోతే ఒకవేళ(curlx_str_casecompare(&విలువ, "realm")) {
         curlx_free(digest->realm);
         digest->realm = curlx_strdup(content);
-        if(!digest->realm)
-          return CURLE_OUT_OF_MEMORY;
+        ఒకవేళ(!digest->realm)
+          తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
-      else if(curlx_str_casecompare(&value, "opaque")) {
+      లేకపోతే ఒకవేళ(curlx_str_casecompare(&విలువ, "opaque")) {
         curlx_free(digest->opaque);
         digest->opaque = curlx_strdup(content);
-        if(!digest->opaque)
-          return CURLE_OUT_OF_MEMORY;
+        ఒకవేళ(!digest->opaque)
+          తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
-      else if(curlx_str_casecompare(&value, "qop")) {
-        const char *token = content;
-        struct Curl_str out;
-        bool foundAuth = FALSE;
-        bool foundAuthInt = FALSE;
+      లేకపోతే ఒకవేళ(curlx_str_casecompare(&విలువ, "qop")) {
+        స్థిరరాశి అక్షరం *token = content;
+        నిర్మాణం Curl_str బహిర్గతం;
+        bool దొరికింది_Auth = FALSE;
+        bool దొరికింది_Auth_Int = FALSE;
         /* Pass leading spaces */
         curlx_str_passblanks(&token);
 
-        while(!curlx_str_until(&token, &out, 32, ',')) {
-          if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
-            foundAuth = TRUE;
-          else if(curlx_str_casecompare(&out,
-                                        DIGEST_QOP_VALUE_STRING_AUTH_INT))
-            foundAuthInt = TRUE;
-          if(curlx_str_single(&token, ','))
-            break;
+        అయితే(!curlx_str_until(&token, &బహిర్గతం, 32, ',')) {
+          ఒకవేళ(curlx_str_casecompare(&బహిర్గతం, DIGEST_QOP_విలువ_STRING_AUTH))
+            దొరికింది_Auth = TRUE;
+          లేకపోతే ఒకవేళ(curlx_str_casecompare(&బహిర్గతం,
+                                        DIGEST_QOP_విలువ_STRING_AUTH_INT))
+            దొరికింది_Auth_Int = TRUE;
+          ఒకవేళ(curlx_str_single(&token, ','))
+            ఆపు;
           curlx_str_passblanks(&token);
         }
 
         /* Select only auth or auth-int. Otherwise, ignore */
-        if(foundAuth) {
+        ఒకవేళ(దొరికింది_Auth) {
           curlx_free(digest->qop);
-          digest->qop = curlx_strdup(DIGEST_QOP_VALUE_STRING_AUTH);
-          if(!digest->qop)
-            return CURLE_OUT_OF_MEMORY;
+          digest->qop = curlx_strdup(DIGEST_QOP_విలువ_STRING_AUTH);
+          ఒకవేళ(!digest->qop)
+            తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
         }
-        else if(foundAuthInt) {
+        లేకపోతే ఒకవేళ(దొరికింది_Auth_Int) {
           curlx_free(digest->qop);
-          digest->qop = curlx_strdup(DIGEST_QOP_VALUE_STRING_AUTH_INT);
-          if(!digest->qop)
-            return CURLE_OUT_OF_MEMORY;
+          digest->qop = curlx_strdup(DIGEST_QOP_విలువ_STRING_AUTH_INT);
+          ఒకవేళ(!digest->qop)
+            తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
         }
       }
-      else if(curlx_str_casecompare(&value, "algorithm")) {
+      లేకపోతే ఒకవేళ(curlx_str_casecompare(&విలువ, "algorithm")) {
         curlx_free(digest->algorithm);
         digest->algorithm = curlx_strdup(content);
-        if(!digest->algorithm)
-          return CURLE_OUT_OF_MEMORY;
+        ఒకవేళ(!digest->algorithm)
+          తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-        if(curl_strequal(content, "MD5-sess"))
+        ఒకవేళ(curl_strequal(content, "MD5-sess"))
           digest->algo = ALGO_MD5SESS;
-        else if(curl_strequal(content, "MD5"))
+        లేకపోతే ఒకవేళ(curl_strequal(content, "MD5"))
           digest->algo = ALGO_MD5;
-        else if(curl_strequal(content, "SHA-256"))
+        లేకపోతే ఒకవేళ(curl_strequal(content, "SHA-256"))
           digest->algo = ALGO_SHA256;
-        else if(curl_strequal(content, "SHA-256-SESS"))
+        లేకపోతే ఒకవేళ(curl_strequal(content, "SHA-256-SESS"))
           digest->algo = ALGO_SHA256SESS;
-        else if(curl_strequal(content, "SHA-512-256")) {
-#ifdef CURL_HAVE_SHA512_256
+        లేకపోతే ఒకవేళ(curl_strequal(content, "SHA-512-256")) {
+#నిర్వచితమైతే CURL_HAVE_SHA512_256
           digest->algo = ALGO_SHA512_256;
-#else /* !CURL_HAVE_SHA512_256 */
-          return CURLE_NOT_BUILT_IN;
-#endif /* CURL_HAVE_SHA512_256 */
+#లేకపోతే /* !CURL_HAVE_SHA512_256 */
+          తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు /* CURL_HAVE_SHA512_256 */
         }
-        else if(curl_strequal(content, "SHA-512-256-SESS")) {
-#ifdef CURL_HAVE_SHA512_256
+        లేకపోతే ఒకవేళ(curl_strequal(content, "SHA-512-256-SESS")) {
+#నిర్వచితమైతే CURL_HAVE_SHA512_256
           digest->algo = ALGO_SHA512_256SESS;
-#else /* !CURL_HAVE_SHA512_256 */
-          return CURLE_NOT_BUILT_IN;
-#endif /* CURL_HAVE_SHA512_256 */
+#లేకపోతే /* !CURL_HAVE_SHA512_256 */
+          తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు /* CURL_HAVE_SHA512_256 */
         }
-        else
-          return CURLE_BAD_CONTENT_ENCODING;
+        లేకపోతే
+          తిరిగి CURLE_BAD_CONTENT_ENCODING;
       }
-      else if(curlx_str_casecompare(&value, "userhash")) {
-        if(curl_strequal(content, "true")) {
+      లేకపోతే ఒకవేళ(curlx_str_casecompare(&విలువ, "userhash")) {
+        ఒకవేళ(curl_strequal(content, "true")) {
           digest->userhash = TRUE;
         }
       }
-      else {
+      లేకపోతే {
         /* Unknown specifier, ignore it! */
       }
     }
-    else
-      break; /* We are done here */
+    లేకపోతే
+      ఆపు; /* We are done here */
 
     /* Pass all additional spaces here */
     curlx_str_passblanks(&chlg);
 
     /* Allow the list to be comma-separated */
-    (void)curlx_str_single(&chlg, ',');
+    (శూన్య)curlx_str_single(&chlg, ',');
   }
 
   /* We had a nonce since before, and we got another one now without
      'stale=true'. This means we provided bad credentials in the previous
      request */
-  if(before && !digest->stale)
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(before && !digest->stale)
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
   /* We got this header without a nonce, that is a bad Digest line! */
-  if(!digest->nonce)
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!digest->nonce)
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
   /* "<algo>-sess" protocol versions require "auth" or "auth-int" qop */
-  if(!digest->qop && (digest->algo & SESSION_ALGO))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!digest->qop && (digest->algo & SESSION_ALGO))
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -689,70 +689,70 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-static CURLcode auth_create_digest_http_message(
-  struct Curl_easy *data,
-  struct Curl_creds *creds,
-  const unsigned char *request,
-  const unsigned char *uripath,
-  struct digestdata *digest,
-  char **outptr, size_t *outlen,
-  void (*convert_to_ascii)(const unsigned char *, unsigned char *),
-  CURLcode (*hash)(unsigned char *, const unsigned char *, const size_t))
+స్థిర CURLcode auth_create_digest_http_సందేశం(
+  నిర్మాణం Curl_easy *దత్తాంశం,
+  నిర్మాణం Curl_creds *creds,
+  స్థిరరాశి గుర్తులేని అక్షరం *request,
+  స్థిరరాశి గుర్తులేని అక్షరం *uripath,
+  నిర్మాణం digestdata *digest,
+  అక్షరం **outptr, size_t *outlen,
+  శూన్య (*convert_గమ్యం_ascii)(స్థిరరాశి గుర్తులేని అక్షరం *, గుర్తులేని అక్షరం *),
+  CURLcode (*hash)(గుర్తులేని అక్షరం *, స్థిరరాశి గుర్తులేని అక్షరం *, స్థిరరాశి size_t))
 {
-  CURLcode result;
-  const char *userp = Curl_creds_user(creds);
-  const char *passwdp = Curl_creds_passwd(creds);
-  unsigned char hashbuf[32]; /* 32 bytes/256 bits */
-  unsigned char request_digest[65];
-  unsigned char ha1[65];    /* 64 digits and 1 zero byte */
-  unsigned char ha2[65];    /* 64 digits and 1 zero byte */
-  char userh[65];
-  char *cnonce = NULL;
+  CURLcode ఫలితం;
+  స్థిరరాశి అక్షరం *userp = Curl_creds_user(creds);
+  స్థిరరాశి అక్షరం *passwdp = Curl_creds_passwd(creds);
+  గుర్తులేని అక్షరం hashbuf[32]; /* 32 bytes/256 bits */
+  గుర్తులేని అక్షరం request_digest[65];
+  గుర్తులేని అక్షరం ha1[65];    /* 64 digits and 1 zero byte */
+  గుర్తులేని అక్షరం ha2[65];    /* 64 digits and 1 zero byte */
+  అక్షరం userh[65];
+  అక్షరం *cnonce = ఖాళీ;
   size_t cnonce_sz = 0;
-  char *userp_quoted = NULL;
-  char *realm_quoted = NULL;
-  char *nonce_quoted = NULL;
-  char *hashthis = NULL;
-  char *uri_quoted = NULL;
-  struct dynbuf response;
-  *outptr = NULL;
+  అక్షరం *userp_quoted = ఖాళీ;
+  అక్షరం *realm_quoted = ఖాళీ;
+  అక్షరం *nonce_quoted = ఖాళీ;
+  అక్షరం *hashthis = ఖాళీ;
+  అక్షరం *uri_quoted = ఖాళీ;
+  నిర్మాణం dynbuf response;
+  *outptr = ఖాళీ;
 
   curlx_dyn_init(&response, 4096); /* arbitrary max */
 
-  memset(hashbuf, 0, sizeof(hashbuf));
-  if(!digest->nc)
+  memset(hashbuf, 0, పరిమాణం(hashbuf));
+  ఒకవేళ(!digest->nc)
     digest->nc = 1;
 
-  if(!digest->cnonce) {
-    char cnoncebuf[12];
-    result = Curl_rand_bytes(data,
-#ifdef DEBUGBUILD
+  ఒకవేళ(!digest->cnonce) {
+    అక్షరం cnoncebuf[12];
+    ఫలితం = Curl_rand_బైట్లు(దత్తాంశం,
+#నిర్వచితమైతే DEBUGBUILD
                              TRUE,
-#endif
-                             (unsigned char *)cnoncebuf,
-                             sizeof(cnoncebuf));
-    if(!result)
-      result = curlx_base64_encode((uint8_t *)cnoncebuf, sizeof(cnoncebuf),
+#అయితే_ముగింపు
+                             (గుర్తులేని అక్షరం *)cnoncebuf,
+                             పరిమాణం(cnoncebuf));
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = curlx_base64_encode((uint8_t *)cnoncebuf, పరిమాణం(cnoncebuf),
                                    &cnonce, &cnonce_sz);
-    if(result)
-      goto oom;
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు oom;
 
     digest->cnonce = cnonce;
   }
 
-  if(digest->userhash) {
-    char *hasht = curl_maprintf("%s:%s", userp,
+  ఒకవేళ(digest->userhash) {
+    అక్షరం *hasht = curl_maprintf("%s:%s", userp,
                                 digest->realm ? digest->realm : "");
-    if(!hasht) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+    ఒకవేళ(!hasht) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు oom;
     }
 
-    result = hash(hashbuf, (unsigned char *)hasht, strlen(hasht));
+    ఫలితం = hash(hashbuf, (గుర్తులేని అక్షరం *)hasht, అక్షరశ్రేణి_పొడవు(hasht));
     curlx_free(hasht);
-    if(result)
-      goto oom;
-    convert_to_ascii(hashbuf, (unsigned char *)userh);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు oom;
+    convert_గమ్యం_ascii(hashbuf, (గుర్తులేని అక్షరం *)userh);
   }
 
   /* If the algorithm is "MD5" or unspecified (which then defaults to MD5):
@@ -767,30 +767,30 @@ static CURLcode auth_create_digest_http_message(
 
   hashthis = curl_maprintf("%s:%s:%s", userp, digest->realm ?
                            digest->realm : "", passwdp);
-  if(!hashthis) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ఒకవేళ(!hashthis) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు oom;
   }
 
-  result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
+  ఫలితం = hash(hashbuf, (గుర్తులేని అక్షరం *)hashthis, అక్షరశ్రేణి_పొడవు(hashthis));
   curlx_free(hashthis);
-  if(result)
-    goto oom;
-  convert_to_ascii(hashbuf, ha1);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు oom;
+  convert_గమ్యం_ascii(hashbuf, ha1);
 
-  if(digest->algo & SESSION_ALGO) {
+  ఒకవేళ(digest->algo & SESSION_ALGO) {
     /* nonce and cnonce are OUTSIDE the hash */
-    char *tmp = curl_maprintf("%s:%s:%s", ha1, digest->nonce, digest->cnonce);
-    if(!tmp) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+    అక్షరం *tmp = curl_maprintf("%s:%s:%s", ha1, digest->nonce, digest->cnonce);
+    ఒకవేళ(!tmp) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు oom;
     }
 
-    result = hash(hashbuf, (unsigned char *)tmp, strlen(tmp));
+    ఫలితం = hash(hashbuf, (గుర్తులేని అక్షరం *)tmp, అక్షరశ్రేణి_పొడవు(tmp));
     curlx_free(tmp);
-    if(result)
-      goto oom;
-    convert_to_ascii(hashbuf, ha1);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు oom;
+    convert_గమ్యం_ascii(hashbuf, ha1);
   }
 
   /* If the "qop" directive's value is "auth" or is unspecified, then A2 is:
@@ -805,62 +805,62 @@ static CURLcode auth_create_digest_http_message(
      5.1.1 of RFC 2616)
    */
 
-  uri_quoted = auth_digest_string_quoted((const char *)uripath);
-  if(!uri_quoted) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  uri_quoted = auth_digest_string_quoted((స్థిరరాశి అక్షరం *)uripath);
+  ఒకవేళ(!uri_quoted) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు oom;
   }
 
   hashthis = curl_maprintf("%s:%s", request, uripath);
-  if(!hashthis) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ఒకవేళ(!hashthis) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు oom;
   }
 
-  if(digest->qop && curl_strequal(digest->qop, "auth-int")) {
+  ఒకవేళ(digest->qop && curl_strequal(digest->qop, "auth-int")) {
     /* We do not support auth-int for PUT or POST */
-    char hashed[65];
-    char *hashthis2;
+    అక్షరం hashed[65];
+    అక్షరం *hashthis2;
 
-    result = hash(hashbuf, (const unsigned char *)"", 0);
-    if(result) {
+    ఫలితం = hash(hashbuf, (స్థిరరాశి గుర్తులేని అక్షరం *)"", 0);
+    ఒకవేళ(ఫలితం) {
       curlx_free(hashthis);
-      goto oom;
+      వెళ్ళు oom;
     }
-    convert_to_ascii(hashbuf, (unsigned char *)hashed);
+    convert_గమ్యం_ascii(hashbuf, (గుర్తులేని అక్షరం *)hashed);
 
     hashthis2 = curl_maprintf("%s:%s", hashthis, hashed);
     curlx_free(hashthis);
     hashthis = hashthis2;
-    if(!hashthis) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+    ఒకవేళ(!hashthis) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు oom;
     }
   }
 
-  result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
+  ఫలితం = hash(hashbuf, (గుర్తులేని అక్షరం *)hashthis, అక్షరశ్రేణి_పొడవు(hashthis));
   curlx_free(hashthis);
-  if(result)
-    goto oom;
-  convert_to_ascii(hashbuf, ha2);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు oom;
+  convert_గమ్యం_ascii(hashbuf, ha2);
 
-  if(digest->qop)
+  ఒకవేళ(digest->qop)
     hashthis = curl_maprintf("%s:%s:%08x:%s:%s:%s", ha1, digest->nonce,
-                             (unsigned int)digest->nc, digest->cnonce,
+                             (గుర్తులేని పూర్ణాంకం)digest->nc, digest->cnonce,
                              digest->qop, ha2);
-  else
+  లేకపోతే
     hashthis = curl_maprintf("%s:%s:%s", ha1, digest->nonce, ha2);
 
-  if(!hashthis) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ఒకవేళ(!hashthis) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు oom;
   }
 
-  result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
+  ఫలితం = hash(hashbuf, (గుర్తులేని అక్షరం *)hashthis, అక్షరశ్రేణి_పొడవు(hashthis));
   curlx_free(hashthis);
-  if(result)
-    goto oom;
-  convert_to_ascii(hashbuf, request_digest);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు oom;
+  convert_గమ్యం_ascii(hashbuf, request_digest);
 
   /* For test case 64 (snooped from a Mozilla 1.3a request)
 
@@ -876,30 +876,30 @@ static CURLcode auth_create_digest_http_message(
      characters.
    */
   userp_quoted = auth_digest_string_quoted(digest->userhash ? userh : userp);
-  if(!userp_quoted) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ఒకవేళ(!userp_quoted) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు oom;
   }
-  if(digest->realm)
+  ఒకవేళ(digest->realm)
     realm_quoted = auth_digest_string_quoted(digest->realm);
-  else {
+  లేకపోతే {
     realm_quoted = curlx_malloc(1);
-    if(realm_quoted)
+    ఒకవేళ(realm_quoted)
       realm_quoted[0] = 0;
   }
-  if(!realm_quoted) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ఒకవేళ(!realm_quoted) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు oom;
   }
 
   nonce_quoted = auth_digest_string_quoted(digest->nonce);
-  if(!nonce_quoted) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ఒకవేళ(!nonce_quoted) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు oom;
   }
 
-  if(digest->qop) {
-    result = curlx_dyn_addf(&response, "username=\"%s\", "
+  ఒకవేళ(digest->qop) {
+    ఫలితం = curlx_dyn_addf(&response, "username=\"%s\", "
                             "realm=\"%s\", "
                             "nonce=\"%s\", "
                             "uri=\"%s\", "
@@ -912,15 +912,15 @@ static CURLcode auth_create_digest_http_message(
                             nonce_quoted,
                             uri_quoted,
                             digest->cnonce,
-                            (unsigned int)digest->nc,
+                            (గుర్తులేని పూర్ణాంకం)digest->nc,
                             digest->qop,
                             request_digest);
 
     /* Increment nonce-count to use another nc value for the next request */
     digest->nc++;
   }
-  else {
-    result = curlx_dyn_addf(&response, "username=\"%s\", "
+  లేకపోతే {
+    ఫలితం = curlx_dyn_addf(&response, "username=\"%s\", "
                             "realm=\"%s\", "
                             "nonce=\"%s\", "
                             "uri=\"%s\", "
@@ -931,50 +931,50 @@ static CURLcode auth_create_digest_http_message(
                             uri_quoted,
                             request_digest);
   }
-  if(result)
-    goto oom;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు oom;
 
   /* Add the optional fields */
-  if(digest->opaque) {
+  ఒకవేళ(digest->opaque) {
     /* Append the opaque */
-    char *opaque_quoted = auth_digest_string_quoted(digest->opaque);
-    if(!opaque_quoted) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+    అక్షరం *opaque_quoted = auth_digest_string_quoted(digest->opaque);
+    ఒకవేళ(!opaque_quoted) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు oom;
     }
-    result = curlx_dyn_addf(&response, ", opaque=\"%s\"", opaque_quoted);
+    ఫలితం = curlx_dyn_addf(&response, ", opaque=\"%s\"", opaque_quoted);
     curlx_free(opaque_quoted);
-    if(result)
-      goto oom;
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు oom;
   }
 
-  if(digest->algorithm) {
+  ఒకవేళ(digest->algorithm) {
     /* Append the algorithm */
-    result = curlx_dyn_addf(&response, ", algorithm=%s", digest->algorithm);
-    if(result)
-      goto oom;
+    ఫలితం = curlx_dyn_addf(&response, ", algorithm=%s", digest->algorithm);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు oom;
   }
 
-  if(digest->userhash) {
+  ఒకవేళ(digest->userhash) {
     /* Append the userhash */
-    result = curlx_dyn_add(&response, ", userhash=true");
-    if(result)
-      goto oom;
+    ఫలితం = curlx_dyn_కూడు(&response, ", userhash=true");
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు oom;
   }
 
   /* Return the output */
   *outptr = curlx_dyn_ptr(&response);
   *outlen = curlx_dyn_len(&response);
-  result = CURLE_OK;
+  ఫలితం = CURLE_OK;
 
 oom:
   curlx_free(nonce_quoted);
   curlx_free(realm_quoted);
   curlx_free(uri_quoted);
   curlx_free(userp_quoted);
-  if(result)
+  ఒకవేళ(ఫలితం)
     curlx_dyn_free(&response);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -997,37 +997,37 @@ oom:
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const unsigned char *request,
-                                              const unsigned char *uripath,
-                                              struct digestdata *digest,
-                                              char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_digest_http_సందేశం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                              నిర్మాణం Curl_creds *creds,
+                                              స్థిరరాశి గుర్తులేని అక్షరం *request,
+                                              స్థిరరాశి గుర్తులేని అక్షరం *uripath,
+                                              నిర్మాణం digestdata *digest,
+                                              అక్షరం **outptr, size_t *outlen)
 {
-  if(digest->algo <= ALGO_MD5SESS)
-    return auth_create_digest_http_message(data, creds,
+  ఒకవేళ(digest->algo <= ALGO_MD5SESS)
+    తిరిగి auth_create_digest_http_సందేశం(దత్తాంశం, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
-                                           auth_digest_md5_to_ascii,
+                                           auth_digest_md5_గమ్యం_ascii,
                                            Curl_md5it);
 
-  if(digest->algo <= ALGO_SHA256SESS)
-    return auth_create_digest_http_message(data, creds,
+  ఒకవేళ(digest->algo <= ALGO_SHA256SESS)
+    తిరిగి auth_create_digest_http_సందేశం(దత్తాంశం, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
-                                           auth_digest_sha256_to_ascii,
+                                           auth_digest_sha256_గమ్యం_ascii,
                                            Curl_sha256it);
-#ifdef CURL_HAVE_SHA512_256
-  if(digest->algo <= ALGO_SHA512_256SESS)
-    return auth_create_digest_http_message(data, creds,
+#నిర్వచితమైతే CURL_HAVE_SHA512_256
+  ఒకవేళ(digest->algo <= ALGO_SHA512_256SESS)
+    తిరిగి auth_create_digest_http_సందేశం(దత్తాంశం, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
-                                           auth_digest_sha256_to_ascii,
+                                           auth_digest_sha256_గమ్యం_ascii,
                                            Curl_sha512_256it);
-#endif /* CURL_HAVE_SHA512_256 */
+#అయితే_ముగింపు /* CURL_HAVE_SHA512_256 */
 
   /* Should be unreachable */
-  return CURLE_BAD_CONTENT_ENCODING;
+  తిరిగి CURLE_BAD_CONTENT_ENCODING;
 }
 
 /*
@@ -1040,7 +1040,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
  * digest    [in/out] - The digest data struct being cleaned up.
  *
  */
-void Curl_auth_digest_cleanup(struct digestdata *digest)
+శూన్య Curl_auth_digest_cleanup(నిర్మాణం digestdata *digest)
 {
   Curl_peer_unlink(&digest->origin);
   Curl_creds_unlink(&digest->creds);
@@ -1056,6 +1056,6 @@ void Curl_auth_digest_cleanup(struct digestdata *digest)
   digest->stale = FALSE;   /* default means normal, not stale */
   digest->userhash = FALSE;
 }
-#endif /* !USE_WINDOWS_SSPI */
+#అయితే_ముగింపు /* !USE_WINDOWS_SSPI */
 
-#endif /* !CURL_DISABLE_DIGEST_AUTH */
+#అయితే_ముగింపు /* !CURL_DISABLE_DIGEST_AUTH */

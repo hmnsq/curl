@@ -21,689 +21,689 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "strerror.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "url.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "select.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "strerror.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "curlx/strparse.h"
 
-CURLcode Curl_cf_def_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data, bool *done)
+CURLcode Curl_cf_def_connect(నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->connected) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  if(cf->next) {
-    result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  ఒకవేళ(cf->తదుపరి) {
+    ఫలితం = cf->తదుపరి->cft->do_connect(cf->తదుపరి, దత్తాంశం, పూర్తి);
+    ఒకవేళ(ఫలితం || !*పూర్తి)
+      తిరిగి ఫలితం;
   }
 
   cf->connected = TRUE;
-  *done = TRUE;
-  return CURLE_OK;
+  *పూర్తి = TRUE;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_cf_def_shutdown(struct Curl_cfilter *cf,
-                              struct Curl_easy *data, bool *done)
+CURLcode Curl_cf_def_shutdown(నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  (void)cf;
-  (void)data;
-  *done = TRUE;
-  return CURLE_OK;
+  (శూన్య)cf;
+  (శూన్య)దత్తాంశం;
+  *పూర్తి = TRUE;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_cf_def_adjust_pollset(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct easy_pollset *ps)
+CURLcode Curl_cf_def_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం easy_pollset *ps)
 {
   /* NOP */
-  (void)cf;
-  (void)data;
-  (void)ps;
-  return CURLE_OK;
+  (శూన్య)cf;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)ps;
+  తిరిగి CURLE_OK;
 }
 
-bool Curl_cf_def_data_pending(struct Curl_cfilter *cf,
-                              const struct Curl_easy *data)
+bool Curl_cf_def_దత్తాంశం_pending(నిర్మాణం Curl_cfilter *cf,
+                              స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return cf->next ?
-    cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->has_దత్తాంశం_pending(cf->తదుపరి, దత్తాంశం) : FALSE;
 }
 
-CURLcode Curl_cf_def_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          const uint8_t *buf, size_t len, bool eos,
+CURLcode Curl_cf_def_send(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                          స్థిరరాశి uint8_t *buf, size_t len, bool eos,
                           size_t *pnwritten)
 {
-  if(cf->next)
-    return cf->next->cft->do_send(cf->next, data, buf, len, eos, pnwritten);
+  ఒకవేళ(cf->తదుపరి)
+    తిరిగి cf->తదుపరి->cft->do_send(cf->తదుపరి, దత్తాంశం, buf, len, eos, pnwritten);
   *pnwritten = 0;
-  return CURLE_RECV_ERROR;
+  తిరిగి CURLE_RECV_ERROR;
 }
 
-CURLcode Curl_cf_def_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          char *buf, size_t len, size_t *pnread)
+CURLcode Curl_cf_def_recv(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                          అక్షరం *buf, size_t len, size_t *pnread)
 {
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  ఒకవేళ(cf->తదుపరి)
+    తిరిగి cf->తదుపరి->cft->do_recv(cf->తదుపరి, దత్తాంశం, buf, len, pnread);
   *pnread = 0;
-  return CURLE_SEND_ERROR;
+  తిరిగి CURLE_SEND_ERROR;
 }
 
-bool Curl_cf_def_conn_is_alive(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               bool *input_pending)
+bool Curl_cf_def_conn_is_alive(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               bool *ఆదానం_pending)
 {
-  return cf->next ?
-    cf->next->cft->is_alive(cf->next, data, input_pending) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->is_alive(cf->తదుపరి, దత్తాంశం, ఆదానం_pending) :
     FALSE; /* pessimistic in absence of data */
 }
 
-CURLcode Curl_cf_def_conn_keep_alive(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data)
+CURLcode Curl_cf_def_conn_keep_alive(నిర్మాణం Curl_cfilter *cf,
+                                     నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return cf->next ?
-    cf->next->cft->keep_alive(cf->next, data) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->keep_alive(cf->తదుపరి, దత్తాంశం) :
     CURLE_OK;
 }
 
-CURLcode Curl_cf_def_query(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           int query, int *pres1, void *pres2)
+CURLcode Curl_cf_def_query(నిర్మాణం Curl_cfilter *cf,
+                           నిర్మాణం Curl_easy *దత్తాంశం,
+                           పూర్ణాంకం query, పూర్ణాంకం *pres1, శూన్య *pres2)
 {
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->query(cf->తదుపరి, దత్తాంశం, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-#ifdef CURLVERBOSE
-void Curl_conn_trc_filters(struct Curl_easy *data,
-                           int8_t sockindex, const char *info)
+#నిర్వచితమైతే CURLVERBOSE
+శూన్య Curl_conn_trc_filters(నిర్మాణం Curl_easy *దత్తాంశం,
+                           int8_t sockindex, స్థిరరాశి అక్షరం *info)
 {
-  if(CURL_TRC_M_is_verbose(data) && data->conn) {
-    struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
+  ఒకవేళ(CURL_TRC_M_is_verbose(దత్తాంశం) && దత్తాంశం->conn) {
+    నిర్మాణం Curl_cfilter *cf = దత్తాంశం->conn->cfilter[sockindex];
 
-    if(cf) {
-      char msg[256], *buf;
-      int blen, n;
+    ఒకవేళ(cf) {
+      అక్షరం సందేశం[256], *buf;
+      పూర్ణాంకం blen, n;
 
-      buf = msg;
-      blen = sizeof(msg) - 1;
+      buf = సందేశం;
+      blen = పరిమాణం(సందేశం) - 1;
       n = curl_msnprintf(buf, blen, "%s [%d]", info, sockindex);
       buf += n;
       blen -= n;
-      for(; cf && blen; cf = cf->next) {
+      కొరకు(; cf && blen; cf = cf->తదుపరి) {
         n = curl_msnprintf(buf, blen, "[%s%s]",
                            cf->connected ? "" : "!", cf->cft->name);
         buf += n;
         blen -= n;
       }
-      CURL_TRC_M(data, "%s%s", msg, blen ? "" : "...");
+      CURL_TRC_M(దత్తాంశం, "%s%s", సందేశం, blen ? "" : "...");
     }
-    else
-      CURL_TRC_M(data, "%s [%d][-]", info, sockindex);
+    లేకపోతే
+      CURL_TRC_M(దత్తాంశం, "%s [%d][-]", info, sockindex);
   }
 }
-#endif /* CURLVERBOSE */
+#అయితే_ముగింపు /* CURLVERBOSE */
 
-void Curl_conn_cf_discard_chain(struct Curl_cfilter **pcf,
-                                struct Curl_easy *data)
+శూన్య Curl_conn_cf_discard_chain(నిర్మాణం Curl_cfilter **pcf,
+                                నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Curl_cfilter *cfn, *cf = *pcf;
+  నిర్మాణం Curl_cfilter *cfn, *cf = *pcf;
 
-  if(cf) {
-    *pcf = NULL;
-    while(cf) {
-      cfn = cf->next;
+  ఒకవేళ(cf) {
+    *pcf = ఖాళీ;
+    అయితే(cf) {
+      cfn = cf->తదుపరి;
       /* prevent destroying filter to mess with its sub-chain, since
        * we have the reference now and will call destroy on it.
        */
-      cf->next = NULL;
-      cf->cft->destroy(cf, data);
+      cf->తదుపరి = ఖాళీ;
+      cf->cft->destroy(cf, దత్తాంశం);
       curlx_free(cf);
       cf = cfn;
     }
   }
 }
 
-void Curl_conn_cf_discard_all(struct Curl_easy *data,
-                              struct connectdata *conn, int8_t sockindex)
+శూన్య Curl_conn_cf_discard_all(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం connectdata *conn, int8_t sockindex)
 {
-  conn->shutdown.start_ms[sockindex] = -1;
-  conn->connect_started.set[sockindex] = FALSE;
-  Curl_conn_cf_discard_chain(&conn->cfilter[sockindex], data);
+  conn->shutdown.ప్రారంభం_ms[sockindex] = -1;
+  conn->connect_started.సమితి[sockindex] = FALSE;
+  Curl_conn_cf_discard_chain(&conn->cfilter[sockindex], దత్తాంశం);
 }
 
-CURLcode Curl_cf_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
+CURLcode Curl_cf_recv(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex, అక్షరం *buf,
                       size_t len, size_t *pnread)
 {
-  struct Curl_cfilter *cf;
+  నిర్మాణం Curl_cfilter *cf;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected)
-    cf = cf->next;
-  if(cf)
-    return cf->cft->do_recv(cf, data, buf, len, pnread);
-  failf(data, "recv: no filter connected");
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(దత్తాంశం->conn);
+  cf = దత్తాంశం->conn->cfilter[sockindex];
+  అయితే(cf && !cf->connected)
+    cf = cf->తదుపరి;
+  ఒకవేళ(cf)
+    తిరిగి cf->cft->do_recv(cf, దత్తాంశం, buf, len, pnread);
+  failf(దత్తాంశం, "recv: no filter connected");
   DEBUGASSERT(0);
   *pnread = 0;
-  return CURLE_FAILED_INIT;
+  తిరిగి CURLE_FAILED_INIT;
 }
 
-CURLcode Curl_cf_send(struct Curl_easy *data, int8_t sockindex,
-                      const uint8_t *buf, size_t len, bool eos,
+CURLcode Curl_cf_send(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                      స్థిరరాశి uint8_t *buf, size_t len, bool eos,
                       size_t *pnwritten)
 {
-  struct Curl_cfilter *cf;
+  నిర్మాణం Curl_cfilter *cf;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected)
-    cf = cf->next;
-  if(cf) {
-    return cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(దత్తాంశం->conn);
+  cf = దత్తాంశం->conn->cfilter[sockindex];
+  అయితే(cf && !cf->connected)
+    cf = cf->తదుపరి;
+  ఒకవేళ(cf) {
+    తిరిగి cf->cft->do_send(cf, దత్తాంశం, buf, len, eos, pnwritten);
   }
-  failf(data, "send: no filter connected");
+  failf(దత్తాంశం, "send: no filter connected");
   DEBUGASSERT(0);
   *pnwritten = 0;
-  return CURLE_FAILED_INIT;
+  తిరిగి CURLE_FAILED_INIT;
 }
 
-struct cf_io_ctx {
-  struct Curl_easy *data;
-  struct Curl_cfilter *cf;
+నిర్మాణం cf_io_ctx {
+  నిర్మాణం Curl_easy *దత్తాంశం;
+  నిర్మాణం Curl_cfilter *cf;
 };
 
-static CURLcode cf_bufq_reader(void *writer_ctx,
-                               unsigned char *buf, size_t blen,
+స్థిర CURLcode cf_bufq_reader(శూన్య *writer_ctx,
+                               గుర్తులేని అక్షరం *buf, size_t blen,
                                size_t *pnread)
 {
-  struct cf_io_ctx *io = writer_ctx;
-  return Curl_conn_cf_recv(io->cf, io->data, (char *)buf, blen, pnread);
+  నిర్మాణం cf_io_ctx *io = writer_ctx;
+  తిరిగి Curl_conn_cf_recv(io->cf, io->దత్తాంశం, (అక్షరం *)buf, blen, pnread);
 }
 
-CURLcode Curl_cf_recv_bufq(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct bufq *bufq,
+CURLcode Curl_cf_recv_bufq(నిర్మాణం Curl_cfilter *cf,
+                           నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం bufq *bufq,
                            size_t maxlen,
                            size_t *pnread)
 {
-  struct cf_io_ctx io;
+  నిర్మాణం cf_io_ctx io;
 
-  if(!cf || !data) {
+  ఒకవేళ(!cf || !దత్తాంశం) {
     *pnread = 0;
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
-  io.data = data;
+  io.దత్తాంశం = దత్తాంశం;
   io.cf = cf;
-  return Curl_bufq_sipn(bufq, maxlen, cf_bufq_reader, &io, pnread);
+  తిరిగి Curl_bufq_sipn(bufq, maxlen, cf_bufq_reader, &io, pnread);
 }
 
-static CURLcode cf_bufq_writer(void *writer_ctx,
-                               const uint8_t *buf, size_t buflen,
+స్థిర CURLcode cf_bufq_writer(శూన్య *writer_ctx,
+                               స్థిరరాశి uint8_t *buf, size_t buflen,
                                size_t *pnwritten)
 {
-  struct cf_io_ctx *io = writer_ctx;
-  return Curl_conn_cf_send(io->cf, io->data, buf, buflen, FALSE, pnwritten);
+  నిర్మాణం cf_io_ctx *io = writer_ctx;
+  తిరిగి Curl_conn_cf_send(io->cf, io->దత్తాంశం, buf, buflen, FALSE, pnwritten);
 }
 
-CURLcode Curl_cf_send_bufq(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct bufq *bufq,
-                           const unsigned char *buf, size_t blen,
+CURLcode Curl_cf_send_bufq(నిర్మాణం Curl_cfilter *cf,
+                           నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం bufq *bufq,
+                           స్థిరరాశి గుర్తులేని అక్షరం *buf, size_t blen,
                            size_t *pnwritten)
 {
-  struct cf_io_ctx io;
+  నిర్మాణం cf_io_ctx io;
 
-  if(!cf || !data) {
+  ఒకవేళ(!cf || !దత్తాంశం) {
     *pnwritten = 0;
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
-  io.data = data;
+  io.దత్తాంశం = దత్తాంశం;
   io.cf = cf;
-  if(buf && blen)
-    return Curl_bufq_write_pass(bufq, buf, blen, cf_bufq_writer, &io,
+  ఒకవేళ(buf && blen)
+    తిరిగి Curl_bufq_write_pass(bufq, buf, blen, cf_bufq_writer, &io,
                                 pnwritten);
-  else
-    return Curl_bufq_pass(bufq, cf_bufq_writer, &io, pnwritten);
+  లేకపోతే
+    తిరిగి Curl_bufq_pass(bufq, cf_bufq_writer, &io, pnwritten);
 }
 
-CURLcode Curl_cf_create(struct Curl_cfilter **pcf,
-                        const struct Curl_cftype *cft,
-                        void *ctx)
+CURLcode Curl_cf_create(నిర్మాణం Curl_cfilter **pcf,
+                        స్థిరరాశి నిర్మాణం Curl_cftype *cft,
+                        శూన్య *ctx)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   DEBUGASSERT(cft);
-  cf = curlx_calloc(1, sizeof(*cf));
-  if(!cf)
-    goto out;
+  cf = curlx_calloc(1, పరిమాణం(*cf));
+  ఒకవేళ(!cf)
+    వెళ్ళు బహిర్గతం;
 
   cf->cft = cft;
   cf->ctx = ctx;
-  result = CURLE_OK;
-out:
+  ఫలితం = CURLE_OK;
+బహిర్గతం:
   *pcf = cf;
-  return result;
+  తిరిగి ఫలితం;
 }
 
-void Curl_conn_cf_add(struct Curl_easy *data,
-                      struct connectdata *conn,
+శూన్య Curl_conn_cf_కూడు(నిర్మాణం Curl_easy *దత్తాంశం,
+                      నిర్మాణం connectdata *conn,
                       int8_t sockindex,
-                      struct Curl_cfilter *cf)
+                      నిర్మాణం Curl_cfilter *cf)
 {
   DEBUGASSERT(conn);
   DEBUGASSERT(!cf->conn);
-  DEBUGASSERT(!cf->next);
+  DEBUGASSERT(!cf->తదుపరి);
 
-  cf->next = conn->cfilter[sockindex];
+  cf->తదుపరి = conn->cfilter[sockindex];
   cf->conn = conn;
   cf->sockindex = sockindex;
   conn->cfilter[sockindex] = cf;
-  CURL_TRC_CF(data, cf, "added");
+  CURL_TRC_CF(దత్తాంశం, cf, "added");
 }
 
-void Curl_conn_cf_insert_after(struct Curl_cfilter *cf_at,
-                               struct Curl_cfilter *cf_new)
+శూన్య Curl_conn_cf_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                               నిర్మాణం Curl_cfilter *cf_new)
 {
-  struct Curl_cfilter *tail, **pnext;
+  నిర్మాణం Curl_cfilter *తోక, **pnext;
 
   DEBUGASSERT(cf_at);
   DEBUGASSERT(cf_new);
   DEBUGASSERT(!cf_new->conn);
 
-  tail = cf_at->next;
-  cf_at->next = cf_new;
-  do {
+  తోక = cf_at->తదుపరి;
+  cf_at->తదుపరి = cf_new;
+  చేయి {
     cf_new->conn = cf_at->conn;
     cf_new->sockindex = cf_at->sockindex;
-    pnext = &cf_new->next;
-    cf_new = cf_new->next;
-  } while(cf_new);
-  *pnext = tail;
+    pnext = &cf_new->తదుపరి;
+    cf_new = cf_new->తదుపరి;
+  } అయితే(cf_new);
+  *pnext = తోక;
 }
 
-bool Curl_conn_cf_discard(struct Curl_cfilter **pcf,
-                          struct Curl_easy *data)
+bool Curl_conn_cf_discard(నిర్మాణం Curl_cfilter **pcf,
+                          నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Curl_cfilter *cf = pcf ? *pcf : NULL;
-  bool found = FALSE;
-  if(cf) {
-    if(cf->conn) {
+  నిర్మాణం Curl_cfilter *cf = pcf ? *pcf : ఖాళీ;
+  bool దొరికింది = FALSE;
+  ఒకవేళ(cf) {
+    ఒకవేళ(cf->conn) {
       /* unlink if present in connection filter chain */
-      struct Curl_cfilter **pprev = &cf->conn->cfilter[cf->sockindex];
-      while(*pprev) {
-        if(*pprev == *pcf) {
-          *pprev = (*pcf)->next;
-          cf->next = NULL;
-          found = TRUE;
-          break;
+      నిర్మాణం Curl_cfilter **pprev = &cf->conn->cfilter[cf->sockindex];
+      అయితే(*pprev) {
+        ఒకవేళ(*pprev == *pcf) {
+          *pprev = (*pcf)->తదుపరి;
+          cf->తదుపరి = ఖాళీ;
+          దొరికింది = TRUE;
+          ఆపు;
         }
-        pprev = &(*pprev)->next;
+        pprev = &(*pprev)->తదుపరి;
       }
     }
-    Curl_conn_cf_discard_chain(pcf, data);
+    Curl_conn_cf_discard_chain(pcf, దత్తాంశం);
   }
-  return found;
+  తిరిగి దొరికింది;
 }
 
-CURLcode Curl_conn_cf_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              bool *done)
+CURLcode Curl_conn_cf_connect(నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *దత్తాంశం,
+                              bool *పూర్తి)
 {
-  if(cf)
-    return cf->cft->do_connect(cf, data, done);
-  return CURLE_FAILED_INIT;
+  ఒకవేళ(cf)
+    తిరిగి cf->cft->do_connect(cf, దత్తాంశం, పూర్తి);
+  తిరిగి CURLE_FAILED_INIT;
 }
 
-CURLcode Curl_conn_cf_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           const uint8_t *buf, size_t len, bool eos,
+CURLcode Curl_conn_cf_send(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                           స్థిరరాశి uint8_t *buf, size_t len, bool eos,
                            size_t *pnwritten)
 {
-  if(cf)
-    return cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
+  ఒకవేళ(cf)
+    తిరిగి cf->cft->do_send(cf, దత్తాంశం, buf, len, eos, pnwritten);
   *pnwritten = 0;
-  return CURLE_SEND_ERROR;
+  తిరిగి CURLE_SEND_ERROR;
 }
 
-CURLcode Curl_conn_cf_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           char *buf, size_t len, size_t *pnread)
+CURLcode Curl_conn_cf_recv(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                           అక్షరం *buf, size_t len, size_t *pnread)
 {
-  if(cf)
-    return cf->cft->do_recv(cf, data, buf, len, pnread);
+  ఒకవేళ(cf)
+    తిరిగి cf->cft->do_recv(cf, దత్తాంశం, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  తిరిగి CURLE_RECV_ERROR;
 }
 
-static CURLcode cf_cntrl_all(struct connectdata *conn,
-                             struct Curl_easy *data,
-                             bool ignore_result,
-                             int event, int arg1, void *arg2)
+స్థిర CURLcode cf_cntrl_all(నిర్మాణం connectdata *conn,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             bool ignore_ఫలితం,
+                             పూర్ణాంకం event, పూర్ణాంకం arg1, శూన్య *arg2)
 {
-  CURLcode result = CURLE_OK;
-  int i;
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం i;
 
-  for(i = 0; i < (int)CURL_ARRAYSIZE(conn->cfilter); ++i) {
-    result = Curl_conn_cf_cntrl(conn->cfilter[i], data, ignore_result,
+  కొరకు(i = 0; i < (పూర్ణాంకం)CURL_ARRAYSIZE(conn->cfilter); ++i) {
+    ఫలితం = Curl_conn_cf_cntrl(conn->cfilter[i], దత్తాంశం, ignore_ఫలితం,
                                 event, arg1, arg2);
-    if(!ignore_result && result)
-      break;
+    ఒకవేళ(!ignore_ఫలితం && ఫలితం)
+      ఆపు;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-bool Curl_conn_cf_is_ip_connected(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+bool Curl_conn_cf_is_ip_connected(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(cf) {
-    int value = 0;
-    if(!cf->cft->query(cf, data, CF_QUERY_REALLY_CONNECTED, &value, NULL))
-      return !!value;
+  ఒకవేళ(cf) {
+    పూర్ణాంకం విలువ = 0;
+    ఒకవేళ(!cf->cft->query(cf, దత్తాంశం, CF_QUERY_REALLY_CONNECTED, &విలువ, ఖాళీ))
+      తిరిగి !!విలువ;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-void Curl_conn_cntrl_update_info(struct Curl_easy *data,
-                                struct connectdata *conn)
+శూన్య Curl_conn_cntrl_update_info(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం connectdata *conn)
 {
-  cf_cntrl_all(conn, data, TRUE, CF_CTRL_CONN_INFO_UPDATE, 0, NULL);
+  cf_cntrl_all(conn, దత్తాంశం, TRUE, CF_CTRL_CONN_INFO_UPDATE, 0, ఖాళీ);
 }
 
-void Curl_conn_cntrl_report_stats(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  int sockindex)
+శూన్య Curl_conn_cntrl_report_stats(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం connectdata *conn,
+                                  పూర్ణాంకం sockindex)
 {
-  if((unsigned)sockindex < CURL_ARRAYSIZE(conn->cfilter))
-    (void)Curl_conn_cf_cntrl(conn->cfilter[sockindex], data, TRUE,
-                             CF_CTRL_REPORT_STATS, 0, NULL);
+  ఒకవేళ((గుర్తులేని)sockindex < CURL_ARRAYSIZE(conn->cfilter))
+    (శూన్య)Curl_conn_cf_cntrl(conn->cfilter[sockindex], దత్తాంశం, TRUE,
+                             CF_CTRL_REPORT_STATS, 0, ఖాళీ);
 }
 
-void Curl_conn_remove_setup_filters(struct Curl_easy *data,
+శూన్య Curl_conn_remove_అమరిక_filters(నిర్మాణం Curl_easy *దత్తాంశం,
                                     int8_t sockindex)
 {
-  struct Curl_cfilter **anchor = &data->conn->cfilter[sockindex];
-  while(*anchor) {
-    struct Curl_cfilter *cf = *anchor;
-    if(cf->connected && (cf->cft->flags & CF_TYPE_SETUP)) {
-      *anchor = cf->next;
-      cf->next = NULL;
-      CURL_TRC_CF(data, cf, "removing connected setup filter");
-      cf->cft->destroy(cf, data);
+  నిర్మాణం Curl_cfilter **anchor = &దత్తాంశం->conn->cfilter[sockindex];
+  అయితే(*anchor) {
+    నిర్మాణం Curl_cfilter *cf = *anchor;
+    ఒకవేళ(cf->connected && (cf->cft->flags & CF_TYPE_అమరిక)) {
+      *anchor = cf->తదుపరి;
+      cf->తదుపరి = ఖాళీ;
+      CURL_TRC_CF(దత్తాంశం, cf, "removing connected setup filter");
+      cf->cft->destroy(cf, దత్తాంశం);
       curlx_free(cf);
     }
-    else
-      anchor = &cf->next;
+    లేకపోతే
+      anchor = &cf->తదుపరి;
   }
 }
 
-bool Curl_conn_is_setup(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_అమరిక(నిర్మాణం connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return !!conn->cfilter[sockindex];
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి FALSE;
+  తిరిగి !!conn->cfilter[sockindex];
 }
 
-bool Curl_conn_is_connected(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_connected(నిర్మాణం connectdata *conn, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  నిర్మాణం Curl_cfilter *cf;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి FALSE;
   cf = conn->cfilter[sockindex];
-  if(cf)
-    return (bool)cf->connected;
-  else if(conn->scheme->flags & PROTOPT_NONETWORK)
-    return TRUE;
-  return FALSE;
+  ఒకవేళ(cf)
+    తిరిగి (bool)cf->connected;
+  లేకపోతే ఒకవేళ(conn->scheme->flags & PROTOPT_NONETWORK)
+    తిరిగి TRUE;
+  తిరిగి FALSE;
 }
 
-bool Curl_conn_is_ip_connected(struct Curl_easy *data, int8_t sockindex)
+bool Curl_conn_is_ip_connected(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  నిర్మాణం Curl_cfilter *cf;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  cf = data->conn->cfilter[sockindex];
-  while(cf) {
-    if(cf->connected)
-      return TRUE;
-    if(cf->cft->flags & CF_TYPE_IP_CONNECT)
-      return FALSE;
-    cf = cf->next;
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి FALSE;
+  cf = దత్తాంశం->conn->cfilter[sockindex];
+  అయితే(cf) {
+    ఒకవేళ(cf->connected)
+      తిరిగి TRUE;
+    ఒకవేళ(cf->cft->flags & CF_TYPE_IP_CONNECT)
+      తిరిగి FALSE;
+    cf = cf->తదుపరి;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-#ifndef CURL_DISABLE_PROXY
-static bool cf_is_tunneling(struct Curl_cfilter *cf)
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+స్థిర bool cf_is_tunneling(నిర్మాణం Curl_cfilter *cf)
 {
-  for(; cf; cf = cf->next) {
-    if((cf->cft->flags & CF_TYPE_PROXY))
-      return TRUE;
+  కొరకు(; cf; cf = cf->తదుపరి) {
+    ఒకవేళ((cf->cft->flags & CF_TYPE_PROXY))
+      తిరిగి TRUE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_tunneling(నిర్మాణం connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return conn ? cf_is_tunneling(conn->cfilter[sockindex]) : FALSE;
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి FALSE;
+  తిరిగి conn ? cf_is_tunneling(conn->cfilter[sockindex]) : FALSE;
 }
-#else
-bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex)
+#లేకపోతే
+bool Curl_conn_is_tunneling(నిర్మాణం connectdata *conn, int8_t sockindex)
 {
-  (void)conn;
-  (void)sockindex;
-  return FALSE;
+  (శూన్య)conn;
+  (శూన్య)sockindex;
+  తిరిగి FALSE;
 }
-#endif /* CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* CURL_DISABLE_PROXY */
 
-static bool cf_is_ssl(struct Curl_cfilter *cf)
+స్థిర bool cf_is_ssl(నిర్మాణం Curl_cfilter *cf)
 {
-  for(; cf; cf = cf->next) {
+  కొరకు(; cf; cf = cf->తదుపరి) {
     /* A tunneling proxy does not offer end2end encryption, even if
      * it does SSL itself (e.g. QUIC H3 proxy) */
-    if((cf->cft->flags & CF_TYPE_SSL) && !(cf->cft->flags & CF_TYPE_PROXY))
-      return TRUE;
-    if(cf->cft->flags & CF_TYPE_IP_CONNECT)
-      return FALSE;
+    ఒకవేళ((cf->cft->flags & CF_TYPE_SSL) && !(cf->cft->flags & CF_TYPE_PROXY))
+      తిరిగి TRUE;
+    ఒకవేళ(cf->cft->flags & CF_TYPE_IP_CONNECT)
+      తిరిగి FALSE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-bool Curl_conn_is_ssl(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_ssl(నిర్మాణం connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return conn ? cf_is_ssl(conn->cfilter[sockindex]) : FALSE;
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి FALSE;
+  తిరిగి conn ? cf_is_ssl(conn->cfilter[sockindex]) : FALSE;
 }
 
-bool Curl_conn_get_ssl_info(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            int query,
-                            struct curl_tlssessioninfo *info)
+bool Curl_conn_get_ssl_info(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం connectdata *conn, int8_t sockindex,
+                            పూర్ణాంకం query,
+                            నిర్మాణం curl_tlssessioninfo *info)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  if(Curl_conn_is_ssl(conn, sockindex)) {
-    struct Curl_cfilter *cf = conn->cfilter[sockindex];
-    CURLcode result = cf ?
-      cf->cft->query(cf, data, query, NULL, (void *)info) :
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి FALSE;
+  ఒకవేళ(Curl_conn_is_ssl(conn, sockindex)) {
+    నిర్మాణం Curl_cfilter *cf = conn->cfilter[sockindex];
+    CURLcode ఫలితం = cf ?
+      cf->cft->query(cf, దత్తాంశం, query, ఖాళీ, (శూన్య *)info) :
       CURLE_UNKNOWN_OPTION;
-    return !result;
+    తిరిగి !ఫలితం;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-CURLcode Curl_conn_get_ip_info(struct Curl_easy *data,
-                               struct connectdata *conn, int8_t sockindex,
-                               bool *is_ipv6, struct ip_quadruple *ipquad)
+CURLcode Curl_conn_get_ip_info(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం connectdata *conn, int8_t sockindex,
+                               bool *is_ipv6, నిర్మాణం ip_quadruple *ipquad)
 {
-  struct Curl_cfilter *cf;
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  cf = conn ? conn->cfilter[sockindex] : NULL;
-  return Curl_conn_cf_get_ip_info(cf, data, is_ipv6, ipquad);
+  నిర్మాణం Curl_cfilter *cf;
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+  cf = conn ? conn->cfilter[sockindex] : ఖాళీ;
+  తిరిగి Curl_conn_cf_get_ip_info(cf, దత్తాంశం, is_ipv6, ipquad);
 }
 
-bool Curl_conn_is_multiplex(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_multiplex(నిర్మాణం connectdata *conn, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  నిర్మాణం Curl_cfilter *cf;
 
-  if(!conn || !CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  for(cf = conn->cfilter[sockindex]; cf; cf = cf->next) {
-    if(cf->cft->flags & CF_TYPE_MULTIPLEX)
-      return TRUE;
-    if(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
-      return FALSE;
+  ఒకవేళ(!conn || !CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి FALSE;
+  కొరకు(cf = conn->cfilter[sockindex]; cf; cf = cf->తదుపరి) {
+    ఒకవేళ(cf->cft->flags & CF_TYPE_MULTIPLEX)
+      తిరిగి TRUE;
+    ఒకవేళ(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
+      తిరిగి FALSE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-unsigned char Curl_conn_get_transport(struct Curl_easy *data,
-                                      struct connectdata *conn)
+గుర్తులేని అక్షరం Curl_conn_get_transport(నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం connectdata *conn)
 {
-  struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return Curl_conn_cf_get_transport(cf, data);
+  నిర్మాణం Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
+  తిరిగి Curl_conn_cf_get_transport(cf, దత్తాంశం);
 }
 
-int Curl_socktype_for_transport(uint8_t transport)
+పూర్ణాంకం Curl_socktype_for_transport(uint8_t transport)
 {
-  switch(transport) {
-  case TRNSPRT_TCP:
-    return SOCK_STREAM;
-  case TRNSPRT_UNIX:
-    return SOCK_STREAM;
-  default: /* UDP and QUIC */
-    return SOCK_DGRAM;
-  }
-}
-
-int Curl_protocol_for_transport(uint8_t transport)
-{
-  switch(transport) {
-  case TRNSPRT_TCP:
-    return IPPROTO_TCP;
-  case TRNSPRT_UNIX:
-    return IPPROTO_IP;
-  default: /* UDP and QUIC */
-    return IPPROTO_UDP;
+  ఎంపిక(transport) {
+  స్థితి TRNSPRT_TCP:
+    తిరిగి SOCK_STREAM;
+  స్థితి TRNSPRT_UNIX:
+    తిరిగి SOCK_STREAM;
+  అప్రమేయ: /* UDP and QUIC */
+    తిరిగి SOCK_DGRAM;
   }
 }
 
-const char *Curl_conn_get_alpn_negotiated(struct Curl_easy *data,
-                                          struct connectdata *conn)
+పూర్ణాంకం Curl_protocol_for_transport(uint8_t transport)
 {
-  struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return Curl_conn_cf_get_alpn_negotiated(cf, data);
+  ఎంపిక(transport) {
+  స్థితి TRNSPRT_TCP:
+    తిరిగి IPPROTO_TCP;
+  స్థితి TRNSPRT_UNIX:
+    తిరిగి IPPROTO_IP;
+  అప్రమేయ: /* UDP and QUIC */
+    తిరిగి IPPROTO_UDP;
+  }
 }
 
-unsigned char Curl_conn_http_version(struct Curl_easy *data,
-                                     struct connectdata *conn)
+స్థిరరాశి అక్షరం *Curl_conn_get_alpn_negotiated(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం connectdata *conn)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_UNKNOWN_OPTION;
-  unsigned char v = 0;
+  నిర్మాణం Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
+  తిరిగి Curl_conn_cf_get_alpn_negotiated(cf, దత్తాంశం);
+}
+
+గుర్తులేని అక్షరం Curl_conn_http_సంస్కరణ(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం connectdata *conn)
+{
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం = CURLE_UNKNOWN_OPTION;
+  గుర్తులేని అక్షరం v = 0;
 
   cf = conn->cfilter[FIRSTSOCKET];
-  for(; cf; cf = cf->next) {
-    if(cf->cft->flags & CF_TYPE_HTTP) {
-      int value = 0;
-      result = cf->cft->query(cf, data, CF_QUERY_HTTP_VERSION, &value, NULL);
-      if(!result && ((value < 0) || (value > 255)))
-        result = CURLE_FAILED_INIT;
-      else
-        v = (unsigned char)value;
-      break;
+  కొరకు(; cf; cf = cf->తదుపరి) {
+    ఒకవేళ(cf->cft->flags & CF_TYPE_HTTP) {
+      పూర్ణాంకం విలువ = 0;
+      ఫలితం = cf->cft->query(cf, దత్తాంశం, CF_QUERY_HTTP_సంస్కరణ, &విలువ, ఖాళీ);
+      ఒకవేళ(!ఫలితం && ((విలువ < 0) || (విలువ > 255)))
+        ఫలితం = CURLE_FAILED_INIT;
+      లేకపోతే
+        v = (గుర్తులేని అక్షరం)విలువ;
+      ఆపు;
     }
-    if(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
-      break;
+    ఒకవేళ(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
+      ఆపు;
   }
-  return (unsigned char)(result ? 0 : v);
+  తిరిగి (గుర్తులేని అక్షరం)(ఫలితం ? 0 : v);
 }
 
-bool Curl_conn_data_pending(struct Curl_easy *data, int8_t sockindex)
+bool Curl_conn_దత్తాంశం_pending(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  నిర్మాణం Curl_cfilter *cf;
 
-  (void)data;
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  (శూన్య)దత్తాంశం;
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(దత్తాంశం->conn);
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి FALSE;
 
-  cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected) {
-    cf = cf->next;
+  cf = దత్తాంశం->conn->cfilter[sockindex];
+  అయితే(cf && !cf->connected) {
+    cf = cf->తదుపరి;
   }
-  if(cf) {
-    return cf->cft->has_data_pending(cf, data);
+  ఒకవేళ(cf) {
+    తిరిగి cf->cft->has_దత్తాంశం_pending(cf, దత్తాంశం);
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-bool Curl_conn_cf_needs_flush(struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+bool Curl_conn_cf_needs_flush(నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  CURLcode result;
-  int pending = 0;
-  result = cf ? cf->cft->query(cf, data, CF_QUERY_NEED_FLUSH,
-                               &pending, NULL) : CURLE_UNKNOWN_OPTION;
-  return (result || !pending) ? FALSE : TRUE;
+  CURLcode ఫలితం;
+  పూర్ణాంకం pending = 0;
+  ఫలితం = cf ? cf->cft->query(cf, దత్తాంశం, CF_QUERY_NEED_FLUSH,
+                               &pending, ఖాళీ) : CURLE_UNKNOWN_OPTION;
+  తిరిగి (ఫలితం || !pending) ? FALSE : TRUE;
 }
 
-bool Curl_conn_needs_flush(struct Curl_easy *data, int8_t sockindex)
+bool Curl_conn_needs_flush(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return Curl_conn_cf_needs_flush(data->conn->cfilter[sockindex], data);
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి FALSE;
+  తిరిగి Curl_conn_cf_needs_flush(దత్తాంశం->conn->cfilter[sockindex], దత్తాంశం);
 }
 
-CURLcode Curl_conn_cf_adjust_pollset(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     struct easy_pollset *ps)
+CURLcode Curl_conn_cf_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                     నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం easy_pollset *ps)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
   /* Go through all filters, top to bottom, and let them manage the pollset
    * - connected filters can do so
    * - CF_TYPE_DNS filters can
    * - unconnected filters without next or connect next can
    */
-  for(; cf && !result; cf = cf->next) {
-    if(cf->shutdown)
-      continue;
-    if(cf->connected || (cf->cft->flags & CF_TYPE_DNS) ||
-       !cf->next || cf->next->connected)
-      result = cf->cft->adjust_pollset(cf, data, ps);
+  కొరకు(; cf && !ఫలితం; cf = cf->తదుపరి) {
+    ఒకవేళ(cf->shutdown)
+      కొనసాగు;
+    ఒకవేళ(cf->connected || (cf->cft->flags & CF_TYPE_DNS) ||
+       !cf->తదుపరి || cf->తదుపరి->connected)
+      ఫలితం = cf->cft->adjust_pollset(cf, దత్తాంశం, ps);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  struct easy_pollset *ps)
+CURLcode Curl_conn_adjust_pollset(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం connectdata *conn,
+                                  నిర్మాణం easy_pollset *ps)
 {
-  CURLcode result = CURLE_OK;
-  const bool want_io = !!ps->n;
+  CURLcode ఫలితం = CURLE_OK;
+  స్థిరరాశి bool want_io = !!ps->n;
   int8_t i;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(దత్తాంశం);
   DEBUGASSERT(conn);
   /* During connect time, connection filters may add sockets to the pollset
    * even when the transfer neither wants to send nor receive. And those
@@ -718,13 +718,13 @@ CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
    * connect or shutdown does not add poll events for the other. Check
    * against the transfer's own interest, before any chain added sockets
    * of its own. */
-  for(i = 0; (i < (int)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
-    if(conn->cfilter[i] &&
+  కొరకు(i = 0; (i < (పూర్ణాంకం)CURL_ARRAYSIZE(conn->cfilter)) && !ఫలితం; ++i) {
+    ఒకవేళ(conn->cfilter[i] &&
        (want_io || !conn->cfilter[i]->connected ||
-        CURL_CONN_IN_SHUTDOWN(conn, i)))
-      result = Curl_conn_cf_adjust_pollset(conn->cfilter[i], data, ps);
+        CURL_CONN_లోపల_SHUTDOWN(conn, i)))
+      ఫలితం = Curl_conn_cf_adjust_pollset(conn->cfilter[i], దత్తాంశం, ps);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -733,322 +733,322 @@ CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_conn_cf_poll(struct Curl_cfilter *cf,
-                      struct Curl_easy *data,
+పూర్ణాంకం Curl_conn_cf_poll(నిర్మాణం Curl_cfilter *cf,
+                      నిర్మాణం Curl_easy *దత్తాంశం,
                       timediff_t timeout_ms)
 {
-  struct easy_pollset ps;
-  int rc;
-  CURLcode result;
+  నిర్మాణం easy_pollset ps;
+  పూర్ణాంకం rc;
+  CURLcode ఫలితం;
 
   DEBUGASSERT(cf);
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(దత్తాంశం->conn);
   Curl_pollset_init(&ps);
 
-  result = Curl_conn_cf_adjust_pollset(cf, data, &ps);
-  if(!result)
-    rc = Curl_pollset_poll(data, &ps, timeout_ms);
-  else
+  ఫలితం = Curl_conn_cf_adjust_pollset(cf, దత్తాంశం, &ps);
+  ఒకవేళ(!ఫలితం)
+    rc = Curl_pollset_poll(దత్తాంశం, &ps, timeout_ms);
+  లేకపోతే
     rc = -1;
   Curl_pollset_cleanup(&ps);
-  return rc;
+  తిరిగి rc;
 }
 
-void Curl_conn_get_current_host(struct Curl_easy *data, int8_t sockindex,
-                                const char **phost, int *pport)
+శూన్య Curl_conn_get_current_host(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                                స్థిరరాశి అక్షరం **phost, పూర్ణాంకం *pport)
 {
-  struct Curl_cfilter *cf, *cf_proxy = NULL;
-  int portarg = -1;
+  నిర్మాణం Curl_cfilter *cf, *cf_proxy = ఖాళీ;
+  పూర్ణాంకం portarg = -1;
 
-  if(!data->conn) {
+  ఒకవేళ(!దత్తాంశం->conn) {
     DEBUGASSERT(0);
     *phost = "";
-    if(pport)
+    ఒకవేళ(pport)
       *pport = -1;
-    return;
+    తిరిగి;
   }
 
-  cf = CONN_SOCK_IDX_VALID(sockindex) ? data->conn->cfilter[sockindex] : NULL;
+  cf = CONN_SOCK_IDX_VALID(sockindex) ? దత్తాంశం->conn->cfilter[sockindex] : ఖాళీ;
   /* Find the "lowest" tunneling proxy filter that has not connected yet. */
-  while(cf && !cf->connected) {
-    if((cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY)) ==
+  అయితే(cf && !cf->connected) {
+    ఒకవేళ((cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY)) ==
        (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY))
       cf_proxy = cf;
-    cf = cf->next;
+    cf = cf->తదుపరి;
   }
   /* cf_proxy (!= NULL) is not connected yet. It is talking
    * to an interim host and any authentication or other things apply
    * to this interim host and port. */
-  if(!cf_proxy || cf_proxy->cft->query(cf_proxy, data, CF_QUERY_HOST_PORT,
+  ఒకవేళ(!cf_proxy || cf_proxy->cft->query(cf_proxy, దత్తాంశం, CF_QUERY_HOST_పోర్టు,
                                        &portarg, CURL_UNCONST(phost))) {
     /* Everything connected or query unsuccessful, the overall
      * connection's destination is the answer */
-    *phost = data->conn->origin->hostname;
-    portarg = data->conn->origin->port;
+    *phost = దత్తాంశం->conn->origin->hostname;
+    portarg = దత్తాంశం->conn->origin->పోర్టు;
   }
-  if(pport)
+  ఒకవేళ(pport)
     *pport = portarg;
 }
 
-CURLcode Curl_cf_def_cntrl(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           int event, int arg1, void *arg2)
+CURLcode Curl_cf_def_cntrl(నిర్మాణం Curl_cfilter *cf,
+                           నిర్మాణం Curl_easy *దత్తాంశం,
+                           పూర్ణాంకం event, పూర్ణాంకం arg1, శూన్య *arg2)
 {
-  (void)cf;
-  (void)data;
-  (void)event;
-  (void)arg1;
-  (void)arg2;
-  return CURLE_OK;
+  (శూన్య)cf;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)event;
+  (శూన్య)arg1;
+  (శూన్య)arg2;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_conn_cf_cntrl(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            bool ignore_result,
-                            int event, int arg1, void *arg2)
+CURLcode Curl_conn_cf_cntrl(నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_easy *దత్తాంశం,
+                            bool ignore_ఫలితం,
+                            పూర్ణాంకం event, పూర్ణాంకం arg1, శూన్య *arg2)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  for(; cf; cf = cf->next) {
-    if(cf->cft->cntrl == Curl_cf_def_cntrl)
-      continue;
-    result = cf->cft->cntrl(cf, data, event, arg1, arg2);
-    if(!ignore_result && result)
-      break;
+  కొరకు(; cf; cf = cf->తదుపరి) {
+    ఒకవేళ(cf->cft->cntrl == Curl_cf_def_cntrl)
+      కొనసాగు;
+    ఫలితం = cf->cft->cntrl(cf, దత్తాంశం, event, arg1, arg2);
+    ఒకవేళ(!ignore_ఫలితం && ఫలితం)
+      ఆపు;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-curl_socket_t Curl_conn_cf_get_socket(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+curl_socket_t Curl_conn_cf_get_socket(నిర్మాణం Curl_cfilter *cf,
+                                      నిర్మాణం Curl_easy *దత్తాంశం)
 {
   curl_socket_t sock;
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_SOCKET, NULL, &sock))
-    return sock;
-  return CURL_SOCKET_BAD;
+  ఒకవేళ(cf && !cf->cft->query(cf, దత్తాంశం, CF_QUERY_SOCKET, ఖాళీ, &sock))
+    తిరిగి sock;
+  తిరిగి CURL_SOCKET_BAD;
 }
 
-unsigned char Curl_conn_cf_get_transport(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+గుర్తులేని అక్షరం Curl_conn_cf_get_transport(నిర్మాణం Curl_cfilter *cf,
+                                         నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  int transport = 0;
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_TRANSPORT, &transport, NULL))
-    return (unsigned char)transport;
-  return (unsigned char)(data->conn ? data->conn->transport_wanted : 0);
+  పూర్ణాంకం transport = 0;
+  ఒకవేళ(cf && !cf->cft->query(cf, దత్తాంశం, CF_QUERY_TRANSPORT, &transport, ఖాళీ))
+    తిరిగి (గుర్తులేని అక్షరం)transport;
+  తిరిగి (గుర్తులేని అక్షరం)(దత్తాంశం->conn ? దత్తాంశం->conn->transport_wanted : 0);
 }
 
-const char *Curl_conn_cf_get_alpn_negotiated(struct Curl_cfilter *cf,
-                                             struct Curl_easy *data)
+స్థిరరాశి అక్షరం *Curl_conn_cf_get_alpn_negotiated(నిర్మాణం Curl_cfilter *cf,
+                                             నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  const char *alpn = NULL;
-  CURL_TRC_CF(data, cf, "query ALPN");
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_ALPN_NEGOTIATED, NULL,
+  స్థిరరాశి అక్షరం *alpn = ఖాళీ;
+  CURL_TRC_CF(దత్తాంశం, cf, "query ALPN");
+  ఒకవేళ(cf && !cf->cft->query(cf, దత్తాంశం, CF_QUERY_ALPN_NEGOTIATED, ఖాళీ,
                            CURL_UNCONST(&alpn)))
-    return alpn;
-  return NULL;
+    తిరిగి alpn;
+  తిరిగి ఖాళీ;
 }
 
-static const struct Curl_sockaddr_ex *cf_get_remote_addr(
-  struct Curl_cfilter *cf, struct Curl_easy *data)
+స్థిర స్థిరరాశి నిర్మాణం Curl_sockaddr_ex *cf_get_remote_addr(
+  నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  const struct Curl_sockaddr_ex *remote_addr = NULL;
-  if(cf &&
-     !cf->cft->query(cf, data, CF_QUERY_REMOTE_ADDR, NULL,
+  స్థిరరాశి నిర్మాణం Curl_sockaddr_ex *remote_addr = ఖాళీ;
+  ఒకవేళ(cf &&
+     !cf->cft->query(cf, దత్తాంశం, CF_QUERY_REMOTE_ADDR, ఖాళీ,
                      CURL_UNCONST(&remote_addr)))
-    return remote_addr;
-  return NULL;
+    తిరిగి remote_addr;
+  తిరిగి ఖాళీ;
 }
 
-CURLcode Curl_conn_cf_get_ip_info(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool *is_ipv6, struct ip_quadruple *ipquad)
+CURLcode Curl_conn_cf_get_ip_info(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  bool *is_ipv6, నిర్మాణం ip_quadruple *ipquad)
 {
-  CURLcode result = CURLE_UNKNOWN_OPTION;
-  if(cf) {
-    int ipv6 = 0;
-    result = cf->cft->query(cf, data, CF_QUERY_IP_INFO, &ipv6, ipquad);
+  CURLcode ఫలితం = CURLE_UNKNOWN_OPTION;
+  ఒకవేళ(cf) {
+    పూర్ణాంకం ipv6 = 0;
+    ఫలితం = cf->cft->query(cf, దత్తాంశం, CF_QUERY_IP_INFO, &ipv6, ipquad);
     *is_ipv6 = !!ipv6;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-curl_socket_t Curl_conn_get_first_socket(struct Curl_easy *data)
+curl_socket_t Curl_conn_get_మొదటి_socket(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Curl_cfilter *cf;
+  నిర్మాణం Curl_cfilter *cf;
 
-  if(!data->conn)
-    return CURL_SOCKET_BAD;
+  ఒకవేళ(!దత్తాంశం->conn)
+    తిరిగి CURL_SOCKET_BAD;
 
-  cf = data->conn->cfilter[FIRSTSOCKET];
+  cf = దత్తాంశం->conn->cfilter[FIRSTSOCKET];
   /* if the top filter has not connected, ask it (and its sub-filters)
    * for the socket. Otherwise conn->sock[sockindex] should have it. */
-  if(cf && !cf->connected)
-    return Curl_conn_cf_get_socket(cf, data);
-  return data->conn->sock[FIRSTSOCKET];
+  ఒకవేళ(cf && !cf->connected)
+    తిరిగి Curl_conn_cf_get_socket(cf, దత్తాంశం);
+  తిరిగి దత్తాంశం->conn->sock[FIRSTSOCKET];
 }
 
-const struct Curl_sockaddr_ex *Curl_conn_get_remote_addr(
-  struct Curl_easy *data, int8_t sockindex)
+స్థిరరాశి నిర్మాణం Curl_sockaddr_ex *Curl_conn_get_remote_addr(
+  నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex)
 {
-  struct Curl_cfilter *cf =
-    (data->conn && CONN_SOCK_IDX_VALID(sockindex)) ?
-    data->conn->cfilter[sockindex] : NULL;
-  return cf ? cf_get_remote_addr(cf, data) : NULL;
+  నిర్మాణం Curl_cfilter *cf =
+    (దత్తాంశం->conn && CONN_SOCK_IDX_VALID(sockindex)) ?
+    దత్తాంశం->conn->cfilter[sockindex] : ఖాళీ;
+  తిరిగి cf ? cf_get_remote_addr(cf, దత్తాంశం) : ఖాళీ;
 }
 
-CURLcode Curl_conn_ev_data_setup(struct Curl_easy *data)
+CURLcode Curl_conn_ev_దత్తాంశం_అమరిక(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return cf_cntrl_all(data->conn, data, FALSE, CF_CTRL_DATA_SETUP, 0, NULL);
+  తిరిగి cf_cntrl_all(దత్తాంశం->conn, దత్తాంశం, FALSE, CF_CTRL_దత్తాంశం_అమరిక, 0, ఖాళీ);
 }
 
-CURLcode Curl_conn_flush(struct Curl_easy *data, int8_t sockindex)
+CURLcode Curl_conn_flush(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return Curl_conn_cf_cntrl(data->conn->cfilter[sockindex], data, FALSE,
-                            CF_CTRL_FLUSH, 0, NULL);
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+  తిరిగి Curl_conn_cf_cntrl(దత్తాంశం->conn->cfilter[sockindex], దత్తాంశం, FALSE,
+                            CF_CTRL_FLUSH, 0, ఖాళీ);
 }
 
 /**
  * Notify connection filters that the transfer represented by `data`
  * is done with sending data (e.g. has uploaded everything).
  */
-void Curl_conn_ev_data_done_send(struct Curl_easy *data)
+శూన్య Curl_conn_ev_దత్తాంశం_పూర్తి_send(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  cf_cntrl_all(data->conn, data, TRUE, CF_CTRL_DATA_DONE_SEND, 0, NULL);
+  cf_cntrl_all(దత్తాంశం->conn, దత్తాంశం, TRUE, CF_CTRL_దత్తాంశం_పూర్తి_SEND, 0, ఖాళీ);
 }
 
 /**
  * Notify connection filters that the transfer represented by `data`
  * is finished - eventually premature, e.g. before being complete.
  */
-void Curl_conn_ev_data_done(struct Curl_easy *data, bool premature)
+శూన్య Curl_conn_ev_దత్తాంశం_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం, bool premature)
 {
-  cf_cntrl_all(data->conn, data, TRUE, CF_CTRL_DATA_DONE, premature, NULL);
+  cf_cntrl_all(దత్తాంశం->conn, దత్తాంశం, TRUE, CF_CTRL_దత్తాంశం_పూర్తి, premature, ఖాళీ);
 }
 
-CURLcode Curl_conn_ev_data_pause(struct Curl_easy *data, bool do_pause)
+CURLcode Curl_conn_ev_దత్తాంశం_pause(నిర్మాణం Curl_easy *దత్తాంశం, bool do_pause)
 {
-  return cf_cntrl_all(data->conn, data, FALSE,
-                      CF_CTRL_DATA_PAUSE, do_pause, NULL);
+  తిరిగి cf_cntrl_all(దత్తాంశం->conn, దత్తాంశం, FALSE,
+                      CF_CTRL_దత్తాంశం_PAUSE, do_pause, ఖాళీ);
 }
 
-bool Curl_conn_is_alive(struct Curl_easy *data, struct connectdata *conn,
-                        bool *input_pending)
+bool Curl_conn_is_alive(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం connectdata *conn,
+                        bool *ఆదానం_pending)
 {
-  struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return cf && !cf->conn->bits.close &&
-         cf->cft->is_alive(cf, data, input_pending);
+  నిర్మాణం Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
+  తిరిగి cf && !cf->conn->బిట్లు.close &&
+         cf->cft->is_alive(cf, దత్తాంశం, ఆదానం_pending);
 }
 
-CURLcode Curl_conn_keep_alive(struct Curl_easy *data,
-                              struct connectdata *conn)
+CURLcode Curl_conn_keep_alive(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
-  int i;
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం i;
 
-  for(i = 0; (i < (int)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
-    struct Curl_cfilter *cf = conn->cfilter[i];
-    if(cf)
-      result = cf->cft->keep_alive(cf, data);
+  కొరకు(i = 0; (i < (పూర్ణాంకం)CURL_ARRAYSIZE(conn->cfilter)) && !ఫలితం; ++i) {
+    నిర్మాణం Curl_cfilter *cf = conn->cfilter[i];
+    ఒకవేళ(cf)
+      ఫలితం = cf->cft->keep_alive(cf, దత్తాంశం);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-size_t Curl_conn_get_max_concurrent(struct Curl_easy *data,
-                                    struct connectdata *conn,
+size_t Curl_conn_get_max_concurrent(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం connectdata *conn,
                                     int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
-  int n = -1;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం;
+  పూర్ణాంకం n = -1;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return 0;
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి 0;
 
   cf = conn->cfilter[sockindex];
-  result = cf ? cf->cft->query(cf, data, CF_QUERY_MAX_CONCURRENT,
-                               &n, NULL) : CURLE_UNKNOWN_OPTION;
+  ఫలితం = cf ? cf->cft->query(cf, దత్తాంశం, CF_QUERY_MAX_CONCURRENT,
+                               &n, ఖాళీ) : CURLE_UNKNOWN_OPTION;
   /* If no filter answered the query, the default is a non-multiplexed
    * connection with limit 1. Otherwise, the query may return 0
    * for connections that are in shutdown, e.g. server HTTP/2 GOAWAY. */
-  return (result || n < 0) ? 1 : (size_t)n;
+  తిరిగి (ఫలితం || n < 0) ? 1 : (size_t)n;
 }
 
-int Curl_conn_get_stream_error(struct Curl_easy *data,
-                               struct connectdata *conn,
+పూర్ణాంకం Curl_conn_get_ప్రవాహం_error(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం connectdata *conn,
                                int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
-  int n = 0;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం;
+  పూర్ణాంకం n = 0;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return 0;
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి 0;
 
   cf = conn->cfilter[sockindex];
-  result = cf ? cf->cft->query(cf, data, CF_QUERY_STREAM_ERROR,
-                               &n, NULL) : CURLE_UNKNOWN_OPTION;
-  return (result || n < 0) ? 0 : n;
+  ఫలితం = cf ? cf->cft->query(cf, దత్తాంశం, CF_QUERY_ప్రవాహం_ERROR,
+                               &n, ఖాళీ) : CURLE_UNKNOWN_OPTION;
+  తిరిగి (ఫలితం || n < 0) ? 0 : n;
 }
 
-int8_t Curl_conn_sockindex(struct Curl_easy *data, curl_socket_t sockfd)
+int8_t Curl_conn_sockindex(నిర్మాణం Curl_easy *దత్తాంశం, curl_socket_t sockfd)
 {
-  if(data && data->conn &&
-     sockfd != CURL_SOCKET_BAD && sockfd == data->conn->sock[SECONDARYSOCKET])
-    return SECONDARYSOCKET;
-  return FIRSTSOCKET;
+  ఒకవేళ(దత్తాంశం && దత్తాంశం->conn &&
+     sockfd != CURL_SOCKET_BAD && sockfd == దత్తాంశం->conn->sock[SECONDARYSOCKET])
+    తిరిగి SECONDARYSOCKET;
+  తిరిగి FIRSTSOCKET;
 }
 
-CURLcode Curl_conn_recv(struct Curl_easy *data, int8_t sockindex,
-                        char *buf, size_t len, size_t *pnread)
+CURLcode Curl_conn_recv(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                        అక్షరం *buf, size_t len, size_t *pnread)
 {
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(data && data->conn && data->conn->recv[sockindex])
-    return data->conn->recv[sockindex](data, sockindex, buf, len, pnread);
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(దత్తాంశం->conn);
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+  ఒకవేళ(దత్తాంశం && దత్తాంశం->conn && దత్తాంశం->conn->recv[sockindex])
+    తిరిగి దత్తాంశం->conn->recv[sockindex](దత్తాంశం, sockindex, buf, len, pnread);
   *pnread = 0;
-  return CURLE_FAILED_INIT;
+  తిరిగి CURLE_FAILED_INIT;
 }
 
-CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
-                        const void *buf, size_t len, bool eos,
+CURLcode Curl_conn_send(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                        స్థిరరాశి శూన్య *buf, size_t len, bool eos,
                         size_t *pnwritten)
 {
   size_t write_len = len;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(దత్తాంశం->conn);
   DEBUGASSERT(CONN_SOCK_IDX_VALID(sockindex));
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#ifdef DEBUGBUILD
-  if(write_len) {
+  ఒకవేళ(!CONN_SOCK_IDX_VALID(sockindex))
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+#నిర్వచితమైతే DEBUGBUILD
+  ఒకవేళ(write_len) {
     /* Allow debug builds to override this logic to force short sends */
-    const char *p = getenv("CURL_SMALLSENDS");
-    if(p) {
+    స్థిరరాశి అక్షరం *p = getenv("CURL_SMALLSENDS");
+    ఒకవేళ(p) {
       curl_off_t altsize;
-      if(!curlx_str_number(&p, &altsize, write_len)) {
+      ఒకవేళ(!curlx_str_సంఖ్య(&p, &altsize, write_len)) {
         write_len = (size_t)altsize;
-        if(write_len != len)
+        ఒకవేళ(write_len != len)
           eos = FALSE;
       }
     }
   }
-#endif
-  if(data && data->conn && data->conn->send[sockindex]) {
-    CURLcode result = data->conn->send[sockindex](data, sockindex, buf,
+#అయితే_ముగింపు
+  ఒకవేళ(దత్తాంశం && దత్తాంశం->conn && దత్తాంశం->conn->send[sockindex]) {
+    CURLcode ఫలితం = దత్తాంశం->conn->send[sockindex](దత్తాంశం, sockindex, buf,
                                                   write_len, eos, pnwritten);
-    if(!result && (*pnwritten > write_len)) {
+    ఒకవేళ(!ఫలితం && (*pnwritten > write_len)) {
       DEBUGASSERT(0);
       *pnwritten = 0;
-      return CURLE_SEND_ERROR;
+      తిరిగి CURLE_SEND_ERROR;
     }
-    return result;
+    తిరిగి ఫలితం;
   }
   *pnwritten = 0;
-  return CURLE_FAILED_INIT;
+  తిరిగి CURLE_FAILED_INIT;
 }

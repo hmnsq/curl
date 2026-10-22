@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VSSH_SSH_H
-#define HEADER_CURL_VSSH_SSH_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_VSSH_SSH_H
+#నిర్వచించు శీర్షిక_CURL_VSSH_SSH_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,33 +23,33 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
+#అన్తర్భావ "curl_setup.h"
+#అన్తర్భావ "urldata.h"
 
-extern const struct Curl_protocol Curl_protocol_sftp;
-extern const struct Curl_protocol Curl_protocol_scp;
+బాహ్య స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_sftp;
+బాహ్య స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_scp;
 
-#ifdef USE_SSH
+#నిర్వచితమైతే USE_SSH
 
-#ifdef USE_LIBSSH2
-#include <libssh2.h>
-#include <libssh2_sftp.h>
-#elif defined(USE_LIBSSH)
+#నిర్వచితమైతే USE_LIBSSH2
+#అన్తర్భావ <libssh2.h>
+#అన్తర్భావ <libssh2_sftp.h>
+#లేదావేళ defined(USE_LIBSSH)
 /* in 0.10.0 or later, ignore deprecated warnings */
-#define SSH_SUPPRESS_DEPRECATED
-#include <libssh/libssh.h>
-#include <libssh/sftp.h>
-#endif
+#నిర్వచించు SSH_SUPPRESS_DEPRECATED
+#అన్తర్భావ <libssh/libssh.h>
+#అన్తర్భావ <libssh/sftp.h>
+#అయితే_ముగింపు
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_SSH_EASY   "meta:proto:ssh:easy"
+#నిర్వచించు CURL_META_SSH_EASY   "meta:proto:ssh:easy"
 /* meta key for storing protocol meta at connection */
-#define CURL_META_SSH_CONN   "meta:proto:ssh:conn"
+#నిర్వచించు CURL_META_SSH_CONN   "meta:proto:ssh:conn"
 
 /****************************************************************************
  * SSH unique setup
  ***************************************************************************/
-typedef enum {
+రకనిర్వచనం గణన {
   SSH_NO_STATE = -1,  /* Used for "nextState" so say there is none */
   SSH_STOP = 0,       /* do nothing state, stops the state machine */
 
@@ -66,17 +66,17 @@ typedef enum {
   SSH_AUTH_AGENT,      /* attempt one key at a time */
   SSH_AUTH_HOST_INIT,
   SSH_AUTH_HOST,
-  SSH_AUTH_KEY_INIT,
-  SSH_AUTH_KEY,
+  SSH_AUTH_కీలకం_INIT,
+  SSH_AUTH_కీలకం,
   SSH_AUTH_GSSAPI,
-  SSH_AUTH_DONE,
+  SSH_AUTH_పూర్తి,
   SSH_SFTP_INIT,
   SSH_SFTP_REALPATH,   /* Last state in SSH-CONNECT */
 
   SSH_SFTP_QUOTE_INIT, /* First state in SFTP-DO */
   SSH_SFTP_POSTQUOTE_INIT, /* (Possibly) First state in SFTP-DONE */
   SSH_SFTP_QUOTE,
-  SSH_SFTP_NEXT_QUOTE,
+  SSH_SFTP_తదుపరి_QUOTE,
   SSH_SFTP_QUOTE_STAT,
   SSH_SFTP_QUOTE_SETSTAT,
   SSH_SFTP_QUOTE_SYMLINK,
@@ -96,7 +96,7 @@ typedef enum {
   SSH_SFTP_READDIR,
   SSH_SFTP_READDIR_LINK,
   SSH_SFTP_READDIR_BOTTOM,
-  SSH_SFTP_READDIR_DONE,
+  SSH_SFTP_READDIR_పూర్తి,
   SSH_SFTP_DOWNLOAD_INIT,
   SSH_SFTP_DOWNLOAD_STAT, /* Last state in SFTP-DO */
   SSH_SFTP_CLOSE,    /* Last state in SFTP-DONE */
@@ -105,7 +105,7 @@ typedef enum {
   SSH_SCP_UPLOAD_INIT,
   SSH_SCP_DOWNLOAD_INIT,
   SSH_SCP_DOWNLOAD,
-  SSH_SCP_DONE,
+  SSH_SCP_పూర్తి,
   SSH_SCP_SEND_EOF,
   SSH_SCP_WAIT_EOF,
   SSH_SCP_WAIT_CLOSE,
@@ -113,150 +113,150 @@ typedef enum {
   SSH_SESSION_DISCONNECT, /* First state in SCP-DISCONNECT */
   SSH_SESSION_FREE,       /* Last state in SCP/SFTP-DISCONNECT */
   SSH_QUIT,
-  SSH_LAST  /* never used */
+  SSH_చివరి  /* never used */
 } sshstate;
 
-#define CURL_PATH_MAX 1024
+#నిర్వచించు CURL_మార్గం_MAX 1024
 
 /* this struct is used in the HandleData struct which is part of the
    Curl_easy, which means this is used on a per-easy handle basis.
    Everything that is strictly related to a connection is banned from this
    struct. */
-struct SSHPROTO {
-  char *path;        /* the path we operate on, at least one byte long */
-#ifdef USE_LIBSSH2
-  struct dynbuf readdir_link;
-  struct dynbuf readdir;
-  char readdir_filename[CURL_PATH_MAX + 1];
-  char readdir_longentry[CURL_PATH_MAX + 1];
+నిర్మాణం SSHPROTO {
+  అక్షరం *మార్గం;        /* the path we operate on, at least one byte long */
+#నిర్వచితమైతే USE_LIBSSH2
+  నిర్మాణం dynbuf readdir_link;
+  నిర్మాణం dynbuf readdir;
+  అక్షరం readdir_filename[CURL_మార్గం_MAX + 1];
+  అక్షరం readdir_longentry[CURL_మార్గం_MAX + 1];
 
-  LIBSSH2_SFTP_ATTRIBUTES quote_attrs; /* used by the SFTP_QUOTE state */
+  LIBSSH2_SFTP_లక్షణాలు quote_attrs; /* used by the SFTP_QUOTE state */
 
   /* Here's a set of struct members used by the SFTP_READDIR state */
-  LIBSSH2_SFTP_ATTRIBUTES readdir_attrs;
-#endif
+  LIBSSH2_SFTP_లక్షణాలు readdir_attrs;
+#అయితే_ముగింపు
 };
 
 /* ssh_conn is used for struct connection-oriented data in the connectdata
    struct */
-struct ssh_conn {
-  const char *authlist;       /* List of auth. methods, managed by libssh2 */
+నిర్మాణం ssh_conn {
+  స్థిరరాశి అక్షరం *authlist;       /* List of auth. methods, managed by libssh2 */
 
   /* common */
-  char *passphrase;           /* strdup'ed pass-phrase to use or NULL */
-  char *pub_key;              /* strdup'ed public key file */
-  char *priv_key;             /* strdup'ed private key file */
+  అక్షరం *passphrase;           /* strdup'ed pass-phrase to use or NULL */
+  అక్షరం *pub_కీలకం;              /* strdup'ed public key file */
+  అక్షరం *priv_కీలకం;             /* strdup'ed private key file */
   sshstate state;             /* always use ssh.c:state() to change state! */
   sshstate nextstate;         /* the state to goto after stopping */
-  struct curl_slist *quote_item; /* for the quote option */
-  char *quote_path1;          /* two generic pointers for the QUOTE stuff */
-  char *quote_path2;
+  నిర్మాణం curl_slist *quote_అంశం; /* for the quote option */
+  అక్షరం *quote_path1;          /* two generic pointers for the QUOTE stuff */
+  అక్షరం *quote_path2;
 
-  char *homedir;              /* when doing SFTP we figure out home directory
+  అక్షరం *homedir;              /* when doing SFTP we figure out home directory
                                  in the connect phase */
   /* end of READDIR stuff */
 
-  int secondCreateDirs;         /* counter use by the code to see if the
+  పూర్ణాంకం రెండవ_Create_Dirs;         /* counter use by the code to see if the
                                    second attempt has been made to change
                                    to/create a directory */
-  int waitfor;                  /* REQ_IO_RECV/REQ_IO_SEND bits overriding
+  పూర్ణాంకం waitfor;                  /* REQ_IO_RECV/REQ_IO_SEND bits overriding
                                    pollset given flags */
-  char *slash_pos;              /* used by the SFTP_CREATE_DIRS state */
+  అక్షరం *slash_pos;              /* used by the SFTP_CREATE_DIRS state */
 
-#ifdef USE_LIBSSH
+#నిర్వచితమైతే USE_LIBSSH
   CURLcode actualcode;        /* the actual error code */
-  char *readdir_linkPath;
+  అక్షరం *readdir_link_మార్గం;
   size_t readdir_len;
-  struct dynbuf readdir_buf;
+  నిర్మాణం dynbuf readdir_buf;
 /* our variables */
-  unsigned kbd_state; /* 0 or 1 */
-  ssh_key privkey;
-  ssh_key pubkey;
-  unsigned int auth_methods;
+  గుర్తులేని kbd_state; /* 0 or 1 */
+  ssh_కీలకం privkey;
+  ssh_కీలకం pubkey;
+  గుర్తులేని పూర్ణాంకం auth_methods;
   ssh_session ssh_session;
   ssh_scp scp_session;
   sftp_session sftp_session;
   sftp_file sftp_file;
   sftp_dir sftp_dir;
 
-  unsigned sftp_recv_state; /* 0 or 1 */
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+  గుర్తులేని sftp_recv_state; /* 0 or 1 */
+#ఒకవేళ LIBSSH_సంస్కరణ_INT > SSH_సంస్కరణ_INT(0, 11, 0)
   sftp_aio sftp_recv_aio;
 
   sftp_aio sftp_send_aio;
-  unsigned sftp_send_state; /* 0 or 1 */
-#else
-  int sftp_file_index; /* for async read */
-#endif
-  sftp_attributes readdir_attrs; /* used by the SFTP readdir actions */
-  sftp_attributes readdir_link_attrs; /* used by the SFTP readdir actions */
-  sftp_attributes quote_attrs; /* used by the SFTP_QUOTE state */
+  గుర్తులేని sftp_send_state; /* 0 or 1 */
+#లేకపోతే
+  పూర్ణాంకం sftp_file_సూచీ; /* for async read */
+#అయితే_ముగింపు
+  sftp_లక్షణాలు readdir_attrs; /* used by the SFTP readdir actions */
+  sftp_లక్షణాలు readdir_link_attrs; /* used by the SFTP readdir actions */
+  sftp_లక్షణాలు quote_attrs; /* used by the SFTP_QUOTE state */
 
-  const char *readdir_filename; /* points within readdir_attrs */
-  const char *readdir_longentry;
-  char *readdir_tmp;
-  BIT(initialized);
-#elif defined(USE_LIBSSH2)
+  స్థిరరాశి అక్షరం *readdir_filename; /* points within readdir_attrs */
+  స్థిరరాశి అక్షరం *readdir_longentry;
+  అక్షరం *readdir_tmp;
+  బిట్టు(initialized);
+#లేదావేళ defined(USE_LIBSSH2)
   LIBSSH2_SESSION *ssh_session; /* Secure Shell session */
   LIBSSH2_CHANNEL *ssh_channel; /* Secure Shell channel handle */
   LIBSSH2_SFTP *sftp_session;   /* SFTP handle */
   LIBSSH2_SFTP_HANDLE *sftp_handle;
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
   /* for HTTPS proxy storage */
   Curl_recv *tls_recv;
   Curl_send *tls_send;
-#endif
+#అయితే_ముగింపు
 
   LIBSSH2_AGENT *ssh_agent;     /* proxy to ssh-agent/pageant */
-  struct libssh2_agent_publickey *sshagent_identity;
-  struct libssh2_agent_publickey *sshagent_prev_identity;
+  నిర్మాణం libssh2_agent_publickey *sshagent_తటస్థం;
+  నిర్మాణం libssh2_agent_publickey *sshagent_prev_తటస్థం;
   LIBSSH2_KNOWNHOSTS *kh;
-#endif /* USE_LIBSSH */
-  BIT(authed);                /* the connection has been authenticated fine */
-  BIT(acceptfail);            /* used by the SFTP_QUOTE (continue if
+#అయితే_ముగింపు /* USE_LIBSSH */
+  బిట్టు(authed);                /* the connection has been authenticated fine */
+  బిట్టు(acceptfail);            /* used by the SFTP_QUOTE (continue if
                                  quote command fails) */
 };
 
-#ifdef USE_LIBSSH
-#if LIBSSH_VERSION_INT < SSH_VERSION_INT(0, 9, 0)
-#error "SCP/SFTP protocols require libssh 0.9.0 or greater"
-#endif
-#endif
+#నిర్వచితమైతే USE_LIBSSH
+#ఒకవేళ LIBSSH_సంస్కరణ_INT < SSH_సంస్కరణ_INT(0, 9, 0)
+#దోషం "SCP/SFTP protocols require libssh 0.9.0 or greater"
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#ifdef USE_LIBSSH2
+#నిర్వచితమైతే USE_LIBSSH2
 
 /* Feature detection based on version numbers to better work with
    non-configure platforms */
 
-#if !defined(LIBSSH2_VERSION_NUM) || (LIBSSH2_VERSION_NUM < 0x010900)
-#error "SCP/SFTP protocols require libssh2 1.9.0 or greater"
+#ఒకవేళ !defined(LIBSSH2_సంస్కరణ_అంకె) || (LIBSSH2_సంస్కరణ_అంకె < 0x010900)
+#దోషం "SCP/SFTP protocols require libssh2 1.9.0 or greater"
 /* 1.9.0 was released on June 20 2019 */
-#endif
+#అయితే_ముగింపు
 
-#endif /* USE_LIBSSH2 */
+#అయితే_ముగింపు /* USE_LIBSSH2 */
 
-#ifdef CURLVERBOSE
-const char *Curl_ssh_statename(sshstate state);
-#else
-#define Curl_ssh_statename(x) ""
-#endif
-void Curl_ssh_set_state(struct Curl_easy *data,
-                        struct ssh_conn *sshc,
+#నిర్వచితమైతే CURLVERBOSE
+స్థిరరాశి అక్షరం *Curl_ssh_statename(sshstate state);
+#లేకపోతే
+#నిర్వచించు Curl_ssh_statename(x) ""
+#అయితే_ముగింపు
+శూన్య Curl_ssh_సమితి_state(నిర్మాణం Curl_easy *దత్తాంశం,
+                        నిర్మాణం ssh_conn *sshc,
                         sshstate nowstate);
 
-#define myssh_to(x, y, z) Curl_ssh_set_state(x, y, z)
+#నిర్వచించు myssh_గమ్యం(x, y, z) Curl_ssh_సమితి_state(x, y, z)
 
 /* generic SSH backend functions */
-CURLcode Curl_ssh_init(void);
-void Curl_ssh_cleanup(void);
-void Curl_ssh_version(char *buffer, size_t buflen);
-void Curl_ssh_attach(struct Curl_easy *data,
-                     struct connectdata *conn);
-#else /* !USE_SSH */
-#define Curl_ssh_cleanup()
-#define Curl_ssh_attach(x, y)
-#define Curl_ssh_init() 0
-#endif /* USE_SSH */
+CURLcode Curl_ssh_init(శూన్య);
+శూన్య Curl_ssh_cleanup(శూన్య);
+శూన్య Curl_ssh_సంస్కరణ(అక్షరం *బఫరు, size_t buflen);
+శూన్య Curl_ssh_attach(నిర్మాణం Curl_easy *దత్తాంశం,
+                     నిర్మాణం connectdata *conn);
+#లేకపోతే /* !USE_SSH */
+#నిర్వచించు Curl_ssh_cleanup()
+#నిర్వచించు Curl_ssh_attach(x, y)
+#నిర్వచించు Curl_ssh_init() 0
+#అయితే_ముగింపు /* USE_SSH */
 
-#endif /* HEADER_CURL_SSH_H */
+#అయితే_ముగింపు /* HEADER_CURL_SSH_H */

@@ -24,313 +24,313 @@
 /*
  * IDN conversions
  */
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_IPHLPAPI_H
-#include <Iphlpapi.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NET_IF_H
+#అన్తర్భావ <net/if.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_IPHLPAPI_H
+#అన్తర్భావ <Iphlpapi.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_SYS_IOCTL_H
+#అన్తర్భావ <sys/ioctl.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_SYS_PARAM_H
+#అన్తర్భావ <sys/param.h>
+#అయితే_ముగింపు
 
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#నిర్వచితమైతే __VMS
+#అన్తర్భావ <in.h>
+#అన్తర్భావ <inet.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
-#endif
+#నిర్వచితమైతే HAVE_SYS_UN_H
+#అన్తర్భావ <sys/un.h>
+#అయితే_ముగింపు
 
-#if defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
-#include <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
-#endif
-#include <iphlpapi.h>
-#endif
+#ఒకవేళ defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
+#ఒకవేళ defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
+#అన్తర్భావ <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
+#అయితే_ముగింపు
+#అన్తర్భావ <iphlpapi.h>
+#అయితే_ముగింపు
 
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "protocol.h"
-#include "http_proxy.h"
-#include "idn.h"
-#include "curlx/strdup.h"
-#include "curlx/strparse.h"
-#include "peer.h"
-#include "urldata.h"
-#include "url.h"
-#include "urlapi-int.h"
-#include "vtls/vtls.h"
+#అన్తర్భావ "curl_addrinfo.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "protocol.h"
+#అన్తర్భావ "http_proxy.h"
+#అన్తర్భావ "idn.h"
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "peer.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "urlapi-int.h"
+#అన్తర్భావ "vtls/vtls.h"
 
-struct peer_parse {
-  const struct Curl_scheme *scheme;
-  struct Curl_str host_user;
-  struct Curl_str host;
-  struct Curl_str zoneid;
-  char *tmp_host_user;
-  char *tmp_host;
-  char *tmp_zoneid;
+నిర్మాణం peer_parse {
+  స్థిరరాశి నిర్మాణం Curl_scheme *scheme;
+  నిర్మాణం Curl_str host_user;
+  నిర్మాణం Curl_str host;
+  నిర్మాణం Curl_str zoneid;
+  అక్షరం *tmp_host_user;
+  అక్షరం *tmp_host;
+  అక్షరం *tmp_zoneid;
   uint32_t scopeid;
-  uint16_t port;
+  uint16_t పోర్టు;
   bool ipv6;
   bool unix_socket;
   bool abstract_uds;
 };
 
-static void peer_parse_clear(struct peer_parse *pp)
+స్థిర శూన్య peer_parse_clear(నిర్మాణం peer_parse *pp)
 {
   curlx_free(pp->tmp_host_user);
   curlx_free(pp->tmp_host);
   curlx_free(pp->tmp_zoneid);
-  memset(pp, 0, sizeof(*pp));
+  memset(pp, 0, పరిమాణం(*pp));
 }
 
-static CURLcode peer_create(struct peer_parse *pp,
-                            struct Curl_peer **ppeer)
+స్థిర CURLcode peer_create(నిర్మాణం peer_parse *pp,
+                            నిర్మాణం Curl_peer **ppeer)
 {
-  struct Curl_peer *peer = NULL;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_peer *peer = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
   size_t zone_alen = 0, host_alen = 0;
 
-  if(!pp || !pp->scheme)
-    return CURLE_FAILED_INIT;
-  if(!pp->host.len && !(pp->scheme->flags & PROTOPT_NONETWORK))
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!pp || !pp->scheme)
+    తిరిగి CURLE_FAILED_INIT;
+  ఒకవేళ(!pp->host.len && !(pp->scheme->flags & PROTOPT_NONETWORK))
+    తిరిగి CURLE_FAILED_INIT;
 
-  if((pp->host.str != pp->host_user.str) ||
+  ఒకవేళ((pp->host.str != pp->host_user.str) ||
      (pp->host.len != pp->host_user.len)) {
     host_alen = pp->host.len + 1;
   }
   zone_alen = pp->zoneid.len ? (pp->zoneid.len + 1) : 0;
 
   /* null-terminator already part of struct */
-  peer = curlx_calloc(1, sizeof(*peer) +
+  peer = curlx_calloc(1, పరిమాణం(*peer) +
                          pp->host_user.len + host_alen + zone_alen);
-  if(!peer) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ఒకవేళ(!peer) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
   peer->refcount = 1;
   peer->scheme = pp->scheme;
   peer->hostname = peer->user_hostname;
-  peer->port = pp->port;
+  peer->పోర్టు = pp->పోర్టు;
   peer->scopeid = pp->scopeid;
   peer->ipv6 = pp->ipv6;
   peer->unix_socket = pp->unix_socket;
   peer->abstract_uds = pp->abstract_uds;
 
-  if(pp->host_user.len)
-    memcpy(peer->user_hostname, pp->host_user.str, pp->host_user.len);
+  ఒకవేళ(pp->host_user.len)
+    జ్ఞాపకం_నకలు(peer->user_hostname, pp->host_user.str, pp->host_user.len);
 
-  if(host_alen) {
+  ఒకవేళ(host_alen) {
     peer->hostname = peer->user_hostname + pp->host_user.len + 1;
-    memcpy(peer->hostname, pp->host.str, pp->host.len);
+    జ్ఞాపకం_నకలు(peer->hostname, pp->host.str, pp->host.len);
   }
 
-  if(zone_alen) {
+  ఒకవేళ(zone_alen) {
     peer->zoneid = peer->user_hostname + pp->host_user.len + 1 + host_alen;
-    memcpy(peer->zoneid, pp->zoneid.str, pp->zoneid.len);
-#ifdef USE_IPV6
+    జ్ఞాపకం_నకలు(peer->zoneid, pp->zoneid.str, pp->zoneid.len);
+#నిర్వచితమైతే USE_IPV6
     /* Determine scope_id if not already provided */
-    if(!peer->scopeid) {
-      const char *p = peer->zoneid;
+    ఒకవేళ(!peer->scopeid) {
+      స్థిరరాశి అక్షరం *p = peer->zoneid;
       curl_off_t scope;
-      if(!curlx_str_number(&p, &scope, UINT_MAX) && !*p) {
+      ఒకవేళ(!curlx_str_సంఖ్య(&p, &scope, UINT_MAX) && !*p) {
         /* A plain number, use it directly as a scope id. */
         peer->scopeid = (uint32_t)scope;
       }
-#ifdef HAVE_IF_NAMETOINDEX
-      else {
+#నిర్వచితమైతే HAVE_IF_NAMETOINDEX
+      లేకపోతే {
         /* Zone identifier is not fully numeric */
-        unsigned int idx = 0;
+        గుర్తులేని పూర్ణాంకం idx = 0;
         idx = if_nametoindex(peer->zoneid);
-        if(idx) {
+        ఒకవేళ(idx) {
           peer->scopeid = (uint32_t)idx;
         }
-        else {
+        లేకపోతే {
           /* Do we want to return an error here? */
         }
       }
-#endif /* HAVE_IF_NAMETOINDEX */
+#అయితే_ముగింపు /* HAVE_IF_NAMETOINDEX */
     }
-#endif /* USE_IPV6 */
+#అయితే_ముగింపు /* USE_IPV6 */
   }
 
-out:
-  if(!result)
+బహిర్గతం:
+  ఒకవేళ(!ఫలితం)
     *ppeer = peer;
-  else
+  లేకపోతే
     Curl_peer_unlink(&peer);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode peer_parse_host(struct Curl_easy *data,
-                                struct peer_parse *pp,
-                                bool scan_for_ipv6)
+స్థిర CURLcode peer_parse_host(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం peer_parse *pp,
+                                bool పరిశీలన_for_ipv6)
 {
-  if(!pp || !pp->host_user.str || !pp->host_user.len)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!pp || !pp->host_user.str || !pp->host_user.len)
+    తిరిగి CURLE_FAILED_INIT;
 
-  if(pp->host_user.str[0] == '[') {
-    const char *s = pp->host_user.str + 1;
-    struct Curl_str tmp;
-    if(curlx_str_until(&s, &tmp, pp->host_user.len - 1, ']'))
-      return CURLE_URL_MALFORMAT;
+  ఒకవేళ(pp->host_user.str[0] == '[') {
+    స్థిరరాశి అక్షరం *s = pp->host_user.str + 1;
+    నిర్మాణం Curl_str tmp;
+    ఒకవేళ(curlx_str_until(&s, &tmp, pp->host_user.len - 1, ']'))
+      తిరిగి CURLE_URL_MALFORMAT;
 
-    if(!Curl_looks_like_ipv6(tmp.str, tmp.len, TRUE,
+    ఒకవేళ(!Curl_looks_like_ipv6(tmp.str, tmp.len, TRUE,
                              &pp->host, &pp->zoneid)) {
-      failf(data, "Invalid IPv6 address format in '%.*s'",
-            (int)pp->host_user.len, pp->host_user.str);
-      return CURLE_URL_MALFORMAT;
+      failf(దత్తాంశం, "Invalid IPv6 address format in '%.*s'",
+            (పూర్ణాంకం)pp->host_user.len, pp->host_user.str);
+      తిరిగి CURLE_URL_MALFORMAT;
     }
     pp->ipv6 = TRUE;
   }
-  else {
-#ifdef USE_IDN
-    if(!Curl_is_ASCII_str(&pp->host_user)) {
-      CURLcode result;
-      if(!pp->tmp_host_user) {
+  లేకపోతే {
+#నిర్వచితమైతే USE_IDN
+    ఒకవేళ(!Curl_is_ASCII_str(&pp->host_user)) {
+      CURLcode ఫలితం;
+      ఒకవేళ(!pp->tmp_host_user) {
         /* need a null-terminated string for IDN */
         pp->tmp_host_user = curlx_memdup0(pp->host_user.str,
                                           pp->host_user.len);
-        if(!pp->tmp_host_user)
-          return CURLE_OUT_OF_MEMORY;
+        ఒకవేళ(!pp->tmp_host_user)
+          తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
-      result = Curl_idn_decode(pp->tmp_host_user, &pp->tmp_host);
-      if(result)
-        return result;
+      ఫలితం = Curl_idn_decode(pp->tmp_host_user, &pp->tmp_host);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
       pp->host.str = pp->tmp_host;
-      pp->host.len = strlen(pp->host.str);
+      pp->host.len = అక్షరశ్రేణి_పొడవు(pp->host.str);
     }
-    else
-#endif
-    if(scan_for_ipv6 &&
+    లేకపోతే
+#అయితే_ముగింపు
+    ఒకవేళ(పరిశీలన_for_ipv6 &&
        Curl_looks_like_ipv6(pp->host_user.str, pp->host_user.len, TRUE,
                             &pp->host, &pp->zoneid)) {
-      if(pp->host_user.len < MAX_IPADR_LEN) {
-        char tmp[MAX_IPADR_LEN];
-        memcpy(tmp, pp->host_user.str, pp->host_user.len);
+      ఒకవేళ(pp->host_user.len < MAX_IPADR_LEN) {
+        అక్షరం tmp[MAX_IPADR_LEN];
+        జ్ఞాపకం_నకలు(tmp, pp->host_user.str, pp->host_user.len);
         tmp[pp->host_user.len] = 0;
         pp->ipv6 = !Curl_is_ipv4addr(tmp);
       }
-      else
+      లేకపోతే
         pp->ipv6 = TRUE;
     }
-    else
+    లేకపోతే
       pp->host = pp->host_user;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_peer_create(struct Curl_easy *data,
-                          const struct Curl_scheme *scheme,
-                          const char *hostname,
-                          uint16_t port,
-                          struct Curl_peer **ppeer)
+CURLcode Curl_peer_create(నిర్మాణం Curl_easy *దత్తాంశం,
+                          స్థిరరాశి నిర్మాణం Curl_scheme *scheme,
+                          స్థిరరాశి అక్షరం *hostname,
+                          uint16_t పోర్టు,
+                          నిర్మాణం Curl_peer **ppeer)
 {
-  struct peer_parse pp;
-  CURLcode result;
+  నిర్మాణం peer_parse pp;
+  CURLcode ఫలితం;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
+  memset(&pp, 0, పరిమాణం(pp));
   pp.scheme = scheme;
   pp.host_user.str = hostname;
-  pp.host_user.len = strlen(hostname);
-  pp.port = port;
+  pp.host_user.len = అక్షరశ్రేణి_పొడవు(hostname);
+  pp.పోర్టు = పోర్టు;
 
-  result = peer_parse_host(data, &pp, TRUE);
-  if(!result)
-    result = peer_create(&pp, ppeer);
+  ఫలితం = peer_parse_host(దత్తాంశం, &pp, TRUE);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = peer_create(&pp, ppeer);
 
   peer_parse_clear(&pp);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#ifdef USE_UNIX_SOCKETS
-CURLcode Curl_peer_uds_create(const struct Curl_scheme *scheme,
-                              const char *path,
+#నిర్వచితమైతే USE_UNIX_SOCKETS
+CURLcode Curl_peer_uds_create(స్థిరరాశి నిర్మాణం Curl_scheme *scheme,
+                              స్థిరరాశి అక్షరం *మార్గం,
                               bool abstract_unix_socket,
-                              struct Curl_peer **ppeer)
+                              నిర్మాణం Curl_peer **ppeer)
 {
-  struct peer_parse pp;
-  size_t pathlen = path ? strlen(path) : 0;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం peer_parse pp;
+  size_t pathlen = మార్గం ? అక్షరశ్రేణి_పొడవు(మార్గం) : 0;
+  CURLcode ఫలితం = CURLE_OK;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
-  if(!scheme)
-    return CURLE_FAILED_INIT;
-  if(!pathlen)
-    return CURLE_FAILED_INIT;
+  memset(&pp, 0, పరిమాణం(pp));
+  ఒకవేళ(!scheme)
+    తిరిగి CURLE_FAILED_INIT;
+  ఒకవేళ(!pathlen)
+    తిరిగి CURLE_FAILED_INIT;
 
   pp.scheme = scheme;
-  pp.host_user.str = pp.host.str = path;
+  pp.host_user.str = pp.host.str = మార్గం;
   pp.host_user.len = pp.host.len = pathlen;
   pp.unix_socket = TRUE;
   pp.abstract_uds = abstract_unix_socket;
 
-  result = peer_create(&pp, ppeer);
+  ఫలితం = peer_create(&pp, ppeer);
   peer_parse_clear(&pp);
-  return result;
+  తిరిగి ఫలితం;
 }
-#endif /* USE_UNIX_SOCKETS */
+#అయితే_ముగింపు /* USE_UNIX_SOCKETS */
 
-void Curl_peer_link(struct Curl_peer **pdest, struct Curl_peer *src)
+శూన్య Curl_peer_link(నిర్మాణం Curl_peer **pdest, నిర్మాణం Curl_peer *src)
 {
-  if(*pdest != src) {
+  ఒకవేళ(*pdest != src) {
     Curl_peer_unlink(pdest);
     *pdest = src;
-    if(src) {
+    ఒకవేళ(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
   }
 }
 
-void Curl_peer_unlink(struct Curl_peer **ppeer)
+శూన్య Curl_peer_unlink(నిర్మాణం Curl_peer **ppeer)
 {
-  if(*ppeer) {
-    struct Curl_peer *peer = *ppeer;
+  ఒకవేళ(*ppeer) {
+    నిర్మాణం Curl_peer *peer = *ppeer;
 
     DEBUGASSERT(peer->refcount);
-    *ppeer = NULL;
-    if(peer->refcount)
+    *ppeer = ఖాళీ;
+    ఒకవేళ(peer->refcount)
       peer->refcount--;
-    if(!peer->refcount) {
+    ఒకవేళ(!peer->refcount) {
       curlx_free(peer);
     }
   }
 }
 
-bool Curl_peer_equal(struct Curl_peer *p1, struct Curl_peer *p2)
+bool Curl_peer_equal(నిర్మాణం Curl_peer *p1, నిర్మాణం Curl_peer *p2)
 {
-  return (p1 == p2) ||
+  తిరిగి (p1 == p2) ||
          (p1 && p2 &&
           (p1->scheme == p2->scheme) &&
           Curl_peer_same_destination(p1, p2));
 }
 
-static bool peer_same_hostname(struct Curl_peer *p1, struct Curl_peer *p2)
+స్థిర bool peer_same_hostname(నిర్మాణం Curl_peer *p1, నిర్మాణం Curl_peer *p2)
 {
   /* UNIX domain socket paths must be compared case-sensitive,
    * as many filesystem are like that. */
-  return (p1->unix_socket == p2->unix_socket) &&
+  తిరిగి (p1->unix_socket == p2->unix_socket) &&
          (p1->abstract_uds == p2->abstract_uds) &&
          (p1->ipv6 == p2->ipv6) &&
          /* unix_socket paths are case-sensitive, hostnames are not.
@@ -341,412 +341,412 @@ static bool peer_same_hostname(struct Curl_peer *p1, struct Curl_peer *p2)
            curl_strequal(p1->hostname, p2->hostname)));
 }
 
-static bool peer_same_zoneid(const char *z1, const char *z2)
+స్థిర bool peer_same_zoneid(స్థిరరాశి అక్షరం *z1, స్థిరరాశి అక్షరం *z2)
 {
-  return (z1 == z2) ||
+  తిరిగి (z1 == z2) ||
          (z1 && z2 && !strcmp(z1, z2));
 }
 
-bool Curl_peer_same_destination(struct Curl_peer *p1, struct Curl_peer *p2)
+bool Curl_peer_same_destination(నిర్మాణం Curl_peer *p1, నిర్మాణం Curl_peer *p2)
 {
-  return (p1 == p2) ||
+  తిరిగి (p1 == p2) ||
          (p1 && p2 &&
-          (p1->port == p2->port) &&
+          (p1->పోర్టు == p2->పోర్టు) &&
           peer_same_hostname(p1, p2) &&
           (p1->scopeid == p2->scopeid) &&
           (p1->scopeid || peer_same_zoneid(p1->zoneid, p2->zoneid)));
 }
 
-CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
-                            uint16_t port_override,
+CURLcode Curl_peer_from_url(CURLU *uh, నిర్మాణం Curl_easy *దత్తాంశం,
+                            uint16_t పోర్టు_override,
                             uint32_t scopeid_override,
-                            struct Curl_peer **ppeer)
+                            నిర్మాణం Curl_peer **ppeer)
 {
-  struct peer_parse pp;
-  char *zoneid = NULL, *scheme = NULL, *hostname = NULL;
+  నిర్మాణం peer_parse pp;
+  అక్షరం *zoneid = ఖాళీ, *scheme = ఖాళీ, *hostname = ఖాళీ;
   CURLUcode uc;
-  CURLcode result;
+  CURLcode ఫలితం;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
+  memset(&pp, 0, పరిమాణం(pp));
 
   uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme, 0);
-  if(uc)
-    return Curl_uc_to_curlcode(uc);
+  ఒకవేళ(uc)
+    తిరిగి Curl_uc_గమ్యం_curlcode(uc);
   pp.scheme = Curl_get_scheme(scheme);
-  if(!pp.scheme) {
-    failf(data, "Protocol \"%s\" not supported%s", scheme,
-          data->state.this_is_a_follow ? " (in redirect)" : "");
-    result = CURLE_UNSUPPORTED_PROTOCOL;
-    goto out;
+  ఒకవేళ(!pp.scheme) {
+    failf(దత్తాంశం, "Protocol \"%s\" not supported%s", scheme,
+          దత్తాంశం->state.this_is_a_follow ? " (in redirect)" : "");
+    ఫలితం = CURLE_UNSUPPORTED_PROTOCOL;
+    వెళ్ళు బహిర్గతం;
   }
 
   uc = curl_url_get(uh, CURLUPART_HOST, &hostname, 0);
-  if(uc) {
-    if((uc == CURLUE_NO_HOST) && (pp.scheme->flags & PROTOPT_NONETWORK))
+  ఒకవేళ(uc) {
+    ఒకవేళ((uc == CURLUE_NO_HOST) && (pp.scheme->flags & PROTOPT_NONETWORK))
       ; /* acceptable */
-    else {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    లేకపోతే {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
   }
-  else if(strlen(hostname) > MAX_URL_LEN) {
-    failf(data, "Too long hostname (maximum is %d)", MAX_URL_LEN);
-    result = CURLE_URL_MALFORMAT;
-    goto out;
+  లేకపోతే ఒకవేళ(అక్షరశ్రేణి_పొడవు(hostname) > MAX_URL_LEN) {
+    failf(దత్తాంశం, "Too long hostname (maximum is %d)", MAX_URL_LEN);
+    ఫలితం = CURLE_URL_MALFORMAT;
+    వెళ్ళు బహిర్గతం;
   }
 
   pp.host_user.str = hostname ? hostname : "";
-  pp.host_user.len = strlen(pp.host_user.str);
-  if(pp.host_user.len) {
-    result = peer_parse_host(data, &pp, FALSE);
-    if(result)
-      goto out;
+  pp.host_user.len = అక్షరశ్రేణి_పొడవు(pp.host_user.str);
+  ఒకవేళ(pp.host_user.len) {
+    ఫలితం = peer_parse_host(దత్తాంశం, &pp, FALSE);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
-  else
+  లేకపోతే
     pp.host = pp.host_user;
 
-  if(port_override) {
+  ఒకవేళ(పోర్టు_override) {
     /* if set, we use this instead of the port possibly given in the URL */
-    char portbuf[16];
-    curl_msnprintf(portbuf, sizeof(portbuf), "%d", port_override);
-    uc = curl_url_set(uh, CURLUPART_PORT, portbuf, 0);
-    if(uc) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    అక్షరం portbuf[16];
+    curl_msnprintf(portbuf, పరిమాణం(portbuf), "%d", పోర్టు_override);
+    uc = curl_url_సమితి(uh, CURLUPART_పోర్టు, portbuf, 0);
+    ఒకవేళ(uc) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
-    else
-      pp.port = port_override;
+    లేకపోతే
+      pp.పోర్టు = పోర్టు_override;
   }
-  else {
-    uc = Curl_url_get_port(uh, &pp.port);
-    if(uc) {
-      if(uc == CURLUE_OUT_OF_MEMORY) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+  లేకపోతే {
+    uc = Curl_url_get_పోర్టు(uh, &pp.పోర్టు);
+    ఒకవేళ(uc) {
+      ఒకవేళ(uc == CURLUE_బహిర్గతం_యొక్క_జ్ఞాపకం) {
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు బహిర్గతం;
       }
-      else if(!(pp.scheme->flags & PROTOPT_NONETWORK)) {
-        result = CURLE_URL_MALFORMAT;
-        goto out;
+      లేకపోతే ఒకవేళ(!(pp.scheme->flags & PROTOPT_NONETWORK)) {
+        ఫలితం = CURLE_URL_MALFORMAT;
+        వెళ్ళు బహిర్గతం;
       }
       /* no port ok when not a network scheme */
     }
   }
 
-  if(scopeid_override)
+  ఒకవేళ(scopeid_override)
     /* Override any scope id from an URL zone. */
     pp.scopeid = scopeid_override;
-  else {
-    if(curl_url_get(uh, CURLUPART_ZONEID, &zoneid, 0) ==
-       CURLUE_OUT_OF_MEMORY) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+  లేకపోతే {
+    ఒకవేళ(curl_url_get(uh, CURLUPART_ZONEID, &zoneid, 0) ==
+       CURLUE_బహిర్గతం_యొక్క_జ్ఞాపకం) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
-    if(zoneid) {
+    ఒకవేళ(zoneid) {
       pp.zoneid.str = zoneid;
-      pp.zoneid.len = strlen(zoneid);
+      pp.zoneid.len = అక్షరశ్రేణి_పొడవు(zoneid);
     }
   }
 
-  result = peer_create(&pp, ppeer);
-  if(result)
-    failf(data, "Error %d creating peer for %s:%u",
-          (int)result, pp.host_user.str, pp.port);
+  ఫలితం = peer_create(&pp, ppeer);
+  ఒకవేళ(ఫలితం)
+    failf(దత్తాంశం, "Error %d creating peer for %s:%u",
+          (పూర్ణాంకం)ఫలితం, pp.host_user.str, pp.పోర్టు);
 
-out:
+బహిర్గతం:
   peer_parse_clear(&pp);
   curlx_free(scheme);
   curlx_free(hostname);
   curlx_free(zoneid);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* Parse a "host:port" string to connect to into a peer.
  * IPv6 addresses might appear in brackets or without them. */
-CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
-                                   const struct Curl_peer *dest,
-                                   const char *connect_to,
-                                   struct Curl_peer **ppeer)
+CURLcode Curl_peer_from_connect_గమ్యం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   స్థిరరాశి నిర్మాణం Curl_peer *dest,
+                                   స్థిరరాశి అక్షరం *connect_గమ్యం,
+                                   నిర్మాణం Curl_peer **ppeer)
 {
-  struct peer_parse pp;
-  const char *portstr = NULL;
-  bool port_switch = FALSE;
-  CURLcode result;
+  నిర్మాణం peer_parse pp;
+  స్థిరరాశి అక్షరం *portstr = ఖాళీ;
+  bool పోర్టు_switch = FALSE;
+  CURLcode ఫలితం;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
-  if(!connect_to || !*connect_to)
-    return CURLE_FAILED_INIT;
+  memset(&pp, 0, పరిమాణం(pp));
+  ఒకవేళ(!connect_గమ్యం || !*connect_గమ్యం)
+    తిరిగి CURLE_FAILED_INIT;
 
   pp.scheme = dest->scheme;
 
   /* detect and extract RFC6874-style IPv6-addresses */
-  if(connect_to[0] == '[') {
-    const char *s = strchr(connect_to + 1, ']');
-    if(!s) {
-      failf(data, "Invalid IPv6 address format in '%s'", connect_to);
-      result = CURLE_SETOPT_OPTION_SYNTAX;
-      goto out;
+  ఒకవేళ(connect_గమ్యం[0] == '[') {
+    స్థిరరాశి అక్షరం *s = strchr(connect_గమ్యం + 1, ']');
+    ఒకవేళ(!s) {
+      failf(దత్తాంశం, "Invalid IPv6 address format in '%s'", connect_గమ్యం);
+      ఫలితం = CURLE_SETOPT_OPTION_SYNTAX;
+      వెళ్ళు బహిర్గతం;
     }
     portstr = strchr(s, ':');
-    pp.host_user.str = connect_to;
+    pp.host_user.str = connect_గమ్యం;
     pp.host_user.len = s - pp.host_user.str + 1;
     pp.ipv6 = TRUE;
   }
-  else {
-    portstr = strchr(connect_to, ':');
-    pp.host_user.str = connect_to;
+  లేకపోతే {
+    portstr = strchr(connect_గమ్యం, ':');
+    pp.host_user.str = connect_గమ్యం;
     pp.host_user.len = portstr ?
-      (size_t)(portstr - connect_to) : strlen(connect_to);
+      (size_t)(portstr - connect_గమ్యం) : అక్షరశ్రేణి_పొడవు(connect_గమ్యం);
   }
 
-  if(!pp.host_user.len) { /* no hostname found, only port switch */
-    port_switch = TRUE;
+  ఒకవేళ(!pp.host_user.len) { /* no hostname found, only port switch */
+    పోర్టు_switch = TRUE;
     pp.host_user.str = dest->user_hostname;
-    pp.host_user.len = strlen(dest->user_hostname);
+    pp.host_user.len = అక్షరశ్రేణి_పొడవు(dest->user_hostname);
   }
 
-  result = peer_parse_host(data, &pp, FALSE);
-  if(result)
-    goto out;
+  ఫలితం = peer_parse_host(దత్తాంశం, &pp, FALSE);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
   /* On a port switch, ipv6 must stay the same */
-  DEBUGASSERT(!port_switch || ((bool)pp.ipv6 == (bool)dest->ipv6));
+  DEBUGASSERT(!పోర్టు_switch || ((bool)pp.ipv6 == (bool)dest->ipv6));
 
-  if(portstr && portstr[1]) {
-    const char *p = portstr + 1;
+  ఒకవేళ(portstr && portstr[1]) {
+    స్థిరరాశి అక్షరం *p = portstr + 1;
     curl_off_t portparse;
-    if(curlx_str_number(&p, &portparse, 0xffff)) {
-      failf(data, "No valid port number in '%s'", connect_to);
-      result = CURLE_SETOPT_OPTION_SYNTAX;
-      goto out;
+    ఒకవేళ(curlx_str_సంఖ్య(&p, &portparse, 0xffff)) {
+      failf(దత్తాంశం, "No valid port number in '%s'", connect_గమ్యం);
+      ఫలితం = CURLE_SETOPT_OPTION_SYNTAX;
+      వెళ్ళు బహిర్గతం;
     }
-    pp.port = (uint16_t)portparse; /* we know it will fit */
+    pp.పోర్టు = (uint16_t)portparse; /* we know it will fit */
   }
-  else
-    pp.port = dest->port;
+  లేకపోతే
+    pp.పోర్టు = dest->పోర్టు;
 
-#ifndef USE_IPV6
-  if(pp.ipv6) {
-    failf(data, "Use of IPv6 in *_CONNECT_TO without IPv6 support built-in");
-    result = CURLE_NOT_BUILT_IN;
-    goto out;
+#నిర్వచితం_కాకపోతే USE_IPV6
+  ఒకవేళ(pp.ipv6) {
+    failf(దత్తాంశం, "Use of IPv6 in *_CONNECT_TO without IPv6 support built-in");
+    ఫలితం = CURLE_NOT_BUILT_లోపల;
+    వెళ్ళు బహిర్గతం;
   }
-#endif
-  if(pp.ipv6 && port_switch) {
-    if(dest->zoneid) {
+#అయితే_ముగింపు
+  ఒకవేళ(pp.ipv6 && పోర్టు_switch) {
+    ఒకవేళ(dest->zoneid) {
       pp.zoneid.str = dest->zoneid;
-      pp.zoneid.len = strlen(dest->zoneid);
+      pp.zoneid.len = అక్షరశ్రేణి_పొడవు(dest->zoneid);
     }
     pp.scopeid = dest->scopeid;
   }
 
-  result = peer_create(&pp, ppeer);
-  CURL_TRC_M(data, "connect-to peer_create2 -> %d", (int)result);
+  ఫలితం = peer_create(&pp, ppeer);
+  CURL_TRC_M(దత్తాంశం, "connect-to peer_create2 -> %d", (పూర్ణాంకం)ఫలితం);
 
-out:
-  CURL_TRC_M(data, "parse connect_to peer: %s -> %d", connect_to, (int)result);
+బహిర్గతం:
+  CURL_TRC_M(దత్తాంశం, "parse connect_to peer: %s -> %d", connect_గమ్యం, (పూర్ణాంకం)ఫలితం);
   peer_parse_clear(&pp);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
 
-#ifdef USE_UNIX_SOCKETS
-#define UNIX_SOCKET_PREFIX "localhost"
-#endif
+#నిర్వచితమైతే USE_UNIX_SOCKETS
+#నిర్వచించు UNIX_SOCKET_ఉపసర్గ "localhost"
+#అయితే_ముగింపు
 
-CURLcode Curl_scheme_to_proxytype(struct Curl_easy *data,
-                                  const char *scheme,
-                                  uint8_t *proxytype, const char *url)
+CURLcode Curl_scheme_గమ్యం_proxytype(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  స్థిరరాశి అక్షరం *scheme,
+                                  uint8_t *proxytype, స్థిరరాశి అక్షరం *url)
 {
-  if(!scheme)
-    return CURLE_OK;
+  ఒకవేళ(!scheme)
+    తిరిగి CURLE_OK;
 
-  if(curl_strequal("https", scheme)) {
-    if(*proxytype != CURLPROXY_HTTPS2 && *proxytype != CURLPROXY_HTTPS3)
+  ఒకవేళ(curl_strequal("https", scheme)) {
+    ఒకవేళ(*proxytype != CURLPROXY_HTTPS2 && *proxytype != CURLPROXY_HTTPS3)
       *proxytype = CURLPROXY_HTTPS;
   }
-  else if(curl_strequal("socks5h", scheme))
+  లేకపోతే ఒకవేళ(curl_strequal("socks5h", scheme))
     *proxytype = CURLPROXY_SOCKS5_HOSTNAME;
-  else if(curl_strequal("socks5", scheme))
+  లేకపోతే ఒకవేళ(curl_strequal("socks5", scheme))
     *proxytype = CURLPROXY_SOCKS5;
-  else if(curl_strequal("socks4a", scheme))
+  లేకపోతే ఒకవేళ(curl_strequal("socks4a", scheme))
     *proxytype = CURLPROXY_SOCKS4A;
-  else if(curl_strequal("socks4", scheme) || curl_strequal("socks", scheme))
+  లేకపోతే ఒకవేళ(curl_strequal("socks4", scheme) || curl_strequal("socks", scheme))
     *proxytype = CURLPROXY_SOCKS4;
-  else if(curl_strequal("http", scheme)) {
-    if(*proxytype != CURLPROXY_HTTP_1_0)
+  లేకపోతే ఒకవేళ(curl_strequal("http", scheme)) {
+    ఒకవేళ(*proxytype != CURLPROXY_HTTP_1_0)
       *proxytype = CURLPROXY_HTTP;
   }
-  else {
+  లేకపోతే {
     /* Any other xxx:// reject! */
-    failf(data, "Unsupported proxy scheme for \'%s\'", url);
-    return CURLE_COULDNT_CONNECT;
+    failf(దత్తాంశం, "Unsupported proxy scheme for \'%s\'", url);
+    తిరిగి CURLE_COULDNT_CONNECT;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 CURLcode Curl_peer_from_proxy_url(CURLU *uh,
-                                  struct Curl_easy *data,
-                                  const char *url,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  స్థిరరాశి అక్షరం *url,
                                   uint8_t proxytype,
-                                  struct Curl_peer **ppeer,
+                                  నిర్మాణం Curl_peer **ppeer,
                                   uint8_t *pproxytype)
 {
-  struct peer_parse pp;
-  char *scheme = NULL;
-  char *portptr = NULL;
-#ifdef USE_UNIX_SOCKETS
+  నిర్మాణం peer_parse pp;
+  అక్షరం *scheme = ఖాళీ;
+  అక్షరం *portptr = ఖాళీ;
+#నిర్వచితమైతే USE_UNIX_SOCKETS
   bool is_socks = FALSE;
-#endif
+#అయితే_ముగింపు
   CURLUcode uc;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
-  pp.port = CURL_DEFAULT_PROXY_PORT;
+  memset(&pp, 0, పరిమాణం(pp));
+  pp.పోర్టు = CURL_DEFAULT_PROXY_పోర్టు;
   uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme,
                     CURLU_NON_SUPPORT_SCHEME | CURLU_NO_GUESS_SCHEME);
-  if(uc) {
-    if(uc == CURLUE_OUT_OF_MEMORY) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+  ఒకవేళ(uc) {
+    ఒకవేళ(uc == CURLUE_బహిర్గతం_యొక్క_జ్ఞాపకం) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
     /* URL came without scheme, the passed `proxytype` determines it */
-    switch(proxytype) {
-    case CURLPROXY_HTTP:
-    case CURLPROXY_HTTP_1_0:
+    ఎంపిక(proxytype) {
+    స్థితి CURLPROXY_HTTP:
+    స్థితి CURLPROXY_HTTP_1_0:
       pp.scheme = &Curl_scheme_http;
-      break;
-    case CURLPROXY_HTTPS:
-    case CURLPROXY_HTTPS2:
-    case CURLPROXY_HTTPS3:
+      ఆపు;
+    స్థితి CURLPROXY_HTTPS:
+    స్థితి CURLPROXY_HTTPS2:
+    స్థితి CURLPROXY_HTTPS3:
       pp.scheme = &Curl_scheme_https;
-      break;
-    case CURLPROXY_SOCKS4:
+      ఆపు;
+    స్థితి CURLPROXY_SOCKS4:
       pp.scheme = &Curl_scheme_socks4;
-      break;
-    case CURLPROXY_SOCKS4A:
+      ఆపు;
+    స్థితి CURLPROXY_SOCKS4A:
       pp.scheme = &Curl_scheme_socks4a;
-      break;
-    case CURLPROXY_SOCKS5:
+      ఆపు;
+    స్థితి CURLPROXY_SOCKS5:
       pp.scheme = &Curl_scheme_socks5;
-      break;
-    case CURLPROXY_SOCKS5_HOSTNAME:
+      ఆపు;
+    స్థితి CURLPROXY_SOCKS5_HOSTNAME:
       pp.scheme = &Curl_scheme_socks5h;
-      break;
-    default:
-      failf(data, "Unsupported proxy type %u for \'%s\'", proxytype, url);
-      result = CURLE_COULDNT_RESOLVE_PROXY;
-      goto out;
+      ఆపు;
+    అప్రమేయ:
+      failf(దత్తాంశం, "Unsupported proxy type %u for \'%s\'", proxytype, url);
+      ఫలితం = CURLE_COULDNT_RESOLVE_PROXY;
+      వెళ్ళు బహిర్గతం;
     }
   }
-  else {
+  లేకపోతే {
     pp.scheme = Curl_get_scheme(scheme);
-    result = Curl_scheme_to_proxytype(data, scheme, &proxytype, url);
-    if(result)
-      goto out;
+    ఫలితం = Curl_scheme_గమ్యం_proxytype(దత్తాంశం, scheme, &proxytype, url);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
   DEBUGASSERT(pp.scheme);
 
-  if(CURL_PROXY_IS_HTTPS(proxytype) &&
-     !Curl_ssl_supports(data, SSLSUPP_HTTPS_PROXY)) {
-    failf(data, "Unsupported proxy \'%s\', libcurl is built without the "
+  ఒకవేళ(CURL_PROXY_IS_HTTPS(proxytype) &&
+     !Curl_ssl_supports(దత్తాంశం, SSLSUPP_HTTPS_PROXY)) {
+    failf(దత్తాంశం, "Unsupported proxy \'%s\', libcurl is built without the "
           "HTTPS-proxy support.", url);
-    result = CURLE_NOT_BUILT_IN;
-    goto out;
+    ఫలితం = CURLE_NOT_BUILT_లోపల;
+    వెళ్ళు బహిర్గతం;
   }
 
-  switch(pp.scheme->family) {
-  case CURLPROTO_SOCKS:
-#ifdef USE_UNIX_SOCKETS
+  ఎంపిక(pp.scheme->family) {
+  స్థితి CURLPROTO_SOCKS:
+#నిర్వచితమైతే USE_UNIX_SOCKETS
     is_socks = TRUE;
-#endif
-    break;
-  case CURLPROTO_HTTP:
-    break;
-  default:
-    failf(data, "Unsupported proxy protocol for \'%s\'", url);
-    result = CURLE_COULDNT_CONNECT;
-    goto out;
+#అయితే_ముగింపు
+    ఆపు;
+  స్థితి CURLPROTO_HTTP:
+    ఆపు;
+  అప్రమేయ:
+    failf(దత్తాంశం, "Unsupported proxy protocol for \'%s\'", url);
+    ఫలితం = CURLE_COULDNT_CONNECT;
+    వెళ్ళు బహిర్గతం;
   }
 
-  uc = curl_url_get(uh, CURLUPART_PORT, &portptr, CURLU_NO_DEFAULT_PORT);
-  if(uc == CURLUE_OUT_OF_MEMORY) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  uc = curl_url_get(uh, CURLUPART_పోర్టు, &portptr, CURLU_NO_DEFAULT_పోర్టు);
+  ఒకవేళ(uc == CURLUE_బహిర్గతం_యొక్క_జ్ఞాపకం) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
-  if(portptr) {
-    curl_off_t num;
-    const char *p = portptr;
-    if(!curlx_str_number(&p, &num, UINT16_MAX))
-      pp.port = (uint16_t)num;
+  ఒకవేళ(portptr) {
+    curl_off_t అంకె;
+    స్థిరరాశి అక్షరం *p = portptr;
+    ఒకవేళ(!curlx_str_సంఖ్య(&p, &అంకె, UINT16_MAX))
+      pp.పోర్టు = (uint16_t)అంకె;
     /* Should we not error out when the port number is invalid? */
     curlx_free(portptr);
   }
-  else {
+  లేకపోతే {
     /* No port in URL, take the set one or the scheme's default */
-    if(data->set.proxyport)
-      pp.port = data->set.proxyport;
-    else
-      pp.port = pp.scheme->defport;
+    ఒకవేళ(దత్తాంశం->సమితి.proxyport)
+      pp.పోర్టు = దత్తాంశం->సమితి.proxyport;
+    లేకపోతే
+      pp.పోర్టు = pp.scheme->defport;
   }
 
   /* now, clone the proxy hostname */
   uc = curl_url_get(uh, CURLUPART_HOST, &pp.tmp_host_user, CURLU_URLDECODE);
-  if(uc) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ఒకవేళ(uc) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
   pp.host_user.str = pp.tmp_host_user;
-  pp.host_user.len = strlen(pp.tmp_host_user);
+  pp.host_user.len = అక్షరశ్రేణి_పొడవు(pp.tmp_host_user);
 
-#ifdef USE_UNIX_SOCKETS
-  if(is_socks && curl_strequal(UNIX_SOCKET_PREFIX, pp.tmp_host_user)) {
-    uc = curl_url_get(uh, CURLUPART_PATH, &pp.tmp_host, CURLU_URLDECODE);
-    if(uc) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+#నిర్వచితమైతే USE_UNIX_SOCKETS
+  ఒకవేళ(is_socks && curl_strequal(UNIX_SOCKET_ఉపసర్గ, pp.tmp_host_user)) {
+    uc = curl_url_get(uh, CURLUPART_మార్గం, &pp.tmp_host, CURLU_URLDECODE);
+    ఒకవేళ(uc) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
     /* path will be "/", if no path was found */
-    if(strcmp("/", pp.tmp_host)) {
+    ఒకవేళ(strcmp("/", pp.tmp_host)) {
       pp.host.str = pp.tmp_host;
-      pp.host.len = strlen(pp.tmp_host);
+      pp.host.len = అక్షరశ్రేణి_పొడవు(pp.tmp_host);
       pp.unix_socket = TRUE;
     }
-    else {
+    లేకపోతే {
       pp.host = pp.host_user;
     }
   }
-#endif /* USE_UNIX_SOCKETS */
+#అయితే_ముగింపు /* USE_UNIX_SOCKETS */
 
-  if(!pp.host.len) {
-    result = peer_parse_host(data, &pp, FALSE);
-    if(result)
-      goto out;
+  ఒకవేళ(!pp.host.len) {
+    ఫలితం = peer_parse_host(దత్తాంశం, &pp, FALSE);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
   uc = curl_url_get(uh, CURLUPART_ZONEID, &pp.tmp_zoneid, 0);
-  if(uc == CURLUE_OUT_OF_MEMORY) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ఒకవేళ(uc == CURLUE_బహిర్గతం_యొక్క_జ్ఞాపకం) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
-  if(pp.tmp_zoneid) {
+  ఒకవేళ(pp.tmp_zoneid) {
     pp.zoneid.str = pp.tmp_zoneid;
-    pp.zoneid.len = strlen(pp.tmp_zoneid);
+    pp.zoneid.len = అక్షరశ్రేణి_పొడవు(pp.tmp_zoneid);
   }
 
   *pproxytype = proxytype;
-  result = peer_create(&pp, ppeer);
+  ఫలితం = peer_create(&pp, ppeer);
 
-out:
+బహిర్గతం:
   peer_parse_clear(&pp);
   curlx_free(scheme);
-#ifdef DEBUGBUILD
-  if(!result)
+#నిర్వచితమైతే DEBUGBUILD
+  ఒకవేళ(!ఫలితం)
     DEBUGASSERT(*ppeer);
-#endif
-  return result;
+#అయితే_ముగింపు
+  తిరిగి ఫలితం;
 }
 
-#endif /* !CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY */

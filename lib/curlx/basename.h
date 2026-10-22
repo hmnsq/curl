@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_BASENAME_H
-#define HEADER_CURLX_BASENAME_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURLX_BASENAME_H
+#నిర్వచించు శీర్షిక_CURLX_BASENAME_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef HAVE_BASENAME
-char *curlx_basename(char *path);
-#else
+#నిర్వచితం_కాకపోతే HAVE_BASENAME
+అక్షరం *curlx_basename(అక్షరం *మార్గం);
+#లేకపోతే
 
-#ifdef HAVE_LIBGEN_H
-#include <libgen.h>
-#endif
+#నిర్వచితమైతే HAVE_LIBGEN_H
+#అన్తర్భావ <libgen.h>
+#అయితే_ముగింపు
 
-#define curlx_basename(x) basename(x)
-#endif /* !HAVE_BASENAME */
+#నిర్వచించు curlx_basename(x) basename(x)
+#అయితే_ముగింపు /* !HAVE_BASENAME */
 
-#endif /* HEADER_CURLX_BASENAME_H */
+#అయితే_ముగింపు /* HEADER_CURLX_BASENAME_H */

@@ -21,376 +21,376 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_LIBSSH2
+#నిర్వచితమైతే USE_LIBSSH2
 
 /* #define CURL_LIBSSH2_DEBUG */
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే __VMS
+#అన్తర్భావ <in.h>
+#అన్తర్భావ <inet.h>
+#అయితే_ముగింపు
 
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "vssh/ssh.h"
-#include "url.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "parsedate.h" /* for the week day and month names */
-#include "multiif.h"
-#include "select.h"
-#include "curlx/win32-fopen.h"
-#include "vssh/vssh.h"
-#include "curlx/strparse.h"
-#include "curlx/base64.h" /* for curlx_base64_encode() */
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "sendf.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "transfer.h"
+#అన్తర్భావ "vssh/ssh.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "parsedate.h" /* for the week day and month names */
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "curlx/win32-fopen.h"
+#అన్తర్భావ "vssh/vssh.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "curlx/base64.h" /* for curlx_base64_encode() */
 
-static const char *sftp_libssh2_strerror(unsigned long err)
+స్థిర స్థిరరాశి అక్షరం *sftp_libssh2_strerror(గుర్తులేని దీర్ఘ err)
 {
-  switch(err) {
-  case LIBSSH2_FX_NO_SUCH_FILE:
-    return "No such file or directory";
+  ఎంపిక(err) {
+  స్థితి LIBSSH2_FX_NO_SUCH_FILE:
+    తిరిగి "No such file or directory";
 
-  case LIBSSH2_FX_PERMISSION_DENIED:
-    return "Permission denied";
+  స్థితి LIBSSH2_FX_PERMISSION_DENIED:
+    తిరిగి "Permission denied";
 
-  case LIBSSH2_FX_FAILURE:
-    return "Operation failed";
+  స్థితి LIBSSH2_FX_FAILURE:
+    తిరిగి "Operation failed";
 
-  case LIBSSH2_FX_BAD_MESSAGE:
-    return "Bad message from SFTP server";
+  స్థితి LIBSSH2_FX_BAD_సందేశం:
+    తిరిగి "Bad message from SFTP server";
 
-  case LIBSSH2_FX_NO_CONNECTION:
-    return "Not connected to SFTP server";
+  స్థితి LIBSSH2_FX_NO_CONNECTION:
+    తిరిగి "Not connected to SFTP server";
 
-  case LIBSSH2_FX_CONNECTION_LOST:
-    return "Connection to SFTP server lost";
+  స్థితి LIBSSH2_FX_CONNECTION_కోల్పోయిన:
+    తిరిగి "Connection to SFTP server lost";
 
-  case LIBSSH2_FX_OP_UNSUPPORTED:
-    return "Operation not supported by SFTP server";
+  స్థితి LIBSSH2_FX_OP_UNSUPPORTED:
+    తిరిగి "Operation not supported by SFTP server";
 
-  case LIBSSH2_FX_INVALID_HANDLE:
-    return "Invalid handle";
+  స్థితి LIBSSH2_FX_INVALID_HANDLE:
+    తిరిగి "Invalid handle";
 
-  case LIBSSH2_FX_NO_SUCH_PATH:
-    return "No such file or directory";
+  స్థితి LIBSSH2_FX_NO_SUCH_మార్గం:
+    తిరిగి "No such file or directory";
 
-  case LIBSSH2_FX_FILE_ALREADY_EXISTS:
-    return "File already exists";
+  స్థితి LIBSSH2_FX_FILE_ALREADY_EXISTS:
+    తిరిగి "File already exists";
 
-  case LIBSSH2_FX_WRITE_PROTECT:
-    return "File is write protected";
+  స్థితి LIBSSH2_FX_WRITE_PROTECT:
+    తిరిగి "File is write protected";
 
-  case LIBSSH2_FX_NO_MEDIA:
-    return "No media";
+  స్థితి LIBSSH2_FX_NO_MEDIA:
+    తిరిగి "No media";
 
-  case LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM:
-    return "Disk full";
+  స్థితి LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM:
+    తిరిగి "Disk full";
 
-  case LIBSSH2_FX_QUOTA_EXCEEDED:
-    return "User quota exceeded";
+  స్థితి LIBSSH2_FX_QUOTA_EXCEEDED:
+    తిరిగి "User quota exceeded";
 
-  case LIBSSH2_FX_UNKNOWN_PRINCIPAL:
-    return "Unknown principal";
+  స్థితి LIBSSH2_FX_UNKNOWN_PRINCIPAL:
+    తిరిగి "Unknown principal";
 
-  case LIBSSH2_FX_LOCK_CONFLICT:
-    return "File lock conflict";
+  స్థితి LIBSSH2_FX_తాళం_CONFLICT:
+    తిరిగి "File lock conflict";
 
-  case LIBSSH2_FX_DIR_NOT_EMPTY:
-    return "Directory not empty";
+  స్థితి LIBSSH2_FX_DIR_NOT_ఖాళీలు:
+    తిరిగి "Directory not empty";
 
-  case LIBSSH2_FX_NOT_A_DIRECTORY:
-    return "Not a directory";
+  స్థితి LIBSSH2_FX_NOT_A_DIRECTORY:
+    తిరిగి "Not a directory";
 
-  case LIBSSH2_FX_INVALID_FILENAME:
-    return "Invalid filename";
+  స్థితి LIBSSH2_FX_INVALID_FILENAME:
+    తిరిగి "Invalid filename";
 
-  case LIBSSH2_FX_LINK_LOOP:
-    return "Link points to itself";
+  స్థితి LIBSSH2_FX_LINK_LOOP:
+    తిరిగి "Link points to itself";
   }
-  return "Unknown error in libssh2";
+  తిరిగి "Unknown error in libssh2";
 }
 
-static void kbd_callback(const char *name, int name_len,
-                         const char *instruction, int instruction_len,
-                         int num_prompts,
-                         const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+స్థిర శూన్య kbd_callback(స్థిరరాశి అక్షరం *name, పూర్ణాంకం name_len,
+                         స్థిరరాశి అక్షరం *instruction, పూర్ణాంకం instruction_len,
+                         పూర్ణాంకం అంకె_prompts,
+                         స్థిరరాశి LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
                          LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
-                         void **abstract)
+                         శూన్య **abstract)
 {
-  struct Curl_easy *data = (struct Curl_easy *)*abstract;
+  నిర్మాణం Curl_easy *దత్తాంశం = (నిర్మాణం Curl_easy *)*abstract;
 
-#ifdef CURL_LIBSSH2_DEBUG
+#నిర్వచితమైతే CURL_LIBSSH2_DEBUG
   curl_mfprintf(stderr, "name=%s\n", name);
   curl_mfprintf(stderr, "name_len=%d\n", name_len);
   curl_mfprintf(stderr, "instruction=%s\n", instruction);
   curl_mfprintf(stderr, "instruction_len=%d\n", instruction_len);
-  curl_mfprintf(stderr, "num_prompts=%d\n", num_prompts);
-#else
-  (void)name;
-  (void)name_len;
-  (void)instruction;
-  (void)instruction_len;
-#endif /* CURL_LIBSSH2_DEBUG */
-  if(num_prompts == 1) {
-    struct connectdata *conn = data->conn;
-    const char *passwd = Curl_creds_passwd(conn->creds);
+  curl_mfprintf(stderr, "num_prompts=%d\n", అంకె_prompts);
+#లేకపోతే
+  (శూన్య)name;
+  (శూన్య)name_len;
+  (శూన్య)instruction;
+  (శూన్య)instruction_len;
+#అయితే_ముగింపు /* CURL_LIBSSH2_DEBUG */
+  ఒకవేళ(అంకె_prompts == 1) {
+    నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+    స్థిరరాశి అక్షరం *passwd = Curl_creds_passwd(conn->creds);
     /* this function must allocate memory that can be freed by libssh2, which
        uses the LIBSSH2_FREE_FUNC callback */
-    responses[0].text = Curl_cstrdup(passwd);
-    responses[0].length = responses[0].text ? curlx_uztoui(strlen(passwd)) : 0;
+    responses[0].పాఠ్యం_3 = Curl_cstrdup(passwd);
+    responses[0].నిడివి = responses[0].పాఠ్యం_3 ? curlx_uztoui(అక్షరశ్రేణి_పొడవు(passwd)) : 0;
   }
-  (void)prompts;
+  (శూన్య)prompts;
 } /* kbd_callback */
 
-static CURLcode sftp_libssh2_error_to_CURLE(unsigned long err)
+స్థిర CURLcode sftp_libssh2_error_గమ్యం_CURLE(గుర్తులేని దీర్ఘ err)
 {
-  switch(err) {
-  case LIBSSH2_FX_OK:
-    return CURLE_OK;
+  ఎంపిక(err) {
+  స్థితి LIBSSH2_FX_OK:
+    తిరిగి CURLE_OK;
 
-  case LIBSSH2_FX_NO_SUCH_FILE:
-  case LIBSSH2_FX_NO_SUCH_PATH:
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+  స్థితి LIBSSH2_FX_NO_SUCH_FILE:
+  స్థితి LIBSSH2_FX_NO_SUCH_మార్గం:
+    తిరిగి CURLE_REMOTE_FILE_NOT_దొరికింది;
 
-  case LIBSSH2_FX_PERMISSION_DENIED:
-  case LIBSSH2_FX_WRITE_PROTECT:
-  case LIBSSH2_FX_LOCK_CONFLICT:
-    return CURLE_REMOTE_ACCESS_DENIED;
+  స్థితి LIBSSH2_FX_PERMISSION_DENIED:
+  స్థితి LIBSSH2_FX_WRITE_PROTECT:
+  స్థితి LIBSSH2_FX_తాళం_CONFLICT:
+    తిరిగి CURLE_REMOTE_ACCESS_DENIED;
 
-  case LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM:
-  case LIBSSH2_FX_QUOTA_EXCEEDED:
-    return CURLE_REMOTE_DISK_FULL;
+  స్థితి LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM:
+  స్థితి LIBSSH2_FX_QUOTA_EXCEEDED:
+    తిరిగి CURLE_REMOTE_DISK_నిండిన;
 
-  case LIBSSH2_FX_FILE_ALREADY_EXISTS:
-    return CURLE_REMOTE_FILE_EXISTS;
+  స్థితి LIBSSH2_FX_FILE_ALREADY_EXISTS:
+    తిరిగి CURLE_REMOTE_FILE_EXISTS;
 
-  case LIBSSH2_FX_DIR_NOT_EMPTY:
-    return CURLE_QUOTE_ERROR;
+  స్థితి LIBSSH2_FX_DIR_NOT_ఖాళీలు:
+    తిరిగి CURLE_QUOTE_ERROR;
 
-  default:
-    break;
+  అప్రమేయ:
+    ఆపు;
   }
 
-  return CURLE_SSH;
+  తిరిగి CURLE_SSH;
 }
 
-static CURLcode libssh2_session_error_to_CURLE(int err)
+స్థిర CURLcode libssh2_session_error_గమ్యం_CURLE(పూర్ణాంకం err)
 {
-  switch(err) {
+  ఎంపిక(err) {
   /* Ordered by order of appearance in libssh2.h */
-  case LIBSSH2_ERROR_NONE:
-    return CURLE_OK;
+  స్థితి LIBSSH2_ERROR_NONE:
+    తిరిగి CURLE_OK;
 
   /* This is the error returned by libssh2_scp_recv2
    * on unknown file */
-  case LIBSSH2_ERROR_SCP_PROTOCOL:
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+  స్థితి LIBSSH2_ERROR_SCP_PROTOCOL:
+    తిరిగి CURLE_REMOTE_FILE_NOT_దొరికింది;
 
-  case LIBSSH2_ERROR_SOCKET_NONE:
-    return CURLE_COULDNT_CONNECT;
+  స్థితి LIBSSH2_ERROR_SOCKET_NONE:
+    తిరిగి CURLE_COULDNT_CONNECT;
 
-  case LIBSSH2_ERROR_ALLOC:
-    return CURLE_OUT_OF_MEMORY;
+  స్థితి LIBSSH2_ERROR_ALLOC:
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  case LIBSSH2_ERROR_SOCKET_SEND:
-    return CURLE_SEND_ERROR;
+  స్థితి LIBSSH2_ERROR_SOCKET_SEND:
+    తిరిగి CURLE_SEND_ERROR;
 
-  case LIBSSH2_ERROR_HOSTKEY_INIT:
-  case LIBSSH2_ERROR_HOSTKEY_SIGN:
-  case LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED:
-  case LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED:
-    return CURLE_PEER_FAILED_VERIFICATION;
+  స్థితి LIBSSH2_ERROR_HOSTKEY_INIT:
+  స్థితి LIBSSH2_ERROR_HOSTKEY_SIGN:
+  స్థితి LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED:
+  స్థితి LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED:
+    తిరిగి CURLE_PEER_FAILED_VERIFICATION;
 
-  case LIBSSH2_ERROR_PASSWORD_EXPIRED:
-    return CURLE_LOGIN_DENIED;
+  స్థితి LIBSSH2_ERROR_PASSWORD_EXPIRED:
+    తిరిగి CURLE_LOGIN_DENIED;
 
-  case LIBSSH2_ERROR_SOCKET_TIMEOUT:
-  case LIBSSH2_ERROR_TIMEOUT:
-    return CURLE_OPERATION_TIMEDOUT;
+  స్థితి LIBSSH2_ERROR_SOCKET_TIMEOUT:
+  స్థితి LIBSSH2_ERROR_TIMEOUT:
+    తిరిగి CURLE_OPERATION_TIMEDOUT;
 
-  case LIBSSH2_ERROR_EAGAIN:
-    return CURLE_AGAIN;
+  స్థితి LIBSSH2_ERROR_EAGAIN:
+    తిరిగి CURLE_AGAIN;
   }
 
-  return CURLE_SSH;
+  తిరిగి CURLE_SSH;
 }
 
 /* These functions are made to use the libcurl memory functions - NOT the
    debugmem functions, as that leads us to trigger on libssh2 memory leaks
    that are not ours to care for */
 
-static LIBSSH2_ALLOC_FUNC(my_libssh2_malloc)
+స్థిర LIBSSH2_ALLOC_FUNC(my_libssh2_malloc)
 {
-  (void)abstract;
-  return Curl_cmalloc(count);
+  (శూన్య)abstract;
+  తిరిగి Curl_cmalloc(లెక్క);
 }
 
-static LIBSSH2_REALLOC_FUNC(my_libssh2_realloc)
+స్థిర LIBSSH2_REALLOC_FUNC(my_libssh2_realloc)
 {
-  (void)abstract;
-  return Curl_crealloc(ptr, count);
+  (శూన్య)abstract;
+  తిరిగి Curl_crealloc(ptr, లెక్క);
 }
 
-static LIBSSH2_FREE_FUNC(my_libssh2_free)
+స్థిర LIBSSH2_FREE_FUNC(my_libssh2_free)
 {
-  (void)abstract;
-  if(ptr) /* ssh2 agent sometimes call free with null ptr */
+  (శూన్య)abstract;
+  ఒకవేళ(ptr) /* ssh2 agent sometimes call free with null ptr */
     Curl_cfree(ptr);
 }
 
-static int sshkeycallback(CURL *easy,
-                          const struct curl_khkey *knownkey, /* known */
-                          const struct curl_khkey *foundkey, /* found */
-                          enum curl_khmatch match,
-                          void *clientp)
+స్థిర పూర్ణాంకం sshkeycallback(CURL *easy,
+                          స్థిరరాశి నిర్మాణం curl_khkey *knownkey, /*తెలిసిన*/
+                          స్థిరరాశి నిర్మాణం curl_khkey *foundkey, /* found */
+                          గణన curl_khmatch సరిపోలిక,
+                          శూన్య *clientp)
 {
-  (void)easy;
-  (void)knownkey;
-  (void)foundkey;
-  (void)clientp;
+  (శూన్య)easy;
+  (శూన్య)knownkey;
+  (శూన్య)foundkey;
+  (శూన్య)clientp;
 
   /* we only allow perfect matches, and we reject everything else */
-  return (match != CURLKHMATCH_OK) ? CURLKHSTAT_REJECT : CURLKHSTAT_FINE;
+  తిరిగి (సరిపోలిక != CURLKHMATCH_OK) ? CURLKHSTAT_REJECT : CURLKHSTAT_FINE;
 }
 
-static enum curl_khtype convert_ssh2_keytype(int sshkeytype)
+స్థిర గణన curl_khtype convert_ssh2_keytype(పూర్ణాంకం sshkeytype)
 {
-  enum curl_khtype keytype = CURLKHTYPE_UNKNOWN;
-  switch(sshkeytype) {
-  case LIBSSH2_HOSTKEY_TYPE_RSA:
+  గణన curl_khtype keytype = CURLKHTYPE_UNKNOWN;
+  ఎంపిక(sshkeytype) {
+  స్థితి LIBSSH2_HOSTKEY_TYPE_RSA:
     keytype = CURLKHTYPE_RSA;
-    break;
-#ifdef LIBSSH2_HOSTKEY_TYPE_DSS
-  case LIBSSH2_HOSTKEY_TYPE_DSS:  /* deprecated upstream */
+    ఆపు;
+#నిర్వచితమైతే LIBSSH2_HOSTKEY_TYPE_DSS
+  స్థితి LIBSSH2_HOSTKEY_TYPE_DSS:  /* deprecated upstream */
     keytype = CURLKHTYPE_DSS;
-    break;
-#endif
-#ifdef LIBSSH2_HOSTKEY_TYPE_ECDSA_256
-  case LIBSSH2_HOSTKEY_TYPE_ECDSA_256:
+    ఆపు;
+#అయితే_ముగింపు
+#నిర్వచితమైతే LIBSSH2_HOSTKEY_TYPE_ECDSA_256
+  స్థితి LIBSSH2_HOSTKEY_TYPE_ECDSA_256:
     keytype = CURLKHTYPE_ECDSA;
-    break;
-#endif
-#ifdef LIBSSH2_HOSTKEY_TYPE_ECDSA_384
-  case LIBSSH2_HOSTKEY_TYPE_ECDSA_384:
+    ఆపు;
+#అయితే_ముగింపు
+#నిర్వచితమైతే LIBSSH2_HOSTKEY_TYPE_ECDSA_384
+  స్థితి LIBSSH2_HOSTKEY_TYPE_ECDSA_384:
     keytype = CURLKHTYPE_ECDSA;
-    break;
-#endif
-#ifdef LIBSSH2_HOSTKEY_TYPE_ECDSA_521
-  case LIBSSH2_HOSTKEY_TYPE_ECDSA_521:
+    ఆపు;
+#అయితే_ముగింపు
+#నిర్వచితమైతే LIBSSH2_HOSTKEY_TYPE_ECDSA_521
+  స్థితి LIBSSH2_HOSTKEY_TYPE_ECDSA_521:
     keytype = CURLKHTYPE_ECDSA;
-    break;
-#endif
-#ifdef LIBSSH2_HOSTKEY_TYPE_ED25519
-  case LIBSSH2_HOSTKEY_TYPE_ED25519:
+    ఆపు;
+#అయితే_ముగింపు
+#నిర్వచితమైతే LIBSSH2_HOSTKEY_TYPE_ED25519
+  స్థితి LIBSSH2_HOSTKEY_TYPE_ED25519:
     keytype = CURLKHTYPE_ED25519;
-    break;
-#endif
+    ఆపు;
+#అయితే_ముగింపు
   }
-  return keytype;
+  తిరిగి keytype;
 }
 
-static CURLcode ssh_knownhost(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+స్థిర CURLcode ssh_knownhost(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  struct libssh2_knownhost *host = NULL;
-  const char *remotekey = NULL;
-  int keycheck = LIBSSH2_KNOWNHOST_CHECK_FAILURE;
-  int keybit = 0;
-  int sshkeytype = 0;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం libssh2_knownhost *host = ఖాళీ;
+  స్థిరరాశి అక్షరం *remotekey = ఖాళీ;
+  పూర్ణాంకం keycheck = LIBSSH2_KNOWNHOST_CHECK_FAILURE;
+  పూర్ణాంకం keybit = 0;
+  పూర్ణాంకం sshkeytype = 0;
   size_t keylen = 0;
-  int rc = 0;
-  CURLcode result = CURLE_OK;
+  పూర్ణాంకం rc = 0;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
-    infof(data, "SSH: no knownhosts file configured");
-    return CURLE_OK;
+  ఒకవేళ(!CURL_EASY_STR(దత్తాంశం, STRING_SSH_KNOWNHOSTS)) {
+    infof(దత్తాంశం, "SSH: no knownhosts file configured");
+    తిరిగి CURLE_OK;
   }
 
   remotekey = libssh2_session_hostkey(sshc->ssh_session,
                                       &keylen, &sshkeytype);
-  if(remotekey) {
+  ఒకవేళ(remotekey) {
     /*
      * A subject to figure out is what hostname we need to pass in here.
      * What hostname does OpenSSH store in its file if an IDN name is
      * used?
      */
-    struct Curl_mapi_guard guard;
-    enum curl_khmatch keymatch;
+    నిర్మాణం Curl_mapi_guard guard;
+    గణన curl_khmatch keymatch;
     curl_sshkeycallback func =
-      data->set.ssh_keyfunc ? data->set.ssh_keyfunc : sshkeycallback;
-    struct curl_khkey knownkey;
-    struct curl_khkey *knownkeyp = NULL;
-    struct curl_khkey foundkey;
+      దత్తాంశం->సమితి.ssh_keyfunc ? దత్తాంశం->సమితి.ssh_keyfunc : sshkeycallback;
+    నిర్మాణం curl_khkey knownkey;
+    నిర్మాణం curl_khkey *knownkeyp = ఖాళీ;
+    నిర్మాణం curl_khkey foundkey;
 
-    switch(sshkeytype) {
-    case LIBSSH2_HOSTKEY_TYPE_RSA:
-      keybit = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
-      break;
-#ifdef LIBSSH2_HOSTKEY_TYPE_DSS
-    case LIBSSH2_HOSTKEY_TYPE_DSS:  /* deprecated upstream */
-      keybit = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
-      break;
-#endif
-    case LIBSSH2_HOSTKEY_TYPE_ECDSA_256:
-      keybit = LIBSSH2_KNOWNHOST_KEY_ECDSA_256;
-      break;
-    case LIBSSH2_HOSTKEY_TYPE_ECDSA_384:
-      keybit = LIBSSH2_KNOWNHOST_KEY_ECDSA_384;
-      break;
-    case LIBSSH2_HOSTKEY_TYPE_ECDSA_521:
-      keybit = LIBSSH2_KNOWNHOST_KEY_ECDSA_521;
-      break;
-    case LIBSSH2_HOSTKEY_TYPE_ED25519:
-      keybit = LIBSSH2_KNOWNHOST_KEY_ED25519;
-      break;
-    default:
-      infof(data, "SSH: unsupported host key type for knownhosts check");
+    ఎంపిక(sshkeytype) {
+    స్థితి LIBSSH2_HOSTKEY_TYPE_RSA:
+      keybit = LIBSSH2_KNOWNHOST_కీలకం_SSHRSA;
+      ఆపు;
+#నిర్వచితమైతే LIBSSH2_HOSTKEY_TYPE_DSS
+    స్థితి LIBSSH2_HOSTKEY_TYPE_DSS:  /* deprecated upstream */
+      keybit = LIBSSH2_KNOWNHOST_కీలకం_SSHDSS;
+      ఆపు;
+#అయితే_ముగింపు
+    స్థితి LIBSSH2_HOSTKEY_TYPE_ECDSA_256:
+      keybit = LIBSSH2_KNOWNHOST_కీలకం_ECDSA_256;
+      ఆపు;
+    స్థితి LIBSSH2_HOSTKEY_TYPE_ECDSA_384:
+      keybit = LIBSSH2_KNOWNHOST_కీలకం_ECDSA_384;
+      ఆపు;
+    స్థితి LIBSSH2_HOSTKEY_TYPE_ECDSA_521:
+      keybit = LIBSSH2_KNOWNHOST_కీలకం_ECDSA_521;
+      ఆపు;
+    స్థితి LIBSSH2_HOSTKEY_TYPE_ED25519:
+      keybit = LIBSSH2_KNOWNHOST_కీలకం_ED25519;
+      ఆపు;
+    అప్రమేయ:
+      infof(దత్తాంశం, "SSH: unsupported host key type for knownhosts check");
       keybit = 0;
-      break;
+      ఆపు;
     }
-    if(!keybit)
+    ఒకవేళ(!keybit)
       /* no check means failure! */
       rc = CURLKHSTAT_REJECT;
-    else {
+    లేకపోతే {
       keycheck = libssh2_knownhost_checkp(sshc->kh,
                                           conn->origin->hostname,
-                                          (conn->origin->port != PORT_SSH) ?
-                                          conn->origin->port : -1,
+                                          (conn->origin->పోర్టు != పోర్టు_SSH) ?
+                                          conn->origin->పోర్టు : -1,
                                           remotekey, keylen,
                                           LIBSSH2_KNOWNHOST_TYPE_PLAIN |
                                           LIBSSH2_KNOWNHOST_KEYENC_RAW |
                                           keybit,
                                           &host);
 
-      infof(data, "SSH: host check %d, key: %s", keycheck,
+      infof(దత్తాంశం, "SSH: host check %d, key: %s", keycheck,
             (keycheck <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) ?
-            host->key : "<none>");
+            host->కీలకం : "<none>");
 
       /* setup 'knownkey' */
-      if(keycheck <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) {
-        knownkey.key = host->key;
+      ఒకవేళ(keycheck <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) {
+        knownkey.కీలకం = host->కీలకం;
         knownkey.len = 0;
         knownkey.keytype = convert_ssh2_keytype(sshkeytype);
         knownkeyp = &knownkey;
       }
 
       /* setup 'foundkey' */
-      foundkey.key = remotekey;
+      foundkey.కీలకం = remotekey;
       foundkey.len = keylen;
       foundkey.keytype = convert_ssh2_keytype(sshkeytype);
 
@@ -399,231 +399,231 @@ static CURLcode ssh_knownhost(struct Curl_easy *data,
        * curl_khmatch enum are ever modified, we need to introduce a
        * translation table here!
        */
-      keymatch = (enum curl_khmatch)keycheck;
+      keymatch = (గణన curl_khmatch)keycheck;
 
       /* Ask the callback how to behave */
-      CURL_CBAPI_START(&guard, data, easy_ssh_keyfunc);
-      rc = func(data, knownkeyp, /* from the knownhosts file */
+      CURL_CBAPI_ప్రారంభం(&guard, దత్తాంశం, easy_ssh_keyfunc);
+      rc = func(దత్తాంశం, knownkeyp, /* from the knownhosts file */
                 &foundkey, /* from the remote host */
-                keymatch, data->set.ssh_keyfunc_userp);
-      CURL_CBAPI_END(&guard);
+                keymatch, దత్తాంశం->సమితి.ssh_keyfunc_userp);
+      CURL_CBAPI_చివర(&guard);
     }
   }
-  else {
+  లేకపోతే {
     /* no remotekey means failure! */
-    infof(data, "SSH: host offers no public key");
+    infof(దత్తాంశం, "SSH: host offers no public key");
     rc = CURLKHSTAT_REJECT;
   }
 
-  switch(rc) {
-  default: /* unknown return codes is the same as reject */
-  case CURLKHSTAT_REJECT:
-    infof(data, "SSH: knownhost check failed");
-    myssh_to(data, sshc, SSH_SESSION_FREE);
+  ఎంపిక(rc) {
+  అప్రమేయ: /* unknown return codes is the same as reject */
+  స్థితి CURLKHSTAT_REJECT:
+    infof(దత్తాంశం, "SSH: knownhost check failed");
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
     FALLTHROUGH();
-  case CURLKHSTAT_DEFER:
+  స్థితి CURLKHSTAT_DEFER:
     /* DEFER means bail out but keep the SSH_HOSTKEY state */
-    result = CURLE_PEER_FAILED_VERIFICATION;
-    break;
-  case CURLKHSTAT_FINE_REPLACE:
+    ఫలితం = CURLE_PEER_FAILED_VERIFICATION;
+    ఆపు;
+  స్థితి CURLKHSTAT_FINE_REPLACE:
     /* remove old host+key that does not match */
-    if(host)
+    ఒకవేళ(host)
       libssh2_knownhost_del(sshc->kh, host);
     FALLTHROUGH();
-  case CURLKHSTAT_FINE:
-  case CURLKHSTAT_FINE_ADD_TO_FILE:
+  స్థితి CURLKHSTAT_FINE:
+  స్థితి CURLKHSTAT_FINE_కూడు_గమ్యం_FILE:
     /* proceed */
-    if(keycheck != LIBSSH2_KNOWNHOST_CHECK_MATCH) {
-      int addrc;
-      const char *hostbuf;
-      char *hostport = NULL;
-      if(conn->origin->port != PORT_SSH) {
+    ఒకవేళ(keycheck != LIBSSH2_KNOWNHOST_CHECK_సరిపోలిక) {
+      పూర్ణాంకం addrc;
+      స్థిరరాశి అక్షరం *hostbuf;
+      అక్షరం *hostport = ఖాళీ;
+      ఒకవేళ(conn->origin->పోర్టు != పోర్టు_SSH) {
         hostbuf = hostport = curl_maprintf("[%s]:%u", conn->origin->hostname,
-                                           conn->origin->port);
-        if(!hostbuf)
-          infof(data, "WARNING: failed allocating buffer for [host]:port");
+                                           conn->origin->పోర్టు);
+        ఒకవేళ(!hostbuf)
+          infof(దత్తాంశం, "WARNING: failed allocating buffer for [host]:port");
       }
-      else
+      లేకపోతే
         hostbuf = conn->origin->hostname;
-      if(hostbuf) {
+      ఒకవేళ(hostbuf) {
         /* the found host+key did not match but has been told to be fine
            anyway so we add it in memory */
-        addrc = libssh2_knownhost_addc(sshc->kh, hostbuf, NULL,
-                                       remotekey, keylen, NULL, 0,
+        addrc = libssh2_knownhost_addc(sshc->kh, hostbuf, ఖాళీ,
+                                       remotekey, keylen, ఖాళీ, 0,
                                        LIBSSH2_KNOWNHOST_TYPE_PLAIN |
                                        LIBSSH2_KNOWNHOST_KEYENC_RAW |
-                                       keybit, NULL);
-        if(addrc)
-          infof(data, "WARNING: adding the known host %s failed", hostbuf);
-        else if(rc == CURLKHSTAT_FINE_ADD_TO_FILE ||
+                                       keybit, ఖాళీ);
+        ఒకవేళ(addrc)
+          infof(దత్తాంశం, "WARNING: adding the known host %s failed", hostbuf);
+        లేకపోతే ఒకవేళ(rc == CURLKHSTAT_FINE_కూడు_గమ్యం_FILE ||
                 rc == CURLKHSTAT_FINE_REPLACE) {
           /* now we write the entire in-memory list of known hosts to the
              known_hosts file */
-          int wrc =
+          పూర్ణాంకం wrc =
             libssh2_knownhost_writefile(
-              sshc->kh, CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS),
+              sshc->kh, CURL_EASY_STR(దత్తాంశం, STRING_SSH_KNOWNHOSTS),
               LIBSSH2_KNOWNHOST_FILE_OPENSSH);
-          if(wrc) {
-            infof(data, "WARNING: writing %s failed",
-                  CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
+          ఒకవేళ(wrc) {
+            infof(దత్తాంశం, "WARNING: writing %s failed",
+                  CURL_EASY_STR(దత్తాంశం, STRING_SSH_KNOWNHOSTS));
           }
         }
       }
       curlx_free(hostport);
     }
-    else
-      infof(data, "SSH: knownhost entry matches host key");
-    break;
+    లేకపోతే
+      infof(దత్తాంశం, "SSH: knownhost entry matches host key");
+    ఆపు;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_check_fingerprint(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+స్థిర CURLcode ssh_check_fingerprint(నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం ssh_conn *sshc)
 {
-  const char *pubkey_md5 =
-    CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5);
-  const char *pubkey_sha256 =
-    CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256);
+  స్థిరరాశి అక్షరం *pubkey_md5 =
+    CURL_EASY_STR(దత్తాంశం, STRING_SSH_HOST_ప్రజా_కీలకం_MD5);
+  స్థిరరాశి అక్షరం *pubkey_sha256 =
+    CURL_EASY_STR(దత్తాంశం, STRING_SSH_HOST_ప్రజా_కీలకం_SHA256);
 
-  if(pubkey_sha256) {
-    const char *fingerprint = NULL;
-    char *fingerprint_b64 = NULL;
+  ఒకవేళ(pubkey_sha256) {
+    స్థిరరాశి అక్షరం *fingerprint = ఖాళీ;
+    అక్షరం *fingerprint_b64 = ఖాళీ;
     size_t fingerprint_b64_len;
     size_t pub_pos = 0;
     size_t b64_pos = 0;
 
-    infof(data, "SSH: SHA256 public key '%s'", pubkey_sha256);
+    infof(దత్తాంశం, "SSH: SHA256 public key '%s'", pubkey_sha256);
     /* The fingerprint points to static storage (!), do not free() it. */
     fingerprint = libssh2_hostkey_hash(sshc->ssh_session,
                                        LIBSSH2_HOSTKEY_HASH_SHA256);
-    if(!fingerprint) {
-      failf(data,
+    ఒకవేళ(!fingerprint) {
+      failf(దత్తాంశం,
             "Denied establishing ssh session: SHA256 fingerprint "
             "not available");
-      myssh_to(data, sshc, SSH_SESSION_FREE);
-      return CURLE_PEER_FAILED_VERIFICATION;
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+      తిరిగి CURLE_PEER_FAILED_VERIFICATION;
     }
 
     /* The length of fingerprint is 32 bytes for SHA256.
      * See libssh2_hostkey_hash documentation. */
-    if(curlx_base64_encode((const uint8_t *)fingerprint, 32, &fingerprint_b64,
+    ఒకవేళ(curlx_base64_encode((స్థిరరాశి uint8_t *)fingerprint, 32, &fingerprint_b64,
                            &fingerprint_b64_len) != CURLE_OK) {
-      myssh_to(data, sshc, SSH_SESSION_FREE);
-      return CURLE_PEER_FAILED_VERIFICATION;
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+      తిరిగి CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    if(!fingerprint_b64) {
-      failf(data, "SHA256 fingerprint could not be encoded");
-      myssh_to(data, sshc, SSH_SESSION_FREE);
-      return CURLE_PEER_FAILED_VERIFICATION;
+    ఒకవేళ(!fingerprint_b64) {
+      failf(దత్తాంశం, "SHA256 fingerprint could not be encoded");
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+      తిరిగి CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    infof(data, "SSH: SHA256 fingerprint '%s'", fingerprint_b64);
+    infof(దత్తాంశం, "SSH: SHA256 fingerprint '%s'", fingerprint_b64);
 
     /* Find the position of any = padding characters in the public key */
-    while((pubkey_sha256[pub_pos] != '=') && pubkey_sha256[pub_pos]) {
+    అయితే((pubkey_sha256[pub_pos] != '=') && pubkey_sha256[pub_pos]) {
       pub_pos++;
     }
 
     /* Find the position of any = padding characters in the base64 coded
      * hostkey fingerprint */
-    while((fingerprint_b64[b64_pos] != '=') && fingerprint_b64[b64_pos]) {
+    అయితే((fingerprint_b64[b64_pos] != '=') && fingerprint_b64[b64_pos]) {
       b64_pos++;
     }
 
     /* Before we authenticate we check the hostkey's SHA256 fingerprint
      * against a known fingerprint, if available.
      */
-    if((pub_pos != b64_pos) ||
-       strncmp(fingerprint_b64, pubkey_sha256, pub_pos)) {
-      failf(data,
+    ఒకవేళ((pub_pos != b64_pos) ||
+       అక్షరశ్రేణి_పోలిక(fingerprint_b64, pubkey_sha256, pub_pos)) {
+      failf(దత్తాంశం,
             "Denied establishing ssh session: mismatch SHA256 fingerprint. "
             "Remote %s is not equal to %s", fingerprint_b64, pubkey_sha256);
       curlx_free(fingerprint_b64);
-      myssh_to(data, sshc, SSH_SESSION_FREE);
-      return CURLE_PEER_FAILED_VERIFICATION;
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+      తిరిగి CURLE_PEER_FAILED_VERIFICATION;
     }
 
     curlx_free(fingerprint_b64);
 
-    infof(data, "SSH: SHA256 checksum match");
+    infof(దత్తాంశం, "SSH: SHA256 checksum match");
   }
 
-  if(pubkey_md5) {
-    char md5buffer[33];
-    const char *fingerprint;
+  ఒకవేళ(pubkey_md5) {
+    అక్షరం md5buffer[33];
+    స్థిరరాశి అక్షరం *fingerprint;
 
-    infof(data, "SSH: MD5 public key '%s'", pubkey_md5);
+    infof(దత్తాంశం, "SSH: MD5 public key '%s'", pubkey_md5);
     fingerprint = libssh2_hostkey_hash(sshc->ssh_session,
                                        LIBSSH2_HOSTKEY_HASH_MD5);
 
-    if(fingerprint) {
+    ఒకవేళ(fingerprint) {
       /* The fingerprint points to static storage (!), do not free() it. */
-      int i;
-      for(i = 0; i < 16; i++) {
+      పూర్ణాంకం i;
+      కొరకు(i = 0; i < 16; i++) {
         curl_msnprintf(&md5buffer[i * 2], 3, "%02x",
-                       (unsigned char)fingerprint[i]);
+                       (గుర్తులేని అక్షరం)fingerprint[i]);
       }
 
-      infof(data, "SSH: MD5 fingerprint '%s'", md5buffer);
+      infof(దత్తాంశం, "SSH: MD5 fingerprint '%s'", md5buffer);
     }
 
     /* This does NOT verify the length of 'pubkey_md5' separately, which
        makes the comparison below fail unless it is exactly 32 characters */
-    if(!fingerprint || !curl_strequal(md5buffer, pubkey_md5)) {
-      if(fingerprint) {
-        failf(data,
+    ఒకవేళ(!fingerprint || !curl_strequal(md5buffer, pubkey_md5)) {
+      ఒకవేళ(fingerprint) {
+        failf(దత్తాంశం,
               "Denied establishing ssh session: mismatch MD5 fingerprint. "
               "Remote %s is not equal to %s", md5buffer, pubkey_md5);
       }
-      else {
-        failf(data,
+      లేకపోతే {
+        failf(దత్తాంశం,
               "Denied establishing ssh session: MD5 fingerprint "
               "not available");
       }
-      myssh_to(data, sshc, SSH_SESSION_FREE);
-      return CURLE_PEER_FAILED_VERIFICATION;
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+      తిరిగి CURLE_PEER_FAILED_VERIFICATION;
     }
-    infof(data, "SSH: MD5 checksum match");
+    infof(దత్తాంశం, "SSH: MD5 checksum match");
   }
 
-  if(!pubkey_md5 && !pubkey_sha256) {
-    if(data->set.ssh_hostkeyfunc) {
+  ఒకవేళ(!pubkey_md5 && !pubkey_sha256) {
+    ఒకవేళ(దత్తాంశం->సమితి.ssh_hostkeyfunc) {
       size_t keylen = 0;
-      int sshkeytype = 0;
-      int rc = 0;
+      పూర్ణాంకం sshkeytype = 0;
+      పూర్ణాంకం rc = 0;
       /* we handle the process to the callback */
-      const char *remotekey = libssh2_session_hostkey(sshc->ssh_session,
+      స్థిరరాశి అక్షరం *remotekey = libssh2_session_hostkey(sshc->ssh_session,
                                                       &keylen, &sshkeytype);
-      if(remotekey) {
-        struct Curl_mapi_guard guard;
-        enum curl_khtype keytype = convert_ssh2_keytype(sshkeytype);
-        CURL_CBAPI_START(&guard, data, easy_ssh_hostkeyfunc);
-        rc = data->set.ssh_hostkeyfunc(data->set.ssh_hostkeyfunc_userp,
-                                       (int)keytype, remotekey, keylen);
-        CURL_CBAPI_END(&guard);
-        if(rc != CURLKHMATCH_OK) {
-          myssh_to(data, sshc, SSH_SESSION_FREE);
-          failf(data, "SSH: callback failed host public key verification");
-          return CURLE_PEER_FAILED_VERIFICATION;
+      ఒకవేళ(remotekey) {
+        నిర్మాణం Curl_mapi_guard guard;
+        గణన curl_khtype keytype = convert_ssh2_keytype(sshkeytype);
+        CURL_CBAPI_ప్రారంభం(&guard, దత్తాంశం, easy_ssh_hostkeyfunc);
+        rc = దత్తాంశం->సమితి.ssh_hostkeyfunc(దత్తాంశం->సమితి.ssh_hostkeyfunc_userp,
+                                       (పూర్ణాంకం)keytype, remotekey, keylen);
+        CURL_CBAPI_చివర(&guard);
+        ఒకవేళ(rc != CURLKHMATCH_OK) {
+          myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+          failf(దత్తాంశం, "SSH: callback failed host public key verification");
+          తిరిగి CURLE_PEER_FAILED_VERIFICATION;
         }
-        infof(data, "SSH: verified public key via callback");
+        infof(దత్తాంశం, "SSH: verified public key via callback");
       }
-      else {
-        myssh_to(data, sshc, SSH_SESSION_FREE);
-        return CURLE_PEER_FAILED_VERIFICATION;
+      లేకపోతే {
+        myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+        తిరిగి CURLE_PEER_FAILED_VERIFICATION;
       }
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
     }
-    else {
-      CURL_TRC_SSH(data, "no host key checksum given, checking knownhosts");
-      return ssh_knownhost(data, sshc);
+    లేకపోతే {
+      CURL_TRC_SSH(దత్తాంశం, "no host key checksum given, checking knownhosts");
+      తిరిగి ssh_knownhost(దత్తాంశం, sshc);
     }
   }
-  else {
+  లేకపోతే {
     /* as we already matched, we skip the check for known hosts */
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
   }
 }
 
@@ -631,163 +631,163 @@ static CURLcode ssh_check_fingerprint(struct Curl_easy *data,
  * ssh_force_knownhost_key_type() checks the known hosts file and try to
  * force a specific public key type from the server if an entry is found.
  */
-static CURLcode ssh_force_knownhost_key_type(struct Curl_easy *data,
-                                             struct ssh_conn *sshc)
+స్థిర CURLcode ssh_force_knownhost_కీలకం_type(నిర్మాణం Curl_easy *దత్తాంశం,
+                                             నిర్మాణం ssh_conn *sshc)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  static const char hostkey_method_ssh_ed25519[] = "ssh-ed25519";
-  static const char hostkey_method_ssh_ecdsa_521[] = "ecdsa-sha2-nistp521";
-  static const char hostkey_method_ssh_ecdsa_384[] = "ecdsa-sha2-nistp384";
-  static const char hostkey_method_ssh_ecdsa_256[] = "ecdsa-sha2-nistp256";
-  static const char hostkey_method_ssh_rsa_all[] =
+  స్థిర స్థిరరాశి అక్షరం hostkey_పద్ధతి_ssh_ed25519[] = "ssh-ed25519";
+  స్థిర స్థిరరాశి అక్షరం hostkey_పద్ధతి_ssh_ecdsa_521[] = "ecdsa-sha2-nistp521";
+  స్థిర స్థిరరాశి అక్షరం hostkey_పద్ధతి_ssh_ecdsa_384[] = "ecdsa-sha2-nistp384";
+  స్థిర స్థిరరాశి అక్షరం hostkey_పద్ధతి_ssh_ecdsa_256[] = "ecdsa-sha2-nistp256";
+  స్థిర స్థిరరాశి అక్షరం hostkey_పద్ధతి_ssh_rsa_all[] =
     "rsa-sha2-256,rsa-sha2-512,ssh-rsa";
-#ifdef LIBSSH2_KNOWNHOST_KEY_SSHDSS
-  static const char hostkey_method_ssh_dss[] = "ssh-dss";
-#endif
-  bool found = FALSE;
+#నిర్వచితమైతే LIBSSH2_KNOWNHOST_కీలకం_SSHDSS
+  స్థిర స్థిరరాశి అక్షరం hostkey_పద్ధతి_ssh_dss[] = "ssh-dss";
+#అయితే_ముగింపు
+  bool దొరికింది = FALSE;
 
-  if(sshc->kh &&
-     !CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5) &&
-     !CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256)) {
-    struct libssh2_knownhost *store = NULL;
-    struct connectdata *conn = data->conn;
+  ఒకవేళ(sshc->kh &&
+     !CURL_EASY_STR(దత్తాంశం, STRING_SSH_HOST_ప్రజా_కీలకం_MD5) &&
+     !CURL_EASY_STR(దత్తాంశం, STRING_SSH_HOST_ప్రజా_కీలకం_SHA256)) {
+    నిర్మాణం libssh2_knownhost *store = ఖాళీ;
+    నిర్మాణం connectdata *conn = దత్తాంశం->conn;
     /* key types already confirmed absent for this host, so repeat hashed
        entries of the same type do not each force a fresh checkp() scan
        of the whole known_hosts set. one slot per possible key type (indexed
        by the type shifted down) so no entry ordering can overflow it */
-    bool absent_type[(LIBSSH2_KNOWNHOST_KEY_MASK >>
-                      LIBSSH2_KNOWNHOST_KEY_SHIFT) + 1] = { FALSE };
+    bool absent_type[(LIBSSH2_KNOWNHOST_కీలకం_ముసుగు >>
+                      LIBSSH2_KNOWNHOST_కీలకం_జరుపు) + 1] = { FALSE };
     /* lets try to find our host in the known hosts file */
-    while(!libssh2_knownhost_get(sshc->kh, &store, store)) {
+    అయితే(!libssh2_knownhost_get(sshc->kh, &store, store)) {
       /* For non-standard ports, the name is enclosed in */
       /* square brackets, followed by a colon and the port */
-      if(store) {
-        if(store->name) {
-          if(store->name[0] == '[') {
-            curl_off_t port;
-            size_t kh_name_size = 0;
-            const char *p;
-            const char *kh_name_end = strstr(store->name, "]:");
-            if(!kh_name_end) {
-              infof(data, "SSH: invalid host pattern %s in %s",
+      ఒకవేళ(store) {
+        ఒకవేళ(store->name) {
+          ఒకవేళ(store->name[0] == '[') {
+            curl_off_t పోర్టు;
+            size_t kh_name_కొలత = 0;
+            స్థిరరాశి అక్షరం *p;
+            స్థిరరాశి అక్షరం *kh_name_చివర = అక్షరశ్రేణి_శోధన(store->name, "]:");
+            ఒకవేళ(!kh_name_చివర) {
+              infof(దత్తాంశం, "SSH: invalid host pattern %s in %s",
                     store->name,
-                    CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
-              continue;
+                    CURL_EASY_STR(దత్తాంశం, STRING_SSH_KNOWNHOSTS));
+              కొనసాగు;
             }
-            p = kh_name_end + 2; /* start of port number */
-            if(!curlx_str_number(&p, &port, 0xffff) &&
-               (kh_name_end && (port == conn->origin->port))) {
-              kh_name_size = strlen(store->name) - 1 - strlen(kh_name_end);
-              if((kh_name_size == strlen(conn->origin->hostname)) &&
-                 !strncmp(store->name + 1, conn->origin->hostname,
-                          kh_name_size)) {
-                found = TRUE;
-                break;
+            p = kh_name_చివర + 2; /* start of port number */
+            ఒకవేళ(!curlx_str_సంఖ్య(&p, &పోర్టు, 0xffff) &&
+               (kh_name_చివర && (పోర్టు == conn->origin->పోర్టు))) {
+              kh_name_కొలత = అక్షరశ్రేణి_పొడవు(store->name) - 1 - అక్షరశ్రేణి_పొడవు(kh_name_చివర);
+              ఒకవేళ((kh_name_కొలత == అక్షరశ్రేణి_పొడవు(conn->origin->hostname)) &&
+                 !అక్షరశ్రేణి_పోలిక(store->name + 1, conn->origin->hostname,
+                          kh_name_కొలత)) {
+                దొరికింది = TRUE;
+                ఆపు;
               }
             }
           }
-          else if(!strcmp(store->name, conn->origin->hostname)) {
-            found = TRUE;
-            break;
+          లేకపోతే ఒకవేళ(!strcmp(store->name, conn->origin->hostname)) {
+            దొరికింది = TRUE;
+            ఆపు;
           }
         }
-        else if(store->key) {
-          unsigned int type = (store->typemask & LIBSSH2_KNOWNHOST_KEY_MASK)
-                              >> LIBSSH2_KNOWNHOST_KEY_SHIFT;
-          if(!absent_type[type]) {
-            int keycheck = libssh2_knownhost_checkp(
+        లేకపోతే ఒకవేళ(store->కీలకం) {
+          గుర్తులేని పూర్ణాంకం type = (store->typemask & LIBSSH2_KNOWNHOST_కీలకం_ముసుగు)
+                              >> LIBSSH2_KNOWNHOST_కీలకం_జరుపు;
+          ఒకవేళ(!absent_type[type]) {
+            పూర్ణాంకం keycheck = libssh2_knownhost_checkp(
               sshc->kh, conn->origin->hostname,
-              (conn->origin->port != PORT_SSH) ? conn->origin->port : -1,
-              store->key, strlen(store->key),
+              (conn->origin->పోర్టు != పోర్టు_SSH) ? conn->origin->పోర్టు : -1,
+              store->కీలకం, అక్షరశ్రేణి_పొడవు(store->కీలకం),
               LIBSSH2_KNOWNHOST_TYPE_PLAIN |
                 LIBSSH2_KNOWNHOST_KEYENC_BASE64 |
-                (store->typemask & LIBSSH2_KNOWNHOST_KEY_MASK),
-              NULL);
-            if(keycheck == LIBSSH2_KNOWNHOST_CHECK_MATCH) {
-              found = TRUE;
-              break;
+                (store->typemask & LIBSSH2_KNOWNHOST_కీలకం_ముసుగు),
+              ఖాళీ);
+            ఒకవేళ(keycheck == LIBSSH2_KNOWNHOST_CHECK_సరిపోలిక) {
+              దొరికింది = TRUE;
+              ఆపు;
             }
-            else if(keycheck == LIBSSH2_KNOWNHOST_CHECK_NOTFOUND)
+            లేకపోతే ఒకవేళ(keycheck == LIBSSH2_KNOWNHOST_CHECK_NOTFOUND)
               absent_type[type] = TRUE;
           }
         }
       }
     }
 
-    if(found) {
-      int rc;
-      const char *hostkey_method = NULL;
-      infof(data, "SSH: found host '%s' in '%s'",
+    ఒకవేళ(దొరికింది) {
+      పూర్ణాంకం rc;
+      స్థిరరాశి అక్షరం *hostkey_పద్ధతి = ఖాళీ;
+      infof(దత్తాంశం, "SSH: found host '%s' in '%s'",
             conn->origin->hostname,
-            CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
+            CURL_EASY_STR(దత్తాంశం, STRING_SSH_KNOWNHOSTS));
 
-      switch(store->typemask & LIBSSH2_KNOWNHOST_KEY_MASK) {
-      case LIBSSH2_KNOWNHOST_KEY_ED25519:
-        hostkey_method = hostkey_method_ssh_ed25519;
-        break;
-      case LIBSSH2_KNOWNHOST_KEY_ECDSA_521:
-        hostkey_method = hostkey_method_ssh_ecdsa_521;
-        break;
-      case LIBSSH2_KNOWNHOST_KEY_ECDSA_384:
-        hostkey_method = hostkey_method_ssh_ecdsa_384;
-        break;
-      case LIBSSH2_KNOWNHOST_KEY_ECDSA_256:
-        hostkey_method = hostkey_method_ssh_ecdsa_256;
-        break;
-      case LIBSSH2_KNOWNHOST_KEY_SSHRSA:
-        hostkey_method = hostkey_method_ssh_rsa_all;
-        break;
-#ifdef LIBSSH2_KNOWNHOST_KEY_SSHDSS
-      case LIBSSH2_KNOWNHOST_KEY_SSHDSS:  /* deprecated upstream */
-        hostkey_method = hostkey_method_ssh_dss;
-        break;
-#endif
-      case LIBSSH2_KNOWNHOST_KEY_RSA1:
-        failf(data, "Found host key type RSA1 which is not supported");
-        return CURLE_SSH;
-      default:
-        failf(data, "Unknown host key type: %d",
-              (store->typemask & LIBSSH2_KNOWNHOST_KEY_MASK));
-        return CURLE_SSH;
+      ఎంపిక(store->typemask & LIBSSH2_KNOWNHOST_కీలకం_ముసుగు) {
+      స్థితి LIBSSH2_KNOWNHOST_కీలకం_ED25519:
+        hostkey_పద్ధతి = hostkey_పద్ధతి_ssh_ed25519;
+        ఆపు;
+      స్థితి LIBSSH2_KNOWNHOST_కీలకం_ECDSA_521:
+        hostkey_పద్ధతి = hostkey_పద్ధతి_ssh_ecdsa_521;
+        ఆపు;
+      స్థితి LIBSSH2_KNOWNHOST_కీలకం_ECDSA_384:
+        hostkey_పద్ధతి = hostkey_పద్ధతి_ssh_ecdsa_384;
+        ఆపు;
+      స్థితి LIBSSH2_KNOWNHOST_కీలకం_ECDSA_256:
+        hostkey_పద్ధతి = hostkey_పద్ధతి_ssh_ecdsa_256;
+        ఆపు;
+      స్థితి LIBSSH2_KNOWNHOST_కీలకం_SSHRSA:
+        hostkey_పద్ధతి = hostkey_పద్ధతి_ssh_rsa_all;
+        ఆపు;
+#నిర్వచితమైతే LIBSSH2_KNOWNHOST_కీలకం_SSHDSS
+      స్థితి LIBSSH2_KNOWNHOST_కీలకం_SSHDSS:  /* deprecated upstream */
+        hostkey_పద్ధతి = hostkey_పద్ధతి_ssh_dss;
+        ఆపు;
+#అయితే_ముగింపు
+      స్థితి LIBSSH2_KNOWNHOST_కీలకం_RSA1:
+        failf(దత్తాంశం, "Found host key type RSA1 which is not supported");
+        తిరిగి CURLE_SSH;
+      అప్రమేయ:
+        failf(దత్తాంశం, "Unknown host key type: %d",
+              (store->typemask & LIBSSH2_KNOWNHOST_కీలకం_ముసుగు));
+        తిరిగి CURLE_SSH;
       }
 
-      infof(data, "SSH: set '%s' as hostkey type", hostkey_method);
-      rc = libssh2_session_method_pref(sshc->ssh_session,
-                                       LIBSSH2_METHOD_HOSTKEY, hostkey_method);
-      if(rc) {
-        char *err_msg = NULL;
-        int errlen;
-        libssh2_session_last_error(sshc->ssh_session, &err_msg, &errlen, 0);
-        failf(data, "libssh2 method '%s' failed: %s", hostkey_method, err_msg);
-        result = libssh2_session_error_to_CURLE(rc);
+      infof(దత్తాంశం, "SSH: set '%s' as hostkey type", hostkey_పద్ధతి);
+      rc = libssh2_session_పద్ధతి_pref(sshc->ssh_session,
+                                       LIBSSH2_పద్ధతి_HOSTKEY, hostkey_పద్ధతి);
+      ఒకవేళ(rc) {
+        అక్షరం *err_సందేశం = ఖాళీ;
+        పూర్ణాంకం errlen;
+        libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, &errlen, 0);
+        failf(దత్తాంశం, "libssh2 method '%s' failed: %s", hostkey_పద్ధతి, err_సందేశం);
+        ఫలితం = libssh2_session_error_గమ్యం_CURLE(rc);
       }
     }
-    else {
-      infof(data, "SSH: did not find host '%s' in '%s'",
+    లేకపోతే {
+      infof(దత్తాంశం, "SSH: did not find host '%s' in '%s'",
             conn->origin->hostname,
-            CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
+            CURL_EASY_STR(దత్తాంశం, STRING_SSH_KNOWNHOSTS));
     }
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode quote_error(struct Curl_easy *data,
-                            struct ssh_conn *sshc)
+స్థిర CURLcode quote_error(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం ssh_conn *sshc)
 {
-  failf(data, "Suspicious data after the command line");
+  failf(దత్తాంశం, "Suspicious data after the command line");
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  return CURLE_QUOTE_ERROR;
+  తిరిగి CURLE_QUOTE_ERROR;
 }
 
-static CURLcode sftp_quote(struct Curl_easy *data,
-                           struct ssh_conn *sshc,
-                           struct SSHPROTO *sshp)
+స్థిర CURLcode sftp_quote(నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం ssh_conn *sshc,
+                           నిర్మాణం SSHPROTO *sshp)
 {
-  const char *cp;
-  CURLcode result = CURLE_OK;
+  స్థిరరాశి అక్షరం *cp;
+  CURLcode ఫలితం = CURLE_OK;
 
   /*
    * Support some of the "FTP" commands
@@ -795,7 +795,7 @@ static CURLcode sftp_quote(struct Curl_easy *data,
    * 'sshc->quote_item' is already verified to be non-NULL before it
    * switched to this state.
    */
-  const char *cmd = sshc->quote_item->data;
+  స్థిరరాశి అక్షరం *cmd = sshc->quote_అంశం->దత్తాంశం;
   sshc->acceptfail = FALSE;
 
   /* if a command starts with an asterisk, which a legal SFTP command never
@@ -803,28 +803,28 @@ static CURLcode sftp_quote(struct Curl_easy *data,
      aborts or cancels etc. It causes libcurl to act as if the command
      is successful, whatever the server responds. */
 
-  if(cmd[0] == '*') {
+  ఒకవేళ(cmd[0] == '*') {
     cmd++;
     sshc->acceptfail = TRUE;
   }
 
-  if(curl_strequal("pwd", cmd)) {
+  ఒకవేళ(curl_strequal("pwd", cmd)) {
     /* output debug output if that is requested */
-    char *tmp = curl_maprintf("257 \"%s\" is current directory.\n",
-                              sshp->path);
-    if(!tmp)
-      return CURLE_OUT_OF_MEMORY;
-    Curl_debug(data, CURLINFO_HEADER_OUT, "PWD\n", 4);
-    Curl_debug(data, CURLINFO_HEADER_IN, tmp, strlen(tmp));
+    అక్షరం *tmp = curl_maprintf("257 \"%s\" is current directory.\n",
+                              sshp->మార్గం);
+    ఒకవేళ(!tmp)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    Curl_debug(దత్తాంశం, CURLINFO_శీర్షిక_బహిర్గతం, "PWD\n", 4);
+    Curl_debug(దత్తాంశం, CURLINFO_శీర్షిక_లోపల, tmp, అక్షరశ్రేణి_పొడవు(tmp));
 
     /* this sends an FTP-like "header" to the header callback so that
        the current directory can be read similar to how it is read when
        using ordinary FTP. */
-    result = Curl_client_write(data, CLIENTWRITE_HEADER, tmp, strlen(tmp));
+    ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_శీర్షిక, tmp, అక్షరశ్రేణి_పొడవు(tmp));
     curlx_free(tmp);
-    if(!result)
-      myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-    return result;
+    ఒకవేళ(!ఫలితం)
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_తదుపరి_QUOTE);
+    తిరిగి ఫలితం;
   }
 
   /*
@@ -832,20 +832,20 @@ static CURLcode sftp_quote(struct Curl_easy *data,
    * command with a space so we can check for it unconditionally
    */
   cp = strchr(cmd, ' ');
-  if(!cp) {
-    failf(data, "Syntax error command '%s', missing parameter", cmd);
-    return CURLE_QUOTE_ERROR;
+  ఒకవేళ(!cp) {
+    failf(దత్తాంశం, "Syntax error command '%s', missing parameter", cmd);
+    తిరిగి CURLE_QUOTE_ERROR;
   }
 
   /*
    * also, every command takes at least one argument so we get that
    * first argument right now
    */
-  result = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
-  if(result) {
-    if(result != CURLE_OUT_OF_MEMORY)
-      failf(data, "Syntax error: Bad first parameter to '%s'", cmd);
-    return result;
+  ఫలితం = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(ఫలితం != CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం)
+      failf(దత్తాంశం, "Syntax error: Bad first parameter to '%s'", cmd);
+    తిరిగి ఫలితం;
   }
 
   /*
@@ -853,101 +853,101 @@ static CURLcode sftp_quote(struct Curl_easy *data,
    * Instead, we scan for commands used by OpenSSH's sftp program and call the
    * appropriate libssh2 functions.
    */
-  if(!strncmp(cmd, "chgrp ", 6) ||
-     !strncmp(cmd, "chmod ", 6) ||
-     !strncmp(cmd, "chown ", 6) ||
-     !strncmp(cmd, "atime ", 6) ||
-     !strncmp(cmd, "mtime ", 6)) {
+  ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "chgrp ", 6) ||
+     !అక్షరశ్రేణి_పోలిక(cmd, "chmod ", 6) ||
+     !అక్షరశ్రేణి_పోలిక(cmd, "chown ", 6) ||
+     !అక్షరశ్రేణి_పోలిక(cmd, "atime ", 6) ||
+     !అక్షరశ్రేణి_పోలిక(cmd, "mtime ", 6)) {
     /* attribute change */
 
     /* sshc->quote_path1 contains the mode to set */
     /* get the destination */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result != CURLE_OUT_OF_MEMORY)
-        failf(data, "Syntax error in %s: Bad second parameter", cmd);
+    ఫలితం = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    ఒకవేళ(ఫలితం) {
+      ఒకవేళ(ఫలితం != CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం)
+        failf(దత్తాంశం, "Syntax error in %s: Bad second parameter", cmd);
       curlx_safefree(sshc->quote_path1);
-      return result;
+      తిరిగి ఫలితం;
     }
-    if(*cp)
-      return quote_error(data, sshc);
+    ఒకవేళ(*cp)
+      తిరిగి quote_error(దత్తాంశం, sshc);
 
-    memset(&sshp->quote_attrs, 0, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_STAT);
-    return result;
+    memset(&sshp->quote_attrs, 0, పరిమాణం(LIBSSH2_SFTP_లక్షణాలు));
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE_STAT);
+    తిరిగి ఫలితం;
   }
-  if(!strncmp(cmd, "ln ", 3) ||
-     !strncmp(cmd, "symlink ", 8)) {
+  ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "ln ", 3) ||
+     !అక్షరశ్రేణి_పోలిక(cmd, "symlink ", 8)) {
     /* symbolic linking */
     /* sshc->quote_path1 is the source */
     /* get the destination */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result != CURLE_OUT_OF_MEMORY)
-        failf(data, "Syntax error in ln/symlink: Bad second parameter");
+    ఫలితం = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    ఒకవేళ(ఫలితం) {
+      ఒకవేళ(ఫలితం != CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం)
+        failf(దత్తాంశం, "Syntax error in ln/symlink: Bad second parameter");
       curlx_safefree(sshc->quote_path1);
-      return result;
+      తిరిగి ఫలితం;
     }
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_SYMLINK);
-    return result;
+    ఒకవేళ(*cp)
+      తిరిగి quote_error(దత్తాంశం, sshc);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE_SYMLINK);
+    తిరిగి ఫలితం;
   }
-  else if(!strncmp(cmd, "mkdir ", 6)) {
-    if(*cp)
-      return quote_error(data, sshc);
+  లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "mkdir ", 6)) {
+    ఒకవేళ(*cp)
+      తిరిగి quote_error(దత్తాంశం, sshc);
     /* create directory */
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_MKDIR);
-    return result;
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE_MKDIR);
+    తిరిగి ఫలితం;
   }
-  else if(!strncmp(cmd, "rename ", 7)) {
+  లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "rename ", 7)) {
     /* rename file */
     /* first param is the source path */
     /* second param is the dest. path */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result != CURLE_OUT_OF_MEMORY)
-        failf(data, "Syntax error in rename: Bad second parameter");
+    ఫలితం = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    ఒకవేళ(ఫలితం) {
+      ఒకవేళ(ఫలితం != CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం)
+        failf(దత్తాంశం, "Syntax error in rename: Bad second parameter");
       curlx_safefree(sshc->quote_path1);
-      return result;
+      తిరిగి ఫలితం;
     }
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_RENAME);
-    return result;
+    ఒకవేళ(*cp)
+      తిరిగి quote_error(దత్తాంశం, sshc);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE_RENAME);
+    తిరిగి ఫలితం;
   }
-  else if(!strncmp(cmd, "rmdir ", 6)) {
-    if(*cp)
-      return quote_error(data, sshc);
+  లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "rmdir ", 6)) {
+    ఒకవేళ(*cp)
+      తిరిగి quote_error(దత్తాంశం, sshc);
     /* delete directory */
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_RMDIR);
-    return result;
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE_RMDIR);
+    తిరిగి ఫలితం;
   }
-  else if(!strncmp(cmd, "rm ", 3)) {
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_UNLINK);
-    return result;
+  లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "rm ", 3)) {
+    ఒకవేళ(*cp)
+      తిరిగి quote_error(దత్తాంశం, sshc);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE_UNLINK);
+    తిరిగి ఫలితం;
   }
-  else if(!strncmp(cmd, "statvfs ", 8)) {
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_STATVFS);
-    return result;
+  లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "statvfs ", 8)) {
+    ఒకవేళ(*cp)
+      తిరిగి quote_error(దత్తాంశం, sshc);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE_STATVFS);
+    తిరిగి ఫలితం;
   }
 
-  failf(data, "Unknown SFTP command");
+  failf(దత్తాంశం, "Unknown SFTP command");
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  return CURLE_QUOTE_ERROR;
+  తిరిగి CURLE_QUOTE_ERROR;
 }
 
-static CURLcode sftp_upload_init(struct Curl_easy *data,
-                                 struct ssh_conn *sshc,
-                                 struct SSHPROTO *sshp,
+స్థిర CURLcode sftp_upload_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం ssh_conn *sshc,
+                                 నిర్మాణం SSHPROTO *sshp,
                                  bool *blockp)
 {
-  unsigned long flags;
+  గుర్తులేని దీర్ఘ flags;
 
   /*
    * NOTE!!!  libssh2 requires that the destination path is a full path
@@ -956,176 +956,176 @@ static CURLcode sftp_upload_init(struct Curl_easy *data,
    *          same name as the last directory in the path.
    */
 
-  if(data->state.resume_from) {
-    LIBSSH2_SFTP_ATTRIBUTES attrs;
-    if(data->state.resume_from < 0) {
-      int rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->path,
-                                    curlx_uztoui(strlen(sshp->path)),
+  ఒకవేళ(దత్తాంశం->state.resume_from) {
+    LIBSSH2_SFTP_లక్షణాలు attrs;
+    ఒకవేళ(దత్తాంశం->state.resume_from < 0) {
+      పూర్ణాంకం rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->మార్గం,
+                                    curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshp->మార్గం)),
                                     LIBSSH2_SFTP_STAT, &attrs);
-      if(rc == LIBSSH2_ERROR_EAGAIN) {
+      ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN) {
         *blockp = TRUE;
-        return CURLE_OK;
+        తిరిగి CURLE_OK;
       }
-      if(rc) {
-        data->state.resume_from = 0;
+      ఒకవేళ(rc) {
+        దత్తాంశం->state.resume_from = 0;
       }
-      else {
-        curl_off_t size = attrs.filesize;
-        if(size < 0) {
-          failf(data, "Bad file size (%" FMT_OFF_T ")", size);
-          return CURLE_BAD_DOWNLOAD_RESUME;
+      లేకపోతే {
+        curl_off_t కొలత = attrs.filesize;
+        ఒకవేళ(కొలత < 0) {
+          failf(దత్తాంశం, "Bad file size (%" FMT_OFF_T ")", కొలత);
+          తిరిగి CURLE_BAD_DOWNLOAD_RESUME;
         }
-        data->state.resume_from = attrs.filesize;
+        దత్తాంశం->state.resume_from = attrs.filesize;
       }
     }
   }
 
-  if(data->set.remote_append) {
+  ఒకవేళ(దత్తాంశం->సమితి.remote_append) {
     /* True append mode: create if nonexisting */
     flags = LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_APPEND;
   }
-  else if(data->state.resume_from > 0) {
+  లేకపోతే ఒకవేళ(దత్తాంశం->state.resume_from > 0) {
     /*
      * Resume MUST NOT use APPEND; some servers force writes to EOF when
      * APPEND is set, ignoring a prior seek().
      */
     flags = LIBSSH2_FXF_WRITE;
   }
-  else {
+  లేకపోతే {
     /* Clear file before writing (normal behavior) */
     flags = LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC;
   }
 
   sshc->sftp_handle =
-    libssh2_sftp_open_ex(sshc->sftp_session, sshp->path,
-                         curlx_uztoui(strlen(sshp->path)),
-                         flags, (long)data->set.new_file_perms,
+    libssh2_sftp_open_ex(sshc->sftp_session, sshp->మార్గం,
+                         curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshp->మార్గం)),
+                         flags, (దీర్ఘ)దత్తాంశం->సమితి.new_file_perms,
                          LIBSSH2_SFTP_OPENFILE);
 
-  if(!sshc->sftp_handle) {
-    CURLcode result;
-    unsigned long sftperr;
-    int rc = libssh2_session_last_errno(sshc->ssh_session);
+  ఒకవేళ(!sshc->sftp_handle) {
+    CURLcode ఫలితం;
+    గుర్తులేని దీర్ఘ sftperr;
+    పూర్ణాంకం rc = libssh2_session_చివరి_errno(sshc->ssh_session);
 
-    if(LIBSSH2_ERROR_EAGAIN == rc) {
+    ఒకవేళ(LIBSSH2_ERROR_EAGAIN == rc) {
       *blockp = TRUE;
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
     }
 
-    if(LIBSSH2_ERROR_SFTP_PROTOCOL == rc)
+    ఒకవేళ(LIBSSH2_ERROR_SFTP_PROTOCOL == rc)
       /* only when there was an SFTP protocol error can we extract
          the sftp error! */
-      sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    else
+      sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    లేకపోతే
       sftperr = LIBSSH2_FX_OK; /* not an sftp error at all */
 
-    if(sshc->secondCreateDirs) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
-      failf(data, "Creating the dir/file failed: %s",
+    ఒకవేళ(sshc->రెండవ_Create_Dirs) {
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
+      failf(దత్తాంశం, "Creating the dir/file failed: %s",
             sftp_libssh2_strerror(sftperr));
-      return sftp_libssh2_error_to_CURLE(sftperr);
+      తిరిగి sftp_libssh2_error_గమ్యం_CURLE(sftperr);
     }
-    if((sftperr == LIBSSH2_FX_NO_SUCH_FILE ||
+    ఒకవేళ((sftperr == LIBSSH2_FX_NO_SUCH_FILE ||
         sftperr == LIBSSH2_FX_FAILURE ||
-        sftperr == LIBSSH2_FX_NO_SUCH_PATH) &&
-       data->set.ftp_create_missing_dirs &&
-       (strlen(sshp->path) > 1)) {
+        sftperr == LIBSSH2_FX_NO_SUCH_మార్గం) &&
+       దత్తాంశం->సమితి.ftp_create_missing_dirs &&
+       (అక్షరశ్రేణి_పొడవు(sshp->మార్గం) > 1)) {
       /* try to create the path remotely */
-      sshc->secondCreateDirs = 1;
-      myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS_INIT);
-      return CURLE_OK;
+      sshc->రెండవ_Create_Dirs = 1;
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CREATE_DIRS_INIT);
+      తిరిగి CURLE_OK;
     }
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-    result = sftp_libssh2_error_to_CURLE(sftperr);
-    if(!result) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
+    ఫలితం = sftp_libssh2_error_గమ్యం_CURLE(sftperr);
+    ఒకవేళ(!ఫలితం) {
       /* Sometimes, for some reason libssh2_sftp_last_error() returns zero
          even though libssh2_sftp_open() failed previously! We need to
          work around that! */
-      result = CURLE_SSH;
+      ఫలితం = CURLE_SSH;
       sftperr = LIBSSH2_FX_OK;
     }
-    failf(data, "Upload failed: %s (%lu/%d)",
+    failf(దత్తాంశం, "Upload failed: %s (%lu/%d)",
           sftperr != LIBSSH2_FX_OK ?
           sftp_libssh2_strerror(sftperr) : "ssh error",
           sftperr, rc);
-    return result;
+    తిరిగి ఫలితం;
   }
 
   /* If we have a restart point then we need to seek to the correct
      Skip if in explicit remote append mode. */
-  if(data->state.resume_from > 0 && !data->set.remote_append) {
-    int seekerr = CURL_SEEKFUNC_OK;
+  ఒకవేళ(దత్తాంశం->state.resume_from > 0 && !దత్తాంశం->సమితి.remote_append) {
+    పూర్ణాంకం seekerr = CURL_SEEKFUNC_OK;
     /* Let's read off the proper amount of bytes from the input. */
-    if(data->set.seek_func) {
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_seek_func);
-      seekerr = data->set.seek_func(data->set.seek_client,
-                                    data->state.resume_from, SEEK_SET);
-      CURL_CBAPI_END(&guard);
+    ఒకవేళ(దత్తాంశం->సమితి.seek_func) {
+      నిర్మాణం Curl_mapi_guard guard;
+      CURL_CBAPI_ప్రారంభం(&guard, దత్తాంశం, easy_seek_func);
+      seekerr = దత్తాంశం->సమితి.seek_func(దత్తాంశం->సమితి.seek_client,
+                                    దత్తాంశం->state.resume_from, SEEK_SET);
+      CURL_CBAPI_చివర(&guard);
     }
 
-    if(seekerr != CURL_SEEKFUNC_OK) {
+    ఒకవేళ(seekerr != CURL_SEEKFUNC_OK) {
       curl_off_t passed = 0;
 
-      if(seekerr != CURL_SEEKFUNC_CANTSEEK) {
-        failf(data, "Could not seek stream");
-        return CURLE_FTP_COULDNT_USE_REST;
+      ఒకవేళ(seekerr != CURL_SEEKFUNC_CANTSEEK) {
+        failf(దత్తాంశం, "Could not seek stream");
+        తిరిగి CURLE_FTP_COULDNT_USE_REST;
       }
       /* seekerr == CURL_SEEKFUNC_CANTSEEK (cannot seek to offset) */
-      do {
-        struct Curl_mapi_guard guard;
-        char scratch[4 * 1024];
+      చేయి {
+        నిర్మాణం Curl_mapi_guard guard;
+        అక్షరం scratch[4 * 1024];
         size_t readthisamountnow =
-          (data->state.resume_from - passed >
-           (curl_off_t)sizeof(scratch)) ?
-          sizeof(scratch) : curlx_sotouz(data->state.resume_from - passed);
+          (దత్తాంశం->state.resume_from - passed >
+           (curl_off_t)పరిమాణం(scratch)) ?
+          పరిమాణం(scratch) : curlx_sotouz(దత్తాంశం->state.resume_from - passed);
 
         size_t actuallyread;
-        CURL_CBAPI_START(&guard, data, easy_fread_func);
-        actuallyread = data->state.fread_func(scratch, 1,
+        CURL_CBAPI_ప్రారంభం(&guard, దత్తాంశం, easy_fread_func);
+        actuallyread = దత్తాంశం->state.fread_func(scratch, 1,
                                               readthisamountnow,
-                                              data->state.in);
-        CURL_CBAPI_END(&guard);
+                                              దత్తాంశం->state.లోపల);
+        CURL_CBAPI_చివర(&guard);
 
         passed += actuallyread;
-        if((actuallyread == 0) || (actuallyread > readthisamountnow)) {
+        ఒకవేళ((actuallyread == 0) || (actuallyread > readthisamountnow)) {
           /* this checks for greater-than only to make sure that the
              CURL_READFUNC_ABORT return code still aborts */
-          failf(data, "Failed to read data");
-          return CURLE_FTP_COULDNT_USE_REST;
+          failf(దత్తాంశం, "Failed to read data");
+          తిరిగి CURLE_FTP_COULDNT_USE_REST;
         }
-      } while(passed < data->state.resume_from);
+      } అయితే(passed < దత్తాంశం->state.resume_from);
     }
 
     /* now, decrease the size of the read */
-    if(data->state.infilesize > 0) {
-      data->state.infilesize -= data->state.resume_from;
-      data->req.size = data->state.infilesize;
-      Curl_pgrsSetUploadSize(data, data->state.infilesize);
+    ఒకవేళ(దత్తాంశం->state.infilesize > 0) {
+      దత్తాంశం->state.infilesize -= దత్తాంశం->state.resume_from;
+      దత్తాంశం->req.కొలత = దత్తాంశం->state.infilesize;
+      Curl_pgrs_సమితి_Upload_కొలత(దత్తాంశం, దత్తాంశం->state.infilesize);
     }
 
     libssh2_sftp_seek64(sshc->sftp_handle,
-                        (libssh2_uint64_t)data->state.resume_from);
+                        (libssh2_uint64_t)దత్తాంశం->state.resume_from);
   }
-  if(data->state.infilesize > 0) {
-    data->req.size = data->state.infilesize;
-    Curl_pgrsSetUploadSize(data, data->state.infilesize);
+  ఒకవేళ(దత్తాంశం->state.infilesize > 0) {
+    దత్తాంశం->req.కొలత = దత్తాంశం->state.infilesize;
+    Curl_pgrs_సమితి_Upload_కొలత(దత్తాంశం, దత్తాంశం->state.infilesize);
   }
   /* upload data */
-  Curl_xfer_setup_send(data, FIRSTSOCKET);
+  Curl_xfer_అమరిక_send(దత్తాంశం, FIRSTSOCKET);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->recv_idx = FIRSTSOCKET;
+  దత్తాంశం->conn->recv_idx = FIRSTSOCKET;
 
   /* since we do not really wait for anything at this point, we want the
      state machine to move on as soon as possible so mark this as dirty */
-  Curl_multi_mark_dirty(data);
+  Curl_multi_mark_dirty(దత్తాంశం);
 
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+  తిరిగి CURLE_OK;
 }
 
-static void ssh_state_pkey_init(struct Curl_easy *data, struct ssh_conn *sshc)
+స్థిర శూన్య ssh_state_pkey_init(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం ssh_conn *sshc)
 {
   /*
    * Check the supported auth types in the order I feel is most secure
@@ -1133,23 +1133,23 @@ static void ssh_state_pkey_init(struct Curl_easy *data, struct ssh_conn *sshc)
    */
   sshc->authed = FALSE;
 
-  if((data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) &&
-     strstr(sshc->authlist, "publickey")) {
-    if(sshc->pub_key)
-      infof(data, "SSH: trying public key file '%s'", sshc->pub_key);
-    infof(data, "SSH: trying private key file '%s'", sshc->priv_key);
-    myssh_to(data, sshc, SSH_AUTH_PKEY);
+  ఒకవేళ((దత్తాంశం->సమితి.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) &&
+     అక్షరశ్రేణి_శోధన(sshc->authlist, "publickey")) {
+    ఒకవేళ(sshc->pub_కీలకం)
+      infof(దత్తాంశం, "SSH: trying public key file '%s'", sshc->pub_కీలకం);
+    infof(దత్తాంశం, "SSH: trying private key file '%s'", sshc->priv_కీలకం);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_PKEY);
   }
-  else
-    myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
+  లేకపోతే
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_PASS_INIT);
 }
 
-static CURLcode sftp_quote_stat(struct Curl_easy *data,
-                                struct ssh_conn *sshc,
-                                struct SSHPROTO *sshp,
+స్థిర CURLcode sftp_quote_stat(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం ssh_conn *sshc,
+                                నిర్మాణం SSHPROTO *sshp,
                                 bool *blockp)
 {
-  const char *cmd = sshc->quote_item->data;
+  స్థిరరాశి అక్షరం *cmd = sshc->quote_అంశం->దత్తాంశం;
   sshc->acceptfail = FALSE;
 
   /* if a command starts with an asterisk, which a legal SFTP command never
@@ -1157,119 +1157,119 @@ static CURLcode sftp_quote_stat(struct Curl_easy *data,
      cancels etc. It causes libcurl to act as if the command is
      successful, whatever the server responds. */
 
-  if(cmd[0] == '*') {
+  ఒకవేళ(cmd[0] == '*') {
     cmd++;
     sshc->acceptfail = TRUE;
   }
 
-  if(strncmp(cmd, "chmod", 5)) {
+  ఒకవేళ(అక్షరశ్రేణి_పోలిక(cmd, "chmod", 5)) {
     /* Since chown and chgrp only set owner OR group but libssh2 wants to set
      * them both at once, we need to obtain the current ownership first. This
      * takes an extra protocol round trip.
      */
-    int rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshc->quote_path2,
-                                  curlx_uztoui(strlen(sshc->quote_path2)),
+    పూర్ణాంకం rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshc->quote_path2,
+                                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshc->quote_path2)),
                                   LIBSSH2_SFTP_STAT,
                                   &sshp->quote_attrs);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN) {
       *blockp = TRUE;
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
     }
-    if(rc && !sshc->acceptfail) { /* get those attributes */
-      unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-      failf(data, "Attempt to get SFTP stats failed: %s",
+    ఒకవేళ(rc && !sshc->acceptfail) { /* get those attributes */
+      గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+      failf(దత్తాంశం, "Attempt to get SFTP stats failed: %s",
             sftp_libssh2_strerror(sftperr));
-      goto fail;
+      వెళ్ళు fail;
     }
   }
 
   /* Now set the new attributes... */
-  if(!strncmp(cmd, "chgrp", 5)) {
-    const char *p = sshc->quote_path1;
+  ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "chgrp", 5)) {
+    స్థిరరాశి అక్షరం *p = sshc->quote_path1;
     curl_off_t gid;
-    if(!curlx_str_number(&p, &gid, ULONG_MAX)) {
-      sshp->quote_attrs.gid = (unsigned long)gid;
+    ఒకవేళ(!curlx_str_సంఖ్య(&p, &gid, ULONG_MAX)) {
+      sshp->quote_attrs.gid = (గుర్తులేని దీర్ఘ)gid;
       sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_UIDGID;
     }
-    else if(!sshc->acceptfail) {
-      failf(data, "Syntax error: chgrp gid not a number");
-      goto fail;
+    లేకపోతే ఒకవేళ(!sshc->acceptfail) {
+      failf(దత్తాంశం, "Syntax error: chgrp gid not a number");
+      వెళ్ళు fail;
     }
   }
-  else if(!strncmp(cmd, "chmod", 5)) {
+  లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "chmod", 5)) {
     curl_off_t perms;
-    const char *p = sshc->quote_path1;
+    స్థిరరాశి అక్షరం *p = sshc->quote_path1;
     /* permissions are octal */
-    if(curlx_str_octal(&p, &perms, 07777)) {
-      failf(data, "Syntax error: chmod permissions not a number");
-      goto fail;
+    ఒకవేళ(curlx_str_octal(&p, &perms, 07777)) {
+      failf(దత్తాంశం, "Syntax error: chmod permissions not a number");
+      వెళ్ళు fail;
     }
 
-    sshp->quote_attrs.permissions = (unsigned long)perms;
+    sshp->quote_attrs.permissions = (గుర్తులేని దీర్ఘ)perms;
     sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_PERMISSIONS;
   }
-  else if(!strncmp(cmd, "chown", 5)) {
-    const char *p = sshc->quote_path1;
+  లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "chown", 5)) {
+    స్థిరరాశి అక్షరం *p = sshc->quote_path1;
     curl_off_t uid;
-    if(!curlx_str_number(&p, &uid, ULONG_MAX)) {
-      sshp->quote_attrs.uid = (unsigned long)uid;
+    ఒకవేళ(!curlx_str_సంఖ్య(&p, &uid, ULONG_MAX)) {
+      sshp->quote_attrs.uid = (గుర్తులేని దీర్ఘ)uid;
       sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_UIDGID;
     }
-    else if(!sshc->acceptfail) {
-      failf(data, "Syntax error: chown uid not a number");
-      goto fail;
+    లేకపోతే ఒకవేళ(!sshc->acceptfail) {
+      failf(దత్తాంశం, "Syntax error: chown uid not a number");
+      వెళ్ళు fail;
     }
   }
-  else if(!strncmp(cmd, "atime", 5) ||
-          !strncmp(cmd, "mtime", 5)) {
+  లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "atime", 5) ||
+          !అక్షరశ్రేణి_పోలిక(cmd, "mtime", 5)) {
     time_t date;
     bool fail = FALSE;
 
-    if(Curl_getdate_capped(sshc->quote_path1, &date)) {
-      failf(data, "incorrect date format for %.*s", 5, cmd);
+    ఒకవేళ(Curl_getdate_capped(sshc->quote_path1, &date)) {
+      failf(దత్తాంశం, "incorrect date format for %.*s", 5, cmd);
       fail = TRUE;
     }
-#if SIZEOF_TIME_T > SIZEOF_LONG
-    if(date > 0xffffffff) {
+#ఒకవేళ SIZEOF_సమయం_T > SIZEOF_LONG
+    ఒకవేళ(date > 0xffffffff) {
       /* if 'long' cannot hold >32-bit, this date cannot be sent */
-      failf(data, "date overflow");
+      failf(దత్తాంశం, "date overflow");
       fail = TRUE;
     }
-#endif
-    if(fail)
-      goto fail;
-    if(!strncmp(cmd, "atime", 5))
-      sshp->quote_attrs.atime = (unsigned long)date;
-    else /* mtime */
-      sshp->quote_attrs.mtime = (unsigned long)date;
+#అయితే_ముగింపు
+    ఒకవేళ(fail)
+      వెళ్ళు fail;
+    ఒకవేళ(!అక్షరశ్రేణి_పోలిక(cmd, "atime", 5))
+      sshp->quote_attrs.atime = (గుర్తులేని దీర్ఘ)date;
+    లేకపోతే /* mtime */
+      sshp->quote_attrs.mtime = (గుర్తులేని దీర్ఘ)date;
 
     sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_ACMODTIME;
   }
 
   /* Now send the completed structure... */
-  myssh_to(data, sshc, SSH_SFTP_QUOTE_SETSTAT);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE_SETSTAT);
+  తిరిగి CURLE_OK;
 fail:
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  return CURLE_QUOTE_ERROR;
+  తిరిగి CURLE_QUOTE_ERROR;
 }
 
-static CURLcode sftp_download_stat(struct Curl_easy *data,
-                                   struct ssh_conn *sshc,
-                                   struct SSHPROTO *sshp,
+స్థిర CURLcode sftp_download_stat(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం ssh_conn *sshc,
+                                   నిర్మాణం SSHPROTO *sshp,
                                    bool *blockp)
 {
-  LIBSSH2_SFTP_ATTRIBUTES attrs;
-  int rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->path,
-                                curlx_uztoui(strlen(sshp->path)),
+  LIBSSH2_SFTP_లక్షణాలు attrs;
+  పూర్ణాంకం rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->మార్గం,
+                                curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshp->మార్గం)),
                                 LIBSSH2_SFTP_STAT, &attrs);
-  if(rc == LIBSSH2_ERROR_EAGAIN) {
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN) {
     *blockp = TRUE;
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
   }
-  if(rc ||
-     !(attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) ||
+  ఒకవేళ(rc ||
+     !(attrs.flags & LIBSSH2_SFTP_ATTR_కొలత) ||
      (attrs.filesize == 0)) {
     /*
      * libssh2_sftp_open() did not return an error, so maybe the server
@@ -1277,195 +1277,195 @@ static CURLcode sftp_download_stat(struct Curl_easy *data,
      * OR the server does not return a file size with a stat()
      * OR file size is 0
      */
-    data->req.size = -1;
-    data->req.maxdownload = -1;
-    Curl_pgrsSetDownloadSize(data, -1);
+    దత్తాంశం->req.కొలత = -1;
+    దత్తాంశం->req.maxdownload = -1;
+    Curl_pgrs_సమితి_Download_కొలత(దత్తాంశం, -1);
     attrs.filesize = 0; /* might be uninitialized but is read below */
   }
-  else {
-    curl_off_t size = attrs.filesize;
+  లేకపోతే {
+    curl_off_t కొలత = attrs.filesize;
 
-    if(size < 0) {
-      failf(data, "Bad file size (%" FMT_OFF_T ")", size);
-      return CURLE_BAD_DOWNLOAD_RESUME;
+    ఒకవేళ(కొలత < 0) {
+      failf(దత్తాంశం, "Bad file size (%" FMT_OFF_T ")", కొలత);
+      తిరిగి CURLE_BAD_DOWNLOAD_RESUME;
     }
-    if(data->state.use_range) {
+    ఒకవేళ(దత్తాంశం->state.use_range) {
       curl_off_t from;
-      CURLcode result = Curl_ssh_range(data, data->state.range, size,
-                                       &from, &size);
-      if(result)
-        return result;
+      CURLcode ఫలితం = Curl_ssh_range(దత్తాంశం, దత్తాంశం->state.range, కొలత,
+                                       &from, &కొలత);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
 
       libssh2_sftp_seek64(sshc->sftp_handle, (libssh2_uint64_t)from);
     }
-    data->req.size = size;
-    data->req.maxdownload = size;
-    Curl_pgrsSetDownloadSize(data, size);
+    దత్తాంశం->req.కొలత = కొలత;
+    దత్తాంశం->req.maxdownload = కొలత;
+    Curl_pgrs_సమితి_Download_కొలత(దత్తాంశం, కొలత);
   }
 
   /* We can resume if we can seek to the resume position */
-  if(data->state.resume_from) {
-    if(data->state.resume_from < 0) {
+  ఒకవేళ(దత్తాంశం->state.resume_from) {
+    ఒకవేళ(దత్తాంశం->state.resume_from < 0) {
       /* We are supposed to download the last abs(from) bytes */
-      if((curl_off_t)attrs.filesize < -data->state.resume_from) {
-        failf(data, "Offset (%" FMT_OFF_T ") was beyond file size (%"
+      ఒకవేళ((curl_off_t)attrs.filesize < -దత్తాంశం->state.resume_from) {
+        failf(దత్తాంశం, "Offset (%" FMT_OFF_T ") was beyond file size (%"
               FMT_OFF_T ")",
-              data->state.resume_from, (curl_off_t)attrs.filesize);
-        return CURLE_BAD_DOWNLOAD_RESUME;
+              దత్తాంశం->state.resume_from, (curl_off_t)attrs.filesize);
+        తిరిగి CURLE_BAD_DOWNLOAD_RESUME;
       }
       /* download from where? */
-      data->state.resume_from += attrs.filesize;
+      దత్తాంశం->state.resume_from += attrs.filesize;
     }
-    else {
-      if((curl_off_t)attrs.filesize < data->state.resume_from) {
-        failf(data, "Offset (%" FMT_OFF_T
+    లేకపోతే {
+      ఒకవేళ((curl_off_t)attrs.filesize < దత్తాంశం->state.resume_from) {
+        failf(దత్తాంశం, "Offset (%" FMT_OFF_T
               ") was beyond file size (%" FMT_OFF_T ")",
-              data->state.resume_from, (curl_off_t)attrs.filesize);
-        return CURLE_BAD_DOWNLOAD_RESUME;
+              దత్తాంశం->state.resume_from, (curl_off_t)attrs.filesize);
+        తిరిగి CURLE_BAD_DOWNLOAD_RESUME;
       }
     }
     /* Now store the number of bytes we are expected to download */
-    data->req.size = attrs.filesize - data->state.resume_from;
-    data->req.maxdownload = attrs.filesize - data->state.resume_from;
-    Curl_pgrsSetDownloadSize(data, attrs.filesize - data->state.resume_from);
+    దత్తాంశం->req.కొలత = attrs.filesize - దత్తాంశం->state.resume_from;
+    దత్తాంశం->req.maxdownload = attrs.filesize - దత్తాంశం->state.resume_from;
+    Curl_pgrs_సమితి_Download_కొలత(దత్తాంశం, attrs.filesize - దత్తాంశం->state.resume_from);
     libssh2_sftp_seek64(sshc->sftp_handle,
-                        (libssh2_uint64_t)data->state.resume_from);
+                        (libssh2_uint64_t)దత్తాంశం->state.resume_from);
   }
 
   /* Setup the actual download */
-  if(data->req.size == 0) {
+  ఒకవేళ(దత్తాంశం->req.కొలత == 0) {
     /* no data to transfer */
-    Curl_xfer_setup_nop(data);
-    infof(data, "SSH: file already completely downloaded");
-    myssh_to(data, sshc, SSH_STOP);
-    return CURLE_OK;
+    Curl_xfer_అమరిక_nop(దత్తాంశం);
+    infof(దత్తాంశం, "SSH: file already completely downloaded");
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+    తిరిగి CURLE_OK;
   }
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, data->req.size);
+  Curl_xfer_అమరిక_recv(దత్తాంశం, FIRSTSOCKET, దత్తాంశం->req.కొలత);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->send_idx = 0;
+  దత్తాంశం->conn->send_idx = 0;
 
-  myssh_to(data, sshc, SSH_STOP);
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode sftp_readdir(struct Curl_easy *data,
-                             struct ssh_conn *sshc,
-                             struct SSHPROTO *sshp,
+స్థిర CURLcode sftp_readdir(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం ssh_conn *sshc,
+                             నిర్మాణం SSHPROTO *sshp,
                              bool *blockp)
 {
-  CURLcode result = CURLE_OK;
-  int rc = libssh2_sftp_readdir_ex(sshc->sftp_handle,
-                                   sshp->readdir_filename, CURL_PATH_MAX,
-                                   sshp->readdir_longentry, CURL_PATH_MAX,
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం rc = libssh2_sftp_readdir_ex(sshc->sftp_handle,
+                                   sshp->readdir_filename, CURL_మార్గం_MAX,
+                                   sshp->readdir_longentry, CURL_మార్గం_MAX,
                                    &sshp->readdir_attrs);
-  if(rc == LIBSSH2_ERROR_EAGAIN) {
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN) {
     *blockp = TRUE;
-    return result;
+    తిరిగి ఫలితం;
   }
-  if(rc > 0) {
+  ఒకవేళ(rc > 0) {
     size_t readdir_len = (size_t)rc;
     sshp->readdir_filename[readdir_len] = '\0';
 
-    if(data->set.list_only) {
-      result = Curl_client_write(data, CLIENTWRITE_BODY,
+    ఒకవేళ(దత్తాంశం->సమితి.list_only) {
+      ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_BODY,
                                  sshp->readdir_filename,
                                  readdir_len);
-      if(!result)
-        result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-      if(result)
-        return result;
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_BODY, "\n", 1);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
     }
-    else {
-      result = curlx_dyn_add(&sshp->readdir, sshp->readdir_longentry);
+    లేకపోతే {
+      ఫలితం = curlx_dyn_కూడు(&sshp->readdir, sshp->readdir_longentry);
 
-      if(!result) {
-        if((sshp->readdir_attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) &&
+      ఒకవేళ(!ఫలితం) {
+        ఒకవేళ((sshp->readdir_attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) &&
            ((sshp->readdir_attrs.permissions & LIBSSH2_SFTP_S_IFMT) ==
             LIBSSH2_SFTP_S_IFLNK)) {
-          result = curlx_dyn_addf(&sshp->readdir_link, "%s%s", sshp->path,
+          ఫలితం = curlx_dyn_addf(&sshp->readdir_link, "%s%s", sshp->మార్గం,
                                   sshp->readdir_filename);
-          myssh_to(data, sshc, SSH_SFTP_READDIR_LINK);
+          myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_READDIR_LINK);
         }
-        else {
-          myssh_to(data, sshc, SSH_SFTP_READDIR_BOTTOM);
+        లేకపోతే {
+          myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_READDIR_BOTTOM);
         }
       }
-      return result;
+      తిరిగి ఫలితం;
     }
   }
-  else if(!rc) {
-    myssh_to(data, sshc, SSH_SFTP_READDIR_DONE);
+  లేకపోతే ఒకవేళ(!rc) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_READDIR_పూర్తి);
   }
-  else {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    result = sftperr ? sftp_libssh2_error_to_CURLE(sftperr) : CURLE_SSH;
-    failf(data, "Could not open remote file for reading: %s :: %d",
+  లేకపోతే {
+    గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    ఫలితం = sftperr ? sftp_libssh2_error_గమ్యం_CURLE(sftperr) : CURLE_SSH;
+    failf(దత్తాంశం, "Could not open remote file for reading: %s :: %d",
           sftp_libssh2_strerror(sftperr),
-          libssh2_session_last_errno(sshc->ssh_session));
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+          libssh2_session_చివరి_errno(sshc->ssh_session));
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_state_init(struct Curl_easy *data,
-                               struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం ssh_conn *sshc)
 {
-  CURLcode result;
-  sshc->secondCreateDirs = 0;
+  CURLcode ఫలితం;
+  sshc->రెండవ_Create_Dirs = 0;
   sshc->nextstate = SSH_NO_STATE;
 
   /* Set libssh2 to non-blocking, since everything internally is
      non-blocking */
-  libssh2_session_set_blocking(sshc->ssh_session, 0);
+  libssh2_session_సమితి_blocking(sshc->ssh_session, 0);
 
-  result = ssh_force_knownhost_key_type(data, sshc);
-  if(result)
-    myssh_to(data, sshc, SSH_SESSION_FREE);
-  else
-    myssh_to(data, sshc, SSH_S_STARTUP);
-  return result;
+  ఫలితం = ssh_force_knownhost_కీలకం_type(దత్తాంశం, sshc);
+  ఒకవేళ(ఫలితం)
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+  లేకపోతే
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_S_STARTUP);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_state_startup(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_startup(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  int rc = libssh2_session_handshake(sshc->ssh_session,
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  పూర్ణాంకం rc = libssh2_session_handshake(sshc->ssh_session,
                                      conn->sock[FIRSTSOCKET]);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc) {
-    char *err_msg = NULL;
-    (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-    failf(data, "Failure establishing ssh session: %d, %s", rc, err_msg);
+  ఒకవేళ(rc) {
+    అక్షరం *err_సందేశం = ఖాళీ;
+    (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+    failf(దత్తాంశం, "Failure establishing ssh session: %d, %s", rc, err_సందేశం);
 
-    myssh_to(data, sshc, SSH_SESSION_FREE);
-    return CURLE_FAILED_INIT;
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+    తిరిగి CURLE_FAILED_INIT;
   }
 
-  myssh_to(data, sshc, SSH_HOSTKEY);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_HOSTKEY);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_hostkey(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_hostkey(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం ssh_conn *sshc)
 {
   /*
    * Before we authenticate we should check the hostkey's fingerprint
    * against our known hosts. How that is handled (reading from file,
    * whatever) is up to us.
    */
-  CURLcode result = ssh_check_fingerprint(data, sshc);
-  if(!result)
-    myssh_to(data, sshc, SSH_AUTHLIST);
-  return result;
+  CURLcode ఫలితం = ssh_check_fingerprint(దత్తాంశం, sshc);
+  ఒకవేళ(!ఫలితం)
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTHLIST);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_state_authlist(struct Curl_easy *data,
-                                   struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_authlist(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం ssh_conn *sshc)
 {
   /*
    * Figure out authentication methods
@@ -1477,719 +1477,719 @@ static CURLcode ssh_state_authlist(struct Curl_easy *data,
    * experience.
    * Therefore always specify it here.
    */
-  struct connectdata *conn = data->conn;
-  const char *user = Curl_creds_user(conn->creds);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  స్థిరరాశి అక్షరం *user = Curl_creds_user(conn->creds);
   sshc->authlist = libssh2_userauth_list(sshc->ssh_session,
-                                         user, curlx_uztoui(strlen(user)));
+                                         user, curlx_uztoui(అక్షరశ్రేణి_పొడవు(user)));
 
-  if(!sshc->authlist) {
-    int rc;
-    if(libssh2_userauth_authenticated(sshc->ssh_session)) {
+  ఒకవేళ(!sshc->authlist) {
+    పూర్ణాంకం rc;
+    ఒకవేళ(libssh2_userauth_authenticated(sshc->ssh_session)) {
       sshc->authed = TRUE;
-      infof(data, "SSH: user accepted with no authentication");
-      myssh_to(data, sshc, SSH_AUTH_DONE);
-      return CURLE_OK;
+      infof(దత్తాంశం, "SSH: user accepted with no authentication");
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_పూర్తి);
+      తిరిగి CURLE_OK;
     }
-    rc = libssh2_session_last_errno(sshc->ssh_session);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    rc = libssh2_session_చివరి_errno(sshc->ssh_session);
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
 
-    myssh_to(data, sshc, SSH_SESSION_FREE);
-    return libssh2_session_error_to_CURLE(rc);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+    తిరిగి libssh2_session_error_గమ్యం_CURLE(rc);
   }
-  infof(data, "SSH: host offers authentication via: %s", sshc->authlist);
+  infof(దత్తాంశం, "SSH: host offers authentication via: %s", sshc->authlist);
 
-  myssh_to(data, sshc, SSH_AUTH_PKEY_INIT);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_PKEY_INIT);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_pkey(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_auth_pkey(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం ssh_conn *sshc)
 {
   /* The function below checks if the files exists, no need to stat() here.
    */
-  struct connectdata *conn = data->conn;
-  const char *user = Curl_creds_user(conn->creds);
-  int rc = libssh2_userauth_publickey_fromfile_ex(
-    sshc->ssh_session, user, curlx_uztoui(strlen(user)),
-    sshc->pub_key, sshc->priv_key, sshc->passphrase ? sshc->passphrase : "");
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  స్థిరరాశి అక్షరం *user = Curl_creds_user(conn->creds);
+  పూర్ణాంకం rc = libssh2_userauth_publickey_fromfile_ex(
+    sshc->ssh_session, user, curlx_uztoui(అక్షరశ్రేణి_పొడవు(user)),
+    sshc->pub_కీలకం, sshc->priv_కీలకం, sshc->passphrase ? sshc->passphrase : "");
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc == 0) {
+  ఒకవేళ(rc == 0) {
     sshc->authed = TRUE;
-    infof(data, "SSH: authenticated via publickey");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
+    infof(దత్తాంశం, "SSH: authenticated via publickey");
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_పూర్తి);
   }
-  else {
-    char *err_msg = NULL;
-    char unknown[] = "Reason unknown (-1)";
-    if(rc == -1) {
+  లేకపోతే {
+    అక్షరం *err_సందేశం = ఖాళీ;
+    అక్షరం unknown[] = "Reason unknown (-1)";
+    ఒకవేళ(rc == -1) {
       /* No error message has been set and the last set error message, if
          any, is from a previous error so ignore it. #11837 */
-      err_msg = unknown;
+      err_సందేశం = unknown;
     }
-    else {
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
+    లేకపోతే {
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
     }
-    infof(data, "SSH: publickey authentication denied: %s", err_msg);
-    myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
+    infof(దత్తాంశం, "SSH: publickey authentication denied: %s", err_సందేశం);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_PASS_INIT);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_pass_init(struct Curl_easy *data,
-                                         struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_auth_pass_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                         నిర్మాణం ssh_conn *sshc)
 {
-  if((data->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD) &&
-     strstr(sshc->authlist, "password")) {
-    myssh_to(data, sshc, SSH_AUTH_PASS);
+  ఒకవేళ((దత్తాంశం->సమితి.ssh_auth_types & CURLSSH_AUTH_PASSWORD) &&
+     అక్షరశ్రేణి_శోధన(sshc->authlist, "password")) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_PASS);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_HOST_INIT);
+  లేకపోతే {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_HOST_INIT);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_pass(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_auth_pass(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  const char *user = Curl_creds_user(conn->creds);
-  const char *passwd = Curl_creds_passwd(conn->creds);
-  int rc =
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  స్థిరరాశి అక్షరం *user = Curl_creds_user(conn->creds);
+  స్థిరరాశి అక్షరం *passwd = Curl_creds_passwd(conn->creds);
+  పూర్ణాంకం rc =
     libssh2_userauth_password_ex(sshc->ssh_session, user,
-                                 curlx_uztoui(strlen(user)),
+                                 curlx_uztoui(అక్షరశ్రేణి_పొడవు(user)),
                                  passwd,
-                                 curlx_uztoui(strlen(passwd)),
-                                 NULL);
-  if(rc == LIBSSH2_ERROR_EAGAIN) {
-    return CURLE_AGAIN;
+                                 curlx_uztoui(అక్షరశ్రేణి_పొడవు(passwd)),
+                                 ఖాళీ);
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN) {
+    తిరిగి CURLE_AGAIN;
   }
-  if(rc == 0) {
+  ఒకవేళ(rc == 0) {
     sshc->authed = TRUE;
-    infof(data, "SSH: initialized password authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
+    infof(దత్తాంశం, "SSH: initialized password authentication");
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_పూర్తి);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_HOST_INIT);
+  లేకపోతే {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_HOST_INIT);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_host_init(struct Curl_easy *data,
-                                         struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_auth_host_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                         నిర్మాణం ssh_conn *sshc)
 {
-  if((data->set.ssh_auth_types & CURLSSH_AUTH_HOST) &&
-     strstr(sshc->authlist, "hostbased")) {
-    myssh_to(data, sshc, SSH_AUTH_HOST);
+  ఒకవేళ((దత్తాంశం->సమితి.ssh_auth_types & CURLSSH_AUTH_HOST) &&
+     అక్షరశ్రేణి_శోధన(sshc->authlist, "hostbased")) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_HOST);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_AGENT_INIT);
+  లేకపోతే {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_AGENT_INIT);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_agent_init(struct Curl_easy *data,
-                                          struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_auth_agent_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం ssh_conn *sshc)
 {
-  int rc = 0;
-  if((data->set.ssh_auth_types & CURLSSH_AUTH_AGENT) &&
-     strstr(sshc->authlist, "publickey")) {
+  పూర్ణాంకం rc = 0;
+  ఒకవేళ((దత్తాంశం->సమితి.ssh_auth_types & CURLSSH_AUTH_AGENT) &&
+     అక్షరశ్రేణి_శోధన(sshc->authlist, "publickey")) {
 
-    infof(data, "SSH: trying publickey authentication via agent");
+    infof(దత్తాంశం, "SSH: trying publickey authentication via agent");
     /* Connect to the ssh-agent */
     /* The agent could be shared by a curl thread i believe
        but nothing obvious as keys can be added/removed at any time */
-    if(!sshc->ssh_agent) {
+    ఒకవేళ(!sshc->ssh_agent) {
       sshc->ssh_agent = libssh2_agent_init(sshc->ssh_session);
-      if(!sshc->ssh_agent) {
-        infof(data, "SSH: could not create agent object");
+      ఒకవేళ(!sshc->ssh_agent) {
+        infof(దత్తాంశం, "SSH: could not create agent object");
 
-        myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
-        return CURLE_OK;
+        myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_కీలకం_INIT);
+        తిరిగి CURLE_OK;
       }
     }
 
     rc = libssh2_agent_connect(sshc->ssh_agent);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
-    if(rc < 0) {
-      infof(data, "SSH: failure connecting to agent");
-      myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
+    ఒకవేళ(rc < 0) {
+      infof(దత్తాంశం, "SSH: failure connecting to agent");
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_కీలకం_INIT);
     }
-    else {
-      myssh_to(data, sshc, SSH_AUTH_AGENT_LIST);
+    లేకపోతే {
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_AGENT_LIST);
     }
   }
-  else
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
-  return CURLE_OK;
+  లేకపోతే
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_కీలకం_INIT);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_agent_list(struct Curl_easy *data,
-                                          struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_auth_agent_list(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం ssh_conn *sshc)
 {
-  int rc = libssh2_agent_list_identities(sshc->ssh_agent);
+  పూర్ణాంకం rc = libssh2_agent_list_identities(sshc->ssh_agent);
 
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
-  if(rc < 0) {
-    infof(data, "SSH: failure requesting identities to agent");
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
+  ఒకవేళ(rc < 0) {
+    infof(దత్తాంశం, "SSH: failure requesting identities to agent");
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_కీలకం_INIT);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_AGENT);
-    sshc->sshagent_prev_identity = NULL;
+  లేకపోతే {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_AGENT);
+    sshc->sshagent_prev_తటస్థం = ఖాళీ;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_agent(struct Curl_easy *data,
-                                     struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_auth_agent(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం ssh_conn *sshc)
 {
   /* as prev_identity evolves only after an identity user auth finished we
      can safely request it again as long as EAGAIN is returned here or by
      libssh2_agent_userauth */
-  int rc = libssh2_agent_get_identity(sshc->ssh_agent,
-                                      &sshc->sshagent_identity,
-                                      sshc->sshagent_prev_identity);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  పూర్ణాంకం rc = libssh2_agent_get_తటస్థం(sshc->ssh_agent,
+                                      &sshc->sshagent_తటస్థం,
+                                      sshc->sshagent_prev_తటస్థం);
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc == 0) {
-    CURL_TRC_SSH(data, "[SSH_AUTH_AGENT_LIST] auth user '%s' for key '%s'",
-                 Curl_creds_user(data->conn->creds),
-                 sshc->sshagent_identity->comment);
+  ఒకవేళ(rc == 0) {
+    CURL_TRC_SSH(దత్తాంశం, "[SSH_AUTH_AGENT_LIST] auth user '%s' for key '%s'",
+                 Curl_creds_user(దత్తాంశం->conn->creds),
+                 sshc->sshagent_తటస్థం->comment);
     rc = libssh2_agent_userauth(sshc->ssh_agent,
-                                Curl_creds_user(data->conn->creds),
-                                sshc->sshagent_identity);
+                                Curl_creds_user(దత్తాంశం->conn->creds),
+                                sshc->sshagent_తటస్థం);
 
-    if(rc < 0) {
-      if(rc != LIBSSH2_ERROR_EAGAIN) {
+    ఒకవేళ(rc < 0) {
+      ఒకవేళ(rc != LIBSSH2_ERROR_EAGAIN) {
         /* tried and failed? go to next identity */
-        sshc->sshagent_prev_identity = sshc->sshagent_identity;
-        return CURLE_OK;
+        sshc->sshagent_prev_తటస్థం = sshc->sshagent_తటస్థం;
+        తిరిగి CURLE_OK;
       }
-      return CURLE_AGAIN;
+      తిరిగి CURLE_AGAIN;
     }
   }
 
-  if(rc < 0)
-    infof(data, "SSH: failure requesting identities to agent");
-  else if(rc == 1)
-    infof(data, "SSH: no agent identity would match");
+  ఒకవేళ(rc < 0)
+    infof(దత్తాంశం, "SSH: failure requesting identities to agent");
+  లేకపోతే ఒకవేళ(rc == 1)
+    infof(దత్తాంశం, "SSH: no agent identity would match");
 
-  if(rc == LIBSSH2_ERROR_NONE) {
+  ఒకవేళ(rc == LIBSSH2_ERROR_NONE) {
     sshc->authed = TRUE;
-    infof(data, "SSH: agent authenticated user '%s' with key '%s'",
-          Curl_creds_user(data->conn->creds),
-          sshc->sshagent_identity->comment);
-    myssh_to(data, sshc, SSH_AUTH_DONE);
+    infof(దత్తాంశం, "SSH: agent authenticated user '%s' with key '%s'",
+          Curl_creds_user(దత్తాంశం->conn->creds),
+          sshc->sshagent_తటస్థం->comment);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_పూర్తి);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
+  లేకపోతే {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_కీలకం_INIT);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_key_init(struct Curl_easy *data,
-                                        struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_auth_కీలకం_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                        నిర్మాణం ssh_conn *sshc)
 {
-  if((data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) &&
-     strstr(sshc->authlist, "keyboard-interactive")) {
-    myssh_to(data, sshc, SSH_AUTH_KEY);
+  ఒకవేళ((దత్తాంశం->సమితి.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) &&
+     అక్షరశ్రేణి_శోధన(sshc->authlist, "keyboard-interactive")) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_కీలకం);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_DONE);
+  లేకపోతే {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_పూర్తి);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_key(struct Curl_easy *data,
-                                   struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_auth_కీలకం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం ssh_conn *sshc)
 {
   /* Authentication failed. Continue with keyboard-interactive now. */
-  struct connectdata *conn = data->conn;
-  const char *user = Curl_creds_user(conn->creds);
-  int rc =
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  స్థిరరాశి అక్షరం *user = Curl_creds_user(conn->creds);
+  పూర్ణాంకం rc =
     libssh2_userauth_keyboard_interactive_ex(sshc->ssh_session,
-                                             user, curlx_uztoui(strlen(user)),
+                                             user, curlx_uztoui(అక్షరశ్రేణి_పొడవు(user)),
                                              &kbd_callback);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc == 0) {
+  ఒకవేళ(rc == 0) {
     sshc->authed = TRUE;
-    infof(data, "SSH: initialized keyboard interactive authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return CURLE_OK;
+    infof(దత్తాంశం, "SSH: initialized keyboard interactive authentication");
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_పూర్తి);
+    తిరిగి CURLE_OK;
   }
-  return CURLE_LOGIN_DENIED;
+  తిరిగి CURLE_LOGIN_DENIED;
 }
 
-static CURLcode ssh_state_auth_done(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_auth_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  if(!sshc->authed) {
-    failf(data, "Authentication failure");
-    myssh_to(data, sshc, SSH_SESSION_FREE);
-    return CURLE_LOGIN_DENIED;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  ఒకవేళ(!sshc->authed) {
+    failf(దత్తాంశం, "Authentication failure");
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+    తిరిగి CURLE_LOGIN_DENIED;
   }
 
   /*
    * At this point we have an authenticated ssh session.
    */
-  infof(data, "SSH: authentication complete");
+  infof(దత్తాంశం, "SSH: authentication complete");
 
-  Curl_pgrsTime(data, TIMER_APPCONNECT); /* SSH is connected */
+  Curl_pgrs_సమయం(దత్తాంశం, TIMER_APPCONNECT); /* SSH is connected */
 
-  data->conn->recv_idx = FIRSTSOCKET;
+  దత్తాంశం->conn->recv_idx = FIRSTSOCKET;
   conn->send_idx = -1;
 
-  if(conn->scheme->protocol == CURLPROTO_SFTP) {
-    myssh_to(data, sshc, SSH_SFTP_INIT);
-    return CURLE_OK;
+  ఒకవేళ(conn->scheme->protocol == CURLPROTO_SFTP) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_INIT);
+    తిరిగి CURLE_OK;
   }
-  infof(data, "SSH: connection established");
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  infof(దత్తాంశం, "SSH: connection established");
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_init(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం ssh_conn *sshc)
 {
   /*
    * Start the libssh2 sftp session
    */
   sshc->sftp_session = libssh2_sftp_init(sshc->ssh_session);
-  if(!sshc->sftp_session) {
-    char *err_msg = NULL;
-    if(libssh2_session_last_errno(sshc->ssh_session) ==
+  ఒకవేళ(!sshc->sftp_session) {
+    అక్షరం *err_సందేశం = ఖాళీ;
+    ఒకవేళ(libssh2_session_చివరి_errno(sshc->ssh_session) ==
        LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+      తిరిగి CURLE_AGAIN;
 
-    (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-    failf(data, "Failure initializing sftp session: %s", err_msg);
-    myssh_to(data, sshc, SSH_SESSION_FREE);
-    return CURLE_FAILED_INIT;
+    (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+    failf(దత్తాంశం, "Failure initializing sftp session: %s", err_సందేశం);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+    తిరిగి CURLE_FAILED_INIT;
   }
-  myssh_to(data, sshc, SSH_SFTP_REALPATH);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_REALPATH);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_realpath(struct Curl_easy *data,
-                                        struct ssh_conn *sshc,
-                                        struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_realpath(నిర్మాణం Curl_easy *దత్తాంశం,
+                                        నిర్మాణం ssh_conn *sshc,
+                                        నిర్మాణం SSHPROTO *sshp)
 {
   /*
    * Get the "home" directory
    */
-  int rc;
+  పూర్ణాంకం rc;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
   rc = libssh2_sftp_symlink_ex(sshc->sftp_session, ".",
                                curlx_uztoui(CURL_CSTRLEN(".")),
-                               sshp->readdir_filename, CURL_PATH_MAX,
+                               sshp->readdir_filename, CURL_మార్గం_MAX,
                                LIBSSH2_SFTP_REALPATH);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  myssh_to(data, sshc, SSH_STOP);
-  if(rc > 0) {
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+  ఒకవేళ(rc > 0) {
     curlx_free(sshc->homedir);
     sshc->homedir = curlx_strdup(sshp->readdir_filename);
-    if(!sshc->homedir)
-      return CURLE_OUT_OF_MEMORY;
-    curlx_free(data->state.most_recent_ftp_entrypath);
-    data->state.most_recent_ftp_entrypath = curlx_strdup(sshc->homedir);
-    if(!data->state.most_recent_ftp_entrypath)
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(!sshc->homedir)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    curlx_free(దత్తాంశం->state.most_recent_ftp_entrypath);
+    దత్తాంశం->state.most_recent_ftp_entrypath = curlx_strdup(sshc->homedir);
+    ఒకవేళ(!దత్తాంశం->state.most_recent_ftp_entrypath)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
-  else {
+  లేకపోతే {
     /* Return the error type */
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    CURLcode result;
-    if(sftperr)
-      result = sftp_libssh2_error_to_CURLE(sftperr);
-    else
+    గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    CURLcode ఫలితం;
+    ఒకవేళ(sftperr)
+      ఫలితం = sftp_libssh2_error_గమ్యం_CURLE(sftperr);
+    లేకపోతే
       /* in this case, the error was not in the SFTP level but for example a
          time-out or similar */
-      result = CURLE_SSH;
-    CURL_TRC_SSH(data, "error = %lu makes libcurl = %d", sftperr, (int)result);
-    return result;
+      ఫలితం = CURLE_SSH;
+    CURL_TRC_SSH(దత్తాంశం, "error = %lu makes libcurl = %d", sftperr, (పూర్ణాంకం)ఫలితం);
+    తిరిగి ఫలితం;
   }
 
   /* This is the last step in the SFTP connect phase. Do note that while we
      get the homedir here, we get the "workingpath" in the DO action since the
      homedir remains the same between request but the working path does not. */
-  CURL_TRC_SSH(data, "CONNECT phase done");
-  return CURLE_OK;
+  CURL_TRC_SSH(దత్తాంశం, "CONNECT phase done");
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_init(struct Curl_easy *data,
-                                          struct ssh_conn *sshc,
-                                          struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_quote_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం ssh_conn *sshc,
+                                          నిర్మాణం SSHPROTO *sshp)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
-  result = Curl_getworkingpath(data, sshc->homedir, &sshp->path);
-  if(result) {
-    myssh_to(data, sshc, SSH_STOP);
-    return result;
+  ఫలితం = Curl_getworkingpath(దత్తాంశం, sshc->homedir, &sshp->మార్గం);
+  ఒకవేళ(ఫలితం) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+    తిరిగి ఫలితం;
   }
 
-  if(data->set.quote) {
-    infof(data, "SSH: sending quote commands");
-    sshc->quote_item = data->set.quote;
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  ఒకవేళ(దత్తాంశం->సమితి.quote) {
+    infof(దత్తాంశం, "SSH: sending quote commands");
+    sshc->quote_అంశం = దత్తాంశం->సమితి.quote;
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    myssh_to(data, sshc, SSH_SFTP_GETINFO);
+  లేకపోతే {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_GETINFO);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_postquote_init(struct Curl_easy *data,
-                                              struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_postquote_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                              నిర్మాణం ssh_conn *sshc)
 {
-  if(data->set.postquote) {
-    infof(data, "SSH: sending quote commands");
-    sshc->quote_item = data->set.postquote;
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  ఒకవేళ(దత్తాంశం->సమితి.postquote) {
+    infof(దత్తాంశం, "SSH: sending quote commands");
+    sshc->quote_అంశం = దత్తాంశం->సమితి.postquote;
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    myssh_to(data, sshc, SSH_STOP);
+  లేకపోతే {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote(struct Curl_easy *data,
-                                     struct ssh_conn *sshc,
-                                     struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_quote(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం ssh_conn *sshc,
+                                     నిర్మాణం SSHPROTO *sshp)
 {
   /* Send quote commands */
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
-  result = sftp_quote(data, sshc, sshp);
-  if(result) {
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  ఫలితం = sftp_quote(దత్తాంశం, sshc, sshp);
+  ఒకవేళ(ఫలితం) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_state_sftp_next_quote(struct Curl_easy *data,
-                                          struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_తదుపరి_quote(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం ssh_conn *sshc)
 {
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
 
-  sshc->quote_item = sshc->quote_item->next;
+  sshc->quote_అంశం = sshc->quote_అంశం->తదుపరి;
 
-  if(sshc->quote_item) {
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  ఒకవేళ(sshc->quote_అంశం) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    if(sshc->nextstate != SSH_NO_STATE) {
-      myssh_to(data, sshc, sshc->nextstate);
+  లేకపోతే {
+    ఒకవేళ(sshc->nextstate != SSH_NO_STATE) {
+      myssh_గమ్యం(దత్తాంశం, sshc, sshc->nextstate);
       sshc->nextstate = SSH_NO_STATE;
     }
-    else {
-      myssh_to(data, sshc, SSH_SFTP_GETINFO);
+    లేకపోతే {
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_GETINFO);
     }
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_stat(struct Curl_easy *data,
-                                          struct ssh_conn *sshc,
-                                          struct SSHPROTO *sshp,
+స్థిర CURLcode ssh_state_sftp_quote_stat(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం ssh_conn *sshc,
+                                          నిర్మాణం SSHPROTO *sshp,
                                           bool *blockp)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
-  result = sftp_quote_stat(data, sshc, sshp, blockp);
-  if(result) {
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  ఫలితం = sftp_quote_stat(దత్తాంశం, sshc, sshp, blockp);
+  ఒకవేళ(ఫలితం) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_state_sftp_quote_setstat(struct Curl_easy *data,
-                                             struct ssh_conn *sshc,
-                                             struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_quote_setstat(నిర్మాణం Curl_easy *దత్తాంశం,
+                                             నిర్మాణం ssh_conn *sshc,
+                                             నిర్మాణం SSHPROTO *sshp)
 {
-  int rc;
+  పూర్ణాంకం rc;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
   rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshc->quote_path2,
-                            curlx_uztoui(strlen(sshc->quote_path2)),
+                            curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshc->quote_path2)),
                             LIBSSH2_SFTP_SETSTAT,
                             &sshp->quote_attrs);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "Attempt to set SFTP stats for \"%s\" failed: %s",
+  ఒకవేళ(rc && !sshc->acceptfail) {
+    గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    failf(దత్తాంశం, "Attempt to set SFTP stats for \"%s\" failed: %s",
           sshc->quote_path2, sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
     curlx_safefree(sshc->quote_path2);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    తిరిగి CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_తదుపరి_QUOTE);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_symlink(struct Curl_easy *data,
-                                             struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_quote_symlink(నిర్మాణం Curl_easy *దత్తాంశం,
+                                             నిర్మాణం ssh_conn *sshc)
 {
-  int rc =
+  పూర్ణాంకం rc =
     libssh2_sftp_symlink_ex(sshc->sftp_session, sshc->quote_path1,
-                            curlx_uztoui(strlen(sshc->quote_path1)),
+                            curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshc->quote_path1)),
                             sshc->quote_path2,
-                            curlx_uztoui(strlen(sshc->quote_path2)),
+                            curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshc->quote_path2)),
                             LIBSSH2_SFTP_SYMLINK);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "symlink \"%s\" to \"%s\" failed: %s",
+  ఒకవేళ(rc && !sshc->acceptfail) {
+    గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    failf(దత్తాంశం, "symlink \"%s\" to \"%s\" failed: %s",
           sshc->quote_path1, sshc->quote_path2,
           sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
     curlx_safefree(sshc->quote_path2);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    తిరిగి CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_తదుపరి_QUOTE);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_mkdir(struct Curl_easy *data,
-                                           struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_quote_mkdir(నిర్మాణం Curl_easy *దత్తాంశం,
+                                           నిర్మాణం ssh_conn *sshc)
 {
-  int rc = libssh2_sftp_mkdir_ex(sshc->sftp_session, sshc->quote_path1,
-                                 curlx_uztoui(strlen(sshc->quote_path1)),
-                                 (long)data->set.new_directory_perms);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  పూర్ణాంకం rc = libssh2_sftp_mkdir_ex(sshc->sftp_session, sshc->quote_path1,
+                                 curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshc->quote_path1)),
+                                 (దీర్ఘ)దత్తాంశం->సమితి.new_directory_perms);
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "mkdir \"%s\" failed: %s",
+  ఒకవేళ(rc && !sshc->acceptfail) {
+    గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    failf(దత్తాంశం, "mkdir \"%s\" failed: %s",
           sshc->quote_path1, sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    తిరిగి CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_తదుపరి_QUOTE);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_rename(struct Curl_easy *data,
-                                            struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_quote_rename(నిర్మాణం Curl_easy *దత్తాంశం,
+                                            నిర్మాణం ssh_conn *sshc)
 {
-  int rc =
+  పూర్ణాంకం rc =
     libssh2_sftp_rename_ex(sshc->sftp_session, sshc->quote_path1,
-                           curlx_uztoui(strlen(sshc->quote_path1)),
+                           curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshc->quote_path1)),
                            sshc->quote_path2,
-                           curlx_uztoui(strlen(sshc->quote_path2)),
+                           curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshc->quote_path2)),
                            LIBSSH2_SFTP_RENAME_OVERWRITE |
                            LIBSSH2_SFTP_RENAME_ATOMIC |
                            LIBSSH2_SFTP_RENAME_NATIVE);
 
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "rename \"%s\" to \"%s\" failed: %s",
+  ఒకవేళ(rc && !sshc->acceptfail) {
+    గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    failf(దత్తాంశం, "rename \"%s\" to \"%s\" failed: %s",
           sshc->quote_path1, sshc->quote_path2,
           sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
     curlx_safefree(sshc->quote_path2);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    తిరిగి CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_తదుపరి_QUOTE);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_rmdir(struct Curl_easy *data,
-                                           struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_quote_rmdir(నిర్మాణం Curl_easy *దత్తాంశం,
+                                           నిర్మాణం ssh_conn *sshc)
 {
-  int rc = libssh2_sftp_rmdir_ex(sshc->sftp_session, sshc->quote_path1,
-                                 curlx_uztoui(strlen(sshc->quote_path1)));
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  పూర్ణాంకం rc = libssh2_sftp_rmdir_ex(sshc->sftp_session, sshc->quote_path1,
+                                 curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshc->quote_path1)));
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "rmdir \"%s\" failed: %s",
+  ఒకవేళ(rc && !sshc->acceptfail) {
+    గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    failf(దత్తాంశం, "rmdir \"%s\" failed: %s",
           sshc->quote_path1, sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    తిరిగి CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_తదుపరి_QUOTE);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_unlink(struct Curl_easy *data,
-                                            struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_quote_unlink(నిర్మాణం Curl_easy *దత్తాంశం,
+                                            నిర్మాణం ssh_conn *sshc)
 {
-  int rc = libssh2_sftp_unlink_ex(sshc->sftp_session, sshc->quote_path1,
-                                  curlx_uztoui(strlen(sshc->quote_path1)));
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  పూర్ణాంకం rc = libssh2_sftp_unlink_ex(sshc->sftp_session, sshc->quote_path1,
+                                  curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshc->quote_path1)));
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "rm \"%s\" failed: %s",
+  ఒకవేళ(rc && !sshc->acceptfail) {
+    గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    failf(దత్తాంశం, "rm \"%s\" failed: %s",
           sshc->quote_path1, sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    తిరిగి CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_తదుపరి_QUOTE);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_statvfs(struct Curl_easy *data,
-                                             struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_quote_statvfs(నిర్మాణం Curl_easy *దత్తాంశం,
+                                             నిర్మాణం ssh_conn *sshc)
 {
   LIBSSH2_SFTP_STATVFS statvfs;
-  int rc = libssh2_sftp_statvfs(sshc->sftp_session, sshc->quote_path1,
-                                curlx_uztoui(strlen(sshc->quote_path1)),
+  పూర్ణాంకం rc = libssh2_sftp_statvfs(sshc->sftp_session, sshc->quote_path1,
+                                curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshc->quote_path1)),
                                 &statvfs);
 
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "statvfs \"%s\" failed: %s",
+  ఒకవేళ(rc && !sshc->acceptfail) {
+    గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    failf(దత్తాంశం, "statvfs \"%s\" failed: %s",
           sshc->quote_path1, sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    తిరిగి CURLE_QUOTE_ERROR;
   }
-  else if(rc == 0) {
-#ifdef _MSC_VER
-#define CURL_LIBSSH2_VFS_SIZE_MASK "I64u"
-#else
-#define CURL_LIBSSH2_VFS_SIZE_MASK "llu"
-#endif
-    CURLcode result;
-    char *tmp = curl_maprintf("statvfs:\n"
-                              "f_bsize: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_frsize: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_blocks: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_bfree: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_bavail: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_files: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_ffree: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_favail: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_fsid: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_flag: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_namemax: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n",
+  లేకపోతే ఒకవేళ(rc == 0) {
+#నిర్వచితమైతే _MSC_VER
+#నిర్వచించు CURL_LIBSSH2_VFS_కొలత_ముసుగు "I64u"
+#లేకపోతే
+#నిర్వచించు CURL_LIBSSH2_VFS_కొలత_ముసుగు "llu"
+#అయితే_ముగింపు
+    CURLcode ఫలితం;
+    అక్షరం *tmp = curl_maprintf("statvfs:\n"
+                              "f_bsize: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n"
+                              "f_frsize: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n"
+                              "f_blocks: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n"
+                              "f_bfree: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n"
+                              "f_bavail: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n"
+                              "f_files: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n"
+                              "f_ffree: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n"
+                              "f_favail: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n"
+                              "f_fsid: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n"
+                              "f_flag: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n"
+                              "f_namemax: %" CURL_LIBSSH2_VFS_కొలత_ముసుగు "\n",
                               statvfs.f_bsize, statvfs.f_frsize,
-                              statvfs.f_blocks, statvfs.f_bfree,
+                              statvfs.f_ఖండాలు, statvfs.f_bfree,
                               statvfs.f_bavail, statvfs.f_files,
                               statvfs.f_ffree, statvfs.f_favail,
                               statvfs.f_fsid, statvfs.f_flag,
                               statvfs.f_namemax);
-    if(!tmp) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    ఒకవేళ(!tmp) {
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      return CURLE_OUT_OF_MEMORY;
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
 
-    result = Curl_client_write(data, CLIENTWRITE_HEADER, tmp, strlen(tmp));
+    ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_శీర్షిక, tmp, అక్షరశ్రేణి_పొడవు(tmp));
     curlx_free(tmp);
-    if(result) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    ఒకవేళ(ఫలితం) {
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      return result;
+      తిరిగి ఫలితం;
     }
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_తదుపరి_QUOTE);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_create_dirs_mkdir(struct Curl_easy *data,
-                                                 struct ssh_conn *sshc,
-                                                 struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_create_dirs_mkdir(నిర్మాణం Curl_easy *దత్తాంశం,
+                                                 నిర్మాణం ssh_conn *sshc,
+                                                 నిర్మాణం SSHPROTO *sshp)
 {
   /* 'mode' - parameter is preliminary - default to 0644 */
-  int rc;
+  పూర్ణాంకం rc;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
-  rc = libssh2_sftp_mkdir_ex(sshc->sftp_session, sshp->path,
-                             curlx_uztoui(strlen(sshp->path)),
-                             (long)data->set.new_directory_perms);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  rc = libssh2_sftp_mkdir_ex(sshc->sftp_session, sshp->మార్గం,
+                             curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshp->మార్గం)),
+                             (దీర్ఘ)దత్తాంశం->సమితి.new_directory_perms);
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
   *sshc->slash_pos = '/';
   ++sshc->slash_pos;
-  if(rc < 0) {
+  ఒకవేళ(rc < 0) {
     /*
      * Abort if failure was not that the directory already exists or
      * the permission was denied (creation might succeed further down
      * the path) - retry on unspecific FAILURE also
      */
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    if((sftperr != LIBSSH2_FX_FILE_ALREADY_EXISTS) &&
+    గుర్తులేని దీర్ఘ sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    ఒకవేళ((sftperr != LIBSSH2_FX_FILE_ALREADY_EXISTS) &&
        (sftperr != LIBSSH2_FX_FAILURE) &&
        (sftperr != LIBSSH2_FX_PERMISSION_DENIED)) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
-      return sftp_libssh2_error_to_CURLE(sftperr);
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
+      తిరిగి sftp_libssh2_error_గమ్యం_CURLE(sftperr);
     }
   }
-  myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CREATE_DIRS);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_readdir_init(struct Curl_easy *data,
-                                            struct ssh_conn *sshc,
-                                            struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_readdir_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                            నిర్మాణం ssh_conn *sshc,
+                                            నిర్మాణం SSHPROTO *sshp)
 {
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
-  Curl_pgrsSetDownloadSize(data, -1);
-  if(data->req.no_body) {
-    myssh_to(data, sshc, SSH_STOP);
-    return CURLE_OK;
+  Curl_pgrs_సమితి_Download_కొలత(దత్తాంశం, -1);
+  ఒకవేళ(దత్తాంశం->req.no_body) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+    తిరిగి CURLE_OK;
   }
 
   /*
@@ -2197,65 +2197,65 @@ static CURLcode ssh_state_sftp_readdir_init(struct Curl_easy *data,
    * listing
    */
   sshc->sftp_handle =
-    libssh2_sftp_open_ex(sshc->sftp_session, sshp->path,
-                         curlx_uztoui(strlen(sshp->path)),
+    libssh2_sftp_open_ex(sshc->sftp_session, sshp->మార్గం,
+                         curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshp->మార్గం)),
                          0, 0, LIBSSH2_SFTP_OPENDIR);
-  if(!sshc->sftp_handle) {
-    unsigned long sftperr;
-    if(libssh2_session_last_errno(sshc->ssh_session) == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+  ఒకవేళ(!sshc->sftp_handle) {
+    గుర్తులేని దీర్ఘ sftperr;
+    ఒకవేళ(libssh2_session_చివరి_errno(sshc->ssh_session) == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
 
-    sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "Could not open directory for reading: %s",
+    sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    failf(దత్తాంశం, "Could not open directory for reading: %s",
           sftp_libssh2_strerror(sftperr));
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-    return sftp_libssh2_error_to_CURLE(sftperr);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
+    తిరిగి sftp_libssh2_error_గమ్యం_CURLE(sftperr);
   }
-  myssh_to(data, sshc, SSH_SFTP_READDIR);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_READDIR);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_readdir_link(struct Curl_easy *data,
-                                            struct ssh_conn *sshc,
-                                            struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_readdir_link(నిర్మాణం Curl_easy *దత్తాంశం,
+                                            నిర్మాణం ssh_conn *sshc,
+                                            నిర్మాణం SSHPROTO *sshp)
 {
-  CURLcode result;
-  int rc;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  CURLcode ఫలితం;
+  పూర్ణాంకం rc;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
   rc = libssh2_sftp_symlink_ex(sshc->sftp_session,
                                curlx_dyn_ptr(&sshp->readdir_link),
-                               (unsigned int)
+                               (గుర్తులేని పూర్ణాంకం)
                                curlx_dyn_len(&sshp->readdir_link),
                                sshp->readdir_filename,
-                               CURL_PATH_MAX, LIBSSH2_SFTP_READLINK);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+                               CURL_మార్గం_MAX, LIBSSH2_SFTP_READLINK);
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
   curlx_dyn_free(&sshp->readdir_link);
 
-  if(rc < 0)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(rc < 0)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* append filename and extra output */
-  result = curlx_dyn_addf(&sshp->readdir, " -> %s", sshp->readdir_filename);
-  if(result)
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-  else
-    myssh_to(data, sshc, SSH_SFTP_READDIR_BOTTOM);
-  return result;
+  ఫలితం = curlx_dyn_addf(&sshp->readdir, " -> %s", sshp->readdir_filename);
+  ఒకవేళ(ఫలితం)
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
+  లేకపోతే
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_READDIR_BOTTOM);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_state_scp_download_init(struct Curl_easy *data,
-                                            struct ssh_conn *sshc,
-                                            struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_scp_download_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                            నిర్మాణం ssh_conn *sshc,
+                                            నిర్మాణం SSHPROTO *sshp)
 {
   curl_off_t bytecount;
   libssh2_struct_stat sb;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
   /*
    * We must check the remote file; if it is a directory no values are
    * be set in sb
@@ -2266,144 +2266,144 @@ static CURLcode ssh_state_scp_download_init(struct Curl_easy *data,
    */
 
   /* get a fresh new channel from the ssh layer */
-  memset(&sb, 0, sizeof(libssh2_struct_stat));
-  sshc->ssh_channel = libssh2_scp_recv2(sshc->ssh_session, sshp->path, &sb);
-  if(!sshc->ssh_channel) {
-    int ssh_err;
-    char *err_msg = NULL;
+  memset(&sb, 0, పరిమాణం(libssh2_struct_stat));
+  sshc->ssh_channel = libssh2_scp_recv2(sshc->ssh_session, sshp->మార్గం, &sb);
+  ఒకవేళ(!sshc->ssh_channel) {
+    పూర్ణాంకం ssh_err;
+    అక్షరం *err_సందేశం = ఖాళీ;
 
-    if(libssh2_session_last_errno(sshc->ssh_session) ==
+    ఒకవేళ(libssh2_session_చివరి_errno(sshc->ssh_session) ==
        LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+      తిరిగి CURLE_AGAIN;
 
-    ssh_err = libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-    failf(data, "%s", err_msg);
-    myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-    return libssh2_session_error_to_CURLE(ssh_err);
+    ssh_err = libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+    failf(దత్తాంశం, "%s", err_సందేశం);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_CHANNEL_FREE);
+    తిరిగి libssh2_session_error_గమ్యం_CURLE(ssh_err);
   }
 
   /* download data */
-  bytecount = (curl_off_t)sb.st_size;
-  data->req.maxdownload = (curl_off_t)sb.st_size;
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, bytecount);
+  bytecount = (curl_off_t)sb.st_కొలత;
+  దత్తాంశం->req.maxdownload = (curl_off_t)sb.st_కొలత;
+  Curl_xfer_అమరిక_recv(దత్తాంశం, FIRSTSOCKET, bytecount);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->send_idx = 0;
+  దత్తాంశం->conn->send_idx = 0;
 
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_close(struct Curl_easy *data,
-                                     struct ssh_conn *sshc,
-                                     struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_close(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం ssh_conn *sshc,
+                                     నిర్మాణం SSHPROTO *sshp)
 {
-  int rc = 0;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  if(sshc->sftp_handle) {
+  పూర్ణాంకం rc = 0;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
+  ఒకవేళ(sshc->sftp_handle) {
     rc = libssh2_sftp_close(sshc->sftp_handle);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
 
-    if(rc < 0) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to close libssh2 file: %d %s", rc, err_msg);
+    ఒకవేళ(rc < 0) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to close libssh2 file: %d %s", rc, err_సందేశం);
     }
-    sshc->sftp_handle = NULL;
+    sshc->sftp_handle = ఖాళీ;
   }
 
-  curlx_safefree(sshp->path);
+  curlx_safefree(sshp->మార్గం);
 
-  CURL_TRC_SSH(data, "SFTP DONE done");
+  CURL_TRC_SSH(దత్తాంశం, "SFTP DONE done");
 
   /* Check if nextstate is set and move .nextstate could be POSTQUOTE_INIT
      After nextstate is executed, the control should come back to
      SSH_SFTP_CLOSE to pass the correct result back */
-  if(sshc->nextstate != SSH_NO_STATE &&
+  ఒకవేళ(sshc->nextstate != SSH_NO_STATE &&
      sshc->nextstate != SSH_SFTP_CLOSE) {
-    myssh_to(data, sshc, sshc->nextstate);
+    myssh_గమ్యం(దత్తాంశం, sshc, sshc->nextstate);
     sshc->nextstate = SSH_SFTP_CLOSE;
   }
-  else
-    myssh_to(data, sshc, SSH_STOP);
+  లేకపోతే
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_shutdown(struct Curl_easy *data,
-                                        struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_shutdown(నిర్మాణం Curl_easy *దత్తాంశం,
+                                        నిర్మాణం ssh_conn *sshc)
 {
   /* during times we get here due to a broken transfer and then the
      sftp_handle might not have been taken down so make sure that is done
      before we proceed */
-  int rc = 0;
-  if(sshc->sftp_handle) {
+  పూర్ణాంకం rc = 0;
+  ఒకవేళ(sshc->sftp_handle) {
     rc = libssh2_sftp_close(sshc->sftp_handle);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
 
-    if(rc < 0) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to close libssh2 file: %d %s", rc, err_msg);
+    ఒకవేళ(rc < 0) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to close libssh2 file: %d %s", rc, err_సందేశం);
     }
-    sshc->sftp_handle = NULL;
+    sshc->sftp_handle = ఖాళీ;
   }
-  if(sshc->sftp_session) {
+  ఒకవేళ(sshc->sftp_session) {
     rc = libssh2_sftp_shutdown(sshc->sftp_session);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
 
-    if(rc < 0) {
-      infof(data, "Failed to stop libssh2 sftp subsystem");
+    ఒకవేళ(rc < 0) {
+      infof(దత్తాంశం, "Failed to stop libssh2 sftp subsystem");
     }
-    sshc->sftp_session = NULL;
+    sshc->sftp_session = ఖాళీ;
   }
 
   curlx_safefree(sshc->homedir);
 
-  myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_DISCONNECT);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_download_init(struct Curl_easy *data,
-                                             struct ssh_conn *sshc,
-                                             struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_download_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                             నిర్మాణం ssh_conn *sshc,
+                                             నిర్మాణం SSHPROTO *sshp)
 {
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
   /*
    * Work on getting the specified file
    */
   sshc->sftp_handle =
-    libssh2_sftp_open_ex(sshc->sftp_session, sshp->path,
-                         curlx_uztoui(strlen(sshp->path)),
-                         LIBSSH2_FXF_READ, (long)data->set.new_file_perms,
+    libssh2_sftp_open_ex(sshc->sftp_session, sshp->మార్గం,
+                         curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshp->మార్గం)),
+                         LIBSSH2_FXF_READ, (దీర్ఘ)దత్తాంశం->సమితి.new_file_perms,
                          LIBSSH2_SFTP_OPENFILE);
-  if(!sshc->sftp_handle) {
-    unsigned long sftperr;
-    if(libssh2_session_last_errno(sshc->ssh_session) ==
+  ఒకవేళ(!sshc->sftp_handle) {
+    గుర్తులేని దీర్ఘ sftperr;
+    ఒకవేళ(libssh2_session_చివరి_errno(sshc->ssh_session) ==
        LIBSSH2_ERROR_EAGAIN) {
-      return CURLE_AGAIN;
+      తిరిగి CURLE_AGAIN;
     }
-    sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "Could not open remote file for reading: %s",
+    sftperr = libssh2_sftp_చివరి_error(sshc->sftp_session);
+    failf(దత్తాంశం, "Could not open remote file for reading: %s",
           sftp_libssh2_strerror(sftperr));
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-    return sftp_libssh2_error_to_CURLE(sftperr);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
+    తిరిగి sftp_libssh2_error_గమ్యం_CURLE(sftperr);
   }
-  myssh_to(data, sshc, SSH_SFTP_DOWNLOAD_STAT);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_DOWNLOAD_STAT);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_scp_upload_init(struct Curl_easy *data,
-                                          struct ssh_conn *sshc,
-                                          struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_scp_upload_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం ssh_conn *sshc,
+                                          నిర్మాణం SSHPROTO *sshp)
 {
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
   /*
    * libssh2 requires that the destination path is a full path that
    * includes the destination file and name OR ends in a "/" . If this is
@@ -2411,160 +2411,160 @@ static CURLcode ssh_state_scp_upload_init(struct Curl_easy *data,
    * directory in the path.
    */
   sshc->ssh_channel =
-    libssh2_scp_send64(sshc->ssh_session, sshp->path,
-                       (int)data->set.new_file_perms,
-                       (libssh2_int64_t)data->state.infilesize, 0, 0);
-  if(!sshc->ssh_channel) {
-    int ssh_err;
-    char *err_msg = NULL;
-    CURLcode result;
-    if(libssh2_session_last_errno(sshc->ssh_session) ==
+    libssh2_scp_send64(sshc->ssh_session, sshp->మార్గం,
+                       (పూర్ణాంకం)దత్తాంశం->సమితి.new_file_perms,
+                       (libssh2_int64_t)దత్తాంశం->state.infilesize, 0, 0);
+  ఒకవేళ(!sshc->ssh_channel) {
+    పూర్ణాంకం ssh_err;
+    అక్షరం *err_సందేశం = ఖాళీ;
+    CURLcode ఫలితం;
+    ఒకవేళ(libssh2_session_చివరి_errno(sshc->ssh_session) ==
        LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+      తిరిగి CURLE_AGAIN;
 
-    ssh_err = libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-    failf(data, "%s", err_msg);
-    myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-    result = libssh2_session_error_to_CURLE(ssh_err);
+    ssh_err = libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+    failf(దత్తాంశం, "%s", err_సందేశం);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_CHANNEL_FREE);
+    ఫలితం = libssh2_session_error_గమ్యం_CURLE(ssh_err);
 
     /* Map generic errors to upload failed */
-    if(result == CURLE_SSH ||
-       result == CURLE_REMOTE_FILE_NOT_FOUND)
-      result = CURLE_UPLOAD_FAILED;
-    return result;
+    ఒకవేళ(ఫలితం == CURLE_SSH ||
+       ఫలితం == CURLE_REMOTE_FILE_NOT_దొరికింది)
+      ఫలితం = CURLE_UPLOAD_FAILED;
+    తిరిగి ఫలితం;
   }
 
   /* upload data */
-  data->req.size = data->state.infilesize;
-  Curl_pgrsSetUploadSize(data, data->state.infilesize);
-  Curl_xfer_setup_send(data, FIRSTSOCKET);
+  దత్తాంశం->req.కొలత = దత్తాంశం->state.infilesize;
+  Curl_pgrs_సమితి_Upload_కొలత(దత్తాంశం, దత్తాంశం->state.infilesize);
+  Curl_xfer_అమరిక_send(దత్తాంశం, FIRSTSOCKET);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->recv_idx = FIRSTSOCKET;
+  దత్తాంశం->conn->recv_idx = FIRSTSOCKET;
 
-  myssh_to(data, sshc, SSH_STOP);
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_session_disconnect(struct Curl_easy *data,
-                                             struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_session_disconnect(నిర్మాణం Curl_easy *దత్తాంశం,
+                                             నిర్మాణం ssh_conn *sshc)
 {
   /* during weird times when we have been prematurely aborted, the channel
      is still alive when we reach this state and we MUST kill the channel
      properly first */
-  int rc = 0;
-  if(sshc->ssh_channel) {
+  పూర్ణాంకం rc = 0;
+  ఒకవేళ(sshc->ssh_channel) {
     rc = libssh2_channel_free(sshc->ssh_channel);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
 
-    if(rc < 0) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to free libssh2 scp subsystem: %d %s", rc, err_msg);
+    ఒకవేళ(rc < 0) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to free libssh2 scp subsystem: %d %s", rc, err_సందేశం);
     }
-    sshc->ssh_channel = NULL;
+    sshc->ssh_channel = ఖాళీ;
   }
 
-  if(sshc->ssh_session) {
+  ఒకవేళ(sshc->ssh_session) {
     rc = libssh2_session_disconnect(sshc->ssh_session, "Shutdown");
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
 
-    if(rc < 0) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to disconnect libssh2 session: %d %s", rc, err_msg);
+    ఒకవేళ(rc < 0) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to disconnect libssh2 session: %d %s", rc, err_సందేశం);
     }
   }
 
   curlx_safefree(sshc->homedir);
 
-  myssh_to(data, sshc, SSH_SESSION_FREE);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_FREE);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode sshc_cleanup(struct ssh_conn *sshc, struct Curl_easy *data,
-                             bool block)
+స్థిర CURLcode sshc_cleanup(నిర్మాణం ssh_conn *sshc, నిర్మాణం Curl_easy *దత్తాంశం,
+                             bool ఖండం)
 {
-  int rc;
+  పూర్ణాంకం rc;
 
-  if(sshc->kh) {
+  ఒకవేళ(sshc->kh) {
     libssh2_knownhost_free(sshc->kh);
-    sshc->kh = NULL;
+    sshc->kh = ఖాళీ;
   }
 
-  if(sshc->ssh_agent) {
+  ఒకవేళ(sshc->ssh_agent) {
     rc = libssh2_agent_disconnect(sshc->ssh_agent);
-    if((rc < 0) && data) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to disconnect from libssh2 agent: %d %s",
-            rc, err_msg);
+    ఒకవేళ((rc < 0) && దత్తాంశం) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to disconnect from libssh2 agent: %d %s",
+            rc, err_సందేశం);
     }
-    if(!block && (rc == LIBSSH2_ERROR_EAGAIN))
-      return CURLE_AGAIN;
+    ఒకవేళ(!ఖండం && (rc == LIBSSH2_ERROR_EAGAIN))
+      తిరిగి CURLE_AGAIN;
 
     libssh2_agent_free(sshc->ssh_agent);
-    sshc->ssh_agent = NULL;
+    sshc->ssh_agent = ఖాళీ;
 
     /* NB: there is no need to free identities, they are part of internal
        agent stuff */
-    sshc->sshagent_identity = NULL;
-    sshc->sshagent_prev_identity = NULL;
+    sshc->sshagent_తటస్థం = ఖాళీ;
+    sshc->sshagent_prev_తటస్థం = ఖాళీ;
   }
 
-  if(sshc->sftp_handle) {
+  ఒకవేళ(sshc->sftp_handle) {
     rc = libssh2_sftp_close(sshc->sftp_handle);
-    if((rc < 0) && data) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to close libssh2 file: %d %s", rc, err_msg);
+    ఒకవేళ((rc < 0) && దత్తాంశం) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to close libssh2 file: %d %s", rc, err_సందేశం);
     }
-    if(!block && (rc == LIBSSH2_ERROR_EAGAIN))
-      return CURLE_AGAIN;
+    ఒకవేళ(!ఖండం && (rc == LIBSSH2_ERROR_EAGAIN))
+      తిరిగి CURLE_AGAIN;
 
-    sshc->sftp_handle = NULL;
+    sshc->sftp_handle = ఖాళీ;
   }
 
-  if(sshc->ssh_channel) {
+  ఒకవేళ(sshc->ssh_channel) {
     rc = libssh2_channel_free(sshc->ssh_channel);
-    if((rc < 0) && data) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to free libssh2 scp subsystem: %d %s", rc, err_msg);
+    ఒకవేళ((rc < 0) && దత్తాంశం) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to free libssh2 scp subsystem: %d %s", rc, err_సందేశం);
     }
-    if(!block && (rc == LIBSSH2_ERROR_EAGAIN))
-      return CURLE_AGAIN;
+    ఒకవేళ(!ఖండం && (rc == LIBSSH2_ERROR_EAGAIN))
+      తిరిగి CURLE_AGAIN;
 
-    sshc->ssh_channel = NULL;
+    sshc->ssh_channel = ఖాళీ;
   }
 
-  if(sshc->sftp_session) {
+  ఒకవేళ(sshc->sftp_session) {
     rc = libssh2_sftp_shutdown(sshc->sftp_session);
-    if((rc < 0) && data) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to stop libssh2 sftp subsystem: %d %s", rc, err_msg);
+    ఒకవేళ((rc < 0) && దత్తాంశం) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to stop libssh2 sftp subsystem: %d %s", rc, err_సందేశం);
     }
-    if(!block && (rc == LIBSSH2_ERROR_EAGAIN))
-      return CURLE_AGAIN;
+    ఒకవేళ(!ఖండం && (rc == LIBSSH2_ERROR_EAGAIN))
+      తిరిగి CURLE_AGAIN;
 
-    sshc->sftp_session = NULL;
+    sshc->sftp_session = ఖాళీ;
   }
 
-  if(sshc->ssh_session) {
+  ఒకవేళ(sshc->ssh_session) {
     rc = libssh2_session_free(sshc->ssh_session);
-    if((rc < 0) && data) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to free libssh2 session: %d %s", rc, err_msg);
+    ఒకవేళ((rc < 0) && దత్తాంశం) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session, &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to free libssh2 session: %d %s", rc, err_సందేశం);
     }
-    if(!block && (rc == LIBSSH2_ERROR_EAGAIN))
-      return CURLE_AGAIN;
+    ఒకవేళ(!ఖండం && (rc == LIBSSH2_ERROR_EAGAIN))
+      తిరిగి CURLE_AGAIN;
 
-    sshc->ssh_session = NULL;
+    sshc->ssh_session = ఖాళీ;
   }
 
   /* worst-case scenario cleanup */
@@ -2576,309 +2576,309 @@ static CURLcode sshc_cleanup(struct ssh_conn *sshc, struct Curl_easy *data,
   DEBUGASSERT(!sshc->ssh_agent);
 
   curlx_safefree(sshc->passphrase);
-  curlx_safefree(sshc->pub_key);
-  curlx_safefree(sshc->priv_key);
+  curlx_safefree(sshc->pub_కీలకం);
+  curlx_safefree(sshc->priv_కీలకం);
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
   curlx_safefree(sshc->homedir);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_getinfo(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_getinfo(నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం ssh_conn *sshc)
 {
-  if(data->set.get_filetime)
-    myssh_to(data, sshc, SSH_SFTP_FILETIME);
-  else
-    myssh_to(data, sshc, SSH_SFTP_TRANS_INIT);
-  return CURLE_OK;
+  ఒకవేళ(దత్తాంశం->సమితి.get_filetime)
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_FILETIME);
+  లేకపోతే
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_TRANS_INIT);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_filetime(struct Curl_easy *data,
-                                        struct ssh_conn *sshc,
-                                        struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_filetime(నిర్మాణం Curl_easy *దత్తాంశం,
+                                        నిర్మాణం ssh_conn *sshc,
+                                        నిర్మాణం SSHPROTO *sshp)
 {
-  LIBSSH2_SFTP_ATTRIBUTES attrs;
-  int rc;
+  LIBSSH2_SFTP_లక్షణాలు attrs;
+  పూర్ణాంకం rc;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
-  rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->path,
-                            curlx_uztoui(strlen(sshp->path)),
+  rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->మార్గం,
+                            curlx_uztoui(అక్షరశ్రేణి_పొడవు(sshp->మార్గం)),
                             LIBSSH2_SFTP_STAT, &attrs);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
 
-  if(rc == 0)
-    data->info.filetime = (time_t)attrs.mtime;
+  ఒకవేళ(rc == 0)
+    దత్తాంశం->info.filetime = (time_t)attrs.mtime;
 
-  myssh_to(data, sshc, SSH_SFTP_TRANS_INIT);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_TRANS_INIT);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_trans_init(struct Curl_easy *data,
-                                          struct ssh_conn *sshc,
-                                          struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_trans_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం ssh_conn *sshc,
+                                          నిర్మాణం SSHPROTO *sshp)
 {
-  if(data->state.upload)
-    myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  else if(sshp) {
-    size_t plen = strlen(sshp->path);
-    if(plen && (sshp->path[plen - 1] == '/'))
-      myssh_to(data, sshc, SSH_SFTP_READDIR_INIT);
-    else
-      myssh_to(data, sshc, SSH_SFTP_DOWNLOAD_INIT);
+  ఒకవేళ(దత్తాంశం->state.upload)
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_UPLOAD_INIT);
+  లేకపోతే ఒకవేళ(sshp) {
+    size_t plen = అక్షరశ్రేణి_పొడవు(sshp->మార్గం);
+    ఒకవేళ(plen && (sshp->మార్గం[plen - 1] == '/'))
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_READDIR_INIT);
+    లేకపోతే
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_DOWNLOAD_INIT);
   }
-  else
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  లేకపోతే
+    తిరిగి CURLE_FAILED_INIT;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_upload_init(struct Curl_easy *data,
-                                           struct ssh_conn *sshc,
-                                           struct SSHPROTO *sshp,
-                                           bool *block)
+స్థిర CURLcode ssh_state_sftp_upload_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                           నిర్మాణం ssh_conn *sshc,
+                                           నిర్మాణం SSHPROTO *sshp,
+                                           bool *ఖండం)
 {
-  CURLcode result;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  result = sftp_upload_init(data, sshc, sshp, block);
-  if(result) {
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  CURLcode ఫలితం;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
+  ఫలితం = sftp_upload_init(దత్తాంశం, sshc, sshp, ఖండం);
+  ఒకవేళ(ఫలితం) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_state_sftp_create_dirs_init(struct Curl_easy *data,
-                                                struct ssh_conn *sshc,
-                                                struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_create_dirs_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                                నిర్మాణం ssh_conn *sshc,
+                                                నిర్మాణం SSHPROTO *sshp)
 {
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  if(strlen(sshp->path) > 1) {
-    sshc->slash_pos = sshp->path + 1; /* ignore the leading '/' */
-    myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS);
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
+  ఒకవేళ(అక్షరశ్రేణి_పొడవు(sshp->మార్గం) > 1) {
+    sshc->slash_pos = sshp->మార్గం + 1; /* ignore the leading '/' */
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CREATE_DIRS);
   }
-  else
-    myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  return CURLE_OK;
+  లేకపోతే
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_UPLOAD_INIT);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_create_dirs(struct Curl_easy *data,
-                                           struct ssh_conn *sshc,
-                                           struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_create_dirs(నిర్మాణం Curl_easy *దత్తాంశం,
+                                           నిర్మాణం ssh_conn *sshc,
+                                           నిర్మాణం SSHPROTO *sshp)
 {
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
   sshc->slash_pos = strchr(sshc->slash_pos, '/');
-  if(sshc->slash_pos) {
+  ఒకవేళ(sshc->slash_pos) {
     *sshc->slash_pos = 0;
-    infof(data, "SFTP: creating directory '%s'", sshp->path);
-    myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS_MKDIR);
-    return CURLE_OK;
+    infof(దత్తాంశం, "SFTP: creating directory '%s'", sshp->మార్గం);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CREATE_DIRS_MKDIR);
+    తిరిగి CURLE_OK;
   }
-  myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_UPLOAD_INIT);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_readdir(struct Curl_easy *data,
-                                       struct ssh_conn *sshc,
-                                       struct SSHPROTO *sshp,
-                                       bool *block)
+స్థిర CURLcode ssh_state_sftp_readdir(నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం ssh_conn *sshc,
+                                       నిర్మాణం SSHPROTO *sshp,
+                                       bool *ఖండం)
 {
-  CURLcode result;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  result = sftp_readdir(data, sshc, sshp, block);
-  if(result)
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-  return result;
+  CURLcode ఫలితం;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
+  ఫలితం = sftp_readdir(దత్తాంశం, sshc, sshp, ఖండం);
+  ఒకవేళ(ఫలితం)
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_state_sftp_readdir_bottom(struct Curl_easy *data,
-                                              struct ssh_conn *sshc,
-                                              struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_sftp_readdir_bottom(నిర్మాణం Curl_easy *దత్తాంశం,
+                                              నిర్మాణం ssh_conn *sshc,
+                                              నిర్మాణం SSHPROTO *sshp)
 {
-  CURLcode result;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  CURLcode ఫలితం;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
-  result = curlx_dyn_addn(&sshp->readdir, "\n", 1);
-  if(!result)
-    result = Curl_client_write(data, CLIENTWRITE_BODY,
+  ఫలితం = curlx_dyn_addn(&sshp->readdir, "\n", 1);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_BODY,
                                curlx_dyn_ptr(&sshp->readdir),
                                curlx_dyn_len(&sshp->readdir));
-  if(result) {
+  ఒకవేళ(ఫలితం) {
     curlx_dyn_free(&sshp->readdir);
-    myssh_to(data, sshc, SSH_STOP);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
   }
-  else {
+  లేకపోతే {
     curlx_dyn_reset(&sshp->readdir);
-    myssh_to(data, sshc, SSH_SFTP_READDIR);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_READDIR);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_state_sftp_readdir_done(struct Curl_easy *data,
-                                            struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_sftp_readdir_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం,
+                                            నిర్మాణం ssh_conn *sshc)
 {
-  if(libssh2_sftp_closedir(sshc->sftp_handle) ==
+  ఒకవేళ(libssh2_sftp_closedir(sshc->sftp_handle) ==
      LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+    తిరిగి CURLE_AGAIN;
 
-  sshc->sftp_handle = NULL;
+  sshc->sftp_handle = ఖాళీ;
 
   /* no data to transfer */
-  Curl_xfer_setup_nop(data);
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  Curl_xfer_అమరిక_nop(దత్తాంశం);
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_download_stat(struct Curl_easy *data,
-                                             struct ssh_conn *sshc,
-                                             struct SSHPROTO *sshp,
-                                             bool *block)
+స్థిర CURLcode ssh_state_sftp_download_stat(నిర్మాణం Curl_easy *దత్తాంశం,
+                                             నిర్మాణం ssh_conn *sshc,
+                                             నిర్మాణం SSHPROTO *sshp,
+                                             bool *ఖండం)
 {
-  CURLcode result;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  result = sftp_download_stat(data, sshc, sshp, block);
-  if(result) {
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  CURLcode ఫలితం;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
+  ఫలితం = sftp_download_stat(దత్తాంశం, sshc, sshp, ఖండం);
+  ఒకవేళ(ఫలితం) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_state_scp_trans_init(struct Curl_easy *data,
-                                         struct ssh_conn *sshc,
-                                         struct SSHPROTO *sshp)
+స్థిర CURLcode ssh_state_scp_trans_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                         నిర్మాణం ssh_conn *sshc,
+                                         నిర్మాణం SSHPROTO *sshp)
 {
-  CURLcode result;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  result = Curl_getworkingpath(data, sshc->homedir,
-                               &sshp->path);
-  if(result) {
-    myssh_to(data, sshc, SSH_STOP);
-    return result;
+  CURLcode ఫలితం;
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_FAILED_INIT;
+  ఫలితం = Curl_getworkingpath(దత్తాంశం, sshc->homedir,
+                               &sshp->మార్గం);
+  ఒకవేళ(ఫలితం) {
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+    తిరిగి ఫలితం;
   }
 
-  if(data->state.upload) {
-    if(data->state.infilesize < 0) {
-      failf(data, "SCP requires a known file size for upload");
-      myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-      return CURLE_UPLOAD_FAILED;
+  ఒకవేళ(దత్తాంశం->state.upload) {
+    ఒకవేళ(దత్తాంశం->state.infilesize < 0) {
+      failf(దత్తాంశం, "SCP requires a known file size for upload");
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_CHANNEL_FREE);
+      తిరిగి CURLE_UPLOAD_FAILED;
     }
-    myssh_to(data, sshc, SSH_SCP_UPLOAD_INIT);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_UPLOAD_INIT);
   }
-  else
-    myssh_to(data, sshc, SSH_SCP_DOWNLOAD_INIT);
-  return CURLE_OK;
+  లేకపోతే
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_DOWNLOAD_INIT);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_scp_done(struct Curl_easy *data,
-                                   struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_scp_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం ssh_conn *sshc)
 {
-  if(data->state.upload)
-    myssh_to(data, sshc, SSH_SCP_SEND_EOF);
-  else
-    myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-  return CURLE_OK;
+  ఒకవేళ(దత్తాంశం->state.upload)
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_SEND_EOF);
+  లేకపోతే
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_CHANNEL_FREE);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_scp_send_eof(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_scp_send_eof(నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం ssh_conn *sshc)
 {
-  if(sshc->ssh_channel) {
-    int rc = libssh2_channel_send_eof(sshc->ssh_channel);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
-    if(rc) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session,
-                                       &err_msg, NULL, 0);
-      infof(data, "Failed to send libssh2 channel EOF: %d %s",
-            rc, err_msg);
-    }
-  }
-  myssh_to(data, sshc, SSH_SCP_WAIT_EOF);
-  return CURLE_OK;
-}
-
-static CURLcode ssh_state_scp_wait_eof(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
-{
-  if(sshc->ssh_channel) {
-    int rc = libssh2_channel_wait_eof(sshc->ssh_channel);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
-    if(rc) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session,
-                                       &err_msg, NULL, 0);
-      infof(data, "Failed to get channel EOF: %d %s", rc, err_msg);
+  ఒకవేళ(sshc->ssh_channel) {
+    పూర్ణాంకం rc = libssh2_channel_send_eof(sshc->ssh_channel);
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
+    ఒకవేళ(rc) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session,
+                                       &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to send libssh2 channel EOF: %d %s",
+            rc, err_సందేశం);
     }
   }
-  myssh_to(data, sshc, SSH_SCP_WAIT_CLOSE);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_WAIT_EOF);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_scp_wait_close(struct Curl_easy *data,
-                                         struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_scp_wait_eof(నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం ssh_conn *sshc)
 {
-  if(sshc->ssh_channel) {
-    int rc =
+  ఒకవేళ(sshc->ssh_channel) {
+    పూర్ణాంకం rc = libssh2_channel_wait_eof(sshc->ssh_channel);
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
+    ఒకవేళ(rc) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session,
+                                       &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to get channel EOF: %d %s", rc, err_సందేశం);
+    }
+  }
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_WAIT_CLOSE);
+  తిరిగి CURLE_OK;
+}
+
+స్థిర CURLcode ssh_state_scp_wait_close(నిర్మాణం Curl_easy *దత్తాంశం,
+                                         నిర్మాణం ssh_conn *sshc)
+{
+  ఒకవేళ(sshc->ssh_channel) {
+    పూర్ణాంకం rc =
       libssh2_channel_wait_closed(sshc->ssh_channel);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
-    if(rc) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session,
-                                       &err_msg, NULL, 0);
-      infof(data, "Channel failed to close: %d %s", rc, err_msg);
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
+    ఒకవేళ(rc) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session,
+                                       &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Channel failed to close: %d %s", rc, err_సందేశం);
     }
   }
-  myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_CHANNEL_FREE);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_scp_channel_free(
-  struct Curl_easy *data,
-  struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_scp_channel_free(
+  నిర్మాణం Curl_easy *దత్తాంశం,
+  నిర్మాణం ssh_conn *sshc)
 {
-  if(sshc->ssh_channel) {
-    int rc = libssh2_channel_free(sshc->ssh_channel);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
-    if(rc < 0) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session,
-                                       &err_msg, NULL, 0);
-      infof(data, "Failed to free libssh2 scp subsystem: %d %s", rc, err_msg);
+  ఒకవేళ(sshc->ssh_channel) {
+    పూర్ణాంకం rc = libssh2_channel_free(sshc->ssh_channel);
+    ఒకవేళ(rc == LIBSSH2_ERROR_EAGAIN)
+      తిరిగి CURLE_AGAIN;
+    ఒకవేళ(rc < 0) {
+      అక్షరం *err_సందేశం = ఖాళీ;
+      (శూన్య)libssh2_session_చివరి_error(sshc->ssh_session,
+                                       &err_సందేశం, ఖాళీ, 0);
+      infof(దత్తాంశం, "Failed to free libssh2 scp subsystem: %d %s", rc, err_సందేశం);
     }
-    sshc->ssh_channel = NULL;
+    sshc->ssh_channel = ఖాళీ;
   }
-  CURL_TRC_SSH(data, "SCP DONE phase complete");
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  CURL_TRC_SSH(దత్తాంశం, "SCP DONE phase complete");
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ssh_state_session_free(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+స్థిర CURLcode ssh_state_session_free(నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం ssh_conn *sshc)
 {
-  CURLcode result = sshc_cleanup(sshc, data, FALSE);
-  struct connectdata *conn = data->conn;
-  if(result)
-    return result;
-  memset(sshc, 0, sizeof(struct ssh_conn));
+  CURLcode ఫలితం = sshc_cleanup(sshc, దత్తాంశం, FALSE);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
+  memset(sshc, 0, పరిమాణం(నిర్మాణం ssh_conn));
   connclose(conn);
   sshc->state = SSH_SESSION_FREE; /* current */
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -2887,263 +2887,263 @@ static CURLcode ssh_state_session_free(struct Curl_easy *data,
  * to is set to TRUE if the libssh2 function returns LIBSSH2_ERROR_EAGAIN
  * meaning it wants to be called again when the socket is ready
  */
-static CURLcode ssh_statemachine(struct Curl_easy *data,
-                                 struct ssh_conn *sshc,
-                                 struct SSHPROTO *sshp,
-                                 bool *block)
+స్థిర CURLcode ssh_statemachine(నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం ssh_conn *sshc,
+                                 నిర్మాణం SSHPROTO *sshp,
+                                 bool *ఖండం)
 {
-  CURLcode result = CURLE_OK;
-  *block = 0; /* we are not blocking by default */
+  CURLcode ఫలితం = CURLE_OK;
+  *ఖండం = 0; /* we are not blocking by default */
 
-  do {
-    switch(sshc->state) {
-    case SSH_INIT:
-      result = ssh_state_init(data, sshc);
-      if(result)
-        break;
+  చేయి {
+    ఎంపిక(sshc->state) {
+    స్థితి SSH_INIT:
+      ఫలితం = ssh_state_init(దత్తాంశం, sshc);
+      ఒకవేళ(ఫలితం)
+        ఆపు;
       FALLTHROUGH();
 
-    case SSH_S_STARTUP:
-      result = ssh_state_startup(data, sshc);
-      if(result)
-        break;
+    స్థితి SSH_S_STARTUP:
+      ఫలితం = ssh_state_startup(దత్తాంశం, sshc);
+      ఒకవేళ(ఫలితం)
+        ఆపు;
       FALLTHROUGH();
 
-    case SSH_HOSTKEY:
-      result = ssh_state_hostkey(data, sshc);
-      break;
+    స్థితి SSH_HOSTKEY:
+      ఫలితం = ssh_state_hostkey(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTHLIST:
-      result = ssh_state_authlist(data, sshc);
-      break;
+    స్థితి SSH_AUTHLIST:
+      ఫలితం = ssh_state_authlist(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_PKEY_INIT:
-      ssh_state_pkey_init(data, sshc);
-      break;
+    స్థితి SSH_AUTH_PKEY_INIT:
+      ssh_state_pkey_init(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_PKEY:
-      result = ssh_state_auth_pkey(data, sshc);
-      break;
+    స్థితి SSH_AUTH_PKEY:
+      ఫలితం = ssh_state_auth_pkey(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_PASS_INIT:
-      result = ssh_state_auth_pass_init(data, sshc);
-      break;
+    స్థితి SSH_AUTH_PASS_INIT:
+      ఫలితం = ssh_state_auth_pass_init(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_PASS:
-      result = ssh_state_auth_pass(data, sshc);
-      break;
+    స్థితి SSH_AUTH_PASS:
+      ఫలితం = ssh_state_auth_pass(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_HOST_INIT:
-      result = ssh_state_auth_host_init(data, sshc);
-      break;
+    స్థితి SSH_AUTH_HOST_INIT:
+      ఫలితం = ssh_state_auth_host_init(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_HOST:
-      myssh_to(data, sshc, SSH_AUTH_AGENT_INIT);
-      break;
+    స్థితి SSH_AUTH_HOST:
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_AUTH_AGENT_INIT);
+      ఆపు;
 
-    case SSH_AUTH_AGENT_INIT:
-      result = ssh_state_auth_agent_init(data, sshc);
-      break;
+    స్థితి SSH_AUTH_AGENT_INIT:
+      ఫలితం = ssh_state_auth_agent_init(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_AGENT_LIST:
-      result = ssh_state_auth_agent_list(data, sshc);
-      break;
+    స్థితి SSH_AUTH_AGENT_LIST:
+      ఫలితం = ssh_state_auth_agent_list(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_AGENT:
-      result = ssh_state_auth_agent(data, sshc);
-      break;
+    స్థితి SSH_AUTH_AGENT:
+      ఫలితం = ssh_state_auth_agent(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_KEY_INIT:
-      result = ssh_state_auth_key_init(data, sshc);
-      break;
+    స్థితి SSH_AUTH_కీలకం_INIT:
+      ఫలితం = ssh_state_auth_కీలకం_init(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_KEY:
-      result = ssh_state_auth_key(data, sshc);
-      break;
+    స్థితి SSH_AUTH_కీలకం:
+      ఫలితం = ssh_state_auth_కీలకం(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_AUTH_DONE:
-      result = ssh_state_auth_done(data, sshc);
-      break;
+    స్థితి SSH_AUTH_పూర్తి:
+      ఫలితం = ssh_state_auth_పూర్తి(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_INIT:
-      result = ssh_state_sftp_init(data, sshc);
-      break;
+    స్థితి SSH_SFTP_INIT:
+      ఫలితం = ssh_state_sftp_init(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_REALPATH:
-      result = ssh_state_sftp_realpath(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_REALPATH:
+      ఫలితం = ssh_state_sftp_realpath(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_QUOTE_INIT:
-      result = ssh_state_sftp_quote_init(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_QUOTE_INIT:
+      ఫలితం = ssh_state_sftp_quote_init(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_POSTQUOTE_INIT:
-      result = ssh_state_sftp_postquote_init(data, sshc);
-      break;
+    స్థితి SSH_SFTP_POSTQUOTE_INIT:
+      ఫలితం = ssh_state_sftp_postquote_init(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_QUOTE:
-      result = ssh_state_sftp_quote(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_QUOTE:
+      ఫలితం = ssh_state_sftp_quote(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_NEXT_QUOTE:
-      result = ssh_state_sftp_next_quote(data, sshc);
-      break;
+    స్థితి SSH_SFTP_తదుపరి_QUOTE:
+      ఫలితం = ssh_state_sftp_తదుపరి_quote(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_QUOTE_STAT:
-      result = ssh_state_sftp_quote_stat(data, sshc, sshp, block);
-      break;
+    స్థితి SSH_SFTP_QUOTE_STAT:
+      ఫలితం = ssh_state_sftp_quote_stat(దత్తాంశం, sshc, sshp, ఖండం);
+      ఆపు;
 
-    case SSH_SFTP_QUOTE_SETSTAT:
-      result = ssh_state_sftp_quote_setstat(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_QUOTE_SETSTAT:
+      ఫలితం = ssh_state_sftp_quote_setstat(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_QUOTE_SYMLINK:
-      result = ssh_state_sftp_quote_symlink(data, sshc);
-      break;
+    స్థితి SSH_SFTP_QUOTE_SYMLINK:
+      ఫలితం = ssh_state_sftp_quote_symlink(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_QUOTE_MKDIR:
-      result = ssh_state_sftp_quote_mkdir(data, sshc);
-      break;
+    స్థితి SSH_SFTP_QUOTE_MKDIR:
+      ఫలితం = ssh_state_sftp_quote_mkdir(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_QUOTE_RENAME:
-      result = ssh_state_sftp_quote_rename(data, sshc);
-      break;
+    స్థితి SSH_SFTP_QUOTE_RENAME:
+      ఫలితం = ssh_state_sftp_quote_rename(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_QUOTE_RMDIR:
-      result = ssh_state_sftp_quote_rmdir(data, sshc);
-      break;
+    స్థితి SSH_SFTP_QUOTE_RMDIR:
+      ఫలితం = ssh_state_sftp_quote_rmdir(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_QUOTE_UNLINK:
-      result = ssh_state_sftp_quote_unlink(data, sshc);
-      break;
+    స్థితి SSH_SFTP_QUOTE_UNLINK:
+      ఫలితం = ssh_state_sftp_quote_unlink(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_QUOTE_STATVFS:
-      result = ssh_state_sftp_quote_statvfs(data, sshc);
-      break;
+    స్థితి SSH_SFTP_QUOTE_STATVFS:
+      ఫలితం = ssh_state_sftp_quote_statvfs(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_GETINFO:
-      result = ssh_state_sftp_getinfo(data, sshc);
-      break;
+    స్థితి SSH_SFTP_GETINFO:
+      ఫలితం = ssh_state_sftp_getinfo(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_FILETIME:
-      result = ssh_state_sftp_filetime(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_FILETIME:
+      ఫలితం = ssh_state_sftp_filetime(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_TRANS_INIT:
-      result = ssh_state_sftp_trans_init(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_TRANS_INIT:
+      ఫలితం = ssh_state_sftp_trans_init(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_UPLOAD_INIT:
-      result = ssh_state_sftp_upload_init(data, sshc, sshp, block);
-      break;
+    స్థితి SSH_SFTP_UPLOAD_INIT:
+      ఫలితం = ssh_state_sftp_upload_init(దత్తాంశం, sshc, sshp, ఖండం);
+      ఆపు;
 
-    case SSH_SFTP_CREATE_DIRS_INIT:
-      result = ssh_state_sftp_create_dirs_init(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_CREATE_DIRS_INIT:
+      ఫలితం = ssh_state_sftp_create_dirs_init(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_CREATE_DIRS:
-      result = ssh_state_sftp_create_dirs(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_CREATE_DIRS:
+      ఫలితం = ssh_state_sftp_create_dirs(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_CREATE_DIRS_MKDIR:
-      result = ssh_state_sftp_create_dirs_mkdir(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_CREATE_DIRS_MKDIR:
+      ఫలితం = ssh_state_sftp_create_dirs_mkdir(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_READDIR_INIT:
-      result = ssh_state_sftp_readdir_init(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_READDIR_INIT:
+      ఫలితం = ssh_state_sftp_readdir_init(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_READDIR:
-      result = ssh_state_sftp_readdir(data, sshc, sshp, block);
-      break;
+    స్థితి SSH_SFTP_READDIR:
+      ఫలితం = ssh_state_sftp_readdir(దత్తాంశం, sshc, sshp, ఖండం);
+      ఆపు;
 
-    case SSH_SFTP_READDIR_LINK:
-      result = ssh_state_sftp_readdir_link(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_READDIR_LINK:
+      ఫలితం = ssh_state_sftp_readdir_link(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_READDIR_BOTTOM:
-      result = ssh_state_sftp_readdir_bottom(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_READDIR_BOTTOM:
+      ఫలితం = ssh_state_sftp_readdir_bottom(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_READDIR_DONE:
-      result = ssh_state_sftp_readdir_done(data, sshc);
-      break;
+    స్థితి SSH_SFTP_READDIR_పూర్తి:
+      ఫలితం = ssh_state_sftp_readdir_పూర్తి(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SFTP_DOWNLOAD_INIT:
-      result = ssh_state_sftp_download_init(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_DOWNLOAD_INIT:
+      ఫలితం = ssh_state_sftp_download_init(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_DOWNLOAD_STAT:
-      result = ssh_state_sftp_download_stat(data, sshc, sshp, block);
-      break;
+    స్థితి SSH_SFTP_DOWNLOAD_STAT:
+      ఫలితం = ssh_state_sftp_download_stat(దత్తాంశం, sshc, sshp, ఖండం);
+      ఆపు;
 
-    case SSH_SFTP_CLOSE:
-      result = ssh_state_sftp_close(data, sshc, sshp);
-      break;
+    స్థితి SSH_SFTP_CLOSE:
+      ఫలితం = ssh_state_sftp_close(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SFTP_SHUTDOWN:
-      result = ssh_state_sftp_shutdown(data, sshc);
-      break;
+    స్థితి SSH_SFTP_SHUTDOWN:
+      ఫలితం = ssh_state_sftp_shutdown(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SCP_TRANS_INIT:
-      result = ssh_state_scp_trans_init(data, sshc, sshp);
-      break;
+    స్థితి SSH_SCP_TRANS_INIT:
+      ఫలితం = ssh_state_scp_trans_init(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SCP_UPLOAD_INIT:
-      result = ssh_state_scp_upload_init(data, sshc, sshp);
-      break;
+    స్థితి SSH_SCP_UPLOAD_INIT:
+      ఫలితం = ssh_state_scp_upload_init(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SCP_DOWNLOAD_INIT:
-      result = ssh_state_scp_download_init(data, sshc, sshp);
-      break;
+    స్థితి SSH_SCP_DOWNLOAD_INIT:
+      ఫలితం = ssh_state_scp_download_init(దత్తాంశం, sshc, sshp);
+      ఆపు;
 
-    case SSH_SCP_DONE:
-      result = ssh_state_scp_done(data, sshc);
-      break;
+    స్థితి SSH_SCP_పూర్తి:
+      ఫలితం = ssh_state_scp_పూర్తి(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SCP_SEND_EOF:
-      result = ssh_state_scp_send_eof(data, sshc);
-      break;
+    స్థితి SSH_SCP_SEND_EOF:
+      ఫలితం = ssh_state_scp_send_eof(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SCP_WAIT_EOF:
-      result = ssh_state_scp_wait_eof(data, sshc);
-      break;
+    స్థితి SSH_SCP_WAIT_EOF:
+      ఫలితం = ssh_state_scp_wait_eof(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SCP_WAIT_CLOSE:
-      result = ssh_state_scp_wait_close(data, sshc);
-      break;
+    స్థితి SSH_SCP_WAIT_CLOSE:
+      ఫలితం = ssh_state_scp_wait_close(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SCP_CHANNEL_FREE:
-      result = ssh_state_scp_channel_free(data, sshc);
-      break;
+    స్థితి SSH_SCP_CHANNEL_FREE:
+      ఫలితం = ssh_state_scp_channel_free(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SESSION_DISCONNECT:
-      result = ssh_state_session_disconnect(data, sshc);
-      break;
+    స్థితి SSH_SESSION_DISCONNECT:
+      ఫలితం = ssh_state_session_disconnect(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_SESSION_FREE:
-      result = ssh_state_session_free(data, sshc);
-      break;
+    స్థితి SSH_SESSION_FREE:
+      ఫలితం = ssh_state_session_free(దత్తాంశం, sshc);
+      ఆపు;
 
-    case SSH_QUIT:
-    default:
+    స్థితి SSH_QUIT:
+    అప్రమేయ:
       /* internal error */
-      myssh_to(data, sshc, SSH_STOP);
-      break;
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_STOP);
+      ఆపు;
     }
 
-  } while(!result && (sshc->state != SSH_STOP) && !*block);
+  } అయితే(!ఫలితం && (sshc->state != SSH_STOP) && !*ఖండం);
 
-  if(result == CURLE_AGAIN) {
+  ఒకవేళ(ఫలితం == CURLE_AGAIN) {
     /* we would block, we need to wait for the socket to be ready (in the
        right direction too)! */
-    *block = TRUE;
-    result = CURLE_OK;
+    *ఖండం = TRUE;
+    ఫలితం = CURLE_OK;
   }
-  CURL_TRC_SSH(data, "[%s] statemachine() -> %d, block=%d",
-               Curl_ssh_statename(sshc->state), (int)result, *block);
+  CURL_TRC_SSH(దత్తాంశం, "[%s] statemachine() -> %d, block=%d",
+               Curl_ssh_statename(sshc->state), (పూర్ణాంకం)ఫలితం, *ఖండం);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -3153,281 +3153,281 @@ static CURLcode ssh_statemachine(struct Curl_easy *data,
  * function in all cases so that when it _does not_ return EAGAIN we can
  * restore the default wait bits.
  */
-static void ssh_block2waitfor(struct Curl_easy *data,
-                              struct ssh_conn *sshc,
-                              bool block)
+స్థిర శూన్య ssh_block2waitfor(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం ssh_conn *sshc,
+                              bool ఖండం)
 {
-  int dir = 0;
-  (void)data;
-  if(block) {
-    dir = libssh2_session_block_directions(sshc->ssh_session);
-    if(dir) {
+  పూర్ణాంకం dir = 0;
+  (శూన్య)దత్తాంశం;
+  ఒకవేళ(ఖండం) {
+    dir = libssh2_session_ఖండం_directions(sshc->ssh_session);
+    ఒకవేళ(dir) {
       /* translate the libssh2 define bits into our own bit defines */
       sshc->waitfor =
-        ((dir & LIBSSH2_SESSION_BLOCK_INBOUND) ? REQ_IO_RECV : 0) |
-        ((dir & LIBSSH2_SESSION_BLOCK_OUTBOUND) ? REQ_IO_SEND : 0);
+        ((dir & LIBSSH2_SESSION_ఖండం_INBOUND) ? REQ_IO_RECV : 0) |
+        ((dir & LIBSSH2_SESSION_ఖండం_OUTBOUND) ? REQ_IO_SEND : 0);
     }
   }
-  if(!dir)
+  ఒకవేళ(!dir)
     sshc->waitfor = 0;
 }
 
 /* called repeatedly until done from multi.c */
-static CURLcode ssh_multi_statemach(struct Curl_easy *data, bool *done)
+స్థిర CURLcode ssh_multi_statemach(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  CURLcode result = CURLE_OK;
-  bool block; /* we store the status and use that to provide
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  నిర్మాణం SSHPROTO *sshp = Curl_meta_get(దత్తాంశం, CURL_META_SSH_EASY);
+  CURLcode ఫలితం = CURLE_OK;
+  bool ఖండం; /* we store the status and use that to provide
                  a Curl_ssh_pollset() implementation */
-  if(!sshc || !sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshc || !sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
-  do {
-    result = ssh_statemachine(data, sshc, sshp, &block);
-    *done = (sshc->state == SSH_STOP);
+  చేయి {
+    ఫలితం = ssh_statemachine(దత్తాంశం, sshc, sshp, &ఖండం);
+    *పూర్తి = (sshc->state == SSH_STOP);
     /* if there is no error, it is not done and it did not EWOULDBLOCK, then
        try again */
-  } while(!result && !*done && !block);
-  ssh_block2waitfor(data, sshc, block);
+  } అయితే(!ఫలితం && !*పూర్తి && !ఖండం);
+  ssh_block2waitfor(దత్తాంశం, sshc, ఖండం);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ssh_block_statemach(struct Curl_easy *data,
-                                    struct ssh_conn *sshc,
-                                    struct SSHPROTO *sshp,
+స్థిర CURLcode ssh_ఖండం_statemach(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం ssh_conn *sshc,
+                                    నిర్మాణం SSHPROTO *sshp,
                                     bool disconnect)
 {
-  CURLcode result = CURLE_OK;
-  struct curltime start = *Curl_pgrs_now(data);
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం curltime ప్రారంభం = *Curl_pgrs_now(దత్తాంశం);
 
-  while((sshc->state != SSH_STOP) && !result) {
-    bool block;
-    timediff_t left_ms = 1000;
+  అయితే((sshc->state != SSH_STOP) && !ఫలితం) {
+    bool ఖండం;
+    timediff_t ఎడమ_ms = 1000;
 
-    result = ssh_statemachine(data, sshc, sshp, &block);
-    if(result)
-      break;
+    ఫలితం = ssh_statemachine(దత్తాంశం, sshc, sshp, &ఖండం);
+    ఒకవేళ(ఫలితం)
+      ఆపు;
 
-    if(!disconnect) {
-      result = Curl_pgrsCheck(data);
-      if(result)
-        break;
+    ఒకవేళ(!disconnect) {
+      ఫలితం = Curl_pgrsCheck(దత్తాంశం);
+      ఒకవేళ(ఫలితం)
+        ఆపు;
 
-      left_ms = Curl_timeleft_ms(data);
-      if(left_ms < 0) {
-        failf(data, "Operation timed out");
-        return CURLE_OPERATION_TIMEDOUT;
+      ఎడమ_ms = Curl_timeleft_ms(దత్తాంశం);
+      ఒకవేళ(ఎడమ_ms < 0) {
+        failf(దత్తాంశం, "Operation timed out");
+        తిరిగి CURLE_OPERATION_TIMEDOUT;
       }
     }
-    else if(curlx_ptimediff_ms(Curl_pgrs_now(data), &start) > 1000) {
+    లేకపోతే ఒకవేళ(curlx_ptimediff_ms(Curl_pgrs_now(దత్తాంశం), &ప్రారంభం) > 1000) {
       /* disconnect timeout */
-      failf(data, "Disconnect timed out");
-      result = CURLE_OK;
-      break;
+      failf(దత్తాంశం, "Disconnect timed out");
+      ఫలితం = CURLE_OK;
+      ఆపు;
     }
 
-    if(block) {
-      int dir = libssh2_session_block_directions(sshc->ssh_session);
-      curl_socket_t sock = data->conn->sock[FIRSTSOCKET];
+    ఒకవేళ(ఖండం) {
+      పూర్ణాంకం dir = libssh2_session_ఖండం_directions(sshc->ssh_session);
+      curl_socket_t sock = దత్తాంశం->conn->sock[FIRSTSOCKET];
       curl_socket_t fd_read = CURL_SOCKET_BAD;
       curl_socket_t fd_write = CURL_SOCKET_BAD;
-      if(LIBSSH2_SESSION_BLOCK_INBOUND & dir)
+      ఒకవేళ(LIBSSH2_SESSION_ఖండం_INBOUND & dir)
         fd_read = sock;
-      if(LIBSSH2_SESSION_BLOCK_OUTBOUND & dir)
+      ఒకవేళ(LIBSSH2_SESSION_ఖండం_OUTBOUND & dir)
         fd_write = sock;
       /* wait for the socket to become ready */
-      (void)Curl_socket_check(fd_read, CURL_SOCKET_BAD, fd_write,
-                              (!left_ms || left_ms > 1000) ? 1000 : left_ms);
+      (శూన్య)Curl_socket_check(fd_read, CURL_SOCKET_BAD, fd_write,
+                              (!ఎడమ_ms || ఎడమ_ms > 1000) ? 1000 : ఎడమ_ms);
     }
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static void myssh_easy_dtor(const void *key, size_t klen, void *entry)
+స్థిర శూన్య myssh_easy_dtor(స్థిరరాశి శూన్య *కీలకం, size_t klen, శూన్య *నమోదు_2)
 {
-  struct SSHPROTO *sshp = entry;
-  (void)key;
-  (void)klen;
-  curlx_safefree(sshp->path);
+  నిర్మాణం SSHPROTO *sshp = నమోదు_2;
+  (శూన్య)కీలకం;
+  (శూన్య)klen;
+  curlx_safefree(sshp->మార్గం);
   curlx_dyn_free(&sshp->readdir);
   curlx_dyn_free(&sshp->readdir_link);
   curlx_free(sshp);
 }
 
-static void myssh_conn_dtor(const void *key, size_t klen, void *entry)
+స్థిర శూన్య myssh_conn_dtor(స్థిరరాశి శూన్య *కీలకం, size_t klen, శూన్య *నమోదు_2)
 {
-  struct ssh_conn *sshc = entry;
-  (void)key;
-  (void)klen;
-  sshc_cleanup(sshc, NULL, TRUE);
+  నిర్మాణం ssh_conn *sshc = నమోదు_2;
+  (శూన్య)కీలకం;
+  (శూన్య)klen;
+  sshc_cleanup(sshc, ఖాళీ, TRUE);
   curlx_free(sshc);
 }
 
 /*
  * SSH setup and connection
  */
-static CURLcode ssh_setup_connection(struct Curl_easy *data,
-                                     struct connectdata *conn)
+స్థిర CURLcode ssh_అమరిక_connection(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం connectdata *conn)
 {
-  struct ssh_conn *sshc;
-  struct SSHPROTO *sshp;
-  (void)conn;
+  నిర్మాణం ssh_conn *sshc;
+  నిర్మాణం SSHPROTO *sshp;
+  (శూన్య)conn;
 
-  sshc = curlx_calloc(1, sizeof(*sshc));
-  if(!sshc)
-    return CURLE_OUT_OF_MEMORY;
+  sshc = curlx_calloc(1, పరిమాణం(*sshc));
+  ఒకవేళ(!sshc)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  if(Curl_conn_meta_set(conn, CURL_META_SSH_CONN, sshc, myssh_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(Curl_conn_meta_సమితి(conn, CURL_META_SSH_CONN, sshc, myssh_conn_dtor))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  sshp = curlx_calloc(1, sizeof(*sshp));
-  if(!sshp)
-    return CURLE_OUT_OF_MEMORY;
+  sshp = curlx_calloc(1, పరిమాణం(*sshp));
+  ఒకవేళ(!sshp)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  curlx_dyn_init(&sshp->readdir, CURL_PATH_MAX * 2);
-  curlx_dyn_init(&sshp->readdir_link, CURL_PATH_MAX);
-  if(Curl_meta_set(data, CURL_META_SSH_EASY, sshp, myssh_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  curlx_dyn_init(&sshp->readdir, CURL_మార్గం_MAX * 2);
+  curlx_dyn_init(&sshp->readdir_link, CURL_మార్గం_MAX);
+  ఒకవేళ(Curl_meta_సమితి(దత్తాంశం, CURL_META_SSH_EASY, sshp, myssh_easy_dtor))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  return Curl_ssh_setup_pkey(data, sshc);
+  తిరిగి Curl_ssh_అమరిక_pkey(దత్తాంశం, sshc);
 }
 
-static Curl_recv scp_recv, sftp_recv;
-static Curl_send scp_send, sftp_send;
+స్థిర Curl_recv scp_recv, sftp_recv;
+స్థిర Curl_send scp_send, sftp_send;
 
-#ifndef CURL_DISABLE_PROXY
-static ssize_t ssh_tls_recv(libssh2_socket_t sock, void *buffer,
-                            size_t length, int flags, void **abstract)
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+స్థిర ssize_t ssh_tls_recv(libssh2_socket_t sock, శూన్య *బఫరు,
+                            size_t నిడివి, పూర్ణాంకం flags, శూన్య **abstract)
 {
-  struct Curl_easy *data = (struct Curl_easy *)*abstract;
-  int8_t sockindex = Curl_conn_sockindex(data, sock);
+  నిర్మాణం Curl_easy *దత్తాంశం = (నిర్మాణం Curl_easy *)*abstract;
+  int8_t sockindex = Curl_conn_sockindex(దత్తాంశం, sock);
   size_t nread;
-  CURLcode result;
-  struct connectdata *conn = data->conn;
+  CURLcode ఫలితం;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
   Curl_recv *backup = conn->recv[sockindex];
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  (void)flags;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  (శూన్య)flags;
 
-  if(!sshc)
-    return -1;
+  ఒకవేళ(!sshc)
+    తిరిగి -1;
 
   /* swap in the TLS reader function for this call only, and then swap back
      the SSH one again */
   conn->recv[sockindex] = sshc->tls_recv;
-  result = Curl_conn_recv(data, sockindex, buffer, length, &nread);
+  ఫలితం = Curl_conn_recv(దత్తాంశం, sockindex, బఫరు, నిడివి, &nread);
   conn->recv[sockindex] = backup;
-  if(result == CURLE_AGAIN)
-    return -EAGAIN; /* magic return code for libssh2 */
-  else if(result)
-    return -1; /* generic error */
-  Curl_debug(data, CURLINFO_DATA_IN, (const char *)buffer, nread);
-  return (ssize_t)nread;
+  ఒకవేళ(ఫలితం == CURLE_AGAIN)
+    తిరిగి -EAGAIN; /* magic return code for libssh2 */
+  లేకపోతే ఒకవేళ(ఫలితం)
+    తిరిగి -1; /* generic error */
+  Curl_debug(దత్తాంశం, CURLINFO_దత్తాంశం_లోపల, (స్థిరరాశి అక్షరం *)బఫరు, nread);
+  తిరిగి (ssize_t)nread;
 }
 
-static ssize_t ssh_tls_send(libssh2_socket_t sock, const void *buffer,
-                            size_t length, int flags, void **abstract)
+స్థిర ssize_t ssh_tls_send(libssh2_socket_t sock, స్థిరరాశి శూన్య *బఫరు,
+                            size_t నిడివి, పూర్ణాంకం flags, శూన్య **abstract)
 {
-  struct Curl_easy *data = (struct Curl_easy *)*abstract;
-  int8_t sockindex = Curl_conn_sockindex(data, sock);
+  నిర్మాణం Curl_easy *దత్తాంశం = (నిర్మాణం Curl_easy *)*abstract;
+  int8_t sockindex = Curl_conn_sockindex(దత్తాంశం, sock);
   size_t nwrite;
-  CURLcode result;
-  struct connectdata *conn = data->conn;
+  CURLcode ఫలితం;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
   Curl_send *backup = conn->send[sockindex];
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  (void)flags;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  (శూన్య)flags;
 
-  if(!sshc)
-    return -1;
+  ఒకవేళ(!sshc)
+    తిరిగి -1;
 
   /* swap in the TLS writer function for this call only, and then swap back
      the SSH one again */
   conn->send[sockindex] = sshc->tls_send;
-  result = Curl_conn_send(data, sockindex, buffer, length, FALSE, &nwrite);
+  ఫలితం = Curl_conn_send(దత్తాంశం, sockindex, బఫరు, నిడివి, FALSE, &nwrite);
   conn->send[sockindex] = backup;
-  if(result == CURLE_AGAIN)
-    return -EAGAIN; /* magic return code for libssh2 */
-  else if(result)
-    return -1; /* error */
-  Curl_debug(data, CURLINFO_DATA_OUT, (const char *)buffer, nwrite);
-  return (ssize_t)nwrite;
+  ఒకవేళ(ఫలితం == CURLE_AGAIN)
+    తిరిగి -EAGAIN; /* magic return code for libssh2 */
+  లేకపోతే ఒకవేళ(ఫలితం)
+    తిరిగి -1; /* error */
+  Curl_debug(దత్తాంశం, CURLINFO_దత్తాంశం_బహిర్గతం, (స్థిరరాశి అక్షరం *)బఫరు, nwrite);
+  తిరిగి (ssize_t)nwrite;
 }
-#endif
+#అయితే_ముగింపు
 
 /*
  * Curl_ssh_connect() gets called from Curl_protocol_connect() to allow us to
  * do protocol-specific actions at connect-time.
  */
-static CURLcode ssh_connect(struct Curl_easy *data, bool *done)
+స్థిర CURLcode ssh_connect(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-#ifdef CURL_LIBSSH2_DEBUG
+#నిర్వచితమైతే CURL_LIBSSH2_DEBUG
   curl_socket_t sock;
-#endif
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  CURLcode result;
+#అయితే_ముగింపు
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  CURLcode ఫలితం;
 
-#if LIBSSH2_VERSION_NUM >= 0x010b00
+#ఒకవేళ LIBSSH2_సంస్కరణ_అంకె >= 0x010b00
   {
-    const char *crypto_str;
-    switch(libssh2_crypto_engine()) {
-    case libssh2_gcrypt:
+    స్థిరరాశి అక్షరం *crypto_str;
+    ఎంపిక(libssh2_crypto_engine()) {
+    స్థితి libssh2_gcrypt:
       crypto_str = "libgcrypt";
-      break;
-    case libssh2_mbedtls:
+      ఆపు;
+    స్థితి libssh2_mbedtls:
       crypto_str = "mbedTLS";
-      break;
-    case libssh2_openssl:
+      ఆపు;
+    స్థితి libssh2_openssl:
       crypto_str = "openssl compatible";
-      break;
-    case libssh2_os400qc3:
+      ఆపు;
+    స్థితి libssh2_os400qc3:
       crypto_str = "OS400QC3";
-      break;
-    case libssh2_wincng:
+      ఆపు;
+    స్థితి libssh2_wincng:
       crypto_str = "WinCNG";
-      break;
-    default:
-      crypto_str = NULL;
-      break;
+      ఆపు;
+    అప్రమేయ:
+      crypto_str = ఖాళీ;
+      ఆపు;
     }
-    if(crypto_str)
-      infof(data, "SSH: libssh2 cryptography backend: %s", crypto_str);
+    ఒకవేళ(crypto_str)
+      infof(దత్తాంశం, "SSH: libssh2 cryptography backend: %s", crypto_str);
   }
-#endif
+#అయితే_ముగింపు
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshc)
+    తిరిగి CURLE_FAILED_INIT;
 
-  infof(data, "SSH: user '%s'", Curl_creds_user(conn->creds));
-#ifdef CURL_LIBSSH2_DEBUG
-  infof(data, "SSH: password %s", Curl_creds_passwd(conn->creds));
+  infof(దత్తాంశం, "SSH: user '%s'", Curl_creds_user(conn->creds));
+#నిర్వచితమైతే CURL_LIBSSH2_DEBUG
+  infof(దత్తాంశం, "SSH: password %s", Curl_creds_passwd(conn->creds));
   sock = conn->sock[FIRSTSOCKET];
-#endif /* CURL_LIBSSH2_DEBUG */
+#అయితే_ముగింపు /* CURL_LIBSSH2_DEBUG */
 
   /* libcurl MUST set custom memory functions so that the kbd_callback
      function's memory allocations can be properly freed */
   sshc->ssh_session = libssh2_session_init_ex(my_libssh2_malloc,
                                               my_libssh2_free,
-                                              my_libssh2_realloc, data);
+                                              my_libssh2_realloc, దత్తాంశం);
 
-  if(!sshc->ssh_session) {
-    failf(data, "Failure initializing ssh session");
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshc->ssh_session) {
+    failf(దత్తాంశం, "Failure initializing ssh session");
+    తిరిగి CURLE_FAILED_INIT;
   }
 
   /* Set the packet read timeout if the libssh2 version supports it */
-#if LIBSSH2_VERSION_NUM >= 0x010B00
-  if(data->set.server_response_timeout > 0) {
-    libssh2_session_set_read_timeout(sshc->ssh_session,
-                             (long)(data->set.server_response_timeout / 1000));
+#ఒకవేళ LIBSSH2_సంస్కరణ_అంకె >= 0x010B00
+  ఒకవేళ(దత్తాంశం->సమితి.server_response_timeout > 0) {
+    libssh2_session_సమితి_read_timeout(sshc->ssh_session,
+                             (దీర్ఘ)(దత్తాంశం->సమితి.server_response_timeout / 1000));
   }
-#endif
+#అయితే_ముగింపు
 
-#ifndef CURL_DISABLE_PROXY
-  if(conn->http_proxy.proxytype == CURLPROXY_HTTPS) {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+  ఒకవేళ(conn->http_proxy.proxytype == CURLPROXY_HTTPS) {
     /* Setup libssh2 callbacks to make it read/write TLS from the socket.
 
        ssize_t
@@ -3438,47 +3438,47 @@ static CURLcode ssh_connect(struct Curl_easy *data, bool *done)
        sendcb(libssh2_socket_t sock, const void *buffer, size_t length,
        int flags, void **abstract);
      */
-#if LIBSSH2_VERSION_NUM >= 0x010b01
-    infof(data, "SSH: using HTTPS proxy");
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
+#ఒకవేళ LIBSSH2_సంస్కరణ_అంకె >= 0x010b01
+    infof(దత్తాంశం, "SSH: using HTTPS proxy");
+#ఒకవేళ defined(__clang__) && __clang_major__ >= 16
+#సూచన clang diagnostic నెట్టు
+#సూచన clang diagnostic ignored "-Wcast-function-type-strict"
+#అయితే_ముగింపు
     libssh2_session_callback_set2(sshc->ssh_session,
                                   LIBSSH2_CALLBACK_RECV,
                                   (libssh2_cb_generic *)ssh_tls_recv);
     libssh2_session_callback_set2(sshc->ssh_session,
                                   LIBSSH2_CALLBACK_SEND,
                                   (libssh2_cb_generic *)ssh_tls_send);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
-#else
+#ఒకవేళ defined(__clang__) && __clang_major__ >= 16
+#సూచన clang diagnostic తీయి
+#అయితే_ముగింపు
+#లేకపోతే
     /*
      * This crazy union dance is here to avoid assigning a void pointer a
      * function pointer as it is invalid C. The problem is of course that
      * libssh2 has such an API...
      */
-    union receive {
-      void *recvp;
-      ssize_t (*recvptr)(libssh2_socket_t, void *, size_t, int, void **);
+    సంఘం receive {
+      శూన్య *recvp;
+      ssize_t (*recvptr)(libssh2_socket_t, శూన్య *, size_t, పూర్ణాంకం, శూన్య **);
     };
-    union transfer {
-      void *sendp;
-      ssize_t (*sendptr)(libssh2_socket_t, const void *, size_t, int, void **);
+    సంఘం transfer {
+      శూన్య *sendp;
+      ssize_t (*sendptr)(libssh2_socket_t, స్థిరరాశి శూన్య *, size_t, పూర్ణాంకం, శూన్య **);
     };
-    union receive sshrecv;
-    union transfer sshsend;
+    సంఘం receive sshrecv;
+    సంఘం transfer sshsend;
 
     sshrecv.recvptr = ssh_tls_recv;
     sshsend.sendptr = ssh_tls_send;
 
-    infof(data, "SSH: using HTTPS proxy");
-    libssh2_session_callback_set(sshc->ssh_session,
+    infof(దత్తాంశం, "SSH: using HTTPS proxy");
+    libssh2_session_callback_సమితి(sshc->ssh_session,
                                  LIBSSH2_CALLBACK_RECV, sshrecv.recvp);
-    libssh2_session_callback_set(sshc->ssh_session,
+    libssh2_session_callback_సమితి(sshc->ssh_session,
                                  LIBSSH2_CALLBACK_SEND, sshsend.sendp);
-#endif
+#అయితే_ముగింపు
 
     /* Store the underlying TLS recv/send function pointers to be used when
        reading from the proxy */
@@ -3486,49 +3486,49 @@ static CURLcode ssh_connect(struct Curl_easy *data, bool *done)
     sshc->tls_send = conn->send[FIRSTSOCKET];
   }
 
-#endif /* CURL_DISABLE_PROXY */
-  if(conn->scheme->protocol & CURLPROTO_SCP) {
+#అయితే_ముగింపు /* CURL_DISABLE_PROXY */
+  ఒకవేళ(conn->scheme->protocol & CURLPROTO_SCP) {
     conn->recv[FIRSTSOCKET] = scp_recv;
     conn->send[FIRSTSOCKET] = scp_send;
   }
-  else {
+  లేకపోతే {
     conn->recv[FIRSTSOCKET] = sftp_recv;
     conn->send[FIRSTSOCKET] = sftp_send;
   }
 
-  if(data->set.ssh_compression &&
+  ఒకవేళ(దత్తాంశం->సమితి.ssh_compression &&
      libssh2_session_flag(sshc->ssh_session, LIBSSH2_FLAG_COMPRESS, 1) < 0) {
-    infof(data, "SSH: failed to enable compression for session");
+    infof(దత్తాంశం, "SSH: failed to enable compression for session");
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
-    int rc;
+  ఒకవేళ(CURL_EASY_STR(దత్తాంశం, STRING_SSH_KNOWNHOSTS)) {
+    పూర్ణాంకం rc;
     sshc->kh = libssh2_knownhost_init(sshc->ssh_session);
-    if(!sshc->kh) {
+    ఒకవేళ(!sshc->kh) {
       libssh2_session_free(sshc->ssh_session);
-      sshc->ssh_session = NULL;
-      return CURLE_FAILED_INIT;
+      sshc->ssh_session = ఖాళీ;
+      తిరిగి CURLE_FAILED_INIT;
     }
 
     /* read all known hosts from there */
     rc = libssh2_knownhost_readfile(
-      sshc->kh, CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS),
+      sshc->kh, CURL_EASY_STR(దత్తాంశం, STRING_SSH_KNOWNHOSTS),
       LIBSSH2_KNOWNHOST_FILE_OPENSSH);
-    if(rc < 0)
-      infof(data, "SSH: failed to read known hosts from %s",
-            CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
+    ఒకవేళ(rc < 0)
+      infof(దత్తాంశం, "SSH: failed to read known hosts from %s",
+            CURL_EASY_STR(దత్తాంశం, STRING_SSH_KNOWNHOSTS));
   }
 
-#ifdef CURL_LIBSSH2_DEBUG
+#నిర్వచితమైతే CURL_LIBSSH2_DEBUG
   libssh2_trace(sshc->ssh_session, ~0);
-  infof(data, "SSH: socket %d", (int)sock);
-#endif
+  infof(దత్తాంశం, "SSH: socket %d", (పూర్ణాంకం)sock);
+#అయితే_ముగింపు
 
-  myssh_to(data, sshc, SSH_INIT);
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_INIT);
 
-  result = ssh_multi_statemach(data, done);
+  ఫలితం = ssh_multi_statemach(దత్తాంశం, పూర్తి);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -3540,164 +3540,164 @@ static CURLcode ssh_connect(struct Curl_easy *data, bool *done)
  * the options previously setup.
  */
 
-static CURLcode scp_perform(struct Curl_easy *data,
+స్థిర CURLcode scp_perform(నిర్మాణం Curl_easy *దత్తాంశం,
                             bool *connected,
-                            bool *dophase_done)
+                            bool *dophase_పూర్తి)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_SSH_CONN);
+  CURLcode ఫలితం = CURLE_OK;
 
-  CURL_TRC_SSH(data, "DO phase starts");
+  CURL_TRC_SSH(దత్తాంశం, "DO phase starts");
 
-  *dophase_done = FALSE; /* not done yet */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  *dophase_పూర్తి = FALSE; /* not done yet */
+  ఒకవేళ(!sshc)
+    తిరిగి CURLE_FAILED_INIT;
 
   /* start the first command in the DO phase */
-  myssh_to(data, sshc, SSH_SCP_TRANS_INIT);
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_TRANS_INIT);
 
   /* run the state-machine */
-  result = ssh_multi_statemach(data, dophase_done);
+  ఫలితం = ssh_multi_statemach(దత్తాంశం, dophase_పూర్తి);
 
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  *connected = Curl_conn_is_connected(దత్తాంశం->conn, FIRSTSOCKET);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  ఒకవేళ(*dophase_పూర్తి) {
+    CURL_TRC_SSH(దత్తాంశం, "DO phase is complete");
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* called from multi.c while DOing */
-static CURLcode scp_doing(struct Curl_easy *data,
-                          bool *dophase_done)
+స్థిర CURLcode scp_doing(నిర్మాణం Curl_easy *దత్తాంశం,
+                          bool *dophase_పూర్తి)
 {
-  CURLcode result;
-  result = ssh_multi_statemach(data, dophase_done);
+  CURLcode ఫలితం;
+  ఫలితం = ssh_multi_statemach(దత్తాంశం, dophase_పూర్తి);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  ఒకవేళ(*dophase_పూర్తి) {
+    CURL_TRC_SSH(దత్తాంశం, "DO phase is complete");
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* BLOCKING, but the function is using the state machine so the only reason
    this is still blocking is that the multi interface code has no support for
    disconnecting operations that takes a while */
-static CURLcode scp_disconnect(struct Curl_easy *data,
-                               struct connectdata *conn,
+స్థిర CURLcode scp_disconnect(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం connectdata *conn,
                                bool dead_connection)
 {
-  CURLcode result = CURLE_OK;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  (void)dead_connection;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  నిర్మాణం SSHPROTO *sshp = Curl_meta_get(దత్తాంశం, CURL_META_SSH_EASY);
+  (శూన్య)dead_connection;
 
-  if(sshc && sshc->ssh_session) {
+  ఒకవేళ(sshc && sshc->ssh_session) {
     /* only if there is a session still around to use! */
-    myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-    result = ssh_block_statemach(data, sshc, sshp, TRUE);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SESSION_DISCONNECT);
+    ఫలితం = ssh_ఖండం_statemach(దత్తాంశం, sshc, sshp, TRUE);
   }
 
-  if(sshc)
-    return sshc_cleanup(sshc, data, TRUE);
-  return result;
+  ఒకవేళ(sshc)
+    తిరిగి sshc_cleanup(sshc, దత్తాంశం, TRUE);
+  తిరిగి ఫలితం;
 }
 
 /* generic done function for both SCP and SFTP called from their specific
    done functions */
-static CURLcode ssh_done(struct Curl_easy *data, CURLcode status)
+స్థిర CURLcode ssh_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం, CURLcode స్థితి_2)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_SSH_CONN);
+  నిర్మాణం SSHPROTO *sshp = Curl_meta_get(దత్తాంశం, CURL_META_SSH_EASY);
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!sshc || !sshp)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshc || !sshp)
+    తిరిగి CURLE_FAILED_INIT;
 
-  if(!status)
+  ఒకవేళ(!స్థితి_2)
     /* run the state-machine */
-    result = ssh_block_statemach(data, sshc, sshp, FALSE);
-  else
-    result = status;
+    ఫలితం = ssh_ఖండం_statemach(దత్తాంశం, sshc, sshp, FALSE);
+  లేకపోతే
+    ఫలితం = స్థితి_2;
 
-  if(Curl_pgrsDone(data, Curl_pgrs_now(data)))
-    return CURLE_ABORTED_BY_CALLBACK;
+  ఒకవేళ(Curl_pgrs_పూర్తి(దత్తాంశం, Curl_pgrs_now(దత్తాంశం)))
+    తిరిగి CURLE_ABORTED_BY_CALLBACK;
 
-  CURL_REQ_CLEAR_IO(data);
-  return result;
+  CURL_REQ_CLEAR_IO(దత్తాంశం);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode scp_done(struct Curl_easy *data, CURLcode status,
+స్థిర CURLcode scp_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం, CURLcode స్థితి_2,
                          bool premature)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  (void)premature;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_SSH_CONN);
+  (శూన్య)premature;
 
-  if(sshc && !status)
-    myssh_to(data, sshc, SSH_SCP_DONE);
+  ఒకవేళ(sshc && !స్థితి_2)
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SCP_పూర్తి);
 
-  return ssh_done(data, status);
+  తిరిగి ssh_పూర్తి(దత్తాంశం, స్థితి_2);
 }
 
-static CURLcode scp_send(struct Curl_easy *data, int8_t sockindex,
-                         const uint8_t *mem, size_t len, bool eos,
+స్థిర CURLcode scp_send(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                         స్థిరరాశి uint8_t *mem, size_t len, bool eos,
                          size_t *pnwritten)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  CURLcode result = CURLE_OK;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  CURLcode ఫలితం = CURLE_OK;
   ssize_t nwritten;
 
-  (void)sockindex; /* we only support SCP on the fixed known primary socket */
-  (void)eos;
+  (శూన్య)sockindex; /* we only support SCP on the fixed known primary socket */
+  (శూన్య)eos;
   *pnwritten = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshc)
+    తిరిగి CURLE_FAILED_INIT;
 
   /* libssh2_channel_write() returns int! */
   nwritten = (ssize_t)libssh2_channel_write(sshc->ssh_channel,
-                                            (const char *)mem, len);
+                                            (స్థిరరాశి అక్షరం *)mem, len);
 
-  ssh_block2waitfor(data, sshc, (nwritten == LIBSSH2_ERROR_EAGAIN));
+  ssh_block2waitfor(దత్తాంశం, sshc, (nwritten == LIBSSH2_ERROR_EAGAIN));
 
-  if(nwritten == LIBSSH2_ERROR_EAGAIN)
-    result = CURLE_AGAIN;
-  else if(nwritten < LIBSSH2_ERROR_NONE)
-    result = libssh2_session_error_to_CURLE((int)nwritten);
-  else
+  ఒకవేళ(nwritten == LIBSSH2_ERROR_EAGAIN)
+    ఫలితం = CURLE_AGAIN;
+  లేకపోతే ఒకవేళ(nwritten < LIBSSH2_ERROR_NONE)
+    ఫలితం = libssh2_session_error_గమ్యం_CURLE((పూర్ణాంకం)nwritten);
+  లేకపోతే
     *pnwritten = (size_t)nwritten;
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode scp_recv(struct Curl_easy *data, int8_t sockindex,
-                         char *mem, size_t len, size_t *pnread)
+స్థిర CURLcode scp_recv(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                         అక్షరం *mem, size_t len, size_t *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  CURLcode result = CURLE_OK;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  CURLcode ఫలితం = CURLE_OK;
   ssize_t nread;
 
-  (void)sockindex; /* we only support SCP on the fixed known primary socket */
+  (శూన్య)sockindex; /* we only support SCP on the fixed known primary socket */
   *pnread = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshc)
+    తిరిగి CURLE_FAILED_INIT;
 
   /* libssh2_channel_read() returns int */
   nread = (ssize_t)libssh2_channel_read(sshc->ssh_channel, mem, len);
 
-  ssh_block2waitfor(data, sshc, (nread == LIBSSH2_ERROR_EAGAIN));
-  if(nread == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
-  else if(nread < LIBSSH2_ERROR_NONE)
-    result = libssh2_session_error_to_CURLE((int)nread);
-  else
+  ssh_block2waitfor(దత్తాంశం, sshc, (nread == LIBSSH2_ERROR_EAGAIN));
+  ఒకవేళ(nread == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
+  లేకపోతే ఒకవేళ(nread < LIBSSH2_ERROR_NONE)
+    ఫలితం = libssh2_session_error_గమ్యం_CURLE((పూర్ణాంకం)nread);
+  లేకపోతే
     *pnread = (size_t)nread;
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -3713,210 +3713,210 @@ static CURLcode scp_recv(struct Curl_easy *data, int8_t sockindex,
  * the options previously setup.
  */
 
-static CURLcode sftp_perform(struct Curl_easy *data,
+స్థిర CURLcode sftp_perform(నిర్మాణం Curl_easy *దత్తాంశం,
                              bool *connected,
-                             bool *dophase_done)
+                             bool *dophase_పూర్తి)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_SSH_CONN);
+  CURLcode ఫలితం = CURLE_OK;
 
-  CURL_TRC_SSH(data, "DO phase starts");
+  CURL_TRC_SSH(దత్తాంశం, "DO phase starts");
 
-  *dophase_done = FALSE; /* not done yet */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  *dophase_పూర్తి = FALSE; /* not done yet */
+  ఒకవేళ(!sshc)
+    తిరిగి CURLE_FAILED_INIT;
 
   /* start the first command in the DO phase */
-  myssh_to(data, sshc, SSH_SFTP_QUOTE_INIT);
+  myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_QUOTE_INIT);
 
   /* run the state-machine */
-  result = ssh_multi_statemach(data, dophase_done);
+  ఫలితం = ssh_multi_statemach(దత్తాంశం, dophase_పూర్తి);
 
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  *connected = Curl_conn_is_connected(దత్తాంశం->conn, FIRSTSOCKET);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  ఒకవేళ(*dophase_పూర్తి) {
+    CURL_TRC_SSH(దత్తాంశం, "DO phase is complete");
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* called from multi.c while DOing */
-static CURLcode sftp_doing(struct Curl_easy *data,
-                           bool *dophase_done)
+స్థిర CURLcode sftp_doing(నిర్మాణం Curl_easy *దత్తాంశం,
+                           bool *dophase_పూర్తి)
 {
-  CURLcode result = ssh_multi_statemach(data, dophase_done);
+  CURLcode ఫలితం = ssh_multi_statemach(దత్తాంశం, dophase_పూర్తి);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  ఒకవేళ(*dophase_పూర్తి) {
+    CURL_TRC_SSH(దత్తాంశం, "DO phase is complete");
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* BLOCKING, but the function is using the state machine so the only reason
    this is still blocking is that the multi interface code has no support for
    disconnecting operations that takes a while */
-static CURLcode sftp_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn, bool dead_connection)
+స్థిర CURLcode sftp_disconnect(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం connectdata *conn, bool dead_connection)
 {
-  CURLcode result = CURLE_OK;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  (void)dead_connection;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  నిర్మాణం SSHPROTO *sshp = Curl_meta_get(దత్తాంశం, CURL_META_SSH_EASY);
+  (శూన్య)dead_connection;
 
-  if(sshc) {
-    if(sshc->ssh_session) {
+  ఒకవేళ(sshc) {
+    ఒకవేళ(sshc->ssh_session) {
       /* only if there is a session still around to use! */
-      CURL_TRC_SSH(data, "DISCONNECT starts now");
-      myssh_to(data, sshc, SSH_SFTP_SHUTDOWN);
-      result = ssh_block_statemach(data, sshc, sshp, TRUE);
-      CURL_TRC_SSH(data, "DISCONNECT is done -> %d", (int)result);
+      CURL_TRC_SSH(దత్తాంశం, "DISCONNECT starts now");
+      myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_SHUTDOWN);
+      ఫలితం = ssh_ఖండం_statemach(దత్తాంశం, sshc, sshp, TRUE);
+      CURL_TRC_SSH(దత్తాంశం, "DISCONNECT is done -> %d", (పూర్ణాంకం)ఫలితం);
     }
-    sshc_cleanup(sshc, data, TRUE);
+    sshc_cleanup(sshc, దత్తాంశం, TRUE);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode sftp_done(struct Curl_easy *data, CURLcode status,
+స్థిర CURLcode sftp_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం, CURLcode స్థితి_2,
                           bool premature)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshc)
+    తిరిగి CURLE_FAILED_INIT;
 
-  if(!status) {
+  ఒకవేళ(!స్థితి_2) {
     /* Post quote commands are executed after the SFTP_CLOSE state to avoid
        errors that could happen due to open file handles during POSTQUOTE
        operation */
-    if(!premature && data->set.postquote && !conn->bits.retry)
+    ఒకవేళ(!premature && దత్తాంశం->సమితి.postquote && !conn->బిట్లు.retry)
       sshc->nextstate = SSH_SFTP_POSTQUOTE_INIT;
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_గమ్యం(దత్తాంశం, sshc, SSH_SFTP_CLOSE);
   }
-  return ssh_done(data, status);
+  తిరిగి ssh_పూర్తి(దత్తాంశం, స్థితి_2);
 }
 
 /* return number of sent bytes */
-static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
-                          const uint8_t *mem, size_t len, bool eos,
+స్థిర CURLcode sftp_send(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                          స్థిరరాశి uint8_t *mem, size_t len, bool eos,
                           size_t *pnwritten)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   ssize_t nwrite;
 
-  (void)sockindex;
-  (void)eos;
+  (శూన్య)sockindex;
+  (శూన్య)eos;
   *pnwritten = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshc)
+    తిరిగి CURLE_FAILED_INIT;
 
-  nwrite = libssh2_sftp_write(sshc->sftp_handle, (const char *)mem, len);
+  nwrite = libssh2_sftp_write(sshc->sftp_handle, (స్థిరరాశి అక్షరం *)mem, len);
 
-  ssh_block2waitfor(data, sshc, (nwrite == LIBSSH2_ERROR_EAGAIN));
+  ssh_block2waitfor(దత్తాంశం, sshc, (nwrite == LIBSSH2_ERROR_EAGAIN));
 
-  if(nwrite == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
-  else if(nwrite < LIBSSH2_ERROR_NONE)
-    return libssh2_session_error_to_CURLE((int)nwrite);
+  ఒకవేళ(nwrite == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
+  లేకపోతే ఒకవేళ(nwrite < LIBSSH2_ERROR_NONE)
+    తిరిగి libssh2_session_error_గమ్యం_CURLE((పూర్ణాంకం)nwrite);
   *pnwritten = (size_t)nwrite;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
  * Return number of received (decrypted) bytes
  * or <0 on error
  */
-static CURLcode sftp_recv(struct Curl_easy *data, int8_t sockindex,
-                          char *mem, size_t len, size_t *pnread)
+స్థిర CURLcode sftp_recv(నిర్మాణం Curl_easy *దత్తాంశం, int8_t sockindex,
+                          అక్షరం *mem, size_t len, size_t *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   ssize_t nread;
 
-  (void)sockindex;
+  (శూన్య)sockindex;
   *pnread = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshc)
+    తిరిగి CURLE_FAILED_INIT;
 
   nread = libssh2_sftp_read(sshc->sftp_handle, mem, len);
 
-  ssh_block2waitfor(data, sshc, (nread == LIBSSH2_ERROR_EAGAIN));
+  ssh_block2waitfor(దత్తాంశం, sshc, (nread == LIBSSH2_ERROR_EAGAIN));
 
-  if(nread == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
-  else if(nread < 0)
-    return libssh2_session_error_to_CURLE((int)nread);
+  ఒకవేళ(nread == LIBSSH2_ERROR_EAGAIN)
+    తిరిగి CURLE_AGAIN;
+  లేకపోతే ఒకవేళ(nread < 0)
+    తిరిగి libssh2_session_error_గమ్యం_CURLE((పూర్ణాంకం)nread);
 
   *pnread = (size_t)nread;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
  * The DO function is generic for both protocols. There was previously two
  * separate ones but this way means less duplicated code.
  */
-static CURLcode ssh_do(struct Curl_easy *data, bool *done)
+స్థిర CURLcode ssh_do(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   bool connected = FALSE;
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
-  *done = FALSE; /* default to false */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  *పూర్తి = FALSE; /* default to false */
+  ఒకవేళ(!sshc)
+    తిరిగి CURLE_FAILED_INIT;
 
-  data->req.size = -1; /* make sure this is unknown at this point */
-  sshc->secondCreateDirs = 0;   /* reset the create directory attempt state
+  దత్తాంశం->req.కొలత = -1; /* make sure this is unknown at this point */
+  sshc->రెండవ_Create_Dirs = 0;   /* reset the create directory attempt state
                                    variable */
 
-  Curl_pgrsReset(data);
+  Curl_pgrsReset(దత్తాంశం);
 
-  if(conn->scheme->protocol & CURLPROTO_SCP)
-    result = scp_perform(data, &connected, done);
-  else
-    result = sftp_perform(data, &connected, done);
+  ఒకవేళ(conn->scheme->protocol & CURLPROTO_SCP)
+    ఫలితం = scp_perform(దత్తాంశం, &connected, పూర్తి);
+  లేకపోతే
+    ఫలితం = sftp_perform(దత్తాంశం, &connected, పూర్తి);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_ssh_init(void)
+CURLcode Curl_ssh_init(శూన్య)
 {
-  if(libssh2_init(0)) {
+  ఒకవేళ(libssh2_init(0)) {
     DEBUGF(curl_mfprintf(stderr, "Error: libssh2_init failed\n"));
-    return CURLE_FAILED_INIT;
+    తిరిగి CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-void Curl_ssh_cleanup(void)
+శూన్య Curl_ssh_cleanup(శూన్య)
 {
   libssh2_exit();
 }
 
-void Curl_ssh_version(char *buffer, size_t buflen)
+శూన్య Curl_ssh_సంస్కరణ(అక్షరం *బఫరు, size_t buflen)
 {
-  (void)curl_msnprintf(buffer, buflen, "libssh2/%s", libssh2_version(0));
+  (శూన్య)curl_msnprintf(బఫరు, buflen, "libssh2/%s", libssh2_సంస్కరణ(0));
 }
 
 /* The SSH session is associated with the *CONNECTION* but the callback user
  * pointer is an easy handle pointer. This function allows us to reassign the
  * user pointer to the *CURRENT* (new) easy handle.
  */
-static void ssh_attach(struct Curl_easy *data, struct connectdata *conn)
+స్థిర శూన్య ssh_attach(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం connectdata *conn)
 {
-  DEBUGASSERT(data);
+  DEBUGASSERT(దత్తాంశం);
   DEBUGASSERT(conn);
-  if(conn->scheme->protocol & PROTO_FAMILY_SSH) {
-    struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-    if(sshc && sshc->ssh_session) {
+  ఒకవేళ(conn->scheme->protocol & PROTO_FAMILY_SSH) {
+    నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+    ఒకవేళ(sshc && sshc->ssh_session) {
       /* only re-attach if the session already exists */
-      void **abstract = libssh2_session_abstract(sshc->ssh_session);
-      *abstract = data;
+      శూన్య **abstract = libssh2_session_abstract(sshc->ssh_session);
+      *abstract = దత్తాంశం;
     }
   }
 }
@@ -3924,10 +3924,10 @@ static void ssh_attach(struct Curl_easy *data, struct connectdata *conn)
 /*
  * SCP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_scp = {
-  ssh_setup_connection,                 /* setup_connection */
+స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_scp = {
+  ssh_అమరిక_connection,                 /* setup_connection */
   ssh_do,                               /* do_it */
-  scp_done,                             /* done */
+  scp_పూర్తి,                             /* done */
   ZERO_NULL,                            /* do_more */
   ssh_connect,                          /* connect_it */
   ssh_multi_statemach,                  /* connecting */
@@ -3947,10 +3947,10 @@ const struct Curl_protocol Curl_protocol_scp = {
 /*
  * SFTP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_sftp = {
-  ssh_setup_connection,                 /* setup_connection */
+స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_sftp = {
+  ssh_అమరిక_connection,                 /* setup_connection */
   ssh_do,                               /* do_it */
-  sftp_done,                            /* done */
+  sftp_పూర్తి,                            /* done */
   ZERO_NULL,                            /* do_more */
   ssh_connect,                          /* connect_it */
   ssh_multi_statemach,                  /* connecting */
@@ -3967,4 +3967,4 @@ const struct Curl_protocol Curl_protocol_sftp = {
   ZERO_NULL,                            /* follow */
 };
 
-#endif /* USE_LIBSSH2 */
+#అయితే_ముగింపు /* USE_LIBSSH2 */

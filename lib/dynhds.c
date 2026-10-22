@@ -21,234 +21,234 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "dynhds.h"
-#include "strcase.h"
+#అన్తర్భావ "dynhds.h"
+#అన్తర్భావ "strcase.h"
 
-static struct dynhds_entry *entry_new(const char *name, size_t namelen,
-                                      const char *value, size_t valuelen,
-                                      int opts)
+స్థిర నిర్మాణం dynhds_నమోదు *నమోదు_new(స్థిరరాశి అక్షరం *name, size_t namelen,
+                                      స్థిరరాశి అక్షరం *విలువ, size_t valuelen,
+                                      పూర్ణాంకం opts)
 {
-  struct dynhds_entry *e;
-  char *p;
+  నిర్మాణం dynhds_నమోదు *e;
+  అక్షరం *p;
 
   /* namelen + valuelen <= SIZE_MAX has already been checked by caller */
-  if((SIZE_MAX - namelen - valuelen) < (sizeof(*e) + 2))
-    return NULL;
-  e = curlx_calloc(1, sizeof(*e) + namelen + valuelen + 2);
-  if(!e)
-    return NULL;
-  e->name = p = (char *)e + sizeof(*e);
-  memcpy(p, name, namelen);
+  ఒకవేళ((SIZE_MAX - namelen - valuelen) < (పరిమాణం(*e) + 2))
+    తిరిగి ఖాళీ;
+  e = curlx_calloc(1, పరిమాణం(*e) + namelen + valuelen + 2);
+  ఒకవేళ(!e)
+    తిరిగి ఖాళీ;
+  e->name = p = (అక్షరం *)e + పరిమాణం(*e);
+  జ్ఞాపకం_నకలు(p, name, namelen);
   e->namelen = namelen;
-  e->value = p += namelen + 1; /* leave a \0 at the end of name */
-  if(valuelen) {
-    memcpy(p, value, valuelen);
+  e->విలువ = p += namelen + 1; /* leave a \0 at the end of name */
+  ఒకవేళ(valuelen) {
+    జ్ఞాపకం_నకలు(p, విలువ, valuelen);
     e->valuelen = valuelen;
   }
-  if(opts & DYNHDS_OPT_LOWERCASE)
+  ఒకవేళ(opts & DYNHDS_OPT_LOWERCASE)
     Curl_strntolower(e->name, e->name, e->namelen);
-  return e;
+  తిరిగి e;
 }
 
-static void entry_free(struct dynhds_entry *e)
+స్థిర శూన్య నమోదు_free(నిర్మాణం dynhds_నమోదు *e)
 {
   curlx_free(e);
 }
 
-void Curl_dynhds_init(struct dynhds *dynhds, size_t max_entries,
-                      size_t max_strs_size)
+శూన్య Curl_dynhds_init(నిర్మాణం dynhds *dynhds, size_t max_entries,
+                      size_t max_strs_కొలత)
 {
   DEBUGASSERT(dynhds);
-  DEBUGASSERT(max_strs_size);
-  dynhds->hds = NULL;
+  DEBUGASSERT(max_strs_కొలత);
+  dynhds->hds = ఖాళీ;
   dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
   dynhds->max_entries = max_entries;
-  dynhds->max_strs_size = max_strs_size;
+  dynhds->max_strs_కొలత = max_strs_కొలత;
   dynhds->opts = 0;
 }
 
-void Curl_dynhds_free(struct dynhds *dynhds)
+శూన్య Curl_dynhds_free(నిర్మాణం dynhds *dynhds)
 {
   DEBUGASSERT(dynhds);
-  if(dynhds->hds && dynhds->hds_len) {
+  ఒకవేళ(dynhds->hds && dynhds->hds_len) {
     size_t i;
     DEBUGASSERT(dynhds->hds);
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      entry_free(dynhds->hds[i]);
+    కొరకు(i = 0; i < dynhds->hds_len; ++i) {
+      నమోదు_free(dynhds->hds[i]);
     }
   }
   curlx_safefree(dynhds->hds);
   dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
 }
 
-void Curl_dynhds_reset(struct dynhds *dynhds)
+శూన్య Curl_dynhds_reset(నిర్మాణం dynhds *dynhds)
 {
   DEBUGASSERT(dynhds);
-  if(dynhds->hds_len) {
+  ఒకవేళ(dynhds->hds_len) {
     size_t i;
     DEBUGASSERT(dynhds->hds);
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      entry_free(dynhds->hds[i]);
-      dynhds->hds[i] = NULL;
+    కొరకు(i = 0; i < dynhds->hds_len; ++i) {
+      నమోదు_free(dynhds->hds[i]);
+      dynhds->hds[i] = ఖాళీ;
     }
   }
   dynhds->hds_len = dynhds->strs_len = 0;
 }
 
-size_t Curl_dynhds_count(struct dynhds *dynhds)
+size_t Curl_dynhds_లెక్క(నిర్మాణం dynhds *dynhds)
 {
-  return dynhds->hds_len;
+  తిరిగి dynhds->hds_len;
 }
 
-void Curl_dynhds_set_opts(struct dynhds *dynhds, int opts)
+శూన్య Curl_dynhds_సమితి_opts(నిర్మాణం dynhds *dynhds, పూర్ణాంకం opts)
 {
   dynhds->opts = opts;
 }
 
-struct dynhds_entry *Curl_dynhds_getn(struct dynhds *dynhds, size_t n)
+నిర్మాణం dynhds_నమోదు *Curl_dynhds_getn(నిర్మాణం dynhds *dynhds, size_t n)
 {
   DEBUGASSERT(dynhds);
-  return (n < dynhds->hds_len) ? dynhds->hds[n] : NULL;
+  తిరిగి (n < dynhds->hds_len) ? dynhds->hds[n] : ఖాళీ;
 }
 
-struct dynhds_entry *Curl_dynhds_get(struct dynhds *dynhds, const char *name,
+నిర్మాణం dynhds_నమోదు *Curl_dynhds_get(నిర్మాణం dynhds *dynhds, స్థిరరాశి అక్షరం *name,
                                      size_t namelen)
 {
   size_t i;
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    if(dynhds->hds[i]->namelen == namelen &&
+  కొరకు(i = 0; i < dynhds->hds_len; ++i) {
+    ఒకవేళ(dynhds->hds[i]->namelen == namelen &&
        curl_strnequal(dynhds->hds[i]->name, name, namelen)) {
-      return dynhds->hds[i];
+      తిరిగి dynhds->hds[i];
     }
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-struct dynhds_entry *Curl_dynhds_cget(struct dynhds *dynhds, const char *name)
+నిర్మాణం dynhds_నమోదు *Curl_dynhds_cget(నిర్మాణం dynhds *dynhds, స్థిరరాశి అక్షరం *name)
 {
-  return Curl_dynhds_get(dynhds, name, strlen(name));
+  తిరిగి Curl_dynhds_get(dynhds, name, అక్షరశ్రేణి_పొడవు(name));
 }
 
-CURLcode Curl_dynhds_add(struct dynhds *dynhds,
-                         const char *name, size_t namelen,
-                         const char *value, size_t valuelen)
+CURLcode Curl_dynhds_కూడు(నిర్మాణం dynhds *dynhds,
+                         స్థిరరాశి అక్షరం *name, size_t namelen,
+                         స్థిరరాశి అక్షరం *విలువ, size_t valuelen)
 {
-  struct dynhds_entry *entry = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  నిర్మాణం dynhds_నమోదు *నమోదు_2 = ఖాళీ;
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* Accept NULL value with length 0, name must have length */
-  if(!dynhds || !name || !namelen || (!value && valuelen)) {
+  ఒకవేళ(!dynhds || !name || !namelen || (!విలువ && valuelen)) {
     DEBUGASSERT(0);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
   /* Does the new header fit into the limits? */
-  if((dynhds->max_entries && (dynhds->hds_len >= dynhds->max_entries)) ||
-     (dynhds->max_strs_size - dynhds->strs_len < namelen) ||
-     (dynhds->max_strs_size - dynhds->strs_len - namelen < valuelen))
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ((dynhds->max_entries && (dynhds->hds_len >= dynhds->max_entries)) ||
+     (dynhds->max_strs_కొలత - dynhds->strs_len < namelen) ||
+     (dynhds->max_strs_కొలత - dynhds->strs_len - namelen < valuelen))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  entry = entry_new(name, namelen, value, valuelen, dynhds->opts);
-  if(!entry)
-    goto out;
+  నమోదు_2 = నమోదు_new(name, namelen, విలువ, valuelen, dynhds->opts);
+  ఒకవేళ(!నమోదు_2)
+    వెళ్ళు బహిర్గతం;
 
-  if(dynhds->hds_len + 1 >= dynhds->hds_allc) {
+  ఒకవేళ(dynhds->hds_len + 1 >= dynhds->hds_allc) {
     size_t nallc = dynhds->hds_allc ? dynhds->hds_allc * 2 : 16;
-    struct dynhds_entry **nhds;
+    నిర్మాణం dynhds_నమోదు **nhds;
 
-    if(dynhds->max_entries && nallc > dynhds->max_entries)
+    ఒకవేళ(dynhds->max_entries && nallc > dynhds->max_entries)
       nallc = dynhds->max_entries;
 
-    nhds = curlx_calloc(nallc, sizeof(struct dynhds_entry *));
-    if(!nhds)
-      goto out;
-    if(dynhds->hds) {
-      memcpy(nhds, dynhds->hds,
-             dynhds->hds_len * sizeof(struct dynhds_entry *));
+    nhds = curlx_calloc(nallc, పరిమాణం(నిర్మాణం dynhds_నమోదు *));
+    ఒకవేళ(!nhds)
+      వెళ్ళు బహిర్గతం;
+    ఒకవేళ(dynhds->hds) {
+      జ్ఞాపకం_నకలు(nhds, dynhds->hds,
+             dynhds->hds_len * పరిమాణం(నిర్మాణం dynhds_నమోదు *));
       curlx_safefree(dynhds->hds);
     }
     dynhds->hds = nhds;
     dynhds->hds_allc = nallc;
   }
-  dynhds->hds[dynhds->hds_len++] = entry;
-  entry = NULL;
+  dynhds->hds[dynhds->hds_len++] = నమోదు_2;
+  నమోదు_2 = ఖాళీ;
   dynhds->strs_len += namelen + valuelen;
-  result = CURLE_OK;
+  ఫలితం = CURLE_OK;
 
-out:
-  if(entry)
-    entry_free(entry);
-  return result;
+బహిర్గతం:
+  ఒకవేళ(నమోదు_2)
+    నమోదు_free(నమోదు_2);
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_dynhds_cadd(struct dynhds *dynhds,
-                          const char *name, const char *value)
+CURLcode Curl_dynhds_cadd(నిర్మాణం dynhds *dynhds,
+                          స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *విలువ)
 {
-  if(!name)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return Curl_dynhds_add(dynhds, name, strlen(name),
-                         value, value ? strlen(value) : 0);
+  ఒకవేళ(!name)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+  తిరిగి Curl_dynhds_కూడు(dynhds, name, అక్షరశ్రేణి_పొడవు(name),
+                         విలువ, విలువ ? అక్షరశ్రేణి_పొడవు(విలువ) : 0);
 }
 
-CURLcode Curl_dynhds_h1_add_line(struct dynhds *dynhds,
-                                 const char *line, size_t line_len)
+CURLcode Curl_dynhds_h1_కూడు_పంక్తి(నిర్మాణం dynhds *dynhds,
+                                 స్థిరరాశి అక్షరం *పంక్తి, size_t పంక్తి_len)
 {
-  const char *p;
-  const char *name;
+  స్థిరరాశి అక్షరం *p;
+  స్థిరరాశి అక్షరం *name;
   size_t namelen;
-  const char *value;
+  స్థిరరాశి అక్షరం *విలువ;
   size_t valuelen, i;
 
-  if(!line || !line_len)
-    return CURLE_OK;
+  ఒకవేళ(!పంక్తి || !పంక్తి_len)
+    తిరిగి CURLE_OK;
 
-  p = memchr(line, ':', line_len);
-  if(!p || p == line)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  name = line;
-  namelen = p - line;
+  p = memchr(పంక్తి, ':', పంక్తి_len);
+  ఒకవేళ(!p || p == పంక్తి)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+  name = పంక్తి;
+  namelen = p - పంక్తి;
   p++; /* move past the colon */
-  for(i = namelen + 1; i < line_len; ++i, ++p) {
-    if(!ISBLANK(*p))
-      break;
+  కొరకు(i = namelen + 1; i < పంక్తి_len; ++i, ++p) {
+    ఒకవేళ(!ISBLANK(*p))
+      ఆపు;
   }
-  value = p;
-  valuelen = line_len - i;
+  విలువ = p;
+  valuelen = పంక్తి_len - i;
 
-  p = memchr(value, '\r', valuelen);
-  if(!p)
-    p = memchr(value, '\n', valuelen);
-  if(p)
-    valuelen = (size_t)(p - value);
+  p = memchr(విలువ, '\r', valuelen);
+  ఒకవేళ(!p)
+    p = memchr(విలువ, '\n', valuelen);
+  ఒకవేళ(p)
+    valuelen = (size_t)(p - విలువ);
 
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  తిరిగి Curl_dynhds_కూడు(dynhds, name, namelen, విలువ, valuelen);
 }
 
-CURLcode Curl_dynhds_h1_cadd_line(struct dynhds *dynhds, const char *line)
+CURLcode Curl_dynhds_h1_cadd_పంక్తి(నిర్మాణం dynhds *dynhds, స్థిరరాశి అక్షరం *పంక్తి)
 {
-  return Curl_dynhds_h1_add_line(dynhds, line, line ? strlen(line) : 0);
+  తిరిగి Curl_dynhds_h1_కూడు_పంక్తి(dynhds, పంక్తి, పంక్తి ? అక్షరశ్రేణి_పొడవు(పంక్తి) : 0);
 }
 
-#ifdef UNITTESTS
+#నిర్వచితమైతే UNITTESTS
 /* @unittest 2602 */
 
 /**
  * Return TRUE iff one or more headers with the given name exist.
  */
-UNITTEST bool dynhds_contains(struct dynhds *dynhds,
-                              const char *name, size_t namelen);
-UNITTEST bool dynhds_contains(struct dynhds *dynhds,
-                              const char *name, size_t namelen)
+UNITTEST bool dynhds_కలిగియుంది(నిర్మాణం dynhds *dynhds,
+                              స్థిరరాశి అక్షరం *name, size_t namelen);
+UNITTEST bool dynhds_కలిగియుంది(నిర్మాణం dynhds *dynhds,
+                              స్థిరరాశి అక్షరం *name, size_t namelen)
 {
-  return !!Curl_dynhds_get(dynhds, name, namelen);
+  తిరిగి !!Curl_dynhds_get(dynhds, name, namelen);
 }
 
 /* @unittest 2602 */
-UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name);
-UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
+UNITTEST bool dynhds_ccontains(నిర్మాణం dynhds *dynhds, స్థిరరాశి అక్షరం *name);
+UNITTEST bool dynhds_ccontains(నిర్మాణం dynhds *dynhds, స్థిరరాశి అక్షరం *name)
 {
-  return dynhds_contains(dynhds, name, strlen(name));
+  తిరిగి dynhds_కలిగియుంది(dynhds, name, అక్షరశ్రేణి_పొడవు(name));
 }
 
 /**
@@ -257,21 +257,21 @@ UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
-                                  const char *name, size_t namelen);
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
-                                  const char *name, size_t namelen)
+UNITTEST size_t dynhds_లెక్క_name(నిర్మాణం dynhds *dynhds,
+                                  స్థిరరాశి అక్షరం *name, size_t namelen);
+UNITTEST size_t dynhds_లెక్క_name(నిర్మాణం dynhds *dynhds,
+                                  స్థిరరాశి అక్షరం *name, size_t namelen)
 {
   size_t n = 0;
-  if(dynhds->hds_len) {
+  ఒకవేళ(dynhds->hds_len) {
     size_t i;
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      if((namelen == dynhds->hds[i]->namelen) &&
+    కొరకు(i = 0; i < dynhds->hds_len; ++i) {
+      ఒకవేళ((namelen == dynhds->hds[i]->namelen) &&
          curl_strnequal(name, dynhds->hds[i]->name, namelen))
         ++n;
     }
   }
-  return n;
+  తిరిగి n;
 }
 
 /**
@@ -280,12 +280,12 @@ UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
-                                        const char *name);
-UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
-                                        const char *name)
+UNITTEST size_t dynhds_ccount_name(నిర్మాణం dynhds *dynhds,
+                                        స్థిరరాశి అక్షరం *name);
+UNITTEST size_t dynhds_ccount_name(నిర్మాణం dynhds *dynhds,
+                                        స్థిరరాశి అక్షరం *name)
 {
-  return dynhds_count_name(dynhds, name, strlen(name));
+  తిరిగి dynhds_లెక్క_name(dynhds, name, అక్షరశ్రేణి_పొడవు(name));
 }
 
 /**
@@ -294,32 +294,32 @@ UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
-                              const char *name, size_t namelen);
-UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
-                              const char *name, size_t namelen)
+UNITTEST size_t dynhds_remove(నిర్మాణం dynhds *dynhds,
+                              స్థిరరాశి అక్షరం *name, size_t namelen);
+UNITTEST size_t dynhds_remove(నిర్మాణం dynhds *dynhds,
+                              స్థిరరాశి అక్షరం *name, size_t namelen)
 {
   size_t n = 0;
-  if(dynhds->hds_len) {
+  ఒకవేళ(dynhds->hds_len) {
     size_t i, len;
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      if((namelen == dynhds->hds[i]->namelen) &&
+    కొరకు(i = 0; i < dynhds->hds_len; ++i) {
+      ఒకవేళ((namelen == dynhds->hds[i]->namelen) &&
          curl_strnequal(name, dynhds->hds[i]->name, namelen)) {
         ++n;
         --dynhds->hds_len;
         dynhds->strs_len -= (dynhds->hds[i]->namelen +
                              dynhds->hds[i]->valuelen);
-        entry_free(dynhds->hds[i]);
+        నమోదు_free(dynhds->hds[i]);
         len = dynhds->hds_len - i; /* remaining entries */
-        if(len) {
+        ఒకవేళ(len) {
           memmove(&dynhds->hds[i], &dynhds->hds[i + 1],
-                  len * sizeof(dynhds->hds[i]));
+                  len * పరిమాణం(dynhds->hds[i]));
         }
         --i; /* do this index again */
       }
     }
   }
-  return n;
+  తిరిగి n;
 }
 
 /**
@@ -329,73 +329,73 @@ UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
-                             const char *name, size_t namelen,
-                             const char *value, size_t valuelen);
-UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
-                             const char *name, size_t namelen,
-                             const char *value, size_t valuelen)
+UNITTEST CURLcode dynhds_సమితి(నిర్మాణం dynhds *dynhds,
+                             స్థిరరాశి అక్షరం *name, size_t namelen,
+                             స్థిరరాశి అక్షరం *విలువ, size_t valuelen);
+UNITTEST CURLcode dynhds_సమితి(నిర్మాణం dynhds *dynhds,
+                             స్థిరరాశి అక్షరం *name, size_t namelen,
+                             స్థిరరాశి అక్షరం *విలువ, size_t valuelen)
 {
   dynhds_remove(dynhds, name, namelen);
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  తిరిగి Curl_dynhds_కూడు(dynhds, name, namelen, విలువ, valuelen);
 }
 
 /* @unittest 2602 */
-UNITTEST size_t dynhds_cremove(struct dynhds *dynhds, const char *name);
-UNITTEST size_t dynhds_cremove(struct dynhds *dynhds, const char *name)
+UNITTEST size_t dynhds_cremove(నిర్మాణం dynhds *dynhds, స్థిరరాశి అక్షరం *name);
+UNITTEST size_t dynhds_cremove(నిర్మాణం dynhds *dynhds, స్థిరరాశి అక్షరం *name)
 {
-  return dynhds_remove(dynhds, name, strlen(name));
+  తిరిగి dynhds_remove(dynhds, name, అక్షరశ్రేణి_పొడవు(name));
 }
 
-#endif /* UNITTESTS */
+#అయితే_ముగింపు /* UNITTESTS */
 
-CURLcode Curl_dynhds_h1_dprint(struct dynhds *dynhds, struct dynbuf *dbuf)
+CURLcode Curl_dynhds_h1_dprint(నిర్మాణం dynhds *dynhds, నిర్మాణం dynbuf *dbuf)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
   size_t i;
 
-  if(!dynhds->hds_len)
-    return result;
+  ఒకవేళ(!dynhds->hds_len)
+    తిరిగి ఫలితం;
 
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    result = curlx_dyn_addn(dbuf, dynhds->hds[i]->name,
+  కొరకు(i = 0; i < dynhds->hds_len; ++i) {
+    ఫలితం = curlx_dyn_addn(dbuf, dynhds->hds[i]->name,
                             dynhds->hds[i]->namelen);
-    if(!result)
-      result = curlx_dyn_addn(dbuf, STRCONST(": "));
-    if(!result)
-      result = curlx_dyn_addn(dbuf, dynhds->hds[i]->value,
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = curlx_dyn_addn(dbuf, STRCONST(": "));
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = curlx_dyn_addn(dbuf, dynhds->hds[i]->విలువ,
                               dynhds->hds[i]->valuelen);
-    if(!result)
-      result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
-    if(result)
-      break;
+    ఒకవేళ(!ఫలితం)
+      ఫలితం = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
+    ఒకవేళ(ఫలితం)
+      ఆపు;
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#ifdef USE_NGHTTP2
+#నిర్వచితమైతే USE_NGHTTP2
 
-nghttp2_nv *Curl_dynhds_to_nva(struct dynhds *dynhds, size_t *pcount)
+nghttp2_nv *Curl_dynhds_గమ్యం_nva(నిర్మాణం dynhds *dynhds, size_t *pcount)
 {
-  nghttp2_nv *nva = curlx_calloc(1, sizeof(nghttp2_nv) * dynhds->hds_len);
+  nghttp2_nv *nva = curlx_calloc(1, పరిమాణం(nghttp2_nv) * dynhds->hds_len);
   size_t i;
 
   *pcount = 0;
-  if(!nva)
-    return NULL;
+  ఒకవేళ(!nva)
+    తిరిగి ఖాళీ;
 
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    struct dynhds_entry *e = dynhds->hds[i];
+  కొరకు(i = 0; i < dynhds->hds_len; ++i) {
+    నిర్మాణం dynhds_నమోదు *e = dynhds->hds[i];
     DEBUGASSERT(e);
-    nva[i].name = (unsigned char *)e->name;
+    nva[i].name = (గుర్తులేని అక్షరం *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].విలువ = (గుర్తులేని అక్షరం *)e->విలువ;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP2_NV_FLAG_NONE;
   }
   *pcount = dynhds->hds_len;
-  return nva;
+  తిరిగి nva;
 }
 
-#endif /* USE_NGHTTP2 */
+#అయితే_ముగింపు /* USE_NGHTTP2 */

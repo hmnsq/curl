@@ -21,84 +21,84 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_LIBPSL
+#నిర్వచితమైతే USE_LIBPSL
 
-#include "psl.h"
-#include "progress.h"
-#include "curl_share.h"
+#అన్తర్భావ "psl.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "curl_share.h"
 
-#if !defined(PSL_VERSION_NUMBER) || PSL_VERSION_NUMBER < 0x001000
-#error "libpsl 0.16.0 or greater required"
-#endif
+#ఒకవేళ !defined(PSL_సంస్కరణ_సంఖ్య) || PSL_సంస్కరణ_సంఖ్య < 0x001000
+#దోషం "libpsl 0.16.0 or greater required"
+#అయితే_ముగింపు
 
-void Curl_psl_destroy(struct PslCache *pslcache)
+శూన్య Curl_psl_destroy(నిర్మాణం PslCache *pslcache)
 {
-  if(pslcache->psl) {
-    if(pslcache->dynamic)
+  ఒకవేళ(pslcache->psl) {
+    ఒకవేళ(pslcache->dynamic)
       psl_free((psl_ctx_t *)CURL_UNCONST(pslcache->psl));
-    pslcache->psl = NULL;
+    pslcache->psl = ఖాళీ;
     pslcache->dynamic = FALSE;
   }
 }
 
-const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy)
+స్థిరరాశి psl_ctx_t *Curl_psl_use(నిర్మాణం Curl_easy *easy)
 {
-  struct PslCache *pslcache = easy->psl;
-  const psl_ctx_t *psl;
+  నిర్మాణం PslCache *pslcache = easy->psl;
+  స్థిరరాశి psl_ctx_t *psl;
   time_t now_sec;
 
-  if(!pslcache)
-    return NULL;
+  ఒకవేళ(!pslcache)
+    తిరిగి ఖాళీ;
 
-  Curl_share_lock(easy, CURL_LOCK_DATA_PSL, CURL_LOCK_ACCESS_SHARED);
+  Curl_share_తాళం(easy, CURL_తాళం_దత్తాంశం_PSL, CURL_తాళం_ACCESS_SHARED);
   now_sec = Curl_pgrs_now(easy)->tv_sec;
-  if(!pslcache->psl || pslcache->expires <= now_sec) {
+  ఒకవేళ(!pslcache->psl || pslcache->expires <= now_sec) {
     /* Release the shared lock so another thread can refresh the cache and
        avoid deadlock. */
-    Curl_share_unlock(easy, CURL_LOCK_DATA_PSL);
+    Curl_share_unlock(easy, CURL_తాళం_దత్తాంశం_PSL);
 
     /* Update cache: this needs an exclusive lock. */
-    Curl_share_lock(easy, CURL_LOCK_DATA_PSL, CURL_LOCK_ACCESS_SINGLE);
+    Curl_share_తాళం(easy, CURL_తాళం_దత్తాంశం_PSL, CURL_తాళం_ACCESS_SINGLE);
 
     /* Recheck in case another thread did the job. */
-    if(pslcache->expires <= now_sec) {
+    ఒకవేళ(pslcache->expires <= now_sec) {
       now_sec = Curl_pgrs_now(easy)->tv_sec;
     }
-    if(!pslcache->psl || pslcache->expires <= now_sec) {
+    ఒకవేళ(!pslcache->psl || pslcache->expires <= now_sec) {
       bool dynamic = FALSE;
-      time_t expires = TIME_T_MAX;
+      time_t expires = సమయం_T_MAX;
 
-      psl = psl_latest(NULL);
+      psl = psl_latest(ఖాళీ);
       dynamic = !!psl;
       /* Take care of possible time computation overflow. */
-      expires = (now_sec < TIME_T_MAX - PSL_TTL) ?
-                (now_sec + PSL_TTL) : TIME_T_MAX;
+      expires = (now_sec < సమయం_T_MAX - PSL_TTL) ?
+                (now_sec + PSL_TTL) : సమయం_T_MAX;
 
       /* Only get the built-in PSL if we do not already have the "latest". */
-      if(!psl && !pslcache->dynamic)
+      ఒకవేళ(!psl && !pslcache->dynamic)
         psl = psl_builtin();
 
-      if(psl) {
+      ఒకవేళ(psl) {
         Curl_psl_destroy(pslcache);
         pslcache->psl = psl;
         pslcache->dynamic = dynamic;
         pslcache->expires = expires;
       }
     }
-    Curl_share_unlock(easy, CURL_LOCK_DATA_PSL); /* Release exclusive lock. */
-    Curl_share_lock(easy, CURL_LOCK_DATA_PSL, CURL_LOCK_ACCESS_SHARED);
+    Curl_share_unlock(easy, CURL_తాళం_దత్తాంశం_PSL); /* Release exclusive lock. */
+    Curl_share_తాళం(easy, CURL_తాళం_దత్తాంశం_PSL, CURL_తాళం_ACCESS_SHARED);
   }
   psl = pslcache->psl;
-  if(!psl)
-    Curl_share_unlock(easy, CURL_LOCK_DATA_PSL);
-  return psl;
+  ఒకవేళ(!psl)
+    Curl_share_unlock(easy, CURL_తాళం_దత్తాంశం_PSL);
+  తిరిగి psl;
 }
 
-void Curl_psl_release(struct Curl_easy *easy)
+శూన్య Curl_psl_release(నిర్మాణం Curl_easy *easy)
 {
-  Curl_share_unlock(easy, CURL_LOCK_DATA_PSL);
+  Curl_share_unlock(easy, CURL_తాళం_దత్తాంశం_PSL);
 }
 
-#endif /* USE_LIBPSL */
+#అయితే_ముగింపు /* USE_LIBPSL */

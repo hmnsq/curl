@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_KEYLOG_H
-#define HEADER_CURL_KEYLOG_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_KEYLOG_H
+#నిర్వచించు శీర్షిక_CURL_KEYLOG_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,53 +23,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#define KEYLOG_LABEL_MAXLEN CURL_CSTRLEN("CLIENT_HANDSHAKE_TRAFFIC_SECRET")
+#నిర్వచించు KEYLOG_LABEL_MAXLEN CURL_CSTRLEN("CLIENT_HANDSHAKE_TRAFFIC_SECRET")
 
-#define CLIENT_RANDOM_SIZE  32
+#నిర్వచించు CLIENT_RANDOM_కొలత  32
 
 /*
  * The master secret in TLS 1.2 and before is always 48 bytes. In TLS 1.3, the
  * secret size depends on the cipher suite's hash function which is 32 bytes
  * for SHA-256 and 48 bytes for SHA-384.
  */
-#define SECRET_MAXLEN       48
+#నిర్వచించు SECRET_MAXLEN       48
 
 /*
  * Opens the TLS key log file if requested by the user. The SSLKEYLOGFILE
  * environment variable specifies the output file.
  */
-void Curl_tls_keylog_open(void);
+శూన్య Curl_tls_keylog_open(శూన్య);
 
 /*
  * Closes the TLS key log file if not already.
  */
-void Curl_tls_keylog_close(void);
+శూన్య Curl_tls_keylog_close(శూన్య);
 
 /*
  * Returns true if the user successfully enabled the TLS key log file.
  */
-bool Curl_tls_keylog_enabled(void);
+bool Curl_tls_keylog_enabled(శూన్య);
 
 /*
  * Returns a pointer to the filename keys are being written to, if enabled.
  */
-const char *Curl_tls_keylog_file_name(void);
+స్థిరరాశి అక్షరం *Curl_tls_keylog_file_name(శూన్య);
 
 /*
  * Appends a key log file entry.
  * Returns true iff the key log file is open and a valid entry was provided.
  */
-bool Curl_tls_keylog_write(const char *label,
-                           const unsigned char *client_random,
-                           size_t random_size,
-                           const unsigned char *secret, size_t secretlen);
+bool Curl_tls_keylog_write(స్థిరరాశి అక్షరం *label,
+                           స్థిరరాశి గుర్తులేని అక్షరం *client_random,
+                           size_t random_కొలత,
+                           స్థిరరాశి గుర్తులేని అక్షరం *secret, size_t secretlen);
 
 /*
  * Appends a line to the key log file, ensure it is terminated by an LF.
  * Returns true iff the key log file is open and a valid line was provided.
  */
-bool Curl_tls_keylog_write_line(const char *line);
+bool Curl_tls_keylog_write_పంక్తి(స్థిరరాశి అక్షరం *పంక్తి);
 
-#endif /* HEADER_CURL_KEYLOG_H */
+#అయితే_ముగింపు /* HEADER_CURL_KEYLOG_H */

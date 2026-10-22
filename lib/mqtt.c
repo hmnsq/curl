@@ -22,46 +22,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
+#అన్తర్భావ "curl_setup.h"
+#అన్తర్భావ "urldata.h"
 
-#ifndef CURL_DISABLE_MQTT
+#నిర్వచితం_కాకపోతే CURL_DISABLE_MQTT
 
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "mqtt.h"
-#include "select.h"
-#include "url.h"
-#include "escape.h"
-#include "rand.h"
-#include "cfilters.h"
-#include "connect.h"
+#అన్తర్భావ "transfer.h"
+#అన్తర్భావ "sendf.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "mqtt.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "escape.h"
+#అన్తర్భావ "rand.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "connect.h"
 
 /* first byte is command.
    second byte is for flags. */
-#define MQTT_MSG_CONNECT    0x10
+#నిర్వచించు MQTT_సందేశం_CONNECT    0x10
 /* #define MQTT_MSG_CONNACK    0x20 */
-#define MQTT_MSG_PUBLISH    0x30
-#define MQTT_MSG_SUBSCRIBE  0x82
-#define MQTT_MSG_SUBACK     0x90
-#define MQTT_MSG_DISCONNECT 0xe0
+#నిర్వచించు MQTT_సందేశం_PUBLISH    0x30
+#నిర్వచించు MQTT_సందేశం_SUBSCRIBE  0x82
+#నిర్వచించు MQTT_సందేశం_SUBACK     0x90
+#నిర్వచించు MQTT_సందేశం_DISCONNECT 0xe0
 /* #define MQTT_MSG_PINGREQ    0xC0 */
-#define MQTT_MSG_PINGRESP   0xD0
+#నిర్వచించు MQTT_సందేశం_PINGRESP   0xD0
 
-#define MQTT_CONNACK_LEN  2
-#define MQTT_SUBACK_LEN   3
-#define MQTT_CLIENTID_LEN 12 /* "curl0123abcd" */
+#నిర్వచించు MQTT_CONNACK_LEN  2
+#నిర్వచించు MQTT_SUBACK_LEN   3
+#నిర్వచించు MQTT_CLIENTID_LEN 12 /* "curl0123abcd" */
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_MQTT_EASY   "meta:proto:mqtt:easy"
+#నిర్వచించు CURL_META_MQTT_EASY   "meta:proto:mqtt:easy"
 /* meta key for storing protocol meta at connection */
-#define CURL_META_MQTT_CONN   "meta:proto:mqtt:conn"
+#నిర్వచించు CURL_META_MQTT_CONN   "meta:proto:mqtt:conn"
 
-enum mqttstate {
-  MQTT_FIRST,             /* 0 */
-  MQTT_REMAINING_LENGTH,  /* 1 */
+గణన mqttstate {
+  MQTT_మొదటి,             /* 0 */
+  MQTT_మిగిలిన_నిడివి,  /* 1 */
   MQTT_CONNACK,           /* 2 */
   MQTT_SUBACK,            /* 3 */
   MQTT_SUBACK_COMING,     /* 4 - the SUBACK remainder */
@@ -73,193 +73,193 @@ enum mqttstate {
   MQTT_NOSTATE /* 9 - never used an actual state */
 };
 
-struct mqtt_conn {
-  enum mqttstate state;
-  enum mqttstate nextstate; /* switch to this after remaining length is
-                               done */
-  unsigned int packetid;
+నిర్మాణం mqtt_conn {
+  గణన mqttstate state;
+  గణన mqttstate nextstate; /* switch to this after remaining length is
+పూర్తి*/
+  గుర్తులేని పూర్ణాంకం packetid;
 };
 
 /* protocol-specific transfer-related data */
-struct MQTT {
-  struct dynbuf sendbuf;
+నిర్మాణం MQTT {
+  నిర్మాణం dynbuf sendbuf;
   /* when receiving */
-  struct dynbuf recvbuf;
+  నిర్మాణం dynbuf recvbuf;
   size_t npacket; /* byte counter */
-  size_t remaining_length;
-  unsigned char pkt_hd[4]; /* for decoding the arriving packet length */
-  struct curltime lastTime; /* last time we sent or received data */
-  unsigned char firstbyte;
-  BIT(pingsent); /* 1 while we wait for ping response */
+  size_t మిగిలిన_నిడివి;
+  గుర్తులేని అక్షరం pkt_hd[4]; /* for decoding the arriving packet length */
+  నిర్మాణం curltime చివరి_సమయం; /* last time we sent or received data */
+  గుర్తులేని అక్షరం firstbyte;
+  బిట్టు(pingsent); /* 1 while we wait for ping response */
 };
 
-static void mqtt_easy_dtor(const void *key, size_t klen, void *entry)
+స్థిర శూన్య mqtt_easy_dtor(స్థిరరాశి శూన్య *కీలకం, size_t klen, శూన్య *నమోదు_2)
 {
-  struct MQTT *mq = entry;
-  (void)key;
-  (void)klen;
+  నిర్మాణం MQTT *mq = నమోదు_2;
+  (శూన్య)కీలకం;
+  (శూన్య)klen;
   curlx_dyn_free(&mq->sendbuf);
   curlx_dyn_free(&mq->recvbuf);
   curlx_free(mq);
 }
 
-static void mqtt_conn_dtor(const void *key, size_t klen, void *entry)
+స్థిర శూన్య mqtt_conn_dtor(స్థిరరాశి శూన్య *కీలకం, size_t klen, శూన్య *నమోదు_2)
 {
-  (void)key;
-  (void)klen;
-  curlx_free(entry);
+  (శూన్య)కీలకం;
+  (శూన్య)klen;
+  curlx_free(నమోదు_2);
 }
 
-static CURLcode mqtt_setup_conn(struct Curl_easy *data,
-                                struct connectdata *conn)
+స్థిర CURLcode mqtt_అమరిక_conn(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం connectdata *conn)
 {
   /* setup MQTT specific meta data at easy handle and connection */
-  struct mqtt_conn *mqtt;
-  struct MQTT *mq;
+  నిర్మాణం mqtt_conn *mqtt;
+  నిర్మాణం MQTT *mq;
 
-  mqtt = curlx_calloc(1, sizeof(*mqtt));
-  if(!mqtt ||
-     Curl_conn_meta_set(conn, CURL_META_MQTT_CONN, mqtt, mqtt_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  mqtt = curlx_calloc(1, పరిమాణం(*mqtt));
+  ఒకవేళ(!mqtt ||
+     Curl_conn_meta_సమితి(conn, CURL_META_MQTT_CONN, mqtt, mqtt_conn_dtor))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  mq = curlx_calloc(1, sizeof(struct MQTT));
-  if(!mq)
-    return CURLE_OUT_OF_MEMORY;
+  mq = curlx_calloc(1, పరిమాణం(నిర్మాణం MQTT));
+  ఒకవేళ(!mq)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   curlx_dyn_init(&mq->recvbuf, DYN_MQTT_RECV);
   curlx_dyn_init(&mq->sendbuf, DYN_MQTT_SEND);
-  if(Curl_meta_set(data, CURL_META_MQTT_EASY, mq, mqtt_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ఒకవేళ(Curl_meta_సమితి(దత్తాంశం, CURL_META_MQTT_EASY, mq, mqtt_easy_dtor))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode mqtt_send(struct Curl_easy *data,
-                          const char *buf, size_t len)
+స్థిర CURLcode mqtt_send(నిర్మాణం Curl_easy *దత్తాంశం,
+                          స్థిరరాశి అక్షరం *buf, size_t len)
 {
   size_t n;
-  CURLcode result;
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  CURLcode ఫలితం;
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!mq)
+    తిరిగి CURLE_FAILED_INIT;
 
   /* A new packet must not replace a previously queued packet tail. */
   DEBUGASSERT(!curlx_dyn_len(&mq->sendbuf));
-  result = Curl_xfer_send(data, buf, len, FALSE, &n);
-  if(result)
-    return result;
-  mq->lastTime = *Curl_pgrs_now(data);
-  Curl_debug(data, CURLINFO_HEADER_OUT, buf, n);
-  if(len != n)
-    result = curlx_dyn_addn(&mq->sendbuf, &buf[n], len - n);
-  return result;
+  ఫలితం = Curl_xfer_send(దత్తాంశం, buf, len, FALSE, &n);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
+  mq->చివరి_సమయం = *Curl_pgrs_now(దత్తాంశం);
+  Curl_debug(దత్తాంశం, CURLINFO_శీర్షిక_బహిర్గతం, buf, n);
+  ఒకవేళ(len != n)
+    ఫలితం = curlx_dyn_addn(&mq->sendbuf, &buf[n], len - n);
+  తిరిగి ఫలితం;
 }
 
 /* Send the queued tail, preserving any bytes that still cannot be sent. */
-static CURLcode mqtt_flush(struct Curl_easy *data)
+స్థిర CURLcode mqtt_flush(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
   size_t len, n;
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!mq)
+    తిరిగి CURLE_FAILED_INIT;
   len = curlx_dyn_len(&mq->sendbuf);
-  if(!len)
-    return CURLE_OK;
+  ఒకవేళ(!len)
+    తిరిగి CURLE_OK;
 
-  result = Curl_xfer_send(data, curlx_dyn_ptr(&mq->sendbuf), len, FALSE, &n);
-  if(result)
-    return result;
-  mq->lastTime = *Curl_pgrs_now(data);
-  Curl_debug(data, CURLINFO_HEADER_OUT, curlx_dyn_ptr(&mq->sendbuf), n);
-  return curlx_dyn_tail(&mq->sendbuf, len - n);
+  ఫలితం = Curl_xfer_send(దత్తాంశం, curlx_dyn_ptr(&mq->sendbuf), len, FALSE, &n);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
+  mq->చివరి_సమయం = *Curl_pgrs_now(దత్తాంశం);
+  Curl_debug(దత్తాంశం, CURLINFO_శీర్షిక_బహిర్గతం, curlx_dyn_ptr(&mq->sendbuf), n);
+  తిరిగి curlx_dyn_తోక(&mq->sendbuf, len - n);
 }
 
 /* Generic function called by the multi interface to figure out what socket(s)
    to wait for and for what actions during the DOING and PROTOCONNECT
-   states */
-static CURLcode mqtt_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+స్థితులు*/
+స్థిర CURLcode mqtt_pollset(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం easy_pollset *ps)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  if(mq && curlx_dyn_len(&mq->sendbuf))
-    return Curl_pollset_add_out(data, ps, data->conn->sock[FIRSTSOCKET]);
-  return Curl_pollset_add_in(data, ps, data->conn->sock[FIRSTSOCKET]);
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
+  ఒకవేళ(mq && curlx_dyn_len(&mq->sendbuf))
+    తిరిగి Curl_pollset_కూడు_బహిర్గతం(దత్తాంశం, ps, దత్తాంశం->conn->sock[FIRSTSOCKET]);
+  తిరిగి Curl_pollset_కూడు_లోపల(దత్తాంశం, ps, దత్తాంశం->conn->sock[FIRSTSOCKET]);
 }
 
-static int mqtt_encode_len(char *buf, size_t len)
+స్థిర పూర్ణాంకం mqtt_encode_len(అక్షరం *buf, size_t len)
 {
-  int i;
+  పూర్ణాంకం i;
 
-  for(i = 0; (len > 0) && (i < 4); i++) {
-    unsigned char encoded;
+  కొరకు(i = 0; (len > 0) && (i < 4); i++) {
+    గుర్తులేని అక్షరం encoded;
     encoded = len % 0x80;
     len /= 0x80;
-    if(len)
+    ఒకవేళ(len)
       encoded |= 0x80;
-    buf[i] = (char)encoded;
+    buf[i] = (అక్షరం)encoded;
   }
 
-  return i;
+  తిరిగి i;
 }
 
 /* add the passwd to the CONNECT packet */
-static int add_passwd(const char *passwd, const size_t plen,
-                      char *pkt, const size_t start, int remain_pos)
+స్థిర పూర్ణాంకం కూడు_passwd(స్థిరరాశి అక్షరం *passwd, స్థిరరాశి size_t plen,
+                      అక్షరం *pkt, స్థిరరాశి size_t ప్రారంభం, పూర్ణాంకం remain_pos)
 {
   /* magic number that need to be set properly */
-  const size_t conn_flags_pos = remain_pos + 8;
-  if(plen > 0xffff)
-    return 1;
+  స్థిరరాశి size_t conn_flags_pos = remain_pos + 8;
+  ఒకవేళ(plen > 0xffff)
+    తిరిగి 1;
 
   /* set password flag */
   pkt[conn_flags_pos] |= 0x40;
 
   /* length of password provided */
-  pkt[start] = (char)((plen >> 8) & 0xFF);
-  pkt[start + 1] = (char)(plen & 0xFF);
-  memcpy(&pkt[start + 2], passwd, plen);
-  return 0;
+  pkt[ప్రారంభం] = (అక్షరం)((plen >> 8) & 0xFF);
+  pkt[ప్రారంభం + 1] = (అక్షరం)(plen & 0xFF);
+  జ్ఞాపకం_నకలు(&pkt[ప్రారంభం + 2], passwd, plen);
+  తిరిగి 0;
 }
 
 /* add user to the CONNECT packet */
-static int add_user(const char *username, const size_t ulen,
-                    unsigned char *pkt, const size_t start, int remain_pos)
+స్థిర పూర్ణాంకం కూడు_user(స్థిరరాశి అక్షరం *username, స్థిరరాశి size_t ulen,
+                    గుర్తులేని అక్షరం *pkt, స్థిరరాశి size_t ప్రారంభం, పూర్ణాంకం remain_pos)
 {
   /* magic number that need to be set properly */
-  const size_t conn_flags_pos = remain_pos + 8;
-  if(ulen > 0xffff)
-    return 1;
+  స్థిరరాశి size_t conn_flags_pos = remain_pos + 8;
+  ఒకవేళ(ulen > 0xffff)
+    తిరిగి 1;
 
   /* set username flag */
   pkt[conn_flags_pos] |= 0x80;
   /* length of username provided */
-  pkt[start] = (unsigned char)((ulen >> 8) & 0xFF);
-  pkt[start + 1] = (unsigned char)(ulen & 0xFF);
-  memcpy(&pkt[start + 2], username, ulen);
-  return 0;
+  pkt[ప్రారంభం] = (గుర్తులేని అక్షరం)((ulen >> 8) & 0xFF);
+  pkt[ప్రారంభం + 1] = (గుర్తులేని అక్షరం)(ulen & 0xFF);
+  జ్ఞాపకం_నకలు(&pkt[ప్రారంభం + 2], username, ulen);
+  తిరిగి 0;
 }
 
 /* add client ID to the CONNECT packet */
-static int add_client_id(const char *client_id, const size_t client_id_len,
-                         char *pkt, const size_t start)
+స్థిర పూర్ణాంకం కూడు_client_id(స్థిరరాశి అక్షరం *client_id, స్థిరరాశి size_t client_id_len,
+                         అక్షరం *pkt, స్థిరరాశి size_t ప్రారంభం)
 {
-  if(client_id_len != MQTT_CLIENTID_LEN)
-    return 1;
-  pkt[start] = 0x00;
-  pkt[start + 1] = MQTT_CLIENTID_LEN;
-  memcpy(&pkt[start + 2], client_id, MQTT_CLIENTID_LEN);
-  return 0;
+  ఒకవేళ(client_id_len != MQTT_CLIENTID_LEN)
+    తిరిగి 1;
+  pkt[ప్రారంభం] = 0x00;
+  pkt[ప్రారంభం + 1] = MQTT_CLIENTID_LEN;
+  జ్ఞాపకం_నకలు(&pkt[ప్రారంభం + 2], client_id, MQTT_CLIENTID_LEN);
+  తిరిగి 0;
 }
 
 /* Set initial values of CONNECT packet */
-static int init_connpack(char *packet, char *remain, int remain_pos)
+స్థిర పూర్ణాంకం init_connpack(అక్షరం *packet, అక్షరం *remain, పూర్ణాంకం remain_pos)
 {
   /* Fixed header starts */
   /* packet type */
-  packet[0] = MQTT_MSG_CONNECT;
+  packet[0] = MQTT_సందేశం_CONNECT;
   /* remaining length field */
-  memcpy(&packet[1], remain, remain_pos);
+  జ్ఞాపకం_నకలు(&packet[1], remain, remain_pos);
   /* Fixed header ends */
 
   /* Variable header starts */
@@ -279,29 +279,29 @@ static int init_connpack(char *packet, char *remain, int remain_pos)
   packet[remain_pos + 9] = 0x00;
   packet[remain_pos + 10] = 0x3c;
   /* end of variable header */
-  return remain_pos + 10;
+  తిరిగి remain_pos + 10;
 }
 
-static CURLcode mqtt_connect(struct Curl_easy *data)
+స్థిర CURLcode mqtt_connect(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  CURLcode result = CURLE_OK;
-  int pos = 0;
-  int rc = 0;
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం pos = 0;
+  పూర్ణాంకం rc = 0;
   /* remain length */
-  int remain_pos = 0;
-  char remain[4] = { 0 };
+  పూర్ణాంకం remain_pos = 0;
+  అక్షరం remain[4] = { 0 };
   size_t packetlen = 0;
-  size_t start_user = 0;
-  size_t start_pwd = 0;
-  char client_id[MQTT_CLIENTID_LEN + 1] = "curl";
-  const size_t clen = CURL_CSTRLEN("curl");
-  char *packet = NULL;
+  size_t ప్రారంభం_user = 0;
+  size_t ప్రారంభం_pwd = 0;
+  అక్షరం client_id[MQTT_CLIENTID_LEN + 1] = "curl";
+  స్థిరరాశి size_t clen = CURL_CSTRLEN("curl");
+  అక్షరం *packet = ఖాళీ;
 
   /* extracting username from request */
-  struct Curl_creds *creds = data->state.creds;
-  const size_t ulen = creds ? strlen(creds->user) : 0;
-  const size_t plen = creds ? strlen(creds->passwd) : 0;
-  const size_t payloadlen = ulen + plen + MQTT_CLIENTID_LEN + 2 +
+  నిర్మాణం Curl_creds *creds = దత్తాంశం->state.creds;
+  స్థిరరాశి size_t ulen = creds ? అక్షరశ్రేణి_పొడవు(creds->user) : 0;
+  స్థిరరాశి size_t plen = creds ? అక్షరశ్రేణి_పొడవు(creds->passwd) : 0;
+  స్థిరరాశి size_t payloadlen = ulen + plen + MQTT_CLIENTID_LEN + 2 +
   /* The plus 2s below are for the MSB and LSB describing the length of the
      string to be added on the payload. Refer to spec 1.5.2 and 1.5.4 */
     (ulen ? 2 : 0) +
@@ -314,348 +314,348 @@ static CURLcode mqtt_connect(struct Curl_easy *data)
   packetlen = payloadlen + 10 + remain_pos + 1;
 
   /* allocating packet */
-  if(packetlen > 0xFFFFFFF)
-    return CURLE_WEIRD_SERVER_REPLY;
+  ఒకవేళ(packetlen > 0xFFFFFFF)
+    తిరిగి CURLE_WEIRD_SERVER_జవాబు;
   packet = curlx_calloc(1, packetlen);
-  if(!packet)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!packet)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* set initial values for the CONNECT packet */
   pos = init_connpack(packet, remain, remain_pos);
 
-  result = Curl_rand_alnum(data, (unsigned char *)&client_id[clen],
+  ఫలితం = Curl_rand_alnum(దత్తాంశం, (గుర్తులేని అక్షరం *)&client_id[clen],
                            MQTT_CLIENTID_LEN - clen + 1);
   /* add client id */
-  rc = add_client_id(client_id, strlen(client_id), packet, pos + 1);
-  if(rc) {
-    failf(data, "Client ID length mismatched: [%zu]", strlen(client_id));
-    result = CURLE_WEIRD_SERVER_REPLY;
-    goto end;
+  rc = కూడు_client_id(client_id, అక్షరశ్రేణి_పొడవు(client_id), packet, pos + 1);
+  ఒకవేళ(rc) {
+    failf(దత్తాంశం, "Client ID length mismatched: [%zu]", అక్షరశ్రేణి_పొడవు(client_id));
+    ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+    వెళ్ళు చివర;
   }
-  infof(data, "Using client id '%s'", client_id);
+  infof(దత్తాంశం, "Using client id '%s'", client_id);
 
   /* position where the user payload starts */
-  start_user = pos + 3 + MQTT_CLIENTID_LEN;
+  ప్రారంభం_user = pos + 3 + MQTT_CLIENTID_LEN;
   /* position where the password payload starts */
-  start_pwd = start_user + ulen;
+  ప్రారంభం_pwd = ప్రారంభం_user + ulen;
   /* if username was provided, add it to the packet */
-  if(ulen) {
-    start_pwd += 2;
+  ఒకవేళ(ulen) {
+    ప్రారంభం_pwd += 2;
 
-    rc = add_user(creds->user, ulen,
-                  (unsigned char *)packet, start_user, remain_pos);
-    if(rc) {
-      failf(data, "Username too long: [%zu]", ulen);
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto end;
+    rc = కూడు_user(creds->user, ulen,
+                  (గుర్తులేని అక్షరం *)packet, ప్రారంభం_user, remain_pos);
+    ఒకవేళ(rc) {
+      failf(దత్తాంశం, "Username too long: [%zu]", ulen);
+      ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+      వెళ్ళు చివర;
     }
   }
 
   /* if passwd was provided, add it to the packet */
-  if(plen) {
-    rc = add_passwd(creds->passwd, plen, packet, start_pwd, remain_pos);
-    if(rc) {
-      failf(data, "Password too long: [%zu]", plen);
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto end;
+  ఒకవేళ(plen) {
+    rc = కూడు_passwd(creds->passwd, plen, packet, ప్రారంభం_pwd, remain_pos);
+    ఒకవేళ(rc) {
+      failf(దత్తాంశం, "Password too long: [%zu]", plen);
+      ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+      వెళ్ళు చివర;
     }
   }
 
-  if(!result)
-    result = mqtt_send(data, packet, packetlen);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = mqtt_send(దత్తాంశం, packet, packetlen);
 
-end:
-  if(packet) {
+చివర:
+  ఒకవేళ(packet) {
     curlx_memzero(packet, packetlen);
     curlx_free(packet);
   }
-  Curl_creds_unlink(&data->state.creds);
-  return result;
+  Curl_creds_unlink(&దత్తాంశం->state.creds);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode mqtt_disconnect(struct Curl_easy *data)
+స్థిర CURLcode mqtt_disconnect(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return mqtt_send(data, "\xe0\x00", 2);
+  తిరిగి mqtt_send(దత్తాంశం, "\xe0\x00", 2);
 }
 
-static CURLcode mqtt_recv_atleast(struct Curl_easy *data, size_t nbytes)
+స్థిర CURLcode mqtt_recv_atleast(నిర్మాణం Curl_easy *దత్తాంశం, size_t nbytes)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
   size_t rlen;
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!mq)
+    తిరిగి CURLE_FAILED_INIT;
   rlen = curlx_dyn_len(&mq->recvbuf);
 
-  if(rlen < nbytes) {
-    unsigned char readbuf[1024];
+  ఒకవేళ(rlen < nbytes) {
+    గుర్తులేని అక్షరం readbuf[1024];
     size_t nread;
 
-    DEBUGASSERT(nbytes - rlen < sizeof(readbuf));
-    result = Curl_xfer_recv(data, (char *)readbuf, nbytes - rlen, &nread);
-    if(result)
-      return result;
-    if(!nread) /* EOF */
-       return CURLE_RECV_ERROR;
-    if(curlx_dyn_addn(&mq->recvbuf, readbuf, nread))
-      return CURLE_OUT_OF_MEMORY;
+    DEBUGASSERT(nbytes - rlen < పరిమాణం(readbuf));
+    ఫలితం = Curl_xfer_recv(దత్తాంశం, (అక్షరం *)readbuf, nbytes - rlen, &nread);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
+    ఒకవేళ(!nread) /* EOF */
+       తిరిగి CURLE_RECV_ERROR;
+    ఒకవేళ(curlx_dyn_addn(&mq->recvbuf, readbuf, nread))
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     rlen = curlx_dyn_len(&mq->recvbuf);
   }
-  return (rlen >= nbytes) ? CURLE_OK : CURLE_AGAIN;
+  తిరిగి (rlen >= nbytes) ? CURLE_OK : CURLE_AGAIN;
 }
 
-static void mqtt_recv_consume(struct Curl_easy *data, size_t nbytes)
+స్థిర శూన్య mqtt_recv_consume(నిర్మాణం Curl_easy *దత్తాంశం, size_t nbytes)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
   DEBUGASSERT(mq);
-  if(mq) {
+  ఒకవేళ(mq) {
     size_t rlen = curlx_dyn_len(&mq->recvbuf);
-    if(rlen <= nbytes)
+    ఒకవేళ(rlen <= nbytes)
       curlx_dyn_reset(&mq->recvbuf);
-    else
-      curlx_dyn_tail(&mq->recvbuf, rlen - nbytes);
+    లేకపోతే
+      curlx_dyn_తోక(&mq->recvbuf, rlen - nbytes);
   }
 }
 
-static CURLcode mqtt_verify_connack(struct Curl_easy *data)
+స్థిర CURLcode mqtt_verify_connack(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result;
-  const char *ptr;
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
+  CURLcode ఫలితం;
+  స్థిరరాశి అక్షరం *ptr;
 
   DEBUGASSERT(mq);
-  if(!mq)
-    return CURLE_FAILED_INIT;
-  if(mq->remaining_length != 2) {
-    failf(data, "CONNACK expected Remaining Length 2, got %zu",
-          mq->remaining_length);
-    return CURLE_WEIRD_SERVER_REPLY;
+  ఒకవేళ(!mq)
+    తిరిగి CURLE_FAILED_INIT;
+  ఒకవేళ(mq->మిగిలిన_నిడివి != 2) {
+    failf(దత్తాంశం, "CONNACK expected Remaining Length 2, got %zu",
+          mq->మిగిలిన_నిడివి);
+    తిరిగి CURLE_WEIRD_SERVER_జవాబు;
   }
 
-  result = mqtt_recv_atleast(data, MQTT_CONNACK_LEN);
-  if(result)
-    return result;
+  ఫలితం = mqtt_recv_atleast(దత్తాంశం, MQTT_CONNACK_LEN);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* verify CONNACK */
   DEBUGASSERT(curlx_dyn_len(&mq->recvbuf) >= MQTT_CONNACK_LEN);
   ptr = curlx_dyn_ptr(&mq->recvbuf);
-  Curl_debug(data, CURLINFO_HEADER_IN, ptr, MQTT_CONNACK_LEN);
+  Curl_debug(దత్తాంశం, CURLINFO_శీర్షిక_లోపల, ptr, MQTT_CONNACK_LEN);
 
-  if(ptr[0] != 0x00 || ptr[1] != 0x00) {
-    failf(data, "Expected %02x%02x but got %02x%02x",
-          0x00U, 0x00U, (unsigned char)ptr[0], (unsigned char)ptr[1]);
+  ఒకవేళ(ptr[0] != 0x00 || ptr[1] != 0x00) {
+    failf(దత్తాంశం, "Expected %02x%02x but got %02x%02x",
+          0x00U, 0x00U, (గుర్తులేని అక్షరం)ptr[0], (గుర్తులేని అక్షరం)ptr[1]);
     curlx_dyn_reset(&mq->recvbuf);
-    return CURLE_WEIRD_SERVER_REPLY;
+    తిరిగి CURLE_WEIRD_SERVER_జవాబు;
   }
-  mqtt_recv_consume(data, MQTT_CONNACK_LEN);
-  return CURLE_OK;
+  mqtt_recv_consume(దత్తాంశం, MQTT_CONNACK_LEN);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode mqtt_get_topic(struct Curl_easy *data,
-                               char **topic, size_t *topiclen)
+స్థిర CURLcode mqtt_get_topic(నిర్మాణం Curl_easy *దత్తాంశం,
+                               అక్షరం **topic, size_t *topiclen)
 {
-  const char *path = data->state.up.path;
-  CURLcode result = CURLE_URL_MALFORMAT;
-  if(strlen(path) > 1) {
-    result = Curl_urldecode(path + 1, 0, topic, topiclen, REJECT_CTRL);
-    if(!result && (*topiclen > 0xffff)) {
-      failf(data, "Too long MQTT topic");
-      result = CURLE_URL_MALFORMAT;
+  స్థిరరాశి అక్షరం *మార్గం = దత్తాంశం->state.పైకి.మార్గం;
+  CURLcode ఫలితం = CURLE_URL_MALFORMAT;
+  ఒకవేళ(అక్షరశ్రేణి_పొడవు(మార్గం) > 1) {
+    ఫలితం = Curl_urldecode(మార్గం + 1, 0, topic, topiclen, REJECT_CTRL);
+    ఒకవేళ(!ఫలితం && (*topiclen > 0xffff)) {
+      failf(దత్తాంశం, "Too long MQTT topic");
+      ఫలితం = CURLE_URL_MALFORMAT;
     }
   }
-  else
-    failf(data, "No MQTT topic found. Forgot to URL encode it?");
+  లేకపోతే
+    failf(దత్తాంశం, "No MQTT topic found. Forgot to URL encode it?");
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode mqtt_subscribe(struct Curl_easy *data)
+స్థిర CURLcode mqtt_subscribe(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  CURLcode result = CURLE_OK;
-  char *topic = NULL;
+  CURLcode ఫలితం = CURLE_OK;
+  అక్షరం *topic = ఖాళీ;
   size_t topiclen;
-  unsigned char *packet = NULL;
+  గుర్తులేని అక్షరం *packet = ఖాళీ;
   size_t packetlen;
-  char encodedsize[4];
+  అక్షరం encodedsize[4];
   size_t n;
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!mqtt)
+    తిరిగి CURLE_FAILED_INIT;
 
-  result = mqtt_get_topic(data, &topic, &topiclen);
-  if(result)
-    goto fail;
+  ఫలితం = mqtt_get_topic(దత్తాంశం, &topic, &topiclen);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
   mqtt->packetid++;
 
   packetlen = topiclen + 5; /* packetid + topic (has a two byte length field)
                                + 2 bytes topic length + QoS byte */
-  n = mqtt_encode_len((char *)encodedsize, packetlen);
+  n = mqtt_encode_len((అక్షరం *)encodedsize, packetlen);
   packetlen += n + 1; /* add one for the control packet type byte */
 
   packet = curlx_malloc(packetlen);
-  if(!packet) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  ఒకవేళ(!packet) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు fail;
   }
 
-  packet[0] = MQTT_MSG_SUBSCRIBE;
-  memcpy(&packet[1], encodedsize, n);
+  packet[0] = MQTT_సందేశం_SUBSCRIBE;
+  జ్ఞాపకం_నకలు(&packet[1], encodedsize, n);
   packet[1 + n] = (mqtt->packetid >> 8) & 0xff;
   packet[2 + n] = mqtt->packetid & 0xff;
   packet[3 + n] = (topiclen >> 8) & 0xff;
   packet[4 + n] = topiclen & 0xff;
-  memcpy(&packet[5 + n], topic, topiclen);
+  జ్ఞాపకం_నకలు(&packet[5 + n], topic, topiclen);
   packet[5 + n + topiclen] = 0; /* QoS zero */
 
-  result = mqtt_send(data, (const char *)packet, packetlen);
+  ఫలితం = mqtt_send(దత్తాంశం, (స్థిరరాశి అక్షరం *)packet, packetlen);
 
 fail:
   curlx_free(topic);
   curlx_free(packet);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
  * Called when the first byte was already read.
  */
-static CURLcode mqtt_verify_suback(struct Curl_easy *data)
+స్థిర CURLcode mqtt_verify_suback(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
-  CURLcode result;
-  const char *ptr;
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  CURLcode ఫలితం;
+  స్థిరరాశి అక్షరం *ptr;
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!mqtt || !mq)
+    తిరిగి CURLE_FAILED_INIT;
 
-  if(mq->remaining_length != 3) {
-    failf(data, "SUBACK expected Remaining Length 3, got %zu",
-          mq->remaining_length);
-    return CURLE_WEIRD_SERVER_REPLY;
+  ఒకవేళ(mq->మిగిలిన_నిడివి != 3) {
+    failf(దత్తాంశం, "SUBACK expected Remaining Length 3, got %zu",
+          mq->మిగిలిన_నిడివి);
+    తిరిగి CURLE_WEIRD_SERVER_జవాబు;
   }
 
-  result = mqtt_recv_atleast(data, MQTT_SUBACK_LEN);
-  if(result)
-    goto fail;
+  ఫలితం = mqtt_recv_atleast(దత్తాంశం, MQTT_SUBACK_LEN);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
   /* verify SUBACK */
   DEBUGASSERT(curlx_dyn_len(&mq->recvbuf) >= MQTT_SUBACK_LEN);
   ptr = curlx_dyn_ptr(&mq->recvbuf);
-  Curl_debug(data, CURLINFO_HEADER_IN, ptr, MQTT_SUBACK_LEN);
+  Curl_debug(దత్తాంశం, CURLINFO_శీర్షిక_లోపల, ptr, MQTT_SUBACK_LEN);
 
-  if(((unsigned char)ptr[0]) != ((mqtt->packetid >> 8) & 0xff) ||
-     ((unsigned char)ptr[1]) != (mqtt->packetid & 0xff) ||
+  ఒకవేళ(((గుర్తులేని అక్షరం)ptr[0]) != ((mqtt->packetid >> 8) & 0xff) ||
+     ((గుర్తులేని అక్షరం)ptr[1]) != (mqtt->packetid & 0xff) ||
      ptr[2] != 0x00) {
     curlx_dyn_reset(&mq->recvbuf);
-    result = CURLE_WEIRD_SERVER_REPLY;
-    goto fail;
+    ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+    వెళ్ళు fail;
   }
-  mqtt_recv_consume(data, MQTT_SUBACK_LEN);
+  mqtt_recv_consume(దత్తాంశం, MQTT_SUBACK_LEN);
 fail:
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#define MAX_MQTT_MESSAGE_SIZE 0xFFFFFFF
+#నిర్వచించు MAX_MQTT_సందేశం_కొలత 0xFFFFFFF
 
-static CURLcode mqtt_publish(struct Curl_easy *data)
+స్థిర CURLcode mqtt_publish(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  CURLcode result;
-  char *payload = data->set.postfields;
+  CURLcode ఫలితం;
+  అక్షరం *payload = దత్తాంశం->సమితి.postfields;
   size_t payloadlen;
-  char *topic = NULL;
+  అక్షరం *topic = ఖాళీ;
   size_t topiclen;
-  unsigned char *pkt = NULL;
+  గుర్తులేని అక్షరం *pkt = ఖాళీ;
   size_t i = 0;
   size_t remaininglength;
   size_t encodelen;
-  char encodedbytes[4];
-  curl_off_t postfieldsize = data->set.postfieldsize;
+  అక్షరం encodedbytes[4];
+  curl_off_t postfieldsize = దత్తాంశం->సమితి.postfieldsize;
 
-  if(!payload) {
-    DEBUGF(infof(data, "mqtt_publish without payload, return bad arg"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!payload) {
+    DEBUGF(infof(దత్తాంశం, "mqtt_publish without payload, return bad arg"));
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
-  if(!curlx_sotouz_fits(postfieldsize, &payloadlen)) {
-    if(postfieldsize > 0) /* off_t does not fit into size_t */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    payloadlen = strlen(payload);
+  ఒకవేళ(!curlx_sotouz_సరిపోతుంది(postfieldsize, &payloadlen)) {
+    ఒకవేళ(postfieldsize > 0) /* off_t does not fit into size_t */
+      తిరిగి CURLE_BAD_FUNCTION_వాదం;
+    payloadlen = అక్షరశ్రేణి_పొడవు(payload);
   }
 
-  result = mqtt_get_topic(data, &topic, &topiclen);
-  if(result)
-    goto fail;
+  ఫలితం = mqtt_get_topic(దత్తాంశం, &topic, &topiclen);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
   /* silly check for silly analyzers. On 32-bit systems a payload length close
      to 4GB can wrap, but it is impossible to have such a large buffer in
      memory on those systems */
-  if((SIZE_MAX - topiclen - 2) < payloadlen) {
-    result = CURLE_TOO_LARGE;
-    goto fail;
+  ఒకవేళ((SIZE_MAX - topiclen - 2) < payloadlen) {
+    ఫలితం = CURLE_TOO_LARGE;
+    వెళ్ళు fail;
   }
 
   remaininglength = payloadlen + 2 + topiclen;
   encodelen = mqtt_encode_len(encodedbytes, remaininglength);
-  if(remaininglength > (MAX_MQTT_MESSAGE_SIZE - encodelen - 1)) {
-    result = CURLE_TOO_LARGE;
-    goto fail;
+  ఒకవేళ(remaininglength > (MAX_MQTT_సందేశం_కొలత - encodelen - 1)) {
+    ఫలితం = CURLE_TOO_LARGE;
+    వెళ్ళు fail;
   }
 
   /* add the control byte and the encoded remaining length */
   pkt = curlx_malloc(remaininglength + 1 + encodelen);
-  if(!pkt) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  ఒకవేళ(!pkt) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు fail;
   }
 
   /* assemble packet */
-  pkt[i++] = MQTT_MSG_PUBLISH;
-  memcpy(&pkt[i], encodedbytes, encodelen);
+  pkt[i++] = MQTT_సందేశం_PUBLISH;
+  జ్ఞాపకం_నకలు(&pkt[i], encodedbytes, encodelen);
   i += encodelen;
   pkt[i++] = (topiclen >> 8) & 0xff;
   pkt[i++] = (topiclen & 0xff);
-  memcpy(&pkt[i], topic, topiclen);
+  జ్ఞాపకం_నకలు(&pkt[i], topic, topiclen);
   i += topiclen;
-  memcpy(&pkt[i], payload, payloadlen);
+  జ్ఞాపకం_నకలు(&pkt[i], payload, payloadlen);
   i += payloadlen;
-  result = mqtt_send(data, (const char *)pkt, i);
+  ఫలితం = mqtt_send(దత్తాంశం, (స్థిరరాశి అక్షరం *)pkt, i);
 
 fail:
   curlx_free(pkt);
   curlx_free(topic);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* return FALSE on success, TRUE on error */
-static bool mqtt_decode_len(size_t *lenp, const unsigned char *buf,
+స్థిర bool mqtt_decode_len(size_t *lenp, స్థిరరాశి గుర్తులేని అక్షరం *buf,
                             size_t buflen)
 {
   size_t len = 0;
   size_t mult = 1;
   size_t i;
-  unsigned char encoded = 128;
+  గుర్తులేని అక్షరం encoded = 128;
 
-  for(i = 0; (i < buflen) && (encoded & 128); i++) {
-    if(i == 4)
-      return TRUE; /* bad size */
+  కొరకు(i = 0; (i < buflen) && (encoded & 128); i++) {
+    ఒకవేళ(i == 4)
+      తిరిగి TRUE; /* bad size */
     encoded = buf[i];
     len += (encoded & 127) * mult;
     mult *= 128;
   }
-  if(encoded & 128)
+  ఒకవేళ(encoded & 128)
     /* truncated size */
-    return TRUE;
+    తిరిగి TRUE;
 
   *lenp = len;
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
-static const char * const statenames[] = {
+#ఒకవేళ defined(DEBUGBUILD) && defined(CURLVERBOSE)
+స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి statenames[] = {
   "MQTT_FIRST",
   "MQTT_REMAINING_LENGTH",
   "MQTT_CONNACK",
@@ -668,260 +668,260 @@ static const char * const statenames[] = {
 
   "NOT A STATE"
 };
-#endif
+#అయితే_ముగింపు
 
 /* The only way to change state */
-static void mqstate(struct Curl_easy *data,
-                    enum mqttstate state,
-                    enum mqttstate nextstate) /* used if state == FIRST */
+స్థిర శూన్య mqstate(నిర్మాణం Curl_easy *దత్తాంశం,
+                    గణన mqttstate state,
+                    గణన mqttstate nextstate) /* used if state == FIRST */
 {
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
   DEBUGASSERT(mqtt);
-  if(!mqtt)
-    return;
-#ifdef DEBUGBUILD
-  infof(data, "%s (from %s) (next is %s)",
+  ఒకవేళ(!mqtt)
+    తిరిగి;
+#నిర్వచితమైతే DEBUGBUILD
+  infof(దత్తాంశం, "%s (from %s) (next is %s)",
         statenames[state],
         statenames[mqtt->state],
-        (state == MQTT_FIRST) ? statenames[nextstate] : "");
-#endif
+        (state == MQTT_మొదటి) ? statenames[nextstate] : "");
+#అయితే_ముగింపు
   mqtt->state = state;
-  if(state == MQTT_FIRST)
+  ఒకవేళ(state == MQTT_మొదటి)
     mqtt->nextstate = nextstate;
 }
 
-static CURLcode mqtt_read_publish(struct Curl_easy *data, bool *done)
+స్థిర CURLcode mqtt_read_publish(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
   size_t nread;
   size_t remlen;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  unsigned char packet;
+  నిర్మాణం mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
+  గుర్తులేని అక్షరం packet;
 
   DEBUGASSERT(mqtt);
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!mqtt || !mq)
+    తిరిగి CURLE_FAILED_INIT;
 
-  switch(mqtt->state) {
+  ఎంపిక(mqtt->state) {
 MQTT_SUBACK_COMING:
-  case MQTT_SUBACK_COMING:
-    result = mqtt_verify_suback(data);
-    if(result)
-      break;
+  స్థితి MQTT_SUBACK_COMING:
+    ఫలితం = mqtt_verify_suback(దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      ఆపు;
 
-    mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
-    break;
+    mqstate(దత్తాంశం, MQTT_మొదటి, MQTT_PUBWAIT);
+    ఆపు;
 
-  case MQTT_SUBACK:
-  case MQTT_PUBWAIT:
+  స్థితి MQTT_SUBACK:
+  స్థితి MQTT_PUBWAIT:
     /* we are expecting PUBLISH or SUBACK */
     packet = mq->firstbyte & 0xf0;
-    if(packet == MQTT_MSG_PUBLISH)
-      mqstate(data, MQTT_PUB_REMAIN, MQTT_NOSTATE);
-    else if(packet == MQTT_MSG_SUBACK) {
-      mqstate(data, MQTT_SUBACK_COMING, MQTT_NOSTATE);
-      goto MQTT_SUBACK_COMING;
+    ఒకవేళ(packet == MQTT_సందేశం_PUBLISH)
+      mqstate(దత్తాంశం, MQTT_PUB_REMAIN, MQTT_NOSTATE);
+    లేకపోతే ఒకవేళ(packet == MQTT_సందేశం_SUBACK) {
+      mqstate(దత్తాంశం, MQTT_SUBACK_COMING, MQTT_NOSTATE);
+      వెళ్ళు MQTT_SUBACK_COMING;
     }
-    else if(packet == MQTT_MSG_DISCONNECT) {
-      infof(data, "Got DISCONNECT");
-      *done = TRUE;
-      goto end;
+    లేకపోతే ఒకవేళ(packet == MQTT_సందేశం_DISCONNECT) {
+      infof(దత్తాంశం, "Got DISCONNECT");
+      *పూర్తి = TRUE;
+      వెళ్ళు చివర;
     }
-    else {
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto end;
+    లేకపోతే {
+      ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+      వెళ్ళు చివర;
     }
 
     /* -- switched state -- */
-    remlen = mq->remaining_length;
-    infof(data, "Remaining length: %zu bytes", remlen);
-    if(data->set.max_filesize &&
-       (curl_off_t)remlen > data->set.max_filesize) {
-      failf(data, "Maximum file size exceeded");
-      result = CURLE_FILESIZE_EXCEEDED;
-      goto end;
+    remlen = mq->మిగిలిన_నిడివి;
+    infof(దత్తాంశం, "Remaining length: %zu bytes", remlen);
+    ఒకవేళ(దత్తాంశం->సమితి.max_filesize &&
+       (curl_off_t)remlen > దత్తాంశం->సమితి.max_filesize) {
+      failf(దత్తాంశం, "Maximum file size exceeded");
+      ఫలితం = CURLE_FILESIZE_EXCEEDED;
+      వెళ్ళు చివర;
     }
-    Curl_pgrsSetDownloadSize(data, remlen);
-    data->req.bytecount = 0;
-    data->req.size = remlen;
+    Curl_pgrs_సమితి_Download_కొలత(దత్తాంశం, remlen);
+    దత్తాంశం->req.bytecount = 0;
+    దత్తాంశం->req.కొలత = remlen;
     mq->npacket = remlen; /* get this many bytes */
     FALLTHROUGH();
-  case MQTT_PUB_REMAIN: {
+  స్థితి MQTT_PUB_REMAIN: {
     /* read rest of packet, but no more. Cap to buffer size */
-    char buffer[4 * 1024];
+    అక్షరం బఫరు[4 * 1024];
     size_t rest = mq->npacket;
-    if(rest > sizeof(buffer))
-      rest = sizeof(buffer);
-    result = Curl_xfer_recv(data, buffer, rest, &nread);
-    if(result) {
-      if(result == CURLE_AGAIN) {
-        infof(data, "EEEE AAAAGAIN");
+    ఒకవేళ(rest > పరిమాణం(బఫరు))
+      rest = పరిమాణం(బఫరు);
+    ఫలితం = Curl_xfer_recv(దత్తాంశం, బఫరు, rest, &nread);
+    ఒకవేళ(ఫలితం) {
+      ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+        infof(దత్తాంశం, "EEEE AAAAGAIN");
       }
-      goto end;
+      వెళ్ళు చివర;
     }
-    if(!nread) {
-      infof(data, "server disconnected");
-      result = CURLE_PARTIAL_FILE;
-      goto end;
+    ఒకవేళ(!nread) {
+      infof(దత్తాంశం, "server disconnected");
+      ఫలితం = CURLE_PARTIAL_FILE;
+      వెళ్ళు చివర;
     }
 
     /* we received something */
-    mq->lastTime = *Curl_pgrs_now(data);
+    mq->చివరి_సమయం = *Curl_pgrs_now(దత్తాంశం);
 
     /* if QoS is set, message contains packet id */
-    result = Curl_client_write(data, CLIENTWRITE_BODY, buffer, nread);
-    if(result)
-      goto end;
+    ఫలితం = Curl_client_write(దత్తాంశం, CLIENTWRITE_BODY, బఫరు, nread);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు చివర;
 
     mq->npacket -= nread;
-    if(!mq->npacket)
+    ఒకవేళ(!mq->npacket)
       /* no more PUBLISH payload, back to subscribe wait state */
-      mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
-    break;
+      mqstate(దత్తాంశం, MQTT_మొదటి, MQTT_PUBWAIT);
+    ఆపు;
   }
-  default:
-    DEBUGASSERT(NULL); /* illegal state */
-    result = CURLE_WEIRD_SERVER_REPLY;
-    goto end;
+  అప్రమేయ:
+    DEBUGASSERT(ఖాళీ); /* illegal state */
+    ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+    వెళ్ళు చివర;
   }
-end:
-  return result;
+చివర:
+  తిరిగి ఫలితం;
 }
 
-static CURLcode mqtt_do(struct Curl_easy *data, bool *done)
+స్థిర CURLcode mqtt_do(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result = CURLE_OK;
-  *done = FALSE; /* unconditionally */
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
+  CURLcode ఫలితం = CURLE_OK;
+  *పూర్తి = FALSE; /* unconditionally */
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
-  mq->lastTime = *Curl_pgrs_now(data);
+  ఒకవేళ(!mq)
+    తిరిగి CURLE_FAILED_INIT;
+  mq->చివరి_సమయం = *Curl_pgrs_now(దత్తాంశం);
   mq->pingsent = FALSE;
 
-  result = mqtt_connect(data);
-  if(result) {
-    failf(data, "Error %d sending MQTT CONNECT request", (int)result);
-    return result;
+  ఫలితం = mqtt_connect(దత్తాంశం);
+  ఒకవేళ(ఫలితం) {
+    failf(దత్తాంశం, "Error %d sending MQTT CONNECT request", (పూర్ణాంకం)ఫలితం);
+    తిరిగి ఫలితం;
   }
-  mqstate(data, MQTT_FIRST, MQTT_CONNACK);
-  return CURLE_OK;
+  mqstate(దత్తాంశం, MQTT_మొదటి, MQTT_CONNACK);
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode mqtt_done(struct Curl_easy *data,
-                          CURLcode status, bool premature)
+స్థిర CURLcode mqtt_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం,
+                          CURLcode స్థితి_2, bool premature)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  (void)status;
-  (void)premature;
-  if(mq) {
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
+  (శూన్య)స్థితి_2;
+  (శూన్య)premature;
+  ఒకవేళ(mq) {
     curlx_dyn_free(&mq->sendbuf);
     curlx_dyn_free(&mq->recvbuf);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* we ping regularly to avoid being disconnected by the server */
-static CURLcode mqtt_ping(struct Curl_easy *data)
+స్థిర CURLcode mqtt_ping(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!mqtt || !mq)
+    తిరిగి CURLE_FAILED_INIT;
 
-  if(mqtt->state == MQTT_FIRST &&
+  ఒకవేళ(mqtt->state == MQTT_మొదటి &&
      !mq->pingsent &&
-     data->set.upkeep_interval_ms > 0) {
-    struct curltime t = *Curl_pgrs_now(data);
-    timediff_t diff = curlx_ptimediff_ms(&t, &mq->lastTime);
+     దత్తాంశం->సమితి.upkeep_interval_ms > 0) {
+    నిర్మాణం curltime t = *Curl_pgrs_now(దత్తాంశం);
+    timediff_t diff = curlx_ptimediff_ms(&t, &mq->చివరి_సమయం);
 
-    if(diff > data->set.upkeep_interval_ms) {
+    ఒకవేళ(diff > దత్తాంశం->సమితి.upkeep_interval_ms) {
       /* 0xC0 is PINGREQ, and 0x00 is remaining length */
-      unsigned char packet[2] = { 0xC0, 0x00 };
-      size_t packetlen = sizeof(packet);
+      గుర్తులేని అక్షరం packet[2] = { 0xC0, 0x00 };
+      size_t packetlen = పరిమాణం(packet);
 
-      result = mqtt_send(data, (char *)packet, packetlen);
-      if(!result) {
+      ఫలితం = mqtt_send(దత్తాంశం, (అక్షరం *)packet, packetlen);
+      ఒకవేళ(!ఫలితం) {
         mq->pingsent = TRUE;
       }
-      infof(data, "mqtt_ping: sent ping request.");
+      infof(దత్తాంశం, "mqtt_ping: sent ping request.");
     }
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
+స్థిర CURLcode mqtt_doing(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result = CURLE_OK;
+  నిర్మాణం MQTT *mq = Curl_meta_get(దత్తాంశం, CURL_META_MQTT_EASY);
+  CURLcode ఫలితం = CURLE_OK;
   size_t nread;
-  unsigned char recvbyte;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(data->conn, CURL_META_MQTT_CONN);
+  గుర్తులేని అక్షరం recvbyte;
+  నిర్మాణం mqtt_conn *mqtt = Curl_conn_meta_get(దత్తాంశం->conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!mqtt || !mq)
+    తిరిగి CURLE_FAILED_INIT;
 
-  *done = FALSE;
+  *పూర్తి = FALSE;
 
-  if(curlx_dyn_len(&mq->sendbuf)) {
+  ఒకవేళ(curlx_dyn_len(&mq->sendbuf)) {
     /* send the remainder of an outgoing packet */
-    result = mqtt_flush(data);
+    ఫలితం = mqtt_flush(దత్తాంశం);
     /* CURLE_OK can still mean a short write. Wait for writable progress
        before sending another packet or processing a reply. */
-    if(result || curlx_dyn_len(&mq->sendbuf))
-      return result;
+    ఒకవేళ(ఫలితం || curlx_dyn_len(&mq->sendbuf))
+      తిరిగి ఫలితం;
   }
 
-  result = mqtt_ping(data);
+  ఫలితం = mqtt_ping(దత్తాంశం);
   /* Packet processing may send more output, so finish PINGREQ first. */
-  if(result || curlx_dyn_len(&mq->sendbuf))
-    return result;
+  ఒకవేళ(ఫలితం || curlx_dyn_len(&mq->sendbuf))
+    తిరిగి ఫలితం;
 
-  infof(data, "mqtt_doing: state [%d]", (int)mqtt->state);
-  switch(mqtt->state) {
-  case MQTT_FIRST:
+  infof(దత్తాంశం, "mqtt_doing: state [%d]", (పూర్ణాంకం)mqtt->state);
+  ఎంపిక(mqtt->state) {
+  స్థితి MQTT_మొదటి:
     /* Read the initial byte only */
-    result = Curl_xfer_recv(data, (char *)&mq->firstbyte, 1, &nread);
-    if(result)
-      break;
-    else if(!nread) {
-      failf(data, "Connection disconnected");
-      *done = TRUE;
-      result = CURLE_RECV_ERROR;
-      break;
+    ఫలితం = Curl_xfer_recv(దత్తాంశం, (అక్షరం *)&mq->firstbyte, 1, &nread);
+    ఒకవేళ(ఫలితం)
+      ఆపు;
+    లేకపోతే ఒకవేళ(!nread) {
+      failf(దత్తాంశం, "Connection disconnected");
+      *పూర్తి = TRUE;
+      ఫలితం = CURLE_RECV_ERROR;
+      ఆపు;
     }
-    Curl_debug(data, CURLINFO_HEADER_IN, (const char *)&mq->firstbyte, 1);
+    Curl_debug(దత్తాంశం, CURLINFO_శీర్షిక_లోపల, (స్థిరరాశి అక్షరం *)&mq->firstbyte, 1);
 
     /* we received something */
-    mq->lastTime = *Curl_pgrs_now(data);
+    mq->చివరి_సమయం = *Curl_pgrs_now(దత్తాంశం);
 
     /* remember the first byte */
     mq->npacket = 0;
-    mqstate(data, MQTT_REMAINING_LENGTH, MQTT_NOSTATE);
+    mqstate(దత్తాంశం, MQTT_మిగిలిన_నిడివి, MQTT_NOSTATE);
     FALLTHROUGH();
-  case MQTT_REMAINING_LENGTH:
-    do {
-      result = Curl_xfer_recv(data, (char *)&recvbyte, 1, &nread);
-      if(result || !nread)
-        break;
-      Curl_debug(data, CURLINFO_HEADER_IN, (const char *)&recvbyte, 1);
+  స్థితి MQTT_మిగిలిన_నిడివి:
+    చేయి {
+      ఫలితం = Curl_xfer_recv(దత్తాంశం, (అక్షరం *)&recvbyte, 1, &nread);
+      ఒకవేళ(ఫలితం || !nread)
+        ఆపు;
+      Curl_debug(దత్తాంశం, CURLINFO_శీర్షిక_లోపల, (స్థిరరాశి అక్షరం *)&recvbyte, 1);
       mq->pkt_hd[mq->npacket++] = recvbyte;
-    } while((recvbyte & 0x80) && (mq->npacket < 4));
-    if(!result && nread && (recvbyte & 0x80))
+    } అయితే((recvbyte & 0x80) && (mq->npacket < 4));
+    ఒకవేళ(!ఫలితం && nread && (recvbyte & 0x80))
       /* MQTT supports up to 127 * 128^0 + 127 * 128^1 + 127 * 128^2 +
          127 * 128^3 bytes. server tried to send more */
-      result = CURLE_WEIRD_SERVER_REPLY;
-    if(result)
-      break;
-    if(mqtt_decode_len(&mq->remaining_length, mq->pkt_hd, mq->npacket)) {
-      result = CURLE_WEIRD_SERVER_REPLY;
-      break;
+      ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+    ఒకవేళ(ఫలితం)
+      ఆపు;
+    ఒకవేళ(mqtt_decode_len(&mq->మిగిలిన_నిడివి, mq->pkt_hd, mq->npacket)) {
+      ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+      ఆపు;
     }
     mq->npacket = 0;
     /* PINGRESP and DISCONNECT must have remaining_length == 0 and
@@ -929,106 +929,106 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
      * sections 2.2.2, 3.13.1 and 3.14.1. Reject before state
      * dispatch to prevent nextstate confusion. */
     {
-      const unsigned char type = mq->firstbyte & 0xF0;
-      const unsigned char reserved = mq->firstbyte & 0x0F;
-      if((type == MQTT_MSG_DISCONNECT || type == MQTT_MSG_PINGRESP) &&
-         (mq->remaining_length || reserved)) {
-        failf(data,
+      స్థిరరాశి గుర్తులేని అక్షరం type = mq->firstbyte & 0xF0;
+      స్థిరరాశి గుర్తులేని అక్షరం reserved = mq->firstbyte & 0x0F;
+      ఒకవేళ((type == MQTT_సందేశం_DISCONNECT || type == MQTT_సందేశం_PINGRESP) &&
+         (mq->మిగిలిన_నిడివి || reserved)) {
+        failf(దత్తాంశం,
               "Broker sent malformed %s "
               "(remaining_length=%zu, header byte=0x%02x)",
-              type == MQTT_MSG_DISCONNECT ? "DISCONNECT" : "PINGRESP",
-              mq->remaining_length, mq->firstbyte);
-        result = CURLE_WEIRD_SERVER_REPLY;
-        break;
+              type == MQTT_సందేశం_DISCONNECT ? "DISCONNECT" : "PINGRESP",
+              mq->మిగిలిన_నిడివి, mq->firstbyte);
+        ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+        ఆపు;
       }
     }
-    if(mq->remaining_length) {
-      mqstate(data, mqtt->nextstate, MQTT_NOSTATE);
-      break;
+    ఒకవేళ(mq->మిగిలిన_నిడివి) {
+      mqstate(దత్తాంశం, mqtt->nextstate, MQTT_NOSTATE);
+      ఆపు;
     }
-    mqstate(data, MQTT_FIRST, MQTT_FIRST);
+    mqstate(దత్తాంశం, MQTT_మొదటి, MQTT_మొదటి);
 
-    if(mq->firstbyte == MQTT_MSG_DISCONNECT) {
-      infof(data, "Got DISCONNECT");
-      *done = TRUE;
+    ఒకవేళ(mq->firstbyte == MQTT_సందేశం_DISCONNECT) {
+      infof(దత్తాంశం, "Got DISCONNECT");
+      *పూర్తి = TRUE;
     }
 
     /* ping response */
-    if(mq->firstbyte == MQTT_MSG_PINGRESP) {
-      infof(data, "Received ping response.");
+    ఒకవేళ(mq->firstbyte == MQTT_సందేశం_PINGRESP) {
+      infof(దత్తాంశం, "Received ping response.");
       mq->pingsent = FALSE;
-      mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
+      mqstate(దత్తాంశం, MQTT_మొదటి, MQTT_PUBWAIT);
     }
-    break;
-  case MQTT_CONNACK:
-    result = mqtt_verify_connack(data);
-    if(result)
-      break;
+    ఆపు;
+  స్థితి MQTT_CONNACK:
+    ఫలితం = mqtt_verify_connack(దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      ఆపు;
 
-    if(data->state.httpreq != HTTPREQ_POST) {
-      result = mqtt_subscribe(data);
-      if(!result)
-        mqstate(data, MQTT_FIRST, MQTT_SUBACK);
-      break;
+    ఒకవేళ(దత్తాంశం->state.httpreq != HTTPREQ_POST) {
+      ఫలితం = mqtt_subscribe(దత్తాంశం);
+      ఒకవేళ(!ఫలితం)
+        mqstate(దత్తాంశం, MQTT_మొదటి, MQTT_SUBACK);
+      ఆపు;
     }
 
-    result = mqtt_publish(data);
-    if(result)
-      break;
-    mqstate(data, MQTT_POST_DRAIN, MQTT_NOSTATE);
+    ఫలితం = mqtt_publish(దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      ఆపు;
+    mqstate(దత్తాంశం, MQTT_POST_DRAIN, MQTT_NOSTATE);
     FALLTHROUGH();
-  case MQTT_POST_DRAIN:
+  స్థితి MQTT_POST_DRAIN:
     /* PUBLISH must be complete before DISCONNECT can use the send buffer. */
-    if(curlx_dyn_len(&mq->sendbuf))
-      break;
-    result = mqtt_disconnect(data);
-    if(result)
-      break;
-    mqstate(data, MQTT_DISCONNECT_DRAIN, MQTT_NOSTATE);
+    ఒకవేళ(curlx_dyn_len(&mq->sendbuf))
+      ఆపు;
+    ఫలితం = mqtt_disconnect(దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      ఆపు;
+    mqstate(దత్తాంశం, MQTT_DISCONNECT_DRAIN, MQTT_NOSTATE);
     FALLTHROUGH();
-  case MQTT_DISCONNECT_DRAIN:
+  స్థితి MQTT_DISCONNECT_DRAIN:
     /* Completing now would discard any DISCONNECT bytes still queued. */
-    if(!curlx_dyn_len(&mq->sendbuf))
-      *done = TRUE;
-    break;
+    ఒకవేళ(!curlx_dyn_len(&mq->sendbuf))
+      *పూర్తి = TRUE;
+    ఆపు;
 
-  case MQTT_SUBACK:
-  case MQTT_PUBWAIT:
-  case MQTT_PUB_REMAIN:
-    result = mqtt_read_publish(data, done);
-    break;
+  స్థితి MQTT_SUBACK:
+  స్థితి MQTT_PUBWAIT:
+  స్థితి MQTT_PUB_REMAIN:
+    ఫలితం = mqtt_read_publish(దత్తాంశం, పూర్తి);
+    ఆపు;
 
-  default:
-    failf(data, "State not handled yet");
-    *done = TRUE;
-    break;
+  అప్రమేయ:
+    failf(దత్తాంశం, "State not handled yet");
+    *పూర్తి = TRUE;
+    ఆపు;
   }
 
-  if(result == CURLE_AGAIN)
-    result = CURLE_OK;
-  return result;
+  ఒకవేళ(ఫలితం == CURLE_AGAIN)
+    ఫలితం = CURLE_OK;
+  తిరిగి ఫలితం;
 }
 
-#ifdef USE_SSL
+#నిర్వచితమైతే USE_SSL
 
-static CURLcode mqtts_connecting(struct Curl_easy *data, bool *done)
+స్థిర CURLcode mqtts_connecting(నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result;
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  CURLcode ఫలితం;
 
-  result = Curl_conn_connect(data, FIRSTSOCKET, TRUE, done);
-  if(result)
+  ఫలితం = Curl_conn_connect(దత్తాంశం, FIRSTSOCKET, TRUE, పూర్తి);
+  ఒకవేళ(ఫలితం)
     connclose(conn);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
  * MQTTS protocol.
  */
-const struct Curl_protocol Curl_protocol_mqtts = {
-  mqtt_setup_conn,                    /* setup_connection */
+స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_mqtts = {
+  mqtt_అమరిక_conn,                    /* setup_connection */
   mqtt_do,                            /* do_it */
-  mqtt_done,                          /* done */
+  mqtt_పూర్తి,                          /* done */
   ZERO_NULL,                          /* do_more */
   ZERO_NULL,                          /* connect_it */
   mqtts_connecting,                   /* connecting */
@@ -1045,15 +1045,15 @@ const struct Curl_protocol Curl_protocol_mqtts = {
   ZERO_NULL,                          /* follow */
 };
 
-#endif
+#అయితే_ముగింపు
 
 /*
  * MQTT protocol.
  */
-const struct Curl_protocol Curl_protocol_mqtt = {
-  mqtt_setup_conn,                    /* setup_connection */
+స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_mqtt = {
+  mqtt_అమరిక_conn,                    /* setup_connection */
   mqtt_do,                            /* do_it */
-  mqtt_done,                          /* done */
+  mqtt_పూర్తి,                          /* done */
   ZERO_NULL,                          /* do_more */
   ZERO_NULL,                          /* connect_it */
   ZERO_NULL,                          /* connecting */
@@ -1070,4 +1070,4 @@ const struct Curl_protocol Curl_protocol_mqtt = {
   ZERO_NULL,                          /* follow */
 };
 
-#endif /* CURL_DISABLE_MQTT */
+#అయితే_ముగింపు /* CURL_DISABLE_MQTT */

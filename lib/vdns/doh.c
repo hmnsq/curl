@@ -21,30 +21,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_DOH
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DOH
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "url.h"
-#include "connect.h"
-#include "vdns/doh.h"
-#include "vdns/httpsrr.h"
-#include "curlx/strdup.h"
-#include "curlx/dynbuf.h"
-#include "escape.h"  /* for Curl_hexencode() */
-#include "urlapi-int.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curl_addrinfo.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "vdns/doh.h"
+#అన్తర్భావ "vdns/httpsrr.h"
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "curlx/dynbuf.h"
+#అన్తర్భావ "escape.h"  /* for Curl_hexencode() */
+#అన్తర్భావ "urlapi-int.h"
 
-#define DNS_CLASS_IN 0x01
+#నిర్వచించు DNS_CLASS_లోపల 0x01
 
-static void doh_close(struct Curl_easy *data,
-                      struct Curl_resolv_async *async);
+స్థిర శూన్య doh_close(నిర్మాణం Curl_easy *దత్తాంశం,
+                      నిర్మాణం Curl_resolv_async *async);
 
-#ifdef CURLVERBOSE
-static const char * const doh_code_str[] = {
+#నిర్వచితమైతే CURLVERBOSE
+స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి doh_సంకేతం_str[] = {
   "",
   "Bad label",
   "Out of range",
@@ -64,47 +64,47 @@ static const char * const doh_code_str[] = {
   "Out Of Memory"
 };
 
-static const char *doh_strerror(DOHcode code)
+స్థిర స్థిరరాశి అక్షరం *doh_strerror(DOHcode సంకేతం_2)
 {
-  if((size_t)code < CURL_ARRAYSIZE(doh_code_str))
-    return doh_code_str[code];
-  return "bad error code";
+  ఒకవేళ((size_t)సంకేతం_2 < CURL_ARRAYSIZE(doh_సంకేతం_str))
+    తిరిగి doh_సంకేతం_str[సంకేతం_2];
+  తిరిగి "bad error code";
 }
 
-static const char *doh_type2name(DNStype dnstype)
+స్థిర స్థిరరాశి అక్షరం *doh_type2name(DNStype dnstype)
 {
-  switch(dnstype) {
-  case CURL_DNS_TYPE_A:
-    return "A";
-  case CURL_DNS_TYPE_AAAA:
-    return "AAAA";
-#ifdef USE_HTTPSRR
-  case CURL_DNS_TYPE_HTTPS:
-    return "HTTPS";
-#endif
-  default:
-    return "unknown";
+  ఎంపిక(dnstype) {
+  స్థితి CURL_DNS_TYPE_A:
+    తిరిగి "A";
+  స్థితి CURL_DNS_TYPE_AAAA:
+    తిరిగి "AAAA";
+#నిర్వచితమైతే USE_HTTPSRR
+  స్థితి CURL_DNS_TYPE_HTTPS:
+    తిరిగి "HTTPS";
+#అయితే_ముగింపు
+  అప్రమేయ:
+    తిరిగి "unknown";
   }
 }
 
-#endif /* CURLVERBOSE */
+#అయితే_ముగింపు /* CURLVERBOSE */
 
 /* @unittest 1655
  */
-UNITTEST DOHcode doh_req_encode(const char *host,
+UNITTEST DOHcode doh_req_encode(స్థిరరాశి అక్షరం *host,
                                 DNStype dnstype,
-                                unsigned char *dnsp,  /* buffer */
+                                గుర్తులేని అక్షరం *dnsp,  /*బఫరు*/
                                 size_t len,  /* buffer size */
                                 size_t *olen);  /* output length */
-UNITTEST DOHcode doh_req_encode(const char *host,
+UNITTEST DOHcode doh_req_encode(స్థిరరాశి అక్షరం *host,
                                 DNStype dnstype,
-                                unsigned char *dnsp, /* buffer */
+                                గుర్తులేని అక్షరం *dnsp, /*బఫరు*/
                                 size_t len,   /* buffer size */
                                 size_t *olen) /* output length */
 {
-  const size_t hostlen = strlen(host);
-  unsigned char *orig = dnsp;
-  const char *hostp = host;
+  స్థిరరాశి size_t hostlen = అక్షరశ్రేణి_పొడవు(host);
+  గుర్తులేని అక్షరం *orig = dnsp;
+  స్థిరరాశి అక్షరం *hostp = host;
 
   /* The expected output length is 16 bytes more than the length of
    * the QNAME-encoding of the hostname.
@@ -131,14 +131,14 @@ UNITTEST DOHcode doh_req_encode(const char *host,
   size_t expected_len;
   DEBUGASSERT(hostlen);
   expected_len = 12 + 1 + hostlen + 4;
-  if(host[hostlen - 1] != '.')
+  ఒకవేళ(host[hostlen - 1] != '.')
     expected_len++;
 
-  if(expected_len > DOH_MAX_DNSREQ_SIZE)
-    return DOH_DNS_NAME_TOO_LONG;
+  ఒకవేళ(expected_len > DOH_MAX_DNSREQ_కొలత)
+    తిరిగి DOH_DNS_NAME_TOO_LONG;
 
-  if(len < expected_len)
-    return DOH_TOO_SMALL_BUFFER;
+  ఒకవేళ(len < expected_len)
+    తిరిగి DOH_TOO_SMALL_బఫరు;
 
   *dnsp++ = 0; /* 16-bit id */
   *dnsp++ = 0;
@@ -154,132 +154,132 @@ UNITTEST DOHcode doh_req_encode(const char *host,
   *dnsp++ = '\0'; /* ARCOUNT */
 
   /* encode each label and store it in the QNAME */
-  while(*hostp) {
+  అయితే(*hostp) {
     size_t labellen;
-    const char *dot = strchr(hostp, '.');
-    if(dot)
+    స్థిరరాశి అక్షరం *dot = strchr(hostp, '.');
+    ఒకవేళ(dot)
       labellen = dot - hostp;
-    else
-      labellen = strlen(hostp);
-    if((labellen > 63) || (!labellen)) {
+    లేకపోతే
+      labellen = అక్షరశ్రేణి_పొడవు(hostp);
+    ఒకవేళ((labellen > 63) || (!labellen)) {
       /* label is too long or too short, error out */
       *olen = 0;
-      return DOH_DNS_BAD_LABEL;
+      తిరిగి DOH_DNS_BAD_LABEL;
     }
     /* label is non-empty, process it */
-    *dnsp++ = (unsigned char)labellen;
-    memcpy(dnsp, hostp, labellen);
+    *dnsp++ = (గుర్తులేని అక్షరం)labellen;
+    జ్ఞాపకం_నకలు(dnsp, hostp, labellen);
     dnsp += labellen;
     hostp += labellen;
     /* advance past dot, but only if there is one */
-    if(dot)
+    ఒకవేళ(dot)
       hostp++;
   } /* next label */
 
   *dnsp++ = 0; /* append zero-length label for root */
 
   /* There are assigned TYPE codes beyond 255: use range [1..65535] */
-  *dnsp++ = (unsigned char)(255 & (dnstype >> 8)); /* upper 8-bit TYPE */
-  *dnsp++ = (unsigned char)(255 & dnstype);        /* lower 8-bit TYPE */
+  *dnsp++ = (గుర్తులేని అక్షరం)(255 & (dnstype >> 8)); /* upper 8-bit TYPE */
+  *dnsp++ = (గుర్తులేని అక్షరం)(255 & dnstype);        /* lower 8-bit TYPE */
 
   *dnsp++ = '\0'; /* upper 8-bit CLASS */
-  *dnsp++ = DNS_CLASS_IN; /* IN - "the Internet" */
+  *dnsp++ = DNS_CLASS_లోపల; /* IN - "the Internet" */
 
   *olen = dnsp - orig;
 
   /* verify that our estimation of length is valid, since
    * this has led to buffer overflows in this function */
   DEBUGASSERT(*olen == expected_len);
-  return DOH_OK;
+  తిరిగి DOH_OK;
 }
 
-static size_t doh_probe_write_cb(char *contents, size_t size, size_t nmemb,
-                                 void *userp)
+స్థిర size_t doh_probe_write_cb(అక్షరం *contents, size_t కొలత, size_t nmemb,
+                                 శూన్య *userp)
 {
-  size_t realsize = size * nmemb;
-  struct Curl_easy *data = userp;
-  struct doh_request *doh_req = Curl_meta_get(data, CURL_EZM_DOH_PROBE);
-  if(!doh_req)
-    return CURL_WRITEFUNC_ERROR;
+  size_t realsize = కొలత * nmemb;
+  నిర్మాణం Curl_easy *దత్తాంశం = userp;
+  నిర్మాణం doh_request *doh_req = Curl_meta_get(దత్తాంశం, CURL_EZM_DOH_PROBE);
+  ఒకవేళ(!doh_req)
+    తిరిగి CURL_WRITEFUNC_ERROR;
 
-  if(curlx_dyn_addn(&doh_req->resp_body, contents, realsize))
-    return 0;
+  ఒకవేళ(curlx_dyn_addn(&doh_req->resp_body, contents, realsize))
+    తిరిగి 0;
 
-  return realsize;
+  తిరిగి realsize;
 }
 
-static void doh_probe_done(struct Curl_easy *doh,
-                           struct Curl_easy *master, CURLcode result);
-static void doh_probe_dtor(const void *key, size_t klen, void *e)
+స్థిర శూన్య doh_probe_పూర్తి(నిర్మాణం Curl_easy *doh,
+                           నిర్మాణం Curl_easy *master, CURLcode ఫలితం);
+స్థిర శూన్య doh_probe_dtor(స్థిరరాశి శూన్య *కీలకం, size_t klen, శూన్య *e)
 {
-  (void)key;
-  (void)klen;
-  if(e) {
-    struct doh_request *doh_req = e;
+  (శూన్య)కీలకం;
+  (శూన్య)klen;
+  ఒకవేళ(e) {
+    నిర్మాణం doh_request *doh_req = e;
     curl_slist_free_all(doh_req->req_hds);
     curlx_dyn_free(&doh_req->resp_body);
     curlx_free(e);
   }
 }
 
-#define ERROR_CHECK_SETOPT(x, y)                        \
-  do {                                                  \
-    result = curl_easy_setopt((CURL *)doh, x, y);       \
-    if(result &&                                        \
-       result != CURLE_NOT_BUILT_IN &&                  \
-       result != CURLE_UNKNOWN_OPTION)                  \
-      goto error;                                       \
-  } while(0)
+#నిర్వచించు ERROR_CHECK_SETOPT(x, y)                        \
+  చేయి {                                                  \
+    ఫలితం = curl_easy_setopt((CURL *)doh, x, y);       \
+    ఒకవేళ(ఫలితం &&                                        \
+       ఫలితం != CURLE_NOT_BUILT_లోపల &&                  \
+       ఫలితం != CURLE_UNKNOWN_OPTION)                  \
+      వెళ్ళు error;                                       \
+  } అయితే(0)
 
-static CURLcode doh_probe_run(struct Curl_easy *data,
+స్థిర CURLcode doh_probe_నిరంతరం(నిర్మాణం Curl_easy *దత్తాంశం,
                               DNStype dnstype,
-                              const char *host,
-                              const char *url, CURLM *multi,
+                              స్థిరరాశి అక్షరం *host,
+                              స్థిరరాశి అక్షరం *url, CURLM *multi,
                               uint32_t resolv_id,
                               uint32_t *pmid)
 {
-  struct Curl_easy *doh = NULL;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_easy *doh = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
   timediff_t timeout_ms;
-  struct doh_request *doh_req;
+  నిర్మాణం doh_request *doh_req;
   DOHcode d;
   bool maybe_https = !curl_strnequal(url, STRCONST("http:"));
 
   *pmid = UINT32_MAX;
 
-  doh_req = curlx_calloc(1, sizeof(*doh_req));
-  if(!doh_req)
-    return CURLE_OUT_OF_MEMORY;
+  doh_req = curlx_calloc(1, పరిమాణం(*doh_req));
+  ఒకవేళ(!doh_req)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   doh_req->resolv_id = resolv_id;
   doh_req->dnstype = dnstype;
   curlx_dyn_init(&doh_req->resp_body, DYN_DOH_RESPONSE);
 
   d = doh_req_encode(host, dnstype, doh_req->req_body,
-                     sizeof(doh_req->req_body),
+                     పరిమాణం(doh_req->req_body),
                      &doh_req->req_body_len);
-  if(d) {
-    failf(data, "Failed to encode DoH packet [%d]", (int)d);
-    result = CURLE_OUT_OF_MEMORY;
-    goto error;
+  ఒకవేళ(d) {
+    failf(దత్తాంశం, "Failed to encode DoH packet [%d]", (పూర్ణాంకం)d);
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు error;
   }
 
-  timeout_ms = Curl_timeleft_ms(data);
-  if(timeout_ms < 0) {
-    result = CURLE_OPERATION_TIMEDOUT;
-    goto error;
+  timeout_ms = Curl_timeleft_ms(దత్తాంశం);
+  ఒకవేళ(timeout_ms < 0) {
+    ఫలితం = CURLE_OPERATION_TIMEDOUT;
+    వెళ్ళు error;
   }
 
   doh_req->req_hds =
-    curl_slist_append(NULL, "Content-Type: application/dns-message");
-  if(!doh_req->req_hds) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto error;
+    curl_slist_append(ఖాళీ, "Content-Type: application/dns-message");
+  ఒకవేళ(!doh_req->req_hds) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు error;
   }
 
   /* Curl_open() is the internal version of curl_easy_init() */
-  result = Curl_open(&doh);
-  if(result)
-    goto error;
+  ఫలితం = Curl_open(&doh);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు error;
 
   /* pass in the struct pointer via a local variable to please coverity and
      the gcc typecheck helpers */
@@ -289,59 +289,59 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
   ERROR_CHECK_SETOPT(CURLOPT_WRITEFUNCTION, doh_probe_write_cb);
   ERROR_CHECK_SETOPT(CURLOPT_WRITEDATA, doh);
   ERROR_CHECK_SETOPT(CURLOPT_POSTFIELDS, doh_req->req_body);
-  ERROR_CHECK_SETOPT(CURLOPT_POSTFIELDSIZE, (long)doh_req->req_body_len);
+  ERROR_CHECK_SETOPT(CURLOPT_POSTFIELDSIZE, (దీర్ఘ)doh_req->req_body_len);
   ERROR_CHECK_SETOPT(CURLOPT_HTTPHEADER, doh_req->req_hds);
-#ifdef USE_HTTP2
-  if(maybe_https) {
-    ERROR_CHECK_SETOPT(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2TLS);
+#నిర్వచితమైతే USE_HTTP2
+  ఒకవేళ(maybe_https) {
+    ERROR_CHECK_SETOPT(CURLOPT_HTTP_సంస్కరణ, CURL_HTTP_సంస్కరణ_2_TLS);
     ERROR_CHECK_SETOPT(CURLOPT_PIPEWAIT, 1L);
   }
-#endif
-#ifndef DEBUGBUILD
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే DEBUGBUILD
   /* enforce HTTPS if not debug */
   ERROR_CHECK_SETOPT(CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
-#else
+#లేకపోతే
   /* in debug mode, also allow http */
   ERROR_CHECK_SETOPT(CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-#endif
-  ERROR_CHECK_SETOPT(CURLOPT_TIMEOUT_MS, (long)timeout_ms);
-  ERROR_CHECK_SETOPT(CURLOPT_SHARE, (CURLSH *)data->share);
-  if(data->set.err && data->set.err != stderr)
-    ERROR_CHECK_SETOPT(CURLOPT_STDERR, data->set.err);
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_doh))
+#అయితే_ముగింపు
+  ERROR_CHECK_SETOPT(CURLOPT_TIMEOUT_MS, (దీర్ఘ)timeout_ms);
+  ERROR_CHECK_SETOPT(CURLOPT_SHARE, (CURLSH *)దత్తాంశం->share);
+  ఒకవేళ(దత్తాంశం->సమితి.err && దత్తాంశం->సమితి.err != stderr)
+    ERROR_CHECK_SETOPT(CURLOPT_STDERR, దత్తాంశం->సమితి.err);
+  ఒకవేళ(Curl_trc_ft_is_verbose(దత్తాంశం, &Curl_trc_feat_doh))
     ERROR_CHECK_SETOPT(CURLOPT_VERBOSE, 1L);
-  if(data->set.no_signal)
+  ఒకవేళ(దత్తాంశం->సమితి.no_signal)
     ERROR_CHECK_SETOPT(CURLOPT_NOSIGNAL, 1L);
-  if(data->set.fdebug)
-    ERROR_CHECK_SETOPT(CURLOPT_DEBUGFUNCTION, data->set.fdebug);
-  if(data->set.debugdata)
-    ERROR_CHECK_SETOPT(CURLOPT_DEBUGDATA, data->set.debugdata);
+  ఒకవేళ(దత్తాంశం->సమితి.fdebug)
+    ERROR_CHECK_SETOPT(CURLOPT_DEBUGFUNCTION, దత్తాంశం->సమితి.fdebug);
+  ఒకవేళ(దత్తాంశం->సమితి.debugdata)
+    ERROR_CHECK_SETOPT(CURLOPT_DEBUGDATA, దత్తాంశం->సమితి.debugdata);
 
-#ifdef USE_RESOLV_ARES
-  if(CURL_EASY_STR(data, STRING_DNS_SERVERS)) {
+#నిర్వచితమైతే USE_RESOLV_ARES
+  ఒకవేళ(CURL_EASY_STR(దత్తాంశం, STRING_DNS_SERVERS)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_SERVERS,
-                       CURL_EASY_STR(data, STRING_DNS_SERVERS));
+                       CURL_EASY_STR(దత్తాంశం, STRING_DNS_SERVERS));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_INTERFACE)) {
+  ఒకవేళ(CURL_EASY_STR(దత్తాంశం, STRING_DNS_INTERFACE)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_INTERFACE,
-                       CURL_EASY_STR(data, STRING_DNS_INTERFACE));
+                       CURL_EASY_STR(దత్తాంశం, STRING_DNS_INTERFACE));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4)) {
+  ఒకవేళ(CURL_EASY_STR(దత్తాంశం, STRING_DNS_LOCAL_IP4)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_LOCAL_IP4,
-                       CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4));
+                       CURL_EASY_STR(దత్తాంశం, STRING_DNS_LOCAL_IP4));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6)) {
+  ఒకవేళ(CURL_EASY_STR(దత్తాంశం, STRING_DNS_LOCAL_IP6)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_LOCAL_IP6,
-                       CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6));
+                       CURL_EASY_STR(దత్తాంశం, STRING_DNS_LOCAL_IP6));
   }
-#endif
-  if(maybe_https) {
+#అయితే_ముగింపు
+  ఒకవేళ(maybe_https) {
     ERROR_CHECK_SETOPT(CURLOPT_SSL_VERIFYHOST,
-                       data->set.doh_verifyhost ? 2L : 0L);
+                       దత్తాంశం->సమితి.doh_verifyhost ? 2L : 0L);
     ERROR_CHECK_SETOPT(CURLOPT_SSL_VERIFYPEER,
-                       data->set.doh_verifypeer ? 1L : 0L);
+                       దత్తాంశం->సమితి.doh_verifypeer ? 1L : 0L);
     ERROR_CHECK_SETOPT(CURLOPT_SSL_VERIFYSTATUS,
-                       data->set.doh_verifystatus ? 1L : 0L);
+                       దత్తాంశం->సమితి.doh_verifystatus ? 1L : 0L);
 
     /* Inherit *some* SSL options from the user's transfer. This is a
        best-guess as to which options are needed for compatibility. #3661
@@ -351,65 +351,65 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
        options should be added to check doh proxy insecure separately,
        CURLOPT_DOH_PROXY_SSL_VERIFYHOST and CURLOPT_DOH_PROXY_SSL_VERIFYPEER.
        */
-    doh->set.ssl.custom_cafile = data->set.ssl.custom_cafile;
-    doh->set.ssl.custom_capath = data->set.ssl.custom_capath;
-    doh->set.ssl.custom_cablob = data->set.ssl.custom_cablob;
-    if(CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
+    doh->సమితి.ssl.custom_cafile = దత్తాంశం->సమితి.ssl.custom_cafile;
+    doh->సమితి.ssl.custom_capath = దత్తాంశం->సమితి.ssl.custom_capath;
+    doh->సమితి.ssl.custom_cablob = దత్తాంశం->సమితి.ssl.custom_cablob;
+    ఒకవేళ(CURL_EASY_STR(దత్తాంశం, STRING_SSL_CAFILE)) {
       ERROR_CHECK_SETOPT(CURLOPT_CAINFO,
-                         CURL_EASY_STR(data, STRING_SSL_CAFILE));
+                         CURL_EASY_STR(దత్తాంశం, STRING_SSL_CAFILE));
     }
-    if(data->set.blobs[BLOB_CAINFO]) {
-      ERROR_CHECK_SETOPT(CURLOPT_CAINFO_BLOB, data->set.blobs[BLOB_CAINFO]);
+    ఒకవేళ(దత్తాంశం->సమితి.blobs[BLOB_CAINFO]) {
+      ERROR_CHECK_SETOPT(CURLOPT_CAINFO_BLOB, దత్తాంశం->సమితి.blobs[BLOB_CAINFO]);
     }
-    if(CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
+    ఒకవేళ(CURL_EASY_STR(దత్తాంశం, STRING_SSL_CAPATH)) {
       ERROR_CHECK_SETOPT(CURLOPT_CAPATH,
-                         CURL_EASY_STR(data, STRING_SSL_CAPATH));
+                         CURL_EASY_STR(దత్తాంశం, STRING_SSL_CAPATH));
     }
-    if(CURL_EASY_STR(data, STRING_SSL_CRLFILE)) {
+    ఒకవేళ(CURL_EASY_STR(దత్తాంశం, STRING_SSL_CRLFILE)) {
       ERROR_CHECK_SETOPT(CURLOPT_CRLFILE,
-                         CURL_EASY_STR(data, STRING_SSL_CRLFILE));
+                         CURL_EASY_STR(దత్తాంశం, STRING_SSL_CRLFILE));
     }
-    if(data->set.ssl.certinfo)
+    ఒకవేళ(దత్తాంశం->సమితి.ssl.certinfo)
       ERROR_CHECK_SETOPT(CURLOPT_CERTINFO, 1L);
-    if(data->set.ssl_fsslctx)
-      ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_FUNCTION, data->set.ssl_fsslctx);
-    if(data->set.ssl_fsslctxp)
-      ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_DATA, data->set.ssl_fsslctxp);
-    if(CURL_EASY_STR(data, STRING_SSL_EC_CURVES)) {
+    ఒకవేళ(దత్తాంశం->సమితి.ssl_fsslctx)
+      ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_FUNCTION, దత్తాంశం->సమితి.ssl_fsslctx);
+    ఒకవేళ(దత్తాంశం->సమితి.ssl_fsslctxp)
+      ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_దత్తాంశం, దత్తాంశం->సమితి.ssl_fsslctxp);
+    ఒకవేళ(CURL_EASY_STR(దత్తాంశం, STRING_SSL_EC_CURVES)) {
       ERROR_CHECK_SETOPT(CURLOPT_SSL_EC_CURVES,
-                         CURL_EASY_STR(data, STRING_SSL_EC_CURVES));
+                         CURL_EASY_STR(దత్తాంశం, STRING_SSL_EC_CURVES));
     }
-    (void)curl_easy_setopt(doh, CURLOPT_SSL_OPTIONS,
-                           ((long)data->set.ssl.ssl_options &
+    (శూన్య)curl_easy_setopt(doh, CURLOPT_SSL_OPTIONS,
+                           ((దీర్ఘ)దత్తాంశం->సమితి.ssl.ssl_options &
                             ~CURLSSLOPT_AUTO_CLIENT_CERT));
   }
 
-  doh->state.internal = TRUE;
-  doh->master_mid = data->mid; /* master transfer of this one */
-  doh->sub_xfer_done = doh_probe_done;
+  doh->state.అంతర్గత = TRUE;
+  doh->master_mid = దత్తాంశం->mid; /* master transfer of this one */
+  doh->sub_xfer_పూర్తి = doh_probe_పూర్తి;
 
-  result = Curl_meta_set(doh, CURL_EZM_DOH_PROBE, doh_req, doh_probe_dtor);
-  doh_req = NULL; /* call took ownership */
-  if(result)
-    goto error;
+  ఫలితం = Curl_meta_సమితి(doh, CURL_EZM_DOH_PROBE, doh_req, doh_probe_dtor);
+  doh_req = ఖాళీ; /* call took ownership */
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు error;
 
   /* DoH handles must not inherit private_data. The handles may be passed to
      the user via callbacks and the user will be able to identify them as
      internal handles because private data is not set. The user can then set
      private_data via CURLOPT_PRIVATE if they so choose. */
-  DEBUGASSERT(!doh->set.private_data);
+  DEBUGASSERT(!doh->సమితి.వ్యక్తిగత_దత్తాంశం);
 
-  if(Curl_multi_add_handle(multi, doh))
-    goto error;
+  ఒకవేళ(Curl_multi_కూడు_handle(multi, doh))
+    వెళ్ళు error;
 
   *pmid = doh->mid;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 
 error:
   Curl_close(&doh);
-  if(doh_req)
-    doh_probe_dtor(NULL, 0, doh_req);
-  return result;
+  ఒకవేళ(doh_req)
+    doh_probe_dtor(ఖాళీ, 0, doh_req);
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -417,369 +417,369 @@ error:
  * a 'Curl_addrinfo *' with the address information.
  */
 
-CURLcode Curl_doh(struct Curl_easy *data,
-                  struct Curl_resolv_async *async)
+CURLcode Curl_doh(నిర్మాణం Curl_easy *దత్తాంశం,
+                  నిర్మాణం Curl_resolv_async *async)
 {
-  CURLcode result = CURLE_OK;
-  struct doh_probes *dohp = NULL;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం doh_probes *dohp = ఖాళీ;
   size_t i;
 
   DEBUGASSERT(!async->doh);
   DEBUGASSERT(async->peer->hostname[0]);
-  if(async->doh) {
+  ఒకవేళ(async->doh) {
     DEBUGASSERT(0); /* should not happen */
-    Curl_doh_cleanup(data, async);
+    Curl_doh_cleanup(దత్తాంశం, async);
   }
 
-  if(!async->dns_queries)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#ifdef USE_HTTPSRR
-  if(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
+  ఒకవేళ(!async->dns_queries)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+#నిర్వచితమైతే USE_HTTPSRR
+  ఒకవేళ(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
      (async->dns_queries & CURL_DNSQ_HTTPS)) {
     /* Can't mix those in the same async resolve */
     DEBUGASSERT(0);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
-#else
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
+#లేకపోతే
+  ఒకవేళ(async->dns_queries & CURL_DNSQ_HTTPS) {
     DEBUGASSERT(0);
-    return CURLE_NOT_BUILT_IN;
+    తిరిగి CURLE_NOT_BUILT_లోపల;
   }
-#endif
+#అయితే_ముగింపు
 
   /* start clean, consider allocating this struct on demand */
-  async->doh = dohp = curlx_calloc(1, sizeof(struct doh_probes));
-  if(!dohp)
-    return CURLE_OUT_OF_MEMORY;
+  async->doh = dohp = curlx_calloc(1, పరిమాణం(నిర్మాణం doh_probes));
+  ఒకవేళ(!dohp)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  for(i = 0; i < DOH_SLOT_COUNT; ++i) {
+  కొరకు(i = 0; i < DOH_స్థానం_లెక్క; ++i) {
     dohp->probe_rc[i] = DOH_OK;
     dohp->probe_mid[i] = UINT32_MAX;
   }
 
-#ifdef USE_IPV6
+#నిర్వచితమైతే USE_IPV6
   /* AAAA results have preference in happy eyeballing, trigger first */
-  if(async->dns_queries & CURL_DNSQ_AAAA) {
+  ఒకవేళ(async->dns_queries & CURL_DNSQ_AAAA) {
     /* create IPv6 DoH request */
-    result = doh_probe_run(data, CURL_DNS_TYPE_AAAA,
+    ఫలితం = doh_probe_నిరంతరం(దత్తాంశం, CURL_DNS_TYPE_AAAA,
                            async->peer->hostname,
-                           CURL_EASY_STR(data, STRING_DOH),
-                           data->multi, async->id,
-                           &dohp->probe_mid[DOH_SLOT_IPV6]);
-    if(result)
-      goto error;
+                           CURL_EASY_STR(దత్తాంశం, STRING_DOH),
+                           దత్తాంశం->multi, async->id,
+                           &dohp->probe_mid[DOH_స్థానం_IPV6]);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు error;
     async->queries_ongoing++;
   }
-#endif
+#అయితే_ముగింపు
 
   /* create IPv4 DoH request */
-  if(async->dns_queries & CURL_DNSQ_A) {
-    result = doh_probe_run(data, CURL_DNS_TYPE_A,
+  ఒకవేళ(async->dns_queries & CURL_DNSQ_A) {
+    ఫలితం = doh_probe_నిరంతరం(దత్తాంశం, CURL_DNS_TYPE_A,
                            async->peer->hostname,
-                           CURL_EASY_STR(data, STRING_DOH),
-                           data->multi, async->id,
-                           &dohp->probe_mid[DOH_SLOT_IPV4]);
-    if(result)
-      goto error;
+                           CURL_EASY_STR(దత్తాంశం, STRING_DOH),
+                           దత్తాంశం->multi, async->id,
+                           &dohp->probe_mid[DOH_స్థానం_IPV4]);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు error;
     async->queries_ongoing++;
   }
 
-#ifdef USE_HTTPSRR
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
-    char *qname = NULL;
-    if(async->peer->port != PORT_HTTPS) {
+#నిర్వచితమైతే USE_HTTPSRR
+  ఒకవేళ(async->dns_queries & CURL_DNSQ_HTTPS) {
+    అక్షరం *qname = ఖాళీ;
+    ఒకవేళ(async->peer->పోర్టు != పోర్టు_HTTPS) {
       qname = curl_maprintf("_%u._https.%s",
-                            async->peer->port, async->peer->hostname);
-      if(!qname)
-        goto error;
+                            async->peer->పోర్టు, async->peer->hostname);
+      ఒకవేళ(!qname)
+        వెళ్ళు error;
     }
-    result = doh_probe_run(data, CURL_DNS_TYPE_HTTPS,
+    ఫలితం = doh_probe_నిరంతరం(దత్తాంశం, CURL_DNS_TYPE_HTTPS,
                            qname ? qname : async->peer->hostname,
-                           CURL_EASY_STR(data, STRING_DOH), data->multi,
+                           CURL_EASY_STR(దత్తాంశం, STRING_DOH), దత్తాంశం->multi,
                            async->id,
-                           &dohp->probe_mid[DOH_SLOT_HTTPS_RR]);
+                           &dohp->probe_mid[DOH_స్థానం_HTTPS_RR]);
     curlx_free(qname);
-    if(result)
-      goto error;
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు error;
     async->queries_ongoing++;
   }
-#endif
-  return CURLE_OK;
+#అయితే_ముగింపు
+  తిరిగి CURLE_OK;
 
 error:
-  Curl_doh_cleanup(data, async);
-  return result;
+  Curl_doh_cleanup(దత్తాంశం, async);
+  తిరిగి ఫలితం;
 }
 
-static DOHcode doh_skipqname(const unsigned char *doh, size_t dohlen,
-                             unsigned int *indexp)
+స్థిర DOHcode doh_skipqname(స్థిరరాశి గుర్తులేని అక్షరం *doh, size_t dohlen,
+                             గుర్తులేని పూర్ణాంకం *indexp)
 {
-  unsigned char length;
-  do {
-    if(dohlen < (*indexp + 1))
-      return DOH_DNS_OUT_OF_RANGE;
-    length = doh[*indexp];
-    if((length & 0xc0) == 0xc0) {
+  గుర్తులేని అక్షరం నిడివి;
+  చేయి {
+    ఒకవేళ(dohlen < (*indexp + 1))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
+    నిడివి = doh[*indexp];
+    ఒకవేళ((నిడివి & 0xc0) == 0xc0) {
       /* name pointer, advance over it and be done */
-      if(dohlen < (*indexp + 2))
-        return DOH_DNS_OUT_OF_RANGE;
+      ఒకవేళ(dohlen < (*indexp + 2))
+        తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
       *indexp += 2;
-      break;
+      ఆపు;
     }
-    if(length & 0xc0)
-      return DOH_DNS_BAD_LABEL;
-    if(dohlen < (*indexp + 1 + length))
-      return DOH_DNS_OUT_OF_RANGE;
-    *indexp += (unsigned int)(1 + length);
-  } while(length);
-  return DOH_OK;
+    ఒకవేళ(నిడివి & 0xc0)
+      తిరిగి DOH_DNS_BAD_LABEL;
+    ఒకవేళ(dohlen < (*indexp + 1 + నిడివి))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
+    *indexp += (గుర్తులేని పూర్ణాంకం)(1 + నిడివి);
+  } అయితే(నిడివి);
+  తిరిగి DOH_OK;
 }
 
-static unsigned short doh_get16bit(const unsigned char *doh,
-                                   unsigned int index)
+స్థిర గుర్తులేని పొట్టి doh_get16bit(స్థిరరాశి గుర్తులేని అక్షరం *doh,
+                                   గుర్తులేని పూర్ణాంకం సూచీ)
 {
-  return (unsigned short)((doh[index] << 8) | doh[index + 1]);
+  తిరిగి (గుర్తులేని పొట్టి)((doh[సూచీ] << 8) | doh[సూచీ + 1]);
 }
 
-static unsigned int doh_get32bit(const unsigned char *doh, unsigned int index)
+స్థిర గుర్తులేని పూర్ణాంకం doh_get32bit(స్థిరరాశి గుర్తులేని అక్షరం *doh, గుర్తులేని పూర్ణాంకం సూచీ)
 {
   /* make clang and gcc optimize this to bswap by incrementing
      the pointer first. */
-  doh += index;
+  doh += సూచీ;
 
   /* avoid undefined behavior by casting to unsigned before shifting
      24 bits, possibly into the sign bit. codegen is same, but
      ub sanitizer will not be upset */
-  return ((unsigned)doh[0] << 24) | ((unsigned)doh[1] << 16) |
-         ((unsigned)doh[2] << 8) | doh[3];
+  తిరిగి ((గుర్తులేని)doh[0] << 24) | ((గుర్తులేని)doh[1] << 16) |
+         ((గుర్తులేని)doh[2] << 8) | doh[3];
 }
 
-static void doh_store_a(const unsigned char *doh, int index,
-                        struct dohentry *d)
+స్థిర శూన్య doh_store_a(స్థిరరాశి గుర్తులేని అక్షరం *doh, పూర్ణాంకం సూచీ,
+                        నిర్మాణం dohentry *d)
 {
   /* silently ignore addresses over the limit */
-  if(d->numaddr < DOH_MAX_ADDR) {
-    struct dohaddr *a = &d->addr[d->numaddr];
+  ఒకవేళ(d->numaddr < DOH_MAX_ADDR) {
+    నిర్మాణం dohaddr *a = &d->addr[d->numaddr];
     a->type = CURL_DNS_TYPE_A;
-    memcpy(&a->ip.v4, &doh[index], 4);
+    జ్ఞాపకం_నకలు(&a->ip.v4, &doh[సూచీ], 4);
     d->numaddr++;
   }
 }
 
-static void doh_store_aaaa(const unsigned char *doh, int index,
-                           struct dohentry *d)
+స్థిర శూన్య doh_store_aaaa(స్థిరరాశి గుర్తులేని అక్షరం *doh, పూర్ణాంకం సూచీ,
+                           నిర్మాణం dohentry *d)
 {
   /* silently ignore addresses over the limit */
-  if(d->numaddr < DOH_MAX_ADDR) {
-    struct dohaddr *a = &d->addr[d->numaddr];
+  ఒకవేళ(d->numaddr < DOH_MAX_ADDR) {
+    నిర్మాణం dohaddr *a = &d->addr[d->numaddr];
     a->type = CURL_DNS_TYPE_AAAA;
-    memcpy(&a->ip.v6, &doh[index], 16);
+    జ్ఞాపకం_నకలు(&a->ip.v6, &doh[సూచీ], 16);
     d->numaddr++;
   }
 }
 
-#ifdef USE_HTTPSRR
-static DOHcode doh_store_https(const unsigned char *doh, int index,
-                               struct dohentry *d, uint16_t len)
+#నిర్వచితమైతే USE_HTTPSRR
+స్థిర DOHcode doh_store_https(స్థిరరాశి గుర్తులేని అక్షరం *doh, పూర్ణాంకం సూచీ,
+                               నిర్మాణం dohentry *d, uint16_t len)
 {
   /* silently ignore RRs over the limit */
-  if(d->numhttps_rrs < DOH_MAX_HTTPS) {
-    struct dohhttps_rr *h = &d->https_rrs[d->numhttps_rrs];
-    h->val = curlx_memdup(&doh[index], len);
-    if(!h->val)
-      return DOH_OUT_OF_MEM;
+  ఒకవేళ(d->numhttps_rrs < DOH_MAX_HTTPS) {
+    నిర్మాణం dohhttps_rr *h = &d->https_rrs[d->numhttps_rrs];
+    h->val = curlx_memdup(&doh[సూచీ], len);
+    ఒకవేళ(!h->val)
+      తిరిగి DOH_బహిర్గతం_యొక్క_MEM;
     h->len = len;
     d->numhttps_rrs++;
   }
-  return DOH_OK;
+  తిరిగి DOH_OK;
 }
-#endif
+#అయితే_ముగింపు
 
-static DOHcode doh_rdata(const unsigned char *doh,
-                         unsigned short rdlength,
-                         unsigned short type,
-                         int index,
-                         struct dohentry *d)
+స్థిర DOHcode doh_rdata(స్థిరరాశి గుర్తులేని అక్షరం *doh,
+                         గుర్తులేని పొట్టి rdlength,
+                         గుర్తులేని పొట్టి type,
+                         పూర్ణాంకం సూచీ,
+                         నిర్మాణం dohentry *d)
 {
   /* RDATA
      - A (TYPE 1): 4 bytes
      - AAAA (TYPE 28): 16 bytes
      - HTTPS (TYPE 65): N bytes */
-  switch(type) {
-  case CURL_DNS_TYPE_A:
-    if(rdlength != 4)
-      return DOH_DNS_RDATA_LEN;
-    doh_store_a(doh, index, d);
-    break;
-  case CURL_DNS_TYPE_AAAA:
-    if(rdlength != 16)
-      return DOH_DNS_RDATA_LEN;
-    doh_store_aaaa(doh, index, d);
-    break;
-#ifdef USE_HTTPSRR
-  case CURL_DNS_TYPE_HTTPS:
-    if(rdlength < 3)
-      return DOH_DNS_RDATA_LEN;
-    return doh_store_https(doh, index, d, rdlength);
-#endif
-  default:
+  ఎంపిక(type) {
+  స్థితి CURL_DNS_TYPE_A:
+    ఒకవేళ(rdlength != 4)
+      తిరిగి DOH_DNS_RDATA_LEN;
+    doh_store_a(doh, సూచీ, d);
+    ఆపు;
+  స్థితి CURL_DNS_TYPE_AAAA:
+    ఒకవేళ(rdlength != 16)
+      తిరిగి DOH_DNS_RDATA_LEN;
+    doh_store_aaaa(doh, సూచీ, d);
+    ఆపు;
+#నిర్వచితమైతే USE_HTTPSRR
+  స్థితి CURL_DNS_TYPE_HTTPS:
+    ఒకవేళ(rdlength < 3)
+      తిరిగి DOH_DNS_RDATA_LEN;
+    తిరిగి doh_store_https(doh, సూచీ, d, rdlength);
+#అయితే_ముగింపు
+  అప్రమేయ:
     /* unsupported type, or type we do not store, skip it */
-    break;
+    ఆపు;
   }
-  return DOH_OK;
+  తిరిగి DOH_OK;
 }
 
 /* @unittest 1655 */
-UNITTEST void de_init(struct dohentry *de);
-UNITTEST void de_init(struct dohentry *de)
+UNITTEST శూన్య de_init(నిర్మాణం dohentry *de);
+UNITTEST శూన్య de_init(నిర్మాణం dohentry *de)
 {
-  memset(de, 0, sizeof(*de));
-  de->ttl = INT_MAX;
+  memset(de, 0, పరిమాణం(*de));
+  de->ttl = గరిష్ఠ_పూర్ణాంకం;
 }
 
 /* TTL value cap */
-#define MAX_DNS_TTL 86400U /* 24 hours */
+#నిర్వచించు MAX_DNS_TTL 86400U /* 24 hours */
 /* @unittest 1650 */
-UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
+UNITTEST DOHcode doh_resp_decode(స్థిరరాశి గుర్తులేని అక్షరం *doh,
                                  size_t dohlen,
                                  DNStype dnstype,
-                                 struct dohentry *d);
-UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
+                                 నిర్మాణం dohentry *d);
+UNITTEST DOHcode doh_resp_decode(స్థిరరాశి గుర్తులేని అక్షరం *doh,
                                  size_t dohlen,
                                  DNStype dnstype,
-                                 struct dohentry *d)
+                                 నిర్మాణం dohentry *d)
 {
-  unsigned char rcode;
-  unsigned short qdcount;
-  unsigned short ancount;
-  unsigned short type = 0;
-  unsigned short rdlength;
-  unsigned short nscount;
-  unsigned short arcount;
-  unsigned int index = 12;
+  గుర్తులేని అక్షరం rcode;
+  గుర్తులేని పొట్టి qdcount;
+  గుర్తులేని పొట్టి ancount;
+  గుర్తులేని పొట్టి type = 0;
+  గుర్తులేని పొట్టి rdlength;
+  గుర్తులేని పొట్టి nscount;
+  గుర్తులేని పొట్టి arcount;
+  గుర్తులేని పూర్ణాంకం సూచీ = 12;
   DOHcode rc;
 
-  if(dohlen < 12)
-    return DOH_TOO_SMALL_BUFFER; /* too small */
-  if(!doh || doh[0] || doh[1])
-    return DOH_DNS_BAD_ID; /* bad ID */
+  ఒకవేళ(dohlen < 12)
+    తిరిగి DOH_TOO_SMALL_బఫరు; /* too small */
+  ఒకవేళ(!doh || doh[0] || doh[1])
+    తిరిగి DOH_DNS_BAD_ID; /* bad ID */
   rcode = doh[3] & 0x0f;
-  if(rcode == 3)
-    return DOH_DNS_NXDOMAIN; /* name does not exist */
-  if(rcode)
-    return DOH_DNS_BAD_RCODE; /* bad rcode */
+  ఒకవేళ(rcode == 3)
+    తిరిగి DOH_DNS_NXDOMAIN; /* name does not exist */
+  ఒకవేళ(rcode)
+    తిరిగి DOH_DNS_BAD_RCODE; /* bad rcode */
 
   qdcount = doh_get16bit(doh, 4);
-  while(qdcount) {
-    rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
-    if(dohlen < (index + 4))
-      return DOH_DNS_OUT_OF_RANGE;
-    index += 4; /* skip question's type and class */
+  అయితే(qdcount) {
+    rc = doh_skipqname(doh, dohlen, &సూచీ);
+    ఒకవేళ(rc)
+      తిరిగి rc; /* bad qname */
+    ఒకవేళ(dohlen < (సూచీ + 4))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
+    సూచీ += 4; /* skip question's type and class */
     qdcount--;
   }
 
   ancount = doh_get16bit(doh, 6);
-  while(ancount) {
-    unsigned short dnsclass;
-    unsigned int ttl;
+  అయితే(ancount) {
+    గుర్తులేని పొట్టి dnsclass;
+    గుర్తులేని పూర్ణాంకం ttl;
 
-    rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+    rc = doh_skipqname(doh, dohlen, &సూచీ);
+    ఒకవేళ(rc)
+      తిరిగి rc; /* bad qname */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    ఒకవేళ(dohlen < (సూచీ + 2))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
 
-    type = doh_get16bit(doh, index);
-    if((type != CURL_DNS_TYPE_CNAME) &&  /* may be synthesized from DNAME */
+    type = doh_get16bit(doh, సూచీ);
+    ఒకవేళ((type != CURL_DNS_TYPE_CNAME) &&  /* may be synthesized from DNAME */
        (type != CURL_DNS_TYPE_DNAME) &&  /* if present, accept and ignore */
        (type != dnstype))
       /* Not the same type as was asked for, nor CNAME nor DNAME */
-      return DOH_DNS_UNEXPECTED_TYPE;
-    index += 2;
+      తిరిగి DOH_DNS_UNEXPECTED_TYPE;
+    సూచీ += 2;
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
-    dnsclass = doh_get16bit(doh, index);
-    if(DNS_CLASS_IN != dnsclass)
-      return DOH_DNS_UNEXPECTED_CLASS; /* unsupported */
-    index += 2;
+    ఒకవేళ(dohlen < (సూచీ + 2))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
+    dnsclass = doh_get16bit(doh, సూచీ);
+    ఒకవేళ(DNS_CLASS_లోపల != dnsclass)
+      తిరిగి DOH_DNS_UNEXPECTED_CLASS; /* unsupported */
+    సూచీ += 2;
 
-    if(dohlen < (index + 4))
-      return DOH_DNS_OUT_OF_RANGE;
+    ఒకవేళ(dohlen < (సూచీ + 4))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
 
-    ttl = doh_get32bit(doh, index);
-    if(ttl > MAX_DNS_TTL)
+    ttl = doh_get32bit(doh, సూచీ);
+    ఒకవేళ(ttl > MAX_DNS_TTL)
       ttl = MAX_DNS_TTL;
-    if(ttl < d->ttl)
+    ఒకవేళ(ttl < d->ttl)
       d->ttl = ttl;
-    index += 4;
+    సూచీ += 4;
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    ఒకవేళ(dohlen < (సూచీ + 2))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
 
-    rdlength = doh_get16bit(doh, index);
-    index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
+    rdlength = doh_get16bit(doh, సూచీ);
+    సూచీ += 2;
+    ఒకవేళ(dohlen < (సూచీ + rdlength))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
 
-    rc = doh_rdata(doh, rdlength, type, (int)index, d);
-    if(rc)
-      return rc;
-    index += rdlength;
+    rc = doh_rdata(doh, rdlength, type, (పూర్ణాంకం)సూచీ, d);
+    ఒకవేళ(rc)
+      తిరిగి rc;
+    సూచీ += rdlength;
     ancount--;
   }
 
   nscount = doh_get16bit(doh, 8);
-  while(nscount) {
-    rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+  అయితే(nscount) {
+    rc = doh_skipqname(doh, dohlen, &సూచీ);
+    ఒకవేళ(rc)
+      తిరిగి rc; /* bad qname */
 
-    if(dohlen < (index + 8))
-      return DOH_DNS_OUT_OF_RANGE;
+    ఒకవేళ(dohlen < (సూచీ + 8))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
 
-    index += 2 + 2 + 4; /* type, dnsclass and ttl */
+    సూచీ += 2 + 2 + 4; /* type, dnsclass and ttl */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    ఒకవేళ(dohlen < (సూచీ + 2))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
 
-    rdlength = doh_get16bit(doh, index);
-    index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
-    index += rdlength;
+    rdlength = doh_get16bit(doh, సూచీ);
+    సూచీ += 2;
+    ఒకవేళ(dohlen < (సూచీ + rdlength))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
+    సూచీ += rdlength;
     nscount--;
   }
 
   arcount = doh_get16bit(doh, 10);
-  while(arcount) {
-    rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+  అయితే(arcount) {
+    rc = doh_skipqname(doh, dohlen, &సూచీ);
+    ఒకవేళ(rc)
+      తిరిగి rc; /* bad qname */
 
-    if(dohlen < (index + 8))
-      return DOH_DNS_OUT_OF_RANGE;
+    ఒకవేళ(dohlen < (సూచీ + 8))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
 
-    index += 2 + 2 + 4; /* type, dnsclass and ttl */
+    సూచీ += 2 + 2 + 4; /* type, dnsclass and ttl */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    ఒకవేళ(dohlen < (సూచీ + 2))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
 
-    rdlength = doh_get16bit(doh, index);
-    index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
-    index += rdlength;
+    rdlength = doh_get16bit(doh, సూచీ);
+    సూచీ += 2;
+    ఒకవేళ(dohlen < (సూచీ + rdlength))
+      తిరిగి DOH_DNS_బహిర్గతం_యొక్క_RANGE;
+    సూచీ += rdlength;
     arcount--;
   }
 
-  if(index != dohlen)
-    return DOH_DNS_MALFORMAT; /* something is wrong */
+  ఒకవేళ(సూచీ != dohlen)
+    తిరిగి DOH_DNS_MALFORMAT; /* something is wrong */
 
-  return DOH_OK; /* ok */
+  తిరిగి DOH_OK; /* ok */
 }
 
 /*
@@ -792,53 +792,53 @@ UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
  * Curl_freeaddrinfo(). For each successful call to this function there
  * must be an associated call later to Curl_freeaddrinfo().
  */
-static CURLcode doh2ai(const struct dohentry *de, const char *hostname,
-                       int port, struct Curl_addrinfo **aip)
+స్థిర CURLcode doh2ai(స్థిరరాశి నిర్మాణం dohentry *de, స్థిరరాశి అక్షరం *hostname,
+                       పూర్ణాంకం పోర్టు, నిర్మాణం Curl_addrinfo **aip)
 {
-  struct Curl_addrinfo *ai;
-  struct Curl_addrinfo *prevai = NULL;
-  struct Curl_addrinfo *firstai = NULL;
-  struct sockaddr_in *addr;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
-#endif
-  size_t hostlen = strlen(hostname) + 1; /* include null-terminator */
-  CURLcode result = CURLE_OK;
-  int i;
+  నిర్మాణం Curl_addrinfo *ai;
+  నిర్మాణం Curl_addrinfo *prevai = ఖాళీ;
+  నిర్మాణం Curl_addrinfo *firstai = ఖాళీ;
+  నిర్మాణం sockaddr_in *addr;
+#నిర్వచితమైతే USE_IPV6
+  నిర్మాణం sockaddr_in6 *addr6;
+#అయితే_ముగింపు
+  size_t hostlen = అక్షరశ్రేణి_పొడవు(hostname) + 1; /* include null-terminator */
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం i;
 
-  for(i = 0; i < de->numaddr; i++) {
-    size_t ss_size;
+  కొరకు(i = 0; i < de->numaddr; i++) {
+    size_t ss_కొలత;
     CURL_SA_FAMILY_T addrtype;
-    if(de->addr[i].type == CURL_DNS_TYPE_AAAA) {
-#ifndef USE_IPV6
+    ఒకవేళ(de->addr[i].type == CURL_DNS_TYPE_AAAA) {
+#నిర్వచితం_కాకపోతే USE_IPV6
       /* we cannot handle IPv6 addresses */
-      continue;
-#else
-      ss_size = sizeof(struct sockaddr_in6);
+      కొనసాగు;
+#లేకపోతే
+      ss_కొలత = పరిమాణం(నిర్మాణం sockaddr_in6);
       addrtype = AF_INET6;
-#endif
+#అయితే_ముగింపు
     }
-    else {
-      ss_size = sizeof(struct sockaddr_in);
+    లేకపోతే {
+      ss_కొలత = పరిమాణం(నిర్మాణం sockaddr_in);
       addrtype = AF_INET;
     }
 
-    ai = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen);
-    if(!ai) {
-      result = CURLE_OUT_OF_MEMORY;
-      break;
+    ai = curlx_calloc(1, పరిమాణం(నిర్మాణం Curl_addrinfo) + ss_కొలత + hostlen);
+    ఒకవేళ(!ai) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      ఆపు;
     }
-    ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
-    ai->ai_canonname = (void *)((char *)ai->ai_addr + ss_size);
-    memcpy(ai->ai_canonname, hostname, hostlen);
+    ai->ai_addr = (శూన్య *)((అక్షరం *)ai + పరిమాణం(నిర్మాణం Curl_addrinfo));
+    ai->ai_canonname = (శూన్య *)((అక్షరం *)ai->ai_addr + ss_కొలత);
+    జ్ఞాపకం_నకలు(ai->ai_canonname, hostname, hostlen);
 
-    if(!firstai)
+    ఒకవేళ(!firstai)
       /* store the pointer we want to return from this function */
       firstai = ai;
 
-    if(prevai)
+    ఒకవేళ(prevai)
       /* make the previous entry point to this */
-      prevai->ai_next = ai;
+      prevai->ai_తదుపరి = ai;
 
     ai->ai_family = addrtype;
 
@@ -846,56 +846,56 @@ static CURLcode doh2ai(const struct dohentry *de, const char *hostname,
        the type must be ignored and conn->socktype be used instead! */
     ai->ai_socktype = SOCK_STREAM;
 
-    ai->ai_addrlen = (curl_socklen_t)ss_size;
+    ai->ai_addrlen = (curl_socklen_t)ss_కొలత;
 
     /* leave the rest of the struct filled with zero */
 
-    switch(ai->ai_family) {
-    case AF_INET:
-      addr = (void *)ai->ai_addr; /* storage area for this info */
-      DEBUGASSERT(sizeof(struct in_addr) == sizeof(de->addr[i].ip.v4));
-      memcpy(&addr->sin_addr, &de->addr[i].ip.v4, sizeof(struct in_addr));
+    ఎంపిక(ai->ai_family) {
+    స్థితి AF_INET:
+      addr = (శూన్య *)ai->ai_addr; /* storage area for this info */
+      DEBUGASSERT(పరిమాణం(నిర్మాణం in_addr) == పరిమాణం(de->addr[i].ip.v4));
+      జ్ఞాపకం_నకలు(&addr->sin_addr, &de->addr[i].ip.v4, పరిమాణం(నిర్మాణం in_addr));
       addr->sin_family = addrtype;
-      addr->sin_port = htons((unsigned short)port);
-      break;
+      addr->sin_port = htons((గుర్తులేని పొట్టి)పోర్టు);
+      ఆపు;
 
-#ifdef USE_IPV6
-    case AF_INET6:
-      addr6 = (void *)ai->ai_addr; /* storage area for this info */
-      DEBUGASSERT(sizeof(struct in6_addr) == sizeof(de->addr[i].ip.v6));
-      memcpy(&addr6->sin6_addr, &de->addr[i].ip.v6, sizeof(struct in6_addr));
+#నిర్వచితమైతే USE_IPV6
+    స్థితి AF_INET6:
+      addr6 = (శూన్య *)ai->ai_addr; /* storage area for this info */
+      DEBUGASSERT(పరిమాణం(నిర్మాణం in6_addr) == పరిమాణం(de->addr[i].ip.v6));
+      జ్ఞాపకం_నకలు(&addr6->sin6_addr, &de->addr[i].ip.v6, పరిమాణం(నిర్మాణం in6_addr));
       addr6->sin6_family = addrtype;
-      addr6->sin6_port = htons((unsigned short)port);
-      break;
-#endif
+      addr6->sin6_port = htons((గుర్తులేని పొట్టి)పోర్టు);
+      ఆపు;
+#అయితే_ముగింపు
     }
 
     prevai = ai;
   }
 
-  if(result) {
+  ఒకవేళ(ఫలితం) {
     Curl_freeaddrinfo(firstai);
-    firstai = NULL;
+    firstai = ఖాళీ;
   }
   *aip = firstai;
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* @unittest 1655 */
-UNITTEST void de_cleanup(struct dohentry *d);
-UNITTEST void de_cleanup(struct dohentry *d)
+UNITTEST శూన్య de_cleanup(నిర్మాణం dohentry *d);
+UNITTEST శూన్య de_cleanup(నిర్మాణం dohentry *d)
 {
-#ifdef USE_HTTPSRR
-  int i = 0;
-  for(i = 0; i < d->numhttps_rrs; i++)
+#నిర్వచితమైతే USE_HTTPSRR
+  పూర్ణాంకం i = 0;
+  కొరకు(i = 0; i < d->numhttps_rrs; i++)
     curlx_safefree(d->https_rrs[i].val);
-#else
-  (void)d;
-#endif
+#లేకపోతే
+  (శూన్య)d;
+#అయితే_ముగింపు
 }
 
-#ifdef USE_HTTPSRR
+#నిర్వచితమైతే USE_HTTPSRR
 
 /*
  * @brief decode the DNS name in a binary RRData
@@ -911,381 +911,381 @@ UNITTEST void de_cleanup(struct dohentry *d)
  * the DNS name encoding on output. (that is why it is an "unsigned char
  * **" :-)
  */
-static CURLcode doh_decode_rdata_name(const unsigned char **buf,
-                                      size_t *remaining, char **dnsname)
+స్థిర CURLcode doh_decode_rdata_name(స్థిరరాశి గుర్తులేని అక్షరం **buf,
+                                      size_t *మిగిలిన, అక్షరం **dnsname)
 {
-  const unsigned char *cp = NULL;
+  స్థిరరాశి గుర్తులేని అక్షరం *cp = ఖాళీ;
   size_t rem = 0;
-  unsigned char clen = 0; /* chunk len */
-  struct dynbuf thename;
+  గుర్తులేని అక్షరం clen = 0; /* chunk len */
+  నిర్మాణం dynbuf thename;
 
-  DEBUGASSERT(buf && remaining && dnsname);
-  if(!buf || !remaining || !dnsname || !*remaining)
-    return CURLE_OUT_OF_MEMORY;
+  DEBUGASSERT(buf && మిగిలిన && dnsname);
+  ఒకవేళ(!buf || !మిగిలిన || !dnsname || !*మిగిలిన)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   curlx_dyn_init(&thename, CURL_MAXLEN_HOST_NAME);
-  rem = *remaining;
+  rem = *మిగిలిన;
   cp = *buf;
   clen = *cp++;
   /* RFC 9460 says it must be uncompressed */
-  if(clen > 63)
-    return CURLE_WEIRD_SERVER_REPLY;
+  ఒకవేళ(clen > 63)
+    తిరిగి CURLE_WEIRD_SERVER_జవాబు;
 
-  if(clen == 0) {
+  ఒకవేళ(clen == 0) {
     /* special case - return "." as name */
-    if(curlx_dyn_addn(&thename, ".", 1))
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(curlx_dyn_addn(&thename, ".", 1))
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
-  while(clen) {
-    if(clen >= rem) {
+  అయితే(clen) {
+    ఒకవేళ(clen >= rem) {
       curlx_dyn_free(&thename);
-      return CURLE_OUT_OF_MEMORY;
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
-    if(curlx_dyn_addn(&thename, cp, clen) ||
+    ఒకవేళ(curlx_dyn_addn(&thename, cp, clen) ||
        curlx_dyn_addn(&thename, ".", 1))
-      return CURLE_TOO_LARGE;
+      తిరిగి CURLE_TOO_LARGE;
 
     cp += clen;
     rem -= (clen + 1);
-    if(rem <= 0) {
+    ఒకవేళ(rem <= 0) {
       curlx_dyn_free(&thename);
-      return CURLE_OUT_OF_MEMORY;
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
     clen = *cp++;
-    if(clen > 63) {
+    ఒకవేళ(clen > 63) {
       /* invalid format */
       curlx_dyn_free(&thename);
-      return CURLE_WEIRD_SERVER_REPLY;
+      తిరిగి CURLE_WEIRD_SERVER_జవాబు;
     }
   }
   *buf = cp;
-  *remaining = rem - 1;
+  *మిగిలిన = rem - 1;
   *dnsname = curlx_dyn_ptr(&thename);
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* scan for byte values <= 32 or 127 */
-static CURLcode junkscan(const char *url)
+స్థిర CURLcode junkscan(స్థిరరాశి అక్షరం *url)
 {
-  const unsigned char *p = (const unsigned char *)url;
-  while(*p) {
-    if(*p <= 0x20 || *p == 127)
-      return CURLE_WEIRD_SERVER_REPLY;
+  స్థిరరాశి గుర్తులేని అక్షరం *p = (స్థిరరాశి గుర్తులేని అక్షరం *)url;
+  అయితే(*p) {
+    ఒకవేళ(*p <= 0x20 || *p == 127)
+      తిరిగి CURLE_WEIRD_SERVER_జవాబు;
     p++;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* @unittest 1658 */
-UNITTEST CURLcode doh_resp_decode_httpsrr(struct Curl_easy *data,
-                                          const unsigned char *cp, size_t len,
-                                          struct Curl_https_rrinfo **hrr);
-UNITTEST CURLcode doh_resp_decode_httpsrr(struct Curl_easy *data,
-                                          const unsigned char *cp, size_t len,
-                                          struct Curl_https_rrinfo **hrr)
+UNITTEST CURLcode doh_resp_decode_httpsrr(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          స్థిరరాశి గుర్తులేని అక్షరం *cp, size_t len,
+                                          నిర్మాణం Curl_https_rrinfo **hrr);
+UNITTEST CURLcode doh_resp_decode_httpsrr(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          స్థిరరాశి గుర్తులేని అక్షరం *cp, size_t len,
+                                          నిర్మాణం Curl_https_rrinfo **hrr)
 {
   uint16_t pcode = 0, plen = 0;
   uint32_t expected_min_pcode = 0;
-  struct Curl_https_rrinfo *lhrr = NULL;
-  char *dnsname = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  నిర్మాణం Curl_https_rrinfo *lhrr = ఖాళీ;
+  అక్షరం *dnsname = ఖాళీ;
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  (void)data;
-  *hrr = NULL;
-  if(len <= 2)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  lhrr = curlx_calloc(1, sizeof(struct Curl_https_rrinfo));
-  if(!lhrr)
-    return CURLE_OUT_OF_MEMORY;
-  lhrr->priority = doh_get16bit(cp, 0);
+  (శూన్య)దత్తాంశం;
+  *hrr = ఖాళీ;
+  ఒకవేళ(len <= 2)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+  lhrr = curlx_calloc(1, పరిమాణం(నిర్మాణం Curl_https_rrinfo));
+  ఒకవేళ(!lhrr)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  lhrr->ప్రాధాన్యత = doh_get16bit(cp, 0);
   cp += 2;
   len -= 2;
-  if(doh_decode_rdata_name(&cp, &len, &dnsname) != CURLE_OK)
-    goto err;
-  lhrr->target = dnsname;
-  result = junkscan(dnsname);
-  if(result) {
+  ఒకవేళ(doh_decode_rdata_name(&cp, &len, &dnsname) != CURLE_OK)
+    వెళ్ళు err;
+  lhrr->లక్ష్యం = dnsname;
+  ఫలితం = junkscan(dnsname);
+  ఒకవేళ(ఫలితం) {
     /* unacceptable hostname content */
-    goto err;
+    వెళ్ళు err;
   }
-  while(len >= 4) {
+  అయితే(len >= 4) {
     pcode = doh_get16bit(cp, 0);
     plen = doh_get16bit(cp, 2);
     cp += 4;
     len -= 4;
-    if(pcode < expected_min_pcode || plen > len) {
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto err;
+    ఒకవేళ(pcode < expected_min_pcode || plen > len) {
+      ఫలితం = CURLE_WEIRD_SERVER_జవాబు;
+      వెళ్ళు err;
     }
-    result = Curl_httpsrr_set(lhrr, pcode, cp, plen);
-    if(result)
-      goto err;
-    Curl_httpsrr_trace(data, lhrr);
+    ఫలితం = Curl_httpsrr_సమితి(lhrr, pcode, cp, plen);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు err;
+    Curl_httpsrr_trace(దత్తాంశం, lhrr);
     cp += plen;
     len -= plen;
     expected_min_pcode = pcode + 1;
   }
   *hrr = lhrr;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 err:
   Curl_httpsrr_destroy(lhrr);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif /* USE_HTTPSRR */
+#అయితే_ముగింపు /* USE_HTTPSRR */
 
 /* called from multi when a sub transfer, e.g. doh probe, is done.
  * Parse the response and set the results in the `async` context
  * of master, using the id from the probe's CURL_EZM_DOH_PROBE
  * meta data. */
-static void doh_probe_done(struct Curl_easy *doh,
-                           struct Curl_easy *master, CURLcode result)
+స్థిర శూన్య doh_probe_పూర్తి(నిర్మాణం Curl_easy *doh,
+                           నిర్మాణం Curl_easy *master, CURLcode ఫలితం)
 {
-  struct Curl_resolv_async *async = NULL;
-  struct doh_probes *dohp = NULL;
-  struct doh_request *doh_req = NULL;
-  struct Curl_addrinfo **pdest_ai;
-  struct dohentry de;
-  int slot, httpcode;
+  నిర్మాణం Curl_resolv_async *async = ఖాళీ;
+  నిర్మాణం doh_probes *dohp = ఖాళీ;
+  నిర్మాణం doh_request *doh_req = ఖాళీ;
+  నిర్మాణం Curl_addrinfo **pdest_ai;
+  నిర్మాణం dohentry de;
+  పూర్ణాంకం స్థానం, httpcode;
 
   de_init(&de);
   doh_req = Curl_meta_get(doh, CURL_EZM_DOH_PROBE);
-  if(!doh_req) {
+  ఒకవేళ(!doh_req) {
     /* transfer `doh` is not a DoH probe. */
     DEBUGASSERT(0);
-    goto out;
+    వెళ్ళు బహిర్గతం;
   }
 
   async = Curl_async_get(master, doh_req->resolv_id);
-  if(!async) {
+  ఒకవేళ(!async) {
     CURL_TRC_DNS(master, "[%u] ignoring outdated DoH response",
                  doh_req->resolv_id);
-    goto out;
+    వెళ్ళు బహిర్గతం;
   }
   dohp = async->doh;
 
-  for(slot = 0; slot < DOH_SLOT_COUNT; ++slot) {
-    if(dohp->probe_mid[slot] == doh->mid)
-      break;
+  కొరకు(స్థానం = 0; స్థానం < DOH_స్థానం_లెక్క; ++స్థానం) {
+    ఒకవేళ(dohp->probe_mid[స్థానం] == doh->mid)
+      ఆపు;
   }
   /* We really should have found the slot where to store the response */
-  if(slot >= DOH_SLOT_COUNT) {
+  ఒకవేళ(స్థానం >= DOH_స్థానం_లెక్క) {
     failf(master, "DoH: unknown sub request done");
     DEBUGASSERT(0);
-    goto out;
+    వెళ్ళు బహిర్గతం;
   }
 
   async->queries_ongoing--;
   dohp = async->doh;
   httpcode = doh->info.httpcode;
-  switch(slot) {
-  case DOH_SLOT_IPV4:
+  ఎంపిక(స్థానం) {
+  స్థితి DOH_స్థానం_IPV4:
     async->dns_responses |= CURL_DNSQ_A;
-    break;
-#ifdef USE_IPV6
-  case DOH_SLOT_IPV6:
+    ఆపు;
+#నిర్వచితమైతే USE_IPV6
+  స్థితి DOH_స్థానం_IPV6:
     async->dns_responses |= CURL_DNSQ_AAAA;
-    break;
-#endif
-#ifdef USE_HTTPSRR
-  case DOH_SLOT_HTTPS_RR:
+    ఆపు;
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_HTTPSRR
+  స్థితి DOH_స్థానం_HTTPS_RR:
     async->dns_responses |= CURL_DNSQ_HTTPS;
-    break;
-#endif
-  default:
+    ఆపు;
+#అయితే_ముగింపు
+  అప్రమేయ:
     DEBUGASSERT(0);
-    break;
+    ఆపు;
   }
 
-  if(result) {
-    dohp->probe_rc[slot] = DOH_HTTP_FAILED;
+  ఒకవేళ(ఫలితం) {
+    dohp->probe_rc[స్థానం] = DOH_HTTP_FAILED;
     infof(doh, "[DoH] [%s] error: %s",
-          doh_type2name(doh_req->dnstype), curl_easy_strerror(result));
-    goto out;
+          doh_type2name(doh_req->dnstype), curl_easy_strerror(ఫలితం));
+    వెళ్ళు బహిర్గతం;
   }
-  else if((httpcode < 200) || (httpcode >= 300)) {
-    dohp->probe_rc[slot] = DOH_HTTP_FAILED;
+  లేకపోతే ఒకవేళ((httpcode < 200) || (httpcode >= 300)) {
+    dohp->probe_rc[స్థానం] = DOH_HTTP_FAILED;
     infof(doh, "[DoH] [%s] error: HTTP status %d",
           doh_type2name(doh_req->dnstype), httpcode);
-    goto out;
+    వెళ్ళు బహిర్గతం;
   }
 
-  dohp->probe_rc[slot] = doh_resp_decode(curlx_dyn_uptr(&doh_req->resp_body),
+  dohp->probe_rc[స్థానం] = doh_resp_decode(curlx_dyn_uptr(&doh_req->resp_body),
                                          curlx_dyn_len(&doh_req->resp_body),
                                          doh_req->dnstype, &de);
-  if(dohp->probe_rc[slot]) {
-#ifdef USE_HTTPSRR
-    if((dohp->probe_rc[slot] == DOH_NO_CONTENT) &&
+  ఒకవేళ(dohp->probe_rc[స్థానం]) {
+#నిర్వచితమైతే USE_HTTPSRR
+    ఒకవేళ((dohp->probe_rc[స్థానం] == DOH_NO_CONTENT) &&
        (doh_req->dnstype == CURL_DNS_TYPE_HTTPS)) {
-      dohp->probe_rc[slot] = DOH_DNS_NXDOMAIN;
+      dohp->probe_rc[స్థానం] = DOH_DNS_NXDOMAIN;
     }
-#endif
+#అయితే_ముగింపు
     infof(doh, "[DoH] [%s] error decoding response: %s",
           doh_type2name(doh_req->dnstype),
-          doh_strerror(dohp->probe_rc[slot]));
-    goto out;
+          doh_strerror(dohp->probe_rc[స్థానం]));
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(doh_req->dnstype == CURL_DNS_TYPE_A)
+  ఒకవేళ(doh_req->dnstype == CURL_DNS_TYPE_A)
     pdest_ai = &async->ai_A;
-  else if(doh_req->dnstype == CURL_DNS_TYPE_AAAA)
+  లేకపోతే ఒకవేళ(doh_req->dnstype == CURL_DNS_TYPE_AAAA)
     pdest_ai = &async->ai_AAAA;
-  else
-    pdest_ai = NULL;
+  లేకపోతే
+    pdest_ai = ఖాళీ;
 
-  if(pdest_ai && de.numaddr) {
-    if(*pdest_ai) {
+  ఒకవేళ(pdest_ai && de.numaddr) {
+    ఒకవేళ(*pdest_ai) {
       Curl_freeaddrinfo(*pdest_ai);
-      *pdest_ai = NULL;
+      *pdest_ai = ఖాళీ;
     }
-    result = doh2ai(&de, async->peer->hostname, async->peer->port, pdest_ai);
-    if(result) { /* hard failure on our side, fail completely */
+    ఫలితం = doh2ai(&de, async->peer->hostname, async->peer->పోర్టు, pdest_ai);
+    ఒకవేళ(ఫలితం) { /* hard failure on our side, fail completely */
       infof(doh, "[DoH] [%s] error creating addrinfo: %s",
-            doh_type2name(doh_req->dnstype), curl_easy_strerror(result));
-      dohp->probe_rc[slot] = DOH_OOM;
-      async->result = result;
+            doh_type2name(doh_req->dnstype), curl_easy_strerror(ఫలితం));
+      dohp->probe_rc[స్థానం] = DOH_OOM;
+      async->ఫలితం = ఫలితం;
     }
   }
-#ifdef USE_HTTPSRR
-  else if((doh_req->dnstype == CURL_DNS_TYPE_HTTPS) && de.numhttps_rrs) {
+#నిర్వచితమైతే USE_HTTPSRR
+  లేకపోతే ఒకవేళ((doh_req->dnstype == CURL_DNS_TYPE_HTTPS) && de.numhttps_rrs) {
     CURL_TRC_DNS(doh, "[HTTPS] got %d records", de.numhttps_rrs);
-    result = doh_resp_decode_httpsrr(doh, de.https_rrs->val,
+    ఫలితం = doh_resp_decode_httpsrr(doh, de.https_rrs->val,
                                      de.https_rrs->len, &async->httpsrr);
-    if(result) {
-      dohp->probe_rc[slot] = DOH_HTTP_FAILED;
+    ఒకవేళ(ఫలితం) {
+      dohp->probe_rc[స్థానం] = DOH_HTTP_FAILED;
       infof(doh, "[DoH] error decoding HTTPS RR: %s",
-            curl_easy_strerror(result));
-      goto out;
+            curl_easy_strerror(ఫలితం));
+      వెళ్ళు బహిర్గతం;
     }
   }
-#endif /* USE_HTTPSRR */
+#అయితే_ముగింపు /* USE_HTTPSRR */
 
   /* DoH request complete, run master to act on results */
   infof(doh, "DoH request complete, %u to go", async->queries_ongoing);
 
-out:
+బహిర్గతం:
   Curl_multi_mark_dirty(master);
   de_cleanup(&de);
   Curl_meta_remove(doh, CURL_EZM_DOH_PROBE);
 }
 
-CURLcode Curl_doh_take_result(struct Curl_easy *data,
-                              struct Curl_resolv_async *async,
-                              struct Curl_dns_entry **pdns)
+CURLcode Curl_doh_take_ఫలితం(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_resolv_async *async,
+                              నిర్మాణం Curl_dns_నమోదు **pdns)
 {
-  struct doh_probes *dohp = async->doh;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం doh_probes *dohp = async->doh;
+  CURLcode ఫలితం = CURLE_OK;
 
-  *pdns = NULL; /* defaults to no response */
-  if(!dohp)
-    return CURLE_OUT_OF_MEMORY;
+  *pdns = ఖాళీ; /* defaults to no response */
+  ఒకవేళ(!dohp)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   async->negative_answer = FALSE;
-  if(async->result) {
-    result = async->result;
-    goto out;
+  ఒకవేళ(async->ఫలితం) {
+    ఫలితం = async->ఫలితం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
-     dohp->probe_mid[DOH_SLOT_IPV4] == UINT32_MAX &&
-     dohp->probe_mid[DOH_SLOT_IPV6] == UINT32_MAX) {
-    failf(data, "Could not DoH-resolve: %s", async->peer->hostname);
-    return async->for_proxy ?
+  ఒకవేళ(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
+     dohp->probe_mid[DOH_స్థానం_IPV4] == UINT32_MAX &&
+     dohp->probe_mid[DOH_స్థానం_IPV6] == UINT32_MAX) {
+    failf(దత్తాంశం, "Could not DoH-resolve: %s", async->peer->hostname);
+    తిరిగి async->for_proxy ?
       CURLE_COULDNT_RESOLVE_PROXY : CURLE_COULDNT_RESOLVE_HOST;
   }
-  else if(!async->queries_ongoing) {
-    struct Curl_dns_entry *dns = NULL;
+  లేకపోతే ఒకవేళ(!async->queries_ongoing) {
+    నిర్మాణం Curl_dns_నమోదు *dns = ఖాళీ;
     bool negative = TRUE;
-    int slot;
+    పూర్ణాంకం స్థానం;
 
     /* remove DoH handles from multi handle and close them */
-    doh_close(data, async);
+    doh_close(దత్తాంశం, async);
     /* parse the responses, create the struct and return it! */
-    for(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
+    కొరకు(స్థానం = 0; స్థానం < DOH_స్థానం_లెక్క; స్థానం++) {
       /* Failing without an NXDOMAIN answer - a SERVFAIL-class rcode or
          an undecodable response - says nothing about the name. Such a
          failure must not be cached as a negative entry. */
-      if(dohp->probe_rc[slot] && (dohp->probe_rc[slot] != DOH_DNS_NXDOMAIN))
+      ఒకవేళ(dohp->probe_rc[స్థానం] && (dohp->probe_rc[స్థానం] != DOH_DNS_NXDOMAIN))
         negative = FALSE;
     } /* next slot */
 
-    if(async->ai_A || async->ai_AAAA) {
+    ఒకవేళ(async->ai_A || async->ai_AAAA) {
       dns = Curl_dnsc_mk_addr2(
-        data, async->dns_queries, &async->ai_A, &async->ai_AAAA, async->peer);
-      if(!dns) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+        దత్తాంశం, async->dns_queries, &async->ai_A, &async->ai_AAAA, async->peer);
+      ఒకవేళ(!dns) {
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు బహిర్గతం;
       }
     }
-#ifdef USE_HTTPSRR
-    else if((async->dns_queries & CURL_DNSQ_HTTPS) &&
-            !dohp->probe_rc[DOH_SLOT_HTTPS_RR]) {
-      Curl_httpsrr_trace(data, async->httpsrr);
-      dns = Curl_dnsc_mk_https(data, &async->httpsrr, async->peer);
-      if(!dns) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+#నిర్వచితమైతే USE_HTTPSRR
+    లేకపోతే ఒకవేళ((async->dns_queries & CURL_DNSQ_HTTPS) &&
+            !dohp->probe_rc[DOH_స్థానం_HTTPS_RR]) {
+      Curl_httpsrr_trace(దత్తాంశం, async->httpsrr);
+      dns = Curl_dnsc_mk_https(దత్తాంశం, &async->httpsrr, async->peer);
+      ఒకవేళ(!dns) {
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు బహిర్గతం;
       }
     }
-#endif /* USE_HTTPSRR */
-    else {
+#అయితే_ముగింపు /* USE_HTTPSRR */
+    లేకపోతే {
       /* every query failed. Only NXDOMAIN answers for all of them
          make this a negative answer, eligible for caching. */
       async->negative_answer = negative;
-      result = async->for_proxy ?
+      ఫలితం = async->for_proxy ?
         CURLE_COULDNT_RESOLVE_PROXY : CURLE_COULDNT_RESOLVE_HOST;
     }
 
     /* and add the entry to the cache */
-    if(dns)
-      result = Curl_dnscache_add(data, dns);
+    ఒకవేళ(dns)
+      ఫలితం = Curl_dnscache_కూడు(దత్తాంశం, dns);
     *pdns = dns;
   } /* !async->queries_ongoing */
-  else
+  లేకపోతే
     /* wait for pending DoH transactions to complete */
-    return CURLE_AGAIN;
+    తిరిగి CURLE_AGAIN;
 
-out:
-  Curl_doh_cleanup(data, async);
-  return result;
+బహిర్గతం:
+  Curl_doh_cleanup(దత్తాంశం, async);
+  తిరిగి ఫలితం;
 }
 
-static void doh_close(struct Curl_easy *data,
-                      struct Curl_resolv_async *async)
+స్థిర శూన్య doh_close(నిర్మాణం Curl_easy *దత్తాంశం,
+                      నిర్మాణం Curl_resolv_async *async)
 {
-  struct doh_probes *doh = async ? async->doh : NULL;
-  if(doh && data->multi) {
-    struct Curl_easy *probe_data;
+  నిర్మాణం doh_probes *doh = async ? async->doh : ఖాళీ;
+  ఒకవేళ(doh && దత్తాంశం->multi) {
+    నిర్మాణం Curl_easy *probe_దత్తాంశం;
     uint32_t mid;
-    size_t slot;
-    for(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
-      mid = doh->probe_mid[slot];
-      if(mid == UINT32_MAX)
-        continue;
-      doh->probe_mid[slot] = UINT32_MAX;
+    size_t స్థానం;
+    కొరకు(స్థానం = 0; స్థానం < DOH_స్థానం_లెక్క; స్థానం++) {
+      mid = doh->probe_mid[స్థానం];
+      ఒకవేళ(mid == UINT32_MAX)
+        కొనసాగు;
+      doh->probe_mid[స్థానం] = UINT32_MAX;
       /* should have been called before data is removed from multi handle */
-      DEBUGASSERT(data->multi);
-      probe_data = data->multi ? Curl_multi_get_easy(data->multi, mid) : NULL;
-      if(!probe_data) {
-        DEBUGF(infof(data, "Curl_doh_close: xfer for mid=%u not found!", mid));
-        continue;
+      DEBUGASSERT(దత్తాంశం->multi);
+      probe_దత్తాంశం = దత్తాంశం->multi ? Curl_multi_get_easy(దత్తాంశం->multi, mid) : ఖాళీ;
+      ఒకవేళ(!probe_దత్తాంశం) {
+        DEBUGF(infof(దత్తాంశం, "Curl_doh_close: xfer for mid=%u not found!", mid));
+        కొనసాగు;
       }
-      probe_data->sub_xfer_done = NULL; /* No longer interested in result */
+      probe_దత్తాంశం->sub_xfer_పూర్తి = ఖాళీ; /* No longer interested in result */
       /* data->multi might already be reset at this time */
-      Curl_multi_remove_handle(data->multi, probe_data);
-      Curl_close(&probe_data);
+      Curl_multi_remove_handle(దత్తాంశం->multi, probe_దత్తాంశం);
+      Curl_close(&probe_దత్తాంశం);
     }
-    CURL_TRC_DNS(data, "[DoH] probe done");
+    CURL_TRC_DNS(దత్తాంశం, "[DoH] probe done");
   }
 }
 
-void Curl_doh_cleanup(struct Curl_easy *data,
-                      struct Curl_resolv_async *async)
+శూన్య Curl_doh_cleanup(నిర్మాణం Curl_easy *దత్తాంశం,
+                      నిర్మాణం Curl_resolv_async *async)
 {
-  struct doh_probes *dohp = async->doh;
-  if(dohp) {
-    doh_close(data, async);
+  నిర్మాణం doh_probes *dohp = async->doh;
+  ఒకవేళ(dohp) {
+    doh_close(దత్తాంశం, async);
     curlx_safefree(async->doh);
   }
 }
 
-#endif /* CURL_DISABLE_DOH */
+#అయితే_ముగింపు /* CURL_DISABLE_DOH */

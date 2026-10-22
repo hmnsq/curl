@@ -21,345 +21,345 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "multi_ev.h"
-#include "select.h"
-#include "uint-bset.h"
-#include "uint-spbset.h"
-#include "multihandle.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "multi_ev.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "uint-bset.h"
+#అన్తర్భావ "uint-spbset.h"
+#అన్తర్భావ "multihandle.h"
 
-#ifdef DEBUGBUILD
-#define SH_ENTRY_MAGIC 0x570091d
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+#నిర్వచించు SH_నమోదు_MAGIC 0x570091d
+#అయితే_ముగింపు
 
 /* Information about a socket for which we inform the libcurl application
  * what to supervise (CURL_POLL_IN/CURL_POLL_OUT/CURL_POLL_REMOVE)
  */
-struct mev_sh_entry {
-  struct uint32_spbset xfers; /* bitset of transfers `mid`s on this socket */
-  struct connectdata *conn; /* connection using this socket or NULL */
-  void *user_data;      /* libcurl app data via curl_multi_assign() */
-  unsigned int action;  /* CURL_POLL_IN/CURL_POLL_OUT we last told the
+నిర్మాణం mev_sh_నమోదు {
+  నిర్మాణం uint32_spbset xfers; /* bitset of transfers `mid`s on this socket */
+  నిర్మాణం connectdata *conn; /* connection using this socket or NULL */
+  శూన్య *user_దత్తాంశం;      /* libcurl app data via curl_multi_assign() */
+  గుర్తులేని పూర్ణాంకం action;  /* CURL_POLL_IN/CURL_POLL_OUT we last told the
                          * libcurl application to watch out for */
-  unsigned int readers; /* this many transfers want to read */
-  unsigned int writers; /* this many transfers want to write */
-#ifdef DEBUGBUILD
-  unsigned int magic;
-#endif
-  BIT(announced);       /* this socket has been passed to the socket
+  గుర్తులేని పూర్ణాంకం readers; /* this many transfers want to read */
+  గుర్తులేని పూర్ణాంకం writers; /* this many transfers want to write */
+#నిర్వచితమైతే DEBUGBUILD
+  గుర్తులేని పూర్ణాంకం magic;
+#అయితే_ముగింపు
+  బిట్టు(announced);       /* this socket has been passed to the socket
                            callback at least once */
 };
 
 /* sockhash entry destructor callback */
-static void mev_sh_entry_dtor(void *freethis)
+స్థిర శూన్య mev_sh_నమోదు_dtor(శూన్య *freethis)
 {
-  struct mev_sh_entry *entry = (struct mev_sh_entry *)freethis;
-  Curl_uint32_spbset_destroy(&entry->xfers);
-#ifdef DEBUGBUILD
-  entry->magic = 0;
-#endif
-  curlx_free(entry);
+  నిర్మాణం mev_sh_నమోదు *నమోదు_2 = (నిర్మాణం mev_sh_నమోదు *)freethis;
+  Curl_uint32_spbset_destroy(&నమోదు_2->xfers);
+#నిర్వచితమైతే DEBUGBUILD
+  నమోదు_2->magic = 0;
+#అయితే_ముగింపు
+  curlx_free(నమోదు_2);
 }
 
 /* look up a given socket in the socket hash, skip invalid sockets */
-static struct mev_sh_entry *mev_sh_entry_get(struct Curl_hash *sh,
+స్థిర నిర్మాణం mev_sh_నమోదు *mev_sh_నమోదు_get(నిర్మాణం Curl_hash *sh,
                                              curl_socket_t s)
 {
-  if(s != CURL_SOCKET_BAD) {
+  ఒకవేళ(s != CURL_SOCKET_BAD) {
     /* only look for proper sockets */
-    return Curl_hash_pick(sh, (const char *)&s, sizeof(curl_socket_t));
+    తిరిగి Curl_hash_pick(sh, (స్థిరరాశి అక్షరం *)&s, పరిమాణం(curl_socket_t));
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
 /* make sure this socket is present in the hash for this handle */
-static struct mev_sh_entry *mev_sh_entry_add(struct Curl_hash *sh,
+స్థిర నిర్మాణం mev_sh_నమోదు *mev_sh_నమోదు_కూడు(నిర్మాణం Curl_hash *sh,
                                              curl_socket_t s)
 {
-  struct mev_sh_entry *there = mev_sh_entry_get(sh, s);
-  struct mev_sh_entry *check;
+  నిర్మాణం mev_sh_నమోదు *there = mev_sh_నమోదు_get(sh, s);
+  నిర్మాణం mev_sh_నమోదు *check;
 
-  if(there) {
+  ఒకవేళ(there) {
     /* it is present, return fine */
-    return there;
+    తిరిగి there;
   }
 
   /* not present, add it */
-  check = curlx_calloc(1, sizeof(struct mev_sh_entry));
-  if(!check)
-    return NULL; /* major failure */
+  check = curlx_calloc(1, పరిమాణం(నిర్మాణం mev_sh_నమోదు));
+  ఒకవేళ(!check)
+    తిరిగి ఖాళీ; /* major failure */
 
   Curl_uint32_spbset_init(&check->xfers);
 
   /* make/add new hash entry */
-  if(!Curl_hash_add(sh, (char *)&s, sizeof(curl_socket_t), check)) {
-    mev_sh_entry_dtor(check);
-    return NULL; /* major failure */
+  ఒకవేళ(!Curl_hash_కూడు(sh, (అక్షరం *)&s, పరిమాణం(curl_socket_t), check)) {
+    mev_sh_నమోదు_dtor(check);
+    తిరిగి ఖాళీ; /* major failure */
   }
-#ifdef DEBUGBUILD
-  check->magic = SH_ENTRY_MAGIC;
-#endif
-  return check; /* things are good in sockhash land */
+#నిర్వచితమైతే DEBUGBUILD
+  check->magic = SH_నమోదు_MAGIC;
+#అయితే_ముగింపు
+  తిరిగి check; /* things are good in sockhash land */
 }
 
 /* delete the given socket entry from the hash */
-static void mev_sh_entry_kill(struct Curl_multi *multi, curl_socket_t s)
+స్థిర శూన్య mev_sh_నమోదు_kill(నిర్మాణం Curl_multi *multi, curl_socket_t s)
 {
-  Curl_hash_delete(&multi->ev.sh_entries, (char *)&s, sizeof(curl_socket_t));
+  Curl_hash_delete(&multi->ev.sh_entries, (అక్షరం *)&s, పరిమాణం(curl_socket_t));
 }
 
-static size_t mev_sh_entry_user_count(struct mev_sh_entry *e)
+స్థిర size_t mev_sh_నమోదు_user_లెక్క(నిర్మాణం mev_sh_నమోదు *e)
 {
-  return Curl_uint32_spbset_count(&e->xfers) + (e->conn ? 1 : 0);
+  తిరిగి Curl_uint32_spbset_లెక్క(&e->xfers) + (e->conn ? 1 : 0);
 }
 
-static bool mev_sh_entry_xfer_known(struct mev_sh_entry *e,
-                                    struct Curl_easy *data)
+స్థిర bool mev_sh_నమోదు_xfer_తెలిసిన(నిర్మాణం mev_sh_నమోదు *e,
+                                    నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return Curl_uint32_spbset_contains(&e->xfers, data->mid);
+  తిరిగి Curl_uint32_spbset_కలిగియుంది(&e->xfers, దత్తాంశం->mid);
 }
 
-static bool mev_sh_entry_conn_known(struct mev_sh_entry *e,
-                                    struct connectdata *conn)
+స్థిర bool mev_sh_నమోదు_conn_తెలిసిన(నిర్మాణం mev_sh_నమోదు *e,
+                                    నిర్మాణం connectdata *conn)
 {
-  return (e->conn == conn);
+  తిరిగి (e->conn == conn);
 }
 
-static void mev_pollset_dtor(const void *key, size_t klen, void *entry)
+స్థిర శూన్య mev_pollset_dtor(స్థిరరాశి శూన్య *కీలకం, size_t klen, శూన్య *నమోదు_2)
 {
-  struct easy_pollset *ps = entry;
-  (void)key;
-  (void)klen;
-  if(ps) {
+  నిర్మాణం easy_pollset *ps = నమోదు_2;
+  (శూన్య)కీలకం;
+  (శూన్య)klen;
+  ఒకవేళ(ps) {
     Curl_pollset_cleanup(ps);
     curlx_free(ps);
   }
 }
 
-static struct easy_pollset *mev_add_new_conn_pollset(struct connectdata *conn)
+స్థిర నిర్మాణం easy_pollset *mev_కూడు_new_conn_pollset(నిర్మాణం connectdata *conn)
 {
-  struct easy_pollset *ps;
+  నిర్మాణం easy_pollset *ps;
 
   ps = Curl_pollset_create();
-  if(!ps)
-    return NULL;
-  if(Curl_conn_meta_set(conn, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
-    return NULL;
-  return ps;
+  ఒకవేళ(!ps)
+    తిరిగి ఖాళీ;
+  ఒకవేళ(Curl_conn_meta_సమితి(conn, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
+    తిరిగి ఖాళీ;
+  తిరిగి ps;
 }
 
-static struct easy_pollset *mev_add_new_xfer_pollset(struct Curl_easy *data)
+స్థిర నిర్మాణం easy_pollset *mev_కూడు_new_xfer_pollset(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct easy_pollset *ps;
+  నిర్మాణం easy_pollset *ps;
 
   ps = Curl_pollset_create();
-  if(!ps)
-    return NULL;
-  if(Curl_meta_set(data, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
-    return NULL;
-  return ps;
+  ఒకవేళ(!ps)
+    తిరిగి ఖాళీ;
+  ఒకవేళ(Curl_meta_సమితి(దత్తాంశం, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
+    తిరిగి ఖాళీ;
+  తిరిగి ps;
 }
 
-static struct easy_pollset *mev_get_last_pollset(struct Curl_easy *data,
-                                                 struct connectdata *conn)
+స్థిర నిర్మాణం easy_pollset *mev_get_చివరి_pollset(నిర్మాణం Curl_easy *దత్తాంశం,
+                                                 నిర్మాణం connectdata *conn)
 {
-  if(data) {
-    if(conn)
-      return Curl_conn_meta_get(conn, CURL_META_MEV_POLLSET);
-    return Curl_meta_get(data, CURL_META_MEV_POLLSET);
+  ఒకవేళ(దత్తాంశం) {
+    ఒకవేళ(conn)
+      తిరిగి Curl_conn_meta_get(conn, CURL_META_MEV_POLLSET);
+    తిరిగి Curl_meta_get(దత్తాంశం, CURL_META_MEV_POLLSET);
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-static bool mev_sh_entry_xfer_add(struct mev_sh_entry *e,
-                                  struct Curl_easy *data)
+స్థిర bool mev_sh_నమోదు_xfer_కూడు(నిర్మాణం mev_sh_నమోదు *e,
+                                  నిర్మాణం Curl_easy *దత్తాంశం)
 {
    /* detect weird values */
-  DEBUGASSERT(mev_sh_entry_user_count(e) < 100000);
-  return Curl_uint32_spbset_add(&e->xfers, data->mid);
+  DEBUGASSERT(mev_sh_నమోదు_user_లెక్క(e) < 100000);
+  తిరిగి Curl_uint32_spbset_కూడు(&e->xfers, దత్తాంశం->mid);
 }
 
-static bool mev_sh_entry_conn_add(struct mev_sh_entry *e,
-                                  struct connectdata *conn)
+స్థిర bool mev_sh_నమోదు_conn_కూడు(నిర్మాణం mev_sh_నమోదు *e,
+                                  నిర్మాణం connectdata *conn)
 {
    /* detect weird values */
-  DEBUGASSERT(mev_sh_entry_user_count(e) < 100000);
+  DEBUGASSERT(mev_sh_నమోదు_user_లెక్క(e) < 100000);
   DEBUGASSERT(!e->conn);
-  if(e->conn)
-    return FALSE;
+  ఒకవేళ(e->conn)
+    తిరిగి FALSE;
   e->conn = conn;
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-static bool mev_sh_entry_xfer_remove(struct mev_sh_entry *e,
-                                     struct Curl_easy *data)
+స్థిర bool mev_sh_నమోదు_xfer_remove(నిర్మాణం mev_sh_నమోదు *e,
+                                     నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  bool present = Curl_uint32_spbset_contains(&e->xfers, data->mid);
-  if(present)
-    Curl_uint32_spbset_remove(&e->xfers, data->mid);
-  return present;
+  bool present = Curl_uint32_spbset_కలిగియుంది(&e->xfers, దత్తాంశం->mid);
+  ఒకవేళ(present)
+    Curl_uint32_spbset_remove(&e->xfers, దత్తాంశం->mid);
+  తిరిగి present;
 }
 
-static bool mev_sh_entry_conn_remove(struct mev_sh_entry *e,
-                                     struct connectdata *conn)
+స్థిర bool mev_sh_నమోదు_conn_remove(నిర్మాణం mev_sh_నమోదు *e,
+                                     నిర్మాణం connectdata *conn)
 {
   DEBUGASSERT(e->conn == conn);
-  if(e->conn == conn) {
-    e->conn = NULL;
-    return TRUE;
+  ఒకవేళ(e->conn == conn) {
+    e->conn = ఖాళీ;
+    తిరిగి TRUE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
 /* Purge any information about socket `s`.
  * Let the socket callback know as well when necessary */
-static CURLMcode mev_forget_socket(struct Curl_multi *multi,
-                                   struct Curl_easy *data,
+స్థిర CURLMcode mev_forget_socket(నిర్మాణం Curl_multi *multi,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
                                    curl_socket_t s,
-                                   const char *cause)
+                                   స్థిరరాశి అక్షరం *cause)
 {
-  struct mev_sh_entry *entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
+  నిర్మాణం mev_sh_నమోదు *నమోదు_2 = mev_sh_నమోదు_get(&multi->ev.sh_entries, s);
   uint32_t mid;
-  int rc = 0;
+  పూర్ణాంకం rc = 0;
 
-  if(!entry) /* we never knew or already forgot about this socket */
-    return CURLM_OK;
+  ఒకవేళ(!నమోదు_2) /* we never knew or already forgot about this socket */
+    తిరిగి CURLM_OK;
 
   /* Remove the socket from any pollset that is still registered. */
-  if(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
-    do {
-      struct Curl_easy *sdata = Curl_multi_get_easy(multi, mid);
-      if(sdata) {
-        struct easy_pollset *ps = mev_get_last_pollset(sdata, NULL);
-        if(ps)
+  ఒకవేళ(Curl_uint32_spbset_మొదటి(&నమోదు_2->xfers, &mid)) {
+    చేయి {
+      నిర్మాణం Curl_easy *sdata = Curl_multi_get_easy(multi, mid);
+      ఒకవేళ(sdata) {
+        నిర్మాణం easy_pollset *ps = mev_get_చివరి_pollset(sdata, ఖాళీ);
+        ఒకవేళ(ps)
           Curl_pollset_remove(ps, s);
       }
-    } while(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
+    } అయితే(Curl_uint32_spbset_తదుపరి(&నమోదు_2->xfers, mid, &mid));
   }
 
-  if(entry->conn) {
-    struct easy_pollset *ps = mev_get_last_pollset(data, entry->conn);
-    if(ps)
+  ఒకవేళ(నమోదు_2->conn) {
+    నిర్మాణం easy_pollset *ps = mev_get_చివరి_pollset(దత్తాంశం, నమోదు_2->conn);
+    ఒకవేళ(ps)
       Curl_pollset_remove(ps, s);
   }
 
   /* We managed this socket before, tell the socket callback to forget it. */
-  if(entry->announced && multi->socket_cb) {
-    struct Curl_mapi_guard guard;
+  ఒకవేళ(నమోదు_2->announced && multi->socket_cb) {
+    నిర్మాణం Curl_mapi_guard guard;
 
-    NOVERBOSE((void)cause);
-    CURL_TRC_M(data, "ev %s, call(fd=%" FMT_SOCKET_T ", ev=REMOVE)", cause, s);
-    CURL_CBAPI_MULTI_START(&guard, multi, multi_socket_cb);
-    rc = multi->socket_cb(data, s, CURL_POLL_REMOVE,
-                          multi->socket_userp, entry->user_data);
-    CURL_CBAPI_END(&guard);
-    entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-    if(entry)
-      entry->announced = FALSE;
+    NOVERBOSE((శూన్య)cause);
+    CURL_TRC_M(దత్తాంశం, "ev %s, call(fd=%" FMT_SOCKET_T ", ev=REMOVE)", cause, s);
+    CURL_CBAPI_MULTI_ప్రారంభం(&guard, multi, multi_socket_cb);
+    rc = multi->socket_cb(దత్తాంశం, s, CURL_POLL_REMOVE,
+                          multi->socket_userp, నమోదు_2->user_దత్తాంశం);
+    CURL_CBAPI_చివర(&guard);
+    నమోదు_2 = mev_sh_నమోదు_get(&multi->ev.sh_entries, s);
+    ఒకవేళ(నమోదు_2)
+      నమోదు_2->announced = FALSE;
   }
 
-  mev_sh_entry_kill(multi, s);
-  if(rc == -1) {
+  mev_sh_నమోదు_kill(multi, s);
+  ఒకవేళ(rc == -1) {
     multi->dead = TRUE;
-    return CURLM_ABORTED_BY_CALLBACK;
+    తిరిగి CURLM_ABORTED_BY_CALLBACK;
   }
-  return CURLM_OK;
+  తిరిగి CURLM_OK;
 }
 
-static CURLMcode mev_sh_entry_update(struct Curl_multi *multi,
-                                     struct Curl_easy *data,
-                                     struct mev_sh_entry *entry,
+స్థిర CURLMcode mev_sh_నమోదు_update(నిర్మాణం Curl_multi *multi,
+                                     నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం mev_sh_నమోదు *నమోదు_2,
                                      curl_socket_t s,
-                                     unsigned char last_action,
-                                     unsigned char cur_action)
+                                     గుర్తులేని అక్షరం చివరి_action,
+                                     గుర్తులేని అక్షరం cur_action)
 {
-  int rc, comboaction;
+  పూర్ణాంకం rc, comboaction;
 
   /* we should only be called when the callback exists */
   DEBUGASSERT(multi->socket_cb);
-  DEBUGASSERT(entry->magic == SH_ENTRY_MAGIC);
-  if(!multi->socket_cb)
-    return CURLM_OK;
+  DEBUGASSERT(నమోదు_2->magic == SH_నమోదు_MAGIC);
+  ఒకవేళ(!multi->socket_cb)
+    తిరిగి CURLM_OK;
 
   /* Transfer `data` goes from `last_action` to `cur_action` on socket `s`
    * with `multi->ev.sh_entries` entry `entry`. Update `entry` and trigger
    * `multi->socket_cb` on change, if the callback is set. */
-  if(last_action == cur_action)  /* nothing from `data` changed */
-    return CURLM_OK;
+  ఒకవేళ(చివరి_action == cur_action)  /* nothing from `data` changed */
+    తిరిగి CURLM_OK;
 
-  if(last_action & CURL_POLL_IN) {
-    DEBUGASSERT(entry->readers);
-    if(!(cur_action & CURL_POLL_IN))
-      entry->readers--;
+  ఒకవేళ(చివరి_action & CURL_POLL_లోపల) {
+    DEBUGASSERT(నమోదు_2->readers);
+    ఒకవేళ(!(cur_action & CURL_POLL_లోపల))
+      నమోదు_2->readers--;
   }
-  else if(cur_action & CURL_POLL_IN)
-    entry->readers++;
+  లేకపోతే ఒకవేళ(cur_action & CURL_POLL_లోపల)
+    నమోదు_2->readers++;
 
-  if(last_action & CURL_POLL_OUT) {
-    DEBUGASSERT(entry->writers);
-    if(!(cur_action & CURL_POLL_OUT))
-      entry->writers--;
+  ఒకవేళ(చివరి_action & CURL_POLL_బహిర్గతం) {
+    DEBUGASSERT(నమోదు_2->writers);
+    ఒకవేళ(!(cur_action & CURL_POLL_బహిర్గతం))
+      నమోదు_2->writers--;
   }
-  else if(cur_action & CURL_POLL_OUT)
-    entry->writers++;
+  లేకపోతే ఒకవేళ(cur_action & CURL_POLL_బహిర్గతం)
+    నమోదు_2->writers++;
 
-  DEBUGASSERT(entry->readers <= mev_sh_entry_user_count(entry));
-  DEBUGASSERT(entry->writers <= mev_sh_entry_user_count(entry));
-  DEBUGASSERT(entry->writers + entry->readers);
+  DEBUGASSERT(నమోదు_2->readers <= mev_sh_నమోదు_user_లెక్క(నమోదు_2));
+  DEBUGASSERT(నమోదు_2->writers <= mev_sh_నమోదు_user_లెక్క(నమోదు_2));
+  DEBUGASSERT(నమోదు_2->writers + నమోదు_2->readers);
 
-  CURL_TRC_M(data, "ev update fd=%" FMT_SOCKET_T ", action '%s%s' -> '%s%s'"
+  CURL_TRC_M(దత్తాంశం, "ev update fd=%" FMT_SOCKET_T ", action '%s%s' -> '%s%s'"
              " (%u/%u r/w)", s,
-             (last_action & CURL_POLL_IN) ? "IN" : "",
-             (last_action & CURL_POLL_OUT) ? "OUT" : "",
-             (cur_action & CURL_POLL_IN) ? "IN" : "",
-             (cur_action & CURL_POLL_OUT) ? "OUT" : "",
-             entry->readers, entry->writers);
+             (చివరి_action & CURL_POLL_లోపల) ? "IN" : "",
+             (చివరి_action & CURL_POLL_బహిర్గతం) ? "OUT" : "",
+             (cur_action & CURL_POLL_లోపల) ? "IN" : "",
+             (cur_action & CURL_POLL_బహిర్గతం) ? "OUT" : "",
+             నమోదు_2->readers, నమోదు_2->writers);
 
-  comboaction = (entry->writers ? CURL_POLL_OUT : 0) |
-                (entry->readers ? CURL_POLL_IN : 0);
-  if(((int)entry->action == comboaction)) /* nothing for socket changed */
-    return CURLM_OK;
+  comboaction = (నమోదు_2->writers ? CURL_POLL_బహిర్గతం : 0) |
+                (నమోదు_2->readers ? CURL_POLL_లోపల : 0);
+  ఒకవేళ(((పూర్ణాంకం)నమోదు_2->action == comboaction)) /* nothing for socket changed */
+    తిరిగి CURLM_OK;
 
-  CURL_TRC_M(data, "ev update call(fd=%" FMT_SOCKET_T ", ev=%s%s)",
-             s, (comboaction & CURL_POLL_IN) ? "IN" : "",
-             (comboaction & CURL_POLL_OUT) ? "OUT" : "");
+  CURL_TRC_M(దత్తాంశం, "ev update call(fd=%" FMT_SOCKET_T ", ev=%s%s)",
+             s, (comboaction & CURL_POLL_లోపల) ? "IN" : "",
+             (comboaction & CURL_POLL_బహిర్గతం) ? "OUT" : "");
   {
-    struct Curl_mapi_guard guard;
-    CURL_CBAPI_MULTI_START(&guard, multi, multi_socket_cb);
-    rc = multi->socket_cb(data, s, comboaction, multi->socket_userp,
-                          entry->user_data);
-    CURL_CBAPI_MULTI_END(&guard);
+    నిర్మాణం Curl_mapi_guard guard;
+    CURL_CBAPI_MULTI_ప్రారంభం(&guard, multi, multi_socket_cb);
+    rc = multi->socket_cb(దత్తాంశం, s, comboaction, multi->socket_userp,
+                          నమోదు_2->user_దత్తాంశం);
+    CURL_CBAPI_MULTI_చివర(&guard);
   }
-  if(rc == -1) {
+  ఒకవేళ(rc == -1) {
     multi->dead = TRUE;
-    return CURLM_ABORTED_BY_CALLBACK;
+    తిరిగి CURLM_ABORTED_BY_CALLBACK;
   }
   /* curl_easy_pause() is documented as callable from any callback; it
    * re-enters mev_assess() which may free this 'entry'. Re-fetch. */
-  entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-  if(entry) {
-    DEBUGASSERT(entry->magic == SH_ENTRY_MAGIC);
-    entry->announced = TRUE;
-    entry->action = (unsigned int)comboaction;
+  నమోదు_2 = mev_sh_నమోదు_get(&multi->ev.sh_entries, s);
+  ఒకవేళ(నమోదు_2) {
+    DEBUGASSERT(నమోదు_2->magic == SH_నమోదు_MAGIC);
+    నమోదు_2->announced = TRUE;
+    నమోదు_2->action = (గుర్తులేని పూర్ణాంకం)comboaction;
   }
-  return CURLM_OK;
+  తిరిగి CURLM_OK;
 }
 
-static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
-                                  struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  struct easy_pollset *ps,
-                                  struct easy_pollset *prev_ps)
+స్థిర CURLMcode mev_pollset_diff(నిర్మాణం Curl_multi *multi,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం connectdata *conn,
+                                  నిర్మాణం easy_pollset *ps,
+                                  నిర్మాణం easy_pollset *prev_ps)
 {
-  struct mev_sh_entry *entry;
+  నిర్మాణం mev_sh_నమోదు *నమోదు_2;
   curl_socket_t s;
-  unsigned int i, j;
+  గుర్తులేని పూర్ణాంకం i, j;
   CURLMcode mresult;
 
   /* The transfer `data` reports in `ps` the sockets it is interested
@@ -374,26 +374,26 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
   DEBUGASSERT(prev_ps);
 
   /* Handle changes to sockets the transfer is interested in. */
-  for(i = 0; i < ps->n; i++) {
-    unsigned char last_action;
-    bool first_time = FALSE; /* data/conn appears first time on socket */
+  కొరకు(i = 0; i < ps->n; i++) {
+    గుర్తులేని అక్షరం చివరి_action;
+    bool మొదటి_సమయం = FALSE; /* data/conn appears first time on socket */
 
     s = ps->sockets[i];
     /* Have we handled this socket before? */
-    entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-    if(!entry) {
+    నమోదు_2 = mev_sh_నమోదు_get(&multi->ev.sh_entries, s);
+    ఒకవేళ(!నమోదు_2) {
       /* new socket, add new entry */
-      first_time = TRUE;
-      entry = mev_sh_entry_add(&multi->ev.sh_entries, s);
-      if(!entry) /* fatal */
-        return CURLM_OUT_OF_MEMORY;
-      CURL_TRC_M(data, "ev new entry fd=%" FMT_SOCKET_T, s);
+      మొదటి_సమయం = TRUE;
+      నమోదు_2 = mev_sh_నమోదు_కూడు(&multi->ev.sh_entries, s);
+      ఒకవేళ(!నమోదు_2) /* fatal */
+        తిరిగి CURLM_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      CURL_TRC_M(దత్తాంశం, "ev new entry fd=%" FMT_SOCKET_T, s);
     }
-    else if(conn) {
-      first_time = !mev_sh_entry_conn_known(entry, conn);
+    లేకపోతే ఒకవేళ(conn) {
+      మొదటి_సమయం = !mev_sh_నమోదు_conn_తెలిసిన(నమోదు_2, conn);
     }
-    else {
-      first_time = !mev_sh_entry_xfer_known(entry, data);
+    లేకపోతే {
+      మొదటి_సమయం = !mev_sh_నమోదు_xfer_తెలిసిన(నమోదు_2, దత్తాంశం);
     }
 
     /* What was the previous action the transfer had regarding this socket?
@@ -401,251 +401,251 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
      * in `last_poll`, because the socket might have been destroyed and
      * reopened. We would have cleared the sh_entry for that, but the socket
      * might still be mentioned in the hashed pollsets. */
-    last_action = 0;
-    if(first_time) {
-      if(conn) {
-        if(!mev_sh_entry_conn_add(entry, conn))
-          return CURLM_OUT_OF_MEMORY;
+    చివరి_action = 0;
+    ఒకవేళ(మొదటి_సమయం) {
+      ఒకవేళ(conn) {
+        ఒకవేళ(!mev_sh_నమోదు_conn_కూడు(నమోదు_2, conn))
+          తిరిగి CURLM_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
-      else {
-        if(!mev_sh_entry_xfer_add(entry, data))
-          return CURLM_OUT_OF_MEMORY;
+      లేకపోతే {
+        ఒకవేళ(!mev_sh_నమోదు_xfer_కూడు(నమోదు_2, దత్తాంశం))
+          తిరిగి CURLM_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
-      CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", added %s #%" FMT_OFF_T
+      CURL_TRC_M(దత్తాంశం, "ev entry fd=%" FMT_SOCKET_T ", added %s #%" FMT_OFF_T
                  ", total=%u/%d (xfer/conn)", s,
                  conn ? "connection" : "transfer",
-                 conn ? conn->connection_id : data->mid,
-                 Curl_uint32_spbset_count(&entry->xfers),
-                 entry->conn ? 1 : 0);
+                 conn ? conn->connection_id : దత్తాంశం->mid,
+                 Curl_uint32_spbset_లెక్క(&నమోదు_2->xfers),
+                 నమోదు_2->conn ? 1 : 0);
     }
-    else {
-      for(j = 0; j < prev_ps->n; j++) {
-        if(s == prev_ps->sockets[j]) {
-          last_action = prev_ps->actions[j];
-          break;
+    లేకపోతే {
+      కొరకు(j = 0; j < prev_ps->n; j++) {
+        ఒకవేళ(s == prev_ps->sockets[j]) {
+          చివరి_action = prev_ps->actions[j];
+          ఆపు;
         }
       }
     }
     /* track readers/writers changes and report to socket callback */
-    mresult = mev_sh_entry_update(multi, data, entry, s,
-                                  last_action, ps->actions[i]);
-    if(mresult)
-      return mresult;
+    mresult = mev_sh_నమోదు_update(multi, దత్తాంశం, నమోదు_2, s,
+                                  చివరి_action, ps->actions[i]);
+    ఒకవేళ(mresult)
+      తిరిగి mresult;
   }
 
   /* Handle changes to sockets the transfer is NO LONGER interested in. */
-  for(i = 0; i < prev_ps->n; i++) {
+  కొరకు(i = 0; i < prev_ps->n; i++) {
     bool stillused = FALSE;
 
     s = prev_ps->sockets[i];
-    for(j = 0; j < ps->n; j++) {
-      if(s == ps->sockets[j]) {
+    కొరకు(j = 0; j < ps->n; j++) {
+      ఒకవేళ(s == ps->sockets[j]) {
         /* socket is still supervised */
         stillused = TRUE;
-        break;
+        ఆపు;
       }
     }
-    if(stillused)
-      continue;
+    ఒకవేళ(stillused)
+      కొనసాగు;
 
-    entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
+    నమోదు_2 = mev_sh_నమోదు_get(&multi->ev.sh_entries, s);
     /* if entry does not exist, we were either never told about it or
      * have already cleaned up this socket via Curl_multi_ev_socket_done().
      * In other words: this is perfectly normal */
-    if(!entry)
-      continue;
+    ఒకవేళ(!నమోదు_2)
+      కొనసాగు;
 
-    if(conn && !mev_sh_entry_conn_remove(entry, conn)) {
+    ఒకవేళ(conn && !mev_sh_నమోదు_conn_remove(నమోదు_2, conn)) {
       /* `conn` says in `prev_ps` that it had been using a socket,
        * but `conn` has not been registered for it.
        * This should not happen if our book-keeping is correct? */
-      CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", conn lost "
+      CURL_TRC_M(దత్తాంశం, "ev entry fd=%" FMT_SOCKET_T ", conn lost "
                  "interest but is not registered", s);
-      DEBUGASSERT(NULL);
-      continue;
+      DEBUGASSERT(ఖాళీ);
+      కొనసాగు;
     }
 
-    if(!conn && !mev_sh_entry_xfer_remove(entry, data)) {
+    ఒకవేళ(!conn && !mev_sh_నమోదు_xfer_remove(నమోదు_2, దత్తాంశం)) {
       /* `data` says in `prev_ps` that it had been using a socket,
        * but `data` has not been registered for it.
        * This should not happen if our book-keeping is correct? */
-      CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", transfer lost "
+      CURL_TRC_M(దత్తాంశం, "ev entry fd=%" FMT_SOCKET_T ", transfer lost "
                  "interest but is not registered", s);
-      DEBUGASSERT(NULL);
-      continue;
+      DEBUGASSERT(ఖాళీ);
+      కొనసాగు;
     }
 
-    if(mev_sh_entry_user_count(entry)) {
+    ఒకవేళ(mev_sh_నమోదు_user_లెక్క(నమోదు_2)) {
       /* track readers/writers changes and report to socket callback */
-      mresult = mev_sh_entry_update(multi, data, entry, s,
+      mresult = mev_sh_నమోదు_update(multi, దత్తాంశం, నమోదు_2, s,
                                     prev_ps->actions[i], 0);
-      if(mresult)
-        return mresult;
-      CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", removed transfer, "
+      ఒకవేళ(mresult)
+        తిరిగి mresult;
+      CURL_TRC_M(దత్తాంశం, "ev entry fd=%" FMT_SOCKET_T ", removed transfer, "
                  "total=%u/%d (xfer/conn)", s,
-                 Curl_uint32_spbset_count(&entry->xfers),
-                 entry->conn ? 1 : 0);
+                 Curl_uint32_spbset_లెక్క(&నమోదు_2->xfers),
+                 నమోదు_2->conn ? 1 : 0);
     }
-    else {
-      mresult = mev_forget_socket(multi, data, s, "last user gone");
-      if(mresult)
-        return mresult;
+    లేకపోతే {
+      mresult = mev_forget_socket(multi, దత్తాంశం, s, "last user gone");
+      ఒకవేళ(mresult)
+        తిరిగి mresult;
     }
   } /* for loop over num */
 
   /* Remember for next time */
   Curl_pollset_move(prev_ps, ps);
-  return CURLM_OK;
+  తిరిగి CURLM_OK;
 }
 
-static CURLMcode mev_assess(struct Curl_multi *multi,
-                            struct Curl_easy *data,
-                            struct connectdata *conn)
+స్థిర CURLMcode mev_assess(నిర్మాణం Curl_multi *multi,
+                            నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం connectdata *conn)
 {
-  struct easy_pollset ps, *last_ps;
+  నిర్మాణం easy_pollset ps, *చివరి_ps;
   CURLMcode mresult = CURLM_OK;
 
-  if(!multi || !multi->socket_cb)
-    return CURLM_OK;
+  ఒకవేళ(!multi || !multi->socket_cb)
+    తిరిగి CURLM_OK;
 
   Curl_pollset_init(&ps);
-  if(conn) {
-    CURLcode result = Curl_conn_adjust_pollset(data, conn, &ps);
-    if(result) {
-      mresult = (result == CURLE_OUT_OF_MEMORY) ?
-        CURLM_OUT_OF_MEMORY : CURLM_INTERNAL_ERROR;
-      goto out;
+  ఒకవేళ(conn) {
+    CURLcode ఫలితం = Curl_conn_adjust_pollset(దత్తాంశం, conn, &ps);
+    ఒకవేళ(ఫలితం) {
+      mresult = (ఫలితం == CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం) ?
+        CURLM_బహిర్గతం_యొక్క_జ్ఞాపకం : CURLM_అంతర్గత_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
   }
-  else
-    Curl_multi_pollset(data, &ps);
-  last_ps = mev_get_last_pollset(data, conn);
+  లేకపోతే
+    Curl_multi_pollset(దత్తాంశం, &ps);
+  చివరి_ps = mev_get_చివరి_pollset(దత్తాంశం, conn);
 
-  if(!last_ps && ps.n) {
-    if(conn)
-      last_ps = mev_add_new_conn_pollset(conn);
-    else
-      last_ps = mev_add_new_xfer_pollset(data);
-    if(!last_ps) {
-      mresult = CURLM_OUT_OF_MEMORY;
-      goto out;
+  ఒకవేళ(!చివరి_ps && ps.n) {
+    ఒకవేళ(conn)
+      చివరి_ps = mev_కూడు_new_conn_pollset(conn);
+    లేకపోతే
+      చివరి_ps = mev_కూడు_new_xfer_pollset(దత్తాంశం);
+    ఒకవేళ(!చివరి_ps) {
+      mresult = CURLM_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  if(last_ps)
-    mresult = mev_pollset_diff(multi, data, conn, &ps, last_ps);
-  else
+  ఒకవేళ(చివరి_ps)
+    mresult = mev_pollset_diff(multi, దత్తాంశం, conn, &ps, చివరి_ps);
+  లేకపోతే
     DEBUGASSERT(!ps.n);
-out:
+బహిర్గతం:
   Curl_pollset_cleanup(&ps);
-  return mresult;
+  తిరిగి mresult;
 }
 
-CURLMcode Curl_multi_ev_assess_xfer(struct Curl_multi *multi,
-                                    struct Curl_easy *data)
+CURLMcode Curl_multi_ev_assess_xfer(నిర్మాణం Curl_multi *multi,
+                                    నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return mev_assess(multi, data, NULL);
+  తిరిగి mev_assess(multi, దత్తాంశం, ఖాళీ);
 }
 
-CURLMcode Curl_multi_ev_assess_conn(struct Curl_multi *multi,
-                                    struct Curl_easy *data,
-                                    struct connectdata *conn)
+CURLMcode Curl_multi_ev_assess_conn(నిర్మాణం Curl_multi *multi,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం connectdata *conn)
 {
-  return mev_assess(multi, data, conn);
+  తిరిగి mev_assess(multi, దత్తాంశం, conn);
 }
 
-CURLMcode Curl_multi_ev_assess_xfer_bset(struct Curl_multi *multi,
-                                         struct uint32_bset *set)
+CURLMcode Curl_multi_ev_assess_xfer_bset(నిర్మాణం Curl_multi *multi,
+                                         నిర్మాణం uint32_bset *సమితి)
 {
   uint32_t mid;
   CURLMcode mresult = CURLM_OK;
 
-  if(multi && multi->socket_cb && Curl_uint32_bset_first(set, &mid)) {
-    do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
-        mresult = Curl_multi_ev_assess_xfer(multi, data);
+  ఒకవేళ(multi && multi->socket_cb && Curl_uint32_bset_మొదటి(సమితి, &mid)) {
+    చేయి {
+      నిర్మాణం Curl_easy *దత్తాంశం = Curl_multi_get_easy(multi, mid);
+      ఒకవేళ(దత్తాంశం) {
+        mresult = Curl_multi_ev_assess_xfer(multi, దత్తాంశం);
       }
-    } while(!mresult && Curl_uint32_bset_next(set, mid, &mid));
+    } అయితే(!mresult && Curl_uint32_bset_తదుపరి(సమితి, mid, &mid));
   }
-  return mresult;
+  తిరిగి mresult;
 }
 
-CURLMcode Curl_multi_ev_assign(struct Curl_multi *multi,
+CURLMcode Curl_multi_ev_కేటాయించు(నిర్మాణం Curl_multi *multi,
                                curl_socket_t s,
-                               void *user_data)
+                               శూన్య *user_దత్తాంశం)
 {
-  struct mev_sh_entry *e = mev_sh_entry_get(&multi->ev.sh_entries, s);
-  if(!e)
-    return CURLM_BAD_SOCKET;
-  e->user_data = user_data;
-  return CURLM_OK;
+  నిర్మాణం mev_sh_నమోదు *e = mev_sh_నమోదు_get(&multi->ev.sh_entries, s);
+  ఒకవేళ(!e)
+    తిరిగి CURLM_BAD_SOCKET;
+  e->user_దత్తాంశం = user_దత్తాంశం;
+  తిరిగి CURLM_OK;
 }
 
-void Curl_multi_ev_dirty_xfers(struct Curl_multi *multi,
+శూన్య Curl_multi_ev_dirty_xfers(నిర్మాణం Curl_multi *multi,
                                curl_socket_t s)
 {
-  struct mev_sh_entry *entry;
+  నిర్మాణం mev_sh_నమోదు *నమోదు_2;
 
   DEBUGASSERT(s != CURL_SOCKET_TIMEOUT);
-  entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
+  నమోదు_2 = mev_sh_నమోదు_get(&multi->ev.sh_entries, s);
 
   /* Unmatched socket, we cannot act on it but we ignore this fact. In
      real-world tests it has been proved that libevent can in fact give
      the application actions even though the socket was previously
      asked to get removed, so thus we better survive stray socket actions
      and move on. */
-  if(entry) {
-    struct Curl_easy *data;
+  ఒకవేళ(నమోదు_2) {
+    నిర్మాణం Curl_easy *దత్తాంశం;
     uint32_t mid;
 
-    if(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
-      do {
-        data = Curl_multi_get_easy(multi, mid);
-        if(data) {
-          Curl_multi_mark_dirty(data);
+    ఒకవేళ(Curl_uint32_spbset_మొదటి(&నమోదు_2->xfers, &mid)) {
+      చేయి {
+        దత్తాంశం = Curl_multi_get_easy(multi, mid);
+        ఒకవేళ(దత్తాంశం) {
+          Curl_multi_mark_dirty(దత్తాంశం);
         }
-        else {
+        లేకపోతే {
           CURL_TRC_M(multi->admin, "socket transfer %u no longer found", mid);
-          Curl_uint32_spbset_remove(&entry->xfers, mid);
+          Curl_uint32_spbset_remove(&నమోదు_2->xfers, mid);
         }
-      } while(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
+      } అయితే(Curl_uint32_spbset_తదుపరి(&నమోదు_2->xfers, mid, &mid));
     }
 
-    if(entry->conn)
+    ఒకవేళ(నమోదు_2->conn)
       Curl_multi_mark_dirty(multi->admin);
   }
 }
 
-void Curl_multi_ev_socket_done(struct Curl_multi *multi,
-                               struct Curl_easy *data, curl_socket_t s)
+శూన్య Curl_multi_ev_socket_పూర్తి(నిర్మాణం Curl_multi *multi,
+                               నిర్మాణం Curl_easy *దత్తాంశం, curl_socket_t s)
 {
-  mev_forget_socket(multi, data, s, "socket done");
+  mev_forget_socket(multi, దత్తాంశం, s, "socket done");
 }
 
-void Curl_multi_ev_xfer_done(struct Curl_multi *multi,
-                             struct Curl_easy *data)
+శూన్య Curl_multi_ev_xfer_పూర్తి(నిర్మాణం Curl_multi *multi,
+                             నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  DEBUGASSERT(!data->conn); /* transfer should have been detached */
-  (void)mev_assess(multi, data, NULL);
-  Curl_meta_remove(data, CURL_META_MEV_POLLSET);
+  DEBUGASSERT(!దత్తాంశం->conn); /* transfer should have been detached */
+  (శూన్య)mev_assess(multi, దత్తాంశం, ఖాళీ);
+  Curl_meta_remove(దత్తాంశం, CURL_META_MEV_POLLSET);
 }
 
-void Curl_multi_ev_conn_done(struct Curl_multi *multi,
-                             struct Curl_easy *data,
-                             struct connectdata *conn)
+శూన్య Curl_multi_ev_conn_పూర్తి(నిర్మాణం Curl_multi *multi,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం connectdata *conn)
 {
-  (void)mev_assess(multi, data, conn);
+  (శూన్య)mev_assess(multi, దత్తాంశం, conn);
   Curl_conn_meta_remove(conn, CURL_META_MEV_POLLSET);
 }
 
-void Curl_multi_ev_init(struct Curl_multi *multi, size_t hashsize)
+శూన్య Curl_multi_ev_init(నిర్మాణం Curl_multi *multi, size_t hashsize)
 {
   Curl_hash_init(&multi->ev.sh_entries, hashsize, CURL_HASH_TYPE_SOCKET,
-                 mev_sh_entry_dtor);
+                 mev_sh_నమోదు_dtor);
 }
 
-void Curl_multi_ev_cleanup(struct Curl_multi *multi)
+శూన్య Curl_multi_ev_cleanup(నిర్మాణం Curl_multi *multi)
 {
   Curl_hash_destroy(&multi->ev.sh_entries);
 }

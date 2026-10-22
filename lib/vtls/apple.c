@@ -38,19 +38,19 @@
    https://httpd.apache.org/docs/2.0/ssl/ssl_intro.html
  */
 
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_APPLE_SECTRUST
+#నిర్వచితమైతే USE_APPLE_SECTRUST
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "vtls/vtls.h"
-#include "vtls/apple.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "vtls/apple.h"
 
-#include <Security/Security.h>
+#అన్తర్భావ <Security/Security.h>
 
-#if (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#ఒకవేళ (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
              __MAC_OS_X_VERSION_MAX_ALLOWED >= 101400) || \
     (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
              __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000) || \
@@ -60,10 +60,10 @@
              __WATCH_OS_VERSION_MAX_ALLOWED >= 50000) || \
     (defined(__VISION_OS_VERSION_MAX_ALLOWED) && \
              __VISION_OS_VERSION_MAX_ALLOWED >= 10000)
-#define SUPPORTS_SecTrustEvaluateWithError 1
-#endif
+#నిర్వచించు SUPPORTS_SecTrustEvaluateWithError 1
+#అయితే_ముగింపు
 
-#if defined(SUPPORTS_SecTrustEvaluateWithError) && \
+#ఒకవేళ defined(SUPPORTS_SecTrustEvaluateWithError) && \
   ((defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
             __MAC_OS_X_VERSION_MIN_REQUIRED >= 101400) || \
    (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
@@ -74,16 +74,16 @@
             __WATCH_OS_VERSION_MIN_REQUIRED >= 50000) || \
    (defined(__VISION_OS_VERSION_MIN_REQUIRED) && \
             __VISION_OS_VERSION_MIN_REQUIRED >= 10000))
-#define REQUIRES_SecTrustEvaluateWithError 1
-#endif
+#నిర్వచించు REQUIRES_SecTrustEvaluateWithError 1
+#అయితే_ముగింపు
 
-#if defined(SUPPORTS_SecTrustEvaluateWithError) && \
-  !defined(HAVE_BUILTIN_AVAILABLE) &&              \
+#ఒకవేళ defined(SUPPORTS_SecTrustEvaluateWithError) && \
+  !defined(HAVE_BUILTIN_అందుబాటు) &&              \
   !defined(REQUIRES_SecTrustEvaluateWithError)
-#undef SUPPORTS_SecTrustEvaluateWithError
-#endif
+#నిర్వచనం_రద్దు SUPPORTS_SecTrustEvaluateWithError
+#అయితే_ముగింపు
 
-#if (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#ఒకవేళ (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
              __MAC_OS_X_VERSION_MAX_ALLOWED >= 100900) || \
     (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
              __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000) || \
@@ -93,236 +93,236 @@
              __WATCH_OS_VERSION_MAX_ALLOWED >= 20000) || \
     (defined(__VISION_OS_VERSION_MAX_ALLOWED) && \
              __VISION_OS_VERSION_MAX_ALLOWED >= 10000)
-#define SUPPORTS_SecOCSP 1
-#endif
+#నిర్వచించు SUPPORTS_SecOCSP 1
+#అయితే_ముగింపు
 
-CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct ssl_peer *peer,
-                                size_t num_certs,
+CURLcode Curl_vtls_apple_verify(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం ssl_peer *peer,
+                                size_t అంకె_certs,
                                 Curl_vtls_get_cert_der *der_cb,
-                                void *cb_user_data,
-                                const unsigned char *ocsp_buf,
+                                శూన్య *cb_user_దత్తాంశం,
+                                స్థిరరాశి గుర్తులేని అక్షరం *ocsp_buf,
                                 size_t ocsp_len,
                                 bool require_ocsp)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  CURLcode result = CURLE_OK;
-  SecTrustRef trust = NULL;
-  SecPolicyRef policy = NULL;
-  CFMutableArrayRef policies = NULL;
-  CFMutableArrayRef cert_array = NULL;
-  CFStringRef host_str = NULL;
-  CFErrorRef error = NULL;
-  OSStatus status = noErr;
-  CFStringRef error_ref = NULL;
-  char *err_desc = NULL;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  CURLcode ఫలితం = CURLE_OK;
+  SecTrustRef trust = ఖాళీ;
+  SecPolicyRef policy = ఖాళీ;
+  CFMutableArrayRef policies = ఖాళీ;
+  CFMutableArrayRef cert_array = ఖాళీ;
+  CFStringRef host_str = ఖాళీ;
+  CFErrorRef error = ఖాళీ;
+  OSStatus స్థితి_2 = noErr;
+  CFStringRef error_ref = ఖాళీ;
+  అక్షరం *err_desc = ఖాళీ;
   size_t i;
 
-  if(conn_config->verifyhost) {
-    host_str = CFStringCreateWithCString(NULL,
+  ఒకవేళ(conn_config->verifyhost) {
+    host_str = CFStringCreateWithCString(ఖాళీ,
       peer->sni ? peer->sni : peer->origin->hostname, kCFStringEncodingUTF8);
-    if(!host_str) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    ఒకవేళ(!host_str) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  policies = CFArrayCreateMutable(NULL, 2, &kCFTypeArrayCallBacks);
-  if(!policies) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  policies = CFArrayCreateMutable(ఖాళీ, 2, &kCFTypeArrayCallBacks);
+  ఒకవేళ(!policies) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
   policy = SecPolicyCreateSSL(true, host_str);
-  if(!policy) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ఒకవేళ(!policy) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  CFArrayAppendValue(policies, policy);
+  CFArray_Append_విలువ(policies, policy);
   CFRelease(policy);
-  policy = NULL;
+  policy = ఖాళీ;
 
-#if defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
+#ఒకవేళ defined(HAVE_BUILTIN_అందుబాటు) && defined(SUPPORTS_SecOCSP)
   {
-    if(!conn_config->no_revoke) {
-      if(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
+    ఒకవేళ(!conn_config->no_revoke) {
+      ఒకవేళ(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
         /* Even without this set, validation seemingly-unavoidably fails
          * for certificates that trustd already knows to be revoked.
          * This policy further allows trustd to consult CRLs and OCSP data
          * to determine revocation status (which it may then cache). */
-        CFOptionFlags revocation_flags = kSecRevocationUseAnyAvailableMethod;
-        if(require_ocsp)
-          revocation_flags |= kSecRevocationRequirePositiveResponse;
+        CFOptionFlags revocation_flags = k_Sec_Revocation_Use_Any_అందుబాటు_పద్ధతి;
+        ఒకవేళ(require_ocsp)
+          revocation_flags |= k_Sec_Revocation_Require_ధనాత్మక_Response;
         policy = SecPolicyCreateRevocation(revocation_flags);
-        if(!policy) {
-          result = CURLE_OUT_OF_MEMORY;
-          goto out;
+        ఒకవేళ(!policy) {
+          ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+          వెళ్ళు బహిర్గతం;
         }
 
-        CFArrayAppendValue(policies, policy);
+        CFArray_Append_విలువ(policies, policy);
       }
     }
   }
-#else
+#లేకపోతే
   /* OCSP check not available in this Apple OS version. */
-  if(require_ocsp) {
-    failf(data, "Apple SecTrust version does not support OCSP checks");
-    result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto out;
+  ఒకవేళ(require_ocsp) {
+    failf(దత్తాంశం, "Apple SecTrust version does not support OCSP checks");
+    ఫలితం = CURLE_SSL_INVALIDCERTSTATUS;
+    వెళ్ళు బహిర్గతం;
   }
 
-#endif
+#అయితే_ముగింపు
 
-  cert_array = CFArrayCreateMutable(NULL, num_certs, &kCFTypeArrayCallBacks);
-  if(!cert_array) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  cert_array = CFArrayCreateMutable(ఖాళీ, అంకె_certs, &kCFTypeArrayCallBacks);
+  ఒకవేళ(!cert_array) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  for(i = 0; i < num_certs; i++) {
+  కొరకు(i = 0; i < అంకె_certs; i++) {
     SecCertificateRef cert;
     CFDataRef certdata;
-    unsigned char *der;
+    గుర్తులేని అక్షరం *der;
     size_t der_len;
 
-    result = der_cb(cf, data, cb_user_data, i, &der, &der_len);
-    if(result)
-      goto out;
+    ఫలితం = der_cb(cf, దత్తాంశం, cb_user_దత్తాంశం, i, &der, &der_len);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
 
-    certdata = CFDataCreate(NULL, der, (CFIndex)der_len);
-    if(!certdata) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    certdata = CFDataCreate(ఖాళీ, der, (CFIndex)der_len);
+    ఒకవేళ(!certdata) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
 
-    cert = SecCertificateCreateWithData(NULL, certdata);
+    cert = Sec_Certificate_Create_With_దత్తాంశం(ఖాళీ, certdata);
     CFRelease(certdata);
-    if(!cert) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    ఒకవేళ(!cert) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
 
-    CFArrayAppendValue(cert_array, cert);
+    CFArray_Append_విలువ(cert_array, cert);
     CFRelease(cert);
   }
 
-  status = SecTrustCreateWithCertificates(cert_array, policies, &trust);
-  if(status != noErr || !trust) {
-    failf(data, "Apple SecTrust: failed to create validation trust");
-    result = CURLE_PEER_FAILED_VERIFICATION;
-    goto out;
+  స్థితి_2 = SecTrustCreateWithCertificates(cert_array, policies, &trust);
+  ఒకవేళ(స్థితి_2 != noErr || !trust) {
+    failf(దత్తాంశం, "Apple SecTrust: failed to create validation trust");
+    ఫలితం = CURLE_PEER_FAILED_VERIFICATION;
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(ocsp_len > 0) {
+  ఒకవేళ(ocsp_len > 0) {
     bool checked = FALSE;
-#if defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
-    if(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
-      CFDataRef ocspdata = CFDataCreate(NULL, ocsp_buf, (CFIndex)ocsp_len);
-      if(!ocspdata) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+#ఒకవేళ defined(HAVE_BUILTIN_అందుబాటు) && defined(SUPPORTS_SecOCSP)
+    ఒకవేళ(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
+      CFDataRef ocspdata = CFDataCreate(ఖాళీ, ocsp_buf, (CFIndex)ocsp_len);
+      ఒకవేళ(!ocspdata) {
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు బహిర్గతం;
       }
-      status = SecTrustSetOCSPResponse(trust, ocspdata);
+      స్థితి_2 = Sec_Trust_సమితి_OCSPResponse(trust, ocspdata);
       CFRelease(ocspdata);
-      if(status != noErr) {
-        failf(data, "Apple SecTrust: failed to set OCSP response: %d",
-              (int)status);
-        result = CURLE_PEER_FAILED_VERIFICATION;
-        goto out;
+      ఒకవేళ(స్థితి_2 != noErr) {
+        failf(దత్తాంశం, "Apple SecTrust: failed to set OCSP response: %d",
+              (పూర్ణాంకం)స్థితి_2);
+        ఫలితం = CURLE_PEER_FAILED_VERIFICATION;
+        వెళ్ళు బహిర్గతం;
       }
       checked = TRUE;
     }
-#endif
-    if(!checked) {
-      (void)ocsp_buf;
-      failf(data, "Apple SecTrust: OCSP verification not supported");
-      result = CURLE_NOT_BUILT_IN;
-      goto out;
+#అయితే_ముగింపు
+    ఒకవేళ(!checked) {
+      (శూన్య)ocsp_buf;
+      failf(దత్తాంశం, "Apple SecTrust: OCSP verification not supported");
+      ఫలితం = CURLE_NOT_BUILT_లోపల;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-#ifdef SUPPORTS_SecTrustEvaluateWithError
-#ifdef HAVE_BUILTIN_AVAILABLE
-  if(__builtin_available(macOS 10.14, iOS 12, tvOS 12, watchOS 5, *)) {
-#else
-  if(1) {
-#endif
-    result = SecTrustEvaluateWithError(trust, &error) ?
+#నిర్వచితమైతే SUPPORTS_SecTrustEvaluateWithError
+#నిర్వచితమైతే HAVE_BUILTIN_అందుబాటు
+  ఒకవేళ(__builtin_available(macOS 10.14, iOS 12, tvOS 12, watchOS 5, *)) {
+#లేకపోతే
+  ఒకవేళ(1) {
+#అయితే_ముగింపు
+    ఫలితం = SecTrustEvaluateWithError(trust, &error) ?
              CURLE_OK : CURLE_PEER_FAILED_VERIFICATION;
-    if(error) {
-      CFIndex code = CFErrorGetCode(error);
+    ఒకవేళ(error) {
+      CFIndex సంకేతం_2 = CFError_Get_సంకేతం(error);
       error_ref = CFErrorCopyDescription(error);
 
-      if(error_ref) {
-        CFIndex size = CFStringGetMaximumSizeForEncoding(
-          CFStringGetLength(error_ref), kCFStringEncodingUTF8);
-        err_desc = curlx_malloc(size + 1);
-        if(err_desc) {
-          if(!CFStringGetCString(error_ref, err_desc, size,
+      ఒకవేళ(error_ref) {
+        CFIndex కొలత = CFString_Get_గరిష్ఠ_కొలత_For_Encoding(
+          CFString_Get_నిడివి(error_ref), kCFStringEncodingUTF8);
+        err_desc = curlx_malloc(కొలత + 1);
+        ఒకవేళ(err_desc) {
+          ఒకవేళ(!CFStringGetCString(error_ref, err_desc, కొలత,
                                  kCFStringEncodingUTF8))
             curlx_safefree(err_desc);
         }
       }
-      failf(data, "Apple SecTrust failure %ld%s%s", code,
+      failf(దత్తాంశం, "Apple SecTrust failure %ld%s%s", సంకేతం_2,
             err_desc ? ": " : "", err_desc ? err_desc : "");
-      if(code == errSecIncompleteCertRevocationCheck)
-        result = CURLE_SSL_INVALIDCERTSTATUS;
+      ఒకవేళ(సంకేతం_2 == errSecIncompleteCertRevocationCheck)
+        ఫలితం = CURLE_SSL_INVALIDCERTSTATUS;
     }
   }
-  else
-#endif /* SUPPORTS_SecTrustEvaluateWithError */
+  లేకపోతే
+#అయితే_ముగింపు /* SUPPORTS_SecTrustEvaluateWithError */
   {
-#ifndef REQUIRES_SecTrustEvaluateWithError
-    SecTrustResultType sec_result;
-    status = SecTrustEvaluate(trust, &sec_result);
+#నిర్వచితం_కాకపోతే REQUIRES_SecTrustEvaluateWithError
+    Sec_Trust_ఫలితం_Type sec_ఫలితం;
+    స్థితి_2 = SecTrustEvaluate(trust, &sec_ఫలితం);
 
-    if(status != noErr) {
-      failf(data, "Apple SecTrust verification failed: error %d", (int)status);
-      result = CURLE_PEER_FAILED_VERIFICATION;
+    ఒకవేళ(స్థితి_2 != noErr) {
+      failf(దత్తాంశం, "Apple SecTrust verification failed: error %d", (పూర్ణాంకం)స్థితి_2);
+      ఫలితం = CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if((sec_result == kSecTrustResultUnspecified) ||
-            (sec_result == kSecTrustResultProceed)) {
+    లేకపోతే ఒకవేళ((sec_ఫలితం == k_Sec_Trust_ఫలితం_Unspecified) ||
+            (sec_ఫలితం == k_Sec_Trust_ఫలితం_Proceed)) {
       /* "unspecified" means system-trusted with no explicit user setting */
-      result = CURLE_OK;
+      ఫలితం = CURLE_OK;
     }
-    else {
+    లేకపోతే {
       /* Any other trust result is a verification failure in this context */
-      result = CURLE_PEER_FAILED_VERIFICATION;
+      ఫలితం = CURLE_PEER_FAILED_VERIFICATION;
     }
-#endif /* REQUIRES_SecTrustEvaluateWithError */
+#అయితే_ముగింపు /* REQUIRES_SecTrustEvaluateWithError */
   }
 
-out:
+బహిర్గతం:
   curlx_free(err_desc);
-  if(error_ref)
+  ఒకవేళ(error_ref)
     CFRelease(error_ref);
-  if(error)
+  ఒకవేళ(error)
     CFRelease(error);
-  if(host_str)
+  ఒకవేళ(host_str)
     CFRelease(host_str);
-  if(policies)
+  ఒకవేళ(policies)
     CFRelease(policies);
-  if(policy)
+  ఒకవేళ(policy)
     CFRelease(policy);
-  if(cert_array)
+  ఒకవేళ(cert_array)
     CFRelease(cert_array);
-  if(trust)
+  ఒకవేళ(trust)
     CFRelease(trust);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-bool Curl_vtls_apple_verifies_ocsp(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+bool Curl_vtls_apple_verifies_ocsp(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  (void)cf;
-  (void)data;
-#if defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
-  return TRUE;
-#else
-  return FALSE;
-#endif
+  (శూన్య)cf;
+  (శూన్య)దత్తాంశం;
+#ఒకవేళ defined(HAVE_BUILTIN_అందుబాటు) && defined(SUPPORTS_SecOCSP)
+  తిరిగి TRUE;
+#లేకపోతే
+  తిరిగి FALSE;
+#అయితే_ముగింపు
 }
 
-#endif /* USE_APPLE_SECTRUST */
+#అయితే_ముగింపు /* USE_APPLE_SECTRUST */

@@ -21,57 +21,57 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "transfer.h"
-#include "curlx/strcopy.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "transfer.h"
+#అన్తర్భావ "curlx/strcopy.h"
 
-#ifndef CURL_DISABLE_PROGRESS_METER
+#నిర్వచితం_కాకపోతే CURL_DISABLE_పురోగతి_METER
 /* Provide a string that is 7 letters long (plus the zero byte).
 
    @unittest 1636 */
-UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds);
-UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds)
+UNITTEST శూన్య time2str(అక్షరం *r, size_t rsize, curl_off_t seconds);
+UNITTEST శూన్య time2str(అక్షరం *r, size_t rsize, curl_off_t seconds)
 {
   curl_off_t h;
-  if(seconds <= 0) {
+  ఒకవేళ(seconds <= 0) {
     curlx_strcopy(r, rsize, STRCONST("       "));
-    return;
+    తిరిగి;
   }
   h = seconds / 3600;
-  if(h <= 99) {
+  ఒకవేళ(h <= 99) {
     curl_off_t m = (seconds - (h * 3600)) / 60;
-    if(h <= 9) {
+    ఒకవేళ(h <= 9) {
       curl_off_t s = (seconds - (h * 3600)) - (m * 60);
-      if(h)
+      ఒకవేళ(h)
         curl_msnprintf(r, rsize, "%" FMT_OFF_T ":%02" FMT_OFF_T ":"
                        "%02" FMT_OFF_T, h, m, s);
-      else
+      లేకపోతే
         curl_msnprintf(r, rsize, "  %02" FMT_OFF_T ":%02" FMT_OFF_T, m, s);
     }
-    else
+    లేకపోతే
       curl_msnprintf(r, rsize, "%" FMT_OFF_T "h %02" FMT_OFF_T "m", h, m);
   }
-  else {
+  లేకపోతే {
     curl_off_t d = seconds / 86400;
     h = (seconds - (d * 86400)) / 3600;
-    if(d <= 99)
+    ఒకవేళ(d <= 99)
       curl_msnprintf(r, rsize, "%2" FMT_OFF_T "d %02" FMT_OFF_T "h", d, h);
-    else if(d <= 999)
+    లేకపోతే ఒకవేళ(d <= 999)
       curl_msnprintf(r, rsize, "%6" FMT_OFF_T "d", d);
-    else { /* more than 999 days */
+    లేకపోతే { /* more than 999 days */
       curl_off_t m = d / 30;
-      if(m <= 999)
+      ఒకవేళ(m <= 999)
         curl_msnprintf(r, rsize, "%6" FMT_OFF_T "m", m);
-      else { /* more than 999 months */
+      లేకపోతే { /* more than 999 months */
         curl_off_t y = d / 365;
-        if(y <= 99999)
+        ఒకవేళ(y <= 99999)
           curl_msnprintf(r, rsize, "%6" FMT_OFF_T "y", y);
-        else
+        లేకపోతే
           curlx_strcopy(r, rsize, STRCONST(">99999y"));
       }
     }
@@ -83,95 +83,95 @@ UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds)
    Add suffix k, M, G when suitable...
 
    @unittest 1636 */
-UNITTEST char *max6out(curl_off_t bytes, char *max6, size_t mlen);
-UNITTEST char *max6out(curl_off_t bytes, char *max6, size_t mlen)
+UNITTEST అక్షరం *max6out(curl_off_t బైట్లు, అక్షరం *max6, size_t mlen);
+UNITTEST అక్షరం *max6out(curl_off_t బైట్లు, అక్షరం *max6, size_t mlen)
 {
   /* a signed 64-bit value is 8192 petabytes maximum, shown as
      8.0E (exabytes)*/
-  if(bytes < 100000)
-    curl_msnprintf(max6, mlen, "%6" CURL_FORMAT_CURL_OFF_T, bytes);
-  else {
-    static const char unit[] = { 'k', 'M', 'G', 'T', 'P', 'E', 0 };
-    int k = 0;
+  ఒకవేళ(బైట్లు < 100000)
+    curl_msnprintf(max6, mlen, "%6" CURL_FORMAT_CURL_OFF_T, బైట్లు);
+  లేకపోతే {
+    స్థిర స్థిరరాశి అక్షరం unit[] = { 'k', 'M', 'G', 'T', 'P', 'E', 0 };
+    పూర్ణాంకం k = 0;
     curl_off_t nbytes;
     curl_off_t rest;
-    do {
-      nbytes = bytes / 1024;
-      if(nbytes < 1000)
-        break;
-      bytes = nbytes;
+    చేయి {
+      nbytes = బైట్లు / 1024;
+      ఒకవేళ(nbytes < 1000)
+        ఆపు;
+      బైట్లు = nbytes;
       k++;
       DEBUGASSERT(unit[k]);
-    } while(unit[k]);
-    rest = bytes % 1024;
-    if(nbytes <= 99)
+    } అయితే(unit[k]);
+    rest = బైట్లు % 1024;
+    ఒకవేళ(nbytes <= 99)
       /* xx.yyU */
       curl_msnprintf(max6, mlen, "%2" CURL_FORMAT_CURL_OFF_T
                      ".%02" CURL_FORMAT_CURL_OFF_T "%c", nbytes,
                      rest * 100 / 1024, unit[k]);
-    else
+    లేకపోతే
       /* xxx.yU */
       curl_msnprintf(max6, mlen, "%3" CURL_FORMAT_CURL_OFF_T
                      ".%" CURL_FORMAT_CURL_OFF_T "%c", nbytes,
                      rest * 10 / 1024, unit[k]);
   }
-  return max6;
+  తిరిగి max6;
 }
-#endif
+#అయితే_ముగింపు
 
-static void pgrs_speedinit(struct Curl_easy *data)
+స్థిర శూన్య pgrs_speedinit(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  memset(&data->state.keeps_speed, 0, sizeof(struct curltime));
+  memset(&దత్తాంశం->state.keeps_వేగం, 0, పరిమాణం(నిర్మాణం curltime));
 }
 
 /*
  * @unittest 1606
  */
-UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
-                                  const struct curltime *pnow);
-UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
-                                  const struct curltime *pnow)
+UNITTEST CURLcode pgrs_speedcheck(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  స్థిరరాశి నిర్మాణం curltime *pnow);
+UNITTEST CURLcode pgrs_speedcheck(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  if(!data->set.low_speed_time || !data->set.low_speed_limit ||
-     Curl_xfer_recv_is_paused(data) || Curl_xfer_send_is_paused(data))
+  ఒకవేళ(!దత్తాంశం->సమితి.దిగువ_వేగం_సమయం || !దత్తాంశం->సమితి.దిగువ_వేగం_హద్దు ||
+     Curl_xfer_recv_is_paused(దత్తాంశం) || Curl_xfer_send_is_paused(దత్తాంశం))
     /* A paused transfer is not qualified for speed checks */
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
 
-  if(data->progress.current_speed >= 0) {
-    if(data->progress.current_speed < data->set.low_speed_limit) {
-      if(!data->state.keeps_speed.tv_sec)
+  ఒకవేళ(దత్తాంశం->పురోగతి.current_వేగం >= 0) {
+    ఒకవేళ(దత్తాంశం->పురోగతి.current_వేగం < దత్తాంశం->సమితి.దిగువ_వేగం_హద్దు) {
+      ఒకవేళ(!దత్తాంశం->state.keeps_వేగం.tv_sec)
         /* under the limit at this moment */
-        data->state.keeps_speed = *pnow;
-      else {
+        దత్తాంశం->state.keeps_వేగం = *pnow;
+      లేకపోతే {
         /* how long has it been under the limit */
         timediff_t howlong =
-          curlx_ptimediff_ms(pnow, &data->state.keeps_speed);
+          curlx_ptimediff_ms(pnow, &దత్తాంశం->state.keeps_వేగం);
 
-        if(howlong >= data->set.low_speed_time * 1000) {
+        ఒకవేళ(howlong >= దత్తాంశం->సమితి.దిగువ_వేగం_సమయం * 1000) {
           /* too long */
-          failf(data, "Operation too slow. Less than %" FMT_OFF_T
+          failf(దత్తాంశం, "Operation too slow. Less than %" FMT_OFF_T
                 " bytes/sec transferred the last %u seconds",
-                data->set.low_speed_limit, data->set.low_speed_time);
-          return CURLE_OPERATION_TIMEDOUT;
+                దత్తాంశం->సమితి.దిగువ_వేగం_హద్దు, దత్తాంశం->సమితి.దిగువ_వేగం_సమయం);
+          తిరిగి CURLE_OPERATION_TIMEDOUT;
         }
       }
     }
-    else
+    లేకపోతే
       /* faster right now */
-      data->state.keeps_speed.tv_sec = 0;
+      దత్తాంశం->state.keeps_వేగం.tv_sec = 0;
   }
 
   /* since low speed limit is enabled, set the expire timer to make this
      connection's speed get checked again in a second */
-  Curl_expire_set(data, EXPIRE_SPEEDCHECK, 1000, pnow);
+  Curl_expire_సమితి(దత్తాంశం, EXPIRE_SPEEDCHECK, 1000, pnow);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-const struct curltime *Curl_pgrs_now(struct Curl_easy *data)
+స్థిరరాశి నిర్మాణం curltime *Curl_pgrs_now(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  curlx_pnow(&data->progress.now);
-  return &data->progress.now;
+  curlx_pnow(&దత్తాంశం->పురోగతి.now);
+  తిరిగి &దత్తాంశం->పురోగతి.now;
 }
 
 /* New proposed interface, 9th of February 2000:
@@ -185,58 +185,58 @@ const struct curltime *Curl_pgrs_now(struct Curl_easy *data)
    pgrsDone() - transfer complete
  */
 
-int Curl_pgrsDone(struct Curl_easy *data, const struct curltime *pnow)
+పూర్ణాంకం Curl_pgrs_పూర్తి(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  int rc;
-  data->progress.delta.lastshow_us = -1;
-  rc = Curl_pgrsUpdateX(data, pnow); /* the final (forced) update */
-  if(rc)
-    return rc;
+  పూర్ణాంకం rc;
+  దత్తాంశం->పురోగతి.delta.lastshow_us = -1;
+  rc = Curl_pgrsUpdateX(దత్తాంశం, pnow); /* the final (forced) update */
+  ఒకవేళ(rc)
+    తిరిగి rc;
 
-  if(!data->progress.hide && !data->progress.callback)
+  ఒకవేళ(!దత్తాంశం->పురోగతి.hide && !దత్తాంశం->పురోగతి.callback)
     /* only output if we do not use a progress callback and we are not
      * hidden */
-    curl_mfprintf(data->set.err, "\n");
+    curl_mfprintf(దత్తాంశం->సమితి.err, "\n");
 
-  return 0;
+  తిరిగి 0;
 }
 
-void Curl_pgrsReset(struct Curl_easy *data)
+శూన్య Curl_pgrsReset(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  Curl_pgrsSetUploadCounter(data, 0);
-  data->progress.dl.cur_size = 0;
-  Curl_pgrsSetUploadSize(data, -1);
-  Curl_pgrsSetDownloadSize(data, -1);
-  data->progress.speeder_c = 0; /* reset speed records */
-  data->progress.deliver = 0;
-  pgrs_speedinit(data);
+  Curl_pgrs_సమితి_Upload_Counter(దత్తాంశం, 0);
+  దత్తాంశం->పురోగతి.dl.cur_కొలత = 0;
+  Curl_pgrs_సమితి_Upload_కొలత(దత్తాంశం, -1);
+  Curl_pgrs_సమితి_Download_కొలత(దత్తాంశం, -1);
+  దత్తాంశం->పురోగతి.speeder_c = 0; /* reset speed records */
+  దత్తాంశం->పురోగతి.deliver = 0;
+  pgrs_speedinit(దత్తాంశం);
 }
 
 /* reset the known transfer sizes */
-void Curl_pgrsResetTransferSizes(struct Curl_easy *data)
+శూన్య Curl_pgrsResetTransferSizes(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  Curl_pgrsSetDownloadSize(data, -1);
-  Curl_pgrsSetUploadSize(data, -1);
+  Curl_pgrs_సమితి_Download_కొలత(దత్తాంశం, -1);
+  Curl_pgrs_సమితి_Upload_కొలత(దత్తాంశం, -1);
 }
 
-void Curl_pgrsRecvPause(struct Curl_easy *data, bool enable)
+శూన్య Curl_pgrsRecvPause(నిర్మాణం Curl_easy *దత్తాంశం, bool enable)
 {
-  if(!enable) {
-    data->progress.speeder_c = 0; /* reset speed records */
-    pgrs_speedinit(data); /* reset low speed measurements */
+  ఒకవేళ(!enable) {
+    దత్తాంశం->పురోగతి.speeder_c = 0; /* reset speed records */
+    pgrs_speedinit(దత్తాంశం); /* reset low speed measurements */
   }
 }
 
-void Curl_pgrsSendPause(struct Curl_easy *data, bool enable)
+శూన్య Curl_pgrsSendPause(నిర్మాణం Curl_easy *దత్తాంశం, bool enable)
 {
-  if(!enable) {
-    data->progress.speeder_c = 0; /* reset speed records */
-    pgrs_speedinit(data); /* reset low speed measurements */
+  ఒకవేళ(!enable) {
+    దత్తాంశం->పురోగతి.speeder_c = 0; /* reset speed records */
+    pgrs_speedinit(దత్తాంశం); /* reset low speed measurements */
   }
 }
 
-#ifdef CURLVERBOSE
-static const char * const pgrs_timer_names[] = {
+#నిర్వచితమైతే CURLVERBOSE
+స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి pgrs_timer_పేర్లు[] = {
   "PGRS-NONE",
   "PGRS-STARTOP",
   "PGRS-STARTSINGLE",
@@ -250,93 +250,93 @@ static const char * const pgrs_timer_names[] = {
   "PGRS-REDIRECT",
 };
 
-static const char *pgrs_timer_name(timerid timer)
+స్థిర స్థిరరాశి అక్షరం *pgrs_timer_name(timerid timer)
 {
-  if((size_t)timer < CURL_ARRAYSIZE(pgrs_timer_names))
-    return pgrs_timer_names[(size_t)timer];
-  return "?";
+  ఒకవేళ((size_t)timer < CURL_ARRAYSIZE(pgrs_timer_పేర్లు))
+    తిరిగి pgrs_timer_పేర్లు[(size_t)timer];
+  తిరిగి "?";
 }
-#endif /* CURLVERBOSE */
+#అయితే_ముగింపు /* CURLVERBOSE */
 
 /*
  * Curl_pgrsTimeWas(). Store the timestamp time at the given label.
  */
-void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
-                      struct curltime timestamp)
+శూన్య Curl_pgrs_సమయం_Was(నిర్మాణం Curl_easy *దత్తాంశం, timerid timer,
+                      నిర్మాణం curltime timestamp)
 {
-  timediff_t *delta = NULL;
+  timediff_t *delta = ఖాళీ;
 
-  switch(timer) {
-  default:
-  case TIMER_NONE:
+  ఎంపిక(timer) {
+  అప్రమేయ:
+  స్థితి TIMER_NONE:
     /* mistake filter */
-    break;
-  case TIMER_STARTOP:
+    ఆపు;
+  స్థితి TIMER_STARTOP:
     /* This is set at the start of a transfer */
-    data->progress.delta.startop_us =
-      curlx_ptimediff_us(&timestamp, &data->progress.start);
-    data->progress.delta.startqueue_us = data->progress.delta.startop_us;
-    break;
-  case TIMER_STARTSINGLE:
+    దత్తాంశం->పురోగతి.delta.startop_us =
+      curlx_ptimediff_us(&timestamp, &దత్తాంశం->పురోగతి.ప్రారంభం);
+    దత్తాంశం->పురోగతి.delta.startqueue_us = దత్తాంశం->పురోగతి.delta.startop_us;
+    ఆపు;
+  స్థితి TIMER_STARTSINGLE:
     /* This is set at the start of each single transfer */
-    data->progress.delta.startsingle_us =
-      curlx_ptimediff_us(&timestamp, &data->progress.start);
-    data->progress.startransfer_added = FALSE;
-    break;
-  case TIMER_POSTQUEUE:
+    దత్తాంశం->పురోగతి.delta.startsingle_us =
+      curlx_ptimediff_us(&timestamp, &దత్తాంశం->పురోగతి.ప్రారంభం);
+    దత్తాంశం->పురోగతి.startransfer_added = FALSE;
+    ఆపు;
+  స్థితి TIMER_POSTQUEUE:
     /* Queue time is accumulative from all involved redirects */
-    data->progress.total.queued_us +=
-      curlx_ptimediff_us(&timestamp, &data->progress.start) -
-      data->progress.delta.startqueue_us;
-    break;
-  case TIMER_NAMELOOKUP:
-    delta = &data->progress.total.nslookup_us;
-    break;
-  case TIMER_CONNECT:
-    delta = &data->progress.total.connect_us;
-    break;
-  case TIMER_APPCONNECT:
-    delta = &data->progress.total.appconnect_us;
-    break;
-  case TIMER_PRETRANSFER:
-    delta = &data->progress.total.pretransfer_us;
-    break;
-  case TIMER_STARTTRANSFER:
+    దత్తాంశం->పురోగతి.మొత్తం.queued_us +=
+      curlx_ptimediff_us(&timestamp, &దత్తాంశం->పురోగతి.ప్రారంభం) -
+      దత్తాంశం->పురోగతి.delta.startqueue_us;
+    ఆపు;
+  స్థితి TIMER_NAMELOOKUP:
+    delta = &దత్తాంశం->పురోగతి.మొత్తం.nslookup_us;
+    ఆపు;
+  స్థితి TIMER_CONNECT:
+    delta = &దత్తాంశం->పురోగతి.మొత్తం.connect_us;
+    ఆపు;
+  స్థితి TIMER_APPCONNECT:
+    delta = &దత్తాంశం->పురోగతి.మొత్తం.appconnect_us;
+    ఆపు;
+  స్థితి TIMER_PRETRANSFER:
+    delta = &దత్తాంశం->పురోగతి.మొత్తం.pretransfer_us;
+    ఆపు;
+  స్థితి TIMER_STARTTRANSFER:
     /* prevent updating t_starttransfer unless:
      *   1. this is the first time we are setting t_starttransfer
      *   2. a redirect has occurred since the last time t_starttransfer was set
      * This prevents repeated invocations of the function from incorrectly
      * changing the t_starttransfer time.
      */
-    if(data->progress.startransfer_added) {
-      CURL_TRC_M(data, "[%s] ignored", pgrs_timer_name(timer));
-      return;
+    ఒకవేళ(దత్తాంశం->పురోగతి.startransfer_added) {
+      CURL_TRC_M(దత్తాంశం, "[%s] ignored", pgrs_timer_name(timer));
+      తిరిగి;
     }
-    data->progress.startransfer_added = TRUE;
-    delta = &data->progress.total.starttransfer_us;
-    break;
-  case TIMER_POSTRANSFER:
-    delta = &data->progress.total.posttransfer_us;
-    break;
-  case TIMER_REDIRECT:
-    data->progress.delta.startredirect_us =
-      curlx_ptimediff_us(&timestamp, &data->progress.start);
+    దత్తాంశం->పురోగతి.startransfer_added = TRUE;
+    delta = &దత్తాంశం->పురోగతి.మొత్తం.starttransfer_us;
+    ఆపు;
+  స్థితి TIMER_POSTRANSFER:
+    delta = &దత్తాంశం->పురోగతి.మొత్తం.posttransfer_us;
+    ఆపు;
+  స్థితి TIMER_REDIRECT:
+    దత్తాంశం->పురోగతి.delta.startredirect_us =
+      curlx_ptimediff_us(&timestamp, &దత్తాంశం->పురోగతి.ప్రారంభం);
     /* transfer starts queueing again */
-    data->progress.delta.startqueue_us =
-      data->progress.delta.startredirect_us;
-    break;
+    దత్తాంశం->పురోగతి.delta.startqueue_us =
+      దత్తాంశం->పురోగతి.delta.startredirect_us;
+    ఆపు;
   }
-  if(delta) {
-    timediff_t us = curlx_ptimediff_us(&timestamp, &data->progress.start) -
-                    data->progress.delta.startsingle_us;
-    if(us < 1)
+  ఒకవేళ(delta) {
+    timediff_t us = curlx_ptimediff_us(&timestamp, &దత్తాంశం->పురోగతి.ప్రారంభం) -
+                    దత్తాంశం->పురోగతి.delta.startsingle_us;
+    ఒకవేళ(us < 1)
       us = 1; /* make sure at least one microsecond passed */
     *delta += us;
-    CURL_TRC_M(data, "[%s] added %" FMT_TIMEDIFF_T "us",
+    CURL_TRC_M(దత్తాంశం, "[%s] added %" FMT_TIMEDIFF_T "us",
                pgrs_timer_name(timer), us);
   }
-  else
-    CURL_TRC_M(data, "[%s] set", pgrs_timer_name(timer));
+  లేకపోతే
+    CURL_TRC_M(దత్తాంశం, "[%s] set", pgrs_timer_name(timer));
 }
 
 /*
@@ -345,427 +345,427 @@ void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
  *
  * @unittest: 1399
  */
-void Curl_pgrsTime(struct Curl_easy *data, timerid timer)
+శూన్య Curl_pgrs_సమయం(నిర్మాణం Curl_easy *దత్తాంశం, timerid timer)
 {
-  Curl_pgrsTimeWas(data, timer, *Curl_pgrs_now(data));
+  Curl_pgrs_సమయం_Was(దత్తాంశం, timer, *Curl_pgrs_now(దత్తాంశం));
 }
 
-void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow)
+శూన్య Curl_pgrs_ప్రారంభం(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  struct Progress *p = &data->progress;
+  నిర్మాణం పురోగతి_2 *p = &దత్తాంశం->పురోగతి;
 
-  if(!pnow)
-    pnow = Curl_pgrs_now(data);
+  ఒకవేళ(!pnow)
+    pnow = Curl_pgrs_now(దత్తాంశం);
   p->speeder_c = 0; /* reset the progress meter display */
-  p->start = *pnow;
-  memset(&p->delta, 0, sizeof(p->delta));
-  memset(&p->total, 0, sizeof(p->total));
+  p->ప్రారంభం = *pnow;
+  memset(&p->delta, 0, పరిమాణం(p->delta));
+  memset(&p->మొత్తం, 0, పరిమాణం(p->మొత్తం));
   p->startransfer_added = FALSE;
-  p->dl.cur_size = 0;
-  p->ul.cur_size = 0;
+  p->dl.cur_కొలత = 0;
+  p->ul.cur_కొలత = 0;
   /* the sizes are unknown at start */
-  p->dl_size_known = FALSE;
-  p->ul_size_known = FALSE;
+  p->dl_కొలత_తెలిసిన = FALSE;
+  p->ul_కొలత_తెలిసిన = FALSE;
 }
 
 /* check that the 'delta' amount of bytes are okay to deliver to the
    application, or return error if not. */
-CURLcode Curl_pgrs_deliver_check(struct Curl_easy *data, size_t delta)
+CURLcode Curl_pgrs_deliver_check(నిర్మాణం Curl_easy *దత్తాంశం, size_t delta)
 {
-  if(data->set.max_filesize &&
-     ((curl_off_t)delta > data->set.max_filesize - data->progress.deliver)) {
-    failf(data, "Would have exceeded max file size");
-    return CURLE_FILESIZE_EXCEEDED;
+  ఒకవేళ(దత్తాంశం->సమితి.max_filesize &&
+     ((curl_off_t)delta > దత్తాంశం->సమితి.max_filesize - దత్తాంశం->పురోగతి.deliver)) {
+    failf(దత్తాంశం, "Would have exceeded max file size");
+    తిరిగి CURLE_FILESIZE_EXCEEDED;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* this counts how much data is delivered to the application, which
    in compressed cases may differ from downloaded amount */
-void Curl_pgrs_deliver_inc(struct Curl_easy *data, size_t delta)
+శూన్య Curl_pgrs_deliver_inc(నిర్మాణం Curl_easy *దత్తాంశం, size_t delta)
 {
-  data->progress.deliver += delta;
+  దత్తాంశం->పురోగతి.deliver += delta;
 }
 
-void Curl_pgrs_download_inc(struct Curl_easy *data, size_t delta)
+శూన్య Curl_pgrs_download_inc(నిర్మాణం Curl_easy *దత్తాంశం, size_t delta)
 {
-  if(delta) {
-    data->progress.dl.cur_size += delta;
-    Curl_rlimit_drain(&data->progress.dl.rlimit, delta, NULL);
+  ఒకవేళ(delta) {
+    దత్తాంశం->పురోగతి.dl.cur_కొలత += delta;
+    Curl_rlimit_drain(&దత్తాంశం->పురోగతి.dl.rlimit, delta, ఖాళీ);
   }
 }
 
-void Curl_pgrs_upload_inc(struct Curl_easy *data, size_t delta)
+శూన్య Curl_pgrs_upload_inc(నిర్మాణం Curl_easy *దత్తాంశం, size_t delta)
 {
-  if(delta) {
-    data->progress.ul.cur_size += delta;
-    Curl_rlimit_drain(&data->progress.ul.rlimit, delta, NULL);
+  ఒకవేళ(delta) {
+    దత్తాంశం->పురోగతి.ul.cur_కొలత += delta;
+    Curl_rlimit_drain(&దత్తాంశం->పురోగతి.ul.rlimit, delta, ఖాళీ);
   }
 }
 
 /*
  * Set the number of uploaded bytes so far.
  */
-void Curl_pgrsSetUploadCounter(struct Curl_easy *data, curl_off_t size)
+శూన్య Curl_pgrs_సమితి_Upload_Counter(నిర్మాణం Curl_easy *దత్తాంశం, curl_off_t కొలత)
 {
-  data->progress.ul.cur_size = size;
+  దత్తాంశం->పురోగతి.ul.cur_కొలత = కొలత;
 }
 
-void Curl_pgrsSetDownloadSize(struct Curl_easy *data, curl_off_t size)
+శూన్య Curl_pgrs_సమితి_Download_కొలత(నిర్మాణం Curl_easy *దత్తాంశం, curl_off_t కొలత)
 {
-  if(size >= 0) {
-    data->progress.dl.total_size = size;
-    data->progress.dl_size_known = TRUE;
+  ఒకవేళ(కొలత >= 0) {
+    దత్తాంశం->పురోగతి.dl.మొత్తం_కొలత = కొలత;
+    దత్తాంశం->పురోగతి.dl_కొలత_తెలిసిన = TRUE;
   }
-  else {
-    data->progress.dl.total_size = 0;
-    data->progress.dl_size_known = FALSE;
-  }
-}
-
-void Curl_pgrsSetUploadSize(struct Curl_easy *data, curl_off_t size)
-{
-  if(size >= 0) {
-    data->progress.ul.total_size = size;
-    data->progress.ul_size_known = TRUE;
-  }
-  else {
-    data->progress.ul.total_size = 0;
-    data->progress.ul_size_known = FALSE;
+  లేకపోతే {
+    దత్తాంశం->పురోగతి.dl.మొత్తం_కొలత = 0;
+    దత్తాంశం->పురోగతి.dl_కొలత_తెలిసిన = FALSE;
   }
 }
 
-void Curl_pgrsEarlyData(struct Curl_easy *data, curl_off_t sent)
+శూన్య Curl_pgrs_సమితి_Upload_కొలత(నిర్మాణం Curl_easy *దత్తాంశం, curl_off_t కొలత)
 {
-  data->progress.earlydata_sent = sent;
+  ఒకవేళ(కొలత >= 0) {
+    దత్తాంశం->పురోగతి.ul.మొత్తం_కొలత = కొలత;
+    దత్తాంశం->పురోగతి.ul_కొలత_తెలిసిన = TRUE;
+  }
+  లేకపోతే {
+    దత్తాంశం->పురోగతి.ul.మొత్తం_కొలత = 0;
+    దత్తాంశం->పురోగతి.ul_కొలత_తెలిసిన = FALSE;
+  }
+}
+
+శూన్య Curl_pgrs_Early_దత్తాంశం(నిర్మాణం Curl_easy *దత్తాంశం, curl_off_t పంపిన)
+{
+  దత్తాంశం->పురోగతి.earlydata_పంపిన = పంపిన;
 }
 
 /* returns the average speed in bytes / second */
-static curl_off_t trspeed(curl_off_t size, /* number of bytes */
+స్థిర curl_off_t trspeed(curl_off_t కొలత, /* number of bytes */
                           curl_off_t us)   /* microseconds */
 {
-  if(us < 1)
-    return size * 1000000;
-  else if(size < CURL_OFF_T_MAX / 1000000)
-    return (size * 1000000) / us;
-  else if(us >= 1000000)
-    return size / (us / 1000000);
-  else
-    return CURL_OFF_T_MAX;
+  ఒకవేళ(us < 1)
+    తిరిగి కొలత * 1000000;
+  లేకపోతే ఒకవేళ(కొలత < CURL_OFF_T_MAX / 1000000)
+    తిరిగి (కొలత * 1000000) / us;
+  లేకపోతే ఒకవేళ(us >= 1000000)
+    తిరిగి కొలత / (us / 1000000);
+  లేకపోతే
+    తిరిగి CURL_OFF_T_MAX;
 }
 
 /* returns TRUE if it is time to show the progress meter */
-static bool progress_calc(struct Curl_easy *data,
-                          const struct curltime *pnow)
+స్థిర bool పురోగతి_calc(నిర్మాణం Curl_easy *దత్తాంశం,
+                          స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  struct Progress * const p = &data->progress;
-  int i_next, i_oldest, i_latest;
+  నిర్మాణం పురోగతి_2 * స్థిరరాశి p = &దత్తాంశం->పురోగతి;
+  పూర్ణాంకం i_తదుపరి, i_oldest, i_latest;
   timediff_t duration_us, elapsed_us;
   curl_off_t amount;
 
   /* The time spent so far (from the start) in microseconds */
-  elapsed_us = curlx_ptimediff_us(pnow, &p->start);
-  p->total.spent_us = elapsed_us;
-  p->dl.speed = trspeed(p->dl.cur_size, p->total.spent_us);
-  p->ul.speed = trspeed(p->ul.cur_size, p->total.spent_us);
+  elapsed_us = curlx_ptimediff_us(pnow, &p->ప్రారంభం);
+  p->మొత్తం.spent_us = elapsed_us;
+  p->dl.వేగం = trspeed(p->dl.cur_కొలత, p->మొత్తం.spent_us);
+  p->ul.వేగం = trspeed(p->ul.cur_కొలత, p->మొత్తం.spent_us);
 
-  if(!p->speeder_c) { /* no previous record exists */
-    p->speed_amount[0] = p->dl.cur_size + p->ul.cur_size;
-    p->speed_time[0] = elapsed_us;
+  ఒకవేళ(!p->speeder_c) { /* no previous record exists */
+    p->వేగం_amount[0] = p->dl.cur_కొలత + p->ul.cur_కొలత;
+    p->వేగం_సమయం[0] = elapsed_us;
     p->speeder_c++;
     /* use the overall average at the start */
-    p->current_speed = p->ul.speed + p->dl.speed;
+    p->current_వేగం = p->ul.వేగం + p->dl.వేగం;
     p->delta.lastshow_us = elapsed_us;
-    return TRUE;
+    తిరిగి TRUE;
   }
   /* We have at least one record now. Where to put the next and
    * where is the latest one? */
-  i_next = p->speeder_c % CURL_SPEED_RECORDS;
-  i_latest = (i_next > 0) ? (i_next - 1) : (CURL_SPEED_RECORDS - 1);
+  i_తదుపరి = p->speeder_c % CURL_వేగం_రికార్డులు;
+  i_latest = (i_తదుపరి > 0) ? (i_తదుపరి - 1) : (CURL_వేగం_రికార్డులు - 1);
 
   /* Make a new record only when some time has passed.
    * Too frequent calls otherwise ruin the history. */
-  if((elapsed_us - p->speed_time[i_latest]) >= (1000 * 1000)) {
+  ఒకవేళ((elapsed_us - p->వేగం_సమయం[i_latest]) >= (1000 * 1000)) {
     p->speeder_c++;
-    i_latest = i_next;
-    p->speed_amount[i_latest] = p->dl.cur_size + p->ul.cur_size;
-    p->speed_time[i_latest] = elapsed_us;
+    i_latest = i_తదుపరి;
+    p->వేగం_amount[i_latest] = p->dl.cur_కొలత + p->ul.cur_కొలత;
+    p->వేగం_సమయం[i_latest] = elapsed_us;
   }
-  else if(data->req.done) {
+  లేకపోతే ఒకవేళ(దత్తాంశం->req.పూర్తి) {
     /* When a transfer is done, and we did not have a current speed
      * already, update the last record. Otherwise, stay at the speed
      * we have. The last chunk of data, when rate limiting, would increase
      * reported speed since it no longer measures a full second. */
-    if(!p->current_speed) {
-      p->speed_amount[i_latest] = p->dl.cur_size + p->ul.cur_size;
-      p->speed_time[i_latest] = elapsed_us;
+    ఒకవేళ(!p->current_వేగం) {
+      p->వేగం_amount[i_latest] = p->dl.cur_కొలత + p->ul.cur_కొలత;
+      p->వేగం_సమయం[i_latest] = elapsed_us;
     }
   }
-  else {
+  లేకపోతే {
     /* transfer ongoing, wait for more time to pass. */
-    return FALSE;
+    తిరిగి FALSE;
   }
 
-  i_oldest = (p->speeder_c < CURL_SPEED_RECORDS) ? 0 :
-             ((i_latest + 1) % CURL_SPEED_RECORDS);
+  i_oldest = (p->speeder_c < CURL_వేగం_రికార్డులు) ? 0 :
+             ((i_latest + 1) % CURL_వేగం_రికార్డులు);
 
   /* How much we transferred between oldest and current records */
-  amount = p->speed_amount[i_latest] - p->speed_amount[i_oldest];
+  amount = p->వేగం_amount[i_latest] - p->వేగం_amount[i_oldest];
   /* How long this took */
-  duration_us = p->speed_time[i_latest] - p->speed_time[i_oldest];
-  if(duration_us <= 0)
+  duration_us = p->వేగం_సమయం[i_latest] - p->వేగం_సమయం[i_oldest];
+  ఒకవేళ(duration_us <= 0)
     duration_us = 1;
 
-  if(amount > (CURL_OFF_T_MAX / 1000000)) {
+  ఒకవేళ(amount > (CURL_OFF_T_MAX / 1000000)) {
     /* the 'amount' value is bigger than would fit in 64 bits if
        multiplied with 1000000, so we use the double math for this */
-    p->current_speed =
-      (curl_off_t)(((double)amount * 1000000.0) / (double)duration_us);
+    p->current_వేగం =
+      (curl_off_t)(((ద్విగుణ)amount * 1000000.0) / (ద్విగుణ)duration_us);
   }
-  else {
-    p->current_speed = amount * 1000000 / duration_us;
+  లేకపోతే {
+    p->current_వేగం = amount * 1000000 / duration_us;
   }
 
-  if((p->delta.lastshow_us >= 0) && !data->req.done &&
+  ఒకవేళ((p->delta.lastshow_us >= 0) && !దత్తాంశం->req.పూర్తి &&
      ((elapsed_us - p->delta.lastshow_us) < (1000 * 1000)))
-    return FALSE;
+    తిరిగి FALSE;
   p->delta.lastshow_us = elapsed_us;
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-#ifndef CURL_DISABLE_PROGRESS_METER
+#నిర్వచితం_కాకపోతే CURL_DISABLE_పురోగతి_METER
 
-struct pgrs_estimate {
+నిర్మాణం pgrs_estimate {
   curl_off_t secs;
   curl_off_t percent;
 };
 
-static curl_off_t pgrs_est_percent(curl_off_t total, curl_off_t cur)
+స్థిర curl_off_t pgrs_est_percent(curl_off_t మొత్తం, curl_off_t cur)
 {
-  if(total > 10000)
-    return cur / (total / 100);
-  else if(total > 0)
-    return (cur * 100) / total;
-  return 0;
+  ఒకవేళ(మొత్తం > 10000)
+    తిరిగి cur / (మొత్తం / 100);
+  లేకపోతే ఒకవేళ(మొత్తం > 0)
+    తిరిగి (cur * 100) / మొత్తం;
+  తిరిగి 0;
 }
 
-static void pgrs_estimates(struct pgrs_dir *d,
-                           bool total_known,
-                           struct pgrs_estimate *est)
+స్థిర శూన్య pgrs_estimates(నిర్మాణం pgrs_dir *d,
+                           bool మొత్తం_తెలిసిన,
+                           నిర్మాణం pgrs_estimate *est)
 {
   est->secs = 0;
   est->percent = 0;
-  if(total_known && (d->speed > 0)) {
-    est->secs = d->total_size / d->speed;
-    est->percent = pgrs_est_percent(d->total_size, d->cur_size);
+  ఒకవేళ(మొత్తం_తెలిసిన && (d->వేగం > 0)) {
+    est->secs = d->మొత్తం_కొలత / d->వేగం;
+    est->percent = pgrs_est_percent(d->మొత్తం_కొలత, d->cur_కొలత);
   }
 }
 
-static void progress_meter(struct Curl_easy *data)
+స్థిర శూన్య పురోగతి_meter(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Progress *p = &data->progress;
-  char max6[6][7];
-  struct pgrs_estimate dl_estm;
-  struct pgrs_estimate ul_estm;
-  struct pgrs_estimate total_estm;
-  curl_off_t total_cur_size;
-  curl_off_t total_expected_size;
-  curl_off_t dl_size;
-  char time_left[8];
-  char time_total[8];
-  char time_spent[8];
-  curl_off_t cur_secs = (curl_off_t)p->total.spent_us / 1000000;
+  నిర్మాణం పురోగతి_2 *p = &దత్తాంశం->పురోగతి;
+  అక్షరం max6[6][7];
+  నిర్మాణం pgrs_estimate dl_estm;
+  నిర్మాణం pgrs_estimate ul_estm;
+  నిర్మాణం pgrs_estimate మొత్తం_estm;
+  curl_off_t మొత్తం_cur_కొలత;
+  curl_off_t మొత్తం_expected_కొలత;
+  curl_off_t dl_కొలత;
+  అక్షరం సమయం_ఎడమ[8];
+  అక్షరం సమయం_మొత్తం[8];
+  అక్షరం సమయం_spent[8];
+  curl_off_t cur_secs = (curl_off_t)p->మొత్తం.spent_us / 1000000;
 
-  if(!p->headers_out) {
-    if(data->state.resume_from) {
-      curl_mfprintf(data->set.err,
+  ఒకవేళ(!p->శీర్షికలు_బహిర్గతం) {
+    ఒకవేళ(దత్తాంశం->state.resume_from) {
+      curl_mfprintf(దత్తాంశం->సమితి.err,
                     "** Resuming transfer from byte position %" FMT_OFF_T "\n",
-                    data->state.resume_from);
+                    దత్తాంశం->state.resume_from);
     }
-    curl_mfprintf(data->set.err,
+    curl_mfprintf(దత్తాంశం->సమితి.err,
                   "  %% Total    %% Received %% Xferd  Average Speed  "
                   "Time    Time    Time   Current\n"
                   "                                 Dload  Upload  "
                   "Total   Spent   Left   Speed\n");
-    p->headers_out = TRUE; /* headers are shown */
+    p->శీర్షికలు_బహిర్గతం = TRUE; /* headers are shown */
   }
 
   /* Figure out the estimated time of arrival for upload and download */
-  pgrs_estimates(&p->ul, (bool)p->ul_size_known, &ul_estm);
-  pgrs_estimates(&p->dl, (bool)p->dl_size_known, &dl_estm);
+  pgrs_estimates(&p->ul, (bool)p->ul_కొలత_తెలిసిన, &ul_estm);
+  pgrs_estimates(&p->dl, (bool)p->dl_కొలత_తెలిసిన, &dl_estm);
 
   /* Since both happen at the same time, total expected duration is max. */
-  total_estm.secs = CURLMAX(ul_estm.secs, dl_estm.secs);
+  మొత్తం_estm.secs = CURLMAX(ul_estm.secs, dl_estm.secs);
   /* create the three time strings */
-  time2str(time_left, sizeof(time_left),
-           total_estm.secs > 0 ? (total_estm.secs - cur_secs) : 0);
-  time2str(time_total, sizeof(time_total), total_estm.secs);
-  time2str(time_spent, sizeof(time_spent), cur_secs);
+  time2str(సమయం_ఎడమ, పరిమాణం(సమయం_ఎడమ),
+           మొత్తం_estm.secs > 0 ? (మొత్తం_estm.secs - cur_secs) : 0);
+  time2str(సమయం_మొత్తం, పరిమాణం(సమయం_మొత్తం), మొత్తం_estm.secs);
+  time2str(సమయం_spent, పరిమాణం(సమయం_spent), cur_secs);
 
   /* Get the total amount of data expected to get transferred */
-  total_expected_size = p->ul_size_known ? p->ul.total_size : p->ul.cur_size;
+  మొత్తం_expected_కొలత = p->ul_కొలత_తెలిసిన ? p->ul.మొత్తం_కొలత : p->ul.cur_కొలత;
 
-  dl_size = p->dl_size_known ? p->dl.total_size : p->dl.cur_size;
+  dl_కొలత = p->dl_కొలత_తెలిసిన ? p->dl.మొత్తం_కొలత : p->dl.cur_కొలత;
 
   /* integer overflow check */
-  if((CURL_OFF_T_MAX - total_expected_size) < dl_size)
-    total_expected_size = CURL_OFF_T_MAX; /* capped */
-  else
-    total_expected_size += dl_size;
+  ఒకవేళ((CURL_OFF_T_MAX - మొత్తం_expected_కొలత) < dl_కొలత)
+    మొత్తం_expected_కొలత = CURL_OFF_T_MAX; /* capped */
+  లేకపోతే
+    మొత్తం_expected_కొలత += dl_కొలత;
 
   /* We have transferred this much so far */
-  total_cur_size = p->dl.cur_size + p->ul.cur_size;
+  మొత్తం_cur_కొలత = p->dl.cur_కొలత + p->ul.cur_కొలత;
 
   /* Get the percentage of data transferred so far */
-  total_estm.percent = pgrs_est_percent(total_expected_size, total_cur_size);
+  మొత్తం_estm.percent = pgrs_est_percent(మొత్తం_expected_కొలత, మొత్తం_cur_కొలత);
 
-  curl_mfprintf(data->set.err,
+  curl_mfprintf(దత్తాంశం->సమితి.err,
                 "\r"
                 "%3" FMT_OFF_T " %s "
                 "%3" FMT_OFF_T " %s "
                 "%3" FMT_OFF_T " %s %s %s %s %s %s %s",
-                total_estm.percent, /* 3 letters */    /* total % */
-                max6out(total_expected_size, max6[2],
-                        sizeof(max6[2])),              /* total size */
+                మొత్తం_estm.percent, /* 3 letters */    /* total % */
+                max6out(మొత్తం_expected_కొలత, max6[2],
+                        పరిమాణం(max6[2])),              /* total size */
                 dl_estm.percent, /* 3 letters */       /* rcvd % */
-                max6out(p->dl.cur_size, max6[0],
-                        sizeof(max6[0])),              /* rcvd size */
+                max6out(p->dl.cur_కొలత, max6[0],
+                        పరిమాణం(max6[0])),              /* rcvd size */
                 ul_estm.percent, /* 3 letters */       /* xfer % */
-                max6out(p->ul.cur_size, max6[1],
-                        sizeof(max6[1])),              /* xfer size */
-                max6out(p->dl.speed, max6[3],
-                        sizeof(max6[3])),              /* avrg dl speed */
-                max6out(p->ul.speed, max6[4],
-                        sizeof(max6[4])),              /* avrg ul speed */
-                time_total,    /* 7 letters */         /* total time */
-                time_spent,    /* 7 letters */         /* time spent */
-                time_left,     /* 7 letters */         /* time left */
-                max6out(p->current_speed, max6[5],
-                        sizeof(max6[5]))               /* current speed */
+                max6out(p->ul.cur_కొలత, max6[1],
+                        పరిమాణం(max6[1])),              /* xfer size */
+                max6out(p->dl.వేగం, max6[3],
+                        పరిమాణం(max6[3])),              /* avrg dl speed */
+                max6out(p->ul.వేగం, max6[4],
+                        పరిమాణం(max6[4])),              /* avrg ul speed */
+                సమయం_మొత్తం,    /* 7 letters */         /* total time */
+                సమయం_spent,    /* 7 letters */         /* time spent */
+                సమయం_ఎడమ,     /* 7 letters */         /* time left */
+                max6out(p->current_వేగం, max6[5],
+                        పరిమాణం(max6[5]))               /* current speed */
     );
 
   /* we flush the output stream to make it appear as soon as possible */
-  fflush(data->set.err);
+  fflush(దత్తాంశం->సమితి.err);
 }
-#else /* CURL_DISABLE_PROGRESS_METER */
-#define progress_meter(x) Curl_nop_stmt
-#endif
+#లేకపోతే /* CURL_DISABLE_PROGRESS_METER */
+#నిర్వచించు పురోగతి_meter(x) Curl_nop_stmt
+#అయితే_ముగింపు
 
 /*
  * Curl_pgrsUpdate() returns 0 for success or the value returned by the
  * progress callback!
  */
-static CURLcode pgrsupdate(struct Curl_easy *data, bool showprogress)
+స్థిర CURLcode pgrsupdate(నిర్మాణం Curl_easy *దత్తాంశం, bool showprogress)
 {
-  if(!data->progress.hide) {
-    int rc;
-    if(data->set.fxferinfo) {
+  ఒకవేళ(!దత్తాంశం->పురోగతి.hide) {
+    పూర్ణాంకం rc;
+    ఒకవేళ(దత్తాంశం->సమితి.fxferinfo) {
       /* There is a callback set, call that */
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_fxferinfo);
-      rc = data->set.fxferinfo(data->set.progress_client,
-                               data->progress.dl.total_size,
-                               data->progress.dl.cur_size,
-                               data->progress.ul.total_size,
-                               data->progress.ul.cur_size);
-      CURL_CBAPI_END(&guard);
-      if(rc != CURL_PROGRESSFUNC_CONTINUE) {
-        if(rc) {
-          failf(data, "Callback aborted");
-          return CURLE_ABORTED_BY_CALLBACK;
+      నిర్మాణం Curl_mapi_guard guard;
+      CURL_CBAPI_ప్రారంభం(&guard, దత్తాంశం, easy_fxferinfo);
+      rc = దత్తాంశం->సమితి.fxferinfo(దత్తాంశం->సమితి.పురోగతి_client,
+                               దత్తాంశం->పురోగతి.dl.మొత్తం_కొలత,
+                               దత్తాంశం->పురోగతి.dl.cur_కొలత,
+                               దత్తాంశం->పురోగతి.ul.మొత్తం_కొలత,
+                               దత్తాంశం->పురోగతి.ul.cur_కొలత);
+      CURL_CBAPI_చివర(&guard);
+      ఒకవేళ(rc != CURL_PROGRESSFUNC_CONTINUE) {
+        ఒకవేళ(rc) {
+          failf(దత్తాంశం, "Callback aborted");
+          తిరిగి CURLE_ABORTED_BY_CALLBACK;
         }
-        return CURLE_OK;
+        తిరిగి CURLE_OK;
       }
     }
-    else if(data->set.fprogress) {
+    లేకపోతే ఒకవేళ(దత్తాంశం->సమితి.fprogress) {
       /* The older deprecated callback is set, call that */
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_fprogress);
-      rc = data->set.fprogress(data->set.progress_client,
-                               (double)data->progress.dl.total_size,
-                               (double)data->progress.dl.cur_size,
-                               (double)data->progress.ul.total_size,
-                               (double)data->progress.ul.cur_size);
-      CURL_CBAPI_END(&guard);
-      if(rc != CURL_PROGRESSFUNC_CONTINUE) {
-        if(rc) {
-          failf(data, "Callback aborted");
-          return CURLE_ABORTED_BY_CALLBACK;
+      నిర్మాణం Curl_mapi_guard guard;
+      CURL_CBAPI_ప్రారంభం(&guard, దత్తాంశం, easy_fprogress);
+      rc = దత్తాంశం->సమితి.fprogress(దత్తాంశం->సమితి.పురోగతి_client,
+                               (ద్విగుణ)దత్తాంశం->పురోగతి.dl.మొత్తం_కొలత,
+                               (ద్విగుణ)దత్తాంశం->పురోగతి.dl.cur_కొలత,
+                               (ద్విగుణ)దత్తాంశం->పురోగతి.ul.మొత్తం_కొలత,
+                               (ద్విగుణ)దత్తాంశం->పురోగతి.ul.cur_కొలత);
+      CURL_CBAPI_చివర(&guard);
+      ఒకవేళ(rc != CURL_PROGRESSFUNC_CONTINUE) {
+        ఒకవేళ(rc) {
+          failf(దత్తాంశం, "Callback aborted");
+          తిరిగి CURLE_ABORTED_BY_CALLBACK;
         }
-        return CURLE_OK;
+        తిరిగి CURLE_OK;
       }
     }
 
-    if(showprogress)
-      progress_meter(data);
+    ఒకవేళ(showprogress)
+      పురోగతి_meter(దత్తాంశం);
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode pgrs_update(struct Curl_easy *data,
-                            const struct curltime *pnow)
+స్థిర CURLcode pgrs_update(నిర్మాణం Curl_easy *దత్తాంశం,
+                            స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  bool showprogress = progress_calc(data, pnow);
-  return pgrsupdate(data, showprogress);
+  bool showprogress = పురోగతి_calc(దత్తాంశం, pnow);
+  తిరిగి pgrsupdate(దత్తాంశం, showprogress);
 }
 
-CURLcode Curl_pgrsUpdate(struct Curl_easy *data)
+CURLcode Curl_pgrsUpdate(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return pgrs_update(data, Curl_pgrs_now(data));
+  తిరిగి pgrs_update(దత్తాంశం, Curl_pgrs_now(దత్తాంశం));
 }
 
-CURLcode Curl_pgrsUpdateX(struct Curl_easy *data,
-                          const struct curltime *pnow)
+CURLcode Curl_pgrsUpdateX(నిర్మాణం Curl_easy *దత్తాంశం,
+                          స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  return pgrs_update(data, pnow);
+  తిరిగి pgrs_update(దత్తాంశం, pnow);
 }
 
-CURLcode Curl_pgrsCheckX(struct Curl_easy *data,
-                         const struct curltime *pnow)
+CURLcode Curl_pgrsCheckX(నిర్మాణం Curl_easy *దత్తాంశం,
+                         స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  result = pgrs_update(data, pnow);
-  if(!result && !data->req.done)
-    result = pgrs_speedcheck(data, pnow);
-  return result;
+  ఫలితం = pgrs_update(దత్తాంశం, pnow);
+  ఒకవేళ(!ఫలితం && !దత్తాంశం->req.పూర్తి)
+    ఫలితం = pgrs_speedcheck(దత్తాంశం, pnow);
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_pgrsCheck(struct Curl_easy *data)
+CURLcode Curl_pgrsCheck(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return Curl_pgrsCheckX(data, Curl_pgrs_now(data));
+  తిరిగి Curl_pgrsCheckX(దత్తాంశం, Curl_pgrs_now(దత్తాంశం));
 }
 
 /*
  * Update all progress, do not do progress meter/callbacks.
  */
-void Curl_pgrsUpdate_nometer(struct Curl_easy *data)
+శూన్య Curl_pgrsUpdate_nometer(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  (void)progress_calc(data, Curl_pgrs_now(data));
+  (శూన్య)పురోగతి_calc(దత్తాంశం, Curl_pgrs_now(దత్తాంశం));
 }
 
-void Curl_pgrsCompleted(struct Curl_easy *data)
+శూన్య Curl_pgrsCompleted(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Progress * const p = &data->progress;
-  p->total.spent_us = curlx_ptimediff_us(Curl_pgrs_now(data), &p->start);
+  నిర్మాణం పురోగతి_2 * స్థిరరాశి p = &దత్తాంశం->పురోగతి;
+  p->మొత్తం.spent_us = curlx_ptimediff_us(Curl_pgrs_now(దత్తాంశం), &p->ప్రారంభం);
 }
 
-timediff_t Curl_pgrs_since_ms(struct Curl_easy *data,
-                              const struct curltime *pnow,
+timediff_t Curl_pgrs_since_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                              స్థిరరాశి నిర్మాణం curltime *pnow,
                               timerid timer)
 {
-  if(!pnow)
-    pnow = Curl_pgrs_now(data);
-  switch(timer) {
-  case TIMER_STARTOP:
-    return (curlx_ptimediff_us(pnow, &data->progress.start) -
-            data->progress.delta.startop_us) / 1000;
-  case TIMER_STARTSINGLE:
-    return (curlx_ptimediff_us(pnow, &data->progress.start) -
-            data->progress.delta.startsingle_us) / 1000;
-  default:
+  ఒకవేళ(!pnow)
+    pnow = Curl_pgrs_now(దత్తాంశం);
+  ఎంపిక(timer) {
+  స్థితి TIMER_STARTOP:
+    తిరిగి (curlx_ptimediff_us(pnow, &దత్తాంశం->పురోగతి.ప్రారంభం) -
+            దత్తాంశం->పురోగతి.delta.startop_us) / 1000;
+  స్థితి TIMER_STARTSINGLE:
+    తిరిగి (curlx_ptimediff_us(pnow, &దత్తాంశం->పురోగతి.ప్రారంభం) -
+            దత్తాంశం->పురోగతి.delta.startsingle_us) / 1000;
+  అప్రమేయ:
     DEBUGASSERT(0);
-    return 0;
+    తిరిగి 0;
   }
 }

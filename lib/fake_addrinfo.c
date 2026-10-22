@@ -21,75 +21,75 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "fake_addrinfo.h"
+#అన్తర్భావ "fake_addrinfo.h"
 
-#ifdef USE_FAKE_GETADDRINFO
+#నిర్వచితమైతే USE_FAKE_GETADDRINFO
 
-#include <ares.h>
+#అన్తర్భావ <ares.h>
 
-void r_freeaddrinfo(struct addrinfo *cahead)
+శూన్య r_freeaddrinfo(నిర్మాణం addrinfo *cahead)
 {
-  struct addrinfo *canext;
-  struct addrinfo *ca;
+  నిర్మాణం addrinfo *canext;
+  నిర్మాణం addrinfo *ca;
 
-  for(ca = cahead; ca; ca = canext) {
-    canext = ca->ai_next;
+  కొరకు(ca = cahead; ca; ca = canext) {
+    canext = ca->ai_తదుపరి;
     curlx_free(ca);
   }
 }
 
-struct context {
-  struct ares_addrinfo *addr;
-  int status;
+నిర్మాణం context {
+  నిర్మాణం ares_addrinfo *addr;
+  పూర్ణాంకం స్థితి_2;
 };
 
-static void async_addrinfo_cb(void *userp, int status, int timeouts,
-                              struct ares_addrinfo *addr)
+స్థిర శూన్య async_addrinfo_cb(శూన్య *userp, పూర్ణాంకం స్థితి_2, పూర్ణాంకం timeouts,
+                              నిర్మాణం ares_addrinfo *addr)
 {
-  struct context *ctx = (struct context *)userp;
-  (void)timeouts;
-  ctx->status = status;
-  if(ARES_SUCCESS == status) {
+  నిర్మాణం context *ctx = (నిర్మాణం context *)userp;
+  (శూన్య)timeouts;
+  ctx->స్థితి_2 = స్థితి_2;
+  ఒకవేళ(ARES_SUCCESS == స్థితి_2) {
     ctx->addr = addr;
   }
 }
 
 /* convert the c-ares version into the "native" version */
-static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
+స్థిర నిర్మాణం addrinfo *mk_getaddrinfo(స్థిరరాశి నిర్మాణం ares_addrinfo *aihead)
 {
-  const struct ares_addrinfo_node *ai;
-  struct addrinfo *ca;
-  struct addrinfo *cafirst = NULL;
-  struct addrinfo *calast = NULL;
-  const char *name = aihead->name;
+  స్థిరరాశి నిర్మాణం ares_addrinfo_కణుపు *ai;
+  నిర్మాణం addrinfo *ca;
+  నిర్మాణం addrinfo *cafirst = ఖాళీ;
+  నిర్మాణం addrinfo *calast = ఖాళీ;
+  స్థిరరాశి అక్షరం *name = aihead->name;
 
   /* traverse the addrinfo list */
-  for(ai = aihead->nodes; ai; ai = ai->ai_next) {
-    size_t ss_size;
-    size_t namelen = name ? strlen(name) + 1 : 0;
+  కొరకు(ai = aihead->nodes; ai; ai = ai->ai_తదుపరి) {
+    size_t ss_కొలత;
+    size_t namelen = name ? అక్షరశ్రేణి_పొడవు(name) + 1 : 0;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
-      ss_size = sizeof(struct sockaddr_in);
-    else if(ai->ai_family == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
-    else
-      continue;
+    ఒకవేళ(ai->ai_family == AF_INET)
+      ss_కొలత = పరిమాణం(నిర్మాణం sockaddr_in);
+    లేకపోతే ఒకవేళ(ai->ai_family == AF_INET6)
+      ss_కొలత = పరిమాణం(నిర్మాణం sockaddr_in6);
+    లేకపోతే
+      కొనసాగు;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
-      continue;
+    ఒకవేళ(!ai->ai_addr || !(ai->ai_addrlen > 0))
+      కొనసాగు;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
-      continue;
+    ఒకవేళ((size_t)ai->ai_addrlen < ss_కొలత)
+      కొనసాగు;
 
-    ca = curlx_malloc(sizeof(struct addrinfo) + ss_size + namelen);
-    if(!ca) {
+    ca = curlx_malloc(పరిమాణం(నిర్మాణం addrinfo) + ss_కొలత + namelen);
+    ఒకవేళ(!ca) {
       r_freeaddrinfo(cafirst);
-      return NULL;
+      తిరిగి ఖాళీ;
     }
 
     /* copy each structure member individually, member ordering,
@@ -99,104 +99,104 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
     ca->ai_family    = ai->ai_family;
     ca->ai_socktype  = ai->ai_socktype;
     ca->ai_protocol  = ai->ai_protocol;
-    ca->ai_addrlen   = (curl_socklen_t)ss_size;
-    ca->ai_addr      = NULL;
-    ca->ai_canonname = NULL;
-    ca->ai_next      = NULL;
+    ca->ai_addrlen   = (curl_socklen_t)ss_కొలత;
+    ca->ai_addr      = ఖాళీ;
+    ca->ai_canonname = ఖాళీ;
+    ca->ai_తదుపరి      = ఖాళీ;
 
-    ca->ai_addr = (void *)((char *)ca + sizeof(struct addrinfo));
-    memcpy(ca->ai_addr, ai->ai_addr, ss_size);
+    ca->ai_addr = (శూన్య *)((అక్షరం *)ca + పరిమాణం(నిర్మాణం addrinfo));
+    జ్ఞాపకం_నకలు(ca->ai_addr, ai->ai_addr, ss_కొలత);
 
-    if(namelen) {
-      ca->ai_canonname = (void *)((char *)ca->ai_addr + ss_size);
-      memcpy(ca->ai_canonname, name, namelen);
+    ఒకవేళ(namelen) {
+      ca->ai_canonname = (శూన్య *)((అక్షరం *)ca->ai_addr + ss_కొలత);
+      జ్ఞాపకం_నకలు(ca->ai_canonname, name, namelen);
 
       /* the name is only pointed to by the first entry in the "real"
          addrinfo chain, so stop now */
-      name = NULL;
+      name = ఖాళీ;
     }
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    ఒకవేళ(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
-      calast->ai_next = ca;
+    ఒకవేళ(calast)
+      calast->ai_తదుపరి = ca;
     calast = ca;
   }
 
-  return cafirst;
+  తిరిగి cafirst;
 }
 
 /* RETURN VALUE
    getaddrinfo() returns 0 if it succeeds, or one of the following nonzero
    error codes:
    ... */
-int r_getaddrinfo(const char *node,
-                  const char *service,
-                  const struct addrinfo *hints,
-                  struct addrinfo **res)
+పూర్ణాంకం r_getaddrinfo(స్థిరరాశి అక్షరం *కణుపు,
+                  స్థిరరాశి అక్షరం *service,
+                  స్థిరరాశి నిర్మాణం addrinfo *hints,
+                  నిర్మాణం addrinfo **res)
 {
-  int status;
-  struct context ctx;
-  struct ares_options options;
-  int optmask = 0;
-  struct ares_addrinfo_hints ahints;
+  పూర్ణాంకం స్థితి_2;
+  నిర్మాణం context ctx;
+  నిర్మాణం ares_options options;
+  పూర్ణాంకం optmask = 0;
+  నిర్మాణం ares_addrinfo_hints ahints;
   ares_channel channel;
-  int rc = 0;
+  పూర్ణాంకం rc = 0;
 
-  memset(&options, 0, sizeof(options));
+  memset(&options, 0, పరిమాణం(options));
   optmask      |= ARES_OPT_EVENT_THREAD;
   options.evsys = ARES_EVSYS_DEFAULT;
 
-  memset(&ahints, 0, sizeof(ahints));
-  memset(&ctx, 0, sizeof(ctx));
+  memset(&ahints, 0, పరిమాణం(ahints));
+  memset(&ctx, 0, పరిమాణం(ctx));
 
-  if(hints) {
+  ఒకవేళ(hints) {
     ahints.ai_flags = hints->ai_flags;
     ahints.ai_family = hints->ai_family;
     ahints.ai_socktype = hints->ai_socktype;
     ahints.ai_protocol = hints->ai_protocol;
   }
 
-  status = ares_init_options(&channel, &options, optmask);
-  if(status)
-    return EAI_MEMORY; /* major problem */
+  స్థితి_2 = ares_init_options(&channel, &options, optmask);
+  ఒకవేళ(స్థితి_2)
+    తిరిగి EAI_MEMORY; /* major problem */
 
-  else {
-    const char *env = getenv("CURL_DNS_SERVER");
-    if(env) {
-      rc = ares_set_servers_ports_csv(channel, env);
-      if(rc) {
+  లేకపోతే {
+    స్థిరరాశి అక్షరం *env = getenv("CURL_DNS_SERVER");
+    ఒకవేళ(env) {
+      rc = ares_సమితి_servers_ports_csv(channel, env);
+      ఒకవేళ(rc) {
         curl_mfprintf(stderr, "ares_set_servers_ports_csv failed: %d", rc);
         /* Cleanup */
         ares_destroy(channel);
-        return EAI_MEMORY; /* we cannot run */
+        తిరిగి EAI_MEMORY; /* we cannot run */
       }
     }
   }
 
-  ares_getaddrinfo(channel, node, service, &ahints, async_addrinfo_cb, &ctx);
+  ares_getaddrinfo(channel, కణుపు, service, &ahints, async_addrinfo_cb, &ctx);
 
   /* Wait until no more requests are left to be processed */
-  ares_queue_wait_empty(channel, -1);
+  ares_వరుస_wait_ఖాళీలు(channel, -1);
 
-  if(ctx.addr) {
+  ఒకవేళ(ctx.addr) {
     /* convert the c-ares version */
     *res = mk_getaddrinfo(ctx.addr);
     /* free the old */
     ares_freeaddrinfo(ctx.addr);
   }
-  else if((ctx.status == ARES_ENOTFOUND) || (ctx.status == ARES_ENODATA))
+  లేకపోతే ఒకవేళ((ctx.స్థితి_2 == ARES_ENOTFOUND) || (ctx.స్థితి_2 == ARES_ENODATA))
     rc = EAI_NONAME; /* no such name */
-  else
+  లేకపోతే
     rc = EAI_AGAIN; /* failed without an authoritative answer */
 
   /* Cleanup */
   ares_destroy(channel);
 
-  return rc;
+  తిరిగి rc;
 }
 
-#endif /* USE_FAKE_GETADDRINFO */
+#అయితే_ముగింపు /* USE_FAKE_GETADDRINFO */

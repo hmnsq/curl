@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_QUIC_H
-#define HEADER_CURL_VQUIC_QUIC_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_VQUIC_QUIC_H
+#నిర్వచించు శీర్షిక_CURL_VQUIC_QUIC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,69 +23,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_addrinfo;
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+నిర్మాణం Curl_cfilter;
+నిర్మాణం Curl_easy;
+నిర్మాణం connectdata;
+నిర్మాణం Curl_addrinfo;
 
-void Curl_quic_ver(char *p, size_t len);
-int Curl_vquic_init(void);
-void Curl_vquic_cleanup(void);
+శూన్య Curl_quic_ver(అక్షరం *p, size_t len);
+పూర్ణాంకం Curl_vquic_init(శూన్య);
+శూన్య Curl_vquic_cleanup(శూన్య);
 
-CURLcode Curl_qlogdir(struct Curl_easy *data,
-                      unsigned char *scid,
+CURLcode Curl_qlogdir(నిర్మాణం Curl_easy *దత్తాంశం,
+                      గుర్తులేని అక్షరం *scid,
                       size_t scidlen,
-                      int *qlogfdp);
+                      పూర్ణాంకం *qlogfdp);
 
-CURLcode Curl_cf_quic_insert_after(struct Curl_cfilter *cf_at,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer);
+CURLcode Curl_cf_quic_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం Curl_peer *origin,
+                                   నిర్మాణం Curl_peer *peer);
 
-CURLcode Curl_cf_quic_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_quic_create(నిర్మాణం Curl_cfilter **pcf,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Curl_peer *origin,
+                             నిర్మాణం Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             నిర్మాణం connectdata *conn,
+                             నిర్మాణం Curl_sockaddr_ex *addr,
+                             నిర్మాణం Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_http3;
+బాహ్య నిర్మాణం Curl_cftype Curl_cft_http3;
 
-#if !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
+#ఒకవేళ !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
 
-CURLcode Curl_cf_h3_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_h3_proxy_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                       నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం Curl_peer *origin,
+                                       నిర్మాణం Curl_peer *peer,
+                                       నిర్మాణం Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport);
 
-CURLcode Curl_cf_h3_proxy_create(struct Curl_cfilter **pcf,
-                                 struct Curl_easy *data,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
+CURLcode Curl_cf_h3_proxy_create(నిర్మాణం Curl_cfilter **pcf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం Curl_peer *origin,
+                                 నిర్మాణం Curl_peer *peer,
                                  uint8_t transport_peer,
-                                 struct connectdata *conn,
-                                 struct Curl_sockaddr_ex *addr,
-                                 struct Curl_peer *tunnel_peer,
+                                 నిర్మాణం connectdata *conn,
+                                 నిర్మాణం Curl_sockaddr_ex *addr,
+                                 నిర్మాణం Curl_peer *tunnel_peer,
                                  uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_h3_proxy;
+బాహ్య నిర్మాణం Curl_cftype Curl_cft_h3_proxy;
 
-#endif /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
 
-#else
-#define Curl_vquic_init() 1
-#define Curl_vquic_cleanup()
-#endif /* !CURL_DISABLE_HTTP && USE_HTTP3 */
+#లేకపోతే
+#నిర్వచించు Curl_vquic_init() 1
+#నిర్వచించు Curl_vquic_cleanup()
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP && USE_HTTP3 */
 
-CURLcode Curl_conn_may_http3(struct Curl_easy *data,
-                             struct connectdata *conn);
+CURLcode Curl_conn_may_http3(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం connectdata *conn);
 
-#endif /* HEADER_CURL_VQUIC_QUIC_H */
+#అయితే_ముగింపు /* HEADER_CURL_VQUIC_QUIC_H */

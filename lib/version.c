@@ -21,111 +21,111 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_NGHTTP2
-#include <nghttp2/nghttp2.h>
-#endif
+#నిర్వచితమైతే USE_NGHTTP2
+#అన్తర్భావ <nghttp2/nghttp2.h>
+#అయితే_ముగింపు
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "http2.h"
-#include "vssh/ssh.h"
-#include "vquic/vquic.h"
-#include "easy_lock.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "http2.h"
+#అన్తర్భావ "vssh/ssh.h"
+#అన్తర్భావ "vquic/vquic.h"
+#అన్తర్భావ "easy_lock.h"
 
-#ifdef USE_ARES
+#నిర్వచితమైతే USE_ARES
 #  include <ares.h>
-#endif
+#అయితే_ముగింపు
 
-#ifdef USE_LIBIDN2
-#include <idn2.h>
-#endif
+#నిర్వచితమైతే USE_LIBIDN2
+#అన్తర్భావ <idn2.h>
+#అయితే_ముగింపు
 
-#ifdef USE_LIBPSL
-#include <libpsl.h>
-#endif
+#నిర్వచితమైతే USE_LIBPSL
+#అన్తర్భావ <libpsl.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
+#నిర్వచితమైతే HAVE_LIBZ
+#అన్తర్భావ <zlib.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_BROTLI
-#ifdef CURL_HAVE_DIAG
+#నిర్వచితమైతే HAVE_BROTLI
+#నిర్వచితమైతే CURL_HAVE_DIAG
 /* Ignore -Wvla warnings in brotli headers */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvla"
-#endif
-#include <brotli/decode.h>
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
-#endif
-#endif
+#సూచన GCC diagnostic నెట్టు
+#సూచన GCC diagnostic ignored "-Wvla"
+#అయితే_ముగింపు
+#అన్తర్భావ <brotli/decode.h>
+#నిర్వచితమైతే CURL_HAVE_DIAG
+#సూచన GCC diagnostic తీయి
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#ifdef HAVE_ZSTD
-#include <zstd.h>
-#endif
+#నిర్వచితమైతే HAVE_ZSTD
+#అన్తర్భావ <zstd.h>
+#అయితే_ముగింపు
 
-#ifdef USE_GSASL
-#include <gsasl.h>
-#endif
+#నిర్వచితమైతే USE_GSASL
+#అన్తర్భావ <gsasl.h>
+#అయితే_ముగింపు
 
-#ifndef CURL_DISABLE_LDAP
-#include "curl_ldap.h"
-#endif
+#నిర్వచితం_కాకపోతే CURL_DISABLE_LDAP
+#అన్తర్భావ "curl_ldap.h"
+#అయితే_ముగింపు
 
-#ifdef HAVE_BROTLI
-static void brotli_version(char *buf, size_t bufsz)
+#నిర్వచితమైతే HAVE_BROTLI
+స్థిర శూన్య brotli_సంస్కరణ(అక్షరం *buf, size_t bufsz)
 {
-  uint32_t brotli_version = BrotliDecoderVersion();
-  unsigned int major = brotli_version >> 24;
-  unsigned int minor = (brotli_version & 0x00FFFFFF) >> 12;
-  unsigned int patch = brotli_version & 0x00000FFF;
-  (void)curl_msnprintf(buf, bufsz, "brotli/%u.%u.%u", major, minor, patch);
+  uint32_t brotli_సంస్కరణ = Brotli_Decoder_సంస్కరణ();
+  గుర్తులేని పూర్ణాంకం major = brotli_సంస్కరణ >> 24;
+  గుర్తులేని పూర్ణాంకం minor = (brotli_సంస్కరణ & 0x00FFFFFF) >> 12;
+  గుర్తులేని పూర్ణాంకం patch = brotli_సంస్కరణ & 0x00000FFF;
+  (శూన్య)curl_msnprintf(buf, bufsz, "brotli/%u.%u.%u", major, minor, patch);
 }
-#endif
+#అయితే_ముగింపు
 
-#ifdef HAVE_ZSTD
-static void zstd_version(char *buf, size_t bufsz)
+#నిర్వచితమైతే HAVE_ZSTD
+స్థిర శూన్య zstd_సంస్కరణ(అక్షరం *buf, size_t bufsz)
 {
-  unsigned int version = ZSTD_versionNumber();
-  unsigned int major = version / (100 * 100);
-  unsigned int minor = (version - (major * 100 * 100)) / 100;
-  unsigned int patch = version - (major * 100 * 100) - (minor * 100);
-  (void)curl_msnprintf(buf, bufsz, "zstd/%u.%u.%u", major, minor, patch);
+  గుర్తులేని పూర్ణాంకం సంస్కరణ_2 = ZSTD_సంస్కరణ_సంఖ్య();
+  గుర్తులేని పూర్ణాంకం major = సంస్కరణ_2 / (100 * 100);
+  గుర్తులేని పూర్ణాంకం minor = (సంస్కరణ_2 - (major * 100 * 100)) / 100;
+  గుర్తులేని పూర్ణాంకం patch = సంస్కరణ_2 - (major * 100 * 100) - (minor * 100);
+  (శూన్య)curl_msnprintf(buf, bufsz, "zstd/%u.%u.%u", major, minor, patch);
 }
-#endif
+#అయితే_ముగింపు
 
-#ifdef USE_LIBPSL
-static void psl_version(char *buf, size_t bufsz)
+#నిర్వచితమైతే USE_LIBPSL
+స్థిర శూన్య psl_సంస్కరణ(అక్షరం *buf, size_t bufsz)
 {
-#if defined(PSL_VERSION_MAJOR) && (PSL_VERSION_MAJOR > 0 ||     \
-                                   PSL_VERSION_MINOR >= 11)
-  int num = psl_check_version_number(0);
+#ఒకవేళ defined(PSL_సంస్కరణ_MAJOR) && (PSL_సంస్కరణ_MAJOR > 0 ||     \
+                                   PSL_సంస్కరణ_MINOR >= 11)
+  పూర్ణాంకం అంకె = psl_check_సంస్కరణ_సంఖ్య(0);
   curl_msnprintf(buf, bufsz, "libpsl/%d.%d.%d",
-                 num >> 16, (num >> 8) & 0xff, num & 0xff);
-#else
-  curl_msnprintf(buf, bufsz, "libpsl/%s", psl_get_version());
-#endif
+                 అంకె >> 16, (అంకె >> 8) & 0xff, అంకె & 0xff);
+#లేకపోతే
+  curl_msnprintf(buf, bufsz, "libpsl/%s", psl_get_సంస్కరణ());
+#అయితే_ముగింపు
 }
-#endif
+#అయితే_ముగింపు
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-#define USE_IDN
-#endif
+#ఒకవేళ defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#నిర్వచించు USE_IDN
+#అయితే_ముగింపు
 
-#ifdef USE_IDN
-static void idn_version(char *buf, size_t bufsz)
+#నిర్వచితమైతే USE_IDN
+స్థిర శూన్య idn_సంస్కరణ(అక్షరం *buf, size_t bufsz)
 {
-#ifdef USE_LIBIDN2
-  curl_msnprintf(buf, bufsz, "libidn2/%s", idn2_check_version(NULL));
-#elif defined(USE_WIN32_IDN)
+#నిర్వచితమైతే USE_LIBIDN2
+  curl_msnprintf(buf, bufsz, "libidn2/%s", idn2_check_సంస్కరణ(ఖాళీ));
+#లేదావేళ defined(USE_WIN32_IDN)
   curl_msnprintf(buf, bufsz, "WinIDN");
-#elif defined(USE_APPLE_IDN)
+#లేదావేళ defined(USE_APPLE_IDN)
   curl_msnprintf(buf, bufsz, "AppleIDN");
-#endif
+#అయితే_ముగింపు
 }
-#endif
+#అయితే_ముగింపు
 
 /*
  * curl_version() returns a pointer to a static buffer.
@@ -135,151 +135,151 @@ static void idn_version(char *buf, size_t bufsz)
  * zeros in the data.
  */
 
-#define VERSION_PARTS 16 /* number of substrings we can concatenate */
+#నిర్వచించు సంస్కరణ_PARTS 16 /* number of substrings we can concatenate */
 
-char *curl_version(void)
+అక్షరం *curl_సంస్కరణ(శూన్య)
 {
-  static char out[300];
-  char *outp;
+  స్థిర అక్షరం బహిర్గతం[300];
+  అక్షరం *outp;
   size_t outlen;
-  const char *src[VERSION_PARTS];
-#ifdef USE_SSL
-  char ssl_version[200];
-#endif
-#ifdef HAVE_LIBZ
-  char z_version[30];
-#endif
-#ifdef HAVE_BROTLI
-  char br_version[30];
-#endif
-#ifdef HAVE_ZSTD
-  char zstd_ver[30];
-#endif
-#ifdef USE_ARES
-  char cares_version[30];
-#endif
-#ifdef USE_IDN
-  char idn_ver[30];
-#endif
-#ifdef USE_LIBPSL
-  char psl_ver[30];
-#endif
-#ifdef USE_SSH
-  char ssh_version[30];
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-  char h2_version[30];
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-  char h3_version[30];
-#endif
-#ifdef USE_GSASL
-  char gsasl_buf[30];
-#endif
-#ifdef HAVE_GSSAPI
-  char gss_buf[40];
-#endif
-#ifndef CURL_DISABLE_LDAP
-  char ldap_buf[30];
-#endif
-  int i = 0;
-  int j;
+  స్థిరరాశి అక్షరం *src[సంస్కరణ_PARTS];
+#నిర్వచితమైతే USE_SSL
+  అక్షరం ssl_సంస్కరణ[200];
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_LIBZ
+  అక్షరం z_సంస్కరణ[30];
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_BROTLI
+  అక్షరం br_సంస్కరణ[30];
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ZSTD
+  అక్షరం zstd_ver[30];
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_ARES
+  అక్షరం cares_సంస్కరణ[30];
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_IDN
+  అక్షరం idn_ver[30];
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_LIBPSL
+  అక్షరం psl_ver[30];
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSH
+  అక్షరం ssh_సంస్కరణ[30];
+#అయితే_ముగింపు
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+  అక్షరం h2_సంస్కరణ[30];
+#అయితే_ముగింపు
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+  అక్షరం h3_సంస్కరణ[30];
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_GSASL
+  అక్షరం gsasl_buf[30];
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_GSSAPI
+  అక్షరం gss_buf[40];
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_LDAP
+  అక్షరం ldap_buf[30];
+#అయితే_ముగింపు
+  పూర్ణాంకం i = 0;
+  పూర్ణాంకం j;
 
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   /* Override version string when environment variable CURL_DEBUG_VERSION is
-     set */
-  const char *debugversion = getenv("CURL_DEBUG_VERSION");
-  if(debugversion) {
-    curl_msnprintf(out, sizeof(out), "%s", debugversion);
-    return out;
+సమితి*/
+  స్థిరరాశి అక్షరం *debugversion = getenv("CURL_DEBUG_VERSION");
+  ఒకవేళ(debugversion) {
+    curl_msnprintf(బహిర్గతం, పరిమాణం(బహిర్గతం), "%s", debugversion);
+    తిరిగి బహిర్గతం;
   }
-#endif
+#అయితే_ముగింపు
 
-  src[i++] = LIBCURL_NAME "/" LIBCURL_VERSION;
-#ifdef USE_SSL
-  Curl_ssl_version(ssl_version, sizeof(ssl_version));
-  src[i++] = ssl_version;
-#endif
-#ifdef HAVE_LIBZ
-  curl_msnprintf(z_version, sizeof(z_version), "zlib/%s", zlibVersion());
-  src[i++] = z_version;
-#endif
-#ifdef HAVE_BROTLI
-  brotli_version(br_version, sizeof(br_version));
-  src[i++] = br_version;
-#endif
-#ifdef HAVE_ZSTD
-  zstd_version(zstd_ver, sizeof(zstd_ver));
+  src[i++] = LIBCURL_NAME "/" LIBCURL_సంస్కరణ;
+#నిర్వచితమైతే USE_SSL
+  Curl_ssl_సంస్కరణ(ssl_సంస్కరణ, పరిమాణం(ssl_సంస్కరణ));
+  src[i++] = ssl_సంస్కరణ;
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_LIBZ
+  curl_msnprintf(z_సంస్కరణ, పరిమాణం(z_సంస్కరణ), "zlib/%s", zlib_సంస్కరణ());
+  src[i++] = z_సంస్కరణ;
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_BROTLI
+  brotli_సంస్కరణ(br_సంస్కరణ, పరిమాణం(br_సంస్కరణ));
+  src[i++] = br_సంస్కరణ;
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ZSTD
+  zstd_సంస్కరణ(zstd_ver, పరిమాణం(zstd_ver));
   src[i++] = zstd_ver;
-#endif
-#ifdef USE_ARES
-  curl_msnprintf(cares_version, sizeof(cares_version),
-                 "c-ares/%s", ares_version(NULL));
-  src[i++] = cares_version;
-#endif
-#ifdef USE_IDN
-  idn_version(idn_ver, sizeof(idn_ver));
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_ARES
+  curl_msnprintf(cares_సంస్కరణ, పరిమాణం(cares_సంస్కరణ),
+                 "c-ares/%s", ares_సంస్కరణ(ఖాళీ));
+  src[i++] = cares_సంస్కరణ;
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_IDN
+  idn_సంస్కరణ(idn_ver, పరిమాణం(idn_ver));
   src[i++] = idn_ver;
-#endif
-#ifdef USE_LIBPSL
-  psl_version(psl_ver, sizeof(psl_ver));
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_LIBPSL
+  psl_సంస్కరణ(psl_ver, పరిమాణం(psl_ver));
   src[i++] = psl_ver;
-#endif
-#ifdef USE_SSH
-  Curl_ssh_version(ssh_version, sizeof(ssh_version));
-  src[i++] = ssh_version;
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-  Curl_http2_ver(h2_version, sizeof(h2_version));
-  src[i++] = h2_version;
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-  Curl_quic_ver(h3_version, sizeof(h3_version));
-  src[i++] = h3_version;
-#endif
-#ifdef USE_GSASL
-  curl_msnprintf(gsasl_buf, sizeof(gsasl_buf), "libgsasl/%s",
-                 gsasl_check_version(NULL));
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSH
+  Curl_ssh_సంస్కరణ(ssh_సంస్కరణ, పరిమాణం(ssh_సంస్కరణ));
+  src[i++] = ssh_సంస్కరణ;
+#అయితే_ముగింపు
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+  Curl_http2_ver(h2_సంస్కరణ, పరిమాణం(h2_సంస్కరణ));
+  src[i++] = h2_సంస్కరణ;
+#అయితే_ముగింపు
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+  Curl_quic_ver(h3_సంస్కరణ, పరిమాణం(h3_సంస్కరణ));
+  src[i++] = h3_సంస్కరణ;
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_GSASL
+  curl_msnprintf(gsasl_buf, పరిమాణం(gsasl_buf), "libgsasl/%s",
+                 gsasl_check_సంస్కరణ(ఖాళీ));
   src[i++] = gsasl_buf;
-#endif
-#ifdef HAVE_GSSAPI
-#ifdef HAVE_GSSAPPLE
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "AppleGSS");
-#elif defined(HAVE_GSSGNU)
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "libgss/%s", GSS_VERSION);
-#elif defined(CURL_KRB5_VERSION)
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "mit-krb5/%s", CURL_KRB5_VERSION);
-#else
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "mit-krb5");
-#endif
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_GSSAPI
+#నిర్వచితమైతే HAVE_GSSAPPLE
+  curl_msnprintf(gss_buf, పరిమాణం(gss_buf), "AppleGSS");
+#లేదావేళ defined(HAVE_GSSGNU)
+  curl_msnprintf(gss_buf, పరిమాణం(gss_buf), "libgss/%s", GSS_సంస్కరణ);
+#లేదావేళ defined(CURL_KRB5_సంస్కరణ)
+  curl_msnprintf(gss_buf, పరిమాణం(gss_buf), "mit-krb5/%s", CURL_KRB5_సంస్కరణ);
+#లేకపోతే
+  curl_msnprintf(gss_buf, పరిమాణం(gss_buf), "mit-krb5");
+#అయితే_ముగింపు
   src[i++] = gss_buf;
-#endif /* HAVE_GSSAPI */
-#ifndef CURL_DISABLE_LDAP
-  Curl_ldap_version(ldap_buf, sizeof(ldap_buf));
+#అయితే_ముగింపు /* HAVE_GSSAPI */
+#నిర్వచితం_కాకపోతే CURL_DISABLE_LDAP
+  Curl_ldap_సంస్కరణ(ldap_buf, పరిమాణం(ldap_buf));
   src[i++] = ldap_buf;
-#endif
+#అయితే_ముగింపు
 
-  DEBUGASSERT(i <= VERSION_PARTS);
+  DEBUGASSERT(i <= సంస్కరణ_PARTS);
 
-  outp = &out[0];
-  outlen = sizeof(out);
-  for(j = 0; j < i; j++) {
-    size_t n = strlen(src[j]);
+  outp = &బహిర్గతం[0];
+  outlen = పరిమాణం(బహిర్గతం);
+  కొరకు(j = 0; j < i; j++) {
+    size_t n = అక్షరశ్రేణి_పొడవు(src[j]);
     /* we need room for a space, the string and the final zero */
-    if(outlen <= (n + 2))
-      break;
-    if(j) {
+    ఒకవేళ(outlen <= (n + 2))
+      ఆపు;
+    ఒకవేళ(j) {
       /* prepend a space if not the first */
       *outp++ = ' ';
       outlen--;
     }
-    memcpy(outp, src[j], n);
+    జ్ఞాపకం_నకలు(outp, src[j], n);
     outp += n;
     outlen -= n;
   }
   *outp = 0;
 
-  return out;
+  తిరిగి బహిర్గతం;
 }
 
 /* data for curl_version_info
@@ -288,87 +288,87 @@ char *curl_version(void)
    protocol line has its own #if line to make things easier on the eye.
  */
 
-static const char * const supported_protocols[] = {
-#ifndef CURL_DISABLE_DICT
+స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి supported_protocols[] = {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DICT
   "dict",
-#endif
-#ifndef CURL_DISABLE_FILE
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_FILE
   "file",
-#endif
-#ifndef CURL_DISABLE_FTP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_FTP
   "ftp",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_FTP)
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_SSL) && !defined(CURL_DISABLE_FTP)
   "ftps",
-#endif
-#ifndef CURL_DISABLE_GOPHER
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_GOPHER
   "gopher",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_GOPHER)
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_SSL) && !defined(CURL_DISABLE_GOPHER)
   "gophers",
-#endif
-#ifndef CURL_DISABLE_HTTP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
   "http",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_HTTP)
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_SSL) && !defined(CURL_DISABLE_HTTP)
   "https",
-#endif
-#ifndef CURL_DISABLE_IMAP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_IMAP
   "imap",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_IMAP)
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_SSL) && !defined(CURL_DISABLE_IMAP)
   "imaps",
-#endif
-#ifndef CURL_DISABLE_LDAP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_LDAP
   "ldap",
-#if !defined(CURL_DISABLE_LDAPS) && \
+#ఒకవేళ !defined(CURL_DISABLE_LDAPS) && \
   ((defined(USE_OPENLDAP) && defined(USE_SSL)) || \
    (!defined(USE_OPENLDAP) && defined(HAVE_LDAP_SSL)))
   "ldaps",
-#endif
-#endif
-#ifndef CURL_DISABLE_MQTT
+#అయితే_ముగింపు
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_MQTT
   "mqtt",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_MQTT)
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_SSL) && !defined(CURL_DISABLE_MQTT)
   "mqtts",
-#endif
-#ifndef CURL_DISABLE_POP3
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_POP3
   "pop3",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_POP3)
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_SSL) && !defined(CURL_DISABLE_POP3)
   "pop3s",
-#endif
-#ifndef CURL_DISABLE_RTSP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_RTSP
   "rtsp",
-#endif
-#ifdef USE_SSH
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSH
   "scp",
   "sftp",
-#endif
-#ifndef CURL_DISABLE_SMTP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_SMTP
   "smtp",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_SMTP)
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_SSL) && !defined(CURL_DISABLE_SMTP)
   "smtps",
-#endif
-#ifndef CURL_DISABLE_TELNET
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_TELNET
   "telnet",
-#endif
-#ifndef CURL_DISABLE_TFTP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_TFTP
   "tftp",
-#endif
-#ifndef CURL_DISABLE_HTTP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
   /* WebSocket support relies on HTTP */
-#ifndef CURL_DISABLE_WEBSOCKETS
+#నిర్వచితం_కాకపోతే CURL_DISABLE_WEBSOCKETS
   "ws",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_WEBSOCKETS)
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_SSL) && !defined(CURL_DISABLE_WEBSOCKETS)
   "wss",
-#endif
-#endif
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-  NULL
+  ఖాళీ
 };
 
 /*
@@ -378,34 +378,34 @@ static const char * const supported_protocols[] = {
  * curl_global_init() and curl_global_cleanup() calls.
  */
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-static int idn_present(curl_version_info_data *info)
+#ఒకవేళ defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+స్థిర పూర్ణాంకం idn_present(curl_సంస్కరణ_info_దత్తాంశం *info)
 {
-#if defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-  (void)info;
-  return TRUE;
-#else
-  return !!info->libidn;
-#endif
+#ఒకవేళ defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+  (శూన్య)info;
+  తిరిగి TRUE;
+#లేకపోతే
+  తిరిగి !!info->libidn;
+#అయితే_ముగింపు
 }
-#endif
+#అయితే_ముగింపు
 
-#if defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
+#ఒకవేళ defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
   !defined(CURL_DISABLE_HTTP)
-static int https_proxy_present(curl_version_info_data *info)
+స్థిర పూర్ణాంకం https_proxy_present(curl_సంస్కరణ_info_దత్తాంశం *info)
 {
-  (void)info;
-  return Curl_ssl_supports(NULL, SSLSUPP_HTTPS_PROXY);
+  (శూన్య)info;
+  తిరిగి Curl_ssl_supports(ఖాళీ, SSLSUPP_HTTPS_PROXY);
 }
-#endif
+#అయితే_ముగింపు
 
-#if defined(USE_SSL) && defined(USE_ECH)
-static int ech_present(curl_version_info_data *info)
+#ఒకవేళ defined(USE_SSL) && defined(USE_ECH)
+స్థిర పూర్ణాంకం ech_present(curl_సంస్కరణ_info_దత్తాంశం *info)
 {
-  (void)info;
-  return Curl_ssl_supports(NULL, SSLSUPP_ECH);
+  (శూన్య)info;
+  తిరిగి Curl_ssl_supports(ఖాళీ, SSLSUPP_ECH);
 }
-#endif
+#అయితే_ముగింపు
 
 /*
  * Features table.
@@ -414,263 +414,263 @@ static int ech_present(curl_version_info_data *info)
  * Use FEATURE() macro to define an entry: this allows documentation check.
  */
 
-#define FEATURE(name, present, bitmask) { (name), (present), (bitmask) }
+#నిర్వచించు FEATURE(name, present, bitmask) { (name), (present), (bitmask) }
 
-struct feat {
-  const char *name;
-  int        (*present)(curl_version_info_data *info);
-  int        bitmask;
+నిర్మాణం feat {
+  స్థిరరాశి అక్షరం *name;
+  పూర్ణాంకం        (*present)(curl_సంస్కరణ_info_దత్తాంశం *info);
+  పూర్ణాంకం        bitmask;
 };
 
-static const struct feat features_table[] = {
-#ifndef CURL_DISABLE_ALTSVC
-  FEATURE("alt-svc",     NULL,                CURL_VERSION_ALTSVC),
-#endif
-#if defined(USE_ARES) && defined(USE_RESOLV_THREADED) && defined(USE_HTTPSRR)
-  FEATURE("asyn-rr",     NULL,                0),
-#endif
-#ifdef CURLRES_ASYNCH
-  FEATURE("AsynchDNS",   NULL,                CURL_VERSION_ASYNCHDNS),
-#endif
-#ifdef HAVE_BROTLI
-  FEATURE("brotli",      NULL,                CURL_VERSION_BROTLI),
-#endif
-#ifdef DEBUGBUILD
-  FEATURE("Debug",       NULL,                CURL_VERSION_DEBUG),
-#endif
-#if defined(USE_SSL) && defined(USE_ECH)
+స్థిర స్థిరరాశి నిర్మాణం feat features_పట్టిక[] = {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_ALTSVC
+  FEATURE("alt-svc",     ఖాళీ,                CURL_సంస్కరణ_ALTSVC),
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_ARES) && defined(USE_RESOLV_THREADED) && defined(USE_HTTPSRR)
+  FEATURE("asyn-rr",     ఖాళీ,                0),
+#అయితే_ముగింపు
+#నిర్వచితమైతే CURLRES_ASYNCH
+  FEATURE("AsynchDNS",   ఖాళీ,                CURL_సంస్కరణ_ASYNCHDNS),
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_BROTLI
+  FEATURE("brotli",      ఖాళీ,                CURL_సంస్కరణ_BROTLI),
+#అయితే_ముగింపు
+#నిర్వచితమైతే DEBUGBUILD
+  FEATURE("Debug",       ఖాళీ,                CURL_సంస్కరణ_DEBUG),
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_SSL) && defined(USE_ECH)
   FEATURE("ECH",         ech_present,         0),
 
-#ifndef USE_HTTPSRR
-#error "ECH enabled but not HTTPSRR, must be a config error"
-#endif
-#endif
-#ifdef USE_GSASL
-  FEATURE("gsasl",       NULL,                CURL_VERSION_GSASL),
-#endif
-#ifdef HAVE_GSSAPI
-  FEATURE("GSS-API",     NULL,                CURL_VERSION_GSSAPI),
-#endif
-#ifndef CURL_DISABLE_HSTS
-  FEATURE("HSTS",        NULL,                CURL_VERSION_HSTS),
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-  FEATURE("HTTP2",       NULL,                CURL_VERSION_HTTP2),
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-  FEATURE("HTTP3",       NULL,                CURL_VERSION_HTTP3),
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
+#నిర్వచితం_కాకపోతే USE_HTTPSRR
+#దోషం "ECH enabled but not HTTPSRR, must be a config error"
+#అయితే_ముగింపు
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_GSASL
+  FEATURE("gsasl",       ఖాళీ,                CURL_సంస్కరణ_GSASL),
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_GSSAPI
+  FEATURE("GSS-API",     ఖాళీ,                CURL_సంస్కరణ_GSSAPI),
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HSTS
+  FEATURE("HSTS",        ఖాళీ,                CURL_సంస్కరణ_HSTS),
+#అయితే_ముగింపు
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+  FEATURE("HTTP2",       ఖాళీ,                CURL_సంస్కరణ_HTTP2),
+#అయితే_ముగింపు
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+  FEATURE("HTTP3",       ఖాళీ,                CURL_సంస్కరణ_HTTP3),
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
   !defined(CURL_DISABLE_HTTP)
-  FEATURE("HTTPS-proxy", https_proxy_present, CURL_VERSION_HTTPS_PROXY),
-#endif
-#ifndef CURL_DISABLE_HTTPSIG
-  FEATURE("HTTPSIG",     NULL,                0),
-#endif
-#ifdef USE_HTTPSRR
-  FEATURE("HTTPSRR",     NULL,                0),
-#endif
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-  FEATURE("IDN",         idn_present,         CURL_VERSION_IDN),
-#endif
-#ifdef USE_IPV6
-  FEATURE("IPv6",        NULL,                CURL_VERSION_IPV6),
-#endif
-#ifdef USE_KERBEROS5
-  FEATURE("Kerberos",    NULL,                CURL_VERSION_KERBEROS5),
-#endif
-#if (SIZEOF_CURL_OFF_T > 4) && ((SIZEOF_OFF_T > 4) || defined(_WIN32))
-  FEATURE("Largefile",   NULL,                CURL_VERSION_LARGEFILE),
-#endif
-#ifdef HAVE_LIBZ
-  FEATURE("libz",        NULL,                CURL_VERSION_LIBZ),
-#endif
-#ifdef CURL_WITH_MULTI_SSL
-  FEATURE("MultiSSL",    NULL,                CURL_VERSION_MULTI_SSL),
-#endif
-#ifdef USE_NTLM
-  FEATURE("NTLM",        NULL,                CURL_VERSION_NTLM),
-#endif
-#ifdef USE_PROXY_HTTP3
-  FEATURE("proxy-HTTP3", NULL,                0),
-#endif
-#ifdef USE_LIBPSL
-  FEATURE("PSL",         NULL,                CURL_VERSION_PSL),
-#endif
-#ifdef USE_SSL
-#ifdef USE_APPLE_SECTRUST
-  FEATURE("AppleSecTrust", NULL,              0),
-#elif defined(CURL_CA_NATIVE)
-  FEATURE("NativeCA",    NULL,              0),
-#endif
-#endif /* USE_SSL */
-#ifdef USE_SPNEGO
-  FEATURE("SPNEGO",      NULL,                CURL_VERSION_SPNEGO),
-#endif
-#ifdef USE_SSL
-  FEATURE("SSL",         NULL,                CURL_VERSION_SSL),
-#endif
-#ifdef USE_SSLS_EXPORT
-  FEATURE("SSLS-EXPORT", NULL,                0),
-#endif
-#ifdef USE_WINDOWS_SSPI
-  FEATURE("SSPI",        NULL,                CURL_VERSION_SSPI),
-#endif
-#ifdef GLOBAL_INIT_IS_THREADSAFE
-  FEATURE("threadsafe",  NULL,                CURL_VERSION_THREADSAFE),
-#endif
-#if defined(_WIN32) && defined(UNICODE) && defined(_UNICODE)
-  FEATURE("Unicode",     NULL,                CURL_VERSION_UNICODE),
-#endif
-#ifdef USE_UNIX_SOCKETS
-  FEATURE("UnixSockets", NULL,                CURL_VERSION_UNIX_SOCKETS),
-#endif
-#ifdef HAVE_ZSTD
-  FEATURE("zstd",        NULL,                CURL_VERSION_ZSTD),
-#endif
-  {NULL,                 NULL,                0}
+  FEATURE("HTTPS-proxy", https_proxy_present, CURL_సంస్కరణ_HTTPS_PROXY),
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTPSIG
+  FEATURE("HTTPSIG",     ఖాళీ,                0),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_HTTPSRR
+  FEATURE("HTTPSRR",     ఖాళీ,                0),
+#అయితే_ముగింపు
+#ఒకవేళ defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+  FEATURE("IDN",         idn_present,         CURL_సంస్కరణ_IDN),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_IPV6
+  FEATURE("IPv6",        ఖాళీ,                CURL_సంస్కరణ_IPV6),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_KERBEROS5
+  FEATURE("Kerberos",    ఖాళీ,                CURL_సంస్కరణ_KERBEROS5),
+#అయితే_ముగింపు
+#ఒకవేళ (SIZEOF_CURL_OFF_T > 4) && ((SIZEOF_OFF_T > 4) || defined(_WIN32))
+  FEATURE("Largefile",   ఖాళీ,                CURL_సంస్కరణ_LARGEFILE),
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_LIBZ
+  FEATURE("libz",        ఖాళీ,                CURL_సంస్కరణ_LIBZ),
+#అయితే_ముగింపు
+#నిర్వచితమైతే CURL_WITH_MULTI_SSL
+  FEATURE("MultiSSL",    ఖాళీ,                CURL_సంస్కరణ_MULTI_SSL),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_NTLM
+  FEATURE("NTLM",        ఖాళీ,                CURL_సంస్కరణ_NTLM),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_PROXY_HTTP3
+  FEATURE("proxy-HTTP3", ఖాళీ,                0),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_LIBPSL
+  FEATURE("PSL",         ఖాళీ,                CURL_సంస్కరణ_PSL),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSL
+#నిర్వచితమైతే USE_APPLE_SECTRUST
+  FEATURE("AppleSecTrust", ఖాళీ,              0),
+#లేదావేళ defined(CURL_CA_NATIVE)
+  FEATURE("NativeCA",    ఖాళీ,              0),
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* USE_SSL */
+#నిర్వచితమైతే USE_SPNEGO
+  FEATURE("SPNEGO",      ఖాళీ,                CURL_సంస్కరణ_SPNEGO),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSL
+  FEATURE("SSL",         ఖాళీ,                CURL_సంస్కరణ_SSL),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSLS_EXPORT
+  FEATURE("SSLS-EXPORT", ఖాళీ,                0),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_WINDOWS_SSPI
+  FEATURE("SSPI",        ఖాళీ,                CURL_సంస్కరణ_SSPI),
+#అయితే_ముగింపు
+#నిర్వచితమైతే GLOBAL_INIT_IS_THREADSAFE
+  FEATURE("threadsafe",  ఖాళీ,                CURL_సంస్కరణ_THREADSAFE),
+#అయితే_ముగింపు
+#ఒకవేళ defined(_WIN32) && defined(UNICODE) && defined(_UNICODE)
+  FEATURE("Unicode",     ఖాళీ,                CURL_సంస్కరణ_UNICODE),
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_UNIX_SOCKETS
+  FEATURE("UnixSockets", ఖాళీ,                CURL_సంస్కరణ_UNIX_SOCKETS),
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ZSTD
+  FEATURE("zstd",        ఖాళీ,                CURL_సంస్కరణ_ZSTD),
+#అయితే_ముగింపు
+  {ఖాళీ,                 ఖాళీ,                0}
 };
 
-static const char *feature_names[CURL_ARRAYSIZE(features_table)] = { NULL };
+స్థిర స్థిరరాశి అక్షరం *feature_పేర్లు[CURL_ARRAYSIZE(features_పట్టిక)] = { ఖాళీ };
 
-static curl_version_info_data version_info = {
+స్థిర curl_సంస్కరణ_info_దత్తాంశం సంస్కరణ_info = {
   CURLVERSION_NOW,
-  LIBCURL_VERSION,
-  LIBCURL_VERSION_NUM,
+  LIBCURL_సంస్కరణ,
+  LIBCURL_సంస్కరణ_అంకె,
   CURL_OS, /* as found by configure or set by hand at build-time */
   0,    /* features bitmask is built at runtime */
-  NULL, /* ssl_version */
+  ఖాళీ, /* ssl_version */
   0,    /* ssl_version_num, this is kept at zero */
-  NULL, /* zlib_version */
+  ఖాళీ, /* zlib_version */
   supported_protocols,
-  NULL, /* c-ares version */
+  ఖాళీ, /* c-ares version */
   0,    /* c-ares version numerical */
-  NULL, /* libidn version */
+  ఖాళీ, /* libidn version */
   0,    /* iconv version */
-  NULL, /* ssh lib version */
+  ఖాళీ, /* ssh lib version */
   0,    /* brotli_ver_num */
-  NULL, /* brotli version */
+  ఖాళీ, /* brotli version */
   0,    /* nghttp2 version number */
-  NULL, /* nghttp2 version string */
-  NULL, /* quic library string */
-#ifdef CURL_CA_BUNDLE
+  ఖాళీ, /* nghttp2 version string */
+  ఖాళీ, /* quic library string */
+#నిర్వచితమైతే CURL_CA_BUNDLE
   CURL_CA_BUNDLE, /* cainfo */
-#else
-  NULL,
-#endif
-#ifdef CURL_CA_PATH
-  CURL_CA_PATH,  /* capath */
-#else
-  NULL,
-#endif
+#లేకపోతే
+  ఖాళీ,
+#అయితే_ముగింపు
+#నిర్వచితమైతే CURL_CA_మార్గం
+  CURL_CA_మార్గం,  /* capath */
+#లేకపోతే
+  ఖాళీ,
+#అయితే_ముగింపు
   0,    /* zstd_ver_num */
-  NULL, /* zstd version */
-  NULL, /* Hyper version */
-  NULL, /* gsasl version */
-  feature_names,
-  NULL  /* rtmp version */
+  ఖాళీ, /* zstd version */
+  ఖాళీ, /* Hyper version */
+  ఖాళీ, /* gsasl version */
+  feature_పేర్లు,
+  ఖాళీ  /* rtmp version */
 };
 
-curl_version_info_data *curl_version_info(CURLversion stamp)
+curl_సంస్కరణ_info_దత్తాంశం *curl_సంస్కరణ_info(CURLversion stamp)
 {
   size_t n;
-  const struct feat *p;
-  int features = 0;
+  స్థిరరాశి నిర్మాణం feat *p;
+  పూర్ణాంకం features = 0;
 
-#ifdef USE_SSH
-  static char ssh_buf[80];  /* 'ssh_buffer' clashes with libssh/libssh.h */
-#endif
-#ifdef USE_SSL
-#ifdef CURL_WITH_MULTI_SSL
-  static char ssl_buffer[200];
-#else
-  static char ssl_buffer[80];
-#endif
-#endif
-#ifdef HAVE_BROTLI
-  static char brotli_buffer[80];
-#endif
-#ifdef HAVE_ZSTD
-  static char zstd_buffer[80];
-#endif
+#నిర్వచితమైతే USE_SSH
+  స్థిర అక్షరం ssh_buf[80];  /* 'ssh_buffer' clashes with libssh/libssh.h */
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_SSL
+#నిర్వచితమైతే CURL_WITH_MULTI_SSL
+  స్థిర అక్షరం ssl_బఫరు[200];
+#లేకపోతే
+  స్థిర అక్షరం ssl_బఫరు[80];
+#అయితే_ముగింపు
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_BROTLI
+  స్థిర అక్షరం brotli_బఫరు[80];
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ZSTD
+  స్థిర అక్షరం zstd_బఫరు[80];
+#అయితే_ముగింపు
 
-  (void)stamp;
+  (శూన్య)stamp;
 
-#ifdef USE_SSL
-  Curl_ssl_version(ssl_buffer, sizeof(ssl_buffer));
-  version_info.ssl_version = ssl_buffer;
-#endif
+#నిర్వచితమైతే USE_SSL
+  Curl_ssl_సంస్కరణ(ssl_బఫరు, పరిమాణం(ssl_బఫరు));
+  సంస్కరణ_info.ssl_సంస్కరణ = ssl_బఫరు;
+#అయితే_ముగింపు
 
-#ifdef HAVE_LIBZ
-  version_info.libz_version = zlibVersion();
+#నిర్వచితమైతే HAVE_LIBZ
+  సంస్కరణ_info.libz_సంస్కరణ = zlib_సంస్కరణ();
   /* libz left NULL if non-existing */
-#endif
-#ifdef USE_ARES
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_ARES
   {
-    int aresnum;
-    version_info.ares = ares_version(&aresnum);
-    version_info.ares_num = aresnum;
+    పూర్ణాంకం aresnum;
+    సంస్కరణ_info.ares = ares_సంస్కరణ(&aresnum);
+    సంస్కరణ_info.ares_అంకె = aresnum;
   }
-#endif
-#ifdef USE_LIBIDN2
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_LIBIDN2
   /* This returns a version string if we use the given version or later,
      otherwise it returns NULL */
-  version_info.libidn = idn2_check_version(IDN2_VERSION);
-#endif
+  సంస్కరణ_info.libidn = idn2_check_సంస్కరణ(IDN2_సంస్కరణ);
+#అయితే_ముగింపు
 
-#ifdef USE_SSH
-  Curl_ssh_version(ssh_buf, sizeof(ssh_buf));
-  version_info.libssh_version = ssh_buf;
-#endif
+#నిర్వచితమైతే USE_SSH
+  Curl_ssh_సంస్కరణ(ssh_buf, పరిమాణం(ssh_buf));
+  సంస్కరణ_info.libssh_సంస్కరణ = ssh_buf;
+#అయితే_ముగింపు
 
-#ifdef HAVE_BROTLI
-  version_info.brotli_ver_num = BrotliDecoderVersion();
-  brotli_version(brotli_buffer, sizeof(brotli_buffer));
-  version_info.brotli_version = brotli_buffer;
-#endif
+#నిర్వచితమైతే HAVE_BROTLI
+  సంస్కరణ_info.brotli_ver_అంకె = Brotli_Decoder_సంస్కరణ();
+  brotli_సంస్కరణ(brotli_బఫరు, పరిమాణం(brotli_బఫరు));
+  సంస్కరణ_info.brotli_సంస్కరణ = brotli_బఫరు;
+#అయితే_ముగింపు
 
-#ifdef HAVE_ZSTD
-  version_info.zstd_ver_num = ZSTD_versionNumber();
-  zstd_version(zstd_buffer, sizeof(zstd_buffer));
-  version_info.zstd_version = zstd_buffer;
-#endif
+#నిర్వచితమైతే HAVE_ZSTD
+  సంస్కరణ_info.zstd_ver_అంకె = ZSTD_సంస్కరణ_సంఖ్య();
+  zstd_సంస్కరణ(zstd_బఫరు, పరిమాణం(zstd_బఫరు));
+  సంస్కరణ_info.zstd_సంస్కరణ = zstd_బఫరు;
+#అయితే_ముగింపు
 
-#ifdef USE_NGHTTP2
+#నిర్వచితమైతే USE_NGHTTP2
   {
-    nghttp2_info *h2 = nghttp2_version(0);
-    version_info.nghttp2_ver_num = (unsigned int)h2->version_num;
-    version_info.nghttp2_version = h2->version_str;
+    nghttp2_info *h2 = nghttp2_సంస్కరణ(0);
+    సంస్కరణ_info.nghttp2_ver_అంకె = (గుర్తులేని పూర్ణాంకం)h2->సంస్కరణ_అంకె;
+    సంస్కరణ_info.nghttp2_సంస్కరణ = h2->సంస్కరణ_str;
   }
-#endif
+#అయితే_ముగింపు
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   {
-    static char quicbuffer[80];
-    Curl_quic_ver(quicbuffer, sizeof(quicbuffer));
-    version_info.quic_version = quicbuffer;
+    స్థిర అక్షరం quicbuffer[80];
+    Curl_quic_ver(quicbuffer, పరిమాణం(quicbuffer));
+    సంస్కరణ_info.quic_సంస్కరణ = quicbuffer;
   }
-#endif
+#అయితే_ముగింపు
 
-#ifdef USE_GSASL
+#నిర్వచితమైతే USE_GSASL
   {
-    version_info.gsasl_version = gsasl_check_version(NULL);
+    సంస్కరణ_info.gsasl_సంస్కరణ = gsasl_check_సంస్కరణ(ఖాళీ);
   }
-#endif
+#అయితే_ముగింపు
 
   /* Get available features, build bitmask and names array. */
   n = 0;
-  for(p = features_table; p->name; p++)
-    if(!p->present || p->present(&version_info)) {
+  కొరకు(p = features_పట్టిక; p->name; p++)
+    ఒకవేళ(!p->present || p->present(&సంస్కరణ_info)) {
       features |= p->bitmask;
-      feature_names[n++] = p->name;
+      feature_పేర్లు[n++] = p->name;
     }
 
-#ifdef DEBUGBUILD
-  features |= CURL_VERSION_CURLDEBUG; /* for compatibility */
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+  features |= CURL_సంస్కరణ_CURLDEBUG; /* for compatibility */
+#అయితే_ముగింపు
 
-  feature_names[n] = NULL;  /* Terminate array. */
-  version_info.features = features;
+  feature_పేర్లు[n] = ఖాళీ;  /* Terminate array. */
+  సంస్కరణ_info.features = features;
 
-  return &version_info;
+  తిరిగి &సంస్కరణ_info;
 }

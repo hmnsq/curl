@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WS_H
-#define HEADER_CURL_WS_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_WS_H
+#నిర్వచించు శీర్షిక_CURL_WS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#ఒకవేళ !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 
-extern const struct Curl_protocol Curl_protocol_ws;
+బాహ్య స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_ws;
 
 /* meta key for storing protocol meta at connection */
-#define CURL_META_PROTO_WS_CONN   "meta:proto:ws:conn"
+#నిర్వచించు CURL_META_PROTO_WS_CONN   "meta:proto:ws:conn"
 
-CURLcode Curl_ws_request(struct Curl_easy *data, struct dynbuf *req);
-CURLcode Curl_ws_accept(struct Curl_easy *data,
-                        const char *mem, size_t nread);
+CURLcode Curl_ws_request(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం dynbuf *req);
+CURLcode Curl_ws_accept(నిర్మాణం Curl_easy *దత్తాంశం,
+                        స్థిరరాశి అక్షరం *mem, size_t nread);
 
-#else
-#define Curl_ws_request(x, y) CURLE_OK
-#define Curl_ws_free(x)       Curl_nop_stmt
-#endif
+#లేకపోతే
+#నిర్వచించు Curl_ws_request(x, y) CURLE_OK
+#నిర్వచించు Curl_ws_free(x)       Curl_nop_stmt
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_WS_H */
+#అయితే_ముగింపు /* HEADER_CURL_WS_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTIIF_H
-#define HEADER_CURL_MULTIIF_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_MULTIIF_H
+#నిర్వచించు శీర్షిక_CURL_MULTIIF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -27,31 +27,31 @@
  * Prototypes for library-wide functions provided by multi.c
  */
 
-void Curl_expire(struct Curl_easy *data, timediff_t milli, expire_id eid);
-void Curl_expire_set(struct Curl_easy *data,
+శూన్య Curl_expire(నిర్మాణం Curl_easy *దత్తాంశం, timediff_t milli, expire_id eid);
+శూన్య Curl_expire_సమితి(నిర్మాణం Curl_easy *దత్తాంశం,
                      expire_id eid, timediff_t ms,
-                     const struct curltime *pnow);
-void Curl_expire_clear(struct Curl_easy *data, expire_id eid);
-void Curl_expire_clear_all(struct Curl_easy *data);
-CURLMcode Curl_update_timer(struct Curl_multi *multi) WARN_UNUSED_RESULT;
-void Curl_attach_connection(struct Curl_easy *data,
-                            struct connectdata *conn,
+                     స్థిరరాశి నిర్మాణం curltime *pnow);
+శూన్య Curl_expire_clear(నిర్మాణం Curl_easy *దత్తాంశం, expire_id eid);
+శూన్య Curl_expire_clear_all(నిర్మాణం Curl_easy *దత్తాంశం);
+CURLMcode Curl_update_timer(నిర్మాణం Curl_multi *multi) WARN_వాడని_ఫలితం;
+శూన్య Curl_attach_connection(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం connectdata *conn,
                             bool matched);
-void Curl_detach_connection(struct Curl_easy *data);
-bool Curl_multiplex_wanted(const struct Curl_multi *multi);
-CURLcode Curl_preconnect(struct Curl_easy *data);
-bool Curl_is_connecting(struct Curl_easy *data);
+శూన్య Curl_detach_connection(నిర్మాణం Curl_easy *దత్తాంశం);
+bool Curl_multiplex_wanted(స్థిరరాశి నిర్మాణం Curl_multi *multi);
+CURLcode Curl_preconnect(నిర్మాణం Curl_easy *దత్తాంశం);
+bool Curl_is_connecting(నిర్మాణం Curl_easy *దత్తాంశం);
 
-void Curl_multi_connchanged(struct Curl_multi *multi);
+శూన్య Curl_multi_connchanged(నిర్మాణం Curl_multi *multi);
 
-CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
-                                struct Curl_easy *data);
-CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
-                                   struct Curl_easy *data);
+CURLMcode Curl_multi_కూడు_handle(నిర్మాణం Curl_multi *multi,
+                                నిర్మాణం Curl_easy *దత్తాంశం);
+CURLMcode Curl_multi_remove_handle(నిర్మాణం Curl_multi *multi,
+                                   నిర్మాణం Curl_easy *దత్తాంశం);
 
 /* Internal version of curl_multi_init() accepts size parameters for the
    socket, connection and dns hashes */
-struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
+నిర్మాణం Curl_multi *Curl_multi_handle(uint32_t xfer_పట్టిక_కొలత,
                                      size_t ev_hashsize,
                                      size_t chashsize,
                                      size_t dnssize,
@@ -63,20 +63,20 @@ struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
  * when the OS is using this socket (number) again subsequently,
  * the internal book keeping will not get confused.
  */
-void Curl_multi_will_close(struct Curl_easy *data, curl_socket_t s);
+శూన్య Curl_multi_will_close(నిర్మాణం Curl_easy *దత్తాంశం, curl_socket_t s);
 
 /*
  * Add a handle and move it into PERFORM state at once. For pushed streams.
  */
-CURLMcode Curl_multi_add_perform(struct Curl_multi *multi,
-                                 struct Curl_easy *data,
-                                 struct connectdata *conn);
+CURLMcode Curl_multi_కూడు_perform(నిర్మాణం Curl_multi *multi,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం connectdata *conn);
 
 /* Return the value of the CURLMOPT_MAX_CONCURRENT_STREAMS option */
-uint32_t Curl_multi_max_concurrent_streams(struct Curl_multi *multi);
+uint32_t Curl_multi_max_concurrent_streams(నిర్మాణం Curl_multi *multi);
 
-CURLMcode Curl_multi_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps);
+CURLMcode Curl_multi_pollset(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం easy_pollset *ps);
 
 /**
  * Borrow the transfer buffer from the multi, suitable
@@ -93,14 +93,14 @@ CURLMcode Curl_multi_pollset(struct Curl_easy *data,
  *         CURLE_FAILED_INIT if the easy handle is without multi.
  *         CURLE_AGAIN if the buffer is borrowed already.
  */
-CURLcode Curl_multi_xfer_buf_borrow(struct Curl_easy *data,
-                                    char **pbuf, size_t *pbuflen);
+CURLcode Curl_multi_xfer_buf_borrow(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    అక్షరం **pbuf, size_t *pbuflen);
 /**
  * Release the borrowed buffer. All references into the buffer become
  * invalid after this.
  * @param buf the buffer pointer borrowed for coding error checks.
  */
-void Curl_multi_xfer_buf_release(struct Curl_easy *data, char *buf);
+శూన్య Curl_multi_xfer_buf_release(నిర్మాణం Curl_easy *దత్తాంశం, అక్షరం *buf);
 
 /**
  * Borrow the upload buffer from the multi, suitable
@@ -117,15 +117,15 @@ void Curl_multi_xfer_buf_release(struct Curl_easy *data, char *buf);
  *         CURLE_FAILED_INIT if the easy handle is without multi.
  *         CURLE_AGAIN if the buffer is borrowed already.
  */
-CURLcode Curl_multi_xfer_ulbuf_borrow(struct Curl_easy *data,
-                                      char **pbuf, size_t *pbuflen);
+CURLcode Curl_multi_xfer_ulbuf_borrow(నిర్మాణం Curl_easy *దత్తాంశం,
+                                      అక్షరం **pbuf, size_t *pbuflen);
 
 /**
  * Release the borrowed upload buffer. All references into the buffer become
  * invalid after this.
  * @param buf the upload buffer pointer borrowed for coding error checks.
  */
-void Curl_multi_xfer_ulbuf_release(struct Curl_easy *data, char *buf);
+శూన్య Curl_multi_xfer_ulbuf_release(నిర్మాణం Curl_easy *దత్తాంశం, అక్షరం *buf);
 
 /**
  * Borrow the socket scratch buffer from the multi, suitable
@@ -141,39 +141,39 @@ void Curl_multi_xfer_ulbuf_release(struct Curl_easy *data, char *buf);
  *         CURLE_OUT_OF_MEMORY on failure to allocate the buffer,
  *         CURLE_AGAIN if the buffer is borrowed already.
  */
-CURLcode Curl_multi_xfer_sockbuf_borrow(struct Curl_easy *data,
-                                        size_t blen, char **pbuf);
+CURLcode Curl_multi_xfer_sockbuf_borrow(నిర్మాణం Curl_easy *దత్తాంశం,
+                                        size_t blen, అక్షరం **pbuf);
 /**
  * Release the borrowed buffer. All references into the buffer become
  * invalid after this.
  * @param buf the buffer pointer borrowed for coding error checks.
  */
-void Curl_multi_xfer_sockbuf_release(struct Curl_easy *data, char *buf);
+శూన్య Curl_multi_xfer_sockbuf_release(నిర్మాణం Curl_easy *దత్తాంశం, అక్షరం *buf);
 
 /**
  * Get the easy handle for the given mid.
  * Returns NULL if not found or not a GOOD_EASY_HANDLE()
  */
-struct Curl_easy *Curl_multi_get_easy(struct Curl_multi *multi,
+నిర్మాణం Curl_easy *Curl_multi_get_easy(నిర్మాణం Curl_multi *multi,
                                       uint32_t mid);
 
 /* TRUE if multi knows about data via its `mid` */
-bool Curl_multi_knows_easy(struct Curl_multi *multi, struct Curl_easy *data);
+bool Curl_multi_knows_easy(నిర్మాణం Curl_multi *multi, నిర్మాణం Curl_easy *దత్తాంశం);
 
 /* Get the # of transfers attached to the multi, without the internal
  * admin handle. */
-uint32_t Curl_multi_xfers_attached(struct Curl_multi *multi);
+uint32_t Curl_multi_xfers_attached(నిర్మాణం Curl_multi *multi);
 
 /* Mark a transfer as dirty, e.g. to be rerun at earliest convenience.
  * A cheap operation, can be done many times repeatedly. */
-void Curl_multi_mark_dirty(struct Curl_easy *data);
+శూన్య Curl_multi_mark_dirty(నిర్మాణం Curl_easy *దత్తాంశం);
 /* Clear transfer from the dirty set. */
-void Curl_multi_clear_dirty(struct Curl_easy *data);
+శూన్య Curl_multi_clear_dirty(నిర్మాణం Curl_easy *దత్తాంశం);
 
-void Curl_multi_set_now(struct Curl_multi *multi);
+శూన్య Curl_multi_సమితి_now(నిర్మాణం Curl_multi *multi);
 
-#ifdef ENABLE_INTERNAL_WAKEUP
-void Curl_multi_wakeup_internal(struct Curl_multi *multi);
-#endif
+#నిర్వచితమైతే ENABLE_అంతర్గత_WAKEUP
+శూన్య Curl_multi_wakeup_అంతర్గత(నిర్మాణం Curl_multi *multi);
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_MULTIIF_H */
+#అయితే_ముగింపు /* HEADER_CURL_MULTIIF_H */

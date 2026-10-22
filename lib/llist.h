@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_LLIST_H
-#define HEADER_CURL_LLIST_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_LLIST_H
+#నిర్వచించు శీర్షిక_CURL_LLIST_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,58 +23,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-typedef void (*Curl_llist_dtor)(void *user, void *elem);
+రకనిర్వచనం శూన్య (*Curl_llist_dtor)(శూన్య *user, శూన్య *elem);
 
 /* none of these struct members should be referenced directly, use the
    dedicated functions */
 
-struct Curl_llist {
-  struct Curl_llist_node *_head;
-  struct Curl_llist_node *_tail;
+నిర్మాణం Curl_llist {
+  నిర్మాణం Curl_llist_కణుపు *తల_2;
+  నిర్మాణం Curl_llist_కణుపు *తోక_2;
   Curl_llist_dtor _dtor;
-  size_t _size;
-#ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
-#endif
+  size_t కొలత_2;
+#నిర్వచితమైతే DEBUGBUILD
+  పూర్ణాంకం _init;      /* detect API usage mistakes */
+#అయితే_ముగింపు
 };
 
-struct Curl_llist_node {
-  struct Curl_llist *_list; /* the list where this belongs */
-  void *_ptr;
-  struct Curl_llist_node *_prev;
-  struct Curl_llist_node *_next;
-#ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
-#endif
+నిర్మాణం Curl_llist_కణుపు {
+  నిర్మాణం Curl_llist *_list; /* the list where this belongs */
+  శూన్య *_ptr;
+  నిర్మాణం Curl_llist_కణుపు *_prev;
+  నిర్మాణం Curl_llist_కణుపు *తదుపరి_2;
+#నిర్వచితమైతే DEBUGBUILD
+  పూర్ణాంకం _init;      /* detect API usage mistakes */
+#అయితే_ముగింపు
 };
 
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor);
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne);
-void Curl_node_remove(struct Curl_llist_node *e);
-void Curl_llist_destroy(struct Curl_llist *list, void *user);
+శూన్య Curl_llist_init(నిర్మాణం Curl_llist *l, Curl_llist_dtor dtor);
+శూన్య Curl_llist_append(నిర్మాణం Curl_llist *list, స్థిరరాశి శూన్య *p,
+                       నిర్మాణం Curl_llist_కణుపు *ne);
+శూన్య Curl_కణుపు_remove(నిర్మాణం Curl_llist_కణుపు *e);
+శూన్య Curl_llist_destroy(నిర్మాణం Curl_llist *list, శూన్య *user);
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list);
+నిర్మాణం Curl_llist_కణుపు *Curl_llist_తల(స్థిరరాశి నిర్మాణం Curl_llist *list);
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list);
+size_t Curl_llist_లెక్క(స్థిరరాశి నిర్మాణం Curl_llist *list);
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n);
+శూన్య *Curl_కణుపు_elem(స్థిరరాశి నిర్మాణం Curl_llist_కణుపు *n);
 
 /* Remove the node from the list and return the custom data
  * from a Curl_llist_node. Does NOT invoke a registered `dtor`. */
-void *Curl_node_take_elem(struct Curl_llist_node *e);
+శూన్య *Curl_కణుపు_take_elem(నిర్మాణం Curl_llist_కణుపు *e);
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n);
+నిర్మాణం Curl_llist_కణుపు *Curl_కణుపు_తదుపరి(స్థిరరాశి నిర్మాణం Curl_llist_కణుపు *n);
 
 /* Curl_node_llist() return the list the node is in or NULL. */
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n);
+నిర్మాణం Curl_llist *Curl_కణుపు_llist(స్థిరరాశి నిర్మాణం Curl_llist_కణుపు *n);
 
-#endif /* HEADER_CURL_LLIST_H */
+#అయితే_ముగింపు /* HEADER_CURL_LLIST_H */

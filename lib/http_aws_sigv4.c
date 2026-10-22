@@ -21,95 +21,95 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
 
-#include "urldata.h"
-#include "strcase.h"
-#include "curlx/strdup.h"
-#include "http_aws_sigv4.h"
-#include "curl_sha256.h"
-#include "transfer.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "curlx/strparse.h"
-#include "slist.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "strcase.h"
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "http_aws_sigv4.h"
+#అన్తర్భావ "curl_sha256.h"
+#అన్తర్భావ "transfer.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "escape.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "slist.h"
 
-#include <time.h>
+#అన్తర్భావ <time.h>
 
-#define HMAC_SHA256(k, kl, d, dl, o)                 \
-  do {                                               \
-    result = Curl_hmacit(&Curl_HMAC_SHA256,          \
-                         (const unsigned char *)(k), \
+#నిర్వచించు HMAC_SHA256(k, kl, d, dl, o)                 \
+  చేయి {                                               \
+    ఫలితం = Curl_hmacit(&Curl_HMAC_SHA256,          \
+                         (స్థిరరాశి గుర్తులేని అక్షరం *)(k), \
                          kl,                         \
-                         (const unsigned char *)(d), \
+                         (స్థిరరాశి గుర్తులేని అక్షరం *)(d), \
                          dl, o);                     \
-    if(result) {                                     \
-      goto fail;                                     \
+    ఒకవేళ(ఫలితం) {                                     \
+      వెళ్ళు fail;                                     \
     }                                                \
-  } while(0)
+  } అయితే(0)
 
-#define TIMESTAMP_SIZE 17
+#నిర్వచించు TIMESTAMP_కొలత 17
 
 /* hex-encoded with null-terminator */
-#define SHA256_HEX_LENGTH ((2 * CURL_SHA256_DIGEST_LENGTH) + 1)
+#నిర్వచించు SHA256_HEX_నిడివి ((2 * CURL_SHA256_DIGEST_నిడివి) + 1)
 
-#define MAX_QUERY_COMPONENTS 128
+#నిర్వచించు MAX_QUERY_COMPONENTS 128
 
-struct pair {
-  struct dynbuf key;
-  struct dynbuf value;
+నిర్మాణం pair {
+  నిర్మాణం dynbuf కీలకం;
+  నిర్మాణం dynbuf విలువ;
 };
 
-static void sha256_to_hex(char *dst, unsigned char *sha)
+స్థిర శూన్య sha256_గమ్యం_hex(అక్షరం *dst, గుర్తులేని అక్షరం *sha)
 {
-  Curl_hexencode(sha, CURL_SHA256_DIGEST_LENGTH,
-                 (unsigned char *)dst, SHA256_HEX_LENGTH);
+  Curl_hexencode(sha, CURL_SHA256_DIGEST_నిడివి,
+                 (గుర్తులేని అక్షరం *)dst, SHA256_HEX_నిడివి);
 }
 
-static char *find_date_hdr(struct Curl_easy *data, const char *sig_hdr)
+స్థిర అక్షరం *కనుగొను_date_hdr(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *sig_hdr)
 {
-  char *tmp = Curl_checkheaders(data, sig_hdr, strlen(sig_hdr));
+  అక్షరం *tmp = Curl_checkheaders(దత్తాంశం, sig_hdr, అక్షరశ్రేణి_పొడవు(sig_hdr));
 
-  if(tmp)
-    return tmp;
-  return Curl_checkheaders(data, STRCONST("Date"));
+  ఒకవేళ(tmp)
+    తిరిగి tmp;
+  తిరిగి Curl_checkheaders(దత్తాంశం, STRCONST("Date"));
 }
 
 /* remove whitespace, and lowercase all headers */
-static void trim_headers(struct curl_slist *head)
+స్థిర శూన్య trim_శీర్షికలు(నిర్మాణం curl_slist *తల)
 {
-  struct curl_slist *l;
-  for(l = head; l; l = l->next) {
-    const char *value; /* to read from */
-    char *store;
-    size_t colon = strcspn(l->data, ":");
-    Curl_strntolower(l->data, l->data, colon);
+  నిర్మాణం curl_slist *l;
+  కొరకు(l = తల; l; l = l->తదుపరి) {
+    స్థిరరాశి అక్షరం *విలువ; /* to read from */
+    అక్షరం *store;
+    size_t colon = strcspn(l->దత్తాంశం, ":");
+    Curl_strntolower(l->దత్తాంశం, l->దత్తాంశం, colon);
 
-    value = &l->data[colon];
-    if(!*value)
-      continue;
-    ++value;
-    store = (char *)CURL_UNCONST(value);
+    విలువ = &l->దత్తాంశం[colon];
+    ఒకవేళ(!*విలువ)
+      కొనసాగు;
+    ++విలువ;
+    store = (అక్షరం *)CURL_UNCONST(విలువ);
 
     /* skip leading whitespace */
-    curlx_str_passblanks(&value);
+    curlx_str_passblanks(&విలువ);
 
-    while(*value) {
-      int space = 0;
-      while(ISBLANK(*value)) {
-        value++;
+    అయితే(*విలువ) {
+      పూర్ణాంకం space = 0;
+      అయితే(ISBLANK(*విలువ)) {
+        విలువ++;
         space++;
       }
-      if(space) {
+      ఒకవేళ(space) {
         /* replace any number of consecutive whitespace with a single space,
            unless at the end of the string, then nothing */
-        if(*value)
+        ఒకవేళ(*విలువ)
           *store++ = ' ';
       }
-      else
-        *store++ = *value++;
+      లేకపోతే
+        *store++ = *విలువ++;
     }
     *store = 0; /* null-terminate */
   }
@@ -118,25 +118,25 @@ static void trim_headers(struct curl_slist *head)
 /*
  * Frees all allocated strings in a dynbuf pair array, and the dynbuf itself
  */
-static void pair_array_free(struct pair *pair_array, size_t num_elements)
+స్థిర శూన్య pair_array_free(నిర్మాణం pair *pair_array, size_t అంకె_elements)
 {
-  size_t index;
+  size_t సూచీ;
 
-  for(index = 0; index != num_elements; index++) {
-    curlx_dyn_free(&pair_array[index].key);
-    curlx_dyn_free(&pair_array[index].value);
+  కొరకు(సూచీ = 0; సూచీ != అంకె_elements; సూచీ++) {
+    curlx_dyn_free(&pair_array[సూచీ].కీలకం);
+    curlx_dyn_free(&pair_array[సూచీ].విలువ);
   }
 }
 
 /*
  * Frees all allocated strings in a split dynbuf, and the dynbuf itself
  */
-static void dyn_array_free(struct dynbuf *db, size_t num_elements)
+స్థిర శూన్య dyn_array_free(నిర్మాణం dynbuf *db, size_t అంకె_elements)
 {
-  size_t index;
+  size_t సూచీ;
 
-  for(index = 0; index < num_elements; index++)
-    curlx_dyn_free((&db[index]));
+  కొరకు(సూచీ = 0; సూచీ < అంకె_elements; సూచీ++)
+    curlx_dyn_free((&db[సూచీ]));
 }
 
 /*
@@ -145,122 +145,122 @@ static void dyn_array_free(struct dynbuf *db, size_t num_elements)
  * Caller is responsible for freeing the array elements with dyn_array_free
  */
 
-#define SPLIT_BY '&'
+#నిర్వచించు విభజించు_BY '&'
 
-static CURLcode split_to_dyn_array(const char *source,
-                                   struct dynbuf db[MAX_QUERY_COMPONENTS],
-                                   size_t *num_splits_out)
+స్థిర CURLcode విభజించు_గమ్యం_dyn_array(స్థిరరాశి అక్షరం *ఆధారం,
+                                   నిర్మాణం dynbuf db[MAX_QUERY_COMPONENTS],
+                                   size_t *అంకె_splits_బహిర్గతం)
 {
-  CURLcode result = CURLE_OK;
-  size_t len = strlen(source);
+  CURLcode ఫలితం = CURLE_OK;
+  size_t len = అక్షరశ్రేణి_పొడవు(ఆధారం);
   size_t pos;         /* Position in result buffer */
-  size_t start = 0;   /* Start of current segment */
-  size_t segment_length = 0;
-  size_t index = 0;
-  size_t num_splits = 0;
+  size_t ప్రారంభం = 0;   /* Start of current segment */
+  size_t segment_నిడివి = 0;
+  size_t సూచీ = 0;
+  size_t అంకె_splits = 0;
 
   /* Split source_ptr on SPLIT_BY and store the segment offsets and length in
    * array */
-  for(pos = 0; pos < len; pos++) {
-    if(source[pos] == SPLIT_BY) {
-      if(segment_length) {
-        curlx_dyn_init(&db[index], segment_length + 1);
-        result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-        if(result)
-          goto fail;
+  కొరకు(pos = 0; pos < len; pos++) {
+    ఒకవేళ(ఆధారం[pos] == విభజించు_BY) {
+      ఒకవేళ(segment_నిడివి) {
+        curlx_dyn_init(&db[సూచీ], segment_నిడివి + 1);
+        ఫలితం = curlx_dyn_addn(&db[సూచీ], &ఆధారం[ప్రారంభం], segment_నిడివి);
+        ఒకవేళ(ఫలితం)
+          వెళ్ళు fail;
 
-        segment_length = 0;
-        index++;
-        if(++num_splits == MAX_QUERY_COMPONENTS) {
-          result = CURLE_TOO_LARGE;
-          goto fail;
+        segment_నిడివి = 0;
+        సూచీ++;
+        ఒకవేళ(++అంకె_splits == MAX_QUERY_COMPONENTS) {
+          ఫలితం = CURLE_TOO_LARGE;
+          వెళ్ళు fail;
         }
       }
-      start = pos + 1;
+      ప్రారంభం = pos + 1;
     }
-    else {
-      segment_length++;
+    లేకపోతే {
+      segment_నిడివి++;
     }
   }
 
-  if(segment_length) {
-    curlx_dyn_init(&db[index], segment_length + 1);
-    result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-    if(!result && ++num_splits == MAX_QUERY_COMPONENTS)
-      result = CURLE_TOO_LARGE;
+  ఒకవేళ(segment_నిడివి) {
+    curlx_dyn_init(&db[సూచీ], segment_నిడివి + 1);
+    ఫలితం = curlx_dyn_addn(&db[సూచీ], &ఆధారం[ప్రారంభం], segment_నిడివి);
+    ఒకవేళ(!ఫలితం && ++అంకె_splits == MAX_QUERY_COMPONENTS)
+      ఫలితం = CURLE_TOO_LARGE;
   }
 fail:
-  *num_splits_out = num_splits;
-  return result;
+  *అంకె_splits_బహిర్గతం = అంకె_splits;
+  తిరిగి ఫలితం;
 }
 
-static bool is_reserved_char(const char c)
+స్థిర bool is_reserved_char(స్థిరరాశి అక్షరం c)
 {
-  return (ISALNUM(c) || ISURLPUNTCS(c));
+  తిరిగి (ISALNUM(c) || ISURLPUNTCS(c));
 }
 
-static CURLcode uri_encode_path(struct Curl_str *original_path,
-                                struct dynbuf *new_path)
+స్థిర CURLcode uri_encode_మార్గం(నిర్మాణం Curl_str *original_మార్గం,
+                                నిర్మాణం dynbuf *new_మార్గం)
 {
-  const char *p = curlx_str(original_path);
+  స్థిరరాశి అక్షరం *p = curlx_str(original_మార్గం);
   size_t i;
 
-  for(i = 0; i < curlx_strlen(original_path); i++) {
+  కొరకు(i = 0; i < curlx_strlen(original_మార్గం); i++) {
     /* Do not encode slashes or unreserved chars from RFC 3986 */
-    CURLcode result = CURLE_OK;
-    unsigned char c = p[i];
-    if(is_reserved_char(c) || c == '/')
-      result = curlx_dyn_addn(new_path, &c, 1);
-    else
-      result = curlx_dyn_addf(new_path, "%%%02X", c);
-    if(result)
-      return result;
+    CURLcode ఫలితం = CURLE_OK;
+    గుర్తులేని అక్షరం c = p[i];
+    ఒకవేళ(is_reserved_char(c) || c == '/')
+      ఫలితం = curlx_dyn_addn(new_మార్గం, &c, 1);
+    లేకపోతే
+      ఫలితం = curlx_dyn_addf(new_మార్గం, "%%%02X", c);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* Normalize the query part. Make sure %2B is left percent encoded, and not
    decoded to plus, then encoded to space. */
-static CURLcode normalize_query(const char *string, size_t len,
-                                struct dynbuf *db)
+స్థిర CURLcode normalize_query(స్థిరరాశి అక్షరం *string, size_t len,
+                                నిర్మాణం dynbuf *db)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  while(len && !result) {
-    unsigned char in = (unsigned char)*string;
-    if(('%' == in) && (len > 2) &&
+  అయితే(len && !ఫలితం) {
+    గుర్తులేని అక్షరం లోపల = (గుర్తులేని అక్షరం)*string;
+    ఒకవేళ(('%' == లోపల) && (len > 2) &&
        ISXDIGIT(string[1]) && ISXDIGIT(string[2])) {
       /* this is two hexadecimal digits following a '%' */
-      in = (unsigned char)((curlx_hexval(string[1]) << 4) |
+      లోపల = (గుర్తులేని అక్షరం)((curlx_hexval(string[1]) << 4) |
                            curlx_hexval(string[2]));
       string += 3;
       len -= 3;
-      if(in == '+') {
+      ఒకవేళ(లోపల == '+') {
         /* decodes to plus, so leave this encoded */
-        result = curlx_dyn_addn(db, "%2B", 3);
-        continue;
+        ఫలితం = curlx_dyn_addn(db, "%2B", 3);
+        కొనసాగు;
       }
     }
-    else {
+    లేకపోతే {
       string++;
       len--;
     }
 
-    if(is_reserved_char(in))
+    ఒకవేళ(is_reserved_char(లోపల))
       /* Escape unreserved chars from RFC 3986 */
-      result = curlx_dyn_addn(db, &in, 1);
-    else if(in == '+')
+      ఫలితం = curlx_dyn_addn(db, &లోపల, 1);
+    లేకపోతే ఒకవేళ(లోపల == '+')
       /* Encode '+' as space */
-      result = curlx_dyn_add(db, "%20");
-    else
-      result = curlx_dyn_addf(db, "%%%02X", in);
+      ఫలితం = curlx_dyn_కూడు(db, "%20");
+    లేకపోతే
+      ఫలితం = curlx_dyn_addf(db, "%%%02X", లోపల);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static bool should_urlencode(struct Curl_str *service_name)
+స్థిర bool should_urlencode(నిర్మాణం Curl_str *service_name)
 {
   /*
    * These services require unmodified (not additionally URL-encoded) URL
@@ -268,32 +268,32 @@ static bool should_urlencode(struct Curl_str *service_name)
    * set in the AWS S3 endpoint rules. Urls are already normalized by the curl
    * URL parser
    */
-  if(curlx_str_cmp(service_name, "s3") ||
+  ఒకవేళ(curlx_str_cmp(service_name, "s3") ||
      curlx_str_cmp(service_name, "s3express") ||
      curlx_str_cmp(service_name, "s3-outposts") ||
      curlx_str_cmp(service_name, "s3-object-lambda")) {
-    return FALSE;
+    తిరిగి FALSE;
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
 
 /* maximum length for the aws sivg4 parts */
-#define MAX_SIGV4_LEN    64
-#define DATE_HDR_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Date"))
+#నిర్వచించు MAX_SIGV4_LEN    64
+#నిర్వచించు DATE_HDR_కీలకం_LEN (MAX_SIGV4_LEN + పరిమాణం("X--Date"))
 
 /* string been x-PROVIDER-date:TIMESTAMP, I need +1 for ':' */
-#define DATE_FULL_HDR_LEN (DATE_HDR_KEY_LEN + TIMESTAMP_SIZE + 1)
+#నిర్వచించు DATE_నిండిన_HDR_LEN (DATE_HDR_కీలకం_LEN + TIMESTAMP_కొలత + 1)
 
 /* alphabetically compare two headers by their name, expecting
    headers to use ':' at this point */
-static int compare_header_names(const char *a, const char *b)
+స్థిర పూర్ణాంకం compare_శీర్షిక_పేర్లు(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b)
 {
-  const char *colon_a;
-  const char *colon_b;
+  స్థిరరాశి అక్షరం *colon_a;
+  స్థిరరాశి అక్షరం *colon_b;
   size_t len_a;
   size_t len_b;
   size_t min_len;
-  int cmp;
+  పూర్ణాంకం cmp;
 
   colon_a = strchr(a, ':');
   colon_b = strchr(b, ':');
@@ -301,118 +301,118 @@ static int compare_header_names(const char *a, const char *b)
   DEBUGASSERT(colon_a);
   DEBUGASSERT(colon_b);
 
-  len_a = colon_a ? (size_t)(colon_a - a) : strlen(a);
-  len_b = colon_b ? (size_t)(colon_b - b) : strlen(b);
+  len_a = colon_a ? (size_t)(colon_a - a) : అక్షరశ్రేణి_పొడవు(a);
+  len_b = colon_b ? (size_t)(colon_b - b) : అక్షరశ్రేణి_పొడవు(b);
 
   min_len = (len_a < len_b) ? len_a : len_b;
 
-  cmp = strncmp(a, b, min_len);
+  cmp = అక్షరశ్రేణి_పోలిక(a, b, min_len);
 
   /* return the shorter of the two if one is shorter */
-  if(!cmp)
-    return (int)(len_a - len_b);
+  ఒకవేళ(!cmp)
+    తిరిగి (పూర్ణాంకం)(len_a - len_b);
 
-  return cmp;
+  తిరిగి cmp;
 }
 
 /* Merge duplicate header definitions by comma delimiting their values
    in the order defined the headers are defined, expecting headers to
    be alpha-sorted and use ':' at this point */
-static CURLcode merge_duplicate_headers(struct curl_slist *head)
+స్థిర CURLcode విలీనం_duplicate_శీర్షికలు(నిర్మాణం curl_slist *తల)
 {
-  struct curl_slist *curr = head;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం curl_slist *curr = తల;
+  CURLcode ఫలితం = CURLE_OK;
 
-  while(curr) {
-    struct curl_slist *next = curr->next;
-    if(!next)
-      break;
+  అయితే(curr) {
+    నిర్మాణం curl_slist *తదుపరి = curr->తదుపరి;
+    ఒకవేళ(!తదుపరి)
+      ఆపు;
 
-    if(compare_header_names(curr->data, next->data) == 0) {
-      struct dynbuf buf;
-      const char *colon_next;
-      const char *val_next;
+    ఒకవేళ(compare_శీర్షిక_పేర్లు(curr->దత్తాంశం, తదుపరి->దత్తాంశం) == 0) {
+      నిర్మాణం dynbuf buf;
+      స్థిరరాశి అక్షరం *colon_తదుపరి;
+      స్థిరరాశి అక్షరం *val_తదుపరి;
 
-      curlx_dyn_init(&buf, CURL_MAX_HTTP_HEADER);
+      curlx_dyn_init(&buf, CURL_MAX_HTTP_శీర్షిక);
 
-      result = curlx_dyn_add(&buf, curr->data);
-      if(result)
-        return result;
+      ఫలితం = curlx_dyn_కూడు(&buf, curr->దత్తాంశం);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
 
-      colon_next = strchr(next->data, ':');
-      DEBUGASSERT(colon_next);
-      val_next = colon_next + 1;
+      colon_తదుపరి = strchr(తదుపరి->దత్తాంశం, ':');
+      DEBUGASSERT(colon_తదుపరి);
+      val_తదుపరి = colon_తదుపరి + 1;
 
-      result = curlx_dyn_addn(&buf, ",", 1);
-      if(result)
-        return result;
+      ఫలితం = curlx_dyn_addn(&buf, ",", 1);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
 
-      result = curlx_dyn_add(&buf, val_next);
-      if(result)
-        return result;
+      ఫలితం = curlx_dyn_కూడు(&buf, val_తదుపరి);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
 
-      curlx_free(curr->data);
-      curr->data = curlx_dyn_ptr(&buf);
+      curlx_free(curr->దత్తాంశం);
+      curr->దత్తాంశం = curlx_dyn_ptr(&buf);
 
-      curr->next = next->next;
-      curlx_free(next->data);
-      curlx_free(next);
+      curr->తదుపరి = తదుపరి->తదుపరి;
+      curlx_free(తదుపరి->దత్తాంశం);
+      curlx_free(తదుపరి);
     }
-    else {
-      curr = curr->next;
+    లేకపోతే {
+      curr = curr->తదుపరి;
     }
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* timestamp should point to a buffer of at last TIMESTAMP_SIZE bytes */
-static CURLcode make_headers(struct Curl_easy *data,
-                             char *timestamp,
-                             const char *provider1,
+స్థిర CURLcode make_శీర్షికలు(నిర్మాణం Curl_easy *దత్తాంశం,
+                             అక్షరం *timestamp,
+                             స్థిరరాశి అక్షరం *provider1,
                              size_t plen, /* length of provider1 */
-                             char **date_header,
-                             char *content_sha256_header,
-                             struct dynbuf *canonical_headers,
-                             struct dynbuf *signed_headers)
+                             అక్షరం **date_శీర్షిక,
+                             అక్షరం *content_sha256_శీర్షిక,
+                             నిర్మాణం dynbuf *canonical_శీర్షికలు,
+                             నిర్మాణం dynbuf *signed_శీర్షికలు)
 {
-  char date_hdr_key[DATE_HDR_KEY_LEN];
-  char date_full_hdr[DATE_FULL_HDR_LEN];
-  struct curl_slist *head = NULL;
-  struct curl_slist *tmp_head = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  struct curl_slist *l;
+  అక్షరం date_hdr_కీలకం[DATE_HDR_కీలకం_LEN];
+  అక్షరం date_నిండిన_hdr[DATE_నిండిన_HDR_LEN];
+  నిర్మాణం curl_slist *తల = ఖాళీ;
+  నిర్మాణం curl_slist *tmp_తల = ఖాళీ;
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  నిర్మాణం curl_slist *l;
   bool again = TRUE;
 
-  curl_msnprintf(date_hdr_key, DATE_HDR_KEY_LEN, "X-%.*s-Date",
-                 (int)plen, provider1);
+  curl_msnprintf(date_hdr_కీలకం, DATE_HDR_కీలకం_LEN, "X-%.*s-Date",
+                 (పూర్ణాంకం)plen, provider1);
   /* provider1 ucfirst */
-  Curl_strntolower(&date_hdr_key[2], provider1, plen);
-  date_hdr_key[2] = Curl_raw_toupper(provider1[0]);
+  Curl_strntolower(&date_hdr_కీలకం[2], provider1, plen);
+  date_hdr_కీలకం[2] = Curl_raw_toupper(provider1[0]);
 
-  curl_msnprintf(date_full_hdr, DATE_FULL_HDR_LEN,
-                 "x-%.*s-date:%s", (int)plen, provider1, timestamp);
+  curl_msnprintf(date_నిండిన_hdr, DATE_నిండిన_HDR_LEN,
+                 "x-%.*s-date:%s", (పూర్ణాంకం)plen, provider1, timestamp);
   /* provider1 lowercase */
-  Curl_strntolower(&date_full_hdr[2], provider1, plen);
+  Curl_strntolower(&date_నిండిన_hdr[2], provider1, plen);
 
-  if(!Curl_checkheaders(data, STRCONST("Host")) &&
-     data->state.http_host) {
+  ఒకవేళ(!Curl_checkheaders(దత్తాంశం, STRCONST("Host")) &&
+     దత్తాంశం->state.http_host) {
     /* Host: [host]:[port] */
-    char *fullhost = curlx_strdup(data->state.http_host);
+    అక్షరం *fullhost = curlx_strdup(దత్తాంశం->state.http_host);
 
-    if(fullhost)
-      head = Curl_slist_append_nodup(NULL, fullhost);
-    if(!head) {
+    ఒకవేళ(fullhost)
+      తల = Curl_slist_append_nodup(ఖాళీ, fullhost);
+    ఒకవేళ(!తల) {
       curlx_free(fullhost);
-      goto fail;
+      వెళ్ళు fail;
     }
   }
 
-  if(*content_sha256_header) {
-    tmp_head = curl_slist_append(head, content_sha256_header);
-    if(!tmp_head)
-      goto fail;
-    head = tmp_head;
+  ఒకవేళ(*content_sha256_శీర్షిక) {
+    tmp_తల = curl_slist_append(తల, content_sha256_శీర్షిక);
+    ఒకవేళ(!tmp_తల)
+      వెళ్ళు fail;
+    తల = tmp_తల;
   }
 
   /* copy user headers to our header list. the logic is based on how http.c
@@ -430,804 +430,804 @@ static CURLcode make_headers(struct Curl_easy *data,
      user headers with a value of whitespace only, or without a colon or
      semi-colon, are not added to this list.
      */
-  for(l = data->set.headers; l; l = l->next) {
-    char *dupdata;
-    const char *ptr;
-    const char *sep = strchr(l->data, ':');
-    if(!sep)
-      sep = strchr(l->data, ';');
-    if(!sep || (*sep == ':' && !*(sep + 1)))
-      continue;
-    for(ptr = sep + 1; ISBLANK(*ptr); ++ptr)
+  కొరకు(l = దత్తాంశం->సమితి.శీర్షికలు; l; l = l->తదుపరి) {
+    అక్షరం *dupdata;
+    స్థిరరాశి అక్షరం *ptr;
+    స్థిరరాశి అక్షరం *sep = strchr(l->దత్తాంశం, ':');
+    ఒకవేళ(!sep)
+      sep = strchr(l->దత్తాంశం, ';');
+    ఒకవేళ(!sep || (*sep == ':' && !*(sep + 1)))
+      కొనసాగు;
+    కొరకు(ptr = sep + 1; ISBLANK(*ptr); ++ptr)
       ;
-    if(!*ptr && ptr != sep + 1) /* a value of whitespace only */
-      continue;
-    dupdata = curlx_strdup(l->data);
-    if(!dupdata)
-      goto fail;
-    dupdata[sep - l->data] = ':';
-    tmp_head = Curl_slist_append_nodup(head, dupdata);
-    if(!tmp_head) {
+    ఒకవేళ(!*ptr && ptr != sep + 1) /* a value of whitespace only */
+      కొనసాగు;
+    dupdata = curlx_strdup(l->దత్తాంశం);
+    ఒకవేళ(!dupdata)
+      వెళ్ళు fail;
+    dupdata[sep - l->దత్తాంశం] = ':';
+    tmp_తల = Curl_slist_append_nodup(తల, dupdata);
+    ఒకవేళ(!tmp_తల) {
       curlx_free(dupdata);
-      goto fail;
+      వెళ్ళు fail;
     }
-    head = tmp_head;
+    తల = tmp_తల;
   }
 
-  trim_headers(head);
+  trim_శీర్షికలు(తల);
 
-  *date_header = find_date_hdr(data, date_hdr_key);
-  if(!*date_header) {
-    tmp_head = curl_slist_append(head, date_full_hdr);
-    if(!tmp_head)
-      goto fail;
-    head = tmp_head;
-    *date_header = curl_maprintf("%s: %s\r\n", date_hdr_key, timestamp);
-    if(!*date_header)
-      goto fail;
+  *date_శీర్షిక = కనుగొను_date_hdr(దత్తాంశం, date_hdr_కీలకం);
+  ఒకవేళ(!*date_శీర్షిక) {
+    tmp_తల = curl_slist_append(తల, date_నిండిన_hdr);
+    ఒకవేళ(!tmp_తల)
+      వెళ్ళు fail;
+    తల = tmp_తల;
+    *date_శీర్షిక = curl_maprintf("%s: %s\r\n", date_hdr_కీలకం, timestamp);
+    ఒకవేళ(!*date_శీర్షిక)
+      వెళ్ళు fail;
   }
-  else {
-    const char *value;
-    const char *endp;
-    value = strchr(*date_header, ':');
-    if(!value) {
-      *date_header = NULL;
-      goto fail;
+  లేకపోతే {
+    స్థిరరాశి అక్షరం *విలువ;
+    స్థిరరాశి అక్షరం *endp;
+    విలువ = strchr(*date_శీర్షిక, ':');
+    ఒకవేళ(!విలువ) {
+      *date_శీర్షిక = ఖాళీ;
+      వెళ్ళు fail;
     }
-    ++value;
-    curlx_str_passblanks(&value);
-    endp = value;
-    while(*endp && ISALNUM(*endp))
+    ++విలువ;
+    curlx_str_passblanks(&విలువ);
+    endp = విలువ;
+    అయితే(*endp && ISALNUM(*endp))
       ++endp;
     /* 16 bytes => "19700101T000000Z" */
-    if((endp - value) == TIMESTAMP_SIZE - 1) {
-      memcpy(timestamp, value, TIMESTAMP_SIZE - 1);
-      timestamp[TIMESTAMP_SIZE - 1] = 0;
+    ఒకవేళ((endp - విలువ) == TIMESTAMP_కొలత - 1) {
+      జ్ఞాపకం_నకలు(timestamp, విలువ, TIMESTAMP_కొలత - 1);
+      timestamp[TIMESTAMP_కొలత - 1] = 0;
     }
-    else
+    లేకపోతే
       /* bad timestamp length */
       timestamp[0] = 0;
-    *date_header = NULL;
+    *date_శీర్షిక = ఖాళీ;
   }
 
   /* alpha-sort by header name in a case sensitive manner */
-  do {
+  చేయి {
     again = FALSE;
-    for(l = head; l; l = l->next) {
-      struct curl_slist *next = l->next;
+    కొరకు(l = తల; l; l = l->తదుపరి) {
+      నిర్మాణం curl_slist *తదుపరి = l->తదుపరి;
 
-      if(next && compare_header_names(l->data, next->data) > 0) {
-        char *tmp = l->data;
+      ఒకవేళ(తదుపరి && compare_శీర్షిక_పేర్లు(l->దత్తాంశం, తదుపరి->దత్తాంశం) > 0) {
+        అక్షరం *tmp = l->దత్తాంశం;
 
-        l->data = next->data;
-        next->data = tmp;
+        l->దత్తాంశం = తదుపరి->దత్తాంశం;
+        తదుపరి->దత్తాంశం = tmp;
         again = TRUE;
       }
     }
-  } while(again);
+  } అయితే(again);
 
-  result = merge_duplicate_headers(head);
-  if(result)
-    goto fail;
+  ఫలితం = విలీనం_duplicate_శీర్షికలు(తల);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  for(l = head; l; l = l->next) {
-    char *tmp;
+  కొరకు(l = తల; l; l = l->తదుపరి) {
+    అక్షరం *tmp;
 
-    if(curlx_dyn_add(canonical_headers, l->data))
-      goto fail;
-    if(curlx_dyn_add(canonical_headers, "\n"))
-      goto fail;
+    ఒకవేళ(curlx_dyn_కూడు(canonical_శీర్షికలు, l->దత్తాంశం))
+      వెళ్ళు fail;
+    ఒకవేళ(curlx_dyn_కూడు(canonical_శీర్షికలు, "\n"))
+      వెళ్ళు fail;
 
-    tmp = strchr(l->data, ':');
-    if(tmp)
+    tmp = strchr(l->దత్తాంశం, ':');
+    ఒకవేళ(tmp)
       *tmp = 0;
 
-    if(l != head && curlx_dyn_add(signed_headers, ";"))
-      goto fail;
-    if(curlx_dyn_add(signed_headers, l->data))
-      goto fail;
+    ఒకవేళ(l != తల && curlx_dyn_కూడు(signed_శీర్షికలు, ";"))
+      వెళ్ళు fail;
+    ఒకవేళ(curlx_dyn_కూడు(signed_శీర్షికలు, l->దత్తాంశం))
+      వెళ్ళు fail;
   }
 
-  result = CURLE_OK;
+  ఫలితం = CURLE_OK;
 fail:
-  curl_slist_free_all(head);
+  curl_slist_free_all(తల);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#define CONTENT_SHA256_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Content-Sha256"))
+#నిర్వచించు CONTENT_SHA256_కీలకం_LEN (MAX_SIGV4_LEN + పరిమాణం("X--Content-Sha256"))
 /* add 2 for ": " between header name and value */
-#define CONTENT_SHA256_HDR_LEN (CONTENT_SHA256_KEY_LEN + 2 + SHA256_HEX_LENGTH)
+#నిర్వచించు CONTENT_SHA256_HDR_LEN (CONTENT_SHA256_కీలకం_LEN + 2 + SHA256_HEX_నిడివి)
 
 /* try to parse a payload hash from the content-sha256 header */
-static const char *parse_content_sha_hdr(struct Curl_easy *data,
-                                         const char *provider1,
+స్థిర స్థిరరాశి అక్షరం *parse_content_sha_hdr(నిర్మాణం Curl_easy *దత్తాంశం,
+                                         స్థిరరాశి అక్షరం *provider1,
                                          size_t plen,
-                                         size_t *value_len)
+                                         size_t *విలువ_len)
 {
-  char key[CONTENT_SHA256_KEY_LEN];
-  size_t key_len;
-  const char *value;
+  అక్షరం కీలకం[CONTENT_SHA256_కీలకం_LEN];
+  size_t కీలకం_len;
+  స్థిరరాశి అక్షరం *విలువ;
   size_t len;
 
-  key_len = curl_msnprintf(key, sizeof(key), "x-%.*s-content-sha256",
-                           (int)plen, provider1);
+  కీలకం_len = curl_msnprintf(కీలకం, పరిమాణం(కీలకం), "x-%.*s-content-sha256",
+                           (పూర్ణాంకం)plen, provider1);
 
-  value = Curl_checkheaders(data, key, key_len);
-  if(!value)
-    return NULL;
+  విలువ = Curl_checkheaders(దత్తాంశం, కీలకం, కీలకం_len);
+  ఒకవేళ(!విలువ)
+    తిరిగి ఖాళీ;
 
-  value = strchr(value, ':');
-  if(!value)
-    return NULL;
-  ++value;
+  విలువ = strchr(విలువ, ':');
+  ఒకవేళ(!విలువ)
+    తిరిగి ఖాళీ;
+  ++విలువ;
 
-  curlx_str_passblanks(&value);
+  curlx_str_passblanks(&విలువ);
 
-  len = strlen(value);
-  while(len > 0 && ISBLANK(value[len - 1]))
+  len = అక్షరశ్రేణి_పొడవు(విలువ);
+  అయితే(len > 0 && ISBLANK(విలువ[len - 1]))
     --len;
 
-  *value_len = len;
-  return value;
+  *విలువ_len = len;
+  తిరిగి విలువ;
 }
 
-static CURLcode calc_payload_hash(struct Curl_easy *data,
-                                  unsigned char *sha_hash, char *sha_hex)
+స్థిర CURLcode calc_payload_hash(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  గుర్తులేని అక్షరం *sha_hash, అక్షరం *sha_hex)
 {
-  const char *post_data = data->set.postfields;
-  size_t post_data_len = 0;
-  CURLcode result;
+  స్థిరరాశి అక్షరం *post_దత్తాంశం = దత్తాంశం->సమితి.postfields;
+  size_t post_దత్తాంశం_len = 0;
+  CURLcode ఫలితం;
 
-  if(post_data) {
-    if(data->set.postfieldsize < 0)
-      post_data_len = strlen(post_data);
-    else
-      post_data_len = (size_t)data->set.postfieldsize;
+  ఒకవేళ(post_దత్తాంశం) {
+    ఒకవేళ(దత్తాంశం->సమితి.postfieldsize < 0)
+      post_దత్తాంశం_len = అక్షరశ్రేణి_పొడవు(post_దత్తాంశం);
+    లేకపోతే
+      post_దత్తాంశం_len = (size_t)దత్తాంశం->సమితి.postfieldsize;
   }
-  result = Curl_sha256it(sha_hash, (const unsigned char *)post_data,
-                         post_data_len);
-  if(!result)
-    sha256_to_hex(sha_hex, sha_hash);
-  return result;
+  ఫలితం = Curl_sha256it(sha_hash, (స్థిరరాశి గుర్తులేని అక్షరం *)post_దత్తాంశం,
+                         post_దత్తాంశం_len);
+  ఒకవేళ(!ఫలితం)
+    sha256_గమ్యం_hex(sha_hex, sha_hash);
+  తిరిగి ఫలితం;
 }
 
-#define S3_UNSIGNED_PAYLOAD "UNSIGNED-PAYLOAD"
+#నిర్వచించు S3_UNSIGNED_PAYLOAD "UNSIGNED-PAYLOAD"
 
-static CURLcode calc_s3_payload_hash(struct Curl_easy *data,
+స్థిర CURLcode calc_s3_payload_hash(నిర్మాణం Curl_easy *దత్తాంశం,
                                      Curl_HttpReq httpreq,
-                                     const char *provider1,
+                                     స్థిరరాశి అక్షరం *provider1,
                                      size_t plen,
-                                     unsigned char *sha_hash,
-                                     char *sha_hex, char *header)
+                                     గుర్తులేని అక్షరం *sha_hash,
+                                     అక్షరం *sha_hex, అక్షరం *శీర్షిక)
 {
-  bool empty_method = (httpreq == HTTPREQ_GET || httpreq == HTTPREQ_HEAD);
+  bool ఖాళీలు_పద్ధతి = (httpreq == HTTPREQ_GET || httpreq == HTTPREQ_తల);
   /* The request method or filesize indicate no request payload */
-  bool empty_payload = (empty_method || data->set.filesize == 0);
+  bool ఖాళీలు_payload = (ఖాళీలు_పద్ధతి || దత్తాంశం->సమితి.filesize == 0);
   /* The POST payload is in memory */
-  bool post_payload = (httpreq == HTTPREQ_POST && data->set.postfields);
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  bool post_payload = (httpreq == HTTPREQ_POST && దత్తాంశం->సమితి.postfields);
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  if(empty_payload || post_payload) {
+  ఒకవేళ(ఖాళీలు_payload || post_payload) {
     /* Calculate a real hash when we know the request payload */
-    result = calc_payload_hash(data, sha_hash, sha_hex);
-    if(result)
-      goto fail;
+    ఫలితం = calc_payload_hash(దత్తాంశం, sha_hash, sha_hex);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు fail;
   }
-  else {
+  లేకపోతే {
     /* Fall back to s3's UNSIGNED-PAYLOAD */
     size_t len = CURL_CSTRLEN(S3_UNSIGNED_PAYLOAD);
-    DEBUGASSERT(len < SHA256_HEX_LENGTH); /* 16 < 65 */
-    memcpy(sha_hex, S3_UNSIGNED_PAYLOAD, len);
+    DEBUGASSERT(len < SHA256_HEX_నిడివి); /* 16 < 65 */
+    జ్ఞాపకం_నకలు(sha_hex, S3_UNSIGNED_PAYLOAD, len);
     sha_hex[len] = 0;
   }
 
   /* format the required content-sha256 header */
-  curl_msnprintf(header, CONTENT_SHA256_HDR_LEN,
-                 "x-%.*s-content-sha256: %s", (int)plen, provider1, sha_hex);
+  curl_msnprintf(శీర్షిక, CONTENT_SHA256_HDR_LEN,
+                 "x-%.*s-content-sha256: %s", (పూర్ణాంకం)plen, provider1, sha_hex);
 
-  result = CURLE_OK;
+  ఫలితం = CURLE_OK;
 fail:
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static int compare_func(const void *a, const void *b)
+స్థిర పూర్ణాంకం compare_func(స్థిరరాశి శూన్య *a, స్థిరరాశి శూన్య *b)
 {
-  const struct pair *aa = a;
-  const struct pair *bb = b;
-  const size_t aa_key_len = curlx_dyn_len(&aa->key);
-  const size_t bb_key_len = curlx_dyn_len(&bb->key);
-  const size_t aa_value_len = curlx_dyn_len(&aa->value);
-  const size_t bb_value_len = curlx_dyn_len(&bb->value);
-  int compare;
+  స్థిరరాశి నిర్మాణం pair *aa = a;
+  స్థిరరాశి నిర్మాణం pair *bb = b;
+  స్థిరరాశి size_t aa_కీలకం_len = curlx_dyn_len(&aa->కీలకం);
+  స్థిరరాశి size_t bb_కీలకం_len = curlx_dyn_len(&bb->కీలకం);
+  స్థిరరాశి size_t aa_విలువ_len = curlx_dyn_len(&aa->విలువ);
+  స్థిరరాశి size_t bb_విలువ_len = curlx_dyn_len(&bb->విలువ);
+  పూర్ణాంకం compare;
 
   /* If one element is empty, the other is always sorted higher */
 
   /* Compare keys */
-  if((aa_key_len == 0) && (bb_key_len == 0))
-    return 0;
-  if(aa_key_len == 0)
-    return -1;
-  if(bb_key_len == 0)
-    return 1;
-  compare = strcmp(curlx_dyn_ptr(&aa->key), curlx_dyn_ptr(&bb->key));
-  if(compare) {
-    return compare;
+  ఒకవేళ((aa_కీలకం_len == 0) && (bb_కీలకం_len == 0))
+    తిరిగి 0;
+  ఒకవేళ(aa_కీలకం_len == 0)
+    తిరిగి -1;
+  ఒకవేళ(bb_కీలకం_len == 0)
+    తిరిగి 1;
+  compare = strcmp(curlx_dyn_ptr(&aa->కీలకం), curlx_dyn_ptr(&bb->కీలకం));
+  ఒకవేళ(compare) {
+    తిరిగి compare;
   }
 
   /* Compare values */
-  if((aa_value_len == 0) && (bb_value_len == 0))
-    return 0;
-  if(aa_value_len == 0)
-    return -1;
-  if(bb_value_len == 0)
-    return 1;
-  compare = strcmp(curlx_dyn_ptr(&aa->value), curlx_dyn_ptr(&bb->value));
+  ఒకవేళ((aa_విలువ_len == 0) && (bb_విలువ_len == 0))
+    తిరిగి 0;
+  ఒకవేళ(aa_విలువ_len == 0)
+    తిరిగి -1;
+  ఒకవేళ(bb_విలువ_len == 0)
+    తిరిగి 1;
+  compare = strcmp(curlx_dyn_ptr(&aa->విలువ), curlx_dyn_ptr(&bb->విలువ));
 
-  return compare;
+  తిరిగి compare;
 }
 
 /* @unittest 1979 */
-UNITTEST CURLcode canon_path(const char *q, size_t len,
-                             struct dynbuf *new_path,
+UNITTEST CURLcode canon_మార్గం(స్థిరరాశి అక్షరం *q, size_t len,
+                             నిర్మాణం dynbuf *new_మార్గం,
                              bool do_uri_encode);
-UNITTEST CURLcode canon_path(const char *q, size_t len,
-                             struct dynbuf *new_path,
+UNITTEST CURLcode canon_మార్గం(స్థిరరాశి అక్షరం *q, size_t len,
+                             నిర్మాణం dynbuf *new_మార్గం,
                              bool do_uri_encode)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  struct Curl_str original_path;
+  నిర్మాణం Curl_str original_మార్గం;
 
-  curlx_str_assign(&original_path, q, len);
+  curlx_str_కేటాయించు(&original_మార్గం, q, len);
 
   /* Normalized path will be either the same or shorter than the original
    * path, plus trailing slash */
 
-  if(do_uri_encode)
-    result = uri_encode_path(&original_path, new_path);
-  else
-    result = curlx_dyn_addn(new_path, q, len);
+  ఒకవేళ(do_uri_encode)
+    ఫలితం = uri_encode_మార్గం(&original_మార్గం, new_మార్గం);
+  లేకపోతే
+    ఫలితం = curlx_dyn_addn(new_మార్గం, q, len);
 
-  if(!result && curlx_dyn_len(new_path) == 0)
-    result = curlx_dyn_add(new_path, "/");
+  ఒకవేళ(!ఫలితం && curlx_dyn_len(new_మార్గం) == 0)
+    ఫలితం = curlx_dyn_కూడు(new_మార్గం, "/");
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* @unittest 1980 */
-UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq);
-UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
+UNITTEST CURLcode canon_query(స్థిరరాశి అక్షరం *query, నిర్మాణం dynbuf *dq);
+UNITTEST CURLcode canon_query(స్థిరరాశి అక్షరం *query, నిర్మాణం dynbuf *dq)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  struct dynbuf query_array[MAX_QUERY_COMPONENTS];
-  struct pair encoded_query_array[MAX_QUERY_COMPONENTS];
-  size_t num_query_components;
+  నిర్మాణం dynbuf query_array[MAX_QUERY_COMPONENTS];
+  నిర్మాణం pair encoded_query_array[MAX_QUERY_COMPONENTS];
+  size_t అంకె_query_components;
   size_t counted_query_components = 0;
-  size_t index;
+  size_t సూచీ;
 
-  if(!query)
-    return result;
+  ఒకవేళ(!query)
+    తిరిగి ఫలితం;
 
-  result = split_to_dyn_array(query, &query_array[0], &num_query_components);
-  if(result) {
-    goto fail;
+  ఫలితం = విభజించు_గమ్యం_dyn_array(query, &query_array[0], &అంకె_query_components);
+  ఒకవేళ(ఫలితం) {
+    వెళ్ళు fail;
   }
 
   /* Create list of pairs, each pair containing an encoded query
    * component */
 
-  for(index = 0; index < num_query_components; index++) {
-    const char *in_key;
-    size_t in_key_len;
-    const char *offset;
-    size_t query_part_len = curlx_dyn_len(&query_array[index]);
-    const char *query_part = curlx_dyn_ptr(&query_array[index]);
+  కొరకు(సూచీ = 0; సూచీ < అంకె_query_components; సూచీ++) {
+    స్థిరరాశి అక్షరం *లోపల_కీలకం;
+    size_t లోపల_కీలకం_len;
+    స్థిరరాశి అక్షరం *స్థానభ్రంశం;
+    size_t query_part_len = curlx_dyn_len(&query_array[సూచీ]);
+    స్థిరరాశి అక్షరం *query_part = curlx_dyn_ptr(&query_array[సూచీ]);
 
-    in_key = query_part;
+    లోపల_కీలకం = query_part;
 
-    offset = strchr(query_part, '=');
+    స్థానభ్రంశం = strchr(query_part, '=');
     /* If there is no equals, this key has no value */
-    if(!offset) {
-      in_key_len = strlen(in_key);
+    ఒకవేళ(!స్థానభ్రంశం) {
+      లోపల_కీలకం_len = అక్షరశ్రేణి_పొడవు(లోపల_కీలకం);
     }
-    else {
-      in_key_len = offset - in_key;
+    లేకపోతే {
+      లోపల_కీలకం_len = స్థానభ్రంశం - లోపల_కీలకం;
     }
 
-    curlx_dyn_init(&encoded_query_array[index].key,
+    curlx_dyn_init(&encoded_query_array[సూచీ].కీలకం,
       (query_part_len * 3) + 1);
-    curlx_dyn_init(&encoded_query_array[index].value,
+    curlx_dyn_init(&encoded_query_array[సూచీ].విలువ,
       (query_part_len * 3) + 1);
     counted_query_components++;
 
     /* Decode/encode the key */
-    result = normalize_query(in_key, in_key_len,
-                             &encoded_query_array[index].key);
-    if(result) {
-      goto fail;
+    ఫలితం = normalize_query(లోపల_కీలకం, లోపల_కీలకం_len,
+                             &encoded_query_array[సూచీ].కీలకం);
+    ఒకవేళ(ఫలితం) {
+      వెళ్ళు fail;
     }
 
     /* Decode/encode the value if it exists */
-    if(offset && offset != (query_part + query_part_len - 1)) {
-      size_t in_value_len;
-      const char *in_value = offset + 1;
-      in_value_len = query_part + query_part_len - (offset + 1);
-      result = normalize_query(in_value, in_value_len,
-                               &encoded_query_array[index].value);
-      if(result) {
-        goto fail;
+    ఒకవేళ(స్థానభ్రంశం && స్థానభ్రంశం != (query_part + query_part_len - 1)) {
+      size_t లోపల_విలువ_len;
+      స్థిరరాశి అక్షరం *లోపల_విలువ = స్థానభ్రంశం + 1;
+      లోపల_విలువ_len = query_part + query_part_len - (స్థానభ్రంశం + 1);
+      ఫలితం = normalize_query(లోపల_విలువ, లోపల_విలువ_len,
+                               &encoded_query_array[సూచీ].విలువ);
+      ఒకవేళ(ఫలితం) {
+        వెళ్ళు fail;
       }
     }
-    else {
+    లేకపోతే {
       /* If there is no value, the value is an empty string */
-      curlx_dyn_init(&encoded_query_array[index].value, 2);
-      result = curlx_dyn_addn(&encoded_query_array[index].value, "", 1);
+      curlx_dyn_init(&encoded_query_array[సూచీ].విలువ, 2);
+      ఫలితం = curlx_dyn_addn(&encoded_query_array[సూచీ].విలువ, "", 1);
     }
 
-    if(result) {
-      goto fail;
+    ఒకవేళ(ఫలితం) {
+      వెళ్ళు fail;
     }
   }
 
   /* Sort the encoded query components by key and value */
-  qsort(&encoded_query_array, num_query_components,
-        sizeof(struct pair), compare_func);
+  qsort(&encoded_query_array, అంకె_query_components,
+        పరిమాణం(నిర్మాణం pair), compare_func);
 
   /* Append the query components together to make a full query string */
-  for(index = 0; index < num_query_components; index++) {
+  కొరకు(సూచీ = 0; సూచీ < అంకె_query_components; సూచీ++) {
 
-    if(index)
-      result = curlx_dyn_addn(dq, "&", 1);
-    if(!result) {
-      const char *key_ptr = curlx_dyn_ptr(&encoded_query_array[index].key);
-      const char *value_ptr = curlx_dyn_ptr(&encoded_query_array[index].value);
-      size_t vlen = curlx_dyn_len(&encoded_query_array[index].value);
-      if(value_ptr && vlen) {
-        result = curlx_dyn_addf(dq, "%s=%s", key_ptr, value_ptr);
+    ఒకవేళ(సూచీ)
+      ఫలితం = curlx_dyn_addn(dq, "&", 1);
+    ఒకవేళ(!ఫలితం) {
+      స్థిరరాశి అక్షరం *కీలకం_ptr = curlx_dyn_ptr(&encoded_query_array[సూచీ].కీలకం);
+      స్థిరరాశి అక్షరం *విలువ_ptr = curlx_dyn_ptr(&encoded_query_array[సూచీ].విలువ);
+      size_t vlen = curlx_dyn_len(&encoded_query_array[సూచీ].విలువ);
+      ఒకవేళ(విలువ_ptr && vlen) {
+        ఫలితం = curlx_dyn_addf(dq, "%s=%s", కీలకం_ptr, విలువ_ptr);
       }
-      else {
+      లేకపోతే {
         /* Empty value is always encoded to key= */
-        result = curlx_dyn_addf(dq, "%s=", key_ptr);
+        ఫలితం = curlx_dyn_addf(dq, "%s=", కీలకం_ptr);
       }
     }
-    if(result)
-      break;
+    ఒకవేళ(ఫలితం)
+      ఆపు;
   }
 
 fail:
-  if(counted_query_components)
+  ఒకవేళ(counted_query_components)
     /* the encoded_query_array might not be initialized yet */
     pair_array_free(&encoded_query_array[0], counted_query_components);
-  dyn_array_free(&query_array[0], num_query_components);
-  return result;
+  dyn_array_free(&query_array[0], అంకె_query_components);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode parse_sigv4_params(struct Curl_easy *data,
-                                   const char *hostname,
-                                   struct Curl_str *provider0,
-                                   struct Curl_str *provider1,
-                                   struct Curl_str *region,
-                                   struct Curl_str *service)
+స్థిర CURLcode parse_sigv4_params(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   స్థిరరాశి అక్షరం *hostname,
+                                   నిర్మాణం Curl_str *provider0,
+                                   నిర్మాణం Curl_str *provider1,
+                                   నిర్మాణం Curl_str *region,
+                                   నిర్మాణం Curl_str *service)
 {
-  const char *line = CURL_EASY_STR(data, STRING_AWS_SIGV4);
-  if(!line || !*line)
-    line = "aws:amz";
+  స్థిరరాశి అక్షరం *పంక్తి = CURL_EASY_STR(దత్తాంశం, STRING_AWS_SIGV4);
+  ఒకవేళ(!పంక్తి || !*పంక్తి)
+    పంక్తి = "aws:amz";
 
   /* provider0[:provider1[:region[:service]]]
 
      No string can be longer than N bytes of non-whitespace */
-  if(curlx_str_until(&line, provider0, MAX_SIGV4_LEN, ':')) {
-    failf(data, "first aws-sigv4 provider cannot be empty");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(curlx_str_until(&పంక్తి, provider0, MAX_SIGV4_LEN, ':')) {
+    failf(దత్తాంశం, "first aws-sigv4 provider cannot be empty");
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
-  if(curlx_str_single(&line, ':') ||
-     curlx_str_until(&line, provider1, MAX_SIGV4_LEN, ':')) {
+  ఒకవేళ(curlx_str_single(&పంక్తి, ':') ||
+     curlx_str_until(&పంక్తి, provider1, MAX_SIGV4_LEN, ':')) {
     *provider1 = *provider0;
   }
-  else if(curlx_str_single(&line, ':') ||
-          curlx_str_until(&line, region, MAX_SIGV4_LEN, ':') ||
-          curlx_str_single(&line, ':') ||
-          curlx_str_until(&line, service, MAX_SIGV4_LEN, ':')) {
+  లేకపోతే ఒకవేళ(curlx_str_single(&పంక్తి, ':') ||
+          curlx_str_until(&పంక్తి, region, MAX_SIGV4_LEN, ':') ||
+          curlx_str_single(&పంక్తి, ':') ||
+          curlx_str_until(&పంక్తి, service, MAX_SIGV4_LEN, ':')) {
     /* nothing to do */
   }
 
-  if(!curlx_strlen(service)) {
-    const char *p = hostname;
-    if(curlx_str_until(&p, service, MAX_SIGV4_LEN, '.') ||
+  ఒకవేళ(!curlx_strlen(service)) {
+    స్థిరరాశి అక్షరం *p = hostname;
+    ఒకవేళ(curlx_str_until(&p, service, MAX_SIGV4_LEN, '.') ||
        curlx_str_single(&p, '.')) {
-      failf(data, "aws-sigv4: service missing in parameters and hostname");
-      return CURLE_URL_MALFORMAT;
+      failf(దత్తాంశం, "aws-sigv4: service missing in parameters and hostname");
+      తిరిగి CURLE_URL_MALFORMAT;
     }
 
-    infof(data, "aws_sigv4: picked service %.*s from host",
-          (int)curlx_strlen(service), curlx_str(service));
+    infof(దత్తాంశం, "aws_sigv4: picked service %.*s from host",
+          (పూర్ణాంకం)curlx_strlen(service), curlx_str(service));
 
-    if(!curlx_strlen(region)) {
-      if(curlx_str_until(&p, region, MAX_SIGV4_LEN, '.') ||
+    ఒకవేళ(!curlx_strlen(region)) {
+      ఒకవేళ(curlx_str_until(&p, region, MAX_SIGV4_LEN, '.') ||
          curlx_str_single(&p, '.')) {
-        failf(data, "aws-sigv4: region missing in parameters and hostname");
-        return CURLE_URL_MALFORMAT;
+        failf(దత్తాంశం, "aws-sigv4: region missing in parameters and hostname");
+        తిరిగి CURLE_URL_MALFORMAT;
       }
-      infof(data, "aws_sigv4: picked region %.*s from host",
-            (int)curlx_strlen(region), curlx_str(region));
+      infof(దత్తాంశం, "aws_sigv4: picked region %.*s from host",
+            (పూర్ణాంకం)curlx_strlen(region), curlx_str(region));
     }
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode get_payload_hash(struct Curl_easy *data,
+స్థిర CURLcode get_payload_hash(నిర్మాణం Curl_easy *దత్తాంశం,
                                  Curl_HttpReq httpreq,
-                                 struct Curl_str *provider0,
-                                 struct Curl_str *provider1,
-                                 struct Curl_str *service,
-                                 unsigned char *sha_hash,
-                                 char *sha_hex,
-                                 char *content_sha256_hdr,
-                                 const char **payload_hash_out,
-                                 size_t *payload_hash_len_out)
+                                 నిర్మాణం Curl_str *provider0,
+                                 నిర్మాణం Curl_str *provider1,
+                                 నిర్మాణం Curl_str *service,
+                                 గుర్తులేని అక్షరం *sha_hash,
+                                 అక్షరం *sha_hex,
+                                 అక్షరం *content_sha256_hdr,
+                                 స్థిరరాశి అక్షరం **payload_hash_బహిర్గతం,
+                                 size_t *payload_hash_len_బహిర్గతం)
 {
-  *payload_hash_out =
-    parse_content_sha_hdr(data, curlx_str(provider1),
-                          curlx_strlen(provider1), payload_hash_len_out);
+  *payload_hash_బహిర్గతం =
+    parse_content_sha_hdr(దత్తాంశం, curlx_str(provider1),
+                          curlx_strlen(provider1), payload_hash_len_బహిర్గతం);
 
-  if(!*payload_hash_out) {
-    CURLcode result;
+  ఒకవేళ(!*payload_hash_బహిర్గతం) {
+    CURLcode ఫలితం;
     /* AWS S3 requires a x-amz-content-sha256 header, and supports special
      * values like UNSIGNED-PAYLOAD */
     bool sign_as_s3 = curlx_str_casecompare(provider0, "aws") &&
                       curlx_str_casecompare(service, "s3");
 
-    if(sign_as_s3)
-      result = calc_s3_payload_hash(data, httpreq, curlx_str(provider1),
+    ఒకవేళ(sign_as_s3)
+      ఫలితం = calc_s3_payload_hash(దత్తాంశం, httpreq, curlx_str(provider1),
                                     curlx_strlen(provider1), sha_hash,
                                     sha_hex, content_sha256_hdr);
-    else
-      result = calc_payload_hash(data, sha_hash, sha_hex);
-    if(result)
-      return result;
+    లేకపోతే
+      ఫలితం = calc_payload_hash(దత్తాంశం, sha_hash, sha_hex);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
 
-    *payload_hash_out = sha_hex;
+    *payload_hash_బహిర్గతం = sha_hex;
     /* may be shorter than SHA256_HEX_LENGTH, like S3_UNSIGNED_PAYLOAD */
-    *payload_hash_len_out = strlen(sha_hex);
+    *payload_hash_len_బహిర్గతం = అక్షరశ్రేణి_పొడవు(sha_hex);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode get_timestamp(char *timestamp, size_t stampsize)
+స్థిర CURLcode get_timestamp(అక్షరం *timestamp, size_t stampsize)
 {
   time_t clock;
-  struct tm tm;
-  CURLcode result;
+  నిర్మాణం tm tm;
+  CURLcode ఫలితం;
 
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
   {
-    char *force_timestamp = getenv("CURL_FORCETIME");
-    if(force_timestamp)
+    అక్షరం *force_timestamp = getenv("CURL_FORCETIME");
+    ఒకవేళ(force_timestamp)
       clock = 0;
-    else
-      clock = time(NULL);
+    లేకపోతే
+      clock = సమయం(ఖాళీ);
   }
-#else
-  clock = time(NULL);
-#endif
-  result = curlx_gmtime(clock, &tm);
-  if(result)
-    return result;
+#లేకపోతే
+  clock = సమయం(ఖాళీ);
+#అయితే_ముగింపు
+  ఫలితం = curlx_gmtime(clock, &tm);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  if(!strftime(timestamp, stampsize, "%Y%m%dT%H%M%SZ", &tm))
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!strftime(timestamp, stampsize, "%Y%m%dT%H%M%SZ", &tm))
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode make_canonical_request(struct Curl_easy *data,
-                                       char *timestamp,
-                                       struct Curl_str *provider1,
-                                       struct Curl_str *service,
-                                       const char *method,
-                                       const char *payload_hash,
+స్థిర CURLcode make_canonical_request(నిర్మాణం Curl_easy *దత్తాంశం,
+                                       అక్షరం *timestamp,
+                                       నిర్మాణం Curl_str *provider1,
+                                       నిర్మాణం Curl_str *service,
+                                       స్థిరరాశి అక్షరం *పద్ధతి,
+                                       స్థిరరాశి అక్షరం *payload_hash,
                                        size_t payload_hash_len,
-                                       char **date_header_out,
-                                       char *content_sha256_hdr,
-                                       struct dynbuf *canonical_headers,
-                                       struct dynbuf *signed_headers,
-                                       char **canonical_request_out)
+                                       అక్షరం **date_శీర్షిక_బహిర్గతం,
+                                       అక్షరం *content_sha256_hdr,
+                                       నిర్మాణం dynbuf *canonical_శీర్షికలు,
+                                       నిర్మాణం dynbuf *signed_శీర్షికలు,
+                                       అక్షరం **canonical_request_బహిర్గతం)
 {
-  struct dynbuf canonical_query;
-  struct dynbuf canonical_path;
-  CURLcode result;
+  నిర్మాణం dynbuf canonical_query;
+  నిర్మాణం dynbuf canonical_మార్గం;
+  CURLcode ఫలితం;
 
-  curlx_dyn_init(&canonical_query, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&canonical_path, CURL_MAX_HTTP_HEADER);
+  curlx_dyn_init(&canonical_query, CURL_MAX_HTTP_శీర్షిక);
+  curlx_dyn_init(&canonical_మార్గం, CURL_MAX_HTTP_శీర్షిక);
 
-  result = make_headers(data, timestamp,
+  ఫలితం = make_శీర్షికలు(దత్తాంశం, timestamp,
                         curlx_str(provider1), curlx_strlen(provider1),
-                        date_header_out, content_sha256_hdr,
-                        canonical_headers, signed_headers);
-  if(result)
-    goto fail;
+                        date_శీర్షిక_బహిర్గతం, content_sha256_hdr,
+                        canonical_శీర్షికలు, signed_శీర్షికలు);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  result = canon_query(data->state.up.query, &canonical_query);
-  if(result)
-    goto fail;
+  ఫలితం = canon_query(దత్తాంశం->state.పైకి.query, &canonical_query);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  result = canon_path(data->state.up.path, strlen(data->state.up.path),
-                      &canonical_path,
+  ఫలితం = canon_మార్గం(దత్తాంశం->state.పైకి.మార్గం, అక్షరశ్రేణి_పొడవు(దత్తాంశం->state.పైకి.మార్గం),
+                      &canonical_మార్గం,
                       should_urlencode(service));
-  if(result)
-    goto fail;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు fail;
 
-  *canonical_request_out =
+  *canonical_request_బహిర్గతం =
     curl_maprintf("%s\n" /* HTTPRequestMethod */
                   "%s\n" /* CanonicalURI */
                   "%s\n" /* CanonicalQueryString */
                   "%s\n" /* CanonicalHeaders */
                   "%s\n" /* SignedHeaders */
                   "%.*s",  /* HashedRequestPayload in hex */
-                  method,
-                  curlx_dyn_ptr(&canonical_path),
+                  పద్ధతి,
+                  curlx_dyn_ptr(&canonical_మార్గం),
                   curlx_dyn_ptr(&canonical_query) ?
                   curlx_dyn_ptr(&canonical_query) : "",
-                  curlx_dyn_ptr(canonical_headers),
-                  curlx_dyn_ptr(signed_headers),
-                  (int)payload_hash_len, payload_hash);
-  if(!*canonical_request_out) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+                  curlx_dyn_ptr(canonical_శీర్షికలు),
+                  curlx_dyn_ptr(signed_శీర్షికలు),
+                  (పూర్ణాంకం)payload_hash_len, payload_hash);
+  ఒకవేళ(!*canonical_request_బహిర్గతం) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు fail;
   }
 
-  result = CURLE_OK;
+  ఫలితం = CURLE_OK;
 fail:
   curlx_dyn_free(&canonical_query);
-  curlx_dyn_free(&canonical_path);
-  return result;
+  curlx_dyn_free(&canonical_మార్గం);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode make_string_to_sign(struct Curl_easy *data,
-                                    struct Curl_str *provider0,
-                                    struct Curl_str *region,
-                                    struct Curl_str *service,
-                                    const char *date,
-                                    const char *timestamp,
-                                    const char *canonical_request,
-                                    char **request_type_out,
-                                    char **credential_scope_out,
-                                    char **str_to_sign_out)
+స్థిర CURLcode make_string_గమ్యం_sign(నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం Curl_str *provider0,
+                                    నిర్మాణం Curl_str *region,
+                                    నిర్మాణం Curl_str *service,
+                                    స్థిరరాశి అక్షరం *date,
+                                    స్థిరరాశి అక్షరం *timestamp,
+                                    స్థిరరాశి అక్షరం *canonical_request,
+                                    అక్షరం **request_type_బహిర్గతం,
+                                    అక్షరం **credential_scope_బహిర్గతం,
+                                    అక్షరం **str_గమ్యం_sign_బహిర్గతం)
 {
-  char *request_type;
-  char *credential_scope;
-  char *str_to_sign;
-  unsigned char sha_hash[CURL_SHA256_DIGEST_LENGTH];
-  char sha_hex[SHA256_HEX_LENGTH];
+  అక్షరం *request_type;
+  అక్షరం *credential_scope;
+  అక్షరం *str_గమ్యం_sign;
+  గుర్తులేని అక్షరం sha_hash[CURL_SHA256_DIGEST_నిడివి];
+  అక్షరం sha_hex[SHA256_HEX_నిడివి];
 
   request_type = curl_maprintf("%.*s4_request",
-                               (int)curlx_strlen(provider0),
+                               (పూర్ణాంకం)curlx_strlen(provider0),
                                curlx_str(provider0));
-  if(!request_type)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!request_type)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* provider0 is lowercased *after* curl_maprintf() so that the buffer
      can be written to */
   Curl_strntolower(request_type, request_type, curlx_strlen(provider0));
 
   credential_scope = curl_maprintf("%s/%.*s/%.*s/%s", date,
-                                   (int)curlx_strlen(region),
+                                   (పూర్ణాంకం)curlx_strlen(region),
                                    curlx_str(region),
-                                   (int)curlx_strlen(service),
+                                   (పూర్ణాంకం)curlx_strlen(service),
                                    curlx_str(service),
                                    request_type);
-  if(!credential_scope) {
+  ఒకవేళ(!credential_scope) {
     curlx_free(request_type);
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  if(Curl_sha256it(sha_hash, (const unsigned char *)canonical_request,
-                   strlen(canonical_request))) {
+  ఒకవేళ(Curl_sha256it(sha_hash, (స్థిరరాశి గుర్తులేని అక్షరం *)canonical_request,
+                   అక్షరశ్రేణి_పొడవు(canonical_request))) {
     curlx_free(request_type);
     curlx_free(credential_scope);
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
-  sha256_to_hex(sha_hex, sha_hash);
+  sha256_గమ్యం_hex(sha_hex, sha_hash);
 
   /*
    * Google allows using RSA key instead of HMAC, so this code might change
    * in the future. For now we only support HMAC.
    */
-  str_to_sign = curl_maprintf("%.*s4-HMAC-SHA256\n" /* Algorithm */
+  str_గమ్యం_sign = curl_maprintf("%.*s4-HMAC-SHA256\n" /* Algorithm */
                               "%s\n" /* RequestDateTime */
                               "%s\n" /* CredentialScope */
                               "%s",  /* HashedCanonicalRequest in hex */
-                              (int)curlx_strlen(provider0),
+                              (పూర్ణాంకం)curlx_strlen(provider0),
                               curlx_str(provider0),
                               timestamp,
                               credential_scope,
                               sha_hex);
-  if(!str_to_sign) {
+  ఒకవేళ(!str_గమ్యం_sign) {
     curlx_free(request_type);
     curlx_free(credential_scope);
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
   /* make provider0 part done uppercase */
-  Curl_strntoupper(str_to_sign, curlx_str(provider0),
+  Curl_strntoupper(str_గమ్యం_sign, curlx_str(provider0),
                    curlx_strlen(provider0));
 
-  infof(data, "aws_sigv4: String to sign (enclosed in []) - [%s]",
-        str_to_sign);
+  infof(దత్తాంశం, "aws_sigv4: String to sign (enclosed in []) - [%s]",
+        str_గమ్యం_sign);
 
-  *request_type_out = request_type;
-  *credential_scope_out = credential_scope;
-  *str_to_sign_out = str_to_sign;
-  return CURLE_OK;
+  *request_type_బహిర్గతం = request_type;
+  *credential_scope_బహిర్గతం = credential_scope;
+  *str_గమ్యం_sign_బహిర్గతం = str_గమ్యం_sign;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
-                                          struct Curl_str *provider0,
-                                          struct Curl_str *region,
-                                          struct Curl_str *service,
-                                          const char *request_type,
-                                          const char *credential_scope,
-                                          const char *date,
-                                          const char *str_to_sign,
-                                          const char *date_header,
-                                          const char *content_sha256_hdr,
-                                          struct dynbuf *signed_headers)
+స్థిర CURLcode sign_and_సమితి_auth_శీర్షికలు(నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం Curl_str *provider0,
+                                          నిర్మాణం Curl_str *region,
+                                          నిర్మాణం Curl_str *service,
+                                          స్థిరరాశి అక్షరం *request_type,
+                                          స్థిరరాశి అక్షరం *credential_scope,
+                                          స్థిరరాశి అక్షరం *date,
+                                          స్థిరరాశి అక్షరం *str_గమ్యం_sign,
+                                          స్థిరరాశి అక్షరం *date_శీర్షిక,
+                                          స్థిరరాశి అక్షరం *content_sha256_hdr,
+                                          నిర్మాణం dynbuf *signed_శీర్షికలు)
 {
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  const char *passwd = Curl_creds_passwd(data->state.creds);
-  char *secret = NULL;
-  unsigned char sign0[CURL_SHA256_DIGEST_LENGTH] = { 0 };
-  unsigned char sign1[CURL_SHA256_DIGEST_LENGTH] = { 0 };
-  char sha_hex[SHA256_HEX_LENGTH];
-  char *auth_headers = NULL;
-  char *user = curl_escape(Curl_creds_user(data->state.creds), 0);
-  if(!user)
-    return CURLE_OUT_OF_MEMORY;
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  స్థిరరాశి అక్షరం *passwd = Curl_creds_passwd(దత్తాంశం->state.creds);
+  అక్షరం *secret = ఖాళీ;
+  గుర్తులేని అక్షరం sign0[CURL_SHA256_DIGEST_నిడివి] = { 0 };
+  గుర్తులేని అక్షరం sign1[CURL_SHA256_DIGEST_నిడివి] = { 0 };
+  అక్షరం sha_hex[SHA256_HEX_నిడివి];
+  అక్షరం *auth_శీర్షికలు = ఖాళీ;
+  అక్షరం *user = curl_escape(Curl_creds_user(దత్తాంశం->state.creds), 0);
+  ఒకవేళ(!user)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  secret = curl_maprintf("%.*s4%s", (int)curlx_strlen(provider0),
+  secret = curl_maprintf("%.*s4%s", (పూర్ణాంకం)curlx_strlen(provider0),
                          curlx_str(provider0), passwd);
-  if(!secret)
-    goto fail;
+  ఒకవేళ(!secret)
+    వెళ్ళు fail;
   /* make provider0 part done uppercase */
   Curl_strntoupper(secret, curlx_str(provider0), curlx_strlen(provider0));
 
-  HMAC_SHA256(secret, strlen(secret), date, strlen(date), sign0);
-  HMAC_SHA256(sign0, sizeof(sign0),
+  HMAC_SHA256(secret, అక్షరశ్రేణి_పొడవు(secret), date, అక్షరశ్రేణి_పొడవు(date), sign0);
+  HMAC_SHA256(sign0, పరిమాణం(sign0),
               curlx_str(region), curlx_strlen(region), sign1);
-  HMAC_SHA256(sign1, sizeof(sign1),
+  HMAC_SHA256(sign1, పరిమాణం(sign1),
               curlx_str(service), curlx_strlen(service), sign0);
-  HMAC_SHA256(sign0, sizeof(sign0),
-              request_type, strlen(request_type), sign1);
-  HMAC_SHA256(sign1, sizeof(sign1),
-              str_to_sign, strlen(str_to_sign), sign0);
+  HMAC_SHA256(sign0, పరిమాణం(sign0),
+              request_type, అక్షరశ్రేణి_పొడవు(request_type), sign1);
+  HMAC_SHA256(sign1, పరిమాణం(sign1),
+              str_గమ్యం_sign, అక్షరశ్రేణి_పొడవు(str_గమ్యం_sign), sign0);
 
-  sha256_to_hex(sha_hex, sign0);
+  sha256_గమ్యం_hex(sha_hex, sign0);
 
-  infof(data, "aws_sigv4: Signature - %s", sha_hex);
+  infof(దత్తాంశం, "aws_sigv4: Signature - %s", sha_hex);
 
-  auth_headers = curl_maprintf("Authorization: %.*s4-HMAC-SHA256 "
+  auth_శీర్షికలు = curl_maprintf("Authorization: %.*s4-HMAC-SHA256 "
                                "Credential=%s/%s, "
                                "SignedHeaders=%s, "
                                "Signature=%s\r\n"
                                "%s"
                                "%s%s",
-                               (int)curlx_strlen(provider0),
+                               (పూర్ణాంకం)curlx_strlen(provider0),
                                curlx_str(provider0),
                                user,
                                credential_scope,
-                               curlx_dyn_ptr(signed_headers),
+                               curlx_dyn_ptr(signed_శీర్షికలు),
                                sha_hex,
                                /*
                                 * date_header is added here, only if it was not
                                 * user-specified (using CURLOPT_HTTPHEADER).
                                 * date_header includes \r\n
                                 */
-                               date_header ? date_header : "",
+                               date_శీర్షిక ? date_శీర్షిక : "",
                                content_sha256_hdr,
                                content_sha256_hdr[0] ? "\r\n": "");
-  if(!auth_headers)
-    goto fail;
+  ఒకవేళ(!auth_శీర్షికలు)
+    వెళ్ళు fail;
 
   /* provider 0 uppercase */
-  Curl_strntoupper(&auth_headers[CURL_CSTRLEN("Authorization: ")],
+  Curl_strntoupper(&auth_శీర్షికలు[CURL_CSTRLEN("Authorization: ")],
                    curlx_str(provider0), curlx_strlen(provider0));
 
-  curlx_free(data->req.hd_auth);
-  data->req.hd_auth = auth_headers;
-  data->state.authhost.done = TRUE;
-  result = CURLE_OK;
+  curlx_free(దత్తాంశం->req.hd_auth);
+  దత్తాంశం->req.hd_auth = auth_శీర్షికలు;
+  దత్తాంశం->state.authhost.పూర్తి = TRUE;
+  ఫలితం = CURLE_OK;
 
 fail:
   curlx_free(user);
   curlx_free(secret);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
+CURLcode Curl_output_aws_sigv4(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  struct Curl_str provider0 = { NULL, 0 };
-  struct Curl_str provider1 = { NULL, 0 };
-  struct Curl_str region = { NULL, 0 };
-  struct Curl_str service = { NULL, 0 };
-  const char *hostname = data->state.origin->hostname;
-  char timestamp[TIMESTAMP_SIZE];
-  char date[9];
-  struct dynbuf canonical_headers;
-  struct dynbuf signed_headers;
-  char *date_header = NULL;
+  CURLcode ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  నిర్మాణం Curl_str provider0 = { ఖాళీ, 0 };
+  నిర్మాణం Curl_str provider1 = { ఖాళీ, 0 };
+  నిర్మాణం Curl_str region = { ఖాళీ, 0 };
+  నిర్మాణం Curl_str service = { ఖాళీ, 0 };
+  స్థిరరాశి అక్షరం *hostname = దత్తాంశం->state.origin->hostname;
+  అక్షరం timestamp[TIMESTAMP_కొలత];
+  అక్షరం date[9];
+  నిర్మాణం dynbuf canonical_శీర్షికలు;
+  నిర్మాణం dynbuf signed_శీర్షికలు;
+  అక్షరం *date_శీర్షిక = ఖాళీ;
   Curl_HttpReq httpreq;
-  const char *method = NULL;
-  const char *payload_hash = NULL;
+  స్థిరరాశి అక్షరం *పద్ధతి = ఖాళీ;
+  స్థిరరాశి అక్షరం *payload_hash = ఖాళీ;
   size_t payload_hash_len = 0;
-  unsigned char sha_hash[CURL_SHA256_DIGEST_LENGTH];
-  char sha_hex[SHA256_HEX_LENGTH];
-  char content_sha256_hdr[CONTENT_SHA256_HDR_LEN + 2] = ""; /* add \r\n */
-  char *canonical_request = NULL;
-  char *request_type = NULL;
-  char *credential_scope = NULL;
-  char *str_to_sign = NULL;
+  గుర్తులేని అక్షరం sha_hash[CURL_SHA256_DIGEST_నిడివి];
+  అక్షరం sha_hex[SHA256_HEX_నిడివి];
+  అక్షరం content_sha256_hdr[CONTENT_SHA256_HDR_LEN + 2] = ""; /* add \r\n */
+  అక్షరం *canonical_request = ఖాళీ;
+  అక్షరం *request_type = ఖాళీ;
+  అక్షరం *credential_scope = ఖాళీ;
+  అక్షరం *str_గమ్యం_sign = ఖాళీ;
 
-  if(data->set.path_as_is) {
-    failf(data, "Cannot use sigv4 authentication with path-as-is flag");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(దత్తాంశం->సమితి.మార్గం_as_is) {
+    failf(దత్తాంశం, "Cannot use sigv4 authentication with path-as-is flag");
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
   }
 
-  if(Curl_checkheaders(data, STRCONST("Authorization")))
+  ఒకవేళ(Curl_checkheaders(దత్తాంశం, STRCONST("Authorization")))
     /* Authorization already present, Bailing out */
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
 
   /* we init those buffers here, so goto fail will free initialized dynbuf */
-  curlx_dyn_init(&canonical_headers, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&signed_headers, CURL_MAX_HTTP_HEADER);
+  curlx_dyn_init(&canonical_శీర్షికలు, CURL_MAX_HTTP_శీర్షిక);
+  curlx_dyn_init(&signed_శీర్షికలు, CURL_MAX_HTTP_శీర్షిక);
 
-  result = parse_sigv4_params(data, hostname, &provider0, &provider1,
+  ఫలితం = parse_sigv4_params(దత్తాంశం, hostname, &provider0, &provider1,
                               &region, &service);
-  if(!result) {
-    Curl_http_method(data, &method, &httpreq);
-    result = get_payload_hash(data, httpreq, &provider0, &provider1, &service,
+  ఒకవేళ(!ఫలితం) {
+    Curl_http_పద్ధతి(దత్తాంశం, &పద్ధతి, &httpreq);
+    ఫలితం = get_payload_hash(దత్తాంశం, httpreq, &provider0, &provider1, &service,
                               sha_hash, sha_hex, content_sha256_hdr,
                               &payload_hash, &payload_hash_len);
   }
 
-  if(!result)
-    result = get_timestamp(timestamp, sizeof(timestamp));
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = get_timestamp(timestamp, పరిమాణం(timestamp));
 
-  if(!result)
-    result = make_canonical_request(data, timestamp,
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = make_canonical_request(దత్తాంశం, timestamp,
                                     &provider1, &service,
-                                    method, payload_hash, payload_hash_len,
-                                    &date_header, content_sha256_hdr,
-                                    &canonical_headers, &signed_headers,
+                                    పద్ధతి, payload_hash, payload_hash_len,
+                                    &date_శీర్షిక, content_sha256_hdr,
+                                    &canonical_శీర్షికలు, &signed_శీర్షికలు,
                                     &canonical_request);
-  if(!result) {
+  ఒకవేళ(!ఫలితం) {
     /* the timestamp might have been updated in make_canonical_request */
-    memcpy(date, timestamp, sizeof(date) - 1);
-    date[sizeof(date) - 1] = 0;
+    జ్ఞాపకం_నకలు(date, timestamp, పరిమాణం(date) - 1);
+    date[పరిమాణం(date) - 1] = 0;
 
-    result = make_string_to_sign(data, &provider0, &region, &service,
+    ఫలితం = make_string_గమ్యం_sign(దత్తాంశం, &provider0, &region, &service,
                                  date, timestamp, canonical_request,
                                  &request_type, &credential_scope,
-                                 &str_to_sign);
+                                 &str_గమ్యం_sign);
   }
-  if(!result)
-    result = sign_and_set_auth_headers(data, &provider0, &region, &service,
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = sign_and_సమితి_auth_శీర్షికలు(దత్తాంశం, &provider0, &region, &service,
                                        request_type, credential_scope,
-                                       date, str_to_sign, date_header,
-                                       content_sha256_hdr, &signed_headers);
+                                       date, str_గమ్యం_sign, date_శీర్షిక,
+                                       content_sha256_hdr, &signed_శీర్షికలు);
 
-  curlx_dyn_free(&canonical_headers);
-  curlx_dyn_free(&signed_headers);
+  curlx_dyn_free(&canonical_శీర్షికలు);
+  curlx_dyn_free(&signed_శీర్షికలు);
   curlx_free(canonical_request);
   curlx_free(request_type);
   curlx_free(credential_scope);
-  curlx_free(str_to_sign);
-  curlx_free(date_header);
-  return result;
+  curlx_free(str_గమ్యం_sign);
+  curlx_free(date_శీర్షిక);
+  తిరిగి ఫలితం;
 }
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_AWS */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP && !CURL_DISABLE_AWS */

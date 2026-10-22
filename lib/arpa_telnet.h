@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ARPA_TELNET_H
-#define HEADER_CURL_ARPA_TELNET_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_ARPA_TELNET_H
+#నిర్వచించు శీర్షిక_CURL_ARPA_TELNET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,27 +23,27 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_TELNET
+#నిర్వచితం_కాకపోతే CURL_DISABLE_TELNET
 /*
  * Telnet option defines. Add more here if in need.
  */
-#define CURL_TELOPT_BINARY      0   /* binary 8-bit data */
-#define CURL_TELOPT_ECHO        1   /* echo */
-#define CURL_TELOPT_SGA         3   /* Suppress Go Ahead */
-#define CURL_TELOPT_EXOPL       255 /* EXtended OPtions List */
-#define CURL_TELOPT_TTYPE       24  /* Terminal TYPE */
-#define CURL_TELOPT_NAWS        31  /* Negotiate About Window Size */
-#define CURL_TELOPT_XDISPLOC    35  /* X DISPlay LOCation */
-#define CURL_TELOPT_NEW_ENVIRON 39  /* NEW ENVIRONment variables */
+#నిర్వచించు CURL_TELOPT_ద్విమాన      0   /* binary 8-bit data */
+#నిర్వచించు CURL_TELOPT_ECHO        1   /* echo */
+#నిర్వచించు CURL_TELOPT_SGA         3   /* Suppress Go Ahead */
+#నిర్వచించు CURL_TELOPT_EXOPL       255 /* EXtended OPtions List */
+#నిర్వచించు CURL_TELOPT_TTYPE       24  /* Terminal TYPE */
+#నిర్వచించు CURL_TELOPT_NAWS        31  /* Negotiate About Window Size */
+#నిర్వచించు CURL_TELOPT_XDISPLOC    35  /* X DISPlay LOCation */
+#నిర్వచించు CURL_TELOPT_NEW_ENVIRON 39  /* NEW ENVIRONment variables */
 
-#define CURL_NEW_ENV_VAR   0
-#define CURL_NEW_ENV_VALUE 1
+#నిర్వచించు CURL_NEW_ENV_VAR   0
+#నిర్వచించు CURL_NEW_ENV_విలువ 1
 
-#ifdef CURLVERBOSE
+#నిర్వచితమైతే CURLVERBOSE
 /*
  * The telnet options represented as strings
  */
-static const char * const telnetoptions[] = {
+స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి telnetoptions[] = {
   "BINARY",      "ECHO",           "RCP",           "SUPPRESS GO AHEAD",
   "NAME",        "STATUS",         "TIMING MARK",   "RCTE",
   "NAOL",        "NAOP",           "NAOCRD",        "NAOHTS",
@@ -55,62 +55,62 @@ static const char * const telnetoptions[] = {
   "TERM SPEED",  "LFLOW",          "LINEMODE",      "XDISPLOC",
   "OLD-ENVIRON", "AUTHENTICATION", "ENCRYPT",       "NEW-ENVIRON"
 };
-#define CURL_TELOPT(x) telnetoptions[x]
-#else
-#define CURL_TELOPT(x) ""
-#endif
+#నిర్వచించు CURL_TELOPT(x) telnetoptions[x]
+#లేకపోతే
+#నిర్వచించు CURL_TELOPT(x) ""
+#అయితే_ముగింపు
 
-#define CURL_TELOPT_MAXIMUM CURL_TELOPT_NEW_ENVIRON
+#నిర్వచించు CURL_TELOPT_గరిష్ఠ CURL_TELOPT_NEW_ENVIRON
 
-#define CURL_TELOPT_OK(x) ((x) <= CURL_TELOPT_MAXIMUM)
+#నిర్వచించు CURL_TELOPT_OK(x) ((x) <= CURL_TELOPT_గరిష్ఠ)
 
-#define CURL_NTELOPTS 40
+#నిర్వచించు CURL_NTELOPTS 40
 
 /*
  * First some defines
  */
-#define CURL_xEOF 236 /* End Of File */
-#define CURL_SE   240 /* Sub negotiation End */
-#define CURL_NOP  241 /* No OPeration */
-#define CURL_DM   242 /* Data Mark */
-#define CURL_GA   249 /* Go Ahead, reverse the line */
-#define CURL_SB   250 /* SuBnegotiation */
-#define CURL_WILL 251 /* Our side WILL use this option */
-#define CURL_WONT 252 /* Our side will not use this option */
-#define CURL_DO   253 /* DO use this option! */
-#define CURL_DONT 254 /* DO NOT use this option! */
-#define CURL_IAC  255 /* Interpret As Command */
+#నిర్వచించు CURL_xEOF 236 /* End Of File */
+#నిర్వచించు CURL_SE   240 /* Sub negotiation End */
+#నిర్వచించు CURL_NOP  241 /* No OPeration */
+#నిర్వచించు CURL_DM   242 /* Data Mark */
+#నిర్వచించు CURL_GA   249 /* Go Ahead, reverse the line */
+#నిర్వచించు CURL_SB   250 /* SuBnegotiation */
+#నిర్వచించు CURL_WILL 251 /* Our side WILL use this option */
+#నిర్వచించు CURL_WONT 252 /* Our side will not use this option */
+#నిర్వచించు CURL_DO   253 /* DO use this option! */
+#నిర్వచించు CURL_DONT 254 /* DO NOT use this option! */
+#నిర్వచించు CURL_IAC  255 /* Interpret As Command */
 
-#ifdef CURLVERBOSE
+#నిర్వచితమైతే CURLVERBOSE
 /*
  * Then those numbers represented as strings:
  */
-static const char * const telnetcmds[] = {
+స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి telnetcmds[] = {
   "EOF",  "SUSP",  "ABORT", "EOR",  "SE",
   "NOP",  "DMARK", "BRK",   "IP",   "AO",
   "AYT",  "EC",    "EL",    "GA",   "SB",
   "WILL", "WONT",  "DO",    "DONT", "IAC"
 };
-#endif
+#అయితే_ముగింపు
 
-#define CURL_TELCMD_MINIMUM CURL_xEOF /* the first one */
-#define CURL_TELCMD_MAXIMUM CURL_IAC  /* surprise, 255 is the last one! ;-) */
+#నిర్వచించు CURL_TELCMD_MINIMUM CURL_xEOF /* the first one */
+#నిర్వచించు CURL_TELCMD_గరిష్ఠ CURL_IAC  /* surprise, 255 is the last one! ;-) */
 
-#define CURL_TELQUAL_IS   0
-#define CURL_TELQUAL_SEND 1
-#define CURL_TELQUAL_INFO 2
-#define CURL_TELQUAL_NAME 3
+#నిర్వచించు CURL_TELQUAL_IS   0
+#నిర్వచించు CURL_TELQUAL_SEND 1
+#నిర్వచించు CURL_TELQUAL_INFO 2
+#నిర్వచించు CURL_TELQUAL_NAME 3
 
-#define CURL_TELCMD_OK(x)                        \
-  (((unsigned int)(x) >= CURL_TELCMD_MINIMUM) && \
-   ((unsigned int)(x) <= CURL_TELCMD_MAXIMUM))
+#నిర్వచించు CURL_TELCMD_OK(x)                        \
+  (((గుర్తులేని పూర్ణాంకం)(x) >= CURL_TELCMD_MINIMUM) && \
+   ((గుర్తులేని పూర్ణాంకం)(x) <= CURL_TELCMD_గరిష్ఠ))
 
-#ifdef CURLVERBOSE
-#define CURL_TELCMD(x) telnetcmds[(x) - CURL_TELCMD_MINIMUM]
-#else
-#define CURL_TELCMD(x) ""
-#endif
+#నిర్వచితమైతే CURLVERBOSE
+#నిర్వచించు CURL_TELCMD(x) telnetcmds[(x) - CURL_TELCMD_MINIMUM]
+#లేకపోతే
+#నిర్వచించు CURL_TELCMD(x) ""
+#అయితే_ముగింపు
 
-#endif /* CURL_DISABLE_TELNET */
+#అయితే_ముగింపు /* CURL_DISABLE_TELNET */
 
-#endif /* HEADER_CURL_ARPA_TELNET_H */
+#అయితే_ముగింపు /* HEADER_CURL_ARPA_TELNET_H */

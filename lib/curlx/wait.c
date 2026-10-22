@@ -21,20 +21,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
-#endif
+#నిర్వచితమైతే HAVE_SYS_SELECT_H
+#అన్తర్భావ <sys/select.h>
+#లేదావేళ defined(HAVE_UNISTD_H)
+#అన్తర్భావ <unistd.h>
+#అయితే_ముగింపు
 
-#ifdef MSDOS
-#include <dos.h>  /* delay() */
-#endif
+#నిర్వచితమైతే MSDOS
+#అన్తర్భావ <dos.h>  /* delay() */
+#అయితే_ముగింపు
 
-#include "curlx/timediff.h"
-#include "curlx/wait.h"
+#అన్తర్భావ "curlx/timediff.h"
+#అన్తర్భావ "curlx/wait.h"
 
 /*
  * Internal function used for waiting a specific amount of ms in
@@ -51,40 +51,40 @@
  *   -1 = system call error, or invalid timeout value
  *    0 = specified timeout has elapsed, or interrupted
  */
-int curlx_wait_ms(timediff_t timeout_ms)
+పూర్ణాంకం curlx_wait_ms(timediff_t timeout_ms)
 {
-  int r = 0;
+  పూర్ణాంకం r = 0;
 
-  if(!timeout_ms)
-    return 0;
-  if(timeout_ms < 0) {
-    SET_SOCKERRNO(SOCKEINVAL);
-    return -1;
+  ఒకవేళ(!timeout_ms)
+    తిరిగి 0;
+  ఒకవేళ(timeout_ms < 0) {
+    సమితి_SOCKERRNO(SOCKEINVAL);
+    తిరిగి -1;
   }
-#ifdef MSDOS
-  delay((unsigned int)timeout_ms);
-#elif defined(_WIN32)
+#నిర్వచితమైతే MSDOS
+  delay((గుర్తులేని పూర్ణాంకం)timeout_ms);
+#లేదావేళ defined(_WIN32)
   /* prevent overflow, timeout_ms is typecast to ULONG/DWORD. */
-#if TIMEDIFF_T_MAX >= ULONG_MAX
-  if(timeout_ms >= ULONG_MAX)
+#ఒకవేళ TIMEDIFF_T_MAX >= ULONG_MAX
+  ఒకవేళ(timeout_ms >= ULONG_MAX)
     timeout_ms = ULONG_MAX - 1;
     /* do not use ULONG_MAX, because that is equal to INFINITE */
-#endif
+#అయితే_ముగింపు
   Sleep((DWORD)timeout_ms);
-#else
+#లేకపోతే
   /* avoid using poll() for this since it behaves incorrectly with no sockets
      on Apple operating systems */
   {
-    struct timeval pending_tv;
-    r = select(0, NULL, NULL, NULL, curlx_mstotv(&pending_tv, timeout_ms));
+    నిర్మాణం timeval pending_tv;
+    r = select(0, ఖాళీ, ఖాళీ, ఖాళీ, curlx_mstotv(&pending_tv, timeout_ms));
   }
-#endif /* _WIN32 */
-  if(r) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+#అయితే_ముగింపు /* _WIN32 */
+  ఒకవేళ(r) {
+    ఒకవేళ((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    else
+    లేకపోతే
       r = -1;
   }
-  return r;
+  తిరిగి r;
 }

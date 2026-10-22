@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_HAPROXY_H
-#define HEADER_CURL_CF_HAPROXY_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_CF_HAPROXY_H
+#నిర్వచించు శీర్షిక_CURL_CF_HAPROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
+#అన్తర్భావ "urldata.h"
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data);
+CURLcode Curl_cf_haproxy_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                      నిర్మాణం Curl_easy *దత్తాంశం);
 
-extern struct Curl_cftype Curl_cft_haproxy;
+బాహ్య నిర్మాణం Curl_cftype Curl_cft_haproxy;
 
-#endif /* !CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_CF_HAPROXY_H */
+#అయితే_ముగింపు /* HEADER_CURL_CF_HAPROXY_H */

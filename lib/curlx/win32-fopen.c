@@ -21,71 +21,71 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "curlx/win32-fopen.h"
+#అన్తర్భావ "curlx/win32-fopen.h"
 
-int curlx_fseek(void *stream, curl_off_t offset, int whence)
+పూర్ణాంకం curlx_fseek(శూన్య *ప్రవాహం, curl_off_t స్థానభ్రంశం, పూర్ణాంకం whence)
 {
-#ifdef _WIN32
-  return _fseeki64(stream, (__int64)offset, whence);
-#elif defined(HAVE_FSEEKO) && defined(HAVE_DECL_FSEEKO)
-  return fseeko(stream, (off_t)offset, whence);
-#else
-  if(offset > LONG_MAX)
-    return -1;
-  return fseek(stream, (long)offset, whence);
-#endif
+#నిర్వచితమైతే _WIN32
+  తిరిగి _fseeki64(ప్రవాహం, (__int64)స్థానభ్రంశం, whence);
+#లేదావేళ defined(HAVE_FSEEKO) && defined(HAVE_DECL_FSEEKO)
+  తిరిగి fseeko(ప్రవాహం, (off_t)స్థానభ్రంశం, whence);
+#లేకపోతే
+  ఒకవేళ(స్థానభ్రంశం > LONG_MAX)
+    తిరిగి -1;
+  తిరిగి fseek(ప్రవాహం, (దీర్ఘ)స్థానభ్రంశం, whence);
+#అయితే_ముగింపు
 }
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 
-#include <direct.h>  /* for _mkdir(), _wmkdir() */
-#include <share.h>  /* for _SH_DENYNO */
+#అన్తర్భావ <direct.h>  /* for _mkdir(), _wmkdir() */
+#అన్తర్భావ <share.h>  /* for _SH_DENYNO */
 
-#include "curlx/multibyte.h"
-#include "curlx/timeval.h"
+#అన్తర్భావ "curlx/multibyte.h"
+#అన్తర్భావ "curlx/timeval.h"
 
-#ifdef CURL_MEMDEBUG
+#నిర్వచితమైతే CURL_MEMDEBUG
 /*
  * Use system allocators to avoid infinite recursion when called by curl's
  * memory tracker memdebug functions.
  */
-#define CURLX_MALLOC(x) malloc(x)
-#define CURLX_FREE(x)   free(x)
-#else
-#define CURLX_MALLOC(x) curlx_malloc(x)
-#define CURLX_FREE(x)   curlx_free(x)
-#endif
+#నిర్వచించు CURLX_MALLOC(x) జ్ఞాపకం_ఇవ్వు(x)
+#నిర్వచించు CURLX_FREE(x)   విడుదల(x)
+#లేకపోతే
+#నిర్వచించు CURLX_MALLOC(x) curlx_malloc(x)
+#నిర్వచించు CURLX_FREE(x)   curlx_free(x)
+#అయితే_ముగింపు
 
-#ifdef _UNICODE
-static wchar_t *fn_convert_UTF8_to_wchar(const char *str_utf8)
+#నిర్వచితమైతే _UNICODE
+స్థిర wchar_t *fn_convert_UTF8_గమ్యం_wchar(స్థిరరాశి అక్షరం *str_utf8)
 {
-  wchar_t *str_w = NULL;
+  wchar_t *str_w = ఖాళీ;
 
-  if(str_utf8) {
-    int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                        str_utf8, -1, NULL, 0);
-    if(str_w_len > 0) {
-      str_w = CURLX_MALLOC(str_w_len * sizeof(wchar_t));
-      if(str_w) {
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+  ఒకవేళ(str_utf8) {
+    పూర్ణాంకం str_w_len = Multi_Byte_గమ్యం_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                        str_utf8, -1, ఖాళీ, 0);
+    ఒకవేళ(str_w_len > 0) {
+      str_w = CURLX_MALLOC(str_w_len * పరిమాణం(wchar_t));
+      ఒకవేళ(str_w) {
+        ఒకవేళ(Multi_Byte_గమ్యం_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
                                str_utf8, -1, str_w, str_w_len) == 0) {
           CURLX_FREE(str_w);
-          return NULL;
+          తిరిగి ఖాళీ;
         }
       }
     }
   }
-  return str_w;
+  తిరిగి str_w;
 }
-#endif
+#అయితే_ముగింపు
 
 /* declare GetFullPathNameW for mingw-w64 UWP builds targeting old Windows */
-#if defined(CURL_WINDOWS_UWP) && defined(__MINGW32__) && \
+#ఒకవేళ defined(CURL_WINDOWS_UWP) && defined(__MINGW32__) && \
   (_WIN32_WINNT < _WIN32_WINNT_WIN10)
-WINBASEAPI DWORD WINAPI GetFullPathNameW(LPCWSTR, DWORD, LPWSTR, LPWSTR *);
-#endif
+WINBASEAPI DWORD WINAPI Get_నిండిన_మార్గం_Name_W(LPCWSTR, DWORD, LPWSTR, LPWSTR *);
+#అయితే_ముగింపు
 
 /* Fix excessive paths (paths that exceed MAX_PATH length of 260).
  *
@@ -105,59 +105,59 @@ WINBASEAPI DWORD WINAPI GetFullPathNameW(LPCWSTR, DWORD, LPWSTR, LPWSTR *);
  * the full path is then converted from Unicode to multibyte that fails if any
  * directories in the path contain characters not in the current codepage.
  */
-static bool fix_excessive_path(const TCHAR *in, TCHAR **out)
+స్థిర bool fix_excessive_మార్గం(స్థిరరాశి TCHAR *లోపల, TCHAR **బహిర్గతం)
 {
-  size_t needed, count;
-  const wchar_t *in_w;
-  wchar_t *fbuf = NULL;
+  size_t needed, లెక్క;
+  స్థిరరాశి wchar_t *లోపల_w;
+  wchar_t *fbuf = ఖాళీ;
 
   /* MS-documented "approximate" limit for the maximum path length */
-  const size_t max_path_len = 32767;
+  స్థిరరాశి size_t max_మార్గం_len = 32767;
 
-#ifndef _UNICODE
-  wchar_t *ibuf = NULL;
-  char *obuf = NULL;
-#endif
+#నిర్వచితం_కాకపోతే _UNICODE
+  wchar_t *ibuf = ఖాళీ;
+  అక్షరం *obuf = ఖాళీ;
+#అయితే_ముగింపు
 
-  *out = NULL;
+  *బహిర్గతం = ఖాళీ;
 
   /* skip paths already normalized */
-  if(!_tcsncmp(in, _TEXT("\\\\?\\"), 4))
-    goto cleanup;
+  ఒకవేళ(!_tcsncmp(లోపల, పాఠ్యం("\\\\?\\"), 4))
+    వెళ్ళు cleanup;
 
-#ifndef _UNICODE
+#నిర్వచితం_కాకపోతే _UNICODE
   /* convert multibyte input to unicode */
-  if(mbstowcs_s(&needed, NULL, 0, in, 0))
-    goto cleanup;
-  if(!needed || needed >= max_path_len)
-    goto cleanup;
-  ibuf = CURLX_MALLOC(needed * sizeof(wchar_t));
-  if(!ibuf)
-    goto cleanup;
-  if(mbstowcs_s(&count, ibuf, needed, in, needed - 1))
-    goto cleanup;
-  if(count != needed)
-    goto cleanup;
-  in_w = ibuf;
-#else
-  in_w = in;
-#endif
+  ఒకవేళ(mbstowcs_s(&needed, ఖాళీ, 0, లోపల, 0))
+    వెళ్ళు cleanup;
+  ఒకవేళ(!needed || needed >= max_మార్గం_len)
+    వెళ్ళు cleanup;
+  ibuf = CURLX_MALLOC(needed * పరిమాణం(wchar_t));
+  ఒకవేళ(!ibuf)
+    వెళ్ళు cleanup;
+  ఒకవేళ(mbstowcs_s(&లెక్క, ibuf, needed, లోపల, needed - 1))
+    వెళ్ళు cleanup;
+  ఒకవేళ(లెక్క != needed)
+    వెళ్ళు cleanup;
+  లోపల_w = ibuf;
+#లేకపోతే
+  లోపల_w = లోపల;
+#అయితే_ముగింపు
 
   /* GetFullPathNameW returns the normalized full path in unicode. It converts
      forward slashes to backslashes, processes .. to remove directory segments,
      etc. Unlike GetFullPathNameA it can process paths that exceed MAX_PATH. */
-  needed = (size_t)GetFullPathNameW(in_w, 0, NULL, NULL);
-  if(!needed || needed > max_path_len)
-    goto cleanup;
+  needed = (size_t)Get_నిండిన_మార్గం_Name_W(లోపల_w, 0, ఖాళీ, ఖాళీ);
+  ఒకవేళ(!needed || needed > max_మార్గం_len)
+    వెళ్ళు cleanup;
   /* skip paths that are not excessive and do not need modification */
-  if(needed <= MAX_PATH)
-    goto cleanup;
-  fbuf = CURLX_MALLOC(needed * sizeof(wchar_t));
-  if(!fbuf)
-    goto cleanup;
-  count = (size_t)GetFullPathNameW(in_w, (DWORD)needed, fbuf, NULL);
-  if(!count || count >= needed)
-    goto cleanup;
+  ఒకవేళ(needed <= MAX_మార్గం)
+    వెళ్ళు cleanup;
+  fbuf = CURLX_MALLOC(needed * పరిమాణం(wchar_t));
+  ఒకవేళ(!fbuf)
+    వెళ్ళు cleanup;
+  లెక్క = (size_t)Get_నిండిన_మార్గం_Name_W(లోపల_w, (DWORD)needed, fbuf, ఖాళీ);
+  ఒకవేళ(!లెక్క || లెక్క >= needed)
+    వెళ్ళు cleanup;
 
   /* prepend \\?\ or \\?\UNC\ to the excessively long path.
    *
@@ -168,386 +168,386 @@ static bool fix_excessive_path(const TCHAR *in, TCHAR **out)
    *
    * https://learn.microsoft.com/dotnet/standard/io/file-path-formats
    */
-  if(!wcsncmp(fbuf, L"\\\\?\\", 4))
+  ఒకవేళ(!wcsncmp(fbuf, L"\\\\?\\", 4))
     ; /* do nothing */
-  else if(!wcsncmp(fbuf, L"\\\\.\\", 4))
+  లేకపోతే ఒకవేళ(!wcsncmp(fbuf, L"\\\\.\\", 4))
     fbuf[2] = '?';
-  else if(!wcsncmp(fbuf, L"\\\\.", 3) || !wcsncmp(fbuf, L"\\\\?", 3)) {
+  లేకపోతే ఒకవేళ(!wcsncmp(fbuf, L"\\\\.", 3) || !wcsncmp(fbuf, L"\\\\?", 3)) {
     /* Unexpected, not UNC. The formatting doc does not allow this AFAICT. */
-    goto cleanup;
+    వెళ్ళు cleanup;
   }
-  else {
-    wchar_t *temp;
+  లేకపోతే {
+    wchar_t *తాత్కాలిక;
 
-    if(!wcsncmp(fbuf, L"\\\\", 2)) {
+    ఒకవేళ(!wcsncmp(fbuf, L"\\\\", 2)) {
       /* "\\?\UNC\" + full path without "\\" + null */
-      needed = 8 + (count - 2) + 1;
-      if(needed > max_path_len)
-        goto cleanup;
+      needed = 8 + (లెక్క - 2) + 1;
+      ఒకవేళ(needed > max_మార్గం_len)
+        వెళ్ళు cleanup;
 
-      temp = CURLX_MALLOC(needed * sizeof(wchar_t));
-      if(!temp)
-        goto cleanup;
+      తాత్కాలిక = CURLX_MALLOC(needed * పరిమాణం(wchar_t));
+      ఒకవేళ(!తాత్కాలిక)
+        వెళ్ళు cleanup;
 
-      if(wcsncpy_s(temp, needed, L"\\\\?\\UNC\\", 8)) {
-        CURLX_FREE(temp);
-        goto cleanup;
+      ఒకవేళ(wcsncpy_s(తాత్కాలిక, needed, L"\\\\?\\UNC\\", 8)) {
+        CURLX_FREE(తాత్కాలిక);
+        వెళ్ళు cleanup;
       }
-      if(wcscpy_s(temp + 8, needed, fbuf + 2)) {
-        CURLX_FREE(temp);
-        goto cleanup;
+      ఒకవేళ(wcscpy_s(తాత్కాలిక + 8, needed, fbuf + 2)) {
+        CURLX_FREE(తాత్కాలిక);
+        వెళ్ళు cleanup;
       }
     }
-    else {
+    లేకపోతే {
       /* "\\?\" + full path + null */
-      needed = 4 + count + 1;
-      if(needed > max_path_len)
-        goto cleanup;
+      needed = 4 + లెక్క + 1;
+      ఒకవేళ(needed > max_మార్గం_len)
+        వెళ్ళు cleanup;
 
-      temp = CURLX_MALLOC(needed * sizeof(wchar_t));
-      if(!temp)
-        goto cleanup;
+      తాత్కాలిక = CURLX_MALLOC(needed * పరిమాణం(wchar_t));
+      ఒకవేళ(!తాత్కాలిక)
+        వెళ్ళు cleanup;
 
-      if(wcsncpy_s(temp, needed, L"\\\\?\\", 4)) {
-        CURLX_FREE(temp);
-        goto cleanup;
+      ఒకవేళ(wcsncpy_s(తాత్కాలిక, needed, L"\\\\?\\", 4)) {
+        CURLX_FREE(తాత్కాలిక);
+        వెళ్ళు cleanup;
       }
-      if(wcscpy_s(temp + 4, needed, fbuf)) {
-        CURLX_FREE(temp);
-        goto cleanup;
+      ఒకవేళ(wcscpy_s(తాత్కాలిక + 4, needed, fbuf)) {
+        CURLX_FREE(తాత్కాలిక);
+        వెళ్ళు cleanup;
       }
     }
 
     CURLX_FREE(fbuf);
-    fbuf = temp;
+    fbuf = తాత్కాలిక;
   }
 
-#ifndef _UNICODE
+#నిర్వచితం_కాకపోతే _UNICODE
   /* convert unicode full path to multibyte output */
-  if(wcstombs_s(&needed, NULL, 0, fbuf, 0))
-    goto cleanup;
-  if(!needed || needed >= max_path_len)
-    goto cleanup;
+  ఒకవేళ(wcstombs_s(&needed, ఖాళీ, 0, fbuf, 0))
+    వెళ్ళు cleanup;
+  ఒకవేళ(!needed || needed >= max_మార్గం_len)
+    వెళ్ళు cleanup;
   obuf = CURLX_MALLOC(needed);
-  if(!obuf)
-    goto cleanup;
-  if(wcstombs_s(&count, obuf, needed, fbuf, needed - 1))
-    goto cleanup;
-  if(count != needed)
-    goto cleanup;
-  *out = obuf;
-  obuf = NULL;
-#else
-  *out = fbuf;
-  fbuf = NULL;
-#endif
+  ఒకవేళ(!obuf)
+    వెళ్ళు cleanup;
+  ఒకవేళ(wcstombs_s(&లెక్క, obuf, needed, fbuf, needed - 1))
+    వెళ్ళు cleanup;
+  ఒకవేళ(లెక్క != needed)
+    వెళ్ళు cleanup;
+  *బహిర్గతం = obuf;
+  obuf = ఖాళీ;
+#లేకపోతే
+  *బహిర్గతం = fbuf;
+  fbuf = ఖాళీ;
+#అయితే_ముగింపు
 
 cleanup:
   CURLX_FREE(fbuf);
-#ifndef _UNICODE
+#నిర్వచితం_కాకపోతే _UNICODE
   CURLX_FREE(ibuf);
   CURLX_FREE(obuf);
-#endif
-  return !!*out;
+#అయితే_ముగింపు
+  తిరిగి !!*బహిర్గతం;
 }
 
-#ifndef CURL_WINDOWS_UWP
-HANDLE curlx_CreateFile(const char *filename,
+#నిర్వచితం_కాకపోతే CURL_WINDOWS_UWP
+HANDLE curlx_CreateFile(స్థిరరాశి అక్షరం *filename,
                         DWORD dwDesiredAccess,
-                        DWORD dwShareMode,
-                        LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+                        DWORD dw_Share_బహుళకం,
+                        LPSECURITY_లక్షణాలు lp_Security_లక్షణాలు,
                         DWORD dwCreationDisposition,
-                        DWORD dwFlagsAndAttributes,
+                        DWORD dw_Flags_And_లక్షణాలు,
                         HANDLE hTemplateFile)
 {
-  HANDLE handle = INVALID_HANDLE_VALUE;
+  HANDLE handle = INVALID_HANDLE_విలువ;
 
-#ifdef UNICODE
-  TCHAR *filename_t = curlx_convert_UTF8_to_wchar(filename);
-#else
-  const TCHAR *filename_t = filename;
-#endif
+#నిర్వచితమైతే UNICODE
+  TCHAR *filename_t = curlx_convert_UTF8_గమ్యం_wchar(filename);
+#లేకపోతే
+  స్థిరరాశి TCHAR *filename_t = filename;
+#అయితే_ముగింపు
 
-  if(filename_t) {
-    TCHAR *fixed = NULL;
-    const TCHAR *target = NULL;
+  ఒకవేళ(filename_t) {
+    TCHAR *fixed = ఖాళీ;
+    స్థిరరాశి TCHAR *లక్ష్యం = ఖాళీ;
 
-    if(fix_excessive_path(filename_t, &fixed))
-      target = fixed;
-    else
-      target = filename_t;
+    ఒకవేళ(fix_excessive_మార్గం(filename_t, &fixed))
+      లక్ష్యం = fixed;
+    లేకపోతే
+      లక్ష్యం = filename_t;
     /* !checksrc! disable BANNEDFUNC 1 */
-    handle = CreateFile(target,
+    handle = CreateFile(లక్ష్యం,
                         dwDesiredAccess,
-                        dwShareMode,
-                        lpSecurityAttributes,
+                        dw_Share_బహుళకం,
+                        lp_Security_లక్షణాలు,
                         dwCreationDisposition,
-                        dwFlagsAndAttributes,
+                        dw_Flags_And_లక్షణాలు,
                         hTemplateFile);
     CURLX_FREE(fixed);
-#ifdef UNICODE
+#నిర్వచితమైతే UNICODE
     curlx_free(filename_t);
-#endif
+#అయితే_ముగింపు
   }
 
-  return handle;
+  తిరిగి handle;
 }
 
-HANDLE curlx_FindFirstFile(const char *filename,
-                           WIN32_FIND_DATA *find_data)
+HANDLE curlx_కనుగొను_మొదటి_File(స్థిరరాశి అక్షరం *filename,
+                           WIN32_కనుగొను_దత్తాంశం *కనుగొను_దత్తాంశం)
 {
-  HANDLE handle = INVALID_HANDLE_VALUE;
+  HANDLE handle = INVALID_HANDLE_విలువ;
 
-#ifdef UNICODE
-  TCHAR *filename_t = curlx_convert_UTF8_to_wchar(filename);
-#else
-  const TCHAR *filename_t = filename;
-#endif
+#నిర్వచితమైతే UNICODE
+  TCHAR *filename_t = curlx_convert_UTF8_గమ్యం_wchar(filename);
+#లేకపోతే
+  స్థిరరాశి TCHAR *filename_t = filename;
+#అయితే_ముగింపు
 
-  if(filename_t) {
-    TCHAR *fixed = NULL;
-    const TCHAR *target;
+  ఒకవేళ(filename_t) {
+    TCHAR *fixed = ఖాళీ;
+    స్థిరరాశి TCHAR *లక్ష్యం;
 
-    if(fix_excessive_path(filename_t, &fixed))
-      target = fixed;
-    else
-      target = filename_t;
+    ఒకవేళ(fix_excessive_మార్గం(filename_t, &fixed))
+      లక్ష్యం = fixed;
+    లేకపోతే
+      లక్ష్యం = filename_t;
 
-    handle = FindFirstFile(target, find_data);
+    handle = కనుగొను_మొదటి_File(లక్ష్యం, కనుగొను_దత్తాంశం);
     CURLX_FREE(fixed);
 
-#ifdef UNICODE
+#నిర్వచితమైతే UNICODE
     curlx_free(filename_t);
-#endif
+#అయితే_ముగింపు
   }
 
-  return handle;
+  తిరిగి handle;
 }
-#endif /* !CURL_WINDOWS_UWP */
+#అయితే_ముగింపు /* !CURL_WINDOWS_UWP */
 
-int curlx_win32_open(const char *filename, int oflag, ...)
+పూర్ణాంకం curlx_win32_open(స్థిరరాశి అక్షరం *filename, పూర్ణాంకం oflag, ...)
 {
-  int pmode = 0;
-  int res = -1;
-  TCHAR *fixed = NULL;
-  const TCHAR *target = NULL;
+  పూర్ణాంకం pmode = 0;
+  పూర్ణాంకం res = -1;
+  TCHAR *fixed = ఖాళీ;
+  స్థిరరాశి TCHAR *లక్ష్యం = ఖాళీ;
 
-#ifdef _UNICODE
-  wchar_t *filename_w = fn_convert_UTF8_to_wchar(filename);
-#endif
+#నిర్వచితమైతే _UNICODE
+  wchar_t *filename_w = fn_convert_UTF8_గమ్యం_wchar(filename);
+#అయితే_ముగింపు
 
   va_list param;
   va_start(param, oflag);
-  if(oflag & O_CREAT)
-    pmode = va_arg(param, int);
+  ఒకవేళ(oflag & O_CREAT)
+    pmode = va_arg(param, పూర్ణాంకం);
   va_end(param);
 
-#ifdef _UNICODE
-  if(filename_w) {
-    if(fix_excessive_path(filename_w, &fixed))
-      target = fixed;
-    else
-      target = filename_w;
-    errno = _wsopen_s(&res, target, oflag, _SH_DENYNO, pmode);
+#నిర్వచితమైతే _UNICODE
+  ఒకవేళ(filename_w) {
+    ఒకవేళ(fix_excessive_మార్గం(filename_w, &fixed))
+      లక్ష్యం = fixed;
+    లేకపోతే
+      లక్ష్యం = filename_w;
+    errno = _wsopen_s(&res, లక్ష్యం, oflag, _SH_DENYNO, pmode);
     CURLX_FREE(filename_w);
   }
-  else
+  లేకపోతే
     /* !checksrc! disable ERRNOVAR 1 */
     errno = EINVAL;
-#else
-  if(fix_excessive_path(filename, &fixed))
-    target = fixed;
-  else
-    target = filename;
-  errno = _sopen_s(&res, target, oflag, _SH_DENYNO, pmode);
-#endif
+#లేకపోతే
+  ఒకవేళ(fix_excessive_మార్గం(filename, &fixed))
+    లక్ష్యం = fixed;
+  లేకపోతే
+    లక్ష్యం = filename;
+  errno = _sopen_s(&res, లక్ష్యం, oflag, _SH_DENYNO, pmode);
+#అయితే_ముగింపు
 
   CURLX_FREE(fixed);
-  return res;
+  తిరిగి res;
 }
 
-FILE *curlx_win32_fopen(const char *filename, const char *mode)
+FILE *curlx_win32_fopen(స్థిరరాశి అక్షరం *filename, స్థిరరాశి అక్షరం *బహుళకం)
 {
-  FILE *file = NULL;
-  TCHAR *fixed = NULL;
-  const TCHAR *target = NULL;
+  FILE *file = ఖాళీ;
+  TCHAR *fixed = ఖాళీ;
+  స్థిరరాశి TCHAR *లక్ష్యం = ఖాళీ;
 
-#ifdef _UNICODE
-  wchar_t *filename_w = fn_convert_UTF8_to_wchar(filename);
-  wchar_t *mode_w = fn_convert_UTF8_to_wchar(mode);
-  if(filename_w && mode_w) {
-    if(fix_excessive_path(filename_w, &fixed))
-      target = fixed;
-    else
-      target = filename_w;
-    file = _wfsopen(target, mode_w, _SH_DENYNO);
+#నిర్వచితమైతే _UNICODE
+  wchar_t *filename_w = fn_convert_UTF8_గమ్యం_wchar(filename);
+  wchar_t *బహుళకం_w = fn_convert_UTF8_గమ్యం_wchar(బహుళకం);
+  ఒకవేళ(filename_w && బహుళకం_w) {
+    ఒకవేళ(fix_excessive_మార్గం(filename_w, &fixed))
+      లక్ష్యం = fixed;
+    లేకపోతే
+      లక్ష్యం = filename_w;
+    file = _wfsopen(లక్ష్యం, బహుళకం_w, _SH_DENYNO);
   }
-  else
+  లేకపోతే
     /* !checksrc! disable ERRNOVAR 1 */
     errno = EINVAL;
   CURLX_FREE(filename_w);
-  CURLX_FREE(mode_w);
-#else
-  if(fix_excessive_path(filename, &fixed))
-    target = fixed;
-  else
-    target = filename;
-  file = _fsopen(target, mode, _SH_DENYNO);
-#endif
+  CURLX_FREE(బహుళకం_w);
+#లేకపోతే
+  ఒకవేళ(fix_excessive_మార్గం(filename, &fixed))
+    లక్ష్యం = fixed;
+  లేకపోతే
+    లక్ష్యం = filename;
+  file = _fsopen(లక్ష్యం, బహుళకం, _SH_DENYNO);
+#అయితే_ముగింపు
 
   CURLX_FREE(fixed);
-  return file;
+  తిరిగి file;
 }
 
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR < 5)
-_CRTIMP errno_t __cdecl freopen_s(FILE **file, const char *filename,
-                                  const char *mode, FILE *stream);
-#endif
+#ఒకవేళ defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR < 5)
+_CRTIMP errno_t __cdecl freopen_s(FILE **file, స్థిరరాశి అక్షరం *filename,
+                                  స్థిరరాశి అక్షరం *బహుళకం, FILE *ప్రవాహం);
+#అయితే_ముగింపు
 
-FILE *curlx_win32_freopen(const char *filename, const char *mode, FILE *fp)
+FILE *curlx_win32_freopen(స్థిరరాశి అక్షరం *filename, స్థిరరాశి అక్షరం *బహుళకం, FILE *fp)
 {
-  FILE *file = NULL;
-  TCHAR *fixed = NULL;
-  const TCHAR *target = NULL;
+  FILE *file = ఖాళీ;
+  TCHAR *fixed = ఖాళీ;
+  స్థిరరాశి TCHAR *లక్ష్యం = ఖాళీ;
 
-#ifdef _UNICODE
-  wchar_t *filename_w = fn_convert_UTF8_to_wchar(filename);
-  wchar_t *mode_w = fn_convert_UTF8_to_wchar(mode);
-  if(filename_w && mode_w) {
-    if(fix_excessive_path(filename_w, &fixed))
-      target = fixed;
-    else
-      target = filename_w;
-    errno = _wfreopen_s(&file, target, mode_w, fp);
+#నిర్వచితమైతే _UNICODE
+  wchar_t *filename_w = fn_convert_UTF8_గమ్యం_wchar(filename);
+  wchar_t *బహుళకం_w = fn_convert_UTF8_గమ్యం_wchar(బహుళకం);
+  ఒకవేళ(filename_w && బహుళకం_w) {
+    ఒకవేళ(fix_excessive_మార్గం(filename_w, &fixed))
+      లక్ష్యం = fixed;
+    లేకపోతే
+      లక్ష్యం = filename_w;
+    errno = _wfreopen_s(&file, లక్ష్యం, బహుళకం_w, fp);
   }
-  else
+  లేకపోతే
     /* !checksrc! disable ERRNOVAR 1 */
     errno = EINVAL;
   CURLX_FREE(filename_w);
-  CURLX_FREE(mode_w);
-#else
-  if(fix_excessive_path(filename, &fixed))
-    target = fixed;
-  else
-    target = filename;
-  errno = freopen_s(&file, target, mode, fp);
-#endif
+  CURLX_FREE(బహుళకం_w);
+#లేకపోతే
+  ఒకవేళ(fix_excessive_మార్గం(filename, &fixed))
+    లక్ష్యం = fixed;
+  లేకపోతే
+    లక్ష్యం = filename;
+  errno = freopen_s(&file, లక్ష్యం, బహుళకం, fp);
+#అయితే_ముగింపు
 
   CURLX_FREE(fixed);
-  return file;
+  తిరిగి file;
 }
 
-int curlx_win32_stat(const char *path, curlx_struct_stat *buffer)
+పూర్ణాంకం curlx_win32_stat(స్థిరరాశి అక్షరం *మార్గం, curlx_struct_stat *బఫరు)
 {
-  int res = -1;
-  TCHAR *fixed = NULL;
-  const TCHAR *target = NULL;
+  పూర్ణాంకం res = -1;
+  TCHAR *fixed = ఖాళీ;
+  స్థిరరాశి TCHAR *లక్ష్యం = ఖాళీ;
 
-#ifdef _UNICODE
-  wchar_t *path_w = curlx_convert_UTF8_to_wchar(path);
-  if(path_w) {
-    if(fix_excessive_path(path_w, &fixed))
-      target = fixed;
-    else
-      target = path_w;
-    res = _wstati64(target, buffer);
-    curlx_free(path_w);
+#నిర్వచితమైతే _UNICODE
+  wchar_t *మార్గం_w = curlx_convert_UTF8_గమ్యం_wchar(మార్గం);
+  ఒకవేళ(మార్గం_w) {
+    ఒకవేళ(fix_excessive_మార్గం(మార్గం_w, &fixed))
+      లక్ష్యం = fixed;
+    లేకపోతే
+      లక్ష్యం = మార్గం_w;
+    res = _wstati64(లక్ష్యం, బఫరు);
+    curlx_free(మార్గం_w);
   }
-  else
+  లేకపోతే
     /* !checksrc! disable ERRNOVAR 1 */
     errno = EINVAL;
-#else
-  if(fix_excessive_path(path, &fixed))
-    target = fixed;
-  else
-    target = path;
-  res = _stati64(target, buffer);
-#endif
+#లేకపోతే
+  ఒకవేళ(fix_excessive_మార్గం(మార్గం, &fixed))
+    లక్ష్యం = fixed;
+  లేకపోతే
+    లక్ష్యం = మార్గం;
+  res = _stati64(లక్ష్యం, బఫరు);
+#అయితే_ముగింపు
 
   CURLX_FREE(fixed);
-  return res;
+  తిరిగి res;
 }
 
-int curlx_win32_mkdir(const char *path)
+పూర్ణాంకం curlx_win32_mkdir(స్థిరరాశి అక్షరం *మార్గం)
 {
-  int res = -1;
-  TCHAR *fixed = NULL;
-  const TCHAR *target = NULL;
+  పూర్ణాంకం res = -1;
+  TCHAR *fixed = ఖాళీ;
+  స్థిరరాశి TCHAR *లక్ష్యం = ఖాళీ;
 
-#ifdef _UNICODE
-  wchar_t *path_w = curlx_convert_UTF8_to_wchar(path);
-  if(path_w) {
-    if(fix_excessive_path(path_w, &fixed))
-      target = fixed;
-    else
-      target = path_w;
-    res = _wmkdir(target);
-    curlx_free(path_w);
+#నిర్వచితమైతే _UNICODE
+  wchar_t *మార్గం_w = curlx_convert_UTF8_గమ్యం_wchar(మార్గం);
+  ఒకవేళ(మార్గం_w) {
+    ఒకవేళ(fix_excessive_మార్గం(మార్గం_w, &fixed))
+      లక్ష్యం = fixed;
+    లేకపోతే
+      లక్ష్యం = మార్గం_w;
+    res = _wmkdir(లక్ష్యం);
+    curlx_free(మార్గం_w);
   }
-  else
+  లేకపోతే
     /* !checksrc! disable ERRNOVAR 1 */
     errno = EINVAL;
-#else
-  if(fix_excessive_path(path, &fixed))
-    target = fixed;
-  else
-    target = path;
-  res = _mkdir(target);
-#endif
+#లేకపోతే
+  ఒకవేళ(fix_excessive_మార్గం(మార్గం, &fixed))
+    లక్ష్యం = fixed;
+  లేకపోతే
+    లక్ష్యం = మార్గం;
+  res = _mkdir(లక్ష్యం);
+#అయితే_ముగింపు
 
   CURLX_FREE(fixed);
-  return res;
+  తిరిగి res;
 }
 
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_COOKIES) || \
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_COOKIES) || \
   !defined(CURL_DISABLE_ALTSVC)
 /* rename() on Windows does not overwrite, so we cannot use it here.
    MoveFileEx() does overwrite and is usually atomic but fails when there are
    open handles to the file. */
-int curlx_win32_rename(const char *oldpath, const char *newpath)
+పూర్ణాంకం curlx_win32_rename(స్థిరరాశి అక్షరం *oldpath, స్థిరరాశి అక్షరం *newpath)
 {
-  int res = -1; /* fail */
+  పూర్ణాంకం res = -1; /* fail */
 
-#ifdef UNICODE
-  TCHAR *tchar_oldpath = curlx_convert_UTF8_to_wchar(oldpath);
-  TCHAR *tchar_newpath = curlx_convert_UTF8_to_wchar(newpath);
-#else
-  const TCHAR *tchar_oldpath = oldpath;
-  const TCHAR *tchar_newpath = newpath;
-#endif
+#నిర్వచితమైతే UNICODE
+  TCHAR *tchar_oldpath = curlx_convert_UTF8_గమ్యం_wchar(oldpath);
+  TCHAR *tchar_newpath = curlx_convert_UTF8_గమ్యం_wchar(newpath);
+#లేకపోతే
+  స్థిరరాశి TCHAR *tchar_oldpath = oldpath;
+  స్థిరరాశి TCHAR *tchar_newpath = newpath;
+#అయితే_ముగింపు
 
-  if(tchar_oldpath && tchar_newpath) {
-    const int max_wait_ms = 1000;
-    struct curltime start;
+  ఒకవేళ(tchar_oldpath && tchar_newpath) {
+    స్థిరరాశి పూర్ణాంకం max_wait_ms = 1000;
+    నిర్మాణం curltime ప్రారంభం;
 
-    TCHAR *oldpath_fixed = NULL;
-    TCHAR *newpath_fixed = NULL;
-    const TCHAR *target_oldpath;
-    const TCHAR *target_newpath;
+    TCHAR *oldpath_fixed = ఖాళీ;
+    TCHAR *newpath_fixed = ఖాళీ;
+    స్థిరరాశి TCHAR *లక్ష్యం_oldpath;
+    స్థిరరాశి TCHAR *లక్ష్యం_newpath;
 
-    if(fix_excessive_path(tchar_oldpath, &oldpath_fixed))
-      target_oldpath = oldpath_fixed;
-    else
-      target_oldpath = tchar_oldpath;
+    ఒకవేళ(fix_excessive_మార్గం(tchar_oldpath, &oldpath_fixed))
+      లక్ష్యం_oldpath = oldpath_fixed;
+    లేకపోతే
+      లక్ష్యం_oldpath = tchar_oldpath;
 
-    if(fix_excessive_path(tchar_newpath, &newpath_fixed))
-      target_newpath = newpath_fixed;
-    else
-      target_newpath = tchar_newpath;
+    ఒకవేళ(fix_excessive_మార్గం(tchar_newpath, &newpath_fixed))
+      లక్ష్యం_newpath = newpath_fixed;
+    లేకపోతే
+      లక్ష్యం_newpath = tchar_newpath;
 
-    start = curlx_now();
+    ప్రారంభం = curlx_now();
 
-    for(;;) {
+    కొరకు(;;) {
       timediff_t diff;
       /* !checksrc! disable BANNEDFUNC 1 */
-      if(MoveFileEx(target_oldpath, target_newpath,
+      ఒకవేళ(MoveFileEx(లక్ష్యం_oldpath, లక్ష్యం_newpath,
                     MOVEFILE_REPLACE_EXISTING)) {
         res = 0; /* success */
-        break;
+        ఆపు;
       }
-      diff = curlx_timediff_ms(curlx_now(), start);
-      if(diff < 0 || diff > max_wait_ms) {
-        break;
+      diff = curlx_timediff_ms(curlx_now(), ప్రారంభం);
+      ఒకవేళ(diff < 0 || diff > max_wait_ms) {
+        ఆపు;
       }
       Sleep(1);
     }
@@ -556,16 +556,16 @@ int curlx_win32_rename(const char *oldpath, const char *newpath)
     CURLX_FREE(newpath_fixed);
   }
 
-#ifdef UNICODE
+#నిర్వచితమైతే UNICODE
   curlx_free(tchar_oldpath);
   curlx_free(tchar_newpath);
-#endif
+#అయితే_ముగింపు
 
-  return res;
+  తిరిగి res;
 }
-#endif
+#అయితే_ముగింపు
 
-#undef CURLX_MALLOC
-#undef CURLX_FREE
+#నిర్వచనం_రద్దు CURLX_MALLOC
+#నిర్వచనం_రద్దు CURLX_FREE
 
-#endif /* _WIN32 */
+#అయితే_ముగింపు /* _WIN32 */

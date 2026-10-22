@@ -22,262 +22,262 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "progress.h"
-#include "multiif.h"
-#include "curl_trc.h"
-#include "cshutdn.h"
-#include "conncache.h"
-#include "curl_share.h"
-#include "sigpipe.h"
-#include "uint-spbset.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "cshutdn.h"
+#అన్తర్భావ "conncache.h"
+#అన్తర్భావ "curl_share.h"
+#అన్తర్భావ "sigpipe.h"
+#అన్తర్భావ "uint-spbset.h"
 
 
-#define CPOOL_IS_LOCKED(c)    ((c) && (c)->locked)
+#నిర్వచించు CPOOL_IS_LOCKED(c)    ((c) && (c)->locked)
 
-#define CPOOL_LOCK(c, d)                                                \
-  do {                                                                  \
-    if(c) {                                                             \
-      if(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
-        Curl_share_lock_share((c)->share, (d), CURL_LOCK_DATA_CONNECT,  \
-                        CURL_LOCK_ACCESS_SINGLE);                       \
+#నిర్వచించు CPOOL_తాళం(c, d)                                                \
+  చేయి {                                                                  \
+    ఒకవేళ(c) {                                                             \
+      ఒకవేళ(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
+        Curl_share_తాళం_share((c)->share, (d), CURL_తాళం_దత్తాంశం_CONNECT,  \
+                        CURL_తాళం_ACCESS_SINGLE);                       \
       DEBUGASSERT(!(c)->locked);                                        \
       (c)->locked = TRUE;                                               \
     }                                                                   \
-  } while(0)
+  } అయితే(0)
 
-#define CPOOL_UNLOCK(c, d)                                              \
-  do {                                                                  \
-    if(c) {                                                             \
+#నిర్వచించు CPOOL_UNLOCK(c, d)                                              \
+  చేయి {                                                                  \
+    ఒకవేళ(c) {                                                             \
       DEBUGASSERT((c)->locked);                                         \
       (c)->locked = FALSE;                                              \
-      if(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
-        Curl_share_unlock_share((c)->share, (d), CURL_LOCK_DATA_CONNECT); \
+      ఒకవేళ(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
+        Curl_share_unlock_share((c)->share, (d), CURL_తాళం_దత్తాంశం_CONNECT); \
     }                                                                   \
-  } while(0)
+  } అయితే(0)
 
 /* A set of connection pool ids to the same destination. */
-struct cpool_bundle {
-  struct uint32_spbset ids; /* bitset of connection `pool_id`s  */
+నిర్మాణం cpool_bundle {
+  నిర్మాణం uint32_spbset ids; /* bitset of connection `pool_id`s  */
   uint32_t refcount;
 };
 
-static void cpool_bundle_unlink(struct cpool_bundle **pbundle)
+స్థిర శూన్య cpool_bundle_unlink(నిర్మాణం cpool_bundle **pbundle)
 {
-  if(*pbundle) {
-    struct cpool_bundle *bundle = *pbundle;
+  ఒకవేళ(*pbundle) {
+    నిర్మాణం cpool_bundle *bundle = *pbundle;
 
     DEBUGASSERT(bundle->refcount);
-    *pbundle = NULL;
-    if(bundle->refcount)
+    *pbundle = ఖాళీ;
+    ఒకవేళ(bundle->refcount)
       bundle->refcount--;
-    if(!bundle->refcount) {
+    ఒకవేళ(!bundle->refcount) {
       Curl_uint32_spbset_destroy(&bundle->ids);
       curlx_free(bundle);
     }
   }
 }
 
-static void cpool_bundle_link(struct cpool_bundle **pdest,
-                              struct cpool_bundle *src)
+స్థిర శూన్య cpool_bundle_link(నిర్మాణం cpool_bundle **pdest,
+                              నిర్మాణం cpool_bundle *src)
 {
-  if(*pdest != src) {
+  ఒకవేళ(*pdest != src) {
     cpool_bundle_unlink(pdest);
     *pdest = src;
-    if(src) {
+    ఒకవేళ(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
   }
 }
 
-static struct cpool_bundle *cpool_create_bundle(void)
+స్థిర నిర్మాణం cpool_bundle *cpool_create_bundle(శూన్య)
 {
   /* created with refcount == 1 */
-  struct cpool_bundle *bundle = curlx_calloc(1, sizeof(*bundle));
-  if(!bundle)
-    return NULL;
+  నిర్మాణం cpool_bundle *bundle = curlx_calloc(1, పరిమాణం(*bundle));
+  ఒకవేళ(!bundle)
+    తిరిగి ఖాళీ;
 
   Curl_uint32_spbset_init(&bundle->ids);
   bundle->refcount = 1;
-  return bundle;
+  తిరిగి bundle;
 }
 
 /* Add a connection to a bundle */
-static bool cpool_bundle_add_id(struct cpool *cpool,
-                                struct cpool_bundle *bundle,
-                                const char *destination,
+స్థిర bool cpool_bundle_కూడు_id(నిర్మాణం cpool *cpool,
+                                నిర్మాణం cpool_bundle *bundle,
+                                స్థిరరాశి అక్షరం *destination,
                                 uint32_t pool_id)
 {
-  if(!Curl_uint32_spbset_add(&bundle->ids, pool_id))
-    return FALSE;
-  if(Curl_uint32_spbset_count(&bundle->ids) == 1) {
+  ఒకవేళ(!Curl_uint32_spbset_కూడు(&bundle->ids, pool_id))
+    తిరిగి FALSE;
+  ఒకవేళ(Curl_uint32_spbset_లెక్క(&bundle->ids) == 1) {
     /* first one added, register bundle */
-    struct cpool_bundle *new_ref = NULL;
+    నిర్మాణం cpool_bundle *new_ref = ఖాళీ;
     cpool_bundle_link(&new_ref, bundle);
-    if(!Curl_hash_add(&cpool->dest2bundle,
-                      destination, strlen(destination), new_ref)) {
+    ఒకవేళ(!Curl_hash_కూడు(&cpool->dest2bundle,
+                      destination, అక్షరశ్రేణి_పొడవు(destination), new_ref)) {
       cpool_bundle_unlink(&new_ref);
-      return FALSE;
+      తిరిగి FALSE;
     }
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
 
 /* Remove a connection from a bundle */
-static void cpool_bundle_remove_id(struct cpool *cpool,
-                                   struct cpool_bundle *bundle,
-                                   const char *destination,
+స్థిర శూన్య cpool_bundle_remove_id(నిర్మాణం cpool *cpool,
+                                   నిర్మాణం cpool_bundle *bundle,
+                                   స్థిరరాశి అక్షరం *destination,
                                    uint32_t pool_id)
 {
   Curl_uint32_spbset_remove(&bundle->ids, pool_id);
-  if(!Curl_uint32_spbset_count(&bundle->ids)) {
+  ఒకవేళ(!Curl_uint32_spbset_లెక్క(&bundle->ids)) {
     /* Now empty, unregister bundle */
-    Curl_hash_delete(&cpool->dest2bundle, destination, strlen(destination));
+    Curl_hash_delete(&cpool->dest2bundle, destination, అక్షరశ్రేణి_పొడవు(destination));
   }
 }
 
-static void cpool_bundle_hash_dtor(void *entry)
+స్థిర శూన్య cpool_bundle_hash_dtor(శూన్య *నమోదు_2)
 {
-  struct cpool_bundle *bundle = entry;
+  నిర్మాణం cpool_bundle *bundle = నమోదు_2;
   cpool_bundle_unlink(&bundle);
 }
 
-static struct cpool_bundle *cpool_get_bundle(struct cpool *cpool,
-                                             const char *destination)
+స్థిర నిర్మాణం cpool_bundle *cpool_get_bundle(నిర్మాణం cpool *cpool,
+                                             స్థిరరాశి అక్షరం *destination)
 {
-  struct cpool_bundle *bundle = NULL;
+  నిర్మాణం cpool_bundle *bundle = ఖాళీ;
   cpool_bundle_link(&bundle, Curl_hash_pick(
-    &cpool->dest2bundle, destination, strlen(destination)));
-  return bundle;
+    &cpool->dest2bundle, destination, అక్షరశ్రేణి_పొడవు(destination)));
+  తిరిగి bundle;
 }
 
-static void cpool_remove_conn(struct cpool *cpool,
-                              struct connectdata *conn)
+స్థిర శూన్య cpool_remove_conn(నిర్మాణం cpool *cpool,
+                              నిర్మాణం connectdata *conn)
 {
   uint32_t cpid = conn->cpid;
 
   DEBUGASSERT(cpool);
-  if(cpid != UINT32_MAX) {
-    struct cpool_bundle *bundle;
+  ఒకవేళ(cpid != UINT32_MAX) {
+    నిర్మాణం cpool_bundle *bundle;
 
-#ifdef DEBUGBUILD
+#నిర్వచితమైతే DEBUGBUILD
     {
-      struct connectdata *pooled_conn =
+      నిర్మాణం connectdata *pooled_conn =
         Curl_uint32_tbl_get(&cpool->conns, cpid);
       DEBUGASSERT(conn == pooled_conn);
     }
-#endif
+#అయితే_ముగింపు
     Curl_uint32_tbl_remove(&cpool->conns, cpid);
     Curl_uint32_bset_remove(&cpool->idles, cpid);
     conn->cpid = UINT32_MAX;
 
     bundle = cpool_get_bundle(cpool, conn->destination);
     DEBUGASSERT(bundle);
-    if(bundle)
+    ఒకవేళ(bundle)
       cpool_bundle_remove_id(cpool, bundle, conn->destination, cpid);
     cpool_bundle_unlink(&bundle);
   }
 }
 
-static void cpool_discard_conn(struct cpool *cpool,
-                               struct Curl_easy *data,
-                               struct connectdata *conn,
+స్థిర శూన్య cpool_discard_conn(నిర్మాణం cpool *cpool,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం connectdata *conn,
                                bool aborted)
 {
-  struct Curl_easy *admin;
-  bool done = FALSE;
+  నిర్మాణం Curl_easy *admin;
+  bool పూర్తి = FALSE;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(!data->conn);
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(!దత్తాంశం->conn);
   DEBUGASSERT(cpool);
   DEBUGASSERT(conn->cpid == UINT32_MAX);
 
-  admin = Curl_get_admin(data);
+  admin = Curl_get_admin(దత్తాంశం);
   /* We MUST NOT discard a connection that is still in use and would
    * trigger Use-After-Free. */
-  if(CONN_INUSE(conn)) {
+  ఒకవేళ(CONN_INUSE(conn)) {
     CURL_TRC_M(admin, "[CPOOL] not discarding #%" FMT_OFF_T
                " still in use by %u transfers", conn->connection_id,
                conn->attached_xfers);
     DEBUGASSERT(0);
-    return;
+    తిరిగి;
   }
 
   /* treat the connection as aborted in CONNECT_ONLY situations, we do
    * not know what the APP did with it. */
-  if(conn->bits.connect_only)
+  ఒకవేళ(conn->బిట్లు.connect_only)
     aborted = TRUE;
-  conn->bits.aborted = aborted;
+  conn->బిట్లు.aborted = aborted;
 
   /* We do not shutdown dead connections. The term 'dead' can be misleading
    * here, as we also mark errored connections/transfers as 'dead'.
    * If we do a shutdown for an aborted transfer, the server might think
    * it was successful otherwise (for example an ftps: upload). This is
    * not what we want. */
-  if(aborted)
-    done = TRUE;
-  if(!done) {
+  ఒకవేళ(aborted)
+    పూర్తి = TRUE;
+  ఒకవేళ(!పూర్తి) {
     /* Attempt to shutdown the connection right away. */
-    Curl_cshutdn_try_once(admin, conn, &done);
+    Curl_cshutdn_try_once(admin, conn, &పూర్తి);
   }
 
-  if(done || !data->multi)
+  ఒకవేళ(పూర్తి || !దత్తాంశం->multi)
     Curl_cshutdn_terminate(admin, conn, FALSE);
-  else {
-    struct Curl_multi *multi = data->multi;
-    size_t max_shutdowns = multi->max_total_connections;
-    uint32_t num_conns = Curl_uint32_tbl_count(&cpool->conns);
+  లేకపోతే {
+    నిర్మాణం Curl_multi *multi = దత్తాంశం->multi;
+    size_t max_shutdowns = multi->max_మొత్తం_connections;
+    uint32_t అంకె_conns = Curl_uint32_tbl_లెక్క(&cpool->conns);
 
-    if(num_conns < max_shutdowns)
-      max_shutdowns -= num_conns;
-    else if(max_shutdowns)
+    ఒకవేళ(అంకె_conns < max_shutdowns)
+      max_shutdowns -= అంకె_conns;
+    లేకపోతే ఒకవేళ(max_shutdowns)
       max_shutdowns = 1;
-    else /* no connection limit set, let's restrict growth nevertheless */
-      max_shutdowns = CURLMAX(num_conns / 4, 128);
-    Curl_cshutdn_add(&multi->cshutdn, multi, conn, max_shutdowns);
+    లేకపోతే /* no connection limit set, let's restrict growth nevertheless */
+      max_shutdowns = CURLMAX(అంకె_conns / 4, 128);
+    Curl_cshutdn_కూడు(&multi->cshutdn, multi, conn, max_shutdowns);
   }
 }
 
-void Curl_cpool_init(struct cpool *cpool,
-                     struct Curl_share *share,
-                     size_t size)
+శూన్య Curl_cpool_init(నిర్మాణం cpool *cpool,
+                     నిర్మాణం Curl_share *share,
+                     size_t కొలత)
 {
   Curl_uint32_tbl_init(&cpool->conns);
   Curl_uint32_bset_init(&cpool->idles);
-  Curl_hash_init(&cpool->dest2bundle, size, CURL_HASH_TYPE_BYTES,
+  Curl_hash_init(&cpool->dest2bundle, కొలత, CURL_HASH_TYPE_బైట్లు,
                  cpool_bundle_hash_dtor);
   cpool->share = share;
   cpool->initialized = TRUE;
-  cpool->in_shutdown = FALSE;
+  cpool->లోపల_shutdown = FALSE;
   cpool->locked = FALSE;
 }
 
-void Curl_cpool_destroy(struct cpool *cpool, struct Curl_easy *admin)
+శూన్య Curl_cpool_destroy(నిర్మాణం cpool *cpool, నిర్మాణం Curl_easy *admin)
 {
-  if(cpool && cpool->initialized && admin) {
-    void *entry;
+  ఒకవేళ(cpool && cpool->initialized && admin) {
+    శూన్య *నమోదు_2;
     uint32_t cpid;
 
     CURL_TRC_M(admin, "%s[CPOOL] destroy, %u connections",
                cpool->share ? "[SHARE] " : "",
-               Curl_uint32_tbl_count(&cpool->conns));
+               Curl_uint32_tbl_లెక్క(&cpool->conns));
     /* Move all connections to the shutdown list */
-    CPOOL_LOCK(cpool, admin);
-    if(Curl_uint32_tbl_first(&cpool->conns, &cpid, &entry)) {
-      struct Curl_sigpipe_ctx pipe_ctx;
+    CPOOL_తాళం(cpool, admin);
+    ఒకవేళ(Curl_uint32_tbl_మొదటి(&cpool->conns, &cpid, &నమోదు_2)) {
+      నిర్మాణం Curl_sigpipe_ctx pipe_ctx;
 
       sigpipe_init(&pipe_ctx);
       sigpipe_apply(admin, &pipe_ctx);
-      do {
-        struct connectdata *conn = entry;
+      చేయి {
+        నిర్మాణం connectdata *conn = నమోదు_2;
         cpool_remove_conn(cpool, conn);
         cpool_discard_conn(cpool, admin, conn, FALSE);
-      } while(Curl_uint32_tbl_next(&cpool->conns, cpid, &cpid, &entry));
+      } అయితే(Curl_uint32_tbl_తదుపరి(&cpool->conns, cpid, &cpid, &నమోదు_2));
       sigpipe_restore(&pipe_ctx);
     }
     CPOOL_UNLOCK(cpool, admin);
@@ -287,86 +287,86 @@ void Curl_cpool_destroy(struct cpool *cpool, struct Curl_easy *admin)
   }
 }
 
-static struct cpool *cpool_get_instance(struct Curl_easy *data)
+స్థిర నిర్మాణం cpool *cpool_get_instance(నిర్మాణం Curl_easy *దత్తాంశం)
 {
   /* admin handles do not necessarily find the correct pool */
-  DEBUGASSERT(data->mid);
-  if(CURL_SHARE_KEEP_CONNECT(data->share))
-    return &data->share->cpool;
-  else if(data->multi_easy)
-    return &data->multi_easy->cpool;
-  else if(data->multi)
-    return &data->multi->cpool;
-  return NULL;
+  DEBUGASSERT(దత్తాంశం->mid);
+  ఒకవేళ(CURL_SHARE_KEEP_CONNECT(దత్తాంశం->share))
+    తిరిగి &దత్తాంశం->share->cpool;
+  లేకపోతే ఒకవేళ(దత్తాంశం->multi_easy)
+    తిరిగి &దత్తాంశం->multi_easy->cpool;
+  లేకపోతే ఒకవేళ(దత్తాంశం->multi)
+    తిరిగి &దత్తాంశం->multi->cpool;
+  తిరిగి ఖాళీ;
 }
 
-struct cpool *Curl_cpool_get_instance(struct Curl_easy *data)
+నిర్మాణం cpool *Curl_cpool_get_instance(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return cpool_get_instance(data);
+  తిరిగి cpool_get_instance(దత్తాంశం);
 }
 
-void Curl_cpool_xfer_init(struct Curl_easy *data)
+శూన్య Curl_cpool_xfer_init(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cpool *cpool = cpool_get_instance(data);
+  నిర్మాణం cpool *cpool = cpool_get_instance(దత్తాంశం);
 
-  if(cpool) {
-    CPOOL_LOCK(cpool, data);
+  ఒకవేళ(cpool) {
+    CPOOL_తాళం(cpool, దత్తాంశం);
     /* the identifier inside the connection cache */
-    data->id = cpool->next_easy_id++;
-    if(cpool->next_easy_id == CURL_OFF_T_MAX)
-      cpool->next_easy_id = 0;
-    data->state.last_conn_id = -1;
-    data->state.last_cpid = UINT32_MAX;
+    దత్తాంశం->id = cpool->తదుపరి_easy_id++;
+    ఒకవేళ(cpool->తదుపరి_easy_id == CURL_OFF_T_MAX)
+      cpool->తదుపరి_easy_id = 0;
+    దత్తాంశం->state.చివరి_conn_id = -1;
+    దత్తాంశం->state.చివరి_cpid = UINT32_MAX;
 
-    CPOOL_UNLOCK(cpool, data);
+    CPOOL_UNLOCK(cpool, దత్తాంశం);
   }
-  else {
+  లేకపోతే {
     /* We should not get here, but in a non-debug build, do something */
     DEBUGASSERT(0);
-    data->id = 0;
-    data->state.last_conn_id = -1;
-    data->state.last_cpid = UINT32_MAX;
+    దత్తాంశం->id = 0;
+    దత్తాంశం->state.చివరి_conn_id = -1;
+    దత్తాంశం->state.చివరి_cpid = UINT32_MAX;
   }
 }
 
-static bool cpool_conn_can_be_closed(struct connectdata *conn)
+స్థిర bool cpool_conn_can_be_closed(నిర్మాణం connectdata *conn)
 {
   /* CONNECT_ONLY sockets remain in use by the application. */
-  return (conn && !CONN_INUSE(conn) && !conn->bits.connect_only);
+  తిరిగి (conn && !CONN_INUSE(conn) && !conn->బిట్లు.connect_only);
 }
 
-static struct connectdata *cpool_bundle_get_oldest_idle(
-  struct cpool *cpool,
-  struct cpool_bundle *bundle,
-  const struct curltime *pnow)
+స్థిర నిర్మాణం connectdata *cpool_bundle_get_oldest_idle(
+  నిర్మాణం cpool *cpool,
+  నిర్మాణం cpool_bundle *bundle,
+  స్థిరరాశి నిర్మాణం curltime *pnow)
 {
   uint32_t cpid, oldest_id = UINT32_MAX;
-  timediff_t unused_ms;
+  timediff_t వాడని_ms;
   timediff_t oldest_ms = -1;
 
-  if(Curl_uint32_spbset_first(&bundle->ids, &cpid)) {
-    do {
-      struct connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
-      if(cpool_conn_can_be_closed(conn)) {
+  ఒకవేళ(Curl_uint32_spbset_మొదటి(&bundle->ids, &cpid)) {
+    చేయి {
+      నిర్మాణం connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
+      ఒకవేళ(cpool_conn_can_be_closed(conn)) {
         /* Set higher score for the age passed since the connection was used */
-        unused_ms =
+        వాడని_ms =
           curlx_ptimediff_ms(pnow, &conn->created) - conn->lastused_ms;
-        if(unused_ms > oldest_ms) {
-          oldest_ms = unused_ms;
+        ఒకవేళ(వాడని_ms > oldest_ms) {
+          oldest_ms = వాడని_ms;
           oldest_id = cpid;
         }
       }
-      else if(!conn) {
+      లేకపోతే ఒకవేళ(!conn) {
         DEBUGASSERT(0);
         Curl_uint32_spbset_remove(&bundle->ids, cpid);
       }
-    } while(Curl_uint32_spbset_next(&bundle->ids, cpid, &cpid));
+    } అయితే(Curl_uint32_spbset_తదుపరి(&bundle->ids, cpid, &cpid));
   }
-  return Curl_uint32_tbl_get(&cpool->conns, oldest_id);
+  తిరిగి Curl_uint32_tbl_get(&cpool->conns, oldest_id);
 }
 
-static struct connectdata *cpool_get_oldest_idle(struct cpool *cpool,
-                                                 const struct curltime *pnow,
+స్థిర నిర్మాణం connectdata *cpool_get_oldest_idle(నిర్మాణం cpool *cpool,
+                                                 స్థిరరాశి నిర్మాణం curltime *pnow,
                                                  timediff_t min_age_ms)
 {
   uint32_t cpid, oldest_id = UINT32_MAX;
@@ -375,139 +375,139 @@ static struct connectdata *cpool_get_oldest_idle(struct cpool *cpool,
 
   /* Iterate over all connections that once were idle. They may
    * no longer be, in which case we remove them from the set again. */
-  if(Curl_uint32_bset_first(&cpool->idles, &cpid)) {
-    do {
-      struct connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
-      if(cpool_conn_can_be_closed(conn)) {
+  ఒకవేళ(Curl_uint32_bset_మొదటి(&cpool->idles, &cpid)) {
+    చేయి {
+      నిర్మాణం connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
+      ఒకవేళ(cpool_conn_can_be_closed(conn)) {
         idle_ms = curlx_ptimediff_ms(pnow, &conn->created) - conn->lastused_ms;
-        if((idle_ms >= min_age_ms) && (idle_ms > oldest_idle_ms)) {
+        ఒకవేళ((idle_ms >= min_age_ms) && (idle_ms > oldest_idle_ms)) {
           oldest_idle_ms = idle_ms;
           oldest_id = cpid;
         }
       }
-      else {
+      లేకపోతే {
         DEBUGASSERT(conn);
         Curl_uint32_bset_remove(&cpool->idles, cpid);
       }
-    } while(Curl_uint32_bset_next(&cpool->idles, cpid, &cpid));
+    } అయితే(Curl_uint32_bset_తదుపరి(&cpool->idles, cpid, &cpid));
   }
-  return Curl_uint32_tbl_get(&cpool->conns, oldest_id);
+  తిరిగి Curl_uint32_tbl_get(&cpool->conns, oldest_id);
 }
 
-static void cpool_conn_close(struct cpool *cpool,
-                             struct Curl_easy *data,
-                             struct connectdata *conn,
+స్థిర శూన్య cpool_conn_close(నిర్మాణం cpool *cpool,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం connectdata *conn,
                              bool aborted)
 {
-  struct Curl_easy *admin;
-  bool do_lock;
+  నిర్మాణం Curl_easy *admin;
+  bool do_తాళం;
 
   DEBUGASSERT(cpool);
-  DEBUGASSERT(data && !data->conn);
-  if(!cpool)
-    return;
+  DEBUGASSERT(దత్తాంశం && !దత్తాంశం->conn);
+  ఒకవేళ(!cpool)
+    తిరిగి;
 
   /* If this connection is not marked to force-close, leave it open if there
    * are other users of it */
-  if(CONN_INUSE(conn) && !aborted) {
+  ఒకవేళ(CONN_INUSE(conn) && !aborted) {
     DEBUGASSERT(0); /* does this ever happen? */
-    DEBUGF(infof(data, "conn terminate when inuse: %u", conn->attached_xfers));
-    return;
+    DEBUGF(infof(దత్తాంశం, "conn terminate when inuse: %u", conn->attached_xfers));
+    తిరిగి;
   }
 
   /* This method may be called while we are under lock, e.g. from a
    * user callback in find. */
-  admin = Curl_get_admin(data);
-  do_lock = !CPOOL_IS_LOCKED(cpool);
-  if(do_lock)
-    CPOOL_LOCK(cpool, admin);
+  admin = Curl_get_admin(దత్తాంశం);
+  do_తాళం = !CPOOL_IS_LOCKED(cpool);
+  ఒకవేళ(do_తాళం)
+    CPOOL_తాళం(cpool, admin);
 
-  if(conn->cpid != UINT32_MAX) {
+  ఒకవేళ(conn->cpid != UINT32_MAX) {
     cpool_remove_conn(cpool, conn);
     DEBUGASSERT(conn->cpid == UINT32_MAX);
   }
 
   /* treat the connection as aborted in CONNECT_ONLY situations,
    * so no graceful shutdown is attempted. */
-  if(conn->bits.connect_only)
+  ఒకవేళ(conn->బిట్లు.connect_only)
     aborted = TRUE;
 
-  if(data->multi) {
+  ఒకవేళ(దత్తాంశం->multi) {
     /* Add it to the multi's cpool for shutdown handling */
-    infof(data, "%s connection #%" FMT_OFF_T,
+    infof(దత్తాంశం, "%s connection #%" FMT_OFF_T,
           aborted ? "closing" : "shutting down", conn->connection_id);
-    cpool_discard_conn(&data->multi->cpool, data, conn, aborted);
+    cpool_discard_conn(&దత్తాంశం->multi->cpool, దత్తాంశం, conn, aborted);
   }
-  else {
+  లేకపోతే {
     /* No multi available, terminate */
-    infof(data, "closing connection #%" FMT_OFF_T, conn->connection_id);
+    infof(దత్తాంశం, "closing connection #%" FMT_OFF_T, conn->connection_id);
     Curl_cshutdn_terminate(admin, conn, !aborted);
   }
 
-  if(do_lock)
+  ఒకవేళ(do_తాళం)
     CPOOL_UNLOCK(cpool, admin);
 }
 
-void Curl_conn_close(struct Curl_easy *data,
-                     struct connectdata *conn,
+శూన్య Curl_conn_close(నిర్మాణం Curl_easy *దత్తాంశం,
+                     నిర్మాణం connectdata *conn,
                      bool aborted)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  cpool_conn_close(cpool, data, conn, aborted);
+  నిర్మాణం cpool *cpool = cpool_get_instance(దత్తాంశం);
+  cpool_conn_close(cpool, దత్తాంశం, conn, aborted);
 }
 
 /* Evict an idle connection to make room in the pool. A pool owned by
  * a share has no multi that could perform a controlled shutdown of the
  * connection; terminate it right away. Otherwise, hand it to the
  * transfer's multi for shutdown. Expects the pool to be locked. */
-static void cpool_evict_conn(struct cpool *cpool,
-                             struct Curl_easy *admin,
-                             struct connectdata *conn)
+స్థిర శూన్య cpool_evict_conn(నిర్మాణం cpool *cpool,
+                             నిర్మాణం Curl_easy *admin,
+                             నిర్మాణం connectdata *conn)
 {
-  if(cpool->share) {
+  ఒకవేళ(cpool->share) {
     cpool_remove_conn(cpool, conn);
     Curl_cshutdn_terminate(admin, conn, TRUE);
   }
-  else
+  లేకపోతే
     cpool_conn_close(cpool, admin, conn, FALSE);
 }
 
-#define CPOOL_LIMIT_OK     0
-#define CPOOL_LIMIT_DEST   1
-#define CPOOL_LIMIT_TOTAL  2
+#నిర్వచించు CPOOL_హద్దు_OK     0
+#నిర్వచించు CPOOL_హద్దు_DEST   1
+#నిర్వచించు CPOOL_హద్దు_మొత్తం  2
 
-static int cpool_check_limits(struct Curl_easy *data,
-                              uint32_t max_total,
-                              struct connectdata *to_add,
+స్థిర పూర్ణాంకం cpool_check_limits(నిర్మాణం Curl_easy *దత్తాంశం,
+                              uint32_t max_మొత్తం,
+                              నిర్మాణం connectdata *గమ్యం_కూడు,
                               uint32_t max_host,
-                              struct cpool_bundle *bundle,
-                              const struct curltime *pnow)
+                              నిర్మాణం cpool_bundle *bundle,
+                              స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  struct cshutdn *cshutdn = data->multi ? &data->multi->cshutdn : NULL;
-  struct Curl_easy *admin = NULL;
+  నిర్మాణం cpool *cpool = cpool_get_instance(దత్తాంశం);
+  నిర్మాణం cshutdn *cshutdn = దత్తాంశం->multi ? &దత్తాంశం->multi->cshutdn : ఖాళీ;
+  నిర్మాణం Curl_easy *admin = ఖాళీ;
 
-  if(!cpool)
-    return CPOOL_LIMIT_OK;
+  ఒకవేళ(!cpool)
+    తిరిగి CPOOL_హద్దు_OK;
 
-  if(!max_total && !max_host)
-    return CPOOL_LIMIT_OK;
+  ఒకవేళ(!max_మొత్తం && !max_host)
+    తిరిగి CPOOL_హద్దు_OK;
 
-  if(max_host) {
-    size_t live = 0, shutdowns = 0;
+  ఒకవేళ(max_host) {
+    size_t సజీవ = 0, shutdowns = 0;
     /* if we are at or above `dest_limit`, try to get rid of connections
      * in shutdown and, if that does not lower it, evict idle connections
      * from the pool. */
-    admin = Curl_get_admin(data);
-    if(bundle) {
-      live = Curl_uint32_spbset_count(&bundle->ids);
-      if(live >= max_host) {
-        size_t over = live - max_host + 1;
-        for(; over; --over) {
-          struct connectdata *oldest_idle =
+    admin = Curl_get_admin(దత్తాంశం);
+    ఒకవేళ(bundle) {
+      సజీవ = Curl_uint32_spbset_లెక్క(&bundle->ids);
+      ఒకవేళ(సజీవ >= max_host) {
+        size_t over = సజీవ - max_host + 1;
+        కొరకు(; over; --over) {
+          నిర్మాణం connectdata *oldest_idle =
             cpool_bundle_get_oldest_idle(cpool, bundle, pnow);
-          if(!oldest_idle)
-            break;
+          ఒకవేళ(!oldest_idle)
+            ఆపు;
           /* disconnect the old conn and continue */
           CURL_TRC_M(admin, "Shutting down connection #%" FMT_OFF_T
                      " to '%s' due to destination limit of %u",
@@ -515,154 +515,154 @@ static int cpool_check_limits(struct Curl_easy *data,
                      max_host);
           cpool_evict_conn(cpool, admin, oldest_idle);
         }
-        live = Curl_uint32_spbset_count(&bundle->ids);
+        సజీవ = Curl_uint32_spbset_లెక్క(&bundle->ids);
       }
     }
-    if(cshutdn) {
-      shutdowns = Curl_cshutdn_dest_count(cshutdn, to_add->destination);
-      if(shutdowns && ((live + shutdowns) >= max_host)) {
-        size_t over = live + shutdowns - max_host + 1;
+    ఒకవేళ(cshutdn) {
+      shutdowns = Curl_cshutdn_dest_లెక్క(cshutdn, గమ్యం_కూడు->destination);
+      ఒకవేళ(shutdowns && ((సజీవ + shutdowns) >= max_host)) {
+        size_t over = సజీవ + shutdowns - max_host + 1;
         shutdowns -= Curl_cshutdn_close_oldest(cshutdn, admin,
-                                               to_add->destination, over);
+                                               గమ్యం_కూడు->destination, over);
       }
     }
     /* We may not have gotten rid of as many connections as we wanted to */
-    if((live + shutdowns) >= max_host)
-      return CPOOL_LIMIT_DEST;
+    ఒకవేళ((సజీవ + shutdowns) >= max_host)
+      తిరిగి CPOOL_హద్దు_DEST;
   }
 
   /* Internal transfers are outside the total limit */
-  if(max_total && !data->state.internal) {
+  ఒకవేళ(max_మొత్తం && !దత్తాంశం->state.అంతర్గత) {
     size_t shutdowns = 0;
-    uint32_t num_conns = Curl_uint32_tbl_count(&cpool->conns);
+    uint32_t అంకె_conns = Curl_uint32_tbl_లెక్క(&cpool->conns);
 
-    if(!admin)
-      admin = Curl_get_admin(data);
-    if(num_conns >= max_total) {
-      size_t over = num_conns - max_total + 1;
-      for(; over; --over) {
-        struct connectdata *oldest_idle =
+    ఒకవేళ(!admin)
+      admin = Curl_get_admin(దత్తాంశం);
+    ఒకవేళ(అంకె_conns >= max_మొత్తం) {
+      size_t over = అంకె_conns - max_మొత్తం + 1;
+      కొరకు(; over; --over) {
+        నిర్మాణం connectdata *oldest_idle =
           cpool_get_oldest_idle(cpool, pnow, 0);
-        if(!oldest_idle)
-          break;
+        ఒకవేళ(!oldest_idle)
+          ఆపు;
         /* disconnect the old conn and continue */
         CURL_TRC_M(admin, "Shutting down idle connection #%"
                    FMT_OFF_T " to '%s' due to total limit of %u",
                    oldest_idle->connection_id, oldest_idle->destination,
-                   max_total);
+                   max_మొత్తం);
         cpool_evict_conn(cpool, admin, oldest_idle);
       }
     }
 
-    num_conns = Curl_uint32_tbl_count(&cpool->conns);
-    if(cshutdn) {
-      shutdowns = Curl_cshutdn_count(cshutdn);
-      if(shutdowns && (num_conns + shutdowns) >= max_total) {
-        size_t over = num_conns + shutdowns - max_total + 1;
-        shutdowns -= Curl_cshutdn_close_oldest(cshutdn, admin, NULL, over);
+    అంకె_conns = Curl_uint32_tbl_లెక్క(&cpool->conns);
+    ఒకవేళ(cshutdn) {
+      shutdowns = Curl_cshutdn_లెక్క(cshutdn);
+      ఒకవేళ(shutdowns && (అంకె_conns + shutdowns) >= max_మొత్తం) {
+        size_t over = అంకె_conns + shutdowns - max_మొత్తం + 1;
+        shutdowns -= Curl_cshutdn_close_oldest(cshutdn, admin, ఖాళీ, over);
       }
     }
-    if((num_conns + shutdowns) >= max_total)
-      return CPOOL_LIMIT_TOTAL;
+    ఒకవేళ((అంకె_conns + shutdowns) >= max_మొత్తం)
+      తిరిగి CPOOL_హద్దు_మొత్తం;
   }
 
-  return CPOOL_LIMIT_OK;
+  తిరిగి CPOOL_హద్దు_OK;
 }
 
-CURLcode Curl_cpool_add(struct Curl_easy *data,
-                        struct connectdata *conn,
-                        uint32_t max_total,
+CURLcode Curl_cpool_కూడు(నిర్మాణం Curl_easy *దత్తాంశం,
+                        నిర్మాణం connectdata *conn,
+                        uint32_t max_మొత్తం,
                         uint32_t max_host,
-                        const struct curltime *pnow)
+                        స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  CURLcode result = CURLE_OK;
-  struct cpool_bundle *bundle = NULL;
-  struct cpool *cpool = cpool_get_instance(data);
-  uint32_t capacity, cpid;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం cpool_bundle *bundle = ఖాళీ;
+  నిర్మాణం cpool *cpool = cpool_get_instance(దత్తాంశం);
+  uint32_t సామర్థ్యం, cpid;
   DEBUGASSERT(conn);
 
   DEBUGASSERT(cpool);
-  if(!cpool)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!cpool)
+    తిరిగి CURLE_FAILED_INIT;
 
   DEBUGASSERT(conn->cpid == UINT32_MAX);
   conn->created = *pnow;
-  conn->shutdown.start_ms[FIRSTSOCKET] =
-    conn->shutdown.start_ms[SECONDARYSOCKET] = -1;
+  conn->shutdown.ప్రారంభం_ms[FIRSTSOCKET] =
+    conn->shutdown.ప్రారంభం_ms[SECONDARYSOCKET] = -1;
 
-  CPOOL_LOCK(cpool, data);
+  CPOOL_తాళం(cpool, దత్తాంశం);
   /* Find the bundle, should it exist, and check the limits */
   bundle = cpool_get_bundle(cpool, conn->destination);
 
-  switch(cpool_check_limits(data, max_total, conn, max_host, bundle, pnow)) {
-  case CPOOL_LIMIT_DEST:
-    infof(data, "No more connections allowed to host");
-    result = CURLE_NO_CONNECTION_AVAILABLE;
-    goto out;
-  case CPOOL_LIMIT_TOTAL:
-    infof(data, "No connections available, total of %u reached.",
-          data->multi->max_total_connections);
-    result = CURLE_NO_CONNECTION_AVAILABLE;
-    goto out;
-  default:
-    break;
+  ఎంపిక(cpool_check_limits(దత్తాంశం, max_మొత్తం, conn, max_host, bundle, pnow)) {
+  స్థితి CPOOL_హద్దు_DEST:
+    infof(దత్తాంశం, "No more connections allowed to host");
+    ఫలితం = CURLE_NO_CONNECTION_అందుబాటు;
+    వెళ్ళు బహిర్గతం;
+  స్థితి CPOOL_హద్దు_మొత్తం:
+    infof(దత్తాంశం, "No connections available, total of %u reached.",
+          దత్తాంశం->multi->max_మొత్తం_connections);
+    ఫలితం = CURLE_NO_CONNECTION_అందుబాటు;
+    వెళ్ళు బహిర్గతం;
+  అప్రమేయ:
+    ఆపు;
   }
 
   /* We add the connection */
-  capacity = Curl_uint32_tbl_capacity(&cpool->conns);
-  if(capacity == UINT32_MAX) {
-    infof(data, "No connections available, pool at max capacity");
-    result = CURLE_NO_CONNECTION_AVAILABLE;
-    goto out;
+  సామర్థ్యం = Curl_uint32_tbl_సామర్థ్యం(&cpool->conns);
+  ఒకవేళ(సామర్థ్యం == UINT32_MAX) {
+    infof(దత్తాంశం, "No connections available, pool at max capacity");
+    ఫలితం = CURLE_NO_CONNECTION_అందుబాటు;
+    వెళ్ళు బహిర్గతం;
   }
-  if(Curl_uint32_tbl_count(&cpool->conns) >= capacity) {
+  ఒకవేళ(Curl_uint32_tbl_లెక్క(&cpool->conns) >= సామర్థ్యం) {
     uint32_t growth, ncapacity;
 
-    growth = CURLMAX(capacity, 16);
-    if((UINT32_MAX - growth) >= capacity)
-      ncapacity = capacity + growth;
-    else
+    growth = CURLMAX(సామర్థ్యం, 16);
+    ఒకవేళ((UINT32_MAX - growth) >= సామర్థ్యం)
+      ncapacity = సామర్థ్యం + growth;
+    లేకపోతే
       ncapacity = UINT32_MAX;
     /* Grow bitset first, so table resize failure does not leave a too
      * short bitset should that one fail. */
-    if(Curl_uint32_bset_resize(&cpool->idles, ncapacity) ||
+    ఒకవేళ(Curl_uint32_bset_resize(&cpool->idles, ncapacity) ||
        Curl_uint32_tbl_resize(&cpool->conns, ncapacity)) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  if(!bundle) {
+  ఒకవేళ(!bundle) {
     bundle = cpool_create_bundle();
-    if(!bundle) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    ఒకవేళ(!bundle) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  if(!Curl_uint32_tbl_add(&cpool->conns, conn, &cpid)) {
+  ఒకవేళ(!Curl_uint32_tbl_కూడు(&cpool->conns, conn, &cpid)) {
     DEBUGASSERT(0);
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
   conn->cpid = cpid;
 
-  if(!cpool_bundle_add_id(cpool, bundle, conn->destination, cpid)) {
+  ఒకవేళ(!cpool_bundle_కూడు_id(cpool, bundle, conn->destination, cpid)) {
     Curl_uint32_tbl_remove(&cpool->conns, cpid);
     conn->cpid = UINT32_MAX;
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  conn->connection_id = cpool->next_connection_id++;
-  CURL_TRC_M(data, "[CPOOL] added connection %" FMT_OFF_T ". "
+  conn->connection_id = cpool->తదుపరి_connection_id++;
+  CURL_TRC_M(దత్తాంశం, "[CPOOL] added connection %" FMT_OFF_T ". "
              "The cache now contains %u members",
-             conn->connection_id, Curl_uint32_tbl_count(&cpool->conns));
-out:
+             conn->connection_id, Curl_uint32_tbl_లెక్క(&cpool->conns));
+బహిర్గతం:
   cpool_bundle_unlink(&bundle);
-  CPOOL_UNLOCK(cpool, data);
+  CPOOL_UNLOCK(cpool, దత్తాంశం);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* This function iterates the entire connection pool and calls the function
@@ -677,27 +677,27 @@ out:
 
    Return 0 from func() to continue the loop, return 1 to abort it.
  */
-static bool cpool_foreach(struct Curl_easy *data,
-                          struct cpool *cpool,
-                          void *param,
-                          int (*func)(struct cpool *cpool,
-                                      struct Curl_easy *data,
-                                      struct connectdata *conn, void *param))
+స్థిర bool cpool_foreach(నిర్మాణం Curl_easy *దత్తాంశం,
+                          నిర్మాణం cpool *cpool,
+                          శూన్య *param,
+                          పూర్ణాంకం (*func)(నిర్మాణం cpool *cpool,
+                                      నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం connectdata *conn, శూన్య *param))
 {
-  void *entry;
+  శూన్య *నమోదు_2;
   uint32_t cpid;
 
-  if(!cpool)
-    return FALSE;
+  ఒకవేళ(!cpool)
+    తిరిగి FALSE;
 
-  if(Curl_uint32_tbl_first(&cpool->conns, &cpid, &entry)) {
-    do {
-      struct connectdata *conn = entry;
-      if(conn && func(cpool, data, conn, param) == 1)
-        return TRUE;
-    } while(Curl_uint32_tbl_next(&cpool->conns, cpid, &cpid, &entry));
+  ఒకవేళ(Curl_uint32_tbl_మొదటి(&cpool->conns, &cpid, &నమోదు_2)) {
+    చేయి {
+      నిర్మాణం connectdata *conn = నమోదు_2;
+      ఒకవేళ(conn && func(cpool, దత్తాంశం, conn, param) == 1)
+        తిరిగి TRUE;
+    } అయితే(Curl_uint32_tbl_తదుపరి(&cpool->conns, cpid, &cpid, &నమోదు_2));
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
 /*
@@ -706,165 +706,165 @@ static bool cpool_foreach(struct Curl_easy *data,
  *
  * Return TRUE if idle connection kept in pool, FALSE if closed.
  */
-static bool cpool_conn_now_idle(struct cpool *cpool,
-                                struct Curl_easy *data,
-                                struct connectdata *conn,
-                                const struct curltime *pnow)
+స్థిర bool cpool_conn_now_idle(నిర్మాణం cpool *cpool,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం connectdata *conn,
+                                స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  struct connectdata *oldest_idle = NULL;
-  struct Curl_easy *admin;
+  నిర్మాణం connectdata *oldest_idle = ఖాళీ;
+  నిర్మాణం Curl_easy *admin;
   uint32_t maxconnects;
   bool kept = TRUE;
   timediff_t min_age_ms = 0;
 
-  if(!data || !data->multi)
-    return kept;
+  ఒకవేళ(!దత్తాంశం || !దత్తాంశం->multi)
+    తిరిగి kept;
 
-  Curl_uint32_bset_add(&cpool->idles, conn->cpid);
+  Curl_uint32_bset_కూడు(&cpool->idles, conn->cpid);
 
-  if(!data->multi->maxconnects) {
+  ఒకవేళ(!దత్తాంశం->multi->maxconnects) {
     /* Attached transfers is a weak indicator of business. */
-    uint32_t attached = Curl_multi_xfers_attached(data->multi);
+    uint32_t attached = Curl_multi_xfers_attached(దత్తాంశం->multi);
     maxconnects = (attached <= UINT32_MAX / 2) ? attached * 2 : UINT32_MAX;
     /* We are guessing. So, only evict a "seemingly superfluous" connection
      * when has not been used for this long, */
     min_age_ms = 1000;
   }
-  else {
-    maxconnects = data->multi->maxconnects;
+  లేకపోతే {
+    maxconnects = దత్తాంశం->multi->maxconnects;
   }
 
-  if(cpool && maxconnects && (maxconnects < UINT32_MAX)) {
-    uint32_t num_conns = Curl_uint32_tbl_count(&cpool->conns);
-    admin = Curl_get_admin(data);
-    if(num_conns > maxconnects) {
-      infof(data, "Connection pool is full, closing the oldest of %u/%u",
-            num_conns, maxconnects);
+  ఒకవేళ(cpool && maxconnects && (maxconnects < UINT32_MAX)) {
+    uint32_t అంకె_conns = Curl_uint32_tbl_లెక్క(&cpool->conns);
+    admin = Curl_get_admin(దత్తాంశం);
+    ఒకవేళ(అంకె_conns > maxconnects) {
+      infof(దత్తాంశం, "Connection pool is full, closing the oldest of %u/%u",
+            అంకె_conns, maxconnects);
       oldest_idle = cpool_get_oldest_idle(cpool, pnow, min_age_ms);
       kept = (oldest_idle != conn);
-      if(oldest_idle) {
+      ఒకవేళ(oldest_idle) {
         cpool_evict_conn(cpool, admin, oldest_idle);
       }
     }
   }
 
-  return kept;
+  తిరిగి kept;
 }
 
-static void cpool_prune_dead(struct cpool *cpool,
-                             struct Curl_easy *data,
-                             const struct curltime *pnow);
+స్థిర శూన్య cpool_prune_dead(నిర్మాణం cpool *cpool,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             స్థిరరాశి నిర్మాణం curltime *pnow);
 
-static bool cpool_find_act(struct cpool *cpool,
-                           struct Curl_easy *data,
-                           struct connectdata *conn,
-                           cpool_match_result match)
+స్థిర bool cpool_కనుగొను_act(నిర్మాణం cpool *cpool,
+                           నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం connectdata *conn,
+                           cpool_సరిపోలిక_ఫలితం సరిపోలిక)
 {
-  switch(match) {
-  case CPOOL_MATCH_FOUND:
-    return TRUE;
-  case CPOOL_MATCH_TOO_OLD:
-    if(!cpool_conn_can_be_closed(conn))
-      return FALSE;
+  ఎంపిక(సరిపోలిక) {
+  స్థితి CPOOL_సరిపోలిక_దొరికింది:
+    తిరిగి TRUE;
+  స్థితి CPOOL_సరిపోలిక_TOO_OLD:
+    ఒకవేళ(!cpool_conn_can_be_closed(conn))
+      తిరిగి FALSE;
     FALLTHROUGH();
-  case CPOOL_MATCH_CLOSE:
-    cpool_conn_close(cpool, data, conn, FALSE);
-    break;
-  default:
-    break;
+  స్థితి CPOOL_సరిపోలిక_CLOSE:
+    cpool_conn_close(cpool, దత్తాంశం, conn, FALSE);
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-bool Curl_cpool_find(struct Curl_easy *data,
-                     const char *destination,
+bool Curl_cpool_కనుగొను(నిర్మాణం Curl_easy *దత్తాంశం,
+                     స్థిరరాశి అక్షరం *destination,
                      bool prune_dead,
-                     const struct curltime *pnow,
-                     Curl_cpool_conn_match_cb *conn_cb,
-                     Curl_cpool_done_match_cb *done_cb,
-                     void *userdata)
+                     స్థిరరాశి నిర్మాణం curltime *pnow,
+                     Curl_cpool_conn_సరిపోలిక_cb *conn_cb,
+                     Curl_cpool_పూర్తి_సరిపోలిక_cb *పూర్తి_cb,
+                     శూన్య *userdata)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  struct cpool_bundle *bundle = NULL;
-  bool found = FALSE;
+  నిర్మాణం cpool *cpool = cpool_get_instance(దత్తాంశం);
+  నిర్మాణం cpool_bundle *bundle = ఖాళీ;
+  bool దొరికింది = FALSE;
 
   DEBUGASSERT(cpool);
   DEBUGASSERT(conn_cb);
-  if(!cpool)
-    return FALSE;
+  ఒకవేళ(!cpool)
+    తిరిగి FALSE;
 
-  CPOOL_LOCK(cpool, data);
+  CPOOL_తాళం(cpool, దత్తాంశం);
 
-  if(prune_dead)
-    cpool_prune_dead(cpool, data, pnow);
+  ఒకవేళ(prune_dead)
+    cpool_prune_dead(cpool, దత్తాంశం, pnow);
 
-  if(data->state.last_cpid != UINT32_MAX) {
-    struct connectdata *conn =
-      Curl_uint32_tbl_get(&cpool->conns, data->state.last_cpid);
-    if(conn && (data->state.last_conn_id == conn->connection_id)) {
+  ఒకవేళ(దత్తాంశం->state.చివరి_cpid != UINT32_MAX) {
+    నిర్మాణం connectdata *conn =
+      Curl_uint32_tbl_get(&cpool->conns, దత్తాంశం->state.చివరి_cpid);
+    ఒకవేళ(conn && (దత్తాంశం->state.చివరి_conn_id == conn->connection_id)) {
       /* Indeed the last connection used by `data` still exists.
        * Check that first, so that connection use gets "sticky". */
-      found = cpool_find_act(cpool, data, conn, conn_cb(conn, userdata));
-      if(found)
-        goto out;
+      దొరికింది = cpool_కనుగొను_act(cpool, దత్తాంశం, conn, conn_cb(conn, userdata));
+      ఒకవేళ(దొరికింది)
+        వెళ్ళు బహిర్గతం;
     }
-    else {
+    లేకపోతే {
       /* No longer found here. */
-      data->state.last_conn_id = -1;
-      data->state.last_cpid = UINT32_MAX;
+      దత్తాంశం->state.చివరి_conn_id = -1;
+      దత్తాంశం->state.చివరి_cpid = UINT32_MAX;
     }
   }
 
   bundle = cpool_get_bundle(cpool, destination);
-  if(bundle) {
+  ఒకవేళ(bundle) {
     uint32_t cpid;
-    if(Curl_uint32_spbset_first(&bundle->ids, &cpid)) {
-      do {
-        struct connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
-        if(conn) {
-          if(data->state.last_conn_id != conn->connection_id) {
-            found = cpool_find_act(cpool, data, conn, conn_cb(conn, userdata));
-            if(found)
-              goto out;
+    ఒకవేళ(Curl_uint32_spbset_మొదటి(&bundle->ids, &cpid)) {
+      చేయి {
+        నిర్మాణం connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
+        ఒకవేళ(conn) {
+          ఒకవేళ(దత్తాంశం->state.చివరి_conn_id != conn->connection_id) {
+            దొరికింది = cpool_కనుగొను_act(cpool, దత్తాంశం, conn, conn_cb(conn, userdata));
+            ఒకవేళ(దొరికింది)
+              వెళ్ళు బహిర్గతం;
           }
         }
-        else {
+        లేకపోతే {
           DEBUGASSERT(0);
           Curl_uint32_spbset_remove(&bundle->ids, cpid);
         }
-      } while(Curl_uint32_spbset_next(&bundle->ids, cpid, &cpid));
+      } అయితే(Curl_uint32_spbset_తదుపరి(&bundle->ids, cpid, &cpid));
     }
   }
 
-out:
-  if(done_cb) {
-    found = done_cb(userdata);
+బహిర్గతం:
+  ఒకవేళ(పూర్తి_cb) {
+    దొరికింది = పూర్తి_cb(userdata);
   }
   cpool_bundle_unlink(&bundle);
-  CPOOL_UNLOCK(cpool, data);
-  return found;
+  CPOOL_UNLOCK(cpool, దత్తాంశం);
+  తిరిగి దొరికింది;
 }
 
-struct cpool_reaper_ctx {
+నిర్మాణం cpool_reaper_ctx {
   size_t reaped;
-  const struct curltime *pnow;
+  స్థిరరాశి నిర్మాణం curltime *pnow;
 };
 
-static int cpool_reap_dead_cb(struct cpool *cpool,
-                              struct Curl_easy *admin,
-                              struct connectdata *conn, void *param)
+స్థిర పూర్ణాంకం cpool_reap_dead_cb(నిర్మాణం cpool *cpool,
+                              నిర్మాణం Curl_easy *admin,
+                              నిర్మాణం connectdata *conn, శూన్య *param)
 {
-  struct cpool_reaper_ctx *reaper = param;
+  నిర్మాణం cpool_reaper_ctx *reaper = param;
 
-  if(cpool_conn_can_be_closed(conn)) {
-    if(conn->bits.no_reuse || conn->bits.close ||
+  ఒకవేళ(cpool_conn_can_be_closed(conn)) {
+    ఒకవేళ(conn->బిట్లు.no_reuse || conn->బిట్లు.close ||
        !Curl_cpool_conn_seems_healthy(conn, admin, reaper->pnow)) {
       /* terminate conn and stop the iteration */
       reaper->reaped++;
       cpool_conn_close(cpool, admin, conn, FALSE);
     }
   }
-  return 0; /* continue iteration */
+  తిరిగి 0; /* continue iteration */
 }
 
 /*
@@ -872,135 +872,135 @@ static int cpool_reap_dead_cb(struct cpool *cpool,
  * connections, closes and removes them.
  * The cleanup is done at most once per second.
  */
-static void cpool_prune_dead(struct cpool *cpool,
-                             struct Curl_easy *data,
-                             const struct curltime *pnow)
+స్థిర శూన్య cpool_prune_dead(నిర్మాణం cpool *cpool,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
+                             స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  timediff_t elapsed_ms = curlx_ptimediff_ms(pnow, &cpool->last_cleanup);
+  timediff_t elapsed_ms = curlx_ptimediff_ms(pnow, &cpool->చివరి_cleanup);
 
-  if(elapsed_ms >= 1000L) {
-    struct Curl_easy *admin = Curl_get_admin(data);
-    struct cpool_reaper_ctx reaper;
+  ఒకవేళ(elapsed_ms >= 1000L) {
+    నిర్మాణం Curl_easy *admin = Curl_get_admin(దత్తాంశం);
+    నిర్మాణం cpool_reaper_ctx reaper;
 
-    memset(&reaper, 0, sizeof(reaper));
+    memset(&reaper, 0, పరిమాణం(reaper));
     reaper.pnow = pnow;
     cpool_foreach(admin, cpool, &reaper, cpool_reap_dead_cb);
-    cpool->last_cleanup = *pnow;
+    cpool->చివరి_cleanup = *pnow;
   }
 }
 
-static int conn_upkeep(struct cpool *cpool,
-                       struct Curl_easy *admin,
-                       struct connectdata *conn,
-                       void *param)
+స్థిర పూర్ణాంకం conn_upkeep(నిర్మాణం cpool *cpool,
+                       నిర్మాణం Curl_easy *admin,
+                       నిర్మాణం connectdata *conn,
+                       శూన్య *param)
 {
-  const struct curltime *pnow = Curl_pgrs_now(admin);
+  స్థిరరాశి నిర్మాణం curltime *pnow = Curl_pgrs_now(admin);
 
-  (void)param;
-  if((curlx_ptimediff_ms(pnow, &conn->created) - conn->lastupkeep_ms) >=
-     admin->set.upkeep_interval_ms) {
-    CURLcode result;
+  (శూన్య)param;
+  ఒకవేళ((curlx_ptimediff_ms(pnow, &conn->created) - conn->lastupkeep_ms) >=
+     admin->సమితి.upkeep_interval_ms) {
+    CURLcode ఫలితం;
 
     conn->lastupkeep_ms = curlx_ptimediff_ms(pnow, &conn->created);
     /* briefly attach for action */
     Curl_attach_connection(admin, conn, FALSE);
-    result = Curl_conn_keep_alive(admin, conn);
+    ఫలితం = Curl_conn_keep_alive(admin, conn);
     Curl_detach_connection(admin);
 
-    if(result && cpool_conn_can_be_closed(conn)) {
+    ఒకవేళ(ఫలితం && cpool_conn_can_be_closed(conn)) {
       cpool_conn_close(cpool, admin, conn, FALSE);
     }
   }
-  return 0; /* continue iteration */
+  తిరిగి 0; /* continue iteration */
 }
 
-CURLcode Curl_cpool_upkeep(struct Curl_easy *data)
+CURLcode Curl_cpool_upkeep(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  struct Curl_easy *admin = Curl_get_admin(data);
+  నిర్మాణం cpool *cpool = cpool_get_instance(దత్తాంశం);
+  నిర్మాణం Curl_easy *admin = Curl_get_admin(దత్తాంశం);
 
-  if(!cpool)
-    return CURLE_OK;
+  ఒకవేళ(!cpool)
+    తిరిగి CURLE_OK;
 
-  CPOOL_LOCK(cpool, admin);
-  cpool_foreach(admin, cpool, NULL, conn_upkeep);
+  CPOOL_తాళం(cpool, admin);
+  cpool_foreach(admin, cpool, ఖాళీ, conn_upkeep);
   CPOOL_UNLOCK(cpool, admin);
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-struct connectdata *Curl_cpool_get_last_conn(struct Curl_easy *data)
+నిర్మాణం connectdata *Curl_cpool_get_చివరి_conn(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  if(cpool && (data->state.last_cpid != UINT32_MAX)) {
-    struct connectdata *conn;
+  నిర్మాణం cpool *cpool = cpool_get_instance(దత్తాంశం);
+  ఒకవేళ(cpool && (దత్తాంశం->state.చివరి_cpid != UINT32_MAX)) {
+    నిర్మాణం connectdata *conn;
 
-    CPOOL_LOCK(cpool, data);
-    conn = Curl_uint32_tbl_get(&cpool->conns, data->state.last_cpid);
-    CPOOL_UNLOCK(cpool, data);
-    if(conn && (data->state.last_conn_id == conn->connection_id))
-      return conn;
-    data->state.last_cpid = UINT32_MAX;
-    data->state.last_conn_id = -1;
+    CPOOL_తాళం(cpool, దత్తాంశం);
+    conn = Curl_uint32_tbl_get(&cpool->conns, దత్తాంశం->state.చివరి_cpid);
+    CPOOL_UNLOCK(cpool, దత్తాంశం);
+    ఒకవేళ(conn && (దత్తాంశం->state.చివరి_conn_id == conn->connection_id))
+      తిరిగి conn;
+    దత్తాంశం->state.చివరి_cpid = UINT32_MAX;
+    దత్తాంశం->state.చివరి_conn_id = -1;
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-void Curl_cpool_return(struct Curl_easy *data,
-                       struct connectdata *conn,
-                       Curl_cpool_return_cb *cb, void *cbdata,
-                       const struct curltime *pnow)
+శూన్య Curl_cpool_return(నిర్మాణం Curl_easy *దత్తాంశం,
+                       నిర్మాణం connectdata *conn,
+                       Curl_cpool_return_cb *cb, శూన్య *cbdata,
+                       స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  struct cpool *cpool = cpool_get_instance(data);
+  నిర్మాణం cpool *cpool = cpool_get_instance(దత్తాంశం);
 
-  CPOOL_LOCK(cpool, data);
+  CPOOL_తాళం(cpool, దత్తాంశం);
 
   /* remember times, connection had been used just before */
   conn->lastchecked_ms = conn->lastupkeep_ms = conn->lastused_ms =
     curlx_ptimediff_ms(pnow, &conn->created);
 
-  switch(cb(data, conn, cbdata, pnow)) {
-  case CPOOL_DO_KEEP:
-    break;
-  case CPOOL_DO_IDLE:
+  ఎంపిక(cb(దత్తాంశం, conn, cbdata, pnow)) {
+  స్థితి CPOOL_DO_KEEP:
+    ఆపు;
+  స్థితి CPOOL_DO_IDLE:
     /* the connection is no longer in use by any transfer */
-    if(cpool_conn_now_idle(cpool, data, conn, pnow)) {
+    ఒకవేళ(cpool_conn_now_idle(cpool, దత్తాంశం, conn, pnow)) {
       /* connection kept in the cpool */
-      infof(data, "Connection #%" FMT_OFF_T " to host %s:%u left intact",
+      infof(దత్తాంశం, "Connection #%" FMT_OFF_T " to host %s:%u left intact",
             conn->connection_id, conn->origin->user_hostname,
-            conn->origin->port);
+            conn->origin->పోర్టు);
     }
-    else { /* connection was removed from the cpool and destroyed. */
-      data->state.last_conn_id = -1;
-      data->state.last_cpid = UINT32_MAX;
+    లేకపోతే { /* connection was removed from the cpool and destroyed. */
+      దత్తాంశం->state.చివరి_conn_id = -1;
+      దత్తాంశం->state.చివరి_cpid = UINT32_MAX;
     }
-    break;
-  case CPOOL_DO_CLOSE:
-    Curl_conn_close(data, conn, FALSE);
-    break;
-  case CPOOL_DO_TERMINATE:
-    Curl_conn_close(data, conn, TRUE);
-    break;
+    ఆపు;
+  స్థితి CPOOL_DO_CLOSE:
+    Curl_conn_close(దత్తాంశం, conn, FALSE);
+    ఆపు;
+  స్థితి CPOOL_DO_TERMINATE:
+    Curl_conn_close(దత్తాంశం, conn, TRUE);
+    ఆపు;
   }
 
-  CPOOL_UNLOCK(cpool, data);
+  CPOOL_UNLOCK(cpool, దత్తాంశం);
 }
 
-static int cpool_reap_no_reuse(struct cpool *cpool,
-                               struct Curl_easy *admin,
-                               struct connectdata *conn, void *param)
+స్థిర పూర్ణాంకం cpool_reap_no_reuse(నిర్మాణం cpool *cpool,
+                               నిర్మాణం Curl_easy *admin,
+                               నిర్మాణం connectdata *conn, శూన్య *param)
 {
-  (void)param;
-  conn->bits.no_reuse = TRUE;
-  if(cpool_conn_can_be_closed(conn))
+  (శూన్య)param;
+  conn->బిట్లు.no_reuse = TRUE;
+  ఒకవేళ(cpool_conn_can_be_closed(conn))
     cpool_conn_close(cpool, admin, conn, FALSE);
-  return 0; /* continue iteration */
+  తిరిగి 0; /* continue iteration */
 }
 
-void Curl_cpool_nw_changed(struct cpool *cpool, struct Curl_easy *admin)
+శూన్య Curl_cpool_nw_మారింది(నిర్మాణం cpool *cpool, నిర్మాణం Curl_easy *admin)
 {
-  if(cpool && admin) {
-    CPOOL_LOCK(cpool, admin);
-    cpool_foreach(admin, cpool, NULL, cpool_reap_no_reuse);
+  ఒకవేళ(cpool && admin) {
+    CPOOL_తాళం(cpool, admin);
+    cpool_foreach(admin, cpool, ఖాళీ, cpool_reap_no_reuse);
     CPOOL_UNLOCK(cpool, admin);
   }
 }
@@ -1008,96 +1008,96 @@ void Curl_cpool_nw_changed(struct cpool *cpool, struct Curl_easy *admin)
 /* A connection has to have been idle for less than 'conn_max_idle_ms'
    (the success rate is too low after this), or created less than
    'conn_max_age_ms' ago, to be subject for reuse. */
-static bool cpool_conn_too_old(struct Curl_easy *data,
-                               struct connectdata *conn,
-                               const struct curltime *pnow)
+స్థిర bool cpool_conn_too_old(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం connectdata *conn,
+                               స్థిరరాశి నిర్మాణం curltime *pnow)
 {
   timediff_t age_ms;
 
-  if(data->set.conn_max_idle_ms) {
+  ఒకవేళ(దత్తాంశం->సమితి.conn_max_idle_ms) {
     age_ms = curlx_ptimediff_ms(pnow, &conn->created) - conn->lastused_ms;
-    if(age_ms > data->set.conn_max_idle_ms) {
-      infof(data, "Too old connection (%" FMT_TIMEDIFF_T
+    ఒకవేళ(age_ms > దత్తాంశం->సమితి.conn_max_idle_ms) {
+      infof(దత్తాంశం, "Too old connection (%" FMT_TIMEDIFF_T
             " ms idle, max idle is %" FMT_TIMEDIFF_T " ms), disconnect it",
-            age_ms, data->set.conn_max_idle_ms);
-      return TRUE;
+            age_ms, దత్తాంశం->సమితి.conn_max_idle_ms);
+      తిరిగి TRUE;
     }
   }
 
-  if(data->set.conn_max_age_ms) {
+  ఒకవేళ(దత్తాంశం->సమితి.conn_max_age_ms) {
     age_ms = curlx_ptimediff_ms(pnow, &conn->created);
-    if(age_ms > data->set.conn_max_age_ms) {
-      infof(data,
+    ఒకవేళ(age_ms > దత్తాంశం->సమితి.conn_max_age_ms) {
+      infof(దత్తాంశం,
             "Too old connection (created %" FMT_TIMEDIFF_T
             " ms ago, max lifetime is %" FMT_TIMEDIFF_T " ms), disconnect it",
-            age_ms, data->set.conn_max_age_ms);
-      return TRUE;
+            age_ms, దత్తాంశం->సమితి.conn_max_age_ms);
+      తిరిగి TRUE;
     }
   }
 
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-bool Curl_cpool_conn_seems_healthy(struct connectdata *conn,
-                                   struct Curl_easy *data,
-                                   const struct curltime *pnow)
+bool Curl_cpool_conn_seems_healthy(నిర్మాణం connectdata *conn,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  struct Curl_easy *admin;
+  నిర్మాణం Curl_easy *admin;
   bool healthy = TRUE;
-  bool poll_input;
+  bool poll_ఆదానం;
 
-  DEBUGASSERT(!data->conn);
-  if(cpool_conn_can_be_closed(conn) && cpool_conn_too_old(data, conn, pnow))
-    return FALSE;
+  DEBUGASSERT(!దత్తాంశం->conn);
+  ఒకవేళ(cpool_conn_can_be_closed(conn) && cpool_conn_too_old(దత్తాంశం, conn, pnow))
+    తిరిగి FALSE;
 
   /* An idle, non-multiplexed connection must not be reused when it has
    * input pending (RFC 9112, section 9.2), so that is polled on every
    * reuse. The once a second limit only applies to the other checks. */
-  poll_input = cpool_conn_can_be_closed(conn) &&
+  poll_ఆదానం = cpool_conn_can_be_closed(conn) &&
     !Curl_conn_is_multiplex(conn, FIRSTSOCKET) &&
-    !conn->scheme->run->connection_is_dead;
-  if(!poll_input &&
+    !conn->scheme->నిరంతరం->connection_is_dead;
+  ఒకవేళ(!poll_ఆదానం &&
      (curlx_ptimediff_ms(pnow, &conn->created) - conn->lastchecked_ms) < 1000)
-    return TRUE;
+    తిరిగి TRUE;
 
-  admin = Curl_get_admin(data);
-  if(conn->scheme->run->connection_is_dead) {
+  admin = Curl_get_admin(దత్తాంశం);
+  ఒకవేళ(conn->scheme->నిరంతరం->connection_is_dead) {
     Curl_attach_connection(admin, conn, FALSE);
-    healthy = !conn->scheme->run->connection_is_dead(admin, conn);
+    healthy = !conn->scheme->నిరంతరం->connection_is_dead(admin, conn);
     Curl_detach_connection(admin);
   }
-  else {
-    bool input_pending = FALSE;
+  లేకపోతే {
+    bool ఆదానం_pending = FALSE;
 
     Curl_attach_connection(admin, conn, FALSE);
-    healthy = Curl_conn_is_alive(admin, conn, &input_pending);
+    healthy = Curl_conn_is_alive(admin, conn, &ఆదానం_pending);
     Curl_detach_connection(admin);
-    if(healthy && input_pending && poll_input) {
+    ఒకవేళ(healthy && ఆదానం_pending && poll_ఆదానం) {
       /* Non-multiplexed connections without attached transfers should
        * not have input pending. The input might be a TLS Notify Close,
        * for all we know. */
-      DEBUGF(infof(data, "connection has no transfer but input, not healthy"));
+      DEBUGF(infof(దత్తాంశం, "connection has no transfer but input, not healthy"));
       healthy = FALSE;
     }
   }
 
-  if(healthy)
+  ఒకవేళ(healthy)
     conn->lastchecked_ms = curlx_ptimediff_ms(pnow, &conn->created);
-  return healthy;
+  తిరిగి healthy;
 }
 
-void Curl_cpool_conn_was_used(struct Curl_easy *data,
-                              struct connectdata *conn,
-                              const struct curltime *pnow)
+శూన్య Curl_cpool_conn_was_వాడిన(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం connectdata *conn,
+                              స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  (void)data;
+  (శూన్య)దత్తాంశం;
   conn->lastupkeep_ms = curlx_ptimediff_ms(pnow, &conn->created);
 }
 
-timediff_t Curl_cpool_conn_age_ms(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  const struct curltime *pnow)
+timediff_t Curl_cpool_conn_age_ms(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం connectdata *conn,
+                                  స్థిరరాశి నిర్మాణం curltime *pnow)
 {
-  (void)data;
-  return curlx_ptimediff_ms(pnow, &conn->created);
+  (శూన్య)దత్తాంశం;
+  తిరిగి curlx_ptimediff_ms(pnow, &conn->created);
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SELECT_H
-#define HEADER_CURL_SELECT_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_SELECT_H
+#నిర్వచించు శీర్షిక_CURL_SELECT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,210 +23,210 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_POLL_H
-#include <poll.h>
-#elif defined(HAVE_SYS_POLL_H)
-#include <sys/poll.h>
-#endif
+#నిర్వచితమైతే HAVE_POLL_H
+#అన్తర్భావ <poll.h>
+#లేదావేళ defined(HAVE_SYS_POLL_H)
+#అన్తర్భావ <sys/poll.h>
+#అయితే_ముగింపు
 
 /*
  * Definition of pollfd struct and constants for platforms lacking them.
  */
 
-#if !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H) && !defined(POLLIN)
+#ఒకవేళ !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H) && !defined(POLLIN)
 
-#define POLLIN      0x01
-#define POLLPRI     0x02
-#define POLLOUT     0x04
-#define POLLERR     0x08
-#define POLLHUP     0x10
-#define POLLNVAL    0x20
+#నిర్వచించు POLLIN      0x01
+#నిర్వచించు POLLPRI     0x02
+#నిర్వచించు POLLOUT     0x04
+#నిర్వచించు POLLERR     0x08
+#నిర్వచించు POLLHUP     0x10
+#నిర్వచించు POLLNVAL    0x20
 
-struct pollfd {
+నిర్మాణం pollfd {
   curl_socket_t fd;
-  short events;
-  short revents;
+  పొట్టి events;
+  పొట్టి revents;
 };
 
-#endif
+#అయితే_ముగింపు
 
-#ifndef POLLRDNORM
-#define POLLRDNORM POLLIN
-#endif
+#నిర్వచితం_కాకపోతే POLLRDNORM
+#నిర్వచించు POLLRDNORM POLLIN
+#అయితే_ముగింపు
 
-#ifndef POLLWRNORM
-#define POLLWRNORM POLLOUT
-#endif
+#నిర్వచితం_కాకపోతే POLLWRNORM
+#నిర్వచించు POLLWRNORM POLLOUT
+#అయితే_ముగింపు
 
-#ifndef POLLRDBAND
-#define POLLRDBAND POLLPRI
-#endif
+#నిర్వచితం_కాకపోతే POLLRDBAND
+#నిర్వచించు POLLRDBAND POLLPRI
+#అయితే_ముగింపు
 
 /* there are three CSELECT defines that are defined in the public header that
    are exposed to users, but this *IN2 bit is only ever used internally and
    therefore defined here */
-#define CURL_CSELECT_IN2 (CURL_CSELECT_ERR << 1)
+#నిర్వచించు CURL_CSELECT_IN2 (CURL_CSELECT_ERR << 1)
 
-int Curl_socket_check(curl_socket_t readfd0,
+పూర్ణాంకం Curl_socket_check(curl_socket_t readfd0,
                       curl_socket_t readfd1,
                       curl_socket_t writefd,
                       timediff_t timeout_ms);
-#define SOCKET_READABLE(x, z)                               \
+#నిర్వచించు SOCKET_READABLE(x, z)                               \
   Curl_socket_check(x, CURL_SOCKET_BAD, CURL_SOCKET_BAD, z)
-#define SOCKET_WRITABLE(x, z)                               \
+#నిర్వచించు SOCKET_WRITABLE(x, z)                               \
   Curl_socket_check(CURL_SOCKET_BAD, CURL_SOCKET_BAD, x, z)
 
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms);
+పూర్ణాంకం Curl_poll(నిర్మాణం pollfd ufds[], గుర్తులేని పూర్ణాంకం nfds, timediff_t timeout_ms);
 
 /* With Winsock the valid range is [0..INVALID_SOCKET-1] according to
    https://learn.microsoft.com/windows/win32/winsock/socket-data-type-2 */
-#ifdef USE_WINSOCK
-#define VALID_SOCK(s) ((s) < INVALID_SOCKET)
-#define FDSET_SOCK(x) 1
-#define VERIFY_SOCK(x)           \
-  do {                           \
-    if(!VALID_SOCK(x)) {         \
-      SET_SOCKERRNO(SOCKEINVAL); \
-      return -1;                 \
+#నిర్వచితమైతే USE_WINSOCK
+#నిర్వచించు VALID_SOCK(s) ((s) < INVALID_SOCKET)
+#నిర్వచించు FDSET_SOCK(x) 1
+#నిర్వచించు VERIFY_SOCK(x)           \
+  చేయి {                           \
+    ఒకవేళ(!VALID_SOCK(x)) {         \
+      సమితి_SOCKERRNO(SOCKEINVAL); \
+      తిరిగి -1;                 \
     }                            \
-  } while(0)
-#else
-#define VALID_SOCK(s) ((s) >= 0)
+  } అయితే(0)
+#లేకపోతే
+#నిర్వచించు VALID_SOCK(s) ((s) >= 0)
 
 /* If the socket is small enough to get set or read from an fdset */
-#define FDSET_SOCK(s) ((s) < FD_SETSIZE)
+#నిర్వచించు FDSET_SOCK(s) ((s) < FD_SETSIZE)
 
-#define VERIFY_SOCK(x)                     \
-  do {                                     \
-    if(!VALID_SOCK(x) || !FDSET_SOCK(x)) { \
-      SET_SOCKERRNO(SOCKEINVAL);           \
-      return -1;                           \
+#నిర్వచించు VERIFY_SOCK(x)                     \
+  చేయి {                                     \
+    ఒకవేళ(!VALID_SOCK(x) || !FDSET_SOCK(x)) { \
+      సమితి_SOCKERRNO(SOCKEINVAL);           \
+      తిరిగి -1;                           \
     }                                      \
-  } while(0)
-#endif
+  } అయితే(0)
+#అయితే_ముగింపు
 
 /* Keep the sockets to poll for an easy handle.
  * `actions` are bitmaps of CURL_POLL_IN and CURL_POLL_OUT.
  * Starts with small capacity, grows on demand.
  */
-#define EZ_POLLSET_DEF_COUNT 2
+#నిర్వచించు EZ_POLLSET_DEF_లెక్క 2
 
-struct easy_pollset {
+నిర్మాణం easy_pollset {
   curl_socket_t *sockets;
-  unsigned char *actions;
-  unsigned int n;
-  unsigned int count;
-#ifdef DEBUGBUILD
-  int init;
-#endif
-  curl_socket_t def_sockets[EZ_POLLSET_DEF_COUNT];
-  unsigned char def_actions[EZ_POLLSET_DEF_COUNT];
+  గుర్తులేని అక్షరం *actions;
+  గుర్తులేని పూర్ణాంకం n;
+  గుర్తులేని పూర్ణాంకం లెక్క;
+#నిర్వచితమైతే DEBUGBUILD
+  పూర్ణాంకం init;
+#అయితే_ముగింపు
+  curl_socket_t def_sockets[EZ_POLLSET_DEF_లెక్క];
+  గుర్తులేని అక్షరం def_actions[EZ_POLLSET_DEF_లెక్క];
 };
 
-#ifdef DEBUGBUILD
-#define CURL_EASY_POLLSET_MAGIC  0x7a657370
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+#నిర్వచించు CURL_EASY_POLLSET_MAGIC  0x7a657370
+#అయితే_ముగింపు
 
 /* allocate and initialize */
-struct easy_pollset *Curl_pollset_create(void);
+నిర్మాణం easy_pollset *Curl_pollset_create(శూన్య);
 
 /* Initialize before first use */
-void Curl_pollset_init(struct easy_pollset *ps);
+శూన్య Curl_pollset_init(నిర్మాణం easy_pollset *ps);
 /* Free any allocated resources */
-void Curl_pollset_cleanup(struct easy_pollset *ps);
+శూన్య Curl_pollset_cleanup(నిర్మాణం easy_pollset *ps);
 /* Reset to an empty pollset */
-void Curl_pollset_reset(struct easy_pollset *ps);
+శూన్య Curl_pollset_reset(నిర్మాణం easy_pollset *ps);
 /* Move pollset from to pollset to, replacing all in to,
  * leaving from empty. */
-void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from);
+శూన్య Curl_pollset_move(నిర్మాణం easy_pollset *గమ్యం, నిర్మాణం easy_pollset *from);
 
 /* Change the poll flags (CURL_POLL_IN/CURL_POLL_OUT) to the poll set for
  * socket `sock`. If the socket is not already part of the poll set, it
  * will be added.
  * If the socket is present and all poll flags are cleared, it will be removed.
  */
-CURLcode Curl_pollset_change(struct Curl_easy *data,
-                             struct easy_pollset *ps, curl_socket_t sock,
-                             int add_flags,
-                             int remove_flags) WARN_UNUSED_RESULT;
+CURLcode Curl_pollset_change(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం easy_pollset *ps, curl_socket_t sock,
+                             పూర్ణాంకం కూడు_flags,
+                             పూర్ణాంకం remove_flags) WARN_వాడని_ఫలితం;
 
-CURLcode Curl_pollset_set(struct Curl_easy *data,
-                          struct easy_pollset *ps, curl_socket_t sock,
-                          bool do_in, bool do_out) WARN_UNUSED_RESULT;
+CURLcode Curl_pollset_సమితి(నిర్మాణం Curl_easy *దత్తాంశం,
+                          నిర్మాణం easy_pollset *ps, curl_socket_t sock,
+                          bool do_లోపల, bool do_బహిర్గతం) WARN_వాడని_ఫలితం;
 
-#define Curl_pollset_add_in(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_IN, 0)
-#define Curl_pollset_remove_in(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, 0, CURL_POLL_IN)
-#define Curl_pollset_add_out(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_OUT, 0)
-#define Curl_pollset_remove_out(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, 0, CURL_POLL_OUT)
-#define Curl_pollset_add_inout(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_IN | CURL_POLL_OUT, 0)
-#define Curl_pollset_set_in_only(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_IN, CURL_POLL_OUT)
-#define Curl_pollset_set_out_only(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_OUT, CURL_POLL_IN)
+#నిర్వచించు Curl_pollset_కూడు_లోపల(దత్తాంశం, ps, sock) \
+  Curl_pollset_change(దత్తాంశం, ps, sock, CURL_POLL_లోపల, 0)
+#నిర్వచించు Curl_pollset_remove_లోపల(దత్తాంశం, ps, sock) \
+  Curl_pollset_change(దత్తాంశం, ps, sock, 0, CURL_POLL_లోపల)
+#నిర్వచించు Curl_pollset_కూడు_బహిర్గతం(దత్తాంశం, ps, sock) \
+  Curl_pollset_change(దత్తాంశం, ps, sock, CURL_POLL_బహిర్గతం, 0)
+#నిర్వచించు Curl_pollset_remove_బహిర్గతం(దత్తాంశం, ps, sock) \
+  Curl_pollset_change(దత్తాంశం, ps, sock, 0, CURL_POLL_బహిర్గతం)
+#నిర్వచించు Curl_pollset_కూడు_inout(దత్తాంశం, ps, sock) \
+  Curl_pollset_change(దత్తాంశం, ps, sock, CURL_POLL_లోపల | CURL_POLL_బహిర్గతం, 0)
+#నిర్వచించు Curl_pollset_సమితి_లోపల_only(దత్తాంశం, ps, sock) \
+  Curl_pollset_change(దత్తాంశం, ps, sock, CURL_POLL_లోపల, CURL_POLL_బహిర్గతం)
+#నిర్వచించు Curl_pollset_సమితి_బహిర్గతం_only(దత్తాంశం, ps, sock) \
+  Curl_pollset_change(దత్తాంశం, ps, sock, CURL_POLL_బహిర్గతం, CURL_POLL_లోపల)
 
-void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock);
+శూన్య Curl_pollset_remove(నిర్మాణం easy_pollset *ps, curl_socket_t sock);
 
 /* return < = on error, 0 on timeout or how many sockets are ready */
-int Curl_pollset_poll(struct Curl_easy *data,
-                      struct easy_pollset *ps,
+పూర్ణాంకం Curl_pollset_poll(నిర్మాణం Curl_easy *దత్తాంశం,
+                      నిర్మాణం easy_pollset *ps,
                       timediff_t timeout_ms);
 
 /**
  * Check if the pollset, as is, wants to read and/or write regarding
  * the given socket.
  */
-void Curl_pollset_check(struct Curl_easy *data,
-                        struct easy_pollset *ps, curl_socket_t sock,
+శూన్య Curl_pollset_check(నిర్మాణం Curl_easy *దత్తాంశం,
+                        నిర్మాణం easy_pollset *ps, curl_socket_t sock,
                         bool *pwant_read, bool *pwant_write);
 
 /* TRUE if the pollset contains socket with CURL_POLL_IN. */
-bool Curl_pollset_want_recv(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_recv(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం easy_pollset *ps,
                             curl_socket_t sock);
 /* TRUE if the pollset contains socket with CURL_POLL_OUT. */
-bool Curl_pollset_want_send(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_send(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం easy_pollset *ps,
                             curl_socket_t sock);
 
-struct curl_pollfds {
-  struct pollfd *pfds;
-  unsigned int n;
-  unsigned int count;
-  BIT(allocated_pfds);
+నిర్మాణం curl_pollfds {
+  నిర్మాణం pollfd *pfds;
+  గుర్తులేని పూర్ణాంకం n;
+  గుర్తులేని పూర్ణాంకం లెక్క;
+  బిట్టు(allocated_pfds);
 };
 
-void Curl_pollfds_init(struct curl_pollfds *cpfds,
-                       struct pollfd *static_pfds,
-                       unsigned int static_count);
+శూన్య Curl_pollfds_init(నిర్మాణం curl_pollfds *cpfds,
+                       నిర్మాణం pollfd *static_pfds,
+                       గుర్తులేని పూర్ణాంకం static_లెక్క);
 
-void Curl_pollfds_reset(struct curl_pollfds *cpfds);
+శూన్య Curl_pollfds_reset(నిర్మాణం curl_pollfds *cpfds);
 
-void Curl_pollfds_cleanup(struct curl_pollfds *cpfds);
+శూన్య Curl_pollfds_cleanup(నిర్మాణం curl_pollfds *cpfds);
 
-CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
-                             struct easy_pollset *ps);
+CURLcode Curl_pollfds_కూడు_ps(నిర్మాణం curl_pollfds *cpfds,
+                             నిర్మాణం easy_pollset *ps);
 
-CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
-                               curl_socket_t sock, short events);
+CURLcode Curl_pollfds_కూడు_sock(నిర్మాణం curl_pollfds *cpfds,
+                               curl_socket_t sock, పొట్టి events);
 
-struct Curl_waitfds {
-  struct curl_waitfd *wfds;
-  unsigned int n;
-  unsigned int count;
+నిర్మాణం Curl_waitfds {
+  నిర్మాణం curl_waitfd *wfds;
+  గుర్తులేని పూర్ణాంకం n;
+  గుర్తులేని పూర్ణాంకం లెక్క;
 };
 
-void Curl_waitfds_init(struct Curl_waitfds *cwfds,
-                       struct curl_waitfd *static_wfds,
-                       unsigned int static_count);
+శూన్య Curl_waitfds_init(నిర్మాణం Curl_waitfds *cwfds,
+                       నిర్మాణం curl_waitfd *static_wfds,
+                       గుర్తులేని పూర్ణాంకం static_లెక్క);
 
-unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
-                                 struct easy_pollset *ps);
+గుర్తులేని పూర్ణాంకం Curl_waitfds_కూడు_ps(నిర్మాణం Curl_waitfds *cwfds,
+                                 నిర్మాణం easy_pollset *ps);
 
-#endif /* HEADER_CURL_SELECT_H */
+#అయితే_ముగింపు /* HEADER_CURL_SELECT_H */

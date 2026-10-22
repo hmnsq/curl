@@ -21,129 +21,129 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "curl_threads.h"
-#include "curlx/timeval.h"
+#అన్తర్భావ "curl_setup.h"
+#అన్తర్భావ "curl_threads.h"
+#అన్తర్భావ "curlx/timeval.h"
 
-#ifdef USE_THREADS
+#నిర్వచితమైతే USE_దారాలు
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 
 curl_thread_t Curl_thread_create(
-  CURL_THREAD_RETURN_T(CURL_STDCALL *func)(void *), void *arg)
+  CURL_THREAD_RETURN_T(CURL_STDCALL *func)(శూన్య *), శూన్య *arg)
 {
-  curl_thread_t t = CreateThread(NULL, 0, func, arg, 0, NULL);
-  if(!t) {
-    DWORD gle = GetLastError();
+  curl_thread_t t = CreateThread(ఖాళీ, 0, func, arg, 0, ఖాళీ);
+  ఒకవేళ(!t) {
+    DWORD gle = Get_చివరి_Error();
     /* !checksrc! disable ERRNOVAR 1 */
     errno = (gle == ERROR_ACCESS_DENIED ||
-             gle == ERROR_NOT_ENOUGH_MEMORY) ?
+             gle == ERROR_NOT_ENOUGH_జ్ఞాపకం) ?
              EACCES : EINVAL;
-    return curl_thread_t_null;
+    తిరిగి curl_thread_t_null;
   }
-  return t;
+  తిరిగి t;
 }
 
-void Curl_thread_destroy(curl_thread_t *hnd)
+శూన్య Curl_thread_destroy(curl_thread_t *hnd)
 {
-  if(*hnd != curl_thread_t_null) {
+  ఒకవేళ(*hnd != curl_thread_t_null) {
     CloseHandle(*hnd);
     *hnd = curl_thread_t_null;
   }
 }
 
-int Curl_thread_join(curl_thread_t *hnd)
+పూర్ణాంకం Curl_thread_join(curl_thread_t *hnd)
 {
-  int ret = (WaitForSingleObjectEx(*hnd, INFINITE, FALSE) == WAIT_OBJECT_0);
+  పూర్ణాంకం ret = (WaitForSingleObjectEx(*hnd, INFINITE, FALSE) == WAIT_OBJECT_0);
 
   Curl_thread_destroy(hnd);
 
-  return ret;
+  తిరిగి ret;
 }
 
-#elif defined(HAVE_THREADS_POSIX)
+#లేదావేళ defined(HAVE_దారాలు_POSIX)
 
-struct Curl_actual_call {
-  unsigned int (*func)(void *);
-  void *arg;
+నిర్మాణం Curl_actual_call {
+  గుర్తులేని పూర్ణాంకం (*func)(శూన్య *);
+  శూన్య *arg;
 };
 
-static void *curl_thread_create_thunk(void *arg)
+స్థిర శూన్య *curl_thread_create_thunk(శూన్య *arg)
 {
-  struct Curl_actual_call *ac = arg;
-  unsigned int (*func)(void *) = ac->func;
-  void *real_arg = ac->arg;
+  నిర్మాణం Curl_actual_call *ac = arg;
+  గుర్తులేని పూర్ణాంకం (*func)(శూన్య *) = ac->func;
+  శూన్య *real_arg = ac->arg;
 
   curlx_free(ac);
 
   (*func)(real_arg);
 
-  return 0;
+  తిరిగి 0;
 }
 
 curl_thread_t Curl_thread_create(
-  CURL_THREAD_RETURN_T(CURL_STDCALL *func)(void *), void *arg)
+  CURL_THREAD_RETURN_T(CURL_STDCALL *func)(శూన్య *), శూన్య *arg)
 {
-  curl_thread_t t = curlx_malloc(sizeof(pthread_t));
-  struct Curl_actual_call *ac = NULL;
-  int rc;
+  curl_thread_t t = curlx_malloc(పరిమాణం(pthread_t));
+  నిర్మాణం Curl_actual_call *ac = ఖాళీ;
+  పూర్ణాంకం rc;
 
-  if(t)
-    ac = curlx_malloc(sizeof(struct Curl_actual_call));
-  if(!(ac && t))
-    goto err;
+  ఒకవేళ(t)
+    ac = curlx_malloc(పరిమాణం(నిర్మాణం Curl_actual_call));
+  ఒకవేళ(!(ac && t))
+    వెళ్ళు err;
 
   ac->func = func;
   ac->arg = arg;
 
-  rc = pthread_create(t, NULL, curl_thread_create_thunk, ac);
-  if(rc) {
+  rc = pthread_create(t, ఖాళీ, curl_thread_create_thunk, ac);
+  ఒకవేళ(rc) {
     errno = rc;
-    goto err;
+    వెళ్ళు err;
   }
 
-  return t;
+  తిరిగి t;
 
 err:
   curlx_free(t);
   curlx_free(ac);
-  return curl_thread_t_null;
+  తిరిగి curl_thread_t_null;
 }
 
-void Curl_thread_destroy(curl_thread_t *hnd)
+శూన్య Curl_thread_destroy(curl_thread_t *hnd)
 {
-  if(*hnd != curl_thread_t_null) {
+  ఒకవేళ(*hnd != curl_thread_t_null) {
     pthread_detach(**hnd);
     curlx_free(*hnd);
     *hnd = curl_thread_t_null;
   }
 }
 
-int Curl_thread_join(curl_thread_t *hnd)
+పూర్ణాంకం Curl_thread_join(curl_thread_t *hnd)
 {
-  int ret = (pthread_join(**hnd, NULL) == 0);
+  పూర్ణాంకం ret = (pthread_join(**hnd, ఖాళీ) == 0);
 
   curlx_free(*hnd);
   *hnd = curl_thread_t_null;
 
-  return ret;
+  తిరిగి ret;
 }
 
-#else
-#error neither HAVE_THREADS_POSIX nor _WIN32 defined
-#endif
-#endif /* USE_THREADS */
+#లేకపోతే
+#దోషం neither HAVE_దారాలు_POSIX nor _WIN32 defined
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* USE_THREADS */
 
-#ifdef USE_MUTEX
+#నిర్వచితమైతే USE_MUTEX
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 
-void Curl_cond_signal(CONDITION_VARIABLE *c)
+శూన్య Curl_cond_signal(CONDITION_VARIABLE *c)
 {
   WakeConditionVariable(c);
 }
 
-void Curl_cond_wait(CONDITION_VARIABLE *c, CRITICAL_SECTION *m)
+శూన్య Curl_cond_wait(CONDITION_VARIABLE *c, CRITICAL_SECTION *m)
 {
   SleepConditionVariableCS(c, m, INFINITE);
 }
@@ -151,85 +151,85 @@ void Curl_cond_wait(CONDITION_VARIABLE *c, CRITICAL_SECTION *m)
 CURLcode Curl_cond_timedwait(CONDITION_VARIABLE *c, CRITICAL_SECTION *m,
                              uint32_t timeout_ms)
 {
-  if(!SleepConditionVariableCS(c, m, (DWORD)timeout_ms)) {
-    DWORD err = GetLastError();
-    return (err == ERROR_TIMEOUT) ?
+  ఒకవేళ(!SleepConditionVariableCS(c, m, (DWORD)timeout_ms)) {
+    DWORD err = Get_చివరి_Error();
+    తిరిగి (err == ERROR_TIMEOUT) ?
            CURLE_OPERATION_TIMEDOUT : CURLE_UNRECOVERABLE_POLL;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-curl_thread_id_t Curl_thread_get_current_id(void)
+curl_thread_id_t Curl_thread_get_current_id(శూన్య)
 {
-  return GetCurrentThreadId();
+  తిరిగి GetCurrentThreadId();
 }
 
 bool Curl_thread_is_current(curl_thread_id_t tid)
 {
-  return tid == GetCurrentThreadId();
+  తిరిగి tid == GetCurrentThreadId();
 }
 
-#elif defined(HAVE_THREADS_POSIX)
+#లేదావేళ defined(HAVE_దారాలు_POSIX)
 
-void Curl_cond_signal(pthread_cond_t *c)
+శూన్య Curl_cond_signal(pthread_cond_t *c)
 {
   /* return code defined as always 0 */
-  (void)pthread_cond_signal(c);
+  (శూన్య)pthread_cond_signal(c);
 }
 
-void Curl_cond_wait(pthread_cond_t *c, pthread_mutex_t *m)
+శూన్య Curl_cond_wait(pthread_cond_t *c, pthread_mutex_t *m)
 {
   /* return code defined as always 0 */
-  (void)pthread_cond_wait(c, m);
+  (శూన్య)pthread_cond_wait(c, m);
 }
 
 CURLcode Curl_cond_timedwait(pthread_cond_t *c, pthread_mutex_t *m,
                              uint32_t timeout_ms)
 {
-  struct curltime now;
-  struct timespec ts;
+  నిర్మాణం curltime now;
+  నిర్మాణం timespec ts;
   timediff_t usec;
-  int rc;
+  పూర్ణాంకం rc;
 
   /* POSIX expects an "absolute" time until the condition wait ends.
    * We cannot use `curlx_now()` here that may run on some monotonic clock
    * that will be most likely in the past, as far as POSIX abstime is
    * concerned. */
-#ifdef HAVE_GETTIMEOFDAY
-  struct timeval tv;
-  (void)gettimeofday(&tv, NULL);
+#నిర్వచితమైతే HAVE_GETTIMEOFDAY
+  నిర్మాణం timeval tv;
+  (శూన్య)gettimeofday(&tv, ఖాళీ);
   now.tv_sec = tv.tv_sec;
-  now.tv_usec = (int)tv.tv_usec;
-#else
-  now.tv_sec = time(NULL);
+  now.tv_usec = (పూర్ణాంకం)tv.tv_usec;
+#లేకపోతే
+  now.tv_sec = సమయం(ఖాళీ);
   now.tv_usec = 0;
-#endif
+#అయితే_ముగింపు
 
   ts.tv_sec = now.tv_sec + (timeout_ms / 1000);
   usec = now.tv_usec + ((timeout_ms % 1000) * 1000);
-  if(usec >= 1000000) {
+  ఒకవేళ(usec >= 1000000) {
     ++ts.tv_sec;
     usec %= 1000000;
   }
-  ts.tv_nsec = (long)usec * 1000;
+  ts.tv_nsec = (దీర్ఘ)usec * 1000;
 
   rc = pthread_cond_timedwait(c, m, &ts);
-  if(rc == SOCKETIMEDOUT)
-    return CURLE_OPERATION_TIMEDOUT;
-  return rc ? CURLE_UNRECOVERABLE_POLL : CURLE_OK;
+  ఒకవేళ(rc == SOCKETIMEDOUT)
+    తిరిగి CURLE_OPERATION_TIMEDOUT;
+  తిరిగి rc ? CURLE_UNRECOVERABLE_POLL : CURLE_OK;
 }
 
-curl_thread_id_t Curl_thread_get_current_id(void)
+curl_thread_id_t Curl_thread_get_current_id(శూన్య)
 {
-  return pthread_self();
+  తిరిగి pthread_self();
 }
 
 bool Curl_thread_is_current(curl_thread_id_t tid)
 {
-  return !!pthread_equal(tid, pthread_self());
+  తిరిగి !!pthread_equal(tid, pthread_self());
 }
 
-#else
-#error neither HAVE_THREADS_POSIX nor _WIN32 defined
-#endif
-#endif /* USE_MUTEX */
+#లేకపోతే
+#దోషం neither HAVE_దారాలు_POSIX nor _WIN32 defined
+#అయితే_ముగింపు
+#అయితే_ముగింపు /* USE_MUTEX */

@@ -21,189 +21,189 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "multihandle.h"
-#include "multiif.h"
-#include "multi_ntfy.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "multihandle.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "multi_ntfy.h"
 
-#if CURLMNOTIFY_LAST > 31
-#error "notification types must fit below the curl_multi_ntfy high flag bit"
-#endif
+#ఒకవేళ CURLMNOTIFY_చివరి > 31
+#దోషం "notification types must fit below the curl_multi_ntfy high flag bit"
+#అయితే_ముగింపు
 
-#define CURL_MNTFY_TYPE_FLAG(type)  ((uint32_t)1 << (type))
+#నిర్వచించు CURL_MNTFY_TYPE_FLAG(type)  ((uint32_t)1 << (type))
 
-struct mntfy_entry {
+నిర్మాణం mntfy_నమోదు {
   uint32_t mid;
   uint32_t type;
 };
 
-#define CURL_MNTFY_CHUNK_SIZE 128
+#నిర్వచించు CURL_MNTFY_CHUNK_కొలత 128
 
-struct mntfy_chunk {
-  struct mntfy_chunk *next;
-  size_t r_offset;
-  size_t w_offset;
-  struct mntfy_entry entries[CURL_MNTFY_CHUNK_SIZE];
+నిర్మాణం mntfy_chunk {
+  నిర్మాణం mntfy_chunk *తదుపరి;
+  size_t r_స్థానభ్రంశం;
+  size_t w_స్థానభ్రంశం;
+  నిర్మాణం mntfy_నమోదు entries[CURL_MNTFY_CHUNK_కొలత];
 };
 
-static struct mntfy_chunk *mnfty_chunk_create(void)
+స్థిర నిర్మాణం mntfy_chunk *mnfty_chunk_create(శూన్య)
 {
-  return curlx_calloc(1, sizeof(struct mntfy_chunk));
+  తిరిగి curlx_calloc(1, పరిమాణం(నిర్మాణం mntfy_chunk));
 }
 
-static void mnfty_chunk_destroy(struct mntfy_chunk *chunk)
+స్థిర శూన్య mnfty_chunk_destroy(నిర్మాణం mntfy_chunk *chunk)
 {
   curlx_free(chunk);
 }
 
-static void mnfty_chunk_reset(struct mntfy_chunk *chunk)
+స్థిర శూన్య mnfty_chunk_reset(నిర్మాణం mntfy_chunk *chunk)
 {
-  chunk->r_offset = chunk->w_offset = 0;
+  chunk->r_స్థానభ్రంశం = chunk->w_స్థానభ్రంశం = 0;
 }
 
-static bool mntfy_chunk_append(struct mntfy_chunk *chunk,
-                               struct Curl_easy *data,
+స్థిర bool mntfy_chunk_append(నిర్మాణం mntfy_chunk *chunk,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
                                uint32_t type)
 {
-  struct mntfy_entry *e;
+  నిర్మాణం mntfy_నమోదు *e;
 
-  if(chunk->w_offset >= CURL_MNTFY_CHUNK_SIZE)
-    return FALSE;
-  e = &chunk->entries[chunk->w_offset++];
-  e->mid = data->mid;
+  ఒకవేళ(chunk->w_స్థానభ్రంశం >= CURL_MNTFY_CHUNK_కొలత)
+    తిరిగి FALSE;
+  e = &chunk->entries[chunk->w_స్థానభ్రంశం++];
+  e->mid = దత్తాంశం->mid;
   e->type = type;
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-static struct mntfy_chunk *mntfy_non_full_tail(struct curl_multi_ntfy *mntfy)
+స్థిర నిర్మాణం mntfy_chunk *mntfy_non_నిండిన_తోక(నిర్మాణం curl_multi_ntfy *mntfy)
 {
-  struct mntfy_chunk *chunk;
-  if(!mntfy->tail) {
+  నిర్మాణం mntfy_chunk *chunk;
+  ఒకవేళ(!mntfy->తోక) {
     chunk = mnfty_chunk_create();
-    if(!chunk)
-      return NULL;
-    DEBUGASSERT(!mntfy->head);
-    mntfy->head = mntfy->tail = chunk;
-    return chunk;
+    ఒకవేళ(!chunk)
+      తిరిగి ఖాళీ;
+    DEBUGASSERT(!mntfy->తల);
+    mntfy->తల = mntfy->తోక = chunk;
+    తిరిగి chunk;
   }
-  else if(mntfy->tail->w_offset < CURL_MNTFY_CHUNK_SIZE)
-    return mntfy->tail;
-  else { /* tail is full. */
+  లేకపోతే ఒకవేళ(mntfy->తోక->w_స్థానభ్రంశం < CURL_MNTFY_CHUNK_కొలత)
+    తిరిగి mntfy->తోక;
+  లేకపోతే { /* tail is full. */
     chunk = mnfty_chunk_create();
-    if(!chunk)
-      return NULL;
-    DEBUGASSERT(mntfy->head);
-    mntfy->tail->next = chunk;
-    mntfy->tail = chunk;
-    return chunk;
+    ఒకవేళ(!chunk)
+      తిరిగి ఖాళీ;
+    DEBUGASSERT(mntfy->తల);
+    mntfy->తోక->తదుపరి = chunk;
+    mntfy->తోక = chunk;
+    తిరిగి chunk;
   }
 }
 
-static void mntfy_chunk_dispatch_all(struct Curl_multi *multi,
-                                     struct mntfy_chunk *chunk)
+స్థిర శూన్య mntfy_chunk_dispatch_all(నిర్మాణం Curl_multi *multi,
+                                     నిర్మాణం mntfy_chunk *chunk)
 {
-  struct mntfy_entry *e;
-  struct Curl_easy *data;
+  నిర్మాణం mntfy_నమోదు *e;
+  నిర్మాణం Curl_easy *దత్తాంశం;
 
-  while(multi->ntfy.ntfy_cb &&
-        (chunk->r_offset < chunk->w_offset) && !multi->ntfy.failure) {
-    e = &chunk->entries[chunk->r_offset];
-    data = e->mid ? Curl_multi_get_easy(multi, e->mid) : multi->admin;
+  అయితే(multi->ntfy.ntfy_cb &&
+        (chunk->r_స్థానభ్రంశం < chunk->w_స్థానభ్రంశం) && !multi->ntfy.failure) {
+    e = &chunk->entries[chunk->r_స్థానభ్రంశం];
+    దత్తాంశం = e->mid ? Curl_multi_get_easy(multi, e->mid) : multi->admin;
     /* only when notification has not been disabled in the meantime */
-    if(data && (multi->ntfy.flags & CURL_MNTFY_TYPE_FLAG(e->type))) {
+    ఒకవేళ(దత్తాంశం && (multi->ntfy.flags & CURL_MNTFY_TYPE_FLAG(e->type))) {
       /* this may cause new notifications to be added! */
       CURL_TRC_M(multi->admin, "[NTFY] dispatch %u to xfer %u",
                  e->type, e->mid);
-      multi->ntfy.ntfy_cb(multi, e->type, data, multi->ntfy.ntfy_cb_data);
+      multi->ntfy.ntfy_cb(multi, e->type, దత్తాంశం, multi->ntfy.ntfy_cb_దత్తాంశం);
     }
     /* once dispatched, safe to increment */
-    chunk->r_offset++;
+    chunk->r_స్థానభ్రంశం++;
   }
   mnfty_chunk_reset(chunk);
 }
 
-void Curl_mntfy_init(struct Curl_multi *multi)
+శూన్య Curl_mntfy_init(నిర్మాణం Curl_multi *multi)
 {
-  memset(&multi->ntfy, 0, sizeof(multi->ntfy));
+  memset(&multi->ntfy, 0, పరిమాణం(multi->ntfy));
 }
 
-void Curl_mntfy_cleanup(struct Curl_multi *multi)
+శూన్య Curl_mntfy_cleanup(నిర్మాణం Curl_multi *multi)
 {
-  while(multi->ntfy.head) {
-    struct mntfy_chunk *chunk = multi->ntfy.head;
-    multi->ntfy.head = chunk->next;
+  అయితే(multi->ntfy.తల) {
+    నిర్మాణం mntfy_chunk *chunk = multi->ntfy.తల;
+    multi->ntfy.తల = chunk->తదుపరి;
     mnfty_chunk_destroy(chunk);
   }
-  multi->ntfy.tail = NULL;
+  multi->ntfy.తోక = ఖాళీ;
 }
 
-CURLMcode Curl_mntfy_enable(struct Curl_multi *multi, unsigned int type)
+CURLMcode Curl_mntfy_enable(నిర్మాణం Curl_multi *multi, గుర్తులేని పూర్ణాంకం type)
 {
-  if(type >= CURLMNOTIFY_LAST)
-    return CURLM_UNKNOWN_OPTION;
+  ఒకవేళ(type >= CURLMNOTIFY_చివరి)
+    తిరిగి CURLM_UNKNOWN_OPTION;
   multi->ntfy.flags |= CURL_MNTFY_TYPE_FLAG(type);
-  return CURLM_OK;
+  తిరిగి CURLM_OK;
 }
 
-CURLMcode Curl_mntfy_disable(struct Curl_multi *multi, unsigned int type)
+CURLMcode Curl_mntfy_disable(నిర్మాణం Curl_multi *multi, గుర్తులేని పూర్ణాంకం type)
 {
-  if(type >= CURLMNOTIFY_LAST)
-    return CURLM_UNKNOWN_OPTION;
+  ఒకవేళ(type >= CURLMNOTIFY_చివరి)
+    తిరిగి CURLM_UNKNOWN_OPTION;
   multi->ntfy.flags &= ~CURL_MNTFY_TYPE_FLAG(type);
-  return CURLM_OK;
+  తిరిగి CURLM_OK;
 }
 
-void Curl_mntfy_add(struct Curl_easy *data, unsigned int type)
+శూన్య Curl_mntfy_కూడు(నిర్మాణం Curl_easy *దత్తాంశం, గుర్తులేని పూర్ణాంకం type)
 {
-  struct Curl_multi *multi = data ? data->multi : NULL;
-  if(multi && multi->ntfy.ntfy_cb && !multi->ntfy.failure &&
-     type < CURLMNOTIFY_LAST &&
+  నిర్మాణం Curl_multi *multi = దత్తాంశం ? దత్తాంశం->multi : ఖాళీ;
+  ఒకవేళ(multi && multi->ntfy.ntfy_cb && !multi->ntfy.failure &&
+     type < CURLMNOTIFY_చివరి &&
      (multi->ntfy.flags & CURL_MNTFY_TYPE_FLAG(type))) {
     /* append to list of outstanding notifications */
-    struct mntfy_chunk *tail = mntfy_non_full_tail(&multi->ntfy);
-    CURL_TRC_M(data, "[NTFY] add %u for xfer %u", type, data->mid);
-    if(tail)
-      mntfy_chunk_append(tail, data, (uint32_t)type);
-    else
-      multi->ntfy.failure = CURLM_OUT_OF_MEMORY;
+    నిర్మాణం mntfy_chunk *తోక = mntfy_non_నిండిన_తోక(&multi->ntfy);
+    CURL_TRC_M(దత్తాంశం, "[NTFY] add %u for xfer %u", type, దత్తాంశం->mid);
+    ఒకవేళ(తోక)
+      mntfy_chunk_append(తోక, దత్తాంశం, (uint32_t)type);
+    లేకపోతే
+      multi->ntfy.failure = CURLM_బహిర్గతం_యొక్క_జ్ఞాపకం;
     multi->ntfy.flags |= CURL_MNTFY_FLAG_HAS_ENTRIES;
   }
 }
 
-CURLMcode Curl_mntfy_dispatch_all(struct Curl_multi *multi)
+CURLMcode Curl_mntfy_dispatch_all(నిర్మాణం Curl_multi *multi)
 {
-  struct Curl_mapi_guard guard;
+  నిర్మాణం Curl_mapi_guard guard;
 
-  if(!multi)
-    return CURLM_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!multi)
+    తిరిగి CURLM_BAD_FUNCTION_వాదం;
 
-  CURL_CBAPI_MULTI_START(&guard, multi, multi_ntfy_cb);
+  CURL_CBAPI_MULTI_ప్రారంభం(&guard, multi, multi_ntfy_cb);
 
-  while(multi->ntfy.head && !multi->ntfy.failure) {
-    struct mntfy_chunk *chunk = multi->ntfy.head;
+  అయితే(multi->ntfy.తల && !multi->ntfy.failure) {
+    నిర్మాణం mntfy_chunk *chunk = multi->ntfy.తల;
     /* this may cause new notifications to be added! */
     mntfy_chunk_dispatch_all(multi, chunk);
-    DEBUGASSERT(chunk->r_offset == chunk->w_offset);
+    DEBUGASSERT(chunk->r_స్థానభ్రంశం == chunk->w_స్థానభ్రంశం);
 
-    if(chunk == multi->ntfy.tail) /* last one, keep */
-      break;
-    DEBUGASSERT(chunk->next);
-    DEBUGASSERT(multi->ntfy.head != multi->ntfy.tail);
-    multi->ntfy.head = chunk->next;
+    ఒకవేళ(chunk == multi->ntfy.తోక) /* last one, keep */
+      ఆపు;
+    DEBUGASSERT(chunk->తదుపరి);
+    DEBUGASSERT(multi->ntfy.తల != multi->ntfy.తోక);
+    multi->ntfy.తల = chunk->తదుపరి;
     mnfty_chunk_destroy(chunk);
   }
 
-  CURL_CBAPI_MULTI_END(&guard);
+  CURL_CBAPI_MULTI_చివర(&guard);
 
-  if(multi->ntfy.failure) {
+  ఒకవేళ(multi->ntfy.failure) {
     CURLMcode mresult = multi->ntfy.failure;
     multi->ntfy.failure = CURLM_OK; /* reset, once delivered */
-    return mresult;
+    తిరిగి mresult;
   }
-  else
+  లేకపోతే
     multi->ntfy.flags &= ~CURL_MNTFY_FLAG_HAS_ENTRIES;
-  return CURLM_OK;
+  తిరిగి CURLM_OK;
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_BASE64_H
-#define HEADER_CURL_BASE64_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_BASE64_H
+#నిర్వచించు శీర్షిక_CURL_BASE64_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,17 +24,17 @@
  *
  ***************************************************************************/
 
-CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
-                             char **outptr, size_t *outlen);
-CURLcode curlx_base64url_encode(const uint8_t *inputbuff, size_t insize,
-                                char **outptr, size_t *outlen);
-CURLcode curlx_base64_decode(const char *src,
+CURLcode curlx_base64_encode(స్థిరరాశి uint8_t *inputbuff, size_t insize,
+                             అక్షరం **outptr, size_t *outlen);
+CURLcode curlx_base64url_encode(స్థిరరాశి uint8_t *inputbuff, size_t insize,
+                                అక్షరం **outptr, size_t *outlen);
+CURLcode curlx_base64_decode(స్థిరరాశి అక్షరం *src,
                              uint8_t **outptr, size_t *outlen);
 
-extern const char curlx_base64encdec[];
+బాహ్య స్థిరరాశి అక్షరం curlx_base64encdec[];
 
 /* maximum input length acceptable to base64 encode, here to catch and prevent
    mistakes */
-#define CURL_MAX_BASE64_INPUT 16000000
+#నిర్వచించు CURL_MAX_BASE64_ఆదానం 16000000
 
-#endif /* HEADER_CURL_BASE64_H */
+#అయితే_ముగింపు /* HEADER_CURL_BASE64_H */

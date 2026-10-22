@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HMAC_H
-#define HEADER_CURL_HMAC_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_HMAC_H
+#నిర్వచించు శీర్షిక_CURL_HMAC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,49 +24,49 @@
  *
  ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
+#ఒకవేళ (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
   !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   !defined(CURL_DISABLE_HTTPSIG) ||                                   \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
-#define HMAC_MD5_LENGTH 16
+#నిర్వచించు HMAC_MD5_నిడివి 16
 
-typedef CURLcode (*HMAC_hinit)(void *context);
-typedef void (*HMAC_hupdate)(void *context,
-                             const unsigned char *data,
-                             unsigned int len);
-typedef void (*HMAC_hfinal)(unsigned char *result, void *context);
+రకనిర్వచనం CURLcode (*HMAC_hinit)(శూన్య *context);
+రకనిర్వచనం శూన్య (*HMAC_hupdate)(శూన్య *context,
+                             స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం,
+                             గుర్తులేని పూర్ణాంకం len);
+రకనిర్వచనం శూన్య (*HMAC_hfinal)(గుర్తులేని అక్షరం *ఫలితం, శూన్య *context);
 
 /* Per-hash function HMAC parameters. */
-struct HMAC_params {
+నిర్మాణం HMAC_params {
   HMAC_hinit  hinit;       /* Initialize context procedure. */
   HMAC_hupdate hupdate;    /* Update context with data. */
   HMAC_hfinal hfinal;      /* Get final result procedure. */
-  unsigned int ctxtsize;   /* Context structure size. */
-  unsigned int maxkeylen;  /* Maximum key length (bytes). */
-  unsigned int resultlen;  /* Result length (bytes). */
+  గుర్తులేని పూర్ణాంకం ctxtsize;   /* Context structure size. */
+  గుర్తులేని పూర్ణాంకం maxkeylen;  /* Maximum key length (bytes). */
+  గుర్తులేని పూర్ణాంకం resultlen;  /* Result length (bytes). */
 };
 
 /* HMAC computation context. */
-struct HMAC_context {
-  const struct HMAC_params *hash; /* Hash function definition. */
-  void *hashctxt1;         /* Hash function context 1. */
-  void *hashctxt2;         /* Hash function context 2. */
+నిర్మాణం HMAC_context {
+  స్థిరరాశి నిర్మాణం HMAC_params *hash; /* Hash function definition. */
+  శూన్య *hashctxt1;         /* Hash function context 1. */
+  శూన్య *hashctxt2;         /* Hash function context 2. */
 };
 
 /* Prototypes. */
-struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
-                                    unsigned int keylen);
-void Curl_HMAC_update(struct HMAC_context *ctxt,
-                      const unsigned char *data,
-                      unsigned int len);
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output);
+నిర్మాణం HMAC_context *Curl_HMAC_init(స్థిరరాశి నిర్మాణం HMAC_params *hashparams,
+                                    స్థిరరాశి గుర్తులేని అక్షరం *కీలకం,
+                                    గుర్తులేని పూర్ణాంకం keylen);
+శూన్య Curl_HMAC_update(నిర్మాణం HMAC_context *ctxt,
+                      స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం,
+                      గుర్తులేని పూర్ణాంకం len);
+పూర్ణాంకం Curl_HMAC_final(నిర్మాణం HMAC_context *ctxt, గుర్తులేని అక్షరం *output);
 
-CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
-                     const unsigned char *data, size_t datalen,
-                     unsigned char *output);
-#endif
+CURLcode Curl_hmacit(స్థిరరాశి నిర్మాణం HMAC_params *hashparams,
+                     స్థిరరాశి గుర్తులేని అక్షరం *కీలకం, స్థిరరాశి size_t keylen,
+                     స్థిరరాశి గుర్తులేని అక్షరం *దత్తాంశం, size_t datalen,
+                     గుర్తులేని అక్షరం *output);
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_HMAC_H */
+#అయితే_ముగింపు /* HEADER_CURL_HMAC_H */

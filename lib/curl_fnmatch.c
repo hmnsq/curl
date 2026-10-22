@@ -21,134 +21,134 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_FTP
+#నిర్వచితం_కాకపోతే CURL_DISABLE_FTP
 
-#include "curl_fnmatch.h"
+#అన్తర్భావ "curl_fnmatch.h"
 
-#ifndef HAVE_FNMATCH
+#నిర్వచితం_కాకపోతే HAVE_FNMATCH
 
-#define CURLFNM_CHARSET_LEN (sizeof(char) * 256)
-#define CURLFNM_CHSET_SIZE (CURLFNM_CHARSET_LEN + 15)
+#నిర్వచించు CURLFNM_CHARSET_LEN (పరిమాణం(అక్షరం) * 256)
+#నిర్వచించు CURLFNM_CHSET_కొలత (CURLFNM_CHARSET_LEN + 15)
 
-#define CURLFNM_NEGATE  CURLFNM_CHARSET_LEN
+#నిర్వచించు CURLFNM_NEGATE  CURLFNM_CHARSET_LEN
 
-#define CURLFNM_ALNUM   (CURLFNM_CHARSET_LEN + 1)
-#define CURLFNM_DIGIT   (CURLFNM_CHARSET_LEN + 2)
-#define CURLFNM_XDIGIT  (CURLFNM_CHARSET_LEN + 3)
-#define CURLFNM_ALPHA   (CURLFNM_CHARSET_LEN + 4)
-#define CURLFNM_PRINT   (CURLFNM_CHARSET_LEN + 5)
-#define CURLFNM_BLANK   (CURLFNM_CHARSET_LEN + 6)
-#define CURLFNM_LOWER   (CURLFNM_CHARSET_LEN + 7)
-#define CURLFNM_GRAPH   (CURLFNM_CHARSET_LEN + 8)
-#define CURLFNM_SPACE   (CURLFNM_CHARSET_LEN + 9)
-#define CURLFNM_UPPER   (CURLFNM_CHARSET_LEN + 10)
+#నిర్వచించు CURLFNM_ALNUM   (CURLFNM_CHARSET_LEN + 1)
+#నిర్వచించు CURLFNM_DIGIT   (CURLFNM_CHARSET_LEN + 2)
+#నిర్వచించు CURLFNM_XDIGIT  (CURLFNM_CHARSET_LEN + 3)
+#నిర్వచించు CURLFNM_ALPHA   (CURLFNM_CHARSET_LEN + 4)
+#నిర్వచించు CURLFNM_PRINT   (CURLFNM_CHARSET_LEN + 5)
+#నిర్వచించు CURLFNM_BLANK   (CURLFNM_CHARSET_LEN + 6)
+#నిర్వచించు CURLFNM_క్రింది   (CURLFNM_CHARSET_LEN + 7)
+#నిర్వచించు CURLFNM_లేఖాచిత్రం   (CURLFNM_CHARSET_LEN + 8)
+#నిర్వచించు CURLFNM_SPACE   (CURLFNM_CHARSET_LEN + 9)
+#నిర్వచించు CURLFNM_పై   (CURLFNM_CHARSET_LEN + 10)
 
-typedef enum {
+రకనిర్వచనం గణన {
   CURLFNM_SCHS_DEFAULT = 0,
   CURLFNM_SCHS_RIGHTBR,
   CURLFNM_SCHS_RIGHTBRLEFTBR
 } setcharset_state;
 
-typedef enum {
+రకనిర్వచనం గణన {
   CURLFNM_PKW_INIT = 0,
   CURLFNM_PKW_DDOT
 } parsekey_state;
 
-typedef enum {
+రకనిర్వచనం గణన {
   CCLASS_OTHER = 0,
   CCLASS_DIGIT,
-  CCLASS_UPPER,
-  CCLASS_LOWER
+  CCLASS_పై,
+  CCLASS_క్రింది
 } char_class;
 
-#define SETCHARSET_OK     1
-#define SETCHARSET_FAIL   0
+#నిర్వచించు SETCHARSET_OK     1
+#నిర్వచించు SETCHARSET_FAIL   0
 
-static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
+స్థిర పూర్ణాంకం parsekeyword(స్థిరరాశి గుర్తులేని అక్షరం **నమూనా, గుర్తులేని అక్షరం *charset)
 {
   parsekey_state state = CURLFNM_PKW_INIT;
-  char keyword[10] = { 0 };
+  అక్షరం keyword[10] = { 0 };
   size_t i;
-  const unsigned char *p = *pattern;
-  bool found = FALSE;
-  for(i = 0; !found; i++) {
-    char c = (char)*p++;
-    if(i >= sizeof(keyword))
-      return SETCHARSET_FAIL;
-    switch(state) {
-    case CURLFNM_PKW_INIT:
-      if(ISLOWER(c))
+  స్థిరరాశి గుర్తులేని అక్షరం *p = *నమూనా;
+  bool దొరికింది = FALSE;
+  కొరకు(i = 0; !దొరికింది; i++) {
+    అక్షరం c = (అక్షరం)*p++;
+    ఒకవేళ(i >= పరిమాణం(keyword))
+      తిరిగి SETCHARSET_FAIL;
+    ఎంపిక(state) {
+    స్థితి CURLFNM_PKW_INIT:
+      ఒకవేళ(ISLOWER(c))
         keyword[i] = c;
-      else if(c == ':')
+      లేకపోతే ఒకవేళ(c == ':')
         state = CURLFNM_PKW_DDOT;
-      else
-        return SETCHARSET_FAIL;
-      break;
-    case CURLFNM_PKW_DDOT:
-      if(c == ']')
-        found = TRUE;
-      else
-        return SETCHARSET_FAIL;
+      లేకపోతే
+        తిరిగి SETCHARSET_FAIL;
+      ఆపు;
+    స్థితి CURLFNM_PKW_DDOT:
+      ఒకవేళ(c == ']')
+        దొరికింది = TRUE;
+      లేకపోతే
+        తిరిగి SETCHARSET_FAIL;
     }
   }
-#undef KEYLEN
+#నిర్వచనం_రద్దు KEYLEN
 
-  *pattern = p; /* move caller's pattern pointer */
-  if(!strcmp(keyword, "digit"))
+  *నమూనా = p; /* move caller's pattern pointer */
+  ఒకవేళ(!strcmp(keyword, "digit"))
     charset[CURLFNM_DIGIT] = 1;
-  else if(!strcmp(keyword, "alnum"))
+  లేకపోతే ఒకవేళ(!strcmp(keyword, "alnum"))
     charset[CURLFNM_ALNUM] = 1;
-  else if(!strcmp(keyword, "alpha"))
+  లేకపోతే ఒకవేళ(!strcmp(keyword, "alpha"))
     charset[CURLFNM_ALPHA] = 1;
-  else if(!strcmp(keyword, "xdigit"))
+  లేకపోతే ఒకవేళ(!strcmp(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
-  else if(!strcmp(keyword, "print"))
+  లేకపోతే ఒకవేళ(!strcmp(keyword, "print"))
     charset[CURLFNM_PRINT] = 1;
-  else if(!strcmp(keyword, "graph"))
-    charset[CURLFNM_GRAPH] = 1;
-  else if(!strcmp(keyword, "space"))
+  లేకపోతే ఒకవేళ(!strcmp(keyword, "graph"))
+    charset[CURLFNM_లేఖాచిత్రం] = 1;
+  లేకపోతే ఒకవేళ(!strcmp(keyword, "space"))
     charset[CURLFNM_SPACE] = 1;
-  else if(!strcmp(keyword, "blank"))
+  లేకపోతే ఒకవేళ(!strcmp(keyword, "blank"))
     charset[CURLFNM_BLANK] = 1;
-  else if(!strcmp(keyword, "upper"))
-    charset[CURLFNM_UPPER] = 1;
-  else if(!strcmp(keyword, "lower"))
-    charset[CURLFNM_LOWER] = 1;
-  else
-    return SETCHARSET_FAIL;
-  return SETCHARSET_OK;
+  లేకపోతే ఒకవేళ(!strcmp(keyword, "upper"))
+    charset[CURLFNM_పై] = 1;
+  లేకపోతే ఒకవేళ(!strcmp(keyword, "lower"))
+    charset[CURLFNM_క్రింది] = 1;
+  లేకపోతే
+    తిరిగి SETCHARSET_FAIL;
+  తిరిగి SETCHARSET_OK;
 }
 
 /* Return the character class. */
-static char_class charclass(unsigned char c)
+స్థిర char_class charclass(గుర్తులేని అక్షరం c)
 {
-  if(ISUPPER(c))
-    return CCLASS_UPPER;
-  if(ISLOWER(c))
-    return CCLASS_LOWER;
-  if(ISDIGIT(c))
-    return CCLASS_DIGIT;
-  return CCLASS_OTHER;
+  ఒకవేళ(ISUPPER(c))
+    తిరిగి CCLASS_పై;
+  ఒకవేళ(ISLOWER(c))
+    తిరిగి CCLASS_క్రింది;
+  ఒకవేళ(ISDIGIT(c))
+    తిరిగి CCLASS_DIGIT;
+  తిరిగి CCLASS_OTHER;
 }
 
 /* Include a character or a range in set. */
-static void setcharorrange(const unsigned char **pp, unsigned char *charset)
+స్థిర శూన్య setcharorrange(స్థిరరాశి గుర్తులేని అక్షరం **pp, గుర్తులేని అక్షరం *charset)
 {
-  const unsigned char *p = (*pp)++;
-  unsigned char c = *p++;
+  స్థిరరాశి గుర్తులేని అక్షరం *p = (*pp)++;
+  గుర్తులేని అక్షరం c = *p++;
 
   charset[c] = 1;
-  if(ISALNUM(c) && *p++ == '-') {
+  ఒకవేళ(ISALNUM(c) && *p++ == '-') {
     char_class cc = charclass(c);
-    unsigned char endrange = *p++;
+    గుర్తులేని అక్షరం endrange = *p++;
 
-    if(endrange == '\\')
+    ఒకవేళ(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
-      while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+    ఒకవేళ(endrange >= c && charclass(endrange) == cc) {
+      అయితే(c++ != endrange)
+        ఒకవేళ(charclass(c) == cc)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }
@@ -156,263 +156,263 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
 }
 
 /* returns 1 (TRUE) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(const unsigned char **p, unsigned char *charset)
+స్థిర పూర్ణాంకం setcharset(స్థిరరాశి గుర్తులేని అక్షరం **p, గుర్తులేని అక్షరం *charset)
 {
   setcharset_state state = CURLFNM_SCHS_DEFAULT;
-  bool something_found = FALSE;
-  unsigned char c;
+  bool something_దొరికింది = FALSE;
+  గుర్తులేని అక్షరం c;
 
-  memset(charset, 0, CURLFNM_CHSET_SIZE);
-  for(;;) {
+  memset(charset, 0, CURLFNM_CHSET_కొలత);
+  కొరకు(;;) {
     c = **p;
-    if(!c)
-      return SETCHARSET_FAIL;
+    ఒకవేళ(!c)
+      తిరిగి SETCHARSET_FAIL;
 
-    switch(state) {
-    case CURLFNM_SCHS_DEFAULT:
-      if(c == ']') {
-        if(something_found)
-          return SETCHARSET_OK;
-        something_found = TRUE;
+    ఎంపిక(state) {
+    స్థితి CURLFNM_SCHS_DEFAULT:
+      ఒకవేళ(c == ']') {
+        ఒకవేళ(something_దొరికింది)
+          తిరిగి SETCHARSET_OK;
+        something_దొరికింది = TRUE;
         state = CURLFNM_SCHS_RIGHTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == '[') {
-        const unsigned char *pp = *p + 1;
+      లేకపోతే ఒకవేళ(c == '[') {
+        స్థిరరాశి గుర్తులేని అక్షరం *pp = *p + 1;
 
-        if(*pp++ == ':' && parsekeyword(&pp, charset))
+        ఒకవేళ(*pp++ == ':' && parsekeyword(&pp, charset))
           *p = pp;
-        else {
+        లేకపోతే {
           charset[c] = 1;
           (*p)++;
         }
-        something_found = TRUE;
+        something_దొరికింది = TRUE;
       }
-      else if(c == '^' || c == '!') {
-        if(!something_found) {
-          if(charset[CURLFNM_NEGATE]) {
+      లేకపోతే ఒకవేళ(c == '^' || c == '!') {
+        ఒకవేళ(!something_దొరికింది) {
+          ఒకవేళ(charset[CURLFNM_NEGATE]) {
             charset[c] = 1;
-            something_found = TRUE;
+            something_దొరికింది = TRUE;
           }
-          else
+          లేకపోతే
             charset[CURLFNM_NEGATE] = 1; /* negate charset */
         }
-        else
+        లేకపోతే
           charset[c] = 1;
         (*p)++;
       }
-      else if(c == '\\') {
+      లేకపోతే ఒకవేళ(c == '\\') {
         c = *(++(*p));
-        if(c)
+        ఒకవేళ(c)
           setcharorrange(p, charset);
-        else
+        లేకపోతే
           charset['\\'] = 1;
-        something_found = TRUE;
+        something_దొరికింది = TRUE;
       }
-      else {
+      లేకపోతే {
         setcharorrange(p, charset);
-        something_found = TRUE;
+        something_దొరికింది = TRUE;
       }
-      break;
-    case CURLFNM_SCHS_RIGHTBR:
-      if(c == '[') {
+      ఆపు;
+    స్థితి CURLFNM_SCHS_RIGHTBR:
+      ఒకవేళ(c == '[') {
         state = CURLFNM_SCHS_RIGHTBRLEFTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == ']') {
-        return SETCHARSET_OK;
+      లేకపోతే ఒకవేళ(c == ']') {
+        తిరిగి SETCHARSET_OK;
       }
-      else if(ISPRINT(c)) {
+      లేకపోతే ఒకవేళ(ISPRINT(c)) {
         charset[c] = 1;
         (*p)++;
         state = CURLFNM_SCHS_DEFAULT;
       }
-      else
+      లేకపోతే
         /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
          * nonsense warning 'statement not reached' at end of the fnc when
          * compiling on Solaris */
-        goto fail;
-      break;
-    case CURLFNM_SCHS_RIGHTBRLEFTBR:
-      if(c == ']')
-        return SETCHARSET_OK;
+        వెళ్ళు fail;
+      ఆపు;
+    స్థితి CURLFNM_SCHS_RIGHTBRLEFTBR:
+      ఒకవేళ(c == ']')
+        తిరిగి SETCHARSET_OK;
       state = CURLFNM_SCHS_DEFAULT;
       charset[c] = 1;
       (*p)++;
-      break;
+      ఆపు;
     }
   }
 fail:
-  return SETCHARSET_FAIL;
+  తిరిగి SETCHARSET_FAIL;
 }
 
 /* match one pattern token against one string character, advancing both */
-static int matchtoken(const unsigned char **pp, const unsigned char **sp)
+స్థిర పూర్ణాంకం matchtoken(స్థిరరాశి గుర్తులేని అక్షరం **pp, స్థిరరాశి గుర్తులేని అక్షరం **sp)
 {
-  const unsigned char *p = *pp;
-  const unsigned char *s = *sp;
+  స్థిరరాశి గుర్తులేని అక్షరం *p = *pp;
+  స్థిరరాశి గుర్తులేని అక్షరం *s = *sp;
 
-  switch(*p) {
-  case '?':
-    break;
-  case '\\':
-    if(p[1])
+  ఎంపిక(*p) {
+  స్థితి '?':
+    ఆపు;
+  స్థితి '\\':
+    ఒకవేళ(p[1])
       p++;
-    if(*s != *p)
-      return 0;
-    break;
-  case '[': {
-    unsigned char charset[CURLFNM_CHSET_SIZE];
-    const unsigned char *pp2 = p + 1; /* Copy in case of syntax error. */
-    bool found = FALSE;
-    if(!setcharset(&pp2, charset))
-      return -1; /* Syntax error in set; mismatch! */
-    if(charset[(unsigned int)*s])
-      found = TRUE;
-    else if(charset[CURLFNM_ALNUM])
-      found = ISALNUM(*s);
-    else if(charset[CURLFNM_ALPHA])
-      found = ISALPHA(*s);
-    else if(charset[CURLFNM_DIGIT])
-      found = ISDIGIT(*s);
-    else if(charset[CURLFNM_XDIGIT])
-      found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
-      found = ISPRINT(*s);
-    else if(charset[CURLFNM_SPACE])
-      found = ISBLANK(*s);
-    else if(charset[CURLFNM_UPPER])
-      found = ISUPPER(*s);
-    else if(charset[CURLFNM_LOWER])
-      found = ISLOWER(*s);
-    else if(charset[CURLFNM_BLANK])
-      found = ISBLANK(*s);
-    else if(charset[CURLFNM_GRAPH])
-      found = ISGRAPH(*s);
+    ఒకవేళ(*s != *p)
+      తిరిగి 0;
+    ఆపు;
+  స్థితి '[': {
+    గుర్తులేని అక్షరం charset[CURLFNM_CHSET_కొలత];
+    స్థిరరాశి గుర్తులేని అక్షరం *pp2 = p + 1; /* Copy in case of syntax error. */
+    bool దొరికింది = FALSE;
+    ఒకవేళ(!setcharset(&pp2, charset))
+      తిరిగి -1; /* Syntax error in set; mismatch! */
+    ఒకవేళ(charset[(గుర్తులేని పూర్ణాంకం)*s])
+      దొరికింది = TRUE;
+    లేకపోతే ఒకవేళ(charset[CURLFNM_ALNUM])
+      దొరికింది = ISALNUM(*s);
+    లేకపోతే ఒకవేళ(charset[CURLFNM_ALPHA])
+      దొరికింది = ISALPHA(*s);
+    లేకపోతే ఒకవేళ(charset[CURLFNM_DIGIT])
+      దొరికింది = ISDIGIT(*s);
+    లేకపోతే ఒకవేళ(charset[CURLFNM_XDIGIT])
+      దొరికింది = ISXDIGIT(*s);
+    లేకపోతే ఒకవేళ(charset[CURLFNM_PRINT])
+      దొరికింది = ISPRINT(*s);
+    లేకపోతే ఒకవేళ(charset[CURLFNM_SPACE])
+      దొరికింది = ISBLANK(*s);
+    లేకపోతే ఒకవేళ(charset[CURLFNM_పై])
+      దొరికింది = ISUPPER(*s);
+    లేకపోతే ఒకవేళ(charset[CURLFNM_క్రింది])
+      దొరికింది = ISLOWER(*s);
+    లేకపోతే ఒకవేళ(charset[CURLFNM_BLANK])
+      దొరికింది = ISBLANK(*s);
+    లేకపోతే ఒకవేళ(charset[CURLFNM_లేఖాచిత్రం])
+      దొరికింది = ISGRAPH(*s);
 
-    if(charset[CURLFNM_NEGATE])
-      found = !found;
+    ఒకవేళ(charset[CURLFNM_NEGATE])
+      దొరికింది = !దొరికింది;
 
-    if(!found)
-      return 0;
+    ఒకవేళ(!దొరికింది)
+      తిరిగి 0;
     *pp = pp2 + 1;
     *sp = s + 1;
-    return 1;
+    తిరిగి 1;
   }
-  default:
-    if(*p != *s)
-      return 0;
-    break;
+  అప్రమేయ:
+    ఒకవేళ(*p != *s)
+      తిరిగి 0;
+    ఆపు;
   }
   *pp = p + 1;
   *sp = s + 1;
-  return 1;
+  తిరిగి 1;
 }
 
 /* greedy match with backtracking to the most recent '*' */
-static int loop(const unsigned char *pattern, const unsigned char *string)
+స్థిర పూర్ణాంకం loop(స్థిరరాశి గుర్తులేని అక్షరం *నమూనా, స్థిరరాశి గుర్తులేని అక్షరం *string)
 {
-  const unsigned char *p = pattern;
-  const unsigned char *s = string;
-  const unsigned char *star_p = NULL;
-  const unsigned char *star_s = NULL;
-  int maxstars = 2;
+  స్థిరరాశి గుర్తులేని అక్షరం *p = నమూనా;
+  స్థిరరాశి గుర్తులేని అక్షరం *s = string;
+  స్థిరరాశి గుర్తులేని అక్షరం *నక్షత్రం_p = ఖాళీ;
+  స్థిరరాశి గుర్తులేని అక్షరం *నక్షత్రం_s = ఖాళీ;
+  పూర్ణాంకం maxstars = 2;
 
-  while(*s) {
-    if(*p == '*') {
-      if(!maxstars)
-        return CURL_FNMATCH_NOMATCH;
+  అయితే(*s) {
+    ఒకవేళ(*p == '*') {
+      ఒకవేళ(!maxstars)
+        తిరిగి CURL_FNMATCH_NOMATCH;
       maxstars--;
-      for(;;) {
+      కొరకు(;;) {
         p++;
-        if(!*p)
-          return CURL_FNMATCH_MATCH;
-        if(*p == '?') {
-          if(!*s)
-            return CURL_FNMATCH_NOMATCH;
+        ఒకవేళ(!*p)
+          తిరిగి CURL_FNMATCH_సరిపోలిక;
+        ఒకవేళ(*p == '?') {
+          ఒకవేళ(!*s)
+            తిరిగి CURL_FNMATCH_NOMATCH;
           s++;
         }
-        else if(*p != '*')
-          break;
+        లేకపోతే ఒకవేళ(*p != '*')
+          ఆపు;
       }
-      star_p = p;
-      star_s = s;
+      నక్షత్రం_p = p;
+      నక్షత్రం_s = s;
     }
-    else if(*p) {
-      const unsigned char *np = p;
-      const unsigned char *ns = s;
-      int r = matchtoken(&np, &ns);
-      if(r < 0)
-        return CURL_FNMATCH_NOMATCH;
-      if(r) {
+    లేకపోతే ఒకవేళ(*p) {
+      స్థిరరాశి గుర్తులేని అక్షరం *np = p;
+      స్థిరరాశి గుర్తులేని అక్షరం *ns = s;
+      పూర్ణాంకం r = matchtoken(&np, &ns);
+      ఒకవేళ(r < 0)
+        తిరిగి CURL_FNMATCH_NOMATCH;
+      ఒకవేళ(r) {
         p = np;
         s = ns;
-        continue;
+        కొనసాగు;
       }
-      if(!star_p)
-        return CURL_FNMATCH_NOMATCH;
-      p = star_p;
-      s = ++star_s;
+      ఒకవేళ(!నక్షత్రం_p)
+        తిరిగి CURL_FNMATCH_NOMATCH;
+      p = నక్షత్రం_p;
+      s = ++నక్షత్రం_s;
     }
-    else if(star_p) {
-      p = star_p;
-      s = ++star_s;
+    లేకపోతే ఒకవేళ(నక్షత్రం_p) {
+      p = నక్షత్రం_p;
+      s = ++నక్షత్రం_s;
     }
-    else
-      return CURL_FNMATCH_NOMATCH;
+    లేకపోతే
+      తిరిగి CURL_FNMATCH_NOMATCH;
   }
-  while(*p == '*') {
-    if(!maxstars)
-      return CURL_FNMATCH_NOMATCH;
+  అయితే(*p == '*') {
+    ఒకవేళ(!maxstars)
+      తిరిగి CURL_FNMATCH_NOMATCH;
     maxstars--;
-    do {
+    చేయి {
       p++;
-      if(*p == '?')
-        return CURL_FNMATCH_NOMATCH;
-    } while(*p == '*');
+      ఒకవేళ(*p == '?')
+        తిరిగి CURL_FNMATCH_NOMATCH;
+    } అయితే(*p == '*');
   }
-  return *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
+  తిరిగి *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_సరిపోలిక;
 }
 
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+పూర్ణాంకం Curl_fnmatch(శూన్య *ptr, స్థిరరాశి అక్షరం *నమూనా, స్థిరరాశి అక్షరం *string)
 {
-  (void)ptr; /* the argument is specified by the curl_fnmatch_callback
+  (శూన్య)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  ఒకవేళ(!నమూనా || !string) {
+    తిరిగి CURL_FNMATCH_FAIL;
   }
-  return loop((const unsigned char *)pattern,
-              (const unsigned char *)string);
+  తిరిగి loop((స్థిరరాశి గుర్తులేని అక్షరం *)నమూనా,
+              (స్థిరరాశి గుర్తులేని అక్షరం *)string);
 }
-#else /* HAVE_FNMATCH */
+#లేకపోతే /* HAVE_FNMATCH */
 
-#include <fnmatch.h>
+#అన్తర్భావ <fnmatch.h>
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+పూర్ణాంకం Curl_fnmatch(శూన్య *ptr, స్థిరరాశి అక్షరం *నమూనా, స్థిరరాశి అక్షరం *string)
 {
-  (void)ptr; /* the argument is specified by the curl_fnmatch_callback
+  (శూన్య)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  ఒకవేళ(!నమూనా || !string) {
+    తిరిగి CURL_FNMATCH_FAIL;
   }
 
-  switch(fnmatch(pattern, string, 0)) {
-  case 0:
-    return CURL_FNMATCH_MATCH;
-  case FNM_NOMATCH:
-    return CURL_FNMATCH_NOMATCH;
-  default:
-    return CURL_FNMATCH_FAIL;
+  ఎంపిక(fnmatch(నమూనా, string, 0)) {
+  స్థితి 0:
+    తిరిగి CURL_FNMATCH_సరిపోలిక;
+  స్థితి FNM_NOMATCH:
+    తిరిగి CURL_FNMATCH_NOMATCH;
+  అప్రమేయ:
+    తిరిగి CURL_FNMATCH_FAIL;
   }
   /* not reached */
 }
-#endif /* !HAVE_FNMATCH */
+#అయితే_ముగింపు /* !HAVE_FNMATCH */
 
-#endif /* !CURL_DISABLE_FTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_FTP */

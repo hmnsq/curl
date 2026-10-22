@@ -23,32 +23,32 @@
  ***************************************************************************/
 /* Escape and unescape URL encoding in strings. The functions return a new
  * allocated string or NULL if an error occurred. */
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-struct Curl_easy;
+నిర్మాణం Curl_easy;
 
-#include "urldata.h"
-#include "escape.h"
-#include "curlx/strparse.h"
-#include "curl_printf.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "escape.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "curl_printf.h"
 
 /* for ABI-compatibility with previous versions */
-char *curl_escape(const char *string, int length)
+అక్షరం *curl_escape(స్థిరరాశి అక్షరం *string, పూర్ణాంకం నిడివి)
 {
-  return curl_easy_escape(NULL, string, length);
+  తిరిగి curl_easy_escape(ఖాళీ, string, నిడివి);
 }
 
 /* for ABI-compatibility with previous versions */
-char *curl_unescape(const char *string, int length)
+అక్షరం *curl_unescape(స్థిరరాశి అక్షరం *string, పూర్ణాంకం నిడివి)
 {
-  return curl_easy_unescape(NULL, string, length, NULL);
+  తిరిగి curl_easy_unescape(ఖాళీ, string, నిడివి, ఖాళీ);
 }
 
-#define NOPE 0xff
-#define _OK_ 0x1f /* octet not needing encoding but not a hexadecimal
+#నిర్వచించు NOPE 0xff
+#నిర్వచించు _OK_ 0x1f /* octet not needing encoding but not a hexadecimal
                      character */
 
-static const unsigned char hextable[256] = {
+స్థిర స్థిరరాశి గుర్తులేని అక్షరం hextable[256] = {
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, /* 00 */
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, /* 08 */
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, /* 10 */
@@ -83,7 +83,7 @@ static const unsigned char hextable[256] = {
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE
 };
 
-static const char hexpairs[][2] = {
+స్థిర స్థిరరాశి అక్షరం hexpairs[][2] = {
   {'0', '0'}, {'0', '1'}, {'0', '2'}, {'0', '3'},
   {'0', '4'}, {'0', '5'}, {'0', '6'}, {'0', '7'},
   {'0', '8'}, {'0', '9'}, {'0', 'A'}, {'0', 'B'},
@@ -153,55 +153,55 @@ static const char hexpairs[][2] = {
 /* Escapes for URL the given unescaped string of given length.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_escape(CURL *curl, const char *string, int length)
+అక్షరం *curl_easy_escape(CURL *curl, స్థిరరాశి అక్షరం *string, పూర్ణాంకం నిడివి)
 {
   size_t len;
-  const char *f = string;
+  స్థిరరాశి అక్షరం *f = string;
   size_t nappend = 0;
-  char *target;
-  char *encoded;
-  (void)curl;
+  అక్షరం *లక్ష్యం;
+  అక్షరం *encoded;
+  (శూన్య)curl;
 
-  if(!string || (length < 0))
-    return NULL;
+  ఒకవేళ(!string || (నిడివి < 0))
+    తిరిగి ఖాళీ;
 
-  len = (length ? (size_t)length : strlen(string));
-  if(!len)
-    return curlx_strdup("");
+  len = (నిడివి ? (size_t)నిడివి : అక్షరశ్రేణి_పొడవు(string));
+  ఒకవేళ(!len)
+    తిరిగి curlx_strdup("");
 
-  if(len > SIZE_MAX / 16)
-    return NULL;
+  ఒకవేళ(len > SIZE_MAX / 16)
+    తిరిగి ఖాళీ;
 
-  encoded = target = curlx_malloc((len * 3) + 1);
-  if(!target)
-    return NULL;
+  encoded = లక్ష్యం = curlx_malloc((len * 3) + 1);
+  ఒకవేళ(!లక్ష్యం)
+    తిరిగి ఖాళీ;
 
-  while(len--) {
-    uint8_t in = (uint8_t)*string++;
+  అయితే(len--) {
+    uint8_t లోపల = (uint8_t)*string++;
 
-    if(!(hextable[in] & 0x80))
+    ఒకవేళ(!(hextable[లోపల] & 0x80))
       /* append this */
       nappend++;
-    else {
-      if(nappend) {
-        memcpy(target, f, nappend);
-        target += nappend;
+    లేకపోతే {
+      ఒకవేళ(nappend) {
+        జ్ఞాపకం_నకలు(లక్ష్యం, f, nappend);
+        లక్ష్యం += nappend;
         nappend = 0;
       }
       f = string;
       /* encode it */
-      target[0] = '%';
-      memcpy(target + 1, hexpairs[in], 2);
-      target += 3;
+      లక్ష్యం[0] = '%';
+      జ్ఞాపకం_నకలు(లక్ష్యం + 1, hexpairs[లోపల], 2);
+      లక్ష్యం += 3;
     }
   }
-  if(nappend) {
-    memcpy(target, f, nappend);
-    target += nappend;
+  ఒకవేళ(nappend) {
+    జ్ఞాపకం_నకలు(లక్ష్యం, f, nappend);
+    లక్ష్యం += nappend;
   }
-  *target = '\0'; /* null-terminate */
+  *లక్ష్యం = '\0'; /* null-terminate */
 
-  return encoded;
+  తిరిగి encoded;
 }
 
 /*
@@ -220,71 +220,71 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
  * invokes that used TRUE/FALSE (0 and 1).
  */
 
-CURLcode Curl_urldecode(const char *string, size_t length,
-                        char **ostring, size_t *olen,
-                        enum urlreject ctrl)
+CURLcode Curl_urldecode(స్థిరరాశి అక్షరం *string, size_t నిడివి,
+                        అక్షరం **ostring, size_t *olen,
+                        గణన urlreject ctrl)
 {
   size_t alloc;
-  char *ns;
-  uint8_t reject_limit;
+  అక్షరం *ns;
+  uint8_t reject_హద్దు;
 
   DEBUGASSERT(string);
   DEBUGASSERT(ctrl >= REJECT_NADA); /* crash on TRUE/FALSE */
 
-  alloc = (length ? length : strlen(string));
+  alloc = (నిడివి ? నిడివి : అక్షరశ్రేణి_పొడవు(string));
   ns = curlx_malloc(alloc + 1);
 
-  if(!ns)
-    return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!ns)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   /* store output string */
   *ostring = ns;
 
-  reject_limit = (ctrl == REJECT_CTRL) ? 0x20 :
+  reject_హద్దు = (ctrl == REJECT_CTRL) ? 0x20 :
     (ctrl == REJECT_ZERO) ? 1 : 0;
 
-  while(alloc) {
-    uint8_t in;
+  అయితే(alloc) {
+    uint8_t లోపల;
 
-    if(*string == '%') {
-      if(alloc > 2) {
+    ఒకవేళ(*string == '%') {
+      ఒకవేళ(alloc > 2) {
         uint8_t h1 = hextable[(uint8_t)string[1]];
         uint8_t h2 = hextable[(uint8_t)string[2]];
-        if(!((h1 | h2) & 0xf0)) {
-          in = (uint8_t)((h1 << 4) | h2);
+        ఒకవేళ(!((h1 | h2) & 0xf0)) {
+          లోపల = (uint8_t)((h1 << 4) | h2);
           string += 3;
           alloc -= 3;
-          if(in < reject_limit)
-            goto error;
-          *ns++ = (char)in;
-          continue;
+          ఒకవేళ(లోపల < reject_హద్దు)
+            వెళ్ళు error;
+          *ns++ = (అక్షరం)లోపల;
+          కొనసాగు;
         }
       }
-      in = '%';
+      లోపల = '%';
       string++;
       alloc--;
-      *ns++ = (char)in;
-      continue;
+      *ns++ = (అక్షరం)లోపల;
+      కొనసాగు;
     }
-    else {
-      const char *p = memchr(string + 1, '%', alloc - 1);
+    లేకపోతే {
+      స్థిరరాశి అక్షరం *p = memchr(string + 1, '%', alloc - 1);
       size_t n = p ? (size_t)(p - string) : alloc;
 
-      if(reject_limit) {
-        if(reject_limit == 1) {
-          if(memchr(string, 0, n))
-            goto error;
+      ఒకవేళ(reject_హద్దు) {
+        ఒకవేళ(reject_హద్దు == 1) {
+          ఒకవేళ(memchr(string, 0, n))
+            వెళ్ళు error;
         }
-        else {
+        లేకపోతే {
           size_t i;
-          for(i = 0; i < n; i++) {
-            if((uint8_t)string[i] < 0x20)
-              goto error;
+          కొరకు(i = 0; i < n; i++) {
+            ఒకవేళ((uint8_t)string[i] < 0x20)
+              వెళ్ళు error;
           }
         }
       }
 
-      memcpy(ns, string, n);
+      జ్ఞాపకం_నకలు(ns, string, n);
       ns += n;
       string += n;
       alloc -= n;
@@ -292,14 +292,14 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   }
   *ns = 0; /* terminate it */
 
-  if(olen)
+  ఒకవేళ(olen)
     /* store output size */
     *olen = (size_t)(ns - *ostring);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 error:
   curlx_safefree(*ostring);
-  return CURLE_URL_MALFORMAT;
+  తిరిగి CURLE_URL_MALFORMAT;
 }
 
 /*
@@ -309,34 +309,34 @@ error:
  * If olen == NULL, no output length is stored.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_unescape(CURL *curl, const char *string, int inlength,
-                         int *outlength)
+అక్షరం *curl_easy_unescape(CURL *curl, స్థిరరాశి అక్షరం *string, పూర్ణాంకం inlength,
+                         పూర్ణాంకం *outlength)
 {
-  char *str = NULL;
-  (void)curl;
-  if(string && (inlength >= 0)) {
+  అక్షరం *str = ఖాళీ;
+  (శూన్య)curl;
+  ఒకవేళ(string && (inlength >= 0)) {
     size_t inputlen = (size_t)inlength;
     size_t outputlen;
     CURLcode res = Curl_urldecode(string, inputlen, &str, &outputlen,
                                   REJECT_NADA);
-    if(res)
-      return NULL;
+    ఒకవేళ(res)
+      తిరిగి ఖాళీ;
 
-    if(outlength) {
-      if(outputlen <= (size_t)INT_MAX)
+    ఒకవేళ(outlength) {
+      ఒకవేళ(outputlen <= (size_t)గరిష్ఠ_పూర్ణాంకం)
         *outlength = curlx_uztosi(outputlen);
-      else
+      లేకపోతే
         /* too large to return in an int, fail! */
         curlx_safefree(str);
     }
   }
-  return str;
+  తిరిగి str;
 }
 
 /* For operating systems/environments that use different malloc/free
    systems for the app and for this library, we provide a free that uses
    the library's memory system */
-void curl_free(void *p)
+శూన్య curl_free(శూన్య *p)
 {
   curlx_free(p);
 }
@@ -347,30 +347,30 @@ void curl_free(void *p)
  * Converts binary input to lowercase hex-encoded ASCII output.
  * null-terminated.
  */
-void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
-                    unsigned char *out, size_t olen) /* output buffer size */
+శూన్య Curl_hexencode(స్థిరరాశి గుర్తులేని అక్షరం *src, size_t len, /* input length */
+                    గుర్తులేని అక్షరం *బహిర్గతం, size_t olen) /* output buffer size */
 {
   DEBUGASSERT(src && len && (olen >= 3));
-  if(src && len && (olen >= 3)) {
-    while(len-- && (olen >= 3)) {
-      out[0] = Curl_ldigits[*src >> 4];
-      out[1] = Curl_ldigits[*src & 0x0F];
+  ఒకవేళ(src && len && (olen >= 3)) {
+    అయితే(len-- && (olen >= 3)) {
+      బహిర్గతం[0] = Curl_ldigits[*src >> 4];
+      బహిర్గతం[1] = Curl_ldigits[*src & 0x0F];
       ++src;
-      out += 2;
+      బహిర్గతం += 2;
       olen -= 2;
     }
-    *out = 0;
+    *బహిర్గతం = 0;
   }
-  else if(olen)
-    *out = 0;
+  లేకపోతే ఒకవేళ(olen)
+    *బహిర్గతం = 0;
 }
 
 /* Curl_hexbyte
  *
  * Output a single unsigned char as a two-digit UPPERCASE hex number.
  */
-void Curl_hexbyte(unsigned char *dest, /* must fit two bytes */
-                  unsigned char val)
+శూన్య Curl_hexbyte(గుర్తులేని అక్షరం *dest, /* must fit two bytes */
+                  గుర్తులేని అక్షరం val)
 {
   dest[0] = Curl_udigits[val >> 4];
   dest[1] = Curl_udigits[val & 0x0F];

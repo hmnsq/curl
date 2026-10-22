@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PRINTF_H
-#define HEADER_CURL_PRINTF_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_PRINTF_H
+#నిర్వచించు శీర్షిక_CURL_PRINTF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,14 +24,14 @@
  *
  ***************************************************************************/
 
-#define MERR_OK        0
-#define MERR_MEM       1
-#define MERR_TOO_LARGE 2
+#నిర్వచించు MERR_OK        0
+#నిర్వచించు MERR_MEM       1
+#నిర్వచించు MERR_TOO_LARGE 2
 
 /* Lower-case digits. */
-extern const unsigned char Curl_ldigits[];
+బాహ్య స్థిరరాశి గుర్తులేని అక్షరం Curl_ldigits[];
 
 /* Upper-case digits. */
-extern const unsigned char Curl_udigits[];
+బాహ్య స్థిరరాశి గుర్తులేని అక్షరం Curl_udigits[];
 
-#endif /* HEADER_CURL_PRINTF_H */
+#అయితే_ముగింపు /* HEADER_CURL_PRINTF_H */

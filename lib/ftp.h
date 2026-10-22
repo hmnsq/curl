@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FTP_H
-#define HEADER_CURL_FTP_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_FTP_H
+#నిర్వచించు శీర్షిక_CURL_FTP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,23 +23,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_FTP
-extern const struct Curl_protocol Curl_protocol_ftp;
+#నిర్వచితం_కాకపోతే CURL_DISABLE_FTP
+బాహ్య స్థిరరాశి నిర్మాణం Curl_protocol Curl_protocol_ftp;
 
-bool Curl_ftp_conns_match(struct connectdata *needle,
-                          struct connectdata *conn);
+bool Curl_ftp_conns_సరిపోలిక(నిర్మాణం connectdata *needle,
+                          నిర్మాణం connectdata *conn);
 
-typedef enum {
+రకనిర్వచనం గణన {
   FTPFILE_MULTICWD  = 1, /* as defined by RFC1738 */
   FTPFILE_NOCWD     = 2, /* use SIZE / RETR / STOR on the full path */
   FTPFILE_SINGLECWD = 3  /* make one CWD, then SIZE / RETR / STOR on the
                             file */
 } curl_ftpfile;
 
-#endif /* CURL_DISABLE_FTP */
+#అయితే_ముగింపు /* CURL_DISABLE_FTP */
 
-#define DEFAULT_ACCEPT_TIMEOUT   60000 /* milliseconds == one minute */
+#నిర్వచించు DEFAULT_ACCEPT_TIMEOUT   60000 /* milliseconds == one minute */
 
-#endif /* HEADER_CURL_FTP_H */
+#అయితే_ముగింపు /* HEADER_CURL_FTP_H */

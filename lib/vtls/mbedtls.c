@@ -27,850 +27,850 @@
  * but vtls.c should ever call or use these functions.
  *
  */
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_MBEDTLS
+#నిర్వచితమైతే USE_MBEDTLS
 
 /* Define this to enable lots of debugging for mbedTLS */
 /* #define MBEDTLS_DEBUG */
 
-#include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
-#error "mbedTLS 3.2.0 or greater required"
-#endif
-#include <psa/crypto_config.h>
-#include <mbedtls/net_sockets.h>
-#include <mbedtls/ssl.h>
-#include <mbedtls/x509.h>
-#include <mbedtls/psa_util.h>
+#అన్తర్భావ <mbedtls/version.h>
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య < 0x03020000
+#దోషం "mbedTLS 3.2.0 or greater required"
+#అయితే_ముగింపు
+#అన్తర్భావ <psa/crypto_config.h>
+#అన్తర్భావ <mbedtls/net_sockets.h>
+#అన్తర్భావ <mbedtls/ssl.h>
+#అన్తర్భావ <mbedtls/x509.h>
+#అన్తర్భావ <mbedtls/psa_util.h>
 
-#if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
-#error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
-#endif
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
+#దోషం "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
+#అయితే_ముగింపు
 
-#include <mbedtls/error.h>
-#if MBEDTLS_VERSION_NUMBER < 0x04000000
-#include <mbedtls/entropy.h>
-#include <mbedtls/ctr_drbg.h>
-#endif
-#ifdef MBEDTLS_DEBUG
-#include <mbedtls/debug.h>
-#endif
+#అన్తర్భావ <mbedtls/error.h>
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య < 0x04000000
+#అన్తర్భావ <mbedtls/entropy.h>
+#అన్తర్భావ <mbedtls/ctr_drbg.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే MBEDTLS_DEBUG
+#అన్తర్భావ <mbedtls/debug.h>
+#అయితే_ముగింపు
 
-#include "vtls/cipher_suite.h"
-#include "urldata.h"
-#include "curl_trc.h"
-#include "vtls/mbedtls.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/x509asn1.h"
-#include "connect.h" /* for the connect timeout */
-#include "curlx/strdup.h"
-#include "curl_sha256.h"
+#అన్తర్భావ "vtls/cipher_suite.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "vtls/mbedtls.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "vtls/vtls_int.h"
+#అన్తర్భావ "vtls/vtls_scache.h"
+#అన్తర్భావ "vtls/x509asn1.h"
+#అన్తర్భావ "connect.h" /* for the connect timeout */
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "curl_sha256.h"
 
 /* ALPN for http2 */
-#if defined(USE_HTTP2) && defined(MBEDTLS_SSL_ALPN)
-#define HAS_ALPN_MBEDTLS
-#endif
+#ఒకవేళ defined(USE_HTTP2) && defined(MBEDTLS_SSL_ALPN)
+#నిర్వచించు HAS_ALPN_MBEDTLS
+#అయితే_ముగింపు
 
-struct mbed_ssl_backend_data {
+నిర్మాణం mbed_ssl_backend_దత్తాంశం {
   mbedtls_ssl_context ssl;
   mbedtls_x509_crt cacert;
   mbedtls_x509_crt clicert;
-#ifdef MBEDTLS_X509_CRL_PARSE_C
+#నిర్వచితమైతే MBEDTLS_X509_CRL_PARSE_C
   mbedtls_x509_crl crl;
-#endif
+#అయితే_ముగింపు
   mbedtls_pk_context pk;
   mbedtls_ssl_config config;
-#ifdef HAS_ALPN_MBEDTLS
-  const char *protocols[3];
-#endif
-  int *ciphersuites;
+#నిర్వచితమైతే HAS_ALPN_MBEDTLS
+  స్థిరరాశి అక్షరం *protocols[3];
+#అయితే_ముగింపు
+  పూర్ణాంకం *ciphersuites;
   size_t send_blocked_len;
-  BIT(initialized); /* mbedtls_ssl_context is initialized */
-  BIT(sent_shutdown);
-  BIT(send_blocked);
+  బిట్టు(initialized); /* mbedtls_ssl_context is initialized */
+  బిట్టు(పంపిన_shutdown);
+  బిట్టు(send_blocked);
 };
 
 /** A context for random number generation (RNG).
  */
-#if MBEDTLS_VERSION_NUMBER < 0x04000000
-struct rng_context_t {
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య < 0x04000000
+నిర్మాణం rng_context_t {
   mbedtls_entropy_context entropy;
   mbedtls_ctr_drbg_context drbg;
 };
 
-static struct rng_context_t rng;
-#endif
+స్థిర నిర్మాణం rng_context_t rng;
+#అయితే_ముగింపు
 
-#ifndef MBEDTLS_ERROR_C
-#define mbedtls_strerror(a, b, c) b[0] = 0
-#endif
+#నిర్వచితం_కాకపోతే MBEDTLS_ERROR_C
+#నిర్వచించు mbedtls_strerror(a, b, c) b[0] = 0
+#అయితే_ముగింపు
 
-#ifdef MBEDTLS_DEBUG
-static void mbed_debug(void *context, int level, const char *f_name,
-                       int line_nb, const char *line)
+#నిర్వచితమైతే MBEDTLS_DEBUG
+స్థిర శూన్య mbed_debug(శూన్య *context, పూర్ణాంకం level, స్థిరరాశి అక్షరం *f_name,
+                       పూర్ణాంకం పంక్తి_nb, స్థిరరాశి అక్షరం *పంక్తి)
 {
-  struct Curl_easy *data = (struct Curl_easy *)context;
-  (void)level;
-  (void)line_nb;
-  (void)f_name;
+  నిర్మాణం Curl_easy *దత్తాంశం = (నిర్మాణం Curl_easy *)context;
+  (శూన్య)level;
+  (శూన్య)పంక్తి_nb;
+  (శూన్య)f_name;
 
-  if(data) {
-    size_t len = strlen(line);
-    if(len && (line[len - 1] == '\n'))
+  ఒకవేళ(దత్తాంశం) {
+    size_t len = అక్షరశ్రేణి_పొడవు(పంక్తి);
+    ఒకవేళ(len && (పంక్తి[len - 1] == '\n'))
       /* discount any trailing newline */
       len--;
-    infof(data, "%.*s", (int)len, line);
+    infof(దత్తాంశం, "%.*s", (పూర్ణాంకం)len, పంక్తి);
   }
 }
-#endif
+#అయితే_ముగింపు
 
-static int mbedtls_bio_cf_write(void *bio,
-                                const unsigned char *buf, size_t blen)
+స్థిర పూర్ణాంకం mbedtls_bio_cf_write(శూన్య *bio,
+                                స్థిరరాశి గుర్తులేని అక్షరం *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = bio;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  నిర్మాణం Curl_cfilter *cf = bio;
+  నిర్మాణం Curl_easy *దత్తాంశం = CF_దత్తాంశం_CURRENT(cf);
   size_t nwritten;
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  DEBUGASSERT(data);
-  if(!data)
-    return 0;
+  DEBUGASSERT(దత్తాంశం);
+  ఒకవేళ(!దత్తాంశం)
+    తిరిగి 0;
 
-  result = Curl_conn_cf_send(cf->next, data, buf, blen, FALSE, &nwritten);
-  CURL_TRC_CF(data, cf, "mbedtls_bio_cf_out_write(len=%zu) -> %d, %zu",
-              blen, (int)result, nwritten);
-  if(result == CURLE_AGAIN)
-    return MBEDTLS_ERR_SSL_WANT_WRITE;
-  return result ? -1 : (int)nwritten;
+  ఫలితం = Curl_conn_cf_send(cf->తదుపరి, దత్తాంశం, buf, blen, FALSE, &nwritten);
+  CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_bio_cf_out_write(len=%zu) -> %d, %zu",
+              blen, (పూర్ణాంకం)ఫలితం, nwritten);
+  ఒకవేళ(ఫలితం == CURLE_AGAIN)
+    తిరిగి MBEDTLS_ERR_SSL_WANT_WRITE;
+  తిరిగి ఫలితం ? -1 : (పూర్ణాంకం)nwritten;
 }
 
-static int mbedtls_bio_cf_read(void *bio, unsigned char *buf, size_t blen)
+స్థిర పూర్ణాంకం mbedtls_bio_cf_read(శూన్య *bio, గుర్తులేని అక్షరం *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = bio;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  నిర్మాణం Curl_cfilter *cf = bio;
+  నిర్మాణం Curl_easy *దత్తాంశం = CF_దత్తాంశం_CURRENT(cf);
   size_t nread = 0;
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  DEBUGASSERT(data);
-  if(!data)
-    return 0;
+  DEBUGASSERT(దత్తాంశం);
+  ఒకవేళ(!దత్తాంశం)
+    తిరిగి 0;
   /* OpenSSL catches this case, so should we. */
-  if(!buf)
-    return 0;
+  ఒకవేళ(!buf)
+    తిరిగి 0;
 
-  result = Curl_conn_cf_recv(cf->next, data, (char *)buf, blen, &nread);
-  CURL_TRC_CF(data, cf, "mbedtls_bio_cf_in_read(len=%zu) -> %d, %zu",
-              blen, (int)result, nread);
-  if(result == CURLE_AGAIN)
-    return MBEDTLS_ERR_SSL_WANT_READ;
+  ఫలితం = Curl_conn_cf_recv(cf->తదుపరి, దత్తాంశం, (అక్షరం *)buf, blen, &nread);
+  CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_bio_cf_in_read(len=%zu) -> %d, %zu",
+              blen, (పూర్ణాంకం)ఫలితం, nread);
+  ఒకవేళ(ఫలితం == CURLE_AGAIN)
+    తిరిగి MBEDTLS_ERR_SSL_WANT_READ;
   /* nread is never larger than int here */
-  return result ? -1 : (int)nread;
+  తిరిగి ఫలితం ? -1 : (పూర్ణాంకం)nread;
 }
 
 /* See:
  * https://web.archive.org/web/20200921194007/tls.mbed.org/discussions/generic/howto-determine-exact-buffer-len-for-mbedtls_pk_write_pubkey_der
  */
-#define RSA_PUB_DER_MAX_BYTES   (38 + (2 * MBEDTLS_MPI_MAX_SIZE))
-#define ECP_PUB_DER_MAX_BYTES   (30 + (2 * MBEDTLS_ECP_MAX_BYTES))
+#నిర్వచించు RSA_PUB_DER_MAX_బైట్లు   (38 + (2 * MBEDTLS_MPI_MAX_కొలత))
+#నిర్వచించు ECP_PUB_DER_MAX_బైట్లు   (30 + (2 * MBEDTLS_ECP_MAX_బైట్లు))
 
-#define PUB_DER_MAX_BYTES   (RSA_PUB_DER_MAX_BYTES > ECP_PUB_DER_MAX_BYTES ? \
-                             RSA_PUB_DER_MAX_BYTES : ECP_PUB_DER_MAX_BYTES)
+#నిర్వచించు PUB_DER_MAX_బైట్లు   (RSA_PUB_DER_MAX_బైట్లు > ECP_PUB_DER_MAX_బైట్లు ? \
+                             RSA_PUB_DER_MAX_బైట్లు : ECP_PUB_DER_MAX_బైట్లు)
 
-static CURLcode mbed_set_ssl_version_min_max(
-  struct Curl_easy *data,
-  struct mbed_ssl_backend_data *backend,
-  struct ssl_filter_config *conn_config)
+స్థిర CURLcode mbed_సమితి_ssl_సంస్కరణ_min_max(
+  నిర్మాణం Curl_easy *దత్తాంశం,
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend,
+  నిర్మాణం ssl_filter_config *conn_config)
 {
-  mbedtls_ssl_protocol_version ver_min =
-#ifdef MBEDTLS_SSL_PROTO_TLS1_2
-    MBEDTLS_SSL_VERSION_TLS1_2
-#else
-    MBEDTLS_SSL_VERSION_TLS1_3
-#endif
+  mbedtls_ssl_protocol_సంస్కరణ ver_min =
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_2
+    MBEDTLS_SSL_సంస్కరణ_TLS1_2
+#లేకపోతే
+    MBEDTLS_SSL_సంస్కరణ_TLS1_3
+#అయితే_ముగింపు
     ;
-  mbedtls_ssl_protocol_version ver_max =
-#ifdef MBEDTLS_SSL_PROTO_TLS1_3
-    MBEDTLS_SSL_VERSION_TLS1_3
-#else
-    MBEDTLS_SSL_VERSION_TLS1_2
-#endif
+  mbedtls_ssl_protocol_సంస్కరణ ver_max =
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_3
+    MBEDTLS_SSL_సంస్కరణ_TLS1_3
+#లేకపోతే
+    MBEDTLS_SSL_సంస్కరణ_TLS1_2
+#అయితే_ముగింపు
     ;
 
-  DEBUGASSERT(conn_config->version != CURL_SSLVERSION_DEFAULT);
-  switch(conn_config->version) {
-  case CURL_SSLVERSION_TLSv1:
-  case CURL_SSLVERSION_TLSv1_0:
-  case CURL_SSLVERSION_TLSv1_1:
-  case CURL_SSLVERSION_TLSv1_2:
-#ifdef MBEDTLS_SSL_PROTO_TLS1_2
-    ver_min = MBEDTLS_SSL_VERSION_TLS1_2;
-    break;
-#endif
-  case CURL_SSLVERSION_TLSv1_3:
-#ifdef MBEDTLS_SSL_PROTO_TLS1_3
-    ver_min = MBEDTLS_SSL_VERSION_TLS1_3;
-    break;
-#endif
-  default:
-    failf(data, "mbedTLS: unsupported minimum TLS version value: %x",
-          conn_config->version);
-    return CURLE_SSL_CONNECT_ERROR;
+  DEBUGASSERT(conn_config->సంస్కరణ_2 != CURL_SSLVERSION_DEFAULT);
+  ఎంపిక(conn_config->సంస్కరణ_2) {
+  స్థితి CURL_SSLVERSION_TLSv1:
+  స్థితి CURL_SSLVERSION_TLSv1_0:
+  స్థితి CURL_SSLVERSION_TLSv1_1:
+  స్థితి CURL_SSLVERSION_TLSv1_2:
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_2
+    ver_min = MBEDTLS_SSL_సంస్కరణ_TLS1_2;
+    ఆపు;
+#అయితే_ముగింపు
+  స్థితి CURL_SSLVERSION_TLSv1_3:
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_3
+    ver_min = MBEDTLS_SSL_సంస్కరణ_TLS1_3;
+    ఆపు;
+#అయితే_ముగింపు
+  అప్రమేయ:
+    failf(దత్తాంశం, "mbedTLS: unsupported minimum TLS version value: %x",
+          conn_config->సంస్కరణ_2);
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
-  switch(conn_config->version_max) {
-  case CURL_SSLVERSION_MAX_DEFAULT:
-  case CURL_SSLVERSION_MAX_NONE:
-  case CURL_SSLVERSION_MAX_TLSv1_3:
-#ifdef MBEDTLS_SSL_PROTO_TLS1_3
-    ver_max = MBEDTLS_SSL_VERSION_TLS1_3;
-    break;
-#endif
-#ifdef MBEDTLS_SSL_PROTO_TLS1_2
-  case CURL_SSLVERSION_MAX_TLSv1_2:
-    ver_max = MBEDTLS_SSL_VERSION_TLS1_2;
-    break;
-#endif
-  case CURL_SSLVERSION_MAX_TLSv1_1:
-  case CURL_SSLVERSION_MAX_TLSv1_0:
-  default:
-    failf(data, "mbedTLS: unsupported maximum TLS version value");
-    return CURLE_SSL_CONNECT_ERROR;
+  ఎంపిక(conn_config->సంస్కరణ_max) {
+  స్థితి CURL_SSLVERSION_MAX_DEFAULT:
+  స్థితి CURL_SSLVERSION_MAX_NONE:
+  స్థితి CURL_SSLVERSION_MAX_TLSv1_3:
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_3
+    ver_max = MBEDTLS_SSL_సంస్కరణ_TLS1_3;
+    ఆపు;
+#అయితే_ముగింపు
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_2
+  స్థితి CURL_SSLVERSION_MAX_TLSv1_2:
+    ver_max = MBEDTLS_SSL_సంస్కరణ_TLS1_2;
+    ఆపు;
+#అయితే_ముగింపు
+  స్థితి CURL_SSLVERSION_MAX_TLSv1_1:
+  స్థితి CURL_SSLVERSION_MAX_TLSv1_0:
+  అప్రమేయ:
+    failf(దత్తాంశం, "mbedTLS: unsupported maximum TLS version value");
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
-  mbedtls_ssl_conf_min_tls_version(&backend->config, ver_min);
-  mbedtls_ssl_conf_max_tls_version(&backend->config, ver_max);
+  mbedtls_ssl_conf_min_tls_సంస్కరణ(&backend->config, ver_min);
+  mbedtls_ssl_conf_max_tls_సంస్కరణ(&backend->config, ver_max);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /* TLS_ECJPAKE_WITH_AES_128_CCM_8 (0xC0FF) is marked experimental in mbedTLS.
    The number is not reserved by IANA nor is the cipher suite present in other
    SSL implementations. Provide provisional support for specifying the cipher
    suite here. */
-#ifdef MBEDTLS_TLS_ECJPAKE_WITH_AES_128_CCM_8
-static int mbed_cipher_suite_get_str(uint16_t id, char *buf, size_t buf_size,
+#నిర్వచితమైతే MBEDTLS_TLS_ECJPAKE_WITH_AES_128_CCM_8
+స్థిర పూర్ణాంకం mbed_cipher_suite_get_str(uint16_t id, అక్షరం *buf, size_t buf_కొలత,
                                      bool prefer_rfc)
 {
-  if(id == MBEDTLS_TLS_ECJPAKE_WITH_AES_128_CCM_8)
-    curl_msnprintf(buf, buf_size, "%s", "TLS_ECJPAKE_WITH_AES_128_CCM_8");
-  else
-    return Curl_cipher_suite_get_str(id, buf, buf_size, prefer_rfc);
-  return 0;
+  ఒకవేళ(id == MBEDTLS_TLS_ECJPAKE_WITH_AES_128_CCM_8)
+    curl_msnprintf(buf, buf_కొలత, "%s", "TLS_ECJPAKE_WITH_AES_128_CCM_8");
+  లేకపోతే
+    తిరిగి Curl_cipher_suite_get_str(id, buf, buf_కొలత, prefer_rfc);
+  తిరిగి 0;
 }
 
-static uint16_t mbed_cipher_suite_walk_str(const char **str, const char **end)
+స్థిర uint16_t mbed_cipher_suite_walk_str(స్థిరరాశి అక్షరం **str, స్థిరరాశి అక్షరం **చివర)
 {
-  uint16_t id = Curl_cipher_suite_walk_str(str, end);
-  size_t len = *end - *str;
-  static const char ecjpake_suite[] = "TLS_ECJPAKE_WITH_AES_128_CCM_8";
+  uint16_t id = Curl_cipher_suite_walk_str(str, చివర);
+  size_t len = *చివర - *str;
+  స్థిర స్థిరరాశి అక్షరం ecjpake_suite[] = "TLS_ECJPAKE_WITH_AES_128_CCM_8";
 
-  if(!id) {
-    if((len == CURL_CSTRLEN(ecjpake_suite)) &&
+  ఒకవేళ(!id) {
+    ఒకవేళ((len == CURL_CSTRLEN(ecjpake_suite)) &&
        curl_strnequal(ecjpake_suite, *str, len))
       id = MBEDTLS_TLS_ECJPAKE_WITH_AES_128_CCM_8;
   }
-  return id;
+  తిరిగి id;
 }
-#else
-#define mbed_cipher_suite_get_str  Curl_cipher_suite_get_str
-#define mbed_cipher_suite_walk_str Curl_cipher_suite_walk_str
-#endif
+#లేకపోతే
+#నిర్వచించు mbed_cipher_suite_get_str  Curl_cipher_suite_get_str
+#నిర్వచించు mbed_cipher_suite_walk_str Curl_cipher_suite_walk_str
+#అయితే_ముగింపు
 
-static CURLcode mbed_set_selected_ciphers(
-  struct Curl_easy *data,
-  struct mbed_ssl_backend_data *backend,
-  const char *ciphers12,
-  const char *ciphers13)
+స్థిర CURLcode mbed_సమితి_selected_ciphers(
+  నిర్మాణం Curl_easy *దత్తాంశం,
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend,
+  స్థిరరాశి అక్షరం *ciphers12,
+  స్థిరరాశి అక్షరం *ciphers13)
 {
-  const char *ciphers = ciphers12;
-  const int *supported;
-  int *selected;
-  size_t supported_len, count = 0, default13_count = 0, i, j;
-  const char *ptr, *end;
+  స్థిరరాశి అక్షరం *ciphers = ciphers12;
+  స్థిరరాశి పూర్ణాంకం *supported;
+  పూర్ణాంకం *selected;
+  size_t supported_len, లెక్క = 0, default13_లెక్క = 0, i, j;
+  స్థిరరాశి అక్షరం *ptr, *చివర;
 
   supported = mbedtls_ssl_list_ciphersuites();
-  for(i = 0; supported[i] != 0; i++)
+  కొరకు(i = 0; supported[i] != 0; i++)
     ;
   supported_len = i;
 
-  selected = curlx_malloc(sizeof(int) * (supported_len + 1));
-  if(!selected)
-    return CURLE_OUT_OF_MEMORY;
+  selected = curlx_malloc(పరిమాణం(పూర్ణాంకం) * (supported_len + 1));
+  ఒకవేళ(!selected)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-#ifndef MBEDTLS_SSL_PROTO_TLS1_3
-  (void)ciphers13, (void)j;
-#else
-  if(!ciphers13) {
+#నిర్వచితం_కాకపోతే MBEDTLS_SSL_PROTO_TLS1_3
+  (శూన్య)ciphers13, (శూన్య)j;
+#లేకపోతే
+  ఒకవేళ(!ciphers13) {
     /* Add default TLSv1.3 ciphers to selection */
-    for(j = 0; j < supported_len; j++) {
+    కొరకు(j = 0; j < supported_len; j++) {
       uint16_t id = (uint16_t)supported[j];
-      if(strncmp(mbedtls_ssl_get_ciphersuite_name(id), "TLS1-3", 6))
-        continue;
+      ఒకవేళ(అక్షరశ్రేణి_పోలిక(mbedtls_ssl_get_ciphersuite_name(id), "TLS1-3", 6))
+        కొనసాగు;
 
-      selected[count++] = id;
+      selected[లెక్క++] = id;
     }
 
-    default13_count = count;
+    default13_లెక్క = లెక్క;
   }
-  else
+  లేకపోతే
     ciphers = ciphers13;
 
-add_ciphers:
-#endif
-  for(ptr = ciphers; ptr[0] != '\0' && count < supported_len; ptr = end) {
-    uint16_t id = mbed_cipher_suite_walk_str(&ptr, &end);
+కూడు_ciphers:
+#అయితే_ముగింపు
+  కొరకు(ptr = ciphers; ptr[0] != '\0' && లెక్క < supported_len; ptr = చివర) {
+    uint16_t id = mbed_cipher_suite_walk_str(&ptr, &చివర);
 
     /* Check if cipher is supported */
-    if(id) {
-      for(i = 0; i < supported_len && supported[i] != id; i++)
+    ఒకవేళ(id) {
+      కొరకు(i = 0; i < supported_len && supported[i] != id; i++)
         ;
-      if(i == supported_len)
+      ఒకవేళ(i == supported_len)
         id = 0;
     }
-    if(!id) {
-      if(ptr[0] != '\0')
-        infof(data, "mbedTLS: unknown cipher in list: \"%.*s\"",
-              (int)(end - ptr), ptr);
-      continue;
+    ఒకవేళ(!id) {
+      ఒకవేళ(ptr[0] != '\0')
+        infof(దత్తాంశం, "mbedTLS: unknown cipher in list: \"%.*s\"",
+              (పూర్ణాంకం)(చివర - ptr), ptr);
+      కొనసాగు;
     }
 
     /* No duplicates allowed (so selected cannot overflow) */
-    for(i = 0; i < count && selected[i] != id; i++)
+    కొరకు(i = 0; i < లెక్క && selected[i] != id; i++)
       ;
-    if(i < count) {
-      if(i >= default13_count)
-        infof(data, "mbedTLS: duplicate cipher in list: \"%.*s\"",
-              (int)(end - ptr), ptr);
-      continue;
+    ఒకవేళ(i < లెక్క) {
+      ఒకవేళ(i >= default13_లెక్క)
+        infof(దత్తాంశం, "mbedTLS: duplicate cipher in list: \"%.*s\"",
+              (పూర్ణాంకం)(చివర - ptr), ptr);
+      కొనసాగు;
     }
 
-    selected[count++] = id;
+    selected[లెక్క++] = id;
   }
 
-#ifdef MBEDTLS_SSL_PROTO_TLS1_3
-  if(ciphers == ciphers13 && ciphers12) {
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_3
+  ఒకవేళ(ciphers == ciphers13 && ciphers12) {
     ciphers = ciphers12;
-    goto add_ciphers;
+    వెళ్ళు కూడు_ciphers;
   }
 
-  if(!ciphers12) {
+  ఒకవేళ(!ciphers12) {
     /* Add default TLSv1.2 ciphers to selection */
-    for(j = 0; j < supported_len; j++) {
+    కొరకు(j = 0; j < supported_len; j++) {
       uint16_t id = (uint16_t)supported[j];
-      if(!strncmp(mbedtls_ssl_get_ciphersuite_name(id), "TLS1-3", 6))
-        continue;
+      ఒకవేళ(!అక్షరశ్రేణి_పోలిక(mbedtls_ssl_get_ciphersuite_name(id), "TLS1-3", 6))
+        కొనసాగు;
 
       /* No duplicates allowed (so selected cannot overflow) */
-      for(i = 0; i < count && selected[i] != id; i++)
+      కొరకు(i = 0; i < లెక్క && selected[i] != id; i++)
         ;
-      if(i < count)
-        continue;
+      ఒకవేళ(i < లెక్క)
+        కొనసాగు;
 
-      selected[count++] = id;
+      selected[లెక్క++] = id;
     }
   }
-#endif
+#అయితే_ముగింపు
 
-  selected[count] = 0;
+  selected[లెక్క] = 0;
 
-  if(count == 0) {
+  ఒకవేళ(లెక్క == 0) {
     curlx_free(selected);
-    failf(data, "mbedTLS: no supported cipher in list");
-    return CURLE_SSL_CIPHER;
+    failf(దత్తాంశం, "mbedTLS: no supported cipher in list");
+    తిరిగి CURLE_SSL_CIPHER;
   }
 
   /* mbedtls_ssl_conf_ciphersuites(): The ciphersuites array is not copied.
      It must remain valid for the lifetime of the SSL configuration */
   backend->ciphersuites = selected;
   mbedtls_ssl_conf_ciphersuites(&backend->config, backend->ciphersuites);
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static void mbed_dump_cert_info(struct Curl_easy *data,
-                                const mbedtls_x509_crt *crt)
+స్థిర శూన్య mbed_dump_cert_info(నిర్మాణం Curl_easy *దత్తాంశం,
+                                స్థిరరాశి mbedtls_x509_crt *crt)
 {
-#if !defined(CURLVERBOSE) || defined(MBEDTLS_X509_REMOVE_INFO)
-  (void)data, (void)crt;
-#else
-  const size_t bufsize = 16384;
-  char *p, *buffer = curlx_malloc(bufsize);
+#ఒకవేళ !defined(CURLVERBOSE) || defined(MBEDTLS_X509_REMOVE_INFO)
+  (శూన్య)దత్తాంశం, (శూన్య)crt;
+#లేకపోతే
+  స్థిరరాశి size_t bufsize = 16384;
+  అక్షరం *p, *బఫరు = curlx_malloc(bufsize);
 
-  if(buffer && mbedtls_x509_crt_info(buffer, bufsize, " ", crt) > 0) {
-    infof(data, "Server certificate:");
-    for(p = buffer; *p; p += *p != '\0') {
+  ఒకవేళ(బఫరు && mbedtls_x509_crt_info(బఫరు, bufsize, " ", crt) > 0) {
+    infof(దత్తాంశం, "Server certificate:");
+    కొరకు(p = బఫరు; *p; p += *p != '\0') {
       size_t s = strcspn(p, "\n");
-      infof(data, "%.*s", (int)s, p);
+      infof(దత్తాంశం, "%.*s", (పూర్ణాంకం)s, p);
       p += s;
     }
   }
-  else
-    infof(data, "Unable to dump certificate information");
+  లేకపోతే
+    infof(దత్తాంశం, "Unable to dump certificate information");
 
-  curlx_free(buffer);
-#endif
+  curlx_free(బఫరు);
+#అయితే_ముగింపు
 }
 
-static void mbed_extract_certinfo(struct Curl_easy *data,
-                                  const mbedtls_x509_crt *crt)
+స్థిర శూన్య mbed_వెలికితీయి_certinfo(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  స్థిరరాశి mbedtls_x509_crt *crt)
 {
-  CURLcode result;
-  const mbedtls_x509_crt *cur;
-  int cert_count = 0;
-  int i;
+  CURLcode ఫలితం;
+  స్థిరరాశి mbedtls_x509_crt *cur;
+  పూర్ణాంకం cert_లెక్క = 0;
+  పూర్ణాంకం i;
 
-  for(cur = crt; cur && cert_count <= MAX_ALLOWED_CERT_AMOUNT; cur = cur->next)
-    cert_count++;
+  కొరకు(cur = crt; cur && cert_లెక్క <= MAX_ALLOWED_CERT_AMOUNT; cur = cur->తదుపరి)
+    cert_లెక్క++;
 
-  if(cert_count > MAX_ALLOWED_CERT_AMOUNT) {
-    infof(data, "More certificates than allowed (%d), skipping certinfo",
+  ఒకవేళ(cert_లెక్క > MAX_ALLOWED_CERT_AMOUNT) {
+    infof(దత్తాంశం, "More certificates than allowed (%d), skipping certinfo",
           MAX_ALLOWED_CERT_AMOUNT);
-    return;
+    తిరిగి;
   }
 
-  result = Curl_ssl_init_certinfo(data, cert_count);
+  ఫలితం = Curl_ssl_init_certinfo(దత్తాంశం, cert_లెక్క);
 
-  for(i = 0, cur = crt; result == CURLE_OK && cur; ++i, cur = cur->next) {
-    result = Curl_extract_certinfo(data, i, cur->raw.p,
+  కొరకు(i = 0, cur = crt; ఫలితం == CURLE_OK && cur; ++i, cur = cur->తదుపరి) {
+    ఫలితం = Curl_వెలికితీయి_certinfo(దత్తాంశం, i, cur->raw.p,
                                    cur->raw.p + cur->raw.len);
   }
 }
 
-static int mbed_verify_cb(void *ptr, mbedtls_x509_crt *crt,
-                          int depth, uint32_t *flags)
+స్థిర పూర్ణాంకం mbed_verify_cb(శూన్య *ptr, mbedtls_x509_crt *crt,
+                          పూర్ణాంకం లోతు, uint32_t *flags)
 {
-  struct Curl_cfilter *cf = (struct Curl_cfilter *)ptr;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  నిర్మాణం Curl_cfilter *cf = (నిర్మాణం Curl_cfilter *)ptr;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  నిర్మాణం Curl_easy *దత్తాంశం = CF_దత్తాంశం_CURRENT(cf);
 
-  if(depth == 0) {
-    if(data->set.verbose)
-      mbed_dump_cert_info(data, crt);
-    if(data->set.ssl.certinfo)
-      mbed_extract_certinfo(data, crt);
+  ఒకవేళ(లోతు == 0) {
+    ఒకవేళ(దత్తాంశం->సమితి.verbose)
+      mbed_dump_cert_info(దత్తాంశం, crt);
+    ఒకవేళ(దత్తాంశం->సమితి.ssl.certinfo)
+      mbed_వెలికితీయి_certinfo(దత్తాంశం, crt);
   }
 
   /* `verifypeer` and `verifyhost` are independent, so clear the flags of a
      disabled check only. The name mismatch belongs to `verifyhost`. */
-  if(!conn_config->verifypeer)
+  ఒకవేళ(!conn_config->verifypeer)
     *flags &= MBEDTLS_X509_BADCERT_CN_MISMATCH;
-  if(!conn_config->verifyhost)
+  ఒకవేళ(!conn_config->verifyhost)
     *flags &= ~MBEDTLS_X509_BADCERT_CN_MISMATCH;
 
-  if(*flags) {
-#ifndef MBEDTLS_X509_REMOVE_INFO
-    char buf[128];
-    mbedtls_x509_crt_verify_info(buf, sizeof(buf), "", *flags);
-    failf(data, "mbedTLS: %s", buf);
-#else
-    failf(data, "mbedTLS: certificate verification error 0x%08x",
-          (unsigned int)*flags);
-#endif
+  ఒకవేళ(*flags) {
+#నిర్వచితం_కాకపోతే MBEDTLS_X509_REMOVE_INFO
+    అక్షరం buf[128];
+    mbedtls_x509_crt_verify_info(buf, పరిమాణం(buf), "", *flags);
+    failf(దత్తాంశం, "mbedTLS: %s", buf);
+#లేకపోతే
+    failf(దత్తాంశం, "mbedTLS: certificate verification error 0x%08x",
+          (గుర్తులేని పూర్ణాంకం)*flags);
+#అయితే_ముగింపు
   }
 
-  return 0;
+  తిరిగి 0;
 }
 
-static CURLcode mbed_load_cacert(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+స్థిర CURLcode mbed_ఎక్కించు_cacert(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
-  const char * const ssl_cafile =
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  స్థిరరాశి నిర్మాణం curl_blob *ca_info_blob = conn_config->ca_info_blob;
+  స్థిరరాశి అక్షరం * స్థిరరాశి ssl_cafile =
     /* CURLOPT_CAINFO_BLOB overrides CURLOPT_CAINFO */
-    (ca_info_blob ? NULL : conn_config->CAfile);
-  const bool verifypeer = conn_config->verifypeer;
-  const char * const ssl_capath = conn_config->CApath;
-#ifdef MBEDTLS_PEM_PARSE_C
-  const char * const ssl_cert_type = conn_config->cert_type;
-#endif
-  int ret = -1;
-  char errorbuf[128];
+    (ca_info_blob ? ఖాళీ : conn_config->CAfile);
+  స్థిరరాశి bool verifypeer = conn_config->verifypeer;
+  స్థిరరాశి అక్షరం * స్థిరరాశి ssl_capath = conn_config->CApath;
+#నిర్వచితమైతే MBEDTLS_PEM_PARSE_C
+  స్థిరరాశి అక్షరం * స్థిరరాశి ssl_cert_type = conn_config->cert_type;
+#అయితే_ముగింపు
+  పూర్ణాంకం ret = -1;
+  అక్షరం errorbuf[128];
 
   mbedtls_x509_crt_init(&backend->cacert);
 
-  if(ca_info_blob && verifypeer) {
-#ifdef MBEDTLS_PEM_PARSE_C
+  ఒకవేళ(ca_info_blob && verifypeer) {
+#నిర్వచితమైతే MBEDTLS_PEM_PARSE_C
     /* if DER or a null-terminated PEM process using
        mbedtls_x509_crt_parse(). */
-    if((ssl_cert_type && curl_strequal(ssl_cert_type, "DER")) ||
-       ((char *)(ca_info_blob->data))[ca_info_blob->len - 1] == '\0') {
-      ret = mbedtls_x509_crt_parse(&backend->cacert, ca_info_blob->data,
+    ఒకవేళ((ssl_cert_type && curl_strequal(ssl_cert_type, "DER")) ||
+       ((అక్షరం *)(ca_info_blob->దత్తాంశం))[ca_info_blob->len - 1] == '\0') {
+      ret = mbedtls_x509_crt_parse(&backend->cacert, ca_info_blob->దత్తాంశం,
                                    ca_info_blob->len);
     }
-    else { /* they say it is PEM and it is not null-terminated */
+    లేకపోతే { /* they say it is PEM and it is not null-terminated */
 
       /* Unfortunately, mbedtls_x509_crt_parse() requires the data to be
          null-terminated if the data is PEM encoded (even when provided the
          exact length). The function accepts PEM or DER formats, but we cannot
          assume if the user passed in a PEM format cert that it is
          null-terminated. */
-      unsigned char *newblob = curlx_memdup0(ca_info_blob->data,
+      గుర్తులేని అక్షరం *newblob = curlx_memdup0(ca_info_blob->దత్తాంశం,
                                              ca_info_blob->len);
-      if(!newblob)
-        return CURLE_OUT_OF_MEMORY;
+      ఒకవేళ(!newblob)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
       ret = mbedtls_x509_crt_parse(&backend->cacert, newblob,
                                    ca_info_blob->len + 1);
       curlx_free(newblob);
     }
-#else
+#లేకపోతే
     /* DER encoded certs do not need to be null-terminated because it is a
        binary format. Thus, if we are not compiling with PEM_PARSE we can avoid
        the extra memory copies altogether. */
-    ret = mbedtls_x509_crt_parse_der(&backend->cacert, ca_info_blob->data,
+    ret = mbedtls_x509_crt_parse_der(&backend->cacert, ca_info_blob->దత్తాంశం,
                                      ca_info_blob->len);
-#endif
+#అయితే_ముగింపు
 
-    if(ret < 0) {
-      mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-      failf(data, "mbedTLS: error importing CA cert blob: (-0x%04X) %s",
-            (unsigned int)-ret, errorbuf);
-      return CURLE_SSL_CERTPROBLEM;
+    ఒకవేళ(ret < 0) {
+      mbedtls_strerror(ret, errorbuf, పరిమాణం(errorbuf));
+      failf(దత్తాంశం, "mbedTLS: error importing CA cert blob: (-0x%04X) %s",
+            (గుర్తులేని పూర్ణాంకం)-ret, errorbuf);
+      తిరిగి CURLE_SSL_CERTPROBLEM;
     }
   }
 
-  if(ssl_cafile && verifypeer) {
-#ifdef MBEDTLS_FS_IO
+  ఒకవేళ(ssl_cafile && verifypeer) {
+#నిర్వచితమైతే MBEDTLS_FS_IO
     ret = mbedtls_x509_crt_parse_file(&backend->cacert, ssl_cafile);
 
-    if(ret < 0) {
-      mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-      failf(data, "mbedTLS: error reading CA cert file %s: (-0x%04X) %s",
-            ssl_cafile, (unsigned int)-ret, errorbuf);
-      return CURLE_SSL_CACERT_BADFILE;
+    ఒకవేళ(ret < 0) {
+      mbedtls_strerror(ret, errorbuf, పరిమాణం(errorbuf));
+      failf(దత్తాంశం, "mbedTLS: error reading CA cert file %s: (-0x%04X) %s",
+            ssl_cafile, (గుర్తులేని పూర్ణాంకం)-ret, errorbuf);
+      తిరిగి CURLE_SSL_CACERT_BADFILE;
     }
-#else
-    failf(data, "mbedTLS: functions that use the file system not built in");
-    return CURLE_NOT_BUILT_IN;
-#endif
+#లేకపోతే
+    failf(దత్తాంశం, "mbedTLS: functions that use the file system not built in");
+    తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
   }
 
-  if(ssl_capath) {
-#ifdef MBEDTLS_FS_IO
-    ret = mbedtls_x509_crt_parse_path(&backend->cacert, ssl_capath);
+  ఒకవేళ(ssl_capath) {
+#నిర్వచితమైతే MBEDTLS_FS_IO
+    ret = mbedtls_x509_crt_parse_మార్గం(&backend->cacert, ssl_capath);
 
-    if(ret < 0) {
-      mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-      failf(data, "mbedTLS: error reading CA cert path %s: (-0x%04X) %s",
-            ssl_capath, (unsigned int)-ret, errorbuf);
+    ఒకవేళ(ret < 0) {
+      mbedtls_strerror(ret, errorbuf, పరిమాణం(errorbuf));
+      failf(దత్తాంశం, "mbedTLS: error reading CA cert path %s: (-0x%04X) %s",
+            ssl_capath, (గుర్తులేని పూర్ణాంకం)-ret, errorbuf);
 
-      if(verifypeer)
-        return CURLE_SSL_CACERT_BADFILE;
+      ఒకవేళ(verifypeer)
+        తిరిగి CURLE_SSL_CACERT_BADFILE;
     }
-#else
-    failf(data, "mbedTLS: functions that use the file system not built in");
-    return CURLE_NOT_BUILT_IN;
-#endif
+#లేకపోతే
+    failf(దత్తాంశం, "mbedTLS: functions that use the file system not built in");
+    తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode mbed_load_clicert(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+స్థిర CURLcode mbed_ఎక్కించు_clicert(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  char * const ssl_cert = conn_config->clientcert;
-  const struct curl_blob *ssl_cert_blob = conn_config->cert_blob;
-#ifdef MBEDTLS_PEM_PARSE_C
-  const char * const ssl_cert_type = conn_config->cert_type;
-#endif
-  int ret = -1;
-  char errorbuf[128];
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  అక్షరం * స్థిరరాశి ssl_cert = conn_config->clientcert;
+  స్థిరరాశి నిర్మాణం curl_blob *ssl_cert_blob = conn_config->cert_blob;
+#నిర్వచితమైతే MBEDTLS_PEM_PARSE_C
+  స్థిరరాశి అక్షరం * స్థిరరాశి ssl_cert_type = conn_config->cert_type;
+#అయితే_ముగింపు
+  పూర్ణాంకం ret = -1;
+  అక్షరం errorbuf[128];
 
   mbedtls_x509_crt_init(&backend->clicert);
 
-  if(ssl_cert) {
-#ifdef MBEDTLS_FS_IO
+  ఒకవేళ(ssl_cert) {
+#నిర్వచితమైతే MBEDTLS_FS_IO
     ret = mbedtls_x509_crt_parse_file(&backend->clicert, ssl_cert);
 
-    if(ret) {
-      mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-      failf(data, "mbedTLS: error reading client cert file %s: (-0x%04X) %s",
-            ssl_cert, (unsigned int)-ret, errorbuf);
+    ఒకవేళ(ret) {
+      mbedtls_strerror(ret, errorbuf, పరిమాణం(errorbuf));
+      failf(దత్తాంశం, "mbedTLS: error reading client cert file %s: (-0x%04X) %s",
+            ssl_cert, (గుర్తులేని పూర్ణాంకం)-ret, errorbuf);
 
-      return CURLE_SSL_CERTPROBLEM;
+      తిరిగి CURLE_SSL_CERTPROBLEM;
     }
-#else
-    failf(data, "mbedTLS: functions that use the file system not built in");
-    return CURLE_NOT_BUILT_IN;
-#endif
+#లేకపోతే
+    failf(దత్తాంశం, "mbedTLS: functions that use the file system not built in");
+    తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
   }
 
-  if(ssl_cert_blob) {
-#ifdef MBEDTLS_PEM_PARSE_C
+  ఒకవేళ(ssl_cert_blob) {
+#నిర్వచితమైతే MBEDTLS_PEM_PARSE_C
     /* if DER or a null-terminated PEM process using
        mbedtls_x509_crt_parse(). */
-    if((ssl_cert_type && curl_strequal(ssl_cert_type, "DER")) ||
-       ((char *)(ssl_cert_blob->data))[ssl_cert_blob->len - 1] == '\0') {
+    ఒకవేళ((ssl_cert_type && curl_strequal(ssl_cert_type, "DER")) ||
+       ((అక్షరం *)(ssl_cert_blob->దత్తాంశం))[ssl_cert_blob->len - 1] == '\0') {
 
       ret = mbedtls_x509_crt_parse(&backend->clicert,
-                                   ssl_cert_blob->data,
+                                   ssl_cert_blob->దత్తాంశం,
                                    ssl_cert_blob->len);
     }
-    else { /* they say it is PEM and it is not null-terminated */
+    లేకపోతే { /* they say it is PEM and it is not null-terminated */
 
       /* Unfortunately, mbedtls_x509_crt_parse() requires the data to be
          null-terminated if the data is PEM encoded (even when provided the
          exact length). The function accepts PEM or DER formats, but we cannot
          assume if the user passed in a PEM format cert that it is
          null-terminated. */
-      unsigned char *newblob = curlx_memdup0(ssl_cert_blob->data,
+      గుర్తులేని అక్షరం *newblob = curlx_memdup0(ssl_cert_blob->దత్తాంశం,
                                              ssl_cert_blob->len);
-      if(!newblob)
-        return CURLE_OUT_OF_MEMORY;
+      ఒకవేళ(!newblob)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       ret = mbedtls_x509_crt_parse(&backend->clicert, newblob,
                                    ssl_cert_blob->len + 1);
       curlx_free(newblob);
     }
-#else
+#లేకపోతే
     /* DER encoded certs do not need to be null-terminated because it is a
        binary format. Thus, if we are not compiling with PEM_PARSE we can avoid
        the extra memory copies altogether. */
-    ret = mbedtls_x509_crt_parse_der(&backend->clicert, ssl_cert_blob->data,
+    ret = mbedtls_x509_crt_parse_der(&backend->clicert, ssl_cert_blob->దత్తాంశం,
                                      ssl_cert_blob->len);
-#endif
+#అయితే_ముగింపు
 
-    if(ret) {
-      mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-      failf(data, "mbedTLS: error reading client cert blob: (-0x%04X) %s",
-            (unsigned int)-ret, errorbuf);
-      return CURLE_SSL_CERTPROBLEM;
+    ఒకవేళ(ret) {
+      mbedtls_strerror(ret, errorbuf, పరిమాణం(errorbuf));
+      failf(దత్తాంశం, "mbedTLS: error reading client cert blob: (-0x%04X) %s",
+            (గుర్తులేని పూర్ణాంకం)-ret, errorbuf);
+      తిరిగి CURLE_SSL_CERTPROBLEM;
     }
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode mbed_load_privkey(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+స్థిర CURLcode mbed_ఎక్కించు_privkey(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int ret = -1;
-  char errorbuf[128];
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  పూర్ణాంకం ret = -1;
+  అక్షరం errorbuf[128];
 
   mbedtls_pk_init(&backend->pk);
 
-  if(conn_config->key || conn_config->key_blob) {
-    if(conn_config->key) {
-#ifdef MBEDTLS_FS_IO
-#if MBEDTLS_VERSION_NUMBER >= 0x04000000
-      ret = mbedtls_pk_parse_keyfile(&backend->pk, conn_config->key,
-                                     conn_config->key_passwd);
-      if(ret == 0 &&
+  ఒకవేళ(conn_config->కీలకం || conn_config->కీలకం_blob) {
+    ఒకవేళ(conn_config->కీలకం) {
+#నిర్వచితమైతే MBEDTLS_FS_IO
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య >= 0x04000000
+      ret = mbedtls_pk_parse_keyfile(&backend->pk, conn_config->కీలకం,
+                                     conn_config->కీలకం_passwd);
+      ఒకవేళ(ret == 0 &&
          !(mbedtls_pk_can_do_psa(&backend->pk,
                                  PSA_ALG_RSA_PKCS1V15_SIGN(PSA_ALG_ANY_HASH),
-                                 PSA_KEY_USAGE_SIGN_HASH) ||
+                                 PSA_కీలకం_USAGE_SIGN_HASH) ||
            mbedtls_pk_can_do_psa(&backend->pk,
                                  MBEDTLS_PK_ALG_ECDSA(PSA_ALG_ANY_HASH),
-                                 PSA_KEY_USAGE_SIGN_HASH)))
+                                 PSA_కీలకం_USAGE_SIGN_HASH)))
         ret = MBEDTLS_ERR_PK_TYPE_MISMATCH;
-#else
-      ret = mbedtls_pk_parse_keyfile(&backend->pk, conn_config->key,
-                                     conn_config->key_passwd,
+#లేకపోతే
+      ret = mbedtls_pk_parse_keyfile(&backend->pk, conn_config->కీలకం,
+                                     conn_config->కీలకం_passwd,
                                      mbedtls_ctr_drbg_random,
                                      &rng.drbg);
-      if(ret == 0 && !(mbedtls_pk_can_do(&backend->pk, MBEDTLS_PK_RSA) ||
+      ఒకవేళ(ret == 0 && !(mbedtls_pk_can_do(&backend->pk, MBEDTLS_PK_RSA) ||
                        mbedtls_pk_can_do(&backend->pk, MBEDTLS_PK_ECKEY)))
         ret = MBEDTLS_ERR_PK_TYPE_MISMATCH;
-#endif
+#అయితే_ముగింపు
 
-      if(ret) {
-        mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-        failf(data, "mbedTLS: error reading private key %s: (-0x%04X) %s",
-              conn_config->key, (unsigned int)-ret, errorbuf);
-        return CURLE_SSL_CERTPROBLEM;
+      ఒకవేళ(ret) {
+        mbedtls_strerror(ret, errorbuf, పరిమాణం(errorbuf));
+        failf(దత్తాంశం, "mbedTLS: error reading private key %s: (-0x%04X) %s",
+              conn_config->కీలకం, (గుర్తులేని పూర్ణాంకం)-ret, errorbuf);
+        తిరిగి CURLE_SSL_CERTPROBLEM;
       }
-#else
-      failf(data, "mbedTLS: functions that use the file system not built in");
-      return CURLE_NOT_BUILT_IN;
-#endif
+#లేకపోతే
+      failf(దత్తాంశం, "mbedTLS: functions that use the file system not built in");
+      తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
     }
-    else {
-      const struct curl_blob *ssl_key_blob = conn_config->key_blob;
-      const char *passwd = conn_config->key_passwd;
-      const bool is_der = conn_config->key_type &&
-                          curl_strequal(conn_config->key_type, "DER");
+    లేకపోతే {
+      స్థిరరాశి నిర్మాణం curl_blob *ssl_కీలకం_blob = conn_config->కీలకం_blob;
+      స్థిరరాశి అక్షరం *passwd = conn_config->కీలకం_passwd;
+      స్థిరరాశి bool is_der = conn_config->కీలకం_type &&
+                          curl_strequal(conn_config->కీలకం_type, "DER");
       /* Unfortunately, mbedtls_pk_parse_key() requires the data to be
          null-terminated if the data is PEM encoded (even when provided the
          exact length). */
-      unsigned char *newblob = curlx_memdup0(ssl_key_blob->data,
-                                             ssl_key_blob->len);
+      గుర్తులేని అక్షరం *newblob = curlx_memdup0(ssl_కీలకం_blob->దత్తాంశం,
+                                             ssl_కీలకం_blob->len);
       /* mbedtls_pk_parse_key() requires the terminator to be counted in the
          length for PEM input, while the DER parsers require the exact
          length: a DER key with the terminator counted in is rejected with
          MBEDTLS_ERR_ASN1_LENGTH_MISMATCH. */
-      size_t keylen = is_der ? ssl_key_blob->len : ssl_key_blob->len + 1;
-      if(!newblob)
-        return CURLE_OUT_OF_MEMORY;
+      size_t keylen = is_der ? ssl_కీలకం_blob->len : ssl_కీలకం_blob->len + 1;
+      ఒకవేళ(!newblob)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-#if MBEDTLS_VERSION_NUMBER >= 0x04000000
-      ret = mbedtls_pk_parse_key(&backend->pk, newblob, keylen,
-                                 (const unsigned char *)passwd,
-                                 passwd ? strlen(passwd) : 0);
-      if(ret == 0 &&
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య >= 0x04000000
+      ret = mbedtls_pk_parse_కీలకం(&backend->pk, newblob, keylen,
+                                 (స్థిరరాశి గుర్తులేని అక్షరం *)passwd,
+                                 passwd ? అక్షరశ్రేణి_పొడవు(passwd) : 0);
+      ఒకవేళ(ret == 0 &&
          !(mbedtls_pk_can_do_psa(&backend->pk,
                                  PSA_ALG_RSA_PKCS1V15_SIGN(PSA_ALG_ANY_HASH),
-                                 PSA_KEY_USAGE_SIGN_HASH) ||
+                                 PSA_కీలకం_USAGE_SIGN_HASH) ||
            mbedtls_pk_can_do_psa(&backend->pk,
                                  MBEDTLS_PK_ALG_ECDSA(PSA_ALG_ANY_HASH),
-                                 PSA_KEY_USAGE_SIGN_HASH)))
+                                 PSA_కీలకం_USAGE_SIGN_HASH)))
         ret = MBEDTLS_ERR_PK_TYPE_MISMATCH;
-#else
-      ret = mbedtls_pk_parse_key(&backend->pk, newblob, keylen,
-                                 (const unsigned char *)passwd,
-                                 passwd ? strlen(passwd) : 0,
+#లేకపోతే
+      ret = mbedtls_pk_parse_కీలకం(&backend->pk, newblob, keylen,
+                                 (స్థిరరాశి గుర్తులేని అక్షరం *)passwd,
+                                 passwd ? అక్షరశ్రేణి_పొడవు(passwd) : 0,
                                  mbedtls_ctr_drbg_random,
                                  &rng.drbg);
-      if(ret == 0 && !(mbedtls_pk_can_do(&backend->pk, MBEDTLS_PK_RSA) ||
+      ఒకవేళ(ret == 0 && !(mbedtls_pk_can_do(&backend->pk, MBEDTLS_PK_RSA) ||
                        mbedtls_pk_can_do(&backend->pk, MBEDTLS_PK_ECKEY)))
         ret = MBEDTLS_ERR_PK_TYPE_MISMATCH;
-#endif
+#అయితే_ముగింపు
       curlx_free(newblob);
 
-      if(ret) {
-        mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-        failf(data, "mbedTLS: error parsing private key: (-0x%04X) %s",
-              (unsigned int)-ret, errorbuf);
-        return CURLE_SSL_CERTPROBLEM;
+      ఒకవేళ(ret) {
+        mbedtls_strerror(ret, errorbuf, పరిమాణం(errorbuf));
+        failf(దత్తాంశం, "mbedTLS: error parsing private key: (-0x%04X) %s",
+              (గుర్తులేని పూర్ణాంకం)-ret, errorbuf);
+        తిరిగి CURLE_SSL_CERTPROBLEM;
       }
     }
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode mbed_load_crl(struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+స్థిర CURLcode mbed_ఎక్కించు_crl(నిర్మాణం Curl_cfilter *cf,
+                              నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  const char * const ssl_crlfile = conn_config->CRLfile;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  స్థిరరాశి అక్షరం * స్థిరరాశి ssl_crlfile = conn_config->CRLfile;
 
-#ifdef MBEDTLS_X509_CRL_PARSE_C
+#నిర్వచితమైతే MBEDTLS_X509_CRL_PARSE_C
   mbedtls_x509_crl_init(&backend->crl);
 
-  if(ssl_crlfile) {
-    char errorbuf[128];
-#ifdef MBEDTLS_FS_IO
-    int ret = mbedtls_x509_crl_parse_file(&backend->crl, ssl_crlfile);
+  ఒకవేళ(ssl_crlfile) {
+    అక్షరం errorbuf[128];
+#నిర్వచితమైతే MBEDTLS_FS_IO
+    పూర్ణాంకం ret = mbedtls_x509_crl_parse_file(&backend->crl, ssl_crlfile);
 
-    if(ret) {
-      mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-      failf(data, "mbedTLS: error reading CRL file %s: (-0x%04X) %s",
-            ssl_crlfile, (unsigned int)-ret, errorbuf);
+    ఒకవేళ(ret) {
+      mbedtls_strerror(ret, errorbuf, పరిమాణం(errorbuf));
+      failf(దత్తాంశం, "mbedTLS: error reading CRL file %s: (-0x%04X) %s",
+            ssl_crlfile, (గుర్తులేని పూర్ణాంకం)-ret, errorbuf);
 
-      return CURLE_SSL_CRL_BADFILE;
+      తిరిగి CURLE_SSL_CRL_BADFILE;
     }
-#else
-    (void)errorbuf;
-    failf(data, "mbedTLS: functions that use the file system not built in");
-    return CURLE_NOT_BUILT_IN;
-#endif
+#లేకపోతే
+    (శూన్య)errorbuf;
+    failf(దత్తాంశం, "mbedTLS: functions that use the file system not built in");
+    తిరిగి CURLE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
   }
-#else
-  (void)backend;
-  if(ssl_crlfile) {
-    failf(data, "mbedTLS: CRL support not built in");
-    return CURLE_NOT_BUILT_IN;
+#లేకపోతే
+  (శూన్య)backend;
+  ఒకవేళ(ssl_crlfile) {
+    failf(దత్తాంశం, "mbedTLS: CRL support not built in");
+    తిరిగి CURLE_NOT_BUILT_లోపల;
   }
-#endif
+#అయితే_ముగింపు
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static bool mbed_apply_session(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct Curl_ssl_session *sc_session)
+స్థిర bool mbed_apply_session(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_ssl_session *sc_session)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
 
-  if(sc_session && sc_session->sdata && sc_session->sdata_len) {
+  ఒకవేళ(sc_session && sc_session->sdata && sc_session->sdata_len) {
     mbedtls_ssl_session session;
-    int ret;
+    పూర్ణాంకం ret;
 
     mbedtls_ssl_session_init(&session);
-    ret = mbedtls_ssl_session_load(&session, sc_session->sdata,
+    ret = mbedtls_ssl_session_ఎక్కించు(&session, sc_session->sdata,
                                    sc_session->sdata_len);
-    if(ret) {
-      failf(data, "SSL session error loading: -0x%x", (unsigned int)-ret);
+    ఒకవేళ(ret) {
+      failf(దత్తాంశం, "SSL session error loading: -0x%x", (గుర్తులేని పూర్ణాంకం)-ret);
     }
-    else {
-      ret = mbedtls_ssl_set_session(&backend->ssl, &session);
-      if(ret)
-        failf(data, "SSL session error setting: -0x%x", (unsigned int)-ret);
+    లేకపోతే {
+      ret = mbedtls_ssl_సమితి_session(&backend->ssl, &session);
+      ఒకవేళ(ret)
+        failf(దత్తాంశం, "SSL session error setting: -0x%x", (గుర్తులేని పూర్ణాంకం)-ret);
     }
     mbedtls_ssl_session_free(&session);
-    if(!ret) {
-      infof(data, "SSL reusing session ID");
-      return TRUE;
+    ఒకవేళ(!ret) {
+      infof(దత్తాంశం, "SSL reusing session ID");
+      తిరిగి TRUE;
     }
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static CURLcode mbed_configure_ssl(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+స్థిర CURLcode mbed_configure_ssl(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int ret;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  పూర్ణాంకం ret;
   bool session_applied = FALSE;
-  CURLcode result;
-  char errorbuf[128];
+  CURLcode ఫలితం;
+  అక్షరం errorbuf[128];
 
-  infof(data, "mbedTLS: Connecting to %s:%d",
-        connssl->peer.origin->hostname, connssl->peer.origin->port);
+  infof(దత్తాంశం, "mbedTLS: Connecting to %s:%d",
+        connssl->peer.origin->hostname, connssl->peer.origin->పోర్టు);
 
   mbedtls_ssl_config_init(&backend->config);
   ret = mbedtls_ssl_config_defaults(&backend->config,
                                     MBEDTLS_SSL_IS_CLIENT,
-                                    MBEDTLS_SSL_TRANSPORT_STREAM,
+                                    MBEDTLS_SSL_TRANSPORT_ప్రవాహం,
                                     MBEDTLS_SSL_PRESET_DEFAULT);
-  if(ret) {
-    failf(data, "mbedTLS: ssl_config failed");
-    return CURLE_SSL_CONNECT_ERROR;
+  ఒకవేళ(ret) {
+    failf(దత్తాంశం, "mbedTLS: ssl_config failed");
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
-#ifdef MBEDTLS_DEBUG
+#నిర్వచితమైతే MBEDTLS_DEBUG
   /* In order to make that work in mbedtls MBEDTLS_DEBUG_C must be defined. */
-  mbedtls_ssl_conf_dbg(&backend->config, mbed_debug, data);
+  mbedtls_ssl_conf_dbg(&backend->config, mbed_debug, దత్తాంశం);
   /* - 0 No debug
    * - 1 Error
    * - 2 State change
    * - 3 Informational
    * - 4 Verbose
    */
-  mbedtls_debug_set_threshold(4);
-#endif
+  mbedtls_debug_సమితి_పరిమితి(4);
+#అయితే_ముగింపు
 
-#if defined(MBEDTLS_SSL_SESSION_TICKETS) && \
+#ఒకవేళ defined(MBEDTLS_SSL_SESSION_TICKETS) && \
   defined(MBEDTLS_SSL_PROTO_TLS1_3) &&      \
-  MBEDTLS_VERSION_NUMBER >= 0x03060100 &&   \
-  MBEDTLS_VERSION_NUMBER < 0x04000000
+  MBEDTLS_సంస్కరణ_సంఖ్య >= 0x03060100 &&   \
+  MBEDTLS_సంస్కరణ_సంఖ్య < 0x04000000
   /* New in mbedTLS 3.6.1, need to enable, default is now disabled. 4.0.0
      enabled it by default for TLSv1.3. */
   mbedtls_ssl_conf_tls13_enable_signal_new_session_tickets(
     &backend->config, MBEDTLS_SSL_TLS1_3_SIGNAL_NEW_SESSION_TICKETS_ENABLED);
-#endif
+#అయితే_ముగింపు
 
   /* Always let mbedTLS verify certificates, if verifypeer or verifyhost are
    * disabled we clear the corresponding error flags in the verify callback
@@ -883,269 +883,269 @@ static CURLcode mbed_configure_ssl(struct Curl_cfilter *cf,
 
   /* use the default secure profile baked into mbedTLS */
   mbedtls_ssl_conf_cert_profile(&backend->config,
-                                &mbedtls_x509_crt_profile_next);
+                                &mbedtls_x509_crt_profile_తదుపరి);
 
-  result = mbed_set_ssl_version_min_max(data, backend, conn_config);
-  if(result)
-    return result;
+  ఫలితం = mbed_సమితి_ssl_సంస్కరణ_min_max(దత్తాంశం, backend, conn_config);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-#if MBEDTLS_VERSION_NUMBER < 0x04000000
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య < 0x04000000
   mbedtls_ssl_conf_rng(&backend->config, mbedtls_ctr_drbg_random,
                        &rng.drbg);
-#endif
+#అయితే_ముగింపు
 
-  ret = mbedtls_ssl_setup(&backend->ssl,
+  ret = mbedtls_ssl_అమరిక(&backend->ssl,
                           &backend->config);
-  if(ret) {
-    mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-    failf(data, "mbedTLS: ssl_setup failed: "
-          "(-0x%04X) %s", (unsigned int)-ret, errorbuf);
-    return CURLE_SSL_CONNECT_ERROR;
+  ఒకవేళ(ret) {
+    mbedtls_strerror(ret, errorbuf, పరిమాణం(errorbuf));
+    failf(దత్తాంశం, "mbedTLS: ssl_setup failed: "
+          "(-0x%04X) %s", (గుర్తులేని పూర్ణాంకం)-ret, errorbuf);
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
-  mbedtls_ssl_set_bio(&backend->ssl, cf,
+  mbedtls_ssl_సమితి_bio(&backend->ssl, cf,
                       mbedtls_bio_cf_write,
                       mbedtls_bio_cf_read,
-                      NULL /*  rev_timeout() */);
+                      ఖాళీ /*  rev_timeout() */);
 
-#ifndef MBEDTLS_SSL_PROTO_TLS1_3
-  if(conn_config->cipher_list) {
-    result = mbed_set_selected_ciphers(data, backend,
-                                       conn_config->cipher_list, NULL);
-#else
-  if(conn_config->cipher_list || conn_config->cipher_list13) {
-    result = mbed_set_selected_ciphers(data, backend,
+#నిర్వచితం_కాకపోతే MBEDTLS_SSL_PROTO_TLS1_3
+  ఒకవేళ(conn_config->cipher_list) {
+    ఫలితం = mbed_సమితి_selected_ciphers(దత్తాంశం, backend,
+                                       conn_config->cipher_list, ఖాళీ);
+#లేకపోతే
+  ఒకవేళ(conn_config->cipher_list || conn_config->cipher_list13) {
+    ఫలితం = mbed_సమితి_selected_ciphers(దత్తాంశం, backend,
                                        conn_config->cipher_list,
                                        conn_config->cipher_list13);
-#endif
-    if(result) {
-      failf(data, "mbedTLS: failed to set cipher suites");
-      return result;
+#అయితే_ముగింపు
+    ఒకవేళ(ఫలితం) {
+      failf(దత్తాంశం, "mbedTLS: failed to set cipher suites");
+      తిరిగి ఫలితం;
     }
   }
-  else {
+  లేకపోతే {
     mbedtls_ssl_conf_ciphersuites(&backend->config,
                                   mbedtls_ssl_list_ciphersuites());
   }
 
-#ifdef MBEDTLS_SSL_RENEGOTIATION
+#నిర్వచితమైతే MBEDTLS_SSL_RENEGOTIATION
   mbedtls_ssl_conf_renegotiation(&backend->config,
                                  MBEDTLS_SSL_RENEGOTIATION_ENABLED);
-#endif
+#అయితే_ముగింపు
 
-#ifdef MBEDTLS_SSL_SESSION_TICKETS
+#నిర్వచితమైతే MBEDTLS_SSL_SESSION_TICKETS
   mbedtls_ssl_conf_session_tickets(&backend->config,
                                    MBEDTLS_SSL_SESSION_TICKETS_DISABLED);
-#endif
+#అయితే_ముగింపు
 
-  if((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
+  ఒకవేళ((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
     /* FTP is a bitch. On TLS secured transfers, it is a common server
      * option to require the client to use the SAME TLS session as on
      * the control connection or it fails the request. See #22225. */
-    struct Curl_ssl_session *scs =
-      Curl_ssl_get_cf_session(data, cf->cft, FIRSTSOCKET);
-    if(scs) {
-      if(mbed_apply_session(cf, data, scs)) {
-        CURL_TRC_CF(data, cf, "applied SSL session from control connection");
+    నిర్మాణం Curl_ssl_session *scs =
+      Curl_ssl_get_cf_session(దత్తాంశం, cf->cft, FIRSTSOCKET);
+    ఒకవేళ(scs) {
+      ఒకవేళ(mbed_apply_session(cf, దత్తాంశం, scs)) {
+        CURL_TRC_CF(దత్తాంశం, cf, "applied SSL session from control connection");
         session_applied = TRUE;
       }
     }
   }
 
   /* Check if there is a cached ID we can/should use here! */
-  if(!session_applied && Curl_ssl_scache_use(cf, data)) {
-    struct Curl_ssl_session *sc_session = NULL;
-    CURLcode sresult = Curl_ssl_scache_take(cf, data, connssl->peer.scache_key,
+  ఒకవేళ(!session_applied && Curl_ssl_scache_use(cf, దత్తాంశం)) {
+    నిర్మాణం Curl_ssl_session *sc_session = ఖాళీ;
+    CURLcode sresult = Curl_ssl_scache_take(cf, దత్తాంశం, connssl->peer.scache_కీలకం,
                                             &sc_session);
-    if(!sresult && sc_session && sc_session->sdata && sc_session->sdata_len) {
+    ఒకవేళ(!sresult && sc_session && sc_session->sdata && sc_session->sdata_len) {
       mbedtls_ssl_session session;
 
       mbedtls_ssl_session_init(&session);
-      ret = mbedtls_ssl_session_load(&session, sc_session->sdata,
+      ret = mbedtls_ssl_session_ఎక్కించు(&session, sc_session->sdata,
                                      sc_session->sdata_len);
-      if(ret) {
-        failf(data, "SSL session error loading: -0x%x", (unsigned int)-ret);
+      ఒకవేళ(ret) {
+        failf(దత్తాంశం, "SSL session error loading: -0x%x", (గుర్తులేని పూర్ణాంకం)-ret);
       }
-      else {
-        ret = mbedtls_ssl_set_session(&backend->ssl, &session);
-        if(ret)
-          failf(data, "SSL session error setting: -0x%x", (unsigned int)-ret);
-        else
-          infof(data, "SSL reusing session ID");
+      లేకపోతే {
+        ret = mbedtls_ssl_సమితి_session(&backend->ssl, &session);
+        ఒకవేళ(ret)
+          failf(దత్తాంశం, "SSL session error setting: -0x%x", (గుర్తులేని పూర్ణాంకం)-ret);
+        లేకపోతే
+          infof(దత్తాంశం, "SSL reusing session ID");
       }
       mbedtls_ssl_session_free(&session);
     }
-    Curl_ssl_scache_return(cf, data, connssl->peer.scache_key,
+    Curl_ssl_scache_return(cf, దత్తాంశం, connssl->peer.scache_కీలకం,
                            sc_session);
   }
 
   mbedtls_ssl_conf_ca_chain(&backend->config, &backend->cacert,
-#ifdef MBEDTLS_X509_CRL_PARSE_C
+#నిర్వచితమైతే MBEDTLS_X509_CRL_PARSE_C
                             &backend->crl
-#else
-                            NULL
-#endif
+#లేకపోతే
+                            ఖాళీ
+#అయితే_ముగింపు
     );
 
-  if(conn_config->key || conn_config->key_blob) {
+  ఒకవేళ(conn_config->కీలకం || conn_config->కీలకం_blob) {
     mbedtls_ssl_conf_own_cert(&backend->config, &backend->clicert,
                               &backend->pk);
   }
 
-  if(mbedtls_ssl_set_hostname(&backend->ssl, connssl->peer.sni ?
+  ఒకవేళ(mbedtls_ssl_సమితి_hostname(&backend->ssl, connssl->peer.sni ?
                               connssl->peer.sni :
                               connssl->peer.origin->hostname)) {
     /* mbedtls_ssl_set_hostname() sets the name to use in CN/SAN checks and
        the name to set in the SNI extension. Thus even if curl connects to
        a host specified as an IP address, this function must be used. */
-    failf(data, "Failed to set SNI");
-    return CURLE_SSL_CONNECT_ERROR;
+    failf(దత్తాంశం, "Failed to set SNI");
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
-#ifdef HAS_ALPN_MBEDTLS
-  if(connssl->alpn) {
-    struct alpn_proto_buf proto;
+#నిర్వచితమైతే HAS_ALPN_MBEDTLS
+  ఒకవేళ(connssl->alpn) {
+    నిర్మాణం alpn_proto_buf proto;
     size_t i;
 
-    for(i = 0; i < connssl->alpn->count; ++i) {
+    కొరకు(i = 0; i < connssl->alpn->లెక్క; ++i) {
       backend->protocols[i] = connssl->alpn->entries[i];
     }
     /* this function does not clone the protocols array, which is why we need
        to keep it around */
-    if(mbedtls_ssl_conf_alpn_protocols(&backend->config,
+    ఒకవేళ(mbedtls_ssl_conf_alpn_protocols(&backend->config,
                                        &backend->protocols[0])) {
-      failf(data, "Failed setting ALPN protocols");
-      return CURLE_SSL_CONNECT_ERROR;
+      failf(దత్తాంశం, "Failed setting ALPN protocols");
+      తిరిగి CURLE_SSL_CONNECT_ERROR;
     }
-    Curl_alpn_to_proto_str(&proto, connssl->alpn);
-    infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
+    Curl_alpn_గమ్యం_proto_str(&proto, connssl->alpn);
+    infof(దత్తాంశం, VTLS_INFOF_ALPN_OFFER_1STR, proto.దత్తాంశం);
   }
-#endif
+#అయితే_ముగింపు
 
   /* give application a chance to interfere with mbedTLS set up. */
-  if(data->set.ssl_fsslctx) {
-    result = (*data->set.ssl_fsslctx)(data, &backend->config,
-                                      data->set.ssl_fsslctxp);
-    if(result)
-      failf(data, "error signaled by SSL ctx callback");
+  ఒకవేళ(దత్తాంశం->సమితి.ssl_fsslctx) {
+    ఫలితం = (*దత్తాంశం->సమితి.ssl_fsslctx)(దత్తాంశం, &backend->config,
+                                      దత్తాంశం->సమితి.ssl_fsslctxp);
+    ఒకవేళ(ఫలితం)
+      failf(దత్తాంశం, "error signaled by SSL ctx callback");
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode mbed_connect_step1(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+స్థిర CURLcode mbed_connect_step1(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  CURLcode result;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  CURLcode ఫలితం;
 
-  if((conn_config->version == CURL_SSLVERSION_SSLv2) ||
-     (conn_config->version == CURL_SSLVERSION_SSLv3)) {
-    failf(data, "Not supported SSL version");
-    return CURLE_NOT_BUILT_IN;
+  ఒకవేళ((conn_config->సంస్కరణ_2 == CURL_SSLVERSION_SSLv2) ||
+     (conn_config->సంస్కరణ_2 == CURL_SSLVERSION_SSLv3)) {
+    failf(దత్తాంశం, "Not supported SSL version");
+    తిరిగి CURLE_NOT_BUILT_లోపల;
   }
 
-  result = mbed_load_cacert(cf, data);
-  if(!result)
-    result = mbed_load_clicert(cf, data);
-  if(!result)
-    result = mbed_load_privkey(cf, data);
-  if(!result)
-    result = mbed_load_crl(cf, data);
-  if(!result)
-    result = mbed_configure_ssl(cf, data);
-  if(result)
-    return result;
+  ఫలితం = mbed_ఎక్కించు_cacert(cf, దత్తాంశం);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = mbed_ఎక్కించు_clicert(cf, దత్తాంశం);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = mbed_ఎక్కించు_privkey(cf, దత్తాంశం);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = mbed_ఎక్కించు_crl(cf, దత్తాంశం);
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = mbed_configure_ssl(cf, దత్తాంశం);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   connssl->connecting_state = ssl_connect_2;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-#if defined(MBEDTLS_PK_WRITE_C) && defined(MBEDTLS_SSL_KEEP_PEER_CERTIFICATE)
-#define HAVE_PINNED_PUBKEY
-#endif
+#ఒకవేళ defined(MBEDTLS_PK_WRITE_C) && defined(MBEDTLS_SSL_KEEP_PEER_CERTIFICATE)
+#నిర్వచించు HAVE_PINNED_PUBKEY
+#అయితే_ముగింపు
 
-static CURLcode mbed_connect_step2(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+స్థిర CURLcode mbed_connect_step2(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం)
 {
-#if defined(HAVE_PINNED_PUBKEY) || defined(HAS_ALPN_MBEDTLS)
-  CURLcode result;
-#endif
-  int ret;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
-#ifdef HAVE_PINNED_PUBKEY
-#ifndef CURL_DISABLE_PROXY
-  const char * const pinnedpubkey = Curl_ssl_cf_is_proxy(cf) ?
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#else
-  const char * const pinnedpubkey =
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#endif
-#endif
+#ఒకవేళ defined(HAVE_PINNED_PUBKEY) || defined(HAS_ALPN_MBEDTLS)
+  CURLcode ఫలితం;
+#అయితే_ముగింపు
+  పూర్ణాంకం ret;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
+#నిర్వచితమైతే HAVE_PINNED_PUBKEY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+  స్థిరరాశి అక్షరం * స్థిరరాశి pinnedpubkey = Curl_ssl_cf_is_proxy(cf) ?
+    CURL_EASY_STR(దత్తాంశం, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
+    CURL_EASY_STR(దత్తాంశం, STRING_SSL_PINNEDPUBLICKEY);
+#లేకపోతే
+  స్థిరరాశి అక్షరం * స్థిరరాశి pinnedpubkey =
+    CURL_EASY_STR(దత్తాంశం, STRING_SSL_PINNEDPUBLICKEY);
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
   DEBUGASSERT(backend);
 
   ret = mbedtls_ssl_handshake(&backend->ssl);
 
-  if(ret == MBEDTLS_ERR_SSL_WANT_READ) {
+  ఒకవేళ(ret == MBEDTLS_ERR_SSL_WANT_READ) {
     connssl->io_need = CURL_SSL_IO_NEED_RECV;
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
   }
-  else if(ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
+  లేకపోతే ఒకవేళ(ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
     connssl->io_need = CURL_SSL_IO_NEED_SEND;
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
   }
-  else if(ret == MBEDTLS_ERR_X509_CERT_VERIFY_FAILED) {
-    failf(data, "peer certificate could not be verified");
-    return CURLE_PEER_FAILED_VERIFICATION;
+  లేకపోతే ఒకవేళ(ret == MBEDTLS_ERR_X509_CERT_VERIFY_FAILED) {
+    failf(దత్తాంశం, "peer certificate could not be verified");
+    తిరిగి CURLE_PEER_FAILED_VERIFICATION;
   }
-  else if(ret) {
-    char errorbuf[128];
-    CURL_TRC_CF(data, cf, "TLS version %04X",
-                mbedtls_ssl_get_version_number(&backend->ssl));
-    mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-    failf(data, "ssl_handshake returned: (-0x%04X) %s",
-          (unsigned int)-ret, errorbuf);
-    return CURLE_SSL_CONNECT_ERROR;
+  లేకపోతే ఒకవేళ(ret) {
+    అక్షరం errorbuf[128];
+    CURL_TRC_CF(దత్తాంశం, cf, "TLS version %04X",
+                mbedtls_ssl_get_సంస్కరణ_సంఖ్య(&backend->ssl));
+    mbedtls_strerror(ret, errorbuf, పరిమాణం(errorbuf));
+    failf(దత్తాంశం, "ssl_handshake returned: (-0x%04X) %s",
+          (గుర్తులేని పూర్ణాంకం)-ret, errorbuf);
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
   {
-    char cipher_str[64];
+    అక్షరం cipher_str[64];
     uint16_t cipher_id;
     cipher_id =
       (uint16_t)mbedtls_ssl_get_ciphersuite_id_from_ssl(&backend->ssl);
-    mbed_cipher_suite_get_str(cipher_id, cipher_str, sizeof(cipher_str), TRUE);
-    infof(data, "mbedTLS: %s Handshake complete, cipher is %s",
-          mbedtls_ssl_get_version(&backend->ssl), cipher_str);
+    mbed_cipher_suite_get_str(cipher_id, cipher_str, పరిమాణం(cipher_str), TRUE);
+    infof(దత్తాంశం, "mbedTLS: %s Handshake complete, cipher is %s",
+          mbedtls_ssl_get_సంస్కరణ(&backend->ssl), cipher_str);
   }
 
-#ifdef HAVE_PINNED_PUBKEY
-  if(pinnedpubkey) {
-    int size;
-    const mbedtls_x509_crt *peercert;
-    mbedtls_x509_crt *p = NULL;
-    unsigned char *pubkey = NULL;
+#నిర్వచితమైతే HAVE_PINNED_PUBKEY
+  ఒకవేళ(pinnedpubkey) {
+    పూర్ణాంకం కొలత;
+    స్థిరరాశి mbedtls_x509_crt *peercert;
+    mbedtls_x509_crt *p = ఖాళీ;
+    గుర్తులేని అక్షరం *pubkey = ఖాళీ;
 
     peercert = mbedtls_ssl_get_peer_cert(&backend->ssl);
-    if(!peercert || !peercert->raw.p || !peercert->raw.len) {
-      failf(data, "Failed due to missing peer certificate");
-      return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
+    ఒకవేళ(!peercert || !peercert->raw.p || !peercert->raw.len) {
+      failf(దత్తాంశం, "Failed due to missing peer certificate");
+      తిరిగి CURLE_SSL_PINNEDPUBKEYNOTMATCH;
     }
 
-    p = curlx_calloc(1, sizeof(*p));
+    p = curlx_calloc(1, పరిమాణం(*p));
 
-    if(!p)
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(!p)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-    pubkey = curlx_malloc(PUB_DER_MAX_BYTES);
+    pubkey = curlx_malloc(PUB_DER_MAX_బైట్లు);
 
-    if(!pubkey) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto pinnedpubkey_error;
+    ఒకవేళ(!pubkey) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు pinnedpubkey_error;
     }
 
     mbedtls_x509_crt_init(p);
@@ -1153,569 +1153,569 @@ static CURLcode mbed_connect_step2(struct Curl_cfilter *cf,
     /* Make a copy of our const peercert because mbedtls_pk_write_pubkey_der
        needs a non-const key, for now.
        https://github.com/Mbed-TLS/mbedtls/issues/396 */
-    if(mbedtls_x509_crt_parse_der(p, peercert->raw.p, peercert->raw.len)) {
-      failf(data, "Failed copying peer certificate");
-      result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
-      goto pinnedpubkey_error;
+    ఒకవేళ(mbedtls_x509_crt_parse_der(p, peercert->raw.p, peercert->raw.len)) {
+      failf(దత్తాంశం, "Failed copying peer certificate");
+      ఫలితం = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
+      వెళ్ళు pinnedpubkey_error;
     }
 
-    size = mbedtls_pk_write_pubkey_der(&p->pk, pubkey, PUB_DER_MAX_BYTES);
+    కొలత = mbedtls_pk_write_pubkey_der(&p->pk, pubkey, PUB_DER_MAX_బైట్లు);
 
-    if(size <= 0) {
-      failf(data, "Failed copying public key from peer certificate");
-      result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
-      goto pinnedpubkey_error;
+    ఒకవేళ(కొలత <= 0) {
+      failf(దత్తాంశం, "Failed copying public key from peer certificate");
+      ఫలితం = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
+      వెళ్ళు pinnedpubkey_error;
     }
 
     /* mbedtls_pk_write_pubkey_der writes data at the end of the buffer. */
-    result = Curl_pin_peer_pubkey(data,
+    ఫలితం = Curl_pin_peer_pubkey(దత్తాంశం,
                                   pinnedpubkey,
-                                  &pubkey[PUB_DER_MAX_BYTES - size], size);
+                                  &pubkey[PUB_DER_MAX_బైట్లు - కొలత], కొలత);
 pinnedpubkey_error:
     mbedtls_x509_crt_free(p);
     curlx_free(p);
     curlx_free(pubkey);
-    if(result)
-      return result;
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
-#endif
+#అయితే_ముగింపు
 
-#ifdef HAS_ALPN_MBEDTLS
-  if(connssl->alpn) {
-    const char *proto = mbedtls_ssl_get_alpn_protocol(&backend->ssl);
+#నిర్వచితమైతే HAS_ALPN_MBEDTLS
+  ఒకవేళ(connssl->alpn) {
+    స్థిరరాశి అక్షరం *proto = mbedtls_ssl_get_alpn_protocol(&backend->ssl);
 
-    result = Curl_alpn_set_negotiated(cf, data, connssl,
-                                      (const unsigned char *)proto,
-                                      proto ? strlen(proto) : 0);
-    if(result)
-      return result;
+    ఫలితం = Curl_alpn_సమితి_negotiated(cf, దత్తాంశం, connssl,
+                                      (స్థిరరాశి గుర్తులేని అక్షరం *)proto,
+                                      proto ? అక్షరశ్రేణి_పొడవు(proto) : 0);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
-#endif
+#అయితే_ముగింపు
 
   connssl->connecting_state = ssl_connect_3;
-  infof(data, "SSL connected");
+  infof(దత్తాంశం, "SSL connected");
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode mbed_new_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+స్థిర CURLcode mbed_new_session(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
   mbedtls_ssl_session session;
   bool msession_alloced = FALSE;
-  struct Curl_ssl_session *sc_session = NULL;
-  unsigned char *sdata = NULL;
+  నిర్మాణం Curl_ssl_session *sc_session = ఖాళీ;
+  గుర్తులేని అక్షరం *sdata = ఖాళీ;
   size_t slen = 0;
-  int ietf_tls_id;
-  CURLcode result = CURLE_OK;
-  int ret;
+  పూర్ణాంకం ietf_tls_id;
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం ret;
 
   DEBUGASSERT(backend);
-  if(!Curl_ssl_scache_use(cf, data))
-    return CURLE_OK;
+  ఒకవేళ(!Curl_ssl_scache_use(cf, దత్తాంశం))
+    తిరిగి CURLE_OK;
 
   mbedtls_ssl_session_init(&session);
   ret = mbedtls_ssl_get_session(&backend->ssl, &session);
   msession_alloced = (ret != MBEDTLS_ERR_SSL_ALLOC_FAILED);
-  if(ret) {
-    failf(data, "mbedtls_ssl_get_session returned -0x%x", (unsigned int)-ret);
-    result = CURLE_SSL_CONNECT_ERROR;
-    goto out;
+  ఒకవేళ(ret) {
+    failf(దత్తాంశం, "mbedtls_ssl_get_session returned -0x%x", (గుర్తులేని పూర్ణాంకం)-ret);
+    ఫలితం = CURLE_SSL_CONNECT_ERROR;
+    వెళ్ళు బహిర్గతం;
   }
 
-  mbedtls_ssl_session_save(&session, NULL, 0, &slen);
-  if(!slen) {
-    failf(data, "failed to serialize session: length is 0");
-    goto out;
+  mbedtls_ssl_session_save(&session, ఖాళీ, 0, &slen);
+  ఒకవేళ(!slen) {
+    failf(దత్తాంశం, "failed to serialize session: length is 0");
+    వెళ్ళు బహిర్గతం;
   }
 
   sdata = curlx_malloc(slen);
-  if(!sdata) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ఒకవేళ(!sdata) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
   ret = mbedtls_ssl_session_save(&session, sdata, slen, &slen);
-  if(ret) {
-    failf(data, "failed to serialize session: -0x%x", (unsigned int)-ret);
-    goto out;
+  ఒకవేళ(ret) {
+    failf(దత్తాంశం, "failed to serialize session: -0x%x", (గుర్తులేని పూర్ణాంకం)-ret);
+    వెళ్ళు బహిర్గతం;
   }
 
-  ietf_tls_id = mbedtls_ssl_get_version_number(&backend->ssl);
-  result = Curl_ssl_session_create(sdata, slen,
+  ietf_tls_id = mbedtls_ssl_get_సంస్కరణ_సంఖ్య(&backend->ssl);
+  ఫలితం = Curl_ssl_session_create(sdata, slen,
                                    ietf_tls_id,
                                    connssl->negotiated.alpn, 0, 0,
                                    &sc_session);
-  sdata = NULL;  /* call took ownership */
-  if(!result && /* return a duplicate if asked for and FTP */
+  sdata = ఖాళీ;  /* call took ownership */
+  ఒకవేళ(!ఫలితం && /* return a duplicate if asked for and FTP */
      (cf->conn->scheme->family == CURLPROTO_FTP)) {
     Curl_ssl_session_destroy(connssl->session);
-    result = Curl_ssl_session_dup(sc_session, &connssl->session);
+    ఫలితం = Curl_ssl_session_dup(sc_session, &connssl->session);
   }
 
-  if(!result) {
-    result = Curl_ssl_scache_put(cf, data, connssl->peer.scache_key,
+  ఒకవేళ(!ఫలితం) {
+    ఫలితం = Curl_ssl_scache_put(cf, దత్తాంశం, connssl->peer.scache_కీలకం,
                                  sc_session);
-    sc_session = NULL;
+    sc_session = ఖాళీ;
   }
 
-out:
-  if(msession_alloced)
+బహిర్గతం:
+  ఒకవేళ(msession_alloced)
     mbedtls_ssl_session_free(&session);
   Curl_ssl_session_destroy(sc_session);
   curlx_free(sdata);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode mbed_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          const void *mem, size_t len, size_t *pnwritten)
+స్థిర CURLcode mbed_send(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                          స్థిరరాశి శూన్య *mem, size_t len, size_t *pnwritten)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
-  int nwritten;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం nwritten;
 
   DEBUGASSERT(backend);
-#ifdef MBEDTLS_SSL_PROTO_TLS1_3
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_3
 do_send:
-#endif
+#అయితే_ముగింపు
   *pnwritten = 0;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
   /* mbedTLS is picky when a mbedtls_ssl_write() was previously blocked.
    * It requires to be called with the same amount of bytes again, or it
    * loses bytes, e.g. reporting all was sent but they were not.
    * Remember the blocked length and use that when set. */
-  if(backend->send_blocked) {
-    if(backend->send_blocked_len > len) {
+  ఒకవేళ(backend->send_blocked) {
+    ఒకవేళ(backend->send_blocked_len > len) {
       DEBUGASSERT(0);
-      failf(data, "re-send data shorter than previously");
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      failf(దత్తాంశం, "re-send data shorter than previously");
+      ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+      వెళ్ళు బహిర్గతం;
     }
-    CURL_TRC_CF(data, cf, "mbedtls_ssl_write(len=%zu) -> previously blocked "
+    CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_ssl_write(len=%zu) -> previously blocked "
                 "on %zu bytes", len, backend->send_blocked_len);
     len = backend->send_blocked_len;
   }
 
-  nwritten = mbedtls_ssl_write(&backend->ssl, (const unsigned char *)mem, len);
+  nwritten = mbedtls_ssl_write(&backend->ssl, (స్థిరరాశి గుర్తులేని అక్షరం *)mem, len);
 
-  if(nwritten >= 0) {
+  ఒకవేళ(nwritten >= 0) {
     *pnwritten = (size_t)nwritten;
     backend->send_blocked = FALSE;
   }
-  else {
-    CURL_TRC_CF(data, cf, "mbedtls_ssl_write(len=%zu) -> -0x%04X",
-                len, (unsigned int)-nwritten);
-    switch(nwritten) {
-#ifdef MBEDTLS_SSL_PROTO_TLS1_3
-    case MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET:
-      result = mbed_new_session(cf, data);
+  లేకపోతే {
+    CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_ssl_write(len=%zu) -> -0x%04X",
+                len, (గుర్తులేని పూర్ణాంకం)-nwritten);
+    ఎంపిక(nwritten) {
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_3
+    స్థితి MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET:
+      ఫలితం = mbed_new_session(cf, దత్తాంశం);
       /* This return code is not blocking. Having treated the new
        * ticket, resume sending until we get a "real" result. */
-      if(!result)
-        goto do_send;
-      break;
-#endif
-    case MBEDTLS_ERR_SSL_WANT_READ:
+      ఒకవేళ(!ఫలితం)
+        వెళ్ళు do_send;
+      ఆపు;
+#అయితే_ముగింపు
+    స్థితి MBEDTLS_ERR_SSL_WANT_READ:
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
-      result = CURLE_AGAIN;
-      break;
-    case MBEDTLS_ERR_SSL_WANT_WRITE:
+      ఫలితం = CURLE_AGAIN;
+      ఆపు;
+    స్థితి MBEDTLS_ERR_SSL_WANT_WRITE:
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      result = CURLE_AGAIN;
-      break;
-    default:
-      result = CURLE_SEND_ERROR;
-      break;
+      ఫలితం = CURLE_AGAIN;
+      ఆపు;
+    అప్రమేయ:
+      ఫలితం = CURLE_SEND_ERROR;
+      ఆపు;
     }
-    if((result == CURLE_AGAIN) && !backend->send_blocked) {
+    ఒకవేళ((ఫలితం == CURLE_AGAIN) && !backend->send_blocked) {
       backend->send_blocked = TRUE;
       backend->send_blocked_len = len;
     }
   }
 
-out:
-  CURL_TRC_CF(data, cf, "mbedtls_ssl_write(len=%zu) -> %d, %zu",
-              len, (int)result, *pnwritten);
-  return result;
+బహిర్గతం:
+  CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_ssl_write(len=%zu) -> %d, %zu",
+              len, (పూర్ణాంకం)ఫలితం, *pnwritten);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode mbedtls_shutdown(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 bool send_shutdown, bool *done)
+స్థిర CURLcode mbedtls_shutdown(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 bool send_shutdown, bool *పూర్తి)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
-  unsigned char buf[1024];
-  CURLcode result = CURLE_OK;
-  int ret = 0;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
+  గుర్తులేని అక్షరం buf[1024];
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం ret = 0;
   size_t i;
 
   DEBUGASSERT(backend);
 
-  if(!backend->initialized || cf->shutdown) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(!backend->initialized || cf->shutdown) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
-  *done = FALSE;
+  *పూర్తి = FALSE;
 
-  if(!backend->sent_shutdown) {
+  ఒకవేళ(!backend->పంపిన_shutdown) {
     /* do this only once */
-    backend->sent_shutdown = TRUE;
-    if(send_shutdown) {
+    backend->పంపిన_shutdown = TRUE;
+    ఒకవేళ(send_shutdown) {
       ret = mbedtls_ssl_close_notify(&backend->ssl);
-      switch(ret) {
-      case 0: /* we sent it, receive from the server */
-        break;
-      case MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY: /* server also closed */
-        *done = TRUE;
-        goto out;
-      case MBEDTLS_ERR_SSL_WANT_READ:
+      ఎంపిక(ret) {
+      స్థితి 0: /* we sent it, receive from the server */
+        ఆపు;
+      స్థితి MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY: /* server also closed */
+        *పూర్తి = TRUE;
+        వెళ్ళు బహిర్గతం;
+      స్థితి MBEDTLS_ERR_SSL_WANT_READ:
         connssl->io_need = CURL_SSL_IO_NEED_RECV;
-        goto out;
-      case MBEDTLS_ERR_SSL_WANT_WRITE:
+        వెళ్ళు బహిర్గతం;
+      స్థితి MBEDTLS_ERR_SSL_WANT_WRITE:
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
-        goto out;
-      default:
-        CURL_TRC_CF(data, cf, "mbedtls_shutdown error -0x%04X",
-                    (unsigned int)-ret);
-        result = CURLE_RECV_ERROR;
-        goto out;
+        వెళ్ళు బహిర్గతం;
+      అప్రమేయ:
+        CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_shutdown error -0x%04X",
+                    (గుర్తులేని పూర్ణాంకం)-ret);
+        ఫలితం = CURLE_RECV_ERROR;
+        వెళ్ళు బహిర్గతం;
       }
     }
   }
 
   /* SSL should now have started the shutdown from our side. Since it
    * was not complete, we are lacking the close notify from the server. */
-  for(i = 0; i < 10; ++i) {
-    ret = mbedtls_ssl_read(&backend->ssl, buf, sizeof(buf));
+  కొరకు(i = 0; i < 10; ++i) {
+    ret = mbedtls_ssl_read(&backend->ssl, buf, పరిమాణం(buf));
     /* This seems to be a bug in mbedTLS TLSv1.3 where it reports
      * WANT_READ, but has not encountered an EAGAIN. */
-    if(ret == MBEDTLS_ERR_SSL_WANT_READ)
-      ret = mbedtls_ssl_read(&backend->ssl, buf, sizeof(buf));
-#ifdef MBEDTLS_SSL_PROTO_TLS1_3
-    if(ret == MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET)
-      continue;
-#endif
-    if(ret <= 0)
-      break;
+    ఒకవేళ(ret == MBEDTLS_ERR_SSL_WANT_READ)
+      ret = mbedtls_ssl_read(&backend->ssl, buf, పరిమాణం(buf));
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_3
+    ఒకవేళ(ret == MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET)
+      కొనసాగు;
+#అయితే_ముగింపు
+    ఒకవేళ(ret <= 0)
+      ఆపు;
   }
 
-  if(ret > 0) {
+  ఒకవేళ(ret > 0) {
     /* still data coming in? */
-    CURL_TRC_CF(data, cf, "mbedtls_shutdown, still getting data");
+    CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_shutdown, still getting data");
   }
-  else if(ret == 0 || (ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY)) {
+  లేకపోతే ఒకవేళ(ret == 0 || (ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY)) {
     /* We got the close notify alert and are done. */
-    CURL_TRC_CF(data, cf, "mbedtls_shutdown done");
-    *done = TRUE;
+    CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_shutdown done");
+    *పూర్తి = TRUE;
   }
-  else if(ret == MBEDTLS_ERR_SSL_WANT_READ) {
-    CURL_TRC_CF(data, cf, "mbedtls_shutdown, need RECV");
+  లేకపోతే ఒకవేళ(ret == MBEDTLS_ERR_SSL_WANT_READ) {
+    CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_shutdown, need RECV");
     connssl->io_need = CURL_SSL_IO_NEED_RECV;
   }
-  else if(ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
-    CURL_TRC_CF(data, cf, "mbedtls_shutdown, need SEND");
+  లేకపోతే ఒకవేళ(ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
+    CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_shutdown, need SEND");
     connssl->io_need = CURL_SSL_IO_NEED_SEND;
   }
-  else {
-    CURL_TRC_CF(data, cf, "mbedtls_shutdown error -0x%04X",
-                (unsigned int)-ret);
-    result = CURLE_RECV_ERROR;
+  లేకపోతే {
+    CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_shutdown error -0x%04X",
+                (గుర్తులేని పూర్ణాంకం)-ret);
+    ఫలితం = CURLE_RECV_ERROR;
   }
 
-out:
-  cf->shutdown = (result || *done);
-  return result;
+బహిర్గతం:
+  cf->shutdown = (ఫలితం || *పూర్తి);
+  తిరిగి ఫలితం;
 }
 
-static void mbedtls_close(struct Curl_cfilter *cf, struct Curl_easy *data)
+స్థిర శూన్య mbedtls_close(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
 
-  (void)data;
+  (శూన్య)దత్తాంశం;
   DEBUGASSERT(backend);
   mbedtls_pk_free(&backend->pk);
   mbedtls_x509_crt_free(&backend->clicert);
   mbedtls_x509_crt_free(&backend->cacert);
-#ifdef MBEDTLS_X509_CRL_PARSE_C
+#నిర్వచితమైతే MBEDTLS_X509_CRL_PARSE_C
   mbedtls_x509_crl_free(&backend->crl);
-#endif
+#అయితే_ముగింపు
   curlx_safefree(backend->ciphersuites);
   mbedtls_ssl_config_free(&backend->config);
-  if(backend->initialized) {
+  ఒకవేళ(backend->initialized) {
     mbedtls_ssl_free(&backend->ssl);
     backend->initialized = FALSE;
   }
 }
 
-static CURLcode mbed_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          char *buf, size_t buffersize, size_t *pnread)
+స్థిర CURLcode mbed_recv(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                          అక్షరం *buf, size_t buffersize, size_t *pnread)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
-  int nread;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
+  CURLcode ఫలితం = CURLE_OK;
+  పూర్ణాంకం nread;
 
   DEBUGASSERT(backend);
-#ifdef MBEDTLS_SSL_SESSION_TICKETS
+#నిర్వచితమైతే MBEDTLS_SSL_SESSION_TICKETS
 do_read:
-#endif
+#అయితే_ముగింపు
   *pnread = 0;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  nread = mbedtls_ssl_read(&backend->ssl, (unsigned char *)buf, buffersize);
-  if(nread > 0)
+  nread = mbedtls_ssl_read(&backend->ssl, (గుర్తులేని అక్షరం *)buf, buffersize);
+  ఒకవేళ(nread > 0)
     *pnread = (size_t)nread;
-  else {
-    char errorbuf[128];
-    CURL_TRC_CF(data, cf, "mbedtls_ssl_read(len=%zu) -> -0x%04X",
-                buffersize, (unsigned int)-nread);
-    switch(nread) {
-#ifdef MBEDTLS_SSL_SESSION_TICKETS
-    case MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET:
-      result = mbed_new_session(cf, data);
+  లేకపోతే {
+    అక్షరం errorbuf[128];
+    CURL_TRC_CF(దత్తాంశం, cf, "mbedtls_ssl_read(len=%zu) -> -0x%04X",
+                buffersize, (గుర్తులేని పూర్ణాంకం)-nread);
+    ఎంపిక(nread) {
+#నిర్వచితమైతే MBEDTLS_SSL_SESSION_TICKETS
+    స్థితి MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET:
+      ఫలితం = mbed_new_session(cf, దత్తాంశం);
       /* This is not blocking anything. We can try again until a
        * "real" result comes. */
-      if(!result)
-        goto do_read;
-      break;
-#endif
-    case MBEDTLS_ERR_SSL_WANT_READ:
+      ఒకవేళ(!ఫలితం)
+        వెళ్ళు do_read;
+      ఆపు;
+#అయితే_ముగింపు
+    స్థితి MBEDTLS_ERR_SSL_WANT_READ:
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
-      result = CURLE_AGAIN;
-      break;
-    case MBEDTLS_ERR_SSL_WANT_WRITE:
+      ఫలితం = CURLE_AGAIN;
+      ఆపు;
+    స్థితి MBEDTLS_ERR_SSL_WANT_WRITE:
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      result = CURLE_AGAIN;
-      break;
-    case MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY:
-      result = CURLE_OK;
-      break;
-    default:
-      mbedtls_strerror(nread, errorbuf, sizeof(errorbuf));
-      failf(data, "ssl_read returned: (-0x%04X) %s", (unsigned int)-nread,
+      ఫలితం = CURLE_AGAIN;
+      ఆపు;
+    స్థితి MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY:
+      ఫలితం = CURLE_OK;
+      ఆపు;
+    అప్రమేయ:
+      mbedtls_strerror(nread, errorbuf, పరిమాణం(errorbuf));
+      failf(దత్తాంశం, "ssl_read returned: (-0x%04X) %s", (గుర్తులేని పూర్ణాంకం)-nread,
             errorbuf);
-      result = CURLE_RECV_ERROR;
-      break;
+      ఫలితం = CURLE_RECV_ERROR;
+      ఆపు;
     }
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static size_t mbedtls_version(char *buffer, size_t size)
+స్థిర size_t mbedtls_సంస్కరణ(అక్షరం *బఫరు, size_t కొలత)
 {
-#ifdef MBEDTLS_VERSION_C
+#నిర్వచితమైతే MBEDTLS_సంస్కరణ_C
   /* if mbedtls_version_get_number() is available it is better */
-  unsigned int version = mbedtls_version_get_number();
-  return curl_msnprintf(buffer, size, "mbedTLS/%u.%u.%u", version >> 24,
-                        (version >> 16) & 0xff, (version >> 8) & 0xff);
-#else
-  return curl_msnprintf(buffer, size, "mbedTLS/%s", MBEDTLS_VERSION_STRING);
-#endif
+  గుర్తులేని పూర్ణాంకం సంస్కరణ_2 = mbedtls_సంస్కరణ_get_సంఖ్య();
+  తిరిగి curl_msnprintf(బఫరు, కొలత, "mbedTLS/%u.%u.%u", సంస్కరణ_2 >> 24,
+                        (సంస్కరణ_2 >> 16) & 0xff, (సంస్కరణ_2 >> 8) & 0xff);
+#లేకపోతే
+  తిరిగి curl_msnprintf(బఫరు, కొలత, "mbedTLS/%s", MBEDTLS_సంస్కరణ_STRING);
+#అయితే_ముగింపు
 }
 
 /* 'data' might be NULL */
-static CURLcode mbedtls_random(struct Curl_easy *data,
-                               unsigned char *entropy, size_t length)
+స్థిర CURLcode mbedtls_random(నిర్మాణం Curl_easy *దత్తాంశం,
+                               గుర్తులేని అక్షరం *entropy, size_t నిడివి)
 {
-  psa_status_t status;
-  (void)data;
+  psa_స్థితి_t స్థితి_2;
+  (శూన్య)దత్తాంశం;
 
-  status = psa_generate_random(entropy, length);
+  స్థితి_2 = psa_generate_random(entropy, నిడివి);
 
-  return status == PSA_SUCCESS ? CURLE_OK : CURLE_FAILED_INIT;
+  తిరిగి స్థితి_2 == PSA_SUCCESS ? CURLE_OK : CURLE_FAILED_INIT;
 }
 
-static CURLcode mbedtls_connect(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                bool *done)
+స్థిర CURLcode mbedtls_connect(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                bool *పూర్తి)
 {
-  CURLcode result;
-  struct ssl_connect_data *connssl = cf->ctx;
+  CURLcode ఫలితం;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
 
   /* check if the connection has already been established */
-  if(ssl_connection_complete == connssl->state) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(ssl_connection_complete == connssl->state) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  *done = FALSE;
+  *పూర్తి = FALSE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  if(connssl->connecting_state == ssl_connect_1) {
-    result = mbed_connect_step1(cf, data);
-    if(result)
-      return result;
+  ఒకవేళ(connssl->connecting_state == ssl_connect_1) {
+    ఫలితం = mbed_connect_step1(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  if(connssl->connecting_state == ssl_connect_2) {
-    result = mbed_connect_step2(cf, data);
-    if(result)
-      return result;
+  ఒకవేళ(connssl->connecting_state == ssl_connect_2) {
+    ఫలితం = mbed_connect_step2(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  if(connssl->connecting_state == ssl_connect_3) {
+  ఒకవేళ(connssl->connecting_state == ssl_connect_3) {
     /* For tls1.3 we get notified about new sessions */
-    struct ssl_connect_data *ctx = cf->ctx;
-    struct mbed_ssl_backend_data *backend =
-      (struct mbed_ssl_backend_data *)ctx->backend;
+    నిర్మాణం ssl_connect_దత్తాంశం *ctx = cf->ctx;
+    నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+      (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)ctx->backend;
 
-    if(mbedtls_ssl_get_version_number(&backend->ssl) <=
-       MBEDTLS_SSL_VERSION_TLS1_2) {
-      result = mbed_new_session(cf, data);
-      if(result)
-        return result;
+    ఒకవేళ(mbedtls_ssl_get_సంస్కరణ_సంఖ్య(&backend->ssl) <=
+       MBEDTLS_SSL_సంస్కరణ_TLS1_2) {
+      ఫలితం = mbed_new_session(cf, దత్తాంశం);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
     }
-    connssl->connecting_state = ssl_connect_done;
+    connssl->connecting_state = ssl_connect_పూర్తి;
   }
 
-  if(connssl->connecting_state == ssl_connect_done) {
+  ఒకవేళ(connssl->connecting_state == ssl_connect_పూర్తి) {
     connssl->state = ssl_connection_complete;
-    *done = TRUE;
+    *పూర్తి = TRUE;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
  * return 0 error initializing SSL
  * return 1 SSL initialized successfully
  */
-static int mbedtls_init(void)
+స్థిర పూర్ణాంకం mbedtls_init(శూన్య)
 {
-#if MBEDTLS_VERSION_NUMBER < 0x04000000
-  int ret = 0;
-#endif
-  psa_status_t status;
-  status = psa_crypto_init();
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య < 0x04000000
+  పూర్ణాంకం ret = 0;
+#అయితే_ముగింపు
+  psa_స్థితి_t స్థితి_2;
+  స్థితి_2 = psa_crypto_init();
 
-  if(status != PSA_SUCCESS)
-    return 0;
+  ఒకవేళ(స్థితి_2 != PSA_SUCCESS)
+    తిరిగి 0;
 
-#if MBEDTLS_VERSION_NUMBER < 0x04000000
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య < 0x04000000
   mbedtls_ctr_drbg_init(&rng.drbg);
   mbedtls_entropy_init(&rng.entropy);
 
-  ret = mbedtls_ctr_drbg_seed(&rng.drbg, mbedtls_entropy_func, &rng.entropy,
-                              NULL, 0);
+  ret = mbedtls_ctr_drbg_విత్తనం(&rng.drbg, mbedtls_entropy_func, &rng.entropy,
+                              ఖాళీ, 0);
 
-  if(ret)
+  ఒకవేళ(ret)
     /* mbedtls_ctr_drbg_seed returned error */
-    return 0;
+    తిరిగి 0;
 
   /* To prevent an adversary from reading your random data,
      you can enable prediction resistance.
 
      Entropy is gathered before each mbedtls_ctr_drbg_random() call.
      Only use this if you have ample supply of good entropy.*/
-  mbedtls_ctr_drbg_set_prediction_resistance(&rng.drbg,
+  mbedtls_ctr_drbg_సమితి_prediction_resistance(&rng.drbg,
                                              MBEDTLS_CTR_DRBG_PR_ON);
-#endif
-  return 1;
+#అయితే_ముగింపు
+  తిరిగి 1;
 }
 
-static void mbedtls_cleanup(void)
+స్థిర శూన్య mbedtls_cleanup(శూన్య)
 {
   mbedtls_psa_crypto_free();
 
-#if MBEDTLS_VERSION_NUMBER < 0x04000000
+#ఒకవేళ MBEDTLS_సంస్కరణ_సంఖ్య < 0x04000000
   mbedtls_ctr_drbg_free(&rng.drbg);
   mbedtls_entropy_free(&rng.entropy);
-#endif
+#అయితే_ముగింపు
 }
 
-static bool mbedtls_data_pending(struct Curl_cfilter *cf,
-                                 const struct Curl_easy *data)
+స్థిర bool mbedtls_దత్తాంశం_pending(నిర్మాణం Curl_cfilter *cf,
+                                 స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *ctx = cf->ctx;
-  struct mbed_ssl_backend_data *backend;
+  నిర్మాణం ssl_connect_దత్తాంశం *ctx = cf->ctx;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend;
 
-  (void)data;
+  (శూన్య)దత్తాంశం;
   DEBUGASSERT(ctx && ctx->backend);
-  backend = (struct mbed_ssl_backend_data *)ctx->backend;
-  return mbedtls_ssl_get_bytes_avail(&backend->ssl) != 0;
+  backend = (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)ctx->backend;
+  తిరిగి mbedtls_ssl_get_బైట్లు_avail(&backend->ssl) != 0;
 }
 
-static CURLcode mbedtls_sha256sum(const unsigned char *input,
+స్థిర CURLcode mbedtls_sha256sum(స్థిరరాశి గుర్తులేని అక్షరం *ఆదానం,
                                   size_t inputlen,
-                                  unsigned char *sha256sum,
+                                  గుర్తులేని అక్షరం *sha256sum,
                                   size_t sha256len)
 {
-#if defined(PSA_WANT_ALG_SHA_256) && PSA_WANT_ALG_SHA_256
-  psa_status_t status;
+#ఒకవేళ defined(PSA_WANT_ALG_SHA_256) && PSA_WANT_ALG_SHA_256
+  psa_స్థితి_t స్థితి_2;
   size_t sha256len_actual;
-  status = psa_hash_compute(PSA_ALG_SHA_256, input, inputlen,
+  స్థితి_2 = psa_hash_compute(PSA_ALG_SHA_256, ఆదానం, inputlen,
                             sha256sum, sha256len,
                             &sha256len_actual);
-  if(status != PSA_SUCCESS)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return CURLE_OK;
-#else
-  (void)sha256len;
-  return Curl_sha256it(sha256sum, input, inputlen);
-#endif
+  ఒకవేళ(స్థితి_2 != PSA_SUCCESS)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+  తిరిగి CURLE_OK;
+#లేకపోతే
+  (శూన్య)sha256len;
+  తిరిగి Curl_sha256it(sha256sum, ఆదానం, inputlen);
+#అయితే_ముగింపు
 }
 
-static void *mbedtls_get_internals(struct ssl_connect_data *connssl,
+స్థిర శూన్య *mbedtls_get_internals(నిర్మాణం ssl_connect_దత్తాంశం *connssl,
                                    CURLINFO info)
 {
-  struct mbed_ssl_backend_data *backend =
-    (struct mbed_ssl_backend_data *)connssl->backend;
-  (void)info;
+  నిర్మాణం mbed_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం mbed_ssl_backend_దత్తాంశం *)connssl->backend;
+  (శూన్య)info;
   DEBUGASSERT(backend);
-  return &backend->ssl;
+  తిరిగి &backend->ssl;
 }
 
-const struct Curl_ssl Curl_ssl_mbedtls = {
+స్థిరరాశి నిర్మాణం Curl_ssl Curl_ssl_mbedtls = {
   { CURLSSLBACKEND_MBEDTLS, "mbedtls" }, /* info */
 
-  SSLSUPP_CA_PATH |
+  SSLSUPP_CA_మార్గం |
   SSLSUPP_CAINFO_BLOB |
   SSLSUPP_CERTINFO |
-#ifdef HAVE_PINNED_PUBKEY
+#నిర్వచితమైతే HAVE_PINNED_PUBKEY
   SSLSUPP_PINNEDPUBKEY |
-#endif
+#అయితే_ముగింపు
   SSLSUPP_SSL_CTX |
-#ifdef MBEDTLS_SSL_PROTO_TLS1_3  /* requires mbedTLS 3.6.0+ */
+#నిర్వచితమైతే MBEDTLS_SSL_PROTO_TLS1_3  /* requires mbedTLS 3.6.0+ */
   SSLSUPP_TLS13_CIPHERSUITES |
-#endif
+#అయితే_ముగింపు
   SSLSUPP_HTTPS_PROXY |
   SSLSUPP_CIPHER_LIST |
-#ifdef MBEDTLS_X509_CRL_PARSE_C
+#నిర్వచితమైతే MBEDTLS_X509_CRL_PARSE_C
   SSLSUPP_CRLFILE |
-#endif
+#అయితే_ముగింపు
   0,
 
-  sizeof(struct mbed_ssl_backend_data),
+  పరిమాణం(నిర్మాణం mbed_ssl_backend_దత్తాంశం),
 
   mbedtls_init,                     /* init */
   mbedtls_cleanup,                  /* cleanup */
-  mbedtls_version,                  /* version */
+  mbedtls_సంస్కరణ,                  /*సంస్కరణ*/
   mbedtls_shutdown,                 /* shutdown */
-  mbedtls_data_pending,             /* data_pending */
+  mbedtls_దత్తాంశం_pending,             /* data_pending */
   mbedtls_random,                   /* random */
-  NULL,                             /* cert_status_request */
+  ఖాళీ,                             /* cert_status_request */
   mbedtls_connect,                  /* connect */
   Curl_ssl_adjust_pollset,          /* adjust_pollset */
   mbedtls_get_internals,            /* get_internals */
   mbedtls_close,                    /* close_one */
-  NULL,                             /* close_all */
-  NULL,                             /* engines_list */
+  ఖాళీ,                             /* close_all */
+  ఖాళీ,                             /* engines_list */
   mbedtls_sha256sum,                /* sha256sum */
   mbed_recv,                        /* recv decrypted data */
   mbed_send,                        /* send data to encrypt */
-  NULL,                             /* get_channel_binding */
+  ఖాళీ,                             /* get_channel_binding */
 };
 
-#endif /* USE_MBEDTLS */
+#అయితే_ముగింపు /* USE_MBEDTLS */

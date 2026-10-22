@@ -21,54 +21,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "curlx/dynbuf.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curlx/dynbuf.h"
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
+#నిర్వచితమైతే HAVE_LIBZ
+#అన్తర్భావ <zlib.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_BROTLI
-#ifdef CURL_HAVE_DIAG
+#నిర్వచితమైతే HAVE_BROTLI
+#నిర్వచితమైతే CURL_HAVE_DIAG
 /* Ignore -Wvla warnings in brotli headers */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvla"
-#endif
-#include <brotli/decode.h>
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
-#endif
-#endif
+#సూచన GCC diagnostic నెట్టు
+#సూచన GCC diagnostic ignored "-Wvla"
+#అయితే_ముగింపు
+#అన్తర్భావ <brotli/decode.h>
+#నిర్వచితమైతే CURL_HAVE_DIAG
+#సూచన GCC diagnostic తీయి
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#ifdef HAVE_ZSTD
-#include <zstd.h>
-#endif
+#నిర్వచితమైతే HAVE_ZSTD
+#అన్తర్భావ <zstd.h>
+#అయితే_ముగింపు
 
-#include "connect.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "content_encoding.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "sendf.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "content_encoding.h"
 
-#define CONTENT_ENCODING_DEFAULT  "identity"
+#నిర్వచించు CONTENT_ENCODING_DEFAULT  "identity"
 
-#ifndef CURL_DISABLE_HTTP
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
 
 /* allow no more than 5 "chained" compression steps */
-#define MAX_ENCODE_STACK 5
+#నిర్వచించు MAX_ENCODE_దొంతర 5
 
-#if defined(HAVE_LIBZ) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
-#define DECOMPRESS_BUFFER_SIZE 16384 /* buffer size for decompressed data */
-#endif
+#ఒకవేళ defined(HAVE_LIBZ) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
+#నిర్వచించు DECOMPRESS_బఫరు_కొలత 16384 /* buffer size for decompressed data */
+#అయితే_ముగింపు
 
-#ifdef HAVE_LIBZ
+#నిర్వచితమైతే HAVE_LIBZ
 
-#if !defined(ZLIB_VERNUM) || (ZLIB_VERNUM < 0x1252)
-#error "zlib 1.2.5.2 or greater required"
-#endif
+#ఒకవేళ !defined(ZLIB_VERNUM) || (ZLIB_VERNUM < 0x1252)
+#దోషం "zlib 1.2.5.2 or greater required"
+#అయితే_ముగింపు
 
-typedef enum {
+రకనిర్వచనం గణన {
   ZLIB_UNINIT,               /* uninitialized */
   ZLIB_INIT,                 /* initialized */
   ZLIB_INFLATING,            /* inflating started. */
@@ -77,287 +77,287 @@ typedef enum {
 } zlibInitState;
 
 /* Deflate and gzip writer. */
-struct zlib_writer {
-  struct Curl_cwriter super;
+నిర్మాణం zlib_writer {
+  నిర్మాణం Curl_cwriter super;
   zlibInitState zlib_init;   /* zlib init state */
-  char buffer[DECOMPRESS_BUFFER_SIZE]; /* Put the decompressed data here. */
+  అక్షరం బఫరు[DECOMPRESS_బఫరు_కొలత]; /* Put the decompressed data here. */
   uInt trailerlen;           /* Remaining trailer byte count. */
-  z_stream z;                /* State structure for zlib. */
+  z_ప్రవాహం z;                /* State structure for zlib. */
 };
 
-static voidpf zalloc_cb(voidpf opaque, unsigned int items, unsigned int size)
+స్థిర voidpf zalloc_cb(voidpf opaque, గుర్తులేని పూర్ణాంకం వస్తువులు, గుర్తులేని పూర్ణాంకం కొలత)
 {
-  (void)opaque;
+  (శూన్య)opaque;
   /* not a typo, keep it curlx_calloc() */
-  return curlx_calloc(items, size);
+  తిరిగి curlx_calloc(వస్తువులు, కొలత);
 }
 
-static void zfree_cb(voidpf opaque, voidpf ptr)
+స్థిర శూన్య zfree_cb(voidpf opaque, voidpf ptr)
 {
-  (void)opaque;
+  (శూన్య)opaque;
   curlx_free(ptr);
 }
 
-static CURLcode process_zlib_error(struct Curl_easy *data, z_stream *z)
+స్థిర CURLcode process_zlib_error(నిర్మాణం Curl_easy *దత్తాంశం, z_ప్రవాహం *z)
 {
-  if(z->msg)
-    failf(data, "Error while processing content unencoding: %s", z->msg);
-  else
-    failf(data, "Error while processing content unencoding: "
+  ఒకవేళ(z->సందేశం)
+    failf(దత్తాంశం, "Error while processing content unencoding: %s", z->సందేశం);
+  లేకపోతే
+    failf(దత్తాంశం, "Error while processing content unencoding: "
           "Unknown failure within decompression software.");
 
-  return CURLE_BAD_CONTENT_ENCODING;
+  తిరిగి CURLE_BAD_CONTENT_ENCODING;
 }
 
-static CURLcode exit_zlib(struct Curl_easy *data, z_stream *z,
-                          zlibInitState *zlib_init, CURLcode result)
+స్థిర CURLcode exit_zlib(నిర్మాణం Curl_easy *దత్తాంశం, z_ప్రవాహం *z,
+                          zlibInitState *zlib_init, CURLcode ఫలితం)
 {
-  if(*zlib_init != ZLIB_UNINIT) {
-    if(inflateEnd(z) != Z_OK && result == CURLE_OK)
-      result = process_zlib_error(data, z);
+  ఒకవేళ(*zlib_init != ZLIB_UNINIT) {
+    ఒకవేళ(inflate_చివర(z) != Z_OK && ఫలితం == CURLE_OK)
+      ఫలితం = process_zlib_error(దత్తాంశం, z);
     *zlib_init = ZLIB_UNINIT;
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode process_trailer(struct Curl_easy *data, struct zlib_writer *zp)
+స్థిర CURLcode process_trailer(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం zlib_writer *zp)
 {
-  z_stream *z = &zp->z;
-  CURLcode result = CURLE_OK;
-  uInt len = z->avail_in < zp->trailerlen ? z->avail_in : zp->trailerlen;
+  z_ప్రవాహం *z = &zp->z;
+  CURLcode ఫలితం = CURLE_OK;
+  uInt len = z->avail_లోపల < zp->trailerlen ? z->avail_లోపల : zp->trailerlen;
 
   /* Consume expected trailer bytes. Terminate stream if exhausted.
      Issue an error if unexpected bytes follow. */
 
   zp->trailerlen -= len;
-  z->avail_in -= len;
-  z->next_in += len;
-  if(z->avail_in)
-    result = CURLE_WRITE_ERROR;
-  if(result || !zp->trailerlen)
-    result = exit_zlib(data, z, &zp->zlib_init, result);
-  else {
+  z->avail_లోపల -= len;
+  z->తదుపరి_లోపల += len;
+  ఒకవేళ(z->avail_లోపల)
+    ఫలితం = CURLE_WRITE_ERROR;
+  ఒకవేళ(ఫలితం || !zp->trailerlen)
+    ఫలితం = exit_zlib(దత్తాంశం, z, &zp->zlib_init, ఫలితం);
+  లేకపోతే {
     /* Only occurs for gzip with zlib < 1.2.0.4 or raw deflate. */
     zp->zlib_init = ZLIB_EXTERNAL_TRAILER;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode inflate_stream(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
+స్థిర CURLcode inflate_ప్రవాహం(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_cwriter *writer, పూర్ణాంకం type,
                                zlibInitState started)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z;         /* zlib state structure */
-  uInt nread = z->avail_in;
-  z_const Bytef *orig_in = z->next_in;
-  bool done = FALSE;
-  CURLcode result = CURLE_OK;   /* Curl_client_write status */
-  int i = 0;
+  నిర్మాణం zlib_writer *zp = (నిర్మాణం zlib_writer *)writer;
+  z_ప్రవాహం *z = &zp->z;         /* zlib state structure */
+  uInt nread = z->avail_లోపల;
+  z_const Bytef *orig_లోపల = z->తదుపరి_లోపల;
+  bool పూర్తి = FALSE;
+  CURLcode ఫలితం = CURLE_OK;   /* Curl_client_write status */
+  పూర్ణాంకం i = 0;
 
   /* Check state. */
-  if(zp->zlib_init != ZLIB_INIT &&
+  ఒకవేళ(zp->zlib_init != ZLIB_INIT &&
      zp->zlib_init != ZLIB_INFLATING &&
      zp->zlib_init != ZLIB_INIT_GZIP)
-    return exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
+    తిరిగి exit_zlib(దత్తాంశం, z, &zp->zlib_init, CURLE_WRITE_ERROR);
 
   /* because the buffer size is fixed, iteratively decompress and transfer to
      the client via next_write function. */
-  while(!done) {
-    int status; /* zlib status */
-    done = TRUE;
+  అయితే(!పూర్తి) {
+    పూర్ణాంకం స్థితి_2; /* zlib status */
+    పూర్తి = TRUE;
 
-    if(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
+    ఒకవేళ(++i > (1024 * 1024 / DECOMPRESS_బఫరు_కొలత)) {
       /* check every MB of output if we are not exceeding time limit */
       i = 0;
-      if(Curl_timeleft_ms(data) < 0) {
-        failf(data, "Operation timed out while decoding payload");
-        return exit_zlib(data, z, &zp->zlib_init, CURLE_OPERATION_TIMEDOUT);
+      ఒకవేళ(Curl_timeleft_ms(దత్తాంశం) < 0) {
+        failf(దత్తాంశం, "Operation timed out while decoding payload");
+        తిరిగి exit_zlib(దత్తాంశం, z, &zp->zlib_init, CURLE_OPERATION_TIMEDOUT);
       }
     }
 
     /* (re)set buffer for decompressed output for every iteration */
-    z->next_out = (Bytef *)zp->buffer;
-    z->avail_out = DECOMPRESS_BUFFER_SIZE;
+    z->తదుపరి_బహిర్గతం = (Bytef *)zp->బఫరు;
+    z->avail_బహిర్గతం = DECOMPRESS_బఫరు_కొలత;
 
-    status = inflate(z, Z_BLOCK);
+    స్థితి_2 = inflate(z, Z_ఖండం);
 
     /* Flush output data if some. */
-    if(z->avail_out != DECOMPRESS_BUFFER_SIZE) {
-      if(status == Z_OK || status == Z_STREAM_END) {
+    ఒకవేళ(z->avail_బహిర్గతం != DECOMPRESS_బఫరు_కొలత) {
+      ఒకవేళ(స్థితి_2 == Z_OK || స్థితి_2 == Z_ప్రవాహం_చివర) {
         zp->zlib_init = started; /* Data started. */
-        result = Curl_cwriter_write(data, writer->next, type, zp->buffer,
-                                    DECOMPRESS_BUFFER_SIZE - z->avail_out);
-        if(result) {
-          exit_zlib(data, z, &zp->zlib_init, result);
-          break;
+        ఫలితం = Curl_cwriter_write(దత్తాంశం, writer->తదుపరి, type, zp->బఫరు,
+                                    DECOMPRESS_బఫరు_కొలత - z->avail_బహిర్గతం);
+        ఒకవేళ(ఫలితం) {
+          exit_zlib(దత్తాంశం, z, &zp->zlib_init, ఫలితం);
+          ఆపు;
         }
       }
     }
 
     /* Dispatch by inflate() status. */
-    switch(status) {
-    case Z_OK:
+    ఎంపిక(స్థితి_2) {
+    స్థితి Z_OK:
       /* Always loop: there may be unflushed latched data in zlib state. */
-      done = FALSE;
-      break;
-    case Z_BUF_ERROR:
+      పూర్తి = FALSE;
+      ఆపు;
+    స్థితి Z_BUF_ERROR:
       /* No more data to flush: exit loop. */
-      break;
-    case Z_STREAM_END:
-      if((started == ZLIB_INIT_GZIP) && (z->avail_in >= 2) &&
-         (z->next_in[0] == 0x1f) && (z->next_in[1] == 0x8b)) {
+      ఆపు;
+    స్థితి Z_ప్రవాహం_చివర:
+      ఒకవేళ((started == ZLIB_INIT_GZIP) && (z->avail_లోపల >= 2) &&
+         (z->తదుపరి_లోపల[0] == 0x1f) && (z->తదుపరి_లోపల[1] == 0x8b)) {
         /* a second gzip member follows; curl does not support
            multi-member gzip responses */
-        failf(data, "Multi-member gzip response not supported");
-        result = exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
-        break;
+        failf(దత్తాంశం, "Multi-member gzip response not supported");
+        ఫలితం = exit_zlib(దత్తాంశం, z, &zp->zlib_init, CURLE_WRITE_ERROR);
+        ఆపు;
       }
-      result = process_trailer(data, zp);
-      break;
-    case Z_DATA_ERROR:
+      ఫలితం = process_trailer(దత్తాంశం, zp);
+      ఆపు;
+    స్థితి Z_దత్తాంశం_ERROR:
       /* some servers seem to not generate zlib headers, so this is an attempt
          to fix and continue anyway */
-      if(zp->zlib_init == ZLIB_INIT) {
-        if(inflateReset2(z, -MAX_WBITS) == Z_OK) {
-          z->next_in = orig_in;
-          z->avail_in = nread;
+      ఒకవేళ(zp->zlib_init == ZLIB_INIT) {
+        ఒకవేళ(inflateReset2(z, -MAX_WBITS) == Z_OK) {
+          z->తదుపరి_లోపల = orig_లోపల;
+          z->avail_లోపల = nread;
           zp->zlib_init = ZLIB_INFLATING;
           zp->trailerlen = 4; /* Tolerate up to 4 unknown trailer bytes. */
-          done = FALSE;
-          break;
+          పూర్తి = FALSE;
+          ఆపు;
         }
         zp->zlib_init = ZLIB_UNINIT; /* inflateEnd() already called. */
       }
-      result = exit_zlib(data, z, &zp->zlib_init, process_zlib_error(data, z));
-      break;
-    default:
-      result = exit_zlib(data, z, &zp->zlib_init, process_zlib_error(data, z));
-      break;
+      ఫలితం = exit_zlib(దత్తాంశం, z, &zp->zlib_init, process_zlib_error(దత్తాంశం, z));
+      ఆపు;
+    అప్రమేయ:
+      ఫలితం = exit_zlib(దత్తాంశం, z, &zp->zlib_init, process_zlib_error(దత్తాంశం, z));
+      ఆపు;
     }
   }
 
   /* We are about to leave this call so the `nread' data bytes will not be seen
      again. If we are in a state that would wrongly allow restart in raw mode
      at the next call, assume output has already started. */
-  if(nread && zp->zlib_init == ZLIB_INIT)
+  ఒకవేళ(nread && zp->zlib_init == ZLIB_INIT)
     zp->zlib_init = started; /* Cannot restart anymore. */
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /* Deflate handler. */
-static CURLcode deflate_do_init(struct Curl_easy *data,
-                                struct Curl_cwriter *writer)
+స్థిర CURLcode deflate_do_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  నిర్మాణం zlib_writer *zp = (నిర్మాణం zlib_writer *)writer;
+  z_ప్రవాహం *z = &zp->z; /* zlib state structure */
 
   /* Initialize zlib */
   z->zalloc = (alloc_func)zalloc_cb;
   z->zfree = (free_func)zfree_cb;
 
-  if(inflateInit(z) != Z_OK)
-    return process_zlib_error(data, z);
+  ఒకవేళ(inflateInit(z) != Z_OK)
+    తిరిగి process_zlib_error(దత్తాంశం, z);
   zp->zlib_init = ZLIB_INIT;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode deflate_do_write(struct Curl_easy *data,
-                                 struct Curl_cwriter *writer, int type,
-                                 const char *buf, size_t nbytes)
+స్థిర CURLcode deflate_do_write(నిర్మాణం Curl_easy *దత్తాంశం,
+                                 నిర్మాణం Curl_cwriter *writer, పూర్ణాంకం type,
+                                 స్థిరరాశి అక్షరం *buf, size_t nbytes)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  నిర్మాణం zlib_writer *zp = (నిర్మాణం zlib_writer *)writer;
+  z_ప్రవాహం *z = &zp->z; /* zlib state structure */
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ఒకవేళ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    తిరిగి Curl_cwriter_write(దత్తాంశం, writer->తదుపరి, type, buf, nbytes);
 
   /* Set the compressed input when this function is called */
-  z->next_in = (z_const Bytef *)buf;
-  z->avail_in = (uInt)nbytes;
+  z->తదుపరి_లోపల = (z_const Bytef *)buf;
+  z->avail_లోపల = (uInt)nbytes;
 
-  if(zp->zlib_init == ZLIB_EXTERNAL_TRAILER)
-    return process_trailer(data, zp);
+  ఒకవేళ(zp->zlib_init == ZLIB_EXTERNAL_TRAILER)
+    తిరిగి process_trailer(దత్తాంశం, zp);
 
   /* Now uncompress the data */
-  return inflate_stream(data, writer, type, ZLIB_INFLATING);
+  తిరిగి inflate_ప్రవాహం(దత్తాంశం, writer, type, ZLIB_INFLATING);
 }
 
-static void deflate_do_close(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+స్థిర శూన్య deflate_do_close(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  నిర్మాణం zlib_writer *zp = (నిర్మాణం zlib_writer *)writer;
+  z_ప్రవాహం *z = &zp->z; /* zlib state structure */
 
-  exit_zlib(data, z, &zp->zlib_init, CURLE_OK);
+  exit_zlib(దత్తాంశం, z, &zp->zlib_init, CURLE_OK);
 }
 
-static const struct Curl_cwtype deflate_encoding = {
+స్థిర స్థిరరాశి నిర్మాణం Curl_cwtype deflate_encoding = {
   "deflate",
-  NULL,
+  ఖాళీ,
   CURL_CW_FLAG_BLOWUP,
   deflate_do_init,
   deflate_do_write,
   Curl_cwriter_def_flush,
   deflate_do_close,
-  sizeof(struct zlib_writer)
+  పరిమాణం(నిర్మాణం zlib_writer)
 };
 
 /*
  * Gzip handler.
  */
 
-static CURLcode gzip_do_init(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+స్థిర CURLcode gzip_do_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  నిర్మాణం zlib_writer *zp = (నిర్మాణం zlib_writer *)writer;
+  z_ప్రవాహం *z = &zp->z; /* zlib state structure */
 
   /* Initialize zlib */
   z->zalloc = (alloc_func)zalloc_cb;
   z->zfree = (free_func)zfree_cb;
 
-  if(inflateInit2(z, MAX_WBITS + 32) != Z_OK)
-    return process_zlib_error(data, z);
+  ఒకవేళ(inflateInit2(z, MAX_WBITS + 32) != Z_OK)
+    తిరిగి process_zlib_error(దత్తాంశం, z);
 
   zp->zlib_init = ZLIB_INIT_GZIP; /* Transparent gzip decompress state */
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode gzip_do_write(struct Curl_easy *data,
-                              struct Curl_cwriter *writer, int type,
-                              const char *buf, size_t nbytes)
+స్థిర CURLcode gzip_do_write(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_cwriter *writer, పూర్ణాంకం type,
+                              స్థిరరాశి అక్షరం *buf, size_t nbytes)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  నిర్మాణం zlib_writer *zp = (నిర్మాణం zlib_writer *)writer;
+  z_ప్రవాహం *z = &zp->z; /* zlib state structure */
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ఒకవేళ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    తిరిగి Curl_cwriter_write(దత్తాంశం, writer->తదుపరి, type, buf, nbytes);
 
-  if(zp->zlib_init == ZLIB_INIT_GZIP) {
+  ఒకవేళ(zp->zlib_init == ZLIB_INIT_GZIP) {
     /* Let zlib handle the gzip decompression entirely */
-    z->next_in = (z_const Bytef *)buf;
-    z->avail_in = (uInt)nbytes;
+    z->తదుపరి_లోపల = (z_const Bytef *)buf;
+    z->avail_లోపల = (uInt)nbytes;
     /* Now uncompress the data */
-    return inflate_stream(data, writer, type, ZLIB_INIT_GZIP);
+    తిరిగి inflate_ప్రవాహం(దత్తాంశం, writer, type, ZLIB_INIT_GZIP);
   }
 
   /* We are running with an old version: return error. */
-  return exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
+  తిరిగి exit_zlib(దత్తాంశం, z, &zp->zlib_init, CURLE_WRITE_ERROR);
 }
 
-static void gzip_do_close(struct Curl_easy *data,
-                          struct Curl_cwriter *writer)
+స్థిర శూన్య gzip_do_close(నిర్మాణం Curl_easy *దత్తాంశం,
+                          నిర్మాణం Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  నిర్మాణం zlib_writer *zp = (నిర్మాణం zlib_writer *)writer;
+  z_ప్రవాహం *z = &zp->z; /* zlib state structure */
 
-  exit_zlib(data, z, &zp->zlib_init, CURLE_OK);
+  exit_zlib(దత్తాంశం, z, &zp->zlib_init, CURLE_OK);
 }
 
-static const struct Curl_cwtype gzip_encoding = {
+స్థిర స్థిరరాశి నిర్మాణం Curl_cwtype gzip_encoding = {
   "gzip",
   "x-gzip",
   CURL_CW_FLAG_BLOWUP,
@@ -365,262 +365,262 @@ static const struct Curl_cwtype gzip_encoding = {
   gzip_do_write,
   Curl_cwriter_def_flush,
   gzip_do_close,
-  sizeof(struct zlib_writer)
+  పరిమాణం(నిర్మాణం zlib_writer)
 };
 
-#endif /* HAVE_LIBZ */
+#అయితే_ముగింపు /* HAVE_LIBZ */
 
-#ifdef HAVE_BROTLI
+#నిర్వచితమైతే HAVE_BROTLI
 /* Brotli writer. */
-struct brotli_writer {
-  struct Curl_cwriter super;
-  char buffer[DECOMPRESS_BUFFER_SIZE];
+నిర్మాణం brotli_writer {
+  నిర్మాణం Curl_cwriter super;
+  అక్షరం బఫరు[DECOMPRESS_బఫరు_కొలత];
   BrotliDecoderState *br; /* State structure for brotli. */
 };
 
-static CURLcode brotli_map_error(BrotliDecoderErrorCode be)
+స్థిర CURLcode brotli_map_error(Brotli_Decoder_Error_సంకేతం be)
 {
-  switch(be) {
-  case BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE:
-  case BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE:
-  case BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET:
-  case BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME:
-  case BROTLI_DECODER_ERROR_FORMAT_CL_SPACE:
-  case BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE:
-  case BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT:
-  case BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1:
-  case BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2:
-  case BROTLI_DECODER_ERROR_FORMAT_TRANSFORM:
-  case BROTLI_DECODER_ERROR_FORMAT_DICTIONARY:
-  case BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS:
-  case BROTLI_DECODER_ERROR_FORMAT_PADDING_1:
-  case BROTLI_DECODER_ERROR_FORMAT_PADDING_2:
-#ifdef BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY  /* brotli v1.1.0+ */
-  case BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY:
-#endif
-  case BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET:
-  case BROTLI_DECODER_ERROR_INVALID_ARGUMENTS:
-    return CURLE_BAD_CONTENT_ENCODING;
-  case BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES:
-  case BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS:
-  case BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP:
-  case BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1:
-  case BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2:
-  case BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES:
-    return CURLE_OUT_OF_MEMORY;
-  default:
-    break;
+  ఎంపిక(be) {
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_CL_SPACE:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_ఖండం_నిడివి_1:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_ఖండం_నిడివి_2:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_TRANSFORM:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_DICTIONARY:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_కిటికీ_బిట్లు:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_PADDING_1:
+  స్థితి BROTLI_DECODER_ERROR_FORMAT_PADDING_2:
+#నిర్వచితమైతే BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY  /* brotli v1.1.0+ */
+  స్థితి BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY:
+#అయితే_ముగింపు
+  స్థితి BROTLI_DECODER_ERROR_DICTIONARY_NOT_సమితి:
+  స్థితి BROTLI_DECODER_ERROR_INVALID_ARGUMENTS:
+    తిరిగి CURLE_BAD_CONTENT_ENCODING;
+  స్థితి BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES:
+  స్థితి BROTLI_DECODER_ERROR_ALLOC_వృక్షం_GROUPS:
+  స్థితి BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP:
+  స్థితి BROTLI_DECODER_ERROR_ALLOC_RING_బఫరు_1:
+  స్థితి BROTLI_DECODER_ERROR_ALLOC_RING_బఫరు_2:
+  స్థితి BROTLI_DECODER_ERROR_ALLOC_ఖండం_TYPE_TREES:
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  అప్రమేయ:
+    ఆపు;
   }
-  return CURLE_WRITE_ERROR;
+  తిరిగి CURLE_WRITE_ERROR;
 }
 
-static CURLcode brotli_do_init(struct Curl_easy *data,
-                               struct Curl_cwriter *writer)
+స్థిర CURLcode brotli_do_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_cwriter *writer)
 {
-  struct brotli_writer *bp = (struct brotli_writer *)writer;
-  (void)data;
+  నిర్మాణం brotli_writer *bp = (నిర్మాణం brotli_writer *)writer;
+  (శూన్య)దత్తాంశం;
 
-  bp->br = BrotliDecoderCreateInstance(NULL, NULL, NULL);
-  return bp->br ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  bp->br = BrotliDecoderCreateInstance(ఖాళీ, ఖాళీ, ఖాళీ);
+  తిరిగి bp->br ? CURLE_OK : CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 }
 
-static CURLcode brotli_do_write(struct Curl_easy *data,
-                                struct Curl_cwriter *writer, int type,
-                                const char *buf, size_t nbytes)
+స్థిర CURLcode brotli_do_write(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం Curl_cwriter *writer, పూర్ణాంకం type,
+                                స్థిరరాశి అక్షరం *buf, size_t nbytes)
 {
-  struct brotli_writer *bp = (struct brotli_writer *)writer;
-  const uint8_t *src = (const uint8_t *)buf;
+  నిర్మాణం brotli_writer *bp = (నిర్మాణం brotli_writer *)writer;
+  స్థిరరాశి uint8_t *src = (స్థిరరాశి uint8_t *)buf;
   uint8_t *dst;
   size_t dstleft;
-  CURLcode result = CURLE_OK;
-  BrotliDecoderResult r = BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT;
-  int i = 0;
+  CURLcode ఫలితం = CURLE_OK;
+  Brotli_Decoder_ఫలితం r = BROTLI_DECODER_ఫలితం_NEEDS_మరిన్ని_OUTPUT;
+  పూర్ణాంకం i = 0;
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ఒకవేళ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    తిరిగి Curl_cwriter_write(దత్తాంశం, writer->తదుపరి, type, buf, nbytes);
 
-  if(!bp->br)
-    return CURLE_WRITE_ERROR; /* Stream already ended. */
+  ఒకవేళ(!bp->br)
+    తిరిగి CURLE_WRITE_ERROR; /* Stream already ended. */
 
-  while((nbytes || r == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT) &&
-        result == CURLE_OK) {
+  అయితే((nbytes || r == BROTLI_DECODER_ఫలితం_NEEDS_మరిన్ని_OUTPUT) &&
+        ఫలితం == CURLE_OK) {
 
-    if(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
+    ఒకవేళ(++i > (1024 * 1024 / DECOMPRESS_బఫరు_కొలత)) {
       /* check every MB of output if we are not exceeding time limit */
       i = 0;
-      if(Curl_timeleft_ms(data) < 0) {
-        failf(data, "Operation timed out while decoding payload");
-        return CURLE_OPERATION_TIMEDOUT;
+      ఒకవేళ(Curl_timeleft_ms(దత్తాంశం) < 0) {
+        failf(దత్తాంశం, "Operation timed out while decoding payload");
+        తిరిగి CURLE_OPERATION_TIMEDOUT;
       }
     }
 
-    dst = (uint8_t *)bp->buffer;
-    dstleft = DECOMPRESS_BUFFER_SIZE;
-    r = BrotliDecoderDecompressStream(bp->br,
-                                      &nbytes, &src, &dstleft, &dst, NULL);
-    result = Curl_cwriter_write(data, writer->next, type,
-                                bp->buffer, DECOMPRESS_BUFFER_SIZE - dstleft);
-    if(result)
-      break;
-    switch(r) {
-    case BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT:
-    case BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT:
-      break;
-    case BROTLI_DECODER_RESULT_SUCCESS:
+    dst = (uint8_t *)bp->బఫరు;
+    dstleft = DECOMPRESS_బఫరు_కొలత;
+    r = Brotli_Decoder_Decompress_ప్రవాహం(bp->br,
+                                      &nbytes, &src, &dstleft, &dst, ఖాళీ);
+    ఫలితం = Curl_cwriter_write(దత్తాంశం, writer->తదుపరి, type,
+                                bp->బఫరు, DECOMPRESS_బఫరు_కొలత - dstleft);
+    ఒకవేళ(ఫలితం)
+      ఆపు;
+    ఎంపిక(r) {
+    స్థితి BROTLI_DECODER_ఫలితం_NEEDS_మరిన్ని_OUTPUT:
+    స్థితి BROTLI_DECODER_ఫలితం_NEEDS_మరిన్ని_ఆదానం:
+      ఆపు;
+    స్థితి BROTLI_DECODER_ఫలితం_SUCCESS:
       BrotliDecoderDestroyInstance(bp->br);
-      bp->br = NULL;
-      if(nbytes)
-        result = CURLE_WRITE_ERROR;
-      break;
-    default:
-      result = brotli_map_error(BrotliDecoderGetErrorCode(bp->br));
-      break;
+      bp->br = ఖాళీ;
+      ఒకవేళ(nbytes)
+        ఫలితం = CURLE_WRITE_ERROR;
+      ఆపు;
+    అప్రమేయ:
+      ఫలితం = brotli_map_error(Brotli_Decoder_Get_Error_సంకేతం(bp->br));
+      ఆపు;
     }
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static void brotli_do_close(struct Curl_easy *data,
-                            struct Curl_cwriter *writer)
+స్థిర శూన్య brotli_do_close(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం Curl_cwriter *writer)
 {
-  struct brotli_writer *bp = (struct brotli_writer *)writer;
-  (void)data;
+  నిర్మాణం brotli_writer *bp = (నిర్మాణం brotli_writer *)writer;
+  (శూన్య)దత్తాంశం;
 
-  if(bp->br) {
+  ఒకవేళ(bp->br) {
     BrotliDecoderDestroyInstance(bp->br);
-    bp->br = NULL;
+    bp->br = ఖాళీ;
   }
 }
 
-static const struct Curl_cwtype brotli_encoding = {
+స్థిర స్థిరరాశి నిర్మాణం Curl_cwtype brotli_encoding = {
   "br",
-  NULL,
+  ఖాళీ,
   CURL_CW_FLAG_BLOWUP,
   brotli_do_init,
   brotli_do_write,
   Curl_cwriter_def_flush,
   brotli_do_close,
-  sizeof(struct brotli_writer)
+  పరిమాణం(నిర్మాణం brotli_writer)
 };
-#endif
+#అయితే_ముగింపు
 
-#ifdef HAVE_ZSTD
+#నిర్వచితమైతే HAVE_ZSTD
 /* Zstd writer. */
-struct zstd_writer {
-  struct Curl_cwriter super;
+నిర్మాణం zstd_writer {
+  నిర్మాణం Curl_cwriter super;
   ZSTD_DStream *zds; /* State structure for zstd. */
-  char buffer[DECOMPRESS_BUFFER_SIZE];
+  అక్షరం బఫరు[DECOMPRESS_బఫరు_కొలత];
 };
 
-#ifdef ZSTD_STATIC_LINKING_ONLY
-static void *Curl_zstd_alloc(void *opaque, size_t size)
+#నిర్వచితమైతే ZSTD_STATIC_LINKING_ONLY
+స్థిర శూన్య *Curl_zstd_alloc(శూన్య *opaque, size_t కొలత)
 {
-  (void)opaque;
-  return Curl_cmalloc(size);
+  (శూన్య)opaque;
+  తిరిగి Curl_cmalloc(కొలత);
 }
 
-static void Curl_zstd_free(void *opaque, void *address)
+స్థిర శూన్య Curl_zstd_free(శూన్య *opaque, శూన్య *చిరునామా)
 {
-  (void)opaque;
-  Curl_cfree(address);
+  (శూన్య)opaque;
+  Curl_cfree(చిరునామా);
 }
-#endif
+#అయితే_ముగింపు
 
-static CURLcode zstd_do_init(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+స్థిర CURLcode zstd_do_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Curl_cwriter *writer)
 {
-  struct zstd_writer *zp = (struct zstd_writer *)writer;
+  నిర్మాణం zstd_writer *zp = (నిర్మాణం zstd_writer *)writer;
 
-  (void)data;
+  (శూన్య)దత్తాంశం;
 
-#ifdef ZSTD_STATIC_LINKING_ONLY
+#నిర్వచితమైతే ZSTD_STATIC_LINKING_ONLY
   zp->zds = ZSTD_createDStream_advanced((ZSTD_customMem) {
     .customAlloc = Curl_zstd_alloc,
     .customFree  = Curl_zstd_free,
-    .opaque      = NULL
+    .opaque      = ఖాళీ
   });
-#else
+#లేకపోతే
   zp->zds = ZSTD_createDStream();
-#endif
+#అయితే_ముగింపు
 
-  return zp->zds ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  తిరిగి zp->zds ? CURLE_OK : CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 }
 
-static CURLcode zstd_do_write(struct Curl_easy *data,
-                              struct Curl_cwriter *writer, int type,
-                              const char *buf, size_t nbytes)
+స్థిర CURLcode zstd_do_write(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_cwriter *writer, పూర్ణాంకం type,
+                              స్థిరరాశి అక్షరం *buf, size_t nbytes)
 {
-  CURLcode result = CURLE_OK;
-  struct zstd_writer *zp = (struct zstd_writer *)writer;
-  ZSTD_inBuffer in;
-  ZSTD_outBuffer out;
-  size_t errorCode;
-  int i = 0;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం zstd_writer *zp = (నిర్మాణం zstd_writer *)writer;
+  ZSTD_లోపల_బఫరు లోపల;
+  ZSTD_బహిర్గతం_బఫరు బహిర్గతం;
+  size_t error_సంకేతం_2;
+  పూర్ణాంకం i = 0;
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ఒకవేళ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    తిరిగి Curl_cwriter_write(దత్తాంశం, writer->తదుపరి, type, buf, nbytes);
 
-  in.pos = 0;
-  in.src = buf;
-  in.size = nbytes;
+  లోపల.pos = 0;
+  లోపల.src = buf;
+  లోపల.కొలత = nbytes;
 
-  for(;;) {
-    if(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
+  కొరకు(;;) {
+    ఒకవేళ(++i > (1024 * 1024 / DECOMPRESS_బఫరు_కొలత)) {
       /* check every MB of output if we are not exceeding time limit */
       i = 0;
-      if(Curl_timeleft_ms(data) < 0) {
-        failf(data, "Operation timed out while decoding payload");
-        return CURLE_OPERATION_TIMEDOUT;
+      ఒకవేళ(Curl_timeleft_ms(దత్తాంశం) < 0) {
+        failf(దత్తాంశం, "Operation timed out while decoding payload");
+        తిరిగి CURLE_OPERATION_TIMEDOUT;
       }
     }
 
-    out.pos = 0;
-    out.dst = zp->buffer;
-    out.size = DECOMPRESS_BUFFER_SIZE;
+    బహిర్గతం.pos = 0;
+    బహిర్గతం.dst = zp->బఫరు;
+    బహిర్గతం.కొలత = DECOMPRESS_బఫరు_కొలత;
 
-    errorCode = ZSTD_decompressStream(zp->zds, &out, &in);
-    if(ZSTD_isError(errorCode)) {
-      return CURLE_BAD_CONTENT_ENCODING;
+    error_సంకేతం_2 = ZSTD_decompress_ప్రవాహం(zp->zds, &బహిర్గతం, &లోపల);
+    ఒకవేళ(ZSTD_isError(error_సంకేతం_2)) {
+      తిరిగి CURLE_BAD_CONTENT_ENCODING;
     }
-    if(out.pos > 0) {
-      result = Curl_cwriter_write(data, writer->next, type,
-                                  zp->buffer, out.pos);
-      if(result)
-        break;
+    ఒకవేళ(బహిర్గతం.pos > 0) {
+      ఫలితం = Curl_cwriter_write(దత్తాంశం, writer->తదుపరి, type,
+                                  zp->బఫరు, బహిర్గతం.pos);
+      ఒకవేళ(ఫలితం)
+        ఆపు;
     }
-    if((in.pos == nbytes) && (out.pos < out.size))
-      break;
+    ఒకవేళ((లోపల.pos == nbytes) && (బహిర్గతం.pos < బహిర్గతం.కొలత))
+      ఆపు;
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static void zstd_do_close(struct Curl_easy *data,
-                          struct Curl_cwriter *writer)
+స్థిర శూన్య zstd_do_close(నిర్మాణం Curl_easy *దత్తాంశం,
+                          నిర్మాణం Curl_cwriter *writer)
 {
-  struct zstd_writer *zp = (struct zstd_writer *)writer;
-  (void)data;
+  నిర్మాణం zstd_writer *zp = (నిర్మాణం zstd_writer *)writer;
+  (శూన్య)దత్తాంశం;
 
-  if(zp->zds) {
+  ఒకవేళ(zp->zds) {
     ZSTD_freeDStream(zp->zds);
-    zp->zds = NULL;
+    zp->zds = ఖాళీ;
   }
 }
 
-static const struct Curl_cwtype zstd_encoding = {
+స్థిర స్థిరరాశి నిర్మాణం Curl_cwtype zstd_encoding = {
   "zstd",
-  NULL,
+  ఖాళీ,
   CURL_CW_FLAG_BLOWUP,
   zstd_do_init,
   zstd_do_write,
   Curl_cwriter_def_flush,
   zstd_do_close,
-  sizeof(struct zstd_writer)
+  పరిమాణం(నిర్మాణం zstd_writer)
 };
-#endif
+#అయితే_ముగింపు
 
 /* Identity handler. */
-static const struct Curl_cwtype identity_encoding = {
+స్థిర స్థిరరాశి నిర్మాణం Curl_cwtype తటస్థం_encoding = {
   "identity",
   "none",
   0,
@@ -628,190 +628,190 @@ static const struct Curl_cwtype identity_encoding = {
   Curl_cwriter_def_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct Curl_cwriter)
+  పరిమాణం(నిర్మాణం Curl_cwriter)
 };
 
 /* supported general content decoders. */
-static const struct Curl_cwtype * const general_unencoders[] = {
-  &identity_encoding,
-#ifdef HAVE_LIBZ
+స్థిర స్థిరరాశి నిర్మాణం Curl_cwtype * స్థిరరాశి general_unencoders[] = {
+  &తటస్థం_encoding,
+#నిర్వచితమైతే HAVE_LIBZ
   &deflate_encoding,
   &gzip_encoding,
-#endif
-#ifdef HAVE_BROTLI
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_BROTLI
   &brotli_encoding,
-#endif
-#ifdef HAVE_ZSTD
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ZSTD
   &zstd_encoding,
-#endif
-  NULL
+#అయితే_ముగింపు
+  ఖాళీ
 };
 
 /* supported content decoders only for transfer encodings */
-static const struct Curl_cwtype * const transfer_unencoders[] = {
+స్థిర స్థిరరాశి నిర్మాణం Curl_cwtype * స్థిరరాశి transfer_unencoders[] = {
   &Curl_httpchunk_unencoder,
-  NULL
+  ఖాళీ
 };
 
 /* Return the list of comma-separated names of supported encodings.
  */
-char *Curl_get_content_encodings(void)
+అక్షరం *Curl_get_content_encodings(శూన్య)
 {
-  struct dynbuf enc;
-  const struct Curl_cwtype * const *cep;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం dynbuf enc;
+  స్థిరరాశి నిర్మాణం Curl_cwtype * స్థిరరాశి *cep;
+  CURLcode ఫలితం = CURLE_OK;
   curlx_dyn_init(&enc, 255);
 
-  for(cep = general_unencoders; *cep && !result; cep++) {
-    const struct Curl_cwtype *ce = *cep;
-    if(!curl_strequal(ce->name, CONTENT_ENCODING_DEFAULT)) {
-      if(curlx_dyn_len(&enc))
-        result = curlx_dyn_addn(&enc, ", ", 2);
-      if(!result)
-        result = curlx_dyn_add(&enc, ce->name);
+  కొరకు(cep = general_unencoders; *cep && !ఫలితం; cep++) {
+    స్థిరరాశి నిర్మాణం Curl_cwtype *ce = *cep;
+    ఒకవేళ(!curl_strequal(ce->name, CONTENT_ENCODING_DEFAULT)) {
+      ఒకవేళ(curlx_dyn_len(&enc))
+        ఫలితం = curlx_dyn_addn(&enc, ", ", 2);
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = curlx_dyn_కూడు(&enc, ce->name);
     }
   }
-  if(!result && !curlx_dyn_len(&enc))
-    result = curlx_dyn_add(&enc, CONTENT_ENCODING_DEFAULT);
+  ఒకవేళ(!ఫలితం && !curlx_dyn_len(&enc))
+    ఫలితం = curlx_dyn_కూడు(&enc, CONTENT_ENCODING_DEFAULT);
 
-  if(!result)
-    return curlx_dyn_ptr(&enc);
-  return NULL;
+  ఒకవేళ(!ఫలితం)
+    తిరిగి curlx_dyn_ptr(&enc);
+  తిరిగి ఖాళీ;
 }
 
 /* Deferred error dummy writer. */
-static CURLcode error_do_init(struct Curl_easy *data,
-                              struct Curl_cwriter *writer)
+స్థిర CURLcode error_do_init(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_cwriter *writer)
 {
-  (void)data;
-  (void)writer;
-  return CURLE_OK;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)writer;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode error_do_write(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
-                               const char *buf, size_t nbytes)
+స్థిర CURLcode error_do_write(నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_cwriter *writer, పూర్ణాంకం type,
+                               స్థిరరాశి అక్షరం *buf, size_t nbytes)
 {
-  (void)writer;
-  (void)buf;
-  (void)nbytes;
+  (శూన్య)writer;
+  (శూన్య)buf;
+  (శూన్య)nbytes;
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
-  failf(data, "Unrecognized content encoding type");
-  return CURLE_BAD_CONTENT_ENCODING;
+  ఒకవేళ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    తిరిగి Curl_cwriter_write(దత్తాంశం, writer->తదుపరి, type, buf, nbytes);
+  failf(దత్తాంశం, "Unrecognized content encoding type");
+  తిరిగి CURLE_BAD_CONTENT_ENCODING;
 }
 
-static void error_do_close(struct Curl_easy *data,
-                           struct Curl_cwriter *writer)
+స్థిర శూన్య error_do_close(నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం Curl_cwriter *writer)
 {
-  (void)data;
-  (void)writer;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)writer;
 }
 
-static const struct Curl_cwtype error_writer = {
+స్థిర స్థిరరాశి నిర్మాణం Curl_cwtype error_writer = {
   "ce-error",
-  NULL,
+  ఖాళీ,
   0,
   error_do_init,
   error_do_write,
   Curl_cwriter_def_flush,
   error_do_close,
-  sizeof(struct Curl_cwriter)
+  పరిమాణం(నిర్మాణం Curl_cwriter)
 };
 
 /* Find the content encoding by name. */
-static const struct Curl_cwtype *find_unencode_writer(const char *name,
+స్థిర స్థిరరాశి నిర్మాణం Curl_cwtype *కనుగొను_unencode_writer(స్థిరరాశి అక్షరం *name,
                                                       size_t len,
                                                       Curl_cwriter_phase phase)
 {
-  const struct Curl_cwtype * const *cep;
+  స్థిరరాశి నిర్మాణం Curl_cwtype * స్థిరరాశి *cep;
 
-  if(phase == CURL_CW_TRANSFER_DECODE) {
-    for(cep = transfer_unencoders; *cep; cep++) {
-      const struct Curl_cwtype *ce = *cep;
-      if((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
+  ఒకవేళ(phase == CURL_CW_TRANSFER_DECODE) {
+    కొరకు(cep = transfer_unencoders; *cep; cep++) {
+      స్థిరరాశి నిర్మాణం Curl_cwtype *ce = *cep;
+      ఒకవేళ((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
          (ce->alias && curl_strnequal(name, ce->alias, len) &&
           !ce->alias[len]))
-        return ce;
+        తిరిగి ce;
     }
   }
   /* look among the general decoders */
-  for(cep = general_unencoders; *cep; cep++) {
-    const struct Curl_cwtype *ce = *cep;
-    if((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
+  కొరకు(cep = general_unencoders; *cep; cep++) {
+    స్థిరరాశి నిర్మాణం Curl_cwtype *ce = *cep;
+    ఒకవేళ((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
        (ce->alias && curl_strnequal(name, ce->alias, len) && !ce->alias[len]))
-      return ce;
+      తిరిగి ce;
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
 /* Setup the unencoding stack from the Content-Encoding header value.
  * See RFC 7231 section 3.1.2.2. */
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer)
+CURLcode Curl_build_unencoding_దొంతర(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     స్థిరరాశి అక్షరం *enclist, పూర్ణాంకం is_transfer)
 {
   Curl_cwriter_phase phase = is_transfer ?
     CURL_CW_TRANSFER_DECODE : CURL_CW_CONTENT_DECODE;
-  CURLcode result;
+  CURLcode ఫలితం;
   bool has_chunked = FALSE;
 
-  do {
-    const char *name;
+  చేయి {
+    స్థిరరాశి అక్షరం *name;
     size_t namelen;
     bool is_chunked = FALSE;
 
     /* Parse a single encoding name. */
-    while(ISBLANK(*enclist) || *enclist == ',')
+    అయితే(ISBLANK(*enclist) || *enclist == ',')
       enclist++;
 
     name = enclist;
 
-    for(namelen = 0; *enclist && *enclist != ','; enclist++)
-      if(*enclist > ' ')
+    కొరకు(namelen = 0; *enclist && *enclist != ','; enclist++)
+      ఒకవేళ(*enclist > ' ')
         namelen = enclist - name + 1;
 
-    if(namelen) {
-      const struct Curl_cwtype *cwt;
-      struct Curl_cwriter *writer;
+    ఒకవేళ(namelen) {
+      స్థిరరాశి నిర్మాణం Curl_cwtype *cwt;
+      నిర్మాణం Curl_cwriter *writer;
 
-      CURL_TRC_WRITE(data, "looking for %s decoder: %.*s",
-                     is_transfer ? "transfer" : "content", (int)namelen, name);
+      CURL_TRC_WRITE(దత్తాంశం, "looking for %s decoder: %.*s",
+                     is_transfer ? "transfer" : "content", (పూర్ణాంకం)namelen, name);
       is_chunked = (is_transfer && (namelen == 7) &&
                     curl_strnequal(name, "chunked", 7));
       /* if we skip the decoding in this phase, do not look further.
        * Exception is "chunked" transfer-encoding which always must happen */
-      if((is_transfer && !data->set.http_transfer_encoding && !is_chunked) ||
-         (!is_transfer && data->set.http_ce_skip)) {
-        bool is_identity = (namelen == 8) &&
+      ఒకవేళ((is_transfer && !దత్తాంశం->సమితి.http_transfer_encoding && !is_chunked) ||
+         (!is_transfer && దత్తాంశం->సమితి.http_ce_skip)) {
+        bool is_తటస్థం = (namelen == 8) &&
                            curl_strnequal(name, "identity", 8);
         /* not requested, ignore */
-        CURL_TRC_WRITE(data, "decoder not requested, ignored: %.*s",
-                       (int)namelen, name);
-        if(is_transfer && !data->set.http_te_skip) {
-          if(has_chunked)
-            failf(data, "A Transfer-Encoding (%.*s) was listed after chunked",
-                  (int)namelen, name);
-          else if(is_identity)
-            continue;
-          else
-            failf(data, "Unsolicited Transfer-Encoding (%.*s) found",
-                  (int)namelen, name);
-          return CURLE_BAD_CONTENT_ENCODING;
+        CURL_TRC_WRITE(దత్తాంశం, "decoder not requested, ignored: %.*s",
+                       (పూర్ణాంకం)namelen, name);
+        ఒకవేళ(is_transfer && !దత్తాంశం->సమితి.http_te_skip) {
+          ఒకవేళ(has_chunked)
+            failf(దత్తాంశం, "A Transfer-Encoding (%.*s) was listed after chunked",
+                  (పూర్ణాంకం)namelen, name);
+          లేకపోతే ఒకవేళ(is_తటస్థం)
+            కొనసాగు;
+          లేకపోతే
+            failf(దత్తాంశం, "Unsolicited Transfer-Encoding (%.*s) found",
+                  (పూర్ణాంకం)namelen, name);
+          తిరిగి CURLE_BAD_CONTENT_ENCODING;
         }
-        return CURLE_OK;
+        తిరిగి CURLE_OK;
       }
 
-      if(Curl_cwriter_count(data, phase) >= MAX_ENCODE_STACK) {
-        failf(data, "Reject response exceeding limit of %d %s encodings",
-              MAX_ENCODE_STACK,
+      ఒకవేళ(Curl_cwriter_లెక్క(దత్తాంశం, phase) >= MAX_ENCODE_దొంతర) {
+        failf(దత్తాంశం, "Reject response exceeding limit of %d %s encodings",
+              MAX_ENCODE_దొంతర,
               is_transfer ? "transfer" : "content");
-        return CURLE_BAD_CONTENT_ENCODING;
+        తిరిగి CURLE_BAD_CONTENT_ENCODING;
       }
 
-      cwt = find_unencode_writer(name, namelen, phase);
-      if(is_transfer && !is_chunked &&
-         Curl_cwriter_get_by_name(data, "chunked")) {
+      cwt = కనుగొను_unencode_writer(name, namelen, phase);
+      ఒకవేళ(is_transfer && !is_chunked &&
+         Curl_cwriter_get_by_name(దత్తాంశం, "chunked")) {
         /* RFC 9112, ch. 6.1:
          * "If any transfer coding other than chunked is applied to a
          *  response's content, the sender MUST either apply chunked as the
@@ -820,58 +820,58 @@ CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
          * "chunked" must be the last added to be the first in its phase,
          *  reject this.
          */
-        failf(data, "Reject response due to 'chunked' not being the last "
+        failf(దత్తాంశం, "Reject response due to 'chunked' not being the last "
               "Transfer-Encoding");
-        return CURLE_BAD_CONTENT_ENCODING;
+        తిరిగి CURLE_BAD_CONTENT_ENCODING;
       }
-      if(cwt && is_chunked && Curl_cwriter_get_by_type(data, cwt)) {
+      ఒకవేళ(cwt && is_chunked && Curl_cwriter_get_by_type(దత్తాంశం, cwt)) {
         /* A 'chunked' transfer encoding has already been added.
          * Ignore duplicates. See #13451.
          * Also RFC 9112, ch. 6.1:
          * "A sender MUST NOT apply the chunked transfer coding more than
          *  once to a message body."
          */
-        CURL_TRC_WRITE(data, "ignoring duplicate 'chunked' decoder");
+        CURL_TRC_WRITE(దత్తాంశం, "ignoring duplicate 'chunked' decoder");
       }
-      else {
-        if(!cwt)
+      లేకపోతే {
+        ఒకవేళ(!cwt)
           cwt = &error_writer; /* Defer error at use. */
 
-        result = Curl_cwriter_create(&writer, data, cwt, phase);
-        CURL_TRC_WRITE(data, "added %s decoder %s -> %d",
+        ఫలితం = Curl_cwriter_create(&writer, దత్తాంశం, cwt, phase);
+        CURL_TRC_WRITE(దత్తాంశం, "added %s decoder %s -> %d",
                        is_transfer ? "transfer" : "content", cwt->name,
-                       (int)result);
-        if(result)
-          return result;
+                       (పూర్ణాంకం)ఫలితం);
+        ఒకవేళ(ఫలితం)
+          తిరిగి ఫలితం;
 
-        result = Curl_cwriter_add(data, writer);
-        if(result) {
-          Curl_cwriter_free(data, writer);
-          return result;
+        ఫలితం = Curl_cwriter_కూడు(దత్తాంశం, writer);
+        ఒకవేళ(ఫలితం) {
+          Curl_cwriter_free(దత్తాంశం, writer);
+          తిరిగి ఫలితం;
         }
       }
-      if(is_chunked)
+      ఒకవేళ(is_chunked)
         has_chunked = TRUE;
     }
-  } while(*enclist);
+  } అయితే(*enclist);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-#else
+#లేకపోతే
 /* Stubs for builds without HTTP. */
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer)
+CURLcode Curl_build_unencoding_దొంతర(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     స్థిరరాశి అక్షరం *enclist, పూర్ణాంకం is_transfer)
 {
-  (void)data;
-  (void)enclist;
-  (void)is_transfer;
-  return CURLE_NOT_BUILT_IN;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)enclist;
+  (శూన్య)is_transfer;
+  తిరిగి CURLE_NOT_BUILT_లోపల;
 }
 
-char *Curl_get_content_encodings(void)
+అక్షరం *Curl_get_content_encodings(శూన్య)
 {
-  return curlx_strdup(CONTENT_ENCODING_DEFAULT);
+  తిరిగి curlx_strdup(CONTENT_ENCODING_DEFAULT);
 }
 
-#endif /* CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* CURL_DISABLE_HTTP */

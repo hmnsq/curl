@@ -21,475 +21,475 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "urldata.h"
-#include "multiif.h"
-#include "curl_threads.h"
-#include "curl_share.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_scache.h"
-#include "hsts.h"
-#include "url.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "curl_threads.h"
+#అన్తర్భావ "curl_share.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "vtls/vtls_scache.h"
+#అన్తర్భావ "hsts.h"
+#అన్తర్భావ "url.h"
 
-static void share_destroy(struct Curl_share *share)
+స్థిర శూన్య share_destroy(నిర్మాణం Curl_share *share)
 {
-  if(!share)
-    return;
+  ఒకవేళ(!share)
+    తిరిగి;
 
-  if(share->specifier & (1 << CURL_LOCK_DATA_CONNECT)) {
+  ఒకవేళ(share->specifier & (1 << CURL_తాళం_దత్తాంశం_CONNECT)) {
     Curl_cpool_destroy(&share->cpool, share->admin);
   }
 
   Curl_dnscache_destroy(&share->dnscache);
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
   Curl_cookie_cleanup(share->cookies);
-#endif
+#అయితే_ముగింపు
 
-#ifndef CURL_DISABLE_HSTS
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HSTS
   Curl_hsts_cleanup(&share->hsts);
-#endif
+#అయితే_ముగింపు
 
-#ifdef USE_SSL
-  if(share->ssl_scache) {
+#నిర్వచితమైతే USE_SSL
+  ఒకవేళ(share->ssl_scache) {
     Curl_ssl_scache_destroy(share->ssl_scache);
-    share->ssl_scache = NULL;
+    share->ssl_scache = ఖాళీ;
   }
-#endif
+#అయితే_ముగింపు
 
   Curl_psl_destroy(&share->psl);
   Curl_close(&share->admin);
 
-#ifdef USE_MUTEX
-  Curl_mutex_destroy(&share->lock);
-#endif
-  curlx_memzero(share, sizeof(*share));
+#నిర్వచితమైతే USE_MUTEX
+  Curl_mutex_destroy(&share->తాళం);
+#అయితే_ముగింపు
+  curlx_memzero(share, పరిమాణం(*share));
   curlx_free(share);
 }
 
-CURLSH *curl_share_init(void)
+CURLSH *curl_share_init(శూన్య)
 {
-  struct Curl_share *share = curlx_calloc(1, sizeof(struct Curl_share));
-  if(share) {
+  నిర్మాణం Curl_share *share = curlx_calloc(1, పరిమాణం(నిర్మాణం Curl_share));
+  ఒకవేళ(share) {
     share->magic = CURL_GOOD_SHARE;
-    share->specifier |= (1 << CURL_LOCK_DATA_SHARE);
-#ifdef USE_MUTEX
-    Curl_mutex_init(&share->lock);
-#endif
-    share->ref_count = 1;
+    share->specifier |= (1 << CURL_తాళం_దత్తాంశం_SHARE);
+#నిర్వచితమైతే USE_MUTEX
+    Curl_mutex_init(&share->తాళం);
+#అయితే_ముగింపు
+    share->ref_లెక్క = 1;
     Curl_dnscache_init(&share->dnscache, 23);
     share->admin = curl_easy_init();
-    if(!share->admin) {
+    ఒకవేళ(!share->admin) {
       share_destroy(share);
-      return NULL;
+      తిరిగి ఖాళీ;
     }
     /* admin handles have mid 0 */
     share->admin->mid = 0;
-    share->admin->state.internal = TRUE;
-#ifdef DEBUGBUILD
-    if(getenv("CURL_DEBUG"))
-      share->admin->set.verbose = TRUE;
-#endif
+    share->admin->state.అంతర్గత = TRUE;
+#నిర్వచితమైతే DEBUGBUILD
+    ఒకవేళ(getenv("CURL_DEBUG"))
+      share->admin->సమితి.verbose = TRUE;
+#అయితే_ముగింపు
   }
-  return share;
+  తిరిగి share;
 }
 
-static uint32_t share_ref_inc(struct Curl_share *share)
+స్థిర uint32_t share_ref_inc(నిర్మాణం Curl_share *share)
 {
   uint32_t n;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
-  n = ++share->ref_count;
+#నిర్వచితమైతే USE_MUTEX
+  Curl_mutex_acquire(&share->తాళం);
+  n = ++share->ref_లెక్క;
   share->has_been_shared = TRUE;
-  Curl_mutex_release(&share->lock);
-#else
-  n = ++share->ref_count;
+  Curl_mutex_release(&share->తాళం);
+#లేకపోతే
+  n = ++share->ref_లెక్క;
   share->has_been_shared = TRUE;
-#endif
-  return n;
+#అయితే_ముగింపు
+  తిరిగి n;
 }
 
-static uint32_t share_ref_dec(struct Curl_share *share)
+స్థిర uint32_t share_ref_dec(నిర్మాణం Curl_share *share)
 {
   uint32_t n;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
-  DEBUGASSERT(share->ref_count);
-  n = --share->ref_count;
-  Curl_mutex_release(&share->lock);
-#else
-  n = --share->ref_count;
-#endif
-  return n;
+#నిర్వచితమైతే USE_MUTEX
+  Curl_mutex_acquire(&share->తాళం);
+  DEBUGASSERT(share->ref_లెక్క);
+  n = --share->ref_లెక్క;
+  Curl_mutex_release(&share->తాళం);
+#లేకపోతే
+  n = --share->ref_లెక్క;
+#అయితే_ముగింపు
+  తిరిగి n;
 }
 
-static bool share_has_been_shared(struct Curl_share *share)
+స్థిర bool share_has_been_shared(నిర్మాణం Curl_share *share)
 {
   bool was_shared;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
+#నిర్వచితమైతే USE_MUTEX
+  Curl_mutex_acquire(&share->తాళం);
   was_shared = share->has_been_shared;
-  Curl_mutex_release(&share->lock);
-#else
+  Curl_mutex_release(&share->తాళం);
+#లేకపోతే
   was_shared = share->has_been_shared;
-#endif
-  return was_shared;
+#అయితే_ముగింపు
+  తిరిగి was_shared;
 }
 
-static bool share_lock_acquire(struct Curl_share *share,
-                               struct Curl_easy *data)
+స్థిర bool share_తాళం_acquire(నిర్మాణం Curl_share *share,
+                               నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(share->lockfunc && share->unlockfunc &&
-     (data || share_has_been_shared(share))) {
-    share->lockfunc(data, CURL_LOCK_DATA_SHARE, CURL_LOCK_ACCESS_SINGLE,
+  ఒకవేళ(share->lockfunc && share->unlockfunc &&
+     (దత్తాంశం || share_has_been_shared(share))) {
+    share->lockfunc(దత్తాంశం, CURL_తాళం_దత్తాంశం_SHARE, CURL_తాళం_ACCESS_SINGLE,
                     share->clientdata);
-    return TRUE;
+    తిరిగి TRUE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static void share_lock_release(struct Curl_share *share,
-                               struct Curl_easy *data,
+స్థిర శూన్య share_తాళం_release(నిర్మాణం Curl_share *share,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
                                bool locked)
 {
-  if(locked) {
+  ఒకవేళ(locked) {
     DEBUGASSERT(share->unlockfunc);
-    if(share->unlockfunc)
-      share->unlockfunc(data, CURL_LOCK_DATA_SHARE, share->clientdata);
+    ఒకవేళ(share->unlockfunc)
+      share->unlockfunc(దత్తాంశం, CURL_తాళం_దత్తాంశం_SHARE, share->clientdata);
   }
 }
 
-static bool share_in_use(struct Curl_share *share)
+స్థిర bool share_లోపల_use(నిర్మాణం Curl_share *share)
 {
-  bool in_use;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
-  in_use = (share->ref_count > 1);
-  Curl_mutex_release(&share->lock);
-#else
-  bool locked = share_lock_acquire(share, NULL);
-  in_use = (share->ref_count > 1);
-  share_lock_release(share, NULL, locked);
-#endif
-  return in_use;
+  bool లోపల_use;
+#నిర్వచితమైతే USE_MUTEX
+  Curl_mutex_acquire(&share->తాళం);
+  లోపల_use = (share->ref_లెక్క > 1);
+  Curl_mutex_release(&share->తాళం);
+#లేకపోతే
+  bool locked = share_తాళం_acquire(share, ఖాళీ);
+  లోపల_use = (share->ref_లెక్క > 1);
+  share_తాళం_release(share, ఖాళీ, locked);
+#అయితే_ముగింపు
+  తిరిగి లోపల_use;
 }
 
-static void share_unlink(struct Curl_share **pshare,
-                         struct Curl_easy *data,
+స్థిర శూన్య share_unlink(నిర్మాణం Curl_share **pshare,
+                         నిర్మాణం Curl_easy *దత్తాంశం,
                          bool locked)
 {
-  struct Curl_share *share = *pshare;
+  నిర్మాణం Curl_share *share = *pshare;
   uint32_t n;
 
-  *pshare = NULL;
+  *pshare = ఖాళీ;
   n = share_ref_dec(share);
-  if(locked)
-    share_lock_release(share, data, locked);
-  if(!n)  /* last reference gone */
+  ఒకవేళ(locked)
+    share_తాళం_release(share, దత్తాంశం, locked);
+  ఒకవేళ(!n)  /* last reference gone */
     share_destroy(share);
 }
 
-#undef curl_share_setopt
+#నిర్వచనం_రద్దు curl_share_setopt
 CURLSHcode curl_share_setopt(CURLSH *sh, CURLSHoption option, ...)
 {
   va_list param;
-  int type;
-  curl_lock_function lockfunc;
+  పూర్ణాంకం type;
+  curl_తాళం_function lockfunc;
   curl_unlock_function unlockfunc;
-  void *ptr;
+  శూన్య *ptr;
   CURLSHcode res = CURLSHE_OK;
-  struct Curl_share *share = sh;
+  నిర్మాణం Curl_share *share = sh;
 
-  if(!GOOD_SHARE_HANDLE(share))
-    return CURLSHE_INVALID;
+  ఒకవేళ(!GOOD_SHARE_HANDLE(share))
+    తిరిగి CURLSHE_INVALID;
 
-  if(share_in_use(share)) {
+  ఒకవేళ(share_లోపల_use(share)) {
     /* do not allow setting options while one or more handles are already
        using this share */
-    return CURLSHE_IN_USE;
+    తిరిగి CURLSHE_లోపల_USE;
   }
 
   va_start(param, option);
 
-  switch(option) {
-  case CURLSHOPT_SHARE:
+  ఎంపిక(option) {
+  స్థితి CURLSHOPT_SHARE:
     /* this is a type this share will share */
-    type = va_arg(param, int);
+    type = va_arg(param, పూర్ణాంకం);
 
-    switch(type) {
-    case CURL_LOCK_DATA_DNS:
-      break;
+    ఎంపిక(type) {
+    స్థితి CURL_తాళం_దత్తాంశం_DNS:
+      ఆపు;
 
-    case CURL_LOCK_DATA_COOKIE:
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-      if(!share->cookies) {
+    స్థితి CURL_తాళం_దత్తాంశం_COOKIE:
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+      ఒకవేళ(!share->cookies) {
         share->cookies = Curl_cookie_init();
-        if(!share->cookies)
+        ఒకవేళ(!share->cookies)
           res = CURLSHE_NOMEM;
       }
-#else /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#లేకపోతే /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
+      res = CURLSHE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
+      ఆపు;
 
-    case CURL_LOCK_DATA_HSTS:
-#ifndef CURL_DISABLE_HSTS
-      if(!share->hsts) {
+    స్థితి CURL_తాళం_దత్తాంశం_HSTS:
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HSTS
+      ఒకవేళ(!share->hsts) {
         share->hsts = Curl_hsts_init();
-        if(!share->hsts)
+        ఒకవేళ(!share->hsts)
           res = CURLSHE_NOMEM;
       }
-#else /* CURL_DISABLE_HSTS */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#లేకపోతే /* CURL_DISABLE_HSTS */
+      res = CURLSHE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
+      ఆపు;
 
-    case CURL_LOCK_DATA_SSL_SESSION:
-#ifdef USE_SSL
-      if(!share->ssl_scache) {
+    స్థితి CURL_తాళం_దత్తాంశం_SSL_SESSION:
+#నిర్వచితమైతే USE_SSL
+      ఒకవేళ(!share->ssl_scache) {
         /* There is no way (yet) for the application to configure the
          * session cache size, shared between many transfers. As for curl
          * itself, a high session count will impact startup time. Also, the
          * scache is not optimized for several hundreds of peers.
          * Keep it at a reasonable level. */
-        if(Curl_ssl_scache_create(25, 2, &share->ssl_scache))
+        ఒకవేళ(Curl_ssl_scache_create(25, 2, &share->ssl_scache))
           res = CURLSHE_NOMEM;
       }
-#else
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#లేకపోతే
+      res = CURLSHE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
+      ఆపు;
 
-    case CURL_LOCK_DATA_CONNECT:
+    స్థితి CURL_తాళం_దత్తాంశం_CONNECT:
       /* It is safe to set this option several times on a share. */
-      if(!share->cpool.initialized) {
+      ఒకవేళ(!share->cpool.initialized) {
         Curl_cpool_init(&share->cpool, share, 103);
       }
-      break;
+      ఆపు;
 
-    case CURL_LOCK_DATA_PSL:
-#ifndef USE_LIBPSL
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+    స్థితి CURL_తాళం_దత్తాంశం_PSL:
+#నిర్వచితం_కాకపోతే USE_LIBPSL
+      res = CURLSHE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
+      ఆపు;
 
-    default:
+    అప్రమేయ:
       res = CURLSHE_BAD_OPTION;
     }
-    if(!res)
-      share->specifier |= (unsigned int)(1 << type);
-    break;
+    ఒకవేళ(!res)
+      share->specifier |= (గుర్తులేని పూర్ణాంకం)(1 << type);
+    ఆపు;
 
-  case CURLSHOPT_UNSHARE:
+  స్థితి CURLSHOPT_UNSHARE:
     /* this is a type this share will no longer share */
-    type = va_arg(param, int);
-    switch(type) {
-    case CURL_LOCK_DATA_DNS:
-      break;
+    type = va_arg(param, పూర్ణాంకం);
+    ఎంపిక(type) {
+    స్థితి CURL_తాళం_దత్తాంశం_DNS:
+      ఆపు;
 
-    case CURL_LOCK_DATA_COOKIE:
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-      if(share->cookies) {
+    స్థితి CURL_తాళం_దత్తాంశం_COOKIE:
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+      ఒకవేళ(share->cookies) {
         Curl_cookie_cleanup(share->cookies);
-        share->cookies = NULL;
+        share->cookies = ఖాళీ;
       }
-#else /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#లేకపోతే /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
+      res = CURLSHE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
+      ఆపు;
 
-    case CURL_LOCK_DATA_HSTS:
-#ifndef CURL_DISABLE_HSTS
-      if(share->hsts) {
+    స్థితి CURL_తాళం_దత్తాంశం_HSTS:
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HSTS
+      ఒకవేళ(share->hsts) {
         Curl_hsts_cleanup(&share->hsts);
       }
-#else /* CURL_DISABLE_HSTS */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#లేకపోతే /* CURL_DISABLE_HSTS */
+      res = CURLSHE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
+      ఆపు;
 
-    case CURL_LOCK_DATA_SSL_SESSION:
-#ifdef USE_SSL
-      if(share->ssl_scache) {
+    స్థితి CURL_తాళం_దత్తాంశం_SSL_SESSION:
+#నిర్వచితమైతే USE_SSL
+      ఒకవేళ(share->ssl_scache) {
         Curl_ssl_scache_destroy(share->ssl_scache);
-        share->ssl_scache = NULL;
+        share->ssl_scache = ఖాళీ;
       }
-#else
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#లేకపోతే
+      res = CURLSHE_NOT_BUILT_లోపల;
+#అయితే_ముగింపు
+      ఆపు;
 
-    case CURL_LOCK_DATA_CONNECT:
-      break;
+    స్థితి CURL_తాళం_దత్తాంశం_CONNECT:
+      ఆపు;
 
-    default:
+    అప్రమేయ:
       res = CURLSHE_BAD_OPTION;
-      break;
+      ఆపు;
     }
-    if(!res)
-      share->specifier &= ~(unsigned int)(1 << type);
-    break;
+    ఒకవేళ(!res)
+      share->specifier &= ~(గుర్తులేని పూర్ణాంకం)(1 << type);
+    ఆపు;
 
-  case CURLSHOPT_LOCKFUNC:
-    lockfunc = va_arg(param, curl_lock_function);
+  స్థితి CURLSHOPT_LOCKFUNC:
+    lockfunc = va_arg(param, curl_తాళం_function);
     share->lockfunc = lockfunc;
-    break;
+    ఆపు;
 
-  case CURLSHOPT_UNLOCKFUNC:
+  స్థితి CURLSHOPT_UNLOCKFUNC:
     unlockfunc = va_arg(param, curl_unlock_function);
     share->unlockfunc = unlockfunc;
-    break;
+    ఆపు;
 
-  case CURLSHOPT_USERDATA:
-    ptr = va_arg(param, void *);
+  స్థితి CURLSHOPT_USERDATA:
+    ptr = va_arg(param, శూన్య *);
     share->clientdata = ptr;
-    break;
+    ఆపు;
 
-  default:
+  అప్రమేయ:
     res = CURLSHE_BAD_OPTION;
-    break;
+    ఆపు;
   }
 
   va_end(param);
 
-  return res;
+  తిరిగి res;
 }
 
 CURLSHcode curl_share_cleanup(CURLSH *sh)
 {
-  struct Curl_share *share = sh;
+  నిర్మాణం Curl_share *share = sh;
   bool locked;
-  if(!GOOD_SHARE_HANDLE(share))
-    return CURLSHE_INVALID;
+  ఒకవేళ(!GOOD_SHARE_HANDLE(share))
+    తిరిగి CURLSHE_INVALID;
 
-  if(share_in_use(share))
-    return CURLSHE_IN_USE;
+  ఒకవేళ(share_లోపల_use(share))
+    తిరిగి CURLSHE_లోపల_USE;
 
-  locked = share_lock_acquire(share, NULL);
-  share_unlink(&share, NULL, locked);
-  return CURLSHE_OK;
+  locked = share_తాళం_acquire(share, ఖాళీ);
+  share_unlink(&share, ఖాళీ, locked);
+  తిరిగి CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_lock_share(struct Curl_share *share,
-                                 struct Curl_easy *data,
-                                 curl_lock_data type,
-                                 curl_lock_access accesstype)
+CURLSHcode Curl_share_తాళం_share(నిర్మాణం Curl_share *share,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 curl_తాళం_దత్తాంశం type,
+                                 curl_తాళం_access accesstype)
 {
-  if(!share)
-    return CURLSHE_INVALID;
+  ఒకవేళ(!share)
+    తిరిగి CURLSHE_INVALID;
 
-  if(share->specifier & (unsigned int)(1 << type) &&
+  ఒకవేళ(share->specifier & (గుర్తులేని పూర్ణాంకం)(1 << type) &&
      share->lockfunc) /* only call this if set! */
-    share->lockfunc(data, type, accesstype, share->clientdata);
+    share->lockfunc(దత్తాంశం, type, accesstype, share->clientdata);
   /* else if we do not share this, pretend successful lock */
 
-  return CURLSHE_OK;
+  తిరిగి CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_lock(struct Curl_easy *data, curl_lock_data type,
-                           curl_lock_access accesstype)
+CURLSHcode Curl_share_తాళం(నిర్మాణం Curl_easy *దత్తాంశం, curl_తాళం_దత్తాంశం type,
+                           curl_తాళం_access accesstype)
 {
-  return Curl_share_lock_share(data->share, data, type, accesstype);
+  తిరిగి Curl_share_తాళం_share(దత్తాంశం->share, దత్తాంశం, type, accesstype);
 }
 
-CURLSHcode Curl_share_unlock_share(struct Curl_share *share,
-                                   struct Curl_easy *data,
-                                   curl_lock_data type)
+CURLSHcode Curl_share_unlock_share(నిర్మాణం Curl_share *share,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   curl_తాళం_దత్తాంశం type)
 {
-  if(!share)
-    return CURLSHE_INVALID;
+  ఒకవేళ(!share)
+    తిరిగి CURLSHE_INVALID;
 
-  if(share->specifier & (unsigned int)(1 << type) &&
+  ఒకవేళ(share->specifier & (గుర్తులేని పూర్ణాంకం)(1 << type) &&
      share->unlockfunc) /* only call this if set! */
-    share->unlockfunc(data, type, share->clientdata);
+    share->unlockfunc(దత్తాంశం, type, share->clientdata);
 
-  return CURLSHE_OK;
+  తిరిగి CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_unlock(struct Curl_easy *data, curl_lock_data type)
+CURLSHcode Curl_share_unlock(నిర్మాణం Curl_easy *దత్తాంశం, curl_తాళం_దత్తాంశం type)
 {
-  return Curl_share_unlock_share(data->share, data, type);
+  తిరిగి Curl_share_unlock_share(దత్తాంశం->share, దత్తాంశం, type);
 }
 
-CURLcode Curl_share_easy_unlink(struct Curl_easy *data)
+CURLcode Curl_share_easy_unlink(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Curl_share *share = data->share;
+  నిర్మాణం Curl_share *share = దత్తాంశం->share;
 
-  if(share) {
-    bool locked = share_lock_acquire(share, data);
+  ఒకవేళ(share) {
+    bool locked = share_తాళం_acquire(share, దత్తాంశం);
 
     /* If share caches connections, detach any existing connection and
      * forget its identifier. */
-    if((share->specifier & (1 << CURL_LOCK_DATA_CONNECT))) {
-      if(data->conn)
-        Curl_detach_connection(data);
-      data->state.last_conn_id = -1;
-      data->state.last_cpid = UINT32_MAX;
+    ఒకవేళ((share->specifier & (1 << CURL_తాళం_దత్తాంశం_CONNECT))) {
+      ఒకవేళ(దత్తాంశం->conn)
+        Curl_detach_connection(దత్తాంశం);
+      దత్తాంశం->state.చివరి_conn_id = -1;
+      దత్తాంశం->state.చివరి_cpid = UINT32_MAX;
     }
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-    if(share->cookies == data->cookies)
-      data->cookies = NULL;
-#endif
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+    ఒకవేళ(share->cookies == దత్తాంశం->cookies)
+      దత్తాంశం->cookies = ఖాళీ;
+#అయితే_ముగింపు
 
-#ifndef CURL_DISABLE_HSTS
-    if(share->hsts == data->hsts)
-      data->hsts = NULL;
-#endif
-#ifdef USE_LIBPSL
-    if(&share->psl == data->psl)
-      data->psl = data->multi ? &data->multi->psl : NULL;
-#endif
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HSTS
+    ఒకవేళ(share->hsts == దత్తాంశం->hsts)
+      దత్తాంశం->hsts = ఖాళీ;
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_LIBPSL
+    ఒకవేళ(&share->psl == దత్తాంశం->psl)
+      దత్తాంశం->psl = దత్తాంశం->multi ? &దత్తాంశం->multi->psl : ఖాళీ;
+#అయితే_ముగింపు
 
-    share_unlink(&data->share, data, locked);
+    share_unlink(&దత్తాంశం->share, దత్తాంశం, locked);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_share_easy_link(struct Curl_easy *data,
-                              struct Curl_share *share)
+CURLcode Curl_share_easy_link(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం Curl_share *share)
 {
-  if(data->share) {
+  ఒకవేళ(దత్తాంశం->share) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    తిరిగి CURLE_FAILED_INIT;
   }
 
-  if(share) {
-    bool locked = share_lock_acquire(share, data);
+  ఒకవేళ(share) {
+    bool locked = share_తాళం_acquire(share, దత్తాంశం);
 
     /* Forget identifiers from the previously used connection cache. */
-    if((share->specifier & (1 << CURL_LOCK_DATA_CONNECT))) {
-      data->state.last_conn_id = -1;
-      data->state.last_cpid = UINT32_MAX;
+    ఒకవేళ((share->specifier & (1 << CURL_తాళం_దత్తాంశం_CONNECT))) {
+      దత్తాంశం->state.చివరి_conn_id = -1;
+      దత్తాంశం->state.చివరి_cpid = UINT32_MAX;
     }
 
     share_ref_inc(share);
-    data->share = share;
+    దత్తాంశం->share = share;
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-    if(share->cookies) {
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+    ఒకవేళ(share->cookies) {
       /* use shared cookie list, first free own one if any */
-      Curl_cookie_cleanup(data->cookies);
+      Curl_cookie_cleanup(దత్తాంశం->cookies);
       /* enable cookies since we now use a share that uses cookies! */
-      data->cookies = share->cookies;
+      దత్తాంశం->cookies = share->cookies;
     }
-#endif /* CURL_DISABLE_HTTP */
-#ifndef CURL_DISABLE_HSTS
-    if(share->hsts) {
+#అయితే_ముగింపు /* CURL_DISABLE_HTTP */
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HSTS
+    ఒకవేళ(share->hsts) {
       /* first free the private one if any */
-      Curl_hsts_cleanup(&data->hsts);
-      data->hsts = share->hsts;
+      Curl_hsts_cleanup(&దత్తాంశం->hsts);
+      దత్తాంశం->hsts = share->hsts;
     }
-#endif
-#ifdef USE_LIBPSL
-    if(share->specifier & (1 << CURL_LOCK_DATA_PSL))
-      data->psl = &share->psl;
-#endif
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_LIBPSL
+    ఒకవేళ(share->specifier & (1 << CURL_తాళం_దత్తాంశం_PSL))
+      దత్తాంశం->psl = &share->psl;
+#అయితే_ముగింపు
 
     /* check for host cache not needed,
      * it will be done by curl_easy_perform */
-    share_lock_release(share, data, locked);
+    share_తాళం_release(share, దత్తాంశం, locked);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }

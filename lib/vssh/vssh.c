@@ -21,23 +21,23 @@
  * SPDX-License-Identifier: curl AND ISC
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "vssh/ssh.h"
+#అన్తర్భావ "curl_setup.h"
+#అన్తర్భావ "vssh/ssh.h"
 
-#ifdef USE_SSH
+#నిర్వచితమైతే USE_SSH
 
-#include "vssh/vssh.h"
-#include "curlx/strparse.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "select.h"  /* for Curl_pollset_change() */
-#include "url.h"  /* for Curl_conn_meta_get() */
-#include "curlx/win32-fopen.h"
+#అన్తర్భావ "vssh/vssh.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "escape.h"
+#అన్తర్భావ "select.h"  /* for Curl_pollset_change() */
+#అన్తర్భావ "url.h"  /* for Curl_conn_meta_get() */
+#అన్తర్భావ "curlx/win32-fopen.h"
 
-#ifdef CURLVERBOSE
-const char *Curl_ssh_statename(sshstate state)
+#నిర్వచితమైతే CURLVERBOSE
+స్థిరరాశి అక్షరం *Curl_ssh_statename(sshstate state)
 {
-  static const char * const names[] = {
+  స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి పేర్లు[] = {
     "SSH_STOP",
     "SSH_INIT",
     "SSH_S_STARTUP",
@@ -100,177 +100,177 @@ const char *Curl_ssh_statename(sshstate state)
     "QUIT"
   };
   /* a precaution to make sure the lists are in sync */
-  DEBUGASSERT(CURL_ARRAYSIZE(names) == SSH_LAST);
-  return ((size_t)state < CURL_ARRAYSIZE(names)) ? names[state] : "";
+  DEBUGASSERT(CURL_ARRAYSIZE(పేర్లు) == SSH_చివరి);
+  తిరిగి ((size_t)state < CURL_ARRAYSIZE(పేర్లు)) ? పేర్లు[state] : "";
 }
-#endif /* CURLVERBOSE */
+#అయితే_ముగింపు /* CURLVERBOSE */
 
 /*
  * SSH State machine related code
  */
 /* This is the ONLY way to change SSH state! */
-void Curl_ssh_set_state(struct Curl_easy *data,
-                        struct ssh_conn *sshc,
+శూన్య Curl_ssh_సమితి_state(నిర్మాణం Curl_easy *దత్తాంశం,
+                        నిర్మాణం ssh_conn *sshc,
                         sshstate nowstate)
 {
-#ifdef CURLVERBOSE
-  if(sshc->state != nowstate) {
-    CURL_TRC_SSH(data, "[%s] -> [%s]",
+#నిర్వచితమైతే CURLVERBOSE
+  ఒకవేళ(sshc->state != nowstate) {
+    CURL_TRC_SSH(దత్తాంశం, "[%s] -> [%s]",
                  Curl_ssh_statename(sshc->state),
                  Curl_ssh_statename(nowstate));
   }
-#else
-  (void)data;
-#endif
+#లేకపోతే
+  (శూన్య)దత్తాంశం;
+#అయితే_ముగింపు
   sshc->state = nowstate;
 }
 
-#define MAX_SSHPATH_LEN 100000 /* arbitrary */
+#నిర్వచించు MAX_SSHPATH_LEN 100000 /* arbitrary */
 
 /* figure out the path to work with in this particular request */
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir, /* when SFTP is used */
-                             char **path) /* returns the  allocated
+CURLcode Curl_getworkingpath(నిర్మాణం Curl_easy *దత్తాంశం,
+                             స్థిరరాశి అక్షరం *homedir, /* when SFTP is used */
+                             అక్షరం **మార్గం) /* returns the  allocated
                                              real path to work with */
 {
-  char *working_path;
-  size_t working_path_len;
-  struct dynbuf npath;
-  CURLcode result =
-    Curl_urldecode(data->state.up.path, 0, &working_path,
-                   &working_path_len, REJECT_ZERO);
-  if(result)
-    return result;
+  అక్షరం *working_మార్గం;
+  size_t working_మార్గం_len;
+  నిర్మాణం dynbuf npath;
+  CURLcode ఫలితం =
+    Curl_urldecode(దత్తాంశం->state.పైకి.మార్గం, 0, &working_మార్గం,
+                   &working_మార్గం_len, REJECT_ZERO);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* new path to switch to in case we need to */
   curlx_dyn_init(&npath, MAX_SSHPATH_LEN);
 
   /* Check for /~/, indicating relative to the user's home directory */
-  if((data->conn->scheme->protocol & CURLPROTO_SCP) &&
-     (working_path_len > 3) && (!memcmp(working_path, "/~/", 3))) {
+  ఒకవేళ((దత్తాంశం->conn->scheme->protocol & CURLPROTO_SCP) &&
+     (working_మార్గం_len > 3) && (!memcmp(working_మార్గం, "/~/", 3))) {
     /* It is referenced to the home directory, so strip the leading '/~/' */
-    if(curlx_dyn_addn(&npath, &working_path[3], working_path_len - 3)) {
-      curlx_free(working_path);
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(curlx_dyn_addn(&npath, &working_మార్గం[3], working_మార్గం_len - 3)) {
+      curlx_free(working_మార్గం);
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
   }
-  else if((data->conn->scheme->protocol & CURLPROTO_SFTP) &&
-          (!strcmp("/~", working_path) ||
-           ((working_path_len > 2) && !memcmp(working_path, "/~/", 3)))) {
-    if(curlx_dyn_add(&npath, homedir)) {
-      curlx_free(working_path);
-      return CURLE_OUT_OF_MEMORY;
+  లేకపోతే ఒకవేళ((దత్తాంశం->conn->scheme->protocol & CURLPROTO_SFTP) &&
+          (!strcmp("/~", working_మార్గం) ||
+           ((working_మార్గం_len > 2) && !memcmp(working_మార్గం, "/~/", 3)))) {
+    ఒకవేళ(curlx_dyn_కూడు(&npath, homedir)) {
+      curlx_free(working_మార్గం);
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
-    if(working_path_len > 2) {
+    ఒకవేళ(working_మార్గం_len > 2) {
       size_t len;
-      const char *p;
-      int copyfrom = 3;
+      స్థిరరాశి అక్షరం *p;
+      పూర్ణాంకం copyfrom = 3;
       /* Copy a separating '/' if homedir does not end with one */
       len = curlx_dyn_len(&npath);
       p = curlx_dyn_ptr(&npath);
-      if(len && (p[len - 1] != '/'))
+      ఒకవేళ(len && (p[len - 1] != '/'))
         copyfrom = 2;
 
-      if(curlx_dyn_addn(&npath, &working_path[copyfrom],
-                        working_path_len - copyfrom)) {
-        curlx_free(working_path);
-        return CURLE_OUT_OF_MEMORY;
+      ఒకవేళ(curlx_dyn_addn(&npath, &working_మార్గం[copyfrom],
+                        working_మార్గం_len - copyfrom)) {
+        curlx_free(working_మార్గం);
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
     }
-    else {
-      if(curlx_dyn_add(&npath, "/")) {
-        curlx_free(working_path);
-        return CURLE_OUT_OF_MEMORY;
+    లేకపోతే {
+      ఒకవేళ(curlx_dyn_కూడు(&npath, "/")) {
+        curlx_free(working_మార్గం);
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
     }
   }
 
-  if(curlx_dyn_len(&npath)) {
-    curlx_free(working_path);
+  ఒకవేళ(curlx_dyn_len(&npath)) {
+    curlx_free(working_మార్గం);
 
     /* store the pointer for the caller to receive */
-    *path = curlx_dyn_ptr(&npath);
+    *మార్గం = curlx_dyn_ptr(&npath);
   }
-  else
-    *path = working_path;
-  DEBUGASSERT(*path && (*path)[0]);
+  లేకపోతే
+    *మార్గం = working_మార్గం;
+  DEBUGASSERT(*మార్గం && (*మార్గం)[0]);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-#define MAX_PATHLENGTH 65535 /* arbitrary long */
+#నిర్వచించు MAX_PATHLENGTH 65535 /* arbitrary long */
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
+CURLcode Curl_get_pathname(స్థిరరాశి అక్షరం **cpp, అక్షరం **మార్గం, స్థిరరాశి అక్షరం *homedir)
 {
-  const char *cp = *cpp;
-  struct dynbuf out;
-  CURLcode result;
+  స్థిరరాశి అక్షరం *cp = *cpp;
+  నిర్మాణం dynbuf బహిర్గతం;
+  CURLcode ఫలితం;
 
   DEBUGASSERT(homedir);
-  *path = NULL;
-  *cpp = NULL;
-  if(!*cp || !homedir)
-    return CURLE_QUOTE_ERROR;
+  *మార్గం = ఖాళీ;
+  *cpp = ఖాళీ;
+  ఒకవేళ(!*cp || !homedir)
+    తిరిగి CURLE_QUOTE_ERROR;
 
-  curlx_dyn_init(&out, MAX_PATHLENGTH);
+  curlx_dyn_init(&బహిర్గతం, MAX_PATHLENGTH);
 
   /* Ignore leading whitespace */
   curlx_str_passblanks(&cp);
 
   /* Check for quoted filenames */
-  if(*cp == '\"' || *cp == '\'') {
-    char quot = *cp++;
+  ఒకవేళ(*cp == '\"' || *cp == '\'') {
+    అక్షరం quot = *cp++;
 
     /* Search for terminating quote, unescape some chars */
-    while(*cp != quot) {
-      if(!*cp) /* End of string */
-        goto fail;
+    అయితే(*cp != quot) {
+      ఒకవేళ(!*cp) /* End of string */
+        వెళ్ళు fail;
 
-      if(*cp == '\\') { /* Escaped characters */
+      ఒకవేళ(*cp == '\\') { /* Escaped characters */
         cp++;
-        if(*cp != '\'' && *cp != '\"' && *cp != '\\')
-          goto fail;
+        ఒకవేళ(*cp != '\'' && *cp != '\"' && *cp != '\\')
+          వెళ్ళు fail;
       }
-      result = curlx_dyn_addn(&out, cp, 1);
-      if(result)
-        return result;
+      ఫలితం = curlx_dyn_addn(&బహిర్గతం, cp, 1);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
       cp++;
     }
     cp++; /* pass the end quote */
 
-    if(!curlx_dyn_len(&out))
-      goto fail;
+    ఒకవేళ(!curlx_dyn_len(&బహిర్గతం))
+      వెళ్ళు fail;
   }
-  else {
-    struct Curl_str word;
+  లేకపోతే {
+    నిర్మాణం Curl_str మాట;
     bool content = FALSE;
-    int rc;
+    పూర్ణాంకం rc;
     /* Handling for relative path - prepend home directory */
-    if(cp[0] == '/' && cp[1] == '~' && cp[2] == '/') {
-      result = curlx_dyn_add(&out, homedir);
-      if(!result)
-        result = curlx_dyn_addn(&out, "/", 1);
-      if(result)
-        return result;
+    ఒకవేళ(cp[0] == '/' && cp[1] == '~' && cp[2] == '/') {
+      ఫలితం = curlx_dyn_కూడు(&బహిర్గతం, homedir);
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = curlx_dyn_addn(&బహిర్గతం, "/", 1);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
       cp += 3;
       content = TRUE;
     }
     /* Read to end of filename - either to whitespace or terminator */
-    rc = curlx_str_word(&cp, &word, MAX_PATHLENGTH);
-    if(rc) {
-      if(rc == STRE_BIG) {
-        curlx_dyn_free(&out);
-        return CURLE_TOO_LARGE;
+    rc = curlx_str_మాట(&cp, &మాట, MAX_PATHLENGTH);
+    ఒకవేళ(rc) {
+      ఒకవేళ(rc == STRE_BIG) {
+        curlx_dyn_free(&బహిర్గతం);
+        తిరిగి CURLE_TOO_LARGE;
       }
-      else if(!content)
+      లేకపోతే ఒకవేళ(!content)
         /* no path, no word, this is incorrect */
-        goto fail;
+        వెళ్ళు fail;
     }
-    else {
+    లేకపోతే {
       /* append the word */
-      result = curlx_dyn_addn(&out, curlx_str(&word), curlx_strlen(&word));
-      if(result)
-        return result;
+      ఫలితం = curlx_dyn_addn(&బహిర్గతం, curlx_str(&మాట), curlx_strlen(&మాట));
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
     }
   }
   /* skip whitespace */
@@ -279,137 +279,137 @@ CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
   /* return pointer to second parameter if it exists */
   *cpp = cp;
 
-  *path = curlx_dyn_ptr(&out);
-  return CURLE_OK;
+  *మార్గం = curlx_dyn_ptr(&బహిర్గతం);
+  తిరిగి CURLE_OK;
 
 fail:
-  curlx_dyn_free(&out);
-  return CURLE_QUOTE_ERROR;
+  curlx_dyn_free(&బహిర్గతం);
+  తిరిగి CURLE_QUOTE_ERROR;
 }
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(నిర్మాణం Curl_easy *దత్తాంశం,
+                        స్థిరరాశి అక్షరం *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep)
 {
-  curl_off_t from, to;
-  int to_t;
-  int from_t = curlx_str_number(&range, &from, CURL_OFF_T_MAX);
-  if(from_t == STRE_OVERFLOW)
-    return CURLE_RANGE_ERROR;
+  curl_off_t from, గమ్యం;
+  పూర్ణాంకం గమ్యం_t;
+  పూర్ణాంకం from_t = curlx_str_సంఖ్య(&range, &from, CURL_OFF_T_MAX);
+  ఒకవేళ(from_t == STRE_అధికప్రవాహం)
+    తిరిగి CURLE_RANGE_ERROR;
   curlx_str_passblanks(&range);
-  (void)curlx_str_single(&range, '-');
+  (శూన్య)curlx_str_single(&range, '-');
 
-  to_t = curlx_str_numblanks(&range, &to);
-  if((to_t == STRE_OVERFLOW) || (to_t && from_t) || *range)
-    return CURLE_RANGE_ERROR;
+  గమ్యం_t = curlx_str_numblanks(&range, &గమ్యం);
+  ఒకవేళ((గమ్యం_t == STRE_అధికప్రవాహం) || (గమ్యం_t && from_t) || *range)
+    తిరిగి CURLE_RANGE_ERROR;
 
-  if(from_t) {
+  ఒకవేళ(from_t) {
     /* no start point given, set from relative to end of file */
-    if(!to)
+    ఒకవేళ(!గమ్యం)
       /* "-0" is not a fine range */
-      return CURLE_RANGE_ERROR;
-    else if(to > filesize)
-      to = filesize;
-    from = filesize - to;
-    to = filesize - 1;
+      తిరిగి CURLE_RANGE_ERROR;
+    లేకపోతే ఒకవేళ(గమ్యం > filesize)
+      గమ్యం = filesize;
+    from = filesize - గమ్యం;
+    గమ్యం = filesize - 1;
   }
-  else if(from > filesize) {
-    failf(data, "Offset (%" FMT_OFF_T ") was beyond file size (%"
+  లేకపోతే ఒకవేళ(from > filesize) {
+    failf(దత్తాంశం, "Offset (%" FMT_OFF_T ") was beyond file size (%"
           FMT_OFF_T ")", from, filesize);
-    return CURLE_RANGE_ERROR;
+    తిరిగి CURLE_RANGE_ERROR;
   }
-  else if((to_t == STRE_NO_NUM) || (to >= filesize))
-    to = filesize - 1;
+  లేకపోతే ఒకవేళ((గమ్యం_t == STRE_NO_అంకె) || (గమ్యం >= filesize))
+    గమ్యం = filesize - 1;
 
-  if(from > to) {
-    failf(data, "Bad range: start offset larger than end offset");
-    return CURLE_RANGE_ERROR;
+  ఒకవేళ(from > గమ్యం) {
+    failf(దత్తాంశం, "Bad range: start offset larger than end offset");
+    తిరిగి CURLE_RANGE_ERROR;
   }
-  if((to - from) == CURL_OFF_T_MAX)
-    return CURLE_RANGE_ERROR;
+  ఒకవేళ((గమ్యం - from) == CURL_OFF_T_MAX)
+    తిరిగి CURLE_RANGE_ERROR;
 
   *startp = from;
-  *sizep = to - from + 1;
-  return CURLE_OK;
+  *sizep = గమ్యం - from + 1;
+  తిరిగి CURLE_OK;
 }
 
 /* called by the multi interface to figure out what socket(s) to wait for and
    for what actions in the DO_DONE, PERFORM and WAITPERFORM states */
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps)
+CURLcode Curl_ssh_pollset(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  నిర్మాణం connectdata *conn = దత్తాంశం->conn;
+  నిర్మాణం ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int waitfor;
+  పూర్ణాంకం waitfor;
 
-  if(!sshc || (sock == CURL_SOCKET_BAD))
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!sshc || (sock == CURL_SOCKET_BAD))
+    తిరిగి CURLE_FAILED_INIT;
 
-  waitfor = sshc->waitfor ? sshc->waitfor : data->req.io_flags;
-  if(waitfor) {
-    int flags = 0;
-    if(waitfor & REQ_IO_RECV)
-      flags |= CURL_POLL_IN;
-    if(waitfor & REQ_IO_SEND)
-      flags |= CURL_POLL_OUT;
+  waitfor = sshc->waitfor ? sshc->waitfor : దత్తాంశం->req.io_flags;
+  ఒకవేళ(waitfor) {
+    పూర్ణాంకం flags = 0;
+    ఒకవేళ(waitfor & REQ_IO_RECV)
+      flags |= CURL_POLL_లోపల;
+    ఒకవేళ(waitfor & REQ_IO_SEND)
+      flags |= CURL_POLL_బహిర్గతం;
     DEBUGASSERT(flags);
-    CURL_TRC_SSH(data, "pollset, flags=%x", (unsigned int)flags);
-    return Curl_pollset_change(data, ps, sock, flags, 0);
+    CURL_TRC_SSH(దత్తాంశం, "pollset, flags=%x", (గుర్తులేని పూర్ణాంకం)flags);
+    తిరిగి Curl_pollset_change(దత్తాంశం, ps, sock, flags, 0);
   }
   /* While we still have a session, we listen incoming data. */
-  if(sshc->ssh_session)
-    return Curl_pollset_change(data, ps, sock, CURL_POLL_IN, 0);
-  return CURLE_OK;
+  ఒకవేళ(sshc->ssh_session)
+    తిరిగి Curl_pollset_change(దత్తాంశం, ps, sock, CURL_POLL_లోపల, 0);
+  తిరిగి CURLE_OK;
 }
 
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc)
+CURLcode Curl_ssh_అమరిక_pkey(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం ssh_conn *sshc)
 {
-  char *home = NULL;
-  if(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) {
-    const char *str;
+  అక్షరం *home = ఖాళీ;
+  ఒకవేళ(దత్తాంశం->సమితి.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) {
+    స్థిరరాశి అక్షరం *str;
 
-    sshc->pub_key = sshc->priv_key = NULL;
+    sshc->pub_కీలకం = sshc->priv_కీలకం = ఖాళీ;
 
-    if(CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY)) {
-      sshc->priv_key = curlx_strdup(
-        CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY));
-      if(!sshc->priv_key)
-        goto fail;
+    ఒకవేళ(CURL_EASY_STR(దత్తాంశం, STRING_SSH_వ్యక్తిగత_కీలకం)) {
+      sshc->priv_కీలకం = curlx_strdup(
+        CURL_EASY_STR(దత్తాంశం, STRING_SSH_వ్యక్తిగత_కీలకం));
+      ఒకవేళ(!sshc->priv_కీలకం)
+        వెళ్ళు fail;
     }
-    else {
+    లేకపోతే {
       /* To ponder about: should really the lib be messing about with the HOME
          environment variable etc? */
       curlx_struct_stat sbuf;
       home = curl_getenv("HOME");
 
       /* If no private key file is specified, try some common paths. */
-      if(home) {
+      ఒకవేళ(home) {
         /* Try ~/.ssh first. */
-        sshc->priv_key = curl_maprintf("%s/.ssh/id_rsa", home);
-        if(!sshc->priv_key)
-          goto fail;
-        else if(curlx_stat(sshc->priv_key, &sbuf)) {
-          curlx_free(sshc->priv_key);
-          sshc->priv_key = curl_maprintf("%s/.ssh/id_dsa", home);
-          if(!sshc->priv_key)
-            goto fail;
-          else if(curlx_stat(sshc->priv_key, &sbuf)) {
-            curlx_safefree(sshc->priv_key);
+        sshc->priv_కీలకం = curl_maprintf("%s/.ssh/id_rsa", home);
+        ఒకవేళ(!sshc->priv_కీలకం)
+          వెళ్ళు fail;
+        లేకపోతే ఒకవేళ(curlx_stat(sshc->priv_కీలకం, &sbuf)) {
+          curlx_free(sshc->priv_కీలకం);
+          sshc->priv_కీలకం = curl_maprintf("%s/.ssh/id_dsa", home);
+          ఒకవేళ(!sshc->priv_కీలకం)
+            వెళ్ళు fail;
+          లేకపోతే ఒకవేళ(curlx_stat(sshc->priv_కీలకం, &sbuf)) {
+            curlx_safefree(sshc->priv_కీలకం);
           }
         }
         curlx_safefree(home);
       }
-      if(!sshc->priv_key) {
+      ఒకవేళ(!sshc->priv_కీలకం) {
         /* Nothing found; try the current dir. */
-        sshc->priv_key = curlx_strdup("id_rsa");
-        if(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
-          curlx_free(sshc->priv_key);
-          sshc->priv_key = curlx_strdup("id_dsa");
-          if(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
-            curlx_free(sshc->priv_key);
+        sshc->priv_కీలకం = curlx_strdup("id_rsa");
+        ఒకవేళ(sshc->priv_కీలకం && curlx_stat(sshc->priv_కీలకం, &sbuf)) {
+          curlx_free(sshc->priv_కీలకం);
+          sshc->priv_కీలకం = curlx_strdup("id_dsa");
+          ఒకవేళ(sshc->priv_కీలకం && curlx_stat(sshc->priv_కీలకం, &sbuf)) {
+            curlx_free(sshc->priv_కీలకం);
             /* Out of guesses. Set to the empty string to avoid
              * surprising info messages. */
-            sshc->priv_key = curlx_strdup("");
+            sshc->priv_కీలకం = curlx_strdup("");
           }
         }
       }
@@ -420,36 +420,36 @@ CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc)
      * library extract the public key from the private key file. This is done
      * by passing sshc->pub_key = NULL.
      */
-    str = CURL_EASY_STR(data, STRING_SSH_PUBLIC_KEY);
-    if(str && *str) {  /* treat empty string the same way as NULL */
-      sshc->pub_key = curlx_strdup(str);
-      if(!sshc->pub_key)
-        goto fail;
+    str = CURL_EASY_STR(దత్తాంశం, STRING_SSH_ప్రజా_కీలకం);
+    ఒకవేళ(str && *str) {  /* treat empty string the same way as NULL */
+      sshc->pub_కీలకం = curlx_strdup(str);
+      ఒకవేళ(!sshc->pub_కీలకం)
+        వెళ్ళు fail;
     }
 
     {
-      const char *keypasswd = CURL_EASY_STR(data, STRING_KEY_PASSWD);
-      if(keypasswd) {
+      స్థిరరాశి అక్షరం *keypasswd = CURL_EASY_STR(దత్తాంశం, STRING_కీలకం_PASSWD);
+      ఒకవేళ(keypasswd) {
         sshc->passphrase = curlx_strdup(keypasswd);
-        if(!sshc->passphrase)
-          goto fail;
+        ఒకవేళ(!sshc->passphrase)
+          వెళ్ళు fail;
       }
     }
 
-    if(sshc->pub_key)
-      infof(data, "SSH: public key file '%s'", sshc->pub_key);
-    if(sshc->priv_key)
-      infof(data, "SSH: private key file '%s'", sshc->priv_key);
-    else
-      infof(data, "SSH: public key auth without private key set!");
+    ఒకవేళ(sshc->pub_కీలకం)
+      infof(దత్తాంశం, "SSH: public key file '%s'", sshc->pub_కీలకం);
+    ఒకవేళ(sshc->priv_కీలకం)
+      infof(దత్తాంశం, "SSH: private key file '%s'", sshc->priv_కీలకం);
+    లేకపోతే
+      infof(దత్తాంశం, "SSH: public key auth without private key set!");
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 
 fail:
   curlx_safefree(home);
-  curlx_safefree(sshc->priv_key);
-  curlx_safefree(sshc->pub_key);
-  return CURLE_OUT_OF_MEMORY;
+  curlx_safefree(sshc->priv_కీలకం);
+  curlx_safefree(sshc->pub_కీలకం);
+  తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 }
 
-#endif /* USE_SSH */
+#అయితే_ముగింపు /* USE_SSH */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTIBYTE_H
-#define HEADER_CURL_MULTIBYTE_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_MULTIBYTE_H
+#నిర్వచించు శీర్షిక_CURL_MULTIBYTE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 
 /*
  * Macros curlx_convert_UTF8_to_tchar(), curlx_convert_tchar_to_UTF8()
@@ -39,35 +39,35 @@
  * significance of the conversion functions is primarily for Unicode builds.
  */
 
-#ifdef UNICODE
+#నిర్వచితమైతే UNICODE
 
 /* MultiByte conversions using Windows kernel32 library. */
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8);
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w);
+wchar_t *curlx_convert_UTF8_గమ్యం_wchar(స్థిరరాశి అక్షరం *str_utf8);
+అక్షరం *curlx_convert_wchar_గమ్యం_UTF8(స్థిరరాశి wchar_t *str_w);
 
-#define curlx_convert_UTF8_to_tchar(ptr) curlx_convert_UTF8_to_wchar(ptr)
-#define curlx_convert_tchar_to_UTF8(ptr) curlx_convert_wchar_to_UTF8(ptr)
+#నిర్వచించు curlx_convert_UTF8_గమ్యం_tchar(ptr) curlx_convert_UTF8_గమ్యం_wchar(ptr)
+#నిర్వచించు curlx_convert_tchar_గమ్యం_UTF8(ptr) curlx_convert_wchar_గమ్యం_UTF8(ptr)
 
-typedef union {
-  unsigned short       *tchar_ptr;
-  const unsigned short *const_tchar_ptr;
-  unsigned short       *tbyte_ptr;
-  const unsigned short *const_tbyte_ptr;
+రకనిర్వచనం సంఘం {
+  గుర్తులేని పొట్టి       *tchar_ptr;
+  స్థిరరాశి గుర్తులేని పొట్టి *const_tchar_ptr;
+  గుర్తులేని పొట్టి       *tbyte_ptr;
+  స్థిరరాశి గుర్తులేని పొట్టి *const_tbyte_ptr;
 } xcharp_u;
 
-#else /* !UNICODE */
+#లేకపోతే /* !UNICODE */
 
-#define curlx_convert_UTF8_to_tchar(ptr) curlx_strdup(ptr)
-#define curlx_convert_tchar_to_UTF8(ptr) curlx_strdup(ptr)
+#నిర్వచించు curlx_convert_UTF8_గమ్యం_tchar(ptr) curlx_strdup(ptr)
+#నిర్వచించు curlx_convert_tchar_గమ్యం_UTF8(ptr) curlx_strdup(ptr)
 
-typedef union {
-  char                *tchar_ptr;
-  const char          *const_tchar_ptr;
-  unsigned char       *tbyte_ptr;
-  const unsigned char *const_tbyte_ptr;
+రకనిర్వచనం సంఘం {
+  అక్షరం                *tchar_ptr;
+  స్థిరరాశి అక్షరం          *const_tchar_ptr;
+  గుర్తులేని అక్షరం       *tbyte_ptr;
+  స్థిరరాశి గుర్తులేని అక్షరం *const_tbyte_ptr;
 } xcharp_u;
 
-#endif /* UNICODE */
-#endif /* _WIN32 */
+#అయితే_ముగింపు /* UNICODE */
+#అయితే_ముగింపు /* _WIN32 */
 
-#endif /* HEADER_CURL_MULTIBYTE_H */
+#అయితే_ముగింపు /* HEADER_CURL_MULTIBYTE_H */

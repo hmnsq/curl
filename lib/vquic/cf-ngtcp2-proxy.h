@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H
-#define HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_VQUIC_CF_NGTCP2_PROXY_H
+#నిర్వచించు శీర్షిక_CURL_VQUIC_CF_NGTCP2_PROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,29 +24,29 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) &&              \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
 
-CURLcode Curl_cf_ngtcp2_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                           struct Curl_easy *data,
-                                           struct Curl_peer *origin,
-                                           struct Curl_peer *peer,
-                                           struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_ngtcp2_proxy_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                           నిర్మాణం Curl_easy *దత్తాంశం,
+                                           నిర్మాణం Curl_peer *origin,
+                                           నిర్మాణం Curl_peer *peer,
+                                           నిర్మాణం Curl_peer *tunnel_peer,
                                            uint8_t tunnel_transport);
 
-CURLcode Curl_cf_ngtcp2_proxy_create(struct Curl_cfilter **pcf,
-                                     struct Curl_easy *data,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
+CURLcode Curl_cf_ngtcp2_proxy_create(నిర్మాణం Curl_cfilter **pcf,
+                                     నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం Curl_peer *origin,
+                                     నిర్మాణం Curl_peer *peer,
                                      uint8_t transport_peer,
-                                     struct connectdata *conn,
-                                     struct Curl_sockaddr_ex *addr,
-                                     struct Curl_peer *tunnel_peer,
+                                     నిర్మాణం connectdata *conn,
+                                     నిర్మాణం Curl_sockaddr_ex *addr,
+                                     నిర్మాణం Curl_peer *tunnel_peer,
                                      uint8_t tunnel_transport);
 
-#endif
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H */
+#అయితే_ముగింపు /* HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_CF_NGTCP2_H
-#define HEADER_CURL_VQUIC_CF_NGTCP2_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_VQUIC_CF_NGTCP2_H
+#నిర్వచించు శీర్షిక_CURL_VQUIC_CF_NGTCP2_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,42 +23,42 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
-#ifdef HAVE_NETINET_UDP_H
-#include <netinet/udp.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_UDP_H
+#అన్తర్భావ <netinet/udp.h>
+#అయితే_ముగింపు
 
-#include <ngtcp2/ngtcp2_crypto.h>
-#ifdef OPENSSL_QUIC_API2
-#include <ngtcp2/ngtcp2_crypto_ossl.h>
-#endif
-#include <nghttp3/nghttp3.h>
-#ifdef USE_OPENSSL
-#include <openssl/ssl.h>
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/quic.h>
-#endif
+#అన్తర్భావ <ngtcp2/ngtcp2_crypto.h>
+#నిర్వచితమైతే OPENSSL_QUIC_API2
+#అన్తర్భావ <ngtcp2/ngtcp2_crypto_ossl.h>
+#అయితే_ముగింపు
+#అన్తర్భావ <nghttp3/nghttp3.h>
+#నిర్వచితమైతే USE_OPENSSL
+#అన్తర్భావ <openssl/ssl.h>
+#లేదావేళ defined(USE_WOLFSSL)
+#అన్తర్భావ <wolfssl/options.h>
+#అన్తర్భావ <wolfssl/ssl.h>
+#అన్తర్భావ <wolfssl/quic.h>
+#అయితే_ముగింపు
 
-struct Curl_cfilter;
+నిర్మాణం Curl_cfilter;
 
-#include "urldata.h"
+#అన్తర్భావ "urldata.h"
 
-CURLcode Curl_cf_ngtcp2_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_ngtcp2_create(నిర్మాణం Curl_cfilter **pcf,
+                               నిర్మాణం Curl_easy *దత్తాంశం,
+                               నిర్మాణం Curl_peer *origin,
+                               నిర్మాణం Curl_peer *peer,
+                               నిర్మాణం connectdata *conn,
+                               నిర్మాణం Curl_sockaddr_ex *addr);
 
-CURLcode Curl_cf_ngtcp2_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
-#endif
+CURLcode Curl_cf_ngtcp2_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                     నిర్మాణం Curl_peer *origin,
+                                     నిర్మాణం Curl_peer *peer,
+                                     నిర్మాణం Curl_cfilter **pcf);
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_VQUIC_CF_NGTCP2_H */
+#అయితే_ముగింపు /* HEADER_CURL_VQUIC_CF_NGTCP2_H */

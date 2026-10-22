@@ -27,80 +27,80 @@
  * Source file for all Schannel-specific code for the TLS/SSL layer. No code
  * but vtls.c should ever call or use these functions.
  */
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_SCHANNEL
+#నిర్వచితమైతే USE_SCHANNEL
 
-#ifndef USE_WINDOWS_SSPI
-#error "cannot compile Schannel support without SSPI."
-#endif
+#నిర్వచితం_కాకపోతే USE_WINDOWS_SSPI
+#దోషం "cannot compile Schannel support without SSPI."
+#అయితే_ముగింపు
 
-#include "vtls/schannel.h"
-#include "vtls/schannel_int.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "curl_trc.h"
-#include "connect.h" /* for the connect timeout */
-#include "curlx/strdup.h"
-#include "strerror.h"
-#include "select.h" /* for the socket readiness */
-#include "curlx/win32-fopen.h"
-#include "curlx/multibyte.h"
-#include "vtls/x509asn1.h"
-#include "curlx/version_win32.h"
-#include "curlx/winapi.h"
-#include "curlx/strparse.h"
-#include "progress.h"
-#include "curl_sha256.h"
+#అన్తర్భావ "vtls/schannel.h"
+#అన్తర్భావ "vtls/schannel_int.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "vtls/vtls_int.h"
+#అన్తర్భావ "vtls/vtls_scache.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "connect.h" /* for the connect timeout */
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "strerror.h"
+#అన్తర్భావ "select.h" /* for the socket readiness */
+#అన్తర్భావ "curlx/win32-fopen.h"
+#అన్తర్భావ "curlx/multibyte.h"
+#అన్తర్భావ "vtls/x509asn1.h"
+#అన్తర్భావ "curlx/version_win32.h"
+#అన్తర్భావ "curlx/winapi.h"
+#అన్తర్భావ "curlx/strparse.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "curl_sha256.h"
 
 /* Some verbose debug messages are wrapped by SCH_DEV() instead of DEBUGF()
  * and only shown if CURL_SCHANNEL_DEV_DEBUG was defined at build time. These
  * messages are extra verbose and intended for curl developers debugging
  * Schannel recv decryption and renegotiation.
  */
-#ifdef CURL_SCHANNEL_DEV_DEBUG
-#define SCH_DEV(x) x
-#define SCH_DEV_SHOWBOOL(x)                                     \
-  do {                                                          \
-    infof(data, "schannel: " #x " %s", (x) ? "TRUE" : "FALSE"); \
-  } while(0)
-#else
-#define SCH_DEV(x) do {} while(0)
-#define SCH_DEV_SHOWBOOL(x) do {} while(0)
-#endif
+#నిర్వచితమైతే CURL_SCHANNEL_DEV_DEBUG
+#నిర్వచించు SCH_DEV(x) x
+#నిర్వచించు SCH_DEV_SHOWBOOL(x)                                     \
+  చేయి {                                                          \
+    infof(దత్తాంశం, "schannel: " #x " %s", (x) ? "TRUE" : "FALSE"); \
+  } అయితే(0)
+#లేకపోతే
+#నిర్వచించు SCH_DEV(x) చేయి {} అయితే(0)
+#నిర్వచించు SCH_DEV_SHOWBOOL(x) చేయి {} అయితే(0)
+#అయితే_ముగింపు
 
 /* Offered by mingw-w64 v8+, MS SDK 7.0A/VS2010+ */
-#ifndef SP_PROT_TLS1_0_CLIENT
-#define SP_PROT_TLS1_0_CLIENT           SP_PROT_TLS1_CLIENT
-#endif
-#ifndef SP_PROT_TLS1_1_CLIENT
-#define SP_PROT_TLS1_1_CLIENT           0x00000200
-#endif
-#ifndef SP_PROT_TLS1_2_CLIENT
-#define SP_PROT_TLS1_2_CLIENT           0x00000800
-#endif
+#నిర్వచితం_కాకపోతే SP_PROT_TLS1_0_CLIENT
+#నిర్వచించు SP_PROT_TLS1_0_CLIENT           SP_PROT_TLS1_CLIENT
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే SP_PROT_TLS1_1_CLIENT
+#నిర్వచించు SP_PROT_TLS1_1_CLIENT           0x00000200
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే SP_PROT_TLS1_2_CLIENT
+#నిర్వచించు SP_PROT_TLS1_2_CLIENT           0x00000800
+#అయితే_ముగింపు
 
 /* Offered by mingw-w64 v8+, MS SDK 10.0.15063.0/VS2017 15.1+ */
-#ifndef SP_PROT_TLS1_3_CLIENT
-#define SP_PROT_TLS1_3_CLIENT           0x00002000
-#endif
+#నిర్వచితం_కాకపోతే SP_PROT_TLS1_3_CLIENT
+#నిర్వచించు SP_PROT_TLS1_3_CLIENT           0x00002000
+#అయితే_ముగింపు
 /* Offered by mingw-w64 v8+, MS SDK 8.1/VS2013+ */
-#ifndef SCH_USE_STRONG_CRYPTO
-#define SCH_USE_STRONG_CRYPTO           0x00400000
-#endif
+#నిర్వచితం_కాకపోతే SCH_USE_STRONG_CRYPTO
+#నిర్వచించు SCH_USE_STRONG_CRYPTO           0x00400000
+#అయితే_ముగింపు
 
 /* Offered by mingw-w64 v10+, MS SDK 7.0A/VS2010+ */
-#ifndef SECBUFFER_ALERT
-#define SECBUFFER_ALERT                 17
-#endif
+#నిర్వచితం_కాకపోతే SECBUFFER_ALERT
+#నిర్వచించు SECBUFFER_ALERT                 17
+#అయితే_ముగింపు
 
 /* Both schannel buffer sizes must be > 0 */
-#define CURL_SCHANNEL_BUFFER_INIT_SIZE   4096
-#define CURL_SCHANNEL_BUFFER_FREE_SIZE   1024
+#నిర్వచించు CURL_SCHANNEL_బఫరు_INIT_కొలత   4096
+#నిర్వచించు CURL_SCHANNEL_బఫరు_FREE_కొలత   1024
 
-#define CERT_THUMBPRINT_STR_LEN 40
-#define CERT_THUMBPRINT_DATA_LEN 20
+#నిర్వచించు CERT_THUMBPRINT_STR_LEN 40
+#నిర్వచించు CERT_THUMBPRINT_దత్తాంశం_LEN 20
 
 /* Uncomment to force verbose output
  * #define infof(x, y, ...) curl_mprintf(y, __VA_ARGS__)
@@ -108,124 +108,124 @@
  */
 
 /* Offered by mingw-w64 v4+, MS SDK 6.0A/VS2008+ */
-#ifndef PKCS12_NO_PERSIST_KEY
-#define PKCS12_NO_PERSIST_KEY 0x00008000
-#endif
+#నిర్వచితం_కాకపోతే PKCS12_NO_PERSIST_కీలకం
+#నిర్వచించు PKCS12_NO_PERSIST_కీలకం 0x00008000
+#అయితే_ముగింపు
 
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
-#ifndef CERT_FIND_HAS_PRIVATE_KEY
-#define CERT_FIND_HAS_PRIVATE_KEY (21 << CERT_COMPARE_SHIFT)
-#endif
+#నిర్వచితం_కాకపోతే CERT_కనుగొను_HAS_వ్యక్తిగత_కీలకం
+#నిర్వచించు CERT_కనుగొను_HAS_వ్యక్తిగత_కీలకం (21 << CERT_COMPARE_జరుపు)
+#అయితే_ముగింపు
 
 /* key to use at `multi->proto_hash` */
-#define MPROTO_SCHANNEL_CERT_SHARE_KEY   "tls:schannel:cert:share"
+#నిర్వచించు MPROTO_SCHANNEL_CERT_SHARE_కీలకం   "tls:schannel:cert:share"
 
-static bool s_win_has_alpn;
+స్థిర bool s_win_has_alpn;
 
 /* Offered by mingw-w64 v9+, MS SDK 8.1/VS2013+ */
-#ifndef SECBUFFER_APPLICATION_PROTOCOLS
-#define SECBUFFER_APPLICATION_PROTOCOLS 18
-#define SECPKG_ATTR_APPLICATION_PROTOCOL 35
+#నిర్వచితం_కాకపోతే SECBUFFER_APPLICATION_PROTOCOLS
+#నిర్వచించు SECBUFFER_APPLICATION_PROTOCOLS 18
+#నిర్వచించు SECPKG_ATTR_APPLICATION_PROTOCOL 35
 
-typedef enum {
+రకనిర్వచనం గణన {
   SecApplicationProtocolNegotiationExt_None,
   SecApplicationProtocolNegotiationExt_NPN,
   SecApplicationProtocolNegotiationExt_ALPN
 } SEC_APPLICATION_PROTOCOL_NEGOTIATION_EXT;
 
-typedef enum {
-  SecApplicationProtocolNegotiationStatus_None,
-  SecApplicationProtocolNegotiationStatus_Success,
-  SecApplicationProtocolNegotiationStatus_SelectedClientOnly
-} SEC_APPLICATION_PROTOCOL_NEGOTIATION_STATUS;
+రకనిర్వచనం గణన {
+  Sec_Application_Protocol_Negotiation_స్థితి_None,
+  Sec_Application_Protocol_Negotiation_స్థితి_Success,
+  Sec_Application_Protocol_Negotiation_స్థితి_Selected_Client_Only
+} SEC_APPLICATION_PROTOCOL_NEGOTIATION_స్థితి;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct {
-  SEC_APPLICATION_PROTOCOL_NEGOTIATION_STATUS ProtoNegoStatus;
+రకనిర్వచనం నిర్మాణం {
+  SEC_APPLICATION_PROTOCOL_NEGOTIATION_స్థితి Proto_Nego_స్థితి;
   SEC_APPLICATION_PROTOCOL_NEGOTIATION_EXT ProtoNegoExt;
-  unsigned char ProtocolIdSize;
-  unsigned char ProtocolId[0xff];
+  గుర్తులేని అక్షరం Protocol_Id_కొలత;
+  గుర్తులేని అక్షరం ProtocolId[0xff];
 } SecPkgContext_ApplicationProtocol;
-#endif
+#అయితే_ముగింపు
 
-static void InitSecBuffer(SecBuffer *buffer, unsigned long BufType,
-                          void *BufDataPtr, unsigned long BufByteSize)
+స్థిర శూన్య Init_Sec_బఫరు(Sec_బఫరు *బఫరు, గుర్తులేని దీర్ఘ BufType,
+                          శూన్య *Buf_దత్తాంశం_Ptr, గుర్తులేని దీర్ఘ Buf_Byte_కొలత)
 {
-  buffer->cbBuffer = BufByteSize;
-  buffer->BufferType = BufType;
-  buffer->pvBuffer = BufDataPtr;
+  బఫరు->cb_బఫరు = Buf_Byte_కొలత;
+  బఫరు->బఫరు_Type = BufType;
+  బఫరు->pv_బఫరు = Buf_దత్తాంశం_Ptr;
 }
 
-static void InitSecBufferDesc(SecBufferDesc *desc, SecBuffer *BufArr,
-                              unsigned long NumArrElem)
+స్థిర శూన్య Init_Sec_బఫరు_Desc(Sec_బఫరు_Desc *desc, Sec_బఫరు *BufArr,
+                              గుర్తులేని దీర్ఘ అంకె_Arr_Elem)
 {
-  desc->ulVersion = SECBUFFER_VERSION;
+  desc->ul_సంస్కరణ = SECBUFFER_సంస్కరణ;
   desc->pBuffers = BufArr;
-  desc->cBuffers = NumArrElem;
+  desc->cBuffers = అంకె_Arr_Elem;
 }
 
-static CURLcode schannel_set_ssl_version_min_max(DWORD *enabled_protocols,
-                                                 struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data)
+స్థిర CURLcode schannel_సమితి_ssl_సంస్కరణ_min_max(DWORD *enabled_protocols,
+                                                 నిర్మాణం Curl_cfilter *cf,
+                                                 నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  long ssl_version = conn_config->version;
-  long ssl_version_max = (long)conn_config->version_max;
-  long i = ssl_version;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  దీర్ఘ ssl_సంస్కరణ = conn_config->సంస్కరణ_2;
+  దీర్ఘ ssl_సంస్కరణ_max = (దీర్ఘ)conn_config->సంస్కరణ_max;
+  దీర్ఘ i = ssl_సంస్కరణ;
 
-  switch(ssl_version_max) {
-  case CURL_SSLVERSION_MAX_NONE:
-  case CURL_SSLVERSION_MAX_DEFAULT:
+  ఎంపిక(ssl_సంస్కరణ_max) {
+  స్థితి CURL_SSLVERSION_MAX_NONE:
+  స్థితి CURL_SSLVERSION_MAX_DEFAULT:
 
     /* Windows Server 2022 and newer (including Windows 11) support TLS 1.3
        built-in. Previous builds of Windows 10 had broken TLS 1.3
        implementations that could be enabled via registry. */
-    if(curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
-                                    VERSION_GREATER_THAN_EQUAL)) {
-      ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_3;
+    ఒకవేళ(curlx_verify_windows_సంస్కరణ(10, 0, 20348, PLATFORM_WINNT,
+                                    సంస్కరణ_GREATER_THAN_EQUAL)) {
+      ssl_సంస్కరణ_max = CURL_SSLVERSION_MAX_TLSv1_3;
     }
-    else /* Windows 10 or older */
-      ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_2;
+    లేకపోతే /* Windows 10 or older */
+      ssl_సంస్కరణ_max = CURL_SSLVERSION_MAX_TLSv1_2;
 
-    break;
+    ఆపు;
   }
 
-  for(; i <= (ssl_version_max >> 16); ++i) {
-    switch(i) {
-    case CURL_SSLVERSION_TLSv1_0:
+  కొరకు(; i <= (ssl_సంస్కరణ_max >> 16); ++i) {
+    ఎంపిక(i) {
+    స్థితి CURL_SSLVERSION_TLSv1_0:
       *enabled_protocols |= SP_PROT_TLS1_0_CLIENT;
-      break;
-    case CURL_SSLVERSION_TLSv1_1:
+      ఆపు;
+    స్థితి CURL_SSLVERSION_TLSv1_1:
       *enabled_protocols |= SP_PROT_TLS1_1_CLIENT;
-      break;
-    case CURL_SSLVERSION_TLSv1_2:
+      ఆపు;
+    స్థితి CURL_SSLVERSION_TLSv1_2:
       *enabled_protocols |= SP_PROT_TLS1_2_CLIENT;
-      break;
-    case CURL_SSLVERSION_TLSv1_3:
+      ఆపు;
+    స్థితి CURL_SSLVERSION_TLSv1_3:
 
       /* Windows Server 2022 or newer */
-      if(curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
-                                      VERSION_GREATER_THAN_EQUAL)) {
+      ఒకవేళ(curlx_verify_windows_సంస్కరణ(10, 0, 20348, PLATFORM_WINNT,
+                                      సంస్కరణ_GREATER_THAN_EQUAL)) {
         *enabled_protocols |= SP_PROT_TLS1_3_CLIENT;
-        break;
+        ఆపు;
       }
-      else { /* Windows 10 or older */
-        failf(data, "schannel: TLS 1.3 not supported on Windows 10 or older");
-        return CURLE_SSL_CONNECT_ERROR;
+      లేకపోతే { /* Windows 10 or older */
+        failf(దత్తాంశం, "schannel: TLS 1.3 not supported on Windows 10 or older");
+        తిరిగి CURLE_SSL_CONNECT_ERROR;
       }
     }
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-#define CIPHEROPTION(x) { #x, x }
+#నిర్వచించు CIPHEROPTION(x) { #x, x }
 
-struct algo {
-  const char *name;
-  int id;
+నిర్మాణం algo {
+  స్థిరరాశి అక్షరం *name;
+  పూర్ణాంకం id;
 };
 
-static const struct algo algs[] = {
+స్థిర స్థిరరాశి నిర్మాణం algo algs[] = {
   CIPHEROPTION(CALG_MD2),
   CIPHEROPTION(CALG_MD4),
   CIPHEROPTION(CALG_MD5),
@@ -253,8 +253,8 @@ static const struct algo algs[] = {
   CIPHEROPTION(CALG_SSL3_SHAMD5),
   CIPHEROPTION(CALG_SSL3_MASTER),
   CIPHEROPTION(CALG_SCHANNEL_MASTER_HASH),
-  CIPHEROPTION(CALG_SCHANNEL_MAC_KEY),
-  CIPHEROPTION(CALG_SCHANNEL_ENC_KEY),
+  CIPHEROPTION(CALG_SCHANNEL_MAC_కీలకం),
+  CIPHEROPTION(CALG_SCHANNEL_ENC_కీలకం),
   CIPHEROPTION(CALG_PCT1_MASTER),
   CIPHEROPTION(CALG_SSL2_MASTER),
   CIPHEROPTION(CALG_TLS1_MASTER),
@@ -271,363 +271,363 @@ static const struct algo algs[] = {
   CIPHEROPTION(CALG_SHA_512),
   CIPHEROPTION(CALG_ECDH),
 /* Offered by mingw-w64 v4+, MS SDK 6.0A/VS2008+ */
-#ifdef CALG_ECMQV
+#నిర్వచితమైతే CALG_ECMQV
   CIPHEROPTION(CALG_ECMQV),
-#endif
+#అయితే_ముగింపు
   CIPHEROPTION(CALG_ECDSA),
 /* Offered by mingw-w64 v7+, MS SDK 7.0A/VS2010+ */
-#ifdef CALG_ECDH_EPHEM
+#నిర్వచితమైతే CALG_ECDH_EPHEM
   CIPHEROPTION(CALG_ECDH_EPHEM),
-#endif
-  { NULL, 0 },
+#అయితే_ముగింపు
+  { ఖాళీ, 0 },
 };
 
-static int get_alg_id_by_name(const char *name)
+స్థిర పూర్ణాంకం get_alg_id_by_name(స్థిరరాశి అక్షరం *name)
 {
-  const char *nameEnd = strchr(name, ':');
-  size_t n = nameEnd ? (size_t)(nameEnd - name) : strlen(name);
-  int i;
+  స్థిరరాశి అక్షరం *name_చివర = strchr(name, ':');
+  size_t n = name_చివర ? (size_t)(name_చివర - name) : అక్షరశ్రేణి_పొడవు(name);
+  పూర్ణాంకం i;
 
-  for(i = 0; algs[i].name; i++) {
-    if((n == strlen(algs[i].name) && !strncmp(algs[i].name, name, n)))
-      return algs[i].id;
+  కొరకు(i = 0; algs[i].name; i++) {
+    ఒకవేళ((n == అక్షరశ్రేణి_పొడవు(algs[i].name) && !అక్షరశ్రేణి_పోలిక(algs[i].name, name, n)))
+      తిరిగి algs[i].id;
   }
-  return 0; /* not found */
+  తిరిగి 0; /* not found */
 }
 
-#define NUM_CIPHERS 47 /* There are a maximum of 47 options listed above */
+#నిర్వచించు అంకె_CIPHERS 47 /* There are a maximum of 47 options listed above */
 
-static CURLcode set_ssl_ciphers(SCHANNEL_CRED *schannel_cred, char *ciphers,
+స్థిర CURLcode సమితి_ssl_ciphers(SCHANNEL_CRED *schannel_cred, అక్షరం *ciphers,
                                 ALG_ID *algIds)
 {
-  const char *startCur = ciphers;
-  int algCount = 0;
-  while(startCur && *startCur && (algCount < NUM_CIPHERS)) {
+  స్థిరరాశి అక్షరం *ప్రారంభం_Cur = ciphers;
+  పూర్ణాంకం alg_లెక్క = 0;
+  అయితే(ప్రారంభం_Cur && *ప్రారంభం_Cur && (alg_లెక్క < అంకె_CIPHERS)) {
     curl_off_t alg;
-    if(curlx_str_number(&startCur, &alg, INT_MAX) || !alg)
-      alg = get_alg_id_by_name(startCur);
+    ఒకవేళ(curlx_str_సంఖ్య(&ప్రారంభం_Cur, &alg, గరిష్ఠ_పూర్ణాంకం) || !alg)
+      alg = get_alg_id_by_name(ప్రారంభం_Cur);
 
-    if(alg)
-      algIds[algCount++] = (ALG_ID)alg;
-    else if(!strncmp(startCur, "USE_STRONG_CRYPTO",
+    ఒకవేళ(alg)
+      algIds[alg_లెక్క++] = (ALG_ID)alg;
+    లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక(ప్రారంభం_Cur, "USE_STRONG_CRYPTO",
                      CURL_CSTRLEN("USE_STRONG_CRYPTO")) ||
-            !strncmp(startCur, "SCH_USE_STRONG_CRYPTO",
+            !అక్షరశ్రేణి_పోలిక(ప్రారంభం_Cur, "SCH_USE_STRONG_CRYPTO",
                      CURL_CSTRLEN("SCH_USE_STRONG_CRYPTO")))
       schannel_cred->dwFlags |= SCH_USE_STRONG_CRYPTO;
-    else
-      return CURLE_SSL_CIPHER;
-    startCur = strchr(startCur, ':');
-    if(startCur)
-      startCur++;
+    లేకపోతే
+      తిరిగి CURLE_SSL_CIPHER;
+    ప్రారంభం_Cur = strchr(ప్రారంభం_Cur, ':');
+    ఒకవేళ(ప్రారంభం_Cur)
+      ప్రారంభం_Cur++;
   }
   schannel_cred->palgSupportedAlgs = algIds;
-  schannel_cred->cSupportedAlgs = (DWORD)algCount;
-  return CURLE_OK;
+  schannel_cred->cSupportedAlgs = (DWORD)alg_లెక్క;
+  తిరిగి CURLE_OK;
 }
 
 /* Function allocates memory for store_path only if CURLE_OK is returned */
-static CURLcode get_cert_location(TCHAR *path, DWORD *store_name,
-                                  TCHAR **store_path, TCHAR **thumbprint)
+స్థిర CURLcode get_cert_location(TCHAR *మార్గం, DWORD *store_name,
+                                  TCHAR **store_మార్గం, TCHAR **thumbprint)
 {
   TCHAR *sep;
-  TCHAR *store_path_start;
+  TCHAR *store_మార్గం_ప్రారంభం;
   size_t store_name_len;
 
-  sep = _tcschr(path, _TEXT('\\'));
-  if(!sep)
-    return CURLE_SSL_CERTPROBLEM;
+  sep = _tcschr(మార్గం, పాఠ్యం('\\'));
+  ఒకవేళ(!sep)
+    తిరిగి CURLE_SSL_CERTPROBLEM;
 
-  store_name_len = sep - path;
+  store_name_len = sep - మార్గం;
 
-  if(_tcsncmp(path, _TEXT("CurrentUser"), store_name_len) == 0)
+  ఒకవేళ(_tcsncmp(మార్గం, పాఠ్యం("CurrentUser"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_CURRENT_USER;
-  else if(_tcsncmp(path, _TEXT("LocalMachine"), store_name_len) == 0)
+  లేకపోతే ఒకవేళ(_tcsncmp(మార్గం, పాఠ్యం("LocalMachine"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_LOCAL_MACHINE;
-  else if(_tcsncmp(path, _TEXT("CurrentService"), store_name_len) == 0)
+  లేకపోతే ఒకవేళ(_tcsncmp(మార్గం, పాఠ్యం("CurrentService"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_CURRENT_SERVICE;
-  else if(_tcsncmp(path, _TEXT("Services"), store_name_len) == 0)
+  లేకపోతే ఒకవేళ(_tcsncmp(మార్గం, పాఠ్యం("Services"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_SERVICES;
-  else if(_tcsncmp(path, _TEXT("Users"), store_name_len) == 0)
+  లేకపోతే ఒకవేళ(_tcsncmp(మార్గం, పాఠ్యం("Users"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_USERS;
-  else if(_tcsncmp(path, _TEXT("CurrentUserGroupPolicy"), store_name_len) == 0)
-    *store_name = CERT_SYSTEM_STORE_CURRENT_USER_GROUP_POLICY;
-  else if(_tcsncmp(path, _TEXT("LocalMachineGroupPolicy"), store_name_len) ==
+  లేకపోతే ఒకవేళ(_tcsncmp(మార్గం, పాఠ్యం("CurrentUserGroupPolicy"), store_name_len) == 0)
+    *store_name = CERT_SYSTEM_STORE_CURRENT_USER_సమూహం_POLICY;
+  లేకపోతే ఒకవేళ(_tcsncmp(మార్గం, పాఠ్యం("LocalMachineGroupPolicy"), store_name_len) ==
           0)
-    *store_name = CERT_SYSTEM_STORE_LOCAL_MACHINE_GROUP_POLICY;
-  else if(_tcsncmp(path, _TEXT("LocalMachineEnterprise"), store_name_len) == 0)
+    *store_name = CERT_SYSTEM_STORE_LOCAL_MACHINE_సమూహం_POLICY;
+  లేకపోతే ఒకవేళ(_tcsncmp(మార్గం, పాఠ్యం("LocalMachineEnterprise"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_LOCAL_MACHINE_ENTERPRISE;
-  else
-    return CURLE_SSL_CERTPROBLEM;
+  లేకపోతే
+    తిరిగి CURLE_SSL_CERTPROBLEM;
 
-  store_path_start = sep + 1;
+  store_మార్గం_ప్రారంభం = sep + 1;
 
-  sep = _tcschr(store_path_start, _TEXT('\\'));
-  if(!sep)
-    return CURLE_SSL_CERTPROBLEM;
+  sep = _tcschr(store_మార్గం_ప్రారంభం, పాఠ్యం('\\'));
+  ఒకవేళ(!sep)
+    తిరిగి CURLE_SSL_CERTPROBLEM;
 
   *thumbprint = sep + 1;
-  if(_tcslen(*thumbprint) != CERT_THUMBPRINT_STR_LEN)
-    return CURLE_SSL_CERTPROBLEM;
+  ఒకవేళ(_tcslen(*thumbprint) != CERT_THUMBPRINT_STR_LEN)
+    తిరిగి CURLE_SSL_CERTPROBLEM;
 
-  *sep = _TEXT('\0');
-  *store_path = curlx_tcsdup(store_path_start);
-  *sep = _TEXT('\\');
-  if(!*store_path)
-    return CURLE_OUT_OF_MEMORY;
+  *sep = పాఠ్యం('\0');
+  *store_మార్గం = curlx_tcsdup(store_మార్గం_ప్రారంభం);
+  *sep = పాఠ్యం('\\');
+  ఒకవేళ(!*store_మార్గం)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode get_client_cert(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                HCERTSTORE *out_cert_store,
-                                PCCERT_CONTEXT *out_cert_context)
+స్థిర CURLcode get_client_cert(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                HCERTSTORE *బహిర్గతం_cert_store,
+                                PCCERT_CONTEXT *బహిర్గతం_cert_context)
 {
-  struct ssl_filter_config *sslc = Curl_ssl_cf_get_filter_config(cf);
-  PCCERT_CONTEXT client_cert = NULL;
-  HCERTSTORE client_cert_store = NULL;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssl_filter_config *sslc = Curl_ssl_cf_get_filter_config(cf);
+  PCCERT_CONTEXT client_cert = ఖాళీ;
+  HCERTSTORE client_cert_store = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(sslc->clientcert || sslc->cert_blob) {
+  ఒకవేళ(sslc->clientcert || sslc->cert_blob) {
     DWORD cert_store_name = 0;
-    TCHAR *cert_store_path = NULL;
-    TCHAR *cert_thumbprint_str = NULL;
+    TCHAR *cert_store_మార్గం = ఖాళీ;
+    TCHAR *cert_thumbprint_str = ఖాళీ;
     TCHAR cert_thumbprint_buf[CERT_THUMBPRINT_STR_LEN + 1];
     CRYPT_HASH_BLOB cert_thumbprint;
-    BYTE cert_thumbprint_data[CERT_THUMBPRINT_DATA_LEN];
-    HCERTSTORE cert_store = NULL;
-    FILE *fInCert = NULL;
-    void *certdata = NULL;
+    BYTE cert_thumbprint_దత్తాంశం[CERT_THUMBPRINT_దత్తాంశం_LEN];
+    HCERTSTORE cert_store = ఖాళీ;
+    FILE *f_లోపల_Cert = ఖాళీ;
+    శూన్య *certdata = ఖాళీ;
     size_t certsize = 0;
     bool blob = !!sslc->cert_blob;
 
-    if(blob) {
-      certdata = sslc->cert_blob->data;
+    ఒకవేళ(blob) {
+      certdata = sslc->cert_blob->దత్తాంశం;
       certsize = sslc->cert_blob->len;
     }
-    else {
-      TCHAR *cert_path =
-        curlx_convert_UTF8_to_tchar(sslc->clientcert);
-      if(!cert_path)
-        return CURLE_OUT_OF_MEMORY;
+    లేకపోతే {
+      TCHAR *cert_మార్గం =
+        curlx_convert_UTF8_గమ్యం_tchar(sslc->clientcert);
+      ఒకవేళ(!cert_మార్గం)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
-      result = get_cert_location(cert_path, &cert_store_name,
-                                 &cert_store_path, &cert_thumbprint_str);
+      ఫలితం = get_cert_location(cert_మార్గం, &cert_store_name,
+                                 &cert_store_మార్గం, &cert_thumbprint_str);
 
       /* 'cert_thumbprint_str' points in to the allocated 'cert_path', copy
          the data. The string is verified to be CERT_THUMBPRINT_STR_LEN bytes
          long within the get_cert_location() function. */
-      if(!result && cert_thumbprint_str) {
-        memcpy(cert_thumbprint_buf, cert_thumbprint_str,
-               sizeof(cert_thumbprint_buf));
+      ఒకవేళ(!ఫలితం && cert_thumbprint_str) {
+        జ్ఞాపకం_నకలు(cert_thumbprint_buf, cert_thumbprint_str,
+               పరిమాణం(cert_thumbprint_buf));
         cert_thumbprint_str = cert_thumbprint_buf;
       }
 
-      curlx_free(cert_path);
-      if(result && (sslc->clientcert[0] != '\0'))
-        fInCert = curlx_fopen(sslc->clientcert, "rb");
+      curlx_free(cert_మార్గం);
+      ఒకవేళ(ఫలితం && (sslc->clientcert[0] != '\0'))
+        f_లోపల_Cert = curlx_fopen(sslc->clientcert, "rb");
 
-      if(result && !fInCert) {
-        failf(data, "schannel: Failed to get certificate location"
+      ఒకవేళ(ఫలితం && !f_లోపల_Cert) {
+        failf(దత్తాంశం, "schannel: Failed to get certificate location"
               " or file for %s",
               sslc->clientcert);
-        return result;
+        తిరిగి ఫలితం;
       }
     }
 
-    if((fInCert || blob) && sslc->cert_type &&
+    ఒకవేళ((f_లోపల_Cert || blob) && sslc->cert_type &&
        !curl_strequal(sslc->cert_type, "P12")) {
-      failf(data, "schannel: certificate format compatibility error "
+      failf(దత్తాంశం, "schannel: certificate format compatibility error "
             "for %s",
             blob ? "(memory blob)" : sslc->clientcert);
-      curlx_free(cert_store_path);
-      if(fInCert)
-        curlx_fclose(fInCert);
-      return CURLE_SSL_CERTPROBLEM;
+      curlx_free(cert_store_మార్గం);
+      ఒకవేళ(f_లోపల_Cert)
+        curlx_fclose(f_లోపల_Cert);
+      తిరిగి CURLE_SSL_CERTPROBLEM;
     }
 
-    if(fInCert || blob) {
+    ఒకవేళ(f_లోపల_Cert || blob) {
       /* Reading a .p12 or .pfx file, like the example at bottom of
          https://learn.microsoft.com/archive/msdn-technet-forums/3e7bc95f-b21a-4bcd-bd2c-7f996718cae5
        */
-      CRYPT_DATA_BLOB datablob;
+      CRYPT_దత్తాంశం_BLOB datablob;
       WCHAR *pszPassword;
       size_t pwd_len = 0;
-      int cert_find_flags;
-      const char *cert_showfilename_error = blob ?
+      పూర్ణాంకం cert_కనుగొను_flags;
+      స్థిరరాశి అక్షరం *cert_showfilename_error = blob ?
         "(memory blob)" : sslc->clientcert;
-      curlx_free(cert_store_path);
-      if(fInCert) {
-        long cert_tell = 0;
-        bool continue_reading = fseek(fInCert, 0, SEEK_END) == 0;
-        if(continue_reading) {
-          cert_tell = ftell(fInCert);
-          if(cert_tell < 0)
+      curlx_free(cert_store_మార్గం);
+      ఒకవేళ(f_లోపల_Cert) {
+        దీర్ఘ cert_tell = 0;
+        bool continue_reading = fseek(f_లోపల_Cert, 0, SEEK_END) == 0;
+        ఒకవేళ(continue_reading) {
+          cert_tell = ftell(f_లోపల_Cert);
+          ఒకవేళ(cert_tell < 0)
             continue_reading = FALSE;
-          else
+          లేకపోతే
             certsize = (size_t)cert_tell;
         }
-        if(continue_reading)
-          continue_reading = fseek(fInCert, 0, SEEK_SET) == 0;
-        if(continue_reading && (certsize < CURL_MAX_INPUT_LENGTH))
+        ఒకవేళ(continue_reading)
+          continue_reading = fseek(f_లోపల_Cert, 0, SEEK_SET) == 0;
+        ఒకవేళ(continue_reading && (certsize < CURL_MAX_ఆదానం_నిడివి))
           certdata = curlx_malloc(certsize + 1);
-        if(!certdata || ((int)fread(certdata, certsize, 1, fInCert) != 1))
+        ఒకవేళ(!certdata || ((పూర్ణాంకం)fread(certdata, certsize, 1, f_లోపల_Cert) != 1))
           continue_reading = FALSE;
-        curlx_fclose(fInCert);
-        if(!continue_reading) {
-          failf(data, "schannel: Failed to read cert file %s",
+        curlx_fclose(f_లోపల_Cert);
+        ఒకవేళ(!continue_reading) {
+          failf(దత్తాంశం, "schannel: Failed to read cert file %s",
                 sslc->clientcert);
           curlx_free(certdata);
-          return CURLE_SSL_CERTPROBLEM;
+          తిరిగి CURLE_SSL_CERTPROBLEM;
         }
       }
 
       /* Convert key-pair data to the in-memory certificate store */
-      datablob.pbData = (BYTE *)certdata;
-      datablob.cbData = (DWORD)certsize;
+      datablob.pb_దత్తాంశం = (BYTE *)certdata;
+      datablob.cb_దత్తాంశం = (DWORD)certsize;
 
-      if(sslc->key_passwd)
-        pwd_len = strlen(sslc->key_passwd);
-      pszPassword = curlx_malloc(sizeof(WCHAR) * (pwd_len + 1));
-      if(pszPassword) {
-        int str_w_len = 0;
-        if(pwd_len > 0)
-          str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                          sslc->key_passwd, (int)pwd_len,
-                                          pszPassword, (int)(pwd_len + 1));
+      ఒకవేళ(sslc->కీలకం_passwd)
+        pwd_len = అక్షరశ్రేణి_పొడవు(sslc->కీలకం_passwd);
+      pszPassword = curlx_malloc(పరిమాణం(WCHAR) * (pwd_len + 1));
+      ఒకవేళ(pszPassword) {
+        పూర్ణాంకం str_w_len = 0;
+        ఒకవేళ(pwd_len > 0)
+          str_w_len = Multi_Byte_గమ్యం_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                          sslc->కీలకం_passwd, (పూర్ణాంకం)pwd_len,
+                                          pszPassword, (పూర్ణాంకం)(pwd_len + 1));
 
-        if((str_w_len >= 0) && (str_w_len <= (int)pwd_len))
+        ఒకవేళ((str_w_len >= 0) && (str_w_len <= (పూర్ణాంకం)pwd_len))
           pszPassword[str_w_len] = 0;
-        else
+        లేకపోతే
           pszPassword[0] = 0;
 
         cert_store = PFXImportCertStore(&datablob, pszPassword,
-                                        PKCS12_NO_PERSIST_KEY);
-        curlx_memzero(pszPassword, sizeof(WCHAR) * (pwd_len + 1));
+                                        PKCS12_NO_PERSIST_కీలకం);
+        curlx_memzero(pszPassword, పరిమాణం(WCHAR) * (pwd_len + 1));
         curlx_free(pszPassword);
       }
-      if(!blob)
+      ఒకవేళ(!blob)
         curlx_free(certdata);
-      if(!cert_store) {
-        DWORD errorcode = GetLastError();
-        if(errorcode == ERROR_INVALID_PASSWORD)
-          failf(data, "schannel: Failed to import cert file %s, "
+      ఒకవేళ(!cert_store) {
+        DWORD errorcode = Get_చివరి_Error();
+        ఒకవేళ(errorcode == ERROR_INVALID_PASSWORD)
+          failf(దత్తాంశం, "schannel: Failed to import cert file %s, "
                 "password is bad",
                 cert_showfilename_error);
-        else
-          failf(data, "schannel: Failed to import cert file %s, "
+        లేకపోతే
+          failf(దత్తాంశం, "schannel: Failed to import cert file %s, "
                 "last error is 0x%08lx",
                 cert_showfilename_error, errorcode);
-        return CURLE_SSL_CERTPROBLEM;
+        తిరిగి CURLE_SSL_CERTPROBLEM;
       }
 
       /* CERT_FIND_HAS_PRIVATE_KEY is only available in Windows 8 / Server
          2012, (NT 6.2). For older versions we use CURL_FIND_ANY. */
-      if(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
-                                      VERSION_GREATER_THAN_EQUAL))
-        cert_find_flags = CERT_FIND_HAS_PRIVATE_KEY;
-      else
-        cert_find_flags = CERT_FIND_ANY;
+      ఒకవేళ(curlx_verify_windows_సంస్కరణ(6, 2, 0, PLATFORM_WINNT,
+                                      సంస్కరణ_GREATER_THAN_EQUAL))
+        cert_కనుగొను_flags = CERT_కనుగొను_HAS_వ్యక్తిగత_కీలకం;
+      లేకపోతే
+        cert_కనుగొను_flags = CERT_కనుగొను_ANY;
 
       client_cert =
-        CertFindCertificateInStore(cert_store,
+        Cert_కనుగొను_Certificate_లోపల_Store(cert_store,
                                    X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
-                                   cert_find_flags, NULL, NULL);
+                                   cert_కనుగొను_flags, ఖాళీ, ఖాళీ);
 
-      if(!client_cert) {
-        failf(data, "schannel: Failed to get certificate from file %s"
+      ఒకవేళ(!client_cert) {
+        failf(దత్తాంశం, "schannel: Failed to get certificate from file %s"
               ", last error is 0x%08lx",
-              cert_showfilename_error, GetLastError());
+              cert_showfilename_error, Get_చివరి_Error());
         CertCloseStore(cert_store, 0);
-        return CURLE_SSL_CERTPROBLEM;
+        తిరిగి CURLE_SSL_CERTPROBLEM;
       }
     }
-    else {
+    లేకపోతే {
       cert_store =
         CertOpenStore(
-#ifdef UNICODE
+#నిర్వచితమైతే UNICODE
                       CERT_STORE_PROV_SYSTEM_W,
-#else
+#లేకపోతే
                       CERT_STORE_PROV_SYSTEM_A,
-#endif
+#అయితే_ముగింపు
                       0,
-                      (HCRYPTPROV)NULL,
+                      (HCRYPTPROV)ఖాళీ,
                       CERT_STORE_OPEN_EXISTING_FLAG | cert_store_name,
-                      cert_store_path);
-      if(!cert_store) {
-        char *path_utf8 =
-          curlx_convert_tchar_to_UTF8(cert_store_path);
-        failf(data, "schannel: Failed to open cert store %lx %s, "
+                      cert_store_మార్గం);
+      ఒకవేళ(!cert_store) {
+        అక్షరం *మార్గం_utf8 =
+          curlx_convert_tchar_గమ్యం_UTF8(cert_store_మార్గం);
+        failf(దత్తాంశం, "schannel: Failed to open cert store %lx %s, "
               "last error is 0x%08lx",
-              cert_store_name, (path_utf8 ? path_utf8 : "(unknown)"),
-              GetLastError());
-        curlx_free(cert_store_path);
-        curlx_free(path_utf8);
-        return CURLE_SSL_CERTPROBLEM;
+              cert_store_name, (మార్గం_utf8 ? మార్గం_utf8 : "(unknown)"),
+              Get_చివరి_Error());
+        curlx_free(cert_store_మార్గం);
+        curlx_free(మార్గం_utf8);
+        తిరిగి CURLE_SSL_CERTPROBLEM;
       }
-      curlx_free(cert_store_path);
+      curlx_free(cert_store_మార్గం);
 
-      cert_thumbprint.pbData = cert_thumbprint_data;
-      cert_thumbprint.cbData = CERT_THUMBPRINT_DATA_LEN;
+      cert_thumbprint.pb_దత్తాంశం = cert_thumbprint_దత్తాంశం;
+      cert_thumbprint.cb_దత్తాంశం = CERT_THUMBPRINT_దత్తాంశం_LEN;
 
-      if(!CryptStringToBinary(cert_thumbprint_str,
+      ఒకవేళ(!Crypt_String_గమ్యం_ద్విమాన(cert_thumbprint_str,
                               CERT_THUMBPRINT_STR_LEN,
                               CRYPT_STRING_HEX,
-                              cert_thumbprint_data,
-                              &cert_thumbprint.cbData,
-                              NULL, NULL)) {
+                              cert_thumbprint_దత్తాంశం,
+                              &cert_thumbprint.cb_దత్తాంశం,
+                              ఖాళీ, ఖాళీ)) {
         CertCloseStore(cert_store, 0);
-        return CURLE_SSL_CERTPROBLEM;
+        తిరిగి CURLE_SSL_CERTPROBLEM;
       }
 
       client_cert =
-        CertFindCertificateInStore(cert_store,
+        Cert_కనుగొను_Certificate_లోపల_Store(cert_store,
                                    X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
-                                   CERT_FIND_HASH, &cert_thumbprint, NULL);
-      if(!client_cert) {
+                                   CERT_కనుగొను_HASH, &cert_thumbprint, ఖాళీ);
+      ఒకవేళ(!client_cert) {
         /* CRYPT_E_NOT_FOUND / E_INVALIDARG */
         CertCloseStore(cert_store, 0);
-        failf(data, "schannel: client cert not found in cert store");
-        return CURLE_SSL_CERTPROBLEM;
+        failf(దత్తాంశం, "schannel: client cert not found in cert store");
+        తిరిగి CURLE_SSL_CERTPROBLEM;
       }
     }
     client_cert_store = cert_store;
   }
 
-  *out_cert_store = client_cert_store;
-  *out_cert_context = client_cert;
+  *బహిర్గతం_cert_store = client_cert_store;
+  *బహిర్గతం_cert_context = client_cert;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct schannel_ssl_backend_data *backend,
+స్థిర CURLcode acquire_sspi_handle(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend,
                                     PCCERT_CONTEXT client_cert,
                                     DWORD flags,
                                     DWORD enabled_protocols)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  SECURITY_STATUS sspi_status = SEC_E_OK;
-  CURLcode result;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  SECURITY_స్థితి sspi_స్థితి = SEC_E_OK;
+  CURLcode ఫలితం;
 
   /* We support TLS 1.3 starting in Windows Server 2022 or later
    * (OS build 20348) */
-  if(!conn_config->cipher_list &&
-     curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
-                                  VERSION_GREATER_THAN_EQUAL)) {
+  ఒకవేళ(!conn_config->cipher_list &&
+     curlx_verify_windows_సంస్కరణ(10, 0, 20348, PLATFORM_WINNT,
+                                  సంస్కరణ_GREATER_THAN_EQUAL)) {
 
     SCH_CREDENTIALS credentials = { 0 };
     TLS_PARAMETERS tls_parameters = { 0 };
     CRYPTO_SETTINGS crypto_settings[1];
     PCCERT_CONTEXT client_certs[1];
 
-    if(client_cert)
+    ఒకవేళ(client_cert)
       client_certs[0] = client_cert;
-    else
-      client_certs[0] = NULL;
+    లేకపోతే
+      client_certs[0] = ఖాళీ;
 
-    memset(crypto_settings, 0, sizeof(crypto_settings));
+    memset(crypto_settings, 0, పరిమాణం(crypto_settings));
 
     tls_parameters.pDisabledCrypto = crypto_settings;
 
@@ -636,196 +636,196 @@ static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
     credentials.pTlsParameters = &tls_parameters;
     credentials.cTlsParameters = 1;
 
-    credentials.dwVersion = SCH_CREDENTIALS_VERSION;
+    credentials.dw_సంస్కరణ = SCH_CREDENTIALS_సంస్కరణ;
     credentials.dwFlags = flags | SCH_USE_STRONG_CRYPTO;
 
     credentials.pTlsParameters->grbitDisabledProtocols = ~enabled_protocols;
 
-    if(client_certs[0]) {
+    ఒకవేళ(client_certs[0]) {
       credentials.cCreds = 1;
       credentials.paCred = client_certs;
     }
 
-    sspi_status =
-      Curl_pSecFn->AcquireCredentialsHandle(NULL, CURL_UNCONST(UNISP_NAME),
-                                            SECPKG_CRED_OUTBOUND, NULL,
-                                            &credentials, NULL, NULL,
-                                            &backend->cred->cred_handle, NULL);
+    sspi_స్థితి =
+      Curl_pSecFn->AcquireCredentialsHandle(ఖాళీ, CURL_UNCONST(UNISP_NAME),
+                                            SECPKG_CRED_OUTBOUND, ఖాళీ,
+                                            &credentials, ఖాళీ, ఖాళీ,
+                                            &backend->cred->cred_handle, ఖాళీ);
   }
-  else {
+  లేకపోతే {
     /* Pre-Windows 10 1809 or the user set a legacy algorithm list.
        Schannel does not negotiate TLS 1.3 when SCHANNEL_CRED is used. */
-    ALG_ID algIds[NUM_CIPHERS];
-    char *ciphers = conn_config->cipher_list;
+    ALG_ID algIds[అంకె_CIPHERS];
+    అక్షరం *ciphers = conn_config->cipher_list;
     SCHANNEL_CRED schannel_cred = { 0 };
     PCCERT_CONTEXT client_certs[1];
 
-    if(client_cert)
+    ఒకవేళ(client_cert)
       client_certs[0] = client_cert;
-    else
-      client_certs[0] = NULL;
+    లేకపోతే
+      client_certs[0] = ఖాళీ;
 
-    schannel_cred.dwVersion = SCHANNEL_CRED_VERSION;
+    schannel_cred.dw_సంస్కరణ = SCHANNEL_CRED_సంస్కరణ;
     schannel_cred.dwFlags = flags;
     schannel_cred.grbitEnabledProtocols = enabled_protocols;
 
-    if(ciphers) {
-      if((enabled_protocols & SP_PROT_TLS1_3_CLIENT)) {
-        if(!(enabled_protocols & ~SP_PROT_TLS1_3_CLIENT)) {
-          failf(data, "schannel: TLS 1.3 is not supported with a cipher list; "
+    ఒకవేళ(ciphers) {
+      ఒకవేళ((enabled_protocols & SP_PROT_TLS1_3_CLIENT)) {
+        ఒకవేళ(!(enabled_protocols & ~SP_PROT_TLS1_3_CLIENT)) {
+          failf(దత్తాంశం, "schannel: TLS 1.3 is not supported with a cipher list; "
                 "remove the cipher list or allow a lower TLS version");
-          return CURLE_SSL_CONNECT_ERROR;
+          తిరిగి CURLE_SSL_CONNECT_ERROR;
         }
-        infof(data, "schannel: WARNING: This version of Schannel "
+        infof(దత్తాంశం, "schannel: WARNING: This version of Schannel "
               "negotiates a less-secure TLS version than TLS 1.3 because the "
               "user set an algorithm cipher list.");
       }
-      result = set_ssl_ciphers(&schannel_cred, ciphers, algIds);
-      if(result) {
-        failf(data, "schannel: Failed setting algorithm cipher list");
-        return result;
+      ఫలితం = సమితి_ssl_ciphers(&schannel_cred, ciphers, algIds);
+      ఒకవేళ(ఫలితం) {
+        failf(దత్తాంశం, "schannel: Failed setting algorithm cipher list");
+        తిరిగి ఫలితం;
       }
     }
-    else {
+    లేకపోతే {
       schannel_cred.dwFlags = flags | SCH_USE_STRONG_CRYPTO;
     }
 
-    if(client_certs[0]) {
+    ఒకవేళ(client_certs[0]) {
       schannel_cred.cCreds = 1;
       schannel_cred.paCred = client_certs;
     }
 
-    sspi_status =
-      Curl_pSecFn->AcquireCredentialsHandle(NULL, CURL_UNCONST(UNISP_NAME),
-                                            SECPKG_CRED_OUTBOUND, NULL,
-                                            &schannel_cred, NULL, NULL,
-                                            &backend->cred->cred_handle, NULL);
+    sspi_స్థితి =
+      Curl_pSecFn->AcquireCredentialsHandle(ఖాళీ, CURL_UNCONST(UNISP_NAME),
+                                            SECPKG_CRED_OUTBOUND, ఖాళీ,
+                                            &schannel_cred, ఖాళీ, ఖాళీ,
+                                            &backend->cred->cred_handle, ఖాళీ);
   }
 
-  if(sspi_status != SEC_E_OK) {
-    char buffer[STRERROR_LEN];
-    failf(data, "schannel: AcquireCredentialsHandle failed: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    switch(sspi_status) {
-    case SEC_E_INSUFFICIENT_MEMORY:
-      return CURLE_OUT_OF_MEMORY;
-    case SEC_E_NO_CREDENTIALS:
-    case SEC_E_SECPKG_NOT_FOUND:
-    case SEC_E_NOT_OWNER:
-    case SEC_E_UNKNOWN_CREDENTIALS:
-    case SEC_E_INTERNAL_ERROR:
-    default:
-      return CURLE_SSL_CONNECT_ERROR;
+  ఒకవేళ(sspi_స్థితి != SEC_E_OK) {
+    అక్షరం బఫరు[STRERROR_LEN];
+    failf(దత్తాంశం, "schannel: AcquireCredentialsHandle failed: %s",
+          Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+    ఎంపిక(sspi_స్థితి) {
+    స్థితి SEC_E_INSUFFICIENT_జ్ఞాపకం:
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    స్థితి SEC_E_NO_CREDENTIALS:
+    స్థితి SEC_E_SECPKG_NOT_దొరికింది:
+    స్థితి SEC_E_NOT_OWNER:
+    స్థితి SEC_E_UNKNOWN_CREDENTIALS:
+    స్థితి SEC_E_అంతర్గత_ERROR:
+    అప్రమేయ:
+      తిరిగి CURLE_SSL_CONNECT_ERROR;
     }
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter *cf,
-                                                   struct Curl_easy *data)
+స్థిర CURLcode schannel_acquire_credential_handle(నిర్మాణం Curl_cfilter *cf,
+                                                   నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
 
-  PCCERT_CONTEXT client_cert = NULL;
-  HCERTSTORE client_cert_store = NULL;
-  CURLcode result;
+  PCCERT_CONTEXT client_cert = ఖాళీ;
+  HCERTSTORE client_cert_store = ఖాళీ;
+  CURLcode ఫలితం;
 
   /* setup Schannel API options */
   DWORD flags = 0;
   DWORD enabled_protocols = 0;
 
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
 
   DEBUGASSERT(backend);
 
-  if(conn_config->verifypeer) {
-    if(backend->use_manual_cred_validation)
+  ఒకవేళ(conn_config->verifypeer) {
+    ఒకవేళ(backend->use_manual_cred_validation)
       flags = SCH_CRED_MANUAL_CRED_VALIDATION;
-    else
+    లేకపోతే
       flags = SCH_CRED_AUTO_CRED_VALIDATION;
 
-    if(conn_config->no_revoke) {
+    ఒకవేళ(conn_config->no_revoke) {
       flags |= SCH_CRED_IGNORE_NO_REVOCATION_CHECK |
                SCH_CRED_IGNORE_REVOCATION_OFFLINE;
 
-      DEBUGF(infof(data, "schannel: disabled server certificate revocation "
+      DEBUGF(infof(దత్తాంశం, "schannel: disabled server certificate revocation "
                          "checks"));
     }
-    else if(conn_config->revoke_best_effort) {
+    లేకపోతే ఒకవేళ(conn_config->revoke_ఉత్తమ_effort) {
       flags |= SCH_CRED_IGNORE_NO_REVOCATION_CHECK |
                SCH_CRED_IGNORE_REVOCATION_OFFLINE |
                SCH_CRED_REVOCATION_CHECK_CHAIN;
 
-      DEBUGF(infof(data, "schannel: ignore revocation offline errors"));
+      DEBUGF(infof(దత్తాంశం, "schannel: ignore revocation offline errors"));
     }
-    else {
+    లేకపోతే {
       flags |= SCH_CRED_REVOCATION_CHECK_CHAIN;
 
-      DEBUGF(infof(data, "schannel: checking server certificate revocation"));
+      DEBUGF(infof(దత్తాంశం, "schannel: checking server certificate revocation"));
     }
   }
-  else {
+  లేకపోతే {
     flags = SCH_CRED_MANUAL_CRED_VALIDATION |
             SCH_CRED_IGNORE_NO_REVOCATION_CHECK |
             SCH_CRED_IGNORE_REVOCATION_OFFLINE;
-    DEBUGF(infof(data, "schannel: disabled server cert revocation checks"));
+    DEBUGF(infof(దత్తాంశం, "schannel: disabled server cert revocation checks"));
   }
 
-  if(!conn_config->verifyhost) {
+  ఒకవేళ(!conn_config->verifyhost) {
     flags |= SCH_CRED_NO_SERVERNAME_CHECK;
-    DEBUGF(infof(data, "schannel: verifyhost setting prevents Schannel from "
+    DEBUGF(infof(దత్తాంశం, "schannel: verifyhost setting prevents Schannel from "
                        "comparing the supplied target name with the subject "
                        "names in server certificates."));
   }
 
-  if(!conn_config->auto_client_cert) {
+  ఒకవేళ(!conn_config->auto_client_cert) {
     flags &= ~(DWORD)SCH_CRED_USE_DEFAULT_CREDS;
     flags |= SCH_CRED_NO_DEFAULT_CREDS;
-    infof(data, "schannel: disabled automatic use of client certificate");
+    infof(దత్తాంశం, "schannel: disabled automatic use of client certificate");
   }
-  else
-    infof(data, "schannel: enabled automatic use of client certificate");
+  లేకపోతే
+    infof(దత్తాంశం, "schannel: enabled automatic use of client certificate");
 
-  DEBUGASSERT(conn_config->version != CURL_SSLVERSION_DEFAULT);
-  switch(conn_config->version) {
-  case CURL_SSLVERSION_TLSv1:
-  case CURL_SSLVERSION_TLSv1_0:
-  case CURL_SSLVERSION_TLSv1_1:
-  case CURL_SSLVERSION_TLSv1_2:
-  case CURL_SSLVERSION_TLSv1_3: {
-    result = schannel_set_ssl_version_min_max(&enabled_protocols, cf, data);
-    if(result)
-      return result;
-    break;
+  DEBUGASSERT(conn_config->సంస్కరణ_2 != CURL_SSLVERSION_DEFAULT);
+  ఎంపిక(conn_config->సంస్కరణ_2) {
+  స్థితి CURL_SSLVERSION_TLSv1:
+  స్థితి CURL_SSLVERSION_TLSv1_0:
+  స్థితి CURL_SSLVERSION_TLSv1_1:
+  స్థితి CURL_SSLVERSION_TLSv1_2:
+  స్థితి CURL_SSLVERSION_TLSv1_3: {
+    ఫలితం = schannel_సమితి_ssl_సంస్కరణ_min_max(&enabled_protocols, cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
+    ఆపు;
   }
-  case CURL_SSLVERSION_SSLv3:
-  case CURL_SSLVERSION_SSLv2:
-    failf(data, "SSL versions not supported");
-    return CURLE_NOT_BUILT_IN;
-  default:
-    failf(data, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
-    return CURLE_SSL_CONNECT_ERROR;
+  స్థితి CURL_SSLVERSION_SSLv3:
+  స్థితి CURL_SSLVERSION_SSLv2:
+    failf(దత్తాంశం, "SSL versions not supported");
+    తిరిగి CURLE_NOT_BUILT_లోపల;
+  అప్రమేయ:
+    failf(దత్తాంశం, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
-  result = get_client_cert(cf, data, &client_cert_store, &client_cert);
-  if(result)
-    return result;
+  ఫలితం = get_client_cert(cf, దత్తాంశం, &client_cert_store, &client_cert);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
   /* allocate memory for the reusable credential handle */
-  backend->cred = (struct Curl_schannel_cred *)
-    curlx_calloc(1, sizeof(struct Curl_schannel_cred));
-  if(!backend->cred) {
-    failf(data, "schannel: unable to allocate memory");
+  backend->cred = (నిర్మాణం Curl_schannel_cred *)
+    curlx_calloc(1, పరిమాణం(నిర్మాణం Curl_schannel_cred));
+  ఒకవేళ(!backend->cred) {
+    failf(దత్తాంశం, "schannel: unable to allocate memory");
 
-    if(client_cert)
+    ఒకవేళ(client_cert)
       CertFreeCertificateContext(client_cert);
-    if(client_cert_store)
+    ఒకవేళ(client_cert_store)
       CertCloseStore(client_cert_store, 0);
 
-    return CURLE_OUT_OF_MEMORY;
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
   backend->cred->refcount = 1;
 
@@ -834,76 +834,76 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter *cf,
    */
   backend->cred->client_cert_store = client_cert_store;
 
-  result = acquire_sspi_handle(cf, data, backend, client_cert,
+  ఫలితం = acquire_sspi_handle(cf, దత్తాంశం, backend, client_cert,
                                flags, enabled_protocols);
 
-  if(client_cert)
+  ఒకవేళ(client_cert)
     CertFreeCertificateContext(client_cert);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data)
+స్థిర CURLcode schannel_connect_step1(నిర్మాణం Curl_cfilter *cf,
+                                       నిర్మాణం Curl_easy *దత్తాంశం)
 {
   size_t written = 0;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  SecBuffer outbuf;
-  SecBufferDesc outbuf_desc;
-  SecBuffer inbuf;
-  SecBufferDesc inbuf_desc;
-  unsigned char alpn_buffer[128];
-  SECURITY_STATUS sspi_status = SEC_E_OK;
-  CURLcode result;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  Sec_బఫరు outbuf;
+  Sec_బఫరు_Desc outbuf_desc;
+  Sec_బఫరు inbuf;
+  Sec_బఫరు_Desc inbuf_desc;
+  గుర్తులేని అక్షరం alpn_బఫరు[128];
+  SECURITY_స్థితి sspi_స్థితి = SEC_E_OK;
+  CURLcode ఫలితం;
 
   DEBUGASSERT(backend);
-  DEBUGF(infof(data, "schannel: SSL/TLS connection with %s port %d (step 1/3)",
-               connssl->peer.origin->hostname, connssl->peer.origin->port));
+  DEBUGF(infof(దత్తాంశం, "schannel: SSL/TLS connection with %s port %d (step 1/3)",
+               connssl->peer.origin->hostname, connssl->peer.origin->పోర్టు));
 
   backend->use_alpn = connssl->alpn && s_win_has_alpn;
 
-  if(conn_config->CAfile || conn_config->ca_info_blob) {
-    if(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
-                                    VERSION_GREATER_THAN_EQUAL)) {
+  ఒకవేళ(conn_config->CAfile || conn_config->ca_info_blob) {
+    ఒకవేళ(curlx_verify_windows_సంస్కరణ(6, 1, 0, PLATFORM_WINNT,
+                                    సంస్కరణ_GREATER_THAN_EQUAL)) {
       backend->use_manual_cred_validation = TRUE;
     }
-    else {
-      failf(data, "schannel: this version of Windows is too old to support "
+    లేకపోతే {
+      failf(దత్తాంశం, "schannel: this version of Windows is too old to support "
                   "certificate verification via CA bundle file.");
-      return CURLE_SSL_CACERT_BADFILE;
+      తిరిగి CURLE_SSL_CACERT_BADFILE;
     }
   }
-  else
+  లేకపోతే
     backend->use_manual_cred_validation = FALSE;
 
-  backend->cred = NULL;
+  backend->cred = ఖాళీ;
 
   /* check for an existing reusable credential handle */
-  if(Curl_ssl_scache_use(cf, data)) {
-    struct Curl_schannel_cred *old_cred;
-    Curl_ssl_scache_lock(data);
-    old_cred = Curl_ssl_scache_get_obj(cf, data, connssl->peer.scache_key);
-    if(old_cred) {
+  ఒకవేళ(Curl_ssl_scache_use(cf, దత్తాంశం)) {
+    నిర్మాణం Curl_schannel_cred *old_cred;
+    Curl_ssl_scache_తాళం(దత్తాంశం);
+    old_cred = Curl_ssl_scache_get_obj(cf, దత్తాంశం, connssl->peer.scache_కీలకం);
+    ఒకవేళ(old_cred) {
       backend->cred = old_cred;
-      DEBUGF(infof(data, "schannel: reusing existing credential handle"));
+      DEBUGF(infof(దత్తాంశం, "schannel: reusing existing credential handle"));
 
       /* increment the reference counter of the credential/session handle */
       backend->cred->refcount++;
-      DEBUGF(infof(data,
+      DEBUGF(infof(దత్తాంశం,
                    "schannel: incremented credential handle refcount = %d",
                    backend->cred->refcount));
     }
-    Curl_ssl_scache_unlock(data);
+    Curl_ssl_scache_unlock(దత్తాంశం);
   }
 
-  if(!backend->cred) {
-    char *snihost;
-    result = schannel_acquire_credential_handle(cf, data);
-    if(result || !backend->cred)
-      return result;
+  ఒకవేళ(!backend->cred) {
+    అక్షరం *snihost;
+    ఫలితం = schannel_acquire_credential_handle(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం || !backend->cred)
+      తిరిగి ఫలితం;
     /* schannel_acquire_credential_handle() sets backend->cred accordingly or
        it returns error otherwise. */
 
@@ -911,81 +911,81 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
        InitializeSecurityContext for SNI and other reasons. */
     snihost = connssl->peer.sni ?
       connssl->peer.sni : connssl->peer.origin->hostname;
-    backend->cred->sni_hostname = curlx_convert_UTF8_to_tchar(snihost);
-    if(!backend->cred->sni_hostname)
-      return CURLE_OUT_OF_MEMORY;
+    backend->cred->sni_hostname = curlx_convert_UTF8_గమ్యం_tchar(snihost);
+    ఒకవేళ(!backend->cred->sni_hostname)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
   /* Warn if SNI is disabled due to use of an IP address */
-  if(connssl->peer.type != CURL_SSL_PEER_DNS) {
-    infof(data, "schannel: using IP address, SNI is not supported by OS.");
+  ఒకవేళ(connssl->peer.type != CURL_SSL_PEER_DNS) {
+    infof(దత్తాంశం, "schannel: using IP address, SNI is not supported by OS.");
   }
 
-  if(backend->use_alpn) {
-    int cur = 0;
-    int list_start_index = 0;
-    unsigned int *extension_len = NULL;
-    unsigned short *list_len = NULL;
-    const unsigned int uiALPN = SecApplicationProtocolNegotiationExt_ALPN;
-    struct alpn_proto_buf proto;
+  ఒకవేళ(backend->use_alpn) {
+    పూర్ణాంకం cur = 0;
+    పూర్ణాంకం list_ప్రారంభం_సూచీ = 0;
+    గుర్తులేని పూర్ణాంకం *extension_len = ఖాళీ;
+    గుర్తులేని పొట్టి *list_len = ఖాళీ;
+    స్థిరరాశి గుర్తులేని పూర్ణాంకం uiALPN = SecApplicationProtocolNegotiationExt_ALPN;
+    నిర్మాణం alpn_proto_buf proto;
 
     /* The first four bytes is an unsigned int indicating number
        of bytes of data in the rest of the buffer. */
-    extension_len = (unsigned int *)(void *)&alpn_buffer[cur];
-    cur += (int)sizeof(unsigned int);
+    extension_len = (గుర్తులేని పూర్ణాంకం *)(శూన్య *)&alpn_బఫరు[cur];
+    cur += (పూర్ణాంకం)పరిమాణం(గుర్తులేని పూర్ణాంకం);
 
     /* The next four bytes are an indicator that this buffer contains
        ALPN data, as opposed to NPN, for example. */
-    memcpy(&alpn_buffer[cur], &uiALPN, sizeof(uiALPN));
-    cur += (int)sizeof(unsigned int);
+    జ్ఞాపకం_నకలు(&alpn_బఫరు[cur], &uiALPN, పరిమాణం(uiALPN));
+    cur += (పూర్ణాంకం)పరిమాణం(గుర్తులేని పూర్ణాంకం);
 
     /* The next two bytes is an unsigned short indicating the number
        of bytes used to list the preferred protocols. */
-    list_len = (unsigned short *)(void *)&alpn_buffer[cur];
-    cur += (int)sizeof(unsigned short);
+    list_len = (గుర్తులేని పొట్టి *)(శూన్య *)&alpn_బఫరు[cur];
+    cur += (పూర్ణాంకం)పరిమాణం(గుర్తులేని పొట్టి);
 
-    list_start_index = cur;
+    list_ప్రారంభం_సూచీ = cur;
 
-    result = Curl_alpn_to_proto_buf(&proto, connssl->alpn);
-    if(result) {
-      failf(data, "Error setting ALPN");
-      return CURLE_SSL_CONNECT_ERROR;
+    ఫలితం = Curl_alpn_గమ్యం_proto_buf(&proto, connssl->alpn);
+    ఒకవేళ(ఫలితం) {
+      failf(దత్తాంశం, "Error setting ALPN");
+      తిరిగి CURLE_SSL_CONNECT_ERROR;
     }
-    memcpy(&alpn_buffer[cur], proto.data, proto.len);
+    జ్ఞాపకం_నకలు(&alpn_బఫరు[cur], proto.దత్తాంశం, proto.len);
     cur += proto.len;
 
-    *list_len = curlx_uitous(cur - list_start_index);
-    *extension_len = (unsigned int)(*list_len +
-      sizeof(unsigned int) + sizeof(unsigned short));
+    *list_len = curlx_uitous(cur - list_ప్రారంభం_సూచీ);
+    *extension_len = (గుర్తులేని పూర్ణాంకం)(*list_len +
+      పరిమాణం(గుర్తులేని పూర్ణాంకం) + పరిమాణం(గుర్తులేని పొట్టి));
 
-    InitSecBuffer(&inbuf, SECBUFFER_APPLICATION_PROTOCOLS, alpn_buffer, cur);
-    InitSecBufferDesc(&inbuf_desc, &inbuf, 1);
+    Init_Sec_బఫరు(&inbuf, SECBUFFER_APPLICATION_PROTOCOLS, alpn_బఫరు, cur);
+    Init_Sec_బఫరు_Desc(&inbuf_desc, &inbuf, 1);
 
-    Curl_alpn_to_proto_str(&proto, connssl->alpn);
-    infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
+    Curl_alpn_గమ్యం_proto_str(&proto, connssl->alpn);
+    infof(దత్తాంశం, VTLS_INFOF_ALPN_OFFER_1STR, proto.దత్తాంశం);
   }
-  else {
-    InitSecBuffer(&inbuf, SECBUFFER_EMPTY, NULL, 0);
-    InitSecBufferDesc(&inbuf_desc, &inbuf, 1);
+  లేకపోతే {
+    Init_Sec_బఫరు(&inbuf, SECBUFFER_ఖాళీలు, ఖాళీ, 0);
+    Init_Sec_బఫరు_Desc(&inbuf_desc, &inbuf, 1);
   }
 
   /* setup output buffer */
-  InitSecBuffer(&outbuf, SECBUFFER_EMPTY, NULL, 0);
-  InitSecBufferDesc(&outbuf_desc, &outbuf, 1);
+  Init_Sec_బఫరు(&outbuf, SECBUFFER_ఖాళీలు, ఖాళీ, 0);
+  Init_Sec_బఫరు_Desc(&outbuf_desc, &outbuf, 1);
 
   /* security request flags */
   backend->req_flags =
     ISC_REQ_SEQUENCE_DETECT | ISC_REQ_REPLAY_DETECT |
-    ISC_REQ_CONFIDENTIALITY | ISC_REQ_ALLOCATE_MEMORY |
-    ISC_REQ_STREAM |
+    ISC_REQ_CONFIDENTIALITY | ISC_REQ_ALLOCATE_జ్ఞాపకం |
+    ISC_REQ_ప్రవాహం |
     (!conn_config->auto_client_cert ? ISC_REQ_USE_SUPPLIED_CREDS : 0);
 
   /* allocate memory for the security context handle */
-  backend->ctxt = (struct Curl_schannel_ctxt *)
-    curlx_calloc(1, sizeof(struct Curl_schannel_ctxt));
-  if(!backend->ctxt) {
-    failf(data, "schannel: unable to allocate memory");
-    return CURLE_OUT_OF_MEMORY;
+  backend->ctxt = (నిర్మాణం Curl_schannel_ctxt *)
+    curlx_calloc(1, పరిమాణం(నిర్మాణం Curl_schannel_ctxt));
+  ఒకవేళ(!backend->ctxt) {
+    failf(దత్తాంశం, "schannel: unable to allocate memory");
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
 
   /* Schannel InitializeSecurityContext:
@@ -995,59 +995,59 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
      use it for that, and WINE (for which we currently disable ALPN) is giving
      us problems with inbuf regardless. https://github.com/curl/curl/issues/983
    */
-  sspi_status = Curl_pSecFn->InitializeSecurityContext(
-    &backend->cred->cred_handle, NULL, backend->cred->sni_hostname,
+  sspi_స్థితి = Curl_pSecFn->InitializeSecurityContext(
+    &backend->cred->cred_handle, ఖాళీ, backend->cred->sni_hostname,
     backend->req_flags, 0, 0,
-    (backend->use_alpn ? &inbuf_desc : NULL),
+    (backend->use_alpn ? &inbuf_desc : ఖాళీ),
     0, &backend->ctxt->ctxt_handle,
-    &outbuf_desc, &backend->ret_flags, NULL);
+    &outbuf_desc, &backend->ret_flags, ఖాళీ);
 
-  if(sspi_status != SEC_I_CONTINUE_NEEDED) {
-    char buffer[STRERROR_LEN];
+  ఒకవేళ(sspi_స్థితి != SEC_I_CONTINUE_NEEDED) {
+    అక్షరం బఫరు[STRERROR_LEN];
     curlx_safefree(backend->ctxt);
-    switch(sspi_status) {
-    case SEC_E_INSUFFICIENT_MEMORY:
-      failf(data, "schannel: initial InitializeSecurityContext failed: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      return CURLE_OUT_OF_MEMORY;
-    case SEC_E_WRONG_PRINCIPAL:
-      failf(data, "schannel: SNI or certificate check failed: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      return CURLE_PEER_FAILED_VERIFICATION;
-#if 0
-    case SEC_E_INVALID_HANDLE:
-    case SEC_E_INVALID_TOKEN:
-    case SEC_E_LOGON_DENIED:
-    case SEC_E_TARGET_UNKNOWN:
-    case SEC_E_NO_AUTHENTICATING_AUTHORITY:
-    case SEC_E_INTERNAL_ERROR:
-    case SEC_E_NO_CREDENTIALS:
-    case SEC_E_UNSUPPORTED_FUNCTION:
-    case SEC_E_APPLICATION_PROTOCOL_MISMATCH:
-#endif
-    default:
-      failf(data, "schannel: initial InitializeSecurityContext failed: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      return CURLE_SSL_CONNECT_ERROR;
+    ఎంపిక(sspi_స్థితి) {
+    స్థితి SEC_E_INSUFFICIENT_జ్ఞాపకం:
+      failf(దత్తాంశం, "schannel: initial InitializeSecurityContext failed: %s",
+            Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    స్థితి SEC_E_WRONG_PRINCIPAL:
+      failf(దత్తాంశం, "schannel: SNI or certificate check failed: %s",
+            Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+      తిరిగి CURLE_PEER_FAILED_VERIFICATION;
+#ఒకవేళ 0
+    స్థితి SEC_E_INVALID_HANDLE:
+    స్థితి SEC_E_INVALID_TOKEN:
+    స్థితి SEC_E_LOGON_DENIED:
+    స్థితి SEC_E_లక్ష్యం_UNKNOWN:
+    స్థితి SEC_E_NO_AUTHENTICATING_AUTHORITY:
+    స్థితి SEC_E_అంతర్గత_ERROR:
+    స్థితి SEC_E_NO_CREDENTIALS:
+    స్థితి SEC_E_UNSUPPORTED_FUNCTION:
+    స్థితి SEC_E_APPLICATION_PROTOCOL_MISMATCH:
+#అయితే_ముగింపు
+    అప్రమేయ:
+      failf(దత్తాంశం, "schannel: initial InitializeSecurityContext failed: %s",
+            Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+      తిరిగి CURLE_SSL_CONNECT_ERROR;
     }
   }
 
-  DEBUGF(infof(data, "schannel: sending initial handshake data: "
-               "sending %lu bytes.", outbuf.cbBuffer));
+  DEBUGF(infof(దత్తాంశం, "schannel: sending initial handshake data: "
+               "sending %lu bytes.", outbuf.cb_బఫరు));
 
   /* send initial handshake data which is now stored in output buffer */
-  result = Curl_conn_cf_send(cf->next, data,
-                             (const uint8_t *)outbuf.pvBuffer,
-                             outbuf.cbBuffer, FALSE,
+  ఫలితం = Curl_conn_cf_send(cf->తదుపరి, దత్తాంశం,
+                             (స్థిరరాశి uint8_t *)outbuf.pv_బఫరు,
+                             outbuf.cb_బఫరు, FALSE,
                              &written);
-  Curl_pSecFn->FreeContextBuffer(outbuf.pvBuffer);
-  if(result || (outbuf.cbBuffer != written)) {
-    failf(data, "schannel: failed to send initial handshake data: "
-          "sent %zu of %lu bytes", written, outbuf.cbBuffer);
-    return CURLE_SSL_CONNECT_ERROR;
+  Curl_pSecFn->Free_Context_బఫరు(outbuf.pv_బఫరు);
+  ఒకవేళ(ఫలితం || (outbuf.cb_బఫరు != written)) {
+    failf(దత్తాంశం, "schannel: failed to send initial handshake data: "
+          "sent %zu of %lu bytes", written, outbuf.cb_బఫరు);
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
-  DEBUGF(infof(data, "schannel: sent initial handshake data: "
+  DEBUGF(infof(దత్తాంశం, "schannel: sent initial handshake data: "
                "sent %zu bytes", written));
 
   backend->recv_unrecoverable_err = CURLE_OK;
@@ -1057,372 +1057,372 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
   backend->renegotiate_state.started = FALSE;
   backend->encdata_is_incomplete = FALSE;
   backend->shutdown_generated = FALSE;
-  backend->shutdown_offset = 0;
-  memset(&backend->shutdown_token, 0, sizeof(backend->shutdown_token));
+  backend->shutdown_స్థానభ్రంశం = 0;
+  memset(&backend->shutdown_token, 0, పరిమాణం(backend->shutdown_token));
 
   /* continue to second handshake step */
   connssl->connecting_state = ssl_connect_2;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode schannel_error(struct Curl_easy *data,
-                               SECURITY_STATUS sspi_status)
+స్థిర CURLcode schannel_error(నిర్మాణం Curl_easy *దత్తాంశం,
+                               SECURITY_స్థితి sspi_స్థితి)
 {
-  char buffer[STRERROR_LEN];
-  switch(sspi_status) {
-  case SEC_E_INSUFFICIENT_MEMORY:
-    failf(data, "schannel: next InitializeSecurityContext failed: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_OUT_OF_MEMORY;
-  case SEC_E_WRONG_PRINCIPAL:
-    failf(data, "schannel: SNI or certificate check failed: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_PEER_FAILED_VERIFICATION;
-  case SEC_E_UNTRUSTED_ROOT:
-    failf(data, "schannel: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_PEER_FAILED_VERIFICATION;
-#if 0
-  case SEC_E_INVALID_HANDLE:
-  case SEC_E_INVALID_TOKEN:
-  case SEC_E_LOGON_DENIED:
-  case SEC_E_TARGET_UNKNOWN:
-  case SEC_E_NO_AUTHENTICATING_AUTHORITY:
-  case SEC_E_INTERNAL_ERROR:
-  case SEC_E_NO_CREDENTIALS:
-  case SEC_E_UNSUPPORTED_FUNCTION:
-  case SEC_E_APPLICATION_PROTOCOL_MISMATCH:
-#endif
-  default:
-    failf(data, "schannel: next InitializeSecurityContext failed: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_SSL_CONNECT_ERROR;
+  అక్షరం బఫరు[STRERROR_LEN];
+  ఎంపిక(sspi_స్థితి) {
+  స్థితి SEC_E_INSUFFICIENT_జ్ఞాపకం:
+    failf(దత్తాంశం, "schannel: next InitializeSecurityContext failed: %s",
+          Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  స్థితి SEC_E_WRONG_PRINCIPAL:
+    failf(దత్తాంశం, "schannel: SNI or certificate check failed: %s",
+          Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+    తిరిగి CURLE_PEER_FAILED_VERIFICATION;
+  స్థితి SEC_E_UNTRUSTED_మూలం:
+    failf(దత్తాంశం, "schannel: %s",
+          Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+    తిరిగి CURLE_PEER_FAILED_VERIFICATION;
+#ఒకవేళ 0
+  స్థితి SEC_E_INVALID_HANDLE:
+  స్థితి SEC_E_INVALID_TOKEN:
+  స్థితి SEC_E_LOGON_DENIED:
+  స్థితి SEC_E_లక్ష్యం_UNKNOWN:
+  స్థితి SEC_E_NO_AUTHENTICATING_AUTHORITY:
+  స్థితి SEC_E_అంతర్గత_ERROR:
+  స్థితి SEC_E_NO_CREDENTIALS:
+  స్థితి SEC_E_UNSUPPORTED_FUNCTION:
+  స్థితి SEC_E_APPLICATION_PROTOCOL_MISMATCH:
+#అయితే_ముగింపు
+  అప్రమేయ:
+    failf(దత్తాంశం, "schannel: next InitializeSecurityContext failed: %s",
+          Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 }
 
-static CURLcode schannel_pkp_pin_peer_pubkey(struct Curl_cfilter *cf,
-                                             struct Curl_easy *data,
-                                             const char *pinnedpubkey)
+స్థిర CURLcode schannel_pkp_pin_peer_pubkey(నిర్మాణం Curl_cfilter *cf,
+                                             నిర్మాణం Curl_easy *దత్తాంశం,
+                                             స్థిరరాశి అక్షరం *pinnedpubkey)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  CERT_CONTEXT *pCertContextServer = NULL;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
+  CERT_CONTEXT *pCertContextServer = ఖాళీ;
 
   /* Result is returned to caller */
-  CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
+  CURLcode ఫలితం = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
   DEBUGASSERT(backend);
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
+  ఒకవేళ(!pinnedpubkey)
+    తిరిగి CURLE_OK;
 
-  do {
-    SECURITY_STATUS sspi_status;
+  చేయి {
+    SECURITY_స్థితి sspi_స్థితి;
     uint8_t *x509_der;
     DWORD x509_der_len;
-    struct Curl_X509certificate x509_parsed;
-    struct Curl_asn1Element *pubkey;
+    నిర్మాణం Curl_X509certificate x509_parsed;
+    నిర్మాణం Curl_asn1Element *pubkey;
 
-    sspi_status =
-      Curl_pSecFn->QueryContextAttributes(&backend->ctxt->ctxt_handle,
+    sspi_స్థితి =
+      Curl_pSecFn->Query_Context_లక్షణాలు(&backend->ctxt->ctxt_handle,
                                           SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                           &pCertContextServer);
 
-    if((sspi_status != SEC_E_OK) || !pCertContextServer) {
-      char buffer[STRERROR_LEN];
-      failf(data, "schannel: Failed to read remote certificate context: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      break; /* failed */
+    ఒకవేళ((sspi_స్థితి != SEC_E_OK) || !pCertContextServer) {
+      అక్షరం బఫరు[STRERROR_LEN];
+      failf(దత్తాంశం, "schannel: Failed to read remote certificate context: %s",
+            Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+      ఆపు; /* failed */
     }
 
-    if(!(((pCertContextServer->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
+    ఒకవేళ(!(((pCertContextServer->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
          (pCertContextServer->cbCertEncoded > 0)))
-      break;
+      ఆపు;
 
     x509_der = (uint8_t *)pCertContextServer->pbCertEncoded;
     x509_der_len = pCertContextServer->cbCertEncoded;
-    memset(&x509_parsed, 0, sizeof(x509_parsed));
-    if(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
-      break;
+    memset(&x509_parsed, 0, పరిమాణం(x509_parsed));
+    ఒకవేళ(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
+      ఆపు;
 
-    pubkey = &x509_parsed.subjectPublicKeyInfo;
-    if(!pubkey->header || pubkey->end <= pubkey->header) {
-      failf(data, "SSL: failed retrieving public key from server certificate");
-      break;
+    pubkey = &x509_parsed.subject_ప్రజా_కీలకం_Info;
+    ఒకవేళ(!pubkey->శీర్షిక || pubkey->చివర <= pubkey->శీర్షిక) {
+      failf(దత్తాంశం, "SSL: failed retrieving public key from server certificate");
+      ఆపు;
     }
 
-    result = Curl_pin_peer_pubkey(data,
+    ఫలితం = Curl_pin_peer_pubkey(దత్తాంశం,
                                   pinnedpubkey,
-                                  (const unsigned char *)pubkey->header,
-                                  (size_t)(pubkey->end - pubkey->header));
-    if(result) {
-      failf(data, "SSL: public key does not match pinned public key");
+                                  (స్థిరరాశి గుర్తులేని అక్షరం *)pubkey->శీర్షిక,
+                                  (size_t)(pubkey->చివర - pubkey->శీర్షిక));
+    ఒకవేళ(ఫలితం) {
+      failf(దత్తాంశం, "SSL: public key does not match pinned public key");
     }
-  } while(0);
+  } అయితే(0);
 
-  if(pCertContextServer)
+  ఒకవేళ(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode ensure_encoding_size(struct Curl_easy *data,
-                                     struct sbuffer *encdata,
-                                     size_t min_length)
+స్థిర CURLcode ensure_encoding_కొలత(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం sbuffer *encdata,
+                                     size_t min_నిడివి)
 {
-  size_t size;
-  DEBUGASSERT(encdata->length >= encdata->offset);
-  if(encdata->length < encdata->offset)
-    return CURLE_FAILED_INIT;
-  size = encdata->length - encdata->offset;
-  if(size < CURL_SCHANNEL_BUFFER_FREE_SIZE || encdata->length < min_length) {
-    unsigned char *buffer;
-    size_t length = encdata->offset + CURL_SCHANNEL_BUFFER_FREE_SIZE;
-    if(length < min_length)
-      length = min_length;
-    buffer = curlx_realloc(encdata->buffer, length);
-    if(!buffer) {
-      failf(data, "schannel: unable to re-allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+  size_t కొలత;
+  DEBUGASSERT(encdata->నిడివి >= encdata->స్థానభ్రంశం);
+  ఒకవేళ(encdata->నిడివి < encdata->స్థానభ్రంశం)
+    తిరిగి CURLE_FAILED_INIT;
+  కొలత = encdata->నిడివి - encdata->స్థానభ్రంశం;
+  ఒకవేళ(కొలత < CURL_SCHANNEL_బఫరు_FREE_కొలత || encdata->నిడివి < min_నిడివి) {
+    గుర్తులేని అక్షరం *బఫరు;
+    size_t నిడివి = encdata->స్థానభ్రంశం + CURL_SCHANNEL_బఫరు_FREE_కొలత;
+    ఒకవేళ(నిడివి < min_నిడివి)
+      నిడివి = min_నిడివి;
+    బఫరు = curlx_realloc(encdata->బఫరు, నిడివి);
+    ఒకవేళ(!బఫరు) {
+      failf(దత్తాంశం, "schannel: unable to re-allocate memory");
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
 
-    encdata->buffer = buffer;
-    encdata->length = length;
-    SCH_DEV(infof(data, "schannel: encdata.buffer resized %zu",
-                  encdata->length));
+    encdata->బఫరు = బఫరు;
+    encdata->నిడివి = నిడివి;
+    SCH_DEV(infof(దత్తాంశం, "schannel: encdata.buffer resized %zu",
+                  encdata->నిడివి));
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode ensure_decoding_size(struct Curl_easy *data,
-                                     struct sbuffer *decdata,
+స్థిర CURLcode ensure_decoding_కొలత(నిర్మాణం Curl_easy *దత్తాంశం,
+                                     నిర్మాణం sbuffer *decdata,
                                      size_t nowsize,
                                      size_t len)
 {
-  size_t size = nowsize > CURL_SCHANNEL_BUFFER_FREE_SIZE ?
-    nowsize : CURL_SCHANNEL_BUFFER_FREE_SIZE;
-  DEBUGASSERT(decdata->length >= decdata->offset);
-  if(decdata->length < decdata->offset)
-    return CURLE_FAILED_INIT;
-  else if(decdata->length - decdata->offset < size ||
-          decdata->length < len) {
+  size_t కొలత = nowsize > CURL_SCHANNEL_బఫరు_FREE_కొలత ?
+    nowsize : CURL_SCHANNEL_బఫరు_FREE_కొలత;
+  DEBUGASSERT(decdata->నిడివి >= decdata->స్థానభ్రంశం);
+  ఒకవేళ(decdata->నిడివి < decdata->స్థానభ్రంశం)
+    తిరిగి CURLE_FAILED_INIT;
+  లేకపోతే ఒకవేళ(decdata->నిడివి - decdata->స్థానభ్రంశం < కొలత ||
+          decdata->నిడివి < len) {
     /* increase internal decrypted data buffer */
-    size_t length = decdata->offset + size;
-    unsigned char *buffer;
+    size_t నిడివి = decdata->స్థానభ్రంశం + కొలత;
+    గుర్తులేని అక్షరం *బఫరు;
     /* make sure that the requested amount of data fits */
-    if(length < len)
-      length = len;
+    ఒకవేళ(నిడివి < len)
+      నిడివి = len;
 
-    buffer = curlx_realloc(decdata->buffer, length);
-    if(!buffer) {
-      failf(data, "schannel: unable to re-allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+    బఫరు = curlx_realloc(decdata->బఫరు, నిడివి);
+    ఒకవేళ(!బఫరు) {
+      failf(దత్తాంశం, "schannel: unable to re-allocate memory");
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
-    decdata->buffer = buffer;
-    decdata->length = length;
+    decdata->బఫరు = బఫరు;
+    decdata->నిడివి = నిడివి;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data)
+స్థిర CURLcode schannel_connect_step2(నిర్మాణం Curl_cfilter *cf,
+                                       నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int i;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  పూర్ణాంకం i;
   size_t nread = 0;
-  SecBuffer outbuf[3];
-  SecBufferDesc outbuf_desc;
-  SecBuffer inbuf[2];
-  SecBufferDesc inbuf_desc;
-  SECURITY_STATUS sspi_status = SEC_E_OK;
-  CURLcode result;
+  Sec_బఫరు outbuf[3];
+  Sec_బఫరు_Desc outbuf_desc;
+  Sec_బఫరు inbuf[2];
+  Sec_బఫరు_Desc inbuf_desc;
+  SECURITY_స్థితి sspi_స్థితి = SEC_E_OK;
+  CURLcode ఫలితం;
   bool doread;
-  const char *pubkey_ptr;
+  స్థిరరాశి అక్షరం *pubkey_ptr;
 
   DEBUGASSERT(backend);
 
   doread = (connssl->io_need & CURL_SSL_IO_NEED_SEND) ? FALSE : TRUE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  DEBUGF(infof(data, "schannel: SSL/TLS connection with %s port %d (step 2/3)",
-               connssl->peer.origin->hostname, connssl->peer.origin->port));
+  DEBUGF(infof(దత్తాంశం, "schannel: SSL/TLS connection with %s port %d (step 2/3)",
+               connssl->peer.origin->hostname, connssl->peer.origin->పోర్టు));
 
-  if(!backend->cred || !backend->ctxt)
-    return CURLE_SSL_CONNECT_ERROR;
+  ఒకవేళ(!backend->cred || !backend->ctxt)
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
 
   /* buffer to store previously received and decrypted data */
-  if(!backend->decdata.buffer) {
-    backend->decdata.offset = 0;
-    backend->decdata.length = CURL_SCHANNEL_BUFFER_INIT_SIZE;
-    backend->decdata.buffer = curlx_malloc(backend->decdata.length);
-    if(!backend->decdata.buffer) {
-      failf(data, "schannel: unable to allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+  ఒకవేళ(!backend->decdata.బఫరు) {
+    backend->decdata.స్థానభ్రంశం = 0;
+    backend->decdata.నిడివి = CURL_SCHANNEL_బఫరు_INIT_కొలత;
+    backend->decdata.బఫరు = curlx_malloc(backend->decdata.నిడివి);
+    ఒకవేళ(!backend->decdata.బఫరు) {
+      failf(దత్తాంశం, "schannel: unable to allocate memory");
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
   }
 
   /* buffer to store previously received and encrypted data */
-  if(!backend->encdata.buffer) {
+  ఒకవేళ(!backend->encdata.బఫరు) {
     backend->encdata_is_incomplete = FALSE;
-    backend->encdata.offset = 0;
-    backend->encdata.length = CURL_SCHANNEL_BUFFER_INIT_SIZE;
-    backend->encdata.buffer = curlx_malloc(backend->encdata.length);
-    if(!backend->encdata.buffer) {
-      failf(data, "schannel: unable to allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+    backend->encdata.స్థానభ్రంశం = 0;
+    backend->encdata.నిడివి = CURL_SCHANNEL_బఫరు_INIT_కొలత;
+    backend->encdata.బఫరు = curlx_malloc(backend->encdata.నిడివి);
+    ఒకవేళ(!backend->encdata.బఫరు) {
+      failf(దత్తాంశం, "schannel: unable to allocate memory");
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
   }
 
-  result = ensure_encoding_size(data, &backend->encdata, 0);
-  if(result)
-    return result;
+  ఫలితం = ensure_encoding_కొలత(దత్తాంశం, &backend->encdata, 0);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  for(;;) {
-    if(doread) {
+  కొరకు(;;) {
+    ఒకవేళ(doread) {
       /* read encrypted handshake data from socket */
-      result = Curl_conn_cf_recv(cf->next, data,
-                                 (char *)(backend->encdata.buffer +
-                                          backend->encdata.offset),
-                                 backend->encdata.length -
-                                 backend->encdata.offset,
+      ఫలితం = Curl_conn_cf_recv(cf->తదుపరి, దత్తాంశం,
+                                 (అక్షరం *)(backend->encdata.బఫరు +
+                                          backend->encdata.స్థానభ్రంశం),
+                                 backend->encdata.నిడివి -
+                                 backend->encdata.స్థానభ్రంశం,
                                  &nread);
-      if(result == CURLE_AGAIN) {
-        if(!backend->encdata.offset || backend->encdata_is_incomplete) {
+      ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+        ఒకవేళ(!backend->encdata.స్థానభ్రంశం || backend->encdata_is_incomplete) {
           connssl->io_need = CURL_SSL_IO_NEED_RECV;
-          DEBUGF(infof(data, "schannel: failed to receive handshake, "
+          DEBUGF(infof(దత్తాంశం, "schannel: failed to receive handshake, "
                        "need more data"));
-          return CURLE_OK;
+          తిరిగి CURLE_OK;
         }
-        else {
-          DEBUGF(infof(data, "schannel: no new handshake data received, "
+        లేకపోతే {
+          DEBUGF(infof(దత్తాంశం, "schannel: no new handshake data received, "
                        "continuing to process existing handshake data"));
         }
       }
-      else if(result || (nread == 0)) {
-        failf(data, "schannel: failed to receive handshake, "
+      లేకపోతే ఒకవేళ(ఫలితం || (nread == 0)) {
+        failf(దత్తాంశం, "schannel: failed to receive handshake, "
               "SSL/TLS connection failed");
-        return CURLE_SSL_CONNECT_ERROR;
+        తిరిగి CURLE_SSL_CONNECT_ERROR;
       }
-      else {
+      లేకపోతే {
         /* increase encrypted data buffer offset */
-        backend->encdata.offset += nread;
+        backend->encdata.స్థానభ్రంశం += nread;
         backend->encdata_is_incomplete = FALSE;
-        SCH_DEV(infof(data, "schannel: encrypted data got %zu", nread));
+        SCH_DEV(infof(దత్తాంశం, "schannel: encrypted data got %zu", nread));
       }
     }
 
-    SCH_DEV(infof(data,
+    SCH_DEV(infof(దత్తాంశం,
                   "schannel: encrypted data buffer: offset %zu length %zu",
-                  backend->encdata.offset, backend->encdata.length));
+                  backend->encdata.స్థానభ్రంశం, backend->encdata.నిడివి));
 
     /* setup input buffers */
-    InitSecBuffer(&inbuf[0], SECBUFFER_TOKEN,
-                  curlx_memdup0((const char *)backend->encdata.buffer,
-                                backend->encdata.offset),
-                  curlx_uztoul(backend->encdata.offset));
-    InitSecBuffer(&inbuf[1], SECBUFFER_EMPTY, NULL, 0);
-    InitSecBufferDesc(&inbuf_desc, inbuf, 2);
+    Init_Sec_బఫరు(&inbuf[0], SECBUFFER_TOKEN,
+                  curlx_memdup0((స్థిరరాశి అక్షరం *)backend->encdata.బఫరు,
+                                backend->encdata.స్థానభ్రంశం),
+                  curlx_uztoul(backend->encdata.స్థానభ్రంశం));
+    Init_Sec_బఫరు(&inbuf[1], SECBUFFER_ఖాళీలు, ఖాళీ, 0);
+    Init_Sec_బఫరు_Desc(&inbuf_desc, inbuf, 2);
 
     /* setup output buffers */
-    InitSecBuffer(&outbuf[0], SECBUFFER_TOKEN, NULL, 0);
-    InitSecBuffer(&outbuf[1], SECBUFFER_ALERT, NULL, 0);
-    InitSecBuffer(&outbuf[2], SECBUFFER_EMPTY, NULL, 0);
-    InitSecBufferDesc(&outbuf_desc, outbuf, 3);
+    Init_Sec_బఫరు(&outbuf[0], SECBUFFER_TOKEN, ఖాళీ, 0);
+    Init_Sec_బఫరు(&outbuf[1], SECBUFFER_ALERT, ఖాళీ, 0);
+    Init_Sec_బఫరు(&outbuf[2], SECBUFFER_ఖాళీలు, ఖాళీ, 0);
+    Init_Sec_బఫరు_Desc(&outbuf_desc, outbuf, 3);
 
-    if(!inbuf[0].pvBuffer) {
-      failf(data, "schannel: unable to allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(!inbuf[0].pv_బఫరు) {
+      failf(దత్తాంశం, "schannel: unable to allocate memory");
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
 
     /* The socket must be writable (or a poll error occurred) before we call
        InitializeSecurityContext to continue processing the received TLS
        records. This is because that function is not idempotent and we do not
        support partial save/resume sending replies of handshake tokens. */
-    if(!SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, data), 0)) {
-      SCH_DEV(infof(data, "schannel: handshake waiting for writable socket"));
+    ఒకవేళ(!SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, దత్తాంశం), 0)) {
+      SCH_DEV(infof(దత్తాంశం, "schannel: handshake waiting for writable socket"));
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      curlx_free(inbuf[0].pvBuffer);
-      return CURLE_OK;
+      curlx_free(inbuf[0].pv_బఫరు);
+      తిరిగి CURLE_OK;
     }
 
-    sspi_status = Curl_pSecFn->InitializeSecurityContext(
+    sspi_స్థితి = Curl_pSecFn->InitializeSecurityContext(
       &backend->cred->cred_handle, &backend->ctxt->ctxt_handle,
       backend->cred->sni_hostname, backend->req_flags,
-      0, 0, &inbuf_desc, 0, NULL,
-      &outbuf_desc, &backend->ret_flags, NULL);
+      0, 0, &inbuf_desc, 0, ఖాళీ,
+      &outbuf_desc, &backend->ret_flags, ఖాళీ);
 
     /* free buffer for received handshake data */
-    curlx_safefree(inbuf[0].pvBuffer);
+    curlx_safefree(inbuf[0].pv_బఫరు);
 
     /* check if the handshake was incomplete */
-    switch(sspi_status) {
-    case SEC_E_INCOMPLETE_MESSAGE:
+    ఎంపిక(sspi_స్థితి) {
+    స్థితి SEC_E_INCOMPLETE_సందేశం:
       backend->encdata_is_incomplete = TRUE;
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
-      DEBUGF(infof(data,
+      DEBUGF(infof(దత్తాంశం,
                    "schannel: received incomplete message, need more data"));
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
 
-    case SEC_I_CONTINUE_NEEDED:
-    case SEC_E_OK:
+    స్థితి SEC_I_CONTINUE_NEEDED:
+    స్థితి SEC_E_OK:
       /* check if the handshake needs to be continued */
-      result = CURLE_OK;
-      for(i = 0; i < 3; i++) {
+      ఫలితం = CURLE_OK;
+      కొరకు(i = 0; i < 3; i++) {
         /* search for handshake tokens that need to be sent */
-        if(outbuf[i].BufferType == SECBUFFER_TOKEN && outbuf[i].cbBuffer > 0) {
+        ఒకవేళ(outbuf[i].బఫరు_Type == SECBUFFER_TOKEN && outbuf[i].cb_బఫరు > 0) {
           size_t written = 0;
-          DEBUGF(infof(data, "schannel: sending next handshake data: "
-                       "sending %lu bytes.", outbuf[i].cbBuffer));
+          DEBUGF(infof(దత్తాంశం, "schannel: sending next handshake data: "
+                       "sending %lu bytes.", outbuf[i].cb_బఫరు));
 
           /* send handshake token to server */
-          result = Curl_conn_cf_send(cf->next, data,
-                                     (const uint8_t *)outbuf[i].pvBuffer,
-                                     outbuf[i].cbBuffer,
+          ఫలితం = Curl_conn_cf_send(cf->తదుపరి, దత్తాంశం,
+                                     (స్థిరరాశి uint8_t *)outbuf[i].pv_బఫరు,
+                                     outbuf[i].cb_బఫరు,
                                      FALSE, &written);
-          if(result || (outbuf[i].cbBuffer != written)) {
-            failf(data, "schannel: failed to send next handshake data: "
-                  "sent %zu of %lu bytes", written, outbuf[i].cbBuffer);
-            result = CURLE_SSL_CONNECT_ERROR;
+          ఒకవేళ(ఫలితం || (outbuf[i].cb_బఫరు != written)) {
+            failf(దత్తాంశం, "schannel: failed to send next handshake data: "
+                  "sent %zu of %lu bytes", written, outbuf[i].cb_బఫరు);
+            ఫలితం = CURLE_SSL_CONNECT_ERROR;
           }
         }
       }
-      for(i = 0; i < 3; i++) {
+      కొరకు(i = 0; i < 3; i++) {
         /* free obsolete buffer */
-        if(outbuf[i].pvBuffer)
-          Curl_pSecFn->FreeContextBuffer(outbuf[i].pvBuffer);
+        ఒకవేళ(outbuf[i].pv_బఫరు)
+          Curl_pSecFn->Free_Context_బఫరు(outbuf[i].pv_బఫరు);
       }
-      if(result)
-        return result;
-      break;
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
+      ఆపు;
 
-    case SEC_I_INCOMPLETE_CREDENTIALS:
-      if(!(backend->req_flags & ISC_REQ_USE_SUPPLIED_CREDS)) {
+    స్థితి SEC_I_INCOMPLETE_CREDENTIALS:
+      ఒకవేళ(!(backend->req_flags & ISC_REQ_USE_SUPPLIED_CREDS)) {
         /* If the server has requested a client certificate, attempt to
            continue the handshake without one. This allows connections to
            servers which request a client certificate but do not require
            it. */
         backend->req_flags |= ISC_REQ_USE_SUPPLIED_CREDS;
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
-        DEBUGF(infof(data,
+        DEBUGF(infof(దత్తాంశం,
                      "schannel: a client certificate has been requested"));
-        return CURLE_OK;
+        తిరిగి CURLE_OK;
       }
       FALLTHROUGH();
 
-    default:
-      return schannel_error(data, sspi_status);
+    అప్రమేయ:
+      తిరిగి schannel_error(దత్తాంశం, sspi_స్థితి);
     }
 
     /* check if there was additional remaining encrypted data */
-    if(inbuf[1].BufferType == SECBUFFER_EXTRA && inbuf[1].cbBuffer > 0) {
-      SCH_DEV(infof(data, "schannel: encrypted data length: %lu",
-                    inbuf[1].cbBuffer));
+    ఒకవేళ(inbuf[1].బఫరు_Type == SECBUFFER_EXTRA && inbuf[1].cb_బఫరు > 0) {
+      SCH_DEV(infof(దత్తాంశం, "schannel: encrypted data length: %lu",
+                    inbuf[1].cb_బఫరు));
       /* There are two cases where we could be getting extra data here:
          1. If we are renegotiating a connection and the handshake is already
             complete (from the server perspective), it can encrypt app data
@@ -1434,318 +1434,318 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
        */
       /* check if the remaining data is less than the total amount
          and therefore begins after the already processed data */
-      if(backend->encdata.offset > inbuf[1].cbBuffer) {
-        memmove(backend->encdata.buffer,
-                (backend->encdata.buffer + backend->encdata.offset) -
-                inbuf[1].cbBuffer, inbuf[1].cbBuffer);
-        backend->encdata.offset = inbuf[1].cbBuffer;
-        if(sspi_status == SEC_I_CONTINUE_NEEDED) {
+      ఒకవేళ(backend->encdata.స్థానభ్రంశం > inbuf[1].cb_బఫరు) {
+        memmove(backend->encdata.బఫరు,
+                (backend->encdata.బఫరు + backend->encdata.స్థానభ్రంశం) -
+                inbuf[1].cb_బఫరు, inbuf[1].cb_బఫరు);
+        backend->encdata.స్థానభ్రంశం = inbuf[1].cb_బఫరు;
+        ఒకవేళ(sspi_స్థితి == SEC_I_CONTINUE_NEEDED) {
           doread = FALSE;
-          continue;
+          కొనసాగు;
         }
       }
     }
-    else {
-      backend->encdata.offset = 0;
+    లేకపోతే {
+      backend->encdata.స్థానభ్రంశం = 0;
     }
-    break;
+    ఆపు;
   }
 
   /* check if the handshake needs to be continued */
-  if(sspi_status == SEC_I_CONTINUE_NEEDED) {
+  ఒకవేళ(sspi_స్థితి == SEC_I_CONTINUE_NEEDED) {
     connssl->io_need = CURL_SSL_IO_NEED_RECV;
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
   }
 
   /* check if the handshake is complete */
-  if(sspi_status == SEC_E_OK) {
+  ఒకవేళ(sspi_స్థితి == SEC_E_OK) {
     connssl->connecting_state = ssl_connect_3;
-    DEBUGF(infof(data, "schannel: SSL/TLS handshake complete"));
+    DEBUGF(infof(దత్తాంశం, "schannel: SSL/TLS handshake complete"));
   }
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
   pubkey_ptr = Curl_ssl_cf_is_proxy(cf) ?
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#else
-  pubkey_ptr = CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#endif
-  if(pubkey_ptr) {
-    result = schannel_pkp_pin_peer_pubkey(cf, data, pubkey_ptr);
-    if(result) {
-      failf(data, "SSL: public key does not match pinned public key");
-      return result;
+    CURL_EASY_STR(దత్తాంశం, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
+    CURL_EASY_STR(దత్తాంశం, STRING_SSL_PINNEDPUBLICKEY);
+#లేకపోతే
+  pubkey_ptr = CURL_EASY_STR(దత్తాంశం, STRING_SSL_PINNEDPUBLICKEY);
+#అయితే_ముగింపు
+  ఒకవేళ(pubkey_ptr) {
+    ఫలితం = schannel_pkp_pin_peer_pubkey(cf, దత్తాంశం, pubkey_ptr);
+    ఒకవేళ(ఫలితం) {
+      failf(దత్తాంశం, "SSL: public key does not match pinned public key");
+      తిరిగి ఫలితం;
     }
   }
 
-  if(conn_config->verifypeer && backend->use_manual_cred_validation) {
+  ఒకవేళ(conn_config->verifypeer && backend->use_manual_cred_validation) {
     /* Certificate verification also verifies the hostname if verifyhost */
-    return Curl_verify_certificate(cf, data);
+    తిరిగి Curl_verify_certificate(cf, దత్తాంశం);
   }
 
   /* Verify the hostname manually when certificate verification is disabled,
      because in that case Schannel does not verify it. */
-  if(!conn_config->verifypeer && conn_config->verifyhost)
-    return Curl_verify_host(cf, data);
+  ఒకవేళ(!conn_config->verifypeer && conn_config->verifyhost)
+    తిరిగి Curl_verify_host(cf, దత్తాంశం);
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static bool valid_cert_encoding(const CERT_CONTEXT *cert_context)
+స్థిర bool valid_cert_encoding(స్థిరరాశి CERT_CONTEXT *cert_context)
 {
-  return cert_context &&
+  తిరిగి cert_context &&
     ((cert_context->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
     cert_context->pbCertEncoded &&
     (cert_context->cbCertEncoded > 0);
 }
 
-typedef bool (*Read_crt_func)(const CERT_CONTEXT *ccert_context,
-                              bool reverse_order, void *arg);
+రకనిర్వచనం bool (*Read_crt_func)(స్థిరరాశి CERT_CONTEXT *ccert_context,
+                              bool తిరగేయి_క్రమం, శూన్య *arg);
 
-static void traverse_cert_store(const CERT_CONTEXT *context,
-                                Read_crt_func func, void *arg)
+స్థిర శూన్య traverse_cert_store(స్థిరరాశి CERT_CONTEXT *context,
+                                Read_crt_func func, శూన్య *arg)
 {
-  const CERT_CONTEXT *current_context = NULL;
+  స్థిరరాశి CERT_CONTEXT *current_context = ఖాళీ;
   bool should_continue = TRUE;
-  bool first = TRUE;
-  bool reverse_order = FALSE;
-  while(should_continue &&
-        (current_context = CertEnumCertificatesInStore(
+  bool మొదటి = TRUE;
+  bool తిరగేయి_క్రమం = FALSE;
+  అయితే(should_continue &&
+        (current_context = Cert_Enum_Certificates_లోపల_Store(
           context->hCertStore,
-          current_context)) != NULL) {
+          current_context)) != ఖాళీ) {
     /* Windows 11 22H2 OS Build 22621.674 or higher enumerates certificates in
        leaf-to-root order while all previous versions of Windows enumerate
        certificates in root-to-leaf order. Determine the order of enumeration
        by comparing SECPKG_ATTR_REMOTE_CERT_CONTEXT's pbCertContext with the
        first certificate's pbCertContext. */
-    if(first && context->pbCertEncoded != current_context->pbCertEncoded)
-      reverse_order = TRUE;
-    should_continue = func(current_context, reverse_order, arg);
-    first = FALSE;
+    ఒకవేళ(మొదటి && context->pbCertEncoded != current_context->pbCertEncoded)
+      తిరగేయి_క్రమం = TRUE;
+    should_continue = func(current_context, తిరగేయి_క్రమం, arg);
+    మొదటి = FALSE;
   }
 
-  if(current_context)
+  ఒకవేళ(current_context)
     CertFreeCertificateContext(current_context);
 }
 
-static bool cert_counter_callback(const CERT_CONTEXT *ccert_context,
-                                  bool reverse_order, void *certs_count)
+స్థిర bool cert_counter_callback(స్థిరరాశి CERT_CONTEXT *ccert_context,
+                                  bool తిరగేయి_క్రమం, శూన్య *certs_లెక్క)
 {
-  (void)reverse_order;
-  if(valid_cert_encoding(ccert_context))
-    (*(int *)certs_count)++;
-  if(*(int *)certs_count > MAX_ALLOWED_CERT_AMOUNT)
-    return FALSE;
-  return TRUE;
+  (శూన్య)తిరగేయి_క్రమం;
+  ఒకవేళ(valid_cert_encoding(ccert_context))
+    (*(పూర్ణాంకం *)certs_లెక్క)++;
+  ఒకవేళ(*(పూర్ణాంకం *)certs_లెక్క > MAX_ALLOWED_CERT_AMOUNT)
+    తిరిగి FALSE;
+  తిరిగి TRUE;
 }
 
-struct Adder_args {
-  struct Curl_easy *data;
-  CURLcode result;
-  int idx;
-  int certs_count;
+నిర్మాణం Adder_వాదనలు {
+  నిర్మాణం Curl_easy *దత్తాంశం;
+  CURLcode ఫలితం;
+  పూర్ణాంకం idx;
+  పూర్ణాంకం certs_లెక్క;
 };
 
-static bool add_cert_to_certinfo(const CERT_CONTEXT *ccert_context,
-                                 bool reverse_order, void *raw_arg)
+స్థిర bool కూడు_cert_గమ్యం_certinfo(స్థిరరాశి CERT_CONTEXT *ccert_context,
+                                 bool తిరగేయి_క్రమం, శూన్య *raw_arg)
 {
-  struct Adder_args *args = (struct Adder_args *)raw_arg;
-  args->result = CURLE_OK;
-  if(valid_cert_encoding(ccert_context)) {
-    int insert_index = reverse_order ? (args->certs_count - 1) - args->idx :
-                       args->idx;
-    args->result = Curl_extract_certinfo(args->data, insert_index,
+  నిర్మాణం Adder_వాదనలు *వాదనలు = (నిర్మాణం Adder_వాదనలు *)raw_arg;
+  వాదనలు->ఫలితం = CURLE_OK;
+  ఒకవేళ(valid_cert_encoding(ccert_context)) {
+    పూర్ణాంకం చొప్పించు_సూచీ = తిరగేయి_క్రమం ? (వాదనలు->certs_లెక్క - 1) - వాదనలు->idx :
+                       వాదనలు->idx;
+    వాదనలు->ఫలితం = Curl_వెలికితీయి_certinfo(వాదనలు->దత్తాంశం, చొప్పించు_సూచీ,
                                          ccert_context->pbCertEncoded,
                                          ccert_context->pbCertEncoded +
                                          ccert_context->cbCertEncoded);
-    args->idx++;
+    వాదనలు->idx++;
   }
-  return args->result == CURLE_OK;
+  తిరిగి వాదనలు->ఫలితం == CURLE_OK;
 }
 
-static void schannel_session_free(void *sessionid)
+స్థిర శూన్య schannel_session_free(శూన్య *sessionid)
 {
   /* this is expected to be called under sessionid lock */
-  struct Curl_schannel_cred *cred = sessionid;
+  నిర్మాణం Curl_schannel_cred *cred = sessionid;
 
-  if(cred) {
+  ఒకవేళ(cred) {
     cred->refcount--;
-    if(cred->refcount == 0) {
+    ఒకవేళ(cred->refcount == 0) {
       Curl_pSecFn->FreeCredentialsHandle(&cred->cred_handle);
       curlx_free(cred->sni_hostname);
-      if(cred->client_cert_store) {
+      ఒకవేళ(cred->client_cert_store) {
         CertCloseStore(cred->client_cert_store, 0);
-        cred->client_cert_store = NULL;
+        cred->client_cert_store = ఖాళీ;
       }
       curlx_safefree(cred);
     }
   }
 }
 
-static CURLcode schannel_connect_step3(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data)
+స్థిర CURLcode schannel_connect_step3(నిర్మాణం Curl_cfilter *cf,
+                                       నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-  CURLcode result = CURLE_OK;
-  SECURITY_STATUS sspi_status = SEC_E_OK;
-  CERT_CONTEXT *ccert_context = NULL;
-  SecPkgContext_ApplicationProtocol alpn_result;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, దత్తాంశం);
+  CURLcode ఫలితం = CURLE_OK;
+  SECURITY_స్థితి sspi_స్థితి = SEC_E_OK;
+  CERT_CONTEXT *ccert_context = ఖాళీ;
+  SecPkgContext_ApplicationProtocol alpn_ఫలితం;
 
   DEBUGASSERT(connssl->connecting_state == ssl_connect_3);
   DEBUGASSERT(backend);
 
-  DEBUGF(infof(data, "schannel: SSL/TLS connection with %s port %d (step 3/3)",
-               connssl->peer.origin->hostname, connssl->peer.origin->port));
+  DEBUGF(infof(దత్తాంశం, "schannel: SSL/TLS connection with %s port %d (step 3/3)",
+               connssl->peer.origin->hostname, connssl->peer.origin->పోర్టు));
 
-  if(!backend->cred)
-    return CURLE_SSL_CONNECT_ERROR;
+  ఒకవేళ(!backend->cred)
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
 
   /* check if the required context attributes are met */
-  if(backend->ret_flags != backend->req_flags) {
-    if(!(backend->ret_flags & ISC_RET_SEQUENCE_DETECT))
-      failf(data, "schannel: failed to setup sequence detection");
-    if(!(backend->ret_flags & ISC_RET_REPLAY_DETECT))
-      failf(data, "schannel: failed to setup replay detection");
-    if(!(backend->ret_flags & ISC_RET_CONFIDENTIALITY))
-      failf(data, "schannel: failed to setup confidentiality");
-    if(!(backend->ret_flags & ISC_RET_ALLOCATED_MEMORY))
-      failf(data, "schannel: failed to setup memory allocation");
-    if(!(backend->ret_flags & ISC_RET_STREAM))
-      failf(data, "schannel: failed to setup stream orientation");
-    return CURLE_SSL_CONNECT_ERROR;
+  ఒకవేళ(backend->ret_flags != backend->req_flags) {
+    ఒకవేళ(!(backend->ret_flags & ISC_RET_SEQUENCE_DETECT))
+      failf(దత్తాంశం, "schannel: failed to setup sequence detection");
+    ఒకవేళ(!(backend->ret_flags & ISC_RET_REPLAY_DETECT))
+      failf(దత్తాంశం, "schannel: failed to setup replay detection");
+    ఒకవేళ(!(backend->ret_flags & ISC_RET_CONFIDENTIALITY))
+      failf(దత్తాంశం, "schannel: failed to setup confidentiality");
+    ఒకవేళ(!(backend->ret_flags & ISC_RET_ALLOCATED_జ్ఞాపకం))
+      failf(దత్తాంశం, "schannel: failed to setup memory allocation");
+    ఒకవేళ(!(backend->ret_flags & ISC_RET_ప్రవాహం))
+      failf(దత్తాంశం, "schannel: failed to setup stream orientation");
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(backend->use_alpn) {
-    sspi_status =
-      Curl_pSecFn->QueryContextAttributes(&backend->ctxt->ctxt_handle,
+  ఒకవేళ(backend->use_alpn) {
+    sspi_స్థితి =
+      Curl_pSecFn->Query_Context_లక్షణాలు(&backend->ctxt->ctxt_handle,
                                           SECPKG_ATTR_APPLICATION_PROTOCOL,
-                                          &alpn_result);
+                                          &alpn_ఫలితం);
 
-    if(sspi_status != SEC_E_OK) {
-      failf(data, "schannel: failed to retrieve ALPN result");
-      return CURLE_SSL_CONNECT_ERROR;
+    ఒకవేళ(sspi_స్థితి != SEC_E_OK) {
+      failf(దత్తాంశం, "schannel: failed to retrieve ALPN result");
+      తిరిగి CURLE_SSL_CONNECT_ERROR;
     }
 
-    if(alpn_result.ProtoNegoStatus ==
-       SecApplicationProtocolNegotiationStatus_Success) {
-      if(backend->recv_renegotiating &&
+    ఒకవేళ(alpn_ఫలితం.Proto_Nego_స్థితి ==
+       Sec_Application_Protocol_Negotiation_స్థితి_Success) {
+      ఒకవేళ(backend->recv_renegotiating &&
          connssl->negotiated.alpn &&
-         strncmp(connssl->negotiated.alpn,
-                 (const char *)alpn_result.ProtocolId,
-                 alpn_result.ProtocolIdSize)) {
+         అక్షరశ్రేణి_పోలిక(connssl->negotiated.alpn,
+                 (స్థిరరాశి అక్షరం *)alpn_ఫలితం.ProtocolId,
+                 alpn_ఫలితం.Protocol_Id_కొలత)) {
         /* Renegotiation selected a different protocol now, we cannot
          * deal with this */
-        failf(data, "schannel: server selected an ALPN protocol too late");
-        return CURLE_SSL_CONNECT_ERROR;
+        failf(దత్తాంశం, "schannel: server selected an ALPN protocol too late");
+        తిరిగి CURLE_SSL_CONNECT_ERROR;
       }
-      Curl_alpn_set_negotiated(cf, data, connssl, alpn_result.ProtocolId,
-                               alpn_result.ProtocolIdSize);
+      Curl_alpn_సమితి_negotiated(cf, దత్తాంశం, connssl, alpn_ఫలితం.ProtocolId,
+                               alpn_ఫలితం.Protocol_Id_కొలత);
     }
-    else {
-      if(!backend->recv_renegotiating)
-        Curl_alpn_set_negotiated(cf, data, connssl, NULL, 0);
+    లేకపోతే {
+      ఒకవేళ(!backend->recv_renegotiating)
+        Curl_alpn_సమితి_negotiated(cf, దత్తాంశం, connssl, ఖాళీ, 0);
     }
   }
 
   /* save the current session data for possible reuse */
-  if(Curl_ssl_scache_use(cf, data)) {
-    Curl_ssl_scache_lock(data);
+  ఒకవేళ(Curl_ssl_scache_use(cf, దత్తాంశం)) {
+    Curl_ssl_scache_తాళం(దత్తాంశం);
     /* Up ref count since call takes ownership */
     backend->cred->refcount++;
-    result = Curl_ssl_scache_add_obj(cf, data, connssl->peer.scache_key,
+    ఫలితం = Curl_ssl_scache_కూడు_obj(cf, దత్తాంశం, connssl->peer.scache_కీలకం,
                                      backend->cred, schannel_session_free);
-    Curl_ssl_scache_unlock(data);
-    if(result)
-      return result;
+    Curl_ssl_scache_unlock(దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  if(ssl_config->certinfo) {
-    int certs_count = 0;
-    sspi_status =
-      Curl_pSecFn->QueryContextAttributes(&backend->ctxt->ctxt_handle,
+  ఒకవేళ(ssl_config->certinfo) {
+    పూర్ణాంకం certs_లెక్క = 0;
+    sspi_స్థితి =
+      Curl_pSecFn->Query_Context_లక్షణాలు(&backend->ctxt->ctxt_handle,
                                           SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                           &ccert_context);
 
-    if((sspi_status != SEC_E_OK) || !ccert_context) {
-      failf(data, "schannel: failed to retrieve remote cert context");
-      return CURLE_PEER_FAILED_VERIFICATION;
+    ఒకవేళ((sspi_స్థితి != SEC_E_OK) || !ccert_context) {
+      failf(దత్తాంశం, "schannel: failed to retrieve remote cert context");
+      తిరిగి CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    traverse_cert_store(ccert_context, cert_counter_callback, &certs_count);
-    if(certs_count > MAX_ALLOWED_CERT_AMOUNT) {
-      failf(data, "%d certificates is more than allowed (%d)",
-            certs_count, MAX_ALLOWED_CERT_AMOUNT);
+    traverse_cert_store(ccert_context, cert_counter_callback, &certs_లెక్క);
+    ఒకవేళ(certs_లెక్క > MAX_ALLOWED_CERT_AMOUNT) {
+      failf(దత్తాంశం, "%d certificates is more than allowed (%d)",
+            certs_లెక్క, MAX_ALLOWED_CERT_AMOUNT);
       CertFreeCertificateContext(ccert_context);
-      return CURLE_SSL_CONNECT_ERROR;
+      తిరిగి CURLE_SSL_CONNECT_ERROR;
     }
 
-    result = Curl_ssl_init_certinfo(data, certs_count);
-    if(!result) {
-      struct Adder_args args;
-      args.data = data;
-      args.idx = 0;
-      args.certs_count = certs_count;
-      args.result = CURLE_OK;
-      traverse_cert_store(ccert_context, add_cert_to_certinfo, &args);
-      result = args.result;
+    ఫలితం = Curl_ssl_init_certinfo(దత్తాంశం, certs_లెక్క);
+    ఒకవేళ(!ఫలితం) {
+      నిర్మాణం Adder_వాదనలు వాదనలు;
+      వాదనలు.దత్తాంశం = దత్తాంశం;
+      వాదనలు.idx = 0;
+      వాదనలు.certs_లెక్క = certs_లెక్క;
+      వాదనలు.ఫలితం = CURLE_OK;
+      traverse_cert_store(ccert_context, కూడు_cert_గమ్యం_certinfo, &వాదనలు);
+      ఫలితం = వాదనలు.ఫలితం;
     }
     CertFreeCertificateContext(ccert_context);
-    if(result)
-      return result;
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  connssl->connecting_state = ssl_connect_done;
+  connssl->connecting_state = ssl_connect_పూర్తి;
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode schannel_connect(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 bool *done)
+స్థిర CURLcode schannel_connect(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 bool *పూర్తి)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  CURLcode result;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  CURLcode ఫలితం;
 
   /* check if the connection has already been established */
-  if(ssl_connection_complete == connssl->state) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(ssl_connection_complete == connssl->state) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  *done = FALSE;
+  *పూర్తి = FALSE;
 
-  if(connssl->connecting_state == ssl_connect_1) {
-    result = schannel_connect_step1(cf, data);
-    if(result)
-      return result;
+  ఒకవేళ(connssl->connecting_state == ssl_connect_1) {
+    ఫలితం = schannel_connect_step1(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  if(connssl->connecting_state == ssl_connect_2) {
-    result = schannel_connect_step2(cf, data);
-    if(result)
-      return result;
+  ఒకవేళ(connssl->connecting_state == ssl_connect_2) {
+    ఫలితం = schannel_connect_step2(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  if(connssl->connecting_state == ssl_connect_3) {
-    result = schannel_connect_step3(cf, data);
-    if(result)
-      return result;
+  ఒకవేళ(connssl->connecting_state == ssl_connect_3) {
+    ఫలితం = schannel_connect_step3(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
-  if(connssl->connecting_state == ssl_connect_done) {
-    struct schannel_ssl_backend_data *backend =
-      (struct schannel_ssl_backend_data *)connssl->backend;
+  ఒకవేళ(connssl->connecting_state == ssl_connect_పూర్తి) {
+    నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+      (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
     DEBUGASSERT(backend);
 
-    if(Curl_pSecFn->QueryContextAttributes(
+    ఒకవేళ(Curl_pSecFn->Query_Context_లక్షణాలు(
          &backend->ctxt->ctxt_handle,
-         SECPKG_ATTR_STREAM_SIZES,
-         &backend->stream_sizes)) {
-      failf(data, "schannel: failed getting stream sizes");
-      return CURLE_SSL_CONNECT_ERROR;
+         SECPKG_ATTR_ప్రవాహం_SIZES,
+         &backend->ప్రవాహం_sizes)) {
+      failf(దత్తాంశం, "schannel: failed getting stream sizes");
+      తిరిగి CURLE_SSL_CONNECT_ERROR;
     }
 
     connssl->state = ssl_connection_complete;
@@ -1757,13 +1757,13 @@ static CURLcode schannel_connect(struct Curl_cfilter *cf,
      */
     cf->conn->sslContext = &backend->ctxt->ctxt_handle;
 
-    *done = TRUE;
+    *పూర్తి = TRUE;
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-enum schannel_renegotiate_caller_t {
+గణన schannel_renegotiate_caller_t {
   SCH_RENEG_CALLER_IS_RECV,
   SCH_RENEG_CALLER_IS_SEND
 };
@@ -1774,63 +1774,63 @@ enum schannel_renegotiate_caller_t {
    is not necessarily literal TLS renegotiation, but means DecryptMessage
    returned SEC_I_RENEGOTIATE which means at least the security context needs
    to be re-established. */
-#define MAX_RENEG_BLOCK_TIME (60 * 1000) /* 60 seconds in milliseconds */
+#నిర్వచించు MAX_RENEG_ఖండం_సమయం (60 * 1000) /* 60 seconds in milliseconds */
 
 /* This function renegotiates the connection due to a server request received
    by schannel_recv. This function returns CURLE_AGAIN if the renegotiation is
    incomplete. In that case, we remain in the renegotiation (connecting) stage
    and future calls to schannel_recv and schannel_send must call this function
    first to complete the renegotiation. */
-static CURLcode schannel_recv_renegotiate(
-  struct Curl_cfilter *cf, struct Curl_easy *data,
-  enum schannel_renegotiate_caller_t caller)
+స్థిర CURLcode schannel_recv_renegotiate(
+  నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+  గణన schannel_renegotiate_caller_t caller)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
   curl_socket_t sockfd;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  struct schannel_renegotiate_state *rs = &backend->renegotiate_state;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం schannel_renegotiate_state *rs = &backend->renegotiate_state;
 
-  if(!backend || !backend->recv_renegotiating) {
-    failf(data, "schannel: unexpected call to schannel_recv_renegotiate");
-    return CURLE_SSL_CONNECT_ERROR;
+  ఒకవేళ(!backend || !backend->recv_renegotiating) {
+    failf(దత్తాంశం, "schannel: unexpected call to schannel_recv_renegotiate");
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
   DEBUGASSERT(caller <= SCH_RENEG_CALLER_IS_SEND);
-  if(caller == SCH_RENEG_CALLER_IS_RECV)
-    SCH_DEV(infof(data, "schannel: renegotiation caller is schannel_recv"));
-  else
-    SCH_DEV(infof(data, "schannel: renegotiation caller is schannel_send"));
+  ఒకవేళ(caller == SCH_RENEG_CALLER_IS_RECV)
+    SCH_DEV(infof(దత్తాంశం, "schannel: renegotiation caller is schannel_recv"));
+  లేకపోతే
+    SCH_DEV(infof(దత్తాంశం, "schannel: renegotiation caller is schannel_send"));
 
-  sockfd = Curl_conn_cf_get_socket(cf, data);
+  sockfd = Curl_conn_cf_get_socket(cf, దత్తాంశం);
 
-  if(sockfd == CURL_SOCKET_BAD) {
-    failf(data, "schannel: renegotiation missing socket");
-    return CURLE_SSL_CONNECT_ERROR;
+  ఒకవేళ(sockfd == CURL_SOCKET_BAD) {
+    failf(దత్తాంశం, "schannel: renegotiation missing socket");
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(!rs->started) { /* new renegotiation */
-    infof(data, "schannel: renegotiating SSL/TLS connection");
+  ఒకవేళ(!rs->started) { /* new renegotiation */
+    infof(దత్తాంశం, "schannel: renegotiating SSL/TLS connection");
     DEBUGASSERT(connssl->state == ssl_connection_complete);
-    DEBUGASSERT(connssl->connecting_state == ssl_connect_done);
+    DEBUGASSERT(connssl->connecting_state == ssl_connect_పూర్తి);
     connssl->state = ssl_connection_negotiating;
     connssl->connecting_state = ssl_connect_2;
-    memset(rs, 0, sizeof(*rs));
+    memset(rs, 0, పరిమాణం(*rs));
     rs->io_need = CURL_SSL_IO_NEED_SEND;
-    rs->start_time = *Curl_pgrs_now(data);
+    rs->ప్రారంభం_సమయం = *Curl_pgrs_now(దత్తాంశం);
     rs->started = TRUE;
   }
 
-  for(;;) {
-    bool block_read, block_write, blocking, done;
+  కొరకు(;;) {
+    bool ఖండం_read, ఖండం_write, blocking, పూర్తి;
     curl_socket_t readfd, writefd;
     timediff_t elapsed;
 
-    elapsed = curlx_ptimediff_ms(Curl_pgrs_now(data), &rs->start_time);
-    if(elapsed >= MAX_RENEG_BLOCK_TIME) {
-      failf(data, "schannel: renegotiation timeout");
-      result = CURLE_SSL_CONNECT_ERROR;
-      break;
+    elapsed = curlx_ptimediff_ms(Curl_pgrs_now(దత్తాంశం), &rs->ప్రారంభం_సమయం);
+    ఒకవేళ(elapsed >= MAX_RENEG_ఖండం_సమయం) {
+      failf(దత్తాంశం, "schannel: renegotiation timeout");
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      ఆపు;
     }
 
     /* the current io_need state may have been overwritten since the last time
@@ -1839,21 +1839,21 @@ static CURLcode schannel_recv_renegotiate(
 
     connssl->io_need = rs->io_need;
 
-    result = schannel_connect(cf, data, &done);
+    ఫలితం = schannel_connect(cf, దత్తాంశం, &పూర్తి);
 
     rs->io_need = connssl->io_need;
 
-    if(!result && !done)
-      result = CURLE_AGAIN;
+    ఒకవేళ(!ఫలితం && !పూర్తి)
+      ఫలితం = CURLE_AGAIN;
 
-    if(result != CURLE_AGAIN)
-      break;
+    ఒకవేళ(ఫలితం != CURLE_AGAIN)
+      ఆపు;
 
     readfd = (rs->io_need & CURL_SSL_IO_NEED_RECV) ? sockfd : CURL_SOCKET_BAD;
     writefd = (rs->io_need & CURL_SSL_IO_NEED_SEND) ? sockfd : CURL_SOCKET_BAD;
 
-    if(readfd == CURL_SOCKET_BAD && writefd == CURL_SOCKET_BAD)
-      continue;
+    ఒకవేళ(readfd == CURL_SOCKET_BAD && writefd == CURL_SOCKET_BAD)
+      కొనసాగు;
 
     /* connect should not have requested io read and write together */
     DEBUGASSERT(readfd == CURL_SOCKET_BAD || writefd == CURL_SOCKET_BAD);
@@ -1874,52 +1874,52 @@ static CURLcode schannel_recv_renegotiate(
      * more of their data before calling send).
      */
 
-    block_read = (caller == SCH_RENEG_CALLER_IS_SEND) ? TRUE : FALSE;
-    block_write = (caller == SCH_RENEG_CALLER_IS_RECV) ? TRUE : FALSE;
+    ఖండం_read = (caller == SCH_RENEG_CALLER_IS_SEND) ? TRUE : FALSE;
+    ఖండం_write = (caller == SCH_RENEG_CALLER_IS_RECV) ? TRUE : FALSE;
 
-    blocking = (block_read && (readfd != CURL_SOCKET_BAD)) ||
-               (block_write && (writefd != CURL_SOCKET_BAD));
+    blocking = (ఖండం_read && (readfd != CURL_SOCKET_BAD)) ||
+               (ఖండం_write && (writefd != CURL_SOCKET_BAD));
 
-    SCH_DEV_SHOWBOOL(block_read);
-    SCH_DEV_SHOWBOOL(block_write);
+    SCH_DEV_SHOWBOOL(ఖండం_read);
+    SCH_DEV_SHOWBOOL(ఖండం_write);
     SCH_DEV_SHOWBOOL(blocking);
 
-    for(;;) {
-      int what;
-      timediff_t timeout_ms, remaining;
+    కొరకు(;;) {
+      పూర్ణాంకం what;
+      timediff_t timeout_ms, మిగిలిన;
 
-      result = Curl_pgrsUpdate(data);
-      if(result)
-        break;
+      ఫలితం = Curl_pgrsUpdate(దత్తాంశం);
+      ఒకవేళ(ఫలితం)
+        ఆపు;
 
-      elapsed = curlx_ptimediff_ms(Curl_pgrs_now(data), &rs->start_time);
-      if(elapsed >= MAX_RENEG_BLOCK_TIME) {
-        failf(data, "schannel: renegotiation timeout");
-        result = CURLE_SSL_CONNECT_ERROR;
-        break;
+      elapsed = curlx_ptimediff_ms(Curl_pgrs_now(దత్తాంశం), &rs->ప్రారంభం_సమయం);
+      ఒకవేళ(elapsed >= MAX_RENEG_ఖండం_సమయం) {
+        failf(దత్తాంశం, "schannel: renegotiation timeout");
+        ఫలితం = CURLE_SSL_CONNECT_ERROR;
+        ఆపు;
       }
-      remaining = MAX_RENEG_BLOCK_TIME - elapsed;
+      మిగిలిన = MAX_RENEG_ఖండం_సమయం - elapsed;
 
-      if(blocking) {
-        timeout_ms = Curl_timeleft_ms(data);
+      ఒకవేళ(blocking) {
+        timeout_ms = Curl_timeleft_ms(దత్తాంశం);
 
-        if(timeout_ms < 0) {
-          result = CURLE_OPERATION_TIMEDOUT;
-          break;
+        ఒకవేళ(timeout_ms < 0) {
+          ఫలితం = CURLE_OPERATION_TIMEDOUT;
+          ఆపు;
         }
 
         /* the blocking is in intervals so that the progress function can be
            called every second */
-        if(!timeout_ms || timeout_ms > 1000)
+        ఒకవేళ(!timeout_ms || timeout_ms > 1000)
           timeout_ms = 1000;
 
-        if(timeout_ms > remaining)
-          timeout_ms = remaining;
+        ఒకవేళ(timeout_ms > మిగిలిన)
+          timeout_ms = మిగిలిన;
       }
-      else
+      లేకపోతే
         timeout_ms = 0;
 
-      SCH_DEV(infof(data, "schannel: renegotiation wait until socket is"
+      SCH_DEV(infof(దత్తాంశం, "schannel: renegotiation wait until socket is"
                     "%s%s for up to %" FMT_TIMEDIFF_T " ms",
                     ((readfd != CURL_SOCKET_BAD) ? " readable" : ""),
                     ((writefd != CURL_SOCKET_BAD) ? " writable" : ""),
@@ -1927,106 +1927,106 @@ static CURLcode schannel_recv_renegotiate(
 
       what = Curl_socket_check(readfd, CURL_SOCKET_BAD, writefd, timeout_ms);
 
-      if(what > 0 && (what & (CURL_CSELECT_IN | CURL_CSELECT_OUT))) {
-        SCH_DEV(infof(data, "schannel: renegotiation socket %s%s",
-                      ((what & CURL_CSELECT_IN) ? "CURL_CSELECT_IN " : ""),
-                      ((what & CURL_CSELECT_OUT) ? "CURL_CSELECT_OUT " : "")));
-        result = CURLE_AGAIN;
-        break;
+      ఒకవేళ(what > 0 && (what & (CURL_CSELECT_లోపల | CURL_CSELECT_బహిర్గతం))) {
+        SCH_DEV(infof(దత్తాంశం, "schannel: renegotiation socket %s%s",
+                      ((what & CURL_CSELECT_లోపల) ? "CURL_CSELECT_IN " : ""),
+                      ((what & CURL_CSELECT_బహిర్గతం) ? "CURL_CSELECT_OUT " : "")));
+        ఫలితం = CURLE_AGAIN;
+        ఆపు;
       }
-      else if(!what) {
-        SCH_DEV(infof(data, "schannel: renegotiation socket timeout"));
-        if(blocking)
-          continue;
-        else
-          return CURLE_AGAIN;
+      లేకపోతే ఒకవేళ(!what) {
+        SCH_DEV(infof(దత్తాంశం, "schannel: renegotiation socket timeout"));
+        ఒకవేళ(blocking)
+          కొనసాగు;
+        లేకపోతే
+          తిరిగి CURLE_AGAIN;
       }
 
-      failf(data, "schannel: socket error during renegotiation");
-      result = CURLE_SSL_CONNECT_ERROR;
-      break;
+      failf(దత్తాంశం, "schannel: socket error during renegotiation");
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      ఆపు;
     }
-    if(result != CURLE_AGAIN)
-      break;
+    ఒకవేళ(ఫలితం != CURLE_AGAIN)
+      ఆపు;
   }
 
-  DEBUGASSERT(result != CURLE_AGAIN);
+  DEBUGASSERT(ఫలితం != CURLE_AGAIN);
 
   rs->started = FALSE;
   backend->recv_renegotiating = FALSE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  if(result)
-    failf(data, "schannel: renegotiation failed");
-  else
-    infof(data, "schannel: SSL/TLS connection renegotiated");
+  ఒకవేళ(ఫలితం)
+    failf(దత్తాంశం, "schannel: renegotiation failed");
+  లేకపోతే
+    infof(దత్తాంశం, "schannel: SSL/TLS connection renegotiated");
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode schannel_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                              const void *buf, size_t len, size_t *pnwritten)
+స్థిర CURLcode schannel_send(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                              స్థిరరాశి శూన్య *buf, size_t len, size_t *pnwritten)
 {
-  size_t data_len = 0;
-  unsigned char *ptr = NULL;
-  struct ssl_connect_data *connssl = cf->ctx;
-  SecBuffer outbuf[4];
-  SecBufferDesc outbuf_desc;
-  SECURITY_STATUS sspi_status = SEC_E_OK;
-  CURLcode result = CURLE_OK;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
+  size_t దత్తాంశం_len = 0;
+  గుర్తులేని అక్షరం *ptr = ఖాళీ;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  Sec_బఫరు outbuf[4];
+  Sec_బఫరు_Desc outbuf_desc;
+  SECURITY_స్థితి sspi_స్థితి = SEC_E_OK;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
 
   DEBUGASSERT(backend);
   *pnwritten = 0;
 
-  if(backend->recv_renegotiating) {
-    result = schannel_recv_renegotiate(cf, data, SCH_RENEG_CALLER_IS_SEND);
-    if(result)
-      return result;
+  ఒకవేళ(backend->recv_renegotiating) {
+    ఫలితం = schannel_recv_renegotiate(cf, దత్తాంశం, SCH_RENEG_CALLER_IS_SEND);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
   /* check if the buffer is longer than the maximum message length */
-  if(len > backend->stream_sizes.cbMaximumMessage) {
-    len = backend->stream_sizes.cbMaximumMessage;
+  ఒకవేళ(len > backend->ప్రవాహం_sizes.cb_గరిష్ఠ_సందేశం) {
+    len = backend->ప్రవాహం_sizes.cb_గరిష్ఠ_సందేశం;
   }
 
   /* calculate the complete message length and prepare the send buffer */
-  data_len = backend->stream_sizes.cbHeader + len +
-    backend->stream_sizes.cbTrailer;
-  if(data_len > backend->send_buffer_len) {
-    ptr = curlx_realloc(backend->send_buffer, data_len);
-    if(!ptr)
-      return CURLE_OUT_OF_MEMORY;
-    backend->send_buffer = ptr;
-    backend->send_buffer_len = data_len;
+  దత్తాంశం_len = backend->ప్రవాహం_sizes.cb_శీర్షిక + len +
+    backend->ప్రవాహం_sizes.cbTrailer;
+  ఒకవేళ(దత్తాంశం_len > backend->send_బఫరు_len) {
+    ptr = curlx_realloc(backend->send_బఫరు, దత్తాంశం_len);
+    ఒకవేళ(!ptr)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    backend->send_బఫరు = ptr;
+    backend->send_బఫరు_len = దత్తాంశం_len;
   }
-  else
-    ptr = backend->send_buffer;
+  లేకపోతే
+    ptr = backend->send_బఫరు;
 
   /* setup output buffers (header, data, trailer, empty) */
-  InitSecBuffer(&outbuf[0], SECBUFFER_STREAM_HEADER,
-                ptr, backend->stream_sizes.cbHeader);
-  InitSecBuffer(&outbuf[1], SECBUFFER_DATA,
-                ptr + backend->stream_sizes.cbHeader, curlx_uztoul(len));
-  InitSecBuffer(&outbuf[2], SECBUFFER_STREAM_TRAILER,
-                ptr + backend->stream_sizes.cbHeader + len,
-                backend->stream_sizes.cbTrailer);
-  InitSecBuffer(&outbuf[3], SECBUFFER_EMPTY, NULL, 0);
-  InitSecBufferDesc(&outbuf_desc, outbuf, 4);
+  Init_Sec_బఫరు(&outbuf[0], SECBUFFER_ప్రవాహం_శీర్షిక,
+                ptr, backend->ప్రవాహం_sizes.cb_శీర్షిక);
+  Init_Sec_బఫరు(&outbuf[1], SECBUFFER_దత్తాంశం,
+                ptr + backend->ప్రవాహం_sizes.cb_శీర్షిక, curlx_uztoul(len));
+  Init_Sec_బఫరు(&outbuf[2], SECBUFFER_ప్రవాహం_TRAILER,
+                ptr + backend->ప్రవాహం_sizes.cb_శీర్షిక + len,
+                backend->ప్రవాహం_sizes.cbTrailer);
+  Init_Sec_బఫరు(&outbuf[3], SECBUFFER_ఖాళీలు, ఖాళీ, 0);
+  Init_Sec_బఫరు_Desc(&outbuf_desc, outbuf, 4);
 
   /* copy data into output buffer */
-  memcpy(outbuf[1].pvBuffer, buf, len);
+  జ్ఞాపకం_నకలు(outbuf[1].pv_బఫరు, buf, len);
 
   /* https://learn.microsoft.com/windows/win32/api/sspi/nf-sspi-encryptmessage */
-  sspi_status = Curl_pSecFn->EncryptMessage(&backend->ctxt->ctxt_handle, 0,
+  sspi_స్థితి = Curl_pSecFn->Encrypt_సందేశం(&backend->ctxt->ctxt_handle, 0,
                                             &outbuf_desc, 0);
 
   /* check if the message was encrypted */
-  if(sspi_status == SEC_E_OK) {
+  ఒకవేళ(sspi_స్థితి == SEC_E_OK) {
 
     /* send the encrypted message including header, data and trailer */
-    len = outbuf[0].cbBuffer + outbuf[1].cbBuffer + outbuf[2].cbBuffer;
+    len = outbuf[0].cb_బఫరు + outbuf[1].cb_బఫరు + outbuf[2].cb_బఫరు;
 
     /* it is important to send the full message which includes the header,
        encrypted payload, and trailer. Until the client receives all the
@@ -2043,82 +2043,82 @@ static CURLcode schannel_send(struct Curl_cfilter *cf, struct Curl_easy *data,
        seems the answer is NO. */
 
     /* send entire message or fail */
-    while(len > *pnwritten) {
+    అయితే(len > *pnwritten) {
       size_t this_write = 0;
-      int what;
-      timediff_t timeout_ms = Curl_timeleft_ms(data);
-      if(timeout_ms < 0) {
+      పూర్ణాంకం what;
+      timediff_t timeout_ms = Curl_timeleft_ms(దత్తాంశం);
+      ఒకవేళ(timeout_ms < 0) {
         /* we already got the timeout */
-        failf(data, "schannel: timed out sending data (bytes sent: %zu)",
+        failf(దత్తాంశం, "schannel: timed out sending data (bytes sent: %zu)",
               *pnwritten);
-        result = CURLE_OPERATION_TIMEDOUT;
-        break;
+        ఫలితం = CURLE_OPERATION_TIMEDOUT;
+        ఆపు;
       }
-      else if(!timeout_ms)
+      లేకపోతే ఒకవేళ(!timeout_ms)
         timeout_ms = TIMEDIFF_T_MAX;
-      what = SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, data), timeout_ms);
-      if(what < 0) {
+      what = SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, దత్తాంశం), timeout_ms);
+      ఒకవేళ(what < 0) {
         /* fatal error */
-        failf(data, "select/poll on SSL socket, errno: %d", SOCKERRNO);
-        result = CURLE_SEND_ERROR;
-        break;
+        failf(దత్తాంశం, "select/poll on SSL socket, errno: %d", SOCKERRNO);
+        ఫలితం = CURLE_SEND_ERROR;
+        ఆపు;
       }
-      else if(what == 0) {
-        failf(data, "schannel: timed out sending data (bytes sent: %zu)",
+      లేకపోతే ఒకవేళ(what == 0) {
+        failf(దత్తాంశం, "schannel: timed out sending data (bytes sent: %zu)",
               *pnwritten);
-        result = CURLE_OPERATION_TIMEDOUT;
-        break;
+        ఫలితం = CURLE_OPERATION_TIMEDOUT;
+        ఆపు;
       }
       /* socket is writable */
 
-       result = Curl_conn_cf_send(cf->next, data,
-                                  (const uint8_t *)ptr + *pnwritten,
+       ఫలితం = Curl_conn_cf_send(cf->తదుపరి, దత్తాంశం,
+                                  (స్థిరరాశి uint8_t *)ptr + *pnwritten,
                                   len - *pnwritten,
                                   FALSE, &this_write);
-      if(result == CURLE_AGAIN)
-        continue;
-      else if(result) {
-        break;
+      ఒకవేళ(ఫలితం == CURLE_AGAIN)
+        కొనసాగు;
+      లేకపోతే ఒకవేళ(ఫలితం) {
+        ఆపు;
       }
 
       *pnwritten += this_write;
     }
   }
-  else if(sspi_status == SEC_E_INSUFFICIENT_MEMORY) {
-    result = CURLE_OUT_OF_MEMORY;
+  లేకపోతే ఒకవేళ(sspi_స్థితి == SEC_E_INSUFFICIENT_జ్ఞాపకం) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
   }
-  else {
-    result = CURLE_SEND_ERROR;
+  లేకపోతే {
+    ఫలితం = CURLE_SEND_ERROR;
   }
 
-  if(len == *pnwritten)
+  ఒకవేళ(len == *pnwritten)
     /* Encrypted message including header, data and trailer entirely sent.
        The return value is the number of unencrypted bytes that were sent. */
-    *pnwritten = outbuf[1].cbBuffer;
+    *pnwritten = outbuf[1].cb_బఫరు;
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                              char *buf, size_t len, size_t *pnread)
+స్థిర CURLcode schannel_recv(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                              అక్షరం *buf, size_t len, size_t *pnread)
 {
-  size_t size = 0;
+  size_t కొలత = 0;
   size_t nread = 0;
-  struct ssl_connect_data *connssl = cf->ctx;
-  SecBuffer inbuf[4];
-  SecBufferDesc inbuf_desc;
-  SECURITY_STATUS sspi_status = SEC_E_OK;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  Sec_బఫరు inbuf[4];
+  Sec_బఫరు_Desc inbuf_desc;
+  SECURITY_స్థితి sspi_స్థితి = SEC_E_OK;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
+  CURLcode ఫలితం = CURLE_OK;
 
   DEBUGASSERT(backend);
   *pnread = 0;
 
-  if(backend->recv_renegotiating) {
-    result = schannel_recv_renegotiate(cf, data, SCH_RENEG_CALLER_IS_RECV);
-    if(result)
-      return result;
+  ఒకవేళ(backend->recv_renegotiating) {
+    ఫలితం = schannel_recv_renegotiate(cf, దత్తాంశం, SCH_RENEG_CALLER_IS_RECV);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
   /****************************************************************************
@@ -2137,546 +2137,546 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
    * handled in the cleanup.
    */
 
-  SCH_DEV(infof(data, "schannel: client wants to read %zu bytes", len));
+  SCH_DEV(infof(దత్తాంశం, "schannel: client wants to read %zu bytes", len));
 
-  if(len && len <= backend->decdata.offset) {
-    SCH_DEV(infof(data,
+  ఒకవేళ(len && len <= backend->decdata.స్థానభ్రంశం) {
+    SCH_DEV(infof(దత్తాంశం,
                   "schannel: enough decrypted data is already available"));
-    goto cleanup;
+    వెళ్ళు cleanup;
   }
-  else if(backend->recv_unrecoverable_err) {
-    result = backend->recv_unrecoverable_err;
-    infof(data, "schannel: an unrecoverable error occurred in a prior call");
-    goto cleanup;
+  లేకపోతే ఒకవేళ(backend->recv_unrecoverable_err) {
+    ఫలితం = backend->recv_unrecoverable_err;
+    infof(దత్తాంశం, "schannel: an unrecoverable error occurred in a prior call");
+    వెళ్ళు cleanup;
   }
-  else if(backend->recv_sspi_close_notify) {
+  లేకపోతే ఒకవేళ(backend->recv_sspi_close_notify) {
     /* once a server has indicated shutdown there is no more encrypted data */
-    infof(data, "schannel: server indicated shutdown in a prior call");
-    goto cleanup;
+    infof(దత్తాంశం, "schannel: server indicated shutdown in a prior call");
+    వెళ్ళు cleanup;
   }
   /* it is debatable what to return when !len. Regardless we cannot return
      immediately because there may be data to decrypt (in the case we want to
      decrypt all encrypted cached data) so handle !len later in cleanup. */
-  else if(len && !backend->recv_connection_closed) {
+  లేకపోతే ఒకవేళ(len && !backend->recv_connection_closed) {
     /* the encrypted buffer must be large enough to hold all the bytes
        requested and some TLS record overhead. 'len' is a buffer size, so this
        integer math cannot overflow. */
-    const size_t min_encdata_length = len + CURL_SCHANNEL_BUFFER_FREE_SIZE;
+    స్థిరరాశి size_t min_encdata_నిడివి = len + CURL_SCHANNEL_బఫరు_FREE_కొలత;
 
     /* make sure encrypt buffer fits the requested amount of data */
-    result = ensure_encoding_size(data, &backend->encdata, min_encdata_length);
-    if(result)
-      goto cleanup;
+    ఫలితం = ensure_encoding_కొలత(దత్తాంశం, &backend->encdata, min_encdata_నిడివి);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు cleanup;
 
-    SCH_DEV(infof(data,
+    SCH_DEV(infof(దత్తాంశం,
                   "schannel: encrypted data buffer: offset %zu length %zu",
-                  backend->encdata.offset, backend->encdata.length));
+                  backend->encdata.స్థానభ్రంశం, backend->encdata.నిడివి));
 
     /* read encrypted data from socket */
-    result = Curl_conn_cf_recv(cf->next, data,
-                               (char *)(backend->encdata.buffer +
-                                        backend->encdata.offset),
-                               backend->encdata.length -
-                               backend->encdata.offset,
+    ఫలితం = Curl_conn_cf_recv(cf->తదుపరి, దత్తాంశం,
+                               (అక్షరం *)(backend->encdata.బఫరు +
+                                        backend->encdata.స్థానభ్రంశం),
+                               backend->encdata.నిడివి -
+                               backend->encdata.స్థానభ్రంశం,
                                &nread);
-    if(result) {
-      if(result == CURLE_AGAIN)
-        SCH_DEV(infof(data, "schannel: recv returned CURLE_AGAIN"));
-      else {
-        infof(data, "schannel: recv returned error %d", (int)result);
-        backend->recv_unrecoverable_err = result;
+    ఒకవేళ(ఫలితం) {
+      ఒకవేళ(ఫలితం == CURLE_AGAIN)
+        SCH_DEV(infof(దత్తాంశం, "schannel: recv returned CURLE_AGAIN"));
+      లేకపోతే {
+        infof(దత్తాంశం, "schannel: recv returned error %d", (పూర్ణాంకం)ఫలితం);
+        backend->recv_unrecoverable_err = ఫలితం;
       }
     }
-    else if(nread == 0) {
+    లేకపోతే ఒకవేళ(nread == 0) {
       backend->recv_connection_closed = TRUE;
-      DEBUGF(infof(data, "schannel: server closed the connection"));
+      DEBUGF(infof(దత్తాంశం, "schannel: server closed the connection"));
     }
-    else {
-      backend->encdata.offset += nread;
+    లేకపోతే {
+      backend->encdata.స్థానభ్రంశం += nread;
       backend->encdata_is_incomplete = FALSE;
-      SCH_DEV(infof(data, "schannel: encrypted data got %zu", nread));
+      SCH_DEV(infof(దత్తాంశం, "schannel: encrypted data got %zu", nread));
     }
   }
 
-  SCH_DEV(infof(data, "schannel: encrypted data buffer: offset %zu length %zu",
-                backend->encdata.offset, backend->encdata.length));
+  SCH_DEV(infof(దత్తాంశం, "schannel: encrypted data buffer: offset %zu length %zu",
+                backend->encdata.స్థానభ్రంశం, backend->encdata.నిడివి));
 
   /* decrypt loop */
-  while(backend->encdata.offset > 0 && sspi_status == SEC_E_OK &&
-        (!len || backend->decdata.offset < len ||
+  అయితే(backend->encdata.స్థానభ్రంశం > 0 && sspi_స్థితి == SEC_E_OK &&
+        (!len || backend->decdata.స్థానభ్రంశం < len ||
          backend->recv_connection_closed)) {
     /* prepare data buffer for DecryptMessage call */
-    InitSecBuffer(&inbuf[0], SECBUFFER_DATA, backend->encdata.buffer,
-                  curlx_uztoul(backend->encdata.offset));
+    Init_Sec_బఫరు(&inbuf[0], SECBUFFER_దత్తాంశం, backend->encdata.బఫరు,
+                  curlx_uztoul(backend->encdata.స్థానభ్రంశం));
 
     /* we need 3 more empty input buffers for possible output */
-    InitSecBuffer(&inbuf[1], SECBUFFER_EMPTY, NULL, 0);
-    InitSecBuffer(&inbuf[2], SECBUFFER_EMPTY, NULL, 0);
-    InitSecBuffer(&inbuf[3], SECBUFFER_EMPTY, NULL, 0);
-    InitSecBufferDesc(&inbuf_desc, inbuf, 4);
+    Init_Sec_బఫరు(&inbuf[1], SECBUFFER_ఖాళీలు, ఖాళీ, 0);
+    Init_Sec_బఫరు(&inbuf[2], SECBUFFER_ఖాళీలు, ఖాళీ, 0);
+    Init_Sec_బఫరు(&inbuf[3], SECBUFFER_ఖాళీలు, ఖాళీ, 0);
+    Init_Sec_బఫరు_Desc(&inbuf_desc, inbuf, 4);
 
     /* https://learn.microsoft.com/windows/win32/api/sspi/nf-sspi-decryptmessage
      */
-    sspi_status = Curl_pSecFn->DecryptMessage(&backend->ctxt->ctxt_handle,
-                                              &inbuf_desc, 0, NULL);
+    sspi_స్థితి = Curl_pSecFn->Decrypt_సందేశం(&backend->ctxt->ctxt_handle,
+                                              &inbuf_desc, 0, ఖాళీ);
 
     /* check if everything went fine (server may want to renegotiate
        or shutdown the connection context) */
-    if(sspi_status == SEC_E_OK || sspi_status == SEC_I_RENEGOTIATE ||
-       sspi_status == SEC_I_CONTEXT_EXPIRED) {
+    ఒకవేళ(sspi_స్థితి == SEC_E_OK || sspi_స్థితి == SEC_I_RENEGOTIATE ||
+       sspi_స్థితి == SEC_I_CONTEXT_EXPIRED) {
       /* check for successfully decrypted data, even before actual
          renegotiation or shutdown of the connection context */
-      if(inbuf[1].BufferType == SECBUFFER_DATA) {
-        SCH_DEV(infof(data, "schannel: decrypted data length: %lu",
-                      inbuf[1].cbBuffer));
+      ఒకవేళ(inbuf[1].బఫరు_Type == SECBUFFER_దత్తాంశం) {
+        SCH_DEV(infof(దత్తాంశం, "schannel: decrypted data length: %lu",
+                      inbuf[1].cb_బఫరు));
 
         /* ensure the decode buffer fits the received amount of data */
-        result = ensure_decoding_size(data, &backend->decdata,
-                                      inbuf[1].cbBuffer, len);
-        if(result)
-          goto cleanup;
+        ఫలితం = ensure_decoding_కొలత(దత్తాంశం, &backend->decdata,
+                                      inbuf[1].cb_బఫరు, len);
+        ఒకవేళ(ఫలితం)
+          వెళ్ళు cleanup;
 
         /* copy decrypted data to internal buffer */
-        size = inbuf[1].cbBuffer;
-        if(size) {
-          memcpy(backend->decdata.buffer + backend->decdata.offset,
-                 inbuf[1].pvBuffer, size);
-          backend->decdata.offset += size;
+        కొలత = inbuf[1].cb_బఫరు;
+        ఒకవేళ(కొలత) {
+          జ్ఞాపకం_నకలు(backend->decdata.బఫరు + backend->decdata.స్థానభ్రంశం,
+                 inbuf[1].pv_బఫరు, కొలత);
+          backend->decdata.స్థానభ్రంశం += కొలత;
         }
 
-        SCH_DEV(infof(data, "schannel: decrypted data added: %zu", size));
-        SCH_DEV(infof(data,
+        SCH_DEV(infof(దత్తాంశం, "schannel: decrypted data added: %zu", కొలత));
+        SCH_DEV(infof(దత్తాంశం,
                       "schannel: decrypted cached: offset %zu length %zu",
-                      backend->decdata.offset, backend->decdata.length));
+                      backend->decdata.స్థానభ్రంశం, backend->decdata.నిడివి));
       }
 
       /* check for remaining encrypted data */
-      if(inbuf[3].BufferType == SECBUFFER_EXTRA && inbuf[3].cbBuffer > 0) {
-        SCH_DEV(infof(data, "schannel: encrypted data length: %lu",
-                      inbuf[3].cbBuffer));
+      ఒకవేళ(inbuf[3].బఫరు_Type == SECBUFFER_EXTRA && inbuf[3].cb_బఫరు > 0) {
+        SCH_DEV(infof(దత్తాంశం, "schannel: encrypted data length: %lu",
+                      inbuf[3].cb_బఫరు));
 
         /* check if the remaining data is less than the total amount
          * and therefore begins after the already processed data
          */
-        if(backend->encdata.offset > inbuf[3].cbBuffer) {
+        ఒకవేళ(backend->encdata.స్థానభ్రంశం > inbuf[3].cb_బఫరు) {
           /* move remaining encrypted data forward to the beginning of
-             buffer */
-          memmove(backend->encdata.buffer,
-                  (backend->encdata.buffer + backend->encdata.offset) -
-                  inbuf[3].cbBuffer, inbuf[3].cbBuffer);
-          backend->encdata.offset = inbuf[3].cbBuffer;
+బఫరు*/
+          memmove(backend->encdata.బఫరు,
+                  (backend->encdata.బఫరు + backend->encdata.స్థానభ్రంశం) -
+                  inbuf[3].cb_బఫరు, inbuf[3].cb_బఫరు);
+          backend->encdata.స్థానభ్రంశం = inbuf[3].cb_బఫరు;
         }
 
-        SCH_DEV(infof(data,
+        SCH_DEV(infof(దత్తాంశం,
                       "schannel: encrypted cached: offset %zu length %zu",
-                      backend->encdata.offset, backend->encdata.length));
+                      backend->encdata.స్థానభ్రంశం, backend->encdata.నిడివి));
       }
-      else {
+      లేకపోతే {
         /* reset encrypted buffer offset, because there is no data remaining */
-        backend->encdata.offset = 0;
+        backend->encdata.స్థానభ్రంశం = 0;
       }
 
       /* check if server wants to renegotiate the connection context */
-      if(sspi_status == SEC_I_RENEGOTIATE) {
-        infof(data, "schannel: remote party requests renegotiation");
-        if(result && result != CURLE_AGAIN) {
-          infof(data, "schannel: cannot renegotiate, an error is pending");
-          goto cleanup;
+      ఒకవేళ(sspi_స్థితి == SEC_I_RENEGOTIATE) {
+        infof(దత్తాంశం, "schannel: remote party requests renegotiation");
+        ఒకవేళ(ఫలితం && ఫలితం != CURLE_AGAIN) {
+          infof(దత్తాంశం, "schannel: cannot renegotiate, an error is pending");
+          వెళ్ళు cleanup;
         }
 
         backend->recv_renegotiating = TRUE;
-        result = schannel_recv_renegotiate(cf, data, SCH_RENEG_CALLER_IS_RECV);
-        if(result)
-          goto cleanup;
+        ఫలితం = schannel_recv_renegotiate(cf, దత్తాంశం, SCH_RENEG_CALLER_IS_RECV);
+        ఒకవేళ(ఫలితం)
+          వెళ్ళు cleanup;
 
         /* now retry receiving data */
-        sspi_status = SEC_E_OK;
-        continue;
+        sspi_స్థితి = SEC_E_OK;
+        కొనసాగు;
       }
       /* check if the server closed the connection */
-      else if(sspi_status == SEC_I_CONTEXT_EXPIRED) {
+      లేకపోతే ఒకవేళ(sspi_స్థితి == SEC_I_CONTEXT_EXPIRED) {
         /* In Windows 2000 SEC_I_CONTEXT_EXPIRED (close_notify) is not
            returned so we have to work around that in cleanup. */
         backend->recv_sspi_close_notify = TRUE;
-        if(!backend->recv_connection_closed)
+        ఒకవేళ(!backend->recv_connection_closed)
           backend->recv_connection_closed = TRUE;
         /* We received the close notify fine, any error we got
          * from the lower filters afterwards (e.g. the socket), is not
          * an error on the TLS data stream. That one ended here. */
-        if(result == CURLE_RECV_ERROR)
-          result = CURLE_OK;
-        infof(data,
+        ఒకవేళ(ఫలితం == CURLE_RECV_ERROR)
+          ఫలితం = CURLE_OK;
+        infof(దత్తాంశం,
               "schannel: server close notification received (close_notify)");
-        goto cleanup;
+        వెళ్ళు cleanup;
       }
     }
-    else if(sspi_status == SEC_E_INCOMPLETE_MESSAGE) {
+    లేకపోతే ఒకవేళ(sspi_స్థితి == SEC_E_INCOMPLETE_సందేశం) {
       backend->encdata_is_incomplete = TRUE;
-      if(!result)
-        result = CURLE_AGAIN;
-      SCH_DEV(infof(data, "schannel: failed to decrypt data, need more data"));
-      goto cleanup;
+      ఒకవేళ(!ఫలితం)
+        ఫలితం = CURLE_AGAIN;
+      SCH_DEV(infof(దత్తాంశం, "schannel: failed to decrypt data, need more data"));
+      వెళ్ళు cleanup;
     }
-    else {
-      char buffer[STRERROR_LEN];
-      failf(data, "schannel: failed to read data from server: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      result = CURLE_RECV_ERROR;
-      goto cleanup;
+    లేకపోతే {
+      అక్షరం బఫరు[STRERROR_LEN];
+      failf(దత్తాంశం, "schannel: failed to read data from server: %s",
+            Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+      ఫలితం = CURLE_RECV_ERROR;
+      వెళ్ళు cleanup;
     }
   }
 
-  SCH_DEV(infof(data, "schannel: encrypted data buffer: offset %zu length %zu",
-                backend->encdata.offset, backend->encdata.length));
+  SCH_DEV(infof(దత్తాంశం, "schannel: encrypted data buffer: offset %zu length %zu",
+                backend->encdata.స్థానభ్రంశం, backend->encdata.నిడివి));
 
-  SCH_DEV(infof(data, "schannel: decrypted data buffer: offset %zu length %zu",
-                backend->decdata.offset, backend->decdata.length));
+  SCH_DEV(infof(దత్తాంశం, "schannel: decrypted data buffer: offset %zu length %zu",
+                backend->decdata.స్థానభ్రంశం, backend->decdata.నిడివి));
 
 cleanup:
   /* Warning- there is no guarantee the encdata state is valid at this point */
-  SCH_DEV(infof(data, "schannel: schannel_recv cleanup"));
+  SCH_DEV(infof(దత్తాంశం, "schannel: schannel_recv cleanup"));
 
   /* Error if the connection has closed without a close_notify.
 
      The behavior here is a matter of debate. We do not want to be vulnerable
      to a truncation attack however there is some browser precedent for
      ignoring the close_notify for compatibility reasons. */
-  if(len && !backend->decdata.offset && backend->recv_connection_closed &&
+  ఒకవేళ(len && !backend->decdata.స్థానభ్రంశం && backend->recv_connection_closed &&
      !backend->recv_sspi_close_notify) {
-    result = CURLE_RECV_ERROR;
-    failf(data, "schannel: server closed abruptly (missing close_notify)");
+    ఫలితం = CURLE_RECV_ERROR;
+    failf(దత్తాంశం, "schannel: server closed abruptly (missing close_notify)");
   }
 
   /* Any error other than CURLE_AGAIN is an unrecoverable error. */
-  if(result && result != CURLE_AGAIN)
-    backend->recv_unrecoverable_err = result;
+  ఒకవేళ(ఫలితం && ఫలితం != CURLE_AGAIN)
+    backend->recv_unrecoverable_err = ఫలితం;
 
-  size = len < backend->decdata.offset ? len : backend->decdata.offset;
-  if(size) {
-    memcpy(buf, backend->decdata.buffer, size);
-    memmove(backend->decdata.buffer, backend->decdata.buffer + size,
-            backend->decdata.offset - size);
-    backend->decdata.offset -= size;
-    SCH_DEV(infof(data, "schannel: decrypted data returned %zu", size));
-    SCH_DEV(infof(data,
+  కొలత = len < backend->decdata.స్థానభ్రంశం ? len : backend->decdata.స్థానభ్రంశం;
+  ఒకవేళ(కొలత) {
+    జ్ఞాపకం_నకలు(buf, backend->decdata.బఫరు, కొలత);
+    memmove(backend->decdata.బఫరు, backend->decdata.బఫరు + కొలత,
+            backend->decdata.స్థానభ్రంశం - కొలత);
+    backend->decdata.స్థానభ్రంశం -= కొలత;
+    SCH_DEV(infof(దత్తాంశం, "schannel: decrypted data returned %zu", కొలత));
+    SCH_DEV(infof(దత్తాంశం,
                   "schannel: decrypted data buffer: offset %zu length %zu",
-                  backend->decdata.offset, backend->decdata.length));
-    *pnread = size;
-    return CURLE_OK;
+                  backend->decdata.స్థానభ్రంశం, backend->decdata.నిడివి));
+    *pnread = కొలత;
+    తిరిగి CURLE_OK;
   }
 
-  if(!result && !backend->recv_connection_closed)
-    result = CURLE_AGAIN;
+  ఒకవేళ(!ఫలితం && !backend->recv_connection_closed)
+    ఫలితం = CURLE_AGAIN;
 
   /* it is debatable what to return when !len. We could return whatever error
      we got from decryption but instead we override here so the return is
      consistent. */
-  if(!len)
-    return CURLE_OK;
+  ఒకవేళ(!len)
+    తిరిగి CURLE_OK;
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static bool schannel_data_pending(struct Curl_cfilter *cf,
-                                  const struct Curl_easy *data)
+స్థిర bool schannel_దత్తాంశం_pending(నిర్మాణం Curl_cfilter *cf,
+                                  స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  const struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
+  స్థిరరాశి నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
 
-  (void)data;
+  (శూన్య)దత్తాంశం;
   DEBUGASSERT(backend);
 
-  if(backend->ctxt) /* SSL/TLS is in use */
-    return backend->decdata.offset > 0 ||
-           (backend->encdata.offset > 0 && !backend->encdata_is_incomplete) ||
+  ఒకవేళ(backend->ctxt) /* SSL/TLS is in use */
+    తిరిగి backend->decdata.స్థానభ్రంశం > 0 ||
+           (backend->encdata.స్థానభ్రంశం > 0 && !backend->encdata_is_incomplete) ||
            backend->recv_connection_closed ||
            backend->recv_sspi_close_notify ||
            backend->recv_unrecoverable_err;
-  else
-    return FALSE;
+  లేకపోతే
+    తిరిగి FALSE;
 }
 
 /* shut down the SSL connection and clean up related memory.
    this function can be called multiple times on the same connection including
    if the SSL connection failed (eg connection made but failed handshake). */
-static CURLcode schannel_shutdown(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool send_shutdown, bool *done)
+స్థిర CURLcode schannel_shutdown(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  bool send_shutdown, bool *పూర్తి)
 {
   /* See https://learn.microsoft.com/windows/win32/secauthn/shutting-down-an-schannel-connection
    * Shutting Down an Schannel Connection
    */
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(cf->shutdown) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->shutdown) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(దత్తాంశం);
   DEBUGASSERT(backend);
 
   /* Not supported in schannel */
-  (void)send_shutdown;
+  (శూన్య)send_shutdown;
 
-  *done = FALSE;
-  if(backend->ctxt) {
-    infof(data, "schannel: shutting down SSL/TLS connection with %s port %d",
-          connssl->peer.origin->hostname, connssl->peer.origin->port);
+  *పూర్తి = FALSE;
+  ఒకవేళ(backend->ctxt) {
+    infof(దత్తాంశం, "schannel: shutting down SSL/TLS connection with %s port %d",
+          connssl->peer.origin->hostname, connssl->peer.origin->పోర్టు);
   }
 
-  if(!backend->ctxt || cf->shutdown) {
-    *done = TRUE;
-    goto out;
+  ఒకవేళ(!backend->ctxt || cf->shutdown) {
+    *పూర్తి = TRUE;
+    వెళ్ళు బహిర్గతం;
   }
 
-  if(backend->cred && backend->ctxt && !backend->sent_shutdown &&
+  ఒకవేళ(backend->cred && backend->ctxt && !backend->పంపిన_shutdown &&
      !backend->shutdown_generated) {
-    SecBufferDesc BuffDesc;
-    SecBuffer Buffer;
-    SECURITY_STATUS sspi_status;
-    SecBuffer outbuf;
-    SecBufferDesc outbuf_desc;
+    Sec_బఫరు_Desc BuffDesc;
+    Sec_బఫరు బఫరు_2;
+    SECURITY_స్థితి sspi_స్థితి;
+    Sec_బఫరు outbuf;
+    Sec_బఫరు_Desc outbuf_desc;
     DWORD dwshut = SCHANNEL_SHUTDOWN;
 
-    InitSecBuffer(&Buffer, SECBUFFER_TOKEN, &dwshut, sizeof(dwshut));
-    InitSecBufferDesc(&BuffDesc, &Buffer, 1);
+    Init_Sec_బఫరు(&బఫరు_2, SECBUFFER_TOKEN, &dwshut, పరిమాణం(dwshut));
+    Init_Sec_బఫరు_Desc(&BuffDesc, &బఫరు_2, 1);
 
-    sspi_status = Curl_pSecFn->ApplyControlToken(&backend->ctxt->ctxt_handle,
+    sspi_స్థితి = Curl_pSecFn->ApplyControlToken(&backend->ctxt->ctxt_handle,
                                                  &BuffDesc);
 
-    if(sspi_status != SEC_E_OK) {
-      char buffer[STRERROR_LEN];
-      failf(data, "schannel: ApplyControlToken failure: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      result = CURLE_SEND_ERROR;
-      goto out;
+    ఒకవేళ(sspi_స్థితి != SEC_E_OK) {
+      అక్షరం బఫరు[STRERROR_LEN];
+      failf(దత్తాంశం, "schannel: ApplyControlToken failure: %s",
+            Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+      ఫలితం = CURLE_SEND_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
 
     /* setup output buffer */
-    InitSecBuffer(&outbuf, SECBUFFER_EMPTY, NULL, 0);
-    InitSecBufferDesc(&outbuf_desc, &outbuf, 1);
+    Init_Sec_బఫరు(&outbuf, SECBUFFER_ఖాళీలు, ఖాళీ, 0);
+    Init_Sec_బఫరు_Desc(&outbuf_desc, &outbuf, 1);
 
-    sspi_status = Curl_pSecFn->InitializeSecurityContext(
+    sspi_స్థితి = Curl_pSecFn->InitializeSecurityContext(
       &backend->cred->cred_handle,
       &backend->ctxt->ctxt_handle,
       backend->cred->sni_hostname,
       backend->req_flags,
       0,
       0,
-      NULL,
+      ఖాళీ,
       0,
       &backend->ctxt->ctxt_handle,
       &outbuf_desc,
-      &backend->ret_flags, NULL);
+      &backend->ret_flags, ఖాళీ);
 
-    if((sspi_status == SEC_E_OK) || (sspi_status == SEC_I_CONTEXT_EXPIRED)) {
+    ఒకవేళ((sspi_స్థితి == SEC_E_OK) || (sspi_స్థితి == SEC_I_CONTEXT_EXPIRED)) {
       backend->shutdown_token = outbuf;
       backend->shutdown_generated = TRUE;
     }
-    else {
-      char buffer[STRERROR_LEN];
-      if(outbuf.pvBuffer)
-        Curl_pSecFn->FreeContextBuffer(outbuf.pvBuffer);
-      failf(data, "schannel: generating close msg failed: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      result = CURLE_SEND_ERROR;
-      goto out;
+    లేకపోతే {
+      అక్షరం బఫరు[STRERROR_LEN];
+      ఒకవేళ(outbuf.pv_బఫరు)
+        Curl_pSecFn->Free_Context_బఫరు(outbuf.pv_బఫరు);
+      failf(దత్తాంశం, "schannel: generating close msg failed: %s",
+            Curl_sspi_strerror(sspi_స్థితి, బఫరు, పరిమాణం(బఫరు)));
+      ఫలితం = CURLE_SEND_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  if(backend->shutdown_generated && !backend->sent_shutdown) {
+  ఒకవేళ(backend->shutdown_generated && !backend->పంపిన_shutdown) {
     size_t written = 0;
-    size_t remaining;
+    size_t మిగిలిన;
 
-    DEBUGASSERT(backend->shutdown_offset <= backend->shutdown_token.cbBuffer);
-    remaining = backend->shutdown_token.cbBuffer - backend->shutdown_offset;
+    DEBUGASSERT(backend->shutdown_స్థానభ్రంశం <= backend->shutdown_token.cb_బఫరు);
+    మిగిలిన = backend->shutdown_token.cb_బఫరు - backend->shutdown_స్థానభ్రంశం;
 
-    if(remaining) {
-      result = Curl_conn_cf_send(cf->next, data,
-                                 ((uint8_t *)backend->shutdown_token.pvBuffer +
-                                  backend->shutdown_offset),
-                                 remaining, FALSE, &written);
-      if(!result)
-        backend->shutdown_offset += written;
-      if(result == CURLE_AGAIN || (!result && written < remaining)) {
+    ఒకవేళ(మిగిలిన) {
+      ఫలితం = Curl_conn_cf_send(cf->తదుపరి, దత్తాంశం,
+                                 ((uint8_t *)backend->shutdown_token.pv_బఫరు +
+                                  backend->shutdown_స్థానభ్రంశం),
+                                 మిగిలిన, FALSE, &written);
+      ఒకవేళ(!ఫలితం)
+        backend->shutdown_స్థానభ్రంశం += written;
+      ఒకవేళ(ఫలితం == CURLE_AGAIN || (!ఫలితం && written < మిగిలిన)) {
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
-        result = CURLE_OK;
-        goto out;
+        ఫలితం = CURLE_OK;
+        వెళ్ళు బహిర్గతం;
       }
     }
-    else /* no shutdown message to send? */
-      result = CURLE_OK;
-    if(result) {
-      if(backend->recv_connection_closed) {
+    లేకపోతే /* no shutdown message to send? */
+      ఫలితం = CURLE_OK;
+    ఒకవేళ(ఫలితం) {
+      ఒకవేళ(backend->recv_connection_closed) {
         /* The server already closed, so sending close_notify is optional. */
-        *done = TRUE;
-        result = CURLE_OK;
+        *పూర్తి = TRUE;
+        ఫలితం = CURLE_OK;
       }
-      else {
-        failf(data, "schannel: error sending close msg: %d", (int)result);
-        result = CURLE_SEND_ERROR;
+      లేకపోతే {
+        failf(దత్తాంశం, "schannel: error sending close msg: %d", (పూర్ణాంకం)ఫలితం);
+        ఫలితం = CURLE_SEND_ERROR;
       }
-      goto out;
+      వెళ్ళు బహిర్గతం;
     }
-    if(backend->shutdown_token.pvBuffer)
-      Curl_pSecFn->FreeContextBuffer(backend->shutdown_token.pvBuffer);
-    memset(&backend->shutdown_token, 0, sizeof(backend->shutdown_token));
-    backend->shutdown_offset = 0;
-    backend->sent_shutdown = TRUE;
-    *done = TRUE;
+    ఒకవేళ(backend->shutdown_token.pv_బఫరు)
+      Curl_pSecFn->Free_Context_బఫరు(backend->shutdown_token.pv_బఫరు);
+    memset(&backend->shutdown_token, 0, పరిమాణం(backend->shutdown_token));
+    backend->shutdown_స్థానభ్రంశం = 0;
+    backend->పంపిన_shutdown = TRUE;
+    *పూర్తి = TRUE;
   }
 
   /* If the connection seems open and we have not seen the close notify
    * from the server yet, try to receive it. */
-  if(backend->cred && backend->ctxt &&
+  ఒకవేళ(backend->cred && backend->ctxt &&
      !backend->recv_sspi_close_notify && !backend->recv_connection_closed) {
-    char buffer[1024];
+    అక్షరం బఫరు[1024];
     size_t nread;
 
-    result = schannel_recv(cf, data, buffer, sizeof(buffer), &nread);
-    if(result == CURLE_AGAIN) {
+    ఫలితం = schannel_recv(cf, దత్తాంశం, బఫరు, పరిమాణం(బఫరు), &nread);
+    ఒకవేళ(ఫలితం == CURLE_AGAIN) {
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
     }
-    else if(result) {
-      CURL_TRC_CF(data, cf, "SSL shutdown, error %d", (int)result);
-      result = CURLE_RECV_ERROR;
+    లేకపోతే ఒకవేళ(ఫలితం) {
+      CURL_TRC_CF(దత్తాంశం, cf, "SSL shutdown, error %d", (పూర్ణాంకం)ఫలితం);
+      ఫలితం = CURLE_RECV_ERROR;
     }
-    else if(nread == 0) {
+    లేకపోతే ఒకవేళ(nread == 0) {
       /* We got the close notify alert and are done. */
       backend->recv_connection_closed = TRUE;
-      *done = TRUE;
+      *పూర్తి = TRUE;
     }
-    else {
+    లేకపోతే {
       /* still data coming in? */
     }
   }
 
-out:
-  cf->shutdown = (result || *done);
-  return result;
+బహిర్గతం:
+  cf->shutdown = (ఫలితం || *పూర్తి);
+  తిరిగి ఫలితం;
 }
 
-static void schannel_close(struct Curl_cfilter *cf, struct Curl_easy *data)
+స్థిర శూన్య schannel_close(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(దత్తాంశం);
   DEBUGASSERT(backend);
 
-  if(backend->shutdown_token.pvBuffer)
-    Curl_pSecFn->FreeContextBuffer(backend->shutdown_token.pvBuffer);
-  memset(&backend->shutdown_token, 0, sizeof(backend->shutdown_token));
-  backend->shutdown_offset = 0;
+  ఒకవేళ(backend->shutdown_token.pv_బఫరు)
+    Curl_pSecFn->Free_Context_బఫరు(backend->shutdown_token.pv_బఫరు);
+  memset(&backend->shutdown_token, 0, పరిమాణం(backend->shutdown_token));
+  backend->shutdown_స్థానభ్రంశం = 0;
 
   /* free SSPI Schannel API security context handle */
-  if(backend->ctxt) {
-    if(cf->conn->sslContext == &backend->ctxt->ctxt_handle)
-      cf->conn->sslContext = NULL;
+  ఒకవేళ(backend->ctxt) {
+    ఒకవేళ(cf->conn->sslContext == &backend->ctxt->ctxt_handle)
+      cf->conn->sslContext = ఖాళీ;
 
-    DEBUGF(infof(data, "schannel: clear security context handle"));
+    DEBUGF(infof(దత్తాంశం, "schannel: clear security context handle"));
     Curl_pSecFn->DeleteSecurityContext(&backend->ctxt->ctxt_handle);
     curlx_safefree(backend->ctxt);
   }
 
   /* free SSPI Schannel API credential handle */
-  if(backend->cred) {
-    Curl_ssl_scache_lock(data);
+  ఒకవేళ(backend->cred) {
+    Curl_ssl_scache_తాళం(దత్తాంశం);
     schannel_session_free(backend->cred);
-    Curl_ssl_scache_unlock(data);
-    backend->cred = NULL;
+    Curl_ssl_scache_unlock(దత్తాంశం);
+    backend->cred = ఖాళీ;
   }
 
   /* free the buffer used to encrypt outgoing data */
-  curlx_safefree(backend->send_buffer);
-  backend->send_buffer_len = 0;
+  curlx_safefree(backend->send_బఫరు);
+  backend->send_బఫరు_len = 0;
 
   /* free internal buffer for received encrypted data */
-  if(backend->encdata.buffer) {
-    curlx_safefree(backend->encdata.buffer);
-    backend->encdata.length = 0;
-    backend->encdata.offset = 0;
+  ఒకవేళ(backend->encdata.బఫరు) {
+    curlx_safefree(backend->encdata.బఫరు);
+    backend->encdata.నిడివి = 0;
+    backend->encdata.స్థానభ్రంశం = 0;
     backend->encdata_is_incomplete = FALSE;
   }
 
   /* free internal buffer for received decrypted data */
-  if(backend->decdata.buffer) {
-    curlx_safefree(backend->decdata.buffer);
-    backend->decdata.length = 0;
-    backend->decdata.offset = 0;
+  ఒకవేళ(backend->decdata.బఫరు) {
+    curlx_safefree(backend->decdata.బఫరు);
+    backend->decdata.నిడివి = 0;
+    backend->decdata.స్థానభ్రంశం = 0;
   }
 }
 
-static int schannel_init(void)
+స్థిర పూర్ణాంకం schannel_init(శూన్య)
 {
-  typedef const char *(APIENTRY *WINE_GET_VERSION_FN)(void);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
-  WINE_GET_VERSION_FN p_wine_get_version =
-    CURLX_FUNCTION_CAST(WINE_GET_VERSION_FN,
-      GetProcAddress(GetModuleHandle(TEXT("ntdll")), "wine_get_version"));
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
-  if(p_wine_get_version) {  /* WINE detected */
+  రకనిర్వచనం స్థిరరాశి అక్షరం *(APIENTRY *WINE_GET_సంస్కరణ_FN)(శూన్య);
+#ఒకవేళ defined(__clang__) && __clang_major__ >= 16
+#సూచన clang diagnostic నెట్టు
+#సూచన clang diagnostic ignored "-Wcast-function-type-strict"
+#అయితే_ముగింపు
+  WINE_GET_సంస్కరణ_FN p_wine_get_సంస్కరణ =
+    CURLX_FUNCTION_CAST(WINE_GET_సంస్కరణ_FN,
+      Get_Proc_చిరునామా(GetModuleHandle(పాఠ్యం_2("ntdll")), "wine_get_version"));
+#ఒకవేళ defined(__clang__) && __clang_major__ >= 16
+#సూచన clang diagnostic తీయి
+#అయితే_ముగింపు
+  ఒకవేళ(p_wine_get_సంస్కరణ) {  /* WINE detected */
     curl_off_t ver = 0;
-    const char *wine_version = p_wine_get_version();  /* e.g. "6.0.2" */
+    స్థిరరాశి అక్షరం *wine_సంస్కరణ = p_wine_get_సంస్కరణ();  /* e.g. "6.0.2" */
     /* Assume ALPN support with WINE 6.0 or greater */
-    if(wine_version)
-      curlx_str_number(&wine_version, &ver, 20);
+    ఒకవేళ(wine_సంస్కరణ)
+      curlx_str_సంఖ్య(&wine_సంస్కరణ, &ver, 20);
     s_win_has_alpn = (ver >= 6);
   }
-  else {
+  లేకపోతే {
     /* ALPN is supported on Windows 8.1 / Server 2012 R2 or newer. */
-    s_win_has_alpn = curlx_verify_windows_version(6, 3, 0, PLATFORM_WINNT,
-                                                  VERSION_GREATER_THAN_EQUAL);
+    s_win_has_alpn = curlx_verify_windows_సంస్కరణ(6, 3, 0, PLATFORM_WINNT,
+                                                  సంస్కరణ_GREATER_THAN_EQUAL);
   }
 
-  return Curl_sspi_global_init() == CURLE_OK ? 1 : 0;
+  తిరిగి Curl_sspi_global_init() == CURLE_OK ? 1 : 0;
 }
 
-static void schannel_cleanup(void)
+స్థిర శూన్య schannel_cleanup(శూన్య)
 {
   Curl_sspi_global_cleanup();
 }
 
-static size_t schannel_version(char *buffer, size_t size)
+స్థిర size_t schannel_సంస్కరణ(అక్షరం *బఫరు, size_t కొలత)
 {
-  return curl_msnprintf(buffer, size, "Schannel");
+  తిరిగి curl_msnprintf(బఫరు, కొలత, "Schannel");
 }
 
-static CURLcode schannel_random(struct Curl_easy *data,
-                                unsigned char *entropy, size_t length)
+స్థిర CURLcode schannel_random(నిర్మాణం Curl_easy *దత్తాంశం,
+                                గుర్తులేని అక్షరం *entropy, size_t నిడివి)
 {
-  (void)data;
+  (శూన్య)దత్తాంశం;
 
-  return curlx_win32_random(entropy, length);
+  తిరిగి curlx_win32_random(entropy, నిడివి);
 }
 
-static CURLcode schannel_checksum(const unsigned char *input,
+స్థిర CURLcode schannel_checksum(స్థిరరాశి గుర్తులేని అక్షరం *ఆదానం,
                                   size_t inputlen,
-                                  unsigned char *checksum,
+                                  గుర్తులేని అక్షరం *checksum,
                                   size_t checksumlen,
                                   DWORD provType,
-                                  const unsigned int algId)
+                                  స్థిరరాశి గుర్తులేని పూర్ణాంకం algId)
 {
-  CURLcode result = CURLE_FAILED_INIT;
+  CURLcode ఫలితం = CURLE_FAILED_INIT;
 
   HCRYPTPROV hProv = 0;
   HCRYPTHASH hHash = 0;
 
   size_t off;
 
-  DWORD cbHashSize;
-  DWORD dwHashSizeLen;
+  DWORD cb_Hash_కొలత;
+  DWORD dw_Hash_కొలత_Len;
   DWORD dwChecksumLen;
 
   /* since this can fail in multiple ways, zero memory first so we never
@@ -2684,215 +2684,215 @@ static CURLcode schannel_checksum(const unsigned char *input,
    */
   memset(checksum, 0, checksumlen);
 
-  if(!CryptAcquireContext(&hProv, NULL, NULL, provType,
+  ఒకవేళ(!CryptAcquireContext(&hProv, ఖాళీ, ఖాళీ, provType,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    goto out;
+    వెళ్ళు బహిర్గతం;
 
-  if(!CryptCreateHash(hProv, algId, 0, 0, &hHash))
-    goto out;
+  ఒకవేళ(!CryptCreateHash(hProv, algId, 0, 0, &hHash))
+    వెళ్ళు బహిర్గతం;
 
-  result = CURLE_BAD_FUNCTION_ARGUMENT;
+  ఫలితం = CURLE_BAD_FUNCTION_వాదం;
 
   off = 0;
-  while(off < inputlen) {
+  అయితే(off < inputlen) {
     DWORD chunk = (DWORD)CURLMIN(inputlen - off, 0xffffffffUL);
-    if(!CryptHashData(hHash, input + off, chunk, 0))
-      goto out;
+    ఒకవేళ(!Crypt_Hash_దత్తాంశం(hHash, ఆదానం + off, chunk, 0))
+      వెళ్ళు బహిర్గతం;
     off += chunk;
   }
 
   /* get hash size */
-  cbHashSize = 0;
-  dwHashSizeLen = (DWORD)sizeof(cbHashSize);
-  if(!CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE *)&cbHashSize,
-                        &dwHashSizeLen, 0))
-    goto out;
+  cb_Hash_కొలత = 0;
+  dw_Hash_కొలత_Len = (DWORD)పరిమాణం(cb_Hash_కొలత);
+  ఒకవేళ(!CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE *)&cb_Hash_కొలత,
+                        &dw_Hash_కొలత_Len, 0))
+    వెళ్ళు బహిర్గతం;
 
   /* check if hash fits into the return buffer */
-  if(checksumlen < cbHashSize)
-    goto out;
+  ఒకవేళ(checksumlen < cb_Hash_కొలత)
+    వెళ్ళు బహిర్గతం;
 
   dwChecksumLen = (DWORD)checksumlen;
-  if(CryptGetHashParam(hHash, HP_HASHVAL, checksum, &dwChecksumLen, 0) &&
-     dwChecksumLen == cbHashSize)
-    result = CURLE_OK;
+  ఒకవేళ(CryptGetHashParam(hHash, HP_HASHVAL, checksum, &dwChecksumLen, 0) &&
+     dwChecksumLen == cb_Hash_కొలత)
+    ఫలితం = CURLE_OK;
 
-out:
-  if(hHash)
+బహిర్గతం:
+  ఒకవేళ(hHash)
     CryptDestroyHash(hHash);
 
-  if(hProv)
+  ఒకవేళ(hProv)
     CryptReleaseContext(hProv, 0);
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode schannel_sha256sum(const unsigned char *input,
+స్థిర CURLcode schannel_sha256sum(స్థిరరాశి గుర్తులేని అక్షరం *ఆదానం,
                                    size_t inputlen,
-                                   unsigned char *sha256sum,
+                                   గుర్తులేని అక్షరం *sha256sum,
                                    size_t sha256len)
 {
-  return schannel_checksum(input, inputlen, sha256sum, sha256len,
+  తిరిగి schannel_checksum(ఆదానం, inputlen, sha256sum, sha256len,
                            PROV_RSA_AES, CALG_SHA_256);
 }
 
-static void *schannel_get_internals(struct ssl_connect_data *connssl,
+స్థిర శూన్య *schannel_get_internals(నిర్మాణం ssl_connect_దత్తాంశం *connssl,
                                     CURLINFO info)
 {
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  (void)info;
+  నిర్మాణం schannel_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం schannel_ssl_backend_దత్తాంశం *)connssl->backend;
+  (శూన్య)info;
   DEBUGASSERT(backend);
-  return &backend->ctxt->ctxt_handle;
+  తిరిగి &backend->ctxt->ctxt_handle;
 }
 
-HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
-                                               struct Curl_easy *data)
+HCERTSTORE Curl_schannel_get_cached_cert_store(నిర్మాణం Curl_cfilter *cf,
+                                               నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_multi *multi = data->multi;
-  const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
-  struct schannel_cert_share *share;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  నిర్మాణం Curl_multi *multi = దత్తాంశం->multi;
+  స్థిరరాశి నిర్మాణం curl_blob *ca_info_blob = conn_config->ca_info_blob;
+  నిర్మాణం schannel_cert_share *share;
   timediff_t timeout_ms;
-  unsigned char info_blob_digest[CURL_SHA256_DIGEST_LENGTH];
+  గుర్తులేని అక్షరం info_blob_digest[CURL_SHA256_DIGEST_నిడివి];
 
   DEBUGASSERT(multi);
 
-  if(!multi) {
-    return NULL;
+  ఒకవేళ(!multi) {
+    తిరిగి ఖాళీ;
   }
 
   share = Curl_hash_pick(&multi->proto_hash,
-                         MPROTO_SCHANNEL_CERT_SHARE_KEY,
-                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
-  if(!share || !share->cert_store) {
-    return NULL;
+                         MPROTO_SCHANNEL_CERT_SHARE_కీలకం,
+                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_కీలకం));
+  ఒకవేళ(!share || !share->cert_store) {
+    తిరిగి ఖాళీ;
   }
 
   /* zero ca_cache_timeout completely disables caching */
-  if(!data->set.ssl_ca_cache_timeout) {
-    return NULL;
+  ఒకవేళ(!దత్తాంశం->సమితి.ssl_ca_cache_timeout) {
+    తిరిగి ఖాళీ;
   }
 
   /* check for cache timeout by using the cached_x509_store_expired timediff
      calculation pattern from openssl.c.
      negative timeout means retain forever. */
-  timeout_ms = data->set.ssl_ca_cache_timeout * (timediff_t)1000;
-  if(timeout_ms >= 0) {
+  timeout_ms = దత్తాంశం->సమితి.ssl_ca_cache_timeout * (timediff_t)1000;
+  ఒకవేళ(timeout_ms >= 0) {
     timediff_t elapsed_ms =
-      curlx_ptimediff_ms(Curl_pgrs_now(data), &share->time);
-    if(elapsed_ms >= timeout_ms) {
-      return NULL;
+      curlx_ptimediff_ms(Curl_pgrs_now(దత్తాంశం), &share->సమయం);
+    ఒకవేళ(elapsed_ms >= timeout_ms) {
+      తిరిగి ఖాళీ;
     }
   }
 
-  if(ca_info_blob) {
-    if(share->CAinfo_blob_size != ca_info_blob->len) {
-      return NULL;
+  ఒకవేళ(ca_info_blob) {
+    ఒకవేళ(share->CAinfo_blob_కొలత != ca_info_blob->len) {
+      తిరిగి ఖాళీ;
     }
-    if(schannel_sha256sum((const unsigned char *)ca_info_blob->data,
+    ఒకవేళ(schannel_sha256sum((స్థిరరాశి గుర్తులేని అక్షరం *)ca_info_blob->దత్తాంశం,
                           ca_info_blob->len,
                           info_blob_digest,
-                          CURL_SHA256_DIGEST_LENGTH))
-      return NULL;
-    if(memcmp(share->CAinfo_blob_digest, info_blob_digest,
-              CURL_SHA256_DIGEST_LENGTH)) {
-      return NULL;
+                          CURL_SHA256_DIGEST_నిడివి))
+      తిరిగి ఖాళీ;
+    ఒకవేళ(memcmp(share->CAinfo_blob_digest, info_blob_digest,
+              CURL_SHA256_DIGEST_నిడివి)) {
+      తిరిగి ఖాళీ;
     }
   }
-  else {
-    if(!conn_config->CAfile || !share->CAfile ||
+  లేకపోతే {
+    ఒకవేళ(!conn_config->CAfile || !share->CAfile ||
        strcmp(share->CAfile, conn_config->CAfile)) {
-      return NULL;
+      తిరిగి ఖాళీ;
     }
   }
 
-  return share->cert_store;
+  తిరిగి share->cert_store;
 }
 
-static void schannel_cert_share_free(const void *key, size_t key_len, void *p)
+స్థిర శూన్య schannel_cert_share_free(స్థిరరాశి శూన్య *కీలకం, size_t కీలకం_len, శూన్య *p)
 {
-  struct schannel_cert_share *share = p;
-  DEBUGASSERT(key_len == CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
-  DEBUGASSERT(!memcmp(MPROTO_SCHANNEL_CERT_SHARE_KEY, key, key_len));
-  (void)key;
-  (void)key_len;
-  if(share->cert_store) {
+  నిర్మాణం schannel_cert_share *share = p;
+  DEBUGASSERT(కీలకం_len == CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_కీలకం));
+  DEBUGASSERT(!memcmp(MPROTO_SCHANNEL_CERT_SHARE_కీలకం, కీలకం, కీలకం_len));
+  (శూన్య)కీలకం;
+  (శూన్య)కీలకం_len;
+  ఒకవేళ(share->cert_store) {
     CertCloseStore(share->cert_store, 0);
   }
   curlx_free(share->CAfile);
   curlx_free(share);
 }
 
-bool Curl_schannel_set_cached_cert_store(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
+bool Curl_schannel_సమితి_cached_cert_store(నిర్మాణం Curl_cfilter *cf,
+                                         నిర్మాణం Curl_easy *దత్తాంశం,
                                          HCERTSTORE cert_store)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_multi *multi = data->multi;
-  const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
-  struct schannel_cert_share *share;
-  unsigned char digest[CURL_SHA256_DIGEST_LENGTH];
-  char *CAfile = NULL;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  నిర్మాణం Curl_multi *multi = దత్తాంశం->multi;
+  స్థిరరాశి నిర్మాణం curl_blob *ca_info_blob = conn_config->ca_info_blob;
+  నిర్మాణం schannel_cert_share *share;
+  గుర్తులేని అక్షరం digest[CURL_SHA256_DIGEST_నిడివి];
+  అక్షరం *CAfile = ఖాళీ;
 
   DEBUGASSERT(multi);
 
-  if(!multi) {
-    return FALSE;
+  ఒకవేళ(!multi) {
+    తిరిగి FALSE;
   }
 
-  if(ca_info_blob) {
-    if(schannel_sha256sum((const unsigned char *)ca_info_blob->data,
-                          ca_info_blob->len, digest, sizeof(digest))) {
-      return FALSE;
+  ఒకవేళ(ca_info_blob) {
+    ఒకవేళ(schannel_sha256sum((స్థిరరాశి గుర్తులేని అక్షరం *)ca_info_blob->దత్తాంశం,
+                          ca_info_blob->len, digest, పరిమాణం(digest))) {
+      తిరిగి FALSE;
     }
   }
-  else if(conn_config->CAfile) {
+  లేకపోతే ఒకవేళ(conn_config->CAfile) {
     CAfile = curlx_strdup(conn_config->CAfile);
-    if(!CAfile) {
-      return FALSE;
+    ఒకవేళ(!CAfile) {
+      తిరిగి FALSE;
     }
   }
 
   share = Curl_hash_pick(&multi->proto_hash,
-                         MPROTO_SCHANNEL_CERT_SHARE_KEY,
-                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
-  if(!share) {
-    share = curlx_calloc(1, sizeof(*share));
-    if(!share) {
+                         MPROTO_SCHANNEL_CERT_SHARE_కీలకం,
+                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_కీలకం));
+  ఒకవేళ(!share) {
+    share = curlx_calloc(1, పరిమాణం(*share));
+    ఒకవేళ(!share) {
       curlx_free(CAfile);
-      return FALSE;
+      తిరిగి FALSE;
     }
-    if(!Curl_hash_add2(&multi->proto_hash,
-                       MPROTO_SCHANNEL_CERT_SHARE_KEY,
-                       CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY),
+    ఒకవేళ(!Curl_hash_add2(&multi->proto_hash,
+                       MPROTO_SCHANNEL_CERT_SHARE_కీలకం,
+                       CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_కీలకం),
                        share, schannel_cert_share_free)) {
       curlx_free(share);
       curlx_free(CAfile);
-      return FALSE;
+      తిరిగి FALSE;
     }
   }
 
   /* free old cache data */
-  if(share->cert_store) {
+  ఒకవేళ(share->cert_store) {
     CertCloseStore(share->cert_store, 0);
   }
   curlx_free(share->CAfile);
 
-  if(ca_info_blob) {
-    memcpy(share->CAinfo_blob_digest, digest, sizeof(digest));
-    share->CAinfo_blob_size = ca_info_blob->len;
+  ఒకవేళ(ca_info_blob) {
+    జ్ఞాపకం_నకలు(share->CAinfo_blob_digest, digest, పరిమాణం(digest));
+    share->CAinfo_blob_కొలత = ca_info_blob->len;
   }
-  else
-    share->CAinfo_blob_size = 0;
+  లేకపోతే
+    share->CAinfo_blob_కొలత = 0;
 
-  share->time = curlx_now();
+  share->సమయం = curlx_now();
   share->cert_store = cert_store;
   share->CAfile = CAfile;
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-const struct Curl_ssl Curl_ssl_schannel = {
+స్థిరరాశి నిర్మాణం Curl_ssl Curl_ssl_schannel = {
   { CURLSSLBACKEND_SCHANNEL, "schannel" }, /* info */
 
   SSLSUPP_CERTINFO |
@@ -2902,25 +2902,25 @@ const struct Curl_ssl Curl_ssl_schannel = {
   SSLSUPP_HTTPS_PROXY |
   SSLSUPP_CIPHER_LIST,
 
-  sizeof(struct schannel_ssl_backend_data),
+  పరిమాణం(నిర్మాణం schannel_ssl_backend_దత్తాంశం),
 
   schannel_init,                     /* init */
   schannel_cleanup,                  /* cleanup */
-  schannel_version,                  /* version */
+  schannel_సంస్కరణ,                  /*సంస్కరణ*/
   schannel_shutdown,                 /* shutdown */
-  schannel_data_pending,             /* data_pending */
+  schannel_దత్తాంశం_pending,             /* data_pending */
   schannel_random,                   /* random */
-  NULL,                              /* cert_status_request */
+  ఖాళీ,                              /* cert_status_request */
   schannel_connect,                  /* connect */
   Curl_ssl_adjust_pollset,           /* adjust_pollset */
   schannel_get_internals,            /* get_internals */
   schannel_close,                    /* close_one */
-  NULL,                              /* close_all */
-  NULL,                              /* engines_list */
+  ఖాళీ,                              /* close_all */
+  ఖాళీ,                              /* engines_list */
   schannel_sha256sum,                /* sha256sum */
   schannel_recv,                     /* recv decrypted data */
   schannel_send,                     /* send data to encrypt */
-  NULL,                              /* get_channel_binding */
+  ఖాళీ,                              /* get_channel_binding */
 };
 
-#endif /* USE_SCHANNEL */
+#అయితే_ముగింపు /* USE_SCHANNEL */

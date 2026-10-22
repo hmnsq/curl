@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ENDIAN_H
-#define HEADER_CURL_ENDIAN_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_ENDIAN_H
+#నిర్వచించు శీర్షిక_CURL_ENDIAN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -25,12 +25,12 @@
  ***************************************************************************/
 
 /* Converts a 16-bit integer from little endian */
-unsigned short Curl_read16_le(const unsigned char *buf);
+గుర్తులేని పొట్టి Curl_read16_le(స్థిరరాశి గుర్తులేని అక్షరం *buf);
 
 /* Converts a 32-bit integer from little endian */
-unsigned int Curl_read32_le(const unsigned char *buf);
+గుర్తులేని పూర్ణాంకం Curl_read32_le(స్థిరరాశి గుర్తులేని అక్షరం *buf);
 
 /* Converts a 16-bit integer from big endian */
-unsigned short Curl_read16_be(const unsigned char *buf);
+గుర్తులేని పొట్టి Curl_read16_be(స్థిరరాశి గుర్తులేని అక్షరం *buf);
 
-#endif /* HEADER_CURL_ENDIAN_H */
+#అయితే_ముగింపు /* HEADER_CURL_ENDIAN_H */

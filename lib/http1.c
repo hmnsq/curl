@@ -21,156 +21,156 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
 
-#include "urldata.h"
-#include "http.h"
-#include "http1.h"
-#include "urlapi-int.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "http.h"
+#అన్తర్భావ "http1.h"
+#అన్తర్భావ "urlapi-int.h"
 
 
-#define H1_MAX_URL_LEN (8 * 1024)
+#నిర్వచించు H1_MAX_URL_LEN (8 * 1024)
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len)
+శూన్య Curl_h1_req_parse_init(నిర్మాణం h1_req_parser *parser, size_t max_పంక్తి_len)
 {
-  memset(parser, 0, sizeof(*parser));
-  parser->max_line_len = max_line_len;
-  curlx_dyn_init(&parser->scratch, max_line_len);
+  memset(parser, 0, పరిమాణం(*parser));
+  parser->max_పంక్తి_len = max_పంక్తి_len;
+  curlx_dyn_init(&parser->scratch, max_పంక్తి_len);
 }
 
-void Curl_h1_req_parse_free(struct h1_req_parser *parser)
+శూన్య Curl_h1_req_parse_free(నిర్మాణం h1_req_parser *parser)
 {
-  if(parser) {
+  ఒకవేళ(parser) {
     Curl_http_req_free(parser->req);
     curlx_dyn_free(&parser->scratch);
-    parser->req = NULL;
-    parser->done = FALSE;
+    parser->req = ఖాళీ;
+    parser->పూర్తి = FALSE;
   }
 }
 
-static CURLcode trim_line(struct h1_req_parser *parser, int options)
+స్థిర CURLcode trim_పంక్తి(నిర్మాణం h1_req_parser *parser, పూర్ణాంకం options)
 {
-  DEBUGASSERT(parser->line);
-  if(parser->line_len) {
-    if(parser->line[parser->line_len - 1] == '\n')
-      --parser->line_len;
-    if(parser->line_len) {
-      if(parser->line[parser->line_len - 1] == '\r')
-        --parser->line_len;
-      else if(options & H1_PARSE_OPT_STRICT)
-        return CURLE_URL_MALFORMAT;
+  DEBUGASSERT(parser->పంక్తి);
+  ఒకవేళ(parser->పంక్తి_len) {
+    ఒకవేళ(parser->పంక్తి[parser->పంక్తి_len - 1] == '\n')
+      --parser->పంక్తి_len;
+    ఒకవేళ(parser->పంక్తి_len) {
+      ఒకవేళ(parser->పంక్తి[parser->పంక్తి_len - 1] == '\r')
+        --parser->పంక్తి_len;
+      లేకపోతే ఒకవేళ(options & H1_PARSE_OPT_STRICT)
+        తిరిగి CURLE_URL_MALFORMAT;
     }
-    else if(options & H1_PARSE_OPT_STRICT)
-      return CURLE_URL_MALFORMAT;
+    లేకపోతే ఒకవేళ(options & H1_PARSE_OPT_STRICT)
+      తిరిగి CURLE_URL_MALFORMAT;
   }
-  else if(options & H1_PARSE_OPT_STRICT)
-    return CURLE_URL_MALFORMAT;
+  లేకపోతే ఒకవేళ(options & H1_PARSE_OPT_STRICT)
+    తిరిగి CURLE_URL_MALFORMAT;
 
-  if(parser->line_len > parser->max_line_len) {
-    return CURLE_URL_MALFORMAT;
+  ఒకవేళ(parser->పంక్తి_len > parser->max_పంక్తి_len) {
+    తిరిగి CURLE_URL_MALFORMAT;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode detect_line(struct h1_req_parser *parser,
-                            const uint8_t *buf, const size_t buflen,
+స్థిర CURLcode detect_పంక్తి(నిర్మాణం h1_req_parser *parser,
+                            స్థిరరాశి uint8_t *buf, స్థిరరాశి size_t buflen,
                             size_t *pnread)
 {
-  const char *line_end;
+  స్థిరరాశి అక్షరం *పంక్తి_చివర;
 
-  DEBUGASSERT(!parser->line);
+  DEBUGASSERT(!parser->పంక్తి);
   *pnread = 0;
-  line_end = memchr(buf, '\n', buflen);
-  if(!line_end)
-    return CURLE_AGAIN;
-  parser->line = (const char *)buf;
-  parser->line_len = line_end - parser->line + 1;
-  *pnread = parser->line_len;
-  return CURLE_OK;
+  పంక్తి_చివర = memchr(buf, '\n', buflen);
+  ఒకవేళ(!పంక్తి_చివర)
+    తిరిగి CURLE_AGAIN;
+  parser->పంక్తి = (స్థిరరాశి అక్షరం *)buf;
+  parser->పంక్తి_len = పంక్తి_చివర - parser->పంక్తి + 1;
+  *pnread = parser->పంక్తి_len;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode next_line(struct h1_req_parser *parser,
-                          const uint8_t *buf, const size_t buflen, int options,
+స్థిర CURLcode తదుపరి_పంక్తి(నిర్మాణం h1_req_parser *parser,
+                          స్థిరరాశి uint8_t *buf, స్థిరరాశి size_t buflen, పూర్ణాంకం options,
                           size_t *pnread)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
 
   *pnread = 0;
-  if(parser->line) {
-    parser->line = NULL;
-    parser->line_len = 0;
+  ఒకవేళ(parser->పంక్తి) {
+    parser->పంక్తి = ఖాళీ;
+    parser->పంక్తి_len = 0;
     curlx_dyn_reset(&parser->scratch);
   }
 
-  result = detect_line(parser, buf, buflen, pnread);
-  if(!result) {
-    if(curlx_dyn_len(&parser->scratch)) {
+  ఫలితం = detect_పంక్తి(parser, buf, buflen, pnread);
+  ఒకవేళ(!ఫలితం) {
+    ఒకవేళ(curlx_dyn_len(&parser->scratch)) {
       /* append detected line to scratch to have the complete line */
-      result = curlx_dyn_addn(&parser->scratch, parser->line,
-                              parser->line_len);
-      if(result)
-        return result;
-      parser->line = curlx_dyn_ptr(&parser->scratch);
-      parser->line_len = curlx_dyn_len(&parser->scratch);
+      ఫలితం = curlx_dyn_addn(&parser->scratch, parser->పంక్తి,
+                              parser->పంక్తి_len);
+      ఒకవేళ(ఫలితం)
+        తిరిగి ఫలితం;
+      parser->పంక్తి = curlx_dyn_ptr(&parser->scratch);
+      parser->పంక్తి_len = curlx_dyn_len(&parser->scratch);
     }
-    result = trim_line(parser, options);
-    if(result)
-      return result;
+    ఫలితం = trim_పంక్తి(parser, options);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
-  else if(result == CURLE_AGAIN) {
+  లేకపోతే ఒకవేళ(ఫలితం == CURLE_AGAIN) {
     /* no line end in `buf`, add it to our scratch */
-    result = curlx_dyn_addn(&parser->scratch, (const unsigned char *)buf,
+    ఫలితం = curlx_dyn_addn(&parser->scratch, (స్థిరరాశి గుర్తులేని అక్షరం *)buf,
                             buflen);
     *pnread = buflen;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode start_req(struct h1_req_parser *parser,
-                          const char *scheme_default,
-                          const char *custom_method,
-                          int options)
+స్థిర CURLcode ప్రారంభం_req(నిర్మాణం h1_req_parser *parser,
+                          స్థిరరాశి అక్షరం *scheme_default,
+                          స్థిరరాశి అక్షరం *custom_పద్ధతి,
+                          పూర్ణాంకం options)
 {
-  const char *p, *m, *target, *hv, *scheme, *authority, *path;
-  size_t m_len, target_len, hv_len, scheme_len, authority_len, path_len;
+  స్థిరరాశి అక్షరం *p, *m, *లక్ష్యం, *hv, *scheme, *authority, *మార్గం;
+  size_t m_len, లక్ష్యం_len, hv_len, scheme_len, authority_len, మార్గం_len;
   size_t i;
-  CURLU *url = NULL;
-  CURLcode result = CURLE_URL_MALFORMAT; /* Use this as default fail */
+  CURLU *url = ఖాళీ;
+  CURLcode ఫలితం = CURLE_URL_MALFORMAT; /* Use this as default fail */
 
   DEBUGASSERT(!parser->req);
   /* line must match: "METHOD TARGET HTTP_VERSION" */
-  if(custom_method && custom_method[0] &&
-     !strncmp(custom_method, parser->line, strlen(custom_method))) {
-    p = parser->line + strlen(custom_method);
+  ఒకవేళ(custom_పద్ధతి && custom_పద్ధతి[0] &&
+     !అక్షరశ్రేణి_పోలిక(custom_పద్ధతి, parser->పంక్తి, అక్షరశ్రేణి_పొడవు(custom_పద్ధతి))) {
+    p = parser->పంక్తి + అక్షరశ్రేణి_పొడవు(custom_పద్ధతి);
   }
-  else {
-    p = memchr(parser->line, ' ', parser->line_len);
-    if(!p || p == parser->line)
-      goto out;
+  లేకపోతే {
+    p = memchr(parser->పంక్తి, ' ', parser->పంక్తి_len);
+    ఒకవేళ(!p || p == parser->పంక్తి)
+      వెళ్ళు బహిర్గతం;
   }
 
-  m = parser->line;
-  m_len = p - parser->line;
-  target = p + 1;
-  target_len = hv_len = 0;
-  hv = NULL;
+  m = parser->పంక్తి;
+  m_len = p - parser->పంక్తి;
+  లక్ష్యం = p + 1;
+  లక్ష్యం_len = hv_len = 0;
+  hv = ఖాళీ;
 
   /* URL may contain spaces so scan backwards */
-  for(i = parser->line_len; i > m_len; --i) {
-    if(parser->line[i] == ' ') {
-      hv = &parser->line[i + 1];
-      hv_len = parser->line_len - i;
-      target_len = (hv - target) - 1;
-      break;
+  కొరకు(i = parser->పంక్తి_len; i > m_len; --i) {
+    ఒకవేళ(parser->పంక్తి[i] == ' ') {
+      hv = &parser->పంక్తి[i + 1];
+      hv_len = parser->పంక్తి_len - i;
+      లక్ష్యం_len = (hv - లక్ష్యం) - 1;
+      ఆపు;
     }
   }
   /* no SPACE found or empty TARGET or empty HTTP_VERSION */
-  if(!target_len || !hv_len)
-    goto out;
+  ఒకవేళ(!లక్ష్యం_len || !hv_len)
+    వెళ్ళు బహిర్గతం;
 
-  (void)hv;
+  (శూన్య)hv;
 
   /* The TARGET can be (rfc 9112, ch. 3.2):
    * origin-form:     path + optional query
@@ -184,102 +184,102 @@ static CURLcode start_req(struct h1_req_parser *parser,
    * authority-form         --        TARGET      --
    * asterisk-form          --        --          TARGET
    */
-  scheme = authority = path = NULL;
-  scheme_len = authority_len = path_len = 0;
+  scheme = authority = మార్గం = ఖాళీ;
+  scheme_len = authority_len = మార్గం_len = 0;
 
-  if(target_len == 1 && target[0] == '*') {
+  ఒకవేళ(లక్ష్యం_len == 1 && లక్ష్యం[0] == '*') {
     /* asterisk-form */
-    path = target;
-    path_len = target_len;
+    మార్గం = లక్ష్యం;
+    మార్గం_len = లక్ష్యం_len;
   }
-  else if(!strncmp("CONNECT", m, m_len)) {
+  లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక("CONNECT", m, m_len)) {
     /* authority-form */
-    authority = target;
-    authority_len = target_len;
+    authority = లక్ష్యం;
+    authority_len = లక్ష్యం_len;
   }
-  else if(target[0] == '/') {
+  లేకపోతే ఒకవేళ(లక్ష్యం[0] == '/') {
     /* origin-form */
-    path = target;
-    path_len = target_len;
+    మార్గం = లక్ష్యం;
+    మార్గం_len = లక్ష్యం_len;
   }
-  else {
+  లేకపోతే {
     /* origin-form OR absolute-form */
     CURLUcode uc;
-    char tmp[H1_MAX_URL_LEN];
+    అక్షరం tmp[H1_MAX_URL_LEN];
 
     /* default, unless we see an absolute URL */
-    path = target;
-    path_len = target_len;
+    మార్గం = లక్ష్యం;
+    మార్గం_len = లక్ష్యం_len;
 
     /* URL parser wants null-termination */
-    if(target_len >= sizeof(tmp))
-      goto out;
-    memcpy(tmp, target, target_len);
-    tmp[target_len] = '\0';
+    ఒకవేళ(లక్ష్యం_len >= పరిమాణం(tmp))
+      వెళ్ళు బహిర్గతం;
+    జ్ఞాపకం_నకలు(tmp, లక్ష్యం, లక్ష్యం_len);
+    tmp[లక్ష్యం_len] = '\0';
     /* See if treating TARGET as an absolute URL makes sense */
-    if(Curl_is_absolute_url(tmp, NULL, 0, FALSE)) {
-      unsigned int url_options;
+    ఒకవేళ(Curl_is_absolute_url(tmp, ఖాళీ, 0, FALSE)) {
+      గుర్తులేని పూర్ణాంకం url_options;
 
       url = curl_url();
-      if(!url) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      ఒకవేళ(!url) {
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు బహిర్గతం;
       }
       url_options = (CURLU_NON_SUPPORT_SCHEME |
-                     CURLU_PATH_AS_IS |
-                     CURLU_NO_DEFAULT_PORT);
-      if(!(options & H1_PARSE_OPT_STRICT))
+                     CURLU_మార్గం_AS_IS |
+                     CURLU_NO_DEFAULT_పోర్టు);
+      ఒకవేళ(!(options & H1_PARSE_OPT_STRICT))
         url_options |= CURLU_ALLOW_SPACE;
-      uc = curl_url_set(url, CURLUPART_URL, tmp, url_options);
-      if(uc) {
-        goto out;
+      uc = curl_url_సమితి(url, CURLUPART_URL, tmp, url_options);
+      ఒకవేళ(uc) {
+        వెళ్ళు బహిర్గతం;
       }
     }
 
-    if(!url && (options & H1_PARSE_OPT_STRICT)) {
+    ఒకవేళ(!url && (options & H1_PARSE_OPT_STRICT)) {
       /* we should have an absolute URL or have seen `/` earlier */
-      goto out;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  if(url) {
-    result = Curl_http_req_make2(&parser->req, m, m_len, url, scheme_default);
+  ఒకవేళ(url) {
+    ఫలితం = Curl_http_req_make2(&parser->req, m, m_len, url, scheme_default);
   }
-  else {
-    if(!scheme && scheme_default) {
+  లేకపోతే {
+    ఒకవేళ(!scheme && scheme_default) {
       scheme = scheme_default;
-      scheme_len = strlen(scheme_default);
+      scheme_len = అక్షరశ్రేణి_పొడవు(scheme_default);
     }
-    result = Curl_http_req_make(&parser->req, m, m_len, scheme, scheme_len,
-                                authority, authority_len, path, path_len);
+    ఫలితం = Curl_http_req_make(&parser->req, m, m_len, scheme, scheme_len,
+                                authority, authority_len, మార్గం, మార్గం_len);
   }
 
-out:
+బహిర్గతం:
   curl_url_cleanup(url);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
-                                const uint8_t *buf, size_t buflen,
-                                const char *scheme_default,
-                                const char *custom_method,
-                                int options, size_t *pnread)
+CURLcode Curl_h1_req_parse_read(నిర్మాణం h1_req_parser *parser,
+                                స్థిరరాశి uint8_t *buf, size_t buflen,
+                                స్థిరరాశి అక్షరం *scheme_default,
+                                స్థిరరాశి అక్షరం *custom_పద్ధతి,
+                                పూర్ణాంకం options, size_t *pnread)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
   size_t nread;
 
   *pnread = 0;
 
   DEBUGASSERT(buf);
-  if(!buf)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ఒకవేళ(!buf)
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
 
-  while(!parser->done) {
-    result = next_line(parser, buf, buflen, options, &nread);
-    if(result) {
-      if(result == CURLE_AGAIN)
-        result = CURLE_OK;
-      goto out;
+  అయితే(!parser->పూర్తి) {
+    ఫలితం = తదుపరి_పంక్తి(parser, buf, buflen, options, &nread);
+    ఒకవేళ(ఫలితం) {
+      ఒకవేళ(ఫలితం == CURLE_AGAIN)
+        ఫలితం = CURLE_OK;
+      వెళ్ళు బహిర్గతం;
     }
 
     /* Consume this line */
@@ -287,61 +287,61 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
     buf += nread;
     buflen -= nread;
 
-    if(!parser->line) {
+    ఒకవేళ(!parser->పంక్తి) {
       /* consumed bytes, but line not complete */
-      if(!buflen)
-        goto out;
+      ఒకవేళ(!buflen)
+        వెళ్ళు బహిర్గతం;
     }
-    else if(!parser->req) {
-      result = start_req(parser, scheme_default, custom_method, options);
-      if(result)
-        goto out;
+    లేకపోతే ఒకవేళ(!parser->req) {
+      ఫలితం = ప్రారంభం_req(parser, scheme_default, custom_పద్ధతి, options);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
     }
-    else if(parser->line_len == 0) {
+    లేకపోతే ఒకవేళ(parser->పంక్తి_len == 0) {
       /* last, empty line, we are finished */
-      if(!parser->req) {
-        result = CURLE_URL_MALFORMAT;
-        goto out;
+      ఒకవేళ(!parser->req) {
+        ఫలితం = CURLE_URL_MALFORMAT;
+        వెళ్ళు బహిర్గతం;
       }
-      parser->done = TRUE;
+      parser->పూర్తి = TRUE;
       curlx_dyn_reset(&parser->scratch);
       /* last chance adjustments */
     }
-    else {
-      result = Curl_dynhds_h1_add_line(&parser->req->headers,
-                                       parser->line, parser->line_len);
-      if(result)
-        goto out;
+    లేకపోతే {
+      ఫలితం = Curl_dynhds_h1_కూడు_పంక్తి(&parser->req->శీర్షికలు,
+                                       parser->పంక్తి, parser->పంక్తి_len);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
     }
   }
 
-out:
-  return result;
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
-                                struct dynbuf *dbuf)
+CURLcode Curl_h1_req_write_తల(నిర్మాణం httpreq *req, పూర్ణాంకం http_minor,
+                                నిర్మాణం dynbuf *dbuf)
 {
-  CURLcode result;
+  CURLcode ఫలితం;
 
-  result = curlx_dyn_addf(dbuf, "%s %s%s%s%s HTTP/1.%d\r\n",
-                          req->method,
+  ఫలితం = curlx_dyn_addf(dbuf, "%s %s%s%s%s HTTP/1.%d\r\n",
+                          req->పద్ధతి,
                           req->scheme ? req->scheme : "",
                           req->scheme ? "://" : "",
                           req->authority ? req->authority : "",
-                          req->path ? req->path : "",
+                          req->మార్గం ? req->మార్గం : "",
                           http_minor);
-  if(result)
-    goto out;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
-  result = Curl_dynhds_h1_dprint(&req->headers, dbuf);
-  if(result)
-    goto out;
+  ఫలితం = Curl_dynhds_h1_dprint(&req->శీర్షికలు, dbuf);
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
-  result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
+  ఫలితం = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
 
-out:
-  return result;
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-#endif /* !CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP */

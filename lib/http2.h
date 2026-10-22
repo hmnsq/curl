@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP2_H
-#define HEADER_CURL_HTTP2_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_HTTP2_H
+#నిర్వచించు శీర్షిక_CURL_HTTP2_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_NGHTTP2
+#నిర్వచితమైతే USE_NGHTTP2
 
 /* value for MAX_CONCURRENT_STREAMS we use until we get an updated setting
    from the peer */
-#define DEFAULT_MAX_CONCURRENT_STREAMS 100
+#నిర్వచించు DEFAULT_MAX_CONCURRENT_STREAMS 100
 
 /*
  * Store nghttp2 version info in this buffer.
  */
-void Curl_http2_ver(char *p, size_t len);
+శూన్య Curl_http2_ver(అక్షరం *p, size_t len);
 
-#ifdef CURLVERBOSE
-int Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
+#నిర్వచితమైతే CURLVERBOSE
+పూర్ణాంకం Curl_nghttp2_fr_print(స్థిరరాశి nghttp2_చట్రం *చట్రం, అక్షరం *బఫరు,
                           size_t blen);
-#endif
+#అయితే_ముగింపు
 
-CURLcode Curl_http2_request_upgrade(struct dynbuf *req,
-                                    struct Curl_easy *data);
+CURLcode Curl_http2_request_upgrade(నిర్మాణం dynbuf *req,
+                                    నిర్మాణం Curl_easy *దత్తాంశం);
 
 /* returns true if the HTTP/2 stream error was HTTP_1_1_REQUIRED */
-bool Curl_h2_http_1_1_error(struct Curl_easy *data);
+bool Curl_h2_http_1_1_error(నిర్మాణం Curl_easy *దత్తాంశం);
 
-bool Curl_http2_may_switch(struct Curl_easy *data);
+bool Curl_http2_may_switch(నిర్మాణం Curl_easy *దత్తాంశం);
 
-CURLcode Curl_http2_switch(struct Curl_easy *data);
+CURLcode Curl_http2_switch(నిర్మాణం Curl_easy *దత్తాంశం);
 
-CURLcode Curl_http2_switch_at(struct Curl_cfilter *cf, struct Curl_easy *data);
+CURLcode Curl_http2_switch_at(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం);
 
-CURLcode Curl_http2_upgrade(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            const char *mem, size_t nread);
+CURLcode Curl_http2_upgrade(నిర్మాణం Curl_easy *దత్తాంశం,
+                            నిర్మాణం connectdata *conn, int8_t sockindex,
+                            స్థిరరాశి అక్షరం *mem, size_t nread);
 
-void *Curl_nghttp2_malloc(size_t size, void *user_data);
-void Curl_nghttp2_free(void *ptr, void *user_data);
-void *Curl_nghttp2_calloc(size_t nmemb, size_t size, void *user_data);
-void *Curl_nghttp2_realloc(void *ptr, size_t size, void *user_data);
+శూన్య *Curl_nghttp2_malloc(size_t కొలత, శూన్య *user_దత్తాంశం);
+శూన్య Curl_nghttp2_free(శూన్య *ptr, శూన్య *user_దత్తాంశం);
+శూన్య *Curl_nghttp2_calloc(size_t nmemb, size_t కొలత, శూన్య *user_దత్తాంశం);
+శూన్య *Curl_nghttp2_realloc(శూన్య *ptr, size_t కొలత, శూన్య *user_దత్తాంశం);
 
-extern struct Curl_cftype Curl_cft_nghttp2;
+బాహ్య నిర్మాణం Curl_cftype Curl_cft_nghttp2;
 
-#else /* USE_NGHTTP2 */
+#లేకపోతే /* USE_NGHTTP2 */
 
-#define Curl_http2_may_switch(a) FALSE
+#నిర్వచించు Curl_http2_may_switch(a) FALSE
 
-#define Curl_http2_request_upgrade(x, y)  CURLE_UNSUPPORTED_PROTOCOL
-#define Curl_http2_switch(a)              CURLE_UNSUPPORTED_PROTOCOL
-#define Curl_h2_http_1_1_error(x)         0
-#endif
+#నిర్వచించు Curl_http2_request_upgrade(x, y)  CURLE_UNSUPPORTED_PROTOCOL
+#నిర్వచించు Curl_http2_switch(a)              CURLE_UNSUPPORTED_PROTOCOL
+#నిర్వచించు Curl_h2_http_1_1_error(x)         0
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_HTTP2_H */
+#అయితే_ముగింపు /* HEADER_CURL_HTTP2_H */

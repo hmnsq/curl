@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP1_H
-#define HEADER_CURL_HTTP1_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_HTTP1_H
+#నిర్వచించు శీర్షిక_CURL_HTTP1_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,41 +23,41 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
-#include "bufq.h"
-#include "http.h"
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
+#అన్తర్భావ "bufq.h"
+#అన్తర్భావ "http.h"
 
-#define H1_PARSE_OPT_NONE       0
-#define H1_PARSE_OPT_STRICT     (1 << 0)
+#నిర్వచించు H1_PARSE_OPT_NONE       0
+#నిర్వచించు H1_PARSE_OPT_STRICT     (1 << 0)
 
-#define H1_PARSE_DEFAULT_MAX_LINE_LEN   DYN_HTTP_REQUEST
+#నిర్వచించు H1_PARSE_DEFAULT_MAX_పంక్తి_LEN   DYN_HTTP_REQUEST
 
-struct h1_req_parser {
-  struct httpreq *req;
-  struct dynbuf scratch;
+నిర్మాణం h1_req_parser {
+  నిర్మాణం httpreq *req;
+  నిర్మాణం dynbuf scratch;
   size_t scratch_skip;
-  const char *line;
-  size_t max_line_len;
-  size_t line_len;
-  BIT(done);
+  స్థిరరాశి అక్షరం *పంక్తి;
+  size_t max_పంక్తి_len;
+  size_t పంక్తి_len;
+  బిట్టు(పూర్తి);
 };
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len);
-void Curl_h1_req_parse_free(struct h1_req_parser *parser);
+శూన్య Curl_h1_req_parse_init(నిర్మాణం h1_req_parser *parser, size_t max_పంక్తి_len);
+శూన్య Curl_h1_req_parse_free(నిర్మాణం h1_req_parser *parser);
 
-CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
-                                const uint8_t *buf, size_t buflen,
-                                const char *scheme_default,
-                                const char *custom_method,
-                                int options, size_t *pnread);
+CURLcode Curl_h1_req_parse_read(నిర్మాణం h1_req_parser *parser,
+                                స్థిరరాశి uint8_t *buf, size_t buflen,
+                                స్థిరరాశి అక్షరం *scheme_default,
+                                స్థిరరాశి అక్షరం *custom_పద్ధతి,
+                                పూర్ణాంకం options, size_t *pnread);
 
-CURLcode Curl_h1_req_dprint(const struct httpreq *req,
-                            struct dynbuf *dbuf);
+CURLcode Curl_h1_req_dprint(స్థిరరాశి నిర్మాణం httpreq *req,
+                            నిర్మాణం dynbuf *dbuf);
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
-                                struct dynbuf *dbuf);
+CURLcode Curl_h1_req_write_తల(నిర్మాణం httpreq *req, పూర్ణాంకం http_minor,
+                                నిర్మాణం dynbuf *dbuf);
 
-#endif /* !CURL_DISABLE_HTTP */
-#endif /* HEADER_CURL_HTTP1_H */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* HEADER_CURL_HTTP1_H */

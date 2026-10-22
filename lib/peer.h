@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PEER_H
-#define HEADER_CURL_PEER_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_PEER_H
+#నిర్వచించు శీర్షిక_CURL_PEER_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,23 +24,23 @@
  *
  ***************************************************************************/
 
-struct Curl_scheme;
+నిర్మాణం Curl_scheme;
 
 /* if peer hostname starts with this, the peer is a unix domain socket
  * path, e.g. the remainder after 'localhost'. */
-#define CURL_PEER_UDS_PREFIX "localhost/"
+#నిర్వచించు CURL_PEER_UDS_ఉపసర్గ "localhost/"
 
-struct Curl_peer {
-  const struct Curl_scheme *scheme; /* url scheme */
-  char *hostname; /* normalized hostname (IDN decoded when supported) */
-  char *zoneid; /* NULL or IPv6 zone identifier */
+నిర్మాణం Curl_peer {
+  స్థిరరాశి నిర్మాణం Curl_scheme *scheme; /* url scheme */
+  అక్షరం *hostname; /* normalized hostname (IDN decoded when supported) */
+  అక్షరం *zoneid; /* NULL or IPv6 zone identifier */
   uint32_t refcount;  /* created with 1, freed when dropping to 0 */
   uint32_t scopeid;  /* != 0, IPv6 scope to use */
-  uint16_t port;
-  BIT(unix_socket); /* hostname is a UDS path without the prefix */
-  BIT(abstract_uds); /* only TRUE when `unix_socket` also TRUE */
-  BIT(ipv6); /* hostname is an IPv6 address stripped of '[]' */
-  char user_hostname[1]; /* hostname supplied by user/url */
+  uint16_t పోర్టు;
+  బిట్టు(unix_socket); /* hostname is a UDS path without the prefix */
+  బిట్టు(abstract_uds); /* only TRUE when `unix_socket` also TRUE */
+  బిట్టు(ipv6); /* hostname is an IPv6 address stripped of '[]' */
+  అక్షరం user_hostname[1]; /* hostname supplied by user/url */
 };
 
 /* Create a new peer:
@@ -54,55 +54,55 @@ struct Curl_peer {
  * - `zoneid` IPv6 zone identifier or NULL
  * - `scopeid` IPv6 scopeid of zoneid, when known.
  */
-CURLcode Curl_peer_create(struct Curl_easy *data,
-                          const struct Curl_scheme *scheme,
-                          const char *hostname,
-                          uint16_t port,
-                          struct Curl_peer **ppeer);
+CURLcode Curl_peer_create(నిర్మాణం Curl_easy *దత్తాంశం,
+                          స్థిరరాశి నిర్మాణం Curl_scheme *scheme,
+                          స్థిరరాశి అక్షరం *hostname,
+                          uint16_t పోర్టు,
+                          నిర్మాణం Curl_peer **ppeer);
 
-#ifdef USE_UNIX_SOCKETS
-CURLcode Curl_peer_uds_create(const struct Curl_scheme *scheme,
-                              const char *path,
+#నిర్వచితమైతే USE_UNIX_SOCKETS
+CURLcode Curl_peer_uds_create(స్థిరరాశి నిర్మాణం Curl_scheme *scheme,
+                              స్థిరరాశి అక్షరం *మార్గం,
                               bool abstract_unix_socket,
-                              struct Curl_peer **ppeer);
-#endif
+                              నిర్మాణం Curl_peer **ppeer);
+#అయితే_ముగింపు
 
 /* Unlink any peer in `*pdest`, assign src, increase src
  * refcount when not NULL. */
-void Curl_peer_link(struct Curl_peer **pdest, struct Curl_peer *src);
+శూన్య Curl_peer_link(నిర్మాణం Curl_peer **pdest, నిర్మాణం Curl_peer *src);
 
 /* Drop a reference, peer may be passed as NULL */
-void Curl_peer_unlink(struct Curl_peer **ppeer);
+శూన్య Curl_peer_unlink(నిర్మాణం Curl_peer **ppeer);
 
 /* TRUE if both peers are NULL or have completely same properties. */
-bool Curl_peer_equal(struct Curl_peer *p1, struct Curl_peer *p2);
+bool Curl_peer_equal(నిర్మాణం Curl_peer *p1, నిర్మాణం Curl_peer *p2);
 
 /* TRUE if both peers are NULL or have same properties except the scheme. */
-bool Curl_peer_same_destination(struct Curl_peer *p1, struct Curl_peer *p2);
+bool Curl_peer_same_destination(నిర్మాణం Curl_peer *p1, నిర్మాణం Curl_peer *p2);
 
-CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
-                            uint16_t port_override,
+CURLcode Curl_peer_from_url(CURLU *uh, నిర్మాణం Curl_easy *దత్తాంశం,
+                            uint16_t పోర్టు_override,
                             uint32_t scopeid_override,
-                            struct Curl_peer **ppeer);
+                            నిర్మాణం Curl_peer **ppeer);
 
-CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
-                                   const struct Curl_peer *dest,
-                                   const char *connect_to,
-                                   struct Curl_peer **ppeer);
+CURLcode Curl_peer_from_connect_గమ్యం(నిర్మాణం Curl_easy *దత్తాంశం,
+                                   స్థిరరాశి నిర్మాణం Curl_peer *dest,
+                                   స్థిరరాశి అక్షరం *connect_గమ్యం,
+                                   నిర్మాణం Curl_peer **ppeer);
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
 
-CURLcode Curl_scheme_to_proxytype(struct Curl_easy *data,
-                                  const char *scheme,
+CURLcode Curl_scheme_గమ్యం_proxytype(నిర్మాణం Curl_easy *దత్తాంశం,
+                                  స్థిరరాశి అక్షరం *scheme,
                                   uint8_t *proxytype,
-                                  const char *url);
+                                  స్థిరరాశి అక్షరం *url);
 
 CURLcode Curl_peer_from_proxy_url(CURLU *uh,
-                                  struct Curl_easy *data,
-                                  const char *url,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  స్థిరరాశి అక్షరం *url,
                                   uint8_t proxytype,
-                                  struct Curl_peer **ppeer,
+                                  నిర్మాణం Curl_peer **ppeer,
                                   uint8_t *pproxytype);
-#endif /* !CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_PEER_H */
+#అయితే_ముగింపు /* HEADER_CURL_PEER_H */

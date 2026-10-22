@@ -21,285 +21,285 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#include "uint-bset.h"
-#include "uint-spbset.h"
+#అన్తర్భావ "uint-bset.h"
+#అన్తర్భావ "uint-spbset.h"
 
-#ifdef DEBUGBUILD
-#define CURL_UINT32_SPBSET_MAGIC  0x70737362
-#endif
+#నిర్వచితమైతే DEBUGBUILD
+#నిర్వచించు CURL_UINT32_SPBSET_MAGIC  0x70737362
+#అయితే_ముగింపు
 
-void Curl_uint32_spbset_init(struct uint32_spbset *bset)
+శూన్య Curl_uint32_spbset_init(నిర్మాణం uint32_spbset *bset)
 {
-  memset(bset, 0, sizeof(*bset));
-#ifdef DEBUGBUILD
+  memset(bset, 0, పరిమాణం(*bset));
+#నిర్వచితమైతే DEBUGBUILD
   bset->init = CURL_UINT32_SPBSET_MAGIC;
-#endif
+#అయితే_ముగింపు
 }
 
 /* Clear the bitset, making it empty.
 
    @unittest 3213
  */
-UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset);
-UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset)
+UNITTEST శూన్య uint32_spbset_clear(నిర్మాణం uint32_spbset *bset);
+UNITTEST శూన్య uint32_spbset_clear(నిర్మాణం uint32_spbset *bset)
 {
-  struct uint32_spbset_chunk *next, *chunk;
+  నిర్మాణం uint32_spbset_chunk *తదుపరి, *chunk;
 
-  for(chunk = bset->head.next; chunk; chunk = next) {
-    next = chunk->next;
+  కొరకు(chunk = bset->తల.తదుపరి; chunk; chunk = తదుపరి) {
+    తదుపరి = chunk->తదుపరి;
     curlx_free(chunk);
   }
-  memset(&bset->head, 0, sizeof(bset->head));
+  memset(&bset->తల, 0, పరిమాణం(bset->తల));
 }
 
-void Curl_uint32_spbset_destroy(struct uint32_spbset *bset)
+శూన్య Curl_uint32_spbset_destroy(నిర్మాణం uint32_spbset *bset)
 {
   DEBUGASSERT(bset->init == CURL_UINT32_SPBSET_MAGIC);
   uint32_spbset_clear(bset);
 }
 
-uint32_t Curl_uint32_spbset_count(struct uint32_spbset *bset)
+uint32_t Curl_uint32_spbset_లెక్క(నిర్మాణం uint32_spbset *bset)
 {
-  struct uint32_spbset_chunk *chunk;
+  నిర్మాణం uint32_spbset_chunk *chunk;
   uint32_t i, n = 0;
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-      if(chunk->slots[i])
+  కొరకు(chunk = &bset->తల; chunk; chunk = chunk->తదుపరి) {
+    కొరకు(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+      ఒకవేళ(chunk->slots[i])
         n += CURL_POPCOUNT64(chunk->slots[i]);
     }
   }
-  return n;
+  తిరిగి n;
 }
 
-static bool uint32_spbset_empty_chunk(struct uint32_spbset_chunk *chunk)
+స్థిర bool uint32_spbset_ఖాళీలు_chunk(నిర్మాణం uint32_spbset_chunk *chunk)
 {
   uint32_t i;
-  for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-    if(chunk->slots[i])
-      return FALSE;
+  కొరకు(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+    ఒకవేళ(chunk->slots[i])
+      తిరిగి FALSE;
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_unlink_empty(
-  struct uint32_spbset *bset, uint32_t for_offset)
+స్థిర నిర్మాణం uint32_spbset_chunk *uint32_spbset_unlink_ఖాళీలు(
+  నిర్మాణం uint32_spbset *bset, uint32_t for_స్థానభ్రంశం)
 {
-  struct uint32_spbset_chunk *chunk, **panchor = NULL;
-  for(chunk = &bset->head; chunk;
-      panchor = &chunk->next, chunk = chunk->next) {
-    if(uint32_spbset_empty_chunk(chunk))
-      break;
+  నిర్మాణం uint32_spbset_chunk *chunk, **panchor = ఖాళీ;
+  కొరకు(chunk = &bset->తల; chunk;
+      panchor = &chunk->తదుపరి, chunk = chunk->తదుపరి) {
+    ఒకవేళ(uint32_spbset_ఖాళీలు_chunk(chunk))
+      ఆపు;
   }
-  if(chunk) {
-    if(chunk == &bset->head) { /* head chunk is empty */
-      if(!bset->head.next || (for_offset < bset->head.next->offset)) {
-        return &bset->head;
+  ఒకవేళ(chunk) {
+    ఒకవేళ(chunk == &bset->తల) { /* head chunk is empty */
+      ఒకవేళ(!bset->తల.తదుపరి || (for_స్థానభ్రంశం < bset->తల.తదుపరి->స్థానభ్రంశం)) {
+        తిరిగి &bset->తల;
       }
       /* swap head and next, unlink */
-      chunk = bset->head.next;
-      memcpy(&bset->head, chunk, sizeof(bset->head));
-      memset(chunk, 0, sizeof(*chunk));
+      chunk = bset->తల.తదుపరి;
+      జ్ఞాపకం_నకలు(&bset->తల, chunk, పరిమాణం(bset->తల));
+      memset(chunk, 0, పరిమాణం(*chunk));
     }
-    else {
-      *panchor = chunk->next; /* unlink */
-      memset(chunk, 0, sizeof(*chunk));
+    లేకపోతే {
+      *panchor = chunk->తదుపరి; /* unlink */
+      memset(chunk, 0, పరిమాణం(*chunk));
     }
   }
-  return chunk;
+  తిరిగి chunk;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_insert_chunk(
-  struct uint32_spbset *bset, struct uint32_spbset_chunk *nchunk)
+స్థిర నిర్మాణం uint32_spbset_chunk *uint32_spbset_చొప్పించు_chunk(
+  నిర్మాణం uint32_spbset *bset, నిర్మాణం uint32_spbset_chunk *nchunk)
 {
-  struct uint32_spbset_chunk *chunk, **panchor;
+  నిర్మాణం uint32_spbset_chunk *chunk, **panchor;
 
   /* insert nchunk into set's ordered chunk list */
-  if(nchunk->offset < bset->head.offset) {
+  ఒకవేళ(nchunk->స్థానభ్రంశం < bset->తల.స్థానభ్రంశం) {
     /* swap chunk and head */
-    uint32_t offset = nchunk->offset;
-    memcpy(nchunk, &bset->head, sizeof(*nchunk));
-    memset(&bset->head, 0, sizeof(bset->head));
-    bset->head.next = nchunk;
-    bset->head.offset = offset;
-    return &bset->head;
+    uint32_t స్థానభ్రంశం = nchunk->స్థానభ్రంశం;
+    జ్ఞాపకం_నకలు(nchunk, &bset->తల, పరిమాణం(*nchunk));
+    memset(&bset->తల, 0, పరిమాణం(bset->తల));
+    bset->తల.తదుపరి = nchunk;
+    bset->తల.స్థానభ్రంశం = స్థానభ్రంశం;
+    తిరిగి &bset->తల;
   }
-  DEBUGASSERT(nchunk->offset > bset->head.offset);
-  panchor = &bset->head.next;
-  for(chunk = *panchor; chunk;
-      panchor = &chunk->next, chunk = chunk->next) {
-    if(chunk->offset > nchunk->offset) { /* insert before this chunk */
-      nchunk->next = chunk;
+  DEBUGASSERT(nchunk->స్థానభ్రంశం > bset->తల.స్థానభ్రంశం);
+  panchor = &bset->తల.తదుపరి;
+  కొరకు(chunk = *panchor; chunk;
+      panchor = &chunk->తదుపరి, chunk = chunk->తదుపరి) {
+    ఒకవేళ(chunk->స్థానభ్రంశం > nchunk->స్థానభ్రంశం) { /* insert before this chunk */
+      nchunk->తదుపరి = chunk;
       *panchor = nchunk;
-      return nchunk;
+      తిరిగి nchunk;
     }
   }
   /* no chunk with larger offset, append */
   *panchor = nchunk;
-  return nchunk;
+  తిరిగి nchunk;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_get_chunk(
-  struct uint32_spbset *bset, uint32_t i, bool grow)
+స్థిర నిర్మాణం uint32_spbset_chunk *uint32_spbset_get_chunk(
+  నిర్మాణం uint32_spbset *bset, uint32_t i, bool grow)
 {
-  struct uint32_spbset_chunk *chunk;
-  uint32_t i_offset = (i & ~CURL_UINT32_SPBSET_CH_MASK);
+  నిర్మాణం uint32_spbset_chunk *chunk;
+  uint32_t i_స్థానభ్రంశం = (i & ~CURL_UINT32_SPBSET_CH_ముసుగు);
 
-  if(!bset)
-    return NULL;
+  ఒకవేళ(!bset)
+    తిరిగి ఖాళీ;
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    if(chunk->offset == i_offset)
-      return chunk;
-    else if(chunk->offset > i_offset)
-      break; /* need new chunk here */
+  కొరకు(chunk = &bset->తల; chunk; chunk = chunk->తదుపరి) {
+    ఒకవేళ(chunk->స్థానభ్రంశం == i_స్థానభ్రంశం)
+      తిరిగి chunk;
+    లేకపోతే ఒకవేళ(chunk->స్థానభ్రంశం > i_స్థానభ్రంశం)
+      ఆపు; /* need new chunk here */
   }
-  if(!grow) /* just a check if the chunk exists */
-    return NULL;
+  ఒకవేళ(!grow) /* just a check if the chunk exists */
+    తిరిగి ఖాళీ;
 
   /* Is there an empty chunk to reuse? */
-  chunk = uint32_spbset_unlink_empty(bset, i_offset);
-  if(chunk) {
-    chunk->offset = i_offset;
-    if(chunk == &bset->head) /* head chunk is empty, stayed linked */
-      return &bset->head;
+  chunk = uint32_spbset_unlink_ఖాళీలు(bset, i_స్థానభ్రంశం);
+  ఒకవేళ(chunk) {
+    chunk->స్థానభ్రంశం = i_స్థానభ్రంశం;
+    ఒకవేళ(chunk == &bset->తల) /* head chunk is empty, stayed linked */
+      తిరిగి &bset->తల;
     /* was really unlinked, need to insert below */
   }
-  else {
+  లేకపోతే {
     /* need a new one */
-    chunk = curlx_calloc(1, sizeof(*chunk));
-    if(!chunk)
-      return NULL;
-    chunk->offset = i_offset;
+    chunk = curlx_calloc(1, పరిమాణం(*chunk));
+    ఒకవేళ(!chunk)
+      తిరిగి ఖాళీ;
+    chunk->స్థానభ్రంశం = i_స్థానభ్రంశం;
   }
 
-  return uint32_spbset_insert_chunk(bset, chunk);
+  తిరిగి uint32_spbset_చొప్పించు_chunk(bset, chunk);
 }
 
-bool Curl_uint32_spbset_add(struct uint32_spbset *bset, uint32_t i)
+bool Curl_uint32_spbset_కూడు(నిర్మాణం uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, TRUE);
-  if(!chunk)
-    return FALSE;
+  నిర్మాణం uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, TRUE);
+  ఒకవేళ(!chunk)
+    తిరిగి FALSE;
 
-  DEBUGASSERT(i >= chunk->offset);
-  i -= chunk->offset;
+  DEBUGASSERT(i >= chunk->స్థానభ్రంశం);
+  i -= chunk->స్థానభ్రంశం;
   DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
   chunk->slots[(i / 64)] |= ((uint64_t)1 << (i % 64));
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-void Curl_uint32_spbset_remove(struct uint32_spbset *bset, uint32_t i)
+శూన్య Curl_uint32_spbset_remove(నిర్మాణం uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
-  if(chunk) {
-    DEBUGASSERT(i >= chunk->offset);
-    i -= chunk->offset;
+  నిర్మాణం uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
+  ఒకవేళ(chunk) {
+    DEBUGASSERT(i >= chunk->స్థానభ్రంశం);
+    i -= chunk->స్థానభ్రంశం;
     DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
     chunk->slots[(i / 64)] &= ~((uint64_t)1 << (i % 64));
   }
 }
 
-bool Curl_uint32_spbset_contains(struct uint32_spbset *bset, uint32_t i)
+bool Curl_uint32_spbset_కలిగియుంది(నిర్మాణం uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
-  if(chunk) {
-    DEBUGASSERT(i >= chunk->offset);
-    i -= chunk->offset;
+  నిర్మాణం uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
+  ఒకవేళ(chunk) {
+    DEBUGASSERT(i >= chunk->స్థానభ్రంశం);
+    i -= chunk->స్థానభ్రంశం;
     DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
-    return (chunk->slots[i / 64] & ((uint64_t)1 << (i % 64))) != 0;
+    తిరిగి (chunk->slots[i / 64] & ((uint64_t)1 << (i % 64))) != 0;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-bool Curl_uint32_spbset_first(struct uint32_spbset *bset, uint32_t *pfirst)
+bool Curl_uint32_spbset_మొదటి(నిర్మాణం uint32_spbset *bset, uint32_t *pfirst)
 {
-  struct uint32_spbset_chunk *chunk;
+  నిర్మాణం uint32_spbset_chunk *chunk;
   uint32_t i;
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-      if(chunk->slots[i]) {
-        *pfirst = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-        return TRUE;
+  కొరకు(chunk = &bset->తల; chunk; chunk = chunk->తదుపరి) {
+    కొరకు(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+      ఒకవేళ(chunk->slots[i]) {
+        *pfirst = chunk->స్థానభ్రంశం + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
+        తిరిగి TRUE;
       }
     }
   }
   *pfirst = 0; /* give it a defined value even if it should not be used */
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static bool uint32_spbset_chunk_first(struct uint32_spbset_chunk *chunk,
+స్థిర bool uint32_spbset_chunk_మొదటి(నిర్మాణం uint32_spbset_chunk *chunk,
                                       uint32_t *pfirst)
 {
   uint32_t i;
-  for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-    if(chunk->slots[i]) {
-      *pfirst = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-      return TRUE;
+  కొరకు(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+    ఒకవేళ(chunk->slots[i]) {
+      *pfirst = chunk->స్థానభ్రంశం + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
+      తిరిగి TRUE;
     }
   }
   *pfirst = UINT32_MAX; /* a value we cannot store */
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static bool uint32_spbset_chunk_next(struct uint32_spbset_chunk *chunk,
-                                     uint32_t last,
+స్థిర bool uint32_spbset_chunk_తదుపరి(నిర్మాణం uint32_spbset_chunk *chunk,
+                                     uint32_t చివరి,
                                      uint32_t *pnext)
 {
-  if(chunk->offset <= last) {
+  ఒకవేళ(chunk->స్థానభ్రంశం <= చివరి) {
     uint64_t x;
-    uint32_t i = ((last - chunk->offset) / 64);
-    if(i < CURL_UINT32_SPBSET_CH_SLOTS) {
-      x = (chunk->slots[i] >> (last % 64));
-      if(x) {
+    uint32_t i = ((చివరి - chunk->స్థానభ్రంశం) / 64);
+    ఒకవేళ(i < CURL_UINT32_SPBSET_CH_SLOTS) {
+      x = (chunk->slots[i] >> (చివరి % 64));
+      ఒకవేళ(x) {
         /* more bits set, next is `last` + trailing 0s of the shifted slot */
-        *pnext = last + CURL_CTZ64(x);
-        return TRUE;
+        *pnext = చివరి + CURL_CTZ64(x);
+        తిరిగి TRUE;
       }
       /* no more bits set in the last slot, scan forward */
-      for(i = i + 1; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-        if(chunk->slots[i]) {
-          *pnext = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-          return TRUE;
+      కొరకు(i = i + 1; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+        ఒకవేళ(chunk->slots[i]) {
+          *pnext = chunk->స్థానభ్రంశం + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
+          తిరిగి TRUE;
         }
       }
     }
   }
   *pnext = UINT32_MAX;
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-bool Curl_uint32_spbset_next(struct uint32_spbset *bset, uint32_t last,
+bool Curl_uint32_spbset_తదుపరి(నిర్మాణం uint32_spbset *bset, uint32_t చివరి,
                              uint32_t *pnext)
 {
-  struct uint32_spbset_chunk *chunk;
-  uint32_t last_offset;
+  నిర్మాణం uint32_spbset_chunk *chunk;
+  uint32_t చివరి_స్థానభ్రంశం;
 
-  ++last; /* look for the next higher number */
-  last_offset = (last & ~CURL_UINT32_SPBSET_CH_MASK);
+  ++చివరి; /* look for the next higher number */
+  చివరి_స్థానభ్రంశం = (చివరి & ~CURL_UINT32_SPBSET_CH_ముసుగు);
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    if(chunk->offset >= last_offset) {
-      break;
+  కొరకు(chunk = &bset->తల; chunk; chunk = chunk->తదుపరి) {
+    ఒకవేళ(chunk->స్థానభ్రంశం >= చివరి_స్థానభ్రంశం) {
+      ఆపు;
     }
   }
 
-  if(chunk && (chunk->offset == last_offset)) {
+  ఒకవేళ(chunk && (chunk->స్థానభ్రంశం == చివరి_స్థానభ్రంశం)) {
     /* is there a number higher than last in this chunk? */
-    if(uint32_spbset_chunk_next(chunk, last, pnext))
-      return TRUE;
+    ఒకవేళ(uint32_spbset_chunk_తదుపరి(chunk, చివరి, pnext))
+      తిరిగి TRUE;
     /* not in this chunk */
-    chunk = chunk->next;
+    chunk = chunk->తదుపరి;
   }
   /* look for the first in the "higher" chunks, if there are any. */
-  while(chunk) {
-    if(uint32_spbset_chunk_first(chunk, pnext))
-      return TRUE;
-    chunk = chunk->next;
+  అయితే(chunk) {
+    ఒకవేళ(uint32_spbset_chunk_మొదటి(chunk, pnext))
+      తిరిగి TRUE;
+    chunk = chunk->తదుపరి;
   }
   *pnext = UINT32_MAX;
-  return FALSE;
+  తిరిగి FALSE;
 }

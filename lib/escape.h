@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ESCAPE_H
-#define HEADER_CURL_ESCAPE_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_ESCAPE_H
+#నిర్వచించు శీర్షిక_CURL_ESCAPE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -26,20 +26,20 @@
 /* Escape and unescape URL encoding in strings. The functions return a new
  * allocated string or NULL if an error occurred. */
 
-enum urlreject {
+గణన urlreject {
   REJECT_NADA = 2,
   REJECT_CTRL,
   REJECT_ZERO
 };
 
-CURLcode Curl_urldecode(const char *string, size_t length,
-                        char **ostring, size_t *olen,
-                        enum urlreject ctrl);
+CURLcode Curl_urldecode(స్థిరరాశి అక్షరం *string, size_t నిడివి,
+                        అక్షరం **ostring, size_t *olen,
+                        గణన urlreject ctrl);
 
-void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
-                    unsigned char *out, size_t olen); /* output buffer size */
+శూన్య Curl_hexencode(స్థిరరాశి గుర్తులేని అక్షరం *src, size_t len, /* input length */
+                    గుర్తులేని అక్షరం *బహిర్గతం, size_t olen); /* output buffer size */
 
-void Curl_hexbyte(unsigned char *dest, /* must fit two bytes */
-                  unsigned char val);
+శూన్య Curl_hexbyte(గుర్తులేని అక్షరం *dest, /* must fit two bytes */
+                  గుర్తులేని అక్షరం val);
 
-#endif /* HEADER_CURL_ESCAPE_H */
+#అయితే_ముగింపు /* HEADER_CURL_ESCAPE_H */

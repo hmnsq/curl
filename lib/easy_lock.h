@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_EASY_LOCK_H
-#define HEADER_CURL_EASY_LOCK_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_EASY_తాళం_H
+#నిర్వచించు శీర్షిక_CURL_EASY_తాళం_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,79 +23,79 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#define GLOBAL_INIT_IS_THREADSAFE
+#నిర్వచించు GLOBAL_INIT_IS_THREADSAFE
 
-#ifdef _WIN32
+#నిర్వచితమైతే _WIN32
 
-#define curl_simple_lock      SRWLOCK
-#define CURL_SIMPLE_LOCK_INIT SRWLOCK_INIT
+#నిర్వచించు curl_simple_తాళం      SRWLOCK
+#నిర్వచించు CURL_SIMPLE_తాళం_INIT SRWLOCK_INIT
 
-#define curl_simple_lock_lock(m)   AcquireSRWLockExclusive(m)
-#define curl_simple_lock_unlock(m) ReleaseSRWLockExclusive(m)
+#నిర్వచించు curl_simple_తాళం_తాళం(m)   AcquireSRWLockExclusive(m)
+#నిర్వచించు curl_simple_తాళం_unlock(m) ReleaseSRWLockExclusive(m)
 
-#elif defined(HAVE_ATOMIC) && defined(HAVE_STDATOMIC_H)
-#include <stdatomic.h>
-#ifdef HAVE_SCHED_YIELD
-#include <sched.h>
-#endif
+#లేదావేళ defined(HAVE_ATOMIC) && defined(HAVE_STDATOMIC_H)
+#అన్తర్భావ <stdatomic.h>
+#నిర్వచితమైతే HAVE_SCHED_YIELD
+#అన్తర్భావ <sched.h>
+#అయితే_ముగింపు
 
-#define curl_simple_lock      atomic_int
-#define CURL_SIMPLE_LOCK_INIT 0
+#నిర్వచించు curl_simple_తాళం      atomic_int
+#నిర్వచించు CURL_SIMPLE_తాళం_INIT 0
 
-#ifndef __INTEL_COMPILER
+#నిర్వచితం_కాకపోతే __INTEL_COMPILER
 /* The Intel compiler tries to look like GCC *and* clang *and* lies in its
    __has_builtin() function, so override it. */
 
 /* if GCC on i386/x86_64 or if the built-in is present */
-#if (defined(__GNUC__) && !defined(__clang__)) && \
+#ఒకవేళ (defined(__GNUC__) && !defined(__clang__)) && \
   (defined(__i386__) || defined(__x86_64__))
-#define HAVE_BUILTIN_IA32_PAUSE
-#elif defined(__has_builtin)  /* Keep this PP check separate from others */
-#if __has_builtin(__builtin_ia32_pause)
-#define HAVE_BUILTIN_IA32_PAUSE
-#endif
-#endif
+#నిర్వచించు HAVE_BUILTIN_IA32_PAUSE
+#లేదావేళ defined(__has_builtin)  /* Keep this PP check separate from others */
+#ఒకవేళ __has_builtin(__builtin_ia32_pause)
+#నిర్వచించు HAVE_BUILTIN_IA32_PAUSE
+#అయితే_ముగింపు
+#అయితే_ముగింపు
 
-#endif /* !__INTEL_COMPILER */
+#అయితే_ముగింపు /* !__INTEL_COMPILER */
 
-static CURL_INLINE void curl_simple_lock_lock(curl_simple_lock *lock)
+స్థిర CURL_INLINE శూన్య curl_simple_తాళం_తాళం(curl_simple_తాళం *తాళం)
 {
-  for(;;) {
-    if(!atomic_exchange_explicit(lock, true, memory_order_acquire))
-      break;
+  కొరకు(;;) {
+    ఒకవేళ(!atomic_exchange_explicit(తాళం, true, జ్ఞాపకం_క్రమం_acquire))
+      ఆపు;
     /* Reduce cache coherency traffic */
-    while(atomic_load_explicit(lock, memory_order_relaxed)) {
+    అయితే(atomic_load_explicit(తాళం, జ్ఞాపకం_క్రమం_relaxed)) {
       /* Reduce load (not mandatory) */
-#ifdef HAVE_BUILTIN_IA32_PAUSE
+#నిర్వచితమైతే HAVE_BUILTIN_IA32_PAUSE
       __builtin_ia32_pause();
-#elif defined(__aarch64__)
+#లేదావేళ defined(__aarch64__)
       /* NOLINTNEXTLINE(portability-no-assembler) */
-      __asm__ volatile("yield" ::: "memory");
-#elif defined(HAVE_SCHED_YIELD)
+      __asm__ అస్థిర("yield" ::: "memory");
+#లేదావేళ defined(HAVE_SCHED_YIELD)
       sched_yield();
-#endif
+#అయితే_ముగింపు
     }
   }
 }
 
-static CURL_INLINE void curl_simple_lock_unlock(curl_simple_lock *lock)
+స్థిర CURL_INLINE శూన్య curl_simple_తాళం_unlock(curl_simple_తాళం *తాళం)
 {
-  atomic_store_explicit(lock, false, memory_order_release);
+  atomic_store_explicit(తాళం, false, జ్ఞాపకం_క్రమం_release);
 }
 
-#elif defined(HAVE_THREADS_POSIX)
+#లేదావేళ defined(HAVE_దారాలు_POSIX)
 
-#define curl_simple_lock           pthread_mutex_t
-#define CURL_SIMPLE_LOCK_INIT      PTHREAD_MUTEX_INITIALIZER
-#define curl_simple_lock_lock(m)   pthread_mutex_lock(m)
-#define curl_simple_lock_unlock(m) pthread_mutex_unlock(m)
+#నిర్వచించు curl_simple_తాళం           pthread_mutex_t
+#నిర్వచించు CURL_SIMPLE_తాళం_INIT      PTHREAD_MUTEX_INITIALIZER
+#నిర్వచించు curl_simple_తాళం_తాళం(m)   pthread_mutex_తాళం(m)
+#నిర్వచించు curl_simple_తాళం_unlock(m) pthread_mutex_unlock(m)
 
-#else
+#లేకపోతే
 
-#undef GLOBAL_INIT_IS_THREADSAFE
+#నిర్వచనం_రద్దు GLOBAL_INIT_IS_THREADSAFE
 
-#endif
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_EASY_LOCK_H */
+#అయితే_ముగింపు /* HEADER_CURL_EASY_LOCK_H */

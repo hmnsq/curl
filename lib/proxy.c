@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "protocol.h"
-#include "proxy.h"
-#include "http_proxy.h"
-#include "strcase.h"
-#include "url.h"
-#include "vauth/vauth.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "protocol.h"
+#అన్తర్భావ "proxy.h"
+#అన్తర్భావ "http_proxy.h"
+#అన్తర్భావ "strcase.h"
+#అన్తర్భావ "url.h"
+#అన్తర్భావ "vauth/vauth.h"
+#అన్తర్భావ "curlx/inet_pton.h"
+#అన్తర్భావ "curlx/strparse.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h>
+#అయితే_ముగింపు
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
 
 /*
  * cidr4_match() returns TRUE if the given IPv4 address is within the
@@ -52,44 +52,44 @@
  *
  * @unittest 1614
  */
-UNITTEST bool cidr4_match(const char *ipv4,    /* 1.2.3.4 address */
-                          const char *network, /* 1.2.3.4 address */
-                          int bits);
-UNITTEST bool cidr4_match(const char *ipv4,    /* 1.2.3.4 address */
-                          const char *network, /* 1.2.3.4 address */
-                          int bits)
+UNITTEST bool cidr4_సరిపోలిక(స్థిరరాశి అక్షరం *ipv4,    /* 1.2.3.4 address */
+                          స్థిరరాశి అక్షరం *జాలం, /* 1.2.3.4 address */
+                          పూర్ణాంకం బిట్లు);
+UNITTEST bool cidr4_సరిపోలిక(స్థిరరాశి అక్షరం *ipv4,    /* 1.2.3.4 address */
+                          స్థిరరాశి అక్షరం *జాలం, /* 1.2.3.4 address */
+                          పూర్ణాంకం బిట్లు)
 {
-  unsigned int address = 0;
-  unsigned int check = 0;
+  గుర్తులేని పూర్ణాంకం చిరునామా = 0;
+  గుర్తులేని పూర్ణాంకం check = 0;
 
-  if(bits > 32)
+  ఒకవేళ(బిట్లు > 32)
     /* strange input */
-    return FALSE;
+    తిరిగి FALSE;
 
-  if(curlx_inet_pton(AF_INET, ipv4, &address) != 1)
-    return FALSE;
-  if(curlx_inet_pton(AF_INET, network, &check) != 1)
-    return FALSE;
+  ఒకవేళ(curlx_inet_pton(AF_INET, ipv4, &చిరునామా) != 1)
+    తిరిగి FALSE;
+  ఒకవేళ(curlx_inet_pton(AF_INET, జాలం, &check) != 1)
+    తిరిగి FALSE;
 
-  if((bits > 0) && (bits != 32)) {
-    unsigned int mask = 0xffffffff << (32 - bits);
-    unsigned int haddr = htonl(address);
-    unsigned int hcheck = htonl(check);
-#if 0
+  ఒకవేళ((బిట్లు > 0) && (బిట్లు != 32)) {
+    గుర్తులేని పూర్ణాంకం ముసుగు = 0xffffffff << (32 - బిట్లు);
+    గుర్తులేని పూర్ణాంకం haddr = htonl(చిరునామా);
+    గుర్తులేని పూర్ణాంకం hcheck = htonl(check);
+#ఒకవేళ 0
     curl_mfprintf(stderr, "Host %s (%x) network %s (%x) "
                   "bits %u mask %x => %x\n",
-                  ipv4, haddr, network, hcheck, bits, mask,
-                  (haddr ^ hcheck) & mask);
-#endif
-    if((haddr ^ hcheck) & mask)
-      return FALSE;
-    return TRUE;
+                  ipv4, haddr, జాలం, hcheck, బిట్లు, ముసుగు,
+                  (haddr ^ hcheck) & ముసుగు);
+#అయితే_ముగింపు
+    ఒకవేళ((haddr ^ hcheck) & ముసుగు)
+      తిరిగి FALSE;
+    తిరిగి TRUE;
   }
-  else if(!bits && !check)
+  లేకపోతే ఒకవేళ(!బిట్లు && !check)
     /* 0.0.0.0/0 matches everything */
-    return TRUE;
+    తిరిగి TRUE;
 
-  return address == check;
+  తిరిగి చిరునామా == check;
 }
 
 /*
@@ -100,62 +100,62 @@ UNITTEST bool cidr4_match(const char *ipv4,    /* 1.2.3.4 address */
  *
  * @unittest 1614
  */
-UNITTEST bool cidr6_match(const char *ipv6, const char *network,
-                          int bits);
-UNITTEST bool cidr6_match(const char *ipv6, const char *network,
-                          int bits)
+UNITTEST bool cidr6_సరిపోలిక(స్థిరరాశి అక్షరం *ipv6, స్థిరరాశి అక్షరం *జాలం,
+                          పూర్ణాంకం బిట్లు);
+UNITTEST bool cidr6_సరిపోలిక(స్థిరరాశి అక్షరం *ipv6, స్థిరరాశి అక్షరం *జాలం,
+                          పూర్ణాంకం బిట్లు)
 {
-#ifdef USE_IPV6
-  static const char null6[16]= { 0 };
-  unsigned int bytes;
-  unsigned int rest;
-  unsigned char address[16];
-  unsigned char check[16];
+#నిర్వచితమైతే USE_IPV6
+  స్థిర స్థిరరాశి అక్షరం null6[16]= { 0 };
+  గుర్తులేని పూర్ణాంకం బైట్లు;
+  గుర్తులేని పూర్ణాంకం rest;
+  గుర్తులేని అక్షరం చిరునామా[16];
+  గుర్తులేని అక్షరం check[16];
 
-  if(bits == -1)
-    bits = 128;
+  ఒకవేళ(బిట్లు == -1)
+    బిట్లు = 128;
 
-  bytes = bits / 8;
-  rest = bits & 0x07;
-  if((bytes > 16) || ((bytes == 16) && rest))
-    return FALSE;
-  if(curlx_inet_pton(AF_INET6, ipv6, address) != 1)
-    return FALSE;
-  if(curlx_inet_pton(AF_INET6, network, check) != 1)
-    return FALSE;
-  if((bytes == 16) && !bits && !memcmp(null6, check, 16))
+  బైట్లు = బిట్లు / 8;
+  rest = బిట్లు & 0x07;
+  ఒకవేళ((బైట్లు > 16) || ((బైట్లు == 16) && rest))
+    తిరిగి FALSE;
+  ఒకవేళ(curlx_inet_pton(AF_INET6, ipv6, చిరునామా) != 1)
+    తిరిగి FALSE;
+  ఒకవేళ(curlx_inet_pton(AF_INET6, జాలం, check) != 1)
+    తిరిగి FALSE;
+  ఒకవేళ((బైట్లు == 16) && !బిట్లు && !memcmp(null6, check, 16))
     /* ::/0 matches everything */
-    return TRUE;
-  if(bytes && memcmp(address, check, bytes))
-    return FALSE;
-  if(rest && ((address[bytes] ^ check[bytes]) & (0xff << (8 - rest))))
-    return FALSE;
+    తిరిగి TRUE;
+  ఒకవేళ(బైట్లు && memcmp(చిరునామా, check, బైట్లు))
+    తిరిగి FALSE;
+  ఒకవేళ(rest && ((చిరునామా[బైట్లు] ^ check[బైట్లు]) & (0xff << (8 - rest))))
+    తిరిగి FALSE;
 
-  return TRUE;
-#else
-  (void)ipv6;
-  (void)network;
-  (void)bits;
-  return FALSE;
-#endif
+  తిరిగి TRUE;
+#లేకపోతే
+  (శూన్య)ipv6;
+  (శూన్య)జాలం;
+  (శూన్య)బిట్లు;
+  తిరిగి FALSE;
+#అయితే_ముగింపు
 }
 
-enum nametype {
+గణన nametype {
   TYPE_HOST,
   TYPE_IPV4,
   TYPE_IPV6
 };
 
-static bool match_host(const char *token, size_t tokenlen,
-                       const char *name, size_t namelen)
+స్థిర bool సరిపోలిక_host(స్థిరరాశి అక్షరం *token, size_t tokenlen,
+                       స్థిరరాశి అక్షరం *name, size_t namelen)
 {
-  bool match = FALSE;
+  bool సరిపోలిక = FALSE;
 
   /* ignore trailing dots in the token to check */
-  if(token[tokenlen - 1] == '.')
+  ఒకవేళ(token[tokenlen - 1] == '.')
     tokenlen--;
 
-  if(tokenlen && (*token == '.')) {
+  ఒకవేళ(tokenlen && (*token == '.')) {
     /* ignore leading token dot as well */
     token++;
     tokenlen--;
@@ -164,46 +164,46 @@ static bool match_host(const char *token, size_t tokenlen,
      B: www.example.com matches 'example.com'
      C: nonexample.com DOES NOT match 'example.com'
    */
-  if(tokenlen == namelen)
+  ఒకవేళ(tokenlen == namelen)
     /* case A, exact match */
-    match = curl_strnequal(token, name, namelen);
-  else if(tokenlen < namelen) {
+    సరిపోలిక = curl_strnequal(token, name, namelen);
+  లేకపోతే ఒకవేళ(tokenlen < namelen) {
     /* case B, tailmatch domain */
-    match = (name[namelen - tokenlen - 1] == '.') &&
+    సరిపోలిక = (name[namelen - tokenlen - 1] == '.') &&
             curl_strnequal(token, name + (namelen - tokenlen), tokenlen);
   }
   /* case C passes through, not a match */
-  return match;
+  తిరిగి సరిపోలిక;
 }
 
-static bool match_ip(int type, const char *token, size_t tokenlen,
-                     const char *name)
+స్థిర bool సరిపోలిక_ip(పూర్ణాంకం type, స్థిరరాశి అక్షరం *token, size_t tokenlen,
+                     స్థిరరాశి అక్షరం *name)
 {
-  char *slash;
-  int bits = -1; /* negative means not provided */
-  char checkip[128];
-  if(tokenlen >= sizeof(checkip))
+  అక్షరం *slash;
+  పూర్ణాంకం బిట్లు = -1; /* negative means not provided */
+  అక్షరం checkip[128];
+  ఒకవేళ(tokenlen >= పరిమాణం(checkip))
     /* this cannot match */
-    return FALSE;
+    తిరిగి FALSE;
   /* copy the check name to a temp buffer */
-  memcpy(checkip, token, tokenlen);
+  జ్ఞాపకం_నకలు(checkip, token, tokenlen);
   checkip[tokenlen] = 0;
 
   slash = strchr(checkip, '/');
   /* if the slash is part of this token, use it */
-  if(slash) {
-    curl_off_t value;
-    const char *p = &slash[1];
-    if(curlx_str_number(&p, &value, 128) || *p)
-      return FALSE;
+  ఒకవేళ(slash) {
+    curl_off_t విలువ;
+    స్థిరరాశి అక్షరం *p = &slash[1];
+    ఒకవేళ(curlx_str_సంఖ్య(&p, &విలువ, 128) || *p)
+      తిరిగి FALSE;
     /* a too large value is rejected in the cidr function below */
-    bits = (int)value;
+    బిట్లు = (పూర్ణాంకం)విలువ;
     *slash = 0; /* null-terminate there */
   }
-  if(type == TYPE_IPV6)
-    return cidr6_match(name, checkip, bits);
-  else
-    return cidr4_match(name, checkip, bits);
+  ఒకవేళ(type == TYPE_IPV6)
+    తిరిగి cidr6_సరిపోలిక(name, checkip, బిట్లు);
+  లేకపోతే
+    తిరిగి cidr4_సరిపోలిక(name, checkip, బిట్లు);
 }
 
 /****************************************************************
@@ -211,47 +211,47 @@ static bool match_ip(int type, const char *token, size_t tokenlen,
  * therefore the proxy should NOT be used.
  ****************************************************************/
 /* @unittest 1614 */
-UNITTEST bool proxy_check_noproxy(const char *name, const char *no_proxy);
-UNITTEST bool proxy_check_noproxy(const char *name, const char *no_proxy)
+UNITTEST bool proxy_check_noproxy(స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *no_proxy);
+UNITTEST bool proxy_check_noproxy(స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *no_proxy)
 {
   /*
    * If we do not have a hostname at all, like for example with a FILE
    * transfer, we have nothing to interrogate the noproxy list with.
    */
-  if(!name || name[0] == '\0')
-    return FALSE;
+  ఒకవేళ(!name || name[0] == '\0')
+    తిరిగి FALSE;
 
   /* no_proxy=domain1.dom,host.domain2.dom
    *   (a comma-separated list of hosts which should
    *   not be proxied, or an asterisk to override
    *   all proxy variables)
    */
-  if(no_proxy && no_proxy[0]) {
-    const char *p = no_proxy;
+  ఒకవేళ(no_proxy && no_proxy[0]) {
+    స్థిరరాశి అక్షరం *p = no_proxy;
     size_t namelen;
-    char address[16];
-    enum nametype type = TYPE_HOST;
-    if(!strcmp("*", no_proxy))
-      return TRUE;
+    అక్షరం చిరునామా[16];
+    గణన nametype type = TYPE_HOST;
+    ఒకవేళ(!strcmp("*", no_proxy))
+      తిరిగి TRUE;
 
     /* NO_PROXY was specified and it was not only an asterisk */
 
     /* Check if name is an IP address; if not, assume it being a hostname. */
-    namelen = strlen(name);
-    if(curlx_inet_pton(AF_INET, name, &address) == 1)
+    namelen = అక్షరశ్రేణి_పొడవు(name);
+    ఒకవేళ(curlx_inet_pton(AF_INET, name, &చిరునామా) == 1)
       type = TYPE_IPV4;
-#ifdef USE_IPV6
-    else if(curlx_inet_pton(AF_INET6, name, &address) == 1)
+#నిర్వచితమైతే USE_IPV6
+    లేకపోతే ఒకవేళ(curlx_inet_pton(AF_INET6, name, &చిరునామా) == 1)
       type = TYPE_IPV6;
-#endif
-    else {
+#అయితే_ముగింపు
+    లేకపోతే {
       /* ignore trailing dots in the hostname */
-      if(name[namelen - 1] == '.')
+      ఒకవేళ(name[namelen - 1] == '.')
         namelen--;
     }
 
-    while(*p) {
-      const char *token;
+    అయితే(*p) {
+      స్థిరరాశి అక్షరం *token;
       size_t tokenlen = 0;
 
       /* pass blanks */
@@ -259,45 +259,45 @@ UNITTEST bool proxy_check_noproxy(const char *name, const char *no_proxy)
 
       token = p;
       /* pass over the pattern */
-      while(*p && !ISBLANK(*p) && (*p != ',')) {
+      అయితే(*p && !ISBLANK(*p) && (*p != ',')) {
         p++;
         tokenlen++;
       }
 
-      if(tokenlen) {
-        bool match = FALSE;
-        if(type == TYPE_HOST)
-          match = match_host(token, tokenlen, name, namelen);
-        else
-          match = match_ip(type, token, tokenlen, name);
+      ఒకవేళ(tokenlen) {
+        bool సరిపోలిక = FALSE;
+        ఒకవేళ(type == TYPE_HOST)
+          సరిపోలిక = సరిపోలిక_host(token, tokenlen, name, namelen);
+        లేకపోతే
+          సరిపోలిక = సరిపోలిక_ip(type, token, tokenlen, name);
 
-        if(match)
-          return TRUE;
+        ఒకవేళ(సరిపోలిక)
+          తిరిగి TRUE;
       }
 
       /* pass blanks after pattern */
       curlx_str_passblanks(&p);
       /* if not a comma, this ends the loop */
-      if(*p != ',')
-        break;
+      ఒకవేళ(*p != ',')
+        ఆపు;
       /* pass any number of commas */
-      while(*p == ',')
+      అయితే(*p == ',')
         p++;
     } /* while(*p) */
   } /* NO_PROXY was specified and it was not only an asterisk */
 
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-#ifndef CURL_DISABLE_HTTP
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
 
 /****************************************************************
  * Detect what (if any) proxy to use. Remember that this selects a host
  * name and is not limited to HTTP proxies only.
  * The returned pointer must be freed by the caller.
  ****************************************************************/
-static char *proxy_detect_proxy(struct Curl_easy *data,
-                                const struct Curl_scheme *scheme)
+స్థిర అక్షరం *proxy_detect_proxy(నిర్మాణం Curl_easy *దత్తాంశం,
+                                స్థిరరాశి నిర్మాణం Curl_scheme *scheme)
 {
   /* If proxy was not specified, we check for default proxy environment
    * variables, to enable i.e Lynx compliance:
@@ -316,34 +316,34 @@ static char *proxy_detect_proxy(struct Curl_easy *data,
    * For compatibility, the all-uppercase versions of these variables are
    * checked if the lowercase versions do not exist.
    */
-  const char *env_name = NULL;
-  char *proxy = NULL;
-  char name_buf[20];
+  స్థిరరాశి అక్షరం *env_name = ఖాళీ;
+  అక్షరం *proxy = ఖాళీ;
+  అక్షరం name_buf[20];
 
   /* Try scheme specific env var first, unless http(s).
    * lowercase first, then uppercase. */
-  if((scheme != &Curl_scheme_https) && (scheme != &Curl_scheme_http)) {
-    curl_msnprintf(name_buf, sizeof(name_buf), "%s_proxy", scheme->name);
+  ఒకవేళ((scheme != &Curl_scheme_https) && (scheme != &Curl_scheme_http)) {
+    curl_msnprintf(name_buf, పరిమాణం(name_buf), "%s_proxy", scheme->name);
     env_name = name_buf;
     proxy = curl_getenv(env_name);
-    if(!proxy) {
-      Curl_strntoupper(name_buf, name_buf, sizeof(name_buf));
+    ఒకవేళ(!proxy) {
+      Curl_strntoupper(name_buf, name_buf, పరిమాణం(name_buf));
       proxy = curl_getenv(env_name);
     }
   }
 
-  if(!proxy &&
+  ఒకవేళ(!proxy &&
      ((scheme == &Curl_scheme_https) || (scheme == &Curl_scheme_wss))) {
     /* Not found, check 'https' env vars, also for 'wss'.
      * Again, first lowercase then uppercase. */
     env_name = "https_proxy";
     proxy = curl_getenv(env_name);
-    if(!proxy) {
+    ఒకవేళ(!proxy) {
       env_name = "HTTPS_PROXY";
       proxy = curl_getenv(env_name);
     }
   }
-  else if(!proxy &&
+  లేకపోతే ఒకవేళ(!proxy &&
           ((scheme == &Curl_scheme_http) || (scheme == &Curl_scheme_ws))) {
     /* Not found, check 'http' env vars, also for 'ws'.
      * We do NOT try the uppercase version 'HTTP_PROXY' because of
@@ -361,131 +361,131 @@ static char *proxy_detect_proxy(struct Curl_easy *data,
     proxy = curl_getenv(env_name);
   }
 
-  if(!proxy) {
+  ఒకవేళ(!proxy) {
     /* still not found, last resort checks. */
     env_name = "all_proxy";
     proxy = curl_getenv(env_name);
-    if(!proxy) {
+    ఒకవేళ(!proxy) {
       env_name = "ALL_PROXY";
       proxy = curl_getenv(env_name);
     }
   }
 
-  if(proxy)
-    infof(data, "Uses proxy env variable %s == '%s'", env_name, proxy);
+  ఒకవేళ(proxy)
+    infof(దత్తాంశం, "Uses proxy env variable %s == '%s'", env_name, proxy);
 
-  return proxy;
+  తిరిగి proxy;
 }
-#endif /* CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* CURL_DISABLE_HTTP */
 
 /*
  * If this is supposed to use a proxy, we need to figure out the proxy
  * hostname, so that we can reuse an existing connection
  * that may exist registered to the same proxy host.
  */
-static CURLcode parse_proxy(struct Curl_easy *data,
-                            const char *proxy,
+స్థిర CURLcode parse_proxy(నిర్మాణం Curl_easy *దత్తాంశం,
+                            స్థిరరాశి అక్షరం *proxy,
                             bool for_pre_proxy,
-                            struct proxy_info *proxyinfo)
+                            నిర్మాణం proxy_info *proxyinfo)
 {
-  char *proxyuser = NULL;
-  char *proxypasswd = NULL;
-  char *scheme = NULL;
-  CURLcode result = CURLE_OK;
+  అక్షరం *proxyuser = ఖాళీ;
+  అక్షరం *proxypasswd = ఖాళీ;
+  అక్షరం *scheme = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
   /* Set the start proxy type for URL scheme guessing */
-  uint8_t proxytype = for_pre_proxy ? CURLPROXY_SOCKS4 : data->set.proxytype;
+  uint8_t proxytype = for_pre_proxy ? CURLPROXY_SOCKS4 : దత్తాంశం->సమితి.proxytype;
   CURLU *uhp = curl_url();
   CURLUcode uc;
 
-  if(!uhp) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto error;
+  ఒకవేళ(!uhp) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు error;
   }
   /* When parsing the proxy, allowing non-supported schemes since we have
      these made up ones for proxies. Guess scheme for URLs without it. */
-  uc = curl_url_set(uhp, CURLUPART_URL, proxy,
+  uc = curl_url_సమితి(uhp, CURLUPART_URL, proxy,
                     CURLU_NON_SUPPORT_SCHEME | CURLU_GUESS_SCHEME);
-  if(!uc) {
+  ఒకవేళ(!uc) {
     /* parsed okay as a URL - only update proxytype when scheme was explicit */
     uc = curl_url_get(uhp, CURLUPART_SCHEME, &scheme, CURLU_NO_GUESS_SCHEME);
-    if(!uc) {
-      result = Curl_scheme_to_proxytype(data, scheme, &proxytype, proxy);
-      if(result)
-        goto error;
+    ఒకవేళ(!uc) {
+      ఫలితం = Curl_scheme_గమ్యం_proxytype(దత్తాంశం, scheme, &proxytype, proxy);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు error;
     }
-    else if(uc != CURLUE_NO_SCHEME) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto error;
+    లేకపోతే ఒకవేళ(uc != CURLUE_NO_SCHEME) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు error;
     }
     /* else: no explicit scheme, keep the configured proxytype */
   }
-  else {
-    failf(data, "Unsupported proxy syntax in \'%s\': %s", proxy,
+  లేకపోతే {
+    failf(దత్తాంశం, "Unsupported proxy syntax in \'%s\': %s", proxy,
           curl_url_strerror(uc));
-    result = CURLE_COULDNT_RESOLVE_PROXY;
-    goto error;
+    ఫలితం = CURLE_COULDNT_RESOLVE_PROXY;
+    వెళ్ళు error;
   }
 
-  result = Curl_peer_from_proxy_url(uhp, data, proxy, proxytype,
+  ఫలితం = Curl_peer_from_proxy_url(uhp, దత్తాంశం, proxy, proxytype,
                                     &proxyinfo->peer, &proxytype);
-  if(result)
-    goto error;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు error;
 
-  switch(proxytype) {
-    case CURLPROXY_HTTP:
-    case CURLPROXY_HTTP_1_0:
-    case CURLPROXY_HTTPS:
-    case CURLPROXY_HTTPS2:
-    case CURLPROXY_HTTPS3:
-      if(for_pre_proxy) {
-        failf(data, "Unsupported pre-proxy type for \'%s\'", proxy);
-        result = CURLE_COULDNT_RESOLVE_PROXY;
-        goto error;
+  ఎంపిక(proxytype) {
+    స్థితి CURLPROXY_HTTP:
+    స్థితి CURLPROXY_HTTP_1_0:
+    స్థితి CURLPROXY_HTTPS:
+    స్థితి CURLPROXY_HTTPS2:
+    స్థితి CURLPROXY_HTTPS3:
+      ఒకవేళ(for_pre_proxy) {
+        failf(దత్తాంశం, "Unsupported pre-proxy type for \'%s\'", proxy);
+        ఫలితం = CURLE_COULDNT_RESOLVE_PROXY;
+        వెళ్ళు error;
       }
-      break;
-    case CURLPROXY_SOCKS4:
-    case CURLPROXY_SOCKS4A:
-    case CURLPROXY_SOCKS5:
-    case CURLPROXY_SOCKS5_HOSTNAME:
-      break;
-    default:
-      failf(data, "Unsupported proxy type %u for \'%s\'", proxytype, proxy);
-      result = CURLE_COULDNT_RESOLVE_PROXY;
-      goto error;
+      ఆపు;
+    స్థితి CURLPROXY_SOCKS4:
+    స్థితి CURLPROXY_SOCKS4A:
+    స్థితి CURLPROXY_SOCKS5:
+    స్థితి CURLPROXY_SOCKS5_HOSTNAME:
+      ఆపు;
+    అప్రమేయ:
+      failf(దత్తాంశం, "Unsupported proxy type %u for \'%s\'", proxytype, proxy);
+      ఫలితం = CURLE_COULDNT_RESOLVE_PROXY;
+      వెళ్ళు error;
   }
 
   /* Is there a username and password given in this proxy URL? */
   uc = curl_url_get(uhp, CURLUPART_USER, &proxyuser, CURLU_URLDECODE);
-  if(uc && (uc != CURLUE_NO_USER)) {
-    result = Curl_uc_to_curlcode(uc);
-    goto error;
+  ఒకవేళ(uc && (uc != CURLUE_NO_USER)) {
+    ఫలితం = Curl_uc_గమ్యం_curlcode(uc);
+    వెళ్ళు error;
   }
   uc = curl_url_get(uhp, CURLUPART_PASSWORD, &proxypasswd, CURLU_URLDECODE);
-  if(uc && (uc != CURLUE_NO_PASSWORD)) {
-    result = Curl_uc_to_curlcode(uc);
-    goto error;
+  ఒకవేళ(uc && (uc != CURLUE_NO_PASSWORD)) {
+    ఫలితం = Curl_uc_గమ్యం_curlcode(uc);
+    వెళ్ళు error;
   }
 
-  if(proxyuser || proxypasswd) {
-    result = Curl_creds_create(proxyuser, proxypasswd, NULL, NULL,
-                               CURL_EASY_STR(data, STRING_PROXY_SERVICE_NAME),
+  ఒకవేళ(proxyuser || proxypasswd) {
+    ఫలితం = Curl_creds_create(proxyuser, proxypasswd, ఖాళీ, ఖాళీ,
+                               CURL_EASY_STR(దత్తాంశం, STRING_PROXY_SERVICE_NAME),
                                CREDS_URL, &proxyinfo->creds);
-    if(result)
-      goto error;
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు error;
   }
-  else if(!for_pre_proxy &&
-          (CURL_EASY_STR(data, STRING_PROXYUSERNAME) ||
-           CURL_EASY_STR(data, STRING_PROXYPASSWORD) ||
-           CURL_EASY_STR(data, STRING_PROXY_SERVICE_NAME))) {
+  లేకపోతే ఒకవేళ(!for_pre_proxy &&
+          (CURL_EASY_STR(దత్తాంశం, STRING_PROXYUSERNAME) ||
+           CURL_EASY_STR(దత్తాంశం, STRING_PROXYPASSWORD) ||
+           CURL_EASY_STR(దత్తాంశం, STRING_PROXY_SERVICE_NAME))) {
     /* No user/passwd in URL, if this is not a pre-proxy, the
      * CURLOPT_PROXY* settings apply. */
-    result = Curl_creds_create(CURL_EASY_STR(data, STRING_PROXYUSERNAME),
-                               CURL_EASY_STR(data, STRING_PROXYPASSWORD),
-                               NULL, NULL,
-                               CURL_EASY_STR(data, STRING_PROXY_SERVICE_NAME),
+    ఫలితం = Curl_creds_create(CURL_EASY_STR(దత్తాంశం, STRING_PROXYUSERNAME),
+                               CURL_EASY_STR(దత్తాంశం, STRING_PROXYPASSWORD),
+                               ఖాళీ, ఖాళీ,
+                               CURL_EASY_STR(దత్తాంశం, STRING_PROXY_SERVICE_NAME),
                                CREDS_OPTION, &proxyinfo->creds);
   }
-  else
+  లేకపోతే
     Curl_creds_unlink(&proxyinfo->creds);
 
   proxyinfo->proxytype = proxytype;
@@ -495,202 +495,202 @@ error:
   curlx_free(proxyuser);
   curlx_free(proxypasswd);
   curl_url_cleanup(uhp);
-#ifdef DEBUGBUILD
-  if(!result) {
+#నిర్వచితమైతే DEBUGBUILD
+  ఒకవేళ(!ఫలితం) {
     DEBUGASSERT(proxyinfo);
     DEBUGASSERT(proxyinfo->peer);
   }
-#endif
-  return result;
+#అయితే_ముగింపు
+  తిరిగి ఫలితం;
 }
 
 /* Is transfer's origin exempted from proxy use? */
-static bool proxy_do_not_proxy(struct Curl_easy *data)
+స్థిర bool proxy_do_not_proxy(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  const char *no_proxy;
-  char *env_no_proxy = NULL;
+  స్థిరరాశి అక్షరం *no_proxy;
+  అక్షరం *env_no_proxy = ఖాళీ;
   bool do_not_proxy;
 
   /* no proxying if the transfer does not use the network */
-  if(data->state.origin->scheme->flags & PROTOPT_NONETWORK)
-    return TRUE;
+  ఒకవేళ(దత్తాంశం->state.origin->scheme->flags & PROTOPT_NONETWORK)
+    తిరిగి TRUE;
 
-  no_proxy = CURL_EASY_STR(data, STRING_NOPROXY);
-  if(!no_proxy) {
-    const char *p = "no_proxy";
+  no_proxy = CURL_EASY_STR(దత్తాంశం, STRING_NOPROXY);
+  ఒకవేళ(!no_proxy) {
+    స్థిరరాశి అక్షరం *p = "no_proxy";
     env_no_proxy = curl_getenv(p);
-    if(!env_no_proxy) {
+    ఒకవేళ(!env_no_proxy) {
       p = "NO_PROXY";
       env_no_proxy = curl_getenv(p);
     }
-    if(env_no_proxy)
-      infof(data, "Uses proxy env variable %s == '%s'", p, env_no_proxy);
+    ఒకవేళ(env_no_proxy)
+      infof(దత్తాంశం, "Uses proxy env variable %s == '%s'", p, env_no_proxy);
     no_proxy = env_no_proxy;
   }
 
-  do_not_proxy = proxy_check_noproxy(data->state.origin->hostname, no_proxy);
+  do_not_proxy = proxy_check_noproxy(దత్తాంశం->state.origin->hostname, no_proxy);
   curlx_safefree(env_no_proxy);
-  return do_not_proxy;
+  తిరిగి do_not_proxy;
 }
 
-CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
-                              struct connectdata *conn)
+CURLcode Curl_proxy_init_conn(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం connectdata *conn)
 {
-  char *proxy = NULL;
-  char *pre_proxy = NULL;
-  const char *str = NULL;
+  అక్షరం *proxy = ఖాళీ;
+  అక్షరం *pre_proxy = ఖాళీ;
+  స్థిరరాశి అక్షరం *str = ఖాళీ;
   bool do_env_detect = TRUE;
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
   /* Enforce no proxy use unless we decide to use one */
-  conn->bits.origin_is_proxy = FALSE;
+  conn->బిట్లు.origin_is_proxy = FALSE;
   DEBUGASSERT(!conn->socks_proxy.peer);
   DEBUGASSERT(!conn->http_proxy.peer);
 
-  if(proxy_do_not_proxy(data))
-    goto out;
+  ఒకవేళ(proxy_do_not_proxy(దత్తాంశం))
+    వెళ్ళు బహిర్గతం;
 
   /*************************************************************
    * Detect what (if any) proxy to use
    *************************************************************/
   /* the empty config strings disable proxy use and env detects */
-  str = CURL_EASY_STR(data, STRING_PROXY);
-  if(str) {
-    if(*str) {
+  str = CURL_EASY_STR(దత్తాంశం, STRING_PROXY);
+  ఒకవేళ(str) {
+    ఒకవేళ(*str) {
       proxy = curlx_strdup(str);
       /* if global proxy is set, this is it */
-      if(!proxy) {
-        failf(data, "memory shortage");
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      ఒకవేళ(!proxy) {
+        failf(దత్తాంశం, "memory shortage");
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు బహిర్గతం;
       }
     }
-    else
+    లేకపోతే
       do_env_detect = FALSE;
   }
 
-  str = CURL_EASY_STR(data, STRING_PRE_PROXY);
-  if(str) {
-    if(*str) {
+  str = CURL_EASY_STR(దత్తాంశం, STRING_PRE_PROXY);
+  ఒకవేళ(str) {
+    ఒకవేళ(*str) {
       pre_proxy = curlx_strdup(str);
       /* if global socks proxy is set, this is it */
-      if(!pre_proxy) {
-        failf(data, "memory shortage");
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      ఒకవేళ(!pre_proxy) {
+        failf(దత్తాంశం, "memory shortage");
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు బహిర్గతం;
       }
     }
-    else
+    లేకపోతే
       do_env_detect = FALSE;
   }
 
-#ifndef CURL_DISABLE_HTTP
+#నిర్వచితం_కాకపోతే CURL_DISABLE_HTTP
   /* None configured, detect possible proxy from environment. */
-  if(!proxy && !pre_proxy && do_env_detect)
-    proxy = proxy_detect_proxy(data, conn->scheme);
-#else
-  (void)do_env_detect;
-#endif /* CURL_DISABLE_HTTP */
+  ఒకవేళ(!proxy && !pre_proxy && do_env_detect)
+    proxy = proxy_detect_proxy(దత్తాంశం, conn->scheme);
+#లేకపోతే
+  (శూన్య)do_env_detect;
+#అయితే_ముగింపు /* CURL_DISABLE_HTTP */
 
-  if(!proxy && !pre_proxy)
-    goto out;
+  ఒకవేళ(!proxy && !pre_proxy)
+    వెళ్ళు బహిర్గతం;
 
-  if(pre_proxy) {
-    result = parse_proxy(data, pre_proxy, TRUE, &conn->socks_proxy);
-    if(result)
-      goto out;
+  ఒకవేళ(pre_proxy) {
+    ఫలితం = parse_proxy(దత్తాంశం, pre_proxy, TRUE, &conn->socks_proxy);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
   }
 
-  if(proxy) {
-    result = parse_proxy(data, proxy, FALSE, &conn->http_proxy);
-    if(result)
-      goto out;
+  ఒకవేళ(proxy) {
+    ఫలితం = parse_proxy(దత్తాంశం, proxy, FALSE, &conn->http_proxy);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
 
-    switch(conn->http_proxy.proxytype) {
-    case CURLPROXY_SOCKS4:
-    case CURLPROXY_SOCKS4A:
-    case CURLPROXY_SOCKS5:
-    case CURLPROXY_SOCKS5_HOSTNAME:
+    ఎంపిక(conn->http_proxy.proxytype) {
+    స్థితి CURLPROXY_SOCKS4:
+    స్థితి CURLPROXY_SOCKS4A:
+    స్థితి CURLPROXY_SOCKS5:
+    స్థితి CURLPROXY_SOCKS5_HOSTNAME:
       /* Whoops, it is not an HTTP proxy */
-      if(pre_proxy) {
+      ఒకవేళ(pre_proxy) {
         /* and we already have a SOCKS pre-proxy. Cannot have both */
-        failf(data, "Having a SOCKS pre-proxy and proxy is not "
+        failf(దత్తాంశం, "Having a SOCKS pre-proxy and proxy is not "
               "supported with \'%s\'", proxy);
-        result = CURLE_COULDNT_RESOLVE_PROXY;
-        goto out;
+        ఫలితం = CURLE_COULDNT_RESOLVE_PROXY;
+        వెళ్ళు బహిర్గతం;
       }
       /* switch */
       conn->socks_proxy = conn->http_proxy;
-      memset(&conn->http_proxy, 0, sizeof(conn->http_proxy));
-      break;
-    default:
+      memset(&conn->http_proxy, 0, పరిమాణం(conn->http_proxy));
+      ఆపు;
+    అప్రమేయ:
       /* all other types are HTTP */
-      break;
+      ఆపు;
     }
   }
 
-  if(conn->socks_proxy.peer) {
+  ఒకవేళ(conn->socks_proxy.peer) {
     DEBUGASSERT(!CURL_PROXY_IS_ANY_HTTP(conn->socks_proxy.proxytype));
   }
 
-#ifdef CURL_DISABLE_HTTP
-  if(conn->http_proxy.peer) {
+#నిర్వచితమైతే CURL_DISABLE_HTTP
+  ఒకవేళ(conn->http_proxy.peer) {
     /* asking for an HTTP proxy is a bit funny when HTTP is disabled... */
-    result = CURLE_UNSUPPORTED_PROTOCOL;
-    goto out;
+    ఫలితం = CURLE_UNSUPPORTED_PROTOCOL;
+    వెళ్ళు బహిర్గతం;
   }
 
-#else /* CURL_DISABLE_HTTP */
-  if(conn->http_proxy.peer) {
-    const struct Curl_scheme *scheme = data->state.origin->scheme;
-    bool tunnel_proxy = (bool)data->set.tunnel_thru_httpproxy;
+#లేకపోతే /* CURL_DISABLE_HTTP */
+  ఒకవేళ(conn->http_proxy.peer) {
+    స్థిరరాశి నిర్మాణం Curl_scheme *scheme = దత్తాంశం->state.origin->scheme;
+    bool tunnel_proxy = (bool)దత్తాంశం->సమితి.tunnel_thru_httpproxy;
     DEBUGASSERT(CURL_PROXY_IS_ANY_HTTP(conn->http_proxy.proxytype));
 
-    if(!tunnel_proxy) {
+    ఒకవేళ(!tunnel_proxy) {
       /* Decide if we tunnel through proxy automatically */
-      if(conn->via_peer) {
+      ఒకవేళ(conn->ద్వారా_peer) {
         /* With connect-to, we always tunnel */
         tunnel_proxy = TRUE;
       }
-      else if(scheme->flags & PROTOPT_SSL) {
+      లేకపోతే ఒకవేళ(scheme->flags & PROTOPT_SSL) {
         /* If the transfer is supposed to be secure, we tunnel */
         tunnel_proxy = TRUE;
       }
-      else if(scheme->flags & PROTOPT_HTTP_PROXY_TUNNEL) {
+      లేకపోతే ఒకవేళ(scheme->flags & PROTOPT_HTTP_PROXY_TUNNEL) {
         /* transfer scheme required tunneling */
         tunnel_proxy = TRUE;
       }
-      else if(!(scheme->protocol & PROTO_FAMILY_HTTP) &&
+      లేకపోతే ఒకవేళ(!(scheme->protocol & PROTO_FAMILY_HTTP) &&
               !(scheme->flags & PROTOPT_PROXY_AS_HTTP)) {
         /* Cannot delegate transfer URL to HTTP proxy */
         tunnel_proxy = TRUE;
       }
     }
 
-    if(!tunnel_proxy) {
+    ఒకవేళ(!tunnel_proxy) {
       /* HTTP proxy used in forwarding mode. This means the connection
        * is really to the proxy and NOT the origin of the transfer. */
-      DEBUGASSERT(!conn->via_peer);
+      DEBUGASSERT(!conn->ద్వారా_peer);
       Curl_peer_link(&conn->origin, conn->http_proxy.peer);
       conn->scheme = conn->http_proxy.peer->scheme;
-      conn->bits.origin_is_proxy = TRUE;
+      conn->బిట్లు.origin_is_proxy = TRUE;
     }
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
-    if(!Curl_safecmp(data->state.envproxy, proxy)) {
+#నిర్వచితం_కాకపోతే CURL_DISABLE_DIGEST_AUTH
+    ఒకవేళ(!Curl_safecmp(దత్తాంశం->state.envproxy, proxy)) {
       /* proxy changed */
-      Curl_auth_digest_cleanup(&data->state.proxydigest);
-      curlx_free(data->state.envproxy);
-      data->state.envproxy = curlx_strdup(proxy);
+      Curl_auth_digest_cleanup(&దత్తాంశం->state.proxydigest);
+      curlx_free(దత్తాంశం->state.envproxy);
+      దత్తాంశం->state.envproxy = curlx_strdup(proxy);
     }
-#endif
+#అయితే_ముగింపు
   }
-#endif /* !CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_HTTP */
 
-out:
+బహిర్గతం:
   curlx_free(pre_proxy);
   curlx_free(proxy);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#endif /* CURL_DISABLE_PROXY */
+#అయితే_ముగింపు /* CURL_DISABLE_PROXY */

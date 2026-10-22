@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_IDN_H
-#define HEADER_CURL_IDN_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_IDN_H
+#నిర్వచించు శీర్షిక_CURL_IDN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,22 +24,22 @@
  *
  ***************************************************************************/
 
-struct Curl_str;
-struct hostname;
+నిర్మాణం Curl_str;
+నిర్మాణం hostname;
 
-bool Curl_is_ASCII_name(const char *hostname);
-bool Curl_is_ASCII_str(struct Curl_str *s);
+bool Curl_is_ASCII_name(స్థిరరాశి అక్షరం *hostname);
+bool Curl_is_ASCII_str(నిర్మాణం Curl_str *s);
 
-CURLcode Curl_idnconvert_hostname(struct hostname *host);
+CURLcode Curl_idnconvert_hostname(నిర్మాణం hostname *host);
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-#define USE_IDN
-void Curl_free_idnconverted_hostname(struct hostname *host);
-CURLcode Curl_idn_decode(const char *input, char **output);
-CURLcode Curl_idn_encode(const char *puny, char **output);
-#else
-#define Curl_free_idnconverted_hostname(x)
-#define Curl_idn_decode(x) NULL
-#endif
+#ఒకవేళ defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#నిర్వచించు USE_IDN
+శూన్య Curl_free_idnconverted_hostname(నిర్మాణం hostname *host);
+CURLcode Curl_idn_decode(స్థిరరాశి అక్షరం *ఆదానం, అక్షరం **output);
+CURLcode Curl_idn_encode(స్థిరరాశి అక్షరం *puny, అక్షరం **output);
+#లేకపోతే
+#నిర్వచించు Curl_free_idnconverted_hostname(x)
+#నిర్వచించు Curl_idn_decode(x) ఖాళీ
+#అయితే_ముగింపు
 
-#endif /* HEADER_CURL_IDN_H */
+#అయితే_ముగింపు /* HEADER_CURL_IDN_H */

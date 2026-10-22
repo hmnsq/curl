@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_RECVBUF_H
-#define HEADER_CURL_CF_RECVBUF_H
+#నిర్వచితం_కాకపోతే శీర్షిక_CURL_CF_RECVBUF_H
+#నిర్వచించు శీర్షిక_CURL_CF_RECVBUF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifndef CURL_DISABLE_WEBSOCKETS
+#నిర్వచితం_కాకపోతే CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_కూడు(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం connectdata *conn,
                              int8_t sockindex,
-                             const uint8_t *buf, size_t blen);
+                             స్థిరరాశి uint8_t *buf, size_t blen);
 
-extern struct Curl_cftype Curl_cft_recvbuf;
+బాహ్య నిర్మాణం Curl_cftype Curl_cft_recvbuf;
 
-#endif /* !CURL_DISABLE_WEBSOCKETS */
+#అయితే_ముగింపు /* !CURL_DISABLE_WEBSOCKETS */
 
-#endif /* HEADER_CURL_CF_RECVBUF_H */
+#అయితే_ముగింపు /* HEADER_CURL_CF_RECVBUF_H */

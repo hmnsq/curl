@@ -21,112 +21,112 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h> /* <netinet/tcp.h> may need it */
-#endif
-#ifdef HAVE_LINUX_TCP_H
-#include <linux/tcp.h>
-#elif defined(HAVE_NETINET_TCP_H)
-#include <netinet/tcp.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#నిర్వచితమైతే HAVE_NETINET_లోపల_H
+#అన్తర్భావ <netinet/in.h> /* <netinet/tcp.h> may need it */
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_LINUX_TCP_H
+#అన్తర్భావ <linux/tcp.h>
+#లేదావేళ defined(HAVE_NETINET_TCP_H)
+#అన్తర్భావ <netinet/tcp.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_SYS_IOCTL_H
+#అన్తర్భావ <sys/ioctl.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_NETDB_H
+#అన్తర్భావ <netdb.h>
+#అయితే_ముగింపు
+#నిర్వచితమైతే HAVE_ARPA_INET_H
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
 
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#నిర్వచితమైతే __VMS
+#అన్తర్భావ <in.h>
+#అన్తర్భావ <inet.h>
+#అయితే_ముగింపు
 
-#include "urldata.h"
-#include "connect.h"
-#include "cfilters.h"
-#include "cf-ip-happy.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "select.h"
-#include "sockaddr.h"
-#include "vdns/cf-dns.h"
-#include "vquic/vquic.h" /* for quic cfilters */
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "connect.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "cf-ip-happy.h"
+#అన్తర్భావ "curl_addrinfo.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "multiif.h"
+#అన్తర్భావ "progress.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "sockaddr.h"
+#అన్తర్భావ "vdns/cf-dns.h"
+#అన్తర్భావ "vquic/vquic.h" /* for quic cfilters */
 
 
-struct transport_provider {
+నిర్మాణం transport_provider {
   cf_ip_connect_create *cf_create;
   uint8_t transport;
   bool tunnel;
 };
 
-static
-#ifndef UNITTESTS
-const
-#endif
-struct transport_provider transport_providers[] = {
+స్థిర
+#నిర్వచితం_కాకపోతే UNITTESTS
+స్థిరరాశి
+#అయితే_ముగింపు
+నిర్మాణం transport_provider transport_providers[] = {
   { Curl_cf_tcp_create, TRNSPRT_TCP, FALSE },
   { Curl_cf_tcp_create, TRNSPRT_TCP, TRUE },
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   { Curl_cf_quic_create, TRNSPRT_QUIC, FALSE },
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_PROXY_HTTP3)
+#అయితే_ముగింపు
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && defined(USE_PROXY_HTTP3)
   { Curl_cf_h3_proxy_create, TRNSPRT_QUIC, TRUE },
-#endif
-#ifndef CURL_DISABLE_TFTP
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే CURL_DISABLE_TFTP
   { Curl_cf_udp_create, TRNSPRT_UDP, FALSE },
-#endif
-#ifdef USE_UNIX_SOCKETS
+#అయితే_ముగింపు
+#నిర్వచితమైతే USE_UNIX_SOCKETS
   { Curl_cf_unix_create, TRNSPRT_UNIX, FALSE },
   { Curl_cf_unix_create, TRNSPRT_UNIX, TRUE },
-#endif
+#అయితే_ముగింపు
 };
 
-static cf_ip_connect_create *get_cf_create(uint8_t transport,
+స్థిర cf_ip_connect_create *get_cf_create(uint8_t transport,
                                            bool tunnel)
 {
   size_t i;
-  for(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
-    if((transport == transport_providers[i].transport) &&
+  కొరకు(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
+    ఒకవేళ((transport == transport_providers[i].transport) &&
        (tunnel == transport_providers[i].tunnel))
-      return transport_providers[i].cf_create;
+      తిరిగి transport_providers[i].cf_create;
   }
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-#ifdef UNITTESTS
+#నిర్వచితమైతే UNITTESTS
 /* @unittest 2600 */
-UNITTEST void debug_set_transport_provider(
+UNITTEST శూన్య debug_సమితి_transport_provider(
   uint8_t transport, cf_ip_connect_create *cf_create);
-UNITTEST void debug_set_transport_provider(
+UNITTEST శూన్య debug_సమితి_transport_provider(
   uint8_t transport, cf_ip_connect_create *cf_create)
 {
   size_t i;
-  for(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
-    if(transport == transport_providers[i].transport) {
+  కొరకు(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
+    ఒకవేళ(transport == transport_providers[i].transport) {
       transport_providers[i].cf_create = cf_create;
     }
   }
 }
-#endif /* UNITTESTS */
+#అయితే_ముగింపు /* UNITTESTS */
 
-struct cf_ai_iter {
-  struct Curl_cfilter *cf;
-  struct Curl_peer *peer;
-  int ai_family;
-  unsigned int n;
+నిర్మాణం cf_ai_iter {
+  నిర్మాణం Curl_cfilter *cf;
+  నిర్మాణం Curl_peer *peer;
+  పూర్ణాంకం ai_family;
+  గుర్తులేని పూర్ణాంకం n;
 };
 
-static void cf_ai_iter_init(struct cf_ai_iter *iter,
-                            struct Curl_cfilter *cf,
-                            struct Curl_peer *peer,
-                            int ai_family)
+స్థిర శూన్య cf_ai_iter_init(నిర్మాణం cf_ai_iter *iter,
+                            నిర్మాణం Curl_cfilter *cf,
+                            నిర్మాణం Curl_peer *peer,
+                            పూర్ణాంకం ai_family)
 {
   iter->cf = cf;
   iter->peer = peer; /* not linked, ctx->ballers owns and has same lifetime */
@@ -134,54 +134,54 @@ static void cf_ai_iter_init(struct cf_ai_iter *iter,
   iter->n = 0;
 }
 
-static const struct Curl_addrinfo *cf_ai_iter_next(struct cf_ai_iter *iter,
-                                                   struct Curl_easy *data)
+స్థిర స్థిరరాశి నిర్మాణం Curl_addrinfo *cf_ai_iter_తదుపరి(నిర్మాణం cf_ai_iter *iter,
+                                                   నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  const struct Curl_addrinfo *addr;
+  స్థిరరాశి నిర్మాణం Curl_addrinfo *addr;
 
-  if(!iter->cf)
-    return NULL;
+  ఒకవేళ(!iter->cf)
+    తిరిగి ఖాళీ;
 
-  addr = Curl_conn_dns_get_ai(data, iter->peer, iter->cf->sockindex,
+  addr = Curl_conn_dns_get_ai(దత్తాంశం, iter->peer, iter->cf->sockindex,
                               iter->ai_family, iter->n);
-  if(addr)
+  ఒకవేళ(addr)
     iter->n++;
-  return addr;
+  తిరిగి addr;
 }
 
-static bool cf_ai_iter_has_more(struct cf_ai_iter *iter,
-                                struct Curl_easy *data)
+స్థిర bool cf_ai_iter_has_మరిన్ని(నిర్మాణం cf_ai_iter *iter,
+                                నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  return (iter->cf &&
-          !!Curl_conn_dns_get_ai(data, iter->peer, iter->cf->sockindex,
+  తిరిగి (iter->cf &&
+          !!Curl_conn_dns_get_ai(దత్తాంశం, iter->peer, iter->cf->sockindex,
                                  iter->ai_family, iter->n));
 }
 
-struct cf_ip_attempt {
-  struct cf_ip_attempt *next;
-  struct Curl_peer *origin;
-  struct Curl_peer *peer;
-  struct Curl_peer *tunnel_peer;
-  struct Curl_sockaddr_ex addr;
-  struct Curl_cfilter *cf;           /* current sub-cfilter connecting */
+నిర్మాణం cf_ip_attempt {
+  నిర్మాణం cf_ip_attempt *తదుపరి;
+  నిర్మాణం Curl_peer *origin;
+  నిర్మాణం Curl_peer *peer;
+  నిర్మాణం Curl_peer *tunnel_peer;
+  నిర్మాణం Curl_sockaddr_ex addr;
+  నిర్మాణం Curl_cfilter *cf;           /* current sub-cfilter connecting */
   cf_ip_connect_create *cf_create;
-  CURLcode result;
-  int ai_family;
+  CURLcode ఫలితం;
+  పూర్ణాంకం ai_family;
   uint8_t transport_peer;
   uint8_t tunnel_transport;
-  int error;
-  BIT(connected);                    /* cf has connected */
-  BIT(shutdown);                     /* cf has shutdown */
-  BIT(inconclusive);                 /* connect was not a hard failure, we
+  పూర్ణాంకం error;
+  బిట్టు(connected);                    /* cf has connected */
+  బిట్టు(shutdown);                     /* cf has shutdown */
+  బిట్టు(inconclusive);                 /* connect was not a hard failure, we
                                       * might talk to a restarting server */
 };
 
-static void cf_ip_attempt_free(struct cf_ip_attempt *a,
-                               struct Curl_easy *data)
+స్థిర శూన్య cf_ip_attempt_free(నిర్మాణం cf_ip_attempt *a,
+                               నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(a) {
-    if(a->cf)
-      Curl_conn_cf_discard_chain(&a->cf, data);
+  ఒకవేళ(a) {
+    ఒకవేళ(a->cf)
+      Curl_conn_cf_discard_chain(&a->cf, దత్తాంశం);
     Curl_peer_unlink(&a->origin);
     Curl_peer_unlink(&a->peer);
     Curl_peer_unlink(&a->tunnel_peer);
@@ -189,26 +189,26 @@ static void cf_ip_attempt_free(struct cf_ip_attempt *a,
   }
 }
 
-static CURLcode cf_ip_attempt_new(struct cf_ip_attempt **pa,
-                                  struct Curl_easy *data,
-                                  struct Curl_cfilter *cf,
-                                  struct Curl_peer *origin,
-                                  struct Curl_peer *peer,
+స్థిర CURLcode cf_ip_attempt_new(నిర్మాణం cf_ip_attempt **pa,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_peer *origin,
+                                  నిర్మాణం Curl_peer *peer,
                                   uint8_t transport_peer,
-                                  struct Curl_sockaddr_ex *addr,
-                                  int ai_family,
-                                  struct Curl_peer *tunnel_peer,
+                                  నిర్మాణం Curl_sockaddr_ex *addr,
+                                  పూర్ణాంకం ai_family,
+                                  నిర్మాణం Curl_peer *tunnel_peer,
                                   uint8_t tunnel_transport,
                                   cf_ip_connect_create *cf_create)
 {
-  struct Curl_cfilter *wcf;
-  struct cf_ip_attempt *a;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం Curl_cfilter *wcf;
+  నిర్మాణం cf_ip_attempt *a;
+  CURLcode ఫలితం = CURLE_OK;
 
-  *pa = NULL;
-  a = curlx_calloc(1, sizeof(*a));
-  if(!a)
-    return CURLE_OUT_OF_MEMORY;
+  *pa = ఖాళీ;
+  a = curlx_calloc(1, పరిమాణం(*a));
+  ఒకవేళ(!a)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
 
   Curl_peer_link(&a->origin, origin);
   Curl_peer_link(&a->peer, peer);
@@ -217,139 +217,139 @@ static CURLcode cf_ip_attempt_new(struct cf_ip_attempt **pa,
   a->tunnel_transport = tunnel_transport;
   a->addr = *addr;
   a->ai_family = ai_family;
-  a->result = CURLE_OK;
+  a->ఫలితం = CURLE_OK;
   a->cf_create = cf_create;
   *pa = a;
 
-  result = a->cf_create(&a->cf, data, a->origin, a->peer, a->transport_peer,
+  ఫలితం = a->cf_create(&a->cf, దత్తాంశం, a->origin, a->peer, a->transport_peer,
                         cf->conn, &a->addr, a->tunnel_peer,
                         a->tunnel_transport);
-  if(result)
-    goto out;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
   /* the new filter might have sub-filters */
-  for(wcf = a->cf; wcf; wcf = wcf->next) {
+  కొరకు(wcf = a->cf; wcf; wcf = wcf->తదుపరి) {
     wcf->conn = cf->conn;
     wcf->sockindex = cf->sockindex;
   }
 
-out:
-  if(result) {
-    cf_ip_attempt_free(a, data);
-    *pa = NULL;
+బహిర్గతం:
+  ఒకవేళ(ఫలితం) {
+    cf_ip_attempt_free(a, దత్తాంశం);
+    *pa = ఖాళీ;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_ip_attempt_connect(struct cf_ip_attempt *a,
-                                      struct Curl_easy *data,
+స్థిర CURLcode cf_ip_attempt_connect(నిర్మాణం cf_ip_attempt *a,
+                                      నిర్మాణం Curl_easy *దత్తాంశం,
                                       bool *connected)
 {
   *connected = (bool)a->connected;
-  if(!a->result && !*connected) {
+  ఒకవేళ(!a->ఫలితం && !*connected) {
     /* evaluate again */
-    a->result = Curl_conn_cf_connect(a->cf, data, connected);
+    a->ఫలితం = Curl_conn_cf_connect(a->cf, దత్తాంశం, connected);
 
-    if(!a->result) {
-      if(*connected) {
+    ఒకవేళ(!a->ఫలితం) {
+      ఒకవేళ(*connected) {
         a->connected = TRUE;
       }
     }
-    else {
-      if(a->result == CURLE_WEIRD_SERVER_REPLY)
+    లేకపోతే {
+      ఒకవేళ(a->ఫలితం == CURLE_WEIRD_SERVER_జవాబు)
         a->inconclusive = TRUE;
-      if(a->cf)
-        Curl_conn_cf_discard_chain(&a->cf, data);
+      ఒకవేళ(a->cf)
+        Curl_conn_cf_discard_chain(&a->cf, దత్తాంశం);
     }
   }
-  return a->result;
+  తిరిగి a->ఫలితం;
 }
 
-struct cf_ip_ballers {
-  struct cf_ip_attempt *running;
-  struct cf_ip_attempt **running_tail;  /* &running or &(last->next) */
-  struct cf_ip_attempt *winner;
-  struct cf_ai_iter addr_iter;
-#ifdef USE_IPV6
-  struct cf_ai_iter ipv6_iter;
-#endif
-  struct Curl_peer *origin;
-  struct Curl_peer *peer;
-  struct Curl_peer *tunnel_peer;
+నిర్మాణం cf_ip_ballers {
+  నిర్మాణం cf_ip_attempt *running;
+  నిర్మాణం cf_ip_attempt **running_తోక;  /* &running or &(last->next) */
+  నిర్మాణం cf_ip_attempt *winner;
+  నిర్మాణం cf_ai_iter addr_iter;
+#నిర్వచితమైతే USE_IPV6
+  నిర్మాణం cf_ai_iter ipv6_iter;
+#అయితే_ముగింపు
+  నిర్మాణం Curl_peer *origin;
+  నిర్మాణం Curl_peer *peer;
+  నిర్మాణం Curl_peer *tunnel_peer;
   cf_ip_connect_create *cf_create;   /* for creating cf */
-  struct curltime last_attempt_started;
+  నిర్మాణం curltime చివరి_attempt_started;
   timediff_t attempt_delay_ms;
-  CURLcode last_dead_result;  /* result of last discarded hard failure */
-  int last_attempt_ai_family;
+  CURLcode చివరి_dead_ఫలితం;  /* result of last discarded hard failure */
+  పూర్ణాంకం చివరి_attempt_ai_family;
   uint32_t max_concurrent;
   uint8_t transport_peer;
   uint8_t tunnel_transport;
-  BIT(had_dead);              /* a hard failure was discarded */
+  బిట్టు(had_dead);              /* a hard failure was discarded */
 };
 
-static CURLcode cf_ip_attempt_restart(struct cf_ip_attempt *a,
-                                      struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+స్థిర CURLcode cf_ip_attempt_restart(నిర్మాణం cf_ip_attempt *a,
+                                      నిర్మాణం Curl_cfilter *cf,
+                                      నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Curl_cfilter *wcf;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *wcf;
+  CURLcode ఫలితం;
 
-  if(a->cf)
-    Curl_conn_cf_discard_chain(&a->cf, data);
+  ఒకవేళ(a->cf)
+    Curl_conn_cf_discard_chain(&a->cf, దత్తాంశం);
 
-  a->result = CURLE_OK;
+  a->ఫలితం = CURLE_OK;
   a->connected = FALSE;
   a->inconclusive = FALSE;
-  a->cf = NULL;
+  a->cf = ఖాళీ;
 
-  result = a->cf_create(&a->cf, data, a->origin, a->peer, a->transport_peer,
+  ఫలితం = a->cf_create(&a->cf, దత్తాంశం, a->origin, a->peer, a->transport_peer,
                         cf->conn, &a->addr,
                         a->tunnel_peer, a->tunnel_transport);
-  if(!result) {
+  ఒకవేళ(!ఫలితం) {
     bool dummy;
     /* the new filter might have sub-filters */
-    for(wcf = a->cf; wcf; wcf = wcf->next) {
+    కొరకు(wcf = a->cf; wcf; wcf = wcf->తదుపరి) {
       wcf->conn = cf->conn;
       wcf->sockindex = cf->sockindex;
     }
-    a->result = cf_ip_attempt_connect(a, data, &dummy);
+    a->ఫలితం = cf_ip_attempt_connect(a, దత్తాంశం, &dummy);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static void cf_ip_ballers_clear(struct Curl_easy *data,
-                                struct cf_ip_ballers *bs)
+స్థిర శూన్య cf_ip_ballers_clear(నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం cf_ip_ballers *bs)
 {
-  while(bs->running) {
-    struct cf_ip_attempt *a = bs->running;
-    bs->running = a->next;
-    cf_ip_attempt_free(a, data);
+  అయితే(bs->running) {
+    నిర్మాణం cf_ip_attempt *a = bs->running;
+    bs->running = a->తదుపరి;
+    cf_ip_attempt_free(a, దత్తాంశం);
   }
-  bs->running_tail = &bs->running;
-  cf_ip_attempt_free(bs->winner, data);
-  bs->winner = NULL;
+  bs->running_తోక = &bs->running;
+  cf_ip_attempt_free(bs->winner, దత్తాంశం);
+  bs->winner = ఖాళీ;
   Curl_peer_unlink(&bs->origin);
   Curl_peer_unlink(&bs->peer);
   Curl_peer_unlink(&bs->tunnel_peer);
 }
 
-static CURLcode cf_ip_ballers_init(struct cf_ip_ballers *bs,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer,
+స్థిర CURLcode cf_ip_ballers_init(నిర్మాణం cf_ip_ballers *bs,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం Curl_peer *origin,
+                                   నిర్మాణం Curl_peer *peer,
                                    uint8_t transport_peer,
-                                   struct Curl_peer *tunnel_peer,
+                                   నిర్మాణం Curl_peer *tunnel_peer,
                                    uint8_t tunnel_transport,
                                    timediff_t attempt_delay_ms,
                                    uint32_t max_concurrent)
 {
-  memset(bs, 0, sizeof(*bs));
-  bs->running_tail = &bs->running;
+  memset(bs, 0, పరిమాణం(*bs));
+  bs->running_తోక = &bs->running;
   bs->cf_create = get_cf_create(transport_peer, !!tunnel_peer);
-  if(!bs->cf_create) {
-    failf(data, "unsupported transport type %u%s",
+  ఒకవేళ(!bs->cf_create) {
+    failf(దత్తాంశం, "unsupported transport type %u%s",
           transport_peer, tunnel_peer ? " to proxy" : "");
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    తిరిగి CURLE_UNSUPPORTED_PROTOCOL;
   }
   Curl_peer_link(&bs->origin, origin);
   Curl_peer_link(&bs->peer, peer);
@@ -358,618 +358,618 @@ static CURLcode cf_ip_ballers_init(struct cf_ip_ballers *bs,
   bs->tunnel_transport = tunnel_transport;
   bs->attempt_delay_ms = attempt_delay_ms;
   bs->max_concurrent = max_concurrent;
-  bs->last_attempt_ai_family = AF_INET; /* so AF_INET6 is next */
-  return CURLE_OK;
+  bs->చివరి_attempt_ai_family = AF_INET; /* so AF_INET6 is next */
+  తిరిగి CURLE_OK;
 }
 
-static void cf_ip_ballers_prune(struct cf_ip_ballers *bs,
-                                struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+స్థిర శూన్య cf_ip_ballers_prune(నిర్మాణం cf_ip_ballers *bs,
+                                నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
                                 uint32_t max_concurrent)
 {
-  struct cf_ip_attempt *a = NULL, **panchor;
+  నిర్మాణం cf_ip_attempt *a = ఖాళీ, **panchor;
   uint32_t ongoing = 0;
 
-  for(a = bs->running; a; a = a->next) {
-    if(!a->result && !a->connected)
+  కొరకు(a = bs->running; a; a = a->తదుపరి) {
+    ఒకవేళ(!a->ఫలితం && !a->connected)
       ++ongoing;
   }
 
   panchor = &bs->running;
-  while(*panchor && (ongoing > max_concurrent)) {
+  అయితే(*panchor && (ongoing > max_concurrent)) {
     a = *panchor;
-    if(!a->result && !a->connected) {
-      *panchor = a->next;
-      if(!a->next)
-        bs->running_tail = panchor;
-      a->next = NULL;
-      cf_ip_attempt_free(a, data);
+    ఒకవేళ(!a->ఫలితం && !a->connected) {
+      *panchor = a->తదుపరి;
+      ఒకవేళ(!a->తదుపరి)
+        bs->running_తోక = panchor;
+      a->తదుపరి = ఖాళీ;
+      cf_ip_attempt_free(a, దత్తాంశం);
       --ongoing;
-      CURL_TRC_CF(data, cf, "discarding oldest attempt to keep limit");
+      CURL_TRC_CF(దత్తాంశం, cf, "discarding oldest attempt to keep limit");
     }
-    else {
-      panchor = &a->next;
+    లేకపోతే {
+      panchor = &a->తదుపరి;
     }
   }
 }
 
-static CURLcode cf_ip_ballers_run(struct cf_ip_ballers *bs,
-                                  struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
+స్థిర CURLcode cf_ip_ballers_నిరంతరం(నిర్మాణం cf_ip_ballers *bs,
+                                  నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
                                   bool dns_resolved,
                                   bool *connected)
 {
-  CURLcode result = CURLE_OK;
-  struct cf_ip_attempt *a = NULL, **panchor;
-  bool do_more;
-  timediff_t next_expire_ms;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం cf_ip_attempt *a = ఖాళీ, **panchor;
+  bool do_మరిన్ని;
+  timediff_t తదుపరి_expire_ms;
   uint32_t inconclusive, ongoing;
-  const struct curltime *pnow = NULL;
-  VERBOSE(int i);
+  స్థిరరాశి నిర్మాణం curltime *pnow = ఖాళీ;
+  VERBOSE(పూర్ణాంకం i);
 
-  if(bs->winner)
-    return CURLE_OK;
+  ఒకవేళ(bs->winner)
+    తిరిగి CURLE_OK;
 
 evaluate:
-  if(Curl_timeleft_now_ms(data, Curl_pgrs_now(data)) < 0) {
-    failf(data, "Connection timeout after %" FMT_OFF_T " ms",
-          Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE));
-    return CURLE_OPERATION_TIMEDOUT;
+  ఒకవేళ(Curl_timeleft_now_ms(దత్తాంశం, Curl_pgrs_now(దత్తాంశం)) < 0) {
+    failf(దత్తాంశం, "Connection timeout after %" FMT_OFF_T " ms",
+          Curl_pgrs_since_ms(దత్తాంశం, ఖాళీ, TIMER_STARTSINGLE));
+    తిరిగి CURLE_OPERATION_TIMEDOUT;
   }
 
   ongoing = inconclusive = 0;
 
   /* check if a running baller connects now */
   VERBOSE(i = -1);
-  for(panchor = &bs->running; *panchor;) {
+  కొరకు(panchor = &bs->running; *panchor;) {
     VERBOSE(++i);
     a = *panchor;
-    a->result = cf_ip_attempt_connect(a, data, connected);
-    if(!a->result) {
-      if(*connected) {
+    a->ఫలితం = cf_ip_attempt_connect(a, దత్తాంశం, connected);
+    ఒకవేళ(!a->ఫలితం) {
+      ఒకవేళ(*connected) {
         /* connected, declare the winner, remove from running,
          * clear remaining running list. */
-        CURL_TRC_CF(data, cf, "connect attempt #%d successful", i);
+        CURL_TRC_CF(దత్తాంశం, cf, "connect attempt #%d successful", i);
         bs->winner = a;
-        *panchor = a->next;
-        a->next = NULL;
-        while(bs->running) {
+        *panchor = a->తదుపరి;
+        a->తదుపరి = ఖాళీ;
+        అయితే(bs->running) {
           a = bs->running;
-          bs->running = a->next;
-          cf_ip_attempt_free(a, data);
+          bs->running = a->తదుపరి;
+          cf_ip_attempt_free(a, దత్తాంశం);
         }
-        bs->running_tail = &bs->running;
-        return CURLE_OK;
+        bs->running_తోక = &bs->running;
+        తిరిగి CURLE_OK;
       }
       /* still running */
       ++ongoing;
-      panchor = &(*panchor)->next;
+      panchor = &(*panchor)->తదుపరి;
     }
-    else if(a->inconclusive) { /* failed, but inconclusive */
+    లేకపోతే ఒకవేళ(a->inconclusive) { /* failed, but inconclusive */
       ++inconclusive;
-      panchor = &(*panchor)->next;
+      panchor = &(*panchor)->తదుపరి;
     }
-    else {
+    లేకపోతే {
       /* hard failure, discard right away */
-      *panchor = a->next;
-      if(!a->next)
-        bs->running_tail = panchor;
-      a->next = NULL;
-      bs->last_dead_result = a->result;
+      *panchor = a->తదుపరి;
+      ఒకవేళ(!a->తదుపరి)
+        bs->running_తోక = panchor;
+      a->తదుపరి = ఖాళీ;
+      bs->చివరి_dead_ఫలితం = a->ఫలితం;
       bs->had_dead = TRUE;
-      cf_ip_attempt_free(a, data);
+      cf_ip_attempt_free(a, దత్తాంశం);
     }
   }
-  if(bs->running)
-    CURL_TRC_CF(data, cf, "checked connect attempts: "
+  ఒకవేళ(bs->running)
+    CURL_TRC_CF(దత్తాంశం, cf, "checked connect attempts: "
                 "%u ongoing, %u inconclusive", ongoing, inconclusive);
 
   /* no attempt connected yet, start another one? */
-  pnow = Curl_pgrs_now(data);
-  if(!ongoing) {
-    do_more = TRUE;
+  pnow = Curl_pgrs_now(దత్తాంశం);
+  ఒకవేళ(!ongoing) {
+    do_మరిన్ని = TRUE;
   }
-  else {
-    bool more_possible = cf_ai_iter_has_more(&bs->addr_iter, data);
-#ifdef USE_IPV6
-    if(!more_possible)
-      more_possible = cf_ai_iter_has_more(&bs->ipv6_iter, data);
-#endif
-    do_more = more_possible &&
-      (curlx_ptimediff_ms(pnow, &bs->last_attempt_started) >=
+  లేకపోతే {
+    bool మరిన్ని_possible = cf_ai_iter_has_మరిన్ని(&bs->addr_iter, దత్తాంశం);
+#నిర్వచితమైతే USE_IPV6
+    ఒకవేళ(!మరిన్ని_possible)
+      మరిన్ని_possible = cf_ai_iter_has_మరిన్ని(&bs->ipv6_iter, దత్తాంశం);
+#అయితే_ముగింపు
+    do_మరిన్ని = మరిన్ని_possible &&
+      (curlx_ptimediff_ms(pnow, &bs->చివరి_attempt_started) >=
        bs->attempt_delay_ms);
-    if(do_more)
-      CURL_TRC_CF(data, cf, "happy eyeballs timeout expired, "
+    ఒకవేళ(do_మరిన్ని)
+      CURL_TRC_CF(దత్తాంశం, cf, "happy eyeballs timeout expired, "
                   "start next attempt");
   }
 
-  if(do_more) {
+  ఒకవేళ(do_మరిన్ని) {
     /* start the next attempt if there is another ip address to try.
      * Alternate between address families when possible. */
-    const struct Curl_addrinfo *ai = NULL;
-    int ai_family = 0;
-    CURL_TRC_CF(data, cf, "want to do more");
-#ifdef USE_IPV6
-    if((bs->last_attempt_ai_family == AF_INET) ||
-       !cf_ai_iter_has_more(&bs->addr_iter, data)) {
-      ai = cf_ai_iter_next(&bs->ipv6_iter, data);
+    స్థిరరాశి నిర్మాణం Curl_addrinfo *ai = ఖాళీ;
+    పూర్ణాంకం ai_family = 0;
+    CURL_TRC_CF(దత్తాంశం, cf, "want to do more");
+#నిర్వచితమైతే USE_IPV6
+    ఒకవేళ((bs->చివరి_attempt_ai_family == AF_INET) ||
+       !cf_ai_iter_has_మరిన్ని(&bs->addr_iter, దత్తాంశం)) {
+      ai = cf_ai_iter_తదుపరి(&bs->ipv6_iter, దత్తాంశం);
       ai_family = bs->ipv6_iter.ai_family;
-      CURL_TRC_CF(data, cf, "check for next AAAA address: %s",
+      CURL_TRC_CF(దత్తాంశం, cf, "check for next AAAA address: %s",
                   ai ? "found" : "none");
     }
-#endif
-    if(!ai) {
-      ai = cf_ai_iter_next(&bs->addr_iter, data);
+#అయితే_ముగింపు
+    ఒకవేళ(!ai) {
+      ai = cf_ai_iter_తదుపరి(&bs->addr_iter, దత్తాంశం);
       ai_family = bs->addr_iter.ai_family;
-      CURL_TRC_CF(data, cf, "check for next A address: %s",
+      CURL_TRC_CF(దత్తాంశం, cf, "check for next A address: %s",
                   ai ? "found" : "none");
     }
     /* We are (re-)starting attempts. We are not interested in
      * keeping old failure information. The new attempt will either
      * succeed or persist new failure. */
-    Curl_reset_fail(data);
+    Curl_reset_fail(దత్తాంశం);
 
-    if(ai) {  /* try another address */
-      struct Curl_sockaddr_ex addr;
+    ఒకవేళ(ai) {  /* try another address */
+      నిర్మాణం Curl_sockaddr_ex addr;
 
       /* Discard oldest to make room for new attempt */
-      if(bs->max_concurrent)
-        cf_ip_ballers_prune(bs, cf, data, bs->max_concurrent - 1);
+      ఒకవేళ(bs->max_concurrent)
+        cf_ip_ballers_prune(bs, cf, దత్తాంశం, bs->max_concurrent - 1);
 
-      result = Curl_socket_addr_from_ai(&addr, ai, bs->transport_peer);
-      if(result)
-        goto out;
+      ఫలితం = Curl_socket_addr_from_ai(&addr, ai, bs->transport_peer);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
 
-      result = cf_ip_attempt_new(&a, data, cf, bs->origin, bs->peer,
+      ఫలితం = cf_ip_attempt_new(&a, దత్తాంశం, cf, bs->origin, bs->peer,
                                  bs->transport_peer, &addr, ai_family,
                                  bs->tunnel_peer, bs->tunnel_transport,
                                  bs->cf_create);
-      CURL_TRC_CF(data, cf, "starting %s attempt for ipv%s -> %d",
+      CURL_TRC_CF(దత్తాంశం, cf, "starting %s attempt for ipv%s -> %d",
                   bs->running ? "next" : "first",
-                  (ai_family == AF_INET) ? "4" : "6", (int)result);
-      if(result)
-        goto out;
+                  (ai_family == AF_INET) ? "4" : "6", (పూర్ణాంకం)ఫలితం);
+      ఒకవేళ(ఫలితం)
+        వెళ్ళు బహిర్గతం;
       DEBUGASSERT(a);
 
       /* append to running list */
-      *bs->running_tail = a;
-      a->next = NULL;
-      bs->running_tail = &a->next;
-      bs->last_attempt_started = *pnow;
-      bs->last_attempt_ai_family = ai_family;
+      *bs->running_తోక = a;
+      a->తదుపరి = ఖాళీ;
+      bs->running_తోక = &a->తదుపరి;
+      bs->చివరి_attempt_started = *pnow;
+      bs->చివరి_attempt_ai_family = ai_family;
       /* and run everything again */
-      goto evaluate;
+      వెళ్ళు evaluate;
     }
-    else if(inconclusive) {
+    లేకపోతే ఒకవేళ(inconclusive) {
       /* tried all addresses, no success but some where inconclusive.
        * Let's restart the inconclusive ones. */
       timediff_t since_ms =
-        curlx_ptimediff_ms(pnow, &bs->last_attempt_started);
+        curlx_ptimediff_ms(pnow, &bs->చివరి_attempt_started);
       timediff_t delay_ms = bs->attempt_delay_ms - since_ms;
-      if(delay_ms <= 0) {
-        CURL_TRC_CF(data, cf, "all attempts inconclusive, restarting one");
+      ఒకవేళ(delay_ms <= 0) {
+        CURL_TRC_CF(దత్తాంశం, cf, "all attempts inconclusive, restarting one");
         VERBOSE(i = -1);
-        for(a = bs->running; a; a = a->next) {
+        కొరకు(a = bs->running; a; a = a->తదుపరి) {
           VERBOSE(++i);
-          if(!a->inconclusive)
-            continue;
-          result = cf_ip_attempt_restart(a, cf, data);
-          CURL_TRC_CF(data, cf, "restarted baller %d -> %d", i, (int)result);
-          if(result) /* serious failure */
-            goto out;
-          bs->last_attempt_started = *pnow;
-          goto evaluate;
+          ఒకవేళ(!a->inconclusive)
+            కొనసాగు;
+          ఫలితం = cf_ip_attempt_restart(a, cf, దత్తాంశం);
+          CURL_TRC_CF(దత్తాంశం, cf, "restarted baller %d -> %d", i, (పూర్ణాంకం)ఫలితం);
+          ఒకవేళ(ఫలితం) /* serious failure */
+            వెళ్ళు బహిర్గతం;
+          bs->చివరి_attempt_started = *pnow;
+          వెళ్ళు evaluate;
         }
         DEBUGASSERT(0); /* should not come here */
       }
-      else {
+      లేకపోతే {
         /* let's wait some more before restarting */
-        infof(data, "connect attempts inconclusive, retrying "
+        infof(దత్తాంశం, "connect attempts inconclusive, retrying "
                     "in %" FMT_TIMEDIFF_T "ms", delay_ms);
-        Curl_expire_set(data, EXPIRE_HAPPY_EYEBALLS, delay_ms, pnow);
+        Curl_expire_సమితి(దత్తాంశం, EXPIRE_HAPPY_EYEBALLS, delay_ms, pnow);
       }
       /* attempt timeout for restart has not expired yet */
-      goto out;
+      వెళ్ళు బహిర్గతం;
     }
-    else if(!ongoing && dns_resolved) {
+    లేకపోతే ఒకవేళ(!ongoing && dns_resolved) {
       /* no more addresses, no inconclusive attempts */
-      CURL_TRC_CF(data, cf, "no more attempts to try");
+      CURL_TRC_CF(దత్తాంశం, cf, "no more attempts to try");
       DEBUGASSERT(!bs->running);
-      result = bs->had_dead ? bs->last_dead_result : CURLE_COULDNT_CONNECT;
+      ఫలితం = bs->had_dead ? bs->చివరి_dead_ఫలితం : CURLE_COULDNT_CONNECT;
     }
   }
 
-out:
-  if(!result) {
-    bool more_possible;
+బహిర్గతం:
+  ఒకవేళ(!ఫలితం) {
+    bool మరిన్ని_possible;
 
     /* when do we need to be called again? */
-    pnow = Curl_pgrs_now(data);
-    next_expire_ms = Curl_timeleft_now_ms(data, pnow);
-    if(next_expire_ms < 0) {
-      failf(data, "Connection timeout after %" FMT_OFF_T " ms",
-            Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE));
-      return CURLE_OPERATION_TIMEDOUT;
+    pnow = Curl_pgrs_now(దత్తాంశం);
+    తదుపరి_expire_ms = Curl_timeleft_now_ms(దత్తాంశం, pnow);
+    ఒకవేళ(తదుపరి_expire_ms < 0) {
+      failf(దత్తాంశం, "Connection timeout after %" FMT_OFF_T " ms",
+            Curl_pgrs_since_ms(దత్తాంశం, ఖాళీ, TIMER_STARTSINGLE));
+      తిరిగి CURLE_OPERATION_TIMEDOUT;
     }
 
-    more_possible = cf_ai_iter_has_more(&bs->addr_iter, data);
-#ifdef USE_IPV6
-    if(!more_possible)
-      more_possible = cf_ai_iter_has_more(&bs->ipv6_iter, data);
-#endif
-    if(more_possible) {
+    మరిన్ని_possible = cf_ai_iter_has_మరిన్ని(&bs->addr_iter, దత్తాంశం);
+#నిర్వచితమైతే USE_IPV6
+    ఒకవేళ(!మరిన్ని_possible)
+      మరిన్ని_possible = cf_ai_iter_has_మరిన్ని(&bs->ipv6_iter, దత్తాంశం);
+#అయితే_ముగింపు
+    ఒకవేళ(మరిన్ని_possible) {
       timediff_t expire_ms, elapsed_ms;
 
-      elapsed_ms = curlx_ptimediff_ms(pnow, &bs->last_attempt_started);
+      elapsed_ms = curlx_ptimediff_ms(pnow, &bs->చివరి_attempt_started);
       expire_ms = CURLMAX(bs->attempt_delay_ms - elapsed_ms, 0);
-      next_expire_ms = CURLMIN(next_expire_ms, expire_ms);
-      if(next_expire_ms <= 0) {
-        CURL_TRC_CF(data, cf, "HAPPY_EYEBALLS timeout due, re-evaluate");
-        goto evaluate;
+      తదుపరి_expire_ms = CURLMIN(తదుపరి_expire_ms, expire_ms);
+      ఒకవేళ(తదుపరి_expire_ms <= 0) {
+        CURL_TRC_CF(దత్తాంశం, cf, "HAPPY_EYEBALLS timeout due, re-evaluate");
+        వెళ్ళు evaluate;
       }
-      CURL_TRC_CF(data, cf, "next HAPPY_EYEBALLS timeout in %" FMT_TIMEDIFF_T
-                  "ms", next_expire_ms);
-      Curl_expire_set(data, EXPIRE_HAPPY_EYEBALLS, next_expire_ms, pnow);
+      CURL_TRC_CF(దత్తాంశం, cf, "next HAPPY_EYEBALLS timeout in %" FMT_TIMEDIFF_T
+                  "ms", తదుపరి_expire_ms);
+      Curl_expire_సమితి(దత్తాంశం, EXPIRE_HAPPY_EYEBALLS, తదుపరి_expire_ms, pnow);
     }
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_ip_ballers_shutdown(struct cf_ip_ballers *bs,
-                                       struct Curl_easy *data,
-                                       bool *done)
+స్థిర CURLcode cf_ip_ballers_shutdown(నిర్మాణం cf_ip_ballers *bs,
+                                       నిర్మాణం Curl_easy *దత్తాంశం,
+                                       bool *పూర్తి)
 {
-  struct cf_ip_attempt *a;
+  నిర్మాణం cf_ip_attempt *a;
 
   /* shutdown all ballers that have not done so already. If one fails,
    * continue shutting down others until all are shutdown. */
-  *done = TRUE;
-  for(a = bs->running; a; a = a->next) {
+  *పూర్తి = TRUE;
+  కొరకు(a = bs->running; a; a = a->తదుపరి) {
     bool bdone = FALSE;
-    if(a->shutdown || !a->cf)
-      continue;
-    a->result = a->cf->cft->do_shutdown(a->cf, data, &bdone);
-    if(a->result || bdone)
+    ఒకవేళ(a->shutdown || !a->cf)
+      కొనసాగు;
+    a->ఫలితం = a->cf->cft->do_shutdown(a->cf, దత్తాంశం, &bdone);
+    ఒకవేళ(a->ఫలితం || bdone)
       a->shutdown = TRUE; /* treat a failed shutdown as done */
-    else
-      *done = FALSE;
+    లేకపోతే
+      *పూర్తి = FALSE;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode cf_ip_ballers_pollset(struct cf_ip_ballers *bs,
-                                      struct Curl_easy *data,
-                                      struct easy_pollset *ps)
+స్థిర CURLcode cf_ip_ballers_pollset(నిర్మాణం cf_ip_ballers *bs,
+                                      నిర్మాణం Curl_easy *దత్తాంశం,
+                                      నిర్మాణం easy_pollset *ps)
 {
-  struct cf_ip_attempt *a;
-  CURLcode result = CURLE_OK;
-  for(a = bs->running; a && !result; a = a->next) {
-    if(a->result)
-      continue;
-    result = Curl_conn_cf_adjust_pollset(a->cf, data, ps);
+  నిర్మాణం cf_ip_attempt *a;
+  CURLcode ఫలితం = CURLE_OK;
+  కొరకు(a = bs->running; a && !ఫలితం; a = a->తదుపరి) {
+    ఒకవేళ(a->ఫలితం)
+      కొనసాగు;
+    ఫలితం = Curl_conn_cf_adjust_pollset(a->cf, దత్తాంశం, ps);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static bool cf_ip_ballers_pending(struct cf_ip_ballers *bs,
-                                  const struct Curl_easy *data)
+స్థిర bool cf_ip_ballers_pending(నిర్మాణం cf_ip_ballers *bs,
+                                  స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_ip_attempt *a;
+  నిర్మాణం cf_ip_attempt *a;
 
-  for(a = bs->running; a; a = a->next) {
-    if(a->result)
-      continue;
-    if(a->cf && a->cf->cft->has_data_pending(a->cf, data))
-      return TRUE;
+  కొరకు(a = bs->running; a; a = a->తదుపరి) {
+    ఒకవేళ(a->ఫలితం)
+      కొనసాగు;
+    ఒకవేళ(a->cf && a->cf->cft->has_దత్తాంశం_pending(a->cf, దత్తాంశం))
+      తిరిగి TRUE;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
-static int cf_ip_ballers_min_reply_ms(struct cf_ip_ballers *bs,
-                                      struct Curl_easy *data)
+స్థిర పూర్ణాంకం cf_ip_ballers_min_జవాబు_ms(నిర్మాణం cf_ip_ballers *bs,
+                                      నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  int reply_ms = -1, breply_ms;
-  struct cf_ip_attempt *a;
+  పూర్ణాంకం జవాబు_ms = -1, breply_ms;
+  నిర్మాణం cf_ip_attempt *a;
 
-  for(a = bs->running; a; a = a->next) {
-    if(a->cf && !a->cf->cft->query(a->cf, data, CF_QUERY_CONNECT_REPLY_MS,
-                                   &breply_ms, NULL) &&
-       breply_ms >= 0 && (reply_ms < 0 || breply_ms < reply_ms))
-      reply_ms = breply_ms;
+  కొరకు(a = bs->running; a; a = a->తదుపరి) {
+    ఒకవేళ(a->cf && !a->cf->cft->query(a->cf, దత్తాంశం, CF_QUERY_CONNECT_జవాబు_MS,
+                                   &breply_ms, ఖాళీ) &&
+       breply_ms >= 0 && (జవాబు_ms < 0 || breply_ms < జవాబు_ms))
+      జవాబు_ms = breply_ms;
   }
-  return reply_ms;
+  తిరిగి జవాబు_ms;
 }
 
-typedef enum {
+రకనిర్వచనం గణన {
   SCFST_INIT,
-  SCFST_WAITING,
-  SCFST_DONE
+  SCFST_నిరీక్షణ,
+  SCFST_పూర్తి
 } cf_connect_state;
 
-struct cf_ip_happy_ctx {
+నిర్మాణం cf_ip_happy_ctx {
   cf_ip_connect_create *cf_create;
   cf_connect_state state;
-  struct cf_ip_ballers ballers;
-  BIT(dns_resolved);
+  నిర్మాణం cf_ip_ballers ballers;
+  బిట్టు(dns_resolved);
 };
 
-static CURLcode is_connected(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
+స్థిర CURLcode is_connected(నిర్మాణం Curl_cfilter *cf,
+                             నిర్మాణం Curl_easy *దత్తాంశం,
                              bool *connected)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
-  struct connectdata *conn = cf->conn;
-  CURLcode result;
+  నిర్మాణం cf_ip_happy_ctx *ctx = cf->ctx;
+  నిర్మాణం connectdata *conn = cf->conn;
+  CURLcode ఫలితం;
 
-  result = cf_ip_ballers_run(&ctx->ballers, cf, data,
+  ఫలితం = cf_ip_ballers_నిరంతరం(&ctx->ballers, cf, దత్తాంశం,
                              (bool)ctx->dns_resolved, connected);
 
-  if(!result)
-    return CURLE_OK;
-  else {
-    struct Curl_peer *peer = NULL, *proxy_peer = NULL;
-    char viamsg[160];
+  ఒకవేళ(!ఫలితం)
+    తిరిగి CURLE_OK;
+  లేకపోతే {
+    నిర్మాణం Curl_peer *peer = ఖాళీ, *proxy_peer = ఖాళీ;
+    అక్షరం viamsg[160];
 
-    peer = Curl_conn_get_first_peer(conn, cf->sockindex);
-    if(!conn->origin || !peer)
-      return CURLE_FAILED_INIT;
+    peer = Curl_conn_get_మొదటి_peer(conn, cf->sockindex);
+    ఒకవేళ(!conn->origin || !peer)
+      తిరిగి CURLE_FAILED_INIT;
 
-#ifndef CURL_DISABLE_PROXY
-    if(conn->socks_proxy.peer)
+#నిర్వచితం_కాకపోతే CURL_DISABLE_PROXY
+    ఒకవేళ(conn->socks_proxy.peer)
       proxy_peer = conn->socks_proxy.peer;
-    else if(conn->http_proxy.peer)
+    లేకపోతే ఒకవేళ(conn->http_proxy.peer)
       proxy_peer = conn->http_proxy.peer;
-#endif
+#అయితే_ముగింపు
 
     viamsg[0] = 0;
-    if(!Curl_peer_equal(peer, conn->origin) &&
+    ఒకవేళ(!Curl_peer_equal(peer, conn->origin) &&
        !Curl_peer_equal(peer, proxy_peer)) {
-#ifdef USE_UNIX_SOCKETS
-      if(peer->unix_socket)
-        curl_msnprintf(viamsg, sizeof(viamsg), " over unix://%s",
+#నిర్వచితమైతే USE_UNIX_SOCKETS
+      ఒకవేళ(peer->unix_socket)
+        curl_msnprintf(viamsg, పరిమాణం(viamsg), " over unix://%s",
                        peer->hostname);
-      else
-#endif
-      curl_msnprintf(viamsg, sizeof(viamsg), " via %s:%u",
-                     peer->hostname, peer->port);
+      లేకపోతే
+#అయితే_ముగింపు
+      curl_msnprintf(viamsg, పరిమాణం(viamsg), " via %s:%u",
+                     peer->hostname, peer->పోర్టు);
     }
 
-    failf(data, "Failed to connect to %s:%u%s %s%s%safter "
+    failf(దత్తాంశం, "Failed to connect to %s:%u%s %s%s%safter "
           "%" FMT_TIMEDIFF_T " ms: %s",
-          conn->origin->hostname, conn->origin->port, viamsg,
+          conn->origin->hostname, conn->origin->పోర్టు, viamsg,
           proxy_peer ? "over proxy " : "",
           proxy_peer ? proxy_peer->hostname : "",
           proxy_peer ? " " : "",
-          Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE),
-          curl_easy_strerror(result));
+          Curl_pgrs_since_ms(దత్తాంశం, ఖాళీ, TIMER_STARTSINGLE),
+          curl_easy_strerror(ఫలితం));
 
-#ifdef SOCKETIMEDOUT
-    if(SOCKETIMEDOUT == data->state.os_errno)
-      result = CURLE_OPERATION_TIMEDOUT;
-#endif
+#నిర్వచితమైతే SOCKETIMEDOUT
+    ఒకవేళ(SOCKETIMEDOUT == దత్తాంశం->state.os_errno)
+      ఫలితం = CURLE_OPERATION_TIMEDOUT;
+#అయితే_ముగింపు
 
-    return result;
+    తిరిగి ఫలితం;
   }
 }
 
-#define IP_HE_MAX_CONCURRENT_ATTEMPTS     6
+#నిర్వచించు IP_HE_MAX_CONCURRENT_ATTEMPTS     6
 
-static CURLcode cf_ip_happy_init(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+స్థిర CURLcode cf_ip_happy_init(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_ip_happy_ctx *ctx = cf->ctx;
 
-  if(Curl_timeleft_ms(data) < 0) {
+  ఒకవేళ(Curl_timeleft_ms(దత్తాంశం) < 0) {
     /* a precaution, no need to continue if time already is up */
-    failf(data, "Connection time-out");
-    return CURLE_OPERATION_TIMEDOUT;
+    failf(దత్తాంశం, "Connection time-out");
+    తిరిగి CURLE_OPERATION_TIMEDOUT;
   }
 
-  if(ctx->ballers.transport_peer == TRNSPRT_UNIX) {
-#ifdef USE_UNIX_SOCKETS
+  ఒకవేళ(ctx->ballers.transport_peer == TRNSPRT_UNIX) {
+#నిర్వచితమైతే USE_UNIX_SOCKETS
     cf_ai_iter_init(&ctx->ballers.addr_iter, cf, ctx->ballers.peer, AF_UNIX);
-#else
-    return CURLE_UNSUPPORTED_PROTOCOL;
-#endif
+#లేకపోతే
+    తిరిగి CURLE_UNSUPPORTED_PROTOCOL;
+#అయితే_ముగింపు
   }
-  else { /* TCP/UDP/QUIC */
-#ifdef USE_IPV6
+  లేకపోతే { /* TCP/UDP/QUIC */
+#నిర్వచితమైతే USE_IPV6
     cf_ai_iter_init(&ctx->ballers.ipv6_iter, cf, ctx->ballers.peer, AF_INET6);
-#endif
+#అయితే_ముగింపు
     cf_ai_iter_init(&ctx->ballers.addr_iter, cf, ctx->ballers.peer, AF_INET);
   }
 
-  CURL_TRC_CF(data, cf, "init ip ballers for transport %u",
+  CURL_TRC_CF(దత్తాంశం, cf, "init ip ballers for transport %u",
               ctx->ballers.transport_peer);
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static void cf_ip_happy_ctx_clear(struct cf_ip_happy_ctx *ctx,
-                                  struct Curl_easy *data)
+స్థిర శూన్య cf_ip_happy_ctx_clear(నిర్మాణం cf_ip_happy_ctx *ctx,
+                                  నిర్మాణం Curl_easy *దత్తాంశం)
 {
   DEBUGASSERT(ctx);
-  if(ctx)
-    cf_ip_ballers_clear(data, &ctx->ballers);
+  ఒకవేళ(ctx)
+    cf_ip_ballers_clear(దత్తాంశం, &ctx->ballers);
 }
 
-static void cf_ip_happy_ctx_destroy(struct cf_ip_happy_ctx *ctx,
-                                    struct Curl_easy *data)
+స్థిర శూన్య cf_ip_happy_ctx_destroy(నిర్మాణం cf_ip_happy_ctx *ctx,
+                                    నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  if(ctx) {
-    cf_ip_happy_ctx_clear(ctx, data);
+  ఒకవేళ(ctx) {
+    cf_ip_happy_ctx_clear(ctx, దత్తాంశం);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_ip_happy_shutdown(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     bool *done)
+స్థిర CURLcode cf_ip_happy_shutdown(నిర్మాణం Curl_cfilter *cf,
+                                     నిర్మాణం Curl_easy *దత్తాంశం,
+                                     bool *పూర్తి)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_ip_happy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
-  DEBUGASSERT(data);
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  DEBUGASSERT(దత్తాంశం);
+  ఒకవేళ(cf->connected) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
-  result = cf_ip_ballers_shutdown(&ctx->ballers, data, done);
-  CURL_TRC_CF(data, cf, "shutdown -> %d, done=%d", (int)result, *done);
-  return result;
+  ఫలితం = cf_ip_ballers_shutdown(&ctx->ballers, దత్తాంశం, పూర్తి);
+  CURL_TRC_CF(దత్తాంశం, cf, "shutdown -> %d, done=%d", (పూర్ణాంకం)ఫలితం, *పూర్తి);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_ip_happy_adjust_pollset(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
-                                           struct easy_pollset *ps)
+స్థిర CURLcode cf_ip_happy_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                           నిర్మాణం Curl_easy *దత్తాంశం,
+                                           నిర్మాణం easy_pollset *ps)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_ip_happy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!cf->connected) {
-    result = cf_ip_ballers_pollset(&ctx->ballers, data, ps);
-    CURL_TRC_CF(data, cf, "adjust_pollset -> %d, %u socks", (int)result,
+  ఒకవేళ(!cf->connected) {
+    ఫలితం = cf_ip_ballers_pollset(&ctx->ballers, దత్తాంశం, ps);
+    CURL_TRC_CF(దత్తాంశం, cf, "adjust_pollset -> %d, %u socks", (పూర్ణాంకం)ఫలితం,
                 ps->n);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_ip_happy_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    bool *done)
+స్థిర CURLcode cf_ip_happy_connect(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం,
+                                    bool *పూర్తి)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_ip_happy_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
 
   /* -Werror=null-dereference finds false positives suddenly. */
-  if(!data)
-    return CURLE_FAILED_INIT;
+  ఒకవేళ(!దత్తాంశం)
+    తిరిగి CURLE_FAILED_INIT;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->connected) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
 
   DEBUGASSERT(ctx);
-  *done = FALSE;
+  *పూర్తి = FALSE;
 
-  if(!ctx->dns_resolved) {
-    result = Curl_conn_dns_addr_result(cf->conn, cf->sockindex,
+  ఒకవేళ(!ctx->dns_resolved) {
+    ఫలితం = Curl_conn_dns_addr_ఫలితం(cf->conn, cf->sockindex,
                                        ctx->ballers.peer);
-    if(!result)
+    ఒకవేళ(!ఫలితం)
       ctx->dns_resolved = TRUE;
-    else if(result == CURLE_AGAIN) {
-      result = CURLE_OK;
+    లేకపోతే ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+      ఫలితం = CURLE_OK;
     }
-    else /* real error */
-      goto out;
+    లేకపోతే /* real error */
+      వెళ్ళు బహిర్గతం;
   }
 
-  switch(ctx->state) {
-  case SCFST_INIT:
-    DEBUGASSERT(CURL_SOCKET_BAD == Curl_conn_cf_get_socket(cf, data));
+  ఎంపిక(ctx->state) {
+  స్థితి SCFST_INIT:
+    DEBUGASSERT(CURL_SOCKET_BAD == Curl_conn_cf_get_socket(cf, దత్తాంశం));
     DEBUGASSERT(!cf->connected);
-    result = cf_ip_happy_init(cf, data);
-    if(result)
-      goto out;
-    ctx->state = SCFST_WAITING;
+    ఫలితం = cf_ip_happy_init(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు బహిర్గతం;
+    ctx->state = SCFST_నిరీక్షణ;
     FALLTHROUGH();
-  case SCFST_WAITING:
-    result = is_connected(cf, data, done);
-    if(!result && *done) {
+  స్థితి SCFST_నిరీక్షణ:
+    ఫలితం = is_connected(cf, దత్తాంశం, పూర్తి);
+    ఒకవేళ(!ఫలితం && *పూర్తి) {
       DEBUGASSERT(ctx->ballers.winner);
       DEBUGASSERT(ctx->ballers.winner->cf);
       DEBUGASSERT(ctx->ballers.winner->cf->connected);
       /* we have a winner. Install and activate it.
        * close/free all others. */
-      ctx->state = SCFST_DONE;
+      ctx->state = SCFST_పూర్తి;
       cf->connected = TRUE;
-      cf->next = ctx->ballers.winner->cf;
-      ctx->ballers.winner->cf = NULL;
+      cf->తదుపరి = ctx->ballers.winner->cf;
+      ctx->ballers.winner->cf = ఖాళీ;
 
-      if(cf->conn->scheme->protocol & PROTO_FAMILY_SSH)
-        Curl_pgrsTime(data, TIMER_APPCONNECT); /* we are connected already */
-#ifdef CURLVERBOSE
-      if(Curl_trc_cf_is_verbose(cf, data)) {
-        struct ip_quadruple ipquad;
+      ఒకవేళ(cf->conn->scheme->protocol & PROTO_FAMILY_SSH)
+        Curl_pgrs_సమయం(దత్తాంశం, TIMER_APPCONNECT); /* we are connected already */
+#నిర్వచితమైతే CURLVERBOSE
+      ఒకవేళ(Curl_trc_cf_is_verbose(cf, దత్తాంశం)) {
+        నిర్మాణం ip_quadruple ipquad;
         bool is_ipv6;
-        if(!Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad)) {
-          CURL_TRC_CF(data, cf, "Connected to %s (%s) port %u",
+        ఒకవేళ(!Curl_conn_cf_get_ip_info(cf->తదుపరి, దత్తాంశం, &is_ipv6, &ipquad)) {
+          CURL_TRC_CF(దత్తాంశం, cf, "Connected to %s (%s) port %u",
                       ctx->ballers.peer->hostname,
-                      ipquad.remote_ip, ipquad.remote_port);
+                      ipquad.remote_ip, ipquad.remote_పోర్టు);
         }
       }
-#endif
-      cf_ip_happy_ctx_clear(ctx, data);
-      Curl_expire_clear(data, EXPIRE_HAPPY_EYEBALLS);
+#అయితే_ముగింపు
+      cf_ip_happy_ctx_clear(ctx, దత్తాంశం);
+      Curl_expire_clear(దత్తాంశం, EXPIRE_HAPPY_EYEBALLS);
       /* whatever errors were reported by ballers, clear our errorbuf */
-      Curl_reset_fail(data);
-      data->info.numconnects++; /* to track the # of connections made */
+      Curl_reset_fail(దత్తాంశం);
+      దత్తాంశం->info.numconnects++; /* to track the # of connections made */
     }
-    break;
-  case SCFST_DONE:
-    *done = TRUE;
-    break;
+    ఆపు;
+  స్థితి SCFST_పూర్తి:
+    *పూర్తి = TRUE;
+    ఆపు;
   }
-out:
-  return result;
+బహిర్గతం:
+  తిరిగి ఫలితం;
 }
 
-static bool cf_ip_happy_data_pending(struct Curl_cfilter *cf,
-                                     const struct Curl_easy *data)
+స్థిర bool cf_ip_happy_దత్తాంశం_pending(నిర్మాణం Curl_cfilter *cf,
+                                     స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_ip_happy_ctx *ctx = cf->ctx;
 
-  if(!cf->connected) {
-    return cf_ip_ballers_pending(&ctx->ballers, data);
+  ఒకవేళ(!cf->connected) {
+    తిరిగి cf_ip_ballers_pending(&ctx->ballers, దత్తాంశం);
   }
-  return cf->next->cft->has_data_pending(cf->next, data);
+  తిరిగి cf->తదుపరి->cft->has_దత్తాంశం_pending(cf->తదుపరి, దత్తాంశం);
 }
 
-static CURLcode cf_ip_happy_query(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2)
+స్థిర CURLcode cf_ip_happy_query(నిర్మాణం Curl_cfilter *cf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  పూర్ణాంకం query, పూర్ణాంకం *pres1, శూన్య *pres2)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_ip_happy_ctx *ctx = cf->ctx;
 
-  if(!cf->connected) {
-    switch(query) {
-    case CF_QUERY_CONNECT_REPLY_MS: {
-      *pres1 = cf_ip_ballers_min_reply_ms(&ctx->ballers, data);
-      CURL_TRC_CF(data, cf, "query connect reply: %dms", *pres1);
-      return CURLE_OK;
+  ఒకవేళ(!cf->connected) {
+    ఎంపిక(query) {
+    స్థితి CF_QUERY_CONNECT_జవాబు_MS: {
+      *pres1 = cf_ip_ballers_min_జవాబు_ms(&ctx->ballers, దత్తాంశం);
+      CURL_TRC_CF(దత్తాంశం, cf, "query connect reply: %dms", *pres1);
+      తిరిగి CURLE_OK;
     }
-    default:
-      break;
+    అప్రమేయ:
+      ఆపు;
     }
   }
 
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->query(cf->తదుపరి, దత్తాంశం, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static void cf_ip_happy_destroy(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+స్థిర శూన్య cf_ip_happy_destroy(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_ip_happy_ctx *ctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
-  if(ctx) {
-    cf_ip_happy_ctx_clear(ctx, data);
-    cf_ip_happy_ctx_destroy(ctx, data);
+  CURL_TRC_CF(దత్తాంశం, cf, "destroy");
+  ఒకవేళ(ctx) {
+    cf_ip_happy_ctx_clear(ctx, దత్తాంశం);
+    cf_ip_happy_ctx_destroy(ctx, దత్తాంశం);
   }
 }
 
-struct Curl_cftype Curl_cft_ip_happy = {
+నిర్మాణం Curl_cftype Curl_cft_ip_happy = {
   "HAPPY-EYEBALLS",
-  CF_TYPE_SETUP,
+  CF_TYPE_అమరిక,
   CURL_LOG_LVL_NONE,
   cf_ip_happy_destroy,
   cf_ip_happy_connect,
   cf_ip_happy_shutdown,
   cf_ip_happy_adjust_pollset,
-  cf_ip_happy_data_pending,
+  cf_ip_happy_దత్తాంశం_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -978,62 +978,62 @@ struct Curl_cftype Curl_cft_ip_happy = {
   cf_ip_happy_query,
 };
 
-static CURLcode cf_ip_happy_create(struct Curl_cfilter **pcf,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer,
+స్థిర CURLcode cf_ip_happy_create(నిర్మాణం Curl_cfilter **pcf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   నిర్మాణం Curl_peer *origin,
+                                   నిర్మాణం Curl_peer *peer,
                                    uint8_t transport_peer,
-                                   struct connectdata *conn,
-                                   struct Curl_peer *tunnel_peer,
+                                   నిర్మాణం connectdata *conn,
+                                   నిర్మాణం Curl_peer *tunnel_peer,
                                    uint8_t tunnel_transport)
 {
-  struct cf_ip_happy_ctx *ctx = NULL;
-  CURLcode result;
+  నిర్మాణం cf_ip_happy_ctx *ctx = ఖాళీ;
+  CURLcode ఫలితం;
 
-  (void)data;
-  (void)conn;
-  *pcf = NULL;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)conn;
+  *pcf = ఖాళీ;
+  ctx = curlx_calloc(1, పరిమాణం(*ctx));
+  ఒకవేళ(!ctx) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
-  result = cf_ip_ballers_init(&ctx->ballers, data,
+  ఫలితం = cf_ip_ballers_init(&ctx->ballers, దత్తాంశం,
                               origin, peer, transport_peer,
                               tunnel_peer, tunnel_transport,
-                              data->set.happy_eyeballs_timeout,
+                              దత్తాంశం->సమితి.happy_eyeballs_timeout,
                               IP_HE_MAX_CONCURRENT_ATTEMPTS);
-  if(result)
-    goto out;
+  ఒకవేళ(ఫలితం)
+    వెళ్ళు బహిర్గతం;
 
-  result = Curl_cf_create(pcf, &Curl_cft_ip_happy, ctx);
+  ఫలితం = Curl_cf_create(pcf, &Curl_cft_ip_happy, ctx);
 
-out:
-  if(result) {
+బహిర్గతం:
+  ఒకవేళ(ఫలితం) {
     curlx_safefree(*pcf);
-    cf_ip_happy_ctx_destroy(ctx, data);
+    cf_ip_happy_ctx_destroy(ctx, దత్తాంశం);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_cf_ip_happy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
+CURLcode Curl_cf_ip_happy_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                       నిర్మాణం Curl_easy *దత్తాంశం,
+                                       నిర్మాణం Curl_peer *origin,
+                                       నిర్మాణం Curl_peer *peer,
                                        uint8_t transport_peer,
-                                       struct Curl_peer *tunnel_peer,
+                                       నిర్మాణం Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం;
 
   /* Need to be first */
   DEBUGASSERT(cf_at);
-  result = cf_ip_happy_create(&cf, data, origin, peer, transport_peer,
+  ఫలితం = cf_ip_happy_create(&cf, దత్తాంశం, origin, peer, transport_peer,
                               cf_at->conn, tunnel_peer, tunnel_transport);
-  if(result)
-    return result;
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  Curl_conn_cf_insert_after(cf_at, cf);
-  return CURLE_OK;
+  Curl_conn_cf_చొప్పించు_after(cf_at, cf);
+  తిరిగి CURLE_OK;
 }

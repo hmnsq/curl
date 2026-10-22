@@ -21,226 +21,226 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#ఒకవేళ !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "select.h"
-#include "vquic/capsule.h"
-#include "vquic/cf-capsule.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "cfilters.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "bufq.h"
+#అన్తర్భావ "select.h"
+#అన్తర్భావ "vquic/capsule.h"
+#అన్తర్భావ "vquic/cf-capsule.h"
 
 /* send/recv buffer: 4 chunks of 16KB = 64KB, enough for large datagrams */
-#define CAPSULE_RECV_CHUNKS    4
-#define CAPSULE_SEND_CHUNKS    4
-#define CAPSULE_CHUNK_SIZE     (16 * 1024)
+#నిర్వచించు CAPSULE_RECV_CHUNKS    4
+#నిర్వచించు CAPSULE_SEND_CHUNKS    4
+#నిర్వచించు CAPSULE_CHUNK_కొలత     (16 * 1024)
 
-struct cf_capsule_ctx {
-  struct bufq recvbuf;
-  struct bufq sendbuf;
+నిర్మాణం cf_capsule_ctx {
+  నిర్మాణం bufq recvbuf;
+  నిర్మాణం bufq sendbuf;
 };
 
-static void cf_capsule_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+స్థిర శూన్య cf_capsule_destroy(నిర్మాణం Curl_cfilter *cf,
+                               నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  నిర్మాణం cf_capsule_ctx *ctx = cf->ctx;
+  (శూన్య)దత్తాంశం;
+  ఒకవేళ(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_safefree(ctx);
   }
 }
 
-static CURLcode cf_capsule_connect(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   bool *done)
+స్థిర CURLcode cf_capsule_connect(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   bool *పూర్తి)
 {
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ఒకవేళ(cf->connected) {
+    *పూర్తి = TRUE;
+    తిరిగి CURLE_OK;
   }
-  if(cf->next) {
-    CURLcode result = cf->next->cft->do_connect(cf->next, data, done);
-    if(!result && *done)
+  ఒకవేళ(cf->తదుపరి) {
+    CURLcode ఫలితం = cf->తదుపరి->cft->do_connect(cf->తదుపరి, దత్తాంశం, పూర్తి);
+    ఒకవేళ(!ఫలితం && *పూర్తి)
       cf->connected = TRUE;
-    return result;
+    తిరిగి ఫలితం;
   }
-  *done = FALSE;
-  return CURLE_OK;
+  *పూర్తి = FALSE;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode cf_capsule_flush(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+స్థిర CURLcode cf_capsule_flush(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం cf_capsule_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం = CURLE_OK;
   size_t nwritten;
 
-  if(Curl_bufq_is_empty(&ctx->sendbuf))
-    return CURLE_OK;
+  ఒకవేళ(Curl_bufq_is_ఖాళీలు(&ctx->sendbuf))
+    తిరిగి CURLE_OK;
 
-  result = Curl_cf_send_bufq(cf->next, data, &ctx->sendbuf, NULL, 0,
+  ఫలితం = Curl_cf_send_bufq(cf->తదుపరి, దత్తాంశం, &ctx->sendbuf, ఖాళీ, 0,
                              &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
-      CURL_TRC_CF(data, cf, "flush send buffer(%zu) -> EAGAIN",
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(ఫలితం == CURLE_AGAIN) {
+      CURL_TRC_CF(దత్తాంశం, cf, "flush send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->sendbuf));
     }
-    return result;
+    తిరిగి ఫలితం;
   }
-  return Curl_bufq_is_empty(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
+  తిరిగి Curl_bufq_is_ఖాళీలు(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
 }
 
-static CURLcode cf_capsule_send(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                const uint8_t *buf, size_t len,
+స్థిర CURLcode cf_capsule_send(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                స్థిరరాశి uint8_t *buf, size_t len,
                                 bool eos, size_t *pnwritten)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  CURLcode result;
+  నిర్మాణం cf_capsule_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం;
 
-  (void)eos;
+  (శూన్య)eos;
   *pnwritten = 0;
 
-  if(Curl_bufq_is_full(&ctx->sendbuf)) {
-    result = cf_capsule_flush(cf, data);
-    if(result)
-      return result;
+  ఒకవేళ(Curl_bufq_is_నిండిన(&ctx->sendbuf)) {
+    ఫలితం = cf_capsule_flush(cf, దత్తాంశం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
   }
 
   /* encapsulate new payload into a capsule */
-  result = Curl_capsule_encap_udp_datagram(&ctx->sendbuf, buf, len);
-  if(result)
-    return result;
+  ఫలితం = Curl_capsule_encap_udp_datagram(&ctx->sendbuf, buf, len);
+  ఒకవేళ(ఫలితం)
+    తిరిగి ఫలితం;
 
-  result = cf_capsule_flush(cf, data);
-  if(result == CURLE_AGAIN) {
+  ఫలితం = cf_capsule_flush(cf, దత్తాంశం);
+  ఒకవేళ(ఫలితం == CURLE_AGAIN) {
     /* Could not send it (or all), report success nevertheless as we
      * have the payload buffered now and will flush it later. */
-    result = CURLE_OK;
+    ఫలితం = CURLE_OK;
   }
 
-  if(!result)
+  ఒకవేళ(!ఫలితం)
     *pnwritten = len;
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_capsule_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+స్థిర CURLcode cf_capsule_recv(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                అక్షరం *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  CURLcode result;
+  నిర్మాణం cf_capsule_ctx *ctx = cf->ctx;
+  CURLcode ఫలితం;
   size_t nread;
 
   *pnread = 0;
 
   /* fill our receive buffer from the filter below */
-  while(!Curl_bufq_is_full(&ctx->recvbuf)) {
-    result = Curl_cf_recv_bufq(cf->next, data, &ctx->recvbuf, 0, &nread);
-    if(result == CURLE_AGAIN)
-      break;
-    if(result)
-      return result;
-    if(!nread)
-      break;
+  అయితే(!Curl_bufq_is_నిండిన(&ctx->recvbuf)) {
+    ఫలితం = Curl_cf_recv_bufq(cf->తదుపరి, దత్తాంశం, &ctx->recvbuf, 0, &nread);
+    ఒకవేళ(ఫలితం == CURLE_AGAIN)
+      ఆపు;
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
+    ఒకవేళ(!nread)
+      ఆపు;
   }
 
   /* try to extract a complete capsule datagram */
-  *pnread = Curl_capsule_process_udp_raw(cf, data, &ctx->recvbuf,
-                                         (unsigned char *)buf, len,
-                                         &result);
-  return result;
+  *pnread = Curl_capsule_process_udp_raw(cf, దత్తాంశం, &ctx->recvbuf,
+                                         (గుర్తులేని అక్షరం *)buf, len,
+                                         &ఫలితం);
+  తిరిగి ఫలితం;
 }
 
-static bool cf_capsule_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+స్థిర bool cf_capsule_దత్తాంశం_pending(నిర్మాణం Curl_cfilter *cf,
+                                    స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_capsule_ctx *ctx = cf->ctx;
 
-  if(ctx && !Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  ఒకవేళ(ctx && !Curl_bufq_is_ఖాళీలు(&ctx->recvbuf))
+    తిరిగి TRUE;
+  తిరిగి cf->తదుపరి ? cf->తదుపరి->cft->has_దత్తాంశం_pending(cf->తదుపరి, దత్తాంశం) : FALSE;
 }
 
-static CURLcode cf_capsule_cntrl(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 int event, int arg1, void *arg2)
+స్థిర CURLcode cf_capsule_cntrl(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 పూర్ణాంకం event, పూర్ణాంకం arg1, శూన్య *arg2)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_FLUSH:
-    result = cf_capsule_flush(cf, data);
-    break;
-  default:
-    break;
+  (శూన్య)arg1;
+  (శూన్య)arg2;
+  ఎంపిక(event) {
+  స్థితి CF_CTRL_FLUSH:
+    ఫలితం = cf_capsule_flush(cf, దత్తాంశం);
+    ఆపు;
+  అప్రమేయ:
+    ఆపు;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cf_capsule_query(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 int query, int *pres1, void *pres2)
+స్థిర CURLcode cf_capsule_query(నిర్మాణం Curl_cfilter *cf,
+                                 నిర్మాణం Curl_easy *దత్తాంశం,
+                                 పూర్ణాంకం query, పూర్ణాంకం *pres1, శూన్య *pres2)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_capsule_ctx *ctx = cf->ctx;
 
-  (void)pres2;
-  switch(query) {
-  case CF_QUERY_NEED_FLUSH: {
-    if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
+  (శూన్య)pres2;
+  ఎంపిక(query) {
+  స్థితి CF_QUERY_NEED_FLUSH: {
+    ఒకవేళ(!Curl_bufq_is_ఖాళీలు(&ctx->sendbuf)) {
       *pres1 = TRUE;
-      return CURLE_OK;
+      తిరిగి CURLE_OK;
     }
-    break;
+    ఆపు;
   }
-  default:
-    break;
+  అప్రమేయ:
+    ఆపు;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  తిరిగి cf->తదుపరి ?
+    cf->తదుపరి->cft->query(cf->తదుపరి, దత్తాంశం, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode cf_capsule_adjust_pollset(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+స్థిర CURLcode cf_capsule_adjust_pollset(నిర్మాణం Curl_cfilter *cf,
+                                          నిర్మాణం Curl_easy *దత్తాంశం,
+                                          నిర్మాణం easy_pollset *ps)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  నిర్మాణం cf_capsule_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
-    curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
-    if(sock != CURL_SOCKET_BAD)
-      return Curl_pollset_add_out(data, ps, sock);
+  ఒకవేళ(!Curl_bufq_is_ఖాళీలు(&ctx->sendbuf)) {
+    curl_socket_t sock = Curl_conn_cf_get_socket(cf, దత్తాంశం);
+    ఒకవేళ(sock != CURL_SOCKET_BAD)
+      తిరిగి Curl_pollset_కూడు_బహిర్గతం(దత్తాంశం, ps, sock);
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode cf_capsule_shutdown(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data, bool *done)
+స్థిర CURLcode cf_capsule_shutdown(నిర్మాణం Curl_cfilter *cf,
+                                    నిర్మాణం Curl_easy *దత్తాంశం, bool *పూర్తి)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!cf->connected || cf->shutdown) {
-    *done = TRUE;
+  ఒకవేళ(!cf->connected || cf->shutdown) {
+    *పూర్తి = TRUE;
   }
-  else {
-    result = cf_capsule_flush(cf, data);
-    *done = !result;
-    if(result == CURLE_AGAIN)
-      result = CURLE_OK;
+  లేకపోతే {
+    ఫలితం = cf_capsule_flush(cf, దత్తాంశం);
+    *పూర్తి = !ఫలితం;
+    ఒకవేళ(ఫలితం == CURLE_AGAIN)
+      ఫలితం = CURLE_OK;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-struct Curl_cftype Curl_cft_capsule = {
+నిర్మాణం Curl_cftype Curl_cft_capsule = {
   "CAPSULE",
   0,
   0,
@@ -248,7 +248,7 @@ struct Curl_cftype Curl_cft_capsule = {
   cf_capsule_connect,
   cf_capsule_shutdown,
   cf_capsule_adjust_pollset,
-  cf_capsule_data_pending,
+  cf_capsule_దత్తాంశం_pending,
   cf_capsule_send,
   cf_capsule_recv,
   cf_capsule_cntrl,
@@ -257,50 +257,50 @@ struct Curl_cftype Curl_cft_capsule = {
   cf_capsule_query,
 };
 
-static CURLcode cf_capsule_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  struct connectdata *conn)
+స్థిర CURLcode cf_capsule_create(నిర్మాణం Curl_cfilter **pcf,
+                                  నిర్మాణం Curl_easy *దత్తాంశం,
+                                  నిర్మాణం connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_capsule_ctx *ctx;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf = ఖాళీ;
+  నిర్మాణం cf_capsule_ctx *ctx;
+  CURLcode ఫలితం;
 
-  (void)data;
-  (void)conn;
-  *pcf = NULL;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (శూన్య)దత్తాంశం;
+  (శూన్య)conn;
+  *pcf = ఖాళీ;
+  ctx = curlx_calloc(1, పరిమాణం(*ctx));
+  ఒకవేళ(!ctx) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు బహిర్గతం;
   }
 
-  Curl_bufq_init2(&ctx->recvbuf, CAPSULE_CHUNK_SIZE, CAPSULE_RECV_CHUNKS,
-                  BUFQ_OPT_SOFT_LIMIT);
-  Curl_bufq_init2(&ctx->sendbuf, CAPSULE_CHUNK_SIZE, CAPSULE_SEND_CHUNKS,
-                  BUFQ_OPT_SOFT_LIMIT);
+  Curl_bufq_init2(&ctx->recvbuf, CAPSULE_CHUNK_కొలత, CAPSULE_RECV_CHUNKS,
+                  BUFQ_OPT_SOFT_హద్దు);
+  Curl_bufq_init2(&ctx->sendbuf, CAPSULE_CHUNK_కొలత, CAPSULE_SEND_CHUNKS,
+                  BUFQ_OPT_SOFT_హద్దు);
 
-  result = Curl_cf_create(&cf, &Curl_cft_capsule, ctx);
+  ఫలితం = Curl_cf_create(&cf, &Curl_cft_capsule, ctx);
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result && ctx) {
+బహిర్గతం:
+  *pcf = (!ఫలితం) ? cf : ఖాళీ;
+  ఒకవేళ(ఫలితం && ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_free(ctx);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data)
+CURLcode Curl_cf_capsule_చొప్పించు_after(నిర్మాణం Curl_cfilter *cf_at,
+                                      నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  నిర్మాణం Curl_cfilter *cf;
+  CURLcode ఫలితం;
 
-  result = cf_capsule_create(&cf, data, cf_at->conn);
-  if(!result)
-    Curl_conn_cf_insert_after(cf_at, cf);
-  return result;
+  ఫలితం = cf_capsule_create(&cf, దత్తాంశం, cf_at->conn);
+  ఒకవేళ(!ఫలితం)
+    Curl_conn_cf_చొప్పించు_after(cf_at, cf);
+  తిరిగి ఫలితం;
 }
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#అయితే_ముగింపు /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

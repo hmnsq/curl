@@ -21,69 +21,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+#ఒకవేళ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
 
-#include "urldata.h"
-#include "cookie.h"
-#include "psl.h"
-#include "curl_trc.h"
-#include "transfer.h"
-#include "slist.h"
-#include "curl_share.h"
-#include "strcase.h"
-#include "curl_fopen.h"
-#include "curl_get_line.h"
-#include "curl_memrchr.h"
-#include "parsedate.h"
-#include "curlx/strdup.h"
-#include "curlx/dynbuf.h"
-#include "llist.h"
-#include "curlx/strparse.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "cookie.h"
+#అన్తర్భావ "psl.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "transfer.h"
+#అన్తర్భావ "slist.h"
+#అన్తర్భావ "curl_share.h"
+#అన్తర్భావ "strcase.h"
+#అన్తర్భావ "curl_fopen.h"
+#అన్తర్భావ "curl_get_line.h"
+#అన్తర్భావ "curl_memrchr.h"
+#అన్తర్భావ "parsedate.h"
+#అన్తర్భావ "curlx/strdup.h"
+#అన్తర్భావ "curlx/dynbuf.h"
+#అన్తర్భావ "llist.h"
+#అన్తర్భావ "curlx/strparse.h"
 
 /* number of seconds in 400 days */
-#define COOKIES_MAXAGE (400 * 24 * 3600)
+#నిర్వచించు COOKIES_MAXAGE (400 * 24 * 3600)
 
 /* Make sure cookies never expire further away in time than 400 days into the
    future. (from RFC6265bis draft-19)
 
    For the sake of easier testing, align the capped time to an even 60 second
    boundary. */
-static void cap_expires(time_t now, struct Cookie *co)
+స్థిర శూన్య cap_expires(time_t now, నిర్మాణం Cookie *co)
 {
-  if(co->expires && (TIME_T_MAX - COOKIES_MAXAGE - 30) > now) {
+  ఒకవేళ(co->expires && (సమయం_T_MAX - COOKIES_MAXAGE - 30) > now) {
     timediff_t cap = now + COOKIES_MAXAGE;
-    if(co->expires > cap) {
+    ఒకవేళ(co->expires > cap) {
       cap += 30;
       co->expires = (cap / 60) * 60;
     }
   }
 }
 
-static void freecookie(struct Cookie *co, bool maintoo)
+స్థిర శూన్య freecookie(నిర్మాణం Cookie *co, bool maintoo)
 {
   curlx_free(co->domain);
-  curlx_free(co->path);
+  curlx_free(co->మార్గం);
   curlx_free(co->name);
-  curlx_free(co->value);
-  if(maintoo)
+  curlx_free(co->విలువ);
+  ఒకవేళ(maintoo)
     curlx_free(co);
 }
 
-static bool cookie_tailmatch(const char *cookie_domain,
-                             const size_t cookie_domain_len,
-                             const char *hostname)
+స్థిర bool cookie_tailmatch(స్థిరరాశి అక్షరం *cookie_domain,
+                             స్థిరరాశి size_t cookie_domain_len,
+                             స్థిరరాశి అక్షరం *hostname)
 {
-  size_t hostname_len = strlen(hostname);
+  size_t hostname_len = అక్షరశ్రేణి_పొడవు(hostname);
 
-  if(hostname_len < cookie_domain_len)
-    return FALSE;
+  ఒకవేళ(hostname_len < cookie_domain_len)
+    తిరిగి FALSE;
 
-  if(!curl_strnequal(cookie_domain,
+  ఒకవేళ(!curl_strnequal(cookie_domain,
                      hostname + hostname_len - cookie_domain_len,
                      cookie_domain_len))
-    return FALSE;
+    తిరిగి FALSE;
 
   /*
    * A lead char of cookie_domain is not '.'.
@@ -93,33 +93,33 @@ static bool cookie_tailmatch(const char *cookie_domain,
    * header when making HTTP requests to example.com, www.example.com, and
    * www.corp.example.com.
    */
-  if(hostname_len == cookie_domain_len)
-    return TRUE;
-  if('.' == *(hostname + hostname_len - cookie_domain_len - 1))
-    return TRUE;
-  return FALSE;
+  ఒకవేళ(hostname_len == cookie_domain_len)
+    తిరిగి TRUE;
+  ఒకవేళ('.' == *(hostname + hostname_len - cookie_domain_len - 1))
+    తిరిగి TRUE;
+  తిరిగి FALSE;
 }
 
 /*
  * matching cookie path and URL path
  * RFC6265 5.1.4 Paths and Path-Match
  */
-static bool pathmatch(const char *cookie_path, const char *uri_path)
+స్థిర bool pathmatch(స్థిరరాశి అక్షరం *cookie_మార్గం, స్థిరరాశి అక్షరం *uri_మార్గం)
 {
-  size_t cookie_path_len;
-  size_t uri_path_len;
+  size_t cookie_మార్గం_len;
+  size_t uri_మార్గం_len;
   bool ret = FALSE;
 
   /* cookie_path must not have last '/' separator. ex: /sample */
-  cookie_path_len = strlen(cookie_path);
-  if(cookie_path_len == 1) {
+  cookie_మార్గం_len = అక్షరశ్రేణి_పొడవు(cookie_మార్గం);
+  ఒకవేళ(cookie_మార్గం_len == 1) {
     /* cookie_path must be '/' */
-    return TRUE;
+    తిరిగి TRUE;
   }
 
   /* #-fragments are already cut off! */
-  if(strlen(uri_path) == 0 || uri_path[0] != '/')
-    uri_path = "/";
+  ఒకవేళ(అక్షరశ్రేణి_పొడవు(uri_మార్గం) == 0 || uri_మార్గం[0] != '/')
+    uri_మార్గం = "/";
 
   /*
    * here, RFC6265 5.1.4 says
@@ -131,121 +131,121 @@ static bool pathmatch(const char *cookie_path, const char *uri_path)
    *  (uri path is not /).
    */
 
-  uri_path_len = strlen(uri_path);
+  uri_మార్గం_len = అక్షరశ్రేణి_పొడవు(uri_మార్గం);
 
-  if(uri_path_len < cookie_path_len)
-    goto pathmatched;
+  ఒకవేళ(uri_మార్గం_len < cookie_మార్గం_len)
+    వెళ్ళు pathmatched;
 
   /* not using checkprefix() because matching should be case-sensitive */
-  if(strncmp(cookie_path, uri_path, cookie_path_len))
-    goto pathmatched;
+  ఒకవేళ(అక్షరశ్రేణి_పోలిక(cookie_మార్గం, uri_మార్గం, cookie_మార్గం_len))
+    వెళ్ళు pathmatched;
 
   /* The cookie-path and the uri-path are identical. */
-  if(cookie_path_len == uri_path_len) {
+  ఒకవేళ(cookie_మార్గం_len == uri_మార్గం_len) {
     ret = TRUE;
-    goto pathmatched;
+    వెళ్ళు pathmatched;
   }
 
   /* here, cookie_path_len < uri_path_len */
-  if(uri_path[cookie_path_len] == '/') {
+  ఒకవేళ(uri_మార్గం[cookie_మార్గం_len] == '/') {
     ret = TRUE;
-    goto pathmatched;
+    వెళ్ళు pathmatched;
   }
 
 pathmatched:
-  return ret;
+  తిరిగి ret;
 }
 
 /*
  * Return the top-level domain, for optimal hashing.
  */
-static const char *get_top_domain(const char * const domain, size_t *outlen)
+స్థిర స్థిరరాశి అక్షరం *get_శిఖరం_domain(స్థిరరాశి అక్షరం * స్థిరరాశి domain, size_t *outlen)
 {
   size_t len = 0;
-  const char *first = NULL, *last;
+  స్థిరరాశి అక్షరం *మొదటి = ఖాళీ, *చివరి;
 
-  if(domain) {
-    len = strlen(domain);
-    last = memrchr(domain, '.', len);
-    if(last) {
-      first = memrchr(domain, '.', (last - domain));
-      if(first)
-        len -= (++first - domain);
+  ఒకవేళ(domain) {
+    len = అక్షరశ్రేణి_పొడవు(domain);
+    చివరి = memrchr(domain, '.', len);
+    ఒకవేళ(చివరి) {
+      మొదటి = memrchr(domain, '.', (చివరి - domain));
+      ఒకవేళ(మొదటి)
+        len -= (++మొదటి - domain);
     }
   }
 
-  if(outlen)
+  ఒకవేళ(outlen)
     *outlen = len;
 
-  return first ? first : domain;
+  తిరిగి మొదటి ? మొదటి : domain;
 }
 
 /* Avoid C1001, an "internal error" with MSVC14 */
-#if defined(_MSC_VER) && (_MSC_VER == 1900)
-#pragma optimize("", off)
-#endif
+#ఒకవేళ defined(_MSC_VER) && (_MSC_VER == 1900)
+#సూచన optimize("", off)
+#అయితే_ముగింపు
 
 /*
  * A case-insensitive hash for the cookie domains.
  */
-static size_t cookie_hash_domain(const char *domain, const size_t len)
+స్థిర size_t cookie_hash_domain(స్థిరరాశి అక్షరం *domain, స్థిరరాశి size_t len)
 {
-  const char *end = domain + len;
+  స్థిరరాశి అక్షరం *చివర = domain + len;
   size_t h = 5381;
 
-  while(domain < end) {
+  అయితే(domain < చివర) {
     size_t j = (size_t)Curl_raw_toupper(*domain++);
     h += h << 5;
     h ^= j;
   }
 
-  return (h % COOKIE_HASH_SIZE);
+  తిరిగి (h % COOKIE_HASH_కొలత);
 }
 
-#if defined(_MSC_VER) && (_MSC_VER == 1900)
-#pragma optimize("", on)
-#endif
+#ఒకవేళ defined(_MSC_VER) && (_MSC_VER == 1900)
+#సూచన optimize("", on)
+#అయితే_ముగింపు
 
 /*
  * Hash this domain.
  */
-static size_t cookiehash(const char * const domain)
+స్థిర size_t cookiehash(స్థిరరాశి అక్షరం * స్థిరరాశి domain)
 {
-  const char *top;
+  స్థిరరాశి అక్షరం *శిఖరం;
   size_t len;
 
-  if(!domain || Curl_host_is_ipnum(domain))
-    return 0;
+  ఒకవేళ(!domain || Curl_host_is_ipnum(domain))
+    తిరిగి 0;
 
-  top = get_top_domain(domain, &len);
-  return cookie_hash_domain(top, len);
+  శిఖరం = get_శిఖరం_domain(domain, &len);
+  తిరిగి cookie_hash_domain(శిఖరం, len);
 }
 
 /*
  * cookie path sanitize
  */
-static char *sanitize_cookie_path(const char *cookie_path, size_t len)
+స్థిర అక్షరం *sanitize_cookie_మార్గం(స్థిరరాశి అక్షరం *cookie_మార్గం, size_t len)
 {
   /* some sites send path attribute within '"'. */
-  if(len && (cookie_path[0] == '\"')) {
-    cookie_path++;
+  ఒకవేళ(len && (cookie_మార్గం[0] == '\"')) {
+    cookie_మార్గం++;
     len--;
 
-    if(len && (cookie_path[len - 1] == '\"'))
+    ఒకవేళ(len && (cookie_మార్గం[len - 1] == '\"'))
       len--;
   }
 
   /* RFC6265 5.2.4 The Path Attribute */
-  if(!len || (cookie_path[0] != '/'))
+  ఒకవేళ(!len || (cookie_మార్గం[0] != '/'))
     /* Let cookie-path be the default-path. */
-    return curlx_strdup("/");
+    తిరిగి curlx_strdup("/");
 
   /* remove trailing slash when path is non-empty */
   /* convert /hoge/ to /hoge */
-  if(len > 1 && cookie_path[len - 1] == '/')
+  ఒకవేళ(len > 1 && cookie_మార్గం[len - 1] == '/')
     len--;
 
-  return curlx_memdup0(cookie_path, len);
+  తిరిగి curlx_memdup0(cookie_మార్గం, len);
 }
 
 /*
@@ -253,13 +253,13 @@ static char *sanitize_cookie_path(const char *cookie_path, size_t len)
  *
  * A thin wrapper around curlx_memdup0().
  */
-static CURLcode strstore(char **str, const char *newstr, size_t len)
+స్థిర CURLcode strstore(అక్షరం **str, స్థిరరాశి అక్షరం *newstr, size_t len)
 {
   DEBUGASSERT(str);
   *str = curlx_memdup0(newstr, len);
-  if(!*str)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ఒకవేళ(!*str)
+    తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -271,11 +271,11 @@ static CURLcode strstore(char **str, const char *newstr, size_t len)
  * more cookies expire, then processing will exit early in case this timestamp
  * is in the future.
  */
-static void remove_expired(struct CookieInfo *ci)
+స్థిర శూన్య remove_expired(నిర్మాణం CookieInfo *ci)
 {
-  struct Cookie *co;
-  curl_off_t now = (curl_off_t)time(NULL);
-  unsigned int i;
+  నిర్మాణం Cookie *co;
+  curl_off_t now = (curl_off_t)సమయం(ఖాళీ);
+  గుర్తులేని పూర్ణాంకం i;
 
   /*
    * If the earliest expiration timestamp in the jar is in the future we can
@@ -285,55 +285,55 @@ static void remove_expired(struct CookieInfo *ci)
    * expiration is the max offset, then perform the safe fallback of checking
    * all cookies.
    */
-  if(now < ci->next_expiration &&
-     ci->next_expiration != CURL_OFF_T_MAX)
-    return;
-  else
-    ci->next_expiration = CURL_OFF_T_MAX;
+  ఒకవేళ(now < ci->తదుపరి_expiration &&
+     ci->తదుపరి_expiration != CURL_OFF_T_MAX)
+    తిరిగి;
+  లేకపోతే
+    ci->తదుపరి_expiration = CURL_OFF_T_MAX;
 
-  for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-    struct Curl_llist_node *n;
-    struct Curl_llist_node *e = NULL;
+  కొరకు(i = 0; i < COOKIE_HASH_కొలత; i++) {
+    నిర్మాణం Curl_llist_కణుపు *n;
+    నిర్మాణం Curl_llist_కణుపు *e = ఖాళీ;
 
-    for(n = Curl_llist_head(&ci->cookielist[i]); n; n = e) {
-      co = Curl_node_elem(n);
-      e = Curl_node_next(n);
-      if(co->expires) {
-        if(co->expires < now) {
-          Curl_node_remove(n);
+    కొరకు(n = Curl_llist_తల(&ci->cookielist[i]); n; n = e) {
+      co = Curl_కణుపు_elem(n);
+      e = Curl_కణుపు_తదుపరి(n);
+      ఒకవేళ(co->expires) {
+        ఒకవేళ(co->expires < now) {
+          Curl_కణుపు_remove(n);
           freecookie(co, TRUE);
           ci->numcookies--;
         }
-        else if(co->expires < ci->next_expiration)
+        లేకపోతే ఒకవేళ(co->expires < ci->తదుపరి_expiration)
           /*
            * If this cookie has an expiration timestamp earlier than what we
            * have seen so far then record it for the next round of expirations.
            */
-          ci->next_expiration = co->expires;
+          ci->తదుపరి_expiration = co->expires;
       }
     }
   }
 }
 
-#ifndef USE_LIBPSL
+#నిర్వచితం_కాకపోతే USE_LIBPSL
 /* Make sure domain contains a dot or is localhost. */
-static bool bad_domain(const char *domain, size_t len)
+స్థిర bool bad_domain(స్థిరరాశి అక్షరం *domain, size_t len)
 {
-  if((len == 9) && curl_strnequal(domain, "localhost", 9))
-    return FALSE;
-  else {
+  ఒకవేళ((len == 9) && curl_strnequal(domain, "localhost", 9))
+    తిరిగి FALSE;
+  లేకపోతే {
     /* there must be a dot present, but that dot must not be a trailing dot */
-    const char *dot = memchr(domain, '.', len);
-    if(dot) {
+    స్థిరరాశి అక్షరం *dot = memchr(domain, '.', len);
+    ఒకవేళ(dot) {
       size_t i = dot - domain;
-      if((len - i) > 1)
+      ఒకవేళ((len - i) > 1)
         /* the dot is not the last byte */
-        return FALSE;
+        తిరిగి FALSE;
     }
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
-#endif
+#అయితే_ముగింపు
 
 /* RFC 6265 section 4.1.1 says a server should accept this range:
 
@@ -343,198 +343,198 @@ static bool bad_domain(const char *domain, size_t len)
    double-quotes fine. The prime reason for filtering out control bytes is that
    some HTTP servers return 400 for requests that contain such.
  */
-static bool invalid_octets(const char *ptr, size_t len)
+స్థిర bool invalid_octets(స్థిరరాశి అక్షరం *ptr, size_t len)
 {
-  const unsigned char *p = (const unsigned char *)ptr;
+  స్థిరరాశి గుర్తులేని అక్షరం *p = (స్థిరరాశి గుర్తులేని అక్షరం *)ptr;
   /* Reject all bytes \x01 - \x1f + \x7f */
-  while(len && *p) {
-    if((*p < 0x20) || (*p == 0x7f))
-      return TRUE;
+  అయితే(len && *p) {
+    ఒకవేళ((*p < 0x20) || (*p == 0x7f))
+      తిరిగి TRUE;
     p++;
     len--;
   }
-  return FALSE;
+  తిరిగి FALSE;
 }
 
 /* The maximum length we accept a date string for the 'expire' keyword. The
    standard date formats are within the 30 bytes range. This adds an extra
    margin to make sure it realistically works with what is used out there. */
-#define MAX_DATE_LENGTH 80
+#నిర్వచించు MAX_DATE_నిడివి 80
 
-#define COOKIE_NAME   0
-#define COOKIE_VALUE  1
-#define COOKIE_DOMAIN 2
-#define COOKIE_PATH   3
+#నిర్వచించు COOKIE_NAME   0
+#నిర్వచించు COOKIE_విలువ  1
+#నిర్వచించు COOKIE_DOMAIN 2
+#నిర్వచించు COOKIE_మార్గం   3
 
-#define COOKIE_PIECES 4 /* the list above */
+#నిర్వచించు COOKIE_PIECES 4 /* the list above */
 
-static CURLcode storecookie(struct Cookie *co, const struct Curl_str *cp,
-                            const char *path, const char *domain)
+స్థిర CURLcode storecookie(నిర్మాణం Cookie *co, స్థిరరాశి నిర్మాణం Curl_str *cp,
+                            స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *domain)
 {
-  CURLcode result;
-  result = strstore(&co->name, curlx_str(&cp[COOKIE_NAME]),
+  CURLcode ఫలితం;
+  ఫలితం = strstore(&co->name, curlx_str(&cp[COOKIE_NAME]),
                     curlx_strlen(&cp[COOKIE_NAME]));
-  if(!result)
-    result = strstore(&co->value, curlx_str(&cp[COOKIE_VALUE]),
-                      curlx_strlen(&cp[COOKIE_VALUE]));
-  if(!result) {
+  ఒకవేళ(!ఫలితం)
+    ఫలితం = strstore(&co->విలువ, curlx_str(&cp[COOKIE_విలువ]),
+                      curlx_strlen(&cp[COOKIE_విలువ]));
+  ఒకవేళ(!ఫలితం) {
     size_t plen = 0;
-    if(curlx_strlen(&cp[COOKIE_PATH])) {
-      path = curlx_str(&cp[COOKIE_PATH]);
-      plen = curlx_strlen(&cp[COOKIE_PATH]);
+    ఒకవేళ(curlx_strlen(&cp[COOKIE_మార్గం])) {
+      మార్గం = curlx_str(&cp[COOKIE_మార్గం]);
+      plen = curlx_strlen(&cp[COOKIE_మార్గం]);
     }
-    else if(path) {
+    లేకపోతే ఒకవేళ(మార్గం) {
       /* No path was given in the header line, set the default */
-      const char *endslash = strrchr(path, '/');
-      if(endslash)
-        plen = endslash - path + 1; /* include end slash */
-      else
-        plen = strlen(path);
+      స్థిరరాశి అక్షరం *endslash = strrchr(మార్గం, '/');
+      ఒకవేళ(endslash)
+        plen = endslash - మార్గం + 1; /* include end slash */
+      లేకపోతే
+        plen = అక్షరశ్రేణి_పొడవు(మార్గం);
     }
 
-    if(path) {
-      co->path = sanitize_cookie_path(path, plen);
-      if(!co->path)
-        result = CURLE_OUT_OF_MEMORY;
+    ఒకవేళ(మార్గం) {
+      co->మార్గం = sanitize_cookie_మార్గం(మార్గం, plen);
+      ఒకవేళ(!co->మార్గం)
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
   }
-  if(!result) {
-    if(curlx_strlen(&cp[COOKIE_DOMAIN]))
-      result = strstore(&co->domain, curlx_str(&cp[COOKIE_DOMAIN]),
+  ఒకవేళ(!ఫలితం) {
+    ఒకవేళ(curlx_strlen(&cp[COOKIE_DOMAIN]))
+      ఫలితం = strstore(&co->domain, curlx_str(&cp[COOKIE_DOMAIN]),
                         curlx_strlen(&cp[COOKIE_DOMAIN]));
-    else if(domain) {
+    లేకపోతే ఒకవేళ(domain) {
       /* no domain was given in the header line, set the default */
       co->domain = curlx_strdup(domain);
-      if(!co->domain)
-        result = CURLE_OUT_OF_MEMORY;
+      ఒకవేళ(!co->domain)
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
     }
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
  * Parse the first name/value pair of the cookie header, which is the actual
  * cookie name and value.
  */
-static bool parse_first_pair(struct Curl_easy *data, struct Cookie *co,
-                             struct Curl_str *cookie,
-                             struct Curl_str *name,
-                             struct Curl_str *val,
+స్థిర bool parse_మొదటి_pair(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం Cookie *co,
+                             నిర్మాణం Curl_str *cookie,
+                             నిర్మాణం Curl_str *name,
+                             నిర్మాణం Curl_str *val,
                              bool sep)
 {
   /* The first name/value pair is the actual cookie name */
-  if(!sep || !curlx_strlen(name)) {
-    infof(data, "invalid cookie, dropped");
-    return FALSE;
+  ఒకవేళ(!sep || !curlx_strlen(name)) {
+    infof(దత్తాంశం, "invalid cookie, dropped");
+    తిరిగి FALSE;
   }
 
   /*
    * Check for too long individual name or contents. Chrome and Firefox
    * support 4095 or 4096 bytes combo
    */
-  if((curlx_strlen(name) + curlx_strlen(val)) > MAX_NAME) {
-    infof(data, "oversized cookie dropped, name/val %zu + %zu bytes",
+  ఒకవేళ((curlx_strlen(name) + curlx_strlen(val)) > MAX_NAME) {
+    infof(దత్తాంశం, "oversized cookie dropped, name/val %zu + %zu bytes",
           curlx_strlen(name), curlx_strlen(val));
-    return FALSE;
+    తిరిగి FALSE;
   }
 
   /* Check if we have a reserved prefix set. */
-  if(!strncmp("__Secure-", curlx_str(name), 9))
-    co->prefix_secure = TRUE;
-  else if(!strncmp("__Host-", curlx_str(name), 7))
-    co->prefix_host = TRUE;
+  ఒకవేళ(!అక్షరశ్రేణి_పోలిక("__Secure-", curlx_str(name), 9))
+    co->ఉపసర్గ_secure = TRUE;
+  లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక("__Host-", curlx_str(name), 7))
+    co->ఉపసర్గ_host = TRUE;
 
   cookie[COOKIE_NAME] = *name;
-  cookie[COOKIE_VALUE] = *val;
-  return TRUE;
+  cookie[COOKIE_విలువ] = *val;
+  తిరిగి TRUE;
 }
 
-static bool parse_domain(struct Curl_easy *data, struct Cookie *co,
-                         struct Curl_str *cookie_domain,
-                         struct Curl_str *val,
-                         const char **domainp)
+స్థిర bool parse_domain(నిర్మాణం Curl_easy *దత్తాంశం, నిర్మాణం Cookie *co,
+                         నిర్మాణం Curl_str *cookie_domain,
+                         నిర్మాణం Curl_str *val,
+                         స్థిరరాశి అక్షరం **domainp)
 {
   bool is_ip;
-  const char *domain = *domainp;
-  const char *v = curlx_str(val);
+  స్థిరరాశి అక్షరం *domain = *domainp;
+  స్థిరరాశి అక్షరం *v = curlx_str(val);
   /*
    * Now, we make sure that our host is within the given domain, or
    * the given domain is not valid and thus cannot be set.
    */
 
-  if('.' == *v)
+  ఒకవేళ('.' == *v)
     curlx_str_nudge(val, 1);
 
-#ifndef USE_LIBPSL
+#నిర్వచితం_కాకపోతే USE_LIBPSL
   /*
    * Without PSL we do not know when the incoming cookie is set on a
    * TLD or otherwise "protected" suffix. To reduce risk, we require a
    * dot OR the exact hostname being "localhost".
    */
-  if(bad_domain(curlx_str(val), curlx_strlen(val))) {
+  ఒకవేళ(bad_domain(curlx_str(val), curlx_strlen(val))) {
     *domainp = ":";
     domain = ":";
   }
-#endif
+#అయితే_ముగింపు
 
   is_ip = Curl_host_is_ipnum(domain ? domain : curlx_str(val));
 
-  if(!domain ||
+  ఒకవేళ(!domain ||
      (is_ip &&
-      !strncmp(curlx_str(val), domain, curlx_strlen(val)) &&
-      (curlx_strlen(val) == strlen(domain))) ||
+      !అక్షరశ్రేణి_పోలిక(curlx_str(val), domain, curlx_strlen(val)) &&
+      (curlx_strlen(val) == అక్షరశ్రేణి_పొడవు(domain))) ||
      (!is_ip && cookie_tailmatch(curlx_str(val),
                                   curlx_strlen(val), domain))) {
     *cookie_domain = *val;
-    if(!is_ip)
+    ఒకవేళ(!is_ip)
       co->tailmatch = TRUE; /* we always do that if the domain name was
                                given */
   }
-  else {
+  లేకపోతే {
     /*
      * We did not get a tailmatch and then the attempted set domain is
      * not a domain to which the current host belongs. Mark as bad.
      */
-    infof(data, "skipped cookie with bad tailmatch domain: %s",
+    infof(దత్తాంశం, "skipped cookie with bad tailmatch domain: %s",
           curlx_str(val));
-    return FALSE;
+    తిరిగి FALSE;
   }
-  return TRUE;
+  తిరిగి TRUE;
 }
 
-static void parse_maxage(struct Cookie *co, struct Curl_str *val,
+స్థిర శూన్య parse_maxage(నిర్మాణం Cookie *co, నిర్మాణం Curl_str *val,
                          time_t *nowp)
 {
-  int rc;
-  const char *maxage = curlx_str(val);
-  if(*maxage == '\"')
+  పూర్ణాంకం rc;
+  స్థిరరాశి అక్షరం *maxage = curlx_str(val);
+  ఒకవేళ(*maxage == '\"')
     maxage++;
-  rc = curlx_str_number(&maxage, &co->expires, CURL_OFF_T_MAX);
-  if(!*nowp)
-    *nowp = time(NULL);
-  switch(rc) {
-  case STRE_OVERFLOW:
+  rc = curlx_str_సంఖ్య(&maxage, &co->expires, CURL_OFF_T_MAX);
+  ఒకవేళ(!*nowp)
+    *nowp = సమయం(ఖాళీ);
+  ఎంపిక(rc) {
+  స్థితి STRE_అధికప్రవాహం:
     /* overflow, used max value */
     co->expires = CURL_OFF_T_MAX;
-    break;
-  default:
+    ఆపు;
+  అప్రమేయ:
     /* negative or otherwise bad, expire */
     co->expires = 1;
-    break;
-  case STRE_OK:
-    if(!co->expires)
+    ఆపు;
+  స్థితి STRE_OK:
+    ఒకవేళ(!co->expires)
       co->expires = 1; /* expire now */
-    else if(CURL_OFF_T_MAX - *nowp < co->expires)
+    లేకపోతే ఒకవేళ(CURL_OFF_T_MAX - *nowp < co->expires)
       /* would overflow */
       co->expires = CURL_OFF_T_MAX;
-    else
+    లేకపోతే
       co->expires += *nowp;
-    break;
+    ఆపు;
   }
   cap_expires(*nowp, co);
 }
 
-static void parse_expires(struct Cookie *co, struct Curl_str *val,
+స్థిర శూన్య parse_expires(నిర్మాణం Cookie *co, నిర్మాణం Curl_str *val,
                           time_t *nowp)
 {
   /*
@@ -543,129 +543,129 @@ static void parse_expires(struct Cookie *co, struct Curl_str *val,
    * If the date cannot get parsed for whatever reason, the cookie
    * will be treated as a session cookie
    */
-  if(!co->expires && (curlx_strlen(val) < MAX_DATE_LENGTH)) {
-    char dbuf[MAX_DATE_LENGTH + 1];
+  ఒకవేళ(!co->expires && (curlx_strlen(val) < MAX_DATE_నిడివి)) {
+    అక్షరం dbuf[MAX_DATE_నిడివి + 1];
     time_t date = 0;
-    memcpy(dbuf, curlx_str(val), curlx_strlen(val));
+    జ్ఞాపకం_నకలు(dbuf, curlx_str(val), curlx_strlen(val));
     dbuf[curlx_strlen(val)] = 0;
-    if(!Curl_getdate_capped(dbuf, &date)) {
-      if(!date)
+    ఒకవేళ(!Curl_getdate_capped(dbuf, &date)) {
+      ఒకవేళ(!date)
         date++;
       co->expires = (curl_off_t)date;
     }
-    else
+    లేకపోతే
       co->expires = 0;
-    if(!*nowp)
-      *nowp = time(NULL);
+    ఒకవేళ(!*nowp)
+      *nowp = సమయం(ఖాళీ);
     cap_expires(*nowp, co);
   }
 }
 
 /* this function returns errors on OOM etc, not for cookie format problems */
-static CURLcode
-parse_cookie_header(struct Curl_easy *data,
-                    struct Cookie *co,
+స్థిర CURLcode
+parse_cookie_శీర్షిక(నిర్మాణం Curl_easy *దత్తాంశం,
+                    నిర్మాణం Cookie *co,
                     bool *okay, /* if the cookie was fine */
-                    const char *ptr, /* the header */
-                    const char *domain, /* default domain */
+                    స్థిరరాశి అక్షరం *ptr, /* the header */
+                    స్థిరరాశి అక్షరం *domain, /* default domain */
                     /* full path used when this cookie is set */
-                    const char *path,
+                    స్థిరరాశి అక్షరం *మార్గం,
                     bool secure_origin)
 {
   /* This line was read off an HTTP-header */
   time_t now = 0;
-  size_t linelength = strlen(ptr);
-  CURLcode result = CURLE_OK;
-  struct Curl_str cookie[COOKIE_PIECES];
+  size_t linelength = అక్షరశ్రేణి_పొడవు(ptr);
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం Curl_str cookie[COOKIE_PIECES];
   *okay = FALSE;
-  if(linelength > MAX_COOKIE_LINE)
+  ఒకవేళ(linelength > MAX_COOKIE_పంక్తి)
     /* discard overly long lines at once */
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
 
   /* memset instead of initializer because gcc 4.8.1 is silly */
-  memset(cookie, 0, sizeof(cookie));
-  do {
-    struct Curl_str name;
+  memset(cookie, 0, పరిమాణం(cookie));
+  చేయి {
+    నిర్మాణం Curl_str name;
 
     /* we have a <name>=<value> pair or a stand-alone word here */
-    int rc = curlx_str_cspn(&ptr, &name, ";\r\n=");
-    if(!rc || (rc == STRE_SHORT)) {
-      struct Curl_str val;
+    పూర్ణాంకం rc = curlx_str_cspn(&ptr, &name, ";\r\n=");
+    ఒకవేళ(!rc || (rc == STRE_SHORT)) {
+      నిర్మాణం Curl_str val;
       bool sep = FALSE;
       curlx_str_trimblanks(&name);
 
-      if(invalid_octets(curlx_str(&name), curlx_strlen(&name))) {
-        infof(data, "invalid octets in name, cookie dropped");
-        return CURLE_OK;
+      ఒకవేళ(invalid_octets(curlx_str(&name), curlx_strlen(&name))) {
+        infof(దత్తాంశం, "invalid octets in name, cookie dropped");
+        తిరిగి CURLE_OK;
       }
 
-      if(!curlx_str_single(&ptr, '=')) {
+      ఒకవేళ(!curlx_str_single(&ptr, '=')) {
         sep = TRUE; /* a '=' was used */
-        if(!curlx_str_cspn(&ptr, &val, ";\r\n"))
+        ఒకవేళ(!curlx_str_cspn(&ptr, &val, ";\r\n"))
           curlx_str_trimblanks(&val);
 
-        if(invalid_octets(curlx_str(&val), curlx_strlen(&val))) {
-          infof(data, "invalid octets in value, cookie dropped");
-          return CURLE_OK;
+        ఒకవేళ(invalid_octets(curlx_str(&val), curlx_strlen(&val))) {
+          infof(దత్తాంశం, "invalid octets in value, cookie dropped");
+          తిరిగి CURLE_OK;
         }
       }
-      else
+      లేకపోతే
         curlx_str_init(&val);
 
-      if(!curlx_strlen(&cookie[COOKIE_NAME])) {
-        if(!parse_first_pair(data, co, cookie, &name, &val, sep))
-          return CURLE_OK;
+      ఒకవేళ(!curlx_strlen(&cookie[COOKIE_NAME])) {
+        ఒకవేళ(!parse_మొదటి_pair(దత్తాంశం, co, cookie, &name, &val, sep))
+          తిరిగి CURLE_OK;
       }
 
       /* whether there's separator or not */
-      else if(curlx_str_casecompare(&name, "secure")) {
-        if(secure_origin)
+      లేకపోతే ఒకవేళ(curlx_str_casecompare(&name, "secure")) {
+        ఒకవేళ(secure_origin)
           co->secure = TRUE;
-        else {
-          infof(data, "skipped cookie because not 'secure'");
-          return CURLE_OK;
+        లేకపోతే {
+          infof(దత్తాంశం, "skipped cookie because not 'secure'");
+          తిరిగి CURLE_OK;
         }
       }
-      else if(curlx_str_casecompare(&name, "httponly"))
+      లేకపోతే ఒకవేళ(curlx_str_casecompare(&name, "httponly"))
         co->httponly = TRUE;
-      else if(sep) {
+      లేకపోతే ఒకవేళ(sep) {
         /* only if a separating equals sign is present */
-        if(curlx_str_casecompare(&name, "path"))
-          cookie[COOKIE_PATH] = val;
-        else if(curlx_str_casecompare(&name, "domain")) {
-          if(curlx_strlen(&val) &&
-             !parse_domain(data, co, &cookie[COOKIE_DOMAIN], &val, &domain))
-            return CURLE_OK;
+        ఒకవేళ(curlx_str_casecompare(&name, "path"))
+          cookie[COOKIE_మార్గం] = val;
+        లేకపోతే ఒకవేళ(curlx_str_casecompare(&name, "domain")) {
+          ఒకవేళ(curlx_strlen(&val) &&
+             !parse_domain(దత్తాంశం, co, &cookie[COOKIE_DOMAIN], &val, &domain))
+            తిరిగి CURLE_OK;
         }
-        else if(curlx_str_casecompare(&name, "max-age") && curlx_strlen(&val))
+        లేకపోతే ఒకవేళ(curlx_str_casecompare(&name, "max-age") && curlx_strlen(&val))
           parse_maxage(co, &val, &now);
-        else if(curlx_str_casecompare(&name, "expires") && curlx_strlen(&val))
+        లేకపోతే ఒకవేళ(curlx_str_casecompare(&name, "expires") && curlx_strlen(&val))
           parse_expires(co, &val, &now);
       }
     }
-  } while(!curlx_str_single(&ptr, ';'));
+  } అయితే(!curlx_str_single(&ptr, ';'));
 
-  if(curlx_strlen(&cookie[COOKIE_NAME])) {
+  ఒకవేళ(curlx_strlen(&cookie[COOKIE_NAME])) {
     /* the header was fine, now store the data */
-    result = storecookie(co, &cookie[0], path, domain);
-    if(!result)
+    ఫలితం = storecookie(co, &cookie[0], మార్గం, domain);
+    ఒకవేళ(!ఫలితం)
       *okay = TRUE;
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode parse_netscape(struct Cookie *co,
-                               const struct CookieInfo *ci,
+స్థిర CURLcode parse_netscape(నిర్మాణం Cookie *co,
+                               స్థిరరాశి నిర్మాణం CookieInfo *ci,
                                bool *okay,
-                               const char *lineptr,
+                               స్థిరరాశి అక్షరం *lineptr,
                                bool secure_origin)
 {
   /*
    * This line is NOT an HTTP header style line, we do offer support for
    * reading the odd netscape cookies-file format here
    */
-  const char *ptr, *next;
-  int fields;
+  స్థిరరాశి అక్షరం *ptr, *తదుపరి;
+  పూర్ణాంకం fields;
   size_t len;
   *okay = FALSE;
 
@@ -675,229 +675,229 @@ static CURLcode parse_netscape(struct Cookie *co,
    * Firefox's cookie files, they are prefixed #HttpOnly_ and the rest
    * remains as usual, so we skip 10 characters of the line.
    */
-  if(!strncmp(lineptr, "#HttpOnly_", 10)) {
+  ఒకవేళ(!అక్షరశ్రేణి_పోలిక(lineptr, "#HttpOnly_", 10)) {
     lineptr += 10;
     co->httponly = TRUE;
   }
 
-  if(lineptr[0] == '#')
+  ఒకవేళ(lineptr[0] == '#')
     /* do not even try the comments */
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
 
   /*
    * Now loop through the fields and init the struct we already have
    * allocated
    */
   fields = 0;
-  for(next = lineptr; next; fields++) {
-    ptr = next;
+  కొరకు(తదుపరి = lineptr; తదుపరి; fields++) {
+    ptr = తదుపరి;
     len = strcspn(ptr, "\t\r\n");
-    next = (ptr[len] == '\t' ? &ptr[len + 1] : NULL);
-    switch(fields) {
-    case 0:
-      if(ptr[0] == '.') { /* skip preceding dots */
+    తదుపరి = (ptr[len] == '\t' ? &ptr[len + 1] : ఖాళీ);
+    ఎంపిక(fields) {
+    స్థితి 0:
+      ఒకవేళ(ptr[0] == '.') { /* skip preceding dots */
         ptr++;
         len--;
       }
       co->domain = curlx_memdup0(ptr, len);
-      if(!co->domain)
-        return CURLE_OUT_OF_MEMORY;
-      break;
-    case 1:
+      ఒకవేళ(!co->domain)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      ఆపు;
+    స్థితి 1:
       /*
        * flag: A TRUE/FALSE value indicating if all machines within a given
        * domain can access the variable. Set TRUE when the cookie says
        * .example.com and to false when the domain is complete www.example.com
        */
       co->tailmatch = !!curl_strnequal(ptr, "TRUE", len);
-      break;
-    case 2:
+      ఆపు;
+    స్థితి 2:
       /* The file format allows the path field to remain not filled in */
-      if(strncmp("TRUE", ptr, len) && strncmp("FALSE", ptr, len)) {
+      ఒకవేళ(అక్షరశ్రేణి_పోలిక("TRUE", ptr, len) && అక్షరశ్రేణి_పోలిక("FALSE", ptr, len)) {
         /* only if the path does not look like a boolean option! */
-        co->path = sanitize_cookie_path(ptr, len);
-        if(!co->path)
-          return CURLE_OUT_OF_MEMORY;
-        break;
+        co->మార్గం = sanitize_cookie_మార్గం(ptr, len);
+        ఒకవేళ(!co->మార్గం)
+          తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        ఆపు;
       }
-      else {
+      లేకపోతే {
         /* this does not look like a path, make one up! */
-        co->path = curlx_strdup("/");
-        if(!co->path)
-          return CURLE_OUT_OF_MEMORY;
+        co->మార్గం = curlx_strdup("/");
+        ఒకవేళ(!co->మార్గం)
+          తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
       }
       fields++; /* add a field and fall down to secure */
       FALLTHROUGH();
-    case 3:
+    స్థితి 3:
       co->secure = FALSE;
-      if(curl_strnequal(ptr, "TRUE", len)) {
-        if(secure_origin || ci->running)
+      ఒకవేళ(curl_strnequal(ptr, "TRUE", len)) {
+        ఒకవేళ(secure_origin || ci->running)
           co->secure = TRUE;
-        else
-          return CURLE_OK;
+        లేకపోతే
+          తిరిగి CURLE_OK;
       }
-      break;
-    case 4:
-      if(curlx_str_number(&ptr, &co->expires, CURL_OFF_T_MAX))
-        return CURLE_OK;
-      break;
-    case 5:
+      ఆపు;
+    స్థితి 4:
+      ఒకవేళ(curlx_str_సంఖ్య(&ptr, &co->expires, CURL_OFF_T_MAX))
+        తిరిగి CURLE_OK;
+      ఆపు;
+    స్థితి 5:
       co->name = curlx_memdup0(ptr, len);
-      if(!co->name)
-        return CURLE_OUT_OF_MEMORY;
-      else {
+      ఒకవేళ(!co->name)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      లేకపోతే {
         /* For Netscape file format cookies we check prefix on the name.
            These prefixes are matched case sensitively, same as on the
            header path and as the 6265bis document specifies. */
-        if(!strncmp("__Secure-", co->name, 9))
-          co->prefix_secure = TRUE;
-        else if(!strncmp("__Host-", co->name, 7))
-          co->prefix_host = TRUE;
+        ఒకవేళ(!అక్షరశ్రేణి_పోలిక("__Secure-", co->name, 9))
+          co->ఉపసర్గ_secure = TRUE;
+        లేకపోతే ఒకవేళ(!అక్షరశ్రేణి_పోలిక("__Host-", co->name, 7))
+          co->ఉపసర్గ_host = TRUE;
       }
-      break;
-    case 6:
-      co->value = curlx_memdup0(ptr, len);
-      if(!co->value)
-        return CURLE_OUT_OF_MEMORY;
-      break;
+      ఆపు;
+    స్థితి 6:
+      co->విలువ = curlx_memdup0(ptr, len);
+      ఒకవేళ(!co->విలువ)
+        తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      ఆపు;
     }
   }
-  if(fields == 6) {
+  ఒకవేళ(fields == 6) {
     /* we got a cookie with blank contents, fix it */
-    co->value = curlx_strdup("");
-    if(!co->value)
-      return CURLE_OUT_OF_MEMORY;
-    else
+    co->విలువ = curlx_strdup("");
+    ఒకవేళ(!co->విలువ)
+      తిరిగి CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    లేకపోతే
       fields++;
   }
 
-  if(fields != 7)
+  ఒకవేళ(fields != 7)
     /* we did not find the sufficient number of fields */
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
 
   /* Reject control octets in the name or value, matching the filtering done
      for cookies set over HTTP. A cookie loaded from a file is later sent in
      request headers, so the same bytes that make a server reject a request
      must not slip in through the file. */
-  if(invalid_octets(co->name, strlen(co->name)) ||
-     invalid_octets(co->value, strlen(co->value)))
-    return CURLE_OK;
+  ఒకవేళ(invalid_octets(co->name, అక్షరశ్రేణి_పొడవు(co->name)) ||
+     invalid_octets(co->విలువ, అక్షరశ్రేణి_పొడవు(co->విలువ)))
+    తిరిగి CURLE_OK;
 
   *okay = TRUE;
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static bool is_public_suffix(struct Curl_easy *data,
-                             struct Cookie *co,
-                             const char *domain)
+స్థిర bool is_ప్రజా_suffix(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Cookie *co,
+                             స్థిరరాశి అక్షరం *domain)
 {
-#ifdef USE_LIBPSL
+#నిర్వచితమైతే USE_LIBPSL
   /*
    * Check if the domain is a Public Suffix and if yes, ignore the cookie.
    * 'domain' is NULL when the cookie is loaded from file or
    * CURLOPT_COOKIELIST.
    */
-  DEBUGASSERT(data);
+  DEBUGASSERT(దత్తాంశం);
   DEBUGASSERT(co);
-  DEBUGF(infof(data, "PSL check set-cookie '%s' for domain=%s in %s",
+  DEBUGF(infof(దత్తాంశం, "PSL check set-cookie '%s' for domain=%s in %s",
                co->name, co->domain ? co->domain : "[blank]",
                domain ? domain : "[file]"));
-  if(!co->domain || Curl_host_is_ipnum(co->domain))
-    return FALSE;
+  ఒకవేళ(!co->domain || Curl_host_is_ipnum(co->domain))
+    తిరిగి FALSE;
 
-  else {
+  లేకపోతే {
     bool acceptable = FALSE;
-    char lcase[256];
-    char lcookie[256];
-    size_t dlen = domain ? strlen(domain) : 0;
-    size_t clen = strlen(co->domain);
+    అక్షరం lcase[256];
+    అక్షరం lcookie[256];
+    size_t dlen = domain ? అక్షరశ్రేణి_పొడవు(domain) : 0;
+    size_t clen = అక్షరశ్రేణి_పొడవు(co->domain);
 
     /* trim trailing dots */
-    if(dlen && (domain[dlen - 1] == '.'))
+    ఒకవేళ(dlen && (domain[dlen - 1] == '.'))
       dlen--;
-    if(clen && (co->domain[clen - 1] == '.'))
+    ఒకవేళ(clen && (co->domain[clen - 1] == '.'))
       clen--;
 
-    if((dlen < sizeof(lcase)) && (clen < sizeof(lcookie))) {
-      const psl_ctx_t *psl = Curl_psl_use(data);
-      if(psl) {
+    ఒకవేళ((dlen < పరిమాణం(lcase)) && (clen < పరిమాణం(lcookie))) {
+      స్థిరరాశి psl_ctx_t *psl = Curl_psl_use(దత్తాంశం);
+      ఒకవేళ(psl) {
         /* the PSL check requires lowercase domain name and pattern */
         Curl_strntolower(lcookie, co->domain, clen);
         lcookie[clen] = 0;
-        if(domain) {
+        ఒకవేళ(domain) {
           Curl_strntolower(lcase, domain, dlen);
           lcase[dlen] = 0;
           acceptable = psl_is_cookie_domain_acceptable(psl, lcase, lcookie);
 
           /* if the cookie is acceptable, but is set for a PSL domain, then it
              cannot be tailmatching */
-          if(acceptable && co->tailmatch &&
+          ఒకవేళ(acceptable && co->tailmatch &&
              curl_strequal(co->domain, domain) &&
-             psl_is_public_suffix(psl, lcookie))
+             psl_is_ప్రజా_suffix(psl, lcookie))
             co->tailmatch = FALSE;
         }
-        else {
-          bool suffix = psl_is_public_suffix(psl, lcookie);
+        లేకపోతే {
+          bool suffix = psl_is_ప్రజా_suffix(psl, lcookie);
           acceptable = TRUE;
-          if(suffix)
+          ఒకవేళ(suffix)
             /* switch off tailmatching when set for a PSL domain */
             co->tailmatch = FALSE;
         }
-        Curl_psl_release(data);
+        Curl_psl_release(దత్తాంశం);
       }
-      else
-        infof(data, "libpsl problem, rejecting cookie for safety");
+      లేకపోతే
+        infof(దత్తాంశం, "libpsl problem, rejecting cookie for safety");
     }
 
-    if(!acceptable) {
-      infof(data, "cookie '%s' dropped, domain '%s' must not "
+    ఒకవేళ(!acceptable) {
+      infof(దత్తాంశం, "cookie '%s' dropped, domain '%s' must not "
             "set cookies for '%s'", co->name,
             domain ? domain : "[file]", co->domain);
-      return TRUE;
+      తిరిగి TRUE;
     }
   }
-#else
-  (void)data;
-  (void)co;
-  (void)domain;
-  DEBUGF(infof(data, "NO PSL to check set-cookie '%s' for domain=%s in %s",
+#లేకపోతే
+  (శూన్య)దత్తాంశం;
+  (శూన్య)co;
+  (శూన్య)domain;
+  DEBUGF(infof(దత్తాంశం, "NO PSL to check set-cookie '%s' for domain=%s in %s",
                co->name, co->domain, domain ? domain : "[file]"));
-#endif
-  return FALSE;
+#అయితే_ముగింపు
+  తిరిగి FALSE;
 }
 
 /* returns TRUE when replaced */
-static bool replace_existing(struct Curl_easy *data,
-                             struct Cookie *co,
-                             const struct CookieInfo *ci,
+స్థిర bool replace_existing(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం Cookie *co,
+                             స్థిరరాశి నిర్మాణం CookieInfo *ci,
                              bool secure,
                              bool *replacep)
 {
   bool replace_old = FALSE;
-  struct Curl_llist_node *replace_n = NULL;
-  struct Curl_llist_node *n;
+  నిర్మాణం Curl_llist_కణుపు *replace_n = ఖాళీ;
+  నిర్మాణం Curl_llist_కణుపు *n;
   size_t myhash = cookiehash(co->domain);
-  for(n = Curl_llist_head(&ci->cookielist[myhash]); n; n = Curl_node_next(n)) {
-    struct Cookie *clist = Curl_node_elem(n);
-    if(!strcmp(clist->name, co->name)) {
+  కొరకు(n = Curl_llist_తల(&ci->cookielist[myhash]); n; n = Curl_కణుపు_తదుపరి(n)) {
+    నిర్మాణం Cookie *clist = Curl_కణుపు_elem(n);
+    ఒకవేళ(!strcmp(clist->name, co->name)) {
       /* the names are identical */
       bool matching_domains = FALSE;
 
-      if(clist->domain && co->domain) {
-        if(cookie_tailmatch(clist->domain, strlen(clist->domain),
+      ఒకవేళ(clist->domain && co->domain) {
+        ఒకవేళ(cookie_tailmatch(clist->domain, అక్షరశ్రేణి_పొడవు(clist->domain),
                             co->domain) ||
-           cookie_tailmatch(co->domain, strlen(co->domain), clist->domain))
+           cookie_tailmatch(co->domain, అక్షరశ్రేణి_పొడవు(co->domain), clist->domain))
           /* The existing one is a tail of the new or vice versa */
           matching_domains = TRUE;
       }
-      else if(!clist->domain && !co->domain)
+      లేకపోతే ఒకవేళ(!clist->domain && !co->domain)
         matching_domains = TRUE;
 
-      if(matching_domains && /* the domains were identical */
-         clist->path && co->path && /* both have paths */
+      ఒకవేళ(matching_domains && /* the domains were identical */
+         clist->మార్గం && co->మార్గం && /* both have paths */
          clist->secure && !co->secure && !secure) {
         size_t cllen;
-        const char *sep = NULL;
+        స్థిరరాశి అక్షరం *sep = ఖాళీ;
 
         /*
          * A non-secure cookie may not overlay an existing secure cookie.
@@ -906,71 +906,71 @@ static bool replace_existing(struct Curl_easy *data,
          * "/loginhelper" is ok.
          */
 
-        DEBUGASSERT(clist->path[0]);
-        if(clist->path[0])
-          sep = strchr(clist->path + 1, '/');
-        if(sep)
-          cllen = sep - clist->path;
-        else
-          cllen = strlen(clist->path);
+        DEBUGASSERT(clist->మార్గం[0]);
+        ఒకవేళ(clist->మార్గం[0])
+          sep = strchr(clist->మార్గం + 1, '/');
+        ఒకవేళ(sep)
+          cllen = sep - clist->మార్గం;
+        లేకపోతే
+          cllen = అక్షరశ్రేణి_పొడవు(clist->మార్గం);
 
-        if(!strncmp(clist->path, co->path, cllen)) {
-          infof(data, "cookie '%s' for domain '%s' dropped, would "
+        ఒకవేళ(!అక్షరశ్రేణి_పోలిక(clist->మార్గం, co->మార్గం, cllen)) {
+          infof(దత్తాంశం, "cookie '%s' for domain '%s' dropped, would "
                 "overlay an existing cookie", co->name, co->domain);
-          return FALSE;
+          తిరిగి FALSE;
         }
       }
     }
 
-    if(!replace_n && !strcmp(clist->name, co->name)) {
+    ఒకవేళ(!replace_n && !strcmp(clist->name, co->name)) {
       /* the names are identical */
 
-      if(clist->domain && co->domain) {
-        if(curl_strequal(clist->domain, co->domain) &&
+      ఒకవేళ(clist->domain && co->domain) {
+        ఒకవేళ(curl_strequal(clist->domain, co->domain) &&
            (clist->tailmatch == co->tailmatch))
           /* The domains are identical */
           replace_old = TRUE;
       }
-      else if(!clist->domain && !co->domain)
+      లేకపోతే ఒకవేళ(!clist->domain && !co->domain)
         replace_old = TRUE;
 
-      if(replace_old) {
+      ఒకవేళ(replace_old) {
         /* the domains were identical */
 
-        if(clist->path && co->path &&
-           strcmp(clist->path, co->path))
+        ఒకవేళ(clist->మార్గం && co->మార్గం &&
+           strcmp(clist->మార్గం, co->మార్గం))
           replace_old = FALSE;
-        else if(!clist->path != !co->path)
+        లేకపోతే ఒకవేళ(!clist->మార్గం != !co->మార్గం)
           replace_old = FALSE;
       }
 
-      if(replace_old && !co->livecookie && clist->livecookie) {
+      ఒకవేళ(replace_old && !co->livecookie && clist->livecookie) {
         /*
          * Both cookies matched fine, except that the already present cookie
          * is "live", which means it was set from a header, while the new one
          * was read from a file and thus is not "live". "live" cookies are
          * preferred so the new cookie is freed.
          */
-        return FALSE;
+        తిరిగి FALSE;
       }
-      if(replace_old)
+      ఒకవేళ(replace_old)
         replace_n = n;
     }
   }
-  if(replace_n) {
-    struct Cookie *repl = Curl_node_elem(replace_n);
+  ఒకవేళ(replace_n) {
+    నిర్మాణం Cookie *repl = Curl_కణుపు_elem(replace_n);
 
     /* when replacing, creationtime is kept from old */
     co->creationtime = repl->creationtime;
 
     /* unlink the old */
-    Curl_node_remove(replace_n);
+    Curl_కణుపు_remove(replace_n);
 
     /* free the old cookie */
     freecookie(repl, TRUE);
   }
   *replacep = replace_old;
-  return TRUE;
+  తిరిగి TRUE;
 }
 
 /*
@@ -981,67 +981,67 @@ static bool replace_existing(struct Curl_easy *data,
  * IPv6 address.
  *
  */
-CURLcode Curl_cookie_add(struct Curl_easy *data,
-                         struct CookieInfo *ci,
-                         const char *lineptr, /* first character of the line */
-                         const char *domain,  /* default domain */
-                         const char *path,    /* full path used when this
+CURLcode Curl_cookie_కూడు(నిర్మాణం Curl_easy *దత్తాంశం,
+                         నిర్మాణం CookieInfo *ci,
+                         స్థిరరాశి అక్షరం *lineptr, /* first character of the line */
+                         స్థిరరాశి అక్షరం *domain,  /* default domain */
+                         స్థిరరాశి అక్షరం *మార్గం,    /* full path used when this
                                                  cookie is set, used to get
                                                  default path for the cookie
                                                  unless set */
-                         const int flags)
+                         స్థిరరాశి పూర్ణాంకం flags)
 {
-  struct Cookie comem;
-  struct Cookie *co;
+  నిర్మాణం Cookie comem;
+  నిర్మాణం Cookie *co;
   size_t myhash;
-  CURLcode result;
+  CURLcode ఫలితం;
   bool replaces = FALSE;
   bool okay;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(MAX_SET_COOKIE_AMOUNT <= 255); /* counter is an unsigned char */
-  if(data->req.setcookies >= MAX_SET_COOKIE_AMOUNT)
-    return CURLE_OK; /* silently ignore */
+  DEBUGASSERT(దత్తాంశం);
+  DEBUGASSERT(MAX_సమితి_COOKIE_AMOUNT <= 255); /* counter is an unsigned char */
+  ఒకవేళ(దత్తాంశం->req.setcookies >= MAX_సమితి_COOKIE_AMOUNT)
+    తిరిగి CURLE_OK; /* silently ignore */
 
   co = &comem;
-  memset(co, 0, sizeof(comem));
+  memset(co, 0, పరిమాణం(comem));
 
-  if(flags & COOKIE_HTTPHEADER)
-    result = parse_cookie_header(data, co, &okay,
-                                 lineptr, domain, path, flags & COOKIE_SECURE);
-  else
-    result = parse_netscape(co, ci, &okay, lineptr, flags & COOKIE_SECURE);
+  ఒకవేళ(flags & COOKIE_HTTPHEADER)
+    ఫలితం = parse_cookie_శీర్షిక(దత్తాంశం, co, &okay,
+                                 lineptr, domain, మార్గం, flags & COOKIE_SECURE);
+  లేకపోతే
+    ఫలితం = parse_netscape(co, ci, &okay, lineptr, flags & COOKIE_SECURE);
 
-  if(result || !okay)
-    goto fail;
+  ఒకవేళ(ఫలితం || !okay)
+    వెళ్ళు fail;
 
-  if(co->prefix_secure && !co->secure)
+  ఒకవేళ(co->ఉపసర్గ_secure && !co->secure)
     /* The __Secure- prefix only requires that the cookie be set secure */
-    goto fail;
+    వెళ్ళు fail;
 
-  if(!(flags & COOKIE_NOPSL) && is_public_suffix(data, co, domain))
-    goto fail;
+  ఒకవేళ(!(flags & COOKIE_NOPSL) && is_ప్రజా_suffix(దత్తాంశం, co, domain))
+    వెళ్ళు fail;
 
-  if(co->prefix_host) {
+  ఒకవేళ(co->ఉపసర్గ_host) {
     /*
      * The __Host- prefix requires the cookie to be secure, have a "/" path
      * and not have a domain set.
      */
-    if(co->secure && co->path && !strcmp(co->path, "/") && !co->tailmatch)
+    ఒకవేళ(co->secure && co->మార్గం && !strcmp(co->మార్గం, "/") && !co->tailmatch)
       ;
-    else
-      goto fail;
+    లేకపోతే
+      వెళ్ళు fail;
   }
 
-  if(!ci->running &&    /* read from a file */
+  ఒకవేళ(!ci->running &&    /* read from a file */
      ci->newsession &&  /* clean session cookies */
      !co->expires)      /* this is a session cookie */
-    goto fail;
+    వెళ్ళు fail;
 
   co->livecookie = ci->running;
   co->creationtime = ++ci->lastct;
 
-  if(!(flags & COOKIE_NOEXPIRE))
+  ఒకవేళ(!(flags & COOKIE_NOEXPIRE))
     remove_expired(ci);
 
   /*
@@ -1049,45 +1049,45 @@ CURLcode Curl_cookie_add(struct Curl_easy *data,
    * an already existing cookie, which it may if the previous have the same
    * domain and path as this.
    */
-  if(!replace_existing(data, co, ci, flags & COOKIE_SECURE, &replaces))
-    goto fail;
+  ఒకవేళ(!replace_existing(దత్తాంశం, co, ci, flags & COOKIE_SECURE, &replaces))
+    వెళ్ళు fail;
 
   /* clone the stack struct into heap */
-  co = curlx_memdup(&comem, sizeof(comem));
-  if(!co) {
+  co = curlx_memdup(&comem, పరిమాణం(comem));
+  ఒకవేళ(!co) {
     co = &comem;
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail; /* bail out if we are this low on memory */
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు fail; /* bail out if we are this low on memory */
   }
 
   /* add this cookie to the list */
   myhash = cookiehash(co->domain);
-  Curl_llist_append(&ci->cookielist[myhash], co, &co->node);
+  Curl_llist_append(&ci->cookielist[myhash], co, &co->కణుపు);
 
-  if(ci->running)
+  ఒకవేళ(ci->running)
     /* Only show this when NOT reading the cookies from a file */
-    infof(data, "%s cookie %s=\"%s\" for domain %s, path %s, "
+    infof(దత్తాంశం, "%s cookie %s=\"%s\" for domain %s, path %s, "
           "expire %" FMT_OFF_T,
-          replaces ? "Replaced" : "Added", co->name, co->value,
-          co->domain, co->path, co->expires);
+          replaces ? "Replaced" : "Added", co->name, co->విలువ,
+          co->domain, co->మార్గం, co->expires);
 
-  if(!replaces)
+  ఒకవేళ(!replaces)
     ci->numcookies++; /* one more cookie in the jar */
 
   /*
    * Now that we have added a new cookie to the jar, update the expiration
    * tracker in case it is the next one to expire.
    */
-  if(co->expires && (co->expires < ci->next_expiration))
-    ci->next_expiration = co->expires;
+  ఒకవేళ(co->expires && (co->expires < ci->తదుపరి_expiration))
+    ci->తదుపరి_expiration = co->expires;
 
-  if(flags & COOKIE_HTTPHEADER)
-    data->req.setcookies++;
+  ఒకవేళ(flags & COOKIE_HTTPHEADER)
+    దత్తాంశం->req.setcookies++;
 
-  return result;
+  తిరిగి ఫలితం;
 fail:
   freecookie(co, FALSE);
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -1104,24 +1104,24 @@ fail:
  *
  * Returns NULL on out of memory.
  */
-struct CookieInfo *Curl_cookie_init(void)
+నిర్మాణం CookieInfo *Curl_cookie_init(శూన్య)
 {
-  int i;
-  struct CookieInfo *ci = curlx_calloc(1, sizeof(struct CookieInfo));
-  if(!ci)
-    return NULL;
+  పూర్ణాంకం i;
+  నిర్మాణం CookieInfo *ci = curlx_calloc(1, పరిమాణం(నిర్మాణం CookieInfo));
+  ఒకవేళ(!ci)
+    తిరిగి ఖాళీ;
 
   /* This does not use the destructor callback since we want to add
      and remove to lists while keeping the cookie struct intact */
-  for(i = 0; i < COOKIE_HASH_SIZE; i++)
-    Curl_llist_init(&ci->cookielist[i], NULL);
+  కొరకు(i = 0; i < COOKIE_HASH_కొలత; i++)
+    Curl_llist_init(&ci->cookielist[i], ఖాళీ);
   /*
    * Initialize the next_expiration time to signal that we do not have enough
    * information yet.
    */
-  ci->next_expiration = CURL_OFF_T_MAX;
+  ci->తదుపరి_expiration = CURL_OFF_T_MAX;
 
-  return ci;
+  తిరిగి ci;
 }
 
 /*
@@ -1133,69 +1133,69 @@ struct CookieInfo *Curl_cookie_init(void)
  * If 'flags' has the COOKIE_NOSESSION bit set, discard all "session cookies"
  * read from file.
  */
-static CURLcode cookie_load(struct Curl_easy *data, const char *file,
-                            struct CookieInfo *ci, int flags)
+స్థిర CURLcode cookie_ఎక్కించు(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *file,
+                            నిర్మాణం CookieInfo *ci, పూర్ణాంకం flags)
 {
-  FILE *handle = NULL;
-  CURLcode result = CURLE_OK;
-  FILE *fp = NULL;
+  FILE *handle = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
+  FILE *fp = ఖాళీ;
   DEBUGASSERT(ci);
-  DEBUGASSERT(data);
+  DEBUGASSERT(దత్తాంశం);
   DEBUGASSERT(file);
 
   ci->newsession = !!(flags & COOKIE_NOSESSION); /* new session? */
   ci->running = FALSE; /* this is not running, this is init */
 
-  if(file && *file) {
-    if(!strcmp(file, "-"))
+  ఒకవేళ(file && *file) {
+    ఒకవేళ(!strcmp(file, "-"))
       fp = stdin;
-    else {
+    లేకపోతే {
       fp = curlx_fopen(file, "rb");
-      if(!fp)
-        infof(data, "WARNING: failed to open cookie file \"%s\"", file);
-      else {
+      ఒకవేళ(!fp)
+        infof(దత్తాంశం, "WARNING: failed to open cookie file \"%s\"", file);
+      లేకపోతే {
         curlx_struct_stat stat;
-        if((curlx_fstat(fileno(fp), &stat) != -1) && S_ISDIR(stat.st_mode)) {
+        ఒకవేళ((curlx_fstat(fileno(fp), &stat) != -1) && S_ISDIR(stat.st_బహుళకం)) {
           curlx_fclose(fp);
-          fp = NULL;
-          infof(data, "WARNING: cookie filename points to a directory: \"%s\"",
+          fp = ఖాళీ;
+          infof(దత్తాంశం, "WARNING: cookie filename points to a directory: \"%s\"",
                 file);
         }
-        else
+        లేకపోతే
           handle = fp;
       }
     }
   }
 
-  if(fp) {
-    struct dynbuf buf;
+  ఒకవేళ(fp) {
+    నిర్మాణం dynbuf buf;
     bool eof = FALSE;
     /* get_netscape_format() uses curl_maprintf(), which returns at most
        DYN_APRINTF - 1 bytes. cookie_output() adds a newline (CRLF on Windows),
        and this dynbuf needs one more byte for its null-terminator. This is a
        cap, not an allocation. */
     curlx_dyn_init(&buf, DYN_APRINTF + 2);
-    do {
-      result = Curl_get_line(&buf, fp, &eof);
-      if(!result) {
-        const char *lineptr = curlx_dyn_ptr(&buf);
+    చేయి {
+      ఫలితం = Curl_get_పంక్తి(&buf, fp, &eof);
+      ఒకవేళ(!ఫలితం) {
+        స్థిరరాశి అక్షరం *lineptr = curlx_dyn_ptr(&buf);
         bool headerline = FALSE;
-        if(checkprefix("Set-Cookie:", lineptr)) {
+        ఒకవేళ(checkprefix("Set-Cookie:", lineptr)) {
           /* This is a cookie line, get it! */
           lineptr += 11;
           headerline = TRUE;
           curlx_str_passblanks(&lineptr);
         }
 
-        result = Curl_cookie_add(data, ci, lineptr, NULL, NULL,
+        ఫలితం = Curl_cookie_కూడు(దత్తాంశం, ci, lineptr, ఖాళీ, ఖాళీ,
                                  (headerline ? COOKIE_HTTPHEADER : 0) |
                                  COOKIE_NOEXPIRE | COOKIE_SECURE |
                                  (flags & COOKIE_NOPSL));
         /* Ignore individual cookie problems unless we ran out of memory */
-        if(result != CURLE_OUT_OF_MEMORY)
-          result = CURLE_OK;
+        ఒకవేళ(ఫలితం != CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం)
+          ఫలితం = CURLE_OK;
       }
-    } while(!result && !eof);
+    } అయితే(!ఫలితం && !eof);
     curlx_dyn_free(&buf); /* free the line buffer */
 
     /*
@@ -1204,41 +1204,41 @@ static CURLcode cookie_load(struct Curl_easy *data, const char *file,
      */
     remove_expired(ci);
 
-    if(handle)
+    ఒకవేళ(handle)
       curlx_fclose(handle);
   }
-  data->state.cookie_engine = TRUE;
+  దత్తాంశం->state.cookie_engine = TRUE;
   ci->running = TRUE; /* now, we are running */
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
  * Load cookies from all given cookie files (CURLOPT_COOKIEFILE).
  */
-CURLcode Curl_cookie_loadfiles(struct Curl_easy *data,
-                               int flags)
+CURLcode Curl_cookie_loadfiles(నిర్మాణం Curl_easy *దత్తాంశం,
+                               పూర్ణాంకం flags)
 {
-  CURLcode result = CURLE_OK;
-  struct curl_slist *list = data->state.cookielist;
-  if(list) {
-    Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
-    if(!data->cookies)
-      data->cookies = Curl_cookie_init();
-    if(!data->cookies)
-      result = CURLE_OUT_OF_MEMORY;
-    else {
-      data->state.cookie_engine = TRUE;
-      while(list) {
-        result = cookie_load(data, list->data, data->cookies, flags);
-        if(result)
-          break;
-        list = list->next;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం curl_slist *list = దత్తాంశం->state.cookielist;
+  ఒకవేళ(list) {
+    Curl_share_తాళం(దత్తాంశం, CURL_తాళం_దత్తాంశం_COOKIE, CURL_తాళం_ACCESS_SINGLE);
+    ఒకవేళ(!దత్తాంశం->cookies)
+      దత్తాంశం->cookies = Curl_cookie_init();
+    ఒకవేళ(!దత్తాంశం->cookies)
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    లేకపోతే {
+      దత్తాంశం->state.cookie_engine = TRUE;
+      అయితే(list) {
+        ఫలితం = cookie_ఎక్కించు(దత్తాంశం, list->దత్తాంశం, దత్తాంశం->cookies, flags);
+        ఒకవేళ(ఫలితం)
+          ఆపు;
+        list = list->తదుపరి;
       }
     }
-    Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
+    Curl_share_unlock(దత్తాంశం, CURL_తాళం_దత్తాంశం_COOKIE);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
 /*
@@ -1249,35 +1249,35 @@ CURLcode Curl_cookie_loadfiles(struct Curl_easy *data,
  * with the creationtime as the tiebreaker. The creationtime is guaranteed to
  * be unique per cookie, so we know we will get an ordering at that point.
  */
-static int cookie_sort(const void *p1, const void *p2)
+స్థిర పూర్ణాంకం cookie_క్రమీకరించు(స్థిరరాశి శూన్య *p1, స్థిరరాశి శూన్య *p2)
 {
-  const struct Cookie *c1 = *(const struct Cookie * const *)p1;
-  const struct Cookie *c2 = *(const struct Cookie * const *)p2;
+  స్థిరరాశి నిర్మాణం Cookie *c1 = *(స్థిరరాశి నిర్మాణం Cookie * స్థిరరాశి *)p1;
+  స్థిరరాశి నిర్మాణం Cookie *c2 = *(స్థిరరాశి నిర్మాణం Cookie * స్థిరరాశి *)p2;
   size_t l1, l2;
 
   /* 1 - compare cookie path lengths */
-  l1 = c1->path ? strlen(c1->path) : 0;
-  l2 = c2->path ? strlen(c2->path) : 0;
+  l1 = c1->మార్గం ? అక్షరశ్రేణి_పొడవు(c1->మార్గం) : 0;
+  l2 = c2->మార్గం ? అక్షరశ్రేణి_పొడవు(c2->మార్గం) : 0;
 
-  if(l1 != l2)
-    return (l2 > l1) ? 1 : -1; /* avoid size_t <=> int conversions */
+  ఒకవేళ(l1 != l2)
+    తిరిగి (l2 > l1) ? 1 : -1; /* avoid size_t <=> int conversions */
 
   /* 2 - compare cookie domain lengths */
-  l1 = c1->domain ? strlen(c1->domain) : 0;
-  l2 = c2->domain ? strlen(c2->domain) : 0;
+  l1 = c1->domain ? అక్షరశ్రేణి_పొడవు(c1->domain) : 0;
+  l2 = c2->domain ? అక్షరశ్రేణి_పొడవు(c2->domain) : 0;
 
-  if(l1 != l2)
-    return (l2 > l1) ? 1 : -1; /* avoid size_t <=> int conversions */
+  ఒకవేళ(l1 != l2)
+    తిరిగి (l2 > l1) ? 1 : -1; /* avoid size_t <=> int conversions */
 
   /* 3 - compare cookie name lengths */
-  l1 = c1->name ? strlen(c1->name) : 0;
-  l2 = c2->name ? strlen(c2->name) : 0;
+  l1 = c1->name ? అక్షరశ్రేణి_పొడవు(c1->name) : 0;
+  l2 = c2->name ? అక్షరశ్రేణి_పొడవు(c2->name) : 0;
 
-  if(l1 != l2)
-    return (l2 > l1) ? 1 : -1;
+  ఒకవేళ(l1 != l2)
+    తిరిగి (l2 > l1) ? 1 : -1;
 
   /* 4 - compare cookie creation time */
-  return (c2->creationtime > c1->creationtime) ? 1 : -1;
+  తిరిగి (c2->creationtime > c1->creationtime) ? 1 : -1;
 }
 
 /*
@@ -1285,17 +1285,17 @@ static int cookie_sort(const void *p1, const void *p2)
  *
  * Helper function to sort cookies according to creation time.
  */
-static int cookie_sort_ct(const void *p1, const void *p2)
+స్థిర పూర్ణాంకం cookie_క్రమీకరించు_ct(స్థిరరాశి శూన్య *p1, స్థిరరాశి శూన్య *p2)
 {
-  const struct Cookie *c1 = *(const struct Cookie * const *)p1;
-  const struct Cookie *c2 = *(const struct Cookie * const *)p2;
+  స్థిరరాశి నిర్మాణం Cookie *c1 = *(స్థిరరాశి నిర్మాణం Cookie * స్థిరరాశి *)p1;
+  స్థిరరాశి నిర్మాణం Cookie *c2 = *(స్థిరరాశి నిర్మాణం Cookie * స్థిరరాశి *)p2;
 
-  return (c2->creationtime > c1->creationtime) ? 1 : -1;
+  తిరిగి (c2->creationtime > c1->creationtime) ? 1 : -1;
 }
 
-bool Curl_secure_context(struct Curl_easy *data, const char *host)
+bool Curl_secure_context(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి అక్షరం *host)
 {
-  return Curl_xfer_is_secure(data) ||
+  తిరిగి Curl_xfer_is_secure(దత్తాంశం) ||
     curl_strequal("localhost", host) ||
     !strcmp(host, "127.0.0.1") ||
     !strcmp(host, "::1");
@@ -1311,39 +1311,39 @@ bool Curl_secure_context(struct Curl_easy *data, const char *host)
  *
  * 'okay' is TRUE when there is a list returned.
  */
-CURLcode Curl_cookie_getlist(struct Curl_easy *data,
+CURLcode Curl_cookie_getlist(నిర్మాణం Curl_easy *దత్తాంశం,
                              bool *okay,
-                             const char *host,
-                             struct Curl_llist *list)
+                             స్థిరరాశి అక్షరం *host,
+                             నిర్మాణం Curl_llist *list)
 {
   size_t matches = 0;
-  const bool is_ip = Curl_host_is_ipnum(host);
-  const size_t myhash = cookiehash(host);
-  struct Curl_llist_node *n;
-  const bool secure = Curl_secure_context(data, host);
-  struct CookieInfo *ci = data->cookies;
-  const char *path = data->state.up.path;
-  CURLcode result = CURLE_OK;
+  స్థిరరాశి bool is_ip = Curl_host_is_ipnum(host);
+  స్థిరరాశి size_t myhash = cookiehash(host);
+  నిర్మాణం Curl_llist_కణుపు *n;
+  స్థిరరాశి bool secure = Curl_secure_context(దత్తాంశం, host);
+  నిర్మాణం CookieInfo *ci = దత్తాంశం->cookies;
+  స్థిరరాశి అక్షరం *మార్గం = దత్తాంశం->state.పైకి.మార్గం;
+  CURLcode ఫలితం = CURLE_OK;
   *okay = FALSE;
 
-  Curl_llist_init(list, NULL);
+  Curl_llist_init(list, ఖాళీ);
 
-  if(!ci || !Curl_llist_count(&ci->cookielist[myhash]))
-    return CURLE_OK; /* no cookie struct or no cookies in the struct */
+  ఒకవేళ(!ci || !Curl_llist_లెక్క(&ci->cookielist[myhash]))
+    తిరిగి CURLE_OK; /* no cookie struct or no cookies in the struct */
 
   /* at first, remove expired cookies */
   remove_expired(ci);
 
-  for(n = Curl_llist_head(&ci->cookielist[myhash]); n; n = Curl_node_next(n)) {
-    struct Cookie *co = Curl_node_elem(n);
+  కొరకు(n = Curl_llist_తల(&ci->cookielist[myhash]); n; n = Curl_కణుపు_తదుపరి(n)) {
+    నిర్మాణం Cookie *co = Curl_కణుపు_elem(n);
 
     /* if the cookie requires we are secure we must only continue if we are! */
-    if(co->secure ? secure : TRUE) {
+    ఒకవేళ(co->secure ? secure : TRUE) {
 
       /* now check if the domain is correct */
-      if(!co->domain ||
+      ఒకవేళ(!co->domain ||
          (co->tailmatch && !is_ip &&
-          cookie_tailmatch(co->domain, strlen(co->domain), host)) ||
+          cookie_tailmatch(co->domain, అక్షరశ్రేణి_పొడవు(co->domain), host)) ||
          ((!co->tailmatch || is_ip) && curl_strequal(host, co->domain))) {
         /*
          * the right part of the host matches the domain stuff in the
@@ -1354,63 +1354,63 @@ CURLcode Curl_cookie_getlist(struct Curl_easy *data,
          * now check the left part of the path with the cookies path
          * requirement
          */
-        if(!co->path || pathmatch(co->path, path)) {
+        ఒకవేళ(!co->మార్గం || pathmatch(co->మార్గం, మార్గం)) {
 
           /*
            * This is a match and we add it to the return-linked-list
            */
           Curl_llist_append(list, co, &co->getnode);
           matches++;
-          if(matches >= MAX_COOKIE_SEND_AMOUNT) {
-            infof(data, "Included max number of cookies (%zu) in request!",
+          ఒకవేళ(matches >= MAX_COOKIE_SEND_AMOUNT) {
+            infof(దత్తాంశం, "Included max number of cookies (%zu) in request!",
                   matches);
-            break;
+            ఆపు;
           }
         }
       }
     }
   }
 
-  if(matches) {
+  ఒకవేళ(matches) {
     /*
      * Now we need to make sure that if there is a name appearing more than
      * once, the longest specified path version comes first. To make this the
      * swiftest way, we sort them all based on path length.
      */
-    struct Cookie **array;
+    నిర్మాణం Cookie **array;
     size_t i;
 
     /* alloc an array and store all cookie pointers */
-    array = curlx_malloc(sizeof(struct Cookie *) * matches);
-    if(!array) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto fail;
+    array = curlx_malloc(పరిమాణం(నిర్మాణం Cookie *) * matches);
+    ఒకవేళ(!array) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు fail;
     }
 
-    n = Curl_llist_head(list);
+    n = Curl_llist_తల(list);
 
-    for(i = 0; n; n = Curl_node_next(n))
-      array[i++] = Curl_node_elem(n);
+    కొరకు(i = 0; n; n = Curl_కణుపు_తదుపరి(n))
+      array[i++] = Curl_కణుపు_elem(n);
 
     /* now sort the cookie pointers in path length order */
-    qsort(array, matches, sizeof(struct Cookie *), cookie_sort);
+    qsort(array, matches, పరిమాణం(నిర్మాణం Cookie *), cookie_క్రమీకరించు);
 
     /* remake the linked list order according to the new order */
-    Curl_llist_destroy(list, NULL);
+    Curl_llist_destroy(list, ఖాళీ);
 
-    for(i = 0; i < matches; i++)
+    కొరకు(i = 0; i < matches; i++)
       Curl_llist_append(list, array[i], &array[i]->getnode);
 
     curlx_free(array); /* remove the temporary data again */
   }
 
   *okay = TRUE;
-  return CURLE_OK; /* success */
+  తిరిగి CURLE_OK; /* success */
 
 fail:
   /* failure, clear up the allocated chain and return NULL */
-  Curl_llist_destroy(list, NULL);
-  return result; /* error */
+  Curl_llist_destroy(list, ఖాళీ);
+  తిరిగి ఫలితం; /* error */
 }
 
 /*
@@ -1418,16 +1418,16 @@ fail:
  *
  * Clear all existing cookies and reset the counter.
  */
-void Curl_cookie_clearall(struct CookieInfo *ci)
+శూన్య Curl_cookie_clearall(నిర్మాణం CookieInfo *ci)
 {
-  if(ci) {
-    unsigned int i;
-    for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-      struct Curl_llist_node *n;
-      for(n = Curl_llist_head(&ci->cookielist[i]); n;) {
-        struct Cookie *c = Curl_node_elem(n);
-        struct Curl_llist_node *e = Curl_node_next(n);
-        Curl_node_remove(n);
+  ఒకవేళ(ci) {
+    గుర్తులేని పూర్ణాంకం i;
+    కొరకు(i = 0; i < COOKIE_HASH_కొలత; i++) {
+      నిర్మాణం Curl_llist_కణుపు *n;
+      కొరకు(n = Curl_llist_తల(&ci->cookielist[i]); n;) {
+        నిర్మాణం Cookie *c = Curl_కణుపు_elem(n);
+        నిర్మాణం Curl_llist_కణుపు *e = Curl_కణుపు_తదుపరి(n);
+        Curl_కణుపు_remove(n);
         freecookie(c, TRUE);
         n = e;
       }
@@ -1441,22 +1441,22 @@ void Curl_cookie_clearall(struct CookieInfo *ci)
  *
  * Free all session cookies in the cookies list.
  */
-void Curl_cookie_clearsess(struct CookieInfo *ci)
+శూన్య Curl_cookie_clearsess(నిర్మాణం CookieInfo *ci)
 {
-  unsigned int i;
+  గుర్తులేని పూర్ణాంకం i;
 
-  if(!ci)
-    return;
+  ఒకవేళ(!ci)
+    తిరిగి;
 
-  for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-    struct Curl_llist_node *n = Curl_llist_head(&ci->cookielist[i]);
-    struct Curl_llist_node *e = NULL;
+  కొరకు(i = 0; i < COOKIE_HASH_కొలత; i++) {
+    నిర్మాణం Curl_llist_కణుపు *n = Curl_llist_తల(&ci->cookielist[i]);
+    నిర్మాణం Curl_llist_కణుపు *e = ఖాళీ;
 
-    for(; n; n = e) {
-      struct Cookie *curr = Curl_node_elem(n);
-      e = Curl_node_next(n); /* in case the node is removed, get it early */
-      if(!curr->expires) {
-        Curl_node_remove(n);
+    కొరకు(; n; n = e) {
+      నిర్మాణం Cookie *curr = Curl_కణుపు_elem(n);
+      e = Curl_కణుపు_తదుపరి(n); /* in case the node is removed, get it early */
+      ఒకవేళ(!curr->expires) {
+        Curl_కణుపు_remove(n);
         freecookie(curr, TRUE);
         ci->numcookies--;
       }
@@ -1469,9 +1469,9 @@ void Curl_cookie_clearsess(struct CookieInfo *ci)
  *
  * Free a "cookie object" previous created with Curl_cookie_init().
  */
-void Curl_cookie_cleanup(struct CookieInfo *ci)
+శూన్య Curl_cookie_cleanup(నిర్మాణం CookieInfo *ci)
 {
-  if(ci) {
+  ఒకవేళ(ci) {
     Curl_cookie_clearall(ci);
     curlx_free(ci); /* free the base struct as well */
   }
@@ -1484,17 +1484,17 @@ void Curl_cookie_cleanup(struct CookieInfo *ci)
  * Function returns a char * to a formatted line. The caller is responsible
  * for freeing the returned pointer.
  */
-static char *get_netscape_format(const struct Cookie *co)
+స్థిర అక్షరం *get_netscape_format(స్థిరరాశి నిర్మాణం Cookie *co)
 {
-  return curl_maprintf(
+  తిరిగి curl_maprintf(
     "%s"               /* httponly preamble */
     "%s%s\t"           /* domain */
     "%s\t"             /* tailmatch */
-    "%s\t"             /* path */
+    "%s\t"             /*మార్గం*/
     "%s\t"             /* secure */
     "%" FMT_OFF_T "\t" /* expires */
     "%s\t"             /* name */
-    "%s",              /* value */
+    "%s",              /*విలువ*/
     co->httponly ? "#HttpOnly_" : "",
     /*
      * Make sure all domains are prefixed with a dot if they allow
@@ -1503,11 +1503,11 @@ static char *get_netscape_format(const struct Cookie *co)
     (co->tailmatch && co->domain && co->domain[0] != '.') ? "." : "",
     co->domain ? co->domain : "unknown",
     co->tailmatch ? "TRUE" : "FALSE",
-    co->path ? co->path : "/",
+    co->మార్గం ? co->మార్గం : "/",
     co->secure ? "TRUE" : "FALSE",
     co->expires,
     co->name,
-    co->value ? co->value : "");
+    co->విలువ ? co->విలువ : "");
 }
 
 /*
@@ -1518,82 +1518,82 @@ static char *get_netscape_format(const struct Cookie *co)
  *
  * The function returns non-zero on write failure.
  */
-static CURLcode cookie_output(struct Curl_easy *data,
-                              struct CookieInfo *ci,
-                              const char *filename)
+స్థిర CURLcode cookie_output(నిర్మాణం Curl_easy *దత్తాంశం,
+                              నిర్మాణం CookieInfo *ci,
+                              స్థిరరాశి అక్షరం *filename)
 {
-  FILE *out = NULL;
+  FILE *బహిర్గతం = ఖాళీ;
   bool use_stdout = FALSE;
-  char *tempstore = NULL;
-  CURLcode result = CURLE_OK;
+  అక్షరం *tempstore = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
 
-  if(!ci)
+  ఒకవేళ(!ci)
     /* no cookie engine alive */
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
 
   /* at first, remove expired cookies */
   remove_expired(ci);
 
-  if(!strcmp("-", filename)) {
+  ఒకవేళ(!strcmp("-", filename)) {
     /* use stdout */
-    out = stdout;
+    బహిర్గతం = stdout;
     use_stdout = TRUE;
   }
-  else {
-    result = Curl_fopen(data, filename, &out, &tempstore);
-    if(result)
-      goto error;
+  లేకపోతే {
+    ఫలితం = Curl_fopen(దత్తాంశం, filename, &బహిర్గతం, &tempstore);
+    ఒకవేళ(ఫలితం)
+      వెళ్ళు error;
   }
 
   fputs("# Netscape HTTP Cookie File\n"
         "# https://curl.se/docs/http-cookies.html\n"
         "# This file was generated by libcurl! Edit at your own risk.\n\n",
-        out);
+        బహిర్గతం);
 
-  if(ci->numcookies) {
-    unsigned int i;
+  ఒకవేళ(ci->numcookies) {
+    గుర్తులేని పూర్ణాంకం i;
     size_t nvalid = 0;
-    struct Cookie **array;
-    struct Curl_llist_node *n;
+    నిర్మాణం Cookie **array;
+    నిర్మాణం Curl_llist_కణుపు *n;
 
-    array = curlx_calloc(1, sizeof(struct Cookie *) * ci->numcookies);
-    if(!array) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto error;
+    array = curlx_calloc(1, పరిమాణం(నిర్మాణం Cookie *) * ci->numcookies);
+    ఒకవేళ(!array) {
+      ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+      వెళ్ళు error;
     }
 
     /* only sort the cookies with a domain property */
-    for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-      for(n = Curl_llist_head(&ci->cookielist[i]); n; n = Curl_node_next(n)) {
-        struct Cookie *co = Curl_node_elem(n);
-        if(!co->domain)
-          continue;
+    కొరకు(i = 0; i < COOKIE_HASH_కొలత; i++) {
+      కొరకు(n = Curl_llist_తల(&ci->cookielist[i]); n; n = Curl_కణుపు_తదుపరి(n)) {
+        నిర్మాణం Cookie *co = Curl_కణుపు_elem(n);
+        ఒకవేళ(!co->domain)
+          కొనసాగు;
         array[nvalid++] = co;
       }
     }
 
-    qsort(array, nvalid, sizeof(struct Cookie *), cookie_sort_ct);
+    qsort(array, nvalid, పరిమాణం(నిర్మాణం Cookie *), cookie_క్రమీకరించు_ct);
 
-    for(i = 0; i < nvalid; i++) {
-      char *format_ptr = get_netscape_format(array[i]);
-      if(!format_ptr) {
+    కొరకు(i = 0; i < nvalid; i++) {
+      అక్షరం *format_ptr = get_netscape_format(array[i]);
+      ఒకవేళ(!format_ptr) {
         curlx_free(array);
-        result = CURLE_OUT_OF_MEMORY;
-        goto error;
+        ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+        వెళ్ళు error;
       }
-      curl_mfprintf(out, "%s\n", format_ptr);
+      curl_mfprintf(బహిర్గతం, "%s\n", format_ptr);
       curlx_free(format_ptr);
     }
 
     curlx_free(array);
   }
 
-  if(!use_stdout) {
-    curlx_fclose(out);
-    out = NULL;
-    if(tempstore && curlx_rename(tempstore, filename)) {
-      result = CURLE_WRITE_ERROR;
-      goto error;
+  ఒకవేళ(!use_stdout) {
+    curlx_fclose(బహిర్గతం);
+    బహిర్గతం = ఖాళీ;
+    ఒకవేళ(tempstore && curlx_rename(tempstore, filename)) {
+      ఫలితం = CURLE_WRITE_ERROR;
+      వెళ్ళు error;
     }
   }
 
@@ -1603,98 +1603,98 @@ static CURLcode cookie_output(struct Curl_easy *data,
    * error block below.
    */
   curlx_free(tempstore);
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 
 error:
-  if(out && !use_stdout)
-    curlx_fclose(out);
-  if(tempstore) {
+  ఒకవేళ(బహిర్గతం && !use_stdout)
+    curlx_fclose(బహిర్గతం);
+  ఒకవేళ(tempstore) {
     unlink(tempstore);
     curlx_free(tempstore);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static struct curl_slist *cookie_list(const struct Curl_easy *data)
+స్థిర నిర్మాణం curl_slist *cookie_list(స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct curl_slist *list = NULL;
-  struct curl_slist *beg;
-  struct curl_slist **tail = &list;
-  unsigned int i;
-  struct Curl_llist_node *n;
+  నిర్మాణం curl_slist *list = ఖాళీ;
+  నిర్మాణం curl_slist *beg;
+  నిర్మాణం curl_slist **తోక = &list;
+  గుర్తులేని పూర్ణాంకం i;
+  నిర్మాణం Curl_llist_కణుపు *n;
 
-  if(!data->cookies || (data->cookies->numcookies == 0))
-    return NULL;
+  ఒకవేళ(!దత్తాంశం->cookies || (దత్తాంశం->cookies->numcookies == 0))
+    తిరిగి ఖాళీ;
 
   /* at first, remove expired cookies */
-  remove_expired(data->cookies);
+  remove_expired(దత్తాంశం->cookies);
 
-  for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-    for(n = Curl_llist_head(&data->cookies->cookielist[i]); n;
-        n = Curl_node_next(n)) {
-      struct Cookie *c = Curl_node_elem(n);
-      char *line;
-      if(!c->domain)
-        continue;
-      line = get_netscape_format(c);
-      if(!line) {
+  కొరకు(i = 0; i < COOKIE_HASH_కొలత; i++) {
+    కొరకు(n = Curl_llist_తల(&దత్తాంశం->cookies->cookielist[i]); n;
+        n = Curl_కణుపు_తదుపరి(n)) {
+      నిర్మాణం Cookie *c = Curl_కణుపు_elem(n);
+      అక్షరం *పంక్తి;
+      ఒకవేళ(!c->domain)
+        కొనసాగు;
+      పంక్తి = get_netscape_format(c);
+      ఒకవేళ(!పంక్తి) {
         curl_slist_free_all(list);
-        return NULL;
+        తిరిగి ఖాళీ;
       }
-      beg = Curl_slist_append_nodup(NULL, line);
-      if(!beg) {
-        curlx_free(line);
+      beg = Curl_slist_append_nodup(ఖాళీ, పంక్తి);
+      ఒకవేళ(!beg) {
+        curlx_free(పంక్తి);
         curl_slist_free_all(list);
-        return NULL;
+        తిరిగి ఖాళీ;
       }
-      *tail = beg;
-      tail = &beg->next;
+      *తోక = beg;
+      తోక = &beg->తదుపరి;
     }
   }
 
-  return list;
+  తిరిగి list;
 }
 
-struct curl_slist *Curl_cookie_list(struct Curl_easy *data)
+నిర్మాణం curl_slist *Curl_cookie_list(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  struct curl_slist *list;
-  Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
-  list = cookie_list(data);
-  Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
-  return list;
+  నిర్మాణం curl_slist *list;
+  Curl_share_తాళం(దత్తాంశం, CURL_తాళం_దత్తాంశం_COOKIE, CURL_తాళం_ACCESS_SINGLE);
+  list = cookie_list(దత్తాంశం);
+  Curl_share_unlock(దత్తాంశం, CURL_తాళం_దత్తాంశం_COOKIE);
+  తిరిగి list;
 }
 
-void Curl_flush_cookies(struct Curl_easy *data, bool cleanup)
+శూన్య Curl_flush_cookies(నిర్మాణం Curl_easy *దత్తాంశం, bool cleanup)
 {
-  Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
+  Curl_share_తాళం(దత్తాంశం, CURL_తాళం_దత్తాంశం_COOKIE, CURL_తాళం_ACCESS_SINGLE);
   /* only save the cookie file if a transfer was started (cookies->running is
      set), as otherwise the cookies were not completely initialized and there
      might be cookie files that were not loaded so saving the file is the
      wrong thing. */
-  if(data->cookies) {
-    const char *cookiejar = CURL_EASY_STR(data, STRING_COOKIEJAR);
-    if(cookiejar && data->cookies->running) {
+  ఒకవేళ(దత్తాంశం->cookies) {
+    స్థిరరాశి అక్షరం *cookiejar = CURL_EASY_STR(దత్తాంశం, STRING_COOKIEJAR);
+    ఒకవేళ(cookiejar && దత్తాంశం->cookies->running) {
       /* if we have a destination file for all the cookies to get dumped to */
-      CURLcode result = cookie_output(data, data->cookies, cookiejar);
-      if(result)
-        infof(data, "WARNING: failed to save cookies in %s: %s",
-              cookiejar, curl_easy_strerror(result));
+      CURLcode ఫలితం = cookie_output(దత్తాంశం, దత్తాంశం->cookies, cookiejar);
+      ఒకవేళ(ఫలితం)
+        infof(దత్తాంశం, "WARNING: failed to save cookies in %s: %s",
+              cookiejar, curl_easy_strerror(ఫలితం));
     }
 
-    if(cleanup && (!data->share || (data->cookies != data->share->cookies))) {
-      Curl_cookie_cleanup(data->cookies);
-      data->cookies = NULL;
+    ఒకవేళ(cleanup && (!దత్తాంశం->share || (దత్తాంశం->cookies != దత్తాంశం->share->cookies))) {
+      Curl_cookie_cleanup(దత్తాంశం->cookies);
+      దత్తాంశం->cookies = ఖాళీ;
     }
   }
-  Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
+  Curl_share_unlock(దత్తాంశం, CURL_తాళం_దత్తాంశం_COOKIE);
 }
 
-void Curl_cookie_run(struct Curl_easy *data)
+శూన్య Curl_cookie_నిరంతరం(నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
-  if(data->cookies)
-    data->cookies->running = TRUE;
-  Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
+  Curl_share_తాళం(దత్తాంశం, CURL_తాళం_దత్తాంశం_COOKIE, CURL_తాళం_ACCESS_SINGLE);
+  ఒకవేళ(దత్తాంశం->cookies)
+    దత్తాంశం->cookies->running = TRUE;
+  Curl_share_unlock(దత్తాంశం, CURL_తాళం_దత్తాంశం_COOKIE);
 }
 
-#endif /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
+#అయితే_ముగింపు /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */

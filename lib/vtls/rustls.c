@@ -23,201 +23,201 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#అన్తర్భావ "curl_setup.h"
 
-#ifdef USE_RUSTLS
+#నిర్వచితమైతే USE_RUSTLS
 
-#include <rustls.h>
+#అన్తర్భావ <rustls.h>
 
-#include "curlx/win32-fopen.h"
-#include "curlx/strerr.h"
-#include "urldata.h"
-#include "curl_trc.h"
-#include "vdns/cf-dns.h"
-#include "vdns/httpsrr.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "vtls/rustls.h"
-#include "vtls/keylog.h"
-#include "vtls/cipher_suite.h"
-#include "vtls/x509asn1.h"
-#ifdef USE_ECH
-#include "curlx/base64.h"
-#endif
+#అన్తర్భావ "curlx/win32-fopen.h"
+#అన్తర్భావ "curlx/strerr.h"
+#అన్తర్భావ "urldata.h"
+#అన్తర్భావ "curl_trc.h"
+#అన్తర్భావ "vdns/cf-dns.h"
+#అన్తర్భావ "vdns/httpsrr.h"
+#అన్తర్భావ "vtls/vtls.h"
+#అన్తర్భావ "vtls/vtls_int.h"
+#అన్తర్భావ "vtls/rustls.h"
+#అన్తర్భావ "vtls/keylog.h"
+#అన్తర్భావ "vtls/cipher_suite.h"
+#అన్తర్భావ "vtls/x509asn1.h"
+#నిర్వచితమైతే USE_ECH
+#అన్తర్భావ "curlx/base64.h"
+#అయితే_ముగింపు
 
-#if EAGAIN != EWOULDBLOCK
-#define RAW_EAGAIN(e) ((e) == EWOULDBLOCK || (e) == EAGAIN)
-#else
-#define RAW_EAGAIN(e) ((e) == EWOULDBLOCK)
-#endif
+#ఒకవేళ EAGAIN != EWOULDBLOCK
+#నిర్వచించు RAW_EAGAIN(e) ((e) == EWOULDBLOCK || (e) == EAGAIN)
+#లేకపోతే
+#నిర్వచించు RAW_EAGAIN(e) ((e) == EWOULDBLOCK)
+#అయితే_ముగింపు
 
-struct rustls_ssl_backend_data {
-  const struct rustls_client_config *config;
-  struct rustls_connection *conn;
-  size_t plain_out_buffered;
-  BIT(data_in_pending);
-  BIT(sent_shutdown);
+నిర్మాణం rustls_ssl_backend_దత్తాంశం {
+  స్థిరరాశి నిర్మాణం rustls_client_config *config;
+  నిర్మాణం rustls_connection *conn;
+  size_t plain_బహిర్గతం_buffered;
+  బిట్టు(దత్తాంశం_లోపల_pending);
+  బిట్టు(పంపిన_shutdown);
 };
 
 /* For a given rustls_result error code, return the best-matching CURLcode. */
-static CURLcode map_error(const rustls_result r)
+స్థిర CURLcode map_error(స్థిరరాశి rustls_ఫలితం r)
 {
-  if(rustls_result_is_cert_error(r)) {
-    return CURLE_PEER_FAILED_VERIFICATION;
+  ఒకవేళ(rustls_ఫలితం_is_cert_error(r)) {
+    తిరిగి CURLE_PEER_FAILED_VERIFICATION;
   }
-  switch(r) {
-  case RUSTLS_RESULT_OK:
-    return CURLE_OK;
-  case RUSTLS_RESULT_NULL_PARAMETER:
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  default:
-    return CURLE_RECV_ERROR;
+  ఎంపిక(r) {
+  స్థితి RUSTLS_ఫలితం_OK:
+    తిరిగి CURLE_OK;
+  స్థితి RUSTLS_ఫలితం_NULL_PARAMETER:
+    తిరిగి CURLE_BAD_FUNCTION_వాదం;
+  అప్రమేయ:
+    తిరిగి CURLE_RECV_ERROR;
   }
 }
 
-static void rustls_failf(struct Curl_easy *data, const rustls_result rr,
-                         const char *msg)
+స్థిర శూన్య rustls_failf(నిర్మాణం Curl_easy *దత్తాంశం, స్థిరరాశి rustls_ఫలితం rr,
+                         స్థిరరాశి అక్షరం *సందేశం)
 {
-  char errorbuf[STRERROR_LEN];
+  అక్షరం errorbuf[STRERROR_LEN];
   size_t errorlen;
-  rustls_error(rr, errorbuf, sizeof(errorbuf), &errorlen);
-  failf(data, "%s: %.*s", msg, (int)errorlen, errorbuf);
+  rustls_error(rr, errorbuf, పరిమాణం(errorbuf), &errorlen);
+  failf(దత్తాంశం, "%s: %.*s", సందేశం, (పూర్ణాంకం)errorlen, errorbuf);
 }
 
-static bool cr_data_pending(struct Curl_cfilter *cf,
-                            const struct Curl_easy *data)
+స్థిర bool cr_దత్తాంశం_pending(నిర్మాణం Curl_cfilter *cf,
+                            స్థిరరాశి నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  const struct ssl_connect_data *ctx = cf->ctx;
-  struct rustls_ssl_backend_data *backend;
+  స్థిరరాశి నిర్మాణం ssl_connect_దత్తాంశం *ctx = cf->ctx;
+  నిర్మాణం rustls_ssl_backend_దత్తాంశం *backend;
 
-  (void)data;
+  (శూన్య)దత్తాంశం;
   DEBUGASSERT(ctx && ctx->backend);
-  backend = (struct rustls_ssl_backend_data *)ctx->backend;
-  return (bool)backend->data_in_pending;
+  backend = (నిర్మాణం rustls_ssl_backend_దత్తాంశం *)ctx->backend;
+  తిరిగి (bool)backend->దత్తాంశం_లోపల_pending;
 }
 
-struct io_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_easy *data;
+నిర్మాణం io_ctx {
+  నిర్మాణం Curl_cfilter *cf;
+  నిర్మాణం Curl_easy *దత్తాంశం;
 };
 
-static int read_cb(void *userdata, uint8_t *buf, uintptr_t len,
-                   uintptr_t *out_n)
+స్థిర పూర్ణాంకం read_cb(శూన్య *userdata, uint8_t *buf, uintptr_t len,
+                   uintptr_t *బహిర్గతం_n)
 {
-  const struct io_ctx *io_ctx = userdata;
-  struct ssl_connect_data * const connssl = io_ctx->cf->ctx;
-  CURLcode result;
-  int ret = 0;
+  స్థిరరాశి నిర్మాణం io_ctx *io_ctx = userdata;
+  నిర్మాణం ssl_connect_దత్తాంశం * స్థిరరాశి connssl = io_ctx->cf->ctx;
+  CURLcode ఫలితం;
+  పూర్ణాంకం ret = 0;
   size_t nread;
 
-  result = Curl_conn_cf_recv(io_ctx->cf->next, io_ctx->data,
-                             (char *)buf, len, &nread);
-  if(result) {
+  ఫలితం = Curl_conn_cf_recv(io_ctx->cf->తదుపరి, io_ctx->దత్తాంశం,
+                             (అక్షరం *)buf, len, &nread);
+  ఒకవేళ(ఫలితం) {
     nread = 0;
     /* !checksrc! disable ERRNOVAR 4 */
-    if(result == CURLE_AGAIN)
+    ఒకవేళ(ఫలితం == CURLE_AGAIN)
       ret = EAGAIN;
-    else
+    లేకపోతే
       ret = EINVAL;
   }
-  else if(nread == 0)
+  లేకపోతే ఒకవేళ(nread == 0)
     connssl->peer_closed = TRUE;
-  *out_n = (uintptr_t)nread;
-  CURL_TRC_CF(io_ctx->data, io_ctx->cf, "cf->next recv(len=%zu) -> %d, %zu",
-              (size_t)len, (int)result, nread);
-  return ret;
+  *బహిర్గతం_n = (uintptr_t)nread;
+  CURL_TRC_CF(io_ctx->దత్తాంశం, io_ctx->cf, "cf->next recv(len=%zu) -> %d, %zu",
+              (size_t)len, (పూర్ణాంకం)ఫలితం, nread);
+  తిరిగి ret;
 }
 
-static int write_cb(void *userdata, const uint8_t *buf, uintptr_t len,
-                    uintptr_t *out_n)
+స్థిర పూర్ణాంకం write_cb(శూన్య *userdata, స్థిరరాశి uint8_t *buf, uintptr_t len,
+                    uintptr_t *బహిర్గతం_n)
 {
-  const struct io_ctx *io_ctx = userdata;
-  CURLcode result;
-  int ret = 0;
+  స్థిరరాశి నిర్మాణం io_ctx *io_ctx = userdata;
+  CURLcode ఫలితం;
+  పూర్ణాంకం ret = 0;
   size_t nwritten;
 
-  result = Curl_conn_cf_send(io_ctx->cf->next, io_ctx->data,
+  ఫలితం = Curl_conn_cf_send(io_ctx->cf->తదుపరి, io_ctx->దత్తాంశం,
                              buf, len, FALSE, &nwritten);
-  if(result) {
+  ఒకవేళ(ఫలితం) {
     nwritten = 0;
-    if(result == CURLE_AGAIN)
+    ఒకవేళ(ఫలితం == CURLE_AGAIN)
       ret = EAGAIN;
-    else
+    లేకపోతే
       ret = EINVAL;
   }
-  *out_n = (uintptr_t)nwritten;
-  CURL_TRC_CF(io_ctx->data, io_ctx->cf, "cf->next send(len=%zu) -> %d, %zu",
-              len, (int)result, nwritten);
-  return ret;
+  *బహిర్గతం_n = (uintptr_t)nwritten;
+  CURL_TRC_CF(io_ctx->దత్తాంశం, io_ctx->cf, "cf->next send(len=%zu) -> %d, %zu",
+              len, (పూర్ణాంకం)ఫలితం, nwritten);
+  తిరిగి ret;
 }
 
-static ssize_t tls_recv_more(struct Curl_cfilter *cf,
-                             struct Curl_easy *data, CURLcode *err)
+స్థిర ssize_t tls_recv_మరిన్ని(నిర్మాణం Curl_cfilter *cf,
+                             నిర్మాణం Curl_easy *దత్తాంశం, CURLcode *err)
 {
-  const struct ssl_connect_data * const connssl = cf->ctx;
-  struct rustls_ssl_backend_data * const backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  struct io_ctx io_ctx;
-  size_t tls_bytes_read = 0;
-  rustls_io_result io_error;
-  rustls_result rresult = 0;
+  స్థిరరాశి నిర్మాణం ssl_connect_దత్తాంశం * స్థిరరాశి connssl = cf->ctx;
+  నిర్మాణం rustls_ssl_backend_దత్తాంశం * స్థిరరాశి backend =
+    (నిర్మాణం rustls_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం io_ctx io_ctx;
+  size_t tls_బైట్లు_read = 0;
+  rustls_io_ఫలితం io_error;
+  rustls_ఫలితం rresult = 0;
 
   io_ctx.cf = cf;
-  io_ctx.data = data;
+  io_ctx.దత్తాంశం = దత్తాంశం;
   io_error = rustls_connection_read_tls(backend->conn, read_cb, &io_ctx,
-                                        &tls_bytes_read);
-  if(RAW_EAGAIN(io_error)) {
+                                        &tls_బైట్లు_read);
+  ఒకవేళ(RAW_EAGAIN(io_error)) {
     *err = CURLE_AGAIN;
-    return -1;
+    తిరిగి -1;
   }
-  else if(io_error) {
-    char buffer[STRERROR_LEN];
-    failf(data, "reading from socket: %s",
-          curlx_strerror(io_error, buffer, sizeof(buffer)));
+  లేకపోతే ఒకవేళ(io_error) {
+    అక్షరం బఫరు[STRERROR_LEN];
+    failf(దత్తాంశం, "reading from socket: %s",
+          curlx_strerror(io_error, బఫరు, పరిమాణం(బఫరు)));
     *err = CURLE_RECV_ERROR;
-    return -1;
+    తిరిగి -1;
   }
 
   rresult = rustls_connection_process_new_packets(backend->conn);
-  if(rresult != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rresult, "rustls_connection_process_new_packets");
+  ఒకవేళ(rresult != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rresult, "rustls_connection_process_new_packets");
     *err = map_error(rresult);
-    return -1;
+    తిరిగి -1;
   }
 
-  backend->data_in_pending = TRUE;
+  backend->దత్తాంశం_లోపల_pending = TRUE;
   *err = CURLE_OK;
-  return (ssize_t)tls_bytes_read;
+  తిరిగి (ssize_t)tls_బైట్లు_read;
 }
 
 /*
  * Filter receive method implementation. `plainbuf` and `plainlen`
  * are always not NULL/0.
  */
-static CURLcode cr_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                        char *plainbuf, size_t plainlen, size_t *pnread)
+స్థిర CURLcode cr_recv(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                        అక్షరం *plainbuf, size_t plainlen, size_t *pnread)
 {
-  const struct ssl_connect_data * const connssl = cf->ctx;
-  struct rustls_ssl_backend_data * const backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  struct rustls_connection *rconn = NULL;
-  CURLcode result = CURLE_OK;
+  స్థిరరాశి నిర్మాణం ssl_connect_దత్తాంశం * స్థిరరాశి connssl = cf->ctx;
+  నిర్మాణం rustls_ssl_backend_దత్తాంశం * స్థిరరాశి backend =
+    (నిర్మాణం rustls_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం rustls_connection *rconn = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
   size_t n = 0;
-  rustls_result rresult = 0;
+  rustls_ఫలితం rresult = 0;
   bool eof = FALSE;
 
   DEBUGASSERT(backend);
   *pnread = 0;
   rconn = backend->conn;
 
-  while(*pnread < plainlen) {
-    if(!backend->data_in_pending) {
-      if(tls_recv_more(cf, data, &result) < 0) {
-        if(result != CURLE_AGAIN) {
-          goto out;
+  అయితే(*pnread < plainlen) {
+    ఒకవేళ(!backend->దత్తాంశం_లోపల_pending) {
+      ఒకవేళ(tls_recv_మరిన్ని(cf, దత్తాంశం, &ఫలితం) < 0) {
+        ఒకవేళ(ఫలితం != CURLE_AGAIN) {
+          వెళ్ళు బహిర్గతం;
         }
-        result = CURLE_OK;
-        break;
+        ఫలితం = CURLE_OK;
+        ఆపు;
       }
     }
 
@@ -225,79 +225,79 @@ static CURLcode cr_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
                                      (uint8_t *)plainbuf + *pnread,
                                      plainlen - *pnread,
                                      &n);
-    if(rresult == RUSTLS_RESULT_PLAINTEXT_EMPTY) {
+    ఒకవేళ(rresult == RUSTLS_ఫలితం_PLAINTEXT_ఖాళీలు) {
       /* A TLS message that carried no plaintext. Break out of the loop
        * to prevent a server from keeping us here forever. */
-      backend->data_in_pending = FALSE;
-      break;
+      backend->దత్తాంశం_లోపల_pending = FALSE;
+      ఆపు;
     }
-    else if(rresult == RUSTLS_RESULT_UNEXPECTED_EOF) {
-      failf(data, "rustls: peer closed TCP connection "
+    లేకపోతే ఒకవేళ(rresult == RUSTLS_ఫలితం_UNEXPECTED_EOF) {
+      failf(దత్తాంశం, "rustls: peer closed TCP connection "
             "without first closing TLS connection");
-      result = CURLE_RECV_ERROR;
-      goto out;
+      ఫలితం = CURLE_RECV_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
-    else if(rresult != RUSTLS_RESULT_OK) {
+    లేకపోతే ఒకవేళ(rresult != RUSTLS_ఫలితం_OK) {
       /* n always equals 0 in this case, do not need to check it */
-      rustls_failf(data, rresult, "rustls_connection_read");
-      result = CURLE_RECV_ERROR;
-      goto out;
+      rustls_failf(దత్తాంశం, rresult, "rustls_connection_read");
+      ఫలితం = CURLE_RECV_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
-    else if(n == 0) {
+    లేకపోతే ఒకవేళ(n == 0) {
       /* n == 0 indicates clean EOF, but we may have read some other
          plaintext bytes before we reached this. Break out of the loop
          so we can figure out whether to return success or EOF. */
       eof = TRUE;
-      break;
+      ఆపు;
     }
-    else {
+    లేకపోతే {
       *pnread += n;
     }
   }
 
-  if(!eof && !*pnread) {
-    result = CURLE_AGAIN;
+  ఒకవేళ(!eof && !*pnread) {
+    ఫలితం = CURLE_AGAIN;
   }
 
-out:
-  CURL_TRC_CF(data, cf, "rustls_recv(len=%zu) -> %d, %zu",
-              plainlen, (int)result, *pnread);
-  return result;
+బహిర్గతం:
+  CURL_TRC_CF(దత్తాంశం, cf, "rustls_recv(len=%zu) -> %d, %zu",
+              plainlen, (పూర్ణాంకం)ఫలితం, *pnread);
+  తిరిగి ఫలితం;
 }
 
-static CURLcode cr_flush_out(struct Curl_cfilter *cf, struct Curl_easy *data,
-                             struct rustls_connection *rconn)
+స్థిర CURLcode cr_flush_బహిర్గతం(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం rustls_connection *rconn)
 {
-  struct io_ctx io_ctx;
-  rustls_io_result io_error;
+  నిర్మాణం io_ctx io_ctx;
+  rustls_io_ఫలితం io_error;
   size_t tlswritten = 0;
-  size_t tlswritten_total = 0;
+  size_t tlswritten_మొత్తం = 0;
 
   io_ctx.cf = cf;
-  io_ctx.data = data;
+  io_ctx.దత్తాంశం = దత్తాంశం;
 
-  while(rustls_connection_wants_write(rconn)) {
+  అయితే(rustls_connection_కోరుతుంది_write(rconn)) {
     io_error = rustls_connection_write_tls(rconn, write_cb, &io_ctx,
                                            &tlswritten);
-    if(RAW_EAGAIN(io_error)) {
-      CURL_TRC_CF(data, cf, "cf_send: EAGAIN after %zu bytes",
-                  tlswritten_total);
-      return CURLE_AGAIN;
+    ఒకవేళ(RAW_EAGAIN(io_error)) {
+      CURL_TRC_CF(దత్తాంశం, cf, "cf_send: EAGAIN after %zu bytes",
+                  tlswritten_మొత్తం);
+      తిరిగి CURLE_AGAIN;
     }
-    else if(io_error) {
-      char buffer[STRERROR_LEN];
-      failf(data, "writing to socket: %s",
-            curlx_strerror(io_error, buffer, sizeof(buffer)));
-      return CURLE_SEND_ERROR;
+    లేకపోతే ఒకవేళ(io_error) {
+      అక్షరం బఫరు[STRERROR_LEN];
+      failf(దత్తాంశం, "writing to socket: %s",
+            curlx_strerror(io_error, బఫరు, పరిమాణం(బఫరు)));
+      తిరిగి CURLE_SEND_ERROR;
     }
-    if(tlswritten == 0) {
-      failf(data, "EOF in swrite");
-      return CURLE_SEND_ERROR;
+    ఒకవేళ(tlswritten == 0) {
+      failf(దత్తాంశం, "EOF in swrite");
+      తిరిగి CURLE_SEND_ERROR;
     }
-    CURL_TRC_CF(data, cf, "cf_send: wrote %zu TLS bytes", tlswritten);
-    tlswritten_total += tlswritten;
+    CURL_TRC_CF(దత్తాంశం, cf, "cf_send: wrote %zu TLS bytes", tlswritten);
+    tlswritten_మొత్తం += tlswritten;
   }
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
 /*
@@ -310,17 +310,17 @@ static CURLcode cr_flush_out(struct Curl_cfilter *cf, struct Curl_easy *data,
  * In that case, it does not read anything into Rustls' plaintext input buffer.
  * It only drains Rustls' plaintext output buffer into the socket.
  */
-static CURLcode cr_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                        const void *plainbuf, size_t plainlen,
+స్థిర CURLcode cr_send(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                        స్థిరరాశి శూన్య *plainbuf, size_t plainlen,
                         size_t *pnwritten)
 {
-  const struct ssl_connect_data * const connssl = cf->ctx;
-  struct rustls_ssl_backend_data * const backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  struct rustls_connection *rconn = NULL;
+  స్థిరరాశి నిర్మాణం ssl_connect_దత్తాంశం * స్థిరరాశి connssl = cf->ctx;
+  నిర్మాణం rustls_ssl_backend_దత్తాంశం * స్థిరరాశి backend =
+    (నిర్మాణం rustls_ssl_backend_దత్తాంశం *)connssl->backend;
+  నిర్మాణం rustls_connection *rconn = ఖాళీ;
   size_t plainwritten = 0;
-  const unsigned char *buf = plainbuf;
-  CURLcode result = CURLE_OK;
+  స్థిరరాశి గుర్తులేని అక్షరం *buf = plainbuf;
+  CURLcode ఫలితం = CURLE_OK;
   size_t blen = plainlen;
 
   DEBUGASSERT(backend);
@@ -328,695 +328,695 @@ static CURLcode cr_send(struct Curl_cfilter *cf, struct Curl_easy *data,
   rconn = backend->conn;
   DEBUGASSERT(rconn);
 
-  CURL_TRC_CF(data, cf, "cf_send(len=%zu)", plainlen);
+  CURL_TRC_CF(దత్తాంశం, cf, "cf_send(len=%zu)", plainlen);
 
   /* If a previous send blocked, we already added its plain bytes
    * to rustsls and must not do that again. Flush the TLS bytes and,
    * if successful, deduct the previous plain bytes from the current
    * send. */
-  if(backend->plain_out_buffered) {
-    result = cr_flush_out(cf, data, rconn);
-    CURL_TRC_CF(data, cf, "cf_send: flushing %zu previously added bytes -> %d",
-                backend->plain_out_buffered, (int)result);
-    if(result)
-      return result;
-    if(blen > backend->plain_out_buffered) {
-      blen -= backend->plain_out_buffered;
-      buf += backend->plain_out_buffered;
+  ఒకవేళ(backend->plain_బహిర్గతం_buffered) {
+    ఫలితం = cr_flush_బహిర్గతం(cf, దత్తాంశం, rconn);
+    CURL_TRC_CF(దత్తాంశం, cf, "cf_send: flushing %zu previously added bytes -> %d",
+                backend->plain_బహిర్గతం_buffered, (పూర్ణాంకం)ఫలితం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
+    ఒకవేళ(blen > backend->plain_బహిర్గతం_buffered) {
+      blen -= backend->plain_బహిర్గతం_buffered;
+      buf += backend->plain_బహిర్గతం_buffered;
     }
-    else
+    లేకపోతే
       blen = 0;
-    *pnwritten += backend->plain_out_buffered;
-    backend->plain_out_buffered = 0;
+    *pnwritten += backend->plain_బహిర్గతం_buffered;
+    backend->plain_బహిర్గతం_buffered = 0;
   }
 
-  if(blen > 0) {
-    rustls_result rresult;
-    CURL_TRC_CF(data, cf, "cf_send: adding %zu plain bytes to Rustls", blen);
+  ఒకవేళ(blen > 0) {
+    rustls_ఫలితం rresult;
+    CURL_TRC_CF(దత్తాంశం, cf, "cf_send: adding %zu plain bytes to Rustls", blen);
     rresult = rustls_connection_write(rconn, buf, blen, &plainwritten);
-    if(rresult != RUSTLS_RESULT_OK) {
-      rustls_failf(data, rresult, "rustls_connection_write");
-      result = CURLE_WRITE_ERROR;
-      goto out;
+    ఒకవేళ(rresult != RUSTLS_ఫలితం_OK) {
+      rustls_failf(దత్తాంశం, rresult, "rustls_connection_write");
+      ఫలితం = CURLE_WRITE_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
-    else if(plainwritten == 0) {
-      failf(data, "rustls_connection_write: EOF");
-      result = CURLE_WRITE_ERROR;
-      goto out;
+    లేకపోతే ఒకవేళ(plainwritten == 0) {
+      failf(దత్తాంశం, "rustls_connection_write: EOF");
+      ఫలితం = CURLE_WRITE_ERROR;
+      వెళ్ళు బహిర్గతం;
     }
   }
 
-  result = cr_flush_out(cf, data, rconn);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  ఫలితం = cr_flush_బహిర్గతం(cf, దత్తాంశం, rconn);
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(ఫలితం == CURLE_AGAIN) {
       /* The TLS bytes may have been partially written, but we fail the
        * complete send() and remember how much we already added to Rustls. */
-      backend->plain_out_buffered = plainwritten;
-      if(*pnwritten) {
-        result = CURLE_OK;
+      backend->plain_బహిర్గతం_buffered = plainwritten;
+      ఒకవేళ(*pnwritten) {
+        ఫలితం = CURLE_OK;
       }
     }
-    goto out;
+    వెళ్ళు బహిర్గతం;
   }
-  else
+  లేకపోతే
     *pnwritten += plainwritten;
 
-out:
-  CURL_TRC_CF(data, cf, "rustls_send(len=%zu) -> %d, %zu",
-              plainlen, (int)result, *pnwritten);
-  return result;
+బహిర్గతం:
+  CURL_TRC_CF(దత్తాంశం, cf, "rustls_send(len=%zu) -> %d, %zu",
+              plainlen, (పూర్ణాంకం)ఫలితం, *pnwritten);
+  తిరిగి ఫలితం;
 }
 
 /* A server certificate verify callback for Rustls that always returns
    RUSTLS_RESULT_OK, or in other words disable certificate verification. */
-static uint32_t cr_verify_none(void *userdata,
-                               const rustls_verify_server_cert_params *params)
+స్థిర uint32_t cr_verify_none(శూన్య *userdata,
+                               స్థిరరాశి rustls_verify_server_cert_params *params)
 {
-  (void)userdata;
-  (void)params;
-  return RUSTLS_RESULT_OK;
+  (శూన్య)userdata;
+  (శూన్య)params;
+  తిరిగి RUSTLS_ఫలితం_OK;
 }
 
-static int read_file_into(const char *filename, struct dynbuf *out)
+స్థిర పూర్ణాంకం read_file_into(స్థిరరాశి అక్షరం *filename, నిర్మాణం dynbuf *బహిర్గతం)
 {
   FILE *f = curlx_fopen(filename, FOPEN_READTEXT);
-  if(!f) {
-    return 0;
+  ఒకవేళ(!f) {
+    తిరిగి 0;
   }
 
-  for(;;) {
+  కొరకు(;;) {
     uint8_t buf[256];
-    const size_t rr = fread(buf, 1, sizeof(buf), f);
-    if((!rr && !feof(f)) ||
-       curlx_dyn_addn(out, buf, rr)) {
+    స్థిరరాశి size_t rr = fread(buf, 1, పరిమాణం(buf), f);
+    ఒకవేళ((!rr && !feof(f)) ||
+       curlx_dyn_addn(బహిర్గతం, buf, rr)) {
       curlx_fclose(f);
-      return 0;
+      తిరిగి 0;
     }
-    if(rr < sizeof(buf))
-      break;
+    ఒకవేళ(rr < పరిమాణం(buf))
+      ఆపు;
   }
 
-  return curlx_fclose(f) == 0;
+  తిరిగి curlx_fclose(f) == 0;
 }
 
-static void
-cr_get_selected_ciphers(struct Curl_easy *data,
-                        const char *ciphers12,
-                        const char *ciphers13,
-                        const struct rustls_supported_ciphersuite **selected,
-                        size_t *selected_size)
+స్థిర శూన్య
+cr_get_selected_ciphers(నిర్మాణం Curl_easy *దత్తాంశం,
+                        స్థిరరాశి అక్షరం *ciphers12,
+                        స్థిరరాశి అక్షరం *ciphers13,
+                        స్థిరరాశి నిర్మాణం rustls_supported_ciphersuite **selected,
+                        size_t *selected_కొలత)
 {
-  const size_t supported_len = *selected_size;
-  const size_t default_len = rustls_default_crypto_provider_ciphersuites_len();
-  const struct rustls_supported_ciphersuite *entry = NULL;
-  const char *ciphers = ciphers12;
-  size_t count = 0, default13_count = 0, i, j;
-  const char *ptr, *end;
+  స్థిరరాశి size_t supported_len = *selected_కొలత;
+  స్థిరరాశి size_t default_len = rustls_default_crypto_provider_ciphersuites_len();
+  స్థిరరాశి నిర్మాణం rustls_supported_ciphersuite *నమోదు_2 = ఖాళీ;
+  స్థిరరాశి అక్షరం *ciphers = ciphers12;
+  size_t లెక్క = 0, default13_లెక్క = 0, i, j;
+  స్థిరరాశి అక్షరం *ptr, *చివర;
 
   DEBUGASSERT(default_len <= supported_len);
 
-  if(!ciphers13) {
+  ఒకవేళ(!ciphers13) {
     /* Add default TLSv1.3 ciphers to selection */
-    for(j = 0; j < default_len; j++) {
-      entry = rustls_default_crypto_provider_ciphersuites_get(j);
-      if(rustls_supported_ciphersuite_protocol_version(entry) !=
-         RUSTLS_TLS_VERSION_TLSV1_3)
-        continue;
+    కొరకు(j = 0; j < default_len; j++) {
+      నమోదు_2 = rustls_default_crypto_provider_ciphersuites_get(j);
+      ఒకవేళ(rustls_supported_ciphersuite_protocol_సంస్కరణ(నమోదు_2) !=
+         RUSTLS_TLS_సంస్కరణ_TLSV1_3)
+        కొనసాగు;
 
-      selected[count++] = entry;
+      selected[లెక్క++] = నమోదు_2;
     }
 
-    default13_count = count;
+    default13_లెక్క = లెక్క;
 
-    if(!ciphers)
+    ఒకవేళ(!ciphers)
       ciphers = "";
   }
-  else
+  లేకపోతే
     ciphers = ciphers13;
 
-add_ciphers:
-  for(ptr = ciphers; ptr[0] != '\0' && count < supported_len; ptr = end) {
-    uint16_t id = Curl_cipher_suite_walk_str(&ptr, &end);
+కూడు_ciphers:
+  కొరకు(ptr = ciphers; ptr[0] != '\0' && లెక్క < supported_len; ptr = చివర) {
+    uint16_t id = Curl_cipher_suite_walk_str(&ptr, &చివర);
 
     /* Check if cipher is supported */
-    if(id) {
-      for(i = 0; i < supported_len; i++) {
-        entry = rustls_default_crypto_provider_ciphersuites_get(i);
-        if(rustls_supported_ciphersuite_get_suite(entry) == id)
-          break;
+    ఒకవేళ(id) {
+      కొరకు(i = 0; i < supported_len; i++) {
+        నమోదు_2 = rustls_default_crypto_provider_ciphersuites_get(i);
+        ఒకవేళ(rustls_supported_ciphersuite_get_suite(నమోదు_2) == id)
+          ఆపు;
       }
-      if(i == supported_len)
+      ఒకవేళ(i == supported_len)
         id = 0;
     }
-    if(!id) {
-      if(ptr[0] != '\0')
-        infof(data, "rustls: unknown cipher in list: \"%.*s\"",
-              (int)(end - ptr), ptr);
-      continue;
+    ఒకవేళ(!id) {
+      ఒకవేళ(ptr[0] != '\0')
+        infof(దత్తాంశం, "rustls: unknown cipher in list: \"%.*s\"",
+              (పూర్ణాంకం)(చివర - ptr), ptr);
+      కొనసాగు;
     }
 
     /* No duplicates allowed (so selected cannot overflow) */
-    for(i = 0; i < count && selected[i] != entry; i++)
+    కొరకు(i = 0; i < లెక్క && selected[i] != నమోదు_2; i++)
       ;
-    if(i < count) {
-      if(i >= default13_count)
-        infof(data, "rustls: duplicate cipher in list: \"%.*s\"",
-              (int)(end - ptr), ptr);
-      continue;
+    ఒకవేళ(i < లెక్క) {
+      ఒకవేళ(i >= default13_లెక్క)
+        infof(దత్తాంశం, "rustls: duplicate cipher in list: \"%.*s\"",
+              (పూర్ణాంకం)(చివర - ptr), ptr);
+      కొనసాగు;
     }
 
-    selected[count++] = entry;
+    selected[లెక్క++] = నమోదు_2;
   }
 
-  if(ciphers == ciphers13 && ciphers12) {
+  ఒకవేళ(ciphers == ciphers13 && ciphers12) {
     ciphers = ciphers12;
-    goto add_ciphers;
+    వెళ్ళు కూడు_ciphers;
   }
 
-  if(!ciphers12) {
+  ఒకవేళ(!ciphers12) {
     /* Add default TLSv1.2 ciphers to selection */
-    for(j = 0; j < default_len; j++) {
-      entry = rustls_default_crypto_provider_ciphersuites_get(j);
-      if(rustls_supported_ciphersuite_protocol_version(entry) ==
-         RUSTLS_TLS_VERSION_TLSV1_3)
-        continue;
+    కొరకు(j = 0; j < default_len; j++) {
+      నమోదు_2 = rustls_default_crypto_provider_ciphersuites_get(j);
+      ఒకవేళ(rustls_supported_ciphersuite_protocol_సంస్కరణ(నమోదు_2) ==
+         RUSTLS_TLS_సంస్కరణ_TLSV1_3)
+        కొనసాగు;
 
       /* No duplicates allowed (so selected cannot overflow) */
-      for(i = 0; i < count && selected[i] != entry; i++)
+      కొరకు(i = 0; i < లెక్క && selected[i] != నమోదు_2; i++)
         ;
-      if(i < count)
-        continue;
+      ఒకవేళ(i < లెక్క)
+        కొనసాగు;
 
-      selected[count++] = entry;
+      selected[లెక్క++] = నమోదు_2;
     }
   }
 
-  *selected_size = count;
+  *selected_కొలత = లెక్క;
 }
 
-static void cr_keylog_log_cb(struct rustls_str label,
-                             const uint8_t *client_random,
-                             size_t client_random_len, const uint8_t *secret,
+స్థిర శూన్య cr_keylog_log_cb(నిర్మాణం rustls_str label,
+                             స్థిరరాశి uint8_t *client_random,
+                             size_t client_random_len, స్థిరరాశి uint8_t *secret,
                              size_t secret_len)
 {
-  char clabel[KEYLOG_LABEL_MAXLEN];
-  DEBUGASSERT(client_random_len == CLIENT_RANDOM_SIZE);
+  అక్షరం clabel[KEYLOG_LABEL_MAXLEN];
+  DEBUGASSERT(client_random_len == CLIENT_RANDOM_కొలత);
   /* Turning a "rustls_str" into a null delimited "c" string */
-  curl_msnprintf(clabel, sizeof(clabel), "%.*s", (int)label.len, label.data);
+  curl_msnprintf(clabel, పరిమాణం(clabel), "%.*s", (పూర్ణాంకం)label.len, label.దత్తాంశం);
   Curl_tls_keylog_write(clabel, client_random, client_random_len,
                         secret, secret_len);
 }
 
-static CURLcode
-init_config_builder(struct Curl_cfilter *cf,
-                    struct Curl_easy *data,
-                    const struct ssl_filter_config *conn_config,
-                    struct rustls_client_config_builder **config_builder)
+స్థిర CURLcode
+init_config_builder(నిర్మాణం Curl_cfilter *cf,
+                    నిర్మాణం Curl_easy *దత్తాంశం,
+                    స్థిరరాశి నిర్మాణం ssl_filter_config *conn_config,
+                    నిర్మాణం rustls_client_config_builder **config_builder)
 {
-  const struct rustls_supported_ciphersuite **cipher_suites = NULL;
-  struct rustls_crypto_provider_builder *custom_provider_builder = NULL;
-  const struct rustls_crypto_provider *custom_provider = NULL;
+  స్థిరరాశి నిర్మాణం rustls_supported_ciphersuite **cipher_suites = ఖాళీ;
+  నిర్మాణం rustls_crypto_provider_builder *custom_provider_builder = ఖాళీ;
+  స్థిరరాశి నిర్మాణం rustls_crypto_provider *custom_provider = ఖాళీ;
 
   uint16_t tls_versions[2] = {
-    RUSTLS_TLS_VERSION_TLSV1_2,
-    RUSTLS_TLS_VERSION_TLSV1_3,
+    RUSTLS_TLS_సంస్కరణ_TLSV1_2,
+    RUSTLS_TLS_సంస్కరణ_TLSV1_3,
   };
   size_t tls_versions_len = 2;
   size_t cipher_suites_len = rustls_default_crypto_provider_ciphersuites_len();
 
-  CURLcode result = CURLE_OK;
-  rustls_result rr;
+  CURLcode ఫలితం = CURLE_OK;
+  rustls_ఫలితం rr;
 
-  DEBUGASSERT(conn_config->version != CURL_SSLVERSION_DEFAULT);
-  switch(conn_config->version) {
-  case CURL_SSLVERSION_TLSv1:
-  case CURL_SSLVERSION_TLSv1_0:
-  case CURL_SSLVERSION_TLSv1_1:
-  case CURL_SSLVERSION_TLSv1_2:
-    break;
-  case CURL_SSLVERSION_TLSv1_3:
-    tls_versions[0] = RUSTLS_TLS_VERSION_TLSV1_3;
+  DEBUGASSERT(conn_config->సంస్కరణ_2 != CURL_SSLVERSION_DEFAULT);
+  ఎంపిక(conn_config->సంస్కరణ_2) {
+  స్థితి CURL_SSLVERSION_TLSv1:
+  స్థితి CURL_SSLVERSION_TLSv1_0:
+  స్థితి CURL_SSLVERSION_TLSv1_1:
+  స్థితి CURL_SSLVERSION_TLSv1_2:
+    ఆపు;
+  స్థితి CURL_SSLVERSION_TLSv1_3:
+    tls_versions[0] = RUSTLS_TLS_సంస్కరణ_TLSV1_3;
     tls_versions_len = 1;
-    break;
-  default:
-    failf(data, "rustls: unsupported minimum TLS version value");
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto cleanup;
+    ఆపు;
+  అప్రమేయ:
+    failf(దత్తాంశం, "rustls: unsupported minimum TLS version value");
+    ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+    వెళ్ళు cleanup;
   }
 
-  switch(conn_config->version_max) {
-  case CURL_SSLVERSION_MAX_DEFAULT:
-  case CURL_SSLVERSION_MAX_NONE:
-  case CURL_SSLVERSION_MAX_TLSv1_3:
-    break;
-  case CURL_SSLVERSION_MAX_TLSv1_2:
-    if(tls_versions[0] == RUSTLS_TLS_VERSION_TLSV1_2) {
+  ఎంపిక(conn_config->సంస్కరణ_max) {
+  స్థితి CURL_SSLVERSION_MAX_DEFAULT:
+  స్థితి CURL_SSLVERSION_MAX_NONE:
+  స్థితి CURL_SSLVERSION_MAX_TLSv1_3:
+    ఆపు;
+  స్థితి CURL_SSLVERSION_MAX_TLSv1_2:
+    ఒకవేళ(tls_versions[0] == RUSTLS_TLS_సంస్కరణ_TLSV1_2) {
       tls_versions_len = 1;
-      break;
+      ఆపు;
     }
     FALLTHROUGH();
-  case CURL_SSLVERSION_MAX_TLSv1_1:
-  case CURL_SSLVERSION_MAX_TLSv1_0:
-  default:
-    failf(data, "rustls: unsupported maximum TLS version value");
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto cleanup;
+  స్థితి CURL_SSLVERSION_MAX_TLSv1_1:
+  స్థితి CURL_SSLVERSION_MAX_TLSv1_0:
+  అప్రమేయ:
+    failf(దత్తాంశం, "rustls: unsupported maximum TLS version value");
+    ఫలితం = CURLE_BAD_FUNCTION_వాదం;
+    వెళ్ళు cleanup;
   }
 
-#ifdef USE_ECH
-  if(Curl_ssl_ech_enabled(cf)) {
-    tls_versions[0] = RUSTLS_TLS_VERSION_TLSV1_3;
+#నిర్వచితమైతే USE_ECH
+  ఒకవేళ(Curl_ssl_ech_enabled(cf)) {
+    tls_versions[0] = RUSTLS_TLS_సంస్కరణ_TLSV1_3;
     tls_versions_len = 1;
-    infof(data, "rustls: ECH enabled, forcing TLSv1.3");
+    infof(దత్తాంశం, "rustls: ECH enabled, forcing TLSv1.3");
   }
-#else
-  (void)cf;
-#endif /* USE_ECH */
+#లేకపోతే
+  (శూన్య)cf;
+#అయితే_ముగింపు /* USE_ECH */
 
-  cipher_suites = curlx_malloc(sizeof(*cipher_suites) * cipher_suites_len);
-  if(!cipher_suites) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto cleanup;
+  cipher_suites = curlx_malloc(పరిమాణం(*cipher_suites) * cipher_suites_len);
+  ఒకవేళ(!cipher_suites) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు cleanup;
   }
 
-  cr_get_selected_ciphers(data,
+  cr_get_selected_ciphers(దత్తాంశం,
                           conn_config->cipher_list,
                           conn_config->cipher_list13,
                           cipher_suites, &cipher_suites_len);
-  if(cipher_suites_len == 0) {
-    failf(data, "rustls: no supported cipher in list");
-    result = CURLE_SSL_CIPHER;
-    goto cleanup;
+  ఒకవేళ(cipher_suites_len == 0) {
+    failf(దత్తాంశం, "rustls: no supported cipher in list");
+    ఫలితం = CURLE_SSL_CIPHER;
+    వెళ్ళు cleanup;
   }
 
   rr = rustls_crypto_provider_builder_new_from_default(
     &custom_provider_builder);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr,
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr,
                  "failed to create crypto provider builder from default");
-    result = CURLE_SSL_CIPHER;
-    goto cleanup;
+    ఫలితం = CURLE_SSL_CIPHER;
+    వెళ్ళు cleanup;
   }
 
   rr =
-    rustls_crypto_provider_builder_set_cipher_suites(
+    rustls_crypto_provider_builder_సమితి_cipher_suites(
       custom_provider_builder,
       cipher_suites,
       cipher_suites_len);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr,
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr,
                  "failed to set ciphersuites for crypto provider builder");
-    result = CURLE_SSL_CIPHER;
-    goto cleanup;
+    ఫలితం = CURLE_SSL_CIPHER;
+    వెళ్ళు cleanup;
   }
 
   rr = rustls_crypto_provider_builder_build(custom_provider_builder,
                                             &custom_provider);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "failed to build custom crypto provider");
-    result = CURLE_SSL_CIPHER;
-    goto cleanup;
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "failed to build custom crypto provider");
+    ఫలితం = CURLE_SSL_CIPHER;
+    వెళ్ళు cleanup;
   }
 
   rr = rustls_client_config_builder_new_custom(custom_provider,
                                                tls_versions,
                                                tls_versions_len,
                                                config_builder);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "failed to create client config builder");
-    result = CURLE_SSL_CIPHER;
-    goto cleanup;
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "failed to create client config builder");
+    ఫలితం = CURLE_SSL_CIPHER;
+    వెళ్ళు cleanup;
   }
 
 cleanup:
-  if(cipher_suites) {
+  ఒకవేళ(cipher_suites) {
     curlx_free(cipher_suites);
   }
-  if(custom_provider_builder) {
+  ఒకవేళ(custom_provider_builder) {
     rustls_crypto_provider_builder_free(custom_provider_builder);
   }
-  if(custom_provider) {
+  ఒకవేళ(custom_provider) {
     rustls_crypto_provider_free(custom_provider);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static void
-init_config_builder_alpn(struct Curl_easy *data,
-                         const struct ssl_connect_data *connssl,
-                         struct rustls_client_config_builder *config_builder)
+స్థిర శూన్య
+init_config_builder_alpn(నిర్మాణం Curl_easy *దత్తాంశం,
+                         స్థిరరాశి నిర్మాణం ssl_connect_దత్తాంశం *connssl,
+                         నిర్మాణం rustls_client_config_builder *config_builder)
 {
-  struct alpn_proto_buf proto;
-  rustls_slice_bytes alpn[ALPN_ENTRIES_MAX];
+  నిర్మాణం alpn_proto_buf proto;
+  rustls_ముక్క_బైట్లు alpn[ALPN_ENTRIES_MAX];
   size_t i;
 
-  for(i = 0; i < connssl->alpn->count; ++i) {
-    alpn[i].data = (const uint8_t *)connssl->alpn->entries[i];
-    alpn[i].len = strlen(connssl->alpn->entries[i]);
+  కొరకు(i = 0; i < connssl->alpn->లెక్క; ++i) {
+    alpn[i].దత్తాంశం = (స్థిరరాశి uint8_t *)connssl->alpn->entries[i];
+    alpn[i].len = అక్షరశ్రేణి_పొడవు(connssl->alpn->entries[i]);
   }
-  rustls_client_config_builder_set_alpn_protocols(config_builder, alpn,
-                                                  connssl->alpn->count);
-  Curl_alpn_to_proto_str(&proto, connssl->alpn);
-  infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
+  rustls_client_config_builder_సమితి_alpn_protocols(config_builder, alpn,
+                                                  connssl->alpn->లెక్క);
+  Curl_alpn_గమ్యం_proto_str(&proto, connssl->alpn);
+  infof(దత్తాంశం, VTLS_INFOF_ALPN_OFFER_1STR, proto.దత్తాంశం);
 }
 
-static CURLcode init_config_builder_verifier_crl(
-  struct Curl_easy *data,
-  const struct ssl_filter_config *conn_config,
-  struct rustls_web_pki_server_cert_verifier_builder *builder)
+స్థిర CURLcode init_config_builder_verifier_crl(
+  నిర్మాణం Curl_easy *దత్తాంశం,
+  స్థిరరాశి నిర్మాణం ssl_filter_config *conn_config,
+  నిర్మాణం rustls_web_pki_server_cert_verifier_builder *builder)
 {
-  CURLcode result = CURLE_OK;
-  struct dynbuf crl_contents;
-  rustls_result rr;
+  CURLcode ఫలితం = CURLE_OK;
+  నిర్మాణం dynbuf crl_contents;
+  rustls_ఫలితం rr;
 
-  curlx_dyn_init(&crl_contents, DYN_CRLFILE_SIZE);
-  if(!read_file_into(conn_config->CRLfile, &crl_contents)) {
-    failf(data, "rustls: failed to read revocation list file");
-    result = CURLE_SSL_CRL_BADFILE;
-    goto cleanup;
+  curlx_dyn_init(&crl_contents, DYN_CRLFILE_కొలత);
+  ఒకవేళ(!read_file_into(conn_config->CRLfile, &crl_contents)) {
+    failf(దత్తాంశం, "rustls: failed to read revocation list file");
+    ఫలితం = CURLE_SSL_CRL_BADFILE;
+    వెళ్ళు cleanup;
   }
 
-  rr = rustls_web_pki_server_cert_verifier_builder_add_crl(
+  rr = rustls_web_pki_server_cert_verifier_builder_కూడు_crl(
     builder,
     curlx_dyn_uptr(&crl_contents),
     curlx_dyn_len(&crl_contents));
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "failed to parse revocation list");
-    result = CURLE_SSL_CRL_BADFILE;
-    goto cleanup;
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "failed to parse revocation list");
+    ఫలితం = CURLE_SSL_CRL_BADFILE;
+    వెళ్ళు cleanup;
   }
 
 cleanup:
   curlx_dyn_free(&crl_contents);
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode
-init_config_builder_verifier(struct Curl_easy *data,
-                             struct rustls_client_config_builder *builder,
-                             const struct ssl_filter_config *conn_config,
-                             const struct curl_blob *ca_info_blob,
-                             const char * const ssl_cafile)
+స్థిర CURLcode
+init_config_builder_verifier(నిర్మాణం Curl_easy *దత్తాంశం,
+                             నిర్మాణం rustls_client_config_builder *builder,
+                             స్థిరరాశి నిర్మాణం ssl_filter_config *conn_config,
+                             స్థిరరాశి నిర్మాణం curl_blob *ca_info_blob,
+                             స్థిరరాశి అక్షరం * స్థిరరాశి ssl_cafile)
 {
-  const struct rustls_root_cert_store *roots = NULL;
-  struct rustls_root_cert_store_builder *roots_builder = NULL;
-  struct rustls_web_pki_server_cert_verifier_builder *verifier_builder = NULL;
-  struct rustls_server_cert_verifier *server_cert_verifier = NULL;
-  rustls_result rr = RUSTLS_RESULT_OK;
-  CURLcode result = CURLE_OK;
+  స్థిరరాశి నిర్మాణం rustls_మూలం_cert_store *roots = ఖాళీ;
+  నిర్మాణం rustls_మూలం_cert_store_builder *roots_builder = ఖాళీ;
+  నిర్మాణం rustls_web_pki_server_cert_verifier_builder *verifier_builder = ఖాళీ;
+  నిర్మాణం rustls_server_cert_verifier *server_cert_verifier = ఖాళీ;
+  rustls_ఫలితం rr = RUSTLS_ఫలితం_OK;
+  CURLcode ఫలితం = CURLE_OK;
 
-  roots_builder = rustls_root_cert_store_builder_new();
-  if(ca_info_blob) {
-    rr = rustls_root_cert_store_builder_add_pem(roots_builder,
-                                                ca_info_blob->data,
+  roots_builder = rustls_మూలం_cert_store_builder_new();
+  ఒకవేళ(ca_info_blob) {
+    rr = rustls_మూలం_cert_store_builder_కూడు_pem(roots_builder,
+                                                ca_info_blob->దత్తాంశం,
                                                 ca_info_blob->len,
                                                 1);
-    if(rr != RUSTLS_RESULT_OK) {
-      rustls_failf(data, rr, "failed to parse trusted certificates from blob");
-      result = CURLE_SSL_CACERT_BADFILE;
-      goto cleanup;
+    ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+      rustls_failf(దత్తాంశం, rr, "failed to parse trusted certificates from blob");
+      ఫలితం = CURLE_SSL_CACERT_BADFILE;
+      వెళ్ళు cleanup;
     }
   }
-  else if(ssl_cafile) {
-    rr = rustls_root_cert_store_builder_load_roots_from_file(roots_builder,
+  లేకపోతే ఒకవేళ(ssl_cafile) {
+    rr = rustls_మూలం_cert_store_builder_ఎక్కించు_roots_from_file(roots_builder,
                                                              ssl_cafile,
                                                              1);
-    if(rr != RUSTLS_RESULT_OK) {
-      rustls_failf(data, rr, "failed to load trusted certificates");
-      result = CURLE_SSL_CACERT_BADFILE;
-      goto cleanup;
+    ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+      rustls_failf(దత్తాంశం, rr, "failed to load trusted certificates");
+      ఫలితం = CURLE_SSL_CACERT_BADFILE;
+      వెళ్ళు cleanup;
     }
   }
 
-  rr = rustls_root_cert_store_builder_build(roots_builder, &roots);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "failed to build trusted root certificate store");
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  rr = rustls_మూలం_cert_store_builder_build(roots_builder, &roots);
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "failed to build trusted root certificate store");
+    ఫలితం = CURLE_SSL_CACERT_BADFILE;
+    వెళ్ళు cleanup;
   }
 
   verifier_builder = rustls_web_pki_server_cert_verifier_builder_new(roots);
-  if(!verifier_builder) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto cleanup;
+  ఒకవేళ(!verifier_builder) {
+    ఫలితం = CURLE_బహిర్గతం_యొక్క_జ్ఞాపకం;
+    వెళ్ళు cleanup;
   }
 
-  if(conn_config->CRLfile) {
-    result = init_config_builder_verifier_crl(data,
+  ఒకవేళ(conn_config->CRLfile) {
+    ఫలితం = init_config_builder_verifier_crl(దత్తాంశం,
                                               conn_config,
                                               verifier_builder);
-    if(result) {
-      goto cleanup;
+    ఒకవేళ(ఫలితం) {
+      వెళ్ళు cleanup;
     }
   }
 
   rr = rustls_web_pki_server_cert_verifier_builder_build(
     verifier_builder, &server_cert_verifier);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "failed to build certificate verifier");
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "failed to build certificate verifier");
+    ఫలితం = CURLE_SSL_CACERT_BADFILE;
+    వెళ్ళు cleanup;
   }
 
-  rustls_client_config_builder_set_server_verifier(builder,
+  rustls_client_config_builder_సమితి_server_verifier(builder,
                                                    server_cert_verifier);
 cleanup:
-  if(roots_builder) {
-    rustls_root_cert_store_builder_free(roots_builder);
+  ఒకవేళ(roots_builder) {
+    rustls_మూలం_cert_store_builder_free(roots_builder);
   }
-  if(roots) {
-    rustls_root_cert_store_free(roots);
+  ఒకవేళ(roots) {
+    rustls_మూలం_cert_store_free(roots);
   }
-  if(verifier_builder) {
+  ఒకవేళ(verifier_builder) {
     rustls_web_pki_server_cert_verifier_builder_free(verifier_builder);
   }
-  if(server_cert_verifier) {
+  ఒకవేళ(server_cert_verifier) {
     rustls_server_cert_verifier_free(server_cert_verifier);
   }
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode init_config_builder_platform_verifier(
-  struct Curl_easy *data,
-  struct rustls_client_config_builder *builder)
+స్థిర CURLcode init_config_builder_platform_verifier(
+  నిర్మాణం Curl_easy *దత్తాంశం,
+  నిర్మాణం rustls_client_config_builder *builder)
 {
-  struct rustls_server_cert_verifier *server_cert_verifier = NULL;
-  CURLcode result = CURLE_OK;
-  rustls_result rr;
+  నిర్మాణం rustls_server_cert_verifier *server_cert_verifier = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
+  rustls_ఫలితం rr;
 
   rr = rustls_platform_server_cert_verifier(&server_cert_verifier);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "failed to create platform certificate verifier");
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "failed to create platform certificate verifier");
+    ఫలితం = CURLE_SSL_CACERT_BADFILE;
+    వెళ్ళు cleanup;
   }
 
-  rustls_client_config_builder_set_server_verifier(builder,
+  rustls_client_config_builder_సమితి_server_verifier(builder,
                                                    server_cert_verifier);
 
 cleanup:
-  if(server_cert_verifier) {
+  ఒకవేళ(server_cert_verifier) {
     rustls_server_cert_verifier_free(server_cert_verifier);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static CURLcode
-init_config_builder_keylog(struct Curl_easy *data,
-                           struct rustls_client_config_builder *builder)
+స్థిర CURLcode
+init_config_builder_keylog(నిర్మాణం Curl_easy *దత్తాంశం,
+                           నిర్మాణం rustls_client_config_builder *builder)
 {
-  rustls_result rr;
+  rustls_ఫలితం rr;
 
   Curl_tls_keylog_open();
-  if(!Curl_tls_keylog_enabled()) {
-    return CURLE_OK;
+  ఒకవేళ(!Curl_tls_keylog_enabled()) {
+    తిరిగి CURLE_OK;
   }
 
-  rr = rustls_client_config_builder_set_key_log(builder,
+  rr = rustls_client_config_builder_సమితి_కీలకం_log(builder,
                                                 cr_keylog_log_cb,
-                                                NULL);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "rustls_client_config_builder_set_key_log");
+                                                ఖాళీ);
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "rustls_client_config_builder_set_key_log");
     Curl_tls_keylog_close();
-    return map_error(rr);
+    తిరిగి map_error(rr);
   }
 
-  return CURLE_OK;
+  తిరిగి CURLE_OK;
 }
 
-static CURLcode
-init_config_builder_client_auth(struct Curl_easy *data,
-                                const struct ssl_filter_config *conn_config,
-                                struct rustls_client_config_builder *builder)
+స్థిర CURLcode
+init_config_builder_client_auth(నిర్మాణం Curl_easy *దత్తాంశం,
+                                స్థిరరాశి నిర్మాణం ssl_filter_config *conn_config,
+                                నిర్మాణం rustls_client_config_builder *builder)
 {
-  struct dynbuf cert_contents;
-  struct dynbuf key_contents;
-  rustls_result rr;
-  const struct rustls_certified_key *certified_key = NULL;
-  CURLcode result = CURLE_OK;
-  const bool have_cert = conn_config->clientcert || conn_config->cert_blob;
-  const bool have_key = conn_config->key || conn_config->key_blob;
+  నిర్మాణం dynbuf cert_contents;
+  నిర్మాణం dynbuf కీలకం_contents;
+  rustls_ఫలితం rr;
+  స్థిరరాశి నిర్మాణం rustls_certified_కీలకం *certified_కీలకం = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
+  స్థిరరాశి bool have_cert = conn_config->clientcert || conn_config->cert_blob;
+  స్థిరరాశి bool have_కీలకం = conn_config->కీలకం || conn_config->కీలకం_blob;
 
-  if(have_cert && !have_key) {
-    failf(data, "rustls: must provide key with certificate");
-    return CURLE_SSL_CERTPROBLEM;
+  ఒకవేళ(have_cert && !have_కీలకం) {
+    failf(దత్తాంశం, "rustls: must provide key with certificate");
+    తిరిగి CURLE_SSL_CERTPROBLEM;
   }
-  else if(!have_cert && have_key) {
-    failf(data, "rustls: must provide certificate with key");
-    return CURLE_SSL_CERTPROBLEM;
+  లేకపోతే ఒకవేళ(!have_cert && have_కీలకం) {
+    failf(దత్తాంశం, "rustls: must provide certificate with key");
+    తిరిగి CURLE_SSL_CERTPROBLEM;
   }
 
-  if(conn_config->cert_type && !curl_strequal(conn_config->cert_type, "PEM")) {
-    failf(data, "rustls: unsupported certificate type '%s', only 'PEM' is "
+  ఒకవేళ(conn_config->cert_type && !curl_strequal(conn_config->cert_type, "PEM")) {
+    failf(దత్తాంశం, "rustls: unsupported certificate type '%s', only 'PEM' is "
           "supported", conn_config->cert_type);
-    return CURLE_SSL_CERTPROBLEM;
+    తిరిగి CURLE_SSL_CERTPROBLEM;
   }
-  if(conn_config->key_type && !curl_strequal(conn_config->key_type, "PEM")) {
-    failf(data, "rustls: unsupported key type '%s', only 'PEM' is supported",
-          conn_config->key_type);
-    return CURLE_SSL_CERTPROBLEM;
+  ఒకవేళ(conn_config->కీలకం_type && !curl_strequal(conn_config->కీలకం_type, "PEM")) {
+    failf(దత్తాంశం, "rustls: unsupported key type '%s', only 'PEM' is supported",
+          conn_config->కీలకం_type);
+    తిరిగి CURLE_SSL_CERTPROBLEM;
   }
 
-  curlx_dyn_init(&cert_contents, DYN_CERTFILE_SIZE);
-  curlx_dyn_init(&key_contents, DYN_KEYFILE_SIZE);
+  curlx_dyn_init(&cert_contents, DYN_CERTFILE_కొలత);
+  curlx_dyn_init(&కీలకం_contents, DYN_KEYFILE_కొలత);
 
-  if(conn_config->cert_blob) {
-    result = curlx_dyn_addn(&cert_contents,
-                            conn_config->cert_blob->data,
+  ఒకవేళ(conn_config->cert_blob) {
+    ఫలితం = curlx_dyn_addn(&cert_contents,
+                            conn_config->cert_blob->దత్తాంశం,
                             conn_config->cert_blob->len);
-    if(result) {
-      failf(data, "rustls: failed to copy client certificate blob (%s)",
-            result == CURLE_TOO_LARGE ? "too large" : "out of memory");
-      goto cleanup;
+    ఒకవేళ(ఫలితం) {
+      failf(దత్తాంశం, "rustls: failed to copy client certificate blob (%s)",
+            ఫలితం == CURLE_TOO_LARGE ? "too large" : "out of memory");
+      వెళ్ళు cleanup;
     }
   }
-  else if(!read_file_into(conn_config->clientcert, &cert_contents)) {
-    failf(data, "rustls: failed to read client certificate file: '%s'",
+  లేకపోతే ఒకవేళ(!read_file_into(conn_config->clientcert, &cert_contents)) {
+    failf(దత్తాంశం, "rustls: failed to read client certificate file: '%s'",
           conn_config->clientcert);
-    result = CURLE_SSL_CERTPROBLEM;
-    goto cleanup;
+    ఫలితం = CURLE_SSL_CERTPROBLEM;
+    వెళ్ళు cleanup;
   }
 
-  if(conn_config->key_blob) {
-    result = curlx_dyn_addn(&key_contents,
-                            conn_config->key_blob->data,
-                            conn_config->key_blob->len);
-    if(result) {
-      failf(data, "rustls: failed to copy key blob (%s)",
-            result == CURLE_TOO_LARGE ? "too large" : "out of memory");
-      goto cleanup;
+  ఒకవేళ(conn_config->కీలకం_blob) {
+    ఫలితం = curlx_dyn_addn(&కీలకం_contents,
+                            conn_config->కీలకం_blob->దత్తాంశం,
+                            conn_config->కీలకం_blob->len);
+    ఒకవేళ(ఫలితం) {
+      failf(దత్తాంశం, "rustls: failed to copy key blob (%s)",
+            ఫలితం == CURLE_TOO_LARGE ? "too large" : "out of memory");
+      వెళ్ళు cleanup;
     }
   }
-  else if(!read_file_into(conn_config->key, &key_contents)) {
-    failf(data, "rustls: failed to read key file: '%s'",
-          conn_config->key);
-    result = CURLE_SSL_CERTPROBLEM;
-    goto cleanup;
+  లేకపోతే ఒకవేళ(!read_file_into(conn_config->కీలకం, &కీలకం_contents)) {
+    failf(దత్తాంశం, "rustls: failed to read key file: '%s'",
+          conn_config->కీలకం);
+    ఫలితం = CURLE_SSL_CERTPROBLEM;
+    వెళ్ళు cleanup;
   }
 
-  rr = rustls_certified_key_build(curlx_dyn_uptr(&cert_contents),
+  rr = rustls_certified_కీలకం_build(curlx_dyn_uptr(&cert_contents),
                                   curlx_dyn_len(&cert_contents),
-                                  curlx_dyn_uptr(&key_contents),
-                                  curlx_dyn_len(&key_contents),
-                                  &certified_key);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "rustls: failed to build certified key");
-    result = CURLE_SSL_CERTPROBLEM;
-    goto cleanup;
+                                  curlx_dyn_uptr(&కీలకం_contents),
+                                  curlx_dyn_len(&కీలకం_contents),
+                                  &certified_కీలకం);
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "rustls: failed to build certified key");
+    ఫలితం = CURLE_SSL_CERTPROBLEM;
+    వెళ్ళు cleanup;
   }
 
-  rr = rustls_certified_key_keys_match(certified_key);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr,
+  rr = rustls_certified_కీలకం_కీలకాలు_సరిపోలిక(certified_కీలకం);
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr,
                  "rustls: client certificate and keypair files do not match:");
-    result = CURLE_SSL_CERTPROBLEM;
-    goto cleanup;
+    ఫలితం = CURLE_SSL_CERTPROBLEM;
+    వెళ్ళు cleanup;
   }
 
-  rr = rustls_client_config_builder_set_certified_key(builder,
-                                                      &certified_key,
+  rr = rustls_client_config_builder_సమితి_certified_కీలకం(builder,
+                                                      &certified_కీలకం,
                                                       1);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "rustls: failed to set certified key");
-    result = CURLE_SSL_CERTPROBLEM;
-    goto cleanup;
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "rustls: failed to set certified key");
+    ఫలితం = CURLE_SSL_CERTPROBLEM;
+    వెళ్ళు cleanup;
   }
 
 cleanup:
   curlx_dyn_free(&cert_contents);
-  curlx_dyn_free(&key_contents);
-  if(certified_key) {
-    rustls_certified_key_free(certified_key);
+  curlx_dyn_free(&కీలకం_contents);
+  ఒకవేళ(certified_కీలకం) {
+    rustls_certified_కీలకం_free(certified_కీలకం);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
 
-#ifdef USE_ECH
+#నిర్వచితమైతే USE_ECH
 
-static CURLcode
-init_config_builder_ech(struct Curl_easy *data,
-                        struct Curl_cfilter *cf,
-                        struct rustls_client_config_builder *builder)
+స్థిర CURLcode
+init_config_builder_ech(నిర్మాణం Curl_easy *దత్తాంశం,
+                        నిర్మాణం Curl_cfilter *cf,
+                        నిర్మాణం rustls_client_config_builder *builder)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  const rustls_hpke *hpke = rustls_supported_hpke();
-  unsigned char *ech_config = NULL;
+  నిర్మాణం ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  స్థిరరాశి rustls_hpke *hpke = rustls_supported_hpke();
+  గుర్తులేని అక్షరం *ech_config = ఖాళీ;
   size_t ech_config_len = 0;
-  struct Curl_dns_entry *dns = NULL;
-  CURLcode result = CURLE_OK;
-  rustls_result rr;
+  నిర్మాణం Curl_dns_నమోదు *dns = ఖాళీ;
+  CURLcode ఫలితం = CURLE_OK;
+  rustls_ఫలితం rr;
 
-  if(!hpke) {
-    failf(data,
+  ఒకవేళ(!hpke) {
+    failf(దత్తాంశం,
           "rustls: ECH unavailable, rustls-ffi built without "
           "HPKE compatible crypto provider");
-    result = CURLE_SSL_CONNECT_ERROR;
-    goto cleanup;
+    ఫలితం = CURLE_SSL_CONNECT_ERROR;
+    వెళ్ళు cleanup;
   }
 
-  if(conn_config->ech_public) {
-    failf(data, "rustls: ECH outername not supported");
-    result = CURLE_SSL_CONNECT_ERROR;
-    goto cleanup;
+  ఒకవేళ(conn_config->ech_ప్రజా) {
+    failf(దత్తాంశం, "rustls: ECH outername not supported");
+    ఫలితం = CURLE_SSL_CONNECT_ERROR;
+    వెళ్ళు cleanup;
   }
 
-  if(conn_config->ech == CURLECH_GREASE) {
+  ఒకవేళ(conn_config->ech == CURLECH_GREASE) {
     rr = rustls_client_config_builder_enable_ech_grease(builder, hpke);
-    if(rr != RUSTLS_RESULT_OK) {
-      rustls_failf(data, rr, "rustls: failed to configure ECH GREASE");
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto cleanup;
+    ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+      rustls_failf(దత్తాంశం, rr, "rustls: failed to configure ECH GREASE");
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      వెళ్ళు cleanup;
     }
-    return CURLE_OK;
+    తిరిగి CURLE_OK;
   }
 
-  if(conn_config->ech && conn_config->ech_config) {
-    const char *b64 = conn_config->ech_config;
-    size_t decode_result;
-    if(!b64[0]) {
-      infof(data, "rustls: ECHConfig from command line empty");
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto cleanup;
+  ఒకవేళ(conn_config->ech && conn_config->ech_config) {
+    స్థిరరాశి అక్షరం *b64 = conn_config->ech_config;
+    size_t decode_ఫలితం;
+    ఒకవేళ(!b64[0]) {
+      infof(దత్తాంశం, "rustls: ECHConfig from command line empty");
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      వెళ్ళు cleanup;
     }
     /* rustls-ffi expects the raw TLS encoded ECHConfigList bytes */
-    decode_result = curlx_base64_decode(b64, &ech_config, &ech_config_len);
-    if(decode_result || !ech_config) {
-      infof(data, "rustls: cannot base64 decode ECHConfig from command line");
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto cleanup;
+    decode_ఫలితం = curlx_base64_decode(b64, &ech_config, &ech_config_len);
+    ఒకవేళ(decode_ఫలితం || !ech_config) {
+      infof(దత్తాంశం, "rustls: cannot base64 decode ECHConfig from command line");
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      వెళ్ళు cleanup;
     }
   }
-  else {
-    const struct ssl_connect_data *connssl = cf->ctx;
-    const struct Curl_https_rrinfo *rinfo =
-      Curl_conn_dns_get_https(data, cf->sockindex, connssl->peer.origin);
+  లేకపోతే {
+    స్థిరరాశి నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+    స్థిరరాశి నిర్మాణం Curl_https_rrinfo *rinfo =
+      Curl_conn_dns_get_https(దత్తాంశం, cf->sockindex, connssl->peer.origin);
 
-    if(!Curl_httpsrr_is_for_peer(connssl->peer.origin, rinfo) ||
+    ఒకవేళ(!Curl_httpsrr_is_for_peer(connssl->peer.origin, rinfo) ||
        !rinfo->echconfiglist) {
-      failf(data, "rustls: ECH requested but no ECHConfig available");
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto cleanup;
+      failf(దత్తాంశం, "rustls: ECH requested but no ECHConfig available");
+      ఫలితం = CURLE_SSL_CONNECT_ERROR;
+      వెళ్ళు cleanup;
     }
     ech_config = rinfo->echconfiglist;
     ech_config_len = rinfo->echconfiglist_len;
@@ -1026,141 +1026,141 @@ init_config_builder_ech(struct Curl_easy *data,
                                                ech_config,
                                                ech_config_len,
                                                hpke);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "rustls: failed to configure ECH");
-    result = CURLE_SSL_CONNECT_ERROR;
-    goto cleanup;
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "rustls: failed to configure ECH");
+    ఫలితం = CURLE_SSL_CONNECT_ERROR;
+    వెళ్ళు cleanup;
   }
 cleanup:
   /* if we base64 decoded, we can free now */
-  if(conn_config->ech && conn_config->ech_config) {
+  ఒకవేళ(conn_config->ech && conn_config->ech_config) {
     curlx_free(ech_config);
   }
-  if(dns) {
-    Curl_dns_entry_unlink(data, &dns);
+  ఒకవేళ(dns) {
+    Curl_dns_నమోదు_unlink(దత్తాంశం, &dns);
   }
-  return result;
+  తిరిగి ఫలితం;
 }
-#endif /* USE_ECH */
+#అయితే_ముగింపు /* USE_ECH */
 
-static CURLcode cr_init_backend(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct rustls_ssl_backend_data * const backend)
+స్థిర CURLcode cr_init_backend(నిర్మాణం Curl_cfilter *cf,
+                                నిర్మాణం Curl_easy *దత్తాంశం,
+                                నిర్మాణం rustls_ssl_backend_దత్తాంశం * స్థిరరాశి backend)
 {
-  const struct ssl_connect_data *connssl = cf->ctx;
-  const struct ssl_filter_config *conn_config =
+  స్థిరరాశి నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  స్థిరరాశి నిర్మాణం ssl_filter_config *conn_config =
     Curl_ssl_cf_get_filter_config(cf);
-  struct rustls_connection *rconn = NULL;
-  struct rustls_client_config_builder *config_builder = NULL;
+  నిర్మాణం rustls_connection *rconn = ఖాళీ;
+  నిర్మాణం rustls_client_config_builder *config_builder = ఖాళీ;
 
-  const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
-  const char * const ssl_cafile =
+  స్థిరరాశి నిర్మాణం curl_blob *ca_info_blob = conn_config->ca_info_blob;
+  స్థిరరాశి అక్షరం * స్థిరరాశి ssl_cafile =
     /* CURLOPT_CAINFO_BLOB overrides CURLOPT_CAINFO */
-    (ca_info_blob ? NULL : conn_config->CAfile);
-  CURLcode result = CURLE_OK;
-  rustls_result rr;
+    (ca_info_blob ? ఖాళీ : conn_config->CAfile);
+  CURLcode ఫలితం = CURLE_OK;
+  rustls_ఫలితం rr;
 
   DEBUGASSERT(backend);
   rconn = backend->conn;
 
-  result = init_config_builder(cf, data, conn_config, &config_builder);
-  if(result != CURLE_OK) {
-    return result;
+  ఫలితం = init_config_builder(cf, దత్తాంశం, conn_config, &config_builder);
+  ఒకవేళ(ఫలితం != CURLE_OK) {
+    తిరిగి ఫలితం;
   }
 
-  if(connssl->alpn) {
-    init_config_builder_alpn(data, connssl, config_builder);
+  ఒకవేళ(connssl->alpn) {
+    init_config_builder_alpn(దత్తాంశం, connssl, config_builder);
   }
 
-  if(!conn_config->verifypeer) {
-    rustls_client_config_builder_dangerous_set_certificate_verifier(
+  ఒకవేళ(!conn_config->verifypeer) {
+    rustls_client_config_builder_dangerous_సమితి_certificate_verifier(
       config_builder, cr_verify_none);
   }
-  else if(conn_config->native_ca_store) {
-    if(conn_config->CRLfile) {
-      failf(data, "rustls: CRL file not supported with native CA store; "
+  లేకపోతే ఒకవేళ(conn_config->native_ca_store) {
+    ఒకవేళ(conn_config->CRLfile) {
+      failf(దత్తాంశం, "rustls: CRL file not supported with native CA store; "
             "the platform verifier has no CRL attachment API");
       rustls_client_config_builder_free(config_builder);
-      return CURLE_NOT_BUILT_IN;
+      తిరిగి CURLE_NOT_BUILT_లోపల;
     }
-    result = init_config_builder_platform_verifier(data, config_builder);
-    if(result != CURLE_OK) {
+    ఫలితం = init_config_builder_platform_verifier(దత్తాంశం, config_builder);
+    ఒకవేళ(ఫలితం != CURLE_OK) {
       rustls_client_config_builder_free(config_builder);
-      return result;
+      తిరిగి ఫలితం;
     }
   }
-  else if(ca_info_blob || ssl_cafile) {
-    result = init_config_builder_verifier(data,
+  లేకపోతే ఒకవేళ(ca_info_blob || ssl_cafile) {
+    ఫలితం = init_config_builder_verifier(దత్తాంశం,
                                           config_builder,
                                           conn_config,
                                           ca_info_blob,
                                           ssl_cafile);
-    if(result != CURLE_OK) {
+    ఒకవేళ(ఫలితం != CURLE_OK) {
       rustls_client_config_builder_free(config_builder);
-      return result;
+      తిరిగి ఫలితం;
     }
   }
 
-  if(conn_config->clientcert || conn_config->cert_blob ||
-     conn_config->key || conn_config->key_blob) {
-    result = init_config_builder_client_auth(data,
+  ఒకవేళ(conn_config->clientcert || conn_config->cert_blob ||
+     conn_config->కీలకం || conn_config->కీలకం_blob) {
+    ఫలితం = init_config_builder_client_auth(దత్తాంశం,
                                              conn_config,
                                              config_builder);
-    if(result != CURLE_OK) {
+    ఒకవేళ(ఫలితం != CURLE_OK) {
       rustls_client_config_builder_free(config_builder);
-      return result;
+      తిరిగి ఫలితం;
     }
   }
 
-#ifdef USE_ECH
-  if(Curl_ssl_ech_enabled(cf)) {
-    result = init_config_builder_ech(data, cf, config_builder);
-    if((result != CURLE_OK) && (conn_config->ech == CURLECH_HARD)) {
+#నిర్వచితమైతే USE_ECH
+  ఒకవేళ(Curl_ssl_ech_enabled(cf)) {
+    ఫలితం = init_config_builder_ech(దత్తాంశం, cf, config_builder);
+    ఒకవేళ((ఫలితం != CURLE_OK) && (conn_config->ech == CURLECH_HARD)) {
       rustls_client_config_builder_free(config_builder);
-      return result;
+      తిరిగి ఫలితం;
     }
   }
-#endif /* USE_ECH */
+#అయితే_ముగింపు /* USE_ECH */
 
-  result = init_config_builder_keylog(data, config_builder);
-  if(result != CURLE_OK) {
+  ఫలితం = init_config_builder_keylog(దత్తాంశం, config_builder);
+  ఒకవేళ(ఫలితం != CURLE_OK) {
     rustls_client_config_builder_free(config_builder);
-    return result;
+    తిరిగి ఫలితం;
   }
 
   rr = rustls_client_config_builder_build(config_builder, &backend->config);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "failed to build client config");
-    return CURLE_SSL_CONNECT_ERROR;
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "failed to build client config");
+    తిరిగి CURLE_SSL_CONNECT_ERROR;
   }
 
   DEBUGASSERT(!rconn);
   rr = rustls_client_connection_new(backend->config,
                                     connssl->peer.origin->hostname,
                                     &rconn);
-  if(rr != RUSTLS_RESULT_OK) {
-    rustls_failf(data, rr, "rustls_client_connection_new");
+  ఒకవేళ(rr != RUSTLS_ఫలితం_OK) {
+    rustls_failf(దత్తాంశం, rr, "rustls_client_connection_new");
     rustls_client_config_free(backend->config);
-    backend->config = NULL;
-    return CURLE_COULDNT_CONNECT;
+    backend->config = ఖాళీ;
+    తిరిగి CURLE_COULDNT_CONNECT;
   }
   DEBUGASSERT(rconn);
-  rustls_connection_set_userdata(rconn, backend);
+  rustls_connection_సమితి_userdata(rconn, backend);
   backend->conn = rconn;
 
-  return result;
+  తిరిగి ఫలితం;
 }
 
-static void cr_set_negotiated_alpn(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   const struct rustls_connection *rconn)
+స్థిర శూన్య cr_సమితి_negotiated_alpn(నిర్మాణం Curl_cfilter *cf,
+                                   నిర్మాణం Curl_easy *దత్తాంశం,
+                                   స్థిరరాశి నిర్మాణం rustls_connection *rconn)
 {
-  struct ssl_connect_data * const connssl = cf->ctx;
-  const uint8_t *protocol = NULL;
+  నిర్మాణం ssl_connect_దత్తాంశం * స్థిరరాశి connssl = cf->ctx;
+  స్థిరరాశి uint8_t *protocol = ఖాళీ;
   size_t len = 0;
 
   rustls_connection_get_alpn_protocol(rconn, &protocol, &len);
-  Curl_alpn_set_negotiated(cf, data, connssl, protocol, len);
+  Curl_alpn_సమితి_negotiated(cf, దత్తాంశం, connssl, protocol, len);
 }
 
 /* Given an established network connection, do a TLS handshake.
@@ -1168,173 +1168,173 @@ static void cr_set_negotiated_alpn(struct Curl_cfilter *cf,
  * This function sets `*done` to true once the handshake is complete.
  * This function never reads the value of `*done*`.
  */
-static CURLcode cr_connect(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           bool *done)
+స్థిర CURLcode cr_connect(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                           bool *పూర్తి)
 {
-  struct ssl_connect_data * const connssl = cf->ctx;
-  const struct rustls_ssl_backend_data * const backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  const struct rustls_connection *rconn = NULL;
+  నిర్మాణం ssl_connect_దత్తాంశం * స్థిరరాశి connssl = cf->ctx;
+  స్థిరరాశి నిర్మాణం rustls_ssl_backend_దత్తాంశం * స్థిరరాశి backend =
+    (నిర్మాణం rustls_ssl_backend_దత్తాంశం *)connssl->backend;
+  స్థిరరాశి నిర్మాణం rustls_connection *rconn = ఖాళీ;
   CURLcode tmperr = CURLE_OK;
-  CURLcode result;
-  bool wants_read;
-  bool wants_write;
+  CURLcode ఫలితం;
+  bool కోరుతుంది_read;
+  bool కోరుతుంది_write;
   ssize_t nread;
 
   DEBUGASSERT(backend);
 
-  CURL_TRC_CF(data, cf, "cr_connect, state=%d", (int)connssl->state);
-  *done = FALSE;
+  CURL_TRC_CF(దత్తాంశం, cf, "cr_connect, state=%d", (పూర్ణాంకం)connssl->state);
+  *పూర్తి = FALSE;
 
-#ifdef USE_ECH
+#నిర్వచితమైతే USE_ECH
     /* if we do ECH and need the HTTPS-RR information for it,
      * we delay the connect until it arrives or DNS resolve fails. */
-    if(Curl_ssl_need_httpsrr(cf) &&
-       !Curl_conn_dns_resolved_https(data, cf->sockindex,
+    ఒకవేళ(Curl_ssl_need_httpsrr(cf) &&
+       !Curl_conn_dns_resolved_https(దత్తాంశం, cf->sockindex,
                                      connssl->peer.peer)) {
-      CURL_TRC_CF(data, cf, "need HTTPS-RR for ECH, delaying connect");
-      return CURLE_OK;
+      CURL_TRC_CF(దత్తాంశం, cf, "need HTTPS-RR for ECH, delaying connect");
+      తిరిగి CURLE_OK;
     }
-#endif /* USE_ECH */
+#అయితే_ముగింపు /* USE_ECH */
 
-  if(!backend->conn) {
-    result =
-      cr_init_backend(cf, data,
-                      (struct rustls_ssl_backend_data *)connssl->backend);
-    CURL_TRC_CF(data, cf, "cr_connect, init backend -> %d", (int)result);
-    if(result)
-      return result;
+  ఒకవేళ(!backend->conn) {
+    ఫలితం =
+      cr_init_backend(cf, దత్తాంశం,
+                      (నిర్మాణం rustls_ssl_backend_దత్తాంశం *)connssl->backend);
+    CURL_TRC_CF(దత్తాంశం, cf, "cr_connect, init backend -> %d", (పూర్ణాంకం)ఫలితం);
+    ఒకవేళ(ఫలితం)
+      తిరిగి ఫలితం;
     connssl->state = ssl_connection_negotiating;
   }
   rconn = backend->conn;
 
   /* Read/write data until the handshake is done or the socket would block. */
-  for(;;) {
+  కొరకు(;;) {
     /*
      * Connection has been established according to Rustls. Set send/recv
      * handlers, and update the state machine.
      */
     connssl->io_need = CURL_SSL_IO_NEED_NONE;
-    if(!rustls_connection_is_handshaking(rconn)) {
+    ఒకవేళ(!rustls_connection_is_handshaking(rconn)) {
       /* Rustls claims it is no longer handshaking *before* it has
        * send its FINISHED message off. We attempt to let it write
        * one more time. Oh my.
        */
       size_t nwritten;
-      cr_set_negotiated_alpn(cf, data, rconn);
-      tmperr = cr_send(cf, data, NULL, 0, &nwritten);
-      if(tmperr == CURLE_AGAIN) {
+      cr_సమితి_negotiated_alpn(cf, దత్తాంశం, rconn);
+      tmperr = cr_send(cf, దత్తాంశం, ఖాళీ, 0, &nwritten);
+      ఒకవేళ(tmperr == CURLE_AGAIN) {
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
-        return CURLE_OK;
+        తిరిగి CURLE_OK;
       }
-      else if(tmperr != CURLE_OK) {
-        return tmperr;
+      లేకపోతే ఒకవేళ(tmperr != CURLE_OK) {
+        తిరిగి tmperr;
       }
       /* REALLY Done with the handshake. */
       {
-#ifdef CURLVERBOSE
-        const uint16_t proto = rustls_connection_get_protocol_version(rconn);
-        const rustls_str ciphersuite_name =
+#నిర్వచితమైతే CURLVERBOSE
+        స్థిరరాశి uint16_t proto = rustls_connection_get_protocol_సంస్కరణ(rconn);
+        స్థిరరాశి rustls_str ciphersuite_name =
           rustls_connection_get_negotiated_ciphersuite_name(rconn);
-        const rustls_str kex_group_name =
-          rustls_connection_get_negotiated_key_exchange_group_name(rconn);
-        const char *ver = "TLS version unknown";
-        if(proto == RUSTLS_TLS_VERSION_TLSV1_3)
+        స్థిరరాశి rustls_str kex_సమూహం_name =
+          rustls_connection_get_negotiated_కీలకం_exchange_సమూహం_name(rconn);
+        స్థిరరాశి అక్షరం *ver = "TLS version unknown";
+        ఒకవేళ(proto == RUSTLS_TLS_సంస్కరణ_TLSV1_3)
           ver = "TLSv1.3";
-        if(proto == RUSTLS_TLS_VERSION_TLSV1_2)
+        ఒకవేళ(proto == RUSTLS_TLS_సంస్కరణ_TLSV1_2)
           ver = "TLSv1.2";
-#endif
-        infof(data,
+#అయితే_ముగింపు
+        infof(దత్తాంశం,
               "rustls: handshake complete, %s, ciphersuite: %.*s, "
               "key exchange group: %.*s",
               ver,
-              (int)ciphersuite_name.len,
-              ciphersuite_name.data,
-              (int)kex_group_name.len,
-              kex_group_name.data);
+              (పూర్ణాంకం)ciphersuite_name.len,
+              ciphersuite_name.దత్తాంశం,
+              (పూర్ణాంకం)kex_సమూహం_name.len,
+              kex_సమూహం_name.దత్తాంశం);
       }
-      if(data->set.ssl.certinfo) {
-        size_t num_certs = 0;
+      ఒకవేళ(దత్తాంశం->సమితి.ssl.certinfo) {
+        size_t అంకె_certs = 0;
         size_t i;
-        while(rustls_connection_get_peer_certificate(rconn, num_certs)) {
-          num_certs++;
-          if(num_certs > MAX_ALLOWED_CERT_AMOUNT) {
-            failf(data, "%zu certificates is more than allowed (%d)",
-                  num_certs, MAX_ALLOWED_CERT_AMOUNT);
-            return CURLE_SSL_CONNECT_ERROR;
+        అయితే(rustls_connection_get_peer_certificate(rconn, అంకె_certs)) {
+          అంకె_certs++;
+          ఒకవేళ(అంకె_certs > MAX_ALLOWED_CERT_AMOUNT) {
+            failf(దత్తాంశం, "%zu certificates is more than allowed (%d)",
+                  అంకె_certs, MAX_ALLOWED_CERT_AMOUNT);
+            తిరిగి CURLE_SSL_CONNECT_ERROR;
           }
         }
-        result = Curl_ssl_init_certinfo(data, (int)num_certs);
-        if(result)
-          return result;
-        for(i = 0; i < num_certs; i++) {
-          const rustls_certificate *cert;
-          const unsigned char *der_data;
+        ఫలితం = Curl_ssl_init_certinfo(దత్తాంశం, (పూర్ణాంకం)అంకె_certs);
+        ఒకవేళ(ఫలితం)
+          తిరిగి ఫలితం;
+        కొరకు(i = 0; i < అంకె_certs; i++) {
+          స్థిరరాశి rustls_certificate *cert;
+          స్థిరరాశి గుర్తులేని అక్షరం *der_దత్తాంశం;
           size_t der_len;
-          rustls_result rresult = RUSTLS_RESULT_OK;
+          rustls_ఫలితం rresult = RUSTLS_ఫలితం_OK;
           cert = rustls_connection_get_peer_certificate(rconn, i);
           DEBUGASSERT(cert); /* Should exist since we counted already */
-          rresult = rustls_certificate_get_der(cert, &der_data, &der_len);
-          if(rresult != RUSTLS_RESULT_OK) {
-            char errorbuf[255];
+          rresult = rustls_certificate_get_der(cert, &der_దత్తాంశం, &der_len);
+          ఒకవేళ(rresult != RUSTLS_ఫలితం_OK) {
+            అక్షరం errorbuf[255];
             size_t errorlen;
-            rustls_error(rresult, errorbuf, sizeof(errorbuf), &errorlen);
-            failf(data,
+            rustls_error(rresult, errorbuf, పరిమాణం(errorbuf), &errorlen);
+            failf(దత్తాంశం,
                   "Failed getting DER of server certificate #%zu: %.*s", i,
-                  (int)errorlen, errorbuf);
-            return map_error(rresult);
+                  (పూర్ణాంకం)errorlen, errorbuf);
+            తిరిగి map_error(rresult);
           }
-          result = Curl_extract_certinfo(data, (int)i,
-                                         der_data, der_data + der_len);
-          if(result)
-            return result;
+          ఫలితం = Curl_వెలికితీయి_certinfo(దత్తాంశం, (పూర్ణాంకం)i,
+                                         der_దత్తాంశం, der_దత్తాంశం + der_len);
+          ఒకవేళ(ఫలితం)
+            తిరిగి ఫలితం;
         }
       }
 
       connssl->state = ssl_connection_complete;
-      *done = TRUE;
-      return CURLE_OK;
+      *పూర్తి = TRUE;
+      తిరిగి CURLE_OK;
     }
 
     connssl->connecting_state = ssl_connect_2;
-    wants_read = rustls_connection_wants_read(rconn);
-    wants_write = rustls_connection_wants_write(rconn) ||
-                  backend->plain_out_buffered;
-    DEBUGASSERT(wants_read || wants_write);
+    కోరుతుంది_read = rustls_connection_కోరుతుంది_read(rconn);
+    కోరుతుంది_write = rustls_connection_కోరుతుంది_write(rconn) ||
+                  backend->plain_బహిర్గతం_buffered;
+    DEBUGASSERT(కోరుతుంది_read || కోరుతుంది_write);
 
-    if(wants_write) {
+    ఒకవేళ(కోరుతుంది_write) {
       size_t nwritten;
-      CURL_TRC_CF(data, cf, "rustls_connection wants us to write_tls.");
-      tmperr = cr_send(cf, data, NULL, 0, &nwritten);
-      if(tmperr == CURLE_AGAIN) {
-        CURL_TRC_CF(data, cf, "writing would block");
+      CURL_TRC_CF(దత్తాంశం, cf, "rustls_connection wants us to write_tls.");
+      tmperr = cr_send(cf, దత్తాంశం, ఖాళీ, 0, &nwritten);
+      ఒకవేళ(tmperr == CURLE_AGAIN) {
+        CURL_TRC_CF(దత్తాంశం, cf, "writing would block");
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
-        return CURLE_OK;
+        తిరిగి CURLE_OK;
       }
-      else if(tmperr != CURLE_OK) {
-        return tmperr;
+      లేకపోతే ఒకవేళ(tmperr != CURLE_OK) {
+        తిరిగి tmperr;
       }
     }
 
-    if(wants_read) {
-      CURL_TRC_CF(data, cf, "rustls_connection wants us to read_tls.");
-      nread = tls_recv_more(cf, data, &tmperr);
-      if(nread == 0) {
+    ఒకవేళ(కోరుతుంది_read) {
+      CURL_TRC_CF(దత్తాంశం, cf, "rustls_connection wants us to read_tls.");
+      nread = tls_recv_మరిన్ని(cf, దత్తాంశం, &tmperr);
+      ఒకవేళ(nread == 0) {
         connssl->peer_closed = TRUE;
-        failf(data, "TLS connect error: Connection closed abruptly");
-        return CURLE_SSL_CONNECT_ERROR;
+        failf(దత్తాంశం, "TLS connect error: Connection closed abruptly");
+        తిరిగి CURLE_SSL_CONNECT_ERROR;
       }
-      if(nread < 0) {
-        if(tmperr == CURLE_AGAIN) {
-          CURL_TRC_CF(data, cf, "reading would block");
+      ఒకవేళ(nread < 0) {
+        ఒకవేళ(tmperr == CURLE_AGAIN) {
+          CURL_TRC_CF(దత్తాంశం, cf, "reading would block");
           connssl->io_need = CURL_SSL_IO_NEED_RECV;
-          return CURLE_OK;
+          తిరిగి CURLE_OK;
         }
-        else if(tmperr == CURLE_RECV_ERROR) {
-          return CURLE_SSL_CONNECT_ERROR;
+        లేకపోతే ఒకవేళ(tmperr == CURLE_RECV_ERROR) {
+          తిరిగి CURLE_SSL_CONNECT_ERROR;
         }
-        else {
-          return tmperr;
+        లేకపోతే {
+          తిరిగి tmperr;
         }
       }
     }
@@ -1345,117 +1345,117 @@ static CURLcode cr_connect(struct Curl_cfilter *cf, struct Curl_easy *data,
   DEBUGASSERT(FALSE);
 }
 
-static void *cr_get_internals(struct ssl_connect_data *connssl, CURLINFO info)
+స్థిర శూన్య *cr_get_internals(నిర్మాణం ssl_connect_దత్తాంశం *connssl, CURLINFO info)
 {
-  struct rustls_ssl_backend_data *backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  (void)info;
+  నిర్మాణం rustls_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం rustls_ssl_backend_దత్తాంశం *)connssl->backend;
+  (శూన్య)info;
   DEBUGASSERT(backend);
-  return backend->conn;
+  తిరిగి backend->conn;
 }
 
-static CURLcode cr_shutdown(struct Curl_cfilter *cf, struct Curl_easy *data,
-                            const bool send_shutdown, bool *done)
+స్థిర CURLcode cr_shutdown(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం,
+                            స్థిరరాశి bool send_shutdown, bool *పూర్తి)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct rustls_ssl_backend_data *backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం rustls_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం rustls_ssl_backend_దత్తాంశం *)connssl->backend;
+  CURLcode ఫలితం = CURLE_OK;
   size_t i, nread = 0, nwritten;
 
   DEBUGASSERT(backend);
-  if(!backend->conn || cf->shutdown) {
-    *done = TRUE;
-    goto out;
+  ఒకవేళ(!backend->conn || cf->shutdown) {
+    *పూర్తి = TRUE;
+    వెళ్ళు బహిర్గతం;
   }
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
-  *done = FALSE;
+  *పూర్తి = FALSE;
 
-  if(!backend->sent_shutdown) {
+  ఒకవేళ(!backend->పంపిన_shutdown) {
     /* do this only once */
-    backend->sent_shutdown = TRUE;
-    if(send_shutdown) {
+    backend->పంపిన_shutdown = TRUE;
+    ఒకవేళ(send_shutdown) {
       rustls_connection_send_close_notify(backend->conn);
     }
   }
 
-  result = cr_send(cf, data, NULL, 0, &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  ఫలితం = cr_send(cf, దత్తాంశం, ఖాళీ, 0, &nwritten);
+  ఒకవేళ(ఫలితం) {
+    ఒకవేళ(ఫలితం == CURLE_AGAIN) {
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      result = CURLE_OK;
-      goto out;
+      ఫలితం = CURLE_OK;
+      వెళ్ళు బహిర్గతం;
     }
-    DEBUGASSERT(result);
-    CURL_TRC_CF(data, cf, "shutdown send failed: %d", (int)result);
-    goto out;
+    DEBUGASSERT(ఫలితం);
+    CURL_TRC_CF(దత్తాంశం, cf, "shutdown send failed: %d", (పూర్ణాంకం)ఫలితం);
+    వెళ్ళు బహిర్గతం;
   }
 
-  for(i = 0; i < 10; ++i) {
-    char buf[1024];
-    result = cr_recv(cf, data, buf, (int)sizeof(buf), &nread);
-    if(result)
-      break;
+  కొరకు(i = 0; i < 10; ++i) {
+    అక్షరం buf[1024];
+    ఫలితం = cr_recv(cf, దత్తాంశం, buf, (పూర్ణాంకం)పరిమాణం(buf), &nread);
+    ఒకవేళ(ఫలితం)
+      ఆపు;
   }
 
-  if(result == CURLE_AGAIN) {
+  ఒకవేళ(ఫలితం == CURLE_AGAIN) {
     connssl->io_need = CURL_SSL_IO_NEED_RECV;
-    result = CURLE_OK;
+    ఫలితం = CURLE_OK;
   }
-  else if(result) {
-    DEBUGASSERT(result);
-    CURL_TRC_CF(data, cf, "shutdown, error: %d", (int)result);
+  లేకపోతే ఒకవేళ(ఫలితం) {
+    DEBUGASSERT(ఫలితం);
+    CURL_TRC_CF(దత్తాంశం, cf, "shutdown, error: %d", (పూర్ణాంకం)ఫలితం);
   }
-  else if(nread == 0) {
+  లేకపోతే ఒకవేళ(nread == 0) {
     /* We got the close notify alert and are done. */
-    *done = TRUE;
+    *పూర్తి = TRUE;
   }
 
-out:
-  cf->shutdown = (result || *done);
-  return result;
+బహిర్గతం:
+  cf->shutdown = (ఫలితం || *పూర్తి);
+  తిరిగి ఫలితం;
 }
 
-static void cr_close(struct Curl_cfilter *cf, struct Curl_easy *data)
+స్థిర శూన్య cr_close(నిర్మాణం Curl_cfilter *cf, నిర్మాణం Curl_easy *దత్తాంశం)
 {
-  const struct ssl_connect_data *connssl = cf->ctx;
-  struct rustls_ssl_backend_data *backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
+  స్థిరరాశి నిర్మాణం ssl_connect_దత్తాంశం *connssl = cf->ctx;
+  నిర్మాణం rustls_ssl_backend_దత్తాంశం *backend =
+    (నిర్మాణం rustls_ssl_backend_దత్తాంశం *)connssl->backend;
 
-  (void)data;
+  (శూన్య)దత్తాంశం;
   DEBUGASSERT(backend);
-  if(backend->conn) {
+  ఒకవేళ(backend->conn) {
     rustls_connection_free(backend->conn);
-    backend->conn = NULL;
+    backend->conn = ఖాళీ;
   }
-  if(backend->config) {
+  ఒకవేళ(backend->config) {
     rustls_client_config_free(backend->config);
-    backend->config = NULL;
+    backend->config = ఖాళీ;
   }
 }
 
-static size_t cr_version(char *buffer, size_t size)
+స్థిర size_t cr_సంస్కరణ(అక్షరం *బఫరు, size_t కొలత)
 {
-  const struct rustls_str ver = rustls_version();
-  return curl_msnprintf(buffer, size, "%.*s", (int)ver.len, ver.data);
+  స్థిరరాశి నిర్మాణం rustls_str ver = rustls_సంస్కరణ();
+  తిరిగి curl_msnprintf(బఫరు, కొలత, "%.*s", (పూర్ణాంకం)ver.len, ver.దత్తాంశం);
 }
 
-static CURLcode cr_random(struct Curl_easy *data, unsigned char *entropy,
-                          size_t length)
+స్థిర CURLcode cr_random(నిర్మాణం Curl_easy *దత్తాంశం, గుర్తులేని అక్షరం *entropy,
+                          size_t నిడివి)
 {
-  rustls_result rresult = 0;
-  (void)data;
-  rresult = rustls_default_crypto_provider_random(entropy, length);
-  return map_error(rresult);
+  rustls_ఫలితం rresult = 0;
+  (శూన్య)దత్తాంశం;
+  rresult = rustls_default_crypto_provider_random(entropy, నిడివి);
+  తిరిగి map_error(rresult);
 }
 
-static void cr_cleanup(void)
+స్థిర శూన్య cr_cleanup(శూన్య)
 {
   Curl_tls_keylog_close();
 }
 
-const struct Curl_ssl Curl_ssl_rustls = {
+స్థిరరాశి నిర్మాణం Curl_ssl Curl_ssl_rustls = {
   { CURLSSLBACKEND_RUSTLS, "rustls" },
   SSLSUPP_CAINFO_BLOB |            /* supports */
   SSLSUPP_HTTPS_PROXY |
@@ -1464,25 +1464,25 @@ const struct Curl_ssl Curl_ssl_rustls = {
   SSLSUPP_CERTINFO |
   SSLSUPP_ECH |
   SSLSUPP_CRLFILE,
-  sizeof(struct rustls_ssl_backend_data),
+  పరిమాణం(నిర్మాణం rustls_ssl_backend_దత్తాంశం),
 
-  NULL,                            /* init */
+  ఖాళీ,                            /* init */
   cr_cleanup,                      /* cleanup */
-  cr_version,                      /* version */
+  cr_సంస్కరణ,                      /*సంస్కరణ*/
   cr_shutdown,                     /* shutdown */
-  cr_data_pending,                 /* data_pending */
+  cr_దత్తాంశం_pending,                 /* data_pending */
   cr_random,                       /* random */
-  NULL,                            /* cert_status_request */
+  ఖాళీ,                            /* cert_status_request */
   cr_connect,                      /* connect */
   Curl_ssl_adjust_pollset,         /* adjust_pollset */
   cr_get_internals,                /* get_internals */
   cr_close,                        /* close_one */
-  NULL,                            /* close_all */
-  NULL,                            /* engines_list */
-  NULL,                            /* sha256sum */
+  ఖాళీ,                            /* close_all */
+  ఖాళీ,                            /* engines_list */
+  ఖాళీ,                            /* sha256sum */
   cr_recv,                         /* recv decrypted data */
   cr_send,                         /* send data to encrypt */
-  NULL,                            /* get_channel_binding */
+  ఖాళీ,                            /* get_channel_binding */
 };
 
-#endif /* USE_RUSTLS */
+#అయితే_ముగింపు /* USE_RUSTLS */
