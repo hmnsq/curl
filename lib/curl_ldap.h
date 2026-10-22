@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_LDAP_H
-#define HEADER_CURL_LDAP_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_LDAP_H
+#تعریف_کرو سرخی_CURL_LDAP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-extern const struct Curl_protocol Curl_protocol_ldap;
+خارجی ثابت ساخت Curl_protocol Curl_protocol_ldap;
 
-void Curl_ldap_version(char *buf, size_t bufsz);
+خالی Curl_ldap_نسخہ(حرف *buf, size_t bufsz);
 
-#endif /* HEADER_CURL_LDAP_H */
+#اگر_ختم /* HEADER_CURL_LDAP_H */

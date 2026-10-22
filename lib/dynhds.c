@@ -21,234 +21,234 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "dynhds.h"
-#include "strcase.h"
+#شامل "dynhds.h"
+#شامل "strcase.h"
 
-static struct dynhds_entry *entry_new(const char *name, size_t namelen,
-                                      const char *value, size_t valuelen,
-                                      int opts)
+ساکن ساخت dynhds_اندراج *اندراج_new(ثابت حرف *name, size_t namelen,
+                                      ثابت حرف *قدر, size_t valuelen,
+                                      صحیح opts)
 {
-  struct dynhds_entry *e;
-  char *p;
+  ساخت dynhds_اندراج *e;
+  حرف *p;
 
   /* namelen + valuelen <= SIZE_MAX has already been checked by caller */
-  if((SIZE_MAX - namelen - valuelen) < (sizeof(*e) + 2))
-    return NULL;
-  e = curlx_calloc(1, sizeof(*e) + namelen + valuelen + 2);
-  if(!e)
-    return NULL;
-  e->name = p = (char *)e + sizeof(*e);
-  memcpy(p, name, namelen);
+  اگر((SIZE_MAX - namelen - valuelen) < (حجم(*e) + 2))
+    واپس تہی;
+  e = curlx_calloc(1, حجم(*e) + namelen + valuelen + 2);
+  اگر(!e)
+    واپس تہی;
+  e->name = p = (حرف *)e + حجم(*e);
+  حافظہ_نقل(p, name, namelen);
   e->namelen = namelen;
-  e->value = p += namelen + 1; /* leave a \0 at the end of name */
-  if(valuelen) {
-    memcpy(p, value, valuelen);
+  e->قدر = p += namelen + 1; /* leave a \0 at the end of name */
+  اگر(valuelen) {
+    حافظہ_نقل(p, قدر, valuelen);
     e->valuelen = valuelen;
   }
-  if(opts & DYNHDS_OPT_LOWERCASE)
+  اگر(opts & DYNHDS_OPT_LOWERCASE)
     Curl_strntolower(e->name, e->name, e->namelen);
-  return e;
+  واپس e;
 }
 
-static void entry_free(struct dynhds_entry *e)
+ساکن خالی اندراج_free(ساخت dynhds_اندراج *e)
 {
   curlx_free(e);
 }
 
-void Curl_dynhds_init(struct dynhds *dynhds, size_t max_entries,
-                      size_t max_strs_size)
+خالی Curl_dynhds_init(ساخت dynhds *dynhds, size_t max_entries,
+                      size_t max_strs_سائز)
 {
   DEBUGASSERT(dynhds);
-  DEBUGASSERT(max_strs_size);
-  dynhds->hds = NULL;
+  DEBUGASSERT(max_strs_سائز);
+  dynhds->hds = تہی;
   dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
   dynhds->max_entries = max_entries;
-  dynhds->max_strs_size = max_strs_size;
+  dynhds->max_strs_سائز = max_strs_سائز;
   dynhds->opts = 0;
 }
 
-void Curl_dynhds_free(struct dynhds *dynhds)
+خالی Curl_dynhds_free(ساخت dynhds *dynhds)
 {
   DEBUGASSERT(dynhds);
-  if(dynhds->hds && dynhds->hds_len) {
+  اگر(dynhds->hds && dynhds->hds_len) {
     size_t i;
     DEBUGASSERT(dynhds->hds);
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      entry_free(dynhds->hds[i]);
+    برائے(i = 0; i < dynhds->hds_len; ++i) {
+      اندراج_free(dynhds->hds[i]);
     }
   }
   curlx_safefree(dynhds->hds);
   dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
 }
 
-void Curl_dynhds_reset(struct dynhds *dynhds)
+خالی Curl_dynhds_reset(ساخت dynhds *dynhds)
 {
   DEBUGASSERT(dynhds);
-  if(dynhds->hds_len) {
+  اگر(dynhds->hds_len) {
     size_t i;
     DEBUGASSERT(dynhds->hds);
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      entry_free(dynhds->hds[i]);
-      dynhds->hds[i] = NULL;
+    برائے(i = 0; i < dynhds->hds_len; ++i) {
+      اندراج_free(dynhds->hds[i]);
+      dynhds->hds[i] = تہی;
     }
   }
   dynhds->hds_len = dynhds->strs_len = 0;
 }
 
-size_t Curl_dynhds_count(struct dynhds *dynhds)
+size_t Curl_dynhds_گنتی(ساخت dynhds *dynhds)
 {
-  return dynhds->hds_len;
+  واپس dynhds->hds_len;
 }
 
-void Curl_dynhds_set_opts(struct dynhds *dynhds, int opts)
+خالی Curl_dynhds_سیٹ_opts(ساخت dynhds *dynhds, صحیح opts)
 {
   dynhds->opts = opts;
 }
 
-struct dynhds_entry *Curl_dynhds_getn(struct dynhds *dynhds, size_t n)
+ساخت dynhds_اندراج *Curl_dynhds_getn(ساخت dynhds *dynhds, size_t n)
 {
   DEBUGASSERT(dynhds);
-  return (n < dynhds->hds_len) ? dynhds->hds[n] : NULL;
+  واپس (n < dynhds->hds_len) ? dynhds->hds[n] : تہی;
 }
 
-struct dynhds_entry *Curl_dynhds_get(struct dynhds *dynhds, const char *name,
+ساخت dynhds_اندراج *Curl_dynhds_get(ساخت dynhds *dynhds, ثابت حرف *name,
                                      size_t namelen)
 {
   size_t i;
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    if(dynhds->hds[i]->namelen == namelen &&
+  برائے(i = 0; i < dynhds->hds_len; ++i) {
+    اگر(dynhds->hds[i]->namelen == namelen &&
        curl_strnequal(dynhds->hds[i]->name, name, namelen)) {
-      return dynhds->hds[i];
+      واپس dynhds->hds[i];
     }
   }
-  return NULL;
+  واپس تہی;
 }
 
-struct dynhds_entry *Curl_dynhds_cget(struct dynhds *dynhds, const char *name)
+ساخت dynhds_اندراج *Curl_dynhds_cget(ساخت dynhds *dynhds, ثابت حرف *name)
 {
-  return Curl_dynhds_get(dynhds, name, strlen(name));
+  واپس Curl_dynhds_get(dynhds, name, لڑی_لمبائی(name));
 }
 
-CURLcode Curl_dynhds_add(struct dynhds *dynhds,
-                         const char *name, size_t namelen,
-                         const char *value, size_t valuelen)
+CURLcode Curl_dynhds_جوڑو(ساخت dynhds *dynhds,
+                         ثابت حرف *name, size_t namelen,
+                         ثابت حرف *قدر, size_t valuelen)
 {
-  struct dynhds_entry *entry = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  ساخت dynhds_اندراج *اندراج_2 = تہی;
+  CURLcode نتیجہ = CURLE_برآمد_کا_حافظہ;
 
   /* Accept NULL value with length 0, name must have length */
-  if(!dynhds || !name || !namelen || (!value && valuelen)) {
+  اگر(!dynhds || !name || !namelen || (!قدر && valuelen)) {
     DEBUGASSERT(0);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    واپس CURLE_BAD_FUNCTION_دلیل;
   }
   /* Does the new header fit into the limits? */
-  if((dynhds->max_entries && (dynhds->hds_len >= dynhds->max_entries)) ||
-     (dynhds->max_strs_size - dynhds->strs_len < namelen) ||
-     (dynhds->max_strs_size - dynhds->strs_len - namelen < valuelen))
-    return CURLE_OUT_OF_MEMORY;
+  اگر((dynhds->max_entries && (dynhds->hds_len >= dynhds->max_entries)) ||
+     (dynhds->max_strs_سائز - dynhds->strs_len < namelen) ||
+     (dynhds->max_strs_سائز - dynhds->strs_len - namelen < valuelen))
+    واپس CURLE_برآمد_کا_حافظہ;
 
-  entry = entry_new(name, namelen, value, valuelen, dynhds->opts);
-  if(!entry)
-    goto out;
+  اندراج_2 = اندراج_new(name, namelen, قدر, valuelen, dynhds->opts);
+  اگر(!اندراج_2)
+    جاؤ برآمد;
 
-  if(dynhds->hds_len + 1 >= dynhds->hds_allc) {
+  اگر(dynhds->hds_len + 1 >= dynhds->hds_allc) {
     size_t nallc = dynhds->hds_allc ? dynhds->hds_allc * 2 : 16;
-    struct dynhds_entry **nhds;
+    ساخت dynhds_اندراج **nhds;
 
-    if(dynhds->max_entries && nallc > dynhds->max_entries)
+    اگر(dynhds->max_entries && nallc > dynhds->max_entries)
       nallc = dynhds->max_entries;
 
-    nhds = curlx_calloc(nallc, sizeof(struct dynhds_entry *));
-    if(!nhds)
-      goto out;
-    if(dynhds->hds) {
-      memcpy(nhds, dynhds->hds,
-             dynhds->hds_len * sizeof(struct dynhds_entry *));
+    nhds = curlx_calloc(nallc, حجم(ساخت dynhds_اندراج *));
+    اگر(!nhds)
+      جاؤ برآمد;
+    اگر(dynhds->hds) {
+      حافظہ_نقل(nhds, dynhds->hds,
+             dynhds->hds_len * حجم(ساخت dynhds_اندراج *));
       curlx_safefree(dynhds->hds);
     }
     dynhds->hds = nhds;
     dynhds->hds_allc = nallc;
   }
-  dynhds->hds[dynhds->hds_len++] = entry;
-  entry = NULL;
+  dynhds->hds[dynhds->hds_len++] = اندراج_2;
+  اندراج_2 = تہی;
   dynhds->strs_len += namelen + valuelen;
-  result = CURLE_OK;
+  نتیجہ = CURLE_OK;
 
-out:
-  if(entry)
-    entry_free(entry);
-  return result;
+برآمد:
+  اگر(اندراج_2)
+    اندراج_free(اندراج_2);
+  واپس نتیجہ;
 }
 
-CURLcode Curl_dynhds_cadd(struct dynhds *dynhds,
-                          const char *name, const char *value)
+CURLcode Curl_dynhds_cadd(ساخت dynhds *dynhds,
+                          ثابت حرف *name, ثابت حرف *قدر)
 {
-  if(!name)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return Curl_dynhds_add(dynhds, name, strlen(name),
-                         value, value ? strlen(value) : 0);
+  اگر(!name)
+    واپس CURLE_BAD_FUNCTION_دلیل;
+  واپس Curl_dynhds_جوڑو(dynhds, name, لڑی_لمبائی(name),
+                         قدر, قدر ? لڑی_لمبائی(قدر) : 0);
 }
 
-CURLcode Curl_dynhds_h1_add_line(struct dynhds *dynhds,
-                                 const char *line, size_t line_len)
+CURLcode Curl_dynhds_h1_جوڑو_سطر(ساخت dynhds *dynhds,
+                                 ثابت حرف *سطر, size_t سطر_len)
 {
-  const char *p;
-  const char *name;
+  ثابت حرف *p;
+  ثابت حرف *name;
   size_t namelen;
-  const char *value;
+  ثابت حرف *قدر;
   size_t valuelen, i;
 
-  if(!line || !line_len)
-    return CURLE_OK;
+  اگر(!سطر || !سطر_len)
+    واپس CURLE_OK;
 
-  p = memchr(line, ':', line_len);
-  if(!p || p == line)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  name = line;
-  namelen = p - line;
+  p = memchr(سطر, ':', سطر_len);
+  اگر(!p || p == سطر)
+    واپس CURLE_BAD_FUNCTION_دلیل;
+  name = سطر;
+  namelen = p - سطر;
   p++; /* move past the colon */
-  for(i = namelen + 1; i < line_len; ++i, ++p) {
-    if(!ISBLANK(*p))
-      break;
+  برائے(i = namelen + 1; i < سطر_len; ++i, ++p) {
+    اگر(!ISBLANK(*p))
+      توڑو;
   }
-  value = p;
-  valuelen = line_len - i;
+  قدر = p;
+  valuelen = سطر_len - i;
 
-  p = memchr(value, '\r', valuelen);
-  if(!p)
-    p = memchr(value, '\n', valuelen);
-  if(p)
-    valuelen = (size_t)(p - value);
+  p = memchr(قدر, '\r', valuelen);
+  اگر(!p)
+    p = memchr(قدر, '\n', valuelen);
+  اگر(p)
+    valuelen = (size_t)(p - قدر);
 
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  واپس Curl_dynhds_جوڑو(dynhds, name, namelen, قدر, valuelen);
 }
 
-CURLcode Curl_dynhds_h1_cadd_line(struct dynhds *dynhds, const char *line)
+CURLcode Curl_dynhds_h1_cadd_سطر(ساخت dynhds *dynhds, ثابت حرف *سطر)
 {
-  return Curl_dynhds_h1_add_line(dynhds, line, line ? strlen(line) : 0);
+  واپس Curl_dynhds_h1_جوڑو_سطر(dynhds, سطر, سطر ? لڑی_لمبائی(سطر) : 0);
 }
 
-#ifdef UNITTESTS
+#اگر_تعریف_شدہ UNITTESTS
 /* @unittest 2602 */
 
 /**
  * Return TRUE iff one or more headers with the given name exist.
  */
-UNITTEST bool dynhds_contains(struct dynhds *dynhds,
-                              const char *name, size_t namelen);
-UNITTEST bool dynhds_contains(struct dynhds *dynhds,
-                              const char *name, size_t namelen)
+UNITTEST bool dynhds_شامل_ہے(ساخت dynhds *dynhds,
+                              ثابت حرف *name, size_t namelen);
+UNITTEST bool dynhds_شامل_ہے(ساخت dynhds *dynhds,
+                              ثابت حرف *name, size_t namelen)
 {
-  return !!Curl_dynhds_get(dynhds, name, namelen);
+  واپس !!Curl_dynhds_get(dynhds, name, namelen);
 }
 
 /* @unittest 2602 */
-UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name);
-UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
+UNITTEST bool dynhds_ccontains(ساخت dynhds *dynhds, ثابت حرف *name);
+UNITTEST bool dynhds_ccontains(ساخت dynhds *dynhds, ثابت حرف *name)
 {
-  return dynhds_contains(dynhds, name, strlen(name));
+  واپس dynhds_شامل_ہے(dynhds, name, لڑی_لمبائی(name));
 }
 
 /**
@@ -257,21 +257,21 @@ UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
-                                  const char *name, size_t namelen);
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
-                                  const char *name, size_t namelen)
+UNITTEST size_t dynhds_گنتی_name(ساخت dynhds *dynhds,
+                                  ثابت حرف *name, size_t namelen);
+UNITTEST size_t dynhds_گنتی_name(ساخت dynhds *dynhds,
+                                  ثابت حرف *name, size_t namelen)
 {
   size_t n = 0;
-  if(dynhds->hds_len) {
+  اگر(dynhds->hds_len) {
     size_t i;
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      if((namelen == dynhds->hds[i]->namelen) &&
+    برائے(i = 0; i < dynhds->hds_len; ++i) {
+      اگر((namelen == dynhds->hds[i]->namelen) &&
          curl_strnequal(name, dynhds->hds[i]->name, namelen))
         ++n;
     }
   }
-  return n;
+  واپس n;
 }
 
 /**
@@ -280,12 +280,12 @@ UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
-                                        const char *name);
-UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
-                                        const char *name)
+UNITTEST size_t dynhds_ccount_name(ساخت dynhds *dynhds,
+                                        ثابت حرف *name);
+UNITTEST size_t dynhds_ccount_name(ساخت dynhds *dynhds,
+                                        ثابت حرف *name)
 {
-  return dynhds_count_name(dynhds, name, strlen(name));
+  واپس dynhds_گنتی_name(dynhds, name, لڑی_لمبائی(name));
 }
 
 /**
@@ -294,32 +294,32 @@ UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
-                              const char *name, size_t namelen);
-UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
-                              const char *name, size_t namelen)
+UNITTEST size_t dynhds_remove(ساخت dynhds *dynhds,
+                              ثابت حرف *name, size_t namelen);
+UNITTEST size_t dynhds_remove(ساخت dynhds *dynhds,
+                              ثابت حرف *name, size_t namelen)
 {
   size_t n = 0;
-  if(dynhds->hds_len) {
+  اگر(dynhds->hds_len) {
     size_t i, len;
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      if((namelen == dynhds->hds[i]->namelen) &&
+    برائے(i = 0; i < dynhds->hds_len; ++i) {
+      اگر((namelen == dynhds->hds[i]->namelen) &&
          curl_strnequal(name, dynhds->hds[i]->name, namelen)) {
         ++n;
         --dynhds->hds_len;
         dynhds->strs_len -= (dynhds->hds[i]->namelen +
                              dynhds->hds[i]->valuelen);
-        entry_free(dynhds->hds[i]);
+        اندراج_free(dynhds->hds[i]);
         len = dynhds->hds_len - i; /* remaining entries */
-        if(len) {
+        اگر(len) {
           memmove(&dynhds->hds[i], &dynhds->hds[i + 1],
-                  len * sizeof(dynhds->hds[i]));
+                  len * حجم(dynhds->hds[i]));
         }
         --i; /* do this index again */
       }
     }
   }
-  return n;
+  واپس n;
 }
 
 /**
@@ -329,73 +329,73 @@ UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
-                             const char *name, size_t namelen,
-                             const char *value, size_t valuelen);
-UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
-                             const char *name, size_t namelen,
-                             const char *value, size_t valuelen)
+UNITTEST CURLcode dynhds_سیٹ(ساخت dynhds *dynhds,
+                             ثابت حرف *name, size_t namelen,
+                             ثابت حرف *قدر, size_t valuelen);
+UNITTEST CURLcode dynhds_سیٹ(ساخت dynhds *dynhds,
+                             ثابت حرف *name, size_t namelen,
+                             ثابت حرف *قدر, size_t valuelen)
 {
   dynhds_remove(dynhds, name, namelen);
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  واپس Curl_dynhds_جوڑو(dynhds, name, namelen, قدر, valuelen);
 }
 
 /* @unittest 2602 */
-UNITTEST size_t dynhds_cremove(struct dynhds *dynhds, const char *name);
-UNITTEST size_t dynhds_cremove(struct dynhds *dynhds, const char *name)
+UNITTEST size_t dynhds_cremove(ساخت dynhds *dynhds, ثابت حرف *name);
+UNITTEST size_t dynhds_cremove(ساخت dynhds *dynhds, ثابت حرف *name)
 {
-  return dynhds_remove(dynhds, name, strlen(name));
+  واپس dynhds_remove(dynhds, name, لڑی_لمبائی(name));
 }
 
-#endif /* UNITTESTS */
+#اگر_ختم /* UNITTESTS */
 
-CURLcode Curl_dynhds_h1_dprint(struct dynhds *dynhds, struct dynbuf *dbuf)
+CURLcode Curl_dynhds_h1_dprint(ساخت dynhds *dynhds, ساخت dynbuf *dbuf)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   size_t i;
 
-  if(!dynhds->hds_len)
-    return result;
+  اگر(!dynhds->hds_len)
+    واپس نتیجہ;
 
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    result = curlx_dyn_addn(dbuf, dynhds->hds[i]->name,
+  برائے(i = 0; i < dynhds->hds_len; ++i) {
+    نتیجہ = curlx_dyn_addn(dbuf, dynhds->hds[i]->name,
                             dynhds->hds[i]->namelen);
-    if(!result)
-      result = curlx_dyn_addn(dbuf, STRCONST(": "));
-    if(!result)
-      result = curlx_dyn_addn(dbuf, dynhds->hds[i]->value,
+    اگر(!نتیجہ)
+      نتیجہ = curlx_dyn_addn(dbuf, STRCONST(": "));
+    اگر(!نتیجہ)
+      نتیجہ = curlx_dyn_addn(dbuf, dynhds->hds[i]->قدر,
                               dynhds->hds[i]->valuelen);
-    if(!result)
-      result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
-    if(result)
-      break;
+    اگر(!نتیجہ)
+      نتیجہ = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
+    اگر(نتیجہ)
+      توڑو;
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
-#ifdef USE_NGHTTP2
+#اگر_تعریف_شدہ USE_NGHTTP2
 
-nghttp2_nv *Curl_dynhds_to_nva(struct dynhds *dynhds, size_t *pcount)
+nghttp2_nv *Curl_dynhds_مقصد_nva(ساخت dynhds *dynhds, size_t *pcount)
 {
-  nghttp2_nv *nva = curlx_calloc(1, sizeof(nghttp2_nv) * dynhds->hds_len);
+  nghttp2_nv *nva = curlx_calloc(1, حجم(nghttp2_nv) * dynhds->hds_len);
   size_t i;
 
   *pcount = 0;
-  if(!nva)
-    return NULL;
+  اگر(!nva)
+    واپس تہی;
 
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    struct dynhds_entry *e = dynhds->hds[i];
+  برائے(i = 0; i < dynhds->hds_len; ++i) {
+    ساخت dynhds_اندراج *e = dynhds->hds[i];
     DEBUGASSERT(e);
-    nva[i].name = (unsigned char *)e->name;
+    nva[i].name = (غیرعلامتی حرف *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].قدر = (غیرعلامتی حرف *)e->قدر;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP2_NV_FLAG_NONE;
   }
   *pcount = dynhds->hds_len;
-  return nva;
+  واپس nva;
 }
 
-#endif /* USE_NGHTTP2 */
+#اگر_ختم /* USE_NGHTTP2 */

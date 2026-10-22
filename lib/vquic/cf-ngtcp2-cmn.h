@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_CF_NGTCP2_CMN_H
-#define HEADER_CURL_VQUIC_CF_NGTCP2_CMN_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_VQUIC_CF_NGTCP2_CMN_H
+#تعریف_کرو سرخی_CURL_VQUIC_CF_NGTCP2_CMN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,236 +23,236 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
-#include <ngtcp2/ngtcp2.h>
-#include <ngtcp2/ngtcp2_crypto.h>
+#شامل <ngtcp2/ngtcp2.h>
+#شامل <ngtcp2/ngtcp2_crypto.h>
 
-#ifdef USE_OPENSSL
-#include <openssl/err.h>
-#if defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
-#include <ngtcp2/ngtcp2_crypto_boringssl.h>
-#elif defined(OPENSSL_QUIC_API2)
-#include <ngtcp2/ngtcp2_crypto_ossl.h>
-#else
-#include <ngtcp2/ngtcp2_crypto_quictls.h>
-#endif
-#include "vtls/openssl.h"
-#elif defined(USE_GNUTLS)
-#include <ngtcp2/ngtcp2_crypto_gnutls.h>
-#include "vtls/gtls.h"
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/quic.h>
-#include <ngtcp2/ngtcp2_crypto_wolfssl.h>
-#include "vtls/wolfssl.h"
-#endif
+#اگر_تعریف_شدہ USE_OPENSSL
+#شامل <openssl/err.h>
+#اگر defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
+#شامل <ngtcp2/ngtcp2_crypto_boringssl.h>
+#وگرنہ_اگر defined(OPENSSL_QUIC_API2)
+#شامل <ngtcp2/ngtcp2_crypto_ossl.h>
+#ورنہ
+#شامل <ngtcp2/ngtcp2_crypto_quictls.h>
+#اگر_ختم
+#شامل "vtls/openssl.h"
+#وگرنہ_اگر defined(USE_GNUTLS)
+#شامل <ngtcp2/ngtcp2_crypto_gnutls.h>
+#شامل "vtls/gtls.h"
+#وگرنہ_اگر defined(USE_WOLFSSL)
+#شامل <wolfssl/options.h>
+#شامل <wolfssl/ssl.h>
+#شامل <wolfssl/quic.h>
+#شامل <ngtcp2/ngtcp2_crypto_wolfssl.h>
+#شامل "vtls/wolfssl.h"
+#اگر_ختم
 
-#ifdef HAVE_NETINET_UDP_H
-#include <netinet/udp.h>
-#endif
+#اگر_تعریف_شدہ HAVE_NETINET_UDP_H
+#شامل <netinet/udp.h>
+#اگر_ختم
 
-#include <nghttp3/nghttp3.h>
+#شامل <nghttp3/nghttp3.h>
 
-#include "http1.h"
-#include "u32_ptrset.h"
-#include "vtls/vtls.h"
-#include "vquic/vquic_int.h"
-#include "vquic/vquic-tls.h"
+#شامل "http1.h"
+#شامل "u32_ptrset.h"
+#شامل "vtls/vtls.h"
+#شامل "vquic/vquic_int.h"
+#شامل "vquic/vquic-tls.h"
 
-struct Curl_cfilter;
-struct Curl_easy;
-struct cf_ngtcp2_ctx;
-struct cf_quic_ctx;
+ساخت Curl_cfilter;
+ساخت Curl_easy;
+ساخت cf_ngtcp2_ctx;
+ساخت cf_quic_ctx;
 
-#define QUIC_MAX_STREAMS       (256 * 1024)
-#define QUIC_HANDSHAKE_TIMEOUT (10 * NGTCP2_SECONDS)
-#define QUIC_TUNNEL_INBUF_SIZE (64 * 1024)
+#تعریف_کرو QUIC_MAX_STREAMS       (256 * 1024)
+#تعریف_کرو QUIC_HANDSHAKE_TIMEOUT (10 * NGTCP2_SECONDS)
+#تعریف_کرو QUIC_TUNNEL_INBUF_سائز (64 * 1024)
 
 /* We announce a small window size in transport param to the server,
  * and grow that immediately to max when no rate limit is in place.
  * We need to start small as we are not able to decrease it. */
-#define H3_STREAM_WINDOW_SIZE_INITIAL (32 * 1024)
-#define H3_STREAM_WINDOW_SIZE_MAX     (10 * 1024 * 1024)
-#define H3_CONN_WINDOW_SIZE_MAX       (100 * H3_STREAM_WINDOW_SIZE_MAX)
+#تعریف_کرو H3_دھارا_کھڑکی_سائز_INITIAL (32 * 1024)
+#تعریف_کرو H3_دھارا_کھڑکی_سائز_MAX     (10 * 1024 * 1024)
+#تعریف_کرو H3_CONN_کھڑکی_سائز_MAX       (100 * H3_دھارا_کھڑکی_سائز_MAX)
 
-#define H3_STREAM_CHUNK_SIZE  (64 * 1024)
-#if H3_STREAM_CHUNK_SIZE < NGTCP2_MAX_UDP_PAYLOAD_SIZE
-#error H3_STREAM_CHUNK_SIZE smaller than NGTCP2_MAX_UDP_PAYLOAD_SIZE
-#endif
+#تعریف_کرو H3_دھارا_CHUNK_سائز  (64 * 1024)
+#اگر H3_دھارا_CHUNK_سائز < NGTCP2_MAX_UDP_PAYLOAD_سائز
+#غلطی H3_دھارا_CHUNK_سائز smaller than NGTCP2_MAX_UDP_PAYLOAD_سائز
+#اگر_ختم
 /* The pool keeps spares around for all streams.
  * The benefit of the pool is that stream buffers do not keep
  * spares. Memory consumption goes down when streams run empty,
  * have a large upload done, etc. */
-#define H3_STREAM_POOL_SPARES      5
+#تعریف_کرو H3_دھارا_POOL_SPARES      5
 /* The max amount of un-acked upload data we keep around per stream */
-#define H3_STREAM_SEND_BUFFER_MAX      (10 * H3_STREAM_CHUNK_SIZE)
-#define H3_STREAM_SEND_CHUNKS \
-  (H3_STREAM_SEND_BUFFER_MAX / H3_STREAM_CHUNK_SIZE)
+#تعریف_کرو H3_دھارا_SEND_بفر_MAX      (10 * H3_دھارا_CHUNK_سائز)
+#تعریف_کرو H3_دھارا_SEND_CHUNKS \
+  (H3_دھارا_SEND_بفر_MAX / H3_دھارا_CHUNK_سائز)
 /* How much data we initially want to buffer un-acked */
-#define H3_STREAM_SEND_BUF_INITIAL     (32 * 1024)
+#تعریف_کرو H3_دھارا_SEND_BUF_INITIAL     (32 * 1024)
 
-#define QUIC_TUNNEL_INGRESS_PKT_LIMIT 1000
+#تعریف_کرو QUIC_TUNNEL_INGRESS_PKT_حد_بندی 1000
 
 
-void Curl_ngtcp2_ver(char *p, size_t len);
+خالی Curl_ngtcp2_ver(حرف *p, size_t len);
 
-typedef CURLcode cf_ngtcp2_init_h3_conn(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct cf_ngtcp2_ctx *ctx);
+قسمتعریف CURLcode cf_ngtcp2_init_h3_conn(ساخت Curl_cfilter *cf,
+                                        ساخت Curl_easy *ڈیٹا,
+                                        ساخت cf_ngtcp2_ctx *ctx);
 
-struct cf_ngtcp2_ctx {
-  struct cf_quic_ctx q;
-  struct ssl_peer ssl_peer;
-  struct curl_tls_ctx tls;
-#ifdef OPENSSL_QUIC_API2
+ساخت cf_ngtcp2_ctx {
+  ساخت cf_quic_ctx q;
+  ساخت ssl_peer ssl_peer;
+  ساخت curl_tls_ctx tls;
+#اگر_تعریف_شدہ OPENSSL_QUIC_API2
   ngtcp2_crypto_ossl_ctx *ossl_ctx;
-#endif
-  ngtcp2_path connected_path;
+#اگر_ختم
+  ngtcp2_راستہ connected_راستہ;
   ngtcp2_conn *qconn;
   ngtcp2_cid dcid;
   ngtcp2_cid scid;
-  uint32_t version;
+  uint32_t نسخہ_2;
   ngtcp2_settings settings;
   ngtcp2_transport_params transport_params;
-  ngtcp2_ccerr last_error;
+  ngtcp2_ccerr آخری_error;
   ngtcp2_crypto_conn_ref conn_ref;
-  struct cf_call_data call_data;
+  ساخت cf_call_ڈیٹا call_ڈیٹا;
   cf_ngtcp2_init_h3_conn *init_h3_conn_cb;
   nghttp3_conn *h3conn;
   nghttp3_settings h3settings;
-  struct curltime started_at;       /* time the current attempt started */
-  struct curltime handshake_at;     /* time connect handshake finished */
-  struct bufc_pool stream_bufcp;    /* chunk pool for streams */
-  struct dynbuf scratch;            /* temp buffer for header construction */
-  struct u32_ptrset streams;        /* set of data->mid + h3_stream_ctx */
-  uint64_t used_bidi_streams;       /* bidi streams we have opened */
+  ساخت curltime started_at;       /* time the current attempt started */
+  ساخت curltime handshake_at;     /* time connect handshake finished */
+  ساخت bufc_pool دھارا_bufcp;    /* chunk pool for streams */
+  ساخت dynbuf scratch;            /* temp buffer for header construction */
+  ساخت u32_ptrset streams;        /* set of data->mid + h3_stream_ctx */
+  uint64_t مستعمل_bidi_streams;       /* bidi streams we have opened */
   uint64_t max_bidi_streams;        /* max bidi streams we can open */
   size_t earlydata_max;             /* max amount of early data supported by
                                        server on session reuse */
   size_t earlydata_skip;            /* sending bytes to skip when earlydata
                                        is accepted by peer */
-  CURLcode tls_vrfy_result;         /* result of TLS peer verification */
-  int qlogfd;
-  unsigned char *tunnel_inbuf;      /* ingress buffer for tunneled packets */
+  CURLcode tls_vrfy_نتیجہ;         /* result of TLS peer verification */
+  صحیح qlogfd;
+  غیرعلامتی حرف *tunnel_inbuf;      /* ingress buffer for tunneled packets */
   size_t tunnel_inbuf_len;
-  BIT(initialized);
-  BIT(tls_handshake_complete);      /* TLS handshake is done */
-  BIT(use_earlydata);               /* Using 0RTT data */
-  BIT(earlydata_accepted);          /* 0RTT was accepted by server */
-  BIT(shutdown_started);            /* queued shutdown packets */
-  BIT(stats_reported);              /* connect statistics reported */
+  ثنائی_ہندسہ(initialized);
+  ثنائی_ہندسہ(tls_handshake_complete);      /* TLS handshake is done */
+  ثنائی_ہندسہ(use_earlydata);               /* Using 0RTT data */
+  ثنائی_ہندسہ(earlydata_accepted);          /* 0RTT was accepted by server */
+  ثنائی_ہندسہ(shutdown_started);            /* queued shutdown packets */
+  ثنائی_ہندسہ(stats_reported);              /* connect statistics reported */
 };
 
 /* How to access `call_data` from a cf_ngtcp2 filter */
-#undef CF_CTX_CALL_DATA
-#define CF_CTX_CALL_DATA(cf) ((struct cf_ngtcp2_ctx *)(cf)->ctx)->call_data
+#تعریف_منسوخ CF_CTX_CALL_ڈیٹا
+#تعریف_کرو CF_CTX_CALL_ڈیٹا(cf) ((ساخت cf_ngtcp2_ctx *)(cf)->ctx)->call_ڈیٹا
 
-CURLcode Curl_cf_ngtcp2_ctx_init(struct cf_ngtcp2_ctx *ctx,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
-                                 struct ssl_filter_config *sslc,
+CURLcode Curl_cf_ngtcp2_ctx_init(ساخت cf_ngtcp2_ctx *ctx,
+                                 ساخت Curl_peer *origin,
+                                 ساخت Curl_peer *peer,
+                                 ساخت ssl_filter_config *sslc,
                                  cf_ngtcp2_init_h3_conn *init_h3_conn_cb);
-void Curl_cf_ngtcp2_ctx_cleanup(struct cf_ngtcp2_ctx *ctx);
-void Curl_cf_ngtcp2_cmn_err_set(struct Curl_cfilter *cf,
-                                struct Curl_easy *data, int code);
+خالی Curl_cf_ngtcp2_ctx_cleanup(ساخت cf_ngtcp2_ctx *ctx);
+خالی Curl_cf_ngtcp2_cmn_err_سیٹ(ساخت Curl_cfilter *cf,
+                                ساخت Curl_easy *ڈیٹا, صحیح رمز);
 
 /**
  * All about the H3 internals of a stream
  */
-struct h3_stream_ctx {
+ساخت h3_دھارا_ctx {
   int64_t id;                   /* HTTP/3 stream identifier */
   curl_off_t xfer_id;           /* `id` of transfer owning this stream */
-  struct bufq sendbuf;          /* h3 request body */
-  struct h1_req_parser h1;      /* h1 request parsing */
+  ساخت bufq sendbuf;          /* h3 request body */
+  ساخت h1_req_parser h1;      /* h1 request parsing */
   uint64_t error3;              /* HTTP/3 stream error code */
-  curl_off_t upload_left;       /* number of request bytes left to upload */
-  curl_off_t rx_total;          /* total number of bytes received */
-  uint64_t rx_offset;           /* current receive offset */
-  uint64_t rx_offset_max;       /* allowed receive offset */
-  size_t tx_in_flight_size;     /* sendbuf data "in flight" */
-  size_t tx_in_flight_ideal;    /* ideal amount of un-acked send data */
+  curl_off_t upload_بایاں;       /* number of request bytes left to upload */
+  curl_off_t rx_کل;          /* total number of bytes received */
+  uint64_t rx_انحراف;           /* current receive offset */
+  uint64_t rx_انحراف_max;       /* allowed receive offset */
+  size_t tx_اندر_flight_سائز;     /* sendbuf data "in flight" */
+  size_t tx_اندر_flight_ideal;    /* ideal amount of un-acked send data */
   uint32_t mid;                 /* `mid` of transfer owning this stream */
-  int32_t status_code;              /* HTTP status code */
-  CURLcode xfer_result;         /* result from xfer_resp_write(_hd) */
-  BIT(resp_hds_complete);       /* we have a complete, final response */
-  BIT(closed);                  /* TRUE on stream close */
-  BIT(reset);                   /* TRUE on stream reset */
-  BIT(send_closed);             /* stream is local closed */
-  BIT(quic_flow_blocked);       /* stream is blocked by QUIC flow control */
+  int32_t حالت_رمز;              /* HTTP status code */
+  CURLcode xfer_نتیجہ;         /* result from xfer_resp_write(_hd) */
+  ثنائی_ہندسہ(resp_hds_complete);       /* we have a complete, final response */
+  ثنائی_ہندسہ(closed);                  /* TRUE on stream close */
+  ثنائی_ہندسہ(reset);                   /* TRUE on stream reset */
+  ثنائی_ہندسہ(send_closed);             /* stream is local closed */
+  ثنائی_ہندسہ(quic_flow_blocked);       /* stream is blocked by QUIC flow control */
 };
 
-void Curl_cf_ngtcp2_h3_stream_ctx_free(struct h3_stream_ctx *stream);
-void Curl_cf_ngtcp2_h3_err_set(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, int code);
+خالی Curl_cf_ngtcp2_h3_دھارا_ctx_free(ساخت h3_دھارا_ctx *دھارا);
+خالی Curl_cf_ngtcp2_h3_err_سیٹ(ساخت Curl_cfilter *cf,
+                               ساخت Curl_easy *ڈیٹا, صحیح رمز);
 
-CURLcode Curl_cf_ngtcp2_h3_init_ctrls(struct cf_ngtcp2_ctx *ctx,
-                                      struct Curl_easy *data);
+CURLcode Curl_cf_ngtcp2_h3_init_ctrls(ساخت cf_ngtcp2_ctx *ctx,
+                                      ساخت Curl_easy *ڈیٹا);
 
-CURLcode Curl_cf_ngtcp2_cmn_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    bool *done);
+CURLcode Curl_cf_ngtcp2_cmn_connect(ساخت Curl_cfilter *cf,
+                                    ساخت Curl_easy *ڈیٹا,
+                                    bool *مکمل);
 
-CURLcode Curl_cf_ngtcp2_cmn_shutdown(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data, bool *done);
-void Curl_cf_ngtcp2_cmn_conn_close(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data);
+CURLcode Curl_cf_ngtcp2_cmn_shutdown(ساخت Curl_cfilter *cf,
+                                     ساخت Curl_easy *ڈیٹا, bool *مکمل);
+خالی Curl_cf_ngtcp2_cmn_conn_close(ساخت Curl_cfilter *cf,
+                                   ساخت Curl_easy *ڈیٹا);
 
-struct cf_ngtcp2_io_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_easy *data;
-  struct curltime now;
+ساخت cf_ngtcp2_io_ctx {
+  ساخت Curl_cfilter *cf;
+  ساخت Curl_easy *ڈیٹا;
+  ساخت curltime now;
   ngtcp2_tstamp ts;
-  ngtcp2_path_storage ps;
+  ngtcp2_راستہ_storage ps;
 };
 
-void Curl_cf_ngtcp2_io_ctx_init(struct cf_ngtcp2_io_ctx *io_ctx,
-                                struct Curl_cfilter *cf,
-                                struct Curl_easy *data);
-void Curl_cf_ngtcp2_io_ctx_update_time(struct Curl_easy *data,
-                                       struct cf_ngtcp2_io_ctx *io_ctx,
-                                       struct Curl_cfilter *cf);
+خالی Curl_cf_ngtcp2_io_ctx_init(ساخت cf_ngtcp2_io_ctx *io_ctx,
+                                ساخت Curl_cfilter *cf,
+                                ساخت Curl_easy *ڈیٹا);
+خالی Curl_cf_ngtcp2_io_ctx_update_وقت(ساخت Curl_easy *ڈیٹا,
+                                       ساخت cf_ngtcp2_io_ctx *io_ctx,
+                                       ساخت Curl_cfilter *cf);
 
-CURLcode Curl_cf_ngtcp2_progress_egress(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct cf_ngtcp2_io_ctx *pktx);
+CURLcode Curl_cf_ngtcp2_پیش_رفت_egress(ساخت Curl_cfilter *cf,
+                                        ساخت Curl_easy *ڈیٹا,
+                                        ساخت cf_ngtcp2_io_ctx *pktx);
 
-CURLcode Curl_cf_ngtcp2_progress_ingress(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct cf_ngtcp2_io_ctx *pktx);
+CURLcode Curl_cf_ngtcp2_پیش_رفت_ingress(ساخت Curl_cfilter *cf,
+                                         ساخت Curl_easy *ڈیٹا,
+                                         ساخت cf_ngtcp2_io_ctx *pktx);
 
-CURLcode Curl_cf_ngtcp2_cmn_set_expiry(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct cf_ngtcp2_io_ctx *pktx);
+CURLcode Curl_cf_ngtcp2_cmn_سیٹ_expiry(ساخت Curl_cfilter *cf,
+                                       ساخت Curl_easy *ڈیٹا,
+                                       ساخت cf_ngtcp2_io_ctx *pktx);
 
-CURLcode Curl_cf_ngtcp2_h3_stream_setup(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct h3_stream_ctx **pstream);
-void Curl_cf_ngtcp2_h3_stream_close(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct h3_stream_ctx *stream);
-void Curl_cf_ngtcp2_h3_stream_done(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data);
+CURLcode Curl_cf_ngtcp2_h3_دھارا_تیاری(ساخت Curl_cfilter *cf,
+                                        ساخت Curl_easy *ڈیٹا,
+                                        ساخت h3_دھارا_ctx **pstream);
+خالی Curl_cf_ngtcp2_h3_دھارا_close(ساخت Curl_cfilter *cf,
+                                    ساخت Curl_easy *ڈیٹا,
+                                    ساخت h3_دھارا_ctx *دھارا);
+خالی Curl_cf_ngtcp2_h3_دھارا_مکمل(ساخت Curl_cfilter *cf,
+                                   ساخت Curl_easy *ڈیٹا);
 
-bool Curl_cf_ngtcp2_cmn_conn_is_alive(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      bool *input_pending);
+bool Curl_cf_ngtcp2_cmn_conn_is_alive(ساخت Curl_cfilter *cf,
+                                      ساخت Curl_easy *ڈیٹا,
+                                      bool *داخلہ_pending);
 
-CURLcode Curl_cf_ngtcp2_cmn_query(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2);
+CURLcode Curl_cf_ngtcp2_cmn_query(ساخت Curl_cfilter *cf,
+                                  ساخت Curl_easy *ڈیٹا,
+                                  صحیح query, صحیح *pres1, خالی *pres2);
 
-CURLcode Curl_cf_ngtcp2_cmn_cntrl(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int event, int arg1, void *arg2);
+CURLcode Curl_cf_ngtcp2_cmn_cntrl(ساخت Curl_cfilter *cf,
+                                  ساخت Curl_easy *ڈیٹا,
+                                  صحیح event, صحیح arg1, خالی *arg2);
 
-struct Curl_easy *Curl_cf_ngtcp2_get_xfer(struct Curl_cfilter *cf,
-                                          void *stream_user_data,
-                                          struct h3_stream_ctx **pstream);
+ساخت Curl_easy *Curl_cf_ngtcp2_get_xfer(ساخت Curl_cfilter *cf,
+                                          خالی *دھارا_user_ڈیٹا,
+                                          ساخت h3_دھارا_ctx **pstream);
 
-#endif /* !CURL_DISABLE_HTTP && USE_NGTCP2 && USE_NGHTTP3 */
+#اگر_ختم /* !CURL_DISABLE_HTTP && USE_NGTCP2 && USE_NGHTTP3 */
 
-#endif /* HEADER_CURL_VQUIC_CF_NGTCP2_CMN_H */
+#اگر_ختم /* HEADER_CURL_VQUIC_CF_NGTCP2_CMN_H */

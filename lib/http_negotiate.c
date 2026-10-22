@@ -21,246 +21,246 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "http_negotiate.h"
-#include "vauth/vauth.h"
-#include "vtls/vtls.h"
-#include "curlx/strparse.h"
+#شامل "urldata.h"
+#شامل "cfilters.h"
+#شامل "curl_trc.h"
+#شامل "http_negotiate.h"
+#شامل "vauth/vauth.h"
+#شامل "vtls/vtls.h"
+#شامل "curlx/strparse.h"
 
 
-static void http_auth_nego_reset(struct connectdata *conn,
-                                 struct negotiatedata *neg_ctx,
+ساکن خالی http_auth_nego_reset(ساخت connectdata *conn,
+                                 ساخت negotiatedata *neg_ctx,
                                  bool proxy)
 {
-  if(proxy)
+  اگر(proxy)
     conn->proxy_negotiate_state = CURL_NEGO_AUTH_NONE;
-  else {
+  ورنہ {
     conn->http_negotiate_state = CURL_NEGO_AUTH_NONE;
     Curl_peer_unlink(&conn->creds_origin);
     Curl_creds_unlink(&conn->creds);
   }
-  if(neg_ctx)
+  اگر(neg_ctx)
     Curl_auth_cleanup_spnego(neg_ctx);
 }
 
-CURLcode Curl_input_negotiate(struct Curl_easy *data, struct connectdata *conn,
-                              bool proxy, const char *header)
+CURLcode Curl_داخلہ_negotiate(ساخت Curl_easy *ڈیٹا, ساخت connectdata *conn,
+                              bool proxy, ثابت حرف *سرخی)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
   size_t len;
 
   /* Point to credentials and host */
-  struct Curl_creds *creds = NULL;
-  const char *host;
+  ساخت Curl_creds *creds = تہی;
+  ثابت حرف *host;
 
   /* Point to the correct struct with this */
-  struct negotiatedata *neg_ctx;
+  ساخت negotiatedata *neg_ctx;
   uint8_t state;
 
-  if(proxy) {
-#ifndef CURL_DISABLE_PROXY
+  اگر(proxy) {
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
     creds = conn->http_proxy.creds;
     host = conn->http_proxy.peer->hostname;
     state = conn->proxy_negotiate_state;
-#else
-    return CURLE_NOT_BUILT_IN;
-#endif
+#ورنہ
+    واپس CURLE_NOT_BUILT_اندر;
+#اگر_ختم
   }
-  else {
-    creds = data->state.creds;
-    host = data->state.origin->hostname;
+  ورنہ {
+    creds = ڈیٹا->state.creds;
+    host = ڈیٹا->state.origin->hostname;
     state = conn->http_negotiate_state;
   }
 
   neg_ctx = Curl_auth_nego_get(conn, proxy);
-  if(!neg_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  اگر(!neg_ctx)
+    واپس CURLE_برآمد_کا_حافظہ;
 
   /* Obtain the input token, if any */
-  header += CURL_CSTRLEN("Negotiate");
-  curlx_str_passblanks(&header);
+  سرخی += CURL_CSTRLEN("Negotiate");
+  curlx_str_passblanks(&سرخی);
 
-  len = strlen(header);
+  len = لڑی_لمبائی(سرخی);
   neg_ctx->havenegdata = len != 0;
-  if(!len) {
-    if(state == CURL_NEGO_AUTH_SUCC) {
-      infof(data, "Negotiate auth restarted");
+  اگر(!len) {
+    اگر(state == CURL_NEGO_AUTH_SUCC) {
+      infof(ڈیٹا, "Negotiate auth restarted");
       http_auth_nego_reset(conn, neg_ctx, proxy);
     }
-    else if(state != CURL_NEGO_AUTH_NONE) {
+    ورنہ اگر(state != CURL_NEGO_AUTH_NONE) {
       /* The server rejected our authentication and has not supplied any more
       negotiation mechanisms */
       http_auth_nego_reset(conn, neg_ctx, proxy);
-      return CURLE_LOGIN_DENIED;
+      واپس CURLE_LOGIN_DENIED;
     }
   }
 
   /* Supports SSL channel binding for Windows ISS extended protection */
-#ifdef USE_WINDOWS_SSPI
+#اگر_تعریف_شدہ USE_WINDOWS_SSPI
   neg_ctx->sslContext = conn->sslContext;
-#endif
+#اگر_ختم
   /* Check if the connection is using SSL and get the channel binding data */
-#ifdef GSS_C_CHANNEL_BOUND_FLAG
-#ifdef USE_SSL
-  curlx_dyn_init(&neg_ctx->channel_binding_data, SSL_CB_MAX_SIZE + 1);
-  if(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
-    result = Curl_ssl_get_channel_binding(data, FIRSTSOCKET,
-                                          &neg_ctx->channel_binding_data);
-    if(result) {
+#اگر_تعریف_شدہ GSS_C_CHANNEL_BOUND_FLAG
+#اگر_تعریف_شدہ USE_SSL
+  curlx_dyn_init(&neg_ctx->channel_binding_ڈیٹا, SSL_CB_MAX_سائز + 1);
+  اگر(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+    نتیجہ = Curl_ssl_get_channel_binding(ڈیٹا, FIRSTSOCKET,
+                                          &neg_ctx->channel_binding_ڈیٹا);
+    اگر(نتیجہ) {
       http_auth_nego_reset(conn, neg_ctx, proxy);
-      return result;
+      واپس نتیجہ;
     }
   }
-#else
-  curlx_dyn_init(&neg_ctx->channel_binding_data, 1);
-#endif /* USE_SSL */
-#endif /* GSS_C_CHANNEL_BOUND_FLAG */
+#ورنہ
+  curlx_dyn_init(&neg_ctx->channel_binding_ڈیٹا, 1);
+#اگر_ختم /* USE_SSL */
+#اگر_ختم /* GSS_C_CHANNEL_BOUND_FLAG */
 
   /* Initialize the security context and decode our challenge */
-  result = Curl_auth_decode_spnego_message(data, creds, "HTTP",
-                                           host, header, neg_ctx);
+  نتیجہ = Curl_auth_decode_spnego_پیغام(ڈیٹا, creds, "HTTP",
+                                           host, سرخی, neg_ctx);
 
-#ifdef GSS_C_CHANNEL_BOUND_FLAG
-  curlx_dyn_free(&neg_ctx->channel_binding_data);
-#endif
+#اگر_تعریف_شدہ GSS_C_CHANNEL_BOUND_FLAG
+  curlx_dyn_free(&neg_ctx->channel_binding_ڈیٹا);
+#اگر_ختم
 
-  if(result)
+  اگر(نتیجہ)
     http_auth_nego_reset(conn, neg_ctx, proxy);
 
-  if(!result && !proxy) {
+  اگر(!نتیجہ && !proxy) {
     /* Start it up. From this time onwards, the connection is tied
      * tp the credentials used. */
-    if(conn->creds_origin &&
-       !Curl_peer_equal(conn->creds_origin, data->state.origin)) {
+    اگر(conn->creds_origin &&
+       !Curl_peer_equal(conn->creds_origin, ڈیٹا->state.origin)) {
       DEBUGASSERT(0); /* should not happen. */
-      return CURLE_FAILED_INIT;
+      واپس CURLE_FAILED_INIT;
     }
-    if(conn->creds && !Curl_creds_same(creds, conn->creds)) {
+    اگر(conn->creds && !Curl_creds_same(creds, conn->creds)) {
       DEBUGASSERT(0); /* should not happen. */
-      return CURLE_FAILED_INIT;
+      واپس CURLE_FAILED_INIT;
     }
-    Curl_peer_link(&conn->creds_origin, data->state.origin);
+    Curl_peer_link(&conn->creds_origin, ڈیٹا->state.origin);
     Curl_creds_link(&conn->creds, creds);
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
-CURLcode Curl_output_negotiate(struct Curl_easy *data,
-                               struct connectdata *conn, bool proxy)
+CURLcode Curl_output_negotiate(ساخت Curl_easy *ڈیٹا,
+                               ساخت connectdata *conn, bool proxy)
 {
-  struct negotiatedata *neg_ctx;
-  struct auth *authp;
+  ساخت negotiatedata *neg_ctx;
+  ساخت auth *authp;
   uint8_t *state;
-  char *base64 = NULL;
+  حرف *base64 = تہی;
   size_t len = 0;
-  char *userp;
-  CURLcode result;
+  حرف *userp;
+  CURLcode نتیجہ;
 
-  if(proxy) {
-#ifndef CURL_DISABLE_PROXY
-    authp = &data->state.authproxy;
+  اگر(proxy) {
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+    authp = &ڈیٹا->state.authproxy;
     state = &conn->proxy_negotiate_state;
-#else
-    return CURLE_NOT_BUILT_IN;
-#endif
+#ورنہ
+    واپس CURLE_NOT_BUILT_اندر;
+#اگر_ختم
   }
-  else {
-    authp = &data->state.authhost;
+  ورنہ {
+    authp = &ڈیٹا->state.authhost;
     state = &conn->http_negotiate_state;
   }
   neg_ctx = Curl_auth_nego_get(conn, proxy);
-  if(!neg_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  اگر(!neg_ctx)
+    واپس CURLE_برآمد_کا_حافظہ;
 
-  authp->done = FALSE;
+  authp->مکمل = FALSE;
 
-  if(*state == CURL_NEGO_AUTH_RECV) {
-    if(neg_ctx->havenegdata) {
+  اگر(*state == CURL_NEGO_AUTH_RECV) {
+    اگر(neg_ctx->havenegdata) {
       neg_ctx->havemultiplerequests = TRUE;
     }
   }
-  else if(*state == CURL_NEGO_AUTH_SUCC) {
-    if(!neg_ctx->havenoauthpersist) {
+  ورنہ اگر(*state == CURL_NEGO_AUTH_SUCC) {
+    اگر(!neg_ctx->havenoauthpersist) {
       neg_ctx->noauthpersist = !neg_ctx->havemultiplerequests;
     }
   }
 
-  if(neg_ctx->noauthpersist ||
-     (*state != CURL_NEGO_AUTH_DONE && *state != CURL_NEGO_AUTH_SUCC)) {
+  اگر(neg_ctx->noauthpersist ||
+     (*state != CURL_NEGO_AUTH_مکمل && *state != CURL_NEGO_AUTH_SUCC)) {
 
-    if(neg_ctx->noauthpersist && *state == CURL_NEGO_AUTH_SUCC) {
-      infof(data, "Curl_output_negotiate, "
+    اگر(neg_ctx->noauthpersist && *state == CURL_NEGO_AUTH_SUCC) {
+      infof(ڈیٹا, "Curl_output_negotiate, "
             "no persistent authentication: cleanup existing context");
       http_auth_nego_reset(conn, neg_ctx, proxy);
     }
-    if(!neg_ctx->context) {
-      result = Curl_input_negotiate(data, conn, proxy, "Negotiate");
-      if(result == CURLE_AUTH_ERROR) {
+    اگر(!neg_ctx->context) {
+      نتیجہ = Curl_داخلہ_negotiate(ڈیٹا, conn, proxy, "Negotiate");
+      اگر(نتیجہ == CURLE_AUTH_ERROR) {
         /* negotiate auth failed, let's continue unauthenticated to stay
          * compatible with the behavior before curl-7_64_0-158-g6c6035532 */
-        authp->done = TRUE;
-        return CURLE_OK;
+        authp->مکمل = TRUE;
+        واپس CURLE_OK;
       }
-      else if(result)
-        return result;
+      ورنہ اگر(نتیجہ)
+        واپس نتیجہ;
     }
 
-    result = Curl_auth_create_spnego_message(neg_ctx, &base64, &len);
-    if(result)
-      return result;
+    نتیجہ = Curl_auth_create_spnego_پیغام(neg_ctx, &base64, &len);
+    اگر(نتیجہ)
+      واپس نتیجہ;
 
     userp = curl_maprintf("%sAuthorization: Negotiate %s\r\n",
                           proxy ? "Proxy-" : "", base64);
 
-    if(proxy) {
-#ifndef CURL_DISABLE_PROXY
-      curlx_free(data->req.hd_proxy_auth);
-      data->req.hd_proxy_auth = userp;
-#endif
+    اگر(proxy) {
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+      curlx_free(ڈیٹا->req.hd_proxy_auth);
+      ڈیٹا->req.hd_proxy_auth = userp;
+#اگر_ختم
     }
-    else {
-      curlx_free(data->req.hd_auth);
-      data->req.hd_auth = userp;
+    ورنہ {
+      curlx_free(ڈیٹا->req.hd_auth);
+      ڈیٹا->req.hd_auth = userp;
     }
 
     curlx_free(base64);
 
-    if(!userp) {
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!userp) {
+      واپس CURLE_برآمد_کا_حافظہ;
     }
 
-    *state = CURL_NEGO_AUTH_SENT;
-#ifdef HAVE_GSSAPI
-    if(neg_ctx->status == GSS_S_COMPLETE ||
-       neg_ctx->status == GSS_S_CONTINUE_NEEDED) {
-      *state = CURL_NEGO_AUTH_DONE;
+    *state = CURL_NEGO_AUTH_بھیجا;
+#اگر_تعریف_شدہ HAVE_GSSAPI
+    اگر(neg_ctx->حالت_2 == GSS_S_COMPLETE ||
+       neg_ctx->حالت_2 == GSS_S_CONTINUE_NEEDED) {
+      *state = CURL_NEGO_AUTH_مکمل;
     }
-#else
-#ifdef USE_WINDOWS_SSPI
-    if(neg_ctx->status == SEC_E_OK ||
-       neg_ctx->status == SEC_I_CONTINUE_NEEDED) {
-      *state = CURL_NEGO_AUTH_DONE;
+#ورنہ
+#اگر_تعریف_شدہ USE_WINDOWS_SSPI
+    اگر(neg_ctx->حالت_2 == SEC_E_OK ||
+       neg_ctx->حالت_2 == SEC_I_CONTINUE_NEEDED) {
+      *state = CURL_NEGO_AUTH_مکمل;
     }
-#endif
-#endif
+#اگر_ختم
+#اگر_ختم
   }
 
-  if(*state == CURL_NEGO_AUTH_DONE || *state == CURL_NEGO_AUTH_SUCC) {
+  اگر(*state == CURL_NEGO_AUTH_مکمل || *state == CURL_NEGO_AUTH_SUCC) {
     /* connection is already authenticated,
      * do not send a header in future requests */
-    authp->done = TRUE;
+    authp->مکمل = TRUE;
   }
 
   neg_ctx->havenegdata = FALSE;
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-#endif /* !CURL_DISABLE_HTTP && USE_SPNEGO */
+#اگر_ختم /* !CURL_DISABLE_HTTP && USE_SPNEGO */

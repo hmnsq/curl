@@ -17,33 +17,33 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#اگر_تعریف_شدہ HAVE_SYS_PARAM_H
+#شامل <sys/param.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_NETINET_اندر_H
+#شامل <netinet/in.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_ARPA_INET_H
+#شامل <arpa/inet.h>
+#اگر_ختم
 
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#شامل "curlx/inet_pton.h"
+#شامل "curlx/strparse.h"
 
-#define IN6ADDRSZ       16
-#define INADDRSZ         4
-#define INT16SZ          2
+#تعریف_کرو IN6ADDRSZ       16
+#تعریف_کرو INADDRSZ         4
+#تعریف_کرو INT16SZ          2
 
 /*
  * If USE_IPV6 is disabled, we still want to parse IPv6 addresses, so make
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
-#define AF_INET6 (AF_INET + 1)
-#endif
+#اگر !defined(USE_IPV6) && !defined(AF_INET6)
+#تعریف_کرو AF_INET6 (AF_INET + 1)
+#اگر_ختم
 
 /*
  * WARNING: Do not even consider trying to compile this on a system where
@@ -59,43 +59,43 @@
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, unsigned char *dst)
+ساکن صحیح inet_pton4(ثابت حرف *src, غیرعلامتی حرف *dst)
 {
-  int saw_digit, octets, ch;
-  unsigned char tmp[INADDRSZ], *tp;
+  صحیح saw_digit, octets, ch;
+  غیرعلامتی حرف tmp[INADDRSZ], *tp;
 
   saw_digit = 0;
   octets = 0;
   tp = tmp;
   *tp = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISDIGIT(ch)) {
-      unsigned int val = (*tp * 10) + (ch - '0');
+  جب((ch = (غیرعلامتی حرف)*src++) != '\0') {
+    اگر(ISDIGIT(ch)) {
+      غیرعلامتی صحیح val = (*tp * 10) + (ch - '0');
 
-      if(saw_digit && *tp == 0)
-        return 0;
-      if(val > 255)
-        return 0;
-      *tp = (unsigned char)val;
-      if(!saw_digit) {
-        if(++octets > 4)
-          return 0;
+      اگر(saw_digit && *tp == 0)
+        واپس 0;
+      اگر(val > 255)
+        واپس 0;
+      *tp = (غیرعلامتی حرف)val;
+      اگر(!saw_digit) {
+        اگر(++octets > 4)
+          واپس 0;
         saw_digit = 1;
       }
     }
-    else if(ch == '.' && saw_digit) {
-      if(octets == 4)
-        return 0;
+    ورنہ اگر(ch == '.' && saw_digit) {
+      اگر(octets == 4)
+        واپس 0;
       *++tp = 0;
       saw_digit = 0;
     }
-    else
-      return 0;
+    ورنہ
+      واپس 0;
   }
-  if(octets < 4)
-    return 0;
-  memcpy(dst, tmp, INADDRSZ);
-  return 1;
+  اگر(octets < 4)
+    واپس 0;
+  حافظہ_نقل(dst, tmp, INADDRSZ);
+  واپس 1;
 }
 
 /* int inet_pton6(src, dst)
@@ -110,82 +110,82 @@ static int inet_pton4(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, unsigned char *dst)
+ساکن صحیح inet_pton6(ثابت حرف *src, غیرعلامتی حرف *dst)
 {
-  unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
-  const char *curtok;
-  int ch, saw_xdigit;
+  غیرعلامتی حرف tmp[IN6ADDRSZ], *tp, *endp, *colonp;
+  ثابت حرف *curtok;
+  صحیح ch, saw_xdigit;
   size_t val;
 
   memset((tp = tmp), 0, IN6ADDRSZ);
   endp = tp + IN6ADDRSZ;
-  colonp = NULL;
+  colonp = تہی;
   /* Leading :: requires some special handling. */
-  if(*src == ':' && *++src != ':')
-    return 0;
+  اگر(*src == ':' && *++src != ':')
+    واپس 0;
   curtok = src;
   saw_xdigit = 0;
   val = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISXDIGIT(ch)) {
+  جب((ch = (غیرعلامتی حرف)*src++) != '\0') {
+    اگر(ISXDIGIT(ch)) {
       val <<= 4;
       val |= curlx_hexval(ch);
-      if(++saw_xdigit > 4)
-        return 0;
-      continue;
+      اگر(++saw_xdigit > 4)
+        واپس 0;
+      جاری;
     }
-    if(ch == ':') {
+    اگر(ch == ':') {
       curtok = src;
-      if(!saw_xdigit) {
-        if(colonp)
-          return 0;
+      اگر(!saw_xdigit) {
+        اگر(colonp)
+          واپس 0;
         colonp = tp;
-        continue;
+        جاری;
       }
-      if(!*src)
-        return 0;
-      if(tp + INT16SZ > endp)
-        return 0;
-      *tp++ = (unsigned char)((val >> 8) & 0xff);
-      *tp++ = (unsigned char)(val & 0xff);
+      اگر(!*src)
+        واپس 0;
+      اگر(tp + INT16SZ > endp)
+        واپس 0;
+      *tp++ = (غیرعلامتی حرف)((val >> 8) & 0xff);
+      *tp++ = (غیرعلامتی حرف)(val & 0xff);
       saw_xdigit = 0;
       val = 0;
-      continue;
+      جاری;
     }
-    if(ch == '.' && ((tp + INADDRSZ) <= endp) &&
+    اگر(ch == '.' && ((tp + INADDRSZ) <= endp) &&
        inet_pton4(curtok, tp) > 0) {
       tp += INADDRSZ;
       saw_xdigit = 0;
-      break;    /* '\0' was seen by inet_pton4(). */
+      توڑو;    /* '\0' was seen by inet_pton4(). */
     }
-    return 0;
+    واپس 0;
   }
-  if(saw_xdigit) {
-    if(tp + INT16SZ > endp)
-      return 0;
-    *tp++ = (unsigned char)((val >> 8) & 0xff);
-    *tp++ = (unsigned char)(val & 0xff);
+  اگر(saw_xdigit) {
+    اگر(tp + INT16SZ > endp)
+      واپس 0;
+    *tp++ = (غیرعلامتی حرف)((val >> 8) & 0xff);
+    *tp++ = (غیرعلامتی حرف)(val & 0xff);
   }
-  if(colonp) {
+  اگر(colonp) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we do the shift by hand.
      */
-    const ssize_t n = tp - colonp;
+    ثابت ssize_t n = tp - colonp;
     ssize_t i;
 
-    if(tp == endp)
-      return 0;
-    for(i = 1; i <= n; i++) {
+    اگر(tp == endp)
+      واپس 0;
+    برائے(i = 1; i <= n; i++) {
       *(endp - i) = *(colonp + n - i);
       *(colonp + n - i) = 0;
     }
     tp = endp;
   }
-  if(tp != endp)
-    return 0;
-  memcpy(dst, tmp, IN6ADDRSZ);
-  return 1;
+  اگر(tp != endp)
+    واپس 0;
+  حافظہ_نقل(dst, tmp, IN6ADDRSZ);
+  واپس 1;
 }
 
 /*
@@ -200,15 +200,15 @@ static int inet_pton6(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-int curlx_inet_pton(int af, const char *src, void *dst)
+صحیح curlx_inet_pton(صحیح af, ثابت حرف *src, خالی *dst)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_pton4(src, (unsigned char *)dst);
-  case AF_INET6:
-    return inet_pton6(src, (unsigned char *)dst);
-  default:
-    return -1;
+  انتخاب(af) {
+  حالت AF_INET:
+    واپس inet_pton4(src, (غیرعلامتی حرف *)dst);
+  حالت AF_INET6:
+    واپس inet_pton6(src, (غیرعلامتی حرف *)dst);
+  طےشدہ:
+    واپس -1;
   }
   /* NOTREACHED */
 }

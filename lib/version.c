@@ -21,111 +21,111 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef USE_NGHTTP2
-#include <nghttp2/nghttp2.h>
-#endif
+#اگر_تعریف_شدہ USE_NGHTTP2
+#شامل <nghttp2/nghttp2.h>
+#اگر_ختم
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "http2.h"
-#include "vssh/ssh.h"
-#include "vquic/vquic.h"
-#include "easy_lock.h"
+#شامل "urldata.h"
+#شامل "vtls/vtls.h"
+#شامل "http2.h"
+#شامل "vssh/ssh.h"
+#شامل "vquic/vquic.h"
+#شامل "easy_lock.h"
 
-#ifdef USE_ARES
+#اگر_تعریف_شدہ USE_ARES
 #  include <ares.h>
-#endif
+#اگر_ختم
 
-#ifdef USE_LIBIDN2
-#include <idn2.h>
-#endif
+#اگر_تعریف_شدہ USE_LIBIDN2
+#شامل <idn2.h>
+#اگر_ختم
 
-#ifdef USE_LIBPSL
-#include <libpsl.h>
-#endif
+#اگر_تعریف_شدہ USE_LIBPSL
+#شامل <libpsl.h>
+#اگر_ختم
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
+#اگر_تعریف_شدہ HAVE_LIBZ
+#شامل <zlib.h>
+#اگر_ختم
 
-#ifdef HAVE_BROTLI
-#ifdef CURL_HAVE_DIAG
+#اگر_تعریف_شدہ HAVE_BROTLI
+#اگر_تعریف_شدہ CURL_HAVE_DIAG
 /* Ignore -Wvla warnings in brotli headers */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvla"
-#endif
-#include <brotli/decode.h>
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
-#endif
-#endif
+#ہدایت GCC diagnostic ڈالو
+#ہدایت GCC diagnostic ignored "-Wvla"
+#اگر_ختم
+#شامل <brotli/decode.h>
+#اگر_تعریف_شدہ CURL_HAVE_DIAG
+#ہدایت GCC diagnostic نکالو
+#اگر_ختم
+#اگر_ختم
 
-#ifdef HAVE_ZSTD
-#include <zstd.h>
-#endif
+#اگر_تعریف_شدہ HAVE_ZSTD
+#شامل <zstd.h>
+#اگر_ختم
 
-#ifdef USE_GSASL
-#include <gsasl.h>
-#endif
+#اگر_تعریف_شدہ USE_GSASL
+#شامل <gsasl.h>
+#اگر_ختم
 
-#ifndef CURL_DISABLE_LDAP
-#include "curl_ldap.h"
-#endif
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_LDAP
+#شامل "curl_ldap.h"
+#اگر_ختم
 
-#ifdef HAVE_BROTLI
-static void brotli_version(char *buf, size_t bufsz)
+#اگر_تعریف_شدہ HAVE_BROTLI
+ساکن خالی brotli_نسخہ(حرف *buf, size_t bufsz)
 {
-  uint32_t brotli_version = BrotliDecoderVersion();
-  unsigned int major = brotli_version >> 24;
-  unsigned int minor = (brotli_version & 0x00FFFFFF) >> 12;
-  unsigned int patch = brotli_version & 0x00000FFF;
-  (void)curl_msnprintf(buf, bufsz, "brotli/%u.%u.%u", major, minor, patch);
+  uint32_t brotli_نسخہ = Brotli_Decoder_نسخہ();
+  غیرعلامتی صحیح major = brotli_نسخہ >> 24;
+  غیرعلامتی صحیح minor = (brotli_نسخہ & 0x00FFFFFF) >> 12;
+  غیرعلامتی صحیح patch = brotli_نسخہ & 0x00000FFF;
+  (خالی)curl_msnprintf(buf, bufsz, "brotli/%u.%u.%u", major, minor, patch);
 }
-#endif
+#اگر_ختم
 
-#ifdef HAVE_ZSTD
-static void zstd_version(char *buf, size_t bufsz)
+#اگر_تعریف_شدہ HAVE_ZSTD
+ساکن خالی zstd_نسخہ(حرف *buf, size_t bufsz)
 {
-  unsigned int version = ZSTD_versionNumber();
-  unsigned int major = version / (100 * 100);
-  unsigned int minor = (version - (major * 100 * 100)) / 100;
-  unsigned int patch = version - (major * 100 * 100) - (minor * 100);
-  (void)curl_msnprintf(buf, bufsz, "zstd/%u.%u.%u", major, minor, patch);
+  غیرعلامتی صحیح نسخہ_2 = ZSTD_نسخہ_نمبر();
+  غیرعلامتی صحیح major = نسخہ_2 / (100 * 100);
+  غیرعلامتی صحیح minor = (نسخہ_2 - (major * 100 * 100)) / 100;
+  غیرعلامتی صحیح patch = نسخہ_2 - (major * 100 * 100) - (minor * 100);
+  (خالی)curl_msnprintf(buf, bufsz, "zstd/%u.%u.%u", major, minor, patch);
 }
-#endif
+#اگر_ختم
 
-#ifdef USE_LIBPSL
-static void psl_version(char *buf, size_t bufsz)
+#اگر_تعریف_شدہ USE_LIBPSL
+ساکن خالی psl_نسخہ(حرف *buf, size_t bufsz)
 {
-#if defined(PSL_VERSION_MAJOR) && (PSL_VERSION_MAJOR > 0 ||     \
-                                   PSL_VERSION_MINOR >= 11)
-  int num = psl_check_version_number(0);
+#اگر defined(PSL_نسخہ_MAJOR) && (PSL_نسخہ_MAJOR > 0 ||     \
+                                   PSL_نسخہ_MINOR >= 11)
+  صحیح عدد = psl_check_نسخہ_نمبر(0);
   curl_msnprintf(buf, bufsz, "libpsl/%d.%d.%d",
-                 num >> 16, (num >> 8) & 0xff, num & 0xff);
-#else
-  curl_msnprintf(buf, bufsz, "libpsl/%s", psl_get_version());
-#endif
+                 عدد >> 16, (عدد >> 8) & 0xff, عدد & 0xff);
+#ورنہ
+  curl_msnprintf(buf, bufsz, "libpsl/%s", psl_get_نسخہ());
+#اگر_ختم
 }
-#endif
+#اگر_ختم
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-#define USE_IDN
-#endif
+#اگر defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#تعریف_کرو USE_IDN
+#اگر_ختم
 
-#ifdef USE_IDN
-static void idn_version(char *buf, size_t bufsz)
+#اگر_تعریف_شدہ USE_IDN
+ساکن خالی idn_نسخہ(حرف *buf, size_t bufsz)
 {
-#ifdef USE_LIBIDN2
-  curl_msnprintf(buf, bufsz, "libidn2/%s", idn2_check_version(NULL));
-#elif defined(USE_WIN32_IDN)
+#اگر_تعریف_شدہ USE_LIBIDN2
+  curl_msnprintf(buf, bufsz, "libidn2/%s", idn2_check_نسخہ(تہی));
+#وگرنہ_اگر defined(USE_WIN32_IDN)
   curl_msnprintf(buf, bufsz, "WinIDN");
-#elif defined(USE_APPLE_IDN)
+#وگرنہ_اگر defined(USE_APPLE_IDN)
   curl_msnprintf(buf, bufsz, "AppleIDN");
-#endif
+#اگر_ختم
 }
-#endif
+#اگر_ختم
 
 /*
  * curl_version() returns a pointer to a static buffer.
@@ -135,151 +135,151 @@ static void idn_version(char *buf, size_t bufsz)
  * zeros in the data.
  */
 
-#define VERSION_PARTS 16 /* number of substrings we can concatenate */
+#تعریف_کرو نسخہ_PARTS 16 /* number of substrings we can concatenate */
 
-char *curl_version(void)
+حرف *curl_نسخہ(خالی)
 {
-  static char out[300];
-  char *outp;
+  ساکن حرف برآمد[300];
+  حرف *outp;
   size_t outlen;
-  const char *src[VERSION_PARTS];
-#ifdef USE_SSL
-  char ssl_version[200];
-#endif
-#ifdef HAVE_LIBZ
-  char z_version[30];
-#endif
-#ifdef HAVE_BROTLI
-  char br_version[30];
-#endif
-#ifdef HAVE_ZSTD
-  char zstd_ver[30];
-#endif
-#ifdef USE_ARES
-  char cares_version[30];
-#endif
-#ifdef USE_IDN
-  char idn_ver[30];
-#endif
-#ifdef USE_LIBPSL
-  char psl_ver[30];
-#endif
-#ifdef USE_SSH
-  char ssh_version[30];
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-  char h2_version[30];
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-  char h3_version[30];
-#endif
-#ifdef USE_GSASL
-  char gsasl_buf[30];
-#endif
-#ifdef HAVE_GSSAPI
-  char gss_buf[40];
-#endif
-#ifndef CURL_DISABLE_LDAP
-  char ldap_buf[30];
-#endif
-  int i = 0;
-  int j;
+  ثابت حرف *src[نسخہ_PARTS];
+#اگر_تعریف_شدہ USE_SSL
+  حرف ssl_نسخہ[200];
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_LIBZ
+  حرف z_نسخہ[30];
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_BROTLI
+  حرف br_نسخہ[30];
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_ZSTD
+  حرف zstd_ver[30];
+#اگر_ختم
+#اگر_تعریف_شدہ USE_ARES
+  حرف cares_نسخہ[30];
+#اگر_ختم
+#اگر_تعریف_شدہ USE_IDN
+  حرف idn_ver[30];
+#اگر_ختم
+#اگر_تعریف_شدہ USE_LIBPSL
+  حرف psl_ver[30];
+#اگر_ختم
+#اگر_تعریف_شدہ USE_SSH
+  حرف ssh_نسخہ[30];
+#اگر_ختم
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+  حرف h2_نسخہ[30];
+#اگر_ختم
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+  حرف h3_نسخہ[30];
+#اگر_ختم
+#اگر_تعریف_شدہ USE_GSASL
+  حرف gsasl_buf[30];
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_GSSAPI
+  حرف gss_buf[40];
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_LDAP
+  حرف ldap_buf[30];
+#اگر_ختم
+  صحیح i = 0;
+  صحیح j;
 
-#ifdef DEBUGBUILD
+#اگر_تعریف_شدہ DEBUGBUILD
   /* Override version string when environment variable CURL_DEBUG_VERSION is
-     set */
-  const char *debugversion = getenv("CURL_DEBUG_VERSION");
-  if(debugversion) {
-    curl_msnprintf(out, sizeof(out), "%s", debugversion);
-    return out;
+سیٹ*/
+  ثابت حرف *debugversion = getenv("CURL_DEBUG_VERSION");
+  اگر(debugversion) {
+    curl_msnprintf(برآمد, حجم(برآمد), "%s", debugversion);
+    واپس برآمد;
   }
-#endif
+#اگر_ختم
 
-  src[i++] = LIBCURL_NAME "/" LIBCURL_VERSION;
-#ifdef USE_SSL
-  Curl_ssl_version(ssl_version, sizeof(ssl_version));
-  src[i++] = ssl_version;
-#endif
-#ifdef HAVE_LIBZ
-  curl_msnprintf(z_version, sizeof(z_version), "zlib/%s", zlibVersion());
-  src[i++] = z_version;
-#endif
-#ifdef HAVE_BROTLI
-  brotli_version(br_version, sizeof(br_version));
-  src[i++] = br_version;
-#endif
-#ifdef HAVE_ZSTD
-  zstd_version(zstd_ver, sizeof(zstd_ver));
+  src[i++] = LIBCURL_NAME "/" LIBCURL_نسخہ;
+#اگر_تعریف_شدہ USE_SSL
+  Curl_ssl_نسخہ(ssl_نسخہ, حجم(ssl_نسخہ));
+  src[i++] = ssl_نسخہ;
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_LIBZ
+  curl_msnprintf(z_نسخہ, حجم(z_نسخہ), "zlib/%s", zlib_نسخہ());
+  src[i++] = z_نسخہ;
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_BROTLI
+  brotli_نسخہ(br_نسخہ, حجم(br_نسخہ));
+  src[i++] = br_نسخہ;
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_ZSTD
+  zstd_نسخہ(zstd_ver, حجم(zstd_ver));
   src[i++] = zstd_ver;
-#endif
-#ifdef USE_ARES
-  curl_msnprintf(cares_version, sizeof(cares_version),
-                 "c-ares/%s", ares_version(NULL));
-  src[i++] = cares_version;
-#endif
-#ifdef USE_IDN
-  idn_version(idn_ver, sizeof(idn_ver));
+#اگر_ختم
+#اگر_تعریف_شدہ USE_ARES
+  curl_msnprintf(cares_نسخہ, حجم(cares_نسخہ),
+                 "c-ares/%s", ares_نسخہ(تہی));
+  src[i++] = cares_نسخہ;
+#اگر_ختم
+#اگر_تعریف_شدہ USE_IDN
+  idn_نسخہ(idn_ver, حجم(idn_ver));
   src[i++] = idn_ver;
-#endif
-#ifdef USE_LIBPSL
-  psl_version(psl_ver, sizeof(psl_ver));
+#اگر_ختم
+#اگر_تعریف_شدہ USE_LIBPSL
+  psl_نسخہ(psl_ver, حجم(psl_ver));
   src[i++] = psl_ver;
-#endif
-#ifdef USE_SSH
-  Curl_ssh_version(ssh_version, sizeof(ssh_version));
-  src[i++] = ssh_version;
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-  Curl_http2_ver(h2_version, sizeof(h2_version));
-  src[i++] = h2_version;
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-  Curl_quic_ver(h3_version, sizeof(h3_version));
-  src[i++] = h3_version;
-#endif
-#ifdef USE_GSASL
-  curl_msnprintf(gsasl_buf, sizeof(gsasl_buf), "libgsasl/%s",
-                 gsasl_check_version(NULL));
+#اگر_ختم
+#اگر_تعریف_شدہ USE_SSH
+  Curl_ssh_نسخہ(ssh_نسخہ, حجم(ssh_نسخہ));
+  src[i++] = ssh_نسخہ;
+#اگر_ختم
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+  Curl_http2_ver(h2_نسخہ, حجم(h2_نسخہ));
+  src[i++] = h2_نسخہ;
+#اگر_ختم
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+  Curl_quic_ver(h3_نسخہ, حجم(h3_نسخہ));
+  src[i++] = h3_نسخہ;
+#اگر_ختم
+#اگر_تعریف_شدہ USE_GSASL
+  curl_msnprintf(gsasl_buf, حجم(gsasl_buf), "libgsasl/%s",
+                 gsasl_check_نسخہ(تہی));
   src[i++] = gsasl_buf;
-#endif
-#ifdef HAVE_GSSAPI
-#ifdef HAVE_GSSAPPLE
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "AppleGSS");
-#elif defined(HAVE_GSSGNU)
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "libgss/%s", GSS_VERSION);
-#elif defined(CURL_KRB5_VERSION)
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "mit-krb5/%s", CURL_KRB5_VERSION);
-#else
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "mit-krb5");
-#endif
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_GSSAPI
+#اگر_تعریف_شدہ HAVE_GSSAPPLE
+  curl_msnprintf(gss_buf, حجم(gss_buf), "AppleGSS");
+#وگرنہ_اگر defined(HAVE_GSSGNU)
+  curl_msnprintf(gss_buf, حجم(gss_buf), "libgss/%s", GSS_نسخہ);
+#وگرنہ_اگر defined(CURL_KRB5_نسخہ)
+  curl_msnprintf(gss_buf, حجم(gss_buf), "mit-krb5/%s", CURL_KRB5_نسخہ);
+#ورنہ
+  curl_msnprintf(gss_buf, حجم(gss_buf), "mit-krb5");
+#اگر_ختم
   src[i++] = gss_buf;
-#endif /* HAVE_GSSAPI */
-#ifndef CURL_DISABLE_LDAP
-  Curl_ldap_version(ldap_buf, sizeof(ldap_buf));
+#اگر_ختم /* HAVE_GSSAPI */
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_LDAP
+  Curl_ldap_نسخہ(ldap_buf, حجم(ldap_buf));
   src[i++] = ldap_buf;
-#endif
+#اگر_ختم
 
-  DEBUGASSERT(i <= VERSION_PARTS);
+  DEBUGASSERT(i <= نسخہ_PARTS);
 
-  outp = &out[0];
-  outlen = sizeof(out);
-  for(j = 0; j < i; j++) {
-    size_t n = strlen(src[j]);
+  outp = &برآمد[0];
+  outlen = حجم(برآمد);
+  برائے(j = 0; j < i; j++) {
+    size_t n = لڑی_لمبائی(src[j]);
     /* we need room for a space, the string and the final zero */
-    if(outlen <= (n + 2))
-      break;
-    if(j) {
+    اگر(outlen <= (n + 2))
+      توڑو;
+    اگر(j) {
       /* prepend a space if not the first */
       *outp++ = ' ';
       outlen--;
     }
-    memcpy(outp, src[j], n);
+    حافظہ_نقل(outp, src[j], n);
     outp += n;
     outlen -= n;
   }
   *outp = 0;
 
-  return out;
+  واپس برآمد;
 }
 
 /* data for curl_version_info
@@ -288,87 +288,87 @@ char *curl_version(void)
    protocol line has its own #if line to make things easier on the eye.
  */
 
-static const char * const supported_protocols[] = {
-#ifndef CURL_DISABLE_DICT
+ساکن ثابت حرف * ثابت supported_protocols[] = {
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_DICT
   "dict",
-#endif
-#ifndef CURL_DISABLE_FILE
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_FILE
   "file",
-#endif
-#ifndef CURL_DISABLE_FTP
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_FTP
   "ftp",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_FTP)
+#اگر_ختم
+#اگر defined(USE_SSL) && !defined(CURL_DISABLE_FTP)
   "ftps",
-#endif
-#ifndef CURL_DISABLE_GOPHER
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_GOPHER
   "gopher",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_GOPHER)
+#اگر_ختم
+#اگر defined(USE_SSL) && !defined(CURL_DISABLE_GOPHER)
   "gophers",
-#endif
-#ifndef CURL_DISABLE_HTTP
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HTTP
   "http",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_HTTP)
+#اگر_ختم
+#اگر defined(USE_SSL) && !defined(CURL_DISABLE_HTTP)
   "https",
-#endif
-#ifndef CURL_DISABLE_IMAP
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_IMAP
   "imap",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_IMAP)
+#اگر_ختم
+#اگر defined(USE_SSL) && !defined(CURL_DISABLE_IMAP)
   "imaps",
-#endif
-#ifndef CURL_DISABLE_LDAP
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_LDAP
   "ldap",
-#if !defined(CURL_DISABLE_LDAPS) && \
+#اگر !defined(CURL_DISABLE_LDAPS) && \
   ((defined(USE_OPENLDAP) && defined(USE_SSL)) || \
    (!defined(USE_OPENLDAP) && defined(HAVE_LDAP_SSL)))
   "ldaps",
-#endif
-#endif
-#ifndef CURL_DISABLE_MQTT
+#اگر_ختم
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_MQTT
   "mqtt",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_MQTT)
+#اگر_ختم
+#اگر defined(USE_SSL) && !defined(CURL_DISABLE_MQTT)
   "mqtts",
-#endif
-#ifndef CURL_DISABLE_POP3
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_POP3
   "pop3",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_POP3)
+#اگر_ختم
+#اگر defined(USE_SSL) && !defined(CURL_DISABLE_POP3)
   "pop3s",
-#endif
-#ifndef CURL_DISABLE_RTSP
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_RTSP
   "rtsp",
-#endif
-#ifdef USE_SSH
+#اگر_ختم
+#اگر_تعریف_شدہ USE_SSH
   "scp",
   "sftp",
-#endif
-#ifndef CURL_DISABLE_SMTP
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_SMTP
   "smtp",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_SMTP)
+#اگر_ختم
+#اگر defined(USE_SSL) && !defined(CURL_DISABLE_SMTP)
   "smtps",
-#endif
-#ifndef CURL_DISABLE_TELNET
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_TELNET
   "telnet",
-#endif
-#ifndef CURL_DISABLE_TFTP
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_TFTP
   "tftp",
-#endif
-#ifndef CURL_DISABLE_HTTP
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HTTP
   /* WebSocket support relies on HTTP */
-#ifndef CURL_DISABLE_WEBSOCKETS
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_WEBSOCKETS
   "ws",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_WEBSOCKETS)
+#اگر_ختم
+#اگر defined(USE_SSL) && !defined(CURL_DISABLE_WEBSOCKETS)
   "wss",
-#endif
-#endif
+#اگر_ختم
+#اگر_ختم
 
-  NULL
+  تہی
 };
 
 /*
@@ -378,34 +378,34 @@ static const char * const supported_protocols[] = {
  * curl_global_init() and curl_global_cleanup() calls.
  */
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-static int idn_present(curl_version_info_data *info)
+#اگر defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+ساکن صحیح idn_present(curl_نسخہ_info_ڈیٹا *info)
 {
-#if defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-  (void)info;
-  return TRUE;
-#else
-  return !!info->libidn;
-#endif
+#اگر defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+  (خالی)info;
+  واپس TRUE;
+#ورنہ
+  واپس !!info->libidn;
+#اگر_ختم
 }
-#endif
+#اگر_ختم
 
-#if defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
+#اگر defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
   !defined(CURL_DISABLE_HTTP)
-static int https_proxy_present(curl_version_info_data *info)
+ساکن صحیح https_proxy_present(curl_نسخہ_info_ڈیٹا *info)
 {
-  (void)info;
-  return Curl_ssl_supports(NULL, SSLSUPP_HTTPS_PROXY);
+  (خالی)info;
+  واپس Curl_ssl_supports(تہی, SSLSUPP_HTTPS_PROXY);
 }
-#endif
+#اگر_ختم
 
-#if defined(USE_SSL) && defined(USE_ECH)
-static int ech_present(curl_version_info_data *info)
+#اگر defined(USE_SSL) && defined(USE_ECH)
+ساکن صحیح ech_present(curl_نسخہ_info_ڈیٹا *info)
 {
-  (void)info;
-  return Curl_ssl_supports(NULL, SSLSUPP_ECH);
+  (خالی)info;
+  واپس Curl_ssl_supports(تہی, SSLSUPP_ECH);
 }
-#endif
+#اگر_ختم
 
 /*
  * Features table.
@@ -414,263 +414,263 @@ static int ech_present(curl_version_info_data *info)
  * Use FEATURE() macro to define an entry: this allows documentation check.
  */
 
-#define FEATURE(name, present, bitmask) { (name), (present), (bitmask) }
+#تعریف_کرو FEATURE(name, present, bitmask) { (name), (present), (bitmask) }
 
-struct feat {
-  const char *name;
-  int        (*present)(curl_version_info_data *info);
-  int        bitmask;
+ساخت feat {
+  ثابت حرف *name;
+  صحیح        (*present)(curl_نسخہ_info_ڈیٹا *info);
+  صحیح        bitmask;
 };
 
-static const struct feat features_table[] = {
-#ifndef CURL_DISABLE_ALTSVC
-  FEATURE("alt-svc",     NULL,                CURL_VERSION_ALTSVC),
-#endif
-#if defined(USE_ARES) && defined(USE_RESOLV_THREADED) && defined(USE_HTTPSRR)
-  FEATURE("asyn-rr",     NULL,                0),
-#endif
-#ifdef CURLRES_ASYNCH
-  FEATURE("AsynchDNS",   NULL,                CURL_VERSION_ASYNCHDNS),
-#endif
-#ifdef HAVE_BROTLI
-  FEATURE("brotli",      NULL,                CURL_VERSION_BROTLI),
-#endif
-#ifdef DEBUGBUILD
-  FEATURE("Debug",       NULL,                CURL_VERSION_DEBUG),
-#endif
-#if defined(USE_SSL) && defined(USE_ECH)
+ساکن ثابت ساخت feat features_جدول[] = {
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_ALTSVC
+  FEATURE("alt-svc",     تہی,                CURL_نسخہ_ALTSVC),
+#اگر_ختم
+#اگر defined(USE_ARES) && defined(USE_RESOLV_THREADED) && defined(USE_HTTPSRR)
+  FEATURE("asyn-rr",     تہی,                0),
+#اگر_ختم
+#اگر_تعریف_شدہ CURLRES_ASYNCH
+  FEATURE("AsynchDNS",   تہی,                CURL_نسخہ_ASYNCHDNS),
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_BROTLI
+  FEATURE("brotli",      تہی,                CURL_نسخہ_BROTLI),
+#اگر_ختم
+#اگر_تعریف_شدہ DEBUGBUILD
+  FEATURE("Debug",       تہی,                CURL_نسخہ_DEBUG),
+#اگر_ختم
+#اگر defined(USE_SSL) && defined(USE_ECH)
   FEATURE("ECH",         ech_present,         0),
 
-#ifndef USE_HTTPSRR
-#error "ECH enabled but not HTTPSRR, must be a config error"
-#endif
-#endif
-#ifdef USE_GSASL
-  FEATURE("gsasl",       NULL,                CURL_VERSION_GSASL),
-#endif
-#ifdef HAVE_GSSAPI
-  FEATURE("GSS-API",     NULL,                CURL_VERSION_GSSAPI),
-#endif
-#ifndef CURL_DISABLE_HSTS
-  FEATURE("HSTS",        NULL,                CURL_VERSION_HSTS),
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-  FEATURE("HTTP2",       NULL,                CURL_VERSION_HTTP2),
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-  FEATURE("HTTP3",       NULL,                CURL_VERSION_HTTP3),
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
+#اگر_غیر_تعریف_شدہ USE_HTTPSRR
+#غلطی "ECH enabled but not HTTPSRR, must be a config error"
+#اگر_ختم
+#اگر_ختم
+#اگر_تعریف_شدہ USE_GSASL
+  FEATURE("gsasl",       تہی,                CURL_نسخہ_GSASL),
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_GSSAPI
+  FEATURE("GSS-API",     تہی,                CURL_نسخہ_GSSAPI),
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HSTS
+  FEATURE("HSTS",        تہی,                CURL_نسخہ_HSTS),
+#اگر_ختم
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+  FEATURE("HTTP2",       تہی,                CURL_نسخہ_HTTP2),
+#اگر_ختم
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+  FEATURE("HTTP3",       تہی,                CURL_نسخہ_HTTP3),
+#اگر_ختم
+#اگر defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
   !defined(CURL_DISABLE_HTTP)
-  FEATURE("HTTPS-proxy", https_proxy_present, CURL_VERSION_HTTPS_PROXY),
-#endif
-#ifndef CURL_DISABLE_HTTPSIG
-  FEATURE("HTTPSIG",     NULL,                0),
-#endif
-#ifdef USE_HTTPSRR
-  FEATURE("HTTPSRR",     NULL,                0),
-#endif
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-  FEATURE("IDN",         idn_present,         CURL_VERSION_IDN),
-#endif
-#ifdef USE_IPV6
-  FEATURE("IPv6",        NULL,                CURL_VERSION_IPV6),
-#endif
-#ifdef USE_KERBEROS5
-  FEATURE("Kerberos",    NULL,                CURL_VERSION_KERBEROS5),
-#endif
-#if (SIZEOF_CURL_OFF_T > 4) && ((SIZEOF_OFF_T > 4) || defined(_WIN32))
-  FEATURE("Largefile",   NULL,                CURL_VERSION_LARGEFILE),
-#endif
-#ifdef HAVE_LIBZ
-  FEATURE("libz",        NULL,                CURL_VERSION_LIBZ),
-#endif
-#ifdef CURL_WITH_MULTI_SSL
-  FEATURE("MultiSSL",    NULL,                CURL_VERSION_MULTI_SSL),
-#endif
-#ifdef USE_NTLM
-  FEATURE("NTLM",        NULL,                CURL_VERSION_NTLM),
-#endif
-#ifdef USE_PROXY_HTTP3
-  FEATURE("proxy-HTTP3", NULL,                0),
-#endif
-#ifdef USE_LIBPSL
-  FEATURE("PSL",         NULL,                CURL_VERSION_PSL),
-#endif
-#ifdef USE_SSL
-#ifdef USE_APPLE_SECTRUST
-  FEATURE("AppleSecTrust", NULL,              0),
-#elif defined(CURL_CA_NATIVE)
-  FEATURE("NativeCA",    NULL,              0),
-#endif
-#endif /* USE_SSL */
-#ifdef USE_SPNEGO
-  FEATURE("SPNEGO",      NULL,                CURL_VERSION_SPNEGO),
-#endif
-#ifdef USE_SSL
-  FEATURE("SSL",         NULL,                CURL_VERSION_SSL),
-#endif
-#ifdef USE_SSLS_EXPORT
-  FEATURE("SSLS-EXPORT", NULL,                0),
-#endif
-#ifdef USE_WINDOWS_SSPI
-  FEATURE("SSPI",        NULL,                CURL_VERSION_SSPI),
-#endif
-#ifdef GLOBAL_INIT_IS_THREADSAFE
-  FEATURE("threadsafe",  NULL,                CURL_VERSION_THREADSAFE),
-#endif
-#if defined(_WIN32) && defined(UNICODE) && defined(_UNICODE)
-  FEATURE("Unicode",     NULL,                CURL_VERSION_UNICODE),
-#endif
-#ifdef USE_UNIX_SOCKETS
-  FEATURE("UnixSockets", NULL,                CURL_VERSION_UNIX_SOCKETS),
-#endif
-#ifdef HAVE_ZSTD
-  FEATURE("zstd",        NULL,                CURL_VERSION_ZSTD),
-#endif
-  {NULL,                 NULL,                0}
+  FEATURE("HTTPS-proxy", https_proxy_present, CURL_نسخہ_HTTPS_PROXY),
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HTTPSIG
+  FEATURE("HTTPSIG",     تہی,                0),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_HTTPSRR
+  FEATURE("HTTPSRR",     تہی,                0),
+#اگر_ختم
+#اگر defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+  FEATURE("IDN",         idn_present,         CURL_نسخہ_IDN),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_IPV6
+  FEATURE("IPv6",        تہی,                CURL_نسخہ_IPV6),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_KERBEROS5
+  FEATURE("Kerberos",    تہی,                CURL_نسخہ_KERBEROS5),
+#اگر_ختم
+#اگر (SIZEOF_CURL_OFF_T > 4) && ((SIZEOF_OFF_T > 4) || defined(_WIN32))
+  FEATURE("Largefile",   تہی,                CURL_نسخہ_LARGEFILE),
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_LIBZ
+  FEATURE("libz",        تہی,                CURL_نسخہ_LIBZ),
+#اگر_ختم
+#اگر_تعریف_شدہ CURL_WITH_MULTI_SSL
+  FEATURE("MultiSSL",    تہی,                CURL_نسخہ_MULTI_SSL),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_NTLM
+  FEATURE("NTLM",        تہی,                CURL_نسخہ_NTLM),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_PROXY_HTTP3
+  FEATURE("proxy-HTTP3", تہی,                0),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_LIBPSL
+  FEATURE("PSL",         تہی,                CURL_نسخہ_PSL),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_SSL
+#اگر_تعریف_شدہ USE_APPLE_SECTRUST
+  FEATURE("AppleSecTrust", تہی,              0),
+#وگرنہ_اگر defined(CURL_CA_NATIVE)
+  FEATURE("NativeCA",    تہی,              0),
+#اگر_ختم
+#اگر_ختم /* USE_SSL */
+#اگر_تعریف_شدہ USE_SPNEGO
+  FEATURE("SPNEGO",      تہی,                CURL_نسخہ_SPNEGO),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_SSL
+  FEATURE("SSL",         تہی,                CURL_نسخہ_SSL),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_SSLS_EXPORT
+  FEATURE("SSLS-EXPORT", تہی,                0),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_WINDOWS_SSPI
+  FEATURE("SSPI",        تہی,                CURL_نسخہ_SSPI),
+#اگر_ختم
+#اگر_تعریف_شدہ GLOBAL_INIT_IS_THREADSAFE
+  FEATURE("threadsafe",  تہی,                CURL_نسخہ_THREADSAFE),
+#اگر_ختم
+#اگر defined(_WIN32) && defined(UNICODE) && defined(_UNICODE)
+  FEATURE("Unicode",     تہی,                CURL_نسخہ_UNICODE),
+#اگر_ختم
+#اگر_تعریف_شدہ USE_UNIX_SOCKETS
+  FEATURE("UnixSockets", تہی,                CURL_نسخہ_UNIX_SOCKETS),
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_ZSTD
+  FEATURE("zstd",        تہی,                CURL_نسخہ_ZSTD),
+#اگر_ختم
+  {تہی,                 تہی,                0}
 };
 
-static const char *feature_names[CURL_ARRAYSIZE(features_table)] = { NULL };
+ساکن ثابت حرف *feature_نام[CURL_ARRAYSIZE(features_جدول)] = { تہی };
 
-static curl_version_info_data version_info = {
+ساکن curl_نسخہ_info_ڈیٹا نسخہ_info = {
   CURLVERSION_NOW,
-  LIBCURL_VERSION,
-  LIBCURL_VERSION_NUM,
+  LIBCURL_نسخہ,
+  LIBCURL_نسخہ_عدد,
   CURL_OS, /* as found by configure or set by hand at build-time */
   0,    /* features bitmask is built at runtime */
-  NULL, /* ssl_version */
+  تہی, /* ssl_version */
   0,    /* ssl_version_num, this is kept at zero */
-  NULL, /* zlib_version */
+  تہی, /* zlib_version */
   supported_protocols,
-  NULL, /* c-ares version */
+  تہی, /* c-ares version */
   0,    /* c-ares version numerical */
-  NULL, /* libidn version */
+  تہی, /* libidn version */
   0,    /* iconv version */
-  NULL, /* ssh lib version */
+  تہی, /* ssh lib version */
   0,    /* brotli_ver_num */
-  NULL, /* brotli version */
+  تہی, /* brotli version */
   0,    /* nghttp2 version number */
-  NULL, /* nghttp2 version string */
-  NULL, /* quic library string */
-#ifdef CURL_CA_BUNDLE
+  تہی, /* nghttp2 version string */
+  تہی, /* quic library string */
+#اگر_تعریف_شدہ CURL_CA_BUNDLE
   CURL_CA_BUNDLE, /* cainfo */
-#else
-  NULL,
-#endif
-#ifdef CURL_CA_PATH
-  CURL_CA_PATH,  /* capath */
-#else
-  NULL,
-#endif
+#ورنہ
+  تہی,
+#اگر_ختم
+#اگر_تعریف_شدہ CURL_CA_راستہ
+  CURL_CA_راستہ,  /* capath */
+#ورنہ
+  تہی,
+#اگر_ختم
   0,    /* zstd_ver_num */
-  NULL, /* zstd version */
-  NULL, /* Hyper version */
-  NULL, /* gsasl version */
-  feature_names,
-  NULL  /* rtmp version */
+  تہی, /* zstd version */
+  تہی, /* Hyper version */
+  تہی, /* gsasl version */
+  feature_نام,
+  تہی  /* rtmp version */
 };
 
-curl_version_info_data *curl_version_info(CURLversion stamp)
+curl_نسخہ_info_ڈیٹا *curl_نسخہ_info(CURLversion stamp)
 {
   size_t n;
-  const struct feat *p;
-  int features = 0;
+  ثابت ساخت feat *p;
+  صحیح features = 0;
 
-#ifdef USE_SSH
-  static char ssh_buf[80];  /* 'ssh_buffer' clashes with libssh/libssh.h */
-#endif
-#ifdef USE_SSL
-#ifdef CURL_WITH_MULTI_SSL
-  static char ssl_buffer[200];
-#else
-  static char ssl_buffer[80];
-#endif
-#endif
-#ifdef HAVE_BROTLI
-  static char brotli_buffer[80];
-#endif
-#ifdef HAVE_ZSTD
-  static char zstd_buffer[80];
-#endif
+#اگر_تعریف_شدہ USE_SSH
+  ساکن حرف ssh_buf[80];  /* 'ssh_buffer' clashes with libssh/libssh.h */
+#اگر_ختم
+#اگر_تعریف_شدہ USE_SSL
+#اگر_تعریف_شدہ CURL_WITH_MULTI_SSL
+  ساکن حرف ssl_بفر[200];
+#ورنہ
+  ساکن حرف ssl_بفر[80];
+#اگر_ختم
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_BROTLI
+  ساکن حرف brotli_بفر[80];
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_ZSTD
+  ساکن حرف zstd_بفر[80];
+#اگر_ختم
 
-  (void)stamp;
+  (خالی)stamp;
 
-#ifdef USE_SSL
-  Curl_ssl_version(ssl_buffer, sizeof(ssl_buffer));
-  version_info.ssl_version = ssl_buffer;
-#endif
+#اگر_تعریف_شدہ USE_SSL
+  Curl_ssl_نسخہ(ssl_بفر, حجم(ssl_بفر));
+  نسخہ_info.ssl_نسخہ = ssl_بفر;
+#اگر_ختم
 
-#ifdef HAVE_LIBZ
-  version_info.libz_version = zlibVersion();
+#اگر_تعریف_شدہ HAVE_LIBZ
+  نسخہ_info.libz_نسخہ = zlib_نسخہ();
   /* libz left NULL if non-existing */
-#endif
-#ifdef USE_ARES
+#اگر_ختم
+#اگر_تعریف_شدہ USE_ARES
   {
-    int aresnum;
-    version_info.ares = ares_version(&aresnum);
-    version_info.ares_num = aresnum;
+    صحیح aresnum;
+    نسخہ_info.ares = ares_نسخہ(&aresnum);
+    نسخہ_info.ares_عدد = aresnum;
   }
-#endif
-#ifdef USE_LIBIDN2
+#اگر_ختم
+#اگر_تعریف_شدہ USE_LIBIDN2
   /* This returns a version string if we use the given version or later,
      otherwise it returns NULL */
-  version_info.libidn = idn2_check_version(IDN2_VERSION);
-#endif
+  نسخہ_info.libidn = idn2_check_نسخہ(IDN2_نسخہ);
+#اگر_ختم
 
-#ifdef USE_SSH
-  Curl_ssh_version(ssh_buf, sizeof(ssh_buf));
-  version_info.libssh_version = ssh_buf;
-#endif
+#اگر_تعریف_شدہ USE_SSH
+  Curl_ssh_نسخہ(ssh_buf, حجم(ssh_buf));
+  نسخہ_info.libssh_نسخہ = ssh_buf;
+#اگر_ختم
 
-#ifdef HAVE_BROTLI
-  version_info.brotli_ver_num = BrotliDecoderVersion();
-  brotli_version(brotli_buffer, sizeof(brotli_buffer));
-  version_info.brotli_version = brotli_buffer;
-#endif
+#اگر_تعریف_شدہ HAVE_BROTLI
+  نسخہ_info.brotli_ver_عدد = Brotli_Decoder_نسخہ();
+  brotli_نسخہ(brotli_بفر, حجم(brotli_بفر));
+  نسخہ_info.brotli_نسخہ = brotli_بفر;
+#اگر_ختم
 
-#ifdef HAVE_ZSTD
-  version_info.zstd_ver_num = ZSTD_versionNumber();
-  zstd_version(zstd_buffer, sizeof(zstd_buffer));
-  version_info.zstd_version = zstd_buffer;
-#endif
+#اگر_تعریف_شدہ HAVE_ZSTD
+  نسخہ_info.zstd_ver_عدد = ZSTD_نسخہ_نمبر();
+  zstd_نسخہ(zstd_بفر, حجم(zstd_بفر));
+  نسخہ_info.zstd_نسخہ = zstd_بفر;
+#اگر_ختم
 
-#ifdef USE_NGHTTP2
+#اگر_تعریف_شدہ USE_NGHTTP2
   {
-    nghttp2_info *h2 = nghttp2_version(0);
-    version_info.nghttp2_ver_num = (unsigned int)h2->version_num;
-    version_info.nghttp2_version = h2->version_str;
+    nghttp2_info *h2 = nghttp2_نسخہ(0);
+    نسخہ_info.nghttp2_ver_عدد = (غیرعلامتی صحیح)h2->نسخہ_عدد;
+    نسخہ_info.nghttp2_نسخہ = h2->نسخہ_str;
   }
-#endif
+#اگر_ختم
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   {
-    static char quicbuffer[80];
-    Curl_quic_ver(quicbuffer, sizeof(quicbuffer));
-    version_info.quic_version = quicbuffer;
+    ساکن حرف quicbuffer[80];
+    Curl_quic_ver(quicbuffer, حجم(quicbuffer));
+    نسخہ_info.quic_نسخہ = quicbuffer;
   }
-#endif
+#اگر_ختم
 
-#ifdef USE_GSASL
+#اگر_تعریف_شدہ USE_GSASL
   {
-    version_info.gsasl_version = gsasl_check_version(NULL);
+    نسخہ_info.gsasl_نسخہ = gsasl_check_نسخہ(تہی);
   }
-#endif
+#اگر_ختم
 
   /* Get available features, build bitmask and names array. */
   n = 0;
-  for(p = features_table; p->name; p++)
-    if(!p->present || p->present(&version_info)) {
+  برائے(p = features_جدول; p->name; p++)
+    اگر(!p->present || p->present(&نسخہ_info)) {
       features |= p->bitmask;
-      feature_names[n++] = p->name;
+      feature_نام[n++] = p->name;
     }
 
-#ifdef DEBUGBUILD
-  features |= CURL_VERSION_CURLDEBUG; /* for compatibility */
-#endif
+#اگر_تعریف_شدہ DEBUGBUILD
+  features |= CURL_نسخہ_CURLDEBUG; /* for compatibility */
+#اگر_ختم
 
-  feature_names[n] = NULL;  /* Terminate array. */
-  version_info.features = features;
+  feature_نام[n] = تہی;  /* Terminate array. */
+  نسخہ_info.features = features;
 
-  return &version_info;
+  واپس &نسخہ_info;
 }

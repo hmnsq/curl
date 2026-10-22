@@ -21,525 +21,525 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "bufq.h"
+#شامل "bufq.h"
 
-static bool chunk_is_empty(const struct buf_chunk *chunk)
+ساکن bool chunk_is_خالی_خانے(ثابت ساخت buf_chunk *chunk)
 {
-  return chunk->r_offset >= chunk->w_offset;
+  واپس chunk->r_انحراف >= chunk->w_انحراف;
 }
 
-static bool chunk_is_full(const struct buf_chunk *chunk)
+ساکن bool chunk_is_بھرا(ثابت ساخت buf_chunk *chunk)
 {
-  return chunk->w_offset >= chunk->dlen;
+  واپس chunk->w_انحراف >= chunk->dlen;
 }
 
-static size_t chunk_len(const struct buf_chunk *chunk)
+ساکن size_t chunk_len(ثابت ساخت buf_chunk *chunk)
 {
-  return chunk->w_offset - chunk->r_offset;
+  واپس chunk->w_انحراف - chunk->r_انحراف;
 }
 
-static void chunk_reset(struct buf_chunk *chunk)
+ساکن خالی chunk_reset(ساخت buf_chunk *chunk)
 {
-  chunk->next = NULL;
-  chunk->r_offset = chunk->w_offset = 0;
+  chunk->اگلا = تہی;
+  chunk->r_انحراف = chunk->w_انحراف = 0;
 }
 
-static size_t chunk_append(struct buf_chunk *chunk,
-                           const uint8_t *buf, size_t len)
+ساکن size_t chunk_append(ساخت buf_chunk *chunk,
+                           ثابت uint8_t *buf, size_t len)
 {
-  uint8_t *p = &chunk->x.data[chunk->w_offset];
-  size_t n = chunk->dlen - chunk->w_offset;
-  DEBUGASSERT(chunk->dlen >= chunk->w_offset);
-  if(n) {
+  uint8_t *p = &chunk->x.ڈیٹا[chunk->w_انحراف];
+  size_t n = chunk->dlen - chunk->w_انحراف;
+  DEBUGASSERT(chunk->dlen >= chunk->w_انحراف);
+  اگر(n) {
     n = CURLMIN(n, len);
-    memcpy(p, buf, n);
-    chunk->w_offset += n;
+    حافظہ_نقل(p, buf, n);
+    chunk->w_انحراف += n;
   }
-  return n;
+  واپس n;
 }
 
-static size_t chunk_read(struct buf_chunk *chunk,
+ساکن size_t chunk_read(ساخت buf_chunk *chunk,
                          uint8_t *buf, size_t len)
 {
-  uint8_t *p = &chunk->x.data[chunk->r_offset];
-  size_t n = chunk->w_offset - chunk->r_offset;
-  DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
-  if(!n) {
-    return 0;
+  uint8_t *p = &chunk->x.ڈیٹا[chunk->r_انحراف];
+  size_t n = chunk->w_انحراف - chunk->r_انحراف;
+  DEBUGASSERT(chunk->w_انحراف >= chunk->r_انحراف);
+  اگر(!n) {
+    واپس 0;
   }
-  else if(n <= len) {
-    memcpy(buf, p, n);
-    chunk->r_offset = chunk->w_offset = 0;
-    return n;
+  ورنہ اگر(n <= len) {
+    حافظہ_نقل(buf, p, n);
+    chunk->r_انحراف = chunk->w_انحراف = 0;
+    واپس n;
   }
-  else {
-    memcpy(buf, p, len);
-    chunk->r_offset += len;
-    return len;
+  ورنہ {
+    حافظہ_نقل(buf, p, len);
+    chunk->r_انحراف += len;
+    واپس len;
   }
 }
 
-static CURLcode chunk_slurpn(struct buf_chunk *chunk, size_t max_len,
+ساکن CURLcode chunk_slurpn(ساخت buf_chunk *chunk, size_t max_len,
                              Curl_bufq_reader *reader,
-                             void *reader_ctx, size_t *pnread)
+                             خالی *reader_ctx, size_t *pnread)
 {
-  uint8_t *p = &chunk->x.data[chunk->w_offset];
-  size_t n = chunk->dlen - chunk->w_offset; /* free amount */
-  CURLcode result;
+  uint8_t *p = &chunk->x.ڈیٹا[chunk->w_انحراف];
+  size_t n = chunk->dlen - chunk->w_انحراف; /* free amount */
+  CURLcode نتیجہ;
 
   *pnread = 0;
-  DEBUGASSERT(chunk->dlen >= chunk->w_offset);
-  if(!n)
-    return CURLE_AGAIN;
-  if(max_len && n > max_len)
+  DEBUGASSERT(chunk->dlen >= chunk->w_انحراف);
+  اگر(!n)
+    واپس CURLE_AGAIN;
+  اگر(max_len && n > max_len)
     n = max_len;
-  result = reader(reader_ctx, p, n, pnread);
-  if(!result) {
+  نتیجہ = reader(reader_ctx, p, n, pnread);
+  اگر(!نتیجہ) {
     DEBUGASSERT(*pnread <= n);
-    chunk->w_offset += *pnread;
+    chunk->w_انحراف += *pnread;
   }
-  return result;
+  واپس نتیجہ;
 }
 
-static void chunk_peek(const struct buf_chunk *chunk,
-                       const uint8_t **pbuf, size_t *plen)
+ساکن خالی chunk_peek(ثابت ساخت buf_chunk *chunk,
+                       ثابت uint8_t **pbuf, size_t *plen)
 {
-  DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
-  *pbuf = &chunk->x.data[chunk->r_offset];
-  *plen = chunk->w_offset - chunk->r_offset;
+  DEBUGASSERT(chunk->w_انحراف >= chunk->r_انحراف);
+  *pbuf = &chunk->x.ڈیٹا[chunk->r_انحراف];
+  *plen = chunk->w_انحراف - chunk->r_انحراف;
 }
 
-static void chunk_peek_at(const struct buf_chunk *chunk, size_t offset,
-                          const uint8_t **pbuf, size_t *plen)
+ساکن خالی chunk_peek_at(ثابت ساخت buf_chunk *chunk, size_t انحراف,
+                          ثابت uint8_t **pbuf, size_t *plen)
 {
-  offset += chunk->r_offset;
-  DEBUGASSERT(chunk->w_offset >= offset);
-  *pbuf = &chunk->x.data[offset];
-  *plen = chunk->w_offset - offset;
+  انحراف += chunk->r_انحراف;
+  DEBUGASSERT(chunk->w_انحراف >= انحراف);
+  *pbuf = &chunk->x.ڈیٹا[انحراف];
+  *plen = chunk->w_انحراف - انحراف;
 }
 
-static size_t chunk_skip(struct buf_chunk *chunk, size_t amount)
+ساکن size_t chunk_skip(ساخت buf_chunk *chunk, size_t amount)
 {
-  size_t n = chunk->w_offset - chunk->r_offset;
-  DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
-  if(n) {
+  size_t n = chunk->w_انحراف - chunk->r_انحراف;
+  DEBUGASSERT(chunk->w_انحراف >= chunk->r_انحراف);
+  اگر(n) {
     n = CURLMIN(n, amount);
-    chunk->r_offset += n;
-    if(chunk->r_offset == chunk->w_offset)
-      chunk->r_offset = chunk->w_offset = 0;
+    chunk->r_انحراف += n;
+    اگر(chunk->r_انحراف == chunk->w_انحراف)
+      chunk->r_انحراف = chunk->w_انحراف = 0;
   }
-  return n;
+  واپس n;
 }
 
-static void chunk_list_free(struct buf_chunk **anchor)
+ساکن خالی chunk_list_free(ساخت buf_chunk **anchor)
 {
-  struct buf_chunk *chunk;
-  while(*anchor) {
+  ساخت buf_chunk *chunk;
+  جب(*anchor) {
     chunk = *anchor;
-    *anchor = chunk->next;
+    *anchor = chunk->اگلا;
     curlx_free(chunk);
   }
 }
 
-void Curl_bufcp_init(struct bufc_pool *pool,
-                     size_t chunk_size, size_t spare_max)
+خالی Curl_bufcp_init(ساخت bufc_pool *pool,
+                     size_t chunk_سائز, size_t فالتو_max)
 {
-  DEBUGASSERT(chunk_size > 0);
-  DEBUGASSERT(spare_max > 0);
-  memset(pool, 0, sizeof(*pool));
-  pool->chunk_size = chunk_size;
-  pool->spare_max = spare_max;
+  DEBUGASSERT(chunk_سائز > 0);
+  DEBUGASSERT(فالتو_max > 0);
+  memset(pool, 0, حجم(*pool));
+  pool->chunk_سائز = chunk_سائز;
+  pool->فالتو_max = فالتو_max;
 }
 
-static CURLcode bufcp_take(struct bufc_pool *pool,
-                           struct buf_chunk **pchunk)
+ساکن CURLcode bufcp_take(ساخت bufc_pool *pool,
+                           ساخت buf_chunk **pchunk)
 {
-  struct buf_chunk *chunk = NULL;
+  ساخت buf_chunk *chunk = تہی;
 
-  if(pool->spare) {
-    chunk = pool->spare;
-    pool->spare = chunk->next;
-    --pool->spare_count;
+  اگر(pool->فالتو) {
+    chunk = pool->فالتو;
+    pool->فالتو = chunk->اگلا;
+    --pool->فالتو_گنتی;
     chunk_reset(chunk);
     *pchunk = chunk;
-    return CURLE_OK;
+    واپس CURLE_OK;
   }
 
   /* Check for integer overflow before allocation */
-  if(pool->chunk_size > SIZE_MAX - sizeof(*chunk)) {
-    *pchunk = NULL;
-    return CURLE_OUT_OF_MEMORY;
+  اگر(pool->chunk_سائز > SIZE_MAX - حجم(*chunk)) {
+    *pchunk = تہی;
+    واپس CURLE_برآمد_کا_حافظہ;
   }
 
-  chunk = curlx_calloc(1, sizeof(*chunk) + pool->chunk_size);
-  if(!chunk) {
-    *pchunk = NULL;
-    return CURLE_OUT_OF_MEMORY;
+  chunk = curlx_calloc(1, حجم(*chunk) + pool->chunk_سائز);
+  اگر(!chunk) {
+    *pchunk = تہی;
+    واپس CURLE_برآمد_کا_حافظہ;
   }
-  chunk->dlen = pool->chunk_size;
+  chunk->dlen = pool->chunk_سائز;
   *pchunk = chunk;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static void bufcp_put(struct bufc_pool *pool,
-                      struct buf_chunk *chunk)
+ساکن خالی bufcp_put(ساخت bufc_pool *pool,
+                      ساخت buf_chunk *chunk)
 {
-  if(pool->spare_count >= pool->spare_max) {
+  اگر(pool->فالتو_گنتی >= pool->فالتو_max) {
     curlx_free(chunk);
   }
-  else {
+  ورنہ {
     chunk_reset(chunk);
-    chunk->next = pool->spare;
-    pool->spare = chunk;
-    ++pool->spare_count;
+    chunk->اگلا = pool->فالتو;
+    pool->فالتو = chunk;
+    ++pool->فالتو_گنتی;
   }
 }
 
-void Curl_bufcp_free(struct bufc_pool *pool)
+خالی Curl_bufcp_free(ساخت bufc_pool *pool)
 {
-  chunk_list_free(&pool->spare);
-  pool->spare_count = 0;
+  chunk_list_free(&pool->فالتو);
+  pool->فالتو_گنتی = 0;
 }
 
-static void bufq_init(struct bufq *q, struct bufc_pool *pool,
-                      size_t chunk_size, size_t max_chunks, int opts)
+ساکن خالی bufq_init(ساخت bufq *q, ساخت bufc_pool *pool,
+                      size_t chunk_سائز, size_t max_chunks, صحیح opts)
 {
-  DEBUGASSERT(chunk_size > 0);
+  DEBUGASSERT(chunk_سائز > 0);
   DEBUGASSERT(max_chunks > 0);
-  memset(q, 0, sizeof(*q));
-  q->chunk_size = chunk_size;
+  memset(q, 0, حجم(*q));
+  q->chunk_سائز = chunk_سائز;
   q->max_chunks = max_chunks;
   q->pool = pool;
   q->opts = opts;
 }
 
-void Curl_bufq_init2(struct bufq *q, size_t chunk_size, size_t max_chunks,
-                     int opts)
+خالی Curl_bufq_init2(ساخت bufq *q, size_t chunk_سائز, size_t max_chunks,
+                     صحیح opts)
 {
-  bufq_init(q, NULL, chunk_size, max_chunks, opts);
+  bufq_init(q, تہی, chunk_سائز, max_chunks, opts);
 }
 
-void Curl_bufq_init(struct bufq *q, size_t chunk_size, size_t max_chunks)
+خالی Curl_bufq_init(ساخت bufq *q, size_t chunk_سائز, size_t max_chunks)
 {
-  bufq_init(q, NULL, chunk_size, max_chunks, BUFQ_OPT_NONE);
+  bufq_init(q, تہی, chunk_سائز, max_chunks, BUFQ_OPT_NONE);
 }
 
-void Curl_bufq_initp(struct bufq *q, struct bufc_pool *pool,
-                     size_t max_chunks, int opts)
+خالی Curl_bufq_initp(ساخت bufq *q, ساخت bufc_pool *pool,
+                     size_t max_chunks, صحیح opts)
 {
-  bufq_init(q, pool, pool->chunk_size, max_chunks, opts);
+  bufq_init(q, pool, pool->chunk_سائز, max_chunks, opts);
 }
 
-void Curl_bufq_free(struct bufq *q)
+خالی Curl_bufq_free(ساخت bufq *q)
 {
-  chunk_list_free(&q->head);
-  chunk_list_free(&q->spare);
-  q->tail = NULL;
-  q->chunk_count = 0;
+  chunk_list_free(&q->سر);
+  chunk_list_free(&q->فالتو);
+  q->دم = تہی;
+  q->chunk_گنتی = 0;
 }
 
-void Curl_bufq_reset(struct bufq *q)
+خالی Curl_bufq_reset(ساخت bufq *q)
 {
-  struct buf_chunk *chunk;
-  while(q->head) {
-    chunk = q->head;
-    q->head = chunk->next;
-    chunk->next = q->spare;
-    q->spare = chunk;
+  ساخت buf_chunk *chunk;
+  جب(q->سر) {
+    chunk = q->سر;
+    q->سر = chunk->اگلا;
+    chunk->اگلا = q->فالتو;
+    q->فالتو = chunk;
   }
-  q->tail = NULL;
+  q->دم = تہی;
 }
 
-size_t Curl_bufq_len(const struct bufq *q)
+size_t Curl_bufq_len(ثابت ساخت bufq *q)
 {
-  const struct buf_chunk *chunk = q->head;
+  ثابت ساخت buf_chunk *chunk = q->سر;
   size_t len = 0;
-  while(chunk) {
+  جب(chunk) {
     len += chunk_len(chunk);
-    chunk = chunk->next;
+    chunk = chunk->اگلا;
   }
-  return len;
+  واپس len;
 }
 
-bool Curl_bufq_is_empty(const struct bufq *q)
+bool Curl_bufq_is_خالی_خانے(ثابت ساخت bufq *q)
 {
-  return !q->head || chunk_is_empty(q->head);
+  واپس !q->سر || chunk_is_خالی_خانے(q->سر);
 }
 
-bool Curl_bufq_is_full(const struct bufq *q)
+bool Curl_bufq_is_بھرا(ثابت ساخت bufq *q)
 {
-  if(!q->tail || q->spare)
-    return FALSE;
-  if(q->chunk_count < q->max_chunks)
-    return FALSE;
-  if(q->chunk_count > q->max_chunks)
-    return TRUE;
+  اگر(!q->دم || q->فالتو)
+    واپس FALSE;
+  اگر(q->chunk_گنتی < q->max_chunks)
+    واپس FALSE;
+  اگر(q->chunk_گنتی > q->max_chunks)
+    واپس TRUE;
   /* we have no spares and cannot make more, is the tail full? */
-  return chunk_is_full(q->tail);
+  واپس chunk_is_بھرا(q->دم);
 }
 
-static struct buf_chunk *get_spare(struct bufq *q)
+ساکن ساخت buf_chunk *get_فالتو(ساخت bufq *q)
 {
-  struct buf_chunk *chunk = NULL;
+  ساخت buf_chunk *chunk = تہی;
 
-  if(q->spare) {
-    chunk = q->spare;
-    q->spare = chunk->next;
+  اگر(q->فالتو) {
+    chunk = q->فالتو;
+    q->فالتو = chunk->اگلا;
     chunk_reset(chunk);
-    return chunk;
+    واپس chunk;
   }
 
-  if(q->chunk_count >= q->max_chunks && (!(q->opts & BUFQ_OPT_SOFT_LIMIT)))
-    return NULL;
+  اگر(q->chunk_گنتی >= q->max_chunks && (!(q->opts & BUFQ_OPT_SOFT_حد_بندی)))
+    واپس تہی;
 
-  if(q->pool) {
-    if(bufcp_take(q->pool, &chunk))
-      return NULL;
-    ++q->chunk_count;
-    return chunk;
+  اگر(q->pool) {
+    اگر(bufcp_take(q->pool, &chunk))
+      واپس تہی;
+    ++q->chunk_گنتی;
+    واپس chunk;
   }
-  else {
+  ورنہ {
     /* Check for integer overflow before allocation */
-    if(q->chunk_size > SIZE_MAX - sizeof(*chunk)) {
-      return NULL;
+    اگر(q->chunk_سائز > SIZE_MAX - حجم(*chunk)) {
+      واپس تہی;
     }
 
-    chunk = curlx_calloc(1, sizeof(*chunk) + q->chunk_size);
-    if(!chunk)
-      return NULL;
-    chunk->dlen = q->chunk_size;
-    ++q->chunk_count;
-    return chunk;
+    chunk = curlx_calloc(1, حجم(*chunk) + q->chunk_سائز);
+    اگر(!chunk)
+      واپس تہی;
+    chunk->dlen = q->chunk_سائز;
+    ++q->chunk_گنتی;
+    واپس chunk;
   }
 }
 
-static void prune_head(struct bufq *q)
+ساکن خالی prune_سر(ساخت bufq *q)
 {
-  struct buf_chunk *chunk;
+  ساخت buf_chunk *chunk;
 
-  while(q->head && chunk_is_empty(q->head)) {
-    chunk = q->head;
-    q->head = chunk->next;
-    if(q->tail == chunk)
-      q->tail = q->head;
-    if(q->pool) {
+  جب(q->سر && chunk_is_خالی_خانے(q->سر)) {
+    chunk = q->سر;
+    q->سر = chunk->اگلا;
+    اگر(q->دم == chunk)
+      q->دم = q->سر;
+    اگر(q->pool) {
       bufcp_put(q->pool, chunk);
-      --q->chunk_count;
+      --q->chunk_گنتی;
     }
-    else if((q->chunk_count > q->max_chunks) ||
+    ورنہ اگر((q->chunk_گنتی > q->max_chunks) ||
             (q->opts & BUFQ_OPT_NO_SPARES)) {
       /* SOFT_LIMIT allowed us more than max. free spares until
        * we are at max again. Or free them if we are configured
        * to not use spares. */
       curlx_free(chunk);
-      --q->chunk_count;
+      --q->chunk_گنتی;
     }
-    else {
-      chunk->next = q->spare;
-      q->spare = chunk;
+    ورنہ {
+      chunk->اگلا = q->فالتو;
+      q->فالتو = chunk;
     }
   }
 }
 
-static struct buf_chunk *get_non_full_tail(struct bufq *q)
+ساکن ساخت buf_chunk *get_non_بھرا_دم(ساخت bufq *q)
 {
-  struct buf_chunk *chunk;
+  ساخت buf_chunk *chunk;
 
-  if(q->tail && !chunk_is_full(q->tail))
-    return q->tail;
-  chunk = get_spare(q);
-  if(chunk) {
+  اگر(q->دم && !chunk_is_بھرا(q->دم))
+    واپس q->دم;
+  chunk = get_فالتو(q);
+  اگر(chunk) {
     /* new tail, and possibly new head */
-    if(q->tail) {
-      q->tail->next = chunk;
-      q->tail = chunk;
+    اگر(q->دم) {
+      q->دم->اگلا = chunk;
+      q->دم = chunk;
     }
-    else {
-      DEBUGASSERT(!q->head);
-      q->head = q->tail = chunk;
+    ورنہ {
+      DEBUGASSERT(!q->سر);
+      q->سر = q->دم = chunk;
     }
   }
-  return chunk;
+  واپس chunk;
 }
 
-CURLcode Curl_bufq_write(struct bufq *q,
-                         const uint8_t *buf, size_t len,
+CURLcode Curl_bufq_write(ساخت bufq *q,
+                         ثابت uint8_t *buf, size_t len,
                          size_t *pnwritten)
 {
-  struct buf_chunk *tail;
+  ساخت buf_chunk *دم;
   size_t n;
 
   DEBUGASSERT(q->max_chunks > 0);
   *pnwritten = 0;
-  while(len) {
-    tail = get_non_full_tail(q);
-    if(!tail) {
-      if((q->chunk_count < q->max_chunks) || (q->opts & BUFQ_OPT_SOFT_LIMIT))
+  جب(len) {
+    دم = get_non_بھرا_دم(q);
+    اگر(!دم) {
+      اگر((q->chunk_گنتی < q->max_chunks) || (q->opts & BUFQ_OPT_SOFT_حد_بندی))
         /* should have gotten a tail, but did not */
-        return CURLE_OUT_OF_MEMORY;
-      break;
+        واپس CURLE_برآمد_کا_حافظہ;
+      توڑو;
     }
-    n = chunk_append(tail, buf, len);
-    if(!n)
-      break;
+    n = chunk_append(دم, buf, len);
+    اگر(!n)
+      توڑو;
     *pnwritten += n;
     buf += n;
     len -= n;
   }
-  return (!*pnwritten && len) ? CURLE_AGAIN : CURLE_OK;
+  واپس (!*pnwritten && len) ? CURLE_AGAIN : CURLE_OK;
 }
 
-CURLcode Curl_bufq_cwrite(struct bufq *q,
-                          const char *buf, size_t len,
+CURLcode Curl_bufq_cwrite(ساخت bufq *q,
+                          ثابت حرف *buf, size_t len,
                           size_t *pnwritten)
 {
-  return Curl_bufq_write(q, (const uint8_t *)buf, len, pnwritten);
+  واپس Curl_bufq_write(q, (ثابت uint8_t *)buf, len, pnwritten);
 }
 
-CURLcode Curl_bufq_read(struct bufq *q, uint8_t *buf, size_t len,
+CURLcode Curl_bufq_read(ساخت bufq *q, uint8_t *buf, size_t len,
                         size_t *pnread)
 {
   *pnread = 0;
-  while(len && q->head) {
-    size_t n = chunk_read(q->head, buf, len);
-    if(n) {
+  جب(len && q->سر) {
+    size_t n = chunk_read(q->سر, buf, len);
+    اگر(n) {
       *pnread += n;
       buf += n;
       len -= n;
     }
-    prune_head(q);
+    prune_سر(q);
   }
-  return (!*pnread) ? CURLE_AGAIN : CURLE_OK;
+  واپس (!*pnread) ? CURLE_AGAIN : CURLE_OK;
 }
 
-CURLcode Curl_bufq_cread(struct bufq *q, char *buf, size_t len,
+CURLcode Curl_bufq_cread(ساخت bufq *q, حرف *buf, size_t len,
                          size_t *pnread)
 {
-  return Curl_bufq_read(q, (uint8_t *)buf, len, pnread);
+  واپس Curl_bufq_read(q, (uint8_t *)buf, len, pnread);
 }
 
-bool Curl_bufq_peek(struct bufq *q,
-                    const uint8_t **pbuf, size_t *plen)
+bool Curl_bufq_peek(ساخت bufq *q,
+                    ثابت uint8_t **pbuf, size_t *plen)
 {
-  if(q->head && chunk_is_empty(q->head)) {
-    prune_head(q);
+  اگر(q->سر && chunk_is_خالی_خانے(q->سر)) {
+    prune_سر(q);
   }
-  if(q->head && !chunk_is_empty(q->head)) {
-    chunk_peek(q->head, pbuf, plen);
-    return TRUE;
+  اگر(q->سر && !chunk_is_خالی_خانے(q->سر)) {
+    chunk_peek(q->سر, pbuf, plen);
+    واپس TRUE;
   }
-  *pbuf = NULL;
+  *pbuf = تہی;
   *plen = 0;
-  return FALSE;
+  واپس FALSE;
 }
 
-bool Curl_bufq_peek_at(struct bufq *q, size_t offset,
-                       const uint8_t **pbuf, size_t *plen)
+bool Curl_bufq_peek_at(ساخت bufq *q, size_t انحراف,
+                       ثابت uint8_t **pbuf, size_t *plen)
 {
-  struct buf_chunk *c = q->head;
+  ساخت buf_chunk *c = q->سر;
   size_t clen;
 
-  while(c) {
+  جب(c) {
     clen = chunk_len(c);
-    if(!clen)
-      break;
-    if(offset >= clen) {
-      offset -= clen;
-      c = c->next;
-      continue;
+    اگر(!clen)
+      توڑو;
+    اگر(انحراف >= clen) {
+      انحراف -= clen;
+      c = c->اگلا;
+      جاری;
     }
-    chunk_peek_at(c, offset, pbuf, plen);
-    return TRUE;
+    chunk_peek_at(c, انحراف, pbuf, plen);
+    واپس TRUE;
   }
-  *pbuf = NULL;
+  *pbuf = تہی;
   *plen = 0;
-  return FALSE;
+  واپس FALSE;
 }
 
-void Curl_bufq_skip(struct bufq *q, size_t amount)
+خالی Curl_bufq_skip(ساخت bufq *q, size_t amount)
 {
   size_t n;
 
-  while(amount && q->head) {
-    n = chunk_skip(q->head, amount);
+  جب(amount && q->سر) {
+    n = chunk_skip(q->سر, amount);
     amount -= n;
-    prune_head(q);
+    prune_سر(q);
   }
 }
 
-CURLcode Curl_bufq_pass(struct bufq *q, Curl_bufq_writer *writer,
-                        void *writer_ctx, size_t *pwritten)
+CURLcode Curl_bufq_pass(ساخت bufq *q, Curl_bufq_writer *writer,
+                        خالی *writer_ctx, size_t *pwritten)
 {
-  const uint8_t *buf;
+  ثابت uint8_t *buf;
   size_t blen;
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
   *pwritten = 0;
-  while(Curl_bufq_peek(q, &buf, &blen)) {
+  جب(Curl_bufq_peek(q, &buf, &blen)) {
     size_t chunk_written;
 
-    result = writer(writer_ctx, buf, blen, &chunk_written);
-    if(result) {
-      if((result == CURLE_AGAIN) && *pwritten) {
+    نتیجہ = writer(writer_ctx, buf, blen, &chunk_written);
+    اگر(نتیجہ) {
+      اگر((نتیجہ == CURLE_AGAIN) && *pwritten) {
         /* blocked on subsequent write, report success */
-        result = CURLE_OK;
+        نتیجہ = CURLE_OK;
       }
-      break;
+      توڑو;
     }
-    if(!chunk_written) {
-      if(!*pwritten) {
+    اگر(!chunk_written) {
+      اگر(!*pwritten) {
         /* treat as blocked */
-        result = CURLE_AGAIN;
+        نتیجہ = CURLE_AGAIN;
       }
-      break;
+      توڑو;
     }
     *pwritten += chunk_written;
     Curl_bufq_skip(q, chunk_written);
   }
-  return result;
+  واپس نتیجہ;
 }
 
-CURLcode Curl_bufq_write_pass(struct bufq *q,
-                              const uint8_t *buf, size_t len,
-                              Curl_bufq_writer *writer, void *writer_ctx,
+CURLcode Curl_bufq_write_pass(ساخت bufq *q,
+                              ثابت uint8_t *buf, size_t len,
+                              Curl_bufq_writer *writer, خالی *writer_ctx,
                               size_t *pwritten)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   size_t n;
 
   *pwritten = 0;
-  while(len) {
-    if(Curl_bufq_is_full(q)) {
+  جب(len) {
+    اگر(Curl_bufq_is_بھرا(q)) {
       /* try to make room in case we are full */
-      result = Curl_bufq_pass(q, writer, writer_ctx, &n);
-      if(result) {
-        if(result != CURLE_AGAIN) {
+      نتیجہ = Curl_bufq_pass(q, writer, writer_ctx, &n);
+      اگر(نتیجہ) {
+        اگر(نتیجہ != CURLE_AGAIN) {
           /* real error, fail */
-          return result;
+          واپس نتیجہ;
         }
         /* would block, bufq is full, give up */
-        break;
+        توڑو;
       }
     }
 
     /* Add to bufq as much as there is room for */
-    result = Curl_bufq_write(q, buf, len, &n);
-    if(result) {
-      if(result != CURLE_AGAIN)
+    نتیجہ = Curl_bufq_write(q, buf, len, &n);
+    اگر(نتیجہ) {
+      اگر(نتیجہ != CURLE_AGAIN)
         /* real error, fail */
-        return result;
+        واپس نتیجہ;
       /* result == CURLE_AGAIN */
-      if(*pwritten)
+      اگر(*pwritten)
         /* we did write successfully before */
-        result = CURLE_OK;
-      return result;
+        نتیجہ = CURLE_OK;
+      واپس نتیجہ;
     }
-    else if(n == 0)
+    ورنہ اگر(n == 0)
       /* edge case of writer returning 0 (and len is >0)
        * break or we might enter an infinite loop here */
-      break;
+      توڑو;
 
     /* Track what we added to bufq */
     buf += n;
@@ -547,25 +547,25 @@ CURLcode Curl_bufq_write_pass(struct bufq *q,
     *pwritten += n;
   }
 
-  return (!*pwritten && len) ? CURLE_AGAIN : CURLE_OK;
+  واپس (!*pwritten && len) ? CURLE_AGAIN : CURLE_OK;
 }
 
-CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
-                        Curl_bufq_reader *reader, void *reader_ctx,
+CURLcode Curl_bufq_sipn(ساخت bufq *q, size_t max_len,
+                        Curl_bufq_reader *reader, خالی *reader_ctx,
                         size_t *pnread)
 {
-  struct buf_chunk *tail = NULL;
+  ساخت buf_chunk *دم = تہی;
 
   *pnread = 0;
-  tail = get_non_full_tail(q);
-  if(!tail) {
-    if(q->chunk_count < q->max_chunks)
-      return CURLE_OUT_OF_MEMORY;
+  دم = get_non_بھرا_دم(q);
+  اگر(!دم) {
+    اگر(q->chunk_گنتی < q->max_chunks)
+      واپس CURLE_برآمد_کا_حافظہ;
     /* full, blocked */
-    return CURLE_AGAIN;
+    واپس CURLE_AGAIN;
   }
 
-  return chunk_slurpn(tail, max_len, reader, reader_ctx, pnread);
+  واپس chunk_slurpn(دم, max_len, reader, reader_ctx, pnread);
 }
 
 /**
@@ -576,44 +576,44 @@ CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
  * Note that even in case of an error chunks may have been read and
  * the buffer queue will have different length than before.
  */
-static CURLcode bufq_slurpn(struct bufq *q, size_t max_len,
-                            Curl_bufq_reader *reader, void *reader_ctx,
+ساکن CURLcode bufq_slurpn(ساخت bufq *q, size_t max_len,
+                            Curl_bufq_reader *reader, خالی *reader_ctx,
                             size_t *pnread)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
 
   *pnread = 0;
-  while(1) {
+  جب(1) {
     size_t n;
-    result = Curl_bufq_sipn(q, max_len, reader, reader_ctx, &n);
-    if(result) {
-      if(!*pnread || result != CURLE_AGAIN) {
+    نتیجہ = Curl_bufq_sipn(q, max_len, reader, reader_ctx, &n);
+    اگر(نتیجہ) {
+      اگر(!*pnread || نتیجہ != CURLE_AGAIN) {
         /* blocked on first read or real error, fail */
-        return result;
+        واپس نتیجہ;
       }
-      result = CURLE_OK;
-      break;
+      نتیجہ = CURLE_OK;
+      توڑو;
     }
-    else if(n == 0) {
+    ورنہ اگر(n == 0) {
       /* eof, result remains CURLE_OK */
-      break;
+      توڑو;
     }
     *pnread += n;
-    if(max_len) {
+    اگر(max_len) {
       DEBUGASSERT(n <= max_len);
       max_len -= n;
-      if(!max_len)
-        break;
+      اگر(!max_len)
+        توڑو;
     }
     /* give up slurping when we get less bytes than we asked for */
-    if(q->tail && !chunk_is_full(q->tail))
-      break;
+    اگر(q->دم && !chunk_is_بھرا(q->دم))
+      توڑو;
   }
-  return result;
+  واپس نتیجہ;
 }
 
-CURLcode Curl_bufq_slurp(struct bufq *q, Curl_bufq_reader *reader,
-                         void *reader_ctx, size_t *pnread)
+CURLcode Curl_bufq_slurp(ساخت bufq *q, Curl_bufq_reader *reader,
+                         خالی *reader_ctx, size_t *pnread)
 {
-  return bufq_slurpn(q, 0, reader, reader_ctx, pnread);
+  واپس bufq_slurpn(q, 0, reader, reader_ctx, pnread);
 }

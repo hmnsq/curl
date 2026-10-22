@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VTLS_INT_H
-#define HEADER_CURL_VTLS_INT_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_VTLS_INT_H
+#تعریف_کرو سرخی_CURL_VTLS_INT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,199 +23,199 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef USE_SSL
+#اگر_تعریف_شدہ USE_SSL
 
-#include "cfilters.h"
-#include "select.h"
-#include "urldata.h"
-#include "vtls/vtls.h"
+#شامل "cfilters.h"
+#شامل "select.h"
+#شامل "urldata.h"
+#شامل "vtls/vtls.h"
 
-struct Curl_ssl;
-struct ssl_connect_data;
-struct Curl_ssl_session;
+ساخت Curl_ssl;
+ساخت ssl_connect_ڈیٹا;
+ساخت Curl_ssl_session;
 
 /* see https://www.iana.org/assignments/tls-extensiontype-values/ */
-#define ALPN_HTTP_1_0_LENGTH 8
-#define ALPN_HTTP_1_0        "http/1.0"
-#define ALPN_HTTP_1_1_LENGTH 8
-#define ALPN_HTTP_1_1        "http/1.1"
-#define ALPN_H2_LENGTH       2
-#define ALPN_H2              "h2"
-#define ALPN_H3_LENGTH       2
-#define ALPN_H3              "h3"
+#تعریف_کرو ALPN_HTTP_1_0_لمبائی 8
+#تعریف_کرو ALPN_HTTP_1_0        "http/1.0"
+#تعریف_کرو ALPN_HTTP_1_1_لمبائی 8
+#تعریف_کرو ALPN_HTTP_1_1        "http/1.1"
+#تعریف_کرو ALPN_H2_لمبائی       2
+#تعریف_کرو ALPN_H2              "h2"
+#تعریف_کرو ALPN_H3_لمبائی       2
+#تعریف_کرو ALPN_H3              "h3"
 
 /* conservative sizes on the ALPN entries and count we are handling,
  * we can increase these if we ever feel the need or have to accommodate
  * ALPN strings from the "outside". */
-#define ALPN_NAME_MAX      10
-#define ALPN_ENTRIES_MAX   3
-#define ALPN_PROTO_BUF_MAX (ALPN_ENTRIES_MAX * (ALPN_NAME_MAX + 1))
+#تعریف_کرو ALPN_NAME_MAX      10
+#تعریف_کرو ALPN_ENTRIES_MAX   3
+#تعریف_کرو ALPN_PROTO_BUF_MAX (ALPN_ENTRIES_MAX * (ALPN_NAME_MAX + 1))
 
-struct alpn_spec {
-  char entries[ALPN_ENTRIES_MAX][ALPN_NAME_MAX];
-  size_t count; /* number of entries */
+ساخت alpn_spec {
+  حرف entries[ALPN_ENTRIES_MAX][ALPN_NAME_MAX];
+  size_t گنتی; /* number of entries */
 };
 
-struct alpn_proto_buf {
-  unsigned char data[ALPN_PROTO_BUF_MAX];
-  int len;
+ساخت alpn_proto_buf {
+  غیرعلامتی حرف ڈیٹا[ALPN_PROTO_BUF_MAX];
+  صحیح len;
 };
 
-CURLcode Curl_alpn_to_proto_buf(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec);
-CURLcode Curl_alpn_to_proto_str(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec);
-void Curl_alpn_restrict_to(struct alpn_spec *spec, const char *proto);
-void Curl_alpn_copy(struct alpn_spec *dest, const struct alpn_spec *src);
+CURLcode Curl_alpn_مقصد_proto_buf(ساخت alpn_proto_buf *buf,
+                                ثابت ساخت alpn_spec *spec);
+CURLcode Curl_alpn_مقصد_proto_str(ساخت alpn_proto_buf *buf,
+                                ثابت ساخت alpn_spec *spec);
+خالی Curl_alpn_restrict_مقصد(ساخت alpn_spec *spec, ثابت حرف *proto);
+خالی Curl_alpn_copy(ساخت alpn_spec *dest, ثابت ساخت alpn_spec *src);
 
-CURLcode Curl_alpn_set_negotiated(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct ssl_connect_data *connssl,
-                                  const unsigned char *proto,
+CURLcode Curl_alpn_سیٹ_negotiated(ساخت Curl_cfilter *cf,
+                                  ساخت Curl_easy *ڈیٹا,
+                                  ساخت ssl_connect_ڈیٹا *connssl,
+                                  ثابت غیرعلامتی حرف *proto,
                                   size_t proto_len);
 
-bool Curl_alpn_contains_proto(const struct alpn_spec *spec, const char *proto);
+bool Curl_alpn_شامل_ہے_proto(ثابت ساخت alpn_spec *spec, ثابت حرف *proto);
 
 /* enum for the nonblocking SSL connection state machine */
-typedef enum {
+قسمتعریف شمار {
   ssl_connect_1,
   ssl_connect_2,
   ssl_connect_3,
-  ssl_connect_done
+  ssl_connect_مکمل
 } ssl_connect_state;
 
-typedef enum {
+قسمتعریف شمار {
   ssl_connection_none,
   ssl_connection_deferred,
   ssl_connection_negotiating,
   ssl_connection_complete
 } ssl_connection_state;
 
-typedef enum {
+قسمتعریف شمار {
   ssl_earlydata_none,
   ssl_earlydata_await,
   ssl_earlydata_sending,
-  ssl_earlydata_sent,
+  ssl_earlydata_بھیجا,
   ssl_earlydata_accepted,
   ssl_earlydata_rejected
 } ssl_earlydata_state;
 
-#define CURL_SSL_IO_NEED_NONE   0
-#define CURL_SSL_IO_NEED_RECV   (1 << 0)
-#define CURL_SSL_IO_NEED_SEND   (1 << 1)
+#تعریف_کرو CURL_SSL_IO_NEED_NONE   0
+#تعریف_کرو CURL_SSL_IO_NEED_RECV   (1 << 0)
+#تعریف_کرو CURL_SSL_IO_NEED_SEND   (1 << 1)
 
 /* Max earlydata payload we want to send */
-#define CURL_SSL_EARLY_MAX      (64 * 1024)
+#تعریف_کرو CURL_SSL_EARLY_MAX      (64 * 1024)
 
 /* Information in each SSL cfilter context: cf->ctx */
-struct ssl_connect_data {
-  const struct Curl_ssl *ssl_impl;  /* TLS backend for this filter */
-  struct ssl_peer peer;             /* peer the filter talks to */
-  const struct alpn_spec *alpn;     /* ALPN to use or NULL for none */
-  void *backend;                    /* vtls backend specific props */
-  struct cf_call_data call_data;    /* data handle used in current call */
-  struct Curl_ssl_session *session; /* TLS session in use or NULL */
-  struct curltime handshake_done;   /* time when handshake finished */
-  struct {
-    char *alpn;                     /* ALPN value or NULL */
+ساخت ssl_connect_ڈیٹا {
+  ثابت ساخت Curl_ssl *ssl_impl;  /* TLS backend for this filter */
+  ساخت ssl_peer peer;             /* peer the filter talks to */
+  ثابت ساخت alpn_spec *alpn;     /* ALPN to use or NULL for none */
+  خالی *backend;                    /* vtls backend specific props */
+  ساخت cf_call_ڈیٹا call_ڈیٹا;    /* data handle used in current call */
+  ساخت Curl_ssl_session *session; /* TLS session in use or NULL */
+  ساخت curltime handshake_مکمل;   /* time when handshake finished */
+  ساخت {
+    حرف *alpn;                     /* ALPN value or NULL */
   } negotiated;
-  struct bufq earlydata;            /* earlydata to be send to peer */
+  ساخت bufq earlydata;            /* earlydata to be send to peer */
   size_t earlydata_max;             /* max earlydata allowed by peer */
   size_t earlydata_skip;            /* sending bytes to skip when earlydata
                                      * is accepted by peer */
   ssl_connection_state state;
   ssl_connect_state connecting_state;
   ssl_earlydata_state earlydata_state;
-  int io_need;                      /* TLS signals special SEND/RECV needs */
-  BIT(peer_closed);                 /* peer has closed connection */
-  BIT(prefs_checked);               /* SSL preferences have been checked */
-  BIT(input_pending);               /* data for SSL_read() may be available */
-  BIT(stats_reported);              /* connect times have been reported */
+  صحیح io_need;                      /* TLS signals special SEND/RECV needs */
+  ثنائی_ہندسہ(peer_closed);                 /* peer has closed connection */
+  ثنائی_ہندسہ(prefs_checked);               /* SSL preferences have been checked */
+  ثنائی_ہندسہ(داخلہ_pending);               /* data for SSL_read() may be available */
+  ثنائی_ہندسہ(stats_reported);              /* connect times have been reported */
 };
 
 /* Definitions for SSL Implementations */
 
-struct Curl_ssl {
+ساخت Curl_ssl {
   /*
    * This *must* be the first entry to allow returning the list of available
    * backends in curl_global_sslset().
    */
   curl_ssl_backend info;
-  unsigned int supports; /* bitfield, see above */
-  size_t sizeof_ssl_backend_data;
+  غیرعلامتی صحیح supports; /* bitfield, see above */
+  size_t sizeof_ssl_backend_ڈیٹا;
 
-  int (*init)(void);
-  void (*cleanup)(void);
+  صحیح (*init)(خالی);
+  خالی (*cleanup)(خالی);
 
-  size_t (*version)(char *buffer, size_t size);
-  CURLcode (*shut_down)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                        bool send_shutdown, bool *done);
+  size_t (*نسخہ_2)(حرف *بفر, size_t سائز);
+  CURLcode (*shut_نیچے_کو)(ساخت Curl_cfilter *cf, ساخت Curl_easy *ڈیٹا,
+                        bool send_shutdown, bool *مکمل);
 
   /* data_pending() shall return TRUE when it wants to get called again to
      drain internal buffers and deliver data instead of waiting for the socket
      to get readable */
-  bool (*data_pending)(struct Curl_cfilter *cf, const struct Curl_easy *data);
+  bool (*ڈیٹا_pending)(ساخت Curl_cfilter *cf, ثابت ساخت Curl_easy *ڈیٹا);
 
   /* return 0 if a find random is filled in */
-  CURLcode (*random)(struct Curl_easy *data, unsigned char *entropy,
-                     size_t length);
-  bool (*cert_status_request)(void);
+  CURLcode (*random)(ساخت Curl_easy *ڈیٹا, غیرعلامتی حرف *entropy,
+                     size_t لمبائی);
+  bool (*cert_حالت_request)(خالی);
 
-  CURLcode (*do_connect)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         bool *done);
+  CURLcode (*do_connect)(ساخت Curl_cfilter *cf, ساخت Curl_easy *ڈیٹا,
+                         bool *مکمل);
 
   /* During handshake/shutdown, adjust the pollset to include the socket
    * for POLLOUT or POLLIN as needed. Mandatory. */
-  CURLcode (*adjust_pollset)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                             struct easy_pollset *ps);
-  void *(*get_internals)(struct ssl_connect_data *connssl, CURLINFO info);
-  void (*close)(struct Curl_cfilter *cf, struct Curl_easy *data);
-  void (*close_all)(struct Curl_easy *data);
+  CURLcode (*adjust_pollset)(ساخت Curl_cfilter *cf, ساخت Curl_easy *ڈیٹا,
+                             ساخت easy_pollset *ps);
+  خالی *(*get_internals)(ساخت ssl_connect_ڈیٹا *connssl, CURLINFO info);
+  خالی (*close)(ساخت Curl_cfilter *cf, ساخت Curl_easy *ڈیٹا);
+  خالی (*close_all)(ساخت Curl_easy *ڈیٹا);
 
-  struct curl_slist *(*engines_list)(struct Curl_easy *data);
+  ساخت curl_slist *(*engines_list)(ساخت Curl_easy *ڈیٹا);
 
-  CURLcode (*sha256sum)(const unsigned char *input, size_t inputlen,
-                        unsigned char *sha256sum, size_t sha256sumlen);
-  CURLcode (*recv_plain)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         char *buf, size_t len, size_t *pnread);
-  CURLcode (*send_plain)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         const void *mem, size_t len, size_t *pnwritten);
+  CURLcode (*sha256sum)(ثابت غیرعلامتی حرف *داخلہ, size_t inputlen,
+                        غیرعلامتی حرف *sha256sum, size_t sha256sumlen);
+  CURLcode (*recv_plain)(ساخت Curl_cfilter *cf, ساخت Curl_easy *ڈیٹا,
+                         حرف *buf, size_t len, size_t *pnread);
+  CURLcode (*send_plain)(ساخت Curl_cfilter *cf, ساخت Curl_easy *ڈیٹا,
+                         ثابت خالی *mem, size_t len, size_t *pnwritten);
 
-  CURLcode (*get_channel_binding)(struct Curl_easy *data, int8_t sockindex,
-                                  struct dynbuf *binding);
+  CURLcode (*get_channel_binding)(ساخت Curl_easy *ڈیٹا, int8_t sockindex,
+                                  ساخت dynbuf *binding);
 };
 
-extern const struct Curl_ssl *Curl_ssl;
+خارجی ثابت ساخت Curl_ssl *Curl_ssl;
 
-CURLcode Curl_ssl_adjust_pollset(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct easy_pollset *ps);
+CURLcode Curl_ssl_adjust_pollset(ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 ساخت easy_pollset *ps);
 
 /**
  * Get the SSL filter below the given one or NULL if there is none.
  */
-bool Curl_ssl_cf_is_proxy(struct Curl_cfilter *cf);
+bool Curl_ssl_cf_is_proxy(ساخت Curl_cfilter *cf);
 
-CURLcode Curl_on_session_reuse(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct alpn_spec *alpns,
-                               struct Curl_ssl_session *scs,
-                               bool *do_early_data, bool early_data_allowed);
+CURLcode Curl_on_session_reuse(ساخت Curl_cfilter *cf,
+                               ساخت Curl_easy *ڈیٹا,
+                               ساخت alpn_spec *alpns,
+                               ساخت Curl_ssl_session *scs,
+                               bool *do_early_ڈیٹا, bool early_ڈیٹا_allowed);
 
 /* Retrieve the SSL session held at the filter of type `cft` at
  * data's connection at `sockindex` or NULL if not found/available. */
-struct Curl_ssl_session *Curl_ssl_get_cf_session(struct Curl_easy *data,
-                                                 const struct Curl_cftype *cft,
+ساخت Curl_ssl_session *Curl_ssl_get_cf_session(ساخت Curl_easy *ڈیٹا,
+                                                 ثابت ساخت Curl_cftype *cft,
                                                  int8_t sockindex);
 
-#endif /* USE_SSL */
+#اگر_ختم /* USE_SSL */
 
-#endif /* HEADER_CURL_VTLS_INT_H */
+#اگر_ختم /* HEADER_CURL_VTLS_INT_H */
 
-#ifdef USE_SSL
+#اگر_تعریف_شدہ USE_SSL
 /* Restore the default SSL filter call_data accessor for unity builds. */
-#undef CF_CTX_CALL_DATA
-#define CF_CTX_CALL_DATA(cf) ((struct ssl_connect_data *)(cf)->ctx)->call_data
-#endif
+#تعریف_منسوخ CF_CTX_CALL_ڈیٹا
+#تعریف_کرو CF_CTX_CALL_ڈیٹا(cf) ((ساخت ssl_connect_ڈیٹا *)(cf)->ctx)->call_ڈیٹا
+#اگر_ختم

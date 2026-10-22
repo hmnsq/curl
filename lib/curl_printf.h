@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PRINTF_H
-#define HEADER_CURL_PRINTF_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_PRINTF_H
+#تعریف_کرو سرخی_CURL_PRINTF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,14 +24,14 @@
  *
  ***************************************************************************/
 
-#define MERR_OK        0
-#define MERR_MEM       1
-#define MERR_TOO_LARGE 2
+#تعریف_کرو MERR_OK        0
+#تعریف_کرو MERR_MEM       1
+#تعریف_کرو MERR_TOO_LARGE 2
 
 /* Lower-case digits. */
-extern const unsigned char Curl_ldigits[];
+خارجی ثابت غیرعلامتی حرف Curl_ldigits[];
 
 /* Upper-case digits. */
-extern const unsigned char Curl_udigits[];
+خارجی ثابت غیرعلامتی حرف Curl_udigits[];
 
-#endif /* HEADER_CURL_PRINTF_H */
+#اگر_ختم /* HEADER_CURL_PRINTF_H */

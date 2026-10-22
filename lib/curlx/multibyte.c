@@ -21,58 +21,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if defined(_WIN32) && defined(UNICODE)
+#اگر defined(_WIN32) && defined(UNICODE)
 
-#include "curlx/multibyte.h"
+#شامل "curlx/multibyte.h"
 
 /*
  * MultiByte conversions using Windows kernel32 library.
  */
 
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8)
+wchar_t *curlx_convert_UTF8_مقصد_wchar(ثابت حرف *str_utf8)
 {
-  wchar_t *str_w = NULL;
+  wchar_t *str_w = تہی;
 
-  if(str_utf8) {
-    int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                        str_utf8, -1, NULL, 0);
-    if(str_w_len > 0) {
-      str_w = curlx_malloc(str_w_len * sizeof(wchar_t));
-      if(str_w) {
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+  اگر(str_utf8) {
+    صحیح str_w_len = Multi_Byte_مقصد_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                        str_utf8, -1, تہی, 0);
+    اگر(str_w_len > 0) {
+      str_w = curlx_malloc(str_w_len * حجم(wchar_t));
+      اگر(str_w) {
+        اگر(Multi_Byte_مقصد_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
                                str_utf8, -1, str_w, str_w_len) == 0) {
           curlx_free(str_w);
-          return NULL;
+          واپس تہی;
         }
       }
     }
   }
 
-  return str_w;
+  واپس str_w;
 }
 
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w)
+حرف *curlx_convert_wchar_مقصد_UTF8(ثابت wchar_t *str_w)
 {
-  char *str_utf8 = NULL;
+  حرف *str_utf8 = تہی;
 
-  if(str_w) {
-    int bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
-                                    NULL, 0, NULL, NULL);
-    if(bytes > 0) {
-      str_utf8 = curlx_malloc(bytes);
-      if(str_utf8) {
-        if(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
-                               NULL, NULL) == 0) {
+  اگر(str_w) {
+    صحیح بائٹیں = Wide_Char_مقصد_Multi_Byte(CP_UTF8, 0, str_w, -1,
+                                    تہی, 0, تہی, تہی);
+    اگر(بائٹیں > 0) {
+      str_utf8 = curlx_malloc(بائٹیں);
+      اگر(str_utf8) {
+        اگر(Wide_Char_مقصد_Multi_Byte(CP_UTF8, 0, str_w, -1, str_utf8, بائٹیں,
+                               تہی, تہی) == 0) {
           curlx_free(str_utf8);
-          return NULL;
+          واپس تہی;
         }
       }
     }
   }
 
-  return str_utf8;
+  واپس str_utf8;
 }
 
-#endif /* _WIN32 && UNICODE */
+#اگر_ختم /* _WIN32 && UNICODE */

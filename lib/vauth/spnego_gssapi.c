@@ -23,19 +23,19 @@
  * RFC4178 Simple and Protected GSS-API Negotiation Mechanism
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if defined(HAVE_GSSAPI) && defined(USE_SPNEGO)
+#اگر defined(HAVE_GSSAPI) && defined(USE_SPNEGO)
 
-#include "vauth/vauth.h"
-#include "curlx/base64.h"
-#include "curl_gssapi.h"
-#include "curl_trc.h"
+#شامل "vauth/vauth.h"
+#شامل "curlx/base64.h"
+#شامل "curl_gssapi.h"
+#شامل "curl_trc.h"
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#اگر defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#ہدایت GCC diagnostic ڈالو
+#ہدایت GCC diagnostic ignored "-Wdeprecated-declarations"
+#اگر_ختم
 
 /*
  * Curl_auth_is_spnego_supported()
@@ -46,9 +46,9 @@
  *
  * Returns TRUE if Negotiate supported by the GSS-API library.
  */
-bool Curl_auth_is_spnego_supported(void)
+bool Curl_auth_is_spnego_supported(خالی)
 {
-  return TRUE;
+  واپس TRUE;
 }
 
 /*
@@ -69,184 +69,184 @@ bool Curl_auth_is_spnego_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
-                                         struct Curl_creds *creds,
-                                         const char *default_service,
-                                         const char *host,
-                                         const char *chlg64,
-                                         struct negotiatedata *nego)
+CURLcode Curl_auth_decode_spnego_پیغام(ساخت Curl_easy *ڈیٹا,
+                                         ساخت Curl_creds *creds,
+                                         ثابت حرف *default_service,
+                                         ثابت حرف *host,
+                                         ثابت حرف *chlg64,
+                                         ساخت negotiatedata *nego)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   size_t chlglen = 0;
-  unsigned char *chlg = NULL;
-  OM_uint32 major_status;
-  OM_uint32 minor_status;
-  OM_uint32 unused_status;
-  gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
+  غیرعلامتی حرف *chlg = تہی;
+  OM_uint32 major_حالت;
+  OM_uint32 minor_حالت;
+  OM_uint32 غیر_مستعمل_حالت;
+  gss_بفر_desc داخلہ_token = GSS_C_خالی_خانے_بفر;
+  gss_بفر_desc output_token = GSS_C_خالی_خانے_بفر;
   gss_channel_bindings_t chan_bindings = GSS_C_NO_CHANNEL_BINDINGS;
-#ifdef GSS_C_CHANNEL_BOUND_FLAG
-  struct gss_channel_bindings_struct chan;
-#endif
+#اگر_تعریف_شدہ GSS_C_CHANNEL_BOUND_FLAG
+  ساخت gss_channel_bindings_struct chan;
+#اگر_ختم
 
-  (void)creds;
+  (خالی)creds;
 
-  if(nego->context && nego->status == GSS_S_COMPLETE) {
+  اگر(nego->context && nego->حالت_2 == GSS_S_COMPLETE) {
     /* We finished successfully our part of authentication, but server
      * rejected it (since we are again here). Exit with an error since we
      * cannot invent anything better */
     Curl_auth_cleanup_spnego(nego);
-    return CURLE_LOGIN_DENIED;
+    واپس CURLE_LOGIN_DENIED;
   }
 
-  if(!nego->spn) {
-    gss_buffer_desc spn_token = GSS_C_EMPTY_BUFFER;
+  اگر(!nego->spn) {
+    gss_بفر_desc spn_token = GSS_C_خالی_خانے_بفر;
 
     /* Generate our SPN */
-    const char *service = Curl_creds_has_sasl_service(creds) ?
+    ثابت حرف *service = Curl_creds_has_sasl_service(creds) ?
       Curl_creds_sasl_service(creds) : default_service;
-    char *spn = Curl_auth_build_spn(service, NULL, host);
-    if(!spn)
-      return CURLE_OUT_OF_MEMORY;
+    حرف *spn = Curl_auth_build_spn(service, تہی, host);
+    اگر(!spn)
+      واپس CURLE_برآمد_کا_حافظہ;
 
     /* Populate the SPN structure */
-    spn_token.value = spn;
-    spn_token.length = strlen(spn);
+    spn_token.قدر = spn;
+    spn_token.لمبائی = لڑی_لمبائی(spn);
 
     /* Import the SPN */
-    major_status = gss_import_name(&minor_status, &spn_token,
+    major_حالت = gss_import_name(&minor_حالت, &spn_token,
                                    GSS_C_NT_HOSTBASED_SERVICE,
                                    &nego->spn);
-    if(GSS_ERROR(major_status)) {
-      Curl_gss_log_error(data, "gss_import_name() failed: ",
-                         major_status, minor_status);
+    اگر(GSS_ERROR(major_حالت)) {
+      Curl_gss_log_error(ڈیٹا, "gss_import_name() failed: ",
+                         major_حالت, minor_حالت);
 
       curlx_free(spn);
 
-      return CURLE_AUTH_ERROR;
+      واپس CURLE_AUTH_ERROR;
     }
 
     curlx_free(spn);
   }
 
-  if(chlg64 && *chlg64) {
+  اگر(chlg64 && *chlg64) {
     /* Decode the base-64 encoded challenge message */
-    if(*chlg64 != '=') {
-      result = curlx_base64_decode(chlg64, &chlg, &chlglen);
-      if(result)
-        return result;
+    اگر(*chlg64 != '=') {
+      نتیجہ = curlx_base64_decode(chlg64, &chlg, &chlglen);
+      اگر(نتیجہ)
+        واپس نتیجہ;
     }
 
     /* Ensure we have a valid challenge message */
-    if(!chlg) {
-      infof(data, "SPNEGO handshake failure (empty challenge message)");
-      return CURLE_BAD_CONTENT_ENCODING;
+    اگر(!chlg) {
+      infof(ڈیٹا, "SPNEGO handshake failure (empty challenge message)");
+      واپس CURLE_BAD_CONTENT_ENCODING;
     }
 
     /* Setup the challenge "input" security buffer */
-    input_token.value = chlg;
-    input_token.length = chlglen;
+    داخلہ_token.قدر = chlg;
+    داخلہ_token.لمبائی = chlglen;
   }
 
   /* Set channel binding data if available */
-#ifdef GSS_C_CHANNEL_BOUND_FLAG
-  if(curlx_dyn_len(&nego->channel_binding_data)) {
-    memset(&chan, 0, sizeof(struct gss_channel_bindings_struct));
-    chan.application_data.length = curlx_dyn_len(&nego->channel_binding_data);
-    chan.application_data.value = curlx_dyn_ptr(&nego->channel_binding_data);
+#اگر_تعریف_شدہ GSS_C_CHANNEL_BOUND_FLAG
+  اگر(curlx_dyn_len(&nego->channel_binding_ڈیٹا)) {
+    memset(&chan, 0, حجم(ساخت gss_channel_bindings_struct));
+    chan.application_ڈیٹا.لمبائی = curlx_dyn_len(&nego->channel_binding_ڈیٹا);
+    chan.application_ڈیٹا.قدر = curlx_dyn_ptr(&nego->channel_binding_ڈیٹا);
     chan_bindings = &chan;
   }
-#endif
+#اگر_ختم
 
-#ifdef HAVE_GSS_SET_NEG_MECHS
+#اگر_تعریف_شدہ HAVE_GSS_سیٹ_NEG_MECHS
   /* Acquire explicit credentials and restrict SPNEGO sub-mechanisms to
    * exclude NTLM. We enumerate all available mechanisms and filter out
    * the NTLMSSP OID, matching SSPI's "!ntlm". */
-  if(nego->cred == GSS_C_NO_CREDENTIAL) {
+  اگر(nego->cred == GSS_C_NO_CREDENTIAL) {
     /* OID 1.3.6.1.4.1.311.2.2.10 (NTLMSSP) */
-    static const gss_OID_desc ntlmssp_oid = {
+    ساکن ثابت gss_OID_desc ntlmssp_oid = {
       10, CURL_UNCONST("\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a")
     };
-    gss_OID_set available_mechs = GSS_C_NO_OID_SET;
-    gss_OID_set filtered_mechs = GSS_C_NO_OID_SET;
+    gss_OID_سیٹ دستیاب_mechs = GSS_C_NO_OID_سیٹ;
+    gss_OID_سیٹ filtered_mechs = GSS_C_NO_OID_سیٹ;
 
     /* Acquire default credentials for SPNEGO */
-    major_status = Curl_gss_acquire_cred(&minor_status, GSS_C_NO_NAME,
-                                    GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
-                                    GSS_C_INITIATE, &nego->cred, NULL, NULL);
-    if(GSS_ERROR(major_status)) {
-      Curl_gss_log_error(data, "gss_acquire_cred() failed: ",
-                         major_status, minor_status);
-      curlx_safefree(input_token.value);
-      return CURLE_AUTH_ERROR;
+    major_حالت = Curl_gss_acquire_cred(&minor_حالت, GSS_C_NO_NAME,
+                                    GSS_C_INDEFINITE, GSS_C_NO_OID_سیٹ,
+                                    GSS_C_INITIATE, &nego->cred, تہی, تہی);
+    اگر(GSS_ERROR(major_حالت)) {
+      Curl_gss_log_error(ڈیٹا, "gss_acquire_cred() failed: ",
+                         major_حالت, minor_حالت);
+      curlx_safefree(داخلہ_token.قدر);
+      واپس CURLE_AUTH_ERROR;
     }
 
     /* Get all available mechanisms */
-    major_status = Curl_gss_indicate_mechs(&minor_status, &available_mechs);
-    if(!GSS_ERROR(major_status)) {
+    major_حالت = Curl_gss_indicate_mechs(&minor_حالت, &دستیاب_mechs);
+    اگر(!GSS_ERROR(major_حالت)) {
       /* Build a set excluding NTLMSSP */
-      major_status = gss_create_empty_oid_set(&minor_status, &filtered_mechs);
-      if(!GSS_ERROR(major_status)) {
+      major_حالت = gss_create_خالی_خانے_oid_سیٹ(&minor_حالت, &filtered_mechs);
+      اگر(!GSS_ERROR(major_حالت)) {
         size_t i;
-        for(i = 0; i < available_mechs->count; i++) {
-          gss_OID oid = &available_mechs->elements[i];
-          if(oid->length != ntlmssp_oid.length ||
-             memcmp(oid->elements, ntlmssp_oid.elements, oid->length)) {
-            gss_add_oid_set_member(&minor_status, oid, &filtered_mechs);
+        برائے(i = 0; i < دستیاب_mechs->گنتی; i++) {
+          gss_OID oid = &دستیاب_mechs->elements[i];
+          اگر(oid->لمبائی != ntlmssp_oid.لمبائی ||
+             memcmp(oid->elements, ntlmssp_oid.elements, oid->لمبائی)) {
+            gss_جوڑو_oid_سیٹ_member(&minor_حالت, oid, &filtered_mechs);
           }
         }
         /* Restrict SPNEGO to only use non-NTLM mechanisms */
-        major_status = Curl_gss_set_neg_mechs(&minor_status, nego->cred,
+        major_حالت = Curl_gss_سیٹ_neg_mechs(&minor_حالت, nego->cred,
                                               filtered_mechs);
-        if(GSS_ERROR(major_status)) {
-          Curl_gss_log_error(data, "gss_set_neg_mechs() failed: ",
-                             major_status, minor_status);
+        اگر(GSS_ERROR(major_حالت)) {
+          Curl_gss_log_error(ڈیٹا, "gss_set_neg_mechs() failed: ",
+                             major_حالت, minor_حالت);
         }
-        gss_release_oid_set(&minor_status, &filtered_mechs);
+        gss_release_oid_سیٹ(&minor_حالت, &filtered_mechs);
       }
-      gss_release_oid_set(&minor_status, &available_mechs);
+      gss_release_oid_سیٹ(&minor_حالت, &دستیاب_mechs);
     }
   }
-#endif /* HAVE_GSS_SET_NEG_MECHS */
+#اگر_ختم /* HAVE_GSS_SET_NEG_MECHS */
 
   /* Generate our challenge-response message */
-  major_status = Curl_gss_init_sec_context(data,
-                                           &minor_status,
+  major_حالت = Curl_gss_init_sec_context(ڈیٹا,
+                                           &minor_حالت,
                                            &nego->context,
                                            nego->spn,
                                            &Curl_spnego_mech_oid,
                                            chan_bindings,
-                                           &input_token,
+                                           &داخلہ_token,
                                            &output_token,
                                            TRUE,
-                                           NULL,
+                                           تہی,
                                            nego->cred);
 
   /* Free the decoded challenge as it is not required anymore */
-  curlx_safefree(input_token.value);
+  curlx_safefree(داخلہ_token.قدر);
 
-  nego->status = major_status;
-  if(GSS_ERROR(major_status)) {
-    if(output_token.value)
-      gss_release_buffer(&unused_status, &output_token);
+  nego->حالت_2 = major_حالت;
+  اگر(GSS_ERROR(major_حالت)) {
+    اگر(output_token.قدر)
+      gss_release_بفر(&غیر_مستعمل_حالت, &output_token);
 
-    Curl_gss_log_error(data, "gss_init_sec_context() failed: ",
-                       major_status, minor_status);
+    Curl_gss_log_error(ڈیٹا, "gss_init_sec_context() failed: ",
+                       major_حالت, minor_حالت);
 
-    return CURLE_AUTH_ERROR;
+    واپس CURLE_AUTH_ERROR;
   }
 
-  if(!output_token.value || !output_token.length) {
-    if(output_token.value)
-      gss_release_buffer(&unused_status, &output_token);
+  اگر(!output_token.قدر || !output_token.لمبائی) {
+    اگر(output_token.قدر)
+      gss_release_بفر(&غیر_مستعمل_حالت, &output_token);
 
-    return CURLE_AUTH_ERROR;
+    واپس CURLE_AUTH_ERROR;
   }
 
   /* Check if NTLM was selected and is disallowed */
-  if(nego->context != GSS_C_NO_CONTEXT) {
+  اگر(nego->context != GSS_C_NO_CONTEXT) {
     /* OID 1.3.6.1.4.1.311.2.2.10 (NTLMSSP) */
-    static const gss_OID_desc ntlmssp_oid = {
+    ساکن ثابت gss_OID_desc ntlmssp_oid = {
       10, CURL_UNCONST("\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a")
     };
     OM_uint32 inquire_major, inquire_minor;
@@ -255,24 +255,24 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
     inquire_major = Curl_gss_inquire_context(&inquire_minor,
                                              nego->context,
                                              &mech_type);
-    if(!GSS_ERROR(inquire_major) && mech_type &&
-       mech_type->length == ntlmssp_oid.length &&
+    اگر(!GSS_ERROR(inquire_major) && mech_type &&
+       mech_type->لمبائی == ntlmssp_oid.لمبائی &&
        !memcmp(mech_type->elements, ntlmssp_oid.elements,
-               ntlmssp_oid.length)) {
-      infof(data, "SPNEGO chose NTLM, but NTLM is not allowed");
-      gss_release_buffer(&unused_status, &output_token);
+               ntlmssp_oid.لمبائی)) {
+      infof(ڈیٹا, "SPNEGO chose NTLM, but NTLM is not allowed");
+      gss_release_بفر(&غیر_مستعمل_حالت, &output_token);
       Curl_auth_cleanup_spnego(nego);
-      return CURLE_AUTH_ERROR;
+      واپس CURLE_AUTH_ERROR;
     }
   }
 
   /* Free previous token */
-  if(nego->output_token.length && nego->output_token.value)
-    gss_release_buffer(&unused_status, &nego->output_token);
+  اگر(nego->output_token.لمبائی && nego->output_token.قدر)
+    gss_release_بفر(&غیر_مستعمل_حالت, &nego->output_token);
 
   nego->output_token = output_token;
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /*
@@ -291,34 +291,34 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_spnego_message(struct negotiatedata *nego,
-                                         char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_spnego_پیغام(ساخت negotiatedata *nego,
+                                         حرف **outptr, size_t *outlen)
 {
-  CURLcode result;
-  OM_uint32 minor_status;
+  CURLcode نتیجہ;
+  OM_uint32 minor_حالت;
 
   /* Base64 encode the already generated response */
-  result = curlx_base64_encode(nego->output_token.value,
-                               nego->output_token.length,
+  نتیجہ = curlx_base64_encode(nego->output_token.قدر,
+                               nego->output_token.لمبائی,
                                outptr, outlen);
 
-  if(result) {
-    gss_release_buffer(&minor_status, &nego->output_token);
-    nego->output_token.value = NULL;
-    nego->output_token.length = 0;
+  اگر(نتیجہ) {
+    gss_release_بفر(&minor_حالت, &nego->output_token);
+    nego->output_token.قدر = تہی;
+    nego->output_token.لمبائی = 0;
 
-    return result;
+    واپس نتیجہ;
   }
 
-  if(!*outptr || !*outlen) {
-    gss_release_buffer(&minor_status, &nego->output_token);
-    nego->output_token.value = NULL;
-    nego->output_token.length = 0;
+  اگر(!*outptr || !*outlen) {
+    gss_release_بفر(&minor_حالت, &nego->output_token);
+    nego->output_token.قدر = تہی;
+    nego->output_token.لمبائی = 0;
 
-    return CURLE_REMOTE_ACCESS_DENIED;
+    واپس CURLE_REMOTE_ACCESS_DENIED;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /*
@@ -331,46 +331,46 @@ CURLcode Curl_auth_create_spnego_message(struct negotiatedata *nego,
  * nego     [in/out] - The Negotiate data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_spnego(struct negotiatedata *nego)
+خالی Curl_auth_cleanup_spnego(ساخت negotiatedata *nego)
 {
-  OM_uint32 minor_status;
+  OM_uint32 minor_حالت;
 
   /* Free our security context */
-  if(nego->context != GSS_C_NO_CONTEXT) {
-    Curl_gss_delete_sec_context(&minor_status, &nego->context,
-                                GSS_C_NO_BUFFER);
+  اگر(nego->context != GSS_C_NO_CONTEXT) {
+    Curl_gss_delete_sec_context(&minor_حالت, &nego->context,
+                                GSS_C_NO_بفر);
     nego->context = GSS_C_NO_CONTEXT;
   }
 
   /* Free the output token */
-  if(nego->output_token.value) {
-    gss_release_buffer(&minor_status, &nego->output_token);
-    nego->output_token.value = NULL;
-    nego->output_token.length = 0;
+  اگر(nego->output_token.قدر) {
+    gss_release_بفر(&minor_حالت, &nego->output_token);
+    nego->output_token.قدر = تہی;
+    nego->output_token.لمبائی = 0;
   }
 
   /* Free the SPN */
-  if(nego->spn != GSS_C_NO_NAME) {
-    gss_release_name(&minor_status, &nego->spn);
+  اگر(nego->spn != GSS_C_NO_NAME) {
+    gss_release_name(&minor_حالت, &nego->spn);
     nego->spn = GSS_C_NO_NAME;
   }
 
   /* Free our credentials */
-  if(nego->cred != GSS_C_NO_CREDENTIAL) {
-    Curl_gss_release_cred(&minor_status, &nego->cred);
+  اگر(nego->cred != GSS_C_NO_CREDENTIAL) {
+    Curl_gss_release_cred(&minor_حالت, &nego->cred);
     nego->cred = GSS_C_NO_CREDENTIAL;
   }
 
   /* Reset any variables */
-  nego->status = 0;
+  nego->حالت_2 = 0;
   nego->noauthpersist = FALSE;
   nego->havenoauthpersist = FALSE;
   nego->havenegdata = FALSE;
   nego->havemultiplerequests = FALSE;
 }
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic pop
-#endif
+#اگر defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#ہدایت GCC diagnostic نکالو
+#اگر_ختم
 
-#endif /* HAVE_GSSAPI && USE_SPNEGO */
+#اگر_ختم /* HAVE_GSSAPI && USE_SPNEGO */

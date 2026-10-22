@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WOLFSSL_H
-#define HEADER_CURL_WOLFSSL_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_WOLFSSL_H
+#تعریف_کرو سرخی_CURL_WOLFSSL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,77 +23,77 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef USE_WOLFSSL
+#اگر_تعریف_شدہ USE_WOLFSSL
 
-#include "urldata.h"
+#شامل "urldata.h"
 
-#include <wolfssl/options.h>
+#شامل <wolfssl/options.h>
 
-struct alpn_spec;
-struct ssl_peer;
-struct Curl_ssl_session;
+ساخت alpn_spec;
+ساخت ssl_peer;
+ساخت Curl_ssl_session;
 
-struct WOLFSSL;
-struct WOLFSSL_CTX;
-struct WOLFSSL_SESSION;
+ساخت WOLFSSL;
+ساخت WOLFSSL_CTX;
+ساخت WOLFSSL_SESSION;
 
-extern const struct Curl_ssl Curl_ssl_wolfssl;
+خارجی ثابت ساخت Curl_ssl Curl_ssl_wolfssl;
 
-struct wssl_ctx {
-  struct WOLFSSL_CTX *ssl_ctx;
-  struct WOLFSSL *ssl;
-  CURLcode io_result;      /* result of last BIO cfilter operation */
-  CURLcode hs_result;      /* result of handshake */
-  int io_send_blocked_len; /* length of last BIO write that EAGAIN-ed */
-  BIT(x509_store_setup);   /* x509 store has been set up */
-  BIT(shutting_down);      /* TLS is being shut down */
+ساخت wssl_ctx {
+  ساخت WOLFSSL_CTX *ssl_ctx;
+  ساخت WOLFSSL *ssl;
+  CURLcode io_نتیجہ;      /* result of last BIO cfilter operation */
+  CURLcode hs_نتیجہ;      /* result of handshake */
+  صحیح io_send_blocked_len; /* length of last BIO write that EAGAIN-ed */
+  ثنائی_ہندسہ(x509_store_تیاری);   /* x509 store has been set up */
+  ثنائی_ہندسہ(shutting_نیچے_کو);      /* TLS is being shut down */
 };
 
-size_t Curl_wssl_version(char *buffer, size_t size);
+size_t Curl_wssl_نسخہ(حرف *بفر, size_t سائز);
 
-typedef CURLcode Curl_wssl_ctx_setup_cb(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data);
+قسمتعریف CURLcode Curl_wssl_ctx_تیاری_cb(ساخت Curl_cfilter *cf,
+                                        ساخت Curl_easy *ڈیٹا,
+                                        خالی *user_ڈیٹا);
 
-typedef CURLcode Curl_wssl_init_session_reuse_cb(struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data,
-                                                 struct alpn_spec *alpns,
-                                                 struct Curl_ssl_session *scs,
-                                                 bool *do_early_data);
+قسمتعریف CURLcode Curl_wssl_init_session_reuse_cb(ساخت Curl_cfilter *cf,
+                                                 ساخت Curl_easy *ڈیٹا,
+                                                 ساخت alpn_spec *alpns,
+                                                 ساخت Curl_ssl_session *scs,
+                                                 bool *do_early_ڈیٹا);
 
-CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
-                            Curl_wssl_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
-                            void *ssl_user_data,
+CURLcode Curl_wssl_ctx_init(ساخت wssl_ctx *wctx,
+                            ساخت Curl_cfilter *cf,
+                            ساخت Curl_easy *ڈیٹا,
+                            ساخت ssl_peer *peer,
+                            ثابت ساخت alpn_spec *alpns_requested,
+                            Curl_wssl_ctx_تیاری_cb *cb_تیاری,
+                            خالی *cb_user_ڈیٹا,
+                            خالی *ssl_user_ڈیٹا,
                             Curl_wssl_init_session_reuse_cb *sess_reuse_cb);
 
-CURLcode Curl_wssl_setup_x509_store(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct wssl_ctx *wssl);
+CURLcode Curl_wssl_تیاری_x509_store(ساخت Curl_cfilter *cf,
+                                    ساخت Curl_easy *ڈیٹا,
+                                    ساخت wssl_ctx *wssl);
 
-#ifdef HAVE_EX_DATA
-CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 struct WOLFSSL_SESSION *session,
-                                 int ietf_tls_id,
-                                 const char *alpn,
-                                 unsigned char *quic_tp,
+#اگر_تعریف_شدہ HAVE_EX_ڈیٹا
+CURLcode Curl_wssl_cache_session(ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 ثابت حرف *ssl_peer_کلید,
+                                 ساخت WOLFSSL_SESSION *session,
+                                 صحیح ietf_tls_id,
+                                 ثابت حرف *alpn,
+                                 غیرعلامتی حرف *quic_tp,
                                  size_t quic_tp_len,
-                                 struct Curl_ssl_session **pscs);
-#endif
+                                 ساخت Curl_ssl_session **pscs);
+#اگر_ختم
 
-CURLcode Curl_wssl_verify_pinned(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct wssl_ctx *wssl);
+CURLcode Curl_wssl_verify_pinned(ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 ساخت wssl_ctx *wssl);
 
-void Curl_wssl_report_handshake(struct Curl_easy *data, struct wssl_ctx *wssl);
+خالی Curl_wssl_report_handshake(ساخت Curl_easy *ڈیٹا, ساخت wssl_ctx *wssl);
 
-#endif /* USE_WOLFSSL */
-#endif /* HEADER_CURL_WOLFSSL_H */
+#اگر_ختم /* USE_WOLFSSL */
+#اگر_ختم /* HEADER_CURL_WOLFSSL_H */

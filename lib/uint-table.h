@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_UINT_TABLE_H
-#define HEADER_CURL_UINT_TABLE_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_UINT_جدول_H
+#تعریف_کرو سرخی_CURL_UINT_جدول_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-struct uint32_tbl {
-  void **rows;  /* array of void* holding entries */
+ساخت uint32_tbl {
+  خالی **صفیں;  /* array of void* holding entries */
   uint32_t nrows;  /* length of `rows` array */
   uint32_t nentries; /* entries in table */
-  uint32_t last_key_added; /* UINT_MAX or last key added */
-#ifdef DEBUGBUILD
-  int init;
-#endif
+  uint32_t آخری_کلید_added; /* UINT_MAX or last key added */
+#اگر_تعریف_شدہ DEBUGBUILD
+  صحیح init;
+#اگر_ختم
 };
 
 /* Initialize the table with 0 capacity. */
-void Curl_uint32_tbl_init(struct uint32_tbl *tbl);
+خالی Curl_uint32_tbl_init(ساخت uint32_tbl *tbl);
 
 /* Resize the table to change capacity `nmax`. When `nmax` is reduced,
  * all present entries with key equal or larger to `nmax` are removed. */
-CURLcode Curl_uint32_tbl_resize(struct uint32_tbl *tbl, uint32_t nrows);
+CURLcode Curl_uint32_tbl_resize(ساخت uint32_tbl *tbl, uint32_t nrows);
 
 /* Destroy the table, freeing its storage. */
-void Curl_uint32_tbl_destroy(struct uint32_tbl *tbl);
+خالی Curl_uint32_tbl_destroy(ساخت uint32_tbl *tbl);
 
 /* Get the table capacity. */
-uint32_t Curl_uint32_tbl_capacity(struct uint32_tbl *tbl);
+uint32_t Curl_uint32_tbl_استعداد(ساخت uint32_tbl *tbl);
 
 /* Get the number of entries in the table. */
-uint32_t Curl_uint32_tbl_count(struct uint32_tbl *tbl);
+uint32_t Curl_uint32_tbl_گنتی(ساخت uint32_tbl *tbl);
 
 /* Get the entry for key or NULL if not present */
-void *Curl_uint32_tbl_get(struct uint32_tbl *tbl, uint32_t key);
+خالی *Curl_uint32_tbl_get(ساخت uint32_tbl *tbl, uint32_t کلید);
 
 /* Add a new entry to the table and assign it a free key.
  * Returns FALSE if the table is full.
  *
  * Keys are assigned in a round-robin manner.
  * No matter the capacity, UINT_MAX is never assigned. */
-bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey);
+bool Curl_uint32_tbl_جوڑو(ساخت uint32_tbl *tbl, خالی *اندراج_2, uint32_t *pkey);
 
 /* Remove the entry with `key`. */
-void Curl_uint32_tbl_remove(struct uint32_tbl *tbl, uint32_t key);
+خالی Curl_uint32_tbl_remove(ساخت uint32_tbl *tbl, uint32_t کلید);
 
 /* Return TRUE if the table contains an tryn with that keys. */
-bool Curl_uint32_tbl_contains(struct uint32_tbl *tbl, uint32_t key);
+bool Curl_uint32_tbl_شامل_ہے(ساخت uint32_tbl *tbl, uint32_t کلید);
 
 /* Get the first entry in the table (with the smallest `key`).
  * Returns FALSE if the table is empty. */
-bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
-                           uint32_t *pkey, void **pentry);
+bool Curl_uint32_tbl_پہلا(ساخت uint32_tbl *tbl,
+                           uint32_t *pkey, خالی **pentry);
 
 /* Get the next key in the table, following `last_key` in natural order.
  * Put another way, this is the smallest key greater than `last_key` in
@@ -83,7 +83,7 @@ bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
  * - added keys lower than 'last_key' will not show up.
  * - removed keys lower or equal to 'last_key' will not show up.
  * - removed keys higher than 'last_key' will not be visited. */
-bool Curl_uint32_tbl_next(struct uint32_tbl *tbl, uint32_t last_key,
-                          uint32_t *pkey, void **pentry);
+bool Curl_uint32_tbl_اگلا(ساخت uint32_tbl *tbl, uint32_t آخری_کلید,
+                          uint32_t *pkey, خالی **pentry);
 
-#endif /* HEADER_CURL_UINT_TABLE_H */
+#اگر_ختم /* HEADER_CURL_UINT_TABLE_H */

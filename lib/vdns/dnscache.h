@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_DNSCACHE_H
-#define HEADER_CURL_DNSCACHE_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_DNSCACHE_H
+#تعریف_کرو سرخی_CURL_DNSCACHE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,52 +23,52 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "hash.h"
-#include "curlx/timeval.h"
-#include "curlx/strparse.h"
+#شامل "hash.h"
+#شامل "curlx/timeval.h"
+#شامل "curlx/strparse.h"
 
-struct addrinfo;
-struct hostent;
-struct Curl_easy;
-struct connectdata;
-struct easy_pollset;
-struct Curl_https_rrinfo;
-struct Curl_multi;
-struct Curl_peer;
+ساخت addrinfo;
+ساخت hostent;
+ساخت Curl_easy;
+ساخت connectdata;
+ساخت easy_pollset;
+ساخت Curl_https_rrinfo;
+ساخت Curl_multi;
+ساخت Curl_peer;
 
-#define CURL_DNST_INIT      '\0'
-#define CURL_DNST_ADDR      'A'
-#define CURL_DNST_HTTPS     'H'
+#تعریف_کرو CURL_DNST_INIT      '\0'
+#تعریف_کرو CURL_DNST_ADDR      'A'
+#تعریف_کرو CURL_DNST_HTTPS     'H'
 
-struct Curl_dns_entry {
-  struct Curl_addrinfo *addr;
-#ifdef USE_HTTPSRR
-  struct Curl_https_rrinfo *hinfo;
-#endif
-  struct curltime added; /* time this entry was added to the cache */
+ساخت Curl_dns_اندراج {
+  ساخت Curl_addrinfo *addr;
+#اگر_تعریف_شدہ USE_HTTPSRR
+  ساخت Curl_https_rrinfo *hinfo;
+#اگر_ختم
+  ساخت curltime added; /* time this entry was added to the cache */
   uint32_t refcount; /* reference counter, entry is freed on reaching 0 */
   uint16_t hostlen; /* length of hostname */
-  uint16_t port; /* host port */
-  char type; /* CURL_DNST_ADDR or CURL_DNST_HTTPS */
+  uint16_t پورٹ; /* host port */
+  حرف type; /* CURL_DNST_ADDR or CURL_DNST_HTTPS */
   uint8_t dns_queries; /* CURL_DNSQ_* type of queries performed for this */
   uint8_t dns_responses; /* CURL_DNSQ_* type this entry has responses for */
-  BIT(permanent); /* entry is permanent, e.g. does not time out */
+  ثنائی_ہندسہ(permanent); /* entry is permanent, e.g. does not time out */
   /* hostname that resolved to addr. may be NULL (Unix domain sockets). */
-  char hostname[1];
+  حرف hostname[1];
 };
 
-struct dnsc_id {
-  struct Curl_str name;
-  uint16_t port;
-  char type;
+ساخت dnsc_id {
+  ساخت Curl_str name;
+  uint16_t پورٹ;
+  حرف type;
 };
 
-#define MAX_HOSTCACHE_LEN (255 + 3) /* max FQDN + type + port */
+#تعریف_کرو MAX_HOSTCACHE_LEN (255 + 3) /* max FQDN + type + port */
 
-struct dnsc_key {
-  uint8_t data[MAX_HOSTCACHE_LEN];
+ساخت dnsc_کلید {
+  uint8_t ڈیٹا[MAX_HOSTCACHE_LEN];
   size_t len;
 };
 
@@ -81,42 +81,42 @@ struct dnsc_key {
  *
  * Returns entry or NULL on OOM.
  */
-struct Curl_dns_entry *Curl_dnsc_mk_addr(struct Curl_easy *data,
+ساخت Curl_dns_اندراج *Curl_dnsc_mk_addr(ساخت Curl_easy *ڈیٹا,
                                          uint8_t dns_queries,
-                                         struct Curl_addrinfo **paddr,
-                                         struct Curl_peer *peer);
+                                         ساخت Curl_addrinfo **paddr,
+                                         ساخت Curl_peer *peer);
 
-struct Curl_dns_entry *Curl_dnsc_mk_addr2(struct Curl_easy *data,
+ساخت Curl_dns_اندراج *Curl_dnsc_mk_addr2(ساخت Curl_easy *ڈیٹا,
                                           uint8_t dns_queries,
-                                          struct Curl_addrinfo **paddr1,
-                                          struct Curl_addrinfo **paddr2,
-                                          struct Curl_peer *peer);
+                                          ساخت Curl_addrinfo **paddr1,
+                                          ساخت Curl_addrinfo **paddr2,
+                                          ساخت Curl_peer *peer);
 
-#ifdef USE_HTTPSRR
-struct Curl_dns_entry *Curl_dnsc_mk_https(struct Curl_easy *data,
-                                          struct Curl_https_rrinfo **phinfo,
-                                          struct Curl_peer *peer);
-#endif /* USE_HTTPSRR */
+#اگر_تعریف_شدہ USE_HTTPSRR
+ساخت Curl_dns_اندراج *Curl_dnsc_mk_https(ساخت Curl_easy *ڈیٹا,
+                                          ساخت Curl_https_rrinfo **phinfo,
+                                          ساخت Curl_peer *peer);
+#اگر_ختم /* USE_HTTPSRR */
 
 /* unlink a dns entry, frees all resources if it was the last reference.
  * Always clears `*pdns`` */
-void Curl_dns_entry_unlink(struct Curl_easy *data,
-                           struct Curl_dns_entry **pdns);
+خالی Curl_dns_اندراج_unlink(ساخت Curl_easy *ڈیٹا,
+                           ساخت Curl_dns_اندراج **pdns);
 
-struct Curl_dnscache {
-  struct Curl_hash entries;
+ساخت Curl_dnscache {
+  ساخت Curl_hash entries;
 };
 
 /* init a new dns cache */
-void Curl_dnscache_init(struct Curl_dnscache *dns, size_t size);
+خالی Curl_dnscache_init(ساخت Curl_dnscache *dns, size_t سائز);
 
-void Curl_dnscache_destroy(struct Curl_dnscache *dns);
+خالی Curl_dnscache_destroy(ساخت Curl_dnscache *dns);
 
 /* prune old entries from the DNS cache */
-void Curl_dnscache_prune(struct Curl_easy *data, const struct curltime *pnow);
+خالی Curl_dnscache_prune(ساخت Curl_easy *ڈیٹا, ثابت ساخت curltime *pnow);
 
 /* clear the DNS cache */
-void Curl_dnscache_clear(struct Curl_easy *data);
+خالی Curl_dnscache_clear(ساخت Curl_easy *ڈیٹا);
 
 /*
  * Curl_dnscache_get() fetches a 'Curl_dns_entry' already in the DNS cache.
@@ -128,27 +128,27 @@ void Curl_dnscache_clear(struct Curl_easy *data);
  * Returns CURLE_OK or CURLE_COULDNT_RESOLVE_HOST when a negative
  * entry was in the cache.
  */
-CURLcode Curl_dnscache_get(struct Curl_easy *data,
+CURLcode Curl_dnscache_get(ساخت Curl_easy *ڈیٹا,
                            uint8_t dns_queries,
-                           struct Curl_peer *peer,
-                           struct Curl_dns_entry **pentry);
+                           ساخت Curl_peer *peer,
+                           ساخت Curl_dns_اندراج **pentry);
 
 /*
  * Curl_dnscache_addr() adds `entry` to the cache, increasing its
  * reference count on success.
  */
-CURLcode Curl_dnscache_add(struct Curl_easy *data,
-                           struct Curl_dns_entry *entry);
+CURLcode Curl_dnscache_جوڑو(ساخت Curl_easy *ڈیٹا,
+                           ساخت Curl_dns_اندراج *اندراج_2);
 
 /* Store a "negative" entry for host:port, e.g. remember that
  * it could not be resolved. */
-CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
+CURLcode Curl_dnscache_جوڑو_negative(ساخت Curl_easy *ڈیٹا,
                                     uint8_t dns_queries,
-                                    struct Curl_peer *peer);
+                                    ساخت Curl_peer *peer);
 
 /*
  * Populate the cache with specified entries from CURLOPT_RESOLVE.
  */
-CURLcode Curl_loadhostpairs(struct Curl_easy *data);
+CURLcode Curl_loadhostpairs(ساخت Curl_easy *ڈیٹا);
 
-#endif /* HEADER_CURL_DNSCACHE_H */
+#اگر_ختم /* HEADER_CURL_DNSCACHE_H */

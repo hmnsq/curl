@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HSTS_H
-#define HEADER_CURL_HSTS_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_HSTS_H
+#تعریف_کرو سرخی_CURL_HSTS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-struct hsts;
+ساخت hsts;
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
-#include "llist.h"
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
+#شامل "llist.h"
 
-struct Curl_peer;
+ساخت Curl_peer;
 
-#define MAX_HSTS_ENTRIES 10000
+#تعریف_کرو MAX_HSTS_ENTRIES 10000
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
-extern time_t deltatime;
-#endif
+#اگر defined(DEBUGBUILD) || defined(UNITTESTS)
+خارجی time_t deltatime;
+#اگر_ختم
 
-struct stsentry {
-  struct Curl_llist_node node;
+ساخت stsentry {
+  ساخت Curl_llist_گرہ گرہ;
   curl_off_t expires; /* the timestamp of this entry's expiry */
-  BIT(includeSubDomains);
-  char host[1];
+  ثنائی_ہندسہ(includeSubDomains);
+  حرف host[1];
 };
 
 /* The HSTS cache. Needs to be able to tailmatch hostnames. */
-struct hsts {
-  struct Curl_llist list;
-  char *filename;
-  unsigned int flags;
+ساخت hsts {
+  ساخت Curl_llist list;
+  حرف *filename;
+  غیرعلامتی صحیح flags;
 };
 
-struct hsts *Curl_hsts_init(void);
-void Curl_hsts_cleanup(struct hsts **hp);
-CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src);
-CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
-                         const char *header);
-CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
-                        const char *file);
-CURLcode Curl_hsts_loadfile(struct Curl_easy *data,
-                            struct hsts *h, const char *file);
-CURLcode Curl_hsts_loadcb(struct Curl_easy *data,
-                          struct hsts *h);
-CURLcode Curl_hsts_loadfiles(struct Curl_easy *data);
+ساخت hsts *Curl_hsts_init(خالی);
+خالی Curl_hsts_cleanup(ساخت hsts **hp);
+CURLcode Curl_hsts_copy(ساخت hsts *dst, ساخت hsts *src);
+CURLcode Curl_hsts_parse(ساخت hsts *h, ثابت حرف *hostname,
+                         ثابت حرف *سرخی);
+CURLcode Curl_hsts_save(ساخت Curl_easy *ڈیٹا, ساخت hsts *h,
+                        ثابت حرف *file);
+CURLcode Curl_hsts_loadfile(ساخت Curl_easy *ڈیٹا,
+                            ساخت hsts *h, ثابت حرف *file);
+CURLcode Curl_hsts_loadcb(ساخت Curl_easy *ڈیٹا,
+                          ساخت hsts *h);
+CURLcode Curl_hsts_loadfiles(ساخت Curl_easy *ڈیٹا);
 
-bool Curl_hsts_applies(struct hsts *h, const struct Curl_peer *dest);
+bool Curl_hsts_applies(ساخت hsts *h, ثابت ساخت Curl_peer *dest);
 
-#else
-#define Curl_hsts_cleanup(x)
-#define Curl_hsts_loadcb(x, y) CURLE_OK
-#define Curl_hsts_save(x, y, z)
-#define Curl_hsts_loadfiles(x) CURLE_OK
-#endif /* CURL_DISABLE_HTTP || CURL_DISABLE_HSTS */
-#endif /* HEADER_CURL_HSTS_H */
+#ورنہ
+#تعریف_کرو Curl_hsts_cleanup(x)
+#تعریف_کرو Curl_hsts_loadcb(x, y) CURLE_OK
+#تعریف_کرو Curl_hsts_save(x, y, z)
+#تعریف_کرو Curl_hsts_loadfiles(x) CURLE_OK
+#اگر_ختم /* CURL_DISABLE_HTTP || CURL_DISABLE_HSTS */
+#اگر_ختم /* HEADER_CURL_HSTS_H */

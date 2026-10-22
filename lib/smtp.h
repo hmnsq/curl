@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SMTP_H
-#define HEADER_CURL_SMTP_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_SMTP_H
+#تعریف_کرو سرخی_CURL_SMTP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_SMTP
-extern const struct Curl_protocol Curl_protocol_smtp;
-#endif
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_SMTP
+خارجی ثابت ساخت Curl_protocol Curl_protocol_smtp;
+#اگر_ختم
 
-#endif /* HEADER_CURL_SMTP_H */
+#اگر_ختم /* HEADER_CURL_SMTP_H */

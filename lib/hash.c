@@ -21,309 +21,309 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include <stddef.h> /* for offsetof() */
+#شامل <stddef.h> /* for offsetof() */
 
-#include "hash.h"
-#include "rand.h"
+#شامل "hash.h"
+#شامل "rand.h"
 
 /* random patterns for API verification */
-#ifdef DEBUGBUILD
-#define HASHINIT 0x7017e781
-#define ITERINIT 0x5FEDCBA9
-#endif
+#اگر_تعریف_شدہ DEBUGBUILD
+#تعریف_کرو HASHINIT 0x7017e781
+#تعریف_کرو ITERINIT 0x5FEDCBA9
+#اگر_ختم
 
 
-typedef size_t (*hash_function)(const void *key,
-                                size_t key_length,
-                                size_t slots_num);
+قسمتعریف size_t (*hash_function)(ثابت خالی *کلید,
+                                size_t کلید_لمبائی,
+                                size_t slots_عدد);
 
-typedef size_t (*comp_function)(const void *key1,
+قسمتعریف size_t (*comp_function)(ثابت خالی *key1,
                                 size_t key1_len,
-                                const void *key2,
+                                ثابت خالی *key2,
                                 size_t key2_len);
 
 /* Curl_hash stores its type in a uint8_t. */
-typedef char hash_types_fit_uint8[
-  ((CURL_HASH_TYPE_LAST - 1) <= UINT8_MAX) ? 1 : -1];
+قسمتعریف حرف hash_types_fit_uint8[
+  ((CURL_HASH_TYPE_آخری - 1) <= UINT8_MAX) ? 1 : -1];
 
-struct hash_functions {
+ساخت hash_functions {
   hash_function hash;
   comp_function compare;
 };
 
 /* set at global init, read-only afterwards */
-static size_t hash_seed;
+ساکن size_t hash_بیج;
 
-CURLcode Curl_hash_global_init(void)
+CURLcode Curl_hash_global_init(خالی)
 {
-  static bool seeded;
-  unsigned char buf[sizeof(size_t)];
-  size_t seed = 0;
+  ساکن bool seeded;
+  غیرعلامتی حرف buf[حجم(size_t)];
+  size_t بیج = 0;
   size_t i;
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  if(seeded)
-    return CURLE_OK;
+  اگر(seeded)
+    واپس CURLE_OK;
 
-  result = Curl_rand_bytes(NULL,
-#ifdef DEBUGBUILD
+  نتیجہ = Curl_rand_بائٹیں(تہی,
+#اگر_تعریف_شدہ DEBUGBUILD
                            FALSE,
-#endif
-                           buf, sizeof(buf));
-  if(result)
-    return result;
+#اگر_ختم
+                           buf, حجم(buf));
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
-  for(i = 0; i < sizeof(buf); i++)
-    seed = (seed << 8) | buf[i];
+  برائے(i = 0; i < حجم(buf); i++)
+    بیج = (بیج << 8) | buf[i];
 
-  hash_seed = seed ? seed : 1;
+  hash_بیج = بیج ? بیج : 1;
   seeded = TRUE;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* @unittest 1603
  */
-UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
-                                size_t slots_num, size_t seed);
-UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
-                                size_t slots_num, size_t seed)
+UNITTEST size_t hash_str_seeded(ثابت خالی *کلید, size_t کلید_لمبائی,
+                                size_t slots_عدد, size_t بیج);
+UNITTEST size_t hash_str_seeded(ثابت خالی *کلید, size_t کلید_لمبائی,
+                                size_t slots_عدد, size_t بیج)
 {
-  const char *key_str = (const char *)key;
-  const char *end = key_str + key_length;
-  size_t h = 5381 ^ seed;
+  ثابت حرف *کلید_str = (ثابت حرف *)کلید;
+  ثابت حرف *انتہا = کلید_str + کلید_لمبائی;
+  size_t h = 5381 ^ بیج;
 
-  while(key_str < end) {
-    size_t j = (size_t)*key_str++;
+  جب(کلید_str < انتہا) {
+    size_t j = (size_t)*کلید_str++;
     h += h << 5;
     h ^= j;
   }
 
-  return (h % slots_num);
+  واپس (h % slots_عدد);
 }
 
 /* @unittest 1603
  */
-UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num);
-UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num)
+UNITTEST size_t hash_str(ثابت خالی *کلید, size_t کلید_لمبائی, size_t slots_عدد);
+UNITTEST size_t hash_str(ثابت خالی *کلید, size_t کلید_لمبائی, size_t slots_عدد)
 {
-  return hash_str_seeded(key, key_length, slots_num, hash_seed);
+  واپس hash_str_seeded(کلید, کلید_لمبائی, slots_عدد, hash_بیج);
 }
 
 /* Avoid treating the variable-length key[1] as a one-byte object. */
-static char *hash_elem_key(struct Curl_hash_element *he)
+ساکن حرف *hash_elem_کلید(ساخت Curl_hash_element *he)
 {
-  return (char *)he + offsetof(struct Curl_hash_element, key);
+  واپس (حرف *)he + offsetof(ساخت Curl_hash_element, کلید);
 }
 
-static size_t hash_socket(const void *key, size_t key_length,
-                          size_t slots_num)
+ساکن size_t hash_socket(ثابت خالی *کلید, size_t کلید_لمبائی,
+                          size_t slots_عدد)
 {
   curl_socket_t socket;
 
-  DEBUGASSERT(key_length == sizeof(socket));
-  if(key_length != sizeof(socket))
-    return 0;
-  memcpy(&socket, key, sizeof(socket));
-  return (size_t)(socket % (curl_socket_t)slots_num);
+  DEBUGASSERT(کلید_لمبائی == حجم(socket));
+  اگر(کلید_لمبائی != حجم(socket))
+    واپس 0;
+  حافظہ_نقل(&socket, کلید, حجم(socket));
+  واپس (size_t)(socket % (curl_socket_t)slots_عدد);
 }
 
-static size_t compare_socket(const void *key1, size_t key1_len,
-                             const void *key2, size_t key2_len)
+ساکن size_t compare_socket(ثابت خالی *key1, size_t key1_len,
+                             ثابت خالی *key2, size_t key2_len)
 {
   curl_socket_t socket1;
   curl_socket_t socket2;
 
-  if((key1_len != sizeof(socket1)) || (key2_len != sizeof(socket2)))
-    return 0;
-  memcpy(&socket1, key1, sizeof(socket1));
-  memcpy(&socket2, key2, sizeof(socket2));
-  return socket1 == socket2;
+  اگر((key1_len != حجم(socket1)) || (key2_len != حجم(socket2)))
+    واپس 0;
+  حافظہ_نقل(&socket1, key1, حجم(socket1));
+  حافظہ_نقل(&socket2, key2, حجم(socket2));
+  واپس socket1 == socket2;
 }
 
-static size_t compare_bytes(const void *key1, size_t key1_len,
-                            const void *key2, size_t key2_len)
+ساکن size_t compare_بائٹیں(ثابت خالی *key1, size_t key1_len,
+                            ثابت خالی *key2, size_t key2_len)
 {
-  return (key1_len == key2_len) && !memcmp(key1, key2, key1_len);
+  واپس (key1_len == key2_len) && !memcmp(key1, key2, key1_len);
 }
 
-static const struct hash_functions hash_functions[] = {
-  { hash_str, compare_bytes },
+ساکن ثابت ساخت hash_functions hash_functions[] = {
+  { hash_str, compare_بائٹیں },
   { hash_socket, compare_socket }
 };
 
-static const struct hash_functions *hash_get_functions(uint8_t type)
+ساکن ثابت ساخت hash_functions *hash_get_functions(uint8_t type)
 {
-  DEBUGASSERT(CURL_ARRAYSIZE(hash_functions) == CURL_HASH_TYPE_LAST);
-  if((unsigned int)type >= CURL_HASH_TYPE_LAST)
-    type = CURL_HASH_TYPE_BYTES;
-  return &hash_functions[type];
+  DEBUGASSERT(CURL_ARRAYSIZE(hash_functions) == CURL_HASH_TYPE_آخری);
+  اگر((غیرعلامتی صحیح)type >= CURL_HASH_TYPE_آخری)
+    type = CURL_HASH_TYPE_بائٹیں;
+  واپس &hash_functions[type];
 }
 
-static bool hash_key_is_valid(uint8_t type, size_t key_len)
+ساکن bool hash_کلید_is_valid(uint8_t type, size_t کلید_len)
 {
-  return (type == CURL_HASH_TYPE_BYTES) ||
+  واپس (type == CURL_HASH_TYPE_بائٹیں) ||
     ((type == CURL_HASH_TYPE_SOCKET) &&
-     (key_len == sizeof(curl_socket_t)));
+     (کلید_len == حجم(curl_socket_t)));
 }
 
-#if 0 /* useful function for debugging hashes and their contents */
-void Curl_hash_print(struct Curl_hash *h, void (*func)(void *))
+#اگر 0 /* useful function for debugging hashes and their contents */
+خالی Curl_hash_print(ساخت Curl_hash *h, خالی (*func)(خالی *))
 {
-  struct Curl_hash_iterator iter;
-  struct Curl_hash_element *he;
-  size_t last_index = UINT_MAX;
+  ساخت Curl_hash_iterator iter;
+  ساخت Curl_hash_element *he;
+  size_t آخری_اشاریہ = UINT_MAX;
 
-  if(!h)
-    return;
+  اگر(!h)
+    واپس;
 
   curl_mfprintf(stderr, "=Hash dump=\n");
 
-  Curl_hash_start_iterate(h, &iter);
+  Curl_hash_آغاز_iterate(h, &iter);
 
-  he = Curl_hash_next_element(&iter);
-  while(he) {
-    if(iter.slot_index != last_index) {
-      curl_mfprintf(stderr, "index %d:", (int)iter.slot_index);
-      if(last_index != UINT_MAX) {
+  he = Curl_hash_اگلا_element(&iter);
+  جب(he) {
+    اگر(iter.خانہ_اشاریہ != آخری_اشاریہ) {
+      curl_mfprintf(stderr, "index %d:", (صحیح)iter.خانہ_اشاریہ);
+      اگر(آخری_اشاریہ != UINT_MAX) {
         curl_mfprintf(stderr, "\n");
       }
-      last_index = iter.slot_index;
+      آخری_اشاریہ = iter.خانہ_اشاریہ;
     }
 
-    if(func)
+    اگر(func)
       func(he->ptr);
-    else
+    ورنہ
       curl_mfprintf(stderr, " [key=%.*s, he=%p, ptr=%p]",
-                    (int)he->key_len, hash_elem_key(he),
-                    (void *)he, (void *)he->ptr);
+                    (صحیح)he->کلید_len, hash_elem_کلید(he),
+                    (خالی *)he, (خالی *)he->ptr);
 
-    he = Curl_hash_next_element(&iter);
+    he = Curl_hash_اگلا_element(&iter);
   }
   curl_mfprintf(stderr, "\n");
 }
-#endif
+#اگر_ختم
 
 /* Initializes a hash structure.
  *
  * @unittest: 1602
  * @unittest: 1603
  */
-void Curl_hash_init(struct Curl_hash *h,
+خالی Curl_hash_init(ساخت Curl_hash *h,
                     size_t slots,
                     Curl_hash_type type,
                     Curl_hash_dtor dtor)
 {
   DEBUGASSERT(h);
   DEBUGASSERT(slots);
-  DEBUGASSERT((unsigned int)type < CURL_HASH_TYPE_LAST);
+  DEBUGASSERT((غیرعلامتی صحیح)type < CURL_HASH_TYPE_آخری);
   DEBUGASSERT(dtor);
 
-  h->table = NULL;
+  h->جدول = تہی;
   h->dtor = dtor;
-  h->size = 0;
+  h->سائز = 0;
   h->slots = slots;
   h->type = (uint8_t)type;
-#ifdef DEBUGBUILD
+#اگر_تعریف_شدہ DEBUGBUILD
   h->init = HASHINIT;
-#endif
+#اگر_ختم
 }
 
-static struct Curl_hash_element *hash_elem_create(const void *key,
-                                                  size_t key_len,
-                                                  void *p,
+ساکن ساخت Curl_hash_element *hash_elem_create(ثابت خالی *کلید,
+                                                  size_t کلید_len,
+                                                  خالی *p,
                                                   Curl_hash_elem_dtor dtor)
 {
-  struct Curl_hash_element *he;
+  ساخت Curl_hash_element *he;
 
   /* allocate the struct plus memory after it to store the key */
-  he = curlx_malloc(sizeof(struct Curl_hash_element) + key_len);
-  if(he) {
-    he->next = NULL;
+  he = curlx_malloc(حجم(ساخت Curl_hash_element) + کلید_len);
+  اگر(he) {
+    he->اگلا = تہی;
     /* copy the key */
-    memcpy(hash_elem_key(he), key, key_len);
-    he->key_len = key_len;
+    حافظہ_نقل(hash_elem_کلید(he), کلید, کلید_len);
+    he->کلید_len = کلید_len;
     he->ptr = p;
     he->dtor = dtor;
   }
-  return he;
+  واپس he;
 }
 
-static void hash_elem_clear_ptr(struct Curl_hash *h,
-                                struct Curl_hash_element *he)
+ساکن خالی hash_elem_clear_ptr(ساخت Curl_hash *h,
+                                ساخت Curl_hash_element *he)
 {
   DEBUGASSERT(h);
   DEBUGASSERT(he);
-  if(he->ptr) {
-    if(he->dtor)
-      he->dtor(hash_elem_key(he), he->key_len, he->ptr);
-    else
+  اگر(he->ptr) {
+    اگر(he->dtor)
+      he->dtor(hash_elem_کلید(he), he->کلید_len, he->ptr);
+    ورنہ
       h->dtor(he->ptr);
-    he->ptr = NULL;
+    he->ptr = تہی;
   }
 }
 
-static void hash_elem_destroy(struct Curl_hash *h,
-                              struct Curl_hash_element *he)
+ساکن خالی hash_elem_destroy(ساخت Curl_hash *h,
+                              ساخت Curl_hash_element *he)
 {
   hash_elem_clear_ptr(h, he);
   curlx_free(he);
 }
 
-static void hash_elem_unlink(struct Curl_hash *h,
-                             struct Curl_hash_element **he_anchor,
-                             struct Curl_hash_element *he)
+ساکن خالی hash_elem_unlink(ساخت Curl_hash *h,
+                             ساخت Curl_hash_element **he_anchor,
+                             ساخت Curl_hash_element *he)
 {
-  *he_anchor = he->next;
-  --h->size;
+  *he_anchor = he->اگلا;
+  --h->سائز;
 }
 
-static void hash_elem_link(struct Curl_hash *h,
-                           struct Curl_hash_element **he_anchor,
-                           struct Curl_hash_element *he)
+ساکن خالی hash_elem_link(ساخت Curl_hash *h,
+                           ساخت Curl_hash_element **he_anchor,
+                           ساخت Curl_hash_element *he)
 {
-  he->next = *he_anchor;
+  he->اگلا = *he_anchor;
   *he_anchor = he;
-  ++h->size;
+  ++h->سائز;
 }
 
-void *Curl_hash_add2(struct Curl_hash *h,
-                     const void *key, size_t key_len, void *p,
+خالی *Curl_hash_add2(ساخت Curl_hash *h,
+                     ثابت خالی *کلید, size_t کلید_len, خالی *p,
                      Curl_hash_elem_dtor dtor)
 {
-  const struct hash_functions *functions;
-  struct Curl_hash_element *he, **slot;
+  ثابت ساخت hash_functions *functions;
+  ساخت Curl_hash_element *he, **خانہ;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return NULL;
-  if(!h->table) {
-    h->table = curlx_calloc(h->slots, sizeof(struct Curl_hash_element *));
-    if(!h->table)
-      return NULL; /* OOM */
+  اگر(!hash_کلید_is_valid(h->type, کلید_len))
+    واپس تہی;
+  اگر(!h->جدول) {
+    h->جدول = curlx_calloc(h->slots, حجم(ساخت Curl_hash_element *));
+    اگر(!h->جدول)
+      واپس تہی; /* OOM */
   }
 
   functions = hash_get_functions(h->type);
-  slot = &h->table[functions->hash(key, key_len, h->slots)];
-  for(he = *slot; he; he = he->next) {
-    if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+  خانہ = &h->جدول[functions->hash(کلید, کلید_len, h->slots)];
+  برائے(he = *خانہ; he; he = he->اگلا) {
+    اگر(functions->compare(hash_elem_کلید(he), he->کلید_len, کلید, کلید_len)) {
       /* existing key entry, overwrite by clearing old pointer */
       hash_elem_clear_ptr(h, he);
       he->ptr = p;
       he->dtor = dtor;
-      return p;
+      واپس p;
     }
   }
 
-  he = hash_elem_create(key, key_len, p, dtor);
-  if(!he)
-    return NULL; /* OOM */
+  he = hash_elem_create(کلید, کلید_len, p, dtor);
+  اگر(!he)
+    واپس تہی; /* OOM */
 
-  hash_elem_link(h, slot, he);
-  return p; /* return the new entry */
+  hash_elem_link(h, خانہ, he);
+  واپس p; /* return the new entry */
 }
 
 /* Insert the data in the hash. If there already was a match in the hash, that
@@ -334,10 +334,10 @@ void *Curl_hash_add2(struct Curl_hash *h,
  * @unittest: 1602
  * @unittest: 1603
  */
-void *Curl_hash_add(struct Curl_hash *h,
-                    const void *key, size_t key_len, void *p)
+خالی *Curl_hash_جوڑو(ساخت Curl_hash *h,
+                    ثابت خالی *کلید, size_t کلید_len, خالی *p)
 {
-  return Curl_hash_add2(h, key, key_len, p, NULL);
+  واپس Curl_hash_add2(h, کلید, کلید_len, p, تہی);
 }
 
 /* Remove the identified hash entry.
@@ -345,58 +345,58 @@ void *Curl_hash_add(struct Curl_hash *h,
  *
  * @unittest: 1603
  */
-int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len)
+صحیح Curl_hash_delete(ساخت Curl_hash *h, ثابت خالی *کلید, size_t کلید_len)
 {
-  const struct hash_functions *functions;
+  ثابت ساخت hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return 1;
-  if(h->table) {
-    struct Curl_hash_element *he, **he_anchor;
+  اگر(!hash_کلید_is_valid(h->type, کلید_len))
+    واپس 1;
+  اگر(h->جدول) {
+    ساخت Curl_hash_element *he, **he_anchor;
 
     functions = hash_get_functions(h->type);
-    he_anchor = &h->table[functions->hash(key, key_len, h->slots)];
-    while(*he_anchor) {
+    he_anchor = &h->جدول[functions->hash(کلید, کلید_len, h->slots)];
+    جب(*he_anchor) {
       he = *he_anchor;
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+      اگر(functions->compare(hash_elem_کلید(he), he->کلید_len, کلید, کلید_len)) {
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
-        return 0;
+        واپس 0;
       }
-      he_anchor = &he->next;
+      he_anchor = &he->اگلا;
     }
   }
-  return 1;
+  واپس 1;
 }
 
 /* Retrieves a hash element.
  *
  * @unittest: 1603
  */
-void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
+خالی *Curl_hash_pick(ساخت Curl_hash *h, ثابت خالی *کلید, size_t کلید_len)
 {
-  const struct hash_functions *functions;
+  ثابت ساخت hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return NULL;
-  if(h->table) {
-    struct Curl_hash_element *he;
+  اگر(!hash_کلید_is_valid(h->type, کلید_len))
+    واپس تہی;
+  اگر(h->جدول) {
+    ساخت Curl_hash_element *he;
     DEBUGASSERT(h->slots);
     functions = hash_get_functions(h->type);
-    he = h->table[functions->hash(key, key_len, h->slots)];
-    while(he) {
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
-        return he->ptr;
+    he = h->جدول[functions->hash(کلید, کلید_len, h->slots)];
+    جب(he) {
+      اگر(functions->compare(hash_elem_کلید(he), he->کلید_len, کلید, کلید_len)) {
+        واپس he->ptr;
       }
-      he = he->next;
+      he = he->اگلا;
     }
   }
-  return NULL;
+  واپس تہی;
 }
 
 /* Destroys all the entries in the given hash and resets its attributes,
@@ -406,14 +406,14 @@ void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
  * @unittest: 1602
  * @unittest: 1603
  */
-void Curl_hash_destroy(struct Curl_hash *h)
+خالی Curl_hash_destroy(ساخت Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
-  if(h->table) {
+  اگر(h->جدول) {
     Curl_hash_clean(h);
-    curlx_safefree(h->table);
+    curlx_safefree(h->جدول);
   }
-  DEBUGASSERT(h->size == 0);
+  DEBUGASSERT(h->سائز == 0);
   h->slots = 0;
 }
 
@@ -421,15 +421,15 @@ void Curl_hash_destroy(struct Curl_hash *h)
  *
  * @unittest: 1602
  */
-void Curl_hash_clean(struct Curl_hash *h)
+خالی Curl_hash_clean(ساخت Curl_hash *h)
 {
-  if(h && h->table) {
-    struct Curl_hash_element *he, **he_anchor;
+  اگر(h && h->جدول) {
+    ساخت Curl_hash_element *he, **he_anchor;
     size_t i;
     DEBUGASSERT(h->init == HASHINIT);
-    for(i = 0; i < h->slots; ++i) {
-      he_anchor = &h->table[i];
-      while(*he_anchor) {
+    برائے(i = 0; i < h->slots; ++i) {
+      he_anchor = &h->جدول[i];
+      جب(*he_anchor) {
         he = *he_anchor;
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
@@ -438,73 +438,73 @@ void Curl_hash_clean(struct Curl_hash *h)
   }
 }
 
-size_t Curl_hash_count(struct Curl_hash *h)
+size_t Curl_hash_گنتی(ساخت Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
-  return h->size;
+  واپس h->سائز;
 }
 
 /* Cleans all entries that pass the comp function criteria. */
-void Curl_hash_clean_with_criterium(struct Curl_hash *h, void *user,
-                                    int (*comp)(void *, void *))
+خالی Curl_hash_clean_with_criterium(ساخت Curl_hash *h, خالی *user,
+                                    صحیح (*comp)(خالی *, خالی *))
 {
   size_t i;
 
-  if(!h || !h->table)
-    return;
+  اگر(!h || !h->جدول)
+    واپس;
 
   DEBUGASSERT(h->init == HASHINIT);
-  for(i = 0; i < h->slots; ++i) {
-    struct Curl_hash_element *he, **he_anchor = &h->table[i];
-    while(*he_anchor) {
+  برائے(i = 0; i < h->slots; ++i) {
+    ساخت Curl_hash_element *he, **he_anchor = &h->جدول[i];
+    جب(*he_anchor) {
       /* ask the callback function if we shall remove this entry or not */
-      if(!comp || comp(user, (*he_anchor)->ptr)) {
+      اگر(!comp || comp(user, (*he_anchor)->ptr)) {
         he = *he_anchor;
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
       }
-      else
-        he_anchor = &(*he_anchor)->next;
+      ورنہ
+        he_anchor = &(*he_anchor)->اگلا;
     }
   }
 }
 
-void Curl_hash_start_iterate(struct Curl_hash *hash,
-                             struct Curl_hash_iterator *iter)
+خالی Curl_hash_آغاز_iterate(ساخت Curl_hash *hash,
+                             ساخت Curl_hash_iterator *iter)
 {
   DEBUGASSERT(hash->init == HASHINIT);
   iter->hash = hash;
-  iter->slot_index = 0;
-  iter->current = NULL;
-#ifdef DEBUGBUILD
+  iter->خانہ_اشاریہ = 0;
+  iter->current = تہی;
+#اگر_تعریف_شدہ DEBUGBUILD
   iter->init = ITERINIT;
-#endif
+#اگر_ختم
 }
 
-struct Curl_hash_element *Curl_hash_next_element(
-  struct Curl_hash_iterator *iter)
+ساخت Curl_hash_element *Curl_hash_اگلا_element(
+  ساخت Curl_hash_iterator *iter)
 {
-  struct Curl_hash *h;
+  ساخت Curl_hash *h;
   DEBUGASSERT(iter->init == ITERINIT);
   h = iter->hash;
-  if(!h->table)
-    return NULL; /* empty hash, nothing to return */
+  اگر(!h->جدول)
+    واپس تہی; /* empty hash, nothing to return */
 
   /* Get the next element in the current list, if any */
-  if(iter->current)
-    iter->current = iter->current->next;
+  اگر(iter->current)
+    iter->current = iter->current->اگلا;
 
   /* If we have reached the end of the list, find the next one */
-  if(!iter->current) {
+  اگر(!iter->current) {
     size_t i;
-    for(i = iter->slot_index; i < h->slots; i++) {
-      if(h->table[i]) {
-        iter->current = h->table[i];
-        iter->slot_index = i + 1;
-        break;
+    برائے(i = iter->خانہ_اشاریہ; i < h->slots; i++) {
+      اگر(h->جدول[i]) {
+        iter->current = h->جدول[i];
+        iter->خانہ_اشاریہ = i + 1;
+        توڑو;
       }
     }
   }
 
-  return iter->current;
+  واپس iter->current;
 }

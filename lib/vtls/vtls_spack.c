@@ -21,80 +21,80 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#اگر defined(USE_SSL) && defined(USE_SSLS_EXPORT)
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/vtls_spack.h"
-#include "curlx/strdup.h"
+#شامل "urldata.h"
+#شامل "curl_trc.h"
+#شامل "vtls/vtls_scache.h"
+#شامل "vtls/vtls_spack.h"
+#شامل "curlx/strdup.h"
 
-#define CURL_SPACK_VERSION       0x01
-#define CURL_SPACK_IETF_ID       0x02
-#define CURL_SPACK_VALID_UNTIL   0x03
-#define CURL_SPACK_TICKET        0x04
-#define CURL_SPACK_ALPN          0x05
-#define CURL_SPACK_EARLYDATA     0x06
-#define CURL_SPACK_QUICTP        0x07
-#define CURL_SPACK_SECTRUST      0x08
+#تعریف_کرو CURL_SPACK_نسخہ       0x01
+#تعریف_کرو CURL_SPACK_IETF_ID       0x02
+#تعریف_کرو CURL_SPACK_VALID_UNTIL   0x03
+#تعریف_کرو CURL_SPACK_TICKET        0x04
+#تعریف_کرو CURL_SPACK_ALPN          0x05
+#تعریف_کرو CURL_SPACK_EARLYDATA     0x06
+#تعریف_کرو CURL_SPACK_QUICTP        0x07
+#تعریف_کرو CURL_SPACK_SECTRUST      0x08
 
-static CURLcode spack_enc8(struct dynbuf *buf, uint8_t b)
+ساکن CURLcode spack_enc8(ساخت dynbuf *buf, uint8_t b)
 {
-  return curlx_dyn_addn(buf, &b, 1);
+  واپس curlx_dyn_addn(buf, &b, 1);
 }
 
-static CURLcode spack_dec8(uint8_t *val, const uint8_t **src,
-                           const uint8_t *end)
+ساکن CURLcode spack_dec8(uint8_t *val, ثابت uint8_t **src,
+                           ثابت uint8_t *انتہا)
 {
-  if(end - *src < 1)
-    return CURLE_READ_ERROR;
+  اگر(انتہا - *src < 1)
+    واپس CURLE_READ_ERROR;
   *val = **src;
   *src += 1;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode spack_enc16(struct dynbuf *buf, uint16_t val)
+ساکن CURLcode spack_enc16(ساخت dynbuf *buf, uint16_t val)
 {
   uint8_t nval[2];
   nval[0] = (uint8_t)(val >> 8);
   nval[1] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  واپس curlx_dyn_addn(buf, nval, حجم(nval));
 }
 
-static CURLcode spack_dec16(uint16_t *val, const uint8_t **src,
-                            const uint8_t *end)
+ساکن CURLcode spack_dec16(uint16_t *val, ثابت uint8_t **src,
+                            ثابت uint8_t *انتہا)
 {
-  if(end - *src < 2)
-    return CURLE_READ_ERROR;
+  اگر(انتہا - *src < 2)
+    واپس CURLE_READ_ERROR;
   *val = (uint16_t)((*src)[0] << 8 | (*src)[1]);
   *src += 2;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode spack_enc32(struct dynbuf *buf, uint32_t val)
+ساکن CURLcode spack_enc32(ساخت dynbuf *buf, uint32_t val)
 {
   uint8_t nval[4];
   nval[0] = (uint8_t)(val >> 24);
   nval[1] = (uint8_t)(val >> 16);
   nval[2] = (uint8_t)(val >> 8);
   nval[3] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  واپس curlx_dyn_addn(buf, nval, حجم(nval));
 }
 
-static CURLcode spack_dec32(uint32_t *val, const uint8_t **src,
-                            const uint8_t *end)
+ساکن CURLcode spack_dec32(uint32_t *val, ثابت uint8_t **src,
+                            ثابت uint8_t *انتہا)
 {
-  if(end - *src < 4)
-    return CURLE_READ_ERROR;
+  اگر(انتہا - *src < 4)
+    واپس CURLE_READ_ERROR;
   *val = (uint32_t)(*src)[0] << 24 | (uint32_t)(*src)[1] << 16 |
          (uint32_t)(*src)[2] << 8 | (*src)[3];
   *src += 4;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode spack_enc64(struct dynbuf *buf, uint64_t val)
+ساکن CURLcode spack_enc64(ساخت dynbuf *buf, uint64_t val)
 {
   uint8_t nval[8];
   nval[0] = (uint8_t)(val >> 56);
@@ -105,232 +105,232 @@ static CURLcode spack_enc64(struct dynbuf *buf, uint64_t val)
   nval[5] = (uint8_t)(val >> 16);
   nval[6] = (uint8_t)(val >> 8);
   nval[7] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  واپس curlx_dyn_addn(buf, nval, حجم(nval));
 }
 
-static CURLcode spack_dec64(uint64_t *val, const uint8_t **src,
-                            const uint8_t *end)
+ساکن CURLcode spack_dec64(uint64_t *val, ثابت uint8_t **src,
+                            ثابت uint8_t *انتہا)
 {
-  if(end - *src < 8)
-    return CURLE_READ_ERROR;
+  اگر(انتہا - *src < 8)
+    واپس CURLE_READ_ERROR;
   *val = (uint64_t)(*src)[0] << 56 | (uint64_t)(*src)[1] << 48 |
          (uint64_t)(*src)[2] << 40 | (uint64_t)(*src)[3] << 32 |
          (uint64_t)(*src)[4] << 24 | (uint64_t)(*src)[5] << 16 |
          (uint64_t)(*src)[6] << 8 | (*src)[7];
   *src += 8;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode spack_encstr16(struct dynbuf *buf, const char *s)
+ساکن CURLcode spack_encstr16(ساخت dynbuf *buf, ثابت حرف *s)
 {
-  size_t slen = strlen(s);
-  CURLcode result;
-  if(slen > UINT16_MAX)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  result = spack_enc16(buf, (uint16_t)slen);
-  if(!result) {
-    result = curlx_dyn_addn(buf, s, slen);
+  size_t slen = لڑی_لمبائی(s);
+  CURLcode نتیجہ;
+  اگر(slen > UINT16_MAX)
+    واپس CURLE_BAD_FUNCTION_دلیل;
+  نتیجہ = spack_enc16(buf, (uint16_t)slen);
+  اگر(!نتیجہ) {
+    نتیجہ = curlx_dyn_addn(buf, s, slen);
   }
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode spack_decstr16(char **val, const uint8_t **src,
-                               const uint8_t *end)
+ساکن CURLcode spack_decstr16(حرف **val, ثابت uint8_t **src,
+                               ثابت uint8_t *انتہا)
 {
   uint16_t slen;
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  *val = NULL;
-  result = spack_dec16(&slen, src, end);
-  if(result)
-    return result;
-  if(end - *src < slen)
-    return CURLE_READ_ERROR;
-  *val = curlx_memdup0((const char *)(*src), slen);
+  *val = تہی;
+  نتیجہ = spack_dec16(&slen, src, انتہا);
+  اگر(نتیجہ)
+    واپس نتیجہ;
+  اگر(انتہا - *src < slen)
+    واپس CURLE_READ_ERROR;
+  *val = curlx_memdup0((ثابت حرف *)(*src), slen);
   *src += slen;
-  return *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  واپس *val ? CURLE_OK : CURLE_برآمد_کا_حافظہ;
 }
 
-static CURLcode spack_encdata16(struct dynbuf *buf, const uint8_t *data,
-                                size_t data_len)
+ساکن CURLcode spack_encdata16(ساخت dynbuf *buf, ثابت uint8_t *ڈیٹا,
+                                size_t ڈیٹا_len)
 {
-  CURLcode result;
-  if(data_len > UINT16_MAX)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  result = spack_enc16(buf, (uint16_t)data_len);
-  if(!result) {
-    result = curlx_dyn_addn(buf, data, data_len);
+  CURLcode نتیجہ;
+  اگر(ڈیٹا_len > UINT16_MAX)
+    واپس CURLE_BAD_FUNCTION_دلیل;
+  نتیجہ = spack_enc16(buf, (uint16_t)ڈیٹا_len);
+  اگر(!نتیجہ) {
+    نتیجہ = curlx_dyn_addn(buf, ڈیٹا, ڈیٹا_len);
   }
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode spack_decdata16(uint8_t **val, size_t *val_len,
-                                const uint8_t **src, const uint8_t *end)
+ساکن CURLcode spack_decdata16(uint8_t **val, size_t *val_len,
+                                ثابت uint8_t **src, ثابت uint8_t *انتہا)
 {
-  uint16_t data_len;
-  CURLcode result;
+  uint16_t ڈیٹا_len;
+  CURLcode نتیجہ;
 
-  *val = NULL;
-  result = spack_dec16(&data_len, src, end);
-  if(result)
-    return result;
-  if(end - *src < data_len)
-    return CURLE_READ_ERROR;
-  *val = curlx_memdup0((const char *)(*src), data_len);
-  *val_len = data_len;
-  *src += data_len;
-  return *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  *val = تہی;
+  نتیجہ = spack_dec16(&ڈیٹا_len, src, انتہا);
+  اگر(نتیجہ)
+    واپس نتیجہ;
+  اگر(انتہا - *src < ڈیٹا_len)
+    واپس CURLE_READ_ERROR;
+  *val = curlx_memdup0((ثابت حرف *)(*src), ڈیٹا_len);
+  *val_len = ڈیٹا_len;
+  *src += ڈیٹا_len;
+  واپس *val ? CURLE_OK : CURLE_برآمد_کا_حافظہ;
 }
 
-CURLcode Curl_ssl_session_pack(struct Curl_easy *data,
-                               struct Curl_ssl_session *s,
-                               struct dynbuf *buf)
+CURLcode Curl_ssl_session_pack(ساخت Curl_easy *ڈیٹا,
+                               ساخت Curl_ssl_session *s,
+                               ساخت dynbuf *buf)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
   DEBUGASSERT(s->sdata);
   DEBUGASSERT(s->sdata_len);
 
-  if(s->valid_until < 0)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(s->valid_until < 0)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
-  result = spack_enc8(buf, CURL_SPACK_VERSION);
-  if(!result)
-    result = spack_enc8(buf, CURL_SPACK_TICKET);
-  if(!result)
-    result = spack_encdata16(buf, s->sdata, s->sdata_len);
-  if(!result)
-    result = spack_enc8(buf, CURL_SPACK_IETF_ID);
-  if(!result)
-    result = spack_enc16(buf, (uint16_t)s->ietf_tls_id);
-  if(!result)
-    result = spack_enc8(buf, CURL_SPACK_VALID_UNTIL);
-  if(!result)
-    result = spack_enc64(buf, (uint64_t)s->valid_until);
-  if(!result && s->alpn) {
-    result = spack_enc8(buf, CURL_SPACK_ALPN);
-    if(!result)
-      result = spack_encstr16(buf, s->alpn);
+  نتیجہ = spack_enc8(buf, CURL_SPACK_نسخہ);
+  اگر(!نتیجہ)
+    نتیجہ = spack_enc8(buf, CURL_SPACK_TICKET);
+  اگر(!نتیجہ)
+    نتیجہ = spack_encdata16(buf, s->sdata, s->sdata_len);
+  اگر(!نتیجہ)
+    نتیجہ = spack_enc8(buf, CURL_SPACK_IETF_ID);
+  اگر(!نتیجہ)
+    نتیجہ = spack_enc16(buf, (uint16_t)s->ietf_tls_id);
+  اگر(!نتیجہ)
+    نتیجہ = spack_enc8(buf, CURL_SPACK_VALID_UNTIL);
+  اگر(!نتیجہ)
+    نتیجہ = spack_enc64(buf, (uint64_t)s->valid_until);
+  اگر(!نتیجہ && s->alpn) {
+    نتیجہ = spack_enc8(buf, CURL_SPACK_ALPN);
+    اگر(!نتیجہ)
+      نتیجہ = spack_encstr16(buf, s->alpn);
   }
-  if(!result && s->earlydata_max) {
-    if(s->earlydata_max > UINT32_MAX)
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-    if(!result)
-      result = spack_enc8(buf, CURL_SPACK_EARLYDATA);
-    if(!result)
-      result = spack_enc32(buf, (uint32_t)s->earlydata_max);
+  اگر(!نتیجہ && s->earlydata_max) {
+    اگر(s->earlydata_max > UINT32_MAX)
+      نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+    اگر(!نتیجہ)
+      نتیجہ = spack_enc8(buf, CURL_SPACK_EARLYDATA);
+    اگر(!نتیجہ)
+      نتیجہ = spack_enc32(buf, (uint32_t)s->earlydata_max);
   }
-  if(!result && s->sectrust_verified) {
-    result = spack_enc8(buf, CURL_SPACK_SECTRUST);
+  اگر(!نتیجہ && s->sectrust_verified) {
+    نتیجہ = spack_enc8(buf, CURL_SPACK_SECTRUST);
   }
-  if(!result && s->quic_tp && s->quic_tp_len) {
-    result = spack_enc8(buf, CURL_SPACK_QUICTP);
-    if(!result)
-      result = spack_encdata16(buf, s->quic_tp, s->quic_tp_len);
+  اگر(!نتیجہ && s->quic_tp && s->quic_tp_len) {
+    نتیجہ = spack_enc8(buf, CURL_SPACK_QUICTP);
+    اگر(!نتیجہ)
+      نتیجہ = spack_encdata16(buf, s->quic_tp, s->quic_tp_len);
   }
 
-  if(result)
-    CURL_TRC_SSLS(data, "error packing data: %d", (int)result);
-  return result;
+  اگر(نتیجہ)
+    CURL_TRC_SSLS(ڈیٹا, "error packing data: %d", (صحیح)نتیجہ);
+  واپس نتیجہ;
 }
 
-CURLcode Curl_ssl_session_unpack(struct Curl_easy *data,
-                                 const void *bufv, size_t buflen,
-                                 struct Curl_ssl_session **ps)
+CURLcode Curl_ssl_session_unpack(ساخت Curl_easy *ڈیٹا,
+                                 ثابت خالی *bufv, size_t buflen,
+                                 ساخت Curl_ssl_session **ps)
 {
-  struct Curl_ssl_session *s = NULL;
-  const unsigned char *buf = (const unsigned char *)bufv;
-  const unsigned char *end = buf + buflen;
+  ساخت Curl_ssl_session *s = تہی;
+  ثابت غیرعلامتی حرف *buf = (ثابت غیرعلامتی حرف *)bufv;
+  ثابت غیرعلامتی حرف *انتہا = buf + buflen;
   uint8_t val8, *pval8;
   uint16_t val16;
   uint32_t val32;
   uint64_t val64;
   size_t dlen;
-  CURLcode result;
+  CURLcode نتیجہ;
 
   DEBUGASSERT(ps);
   DEBUGASSERT(buf);
   DEBUGASSERT(buflen);
-  *ps = NULL;
+  *ps = تہی;
 
-  result = spack_dec8(&val8, &buf, end);
-  if(result)
-    goto out;
-  if(val8 != CURL_SPACK_VERSION) {
-    result = CURLE_READ_ERROR;
-    goto out;
+  نتیجہ = spack_dec8(&val8, &buf, انتہا);
+  اگر(نتیجہ)
+    جاؤ برآمد;
+  اگر(val8 != CURL_SPACK_نسخہ) {
+    نتیجہ = CURLE_READ_ERROR;
+    جاؤ برآمد;
   }
 
-  s = curlx_calloc(1, sizeof(*s));
-  if(!s) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  s = curlx_calloc(1, حجم(*s));
+  اگر(!s) {
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ برآمد;
   }
 
-  while(buf < end) {
-    result = spack_dec8(&val8, &buf, end);
-    if(result)
-      goto out;
+  جب(buf < انتہا) {
+    نتیجہ = spack_dec8(&val8, &buf, انتہا);
+    اگر(نتیجہ)
+      جاؤ برآمد;
 
-    switch(val8) {
-    case CURL_SPACK_ALPN:
+    انتخاب(val8) {
+    حالت CURL_SPACK_ALPN:
       curlx_free(s->alpn);
-      result = spack_decstr16(&s->alpn, &buf, end);
-      if(result)
-        goto out;
-      break;
-    case CURL_SPACK_EARLYDATA:
-      result = spack_dec32(&val32, &buf, end);
-      if(result)
-        goto out;
+      نتیجہ = spack_decstr16(&s->alpn, &buf, انتہا);
+      اگر(نتیجہ)
+        جاؤ برآمد;
+      توڑو;
+    حالت CURL_SPACK_EARLYDATA:
+      نتیجہ = spack_dec32(&val32, &buf, انتہا);
+      اگر(نتیجہ)
+        جاؤ برآمد;
       s->earlydata_max = val32;
-      break;
-    case CURL_SPACK_IETF_ID:
-      result = spack_dec16(&val16, &buf, end);
-      if(result)
-        goto out;
+      توڑو;
+    حالت CURL_SPACK_IETF_ID:
+      نتیجہ = spack_dec16(&val16, &buf, انتہا);
+      اگر(نتیجہ)
+        جاؤ برآمد;
       s->ietf_tls_id = val16;
-      break;
-    case CURL_SPACK_QUICTP: {
-      result = spack_decdata16(&pval8, &dlen, &buf, end);
-      if(result)
-        goto out;
+      توڑو;
+    حالت CURL_SPACK_QUICTP: {
+      نتیجہ = spack_decdata16(&pval8, &dlen, &buf, انتہا);
+      اگر(نتیجہ)
+        جاؤ برآمد;
       curlx_free(s->quic_tp);
       s->quic_tp = pval8;
       s->quic_tp_len = dlen;
-      break;
+      توڑو;
     }
-    case CURL_SPACK_TICKET: {
-      result = spack_decdata16(&pval8, &dlen, &buf, end);
-      if(result)
-        goto out;
+    حالت CURL_SPACK_TICKET: {
+      نتیجہ = spack_decdata16(&pval8, &dlen, &buf, انتہا);
+      اگر(نتیجہ)
+        جاؤ برآمد;
       curlx_free(s->sdata);
       s->sdata = pval8;
       s->sdata_len = dlen;
-      break;
+      توڑو;
     }
-    case CURL_SPACK_VALID_UNTIL:
-      result = spack_dec64(&val64, &buf, end);
-      if(result)
-        goto out;
+    حالت CURL_SPACK_VALID_UNTIL:
+      نتیجہ = spack_dec64(&val64, &buf, انتہا);
+      اگر(نتیجہ)
+        جاؤ برآمد;
       s->valid_until = (curl_off_t)val64;
-      break;
-    case CURL_SPACK_SECTRUST:
+      توڑو;
+    حالت CURL_SPACK_SECTRUST:
       s->sectrust_verified = TRUE;
-      break;
-    default:  /* unknown tag */
-      result = CURLE_READ_ERROR;
-      goto out;
+      توڑو;
+    طےشدہ:  /* unknown tag */
+      نتیجہ = CURLE_READ_ERROR;
+      جاؤ برآمد;
     }
   }
 
-out:
-  if(result) {
-    CURL_TRC_SSLS(data, "error unpacking data: %d", (int)result);
+برآمد:
+  اگر(نتیجہ) {
+    CURL_TRC_SSLS(ڈیٹا, "error unpacking data: %d", (صحیح)نتیجہ);
     Curl_ssl_session_destroy(s);
   }
-  else
+  ورنہ
     *ps = s;
-  return result;
+  واپس نتیجہ;
 }
 
-#endif /* USE_SSL && USE_SSLS_EXPORT */
+#اگر_ختم /* USE_SSL && USE_SSLS_EXPORT */

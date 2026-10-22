@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FILEINFO_H
-#define HEADER_CURL_FILEINFO_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_FILEINFO_H
+#تعریف_کرو سرخی_CURL_FILEINFO_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "llist.h"
-#include "curlx/dynbuf.h"
+#شامل "llist.h"
+#شامل "curlx/dynbuf.h"
 
-struct fileinfo {
-  struct curl_fileinfo info;
-  struct Curl_llist_node list;
-  struct dynbuf buf;
+ساخت fileinfo {
+  ساخت curl_fileinfo info;
+  ساخت Curl_llist_گرہ list;
+  ساخت dynbuf buf;
 };
 
-struct fileinfo *Curl_fileinfo_alloc(void);
-void Curl_fileinfo_cleanup(struct fileinfo *finfo);
+ساخت fileinfo *Curl_fileinfo_alloc(خالی);
+خالی Curl_fileinfo_cleanup(ساخت fileinfo *finfo);
 
-#endif /* HEADER_CURL_FILEINFO_H */
+#اگر_ختم /* HEADER_CURL_FILEINFO_H */

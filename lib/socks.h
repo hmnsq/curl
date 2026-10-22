@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SOCKS_H
-#define HEADER_CURL_SOCKS_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_SOCKS_H
+#تعریف_کرو سرخی_CURL_SOCKS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
 
-struct Curl_peer;
-struct Curl_creds;
+ساخت Curl_peer;
+ساخت Curl_creds;
 
 /*
  * Helper read-from-socket functions. Does the same as Curl_read() but it
@@ -36,34 +36,34 @@ struct Curl_creds;
  *
  * This is STUPID BLOCKING behavior
  */
-CURLcode Curl_blockread_all(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            char *buf,
+CURLcode Curl_blockread_all(ساخت Curl_cfilter *cf,
+                            ساخت Curl_easy *ڈیٹا,
+                            حرف *buf,
                             size_t blen,
                             size_t *pnread);
 
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#اگر defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
 /*
  * This function handles the SOCKS5 GSS-API negotiation and initialization
  */
-CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct Curl_creds *creds);
-#endif
+CURLcode Curl_SOCKS5_gssapi_negotiate(ساخت Curl_cfilter *cf,
+                                      ساخت Curl_easy *ڈیٹا,
+                                      ساخت Curl_creds *creds);
+#اگر_ختم
 
 /* Insert a SOCKS filter after `cf_at` for connecting to `dest`.
  * Credentials are optional and NOT duplicated and are
  * expected to exist during connect phase.
  */
-CURLcode Curl_cf_socks_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                          struct Curl_easy *data,
-                                          struct Curl_peer *dest,
-                                          uint8_t ip_version,
+CURLcode Curl_cf_socks_proxy_داخل_کرو_after(ساخت Curl_cfilter *cf_at,
+                                          ساخت Curl_easy *ڈیٹا,
+                                          ساخت Curl_peer *dest,
+                                          uint8_t ip_نسخہ,
                                           uint8_t proxy_type,
-                                          struct Curl_creds *creds);
+                                          ساخت Curl_creds *creds);
 
-extern struct Curl_cftype Curl_cft_socks_proxy;
+خارجی ساخت Curl_cftype Curl_cft_socks_proxy;
 
-#endif /* !CURL_DISABLE_PROXY */
+#اگر_ختم /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_SOCKS_H */
+#اگر_ختم /* HEADER_CURL_SOCKS_H */

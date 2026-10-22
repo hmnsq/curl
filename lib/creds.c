@@ -21,143 +21,143 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include <stddef.h>  /* for offsetof() */
+#شامل <stddef.h>  /* for offsetof() */
 
-#include "creds.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "urldata.h"
+#شامل "creds.h"
+#شامل "curl_trc.h"
+#شامل "strcase.h"
+#شامل "urldata.h"
 
 
-CURLcode Curl_creds_create(const char *user,
-                           const char *passwd,
-                           const char *oauth_bearer,
-                           const char *sasl_authzid,
-                           const char *sasl_service,
-                           uint8_t source,
-                           struct Curl_creds **pcreds)
+CURLcode Curl_creds_create(ثابت حرف *user,
+                           ثابت حرف *passwd,
+                           ثابت حرف *oauth_bearer,
+                           ثابت حرف *sasl_authzid,
+                           ثابت حرف *sasl_service,
+                           uint8_t ماخذ,
+                           ساخت Curl_creds **pcreds)
 {
-  struct Curl_creds *creds = NULL;
-  size_t ulen = user ? strlen(user) : 0;
-  size_t plen = passwd ? strlen(passwd) : 0;
-  size_t olen = oauth_bearer ? strlen(oauth_bearer) : 0;
-  size_t salen = sasl_authzid ? strlen(sasl_authzid) : 0;
-  size_t sslen = sasl_service ? strlen(sasl_service) : 0;
-  char *s, *buf;
+  ساخت Curl_creds *creds = تہی;
+  size_t ulen = user ? لڑی_لمبائی(user) : 0;
+  size_t plen = passwd ? لڑی_لمبائی(passwd) : 0;
+  size_t olen = oauth_bearer ? لڑی_لمبائی(oauth_bearer) : 0;
+  size_t salen = sasl_authzid ? لڑی_لمبائی(sasl_authzid) : 0;
+  size_t sslen = sasl_service ? لڑی_لمبائی(sasl_service) : 0;
+  حرف *s, *buf;
   size_t bufsize;
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
   Curl_creds_unlink(pcreds);
 
   /* Everything empty/NULL, this is the NULL credential */
-  if(!user && !passwd && !olen && !salen && !sslen)
-    goto out;
+  اگر(!user && !passwd && !olen && !salen && !sslen)
+    جاؤ برآمد;
 
-  if((ulen > CURL_MAX_INPUT_LENGTH) ||
-     (plen > CURL_MAX_INPUT_LENGTH) ||
-     (olen > CURL_MAX_INPUT_LENGTH) ||
-     (salen > CURL_MAX_INPUT_LENGTH) ||
-     (sslen > CURL_MAX_INPUT_LENGTH)) {
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+  اگر((ulen > CURL_MAX_داخلہ_لمبائی) ||
+     (plen > CURL_MAX_داخلہ_لمبائی) ||
+     (olen > CURL_MAX_داخلہ_لمبائی) ||
+     (salen > CURL_MAX_داخلہ_لمبائی) ||
+     (sslen > CURL_MAX_داخلہ_لمبائی)) {
+    نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+    جاؤ برآمد;
   }
 
   /* null-terminator for user already part of struct */
   bufsize = ulen + plen + 1 + olen + 1 + salen + 1 + sslen + 1;
-  creds = curlx_calloc(1, sizeof(*creds) + bufsize);
-  if(!creds) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  creds = curlx_calloc(1, حجم(*creds) + bufsize);
+  اگر(!creds) {
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ برآمد;
   }
 
   creds->bufsize = bufsize;
   creds->refcount = 1;
-  creds->source = source;
+  creds->ماخذ = ماخذ;
   /* Some compilers try to be too smart about our dynamic struct size */
-  buf = ((char *)creds) + offsetof(struct Curl_creds, buf);
+  buf = ((حرف *)creds) + offsetof(ساخت Curl_creds, buf);
   creds->user = s = buf;
-  if(ulen)
-    memcpy(s, user, ulen + 1);
+  اگر(ulen)
+    حافظہ_نقل(s, user, ulen + 1);
   creds->passwd = s = buf + ulen + 1;
-  if(plen)
-    memcpy(s, passwd, plen + 1);
+  اگر(plen)
+    حافظہ_نقل(s, passwd, plen + 1);
   creds->oauth_bearer = s = buf + ulen + 1 + plen + 1;
-  if(olen)
-    memcpy(s, oauth_bearer, olen + 1);
+  اگر(olen)
+    حافظہ_نقل(s, oauth_bearer, olen + 1);
   creds->sasl_authzid = s = buf + ulen + 1 + plen + 1 + olen + 1;
-  if(salen)
-    memcpy(s, sasl_authzid, salen + 1);
+  اگر(salen)
+    حافظہ_نقل(s, sasl_authzid, salen + 1);
   creds->sasl_service = s = buf + ulen + 1 + plen + 1 + olen + 1 + salen + 1;
-  if(sslen)
-    memcpy(s, sasl_service, sslen + 1);
+  اگر(sslen)
+    حافظہ_نقل(s, sasl_service, sslen + 1);
 
-out:
-  if(!result)
+برآمد:
+  اگر(!نتیجہ)
     *pcreds = creds;
-  else
+  ورنہ
     Curl_creds_unlink(&creds);
-  return result;
+  واپس نتیجہ;
 }
 
-CURLcode Curl_creds_merge(const char *user,
-                          const char *passwd,
-                          struct Curl_creds *creds_in,
-                          uint8_t source,
-                          struct Curl_creds **pcreds_out)
+CURLcode Curl_creds_ملاؤ(ثابت حرف *user,
+                          ثابت حرف *passwd,
+                          ساخت Curl_creds *creds_اندر,
+                          uint8_t ماخذ,
+                          ساخت Curl_creds **pcreds_برآمد)
 {
-  struct Curl_creds *creds_out = NULL;
-  CURLcode result;
+  ساخت Curl_creds *creds_برآمد = تہی;
+  CURLcode نتیجہ;
 
-  if(!creds_in) {
-    result = Curl_creds_create(user, passwd, NULL, NULL, NULL,
-                               source, &creds_out);
+  اگر(!creds_اندر) {
+    نتیجہ = Curl_creds_create(user, passwd, تہی, تہی, تہی,
+                               ماخذ, &creds_برآمد);
   }
-  else {
-    result = Curl_creds_create(user ? user : Curl_creds_user(creds_in),
-                               passwd ? passwd : Curl_creds_passwd(creds_in),
-                               Curl_creds_oauth_bearer(creds_in),
-                               Curl_creds_sasl_authzid(creds_in),
-                               Curl_creds_sasl_service(creds_in),
-                               source, &creds_out);
+  ورنہ {
+    نتیجہ = Curl_creds_create(user ? user : Curl_creds_user(creds_اندر),
+                               passwd ? passwd : Curl_creds_passwd(creds_اندر),
+                               Curl_creds_oauth_bearer(creds_اندر),
+                               Curl_creds_sasl_authzid(creds_اندر),
+                               Curl_creds_sasl_service(creds_اندر),
+                               ماخذ, &creds_برآمد);
   }
-  Curl_creds_link(pcreds_out, creds_out);
-  Curl_creds_unlink(&creds_out);
-  return result;
+  Curl_creds_link(pcreds_برآمد, creds_برآمد);
+  Curl_creds_unlink(&creds_برآمد);
+  واپس نتیجہ;
 }
 
-void Curl_creds_link(struct Curl_creds **pdest, struct Curl_creds *src)
+خالی Curl_creds_link(ساخت Curl_creds **pdest, ساخت Curl_creds *src)
 {
-  if(*pdest != src) {
+  اگر(*pdest != src) {
     Curl_creds_unlink(pdest);
     *pdest = src;
-    if(src) {
+    اگر(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
   }
 }
 
-void Curl_creds_unlink(struct Curl_creds **pcreds)
+خالی Curl_creds_unlink(ساخت Curl_creds **pcreds)
 {
-  if(*pcreds) {
-    struct Curl_creds *creds = *pcreds;
+  اگر(*pcreds) {
+    ساخت Curl_creds *creds = *pcreds;
 
     DEBUGASSERT(creds->refcount);
-    *pcreds = NULL;
-    if(creds->refcount)
+    *pcreds = تہی;
+    اگر(creds->refcount)
       creds->refcount--;
-    if(!creds->refcount) {
-      curlx_memzero(creds, sizeof(*creds) + creds->bufsize);
+    اگر(!creds->refcount) {
+      curlx_memzero(creds, حجم(*creds) + creds->bufsize);
       curlx_free(creds);
     }
   }
 }
 
-bool Curl_creds_same(struct Curl_creds *c1, struct Curl_creds *c2)
+bool Curl_creds_same(ساخت Curl_creds *c1, ساخت Curl_creds *c2)
 {
-  return (c1 == c2) ||
+  واپس (c1 == c2) ||
          (c1 && c2 &&
           !Curl_timestrcmp(c1->user, c2->user) &&
           !Curl_timestrcmp(c1->passwd, c2->passwd) &&
@@ -166,27 +166,27 @@ bool Curl_creds_same(struct Curl_creds *c1, struct Curl_creds *c2)
           !Curl_timestrcmp(c1->sasl_service, c2->sasl_service));
 }
 
-bool Curl_creds_equal(struct Curl_creds *c1, struct Curl_creds *c2)
+bool Curl_creds_equal(ساخت Curl_creds *c1, ساخت Curl_creds *c2)
 {
-  return Curl_creds_same(c1, c2) &&
-         ((c1 == c2) || (c1 && c2 && (c1->source == c2->source)));
+  واپس Curl_creds_same(c1, c2) &&
+         ((c1 == c2) || (c1 && c2 && (c1->ماخذ == c2->ماخذ)));
 }
 
-#ifdef CURLVERBOSE
-void Curl_creds_trace(struct Curl_easy *data, struct Curl_creds *creds,
-                      const char *msg)
+#اگر_تعریف_شدہ CURLVERBOSE
+خالی Curl_creds_trace(ساخت Curl_easy *ڈیٹا, ساخت Curl_creds *creds,
+                      ثابت حرف *پیغام)
 {
-  if(creds) {
-    CURL_TRC_M(data, "%s: user=%s, passwd=%s, "
+  اگر(creds) {
+    CURL_TRC_M(ڈیٹا, "%s: user=%s, passwd=%s, "
                "sasl_authzid=%s, oauth_bearer=%s, source=%d",
-               msg,
+               پیغام,
                Curl_creds_user(creds),
                Curl_creds_has_passwd(creds) ? "***" : "",
                Curl_creds_sasl_authzid(creds),
                Curl_creds_has_oauth_bearer(creds) ? "***" : "",
-               creds->source);
+               creds->ماخذ);
   }
-  else
-    CURL_TRC_M(data, "%s: -", msg);
+  ورنہ
+    CURL_TRC_M(ڈیٹا, "%s: -", پیغام);
 }
-#endif
+#اگر_ختم

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_DNS_H
-#define HEADER_CURL_CF_DNS_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_CF_DNS_H
+#تعریف_کرو سرخی_CURL_CF_DNS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,49 +23,49 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct Curl_dns_entry;
-struct Curl_addrinfo;
-struct Curl_peer;
+ساخت Curl_easy;
+ساخت connectdata;
+ساخت Curl_dns_اندراج;
+ساخت Curl_addrinfo;
+ساخت Curl_peer;
 
-CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
-                                        struct connectdata *conn,
+CURLcode Curl_conn_dns_جوڑو_addr_resolve(ساخت Curl_easy *ڈیٹا,
+                                        ساخت connectdata *conn,
                                         int8_t sockindex,
-                                        struct Curl_peer *peer,
+                                        ساخت Curl_peer *peer,
                                         uint8_t dns_queries,
                                         uint8_t transport);
 
-CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
+CURLcode Curl_conn_dns_addr_نتیجہ(ساخت connectdata *conn,
                                    int8_t sockindex,
-                                   struct Curl_peer *peer);
+                                   ساخت Curl_peer *peer);
 
-const struct Curl_addrinfo *Curl_conn_dns_get_ai(struct Curl_easy *data,
-                                                 struct Curl_peer *peer,
+ثابت ساخت Curl_addrinfo *Curl_conn_dns_get_ai(ساخت Curl_easy *ڈیٹا,
+                                                 ساخت Curl_peer *peer,
                                                  int8_t sockindex,
-                                                 int ai_family,
-                                                 unsigned int index);
+                                                 صحیح ai_family,
+                                                 غیرعلامتی صحیح اشاریہ);
 
-#ifdef USE_HTTPSRR
-CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
-                                         struct connectdata *conn,
+#اگر_تعریف_شدہ USE_HTTPSRR
+CURLcode Curl_conn_dns_جوڑو_https_resolve(ساخت Curl_easy *ڈیٹا,
+                                         ساخت connectdata *conn,
                                          int8_t sockindex,
-                                         struct Curl_peer *peer);
+                                         ساخت Curl_peer *peer);
 
-const struct Curl_https_rrinfo *
-Curl_conn_dns_get_https(struct Curl_easy *data,
+ثابت ساخت Curl_https_rrinfo *
+Curl_conn_dns_get_https(ساخت Curl_easy *ڈیٹا,
                         int8_t sockindex,
-                        struct Curl_peer *peer);
-bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
+                        ساخت Curl_peer *peer);
+bool Curl_conn_dns_resolved_https(ساخت Curl_easy *ڈیٹا,
                                   int8_t sockindex,
-                                  struct Curl_peer *peer);
-#else
-#define Curl_conn_dns_get_https(a, b, c)        NULL
-#define Curl_conn_dns_resolved_https(a, b, c)   TRUE
-#endif
+                                  ساخت Curl_peer *peer);
+#ورنہ
+#تعریف_کرو Curl_conn_dns_get_https(a, b, c)        تہی
+#تعریف_کرو Curl_conn_dns_resolved_https(a, b, c)   TRUE
+#اگر_ختم
 
-extern struct Curl_cftype Curl_cft_dns;
+خارجی ساخت Curl_cftype Curl_cft_dns;
 
-#endif /* HEADER_CURL_CF_DNS_H */
+#اگر_ختم /* HEADER_CURL_CF_DNS_H */

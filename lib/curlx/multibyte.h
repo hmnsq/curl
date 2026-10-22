@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTIBYTE_H
-#define HEADER_CURL_MULTIBYTE_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_MULTIBYTE_H
+#تعریف_کرو سرخی_CURL_MULTIBYTE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef _WIN32
+#اگر_تعریف_شدہ _WIN32
 
 /*
  * Macros curlx_convert_UTF8_to_tchar(), curlx_convert_tchar_to_UTF8()
@@ -39,35 +39,35 @@
  * significance of the conversion functions is primarily for Unicode builds.
  */
 
-#ifdef UNICODE
+#اگر_تعریف_شدہ UNICODE
 
 /* MultiByte conversions using Windows kernel32 library. */
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8);
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w);
+wchar_t *curlx_convert_UTF8_مقصد_wchar(ثابت حرف *str_utf8);
+حرف *curlx_convert_wchar_مقصد_UTF8(ثابت wchar_t *str_w);
 
-#define curlx_convert_UTF8_to_tchar(ptr) curlx_convert_UTF8_to_wchar(ptr)
-#define curlx_convert_tchar_to_UTF8(ptr) curlx_convert_wchar_to_UTF8(ptr)
+#تعریف_کرو curlx_convert_UTF8_مقصد_tchar(ptr) curlx_convert_UTF8_مقصد_wchar(ptr)
+#تعریف_کرو curlx_convert_tchar_مقصد_UTF8(ptr) curlx_convert_wchar_مقصد_UTF8(ptr)
 
-typedef union {
-  unsigned short       *tchar_ptr;
-  const unsigned short *const_tchar_ptr;
-  unsigned short       *tbyte_ptr;
-  const unsigned short *const_tbyte_ptr;
+قسمتعریف اتحاد {
+  غیرعلامتی مختصر       *tchar_ptr;
+  ثابت غیرعلامتی مختصر *const_tchar_ptr;
+  غیرعلامتی مختصر       *tbyte_ptr;
+  ثابت غیرعلامتی مختصر *const_tbyte_ptr;
 } xcharp_u;
 
-#else /* !UNICODE */
+#ورنہ /* !UNICODE */
 
-#define curlx_convert_UTF8_to_tchar(ptr) curlx_strdup(ptr)
-#define curlx_convert_tchar_to_UTF8(ptr) curlx_strdup(ptr)
+#تعریف_کرو curlx_convert_UTF8_مقصد_tchar(ptr) curlx_strdup(ptr)
+#تعریف_کرو curlx_convert_tchar_مقصد_UTF8(ptr) curlx_strdup(ptr)
 
-typedef union {
-  char                *tchar_ptr;
-  const char          *const_tchar_ptr;
-  unsigned char       *tbyte_ptr;
-  const unsigned char *const_tbyte_ptr;
+قسمتعریف اتحاد {
+  حرف                *tchar_ptr;
+  ثابت حرف          *const_tchar_ptr;
+  غیرعلامتی حرف       *tbyte_ptr;
+  ثابت غیرعلامتی حرف *const_tbyte_ptr;
 } xcharp_u;
 
-#endif /* UNICODE */
-#endif /* _WIN32 */
+#اگر_ختم /* UNICODE */
+#اگر_ختم /* _WIN32 */
 
-#endif /* HEADER_CURL_MULTIBYTE_H */
+#اگر_ختم /* HEADER_CURL_MULTIBYTE_H */

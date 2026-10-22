@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_QUIC_H
-#define HEADER_CURL_VQUIC_QUIC_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_VQUIC_QUIC_H
+#تعریف_کرو سرخی_CURL_VQUIC_QUIC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,69 +23,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_addrinfo;
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+ساخت Curl_cfilter;
+ساخت Curl_easy;
+ساخت connectdata;
+ساخت Curl_addrinfo;
 
-void Curl_quic_ver(char *p, size_t len);
-int Curl_vquic_init(void);
-void Curl_vquic_cleanup(void);
+خالی Curl_quic_ver(حرف *p, size_t len);
+صحیح Curl_vquic_init(خالی);
+خالی Curl_vquic_cleanup(خالی);
 
-CURLcode Curl_qlogdir(struct Curl_easy *data,
-                      unsigned char *scid,
+CURLcode Curl_qlogdir(ساخت Curl_easy *ڈیٹا,
+                      غیرعلامتی حرف *scid,
                       size_t scidlen,
-                      int *qlogfdp);
+                      صحیح *qlogfdp);
 
-CURLcode Curl_cf_quic_insert_after(struct Curl_cfilter *cf_at,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer);
+CURLcode Curl_cf_quic_داخل_کرو_after(ساخت Curl_cfilter *cf_at,
+                                   ساخت Curl_easy *ڈیٹا,
+                                   ساخت Curl_peer *origin,
+                                   ساخت Curl_peer *peer);
 
-CURLcode Curl_cf_quic_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_quic_create(ساخت Curl_cfilter **pcf,
+                             ساخت Curl_easy *ڈیٹا,
+                             ساخت Curl_peer *origin,
+                             ساخت Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             ساخت connectdata *conn,
+                             ساخت Curl_sockaddr_ex *addr,
+                             ساخت Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_http3;
+خارجی ساخت Curl_cftype Curl_cft_http3;
 
-#if !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
+#اگر !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
 
-CURLcode Curl_cf_h3_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_h3_proxy_داخل_کرو_after(ساخت Curl_cfilter *cf_at,
+                                       ساخت Curl_easy *ڈیٹا,
+                                       ساخت Curl_peer *origin,
+                                       ساخت Curl_peer *peer,
+                                       ساخت Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport);
 
-CURLcode Curl_cf_h3_proxy_create(struct Curl_cfilter **pcf,
-                                 struct Curl_easy *data,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
+CURLcode Curl_cf_h3_proxy_create(ساخت Curl_cfilter **pcf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 ساخت Curl_peer *origin,
+                                 ساخت Curl_peer *peer,
                                  uint8_t transport_peer,
-                                 struct connectdata *conn,
-                                 struct Curl_sockaddr_ex *addr,
-                                 struct Curl_peer *tunnel_peer,
+                                 ساخت connectdata *conn,
+                                 ساخت Curl_sockaddr_ex *addr,
+                                 ساخت Curl_peer *tunnel_peer,
                                  uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_h3_proxy;
+خارجی ساخت Curl_cftype Curl_cft_h3_proxy;
 
-#endif /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
+#اگر_ختم /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
 
-#else
-#define Curl_vquic_init() 1
-#define Curl_vquic_cleanup()
-#endif /* !CURL_DISABLE_HTTP && USE_HTTP3 */
+#ورنہ
+#تعریف_کرو Curl_vquic_init() 1
+#تعریف_کرو Curl_vquic_cleanup()
+#اگر_ختم /* !CURL_DISABLE_HTTP && USE_HTTP3 */
 
-CURLcode Curl_conn_may_http3(struct Curl_easy *data,
-                             struct connectdata *conn);
+CURLcode Curl_conn_may_http3(ساخت Curl_easy *ڈیٹا,
+                             ساخت connectdata *conn);
 
-#endif /* HEADER_CURL_VQUIC_QUIC_H */
+#اگر_ختم /* HEADER_CURL_VQUIC_QUIC_H */

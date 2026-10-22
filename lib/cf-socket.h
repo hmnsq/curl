@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_SOCKET_H
-#define HEADER_CURL_CF_SOCKET_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_CF_SOCKET_H
+#تعریف_کرو سرخی_CURL_CF_SOCKET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,26 +23,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-struct Curl_addrinfo;
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_sockaddr_ex;
-struct ip_quadruple;
+ساخت Curl_addrinfo;
+ساخت Curl_cfilter;
+ساخت Curl_easy;
+ساخت connectdata;
+ساخت Curl_sockaddr_ex;
+ساخت ip_quadruple;
 
-#define curl_sa_addr    addr.sa
-#define curl_sa_addrbuf addr.buf
+#تعریف_کرو curl_sa_addr    addr.sa
+#تعریف_کرو curl_sa_addrbuf addr.buf
 
 /*
  * Parse interface option, and return the interface name and the host part.
  */
-CURLcode Curl_parse_interface(const char *input,
-                              char **dev, char **iface, char **host);
+CURLcode Curl_parse_interface(ثابت حرف *داخلہ,
+                              حرف **dev, حرف **iface, حرف **host);
 
-CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,
-                                  const struct Curl_addrinfo *ai,
+CURLcode Curl_socket_addr_from_ai(ساخت Curl_sockaddr_ex *addr,
+                                  ثابت ساخت Curl_addrinfo *ai,
                                   uint8_t transport);
 
 /*
@@ -52,18 +52,18 @@ CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,
  * socket callback is set, used that!
  *
  */
-CURLcode Curl_socket_open(struct Curl_easy *data,
-                          const struct Curl_addrinfo *ai,
-                          struct Curl_sockaddr_ex *addr,
+CURLcode Curl_socket_open(ساخت Curl_easy *ڈیٹا,
+                          ثابت ساخت Curl_addrinfo *ai,
+                          ساخت Curl_sockaddr_ex *addr,
                           uint8_t transport,
                           curl_socket_t *sockfd);
 
-#ifdef USE_SO_NOSIGPIPE
+#اگر_تعریف_شدہ USE_SO_NOSIGPIPE
 /* Set SO_NOSIGPIPE on socket, return < 0 on error. */
-int Curl_sock_nosigpipe(curl_socket_t sockfd);
-#endif
+صحیح Curl_sock_nosigpipe(curl_socket_t sockfd);
+#اگر_ختم
 
-int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
+صحیح Curl_socket_close(ساخت Curl_easy *ڈیٹا, ساخت connectdata *conn,
                       curl_socket_t sock);
 
 /**
@@ -73,14 +73,14 @@ int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_tcp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_tcp_create(ساخت Curl_cfilter **pcf,
+                            ساخت Curl_easy *ڈیٹا,
+                            ساخت Curl_peer *origin,
+                            ساخت Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            ساخت connectdata *conn,
+                            ساخت Curl_sockaddr_ex *addr,
+                            ساخت Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport);
 
 /**
@@ -90,14 +90,14 @@ CURLcode Curl_cf_tcp_create(struct Curl_cfilter **pcf,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_udp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_udp_create(ساخت Curl_cfilter **pcf,
+                            ساخت Curl_easy *ڈیٹا,
+                            ساخت Curl_peer *origin,
+                            ساخت Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            ساخت connectdata *conn,
+                            ساخت Curl_sockaddr_ex *addr,
+                            ساخت Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport);
 
 /**
@@ -107,21 +107,21 @@ CURLcode Curl_cf_udp_create(struct Curl_cfilter **pcf,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_unix_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_unix_create(ساخت Curl_cfilter **pcf,
+                             ساخت Curl_easy *ڈیٹا,
+                             ساخت Curl_peer *origin,
+                             ساخت Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             ساخت connectdata *conn,
+                             ساخت Curl_sockaddr_ex *addr,
+                             ساخت Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport);
 
 /**
  * Creates a cfilter that keeps a listening socket.
  */
-CURLcode Curl_conn_tcp_listen_set(struct Curl_easy *data,
-                                  struct connectdata *conn,
+CURLcode Curl_conn_tcp_listen_سیٹ(ساخت Curl_easy *ڈیٹا,
+                                  ساخت connectdata *conn,
                                   int8_t sockindex,
                                   curl_socket_t *s);
 
@@ -129,7 +129,7 @@ CURLcode Curl_conn_tcp_listen_set(struct Curl_easy *data,
  * Return TRUE iff the last filter at `sockindex` was set via
  * Curl_conn_tcp_listen_set().
  */
-bool Curl_conn_is_tcp_listen(struct Curl_easy *data,
+bool Curl_conn_is_tcp_listen(ساخت Curl_easy *ڈیٹا,
                              int8_t sockindex);
 
 /**
@@ -140,15 +140,15 @@ bool Curl_conn_is_tcp_listen(struct Curl_easy *data,
  * @param pip               pointer to get IP quadruple or NULL
  * Returns error if the filter is of invalid type.
  */
-CURLcode Curl_cf_socket_peek(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
+CURLcode Curl_cf_socket_peek(ساخت Curl_cfilter *cf,
+                             ساخت Curl_easy *ڈیٹا,
                              curl_socket_t *psock,
-                             const struct Curl_sockaddr_ex **paddr,
-                             struct ip_quadruple *pip) WARN_UNUSED_RESULT;
+                             ثابت ساخت Curl_sockaddr_ex **paddr,
+                             ساخت ip_quadruple *pip) WARN_غیر_مستعمل_نتیجہ;
 
-extern struct Curl_cftype Curl_cft_tcp;
-extern struct Curl_cftype Curl_cft_udp;
-extern struct Curl_cftype Curl_cft_unix;
-extern struct Curl_cftype Curl_cft_tcp_accept;
+خارجی ساخت Curl_cftype Curl_cft_tcp;
+خارجی ساخت Curl_cftype Curl_cft_udp;
+خارجی ساخت Curl_cftype Curl_cft_unix;
+خارجی ساخت Curl_cftype Curl_cft_tcp_accept;
 
-#endif /* HEADER_CURL_CF_SOCKET_H */
+#اگر_ختم /* HEADER_CURL_CF_SOCKET_H */

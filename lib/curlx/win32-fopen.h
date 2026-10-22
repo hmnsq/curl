@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_FOPEN_H
-#define HEADER_CURLX_FOPEN_H
+#اگر_غیر_تعریف_شدہ سرخی_CURLX_FOPEN_H
+#تعریف_کرو سرخی_CURLX_FOPEN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,74 +23,74 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "curlx/multibyte.h"
+#شامل "curlx/multibyte.h"
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>  /* for open() and attributes */
-#endif
+#اگر_تعریف_شدہ HAVE_FCNTL_H
+#شامل <fcntl.h>  /* for open() and attributes */
+#اگر_ختم
 
-int curlx_fseek(void *stream, curl_off_t offset, int whence);
+صحیح curlx_fseek(خالی *دھارا, curl_off_t انحراف, صحیح whence);
 
-#ifdef _WIN32
-#include <sys/stat.h>  /* for _fstati64(), struct _stati64 */
-#ifndef CURL_WINDOWS_UWP
-HANDLE curlx_CreateFile(const char *filename,
+#اگر_تعریف_شدہ _WIN32
+#شامل <sys/stat.h>  /* for _fstati64(), struct _stati64 */
+#اگر_غیر_تعریف_شدہ CURL_WINDOWS_UWP
+HANDLE curlx_CreateFile(ثابت حرف *filename,
                         DWORD dwDesiredAccess,
-                        DWORD dwShareMode,
-                        LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+                        DWORD dw_Share_منوال,
+                        LPSECURITY_اوصاف lp_Security_اوصاف,
                         DWORD dwCreationDisposition,
-                        DWORD dwFlagsAndAttributes,
+                        DWORD dw_Flags_And_اوصاف,
                         HANDLE hTemplateFile);
-HANDLE curlx_FindFirstFile(const char *filename,
-                           WIN32_FIND_DATA *find_data);
-#endif /* !CURL_WINDOWS_UWP */
-#define curlx_fstat             _fstati64
-#define curlx_struct_stat       struct _stati64
-FILE *curlx_win32_fopen(const char *filename, const char *mode);
-FILE *curlx_win32_freopen(const char *filename, const char *mode, FILE *fp);
-int curlx_win32_stat(const char *path, curlx_struct_stat *buffer);
-int curlx_win32_open(const char *filename, int oflag, ...);
-int curlx_win32_rename(const char *oldpath, const char *newpath);
-int curlx_win32_mkdir(const char *path);
-#define CURLX_FOPEN_LOW         curlx_win32_fopen
-#define CURLX_FREOPEN_LOW       curlx_win32_freopen
-#define CURLX_FDOPEN_LOW        _fdopen
-#define curlx_stat              curlx_win32_stat
-#define curlx_open              curlx_win32_open
-#define curlx_close             _close
-#define curlx_rename            curlx_win32_rename
-#define curlx_mkdir(x, y)       curlx_win32_mkdir(x)
-#else
-#define curlx_fstat             fstat
-#define curlx_struct_stat       struct stat
-#define CURLX_FOPEN_LOW         fopen
-#define CURLX_FREOPEN_LOW       freopen
-#define CURLX_FDOPEN_LOW        fdopen
-#define curlx_stat              stat
-#define curlx_open              open
-#define curlx_close             close
-#define curlx_rename            rename
-#if defined(MSDOS) && !defined(__DJGPP__)
-#define curlx_mkdir(x, y)       mkdir(x)
-#else
-#define curlx_mkdir             mkdir
-#endif
-#endif
+HANDLE curlx_ڈھونڈو_پہلا_File(ثابت حرف *filename,
+                           WIN32_ڈھونڈو_ڈیٹا *ڈھونڈو_ڈیٹا);
+#اگر_ختم /* !CURL_WINDOWS_UWP */
+#تعریف_کرو curlx_fstat             _fstati64
+#تعریف_کرو curlx_struct_stat       ساخت _stati64
+FILE *curlx_win32_fopen(ثابت حرف *filename, ثابت حرف *منوال);
+FILE *curlx_win32_freopen(ثابت حرف *filename, ثابت حرف *منوال, FILE *fp);
+صحیح curlx_win32_stat(ثابت حرف *راستہ, curlx_struct_stat *بفر);
+صحیح curlx_win32_open(ثابت حرف *filename, صحیح oflag, ...);
+صحیح curlx_win32_rename(ثابت حرف *oldpath, ثابت حرف *newpath);
+صحیح curlx_win32_mkdir(ثابت حرف *راستہ);
+#تعریف_کرو CURLX_FOPEN_کم         curlx_win32_fopen
+#تعریف_کرو CURLX_FREOPEN_کم       curlx_win32_freopen
+#تعریف_کرو CURLX_FDOPEN_کم        _fdopen
+#تعریف_کرو curlx_stat              curlx_win32_stat
+#تعریف_کرو curlx_open              curlx_win32_open
+#تعریف_کرو curlx_close             _close
+#تعریف_کرو curlx_rename            curlx_win32_rename
+#تعریف_کرو curlx_mkdir(x, y)       curlx_win32_mkdir(x)
+#ورنہ
+#تعریف_کرو curlx_fstat             fstat
+#تعریف_کرو curlx_struct_stat       ساخت stat
+#تعریف_کرو CURLX_FOPEN_کم         fopen
+#تعریف_کرو CURLX_FREOPEN_کم       freopen
+#تعریف_کرو CURLX_FDOPEN_کم        fdopen
+#تعریف_کرو curlx_stat              stat
+#تعریف_کرو curlx_open              open
+#تعریف_کرو curlx_close             close
+#تعریف_کرو curlx_rename            rename
+#اگر defined(MSDOS) && !defined(__DJGPP__)
+#تعریف_کرو curlx_mkdir(x, y)       mkdir(x)
+#ورنہ
+#تعریف_کرو curlx_mkdir             mkdir
+#اگر_ختم
+#اگر_ختم
 
-#ifdef CURL_MEMDEBUG
-#define curlx_fopen(file, mode) curl_dbg_fopen(file, mode, __LINE__, __FILE__)
-#define curlx_freopen(file, mode, fh) \
-  curl_dbg_freopen(file, mode, fh, __LINE__, __FILE__)
-#define curlx_fdopen(file, mode) \
-  curl_dbg_fdopen(file, mode, __LINE__, __FILE__)
-#define curlx_fclose(file)      curl_dbg_fclose(file, __LINE__, __FILE__)
-#else
-#define curlx_fopen             CURLX_FOPEN_LOW
-#define curlx_freopen           CURLX_FREOPEN_LOW
-#define curlx_fdopen            CURLX_FDOPEN_LOW
-#define curlx_fclose            fclose
-#endif
+#اگر_تعریف_شدہ CURL_MEMDEBUG
+#تعریف_کرو curlx_fopen(file, منوال) curl_dbg_fopen(file, منوال, __LINE__, __FILE__)
+#تعریف_کرو curlx_freopen(file, منوال, fh) \
+  curl_dbg_freopen(file, منوال, fh, __LINE__, __FILE__)
+#تعریف_کرو curlx_fdopen(file, منوال) \
+  curl_dbg_fdopen(file, منوال, __LINE__, __FILE__)
+#تعریف_کرو curlx_fclose(file)      curl_dbg_fclose(file, __LINE__, __FILE__)
+#ورنہ
+#تعریف_کرو curlx_fopen             CURLX_FOPEN_کم
+#تعریف_کرو curlx_freopen           CURLX_FREOPEN_کم
+#تعریف_کرو curlx_fdopen            CURLX_FDOPEN_کم
+#تعریف_کرو curlx_fclose            fclose
+#اگر_ختم
 
-#endif /* HEADER_CURLX_FOPEN_H */
+#اگر_ختم /* HEADER_CURLX_FOPEN_H */

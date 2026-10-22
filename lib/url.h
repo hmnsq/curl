@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_URL_H
-#define HEADER_CURL_URL_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_URL_H
+#تعریف_کرو سرخی_CURL_URL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,76 +23,76 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 /* Reject URLs exceeding this length */
-#define MAX_URL_LEN 0xffff
+#تعریف_کرو MAX_URL_LEN 0xffff
 
 /*
  * Prototypes for library-wide functions
  */
 
-CURLcode Curl_init_transfer(struct Curl_easy *data, struct connectdata *conn);
-CURLcode Curl_open(struct Curl_easy **curl);
-void Curl_init_userdefined(struct Curl_easy *data);
+CURLcode Curl_init_transfer(ساخت Curl_easy *ڈیٹا, ساخت connectdata *conn);
+CURLcode Curl_open(ساخت Curl_easy **curl);
+خالی Curl_init_userdefined(ساخت Curl_easy *ڈیٹا);
 
-void Curl_freeset(struct Curl_easy *data);
-CURLcode Curl_uc_to_curlcode(CURLUcode uc);
-CURLcode Curl_close(struct Curl_easy **datap); /* opposite of Curl_open() */
-CURLcode Curl_connect(struct Curl_easy *data, bool *pconnected);
-void Curl_conn_free(struct Curl_easy *data, struct connectdata *conn);
-CURLcode Curl_parse_login_details(const char *login, const size_t len,
-                                  char **userp, char **passwdp,
-                                  char **optionsp);
+خالی Curl_freeset(ساخت Curl_easy *ڈیٹا);
+CURLcode Curl_uc_مقصد_curlcode(CURLUcode uc);
+CURLcode Curl_close(ساخت Curl_easy **datap); /* opposite of Curl_open() */
+CURLcode Curl_connect(ساخت Curl_easy *ڈیٹا, bool *pconnected);
+خالی Curl_conn_free(ساخت Curl_easy *ڈیٹا, ساخت connectdata *conn);
+CURLcode Curl_parse_login_details(ثابت حرف *login, ثابت size_t len,
+                                  حرف **userp, حرف **passwdp,
+                                  حرف **optionsp);
 
 /* Attach/Clear/Get meta data for an easy handle. Needs to provide
  * a destructor, will be automatically called when the easy handle
  * is reset or closed. */
-typedef void Curl_meta_dtor(const void *key, size_t key_len, void *meta_data);
+قسمتعریف خالی Curl_meta_dtor(ثابت خالی *کلید, size_t کلید_len, خالی *meta_ڈیٹا);
 
 /* Set the transfer meta data for the key. Any existing entry for that
  * key will be destroyed.
  * Takes ownership of `meta_data` and destroys it when the call fails. */
-CURLcode Curl_meta_set(struct Curl_easy *data, const char *key,
-                       void *meta_data, Curl_meta_dtor *meta_dtor);
-void Curl_meta_remove(struct Curl_easy *data, const char *key);
-void *Curl_meta_get(struct Curl_easy *data, const char *key);
-void Curl_meta_reset(struct Curl_easy *data);
+CURLcode Curl_meta_سیٹ(ساخت Curl_easy *ڈیٹا, ثابت حرف *کلید,
+                       خالی *meta_ڈیٹا, Curl_meta_dtor *meta_dtor);
+خالی Curl_meta_remove(ساخت Curl_easy *ڈیٹا, ثابت حرف *کلید);
+خالی *Curl_meta_get(ساخت Curl_easy *ڈیٹا, ثابت حرف *کلید);
+خالی Curl_meta_reset(ساخت Curl_easy *ڈیٹا);
 
 /* Set connection meta data for the key. Any existing entry for that
  * key will be destroyed.
  * Takes ownership of `meta_data` and destroys it when the call fails. */
-CURLcode Curl_conn_meta_set(struct connectdata *conn, const char *key,
-                            void *meta_data, Curl_meta_dtor *meta_dtor);
-void Curl_conn_meta_remove(struct connectdata *conn, const char *key);
-void *Curl_conn_meta_get(struct connectdata *conn, const char *key);
+CURLcode Curl_conn_meta_سیٹ(ساخت connectdata *conn, ثابت حرف *کلید,
+                            خالی *meta_ڈیٹا, Curl_meta_dtor *meta_dtor);
+خالی Curl_conn_meta_remove(ساخت connectdata *conn, ثابت حرف *کلید);
+خالی *Curl_conn_meta_get(ساخت connectdata *conn, ثابت حرف *کلید);
 
 /* Get an admin handle for internal operations from the given
  * easy handle, if possible. The admin handle inherits certain
  * properties from `data`. If no admin handle is available (not multi
  * or share attached), the easy handle itself is returned. */
-struct Curl_easy *Curl_get_admin(struct Curl_easy *data);
+ساخت Curl_easy *Curl_get_admin(ساخت Curl_easy *ڈیٹا);
 
-#define CURL_DEFAULT_PROXY_PORT 1080 /* default proxy port unless specified */
-#define CURL_DEFAULT_HTTPS_PROXY_PORT 443 /* default https proxy port unless
+#تعریف_کرو CURL_DEFAULT_PROXY_پورٹ 1080 /* default proxy port unless specified */
+#تعریف_کرو CURL_DEFAULT_HTTPS_PROXY_پورٹ 443 /* default https proxy port unless
                                              specified */
 
 /* Always eval all arguments, return the first
  * result != (CURLE_OK | CURLE_AGAIN) or `r1`. */
 CURLcode Curl_1st_fatal(CURLcode r1, CURLcode r2);
 
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
-void Curl_data_priority_clear_state(struct Curl_easy *data);
-#else
-#define Curl_data_priority_clear_state(x)
-#endif /* USE_HTTP2 || USE_HTTP3 */
+#اگر defined(USE_HTTP2) || defined(USE_HTTP3)
+خالی Curl_ڈیٹا_ترجیح_clear_state(ساخت Curl_easy *ڈیٹا);
+#ورنہ
+#تعریف_کرو Curl_ڈیٹا_ترجیح_clear_state(x)
+#اگر_ختم /* USE_HTTP2 || USE_HTTP3 */
 
-#ifdef USE_NGHTTP2
-CURLcode Curl_data_priority_add_child(struct Curl_easy *parent,
-                                      struct Curl_easy *child,
+#اگر_تعریف_شدہ USE_NGHTTP2
+CURLcode Curl_ڈیٹا_ترجیح_جوڑو_بچہ(ساخت Curl_easy *والد,
+                                      ساخت Curl_easy *بچہ,
                                       bool exclusive);
-#else
-#define Curl_data_priority_add_child(x, y, z) CURLE_NOT_BUILT_IN
-#endif
+#ورنہ
+#تعریف_کرو Curl_ڈیٹا_ترجیح_جوڑو_بچہ(x, y, z) CURLE_NOT_BUILT_اندر
+#اگر_ختم
 
-#endif /* HEADER_CURL_URL_H */
+#اگر_ختم /* HEADER_CURL_URL_H */

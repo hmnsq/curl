@@ -21,1017 +21,1017 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "vquic/vquic.h"
-#include "vtls/vtls.h"
+#شامل "curl_setup.h"
+#شامل "urldata.h"
+#شامل "vquic/vquic.h"
+#شامل "vtls/vtls.h"
 
-#include "curl_trc.h"
+#شامل "curl_trc.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
 
-#ifdef HAVE_NETINET_UDP_H
-#include <netinet/udp.h>
-#endif
-#ifdef HAVE_NETINET_IP_H
-#include <netinet/ip.h>
-#endif
+#اگر_تعریف_شدہ HAVE_NETINET_UDP_H
+#شامل <netinet/udp.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_NETINET_IP_H
+#شامل <netinet/ip.h>
+#اگر_ختم
 
-#ifdef USE_NGHTTP3
-#include <nghttp3/nghttp3.h>
-#endif
+#اگر_تعریف_شدہ USE_NGHTTP3
+#شامل <nghttp3/nghttp3.h>
+#اگر_ختم
 
-#if defined(USE_APPLE_FAST_UDP) && defined(__APPLE__)
-#include <sys/syscall.h>
-#if defined(SYS_recvmsg_x) && defined(SYS_sendmsg_x)
-#define HAVE_APPLE_MSG_X
-#endif
-#endif
+#اگر defined(USE_APPLE_FAST_UDP) && defined(__APPLE__)
+#شامل <sys/syscall.h>
+#اگر defined(SYS_recvmsg_x) && defined(SYS_sendmsg_x)
+#تعریف_کرو HAVE_APPLE_پیغام_X
+#اگر_ختم
+#اگر_ختم
 
-#include "bufq.h"
-#include "curlx/dynbuf.h"
-#include "curlx/win32-fopen.h"
-#include "connect.h"
-#include "cfilters.h"
-#include "vdns/cf-dns.h"
-#include "vquic/cf-ngtcp2.h"
-#include "vquic/cf-ngtcp2-cmn.h"
-#include "vquic/cf-ngtcp2-proxy.h"
-#include "vquic/cf-quiche.h"
-#include "multiif.h"
-#include "progress.h"
-#include "rand.h"
-#include "vquic/vquic_int.h"
-#include "curlx/strerr.h"
-#include "curlx/strparse.h"
+#شامل "bufq.h"
+#شامل "curlx/dynbuf.h"
+#شامل "curlx/win32-fopen.h"
+#شامل "connect.h"
+#شامل "cfilters.h"
+#شامل "vdns/cf-dns.h"
+#شامل "vquic/cf-ngtcp2.h"
+#شامل "vquic/cf-ngtcp2-cmn.h"
+#شامل "vquic/cf-ngtcp2-proxy.h"
+#شامل "vquic/cf-quiche.h"
+#شامل "multiif.h"
+#شامل "progress.h"
+#شامل "rand.h"
+#شامل "vquic/vquic_int.h"
+#شامل "curlx/strerr.h"
+#شامل "curlx/strparse.h"
 
 
-#define NW_CHUNK_SIZE     (64 * 1024)
-#define NW_SEND_CHUNKS    1
+#تعریف_کرو NW_CHUNK_سائز     (64 * 1024)
+#تعریف_کرو NW_SEND_CHUNKS    1
 
-#ifdef HAVE_APPLE_MSG_X
+#اگر_تعریف_شدہ HAVE_APPLE_پیغام_X
 
 /* this is `struct msghdr` with an additional field at the end */
-struct msghdr_x {
-  void *msg_name;           /* optional address */
+ساخت msghdr_x {
+  خالی *پیغام_name;           /* optional address */
   socklen_t msg_namelen;    /* size of address */
-  struct iovec *msg_iov;    /* scatter/gather array */
-  int msg_iovlen;           /* # elements in msg_iov */
-  void *msg_control;        /* ancillary data, see below */
+  ساخت iovec *msg_iov;    /* scatter/gather array */
+  صحیح پیغام_iovlen;           /* # elements in msg_iov */
+  خالی *پیغام_control;        /* ancillary data, see below */
   socklen_t msg_controllen; /* ancillary data buffer len */
-  int msg_flags;            /* flags on received message */
-  size_t msg_datalen;       /* byte length of buffer in msg_iov */
+  صحیح پیغام_flags;            /* flags on received message */
+  size_t پیغام_datalen;       /* byte length of buffer in msg_iov */
 };
-#endif
+#اگر_ختم
 
-#ifdef CURLVERBOSE
-#ifdef HAVE_APPLE_MSG_X
-#define VQUIC_SEND_METHOD   "sendmsg_x"
-#elif defined(HAVE_SENDMSG)
-#define VQUIC_SEND_METHOD   "sendmsg"
-#else
-#define VQUIC_SEND_METHOD   "send"
-#endif
-#endif
+#اگر_تعریف_شدہ CURLVERBOSE
+#اگر_تعریف_شدہ HAVE_APPLE_پیغام_X
+#تعریف_کرو VQUIC_SEND_طریقہ   "sendmsg_x"
+#وگرنہ_اگر defined(HAVE_SENDMSG)
+#تعریف_کرو VQUIC_SEND_طریقہ   "sendmsg"
+#ورنہ
+#تعریف_کرو VQUIC_SEND_طریقہ   "send"
+#اگر_ختم
+#اگر_ختم
 
-int Curl_vquic_init(void)
+صحیح Curl_vquic_init(خالی)
 {
-#if defined(USE_NGTCP2) && defined(OPENSSL_QUIC_API2)
-  if(ngtcp2_crypto_ossl_init())
-    return 0;
-#endif
+#اگر defined(USE_NGTCP2) && defined(OPENSSL_QUIC_API2)
+  اگر(ngtcp2_crypto_ossl_init())
+    واپس 0;
+#اگر_ختم
 
-  return 1;
+  واپس 1;
 }
 
-void Curl_vquic_cleanup(void)
+خالی Curl_vquic_cleanup(خالی)
 {
-#if defined(USE_NGTCP2) && defined(OPENSSL_QUIC_API2) && \
-  (NGTCP2_VERSION_NUM >= 0x011800)
+#اگر defined(USE_NGTCP2) && defined(OPENSSL_QUIC_API2) && \
+  (NGTCP2_نسخہ_عدد >= 0x011800)
   ngtcp2_crypto_ossl_free();
-#endif
+#اگر_ختم
 }
 
-void Curl_quic_ver(char *p, size_t len)
+خالی Curl_quic_ver(حرف *p, size_t len)
 {
-#if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#اگر defined(USE_NGTCP2) && defined(USE_NGHTTP3)
   Curl_ngtcp2_ver(p, len);
-#elif defined(USE_QUICHE)
+#وگرنہ_اگر defined(USE_QUICHE)
   Curl_quiche_ver(p, len);
-#endif
+#اگر_ختم
 }
 
-CURLcode Curl_vquic_ctx_init(struct Curl_easy *data,
-                             struct cf_quic_ctx *qctx)
+CURLcode Curl_vquic_ctx_init(ساخت Curl_easy *ڈیٹا,
+                             ساخت cf_quic_ctx *qctx)
 {
-  Curl_bufq_init2(&qctx->sendbuf, NW_CHUNK_SIZE, NW_SEND_CHUNKS,
-                  BUFQ_OPT_SOFT_LIMIT);
-#if defined(__linux__) && defined(UDP_SEGMENT) && defined(HAVE_SENDMSG)
+  Curl_bufq_init2(&qctx->sendbuf, NW_CHUNK_سائز, NW_SEND_CHUNKS,
+                  BUFQ_OPT_SOFT_حد_بندی);
+#اگر defined(__linux__) && defined(UDP_SEGMENT) && defined(HAVE_SENDMSG)
   qctx->no_gso = FALSE;
-#elif defined(HAVE_APPLE_MSG_X)
+#وگرنہ_اگر defined(HAVE_APPLE_پیغام_X)
   qctx->no_gso = FALSE;
-#else
+#ورنہ
   qctx->no_gso = TRUE;
-#endif
-#ifdef DEBUGBUILD
+#اگر_ختم
+#اگر_تعریف_شدہ DEBUGBUILD
   {
-    const char *p = getenv("CURL_DBG_QUIC_WBLOCK");
-    if(p) {
+    ثابت حرف *p = getenv("CURL_DBG_QUIC_WBLOCK");
+    اگر(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
-        qctx->wblock_percent = (int)l;
+      اگر(!curlx_str_نمبر(&p, &l, 100))
+        qctx->wblock_percent = (صحیح)l;
     }
   }
-#endif
-  Curl_vquic_ctx_set_time(qctx, Curl_pgrs_now(data));
+#اگر_ختم
+  Curl_vquic_ctx_سیٹ_وقت(qctx, Curl_pgrs_now(ڈیٹا));
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-void Curl_vquic_ctx_free(struct cf_quic_ctx *qctx)
+خالی Curl_vquic_ctx_free(ساخت cf_quic_ctx *qctx)
 {
   Curl_bufq_free(&qctx->sendbuf);
 }
 
-void Curl_vquic_ctx_set_time(struct cf_quic_ctx *qctx,
-                             const struct curltime *pnow)
+خالی Curl_vquic_ctx_سیٹ_وقت(ساخت cf_quic_ctx *qctx,
+                             ثابت ساخت curltime *pnow)
 {
-  qctx->last_op = *pnow;
+  qctx->آخری_op = *pnow;
 }
 
-void Curl_vquic_ctx_update_time(struct cf_quic_ctx *qctx,
-                                const struct curltime *pnow)
+خالی Curl_vquic_ctx_update_وقت(ساخت cf_quic_ctx *qctx,
+                                ثابت ساخت curltime *pnow)
 {
-  qctx->last_op = *pnow;
+  qctx->آخری_op = *pnow;
 }
 
-#ifdef HAVE_APPLE_MSG_X
-static CURLcode do_sendmsg(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct cf_quic_ctx *qctx,
-                           const uint8_t *pkt, size_t pktlen, size_t gsolen,
+#اگر_تعریف_شدہ HAVE_APPLE_پیغام_X
+ساکن CURLcode do_sendmsg(ساخت Curl_cfilter *cf,
+                           ساخت Curl_easy *ڈیٹا,
+                           ساخت cf_quic_ctx *qctx,
+                           ثابت uint8_t *pkt, size_t pktlen, size_t gsolen,
                            size_t *psent)
 {
-#define MSG_X_SNUM  64
-  struct iovec msg_iov[MSG_X_SNUM];
-  struct msghdr_x mmsg[MSG_X_SNUM];
-  char errstr[STRERROR_LEN];
-  size_t n, i = 0, sent = 0;
-  int rc;
-  CURLcode result = CURLE_OK;
+#تعریف_کرو پیغام_X_SNUM  64
+  ساخت iovec msg_iov[پیغام_X_SNUM];
+  ساخت msghdr_x mmsg[پیغام_X_SNUM];
+  حرف errstr[STRERROR_LEN];
+  size_t n, i = 0, بھیجا = 0;
+  صحیح rc;
+  CURLcode نتیجہ = CURLE_OK;
   VERBOSE(size_t calls = 0);
 
   *psent = 0;
-  if(!pktlen)
-    return CURLE_OK;
-  if(!gsolen || (pktlen < gsolen))
+  اگر(!pktlen)
+    واپس CURLE_OK;
+  اگر(!gsolen || (pktlen < gsolen))
     gsolen = pktlen;
   n = (pktlen + gsolen - 1) / gsolen;
-  while(i < n) {
-    size_t j, batch = CURLMIN(n - i, MSG_X_SNUM), pkts_sent = 0;
+  جب(i < n) {
+    size_t j, batch = CURLMIN(n - i, پیغام_X_SNUM), pkts_بھیجا = 0;
 
-    for(j = 0; j < batch; ++j) {
-      const size_t offset = (i + j) * gsolen;
-      msg_iov[j].iov_base = CURL_UNCONST(pkt + offset);
-      msg_iov[j].iov_len = CURLMIN(gsolen, pktlen - offset);
-      memset(&mmsg[j], 0, sizeof(mmsg[j]));
+    برائے(j = 0; j < batch; ++j) {
+      ثابت size_t انحراف = (i + j) * gsolen;
+      msg_iov[j].iov_base = CURL_UNCONST(pkt + انحراف);
+      msg_iov[j].iov_len = CURLMIN(gsolen, pktlen - انحراف);
+      memset(&mmsg[j], 0, حجم(mmsg[j]));
       mmsg[j].msg_iov = &msg_iov[j];
-      mmsg[j].msg_iovlen = 1;
-      mmsg[j].msg_datalen = msg_iov[j].iov_len;
+      mmsg[j].پیغام_iovlen = 1;
+      mmsg[j].پیغام_datalen = msg_iov[j].iov_len;
     }
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-    while((rc = syscall(SYS_sendmsg_x, qctx->sockfd, &mmsg, batch, 0)) == -1 &&
+#اگر defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#ہدایت GCC diagnostic ڈالو
+#ہدایت GCC diagnostic ignored "-Wdeprecated-declarations"
+#اگر_ختم
+    جب((rc = syscall(SYS_sendmsg_x, qctx->sockfd, &mmsg, batch, 0)) == -1 &&
           (SOCKERRNO == SOCKEINTR))
       ;
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic pop
-#endif
+#اگر defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#ہدایت GCC diagnostic نکالو
+#اگر_ختم
 
-    if(rc < 0) {
-      if(SOCK_EAGAIN(SOCKERRNO)) {
-        CURL_TRC_CF(data, cf, "egress, sendmsg_x -> EAGAIN");
-        result = sent ? CURLE_OK : CURLE_AGAIN;
-        goto out;
+    اگر(rc < 0) {
+      اگر(SOCK_EAGAIN(SOCKERRNO)) {
+        CURL_TRC_CF(ڈیٹا, cf, "egress, sendmsg_x -> EAGAIN");
+        نتیجہ = بھیجا ? CURLE_OK : CURLE_AGAIN;
+        جاؤ برآمد;
       }
-      if(SOCKERRNO != SOCKEMSGSIZE) {
-        curlx_strerror(SOCKERRNO, errstr, sizeof(errstr));
-        failf(data, "QUIC: sendmsg_x() returned %d (errno=%d; %s)",
+      اگر(SOCKERRNO != SOCKEMSGSIZE) {
+        curlx_strerror(SOCKERRNO, errstr, حجم(errstr));
+        failf(ڈیٹا, "QUIC: sendmsg_x() returned %d (errno=%d; %s)",
               rc, SOCKERRNO, errstr);
-        result = CURLE_SEND_ERROR;
-        goto out;
+        نتیجہ = CURLE_SEND_ERROR;
+        جاؤ برآمد;
       }
       /* Error was SOCKEMSGSIZE. Network stack does not accept the packet
        * length(s). This might be a PMTUD. Just drop it into the void
        * and fall through to the success handling. */
-      pkts_sent = batch;
+      pkts_بھیجا = batch;
     }
-    else
-      pkts_sent = CURLMIN((size_t)rc, batch);
+    ورنہ
+      pkts_بھیجا = CURLMIN((size_t)rc, batch);
 
     VERBOSE(++calls);
-    if(!pkts_sent) {  /* no packets of the current batch were sent */
-      result = sent ? CURLE_OK : CURLE_AGAIN;
-      goto out;
+    اگر(!pkts_بھیجا) {  /* no packets of the current batch were sent */
+      نتیجہ = بھیجا ? CURLE_OK : CURLE_AGAIN;
+      جاؤ برآمد;
     }
-    i += pkts_sent; /* Some have been sent */
-    for(j = 0; j < pkts_sent; ++j)
-      sent += msg_iov[j].iov_len;
-    if(pkts_sent < batch)
-      goto out; /* but not all of them */
+    i += pkts_بھیجا; /* Some have been sent */
+    برائے(j = 0; j < pkts_بھیجا; ++j)
+      بھیجا += msg_iov[j].iov_len;
+    اگر(pkts_بھیجا < batch)
+      جاؤ برآمد; /* but not all of them */
   }
 
-out:
-  *psent = sent;
-  if(sent || result)
-    CURL_TRC_CF(data, cf,
+برآمد:
+  *psent = بھیجا;
+  اگر(بھیجا || نتیجہ)
+    CURL_TRC_CF(ڈیٹا, cf,
                 "vquic_sendmsg_x(len=%zu, gso=%zu, packets=%zu, "
                 "calls=%zu) -> %d",
-                sent, gsolen, n, calls, (int)result);
-  return result;
+                بھیجا, gsolen, n, calls, (صحیح)نتیجہ);
+  واپس نتیجہ;
 }
 
-#else /* HAVE_APPLE_MSG_X */
+#ورنہ /* HAVE_APPLE_MSG_X */
 
-static CURLcode send_packet_no_gso(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct cf_quic_ctx *qctx,
-                                   const uint8_t *pkt, size_t pktlen,
+ساکن CURLcode send_packet_no_gso(ساخت Curl_cfilter *cf,
+                                   ساخت Curl_easy *ڈیٹا,
+                                   ساخت cf_quic_ctx *qctx,
+                                   ثابت uint8_t *pkt, size_t pktlen,
                                    size_t gsolen, size_t *psent);
 
-static CURLcode do_sendmsg(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct cf_quic_ctx *qctx,
-                           const uint8_t *pkt, size_t pktlen, size_t gsolen,
+ساکن CURLcode do_sendmsg(ساخت Curl_cfilter *cf,
+                           ساخت Curl_easy *ڈیٹا,
+                           ساخت cf_quic_ctx *qctx,
+                           ثابت uint8_t *pkt, size_t pktlen, size_t gsolen,
                            size_t *psent)
 {
-  CURLcode result = CURLE_OK;
-#ifdef HAVE_SENDMSG
-  struct iovec msg_iov;
-  struct msghdr msg = { 0 };
+  CURLcode نتیجہ = CURLE_OK;
+#اگر_تعریف_شدہ HAVE_SENDMSG
+  ساخت iovec msg_iov;
+  ساخت msghdr پیغام = { 0 };
   ssize_t rv;
-#if defined(__linux__) && defined(UDP_SEGMENT)
-  uint8_t msg_ctrl[32];
-  struct cmsghdr *cm;
-#endif
+#اگر defined(__linux__) && defined(UDP_SEGMENT)
+  uint8_t پیغام_ctrl[32];
+  ساخت cmsghdr *cm;
+#اگر_ختم
 
   *psent = 0;
   msg_iov.iov_base = (uint8_t *)CURL_UNCONST(pkt);
   msg_iov.iov_len = pktlen;
-  msg.msg_iov = &msg_iov;
-  msg.msg_iovlen = 1;
+  پیغام.msg_iov = &msg_iov;
+  پیغام.پیغام_iovlen = 1;
 
-#if defined(__linux__) && defined(UDP_SEGMENT)
-  if(pktlen > gsolen) {
+#اگر defined(__linux__) && defined(UDP_SEGMENT)
+  اگر(pktlen > gsolen) {
     /* Only set this, when we need it. macOS, for example,
      * does not seem to like a msg_control of length 0. */
-    memset(msg_ctrl, 0, sizeof(msg_ctrl));
-    msg.msg_control = msg_ctrl;
-    DEBUGASSERT(sizeof(msg_ctrl) >= CMSG_SPACE(sizeof(int)));
-    msg.msg_controllen = CMSG_SPACE(sizeof(int));
-    cm = CMSG_FIRSTHDR(&msg);
+    memset(پیغام_ctrl, 0, حجم(پیغام_ctrl));
+    پیغام.پیغام_control = پیغام_ctrl;
+    DEBUGASSERT(حجم(پیغام_ctrl) >= CMSG_SPACE(حجم(صحیح)));
+    پیغام.msg_controllen = CMSG_SPACE(حجم(صحیح));
+    cm = CMSG_FIRSTHDR(&پیغام);
     cm->cmsg_level = SOL_UDP;
     cm->cmsg_type = UDP_SEGMENT;
-    cm->cmsg_len = CMSG_LEN(sizeof(uint16_t));
-    *(uint16_t *)(void *)CMSG_DATA(cm) = gsolen & 0xffff;
+    cm->cmsg_len = CMSG_LEN(حجم(uint16_t));
+    *(uint16_t *)(خالی *)CMSG_DATA(cm) = gsolen & 0xffff;
   }
-#endif
+#اگر_ختم
 
-  while((rv = sendmsg(qctx->sockfd, &msg, 0)) == -1 && SOCKERRNO == SOCKEINTR)
+  جب((rv = sendmsg(qctx->sockfd, &پیغام, 0)) == -1 && SOCKERRNO == SOCKEINTR)
     ;
 
-  if(!curlx_sztouz(rv, psent)) {
-    int sockerr = SOCKERRNO;
-    if(SOCK_EAGAIN(sockerr))
-      return CURLE_AGAIN;
-    switch(sockerr) {
-    case SOCKEMSGSIZE:
+  اگر(!curlx_sztouz(rv, psent)) {
+    صحیح sockerr = SOCKERRNO;
+    اگر(SOCK_EAGAIN(sockerr))
+      واپس CURLE_AGAIN;
+    انتخاب(sockerr) {
+    حالت SOCKEMSGSIZE:
       /* UDP datagram is too large; caused by PMTUD. Let it be lost. */
       *psent = pktlen;
-      break;
-    case EIO:
-      if(pktlen > gsolen) {
+      توڑو;
+    حالت EIO:
+      اگر(pktlen > gsolen) {
         /* GSO failure */
-        infof(data, "sendmsg() returned %zd (errno %d); disable GSO", rv,
+        infof(ڈیٹا, "sendmsg() returned %zd (errno %d); disable GSO", rv,
               sockerr);
         qctx->no_gso = TRUE;
-        return send_packet_no_gso(cf, data, qctx, pkt, pktlen, gsolen, psent);
+        واپس send_packet_no_gso(cf, ڈیٹا, qctx, pkt, pktlen, gsolen, psent);
       }
       FALLTHROUGH();
-    default:
-      failf(data, "sendmsg() returned %zd (errno %d)", rv, sockerr);
-      result = CURLE_SEND_ERROR;
-      goto out;
+    طےشدہ:
+      failf(ڈیٹا, "sendmsg() returned %zd (errno %d)", rv, sockerr);
+      نتیجہ = CURLE_SEND_ERROR;
+      جاؤ برآمد;
     }
   }
-  else if(pktlen != *psent) {
-    failf(data, "sendmsg() sent only %zu/%zu bytes", *psent, pktlen);
-    result = CURLE_SEND_ERROR;
-    goto out;
+  ورنہ اگر(pktlen != *psent) {
+    failf(ڈیٹا, "sendmsg() sent only %zu/%zu bytes", *psent, pktlen);
+    نتیجہ = CURLE_SEND_ERROR;
+    جاؤ برآمد;
   }
-#else
+#ورنہ
   ssize_t rv;
-  (void)gsolen;
+  (خالی)gsolen;
 
   *psent = 0;
 
-  while((rv = swrite(qctx->sockfd, pkt, pktlen)) == -1 &&
+  جب((rv = swrite(qctx->sockfd, pkt, pktlen)) == -1 &&
         SOCKERRNO == SOCKEINTR)
     ;
 
-  if(!curlx_sztouz(rv, psent)) {
-    if(SOCK_EAGAIN(SOCKERRNO)) {
-      result = CURLE_AGAIN;
-      goto out;
+  اگر(!curlx_sztouz(rv, psent)) {
+    اگر(SOCK_EAGAIN(SOCKERRNO)) {
+      نتیجہ = CURLE_AGAIN;
+      جاؤ برآمد;
     }
-    else {
-      if(SOCKERRNO != SOCKEMSGSIZE) {
-        failf(data, "send() returned %zd (errno %d)", rv, SOCKERRNO);
-        result = CURLE_SEND_ERROR;
-        goto out;
+    ورنہ {
+      اگر(SOCKERRNO != SOCKEMSGSIZE) {
+        failf(ڈیٹا, "send() returned %zd (errno %d)", rv, SOCKERRNO);
+        نتیجہ = CURLE_SEND_ERROR;
+        جاؤ برآمد;
       }
       /* UDP datagram is too large; caused by PMTUD. Let it be lost. */
       *psent = pktlen;
     }
   }
-#endif
-  (void)cf;
+#اگر_ختم
+  (خالی)cf;
 
-out:
-  CURL_TRC_CF(data, cf,
+برآمد:
+  CURL_TRC_CF(ڈیٹا, cf,
               "vquic_%s(len=%zu, gso=%zu, calls=1) -> %d, sent=%zu",
-              VQUIC_SEND_METHOD, pktlen, gsolen, (int)result, *psent);
-  return result;
+              VQUIC_SEND_طریقہ, pktlen, gsolen, (صحیح)نتیجہ, *psent);
+  واپس نتیجہ;
 }
 
-#endif /* !HAVE_APPLE_MSG_X */
+#اگر_ختم /* !HAVE_APPLE_MSG_X */
 
-static CURLcode send_packet_no_gso(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct cf_quic_ctx *qctx,
-                                   const uint8_t *pkt, size_t pktlen,
+ساکن CURLcode send_packet_no_gso(ساخت Curl_cfilter *cf,
+                                   ساخت Curl_easy *ڈیٹا,
+                                   ساخت cf_quic_ctx *qctx,
+                                   ثابت uint8_t *pkt, size_t pktlen,
                                    size_t gsolen, size_t *psent)
 {
-  const uint8_t *p, *end = pkt + pktlen;
-  size_t sent, len;
-  CURLcode result = CURLE_OK;
+  ثابت uint8_t *p, *انتہا = pkt + pktlen;
+  size_t بھیجا, len;
+  CURLcode نتیجہ = CURLE_OK;
   VERBOSE(size_t calls = 0);
 
   *psent = 0;
 
-  for(p = pkt; p < end; p += gsolen) {
-    len = CURLMIN(gsolen, (size_t)(end - p));
-    result = do_sendmsg(cf, data, qctx, p, len, len, &sent);
-    if(result)
-      goto out;
-    *psent += sent;
+  برائے(p = pkt; p < انتہا; p += gsolen) {
+    len = CURLMIN(gsolen, (size_t)(انتہا - p));
+    نتیجہ = do_sendmsg(cf, ڈیٹا, qctx, p, len, len, &بھیجا);
+    اگر(نتیجہ)
+      جاؤ برآمد;
+    *psent += بھیجا;
     VERBOSE(++calls);
   }
-out:
-  CURL_TRC_CF(data, cf,
+برآمد:
+  CURL_TRC_CF(ڈیٹا, cf,
               "vquic_%s(len=%zu, gso=%zu, calls=%zu) -> %d, sent=%zu",
-              VQUIC_SEND_METHOD, pktlen, gsolen, calls, (int)result, *psent);
-  return result;
+              VQUIC_SEND_طریقہ, pktlen, gsolen, calls, (صحیح)نتیجہ, *psent);
+  واپس نتیجہ;
 }
 
 /* Split QUIC payload by datagram (gso) boundaries when sending over a
  * non-UDP lower filter (for example CONNECT-UDP proxy tunnel). */
-static CURLcode send_packet_no_gso_cf(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      const uint8_t *pkt, size_t pktlen,
+ساکن CURLcode send_packet_no_gso_cf(ساخت Curl_cfilter *cf,
+                                      ساخت Curl_easy *ڈیٹا,
+                                      ثابت uint8_t *pkt, size_t pktlen,
                                       size_t gsolen, size_t *psent)
 {
-  const uint8_t *p, *end = pkt + pktlen;
-  size_t sent, len;
-  CURLcode result = CURLE_OK;
+  ثابت uint8_t *p, *انتہا = pkt + pktlen;
+  size_t بھیجا, len;
+  CURLcode نتیجہ = CURLE_OK;
   VERBOSE(size_t calls = 0);
 
   *psent = 0;
 
   /* Send one datagram-sized chunk per call into the lower filter. */
-  for(p = pkt; p < end; p += len) {
-    len = CURLMIN(gsolen, (size_t)(end - p));
-    result = Curl_conn_cf_send(cf->next, data, p, len, FALSE, &sent);
+  برائے(p = pkt; p < انتہا; p += len) {
+    len = CURLMIN(gsolen, (size_t)(انتہا - p));
+    نتیجہ = Curl_conn_cf_send(cf->اگلا, ڈیٹا, p, len, FALSE, &بھیجا);
     /* Report forward progress even if we return CURLE_AGAIN later. */
     VERBOSE(++calls);
     /* Preserve lower-filter errors (including CURLE_AGAIN). */
-    if(result)
-      goto out;
+    اگر(نتیجہ)
+      جاؤ برآمد;
 
-    if(sent != len) {
+    اگر(بھیجا != len) {
       /* We can only send the complete datagram, not parts. */
-      result = CURLE_SEND_ERROR;
-      goto out;
+      نتیجہ = CURLE_SEND_ERROR;
+      جاؤ برآمد;
     }
-    *psent += sent;
+    *psent += بھیجا;
   }
 
-out:
-  CURL_TRC_CF(data, cf,
+برآمد:
+  CURL_TRC_CF(ڈیٹا, cf,
               "vquic_cf_send(len=%zu, gso=%zu, calls=%zu) -> %d, sent=%zu",
-              pktlen, gsolen, calls, (int)result, *psent);
-  return result;
+              pktlen, gsolen, calls, (صحیح)نتیجہ, *psent);
+  واپس نتیجہ;
 }
 
-static CURLcode vquic_send_packets(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct cf_quic_ctx *qctx,
-                                   const uint8_t *pkt, size_t pktlen,
+ساکن CURLcode vquic_send_packets(ساخت Curl_cfilter *cf,
+                                   ساخت Curl_easy *ڈیٹا,
+                                   ساخت cf_quic_ctx *qctx,
+                                   ثابت uint8_t *pkt, size_t pktlen,
                                    size_t gsolen, size_t *psent)
 {
-  CURLcode result;
-#ifdef DEBUGBUILD
+  CURLcode نتیجہ;
+#اگر_تعریف_شدہ DEBUGBUILD
   /* simulate network blocking/partial writes */
-  if(qctx->wblock_percent > 0) {
-    unsigned char c;
+  اگر(qctx->wblock_percent > 0) {
+    غیرعلامتی حرف c;
     *psent = 0;
-    Curl_rand(data, &c, 1);
-    if(c >= ((100 - qctx->wblock_percent) * 256 / 100)) {
-      CURL_TRC_CF(data, cf, "vquic_flush() simulate EWOULDBLOCK");
-      return CURLE_AGAIN;
+    Curl_rand(ڈیٹا, &c, 1);
+    اگر(c >= ((100 - qctx->wblock_percent) * 256 / 100)) {
+      CURL_TRC_CF(ڈیٹا, cf, "vquic_flush() simulate EWOULDBLOCK");
+      واپس CURLE_AGAIN;
     }
   }
-#endif
-  if(qctx->no_gso && pktlen > gsolen) {
-    result = send_packet_no_gso(cf, data, qctx, pkt, pktlen, gsolen, psent);
+#اگر_ختم
+  اگر(qctx->no_gso && pktlen > gsolen) {
+    نتیجہ = send_packet_no_gso(cf, ڈیٹا, qctx, pkt, pktlen, gsolen, psent);
   }
-  else {
-    result = do_sendmsg(cf, data, qctx, pkt, pktlen, gsolen, psent);
+  ورنہ {
+    نتیجہ = do_sendmsg(cf, ڈیٹا, qctx, pkt, pktlen, gsolen, psent);
   }
-  if(!result)
-    qctx->last_io = qctx->last_op;
-  return result;
+  اگر(!نتیجہ)
+    qctx->آخری_io = qctx->آخری_op;
+  واپس نتیجہ;
 }
 
-CURLcode Curl_vquic_flush(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          struct cf_quic_ctx *qctx)
+CURLcode Curl_vquic_flush(ساخت Curl_cfilter *cf, ساخت Curl_easy *ڈیٹا,
+                          ساخت cf_quic_ctx *qctx)
 {
-  const unsigned char *buf;
-  size_t blen, sent;
-  CURLcode result;
+  ثابت غیرعلامتی حرف *buf;
+  size_t blen, بھیجا;
+  CURLcode نتیجہ;
   size_t gsolen;
 
-  while(Curl_bufq_peek(&qctx->sendbuf, &buf, &blen)) {
+  جب(Curl_bufq_peek(&qctx->sendbuf, &buf, &blen)) {
     gsolen = qctx->gsolen;
-    if(qctx->split_len) {
-      gsolen = qctx->split_gsolen;
-      if(blen > qctx->split_len)
-        blen = qctx->split_len;
+    اگر(qctx->بانٹو_len) {
+      gsolen = qctx->بانٹو_gsolen;
+      اگر(blen > qctx->بانٹو_len)
+        blen = qctx->بانٹو_len;
     }
 
-    if(qctx->sockfd != CURL_SOCKET_BAD) {
+    اگر(qctx->sockfd != CURL_SOCKET_BAD) {
       /* Direct UDP socket (via happy eyeballs) */
-      result = vquic_send_packets(cf, data, qctx, buf, blen, gsolen, &sent);
+      نتیجہ = vquic_send_packets(cf, ڈیٹا, qctx, buf, blen, gsolen, &بھیجا);
     }
-    else {
+    ورنہ {
       /* Tunneled QUIC (CONNECT-UDP through proxy) */
-      if(gsolen && (blen > gsolen)) {
+      اگر(gsolen && (blen > gsolen)) {
         /* Send one datagram at a time to preserve packet boundaries. */
-        result = send_packet_no_gso_cf(cf, data, buf, blen, gsolen, &sent);
+        نتیجہ = send_packet_no_gso_cf(cf, ڈیٹا, buf, blen, gsolen, &بھیجا);
       }
-      else {
+      ورنہ {
         /* No GSO aggregate to split, regular lower-filter send is enough. */
-        result = Curl_conn_cf_send(cf->next, data, buf, blen, FALSE, &sent);
+        نتیجہ = Curl_conn_cf_send(cf->اگلا, ڈیٹا, buf, blen, FALSE, &بھیجا);
       }
     }
 
-    if(result) {
-      if(result == CURLE_AGAIN) {
-        Curl_bufq_skip(&qctx->sendbuf, sent);
-        if(qctx->split_len)
-          qctx->split_len -= sent;
+    اگر(نتیجہ) {
+      اگر(نتیجہ == CURLE_AGAIN) {
+        Curl_bufq_skip(&qctx->sendbuf, بھیجا);
+        اگر(qctx->بانٹو_len)
+          qctx->بانٹو_len -= بھیجا;
       }
-      return result;
+      واپس نتیجہ;
     }
-    Curl_bufq_skip(&qctx->sendbuf, sent);
-    if(qctx->split_len)
-      qctx->split_len -= sent;
+    Curl_bufq_skip(&qctx->sendbuf, بھیجا);
+    اگر(qctx->بانٹو_len)
+      qctx->بانٹو_len -= بھیجا;
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-CURLcode Curl_vquic_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         struct cf_quic_ctx *qctx, size_t gsolen)
+CURLcode Curl_vquic_send(ساخت Curl_cfilter *cf, ساخت Curl_easy *ڈیٹا,
+                         ساخت cf_quic_ctx *qctx, size_t gsolen)
 {
   qctx->gsolen = gsolen;
-  return Curl_vquic_flush(cf, data, qctx);
+  واپس Curl_vquic_flush(cf, ڈیٹا, qctx);
 }
 
-CURLcode Curl_vquic_send_tail_split(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct cf_quic_ctx *qctx, size_t gsolen,
-                                    size_t tail_len, size_t tail_gsolen)
+CURLcode Curl_vquic_send_دم_بانٹو(ساخت Curl_cfilter *cf,
+                                    ساخت Curl_easy *ڈیٹا,
+                                    ساخت cf_quic_ctx *qctx, size_t gsolen,
+                                    size_t دم_len, size_t دم_gsolen)
 {
-  DEBUGASSERT(Curl_bufq_len(&qctx->sendbuf) > tail_len);
-  qctx->split_len = Curl_bufq_len(&qctx->sendbuf) - tail_len;
-  qctx->split_gsolen = gsolen;
-  qctx->gsolen = tail_gsolen;
-  CURL_TRC_CF(data, cf, "vquic_send_tail_split: [%zu gso=%zu][%zu gso=%zu]",
-              qctx->split_len, qctx->split_gsolen, tail_len, qctx->gsolen);
-  return Curl_vquic_flush(cf, data, qctx);
+  DEBUGASSERT(Curl_bufq_len(&qctx->sendbuf) > دم_len);
+  qctx->بانٹو_len = Curl_bufq_len(&qctx->sendbuf) - دم_len;
+  qctx->بانٹو_gsolen = gsolen;
+  qctx->gsolen = دم_gsolen;
+  CURL_TRC_CF(ڈیٹا, cf, "vquic_send_tail_split: [%zu gso=%zu][%zu gso=%zu]",
+              qctx->بانٹو_len, qctx->بانٹو_gsolen, دم_len, qctx->gsolen);
+  واپس Curl_vquic_flush(cf, ڈیٹا, qctx);
 }
 
-#if (defined(HAVE_SENDMMSG) || defined(HAVE_SENDMSG)) && \
-  !defined(HAVE_APPLE_MSG_X)
-static size_t vquic_msghdr_get_udp_gro(struct msghdr *msg)
+#اگر (defined(HAVE_SENDMMSG) || defined(HAVE_SENDMSG)) && \
+  !defined(HAVE_APPLE_پیغام_X)
+ساکن size_t vquic_msghdr_get_udp_gro(ساخت msghdr *پیغام)
 {
-  int gso_size = 0;
-#if defined(__linux__) && defined(UDP_GRO)
-  struct cmsghdr *cmsg;
+  صحیح gso_سائز = 0;
+#اگر defined(__linux__) && defined(UDP_GRO)
+  ساخت cmsghdr *cmsg;
 
   /* Workaround musl CMSG_NXTHDR issue */
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-compare"
-#pragma clang diagnostic ignored "-Wcast-align"
-#endif
-  for(cmsg = CMSG_FIRSTHDR(msg); cmsg; cmsg = CMSG_NXTHDR(msg, cmsg)) {
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic pop
-#endif
-    if(cmsg->cmsg_level == SOL_UDP && cmsg->cmsg_type == UDP_GRO) {
-      memcpy(&gso_size, CMSG_DATA(cmsg), sizeof(gso_size));
+#اگر defined(__clang__) && !defined(__GLIBC__)
+#ہدایت clang diagnostic ڈالو
+#ہدایت clang diagnostic ignored "-Wsign-compare"
+#ہدایت clang diagnostic ignored "-Wcast-align"
+#اگر_ختم
+  برائے(cmsg = CMSG_FIRSTHDR(پیغام); cmsg; cmsg = CMSG_NXTHDR(پیغام, cmsg)) {
+#اگر defined(__clang__) && !defined(__GLIBC__)
+#ہدایت clang diagnostic نکالو
+#اگر_ختم
+    اگر(cmsg->cmsg_level == SOL_UDP && cmsg->cmsg_type == UDP_GRO) {
+      حافظہ_نقل(&gso_سائز, CMSG_DATA(cmsg), حجم(gso_سائز));
 
-      break;
+      توڑو;
     }
   }
-#endif /* linux && UDP_GRO */
-  (void)msg;
+#اگر_ختم /* linux && UDP_GRO */
+  (خالی)پیغام;
 
-  return (size_t)gso_size;
+  واپس (size_t)gso_سائز;
 }
-#endif /* (HAVE_SENDMMSG || HAVE_SENDMSG) && !HAVE_APPLE_MSG_X */
+#اگر_ختم /* (HAVE_SENDMMSG || HAVE_SENDMSG) && !HAVE_APPLE_MSG_X */
 
 /* IP_RECVTOS was added in the macOS 10.13 SDK */
-#if (defined(HAVE_SENDMMSG) || defined(HAVE_SENDMSG) || \
-  defined(HAVE_APPLE_MSG_X)) && \
+#اگر (defined(HAVE_SENDMMSG) || defined(HAVE_SENDMSG) || \
+  defined(HAVE_APPLE_پیغام_X)) && \
   ((defined(__APPLE__) && defined(IP_RECVTOS)) || \
    (!defined(__APPLE__) && defined(IP_TOS))) && \
-  defined(IPTOS_ECN_MASK)
-static uint8_t vquic_msghdr_get_ecn(struct msghdr *msg, int family)
+  defined(IPTOS_ECN_نقاب)
+ساکن uint8_t vquic_msghdr_get_ecn(ساخت msghdr *پیغام, صحیح family)
 {
-  struct cmsghdr *cmsg;
-  switch(family) {
-  case AF_INET:
+  ساخت cmsghdr *cmsg;
+  انتخاب(family) {
+  حالت AF_INET:
   /* Workaround musl CMSG_NXTHDR issue */
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-compare"
-#pragma clang diagnostic ignored "-Wcast-align"
-#endif
-    for(cmsg = CMSG_FIRSTHDR(msg); cmsg; cmsg = CMSG_NXTHDR(msg, cmsg)) {
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic pop
-#endif
-      if(cmsg->cmsg_level == IPPROTO_IP &&
-#ifdef __APPLE__
+#اگر defined(__clang__) && !defined(__GLIBC__)
+#ہدایت clang diagnostic ڈالو
+#ہدایت clang diagnostic ignored "-Wsign-compare"
+#ہدایت clang diagnostic ignored "-Wcast-align"
+#اگر_ختم
+    برائے(cmsg = CMSG_FIRSTHDR(پیغام); cmsg; cmsg = CMSG_NXTHDR(پیغام, cmsg)) {
+#اگر defined(__clang__) && !defined(__GLIBC__)
+#ہدایت clang diagnostic نکالو
+#اگر_ختم
+      اگر(cmsg->cmsg_level == IPPROTO_IP &&
+#اگر_تعریف_شدہ __APPLE__
           cmsg->cmsg_type == IP_RECVTOS
-#else
+#ورنہ
           cmsg->cmsg_type == IP_TOS
-#endif
+#اگر_ختم
           && cmsg->cmsg_len) {
-        return *(uint8_t *)(CMSG_DATA(cmsg)) & IPTOS_ECN_MASK;
+        واپس *(uint8_t *)(CMSG_DATA(cmsg)) & IPTOS_ECN_نقاب;
       }
     }
-    break;
-  case AF_INET6:
+    توڑو;
+  حالت AF_INET6:
   /* Workaround musl CMSG_NXTHDR issue */
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-compare"
-#pragma clang diagnostic ignored "-Wcast-align"
-#endif
-    for(cmsg = CMSG_FIRSTHDR(msg); cmsg; cmsg = CMSG_NXTHDR(msg, cmsg)) {
-#if defined(__clang__) && !defined(__GLIBC__)
-#pragma clang diagnostic pop
-#endif
-      if(cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_TCLASS &&
+#اگر defined(__clang__) && !defined(__GLIBC__)
+#ہدایت clang diagnostic ڈالو
+#ہدایت clang diagnostic ignored "-Wsign-compare"
+#ہدایت clang diagnostic ignored "-Wcast-align"
+#اگر_ختم
+    برائے(cmsg = CMSG_FIRSTHDR(پیغام); cmsg; cmsg = CMSG_NXTHDR(پیغام, cmsg)) {
+#اگر defined(__clang__) && !defined(__GLIBC__)
+#ہدایت clang diagnostic نکالو
+#اگر_ختم
+      اگر(cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_TCLASS &&
          cmsg->cmsg_len) {
-        unsigned int tos;
+        غیرعلامتی صحیح tos;
 
-        memcpy(&tos, CMSG_DATA(cmsg), sizeof(int));
+        حافظہ_نقل(&tos, CMSG_DATA(cmsg), حجم(صحیح));
 
-        return (uint8_t)(tos & IPTOS_ECN_MASK);
+        واپس (uint8_t)(tos & IPTOS_ECN_نقاب);
       }
     }
-    break;
+    توڑو;
   }
-  return 0;
+  واپس 0;
 }
-#else
-#define vquic_msghdr_get_ecn(a, b)      0
-#endif /* HAVE_SENDMMSG || HAVE_SENDMSG || HAVE_APPLE_MSG_X ... */
+#ورنہ
+#تعریف_کرو vquic_msghdr_get_ecn(a, b)      0
+#اگر_ختم /* HAVE_SENDMMSG || HAVE_SENDMSG || HAVE_APPLE_MSG_X ... */
 
-#ifdef HAVE_SENDMMSG
+#اگر_تعریف_شدہ HAVE_SENDMMSG
 
-static CURLcode recvmmsg_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
+ساکن CURLcode recvmmsg_packets(ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 ساخت cf_quic_ctx *qctx,
                                  size_t max_pkts,
-                                 Curl_vquic_recv_pkts_cb *recv_cb, void *userp,
+                                 Curl_vquic_recv_pkts_cb *recv_cb, خالی *userp,
                                  size_t *pnread)
 {
-#if defined(__linux__) && defined(UDP_GRO)
-#define MMSG_NUM  16
-#define UDP_GRO_CNT_MAX  64
-#define CMSG_PER_MSG_SIZE    (2 * CMSG_SPACE(sizeof(int)))
-#else
-#define MMSG_NUM  64
-#define UDP_GRO_CNT_MAX  1
-#define CMSG_PER_MSG_SIZE    CMSG_SPACE(sizeof(int))
-#endif
-#define MSG_BUF_SIZE  (UDP_GRO_CNT_MAX * 1500)
-  struct iovec msg_iov[MMSG_NUM];
-  struct mmsghdr mmsg[MMSG_NUM];
-  uint8_t msg_ctrl[MMSG_NUM * CMSG_PER_MSG_SIZE];
-  struct sockaddr_storage remote_addr[MMSG_NUM];
-  size_t total_nread = 0, pkts = 0;
-#ifdef CURLVERBOSE
+#اگر defined(__linux__) && defined(UDP_GRO)
+#تعریف_کرو MMSG_عدد  16
+#تعریف_کرو UDP_GRO_CNT_MAX  64
+#تعریف_کرو CMSG_فی_پیغام_سائز    (2 * CMSG_SPACE(حجم(صحیح)))
+#ورنہ
+#تعریف_کرو MMSG_عدد  64
+#تعریف_کرو UDP_GRO_CNT_MAX  1
+#تعریف_کرو CMSG_فی_پیغام_سائز    CMSG_SPACE(حجم(صحیح))
+#اگر_ختم
+#تعریف_کرو پیغام_BUF_سائز  (UDP_GRO_CNT_MAX * 1500)
+  ساخت iovec msg_iov[MMSG_عدد];
+  ساخت mmsghdr mmsg[MMSG_عدد];
+  uint8_t پیغام_ctrl[MMSG_عدد * CMSG_فی_پیغام_سائز];
+  ساخت sockaddr_storage remote_addr[MMSG_عدد];
+  size_t کل_nread = 0, pkts = 0;
+#اگر_تعریف_شدہ CURLVERBOSE
   size_t calls = 0;
-#endif
-  int mcount, i, n;
-  char errstr[STRERROR_LEN];
-  CURLcode result = CURLE_OK;
-  size_t gso_size;
-  char *sockbuf = NULL;
-  uint8_t (*bufs)[MSG_BUF_SIZE] = NULL;
+#اگر_ختم
+  صحیح mcount, i, n;
+  حرف errstr[STRERROR_LEN];
+  CURLcode نتیجہ = CURLE_OK;
+  size_t gso_سائز;
+  حرف *sockbuf = تہی;
+  uint8_t (*bufs)[پیغام_BUF_سائز] = تہی;
   uint8_t ecn = 0;
 
   DEBUGASSERT(max_pkts > 0);
-  result = Curl_multi_xfer_sockbuf_borrow(data, MMSG_NUM * MSG_BUF_SIZE,
+  نتیجہ = Curl_multi_xfer_sockbuf_borrow(ڈیٹا, MMSG_عدد * پیغام_BUF_سائز,
                                           &sockbuf);
-  if(result)
-    goto out;
-  bufs = (uint8_t (*)[MSG_BUF_SIZE])sockbuf;
+  اگر(نتیجہ)
+    جاؤ برآمد;
+  bufs = (uint8_t (*)[پیغام_BUF_سائز])sockbuf;
 
-  total_nread = 0;
-  while(pkts < max_pkts) {
-    n = (int)CURLMIN(CURLMIN(MMSG_NUM, IOV_MAX), max_pkts);
-    memset(&mmsg, 0, sizeof(mmsg));
-    for(i = 0; i < n; ++i) {
+  کل_nread = 0;
+  جب(pkts < max_pkts) {
+    n = (صحیح)CURLMIN(CURLMIN(MMSG_عدد, IOV_MAX), max_pkts);
+    memset(&mmsg, 0, حجم(mmsg));
+    برائے(i = 0; i < n; ++i) {
       msg_iov[i].iov_base = bufs[i];
-      msg_iov[i].iov_len = sizeof(bufs[i]);
-      mmsg[i].msg_hdr.msg_iov = &msg_iov[i];
-      mmsg[i].msg_hdr.msg_iovlen = 1;
-      mmsg[i].msg_hdr.msg_name = &remote_addr[i];
-      mmsg[i].msg_hdr.msg_namelen = sizeof(remote_addr[i]);
-      mmsg[i].msg_hdr.msg_control = &msg_ctrl[i * CMSG_PER_MSG_SIZE];
-      mmsg[i].msg_hdr.msg_controllen = CMSG_PER_MSG_SIZE;
+      msg_iov[i].iov_len = حجم(bufs[i]);
+      mmsg[i].پیغام_hdr.msg_iov = &msg_iov[i];
+      mmsg[i].پیغام_hdr.پیغام_iovlen = 1;
+      mmsg[i].پیغام_hdr.پیغام_name = &remote_addr[i];
+      mmsg[i].پیغام_hdr.msg_namelen = حجم(remote_addr[i]);
+      mmsg[i].پیغام_hdr.پیغام_control = &پیغام_ctrl[i * CMSG_فی_پیغام_سائز];
+      mmsg[i].پیغام_hdr.msg_controllen = CMSG_فی_پیغام_سائز;
     }
 
-    while((mcount = recvmmsg(qctx->sockfd, mmsg, n, 0, NULL)) == -1 &&
+    جب((mcount = recvmmsg(qctx->sockfd, mmsg, n, 0, تہی)) == -1 &&
           (SOCKERRNO == SOCKEINTR || SOCKERRNO == SOCKEMSGSIZE))
       ;
-    if(mcount == -1) {
-      if(SOCK_EAGAIN(SOCKERRNO)) {
-        CURL_TRC_CF(data, cf, "ingress, recvmmsg -> EAGAIN");
-        goto out;
+    اگر(mcount == -1) {
+      اگر(SOCK_EAGAIN(SOCKERRNO)) {
+        CURL_TRC_CF(ڈیٹا, cf, "ingress, recvmmsg -> EAGAIN");
+        جاؤ برآمد;
       }
-      if(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
-        struct ip_quadruple ip;
-        if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
-          failf(data, "QUIC: connection to %s port %u refused",
-                ip.remote_ip, ip.remote_port);
-        result = CURLE_COULDNT_CONNECT;
-        goto out;
+      اگر(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
+        ساخت ip_quadruple ip;
+        اگر(!Curl_cf_socket_peek(cf->اگلا, ڈیٹا, تہی, تہی, &ip))
+          failf(ڈیٹا, "QUIC: connection to %s port %u refused",
+                ip.remote_ip, ip.remote_پورٹ);
+        نتیجہ = CURLE_COULDNT_CONNECT;
+        جاؤ برآمد;
       }
-      curlx_strerror(SOCKERRNO, errstr, sizeof(errstr));
-      failf(data, "QUIC: recvmmsg() unexpectedly returned %d (errno=%d; %s)",
+      curlx_strerror(SOCKERRNO, errstr, حجم(errstr));
+      failf(ڈیٹا, "QUIC: recvmmsg() unexpectedly returned %d (errno=%d; %s)",
             mcount, SOCKERRNO, errstr);
-      result = CURLE_RECV_ERROR;
-      goto out;
+      نتیجہ = CURLE_RECV_ERROR;
+      جاؤ برآمد;
     }
 
     VERBOSE(++calls);
-    for(i = 0; i < mcount; ++i) {
+    برائے(i = 0; i < mcount; ++i) {
       /* A zero-length UDP packet is no QUIC packet. Ignore. */
-      if(!mmsg[i].msg_len) {
+      اگر(!mmsg[i].پیغام_len) {
         ++pkts;
-        continue;
+        جاری;
       }
-      total_nread += mmsg[i].msg_len;
+      کل_nread += mmsg[i].پیغام_len;
 
-      ecn = vquic_msghdr_get_ecn(&mmsg[i].msg_hdr, remote_addr[i].ss_family);
-      gso_size = vquic_msghdr_get_udp_gro(&mmsg[i].msg_hdr);
-      if(gso_size == 0)
-        gso_size = mmsg[i].msg_len;
+      ecn = vquic_msghdr_get_ecn(&mmsg[i].پیغام_hdr, remote_addr[i].ss_family);
+      gso_سائز = vquic_msghdr_get_udp_gro(&mmsg[i].پیغام_hdr);
+      اگر(gso_سائز == 0)
+        gso_سائز = mmsg[i].پیغام_len;
 
-      result = recv_cb(bufs[i], mmsg[i].msg_len, gso_size,
-                       mmsg[i].msg_hdr.msg_name,
-                       mmsg[i].msg_hdr.msg_namelen, ecn, userp);
-      if(result)
-        goto out;
-      pkts += (mmsg[i].msg_len + gso_size - 1) / gso_size;
+      نتیجہ = recv_cb(bufs[i], mmsg[i].پیغام_len, gso_سائز,
+                       mmsg[i].پیغام_hdr.پیغام_name,
+                       mmsg[i].پیغام_hdr.msg_namelen, ecn, userp);
+      اگر(نتیجہ)
+        جاؤ برآمد;
+      pkts += (mmsg[i].پیغام_len + gso_سائز - 1) / gso_سائز;
     }
   }
 
-out:
-  if(total_nread || result)
-    CURL_TRC_CF(data, cf,
+برآمد:
+  اگر(کل_nread || نتیجہ)
+    CURL_TRC_CF(ڈیٹا, cf,
                 "vquic_recvmmsg(len=%zu, packets=%zu, calls=%zu) -> %d",
-                total_nread, pkts, calls, (int)result);
-  Curl_multi_xfer_sockbuf_release(data, sockbuf);
-  *pnread = total_nread;
-  return result;
+                کل_nread, pkts, calls, (صحیح)نتیجہ);
+  Curl_multi_xfer_sockbuf_release(ڈیٹا, sockbuf);
+  *pnread = کل_nread;
+  واپس نتیجہ;
 }
 
-#elif defined(HAVE_APPLE_MSG_X)
+#وگرنہ_اگر defined(HAVE_APPLE_پیغام_X)
 
-static CURLcode recvmsg_x_packets(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct cf_quic_ctx *qctx,
+ساکن CURLcode recvmsg_x_packets(ساخت Curl_cfilter *cf,
+                                  ساخت Curl_easy *ڈیٹا,
+                                  ساخت cf_quic_ctx *qctx,
                                   size_t max_pkts,
                                   Curl_vquic_recv_pkts_cb *recv_cb,
-                                  void *userp, size_t *pnread)
+                                  خالی *userp, size_t *pnread)
 {
-#define MSG_X_NUM  64
-#define MSG_BUF_SIZE  (2048)
-#define CMSG_PER_MSG_SIZE     CMSG_SPACE(sizeof(int))
-  struct iovec msg_iov[MSG_X_NUM];
-  struct msghdr_x mmsg[MSG_X_NUM];
-  uint8_t msg_ctrl[MSG_X_NUM * CMSG_PER_MSG_SIZE];
-  struct sockaddr_storage remote_addr[MSG_X_NUM];
-  size_t total_nread = 0, pkts = 0;
-#ifdef CURLVERBOSE
+#تعریف_کرو پیغام_X_عدد  64
+#تعریف_کرو پیغام_BUF_سائز  (2048)
+#تعریف_کرو CMSG_فی_پیغام_سائز     CMSG_SPACE(حجم(صحیح))
+  ساخت iovec msg_iov[پیغام_X_عدد];
+  ساخت msghdr_x mmsg[پیغام_X_عدد];
+  uint8_t پیغام_ctrl[پیغام_X_عدد * CMSG_فی_پیغام_سائز];
+  ساخت sockaddr_storage remote_addr[پیغام_X_عدد];
+  size_t کل_nread = 0, pkts = 0;
+#اگر_تعریف_شدہ CURLVERBOSE
   size_t calls = 0;
-#endif
-  int mcount, i;
-  char errstr[STRERROR_LEN];
-  CURLcode result = CURLE_OK;
-  size_t gso_size;
-  char *sockbuf = NULL;
-  uint8_t (*bufs)[MSG_BUF_SIZE] = NULL;
+#اگر_ختم
+  صحیح mcount, i;
+  حرف errstr[STRERROR_LEN];
+  CURLcode نتیجہ = CURLE_OK;
+  size_t gso_سائز;
+  حرف *sockbuf = تہی;
+  uint8_t (*bufs)[پیغام_BUF_سائز] = تہی;
   uint8_t ecn = 0;
 
   DEBUGASSERT(max_pkts > 0);
-  result = Curl_multi_xfer_sockbuf_borrow(data, MSG_X_NUM * MSG_BUF_SIZE,
+  نتیجہ = Curl_multi_xfer_sockbuf_borrow(ڈیٹا, پیغام_X_عدد * پیغام_BUF_سائز,
                                           &sockbuf);
-  if(result)
-    goto out;
-  bufs = (uint8_t (*)[MSG_BUF_SIZE])sockbuf;
+  اگر(نتیجہ)
+    جاؤ برآمد;
+  bufs = (uint8_t (*)[پیغام_BUF_سائز])sockbuf;
 
-  total_nread = 0;
-  while(pkts < max_pkts) {
-    int n = (int)CURLMIN(CURLMIN(MSG_X_NUM, IOV_MAX), max_pkts);
-    memset(&mmsg, 0, sizeof(mmsg));
-    for(i = 0; i < n; ++i) {
+  کل_nread = 0;
+  جب(pkts < max_pkts) {
+    صحیح n = (صحیح)CURLMIN(CURLMIN(پیغام_X_عدد, IOV_MAX), max_pkts);
+    memset(&mmsg, 0, حجم(mmsg));
+    برائے(i = 0; i < n; ++i) {
       msg_iov[i].iov_base = bufs[i];
-      msg_iov[i].iov_len = sizeof(bufs[i]);
+      msg_iov[i].iov_len = حجم(bufs[i]);
       mmsg[i].msg_iov = &msg_iov[i];
-      mmsg[i].msg_iovlen = 1;
-      mmsg[i].msg_name = &remote_addr[i];
-      mmsg[i].msg_namelen = sizeof(remote_addr[i]);
-      mmsg[i].msg_control = &msg_ctrl[i * CMSG_PER_MSG_SIZE];
-      mmsg[i].msg_controllen = CMSG_PER_MSG_SIZE;
+      mmsg[i].پیغام_iovlen = 1;
+      mmsg[i].پیغام_name = &remote_addr[i];
+      mmsg[i].msg_namelen = حجم(remote_addr[i]);
+      mmsg[i].پیغام_control = &پیغام_ctrl[i * CMSG_فی_پیغام_سائز];
+      mmsg[i].msg_controllen = CMSG_فی_پیغام_سائز;
     }
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-    while((mcount = syscall(SYS_recvmsg_x, qctx->sockfd, mmsg, n, 0)) == -1 &&
+#اگر defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#ہدایت GCC diagnostic ڈالو
+#ہدایت GCC diagnostic ignored "-Wdeprecated-declarations"
+#اگر_ختم
+    جب((mcount = syscall(SYS_recvmsg_x, qctx->sockfd, mmsg, n, 0)) == -1 &&
           (SOCKERRNO == SOCKEINTR || SOCKERRNO == SOCKEMSGSIZE))
       ;
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic pop
-#endif
-    if(mcount == -1) {
-      if(SOCK_EAGAIN(SOCKERRNO)) {
-        CURL_TRC_CF(data, cf, "ingress, recvmsg_x -> EAGAIN");
-        goto out;
+#اگر defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#ہدایت GCC diagnostic نکالو
+#اگر_ختم
+    اگر(mcount == -1) {
+      اگر(SOCK_EAGAIN(SOCKERRNO)) {
+        CURL_TRC_CF(ڈیٹا, cf, "ingress, recvmsg_x -> EAGAIN");
+        جاؤ برآمد;
       }
-      if(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
-        struct ip_quadruple ip;
-        if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
-          failf(data, "QUIC: connection to %s port %u refused",
-                ip.remote_ip, ip.remote_port);
-        result = CURLE_COULDNT_CONNECT;
-        goto out;
+      اگر(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
+        ساخت ip_quadruple ip;
+        اگر(!Curl_cf_socket_peek(cf->اگلا, ڈیٹا, تہی, تہی, &ip))
+          failf(ڈیٹا, "QUIC: connection to %s port %u refused",
+                ip.remote_ip, ip.remote_پورٹ);
+        نتیجہ = CURLE_COULDNT_CONNECT;
+        جاؤ برآمد;
       }
-      curlx_strerror(SOCKERRNO, errstr, sizeof(errstr));
-      failf(data, "QUIC: recvmsg_x() unexpectedly returned %d (errno=%d; %s)",
+      curlx_strerror(SOCKERRNO, errstr, حجم(errstr));
+      failf(ڈیٹا, "QUIC: recvmsg_x() unexpectedly returned %d (errno=%d; %s)",
             mcount, SOCKERRNO, errstr);
-      result = CURLE_RECV_ERROR;
-      goto out;
+      نتیجہ = CURLE_RECV_ERROR;
+      جاؤ برآمد;
     }
 
     VERBOSE(++calls);
-    for(i = 0; i < mcount; ++i) {
+    برائے(i = 0; i < mcount; ++i) {
       /* A zero-length UDP packet is no QUIC packet. Ignore. */
-      if(!mmsg[i].msg_datalen) {
+      اگر(!mmsg[i].پیغام_datalen) {
         ++pkts;
-        continue;
+        جاری;
       }
-      total_nread += mmsg[i].msg_datalen;
-      ecn = vquic_msghdr_get_ecn((struct msghdr *)&mmsg[i],
+      کل_nread += mmsg[i].پیغام_datalen;
+      ecn = vquic_msghdr_get_ecn((ساخت msghdr *)&mmsg[i],
                                  remote_addr[i].ss_family);
-      gso_size = mmsg[i].msg_datalen;
+      gso_سائز = mmsg[i].پیغام_datalen;
 
-      result = recv_cb(bufs[i], mmsg[i].msg_datalen, gso_size,
-                       mmsg[i].msg_name,
+      نتیجہ = recv_cb(bufs[i], mmsg[i].پیغام_datalen, gso_سائز,
+                       mmsg[i].پیغام_name,
                        mmsg[i].msg_namelen, ecn, userp);
-      if(result)
-        goto out;
-      pkts += (mmsg[i].msg_datalen + gso_size - 1) / gso_size;
+      اگر(نتیجہ)
+        جاؤ برآمد;
+      pkts += (mmsg[i].پیغام_datalen + gso_سائز - 1) / gso_سائز;
     }
   }
 
-out:
-  if(total_nread || result)
-    CURL_TRC_CF(data, cf,
+برآمد:
+  اگر(کل_nread || نتیجہ)
+    CURL_TRC_CF(ڈیٹا, cf,
                 "vquic_recvmsg_x(len=%zu, packets=%zu, calls=%zu) -> %d",
-                total_nread, pkts, calls, (int)result);
-  Curl_multi_xfer_sockbuf_release(data, sockbuf);
-  *pnread = total_nread;
-  return result;
+                کل_nread, pkts, calls, (صحیح)نتیجہ);
+  Curl_multi_xfer_sockbuf_release(ڈیٹا, sockbuf);
+  *pnread = کل_nread;
+  واپس نتیجہ;
 }
 
-#elif defined(HAVE_SENDMSG)
-static CURLcode recvmsg_packets(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct cf_quic_ctx *qctx,
+#وگرنہ_اگر defined(HAVE_SENDMSG)
+ساکن CURLcode recvmsg_packets(ساخت Curl_cfilter *cf,
+                                ساخت Curl_easy *ڈیٹا,
+                                ساخت cf_quic_ctx *qctx,
                                 size_t max_pkts,
-                                Curl_vquic_recv_pkts_cb *recv_cb, void *userp,
+                                Curl_vquic_recv_pkts_cb *recv_cb, خالی *userp,
                                 size_t *pnread)
 {
-#define CMSG_PER_MSG_SIZE    CMSG_SPACE(sizeof(int))
-  struct iovec msg_iov;
-  struct msghdr msg;
+#تعریف_کرو CMSG_فی_پیغام_سائز    CMSG_SPACE(حجم(صحیح))
+  ساخت iovec msg_iov;
+  ساخت msghdr پیغام;
   uint8_t buf[64 * 1024];
-  struct sockaddr_storage remote_addr;
-  size_t total_nread, pkts, calls;
+  ساخت sockaddr_storage remote_addr;
+  size_t کل_nread, pkts, calls;
   ssize_t rc;
   size_t nread;
-  char errstr[STRERROR_LEN];
-  CURLcode result = CURLE_OK;
-  uint8_t msg_ctrl[CMSG_PER_MSG_SIZE];
-  size_t gso_size;
+  حرف errstr[STRERROR_LEN];
+  CURLcode نتیجہ = CURLE_OK;
+  uint8_t پیغام_ctrl[CMSG_فی_پیغام_سائز];
+  size_t gso_سائز;
   uint8_t ecn = 0;
 
   DEBUGASSERT(max_pkts > 0);
-  for(pkts = 0, total_nread = 0, calls = 0; pkts < max_pkts;) {
+  برائے(pkts = 0, کل_nread = 0, calls = 0; pkts < max_pkts;) {
     /* fully initialize this on each call to `recvmsg()`. There seem to
      * operating systems out there that mess with `msg_iov.iov_len`. */
-    memset(&msg, 0, sizeof(msg));
+    memset(&پیغام, 0, حجم(پیغام));
     msg_iov.iov_base = buf;
-    msg_iov.iov_len = sizeof(buf);
-    msg.msg_iov = &msg_iov;
-    msg.msg_iovlen = 1;
-    msg.msg_control = msg_ctrl;
-    msg.msg_name = &remote_addr;
-    msg.msg_namelen = sizeof(remote_addr);
-    msg.msg_controllen = CMSG_PER_MSG_SIZE;
+    msg_iov.iov_len = حجم(buf);
+    پیغام.msg_iov = &msg_iov;
+    پیغام.پیغام_iovlen = 1;
+    پیغام.پیغام_control = پیغام_ctrl;
+    پیغام.پیغام_name = &remote_addr;
+    پیغام.msg_namelen = حجم(remote_addr);
+    پیغام.msg_controllen = CMSG_فی_پیغام_سائز;
 
-    while((rc = recvmsg(qctx->sockfd, &msg, 0)) == -1 &&
+    جب((rc = recvmsg(qctx->sockfd, &پیغام, 0)) == -1 &&
           (SOCKERRNO == SOCKEINTR || SOCKERRNO == SOCKEMSGSIZE))
       ;
-    if(!curlx_sztouz(rc, &nread)) {
-      if(SOCK_EAGAIN(SOCKERRNO)) {
-        goto out;
+    اگر(!curlx_sztouz(rc, &nread)) {
+      اگر(SOCK_EAGAIN(SOCKERRNO)) {
+        جاؤ برآمد;
       }
-      if(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
-        struct ip_quadruple ip;
-        if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
-          failf(data, "QUIC: connection to %s port %u refused",
-                ip.remote_ip, ip.remote_port);
-        result = CURLE_COULDNT_CONNECT;
-        goto out;
+      اگر(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
+        ساخت ip_quadruple ip;
+        اگر(!Curl_cf_socket_peek(cf->اگلا, ڈیٹا, تہی, تہی, &ip))
+          failf(ڈیٹا, "QUIC: connection to %s port %u refused",
+                ip.remote_ip, ip.remote_پورٹ);
+        نتیجہ = CURLE_COULDNT_CONNECT;
+        جاؤ برآمد;
       }
-      curlx_strerror(SOCKERRNO, errstr, sizeof(errstr));
-      failf(data, "QUIC: recvmsg() unexpectedly returned %zd (errno=%d; %s)",
+      curlx_strerror(SOCKERRNO, errstr, حجم(errstr));
+      failf(ڈیٹا, "QUIC: recvmsg() unexpectedly returned %zd (errno=%d; %s)",
             rc, SOCKERRNO, errstr);
-      result = CURLE_RECV_ERROR;
-      goto out;
+      نتیجہ = CURLE_RECV_ERROR;
+      جاؤ برآمد;
     }
 
-    total_nread += nread;
+    کل_nread += nread;
     ++calls;
 
     /* A 0-length UDP packet is no QUIC packet */
-    if(!nread) {
+    اگر(!nread) {
       ++pkts;
-      continue;
+      جاری;
     }
 
-    ecn = vquic_msghdr_get_ecn(&msg, remote_addr.ss_family);
-    gso_size = vquic_msghdr_get_udp_gro(&msg);
-    if(gso_size == 0)
-      gso_size = nread;
+    ecn = vquic_msghdr_get_ecn(&پیغام, remote_addr.ss_family);
+    gso_سائز = vquic_msghdr_get_udp_gro(&پیغام);
+    اگر(gso_سائز == 0)
+      gso_سائز = nread;
 
-    result = recv_cb(buf, nread, gso_size,
-                     msg.msg_name, msg.msg_namelen, ecn, userp);
-    if(result)
-      goto out;
-    pkts += (nread + gso_size - 1) / gso_size;
+    نتیجہ = recv_cb(buf, nread, gso_سائز,
+                     پیغام.پیغام_name, پیغام.msg_namelen, ecn, userp);
+    اگر(نتیجہ)
+      جاؤ برآمد;
+    pkts += (nread + gso_سائز - 1) / gso_سائز;
   }
 
-out:
-  if(total_nread || result)
-    CURL_TRC_CF(data, cf,
+برآمد:
+  اگر(کل_nread || نتیجہ)
+    CURL_TRC_CF(ڈیٹا, cf,
                 "vquic_recvmsg(len=%zu, packets=%zu, calls=%zu) -> %d",
-                total_nread, pkts, calls, (int)result);
-  *pnread = total_nread;
-  return result;
+                کل_nread, pkts, calls, (صحیح)نتیجہ);
+  *pnread = کل_nread;
+  واپس نتیجہ;
 }
 
-#else /* HAVE_SENDMMSG || HAVE_SENDMSG */
-static CURLcode recvfrom_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
+#ورنہ /* HAVE_SENDMMSG || HAVE_SENDMSG */
+ساکن CURLcode recvfrom_packets(ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 ساخت cf_quic_ctx *qctx,
                                  size_t max_pkts,
-                                 Curl_vquic_recv_pkts_cb *recv_cb, void *userp,
+                                 Curl_vquic_recv_pkts_cb *recv_cb, خالی *userp,
                                  size_t *pnread)
 {
   uint8_t buf[64 * 1024];
-  int bufsize = (int)sizeof(buf);
-  struct sockaddr_storage remote_addr;
-  socklen_t remote_addrlen = sizeof(remote_addr);
-  size_t total_nread, pkts, calls = 0, nread;
+  صحیح bufsize = (صحیح)حجم(buf);
+  ساخت sockaddr_storage remote_addr;
+  socklen_t remote_addrlen = حجم(remote_addr);
+  size_t کل_nread, pkts, calls = 0, nread;
   ssize_t rv;
-  char errstr[STRERROR_LEN];
-  CURLcode result = CURLE_OK;
+  حرف errstr[STRERROR_LEN];
+  CURLcode نتیجہ = CURLE_OK;
 
   DEBUGASSERT(max_pkts > 0);
-  for(pkts = 0, total_nread = 0; pkts < max_pkts;) {
-    while((rv = recvfrom(qctx->sockfd, (char *)buf, bufsize, 0,
-                         (struct sockaddr *)&remote_addr,
+  برائے(pkts = 0, کل_nread = 0; pkts < max_pkts;) {
+    جب((rv = recvfrom(qctx->sockfd, (حرف *)buf, bufsize, 0,
+                         (ساخت sockaddr *)&remote_addr,
                          &remote_addrlen)) == -1 &&
           (SOCKERRNO == SOCKEINTR || SOCKERRNO == SOCKEMSGSIZE))
       ;
-    if(!curlx_sztouz(rv, &nread)) {
-      if(SOCK_EAGAIN(SOCKERRNO)) {
-        CURL_TRC_CF(data, cf, "ingress, recvfrom -> EAGAIN");
-        goto out;
+    اگر(!curlx_sztouz(rv, &nread)) {
+      اگر(SOCK_EAGAIN(SOCKERRNO)) {
+        CURL_TRC_CF(ڈیٹا, cf, "ingress, recvfrom -> EAGAIN");
+        جاؤ برآمد;
       }
-      if(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
-        struct ip_quadruple ip;
-        if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
-          failf(data, "QUIC: connection to %s port %u refused",
-                ip.remote_ip, ip.remote_port);
-        result = CURLE_COULDNT_CONNECT;
-        goto out;
+      اگر(!cf->connected && SOCKERRNO == SOCKECONNREFUSED) {
+        ساخت ip_quadruple ip;
+        اگر(!Curl_cf_socket_peek(cf->اگلا, ڈیٹا, تہی, تہی, &ip))
+          failf(ڈیٹا, "QUIC: connection to %s port %u refused",
+                ip.remote_ip, ip.remote_پورٹ);
+        نتیجہ = CURLE_COULDNT_CONNECT;
+        جاؤ برآمد;
       }
-      curlx_strerror(SOCKERRNO, errstr, sizeof(errstr));
-      failf(data, "QUIC: recvfrom() unexpectedly returned %zd (errno=%d; %s)",
+      curlx_strerror(SOCKERRNO, errstr, حجم(errstr));
+      failf(ڈیٹا, "QUIC: recvfrom() unexpectedly returned %zd (errno=%d; %s)",
             rv, SOCKERRNO, errstr);
-      result = CURLE_RECV_ERROR;
-      goto out;
+      نتیجہ = CURLE_RECV_ERROR;
+      جاؤ برآمد;
     }
 
     ++pkts;
     ++calls;
 
     /* A 0-length UDP packet is no QUIC packet */
-    if(!nread)
-      continue;
+    اگر(!nread)
+      جاری;
 
-    total_nread += nread;
-    result = recv_cb(buf, nread, nread, &remote_addr, remote_addrlen,
+    کل_nread += nread;
+    نتیجہ = recv_cb(buf, nread, nread, &remote_addr, remote_addrlen,
                      0, userp);
-    if(result)
-      goto out;
+    اگر(نتیجہ)
+      جاؤ برآمد;
   }
 
-out:
-  if(total_nread || result)
-    CURL_TRC_CF(data, cf,
+برآمد:
+  اگر(کل_nread || نتیجہ)
+    CURL_TRC_CF(ڈیٹا, cf,
                 "vquic_recvfrom(len=%zu, packets=%zu, calls=%zu) -> %d",
-                total_nread, pkts, calls, (int)result);
-  *pnread = total_nread;
-  return result;
+                کل_nread, pkts, calls, (صحیح)نتیجہ);
+  *pnread = کل_nread;
+  واپس نتیجہ;
 }
-#endif /* !HAVE_SENDMMSG && !HAVE_SENDMSG */
+#اگر_ختم /* !HAVE_SENDMMSG && !HAVE_SENDMSG */
 
-CURLcode Curl_vquic_recv_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
+CURLcode Curl_vquic_recv_packets(ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 ساخت cf_quic_ctx *qctx,
                                  size_t max_pkts,
-                                 Curl_vquic_recv_pkts_cb *recv_cb, void *userp)
+                                 Curl_vquic_recv_pkts_cb *recv_cb, خالی *userp)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
   size_t nread = 0;
-#ifdef HAVE_SENDMMSG
-  result = recvmmsg_packets(cf, data, qctx, max_pkts, recv_cb, userp, &nread);
-#elif defined(HAVE_APPLE_MSG_X)
-  result = recvmsg_x_packets(cf, data, qctx, max_pkts, recv_cb, userp,
+#اگر_تعریف_شدہ HAVE_SENDMMSG
+  نتیجہ = recvmmsg_packets(cf, ڈیٹا, qctx, max_pkts, recv_cb, userp, &nread);
+#وگرنہ_اگر defined(HAVE_APPLE_پیغام_X)
+  نتیجہ = recvmsg_x_packets(cf, ڈیٹا, qctx, max_pkts, recv_cb, userp,
                              &nread);
-#elif defined(HAVE_SENDMSG)
-  result = recvmsg_packets(cf, data, qctx, max_pkts, recv_cb, userp, &nread);
-#else
-  result = recvfrom_packets(cf, data, qctx, max_pkts, recv_cb, userp, &nread);
-#endif
-  if(!result) {
+#وگرنہ_اگر defined(HAVE_SENDMSG)
+  نتیجہ = recvmsg_packets(cf, ڈیٹا, qctx, max_pkts, recv_cb, userp, &nread);
+#ورنہ
+  نتیجہ = recvfrom_packets(cf, ڈیٹا, qctx, max_pkts, recv_cb, userp, &nread);
+#اگر_ختم
+  اگر(!نتیجہ) {
     /* EAGAIN is no error, only count actual packets as a reply */
-    if(!qctx->got_first_byte && nread) {
-      qctx->got_first_byte = TRUE;
-      qctx->first_byte_at = qctx->last_op;
+    اگر(!qctx->got_پہلا_byte && nread) {
+      qctx->got_پہلا_byte = TRUE;
+      qctx->پہلا_byte_at = qctx->آخری_op;
     }
-    qctx->last_io = qctx->last_op;
+    qctx->آخری_io = qctx->آخری_op;
   }
-  return result;
+  واپس نتیجہ;
 }
 
 /*
@@ -1042,304 +1042,304 @@ CURLcode Curl_vquic_recv_packets(struct Curl_cfilter *cf,
  * create the file. Open file success is deemed by seeing if the returned fd
  * is != -1.
  */
-CURLcode Curl_qlogdir(struct Curl_easy *data,
-                      unsigned char *scid,
+CURLcode Curl_qlogdir(ساخت Curl_easy *ڈیٹا,
+                      غیرعلامتی حرف *scid,
                       size_t scidlen,
-                      int *qlogfdp)
+                      صحیح *qlogfdp)
 {
-  char *qlog_dir = curl_getenv("QLOGDIR");
+  حرف *qlog_dir = curl_getenv("QLOGDIR");
   *qlogfdp = -1;
-  if(qlog_dir) {
-    struct dynbuf fname;
-    CURLcode result;
-    unsigned int i;
+  اگر(qlog_dir) {
+    ساخت dynbuf fname;
+    CURLcode نتیجہ;
+    غیرعلامتی صحیح i;
     curlx_dyn_init(&fname, DYN_QLOG_NAME);
-    result = curlx_dyn_add(&fname, qlog_dir);
-    if(!result)
-      result = curlx_dyn_add(&fname, "/");
-    for(i = 0; (i < scidlen) && !result; i++) {
-      char hex[3];
+    نتیجہ = curlx_dyn_جوڑو(&fname, qlog_dir);
+    اگر(!نتیجہ)
+      نتیجہ = curlx_dyn_جوڑو(&fname, "/");
+    برائے(i = 0; (i < scidlen) && !نتیجہ; i++) {
+      حرف hex[3];
       curl_msnprintf(hex, 3, "%02x", scid[i]);
-      result = curlx_dyn_add(&fname, hex);
+      نتیجہ = curlx_dyn_جوڑو(&fname, hex);
     }
-    if(!result)
-      result = curlx_dyn_add(&fname, ".sqlog");
+    اگر(!نتیجہ)
+      نتیجہ = curlx_dyn_جوڑو(&fname, ".sqlog");
 
-    if(!result) {
-      int qlogfd = curlx_open(curlx_dyn_ptr(&fname),
-                              O_WRONLY | O_CREAT | CURL_O_BINARY,
-#ifdef _WIN32
-                              data->set.new_file_perms & (_S_IREAD | _S_IWRITE)
-#else
-                              (mode_t)data->set.new_file_perms
-#endif
+    اگر(!نتیجہ) {
+      صحیح qlogfd = curlx_open(curlx_dyn_ptr(&fname),
+                              O_WRONLY | O_CREAT | CURL_O_ثنائی,
+#اگر_تعریف_شدہ _WIN32
+                              ڈیٹا->سیٹ.new_file_perms & (_S_IREAD | _S_IWRITE)
+#ورنہ
+                              (mode_t)ڈیٹا->سیٹ.new_file_perms
+#اگر_ختم
                               );
-      if(qlogfd != -1)
+      اگر(qlogfd != -1)
         *qlogfdp = qlogfd;
     }
     curlx_dyn_free(&fname);
     curlx_free(qlog_dir);
-    if(result)
-      return result;
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-CURLcode Curl_cf_quic_insert_after(struct Curl_cfilter *cf_at,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer)
+CURLcode Curl_cf_quic_داخل_کرو_after(ساخت Curl_cfilter *cf_at,
+                                   ساخت Curl_easy *ڈیٹا,
+                                   ساخت Curl_peer *origin,
+                                   ساخت Curl_peer *peer)
 {
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  ساخت Curl_cfilter *cf = تہی;
+  CURLcode نتیجہ;
 
-  (void)data; /* not used in all cases and compilers are stupid */
-#if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
-  result = Curl_cf_ngtcp2_insert_after(cf_at, origin, peer, &cf);
-#elif defined(USE_QUICHE)
-  result = Curl_cf_quiche_insert_after(cf_at, origin, peer, &cf);
-#else
-  (void)cf)
-  (void)cf_at;
-  (void)origin;
-  (void)peer;
-  result = CURLE_NOT_BUILT_IN;
-#endif
+  (خالی)ڈیٹا; /* not used in all cases and compilers are stupid */
+#اگر defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+  نتیجہ = Curl_cf_ngtcp2_داخل_کرو_after(cf_at, origin, peer, &cf);
+#وگرنہ_اگر defined(USE_QUICHE)
+  نتیجہ = Curl_cf_quiche_داخل_کرو_after(cf_at, origin, peer, &cf);
+#ورنہ
+  (خالی)cf)
+  (خالی)cf_at;
+  (خالی)origin;
+  (خالی)peer;
+  نتیجہ = CURLE_NOT_BUILT_اندر;
+#اگر_ختم
 
-#if defined(USE_HTTPSRR) && defined(USE_ECH)
+#اگر defined(USE_HTTPSRR) && defined(USE_ECH)
   /* When using ECH, kick off the HTTPS-RR resolve */
-  if(!result && (origin->scheme->family == CURLPROTO_HTTP) &&
+  اگر(!نتیجہ && (origin->scheme->family == CURLPROTO_HTTP) &&
      Curl_ssl_need_httpsrr(cf)) {
-    result = Curl_conn_dns_add_https_resolve(data, cf->conn,
+    نتیجہ = Curl_conn_dns_جوڑو_https_resolve(ڈیٹا, cf->conn,
                                              cf->sockindex, origin);
   }
-#endif /* USE_HTTPSRR && USE_ECH */
-  return result;
+#اگر_ختم /* USE_HTTPSRR && USE_ECH */
+  واپس نتیجہ;
 }
 
-CURLcode Curl_cf_quic_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_quic_create(ساخت Curl_cfilter **pcf,
+                             ساخت Curl_easy *ڈیٹا,
+                             ساخت Curl_peer *origin,
+                             ساخت Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             ساخت connectdata *conn,
+                             ساخت Curl_sockaddr_ex *addr,
+                             ساخت Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport)
 {
-  (void)transport_peer;
-  (void)tunnel_transport;
-  (void)tunnel_peer;
+  (خالی)transport_peer;
+  (خالی)tunnel_transport;
+  (خالی)tunnel_peer;
   DEBUGASSERT(transport_peer == TRNSPRT_QUIC);
-#if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
-  return Curl_cf_ngtcp2_create(pcf, data, origin, peer, conn, addr);
-#elif defined(USE_QUICHE)
-  return Curl_cf_quiche_create(pcf, data, origin, peer, conn, addr);
-#else
-  *pcf = NULL;
-  (void)data;
-  (void)origin;
-  (void)peer;
-  (void)conn;
-  (void)addr;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
-  return CURLE_NOT_BUILT_IN;
-#endif
+#اگر defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+  واپس Curl_cf_ngtcp2_create(pcf, ڈیٹا, origin, peer, conn, addr);
+#وگرنہ_اگر defined(USE_QUICHE)
+  واپس Curl_cf_quiche_create(pcf, ڈیٹا, origin, peer, conn, addr);
+#ورنہ
+  *pcf = تہی;
+  (خالی)ڈیٹا;
+  (خالی)origin;
+  (خالی)peer;
+  (خالی)conn;
+  (خالی)addr;
+  (خالی)tunnel_peer;
+  (خالی)tunnel_transport;
+  واپس CURLE_NOT_BUILT_اندر;
+#اگر_ختم
 }
 
-#if !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
+#اگر !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
 
-CURLcode Curl_cf_h3_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_h3_proxy_داخل_کرو_after(ساخت Curl_cfilter *cf_at,
+                                       ساخت Curl_easy *ڈیٹا,
+                                       ساخت Curl_peer *origin,
+                                       ساخت Curl_peer *peer,
+                                       ساخت Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport)
 {
-#if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
-  return Curl_cf_ngtcp2_proxy_insert_after(cf_at, data, origin, peer,
+#اگر defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+  واپس Curl_cf_ngtcp2_proxy_داخل_کرو_after(cf_at, ڈیٹا, origin, peer,
                                            tunnel_peer, tunnel_transport);
-#else
-  (void)cf_at;
-  (void)data;
-  (void)origin;
-  (void)peer;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
-  return CURLE_NOT_BUILT_IN;
-#endif
+#ورنہ
+  (خالی)cf_at;
+  (خالی)ڈیٹا;
+  (خالی)origin;
+  (خالی)peer;
+  (خالی)tunnel_peer;
+  (خالی)tunnel_transport;
+  واپس CURLE_NOT_BUILT_اندر;
+#اگر_ختم
 }
 
-CURLcode Curl_cf_h3_proxy_create(struct Curl_cfilter **pcf,
-                                 struct Curl_easy *data,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
+CURLcode Curl_cf_h3_proxy_create(ساخت Curl_cfilter **pcf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 ساخت Curl_peer *origin,
+                                 ساخت Curl_peer *peer,
                                  uint8_t transport_peer,
-                                 struct connectdata *conn,
-                                 struct Curl_sockaddr_ex *addr,
-                                 struct Curl_peer *tunnel_peer,
+                                 ساخت connectdata *conn,
+                                 ساخت Curl_sockaddr_ex *addr,
+                                 ساخت Curl_peer *tunnel_peer,
                                  uint8_t tunnel_transport)
 {
   DEBUGASSERT(transport_peer == TRNSPRT_QUIC);
-#if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
-  return Curl_cf_ngtcp2_proxy_create(pcf, data, origin, peer, transport_peer,
+#اگر defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+  واپس Curl_cf_ngtcp2_proxy_create(pcf, ڈیٹا, origin, peer, transport_peer,
                                      conn, addr,
                                      tunnel_peer, tunnel_transport);
-#else
-  *pcf = NULL;
-  (void)data;
-  (void)conn;
-  (void)addr;
-  (void)peer;
-  (void)transport_peer;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
-  return CURLE_NOT_BUILT_IN;
-#endif
+#ورنہ
+  *pcf = تہی;
+  (خالی)ڈیٹا;
+  (خالی)conn;
+  (خالی)addr;
+  (خالی)peer;
+  (خالی)transport_peer;
+  (خالی)tunnel_peer;
+  (خالی)tunnel_transport;
+  واپس CURLE_NOT_BUILT_اندر;
+#اگر_ختم
 }
 
-#endif /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
+#اگر_ختم /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
 
-CURLcode Curl_conn_may_http3(struct Curl_easy *data,
-                             struct connectdata *conn)
+CURLcode Curl_conn_may_http3(ساخت Curl_easy *ڈیٹا,
+                             ساخت connectdata *conn)
 {
-  if(Curl_conn_get_first_peer(conn, FIRSTSOCKET)->unix_socket) {
-    failf(data, "HTTP/3 cannot be used over UNIX domain sockets");
-    return CURLE_QUIC_CONNECT_ERROR;
+  اگر(Curl_conn_get_پہلا_peer(conn, FIRSTSOCKET)->unix_socket) {
+    failf(ڈیٹا, "HTTP/3 cannot be used over UNIX domain sockets");
+    واپس CURLE_QUIC_CONNECT_ERROR;
   }
-  if(!(data->state.origin->scheme->flags & PROTOPT_SSL)) {
-    failf(data, "HTTP/3 requested for non-HTTPS URL");
-    return CURLE_URL_MALFORMAT;
+  اگر(!(ڈیٹا->state.origin->scheme->flags & PROTOPT_SSL)) {
+    failf(ڈیٹا, "HTTP/3 requested for non-HTTPS URL");
+    واپس CURLE_URL_MALFORMAT;
   }
-#ifndef CURL_DISABLE_PROXY
-  if(conn->socks_proxy.peer) {
-    failf(data, "HTTP/3 is not supported over a SOCKS proxy");
-    return CURLE_URL_MALFORMAT;
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+  اگر(conn->socks_proxy.peer) {
+    failf(ڈیٹا, "HTTP/3 is not supported over a SOCKS proxy");
+    واپس CURLE_URL_MALFORMAT;
   }
-#else
-  (void)conn;
-#endif
+#ورنہ
+  (خالی)conn;
+#اگر_ختم
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-#ifdef CURLVERBOSE
-const char *Curl_vquic_h3_err_str(uint64_t error_code)
+#اگر_تعریف_شدہ CURLVERBOSE
+ثابت حرف *Curl_vquic_h3_err_str(uint64_t error_رمز)
 {
-  if(error_code <= UINT_MAX) {
-    switch((unsigned int)error_code) {
-    case CURL_H3_ERR_NO_ERROR:
-      return "NO_ERROR";
-    case CURL_H3_ERR_GENERAL_PROTOCOL_ERROR:
-      return "GENERAL_PROTOCOL_ERROR";
-    case CURL_H3_ERR_INTERNAL_ERROR:
-      return "INTERNAL_ERROR";
-    case CURL_H3_ERR_STREAM_CREATION_ERROR:
-      return "STREAM_CREATION_ERROR";
-    case CURL_H3_ERR_CLOSED_CRITICAL_STREAM:
-      return "CLOSED_CRITICAL_STREAM";
-    case CURL_H3_ERR_FRAME_UNEXPECTED:
-      return "FRAME_UNEXPECTED";
-    case CURL_H3_ERR_FRAME_ERROR:
-      return "FRAME_ERROR";
-    case CURL_H3_ERR_EXCESSIVE_LOAD:
-      return "EXCESSIVE_LOAD";
-    case CURL_H3_ERR_ID_ERROR:
-      return "ID_ERROR";
-    case CURL_H3_ERR_SETTINGS_ERROR:
-      return "SETTINGS_ERROR";
-    case CURL_H3_ERR_MISSING_SETTINGS:
-      return "MISSING_SETTINGS";
-    case CURL_H3_ERR_REQUEST_REJECTED:
-      return "REQUEST_REJECTED";
-    case CURL_H3_ERR_REQUEST_CANCELLED:
-      return "REQUEST_CANCELLED";
-    case CURL_H3_ERR_REQUEST_INCOMPLETE:
-      return "REQUEST_INCOMPLETE";
-    case CURL_H3_ERR_MESSAGE_ERROR:
-      return "MESSAGE_ERROR";
-    case CURL_H3_ERR_CONNECT_ERROR:
-      return "CONNECT_ERROR";
-    case CURL_H3_ERR_VERSION_FALLBACK:
-      return "VERSION_FALLBACK";
-    default:
-      break;
+  اگر(error_رمز <= UINT_MAX) {
+    انتخاب((غیرعلامتی صحیح)error_رمز) {
+    حالت CURL_H3_ERR_NO_ERROR:
+      واپس "NO_ERROR";
+    حالت CURL_H3_ERR_GENERAL_PROTOCOL_ERROR:
+      واپس "GENERAL_PROTOCOL_ERROR";
+    حالت CURL_H3_ERR_اندرونی_ERROR:
+      واپس "INTERNAL_ERROR";
+    حالت CURL_H3_ERR_دھارا_CREATION_ERROR:
+      واپس "STREAM_CREATION_ERROR";
+    حالت CURL_H3_ERR_CLOSED_CRITICAL_دھارا:
+      واپس "CLOSED_CRITICAL_STREAM";
+    حالت CURL_H3_ERR_چوکھٹا_UNEXPECTED:
+      واپس "FRAME_UNEXPECTED";
+    حالت CURL_H3_ERR_چوکھٹا_ERROR:
+      واپس "FRAME_ERROR";
+    حالت CURL_H3_ERR_EXCESSIVE_بھرو:
+      واپس "EXCESSIVE_LOAD";
+    حالت CURL_H3_ERR_ID_ERROR:
+      واپس "ID_ERROR";
+    حالت CURL_H3_ERR_SETTINGS_ERROR:
+      واپس "SETTINGS_ERROR";
+    حالت CURL_H3_ERR_MISSING_SETTINGS:
+      واپس "MISSING_SETTINGS";
+    حالت CURL_H3_ERR_REQUEST_REJECTED:
+      واپس "REQUEST_REJECTED";
+    حالت CURL_H3_ERR_REQUEST_CANCELLED:
+      واپس "REQUEST_CANCELLED";
+    حالت CURL_H3_ERR_REQUEST_INCOMPLETE:
+      واپس "REQUEST_INCOMPLETE";
+    حالت CURL_H3_ERR_پیغام_ERROR:
+      واپس "MESSAGE_ERROR";
+    حالت CURL_H3_ERR_CONNECT_ERROR:
+      واپس "CONNECT_ERROR";
+    حالت CURL_H3_ERR_نسخہ_FALLBACK:
+      واپس "VERSION_FALLBACK";
+    طےشدہ:
+      توڑو;
     }
   }
   /* RFC 9114 ch. 8.1 + 9, reserved future error codes that are NO_ERROR */
-  if((error_code >= 0x21) && !((error_code - 0x21) % 0x1f))
-    return "NO_ERROR";
-  return "unknown";
+  اگر((error_رمز >= 0x21) && !((error_رمز - 0x21) % 0x1f))
+    واپس "NO_ERROR";
+  واپس "unknown";
 }
-#endif /* CURLVERBOSE */
+#اگر_ختم /* CURLVERBOSE */
 
-#if defined(USE_NGTCP2) || defined(USE_NGHTTP3)
+#اگر defined(USE_NGTCP2) || defined(USE_NGHTTP3)
 
-static void *vquic_ngtcp2_malloc(size_t size, void *user_data)
+ساکن خالی *vquic_ngtcp2_malloc(size_t سائز, خالی *user_ڈیٹا)
 {
-  (void)user_data;
-  return Curl_cmalloc(size);
+  (خالی)user_ڈیٹا;
+  واپس Curl_cmalloc(سائز);
 }
 
-static void vquic_ngtcp2_free(void *ptr, void *user_data)
+ساکن خالی vquic_ngtcp2_free(خالی *ptr, خالی *user_ڈیٹا)
 {
-  (void)user_data;
+  (خالی)user_ڈیٹا;
   Curl_cfree(ptr);
 }
 
-static void *vquic_ngtcp2_calloc(size_t nmemb, size_t size, void *user_data)
+ساکن خالی *vquic_ngtcp2_calloc(size_t nmemb, size_t سائز, خالی *user_ڈیٹا)
 {
-  (void)user_data;
-  return Curl_ccalloc(nmemb, size);
+  (خالی)user_ڈیٹا;
+  واپس Curl_ccalloc(nmemb, سائز);
 }
 
-static void *vquic_ngtcp2_realloc(void *ptr, size_t size, void *user_data)
+ساکن خالی *vquic_ngtcp2_realloc(خالی *ptr, size_t سائز, خالی *user_ڈیٹا)
 {
-  (void)user_data;
-  return Curl_crealloc(ptr, size);
+  (خالی)user_ڈیٹا;
+  واپس Curl_crealloc(ptr, سائز);
 }
 
-#ifdef USE_NGTCP2
-static struct ngtcp2_mem vquic_ngtcp2_mem = {
-  NULL,
+#اگر_تعریف_شدہ USE_NGTCP2
+ساکن ساخت ngtcp2_mem vquic_ngtcp2_mem = {
+  تہی,
   vquic_ngtcp2_malloc,
   vquic_ngtcp2_free,
   vquic_ngtcp2_calloc,
   vquic_ngtcp2_realloc
 };
-struct ngtcp2_mem *Curl_ngtcp2_mem(void)
+ساخت ngtcp2_mem *Curl_ngtcp2_mem(خالی)
 {
-  return &vquic_ngtcp2_mem;
+  واپس &vquic_ngtcp2_mem;
 }
-#endif
+#اگر_ختم
 
-#ifdef USE_NGHTTP3
-static struct nghttp3_mem vquic_nghttp3_mem = {
-  NULL,
+#اگر_تعریف_شدہ USE_NGHTTP3
+ساکن ساخت nghttp3_mem vquic_nghttp3_mem = {
+  تہی,
   vquic_ngtcp2_malloc,
   vquic_ngtcp2_free,
   vquic_ngtcp2_calloc,
   vquic_ngtcp2_realloc
 };
-struct nghttp3_mem *Curl_nghttp3_mem(void)
+ساخت nghttp3_mem *Curl_nghttp3_mem(خالی)
 {
-  return &vquic_nghttp3_mem;
+  واپس &vquic_nghttp3_mem;
 }
-#endif
+#اگر_ختم
 
-#endif /* USE_NGTCP2 || USE_NGHTTP3 */
+#اگر_ختم /* USE_NGTCP2 || USE_NGHTTP3 */
 
-#else /* CURL_DISABLE_HTTP || !USE_HTTP3 */
+#ورنہ /* CURL_DISABLE_HTTP || !USE_HTTP3 */
 
-CURLcode Curl_conn_may_http3(struct Curl_easy *data,
-                             struct connectdata *conn)
+CURLcode Curl_conn_may_http3(ساخت Curl_easy *ڈیٹا,
+                             ساخت connectdata *conn)
 {
-  (void)data;
-  (void)conn;
-  DEBUGF(infof(data, "QUIC is not supported in this build"));
-  return CURLE_NOT_BUILT_IN;
+  (خالی)ڈیٹا;
+  (خالی)conn;
+  DEBUGF(infof(ڈیٹا, "QUIC is not supported in this build"));
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
-#endif /* !CURL_DISABLE_HTTP && USE_HTTP3 */
+#اگر_ختم /* !CURL_DISABLE_HTTP && USE_HTTP3 */

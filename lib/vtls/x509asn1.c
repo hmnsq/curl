@@ -21,45 +21,45 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
+#اگر defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
   defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
-#if defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
+#اگر defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
   defined(USE_WOLFSSL) || defined(USE_RUSTLS)
-#define WANT_PARSEX509 /* uses Curl_parseX509() */
-#endif
+#تعریف_کرو WANT_PARSEX509 /* uses Curl_parseX509() */
+#اگر_ختم
 
-#if defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
+#اگر defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
   defined(USE_RUSTLS)
-#define WANT_EXTRACT_CERTINFO /* uses Curl_extract_certinfo() */
-#endif
+#تعریف_کرو WANT_نکالو_CERTINFO /* uses Curl_extract_certinfo() */
+#اگر_ختم
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "curl_trc.h"
-#include "curlx/base64.h"
-#include "vtls/x509asn1.h"
-#include "curlx/dynbuf.h"
+#شامل "urldata.h"
+#شامل "vtls/vtls.h"
+#شامل "curl_trc.h"
+#شامل "curlx/base64.h"
+#شامل "vtls/x509asn1.h"
+#شامل "curlx/dynbuf.h"
 
 /*
  * Constants.
  */
 
 /* Largest supported ASN.1 structure. */
-#define CURL_ASN1_MAX                   ((size_t)0x40000)      /* 256K */
+#تعریف_کرو CURL_ASN1_MAX                   ((size_t)0x40000)      /* 256K */
 
-#ifdef WANT_EXTRACT_CERTINFO
+#اگر_تعریف_شدہ WANT_نکالو_CERTINFO
 
 /* ASN.1 OID table entry. */
-struct Curl_OID {
-  const char *numoid;  /* Dotted-numeric OID. */
-  const char *textoid; /* OID name. */
+ساخت Curl_OID {
+  ثابت حرف *numoid;  /* Dotted-numeric OID. */
+  ثابت حرف *textoid; /* OID name. */
 };
 
 /* ASN.1 OIDs. */
-static const struct Curl_OID OIDtable[] = {
+ساکن ثابت ساخت Curl_OID OIDtable[] = {
   { "1.2.840.10040.4.1",        "dsa" },
   { "1.2.840.10040.4.3",        "dsa-with-sha1" },
   { "1.2.840.10045.2.1",        "ecPublicKey" },
@@ -111,10 +111,10 @@ static const struct Curl_OID OIDtable[] = {
   { "2.16.840.1.101.3.4.2.2",   "sha384" },
   { "2.16.840.1.101.3.4.2.3",   "sha512" },
   { "1.2.840.113549.1.9.2",     "unstructuredName" },
-  { NULL,                       NULL }
+  { تہی,                       تہی }
 };
 
-#endif /* WANT_EXTRACT_CERTINFO */
+#اگر_ختم /* WANT_EXTRACT_CERTINFO */
 
 /*
  * Lightweight ASN.1 parser.
@@ -125,103 +125,103 @@ static const struct Curl_OID OIDtable[] = {
  * Please note there is no pretension here to rewrite a full SSL library.
  */
 
-#define CURL_ASN1_MAX_RECURSIONS    16
+#تعریف_کرو CURL_ASN1_MAX_RECURSIONS    16
 
-static const uint8_t *getASN1Element_(struct Curl_asn1Element *elem,
-                                      const uint8_t *beg, const uint8_t *end,
+ساکن ثابت uint8_t *getASN1Element_(ساخت Curl_asn1Element *elem,
+                                      ثابت uint8_t *beg, ثابت uint8_t *انتہا,
                                       size_t lvl)
 {
   uint8_t b;
   size_t len;
-  struct Curl_asn1Element lelem;
+  ساخت Curl_asn1Element lelem;
 
   /* Get a single ASN.1 element into `elem', parse ASN.1 string at `beg'
      ending at `end'.
      Returns a pointer in source string after the parsed element, or NULL
      if an error occurs. */
-  if(!beg || !end || beg >= end || !*beg ||
-     ((size_t)(end - beg) > CURL_ASN1_MAX) ||
+  اگر(!beg || !انتہا || beg >= انتہا || !*beg ||
+     ((size_t)(انتہا - beg) > CURL_ASN1_MAX) ||
      lvl++ >= CURL_ASN1_MAX_RECURSIONS)
-    return NULL;
+    واپس تہی;
 
   /* Process header byte. */
-  elem->header = beg;
+  elem->سرخی = beg;
   b = *beg++;
   elem->constructed = (b & 0x20) != 0;
   elem->eclass = (b >> 6) & 3;
   b &= 0x1F;
-  if(b == 0x1F)
-    return NULL; /* Long tag values not supported here. */
-  elem->tag = b;
+  اگر(b == 0x1F)
+    واپس تہی; /* Long tag values not supported here. */
+  elem->لیبل = b;
 
   /* Process length. */
-  if(beg >= end)
-    return NULL;
+  اگر(beg >= انتہا)
+    واپس تہی;
   b = *beg++;
-  if(!(b & 0x80))
+  اگر(!(b & 0x80))
     len = b;
-  else {
+  ورنہ {
     b &= 0x7F;
-    if(!b) {
+    اگر(!b) {
       /* Unspecified length. Since we have all the data, we can determine the
          effective length by skipping element until an EOC element is found. */
-      if(!elem->constructed)
-        return NULL;
+      اگر(!elem->constructed)
+        واپس تہی;
       elem->beg = beg;
-      while(beg < end && *beg) {
-        beg = getASN1Element_(&lelem, beg, end, lvl);
-        if(!beg)
-          return NULL;
+      جب(beg < انتہا && *beg) {
+        beg = getASN1Element_(&lelem, beg, انتہا, lvl);
+        اگر(!beg)
+          واپس تہی;
       }
-      if(end - beg < 2 || beg[1])       /* EOC must have a zero length. */
-        return NULL;
-      elem->end = beg;                  /* Do not include EOC as content. */
-      return beg + 2;                   /* After EOC element. */
+      اگر(انتہا - beg < 2 || beg[1])       /* EOC must have a zero length. */
+        واپس تہی;
+      elem->انتہا = beg;                  /* Do not include EOC as content. */
+      واپس beg + 2;                   /* After EOC element. */
     }
-    else if(b > (size_t)(end - beg))
-      return NULL; /* Does not fit in source. */
-    else {
+    ورنہ اگر(b > (size_t)(انتہا - beg))
+      واپس تہی; /* Does not fit in source. */
+    ورنہ {
       /* Get long length. */
       len = 0;
-      do {
-        if(len & 0xFF000000L)
-          return NULL;  /* Lengths > 32 bits are not supported. */
+      کرو {
+        اگر(len & 0xFF000000L)
+          واپس تہی;  /* Lengths > 32 bits are not supported. */
         len = (len << 8) | *beg++;
-      } while(--b);
+      } جب(--b);
     }
   }
-  if(len > (size_t)(end - beg))
-    return NULL;  /* Element data does not fit in source. */
+  اگر(len > (size_t)(انتہا - beg))
+    واپس تہی;  /* Element data does not fit in source. */
   elem->beg = beg;
-  elem->end = beg + len;
-  return elem->end;
+  elem->انتہا = beg + len;
+  واپس elem->انتہا;
 }
 
 /*
  * @unittest 1657
  */
-UNITTEST const uint8_t *getASN1Element(struct Curl_asn1Element *elem,
-                                       const uint8_t *beg, const uint8_t *end);
-UNITTEST const uint8_t *getASN1Element(struct Curl_asn1Element *elem,
-                                       const uint8_t *beg, const uint8_t *end)
+UNITTEST ثابت uint8_t *getASN1Element(ساخت Curl_asn1Element *elem,
+                                       ثابت uint8_t *beg, ثابت uint8_t *انتہا);
+UNITTEST ثابت uint8_t *getASN1Element(ساخت Curl_asn1Element *elem,
+                                       ثابت uint8_t *beg, ثابت uint8_t *انتہا)
 {
-  return getASN1Element_(elem, beg, end, 0);
+  واپس getASN1Element_(elem, beg, انتہا, 0);
 }
 
-#ifdef WANT_EXTRACT_CERTINFO
+#اگر_تعریف_شدہ WANT_نکالو_CERTINFO
 
 /*
  * Search the null-terminated OID or OID identifier in local table.
  * Return the table entry pointer or NULL if not found.
  */
-static const struct Curl_OID *searchOID(const char *oid)
+ساکن ثابت ساخت Curl_OID *تلاش_OID(ثابت حرف *oid)
 {
-  const struct Curl_OID *op;
-  for(op = OIDtable; op->numoid; op++)
-    if(!strcmp(op->numoid, oid) || curl_strequal(op->textoid, oid))
-      return op;
+  ثابت ساخت Curl_OID *op;
+  برائے(op = OIDtable; op->numoid; op++)
+    اگر(!strcmp(op->numoid, oid) || curl_strequal(op->textoid, oid))
+      واپس op;
 
-  return NULL;
+  واپس تہی;
 }
 
 /*
@@ -230,16 +230,16 @@ static const struct Curl_OID *searchOID(const char *oid)
  * Return error code.
  */
 
-static CURLcode bool2str(struct dynbuf *store,
-                         const uint8_t *beg, const uint8_t *end)
+ساکن CURLcode bool2str(ساخت dynbuf *store,
+                         ثابت uint8_t *beg, ثابت uint8_t *انتہا)
 {
   uint8_t val;
-  if(end - beg != 1)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(انتہا - beg != 1)
+    واپس CURLE_BAD_FUNCTION_دلیل;
   val = *beg;
-  if((val != 0xff) && (val != 0x00))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return curlx_dyn_add(store, val ? "TRUE" : "FALSE");
+  اگر((val != 0xff) && (val != 0x00))
+    واپس CURLE_BAD_FUNCTION_دلیل;
+  واپس curlx_dyn_جوڑو(store, val ? "TRUE" : "FALSE");
 }
 
 /*
@@ -247,30 +247,30 @@ static CURLcode bool2str(struct dynbuf *store,
  *
  * Return error code.
  */
-static CURLcode octet2str(struct dynbuf *store,
-                          const uint8_t *beg, const uint8_t *end)
+ساکن CURLcode octet2str(ساخت dynbuf *store,
+                          ثابت uint8_t *beg, ثابت uint8_t *انتہا)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
-  while(!result && beg < end)
-    result = curlx_dyn_addf(store, "%02x:", *beg++);
+  جب(!نتیجہ && beg < انتہا)
+    نتیجہ = curlx_dyn_addf(store, "%02x:", *beg++);
 
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode bit2str(struct dynbuf *store,
-                        const uint8_t *beg, const uint8_t *end)
+ساکن CURLcode bit2str(ساخت dynbuf *store,
+                        ثابت uint8_t *beg, ثابت uint8_t *انتہا)
 {
   /* Convert an ASN.1 bit string to a printable string. */
 
-  if(beg < end) {
-    uint8_t unused_bits = *beg++;
-    if(unused_bits > 7)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(beg < انتہا) {
+    uint8_t غیر_مستعمل_بٹ = *beg++;
+    اگر(غیر_مستعمل_بٹ > 7)
+      واپس CURLE_BAD_FUNCTION_دلیل;
   }
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return octet2str(store, beg, end);
+  ورنہ
+    واپس CURLE_BAD_FUNCTION_دلیل;
+  واپس octet2str(store, beg, انتہا);
 }
 
 /*
@@ -278,35 +278,35 @@ static CURLcode bit2str(struct dynbuf *store,
  *
  * Returns error.
  */
-static CURLcode int2str(struct dynbuf *store,
-                        const uint8_t *beg, const uint8_t *end)
+ساکن CURLcode int2str(ساخت dynbuf *store,
+                        ثابت uint8_t *beg, ثابت uint8_t *انتہا)
 {
   uint32_t uval = 0;
   int32_t sval = 0;
-  size_t n = end - beg;
+  size_t n = انتہا - beg;
   size_t i;
-  const uint8_t *p = beg;
+  ثابت uint8_t *p = beg;
 
-  if(!n)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!n)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
-  if(n > 4)
-    return octet2str(store, beg, end);
+  اگر(n > 4)
+    واپس octet2str(store, beg, انتہا);
 
-  if(p[0] & 0x80)
+  اگر(p[0] & 0x80)
     uval = ~0U;
 
-  for(i = 0; i < n; i++)
+  برائے(i = 0; i < n; i++)
     uval = (uval << 8) | p[i];
 
   sval = (int32_t)uval;
 
   /* small values are easier to read as decimals */
-  if(sval > -10000 && sval < 10000)
-    return curlx_dyn_addf(store, "%d", sval);
+  اگر(sval > -10000 && sval < 10000)
+    واپس curlx_dyn_addf(store, "%d", sval);
 
   /* represent larger values as hex */
-  return curlx_dyn_addf(store, "0x%x", uval);
+  واپس curlx_dyn_addf(store, "0x%x", uval);
 }
 
 /*
@@ -317,81 +317,81 @@ static CURLcode int2str(struct dynbuf *store,
  *
  * Returns error.
  */
-static CURLcode utf8asn1str(struct dynbuf *to, int type,
-                            const uint8_t *from, const uint8_t *end)
+ساکن CURLcode utf8asn1str(ساخت dynbuf *مقصد, صحیح type,
+                            ثابت uint8_t *from, ثابت uint8_t *انتہا)
 {
-  size_t inlength = end - from;
-  int size = 1;
-  CURLcode result = CURLE_OK;
+  size_t inlength = انتہا - from;
+  صحیح سائز = 1;
+  CURLcode نتیجہ = CURLE_OK;
 
-  switch(type) {
-  case CURL_ASN1_BMP_STRING:
-    size = 2;
-    break;
-  case CURL_ASN1_UNIVERSAL_STRING:
-    size = 4;
-    break;
-  case CURL_ASN1_NUMERIC_STRING:
-  case CURL_ASN1_PRINTABLE_STRING:
-  case CURL_ASN1_TELETEX_STRING:
-  case CURL_ASN1_IA5_STRING:
-  case CURL_ASN1_VISIBLE_STRING:
-  case CURL_ASN1_UTF8_STRING:
-    break;
-  default:
-    return CURLE_BAD_FUNCTION_ARGUMENT;  /* Conversion not supported. */
+  انتخاب(type) {
+  حالت CURL_ASN1_BMP_STRING:
+    سائز = 2;
+    توڑو;
+  حالت CURL_ASN1_UNIVERSAL_STRING:
+    سائز = 4;
+    توڑو;
+  حالت CURL_ASN1_NUMERIC_STRING:
+  حالت CURL_ASN1_PRINTABLE_STRING:
+  حالت CURL_ASN1_TELETEX_STRING:
+  حالت CURL_ASN1_IA5_STRING:
+  حالت CURL_ASN1_VISIBLE_STRING:
+  حالت CURL_ASN1_UTF8_STRING:
+    توڑو;
+  طےشدہ:
+    واپس CURLE_BAD_FUNCTION_دلیل;  /* Conversion not supported. */
   }
 
-  if(inlength % size)
+  اگر(inlength % سائز)
     /* Length inconsistent with character size. */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
-  if(type == CURL_ASN1_UTF8_STRING) {
+  اگر(type == CURL_ASN1_UTF8_STRING) {
     /* copy. */
-    if(inlength)
-      result = curlx_dyn_addn(to, from, inlength);
+    اگر(inlength)
+      نتیجہ = curlx_dyn_addn(مقصد, from, inlength);
   }
-  else {
-    while(!result && (from < end)) {
-      char buf[4]; /* decode buffer */
+  ورنہ {
+    جب(!نتیجہ && (from < انتہا)) {
+      حرف buf[4]; /* decode buffer */
       size_t charsize = 1;
-      unsigned int wc = 0;
+      غیرعلامتی صحیح wc = 0;
 
-      switch(size) {
-      case 4:
+      انتخاب(سائز) {
+      حالت 4:
         wc = (wc << 8) | *from++;
         wc = (wc << 8) | *from++;
         FALLTHROUGH();
-      case 2:
+      حالت 2:
         wc = (wc << 8) | *from++;
         FALLTHROUGH();
-      default: /* case 1: */
+      طےشدہ: /* case 1: */
         wc = (wc << 8) | *from++;
       }
-      if(wc >= 0x00000080) {
-        if(wc >= 0x00000800) {
-          if(wc >= 0x00010000) {
-            if(wc >= 0x00200000) {
+      اگر(wc >= 0x00000080) {
+        اگر(wc >= 0x00000800) {
+          اگر(wc >= 0x00010000) {
+            اگر(wc >= 0x00200000) {
               /* Invalid char. size for target encoding. */
-              return CURLE_WEIRD_SERVER_REPLY;
+              واپس CURLE_WEIRD_SERVER_جواب;
             }
-            buf[3] = (char)(0x80 | (wc & 0x3F));
+            buf[3] = (حرف)(0x80 | (wc & 0x3F));
             wc = (wc >> 6) | 0x00010000;
             charsize++;
           }
-          buf[2] = (char)(0x80 | (wc & 0x3F));
+          buf[2] = (حرف)(0x80 | (wc & 0x3F));
           wc = (wc >> 6) | 0x00000800;
           charsize++;
         }
-        buf[1] = (char)(0x80 | (wc & 0x3F));
+        buf[1] = (حرف)(0x80 | (wc & 0x3F));
         wc = (wc >> 6) | 0x000000C0;
         charsize++;
       }
-      buf[0] = (char)wc;
-      result = curlx_dyn_addn(to, buf, charsize);
+      buf[0] = (حرف)wc;
+      نتیجہ = curlx_dyn_addn(مقصد, buf, charsize);
     }
   }
-  return result;
+  واپس نتیجہ;
 }
 
 /*
@@ -405,63 +405,63 @@ static CURLcode utf8asn1str(struct dynbuf *to, int type,
  *
  * @unittest 1666
  */
-UNITTEST CURLcode encodeOID(struct dynbuf *store,
-                            const uint8_t *beg, const uint8_t *end);
-UNITTEST CURLcode encodeOID(struct dynbuf *store,
-                            const uint8_t *beg, const uint8_t *end)
+UNITTEST CURLcode encodeOID(ساخت dynbuf *store,
+                            ثابت uint8_t *beg, ثابت uint8_t *انتہا);
+UNITTEST CURLcode encodeOID(ساخت dynbuf *store,
+                            ثابت uint8_t *beg, ثابت uint8_t *انتہا)
 {
   uint32_t x;
   uint32_t y;
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(end <= beg)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(انتہا <= beg)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
   /* Process the first two numbers. The initial digit cannot be larger than
      2 */
   y = *beg++;
-  if(y <= 80)
+  اگر(y <= 80)
     x = y / 40;
-  else
+  ورنہ
     x = 2;
-  result = curlx_dyn_addf(store, "%u", x);
-  if(result)
-    return result;
+  نتیجہ = curlx_dyn_addf(store, "%u", x);
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
-  if(y & 0x80) {
+  اگر(y & 0x80) {
     uint32_t t = (y & 0x7f); /* the second number */
-    if(!t)
+    اگر(!t)
       /* reject leading 0x80 padding */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    do {
-      if((t & 0xFE000000) || (beg >= end))
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+      واپس CURLE_BAD_FUNCTION_دلیل;
+    کرو {
+      اگر((t & 0xFE000000) || (beg >= انتہا))
+        واپس CURLE_BAD_FUNCTION_دلیل;
       y = *beg++;
       t = (t << 7) | (y & 0x7F);
-    } while(y & 0x80);
+    } جب(y & 0x80);
     y = t;
   }
 
-  result = curlx_dyn_addf(store, ".%u", y - (x * 40));
-  if(result)
-    return result;
+  نتیجہ = curlx_dyn_addf(store, ".%u", y - (x * 40));
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
   /* Process the trailing numbers. */
-  while((beg < end) && !result) {
+  جب((beg < انتہا) && !نتیجہ) {
     x = 0;
     y = 0;
-    do {
+    کرو {
       /* 0x80 as the first value is invalid since it only adds padding */
-      if((y & 0x80) && !x)
-        return CURLE_BAD_FUNCTION_ARGUMENT;
-      else if((x & 0xFE000000) || (beg == end))
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+      اگر((y & 0x80) && !x)
+        واپس CURLE_BAD_FUNCTION_دلیل;
+      ورنہ اگر((x & 0xFE000000) || (beg == انتہا))
+        واپس CURLE_BAD_FUNCTION_دلیل;
       y = *beg++;
       x = (x << 7) | (y & 0x7F);
-    } while(y & 0x80);
-    result = curlx_dyn_addf(store, ".%u", x);
+    } جب(y & 0x80);
+    نتیجہ = curlx_dyn_addf(store, ".%u", x);
   }
-  return result;
+  واپس نتیجہ;
 }
 
 /*
@@ -470,108 +470,108 @@ UNITTEST CURLcode encodeOID(struct dynbuf *store,
  * Return error code.
  */
 
-static CURLcode OID2str(struct dynbuf *store,
-                        const uint8_t *beg, const uint8_t *end)
+ساکن CURLcode OID2str(ساخت dynbuf *store,
+                        ثابت uint8_t *beg, ثابت uint8_t *انتہا)
 {
-  CURLcode result = CURLE_OK;
-  if(beg < end) {
-    struct dynbuf buf;
+  CURLcode نتیجہ = CURLE_OK;
+  اگر(beg < انتہا) {
+    ساخت dynbuf buf;
     curlx_dyn_init(&buf, CURL_X509_STR_MAX);
-    result = encodeOID(&buf, beg, end);
+    نتیجہ = encodeOID(&buf, beg, انتہا);
 
-    if(!result) {
-      const struct Curl_OID *op = searchOID(curlx_dyn_ptr(&buf));
-      if(op)
-        result = curlx_dyn_add(store, op->textoid);
-      else
-        result = curlx_dyn_add(store, curlx_dyn_ptr(&buf));
+    اگر(!نتیجہ) {
+      ثابت ساخت Curl_OID *op = تلاش_OID(curlx_dyn_ptr(&buf));
+      اگر(op)
+        نتیجہ = curlx_dyn_جوڑو(store, op->textoid);
+      ورنہ
+        نتیجہ = curlx_dyn_جوڑو(store, curlx_dyn_ptr(&buf));
     }
     curlx_dyn_free(&buf);
   }
-  return result;
+  واپس نتیجہ;
 }
 
 /*
  * @unittest 1656
  */
-UNITTEST CURLcode GTime2str(struct dynbuf *store,
-                            const char *beg, const char *end);
-UNITTEST CURLcode GTime2str(struct dynbuf *store,
-                            const char *beg, const char *end)
+UNITTEST CURLcode GTime2str(ساخت dynbuf *store,
+                            ثابت حرف *beg, ثابت حرف *انتہا);
+UNITTEST CURLcode GTime2str(ساخت dynbuf *store,
+                            ثابت حرف *beg, ثابت حرف *انتہا)
 {
-  const char *tzp;
-  const char *fracp;
-  char sec1, sec2;
+  ثابت حرف *tzp;
+  ثابت حرف *fracp;
+  حرف sec1, sec2;
   size_t fracl;
   size_t tzl;
-  const char *sep = "";
+  ثابت حرف *sep = "";
 
   /* Convert an ASN.1 Generalized time to a printable string.
      Return the dynamically allocated string, or NULL if an error occurs. */
 
-  for(fracp = beg; fracp < end && ISDIGIT(*fracp); fracp++)
+  برائے(fracp = beg; fracp < انتہا && ISDIGIT(*fracp); fracp++)
     ;
 
   /* Get seconds digits. */
   sec1 = '0';
-  switch(fracp - beg - 12) {
-  case 0:
+  انتخاب(fracp - beg - 12) {
+  حالت 0:
     sec2 = '0';
-    break;
-  case 2:
+    توڑو;
+  حالت 2:
     sec1 = fracp[-2];
     FALLTHROUGH();
-  case 1:
+  حالت 1:
     sec2 = fracp[-1];
-    break;
-  default:
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    توڑو;
+  طےشدہ:
+    واپس CURLE_BAD_FUNCTION_دلیل;
   }
 
   /* timezone follows optional fractional seconds. */
   tzp = fracp;
   fracl = 0; /* no fractional seconds detected so far */
-  if(fracp < end && (*fracp == '.' || *fracp == ',')) {
+  اگر(fracp < انتہا && (*fracp == '.' || *fracp == ',')) {
     /* Have fractional seconds, e.g. "[.,]\d+". How many? */
     fracp++; /* should be a digit char or BAD ARGUMENT */
     tzp = fracp;
-    while(tzp < end && ISDIGIT(*tzp))
+    جب(tzp < انتہا && ISDIGIT(*tzp))
       tzp++;
-    if(tzp == fracp) /* never looped, no digit after [.,] */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    اگر(tzp == fracp) /* never looped, no digit after [.,] */
+      واپس CURLE_BAD_FUNCTION_دلیل;
     fracl = tzp - fracp; /* number of fractional sec digits */
     DEBUGASSERT(fracl > 0);
     /* Strip trailing zeroes in fractional seconds.
      * May reduce fracl to 0 if only '0's are present. */
-    while(fracl && fracp[fracl - 1] == '0')
+    جب(fracl && fracp[fracl - 1] == '0')
       fracl--;
   }
 
   /* Process timezone. */
-  if(tzp >= end) {
+  اگر(tzp >= انتہا) {
     tzp = "";
     tzl = 0;
   }
-  else if(*tzp == 'Z') {
+  ورنہ اگر(*tzp == 'Z') {
     sep = " ";
     tzp = "GMT";
     tzl = 3;
   }
-  else if((*tzp == '+') || (*tzp == '-')) {
+  ورنہ اگر((*tzp == '+') || (*tzp == '-')) {
     sep = " UTC";
-    tzl = end - tzp;
+    tzl = انتہا - tzp;
   }
-  else {
+  ورنہ {
     sep = " ";
-    tzl = end - tzp;
+    tzl = انتہا - tzp;
   }
 
-  return curlx_dyn_addf(store,
+  واپس curlx_dyn_addf(store,
                         "%.4s-%.2s-%.2s %.2s:%.2s:%c%c%s%.*s%s%.*s",
                         beg, beg + 4, beg + 6,
                         beg + 8, beg + 10, sec1, sec2,
-                        fracl ? "." : "", (int)fracl, fracp,
-                        sep, (int)tzl, tzp);
+                        fracl ? "." : "", (صحیح)fracl, fracp,
+                        sep, (صحیح)tzl, tzp);
 }
 
 /*
@@ -579,40 +579,40 @@ UNITTEST CURLcode GTime2str(struct dynbuf *store,
  *
  * Return error code.
  */
-static CURLcode UTime2str(struct dynbuf *store,
-                          const char *beg, const char *end)
+ساکن CURLcode UTime2str(ساخت dynbuf *store,
+                          ثابت حرف *beg, ثابت حرف *انتہا)
 {
-  const char *tzp;
+  ثابت حرف *tzp;
   size_t tzl;
-  const char *sec;
+  ثابت حرف *sec;
 
-  for(tzp = beg; tzp < end && *tzp >= '0' && *tzp <= '9'; tzp++)
+  برائے(tzp = beg; tzp < انتہا && *tzp >= '0' && *tzp <= '9'; tzp++)
     ;
   /* Get the seconds. */
   sec = beg + 10;
-  switch(tzp - sec) {
-  case 0:
+  انتخاب(tzp - sec) {
+  حالت 0:
     sec = "00";
     FALLTHROUGH();
-  case 2:
-    break;
-  default:
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  حالت 2:
+    توڑو;
+  طےشدہ:
+    واپس CURLE_BAD_FUNCTION_دلیل;
   }
 
   /* Process timezone. */
-  if(tzp >= end)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(*tzp == 'Z') {
+  اگر(tzp >= انتہا)
+    واپس CURLE_BAD_FUNCTION_دلیل;
+  اگر(*tzp == 'Z') {
     tzp = "GMT";
-    end = tzp + 3;
+    انتہا = tzp + 3;
   }
 
-  tzl = end - tzp;
-  return curlx_dyn_addf(store, "%d%.2s-%.2s-%.2s %.2s:%.2s:%.2s %.*s",
+  tzl = انتہا - tzp;
+  واپس curlx_dyn_addf(store, "%d%.2s-%.2s-%.2s %.2s:%.2s:%.2s %.*s",
                         20 - (*beg >= '5'), beg, beg + 2, beg + 4,
                         beg + 6, beg + 8, sec,
-                        (int)tzl, tzp);
+                        (صحیح)tzl, tzp);
 }
 
 /*
@@ -622,57 +622,57 @@ static CURLcode UTime2str(struct dynbuf *store,
  *
  * @unittest 1667
  */
-UNITTEST CURLcode ASN1tostr(struct dynbuf *store,
-                            struct Curl_asn1Element *elem);
-UNITTEST CURLcode ASN1tostr(struct dynbuf *store,
-                            struct Curl_asn1Element *elem)
+UNITTEST CURLcode ASN1tostr(ساخت dynbuf *store,
+                            ساخت Curl_asn1Element *elem);
+UNITTEST CURLcode ASN1tostr(ساخت dynbuf *store,
+                            ساخت Curl_asn1Element *elem)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  int type = elem->tag;
-  if(elem->constructed)
-    return result; /* No conversion of structured elements. */
+  CURLcode نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+  صحیح type = elem->لیبل;
+  اگر(elem->constructed)
+    واپس نتیجہ; /* No conversion of structured elements. */
 
-  switch(type) {
-  case CURL_ASN1_BOOLEAN:
-    result = bool2str(store, elem->beg, elem->end);
-    break;
-  case CURL_ASN1_INTEGER:
-  case CURL_ASN1_ENUMERATED:
-    result = int2str(store, elem->beg, elem->end);
-    break;
-  case CURL_ASN1_BIT_STRING:
-    result = bit2str(store, elem->beg, elem->end);
-    break;
-  case CURL_ASN1_OCTET_STRING:
-    result = octet2str(store, elem->beg, elem->end);
-    break;
-  case CURL_ASN1_NULL:
-    result = curlx_dyn_addn(store, "", 1);
-    break;
-  case CURL_ASN1_OBJECT_IDENTIFIER:
-    result = OID2str(store, elem->beg, elem->end);
-    break;
-  case CURL_ASN1_UTC_TIME:
-    result = UTime2str(store, (const char *)elem->beg,
-                       (const char *)elem->end);
-    break;
-  case CURL_ASN1_GENERALIZED_TIME:
-    result = GTime2str(store, (const char *)elem->beg,
-                       (const char *)elem->end);
-    break;
-  case CURL_ASN1_UTF8_STRING:
-  case CURL_ASN1_NUMERIC_STRING:
-  case CURL_ASN1_PRINTABLE_STRING:
-  case CURL_ASN1_TELETEX_STRING:
-  case CURL_ASN1_IA5_STRING:
-  case CURL_ASN1_VISIBLE_STRING:
-  case CURL_ASN1_UNIVERSAL_STRING:
-  case CURL_ASN1_BMP_STRING:
-    result = utf8asn1str(store, type, elem->beg, elem->end);
-    break;
+  انتخاب(type) {
+  حالت CURL_ASN1_BOOLEAN:
+    نتیجہ = bool2str(store, elem->beg, elem->انتہا);
+    توڑو;
+  حالت CURL_ASN1_INTEGER:
+  حالت CURL_ASN1_ENUMERATED:
+    نتیجہ = int2str(store, elem->beg, elem->انتہا);
+    توڑو;
+  حالت CURL_ASN1_ثنائی_ہندسہ_STRING:
+    نتیجہ = bit2str(store, elem->beg, elem->انتہا);
+    توڑو;
+  حالت CURL_ASN1_OCTET_STRING:
+    نتیجہ = octet2str(store, elem->beg, elem->انتہا);
+    توڑو;
+  حالت CURL_ASN1_NULL:
+    نتیجہ = curlx_dyn_addn(store, "", 1);
+    توڑو;
+  حالت CURL_ASN1_OBJECT_IDENTIFIER:
+    نتیجہ = OID2str(store, elem->beg, elem->انتہا);
+    توڑو;
+  حالت CURL_ASN1_UTC_وقت:
+    نتیجہ = UTime2str(store, (ثابت حرف *)elem->beg,
+                       (ثابت حرف *)elem->انتہا);
+    توڑو;
+  حالت CURL_ASN1_GENERALIZED_وقت:
+    نتیجہ = GTime2str(store, (ثابت حرف *)elem->beg,
+                       (ثابت حرف *)elem->انتہا);
+    توڑو;
+  حالت CURL_ASN1_UTF8_STRING:
+  حالت CURL_ASN1_NUMERIC_STRING:
+  حالت CURL_ASN1_PRINTABLE_STRING:
+  حالت CURL_ASN1_TELETEX_STRING:
+  حالت CURL_ASN1_IA5_STRING:
+  حالت CURL_ASN1_VISIBLE_STRING:
+  حالت CURL_ASN1_UNIVERSAL_STRING:
+  حالت CURL_ASN1_BMP_STRING:
+    نتیجہ = utf8asn1str(store, type, elem->beg, elem->انتہا);
+    توڑو;
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /*
@@ -680,255 +680,255 @@ UNITTEST CURLcode ASN1tostr(struct dynbuf *store,
  *
  * Returns error.
  */
-static CURLcode encodeDN(struct dynbuf *store, struct Curl_asn1Element *dn)
+ساکن CURLcode encodeDN(ساخت dynbuf *store, ساخت Curl_asn1Element *dn)
 {
-  struct Curl_asn1Element rdn;
-  struct Curl_asn1Element atv;
-  struct Curl_asn1Element oid;
-  struct Curl_asn1Element value;
-  const uint8_t *p1;
-  const uint8_t *p2;
-  const uint8_t *p3;
-  const uint8_t *str;
-  CURLcode result = CURLE_OK;
+  ساخت Curl_asn1Element rdn;
+  ساخت Curl_asn1Element atv;
+  ساخت Curl_asn1Element oid;
+  ساخت Curl_asn1Element قدر;
+  ثابت uint8_t *p1;
+  ثابت uint8_t *p2;
+  ثابت uint8_t *p3;
+  ثابت uint8_t *str;
+  CURLcode نتیجہ = CURLE_OK;
   bool added = FALSE;
-  struct dynbuf temp;
-  curlx_dyn_init(&temp, CURL_X509_STR_MAX);
+  ساخت dynbuf عارضی;
+  curlx_dyn_init(&عارضی, CURL_X509_STR_MAX);
 
-  for(p1 = dn->beg; p1 < dn->end;) {
-    p1 = getASN1Element(&rdn, p1, dn->end);
-    if(!p1) {
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto error;
+  برائے(p1 = dn->beg; p1 < dn->انتہا;) {
+    p1 = getASN1Element(&rdn, p1, dn->انتہا);
+    اگر(!p1) {
+      نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+      جاؤ error;
     }
-    for(p2 = rdn.beg; p2 < rdn.end;) {
-      p2 = getASN1Element(&atv, p2, rdn.end);
-      if(!p2) {
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto error;
+    برائے(p2 = rdn.beg; p2 < rdn.انتہا;) {
+      p2 = getASN1Element(&atv, p2, rdn.انتہا);
+      اگر(!p2) {
+        نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+        جاؤ error;
       }
-      p3 = getASN1Element(&oid, atv.beg, atv.end);
-      if(!p3) {
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto error;
+      p3 = getASN1Element(&oid, atv.beg, atv.انتہا);
+      اگر(!p3) {
+        نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+        جاؤ error;
       }
-      if(!getASN1Element(&value, p3, atv.end)) {
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto error;
+      اگر(!getASN1Element(&قدر, p3, atv.انتہا)) {
+        نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+        جاؤ error;
       }
-      curlx_dyn_reset(&temp);
-      result = ASN1tostr(&temp, &oid);
-      if(result)
-        goto error;
+      curlx_dyn_reset(&عارضی);
+      نتیجہ = ASN1tostr(&عارضی, &oid);
+      اگر(نتیجہ)
+        جاؤ error;
 
-      str = curlx_dyn_uptr(&temp);
+      str = curlx_dyn_uptr(&عارضی);
 
-      if(!str) {
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto error;
+      اگر(!str) {
+        نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+        جاؤ error;
       }
 
       /* Encode delimiter.
          If attribute has a short uppercase name, delimiter is ", ". */
-      for(p3 = str; ISUPPER(*p3); p3++)
+      برائے(p3 = str; ISUPPER(*p3); p3++)
         ;
-      if(added) {
-        if(p3 - str > 2)
-          result = curlx_dyn_addn(store, "/", 1);
-        else
-          result = curlx_dyn_addn(store, ", ", 2);
-        if(result)
-          goto error;
+      اگر(added) {
+        اگر(p3 - str > 2)
+          نتیجہ = curlx_dyn_addn(store, "/", 1);
+        ورنہ
+          نتیجہ = curlx_dyn_addn(store, ", ", 2);
+        اگر(نتیجہ)
+          جاؤ error;
       }
 
       /* Encode attribute name. */
-      result = curlx_dyn_add(store, (const char *)str);
-      if(result)
-        goto error;
+      نتیجہ = curlx_dyn_جوڑو(store, (ثابت حرف *)str);
+      اگر(نتیجہ)
+        جاؤ error;
 
       /* Generate equal sign. */
-      result = curlx_dyn_addn(store, "=", 1);
-      if(result)
-        goto error;
+      نتیجہ = curlx_dyn_addn(store, "=", 1);
+      اگر(نتیجہ)
+        جاؤ error;
 
       /* Generate value. */
-      result = ASN1tostr(store, &value);
-      if(result)
-        goto error;
-      curlx_dyn_reset(&temp);
+      نتیجہ = ASN1tostr(store, &قدر);
+      اگر(نتیجہ)
+        جاؤ error;
+      curlx_dyn_reset(&عارضی);
       added = TRUE; /* use separator for next */
     }
   }
 error:
-  curlx_dyn_free(&temp);
+  curlx_dyn_free(&عارضی);
 
-  return result;
+  واپس نتیجہ;
 }
 
-#endif /* WANT_EXTRACT_CERTINFO */
+#اگر_ختم /* WANT_EXTRACT_CERTINFO */
 
-#ifdef WANT_PARSEX509
+#اگر_تعریف_شدہ WANT_PARSEX509
 /*
  * ASN.1 parse an X509 certificate into structure subfields.
  * Syntax is assumed to have already been checked by the SSL backend.
  * See RFC 5280.
  */
-int Curl_parseX509(struct Curl_X509certificate *cert,
-                   const uint8_t *beg, const uint8_t *end)
+صحیح Curl_parseX509(ساخت Curl_X509certificate *cert,
+                   ثابت uint8_t *beg, ثابت uint8_t *انتہا)
 {
-  struct Curl_asn1Element elem;
-  struct Curl_asn1Element tbsCertificate;
-  const uint8_t *ccp;
-  static const uint8_t defaultVersion = 0;  /* v1. */
+  ساخت Curl_asn1Element elem;
+  ساخت Curl_asn1Element tbsCertificate;
+  ثابت uint8_t *ccp;
+  ساکن ثابت uint8_t default_نسخہ = 0;  /* v1. */
 
-  memset(cert, 0, sizeof(*cert));
-  cert->certificate.header = NULL;
+  memset(cert, 0, حجم(*cert));
+  cert->certificate.سرخی = تہی;
   cert->certificate.beg = beg;
-  cert->certificate.end = end;
+  cert->certificate.انتہا = انتہا;
 
   /* Get the sequence content. */
-  if(!getASN1Element(&elem, beg, end))
-    return -1;  /* Invalid bounds/size. */
+  اگر(!getASN1Element(&elem, beg, انتہا))
+    واپس -1;  /* Invalid bounds/size. */
   beg = elem.beg;
-  end = elem.end;
+  انتہا = elem.انتہا;
 
   /* Get tbsCertificate. */
-  beg = getASN1Element(&tbsCertificate, beg, end);
-  if(!beg)
-    return -1;
+  beg = getASN1Element(&tbsCertificate, beg, انتہا);
+  اگر(!beg)
+    واپس -1;
   /* Skip the signatureAlgorithm. */
-  beg = getASN1Element(&cert->signatureAlgorithm, beg, end);
-  if(!beg)
-    return -1;
+  beg = getASN1Element(&cert->signatureAlgorithm, beg, انتہا);
+  اگر(!beg)
+    واپس -1;
   /* Get the signatureValue. */
-  if(!getASN1Element(&cert->signature, beg, end))
-    return -1;
+  اگر(!getASN1Element(&cert->signature, beg, انتہا))
+    واپس -1;
 
   /* Parse TBSCertificate. */
   beg = tbsCertificate.beg;
-  end = tbsCertificate.end;
+  انتہا = tbsCertificate.انتہا;
   /* Get optional version, get serialNumber. */
-  cert->version.header = NULL;
-  cert->version.beg = &defaultVersion;
-  cert->version.end = &defaultVersion + sizeof(defaultVersion);
-  beg = getASN1Element(&elem, beg, end);
-  if(!beg)
-    return -1;
-  if(elem.tag == 0) {
-    if(!getASN1Element(&cert->version, elem.beg, elem.end))
-      return -1;
-    beg = getASN1Element(&elem, beg, end);
-    if(!beg)
-      return -1;
+  cert->نسخہ_2.سرخی = تہی;
+  cert->نسخہ_2.beg = &default_نسخہ;
+  cert->نسخہ_2.انتہا = &default_نسخہ + حجم(default_نسخہ);
+  beg = getASN1Element(&elem, beg, انتہا);
+  اگر(!beg)
+    واپس -1;
+  اگر(elem.لیبل == 0) {
+    اگر(!getASN1Element(&cert->نسخہ_2, elem.beg, elem.انتہا))
+      واپس -1;
+    beg = getASN1Element(&elem, beg, انتہا);
+    اگر(!beg)
+      واپس -1;
   }
-  cert->serialNumber = elem;
+  cert->serial_نمبر = elem;
   /* Get signature algorithm. */
-  beg = getASN1Element(&cert->signatureAlgorithm, beg, end);
+  beg = getASN1Element(&cert->signatureAlgorithm, beg, انتہا);
   /* Get issuer. */
-  beg = getASN1Element(&cert->issuer, beg, end);
-  if(!beg)
-    return -1;
+  beg = getASN1Element(&cert->issuer, beg, انتہا);
+  اگر(!beg)
+    واپس -1;
   /* Get notBefore and notAfter. */
-  beg = getASN1Element(&elem, beg, end);
-  if(!beg)
-    return -1;
-  ccp = getASN1Element(&cert->notBefore, elem.beg, elem.end);
-  if(!ccp)
-    return -1;
-  if(!getASN1Element(&cert->notAfter, ccp, elem.end))
-    return -1;
+  beg = getASN1Element(&elem, beg, انتہا);
+  اگر(!beg)
+    واپس -1;
+  ccp = getASN1Element(&cert->notBefore, elem.beg, elem.انتہا);
+  اگر(!ccp)
+    واپس -1;
+  اگر(!getASN1Element(&cert->notAfter, ccp, elem.انتہا))
+    واپس -1;
   /* These two fields MUST consume all of the validity elem */
-  if(elem.end != cert->notAfter.end)
-    return -1;
+  اگر(elem.انتہا != cert->notAfter.انتہا)
+    واپس -1;
   /* Get subject. */
-  beg = getASN1Element(&cert->subject, beg, end);
-  if(!beg)
-    return -1;
+  beg = getASN1Element(&cert->subject, beg, انتہا);
+  اگر(!beg)
+    واپس -1;
   /* Get subjectPublicKeyAlgorithm and subjectPublicKey. */
-  beg = getASN1Element(&cert->subjectPublicKeyInfo, beg, end);
-  if(!beg)
-    return -1;
-  ccp = getASN1Element(&cert->subjectPublicKeyAlgorithm,
-                       cert->subjectPublicKeyInfo.beg,
-                       cert->subjectPublicKeyInfo.end);
-  if(!ccp)
-    return -1;
-  if(!getASN1Element(&cert->subjectPublicKey, ccp,
-                     cert->subjectPublicKeyInfo.end))
-    return -1;
+  beg = getASN1Element(&cert->subject_عوامی_کلید_Info, beg, انتہا);
+  اگر(!beg)
+    واپس -1;
+  ccp = getASN1Element(&cert->subject_عوامی_کلید_Algorithm,
+                       cert->subject_عوامی_کلید_Info.beg,
+                       cert->subject_عوامی_کلید_Info.انتہا);
+  اگر(!ccp)
+    واپس -1;
+  اگر(!getASN1Element(&cert->subject_عوامی_کلید, ccp,
+                     cert->subject_عوامی_کلید_Info.انتہا))
+    واپس -1;
   /* Get optional issuerUniqueID, subjectUniqueID and extensions. */
-  cert->issuerUniqueID.tag = cert->subjectUniqueID.tag = 0;
-  cert->extensions.tag = elem.tag = 0;
-  cert->issuerUniqueID.header = cert->subjectUniqueID.header = NULL;
-  cert->issuerUniqueID.beg = cert->issuerUniqueID.end = beg;
-  cert->subjectUniqueID.beg = cert->subjectUniqueID.end = beg;
-  cert->extensions.header = NULL;
-  cert->extensions.beg = cert->extensions.end = beg;
-  if(beg < end) {
-    beg = getASN1Element(&elem, beg, end);
-    if(!beg)
-      return -1;
+  cert->issuerUniqueID.لیبل = cert->subjectUniqueID.لیبل = 0;
+  cert->extensions.لیبل = elem.لیبل = 0;
+  cert->issuerUniqueID.سرخی = cert->subjectUniqueID.سرخی = تہی;
+  cert->issuerUniqueID.beg = cert->issuerUniqueID.انتہا = beg;
+  cert->subjectUniqueID.beg = cert->subjectUniqueID.انتہا = beg;
+  cert->extensions.سرخی = تہی;
+  cert->extensions.beg = cert->extensions.انتہا = beg;
+  اگر(beg < انتہا) {
+    beg = getASN1Element(&elem, beg, انتہا);
+    اگر(!beg)
+      واپس -1;
   }
-  if(elem.tag == 1) {
+  اگر(elem.لیبل == 1) {
     cert->issuerUniqueID = elem;
-    if(beg < end) {
-      beg = getASN1Element(&elem, beg, end);
-      if(!beg)
-        return -1;
+    اگر(beg < انتہا) {
+      beg = getASN1Element(&elem, beg, انتہا);
+      اگر(!beg)
+        واپس -1;
     }
   }
-  if(elem.tag == 2) {
+  اگر(elem.لیبل == 2) {
     cert->subjectUniqueID = elem;
-    if(beg < end) {
-      beg = getASN1Element(&elem, beg, end);
-      if(!beg)
-        return -1;
+    اگر(beg < انتہا) {
+      beg = getASN1Element(&elem, beg, انتہا);
+      اگر(!beg)
+        واپس -1;
     }
   }
-  if(elem.tag == 3)
-    if(!getASN1Element(&cert->extensions, elem.beg, elem.end))
-      return -1;
-  return 0;
+  اگر(elem.لیبل == 3)
+    اگر(!getASN1Element(&cert->extensions, elem.beg, elem.انتہا))
+      واپس -1;
+  واپس 0;
 }
 
-#endif /* WANT_PARSEX509 */
+#اگر_ختم /* WANT_PARSEX509 */
 
-#ifdef WANT_EXTRACT_CERTINFO
+#اگر_تعریف_شدہ WANT_نکالو_CERTINFO
 
-static CURLcode dumpAlgo(struct dynbuf *store,
-                         struct Curl_asn1Element *param,
-                         const uint8_t *beg, const uint8_t *end)
+ساکن CURLcode dumpAlgo(ساخت dynbuf *store,
+                         ساخت Curl_asn1Element *param,
+                         ثابت uint8_t *beg, ثابت uint8_t *انتہا)
 {
-  struct Curl_asn1Element oid;
+  ساخت Curl_asn1Element oid;
 
   /* Get algorithm parameters and return algorithm name. */
 
-  beg = getASN1Element(&oid, beg, end);
-  if(!beg)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  param->header = NULL;
-  param->tag = 0;
-  param->beg = param->end = end;
-  if(beg < end) {
-    const uint8_t *p = getASN1Element(param, beg, end);
-    if(!p)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  beg = getASN1Element(&oid, beg, انتہا);
+  اگر(!beg)
+    واپس CURLE_BAD_FUNCTION_دلیل;
+  param->سرخی = تہی;
+  param->لیبل = 0;
+  param->beg = param->انتہا = انتہا;
+  اگر(beg < انتہا) {
+    ثابت uint8_t *p = getASN1Element(param, beg, انتہا);
+    اگر(!p)
+      واپس CURLE_BAD_FUNCTION_دلیل;
   }
-  return OID2str(store, oid.beg, oid.end);
+  واپس OID2str(store, oid.beg, oid.انتہا);
 }
 
 /*
  * This is a convenience function for push_certinfo_len that takes a zero
  * terminated value.
  */
-static CURLcode ssl_push_certinfo(struct Curl_easy *data,
-                                  int certnum,
-                                  const char *label,
-                                  const char *value)
+ساکن CURLcode ssl_ڈالو_certinfo(ساخت Curl_easy *ڈیٹا,
+                                  صحیح certnum,
+                                  ثابت حرف *label,
+                                  ثابت حرف *قدر)
 {
-  size_t valuelen = strlen(value);
+  size_t valuelen = لڑی_لمبائی(قدر);
 
-  return Curl_ssl_push_certinfo_len(data, certnum, label, value, valuelen);
+  واپس Curl_ssl_ڈالو_certinfo_len(ڈیٹا, certnum, label, قدر, valuelen);
 }
 
 /*
@@ -937,301 +937,301 @@ static CURLcode ssl_push_certinfo(struct Curl_easy *data,
  *
  * It also does the verbose output if !certnum.
  */
-static CURLcode ssl_push_certinfo_dyn(struct Curl_easy *data,
-                                      int certnum,
-                                      const char *label,
-                                      struct dynbuf *ptr)
+ساکن CURLcode ssl_ڈالو_certinfo_dyn(ساخت Curl_easy *ڈیٹا,
+                                      صحیح certnum,
+                                      ثابت حرف *label,
+                                      ساخت dynbuf *ptr)
 {
   size_t valuelen = curlx_dyn_len(ptr);
-  const char *value = curlx_dyn_ptr(ptr);
+  ثابت حرف *قدر = curlx_dyn_ptr(ptr);
 
-  CURLcode result = Curl_ssl_push_certinfo_len(data, certnum, label,
-                                               value, valuelen);
+  CURLcode نتیجہ = Curl_ssl_ڈالو_certinfo_len(ڈیٹا, certnum, label,
+                                               قدر, valuelen);
 
-  if(!certnum && !result)
-    infof(data, "   %s: %s", label, value);
+  اگر(!certnum && !نتیجہ)
+    infof(ڈیٹا, "   %s: %s", label, قدر);
 
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode do_pubkey_field(struct Curl_easy *data, int certnum,
-                                const char *label,
-                                struct Curl_asn1Element *elem)
+ساکن CURLcode do_pubkey_میدان(ساخت Curl_easy *ڈیٹا, صحیح certnum,
+                                ثابت حرف *label,
+                                ساخت Curl_asn1Element *elem)
 {
-  CURLcode result;
-  struct dynbuf out;
+  CURLcode نتیجہ;
+  ساخت dynbuf برآمد;
 
-  curlx_dyn_init(&out, CURL_X509_STR_MAX);
+  curlx_dyn_init(&برآمد, CURL_X509_STR_MAX);
 
   /* Generate a certificate information record for the public key. */
 
-  result = ASN1tostr(&out, elem);
-  if(!result && data->set.ssl.certinfo)
-    result = ssl_push_certinfo_dyn(data, certnum, label, &out);
-  curlx_dyn_free(&out);
-  return result;
+  نتیجہ = ASN1tostr(&برآمد, elem);
+  اگر(!نتیجہ && ڈیٹا->سیٹ.ssl.certinfo)
+    نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, label, &برآمد);
+  curlx_dyn_free(&برآمد);
+  واپس نتیجہ;
 }
 
 /* return 0 on success, 1 on error */
-static int do_pubkey(struct Curl_easy *data, int certnum, const char *algo,
-                     struct Curl_asn1Element *param,
-                     struct Curl_asn1Element *pubkey)
+ساکن صحیح do_pubkey(ساخت Curl_easy *ڈیٹا, صحیح certnum, ثابت حرف *algo,
+                     ساخت Curl_asn1Element *param,
+                     ساخت Curl_asn1Element *pubkey)
 {
-  struct Curl_asn1Element elem;
-  struct Curl_asn1Element pk;
-  const uint8_t *p;
+  ساخت Curl_asn1Element elem;
+  ساخت Curl_asn1Element pk;
+  ثابت uint8_t *p;
 
   /* Generate all information records for the public key. */
 
-  if(curl_strequal(algo, "ecPublicKey")) {
+  اگر(curl_strequal(algo, "ecPublicKey")) {
     /*
      * ECC public key is all the data, a value of type BIT STRING mapped to
      * OCTET STRING and should not be parsed as an ASN.1 value.
      */
-    const size_t dlen = pubkey->end - pubkey->beg;
+    ثابت size_t dlen = pubkey->انتہا - pubkey->beg;
     size_t len;
-    if(dlen < 2)
+    اگر(dlen < 2)
       /* too small */
-      return 1;
+      واپس 1;
     len = (dlen - 2) * 4;
-    if(!certnum)
-      infof(data, "   ECC Public Key (%zu bits)", len);
-    if(data->set.ssl.certinfo) {
-      char q[(sizeof(len) * 8 / 3) + 1];
-      (void)curl_msnprintf(q, sizeof(q), "%zu", len);
-      if(ssl_push_certinfo(data, certnum, "ECC Public Key", q))
-        return 1;
+    اگر(!certnum)
+      infof(ڈیٹا, "   ECC Public Key (%zu bits)", len);
+    اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+      حرف q[(حجم(len) * 8 / 3) + 1];
+      (خالی)curl_msnprintf(q, حجم(q), "%zu", len);
+      اگر(ssl_ڈالو_certinfo(ڈیٹا, certnum, "ECC Public Key", q))
+        واپس 1;
     }
-    return do_pubkey_field(data, certnum, "ecPublicKey", pubkey) == CURLE_OK
+    واپس do_pubkey_میدان(ڈیٹا, certnum, "ecPublicKey", pubkey) == CURLE_OK
       ? 0 : 1;
   }
 
   /* Get the public key (single element). */
-  if(!getASN1Element(&pk, pubkey->beg + 1, pubkey->end))
-    return 1;
+  اگر(!getASN1Element(&pk, pubkey->beg + 1, pubkey->انتہا))
+    واپس 1;
 
-  if(curl_strequal(algo, "rsaEncryption")) {
-    const uint8_t *q;
+  اگر(curl_strequal(algo, "rsaEncryption")) {
+    ثابت uint8_t *q;
     size_t len;
 
-    p = getASN1Element(&elem, pk.beg, pk.end);
-    if(!p)
-      return 1;
+    p = getASN1Element(&elem, pk.beg, pk.انتہا);
+    اگر(!p)
+      واپس 1;
 
     /* Compute key length. */
-    for(q = elem.beg; q < elem.end && !*q; q++)
+    برائے(q = elem.beg; q < elem.انتہا && !*q; q++)
       ;
-    len = ((elem.end - q) * 8);
-    if(len) {
-      unsigned int i;
-      for(i = *q; !(i & 0x80); i <<= 1)
+    len = ((elem.انتہا - q) * 8);
+    اگر(len) {
+      غیرعلامتی صحیح i;
+      برائے(i = *q; !(i & 0x80); i <<= 1)
         len--;
     }
-    if(len > 32)
+    اگر(len > 32)
       elem.beg = q;     /* Strip leading zero bytes. */
-    if(!certnum)
-      infof(data, "   RSA Public Key (%zu bits)", len);
-    if(data->set.ssl.certinfo) {
-      char r[(sizeof(len) * 8 / 3) + 1];
-      curl_msnprintf(r, sizeof(r), "%zu", len);
-      if(ssl_push_certinfo(data, certnum, "RSA Public Key", r))
-        return 1;
+    اگر(!certnum)
+      infof(ڈیٹا, "   RSA Public Key (%zu bits)", len);
+    اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+      حرف r[(حجم(len) * 8 / 3) + 1];
+      curl_msnprintf(r, حجم(r), "%zu", len);
+      اگر(ssl_ڈالو_certinfo(ڈیٹا, certnum, "RSA Public Key", r))
+        واپس 1;
     }
     /* Generate coefficients. */
-    if(do_pubkey_field(data, certnum, "rsa(n)", &elem))
-      return 1;
-    if(!getASN1Element(&elem, p, pk.end))
-      return 1;
-    if(do_pubkey_field(data, certnum, "rsa(e)", &elem))
-      return 1;
+    اگر(do_pubkey_میدان(ڈیٹا, certnum, "rsa(n)", &elem))
+      واپس 1;
+    اگر(!getASN1Element(&elem, p, pk.انتہا))
+      واپس 1;
+    اگر(do_pubkey_میدان(ڈیٹا, certnum, "rsa(e)", &elem))
+      واپس 1;
   }
-  else if(curl_strequal(algo, "dsa")) {
-    p = getASN1Element(&elem, param->beg, param->end);
-    if(p) {
-      if(do_pubkey_field(data, certnum, "dsa(p)", &elem))
-        return 1;
-      p = getASN1Element(&elem, p, param->end);
-      if(p) {
-        if(do_pubkey_field(data, certnum, "dsa(q)", &elem))
-          return 1;
-        if(getASN1Element(&elem, p, param->end)) {
-          if(do_pubkey_field(data, certnum, "dsa(g)", &elem))
-            return 1;
-          if(do_pubkey_field(data, certnum, "dsa(pub_key)", &pk))
-            return 1;
+  ورنہ اگر(curl_strequal(algo, "dsa")) {
+    p = getASN1Element(&elem, param->beg, param->انتہا);
+    اگر(p) {
+      اگر(do_pubkey_میدان(ڈیٹا, certnum, "dsa(p)", &elem))
+        واپس 1;
+      p = getASN1Element(&elem, p, param->انتہا);
+      اگر(p) {
+        اگر(do_pubkey_میدان(ڈیٹا, certnum, "dsa(q)", &elem))
+          واپس 1;
+        اگر(getASN1Element(&elem, p, param->انتہا)) {
+          اگر(do_pubkey_میدان(ڈیٹا, certnum, "dsa(g)", &elem))
+            واپس 1;
+          اگر(do_pubkey_میدان(ڈیٹا, certnum, "dsa(pub_key)", &pk))
+            واپس 1;
         }
       }
     }
   }
-  else if(curl_strequal(algo, "dhpublicnumber")) {
-    p = getASN1Element(&elem, param->beg, param->end);
-    if(p) {
-      if(do_pubkey_field(data, certnum, "dh(p)", &elem))
-        return 1;
-      if(getASN1Element(&elem, p, param->end)) {
-        if(do_pubkey_field(data, certnum, "dh(g)", &elem))
-          return 1;
-        if(do_pubkey_field(data, certnum, "dh(pub_key)", &pk))
-          return 1;
+  ورنہ اگر(curl_strequal(algo, "dhpublicnumber")) {
+    p = getASN1Element(&elem, param->beg, param->انتہا);
+    اگر(p) {
+      اگر(do_pubkey_میدان(ڈیٹا, certnum, "dh(p)", &elem))
+        واپس 1;
+      اگر(getASN1Element(&elem, p, param->انتہا)) {
+        اگر(do_pubkey_میدان(ڈیٹا, certnum, "dh(g)", &elem))
+          واپس 1;
+        اگر(do_pubkey_میدان(ڈیٹا, certnum, "dh(pub_key)", &pk))
+          واپس 1;
       }
     }
   }
-  return 0;
+  واپس 0;
 }
 
 /*
  * Convert an ASN.1 distinguished name into a printable string.
  * Return error.
  */
-static CURLcode DNtostr(struct dynbuf *store, struct Curl_asn1Element *dn)
+ساکن CURLcode DNtostr(ساخت dynbuf *store, ساخت Curl_asn1Element *dn)
 {
-  return encodeDN(store, dn);
+  واپس encodeDN(store, dn);
 }
 
-CURLcode Curl_extract_certinfo(struct Curl_easy *data,
-                               int certnum,
-                               const uint8_t *beg,
-                               const uint8_t *end)
+CURLcode Curl_نکالو_certinfo(ساخت Curl_easy *ڈیٹا,
+                               صحیح certnum,
+                               ثابت uint8_t *beg,
+                               ثابت uint8_t *انتہا)
 {
-  struct Curl_X509certificate cert;
-  struct Curl_asn1Element param;
-  char *certptr;
+  ساخت Curl_X509certificate cert;
+  ساخت Curl_asn1Element param;
+  حرف *certptr;
   size_t clen;
-  struct dynbuf out;
-  CURLcode result = CURLE_OK;
-  unsigned int version;
-  const uint8_t *ptr;
-  int rc;
+  ساخت dynbuf برآمد;
+  CURLcode نتیجہ = CURLE_OK;
+  غیرعلامتی صحیح نسخہ_2;
+  ثابت uint8_t *ptr;
+  صحیح rc;
 
-  if(!data->set.ssl.certinfo)
-    if(certnum)
-      return CURLE_OK;
+  اگر(!ڈیٹا->سیٹ.ssl.certinfo)
+    اگر(certnum)
+      واپس CURLE_OK;
 
-  curlx_dyn_init(&out, CURL_X509_STR_MAX);
+  curlx_dyn_init(&برآمد, CURL_X509_STR_MAX);
   /* Prepare the certificate information for curl_easy_getinfo(). */
 
   /* Extract the certificate ASN.1 elements. */
-  if(Curl_parseX509(&cert, beg, end))
-    return CURLE_PEER_FAILED_VERIFICATION;
+  اگر(Curl_parseX509(&cert, beg, انتہا))
+    واپس CURLE_PEER_FAILED_VERIFICATION;
 
   /* Subject. */
-  result = DNtostr(&out, &cert.subject);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Subject", &out);
-    if(result)
-      goto done;
+  نتیجہ = DNtostr(&برآمد, &cert.subject);
+  اگر(نتیجہ)
+    جاؤ مکمل;
+  اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+    نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, "Subject", &برآمد);
+    اگر(نتیجہ)
+      جاؤ مکمل;
   }
-  curlx_dyn_reset(&out);
+  curlx_dyn_reset(&برآمد);
 
   /* Issuer. */
-  result = DNtostr(&out, &cert.issuer);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Issuer", &out);
-    if(result)
-      goto done;
+  نتیجہ = DNtostr(&برآمد, &cert.issuer);
+  اگر(نتیجہ)
+    جاؤ مکمل;
+  اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+    نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, "Issuer", &برآمد);
+    اگر(نتیجہ)
+      جاؤ مکمل;
   }
-  curlx_dyn_reset(&out);
+  curlx_dyn_reset(&برآمد);
 
   /* Version (always fits in less than 32 bits). */
-  version = 0;
-  for(ptr = cert.version.beg; ptr < cert.version.end; ptr++)
-    version = (version << 8) | *ptr;
-  if(data->set.ssl.certinfo) {
-    result = curlx_dyn_addf(&out, "%x", version);
-    if(result)
-      goto done;
-    result = ssl_push_certinfo_dyn(data, certnum, "Version", &out);
-    if(result)
-      goto done;
-    curlx_dyn_reset(&out);
+  نسخہ_2 = 0;
+  برائے(ptr = cert.نسخہ_2.beg; ptr < cert.نسخہ_2.انتہا; ptr++)
+    نسخہ_2 = (نسخہ_2 << 8) | *ptr;
+  اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+    نتیجہ = curlx_dyn_addf(&برآمد, "%x", نسخہ_2);
+    اگر(نتیجہ)
+      جاؤ مکمل;
+    نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, "Version", &برآمد);
+    اگر(نتیجہ)
+      جاؤ مکمل;
+    curlx_dyn_reset(&برآمد);
   }
 
   /* Serial number. */
-  result = ASN1tostr(&out, &cert.serialNumber);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Serial Number", &out);
-    if(result)
-      goto done;
+  نتیجہ = ASN1tostr(&برآمد, &cert.serial_نمبر);
+  اگر(نتیجہ)
+    جاؤ مکمل;
+  اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+    نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, "Serial Number", &برآمد);
+    اگر(نتیجہ)
+      جاؤ مکمل;
   }
-  curlx_dyn_reset(&out);
+  curlx_dyn_reset(&برآمد);
 
   /* Signature algorithm .*/
-  result = dumpAlgo(&out, &param, cert.signatureAlgorithm.beg,
-                    cert.signatureAlgorithm.end);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Signature Algorithm", &out);
-    if(result)
-      goto done;
+  نتیجہ = dumpAlgo(&برآمد, &param, cert.signatureAlgorithm.beg,
+                    cert.signatureAlgorithm.انتہا);
+  اگر(نتیجہ)
+    جاؤ مکمل;
+  اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+    نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, "Signature Algorithm", &برآمد);
+    اگر(نتیجہ)
+      جاؤ مکمل;
   }
-  curlx_dyn_reset(&out);
+  curlx_dyn_reset(&برآمد);
 
   /* Start Date. */
-  result = ASN1tostr(&out, &cert.notBefore);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Start Date", &out);
-    if(result)
-      goto done;
+  نتیجہ = ASN1tostr(&برآمد, &cert.notBefore);
+  اگر(نتیجہ)
+    جاؤ مکمل;
+  اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+    نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, "Start Date", &برآمد);
+    اگر(نتیجہ)
+      جاؤ مکمل;
   }
-  curlx_dyn_reset(&out);
+  curlx_dyn_reset(&برآمد);
 
   /* Expire Date. */
-  result = ASN1tostr(&out, &cert.notAfter);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Expire Date", &out);
-    if(result)
-      goto done;
+  نتیجہ = ASN1tostr(&برآمد, &cert.notAfter);
+  اگر(نتیجہ)
+    جاؤ مکمل;
+  اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+    نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, "Expire Date", &برآمد);
+    اگر(نتیجہ)
+      جاؤ مکمل;
   }
-  curlx_dyn_reset(&out);
+  curlx_dyn_reset(&برآمد);
 
   /* Public Key Algorithm. */
-  result = dumpAlgo(&out, &param, cert.subjectPublicKeyAlgorithm.beg,
-                    cert.subjectPublicKeyAlgorithm.end);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Public Key Algorithm",
-                                   &out);
-    if(result)
-      goto done;
+  نتیجہ = dumpAlgo(&برآمد, &param, cert.subject_عوامی_کلید_Algorithm.beg,
+                    cert.subject_عوامی_کلید_Algorithm.انتہا);
+  اگر(نتیجہ)
+    جاؤ مکمل;
+  اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+    نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, "Public Key Algorithm",
+                                   &برآمد);
+    اگر(نتیجہ)
+      جاؤ مکمل;
   }
 
-  rc = do_pubkey(data, certnum, curlx_dyn_ptr(&out),
-                 &param, &cert.subjectPublicKey);
-  if(rc) {
-    result = CURLE_OUT_OF_MEMORY; /* the most likely error */
-    goto done;
+  rc = do_pubkey(ڈیٹا, certnum, curlx_dyn_ptr(&برآمد),
+                 &param, &cert.subject_عوامی_کلید);
+  اگر(rc) {
+    نتیجہ = CURLE_برآمد_کا_حافظہ; /* the most likely error */
+    جاؤ مکمل;
   }
-  curlx_dyn_reset(&out);
+  curlx_dyn_reset(&برآمد);
 
   /* Signature. */
-  result = ASN1tostr(&out, &cert.signature);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Signature", &out);
-    if(result)
-      goto done;
+  نتیجہ = ASN1tostr(&برآمد, &cert.signature);
+  اگر(نتیجہ)
+    جاؤ مکمل;
+  اگر(ڈیٹا->سیٹ.ssl.certinfo) {
+    نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, "Signature", &برآمد);
+    اگر(نتیجہ)
+      جاؤ مکمل;
   }
-  curlx_dyn_reset(&out);
+  curlx_dyn_reset(&برآمد);
 
   /* Generate PEM certificate. */
-  result = curlx_base64_encode((const uint8_t *)cert.certificate.beg,
-                               cert.certificate.end - cert.certificate.beg,
+  نتیجہ = curlx_base64_encode((ثابت uint8_t *)cert.certificate.beg,
+                               cert.certificate.انتہا - cert.certificate.beg,
                                &certptr, &clen);
-  if(result)
-    goto done;
+  اگر(نتیجہ)
+    جاؤ مکمل;
 
   /* Generate the final output certificate string. Format is:
      -----BEGIN CERTIFICATE-----\n
@@ -1242,36 +1242,36 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
      -----END CERTIFICATE-----\n
    */
 
-  curlx_dyn_reset(&out);
+  curlx_dyn_reset(&برآمد);
 
   /* Build the certificate string. */
-  result = curlx_dyn_add(&out, "-----BEGIN CERTIFICATE-----\n");
-  if(!result) {
+  نتیجہ = curlx_dyn_جوڑو(&برآمد, "-----BEGIN CERTIFICATE-----\n");
+  اگر(!نتیجہ) {
     size_t j = 0;
 
-    while(!result && (j < clen)) {
+    جب(!نتیجہ && (j < clen)) {
       size_t chunksize = (clen - j) > 64 ? 64 : (clen - j);
-      result = curlx_dyn_addn(&out, &certptr[j], chunksize);
-      if(!result)
-        result = curlx_dyn_addn(&out, "\n", 1);
+      نتیجہ = curlx_dyn_addn(&برآمد, &certptr[j], chunksize);
+      اگر(!نتیجہ)
+        نتیجہ = curlx_dyn_addn(&برآمد, "\n", 1);
       j += chunksize;
     }
-    if(!result)
-      result = curlx_dyn_add(&out, "-----END CERTIFICATE-----\n");
+    اگر(!نتیجہ)
+      نتیجہ = curlx_dyn_جوڑو(&برآمد, "-----END CERTIFICATE-----\n");
   }
   curlx_free(certptr);
-  if(!result)
-    if(data->set.ssl.certinfo)
-      result = ssl_push_certinfo_dyn(data, certnum, "Cert", &out);
+  اگر(!نتیجہ)
+    اگر(ڈیٹا->سیٹ.ssl.certinfo)
+      نتیجہ = ssl_ڈالو_certinfo_dyn(ڈیٹا, certnum, "Cert", &برآمد);
 
-done:
-  if(result)
-    failf(data, "Failed extracting certificate chain");
-  curlx_dyn_free(&out);
-  return result;
+مکمل:
+  اگر(نتیجہ)
+    failf(ڈیٹا, "Failed extracting certificate chain");
+  curlx_dyn_free(&برآمد);
+  واپس نتیجہ;
 }
 
-#endif /* WANT_EXTRACT_CERTINFO */
+#اگر_ختم /* WANT_EXTRACT_CERTINFO */
 
-#endif /* USE_GNUTLS || USE_WOLFSSL || USE_SCHANNEL || USE_MBEDTLS ||
+#اگر_ختم /* USE_GNUTLS || USE_WOLFSSL || USE_SCHANNEL || USE_MBEDTLS ||
           USE_RUSTLS */

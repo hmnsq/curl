@@ -25,205 +25,205 @@
  * The Alt-Svc: header is defined in RFC 7838:
  * https://datatracker.ietf.org/doc/html/rfc7838
  */
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
-#include "urldata.h"
-#include "altsvc.h"
-#include "curl_fopen.h"
-#include "curl_get_line.h"
-#include "parsedate.h"
-#include "curl_trc.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
-#include "connect.h"
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
+#شامل "urldata.h"
+#شامل "altsvc.h"
+#شامل "curl_fopen.h"
+#شامل "curl_get_line.h"
+#شامل "parsedate.h"
+#شامل "curl_trc.h"
+#شامل "curlx/inet_pton.h"
+#شامل "curlx/strparse.h"
+#شامل "connect.h"
 
-#define MAX_ALTSVC_LINE    4095
-#define MAX_ALTSVC_DATELEN 17
-#define MAX_ALTSVC_HOSTLEN 2048
-#define MAX_ALTSVC_ALPNLEN 10
+#تعریف_کرو MAX_ALTSVC_سطر    4095
+#تعریف_کرو MAX_ALTSVC_DATELEN 17
+#تعریف_کرو MAX_ALTSVC_HOSTLEN 2048
+#تعریف_کرو MAX_ALTSVC_ALPNLEN 10
 
-#define H3VERSION "h3"
+#تعریف_کرو H3_نسخہ "h3"
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
+#اگر defined(DEBUGBUILD) || defined(UNITTESTS)
 /* to play well with debug builds, we can *set* a fixed time this will
    return */
-static time_t altsvc_debugtime(void *unused)
+ساکن time_t altsvc_debugtime(خالی *غیر_مستعمل)
 {
-  const char *timestr = getenv("CURL_TIME");
-  (void)unused;
-  if(timestr) {
+  ثابت حرف *timestr = getenv("CURL_TIME");
+  (خالی)غیر_مستعمل;
+  اگر(timestr) {
     curl_off_t val;
-    curlx_str_number(&timestr, &val, TIME_T_MAX);
-    return (time_t)val;
+    curlx_str_نمبر(&timestr, &val, وقت_T_MAX);
+    واپس (time_t)val;
   }
-  return time(NULL);
+  واپس وقت(تہی);
 }
-#undef time
-#define time(x) altsvc_debugtime(x)
-#endif
+#تعریف_منسوخ وقت
+#تعریف_کرو وقت(x) altsvc_debugtime(x)
+#اگر_ختم
 
 /* Given the ALPN ID, return the name */
-const char *Curl_alpnid2str(enum alpnid id)
+ثابت حرف *Curl_alpnid2str(شمار alpnid id)
 {
-  switch(id) {
-  case ALPN_h1:
-    return "h1";
-  case ALPN_h2:
-    return "h2";
-  case ALPN_h3:
-    return H3VERSION;
-  default:
-    return ""; /* bad */
+  انتخاب(id) {
+  حالت ALPN_h1:
+    واپس "h1";
+  حالت ALPN_h2:
+    واپس "h2";
+  حالت ALPN_h3:
+    واپس H3_نسخہ;
+  طےشدہ:
+    واپس ""; /* bad */
   }
 }
 
-static enum alpnid Curl_str2alpnid(const struct Curl_str *cstr)
+ساکن شمار alpnid Curl_str2alpnid(ثابت ساخت Curl_str *cstr)
 {
-  return Curl_alpn2alpnid((const unsigned char *)curlx_str(cstr),
+  واپس Curl_alpn2alpnid((ثابت غیرعلامتی حرف *)curlx_str(cstr),
                           curlx_strlen(cstr));
 }
 
-#define altsvc_free(x) curlx_free(x)
+#تعریف_کرو altsvc_free(x) curlx_free(x)
 
-static struct altsvc *altsvc_createid(const char *srchost,
+ساکن ساخت altsvc *altsvc_createid(ثابت حرف *srchost,
                                       size_t hlen,
-                                      const char *dsthost,
+                                      ثابت حرف *dsthost,
                                       size_t dlen, /* dsthost length */
-                                      enum alpnid srcalpnid,
-                                      enum alpnid dstalpnid,
+                                      شمار alpnid srcalpnid,
+                                      شمار alpnid dstalpnid,
                                       size_t srcport,
                                       size_t dstport)
 {
-  struct altsvc *as;
-  if((hlen > 2) && srchost[0] == '[') {
+  ساخت altsvc *as;
+  اگر((hlen > 2) && srchost[0] == '[') {
     /* IPv6 address, strip off brackets */
     srchost++;
     hlen -= 2;
   }
-  else if(hlen && (srchost[hlen - 1] == '.')) {
+  ورنہ اگر(hlen && (srchost[hlen - 1] == '.')) {
     /* strip off trailing dot */
     hlen--;
   }
-  if((dlen > 2) && dsthost[0] == '[') {
+  اگر((dlen > 2) && dsthost[0] == '[') {
     /* IPv6 address, strip off brackets */
     dsthost++;
     dlen -= 2;
   }
-  if(!hlen || !dlen)
+  اگر(!hlen || !dlen)
     /* bad input */
-    return NULL;
+    واپس تہی;
   /* struct size plus both strings */
-  as = curlx_calloc(1, sizeof(struct altsvc) + (hlen + 1) + (dlen + 1));
-  if(!as)
-    return NULL;
-  as->src.host = (char *)as + sizeof(struct altsvc);
-  memcpy(as->src.host, srchost, hlen);
+  as = curlx_calloc(1, حجم(ساخت altsvc) + (hlen + 1) + (dlen + 1));
+  اگر(!as)
+    واپس تہی;
+  as->src.host = (حرف *)as + حجم(ساخت altsvc);
+  حافظہ_نقل(as->src.host, srchost, hlen);
   /* the null-terminator is already there */
 
-  as->dst.host = (char *)as + sizeof(struct altsvc) + hlen + 1;
-  memcpy(as->dst.host, dsthost, dlen);
+  as->dst.host = (حرف *)as + حجم(ساخت altsvc) + hlen + 1;
+  حافظہ_نقل(as->dst.host, dsthost, dlen);
   /* the null-terminator is already there */
 
   as->src.alpnid = srcalpnid;
   as->dst.alpnid = dstalpnid;
-  as->src.port = (unsigned short)srcport;
-  as->dst.port = (unsigned short)dstport;
+  as->src.پورٹ = (غیرعلامتی مختصر)srcport;
+  as->dst.پورٹ = (غیرعلامتی مختصر)dstport;
 
-  return as;
+  واپس as;
 }
 
-static struct altsvc *altsvc_create(struct Curl_str *srchost,
-                                    struct Curl_str *dsthost,
-                                    struct Curl_str *srcalpn,
-                                    struct Curl_str *dstalpn,
+ساکن ساخت altsvc *altsvc_create(ساخت Curl_str *srchost,
+                                    ساخت Curl_str *dsthost,
+                                    ساخت Curl_str *srcalpn,
+                                    ساخت Curl_str *dstalpn,
                                     size_t srcport,
                                     size_t dstport)
 {
-  enum alpnid dstalpnid = Curl_str2alpnid(dstalpn);
-  enum alpnid srcalpnid = Curl_str2alpnid(srcalpn);
-  if(!srcalpnid || !dstalpnid)
-    return NULL;
-  return altsvc_createid(curlx_str(srchost), curlx_strlen(srchost),
+  شمار alpnid dstalpnid = Curl_str2alpnid(dstalpn);
+  شمار alpnid srcalpnid = Curl_str2alpnid(srcalpn);
+  اگر(!srcalpnid || !dstalpnid)
+    واپس تہی;
+  واپس altsvc_createid(curlx_str(srchost), curlx_strlen(srchost),
                          curlx_str(dsthost), curlx_strlen(dsthost),
                          srcalpnid, dstalpnid,
                          srcport, dstport);
 }
 
 /* append the new entry to the list after possibly removing an old entry
-   first */
-static void altsvc_append(struct altsvcinfo *asi, struct altsvc *as)
+پہلا*/
+ساکن خالی altsvc_append(ساخت altsvcinfo *asi, ساخت altsvc *as)
 {
-  while(Curl_llist_count(&asi->list) >= MAX_ALTSVC_ENTRIES) {
+  جب(Curl_llist_گنتی(&asi->list) >= MAX_ALTSVC_ENTRIES) {
     /* It is full. Remove the first entry in the list */
-    struct Curl_llist_node *e = Curl_llist_head(&asi->list);
-    struct altsvc *oldas = Curl_node_elem(e);
-    Curl_node_remove(e);
+    ساخت Curl_llist_گرہ *e = Curl_llist_سر(&asi->list);
+    ساخت altsvc *oldas = Curl_گرہ_elem(e);
+    Curl_گرہ_remove(e);
     altsvc_free(oldas);
   }
-  Curl_llist_append(&asi->list, as, &as->node);
+  Curl_llist_append(&asi->list, as, &as->گرہ);
 }
 
 /* only returns SERIOUS errors */
-static CURLcode altsvc_add(struct altsvcinfo *asi, const char *line)
+ساکن CURLcode altsvc_جوڑو(ساخت altsvcinfo *asi, ثابت حرف *سطر)
 {
   /* Example line:
      h2 example.com 443 h3 shiny.example.com 8443 "20191231 10:00:00" 1
    */
-  struct Curl_str srchost;
-  struct Curl_str dsthost;
-  struct Curl_str srcalpn;
-  struct Curl_str dstalpn;
-  struct Curl_str date;
+  ساخت Curl_str srchost;
+  ساخت Curl_str dsthost;
+  ساخت Curl_str srcalpn;
+  ساخت Curl_str dstalpn;
+  ساخت Curl_str date;
   curl_off_t srcport;
   curl_off_t dstport;
   curl_off_t persist;
   curl_off_t prio;
 
-  if(curlx_str_word(&line, &srcalpn, MAX_ALTSVC_ALPNLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_word(&line, &srchost, MAX_ALTSVC_HOSTLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_number(&line, &srcport, 65535) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_word(&line, &dstalpn, MAX_ALTSVC_ALPNLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_word(&line, &dsthost, MAX_ALTSVC_HOSTLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_number(&line, &dstport, 65535) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_quotedword(&line, &date, MAX_ALTSVC_DATELEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_number(&line, &persist, 1) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_number(&line, &prio, 0) ||
-     curlx_str_newline(&line))
+  اگر(curlx_str_لفظ(&سطر, &srcalpn, MAX_ALTSVC_ALPNLEN) ||
+     curlx_str_singlespace(&سطر) ||
+     curlx_str_لفظ(&سطر, &srchost, MAX_ALTSVC_HOSTLEN) ||
+     curlx_str_singlespace(&سطر) ||
+     curlx_str_نمبر(&سطر, &srcport, 65535) ||
+     curlx_str_singlespace(&سطر) ||
+     curlx_str_لفظ(&سطر, &dstalpn, MAX_ALTSVC_ALPNLEN) ||
+     curlx_str_singlespace(&سطر) ||
+     curlx_str_لفظ(&سطر, &dsthost, MAX_ALTSVC_HOSTLEN) ||
+     curlx_str_singlespace(&سطر) ||
+     curlx_str_نمبر(&سطر, &dstport, 65535) ||
+     curlx_str_singlespace(&سطر) ||
+     curlx_str_quotedword(&سطر, &date, MAX_ALTSVC_DATELEN) ||
+     curlx_str_singlespace(&سطر) ||
+     curlx_str_نمبر(&سطر, &persist, 1) ||
+     curlx_str_singlespace(&سطر) ||
+     curlx_str_نمبر(&سطر, &prio, 0) ||
+     curlx_str_newline(&سطر))
     ;
-  else {
-    char dbuf[MAX_ALTSVC_DATELEN + 1];
+  ورنہ {
+    حرف dbuf[MAX_ALTSVC_DATELEN + 1];
     time_t expires = 0;
-    time_t now = time(NULL);
+    time_t now = وقت(تہی);
 
     /* The date parser works on a null-terminated string. The maximum length
        is upheld by curlx_str_quotedword(). */
-    memcpy(dbuf, curlx_str(&date), curlx_strlen(&date));
+    حافظہ_نقل(dbuf, curlx_str(&date), curlx_strlen(&date));
     dbuf[curlx_strlen(&date)] = 0;
     Curl_getdate_capped(dbuf, &expires);
 
-    if(now < expires) {
-      struct altsvc *as = altsvc_create(&srchost, &dsthost, &srcalpn, &dstalpn,
+    اگر(now < expires) {
+      ساخت altsvc *as = altsvc_create(&srchost, &dsthost, &srcalpn, &dstalpn,
                                         (size_t)srcport, (size_t)dstport);
-      if(as) {
+      اگر(as) {
         as->expires = expires;
         as->persist = persist ? 1 : 0;
         altsvc_append(asi, as);
       }
-      else
-        return CURLE_OUT_OF_MEMORY;
+      ورنہ
+        واپس CURLE_برآمد_کا_حافظہ;
     }
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /*
@@ -234,69 +234,69 @@ static CURLcode altsvc_add(struct altsvcinfo *asi, const char *line)
  * handling to work completely. It will ignore individual syntactical errors
  * etc.
  */
-static CURLcode altsvc_load(struct altsvcinfo *asi, const char *file)
+ساکن CURLcode altsvc_بھرو(ساخت altsvcinfo *asi, ثابت حرف *file)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   FILE *fp;
 
   /* we need a private copy of the filename so that the altsvc cache file
      name survives an easy handle reset */
   curlx_free(asi->filename);
   asi->filename = curlx_strdup(file);
-  if(!asi->filename)
-    return CURLE_OUT_OF_MEMORY;
+  اگر(!asi->filename)
+    واپس CURLE_برآمد_کا_حافظہ;
 
   fp = curlx_fopen(file, FOPEN_READTEXT);
-  if(fp) {
+  اگر(fp) {
     curlx_struct_stat stat;
-    if((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
+    اگر((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_منوال)) {
       bool eof = FALSE;
-      struct dynbuf buf;
-      curlx_dyn_init(&buf, MAX_ALTSVC_LINE);
-      do {
-        result = Curl_get_line(&buf, fp, &eof);
-        if(!result) {
-          const char *lineptr = curlx_dyn_ptr(&buf);
+      ساخت dynbuf buf;
+      curlx_dyn_init(&buf, MAX_ALTSVC_سطر);
+      کرو {
+        نتیجہ = Curl_get_سطر(&buf, fp, &eof);
+        اگر(!نتیجہ) {
+          ثابت حرف *lineptr = curlx_dyn_ptr(&buf);
           curlx_str_passblanks(&lineptr);
-          if(curlx_str_single(&lineptr, '#'))
-            altsvc_add(asi, lineptr);
+          اگر(curlx_str_single(&lineptr, '#'))
+            altsvc_جوڑو(asi, lineptr);
         }
-      } while(!result && !eof);
+      } جب(!نتیجہ && !eof);
       curlx_dyn_free(&buf); /* free the line buffer */
     }
     curlx_fclose(fp);
   }
-  return result;
+  واپس نتیجہ;
 }
 
 /*
  * Write this single altsvc entry to a single output line
  */
-static CURLcode altsvc_out(struct altsvc *as, FILE *fp)
+ساکن CURLcode altsvc_برآمد(ساخت altsvc *as, FILE *fp)
 {
-  struct tm stamp;
-  const char *dst6_pre = "";
-  const char *dst6_post = "";
-  const char *src6_pre = "";
-  const char *src6_post = "";
-  CURLcode result = curlx_gmtime(as->expires, &stamp);
-  if(result)
+  ساخت tm stamp;
+  ثابت حرف *dst6_pre = "";
+  ثابت حرف *dst6_post = "";
+  ثابت حرف *src6_pre = "";
+  ثابت حرف *src6_post = "";
+  CURLcode نتیجہ = curlx_gmtime(as->expires, &stamp);
+  اگر(نتیجہ)
     /* fail silently for date errors so that only this entry gets
        skipped */
-    return CURLE_OK;
-#ifdef USE_IPV6
-  else {
-    char ipv6_unused[16];
-    if(curlx_inet_pton(AF_INET6, as->dst.host, ipv6_unused) == 1) {
+    واپس CURLE_OK;
+#اگر_تعریف_شدہ USE_IPV6
+  ورنہ {
+    حرف ipv6_غیر_مستعمل[16];
+    اگر(curlx_inet_pton(AF_INET6, as->dst.host, ipv6_غیر_مستعمل) == 1) {
       dst6_pre = "[";
       dst6_post = "]";
     }
-    if(curlx_inet_pton(AF_INET6, as->src.host, ipv6_unused) == 1) {
+    اگر(curlx_inet_pton(AF_INET6, as->src.host, ipv6_غیر_مستعمل) == 1) {
       src6_pre = "[";
       src6_post = "]";
     }
   }
-#endif
+#اگر_ختم
   curl_mfprintf(fp,
                 "%s %s%s%s %u "
                 "%s %s%s%s %u "
@@ -305,16 +305,16 @@ static CURLcode altsvc_out(struct altsvc *as, FILE *fp)
                 "%d 0\n", /* prio still always zero */
                 Curl_alpnid2str(as->src.alpnid),
                 src6_pre, as->src.host, src6_post,
-                as->src.port,
+                as->src.پورٹ,
 
                 Curl_alpnid2str(as->dst.alpnid),
                 dst6_pre, as->dst.host, dst6_post,
-                as->dst.port,
+                as->dst.پورٹ,
 
                 stamp.tm_year + 1900, stamp.tm_mon + 1, stamp.tm_mday,
                 stamp.tm_hour, stamp.tm_min, stamp.tm_sec,
                 as->persist);
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* ---- library-wide functions below ---- */
@@ -323,260 +323,260 @@ static CURLcode altsvc_out(struct altsvc *as, FILE *fp)
  * Curl_altsvc_init() creates a new altsvc cache.
  * It returns the new instance or NULL if something goes wrong.
  */
-struct altsvcinfo *Curl_altsvc_init(void)
+ساخت altsvcinfo *Curl_altsvc_init(خالی)
 {
-  struct altsvcinfo *asi = curlx_calloc(1, sizeof(struct altsvcinfo));
-  if(!asi)
-    return NULL;
-  Curl_llist_init(&asi->list, NULL);
+  ساخت altsvcinfo *asi = curlx_calloc(1, حجم(ساخت altsvcinfo));
+  اگر(!asi)
+    واپس تہی;
+  Curl_llist_init(&asi->list, تہی);
 
   /* set default behavior */
   asi->flags = CURLALTSVC_H1
-#ifdef USE_HTTP2
+#اگر_تعریف_شدہ USE_HTTP2
     | CURLALTSVC_H2
-#endif
-#ifdef USE_HTTP3
+#اگر_ختم
+#اگر_تعریف_شدہ USE_HTTP3
     | CURLALTSVC_H3
-#endif
+#اگر_ختم
     ;
-  return asi;
+  واپس asi;
 }
 
 /*
  * Curl_altsvc_load() loads alt-svc from file.
  */
-CURLcode Curl_altsvc_load(struct altsvcinfo *asi, const char *file)
+CURLcode Curl_altsvc_بھرو(ساخت altsvcinfo *asi, ثابت حرف *file)
 {
   DEBUGASSERT(asi);
-  return altsvc_load(asi, file);
+  واپس altsvc_بھرو(asi, file);
 }
 
 /*
  * Curl_altsvc_ctrl() passes on the external bitmask.
  */
-CURLcode Curl_altsvc_ctrl(struct Curl_easy *data, const long ctrl)
+CURLcode Curl_altsvc_ctrl(ساخت Curl_easy *ڈیٹا, ثابت طویل ctrl)
 {
-  DEBUGASSERT(data);
-  if(!ctrl)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  DEBUGASSERT(ڈیٹا);
+  اگر(!ctrl)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
-  if(!data->asi) {
-    data->asi = Curl_altsvc_init();
-    if(!data->asi)
-      return CURLE_OUT_OF_MEMORY;
+  اگر(!ڈیٹا->asi) {
+    ڈیٹا->asi = Curl_altsvc_init();
+    اگر(!ڈیٹا->asi)
+      واپس CURLE_برآمد_کا_حافظہ;
   }
-  data->asi->flags = ctrl;
-  return CURLE_OK;
+  ڈیٹا->asi->flags = ctrl;
+  واپس CURLE_OK;
 }
 
 /*
  * Curl_altsvc_cleanup() frees an altsvc cache instance and all associated
  * resources.
  */
-void Curl_altsvc_cleanup(struct altsvcinfo **asi)
+خالی Curl_altsvc_cleanup(ساخت altsvcinfo **asi)
 {
-  if(*asi) {
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
-    struct altsvcinfo *altsvc = *asi;
-    for(e = Curl_llist_head(&altsvc->list); e; e = n) {
-      struct altsvc *as = Curl_node_elem(e);
-      n = Curl_node_next(e);
+  اگر(*asi) {
+    ساخت Curl_llist_گرہ *e;
+    ساخت Curl_llist_گرہ *n;
+    ساخت altsvcinfo *altsvc = *asi;
+    برائے(e = Curl_llist_سر(&altsvc->list); e; e = n) {
+      ساخت altsvc *as = Curl_گرہ_elem(e);
+      n = Curl_گرہ_اگلا(e);
       altsvc_free(as);
     }
     curlx_free(altsvc->filename);
     curlx_free(altsvc);
-    *asi = NULL; /* clear the pointer */
+    *asi = تہی; /* clear the pointer */
   }
 }
 
 /*
  * Curl_altsvc_save() writes the altsvc cache to a file.
  */
-CURLcode Curl_altsvc_save(struct Curl_easy *data,
-                          struct altsvcinfo *asi, const char *file)
+CURLcode Curl_altsvc_save(ساخت Curl_easy *ڈیٹا,
+                          ساخت altsvcinfo *asi, ثابت حرف *file)
 {
-  CURLcode result = CURLE_OK;
-  FILE *out;
-  char *tempstore = NULL;
+  CURLcode نتیجہ = CURLE_OK;
+  FILE *برآمد;
+  حرف *tempstore = تہی;
 
-  if(!asi)
+  اگر(!asi)
     /* no cache activated */
-    return CURLE_OK;
+    واپس CURLE_OK;
 
   /* if not new name is given, use the one we stored from the load */
-  if(!file && asi->filename)
+  اگر(!file && asi->filename)
     file = asi->filename;
 
-  if((asi->flags & CURLALTSVC_READONLYFILE) || !file || !file[0])
+  اگر((asi->flags & CURLALTSVC_READONLYFILE) || !file || !file[0])
     /* marked as read-only, no file or zero length filename */
-    return CURLE_OK;
+    واپس CURLE_OK;
 
-  result = Curl_fopen(data, file, &out, &tempstore);
-  if(!result) {
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
+  نتیجہ = Curl_fopen(ڈیٹا, file, &برآمد, &tempstore);
+  اگر(!نتیجہ) {
+    ساخت Curl_llist_گرہ *e;
+    ساخت Curl_llist_گرہ *n;
     fputs("# Your alt-svc cache. https://curl.se/docs/alt-svc.html\n"
           "# This file was generated by libcurl! Edit at your own risk.\n",
-          out);
-    for(e = Curl_llist_head(&asi->list); e; e = n) {
-      struct altsvc *as = Curl_node_elem(e);
-      n = Curl_node_next(e);
-      result = altsvc_out(as, out);
-      if(result)
-        break;
+          برآمد);
+    برائے(e = Curl_llist_سر(&asi->list); e; e = n) {
+      ساخت altsvc *as = Curl_گرہ_elem(e);
+      n = Curl_گرہ_اگلا(e);
+      نتیجہ = altsvc_برآمد(as, برآمد);
+      اگر(نتیجہ)
+        توڑو;
     }
-    curlx_fclose(out);
-    if(!result && tempstore && curlx_rename(tempstore, file))
-      result = CURLE_WRITE_ERROR;
+    curlx_fclose(برآمد);
+    اگر(!نتیجہ && tempstore && curlx_rename(tempstore, file))
+      نتیجہ = CURLE_WRITE_ERROR;
 
-    if(result && tempstore)
+    اگر(نتیجہ && tempstore)
       unlink(tempstore);
   }
   curlx_free(tempstore);
-  return result;
+  واپس نتیجہ;
 }
 
 /* hostcompare() returns true if 'host' matches 'check'. The first host
  * argument may have a trailing dot present that will be ignored.
  */
-static bool hostcompare(const char *host, const char *check)
+ساکن bool hostcompare(ثابت حرف *host, ثابت حرف *check)
 {
-  size_t hlen = strlen(host);
-  size_t clen = strlen(check);
+  size_t hlen = لڑی_لمبائی(host);
+  size_t clen = لڑی_لمبائی(check);
 
-  if(hlen && (host[hlen - 1] == '.'))
+  اگر(hlen && (host[hlen - 1] == '.'))
     hlen--;
-  if(hlen != clen)
+  اگر(hlen != clen)
     /* they cannot match if they have different lengths */
-    return FALSE;
-  return curl_strnequal(host, check, hlen);
+    واپس FALSE;
+  واپس curl_strnequal(host, check, hlen);
 }
 
 /* altsvc_flush() removes all alternatives for this source origin from the
    list */
-static void altsvc_flush(struct altsvcinfo *asi,
-                         struct Curl_peer *origin,
-                         enum alpnid origin_alpnid)
+ساکن خالی altsvc_flush(ساخت altsvcinfo *asi,
+                         ساخت Curl_peer *origin,
+                         شمار alpnid origin_alpnid)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
-  for(e = Curl_llist_head(&asi->list); e; e = n) {
-    struct altsvc *as = Curl_node_elem(e);
-    n = Curl_node_next(e);
-    if((origin_alpnid == as->src.alpnid) &&
-       (origin->port == as->src.port) &&
+  ساخت Curl_llist_گرہ *e;
+  ساخت Curl_llist_گرہ *n;
+  برائے(e = Curl_llist_سر(&asi->list); e; e = n) {
+    ساخت altsvc *as = Curl_گرہ_elem(e);
+    n = Curl_گرہ_اگلا(e);
+    اگر((origin_alpnid == as->src.alpnid) &&
+       (origin->پورٹ == as->src.پورٹ) &&
        hostcompare(origin->hostname, as->src.host)) {
-      Curl_node_remove(e);
+      Curl_گرہ_remove(e);
       altsvc_free(as);
     }
   }
 }
 
-#define CAP_ALTSVC_MAX_AGE (2*365*24*3600) /* two years cap */
+#تعریف_کرو CAP_ALTSVC_MAX_AGE (2*365*24*3600) /* two years cap */
 
-#define ALTSVC_MA      1
-#define ALTSVC_PERSIST 2
-static void altsvc_parse_params(const char **pp,
+#تعریف_کرو ALTSVC_MA      1
+#تعریف_کرو ALTSVC_PERSIST 2
+ساکن خالی altsvc_parse_params(ثابت حرف **pp,
                                 time_t *pmaxage,
                                 bool *ppersist)
 {
   curlx_str_passblanks(pp);
-  if(curlx_str_single(pp, ';'))
-    return;
+  اگر(curlx_str_single(pp, ';'))
+    واپس;
 
-  for(;;) {
-    struct Curl_str name;
-    struct Curl_str val;
-    curl_off_t num;
-    int keyword = 0;
+  برائے(;;) {
+    ساخت Curl_str name;
+    ساخت Curl_str val;
+    curl_off_t عدد;
+    صحیح keyword = 0;
 
     /* allow some extra whitespaces around name and value */
-    if(curlx_str_until(pp, &name, MAX_ALTSVC_LINE, '=') ||
+    اگر(curlx_str_until(pp, &name, MAX_ALTSVC_سطر, '=') ||
        curlx_str_single(pp, '='))
-      break;  /* skip further parameter parsing */
+      توڑو;  /* skip further parameter parsing */
 
     curlx_str_trimblanks(&name);
     curlx_str_passblanks(pp);
-    if(**pp == '\"') {
-      if(curlx_str_quotedword(pp, &val, MAX_ALTSVC_LINE))
-        break;
+    اگر(**pp == '\"') {
+      اگر(curlx_str_quotedword(pp, &val, MAX_ALTSVC_سطر))
+        توڑو;
     }
-    else {
-      if(curlx_str_cspn(pp, &val, ",;\r\n"))
-        break;
+    ورنہ {
+      اگر(curlx_str_cspn(pp, &val, ",;\r\n"))
+        توڑو;
     }
     curlx_str_trimblanks(&val);
 
-    if(curlx_str_casecompare(&name, "ma"))
+    اگر(curlx_str_casecompare(&name, "ma"))
       keyword = ALTSVC_MA;
-    else if(curlx_str_casecompare(&name, "persist"))
+    ورنہ اگر(curlx_str_casecompare(&name, "persist"))
       keyword = ALTSVC_PERSIST;
 
-    if(keyword) {
-      const char *vp = curlx_str(&val);
-      const char *vend = vp + curlx_strlen(&val);
-      if(curlx_str_number(&vp, &num, CURL_OFF_T_MAX))
-        break; /* not a number, skip further parameter parsing */
-      if(vp != vend)
-        break; /* not entirely a number, skip further parameter parsing */
-      if(keyword == ALTSVC_MA) {
-        if(num > CAP_ALTSVC_MAX_AGE)
-          num = CAP_ALTSVC_MAX_AGE;
-        *pmaxage = (time_t)num;
+    اگر(keyword) {
+      ثابت حرف *vp = curlx_str(&val);
+      ثابت حرف *vend = vp + curlx_strlen(&val);
+      اگر(curlx_str_نمبر(&vp, &عدد, CURL_OFF_T_MAX))
+        توڑو; /* not a number, skip further parameter parsing */
+      اگر(vp != vend)
+        توڑو; /* not entirely a number, skip further parameter parsing */
+      اگر(keyword == ALTSVC_MA) {
+        اگر(عدد > CAP_ALTSVC_MAX_AGE)
+          عدد = CAP_ALTSVC_MAX_AGE;
+        *pmaxage = (time_t)عدد;
       }
-      else if(num == 1)
+      ورنہ اگر(عدد == 1)
         *ppersist = TRUE;
     }
 
     curlx_str_passblanks(pp);
-    if(curlx_str_single(pp, ';'))
-      break; /* no further parameters */
+    اگر(curlx_str_single(pp, ';'))
+      توڑو; /* no further parameters */
   }
 }
 
-static bool altsvc_parse_dest(const char **pp,
-                              struct Curl_easy *data,
-                              struct Curl_peer *origin,
-                              struct Curl_str *dsthost,
+ساکن bool altsvc_parse_dest(ثابت حرف **pp,
+                              ساخت Curl_easy *ڈیٹا,
+                              ساخت Curl_peer *origin,
+                              ساخت Curl_str *dsthost,
                               uint16_t *pdstport)
 {
-  curl_off_t port = 0;
+  curl_off_t پورٹ = 0;
 
-  if(curlx_str_single(pp, '\"'))
-    return FALSE;
+  اگر(curlx_str_single(pp, '\"'))
+    واپس FALSE;
 
   /* quoted string, with hostname or just :port ? */
-  if(curlx_str_single(pp, ':')) { /* is hostname:port ? */
-    if(curlx_str_single(pp, '[')) { /* DNS hostname/IPv4 */
-      if(curlx_str_until(pp, dsthost, MAX_ALTSVC_HOSTLEN, ':')) {
-        infof(data, "Bad alt-svc hostname, ignoring.");
-        return FALSE;
+  اگر(curlx_str_single(pp, ':')) { /* is hostname:port ? */
+    اگر(curlx_str_single(pp, '[')) { /* DNS hostname/IPv4 */
+      اگر(curlx_str_until(pp, dsthost, MAX_ALTSVC_HOSTLEN, ':')) {
+        infof(ڈیٹا, "Bad alt-svc hostname, ignoring.");
+        واپس FALSE;
       }
     }
-    else { /* IPv6 hostname */
-      if(curlx_str_until(pp, dsthost, MAX_IPADR_LEN, ']') ||
+    ورنہ { /* IPv6 hostname */
+      اگر(curlx_str_until(pp, dsthost, MAX_IPADR_LEN, ']') ||
          curlx_str_single(pp, ']')) {
-        infof(data, "Bad alt-svc IPv6 hostname, ignoring.");
-        return FALSE;
+        infof(ڈیٹا, "Bad alt-svc IPv6 hostname, ignoring.");
+        واپس FALSE;
       }
     }
-    if(curlx_str_single(pp, ':'))
-      return FALSE; /* not followed by ':' */
+    اگر(curlx_str_single(pp, ':'))
+      واپس FALSE; /* not followed by ':' */
   }
-  else  /* is only :port, hostname is effectively origin */
-    curlx_str_assign(dsthost, origin->hostname,
-                     strlen(origin->hostname));
+  ورنہ  /* is only :port, hostname is effectively origin */
+    curlx_str_تفویض(dsthost, origin->hostname,
+                     لڑی_لمبائی(origin->hostname));
 
-  if(curlx_str_number(pp, &port, 0xffff)) {
-    infof(data, "Unknown alt-svc port number, ignoring.");
-    return FALSE;
+  اگر(curlx_str_نمبر(pp, &پورٹ, 0xffff)) {
+    infof(ڈیٹا, "Unknown alt-svc port number, ignoring.");
+    واپس FALSE;
   }
 
-  *pdstport = (uint16_t)port;
-  if(curlx_str_single(pp, '\"'))
-    return FALSE; /* quoted string not ending here as expected */
-  return TRUE;
+  *pdstport = (uint16_t)پورٹ;
+  اگر(curlx_str_single(pp, '\"'))
+    واپس FALSE; /* quoted string not ending here as expected */
+  واپس TRUE;
 }
 
 /*
@@ -590,15 +590,15 @@ static bool altsvc_parse_dest(const char **pp,
  * Invalid hostname, port number will result in the specific alternative
  * being rejected. Unknown protocols are skipped.
  */
-CURLcode Curl_altsvc_parse(struct Curl_easy *data,
-                           struct altsvcinfo *asi, const char *value,
-                           struct Curl_peer *origin,
-                           enum alpnid origin_alpnid)
+CURLcode Curl_altsvc_parse(ساخت Curl_easy *ڈیٹا,
+                           ساخت altsvcinfo *asi, ثابت حرف *قدر,
+                           ساخت Curl_peer *origin,
+                           شمار alpnid origin_alpnid)
 {
-  struct altsvc *as;
+  ساخت altsvc *as;
   size_t entries = 0;
-  struct Curl_str alpn;
-  const char *p;
+  ساخت Curl_str alpn;
+  ثابت حرف *p;
 
   DEBUGASSERT(asi);
   DEBUGASSERT(origin);
@@ -610,85 +610,85 @@ CURLcode Curl_altsvc_parse(struct Curl_easy *data,
    */
 
   /* Try to catch a standalone "clear" */
-  p = value;
-  if(!curlx_str_cspn(&p, &alpn, ";\n\r")) {
+  p = قدر;
+  اگر(!curlx_str_cspn(&p, &alpn, ";\n\r")) {
     curlx_str_trimblanks(&alpn);
     /* "clear" is a magic keyword */
-    if(curlx_str_casecompare(&alpn, "clear")) {
+    اگر(curlx_str_casecompare(&alpn, "clear")) {
       /* Flush cached alternatives for this source origin */
       altsvc_flush(asi, origin, origin_alpnid);
-      return CURLE_OK;
+      واپس CURLE_OK;
     }
   }
 
   /* Not a standalone "clear", parse from start for alpn entries */
-  for(p = value; *p;) {
+  برائے(p = قدر; *p;) {
     time_t maxage = 24 * 3600; /* default is 24 hours */
     bool persist = FALSE;
-    enum alpnid dstalpnid;
-    struct Curl_str dsthost;
+    شمار alpnid dstalpnid;
+    ساخت Curl_str dsthost;
     uint16_t dstport;
 
-    if(curlx_str_until(&p, &alpn, MAX_ALTSVC_LINE, '='))
-      break; /* not another entry, leave */
+    اگر(curlx_str_until(&p, &alpn, MAX_ALTSVC_سطر, '='))
+      توڑو; /* not another entry, leave */
     curlx_str_trimblanks(&alpn);
     dstalpnid = Curl_str2alpnid(&alpn);
 
-    if(curlx_str_single(&p, '='))
-      break;
+    اگر(curlx_str_single(&p, '='))
+      توڑو;
 
     /* Parse altsvc hostname:port */
-    if(!altsvc_parse_dest(&p, data, origin, &dsthost, &dstport))
-      break;
+    اگر(!altsvc_parse_dest(&p, ڈیٹا, origin, &dsthost, &dstport))
+      توڑو;
 
     /* Parse optional parameters */
     altsvc_parse_params(&p, &maxage, &persist);
 
-    if(dstalpnid) { /* this is a known ALPN id, e.g. not ALPN_none */
-      if(!entries++)
+    اگر(dstalpnid) { /* this is a known ALPN id, e.g. not ALPN_none */
+      اگر(!entries++)
         /* Flush cached alternatives for this source origin, if any - when
            this is the first entry of the line. */
         altsvc_flush(asi, origin, origin_alpnid);
 
-      as = altsvc_createid(origin->hostname, strlen(origin->hostname),
+      as = altsvc_createid(origin->hostname, لڑی_لمبائی(origin->hostname),
                            curlx_str(&dsthost),
                            curlx_strlen(&dsthost),
                            origin_alpnid, dstalpnid,
-                           origin->port, dstport);
-      if(as) {
-        time_t secs = time(NULL);
+                           origin->پورٹ, dstport);
+      اگر(as) {
+        time_t secs = وقت(تہی);
         /* The expires time also needs to take the Age: value (if any)
            into account. [See RFC 7838 section 3.1] */
-        if(maxage > (TIME_T_MAX - secs))
-          as->expires = TIME_T_MAX;
-        else
+        اگر(maxage > (وقت_T_MAX - secs))
+          as->expires = وقت_T_MAX;
+        ورنہ
           as->expires = maxage + secs;
         as->persist = persist;
         altsvc_append(asi, as);
-        infof(data, "Added alt-svc: %.*s:%u over %s",
-              (int)curlx_strlen(&dsthost), curlx_str(&dsthost),
+        infof(ڈیٹا, "Added alt-svc: %.*s:%u over %s",
+              (صحیح)curlx_strlen(&dsthost), curlx_str(&dsthost),
               dstport, Curl_alpnid2str(dstalpnid));
       }
-      else
-        return CURLE_OUT_OF_MEMORY;
+      ورنہ
+        واپس CURLE_برآمد_کا_حافظہ;
     }
 
     /* When this is followed by a comma, we expect another entry */
-    if(curlx_str_single(&p, ','))
-      break;
+    اگر(curlx_str_single(&p, ','))
+      توڑو;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /*
  * Return TRUE on a match
  */
-bool Curl_altsvc_lookup(struct altsvcinfo *asi,
-                        struct Curl_peer *origin,
-                        enum alpnid origin_alpnid,
-                        struct altsvc **dstentry,
-                        const int versions, /* one or more bits */
+bool Curl_altsvc_lookup(ساخت altsvcinfo *asi,
+                        ساخت Curl_peer *origin,
+                        شمار alpnid origin_alpnid,
+                        ساخت altsvc **dstentry,
+                        ثابت صحیح versions, /* one or more bits */
                         bool *psame_destination)
 {
   DEBUGASSERT(asi);
@@ -696,38 +696,38 @@ bool Curl_altsvc_lookup(struct altsvcinfo *asi,
   DEBUGASSERT(dstentry);
   *psame_destination = FALSE;
 
-  if(Curl_llist_count(&asi->list)) {
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
-    time_t now = time(NULL);
+  اگر(Curl_llist_گنتی(&asi->list)) {
+    ساخت Curl_llist_گرہ *e;
+    ساخت Curl_llist_گرہ *n;
+    time_t now = وقت(تہی);
 
-    for(e = Curl_llist_head(&asi->list); e; e = n) {
-      struct altsvc *as = Curl_node_elem(e);
-      n = Curl_node_next(e);
-      if(as->expires < now) {
+    برائے(e = Curl_llist_سر(&asi->list); e; e = n) {
+      ساخت altsvc *as = Curl_گرہ_elem(e);
+      n = Curl_گرہ_اگلا(e);
+      اگر(as->expires < now) {
         /* an expired entry, remove */
-        Curl_node_remove(e);
+        Curl_گرہ_remove(e);
         altsvc_free(as);
-        continue;
+        جاری;
       }
-      if((origin_alpnid == as->src.alpnid) &&
-         (versions & (int)as->dst.alpnid) &&
-         (origin->port == as->src.port) &&
+      اگر((origin_alpnid == as->src.alpnid) &&
+         (versions & (صحیح)as->dst.alpnid) &&
+         (origin->پورٹ == as->src.پورٹ) &&
          hostcompare(origin->hostname, as->src.host)) {
-        /* match */
+        /*مطابقت*/
         *dstentry = as;
         /* alt-svc on the same host+port or another one? */
-        *psame_destination = (origin->port == as->dst.port) &&
+        *psame_destination = (origin->پورٹ == as->dst.پورٹ) &&
                              hostcompare(origin->hostname, as->dst.host);
-        return TRUE;
+        واپس TRUE;
       }
     }
   }
-  return FALSE;
+  واپس FALSE;
 }
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
-#undef time
-#endif
+#اگر defined(DEBUGBUILD) || defined(UNITTESTS)
+#تعریف_منسوخ وقت
+#اگر_ختم
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_ALTSVC */
+#اگر_ختم /* !CURL_DISABLE_HTTP && !CURL_DISABLE_ALTSVC */

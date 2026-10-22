@@ -21,226 +21,226 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#اگر !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "select.h"
-#include "vquic/capsule.h"
-#include "vquic/cf-capsule.h"
+#شامل "urldata.h"
+#شامل "cfilters.h"
+#شامل "curl_trc.h"
+#شامل "bufq.h"
+#شامل "select.h"
+#شامل "vquic/capsule.h"
+#شامل "vquic/cf-capsule.h"
 
 /* send/recv buffer: 4 chunks of 16KB = 64KB, enough for large datagrams */
-#define CAPSULE_RECV_CHUNKS    4
-#define CAPSULE_SEND_CHUNKS    4
-#define CAPSULE_CHUNK_SIZE     (16 * 1024)
+#تعریف_کرو CAPSULE_RECV_CHUNKS    4
+#تعریف_کرو CAPSULE_SEND_CHUNKS    4
+#تعریف_کرو CAPSULE_CHUNK_سائز     (16 * 1024)
 
-struct cf_capsule_ctx {
-  struct bufq recvbuf;
-  struct bufq sendbuf;
+ساخت cf_capsule_ctx {
+  ساخت bufq recvbuf;
+  ساخت bufq sendbuf;
 };
 
-static void cf_capsule_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+ساکن خالی cf_capsule_destroy(ساخت Curl_cfilter *cf,
+                               ساخت Curl_easy *ڈیٹا)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  ساخت cf_capsule_ctx *ctx = cf->ctx;
+  (خالی)ڈیٹا;
+  اگر(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_safefree(ctx);
   }
 }
 
-static CURLcode cf_capsule_connect(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   bool *done)
+ساکن CURLcode cf_capsule_connect(ساخت Curl_cfilter *cf,
+                                   ساخت Curl_easy *ڈیٹا,
+                                   bool *مکمل)
 {
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  اگر(cf->connected) {
+    *مکمل = TRUE;
+    واپس CURLE_OK;
   }
-  if(cf->next) {
-    CURLcode result = cf->next->cft->do_connect(cf->next, data, done);
-    if(!result && *done)
+  اگر(cf->اگلا) {
+    CURLcode نتیجہ = cf->اگلا->cft->do_connect(cf->اگلا, ڈیٹا, مکمل);
+    اگر(!نتیجہ && *مکمل)
       cf->connected = TRUE;
-    return result;
+    واپس نتیجہ;
   }
-  *done = FALSE;
-  return CURLE_OK;
+  *مکمل = FALSE;
+  واپس CURLE_OK;
 }
 
-static CURLcode cf_capsule_flush(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+ساکن CURLcode cf_capsule_flush(ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  ساخت cf_capsule_ctx *ctx = cf->ctx;
+  CURLcode نتیجہ = CURLE_OK;
   size_t nwritten;
 
-  if(Curl_bufq_is_empty(&ctx->sendbuf))
-    return CURLE_OK;
+  اگر(Curl_bufq_is_خالی_خانے(&ctx->sendbuf))
+    واپس CURLE_OK;
 
-  result = Curl_cf_send_bufq(cf->next, data, &ctx->sendbuf, NULL, 0,
+  نتیجہ = Curl_cf_send_bufq(cf->اگلا, ڈیٹا, &ctx->sendbuf, تہی, 0,
                              &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
-      CURL_TRC_CF(data, cf, "flush send buffer(%zu) -> EAGAIN",
+  اگر(نتیجہ) {
+    اگر(نتیجہ == CURLE_AGAIN) {
+      CURL_TRC_CF(ڈیٹا, cf, "flush send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->sendbuf));
     }
-    return result;
+    واپس نتیجہ;
   }
-  return Curl_bufq_is_empty(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
+  واپس Curl_bufq_is_خالی_خانے(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
 }
 
-static CURLcode cf_capsule_send(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                const uint8_t *buf, size_t len,
+ساکن CURLcode cf_capsule_send(ساخت Curl_cfilter *cf,
+                                ساخت Curl_easy *ڈیٹا,
+                                ثابت uint8_t *buf, size_t len,
                                 bool eos, size_t *pnwritten)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  CURLcode result;
+  ساخت cf_capsule_ctx *ctx = cf->ctx;
+  CURLcode نتیجہ;
 
-  (void)eos;
+  (خالی)eos;
   *pnwritten = 0;
 
-  if(Curl_bufq_is_full(&ctx->sendbuf)) {
-    result = cf_capsule_flush(cf, data);
-    if(result)
-      return result;
+  اگر(Curl_bufq_is_بھرا(&ctx->sendbuf)) {
+    نتیجہ = cf_capsule_flush(cf, ڈیٹا);
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
 
   /* encapsulate new payload into a capsule */
-  result = Curl_capsule_encap_udp_datagram(&ctx->sendbuf, buf, len);
-  if(result)
-    return result;
+  نتیجہ = Curl_capsule_encap_udp_datagram(&ctx->sendbuf, buf, len);
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
-  result = cf_capsule_flush(cf, data);
-  if(result == CURLE_AGAIN) {
+  نتیجہ = cf_capsule_flush(cf, ڈیٹا);
+  اگر(نتیجہ == CURLE_AGAIN) {
     /* Could not send it (or all), report success nevertheless as we
      * have the payload buffered now and will flush it later. */
-    result = CURLE_OK;
+    نتیجہ = CURLE_OK;
   }
 
-  if(!result)
+  اگر(!نتیجہ)
     *pnwritten = len;
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode cf_capsule_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+ساکن CURLcode cf_capsule_recv(ساخت Curl_cfilter *cf,
+                                ساخت Curl_easy *ڈیٹا,
+                                حرف *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  CURLcode result;
+  ساخت cf_capsule_ctx *ctx = cf->ctx;
+  CURLcode نتیجہ;
   size_t nread;
 
   *pnread = 0;
 
   /* fill our receive buffer from the filter below */
-  while(!Curl_bufq_is_full(&ctx->recvbuf)) {
-    result = Curl_cf_recv_bufq(cf->next, data, &ctx->recvbuf, 0, &nread);
-    if(result == CURLE_AGAIN)
-      break;
-    if(result)
-      return result;
-    if(!nread)
-      break;
+  جب(!Curl_bufq_is_بھرا(&ctx->recvbuf)) {
+    نتیجہ = Curl_cf_recv_bufq(cf->اگلا, ڈیٹا, &ctx->recvbuf, 0, &nread);
+    اگر(نتیجہ == CURLE_AGAIN)
+      توڑو;
+    اگر(نتیجہ)
+      واپس نتیجہ;
+    اگر(!nread)
+      توڑو;
   }
 
   /* try to extract a complete capsule datagram */
-  *pnread = Curl_capsule_process_udp_raw(cf, data, &ctx->recvbuf,
-                                         (unsigned char *)buf, len,
-                                         &result);
-  return result;
+  *pnread = Curl_capsule_process_udp_raw(cf, ڈیٹا, &ctx->recvbuf,
+                                         (غیرعلامتی حرف *)buf, len,
+                                         &نتیجہ);
+  واپس نتیجہ;
 }
 
-static bool cf_capsule_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+ساکن bool cf_capsule_ڈیٹا_pending(ساخت Curl_cfilter *cf,
+                                    ثابت ساخت Curl_easy *ڈیٹا)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  ساخت cf_capsule_ctx *ctx = cf->ctx;
 
-  if(ctx && !Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  اگر(ctx && !Curl_bufq_is_خالی_خانے(&ctx->recvbuf))
+    واپس TRUE;
+  واپس cf->اگلا ? cf->اگلا->cft->has_ڈیٹا_pending(cf->اگلا, ڈیٹا) : FALSE;
 }
 
-static CURLcode cf_capsule_cntrl(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 int event, int arg1, void *arg2)
+ساکن CURLcode cf_capsule_cntrl(ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 صحیح event, صحیح arg1, خالی *arg2)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_FLUSH:
-    result = cf_capsule_flush(cf, data);
-    break;
-  default:
-    break;
+  (خالی)arg1;
+  (خالی)arg2;
+  انتخاب(event) {
+  حالت CF_CTRL_FLUSH:
+    نتیجہ = cf_capsule_flush(cf, ڈیٹا);
+    توڑو;
+  طےشدہ:
+    توڑو;
   }
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode cf_capsule_query(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 int query, int *pres1, void *pres2)
+ساکن CURLcode cf_capsule_query(ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 صحیح query, صحیح *pres1, خالی *pres2)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  ساخت cf_capsule_ctx *ctx = cf->ctx;
 
-  (void)pres2;
-  switch(query) {
-  case CF_QUERY_NEED_FLUSH: {
-    if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
+  (خالی)pres2;
+  انتخاب(query) {
+  حالت CF_QUERY_NEED_FLUSH: {
+    اگر(!Curl_bufq_is_خالی_خانے(&ctx->sendbuf)) {
       *pres1 = TRUE;
-      return CURLE_OK;
+      واپس CURLE_OK;
     }
-    break;
+    توڑو;
   }
-  default:
-    break;
+  طےشدہ:
+    توڑو;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  واپس cf->اگلا ?
+    cf->اگلا->cft->query(cf->اگلا, ڈیٹا, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode cf_capsule_adjust_pollset(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+ساکن CURLcode cf_capsule_adjust_pollset(ساخت Curl_cfilter *cf,
+                                          ساخت Curl_easy *ڈیٹا,
+                                          ساخت easy_pollset *ps)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  ساخت cf_capsule_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
-    curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
-    if(sock != CURL_SOCKET_BAD)
-      return Curl_pollset_add_out(data, ps, sock);
+  اگر(!Curl_bufq_is_خالی_خانے(&ctx->sendbuf)) {
+    curl_socket_t sock = Curl_conn_cf_get_socket(cf, ڈیٹا);
+    اگر(sock != CURL_SOCKET_BAD)
+      واپس Curl_pollset_جوڑو_برآمد(ڈیٹا, ps, sock);
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode cf_capsule_shutdown(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data, bool *done)
+ساکن CURLcode cf_capsule_shutdown(ساخت Curl_cfilter *cf,
+                                    ساخت Curl_easy *ڈیٹا, bool *مکمل)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(!cf->connected || cf->shutdown) {
-    *done = TRUE;
+  اگر(!cf->connected || cf->shutdown) {
+    *مکمل = TRUE;
   }
-  else {
-    result = cf_capsule_flush(cf, data);
-    *done = !result;
-    if(result == CURLE_AGAIN)
-      result = CURLE_OK;
+  ورنہ {
+    نتیجہ = cf_capsule_flush(cf, ڈیٹا);
+    *مکمل = !نتیجہ;
+    اگر(نتیجہ == CURLE_AGAIN)
+      نتیجہ = CURLE_OK;
   }
-  return result;
+  واپس نتیجہ;
 }
 
-struct Curl_cftype Curl_cft_capsule = {
+ساخت Curl_cftype Curl_cft_capsule = {
   "CAPSULE",
   0,
   0,
@@ -248,7 +248,7 @@ struct Curl_cftype Curl_cft_capsule = {
   cf_capsule_connect,
   cf_capsule_shutdown,
   cf_capsule_adjust_pollset,
-  cf_capsule_data_pending,
+  cf_capsule_ڈیٹا_pending,
   cf_capsule_send,
   cf_capsule_recv,
   cf_capsule_cntrl,
@@ -257,50 +257,50 @@ struct Curl_cftype Curl_cft_capsule = {
   cf_capsule_query,
 };
 
-static CURLcode cf_capsule_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  struct connectdata *conn)
+ساکن CURLcode cf_capsule_create(ساخت Curl_cfilter **pcf,
+                                  ساخت Curl_easy *ڈیٹا,
+                                  ساخت connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_capsule_ctx *ctx;
-  CURLcode result;
+  ساخت Curl_cfilter *cf = تہی;
+  ساخت cf_capsule_ctx *ctx;
+  CURLcode نتیجہ;
 
-  (void)data;
-  (void)conn;
-  *pcf = NULL;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (خالی)ڈیٹا;
+  (خالی)conn;
+  *pcf = تہی;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  اگر(!ctx) {
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ برآمد;
   }
 
-  Curl_bufq_init2(&ctx->recvbuf, CAPSULE_CHUNK_SIZE, CAPSULE_RECV_CHUNKS,
-                  BUFQ_OPT_SOFT_LIMIT);
-  Curl_bufq_init2(&ctx->sendbuf, CAPSULE_CHUNK_SIZE, CAPSULE_SEND_CHUNKS,
-                  BUFQ_OPT_SOFT_LIMIT);
+  Curl_bufq_init2(&ctx->recvbuf, CAPSULE_CHUNK_سائز, CAPSULE_RECV_CHUNKS,
+                  BUFQ_OPT_SOFT_حد_بندی);
+  Curl_bufq_init2(&ctx->sendbuf, CAPSULE_CHUNK_سائز, CAPSULE_SEND_CHUNKS,
+                  BUFQ_OPT_SOFT_حد_بندی);
 
-  result = Curl_cf_create(&cf, &Curl_cft_capsule, ctx);
+  نتیجہ = Curl_cf_create(&cf, &Curl_cft_capsule, ctx);
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result && ctx) {
+برآمد:
+  *pcf = (!نتیجہ) ? cf : تہی;
+  اگر(نتیجہ && ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_free(ctx);
   }
-  return result;
+  واپس نتیجہ;
 }
 
-CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data)
+CURLcode Curl_cf_capsule_داخل_کرو_after(ساخت Curl_cfilter *cf_at,
+                                      ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  ساخت Curl_cfilter *cf;
+  CURLcode نتیجہ;
 
-  result = cf_capsule_create(&cf, data, cf_at->conn);
-  if(!result)
-    Curl_conn_cf_insert_after(cf_at, cf);
-  return result;
+  نتیجہ = cf_capsule_create(&cf, ڈیٹا, cf_at->conn);
+  اگر(!نتیجہ)
+    Curl_conn_cf_داخل_کرو_after(cf_at, cf);
+  واپس نتیجہ;
 }
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#اگر_ختم /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

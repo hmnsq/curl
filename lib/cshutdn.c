@@ -22,222 +22,222 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "progress.h"
-#include "multiif.h"
-#include "multi_ev.h"
-#include "curl_trc.h"
-#include "cshutdn.h"
-#include "sigpipe.h"
-#include "connect.h"
-#include "select.h"
-#include "curlx/strparse.h"
+#شامل "urldata.h"
+#شامل "url.h"
+#شامل "cfilters.h"
+#شامل "progress.h"
+#شامل "multiif.h"
+#شامل "multi_ev.h"
+#شامل "curl_trc.h"
+#شامل "cshutdn.h"
+#شامل "sigpipe.h"
+#شامل "connect.h"
+#شامل "select.h"
+#شامل "curlx/strparse.h"
 
 
-#define DEFAULT_SHUTDOWN_TIMEOUT_MS   (2 * 1000)
+#تعریف_کرو DEFAULT_SHUTDOWN_TIMEOUT_MS   (2 * 1000)
 
-void Curl_cshutdn_start_timer(struct Curl_easy *data, int8_t sockindex,
-                              int timeout_ms)
+خالی Curl_cshutdn_آغاز_timer(ساخت Curl_easy *ڈیٹا, int8_t sockindex,
+                              صحیح timeout_ms)
 {
-  struct connectdata *conn = data->conn;
-  const struct curltime *pnow = Curl_pgrs_now(data);
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ثابت ساخت curltime *pnow = Curl_pgrs_now(ڈیٹا);
 
   DEBUGASSERT(conn);
-  conn->shutdown.start_ms[sockindex] =
+  conn->shutdown.آغاز_ms[sockindex] =
     curlx_ptimediff_ms(pnow, &conn->created);
   conn->shutdown.timeout_ms = (timeout_ms > 0) ?
     (timediff_t)timeout_ms :
-    ((data->set.shutdowntimeout > 0) ?
-     data->set.shutdowntimeout : DEFAULT_SHUTDOWN_TIMEOUT_MS);
+    ((ڈیٹا->سیٹ.shutdowntimeout > 0) ?
+     ڈیٹا->سیٹ.shutdowntimeout : DEFAULT_SHUTDOWN_TIMEOUT_MS);
   /* Set a timer, unless we operate on the admin handle */
-  if(data->mid)
-    Curl_expire_set(data, EXPIRE_SHUTDOWN, conn->shutdown.timeout_ms, pnow);
-  CURL_TRC_M(data, "shutdown start on%s connection",
+  اگر(ڈیٹا->mid)
+    Curl_expire_سیٹ(ڈیٹا, EXPIRE_SHUTDOWN, conn->shutdown.timeout_ms, pnow);
+  CURL_TRC_M(ڈیٹا, "shutdown start on%s connection",
              sockindex ? " secondary" : "");
 }
 
-timediff_t Curl_cshutdn_timeleft_ms(struct Curl_easy *data,
-                                    struct connectdata *conn,
+timediff_t Curl_cshutdn_timeleft_ms(ساخت Curl_easy *ڈیٹا,
+                                    ساخت connectdata *conn,
                                     int8_t sockindex)
 {
-  timediff_t left_ms;
+  timediff_t بایاں_ms;
 
-  if(conn->shutdown.start_ms[sockindex] < 0)
-    return 0; /* not started or no limits */
+  اگر(conn->shutdown.آغاز_ms[sockindex] < 0)
+    واپس 0; /* not started or no limits */
 
-  left_ms = conn->shutdown.timeout_ms -
-            (curlx_ptimediff_ms(Curl_pgrs_now(data), &conn->created) -
-             conn->shutdown.start_ms[sockindex]);
-  return left_ms ? left_ms : -1;
+  بایاں_ms = conn->shutdown.timeout_ms -
+            (curlx_ptimediff_ms(Curl_pgrs_now(ڈیٹا), &conn->created) -
+             conn->shutdown.آغاز_ms[sockindex]);
+  واپس بایاں_ms ? بایاں_ms : -1;
 }
 
-static timediff_t cshutdn_conn_timeleft(struct Curl_easy *data,
-                                        struct connectdata *conn)
+ساکن timediff_t cshutdn_conn_timeleft(ساخت Curl_easy *ڈیٹا,
+                                        ساخت connectdata *conn)
 {
-  timediff_t left_ms = 0, ms;
+  timediff_t بایاں_ms = 0, ms;
   int8_t i;
 
-  for(i = 0; conn->shutdown.timeout_ms && (i < 2); ++i) {
-    if(conn->shutdown.start_ms[i] < 0)
-      continue;
-    ms = Curl_cshutdn_timeleft_ms(data, conn, i);
-    if(ms && (!left_ms || ms < left_ms))
-      left_ms = ms;
+  برائے(i = 0; conn->shutdown.timeout_ms && (i < 2); ++i) {
+    اگر(conn->shutdown.آغاز_ms[i] < 0)
+      جاری;
+    ms = Curl_cshutdn_timeleft_ms(ڈیٹا, conn, i);
+    اگر(ms && (!بایاں_ms || ms < بایاں_ms))
+      بایاں_ms = ms;
   }
-  return left_ms;
+  واپس بایاں_ms;
 }
 
-void Curl_cshutdn_clear_timer(struct Curl_easy *data, int8_t sockindex)
+خالی Curl_cshutdn_clear_timer(ساخت Curl_easy *ڈیٹا, int8_t sockindex)
 {
-  data->conn->shutdown.start_ms[sockindex] = -1;
+  ڈیٹا->conn->shutdown.آغاز_ms[sockindex] = -1;
 }
 
-static void cshutdn_run_conn_handler(struct Curl_easy *data,
-                                     struct connectdata *conn)
+ساکن خالی cshutdn_تسلسل_conn_handler(ساخت Curl_easy *ڈیٹا,
+                                     ساخت connectdata *conn)
 {
-  if(!conn->bits.shutdown_handler) {
+  اگر(!conn->بٹ.shutdown_handler) {
 
-    if(conn->scheme && conn->scheme->run->disconnect) {
+    اگر(conn->scheme && conn->scheme->تسلسل->disconnect) {
       /* Some disconnect handlers do a blocking wait on server responses.
        * FTP/IMAP/SMTP and SFTP are among them. When using the internal
        * handle, set an overall short timeout so we do not hang for the
        * default 120 seconds. */
-      if(data->state.internal) {
-        data->set.timeout = DEFAULT_SHUTDOWN_TIMEOUT_MS;
-        Curl_pgrsTime(data, TIMER_STARTOP);
+      اگر(ڈیٹا->state.اندرونی_2) {
+        ڈیٹا->سیٹ.timeout = DEFAULT_SHUTDOWN_TIMEOUT_MS;
+        Curl_pgrs_وقت(ڈیٹا, TIMER_STARTOP);
       }
 
       /* This is set if protocol-specific cleanups should be made */
-      DEBUGF(infof(data, "connection #%" FMT_OFF_T
+      DEBUGF(infof(ڈیٹا, "connection #%" FMT_OFF_T
                    ", shutdown protocol handler (aborted=%d)",
-                   conn->connection_id, conn->bits.aborted));
+                   conn->connection_id, conn->بٹ.aborted));
       /* There are protocol handlers that block on retrieving
        * server responses here (FTP). Set a short timeout. */
-      conn->scheme->run->disconnect(data, conn, (bool)conn->bits.aborted);
+      conn->scheme->تسلسل->disconnect(ڈیٹا, conn, (bool)conn->بٹ.aborted);
     }
 
-    conn->bits.shutdown_handler = TRUE;
+    conn->بٹ.shutdown_handler = TRUE;
   }
 }
 
-CURLcode Curl_cshutdn_try_once_idx(struct Curl_easy *data,
-                                   int8_t sockindex, bool *done)
+CURLcode Curl_cshutdn_try_once_idx(ساخت Curl_easy *ڈیٹا,
+                                   int8_t sockindex, bool *مکمل)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+  ساخت Curl_cfilter *cf;
+  CURLcode نتیجہ = CURLE_OK;
   timediff_t timeout_ms;
 
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(ڈیٹا->conn);
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!CONN_SOCK_IDX_VALID(sockindex))
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
   /* Get the first connected filter that is not shut down already. */
-  cf = data->conn->cfilter[sockindex];
-  while(cf && (!cf->connected || cf->shutdown))
-    cf = cf->next;
+  cf = ڈیٹا->conn->cfilter[sockindex];
+  جب(cf && (!cf->connected || cf->shutdown))
+    cf = cf->اگلا;
 
-  if(!cf) {
-    *done = TRUE;
-    return CURLE_OK;
+  اگر(!cf) {
+    *مکمل = TRUE;
+    واپس CURLE_OK;
   }
 
-  *done = FALSE;
-  if(!CURL_CONN_IN_SHUTDOWN(data->conn, sockindex)) {
-    Curl_cshutdn_start_timer(data, sockindex, 0);
+  *مکمل = FALSE;
+  اگر(!CURL_CONN_اندر_SHUTDOWN(ڈیٹا->conn, sockindex)) {
+    Curl_cshutdn_آغاز_timer(ڈیٹا, sockindex, 0);
   }
-  else {
-    timeout_ms = Curl_cshutdn_timeleft_ms(data, data->conn, sockindex);
-    if(timeout_ms < 0) {
+  ورنہ {
+    timeout_ms = Curl_cshutdn_timeleft_ms(ڈیٹا, ڈیٹا->conn, sockindex);
+    اگر(timeout_ms < 0) {
       /* info message, since this might be regarded as acceptable */
-      infof(data, "shutdown timeout");
-      return CURLE_OPERATION_TIMEDOUT;
+      infof(ڈیٹا, "shutdown timeout");
+      واپس CURLE_OPERATION_TIMEDOUT;
     }
   }
 
-  while(cf) {
-    if(!cf->shutdown) {
+  جب(cf) {
+    اگر(!cf->shutdown) {
       bool cfdone = FALSE;
-      result = cf->cft->do_shutdown(cf, data, &cfdone);
-      if(result) {
-        CURL_TRC_CF(data, cf, "shut down failed with %d", (int)result);
-        return result;
+      نتیجہ = cf->cft->do_shutdown(cf, ڈیٹا, &cfdone);
+      اگر(نتیجہ) {
+        CURL_TRC_CF(ڈیٹا, cf, "shut down failed with %d", (صحیح)نتیجہ);
+        واپس نتیجہ;
       }
-      else if(!cfdone) {
-        CURL_TRC_CF(data, cf, "shut down not done yet");
-        return CURLE_OK;
+      ورنہ اگر(!cfdone) {
+        CURL_TRC_CF(ڈیٹا, cf, "shut down not done yet");
+        واپس CURLE_OK;
       }
-      CURL_TRC_CF(data, cf, "shut down successfully");
+      CURL_TRC_CF(ڈیٹا, cf, "shut down successfully");
       cf->shutdown = TRUE;
     }
-    cf = cf->next;
+    cf = cf->اگلا;
   }
-  *done = (!result);
-  return result;
+  *مکمل = (!نتیجہ);
+  واپس نتیجہ;
 }
 
-static void cshutdn_run_once(struct Curl_easy *data,
-                             struct connectdata *conn,
-                             bool *done)
+ساکن خالی cshutdn_تسلسل_once(ساخت Curl_easy *ڈیٹا,
+                             ساخت connectdata *conn,
+                             bool *مکمل)
 {
   CURLcode r1, r2;
   bool done1, done2;
 
   /* We expect to be attached when called */
-  DEBUGASSERT(data->conn == conn);
+  DEBUGASSERT(ڈیٹا->conn == conn);
 
-  if(!CURL_CONN_IN_SHUTDOWN(conn, FIRSTSOCKET)) {
-    Curl_cshutdn_start_timer(data, FIRSTSOCKET, 0);
+  اگر(!CURL_CONN_اندر_SHUTDOWN(conn, FIRSTSOCKET)) {
+    Curl_cshutdn_آغاز_timer(ڈیٹا, FIRSTSOCKET, 0);
   }
 
-  cshutdn_run_conn_handler(data, conn);
+  cshutdn_تسلسل_conn_handler(ڈیٹا, conn);
 
-  if(conn->bits.shutdown_filters) {
-    *done = TRUE;
-    return;
+  اگر(conn->بٹ.shutdown_filters) {
+    *مکمل = TRUE;
+    واپس;
   }
 
-  if(!conn->bits.connect_only && Curl_conn_is_connected(conn, FIRSTSOCKET))
-    r1 = Curl_cshutdn_try_once_idx(data, FIRSTSOCKET, &done1);
-  else {
+  اگر(!conn->بٹ.connect_only && Curl_conn_is_connected(conn, FIRSTSOCKET))
+    r1 = Curl_cshutdn_try_once_idx(ڈیٹا, FIRSTSOCKET, &done1);
+  ورنہ {
     r1 = CURLE_OK;
     done1 = TRUE;
   }
 
-  if(!conn->bits.connect_only && Curl_conn_is_connected(conn, SECONDARYSOCKET))
-    r2 = Curl_cshutdn_try_once_idx(data, SECONDARYSOCKET, &done2);
-  else {
+  اگر(!conn->بٹ.connect_only && Curl_conn_is_connected(conn, SECONDARYSOCKET))
+    r2 = Curl_cshutdn_try_once_idx(ڈیٹا, SECONDARYSOCKET, &done2);
+  ورنہ {
     r2 = CURLE_OK;
     done2 = TRUE;
   }
 
   /* we are done when any failed or both report success */
-  *done = (r1 || r2 || (done1 && done2));
-  if(*done)
-    conn->bits.shutdown_filters = TRUE;
+  *مکمل = (r1 || r2 || (done1 && done2));
+  اگر(*مکمل)
+    conn->بٹ.shutdown_filters = TRUE;
 }
 
-void Curl_cshutdn_try_once(struct Curl_easy *admin,
-                           struct connectdata *conn,
-                           bool *done)
+خالی Curl_cshutdn_try_once(ساخت Curl_easy *admin,
+                           ساخت connectdata *conn,
+                           bool *مکمل)
 {
   DEBUGASSERT(!admin->conn);
   DEBUGASSERT(!admin->mid);
   Curl_attach_connection(admin, conn, FALSE);
-  cshutdn_run_once(admin, conn, done);
-  CURL_TRC_M(admin, "[SHUTDOWN] shutdown, done=%d", *done);
+  cshutdn_تسلسل_once(admin, conn, مکمل);
+  CURL_TRC_M(admin, "[SHUTDOWN] shutdown, done=%d", *مکمل);
   Curl_detach_connection(admin);
 }
 
-void Curl_cshutdn_terminate(struct Curl_easy *admin,
-                            struct connectdata *conn,
+خالی Curl_cshutdn_terminate(ساخت Curl_easy *admin,
+                            ساخت connectdata *conn,
                             bool do_shutdown)
 {
-  bool done;
+  bool مکمل;
 
   /* there must be a connection to close */
   DEBUGASSERT(conn);
@@ -249,308 +249,308 @@ void Curl_cshutdn_terminate(struct Curl_easy *admin,
 
   Curl_attach_connection(admin, conn, FALSE);
 
-  cshutdn_run_conn_handler(admin, conn);
-  if(do_shutdown) {
+  cshutdn_تسلسل_conn_handler(admin, conn);
+  اگر(do_shutdown) {
     /* Make a last attempt to shutdown handlers and filters, if
      * not done so already. */
-    cshutdn_run_once(admin, conn, &done);
+    cshutdn_تسلسل_once(admin, conn, &مکمل);
   }
   CURL_TRC_M(admin, "[SHUTDOWN] %sclosing connection #%" FMT_OFF_T,
-             conn->bits.shutdown_filters ? "" : "force ",
+             conn->بٹ.shutdown_filters ? "" : "force ",
              conn->connection_id);
   Curl_conn_cf_discard_all(admin, conn, SECONDARYSOCKET);
   Curl_conn_cf_discard_all(admin, conn, FIRSTSOCKET);
   Curl_detach_connection(admin);
 
-  if(admin->multi)
-    Curl_multi_ev_conn_done(admin->multi, admin, conn);
+  اگر(admin->multi)
+    Curl_multi_ev_conn_مکمل(admin->multi, admin, conn);
   Curl_conn_free(admin, conn);
 
-  if(admin->multi) {
+  اگر(admin->multi) {
     CURL_TRC_M(admin, "[SHUTDOWN] trigger multi connchanged");
     Curl_multi_connchanged(admin->multi);
   }
 }
 
-static size_t cshutdn_destroy_oldest(struct cshutdn *cshutdn,
-                                     struct Curl_easy *admin,
-                                     const char *destination,
-                                     size_t count)
+ساکن size_t cshutdn_destroy_oldest(ساخت cshutdn *cshutdn,
+                                     ساخت Curl_easy *admin,
+                                     ثابت حرف *destination,
+                                     size_t گنتی)
 {
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  ساخت Curl_sigpipe_ctx sigpipe_ctx;
   size_t removed = 0;
   uint32_t i = 0;
 
   sigpipe_init(&sigpipe_ctx);
-  while((removed < count) && (i < CURL_PTRARRAY_COUNT(&cshutdn->conns))) {
-    struct connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-    if(!destination || !strcmp(destination, conn->destination)) {
+  جب((removed < گنتی) && (i < CURL_PTRARRAY_گنتی(&cshutdn->conns))) {
+    ساخت connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
+    اگر(!destination || !strcmp(destination, conn->destination)) {
       Curl_ptrarray_remove(&cshutdn->conns, i);
       sigpipe_apply(admin, &sigpipe_ctx);
       Curl_cshutdn_terminate(admin, conn, FALSE);
       ++removed;
     }
-    else
+    ورنہ
       ++i;
   }
   sigpipe_restore(&sigpipe_ctx);
-  return removed;
+  واپس removed;
 }
 
-size_t Curl_cshutdn_close_oldest(struct cshutdn *cshutdn,
-                               struct Curl_easy *admin,
-                               const char *destination,
-                               size_t count)
+size_t Curl_cshutdn_close_oldest(ساخت cshutdn *cshutdn,
+                               ساخت Curl_easy *admin,
+                               ثابت حرف *destination,
+                               size_t گنتی)
 {
-  if(cshutdn) {
-    return cshutdn_destroy_oldest(cshutdn, admin, destination, count);
+  اگر(cshutdn) {
+    واپس cshutdn_destroy_oldest(cshutdn, admin, destination, گنتی);
   }
-  return 0;
+  واپس 0;
 }
 
-#define NUM_POLLS_ON_STACK 10
+#تعریف_کرو عدد_POLLS_ON_ڈھیر 10
 
-static CURLcode cshutdn_wait(struct cshutdn *cshutdn,
-                             struct Curl_easy *admin,
-                             int timeout_ms)
+ساکن CURLcode cshutdn_wait(ساخت cshutdn *cshutdn,
+                             ساخت Curl_easy *admin,
+                             صحیح timeout_ms)
 {
-  struct pollfd a_few_on_stack[NUM_POLLS_ON_STACK];
-  struct curl_pollfds cpfds;
-  CURLcode result;
+  ساخت pollfd a_few_on_ڈھیر[عدد_POLLS_ON_ڈھیر];
+  ساخت curl_pollfds cpfds;
+  CURLcode نتیجہ;
 
-  Curl_pollfds_init(&cpfds, a_few_on_stack, NUM_POLLS_ON_STACK);
+  Curl_pollfds_init(&cpfds, a_few_on_ڈھیر, عدد_POLLS_ON_ڈھیر);
 
-  result = Curl_cshutdn_add_pollfds(cshutdn, admin, &cpfds);
-  if(result)
-    goto out;
+  نتیجہ = Curl_cshutdn_جوڑو_pollfds(cshutdn, admin, &cpfds);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
   Curl_poll(cpfds.pfds, cpfds.n, CURLMIN(timeout_ms, 1000));
 
-out:
+برآمد:
   Curl_pollfds_cleanup(&cpfds);
-  return result;
+  واپس نتیجہ;
 }
 
-static void cshutdn_perform(struct cshutdn *cshutdn,
-                            struct Curl_easy *admin,
-                            struct Curl_sigpipe_ctx *sigpipe_ctx)
+ساکن خالی cshutdn_perform(ساخت cshutdn *cshutdn,
+                            ساخت Curl_easy *admin,
+                            ساخت Curl_sigpipe_ctx *sigpipe_ctx)
 {
-  struct connectdata *conn;
-  timediff_t next_expire_ms = 0, ms;
+  ساخت connectdata *conn;
+  timediff_t اگلا_expire_ms = 0, ms;
   uint32_t i = 0;
-  bool done;
+  bool مکمل;
 
-  if(!CURL_PTRARRAY_COUNT(&cshutdn->conns))
-    return;
+  اگر(!CURL_PTRARRAY_گنتی(&cshutdn->conns))
+    واپس;
 
   CURL_TRC_M(admin, "[SHUTDOWN] perform on %u connections",
-             CURL_PTRARRAY_COUNT(&cshutdn->conns));
+             CURL_PTRARRAY_گنتی(&cshutdn->conns));
   sigpipe_apply(admin, sigpipe_ctx);
-  while(i < CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+  جب(i < CURL_PTRARRAY_گنتی(&cshutdn->conns)) {
     conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-    Curl_cshutdn_try_once(admin, conn, &done);
-    if(done) {
+    Curl_cshutdn_try_once(admin, conn, &مکمل);
+    اگر(مکمل) {
       Curl_ptrarray_remove(&cshutdn->conns, i);
       Curl_cshutdn_terminate(admin, conn, FALSE);
     }
-    else {
+    ورنہ {
       ++i;
       /* idata has one timer list, but maybe more than one connection.
        * Set EXPIRE_SHUTDOWN to the smallest time left for all. */
       ms = cshutdn_conn_timeleft(admin, conn);
-      if(ms && (!next_expire_ms || (ms < next_expire_ms)))
-        next_expire_ms = ms;
+      اگر(ms && (!اگلا_expire_ms || (ms < اگلا_expire_ms)))
+        اگلا_expire_ms = ms;
     }
   }
 
-  if(next_expire_ms)
-    Curl_expire(admin, next_expire_ms, EXPIRE_SHUTDOWN);
+  اگر(اگلا_expire_ms)
+    Curl_expire(admin, اگلا_expire_ms, EXPIRE_SHUTDOWN);
 }
 
-static void cshutdn_terminate_all(struct cshutdn *cshutdn,
-                                  struct Curl_easy *admin,
-                                  int timeout_ms)
+ساکن خالی cshutdn_terminate_all(ساخت cshutdn *cshutdn,
+                                  ساخت Curl_easy *admin,
+                                  صحیح timeout_ms)
 {
-  struct curltime started = *Curl_pgrs_now(admin);
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  ساخت curltime started = *Curl_pgrs_now(admin);
+  ساخت Curl_sigpipe_ctx sigpipe_ctx;
 
   CURL_TRC_M(admin, "[SHUTDOWN] shutdown all");
   sigpipe_init(&sigpipe_ctx);
 
-  while(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+  جب(CURL_PTRARRAY_گنتی(&cshutdn->conns)) {
     timediff_t spent_ms;
-    int remain_ms;
+    صحیح remain_ms;
 
     cshutdn_perform(cshutdn, admin, &sigpipe_ctx);
 
-    if(!CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+    اگر(!CURL_PTRARRAY_گنتی(&cshutdn->conns)) {
       CURL_TRC_M(admin, "[SHUTDOWN] shutdown finished cleanly");
-      break;
+      توڑو;
     }
 
     /* wait for activity, timeout or "nothing" */
     spent_ms = curlx_ptimediff_ms(Curl_pgrs_now(admin), &started);
-    if(spent_ms >= (timediff_t)timeout_ms) {
+    اگر(spent_ms >= (timediff_t)timeout_ms) {
       CURL_TRC_M(admin, "[SHUTDOWN] shutdown finished, %s",
                  (timeout_ms > 0) ? "timeout" : "best effort done");
-      break;
+      توڑو;
     }
 
-    remain_ms = timeout_ms - (int)spent_ms;
-    if(cshutdn_wait(cshutdn, admin, remain_ms)) {
+    remain_ms = timeout_ms - (صحیح)spent_ms;
+    اگر(cshutdn_wait(cshutdn, admin, remain_ms)) {
       CURL_TRC_M(admin, "[SHUTDOWN] shutdown finished, aborted");
-      break;
+      توڑو;
     }
   }
 
   /* Terminate any remaining. */
-  while(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct connectdata *conn = Curl_ptrarray_remove(&cshutdn->conns, 0);
+  جب(CURL_PTRARRAY_گنتی(&cshutdn->conns)) {
+    ساخت connectdata *conn = Curl_ptrarray_remove(&cshutdn->conns, 0);
     Curl_cshutdn_terminate(admin, conn, FALSE);
   }
-  DEBUGASSERT(!CURL_PTRARRAY_COUNT(&cshutdn->conns));
+  DEBUGASSERT(!CURL_PTRARRAY_گنتی(&cshutdn->conns));
 
   sigpipe_restore(&sigpipe_ctx);
 }
 
-void Curl_cshutdn_init(struct cshutdn *cshutdn)
+خالی Curl_cshutdn_init(ساخت cshutdn *cshutdn)
 {
   Curl_ptrarray_init(&cshutdn->conns);
 }
 
-void Curl_cshutdn_destroy(struct cshutdn *cshutdn,
-                          struct Curl_easy *admin)
+خالی Curl_cshutdn_destroy(ساخت cshutdn *cshutdn,
+                          ساخت Curl_easy *admin)
 {
-  if(admin) {
-    int timeout_ms = 0;
+  اگر(admin) {
+    صحیح timeout_ms = 0;
     /* for testing, run graceful shutdown */
-#ifdef DEBUGBUILD
+#اگر_تعریف_شدہ DEBUGBUILD
     {
-      const char *p = getenv("CURL_GRACEFUL_SHUTDOWN");
-      if(p) {
+      ثابت حرف *p = getenv("CURL_GRACEFUL_SHUTDOWN");
+      اگر(p) {
         curl_off_t l;
-        if(!curlx_str_number(&p, &l, INT_MAX))
-          timeout_ms = (int)l;
+        اگر(!curlx_str_نمبر(&p, &l, زیادہ_سے_زیادہ_عدد))
+          timeout_ms = (صحیح)l;
       }
     }
-#endif
-    if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+#اگر_ختم
+    اگر(CURL_PTRARRAY_گنتی(&cshutdn->conns)) {
       CURL_TRC_M(admin, "[SHUTDOWN] destroy, %u connections, timeout=%dms",
-                 CURL_PTRARRAY_COUNT(&cshutdn->conns), timeout_ms);
+                 CURL_PTRARRAY_گنتی(&cshutdn->conns), timeout_ms);
       cshutdn_terminate_all(cshutdn, admin, timeout_ms);
     }
   }
 }
 
-size_t Curl_cshutdn_count(struct cshutdn *cshutdn)
+size_t Curl_cshutdn_گنتی(ساخت cshutdn *cshutdn)
 {
-  if(cshutdn) {
-    return CURL_PTRARRAY_COUNT(&cshutdn->conns);
+  اگر(cshutdn) {
+    واپس CURL_PTRARRAY_گنتی(&cshutdn->conns);
   }
-  return 0;
+  واپس 0;
 }
 
-size_t Curl_cshutdn_dest_count(struct cshutdn *cshutdn,
-                               const char *destination)
+size_t Curl_cshutdn_dest_گنتی(ساخت cshutdn *cshutdn,
+                               ثابت حرف *destination)
 {
-  if(cshutdn) {
+  اگر(cshutdn) {
     size_t n = 0;
     uint32_t i = 0;
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
-      struct connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-      if(!strcmp(destination, conn->destination))
+    برائے(i = 0; i < CURL_PTRARRAY_گنتی(&cshutdn->conns); ++i) {
+      ساخت connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
+      اگر(!strcmp(destination, conn->destination))
         ++n;
     }
-    return n;
+    واپس n;
   }
-  return 0;
+  واپس 0;
 }
 
-static CURLMcode cshutdn_update_ev(struct Curl_multi *multi,
-                                   struct connectdata *conn)
+ساکن CURLMcode cshutdn_update_ev(ساخت Curl_multi *multi,
+                                   ساخت connectdata *conn)
 {
   CURLMcode mresult;
   Curl_attach_connection(multi->admin, conn, FALSE);
   mresult = Curl_multi_ev_assess_conn(multi, multi->admin, conn);
   Curl_detach_connection(multi->admin);
-  return mresult;
+  واپس mresult;
 }
 
-void Curl_cshutdn_add(struct cshutdn *cshutdn,
-                      struct Curl_multi *multi,
-                      struct connectdata *conn,
+خالی Curl_cshutdn_جوڑو(ساخت cshutdn *cshutdn,
+                      ساخت Curl_multi *multi,
+                      ساخت connectdata *conn,
                       size_t max_shutdowns)
 {
-  struct Curl_easy *admin = multi->admin;
+  ساخت Curl_easy *admin = multi->admin;
 
   /* Add the connection to our shutdown list for non-blocking shutdown
    * during multi processing. */
-  if(max_shutdowns <= CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+  اگر(max_shutdowns <= CURL_PTRARRAY_گنتی(&cshutdn->conns)) {
     CURL_TRC_M(admin, "[SHUTDOWN] discarding oldest shutdown connection "
                "due to shutdown limit of %zu", max_shutdowns);
-    cshutdn_destroy_oldest(cshutdn, admin, NULL, 1);
+    cshutdn_destroy_oldest(cshutdn, admin, تہی, 1);
   }
 
-  if(multi->socket_cb && cshutdn_update_ev(multi, conn)) {
+  اگر(multi->socket_cb && cshutdn_update_ev(multi, conn)) {
     CURL_TRC_M(admin, "[SHUTDOWN] update events failed, discarding #%"
                FMT_OFF_T, conn->connection_id);
     Curl_cshutdn_terminate(admin, conn, FALSE);
-    return;
+    واپس;
   }
 
-  if(Curl_ptrarray_add(&cshutdn->conns, conn)) {
+  اگر(Curl_ptrarray_جوڑو(&cshutdn->conns, conn)) {
     CURL_TRC_M(admin, "[SHUTDOWN] adding failed, discarding #%"
                FMT_OFF_T, conn->connection_id);
     Curl_cshutdn_terminate(admin, conn, FALSE);
-    return;
+    واپس;
   }
   CURL_TRC_M(admin, "[SHUTDOWN] added #%" FMT_OFF_T
              " to shutdowns, now %u conns in shutdown",
-             conn->connection_id, CURL_PTRARRAY_COUNT(&cshutdn->conns));
+             conn->connection_id, CURL_PTRARRAY_گنتی(&cshutdn->conns));
 }
 
-void Curl_cshutdn_perform(struct cshutdn *cshutdn,
-                          struct Curl_easy *admin,
-                          struct Curl_sigpipe_ctx *sigpipe_ctx)
+خالی Curl_cshutdn_perform(ساخت cshutdn *cshutdn,
+                          ساخت Curl_easy *admin,
+                          ساخت Curl_sigpipe_ctx *sigpipe_ctx)
 {
   cshutdn_perform(cshutdn, admin, sigpipe_ctx);
 }
 
 /* return fd_set info about the shutdown connections */
-void Curl_cshutdn_setfds(struct cshutdn *cshutdn,
-                         struct Curl_easy *admin,
-                         fd_set *read_fd_set, fd_set *write_fd_set,
-                         int *maxfd)
+خالی Curl_cshutdn_setfds(ساخت cshutdn *cshutdn,
+                         ساخت Curl_easy *admin,
+                         fd_set *read_fd_سیٹ, fd_set *write_fd_سیٹ,
+                         صحیح *maxfd)
 {
-  if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct easy_pollset ps;
+  اگر(CURL_PTRARRAY_گنتی(&cshutdn->conns)) {
+    ساخت easy_pollset ps;
     uint32_t i;
 
     Curl_pollset_init(&ps);
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
-      unsigned int j;
-      struct connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-      CURLcode result;
+    برائے(i = 0; i < CURL_PTRARRAY_گنتی(&cshutdn->conns); ++i) {
+      غیرعلامتی صحیح j;
+      ساخت connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
+      CURLcode نتیجہ;
 
       Curl_pollset_reset(&ps);
       Curl_attach_connection(admin, conn, FALSE);
-      result = Curl_conn_adjust_pollset(admin, conn, &ps);
+      نتیجہ = Curl_conn_adjust_pollset(admin, conn, &ps);
       Curl_detach_connection(admin);
 
-      if(result)
-        continue;
+      اگر(نتیجہ)
+        جاری;
 
-      for(j = 0; j < ps.n; j++) {
+      برائے(j = 0; j < ps.n; j++) {
         curl_socket_t sock = ps.sockets[j];
-        if(!FDSET_SOCK(sock))
-          continue;
-        if(ps.actions[j] & CURL_POLL_IN)
-          FD_SET(sock, read_fd_set);
-        if(ps.actions[j] & CURL_POLL_OUT)
-          FD_SET(sock, write_fd_set);
-        if((ps.actions[j] & (CURL_POLL_OUT | CURL_POLL_IN)) &&
-           ((int)sock > *maxfd))
-          *maxfd = (int)sock;
+        اگر(!FDSET_SOCK(sock))
+          جاری;
+        اگر(ps.actions[j] & CURL_POLL_اندر)
+          FD_SET(sock, read_fd_سیٹ);
+        اگر(ps.actions[j] & CURL_POLL_برآمد)
+          FD_SET(sock, write_fd_سیٹ);
+        اگر((ps.actions[j] & (CURL_POLL_برآمد | CURL_POLL_اندر)) &&
+           ((صحیح)sock > *maxfd))
+          *maxfd = (صحیح)sock;
       }
     }
     Curl_pollset_cleanup(&ps);
@@ -558,63 +558,63 @@ void Curl_cshutdn_setfds(struct cshutdn *cshutdn,
 }
 
 /* return information about the shutdown connections */
-unsigned int Curl_cshutdn_add_waitfds(struct cshutdn *cshutdn,
-                                      struct Curl_easy *admin,
-                                      struct Curl_waitfds *cwfds)
+غیرعلامتی صحیح Curl_cshutdn_جوڑو_waitfds(ساخت cshutdn *cshutdn,
+                                      ساخت Curl_easy *admin,
+                                      ساخت Curl_waitfds *cwfds)
 {
-  unsigned int need = 0;
+  غیرعلامتی صحیح need = 0;
 
-  if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct easy_pollset ps;
-    struct connectdata *conn;
+  اگر(CURL_PTRARRAY_گنتی(&cshutdn->conns)) {
+    ساخت easy_pollset ps;
+    ساخت connectdata *conn;
     uint32_t i;
-    CURLcode result;
+    CURLcode نتیجہ;
 
     Curl_pollset_init(&ps);
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
+    برائے(i = 0; i < CURL_PTRARRAY_گنتی(&cshutdn->conns); ++i) {
       conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
       Curl_pollset_reset(&ps);
       Curl_attach_connection(admin, conn, FALSE);
-      result = Curl_conn_adjust_pollset(admin, conn, &ps);
+      نتیجہ = Curl_conn_adjust_pollset(admin, conn, &ps);
       Curl_detach_connection(admin);
 
-      if(!result)
-        need += Curl_waitfds_add_ps(cwfds, &ps);
+      اگر(!نتیجہ)
+        need += Curl_waitfds_جوڑو_ps(cwfds, &ps);
     }
     Curl_pollset_cleanup(&ps);
   }
-  return need;
+  واپس need;
 }
 
-CURLcode Curl_cshutdn_add_pollfds(struct cshutdn *cshutdn,
-                                  struct Curl_easy *admin,
-                                  struct curl_pollfds *cpfds)
+CURLcode Curl_cshutdn_جوڑو_pollfds(ساخت cshutdn *cshutdn,
+                                  ساخت Curl_easy *admin,
+                                  ساخت curl_pollfds *cpfds)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct easy_pollset ps;
-    struct connectdata *conn;
+  اگر(CURL_PTRARRAY_گنتی(&cshutdn->conns)) {
+    ساخت easy_pollset ps;
+    ساخت connectdata *conn;
     uint32_t i;
 
     Curl_pollset_init(&ps);
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
+    برائے(i = 0; i < CURL_PTRARRAY_گنتی(&cshutdn->conns); ++i) {
       conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
       Curl_pollset_reset(&ps);
       Curl_attach_connection(admin, conn, FALSE);
-      result = Curl_conn_adjust_pollset(admin, conn, &ps);
+      نتیجہ = Curl_conn_adjust_pollset(admin, conn, &ps);
       Curl_detach_connection(admin);
 
-      if(!result)
-        result = Curl_pollfds_add_ps(cpfds, &ps);
-      if(result) {
+      اگر(!نتیجہ)
+        نتیجہ = Curl_pollfds_جوڑو_ps(cpfds, &ps);
+      اگر(نتیجہ) {
         Curl_pollset_cleanup(&ps);
         Curl_pollfds_cleanup(cpfds);
-        goto out;
+        جاؤ برآمد;
       }
     }
     Curl_pollset_cleanup(&ps);
   }
-out:
-  return result;
+برآمد:
+  واپس نتیجہ;
 }

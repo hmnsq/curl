@@ -21,16 +21,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef USE_WINDOWS_SSPI
+#اگر_تعریف_شدہ USE_WINDOWS_SSPI
 
-#include "curl_sspi.h"
-#include "curlx/strdup.h"
-#include "curlx/multibyte.h"
+#شامل "curl_sspi.h"
+#شامل "curlx/strdup.h"
+#شامل "curlx/multibyte.h"
 
 /* Pointer to SSPI dispatch table */
-PSecurityFunctionTable Curl_pSecFn = NULL;
+PSecurity_Function_جدول Curl_pSecFn = تہی;
 
 /*
  * Curl_sspi_global_init()
@@ -49,17 +49,17 @@ PSecurityFunctionTable Curl_pSecFn = NULL;
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_sspi_global_init(void)
+CURLcode Curl_sspi_global_init(خالی)
 {
   /* If security interface is not yet initialized try to do this */
-  if(!Curl_pSecFn) {
+  اگر(!Curl_pSecFn) {
     /* Get pointer to Security Service Provider Interface dispatch table */
     Curl_pSecFn = InitSecurityInterface();
-    if(!Curl_pSecFn)
-      return CURLE_FAILED_INIT;
+    اگر(!Curl_pSecFn)
+      واپس CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /*
@@ -71,10 +71,10 @@ CURLcode Curl_sspi_global_init(void)
  *
  * None.
  */
-void Curl_sspi_global_cleanup(void)
+خالی Curl_sspi_global_cleanup(خالی)
 {
-  if(Curl_pSecFn) {
-    Curl_pSecFn = NULL;
+  اگر(Curl_pSecFn) {
+    Curl_pSecFn = تہی;
   }
 }
 
@@ -92,8 +92,8 @@ void Curl_sspi_global_cleanup(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
-                                   SEC_WINNT_AUTH_IDENTITY_EX *identity)
+CURLcode Curl_create_sspi_شناختی_عنصر(ثابت حرف *userp, ثابت حرف *passwdp,
+                                   SEC_WINNT_AUTH_شناختی_عنصر_EX *شناختی_عنصر)
 {
   xcharp_u useranddomain;
   xcharp_u user, dup_user;
@@ -102,88 +102,88 @@ CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
   size_t domlen = 0;
   size_t pwlen;
 
-  domain.const_tchar_ptr = _TEXT("");
+  domain.const_tchar_ptr = متن("");
 
   /* Initialize the identity */
-  memset(identity, 0, sizeof(*identity));
-  identity->Version = SEC_WINNT_AUTH_IDENTITY_VERSION;
-  identity->Length = sizeof(*identity);
+  memset(شناختی_عنصر, 0, حجم(*شناختی_عنصر));
+  شناختی_عنصر->نسخہ = SEC_WINNT_AUTH_شناختی_عنصر_نسخہ;
+  شناختی_عنصر->لمبائی_2 = حجم(*شناختی_عنصر);
 
-  useranddomain.tchar_ptr = curlx_convert_UTF8_to_tchar(userp);
-  if(!useranddomain.tchar_ptr)
-    return CURLE_OUT_OF_MEMORY;
+  useranddomain.tchar_ptr = curlx_convert_UTF8_مقصد_tchar(userp);
+  اگر(!useranddomain.tchar_ptr)
+    واپس CURLE_برآمد_کا_حافظہ;
 
-  user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, _TEXT('\\'));
-  if(!user.const_tchar_ptr)
-    user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, _TEXT('/'));
+  user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, متن('\\'));
+  اگر(!user.const_tchar_ptr)
+    user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, متن('/'));
 
-  if(user.tchar_ptr) {
+  اگر(user.tchar_ptr) {
     domain.tchar_ptr = useranddomain.tchar_ptr;
     domlen = user.tchar_ptr - useranddomain.tchar_ptr;
     user.tchar_ptr++;
   }
-  else {
+  ورنہ {
     user.tchar_ptr = useranddomain.tchar_ptr;
-    domain.const_tchar_ptr = _TEXT("");
+    domain.const_tchar_ptr = متن("");
     domlen = 0;
   }
 
   /* Setup the identity's user and length */
   dup_user.tchar_ptr = curlx_tcsdup(user.tchar_ptr);
-  if(!dup_user.tchar_ptr) {
+  اگر(!dup_user.tchar_ptr) {
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    واپس CURLE_برآمد_کا_حافظہ;
   }
 
   /* Setup the identity's domain and length */
-  dup_domain.tchar_ptr = curlx_malloc(sizeof(TCHAR) * (domlen + 1));
-  if(!dup_domain.tchar_ptr) {
+  dup_domain.tchar_ptr = curlx_malloc(حجم(TCHAR) * (domlen + 1));
+  اگر(!dup_domain.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    واپس CURLE_برآمد_کا_حافظہ;
   }
-  if(_tcsncpy_s(dup_domain.tchar_ptr, domlen + 1, domain.tchar_ptr, domlen)) {
+  اگر(_tcsncpy_s(dup_domain.tchar_ptr, domlen + 1, domain.tchar_ptr, domlen)) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    واپس CURLE_برآمد_کا_حافظہ;
   }
 
   curlx_free(useranddomain.tchar_ptr);
 
   /* Setup the identity's password and length */
-  passwd.tchar_ptr = curlx_convert_UTF8_to_tchar(passwdp);
-  if(!passwd.tchar_ptr) {
+  passwd.tchar_ptr = curlx_convert_UTF8_مقصد_tchar(passwdp);
+  اگر(!passwd.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    واپس CURLE_برآمد_کا_حافظہ;
   }
   pwlen = _tcslen(passwd.tchar_ptr);
   dup_passwd.tchar_ptr = curlx_tcsdup(passwd.tchar_ptr);
-  if(!dup_passwd.tchar_ptr) {
+  اگر(!dup_passwd.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
-    curlx_memzero(passwd.tchar_ptr, pwlen * sizeof(*passwd.tchar_ptr));
+    curlx_memzero(passwd.tchar_ptr, pwlen * حجم(*passwd.tchar_ptr));
     curlx_free(passwd.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    واپس CURLE_برآمد_کا_حافظہ;
   }
-  identity->Password = dup_passwd.tbyte_ptr;
-  identity->PasswordLength = curlx_uztoul(pwlen);
-  dup_passwd.tchar_ptr = NULL;
+  شناختی_عنصر->Password = dup_passwd.tbyte_ptr;
+  شناختی_عنصر->Password_لمبائی = curlx_uztoul(pwlen);
+  dup_passwd.tchar_ptr = تہی;
 
-  curlx_memzero(passwd.tchar_ptr, pwlen * sizeof(*passwd.tchar_ptr));
+  curlx_memzero(passwd.tchar_ptr, pwlen * حجم(*passwd.tchar_ptr));
   curlx_free(passwd.tchar_ptr);
 
-  identity->User = dup_user.tbyte_ptr;
-  identity->UserLength = curlx_uztoul(_tcslen(dup_user.tchar_ptr));
-  dup_user.tchar_ptr = NULL;
-  identity->Domain = dup_domain.tbyte_ptr;
-  identity->DomainLength = curlx_uztoul(domlen);
-  dup_domain.tchar_ptr = NULL;
+  شناختی_عنصر->User = dup_user.tbyte_ptr;
+  شناختی_عنصر->User_لمبائی = curlx_uztoul(_tcslen(dup_user.tchar_ptr));
+  dup_user.tchar_ptr = تہی;
+  شناختی_عنصر->Domain = dup_domain.tbyte_ptr;
+  شناختی_عنصر->Domain_لمبائی = curlx_uztoul(domlen);
+  dup_domain.tchar_ptr = تہی;
 
-  identity->Flags = CURL_SEC_WINNT_AUTH_IDENTITY;
+  شناختی_عنصر->Flags = CURL_SEC_WINNT_AUTH_شناختی_عنصر;
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /*
@@ -195,15 +195,15 @@ CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
  *
  * identity [in/out] - The identity structure.
  */
-void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY_EX *identity)
+خالی Curl_sspi_free_شناختی_عنصر(SEC_WINNT_AUTH_شناختی_عنصر_EX *شناختی_عنصر)
 {
-  if(identity) {
-    curlx_safefree(identity->User);
-    curlx_memzero(identity->Password,
-                  identity->PasswordLength * sizeof(*identity->Password));
-    curlx_safefree(identity->Password);
-    curlx_safefree(identity->Domain);
+  اگر(شناختی_عنصر) {
+    curlx_safefree(شناختی_عنصر->User);
+    curlx_memzero(شناختی_عنصر->Password,
+                  شناختی_عنصر->Password_لمبائی * حجم(*شناختی_عنصر->Password));
+    curlx_safefree(شناختی_عنصر->Password);
+    curlx_safefree(شناختی_عنصر->Domain);
   }
 }
 
-#endif /* USE_WINDOWS_SSPI */
+#اگر_ختم /* USE_WINDOWS_SSPI */

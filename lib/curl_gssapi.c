@@ -21,44 +21,44 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef HAVE_GSSAPI
+#اگر_تعریف_شدہ HAVE_GSSAPI
 
-#include "curl_gssapi.h"
-#include "curl_trc.h"
-#include "curlx/strcopy.h"
+#شامل "curl_gssapi.h"
+#شامل "curl_trc.h"
+#شامل "curlx/strcopy.h"
 
-#ifdef DEBUGBUILD
-#if defined(HAVE_GSSGNU) || !defined(_WIN32)
-#define Curl_gss_alloc malloc  /* freed via the GSS API gss_release_buffer() */
-#define Curl_gss_free  free    /* pair of the above */
-#define CURL_GSS_STUB
+#اگر_تعریف_شدہ DEBUGBUILD
+#اگر defined(HAVE_GSSGNU) || !defined(_WIN32)
+#تعریف_کرو Curl_gss_alloc حافظہ_دو  /* freed via the GSS API gss_release_buffer() */
+#تعریف_کرو Curl_gss_free  آزاد    /* pair of the above */
+#تعریف_کرو CURL_GSS_STUB
 /* For correctness this would be required for all platforms, not only Windows,
    but, as of v1.22.1, MIT Kerberos uses a special allocator only for Windows,
    and the availability of 'gssapi/gssapi_alloc.h' is difficult to detect,
    because GSS headers are not versioned, and there is also no other macro to
    indicate 1.18+ vs. previous versions. On Windows we can use 'GSS_S_BAD_MIC'.
  */
-#elif defined(_WIN32) && defined(GSS_S_BAD_MIC) /* MIT Kerberos 1.15+ */
+#وگرنہ_اگر defined(_WIN32) && defined(GSS_S_BAD_MIC) /* MIT Kerberos 1.15+ */
 /* MIT Kerberos 1.10+ (Windows), 1.18+ (all platforms), missing from GNU GSS */
-#include <gssapi/gssapi_alloc.h>
-#define Curl_gss_alloc gssalloc_malloc
-#define Curl_gss_free  gssalloc_free
-#define CURL_GSS_STUB
-#endif
-#endif /* DEBUGBUILD */
+#شامل <gssapi/gssapi_alloc.h>
+#تعریف_کرو Curl_gss_alloc gssalloc_malloc
+#تعریف_کرو Curl_gss_free  gssalloc_free
+#تعریف_کرو CURL_GSS_STUB
+#اگر_ختم
+#اگر_ختم /* DEBUGBUILD */
 
-#ifdef __GNUC__
-#define CURL_ALIGN8  __attribute__((aligned(8)))
-#else
-#define CURL_ALIGN8
-#endif
+#اگر_تعریف_شدہ __GNUC__
+#تعریف_کرو CURL_ALIGN8  __attribute__((aligned(8)))
+#ورنہ
+#تعریف_کرو CURL_ALIGN8
+#اگر_ختم
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#اگر defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#ہدایت GCC diagnostic ڈالو
+#ہدایت GCC diagnostic ignored "-Wdeprecated-declarations"
+#اگر_ختم
 
 gss_OID_desc Curl_spnego_mech_oid CURL_ALIGN8 = {
   6, CURL_UNCONST("\x2b\x06\x01\x05\x05\x02")
@@ -67,16 +67,16 @@ gss_OID_desc Curl_krb5_mech_oid CURL_ALIGN8 = {
   9, CURL_UNCONST("\x2a\x86\x48\x86\xf7\x12\x01\x02\x02")
 };
 
-#ifdef CURL_GSS_STUB
-enum min_err_code {
+#اگر_تعریف_شدہ CURL_GSS_STUB
+شمار min_err_رمز {
   STUB_GSS_OK = 0,
-  STUB_GSS_NO_MEMORY,
-  STUB_GSS_INVALID_ARGS,
+  STUB_GSS_NO_حافظہ,
+  STUB_GSS_INVALID_دلائل,
   STUB_GSS_INVALID_CREDS,
   STUB_GSS_INVALID_CTX,
   STUB_GSS_SERVER_ERR,
   STUB_GSS_NO_MECH,
-  STUB_GSS_LAST
+  STUB_GSS_آخری
 };
 
 /* libcurl is also passing this struct to these functions, which are not yet
@@ -84,591 +84,591 @@ enum min_err_code {
  *   gss_unwrap()
  *   gss_wrap()
  */
-struct stub_gss_ctx_id_t_desc {
-  enum { STUB_GSS_NONE, STUB_GSS_KRB5, STUB_GSS_NTLM1, STUB_GSS_NTLM3 } sent;
-  int have_krb5;
-  int have_ntlm;
+ساخت stub_gss_ctx_id_t_desc {
+  شمار { STUB_GSS_NONE, STUB_GSS_KRB5, STUB_GSS_NTLM1, STUB_GSS_NTLM3 } بھیجا;
+  صحیح have_krb5;
+  صحیح have_ntlm;
   OM_uint32 flags;
-  char creds[250];
+  حرف creds[250];
 };
 
 /* Stub credential: tracks which mechanisms are allowed */
-struct stub_gss_cred_id_t_desc {
-  int allow_krb5;
-  int allow_ntlm;
+ساخت stub_gss_cred_id_t_desc {
+  صحیح allow_krb5;
+  صحیح allow_ntlm;
 };
 
-static OM_uint32 stub_gss_init_sec_context(
+ساکن OM_uint32 stub_gss_init_sec_context(
   OM_uint32 *min,
   gss_cred_id_t initiator_cred_handle,
-  struct stub_gss_ctx_id_t_desc **context,
-  gss_name_t target_name,
-  const gss_OID mech_type,
+  ساخت stub_gss_ctx_id_t_desc **context,
+  gss_name_t ہدف_name,
+  ثابت gss_OID mech_type,
   OM_uint32 req_flags,
-  OM_uint32 time_req,
-  const gss_channel_bindings_t input_chan_bindings,
-  gss_buffer_desc *input_token,
+  OM_uint32 وقت_req,
+  ثابت gss_channel_bindings_t داخلہ_chan_bindings,
+  gss_بفر_desc *داخلہ_token,
   gss_OID *actual_mech_type,
-  gss_buffer_desc *output_token,
+  gss_بفر_desc *output_token,
   OM_uint32 *ret_flags,
-  OM_uint32 *time_rec)
+  OM_uint32 *وقت_rec)
 {
-  struct stub_gss_ctx_id_t_desc *ctx = NULL;
+  ساخت stub_gss_ctx_id_t_desc *ctx = تہی;
 
   /* The token will be encoded in base64 */
-  size_t length = sizeof(ctx->creds) * 3 / 4;
-  size_t used = 0;
-  char *token = NULL;
-  const char *creds = NULL;
+  size_t لمبائی = حجم(ctx->creds) * 3 / 4;
+  size_t مستعمل = 0;
+  حرف *token = تہی;
+  ثابت حرف *creds = تہی;
 
-  (void)mech_type;
-  (void)time_req;
-  (void)input_chan_bindings;
-  (void)actual_mech_type;
+  (خالی)mech_type;
+  (خالی)وقت_req;
+  (خالی)داخلہ_chan_bindings;
+  (خالی)actual_mech_type;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  اگر(!min)
+    واپس GSS_S_FAILURE;
 
   *min = 0;
 
-  if(!context || !target_name || !output_token) {
-    *min = STUB_GSS_INVALID_ARGS;
-    return GSS_S_FAILURE;
+  اگر(!context || !ہدف_name || !output_token) {
+    *min = STUB_GSS_INVALID_دلائل;
+    واپس GSS_S_FAILURE;
   }
 
   creds = getenv("CURL_STUB_GSS_CREDS");
-  if(!creds || strlen(creds) >= sizeof(ctx->creds)) {
+  اگر(!creds || لڑی_لمبائی(creds) >= حجم(ctx->creds)) {
     *min = STUB_GSS_INVALID_CREDS;
-    return GSS_S_FAILURE;
+    واپس GSS_S_FAILURE;
   }
 
   ctx = *context;
-  if(ctx && strcmp(ctx->creds, creds)) {
+  اگر(ctx && strcmp(ctx->creds, creds)) {
     *min = STUB_GSS_INVALID_CREDS;
-    return GSS_S_FAILURE;
+    واپس GSS_S_FAILURE;
   }
 
-  output_token->length = 0;
-  output_token->value = NULL;
+  output_token->لمبائی = 0;
+  output_token->قدر = تہی;
 
-  if(input_token && input_token->length) {
-    if(!ctx) {
+  اگر(داخلہ_token && داخلہ_token->لمبائی) {
+    اگر(!ctx) {
       *min = STUB_GSS_INVALID_CTX;
-      return GSS_S_FAILURE;
+      واپس GSS_S_FAILURE;
     }
 
     /* Server response, either D (RA==) or C (Qw==) */
-    if(((char *)input_token->value)[0] == 'D') {
-      /* Done */
-      switch(ctx->sent) {
-      case STUB_GSS_KRB5:
-      case STUB_GSS_NTLM3:
-        if(ret_flags)
+    اگر(((حرف *)داخلہ_token->قدر)[0] == 'D') {
+      /*مکمل*/
+      انتخاب(ctx->بھیجا) {
+      حالت STUB_GSS_KRB5:
+      حالت STUB_GSS_NTLM3:
+        اگر(ret_flags)
           *ret_flags = ctx->flags;
-        if(time_rec)
-          *time_rec = GSS_C_INDEFINITE;
-        return GSS_S_COMPLETE;
-      default:
+        اگر(وقت_rec)
+          *وقت_rec = GSS_C_INDEFINITE;
+        واپس GSS_S_COMPLETE;
+      طےشدہ:
         *min = STUB_GSS_SERVER_ERR;
-        return GSS_S_FAILURE;
+        واپس GSS_S_FAILURE;
       }
     }
 
-    if(((char *)input_token->value)[0] != 'C') {
+    اگر(((حرف *)داخلہ_token->قدر)[0] != 'C') {
       /* We only support Done or Continue */
       *min = STUB_GSS_SERVER_ERR;
-      return GSS_S_FAILURE;
+      واپس GSS_S_FAILURE;
     }
 
     /* Continue */
-    switch(ctx->sent) {
-    case STUB_GSS_KRB5:
+    انتخاب(ctx->بھیجا) {
+    حالت STUB_GSS_KRB5:
       /* We sent KRB5 and it failed, let's try NTLM */
-      if(ctx->have_ntlm) {
-        ctx->sent = STUB_GSS_NTLM1;
-        break;
+      اگر(ctx->have_ntlm) {
+        ctx->بھیجا = STUB_GSS_NTLM1;
+        توڑو;
       }
-      else {
+      ورنہ {
         *min = STUB_GSS_SERVER_ERR;
-        return GSS_S_FAILURE;
+        واپس GSS_S_FAILURE;
       }
-    case STUB_GSS_NTLM1:
-      ctx->sent = STUB_GSS_NTLM3;
-      break;
-    default:
+    حالت STUB_GSS_NTLM1:
+      ctx->بھیجا = STUB_GSS_NTLM3;
+      توڑو;
+    طےشدہ:
       *min = STUB_GSS_SERVER_ERR;
-      return GSS_S_FAILURE;
+      واپس GSS_S_FAILURE;
     }
   }
-  else {
-    if(ctx) {
+  ورنہ {
+    اگر(ctx) {
       *min = STUB_GSS_INVALID_CTX;
-      return GSS_S_FAILURE;
+      واپس GSS_S_FAILURE;
     }
 
-    ctx = curlx_calloc(1, sizeof(*ctx));
-    if(!ctx) {
-      *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+    ctx = curlx_calloc(1, حجم(*ctx));
+    اگر(!ctx) {
+      *min = STUB_GSS_NO_حافظہ;
+      واپس GSS_S_FAILURE;
     }
 
-    if(strstr(creds, "KRB5"))
+    اگر(لڑی_تلاش(creds, "KRB5"))
       ctx->have_krb5 = 1;
 
-    if(strstr(creds, "NTLM"))
+    اگر(لڑی_تلاش(creds, "NTLM"))
       ctx->have_ntlm = 1;
 
     /* If a credential restricts allowed mechs, honour it */
-    if(initiator_cred_handle != GSS_C_NO_CREDENTIAL) {
-      struct stub_gss_cred_id_t_desc *cred =
-        (struct stub_gss_cred_id_t_desc *)initiator_cred_handle;
-      if(!cred->allow_krb5)
+    اگر(initiator_cred_handle != GSS_C_NO_CREDENTIAL) {
+      ساخت stub_gss_cred_id_t_desc *cred =
+        (ساخت stub_gss_cred_id_t_desc *)initiator_cred_handle;
+      اگر(!cred->allow_krb5)
         ctx->have_krb5 = 0;
-      if(!cred->allow_ntlm)
+      اگر(!cred->allow_ntlm)
         ctx->have_ntlm = 0;
     }
 
-    if(ctx->have_krb5)
-      ctx->sent = STUB_GSS_KRB5;
-    else if(ctx->have_ntlm)
-      ctx->sent = STUB_GSS_NTLM1;
-    else {
+    اگر(ctx->have_krb5)
+      ctx->بھیجا = STUB_GSS_KRB5;
+    ورنہ اگر(ctx->have_ntlm)
+      ctx->بھیجا = STUB_GSS_NTLM1;
+    ورنہ {
       curlx_free(ctx);
       *min = STUB_GSS_NO_MECH;
-      return GSS_S_FAILURE;
+      واپس GSS_S_FAILURE;
     }
 
-    curlx_strcopy(ctx->creds, sizeof(ctx->creds), creds, strlen(creds));
+    curlx_strcopy(ctx->creds, حجم(ctx->creds), creds, لڑی_لمبائی(creds));
     ctx->flags = req_flags;
   }
 
-  token = Curl_gss_alloc(length);
-  if(!token) {
+  token = Curl_gss_alloc(لمبائی);
+  اگر(!token) {
     curlx_free(ctx);
-    *min = STUB_GSS_NO_MEMORY;
-    return GSS_S_FAILURE;
+    *min = STUB_GSS_NO_حافظہ;
+    واپس GSS_S_FAILURE;
   }
 
   {
-    gss_buffer_desc target_desc;
+    gss_بفر_desc ہدف_desc;
     gss_OID name_type = GSS_C_NO_OID;
-    OM_uint32 minor_status;
-    OM_uint32 major_status;
-    major_status = gss_display_name(&minor_status, target_name,
-                                    &target_desc, &name_type);
-    if(GSS_ERROR(major_status)) {
+    OM_uint32 minor_حالت;
+    OM_uint32 major_حالت;
+    major_حالت = gss_display_name(&minor_حالت, ہدف_name,
+                                    &ہدف_desc, &name_type);
+    اگر(GSS_ERROR(major_حالت)) {
       Curl_gss_free(token);
       curlx_free(ctx);
-      *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+      *min = STUB_GSS_NO_حافظہ;
+      واپس GSS_S_FAILURE;
     }
 
-    if(strlen(creds) + target_desc.length + 5 >= sizeof(ctx->creds)) {
+    اگر(لڑی_لمبائی(creds) + ہدف_desc.لمبائی + 5 >= حجم(ctx->creds)) {
       Curl_gss_free(token);
       curlx_free(ctx);
-      *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+      *min = STUB_GSS_NO_حافظہ;
+      واپس GSS_S_FAILURE;
     }
 
     /* Token format: creds:target:type:padding */
-    used = curl_msnprintf(token, length, "%s:%.*s:%d:", creds,
-                          (int)target_desc.length,
-                          (const char *)target_desc.value,
-                          (int)ctx->sent);
+    مستعمل = curl_msnprintf(token, لمبائی, "%s:%.*s:%d:", creds,
+                          (صحیح)ہدف_desc.لمبائی,
+                          (ثابت حرف *)ہدف_desc.قدر,
+                          (صحیح)ctx->بھیجا);
 
-    gss_release_buffer(&minor_status, &target_desc);
+    gss_release_بفر(&minor_حالت, &ہدف_desc);
   }
 
-  if(used >= length) {
+  اگر(مستعمل >= لمبائی) {
     Curl_gss_free(token);
     curlx_free(ctx);
-    *min = STUB_GSS_NO_MEMORY;
-    return GSS_S_FAILURE;
+    *min = STUB_GSS_NO_حافظہ;
+    واپس GSS_S_FAILURE;
   }
 
   /* Overwrite null-terminator */
-  memset(token + used, 'A', length - used);
+  memset(token + مستعمل, 'A', لمبائی - مستعمل);
 
   *context = ctx;
 
-  output_token->value = token;
-  output_token->length = length;
+  output_token->قدر = token;
+  output_token->لمبائی = لمبائی;
 
-  return GSS_S_CONTINUE_NEEDED;
+  واپس GSS_S_CONTINUE_NEEDED;
 }
 
-static OM_uint32 stub_gss_delete_sec_context(
+ساکن OM_uint32 stub_gss_delete_sec_context(
   OM_uint32 *min,
-  struct stub_gss_ctx_id_t_desc **context,
-  gss_buffer_t output_token)
+  ساخت stub_gss_ctx_id_t_desc **context,
+  gss_بفر_t output_token)
 {
-  (void)output_token;
+  (خالی)output_token;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  اگر(!min)
+    واپس GSS_S_FAILURE;
 
-  if(!context) {
+  اگر(!context) {
     *min = STUB_GSS_INVALID_CTX;
-    return GSS_S_FAILURE;
+    واپس GSS_S_FAILURE;
   }
-  if(!*context) {
+  اگر(!*context) {
     *min = STUB_GSS_INVALID_CTX;
-    return GSS_S_FAILURE;
+    واپس GSS_S_FAILURE;
   }
 
   curlx_safefree(*context);
   *min = 0;
 
-  return GSS_S_COMPLETE;
+  واپس GSS_S_COMPLETE;
 }
 
 /* NTLMSSP OID: 1.3.6.1.4.1.311.2.2.10 */
-static gss_OID_desc stub_ntlmssp_oid = {
+ساکن gss_OID_desc stub_ntlmssp_oid = {
   10, CURL_UNCONST("\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a")
 };
 
-static OM_uint32 stub_gss_inquire_context(
+ساکن OM_uint32 stub_gss_inquire_context(
   OM_uint32 *min,
-  struct stub_gss_ctx_id_t_desc *context,
+  ساخت stub_gss_ctx_id_t_desc *context,
   gss_name_t *src_name,
   gss_name_t *targ_name,
   OM_uint32 *lifetime_rec,
   gss_OID *mech_type,
   OM_uint32 *ctx_flags,
-  int *locally_initiated,
-  int *open_context)
+  صحیح *locally_initiated,
+  صحیح *open_context)
 {
-  (void)src_name;
-  (void)targ_name;
-  (void)lifetime_rec;
-  (void)ctx_flags;
-  (void)locally_initiated;
-  (void)open_context;
+  (خالی)src_name;
+  (خالی)targ_name;
+  (خالی)lifetime_rec;
+  (خالی)ctx_flags;
+  (خالی)locally_initiated;
+  (خالی)open_context;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  اگر(!min)
+    واپس GSS_S_FAILURE;
 
-  if(!context) {
+  اگر(!context) {
     *min = STUB_GSS_INVALID_CTX;
-    return GSS_S_FAILURE;
+    واپس GSS_S_FAILURE;
   }
 
   *min = 0;
-  if(mech_type) {
-    switch(context->sent) {
-    case STUB_GSS_NTLM1:
-    case STUB_GSS_NTLM3:
+  اگر(mech_type) {
+    انتخاب(context->بھیجا) {
+    حالت STUB_GSS_NTLM1:
+    حالت STUB_GSS_NTLM3:
       *mech_type = &stub_ntlmssp_oid;
-      break;
-    default:
+      توڑو;
+    طےشدہ:
       *mech_type = (gss_OID)&Curl_krb5_mech_oid;
-      break;
+      توڑو;
     }
   }
 
-  return GSS_S_COMPLETE;
+  واپس GSS_S_COMPLETE;
 }
-static OM_uint32 stub_gss_acquire_cred(
+ساکن OM_uint32 stub_gss_acquire_cred(
   OM_uint32 *min,
   gss_name_t desired_name,
-  OM_uint32 time_req,
-  gss_OID_set desired_mechs,
+  OM_uint32 وقت_req,
+  gss_OID_سیٹ desired_mechs,
   gss_cred_usage_t cred_usage,
   gss_cred_id_t *output_cred_handle,
-  gss_OID_set *actual_mechs,
-  OM_uint32 *time_rec)
+  gss_OID_سیٹ *actual_mechs,
+  OM_uint32 *وقت_rec)
 {
-  (void)desired_name;
-  (void)time_req;
-  (void)desired_mechs;
-  (void)cred_usage;
-  (void)actual_mechs;
-  (void)time_rec;
+  (خالی)desired_name;
+  (خالی)وقت_req;
+  (خالی)desired_mechs;
+  (خالی)cred_usage;
+  (خالی)actual_mechs;
+  (خالی)وقت_rec;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  اگر(!min)
+    واپس GSS_S_FAILURE;
 
   *min = 0;
   /* Allocate a stub credential that initially allows all mechanisms */
-  if(output_cred_handle) {
-    struct stub_gss_cred_id_t_desc *cred =
-      curlx_calloc(1, sizeof(*cred));
-    if(!cred) {
-      *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+  اگر(output_cred_handle) {
+    ساخت stub_gss_cred_id_t_desc *cred =
+      curlx_calloc(1, حجم(*cred));
+    اگر(!cred) {
+      *min = STUB_GSS_NO_حافظہ;
+      واپس GSS_S_FAILURE;
     }
     cred->allow_krb5 = 1;
     cred->allow_ntlm = 1;
     *output_cred_handle = (gss_cred_id_t)cred;
   }
-  return GSS_S_COMPLETE;
+  واپس GSS_S_COMPLETE;
 }
 
-static OM_uint32 stub_gss_indicate_mechs(
+ساکن OM_uint32 stub_gss_indicate_mechs(
   OM_uint32 *min,
-  gss_OID_set *mech_set)
+  gss_OID_سیٹ *mech_سیٹ)
 {
-  const char *creds;
+  ثابت حرف *creds;
   OM_uint32 major;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  اگر(!min)
+    واپس GSS_S_FAILURE;
 
   *min = 0;
   creds = getenv("CURL_STUB_GSS_CREDS");
-  if(!creds) {
+  اگر(!creds) {
     *min = STUB_GSS_INVALID_CREDS;
-    return GSS_S_FAILURE;
+    واپس GSS_S_FAILURE;
   }
 
-  major = gss_create_empty_oid_set(min, mech_set);
-  if(GSS_ERROR(major))
-    return major;
+  major = gss_create_خالی_خانے_oid_سیٹ(min, mech_سیٹ);
+  اگر(GSS_ERROR(major))
+    واپس major;
 
   /* Always include Kerberos */
-  gss_add_oid_set_member(min, (gss_OID)&Curl_krb5_mech_oid, mech_set);
+  gss_جوڑو_oid_سیٹ_member(min, (gss_OID)&Curl_krb5_mech_oid, mech_سیٹ);
 
   /* Include NTLM if the stub creds contain NTLM */
-  if(strstr(creds, "NTLM"))
-    gss_add_oid_set_member(min, &stub_ntlmssp_oid, mech_set);
+  اگر(لڑی_تلاش(creds, "NTLM"))
+    gss_جوڑو_oid_سیٹ_member(min, &stub_ntlmssp_oid, mech_سیٹ);
 
-  return GSS_S_COMPLETE;
+  واپس GSS_S_COMPLETE;
 }
 
-#ifdef HAVE_GSS_SET_NEG_MECHS  /* MIT Kerberos 1.8+ (2010-03-02),
+#اگر_تعریف_شدہ HAVE_GSS_سیٹ_NEG_MECHS  /* MIT Kerberos 1.8+ (2010-03-02),
                                   missing from Apple GSS, GNU GSS */
-static OM_uint32 stub_gss_set_neg_mechs(OM_uint32 *min,
+ساکن OM_uint32 stub_gss_سیٹ_neg_mechs(OM_uint32 *min,
                                         gss_cred_id_t cred_handle,
-                                        const gss_OID_set mech_set)
+                                        ثابت gss_OID_سیٹ mech_سیٹ)
 {
-  struct stub_gss_cred_id_t_desc *cred;
+  ساخت stub_gss_cred_id_t_desc *cred;
   size_t i;
-  int found_krb5 = 0;
-  int found_ntlm = 0;
+  صحیح ملا_krb5 = 0;
+  صحیح ملا_ntlm = 0;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  اگر(!min)
+    واپس GSS_S_FAILURE;
 
   *min = 0;
-  if(cred_handle == GSS_C_NO_CREDENTIAL)
-    return GSS_S_FAILURE;
+  اگر(cred_handle == GSS_C_NO_CREDENTIAL)
+    واپس GSS_S_FAILURE;
 
-  cred = (struct stub_gss_cred_id_t_desc *)cred_handle;
+  cred = (ساخت stub_gss_cred_id_t_desc *)cred_handle;
 
   /* Determine which mechs are in the allowed set */
-  if(mech_set) {
-    for(i = 0; i < mech_set->count; i++) {
-      gss_OID oid = &mech_set->elements[i];
-      if(oid->length == Curl_krb5_mech_oid.length &&
-         !memcmp(oid->elements, Curl_krb5_mech_oid.elements, oid->length))
-        found_krb5 = 1;
-      if(oid->length == stub_ntlmssp_oid.length &&
-         !memcmp(oid->elements, stub_ntlmssp_oid.elements, oid->length))
-        found_ntlm = 1;
+  اگر(mech_سیٹ) {
+    برائے(i = 0; i < mech_سیٹ->گنتی; i++) {
+      gss_OID oid = &mech_سیٹ->elements[i];
+      اگر(oid->لمبائی == Curl_krb5_mech_oid.لمبائی &&
+         !memcmp(oid->elements, Curl_krb5_mech_oid.elements, oid->لمبائی))
+        ملا_krb5 = 1;
+      اگر(oid->لمبائی == stub_ntlmssp_oid.لمبائی &&
+         !memcmp(oid->elements, stub_ntlmssp_oid.elements, oid->لمبائی))
+        ملا_ntlm = 1;
     }
   }
 
-  cred->allow_krb5 = found_krb5;
-  cred->allow_ntlm = found_ntlm;
-  return GSS_S_COMPLETE;
+  cred->allow_krb5 = ملا_krb5;
+  cred->allow_ntlm = ملا_ntlm;
+  واپس GSS_S_COMPLETE;
 }
-#endif /* HAVE_GSS_SET_NEG_MECHS */
+#اگر_ختم /* HAVE_GSS_SET_NEG_MECHS */
 
-static OM_uint32 stub_gss_release_cred(
+ساکن OM_uint32 stub_gss_release_cred(
   OM_uint32 *min,
   gss_cred_id_t *cred_handle)
 {
-  if(!min)
-    return GSS_S_FAILURE;
+  اگر(!min)
+    واپس GSS_S_FAILURE;
 
   *min = 0;
-  if(cred_handle && *cred_handle != GSS_C_NO_CREDENTIAL) {
+  اگر(cred_handle && *cred_handle != GSS_C_NO_CREDENTIAL) {
     curlx_free(*cred_handle);
     *cred_handle = GSS_C_NO_CREDENTIAL;
   }
-  return GSS_S_COMPLETE;
+  واپس GSS_S_COMPLETE;
 }
 
-#endif /* CURL_GSS_STUB */
+#اگر_ختم /* CURL_GSS_STUB */
 
-OM_uint32 Curl_gss_init_sec_context(struct Curl_easy *data,
-                                    OM_uint32 *minor_status,
+OM_uint32 Curl_gss_init_sec_context(ساخت Curl_easy *ڈیٹا,
+                                    OM_uint32 *minor_حالت,
                                     gss_ctx_id_t *context,
-                                    gss_name_t target_name,
+                                    gss_name_t ہدف_name,
                                     gss_OID mech_type,
-                                    gss_channel_bindings_t input_chan_bindings,
-                                    gss_buffer_t input_token,
-                                    gss_buffer_t output_token,
-                                    const bool mutual_auth,
+                                    gss_channel_bindings_t داخلہ_chan_bindings,
+                                    gss_بفر_t داخلہ_token,
+                                    gss_بفر_t output_token,
+                                    ثابت bool mutual_auth,
                                     OM_uint32 *ret_flags,
                                     gss_cred_id_t cred_handle)
 {
   OM_uint32 req_flags = GSS_C_REPLAY_FLAG;
 
-  if(mutual_auth)
+  اگر(mutual_auth)
     req_flags |= GSS_C_MUTUAL_FLAG;
 
-  if(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_POLICY_FLAG) {
-#ifdef GSS_C_DELEG_POLICY_FLAG  /* MIT Kerberos 1.7+ (2009-06-02), Apple GSS,
+  اگر(ڈیٹا->سیٹ.gssapi_delegation & CURLGSSAPI_DELEGATION_POLICY_FLAG) {
+#اگر_تعریف_شدہ GSS_C_DELEG_POLICY_FLAG  /* MIT Kerberos 1.7+ (2009-06-02), Apple GSS,
                                    missing from GNU GSS */
     req_flags |= GSS_C_DELEG_POLICY_FLAG;
-#else
-    infof(data, "WARNING: support for CURLGSSAPI_DELEGATION_POLICY_FLAG not "
+#ورنہ
+    infof(ڈیٹا, "WARNING: support for CURLGSSAPI_DELEGATION_POLICY_FLAG not "
           "compiled in");
-#endif
+#اگر_ختم
   }
 
-  if(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_FLAG)
+  اگر(ڈیٹا->سیٹ.gssapi_delegation & CURLGSSAPI_DELEGATION_FLAG)
     req_flags |= GSS_C_DELEG_FLAG;
 
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_init_sec_context(minor_status,
+#اگر_تعریف_شدہ CURL_GSS_STUB
+  اگر(getenv("CURL_STUB_GSS_CREDS"))
+    واپس stub_gss_init_sec_context(minor_حالت,
                                      cred_handle,
-                                     (struct stub_gss_ctx_id_t_desc **)context,
-                                     target_name,
+                                     (ساخت stub_gss_ctx_id_t_desc **)context,
+                                     ہدف_name,
                                      mech_type,
                                      req_flags,
                                      0, /* time_req */
-                                     input_chan_bindings,
-                                     input_token,
-                                     NULL, /* actual_mech_type */
+                                     داخلہ_chan_bindings,
+                                     داخلہ_token,
+                                     تہی, /* actual_mech_type */
                                      output_token,
                                      ret_flags,
-                                     NULL /* time_rec */);
-#endif /* CURL_GSS_STUB */
+                                     تہی /* time_rec */);
+#اگر_ختم /* CURL_GSS_STUB */
 
-  return gss_init_sec_context(minor_status,
+  واپس gss_init_sec_context(minor_حالت,
                               cred_handle,
                               context,
-                              target_name,
+                              ہدف_name,
                               mech_type,
                               req_flags,
                               0, /* time_req */
-                              input_chan_bindings,
-                              input_token,
-                              NULL, /* actual_mech_type */
+                              داخلہ_chan_bindings,
+                              داخلہ_token,
+                              تہی, /* actual_mech_type */
                               output_token,
                               ret_flags,
-                              NULL /* time_rec */);
+                              تہی /* time_rec */);
 }
 
 OM_uint32 Curl_gss_delete_sec_context(OM_uint32 *min,
                                       gss_ctx_id_t *context,
-                                      gss_buffer_t output_token)
+                                      gss_بفر_t output_token)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_delete_sec_context(min,
-                                     (struct stub_gss_ctx_id_t_desc **)context,
+#اگر_تعریف_شدہ CURL_GSS_STUB
+  اگر(getenv("CURL_STUB_GSS_CREDS"))
+    واپس stub_gss_delete_sec_context(min,
+                                     (ساخت stub_gss_ctx_id_t_desc **)context,
                                      output_token);
-#endif /* CURL_GSS_STUB */
+#اگر_ختم /* CURL_GSS_STUB */
 
-  return gss_delete_sec_context(min, context, output_token);
+  واپس gss_delete_sec_context(min, context, output_token);
 }
 
-OM_uint32 Curl_gss_inquire_context(OM_uint32 *minor_status,
+OM_uint32 Curl_gss_inquire_context(OM_uint32 *minor_حالت,
                                    gss_ctx_id_t context,
                                    gss_OID *mech_type)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_inquire_context(minor_status,
-                             (struct stub_gss_ctx_id_t_desc *)context,
-                             NULL, NULL, NULL, mech_type,
-                             NULL, NULL, NULL);
-#endif /* CURL_GSS_STUB */
+#اگر_تعریف_شدہ CURL_GSS_STUB
+  اگر(getenv("CURL_STUB_GSS_CREDS"))
+    واپس stub_gss_inquire_context(minor_حالت,
+                             (ساخت stub_gss_ctx_id_t_desc *)context,
+                             تہی, تہی, تہی, mech_type,
+                             تہی, تہی, تہی);
+#اگر_ختم /* CURL_GSS_STUB */
 
-  return gss_inquire_context(minor_status, context,
-                             NULL, NULL, NULL, mech_type,
-                             NULL, NULL, NULL);
+  واپس gss_inquire_context(minor_حالت, context,
+                             تہی, تہی, تہی, mech_type,
+                             تہی, تہی, تہی);
 }
 
-OM_uint32 Curl_gss_acquire_cred(OM_uint32 *minor_status,
+OM_uint32 Curl_gss_acquire_cred(OM_uint32 *minor_حالت,
                                 gss_name_t desired_name,
-                                OM_uint32 time_req,
-                                gss_OID_set desired_mechs,
+                                OM_uint32 وقت_req,
+                                gss_OID_سیٹ desired_mechs,
                                 gss_cred_usage_t cred_usage,
                                 gss_cred_id_t *output_cred_handle,
-                                gss_OID_set *actual_mechs,
-                                OM_uint32 *time_rec)
+                                gss_OID_سیٹ *actual_mechs,
+                                OM_uint32 *وقت_rec)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_acquire_cred(minor_status, desired_name, time_req,
+#اگر_تعریف_شدہ CURL_GSS_STUB
+  اگر(getenv("CURL_STUB_GSS_CREDS"))
+    واپس stub_gss_acquire_cred(minor_حالت, desired_name, وقت_req,
                                  desired_mechs, cred_usage,
-                                 output_cred_handle, actual_mechs, time_rec);
-#endif /* CURL_GSS_STUB */
+                                 output_cred_handle, actual_mechs, وقت_rec);
+#اگر_ختم /* CURL_GSS_STUB */
 
-  return gss_acquire_cred(minor_status, desired_name, time_req,
+  واپس gss_acquire_cred(minor_حالت, desired_name, وقت_req,
                           desired_mechs, cred_usage,
-                          output_cred_handle, actual_mechs, time_rec);
+                          output_cred_handle, actual_mechs, وقت_rec);
 }
 
-OM_uint32 Curl_gss_indicate_mechs(OM_uint32 *minor_status,
-                                  gss_OID_set *mech_set)
+OM_uint32 Curl_gss_indicate_mechs(OM_uint32 *minor_حالت,
+                                  gss_OID_سیٹ *mech_سیٹ)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_indicate_mechs(minor_status, mech_set);
-#endif /* CURL_GSS_STUB */
+#اگر_تعریف_شدہ CURL_GSS_STUB
+  اگر(getenv("CURL_STUB_GSS_CREDS"))
+    واپس stub_gss_indicate_mechs(minor_حالت, mech_سیٹ);
+#اگر_ختم /* CURL_GSS_STUB */
 
-  return gss_indicate_mechs(minor_status, mech_set);
+  واپس gss_indicate_mechs(minor_حالت, mech_سیٹ);
 }
 
-#ifdef HAVE_GSS_SET_NEG_MECHS
-OM_uint32 Curl_gss_set_neg_mechs(OM_uint32 *minor_status,
+#اگر_تعریف_شدہ HAVE_GSS_سیٹ_NEG_MECHS
+OM_uint32 Curl_gss_سیٹ_neg_mechs(OM_uint32 *minor_حالت,
                                  gss_cred_id_t cred_handle,
-                                 const gss_OID_set mech_set)
+                                 ثابت gss_OID_سیٹ mech_سیٹ)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_set_neg_mechs(minor_status, cred_handle, mech_set);
-#endif /* CURL_GSS_STUB */
+#اگر_تعریف_شدہ CURL_GSS_STUB
+  اگر(getenv("CURL_STUB_GSS_CREDS"))
+    واپس stub_gss_سیٹ_neg_mechs(minor_حالت, cred_handle, mech_سیٹ);
+#اگر_ختم /* CURL_GSS_STUB */
 
-  return gss_set_neg_mechs(minor_status, cred_handle, mech_set);
+  واپس gss_سیٹ_neg_mechs(minor_حالت, cred_handle, mech_سیٹ);
 }
-#endif /* HAVE_GSS_SET_NEG_MECHS */
+#اگر_ختم /* HAVE_GSS_SET_NEG_MECHS */
 
-OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_status,
+OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_حالت,
                                 gss_cred_id_t *cred_handle)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_release_cred(minor_status, cred_handle);
-#endif /* CURL_GSS_STUB */
+#اگر_تعریف_شدہ CURL_GSS_STUB
+  اگر(getenv("CURL_STUB_GSS_CREDS"))
+    واپس stub_gss_release_cred(minor_حالت, cred_handle);
+#اگر_ختم /* CURL_GSS_STUB */
 
-  return gss_release_cred(minor_status, cred_handle);
+  واپس gss_release_cred(minor_حالت, cred_handle);
 }
 
-#ifdef CURLVERBOSE
-#define GSS_LOG_BUFFER_LEN 1024
-static size_t display_gss_error(OM_uint32 status, int type,
-                                char *buf, size_t len)
+#اگر_تعریف_شدہ CURLVERBOSE
+#تعریف_کرو GSS_LOG_بفر_LEN 1024
+ساکن size_t display_gss_error(OM_uint32 حالت_2, صحیح type,
+                                حرف *buf, size_t len)
 {
   OM_uint32 maj_stat;
   OM_uint32 min_stat;
-  OM_uint32 msg_ctx = 0;
-  gss_buffer_desc status_string = GSS_C_EMPTY_BUFFER;
+  OM_uint32 پیغام_ctx = 0;
+  gss_بفر_desc حالت_string = GSS_C_خالی_خانے_بفر;
 
-  do {
-    maj_stat = gss_display_status(&min_stat,
-                                  status,
+  کرو {
+    maj_stat = gss_display_حالت(&min_stat,
+                                  حالت_2,
                                   type,
                                   GSS_C_NO_OID,
-                                  &msg_ctx,
-                                  &status_string);
-    if(maj_stat == GSS_S_COMPLETE && status_string.length > 0) {
-      if(GSS_LOG_BUFFER_LEN > len + status_string.length + 3) {
-        len += curl_msnprintf(buf + len, GSS_LOG_BUFFER_LEN - len,
-                              "%.*s. ", (int)status_string.length,
-                              (char *)status_string.value);
+                                  &پیغام_ctx,
+                                  &حالت_string);
+    اگر(maj_stat == GSS_S_COMPLETE && حالت_string.لمبائی > 0) {
+      اگر(GSS_LOG_بفر_LEN > len + حالت_string.لمبائی + 3) {
+        len += curl_msnprintf(buf + len, GSS_LOG_بفر_LEN - len,
+                              "%.*s. ", (صحیح)حالت_string.لمبائی,
+                              (حرف *)حالت_string.قدر);
       }
     }
-    gss_release_buffer(&min_stat, &status_string);
-  } while(!GSS_ERROR(maj_stat) && msg_ctx);
+    gss_release_بفر(&min_stat, &حالت_string);
+  } جب(!GSS_ERROR(maj_stat) && پیغام_ctx);
 
-  return len;
+  واپس len;
 }
 
 /*
@@ -683,23 +683,23 @@ static size_t display_gss_error(OM_uint32 status, int type,
  * major   [in] - The major status code.
  * minor   [in] - The minor status code.
  */
-void Curl_gss_log_error(struct Curl_easy *data, const char *prefix,
+خالی Curl_gss_log_error(ساخت Curl_easy *ڈیٹا, ثابت حرف *سابقہ,
                         OM_uint32 major, OM_uint32 minor)
 {
-  char buf[GSS_LOG_BUFFER_LEN] = "";
+  حرف buf[GSS_LOG_بفر_LEN] = "";
   size_t len = 0;
 
-  if(major != GSS_S_FAILURE)
-    len = display_gss_error(major, GSS_C_GSS_CODE, buf, len);
+  اگر(major != GSS_S_FAILURE)
+    len = display_gss_error(major, GSS_C_GSS_رمز, buf, len);
 
-  display_gss_error(minor, GSS_C_MECH_CODE, buf, len);
+  display_gss_error(minor, GSS_C_MECH_رمز, buf, len);
 
-  infof(data, "%s%s", prefix, buf);
+  infof(ڈیٹا, "%s%s", سابقہ, buf);
 }
-#endif /* CURLVERBOSE */
+#اگر_ختم /* CURLVERBOSE */
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic pop
-#endif
+#اگر defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#ہدایت GCC diagnostic نکالو
+#اگر_ختم
 
-#endif /* HAVE_GSSAPI */
+#اگر_ختم /* HAVE_GSSAPI */

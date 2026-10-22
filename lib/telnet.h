@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_TELNET_H
-#define HEADER_CURL_TELNET_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_TELNET_H
+#تعریف_کرو سرخی_CURL_TELNET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_TELNET
-extern const struct Curl_protocol Curl_protocol_telnet;
-#endif
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_TELNET
+خارجی ثابت ساخت Curl_protocol Curl_protocol_telnet;
+#اگر_ختم
 
-#endif /* HEADER_CURL_TELNET_H */
+#اگر_ختم /* HEADER_CURL_TELNET_H */

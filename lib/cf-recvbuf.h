@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_RECVBUF_H
-#define HEADER_CURL_CF_RECVBUF_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_CF_RECVBUF_H
+#تعریف_کرو سرخی_CURL_CF_RECVBUF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifndef CURL_DISABLE_WEBSOCKETS
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_جوڑو(ساخت Curl_easy *ڈیٹا,
+                             ساخت connectdata *conn,
                              int8_t sockindex,
-                             const uint8_t *buf, size_t blen);
+                             ثابت uint8_t *buf, size_t blen);
 
-extern struct Curl_cftype Curl_cft_recvbuf;
+خارجی ساخت Curl_cftype Curl_cft_recvbuf;
 
-#endif /* !CURL_DISABLE_WEBSOCKETS */
+#اگر_ختم /* !CURL_DISABLE_WEBSOCKETS */
 
-#endif /* HEADER_CURL_CF_RECVBUF_H */
+#اگر_ختم /* HEADER_CURL_CF_RECVBUF_H */

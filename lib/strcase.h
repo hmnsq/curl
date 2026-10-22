@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRCASE_H
-#define HEADER_CURL_STRCASE_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_STRCASE_H
+#تعریف_کرو سرخی_CURL_STRCASE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,35 +23,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 /* Mapping tables for plain ASCII case conversion, defined in strcase.c.
    Declared here so the conversions below inline at every call site without
    relying on LTO or a unity build: casecompare() invokes one of them twice
    per byte compared, where the call costs more than the lookup itself. */
-extern const unsigned char Curl_touppermap[256];
-extern const unsigned char Curl_tolowermap[256];
+خارجی ثابت غیرعلامتی حرف Curl_touppermap[256];
+خارجی ثابت غیرعلامتی حرف Curl_tolowermap[256];
 
 /* Portable, consistent toupper/tolower. Do not use toupper()/tolower() from
    <ctype.h>, whose behavior is altered by the current locale. */
-static CURL_INLINE char Curl_raw_toupper(char in)
+ساکن CURL_INLINE حرف Curl_raw_toupper(حرف اندر)
 {
-  return (char)Curl_touppermap[(unsigned char)in];
+  واپس (حرف)Curl_touppermap[(غیرعلامتی حرف)اندر];
 }
 
-static CURL_INLINE char Curl_raw_tolower(char in)
+ساکن CURL_INLINE حرف Curl_raw_tolower(حرف اندر)
 {
-  return (char)Curl_tolowermap[(unsigned char)in];
+  واپس (حرف)Curl_tolowermap[(غیرعلامتی حرف)اندر];
 }
 
 /* checkprefix() is a shorter version of the above, used when the first
    argument is the string literal */
-#define checkprefix(a, b) curl_strnequal(b, STRCONST(a))
+#تعریف_کرو checkprefix(a, b) curl_strnequal(b, STRCONST(a))
 
-void Curl_strntoupper(char *dest, const char *src, size_t n);
-void Curl_strntolower(char *dest, const char *src, size_t n);
+خالی Curl_strntoupper(حرف *dest, ثابت حرف *src, size_t n);
+خالی Curl_strntolower(حرف *dest, ثابت حرف *src, size_t n);
 
-bool Curl_safecmp(const char *a, const char *b);
-int Curl_timestrcmp(const char *a, const char *b);
+bool Curl_safecmp(ثابت حرف *a, ثابت حرف *b);
+صحیح Curl_timestrcmp(ثابت حرف *a, ثابت حرف *b);
 
-#endif /* HEADER_CURL_STRCASE_H */
+#اگر_ختم /* HEADER_CURL_STRCASE_H */

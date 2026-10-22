@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SELECT_H
-#define HEADER_CURL_SELECT_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_SELECT_H
+#تعریف_کرو سرخی_CURL_SELECT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,210 +23,210 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef HAVE_POLL_H
-#include <poll.h>
-#elif defined(HAVE_SYS_POLL_H)
-#include <sys/poll.h>
-#endif
+#اگر_تعریف_شدہ HAVE_POLL_H
+#شامل <poll.h>
+#وگرنہ_اگر defined(HAVE_SYS_POLL_H)
+#شامل <sys/poll.h>
+#اگر_ختم
 
 /*
  * Definition of pollfd struct and constants for platforms lacking them.
  */
 
-#if !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H) && !defined(POLLIN)
+#اگر !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H) && !defined(POLLIN)
 
-#define POLLIN      0x01
-#define POLLPRI     0x02
-#define POLLOUT     0x04
-#define POLLERR     0x08
-#define POLLHUP     0x10
-#define POLLNVAL    0x20
+#تعریف_کرو POLLIN      0x01
+#تعریف_کرو POLLPRI     0x02
+#تعریف_کرو POLLOUT     0x04
+#تعریف_کرو POLLERR     0x08
+#تعریف_کرو POLLHUP     0x10
+#تعریف_کرو POLLNVAL    0x20
 
-struct pollfd {
+ساخت pollfd {
   curl_socket_t fd;
-  short events;
-  short revents;
+  مختصر events;
+  مختصر revents;
 };
 
-#endif
+#اگر_ختم
 
-#ifndef POLLRDNORM
-#define POLLRDNORM POLLIN
-#endif
+#اگر_غیر_تعریف_شدہ POLLRDNORM
+#تعریف_کرو POLLRDNORM POLLIN
+#اگر_ختم
 
-#ifndef POLLWRNORM
-#define POLLWRNORM POLLOUT
-#endif
+#اگر_غیر_تعریف_شدہ POLLWRNORM
+#تعریف_کرو POLLWRNORM POLLOUT
+#اگر_ختم
 
-#ifndef POLLRDBAND
-#define POLLRDBAND POLLPRI
-#endif
+#اگر_غیر_تعریف_شدہ POLLRDBAND
+#تعریف_کرو POLLRDBAND POLLPRI
+#اگر_ختم
 
 /* there are three CSELECT defines that are defined in the public header that
    are exposed to users, but this *IN2 bit is only ever used internally and
    therefore defined here */
-#define CURL_CSELECT_IN2 (CURL_CSELECT_ERR << 1)
+#تعریف_کرو CURL_CSELECT_IN2 (CURL_CSELECT_ERR << 1)
 
-int Curl_socket_check(curl_socket_t readfd0,
+صحیح Curl_socket_check(curl_socket_t readfd0,
                       curl_socket_t readfd1,
                       curl_socket_t writefd,
                       timediff_t timeout_ms);
-#define SOCKET_READABLE(x, z)                               \
+#تعریف_کرو SOCKET_READABLE(x, z)                               \
   Curl_socket_check(x, CURL_SOCKET_BAD, CURL_SOCKET_BAD, z)
-#define SOCKET_WRITABLE(x, z)                               \
+#تعریف_کرو SOCKET_WRITABLE(x, z)                               \
   Curl_socket_check(CURL_SOCKET_BAD, CURL_SOCKET_BAD, x, z)
 
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms);
+صحیح Curl_poll(ساخت pollfd ufds[], غیرعلامتی صحیح nfds, timediff_t timeout_ms);
 
 /* With Winsock the valid range is [0..INVALID_SOCKET-1] according to
    https://learn.microsoft.com/windows/win32/winsock/socket-data-type-2 */
-#ifdef USE_WINSOCK
-#define VALID_SOCK(s) ((s) < INVALID_SOCKET)
-#define FDSET_SOCK(x) 1
-#define VERIFY_SOCK(x)           \
-  do {                           \
-    if(!VALID_SOCK(x)) {         \
-      SET_SOCKERRNO(SOCKEINVAL); \
-      return -1;                 \
+#اگر_تعریف_شدہ USE_WINSOCK
+#تعریف_کرو VALID_SOCK(s) ((s) < INVALID_SOCKET)
+#تعریف_کرو FDSET_SOCK(x) 1
+#تعریف_کرو VERIFY_SOCK(x)           \
+  کرو {                           \
+    اگر(!VALID_SOCK(x)) {         \
+      سیٹ_SOCKERRNO(SOCKEINVAL); \
+      واپس -1;                 \
     }                            \
-  } while(0)
-#else
-#define VALID_SOCK(s) ((s) >= 0)
+  } جب(0)
+#ورنہ
+#تعریف_کرو VALID_SOCK(s) ((s) >= 0)
 
 /* If the socket is small enough to get set or read from an fdset */
-#define FDSET_SOCK(s) ((s) < FD_SETSIZE)
+#تعریف_کرو FDSET_SOCK(s) ((s) < FD_SETSIZE)
 
-#define VERIFY_SOCK(x)                     \
-  do {                                     \
-    if(!VALID_SOCK(x) || !FDSET_SOCK(x)) { \
-      SET_SOCKERRNO(SOCKEINVAL);           \
-      return -1;                           \
+#تعریف_کرو VERIFY_SOCK(x)                     \
+  کرو {                                     \
+    اگر(!VALID_SOCK(x) || !FDSET_SOCK(x)) { \
+      سیٹ_SOCKERRNO(SOCKEINVAL);           \
+      واپس -1;                           \
     }                                      \
-  } while(0)
-#endif
+  } جب(0)
+#اگر_ختم
 
 /* Keep the sockets to poll for an easy handle.
  * `actions` are bitmaps of CURL_POLL_IN and CURL_POLL_OUT.
  * Starts with small capacity, grows on demand.
  */
-#define EZ_POLLSET_DEF_COUNT 2
+#تعریف_کرو EZ_POLLSET_DEF_گنتی 2
 
-struct easy_pollset {
+ساخت easy_pollset {
   curl_socket_t *sockets;
-  unsigned char *actions;
-  unsigned int n;
-  unsigned int count;
-#ifdef DEBUGBUILD
-  int init;
-#endif
-  curl_socket_t def_sockets[EZ_POLLSET_DEF_COUNT];
-  unsigned char def_actions[EZ_POLLSET_DEF_COUNT];
+  غیرعلامتی حرف *actions;
+  غیرعلامتی صحیح n;
+  غیرعلامتی صحیح گنتی;
+#اگر_تعریف_شدہ DEBUGBUILD
+  صحیح init;
+#اگر_ختم
+  curl_socket_t def_sockets[EZ_POLLSET_DEF_گنتی];
+  غیرعلامتی حرف def_actions[EZ_POLLSET_DEF_گنتی];
 };
 
-#ifdef DEBUGBUILD
-#define CURL_EASY_POLLSET_MAGIC  0x7a657370
-#endif
+#اگر_تعریف_شدہ DEBUGBUILD
+#تعریف_کرو CURL_EASY_POLLSET_MAGIC  0x7a657370
+#اگر_ختم
 
 /* allocate and initialize */
-struct easy_pollset *Curl_pollset_create(void);
+ساخت easy_pollset *Curl_pollset_create(خالی);
 
 /* Initialize before first use */
-void Curl_pollset_init(struct easy_pollset *ps);
+خالی Curl_pollset_init(ساخت easy_pollset *ps);
 /* Free any allocated resources */
-void Curl_pollset_cleanup(struct easy_pollset *ps);
+خالی Curl_pollset_cleanup(ساخت easy_pollset *ps);
 /* Reset to an empty pollset */
-void Curl_pollset_reset(struct easy_pollset *ps);
+خالی Curl_pollset_reset(ساخت easy_pollset *ps);
 /* Move pollset from to pollset to, replacing all in to,
  * leaving from empty. */
-void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from);
+خالی Curl_pollset_move(ساخت easy_pollset *مقصد, ساخت easy_pollset *from);
 
 /* Change the poll flags (CURL_POLL_IN/CURL_POLL_OUT) to the poll set for
  * socket `sock`. If the socket is not already part of the poll set, it
  * will be added.
  * If the socket is present and all poll flags are cleared, it will be removed.
  */
-CURLcode Curl_pollset_change(struct Curl_easy *data,
-                             struct easy_pollset *ps, curl_socket_t sock,
-                             int add_flags,
-                             int remove_flags) WARN_UNUSED_RESULT;
+CURLcode Curl_pollset_change(ساخت Curl_easy *ڈیٹا,
+                             ساخت easy_pollset *ps, curl_socket_t sock,
+                             صحیح جوڑو_flags,
+                             صحیح remove_flags) WARN_غیر_مستعمل_نتیجہ;
 
-CURLcode Curl_pollset_set(struct Curl_easy *data,
-                          struct easy_pollset *ps, curl_socket_t sock,
-                          bool do_in, bool do_out) WARN_UNUSED_RESULT;
+CURLcode Curl_pollset_سیٹ(ساخت Curl_easy *ڈیٹا,
+                          ساخت easy_pollset *ps, curl_socket_t sock,
+                          bool do_اندر, bool do_برآمد) WARN_غیر_مستعمل_نتیجہ;
 
-#define Curl_pollset_add_in(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_IN, 0)
-#define Curl_pollset_remove_in(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, 0, CURL_POLL_IN)
-#define Curl_pollset_add_out(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_OUT, 0)
-#define Curl_pollset_remove_out(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, 0, CURL_POLL_OUT)
-#define Curl_pollset_add_inout(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_IN | CURL_POLL_OUT, 0)
-#define Curl_pollset_set_in_only(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_IN, CURL_POLL_OUT)
-#define Curl_pollset_set_out_only(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_OUT, CURL_POLL_IN)
+#تعریف_کرو Curl_pollset_جوڑو_اندر(ڈیٹا, ps, sock) \
+  Curl_pollset_change(ڈیٹا, ps, sock, CURL_POLL_اندر, 0)
+#تعریف_کرو Curl_pollset_remove_اندر(ڈیٹا, ps, sock) \
+  Curl_pollset_change(ڈیٹا, ps, sock, 0, CURL_POLL_اندر)
+#تعریف_کرو Curl_pollset_جوڑو_برآمد(ڈیٹا, ps, sock) \
+  Curl_pollset_change(ڈیٹا, ps, sock, CURL_POLL_برآمد, 0)
+#تعریف_کرو Curl_pollset_remove_برآمد(ڈیٹا, ps, sock) \
+  Curl_pollset_change(ڈیٹا, ps, sock, 0, CURL_POLL_برآمد)
+#تعریف_کرو Curl_pollset_جوڑو_inout(ڈیٹا, ps, sock) \
+  Curl_pollset_change(ڈیٹا, ps, sock, CURL_POLL_اندر | CURL_POLL_برآمد, 0)
+#تعریف_کرو Curl_pollset_سیٹ_اندر_only(ڈیٹا, ps, sock) \
+  Curl_pollset_change(ڈیٹا, ps, sock, CURL_POLL_اندر, CURL_POLL_برآمد)
+#تعریف_کرو Curl_pollset_سیٹ_برآمد_only(ڈیٹا, ps, sock) \
+  Curl_pollset_change(ڈیٹا, ps, sock, CURL_POLL_برآمد, CURL_POLL_اندر)
 
-void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock);
+خالی Curl_pollset_remove(ساخت easy_pollset *ps, curl_socket_t sock);
 
 /* return < = on error, 0 on timeout or how many sockets are ready */
-int Curl_pollset_poll(struct Curl_easy *data,
-                      struct easy_pollset *ps,
+صحیح Curl_pollset_poll(ساخت Curl_easy *ڈیٹا,
+                      ساخت easy_pollset *ps,
                       timediff_t timeout_ms);
 
 /**
  * Check if the pollset, as is, wants to read and/or write regarding
  * the given socket.
  */
-void Curl_pollset_check(struct Curl_easy *data,
-                        struct easy_pollset *ps, curl_socket_t sock,
+خالی Curl_pollset_check(ساخت Curl_easy *ڈیٹا,
+                        ساخت easy_pollset *ps, curl_socket_t sock,
                         bool *pwant_read, bool *pwant_write);
 
 /* TRUE if the pollset contains socket with CURL_POLL_IN. */
-bool Curl_pollset_want_recv(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_recv(ساخت Curl_easy *ڈیٹا,
+                            ساخت easy_pollset *ps,
                             curl_socket_t sock);
 /* TRUE if the pollset contains socket with CURL_POLL_OUT. */
-bool Curl_pollset_want_send(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_send(ساخت Curl_easy *ڈیٹا,
+                            ساخت easy_pollset *ps,
                             curl_socket_t sock);
 
-struct curl_pollfds {
-  struct pollfd *pfds;
-  unsigned int n;
-  unsigned int count;
-  BIT(allocated_pfds);
+ساخت curl_pollfds {
+  ساخت pollfd *pfds;
+  غیرعلامتی صحیح n;
+  غیرعلامتی صحیح گنتی;
+  ثنائی_ہندسہ(allocated_pfds);
 };
 
-void Curl_pollfds_init(struct curl_pollfds *cpfds,
-                       struct pollfd *static_pfds,
-                       unsigned int static_count);
+خالی Curl_pollfds_init(ساخت curl_pollfds *cpfds,
+                       ساخت pollfd *static_pfds,
+                       غیرعلامتی صحیح static_گنتی);
 
-void Curl_pollfds_reset(struct curl_pollfds *cpfds);
+خالی Curl_pollfds_reset(ساخت curl_pollfds *cpfds);
 
-void Curl_pollfds_cleanup(struct curl_pollfds *cpfds);
+خالی Curl_pollfds_cleanup(ساخت curl_pollfds *cpfds);
 
-CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
-                             struct easy_pollset *ps);
+CURLcode Curl_pollfds_جوڑو_ps(ساخت curl_pollfds *cpfds,
+                             ساخت easy_pollset *ps);
 
-CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
-                               curl_socket_t sock, short events);
+CURLcode Curl_pollfds_جوڑو_sock(ساخت curl_pollfds *cpfds,
+                               curl_socket_t sock, مختصر events);
 
-struct Curl_waitfds {
-  struct curl_waitfd *wfds;
-  unsigned int n;
-  unsigned int count;
+ساخت Curl_waitfds {
+  ساخت curl_waitfd *wfds;
+  غیرعلامتی صحیح n;
+  غیرعلامتی صحیح گنتی;
 };
 
-void Curl_waitfds_init(struct Curl_waitfds *cwfds,
-                       struct curl_waitfd *static_wfds,
-                       unsigned int static_count);
+خالی Curl_waitfds_init(ساخت Curl_waitfds *cwfds,
+                       ساخت curl_waitfd *static_wfds,
+                       غیرعلامتی صحیح static_گنتی);
 
-unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
-                                 struct easy_pollset *ps);
+غیرعلامتی صحیح Curl_waitfds_جوڑو_ps(ساخت Curl_waitfds *cwfds,
+                                 ساخت easy_pollset *ps);
 
-#endif /* HEADER_CURL_SELECT_H */
+#اگر_ختم /* HEADER_CURL_SELECT_H */

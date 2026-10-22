@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NETRC_H
-#define HEADER_CURL_NETRC_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_NETRC_H
+#تعریف_کرو سرخی_CURL_NETRC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,46 +23,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifndef CURL_DISABLE_NETRC
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_NETRC
 
-#include "curlx/dynbuf.h"
+#شامل "curlx/dynbuf.h"
 
-struct Curl_easy;
-struct Curl_creds;
+ساخت Curl_easy;
+ساخت Curl_creds;
 
-struct store_netrc {
-  struct dynbuf filebuf;
-  char *filename;
-  BIT(loaded);
+ساخت store_netrc {
+  ساخت dynbuf filebuf;
+  حرف *filename;
+  ثنائی_ہندسہ(loaded);
 };
 
-typedef enum {
+قسمتعریف شمار {
   NETRC_OK,
-  NETRC_NO_MATCH,      /* no matching entry in the file */
+  NETRC_NO_مطابقت,      /* no matching entry in the file */
   NETRC_SYNTAX_ERROR,  /* in the netrc file */
   NETRC_FILE_MISSING,  /* the netrc file does not exist */
-  NETRC_OUT_OF_MEMORY, /* while parsing netrc */
-  NETRC_LAST /* never used */
+  NETRC_برآمد_کا_حافظہ, /* while parsing netrc */
+  NETRC_آخری /* never used */
 } NETRCcode;
 
-const char *Curl_netrc_strerror(NETRCcode ret);
-void Curl_netrc_init(struct store_netrc *store);
-void Curl_netrc_cleanup(struct store_netrc *store);
+ثابت حرف *Curl_netrc_strerror(NETRCcode ret);
+خالی Curl_netrc_init(ساخت store_netrc *store);
+خالی Curl_netrc_cleanup(ساخت store_netrc *store);
 
 /* Scan a netrc file for credentials matching hostname
  * and optional user. */
-NETRCcode Curl_netrc_scan(struct Curl_easy *data,
-                          struct store_netrc *store,
-                          const char *hostname,
-                          const char *user,
-                          const char *netrcfile,
-                          struct Curl_creds **pcreds);
-#else
+NETRCcode Curl_netrc_جائزہ(ساخت Curl_easy *ڈیٹا,
+                          ساخت store_netrc *store,
+                          ثابت حرف *hostname,
+                          ثابت حرف *user,
+                          ثابت حرف *netrcfile,
+                          ساخت Curl_creds **pcreds);
+#ورنہ
 /* disabled */
-#define Curl_netrc_init(x)
-#define Curl_netrc_cleanup(x)
-#endif
+#تعریف_کرو Curl_netrc_init(x)
+#تعریف_کرو Curl_netrc_cleanup(x)
+#اگر_ختم
 
-#endif /* HEADER_CURL_NETRC_H */
+#اگر_ختم /* HEADER_CURL_NETRC_H */

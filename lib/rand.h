@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_RAND_H
-#define HEADER_CURL_RAND_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_RAND_H
+#تعریف_کرو سرخی_CURL_RAND_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,32 +23,32 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-struct Curl_easy;
+ساخت Curl_easy;
 
-CURLcode Curl_rand_bytes(struct Curl_easy *data,
-#ifdef DEBUGBUILD
+CURLcode Curl_rand_بائٹیں(ساخت Curl_easy *ڈیٹا,
+#اگر_تعریف_شدہ DEBUGBUILD
                          bool env_override,
-#endif
-                         unsigned char *rnd, size_t num);
+#اگر_ختم
+                         غیرعلامتی حرف *rnd, size_t عدد);
 
-#ifdef DEBUGBUILD
-#define Curl_rand(a, b, c) Curl_rand_bytes(a, TRUE, b, c)
-#else
-#define Curl_rand(a, b, c) Curl_rand_bytes(a, b, c)
-#endif
+#اگر_تعریف_شدہ DEBUGBUILD
+#تعریف_کرو Curl_rand(a, b, c) Curl_rand_بائٹیں(a, TRUE, b, c)
+#ورنہ
+#تعریف_کرو Curl_rand(a, b, c) Curl_rand_بائٹیں(a, b, c)
+#اگر_ختم
 
 /*
  * Curl_rand_hex() fills the 'rnd' buffer with a given 'num' size with random
  * hexadecimal digits PLUS a null-terminator byte. It must be an odd number
  * size.
  */
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num);
+CURLcode Curl_rand_hex(ساخت Curl_easy *ڈیٹا, غیرعلامتی حرف *rnd, size_t عدد);
 
 /*
  * Curl_rand_alnum() fills the 'rnd' buffer with a given 'num' size with random
  * alphanumerical chars PLUS a null-terminator byte.
  */
-CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
-                         size_t num);
+CURLcode Curl_rand_alnum(ساخت Curl_easy *ڈیٹا, غیرعلامتی حرف *rnd,
+                         size_t عدد);
 
-#endif /* HEADER_CURL_RAND_H */
+#اگر_ختم /* HEADER_CURL_RAND_H */

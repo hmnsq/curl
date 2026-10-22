@@ -36,73 +36,73 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "pop3.h"
+#شامل "curl_setup.h"
+#شامل "urldata.h"
+#شامل "pop3.h"
 
-#ifndef CURL_DISABLE_POP3
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_POP3
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#اگر_تعریف_شدہ HAVE_NETINET_اندر_H
+#شامل <netinet/in.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_ARPA_INET_H
+#شامل <arpa/inet.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_NETDB_H
+#شامل <netdb.h>
+#اگر_ختم
+#اگر_تعریف_شدہ __VMS
+#شامل <in.h>
+#شامل <inet.h>
+#اگر_ختم
 
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "escape.h"
-#include "pingpong.h"
-#include "vtls/vtls.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "select.h"
-#include "url.h"
-#include "bufref.h"
-#include "curl_sasl.h"
-#include "curl_md5.h"
-#include "curlx/strdup.h"
+#شامل "sendf.h"
+#شامل "curl_trc.h"
+#شامل "progress.h"
+#شامل "transfer.h"
+#شامل "escape.h"
+#شامل "pingpong.h"
+#شامل "vtls/vtls.h"
+#شامل "cfilters.h"
+#شامل "connect.h"
+#شامل "select.h"
+#شامل "url.h"
+#شامل "bufref.h"
+#شامل "curl_sasl.h"
+#شامل "curl_md5.h"
+#شامل "curlx/strdup.h"
 
 /* Authentication type flags */
-#define POP3_TYPE_CLEARTEXT (1 << 0)
-#define POP3_TYPE_APOP      (1 << 1)
-#define POP3_TYPE_SASL      (1 << 2)
+#تعریف_کرو POP3_TYPE_CLEARTEXT (1 << 0)
+#تعریف_کرو POP3_TYPE_APOP      (1 << 1)
+#تعریف_کرو POP3_TYPE_SASL      (1 << 2)
 
 /* Authentication type values */
-#define POP3_TYPE_NONE 0
-#define POP3_TYPE_ANY  (POP3_TYPE_CLEARTEXT | POP3_TYPE_APOP | POP3_TYPE_SASL)
+#تعریف_کرو POP3_TYPE_NONE 0
+#تعریف_کرو POP3_TYPE_ANY  (POP3_TYPE_CLEARTEXT | POP3_TYPE_APOP | POP3_TYPE_SASL)
 
 /* This is the 5-bytes End-Of-Body marker for POP3 */
-#define POP3_EOB     "\x0d\x0a\x2e\x0d\x0a"
-#define POP3_EOB_LEN 5
+#تعریف_کرو POP3_EOB     "\x0d\x0a\x2e\x0d\x0a"
+#تعریف_کرو POP3_EOB_LEN 5
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_POP3_EASY   "meta:proto:pop3:easy"
+#تعریف_کرو CURL_META_POP3_EASY   "meta:proto:pop3:easy"
 /* meta key for storing protocol meta at connection */
-#define CURL_META_POP3_CONN   "meta:proto:pop3:conn"
+#تعریف_کرو CURL_META_POP3_CONN   "meta:proto:pop3:conn"
 
 /*
  * POP3 easy handle state
  */
-struct POP3 {
+ساخت POP3 {
   curl_pp_transfer transfer;
-  char *id;               /* Message ID */
-  char *custom;           /* Custom Request */
+  حرف *id;               /* Message ID */
+  حرف *custom;           /* Custom Request */
 };
 
 /*
  * POP3 connection state
  */
-typedef enum {
+قسمتعریف شمار {
   POP3_STOP,         /* do nothing state, stops the state machine */
   POP3_SERVERGREET,  /* waiting for the initial greeting immediately after
                         a connect */
@@ -116,32 +116,32 @@ typedef enum {
   POP3_PASS,
   POP3_COMMAND,
   POP3_QUIT,
-  POP3_LAST          /* never used */
+  POP3_آخری          /* never used */
 } pop3state;
 
-struct pop3_conn {
-  struct pingpong pp;
+ساخت pop3_conn {
+  ساخت pingpong pp;
   pop3state state;        /* Always use pop3.c:state() to change state! */
   size_t eob;             /* Number of bytes of the EOB (End Of Body) that
                              have been received so far */
   size_t strip;           /* Number of bytes from the start to ignore as
                              non-body */
-  struct SASL sasl;       /* SASL-related storage */
-  char *apoptimestamp;    /* APOP timestamp from the server greeting */
-  unsigned char authtypes; /* Accepted authentication types */
-  unsigned char preftype;  /* Preferred authentication type */
-  BIT(ssldone);           /* Is connect() over SSL done? */
-  BIT(tls_supported);     /* StartTLS capability supported by server */
+  ساخت SASL sasl;       /* SASL-related storage */
+  حرف *apoptimestamp;    /* APOP timestamp from the server greeting */
+  غیرعلامتی حرف authtypes; /* Accepted authentication types */
+  غیرعلامتی حرف preftype;  /* Preferred authentication type */
+  ثنائی_ہندسہ(ssldone);           /* Is connect() over SSL done? */
+  ثنائی_ہندسہ(tls_supported);     /* StartTLS capability supported by server */
 };
 
-struct pop3_cmd {
-  const char *name;
-  unsigned short nlen;
-  BIT(multiline); /* response is multi-line with last '.' line */
-  BIT(multiline_with_args); /* is multi-line when command has args */
+ساخت pop3_cmd {
+  ثابت حرف *name;
+  غیرعلامتی مختصر nlen;
+  ثنائی_ہندسہ(multiline); /* response is multi-line with last '.' line */
+  ثنائی_ہندسہ(multiline_with_دلائل); /* is multi-line when command has args */
 };
 
-static const struct pop3_cmd pop3cmds[] = {
+ساکن ثابت ساخت pop3_cmd pop3cmds[] = {
   { "APOP", 4, FALSE, FALSE },
   { "AUTH", 4, FALSE, FALSE },
   { "CAPA", 4, TRUE, TRUE },
@@ -168,58 +168,58 @@ static const struct pop3_cmd pop3cmds[] = {
  *
  * Parse the URL login options.
  */
-static CURLcode pop3_parse_url_options(struct connectdata *conn)
+ساکن CURLcode pop3_parse_url_options(ساخت connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  CURLcode result = CURLE_OK;
-  const char *ptr = conn->options;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
+  ثابت حرف *ptr = conn->options;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+  جب(!نتیجہ && ptr && *ptr) {
+    ثابت حرف *کلید = ptr;
+    ثابت حرف *قدر;
 
-    while(*ptr && *ptr != '=')
+    جب(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    قدر = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    جب(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=", 5)) {
-      result = Curl_sasl_parse_url_auth_option(&pop3c->sasl,
-                                               value, ptr - value);
+    اگر(curl_strnequal(کلید, "AUTH=", 5)) {
+      نتیجہ = Curl_sasl_parse_url_auth_option(&pop3c->sasl,
+                                               قدر, ptr - قدر);
 
-      if(result && curl_strnequal(value, "+APOP", ptr - value)) {
+      اگر(نتیجہ && curl_strnequal(قدر, "+APOP", ptr - قدر)) {
         pop3c->preftype = POP3_TYPE_APOP;
         pop3c->sasl.prefmech = SASL_AUTH_NONE;
-        result = CURLE_OK;
+        نتیجہ = CURLE_OK;
       }
     }
-    else
-      result = CURLE_URL_MALFORMAT;
+    ورنہ
+      نتیجہ = CURLE_URL_MALFORMAT;
 
-    if(*ptr == ';')
+    اگر(*ptr == ';')
       ptr++;
   }
 
-  if(pop3c->preftype != POP3_TYPE_APOP)
-    switch(pop3c->sasl.prefmech) {
-    case SASL_AUTH_NONE:
+  اگر(pop3c->preftype != POP3_TYPE_APOP)
+    انتخاب(pop3c->sasl.prefmech) {
+    حالت SASL_AUTH_NONE:
       pop3c->preftype = POP3_TYPE_NONE;
-      break;
-    case SASL_AUTH_DEFAULT:
+      توڑو;
+    حالت SASL_AUTH_DEFAULT:
       pop3c->preftype = POP3_TYPE_ANY;
-      break;
-    default:
+      توڑو;
+    طےشدہ:
       pop3c->preftype = POP3_TYPE_SASL;
-      break;
+      توڑو;
     }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -228,16 +228,16 @@ static CURLcode pop3_parse_url_options(struct connectdata *conn)
  *
  * Parse the URL path into separate path components.
  */
-static CURLcode pop3_parse_url_path(struct Curl_easy *data)
+ساکن CURLcode pop3_parse_url_راستہ(ساخت Curl_easy *ڈیٹا)
 {
   /* The POP3 struct is already initialized in pop3_connect() */
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
-  const char *path = &data->state.up.path[1]; /* skip leading path */
+  ساخت POP3 *pop3 = Curl_meta_get(ڈیٹا, CURL_META_POP3_EASY);
+  ثابت حرف *راستہ = &ڈیٹا->state.اوپر.راستہ[1]; /* skip leading path */
 
-  if(!pop3)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3)
+    واپس CURLE_FAILED_INIT;
   /* URL decode the path for the message ID */
-  return Curl_urldecode(path, 0, &pop3->id, NULL, REJECT_CTRL);
+  واپس Curl_urldecode(راستہ, 0, &pop3->id, تہی, REJECT_CTRL);
 }
 
 /***********************************************************************
@@ -246,38 +246,38 @@ static CURLcode pop3_parse_url_path(struct Curl_easy *data)
  *
  * Parse the custom request.
  */
-static CURLcode pop3_parse_custom_request(struct Curl_easy *data)
+ساکن CURLcode pop3_parse_custom_request(ساخت Curl_easy *ڈیٹا)
 {
-  CURLcode result = CURLE_OK;
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
-  const char *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت POP3 *pop3 = Curl_meta_get(ڈیٹا, CURL_META_POP3_EASY);
+  ثابت حرف *custom = CURL_EASY_STR(ڈیٹا, STRING_CUSTOMREQUEST);
 
-  if(!pop3)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3)
+    واپس CURLE_FAILED_INIT;
   /* URL decode the custom request */
-  if(custom)
-    result = Curl_urldecode(custom, 0, &pop3->custom, NULL, REJECT_CTRL);
+  اگر(custom)
+    نتیجہ = Curl_urldecode(custom, 0, &pop3->custom, تہی, REJECT_CTRL);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* Return iff a command is defined as "multi-line" (RFC 1939),
  * has a response terminated by a last line with a '.'.
  */
-static bool pop3_is_multiline(const char *cmdline)
+ساکن bool pop3_is_multiline(ثابت حرف *cmdline)
 {
   size_t i;
-  for(i = 0; i < CURL_ARRAYSIZE(pop3cmds); ++i) {
-    if(curl_strnequal(pop3cmds[i].name, cmdline, pop3cmds[i].nlen)) {
-      if(!cmdline[pop3cmds[i].nlen])
-        return (bool)pop3cmds[i].multiline;
-      else if(cmdline[pop3cmds[i].nlen] == ' ')
-        return (bool)pop3cmds[i].multiline_with_args;
+  برائے(i = 0; i < CURL_ARRAYSIZE(pop3cmds); ++i) {
+    اگر(curl_strnequal(pop3cmds[i].name, cmdline, pop3cmds[i].nlen)) {
+      اگر(!cmdline[pop3cmds[i].nlen])
+        واپس (bool)pop3cmds[i].multiline;
+      ورنہ اگر(cmdline[pop3cmds[i].nlen] == ' ')
+        واپس (bool)pop3cmds[i].multiline_with_دلائل;
     }
   }
   /* Unknown command, assume multi-line for backward compatibility with
    * earlier curl versions that only could do multi-line responses. */
-  return TRUE;
+  واپس TRUE;
 }
 
 /***********************************************************************
@@ -289,52 +289,52 @@ static bool pop3_is_multiline(const char *cmdline)
  * capabilities from the CAPA response including the supported authentication
  * types and allowed SASL mechanisms.
  */
-static bool pop3_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+ساکن bool pop3_endofresp(ساخت Curl_easy *ڈیٹا, ساخت connectdata *conn,
+                           ثابت حرف *سطر, size_t len, صحیح *resp)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  (void)data;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  (خالی)ڈیٹا;
   DEBUGASSERT(pop3c);
-  if(!pop3c) /* internal error */
-    return TRUE;
+  اگر(!pop3c) /* internal error */
+    واپس TRUE;
 
   /* Do we have an error response? */
-  if(len >= 4 && !memcmp("-ERR", line, 4)) {
+  اگر(len >= 4 && !memcmp("-ERR", سطر, 4)) {
     *resp = '-';
 
-    return TRUE;
+    واپس TRUE;
   }
 
   /* Are we processing CAPA command responses? */
-  if(pop3c->state == POP3_CAPA) {
+  اگر(pop3c->state == POP3_CAPA) {
     /* Do we have the terminating line? Per RFC 2449 this is a line
        containing only a single dot */
-    if((len == 3 && line[0] == '.' && line[1] == '\r') ||
-       (len == 2 && line[0] == '.' && line[1] == '\n'))
+    اگر((len == 3 && سطر[0] == '.' && سطر[1] == '\r') ||
+       (len == 2 && سطر[0] == '.' && سطر[1] == '\n'))
       /* Treat the response as a success */
       *resp = '+';
-    else
+    ورنہ
       /* Treat the response as an untagged continuation */
       *resp = '*';
 
-    return TRUE;
+    واپس TRUE;
   }
 
   /* Do we have a success response? */
-  if(len >= 3 && !memcmp("+OK", line, 3)) {
+  اگر(len >= 3 && !memcmp("+OK", سطر, 3)) {
     *resp = '+';
 
-    return TRUE;
+    واپس TRUE;
   }
 
   /* Do we have a continuation response? */
-  if(len >= 1 && line[0] == '+') {
+  اگر(len >= 1 && سطر[0] == '+') {
     *resp = '*';
 
-    return TRUE;
+    واپس TRUE;
   }
 
-  return FALSE; /* Nothing for us */
+  واپس FALSE; /* Nothing for us */
 }
 
 /***********************************************************************
@@ -343,37 +343,37 @@ static bool pop3_endofresp(struct Curl_easy *data, struct connectdata *conn,
  *
  * Gets the authentication message from the response buffer.
  */
-static CURLcode pop3_get_message(struct Curl_easy *data, struct bufref *out)
+ساکن CURLcode pop3_get_پیغام(ساخت Curl_easy *ڈیٹا, ساخت bufref *برآمد)
 {
-  struct pop3_conn *pop3c =
-    Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
-  char *message;
+  ساخت pop3_conn *pop3c =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_POP3_CONN);
+  حرف *پیغام_2;
   size_t len;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
-  message = curlx_dyn_ptr(&pop3c->pp.recvbuf);
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
+  پیغام_2 = curlx_dyn_ptr(&pop3c->pp.recvbuf);
   len = pop3c->pp.nfinal;
-  if(len > 2) {
+  اگر(len > 2) {
     /* Find the start of the message */
     len -= 2;
-    for(message += 2; ISBLANK(*message); message++, len--)
+    برائے(پیغام_2 += 2; ISBLANK(*پیغام_2); پیغام_2++, len--)
       ;
 
     /* Find the end of the message */
-    while(len--)
-      if(!ISBLANK(message[len]) && !ISNEWLINE(message[len]))
-        break;
+    جب(len--)
+      اگر(!ISBLANK(پیغام_2[len]) && !ISNEWLINE(پیغام_2[len]))
+        توڑو;
 
     /* Terminate the message */
-    message[++len] = '\0';
-    Curl_bufref_set(out, message, len, NULL);
+    پیغام_2[++len] = '\0';
+    Curl_bufref_سیٹ(برآمد, پیغام_2, len, تہی);
   }
-  else
+  ورنہ
     /* junk input => zero length output */
-    Curl_bufref_set(out, "", 0, NULL);
+    Curl_bufref_سیٹ(برآمد, "", 0, تہی);
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /***********************************************************************
@@ -382,14 +382,14 @@ static CURLcode pop3_get_message(struct Curl_easy *data, struct bufref *out)
  *
  * This is the ONLY way to change POP3 state!
  */
-static void pop3_state(struct Curl_easy *data, pop3state newstate)
+ساکن خالی pop3_state(ساخت Curl_easy *ڈیٹا, pop3state newstate)
 {
-  struct pop3_conn *pop3c =
-    Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
-  if(pop3c) {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+  ساخت pop3_conn *pop3c =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_POP3_CONN);
+  اگر(pop3c) {
+#اگر defined(DEBUGBUILD) && defined(CURLVERBOSE)
     /* for debug purposes */
-    static const char * const names[] = {
+    ساکن ثابت حرف * ثابت نام[] = {
       "STOP",
       "SERVERGREET",
       "CAPA",
@@ -401,13 +401,13 @@ static void pop3_state(struct Curl_easy *data, pop3state newstate)
       "PASS",
       "COMMAND",
       "QUIT",
-      /* LAST */
+      /*آخری*/
     };
 
-    if(pop3c->state != newstate)
-      infof(data, "POP3 %p state change from %s to %s",
-            (void *)pop3c, names[pop3c->state], names[newstate]);
-#endif
+    اگر(pop3c->state != newstate)
+      infof(ڈیٹا, "POP3 %p state change from %s to %s",
+            (خالی *)pop3c, نام[pop3c->state], نام[newstate]);
+#اگر_ختم
 
     pop3c->state = newstate;
   }
@@ -420,26 +420,26 @@ static void pop3_state(struct Curl_easy *data, pop3state newstate)
  * Sends the CAPA command in order to obtain a list of server side supported
  * capabilities.
  */
-static CURLcode pop3_perform_capa(struct Curl_easy *data,
-                                  struct connectdata *conn)
+ساکن CURLcode pop3_perform_capa(ساخت Curl_easy *ڈیٹا,
+                                  ساخت connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  CURLcode result = CURLE_OK;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
   pop3c->sasl.authmechs = SASL_AUTH_NONE; /* No known auth. mechanisms yet */
   pop3c->sasl.authused = SASL_AUTH_NONE;  /* Clear the auth. mechanism used */
   pop3c->tls_supported = FALSE;           /* Clear the TLS capability */
 
   /* Send the CAPA command */
-  result = Curl_pp_sendf(data, &pop3c->pp, "%s", "CAPA");
+  نتیجہ = Curl_pp_sendf(ڈیٹا, &pop3c->pp, "%s", "CAPA");
 
-  if(!result)
-    pop3_state(data, POP3_CAPA);
+  اگر(!نتیجہ)
+    pop3_state(ڈیٹا, POP3_CAPA);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -448,21 +448,21 @@ static CURLcode pop3_perform_capa(struct Curl_easy *data,
  *
  * Sends the STLS command to start the upgrade to TLS.
  */
-static CURLcode pop3_perform_starttls(struct Curl_easy *data,
-                                      struct connectdata *conn)
+ساکن CURLcode pop3_perform_starttls(ساخت Curl_easy *ڈیٹا,
+                                      ساخت connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  CURLcode result;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
   /* Send the STLS command */
-  result = Curl_pp_sendf(data, &pop3c->pp, "%s", "STLS");
-  if(!result)
-    pop3_state(data, POP3_STARTTLS);
+  نتیجہ = Curl_pp_sendf(ڈیٹا, &pop3c->pp, "%s", "STLS");
+  اگر(!نتیجہ)
+    pop3_state(ڈیٹا, POP3_STARTTLS);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -471,43 +471,43 @@ static CURLcode pop3_perform_starttls(struct Curl_easy *data,
  *
  * Performs the upgrade to TLS.
  */
-static CURLcode pop3_perform_upgrade_tls(struct Curl_easy *data,
-                                         struct connectdata *conn)
+ساکن CURLcode pop3_perform_upgrade_tls(ساخت Curl_easy *ڈیٹا,
+                                         ساخت connectdata *conn)
 {
-#ifdef USE_SSL
+#اگر_تعریف_شدہ USE_SSL
   /* Start the SSL connection */
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  CURLcode result;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ;
   bool ssldone = FALSE;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  if(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
-    result = Curl_ssl_cfilter_add(
-      data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
-      goto out;
+  اگر(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+    نتیجہ = Curl_ssl_cfilter_جوڑو(
+      ڈیٹا, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
+    اگر(نتیجہ)
+      جاؤ برآمد;
     /* Change the connection handler */
     conn->scheme = &Curl_scheme_pop3s;
   }
 
   DEBUGASSERT(!pop3c->ssldone);
-  result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
-  DEBUGF(infof(data, "pop3_perform_upgrade_tls, connect -> %d, %d",
-               (int)result, ssldone));
-  if(!result && ssldone) {
+  نتیجہ = Curl_conn_connect(ڈیٹا, FIRSTSOCKET, FALSE, &ssldone);
+  DEBUGF(infof(ڈیٹا, "pop3_perform_upgrade_tls, connect -> %d, %d",
+               (صحیح)نتیجہ, ssldone));
+  اگر(!نتیجہ && ssldone) {
     pop3c->ssldone = ssldone;
     /* perform CAPA now, changes pop3c->state out of POP3_UPGRADETLS */
-    result = pop3_perform_capa(data, conn);
+    نتیجہ = pop3_perform_capa(ڈیٹا, conn);
   }
-out:
-  return result;
-#else
-  (void)data;
-  (void)conn;
-  return CURLE_NOT_BUILT_IN;
-#endif
+برآمد:
+  واپس نتیجہ;
+#ورنہ
+  (خالی)ڈیٹا;
+  (خالی)conn;
+  واپس CURLE_NOT_BUILT_اندر;
+#اگر_ختم
 }
 
 /***********************************************************************
@@ -516,87 +516,87 @@ out:
  *
  * Sends a clear text USER command to authenticate with.
  */
-static CURLcode pop3_perform_user(struct Curl_easy *data,
-                                  struct connectdata *conn)
+ساکن CURLcode pop3_perform_user(ساخت Curl_easy *ڈیٹا,
+                                  ساخت connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  CURLcode result = CURLE_OK;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
   /* Check we have a username and password to authenticate with and end the
      connect phase if we do not */
-  if(!conn->creds) {
-    pop3_state(data, POP3_STOP);
+  اگر(!conn->creds) {
+    pop3_state(ڈیٹا, POP3_STOP);
 
-    return result;
+    واپس نتیجہ;
   }
 
   /* Send the USER command */
-  result = Curl_pp_sendf(data, &pop3c->pp, "USER %s",
+  نتیجہ = Curl_pp_sendf(ڈیٹا, &pop3c->pp, "USER %s",
                          Curl_creds_user(conn->creds));
-  if(!result)
-    pop3_state(data, POP3_USER);
+  اگر(!نتیجہ)
+    pop3_state(ڈیٹا, POP3_USER);
 
-  return result;
+  واپس نتیجہ;
 }
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_DIGEST_AUTH
 /***********************************************************************
  *
  * pop3_perform_apop()
  *
  * Sends an APOP command to authenticate with.
  */
-static CURLcode pop3_perform_apop(struct Curl_easy *data,
-                                  struct connectdata *conn)
+ساکن CURLcode pop3_perform_apop(ساخت Curl_easy *ڈیٹا,
+                                  ساخت connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  CURLcode result = CURLE_OK;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
   size_t i;
-  struct MD5_context *ctxt;
-  unsigned char digest[MD5_DIGEST_LEN];
-  char secret[(2 * MD5_DIGEST_LEN) + 1];
+  ساخت MD5_context *ctxt;
+  غیرعلامتی حرف digest[MD5_DIGEST_LEN];
+  حرف secret[(2 * MD5_DIGEST_LEN) + 1];
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
   /* Check we have a username and password to authenticate with and end the
      connect phase if we do not */
-  if(!data->state.creds) {
-    pop3_state(data, POP3_STOP);
+  اگر(!ڈیٹا->state.creds) {
+    pop3_state(ڈیٹا, POP3_STOP);
 
-    return result;
+    واپس نتیجہ;
   }
 
   /* Create the digest */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  اگر(!ctxt)
+    واپس CURLE_برآمد_کا_حافظہ;
 
-  Curl_MD5_update(ctxt, (const unsigned char *)pop3c->apoptimestamp,
-                  curlx_uztoui(strlen(pop3c->apoptimestamp)));
+  Curl_MD5_update(ctxt, (ثابت غیرعلامتی حرف *)pop3c->apoptimestamp,
+                  curlx_uztoui(لڑی_لمبائی(pop3c->apoptimestamp)));
 
-  Curl_MD5_update(ctxt, (const unsigned char *)Curl_creds_passwd(conn->creds),
-                  curlx_uztoui(strlen(Curl_creds_passwd(conn->creds))));
+  Curl_MD5_update(ctxt, (ثابت غیرعلامتی حرف *)Curl_creds_passwd(conn->creds),
+                  curlx_uztoui(لڑی_لمبائی(Curl_creds_passwd(conn->creds))));
 
   /* Finalise the digest */
   Curl_MD5_final(ctxt, digest);
 
   /* Convert the calculated 16 octet digest into a 32-byte hex string */
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  برائے(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&secret[2 * i], 3, "%02x", digest[i]);
 
-  result = Curl_pp_sendf(data, &pop3c->pp, "APOP %s %s",
+  نتیجہ = Curl_pp_sendf(ڈیٹا, &pop3c->pp, "APOP %s %s",
                          Curl_creds_user(conn->creds), secret);
 
-  if(!result)
-    pop3_state(data, POP3_APOP);
+  اگر(!نتیجہ)
+    pop3_state(ڈیٹا, POP3_APOP);
 
-  return result;
+  واپس نتیجہ;
 }
-#endif
+#اگر_ختم
 
 /***********************************************************************
  *
@@ -605,29 +605,29 @@ static CURLcode pop3_perform_apop(struct Curl_easy *data,
  * Sends an AUTH command allowing the client to login with the given SASL
  * authentication mechanism.
  */
-static CURLcode pop3_perform_auth(struct Curl_easy *data,
-                                  const char *mech,
-                                  const struct bufref *initresp)
+ساکن CURLcode pop3_perform_auth(ساخت Curl_easy *ڈیٹا,
+                                  ثابت حرف *mech,
+                                  ثابت ساخت bufref *initresp)
 {
-  struct pop3_conn *pop3c =
-    Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
-  CURLcode result = CURLE_OK;
-  const char *ir = Curl_bufref_ptr(initresp);
+  ساخت pop3_conn *pop3c =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
+  ثابت حرف *ir = Curl_bufref_ptr(initresp);
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  if(ir) {                                  /* AUTH <mech> ...<crlf> */
+  اگر(ir) {                                  /* AUTH <mech> ...<crlf> */
     /* Send the AUTH command with the initial response */
-    result = Curl_pp_sendf(data, &pop3c->pp, "AUTH %s %s",
+    نتیجہ = Curl_pp_sendf(ڈیٹا, &pop3c->pp, "AUTH %s %s",
                            mech, *ir ? ir : "=");
   }
-  else {
+  ورنہ {
     /* Send the AUTH command */
-    result = Curl_pp_sendf(data, &pop3c->pp, "AUTH %s", mech);
+    نتیجہ = Curl_pp_sendf(ڈیٹا, &pop3c->pp, "AUTH %s", mech);
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -636,18 +636,18 @@ static CURLcode pop3_perform_auth(struct Curl_easy *data,
  *
  * Sends SASL continuation data.
  */
-static CURLcode pop3_continue_auth(struct Curl_easy *data,
-                                   const char *mech,
-                                   const struct bufref *resp)
+ساکن CURLcode pop3_continue_auth(ساخت Curl_easy *ڈیٹا,
+                                   ثابت حرف *mech,
+                                   ثابت ساخت bufref *resp)
 {
-  struct pop3_conn *pop3c =
-    Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
+  ساخت pop3_conn *pop3c =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_POP3_CONN);
 
-  (void)mech;
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  (خالی)mech;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  return Curl_pp_sendf(data, &pop3c->pp, "%s", Curl_bufref_ptr(resp));
+  واپس Curl_pp_sendf(ڈیٹا, &pop3c->pp, "%s", Curl_bufref_ptr(resp));
 }
 
 /***********************************************************************
@@ -656,16 +656,16 @@ static CURLcode pop3_continue_auth(struct Curl_easy *data,
  *
  * Sends SASL cancellation.
  */
-static CURLcode pop3_cancel_auth(struct Curl_easy *data, const char *mech)
+ساکن CURLcode pop3_cancel_auth(ساخت Curl_easy *ڈیٹا, ثابت حرف *mech)
 {
-  struct pop3_conn *pop3c =
-    Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
+  ساخت pop3_conn *pop3c =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_POP3_CONN);
 
-  (void)mech;
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  (خالی)mech;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  return Curl_pp_sendf(data, &pop3c->pp, "*");
+  واپس Curl_pp_sendf(ڈیٹا, &pop3c->pp, "*");
 }
 
 /***********************************************************************
@@ -676,46 +676,46 @@ static CURLcode pop3_cancel_auth(struct Curl_easy *data, const char *mech)
  * authentication mechanism, falling back to APOP and clear text should a
  * common mechanism not be available between the client and server.
  */
-static CURLcode pop3_perform_authentication(struct Curl_easy *data,
-                                            struct connectdata *conn)
+ساکن CURLcode pop3_perform_authentication(ساخت Curl_easy *ڈیٹا,
+                                            ساخت connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  CURLcode result = CURLE_OK;
-  saslprogress progress = SASL_IDLE;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
+  saslprogress پیش_رفت = SASL_IDLE;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
   /* Check we have enough data to authenticate with and end the
      connect phase if we do not */
-  if(!Curl_sasl_can_authenticate(&pop3c->sasl, data)) {
-    pop3_state(data, POP3_STOP);
-    return result;
+  اگر(!Curl_sasl_can_authenticate(&pop3c->sasl, ڈیٹا)) {
+    pop3_state(ڈیٹا, POP3_STOP);
+    واپس نتیجہ;
   }
 
-  if(pop3c->authtypes & pop3c->preftype & POP3_TYPE_SASL) {
+  اگر(pop3c->authtypes & pop3c->preftype & POP3_TYPE_SASL) {
     /* Calculate the SASL login details */
-    result = Curl_sasl_start(&pop3c->sasl, data, FALSE, &progress);
+    نتیجہ = Curl_sasl_آغاز(&pop3c->sasl, ڈیٹا, FALSE, &پیش_رفت);
 
-    if(!result && progress == SASL_INPROGRESS)
-      pop3_state(data, POP3_AUTH);
+    اگر(!نتیجہ && پیش_رفت == SASL_INPROGRESS)
+      pop3_state(ڈیٹا, POP3_AUTH);
   }
 
-  if(!result && progress == SASL_IDLE) {
-#ifndef CURL_DISABLE_DIGEST_AUTH
-    if(pop3c->authtypes & pop3c->preftype & POP3_TYPE_APOP)
+  اگر(!نتیجہ && پیش_رفت == SASL_IDLE) {
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_DIGEST_AUTH
+    اگر(pop3c->authtypes & pop3c->preftype & POP3_TYPE_APOP)
       /* Perform APOP authentication */
-      result = pop3_perform_apop(data, conn);
-    else
-#endif
-    if(pop3c->authtypes & pop3c->preftype & POP3_TYPE_CLEARTEXT)
+      نتیجہ = pop3_perform_apop(ڈیٹا, conn);
+    ورنہ
+#اگر_ختم
+    اگر(pop3c->authtypes & pop3c->preftype & POP3_TYPE_CLEARTEXT)
       /* Perform clear text authentication */
-      result = pop3_perform_user(data, conn);
-    else
-      result = Curl_sasl_is_blocked(&pop3c->sasl, data);
+      نتیجہ = pop3_perform_user(ڈیٹا, conn);
+    ورنہ
+      نتیجہ = Curl_sasl_is_blocked(&pop3c->sasl, ڈیٹا);
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -724,43 +724,43 @@ static CURLcode pop3_perform_authentication(struct Curl_easy *data,
  *
  * Sends a POP3 based command.
  */
-static CURLcode pop3_perform_command(struct Curl_easy *data)
+ساکن CURLcode pop3_perform_command(ساخت Curl_easy *ڈیٹا)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  const char *command = NULL;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت POP3 *pop3 = Curl_meta_get(ڈیٹا, CURL_META_POP3_EASY);
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ثابت حرف *command = تہی;
 
-  if(!pop3 || !pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3 || !pop3c)
+    واپس CURLE_FAILED_INIT;
 
   /* Calculate the default command */
-  if(pop3->id[0] == '\0' || data->set.list_only) {
+  اگر(pop3->id[0] == '\0' || ڈیٹا->سیٹ.list_only) {
     command = "LIST";
 
-    if(pop3->id[0] != '\0')
+    اگر(pop3->id[0] != '\0')
       /* Message specific LIST so skip the BODY transfer */
       pop3->transfer = PPTRANSFER_INFO;
   }
-  else
+  ورنہ
     command = "RETR";
 
-  if(pop3->custom && pop3->custom[0] != '\0')
+  اگر(pop3->custom && pop3->custom[0] != '\0')
     command = pop3->custom;
 
   /* Send the command */
-  if(pop3->id[0] != '\0')
-    result = Curl_pp_sendf(data, &pop3c->pp, "%s %s", command, pop3->id);
-  else
-    result = Curl_pp_sendf(data, &pop3c->pp, "%s", command);
+  اگر(pop3->id[0] != '\0')
+    نتیجہ = Curl_pp_sendf(ڈیٹا, &pop3c->pp, "%s %s", command, pop3->id);
+  ورنہ
+    نتیجہ = Curl_pp_sendf(ڈیٹا, &pop3c->pp, "%s", command);
 
-  if(!result) {
-    pop3_state(data, POP3_COMMAND);
-    data->req.no_body = !pop3_is_multiline(command);
+  اگر(!نتیجہ) {
+    pop3_state(ڈیٹا, POP3_COMMAND);
+    ڈیٹا->req.no_body = !pop3_is_multiline(command);
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -769,300 +769,300 @@ static CURLcode pop3_perform_command(struct Curl_easy *data)
  *
  * Performs the quit action prior to sclose() be called.
  */
-static CURLcode pop3_perform_quit(struct Curl_easy *data,
-                                  struct connectdata *conn)
+ساکن CURLcode pop3_perform_quit(ساخت Curl_easy *ڈیٹا,
+                                  ساخت connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  CURLcode result;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
   /* Send the QUIT command */
-  result = Curl_pp_sendf(data, &pop3c->pp, "%s", "QUIT");
-  if(!result)
-    pop3_state(data, POP3_QUIT);
+  نتیجہ = Curl_pp_sendf(ڈیٹا, &pop3c->pp, "%s", "QUIT");
+  اگر(!نتیجہ)
+    pop3_state(ڈیٹا, POP3_QUIT);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* For the initial server greeting */
-static CURLcode pop3_state_servergreet_resp(struct Curl_easy *data,
-                                            int pop3code,
+ساکن CURLcode pop3_state_servergreet_resp(ساخت Curl_easy *ڈیٹا,
+                                            صحیح pop3code,
                                             pop3state instate)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  const char *line;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ثابت حرف *سطر;
   size_t len;
 
-  (void)instate;
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  (خالی)instate;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  line = curlx_dyn_ptr(&pop3c->pp.recvbuf);
+  سطر = curlx_dyn_ptr(&pop3c->pp.recvbuf);
   len = pop3c->pp.nfinal;
 
-  if(pop3code != '+') {
-    failf(data, "Got unexpected pop3-server response");
-    result = CURLE_WEIRD_SERVER_REPLY;
+  اگر(pop3code != '+') {
+    failf(ڈیٹا, "Got unexpected pop3-server response");
+    نتیجہ = CURLE_WEIRD_SERVER_جواب;
   }
-  else if(len > 3) {
+  ورنہ اگر(len > 3) {
     /* Does the server support APOP authentication? */
-    const char *lt;
-    const char *gt = NULL;
+    ثابت حرف *lt;
+    ثابت حرف *gt = تہی;
 
     /* Look for the APOP timestamp */
-    lt = memchr(line, '<', len);
-    if(lt)
+    lt = memchr(سطر, '<', len);
+    اگر(lt)
       /* search the remainder for '>' */
-      gt = memchr(lt, '>', len - (lt - line));
-    if(gt) {
+      gt = memchr(lt, '>', len - (lt - سطر));
+    اگر(gt) {
       /* the length of the timestamp, including the brackets */
       size_t timestamplen = gt - lt + 1;
-      const char *at = memchr(lt, '@', timestamplen);
+      ثابت حرف *at = memchr(lt, '@', timestamplen);
       /* If the timestamp does not contain '@' it is not (as required by
          RFC-1939) conformant to the RFC-822 message id syntax, and we
          therefore do not use APOP authentication. */
-      if(at) {
+      اگر(at) {
         /* dupe the timestamp */
         pop3c->apoptimestamp = curlx_memdup0(lt, timestamplen);
-        if(!pop3c->apoptimestamp)
-          return CURLE_OUT_OF_MEMORY;
+        اگر(!pop3c->apoptimestamp)
+          واپس CURLE_برآمد_کا_حافظہ;
         /* Store the APOP capability */
         pop3c->authtypes |= POP3_TYPE_APOP;
       }
     }
 
-    if(!result)
-      result = pop3_perform_capa(data, conn);
+    اگر(!نتیجہ)
+      نتیجہ = pop3_perform_capa(ڈیٹا, conn);
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* For CAPA responses */
-static CURLcode pop3_state_capa_resp(struct Curl_easy *data, int pop3code,
+ساکن CURLcode pop3_state_capa_resp(ساخت Curl_easy *ڈیٹا, صحیح pop3code,
                                      pop3state instate)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  const char *line;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ثابت حرف *سطر;
   size_t len;
 
-  (void)instate;
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  (خالی)instate;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  line = curlx_dyn_ptr(&pop3c->pp.recvbuf);
+  سطر = curlx_dyn_ptr(&pop3c->pp.recvbuf);
   len = pop3c->pp.nfinal;
 
   /* Do we have an untagged continuation response? */
-  if(pop3code == '*') {
+  اگر(pop3code == '*') {
     /* Does the server support the STLS capability? */
-    if(len >= 4 && curl_strnequal(line, "STLS", 4))
+    اگر(len >= 4 && curl_strnequal(سطر, "STLS", 4))
       pop3c->tls_supported = TRUE;
 
     /* Does the server support clear text authentication? */
-    else if(len >= 4 && curl_strnequal(line, "USER", 4))
+    ورنہ اگر(len >= 4 && curl_strnequal(سطر, "USER", 4))
       pop3c->authtypes |= POP3_TYPE_CLEARTEXT;
 
     /* Does the server support SASL based authentication? */
-    else if(len >= 5 && curl_strnequal(line, "SASL ", 5)) {
+    ورنہ اگر(len >= 5 && curl_strnequal(سطر, "SASL ", 5)) {
       pop3c->authtypes |= POP3_TYPE_SASL;
 
       /* Advance past the SASL keyword */
-      line += 5;
+      سطر += 5;
       len -= 5;
 
       /* Loop through the data line */
-      for(;;) {
+      برائے(;;) {
         size_t llen;
         size_t wordlen = 0;
-        unsigned short mechbit;
+        غیرعلامتی مختصر mechbit;
 
-        while(len && (ISBLANK(*line) || ISNEWLINE(*line))) {
-          line++;
+        جب(len && (ISBLANK(*سطر) || ISNEWLINE(*سطر))) {
+          سطر++;
           len--;
         }
 
-        if(!len)
-          break;
+        اگر(!len)
+          توڑو;
 
         /* Extract the word */
-        while(wordlen < len && !ISBLANK(line[wordlen]) &&
-              !ISNEWLINE(line[wordlen]))
+        جب(wordlen < len && !ISBLANK(سطر[wordlen]) &&
+              !ISNEWLINE(سطر[wordlen]))
           wordlen++;
 
         /* Test the word for a matching authentication mechanism */
-        mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
-        if(mechbit && llen == wordlen)
+        mechbit = Curl_sasl_decode_mech(سطر, wordlen, &llen);
+        اگر(mechbit && llen == wordlen)
           pop3c->sasl.authmechs |= mechbit;
 
-        line += wordlen;
+        سطر += wordlen;
         len -= wordlen;
       }
     }
   }
-  else {
+  ورنہ {
     /* Clear text is supported when CAPA is not recognised */
-    if(pop3code != '+')
+    اگر(pop3code != '+')
       pop3c->authtypes |= POP3_TYPE_CLEARTEXT;
 
-    if(!data->set.use_ssl || Curl_conn_is_ssl(conn, FIRSTSOCKET))
-      result = pop3_perform_authentication(data, conn);
-    else if(pop3code == '+' && pop3c->tls_supported)
+    اگر(!ڈیٹا->سیٹ.use_ssl || Curl_conn_is_ssl(conn, FIRSTSOCKET))
+      نتیجہ = pop3_perform_authentication(ڈیٹا, conn);
+    ورنہ اگر(pop3code == '+' && pop3c->tls_supported)
       /* Switch to TLS connection now */
-      result = pop3_perform_starttls(data, conn);
-    else if(data->set.use_ssl <= CURLUSESSL_TRY)
+      نتیجہ = pop3_perform_starttls(ڈیٹا, conn);
+    ورنہ اگر(ڈیٹا->سیٹ.use_ssl <= CURLUSESSL_TRY)
       /* Fallback and carry on with authentication */
-      result = pop3_perform_authentication(data, conn);
-    else {
-      failf(data, "STLS not supported.");
-      result = CURLE_USE_SSL_FAILED;
+      نتیجہ = pop3_perform_authentication(ڈیٹا, conn);
+    ورنہ {
+      failf(ڈیٹا, "STLS not supported.");
+      نتیجہ = CURLE_USE_SSL_FAILED;
     }
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* For STARTTLS responses */
-static CURLcode pop3_state_starttls_resp(struct Curl_easy *data,
-                                         struct connectdata *conn,
-                                         int pop3code,
+ساکن CURLcode pop3_state_starttls_resp(ساخت Curl_easy *ڈیٹا,
+                                         ساخت connectdata *conn,
+                                         صحیح pop3code,
                                          pop3state instate)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
+  (خالی)instate;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
   /* Pipelining in response is forbidden. */
-  if(pop3c->pp.overflow)
-    return CURLE_WEIRD_SERVER_REPLY;
+  اگر(pop3c->pp.حد_سے_تجاوز)
+    واپس CURLE_WEIRD_SERVER_جواب;
 
-  if(pop3code != '+') {
-    if(data->set.use_ssl != CURLUSESSL_TRY) {
-      failf(data, "STARTTLS denied");
-      result = CURLE_USE_SSL_FAILED;
+  اگر(pop3code != '+') {
+    اگر(ڈیٹا->سیٹ.use_ssl != CURLUSESSL_TRY) {
+      failf(ڈیٹا, "STARTTLS denied");
+      نتیجہ = CURLE_USE_SSL_FAILED;
     }
-    else
-      result = pop3_perform_authentication(data, conn);
+    ورنہ
+      نتیجہ = pop3_perform_authentication(ڈیٹا, conn);
   }
-  else
-    pop3_state(data, POP3_UPGRADETLS);
+  ورنہ
+    pop3_state(ڈیٹا, POP3_UPGRADETLS);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* For SASL authentication responses */
-static CURLcode pop3_state_auth_resp(struct Curl_easy *data,
-                                     int pop3code,
+ساکن CURLcode pop3_state_auth_resp(ساخت Curl_easy *ڈیٹا,
+                                     صحیح pop3code,
                                      pop3state instate)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  saslprogress progress;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  saslprogress پیش_رفت;
 
-  (void)instate;
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  (خالی)instate;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  result = Curl_sasl_continue(&pop3c->sasl, data, pop3code, &progress);
-  if(!result)
-    switch(progress) {
-    case SASL_DONE:
-      pop3_state(data, POP3_STOP);  /* Authenticated */
-      break;
-    case SASL_IDLE:            /* No mechanism left after cancellation */
-#ifndef CURL_DISABLE_DIGEST_AUTH
-      if(pop3c->authtypes & pop3c->preftype & POP3_TYPE_APOP)
+  نتیجہ = Curl_sasl_continue(&pop3c->sasl, ڈیٹا, pop3code, &پیش_رفت);
+  اگر(!نتیجہ)
+    انتخاب(پیش_رفت) {
+    حالت SASL_مکمل:
+      pop3_state(ڈیٹا, POP3_STOP);  /* Authenticated */
+      توڑو;
+    حالت SASL_IDLE:            /* No mechanism left after cancellation */
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_DIGEST_AUTH
+      اگر(pop3c->authtypes & pop3c->preftype & POP3_TYPE_APOP)
         /* Perform APOP authentication */
-        result = pop3_perform_apop(data, conn);
-      else
-#endif
-      if(pop3c->authtypes & pop3c->preftype & POP3_TYPE_CLEARTEXT)
+        نتیجہ = pop3_perform_apop(ڈیٹا, conn);
+      ورنہ
+#اگر_ختم
+      اگر(pop3c->authtypes & pop3c->preftype & POP3_TYPE_CLEARTEXT)
         /* Perform clear text authentication */
-        result = pop3_perform_user(data, conn);
-      else {
-        failf(data, "Authentication cancelled");
-        result = CURLE_LOGIN_DENIED;
+        نتیجہ = pop3_perform_user(ڈیٹا, conn);
+      ورنہ {
+        failf(ڈیٹا, "Authentication cancelled");
+        نتیجہ = CURLE_LOGIN_DENIED;
       }
-      break;
-    default:
-      break;
+      توڑو;
+    طےشدہ:
+      توڑو;
     }
 
-  return result;
+  واپس نتیجہ;
 }
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_DIGEST_AUTH
 /* For APOP responses */
-static CURLcode pop3_state_apop_resp(struct Curl_easy *data, int pop3code,
+ساکن CURLcode pop3_state_apop_resp(ساخت Curl_easy *ڈیٹا, صحیح pop3code,
                                      pop3state instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode نتیجہ = CURLE_OK;
+  (خالی)instate;
 
-  if(pop3code != '+') {
-    failf(data, "Authentication failed: %d", pop3code);
-    result = CURLE_LOGIN_DENIED;
+  اگر(pop3code != '+') {
+    failf(ڈیٹا, "Authentication failed: %d", pop3code);
+    نتیجہ = CURLE_LOGIN_DENIED;
   }
-  else
+  ورنہ
     /* End of connect phase */
-    pop3_state(data, POP3_STOP);
+    pop3_state(ڈیٹا, POP3_STOP);
 
-  return result;
+  واپس نتیجہ;
 }
-#endif
+#اگر_ختم
 
 /* For USER responses */
-static CURLcode pop3_state_user_resp(struct Curl_easy *data, int pop3code,
+ساکن CURLcode pop3_state_user_resp(ساخت Curl_easy *ڈیٹا, صحیح pop3code,
                                      pop3state instate)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  (void)instate;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  (خالی)instate;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  if(pop3code != '+') {
-    failf(data, "Access denied. %c", pop3code);
-    result = CURLE_LOGIN_DENIED;
+  اگر(pop3code != '+') {
+    failf(ڈیٹا, "Access denied. %c", pop3code);
+    نتیجہ = CURLE_LOGIN_DENIED;
   }
-  else
+  ورنہ
     /* Send the PASS command */
-    result = Curl_pp_sendf(data, &pop3c->pp, "PASS %s",
+    نتیجہ = Curl_pp_sendf(ڈیٹا, &pop3c->pp, "PASS %s",
                            Curl_creds_passwd(conn->creds));
-  if(!result)
-    pop3_state(data, POP3_PASS);
+  اگر(!نتیجہ)
+    pop3_state(ڈیٹا, POP3_PASS);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* For PASS responses */
-static CURLcode pop3_state_pass_resp(struct Curl_easy *data, int pop3code,
+ساکن CURLcode pop3_state_pass_resp(ساخت Curl_easy *ڈیٹا, صحیح pop3code,
                                      pop3state instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode نتیجہ = CURLE_OK;
+  (خالی)instate;
 
-  if(pop3code != '+') {
-    failf(data, "Access denied. %c", pop3code);
-    result = CURLE_LOGIN_DENIED;
+  اگر(pop3code != '+') {
+    failf(ڈیٹا, "Access denied. %c", pop3code);
+    نتیجہ = CURLE_LOGIN_DENIED;
   }
-  else
+  ورنہ
     /* End of connect phase */
-    pop3_state(data, POP3_STOP);
+    pop3_state(ڈیٹا, POP3_STOP);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -1072,157 +1072,157 @@ static CURLcode pop3_state_pass_resp(struct Curl_easy *data, int pop3code,
  * This function scans the body after the end-of-body and writes everything
  * until the end is found.
  */
-static CURLcode pop3_write(struct Curl_easy *data, const char *str,
+ساکن CURLcode pop3_write(ساخت Curl_easy *ڈیٹا, ثابت حرف *str,
                            size_t nread, bool is_eos)
 {
   /* This code could be made into a special function in the handler struct */
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   bool strip_dot = FALSE;
-  size_t last = 0;
+  size_t آخری = 0;
   size_t i;
-  (void)is_eos;
+  (خالی)is_eos;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
   /* Search through the buffer looking for the end-of-body marker which is
      5 bytes (0d 0a 2e 0d 0a). Note that a line starting with a dot matches
      the eob so the server will have prefixed it with an extra dot which we
      need to strip out. Additionally the marker could of course be spread out
      over 5 different data chunks. */
-  for(i = 0; i < nread; i++) {
-    size_t prev = pop3c->eob;
+  برائے(i = 0; i < nread; i++) {
+    size_t پچھلا = pop3c->eob;
 
-    switch(str[i]) {
-    case 0x0d:
-      if(pop3c->eob == 0) {
+    انتخاب(str[i]) {
+    حالت 0x0d:
+      اگر(pop3c->eob == 0) {
         pop3c->eob++;
 
-        if(i) {
+        اگر(i) {
           /* Write out the body part that did not match */
-          result = Curl_client_write(data, CLIENTWRITE_BODY, &str[last],
-                                     i - last);
+          نتیجہ = Curl_client_write(ڈیٹا, CLIENTWRITE_BODY, &str[آخری],
+                                     i - آخری);
 
-          if(result)
-            return result;
+          اگر(نتیجہ)
+            واپس نتیجہ;
 
-          last = i;
+          آخری = i;
         }
       }
-      else if(pop3c->eob == 3)
+      ورنہ اگر(pop3c->eob == 3)
         pop3c->eob++;
-      else
+      ورنہ
         /* If the character match was not at position 0 or 3 then restart the
            pattern matching */
         pop3c->eob = 1;
-      break;
+      توڑو;
 
-    case 0x0a:
-      if(pop3c->eob == 1 || pop3c->eob == 4)
+    حالت 0x0a:
+      اگر(pop3c->eob == 1 || pop3c->eob == 4)
         pop3c->eob++;
-      else
+      ورنہ
         /* If the character match was not at position 1 or 4 then start the
            search again */
         pop3c->eob = 0;
-      break;
+      توڑو;
 
-    case 0x2e:
-      if(pop3c->eob == 2)
+    حالت 0x2e:
+      اگر(pop3c->eob == 2)
         pop3c->eob++;
-      else if(pop3c->eob == 3) {
+      ورنہ اگر(pop3c->eob == 3) {
         /* We have an extra dot after the CRLF which we need to strip off */
         strip_dot = TRUE;
         pop3c->eob = 0;
       }
-      else
+      ورنہ
         /* If the character match was not at position 2 then start the search
            again */
         pop3c->eob = 0;
-      break;
+      توڑو;
 
-    default:
+    طےشدہ:
       pop3c->eob = 0;
-      break;
+      توڑو;
     }
 
     /* Did we have a partial match which has subsequently failed? */
-    if(prev && prev >= pop3c->eob) {
+    اگر(پچھلا && پچھلا >= pop3c->eob) {
       /* Strip can only be non-zero for the first mismatch after CRLF and
          then both prev and strip are equal and nothing will be output below */
-      while(prev && pop3c->strip) {
-        prev--;
+      جب(پچھلا && pop3c->strip) {
+        پچھلا--;
         pop3c->strip--;
       }
 
-      if(prev) {
+      اگر(پچھلا) {
         /* If the partial match was the CRLF and dot then only write the CRLF
            as the server would have inserted the dot */
-        if(strip_dot && prev - 1 > 0) {
-          result = Curl_client_write(data, CLIENTWRITE_BODY, POP3_EOB,
-                                     prev - 1);
+        اگر(strip_dot && پچھلا - 1 > 0) {
+          نتیجہ = Curl_client_write(ڈیٹا, CLIENTWRITE_BODY, POP3_EOB,
+                                     پچھلا - 1);
         }
-        else if(!strip_dot) {
-          result = Curl_client_write(data, CLIENTWRITE_BODY, POP3_EOB,
-                                     prev);
+        ورنہ اگر(!strip_dot) {
+          نتیجہ = Curl_client_write(ڈیٹا, CLIENTWRITE_BODY, POP3_EOB,
+                                     پچھلا);
         }
-        else {
-          result = CURLE_OK;
+        ورنہ {
+          نتیجہ = CURLE_OK;
         }
 
-        if(result)
-          return result;
+        اگر(نتیجہ)
+          واپس نتیجہ;
 
-        last = i;
+        آخری = i;
         strip_dot = FALSE;
       }
     }
   }
 
-  if(pop3c->eob == POP3_EOB_LEN) {
+  اگر(pop3c->eob == POP3_EOB_LEN) {
     /* We have a full match so the transfer is done, however we must transfer
     the CRLF at the start of the EOB as this is considered to be part of the
     message as per RFC-1939, sect. 3 */
-    result = Curl_client_write(data, CLIENTWRITE_BODY, POP3_EOB, 2);
+    نتیجہ = Curl_client_write(ڈیٹا, CLIENTWRITE_BODY, POP3_EOB, 2);
 
-    CURL_REQ_CLEAR_RECV(data);
+    CURL_REQ_CLEAR_RECV(ڈیٹا);
     pop3c->eob = 0;
 
-    return result;
+    واپس نتیجہ;
   }
 
-  if(pop3c->eob)
+  اگر(pop3c->eob)
     /* While EOB is matching nothing should be output */
-    return CURLE_OK;
+    واپس CURLE_OK;
 
-  if(nread - last) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY, &str[last],
-                               nread - last);
+  اگر(nread - آخری) {
+    نتیجہ = Curl_client_write(ڈیٹا, CLIENTWRITE_BODY, &str[آخری],
+                               nread - آخری);
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* For command responses */
-static CURLcode pop3_state_command_resp(struct Curl_easy *data,
-                                        int pop3code,
+ساکن CURLcode pop3_state_command_resp(ساخت Curl_easy *ڈیٹا,
+                                        صحیح pop3code,
                                         pop3state instate)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  struct pingpong *pp;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت POP3 *pop3 = Curl_meta_get(ڈیٹا, CURL_META_POP3_EASY);
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ساخت pingpong *pp;
 
-  (void)instate;
-  if(!pop3 || !pop3c)
-    return CURLE_FAILED_INIT;
+  (خالی)instate;
+  اگر(!pop3 || !pop3c)
+    واپس CURLE_FAILED_INIT;
 
   pp = &pop3c->pp;
-  if(pop3code != '+') {
-    pop3_state(data, POP3_STOP);
-    return CURLE_WEIRD_SERVER_REPLY;
+  اگر(pop3code != '+') {
+    pop3_state(ڈیٹا, POP3_STOP);
+    واپس CURLE_WEIRD_SERVER_جواب;
   }
 
   /* This 'OK' line ends with a CR LF pair which is the two first bytes of the
@@ -1235,176 +1235,176 @@ static CURLcode pop3_state_command_resp(struct Curl_easy *data,
      the strip counter here so that these bytes will not be delivered. */
   pop3c->strip = 2;
 
-  if(pop3->transfer == PPTRANSFER_BODY) {
+  اگر(pop3->transfer == PPTRANSFER_BODY) {
     /* POP3 download */
-    Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
+    Curl_xfer_تیاری_recv(ڈیٹا, FIRSTSOCKET, -1);
 
-    if(pp->overflow) {
+    اگر(pp->حد_سے_تجاوز) {
       /* The recv buffer contains data that is actually body content so send
          it as such. Note that there may even be additional "headers" after
          the body */
 
       /* keep only the overflow */
-      curlx_dyn_tail(&pp->recvbuf, pp->overflow);
+      curlx_dyn_دم(&pp->recvbuf, pp->حد_سے_تجاوز);
       pp->nfinal = 0; /* done */
 
-      if(!data->req.no_body) {
-        result = pop3_write(data, curlx_dyn_ptr(&pp->recvbuf),
+      اگر(!ڈیٹا->req.no_body) {
+        نتیجہ = pop3_write(ڈیٹا, curlx_dyn_ptr(&pp->recvbuf),
                             curlx_dyn_len(&pp->recvbuf), FALSE);
-        if(result)
-          return result;
+        اگر(نتیجہ)
+          واپس نتیجہ;
       }
 
       /* reset the buffer */
       curlx_dyn_reset(&pp->recvbuf);
-      pp->overflow = 0;
+      pp->حد_سے_تجاوز = 0;
     }
   }
-  else
-    pp->overflow = 0;
+  ورنہ
+    pp->حد_سے_تجاوز = 0;
 
   /* End of DO phase */
-  pop3_state(data, POP3_STOP);
+  pop3_state(ڈیٹا, POP3_STOP);
 
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode pop3_statemachine(struct Curl_easy *data,
-                                  struct connectdata *conn)
+ساکن CURLcode pop3_statemachine(ساخت Curl_easy *ڈیٹا,
+                                  ساخت connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  CURLcode result = CURLE_OK;
-  int pop3code;
-  struct pingpong *pp;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
+  صحیح pop3code;
+  ساخت pingpong *pp;
   size_t nread = 0;
-  (void)data;
+  (خالی)ڈیٹا;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
   pp = &pop3c->pp;
   /* Busy upgrading the connection; right now all I/O is SSL/TLS, not POP3 */
 upgrade_tls:
-  if(pop3c->state == POP3_UPGRADETLS) {
-    result = pop3_perform_upgrade_tls(data, conn);
-    if(result || (pop3c->state == POP3_UPGRADETLS))
-      return result;
+  اگر(pop3c->state == POP3_UPGRADETLS) {
+    نتیجہ = pop3_perform_upgrade_tls(ڈیٹا, conn);
+    اگر(نتیجہ || (pop3c->state == POP3_UPGRADETLS))
+      واپس نتیجہ;
   }
 
   /* Flush any data that needs to be sent */
-  if(pp->sendleft)
-    return Curl_pp_flushsend(data, pp);
+  اگر(pp->sendleft)
+    واپس Curl_pp_flushsend(ڈیٹا, pp);
 
-  do {
+  کرو {
      /* Read the response from the server */
-    result = Curl_pp_readresp(data, FIRSTSOCKET, pp, &pop3code, &nread);
-    if(result)
-      return result;
+    نتیجہ = Curl_pp_readresp(ڈیٹا, FIRSTSOCKET, pp, &pop3code, &nread);
+    اگر(نتیجہ)
+      واپس نتیجہ;
 
-    if(!pop3code)
-      break;
+    اگر(!pop3code)
+      توڑو;
 
     /* We have now received a full POP3 server response */
-    switch(pop3c->state) {
-    case POP3_SERVERGREET:
-      result = pop3_state_servergreet_resp(data, pop3code, pop3c->state);
-      break;
+    انتخاب(pop3c->state) {
+    حالت POP3_SERVERGREET:
+      نتیجہ = pop3_state_servergreet_resp(ڈیٹا, pop3code, pop3c->state);
+      توڑو;
 
-    case POP3_CAPA:
-      result = pop3_state_capa_resp(data, pop3code, pop3c->state);
-      break;
+    حالت POP3_CAPA:
+      نتیجہ = pop3_state_capa_resp(ڈیٹا, pop3code, pop3c->state);
+      توڑو;
 
-    case POP3_STARTTLS:
-      result = pop3_state_starttls_resp(data, conn, pop3code, pop3c->state);
+    حالت POP3_STARTTLS:
+      نتیجہ = pop3_state_starttls_resp(ڈیٹا, conn, pop3code, pop3c->state);
       /* During UPGRADETLS, leave the read loop as we need to connect
        * (e.g. TLS handshake) before we continue sending/receiving. */
-      if(!result && (pop3c->state == POP3_UPGRADETLS))
-        goto upgrade_tls;
-      break;
+      اگر(!نتیجہ && (pop3c->state == POP3_UPGRADETLS))
+        جاؤ upgrade_tls;
+      توڑو;
 
-    case POP3_AUTH:
-      result = pop3_state_auth_resp(data, pop3code, pop3c->state);
-      break;
+    حالت POP3_AUTH:
+      نتیجہ = pop3_state_auth_resp(ڈیٹا, pop3code, pop3c->state);
+      توڑو;
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
-    case POP3_APOP:
-      result = pop3_state_apop_resp(data, pop3code, pop3c->state);
-      break;
-#endif
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_DIGEST_AUTH
+    حالت POP3_APOP:
+      نتیجہ = pop3_state_apop_resp(ڈیٹا, pop3code, pop3c->state);
+      توڑو;
+#اگر_ختم
 
-    case POP3_USER:
-      result = pop3_state_user_resp(data, pop3code, pop3c->state);
-      break;
+    حالت POP3_USER:
+      نتیجہ = pop3_state_user_resp(ڈیٹا, pop3code, pop3c->state);
+      توڑو;
 
-    case POP3_PASS:
-      result = pop3_state_pass_resp(data, pop3code, pop3c->state);
-      break;
+    حالت POP3_PASS:
+      نتیجہ = pop3_state_pass_resp(ڈیٹا, pop3code, pop3c->state);
+      توڑو;
 
-    case POP3_COMMAND:
-      result = pop3_state_command_resp(data, pop3code, pop3c->state);
-      break;
+    حالت POP3_COMMAND:
+      نتیجہ = pop3_state_command_resp(ڈیٹا, pop3code, pop3c->state);
+      توڑو;
 
-    case POP3_QUIT:
-      pop3_state(data, POP3_STOP);
-      break;
+    حالت POP3_QUIT:
+      pop3_state(ڈیٹا, POP3_STOP);
+      توڑو;
 
-    default:
+    طےشدہ:
       /* internal error */
-      pop3_state(data, POP3_STOP);
-      break;
+      pop3_state(ڈیٹا, POP3_STOP);
+      توڑو;
     }
-  } while(!result && pop3c->state != POP3_STOP && Curl_pp_moredata(pp));
+  } جب(!نتیجہ && pop3c->state != POP3_STOP && Curl_pp_moredata(pp));
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* Called repeatedly until done from multi.c */
-static CURLcode pop3_multi_statemach(struct Curl_easy *data, bool *done)
+ساکن CURLcode pop3_multi_statemach(ساخت Curl_easy *ڈیٹا, bool *مکمل)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
-  result = Curl_pp_statemach(data, &pop3c->pp, FALSE, FALSE);
-  *done = (pop3c->state == POP3_STOP);
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
+  نتیجہ = Curl_pp_statemach(ڈیٹا, &pop3c->pp, FALSE, FALSE);
+  *مکمل = (pop3c->state == POP3_STOP);
 
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode pop3_block_statemach(struct Curl_easy *data,
-                                     struct connectdata *conn,
+ساکن CURLcode pop3_بلاک_statemach(ساخت Curl_easy *ڈیٹا,
+                                     ساخت connectdata *conn,
                                      bool disconnecting)
 {
-  CURLcode result = CURLE_OK;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  while(pop3c->state != POP3_STOP && !result)
-    result = Curl_pp_statemach(data, &pop3c->pp, TRUE, disconnecting);
+  جب(pop3c->state != POP3_STOP && !نتیجہ)
+    نتیجہ = Curl_pp_statemach(ڈیٹا, &pop3c->pp, TRUE, disconnecting);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* For the POP3 "protocol connect" and "doing" phases only */
-static CURLcode pop3_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+ساکن CURLcode pop3_pollset(ساخت Curl_easy *ڈیٹا,
+                             ساخت easy_pollset *ps)
 {
-  struct pop3_conn *pop3c =
-    Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
-  return pop3c ? Curl_pp_pollset(data, &pop3c->pp, ps) : CURLE_OK;
+  ساخت pop3_conn *pop3c =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_POP3_CONN);
+  واپس pop3c ? Curl_pp_pollset(ڈیٹا, &pop3c->pp, ps) : CURLE_OK;
 }
 
 /* SASL parameters for the pop3 protocol */
-static const struct SASLproto saslpop3 = {
+ساکن ثابت ساخت SASLproto saslpop3 = {
   "pop",                /* The service name */
   pop3_perform_auth,    /* Send authentication command */
   pop3_continue_auth,   /* Send authentication continuation */
   pop3_cancel_auth,     /* Send authentication cancellation */
-  pop3_get_message,     /* Get SASL response message */
+  pop3_get_پیغام,     /* Get SASL response message */
   255 - 8,              /* Max line len - strlen("AUTH ") - 1 space - CRLF */
   '*',                  /* Code received when continuation is expected */
   '+',                  /* Code to receive upon authentication success */
@@ -1422,37 +1422,37 @@ static const struct SASLproto saslpop3 = {
  * The variable 'done' points to will be TRUE if the protocol-layer connect
  * phase is done when this function returns, or FALSE if not.
  */
-static CURLcode pop3_connect(struct Curl_easy *data, bool *done)
+ساکن CURLcode pop3_connect(ساخت Curl_easy *ڈیٹا, bool *مکمل)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  struct pingpong *pp = pop3c ? &pop3c->pp : NULL;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ساخت pingpong *pp = pop3c ? &pop3c->pp : تہی;
 
-  *done = FALSE; /* default to not done yet */
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  *مکمل = FALSE; /* default to not done yet */
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
-  PINGPONG_SETUP(pp, pop3_statemachine, pop3_endofresp);
+  PINGPONG_تیاری(pp, pop3_statemachine, pop3_endofresp);
 
   /* Set the default preferred authentication type and mechanism */
   pop3c->preftype = POP3_TYPE_ANY;
-  Curl_sasl_init(&pop3c->sasl, data, &saslpop3);
+  Curl_sasl_init(&pop3c->sasl, ڈیٹا, &saslpop3);
 
   /* Initialize the pingpong layer */
-  Curl_pp_init(pp, Curl_pgrs_now(data));
+  Curl_pp_init(pp, Curl_pgrs_now(ڈیٹا));
 
   /* Parse the URL options */
-  result = pop3_parse_url_options(conn);
-  if(result)
-    return result;
+  نتیجہ = pop3_parse_url_options(conn);
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
   /* Start off waiting for the server greeting response */
-  pop3_state(data, POP3_SERVERGREET);
+  pop3_state(ڈیٹا, POP3_SERVERGREET);
 
-  result = pop3_multi_statemach(data, done);
+  نتیجہ = pop3_multi_statemach(ڈیٹا, مکمل);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -1464,21 +1464,21 @@ static CURLcode pop3_connect(struct Curl_easy *data, bool *done)
  *
  * Input argument is already checked for validity.
  */
-static CURLcode pop3_done(struct Curl_easy *data, CURLcode status,
+ساکن CURLcode pop3_مکمل(ساخت Curl_easy *ڈیٹا, CURLcode حالت_2,
                           bool premature)
 {
-  CURLcode result = CURLE_OK;
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت POP3 *pop3 = Curl_meta_get(ڈیٹا, CURL_META_POP3_EASY);
 
-  (void)premature;
+  (خالی)premature;
 
-  if(!pop3)
-    return CURLE_OK;
+  اگر(!pop3)
+    واپس CURLE_OK;
 
-  if(status) {
-    CURL_TRC_M(data, "POP3 done with bad status");
-    connclose(data->conn);
-    result = status;         /* use the already set error code */
+  اگر(حالت_2) {
+    CURL_TRC_M(ڈیٹا, "POP3 done with bad status");
+    connclose(ڈیٹا->conn);
+    نتیجہ = حالت_2;         /* use the already set error code */
   }
 
   /* Cleanup our per-request based variables */
@@ -1488,7 +1488,7 @@ static CURLcode pop3_done(struct Curl_easy *data, CURLcode status,
   /* Clear the transfer mode for the next request */
   pop3->transfer = PPTRANSFER_BODY;
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -1498,46 +1498,46 @@ static CURLcode pop3_done(struct Curl_easy *data, CURLcode status,
  * This is the actual DO function for POP3. Get a message/listing according to
  * the options previously setup.
  */
-static CURLcode pop3_perform(struct Curl_easy *data, bool *connected,
-                             bool *dophase_done)
+ساکن CURLcode pop3_perform(ساخت Curl_easy *ڈیٹا, bool *connected,
+                             bool *dophase_مکمل)
 {
   /* This is POP3 and no proxy */
-  CURLcode result = CURLE_OK;
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت POP3 *pop3 = Curl_meta_get(ڈیٹا, CURL_META_POP3_EASY);
 
-  if(!pop3)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3)
+    واپس CURLE_FAILED_INIT;
 
-  DEBUGF(infof(data, "DO phase starts"));
+  DEBUGF(infof(ڈیٹا, "DO phase starts"));
 
   /* Start the first command in the DO phase, may alter data->req.no_body */
-  result = pop3_perform_command(data);
-  if(result)
-    return result;
+  نتیجہ = pop3_perform_command(ڈیٹا);
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
-  if(data->req.no_body)
+  اگر(ڈیٹا->req.no_body)
     /* Requested no body means no transfer */
     pop3->transfer = PPTRANSFER_INFO;
 
-  *dophase_done = FALSE; /* not done yet */
+  *dophase_مکمل = FALSE; /* not done yet */
 
   /* Run the state-machine */
-  result = pop3_multi_statemach(data, dophase_done);
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  نتیجہ = pop3_multi_statemach(ڈیٹا, dophase_مکمل);
+  *connected = Curl_conn_is_connected(ڈیٹا->conn, FIRSTSOCKET);
 
-  if(*dophase_done)
-    DEBUGF(infof(data, "DO phase is complete"));
+  اگر(*dophase_مکمل)
+    DEBUGF(infof(ڈیٹا, "DO phase is complete"));
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* Call this when the DO phase has completed */
-static CURLcode pop3_dophase_done(struct Curl_easy *data, bool connected)
+ساکن CURLcode pop3_dophase_مکمل(ساخت Curl_easy *ڈیٹا, bool connected)
 {
-  (void)data;
-  (void)connected;
+  (خالی)ڈیٹا;
+  (خالی)connected;
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /***********************************************************************
@@ -1549,26 +1549,26 @@ static CURLcode pop3_dophase_done(struct Curl_easy *data, bool connected)
  * Performs all commands done before a regular transfer between a local and a
  * remote host.
  */
-static CURLcode pop3_regular_transfer(struct Curl_easy *data,
-                                      bool *dophase_done)
+ساکن CURLcode pop3_regular_transfer(ساخت Curl_easy *ڈیٹا,
+                                      bool *dophase_مکمل)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   bool connected = FALSE;
 
   /* Make sure size is unknown at this point */
-  data->req.size = -1;
+  ڈیٹا->req.سائز = -1;
 
   /* Set the progress data */
-  Curl_pgrsReset(data);
+  Curl_pgrsReset(ڈیٹا);
 
   /* Carry out the perform */
-  result = pop3_perform(data, &connected, dophase_done);
+  نتیجہ = pop3_perform(ڈیٹا, &connected, dophase_مکمل);
 
   /* Perform post DO phase operations if necessary */
-  if(!result && *dophase_done)
-    result = pop3_dophase_done(data, connected);
+  اگر(!نتیجہ && *dophase_مکمل)
+    نتیجہ = pop3_dophase_مکمل(ڈیٹا, connected);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -1580,24 +1580,24 @@ static CURLcode pop3_regular_transfer(struct Curl_easy *data,
  *
  * The input argument is already checked for validity.
  */
-static CURLcode pop3_do(struct Curl_easy *data, bool *done)
+ساکن CURLcode pop3_do(ساخت Curl_easy *ڈیٹا, bool *مکمل)
 {
-  CURLcode result = CURLE_OK;
-  *done = FALSE; /* default to false */
+  CURLcode نتیجہ = CURLE_OK;
+  *مکمل = FALSE; /* default to false */
 
   /* Parse the URL path */
-  result = pop3_parse_url_path(data);
-  if(result)
-    return result;
+  نتیجہ = pop3_parse_url_راستہ(ڈیٹا);
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
   /* Parse the custom request */
-  result = pop3_parse_custom_request(data);
-  if(result)
-    return result;
+  نتیجہ = pop3_parse_custom_request(ڈیٹا);
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
-  result = pop3_regular_transfer(data, done);
+  نتیجہ = pop3_regular_transfer(ڈیٹا, مکمل);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /***********************************************************************
@@ -1607,23 +1607,23 @@ static CURLcode pop3_do(struct Curl_easy *data, bool *done)
  * Disconnect from an POP3 server. Cleanup protocol-specific per-connection
  * resources. BLOCKING.
  */
-static CURLcode pop3_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn, bool dead_connection)
+ساکن CURLcode pop3_disconnect(ساخت Curl_easy *ڈیٹا,
+                                ساخت connectdata *conn, bool dead_connection)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  (void)data;
+  ساخت pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  (خالی)ڈیٹا;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  اگر(!pop3c)
+    واپس CURLE_FAILED_INIT;
 
   /* We cannot send quit unconditionally. If this connection is stale or
      bad in any way, sending quit and waiting around here will make the
      disconnect wait in vain and cause more problems than we need to. */
 
-  if(!dead_connection && conn->bits.protoconnstart &&
-     !Curl_pp_needs_flush(data, &pop3c->pp) &&
-     !pop3_perform_quit(data, conn))
-    (void)pop3_block_statemach(data, conn, TRUE); /* ignore errors on QUIT */
+  اگر(!dead_connection && conn->بٹ.protoconnstart &&
+     !Curl_pp_needs_flush(ڈیٹا, &pop3c->pp) &&
+     !pop3_perform_quit(ڈیٹا, conn))
+    (خالی)pop3_بلاک_statemach(ڈیٹا, conn, TRUE); /* ignore errors on QUIT */
 
   /* Disconnect from the server */
   Curl_pp_disconnect(&pop3c->pp);
@@ -1631,30 +1631,30 @@ static CURLcode pop3_disconnect(struct Curl_easy *data,
   /* Cleanup our connection based variables */
   curlx_safefree(pop3c->apoptimestamp);
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* Called from multi.c while DOing */
-static CURLcode pop3_doing(struct Curl_easy *data, bool *dophase_done)
+ساکن CURLcode pop3_doing(ساخت Curl_easy *ڈیٹا, bool *dophase_مکمل)
 {
-  CURLcode result = pop3_multi_statemach(data, dophase_done);
+  CURLcode نتیجہ = pop3_multi_statemach(ڈیٹا, dophase_مکمل);
 
-  if(result)
-    DEBUGF(infof(data, "DO phase failed"));
-  else if(*dophase_done) {
-    result = pop3_dophase_done(data, FALSE /* not connected */);
+  اگر(نتیجہ)
+    DEBUGF(infof(ڈیٹا, "DO phase failed"));
+  ورنہ اگر(*dophase_مکمل) {
+    نتیجہ = pop3_dophase_مکمل(ڈیٹا, FALSE /* not connected */);
 
-    DEBUGF(infof(data, "DO phase is complete"));
+    DEBUGF(infof(ڈیٹا, "DO phase is complete"));
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
-static void pop3_easy_dtor(const void *key, size_t klen, void *entry)
+ساکن خالی pop3_easy_dtor(ثابت خالی *کلید, size_t klen, خالی *اندراج_2)
 {
-  struct POP3 *pop3 = entry;
-  (void)key;
-  (void)klen;
+  ساخت POP3 *pop3 = اندراج_2;
+  (خالی)کلید;
+  (خالی)klen;
   DEBUGASSERT(pop3);
   /* Cleanup our per-request based variables */
   curlx_safefree(pop3->id);
@@ -1662,41 +1662,41 @@ static void pop3_easy_dtor(const void *key, size_t klen, void *entry)
   curlx_free(pop3);
 }
 
-static void pop3_conn_dtor(const void *key, size_t klen, void *entry)
+ساکن خالی pop3_conn_dtor(ثابت خالی *کلید, size_t klen, خالی *اندراج_2)
 {
-  struct pop3_conn *pop3c = entry;
-  (void)key;
-  (void)klen;
+  ساخت pop3_conn *pop3c = اندراج_2;
+  (خالی)کلید;
+  (خالی)klen;
   DEBUGASSERT(pop3c);
   Curl_pp_disconnect(&pop3c->pp);
   curlx_safefree(pop3c->apoptimestamp);
   curlx_free(pop3c);
 }
 
-static CURLcode pop3_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+ساکن CURLcode pop3_تیاری_connection(ساخت Curl_easy *ڈیٹا,
+                                      ساخت connectdata *conn)
 {
-  struct pop3_conn *pop3c;
-  struct POP3 *pop3 = curlx_calloc(1, sizeof(*pop3));
-  if(!pop3 ||
-     Curl_meta_set(data, CURL_META_POP3_EASY, pop3, pop3_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  ساخت pop3_conn *pop3c;
+  ساخت POP3 *pop3 = curlx_calloc(1, حجم(*pop3));
+  اگر(!pop3 ||
+     Curl_meta_سیٹ(ڈیٹا, CURL_META_POP3_EASY, pop3, pop3_easy_dtor))
+    واپس CURLE_برآمد_کا_حافظہ;
 
-  pop3c = curlx_calloc(1, sizeof(*pop3c));
-  if(!pop3c ||
-     Curl_conn_meta_set(conn, CURL_META_POP3_CONN, pop3c, pop3_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  pop3c = curlx_calloc(1, حجم(*pop3c));
+  اگر(!pop3c ||
+     Curl_conn_meta_سیٹ(conn, CURL_META_POP3_CONN, pop3c, pop3_conn_dtor))
+    واپس CURLE_برآمد_کا_حافظہ;
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /*
  * POP3 protocol.
  */
-const struct Curl_protocol Curl_protocol_pop3 = {
-  pop3_setup_connection,            /* setup_connection */
+ثابت ساخت Curl_protocol Curl_protocol_pop3 = {
+  pop3_تیاری_connection,            /* setup_connection */
   pop3_do,                          /* do_it */
-  pop3_done,                        /* done */
+  pop3_مکمل,                        /* done */
   ZERO_NULL,                        /* do_more */
   pop3_connect,                     /* connect_it */
   pop3_multi_statemach,             /* connecting */
@@ -1713,4 +1713,4 @@ const struct Curl_protocol Curl_protocol_pop3 = {
   ZERO_NULL,                        /* follow */
 };
 
-#endif /* CURL_DISABLE_POP3 */
+#اگر_ختم /* CURL_DISABLE_POP3 */

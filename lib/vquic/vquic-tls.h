@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_TLS_H
-#define HEADER_CURL_VQUIC_TLS_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_VQUIC_TLS_H
+#تعریف_کرو سرخی_CURL_VQUIC_TLS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,30 +23,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if defined(USE_HTTP3) && \
+#اگر defined(USE_HTTP3) && \
   (defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL))
 
-#include "bufq.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
+#شامل "bufq.h"
+#شامل "vtls/vtls.h"
+#شامل "vtls/vtls_int.h"
 
-#include "vtls/openssl.h"
-#include "vtls/wolfssl.h"
+#شامل "vtls/openssl.h"
+#شامل "vtls/wolfssl.h"
 
-struct ssl_peer;
-struct Curl_ssl_session;
-struct curl_tlssessioninfo;
+ساخت ssl_peer;
+ساخت Curl_ssl_session;
+ساخت curl_tlssessioninfo;
 
-struct curl_tls_ctx {
-#ifdef USE_OPENSSL
-  struct ossl_ctx ossl;
-#elif defined(USE_GNUTLS)
-  struct gtls_ctx gtls;
-#elif defined(USE_WOLFSSL)
-  struct wssl_ctx wssl;
-#endif
+ساخت curl_tls_ctx {
+#اگر_تعریف_شدہ USE_OPENSSL
+  ساخت ossl_ctx ossl;
+#وگرنہ_اگر defined(USE_GNUTLS)
+  ساخت gtls_ctx gtls;
+#وگرنہ_اگر defined(USE_WOLFSSL)
+  ساخت wssl_ctx wssl;
+#اگر_ختم
 };
 
 /**
@@ -56,20 +56,20 @@ struct curl_tls_ctx {
  * - openssl/wolfssl: SSL_CTX* has been created
  * - gnutls: gtls_client_init() has run
  */
-typedef CURLcode Curl_vquic_tls_ctx_setup(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          void *cb_user_data);
+قسمتعریف CURLcode Curl_vquic_tls_ctx_تیاری(ساخت Curl_cfilter *cf,
+                                          ساخت Curl_easy *ڈیٹا,
+                                          خالی *cb_user_ڈیٹا);
 
-typedef CURLcode Curl_vquic_session_reuse_cb(struct Curl_cfilter *cf,
-                                             struct Curl_easy *data,
-                                             struct alpn_spec *alpns,
-                                             struct Curl_ssl_session *scs,
-                                             bool *do_early_data);
+قسمتعریف CURLcode Curl_vquic_session_reuse_cb(ساخت Curl_cfilter *cf,
+                                             ساخت Curl_easy *ڈیٹا,
+                                             ساخت alpn_spec *alpns,
+                                             ساخت Curl_ssl_session *scs,
+                                             bool *do_early_ڈیٹا);
 
-CURLcode Curl_vquic_tls_peer_init(struct Curl_peer *origin,
-                                  struct Curl_peer *peer,
-                                  struct ssl_filter_config *sslc,
-                                  struct ssl_peer *ssl_peer);
+CURLcode Curl_vquic_tls_peer_init(ساخت Curl_peer *origin,
+                                  ساخت Curl_peer *peer,
+                                  ساخت ssl_filter_config *sslc,
+                                  ساخت ssl_peer *ssl_peer);
 
 /**
  * Initialize the QUIC TLS instances based of the SSL configurations
@@ -84,42 +84,42 @@ CURLcode Curl_vquic_tls_peer_init(struct Curl_peer *origin,
  * @param ssl_user_data    optional pointer to set in TLS application context
  * @param session_reuse_cb callback to handle session reuse, signal early data
  */
-CURLcode Curl_vquic_tls_init(struct curl_tls_ctx *ctx,
-                             struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             struct ssl_peer *ssl_peer,
-                             const struct alpn_spec *alpns,
-                             Curl_vquic_tls_ctx_setup *cb_setup,
-                             void *cb_user_data,
-                             void *ssl_user_data,
+CURLcode Curl_vquic_tls_init(ساخت curl_tls_ctx *ctx,
+                             ساخت Curl_cfilter *cf,
+                             ساخت Curl_easy *ڈیٹا,
+                             ساخت ssl_peer *ssl_peer,
+                             ثابت ساخت alpn_spec *alpns,
+                             Curl_vquic_tls_ctx_تیاری *cb_تیاری,
+                             خالی *cb_user_ڈیٹا,
+                             خالی *ssl_user_ڈیٹا,
                              Curl_vquic_session_reuse_cb *session_reuse_cb);
 
 /**
  * Cleanup all data that has been initialized.
  */
-void Curl_vquic_tls_cleanup(struct curl_tls_ctx *ctx);
+خالی Curl_vquic_tls_cleanup(ساخت curl_tls_ctx *ctx);
 
-CURLcode Curl_vquic_tls_before_recv(struct curl_tls_ctx *ctx,
-                                    struct Curl_cfilter *cf,
-                                    struct Curl_easy *data);
+CURLcode Curl_vquic_tls_before_recv(ساخت curl_tls_ctx *ctx,
+                                    ساخت Curl_cfilter *cf,
+                                    ساخت Curl_easy *ڈیٹا);
 
 /**
  * After the QUIC basic handshake has been, verify that the peer
  * (and its certificate) fulfill our requirements.
  */
-CURLcode Curl_vquic_tls_verify_peer(struct curl_tls_ctx *ctx,
-                                    struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct ssl_peer *peer);
+CURLcode Curl_vquic_tls_verify_peer(ساخت curl_tls_ctx *ctx,
+                                    ساخت Curl_cfilter *cf,
+                                    ساخت Curl_easy *ڈیٹا,
+                                    ساخت ssl_peer *peer);
 
-bool Curl_vquic_tls_get_ssl_info(struct curl_tls_ctx *ctx,
+bool Curl_vquic_tls_get_ssl_info(ساخت curl_tls_ctx *ctx,
                                  bool give_ssl_ctx,
-                                 struct curl_tlssessioninfo *info);
+                                 ساخت curl_tlssessioninfo *info);
 
-void Curl_vquic_report_handshake(struct curl_tls_ctx *ctx,
-                                 struct Curl_cfilter *cf,
-                                 struct Curl_easy *data);
+خالی Curl_vquic_report_handshake(ساخت curl_tls_ctx *ctx,
+                                 ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا);
 
-#endif /* !USE_HTTP3 && (USE_OPENSSL || USE_GNUTLS || USE_WOLFSSL) */
+#اگر_ختم /* !USE_HTTP3 && (USE_OPENSSL || USE_GNUTLS || USE_WOLFSSL) */
 
-#endif /* HEADER_CURL_VQUIC_TLS_H */
+#اگر_ختم /* HEADER_CURL_VQUIC_TLS_H */

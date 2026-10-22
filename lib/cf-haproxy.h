@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_HAPROXY_H
-#define HEADER_CURL_CF_HAPROXY_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_CF_HAPROXY_H
+#تعریف_کرو سرخی_CURL_CF_HAPROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "urldata.h"
+#شامل "urldata.h"
 
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data);
+CURLcode Curl_cf_haproxy_داخل_کرو_after(ساخت Curl_cfilter *cf_at,
+                                      ساخت Curl_easy *ڈیٹا);
 
-extern struct Curl_cftype Curl_cft_haproxy;
+خارجی ساخت Curl_cftype Curl_cft_haproxy;
 
-#endif /* !CURL_DISABLE_PROXY */
+#اگر_ختم /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_CF_HAPROXY_H */
+#اگر_ختم /* HEADER_CURL_CF_HAPROXY_H */

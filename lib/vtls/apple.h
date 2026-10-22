@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VTLS_APPLE_H
-#define HEADER_CURL_VTLS_APPLE_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_VTLS_APPLE_H
+#تعریف_کرو سرخی_CURL_VTLS_APPLE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,37 +23,37 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef USE_APPLE_SECTRUST
-struct Curl_cfilter;
-struct Curl_easy;
-struct ssl_peer;
+#اگر_تعریف_شدہ USE_APPLE_SECTRUST
+ساخت Curl_cfilter;
+ساخت Curl_easy;
+ساخت ssl_peer;
 
 /* Get the DER encoded i-th certificate in the server handshake */
-typedef CURLcode Curl_vtls_get_cert_der(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data,
+قسمتعریف CURLcode Curl_vtls_get_cert_der(ساخت Curl_cfilter *cf,
+                                        ساخت Curl_easy *ڈیٹا,
+                                        خالی *user_ڈیٹا,
                                         size_t i,
-                                        unsigned char **pder,
+                                        غیرعلامتی حرف **pder,
                                         size_t *pder_len);
 
 /* Ask Apple's Security framework to verify the certificate chain
  * send by the peer. On CURLE_OK it has been verified.
  */
-CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct ssl_peer *peer,
-                                size_t num_certs,
+CURLcode Curl_vtls_apple_verify(ساخت Curl_cfilter *cf,
+                                ساخت Curl_easy *ڈیٹا,
+                                ساخت ssl_peer *peer,
+                                size_t عدد_certs,
                                 Curl_vtls_get_cert_der *der_cb,
-                                void *cb_user_data,
-                                const unsigned char *ocsp_buf,
+                                خالی *cb_user_ڈیٹا,
+                                ثابت غیرعلامتی حرف *ocsp_buf,
                                 size_t ocsp_len,
                                 bool require_ocsp);
 
-bool Curl_vtls_apple_verifies_ocsp(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data);
+bool Curl_vtls_apple_verifies_ocsp(ساخت Curl_cfilter *cf,
+                                   ساخت Curl_easy *ڈیٹا);
 
-#endif /* USE_APPLE_SECTRUST */
+#اگر_ختم /* USE_APPLE_SECTRUST */
 
-#endif /* HEADER_CURL_VTLS_APPLE_H */
+#اگر_ختم /* HEADER_CURL_VTLS_APPLE_H */

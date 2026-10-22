@@ -21,71 +21,71 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "curl_range.h"
-#include "curl_trc.h"
-#include "curlx/strparse.h"
+#شامل "curl_range.h"
+#شامل "curl_trc.h"
+#شامل "curlx/strparse.h"
 
 /* Only include this function if one or more of FTP, FILE are enabled. */
-#if !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
+#اگر !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
 
 /* Check if this is a range download, and if so, set the internal variables
    properly. */
-CURLcode Curl_range(struct Curl_easy *data)
+CURLcode Curl_range(ساخت Curl_easy *ڈیٹا)
 {
-  if(data->state.use_range && data->state.range) {
-    curl_off_t from, to;
-    bool first_num = TRUE;
-    const char *p = data->state.range;
-    if(curlx_str_number(&p, &from, CURL_OFF_T_MAX))
-      first_num = FALSE;
+  اگر(ڈیٹا->state.use_range && ڈیٹا->state.range) {
+    curl_off_t from, مقصد;
+    bool پہلا_عدد = TRUE;
+    ثابت حرف *p = ڈیٹا->state.range;
+    اگر(curlx_str_نمبر(&p, &from, CURL_OFF_T_MAX))
+      پہلا_عدد = FALSE;
 
-    if(curlx_str_single(&p, '-'))
+    اگر(curlx_str_single(&p, '-'))
       /* no leading dash or after the first number is an error */
-      return CURLE_RANGE_ERROR;
+      واپس CURLE_RANGE_ERROR;
 
-    if(curlx_str_number(&p, &to, CURL_OFF_T_MAX)) {
+    اگر(curlx_str_نمبر(&p, &مقصد, CURL_OFF_T_MAX)) {
       /* no second number */
       /* X - */
-      data->state.resume_from = from;
-      DEBUGF(infof(data, "RANGE %" FMT_OFF_T " to end of file", from));
+      ڈیٹا->state.resume_from = from;
+      DEBUGF(infof(ڈیٹا, "RANGE %" FMT_OFF_T " to end of file", from));
     }
-    else if(!first_num) {
+    ورنہ اگر(!پہلا_عدد) {
       /* -Y */
-      if(!to)
+      اگر(!مقصد)
         /* "-0" is wrong */
-        return CURLE_RANGE_ERROR;
+        واپس CURLE_RANGE_ERROR;
 
-      data->req.maxdownload = to;
-      data->state.resume_from = -to;
-      DEBUGF(infof(data, "RANGE the last %" FMT_OFF_T " bytes", to));
+      ڈیٹا->req.maxdownload = مقصد;
+      ڈیٹا->state.resume_from = -مقصد;
+      DEBUGF(infof(ڈیٹا, "RANGE the last %" FMT_OFF_T " bytes", مقصد));
     }
-    else {
+    ورنہ {
       /* X-Y */
       curl_off_t totalsize;
 
       /* Ensure the range is sensible - to should follow from. */
-      if(from > to)
-        return CURLE_RANGE_ERROR;
+      اگر(from > مقصد)
+        واپس CURLE_RANGE_ERROR;
 
-      totalsize = to - from;
-      if(totalsize == CURL_OFF_T_MAX)
-        return CURLE_RANGE_ERROR;
+      totalsize = مقصد - from;
+      اگر(totalsize == CURL_OFF_T_MAX)
+        واپس CURLE_RANGE_ERROR;
 
-      data->req.maxdownload = totalsize + 1; /* include last byte */
-      data->state.resume_from = from;
-      DEBUGF(infof(data, "RANGE from %" FMT_OFF_T
+      ڈیٹا->req.maxdownload = totalsize + 1; /* include last byte */
+      ڈیٹا->state.resume_from = from;
+      DEBUGF(infof(ڈیٹا, "RANGE from %" FMT_OFF_T
                    " getting %" FMT_OFF_T " bytes",
-                   from, data->req.maxdownload));
+                   from, ڈیٹا->req.maxdownload));
     }
-    DEBUGF(infof(data, "range-download from %" FMT_OFF_T
+    DEBUGF(infof(ڈیٹا, "range-download from %" FMT_OFF_T
                  " to %" FMT_OFF_T ", totally %" FMT_OFF_T " bytes",
-                 from, to, data->req.maxdownload));
+                 from, مقصد, ڈیٹا->req.maxdownload));
   }
-  else
-    data->req.maxdownload = -1;
-  return CURLE_OK;
+  ورنہ
+    ڈیٹا->req.maxdownload = -1;
+  واپس CURLE_OK;
 }
 
-#endif
+#اگر_ختم

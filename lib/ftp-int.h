@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FTP_INT_H
-#define HEADER_CURL_FTP_INT_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_FTP_INT_H
+#تعریف_کرو سرخی_CURL_FTP_INT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,16 +23,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "pingpong.h"
+#شامل "pingpong.h"
 
-#ifndef CURL_DISABLE_FTP
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_FTP
 
 /****************************************************************************
  * FTP unique setup
  ***************************************************************************/
-enum {
+شمار {
   FTP_STOP,    /* do nothing state, stops the state machine */
   FTP_WAIT220, /* waiting for the initial 220 response immediately after
                   a connect */
@@ -59,35 +59,35 @@ enum {
   FTP_RETR_LIST_TYPE,
   FTP_RETR_TYPE, /* set type when about to RETR a file */
   FTP_STOR_TYPE, /* set type when about to STOR a file */
-  FTP_SIZE, /* get the remote file's size for head-like request */
-  FTP_RETR_SIZE, /* get the remote file's size for RETR */
-  FTP_STOR_SIZE, /* get the size for STOR */
+  FTP_سائز, /* get the remote file's size for head-like request */
+  FTP_RETR_سائز, /* get the remote file's size for RETR */
+  FTP_STOR_سائز, /* get the size for STOR */
   FTP_REST, /* when used to check if the server supports it in head-like */
   FTP_RETR_REST, /* when asking for "resume" in for RETR */
-  FTP_PORT, /* generic state for PORT, LPRT and EPRT, check count1 */
+  FTP_پورٹ, /* generic state for PORT, LPRT and EPRT, check count1 */
   FTP_PRET, /* generic state for PRET RETR, PRET STOR and PRET LIST/NLST */
   FTP_PASV, /* generic state for PASV and EPSV, check count1 */
   FTP_LIST, /* generic state for LIST, NLST or a custom list command */
   FTP_RETR,
   FTP_STOR, /* generic state for STOR and APPE */
   FTP_QUIT,
-  FTP_LAST  /* never used */
+  FTP_آخری  /* never used */
 };
-typedef unsigned char ftpstate; /* use the enum values */
+قسمتعریف غیرعلامتی حرف ftpstate; /* use the enum values */
 
-struct ftp_parselist_data; /* defined later in ftplistparser.c */
+ساخت ftp_parselist_ڈیٹا; /* defined later in ftplistparser.c */
 
-struct ftp_wc {
-  struct ftp_parselist_data *parser;
+ساخت ftp_wc {
+  ساخت ftp_parselist_ڈیٹا *parser;
 };
 
 /* This FTP struct is used in the Curl_easy. All FTP data that is
    connection-oriented must be in FTP_conn to properly deal with the fact that
    perhaps the Curl_easy is changed between the times the connection is
    used. */
-struct FTP {
-  char *path;    /* points to the urlpieces struct field */
-  char *pathalloc; /* if non-NULL a pointer to an allocated path */
+ساخت FTP {
+  حرف *راستہ;    /* points to the urlpieces struct field */
+  حرف *pathalloc; /* if non-NULL a pointer to an allocated path */
 
   /* transfer a file/body or not, done as a typedefed enum to make debuggers
      display the full symbol and not the numerical value */
@@ -96,60 +96,60 @@ struct FTP {
 };
 
 /* one struct entry for each path component (of 'rawpath') */
-struct pathcomp {
-  int start; /* start column */
-  int len;   /* length in bytes */
+ساخت pathcomp {
+  صحیح آغاز; /* start column */
+  صحیح len;   /* length in bytes */
 };
 
 /* ftp_conn is used for struct connection-oriented data in the connectdata
    struct */
-struct ftp_conn {
-  struct pingpong pp;
-  char *account;
-  char *alternative_to_user;
-  char *entrypath; /* the PWD reply when we logged on */
-  const char *file; /* URL-decoded filename (or path), points into rawpath */
-  char *rawpath; /* URL decoded, allocated, version of the path */
-  struct pathcomp *dirs; /* allocated array for path components */
-  char *prevpath;   /* URL-decoded conn->path from the previous transfer */
-  char transfertype; /* set by ftp_transfertype for use by Curl_client_write()a
+ساخت ftp_conn {
+  ساخت pingpong pp;
+  حرف *account;
+  حرف *alternative_مقصد_user;
+  حرف *entrypath; /* the PWD reply when we logged on */
+  ثابت حرف *file; /* URL-decoded filename (or path), points into rawpath */
+  حرف *rawpath; /* URL decoded, allocated, version of the path */
+  ساخت pathcomp *dirs; /* allocated array for path components */
+  حرف *prevpath;   /* URL-decoded conn->path from the previous transfer */
+  حرف transfertype; /* set by ftp_transfertype for use by Curl_client_write()a
                         and others (A/I or zero) */
-  char *server_os;     /* The target server operating system. */
-  curl_off_t known_filesize; /* file size is different from -1, if wildcard
+  حرف *server_os;     /* The target server operating system. */
+  curl_off_t معلوم_filesize; /* file size is different from -1, if wildcard
                                 LIST parsing was done and wc_statemach set
                                 it */
-  int count1; /* general purpose counter for the state machine */
-  int count2; /* general purpose counter for the state machine */
-  int count3; /* general purpose counter for the state machine */
-  unsigned short dirdepth;  /* number of entries used in the 'dirs' array,
+  صحیح count1; /* general purpose counter for the state machine */
+  صحیح count2; /* general purpose counter for the state machine */
+  صحیح count3; /* general purpose counter for the state machine */
+  غیرعلامتی مختصر dirdepth;  /* number of entries used in the 'dirs' array,
                                < FTP_MAX_DIR_DEPTH */
-  unsigned short cwdcount;  /* number of CWD commands issued,
+  غیرعلامتی مختصر cwdcount;  /* number of CWD commands issued,
                                < FTP_MAX_DIR_DEPTH */
-  unsigned char state; /* (ftpstate enum) always use ftp.c:state() to change
+  غیرعلامتی حرف state; /* (ftpstate enum) always use ftp.c:state() to change
                           state! */
-  unsigned char use_ssl;   /* if AUTH TLS is to be attempted etc, for FTP or
+  غیرعلامتی حرف use_ssl;   /* if AUTH TLS is to be attempted etc, for FTP or
                               IMAP or POP3 or others! (type: curl_usessl)*/
-  unsigned char ccc;       /* ccc level for this connection */
-  BIT(ftp_trying_alternative);
-  BIT(dont_check);  /* Set to TRUE to prevent the final (post-transfer)
+  غیرعلامتی حرف ccc;       /* ccc level for this connection */
+  ثنائی_ہندسہ(ftp_trying_alternative);
+  ثنائی_ہندسہ(dont_check);  /* Set to TRUE to prevent the final (post-transfer)
                        file size and 226/250 status check. It should still
                        read the line, ignore the result. */
-  BIT(ctl_valid);   /* Tells Curl_ftp_quit() whether or not to do anything. If
+  ثنائی_ہندسہ(ctl_valid);   /* Tells Curl_ftp_quit() whether or not to do anything. If
                        the connection has timed out or been closed, this
                        should be FALSE when it gets to Curl_ftp_quit() */
-  BIT(cwddone);     /* if it has been determined that the proper CWD combo
+  ثنائی_ہندسہ(cwddone);     /* if it has been determined that the proper CWD combo
                        already has been done */
-  BIT(cwdfail);     /* set TRUE if a CWD command fails, as then we must prevent
+  ثنائی_ہندسہ(cwdfail);     /* set TRUE if a CWD command fails, as then we must prevent
                        caching the current directory */
-  BIT(wait_data_conn); /* this is set TRUE if data connection is waited */
-  BIT(shutdown);    /* connection is being shutdown, e.g. QUIT */
+  ثنائی_ہندسہ(wait_ڈیٹا_conn); /* this is set TRUE if data connection is waited */
+  ثنائی_ہندسہ(shutdown);    /* connection is being shutdown, e.g. QUIT */
 };
 
 /* meta key for storing `struct FTP` as easy meta data */
-#define CURL_META_FTP_EASY   "meta:proto:ftp:easy"
+#تعریف_کرو CURL_META_FTP_EASY   "meta:proto:ftp:easy"
 /* meta key for storing `struct ftp_conn` as connection meta data */
-#define CURL_META_FTP_CONN   "meta:proto:ftp:conn"
+#تعریف_کرو CURL_META_FTP_CONN   "meta:proto:ftp:conn"
 
-#endif /* CURL_DISABLE_FTP */
+#اگر_ختم /* CURL_DISABLE_FTP */
 
-#endif /* HEADER_CURL_FTP_INT_H */
+#اگر_ختم /* HEADER_CURL_FTP_INT_H */

@@ -21,30 +21,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifndef CURL_DISABLE_DOH
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_DOH
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "url.h"
-#include "connect.h"
-#include "vdns/doh.h"
-#include "vdns/httpsrr.h"
-#include "curlx/strdup.h"
-#include "curlx/dynbuf.h"
-#include "escape.h"  /* for Curl_hexencode() */
-#include "urlapi-int.h"
+#شامل "urldata.h"
+#شامل "curl_addrinfo.h"
+#شامل "curl_trc.h"
+#شامل "multiif.h"
+#شامل "url.h"
+#شامل "connect.h"
+#شامل "vdns/doh.h"
+#شامل "vdns/httpsrr.h"
+#شامل "curlx/strdup.h"
+#شامل "curlx/dynbuf.h"
+#شامل "escape.h"  /* for Curl_hexencode() */
+#شامل "urlapi-int.h"
 
-#define DNS_CLASS_IN 0x01
+#تعریف_کرو DNS_CLASS_اندر 0x01
 
-static void doh_close(struct Curl_easy *data,
-                      struct Curl_resolv_async *async);
+ساکن خالی doh_close(ساخت Curl_easy *ڈیٹا,
+                      ساخت Curl_resolv_async *async);
 
-#ifdef CURLVERBOSE
-static const char * const doh_code_str[] = {
+#اگر_تعریف_شدہ CURLVERBOSE
+ساکن ثابت حرف * ثابت doh_رمز_str[] = {
   "",
   "Bad label",
   "Out of range",
@@ -64,47 +64,47 @@ static const char * const doh_code_str[] = {
   "Out Of Memory"
 };
 
-static const char *doh_strerror(DOHcode code)
+ساکن ثابت حرف *doh_strerror(DOHcode رمز)
 {
-  if((size_t)code < CURL_ARRAYSIZE(doh_code_str))
-    return doh_code_str[code];
-  return "bad error code";
+  اگر((size_t)رمز < CURL_ARRAYSIZE(doh_رمز_str))
+    واپس doh_رمز_str[رمز];
+  واپس "bad error code";
 }
 
-static const char *doh_type2name(DNStype dnstype)
+ساکن ثابت حرف *doh_type2name(DNStype dnstype)
 {
-  switch(dnstype) {
-  case CURL_DNS_TYPE_A:
-    return "A";
-  case CURL_DNS_TYPE_AAAA:
-    return "AAAA";
-#ifdef USE_HTTPSRR
-  case CURL_DNS_TYPE_HTTPS:
-    return "HTTPS";
-#endif
-  default:
-    return "unknown";
+  انتخاب(dnstype) {
+  حالت CURL_DNS_TYPE_A:
+    واپس "A";
+  حالت CURL_DNS_TYPE_AAAA:
+    واپس "AAAA";
+#اگر_تعریف_شدہ USE_HTTPSRR
+  حالت CURL_DNS_TYPE_HTTPS:
+    واپس "HTTPS";
+#اگر_ختم
+  طےشدہ:
+    واپس "unknown";
   }
 }
 
-#endif /* CURLVERBOSE */
+#اگر_ختم /* CURLVERBOSE */
 
 /* @unittest 1655
  */
-UNITTEST DOHcode doh_req_encode(const char *host,
+UNITTEST DOHcode doh_req_encode(ثابت حرف *host,
                                 DNStype dnstype,
-                                unsigned char *dnsp,  /* buffer */
+                                غیرعلامتی حرف *dnsp,  /*بفر*/
                                 size_t len,  /* buffer size */
                                 size_t *olen);  /* output length */
-UNITTEST DOHcode doh_req_encode(const char *host,
+UNITTEST DOHcode doh_req_encode(ثابت حرف *host,
                                 DNStype dnstype,
-                                unsigned char *dnsp, /* buffer */
+                                غیرعلامتی حرف *dnsp, /*بفر*/
                                 size_t len,   /* buffer size */
                                 size_t *olen) /* output length */
 {
-  const size_t hostlen = strlen(host);
-  unsigned char *orig = dnsp;
-  const char *hostp = host;
+  ثابت size_t hostlen = لڑی_لمبائی(host);
+  غیرعلامتی حرف *orig = dnsp;
+  ثابت حرف *hostp = host;
 
   /* The expected output length is 16 bytes more than the length of
    * the QNAME-encoding of the hostname.
@@ -131,14 +131,14 @@ UNITTEST DOHcode doh_req_encode(const char *host,
   size_t expected_len;
   DEBUGASSERT(hostlen);
   expected_len = 12 + 1 + hostlen + 4;
-  if(host[hostlen - 1] != '.')
+  اگر(host[hostlen - 1] != '.')
     expected_len++;
 
-  if(expected_len > DOH_MAX_DNSREQ_SIZE)
-    return DOH_DNS_NAME_TOO_LONG;
+  اگر(expected_len > DOH_MAX_DNSREQ_سائز)
+    واپس DOH_DNS_NAME_TOO_LONG;
 
-  if(len < expected_len)
-    return DOH_TOO_SMALL_BUFFER;
+  اگر(len < expected_len)
+    واپس DOH_TOO_SMALL_بفر;
 
   *dnsp++ = 0; /* 16-bit id */
   *dnsp++ = 0;
@@ -154,132 +154,132 @@ UNITTEST DOHcode doh_req_encode(const char *host,
   *dnsp++ = '\0'; /* ARCOUNT */
 
   /* encode each label and store it in the QNAME */
-  while(*hostp) {
+  جب(*hostp) {
     size_t labellen;
-    const char *dot = strchr(hostp, '.');
-    if(dot)
+    ثابت حرف *dot = strchr(hostp, '.');
+    اگر(dot)
       labellen = dot - hostp;
-    else
-      labellen = strlen(hostp);
-    if((labellen > 63) || (!labellen)) {
+    ورنہ
+      labellen = لڑی_لمبائی(hostp);
+    اگر((labellen > 63) || (!labellen)) {
       /* label is too long or too short, error out */
       *olen = 0;
-      return DOH_DNS_BAD_LABEL;
+      واپس DOH_DNS_BAD_LABEL;
     }
     /* label is non-empty, process it */
-    *dnsp++ = (unsigned char)labellen;
-    memcpy(dnsp, hostp, labellen);
+    *dnsp++ = (غیرعلامتی حرف)labellen;
+    حافظہ_نقل(dnsp, hostp, labellen);
     dnsp += labellen;
     hostp += labellen;
     /* advance past dot, but only if there is one */
-    if(dot)
+    اگر(dot)
       hostp++;
   } /* next label */
 
   *dnsp++ = 0; /* append zero-length label for root */
 
   /* There are assigned TYPE codes beyond 255: use range [1..65535] */
-  *dnsp++ = (unsigned char)(255 & (dnstype >> 8)); /* upper 8-bit TYPE */
-  *dnsp++ = (unsigned char)(255 & dnstype);        /* lower 8-bit TYPE */
+  *dnsp++ = (غیرعلامتی حرف)(255 & (dnstype >> 8)); /* upper 8-bit TYPE */
+  *dnsp++ = (غیرعلامتی حرف)(255 & dnstype);        /* lower 8-bit TYPE */
 
   *dnsp++ = '\0'; /* upper 8-bit CLASS */
-  *dnsp++ = DNS_CLASS_IN; /* IN - "the Internet" */
+  *dnsp++ = DNS_CLASS_اندر; /* IN - "the Internet" */
 
   *olen = dnsp - orig;
 
   /* verify that our estimation of length is valid, since
    * this has led to buffer overflows in this function */
   DEBUGASSERT(*olen == expected_len);
-  return DOH_OK;
+  واپس DOH_OK;
 }
 
-static size_t doh_probe_write_cb(char *contents, size_t size, size_t nmemb,
-                                 void *userp)
+ساکن size_t doh_probe_write_cb(حرف *contents, size_t سائز, size_t nmemb,
+                                 خالی *userp)
 {
-  size_t realsize = size * nmemb;
-  struct Curl_easy *data = userp;
-  struct doh_request *doh_req = Curl_meta_get(data, CURL_EZM_DOH_PROBE);
-  if(!doh_req)
-    return CURL_WRITEFUNC_ERROR;
+  size_t realsize = سائز * nmemb;
+  ساخت Curl_easy *ڈیٹا = userp;
+  ساخت doh_request *doh_req = Curl_meta_get(ڈیٹا, CURL_EZM_DOH_PROBE);
+  اگر(!doh_req)
+    واپس CURL_WRITEFUNC_ERROR;
 
-  if(curlx_dyn_addn(&doh_req->resp_body, contents, realsize))
-    return 0;
+  اگر(curlx_dyn_addn(&doh_req->resp_body, contents, realsize))
+    واپس 0;
 
-  return realsize;
+  واپس realsize;
 }
 
-static void doh_probe_done(struct Curl_easy *doh,
-                           struct Curl_easy *master, CURLcode result);
-static void doh_probe_dtor(const void *key, size_t klen, void *e)
+ساکن خالی doh_probe_مکمل(ساخت Curl_easy *doh,
+                           ساخت Curl_easy *master, CURLcode نتیجہ);
+ساکن خالی doh_probe_dtor(ثابت خالی *کلید, size_t klen, خالی *e)
 {
-  (void)key;
-  (void)klen;
-  if(e) {
-    struct doh_request *doh_req = e;
+  (خالی)کلید;
+  (خالی)klen;
+  اگر(e) {
+    ساخت doh_request *doh_req = e;
     curl_slist_free_all(doh_req->req_hds);
     curlx_dyn_free(&doh_req->resp_body);
     curlx_free(e);
   }
 }
 
-#define ERROR_CHECK_SETOPT(x, y)                        \
-  do {                                                  \
-    result = curl_easy_setopt((CURL *)doh, x, y);       \
-    if(result &&                                        \
-       result != CURLE_NOT_BUILT_IN &&                  \
-       result != CURLE_UNKNOWN_OPTION)                  \
-      goto error;                                       \
-  } while(0)
+#تعریف_کرو ERROR_CHECK_SETOPT(x, y)                        \
+  کرو {                                                  \
+    نتیجہ = curl_easy_setopt((CURL *)doh, x, y);       \
+    اگر(نتیجہ &&                                        \
+       نتیجہ != CURLE_NOT_BUILT_اندر &&                  \
+       نتیجہ != CURLE_UNKNOWN_OPTION)                  \
+      جاؤ error;                                       \
+  } جب(0)
 
-static CURLcode doh_probe_run(struct Curl_easy *data,
+ساکن CURLcode doh_probe_تسلسل(ساخت Curl_easy *ڈیٹا,
                               DNStype dnstype,
-                              const char *host,
-                              const char *url, CURLM *multi,
+                              ثابت حرف *host,
+                              ثابت حرف *url, CURLM *multi,
                               uint32_t resolv_id,
                               uint32_t *pmid)
 {
-  struct Curl_easy *doh = NULL;
-  CURLcode result = CURLE_OK;
+  ساخت Curl_easy *doh = تہی;
+  CURLcode نتیجہ = CURLE_OK;
   timediff_t timeout_ms;
-  struct doh_request *doh_req;
+  ساخت doh_request *doh_req;
   DOHcode d;
   bool maybe_https = !curl_strnequal(url, STRCONST("http:"));
 
   *pmid = UINT32_MAX;
 
-  doh_req = curlx_calloc(1, sizeof(*doh_req));
-  if(!doh_req)
-    return CURLE_OUT_OF_MEMORY;
+  doh_req = curlx_calloc(1, حجم(*doh_req));
+  اگر(!doh_req)
+    واپس CURLE_برآمد_کا_حافظہ;
   doh_req->resolv_id = resolv_id;
   doh_req->dnstype = dnstype;
   curlx_dyn_init(&doh_req->resp_body, DYN_DOH_RESPONSE);
 
   d = doh_req_encode(host, dnstype, doh_req->req_body,
-                     sizeof(doh_req->req_body),
+                     حجم(doh_req->req_body),
                      &doh_req->req_body_len);
-  if(d) {
-    failf(data, "Failed to encode DoH packet [%d]", (int)d);
-    result = CURLE_OUT_OF_MEMORY;
-    goto error;
+  اگر(d) {
+    failf(ڈیٹا, "Failed to encode DoH packet [%d]", (صحیح)d);
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ error;
   }
 
-  timeout_ms = Curl_timeleft_ms(data);
-  if(timeout_ms < 0) {
-    result = CURLE_OPERATION_TIMEDOUT;
-    goto error;
+  timeout_ms = Curl_timeleft_ms(ڈیٹا);
+  اگر(timeout_ms < 0) {
+    نتیجہ = CURLE_OPERATION_TIMEDOUT;
+    جاؤ error;
   }
 
   doh_req->req_hds =
-    curl_slist_append(NULL, "Content-Type: application/dns-message");
-  if(!doh_req->req_hds) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto error;
+    curl_slist_append(تہی, "Content-Type: application/dns-message");
+  اگر(!doh_req->req_hds) {
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ error;
   }
 
   /* Curl_open() is the internal version of curl_easy_init() */
-  result = Curl_open(&doh);
-  if(result)
-    goto error;
+  نتیجہ = Curl_open(&doh);
+  اگر(نتیجہ)
+    جاؤ error;
 
   /* pass in the struct pointer via a local variable to please coverity and
      the gcc typecheck helpers */
@@ -289,59 +289,59 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
   ERROR_CHECK_SETOPT(CURLOPT_WRITEFUNCTION, doh_probe_write_cb);
   ERROR_CHECK_SETOPT(CURLOPT_WRITEDATA, doh);
   ERROR_CHECK_SETOPT(CURLOPT_POSTFIELDS, doh_req->req_body);
-  ERROR_CHECK_SETOPT(CURLOPT_POSTFIELDSIZE, (long)doh_req->req_body_len);
+  ERROR_CHECK_SETOPT(CURLOPT_POSTFIELDSIZE, (طویل)doh_req->req_body_len);
   ERROR_CHECK_SETOPT(CURLOPT_HTTPHEADER, doh_req->req_hds);
-#ifdef USE_HTTP2
-  if(maybe_https) {
-    ERROR_CHECK_SETOPT(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2TLS);
+#اگر_تعریف_شدہ USE_HTTP2
+  اگر(maybe_https) {
+    ERROR_CHECK_SETOPT(CURLOPT_HTTP_نسخہ, CURL_HTTP_نسخہ_2_TLS);
     ERROR_CHECK_SETOPT(CURLOPT_PIPEWAIT, 1L);
   }
-#endif
-#ifndef DEBUGBUILD
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ DEBUGBUILD
   /* enforce HTTPS if not debug */
   ERROR_CHECK_SETOPT(CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
-#else
+#ورنہ
   /* in debug mode, also allow http */
   ERROR_CHECK_SETOPT(CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-#endif
-  ERROR_CHECK_SETOPT(CURLOPT_TIMEOUT_MS, (long)timeout_ms);
-  ERROR_CHECK_SETOPT(CURLOPT_SHARE, (CURLSH *)data->share);
-  if(data->set.err && data->set.err != stderr)
-    ERROR_CHECK_SETOPT(CURLOPT_STDERR, data->set.err);
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_doh))
+#اگر_ختم
+  ERROR_CHECK_SETOPT(CURLOPT_TIMEOUT_MS, (طویل)timeout_ms);
+  ERROR_CHECK_SETOPT(CURLOPT_SHARE, (CURLSH *)ڈیٹا->share);
+  اگر(ڈیٹا->سیٹ.err && ڈیٹا->سیٹ.err != stderr)
+    ERROR_CHECK_SETOPT(CURLOPT_STDERR, ڈیٹا->سیٹ.err);
+  اگر(Curl_trc_ft_is_verbose(ڈیٹا, &Curl_trc_feat_doh))
     ERROR_CHECK_SETOPT(CURLOPT_VERBOSE, 1L);
-  if(data->set.no_signal)
+  اگر(ڈیٹا->سیٹ.no_signal)
     ERROR_CHECK_SETOPT(CURLOPT_NOSIGNAL, 1L);
-  if(data->set.fdebug)
-    ERROR_CHECK_SETOPT(CURLOPT_DEBUGFUNCTION, data->set.fdebug);
-  if(data->set.debugdata)
-    ERROR_CHECK_SETOPT(CURLOPT_DEBUGDATA, data->set.debugdata);
+  اگر(ڈیٹا->سیٹ.fdebug)
+    ERROR_CHECK_SETOPT(CURLOPT_DEBUGFUNCTION, ڈیٹا->سیٹ.fdebug);
+  اگر(ڈیٹا->سیٹ.debugdata)
+    ERROR_CHECK_SETOPT(CURLOPT_DEBUGDATA, ڈیٹا->سیٹ.debugdata);
 
-#ifdef USE_RESOLV_ARES
-  if(CURL_EASY_STR(data, STRING_DNS_SERVERS)) {
+#اگر_تعریف_شدہ USE_RESOLV_ARES
+  اگر(CURL_EASY_STR(ڈیٹا, STRING_DNS_SERVERS)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_SERVERS,
-                       CURL_EASY_STR(data, STRING_DNS_SERVERS));
+                       CURL_EASY_STR(ڈیٹا, STRING_DNS_SERVERS));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_INTERFACE)) {
+  اگر(CURL_EASY_STR(ڈیٹا, STRING_DNS_INTERFACE)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_INTERFACE,
-                       CURL_EASY_STR(data, STRING_DNS_INTERFACE));
+                       CURL_EASY_STR(ڈیٹا, STRING_DNS_INTERFACE));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4)) {
+  اگر(CURL_EASY_STR(ڈیٹا, STRING_DNS_LOCAL_IP4)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_LOCAL_IP4,
-                       CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4));
+                       CURL_EASY_STR(ڈیٹا, STRING_DNS_LOCAL_IP4));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6)) {
+  اگر(CURL_EASY_STR(ڈیٹا, STRING_DNS_LOCAL_IP6)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_LOCAL_IP6,
-                       CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6));
+                       CURL_EASY_STR(ڈیٹا, STRING_DNS_LOCAL_IP6));
   }
-#endif
-  if(maybe_https) {
+#اگر_ختم
+  اگر(maybe_https) {
     ERROR_CHECK_SETOPT(CURLOPT_SSL_VERIFYHOST,
-                       data->set.doh_verifyhost ? 2L : 0L);
+                       ڈیٹا->سیٹ.doh_verifyhost ? 2L : 0L);
     ERROR_CHECK_SETOPT(CURLOPT_SSL_VERIFYPEER,
-                       data->set.doh_verifypeer ? 1L : 0L);
+                       ڈیٹا->سیٹ.doh_verifypeer ? 1L : 0L);
     ERROR_CHECK_SETOPT(CURLOPT_SSL_VERIFYSTATUS,
-                       data->set.doh_verifystatus ? 1L : 0L);
+                       ڈیٹا->سیٹ.doh_verifystatus ? 1L : 0L);
 
     /* Inherit *some* SSL options from the user's transfer. This is a
        best-guess as to which options are needed for compatibility. #3661
@@ -351,65 +351,65 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
        options should be added to check doh proxy insecure separately,
        CURLOPT_DOH_PROXY_SSL_VERIFYHOST and CURLOPT_DOH_PROXY_SSL_VERIFYPEER.
        */
-    doh->set.ssl.custom_cafile = data->set.ssl.custom_cafile;
-    doh->set.ssl.custom_capath = data->set.ssl.custom_capath;
-    doh->set.ssl.custom_cablob = data->set.ssl.custom_cablob;
-    if(CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
+    doh->سیٹ.ssl.custom_cafile = ڈیٹا->سیٹ.ssl.custom_cafile;
+    doh->سیٹ.ssl.custom_capath = ڈیٹا->سیٹ.ssl.custom_capath;
+    doh->سیٹ.ssl.custom_cablob = ڈیٹا->سیٹ.ssl.custom_cablob;
+    اگر(CURL_EASY_STR(ڈیٹا, STRING_SSL_CAFILE)) {
       ERROR_CHECK_SETOPT(CURLOPT_CAINFO,
-                         CURL_EASY_STR(data, STRING_SSL_CAFILE));
+                         CURL_EASY_STR(ڈیٹا, STRING_SSL_CAFILE));
     }
-    if(data->set.blobs[BLOB_CAINFO]) {
-      ERROR_CHECK_SETOPT(CURLOPT_CAINFO_BLOB, data->set.blobs[BLOB_CAINFO]);
+    اگر(ڈیٹا->سیٹ.blobs[BLOB_CAINFO]) {
+      ERROR_CHECK_SETOPT(CURLOPT_CAINFO_BLOB, ڈیٹا->سیٹ.blobs[BLOB_CAINFO]);
     }
-    if(CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
+    اگر(CURL_EASY_STR(ڈیٹا, STRING_SSL_CAPATH)) {
       ERROR_CHECK_SETOPT(CURLOPT_CAPATH,
-                         CURL_EASY_STR(data, STRING_SSL_CAPATH));
+                         CURL_EASY_STR(ڈیٹا, STRING_SSL_CAPATH));
     }
-    if(CURL_EASY_STR(data, STRING_SSL_CRLFILE)) {
+    اگر(CURL_EASY_STR(ڈیٹا, STRING_SSL_CRLFILE)) {
       ERROR_CHECK_SETOPT(CURLOPT_CRLFILE,
-                         CURL_EASY_STR(data, STRING_SSL_CRLFILE));
+                         CURL_EASY_STR(ڈیٹا, STRING_SSL_CRLFILE));
     }
-    if(data->set.ssl.certinfo)
+    اگر(ڈیٹا->سیٹ.ssl.certinfo)
       ERROR_CHECK_SETOPT(CURLOPT_CERTINFO, 1L);
-    if(data->set.ssl_fsslctx)
-      ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_FUNCTION, data->set.ssl_fsslctx);
-    if(data->set.ssl_fsslctxp)
-      ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_DATA, data->set.ssl_fsslctxp);
-    if(CURL_EASY_STR(data, STRING_SSL_EC_CURVES)) {
+    اگر(ڈیٹا->سیٹ.ssl_fsslctx)
+      ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_FUNCTION, ڈیٹا->سیٹ.ssl_fsslctx);
+    اگر(ڈیٹا->سیٹ.ssl_fsslctxp)
+      ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_ڈیٹا, ڈیٹا->سیٹ.ssl_fsslctxp);
+    اگر(CURL_EASY_STR(ڈیٹا, STRING_SSL_EC_CURVES)) {
       ERROR_CHECK_SETOPT(CURLOPT_SSL_EC_CURVES,
-                         CURL_EASY_STR(data, STRING_SSL_EC_CURVES));
+                         CURL_EASY_STR(ڈیٹا, STRING_SSL_EC_CURVES));
     }
-    (void)curl_easy_setopt(doh, CURLOPT_SSL_OPTIONS,
-                           ((long)data->set.ssl.ssl_options &
+    (خالی)curl_easy_setopt(doh, CURLOPT_SSL_OPTIONS,
+                           ((طویل)ڈیٹا->سیٹ.ssl.ssl_options &
                             ~CURLSSLOPT_AUTO_CLIENT_CERT));
   }
 
-  doh->state.internal = TRUE;
-  doh->master_mid = data->mid; /* master transfer of this one */
-  doh->sub_xfer_done = doh_probe_done;
+  doh->state.اندرونی_2 = TRUE;
+  doh->master_mid = ڈیٹا->mid; /* master transfer of this one */
+  doh->sub_xfer_مکمل = doh_probe_مکمل;
 
-  result = Curl_meta_set(doh, CURL_EZM_DOH_PROBE, doh_req, doh_probe_dtor);
-  doh_req = NULL; /* call took ownership */
-  if(result)
-    goto error;
+  نتیجہ = Curl_meta_سیٹ(doh, CURL_EZM_DOH_PROBE, doh_req, doh_probe_dtor);
+  doh_req = تہی; /* call took ownership */
+  اگر(نتیجہ)
+    جاؤ error;
 
   /* DoH handles must not inherit private_data. The handles may be passed to
      the user via callbacks and the user will be able to identify them as
      internal handles because private data is not set. The user can then set
      private_data via CURLOPT_PRIVATE if they so choose. */
-  DEBUGASSERT(!doh->set.private_data);
+  DEBUGASSERT(!doh->سیٹ.نجی_ڈیٹا);
 
-  if(Curl_multi_add_handle(multi, doh))
-    goto error;
+  اگر(Curl_multi_جوڑو_handle(multi, doh))
+    جاؤ error;
 
   *pmid = doh->mid;
-  return CURLE_OK;
+  واپس CURLE_OK;
 
 error:
   Curl_close(&doh);
-  if(doh_req)
-    doh_probe_dtor(NULL, 0, doh_req);
-  return result;
+  اگر(doh_req)
+    doh_probe_dtor(تہی, 0, doh_req);
+  واپس نتیجہ;
 }
 
 /*
@@ -417,369 +417,369 @@ error:
  * a 'Curl_addrinfo *' with the address information.
  */
 
-CURLcode Curl_doh(struct Curl_easy *data,
-                  struct Curl_resolv_async *async)
+CURLcode Curl_doh(ساخت Curl_easy *ڈیٹا,
+                  ساخت Curl_resolv_async *async)
 {
-  CURLcode result = CURLE_OK;
-  struct doh_probes *dohp = NULL;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت doh_probes *dohp = تہی;
   size_t i;
 
   DEBUGASSERT(!async->doh);
   DEBUGASSERT(async->peer->hostname[0]);
-  if(async->doh) {
+  اگر(async->doh) {
     DEBUGASSERT(0); /* should not happen */
-    Curl_doh_cleanup(data, async);
+    Curl_doh_cleanup(ڈیٹا, async);
   }
 
-  if(!async->dns_queries)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#ifdef USE_HTTPSRR
-  if(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
+  اگر(!async->dns_queries)
+    واپس CURLE_BAD_FUNCTION_دلیل;
+#اگر_تعریف_شدہ USE_HTTPSRR
+  اگر(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
      (async->dns_queries & CURL_DNSQ_HTTPS)) {
     /* Can't mix those in the same async resolve */
     DEBUGASSERT(0);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    واپس CURLE_BAD_FUNCTION_دلیل;
   }
-#else
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
+#ورنہ
+  اگر(async->dns_queries & CURL_DNSQ_HTTPS) {
     DEBUGASSERT(0);
-    return CURLE_NOT_BUILT_IN;
+    واپس CURLE_NOT_BUILT_اندر;
   }
-#endif
+#اگر_ختم
 
   /* start clean, consider allocating this struct on demand */
-  async->doh = dohp = curlx_calloc(1, sizeof(struct doh_probes));
-  if(!dohp)
-    return CURLE_OUT_OF_MEMORY;
+  async->doh = dohp = curlx_calloc(1, حجم(ساخت doh_probes));
+  اگر(!dohp)
+    واپس CURLE_برآمد_کا_حافظہ;
 
-  for(i = 0; i < DOH_SLOT_COUNT; ++i) {
+  برائے(i = 0; i < DOH_خانہ_گنتی; ++i) {
     dohp->probe_rc[i] = DOH_OK;
     dohp->probe_mid[i] = UINT32_MAX;
   }
 
-#ifdef USE_IPV6
+#اگر_تعریف_شدہ USE_IPV6
   /* AAAA results have preference in happy eyeballing, trigger first */
-  if(async->dns_queries & CURL_DNSQ_AAAA) {
+  اگر(async->dns_queries & CURL_DNSQ_AAAA) {
     /* create IPv6 DoH request */
-    result = doh_probe_run(data, CURL_DNS_TYPE_AAAA,
+    نتیجہ = doh_probe_تسلسل(ڈیٹا, CURL_DNS_TYPE_AAAA,
                            async->peer->hostname,
-                           CURL_EASY_STR(data, STRING_DOH),
-                           data->multi, async->id,
-                           &dohp->probe_mid[DOH_SLOT_IPV6]);
-    if(result)
-      goto error;
+                           CURL_EASY_STR(ڈیٹا, STRING_DOH),
+                           ڈیٹا->multi, async->id,
+                           &dohp->probe_mid[DOH_خانہ_IPV6]);
+    اگر(نتیجہ)
+      جاؤ error;
     async->queries_ongoing++;
   }
-#endif
+#اگر_ختم
 
   /* create IPv4 DoH request */
-  if(async->dns_queries & CURL_DNSQ_A) {
-    result = doh_probe_run(data, CURL_DNS_TYPE_A,
+  اگر(async->dns_queries & CURL_DNSQ_A) {
+    نتیجہ = doh_probe_تسلسل(ڈیٹا, CURL_DNS_TYPE_A,
                            async->peer->hostname,
-                           CURL_EASY_STR(data, STRING_DOH),
-                           data->multi, async->id,
-                           &dohp->probe_mid[DOH_SLOT_IPV4]);
-    if(result)
-      goto error;
+                           CURL_EASY_STR(ڈیٹا, STRING_DOH),
+                           ڈیٹا->multi, async->id,
+                           &dohp->probe_mid[DOH_خانہ_IPV4]);
+    اگر(نتیجہ)
+      جاؤ error;
     async->queries_ongoing++;
   }
 
-#ifdef USE_HTTPSRR
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
-    char *qname = NULL;
-    if(async->peer->port != PORT_HTTPS) {
+#اگر_تعریف_شدہ USE_HTTPSRR
+  اگر(async->dns_queries & CURL_DNSQ_HTTPS) {
+    حرف *qname = تہی;
+    اگر(async->peer->پورٹ != پورٹ_HTTPS) {
       qname = curl_maprintf("_%u._https.%s",
-                            async->peer->port, async->peer->hostname);
-      if(!qname)
-        goto error;
+                            async->peer->پورٹ, async->peer->hostname);
+      اگر(!qname)
+        جاؤ error;
     }
-    result = doh_probe_run(data, CURL_DNS_TYPE_HTTPS,
+    نتیجہ = doh_probe_تسلسل(ڈیٹا, CURL_DNS_TYPE_HTTPS,
                            qname ? qname : async->peer->hostname,
-                           CURL_EASY_STR(data, STRING_DOH), data->multi,
+                           CURL_EASY_STR(ڈیٹا, STRING_DOH), ڈیٹا->multi,
                            async->id,
-                           &dohp->probe_mid[DOH_SLOT_HTTPS_RR]);
+                           &dohp->probe_mid[DOH_خانہ_HTTPS_RR]);
     curlx_free(qname);
-    if(result)
-      goto error;
+    اگر(نتیجہ)
+      جاؤ error;
     async->queries_ongoing++;
   }
-#endif
-  return CURLE_OK;
+#اگر_ختم
+  واپس CURLE_OK;
 
 error:
-  Curl_doh_cleanup(data, async);
-  return result;
+  Curl_doh_cleanup(ڈیٹا, async);
+  واپس نتیجہ;
 }
 
-static DOHcode doh_skipqname(const unsigned char *doh, size_t dohlen,
-                             unsigned int *indexp)
+ساکن DOHcode doh_skipqname(ثابت غیرعلامتی حرف *doh, size_t dohlen,
+                             غیرعلامتی صحیح *indexp)
 {
-  unsigned char length;
-  do {
-    if(dohlen < (*indexp + 1))
-      return DOH_DNS_OUT_OF_RANGE;
-    length = doh[*indexp];
-    if((length & 0xc0) == 0xc0) {
+  غیرعلامتی حرف لمبائی;
+  کرو {
+    اگر(dohlen < (*indexp + 1))
+      واپس DOH_DNS_برآمد_کا_RANGE;
+    لمبائی = doh[*indexp];
+    اگر((لمبائی & 0xc0) == 0xc0) {
       /* name pointer, advance over it and be done */
-      if(dohlen < (*indexp + 2))
-        return DOH_DNS_OUT_OF_RANGE;
+      اگر(dohlen < (*indexp + 2))
+        واپس DOH_DNS_برآمد_کا_RANGE;
       *indexp += 2;
-      break;
+      توڑو;
     }
-    if(length & 0xc0)
-      return DOH_DNS_BAD_LABEL;
-    if(dohlen < (*indexp + 1 + length))
-      return DOH_DNS_OUT_OF_RANGE;
-    *indexp += (unsigned int)(1 + length);
-  } while(length);
-  return DOH_OK;
+    اگر(لمبائی & 0xc0)
+      واپس DOH_DNS_BAD_LABEL;
+    اگر(dohlen < (*indexp + 1 + لمبائی))
+      واپس DOH_DNS_برآمد_کا_RANGE;
+    *indexp += (غیرعلامتی صحیح)(1 + لمبائی);
+  } جب(لمبائی);
+  واپس DOH_OK;
 }
 
-static unsigned short doh_get16bit(const unsigned char *doh,
-                                   unsigned int index)
+ساکن غیرعلامتی مختصر doh_get16bit(ثابت غیرعلامتی حرف *doh,
+                                   غیرعلامتی صحیح اشاریہ)
 {
-  return (unsigned short)((doh[index] << 8) | doh[index + 1]);
+  واپس (غیرعلامتی مختصر)((doh[اشاریہ] << 8) | doh[اشاریہ + 1]);
 }
 
-static unsigned int doh_get32bit(const unsigned char *doh, unsigned int index)
+ساکن غیرعلامتی صحیح doh_get32bit(ثابت غیرعلامتی حرف *doh, غیرعلامتی صحیح اشاریہ)
 {
   /* make clang and gcc optimize this to bswap by incrementing
      the pointer first. */
-  doh += index;
+  doh += اشاریہ;
 
   /* avoid undefined behavior by casting to unsigned before shifting
      24 bits, possibly into the sign bit. codegen is same, but
      ub sanitizer will not be upset */
-  return ((unsigned)doh[0] << 24) | ((unsigned)doh[1] << 16) |
-         ((unsigned)doh[2] << 8) | doh[3];
+  واپس ((غیرعلامتی)doh[0] << 24) | ((غیرعلامتی)doh[1] << 16) |
+         ((غیرعلامتی)doh[2] << 8) | doh[3];
 }
 
-static void doh_store_a(const unsigned char *doh, int index,
-                        struct dohentry *d)
+ساکن خالی doh_store_a(ثابت غیرعلامتی حرف *doh, صحیح اشاریہ,
+                        ساخت dohentry *d)
 {
   /* silently ignore addresses over the limit */
-  if(d->numaddr < DOH_MAX_ADDR) {
-    struct dohaddr *a = &d->addr[d->numaddr];
+  اگر(d->numaddr < DOH_MAX_ADDR) {
+    ساخت dohaddr *a = &d->addr[d->numaddr];
     a->type = CURL_DNS_TYPE_A;
-    memcpy(&a->ip.v4, &doh[index], 4);
+    حافظہ_نقل(&a->ip.v4, &doh[اشاریہ], 4);
     d->numaddr++;
   }
 }
 
-static void doh_store_aaaa(const unsigned char *doh, int index,
-                           struct dohentry *d)
+ساکن خالی doh_store_aaaa(ثابت غیرعلامتی حرف *doh, صحیح اشاریہ,
+                           ساخت dohentry *d)
 {
   /* silently ignore addresses over the limit */
-  if(d->numaddr < DOH_MAX_ADDR) {
-    struct dohaddr *a = &d->addr[d->numaddr];
+  اگر(d->numaddr < DOH_MAX_ADDR) {
+    ساخت dohaddr *a = &d->addr[d->numaddr];
     a->type = CURL_DNS_TYPE_AAAA;
-    memcpy(&a->ip.v6, &doh[index], 16);
+    حافظہ_نقل(&a->ip.v6, &doh[اشاریہ], 16);
     d->numaddr++;
   }
 }
 
-#ifdef USE_HTTPSRR
-static DOHcode doh_store_https(const unsigned char *doh, int index,
-                               struct dohentry *d, uint16_t len)
+#اگر_تعریف_شدہ USE_HTTPSRR
+ساکن DOHcode doh_store_https(ثابت غیرعلامتی حرف *doh, صحیح اشاریہ,
+                               ساخت dohentry *d, uint16_t len)
 {
   /* silently ignore RRs over the limit */
-  if(d->numhttps_rrs < DOH_MAX_HTTPS) {
-    struct dohhttps_rr *h = &d->https_rrs[d->numhttps_rrs];
-    h->val = curlx_memdup(&doh[index], len);
-    if(!h->val)
-      return DOH_OUT_OF_MEM;
+  اگر(d->numhttps_rrs < DOH_MAX_HTTPS) {
+    ساخت dohhttps_rr *h = &d->https_rrs[d->numhttps_rrs];
+    h->val = curlx_memdup(&doh[اشاریہ], len);
+    اگر(!h->val)
+      واپس DOH_برآمد_کا_MEM;
     h->len = len;
     d->numhttps_rrs++;
   }
-  return DOH_OK;
+  واپس DOH_OK;
 }
-#endif
+#اگر_ختم
 
-static DOHcode doh_rdata(const unsigned char *doh,
-                         unsigned short rdlength,
-                         unsigned short type,
-                         int index,
-                         struct dohentry *d)
+ساکن DOHcode doh_rdata(ثابت غیرعلامتی حرف *doh,
+                         غیرعلامتی مختصر rdlength,
+                         غیرعلامتی مختصر type,
+                         صحیح اشاریہ,
+                         ساخت dohentry *d)
 {
   /* RDATA
      - A (TYPE 1): 4 bytes
      - AAAA (TYPE 28): 16 bytes
      - HTTPS (TYPE 65): N bytes */
-  switch(type) {
-  case CURL_DNS_TYPE_A:
-    if(rdlength != 4)
-      return DOH_DNS_RDATA_LEN;
-    doh_store_a(doh, index, d);
-    break;
-  case CURL_DNS_TYPE_AAAA:
-    if(rdlength != 16)
-      return DOH_DNS_RDATA_LEN;
-    doh_store_aaaa(doh, index, d);
-    break;
-#ifdef USE_HTTPSRR
-  case CURL_DNS_TYPE_HTTPS:
-    if(rdlength < 3)
-      return DOH_DNS_RDATA_LEN;
-    return doh_store_https(doh, index, d, rdlength);
-#endif
-  default:
+  انتخاب(type) {
+  حالت CURL_DNS_TYPE_A:
+    اگر(rdlength != 4)
+      واپس DOH_DNS_RDATA_LEN;
+    doh_store_a(doh, اشاریہ, d);
+    توڑو;
+  حالت CURL_DNS_TYPE_AAAA:
+    اگر(rdlength != 16)
+      واپس DOH_DNS_RDATA_LEN;
+    doh_store_aaaa(doh, اشاریہ, d);
+    توڑو;
+#اگر_تعریف_شدہ USE_HTTPSRR
+  حالت CURL_DNS_TYPE_HTTPS:
+    اگر(rdlength < 3)
+      واپس DOH_DNS_RDATA_LEN;
+    واپس doh_store_https(doh, اشاریہ, d, rdlength);
+#اگر_ختم
+  طےشدہ:
     /* unsupported type, or type we do not store, skip it */
-    break;
+    توڑو;
   }
-  return DOH_OK;
+  واپس DOH_OK;
 }
 
 /* @unittest 1655 */
-UNITTEST void de_init(struct dohentry *de);
-UNITTEST void de_init(struct dohentry *de)
+UNITTEST خالی de_init(ساخت dohentry *de);
+UNITTEST خالی de_init(ساخت dohentry *de)
 {
-  memset(de, 0, sizeof(*de));
-  de->ttl = INT_MAX;
+  memset(de, 0, حجم(*de));
+  de->ttl = زیادہ_سے_زیادہ_عدد;
 }
 
 /* TTL value cap */
-#define MAX_DNS_TTL 86400U /* 24 hours */
+#تعریف_کرو MAX_DNS_TTL 86400U /* 24 hours */
 /* @unittest 1650 */
-UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
+UNITTEST DOHcode doh_resp_decode(ثابت غیرعلامتی حرف *doh,
                                  size_t dohlen,
                                  DNStype dnstype,
-                                 struct dohentry *d);
-UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
+                                 ساخت dohentry *d);
+UNITTEST DOHcode doh_resp_decode(ثابت غیرعلامتی حرف *doh,
                                  size_t dohlen,
                                  DNStype dnstype,
-                                 struct dohentry *d)
+                                 ساخت dohentry *d)
 {
-  unsigned char rcode;
-  unsigned short qdcount;
-  unsigned short ancount;
-  unsigned short type = 0;
-  unsigned short rdlength;
-  unsigned short nscount;
-  unsigned short arcount;
-  unsigned int index = 12;
+  غیرعلامتی حرف rcode;
+  غیرعلامتی مختصر qdcount;
+  غیرعلامتی مختصر ancount;
+  غیرعلامتی مختصر type = 0;
+  غیرعلامتی مختصر rdlength;
+  غیرعلامتی مختصر nscount;
+  غیرعلامتی مختصر arcount;
+  غیرعلامتی صحیح اشاریہ = 12;
   DOHcode rc;
 
-  if(dohlen < 12)
-    return DOH_TOO_SMALL_BUFFER; /* too small */
-  if(!doh || doh[0] || doh[1])
-    return DOH_DNS_BAD_ID; /* bad ID */
+  اگر(dohlen < 12)
+    واپس DOH_TOO_SMALL_بفر; /* too small */
+  اگر(!doh || doh[0] || doh[1])
+    واپس DOH_DNS_BAD_ID; /* bad ID */
   rcode = doh[3] & 0x0f;
-  if(rcode == 3)
-    return DOH_DNS_NXDOMAIN; /* name does not exist */
-  if(rcode)
-    return DOH_DNS_BAD_RCODE; /* bad rcode */
+  اگر(rcode == 3)
+    واپس DOH_DNS_NXDOMAIN; /* name does not exist */
+  اگر(rcode)
+    واپس DOH_DNS_BAD_RCODE; /* bad rcode */
 
   qdcount = doh_get16bit(doh, 4);
-  while(qdcount) {
-    rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
-    if(dohlen < (index + 4))
-      return DOH_DNS_OUT_OF_RANGE;
-    index += 4; /* skip question's type and class */
+  جب(qdcount) {
+    rc = doh_skipqname(doh, dohlen, &اشاریہ);
+    اگر(rc)
+      واپس rc; /* bad qname */
+    اگر(dohlen < (اشاریہ + 4))
+      واپس DOH_DNS_برآمد_کا_RANGE;
+    اشاریہ += 4; /* skip question's type and class */
     qdcount--;
   }
 
   ancount = doh_get16bit(doh, 6);
-  while(ancount) {
-    unsigned short dnsclass;
-    unsigned int ttl;
+  جب(ancount) {
+    غیرعلامتی مختصر dnsclass;
+    غیرعلامتی صحیح ttl;
 
-    rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+    rc = doh_skipqname(doh, dohlen, &اشاریہ);
+    اگر(rc)
+      واپس rc; /* bad qname */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    اگر(dohlen < (اشاریہ + 2))
+      واپس DOH_DNS_برآمد_کا_RANGE;
 
-    type = doh_get16bit(doh, index);
-    if((type != CURL_DNS_TYPE_CNAME) &&  /* may be synthesized from DNAME */
+    type = doh_get16bit(doh, اشاریہ);
+    اگر((type != CURL_DNS_TYPE_CNAME) &&  /* may be synthesized from DNAME */
        (type != CURL_DNS_TYPE_DNAME) &&  /* if present, accept and ignore */
        (type != dnstype))
       /* Not the same type as was asked for, nor CNAME nor DNAME */
-      return DOH_DNS_UNEXPECTED_TYPE;
-    index += 2;
+      واپس DOH_DNS_UNEXPECTED_TYPE;
+    اشاریہ += 2;
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
-    dnsclass = doh_get16bit(doh, index);
-    if(DNS_CLASS_IN != dnsclass)
-      return DOH_DNS_UNEXPECTED_CLASS; /* unsupported */
-    index += 2;
+    اگر(dohlen < (اشاریہ + 2))
+      واپس DOH_DNS_برآمد_کا_RANGE;
+    dnsclass = doh_get16bit(doh, اشاریہ);
+    اگر(DNS_CLASS_اندر != dnsclass)
+      واپس DOH_DNS_UNEXPECTED_CLASS; /* unsupported */
+    اشاریہ += 2;
 
-    if(dohlen < (index + 4))
-      return DOH_DNS_OUT_OF_RANGE;
+    اگر(dohlen < (اشاریہ + 4))
+      واپس DOH_DNS_برآمد_کا_RANGE;
 
-    ttl = doh_get32bit(doh, index);
-    if(ttl > MAX_DNS_TTL)
+    ttl = doh_get32bit(doh, اشاریہ);
+    اگر(ttl > MAX_DNS_TTL)
       ttl = MAX_DNS_TTL;
-    if(ttl < d->ttl)
+    اگر(ttl < d->ttl)
       d->ttl = ttl;
-    index += 4;
+    اشاریہ += 4;
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    اگر(dohlen < (اشاریہ + 2))
+      واپس DOH_DNS_برآمد_کا_RANGE;
 
-    rdlength = doh_get16bit(doh, index);
-    index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
+    rdlength = doh_get16bit(doh, اشاریہ);
+    اشاریہ += 2;
+    اگر(dohlen < (اشاریہ + rdlength))
+      واپس DOH_DNS_برآمد_کا_RANGE;
 
-    rc = doh_rdata(doh, rdlength, type, (int)index, d);
-    if(rc)
-      return rc;
-    index += rdlength;
+    rc = doh_rdata(doh, rdlength, type, (صحیح)اشاریہ, d);
+    اگر(rc)
+      واپس rc;
+    اشاریہ += rdlength;
     ancount--;
   }
 
   nscount = doh_get16bit(doh, 8);
-  while(nscount) {
-    rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+  جب(nscount) {
+    rc = doh_skipqname(doh, dohlen, &اشاریہ);
+    اگر(rc)
+      واپس rc; /* bad qname */
 
-    if(dohlen < (index + 8))
-      return DOH_DNS_OUT_OF_RANGE;
+    اگر(dohlen < (اشاریہ + 8))
+      واپس DOH_DNS_برآمد_کا_RANGE;
 
-    index += 2 + 2 + 4; /* type, dnsclass and ttl */
+    اشاریہ += 2 + 2 + 4; /* type, dnsclass and ttl */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    اگر(dohlen < (اشاریہ + 2))
+      واپس DOH_DNS_برآمد_کا_RANGE;
 
-    rdlength = doh_get16bit(doh, index);
-    index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
-    index += rdlength;
+    rdlength = doh_get16bit(doh, اشاریہ);
+    اشاریہ += 2;
+    اگر(dohlen < (اشاریہ + rdlength))
+      واپس DOH_DNS_برآمد_کا_RANGE;
+    اشاریہ += rdlength;
     nscount--;
   }
 
   arcount = doh_get16bit(doh, 10);
-  while(arcount) {
-    rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+  جب(arcount) {
+    rc = doh_skipqname(doh, dohlen, &اشاریہ);
+    اگر(rc)
+      واپس rc; /* bad qname */
 
-    if(dohlen < (index + 8))
-      return DOH_DNS_OUT_OF_RANGE;
+    اگر(dohlen < (اشاریہ + 8))
+      واپس DOH_DNS_برآمد_کا_RANGE;
 
-    index += 2 + 2 + 4; /* type, dnsclass and ttl */
+    اشاریہ += 2 + 2 + 4; /* type, dnsclass and ttl */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    اگر(dohlen < (اشاریہ + 2))
+      واپس DOH_DNS_برآمد_کا_RANGE;
 
-    rdlength = doh_get16bit(doh, index);
-    index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
-    index += rdlength;
+    rdlength = doh_get16bit(doh, اشاریہ);
+    اشاریہ += 2;
+    اگر(dohlen < (اشاریہ + rdlength))
+      واپس DOH_DNS_برآمد_کا_RANGE;
+    اشاریہ += rdlength;
     arcount--;
   }
 
-  if(index != dohlen)
-    return DOH_DNS_MALFORMAT; /* something is wrong */
+  اگر(اشاریہ != dohlen)
+    واپس DOH_DNS_MALFORMAT; /* something is wrong */
 
-  return DOH_OK; /* ok */
+  واپس DOH_OK; /* ok */
 }
 
 /*
@@ -792,53 +792,53 @@ UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
  * Curl_freeaddrinfo(). For each successful call to this function there
  * must be an associated call later to Curl_freeaddrinfo().
  */
-static CURLcode doh2ai(const struct dohentry *de, const char *hostname,
-                       int port, struct Curl_addrinfo **aip)
+ساکن CURLcode doh2ai(ثابت ساخت dohentry *de, ثابت حرف *hostname,
+                       صحیح پورٹ, ساخت Curl_addrinfo **aip)
 {
-  struct Curl_addrinfo *ai;
-  struct Curl_addrinfo *prevai = NULL;
-  struct Curl_addrinfo *firstai = NULL;
-  struct sockaddr_in *addr;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
-#endif
-  size_t hostlen = strlen(hostname) + 1; /* include null-terminator */
-  CURLcode result = CURLE_OK;
-  int i;
+  ساخت Curl_addrinfo *ai;
+  ساخت Curl_addrinfo *prevai = تہی;
+  ساخت Curl_addrinfo *firstai = تہی;
+  ساخت sockaddr_in *addr;
+#اگر_تعریف_شدہ USE_IPV6
+  ساخت sockaddr_in6 *addr6;
+#اگر_ختم
+  size_t hostlen = لڑی_لمبائی(hostname) + 1; /* include null-terminator */
+  CURLcode نتیجہ = CURLE_OK;
+  صحیح i;
 
-  for(i = 0; i < de->numaddr; i++) {
-    size_t ss_size;
+  برائے(i = 0; i < de->numaddr; i++) {
+    size_t ss_سائز;
     CURL_SA_FAMILY_T addrtype;
-    if(de->addr[i].type == CURL_DNS_TYPE_AAAA) {
-#ifndef USE_IPV6
+    اگر(de->addr[i].type == CURL_DNS_TYPE_AAAA) {
+#اگر_غیر_تعریف_شدہ USE_IPV6
       /* we cannot handle IPv6 addresses */
-      continue;
-#else
-      ss_size = sizeof(struct sockaddr_in6);
+      جاری;
+#ورنہ
+      ss_سائز = حجم(ساخت sockaddr_in6);
       addrtype = AF_INET6;
-#endif
+#اگر_ختم
     }
-    else {
-      ss_size = sizeof(struct sockaddr_in);
+    ورنہ {
+      ss_سائز = حجم(ساخت sockaddr_in);
       addrtype = AF_INET;
     }
 
-    ai = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen);
-    if(!ai) {
-      result = CURLE_OUT_OF_MEMORY;
-      break;
+    ai = curlx_calloc(1, حجم(ساخت Curl_addrinfo) + ss_سائز + hostlen);
+    اگر(!ai) {
+      نتیجہ = CURLE_برآمد_کا_حافظہ;
+      توڑو;
     }
-    ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
-    ai->ai_canonname = (void *)((char *)ai->ai_addr + ss_size);
-    memcpy(ai->ai_canonname, hostname, hostlen);
+    ai->ai_addr = (خالی *)((حرف *)ai + حجم(ساخت Curl_addrinfo));
+    ai->ai_canonname = (خالی *)((حرف *)ai->ai_addr + ss_سائز);
+    حافظہ_نقل(ai->ai_canonname, hostname, hostlen);
 
-    if(!firstai)
+    اگر(!firstai)
       /* store the pointer we want to return from this function */
       firstai = ai;
 
-    if(prevai)
+    اگر(prevai)
       /* make the previous entry point to this */
-      prevai->ai_next = ai;
+      prevai->ai_اگلا = ai;
 
     ai->ai_family = addrtype;
 
@@ -846,56 +846,56 @@ static CURLcode doh2ai(const struct dohentry *de, const char *hostname,
        the type must be ignored and conn->socktype be used instead! */
     ai->ai_socktype = SOCK_STREAM;
 
-    ai->ai_addrlen = (curl_socklen_t)ss_size;
+    ai->ai_addrlen = (curl_socklen_t)ss_سائز;
 
     /* leave the rest of the struct filled with zero */
 
-    switch(ai->ai_family) {
-    case AF_INET:
-      addr = (void *)ai->ai_addr; /* storage area for this info */
-      DEBUGASSERT(sizeof(struct in_addr) == sizeof(de->addr[i].ip.v4));
-      memcpy(&addr->sin_addr, &de->addr[i].ip.v4, sizeof(struct in_addr));
+    انتخاب(ai->ai_family) {
+    حالت AF_INET:
+      addr = (خالی *)ai->ai_addr; /* storage area for this info */
+      DEBUGASSERT(حجم(ساخت in_addr) == حجم(de->addr[i].ip.v4));
+      حافظہ_نقل(&addr->sin_addr, &de->addr[i].ip.v4, حجم(ساخت in_addr));
       addr->sin_family = addrtype;
-      addr->sin_port = htons((unsigned short)port);
-      break;
+      addr->sin_port = htons((غیرعلامتی مختصر)پورٹ);
+      توڑو;
 
-#ifdef USE_IPV6
-    case AF_INET6:
-      addr6 = (void *)ai->ai_addr; /* storage area for this info */
-      DEBUGASSERT(sizeof(struct in6_addr) == sizeof(de->addr[i].ip.v6));
-      memcpy(&addr6->sin6_addr, &de->addr[i].ip.v6, sizeof(struct in6_addr));
+#اگر_تعریف_شدہ USE_IPV6
+    حالت AF_INET6:
+      addr6 = (خالی *)ai->ai_addr; /* storage area for this info */
+      DEBUGASSERT(حجم(ساخت in6_addr) == حجم(de->addr[i].ip.v6));
+      حافظہ_نقل(&addr6->sin6_addr, &de->addr[i].ip.v6, حجم(ساخت in6_addr));
       addr6->sin6_family = addrtype;
-      addr6->sin6_port = htons((unsigned short)port);
-      break;
-#endif
+      addr6->sin6_port = htons((غیرعلامتی مختصر)پورٹ);
+      توڑو;
+#اگر_ختم
     }
 
     prevai = ai;
   }
 
-  if(result) {
+  اگر(نتیجہ) {
     Curl_freeaddrinfo(firstai);
-    firstai = NULL;
+    firstai = تہی;
   }
   *aip = firstai;
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* @unittest 1655 */
-UNITTEST void de_cleanup(struct dohentry *d);
-UNITTEST void de_cleanup(struct dohentry *d)
+UNITTEST خالی de_cleanup(ساخت dohentry *d);
+UNITTEST خالی de_cleanup(ساخت dohentry *d)
 {
-#ifdef USE_HTTPSRR
-  int i = 0;
-  for(i = 0; i < d->numhttps_rrs; i++)
+#اگر_تعریف_شدہ USE_HTTPSRR
+  صحیح i = 0;
+  برائے(i = 0; i < d->numhttps_rrs; i++)
     curlx_safefree(d->https_rrs[i].val);
-#else
-  (void)d;
-#endif
+#ورنہ
+  (خالی)d;
+#اگر_ختم
 }
 
-#ifdef USE_HTTPSRR
+#اگر_تعریف_شدہ USE_HTTPSRR
 
 /*
  * @brief decode the DNS name in a binary RRData
@@ -911,381 +911,381 @@ UNITTEST void de_cleanup(struct dohentry *d)
  * the DNS name encoding on output. (that is why it is an "unsigned char
  * **" :-)
  */
-static CURLcode doh_decode_rdata_name(const unsigned char **buf,
-                                      size_t *remaining, char **dnsname)
+ساکن CURLcode doh_decode_rdata_name(ثابت غیرعلامتی حرف **buf,
+                                      size_t *بقایا, حرف **dnsname)
 {
-  const unsigned char *cp = NULL;
+  ثابت غیرعلامتی حرف *cp = تہی;
   size_t rem = 0;
-  unsigned char clen = 0; /* chunk len */
-  struct dynbuf thename;
+  غیرعلامتی حرف clen = 0; /* chunk len */
+  ساخت dynbuf thename;
 
-  DEBUGASSERT(buf && remaining && dnsname);
-  if(!buf || !remaining || !dnsname || !*remaining)
-    return CURLE_OUT_OF_MEMORY;
+  DEBUGASSERT(buf && بقایا && dnsname);
+  اگر(!buf || !بقایا || !dnsname || !*بقایا)
+    واپس CURLE_برآمد_کا_حافظہ;
   curlx_dyn_init(&thename, CURL_MAXLEN_HOST_NAME);
-  rem = *remaining;
+  rem = *بقایا;
   cp = *buf;
   clen = *cp++;
   /* RFC 9460 says it must be uncompressed */
-  if(clen > 63)
-    return CURLE_WEIRD_SERVER_REPLY;
+  اگر(clen > 63)
+    واپس CURLE_WEIRD_SERVER_جواب;
 
-  if(clen == 0) {
+  اگر(clen == 0) {
     /* special case - return "." as name */
-    if(curlx_dyn_addn(&thename, ".", 1))
-      return CURLE_OUT_OF_MEMORY;
+    اگر(curlx_dyn_addn(&thename, ".", 1))
+      واپس CURLE_برآمد_کا_حافظہ;
   }
-  while(clen) {
-    if(clen >= rem) {
+  جب(clen) {
+    اگر(clen >= rem) {
       curlx_dyn_free(&thename);
-      return CURLE_OUT_OF_MEMORY;
+      واپس CURLE_برآمد_کا_حافظہ;
     }
-    if(curlx_dyn_addn(&thename, cp, clen) ||
+    اگر(curlx_dyn_addn(&thename, cp, clen) ||
        curlx_dyn_addn(&thename, ".", 1))
-      return CURLE_TOO_LARGE;
+      واپس CURLE_TOO_LARGE;
 
     cp += clen;
     rem -= (clen + 1);
-    if(rem <= 0) {
+    اگر(rem <= 0) {
       curlx_dyn_free(&thename);
-      return CURLE_OUT_OF_MEMORY;
+      واپس CURLE_برآمد_کا_حافظہ;
     }
     clen = *cp++;
-    if(clen > 63) {
+    اگر(clen > 63) {
       /* invalid format */
       curlx_dyn_free(&thename);
-      return CURLE_WEIRD_SERVER_REPLY;
+      واپس CURLE_WEIRD_SERVER_جواب;
     }
   }
   *buf = cp;
-  *remaining = rem - 1;
+  *بقایا = rem - 1;
   *dnsname = curlx_dyn_ptr(&thename);
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* scan for byte values <= 32 or 127 */
-static CURLcode junkscan(const char *url)
+ساکن CURLcode junkscan(ثابت حرف *url)
 {
-  const unsigned char *p = (const unsigned char *)url;
-  while(*p) {
-    if(*p <= 0x20 || *p == 127)
-      return CURLE_WEIRD_SERVER_REPLY;
+  ثابت غیرعلامتی حرف *p = (ثابت غیرعلامتی حرف *)url;
+  جب(*p) {
+    اگر(*p <= 0x20 || *p == 127)
+      واپس CURLE_WEIRD_SERVER_جواب;
     p++;
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* @unittest 1658 */
-UNITTEST CURLcode doh_resp_decode_httpsrr(struct Curl_easy *data,
-                                          const unsigned char *cp, size_t len,
-                                          struct Curl_https_rrinfo **hrr);
-UNITTEST CURLcode doh_resp_decode_httpsrr(struct Curl_easy *data,
-                                          const unsigned char *cp, size_t len,
-                                          struct Curl_https_rrinfo **hrr)
+UNITTEST CURLcode doh_resp_decode_httpsrr(ساخت Curl_easy *ڈیٹا,
+                                          ثابت غیرعلامتی حرف *cp, size_t len,
+                                          ساخت Curl_https_rrinfo **hrr);
+UNITTEST CURLcode doh_resp_decode_httpsrr(ساخت Curl_easy *ڈیٹا,
+                                          ثابت غیرعلامتی حرف *cp, size_t len,
+                                          ساخت Curl_https_rrinfo **hrr)
 {
   uint16_t pcode = 0, plen = 0;
   uint32_t expected_min_pcode = 0;
-  struct Curl_https_rrinfo *lhrr = NULL;
-  char *dnsname = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  ساخت Curl_https_rrinfo *lhrr = تہی;
+  حرف *dnsname = تہی;
+  CURLcode نتیجہ = CURLE_برآمد_کا_حافظہ;
 
-  (void)data;
-  *hrr = NULL;
-  if(len <= 2)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  lhrr = curlx_calloc(1, sizeof(struct Curl_https_rrinfo));
-  if(!lhrr)
-    return CURLE_OUT_OF_MEMORY;
-  lhrr->priority = doh_get16bit(cp, 0);
+  (خالی)ڈیٹا;
+  *hrr = تہی;
+  اگر(len <= 2)
+    واپس CURLE_BAD_FUNCTION_دلیل;
+  lhrr = curlx_calloc(1, حجم(ساخت Curl_https_rrinfo));
+  اگر(!lhrr)
+    واپس CURLE_برآمد_کا_حافظہ;
+  lhrr->ترجیح = doh_get16bit(cp, 0);
   cp += 2;
   len -= 2;
-  if(doh_decode_rdata_name(&cp, &len, &dnsname) != CURLE_OK)
-    goto err;
-  lhrr->target = dnsname;
-  result = junkscan(dnsname);
-  if(result) {
+  اگر(doh_decode_rdata_name(&cp, &len, &dnsname) != CURLE_OK)
+    جاؤ err;
+  lhrr->ہدف = dnsname;
+  نتیجہ = junkscan(dnsname);
+  اگر(نتیجہ) {
     /* unacceptable hostname content */
-    goto err;
+    جاؤ err;
   }
-  while(len >= 4) {
+  جب(len >= 4) {
     pcode = doh_get16bit(cp, 0);
     plen = doh_get16bit(cp, 2);
     cp += 4;
     len -= 4;
-    if(pcode < expected_min_pcode || plen > len) {
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto err;
+    اگر(pcode < expected_min_pcode || plen > len) {
+      نتیجہ = CURLE_WEIRD_SERVER_جواب;
+      جاؤ err;
     }
-    result = Curl_httpsrr_set(lhrr, pcode, cp, plen);
-    if(result)
-      goto err;
-    Curl_httpsrr_trace(data, lhrr);
+    نتیجہ = Curl_httpsrr_سیٹ(lhrr, pcode, cp, plen);
+    اگر(نتیجہ)
+      جاؤ err;
+    Curl_httpsrr_trace(ڈیٹا, lhrr);
     cp += plen;
     len -= plen;
     expected_min_pcode = pcode + 1;
   }
   *hrr = lhrr;
-  return CURLE_OK;
+  واپس CURLE_OK;
 err:
   Curl_httpsrr_destroy(lhrr);
-  return result;
+  واپس نتیجہ;
 }
 
-#endif /* USE_HTTPSRR */
+#اگر_ختم /* USE_HTTPSRR */
 
 /* called from multi when a sub transfer, e.g. doh probe, is done.
  * Parse the response and set the results in the `async` context
  * of master, using the id from the probe's CURL_EZM_DOH_PROBE
  * meta data. */
-static void doh_probe_done(struct Curl_easy *doh,
-                           struct Curl_easy *master, CURLcode result)
+ساکن خالی doh_probe_مکمل(ساخت Curl_easy *doh,
+                           ساخت Curl_easy *master, CURLcode نتیجہ)
 {
-  struct Curl_resolv_async *async = NULL;
-  struct doh_probes *dohp = NULL;
-  struct doh_request *doh_req = NULL;
-  struct Curl_addrinfo **pdest_ai;
-  struct dohentry de;
-  int slot, httpcode;
+  ساخت Curl_resolv_async *async = تہی;
+  ساخت doh_probes *dohp = تہی;
+  ساخت doh_request *doh_req = تہی;
+  ساخت Curl_addrinfo **pdest_ai;
+  ساخت dohentry de;
+  صحیح خانہ, httpcode;
 
   de_init(&de);
   doh_req = Curl_meta_get(doh, CURL_EZM_DOH_PROBE);
-  if(!doh_req) {
+  اگر(!doh_req) {
     /* transfer `doh` is not a DoH probe. */
     DEBUGASSERT(0);
-    goto out;
+    جاؤ برآمد;
   }
 
   async = Curl_async_get(master, doh_req->resolv_id);
-  if(!async) {
+  اگر(!async) {
     CURL_TRC_DNS(master, "[%u] ignoring outdated DoH response",
                  doh_req->resolv_id);
-    goto out;
+    جاؤ برآمد;
   }
   dohp = async->doh;
 
-  for(slot = 0; slot < DOH_SLOT_COUNT; ++slot) {
-    if(dohp->probe_mid[slot] == doh->mid)
-      break;
+  برائے(خانہ = 0; خانہ < DOH_خانہ_گنتی; ++خانہ) {
+    اگر(dohp->probe_mid[خانہ] == doh->mid)
+      توڑو;
   }
   /* We really should have found the slot where to store the response */
-  if(slot >= DOH_SLOT_COUNT) {
+  اگر(خانہ >= DOH_خانہ_گنتی) {
     failf(master, "DoH: unknown sub request done");
     DEBUGASSERT(0);
-    goto out;
+    جاؤ برآمد;
   }
 
   async->queries_ongoing--;
   dohp = async->doh;
   httpcode = doh->info.httpcode;
-  switch(slot) {
-  case DOH_SLOT_IPV4:
+  انتخاب(خانہ) {
+  حالت DOH_خانہ_IPV4:
     async->dns_responses |= CURL_DNSQ_A;
-    break;
-#ifdef USE_IPV6
-  case DOH_SLOT_IPV6:
+    توڑو;
+#اگر_تعریف_شدہ USE_IPV6
+  حالت DOH_خانہ_IPV6:
     async->dns_responses |= CURL_DNSQ_AAAA;
-    break;
-#endif
-#ifdef USE_HTTPSRR
-  case DOH_SLOT_HTTPS_RR:
+    توڑو;
+#اگر_ختم
+#اگر_تعریف_شدہ USE_HTTPSRR
+  حالت DOH_خانہ_HTTPS_RR:
     async->dns_responses |= CURL_DNSQ_HTTPS;
-    break;
-#endif
-  default:
+    توڑو;
+#اگر_ختم
+  طےشدہ:
     DEBUGASSERT(0);
-    break;
+    توڑو;
   }
 
-  if(result) {
-    dohp->probe_rc[slot] = DOH_HTTP_FAILED;
+  اگر(نتیجہ) {
+    dohp->probe_rc[خانہ] = DOH_HTTP_FAILED;
     infof(doh, "[DoH] [%s] error: %s",
-          doh_type2name(doh_req->dnstype), curl_easy_strerror(result));
-    goto out;
+          doh_type2name(doh_req->dnstype), curl_easy_strerror(نتیجہ));
+    جاؤ برآمد;
   }
-  else if((httpcode < 200) || (httpcode >= 300)) {
-    dohp->probe_rc[slot] = DOH_HTTP_FAILED;
+  ورنہ اگر((httpcode < 200) || (httpcode >= 300)) {
+    dohp->probe_rc[خانہ] = DOH_HTTP_FAILED;
     infof(doh, "[DoH] [%s] error: HTTP status %d",
           doh_type2name(doh_req->dnstype), httpcode);
-    goto out;
+    جاؤ برآمد;
   }
 
-  dohp->probe_rc[slot] = doh_resp_decode(curlx_dyn_uptr(&doh_req->resp_body),
+  dohp->probe_rc[خانہ] = doh_resp_decode(curlx_dyn_uptr(&doh_req->resp_body),
                                          curlx_dyn_len(&doh_req->resp_body),
                                          doh_req->dnstype, &de);
-  if(dohp->probe_rc[slot]) {
-#ifdef USE_HTTPSRR
-    if((dohp->probe_rc[slot] == DOH_NO_CONTENT) &&
+  اگر(dohp->probe_rc[خانہ]) {
+#اگر_تعریف_شدہ USE_HTTPSRR
+    اگر((dohp->probe_rc[خانہ] == DOH_NO_CONTENT) &&
        (doh_req->dnstype == CURL_DNS_TYPE_HTTPS)) {
-      dohp->probe_rc[slot] = DOH_DNS_NXDOMAIN;
+      dohp->probe_rc[خانہ] = DOH_DNS_NXDOMAIN;
     }
-#endif
+#اگر_ختم
     infof(doh, "[DoH] [%s] error decoding response: %s",
           doh_type2name(doh_req->dnstype),
-          doh_strerror(dohp->probe_rc[slot]));
-    goto out;
+          doh_strerror(dohp->probe_rc[خانہ]));
+    جاؤ برآمد;
   }
 
-  if(doh_req->dnstype == CURL_DNS_TYPE_A)
+  اگر(doh_req->dnstype == CURL_DNS_TYPE_A)
     pdest_ai = &async->ai_A;
-  else if(doh_req->dnstype == CURL_DNS_TYPE_AAAA)
+  ورنہ اگر(doh_req->dnstype == CURL_DNS_TYPE_AAAA)
     pdest_ai = &async->ai_AAAA;
-  else
-    pdest_ai = NULL;
+  ورنہ
+    pdest_ai = تہی;
 
-  if(pdest_ai && de.numaddr) {
-    if(*pdest_ai) {
+  اگر(pdest_ai && de.numaddr) {
+    اگر(*pdest_ai) {
       Curl_freeaddrinfo(*pdest_ai);
-      *pdest_ai = NULL;
+      *pdest_ai = تہی;
     }
-    result = doh2ai(&de, async->peer->hostname, async->peer->port, pdest_ai);
-    if(result) { /* hard failure on our side, fail completely */
+    نتیجہ = doh2ai(&de, async->peer->hostname, async->peer->پورٹ, pdest_ai);
+    اگر(نتیجہ) { /* hard failure on our side, fail completely */
       infof(doh, "[DoH] [%s] error creating addrinfo: %s",
-            doh_type2name(doh_req->dnstype), curl_easy_strerror(result));
-      dohp->probe_rc[slot] = DOH_OOM;
-      async->result = result;
+            doh_type2name(doh_req->dnstype), curl_easy_strerror(نتیجہ));
+      dohp->probe_rc[خانہ] = DOH_OOM;
+      async->نتیجہ = نتیجہ;
     }
   }
-#ifdef USE_HTTPSRR
-  else if((doh_req->dnstype == CURL_DNS_TYPE_HTTPS) && de.numhttps_rrs) {
+#اگر_تعریف_شدہ USE_HTTPSRR
+  ورنہ اگر((doh_req->dnstype == CURL_DNS_TYPE_HTTPS) && de.numhttps_rrs) {
     CURL_TRC_DNS(doh, "[HTTPS] got %d records", de.numhttps_rrs);
-    result = doh_resp_decode_httpsrr(doh, de.https_rrs->val,
+    نتیجہ = doh_resp_decode_httpsrr(doh, de.https_rrs->val,
                                      de.https_rrs->len, &async->httpsrr);
-    if(result) {
-      dohp->probe_rc[slot] = DOH_HTTP_FAILED;
+    اگر(نتیجہ) {
+      dohp->probe_rc[خانہ] = DOH_HTTP_FAILED;
       infof(doh, "[DoH] error decoding HTTPS RR: %s",
-            curl_easy_strerror(result));
-      goto out;
+            curl_easy_strerror(نتیجہ));
+      جاؤ برآمد;
     }
   }
-#endif /* USE_HTTPSRR */
+#اگر_ختم /* USE_HTTPSRR */
 
   /* DoH request complete, run master to act on results */
   infof(doh, "DoH request complete, %u to go", async->queries_ongoing);
 
-out:
+برآمد:
   Curl_multi_mark_dirty(master);
   de_cleanup(&de);
   Curl_meta_remove(doh, CURL_EZM_DOH_PROBE);
 }
 
-CURLcode Curl_doh_take_result(struct Curl_easy *data,
-                              struct Curl_resolv_async *async,
-                              struct Curl_dns_entry **pdns)
+CURLcode Curl_doh_take_نتیجہ(ساخت Curl_easy *ڈیٹا,
+                              ساخت Curl_resolv_async *async,
+                              ساخت Curl_dns_اندراج **pdns)
 {
-  struct doh_probes *dohp = async->doh;
-  CURLcode result = CURLE_OK;
+  ساخت doh_probes *dohp = async->doh;
+  CURLcode نتیجہ = CURLE_OK;
 
-  *pdns = NULL; /* defaults to no response */
-  if(!dohp)
-    return CURLE_OUT_OF_MEMORY;
+  *pdns = تہی; /* defaults to no response */
+  اگر(!dohp)
+    واپس CURLE_برآمد_کا_حافظہ;
 
   async->negative_answer = FALSE;
-  if(async->result) {
-    result = async->result;
-    goto out;
+  اگر(async->نتیجہ) {
+    نتیجہ = async->نتیجہ;
+    جاؤ برآمد;
   }
 
-  if(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
-     dohp->probe_mid[DOH_SLOT_IPV4] == UINT32_MAX &&
-     dohp->probe_mid[DOH_SLOT_IPV6] == UINT32_MAX) {
-    failf(data, "Could not DoH-resolve: %s", async->peer->hostname);
-    return async->for_proxy ?
+  اگر(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
+     dohp->probe_mid[DOH_خانہ_IPV4] == UINT32_MAX &&
+     dohp->probe_mid[DOH_خانہ_IPV6] == UINT32_MAX) {
+    failf(ڈیٹا, "Could not DoH-resolve: %s", async->peer->hostname);
+    واپس async->for_proxy ?
       CURLE_COULDNT_RESOLVE_PROXY : CURLE_COULDNT_RESOLVE_HOST;
   }
-  else if(!async->queries_ongoing) {
-    struct Curl_dns_entry *dns = NULL;
+  ورنہ اگر(!async->queries_ongoing) {
+    ساخت Curl_dns_اندراج *dns = تہی;
     bool negative = TRUE;
-    int slot;
+    صحیح خانہ;
 
     /* remove DoH handles from multi handle and close them */
-    doh_close(data, async);
+    doh_close(ڈیٹا, async);
     /* parse the responses, create the struct and return it! */
-    for(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
+    برائے(خانہ = 0; خانہ < DOH_خانہ_گنتی; خانہ++) {
       /* Failing without an NXDOMAIN answer - a SERVFAIL-class rcode or
          an undecodable response - says nothing about the name. Such a
          failure must not be cached as a negative entry. */
-      if(dohp->probe_rc[slot] && (dohp->probe_rc[slot] != DOH_DNS_NXDOMAIN))
+      اگر(dohp->probe_rc[خانہ] && (dohp->probe_rc[خانہ] != DOH_DNS_NXDOMAIN))
         negative = FALSE;
     } /* next slot */
 
-    if(async->ai_A || async->ai_AAAA) {
+    اگر(async->ai_A || async->ai_AAAA) {
       dns = Curl_dnsc_mk_addr2(
-        data, async->dns_queries, &async->ai_A, &async->ai_AAAA, async->peer);
-      if(!dns) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+        ڈیٹا, async->dns_queries, &async->ai_A, &async->ai_AAAA, async->peer);
+      اگر(!dns) {
+        نتیجہ = CURLE_برآمد_کا_حافظہ;
+        جاؤ برآمد;
       }
     }
-#ifdef USE_HTTPSRR
-    else if((async->dns_queries & CURL_DNSQ_HTTPS) &&
-            !dohp->probe_rc[DOH_SLOT_HTTPS_RR]) {
-      Curl_httpsrr_trace(data, async->httpsrr);
-      dns = Curl_dnsc_mk_https(data, &async->httpsrr, async->peer);
-      if(!dns) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+#اگر_تعریف_شدہ USE_HTTPSRR
+    ورنہ اگر((async->dns_queries & CURL_DNSQ_HTTPS) &&
+            !dohp->probe_rc[DOH_خانہ_HTTPS_RR]) {
+      Curl_httpsrr_trace(ڈیٹا, async->httpsrr);
+      dns = Curl_dnsc_mk_https(ڈیٹا, &async->httpsrr, async->peer);
+      اگر(!dns) {
+        نتیجہ = CURLE_برآمد_کا_حافظہ;
+        جاؤ برآمد;
       }
     }
-#endif /* USE_HTTPSRR */
-    else {
+#اگر_ختم /* USE_HTTPSRR */
+    ورنہ {
       /* every query failed. Only NXDOMAIN answers for all of them
          make this a negative answer, eligible for caching. */
       async->negative_answer = negative;
-      result = async->for_proxy ?
+      نتیجہ = async->for_proxy ?
         CURLE_COULDNT_RESOLVE_PROXY : CURLE_COULDNT_RESOLVE_HOST;
     }
 
     /* and add the entry to the cache */
-    if(dns)
-      result = Curl_dnscache_add(data, dns);
+    اگر(dns)
+      نتیجہ = Curl_dnscache_جوڑو(ڈیٹا, dns);
     *pdns = dns;
   } /* !async->queries_ongoing */
-  else
+  ورنہ
     /* wait for pending DoH transactions to complete */
-    return CURLE_AGAIN;
+    واپس CURLE_AGAIN;
 
-out:
-  Curl_doh_cleanup(data, async);
-  return result;
+برآمد:
+  Curl_doh_cleanup(ڈیٹا, async);
+  واپس نتیجہ;
 }
 
-static void doh_close(struct Curl_easy *data,
-                      struct Curl_resolv_async *async)
+ساکن خالی doh_close(ساخت Curl_easy *ڈیٹا,
+                      ساخت Curl_resolv_async *async)
 {
-  struct doh_probes *doh = async ? async->doh : NULL;
-  if(doh && data->multi) {
-    struct Curl_easy *probe_data;
+  ساخت doh_probes *doh = async ? async->doh : تہی;
+  اگر(doh && ڈیٹا->multi) {
+    ساخت Curl_easy *probe_ڈیٹا;
     uint32_t mid;
-    size_t slot;
-    for(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
-      mid = doh->probe_mid[slot];
-      if(mid == UINT32_MAX)
-        continue;
-      doh->probe_mid[slot] = UINT32_MAX;
+    size_t خانہ;
+    برائے(خانہ = 0; خانہ < DOH_خانہ_گنتی; خانہ++) {
+      mid = doh->probe_mid[خانہ];
+      اگر(mid == UINT32_MAX)
+        جاری;
+      doh->probe_mid[خانہ] = UINT32_MAX;
       /* should have been called before data is removed from multi handle */
-      DEBUGASSERT(data->multi);
-      probe_data = data->multi ? Curl_multi_get_easy(data->multi, mid) : NULL;
-      if(!probe_data) {
-        DEBUGF(infof(data, "Curl_doh_close: xfer for mid=%u not found!", mid));
-        continue;
+      DEBUGASSERT(ڈیٹا->multi);
+      probe_ڈیٹا = ڈیٹا->multi ? Curl_multi_get_easy(ڈیٹا->multi, mid) : تہی;
+      اگر(!probe_ڈیٹا) {
+        DEBUGF(infof(ڈیٹا, "Curl_doh_close: xfer for mid=%u not found!", mid));
+        جاری;
       }
-      probe_data->sub_xfer_done = NULL; /* No longer interested in result */
+      probe_ڈیٹا->sub_xfer_مکمل = تہی; /* No longer interested in result */
       /* data->multi might already be reset at this time */
-      Curl_multi_remove_handle(data->multi, probe_data);
-      Curl_close(&probe_data);
+      Curl_multi_remove_handle(ڈیٹا->multi, probe_ڈیٹا);
+      Curl_close(&probe_ڈیٹا);
     }
-    CURL_TRC_DNS(data, "[DoH] probe done");
+    CURL_TRC_DNS(ڈیٹا, "[DoH] probe done");
   }
 }
 
-void Curl_doh_cleanup(struct Curl_easy *data,
-                      struct Curl_resolv_async *async)
+خالی Curl_doh_cleanup(ساخت Curl_easy *ڈیٹا,
+                      ساخت Curl_resolv_async *async)
 {
-  struct doh_probes *dohp = async->doh;
-  if(dohp) {
-    doh_close(data, async);
+  ساخت doh_probes *dohp = async->doh;
+  اگر(dohp) {
+    doh_close(ڈیٹا, async);
     curlx_safefree(async->doh);
   }
 }
 
-#endif /* CURL_DISABLE_DOH */
+#اگر_ختم /* CURL_DISABLE_DOH */

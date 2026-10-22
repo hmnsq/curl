@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CW_OUT_H
-#define HEADER_CURL_CW_OUT_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_CW_برآمد_H
+#تعریف_کرو سرخی_CURL_CW_برآمد_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-struct Curl_easy;
+ساخت Curl_easy;
 
 /**
  * The client writer type "cw-out" that does the actual writing to
  * the client callbacks. Intended to be the last installed in the
  * client writer stack of a transfer.
  */
-extern const struct Curl_cwtype Curl_cwt_out;
+خارجی ثابت ساخت Curl_cwtype Curl_cwt_برآمد;
 
 /**
  * Mark EndOfStream reached and flush ALL data to the client.
  */
-CURLcode Curl_cw_out_done(struct Curl_easy *data);
+CURLcode Curl_cw_برآمد_مکمل(ساخت Curl_easy *ڈیٹا);
 
-#endif /* HEADER_CURL_CW_OUT_H */
+#اگر_ختم /* HEADER_CURL_CW_OUT_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP1_H
-#define HEADER_CURL_HTTP1_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_HTTP1_H
+#تعریف_کرو سرخی_CURL_HTTP1_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,41 +23,41 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
-#include "bufq.h"
-#include "http.h"
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HTTP
+#شامل "bufq.h"
+#شامل "http.h"
 
-#define H1_PARSE_OPT_NONE       0
-#define H1_PARSE_OPT_STRICT     (1 << 0)
+#تعریف_کرو H1_PARSE_OPT_NONE       0
+#تعریف_کرو H1_PARSE_OPT_STRICT     (1 << 0)
 
-#define H1_PARSE_DEFAULT_MAX_LINE_LEN   DYN_HTTP_REQUEST
+#تعریف_کرو H1_PARSE_DEFAULT_MAX_سطر_LEN   DYN_HTTP_REQUEST
 
-struct h1_req_parser {
-  struct httpreq *req;
-  struct dynbuf scratch;
+ساخت h1_req_parser {
+  ساخت httpreq *req;
+  ساخت dynbuf scratch;
   size_t scratch_skip;
-  const char *line;
-  size_t max_line_len;
-  size_t line_len;
-  BIT(done);
+  ثابت حرف *سطر;
+  size_t max_سطر_len;
+  size_t سطر_len;
+  ثنائی_ہندسہ(مکمل);
 };
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len);
-void Curl_h1_req_parse_free(struct h1_req_parser *parser);
+خالی Curl_h1_req_parse_init(ساخت h1_req_parser *parser, size_t max_سطر_len);
+خالی Curl_h1_req_parse_free(ساخت h1_req_parser *parser);
 
-CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
-                                const uint8_t *buf, size_t buflen,
-                                const char *scheme_default,
-                                const char *custom_method,
-                                int options, size_t *pnread);
+CURLcode Curl_h1_req_parse_read(ساخت h1_req_parser *parser,
+                                ثابت uint8_t *buf, size_t buflen,
+                                ثابت حرف *scheme_default,
+                                ثابت حرف *custom_طریقہ,
+                                صحیح options, size_t *pnread);
 
-CURLcode Curl_h1_req_dprint(const struct httpreq *req,
-                            struct dynbuf *dbuf);
+CURLcode Curl_h1_req_dprint(ثابت ساخت httpreq *req,
+                            ساخت dynbuf *dbuf);
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
-                                struct dynbuf *dbuf);
+CURLcode Curl_h1_req_write_سر(ساخت httpreq *req, صحیح http_minor,
+                                ساخت dynbuf *dbuf);
 
-#endif /* !CURL_DISABLE_HTTP */
-#endif /* HEADER_CURL_HTTP1_H */
+#اگر_ختم /* !CURL_DISABLE_HTTP */
+#اگر_ختم /* HEADER_CURL_HTTP1_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PROXY_H
-#define HEADER_CURL_PROXY_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_PROXY_H
+#تعریف_کرو سرخی_CURL_PROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,37 +23,37 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
 
-struct Curl_easy;
-struct Curl_peer;
-struct Curl_creds;
-struct connectdata;
+ساخت Curl_easy;
+ساخت Curl_peer;
+ساخت Curl_creds;
+ساخت connectdata;
 
-struct proxy_info {
-  struct Curl_peer *peer; /* proxy to this peer */
-  struct Curl_creds *creds; /* use these credentials, maybe NULL */
+ساخت proxy_info {
+  ساخت Curl_peer *peer; /* proxy to this peer */
+  ساخت Curl_creds *creds; /* use these credentials, maybe NULL */
   uint8_t proxytype; /* what kind of proxy that is in use */
 };
 
-#define CURL_PROXY_IS_HTTPS(t)  \
+#تعریف_کرو CURL_PROXY_IS_HTTPS(t)  \
   (((t) == CURLPROXY_HTTPS) ||  \
    ((t) == CURLPROXY_HTTPS2) || \
    ((t) == CURLPROXY_HTTPS3))
 
-#define CURL_PROXY_IS_HTTP(t)   \
+#تعریف_کرو CURL_PROXY_IS_HTTP(t)   \
   (((t) == CURLPROXY_HTTP) ||   \
    ((t) == CURLPROXY_HTTP_1_0))
 
-#define CURL_PROXY_IS_ANY_HTTP(t) \
+#تعریف_کرو CURL_PROXY_IS_ANY_HTTP(t) \
   (CURL_PROXY_IS_HTTP(t) ||       \
    CURL_PROXY_IS_HTTPS(t))
 
-CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
-                              struct connectdata *conn);
+CURLcode Curl_proxy_init_conn(ساخت Curl_easy *ڈیٹا,
+                              ساخت connectdata *conn);
 
-#endif /* !CURL_DISABLE_PROXY */
+#اگر_ختم /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_PROXY_H */
+#اگر_ختم /* HEADER_CURL_PROXY_H */

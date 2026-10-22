@@ -24,19 +24,19 @@
  * RFC4752 The Kerberos V5 ("GSSAPI") SASL Mechanism
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if defined(HAVE_GSSAPI) && defined(USE_KERBEROS5)
+#اگر defined(HAVE_GSSAPI) && defined(USE_KERBEROS5)
 
-#include "vauth/vauth.h"
-#include "curl_sasl.h"
-#include "curl_gssapi.h"
-#include "curl_trc.h"
+#شامل "vauth/vauth.h"
+#شامل "curl_sasl.h"
+#شامل "curl_gssapi.h"
+#شامل "curl_trc.h"
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#اگر defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#ہدایت GCC diagnostic ڈالو
+#ہدایت GCC diagnostic ignored "-Wdeprecated-declarations"
+#اگر_ختم
 
 /*
  * Curl_auth_is_gssapi_supported()
@@ -47,9 +47,9 @@
  *
  * Returns TRUE if Kerberos V5 is supported by the GSS-API library.
  */
-bool Curl_auth_is_gssapi_supported(void)
+bool Curl_auth_is_gssapi_supported(خالی)
 {
-  return TRUE;
+  واپس TRUE;
 }
 
 /*
@@ -73,90 +73,90 @@ bool Curl_auth_is_gssapi_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const char *default_service,
-                                              const char *host,
-                                              const bool mutual_auth,
-                                              const struct bufref *chlg,
-                                              struct kerberos5data *krb5,
-                                              struct bufref *out)
+CURLcode Curl_auth_create_gssapi_user_پیغام(ساخت Curl_easy *ڈیٹا,
+                                              ساخت Curl_creds *creds,
+                                              ثابت حرف *default_service,
+                                              ثابت حرف *host,
+                                              ثابت bool mutual_auth,
+                                              ثابت ساخت bufref *chlg,
+                                              ساخت kerberos5data *krb5,
+                                              ساخت bufref *برآمد)
 {
-  CURLcode result = CURLE_OK;
-  OM_uint32 major_status;
-  OM_uint32 minor_status;
-  OM_uint32 unused_status;
-  gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  CURLcode نتیجہ = CURLE_OK;
+  OM_uint32 major_حالت;
+  OM_uint32 minor_حالت;
+  OM_uint32 غیر_مستعمل_حالت;
+  gss_بفر_desc داخلہ_token = GSS_C_خالی_خانے_بفر;
+  gss_بفر_desc output_token = GSS_C_خالی_خانے_بفر;
+  ثابت حرف *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
-  if(!krb5->spn) {
-    gss_buffer_desc spn_token = GSS_C_EMPTY_BUFFER;
+  اگر(!krb5->spn) {
+    gss_بفر_desc spn_token = GSS_C_خالی_خانے_بفر;
 
     /* Generate our SPN */
-    char *spn = Curl_auth_build_spn(service, NULL, host);
-    if(!spn)
-      return CURLE_OUT_OF_MEMORY;
+    حرف *spn = Curl_auth_build_spn(service, تہی, host);
+    اگر(!spn)
+      واپس CURLE_برآمد_کا_حافظہ;
 
     /* Populate the SPN structure */
-    spn_token.value = spn;
-    spn_token.length = strlen(spn);
+    spn_token.قدر = spn;
+    spn_token.لمبائی = لڑی_لمبائی(spn);
 
     /* Import the SPN */
-    major_status = gss_import_name(&minor_status, &spn_token,
+    major_حالت = gss_import_name(&minor_حالت, &spn_token,
                                    GSS_C_NT_HOSTBASED_SERVICE, &krb5->spn);
-    if(GSS_ERROR(major_status)) {
-      Curl_gss_log_error(data, "gss_import_name() failed: ",
-                         major_status, minor_status);
+    اگر(GSS_ERROR(major_حالت)) {
+      Curl_gss_log_error(ڈیٹا, "gss_import_name() failed: ",
+                         major_حالت, minor_حالت);
 
       curlx_free(spn);
 
-      return CURLE_AUTH_ERROR;
+      واپس CURLE_AUTH_ERROR;
     }
 
     curlx_free(spn);
   }
 
-  if(chlg) {
-    if(!Curl_bufref_len(chlg)) {
-      infof(data, "GSSAPI handshake failure (empty challenge message)");
-      return CURLE_BAD_CONTENT_ENCODING;
+  اگر(chlg) {
+    اگر(!Curl_bufref_len(chlg)) {
+      infof(ڈیٹا, "GSSAPI handshake failure (empty challenge message)");
+      واپس CURLE_BAD_CONTENT_ENCODING;
     }
-    input_token.value = CURL_UNCONST(Curl_bufref_ptr(chlg));
-    input_token.length = Curl_bufref_len(chlg);
+    داخلہ_token.قدر = CURL_UNCONST(Curl_bufref_ptr(chlg));
+    داخلہ_token.لمبائی = Curl_bufref_len(chlg);
   }
 
-  major_status = Curl_gss_init_sec_context(data,
-                                           &minor_status,
+  major_حالت = Curl_gss_init_sec_context(ڈیٹا,
+                                           &minor_حالت,
                                            &krb5->context,
                                            krb5->spn,
                                            &Curl_krb5_mech_oid,
                                            GSS_C_NO_CHANNEL_BINDINGS,
-                                           &input_token,
+                                           &داخلہ_token,
                                            &output_token,
                                            mutual_auth,
-                                           NULL,
+                                           تہی,
                                            GSS_C_NO_CREDENTIAL);
 
-  if(GSS_ERROR(major_status)) {
-    if(output_token.value)
-      gss_release_buffer(&unused_status, &output_token);
+  اگر(GSS_ERROR(major_حالت)) {
+    اگر(output_token.قدر)
+      gss_release_بفر(&غیر_مستعمل_حالت, &output_token);
 
-    Curl_gss_log_error(data, "gss_init_sec_context() failed: ",
-                       major_status, minor_status);
+    Curl_gss_log_error(ڈیٹا, "gss_init_sec_context() failed: ",
+                       major_حالت, minor_حالت);
 
-    return CURLE_AUTH_ERROR;
+    واپس CURLE_AUTH_ERROR;
   }
 
-  if(output_token.value && output_token.length) {
-    result = Curl_bufref_memdup0(out, output_token.value, output_token.length);
-    gss_release_buffer(&unused_status, &output_token);
+  اگر(output_token.قدر && output_token.لمبائی) {
+    نتیجہ = Curl_bufref_memdup0(برآمد, output_token.قدر, output_token.لمبائی);
+    gss_release_بفر(&غیر_مستعمل_حالت, &output_token);
   }
-  else
-    Curl_bufref_set(out, mutual_auth ? "" : NULL, 0, NULL);
+  ورنہ
+    Curl_bufref_سیٹ(برآمد, mutual_auth ? "" : تہی, 0, تہی);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /*
@@ -175,120 +175,120 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
-                                                  const char *authzid,
-                                                  const struct bufref *chlg,
-                                                  struct kerberos5data *krb5,
-                                                  struct bufref *out)
+CURLcode Curl_auth_create_gssapi_security_پیغام(ساخت Curl_easy *ڈیٹا,
+                                                  ثابت حرف *authzid,
+                                                  ثابت ساخت bufref *chlg,
+                                                  ساخت kerberos5data *krb5,
+                                                  ساخت bufref *برآمد)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   size_t messagelen = 0;
-  unsigned char *message = NULL;
-  OM_uint32 major_status;
-  OM_uint32 minor_status;
-  OM_uint32 unused_status;
-  gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
-  unsigned char *indata;
+  غیرعلامتی حرف *پیغام_2 = تہی;
+  OM_uint32 major_حالت;
+  OM_uint32 minor_حالت;
+  OM_uint32 غیر_مستعمل_حالت;
+  gss_بفر_desc داخلہ_token = GSS_C_خالی_خانے_بفر;
+  gss_بفر_desc output_token = GSS_C_خالی_خانے_بفر;
+  غیرعلامتی حرف *indata;
   gss_qop_t qop = GSS_C_QOP_DEFAULT;
-  unsigned int sec_layer = 0;
-  unsigned int max_size = 0;
+  غیرعلامتی صحیح sec_layer = 0;
+  غیرعلامتی صحیح max_سائز = 0;
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlg)) {
-    infof(data, "GSSAPI handshake failure (empty security message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  اگر(!Curl_bufref_len(chlg)) {
+    infof(ڈیٹا, "GSSAPI handshake failure (empty security message)");
+    واپس CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Setup the challenge "input" security buffer */
-  input_token.value = CURL_UNCONST(Curl_bufref_ptr(chlg));
-  input_token.length = Curl_bufref_len(chlg);
+  داخلہ_token.قدر = CURL_UNCONST(Curl_bufref_ptr(chlg));
+  داخلہ_token.لمبائی = Curl_bufref_len(chlg);
 
   /* Decrypt the inbound challenge and obtain the qop */
-  major_status = gss_unwrap(&minor_status, krb5->context, &input_token,
-                            &output_token, NULL, &qop);
-  if(GSS_ERROR(major_status)) {
-    Curl_gss_log_error(data, "gss_unwrap() failed: ",
-                       major_status, minor_status);
-    return CURLE_BAD_CONTENT_ENCODING;
+  major_حالت = gss_unwrap(&minor_حالت, krb5->context, &داخلہ_token,
+                            &output_token, تہی, &qop);
+  اگر(GSS_ERROR(major_حالت)) {
+    Curl_gss_log_error(ڈیٹا, "gss_unwrap() failed: ",
+                       major_حالت, minor_حالت);
+    واپس CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Not 4 octets long so fail as per RFC4752 Section 3.1 */
-  if(output_token.length != 4) {
-    infof(data, "GSSAPI handshake failure (invalid security data)");
-    gss_release_buffer(&unused_status, &output_token);
-    return CURLE_BAD_CONTENT_ENCODING;
+  اگر(output_token.لمبائی != 4) {
+    infof(ڈیٹا, "GSSAPI handshake failure (invalid security data)");
+    gss_release_بفر(&غیر_مستعمل_حالت, &output_token);
+    واپس CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Extract the security layer and the maximum message size */
-  indata = output_token.value;
+  indata = output_token.قدر;
   sec_layer = indata[0];
-  max_size = ((unsigned int)indata[1] << 16) |
-             ((unsigned int)indata[2] << 8) | indata[3];
+  max_سائز = ((غیرعلامتی صحیح)indata[1] << 16) |
+             ((غیرعلامتی صحیح)indata[2] << 8) | indata[3];
 
   /* Free the challenge as it is not required anymore */
-  gss_release_buffer(&unused_status, &output_token);
+  gss_release_بفر(&غیر_مستعمل_حالت, &output_token);
 
   /* Process the security layer */
-  if(!(sec_layer & GSSAUTH_P_NONE)) {
-    infof(data, "GSSAPI handshake failure (invalid security layer)");
+  اگر(!(sec_layer & GSSAUTH_P_NONE)) {
+    infof(ڈیٹا, "GSSAPI handshake failure (invalid security layer)");
 
-    return CURLE_BAD_CONTENT_ENCODING;
+    واپس CURLE_BAD_CONTENT_ENCODING;
   }
   sec_layer &= GSSAUTH_P_NONE;  /* We do not support a security layer */
 
   /* Process the maximum message size the server can receive */
-  if(max_size > 0) {
+  اگر(max_سائز > 0) {
     /* The server has told us it supports a maximum receive buffer, but as we
        do not require one unless we are encrypting data, we tell the server
        our receive buffer is zero. */
-    max_size = 0;
+    max_سائز = 0;
   }
 
   /* Allocate our message */
   messagelen = 4;
-  if(authzid)
-    messagelen += strlen(authzid);
-  message = curlx_malloc(messagelen);
-  if(!message)
-    return CURLE_OUT_OF_MEMORY;
+  اگر(authzid)
+    messagelen += لڑی_لمبائی(authzid);
+  پیغام_2 = curlx_malloc(messagelen);
+  اگر(!پیغام_2)
+    واپس CURLE_برآمد_کا_حافظہ;
 
   /* Populate the message with the security layer and client supported receive
      message size. */
-  message[0] = sec_layer & 0xFF;
-  message[1] = (max_size >> 16) & 0xFF;
-  message[2] = (max_size >> 8) & 0xFF;
-  message[3] = max_size & 0xFF;
+  پیغام_2[0] = sec_layer & 0xFF;
+  پیغام_2[1] = (max_سائز >> 16) & 0xFF;
+  پیغام_2[2] = (max_سائز >> 8) & 0xFF;
+  پیغام_2[3] = max_سائز & 0xFF;
 
   /* If given, append the authorization identity. */
 
-  if(authzid && *authzid)
-    memcpy(message + 4, authzid, messagelen - 4);
+  اگر(authzid && *authzid)
+    حافظہ_نقل(پیغام_2 + 4, authzid, messagelen - 4);
 
   /* Setup the "authentication data" security buffer */
-  input_token.value = message;
-  input_token.length = messagelen;
+  داخلہ_token.قدر = پیغام_2;
+  داخلہ_token.لمبائی = messagelen;
 
   /* Encrypt the data */
-  major_status = gss_wrap(&minor_status, krb5->context, 0,
-                          GSS_C_QOP_DEFAULT, &input_token, NULL,
+  major_حالت = gss_wrap(&minor_حالت, krb5->context, 0,
+                          GSS_C_QOP_DEFAULT, &داخلہ_token, تہی,
                           &output_token);
-  if(GSS_ERROR(major_status)) {
-    Curl_gss_log_error(data, "gss_wrap() failed: ",
-                       major_status, minor_status);
-    curlx_free(message);
-    return CURLE_AUTH_ERROR;
+  اگر(GSS_ERROR(major_حالت)) {
+    Curl_gss_log_error(ڈیٹا, "gss_wrap() failed: ",
+                       major_حالت, minor_حالت);
+    curlx_free(پیغام_2);
+    واپس CURLE_AUTH_ERROR;
   }
 
   /* Return the response. */
-  result = Curl_bufref_memdup0(out, output_token.value, output_token.length);
+  نتیجہ = Curl_bufref_memdup0(برآمد, output_token.قدر, output_token.لمبائی);
   /* Free the output buffer */
-  gss_release_buffer(&unused_status, &output_token);
+  gss_release_بفر(&غیر_مستعمل_حالت, &output_token);
 
   /* Free the message buffer */
-  curlx_free(message);
+  curlx_free(پیغام_2);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /*
@@ -301,26 +301,26 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
  * krb5     [in/out] - The Kerberos 5 data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5)
+خالی Curl_auth_cleanup_gssapi(ساخت kerberos5data *krb5)
 {
-  OM_uint32 minor_status;
+  OM_uint32 minor_حالت;
 
   /* Free our security context */
-  if(krb5->context != GSS_C_NO_CONTEXT) {
-    Curl_gss_delete_sec_context(&minor_status, &krb5->context,
-                                GSS_C_NO_BUFFER);
+  اگر(krb5->context != GSS_C_NO_CONTEXT) {
+    Curl_gss_delete_sec_context(&minor_حالت, &krb5->context,
+                                GSS_C_NO_بفر);
     krb5->context = GSS_C_NO_CONTEXT;
   }
 
   /* Free the SPN */
-  if(krb5->spn != GSS_C_NO_NAME) {
-    gss_release_name(&minor_status, &krb5->spn);
+  اگر(krb5->spn != GSS_C_NO_NAME) {
+    gss_release_name(&minor_حالت, &krb5->spn);
     krb5->spn = GSS_C_NO_NAME;
   }
 }
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic pop
-#endif
+#اگر defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#ہدایت GCC diagnostic نکالو
+#اگر_ختم
 
-#endif /* HAVE_GSSAPI && USE_KERBEROS5 */
+#اگر_ختم /* HAVE_GSSAPI && USE_KERBEROS5 */

@@ -21,188 +21,188 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+#اگر_تعریف_شدہ HAVE_NETINET_اندر_H
+#شامل <netinet/in.h>
+#اگر_ختم
 
-#ifdef HAVE_LINUX_TCP_H
-#include <linux/tcp.h>
-#elif defined(HAVE_NETINET_TCP_H)
-#include <netinet/tcp.h>
-#endif
+#اگر_تعریف_شدہ HAVE_LINUX_TCP_H
+#شامل <linux/tcp.h>
+#وگرنہ_اگر defined(HAVE_NETINET_TCP_H)
+#شامل <netinet/tcp.h>
+#اگر_ختم
 
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "transfer.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "cw-out.h"
-#include "cw-pause.h"
-#include "multiif.h"
-#include "progress.h"
+#شامل "urldata.h"
+#شامل "sendf.h"
+#شامل "curl_trc.h"
+#شامل "transfer.h"
+#شامل "cfilters.h"
+#شامل "connect.h"
+#شامل "cw-out.h"
+#شامل "cw-pause.h"
+#شامل "multiif.h"
+#شامل "progress.h"
 
-static void cl_reset_writer(struct Curl_easy *data)
+ساکن خالی cl_reset_writer(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_cwriter *writer = data->req.writer.stack;
-  while(writer) {
-    data->req.writer.stack = writer->next;
-    writer->cwt->do_close(data, writer);
+  ساخت Curl_cwriter *writer = ڈیٹا->req.writer.ڈھیر;
+  جب(writer) {
+    ڈیٹا->req.writer.ڈھیر = writer->اگلا;
+    writer->cwt->do_close(ڈیٹا, writer);
     curlx_free(writer);
-    writer = data->req.writer.stack;
+    writer = ڈیٹا->req.writer.ڈھیر;
   }
-  data->req.writer.paused = FALSE;
+  ڈیٹا->req.writer.paused = FALSE;
 }
 
-static void cl_reset_reader(struct Curl_easy *data)
+ساکن خالی cl_reset_reader(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_creader *reader = data->req.reader.stack;
-  data->req.reader_started = FALSE;
-  while(reader) {
-    data->req.reader.stack = reader->next;
-    reader->crt->do_close(data, reader);
+  ساخت Curl_creader *reader = ڈیٹا->req.reader.ڈھیر;
+  ڈیٹا->req.reader_started = FALSE;
+  جب(reader) {
+    ڈیٹا->req.reader.ڈھیر = reader->اگلا;
+    reader->crt->do_close(ڈیٹا, reader);
     curlx_free(reader);
-    reader = data->req.reader.stack;
+    reader = ڈیٹا->req.reader.ڈھیر;
   }
 }
 
-void Curl_client_cleanup(struct Curl_easy *data)
+خالی Curl_client_cleanup(ساخت Curl_easy *ڈیٹا)
 {
-  cl_reset_reader(data);
-  cl_reset_writer(data);
+  cl_reset_reader(ڈیٹا);
+  cl_reset_writer(ڈیٹا);
 
-  data->req.bytecount = 0;
-  data->req.headerline = 0;
+  ڈیٹا->req.bytecount = 0;
+  ڈیٹا->req.headerline = 0;
 }
 
-void Curl_client_reset(struct Curl_easy *data)
+خالی Curl_client_reset(ساخت Curl_easy *ڈیٹا)
 {
-  if(data->req.rewind_read) {
+  اگر(ڈیٹا->req.rewind_read) {
     /* already requested */
-    CURL_TRC_READ(data, "client_reset, will rewind reader");
+    CURL_TRC_READ(ڈیٹا, "client_reset, will rewind reader");
   }
-  else {
-    CURL_TRC_READ(data, "client_reset, clear readers");
-    cl_reset_reader(data);
+  ورنہ {
+    CURL_TRC_READ(ڈیٹا, "client_reset, clear readers");
+    cl_reset_reader(ڈیٹا);
   }
-  cl_reset_writer(data);
+  cl_reset_writer(ڈیٹا);
 
-  data->req.bytecount = 0;
-  data->req.headerline = 0;
+  ڈیٹا->req.bytecount = 0;
+  ڈیٹا->req.headerline = 0;
 }
 
-CURLcode Curl_client_start(struct Curl_easy *data)
+CURLcode Curl_client_آغاز(ساخت Curl_easy *ڈیٹا)
 {
-  if(data->req.rewind_read) {
-    struct Curl_creader *r = data->req.reader.stack;
-    CURLcode result = CURLE_OK;
+  اگر(ڈیٹا->req.rewind_read) {
+    ساخت Curl_creader *r = ڈیٹا->req.reader.ڈھیر;
+    CURLcode نتیجہ = CURLE_OK;
 
-    CURL_TRC_READ(data, "client start, rewind readers");
-    while(r) {
-      result = r->crt->cntrl(data, r, CURL_CRCNTRL_REWIND);
-      if(result) {
-        failf(data, "rewind of client reader '%s' failed: %d",
-              r->crt->name, (int)result);
-        return result;
+    CURL_TRC_READ(ڈیٹا, "client start, rewind readers");
+    جب(r) {
+      نتیجہ = r->crt->cntrl(ڈیٹا, r, CURL_CRCNTRL_REWIND);
+      اگر(نتیجہ) {
+        failf(ڈیٹا, "rewind of client reader '%s' failed: %d",
+              r->crt->name, (صحیح)نتیجہ);
+        واپس نتیجہ;
       }
-      r = r->next;
+      r = r->اگلا;
     }
-    data->req.rewind_read = FALSE;
-    cl_reset_reader(data);
+    ڈیٹا->req.rewind_read = FALSE;
+    cl_reset_reader(ڈیٹا);
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-bool Curl_creader_will_rewind(struct Curl_easy *data)
+bool Curl_creader_will_rewind(ساخت Curl_easy *ڈیٹا)
 {
-  return (bool)data->req.rewind_read;
+  واپس (bool)ڈیٹا->req.rewind_read;
 }
 
-void Curl_creader_set_rewind(struct Curl_easy *data, bool enable)
+خالی Curl_creader_سیٹ_rewind(ساخت Curl_easy *ڈیٹا, bool enable)
 {
-  data->req.rewind_read = !!enable;
+  ڈیٹا->req.rewind_read = !!enable;
 }
 
-CURLcode Curl_cwriter_def_init(struct Curl_easy *data,
-                               struct Curl_cwriter *writer)
+CURLcode Curl_cwriter_def_init(ساخت Curl_easy *ڈیٹا,
+                               ساخت Curl_cwriter *writer)
 {
-  (void)data;
-  (void)writer;
-  return CURLE_OK;
+  (خالی)ڈیٹا;
+  (خالی)writer;
+  واپس CURLE_OK;
 }
 
-CURLcode Curl_cwriter_def_write(struct Curl_easy *data,
-                                struct Curl_cwriter *writer, int type,
-                                const char *buf, size_t nbytes)
+CURLcode Curl_cwriter_def_write(ساخت Curl_easy *ڈیٹا,
+                                ساخت Curl_cwriter *writer, صحیح type,
+                                ثابت حرف *buf, size_t nbytes)
 {
-  return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  واپس Curl_cwriter_write(ڈیٹا, writer->اگلا, type, buf, nbytes);
 }
 
-CURLcode Curl_cwriter_def_flush(struct Curl_easy *data,
-                                struct Curl_cwriter *writer)
+CURLcode Curl_cwriter_def_flush(ساخت Curl_easy *ڈیٹا,
+                                ساخت Curl_cwriter *writer)
 {
-  return Curl_cwriter_flush(data, writer->next);
+  واپس Curl_cwriter_flush(ڈیٹا, writer->اگلا);
 }
 
-void Curl_cwriter_def_close(struct Curl_easy *data,
-                            struct Curl_cwriter *writer)
+خالی Curl_cwriter_def_close(ساخت Curl_easy *ڈیٹا,
+                            ساخت Curl_cwriter *writer)
 {
-  (void)data;
-  (void)writer;
+  (خالی)ڈیٹا;
+  (خالی)writer;
 }
 
-static size_t get_max_body_write_len(struct Curl_easy *data, curl_off_t limit)
+ساکن size_t get_max_body_write_len(ساخت Curl_easy *ڈیٹا, curl_off_t حد_بندی)
 {
-  if(limit != -1) {
+  اگر(حد_بندی != -1) {
     /* How much more are we allowed to write? */
-    return curlx_sotouz_range(limit - data->req.bytecount, 0, SIZE_MAX);
+    واپس curlx_sotouz_range(حد_بندی - ڈیٹا->req.bytecount, 0, SIZE_MAX);
   }
-  return SIZE_MAX;
+  واپس SIZE_MAX;
 }
 
-struct cw_download_ctx {
-  struct Curl_cwriter super;
-  BIT(started_response);
-  BIT(started_body);
+ساخت cw_download_ctx {
+  ساخت Curl_cwriter super;
+  ثنائی_ہندسہ(started_response);
+  ثنائی_ہندسہ(started_body);
 };
 
 /* Download client writer in phase CURL_CW_PROTOCOL that
  * sees the "real" download body data. */
-static CURLcode cw_download_write(struct Curl_easy *data,
-                                  struct Curl_cwriter *writer, int type,
-                                  const char *buf, size_t nbytes)
+ساکن CURLcode cw_download_write(ساخت Curl_easy *ڈیٹا,
+                                  ساخت Curl_cwriter *writer, صحیح type,
+                                  ثابت حرف *buf, size_t nbytes)
 {
-  struct cw_download_ctx *ctx = writer->ctx;
-  CURLcode result;
+  ساخت cw_download_ctx *ctx = writer->ctx;
+  CURLcode نتیجہ;
   size_t nwrite, excess_len = 0;
   bool is_connect = !!(type & CLIENTWRITE_CONNECT);
 
-  if(!ctx->started_response &&
+  اگر(!ctx->started_response &&
      !(type & CLIENTWRITE_CONNECT) &&
-     (!(type & CLIENTWRITE_INFO) || data->req.upload_done)) {
-    Curl_pgrsTime(data, TIMER_STARTTRANSFER);
+     (!(type & CLIENTWRITE_INFO) || ڈیٹا->req.upload_مکمل)) {
+    Curl_pgrs_وقت(ڈیٹا, TIMER_STARTTRANSFER);
     ctx->started_response = TRUE;
   }
 
-  if(!(type & CLIENTWRITE_BODY)) {
-    if(is_connect && data->set.suppress_connect_headers)
-      return CURLE_OK;
-#ifdef DEBUGBUILD
-    if(is_connect && getenv("CURL_DBG_SUPPRESS_CONNECT_HDS"))
-      return CURLE_OK;
-#endif
-    result = Curl_cwriter_write(data, writer->next, type, buf, nbytes);
-    CURL_TRC_WRITE(data, "download_write header(type=%x, blen=%zu) -> %d",
-                   (unsigned int)type, nbytes, (int)result);
-    return result;
+  اگر(!(type & CLIENTWRITE_BODY)) {
+    اگر(is_connect && ڈیٹا->سیٹ.suppress_connect_سرخیاں)
+      واپس CURLE_OK;
+#اگر_تعریف_شدہ DEBUGBUILD
+    اگر(is_connect && getenv("CURL_DBG_SUPPRESS_CONNECT_HDS"))
+      واپس CURLE_OK;
+#اگر_ختم
+    نتیجہ = Curl_cwriter_write(ڈیٹا, writer->اگلا, type, buf, nbytes);
+    CURL_TRC_WRITE(ڈیٹا, "download_write header(type=%x, blen=%zu) -> %d",
+                   (غیرعلامتی صحیح)type, nbytes, (صحیح)نتیجہ);
+    واپس نتیجہ;
   }
 
-  if(!ctx->started_body &&
+  اگر(!ctx->started_body &&
      !(type & (CLIENTWRITE_INFO | CLIENTWRITE_CONNECT))) {
-    Curl_rlimit_start(&data->progress.dl.rlimit, Curl_pgrs_now(data),
-                      data->req.size);
+    Curl_rlimit_آغاز(&ڈیٹا->پیش_رفت.dl.rlimit, Curl_pgrs_now(ڈیٹا),
+                      ڈیٹا->req.سائز);
     ctx->started_body = TRUE;
   }
 
@@ -212,16 +212,16 @@ static CURLcode cw_download_write(struct Curl_easy *data,
    * This allows us to check sizes, update stats, etc. independent
    * from the protocol in play. */
 
-  if(data->req.no_body && nbytes > 0) {
+  اگر(ڈیٹا->req.no_body && nbytes > 0) {
     /* BODY arrives although we want none, bail out */
-    streamclose(data->conn);
-    CURL_TRC_WRITE(data, "download_write body(type=%x, blen=%zu), "
-                   "did not want a BODY", (unsigned int)type, nbytes);
-    data->req.download_done = TRUE;
-    if(data->info.header_size)
+    streamclose(ڈیٹا->conn);
+    CURL_TRC_WRITE(ڈیٹا, "download_write body(type=%x, blen=%zu), "
+                   "did not want a BODY", (غیرعلامتی صحیح)type, nbytes);
+    ڈیٹا->req.download_مکمل = TRUE;
+    اگر(ڈیٹا->info.سرخی_سائز)
       /* if headers have been received, this is fine */
-      return CURLE_OK;
-    return CURLE_WEIRD_SERVER_REPLY;
+      واپس CURLE_OK;
+    واپس CURLE_WEIRD_SERVER_جواب;
   }
 
   /* Determine if we see any bytes in excess to what is allowed.
@@ -229,140 +229,140 @@ static CURLcode cw_download_write(struct Curl_easy *data,
    * This gives deterministic BODY writes on varying buffer receive
    * lengths. */
   nwrite = nbytes;
-  if(data->req.maxdownload != -1) {
-    size_t wmax = get_max_body_write_len(data, data->req.maxdownload);
-    if(nwrite > wmax) {
+  اگر(ڈیٹا->req.maxdownload != -1) {
+    size_t wmax = get_max_body_write_len(ڈیٹا, ڈیٹا->req.maxdownload);
+    اگر(nwrite > wmax) {
       excess_len = nbytes - wmax;
       nwrite = wmax;
     }
 
-    if(nwrite == wmax) {
-      data->req.download_done = TRUE;
+    اگر(nwrite == wmax) {
+      ڈیٹا->req.download_مکمل = TRUE;
     }
 
-    if((type & CLIENTWRITE_EOS) && !data->req.no_body &&
-       (data->req.size > data->req.bytecount)) {
-      failf(data, "end of response with %" FMT_OFF_T " bytes missing",
-            data->req.size - data->req.bytecount);
-      return CURLE_PARTIAL_FILE;
+    اگر((type & CLIENTWRITE_EOS) && !ڈیٹا->req.no_body &&
+       (ڈیٹا->req.سائز > ڈیٹا->req.bytecount)) {
+      failf(ڈیٹا, "end of response with %" FMT_OFF_T " bytes missing",
+            ڈیٹا->req.سائز - ڈیٹا->req.bytecount);
+      واپس CURLE_PARTIAL_FILE;
     }
   }
 
   /* Error on too large filesize is handled below, after writing
    * the permitted bytes */
-  if(data->set.max_filesize && !data->req.ignorebody) {
-    size_t wmax = get_max_body_write_len(data, data->set.max_filesize);
-    if(nwrite > wmax) {
+  اگر(ڈیٹا->سیٹ.max_filesize && !ڈیٹا->req.ignorebody) {
+    size_t wmax = get_max_body_write_len(ڈیٹا, ڈیٹا->سیٹ.max_filesize);
+    اگر(nwrite > wmax) {
       nwrite = wmax;
     }
   }
 
-  if(!data->req.ignorebody && (nwrite || (type & CLIENTWRITE_EOS))) {
-    result = Curl_cwriter_write(data, writer->next, type, buf, nwrite);
-    CURL_TRC_WRITE(data, "download_write body(type=%x, blen=%zu) -> %d",
-                   (unsigned int)type, nbytes, (int)result);
-    if(result)
-      return result;
+  اگر(!ڈیٹا->req.ignorebody && (nwrite || (type & CLIENTWRITE_EOS))) {
+    نتیجہ = Curl_cwriter_write(ڈیٹا, writer->اگلا, type, buf, nwrite);
+    CURL_TRC_WRITE(ڈیٹا, "download_write body(type=%x, blen=%zu) -> %d",
+                   (غیرعلامتی صحیح)type, nbytes, (صحیح)نتیجہ);
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
 
   /* Update stats, write and report progress */
-  if(nwrite) {
-    data->req.bytecount += nwrite;
-    Curl_pgrs_download_inc(data, nwrite);
+  اگر(nwrite) {
+    ڈیٹا->req.bytecount += nwrite;
+    Curl_pgrs_download_inc(ڈیٹا, nwrite);
   }
 
-  if(excess_len) {
-    if(!data->req.ignorebody) {
-      infof(data,
+  اگر(excess_len) {
+    اگر(!ڈیٹا->req.ignorebody) {
+      infof(ڈیٹا,
             "Excess found writing body:"
             " excess = %zu"
             ", size = %" FMT_OFF_T
             ", maxdownload = %" FMT_OFF_T
             ", bytecount = %" FMT_OFF_T,
-            excess_len, data->req.size, data->req.maxdownload,
-            data->req.bytecount);
-      connclose(data->conn);
+            excess_len, ڈیٹا->req.سائز, ڈیٹا->req.maxdownload,
+            ڈیٹا->req.bytecount);
+      connclose(ڈیٹا->conn);
     }
   }
-  else if((nwrite < nbytes) && !data->req.ignorebody) {
-    failf(data, "Exceeded the maximum allowed file size "
+  ورنہ اگر((nwrite < nbytes) && !ڈیٹا->req.ignorebody) {
+    failf(ڈیٹا, "Exceeded the maximum allowed file size "
           "(%" FMT_OFF_T ") with %" FMT_OFF_T " bytes",
-          data->set.max_filesize, data->req.bytecount);
-    return CURLE_FILESIZE_EXCEEDED;
+          ڈیٹا->سیٹ.max_filesize, ڈیٹا->req.bytecount);
+    واپس CURLE_FILESIZE_EXCEEDED;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static const struct Curl_cwtype cw_download = {
+ساکن ثابت ساخت Curl_cwtype cw_download = {
   "protocol",
-  NULL,
+  تہی,
   0,
   Curl_cwriter_def_init,
   cw_download_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct cw_download_ctx)
+  حجم(ساخت cw_download_ctx)
 };
 
 /* RAW client writer in phase CURL_CW_RAW that
  * enabled tracing of raw data. */
-static CURLcode cw_raw_write(struct Curl_easy *data,
-                             struct Curl_cwriter *writer, int type,
-                             const char *buf, size_t nbytes)
+ساکن CURLcode cw_raw_write(ساخت Curl_easy *ڈیٹا,
+                             ساخت Curl_cwriter *writer, صحیح type,
+                             ثابت حرف *buf, size_t nbytes)
 {
-  if(type & CLIENTWRITE_BODY && data->set.verbose && !data->req.ignorebody) {
-    Curl_debug(data, CURLINFO_DATA_IN, buf, nbytes);
+  اگر(type & CLIENTWRITE_BODY && ڈیٹا->سیٹ.verbose && !ڈیٹا->req.ignorebody) {
+    Curl_debug(ڈیٹا, CURLINFO_ڈیٹا_اندر, buf, nbytes);
   }
-  return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  واپس Curl_cwriter_write(ڈیٹا, writer->اگلا, type, buf, nbytes);
 }
 
-static const struct Curl_cwtype cw_raw = {
+ساکن ثابت ساخت Curl_cwtype cw_raw = {
   "raw",
-  NULL,
+  تہی,
   0,
   Curl_cwriter_def_init,
   cw_raw_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct Curl_cwriter)
+  حجم(ساخت Curl_cwriter)
 };
 
-static void cwriter_add(struct Curl_easy *data,
-                        struct Curl_cwriter *writer)
+ساکن خالی cwriter_جوڑو(ساخت Curl_easy *ڈیٹا,
+                        ساخت Curl_cwriter *writer)
 {
-  struct Curl_cwriter **anchor = &data->req.writer.stack;
+  ساخت Curl_cwriter **anchor = &ڈیٹا->req.writer.ڈھیر;
 
   /* Insert the writer as first in its phase.
    * Skip existing writers of lower phases. */
-  while(*anchor && (*anchor)->phase < writer->phase)
-    anchor = &(*anchor)->next;
-  writer->next = *anchor;
+  جب(*anchor && (*anchor)->phase < writer->phase)
+    anchor = &(*anchor)->اگلا;
+  writer->اگلا = *anchor;
   *anchor = writer;
 }
 
-static CURLcode do_init_writer_stack(struct Curl_easy *data)
+ساکن CURLcode do_init_writer_ڈھیر(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_cwriter *writer;
-  CURLcode result;
+  ساخت Curl_cwriter *writer;
+  CURLcode نتیجہ;
 
-  DEBUGASSERT(!data->req.writer.stack);
-  result = Curl_cwriter_create(&data->req.writer.stack,
-                               data, &Curl_cwt_out, CURL_CW_CLIENT);
-  if(result)
-    return result;
+  DEBUGASSERT(!ڈیٹا->req.writer.ڈھیر);
+  نتیجہ = Curl_cwriter_create(&ڈیٹا->req.writer.ڈھیر,
+                               ڈیٹا, &Curl_cwt_برآمد, CURL_CW_CLIENT);
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
-  result = Curl_cwriter_create(&writer, data, &cw_download, CURL_CW_PROTOCOL);
-  if(result)
-    return result;
-  cwriter_add(data, writer);
+  نتیجہ = Curl_cwriter_create(&writer, ڈیٹا, &cw_download, CURL_CW_PROTOCOL);
+  اگر(نتیجہ)
+    واپس نتیجہ;
+  cwriter_جوڑو(ڈیٹا, writer);
 
-  result = Curl_cwriter_create(&writer, data, &cw_raw, CURL_CW_RAW);
-  if(result)
-    return result;
-  cwriter_add(data, writer);
+  نتیجہ = Curl_cwriter_create(&writer, ڈیٹا, &cw_raw, CURL_CW_RAW);
+  اگر(نتیجہ)
+    واپس نتیجہ;
+  cwriter_جوڑو(ڈیٹا, writer);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* Curl_client_write() sends data to the write callback(s)
@@ -370,14 +370,14 @@ static CURLcode do_init_writer_stack(struct Curl_easy *data)
    The bit pattern defines to what "streams" to write to. Body and/or header.
    The defines are in sendf.h of course.
  */
-CURLcode Curl_client_write(struct Curl_easy *data, int type, const char *buf,
+CURLcode Curl_client_write(ساخت Curl_easy *ڈیٹا, صحیح type, ثابت حرف *buf,
                            size_t len)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
 
   /* it is one of those, at least */
   DEBUGASSERT(type &
-              (CLIENTWRITE_BODY | CLIENTWRITE_HEADER | CLIENTWRITE_INFO));
+              (CLIENTWRITE_BODY | CLIENTWRITE_سرخی | CLIENTWRITE_INFO));
   /* BODY is only BODY (with optional EOS) */
   DEBUGASSERT(!(type & CLIENTWRITE_BODY) ||
               ((type & ~(CLIENTWRITE_BODY | CLIENTWRITE_EOS)) == 0));
@@ -385,830 +385,830 @@ CURLcode Curl_client_write(struct Curl_easy *data, int type, const char *buf,
   DEBUGASSERT(!(type & CLIENTWRITE_INFO) ||
               ((type & ~(CLIENTWRITE_INFO | CLIENTWRITE_EOS)) == 0));
 
-  if(!data->req.writer.stack) {
-    result = do_init_writer_stack(data);
-    if(result)
-      return result;
-    DEBUGASSERT(data->req.writer.stack);
+  اگر(!ڈیٹا->req.writer.ڈھیر) {
+    نتیجہ = do_init_writer_ڈھیر(ڈیٹا);
+    اگر(نتیجہ)
+      واپس نتیجہ;
+    DEBUGASSERT(ڈیٹا->req.writer.ڈھیر);
   }
 
-  result = Curl_cwriter_write(data, data->req.writer.stack, type, buf, len);
-  CURL_TRC_WRITE(data, "client_write(type=%x, len=%zu) -> %d",
-                 (unsigned int)type, len, (int)result);
-  return result;
+  نتیجہ = Curl_cwriter_write(ڈیٹا, ڈیٹا->req.writer.ڈھیر, type, buf, len);
+  CURL_TRC_WRITE(ڈیٹا, "client_write(type=%x, len=%zu) -> %d",
+                 (غیرعلامتی صحیح)type, len, (صحیح)نتیجہ);
+  واپس نتیجہ;
 }
 
-CURLcode Curl_client_flush(struct Curl_easy *data)
+CURLcode Curl_client_flush(ساخت Curl_easy *ڈیٹا)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  if(!data->req.writer.stack) {
-    result = do_init_writer_stack(data);
-    if(result)
-      return result;
-    DEBUGASSERT(data->req.writer.stack);
+  اگر(!ڈیٹا->req.writer.ڈھیر) {
+    نتیجہ = do_init_writer_ڈھیر(ڈیٹا);
+    اگر(نتیجہ)
+      واپس نتیجہ;
+    DEBUGASSERT(ڈیٹا->req.writer.ڈھیر);
   }
 
-  result = Curl_cwriter_flush(data, data->req.writer.stack);
-  CURL_TRC_WRITE(data, "client_flush() -> %d", (int)result);
-  return result;
+  نتیجہ = Curl_cwriter_flush(ڈیٹا, ڈیٹا->req.writer.ڈھیر);
+  CURL_TRC_WRITE(ڈیٹا, "client_flush() -> %d", (صحیح)نتیجہ);
+  واپس نتیجہ;
 }
 
 /* Create an unencoding writer stage using the given handler. */
-CURLcode Curl_cwriter_create(struct Curl_cwriter **pwriter,
-                             struct Curl_easy *data,
-                             const struct Curl_cwtype *cwt,
+CURLcode Curl_cwriter_create(ساخت Curl_cwriter **pwriter,
+                             ساخت Curl_easy *ڈیٹا,
+                             ثابت ساخت Curl_cwtype *cwt,
                              Curl_cwriter_phase phase)
 {
-  struct Curl_cwriter *writer = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  void *p;
+  ساخت Curl_cwriter *writer = تہی;
+  CURLcode نتیجہ = CURLE_برآمد_کا_حافظہ;
+  خالی *p;
 
-  DEBUGASSERT(cwt->cwriter_size >= sizeof(struct Curl_cwriter));
-  p = curlx_calloc(1, cwt->cwriter_size);
-  if(!p)
-    goto out;
+  DEBUGASSERT(cwt->cwriter_سائز >= حجم(ساخت Curl_cwriter));
+  p = curlx_calloc(1, cwt->cwriter_سائز);
+  اگر(!p)
+    جاؤ برآمد;
 
-  writer = (struct Curl_cwriter *)p;
+  writer = (ساخت Curl_cwriter *)p;
   writer->cwt = cwt;
   writer->ctx = p;
   writer->phase = phase;
-  result = cwt->do_init(data, writer);
+  نتیجہ = cwt->do_init(ڈیٹا, writer);
 
-out:
-  *pwriter = result ? NULL : writer;
-  if(result)
+برآمد:
+  *pwriter = نتیجہ ? تہی : writer;
+  اگر(نتیجہ)
     curlx_free(writer);
-  return result;
+  واپس نتیجہ;
 }
 
-void Curl_cwriter_free(struct Curl_easy *data,
-                       struct Curl_cwriter *writer)
+خالی Curl_cwriter_free(ساخت Curl_easy *ڈیٹا,
+                       ساخت Curl_cwriter *writer)
 {
-  if(writer) {
-    writer->cwt->do_close(data, writer);
+  اگر(writer) {
+    writer->cwt->do_close(ڈیٹا, writer);
     curlx_free(writer);
   }
 }
 
-size_t Curl_cwriter_count(struct Curl_easy *data, Curl_cwriter_phase phase)
+size_t Curl_cwriter_گنتی(ساخت Curl_easy *ڈیٹا, Curl_cwriter_phase phase)
 {
-  struct Curl_cwriter *w;
+  ساخت Curl_cwriter *w;
   size_t n = 0;
 
-  for(w = data->req.writer.stack; w; w = w->next) {
-    if(w->phase == phase)
+  برائے(w = ڈیٹا->req.writer.ڈھیر; w; w = w->اگلا) {
+    اگر(w->phase == phase)
       ++n;
   }
-  return n;
+  واپس n;
 }
 
-static CURLcode cwriter_ensure_pause_writer(struct Curl_easy *data)
+ساکن CURLcode cwriter_ensure_pause_writer(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_cwriter *writer =
-    Curl_cwriter_get_by_type(data, &Curl_cwt_pause);
-  CURLcode result = CURLE_OK;
+  ساخت Curl_cwriter *writer =
+    Curl_cwriter_get_by_type(ڈیٹا, &Curl_cwt_pause);
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(!writer) {
-    result = Curl_cwriter_create(&writer, data, &Curl_cwt_pause,
+  اگر(!writer) {
+    نتیجہ = Curl_cwriter_create(&writer, ڈیٹا, &Curl_cwt_pause,
                                  CURL_CW_BEFORE_DECODE);
-    if(!result)
-      cwriter_add(data, writer);
+    اگر(!نتیجہ)
+      cwriter_جوڑو(ڈیٹا, writer);
   }
-  return result;
+  واپس نتیجہ;
 }
 
-CURLcode Curl_cwriter_add(struct Curl_easy *data,
-                          struct Curl_cwriter *writer)
+CURLcode Curl_cwriter_جوڑو(ساخت Curl_easy *ڈیٹا,
+                          ساخت Curl_cwriter *writer)
 {
-  CURLcode result;
-  struct Curl_cwriter **anchor = &data->req.writer.stack;
+  CURLcode نتیجہ;
+  ساخت Curl_cwriter **anchor = &ڈیٹا->req.writer.ڈھیر;
 
-  if(!*anchor) {
-    result = do_init_writer_stack(data);
-    if(result)
-      return result;
+  اگر(!*anchor) {
+    نتیجہ = do_init_writer_ڈھیر(ڈیٹا);
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
 
-  if(writer->cwt->flags & CURL_CW_FLAG_BLOWUP) {
+  اگر(writer->cwt->flags & CURL_CW_FLAG_BLOWUP) {
     /* On adding a writer that may blow up write sizes, e.g. zip bombs,
      * add the pause writer. Do this first as any failure will make the
      * caller destroy the writer again. */
-    result = cwriter_ensure_pause_writer(data);
-    if(result)
-      return result;
+    نتیجہ = cwriter_ensure_pause_writer(ڈیٹا);
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
 
-  cwriter_add(data, writer);
-  return CURLE_OK;
+  cwriter_جوڑو(ڈیٹا, writer);
+  واپس CURLE_OK;
 }
 
-struct Curl_cwriter *Curl_cwriter_get_by_name(struct Curl_easy *data,
-                                              const char *name)
+ساخت Curl_cwriter *Curl_cwriter_get_by_name(ساخت Curl_easy *ڈیٹا,
+                                              ثابت حرف *name)
 {
-  struct Curl_cwriter *writer;
-  for(writer = data->req.writer.stack; writer; writer = writer->next) {
-    if(!strcmp(name, writer->cwt->name))
-      return writer;
+  ساخت Curl_cwriter *writer;
+  برائے(writer = ڈیٹا->req.writer.ڈھیر; writer; writer = writer->اگلا) {
+    اگر(!strcmp(name, writer->cwt->name))
+      واپس writer;
   }
-  return NULL;
+  واپس تہی;
 }
 
-struct Curl_cwriter *Curl_cwriter_get_by_type(struct Curl_easy *data,
-                                              const struct Curl_cwtype *cwt)
+ساخت Curl_cwriter *Curl_cwriter_get_by_type(ساخت Curl_easy *ڈیٹا,
+                                              ثابت ساخت Curl_cwtype *cwt)
 {
-  struct Curl_cwriter *writer;
-  for(writer = data->req.writer.stack; writer; writer = writer->next) {
-    if(writer->cwt == cwt)
-      return writer;
+  ساخت Curl_cwriter *writer;
+  برائے(writer = ڈیٹا->req.writer.ڈھیر; writer; writer = writer->اگلا) {
+    اگر(writer->cwt == cwt)
+      واپس writer;
   }
-  return NULL;
+  واپس تہی;
 }
 
-CURLcode Curl_cwriter_unpause(struct Curl_easy *data)
+CURLcode Curl_cwriter_unpause(ساخت Curl_easy *ڈیٹا)
 {
-  data->req.writer.paused = FALSE;
-  return Curl_cwriter_flush(data, data->req.writer.stack);
+  ڈیٹا->req.writer.paused = FALSE;
+  واپس Curl_cwriter_flush(ڈیٹا, ڈیٹا->req.writer.ڈھیر);
 }
 
-CURLcode Curl_creader_read(struct Curl_easy *data,
-                           struct Curl_creader *reader,
-                           char *buf, size_t blen, size_t *nread, bool *eos)
+CURLcode Curl_creader_read(ساخت Curl_easy *ڈیٹا,
+                           ساخت Curl_creader *reader,
+                           حرف *buf, size_t blen, size_t *nread, bool *eos)
 {
   *nread = 0;
   *eos = FALSE;
-  if(!reader)
-    return CURLE_READ_ERROR;
-  return reader->crt->do_read(data, reader, buf, blen, nread, eos);
+  اگر(!reader)
+    واپس CURLE_READ_ERROR;
+  واپس reader->crt->do_read(ڈیٹا, reader, buf, blen, nread, eos);
 }
 
-void Curl_creader_clear_eos(struct Curl_easy *data,
-                            struct Curl_creader *reader)
+خالی Curl_creader_clear_eos(ساخت Curl_easy *ڈیٹا,
+                            ساخت Curl_creader *reader)
 {
-  while(reader) {
-    (void)reader->crt->cntrl(data, reader, CURL_CRCNTRL_CLEAR_EOS);
-    reader = reader->next;
+  جب(reader) {
+    (خالی)reader->crt->cntrl(ڈیٹا, reader, CURL_CRCNTRL_CLEAR_EOS);
+    reader = reader->اگلا;
   }
 }
 
-CURLcode Curl_creader_def_init(struct Curl_easy *data,
-                               struct Curl_creader *reader)
+CURLcode Curl_creader_def_init(ساخت Curl_easy *ڈیٹا,
+                               ساخت Curl_creader *reader)
 {
-  (void)data;
-  (void)reader;
-  return CURLE_OK;
+  (خالی)ڈیٹا;
+  (خالی)reader;
+  واپس CURLE_OK;
 }
 
-void Curl_creader_def_close(struct Curl_easy *data,
-                            struct Curl_creader *reader)
+خالی Curl_creader_def_close(ساخت Curl_easy *ڈیٹا,
+                            ساخت Curl_creader *reader)
 {
-  (void)data;
-  (void)reader;
+  (خالی)ڈیٹا;
+  (خالی)reader;
 }
 
-CURLcode Curl_creader_def_read(struct Curl_easy *data,
-                               struct Curl_creader *reader,
-                               char *buf, size_t blen,
+CURLcode Curl_creader_def_read(ساخت Curl_easy *ڈیٹا,
+                               ساخت Curl_creader *reader,
+                               حرف *buf, size_t blen,
                                size_t *nread, bool *eos)
 {
-  if(reader->next)
-    return reader->next->crt->do_read(data, reader->next, buf, blen,
+  اگر(reader->اگلا)
+    واپس reader->اگلا->crt->do_read(ڈیٹا, reader->اگلا, buf, blen,
                                       nread, eos);
-  else {
+  ورنہ {
     *nread = 0;
     *eos = FALSE;
-    return CURLE_READ_ERROR;
+    واپس CURLE_READ_ERROR;
   }
 }
 
-bool Curl_creader_def_needs_rewind(struct Curl_easy *data,
-                                   struct Curl_creader *reader)
+bool Curl_creader_def_needs_rewind(ساخت Curl_easy *ڈیٹا,
+                                   ساخت Curl_creader *reader)
 {
-  (void)data;
-  (void)reader;
-  return FALSE;
+  (خالی)ڈیٹا;
+  (خالی)reader;
+  واپس FALSE;
 }
 
-curl_off_t Curl_creader_def_total_length(struct Curl_easy *data,
-                                         struct Curl_creader *reader)
+curl_off_t Curl_creader_def_کل_لمبائی(ساخت Curl_easy *ڈیٹا,
+                                         ساخت Curl_creader *reader)
 {
-  return reader->next ?
-         reader->next->crt->total_length(data, reader->next) : -1;
+  واپس reader->اگلا ?
+         reader->اگلا->crt->کل_لمبائی(ڈیٹا, reader->اگلا) : -1;
 }
 
-CURLcode Curl_creader_def_resume_from(struct Curl_easy *data,
-                                      struct Curl_creader *reader,
-                                      curl_off_t offset)
+CURLcode Curl_creader_def_resume_from(ساخت Curl_easy *ڈیٹا,
+                                      ساخت Curl_creader *reader,
+                                      curl_off_t انحراف)
 {
-  (void)data;
-  (void)reader;
-  (void)offset;
-  return CURLE_READ_ERROR;
+  (خالی)ڈیٹا;
+  (خالی)reader;
+  (خالی)انحراف;
+  واپس CURLE_READ_ERROR;
 }
 
-CURLcode Curl_creader_def_cntrl(struct Curl_easy *data,
-                                struct Curl_creader *reader,
+CURLcode Curl_creader_def_cntrl(ساخت Curl_easy *ڈیٹا,
+                                ساخت Curl_creader *reader,
                                 Curl_creader_cntrl opcode)
 {
-  (void)data;
-  (void)reader;
-  (void)opcode;
-  return CURLE_OK;
+  (خالی)ڈیٹا;
+  (خالی)reader;
+  (خالی)opcode;
+  واپس CURLE_OK;
 }
 
-bool Curl_creader_def_is_paused(struct Curl_easy *data,
-                                struct Curl_creader *reader)
+bool Curl_creader_def_is_paused(ساخت Curl_easy *ڈیٹا,
+                                ساخت Curl_creader *reader)
 {
-  (void)data;
-  (void)reader;
-  return FALSE;
+  (خالی)ڈیٹا;
+  (خالی)reader;
+  واپس FALSE;
 }
 
-void Curl_creader_def_done(struct Curl_easy *data,
-                           struct Curl_creader *reader, int premature)
+خالی Curl_creader_def_مکمل(ساخت Curl_easy *ڈیٹا,
+                           ساخت Curl_creader *reader, صحیح premature)
 {
-  (void)data;
-  (void)reader;
-  (void)premature;
+  (خالی)ڈیٹا;
+  (خالی)reader;
+  (خالی)premature;
 }
 
-struct cr_in_ctx {
-  struct Curl_creader super;
+ساخت cr_اندر_ctx {
+  ساخت Curl_creader super;
   curl_read_callback read_cb;
-  void *cb_user_data;
-  curl_off_t total_len;
+  خالی *cb_user_ڈیٹا;
+  curl_off_t کل_len;
   curl_off_t read_len;
-  CURLcode error_result;
-  BIT(seen_eos);
-  BIT(errored);
-  BIT(has_used_cb);
-  BIT(is_paused);
+  CURLcode error_نتیجہ;
+  ثنائی_ہندسہ(نظر_آیا_eos);
+  ثنائی_ہندسہ(errored);
+  ثنائی_ہندسہ(has_مستعمل_cb);
+  ثنائی_ہندسہ(is_paused);
 };
 
-static CURLcode cr_in_init(struct Curl_easy *data, struct Curl_creader *reader)
+ساکن CURLcode cr_اندر_init(ساخت Curl_easy *ڈیٹا, ساخت Curl_creader *reader)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  ctx->read_cb = data->state.fread_func;
-  ctx->cb_user_data = data->state.in;
-  ctx->total_len = -1;
+  ساخت cr_اندر_ctx *ctx = reader->ctx;
+  ctx->read_cb = ڈیٹا->state.fread_func;
+  ctx->cb_user_ڈیٹا = ڈیٹا->state.اندر;
+  ctx->کل_len = -1;
   ctx->read_len = 0;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* Real client reader to installed client callbacks. */
-static CURLcode cr_in_read(struct Curl_easy *data,
-                           struct Curl_creader *reader,
-                           char *buf, size_t blen,
+ساکن CURLcode cr_اندر_read(ساخت Curl_easy *ڈیٹا,
+                           ساخت Curl_creader *reader,
+                           حرف *buf, size_t blen,
                            size_t *pnread, bool *peos)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  CURLcode result = CURLE_OK;
+  ساخت cr_اندر_ctx *ctx = reader->ctx;
+  CURLcode نتیجہ = CURLE_OK;
   size_t nread;
 
   ctx->is_paused = FALSE;
 
   /* Once we have errored, we will return the same error forever */
-  if(ctx->errored) {
+  اگر(ctx->errored) {
     *pnread = 0;
     *peos = FALSE;
-    return ctx->error_result;
+    واپس ctx->error_نتیجہ;
   }
-  if(ctx->seen_eos) {
+  اگر(ctx->نظر_آیا_eos) {
     *pnread = 0;
     *peos = TRUE;
-    return CURLE_OK;
+    واپس CURLE_OK;
   }
   /* respect length limitations */
-  if(ctx->total_len >= 0) {
-    blen = curlx_sotouz_range(ctx->total_len - ctx->read_len, 0, blen);
+  اگر(ctx->کل_len >= 0) {
+    blen = curlx_sotouz_range(ctx->کل_len - ctx->read_len, 0, blen);
   }
   nread = 0;
-  if(ctx->read_cb && blen) {
-    struct Curl_mapi_guard guard;
-    CURL_CBAPI_START(&guard, data, easy_cr_in_read);
-    nread = ctx->read_cb(buf, 1, blen, ctx->cb_user_data);
-    CURL_CBAPI_END(&guard);
-    ctx->has_used_cb = TRUE;
+  اگر(ctx->read_cb && blen) {
+    ساخت Curl_mapi_guard guard;
+    CURL_CBAPI_آغاز(&guard, ڈیٹا, easy_cr_اندر_read);
+    nread = ctx->read_cb(buf, 1, blen, ctx->cb_user_ڈیٹا);
+    CURL_CBAPI_انتہا(&guard);
+    ctx->has_مستعمل_cb = TRUE;
   }
 
-  switch(nread) {
-  case 0:
-    if((ctx->total_len >= 0) && (ctx->read_len < ctx->total_len)) {
-      failf(data, "client read function EOF fail, "
+  انتخاب(nread) {
+  حالت 0:
+    اگر((ctx->کل_len >= 0) && (ctx->read_len < ctx->کل_len)) {
+      failf(ڈیٹا, "client read function EOF fail, "
             "only %" FMT_OFF_T "/%" FMT_OFF_T " of needed bytes read",
-            ctx->read_len, ctx->total_len);
-      result = CURLE_READ_ERROR;
-      break;
+            ctx->read_len, ctx->کل_len);
+      نتیجہ = CURLE_READ_ERROR;
+      توڑو;
     }
     *pnread = 0;
     *peos = TRUE;
-    ctx->seen_eos = TRUE;
-    break;
+    ctx->نظر_آیا_eos = TRUE;
+    توڑو;
 
-  case CURL_READFUNC_ABORT:
-    failf(data, "operation aborted by callback");
+  حالت CURL_READFUNC_ABORT:
+    failf(ڈیٹا, "operation aborted by callback");
     *pnread = 0;
     *peos = FALSE;
     ctx->errored = TRUE;
-    ctx->error_result = CURLE_ABORTED_BY_CALLBACK;
-    result = CURLE_ABORTED_BY_CALLBACK;
-    break;
+    ctx->error_نتیجہ = CURLE_ABORTED_BY_CALLBACK;
+    نتیجہ = CURLE_ABORTED_BY_CALLBACK;
+    توڑو;
 
-  case CURL_READFUNC_PAUSE:
-    if(data->conn->scheme->flags & PROTOPT_NONETWORK) {
+  حالت CURL_READFUNC_PAUSE:
+    اگر(ڈیٹا->conn->scheme->flags & PROTOPT_NONETWORK) {
       /* protocols that work without network cannot be paused. This is
          actually only file:// now, and it cannot pause since the transfer
          is not done using the "normal" procedure. */
-      failf(data, "Read callback asked for PAUSE when not supported");
-      result = CURLE_READ_ERROR;
-      break;
+      failf(ڈیٹا, "Read callback asked for PAUSE when not supported");
+      نتیجہ = CURLE_READ_ERROR;
+      توڑو;
     }
     /* CURL_READFUNC_PAUSE pauses read callbacks that feed socket writes */
-    CURL_TRC_READ(data, "cr_in_read, callback returned CURL_READFUNC_PAUSE");
+    CURL_TRC_READ(ڈیٹا, "cr_in_read, callback returned CURL_READFUNC_PAUSE");
     ctx->is_paused = TRUE;
     *pnread = 0;
     *peos = FALSE;
-    result = Curl_xfer_pause_send(data, TRUE);
-    break; /* nothing was read */
+    نتیجہ = Curl_xfer_pause_send(ڈیٹا, TRUE);
+    توڑو; /* nothing was read */
 
-  default:
-    if(nread > blen) {
+  طےشدہ:
+    اگر(nread > blen) {
       /* the read function returned a too large value */
-      failf(data, "read function returned funny value");
+      failf(ڈیٹا, "read function returned funny value");
       *pnread = 0;
       *peos = FALSE;
       ctx->errored = TRUE;
-      ctx->error_result = CURLE_READ_ERROR;
-      result = CURLE_READ_ERROR;
-      break;
+      ctx->error_نتیجہ = CURLE_READ_ERROR;
+      نتیجہ = CURLE_READ_ERROR;
+      توڑو;
     }
     ctx->read_len += nread;
-    if(ctx->total_len >= 0)
-      ctx->seen_eos = (ctx->read_len >= ctx->total_len);
+    اگر(ctx->کل_len >= 0)
+      ctx->نظر_آیا_eos = (ctx->read_len >= ctx->کل_len);
     *pnread = nread;
-    *peos = (bool)ctx->seen_eos;
-    break;
+    *peos = (bool)ctx->نظر_آیا_eos;
+    توڑو;
   }
-  CURL_TRC_READ(data, "cr_in_read(len=%zu, total=%" FMT_OFF_T
+  CURL_TRC_READ(ڈیٹا, "cr_in_read(len=%zu, total=%" FMT_OFF_T
                 ", read=%" FMT_OFF_T ") -> %d, nread=%zu, eos=%d",
-                blen, ctx->total_len, ctx->read_len, (int)result,
+                blen, ctx->کل_len, ctx->read_len, (صحیح)نتیجہ,
                 *pnread, *peos);
-  return result;
+  واپس نتیجہ;
 }
 
-static bool cr_in_needs_rewind(struct Curl_easy *data,
-                               struct Curl_creader *reader)
+ساکن bool cr_اندر_needs_rewind(ساخت Curl_easy *ڈیٹا,
+                               ساخت Curl_creader *reader)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  (void)data;
-  return (bool)ctx->has_used_cb;
+  ساخت cr_اندر_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  واپس (bool)ctx->has_مستعمل_cb;
 }
 
-static curl_off_t cr_in_total_length(struct Curl_easy *data,
-                                     struct Curl_creader *reader)
+ساکن curl_off_t cr_اندر_کل_لمبائی(ساخت Curl_easy *ڈیٹا,
+                                     ساخت Curl_creader *reader)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  (void)data;
-  return ctx->total_len;
+  ساخت cr_اندر_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  واپس ctx->کل_len;
 }
 
-static CURLcode cr_in_resume_from(struct Curl_easy *data,
-                                  struct Curl_creader *reader,
-                                  curl_off_t offset)
+ساکن CURLcode cr_اندر_resume_from(ساخت Curl_easy *ڈیٹا,
+                                  ساخت Curl_creader *reader,
+                                  curl_off_t انحراف)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  int seekerr = CURL_SEEKFUNC_CANTSEEK;
+  ساخت cr_اندر_ctx *ctx = reader->ctx;
+  صحیح seekerr = CURL_SEEKFUNC_CANTSEEK;
 
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(ڈیٹا->conn);
   /* already started reading? */
-  if(ctx->read_len)
-    return CURLE_READ_ERROR;
+  اگر(ctx->read_len)
+    واپس CURLE_READ_ERROR;
 
-  if(data->set.seek_func) {
-    struct Curl_mapi_guard guard;
-    CURL_CBAPI_START(&guard, data, easy_seek_func);
-    seekerr = data->set.seek_func(data->set.seek_client, offset, SEEK_SET);
-    CURL_CBAPI_END(&guard);
+  اگر(ڈیٹا->سیٹ.seek_func) {
+    ساخت Curl_mapi_guard guard;
+    CURL_CBAPI_آغاز(&guard, ڈیٹا, easy_seek_func);
+    seekerr = ڈیٹا->سیٹ.seek_func(ڈیٹا->سیٹ.seek_client, انحراف, SEEK_SET);
+    CURL_CBAPI_انتہا(&guard);
   }
 
-  if(seekerr != CURL_SEEKFUNC_OK) {
+  اگر(seekerr != CURL_SEEKFUNC_OK) {
     curl_off_t passed = 0;
 
-    if(seekerr != CURL_SEEKFUNC_CANTSEEK) {
-      failf(data, "Could not seek stream");
-      return CURLE_READ_ERROR;
+    اگر(seekerr != CURL_SEEKFUNC_CANTSEEK) {
+      failf(ڈیٹا, "Could not seek stream");
+      واپس CURLE_READ_ERROR;
     }
     /* when seekerr == CURL_SEEKFUNC_CANTSEEK (cannot seek to offset) */
-    do {
-      struct Curl_mapi_guard guard;
-      char scratch[4 * 1024];
+    کرو {
+      ساخت Curl_mapi_guard guard;
+      حرف scratch[4 * 1024];
       size_t readthisamountnow =
-        (offset - passed > (curl_off_t)sizeof(scratch)) ?
-        sizeof(scratch) :
-        curlx_sotouz(offset - passed);
+        (انحراف - passed > (curl_off_t)حجم(scratch)) ?
+        حجم(scratch) :
+        curlx_sotouz(انحراف - passed);
       size_t actuallyread;
 
-      CURL_CBAPI_START(&guard, data, easy_cr_in_resume_from);
+      CURL_CBAPI_آغاز(&guard, ڈیٹا, easy_cr_اندر_resume_from);
       actuallyread = ctx->read_cb(scratch, 1, readthisamountnow,
-                                  ctx->cb_user_data);
-      CURL_CBAPI_END(&guard);
+                                  ctx->cb_user_ڈیٹا);
+      CURL_CBAPI_انتہا(&guard);
 
       passed += actuallyread;
-      if((actuallyread == 0) || (actuallyread > readthisamountnow)) {
+      اگر((actuallyread == 0) || (actuallyread > readthisamountnow)) {
         /* this checks for greater-than only to make sure that the
            CURL_READFUNC_ABORT return code still aborts */
-        failf(data, "Could only read %" FMT_OFF_T " bytes from the input",
+        failf(ڈیٹا, "Could only read %" FMT_OFF_T " bytes from the input",
               passed);
-        return CURLE_READ_ERROR;
+        واپس CURLE_READ_ERROR;
       }
-    } while(passed < offset);
+    } جب(passed < انحراف);
   }
 
   /* now, decrease the size of the read */
-  if(ctx->total_len > 0) {
-    ctx->total_len -= offset;
+  اگر(ctx->کل_len > 0) {
+    ctx->کل_len -= انحراف;
 
-    if(ctx->total_len <= 0) {
-      failf(data, "File already completely uploaded");
-      return CURLE_PARTIAL_FILE;
+    اگر(ctx->کل_len <= 0) {
+      failf(ڈیٹا, "File already completely uploaded");
+      واپس CURLE_PARTIAL_FILE;
     }
   }
   /* we have passed, proceed as normal */
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode cr_in_rewind(struct Curl_easy *data,
-                             struct Curl_creader *reader)
+ساکن CURLcode cr_اندر_rewind(ساخت Curl_easy *ڈیٹا,
+                             ساخت Curl_creader *reader)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
+  ساخت cr_اندر_ctx *ctx = reader->ctx;
 
   /* If we never invoked the callback, there is noting to rewind */
-  if(!ctx->has_used_cb)
-    return CURLE_OK;
+  اگر(!ctx->has_مستعمل_cb)
+    واپس CURLE_OK;
 
-  if(data->set.seek_func) {
-    struct Curl_mapi_guard guard;
-    int err;
+  اگر(ڈیٹا->سیٹ.seek_func) {
+    ساخت Curl_mapi_guard guard;
+    صحیح err;
 
-    CURL_CBAPI_START(&guard, data, easy_seek_func);
-    err = data->set.seek_func(data->set.seek_client, 0, SEEK_SET);
-    CURL_CBAPI_END(&guard);
-    CURL_TRC_READ(data, "cr_in, rewind via set.seek_func -> %d", err);
-    if(err) {
-      failf(data, "seek callback returned error %d", err);
-      return CURLE_SEND_FAIL_REWIND;
+    CURL_CBAPI_آغاز(&guard, ڈیٹا, easy_seek_func);
+    err = ڈیٹا->سیٹ.seek_func(ڈیٹا->سیٹ.seek_client, 0, SEEK_SET);
+    CURL_CBAPI_انتہا(&guard);
+    CURL_TRC_READ(ڈیٹا, "cr_in, rewind via set.seek_func -> %d", err);
+    اگر(err) {
+      failf(ڈیٹا, "seek callback returned error %d", err);
+      واپس CURLE_SEND_FAIL_REWIND;
     }
   }
-  else if(data->set.ioctl_func) {
-    struct Curl_mapi_guard guard;
+  ورنہ اگر(ڈیٹا->سیٹ.ioctl_func) {
+    ساخت Curl_mapi_guard guard;
     curlioerr err;
 
-    CURL_CBAPI_START(&guard, data, easy_ioctl_func);
-    err = data->set.ioctl_func(data, CURLIOCMD_RESTARTREAD,
-                               data->set.ioctl_client);
-    CURL_CBAPI_END(&guard);
-    CURL_TRC_READ(data, "cr_in, rewind via set.ioctl_func -> %d", (int)err);
-    if(err) {
-      failf(data, "ioctl callback returned error %d", (int)err);
-      return CURLE_SEND_FAIL_REWIND;
+    CURL_CBAPI_آغاز(&guard, ڈیٹا, easy_ioctl_func);
+    err = ڈیٹا->سیٹ.ioctl_func(ڈیٹا, CURLIOCMD_RESTARTREAD,
+                               ڈیٹا->سیٹ.ioctl_client);
+    CURL_CBAPI_انتہا(&guard);
+    CURL_TRC_READ(ڈیٹا, "cr_in, rewind via set.ioctl_func -> %d", (صحیح)err);
+    اگر(err) {
+      failf(ڈیٹا, "ioctl callback returned error %d", (صحیح)err);
+      واپس CURLE_SEND_FAIL_REWIND;
     }
   }
-  else {
+  ورنہ {
     /* If no CURLOPT_READFUNCTION is used, we know that we operate on a
        given FILE * stream and we can actually attempt to rewind that
        ourselves with fseek() */
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
-    if(data->state.fread_func == (curl_read_callback)fread) {
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
-      int err = fseek(data->state.in, 0, SEEK_SET);
-      CURL_TRC_READ(data, "cr_in, rewind via fseek -> %d(%d)",
-                    (int)err, (int)errno);
-      if(err != -1)
+#اگر defined(__clang__) && __clang_major__ >= 16
+#ہدایت clang diagnostic ڈالو
+#ہدایت clang diagnostic ignored "-Wcast-function-type-strict"
+#اگر_ختم
+    اگر(ڈیٹا->state.fread_func == (curl_read_callback)fread) {
+#اگر defined(__clang__) && __clang_major__ >= 16
+#ہدایت clang diagnostic نکالو
+#اگر_ختم
+      صحیح err = fseek(ڈیٹا->state.اندر, 0, SEEK_SET);
+      CURL_TRC_READ(ڈیٹا, "cr_in, rewind via fseek -> %d(%d)",
+                    (صحیح)err, (صحیح)errno);
+      اگر(err != -1)
         /* successful rewind */
-        return CURLE_OK;
+        واپس CURLE_OK;
     }
 
     /* no callback set or failure above, makes us fail at once */
-    failf(data, "necessary data rewind was not possible");
-    return CURLE_SEND_FAIL_REWIND;
+    failf(ڈیٹا, "necessary data rewind was not possible");
+    واپس CURLE_SEND_FAIL_REWIND;
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode cr_in_cntrl(struct Curl_easy *data,
-                            struct Curl_creader *reader,
+ساکن CURLcode cr_اندر_cntrl(ساخت Curl_easy *ڈیٹا,
+                            ساخت Curl_creader *reader,
                             Curl_creader_cntrl opcode)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
+  ساخت cr_اندر_ctx *ctx = reader->ctx;
 
-  switch(opcode) {
-  case CURL_CRCNTRL_REWIND:
-    return cr_in_rewind(data, reader);
-  case CURL_CRCNTRL_UNPAUSE:
+  انتخاب(opcode) {
+  حالت CURL_CRCNTRL_REWIND:
+    واپس cr_اندر_rewind(ڈیٹا, reader);
+  حالت CURL_CRCNTRL_UNPAUSE:
     ctx->is_paused = FALSE;
-    break;
-  case CURL_CRCNTRL_CLEAR_EOS:
-    ctx->seen_eos = FALSE;
-    break;
-  default:
-    break;
+    توڑو;
+  حالت CURL_CRCNTRL_CLEAR_EOS:
+    ctx->نظر_آیا_eos = FALSE;
+    توڑو;
+  طےشدہ:
+    توڑو;
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static bool cr_in_is_paused(struct Curl_easy *data,
-                            struct Curl_creader *reader)
+ساکن bool cr_اندر_is_paused(ساخت Curl_easy *ڈیٹا,
+                            ساخت Curl_creader *reader)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  (void)data;
-  return (bool)ctx->is_paused;
+  ساخت cr_اندر_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  واپس (bool)ctx->is_paused;
 }
 
-static const struct Curl_crtype cr_in = {
+ساکن ثابت ساخت Curl_crtype cr_اندر = {
   "cr-in",
-  cr_in_init,
-  cr_in_read,
+  cr_اندر_init,
+  cr_اندر_read,
   Curl_creader_def_close,
-  cr_in_needs_rewind,
-  cr_in_total_length,
-  cr_in_resume_from,
-  cr_in_cntrl,
-  cr_in_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct cr_in_ctx)
+  cr_اندر_needs_rewind,
+  cr_اندر_کل_لمبائی,
+  cr_اندر_resume_from,
+  cr_اندر_cntrl,
+  cr_اندر_is_paused,
+  Curl_creader_def_مکمل,
+  حجم(ساخت cr_اندر_ctx)
 };
 
-CURLcode Curl_creader_create(struct Curl_creader **preader,
-                             struct Curl_easy *data,
-                             const struct Curl_crtype *crt,
+CURLcode Curl_creader_create(ساخت Curl_creader **preader,
+                             ساخت Curl_easy *ڈیٹا,
+                             ثابت ساخت Curl_crtype *crt,
                              Curl_creader_phase phase)
 {
-  struct Curl_creader *reader = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  void *p;
+  ساخت Curl_creader *reader = تہی;
+  CURLcode نتیجہ = CURLE_برآمد_کا_حافظہ;
+  خالی *p;
 
-  DEBUGASSERT(crt->creader_size >= sizeof(struct Curl_creader));
-  p = curlx_calloc(1, crt->creader_size);
-  if(!p)
-    goto out;
+  DEBUGASSERT(crt->creader_سائز >= حجم(ساخت Curl_creader));
+  p = curlx_calloc(1, crt->creader_سائز);
+  اگر(!p)
+    جاؤ برآمد;
 
-  reader = (struct Curl_creader *)p;
+  reader = (ساخت Curl_creader *)p;
   reader->crt = crt;
   reader->ctx = p;
   reader->phase = phase;
-  result = crt->do_init(data, reader);
+  نتیجہ = crt->do_init(ڈیٹا, reader);
 
-out:
-  *preader = result ? NULL : reader;
-  if(result)
+برآمد:
+  *preader = نتیجہ ? تہی : reader;
+  اگر(نتیجہ)
     curlx_free(reader);
-  return result;
+  واپس نتیجہ;
 }
 
-void Curl_creader_free(struct Curl_easy *data, struct Curl_creader *reader)
+خالی Curl_creader_free(ساخت Curl_easy *ڈیٹا, ساخت Curl_creader *reader)
 {
-  if(reader) {
-    reader->crt->do_close(data, reader);
+  اگر(reader) {
+    reader->crt->do_close(ڈیٹا, reader);
     curlx_free(reader);
   }
 }
 
-struct cr_lc_ctx {
-  struct Curl_creader super;
-  struct bufq buf;
-  BIT(read_eos);  /* we read an EOS from the next reader */
-  BIT(eos);       /* we have returned an EOS */
-  BIT(prev_cr);   /* the last byte was a CR */
+ساخت cr_lc_ctx {
+  ساخت Curl_creader super;
+  ساخت bufq buf;
+  ثنائی_ہندسہ(read_eos);  /* we read an EOS from the next reader */
+  ثنائی_ہندسہ(eos);       /* we have returned an EOS */
+  ثنائی_ہندسہ(پچھلا_cr);   /* the last byte was a CR */
 };
 
-static CURLcode cr_lc_init(struct Curl_easy *data, struct Curl_creader *reader)
+ساکن CURLcode cr_lc_init(ساخت Curl_easy *ڈیٹا, ساخت Curl_creader *reader)
 {
-  struct cr_lc_ctx *ctx = reader->ctx;
-  (void)data;
-  Curl_bufq_init2(&ctx->buf, (16 * 1024), 1, BUFQ_OPT_SOFT_LIMIT);
-  return CURLE_OK;
+  ساخت cr_lc_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  Curl_bufq_init2(&ctx->buf, (16 * 1024), 1, BUFQ_OPT_SOFT_حد_بندی);
+  واپس CURLE_OK;
 }
 
-static void cr_lc_close(struct Curl_easy *data, struct Curl_creader *reader)
+ساکن خالی cr_lc_close(ساخت Curl_easy *ڈیٹا, ساخت Curl_creader *reader)
 {
-  struct cr_lc_ctx *ctx = reader->ctx;
-  (void)data;
+  ساخت cr_lc_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
   Curl_bufq_free(&ctx->buf);
 }
 
 /* client reader doing line end conversions. */
-static CURLcode cr_lc_read(struct Curl_easy *data,
-                           struct Curl_creader *reader,
-                           char *buf, size_t blen,
+ساکن CURLcode cr_lc_read(ساخت Curl_easy *ڈیٹا,
+                           ساخت Curl_creader *reader,
+                           حرف *buf, size_t blen,
                            size_t *pnread, bool *peos)
 {
-  struct cr_lc_ctx *ctx = reader->ctx;
-  CURLcode result;
-  size_t nread, i, start, n;
+  ساخت cr_lc_ctx *ctx = reader->ctx;
+  CURLcode نتیجہ;
+  size_t nread, i, آغاز, n;
   bool eos;
 
-  if(ctx->eos) {
+  اگر(ctx->eos) {
     *pnread = 0;
     *peos = TRUE;
-    return CURLE_OK;
+    واپس CURLE_OK;
   }
 
-  if(Curl_bufq_is_empty(&ctx->buf)) {
-    if(ctx->read_eos) {
+  اگر(Curl_bufq_is_خالی_خانے(&ctx->buf)) {
+    اگر(ctx->read_eos) {
       ctx->eos = TRUE;
       *pnread = 0;
       *peos = TRUE;
-      return CURLE_OK;
+      واپس CURLE_OK;
     }
     /* Still getting data form the next reader, ctx->buf is empty */
-    result = Curl_creader_read(data, reader->next, buf, blen, &nread, &eos);
-    if(result)
-      return result;
+    نتیجہ = Curl_creader_read(ڈیٹا, reader->اگلا, buf, blen, &nread, &eos);
+    اگر(نتیجہ)
+      واپس نتیجہ;
     ctx->read_eos = eos;
 
-    if(!nread || !memchr(buf, '\n', nread)) {
+    اگر(!nread || !memchr(buf, '\n', nread)) {
       /* nothing to convert, return this right away */
-      if(nread)
-        ctx->prev_cr = (buf[nread - 1] == '\r');
-      if(ctx->read_eos)
+      اگر(nread)
+        ctx->پچھلا_cr = (buf[nread - 1] == '\r');
+      اگر(ctx->read_eos)
         ctx->eos = TRUE;
       *pnread = nread;
       *peos = (bool)ctx->eos;
-      goto out;
+      جاؤ برآمد;
     }
 
     /* at least one \n might need conversion to '\r\n', place into ctx->buf */
-    for(i = start = 0; i < nread; ++i) {
+    برائے(i = آغاز = 0; i < nread; ++i) {
       /* if this byte is not an LF character, or if the preceding character is
          a CR (meaning this already is a CRLF pair), go to next */
-      if((buf[i] != '\n') || ctx->prev_cr) {
-        ctx->prev_cr = (buf[i] == '\r');
-        continue;
+      اگر((buf[i] != '\n') || ctx->پچھلا_cr) {
+        ctx->پچھلا_cr = (buf[i] == '\r');
+        جاری;
       }
-      ctx->prev_cr = FALSE;
+      ctx->پچھلا_cr = FALSE;
       /* on a soft limit bufq, we do not need to check length */
-      result = Curl_bufq_cwrite(&ctx->buf, buf + start, i - start, &n);
-      if(!result)
-        result = Curl_bufq_cwrite(&ctx->buf, STRCONST("\r\n"), &n);
-      if(result)
-        return result;
-      start = i + 1;
+      نتیجہ = Curl_bufq_cwrite(&ctx->buf, buf + آغاز, i - آغاز, &n);
+      اگر(!نتیجہ)
+        نتیجہ = Curl_bufq_cwrite(&ctx->buf, STRCONST("\r\n"), &n);
+      اگر(نتیجہ)
+        واپس نتیجہ;
+      آغاز = i + 1;
     }
 
-    if(start < i) { /* leftover */
-      result = Curl_bufq_cwrite(&ctx->buf, buf + start, i - start, &n);
-      if(result)
-        return result;
+    اگر(آغاز < i) { /* leftover */
+      نتیجہ = Curl_bufq_cwrite(&ctx->buf, buf + آغاز, i - آغاز, &n);
+      اگر(نتیجہ)
+        واپس نتیجہ;
     }
   }
 
-  DEBUGASSERT(!Curl_bufq_is_empty(&ctx->buf));
+  DEBUGASSERT(!Curl_bufq_is_خالی_خانے(&ctx->buf));
   *peos = FALSE;
-  result = Curl_bufq_cread(&ctx->buf, buf, blen, pnread);
-  if(!result && ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
+  نتیجہ = Curl_bufq_cread(&ctx->buf, buf, blen, pnread);
+  اگر(!نتیجہ && ctx->read_eos && Curl_bufq_is_خالی_خانے(&ctx->buf)) {
     /* no more data, read all, done. */
     ctx->eos = TRUE;
     *peos = TRUE;
   }
 
-out:
-  CURL_TRC_READ(data, "cr_lc_read(len=%zu) -> %d, nread=%zu, eos=%d",
-                blen, (int)result, *pnread, *peos);
-  return result;
+برآمد:
+  CURL_TRC_READ(ڈیٹا, "cr_lc_read(len=%zu) -> %d, nread=%zu, eos=%d",
+                blen, (صحیح)نتیجہ, *pnread, *peos);
+  واپس نتیجہ;
 }
 
-static curl_off_t cr_lc_total_length(struct Curl_easy *data,
-                                     struct Curl_creader *reader)
+ساکن curl_off_t cr_lc_کل_لمبائی(ساخت Curl_easy *ڈیٹا,
+                                     ساخت Curl_creader *reader)
 {
   /* this reader changes length depending on input */
-  (void)data;
-  (void)reader;
-  return -1;
+  (خالی)ڈیٹا;
+  (خالی)reader;
+  واپس -1;
 }
 
-static const struct Curl_crtype cr_lc = {
+ساکن ثابت ساخت Curl_crtype cr_lc = {
   "cr-lineconv",
   cr_lc_init,
   cr_lc_read,
   cr_lc_close,
   Curl_creader_def_needs_rewind,
-  cr_lc_total_length,
+  cr_lc_کل_لمبائی,
   Curl_creader_def_resume_from,
   Curl_creader_def_cntrl,
   Curl_creader_def_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct cr_lc_ctx)
+  Curl_creader_def_مکمل,
+  حجم(ساخت cr_lc_ctx)
 };
 
-static CURLcode cr_lc_add(struct Curl_easy *data)
+ساکن CURLcode cr_lc_جوڑو(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_creader *reader = NULL;
-  CURLcode result;
+  ساخت Curl_creader *reader = تہی;
+  CURLcode نتیجہ;
 
-  result = Curl_creader_create(&reader, data, &cr_lc, CURL_CR_CONTENT_ENCODE);
-  if(!result)
-    result = Curl_creader_add(data, reader);
+  نتیجہ = Curl_creader_create(&reader, ڈیٹا, &cr_lc, CURL_CR_CONTENT_ENCODE);
+  اگر(!نتیجہ)
+    نتیجہ = Curl_creader_جوڑو(ڈیٹا, reader);
 
-  if(result && reader)
-    Curl_creader_free(data, reader);
-  return result;
+  اگر(نتیجہ && reader)
+    Curl_creader_free(ڈیٹا, reader);
+  واپس نتیجہ;
 }
 
-static CURLcode do_init_reader_stack(struct Curl_easy *data,
-                                     struct Curl_creader *r)
+ساکن CURLcode do_init_reader_ڈھیر(ساخت Curl_easy *ڈیٹا,
+                                     ساخت Curl_creader *r)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   curl_off_t clen;
 
   DEBUGASSERT(r);
   DEBUGASSERT(r->crt);
   DEBUGASSERT(r->phase == CURL_CR_CLIENT);
-  DEBUGASSERT(!data->req.reader.stack);
+  DEBUGASSERT(!ڈیٹا->req.reader.ڈھیر);
 
-  data->req.reader.stack = r;
-  clen = r->crt->total_length(data, r);
+  ڈیٹا->req.reader.ڈھیر = r;
+  clen = r->crt->کل_لمبائی(ڈیٹا, r);
   /* if we do not have 0 length init, and CRLF conversion is wanted,
    * add the reader for it */
-  if(clen &&
-#ifdef CURL_PREFER_LF_LINEENDS
-    (data->set.crlf || data->state.prefer_ascii)
-#else
-    data->set.crlf
-#endif
+  اگر(clen &&
+#اگر_تعریف_شدہ CURL_PREFER_LF_LINEENDS
+    (ڈیٹا->سیٹ.crlf || ڈیٹا->state.prefer_ascii)
+#ورنہ
+    ڈیٹا->سیٹ.crlf
+#اگر_ختم
     ) {
-    result = cr_lc_add(data);
-    if(result)
-      return result;
+    نتیجہ = cr_lc_جوڑو(ڈیٹا);
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
-CURLcode Curl_creader_set_fread(struct Curl_easy *data, curl_off_t len)
+CURLcode Curl_creader_سیٹ_fread(ساخت Curl_easy *ڈیٹا, curl_off_t len)
 {
-  CURLcode result;
-  struct Curl_creader *r;
-  struct cr_in_ctx *ctx;
+  CURLcode نتیجہ;
+  ساخت Curl_creader *r;
+  ساخت cr_اندر_ctx *ctx;
 
-  result = Curl_creader_create(&r, data, &cr_in, CURL_CR_CLIENT);
-  if(result || !r)
-    goto out;
+  نتیجہ = Curl_creader_create(&r, ڈیٹا, &cr_اندر, CURL_CR_CLIENT);
+  اگر(نتیجہ || !r)
+    جاؤ برآمد;
   ctx = r->ctx;
-  ctx->total_len = len;
+  ctx->کل_len = len;
 
-  cl_reset_reader(data);
-  result = do_init_reader_stack(data, r);
-out:
-  CURL_TRC_READ(data, "add fread reader, len=%" FMT_OFF_T " -> %d",
-                len, (int)result);
-  return result;
+  cl_reset_reader(ڈیٹا);
+  نتیجہ = do_init_reader_ڈھیر(ڈیٹا, r);
+برآمد:
+  CURL_TRC_READ(ڈیٹا, "add fread reader, len=%" FMT_OFF_T " -> %d",
+                len, (صحیح)نتیجہ);
+  واپس نتیجہ;
 }
 
-CURLcode Curl_creader_add(struct Curl_easy *data,
-                          struct Curl_creader *reader)
+CURLcode Curl_creader_جوڑو(ساخت Curl_easy *ڈیٹا,
+                          ساخت Curl_creader *reader)
 {
-  CURLcode result;
-  struct Curl_creader **anchor = &data->req.reader.stack;
+  CURLcode نتیجہ;
+  ساخت Curl_creader **anchor = &ڈیٹا->req.reader.ڈھیر;
 
-  if(!*anchor) {
-    result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
-      return result;
+  اگر(!*anchor) {
+    نتیجہ = Curl_creader_سیٹ_fread(ڈیٹا, ڈیٹا->state.infilesize);
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
 
   /* Insert the writer as first in its phase.
    * Skip existing readers of lower phases. */
-  while(*anchor && (*anchor)->phase < reader->phase)
-    anchor = &(*anchor)->next;
-  reader->next = *anchor;
+  جب(*anchor && (*anchor)->phase < reader->phase)
+    anchor = &(*anchor)->اگلا;
+  reader->اگلا = *anchor;
   *anchor = reader;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-CURLcode Curl_creader_set(struct Curl_easy *data, struct Curl_creader *r)
+CURLcode Curl_creader_سیٹ(ساخت Curl_easy *ڈیٹا, ساخت Curl_creader *r)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
 
   DEBUGASSERT(r);
   DEBUGASSERT(r->crt);
   DEBUGASSERT(r->phase == CURL_CR_CLIENT);
 
-  cl_reset_reader(data);
-  result = do_init_reader_stack(data, r);
-  if(result)
-    Curl_creader_free(data, r);
-  return result;
+  cl_reset_reader(ڈیٹا);
+  نتیجہ = do_init_reader_ڈھیر(ڈیٹا, r);
+  اگر(نتیجہ)
+    Curl_creader_free(ڈیٹا, r);
+  واپس نتیجہ;
 }
 
-CURLcode Curl_client_read(struct Curl_easy *data, char *buf, size_t blen,
+CURLcode Curl_client_read(ساخت Curl_easy *ڈیٹا, حرف *buf, size_t blen,
                           size_t *nread, bool *eos)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
 
   DEBUGASSERT(buf);
   DEBUGASSERT(blen);
@@ -1216,279 +1216,279 @@ CURLcode Curl_client_read(struct Curl_easy *data, char *buf, size_t blen,
   DEBUGASSERT(eos);
   *nread = 0;
 
-  if(!data->req.reader.stack) {
-    result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
-      return result;
-    DEBUGASSERT(data->req.reader.stack);
+  اگر(!ڈیٹا->req.reader.ڈھیر) {
+    نتیجہ = Curl_creader_سیٹ_fread(ڈیٹا, ڈیٹا->state.infilesize);
+    اگر(نتیجہ)
+      واپس نتیجہ;
+    DEBUGASSERT(ڈیٹا->req.reader.ڈھیر);
   }
-  if(!data->req.reader_started) {
-    Curl_rlimit_start(&data->progress.ul.rlimit, Curl_pgrs_now(data), -1);
-    data->req.reader_started = TRUE;
+  اگر(!ڈیٹا->req.reader_started) {
+    Curl_rlimit_آغاز(&ڈیٹا->پیش_رفت.ul.rlimit, Curl_pgrs_now(ڈیٹا), -1);
+    ڈیٹا->req.reader_started = TRUE;
   }
 
-  if(Curl_rlimit_active(&data->progress.ul.rlimit)) {
-    curl_off_t ul_avail = Curl_rlimit_avail(&data->progress.ul.rlimit, NULL);
-    if(ul_avail <= 0) {
-      result = CURLE_OK;
+  اگر(Curl_rlimit_فعال(&ڈیٹا->پیش_رفت.ul.rlimit)) {
+    curl_off_t ul_avail = Curl_rlimit_avail(&ڈیٹا->پیش_رفت.ul.rlimit, تہی);
+    اگر(ul_avail <= 0) {
+      نتیجہ = CURLE_OK;
       *eos = FALSE;
-      goto out;
+      جاؤ برآمد;
     }
-    if(ul_avail < (curl_off_t)blen)
+    اگر(ul_avail < (curl_off_t)blen)
       blen = (size_t)ul_avail;
   }
-  result = Curl_creader_read(data, data->req.reader.stack, buf, blen,
+  نتیجہ = Curl_creader_read(ڈیٹا, ڈیٹا->req.reader.ڈھیر, buf, blen,
                              nread, eos);
 
-out:
-  CURL_TRC_READ(data, "client_read(len=%zu) -> %d, nread=%zu, eos=%d",
-                blen, (int)result, *nread, *eos);
-  return result;
+برآمد:
+  CURL_TRC_READ(ڈیٹا, "client_read(len=%zu) -> %d, nread=%zu, eos=%d",
+                blen, (صحیح)نتیجہ, *nread, *eos);
+  واپس نتیجہ;
 }
 
-bool Curl_creader_needs_rewind(struct Curl_easy *data)
+bool Curl_creader_needs_rewind(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_creader *reader = data->req.reader.stack;
-  while(reader) {
-    if(reader->crt->needs_rewind(data, reader)) {
-      CURL_TRC_READ(data, "client reader needs rewind before next request");
-      return TRUE;
+  ساخت Curl_creader *reader = ڈیٹا->req.reader.ڈھیر;
+  جب(reader) {
+    اگر(reader->crt->needs_rewind(ڈیٹا, reader)) {
+      CURL_TRC_READ(ڈیٹا, "client reader needs rewind before next request");
+      واپس TRUE;
     }
-    reader = reader->next;
+    reader = reader->اگلا;
   }
-  return FALSE;
+  واپس FALSE;
 }
 
-static CURLcode cr_null_read(struct Curl_easy *data,
-                             struct Curl_creader *reader,
-                             char *buf, size_t blen,
+ساکن CURLcode cr_null_read(ساخت Curl_easy *ڈیٹا,
+                             ساخت Curl_creader *reader,
+                             حرف *buf, size_t blen,
                              size_t *pnread, bool *peos)
 {
-  (void)data;
-  (void)reader;
-  (void)buf;
-  (void)blen;
+  (خالی)ڈیٹا;
+  (خالی)reader;
+  (خالی)buf;
+  (خالی)blen;
   *pnread = 0;
   *peos = TRUE;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static curl_off_t cr_null_total_length(struct Curl_easy *data,
-                                       struct Curl_creader *reader)
+ساکن curl_off_t cr_null_کل_لمبائی(ساخت Curl_easy *ڈیٹا,
+                                       ساخت Curl_creader *reader)
 {
   /* this reader changes length depending on input */
-  (void)data;
-  (void)reader;
-  return 0;
+  (خالی)ڈیٹا;
+  (خالی)reader;
+  واپس 0;
 }
 
-static const struct Curl_crtype cr_null = {
+ساکن ثابت ساخت Curl_crtype cr_null = {
   "cr-null",
   Curl_creader_def_init,
   cr_null_read,
   Curl_creader_def_close,
   Curl_creader_def_needs_rewind,
-  cr_null_total_length,
+  cr_null_کل_لمبائی,
   Curl_creader_def_resume_from,
   Curl_creader_def_cntrl,
   Curl_creader_def_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct Curl_creader)
+  Curl_creader_def_مکمل,
+  حجم(ساخت Curl_creader)
 };
 
-CURLcode Curl_creader_set_null(struct Curl_easy *data)
+CURLcode Curl_creader_سیٹ_null(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_creader *r;
-  CURLcode result;
+  ساخت Curl_creader *r;
+  CURLcode نتیجہ;
 
-  result = Curl_creader_create(&r, data, &cr_null, CURL_CR_CLIENT);
-  if(result)
-    return result;
+  نتیجہ = Curl_creader_create(&r, ڈیٹا, &cr_null, CURL_CR_CLIENT);
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
-  cl_reset_reader(data);
-  return do_init_reader_stack(data, r);
+  cl_reset_reader(ڈیٹا);
+  واپس do_init_reader_ڈھیر(ڈیٹا, r);
 }
 
-struct cr_buf_ctx {
-  struct Curl_creader super;
-  const char *buf;
+ساخت cr_buf_ctx {
+  ساخت Curl_creader super;
+  ثابت حرف *buf;
   size_t blen;
-  size_t index;
+  size_t اشاریہ;
 };
 
-static CURLcode cr_buf_read(struct Curl_easy *data,
-                            struct Curl_creader *reader,
-                            char *buf, size_t blen,
+ساکن CURLcode cr_buf_read(ساخت Curl_easy *ڈیٹا,
+                            ساخت Curl_creader *reader,
+                            حرف *buf, size_t blen,
                             size_t *pnread, bool *peos)
 {
-  struct cr_buf_ctx *ctx = reader->ctx;
-  size_t nread = ctx->blen - ctx->index;
+  ساخت cr_buf_ctx *ctx = reader->ctx;
+  size_t nread = ctx->blen - ctx->اشاریہ;
 
-  if(!nread || !ctx->buf) {
+  اگر(!nread || !ctx->buf) {
     *pnread = 0;
     *peos = TRUE;
   }
-  else {
-    if(nread > blen)
+  ورنہ {
+    اگر(nread > blen)
       nread = blen;
-    memcpy(buf, ctx->buf + ctx->index, nread);
+    حافظہ_نقل(buf, ctx->buf + ctx->اشاریہ, nread);
     *pnread = nread;
-    ctx->index += nread;
-    *peos = (ctx->index == ctx->blen);
+    ctx->اشاریہ += nread;
+    *peos = (ctx->اشاریہ == ctx->blen);
   }
-  CURL_TRC_READ(data, "cr_buf_read(len=%zu) -> 0, nread=%zu, eos=%d",
+  CURL_TRC_READ(ڈیٹا, "cr_buf_read(len=%zu) -> 0, nread=%zu, eos=%d",
                 blen, *pnread, *peos);
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static bool cr_buf_needs_rewind(struct Curl_easy *data,
-                                struct Curl_creader *reader)
+ساکن bool cr_buf_needs_rewind(ساخت Curl_easy *ڈیٹا,
+                                ساخت Curl_creader *reader)
 {
-  struct cr_buf_ctx *ctx = reader->ctx;
-  (void)data;
-  return ctx->index > 0;
+  ساخت cr_buf_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  واپس ctx->اشاریہ > 0;
 }
 
-static CURLcode cr_buf_cntrl(struct Curl_easy *data,
-                             struct Curl_creader *reader,
+ساکن CURLcode cr_buf_cntrl(ساخت Curl_easy *ڈیٹا,
+                             ساخت Curl_creader *reader,
                              Curl_creader_cntrl opcode)
 {
-  struct cr_buf_ctx *ctx = reader->ctx;
-  (void)data;
-  switch(opcode) {
-  case CURL_CRCNTRL_REWIND:
-    ctx->index = 0;
-    break;
-  default:
-    break;
+  ساخت cr_buf_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  انتخاب(opcode) {
+  حالت CURL_CRCNTRL_REWIND:
+    ctx->اشاریہ = 0;
+    توڑو;
+  طےشدہ:
+    توڑو;
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static curl_off_t cr_buf_total_length(struct Curl_easy *data,
-                                      struct Curl_creader *reader)
+ساکن curl_off_t cr_buf_کل_لمبائی(ساخت Curl_easy *ڈیٹا,
+                                      ساخت Curl_creader *reader)
 {
-  struct cr_buf_ctx *ctx = reader->ctx;
-  (void)data;
-  return (curl_off_t)ctx->blen;
+  ساخت cr_buf_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  واپس (curl_off_t)ctx->blen;
 }
 
-static CURLcode cr_buf_resume_from(struct Curl_easy *data,
-                                   struct Curl_creader *reader,
-                                   curl_off_t offset)
+ساکن CURLcode cr_buf_resume_from(ساخت Curl_easy *ڈیٹا,
+                                   ساخت Curl_creader *reader,
+                                   curl_off_t انحراف)
 {
-  struct cr_buf_ctx *ctx = reader->ctx;
+  ساخت cr_buf_ctx *ctx = reader->ctx;
   size_t boffset;
 
-  (void)data;
-  DEBUGASSERT(data->conn);
+  (خالی)ڈیٹا;
+  DEBUGASSERT(ڈیٹا->conn);
   /* already started reading? */
-  if(ctx->index)
-    return CURLE_READ_ERROR;
-  boffset = curlx_sotouz_range(offset, 0, SIZE_MAX);
-  if(!boffset)
-    return CURLE_OK;
-  if(boffset > ctx->blen)
-    return CURLE_READ_ERROR;
+  اگر(ctx->اشاریہ)
+    واپس CURLE_READ_ERROR;
+  boffset = curlx_sotouz_range(انحراف, 0, SIZE_MAX);
+  اگر(!boffset)
+    واپس CURLE_OK;
+  اگر(boffset > ctx->blen)
+    واپس CURLE_READ_ERROR;
 
   ctx->buf += boffset;
   ctx->blen -= boffset;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static const struct Curl_crtype cr_buf = {
+ساکن ثابت ساخت Curl_crtype cr_buf = {
   "cr-buf",
   Curl_creader_def_init,
   cr_buf_read,
   Curl_creader_def_close,
   cr_buf_needs_rewind,
-  cr_buf_total_length,
+  cr_buf_کل_لمبائی,
   cr_buf_resume_from,
   cr_buf_cntrl,
   Curl_creader_def_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct cr_buf_ctx)
+  Curl_creader_def_مکمل,
+  حجم(ساخت cr_buf_ctx)
 };
 
-CURLcode Curl_creader_set_buf(struct Curl_easy *data,
-                              const char *buf, size_t blen)
+CURLcode Curl_creader_سیٹ_buf(ساخت Curl_easy *ڈیٹا,
+                              ثابت حرف *buf, size_t blen)
 {
-  CURLcode result;
-  struct Curl_creader *r;
-  struct cr_buf_ctx *ctx;
+  CURLcode نتیجہ;
+  ساخت Curl_creader *r;
+  ساخت cr_buf_ctx *ctx;
 
-  result = Curl_creader_create(&r, data, &cr_buf, CURL_CR_CLIENT);
-  if(result)
-    goto out;
+  نتیجہ = Curl_creader_create(&r, ڈیٹا, &cr_buf, CURL_CR_CLIENT);
+  اگر(نتیجہ)
+    جاؤ برآمد;
   ctx = r->ctx;
   ctx->buf = buf;
   ctx->blen = blen;
-  ctx->index = 0;
+  ctx->اشاریہ = 0;
 
-  cl_reset_reader(data);
-  result = do_init_reader_stack(data, r);
-out:
-  CURL_TRC_READ(data, "add buf reader, len=%zu -> %d", blen, (int)result);
-  return result;
+  cl_reset_reader(ڈیٹا);
+  نتیجہ = do_init_reader_ڈھیر(ڈیٹا, r);
+برآمد:
+  CURL_TRC_READ(ڈیٹا, "add buf reader, len=%zu -> %d", blen, (صحیح)نتیجہ);
+  واپس نتیجہ;
 }
 
-curl_off_t Curl_creader_total_length(struct Curl_easy *data)
+curl_off_t Curl_creader_کل_لمبائی(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_creader *r = data->req.reader.stack;
-  return r ? r->crt->total_length(data, r) : -1;
+  ساخت Curl_creader *r = ڈیٹا->req.reader.ڈھیر;
+  واپس r ? r->crt->کل_لمبائی(ڈیٹا, r) : -1;
 }
 
-curl_off_t Curl_creader_client_length(struct Curl_easy *data)
+curl_off_t Curl_creader_client_لمبائی(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_creader *r = data->req.reader.stack;
-  while(r && r->phase != CURL_CR_CLIENT)
-    r = r->next;
-  return r ? r->crt->total_length(data, r) : -1;
+  ساخت Curl_creader *r = ڈیٹا->req.reader.ڈھیر;
+  جب(r && r->phase != CURL_CR_CLIENT)
+    r = r->اگلا;
+  واپس r ? r->crt->کل_لمبائی(ڈیٹا, r) : -1;
 }
 
-CURLcode Curl_creader_unpause(struct Curl_easy *data)
+CURLcode Curl_creader_unpause(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_creader *reader = data->req.reader.stack;
-  CURLcode result = CURLE_OK;
+  ساخت Curl_creader *reader = ڈیٹا->req.reader.ڈھیر;
+  CURLcode نتیجہ = CURLE_OK;
 
-  while(reader) {
-    result = reader->crt->cntrl(data, reader, CURL_CRCNTRL_UNPAUSE);
-    CURL_TRC_READ(data, "unpausing %s -> %d", reader->crt->name, (int)result);
-    if(result)
-      break;
-    reader = reader->next;
+  جب(reader) {
+    نتیجہ = reader->crt->cntrl(ڈیٹا, reader, CURL_CRCNTRL_UNPAUSE);
+    CURL_TRC_READ(ڈیٹا, "unpausing %s -> %d", reader->crt->name, (صحیح)نتیجہ);
+    اگر(نتیجہ)
+      توڑو;
+    reader = reader->اگلا;
   }
-  return result;
+  واپس نتیجہ;
 }
 
-bool Curl_creader_is_paused(struct Curl_easy *data)
+bool Curl_creader_is_paused(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_creader *reader = data->req.reader.stack;
+  ساخت Curl_creader *reader = ڈیٹا->req.reader.ڈھیر;
 
-  while(reader) {
-    if(reader->crt->is_paused(data, reader))
-      return TRUE;
-    reader = reader->next;
+  جب(reader) {
+    اگر(reader->crt->is_paused(ڈیٹا, reader))
+      واپس TRUE;
+    reader = reader->اگلا;
   }
-  return FALSE;
+  واپس FALSE;
 }
 
-void Curl_creader_done(struct Curl_easy *data, int premature)
+خالی Curl_creader_مکمل(ساخت Curl_easy *ڈیٹا, صحیح premature)
 {
-  struct Curl_creader *reader = data->req.reader.stack;
-  while(reader) {
-    reader->crt->done(data, reader, premature);
-    reader = reader->next;
+  ساخت Curl_creader *reader = ڈیٹا->req.reader.ڈھیر;
+  جب(reader) {
+    reader->crt->مکمل(ڈیٹا, reader, premature);
+    reader = reader->اگلا;
   }
 }
 
-struct Curl_creader *Curl_creader_get_by_type(struct Curl_easy *data,
-                                              const struct Curl_crtype *crt)
+ساخت Curl_creader *Curl_creader_get_by_type(ساخت Curl_easy *ڈیٹا,
+                                              ثابت ساخت Curl_crtype *crt)
 {
-  struct Curl_creader *r;
-  for(r = data->req.reader.stack; r; r = r->next) {
-    if(r->crt == crt)
-      return r;
+  ساخت Curl_creader *r;
+  برائے(r = ڈیٹا->req.reader.ڈھیر; r; r = r->اگلا) {
+    اگر(r->crt == crt)
+      واپس r;
   }
-  return NULL;
+  واپس تہی;
 }

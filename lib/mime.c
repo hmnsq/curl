@@ -21,47 +21,47 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-struct Curl_easy;
+ساخت Curl_easy;
 
-#include "mime.h"
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "transfer.h"
-#include "curlx/strdup.h"
-#include "curlx/basename.h"
-#include "curlx/strcopy.h"
-#include "curlx/win32-fopen.h"
-#include "curlx/base64.h"
+#شامل "mime.h"
+#شامل "urldata.h"
+#شامل "sendf.h"
+#شامل "curl_trc.h"
+#شامل "transfer.h"
+#شامل "curlx/strdup.h"
+#شامل "curlx/basename.h"
+#شامل "curlx/strcopy.h"
+#شامل "curlx/win32-fopen.h"
+#شامل "curlx/base64.h"
 
-#if !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
+#اگر !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
                                     !defined(CURL_DISABLE_SMTP) ||      \
                                     !defined(CURL_DISABLE_IMAP))
 
-#include "rand.h"
-#include "slist.h"
-#include "curlx/dynbuf.h"
+#شامل "rand.h"
+#شامل "slist.h"
+#شامل "curlx/dynbuf.h"
 
-#define MAX_MIME_LEVELS 40 /* avoid deep nesting */
+#تعریف_کرو MAX_MIME_سطحیں 40 /* avoid deep nesting */
 
-#define READ_ERROR   ((size_t)-1)
-#define STOP_FILLING ((size_t)-2)
+#تعریف_کرو READ_ERROR   ((size_t)-1)
+#تعریف_کرو STOP_FILLING ((size_t)-2)
 
-static size_t mime_subparts_read(char *buffer, size_t size, size_t nitems,
-                                 void *instream, bool *hasread);
-static curl_off_t mime_size(curl_mimepart *part);
+ساکن size_t mime_subparts_read(حرف *بفر, size_t سائز, size_t nitems,
+                                 خالی *instream, bool *hasread);
+ساکن curl_off_t mime_سائز(curl_mimepart *part);
 
 /* Quoted-printable character class table.
  *
  * We cannot rely on ctype functions since quoted-printable input data
  * is assumed to be ASCII-compatible, even on non-ASCII platforms. */
-#define QP_OK           1       /* Can be represented by itself. */
-#define QP_SP           2       /* Space or tab. */
-#define QP_CR           3       /* Carriage return. */
-#define QP_LF           4       /* Line-feed. */
-static const unsigned char qp_class[] = {
+#تعریف_کرو QP_OK           1       /* Can be represented by itself. */
+#تعریف_کرو QP_SP           2       /* Space or tab. */
+#تعریف_کرو QP_CR           3       /* Carriage return. */
+#تعریف_کرو QP_LF           4       /* Line-feed. */
+ساکن ثابت غیرعلامتی حرف qp_class[] = {
   0,     0,     0,     0,     0,     0,     0,     0,            /* 00 - 07 */
   0,     QP_SP, QP_LF, 0,     0,     QP_CR, 0,     0,            /* 08 - 0F */
   0,     0,     0,     0,     0,     0,     0,     0,            /* 10 - 17 */
@@ -89,16 +89,16 @@ static const unsigned char qp_class[] = {
 };
 
 /* Binary --> hexadecimal ASCII table. */
-static const char aschex[] =
+ساکن ثابت حرف aschex[] =
   "\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x41\x42\x43\x44\x45\x46";
 
-#ifndef __VMS
-#define filesize(name, stat_data) stat_data.st_size
-#define fopen_read                curlx_fopen
+#اگر_غیر_تعریف_شدہ __VMS
+#تعریف_کرو filesize(name, stat_ڈیٹا) stat_ڈیٹا.st_سائز
+#تعریف_کرو fopen_read                curlx_fopen
 
-#else
+#ورنہ
 
-#include <fabdef.h>
+#شامل <fabdef.h>
 /*
  * get_vms_file_size does what it takes to get the real size of the file
  *
@@ -109,27 +109,27 @@ static const char aschex[] =
  * and CD/DVD images should be either a STREAM_LF format or a fixed format.
  *
  */
-curl_off_t VmsRealFileSize(const char *name, const curlx_struct_stat *stat_buf)
+curl_off_t Vms_Real_File_سائز(ثابت حرف *name, ثابت curlx_struct_stat *stat_buf)
 {
-  char buffer[8192];
-  curl_off_t count;
-  int ret_stat;
+  حرف بفر[8192];
+  curl_off_t گنتی;
+  صحیح ret_stat;
   FILE *file;
 
   file = curlx_fopen(name, FOPEN_READTEXT); /* VMS */
-  if(!file)
-    return 0;
+  اگر(!file)
+    واپس 0;
 
-  count = 0;
+  گنتی = 0;
   ret_stat = 1;
-  while(ret_stat > 0) {
-    ret_stat = fread(buffer, 1, sizeof(buffer), file);
-    if(ret_stat)
-      count += ret_stat;
+  جب(ret_stat > 0) {
+    ret_stat = fread(بفر, 1, حجم(بفر), file);
+    اگر(ret_stat)
+      گنتی += ret_stat;
   }
   curlx_fclose(file);
 
-  return count;
+  واپس گنتی;
 }
 
 /*
@@ -138,20 +138,20 @@ curl_off_t VmsRealFileSize(const char *name, const curlx_struct_stat *stat_buf)
  *  if not to call a routine to get the correct size.
  *
  */
-static curl_off_t VmsSpecialSize(const char *name,
-                                 const curlx_struct_stat *stat_buf)
+ساکن curl_off_t Vms_Special_سائز(ثابت حرف *name,
+                                 ثابت curlx_struct_stat *stat_buf)
 {
-  switch(stat_buf->st_fab_rfm) {
-  case FAB$C_VAR:
-  case FAB$C_VFC:
-    return VmsRealFileSize(name, stat_buf);
-    break;
-  default:
-    return stat_buf->st_size;
+  انتخاب(stat_buf->st_fab_rfm) {
+  حالت FAB$C_VAR:
+  حالت FAB$C_VFC:
+    واپس Vms_Real_File_سائز(name, stat_buf);
+    توڑو;
+  طےشدہ:
+    واپس stat_buf->st_سائز;
   }
 }
 
-#define filesize(name, stat_data) VmsSpecialSize(name, &stat_data)
+#تعریف_کرو filesize(name, stat_ڈیٹا) Vms_Special_سائز(name, &stat_ڈیٹا)
 
 /*
  * vmsfopenread
@@ -161,50 +161,50 @@ static curl_off_t VmsSpecialSize(const char *name,
  * record format of the file.
  *
  */
-static FILE *vmsfopenread(const char *file, const char *mode)
+ساکن FILE *vmsfopenread(ثابت حرف *file, ثابت حرف *منوال)
 {
   curlx_struct_stat statbuf;
-  int res = curlx_stat(file, &statbuf);
+  صحیح res = curlx_stat(file, &statbuf);
 
-  if(res != -1) {
-    switch(statbuf.st_fab_rfm) {
-    case FAB$C_VAR:
-    case FAB$C_VFC:
-    case FAB$C_STMCR:
-      return curlx_fopen(file, FOPEN_READTEXT); /* VMS */
-      break;
-    default:
-      return curlx_fopen(file, FOPEN_READTEXT, "rfm=stmlf", "ctx=stm");
+  اگر(res != -1) {
+    انتخاب(statbuf.st_fab_rfm) {
+    حالت FAB$C_VAR:
+    حالت FAB$C_VFC:
+    حالت FAB$C_STMCR:
+      واپس curlx_fopen(file, FOPEN_READTEXT); /* VMS */
+      توڑو;
+    طےشدہ:
+      واپس curlx_fopen(file, FOPEN_READTEXT, "rfm=stmlf", "ctx=stm");
     }
   }
-  return NULL;
+  واپس تہی;
 }
 
-#define fopen_read vmsfopenread
-#endif /* !__VMS */
+#تعریف_کرو fopen_read vmsfopenread
+#اگر_ختم /* !__VMS */
 
 /* Set readback state. */
-static void mimesetstate(struct mime_state *state,
-                         enum mimestate tok, void *ptr)
+ساکن خالی mimesetstate(ساخت mime_state *state,
+                         شمار mimestate tok, خالی *ptr)
 {
   state->state = tok;
   state->ptr = ptr;
-  state->offset = 0;
+  state->انحراف = 0;
 }
 
 /* Escape header string into allocated memory. */
-static char *escape_string(struct Curl_easy *data,
-                           const char *src, enum mimestrategy strategy)
+ساکن حرف *escape_string(ساخت Curl_easy *ڈیٹا,
+                           ثابت حرف *src, شمار mimestrategy strategy)
 {
-  CURLcode result;
-  struct dynbuf db;
-  const char * const *table;
-  const char * const *p;
+  CURLcode نتیجہ;
+  ساخت dynbuf db;
+  ثابت حرف * ثابت *جدول;
+  ثابت حرف * ثابت *p;
   /* replace first character by rest of string. */
-  static const char * const mimetable[] = {
+  ساکن ثابت حرف * ثابت mimetable[] = {
     "\\\\\\",
     "\"\\\"",
-    NULL
+    تہی
   };
   /* WHATWG HTML living standard 4.10.21.8 2 specifies:
      For field names and filenames for file fields, the result of the
@@ -212,74 +212,74 @@ static char *escape_string(struct Curl_easy *data,
      any 0x0A (LF) bytes with the byte sequence `%0A`, 0x0D (CR) with `%0D`
      and 0x22 (") with `%22`.
      The user agent must not perform any other escapes. */
-  static const char * const formtable[] = {
+  ساکن ثابت حرف * ثابت formtable[] = {
     "\"%22",
     "\r%0D",
     "\n%0A",
-    NULL
+    تہی
   };
 
-  table = formtable;
+  جدول = formtable;
   /* data can be NULL when this function is called indirectly from
      curl_formget(). */
-  if(strategy == MIMESTRATEGY_MAIL || (data && data->set.mime_formescape))
-    table = mimetable;
+  اگر(strategy == MIMESTRATEGY_MAIL || (ڈیٹا && ڈیٹا->سیٹ.mime_formescape))
+    جدول = mimetable;
 
-  curlx_dyn_init(&db, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&db, CURL_MAX_داخلہ_لمبائی);
 
-  for(result = curlx_dyn_addn(&db, STRCONST("")); !result && *src; src++) {
-    for(p = table; *p && **p != *src; p++)
+  برائے(نتیجہ = curlx_dyn_addn(&db, STRCONST("")); !نتیجہ && *src; src++) {
+    برائے(p = جدول; *p && **p != *src; p++)
       ;
 
-    if(*p)
-      result = curlx_dyn_add(&db, *p + 1);
-    else
-      result = curlx_dyn_addn(&db, src, 1);
+    اگر(*p)
+      نتیجہ = curlx_dyn_جوڑو(&db, *p + 1);
+    ورنہ
+      نتیجہ = curlx_dyn_addn(&db, src, 1);
   }
 
-  return curlx_dyn_ptr(&db);
+  واپس curlx_dyn_ptr(&db);
 }
 
 /* Check if header matches. */
-static char *match_header(struct curl_slist *hdr, const char *lbl, size_t len)
+ساکن حرف *مطابقت_سرخی(ساخت curl_slist *hdr, ثابت حرف *lbl, size_t len)
 {
-  char *value = NULL;
+  حرف *قدر = تہی;
 
-  if(curl_strnequal(hdr->data, lbl, len) && hdr->data[len] == ':')
-    for(value = hdr->data + len + 1; *value == ' '; value++)
+  اگر(curl_strnequal(hdr->ڈیٹا, lbl, len) && hdr->ڈیٹا[len] == ':')
+    برائے(قدر = hdr->ڈیٹا + len + 1; *قدر == ' '; قدر++)
       ;
-  return value;
+  واپس قدر;
 }
 
 /* Get a header from an slist. */
-static char *search_header(struct curl_slist *hdrlist,
-                           const char *hdr, size_t len)
+ساکن حرف *تلاش_سرخی(ساخت curl_slist *hdrlist,
+                           ثابت حرف *hdr, size_t len)
 {
-  char *value = NULL;
+  حرف *قدر = تہی;
 
-  for(; !value && hdrlist; hdrlist = hdrlist->next)
-    value = match_header(hdrlist, hdr, len);
+  برائے(; !قدر && hdrlist; hdrlist = hdrlist->اگلا)
+    قدر = مطابقت_سرخی(hdrlist, hdr, len);
 
-  return value;
+  واپس قدر;
 }
 
-static char *strippath(const char *fullfile)
+ساکن حرف *strippath(ثابت حرف *fullfile)
 {
-  char *filename;
-  char *base;
+  حرف *filename;
+  حرف *بنیاد;
   filename = curlx_strdup(fullfile); /* duplicate since basename() may ruin
                                         the buffer it works on */
-  if(!filename)
-    return NULL;
-  base = curlx_strdup(curlx_basename(filename));
+  اگر(!filename)
+    واپس تہی;
+  بنیاد = curlx_strdup(curlx_basename(filename));
 
   curlx_free(filename); /* free temporary buffer */
 
-  return base; /* returns an allocated string or NULL ! */
+  واپس بنیاد; /* returns an allocated string or NULL ! */
 }
 
 /* Initialize data encoder state. */
-static void cleanup_encoder_state(struct mime_encoder_state *p)
+ساکن خالی cleanup_encoder_state(ساخت mime_encoder_state *p)
 {
   p->pos = 0;
   p->bufbeg = 0;
@@ -287,90 +287,90 @@ static void cleanup_encoder_state(struct mime_encoder_state *p)
 }
 
 /* Dummy encoder. This is used for 8-bit and binary content encodings. */
-static size_t encoder_nop_read(char *buffer, size_t size, bool ateof,
-                               struct curl_mimepart *part)
+ساکن size_t encoder_nop_read(حرف *بفر, size_t سائز, bool ateof,
+                               ساخت curl_mimepart *part)
 {
-  struct mime_encoder_state *st = &part->encstate;
+  ساخت mime_encoder_state *st = &part->encstate;
   size_t insize = st->bufend - st->bufbeg;
 
-  (void)ateof;
+  (خالی)ateof;
 
-  if(!size)
-    return STOP_FILLING;
+  اگر(!سائز)
+    واپس STOP_FILLING;
 
-  if(size > insize)
-    size = insize;
+  اگر(سائز > insize)
+    سائز = insize;
 
-  if(size)
-    memcpy(buffer, st->buf + st->bufbeg, size);
+  اگر(سائز)
+    حافظہ_نقل(بفر, st->buf + st->bufbeg, سائز);
 
-  st->bufbeg += size;
-  return size;
+  st->bufbeg += سائز;
+  واپس سائز;
 }
 
-static curl_off_t encoder_nop_size(curl_mimepart *part)
+ساکن curl_off_t encoder_nop_سائز(curl_mimepart *part)
 {
-  return part->datasize;
+  واپس part->datasize;
 }
 
 /* 7-bit encoder: the encoder is a data validity check. */
-static size_t encoder_7bit_read(char *buffer, size_t size, bool ateof,
+ساکن size_t encoder_7bit_read(حرف *بفر, size_t سائز, bool ateof,
                                 curl_mimepart *part)
 {
-  struct mime_encoder_state *st = &part->encstate;
+  ساخت mime_encoder_state *st = &part->encstate;
   size_t cursize = st->bufend - st->bufbeg;
 
-  (void)ateof;
+  (خالی)ateof;
 
-  if(!size)
-    return STOP_FILLING;
+  اگر(!سائز)
+    واپس STOP_FILLING;
 
-  if(size > cursize)
-    size = cursize;
+  اگر(سائز > cursize)
+    سائز = cursize;
 
-  for(cursize = 0; cursize < size; cursize++) {
-    *buffer = st->buf[st->bufbeg];
-    if(*buffer++ & 0x80)
-      return cursize ? cursize : READ_ERROR;
+  برائے(cursize = 0; cursize < سائز; cursize++) {
+    *بفر = st->buf[st->bufbeg];
+    اگر(*بفر++ & 0x80)
+      واپس cursize ? cursize : READ_ERROR;
     st->bufbeg++;
   }
 
-  return cursize;
+  واپس cursize;
 }
 
 /* Base64 content encoder. */
-static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
+ساکن size_t encoder_base64_read(حرف *بفر, size_t سائز, bool ateof,
                                   curl_mimepart *part)
 {
-  struct mime_encoder_state *st = &part->encstate;
+  ساخت mime_encoder_state *st = &part->encstate;
   size_t cursize = 0;
-  int i;
-  char *ptr = buffer;
+  صحیح i;
+  حرف *ptr = بفر;
 
-  while(st->bufbeg < st->bufend) {
+  جب(st->bufbeg < st->bufend) {
     /* Line full ? */
-    if(st->pos > MAX_ENCODED_LINE_LENGTH - 4) {
+    اگر(st->pos > MAX_ENCODED_سطر_لمبائی - 4) {
       /* Yes, we need 2 characters for CRLF. */
-      if(size < 2) {
-        if(!cursize)
-          return STOP_FILLING;
-        break;
+      اگر(سائز < 2) {
+        اگر(!cursize)
+          واپس STOP_FILLING;
+        توڑو;
       }
       *ptr++ = '\r';
       *ptr++ = '\n';
       st->pos = 0;
       cursize += 2;
-      size -= 2;
+      سائز -= 2;
     }
 
     /* Be sure there is enough space and input data for a base64 group. */
-    if(size < 4) {
-      if(!cursize)
-        return STOP_FILLING;
-      break;
+    اگر(سائز < 4) {
+      اگر(!cursize)
+        واپس STOP_FILLING;
+      توڑو;
     }
-    if(st->bufend - st->bufbeg < 3)
-      break;
+    اگر(st->bufend - st->bufbeg < 3)
+      توڑو;
 
     /* Encode three bytes as four characters. */
     i = st->buf[st->bufbeg++] & 0xFF;
@@ -382,30 +382,30 @@ static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
     *ptr++ = curlx_base64encdec[i & 0x3F];
     cursize += 4;
     st->pos += 4;
-    size -= 4;
+    سائز -= 4;
   }
 
   /* If at eof, we have to flush the buffered data. */
-  if(ateof) {
-    if(size < 4) {
-      if(!cursize)
-        return STOP_FILLING;
+  اگر(ateof) {
+    اگر(سائز < 4) {
+      اگر(!cursize)
+        واپس STOP_FILLING;
     }
-    else {
+    ورنہ {
       /* Buffered data size can only be 0, 1 or 2. */
       ptr[2] = ptr[3] = '=';
       i = 0;
 
       /* If there is buffered data */
-      if(st->bufend != st->bufbeg) {
+      اگر(st->bufend != st->bufbeg) {
 
-        if(st->bufend - st->bufbeg == 2)
+        اگر(st->bufend - st->bufbeg == 2)
           i = (st->buf[st->bufbeg + 1] & 0xFF) << 8;
 
         i |= (st->buf[st->bufbeg] & 0xFF) << 16;
         ptr[0] = curlx_base64encdec[(i >> 18) & 0x3F];
         ptr[1] = curlx_base64encdec[(i >> 12) & 0x3F];
-        if(++st->bufbeg != st->bufend) {
+        اگر(++st->bufbeg != st->bufend) {
           ptr[2] = curlx_base64encdec[(i >> 6) & 0x3F];
           st->bufbeg++;
         }
@@ -415,30 +415,30 @@ static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
     }
   }
 
-  return cursize;
+  واپس cursize;
 }
 
 /* The maximum input size that does not cause an overflow. */
-#define BASE64_MAX_INPUT_SIZE                                           \
-  (((CURL_OFF_T_MAX / (MAX_ENCODED_LINE_LENGTH + 2)) *                  \
-    MAX_ENCODED_LINE_LENGTH / 4) * 3 - 3)
+#تعریف_کرو BASE64_MAX_داخلہ_سائز                                           \
+  (((CURL_OFF_T_MAX / (MAX_ENCODED_سطر_لمبائی + 2)) *                  \
+    MAX_ENCODED_سطر_لمبائی / 4) * 3 - 3)
 
-static curl_off_t encoder_base64_size(curl_mimepart *part)
+ساکن curl_off_t encoder_base64_سائز(curl_mimepart *part)
 {
-  curl_off_t size = part->datasize;
+  curl_off_t سائز = part->datasize;
 
-  if(size <= 0)
-    return size;    /* Unknown size or no data. */
+  اگر(سائز <= 0)
+    واپس سائز;    /* Unknown size or no data. */
 
   /* Prevent integer overflows */
-  if(size > BASE64_MAX_INPUT_SIZE)
-    return -1;
+  اگر(سائز > BASE64_MAX_داخلہ_سائز)
+    واپس -1;
 
   /* Compute base64 character count. */
-  size = 4 * (1 + ((size - 1) / 3));
+  سائز = 4 * (1 + ((سائز - 1) / 3));
 
   /* Effective character count must include CRLFs. */
-  return size + (2 * ((size - 1) / MAX_ENCODED_LINE_LENGTH));
+  واپس سائز + (2 * ((سائز - 1) / MAX_ENCODED_سطر_لمبائی));
 }
 
 /* Quoted-printable lookahead.
@@ -446,377 +446,377 @@ static curl_off_t encoder_base64_size(curl_mimepart *part)
  * Check if a CRLF or end of data is in input buffer at current position + n.
  * Return -1 if more data needed, 1 if CRLF or end of data, else 0.
  */
-static int qp_lookahead_eol(struct mime_encoder_state *st, int ateof, size_t n)
+ساکن صحیح qp_lookahead_eol(ساخت mime_encoder_state *st, صحیح ateof, size_t n)
 {
   n += st->bufbeg;
-  if(n >= st->bufend && ateof)
-    return 1;
-  if(n + 2 > st->bufend)
-    return ateof ? 0 : -1;
-  if(qp_class[st->buf[n] & 0xFF] == QP_CR &&
+  اگر(n >= st->bufend && ateof)
+    واپس 1;
+  اگر(n + 2 > st->bufend)
+    واپس ateof ? 0 : -1;
+  اگر(qp_class[st->buf[n] & 0xFF] == QP_CR &&
      qp_class[st->buf[n + 1] & 0xFF] == QP_LF)
-    return 1;
-  return 0;
+    واپس 1;
+  واپس 0;
 }
 
 /* Quoted-printable encoder. */
-static size_t encoder_qp_read(char *buffer, size_t size, bool ateof,
+ساکن size_t encoder_qp_read(حرف *بفر, size_t سائز, bool ateof,
                               curl_mimepart *part)
 {
-  struct mime_encoder_state *st = &part->encstate;
-  char *ptr = buffer;
+  ساخت mime_encoder_state *st = &part->encstate;
+  حرف *ptr = بفر;
   size_t cursize = 0;
-  int softlinebreak;
-  char buf[4];
+  صحیح softlinebreak;
+  حرف buf[4];
 
   /* On all platforms, input is supposed to be ASCII compatible: for this
      reason, we use hexadecimal ASCII codes in this function rather than
      character constants that can be interpreted as non-ASCII on some
      platforms. Preserve ASCII encoding on output too. */
-  while(st->bufbeg < st->bufend) {
+  جب(st->bufbeg < st->bufend) {
     size_t len = 1;
     size_t consumed = 1;
-    int i = (unsigned char)st->buf[st->bufbeg];
-    buf[0] = (char)i;
+    صحیح i = (غیرعلامتی حرف)st->buf[st->bufbeg];
+    buf[0] = (حرف)i;
     buf[1] = aschex[(i >> 4) & 0xF];
     buf[2] = aschex[i & 0xF];
 
-    switch(qp_class[st->buf[st->bufbeg] & 0xFF]) {
-    case QP_OK:          /* Not a special character. */
-      break;
-    case QP_SP:          /* Space or tab. */
+    انتخاب(qp_class[st->buf[st->bufbeg] & 0xFF]) {
+    حالت QP_OK:          /* Not a special character. */
+      توڑو;
+    حالت QP_SP:          /* Space or tab. */
       /* Spacing must be escaped if followed by CRLF. */
-      switch(qp_lookahead_eol(st, ateof, 1)) {
-      case -1:          /* More input data needed. */
-        return cursize;
-      case 0:           /* No encoding needed. */
-        break;
-      default:          /* CRLF after space or tab. */
+      انتخاب(qp_lookahead_eol(st, ateof, 1)) {
+      حالت -1:          /* More input data needed. */
+        واپس cursize;
+      حالت 0:           /* No encoding needed. */
+        توڑو;
+      طےشدہ:          /* CRLF after space or tab. */
         buf[0] = '\x3D';    /* '=' */
         len = 3;
-        break;
+        توڑو;
       }
-      break;
-    case QP_CR:         /* Carriage return. */
+      توڑو;
+    حالت QP_CR:         /* Carriage return. */
       /* If followed by a line-feed, output the CRLF pair.
          Else escape it. */
-      switch(qp_lookahead_eol(st, ateof, 0)) {
-      case -1:          /* Need more data. */
-        return cursize;
-      case 1:           /* CRLF found. */
+      انتخاب(qp_lookahead_eol(st, ateof, 0)) {
+      حالت -1:          /* Need more data. */
+        واپس cursize;
+      حالت 1:           /* CRLF found. */
         buf[len++] = '\x0A';    /* Append '\n'. */
         consumed = 2;
-        break;
-      default:          /* Not followed by LF: escape. */
+        توڑو;
+      طےشدہ:          /* Not followed by LF: escape. */
         buf[0] = '\x3D';    /* '=' */
         len = 3;
-        break;
+        توڑو;
       }
-      break;
-    default:            /* Character must be escaped. */
+      توڑو;
+    طےشدہ:            /* Character must be escaped. */
       buf[0] = '\x3D';    /* '=' */
       len = 3;
-      break;
+      توڑو;
     }
 
     /* Be sure the encoded character fits within maximum line length. */
-    if(buf[len - 1] != '\x0A') {    /* '\n' */
-      softlinebreak = st->pos + len > MAX_ENCODED_LINE_LENGTH;
-      if(!softlinebreak && st->pos + len == MAX_ENCODED_LINE_LENGTH) {
+    اگر(buf[len - 1] != '\x0A') {    /* '\n' */
+      softlinebreak = st->pos + len > MAX_ENCODED_سطر_لمبائی;
+      اگر(!softlinebreak && st->pos + len == MAX_ENCODED_سطر_لمبائی) {
         /* We may use the current line only if end of data or followed by
            a CRLF. */
-        switch(qp_lookahead_eol(st, ateof, consumed)) {
-        case -1:        /* Need more data. */
-          return cursize;
-        case 0:         /* Not followed by a CRLF. */
+        انتخاب(qp_lookahead_eol(st, ateof, consumed)) {
+        حالت -1:        /* Need more data. */
+          واپس cursize;
+        حالت 0:         /* Not followed by a CRLF. */
           softlinebreak = 1;
-          break;
+          توڑو;
         }
       }
-      if(softlinebreak) {
-        curlx_strcopy(buf, sizeof(buf), STRCONST("\x3D\x0D\x0A")); /* =\r\n */
+      اگر(softlinebreak) {
+        curlx_strcopy(buf, حجم(buf), STRCONST("\x3D\x0D\x0A")); /* =\r\n */
         len = 3;
         consumed = 0;
       }
     }
 
     /* If the output buffer would overflow, do not store. */
-    if(len > size) {
-      if(!cursize)
-        return STOP_FILLING;
-      break;
+    اگر(len > سائز) {
+      اگر(!cursize)
+        واپس STOP_FILLING;
+      توڑو;
     }
 
     /* Append to output buffer. */
-    memcpy(ptr, buf, len);
+    حافظہ_نقل(ptr, buf, len);
     cursize += len;
     ptr += len;
-    size -= len;
+    سائز -= len;
     st->pos += len;
-    if(buf[len - 1] == '\x0A')    /* '\n' */
+    اگر(buf[len - 1] == '\x0A')    /* '\n' */
       st->pos = 0;
     st->bufbeg += consumed;
   }
 
-  return cursize;
+  واپس cursize;
 }
 
-static curl_off_t encoder_qp_size(curl_mimepart *part)
+ساکن curl_off_t encoder_qp_سائز(curl_mimepart *part)
 {
   /* Determining the size can only be done by reading the data: unless the
      data size is 0, we return it as unknown (-1). */
-  return part->datasize ? -1 : 0;
+  واپس part->datasize ? -1 : 0;
 }
 
 /* In-memory data callbacks. */
 /* Argument is a pointer to the mime part. */
-static size_t mime_mem_read(char *buffer, size_t size, size_t nitems,
-                            void *instream)
+ساکن size_t mime_mem_read(حرف *بفر, size_t سائز, size_t nitems,
+                            خالی *instream)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
-  size_t sz = curlx_sotouz(part->datasize - part->state.offset);
-  (void)size;  /* Always 1 */
+  size_t sz = curlx_sotouz(part->datasize - part->state.انحراف);
+  (خالی)سائز;  /* Always 1 */
 
-  if(!nitems)
-    return STOP_FILLING;
+  اگر(!nitems)
+    واپس STOP_FILLING;
 
-  if(sz > nitems)
+  اگر(sz > nitems)
     sz = nitems;
 
-  if(sz)
-    memcpy(buffer, part->data + curlx_sotouz(part->state.offset), sz);
+  اگر(sz)
+    حافظہ_نقل(بفر, part->ڈیٹا + curlx_sotouz(part->state.انحراف), sz);
 
-  return sz;
+  واپس sz;
 }
 
-static int mime_mem_seek(void *instream, curl_off_t offset, int whence)
+ساکن صحیح mime_mem_seek(خالی *instream, curl_off_t انحراف, صحیح whence)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
 
-  switch(whence) {
-  case SEEK_CUR:
-    offset += part->state.offset;
-    break;
-  case SEEK_END:
-    offset += part->datasize;
-    break;
+  انتخاب(whence) {
+  حالت SEEK_CUR:
+    انحراف += part->state.انحراف;
+    توڑو;
+  حالت SEEK_END:
+    انحراف += part->datasize;
+    توڑو;
   }
 
-  if(offset < 0 || offset > part->datasize)
-    return CURL_SEEKFUNC_FAIL;
+  اگر(انحراف < 0 || انحراف > part->datasize)
+    واپس CURL_SEEKFUNC_FAIL;
 
-  part->state.offset = offset;
-  return CURL_SEEKFUNC_OK;
+  part->state.انحراف = انحراف;
+  واپس CURL_SEEKFUNC_OK;
 }
 
-static void mime_mem_free(void *ptr)
+ساکن خالی mime_mem_free(خالی *ptr)
 {
-  curlx_safefree(((curl_mimepart *)ptr)->data);
+  curlx_safefree(((curl_mimepart *)ptr)->ڈیٹا);
 }
 
 /* Named file callbacks. */
 /* Argument is a pointer to the mime part. */
-static bool mime_open_file(curl_mimepart *part)
+ساکن bool mime_open_file(curl_mimepart *part)
 {
   /* Open a MIMEKIND_FILE part. */
 
-  if(part->fp)
-    return FALSE;
-  part->fp = fopen_read(part->data, "rb");
-  return part->fp ? FALSE : TRUE;
+  اگر(part->fp)
+    واپس FALSE;
+  part->fp = fopen_read(part->ڈیٹا, "rb");
+  واپس part->fp ? FALSE : TRUE;
 }
 
-static size_t mime_file_read(char *buffer, size_t size, size_t nitems,
-                             void *instream)
+ساکن size_t mime_file_read(حرف *بفر, size_t سائز, size_t nitems,
+                             خالی *instream)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
 
-  if(!nitems)
-    return STOP_FILLING;
+  اگر(!nitems)
+    واپس STOP_FILLING;
 
-  if(mime_open_file(part))
-    return READ_ERROR;
+  اگر(mime_open_file(part))
+    واپس READ_ERROR;
 
-  return fread(buffer, size, nitems, part->fp);
+  واپس fread(بفر, سائز, nitems, part->fp);
 }
 
-static int mime_file_seek(void *instream, curl_off_t offset, int whence)
+ساکن صحیح mime_file_seek(خالی *instream, curl_off_t انحراف, صحیح whence)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
 
-  if(whence == SEEK_SET && !offset && !part->fp)
-    return CURL_SEEKFUNC_OK;   /* Not open: implicitly already at BOF. */
+  اگر(whence == SEEK_SET && !انحراف && !part->fp)
+    واپس CURL_SEEKFUNC_OK;   /* Not open: implicitly already at BOF. */
 
-  if(mime_open_file(part))
-    return CURL_SEEKFUNC_FAIL;
+  اگر(mime_open_file(part))
+    واپس CURL_SEEKFUNC_FAIL;
 
-  return curlx_fseek(part->fp, offset, whence) ?
+  واپس curlx_fseek(part->fp, انحراف, whence) ?
     CURL_SEEKFUNC_CANTSEEK : CURL_SEEKFUNC_OK;
 }
 
-static void mime_file_free(void *ptr)
+ساکن خالی mime_file_free(خالی *ptr)
 {
   curl_mimepart *part = (curl_mimepart *)ptr;
 
-  if(part->fp) {
+  اگر(part->fp) {
     curlx_fclose(part->fp);
-    part->fp = NULL;
+    part->fp = تہی;
   }
-  curlx_safefree(part->data);
+  curlx_safefree(part->ڈیٹا);
 }
 
 /* Subparts callbacks. */
 /* Argument is a pointer to the mime structure. */
 
 /* Readback a byte string segment. */
-static size_t readback_bytes(struct mime_state *state,
-                             char *buffer, size_t bufsize,
-                             const char *bytes, size_t numbytes,
-                             const char *trail, size_t traillen)
+ساکن size_t readback_بائٹیں(ساخت mime_state *state,
+                             حرف *بفر, size_t bufsize,
+                             ثابت حرف *بائٹیں, size_t numbytes,
+                             ثابت حرف *trail, size_t traillen)
 {
   size_t sz;
-  size_t offset = curlx_sotouz(state->offset);
+  size_t انحراف = curlx_sotouz(state->انحراف);
 
-  if(numbytes > offset) {
-    sz = numbytes - offset;
-    bytes += offset;
+  اگر(numbytes > انحراف) {
+    sz = numbytes - انحراف;
+    بائٹیں += انحراف;
   }
-  else {
-    sz = offset - numbytes;
-    if(sz >= traillen)
-      return 0;
-    bytes = trail + sz;
+  ورنہ {
+    sz = انحراف - numbytes;
+    اگر(sz >= traillen)
+      واپس 0;
+    بائٹیں = trail + sz;
     sz = traillen - sz;
   }
 
-  if(sz > bufsize)
+  اگر(sz > bufsize)
     sz = bufsize;
 
-  memcpy(buffer, bytes, sz);
-  state->offset += sz;
-  return sz;
+  حافظہ_نقل(بفر, بائٹیں, sz);
+  state->انحراف += sz;
+  واپس sz;
 }
 
 /* Read a non-encoded part content. */
 
-static size_t read_part_content(curl_mimepart *part, char *buffer,
+ساکن size_t read_part_content(curl_mimepart *part, حرف *بفر,
                                 size_t bufsize, bool *hasread)
 {
   size_t sz = 0;
 
-  switch(part->lastreadstatus) {
-  case 0:
-  case CURL_READFUNC_ABORT:
-  case CURL_READFUNC_PAUSE:
-  case READ_ERROR:
-    return part->lastreadstatus;
-  default:
-    break;
+  انتخاب(part->lastreadstatus) {
+  حالت 0:
+  حالت CURL_READFUNC_ABORT:
+  حالت CURL_READFUNC_PAUSE:
+  حالت READ_ERROR:
+    واپس part->lastreadstatus;
+  طےشدہ:
+    توڑو;
   }
 
   /* If we can determine we are at end of part data, spare a read. */
-  if(part->datasize != (curl_off_t)-1 &&
-     part->state.offset >= part->datasize) {
+  اگر(part->datasize != (curl_off_t)-1 &&
+     part->state.انحراف >= part->datasize) {
     /* sz is already zero. */
   }
-  else {
-    switch(part->kind) {
-    case MIMEKIND_MULTIPART:
+  ورنہ {
+    انتخاب(part->قسم) {
+    حالت MIMEKIND_MULTIPART:
       /*
        * Cannot be processed as other kinds since read function requires
        * an additional parameter and is highly recursive.
        */
-      sz = mime_subparts_read(buffer, 1, bufsize, part->arg, hasread);
-      break;
-    case MIMEKIND_FILE:
-      if(part->fp && feof(part->fp))
-        break;  /* At EOF. */
+      sz = mime_subparts_read(بفر, 1, bufsize, part->arg, hasread);
+      توڑو;
+    حالت MIMEKIND_FILE:
+      اگر(part->fp && feof(part->fp))
+        توڑو;  /* At EOF. */
       FALLTHROUGH();
-    default:
-      if(part->readfunc) {
-        if(!(part->flags & MIME_FAST_READ)) {
-          if(*hasread)
-            return STOP_FILLING;
+    طےشدہ:
+      اگر(part->readfunc) {
+        اگر(!(part->flags & MIME_FAST_READ)) {
+          اگر(*hasread)
+            واپس STOP_FILLING;
           *hasread = TRUE;
         }
-        sz = part->readfunc(buffer, 1, bufsize, part->arg);
+        sz = part->readfunc(بفر, 1, bufsize, part->arg);
       }
-      break;
+      توڑو;
     }
   }
 
-  switch(sz) {
-  case STOP_FILLING:
-    break;
-  case 0:
-  case CURL_READFUNC_ABORT:
-  case CURL_READFUNC_PAUSE:
-  case READ_ERROR:
+  انتخاب(sz) {
+  حالت STOP_FILLING:
+    توڑو;
+  حالت 0:
+  حالت CURL_READFUNC_ABORT:
+  حالت CURL_READFUNC_PAUSE:
+  حالت READ_ERROR:
     part->lastreadstatus = sz;
-    break;
-  default:
-    part->state.offset += sz;
+    توڑو;
+  طےشدہ:
+    part->state.انحراف += sz;
     part->lastreadstatus = sz;
-    break;
+    توڑو;
   }
 
-  return sz;
+  واپس sz;
 }
 
 /* Read and encode part content. */
-static size_t read_encoded_part_content(curl_mimepart *part, char *buffer,
+ساکن size_t read_encoded_part_content(curl_mimepart *part, حرف *بفر,
                                         size_t bufsize, bool *hasread)
 {
-  struct mime_encoder_state *st = &part->encstate;
+  ساخت mime_encoder_state *st = &part->encstate;
   size_t cursize = 0;
   size_t sz;
   bool ateof = FALSE;
 
-  for(;;) {
-    if(st->bufbeg < st->bufend || ateof) {
+  برائے(;;) {
+    اگر(st->bufbeg < st->bufend || ateof) {
       /* Encode buffered data. */
-      sz = part->encoder->encodefunc(buffer, bufsize, ateof, part);
-      switch(sz) {
-      case 0:
-        if(ateof)
-          return cursize;
-        break;
-      case READ_ERROR:
-      case STOP_FILLING:
-        return cursize ? cursize : sz;
-      default:
+      sz = part->encoder->encodefunc(بفر, bufsize, ateof, part);
+      انتخاب(sz) {
+      حالت 0:
+        اگر(ateof)
+          واپس cursize;
+        توڑو;
+      حالت READ_ERROR:
+      حالت STOP_FILLING:
+        واپس cursize ? cursize : sz;
+      طےشدہ:
         cursize += sz;
-        buffer += sz;
+        بفر += sz;
         bufsize -= sz;
-        continue;
+        جاری;
       }
     }
 
     /* We need more data in input buffer. */
-    if(st->bufbeg) {
+    اگر(st->bufbeg) {
       size_t len = st->bufend - st->bufbeg;
 
-      if(len)
+      اگر(len)
         memmove(st->buf, st->buf + st->bufbeg, len);
       st->bufbeg = 0;
       st->bufend = len;
     }
-    if(st->bufend >= sizeof(st->buf))
-      return cursize ? cursize : READ_ERROR;    /* Buffer full. */
+    اگر(st->bufend >= حجم(st->buf))
+      واپس cursize ? cursize : READ_ERROR;    /* Buffer full. */
     sz = read_part_content(part, st->buf + st->bufend,
-                           sizeof(st->buf) - st->bufend, hasread);
-    switch(sz) {
-    case 0:
+                           حجم(st->buf) - st->bufend, hasread);
+    انتخاب(sz) {
+    حالت 0:
       ateof = TRUE;
-      break;
-    case CURL_READFUNC_ABORT:
-    case CURL_READFUNC_PAUSE:
-    case READ_ERROR:
-    case STOP_FILLING:
-      return cursize ? cursize : sz;
-    default:
+      توڑو;
+    حالت CURL_READFUNC_ABORT:
+    حالت CURL_READFUNC_PAUSE:
+    حالت READ_ERROR:
+    حالت STOP_FILLING:
+      واپس cursize ? cursize : sz;
+    طےشدہ:
       st->bufend += sz;
-      break;
+      توڑو;
     }
   }
 
@@ -824,264 +824,264 @@ static size_t read_encoded_part_content(curl_mimepart *part, char *buffer,
 }
 
 /* Readback a mime part. */
-static size_t readback_part(curl_mimepart *part,
-                            char *buffer, size_t bufsize, bool *hasread)
+ساکن size_t readback_part(curl_mimepart *part,
+                            حرف *بفر, size_t bufsize, bool *hasread)
 {
   size_t cursize = 0;
 
   /* Readback from part. */
-  while(bufsize) {
+  جب(bufsize) {
     size_t sz = 0;
-    struct curl_slist *hdr = (struct curl_slist *)part->state.ptr;
-    switch(part->state.state) {
-    case MIMESTATE_BEGIN:
+    ساخت curl_slist *hdr = (ساخت curl_slist *)part->state.ptr;
+    انتخاب(part->state.state) {
+    حالت MIMESTATE_BEGIN:
       mimesetstate(&part->state,
                    (part->flags & MIME_BODY_ONLY) ?
                    MIMESTATE_BODY : MIMESTATE_CURLHEADERS,
                    part->curlheaders);
-      break;
-    case MIMESTATE_USERHEADERS:
-      if(!hdr) {
-        mimesetstate(&part->state, MIMESTATE_EOH, NULL);
-        break;
+      توڑو;
+    حالت MIMESTATE_USERHEADERS:
+      اگر(!hdr) {
+        mimesetstate(&part->state, MIMESTATE_EOH, تہی);
+        توڑو;
       }
-      if(match_header(hdr, "Content-Type", 12)) {
-        mimesetstate(&part->state, MIMESTATE_USERHEADERS, hdr->next);
-        break;
+      اگر(مطابقت_سرخی(hdr, "Content-Type", 12)) {
+        mimesetstate(&part->state, MIMESTATE_USERHEADERS, hdr->اگلا);
+        توڑو;
       }
       FALLTHROUGH();
-    case MIMESTATE_CURLHEADERS:
-      if(!hdr)
+    حالت MIMESTATE_CURLHEADERS:
+      اگر(!hdr)
         mimesetstate(&part->state, MIMESTATE_USERHEADERS, part->userheaders);
-      else {
-        sz = readback_bytes(&part->state, buffer, bufsize,
-                            hdr->data, strlen(hdr->data), STRCONST("\r\n"));
-        if(!sz)
-          mimesetstate(&part->state, part->state.state, hdr->next);
+      ورنہ {
+        sz = readback_بائٹیں(&part->state, بفر, bufsize,
+                            hdr->ڈیٹا, لڑی_لمبائی(hdr->ڈیٹا), STRCONST("\r\n"));
+        اگر(!sz)
+          mimesetstate(&part->state, part->state.state, hdr->اگلا);
       }
-      break;
-    case MIMESTATE_EOH:
-      sz = readback_bytes(&part->state, buffer, bufsize, STRCONST("\r\n"),
+      توڑو;
+    حالت MIMESTATE_EOH:
+      sz = readback_بائٹیں(&part->state, بفر, bufsize, STRCONST("\r\n"),
                           STRCONST(""));
-      if(!sz)
-        mimesetstate(&part->state, MIMESTATE_BODY, NULL);
-      break;
-    case MIMESTATE_BODY:
+      اگر(!sz)
+        mimesetstate(&part->state, MIMESTATE_BODY, تہی);
+      توڑو;
+    حالت MIMESTATE_BODY:
       cleanup_encoder_state(&part->encstate);
-      mimesetstate(&part->state, MIMESTATE_CONTENT, NULL);
-      break;
-    case MIMESTATE_CONTENT:
-      if(part->encoder)
-        sz = read_encoded_part_content(part, buffer, bufsize, hasread);
-      else
-        sz = read_part_content(part, buffer, bufsize, hasread);
-      switch(sz) {
-      case 0:
-        mimesetstate(&part->state, MIMESTATE_END, NULL);
+      mimesetstate(&part->state, MIMESTATE_CONTENT, تہی);
+      توڑو;
+    حالت MIMESTATE_CONTENT:
+      اگر(part->encoder)
+        sz = read_encoded_part_content(part, بفر, bufsize, hasread);
+      ورنہ
+        sz = read_part_content(part, بفر, bufsize, hasread);
+      انتخاب(sz) {
+      حالت 0:
+        mimesetstate(&part->state, MIMESTATE_انتہا, تہی);
         /* Try sparing open file descriptors. */
-        if(part->kind == MIMEKIND_FILE && part->fp) {
+        اگر(part->قسم == MIMEKIND_FILE && part->fp) {
           curlx_fclose(part->fp);
-          part->fp = NULL;
+          part->fp = تہی;
         }
         FALLTHROUGH();
-      case CURL_READFUNC_ABORT:
-      case CURL_READFUNC_PAUSE:
-      case READ_ERROR:
-      case STOP_FILLING:
-        return cursize ? cursize : sz;
+      حالت CURL_READFUNC_ABORT:
+      حالت CURL_READFUNC_PAUSE:
+      حالت READ_ERROR:
+      حالت STOP_FILLING:
+        واپس cursize ? cursize : sz;
       }
-      break;
-    case MIMESTATE_END:
-      return cursize;
-    default:
-      break;    /* Other values not in part state. */
+      توڑو;
+    حالت MIMESTATE_انتہا:
+      واپس cursize;
+    طےشدہ:
+      توڑو;    /* Other values not in part state. */
     }
 
     /* Bump buffer and counters according to read size. */
     cursize += sz;
-    buffer += sz;
+    بفر += sz;
     bufsize -= sz;
   }
 
-  return cursize;
+  واپس cursize;
 }
 
 /* Readback from mime. Warning: not a read callback function. */
-static size_t mime_subparts_read(char *buffer, size_t size, size_t nitems,
-                                 void *instream, bool *hasread)
+ساکن size_t mime_subparts_read(حرف *بفر, size_t سائز, size_t nitems,
+                                 خالی *instream, bool *hasread)
 {
   curl_mime *mime = (curl_mime *)instream;
   size_t cursize = 0;
-  (void)size;  /* Always 1 */
+  (خالی)سائز;  /* Always 1 */
 
-  while(nitems) {
+  جب(nitems) {
     size_t sz = 0;
     curl_mimepart *part = mime->state.ptr;
-    switch(mime->state.state) {
-    case MIMESTATE_BEGIN:
-    case MIMESTATE_BODY:
+    انتخاب(mime->state.state) {
+    حالت MIMESTATE_BEGIN:
+    حالت MIMESTATE_BODY:
       mimesetstate(&mime->state, MIMESTATE_BOUNDARY1, mime->firstpart);
       /* The first boundary always follows the header termination empty line,
          so is always preceded by a CRLF. We can then spare 2 characters
          by skipping the leading CRLF in boundary. */
-      mime->state.offset += 2;
-      break;
-    case MIMESTATE_BOUNDARY1:
-      sz = readback_bytes(&mime->state, buffer, nitems, STRCONST("\r\n--"),
+      mime->state.انحراف += 2;
+      توڑو;
+    حالت MIMESTATE_BOUNDARY1:
+      sz = readback_بائٹیں(&mime->state, بفر, nitems, STRCONST("\r\n--"),
                           STRCONST(""));
-      if(!sz)
+      اگر(!sz)
         mimesetstate(&mime->state, MIMESTATE_BOUNDARY2, part);
-      break;
-    case MIMESTATE_BOUNDARY2:
-      if(part)
-        sz = readback_bytes(&mime->state, buffer, nitems, mime->boundary,
+      توڑو;
+    حالت MIMESTATE_BOUNDARY2:
+      اگر(part)
+        sz = readback_بائٹیں(&mime->state, بفر, nitems, mime->boundary,
                             MIME_BOUNDARY_LEN, STRCONST("\r\n"));
-      else
-        sz = readback_bytes(&mime->state, buffer, nitems, mime->boundary,
+      ورنہ
+        sz = readback_بائٹیں(&mime->state, بفر, nitems, mime->boundary,
                             MIME_BOUNDARY_LEN, STRCONST("--\r\n"));
-      if(!sz) {
+      اگر(!sz) {
         mimesetstate(&mime->state, MIMESTATE_CONTENT, part);
       }
-      break;
-    case MIMESTATE_CONTENT:
-      if(!part) {
-        mimesetstate(&mime->state, MIMESTATE_END, NULL);
-        break;
+      توڑو;
+    حالت MIMESTATE_CONTENT:
+      اگر(!part) {
+        mimesetstate(&mime->state, MIMESTATE_انتہا, تہی);
+        توڑو;
       }
-      sz = readback_part(part, buffer, nitems, hasread);
-      switch(sz) {
-      case CURL_READFUNC_ABORT:
-      case CURL_READFUNC_PAUSE:
-      case READ_ERROR:
-      case STOP_FILLING:
-        return cursize ? cursize : sz;
-      case 0:
+      sz = readback_part(part, بفر, nitems, hasread);
+      انتخاب(sz) {
+      حالت CURL_READFUNC_ABORT:
+      حالت CURL_READFUNC_PAUSE:
+      حالت READ_ERROR:
+      حالت STOP_FILLING:
+        واپس cursize ? cursize : sz;
+      حالت 0:
         mimesetstate(&mime->state, MIMESTATE_BOUNDARY1, part->nextpart);
-        break;
+        توڑو;
       }
-      break;
-    case MIMESTATE_END:
-      return cursize;
-    default:
-      break;    /* other values not used in mime state. */
+      توڑو;
+    حالت MIMESTATE_انتہا:
+      واپس cursize;
+    طےشدہ:
+      توڑو;    /* other values not used in mime state. */
     }
 
     /* Bump buffer and counters according to read size. */
     cursize += sz;
-    buffer += sz;
+    بفر += sz;
     nitems -= sz;
   }
 
-  return cursize;
+  واپس cursize;
 }
 
-static int mime_part_rewind(curl_mimepart *part)
+ساکن صحیح mime_part_rewind(curl_mimepart *part)
 {
-  int res = CURL_SEEKFUNC_OK;
-  enum mimestate targetstate = MIMESTATE_BEGIN;
+  صحیح res = CURL_SEEKFUNC_OK;
+  شمار mimestate targetstate = MIMESTATE_BEGIN;
 
-  if(part->flags & MIME_BODY_ONLY)
+  اگر(part->flags & MIME_BODY_ONLY)
     targetstate = MIMESTATE_BODY;
   cleanup_encoder_state(&part->encstate);
-  if(part->state.state > targetstate) {
+  اگر(part->state.state > targetstate) {
     res = CURL_SEEKFUNC_CANTSEEK;
-    if(part->seekfunc) {
+    اگر(part->seekfunc) {
       res = part->seekfunc(part->arg, (curl_off_t)0, SEEK_SET);
-      switch(res) {
-      case CURL_SEEKFUNC_OK:
-      case CURL_SEEKFUNC_FAIL:
-      case CURL_SEEKFUNC_CANTSEEK:
-        break;
-      case -1:    /* For fseek() error. */
+      انتخاب(res) {
+      حالت CURL_SEEKFUNC_OK:
+      حالت CURL_SEEKFUNC_FAIL:
+      حالت CURL_SEEKFUNC_CANTSEEK:
+        توڑو;
+      حالت -1:    /* For fseek() error. */
         res = CURL_SEEKFUNC_CANTSEEK;
-        break;
-      default:
+        توڑو;
+      طےشدہ:
         res = CURL_SEEKFUNC_FAIL;
-        break;
+        توڑو;
       }
     }
   }
 
-  if(res == CURL_SEEKFUNC_OK)
-    mimesetstate(&part->state, targetstate, NULL);
+  اگر(res == CURL_SEEKFUNC_OK)
+    mimesetstate(&part->state, targetstate, تہی);
 
   part->lastreadstatus = 1; /* Successful read status. */
-  return res;
+  واپس res;
 }
 
-static int mime_subparts_seek(void *instream, curl_off_t offset, int whence)
+ساکن صحیح mime_subparts_seek(خالی *instream, curl_off_t انحراف, صحیح whence)
 {
   curl_mime *mime = (curl_mime *)instream;
   curl_mimepart *part;
-  int rc = CURL_SEEKFUNC_OK;
+  صحیح rc = CURL_SEEKFUNC_OK;
 
-  if(whence != SEEK_SET || offset)
-    return CURL_SEEKFUNC_CANTSEEK;    /* Only support full rewind. */
+  اگر(whence != SEEK_SET || انحراف)
+    واپس CURL_SEEKFUNC_CANTSEEK;    /* Only support full rewind. */
 
-  if(mime->state.state == MIMESTATE_BEGIN)
-    return CURL_SEEKFUNC_OK;           /* Already rewound. */
+  اگر(mime->state.state == MIMESTATE_BEGIN)
+    واپس CURL_SEEKFUNC_OK;           /* Already rewound. */
 
-  for(part = mime->firstpart; part; part = part->nextpart) {
-    int res = mime_part_rewind(part);
-    if(res != CURL_SEEKFUNC_OK)
+  برائے(part = mime->firstpart; part; part = part->nextpart) {
+    صحیح res = mime_part_rewind(part);
+    اگر(res != CURL_SEEKFUNC_OK)
       rc = res;
   }
 
-  if(rc == CURL_SEEKFUNC_OK)
-    mimesetstate(&mime->state, MIMESTATE_BEGIN, NULL);
+  اگر(rc == CURL_SEEKFUNC_OK)
+    mimesetstate(&mime->state, MIMESTATE_BEGIN, تہی);
 
-  return rc;
+  واپس rc;
 }
 
 /* Release part content. */
-static void cleanup_part_content(curl_mimepart *part)
+ساکن خالی cleanup_part_content(curl_mimepart *part)
 {
-  if(part->freefunc)
+  اگر(part->freefunc)
     part->freefunc(part->arg);
 
-  part->readfunc = NULL;
-  part->seekfunc = NULL;
-  part->freefunc = NULL;
-  part->arg = (void *)part;           /* Defaults to part itself. */
-  part->data = NULL;
-  part->fp = NULL;
+  part->readfunc = تہی;
+  part->seekfunc = تہی;
+  part->freefunc = تہی;
+  part->arg = (خالی *)part;           /* Defaults to part itself. */
+  part->ڈیٹا = تہی;
+  part->fp = تہی;
   part->datasize = (curl_off_t)0;     /* No size yet. */
   cleanup_encoder_state(&part->encstate);
-  part->kind = MIMEKIND_NONE;
-  part->flags &= ~(unsigned int)MIME_FAST_READ;
+  part->قسم = MIMEKIND_NONE;
+  part->flags &= ~(غیرعلامتی صحیح)MIME_FAST_READ;
   part->lastreadstatus = 1; /* Successful read status. */
   part->state.state = MIMESTATE_BEGIN;
 }
 
-static void mime_subparts_free(void *ptr)
+ساکن خالی mime_subparts_free(خالی *ptr)
 {
   curl_mime *mime = (curl_mime *)ptr;
 
-  if(mime && mime->parent) {
-    mime->parent->freefunc = NULL;  /* Be sure we will not be called again. */
-    cleanup_part_content(mime->parent);  /* Avoid dangling pointer in part. */
+  اگر(mime && mime->والد) {
+    mime->والد->freefunc = تہی;  /* Be sure we will not be called again. */
+    cleanup_part_content(mime->والد);  /* Avoid dangling pointer in part. */
   }
   curl_mime_free(mime);
 }
 
 /* Do not free subparts: unbind them. This is used for the top level only. */
-static void mime_subparts_unbind(void *ptr)
+ساکن خالی mime_subparts_unbind(خالی *ptr)
 {
   curl_mime *mime = (curl_mime *)ptr;
 
-  if(mime && mime->parent) {
-    mime->parent->freefunc = NULL;  /* Be sure we will not be called again. */
-    cleanup_part_content(mime->parent);  /* Avoid dangling pointer in part. */
-    mime->parent = NULL;
+  اگر(mime && mime->والد) {
+    mime->والد->freefunc = تہی;  /* Be sure we will not be called again. */
+    cleanup_part_content(mime->والد);  /* Avoid dangling pointer in part. */
+    mime->والد = تہی;
   }
 }
 
-void Curl_mime_cleanpart(curl_mimepart *part)
+خالی Curl_mime_cleanpart(curl_mimepart *part)
 {
-  if(part) {
+  اگر(part) {
     cleanup_part_content(part);
     curl_slist_free_all(part->curlheaders);
-    if(part->flags & MIME_USERHEADERS_OWNER)
+    اگر(part->flags & MIME_USERHEADERS_OWNER)
       curl_slist_free_all(part->userheaders);
     curlx_safefree(part->mimetype);
     curlx_safefree(part->name);
@@ -1091,151 +1091,151 @@ void Curl_mime_cleanpart(curl_mimepart *part)
 }
 
 /* Non-recursively delete a mime handle and its parts. */
-void curl_mime_free(curl_mime *mime)
+خالی curl_mime_free(curl_mime *mime)
 {
   curl_mimepart *part;
 
-  if(!mime)
-    return;
+  اگر(!mime)
+    واپس;
 
   mime_subparts_unbind(mime);  /* Be sure it is not referenced anymore. */
 
-  while(mime) {
+  جب(mime) {
     part = mime->firstpart;
-    if(part) {
+    اگر(part) {
       mime->firstpart = part->nextpart;
-      if(part->kind == MIMEKIND_MULTIPART && part->arg &&
+      اگر(part->قسم == MIMEKIND_MULTIPART && part->arg &&
          part->freefunc == mime_subparts_free) {
         curl_mime *subparts = (curl_mime *)part->arg;
-        part->freefunc = NULL;
+        part->freefunc = تہی;
         cleanup_part_content(part);
-        subparts->parent = mime->parent;
-        mime->parent = (curl_mimepart *)subparts;
+        subparts->والد = mime->والد;
+        mime->والد = (curl_mimepart *)subparts;
       }
       Curl_mime_cleanpart(part);
       curlx_free(part);
     }
-    else {
-      curl_mime *parent = (curl_mime *)mime->parent;
+    ورنہ {
+      curl_mime *والد = (curl_mime *)mime->والد;
       curlx_free(mime);
-      mime = parent;
+      mime = والد;
     }
   }
 }
 
-static bool mime_is_too_deep(const curl_mimepart *part, size_t call_depth)
+ساکن bool mime_is_too_deep(ثابت curl_mimepart *part, size_t call_گہرائی)
 {
   DEBUGASSERT(part);
 
-  if(++call_depth > MAX_MIME_LEVELS)
-    return TRUE;
+  اگر(++call_گہرائی > MAX_MIME_سطحیں)
+    واپس TRUE;
 
-  if(part->kind == MIMEKIND_MULTIPART && part->arg) {
-    const curl_mime *mime = (const curl_mime *)part->arg;
-    const curl_mimepart *s;
+  اگر(part->قسم == MIMEKIND_MULTIPART && part->arg) {
+    ثابت curl_mime *mime = (ثابت curl_mime *)part->arg;
+    ثابت curl_mimepart *s;
 
-    for(s = mime->firstpart; s; s = s->nextpart) {
-      if(mime_is_too_deep(s, call_depth))
-        return TRUE;
+    برائے(s = mime->firstpart; s; s = s->nextpart) {
+      اگر(mime_is_too_deep(s, call_گہرائی))
+        واپس TRUE;
     }
   }
 
-  return FALSE;
+  واپس FALSE;
 }
 
-static CURLcode mime_duppart(struct Curl_easy *data,
-                             curl_mimepart *dst, const curl_mimepart *src,
-                             size_t call_depth)
+ساکن CURLcode mime_duppart(ساخت Curl_easy *ڈیٹا,
+                             curl_mimepart *dst, ثابت curl_mimepart *src,
+                             size_t call_گہرائی)
 {
   curl_mime *mime;
   curl_mimepart *d;
-  const curl_mimepart *s;
-  CURLcode result = CURLE_OK;
+  ثابت curl_mimepart *s;
+  CURLcode نتیجہ = CURLE_OK;
 
   DEBUGASSERT(dst);
   DEBUGASSERT(src);
 
-  if(++call_depth > MAX_MIME_LEVELS)
-    return CURLE_TOO_LARGE;
+  اگر(++call_گہرائی > MAX_MIME_سطحیں)
+    واپس CURLE_TOO_LARGE;
 
   /* Duplicate content. */
-  switch(src->kind) {
-  case MIMEKIND_NONE:
-    break;
-  case MIMEKIND_DATA:
-    result = curl_mime_data(dst, src->data, (size_t)src->datasize);
-    break;
-  case MIMEKIND_FILE:
-    result = curl_mime_filedata(dst, src->data);
+  انتخاب(src->قسم) {
+  حالت MIMEKIND_NONE:
+    توڑو;
+  حالت MIMEKIND_ڈیٹا:
+    نتیجہ = curl_mime_ڈیٹا(dst, src->ڈیٹا, (size_t)src->datasize);
+    توڑو;
+  حالت MIMEKIND_FILE:
+    نتیجہ = curl_mime_filedata(dst, src->ڈیٹا);
     /* Do not abort duplication if file is not readable. */
-    if(result == CURLE_READ_ERROR)
-      result = CURLE_OK;
-    break;
-  case MIMEKIND_CALLBACK:
-    result = curl_mime_data_cb(dst, src->datasize, src->readfunc,
+    اگر(نتیجہ == CURLE_READ_ERROR)
+      نتیجہ = CURLE_OK;
+    توڑو;
+  حالت MIMEKIND_CALLBACK:
+    نتیجہ = curl_mime_ڈیٹا_cb(dst, src->datasize, src->readfunc,
                                src->seekfunc, src->freefunc, src->arg);
-    break;
-  case MIMEKIND_MULTIPART:
+    توڑو;
+  حالت MIMEKIND_MULTIPART:
     /* No one knows about the cloned subparts, thus always attach ownership
        to the part. */
-    mime = curl_mime_init(data);
-    result = mime ? curl_mime_subparts(dst, mime) : CURLE_OUT_OF_MEMORY;
+    mime = curl_mime_init(ڈیٹا);
+    نتیجہ = mime ? curl_mime_subparts(dst, mime) : CURLE_برآمد_کا_حافظہ;
 
     /* Duplicate subparts. */
-    for(s = ((curl_mime *)src->arg)->firstpart; !result && s;
+    برائے(s = ((curl_mime *)src->arg)->firstpart; !نتیجہ && s;
         s = s->nextpart) {
       d = curl_mime_addpart(mime);
-      result = d ? mime_duppart(data, d, s, call_depth) : CURLE_OUT_OF_MEMORY;
+      نتیجہ = d ? mime_duppart(ڈیٹا, d, s, call_گہرائی) : CURLE_برآمد_کا_حافظہ;
     }
-    break;
-  default:  /* Invalid kind: should not occur. */
-    DEBUGF(infof(data, "invalid MIMEKIND* attempt"));
-    result = CURLE_BAD_FUNCTION_ARGUMENT;  /* Internal error? */
-    break;
+    توڑو;
+  طےشدہ:  /* Invalid kind: should not occur. */
+    DEBUGF(infof(ڈیٹا, "invalid MIMEKIND* attempt"));
+    نتیجہ = CURLE_BAD_FUNCTION_دلیل;  /* Internal error? */
+    توڑو;
   }
 
   /* Duplicate headers. */
-  if(!result && src->userheaders) {
-    struct curl_slist *hdrs = Curl_slist_duplicate(src->userheaders);
+  اگر(!نتیجہ && src->userheaders) {
+    ساخت curl_slist *hdrs = Curl_slist_duplicate(src->userheaders);
 
-    if(!hdrs)
-      result = CURLE_OUT_OF_MEMORY;
-    else {
+    اگر(!hdrs)
+      نتیجہ = CURLE_برآمد_کا_حافظہ;
+    ورنہ {
       /* No one but this procedure knows about the new header list,
          so always take ownership. */
-      result = curl_mime_headers(dst, hdrs, TRUE);
-      if(result)
+      نتیجہ = curl_mime_سرخیاں(dst, hdrs, TRUE);
+      اگر(نتیجہ)
         curl_slist_free_all(hdrs);
     }
   }
 
-  if(!result) {
+  اگر(!نتیجہ) {
     /* Duplicate other fields. */
     dst->encoder = src->encoder;
-    result = curl_mime_type(dst, src->mimetype);
+    نتیجہ = curl_mime_type(dst, src->mimetype);
   }
-  if(!result)
-    result = curl_mime_name(dst, src->name);
-  if(!result)
-    result = curl_mime_filename(dst, src->filename);
+  اگر(!نتیجہ)
+    نتیجہ = curl_mime_name(dst, src->name);
+  اگر(!نتیجہ)
+    نتیجہ = curl_mime_filename(dst, src->filename);
 
   /* If an error occurred, rollback. */
-  if(result)
+  اگر(نتیجہ)
     Curl_mime_cleanpart(dst);
 
-  return result;
+  واپس نتیجہ;
 }
 
-CURLcode Curl_mime_duppart(struct Curl_easy *data,
-                           curl_mimepart *dst, const curl_mimepart *src)
+CURLcode Curl_mime_duppart(ساخت Curl_easy *ڈیٹا,
+                           curl_mimepart *dst, ثابت curl_mimepart *src)
 {
-  if(!dst || !src)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!dst || !src)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
-  if(mime_is_too_deep(src, 0))
-    return CURLE_TOO_LARGE;
+  اگر(mime_is_too_deep(src, 0))
+    واپس CURLE_TOO_LARGE;
 
-  return mime_duppart(data, dst, src, 0);
+  واپس mime_duppart(ڈیٹا, dst, src, 0);
 }
 
 /*
@@ -1243,35 +1243,35 @@ CURLcode Curl_mime_duppart(struct Curl_easy *data,
  */
 
 /* Create a mime handle. */
-curl_mime *curl_mime_init(void *easy)
+curl_mime *curl_mime_init(خالی *easy)
 {
-  curl_mime *mime = curlx_malloc(sizeof(*mime));
+  curl_mime *mime = curlx_malloc(حجم(*mime));
 
-  if(mime) {
-    mime->parent = NULL;
-    mime->firstpart = NULL;
-    mime->lastpart = NULL;
+  اگر(mime) {
+    mime->والد = تہی;
+    mime->firstpart = تہی;
+    mime->lastpart = تہی;
 
     memset(mime->boundary, '-', MIME_BOUNDARY_DASHES);
-    if(Curl_rand_alnum(easy,
-                       (unsigned char *)&mime->boundary[MIME_BOUNDARY_DASHES],
+    اگر(Curl_rand_alnum(easy,
+                       (غیرعلامتی حرف *)&mime->boundary[MIME_BOUNDARY_DASHES],
                        MIME_RAND_BOUNDARY_CHARS + 1)) {
       /* failed to get random separator, bail out */
       curlx_free(mime);
-      return NULL;
+      واپس تہی;
     }
-    mimesetstate(&mime->state, MIMESTATE_BEGIN, NULL);
+    mimesetstate(&mime->state, MIMESTATE_BEGIN, تہی);
   }
 
-  return mime;
+  واپس mime;
 }
 
 /* Initialize a mime part. */
-void Curl_mime_initpart(curl_mimepart *part)
+خالی Curl_mime_initpart(curl_mimepart *part)
 {
-  memset(part, 0, sizeof(*part));
+  memset(part, 0, حجم(*part));
   part->lastreadstatus = 1; /* Successful read status. */
-  mimesetstate(&part->state, MIMESTATE_BEGIN, NULL);
+  mimesetstate(&part->state, MIMESTATE_BEGIN, تہی);
 }
 
 /* Create a mime part and append it to a mime handle's part list. */
@@ -1279,253 +1279,253 @@ curl_mimepart *curl_mime_addpart(curl_mime *mime)
 {
   curl_mimepart *part;
 
-  if(!mime)
-    return NULL;
+  اگر(!mime)
+    واپس تہی;
 
-  part = curlx_malloc(sizeof(*part));
+  part = curlx_malloc(حجم(*part));
 
-  if(part) {
+  اگر(part) {
     Curl_mime_initpart(part);
-    part->parent = mime;
+    part->والد = mime;
 
-    if(mime->lastpart)
+    اگر(mime->lastpart)
       mime->lastpart->nextpart = part;
-    else
+    ورنہ
       mime->firstpart = part;
 
     mime->lastpart = part;
   }
 
-  return part;
+  واپس part;
 }
 
 /* Set mime part name. */
-CURLcode curl_mime_name(curl_mimepart *part, const char *name)
+CURLcode curl_mime_name(curl_mimepart *part, ثابت حرف *name)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!part)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
   curlx_safefree(part->name);
 
-  if(name) {
+  اگر(name) {
     part->name = curlx_strdup(name);
-    if(!part->name)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!part->name)
+      واپس CURLE_برآمد_کا_حافظہ;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* Set mime part remote filename. */
-CURLcode curl_mime_filename(curl_mimepart *part, const char *filename)
+CURLcode curl_mime_filename(curl_mimepart *part, ثابت حرف *filename)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!part)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
   curlx_safefree(part->filename);
 
-  if(filename) {
+  اگر(filename) {
     part->filename = curlx_strdup(filename);
-    if(!part->filename)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!part->filename)
+      واپس CURLE_برآمد_کا_حافظہ;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* Set mime part content from memory data. */
-CURLcode curl_mime_data(curl_mimepart *part, const char *data, size_t datasize)
+CURLcode curl_mime_ڈیٹا(curl_mimepart *part, ثابت حرف *ڈیٹا, size_t datasize)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!part)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
   cleanup_part_content(part);
 
-  if(data) {
-    if(datasize == CURL_ZERO_TERMINATED)
-      datasize = strlen(data);
+  اگر(ڈیٹا) {
+    اگر(datasize == CURL_ZERO_TERMINATED)
+      datasize = لڑی_لمبائی(ڈیٹا);
 
-    part->data = curlx_memdup0(data, datasize);
-    if(!part->data)
-      return CURLE_OUT_OF_MEMORY;
+    part->ڈیٹا = curlx_memdup0(ڈیٹا, datasize);
+    اگر(!part->ڈیٹا)
+      واپس CURLE_برآمد_کا_حافظہ;
 
     part->datasize = datasize;
     part->readfunc = mime_mem_read;
     part->seekfunc = mime_mem_seek;
     part->freefunc = mime_mem_free;
     part->flags |= MIME_FAST_READ;
-    part->kind = MIMEKIND_DATA;
+    part->قسم = MIMEKIND_ڈیٹا;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* Set mime part content from named local file. */
-CURLcode curl_mime_filedata(curl_mimepart *part, const char *filename)
+CURLcode curl_mime_filedata(curl_mimepart *part, ثابت حرف *filename)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!part)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
   cleanup_part_content(part);
 
-  if(filename) {
-    char *base;
+  اگر(filename) {
+    حرف *بنیاد;
     curlx_struct_stat sbuf;
 
-    if(curlx_stat(filename, &sbuf))
-      result = CURLE_READ_ERROR;
-    else {
-      part->data = curlx_strdup(filename);
-      if(!part->data)
-        result = CURLE_OUT_OF_MEMORY;
-      else {
+    اگر(curlx_stat(filename, &sbuf))
+      نتیجہ = CURLE_READ_ERROR;
+    ورنہ {
+      part->ڈیٹا = curlx_strdup(filename);
+      اگر(!part->ڈیٹا)
+        نتیجہ = CURLE_برآمد_کا_حافظہ;
+      ورنہ {
         part->datasize = -1;
-        if(S_ISREG(sbuf.st_mode)) {
+        اگر(S_ISREG(sbuf.st_منوال)) {
           part->datasize = filesize(filename, sbuf);
           part->seekfunc = mime_file_seek;
         }
 
         part->readfunc = mime_file_read;
         part->freefunc = mime_file_free;
-        part->kind = MIMEKIND_FILE;
+        part->قسم = MIMEKIND_FILE;
 
         /* As a side effect, set the filename to the current file's base name.
            It is possible to withdraw this by explicitly calling
            curl_mime_filename() with a NULL filename argument after the current
            call. */
-        base = strippath(filename);
-        if(!base)
-          result = CURLE_OUT_OF_MEMORY;
-        else {
-          result = curl_mime_filename(part, base);
-          curlx_free(base);
+        بنیاد = strippath(filename);
+        اگر(!بنیاد)
+          نتیجہ = CURLE_برآمد_کا_حافظہ;
+        ورنہ {
+          نتیجہ = curl_mime_filename(part, بنیاد);
+          curlx_free(بنیاد);
         }
       }
     }
   }
-  return result;
+  واپس نتیجہ;
 }
 
 /* Set mime part type. */
-CURLcode curl_mime_type(curl_mimepart *part, const char *mimetype)
+CURLcode curl_mime_type(curl_mimepart *part, ثابت حرف *mimetype)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!part)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
   curlx_safefree(part->mimetype);
 
-  if(mimetype) {
+  اگر(mimetype) {
     part->mimetype = curlx_strdup(mimetype);
-    if(!part->mimetype)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!part->mimetype)
+      واپس CURLE_برآمد_کا_حافظہ;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static const struct mime_encoder encoders[] = {
-  { "binary", encoder_nop_read, encoder_nop_size },
-  { "8bit", encoder_nop_read, encoder_nop_size },
-  { "7bit", encoder_7bit_read, encoder_nop_size },
-  { "base64", encoder_base64_read, encoder_base64_size },
-  { "quoted-printable", encoder_qp_read, encoder_qp_size },
+ساکن ثابت ساخت mime_encoder encoders[] = {
+  { "binary", encoder_nop_read, encoder_nop_سائز },
+  { "8bit", encoder_nop_read, encoder_nop_سائز },
+  { "7bit", encoder_7bit_read, encoder_nop_سائز },
+  { "base64", encoder_base64_read, encoder_base64_سائز },
+  { "quoted-printable", encoder_qp_read, encoder_qp_سائز },
   { ZERO_NULL, ZERO_NULL, ZERO_NULL }
 };
 
 /* Set mime data transfer encoder. */
-CURLcode curl_mime_encoder(curl_mimepart *part, const char *encoding)
+CURLcode curl_mime_encoder(curl_mimepart *part, ثابت حرف *encoding)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  const struct mime_encoder *mep;
+  CURLcode نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+  ثابت ساخت mime_encoder *mep;
 
-  if(!part)
-    return result;
+  اگر(!part)
+    واپس نتیجہ;
 
-  part->encoder = NULL;
+  part->encoder = تہی;
 
-  if(!encoding)
-    return CURLE_OK;    /* Removing current encoder. */
+  اگر(!encoding)
+    واپس CURLE_OK;    /* Removing current encoder. */
 
-  for(mep = encoders; mep->name; mep++)
-    if(curl_strequal(encoding, mep->name)) {
+  برائے(mep = encoders; mep->name; mep++)
+    اگر(curl_strequal(encoding, mep->name)) {
       part->encoder = mep;
-      result = CURLE_OK;
+      نتیجہ = CURLE_OK;
     }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* Set mime part headers. */
-CURLcode curl_mime_headers(curl_mimepart *part,
-                           struct curl_slist *headers, int take_ownership)
+CURLcode curl_mime_سرخیاں(curl_mimepart *part,
+                           ساخت curl_slist *سرخیاں, صحیح take_ownership)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!part)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
-  if(part->flags & MIME_USERHEADERS_OWNER) {
-    if(part->userheaders != headers)  /* Allow setting twice the same list. */
+  اگر(part->flags & MIME_USERHEADERS_OWNER) {
+    اگر(part->userheaders != سرخیاں)  /* Allow setting twice the same list. */
       curl_slist_free_all(part->userheaders);
-    part->flags &= ~(unsigned int)MIME_USERHEADERS_OWNER;
+    part->flags &= ~(غیرعلامتی صحیح)MIME_USERHEADERS_OWNER;
   }
-  part->userheaders = headers;
-  if(headers && take_ownership)
+  part->userheaders = سرخیاں;
+  اگر(سرخیاں && take_ownership)
     part->flags |= MIME_USERHEADERS_OWNER;
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* Set mime part content from callback. */
-CURLcode curl_mime_data_cb(curl_mimepart *part, curl_off_t datasize,
+CURLcode curl_mime_ڈیٹا_cb(curl_mimepart *part, curl_off_t datasize,
                            curl_read_callback readfunc,
                            curl_seek_callback seekfunc,
-                           curl_free_callback freefunc, void *arg)
+                           curl_free_callback freefunc, خالی *arg)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!part)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
   cleanup_part_content(part);
 
-  if(readfunc) {
+  اگر(readfunc) {
     part->readfunc = readfunc;
     part->seekfunc = seekfunc;
     part->freefunc = freefunc;
     part->arg = arg;
     part->datasize = datasize;
-    part->kind = MIMEKIND_CALLBACK;
+    part->قسم = MIMEKIND_CALLBACK;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /* Set mime part content from subparts. */
-CURLcode Curl_mime_set_subparts(curl_mimepart *part,
-                                curl_mime *subparts, int take_ownership)
+CURLcode Curl_mime_سیٹ_subparts(curl_mimepart *part,
+                                curl_mime *subparts, صحیح take_ownership)
 {
-  curl_mime *root;
+  curl_mime *جڑ;
 
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!part)
+    واپس CURLE_BAD_FUNCTION_دلیل;
 
   /* Accept setting twice the same subparts. */
-  if(part->kind == MIMEKIND_MULTIPART && part->arg == subparts)
-    return CURLE_OK;
+  اگر(part->قسم == MIMEKIND_MULTIPART && part->arg == subparts)
+    واپس CURLE_OK;
 
   cleanup_part_content(part);
 
-  if(subparts) {
+  اگر(subparts) {
     /* Should not have been attached already. */
-    if(subparts->parent)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    اگر(subparts->والد)
+      واپس CURLE_BAD_FUNCTION_دلیل;
 
     /* Should not be the part's root. */
-    root = part->parent;
-    if(root) {
-      while(root->parent && root->parent->parent)
-        root = root->parent->parent;
-      if(subparts == root) {
+    جڑ = part->والد;
+    اگر(جڑ) {
+      جب(جڑ->والد && جڑ->والد->والد)
+        جڑ = جڑ->والد->والد;
+      اگر(subparts == جڑ) {
         /* cannot add as a subpart of itself. */
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+        واپس CURLE_BAD_FUNCTION_دلیل;
       }
     }
 
@@ -1533,164 +1533,164 @@ CURLcode Curl_mime_set_subparts(curl_mimepart *part,
        they might not be positioned at start. Rewind them now, as
        a future check while rewinding the parent may cause this
        content to be skipped. */
-    if(mime_subparts_seek(subparts, (curl_off_t)0, SEEK_SET) !=
+    اگر(mime_subparts_seek(subparts, (curl_off_t)0, SEEK_SET) !=
        CURL_SEEKFUNC_OK)
-      return CURLE_SEND_FAIL_REWIND;
+      واپس CURLE_SEND_FAIL_REWIND;
 
-    subparts->parent = part;
+    subparts->والد = part;
     /* Subparts are processed internally: no read callback. */
     part->seekfunc = mime_subparts_seek;
     part->freefunc = take_ownership ? mime_subparts_free :
       mime_subparts_unbind;
     part->arg = subparts;
     part->datasize = -1;
-    part->kind = MIMEKIND_MULTIPART;
+    part->قسم = MIMEKIND_MULTIPART;
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 CURLcode curl_mime_subparts(curl_mimepart *part, curl_mime *subparts)
 {
-  return Curl_mime_set_subparts(part, subparts, TRUE);
+  واپس Curl_mime_سیٹ_subparts(part, subparts, TRUE);
 }
 
 /* Readback from top mime. */
 /* Argument is the dummy top part. */
-size_t Curl_mime_read(char *buffer, size_t size, size_t nitems, void *instream)
+size_t Curl_mime_read(حرف *بفر, size_t سائز, size_t nitems, خالی *instream)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
   size_t ret;
   bool hasread;
 
-  (void)size;  /* Always 1 */
+  (خالی)سائز;  /* Always 1 */
 
   /* If `nitems` is <= 4, some encoders will return STOP_FILLING without
    * adding any data and this loops infinitely. */
-  do {
+  کرو {
     hasread = FALSE;
-    ret = readback_part(part, buffer, nitems, &hasread);
+    ret = readback_part(part, بفر, nitems, &hasread);
     /*
      * If this is not possible to get some data without calling more than
      * one read callback (probably because a content encoder is not able to
      * deliver a new bunch for the few data accumulated so far), force another
      * read until we get enough data or a special exit code.
      */
-  } while(ret == STOP_FILLING);
+  } جب(ret == STOP_FILLING);
 
-  return ret;
+  واپس ret;
 }
 
 /* Rewind mime stream. */
-static CURLcode mime_rewind(curl_mimepart *part)
+ساکن CURLcode mime_rewind(curl_mimepart *part)
 {
-  return mime_part_rewind(part) == CURL_SEEKFUNC_OK ?
+  واپس mime_part_rewind(part) == CURL_SEEKFUNC_OK ?
          CURLE_OK : CURLE_SEND_FAIL_REWIND;
 }
 
 /* Compute header list size. */
-static size_t slist_size(struct curl_slist *s,
-                         size_t overhead, const char *skip, size_t skiplen)
+ساکن size_t slist_سائز(ساخت curl_slist *s,
+                         size_t overhead, ثابت حرف *skip, size_t skiplen)
 {
-  size_t size = 0;
+  size_t سائز = 0;
 
-  for(; s; s = s->next)
-    if(!skip || !match_header(s, skip, skiplen))
-      size += strlen(s->data) + overhead;
-  return size;
+  برائے(; s; s = s->اگلا)
+    اگر(!skip || !مطابقت_سرخی(s, skip, skiplen))
+      سائز += لڑی_لمبائی(s->ڈیٹا) + overhead;
+  واپس سائز;
 }
 
 /* Get/compute multipart size. */
-static curl_off_t multipart_size(curl_mime *mime)
+ساکن curl_off_t multipart_سائز(curl_mime *mime)
 {
-  curl_off_t size;
+  curl_off_t سائز;
   curl_off_t boundarysize;
   curl_mimepart *part;
 
-  if(!mime)
-    return 0;           /* Not present -> empty. */
+  اگر(!mime)
+    واپس 0;           /* Not present -> empty. */
 
   boundarysize = 4 + MIME_BOUNDARY_LEN + 2;
-  size = boundarysize;  /* Final boundary - CRLF after headers. */
+  سائز = boundarysize;  /* Final boundary - CRLF after headers. */
 
-  for(part = mime->firstpart; part; part = part->nextpart) {
-    curl_off_t sz = mime_size(part);
+  برائے(part = mime->firstpart; part; part = part->nextpart) {
+    curl_off_t sz = mime_سائز(part);
 
-    if(sz < 0)
-      size = sz;
+    اگر(sz < 0)
+      سائز = sz;
 
-    if(size >= 0)
-      size += boundarysize + sz;
+    اگر(سائز >= 0)
+      سائز += boundarysize + sz;
   }
 
-  return size;
+  واپس سائز;
 }
 
 /* Get/compute mime size. */
-static curl_off_t mime_size(curl_mimepart *part)
+ساکن curl_off_t mime_سائز(curl_mimepart *part)
 {
-  curl_off_t size;
+  curl_off_t سائز;
 
-  if(part->kind == MIMEKIND_MULTIPART)
-    part->datasize = multipart_size(part->arg);
+  اگر(part->قسم == MIMEKIND_MULTIPART)
+    part->datasize = multipart_سائز(part->arg);
 
-  size = part->datasize;
+  سائز = part->datasize;
 
-  if(part->encoder)
-    size = part->encoder->sizefunc(part);
+  اگر(part->encoder)
+    سائز = part->encoder->sizefunc(part);
 
-  if(size >= 0 && !(part->flags & MIME_BODY_ONLY)) {
+  اگر(سائز >= 0 && !(part->flags & MIME_BODY_ONLY)) {
     /* Compute total part size. */
-    size += slist_size(part->curlheaders, 2, NULL, 0);
-    size += slist_size(part->userheaders, 2, STRCONST("Content-Type"));
-    size += 2;    /* CRLF after headers. */
+    سائز += slist_سائز(part->curlheaders, 2, تہی, 0);
+    سائز += slist_سائز(part->userheaders, 2, STRCONST("Content-Type"));
+    سائز += 2;    /* CRLF after headers. */
   }
-  return size;
+  واپس سائز;
 }
 
 /* Add a header. */
 /* VARARGS2 */
-CURLcode Curl_mime_add_header(struct curl_slist **slp, const char *fmt, ...)
+CURLcode Curl_mime_جوڑو_سرخی(ساخت curl_slist **slp, ثابت حرف *fmt, ...)
 {
-  struct curl_slist *hdr = NULL;
-  char *s = NULL;
+  ساخت curl_slist *hdr = تہی;
+  حرف *s = تہی;
   va_list ap;
 
   va_start(ap, fmt);
   s = curl_mvaprintf(fmt, ap);
   va_end(ap);
 
-  if(s) {
+  اگر(s) {
     hdr = Curl_slist_append_nodup(*slp, s);
-    if(hdr)
+    اگر(hdr)
       *slp = hdr;
-    else
+    ورنہ
       curlx_free(s);
   }
 
-  return hdr ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  واپس hdr ? CURLE_OK : CURLE_برآمد_کا_حافظہ;
 }
 
 /* Add a content type header. */
-static CURLcode add_content_type(struct curl_slist **slp,
-                                 const char *type, const char *boundary)
+ساکن CURLcode جوڑو_content_type(ساخت curl_slist **slp,
+                                 ثابت حرف *type, ثابت حرف *boundary)
 {
-  return Curl_mime_add_header(slp, "Content-Type: %s%s%s", type,
+  واپس Curl_mime_جوڑو_سرخی(slp, "Content-Type: %s%s%s", type,
                               boundary ? "; boundary=" : "",
                               boundary ? boundary : "");
 }
 
-const char *Curl_mime_contenttype(const char *filename)
+ثابت حرف *Curl_mime_contenttype(ثابت حرف *filename)
 {
   /*
    * If no content type was specified, we scan through a few well-known
    * extensions and pick the first we match!
    */
-  struct ContentType {
-    const char *extension;
-    const char *type;
+  ساخت ContentType {
+    ثابت حرف *extension;
+    ثابت حرف *type;
   };
-  static const struct ContentType ctts[] = {
+  ساکن ثابت ساخت ContentType ctts[] = {
     { ".gif",  "image/gif" },
     { ".jpg",  "image/jpeg" },
     { ".jpeg", "image/jpeg" },
@@ -1703,79 +1703,79 @@ const char *Curl_mime_contenttype(const char *filename)
     { ".xml",  "application/xml" }
   };
 
-  if(filename) {
-    size_t len1 = strlen(filename);
-    const char *nameend = filename + len1;
-    unsigned int i;
+  اگر(filename) {
+    size_t len1 = لڑی_لمبائی(filename);
+    ثابت حرف *nameend = filename + len1;
+    غیرعلامتی صحیح i;
 
-    for(i = 0; i < CURL_ARRAYSIZE(ctts); i++) {
-      size_t len2 = strlen(ctts[i].extension);
+    برائے(i = 0; i < CURL_ARRAYSIZE(ctts); i++) {
+      size_t len2 = لڑی_لمبائی(ctts[i].extension);
 
-      if(len1 >= len2 && curl_strequal(nameend - len2, ctts[i].extension))
-        return ctts[i].type;
+      اگر(len1 >= len2 && curl_strequal(nameend - len2, ctts[i].extension))
+        واپس ctts[i].type;
     }
   }
-  return NULL;
+  واپس تہی;
 }
 
-static bool content_type_match(const char *contenttype,
-                               const char *target, size_t len)
+ساکن bool content_type_مطابقت(ثابت حرف *contenttype,
+                               ثابت حرف *ہدف, size_t len)
 {
-  if(contenttype && curl_strnequal(contenttype, target, len))
-    switch(contenttype[len]) {
-    case '\0':
-    case '\t':
-    case '\r':
-    case '\n':
-    case ' ':
-    case ';':
-      return TRUE;
+  اگر(contenttype && curl_strnequal(contenttype, ہدف, len))
+    انتخاب(contenttype[len]) {
+    حالت '\0':
+    حالت '\t':
+    حالت '\r':
+    حالت '\n':
+    حالت ' ':
+    حالت ';':
+      واپس TRUE;
     }
-  return FALSE;
+  واپس FALSE;
 }
 
-static CURLcode add_content_disposition(struct Curl_easy *data,
+ساکن CURLcode جوڑو_content_disposition(ساخت Curl_easy *ڈیٹا,
                                         curl_mimepart *part,
-                                        const char *disposition,
-                                        const char *contenttype,
-                                        enum mimestrategy strategy)
+                                        ثابت حرف *disposition,
+                                        ثابت حرف *contenttype,
+                                        شمار mimestrategy strategy)
 {
-  if(!disposition &&
+  اگر(!disposition &&
      (part->filename || part->name ||
       (contenttype && !curl_strnequal(contenttype, "multipart/", 10))))
     disposition = DISPOSITION_DEFAULT;
 
-  if(disposition && curl_strequal(disposition, "attachment") &&
+  اگر(disposition && curl_strequal(disposition, "attachment") &&
      !part->name && !part->filename)
-    disposition = NULL;
+    disposition = تہی;
 
-  if(disposition) {
-    CURLcode result = CURLE_OK;
-    char *name = NULL;
-    char *filename = NULL;
+  اگر(disposition) {
+    CURLcode نتیجہ = CURLE_OK;
+    حرف *name = تہی;
+    حرف *filename = تہی;
     /* The mail (and legacy mime_formescape) strategy quotes the name and
        filename with a backslash and has no in-band way to represent a CR or
        LF, so one embedded in the value would split the generated header. The
        form strategy percent-encodes CR/LF (see escape_string) and is safe. */
     bool backslash = (strategy == MIMESTRATEGY_MAIL) ||
-                     (data && data->set.mime_formescape);
-    if(backslash &&
+                     (ڈیٹا && ڈیٹا->سیٹ.mime_formescape);
+    اگر(backslash &&
        ((part->name && part->name[strcspn(part->name, "\r\n")]) ||
         (part->filename && part->filename[strcspn(part->filename, "\r\n")])))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      واپس CURLE_BAD_FUNCTION_دلیل;
 
-    if(part->name) {
-      name = escape_string(data, part->name, strategy);
-      if(!name)
-        return CURLE_OUT_OF_MEMORY;
+    اگر(part->name) {
+      name = escape_string(ڈیٹا, part->name, strategy);
+      اگر(!name)
+        واپس CURLE_برآمد_کا_حافظہ;
     }
-    if(part->filename) {
-      filename = escape_string(data, part->filename, strategy);
-      if(!filename)
-        result = CURLE_OUT_OF_MEMORY;
+    اگر(part->filename) {
+      filename = escape_string(ڈیٹا, part->filename, strategy);
+      اگر(!filename)
+        نتیجہ = CURLE_برآمد_کا_حافظہ;
     }
-    if(!result)
-      result = Curl_mime_add_header(&part->curlheaders,
+    اگر(!نتیجہ)
+      نتیجہ = Curl_mime_جوڑو_سرخی(&part->curlheaders,
                                     "Content-Disposition: %s%s%s%s%s%s%s",
                                     disposition,
                                     name ? "; name=\"" : "",
@@ -1786,547 +1786,547 @@ static CURLcode add_content_disposition(struct Curl_easy *data,
                                     filename ? "\"" : "");
     curlx_safefree(name);
     curlx_safefree(filename);
-    if(result)
-      return result;
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode mime_prepare_headers(struct Curl_easy *data,
+ساکن CURLcode mime_prepare_سرخیاں(ساخت Curl_easy *ڈیٹا,
                                      curl_mimepart *part,
-                                     const char *contenttype,
-                                     const char *disposition,
-                                     enum mimestrategy strategy,
-                                     size_t call_depth)
+                                     ثابت حرف *contenttype,
+                                     ثابت حرف *disposition,
+                                     شمار mimestrategy strategy,
+                                     size_t call_گہرائی)
 {
-  curl_mime *mime = NULL;
-  const char *boundary = NULL;
-  char *customct;
-  const char *cte = NULL;
-  CURLcode result = CURLE_OK;
+  curl_mime *mime = تہی;
+  ثابت حرف *boundary = تہی;
+  حرف *customct;
+  ثابت حرف *cte = تہی;
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(++call_depth > MAX_MIME_LEVELS)
-    return CURLE_TOO_LARGE;
+  اگر(++call_گہرائی > MAX_MIME_سطحیں)
+    واپس CURLE_TOO_LARGE;
 
   /* Get rid of previously prepared headers. */
   curl_slist_free_all(part->curlheaders);
-  part->curlheaders = NULL;
+  part->curlheaders = تہی;
 
   /* Be sure we will not access old headers later. */
-  if(part->state.state == MIMESTATE_CURLHEADERS)
-    mimesetstate(&part->state, MIMESTATE_CURLHEADERS, NULL);
+  اگر(part->state.state == MIMESTATE_CURLHEADERS)
+    mimesetstate(&part->state, MIMESTATE_CURLHEADERS, تہی);
 
   /* Check if content type is specified. */
   customct = part->mimetype;
-  if(!customct)
-    customct = search_header(part->userheaders, STRCONST("Content-Type"));
-  if(customct)
+  اگر(!customct)
+    customct = تلاش_سرخی(part->userheaders, STRCONST("Content-Type"));
+  اگر(customct)
     contenttype = customct;
 
   /* If content type is not specified, try to determine it. */
-  if(!contenttype) {
-    switch(part->kind) {
-    case MIMEKIND_MULTIPART:
+  اگر(!contenttype) {
+    انتخاب(part->قسم) {
+    حالت MIMEKIND_MULTIPART:
       contenttype = MULTIPART_CONTENTTYPE_DEFAULT;
-      break;
-    case MIMEKIND_FILE:
+      توڑو;
+    حالت MIMEKIND_FILE:
       contenttype = Curl_mime_contenttype(part->filename);
-      if(!contenttype)
-        contenttype = Curl_mime_contenttype(part->data);
-      if(!contenttype && part->filename)
+      اگر(!contenttype)
+        contenttype = Curl_mime_contenttype(part->ڈیٹا);
+      اگر(!contenttype && part->filename)
         contenttype = FILE_CONTENTTYPE_DEFAULT;
-      break;
-    default:
+      توڑو;
+    طےشدہ:
       contenttype = Curl_mime_contenttype(part->filename);
-      break;
+      توڑو;
     }
   }
 
-  if(part->kind == MIMEKIND_MULTIPART) {
+  اگر(part->قسم == MIMEKIND_MULTIPART) {
     mime = (curl_mime *)part->arg;
-    if(mime)
+    اگر(mime)
       boundary = mime->boundary;
   }
-  else if(contenttype && !customct &&
-          content_type_match(contenttype, STRCONST("text/plain")) &&
+  ورنہ اگر(contenttype && !customct &&
+          content_type_مطابقت(contenttype, STRCONST("text/plain")) &&
           (strategy == MIMESTRATEGY_MAIL || !part->filename))
-    contenttype = NULL;
+    contenttype = تہی;
 
   /* Issue content-disposition header only if not already set by caller. */
-  if(!search_header(part->userheaders, STRCONST("Content-Disposition"))) {
-    result = add_content_disposition(data, part, disposition,
+  اگر(!تلاش_سرخی(part->userheaders, STRCONST("Content-Disposition"))) {
+    نتیجہ = جوڑو_content_disposition(ڈیٹا, part, disposition,
                                      contenttype, strategy);
-    if(result)
-      return result;
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
 
   /* Issue Content-Type header. */
-  if(contenttype) {
-    result = add_content_type(&part->curlheaders, contenttype, boundary);
-    if(result)
-      return result;
+  اگر(contenttype) {
+    نتیجہ = جوڑو_content_type(&part->curlheaders, contenttype, boundary);
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
 
   /* Content-Transfer-Encoding header. */
-  if(!search_header(part->userheaders,
+  اگر(!تلاش_سرخی(part->userheaders,
                     STRCONST("Content-Transfer-Encoding"))) {
-    if(part->encoder)
+    اگر(part->encoder)
       cte = part->encoder->name;
-    else if(contenttype && strategy == MIMESTRATEGY_MAIL &&
-            part->kind != MIMEKIND_MULTIPART)
+    ورنہ اگر(contenttype && strategy == MIMESTRATEGY_MAIL &&
+            part->قسم != MIMEKIND_MULTIPART)
       cte = "8bit";
-    if(cte) {
-      result = Curl_mime_add_header(&part->curlheaders,
+    اگر(cte) {
+      نتیجہ = Curl_mime_جوڑو_سرخی(&part->curlheaders,
                                     "Content-Transfer-Encoding: %s", cte);
-      if(result)
-        return result;
+      اگر(نتیجہ)
+        واپس نتیجہ;
     }
   }
 
   /* If we were reading curl-generated headers, restart with new ones (this
      should not occur). */
-  if(part->state.state == MIMESTATE_CURLHEADERS)
+  اگر(part->state.state == MIMESTATE_CURLHEADERS)
     mimesetstate(&part->state, MIMESTATE_CURLHEADERS, part->curlheaders);
 
   /* Process subparts. */
-  if(part->kind == MIMEKIND_MULTIPART && mime) {
+  اگر(part->قسم == MIMEKIND_MULTIPART && mime) {
     curl_mimepart *subpart;
 
-    disposition = NULL;
-    if(content_type_match(contenttype, STRCONST("multipart/form-data")))
+    disposition = تہی;
+    اگر(content_type_مطابقت(contenttype, STRCONST("multipart/form-data")))
       disposition = "form-data";
-    for(subpart = mime->firstpart; subpart; subpart = subpart->nextpart) {
-      result = mime_prepare_headers(data, subpart, NULL,
-                                    disposition, strategy, call_depth);
-      if(result)
-        return result;
+    برائے(subpart = mime->firstpart; subpart; subpart = subpart->nextpart) {
+      نتیجہ = mime_prepare_سرخیاں(ڈیٹا, subpart, تہی,
+                                    disposition, strategy, call_گہرائی);
+      اگر(نتیجہ)
+        واپس نتیجہ;
     }
   }
-  return result;
+  واپس نتیجہ;
 }
 
-CURLcode Curl_mime_prepare_headers(struct Curl_easy *data,
+CURLcode Curl_mime_prepare_سرخیاں(ساخت Curl_easy *ڈیٹا,
                                    curl_mimepart *part,
-                                   const char *contenttype,
-                                   const char *disposition,
-                                   enum mimestrategy strategy)
+                                   ثابت حرف *contenttype,
+                                   ثابت حرف *disposition,
+                                   شمار mimestrategy strategy)
 {
-  return mime_prepare_headers(data, part, contenttype, disposition,
+  واپس mime_prepare_سرخیاں(ڈیٹا, part, contenttype, disposition,
                               strategy, 0);
 }
 
 /* Recursively reset paused status in the given part. */
-static void mime_unpause(curl_mimepart *part)
+ساکن خالی mime_unpause(curl_mimepart *part)
 {
-  if(part) {
-    if(part->lastreadstatus == CURL_READFUNC_PAUSE)
+  اگر(part) {
+    اگر(part->lastreadstatus == CURL_READFUNC_PAUSE)
       part->lastreadstatus = 1; /* Successful read status. */
-    if(part->kind == MIMEKIND_MULTIPART) {
+    اگر(part->قسم == MIMEKIND_MULTIPART) {
       curl_mime *mime = (curl_mime *)part->arg;
 
-      if(mime) {
+      اگر(mime) {
         curl_mimepart *subpart;
 
-        for(subpart = mime->firstpart; subpart; subpart = subpart->nextpart)
+        برائے(subpart = mime->firstpart; subpart; subpart = subpart->nextpart)
           mime_unpause(subpart);
       }
     }
   }
 }
 
-struct cr_mime_ctx {
-  struct Curl_creader super;
+ساخت cr_mime_ctx {
+  ساخت Curl_creader super;
   curl_mimepart *part;
-  curl_off_t total_len;
+  curl_off_t کل_len;
   curl_off_t read_len;
-  CURLcode error_result;
-  struct bufq tmpbuf;
-  BIT(seen_eos);
-  BIT(errored);
+  CURLcode error_نتیجہ;
+  ساخت bufq tmpbuf;
+  ثنائی_ہندسہ(نظر_آیا_eos);
+  ثنائی_ہندسہ(errored);
 };
 
-static CURLcode cr_mime_init(struct Curl_easy *data,
-                             struct Curl_creader *reader)
+ساکن CURLcode cr_mime_init(ساخت Curl_easy *ڈیٹا,
+                             ساخت Curl_creader *reader)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  (void)data;
-  ctx->total_len = -1;
+  ساخت cr_mime_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  ctx->کل_len = -1;
   ctx->read_len = 0;
   Curl_bufq_init2(&ctx->tmpbuf, 1024, 1, BUFQ_OPT_NO_SPARES);
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static void cr_mime_close(struct Curl_easy *data,
-                          struct Curl_creader *reader)
+ساکن خالی cr_mime_close(ساخت Curl_easy *ڈیٹا,
+                          ساخت Curl_creader *reader)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  (void)data;
+  ساخت cr_mime_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
   Curl_bufq_free(&ctx->tmpbuf);
 }
 
 /* Real client reader to installed client callbacks. */
-static CURLcode cr_mime_read(struct Curl_easy *data,
-                             struct Curl_creader *reader,
-                             char *buf, size_t blen,
+ساکن CURLcode cr_mime_read(ساخت Curl_easy *ڈیٹا,
+                             ساخت Curl_creader *reader,
+                             حرف *buf, size_t blen,
                              size_t *pnread, bool *peos)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  CURLcode result = CURLE_OK;
+  ساخت cr_mime_ctx *ctx = reader->ctx;
+  CURLcode نتیجہ = CURLE_OK;
   size_t nread;
-  char tmp[256];
+  حرف tmp[256];
 
   /* Once we have errored, we will return the same error forever */
-  if(ctx->errored) {
-    CURL_TRC_READ(data, "cr_mime_read(len=%zu) is errored -> %d, eos=0",
-                  blen, (int)ctx->error_result);
+  اگر(ctx->errored) {
+    CURL_TRC_READ(ڈیٹا, "cr_mime_read(len=%zu) is errored -> %d, eos=0",
+                  blen, (صحیح)ctx->error_نتیجہ);
     *pnread = 0;
     *peos = FALSE;
-    return ctx->error_result;
+    واپس ctx->error_نتیجہ;
   }
-  if(ctx->seen_eos) {
-    CURL_TRC_READ(data, "cr_mime_read(len=%zu) seen eos -> 0, eos=1", blen);
+  اگر(ctx->نظر_آیا_eos) {
+    CURL_TRC_READ(ڈیٹا, "cr_mime_read(len=%zu) seen eos -> 0, eos=1", blen);
     *pnread = 0;
     *peos = TRUE;
-    return CURLE_OK;
+    واپس CURLE_OK;
   }
   /* respect length limitations */
-  if(ctx->total_len >= 0) {
-    curl_off_t remain = ctx->total_len - ctx->read_len;
-    if(remain <= 0)
+  اگر(ctx->کل_len >= 0) {
+    curl_off_t remain = ctx->کل_len - ctx->read_len;
+    اگر(remain <= 0)
       blen = 0;
-    else if(remain < (curl_off_t)blen)
+    ورنہ اگر(remain < (curl_off_t)blen)
       blen = (size_t)remain;
   }
 
-  if(!Curl_bufq_is_empty(&ctx->tmpbuf)) {
-    result = Curl_bufq_read(&ctx->tmpbuf, (unsigned char *)buf, blen, &nread);
-    if(result) {
+  اگر(!Curl_bufq_is_خالی_خانے(&ctx->tmpbuf)) {
+    نتیجہ = Curl_bufq_read(&ctx->tmpbuf, (غیرعلامتی حرف *)buf, blen, &nread);
+    اگر(نتیجہ) {
       ctx->errored = TRUE;
-      ctx->error_result = result;
-      return result;
+      ctx->error_نتیجہ = نتیجہ;
+      واپس نتیجہ;
     }
   }
-  else if(blen <= 4) {
+  ورنہ اگر(blen <= 4) {
     /* Curl_mime_read() may go into an infinite loop when reading
      * via a base64 encoder, as it stalls when the read buffer is too small
      * to contain a complete 3-byte encoding. Read into a larger buffer
      * and use that until empty. */
-    CURL_TRC_READ(data, "cr_mime_read(len=%zu), small read, using tmp", blen);
-    nread = Curl_mime_read(tmp, 1, sizeof(tmp), ctx->part);
-    if(nread <= sizeof(tmp)) {
+    CURL_TRC_READ(ڈیٹا, "cr_mime_read(len=%zu), small read, using tmp", blen);
+    nread = Curl_mime_read(tmp, 1, حجم(tmp), ctx->part);
+    اگر(nread <= حجم(tmp)) {
       size_t n;
-      result = Curl_bufq_write(&ctx->tmpbuf, (unsigned char *)tmp, nread, &n);
-      if(result) {
+      نتیجہ = Curl_bufq_write(&ctx->tmpbuf, (غیرعلامتی حرف *)tmp, nread, &n);
+      اگر(نتیجہ) {
         ctx->errored = TRUE;
-        ctx->error_result = result;
-        return result;
+        ctx->error_نتیجہ = نتیجہ;
+        واپس نتیجہ;
       }
       /* stored it, read again */
-      result = Curl_bufq_cread(&ctx->tmpbuf, buf, blen, &nread);
-      if(result) {
+      نتیجہ = Curl_bufq_cread(&ctx->tmpbuf, buf, blen, &nread);
+      اگر(نتیجہ) {
         ctx->errored = TRUE;
-        ctx->error_result = result;
-        return result;
+        ctx->error_نتیجہ = نتیجہ;
+        واپس نتیجہ;
       }
     }
   }
-  else
+  ورنہ
     nread = Curl_mime_read(buf, 1, blen, ctx->part);
 
-  CURL_TRC_READ(data, "cr_mime_read(len=%zu), mime_read() -> %zu",
+  CURL_TRC_READ(ڈیٹا, "cr_mime_read(len=%zu), mime_read() -> %zu",
                 blen, nread);
 
-  switch(nread) {
-  case 0:
-    if((ctx->total_len >= 0) && (ctx->read_len < ctx->total_len)) {
-      failf(data, "client mime read EOF fail, "
+  انتخاب(nread) {
+  حالت 0:
+    اگر((ctx->کل_len >= 0) && (ctx->read_len < ctx->کل_len)) {
+      failf(ڈیٹا, "client mime read EOF fail, "
             "only %" FMT_OFF_T "/%" FMT_OFF_T
-            " of needed bytes read", ctx->read_len, ctx->total_len);
-      return CURLE_READ_ERROR;
+            " of needed bytes read", ctx->read_len, ctx->کل_len);
+      واپس CURLE_READ_ERROR;
     }
     *pnread = 0;
     *peos = TRUE;
-    ctx->seen_eos = TRUE;
-    break;
+    ctx->نظر_آیا_eos = TRUE;
+    توڑو;
 
-  case CURL_READFUNC_ABORT:
-    failf(data, "operation aborted by callback");
+  حالت CURL_READFUNC_ABORT:
+    failf(ڈیٹا, "operation aborted by callback");
     *pnread = 0;
     *peos = FALSE;
     ctx->errored = TRUE;
-    ctx->error_result = CURLE_ABORTED_BY_CALLBACK;
-    result = CURLE_ABORTED_BY_CALLBACK;
-    break;
+    ctx->error_نتیجہ = CURLE_ABORTED_BY_CALLBACK;
+    نتیجہ = CURLE_ABORTED_BY_CALLBACK;
+    توڑو;
 
-  case CURL_READFUNC_PAUSE:
+  حالت CURL_READFUNC_PAUSE:
     /* CURL_READFUNC_PAUSE pauses read callbacks that feed socket writes */
-    CURL_TRC_READ(data, "cr_mime_read(len=%zu), paused by callback", blen);
+    CURL_TRC_READ(ڈیٹا, "cr_mime_read(len=%zu), paused by callback", blen);
     *pnread = 0;
     *peos = FALSE;
-    result = Curl_xfer_pause_send(data, TRUE);
-    break; /* nothing was read */
+    نتیجہ = Curl_xfer_pause_send(ڈیٹا, TRUE);
+    توڑو; /* nothing was read */
 
-  case STOP_FILLING:
-  case READ_ERROR:
-    failf(data, "read error getting mime data");
+  حالت STOP_FILLING:
+  حالت READ_ERROR:
+    failf(ڈیٹا, "read error getting mime data");
     *pnread = 0;
     *peos = FALSE;
     ctx->errored = TRUE;
-    ctx->error_result = CURLE_READ_ERROR;
-    result = CURLE_READ_ERROR;
-    break;
+    ctx->error_نتیجہ = CURLE_READ_ERROR;
+    نتیجہ = CURLE_READ_ERROR;
+    توڑو;
 
-  default:
-    if(nread > blen) {
+  طےشدہ:
+    اگر(nread > blen) {
       /* the read function returned a too large value */
-      failf(data, "read function returned funny value");
+      failf(ڈیٹا, "read function returned funny value");
       *pnread = 0;
       *peos = FALSE;
       ctx->errored = TRUE;
-      ctx->error_result = CURLE_READ_ERROR;
-      return CURLE_READ_ERROR;
+      ctx->error_نتیجہ = CURLE_READ_ERROR;
+      واپس CURLE_READ_ERROR;
     }
     ctx->read_len += nread;
-    if(ctx->total_len >= 0)
-      ctx->seen_eos = (ctx->read_len >= ctx->total_len);
+    اگر(ctx->کل_len >= 0)
+      ctx->نظر_آیا_eos = (ctx->read_len >= ctx->کل_len);
     *pnread = nread;
-    *peos = (bool)ctx->seen_eos;
-    break;
+    *peos = (bool)ctx->نظر_آیا_eos;
+    توڑو;
   }
 
-  CURL_TRC_READ(data, "cr_mime_read(len=%zu, total=%" FMT_OFF_T
+  CURL_TRC_READ(ڈیٹا, "cr_mime_read(len=%zu, total=%" FMT_OFF_T
                 ", read=%" FMT_OFF_T ") -> %d, %zu, %d", blen,
-                ctx->total_len, ctx->read_len, (int)result, *pnread, *peos);
-  return result;
+                ctx->کل_len, ctx->read_len, (صحیح)نتیجہ, *pnread, *peos);
+  واپس نتیجہ;
 }
 
-static bool cr_mime_needs_rewind(struct Curl_easy *data,
-                                 struct Curl_creader *reader)
+ساکن bool cr_mime_needs_rewind(ساخت Curl_easy *ڈیٹا,
+                                 ساخت Curl_creader *reader)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  (void)data;
-  return ctx->read_len > 0;
+  ساخت cr_mime_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  واپس ctx->read_len > 0;
 }
 
-static curl_off_t cr_mime_total_length(struct Curl_easy *data,
-                                       struct Curl_creader *reader)
+ساکن curl_off_t cr_mime_کل_لمبائی(ساخت Curl_easy *ڈیٹا,
+                                       ساخت Curl_creader *reader)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  (void)data;
-  return ctx->total_len;
+  ساخت cr_mime_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  واپس ctx->کل_len;
 }
 
-static CURLcode cr_mime_resume_from(struct Curl_easy *data,
-                                    struct Curl_creader *reader,
-                                    curl_off_t offset)
+ساکن CURLcode cr_mime_resume_from(ساخت Curl_easy *ڈیٹا,
+                                    ساخت Curl_creader *reader,
+                                    curl_off_t انحراف)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
+  ساخت cr_mime_ctx *ctx = reader->ctx;
 
-  if(offset > 0) {
+  اگر(انحراف > 0) {
     curl_off_t passed = 0;
 
-    do {
-      char scratch[4 * 1024];
+    کرو {
+      حرف scratch[4 * 1024];
       size_t readthisamountnow =
-        (offset - passed > (curl_off_t)sizeof(scratch)) ?
-        sizeof(scratch) :
-        curlx_sotouz(offset - passed);
+        (انحراف - passed > (curl_off_t)حجم(scratch)) ?
+        حجم(scratch) :
+        curlx_sotouz(انحراف - passed);
       size_t nread;
 
       nread = Curl_mime_read(scratch, 1, readthisamountnow, ctx->part);
       passed += (curl_off_t)nread;
-      if((nread == 0) || (nread > readthisamountnow)) {
+      اگر((nread == 0) || (nread > readthisamountnow)) {
         /* this checks for greater-than only to make sure that the
            CURL_READFUNC_ABORT return code still aborts */
-        failf(data, "Could only read %" FMT_OFF_T
+        failf(ڈیٹا, "Could only read %" FMT_OFF_T
               " bytes from the mime post", passed);
-        return CURLE_READ_ERROR;
+        واپس CURLE_READ_ERROR;
       }
-    } while(passed < offset);
+    } جب(passed < انحراف);
 
     /* now, decrease the size of the read */
-    if(ctx->total_len > 0) {
-      ctx->total_len -= offset;
+    اگر(ctx->کل_len > 0) {
+      ctx->کل_len -= انحراف;
 
-      if(ctx->total_len <= 0) {
-        failf(data, "Mime post already completely uploaded");
-        return CURLE_PARTIAL_FILE;
+      اگر(ctx->کل_len <= 0) {
+        failf(ڈیٹا, "Mime post already completely uploaded");
+        واپس CURLE_PARTIAL_FILE;
       }
     }
     /* we have passed, proceed as normal */
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode cr_mime_cntrl(struct Curl_easy *data,
-                              struct Curl_creader *reader,
+ساکن CURLcode cr_mime_cntrl(ساخت Curl_easy *ڈیٹا,
+                              ساخت Curl_creader *reader,
                               Curl_creader_cntrl opcode)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  switch(opcode) {
-  case CURL_CRCNTRL_REWIND: {
-    CURLcode result = mime_rewind(ctx->part);
-    if(result)
-      failf(data, "Cannot rewind mime/post data");
-    return result;
+  ساخت cr_mime_ctx *ctx = reader->ctx;
+  انتخاب(opcode) {
+  حالت CURL_CRCNTRL_REWIND: {
+    CURLcode نتیجہ = mime_rewind(ctx->part);
+    اگر(نتیجہ)
+      failf(ڈیٹا, "Cannot rewind mime/post data");
+    واپس نتیجہ;
   }
-  case CURL_CRCNTRL_UNPAUSE:
+  حالت CURL_CRCNTRL_UNPAUSE:
     mime_unpause(ctx->part);
-    break;
-  case CURL_CRCNTRL_CLEAR_EOS:
-    ctx->seen_eos = FALSE;
-    break;
-  default:
-    break;
+    توڑو;
+  حالت CURL_CRCNTRL_CLEAR_EOS:
+    ctx->نظر_آیا_eos = FALSE;
+    توڑو;
+  طےشدہ:
+    توڑو;
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static bool cr_mime_is_paused(struct Curl_easy *data,
-                              struct Curl_creader *reader)
+ساکن bool cr_mime_is_paused(ساخت Curl_easy *ڈیٹا,
+                              ساخت Curl_creader *reader)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  (void)data;
-  return ctx->part && ctx->part->lastreadstatus == CURL_READFUNC_PAUSE;
+  ساخت cr_mime_ctx *ctx = reader->ctx;
+  (خالی)ڈیٹا;
+  واپس ctx->part && ctx->part->lastreadstatus == CURL_READFUNC_PAUSE;
 }
 
-static const struct Curl_crtype cr_mime = {
+ساکن ثابت ساخت Curl_crtype cr_mime = {
   "cr-mime",
   cr_mime_init,
   cr_mime_read,
   cr_mime_close,
   cr_mime_needs_rewind,
-  cr_mime_total_length,
+  cr_mime_کل_لمبائی,
   cr_mime_resume_from,
   cr_mime_cntrl,
   cr_mime_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct cr_mime_ctx)
+  Curl_creader_def_مکمل,
+  حجم(ساخت cr_mime_ctx)
 };
 
-CURLcode Curl_creader_set_mime(struct Curl_easy *data, curl_mimepart *part)
+CURLcode Curl_creader_سیٹ_mime(ساخت Curl_easy *ڈیٹا, curl_mimepart *part)
 {
-  struct Curl_creader *r;
-  struct cr_mime_ctx *ctx;
-  CURLcode result;
+  ساخت Curl_creader *r;
+  ساخت cr_mime_ctx *ctx;
+  CURLcode نتیجہ;
 
-  result = Curl_creader_create(&r, data, &cr_mime, CURL_CR_CLIENT);
-  if(result)
-    return result;
+  نتیجہ = Curl_creader_create(&r, ڈیٹا, &cr_mime, CURL_CR_CLIENT);
+  اگر(نتیجہ)
+    واپس نتیجہ;
   ctx = r->ctx;
   ctx->part = part;
   /* Make sure we will read the entire mime structure. */
-  result = mime_rewind(ctx->part);
-  if(result) {
-    Curl_creader_free(data, r);
-    return result;
+  نتیجہ = mime_rewind(ctx->part);
+  اگر(نتیجہ) {
+    Curl_creader_free(ڈیٹا, r);
+    واپس نتیجہ;
   }
-  ctx->total_len = mime_size(ctx->part);
+  ctx->کل_len = mime_سائز(ctx->part);
 
-  return Curl_creader_set(data, r);
+  واپس Curl_creader_سیٹ(ڈیٹا, r);
 }
 
-#else /* !CURL_DISABLE_MIME && (!CURL_DISABLE_HTTP ||
+#ورنہ /* !CURL_DISABLE_MIME && (!CURL_DISABLE_HTTP ||
                                 !CURL_DISABLE_SMTP ||
                                 !CURL_DISABLE_IMAP) */
 
 /* Mime not compiled in: define stubs for externally-referenced functions. */
 curl_mime *curl_mime_init(CURL *easy)
 {
-  (void)easy;
-  return NULL;
+  (خالی)easy;
+  واپس تہی;
 }
 
-void curl_mime_free(curl_mime *mime)
+خالی curl_mime_free(curl_mime *mime)
 {
-  (void)mime;
+  (خالی)mime;
 }
 
 curl_mimepart *curl_mime_addpart(curl_mime *mime)
 {
-  (void)mime;
-  return NULL;
+  (خالی)mime;
+  واپس تہی;
 }
 
-CURLcode curl_mime_name(curl_mimepart *part, const char *name)
+CURLcode curl_mime_name(curl_mimepart *part, ثابت حرف *name)
 {
-  (void)part;
-  (void)name;
-  return CURLE_NOT_BUILT_IN;
+  (خالی)part;
+  (خالی)name;
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
-CURLcode curl_mime_filename(curl_mimepart *part, const char *filename)
+CURLcode curl_mime_filename(curl_mimepart *part, ثابت حرف *filename)
 {
-  (void)part;
-  (void)filename;
-  return CURLE_NOT_BUILT_IN;
+  (خالی)part;
+  (خالی)filename;
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
-CURLcode curl_mime_type(curl_mimepart *part, const char *mimetype)
+CURLcode curl_mime_type(curl_mimepart *part, ثابت حرف *mimetype)
 {
-  (void)part;
-  (void)mimetype;
-  return CURLE_NOT_BUILT_IN;
+  (خالی)part;
+  (خالی)mimetype;
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
-CURLcode curl_mime_encoder(curl_mimepart *part, const char *encoding)
+CURLcode curl_mime_encoder(curl_mimepart *part, ثابت حرف *encoding)
 {
-  (void)part;
-  (void)encoding;
-  return CURLE_NOT_BUILT_IN;
+  (خالی)part;
+  (خالی)encoding;
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
-CURLcode curl_mime_data(curl_mimepart *part, const char *data, size_t datasize)
+CURLcode curl_mime_ڈیٹا(curl_mimepart *part, ثابت حرف *ڈیٹا, size_t datasize)
 {
-  (void)part;
-  (void)data;
-  (void)datasize;
-  return CURLE_NOT_BUILT_IN;
+  (خالی)part;
+  (خالی)ڈیٹا;
+  (خالی)datasize;
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
-CURLcode curl_mime_filedata(curl_mimepart *part, const char *filename)
+CURLcode curl_mime_filedata(curl_mimepart *part, ثابت حرف *filename)
 {
-  (void)part;
-  (void)filename;
-  return CURLE_NOT_BUILT_IN;
+  (خالی)part;
+  (خالی)filename;
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
-CURLcode curl_mime_data_cb(curl_mimepart *part, curl_off_t datasize,
+CURLcode curl_mime_ڈیٹا_cb(curl_mimepart *part, curl_off_t datasize,
                            curl_read_callback readfunc,
                            curl_seek_callback seekfunc,
                            curl_free_callback freefunc,
-                           void *arg)
+                           خالی *arg)
 {
-  (void)part;
-  (void)datasize;
-  (void)readfunc;
-  (void)seekfunc;
-  (void)freefunc;
-  (void)arg;
-  return CURLE_NOT_BUILT_IN;
+  (خالی)part;
+  (خالی)datasize;
+  (خالی)readfunc;
+  (خالی)seekfunc;
+  (خالی)freefunc;
+  (خالی)arg;
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
 CURLcode curl_mime_subparts(curl_mimepart *part, curl_mime *subparts)
 {
-  (void)part;
-  (void)subparts;
-  return CURLE_NOT_BUILT_IN;
+  (خالی)part;
+  (خالی)subparts;
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
-CURLcode curl_mime_headers(curl_mimepart *part,
-                           struct curl_slist *headers, int take_ownership)
+CURLcode curl_mime_سرخیاں(curl_mimepart *part,
+                           ساخت curl_slist *سرخیاں, صحیح take_ownership)
 {
-  (void)part;
-  (void)headers;
-  (void)take_ownership;
-  return CURLE_NOT_BUILT_IN;
+  (خالی)part;
+  (خالی)سرخیاں;
+  (خالی)take_ownership;
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
-CURLcode Curl_mime_add_header(struct curl_slist **slp, const char *fmt, ...)
+CURLcode Curl_mime_جوڑو_سرخی(ساخت curl_slist **slp, ثابت حرف *fmt, ...)
 {
-  (void)slp;
-  (void)fmt;
-  return CURLE_NOT_BUILT_IN;
+  (خالی)slp;
+  (خالی)fmt;
+  واپس CURLE_NOT_BUILT_اندر;
 }
 
-#endif /* if disabled */
+#اگر_ختم /* if disabled */

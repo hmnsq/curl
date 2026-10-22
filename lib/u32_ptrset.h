@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_U32_PTRSET_H
-#define HEADER_CURL_U32_PTRSET_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_U32_PTRSET_H
+#تعریف_کرو سرخی_CURL_U32_PTRSET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,48 +23,48 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-typedef void Curl_u32_ptrset_dtor(uint32_t id, void *ptr);
+قسمتعریف خالی Curl_u32_ptrset_dtor(uint32_t id, خالی *ptr);
 
 /* A set that can hold up to INT32_MAX+1 pointers identified by an `id'.
  * Setting a pointer for an existing id replaces the previous one.
  * Getting the pointer for an id not in the set returns NULL.
  * Setting an id to NULL unsets the id.
  */
-struct u32_ptrset {
-  void **data; /* #slots array of pointers */
+ساخت u32_ptrset {
+  خالی **ڈیٹا; /* #slots array of pointers */
   uint32_t *ids; /* #slots array of `id` values */
   uint32_t *psl; /* #slots array of "probe sequence length" values */
   uint32_t slotmask;
-  uint32_t count;
+  uint32_t گنتی;
   Curl_u32_ptrset_dtor *dtor;
   uint8_t slotbits;
-#ifdef DEBUGBUILD
+#اگر_تعریف_شدہ DEBUGBUILD
   int32_t init;
-#endif
+#اگر_ختم
 };
 
-void Curl_u32_ptrset_init(struct u32_ptrset *set,
+خالی Curl_u32_ptrset_init(ساخت u32_ptrset *سیٹ,
                           Curl_u32_ptrset_dtor *dtor);
-void Curl_u32_ptrset_clear(struct u32_ptrset *set);
+خالی Curl_u32_ptrset_clear(ساخت u32_ptrset *سیٹ);
 
-uint32_t Curl_u32_ptrset_count(struct u32_ptrset *set);
+uint32_t Curl_u32_ptrset_گنتی(ساخت u32_ptrset *سیٹ);
 
-void *Curl_u32_ptrset_get(struct u32_ptrset *set, uint32_t id);
+خالی *Curl_u32_ptrset_get(ساخت u32_ptrset *سیٹ, uint32_t id);
 
 /* Set pointer for id. */
-CURLcode Curl_u32_ptrset_set(struct u32_ptrset *set,
-                             uint32_t id, void *ptr);
+CURLcode Curl_u32_ptrset_سیٹ(ساخت u32_ptrset *سیٹ,
+                             uint32_t id, خالی *ptr);
 
-void Curl_u32_ptrset_unset(struct u32_ptrset *set, uint32_t id);
+خالی Curl_u32_ptrset_unset(ساخت u32_ptrset *سیٹ, uint32_t id);
 
-typedef bool Curl_u32_ptrset_visit_cb(uint32_t id, void *ptr,
-                                       void *user_data);
+قسمتعریف bool Curl_u32_ptrset_دورہ_cb(uint32_t id, خالی *ptr,
+                                       خالی *user_ڈیٹا);
 
 /* Visit all entries in the set until the callback returns FALSE */
-void Curl_u32_ptrset_visit(struct u32_ptrset *set,
-                            Curl_u32_ptrset_visit_cb *cb,
-                            void *user_data);
+خالی Curl_u32_ptrset_دورہ(ساخت u32_ptrset *سیٹ,
+                            Curl_u32_ptrset_دورہ_cb *cb,
+                            خالی *user_ڈیٹا);
 
-#endif /* HEADER_CURL_U32_PTRSET_H */
+#اگر_ختم /* HEADER_CURL_U32_PTRSET_H */

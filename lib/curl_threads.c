@@ -21,129 +21,129 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "curl_threads.h"
-#include "curlx/timeval.h"
+#شامل "curl_setup.h"
+#شامل "curl_threads.h"
+#شامل "curlx/timeval.h"
 
-#ifdef USE_THREADS
+#اگر_تعریف_شدہ USE_دھاگے
 
-#ifdef _WIN32
+#اگر_تعریف_شدہ _WIN32
 
 curl_thread_t Curl_thread_create(
-  CURL_THREAD_RETURN_T(CURL_STDCALL *func)(void *), void *arg)
+  CURL_THREAD_RETURN_T(CURL_STDCALL *func)(خالی *), خالی *arg)
 {
-  curl_thread_t t = CreateThread(NULL, 0, func, arg, 0, NULL);
-  if(!t) {
-    DWORD gle = GetLastError();
+  curl_thread_t t = CreateThread(تہی, 0, func, arg, 0, تہی);
+  اگر(!t) {
+    DWORD gle = Get_آخری_Error();
     /* !checksrc! disable ERRNOVAR 1 */
     errno = (gle == ERROR_ACCESS_DENIED ||
-             gle == ERROR_NOT_ENOUGH_MEMORY) ?
+             gle == ERROR_NOT_ENOUGH_حافظہ) ?
              EACCES : EINVAL;
-    return curl_thread_t_null;
+    واپس curl_thread_t_null;
   }
-  return t;
+  واپس t;
 }
 
-void Curl_thread_destroy(curl_thread_t *hnd)
+خالی Curl_thread_destroy(curl_thread_t *hnd)
 {
-  if(*hnd != curl_thread_t_null) {
+  اگر(*hnd != curl_thread_t_null) {
     CloseHandle(*hnd);
     *hnd = curl_thread_t_null;
   }
 }
 
-int Curl_thread_join(curl_thread_t *hnd)
+صحیح Curl_thread_join(curl_thread_t *hnd)
 {
-  int ret = (WaitForSingleObjectEx(*hnd, INFINITE, FALSE) == WAIT_OBJECT_0);
+  صحیح ret = (WaitForSingleObjectEx(*hnd, INFINITE, FALSE) == WAIT_OBJECT_0);
 
   Curl_thread_destroy(hnd);
 
-  return ret;
+  واپس ret;
 }
 
-#elif defined(HAVE_THREADS_POSIX)
+#وگرنہ_اگر defined(HAVE_دھاگے_POSIX)
 
-struct Curl_actual_call {
-  unsigned int (*func)(void *);
-  void *arg;
+ساخت Curl_actual_call {
+  غیرعلامتی صحیح (*func)(خالی *);
+  خالی *arg;
 };
 
-static void *curl_thread_create_thunk(void *arg)
+ساکن خالی *curl_thread_create_thunk(خالی *arg)
 {
-  struct Curl_actual_call *ac = arg;
-  unsigned int (*func)(void *) = ac->func;
-  void *real_arg = ac->arg;
+  ساخت Curl_actual_call *ac = arg;
+  غیرعلامتی صحیح (*func)(خالی *) = ac->func;
+  خالی *real_arg = ac->arg;
 
   curlx_free(ac);
 
   (*func)(real_arg);
 
-  return 0;
+  واپس 0;
 }
 
 curl_thread_t Curl_thread_create(
-  CURL_THREAD_RETURN_T(CURL_STDCALL *func)(void *), void *arg)
+  CURL_THREAD_RETURN_T(CURL_STDCALL *func)(خالی *), خالی *arg)
 {
-  curl_thread_t t = curlx_malloc(sizeof(pthread_t));
-  struct Curl_actual_call *ac = NULL;
-  int rc;
+  curl_thread_t t = curlx_malloc(حجم(pthread_t));
+  ساخت Curl_actual_call *ac = تہی;
+  صحیح rc;
 
-  if(t)
-    ac = curlx_malloc(sizeof(struct Curl_actual_call));
-  if(!(ac && t))
-    goto err;
+  اگر(t)
+    ac = curlx_malloc(حجم(ساخت Curl_actual_call));
+  اگر(!(ac && t))
+    جاؤ err;
 
   ac->func = func;
   ac->arg = arg;
 
-  rc = pthread_create(t, NULL, curl_thread_create_thunk, ac);
-  if(rc) {
+  rc = pthread_create(t, تہی, curl_thread_create_thunk, ac);
+  اگر(rc) {
     errno = rc;
-    goto err;
+    جاؤ err;
   }
 
-  return t;
+  واپس t;
 
 err:
   curlx_free(t);
   curlx_free(ac);
-  return curl_thread_t_null;
+  واپس curl_thread_t_null;
 }
 
-void Curl_thread_destroy(curl_thread_t *hnd)
+خالی Curl_thread_destroy(curl_thread_t *hnd)
 {
-  if(*hnd != curl_thread_t_null) {
+  اگر(*hnd != curl_thread_t_null) {
     pthread_detach(**hnd);
     curlx_free(*hnd);
     *hnd = curl_thread_t_null;
   }
 }
 
-int Curl_thread_join(curl_thread_t *hnd)
+صحیح Curl_thread_join(curl_thread_t *hnd)
 {
-  int ret = (pthread_join(**hnd, NULL) == 0);
+  صحیح ret = (pthread_join(**hnd, تہی) == 0);
 
   curlx_free(*hnd);
   *hnd = curl_thread_t_null;
 
-  return ret;
+  واپس ret;
 }
 
-#else
-#error neither HAVE_THREADS_POSIX nor _WIN32 defined
-#endif
-#endif /* USE_THREADS */
+#ورنہ
+#غلطی neither HAVE_دھاگے_POSIX nor _WIN32 defined
+#اگر_ختم
+#اگر_ختم /* USE_THREADS */
 
-#ifdef USE_MUTEX
+#اگر_تعریف_شدہ USE_MUTEX
 
-#ifdef _WIN32
+#اگر_تعریف_شدہ _WIN32
 
-void Curl_cond_signal(CONDITION_VARIABLE *c)
+خالی Curl_cond_signal(CONDITION_VARIABLE *c)
 {
   WakeConditionVariable(c);
 }
 
-void Curl_cond_wait(CONDITION_VARIABLE *c, CRITICAL_SECTION *m)
+خالی Curl_cond_wait(CONDITION_VARIABLE *c, CRITICAL_SECTION *m)
 {
   SleepConditionVariableCS(c, m, INFINITE);
 }
@@ -151,85 +151,85 @@ void Curl_cond_wait(CONDITION_VARIABLE *c, CRITICAL_SECTION *m)
 CURLcode Curl_cond_timedwait(CONDITION_VARIABLE *c, CRITICAL_SECTION *m,
                              uint32_t timeout_ms)
 {
-  if(!SleepConditionVariableCS(c, m, (DWORD)timeout_ms)) {
-    DWORD err = GetLastError();
-    return (err == ERROR_TIMEOUT) ?
+  اگر(!SleepConditionVariableCS(c, m, (DWORD)timeout_ms)) {
+    DWORD err = Get_آخری_Error();
+    واپس (err == ERROR_TIMEOUT) ?
            CURLE_OPERATION_TIMEDOUT : CURLE_UNRECOVERABLE_POLL;
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-curl_thread_id_t Curl_thread_get_current_id(void)
+curl_thread_id_t Curl_thread_get_current_id(خالی)
 {
-  return GetCurrentThreadId();
+  واپس GetCurrentThreadId();
 }
 
 bool Curl_thread_is_current(curl_thread_id_t tid)
 {
-  return tid == GetCurrentThreadId();
+  واپس tid == GetCurrentThreadId();
 }
 
-#elif defined(HAVE_THREADS_POSIX)
+#وگرنہ_اگر defined(HAVE_دھاگے_POSIX)
 
-void Curl_cond_signal(pthread_cond_t *c)
+خالی Curl_cond_signal(pthread_cond_t *c)
 {
   /* return code defined as always 0 */
-  (void)pthread_cond_signal(c);
+  (خالی)pthread_cond_signal(c);
 }
 
-void Curl_cond_wait(pthread_cond_t *c, pthread_mutex_t *m)
+خالی Curl_cond_wait(pthread_cond_t *c, pthread_mutex_t *m)
 {
   /* return code defined as always 0 */
-  (void)pthread_cond_wait(c, m);
+  (خالی)pthread_cond_wait(c, m);
 }
 
 CURLcode Curl_cond_timedwait(pthread_cond_t *c, pthread_mutex_t *m,
                              uint32_t timeout_ms)
 {
-  struct curltime now;
-  struct timespec ts;
+  ساخت curltime now;
+  ساخت timespec ts;
   timediff_t usec;
-  int rc;
+  صحیح rc;
 
   /* POSIX expects an "absolute" time until the condition wait ends.
    * We cannot use `curlx_now()` here that may run on some monotonic clock
    * that will be most likely in the past, as far as POSIX abstime is
    * concerned. */
-#ifdef HAVE_GETTIMEOFDAY
-  struct timeval tv;
-  (void)gettimeofday(&tv, NULL);
+#اگر_تعریف_شدہ HAVE_GETTIMEOFDAY
+  ساخت timeval tv;
+  (خالی)gettimeofday(&tv, تہی);
   now.tv_sec = tv.tv_sec;
-  now.tv_usec = (int)tv.tv_usec;
-#else
-  now.tv_sec = time(NULL);
+  now.tv_usec = (صحیح)tv.tv_usec;
+#ورنہ
+  now.tv_sec = وقت(تہی);
   now.tv_usec = 0;
-#endif
+#اگر_ختم
 
   ts.tv_sec = now.tv_sec + (timeout_ms / 1000);
   usec = now.tv_usec + ((timeout_ms % 1000) * 1000);
-  if(usec >= 1000000) {
+  اگر(usec >= 1000000) {
     ++ts.tv_sec;
     usec %= 1000000;
   }
-  ts.tv_nsec = (long)usec * 1000;
+  ts.tv_nsec = (طویل)usec * 1000;
 
   rc = pthread_cond_timedwait(c, m, &ts);
-  if(rc == SOCKETIMEDOUT)
-    return CURLE_OPERATION_TIMEDOUT;
-  return rc ? CURLE_UNRECOVERABLE_POLL : CURLE_OK;
+  اگر(rc == SOCKETIMEDOUT)
+    واپس CURLE_OPERATION_TIMEDOUT;
+  واپس rc ? CURLE_UNRECOVERABLE_POLL : CURLE_OK;
 }
 
-curl_thread_id_t Curl_thread_get_current_id(void)
+curl_thread_id_t Curl_thread_get_current_id(خالی)
 {
-  return pthread_self();
+  واپس pthread_self();
 }
 
 bool Curl_thread_is_current(curl_thread_id_t tid)
 {
-  return !!pthread_equal(tid, pthread_self());
+  واپس !!pthread_equal(tid, pthread_self());
 }
 
-#else
-#error neither HAVE_THREADS_POSIX nor _WIN32 defined
-#endif
-#endif /* USE_MUTEX */
+#ورنہ
+#غلطی neither HAVE_دھاگے_POSIX nor _WIN32 defined
+#اگر_ختم
+#اگر_ختم /* USE_MUTEX */

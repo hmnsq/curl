@@ -21,475 +21,475 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "urldata.h"
-#include "multiif.h"
-#include "curl_threads.h"
-#include "curl_share.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_scache.h"
-#include "hsts.h"
-#include "url.h"
+#شامل "urldata.h"
+#شامل "multiif.h"
+#شامل "curl_threads.h"
+#شامل "curl_share.h"
+#شامل "vtls/vtls.h"
+#شامل "vtls/vtls_scache.h"
+#شامل "hsts.h"
+#شامل "url.h"
 
-static void share_destroy(struct Curl_share *share)
+ساکن خالی share_destroy(ساخت Curl_share *share)
 {
-  if(!share)
-    return;
+  اگر(!share)
+    واپس;
 
-  if(share->specifier & (1 << CURL_LOCK_DATA_CONNECT)) {
+  اگر(share->specifier & (1 << CURL_تالا_ڈیٹا_CONNECT)) {
     Curl_cpool_destroy(&share->cpool, share->admin);
   }
 
   Curl_dnscache_destroy(&share->dnscache);
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
   Curl_cookie_cleanup(share->cookies);
-#endif
+#اگر_ختم
 
-#ifndef CURL_DISABLE_HSTS
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HSTS
   Curl_hsts_cleanup(&share->hsts);
-#endif
+#اگر_ختم
 
-#ifdef USE_SSL
-  if(share->ssl_scache) {
+#اگر_تعریف_شدہ USE_SSL
+  اگر(share->ssl_scache) {
     Curl_ssl_scache_destroy(share->ssl_scache);
-    share->ssl_scache = NULL;
+    share->ssl_scache = تہی;
   }
-#endif
+#اگر_ختم
 
   Curl_psl_destroy(&share->psl);
   Curl_close(&share->admin);
 
-#ifdef USE_MUTEX
-  Curl_mutex_destroy(&share->lock);
-#endif
-  curlx_memzero(share, sizeof(*share));
+#اگر_تعریف_شدہ USE_MUTEX
+  Curl_mutex_destroy(&share->تالا);
+#اگر_ختم
+  curlx_memzero(share, حجم(*share));
   curlx_free(share);
 }
 
-CURLSH *curl_share_init(void)
+CURLSH *curl_share_init(خالی)
 {
-  struct Curl_share *share = curlx_calloc(1, sizeof(struct Curl_share));
-  if(share) {
+  ساخت Curl_share *share = curlx_calloc(1, حجم(ساخت Curl_share));
+  اگر(share) {
     share->magic = CURL_GOOD_SHARE;
-    share->specifier |= (1 << CURL_LOCK_DATA_SHARE);
-#ifdef USE_MUTEX
-    Curl_mutex_init(&share->lock);
-#endif
-    share->ref_count = 1;
+    share->specifier |= (1 << CURL_تالا_ڈیٹا_SHARE);
+#اگر_تعریف_شدہ USE_MUTEX
+    Curl_mutex_init(&share->تالا);
+#اگر_ختم
+    share->ref_گنتی = 1;
     Curl_dnscache_init(&share->dnscache, 23);
     share->admin = curl_easy_init();
-    if(!share->admin) {
+    اگر(!share->admin) {
       share_destroy(share);
-      return NULL;
+      واپس تہی;
     }
     /* admin handles have mid 0 */
     share->admin->mid = 0;
-    share->admin->state.internal = TRUE;
-#ifdef DEBUGBUILD
-    if(getenv("CURL_DEBUG"))
-      share->admin->set.verbose = TRUE;
-#endif
+    share->admin->state.اندرونی_2 = TRUE;
+#اگر_تعریف_شدہ DEBUGBUILD
+    اگر(getenv("CURL_DEBUG"))
+      share->admin->سیٹ.verbose = TRUE;
+#اگر_ختم
   }
-  return share;
+  واپس share;
 }
 
-static uint32_t share_ref_inc(struct Curl_share *share)
+ساکن uint32_t share_ref_inc(ساخت Curl_share *share)
 {
   uint32_t n;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
-  n = ++share->ref_count;
+#اگر_تعریف_شدہ USE_MUTEX
+  Curl_mutex_acquire(&share->تالا);
+  n = ++share->ref_گنتی;
   share->has_been_shared = TRUE;
-  Curl_mutex_release(&share->lock);
-#else
-  n = ++share->ref_count;
+  Curl_mutex_release(&share->تالا);
+#ورنہ
+  n = ++share->ref_گنتی;
   share->has_been_shared = TRUE;
-#endif
-  return n;
+#اگر_ختم
+  واپس n;
 }
 
-static uint32_t share_ref_dec(struct Curl_share *share)
+ساکن uint32_t share_ref_dec(ساخت Curl_share *share)
 {
   uint32_t n;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
-  DEBUGASSERT(share->ref_count);
-  n = --share->ref_count;
-  Curl_mutex_release(&share->lock);
-#else
-  n = --share->ref_count;
-#endif
-  return n;
+#اگر_تعریف_شدہ USE_MUTEX
+  Curl_mutex_acquire(&share->تالا);
+  DEBUGASSERT(share->ref_گنتی);
+  n = --share->ref_گنتی;
+  Curl_mutex_release(&share->تالا);
+#ورنہ
+  n = --share->ref_گنتی;
+#اگر_ختم
+  واپس n;
 }
 
-static bool share_has_been_shared(struct Curl_share *share)
+ساکن bool share_has_been_shared(ساخت Curl_share *share)
 {
   bool was_shared;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
+#اگر_تعریف_شدہ USE_MUTEX
+  Curl_mutex_acquire(&share->تالا);
   was_shared = share->has_been_shared;
-  Curl_mutex_release(&share->lock);
-#else
+  Curl_mutex_release(&share->تالا);
+#ورنہ
   was_shared = share->has_been_shared;
-#endif
-  return was_shared;
+#اگر_ختم
+  واپس was_shared;
 }
 
-static bool share_lock_acquire(struct Curl_share *share,
-                               struct Curl_easy *data)
+ساکن bool share_تالا_acquire(ساخت Curl_share *share,
+                               ساخت Curl_easy *ڈیٹا)
 {
-  if(share->lockfunc && share->unlockfunc &&
-     (data || share_has_been_shared(share))) {
-    share->lockfunc(data, CURL_LOCK_DATA_SHARE, CURL_LOCK_ACCESS_SINGLE,
+  اگر(share->lockfunc && share->unlockfunc &&
+     (ڈیٹا || share_has_been_shared(share))) {
+    share->lockfunc(ڈیٹا, CURL_تالا_ڈیٹا_SHARE, CURL_تالا_ACCESS_SINGLE,
                     share->clientdata);
-    return TRUE;
+    واپس TRUE;
   }
-  return FALSE;
+  واپس FALSE;
 }
 
-static void share_lock_release(struct Curl_share *share,
-                               struct Curl_easy *data,
+ساکن خالی share_تالا_release(ساخت Curl_share *share,
+                               ساخت Curl_easy *ڈیٹا,
                                bool locked)
 {
-  if(locked) {
+  اگر(locked) {
     DEBUGASSERT(share->unlockfunc);
-    if(share->unlockfunc)
-      share->unlockfunc(data, CURL_LOCK_DATA_SHARE, share->clientdata);
+    اگر(share->unlockfunc)
+      share->unlockfunc(ڈیٹا, CURL_تالا_ڈیٹا_SHARE, share->clientdata);
   }
 }
 
-static bool share_in_use(struct Curl_share *share)
+ساکن bool share_اندر_use(ساخت Curl_share *share)
 {
-  bool in_use;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
-  in_use = (share->ref_count > 1);
-  Curl_mutex_release(&share->lock);
-#else
-  bool locked = share_lock_acquire(share, NULL);
-  in_use = (share->ref_count > 1);
-  share_lock_release(share, NULL, locked);
-#endif
-  return in_use;
+  bool اندر_use;
+#اگر_تعریف_شدہ USE_MUTEX
+  Curl_mutex_acquire(&share->تالا);
+  اندر_use = (share->ref_گنتی > 1);
+  Curl_mutex_release(&share->تالا);
+#ورنہ
+  bool locked = share_تالا_acquire(share, تہی);
+  اندر_use = (share->ref_گنتی > 1);
+  share_تالا_release(share, تہی, locked);
+#اگر_ختم
+  واپس اندر_use;
 }
 
-static void share_unlink(struct Curl_share **pshare,
-                         struct Curl_easy *data,
+ساکن خالی share_unlink(ساخت Curl_share **pshare,
+                         ساخت Curl_easy *ڈیٹا,
                          bool locked)
 {
-  struct Curl_share *share = *pshare;
+  ساخت Curl_share *share = *pshare;
   uint32_t n;
 
-  *pshare = NULL;
+  *pshare = تہی;
   n = share_ref_dec(share);
-  if(locked)
-    share_lock_release(share, data, locked);
-  if(!n)  /* last reference gone */
+  اگر(locked)
+    share_تالا_release(share, ڈیٹا, locked);
+  اگر(!n)  /* last reference gone */
     share_destroy(share);
 }
 
-#undef curl_share_setopt
+#تعریف_منسوخ curl_share_setopt
 CURLSHcode curl_share_setopt(CURLSH *sh, CURLSHoption option, ...)
 {
   va_list param;
-  int type;
-  curl_lock_function lockfunc;
+  صحیح type;
+  curl_تالا_function lockfunc;
   curl_unlock_function unlockfunc;
-  void *ptr;
+  خالی *ptr;
   CURLSHcode res = CURLSHE_OK;
-  struct Curl_share *share = sh;
+  ساخت Curl_share *share = sh;
 
-  if(!GOOD_SHARE_HANDLE(share))
-    return CURLSHE_INVALID;
+  اگر(!GOOD_SHARE_HANDLE(share))
+    واپس CURLSHE_INVALID;
 
-  if(share_in_use(share)) {
+  اگر(share_اندر_use(share)) {
     /* do not allow setting options while one or more handles are already
        using this share */
-    return CURLSHE_IN_USE;
+    واپس CURLSHE_اندر_USE;
   }
 
   va_start(param, option);
 
-  switch(option) {
-  case CURLSHOPT_SHARE:
+  انتخاب(option) {
+  حالت CURLSHOPT_SHARE:
     /* this is a type this share will share */
-    type = va_arg(param, int);
+    type = va_arg(param, صحیح);
 
-    switch(type) {
-    case CURL_LOCK_DATA_DNS:
-      break;
+    انتخاب(type) {
+    حالت CURL_تالا_ڈیٹا_DNS:
+      توڑو;
 
-    case CURL_LOCK_DATA_COOKIE:
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-      if(!share->cookies) {
+    حالت CURL_تالا_ڈیٹا_COOKIE:
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+      اگر(!share->cookies) {
         share->cookies = Curl_cookie_init();
-        if(!share->cookies)
+        اگر(!share->cookies)
           res = CURLSHE_NOMEM;
       }
-#else /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#ورنہ /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
+      res = CURLSHE_NOT_BUILT_اندر;
+#اگر_ختم
+      توڑو;
 
-    case CURL_LOCK_DATA_HSTS:
-#ifndef CURL_DISABLE_HSTS
-      if(!share->hsts) {
+    حالت CURL_تالا_ڈیٹا_HSTS:
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HSTS
+      اگر(!share->hsts) {
         share->hsts = Curl_hsts_init();
-        if(!share->hsts)
+        اگر(!share->hsts)
           res = CURLSHE_NOMEM;
       }
-#else /* CURL_DISABLE_HSTS */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#ورنہ /* CURL_DISABLE_HSTS */
+      res = CURLSHE_NOT_BUILT_اندر;
+#اگر_ختم
+      توڑو;
 
-    case CURL_LOCK_DATA_SSL_SESSION:
-#ifdef USE_SSL
-      if(!share->ssl_scache) {
+    حالت CURL_تالا_ڈیٹا_SSL_SESSION:
+#اگر_تعریف_شدہ USE_SSL
+      اگر(!share->ssl_scache) {
         /* There is no way (yet) for the application to configure the
          * session cache size, shared between many transfers. As for curl
          * itself, a high session count will impact startup time. Also, the
          * scache is not optimized for several hundreds of peers.
          * Keep it at a reasonable level. */
-        if(Curl_ssl_scache_create(25, 2, &share->ssl_scache))
+        اگر(Curl_ssl_scache_create(25, 2, &share->ssl_scache))
           res = CURLSHE_NOMEM;
       }
-#else
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#ورنہ
+      res = CURLSHE_NOT_BUILT_اندر;
+#اگر_ختم
+      توڑو;
 
-    case CURL_LOCK_DATA_CONNECT:
+    حالت CURL_تالا_ڈیٹا_CONNECT:
       /* It is safe to set this option several times on a share. */
-      if(!share->cpool.initialized) {
+      اگر(!share->cpool.initialized) {
         Curl_cpool_init(&share->cpool, share, 103);
       }
-      break;
+      توڑو;
 
-    case CURL_LOCK_DATA_PSL:
-#ifndef USE_LIBPSL
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+    حالت CURL_تالا_ڈیٹا_PSL:
+#اگر_غیر_تعریف_شدہ USE_LIBPSL
+      res = CURLSHE_NOT_BUILT_اندر;
+#اگر_ختم
+      توڑو;
 
-    default:
+    طےشدہ:
       res = CURLSHE_BAD_OPTION;
     }
-    if(!res)
-      share->specifier |= (unsigned int)(1 << type);
-    break;
+    اگر(!res)
+      share->specifier |= (غیرعلامتی صحیح)(1 << type);
+    توڑو;
 
-  case CURLSHOPT_UNSHARE:
+  حالت CURLSHOPT_UNSHARE:
     /* this is a type this share will no longer share */
-    type = va_arg(param, int);
-    switch(type) {
-    case CURL_LOCK_DATA_DNS:
-      break;
+    type = va_arg(param, صحیح);
+    انتخاب(type) {
+    حالت CURL_تالا_ڈیٹا_DNS:
+      توڑو;
 
-    case CURL_LOCK_DATA_COOKIE:
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-      if(share->cookies) {
+    حالت CURL_تالا_ڈیٹا_COOKIE:
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+      اگر(share->cookies) {
         Curl_cookie_cleanup(share->cookies);
-        share->cookies = NULL;
+        share->cookies = تہی;
       }
-#else /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#ورنہ /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
+      res = CURLSHE_NOT_BUILT_اندر;
+#اگر_ختم
+      توڑو;
 
-    case CURL_LOCK_DATA_HSTS:
-#ifndef CURL_DISABLE_HSTS
-      if(share->hsts) {
+    حالت CURL_تالا_ڈیٹا_HSTS:
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HSTS
+      اگر(share->hsts) {
         Curl_hsts_cleanup(&share->hsts);
       }
-#else /* CURL_DISABLE_HSTS */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#ورنہ /* CURL_DISABLE_HSTS */
+      res = CURLSHE_NOT_BUILT_اندر;
+#اگر_ختم
+      توڑو;
 
-    case CURL_LOCK_DATA_SSL_SESSION:
-#ifdef USE_SSL
-      if(share->ssl_scache) {
+    حالت CURL_تالا_ڈیٹا_SSL_SESSION:
+#اگر_تعریف_شدہ USE_SSL
+      اگر(share->ssl_scache) {
         Curl_ssl_scache_destroy(share->ssl_scache);
-        share->ssl_scache = NULL;
+        share->ssl_scache = تہی;
       }
-#else
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#ورنہ
+      res = CURLSHE_NOT_BUILT_اندر;
+#اگر_ختم
+      توڑو;
 
-    case CURL_LOCK_DATA_CONNECT:
-      break;
+    حالت CURL_تالا_ڈیٹا_CONNECT:
+      توڑو;
 
-    default:
+    طےشدہ:
       res = CURLSHE_BAD_OPTION;
-      break;
+      توڑو;
     }
-    if(!res)
-      share->specifier &= ~(unsigned int)(1 << type);
-    break;
+    اگر(!res)
+      share->specifier &= ~(غیرعلامتی صحیح)(1 << type);
+    توڑو;
 
-  case CURLSHOPT_LOCKFUNC:
-    lockfunc = va_arg(param, curl_lock_function);
+  حالت CURLSHOPT_LOCKFUNC:
+    lockfunc = va_arg(param, curl_تالا_function);
     share->lockfunc = lockfunc;
-    break;
+    توڑو;
 
-  case CURLSHOPT_UNLOCKFUNC:
+  حالت CURLSHOPT_UNLOCKFUNC:
     unlockfunc = va_arg(param, curl_unlock_function);
     share->unlockfunc = unlockfunc;
-    break;
+    توڑو;
 
-  case CURLSHOPT_USERDATA:
-    ptr = va_arg(param, void *);
+  حالت CURLSHOPT_USERDATA:
+    ptr = va_arg(param, خالی *);
     share->clientdata = ptr;
-    break;
+    توڑو;
 
-  default:
+  طےشدہ:
     res = CURLSHE_BAD_OPTION;
-    break;
+    توڑو;
   }
 
   va_end(param);
 
-  return res;
+  واپس res;
 }
 
 CURLSHcode curl_share_cleanup(CURLSH *sh)
 {
-  struct Curl_share *share = sh;
+  ساخت Curl_share *share = sh;
   bool locked;
-  if(!GOOD_SHARE_HANDLE(share))
-    return CURLSHE_INVALID;
+  اگر(!GOOD_SHARE_HANDLE(share))
+    واپس CURLSHE_INVALID;
 
-  if(share_in_use(share))
-    return CURLSHE_IN_USE;
+  اگر(share_اندر_use(share))
+    واپس CURLSHE_اندر_USE;
 
-  locked = share_lock_acquire(share, NULL);
-  share_unlink(&share, NULL, locked);
-  return CURLSHE_OK;
+  locked = share_تالا_acquire(share, تہی);
+  share_unlink(&share, تہی, locked);
+  واپس CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_lock_share(struct Curl_share *share,
-                                 struct Curl_easy *data,
-                                 curl_lock_data type,
-                                 curl_lock_access accesstype)
+CURLSHcode Curl_share_تالا_share(ساخت Curl_share *share,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 curl_تالا_ڈیٹا type,
+                                 curl_تالا_access accesstype)
 {
-  if(!share)
-    return CURLSHE_INVALID;
+  اگر(!share)
+    واپس CURLSHE_INVALID;
 
-  if(share->specifier & (unsigned int)(1 << type) &&
+  اگر(share->specifier & (غیرعلامتی صحیح)(1 << type) &&
      share->lockfunc) /* only call this if set! */
-    share->lockfunc(data, type, accesstype, share->clientdata);
+    share->lockfunc(ڈیٹا, type, accesstype, share->clientdata);
   /* else if we do not share this, pretend successful lock */
 
-  return CURLSHE_OK;
+  واپس CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_lock(struct Curl_easy *data, curl_lock_data type,
-                           curl_lock_access accesstype)
+CURLSHcode Curl_share_تالا(ساخت Curl_easy *ڈیٹا, curl_تالا_ڈیٹا type,
+                           curl_تالا_access accesstype)
 {
-  return Curl_share_lock_share(data->share, data, type, accesstype);
+  واپس Curl_share_تالا_share(ڈیٹا->share, ڈیٹا, type, accesstype);
 }
 
-CURLSHcode Curl_share_unlock_share(struct Curl_share *share,
-                                   struct Curl_easy *data,
-                                   curl_lock_data type)
+CURLSHcode Curl_share_unlock_share(ساخت Curl_share *share,
+                                   ساخت Curl_easy *ڈیٹا,
+                                   curl_تالا_ڈیٹا type)
 {
-  if(!share)
-    return CURLSHE_INVALID;
+  اگر(!share)
+    واپس CURLSHE_INVALID;
 
-  if(share->specifier & (unsigned int)(1 << type) &&
+  اگر(share->specifier & (غیرعلامتی صحیح)(1 << type) &&
      share->unlockfunc) /* only call this if set! */
-    share->unlockfunc(data, type, share->clientdata);
+    share->unlockfunc(ڈیٹا, type, share->clientdata);
 
-  return CURLSHE_OK;
+  واپس CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_unlock(struct Curl_easy *data, curl_lock_data type)
+CURLSHcode Curl_share_unlock(ساخت Curl_easy *ڈیٹا, curl_تالا_ڈیٹا type)
 {
-  return Curl_share_unlock_share(data->share, data, type);
+  واپس Curl_share_unlock_share(ڈیٹا->share, ڈیٹا, type);
 }
 
-CURLcode Curl_share_easy_unlink(struct Curl_easy *data)
+CURLcode Curl_share_easy_unlink(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_share *share = data->share;
+  ساخت Curl_share *share = ڈیٹا->share;
 
-  if(share) {
-    bool locked = share_lock_acquire(share, data);
+  اگر(share) {
+    bool locked = share_تالا_acquire(share, ڈیٹا);
 
     /* If share caches connections, detach any existing connection and
      * forget its identifier. */
-    if((share->specifier & (1 << CURL_LOCK_DATA_CONNECT))) {
-      if(data->conn)
-        Curl_detach_connection(data);
-      data->state.last_conn_id = -1;
-      data->state.last_cpid = UINT32_MAX;
+    اگر((share->specifier & (1 << CURL_تالا_ڈیٹا_CONNECT))) {
+      اگر(ڈیٹا->conn)
+        Curl_detach_connection(ڈیٹا);
+      ڈیٹا->state.آخری_conn_id = -1;
+      ڈیٹا->state.آخری_cpid = UINT32_MAX;
     }
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-    if(share->cookies == data->cookies)
-      data->cookies = NULL;
-#endif
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+    اگر(share->cookies == ڈیٹا->cookies)
+      ڈیٹا->cookies = تہی;
+#اگر_ختم
 
-#ifndef CURL_DISABLE_HSTS
-    if(share->hsts == data->hsts)
-      data->hsts = NULL;
-#endif
-#ifdef USE_LIBPSL
-    if(&share->psl == data->psl)
-      data->psl = data->multi ? &data->multi->psl : NULL;
-#endif
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HSTS
+    اگر(share->hsts == ڈیٹا->hsts)
+      ڈیٹا->hsts = تہی;
+#اگر_ختم
+#اگر_تعریف_شدہ USE_LIBPSL
+    اگر(&share->psl == ڈیٹا->psl)
+      ڈیٹا->psl = ڈیٹا->multi ? &ڈیٹا->multi->psl : تہی;
+#اگر_ختم
 
-    share_unlink(&data->share, data, locked);
+    share_unlink(&ڈیٹا->share, ڈیٹا, locked);
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-CURLcode Curl_share_easy_link(struct Curl_easy *data,
-                              struct Curl_share *share)
+CURLcode Curl_share_easy_link(ساخت Curl_easy *ڈیٹا,
+                              ساخت Curl_share *share)
 {
-  if(data->share) {
+  اگر(ڈیٹا->share) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    واپس CURLE_FAILED_INIT;
   }
 
-  if(share) {
-    bool locked = share_lock_acquire(share, data);
+  اگر(share) {
+    bool locked = share_تالا_acquire(share, ڈیٹا);
 
     /* Forget identifiers from the previously used connection cache. */
-    if((share->specifier & (1 << CURL_LOCK_DATA_CONNECT))) {
-      data->state.last_conn_id = -1;
-      data->state.last_cpid = UINT32_MAX;
+    اگر((share->specifier & (1 << CURL_تالا_ڈیٹا_CONNECT))) {
+      ڈیٹا->state.آخری_conn_id = -1;
+      ڈیٹا->state.آخری_cpid = UINT32_MAX;
     }
 
     share_ref_inc(share);
-    data->share = share;
+    ڈیٹا->share = share;
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-    if(share->cookies) {
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+    اگر(share->cookies) {
       /* use shared cookie list, first free own one if any */
-      Curl_cookie_cleanup(data->cookies);
+      Curl_cookie_cleanup(ڈیٹا->cookies);
       /* enable cookies since we now use a share that uses cookies! */
-      data->cookies = share->cookies;
+      ڈیٹا->cookies = share->cookies;
     }
-#endif /* CURL_DISABLE_HTTP */
-#ifndef CURL_DISABLE_HSTS
-    if(share->hsts) {
+#اگر_ختم /* CURL_DISABLE_HTTP */
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HSTS
+    اگر(share->hsts) {
       /* first free the private one if any */
-      Curl_hsts_cleanup(&data->hsts);
-      data->hsts = share->hsts;
+      Curl_hsts_cleanup(&ڈیٹا->hsts);
+      ڈیٹا->hsts = share->hsts;
     }
-#endif
-#ifdef USE_LIBPSL
-    if(share->specifier & (1 << CURL_LOCK_DATA_PSL))
-      data->psl = &share->psl;
-#endif
+#اگر_ختم
+#اگر_تعریف_شدہ USE_LIBPSL
+    اگر(share->specifier & (1 << CURL_تالا_ڈیٹا_PSL))
+      ڈیٹا->psl = &share->psl;
+#اگر_ختم
 
     /* check for host cache not needed,
      * it will be done by curl_easy_perform */
-    share_lock_release(share, data, locked);
+    share_تالا_release(share, ڈیٹا, locked);
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }

@@ -21,110 +21,110 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_IPHLPAPI_H
-#include <Iphlpapi.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#اگر_تعریف_شدہ HAVE_NETINET_اندر_H
+#شامل <netinet/in.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_NETDB_H
+#شامل <netdb.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_ARPA_INET_H
+#شامل <arpa/inet.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_NET_IF_H
+#شامل <net/if.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_IPHLPAPI_H
+#شامل <Iphlpapi.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_SYS_IOCTL_H
+#شامل <sys/ioctl.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_SYS_PARAM_H
+#شامل <sys/param.h>
+#اگر_ختم
 
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#اگر_تعریف_شدہ __VMS
+#شامل <in.h>
+#شامل <inet.h>
+#اگر_ختم
 
-#ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
-#endif
+#اگر_تعریف_شدہ HAVE_SYS_UN_H
+#شامل <sys/un.h>
+#اگر_ختم
 
-#ifndef HAVE_SOCKET
-#error "We cannot compile without socket() support"
-#endif
+#اگر_غیر_تعریف_شدہ HAVE_SOCKET
+#غلطی "We cannot compile without socket() support"
+#اگر_ختم
 
-#if defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
-#include <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
-#endif
-#include <iphlpapi.h>
-#endif
+#اگر defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
+#اگر defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
+#شامل <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
+#اگر_ختم
+#شامل <iphlpapi.h>
+#اگر_ختم
 
-#include "urldata.h"
-#include "mime.h"
-#include "bufref.h"
-#include "vtls/vtls.h"
-#include "vssh/vssh.h"
-#include "transfer.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "cookie.h"
-#include "strcase.h"
-#include "escape.h"
-#include "curl_share.h"
-#include "http_digest.h"
-#include "multiif.h"
-#include "getinfo.h"
-#include "pop3.h"
-#include "urlapi-int.h"
-#include "hsts.h"
-#include "proxy.h"
-#include "cfilters.h"
-#include "idn.h"
-#include "http_proxy.h"
-#include "conncache.h"
-#include "multihandle.h"
-#include "curlx/strdup.h"
-#include "setopt.h"
-#include "altsvc.h"
-#include "curlx/dynbuf.h"
-#include "headers.h"
-#include "curlx/strerr.h"
-#include "curlx/strparse.h"
-#include "peer.h"
+#شامل "urldata.h"
+#شامل "mime.h"
+#شامل "bufref.h"
+#شامل "vtls/vtls.h"
+#شامل "vssh/vssh.h"
+#شامل "transfer.h"
+#شامل "curl_addrinfo.h"
+#شامل "curl_trc.h"
+#شامل "progress.h"
+#شامل "cookie.h"
+#شامل "strcase.h"
+#شامل "escape.h"
+#شامل "curl_share.h"
+#شامل "http_digest.h"
+#شامل "multiif.h"
+#شامل "getinfo.h"
+#شامل "pop3.h"
+#شامل "urlapi-int.h"
+#شامل "hsts.h"
+#شامل "proxy.h"
+#شامل "cfilters.h"
+#شامل "idn.h"
+#شامل "http_proxy.h"
+#شامل "conncache.h"
+#شامل "multihandle.h"
+#شامل "curlx/strdup.h"
+#شامل "setopt.h"
+#شامل "altsvc.h"
+#شامل "curlx/dynbuf.h"
+#شامل "headers.h"
+#شامل "curlx/strerr.h"
+#شامل "curlx/strparse.h"
+#شامل "peer.h"
 
 /* Now for the protocols */
-#include "ftp.h"
-#include "dict.h"
-#include "telnet.h"
-#include "tftp.h"
-#include "http.h"
-#include "vauth/vauth.h"
-#include "file.h"
-#include "curl_ldap.h"
-#include "vssh/ssh.h"
-#include "imap.h"
-#include "url.h"
-#include "connect.h"
-#include "gopher.h"
-#include "mqtt.h"
-#include "rtsp.h"
-#include "smtp.h"
-#include "ws.h"
+#شامل "ftp.h"
+#شامل "dict.h"
+#شامل "telnet.h"
+#شامل "tftp.h"
+#شامل "http.h"
+#شامل "vauth/vauth.h"
+#شامل "file.h"
+#شامل "curl_ldap.h"
+#شامل "vssh/ssh.h"
+#شامل "imap.h"
+#شامل "url.h"
+#شامل "connect.h"
+#شامل "gopher.h"
+#شامل "mqtt.h"
+#شامل "rtsp.h"
+#شامل "smtp.h"
+#شامل "ws.h"
 
 /* Some parts of the code (e.g. chunked encoding) assume this buffer has more
  * than a few bytes to play with. Do not let it become too small or bad things
  * will happen.
  */
-#if READBUFFER_SIZE < READBUFFER_MIN
-# error READBUFFER_SIZE is too small
-#endif
+#اگر READBUFFER_سائز < READBUFFER_MIN
+# error READBUFFER_سائز is too small
+#اگر_ختم
 
 /*
  * get_protocol_family()
@@ -137,55 +137,55 @@
  *
  * Returns the family as a single bit protocol identifier.
  */
-static curl_prot_t get_protocol_family(const struct Curl_scheme *s)
+ساکن curl_prot_t get_protocol_family(ثابت ساخت Curl_scheme *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->family);
-  return s->family;
+  واپس s->family;
 }
 
-void Curl_freeset(struct Curl_easy *data)
+خالی Curl_freeset(ساخت Curl_easy *ڈیٹا)
 {
   /* Free all dynamic strings stored in the data->set substructure. */
-  enum dupblob j;
+  شمار dupblob j;
 
-  CURL_EASY_STR_CLEAR0(data, STRING_PASSWORD);
-  CURL_EASY_STR_CLEAR0(data, STRING_KEY_PASSWD);
-  CURL_EASY_STR_CLEAR0(data, STRING_BEARER);
-#ifndef CURL_DISABLE_PROXY
-  CURL_EASY_STR_CLEAR0(data, STRING_PROXYPASSWORD);
-  CURL_EASY_STR_CLEAR0(data, STRING_KEY_PASSWD_PROXY);
-#endif
-  Curl_u8_strset_clear(&data->set.strings);
-  curlx_safefree(data->set.str_copypostfields);
+  CURL_EASY_STR_CLEAR0(ڈیٹا, STRING_PASSWORD);
+  CURL_EASY_STR_CLEAR0(ڈیٹا, STRING_کلید_PASSWD);
+  CURL_EASY_STR_CLEAR0(ڈیٹا, STRING_BEARER);
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+  CURL_EASY_STR_CLEAR0(ڈیٹا, STRING_PROXYPASSWORD);
+  CURL_EASY_STR_CLEAR0(ڈیٹا, STRING_کلید_PASSWD_PROXY);
+#اگر_ختم
+  Curl_u8_strset_clear(&ڈیٹا->سیٹ.لڑیاں);
+  curlx_safefree(ڈیٹا->سیٹ.str_copypostfields);
 
-  for(j = (enum dupblob)0; j < BLOB_LAST; j++) {
-    curlx_safefree(data->set.blobs[j]);
+  برائے(j = (شمار dupblob)0; j < BLOB_آخری; j++) {
+    curlx_safefree(ڈیٹا->سیٹ.blobs[j]);
   }
 
-  Curl_bufref_free(&data->state.referer);
-  Curl_bufref_free(&data->state.url);
+  Curl_bufref_free(&ڈیٹا->state.referer);
+  Curl_bufref_free(&ڈیٹا->state.url);
 
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  Curl_mime_cleanpart(data->set.mimepostp);
-  curlx_safefree(data->set.mimepostp);
-#endif
+#اگر !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  Curl_mime_cleanpart(ڈیٹا->سیٹ.mimepostp);
+  curlx_safefree(ڈیٹا->سیٹ.mimepostp);
+#اگر_ختم
 
-#ifndef CURL_DISABLE_COOKIES
-  curl_slist_free_all(data->state.cookielist);
-  data->state.cookielist = NULL;
-#endif
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_COOKIES
+  curl_slist_free_all(ڈیٹا->state.cookielist);
+  ڈیٹا->state.cookielist = تہی;
+#اگر_ختم
 }
 
 /* free the URL pieces */
-static void up_free(struct Curl_easy *data)
+ساکن خالی اوپر_free(ساخت Curl_easy *ڈیٹا)
 {
-  struct urlpieces *up = &data->state.up;
-  curlx_safefree(up->options);
-  curlx_safefree(up->path);
-  curlx_safefree(up->query);
-  curl_url_cleanup(data->state.uh);
-  data->state.uh = NULL;
+  ساخت urlpieces *اوپر = &ڈیٹا->state.اوپر;
+  curlx_safefree(اوپر->options);
+  curlx_safefree(اوپر->راستہ);
+  curlx_safefree(اوپر->query);
+  curl_url_cleanup(ڈیٹا->state.uh);
+  ڈیٹا->state.uh = تہی;
 }
 
 /*
@@ -194,248 +194,248 @@ static void up_free(struct Curl_easy *data)
  *
  * We ignore SIGPIPE when this is called from curl_easy_cleanup.
  */
-CURLcode Curl_close(struct Curl_easy **datap)
+CURLcode Curl_close(ساخت Curl_easy **datap)
 {
-  struct Curl_easy *data;
+  ساخت Curl_easy *ڈیٹا;
 
-  if(!datap || !*datap)
-    return CURLE_OK;
+  اگر(!datap || !*datap)
+    واپس CURLE_OK;
 
-  data = *datap;
-  *datap = NULL;
+  ڈیٹا = *datap;
+  *datap = تہی;
 
-  if(!data->state.internal && data->multi) {
+  اگر(!ڈیٹا->state.اندرونی_2 && ڈیٹا->multi) {
     /* This handle is still part of a multi handle, take care of this first
        and detach this handle from there.
        This detaches the connection. */
-    Curl_multi_remove_handle(data->multi, data);
+    Curl_multi_remove_handle(ڈیٹا->multi, ڈیٹا);
   }
-  else {
+  ورنہ {
     /* Detach connection if any is left. This should not be normal, but can be
        the case for example with CONNECT_ONLY + recv/send (test 556) */
-    Curl_detach_connection(data);
-    if(!data->state.internal && data->multi_easy) {
+    Curl_detach_connection(ڈیٹا);
+    اگر(!ڈیٹا->state.اندرونی_2 && ڈیٹا->multi_easy) {
       /* when curl_easy_perform() is used, it creates its own multi handle to
          use and this is the one */
-      curl_multi_cleanup(data->multi_easy);
-      data->multi_easy = NULL;
+      curl_multi_cleanup(ڈیٹا->multi_easy);
+      ڈیٹا->multi_easy = تہی;
     }
   }
-  DEBUGASSERT(!data->conn || data->state.internal);
+  DEBUGASSERT(!ڈیٹا->conn || ڈیٹا->state.اندرونی_2);
 
-  Curl_expire_clear_all(data); /* shut off any timers left */
+  Curl_expire_clear_all(ڈیٹا); /* shut off any timers left */
 
-  if(data->state.rangestringalloc)
-    curlx_free(data->state.range);
+  اگر(ڈیٹا->state.rangestringalloc)
+    curlx_free(ڈیٹا->state.range);
 
   /* release any resolve information this transfer kept */
-  Curl_resolv_destroy_all(data);
+  Curl_resolv_destroy_all(ڈیٹا);
 
-  data->set.verbose = FALSE; /* no more calls to DEBUGFUNCTION */
-  data->magic = 0; /* force a clear AFTER the possibly enforced removal from
+  ڈیٹا->سیٹ.verbose = FALSE; /* no more calls to DEBUGFUNCTION */
+  ڈیٹا->magic = 0; /* force a clear AFTER the possibly enforced removal from
                     * the multi handle and async dns shutdown. The multi
                     * handle might check the magic and so might any
                     * DEBUGFUNCTION invoked for tracing */
 
   /* freed here in case DONE was not called */
-  Curl_req_free(&data->req, data);
+  Curl_req_free(&ڈیٹا->req, ڈیٹا);
 
   /* Close down all open SSL info and sessions */
-  Curl_ssl_close_all(data);
-  Curl_peer_unlink(&data->state.origin);
-  Curl_peer_unlink(&data->state.initial_origin);
-#ifndef CURL_DISABLE_RTSP
-  Curl_peer_unlink(&data->state.rtsp_session_origin);
-#endif
-  Curl_ssl_free_certinfo(data);
+  Curl_ssl_close_all(ڈیٹا);
+  Curl_peer_unlink(&ڈیٹا->state.origin);
+  Curl_peer_unlink(&ڈیٹا->state.initial_origin);
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_RTSP
+  Curl_peer_unlink(&ڈیٹا->state.rtsp_session_origin);
+#اگر_ختم
+  Curl_ssl_free_certinfo(ڈیٹا);
 
-  Curl_bufref_free(&data->state.referer);
+  Curl_bufref_free(&ڈیٹا->state.referer);
 
-  up_free(data);
-  curlx_dyn_free(&data->state.headerb);
-  Curl_flush_cookies(data, TRUE);
-#ifndef CURL_DISABLE_ALTSVC
-  Curl_altsvc_save(data, data->asi, CURL_EASY_STR(data, STRING_ALTSVC));
-  Curl_altsvc_cleanup(&data->asi);
-#endif
-#ifndef CURL_DISABLE_HSTS
-  Curl_hsts_save(data, data->hsts, CURL_EASY_STR(data, STRING_HSTS));
-  if(!data->share || !data->share->hsts)
-    Curl_hsts_cleanup(&data->hsts);
-  curl_slist_free_all(data->state.hstslist); /* clean up list */
-#endif
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
-  Curl_http_auth_cleanup_digest(data);
-#endif
-  curlx_safefree(data->state.most_recent_ftp_entrypath);
-  curlx_safefree(data->info.contenttype);
-  curlx_safefree(data->info.wouldredirect);
-  curlx_safefree(data->info.effective_url);
+  اوپر_free(ڈیٹا);
+  curlx_dyn_free(&ڈیٹا->state.headerb);
+  Curl_flush_cookies(ڈیٹا, TRUE);
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_ALTSVC
+  Curl_altsvc_save(ڈیٹا, ڈیٹا->asi, CURL_EASY_STR(ڈیٹا, STRING_ALTSVC));
+  Curl_altsvc_cleanup(&ڈیٹا->asi);
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HSTS
+  Curl_hsts_save(ڈیٹا, ڈیٹا->hsts, CURL_EASY_STR(ڈیٹا, STRING_HSTS));
+  اگر(!ڈیٹا->share || !ڈیٹا->share->hsts)
+    Curl_hsts_cleanup(&ڈیٹا->hsts);
+  curl_slist_free_all(ڈیٹا->state.hstslist); /* clean up list */
+#اگر_ختم
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+  Curl_http_auth_cleanup_digest(ڈیٹا);
+#اگر_ختم
+  curlx_safefree(ڈیٹا->state.most_recent_ftp_entrypath);
+  curlx_safefree(ڈیٹا->info.contenttype);
+  curlx_safefree(ڈیٹا->info.wouldredirect);
+  curlx_safefree(ڈیٹا->info.effective_url);
 
   /* No longer a dirty share, if it exists */
-  if(Curl_share_easy_unlink(data))
+  اگر(Curl_share_easy_unlink(ڈیٹا))
     DEBUGASSERT(0);
 
-  Curl_hash_destroy(&data->meta_hash);
-  Curl_creds_unlink(&data->state.creds);
-#ifndef CURL_DISABLE_HTTP
-  curlx_safefree(data->state.rangeline);
-  curlx_safefree(data->state.http_host);
-#endif
-#ifndef CURL_DISABLE_COOKIES
-  curlx_safefree(data->req.cookiehost);
-#endif
+  Curl_hash_destroy(&ڈیٹا->meta_hash);
+  Curl_creds_unlink(&ڈیٹا->state.creds);
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HTTP
+  curlx_safefree(ڈیٹا->state.rangeline);
+  curlx_safefree(ڈیٹا->state.http_host);
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_COOKIES
+  curlx_safefree(ڈیٹا->req.cookiehost);
+#اگر_ختم
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
-  Curl_mime_cleanpart(data->state.formp);
-  curlx_safefree(data->state.formp);
-#endif
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
+  Curl_mime_cleanpart(ڈیٹا->state.formp);
+  curlx_safefree(ڈیٹا->state.formp);
+#اگر_ختم
 
   /* destruct wildcard structures if it is needed */
-  Curl_wildcard_dtor(&data->wildcard);
-  Curl_freeset(data);
-  Curl_headers_cleanup(data);
-  Curl_netrc_cleanup(&data->state.netrc);
-#ifndef CURL_DISABLE_DIGEST_AUTH
-  curlx_free(data->state.envproxy);
-#endif
-  curlx_memzero(data, sizeof(*data));
-  curlx_free(data);
-  return CURLE_OK;
+  Curl_wildcard_dtor(&ڈیٹا->wildcard);
+  Curl_freeset(ڈیٹا);
+  Curl_سرخیاں_cleanup(ڈیٹا);
+  Curl_netrc_cleanup(&ڈیٹا->state.netrc);
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_DIGEST_AUTH
+  curlx_free(ڈیٹا->state.envproxy);
+#اگر_ختم
+  curlx_memzero(ڈیٹا, حجم(*ڈیٹا));
+  curlx_free(ڈیٹا);
+  واپس CURLE_OK;
 }
 
 /*
  * Initialize the UserDefined fields within a Curl_easy.
  * This may be safely called on a new or existing Curl_easy.
  */
-void Curl_init_userdefined(struct Curl_easy *data)
+خالی Curl_init_userdefined(ساخت Curl_easy *ڈیٹا)
 {
-  struct UserDefined *set = &data->set;
+  ساخت UserDefined *سیٹ = &ڈیٹا->سیٹ;
 
-  set->out = stdout;  /* default output to stdout */
-  set->in_set = stdin;  /* default input from stdin */
-  set->err = stderr;  /* default stderr to stderr */
+  سیٹ->برآمد = stdout;  /* default output to stdout */
+  سیٹ->اندر_سیٹ = stdin;  /* default input from stdin */
+  سیٹ->err = stderr;  /* default stderr to stderr */
 
-  Curl_u8_strset_init(&data->set.strings);
+  Curl_u8_strset_init(&ڈیٹا->سیٹ.لڑیاں);
 
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
+#اگر defined(__clang__) && __clang_major__ >= 16
+#ہدایت clang diagnostic ڈالو
+#ہدایت clang diagnostic ignored "-Wcast-function-type-strict"
+#اگر_ختم
   /* use fwrite as default function to store output */
-  set->fwrite_func = (curl_write_callback)fwrite;
+  سیٹ->fwrite_func = (curl_write_callback)fwrite;
 
   /* use fread as default function to read input */
-  set->fread_func_set = (curl_read_callback)fread;
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
-  set->is_fread_set = 0;
+  سیٹ->fread_func_سیٹ = (curl_read_callback)fread;
+#اگر defined(__clang__) && __clang_major__ >= 16
+#ہدایت clang diagnostic نکالو
+#اگر_ختم
+  سیٹ->is_fread_سیٹ = 0;
 
-  set->seek_client = ZERO_NULL;
+  سیٹ->seek_client = ZERO_NULL;
 
-  set->filesize = -1;        /* we do not know the size */
-  set->postfieldsize = -1;   /* unknown size */
-  set->maxredirs = 30;       /* sensible default */
+  سیٹ->filesize = -1;        /* we do not know the size */
+  سیٹ->postfieldsize = -1;   /* unknown size */
+  سیٹ->maxredirs = 30;       /* sensible default */
 
-  set->method = HTTPREQ_GET; /* Default HTTP request */
-#ifndef CURL_DISABLE_RTSP
-  set->rtspreq = RTSPREQ_OPTIONS; /* Default RTSP request */
-#endif
-#ifndef CURL_DISABLE_FTP
-  set->ftp_use_epsv = TRUE;   /* FTP defaults to EPSV operations */
-  set->ftp_use_eprt = TRUE;   /* FTP defaults to EPRT operations */
-  set->ftp_use_pret = FALSE;  /* mainly useful for drftpd servers */
-  set->ftp_filemethod = FTPFILE_MULTICWD;
-  set->ftp_skip_ip = TRUE;    /* skip PASV IP by default */
-#endif
-  set->dns_cache_timeout_ms = 60000; /* Timeout every 60 seconds by default */
+  سیٹ->طریقہ = HTTPREQ_GET; /* Default HTTP request */
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_RTSP
+  سیٹ->rtspreq = RTSPREQ_OPTIONS; /* Default RTSP request */
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_FTP
+  سیٹ->ftp_use_epsv = TRUE;   /* FTP defaults to EPSV operations */
+  سیٹ->ftp_use_eprt = TRUE;   /* FTP defaults to EPRT operations */
+  سیٹ->ftp_use_pret = FALSE;  /* mainly useful for drftpd servers */
+  سیٹ->ftp_filemethod = FTPFILE_MULTICWD;
+  سیٹ->ftp_skip_ip = TRUE;    /* skip PASV IP by default */
+#اگر_ختم
+  سیٹ->dns_cache_timeout_ms = 60000; /* Timeout every 60 seconds by default */
 
   /* Timeout every 24 hours by default */
-  set->ssl_ca_cache_timeout = 24 * 60 * 60;
+  سیٹ->ssl_ca_cache_timeout = 24 * 60 * 60;
 
-  set->httpauth = CURLAUTH_BASIC;  /* defaults to basic */
+  سیٹ->httpauth = CURLAUTH_BASIC;  /* defaults to basic */
 
-  Curl_ssl_config_init(&data->set.ssl);
-#ifndef CURL_DISABLE_PROXY
-  Curl_ssl_config_init(&data->set.proxy_ssl);
-  set->proxyport = 0;
-  set->proxytype = CURLPROXY_HTTP; /* defaults to HTTP proxy */
-  set->proxyauth = CURLAUTH_BASIC; /* defaults to basic */
+  Curl_ssl_config_init(&ڈیٹا->سیٹ.ssl);
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+  Curl_ssl_config_init(&ڈیٹا->سیٹ.proxy_ssl);
+  سیٹ->proxyport = 0;
+  سیٹ->proxytype = CURLPROXY_HTTP; /* defaults to HTTP proxy */
+  سیٹ->proxyauth = CURLAUTH_BASIC; /* defaults to basic */
   /* SOCKS5 proxy auth defaults to username/password + GSS-API */
-  set->socks5auth = CURLAUTH_BASIC | CURLAUTH_GSSAPI;
-#endif
+  سیٹ->socks5auth = CURLAUTH_BASIC | CURLAUTH_GSSAPI;
+#اگر_ختم
 
-#ifndef CURL_DISABLE_DOH
-  set->doh_verifyhost = TRUE;
-  set->doh_verifypeer = TRUE;
-#endif
-#ifdef USE_SSH
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_DOH
+  سیٹ->doh_verifyhost = TRUE;
+  سیٹ->doh_verifypeer = TRUE;
+#اگر_ختم
+#اگر_تعریف_شدہ USE_SSH
   /* defaults to any auth type */
-  set->ssh_auth_types = CURLSSH_AUTH_DEFAULT;
-  set->new_directory_perms = 0755; /* Default permissions */
-#endif
+  سیٹ->ssh_auth_types = CURLSSH_AUTH_DEFAULT;
+  سیٹ->new_directory_perms = 0755; /* Default permissions */
+#اگر_ختم
 
-  set->new_file_perms = 0644;    /* Default permissions */
-  set->allowed_protocols = (curl_prot_t)CURLPROTO_64ALL;
-  set->redir_protocols = CURLPROTO_REDIR;
+  سیٹ->new_file_perms = 0644;    /* Default permissions */
+  سیٹ->allowed_protocols = (curl_prot_t)CURLPROTO_64ALL;
+  سیٹ->redir_protocols = CURLPROTO_REDIR;
 
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#اگر defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
   /*
    * disallow unprotected protection negotiation NEC reference implementation
    * seem not to follow rfc1961 section 4.3/4.4
    */
-  set->socks5_gssapi_nec = FALSE;
-#endif
+  سیٹ->socks5_gssapi_nec = FALSE;
+#اگر_ختم
 
   /* set default minimum TLS version */
-#ifdef USE_SSL
-  Curl_setopt_SSLVERSION(data, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
-#ifndef CURL_DISABLE_PROXY
-  Curl_setopt_SSLVERSION(data, CURLOPT_PROXY_SSLVERSION,
+#اگر_تعریف_شدہ USE_SSL
+  Curl_setopt_SSLVERSION(ڈیٹا, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+  Curl_setopt_SSLVERSION(ڈیٹا, CURLOPT_PROXY_SSLVERSION,
                          CURL_SSLVERSION_DEFAULT);
-#endif
-#endif
-#ifndef CURL_DISABLE_FTP
-  set->wildcard_enabled = FALSE;
-  set->chunk_bgn = ZERO_NULL;
-  set->chunk_end = ZERO_NULL;
-  set->fnmatch = ZERO_NULL;
-#endif
-  set->tcp_keepalive = FALSE;
-  set->tcp_keepintvl = 60;
-  set->tcp_keepidle = 60;
-  set->tcp_keepcnt = 9;
-  set->tcp_fastopen = FALSE;
-  set->tcp_nodelay = TRUE;
-  set->ssl_enable_alpn = TRUE;
-  set->expect_100_timeout = 1000L; /* Wait for a second by default. */
-  set->sep_headers = TRUE; /* separated header lists by default */
-  set->buffer_size = READBUFFER_SIZE;
-  set->upload_buffer_size = UPLOADBUFFER_DEFAULT;
-  set->upload_flags = CURLULFLAG_SEEN;
-  set->happy_eyeballs_timeout = CURL_HET_DEFAULT;
-  set->upkeep_interval_ms = CURL_UPKEEP_INTERVAL_DEFAULT;
-  set->maxconnects = DEFAULT_CONNCACHE_SIZE; /* for easy handles */
-  set->conn_max_idle_ms = 118 * 1000;
-  set->conn_max_age_ms = 24 * 3600 * 1000;
-  set->http09_allowed = FALSE;
-  set->httpwant = CURL_HTTP_VERSION_NONE;
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
-  set->weight = 0;
-#endif
-  set->quick_exit = 0L;
-#ifndef CURL_DISABLE_WEBSOCKETS
-  set->ws_raw_mode = FALSE;
-  set->ws_no_auto_pong = FALSE;
-#endif
+#اگر_ختم
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_FTP
+  سیٹ->wildcard_enabled = FALSE;
+  سیٹ->chunk_bgn = ZERO_NULL;
+  سیٹ->chunk_انتہا = ZERO_NULL;
+  سیٹ->fnmatch = ZERO_NULL;
+#اگر_ختم
+  سیٹ->tcp_keepalive = FALSE;
+  سیٹ->tcp_keepintvl = 60;
+  سیٹ->tcp_keepidle = 60;
+  سیٹ->tcp_keepcnt = 9;
+  سیٹ->tcp_fastopen = FALSE;
+  سیٹ->tcp_nodelay = TRUE;
+  سیٹ->ssl_enable_alpn = TRUE;
+  سیٹ->expect_100_timeout = 1000L; /* Wait for a second by default. */
+  سیٹ->sep_سرخیاں = TRUE; /* separated header lists by default */
+  سیٹ->بفر_سائز = READBUFFER_سائز;
+  سیٹ->upload_بفر_سائز = UPLOADBUFFER_DEFAULT;
+  سیٹ->upload_flags = CURLULFLAG_نظر_آیا;
+  سیٹ->happy_eyeballs_timeout = CURL_HET_DEFAULT;
+  سیٹ->upkeep_interval_ms = CURL_UPKEEP_INTERVAL_DEFAULT;
+  سیٹ->maxconnects = DEFAULT_CONNCACHE_سائز; /* for easy handles */
+  سیٹ->conn_max_idle_ms = 118 * 1000;
+  سیٹ->conn_max_age_ms = 24 * 3600 * 1000;
+  سیٹ->http09_allowed = FALSE;
+  سیٹ->httpwant = CURL_HTTP_نسخہ_NONE;
+#اگر defined(USE_HTTP2) || defined(USE_HTTP3)
+  سیٹ->وزن = 0;
+#اگر_ختم
+  سیٹ->quick_exit = 0L;
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_WEBSOCKETS
+  سیٹ->ws_raw_منوال = FALSE;
+  سیٹ->ws_no_auto_pong = FALSE;
+#اگر_ختم
 }
 
 /* easy->meta_hash destructor. Should never be called as elements
  * MUST be added with their own destructor */
-static void easy_meta_freeentry(void *p)
+ساکن خالی easy_meta_freeentry(خالی *p)
 {
-  (void)p;
+  (خالی)p;
   /* Always FALSE. Cannot use a 0 assert here since compilers
    * are not in agreement if they then want a NORETURN attribute or
    * not. *sigh* */
@@ -449,67 +449,67 @@ static void easy_meta_freeentry(void *p)
  * function.
  * @return CURLcode
  */
-CURLcode Curl_open(struct Curl_easy **curl)
+CURLcode Curl_open(ساخت Curl_easy **curl)
 {
-  struct Curl_easy *data;
+  ساخت Curl_easy *ڈیٹا;
 
   /* simple start-up: alloc the struct, init it with zeroes and return */
-  data = curlx_calloc(1, sizeof(struct Curl_easy));
-  if(!data) {
+  ڈیٹا = curlx_calloc(1, حجم(ساخت Curl_easy));
+  اگر(!ڈیٹا) {
     /* this is a serious error */
     DEBUGF(curl_mfprintf(stderr, "Error: calloc of Curl_easy failed\n"));
-    return CURLE_OUT_OF_MEMORY;
+    واپس CURLE_برآمد_کا_حافظہ;
   }
 
-  data->magic = CURLEASY_MAGIC_NUMBER;
+  ڈیٹا->magic = CURLEASY_MAGIC_نمبر;
   /* most recent connection is not yet defined */
-  data->state.last_conn_id = -1;
-  data->state.last_cpid = UINT32_MAX;
+  ڈیٹا->state.آخری_conn_id = -1;
+  ڈیٹا->state.آخری_cpid = UINT32_MAX;
   /* and not assigned an id yet */
-  data->id = -1;
-  data->mid = UINT32_MAX;
-  data->master_mid = UINT32_MAX;
-  data->progress.hide = TRUE;
+  ڈیٹا->id = -1;
+  ڈیٹا->mid = UINT32_MAX;
+  ڈیٹا->master_mid = UINT32_MAX;
+  ڈیٹا->پیش_رفت.hide = TRUE;
 
-  Curl_hash_init(&data->meta_hash, 23, CURL_HASH_TYPE_BYTES,
+  Curl_hash_init(&ڈیٹا->meta_hash, 23, CURL_HASH_TYPE_بائٹیں,
                  easy_meta_freeentry);
-  DEBUGASSERT(STRING_LAST <= UINT8_MAX);
-  Curl_u8_strset_init(&data->set.strings);
-  curlx_dyn_init(&data->state.headerb, CURL_MAX_HTTP_HEADER);
-  Curl_bufref_init(&data->state.url);
-  Curl_bufref_init(&data->state.referer);
-  Curl_req_init(&data->req);
-  Curl_initinfo(data);
-#ifndef CURL_DISABLE_HTTP
-  Curl_llist_init(&data->state.httphdrs, NULL);
-#endif
-  Curl_netrc_init(&data->state.netrc);
-  Curl_init_userdefined(data);
+  DEBUGASSERT(STRING_آخری <= UINT8_MAX);
+  Curl_u8_strset_init(&ڈیٹا->سیٹ.لڑیاں);
+  curlx_dyn_init(&ڈیٹا->state.headerb, CURL_MAX_HTTP_سرخی);
+  Curl_bufref_init(&ڈیٹا->state.url);
+  Curl_bufref_init(&ڈیٹا->state.referer);
+  Curl_req_init(&ڈیٹا->req);
+  Curl_initinfo(ڈیٹا);
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HTTP
+  Curl_llist_init(&ڈیٹا->state.httphdrs, تہی);
+#اگر_ختم
+  Curl_netrc_init(&ڈیٹا->state.netrc);
+  Curl_init_userdefined(ڈیٹا);
 
-  *curl = data;
-  return CURLE_OK;
+  *curl = ڈیٹا;
+  واپس CURLE_OK;
 }
 
-void Curl_conn_free(struct Curl_easy *data, struct connectdata *conn)
+خالی Curl_conn_free(ساخت Curl_easy *ڈیٹا, ساخت connectdata *conn)
 {
   int8_t i;
 
   DEBUGASSERT(conn);
 
-  if(conn->scheme && conn->scheme->run->disconnect &&
-     !conn->bits.shutdown_handler)
-    conn->scheme->run->disconnect(data, conn, TRUE);
+  اگر(conn->scheme && conn->scheme->تسلسل->disconnect &&
+     !conn->بٹ.shutdown_handler)
+    conn->scheme->تسلسل->disconnect(ڈیٹا, conn, TRUE);
 
-  for(i = 0; i < (int8_t)CURL_ARRAYSIZE(conn->cfilter); ++i) {
-    Curl_conn_cf_discard_all(data, conn, i);
+  برائے(i = 0; i < (int8_t)CURL_ARRAYSIZE(conn->cfilter); ++i) {
+    Curl_conn_cf_discard_all(ڈیٹا, conn, i);
   }
 
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
   Curl_peer_unlink(&conn->http_proxy.peer);
   Curl_peer_unlink(&conn->socks_proxy.peer);
   Curl_creds_unlink(&conn->http_proxy.creds);
   Curl_creds_unlink(&conn->socks_proxy.creds);
-#endif
+#اگر_ختم
   Curl_creds_unlink(&conn->creds);
   Curl_peer_unlink(&conn->creds_origin);
   curlx_safefree(conn->options);
@@ -519,9 +519,9 @@ void Curl_conn_free(struct Curl_easy *data, struct connectdata *conn)
   curlx_safefree(conn->destination);
   Curl_hash_destroy(&conn->meta_hash);
   Curl_peer_unlink(&conn->origin);
-  Curl_peer_unlink(&conn->via_peer);
+  Curl_peer_unlink(&conn->بذریعہ_peer);
   Curl_peer_unlink(&conn->origin2);
-  Curl_peer_unlink(&conn->via_peer2);
+  Curl_peer_unlink(&conn->بذریعہ_peer2);
 
   curlx_free(conn); /* free all the connection oriented data */
 }
@@ -532,103 +532,103 @@ void Curl_conn_free(struct Curl_easy *data, struct connectdata *conn)
  * Return a TRUE, iff the transfer can be done over an (appropriate)
  * multiplexed connection.
  */
-static bool xfer_may_multiplex(const struct Curl_easy *data,
-                               const struct connectdata *conn)
+ساکن bool xfer_may_multiplex(ثابت ساخت Curl_easy *ڈیٹا,
+                               ثابت ساخت connectdata *conn)
 {
-#ifndef CURL_DISABLE_HTTP
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HTTP
   /* If an HTTP protocol and multiplexing is enabled */
-  if((conn->scheme->protocol & PROTO_FAMILY_HTTP) &&
-     (!conn->bits.protoconnstart || !conn->bits.close)) {
+  اگر((conn->scheme->protocol & PROTO_FAMILY_HTTP) &&
+     (!conn->بٹ.protoconnstart || !conn->بٹ.close)) {
 
-    if(Curl_multiplex_wanted(data->multi) &&
-       (data->state.http_neg.allowed & (CURL_HTTP_V2x | CURL_HTTP_V3x)))
+    اگر(Curl_multiplex_wanted(ڈیٹا->multi) &&
+       (ڈیٹا->state.http_neg.allowed & (CURL_HTTP_V2x | CURL_HTTP_V3x)))
       /* allows HTTP/2 or newer */
-      return TRUE;
+      واپس TRUE;
   }
-#else
-  (void)data;
-  (void)conn;
-#endif
-  return FALSE;
+#ورنہ
+  (خالی)ڈیٹا;
+  (خالی)conn;
+#اگر_ختم
+  واپس FALSE;
 }
 
-#ifndef CURL_DISABLE_PROXY
-static bool proxy_info_matches(const struct proxy_info *data,
-                               const struct proxy_info *needle)
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+ساکن bool proxy_info_matches(ثابت ساخت proxy_info *ڈیٹا,
+                               ثابت ساخت proxy_info *needle)
 {
-  if((data->proxytype == needle->proxytype) &&
-     Curl_peer_same_destination(data->peer, needle->peer) &&
-     Curl_creds_same(data->creds, needle->creds)) {
-    return TRUE;
+  اگر((ڈیٹا->proxytype == needle->proxytype) &&
+     Curl_peer_same_destination(ڈیٹا->peer, needle->peer) &&
+     Curl_creds_same(ڈیٹا->creds, needle->creds)) {
+    واپس TRUE;
   }
-  return FALSE;
+  واپس FALSE;
 }
-#endif
+#اگر_ختم
 
-#ifdef USE_SSH
-static bool ssh_config_matches(struct connectdata *one,
-                               struct connectdata *two)
+#اگر_تعریف_شدہ USE_SSH
+ساکن bool ssh_config_matches(ساخت connectdata *one,
+                               ساخت connectdata *two)
 {
-  struct ssh_conn *sshc1, *sshc2;
+  ساخت ssh_conn *sshc1, *sshc2;
 
   sshc1 = Curl_conn_meta_get(one, CURL_META_SSH_CONN);
   sshc2 = Curl_conn_meta_get(two, CURL_META_SSH_CONN);
-  return sshc1 && sshc2 && Curl_safecmp(sshc1->priv_key, sshc2->priv_key) &&
-         Curl_safecmp(sshc1->pub_key, sshc2->pub_key);
+  واپس sshc1 && sshc2 && Curl_safecmp(sshc1->priv_کلید, sshc2->priv_کلید) &&
+         Curl_safecmp(sshc1->pub_کلید, sshc2->pub_کلید);
 }
-#endif
+#اگر_ختم
 
-struct url_conn_match {
-  struct connectdata *found;
-  struct Curl_easy *data;
-  struct connectdata *needle;
-  struct curltime now;
-  struct ssl_filter_config ssl_config;
-#ifndef CURL_DISABLE_PROXY
-  struct ssl_filter_config proxy_ssl_config;
-#endif
-  BIT(may_multiplex);
-  BIT(want_ntlm_http);
-  BIT(want_proxy_ntlm_http);
-  BIT(want_nego_http);
-  BIT(want_proxy_nego_http);
-  BIT(may_tls); /* May upgrade clear-text connection to TLS, can only reuse
+ساخت url_conn_مطابقت {
+  ساخت connectdata *ملا;
+  ساخت Curl_easy *ڈیٹا;
+  ساخت connectdata *needle;
+  ساخت curltime now;
+  ساخت ssl_filter_config ssl_config;
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+  ساخت ssl_filter_config proxy_ssl_config;
+#اگر_ختم
+  ثنائی_ہندسہ(may_multiplex);
+  ثنائی_ہندسہ(want_ntlm_http);
+  ثنائی_ہندسہ(want_proxy_ntlm_http);
+  ثنائی_ہندسہ(want_nego_http);
+  ثنائی_ہندسہ(want_proxy_nego_http);
+  ثنائی_ہندسہ(may_tls); /* May upgrade clear-text connection to TLS, can only reuse
                  * connections that have matching TLS configuration.
                  * Always TRUE if `req_tls` is TRUE. */
-  BIT(require_tls); /* Requires TLS use from a clear-text start, can only
+  ثنائی_ہندسہ(require_tls); /* Requires TLS use from a clear-text start, can only
                  * reuse connections that have TLS. */
-  BIT(wait_pipe);
-  BIT(seen_pending_conn);
-  BIT(seen_single_use_conn);
-  BIT(seen_multiplex_conn);
+  ثنائی_ہندسہ(wait_pipe);
+  ثنائی_ہندسہ(نظر_آیا_pending_conn);
+  ثنائی_ہندسہ(نظر_آیا_single_use_conn);
+  ثنائی_ہندسہ(نظر_آیا_multiplex_conn);
 };
 
-static bool url_match_connect_config(struct connectdata *conn,
-                                     struct url_conn_match *m)
+ساکن bool url_مطابقت_connect_config(ساخت connectdata *conn,
+                                     ساخت url_conn_مطابقت *m)
 {
   /* connect-only or to-be-closed connections will not be reused */
-  if(conn->bits.connect_only || conn->bits.close || conn->bits.no_reuse)
-    return FALSE;
+  اگر(conn->بٹ.connect_only || conn->بٹ.close || conn->بٹ.no_reuse)
+    واپس FALSE;
 
   /* ip_version must match */
-  if(m->data->set.ipver != CURL_IPRESOLVE_WHATEVER &&
-     m->data->set.ipver != conn->ip_version)
-    return FALSE;
+  اگر(m->ڈیٹا->سیٹ.ipver != CURL_IPRESOLVE_WHATEVER &&
+     m->ڈیٹا->سیٹ.ipver != conn->ip_نسخہ)
+    واپس FALSE;
 
   /* When needle has specific local bind settings, those have to match.
    * If it does not, any other connection might do when it comes to ports. */
-  if(m->needle->localport &&
+  اگر(m->needle->localport &&
      ((conn->localport != m->needle->localport) ||
       (conn->localportrange != m->needle->localportrange)))
-    return FALSE;
+    واپس FALSE;
   /* For interface related bind options, we require a full match
    * as connection might go totally different ways (VPNs, for example). */
-  if((m->needle->interface_opts != conn->interface_opts) &&
+  اگر((m->needle->interface_opts != conn->interface_opts) &&
      (!m->needle->interface_opts || !conn->interface_opts ||
       strcmp(conn->interface_opts, m->needle->interface_opts)))
-    return FALSE;
+    واپس FALSE;
 
-  if((m->needle->interface_opts || m->needle->localport) &&
+  اگر((m->needle->interface_opts || m->needle->localport) &&
     /* If we are bound to a specific local end (IP+port), we must not reuse a
        random other one, although if we did not ask for a particular one we
        can reuse one that was bound. */
@@ -637,469 +637,469 @@ static bool url_match_connect_config(struct connectdata *conn,
      (m->needle->interface_opts &&
       (!conn->interface_opts ||
        strcmp(conn->interface_opts, m->needle->interface_opts)))))
-    return FALSE;
+    واپس FALSE;
 
-  if(!m->needle->via_peer != !conn->via_peer)
+  اگر(!m->needle->بذریعہ_peer != !conn->بذریعہ_peer)
     /* do not mix connections that use the "connect to host" feature and
      * connections that do not use this feature */
-    return FALSE;
+    واپس FALSE;
 
-  return TRUE;
+  واپس TRUE;
 }
 
-static bool url_match_fully_connected(struct connectdata *conn,
-                                      struct url_conn_match *m)
+ساکن bool url_مطابقت_fully_connected(ساخت connectdata *conn,
+                                      ساخت url_conn_مطابقت *m)
 {
-  if(!Curl_conn_is_connected(conn, FIRSTSOCKET) ||
-     conn->bits.upgrade_in_progress) {
+  اگر(!Curl_conn_is_connected(conn, FIRSTSOCKET) ||
+     conn->بٹ.upgrade_اندر_پیش_رفت) {
     /* Not yet connected, or a protocol upgrade is in progress. The later
      * happens for HTTP/2 Upgrade: requests that need a response. */
-    if(m->may_multiplex) {
-      m->seen_pending_conn = TRUE;
+    اگر(m->may_multiplex) {
+      m->نظر_آیا_pending_conn = TRUE;
       /* Do not pick a connection that has not connected yet */
-      infof(m->data, "Connection #%" FMT_OFF_T
+      infof(m->ڈیٹا, "Connection #%" FMT_OFF_T
             " is not open enough, cannot reuse", conn->connection_id);
     }
     /* Do not pick a connection that has not connected yet */
-    return FALSE;
+    واپس FALSE;
   }
-  return TRUE;
+  واپس TRUE;
 }
 
-static bool url_match_multi(struct connectdata *conn,
-                            struct url_conn_match *m)
+ساکن bool url_مطابقت_multi(ساخت connectdata *conn,
+                            ساخت url_conn_مطابقت *m)
 {
-  if(CONN_INUSE(conn)) {
+  اگر(CONN_INUSE(conn)) {
     DEBUGASSERT(conn->attached_multi);
-    if(conn->attached_multi != m->data->multi)
-      return FALSE;
+    اگر(conn->attached_multi != m->ڈیٹا->multi)
+      واپس FALSE;
   }
-  return TRUE;
+  واپس TRUE;
 }
 
-static bool url_match_multiplex_needs(struct connectdata *conn,
-                                      struct url_conn_match *m)
+ساکن bool url_مطابقت_multiplex_needs(ساخت connectdata *conn,
+                                      ساخت url_conn_مطابقت *m)
 {
-  if(CONN_INUSE(conn)) {
-    if(!conn->bits.multiplex) {
+  اگر(CONN_INUSE(conn)) {
+    اگر(!conn->بٹ.multiplex) {
       /* conn busy and conn cannot take more transfers */
-      m->seen_single_use_conn = TRUE;
-      return FALSE;
+      m->نظر_آیا_single_use_conn = TRUE;
+      واپس FALSE;
     }
-    m->seen_multiplex_conn = TRUE;
-    if(!m->may_multiplex || !url_match_multi(conn, m))
+    m->نظر_آیا_multiplex_conn = TRUE;
+    اگر(!m->may_multiplex || !url_مطابقت_multi(conn, m))
       /* conn busy and transfer cannot be multiplexed */
-      return FALSE;
+      واپس FALSE;
   }
-  return TRUE;
+  واپس TRUE;
 }
 
-static bool url_match_multiplex_limits(struct connectdata *conn,
-                                       struct url_conn_match *m)
+ساکن bool url_مطابقت_multiplex_limits(ساخت connectdata *conn,
+                                       ساخت url_conn_مطابقت *m)
 {
-  if(CONN_INUSE(conn) && m->may_multiplex) {
-    DEBUGASSERT(conn->bits.multiplex);
+  اگر(CONN_INUSE(conn) && m->may_multiplex) {
+    DEBUGASSERT(conn->بٹ.multiplex);
     /* If multiplexed, make sure we do not go over concurrency limit */
-    if(conn->attached_xfers >=
-            Curl_multi_max_concurrent_streams(m->data->multi)) {
-      infof(m->data, "connection #%" FMT_OFF_T " reached "
+    اگر(conn->attached_xfers >=
+            Curl_multi_max_concurrent_streams(m->ڈیٹا->multi)) {
+      infof(m->ڈیٹا, "connection #%" FMT_OFF_T " reached "
             "MAX_CONCURRENT_STREAMS(%u), skip",
             conn->connection_id, conn->attached_xfers);
-      return FALSE;
+      واپس FALSE;
     }
-    if(conn->attached_xfers >=
-       Curl_conn_get_max_concurrent(m->data, conn, FIRSTSOCKET)) {
-      infof(m->data, "connection #%" FMT_OFF_T "reached "
+    اگر(conn->attached_xfers >=
+       Curl_conn_get_max_concurrent(m->ڈیٹا, conn, FIRSTSOCKET)) {
+      infof(m->ڈیٹا, "connection #%" FMT_OFF_T "reached "
             "MAX_CONCURRENT_STREAMS(%u), skip",
             conn->connection_id, conn->attached_xfers);
-      return FALSE;
+      واپس FALSE;
     }
     /* When not multiplexed, we have a match here! */
-    infof(m->data, "Multiplexed connection found");
+    infof(m->ڈیٹا, "Multiplexed connection found");
   }
-  return TRUE;
+  واپس TRUE;
 }
 
-static bool url_match_ssl_use(struct connectdata *conn,
-                              struct url_conn_match *m)
+ساکن bool url_مطابقت_ssl_use(ساخت connectdata *conn,
+                              ساخت url_conn_مطابقت *m)
 {
-  if(m->needle->scheme->flags & PROTOPT_SSL) {
+  اگر(m->needle->scheme->flags & PROTOPT_SSL) {
     /* We are looking for SSL, if `conn` does not do it, not a match. */
-    if(!Curl_conn_is_ssl(conn, FIRSTSOCKET))
-      return FALSE;
+    اگر(!Curl_conn_is_ssl(conn, FIRSTSOCKET))
+      واپس FALSE;
   }
-  else if(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+  ورنہ اگر(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
     /* If the protocol does not allow reuse of SSL connections OR
        is of another protocol family, not a match. */
-    if(!(m->needle->scheme->flags & PROTOPT_SSL_REUSE) ||
+    اگر(!(m->needle->scheme->flags & PROTOPT_SSL_REUSE) ||
        (get_protocol_family(conn->scheme) != m->needle->scheme->protocol))
-      return FALSE;
+      واپس FALSE;
     /* We may reuse this as an auto-TLS upgrade, but only if the SSL
      * config parameters match. */
-    if(!Curl_ssl_conn_config_match(m->data, &m->ssl_config, conn, FALSE))
-      return FALSE;
+    اگر(!Curl_ssl_conn_config_مطابقت(m->ڈیٹا, &m->ssl_config, conn, FALSE))
+      واپس FALSE;
   }
-  else if(m->require_tls)
+  ورنہ اگر(m->require_tls)
     /* a clear-text STARTTLS protocol with required TLS */
-    return FALSE;
-  return TRUE;
+    واپس FALSE;
+  واپس TRUE;
 }
 
-#ifndef CURL_DISABLE_PROXY
-static bool url_match_proxy_use(struct connectdata *conn,
-                                struct url_conn_match *m)
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+ساکن bool url_مطابقت_proxy_use(ساخت connectdata *conn,
+                                ساخت url_conn_مطابقت *m)
 {
-  if(m->needle->bits.origin_is_proxy != conn->bits.origin_is_proxy)
-    return FALSE;
+  اگر(m->needle->بٹ.origin_is_proxy != conn->بٹ.origin_is_proxy)
+    واپس FALSE;
 
-  if(!proxy_info_matches(&m->needle->socks_proxy, &conn->socks_proxy))
-    return FALSE;
+  اگر(!proxy_info_matches(&m->needle->socks_proxy, &conn->socks_proxy))
+    واپس FALSE;
 
-  if(!proxy_info_matches(&m->needle->http_proxy, &conn->http_proxy))
-    return FALSE;
+  اگر(!proxy_info_matches(&m->needle->http_proxy, &conn->http_proxy))
+    واپس FALSE;
 
-  if(m->data->set.socks5_auth_only && !conn->bits.socks5_authenticated &&
+  اگر(m->ڈیٹا->سیٹ.socks5_auth_only && !conn->بٹ.socks5_authenticated &&
      ((conn->socks_proxy.proxytype == CURLPROXY_SOCKS5) ||
       (conn->socks_proxy.proxytype == CURLPROXY_SOCKS5_HOSTNAME))) {
-    DEBUGF(infof(m->data,
+    DEBUGF(infof(m->ڈیٹا,
                  "Connection #%" FMT_OFF_T
                  " was not SOCKS5 authenticated, cannot reuse",
                  conn->connection_id));
-    return FALSE;
+    واپس FALSE;
   }
 
-  if(CURL_PROXY_IS_HTTPS(m->needle->http_proxy.proxytype)) {
+  اگر(CURL_PROXY_IS_HTTPS(m->needle->http_proxy.proxytype)) {
     /* https proxies come in different types, http/1.1, h2, ... */
     /* match SSL config to proxy */
-    if(!Curl_ssl_conn_config_match(m->data, &m->proxy_ssl_config,
+    اگر(!Curl_ssl_conn_config_مطابقت(m->ڈیٹا, &m->proxy_ssl_config,
                                    conn, TRUE)) {
-      DEBUGF(infof(m->data,
+      DEBUGF(infof(m->ڈیٹا,
                    "Connection #%" FMT_OFF_T
                    " has different SSL proxy parameters, cannot reuse",
                    conn->connection_id));
-      return FALSE;
+      واپس FALSE;
     }
     /* the SSL config to the server, which may apply here is checked
      * further below */
   }
-  return TRUE;
+  واپس TRUE;
 }
-#else
-#define url_match_proxy_use(c, m) ((void)(c), (void)(m), TRUE)
-#endif
+#ورنہ
+#تعریف_کرو url_مطابقت_proxy_use(c, m) ((خالی)(c), (خالی)(m), TRUE)
+#اگر_ختم
 
-#ifndef CURL_DISABLE_HTTP
-static bool url_match_http_multiplex(struct connectdata *conn,
-                                     struct url_conn_match *m,
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HTTP
+ساکن bool url_مطابقت_http_multiplex(ساخت connectdata *conn,
+                                     ساخت url_conn_مطابقت *m,
                                      bool *pwait_pipe)
 {
-  if(m->may_multiplex &&
-     (m->data->state.http_neg.allowed & (CURL_HTTP_V2x | CURL_HTTP_V3x)) &&
+  اگر(m->may_multiplex &&
+     (m->ڈیٹا->state.http_neg.allowed & (CURL_HTTP_V2x | CURL_HTTP_V3x)) &&
      (m->needle->scheme->protocol & CURLPROTO_HTTP) &&
-     !conn->httpversion_seen) {
-    if(m->data->set.pipewait) {
-      infof(m->data, "Server upgrade does not support multiplex yet, wait");
-      m->found = NULL;
+     !conn->httpversion_نظر_آیا) {
+    اگر(m->ڈیٹا->سیٹ.pipewait) {
+      infof(m->ڈیٹا, "Server upgrade does not support multiplex yet, wait");
+      m->ملا = تہی;
       *pwait_pipe = TRUE;
-      return TRUE; /* stop searching, we want to wait */
+      واپس TRUE; /* stop searching, we want to wait */
     }
-    infof(m->data, "Server upgrade cannot be used");
-    return FALSE;
+    infof(m->ڈیٹا, "Server upgrade cannot be used");
+    واپس FALSE;
   }
-  return TRUE;
+  واپس TRUE;
 }
 
-static bool url_match_http_version(struct connectdata *conn,
-                                   struct url_conn_match *m)
+ساکن bool url_مطابقت_http_نسخہ(ساخت connectdata *conn,
+                                   ساخت url_conn_مطابقت *m)
 {
   /* If looking for HTTP and the HTTP versions allowed do not include
    * the HTTP version of conn, continue looking. */
-  if((m->needle->scheme->protocol & PROTO_FAMILY_HTTP)) {
-    switch(Curl_conn_http_version(m->data, conn)) {
-    case 30:
-      if(!(m->data->state.http_neg.allowed & CURL_HTTP_V3x)) {
-        DEBUGF(infof(m->data, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
+  اگر((m->needle->scheme->protocol & PROTO_FAMILY_HTTP)) {
+    انتخاب(Curl_conn_http_نسخہ(m->ڈیٹا, conn)) {
+    حالت 30:
+      اگر(!(m->ڈیٹا->state.http_neg.allowed & CURL_HTTP_V3x)) {
+        DEBUGF(infof(m->ڈیٹا, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
                      ", we do not want h3", conn->connection_id));
-        return FALSE;
+        واپس FALSE;
       }
-      break;
-    case 20:
-      if(!(m->data->state.http_neg.allowed & CURL_HTTP_V2x)) {
-        DEBUGF(infof(m->data, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
+      توڑو;
+    حالت 20:
+      اگر(!(m->ڈیٹا->state.http_neg.allowed & CURL_HTTP_V2x)) {
+        DEBUGF(infof(m->ڈیٹا, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
                      ", we do not want h2", conn->connection_id));
-        return FALSE;
+        واپس FALSE;
       }
-      break;
-    default:
-      if(!(m->data->state.http_neg.allowed & CURL_HTTP_V1x)) {
-        DEBUGF(infof(m->data, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
+      توڑو;
+    طےشدہ:
+      اگر(!(m->ڈیٹا->state.http_neg.allowed & CURL_HTTP_V1x)) {
+        DEBUGF(infof(m->ڈیٹا, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
                      ", we do not want h1", conn->connection_id));
-        return FALSE;
+        واپس FALSE;
       }
-      break;
+      توڑو;
     }
   }
-  return TRUE;
+  واپس TRUE;
 }
-#else
-#define url_match_http_multiplex(c, m, w) ((void)(c), (void)(m), TRUE)
-#define url_match_http_version(c, m)      ((void)(c), (void)(m), TRUE)
-#endif
+#ورنہ
+#تعریف_کرو url_مطابقت_http_multiplex(c, m, w) ((خالی)(c), (خالی)(m), TRUE)
+#تعریف_کرو url_مطابقت_http_نسخہ(c, m)      ((خالی)(c), (خالی)(m), TRUE)
+#اگر_ختم
 
-static bool url_match_proto_config(struct connectdata *conn,
-                                   struct url_conn_match *m)
+ساکن bool url_مطابقت_proto_config(ساخت connectdata *conn,
+                                   ساخت url_conn_مطابقت *m)
 {
-  if(!url_match_http_version(conn, m))
-    return FALSE;
+  اگر(!url_مطابقت_http_نسخہ(conn, m))
+    واپس FALSE;
 
-#ifdef USE_SSH
-  if(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_SSH) {
-    if(!ssh_config_matches(m->needle, conn))
-      return FALSE;
+#اگر_تعریف_شدہ USE_SSH
+  اگر(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_SSH) {
+    اگر(!ssh_config_matches(m->needle, conn))
+      واپس FALSE;
   }
-#endif
-#ifndef CURL_DISABLE_FTP
-  else if(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_FTP) {
-    if(!Curl_ftp_conns_match(m->needle, conn))
-      return FALSE;
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_FTP
+  ورنہ اگر(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_FTP) {
+    اگر(!Curl_ftp_conns_مطابقت(m->needle, conn))
+      واپس FALSE;
   }
-#endif
-  return TRUE;
+#اگر_ختم
+  واپس TRUE;
 }
 
-static bool url_match_auth(struct connectdata *conn,
-                           struct url_conn_match *m)
+ساکن bool url_مطابقت_auth(ساخت connectdata *conn,
+                           ساخت url_conn_مطابقت *m)
 {
-  if(!Curl_creds_same(m->needle->creds, conn->creds)) {
-    if(m->needle->creds)
-      return FALSE;
-    if(!Curl_creds_same(m->data->state.creds, conn->creds))
-      return FALSE;
+  اگر(!Curl_creds_same(m->needle->creds, conn->creds)) {
+    اگر(m->needle->creds)
+      واپس FALSE;
+    اگر(!Curl_creds_same(m->ڈیٹا->state.creds, conn->creds))
+      واپس FALSE;
   }
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#اگر defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
   /* GSS delegation differences do not actually affect every connection and
      auth method, but this check takes precaution before efficiency */
-  if(m->needle->gssapi_delegation != conn->gssapi_delegation)
-    return FALSE;
-#endif
+  اگر(m->needle->gssapi_delegation != conn->gssapi_delegation)
+    واپس FALSE;
+#اگر_ختم
 
-  return TRUE;
+  واپس TRUE;
 }
 
-static bool url_match_destination(struct connectdata *conn,
-                                  struct url_conn_match *m)
+ساکن bool url_مطابقت_destination(ساخت connectdata *conn,
+                                  ساخت url_conn_مطابقت *m)
 {
   /* Different connect-to peers never match */
-  if(!Curl_peer_same_destination(m->needle->via_peer, conn->via_peer))
-    return FALSE;
+  اگر(!Curl_peer_same_destination(m->needle->بذریعہ_peer, conn->بذریعہ_peer))
+    واپس FALSE;
 
-  if(m->needle->origin->scheme != conn->origin->scheme &&
+  اگر(m->needle->origin->scheme != conn->origin->scheme &&
     /* `needle` and `conn` not having the same scheme.
      * This is allowed for the same family *if* conn is using TLS.
      * - IMAP+STARTTLS works for IMAPS.
      * - IMAPS works for IMAP. */
      get_protocol_family(conn->origin->scheme) !=
      m->needle->scheme->protocol)
-    return FALSE;
+    واپس FALSE;
 
   /* Scheme mismatch is acceptable, compare hostname/port */
-  return Curl_peer_same_destination(m->needle->origin, conn->origin);
+  واپس Curl_peer_same_destination(m->needle->origin, conn->origin);
 }
 
-static bool url_match_ssl_config(struct connectdata *conn,
-                                 struct url_conn_match *m)
+ساکن bool url_مطابقت_ssl_config(ساخت connectdata *conn,
+                                 ساخت url_conn_مطابقت *m)
 {
   /* If talking/upgrading to TLS, conn needs to use the same SSL options. */
-  if(((m->needle->scheme->flags & PROTOPT_SSL) || m->may_tls) &&
-     !Curl_ssl_conn_config_match(m->data, &m->ssl_config, conn, FALSE)) {
-    DEBUGF(infof(m->data, "Connection #%" FMT_OFF_T
+  اگر(((m->needle->scheme->flags & PROTOPT_SSL) || m->may_tls) &&
+     !Curl_ssl_conn_config_مطابقت(m->ڈیٹا, &m->ssl_config, conn, FALSE)) {
+    DEBUGF(infof(m->ڈیٹا, "Connection #%" FMT_OFF_T
                  " has different SSL parameters, cannot reuse",
                  conn->connection_id));
-    return FALSE;
+    واپس FALSE;
   }
-  return TRUE;
+  واپس TRUE;
 }
 
-#ifdef USE_NTLM
-static bool url_match_auth_ntlm(struct connectdata *conn,
-                                struct url_conn_match *m)
+#اگر_تعریف_شدہ USE_NTLM
+ساکن bool url_مطابقت_auth_ntlm(ساخت connectdata *conn,
+                                ساخت url_conn_مطابقت *m)
 {
-  if(conn->http_ntlm_state != NTLMSTATE_NONE) {
+  اگر(conn->http_ntlm_state != NTLMSTATE_NONE) {
     /* Connection is using NTLM. We cannot reuse if transfer
      * has different Auth input parameters. */
-    if(!m->want_ntlm_http ||
-       !Curl_creds_same(conn->creds, m->data->state.creds) ||
-       !Curl_peer_equal(conn->creds_origin, m->data->state.origin))
-      return FALSE;
+    اگر(!m->want_ntlm_http ||
+       !Curl_creds_same(conn->creds, m->ڈیٹا->state.creds) ||
+       !Curl_peer_equal(conn->creds_origin, m->ڈیٹا->state.origin))
+      واپس FALSE;
   }
-  else if(m->want_ntlm_http) {
+  ورنہ اگر(m->want_ntlm_http) {
     /* Transfer wants NTLM, connection is not using it.
      * Do not reuse when connection credentials state is bound to an origin
      * and it or creds differ. */
-    if(conn->creds_origin &&
-       (!Curl_creds_same(conn->creds, m->data->state.creds) ||
-        !Curl_peer_equal(conn->creds_origin, m->data->state.origin)))
-      return FALSE;
+    اگر(conn->creds_origin &&
+       (!Curl_creds_same(conn->creds, m->ڈیٹا->state.creds) ||
+        !Curl_peer_equal(conn->creds_origin, m->ڈیٹا->state.origin)))
+      واپس FALSE;
   }
 
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
   /* Same for Proxy NTLM authentication */
-  if(conn->proxy_ntlm_state != NTLMSTATE_NONE) {
-    if(!m->want_proxy_ntlm_http ||
+  اگر(conn->proxy_ntlm_state != NTLMSTATE_NONE) {
+    اگر(!m->want_proxy_ntlm_http ||
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      واپس FALSE;
   }
-  else if(m->want_proxy_ntlm_http) {
-    if(conn->http_proxy.creds &&
+  ورنہ اگر(m->want_proxy_ntlm_http) {
+    اگر(conn->http_proxy.creds &&
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      واپس FALSE;
   }
-#endif
-  return TRUE;
+#اگر_ختم
+  واپس TRUE;
 }
-#else
-#define url_match_auth_ntlm(c, m) ((void)(c), (void)(m), TRUE)
-#endif
+#ورنہ
+#تعریف_کرو url_مطابقت_auth_ntlm(c, m) ((خالی)(c), (خالی)(m), TRUE)
+#اگر_ختم
 
-#ifdef USE_SPNEGO
-static bool url_match_auth_nego(struct connectdata *conn,
-                                struct url_conn_match *m)
+#اگر_تعریف_شدہ USE_SPNEGO
+ساکن bool url_مطابقت_auth_nego(ساخت connectdata *conn,
+                                ساخت url_conn_مطابقت *m)
 {
-  if(conn->http_negotiate_state != CURL_NEGO_AUTH_NONE) {
+  اگر(conn->http_negotiate_state != CURL_NEGO_AUTH_NONE) {
     /* Connection is using Negotiate. We cannot reuse if transfer
      * has different Auth input parameters. */
-    if(!m->want_nego_http ||
-       !Curl_creds_same(conn->creds, m->data->state.creds) ||
-       !Curl_peer_equal(conn->creds_origin, m->data->state.origin))
-      return FALSE;
+    اگر(!m->want_nego_http ||
+       !Curl_creds_same(conn->creds, m->ڈیٹا->state.creds) ||
+       !Curl_peer_equal(conn->creds_origin, m->ڈیٹا->state.origin))
+      واپس FALSE;
   }
-  else if(m->want_nego_http) {
+  ورنہ اگر(m->want_nego_http) {
     /* Transfer wants Negotiate, connection is not using it.
      * Do not reuse when connection credentials state is bound to an origin
      * and it or creds differ. */
-    if(conn->creds_origin &&
-       (!Curl_creds_same(conn->creds, m->data->state.creds) ||
-        !Curl_peer_equal(conn->creds_origin, m->data->state.origin)))
-      return FALSE;
+    اگر(conn->creds_origin &&
+       (!Curl_creds_same(conn->creds, m->ڈیٹا->state.creds) ||
+        !Curl_peer_equal(conn->creds_origin, m->ڈیٹا->state.origin)))
+      واپس FALSE;
   }
 
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
   /* Same for Proxy Negotiate authentication */
-  if(conn->proxy_negotiate_state != CURL_NEGO_AUTH_NONE) {
-    if(!m->want_proxy_nego_http ||
+  اگر(conn->proxy_negotiate_state != CURL_NEGO_AUTH_NONE) {
+    اگر(!m->want_proxy_nego_http ||
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      واپس FALSE;
   }
-  else if(m->want_proxy_nego_http) {
-    if(conn->http_proxy.creds &&
+  ورنہ اگر(m->want_proxy_nego_http) {
+    اگر(conn->http_proxy.creds &&
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      واپس FALSE;
   }
-#endif
-  return TRUE;
+#اگر_ختم
+  واپس TRUE;
 }
-#else
-#define url_match_auth_nego(c, m) ((void)(c), (void)(m), TRUE)
-#endif
+#ورنہ
+#تعریف_کرو url_مطابقت_auth_nego(c, m) ((خالی)(c), (خالی)(m), TRUE)
+#اگر_ختم
 
-static cpool_match_result url_match_conn(struct connectdata *conn,
-                                         void *userdata)
+ساکن cpool_مطابقت_نتیجہ url_مطابقت_conn(ساخت connectdata *conn,
+                                         خالی *userdata)
 {
-  struct url_conn_match *m = userdata;
+  ساخت url_conn_مطابقت *m = userdata;
   bool wait_pipe = FALSE;
 
   /* general connect config setting match? */
-  if(!url_match_connect_config(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_connect_config(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
   /* match for destination and protocol? */
-  if(!url_match_destination(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_destination(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
-  if(!url_match_fully_connected(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_fully_connected(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
-  if(!url_match_multiplex_needs(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_multiplex_needs(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
-  if(!url_match_ssl_use(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_ssl_use(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
-  if(!url_match_proxy_use(conn, m))
-    return CPOOL_MATCH_CONT;
-  if(!url_match_ssl_config(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_proxy_use(conn, m))
+    واپس CPOOL_مطابقت_CONT;
+  اگر(!url_مطابقت_ssl_config(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
-  if(!url_match_http_multiplex(conn, m, &wait_pipe))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_http_multiplex(conn, m, &wait_pipe))
+    واپس CPOOL_مطابقت_CONT;
 
-  if(!url_match_auth(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_auth(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
-  if(!url_match_proto_config(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_proto_config(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
-  if(!url_match_auth_ntlm(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_auth_ntlm(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
-  if(!url_match_auth_nego(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_auth_nego(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
-  if(!url_match_multiplex_limits(conn, m))
-    return CPOOL_MATCH_CONT;
+  اگر(!url_مطابقت_multiplex_limits(conn, m))
+    واپس CPOOL_مطابقت_CONT;
 
   /* The connection matches all conditions, but do we want to use it? */
-  if(wait_pipe) {
+  اگر(wait_pipe) {
     /* The connection fits, but it's multiplex state has not been determined
      * yet. Put the transfer into PENDING and wait for conn state change. */
-    DEBUGASSERT(!m->found);
+    DEBUGASSERT(!m->ملا);
     m->wait_pipe = TRUE;
-    return CPOOL_MATCH_FOUND;
+    واپس CPOOL_مطابقت_ملا;
   }
 
-  if(m->data->set.conn_max_age_ms > 0) {
-    timediff_t age_ms = Curl_cpool_conn_age_ms(m->data, conn, &m->now);
-    if(age_ms > m->data->set.conn_max_age_ms) {
+  اگر(m->ڈیٹا->سیٹ.conn_max_age_ms > 0) {
+    timediff_t age_ms = Curl_cpool_conn_age_ms(m->ڈیٹا, conn, &m->now);
+    اگر(age_ms > m->ڈیٹا->سیٹ.conn_max_age_ms) {
       /* Transfer is looking for a younger connection. */
-      return CPOOL_MATCH_TOO_OLD;
+      واپس CPOOL_مطابقت_TOO_OLD;
     }
   }
 
   /* If we are going to pick an idle connection, do an extra
    * health check before we reuse it. */
-  if(!CONN_INUSE(conn) &&
-     !Curl_cpool_conn_seems_healthy(conn, m->data, &m->now)) {
-    infof(m->data, "Connection %" FMT_OFF_T " seems to be dead, terminating",
+  اگر(!CONN_INUSE(conn) &&
+     !Curl_cpool_conn_seems_healthy(conn, m->ڈیٹا, &m->now)) {
+    infof(m->ڈیٹا, "Connection %" FMT_OFF_T " seems to be dead, terminating",
           conn->connection_id);
-    return CPOOL_MATCH_CLOSE;
+    واپس CPOOL_مطابقت_CLOSE;
   }
 
   /* conn matches our needs. */
-  m->found = conn;
-  return CPOOL_MATCH_FOUND;
+  m->ملا = conn;
+  واپس CPOOL_مطابقت_ملا;
 }
 
-static bool url_match_result(void *userdata)
+ساکن bool url_مطابقت_نتیجہ(خالی *userdata)
 {
-  struct url_conn_match *match = userdata;
-  if(match->found) {
+  ساخت url_conn_مطابقت *مطابقت = userdata;
+  اگر(مطابقت->ملا) {
     /* Attach it now while still under lock, so the connection does
      * no longer appear idle and can be reaped. */
-    Curl_attach_connection(match->data, match->found, TRUE);
-    return TRUE;
+    Curl_attach_connection(مطابقت->ڈیٹا, مطابقت->ملا, TRUE);
+    واپس TRUE;
   }
-  else if(match->seen_single_use_conn && !match->seen_multiplex_conn) {
+  ورنہ اگر(مطابقت->نظر_آیا_single_use_conn && !مطابقت->نظر_آیا_multiplex_conn) {
     /* We have seen a single-use, existing connection to the destination and
      * no multiplexed one. It seems safe to assume that the server does
      * not support multiplexing. */
-    match->wait_pipe = FALSE;
+    مطابقت->wait_pipe = FALSE;
   }
-  else if(match->seen_pending_conn && match->data->set.pipewait) {
-    infof(match->data,
+  ورنہ اگر(مطابقت->نظر_آیا_pending_conn && مطابقت->ڈیٹا->سیٹ.pipewait) {
+    infof(مطابقت->ڈیٹا,
           "Found pending candidate for reuse and CURLOPT_PIPEWAIT is set");
-    match->wait_pipe = TRUE;
+    مطابقت->wait_pipe = TRUE;
   }
-  return FALSE;
+  واپس FALSE;
 }
 
 /*
@@ -1111,25 +1111,25 @@ static bool url_match_result(void *userdata)
  * might be suitable one in the near future (common cause: multiplexing
  * capability has not been determined yet, e.g. ALPN handshake).
  */
-static bool url_attach_existing(struct Curl_easy *data,
-                                struct connectdata *needle,
-                                struct url_conn_match *m,
-                                const struct curltime *pnow)
+ساکن bool url_attach_existing(ساخت Curl_easy *ڈیٹا,
+                                ساخت connectdata *needle,
+                                ساخت url_conn_مطابقت *m,
+                                ثابت ساخت curltime *pnow)
 {
   /* Find a connection in the pool that matches what "data + needle"
    * requires. If a suitable candidate is found, it is attached to "data". */
-  return Curl_cpool_find(data, needle->destination, TRUE, pnow,
-                         url_match_conn, url_match_result, m);
+  واپس Curl_cpool_ڈھونڈو(ڈیٹا, needle->destination, TRUE, pnow,
+                         url_مطابقت_conn, url_مطابقت_نتیجہ, m);
 }
 
 /*
  * Allocate and initialize a new connectdata object.
  */
-static struct connectdata *allocate_conn(struct Curl_easy *data)
+ساکن ساخت connectdata *allocate_conn(ساخت Curl_easy *ڈیٹا)
 {
-  struct connectdata *conn = curlx_calloc(1, sizeof(struct connectdata));
-  if(!conn)
-    return NULL;
+  ساخت connectdata *conn = curlx_calloc(1, حجم(ساخت connectdata));
+  اگر(!conn)
+    واپس تہی;
 
   /* and we setup a few fields in case we end up actually using this struct */
   conn->sock[FIRSTSOCKET] = CURL_SOCKET_BAD;     /* no file descriptor */
@@ -1139,385 +1139,385 @@ static struct connectdata *allocate_conn(struct Curl_easy *data)
   conn->connection_id = -1;    /* no ID */
   conn->cpid = UINT32_MAX;  /* not in connection pool yet */
   conn->attached_xfers = 0;
-  conn->shutdown.start_ms[FIRSTSOCKET] =
-    conn->shutdown.start_ms[SECONDARYSOCKET] = -1;
+  conn->shutdown.آغاز_ms[FIRSTSOCKET] =
+    conn->shutdown.آغاز_ms[SECONDARYSOCKET] = -1;
 
-#ifndef CURL_DISABLE_FTP
-  conn->bits.ftp_use_epsv = data->set.ftp_use_epsv;
-  conn->bits.ftp_use_eprt = data->set.ftp_use_eprt;
-#endif
-  conn->ip_version = data->set.ipver;
-  conn->bits.connect_only = (bool)data->set.connect_only;
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_FTP
+  conn->بٹ.ftp_use_epsv = ڈیٹا->سیٹ.ftp_use_epsv;
+  conn->بٹ.ftp_use_eprt = ڈیٹا->سیٹ.ftp_use_eprt;
+#اگر_ختم
+  conn->ip_نسخہ = ڈیٹا->سیٹ.ipver;
+  conn->بٹ.connect_only = (bool)ڈیٹا->سیٹ.connect_only;
   conn->transport_wanted = TRNSPRT_TCP; /* most of them are TCP streams */
 
   /* Store the local bind parameters that will be used for this connection */
-  if(CURL_EASY_STR(data, STRING_INTERFACE_OPT)) {
+  اگر(CURL_EASY_STR(ڈیٹا, STRING_INTERFACE_OPT)) {
     conn->interface_opts =
-      curlx_strdup(CURL_EASY_STR(data, STRING_INTERFACE_OPT));
-    if(!conn->interface_opts)
-      goto error;
+      curlx_strdup(CURL_EASY_STR(ڈیٹا, STRING_INTERFACE_OPT));
+    اگر(!conn->interface_opts)
+      جاؤ error;
   }
-#ifndef CURL_DISABLE_BINDLOCAL
-  conn->localportrange = data->set.localportrange;
-  conn->localport = data->set.localport;
-#endif
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_BINDLOCAL
+  conn->localportrange = ڈیٹا->سیٹ.localportrange;
+  conn->localport = ڈیٹا->سیٹ.localport;
+#اگر_ختم
 
   /* the close socket stuff needs to be copied to the connection struct as
      it may live on without (this specific) Curl_easy */
-  conn->fclosesocket = data->set.fclosesocket;
-  conn->closesocket_client = data->set.closesocket_client;
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  conn->gssapi_delegation = data->set.gssapi_delegation;
-#endif
-  return conn;
+  conn->fclosesocket = ڈیٹا->سیٹ.fclosesocket;
+  conn->closesocket_client = ڈیٹا->سیٹ.closesocket_client;
+#اگر defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  conn->gssapi_delegation = ڈیٹا->سیٹ.gssapi_delegation;
+#اگر_ختم
+  واپس conn;
 error:
 
   curlx_free(conn->interface_opts);
   curlx_free(conn);
-  return NULL;
+  واپس تہی;
 }
 
-static CURLcode url_set_conn_scheme(struct Curl_easy *data,
-                                    struct connectdata *conn)
+ساکن CURLcode url_سیٹ_conn_scheme(ساخت Curl_easy *ڈیٹا,
+                                    ساخت connectdata *conn)
 {
   /* URL scheme is usable for connection when it is
    * - allowed
    * - not from a redirect or an allowed redirect protocol */
-  const struct Curl_scheme *scheme = conn->origin->scheme;
-  if(scheme->run &&
-     (data->set.allowed_protocols & scheme->protocol) &&
-     (!data->state.this_is_a_follow ||
-       (data->set.redir_protocols & scheme->protocol))) {
+  ثابت ساخت Curl_scheme *scheme = conn->origin->scheme;
+  اگر(scheme->تسلسل &&
+     (ڈیٹا->سیٹ.allowed_protocols & scheme->protocol) &&
+     (!ڈیٹا->state.this_is_a_follow ||
+       (ڈیٹا->سیٹ.redir_protocols & scheme->protocol))) {
     conn->scheme = scheme;
-    return CURLE_OK;
+    واپس CURLE_OK;
   }
-  if(scheme->flags & PROTOPT_NO_TRANSFER)
-    failf(data, "Protocol \"%s\" is not for transfers", scheme->name);
-  else
-    failf(data, "Protocol \"%s\" is disabled%s", scheme->name,
-          data->state.this_is_a_follow ? " (in redirect)" : "");
-  return CURLE_UNSUPPORTED_PROTOCOL;
+  اگر(scheme->flags & PROTOPT_NO_TRANSFER)
+    failf(ڈیٹا, "Protocol \"%s\" is not for transfers", scheme->name);
+  ورنہ
+    failf(ڈیٹا, "Protocol \"%s\" is disabled%s", scheme->name,
+          ڈیٹا->state.this_is_a_follow ? " (in redirect)" : "");
+  واپس CURLE_UNSUPPORTED_PROTOCOL;
 }
 
-CURLcode Curl_uc_to_curlcode(CURLUcode uc)
+CURLcode Curl_uc_مقصد_curlcode(CURLUcode uc)
 {
-  switch(uc) {
-  default:
-    return CURLE_URL_MALFORMAT;
-  case CURLUE_UNSUPPORTED_SCHEME:
-    return CURLE_UNSUPPORTED_PROTOCOL;
-  case CURLUE_OUT_OF_MEMORY:
-    return CURLE_OUT_OF_MEMORY;
-  case CURLUE_USER_NOT_ALLOWED:
-    return CURLE_LOGIN_DENIED;
+  انتخاب(uc) {
+  طےشدہ:
+    واپس CURLE_URL_MALFORMAT;
+  حالت CURLUE_UNSUPPORTED_SCHEME:
+    واپس CURLE_UNSUPPORTED_PROTOCOL;
+  حالت CURLUE_برآمد_کا_حافظہ:
+    واپس CURLE_برآمد_کا_حافظہ;
+  حالت CURLUE_USER_NOT_ALLOWED:
+    واپس CURLE_LOGIN_DENIED;
   }
 }
 
-#ifndef CURL_DISABLE_HSTS
-static CURLcode hsts_upgrade(struct Curl_easy *data,
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_HSTS
+ساکن CURLcode hsts_upgrade(ساخت Curl_easy *ڈیٹا,
                              CURLU *uh,
-                             uint16_t port_override,
+                             uint16_t پورٹ_override,
                              uint32_t scope_id)
 {
   /* HSTS upgrade */
-  if(data->hsts && (data->state.origin->scheme == &Curl_scheme_http) &&
-     Curl_hsts_applies(data->hsts, data->state.origin)) {
-    char *url;
+  اگر(ڈیٹا->hsts && (ڈیٹا->state.origin->scheme == &Curl_scheme_http) &&
+     Curl_hsts_applies(ڈیٹا->hsts, ڈیٹا->state.origin)) {
+    حرف *url;
     CURLUcode uc;
-    CURLcode result;
+    CURLcode نتیجہ;
 
-    uc = curl_url_set(uh, CURLUPART_SCHEME, "https", 0);
-    if(uc)
-      return Curl_uc_to_curlcode(uc);
-    Curl_bufref_free(&data->state.url);
+    uc = curl_url_سیٹ(uh, CURLUPART_SCHEME, "https", 0);
+    اگر(uc)
+      واپس Curl_uc_مقصد_curlcode(uc);
+    Curl_bufref_free(&ڈیٹا->state.url);
     /* after update, get the updated version */
     uc = curl_url_get(uh, CURLUPART_URL, &url, 0);
-    if(uc)
-      return Curl_uc_to_curlcode(uc);
-    Curl_bufref_set(&data->state.url, url, 0, curl_free);
+    اگر(uc)
+      واپس Curl_uc_مقصد_curlcode(uc);
+    Curl_bufref_سیٹ(&ڈیٹا->state.url, url, 0, curl_free);
 
-    result = Curl_peer_from_url(uh, data, port_override, scope_id,
-                                &data->state.origin);
-    if(result)
-      return result;
-    infof(data, "Switched from HTTP to HTTPS due to HSTS => %s", url);
+    نتیجہ = Curl_peer_from_url(uh, ڈیٹا, پورٹ_override, scope_id,
+                                &ڈیٹا->state.origin);
+    اگر(نتیجہ)
+      واپس نتیجہ;
+    infof(ڈیٹا, "Switched from HTTP to HTTPS due to HSTS => %s", url);
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
-#else
-#define hsts_upgrade(x, y, z, a) CURLE_OK
-#endif
+#ورنہ
+#تعریف_کرو hsts_upgrade(x, y, z, a) CURLE_OK
+#اگر_ختم
 
-static bool str_has_ctrl(const char *input)
+ساکن bool str_has_ctrl(ثابت حرف *داخلہ)
 {
-  if(input) {
-    const unsigned char *str = (const unsigned char *)input;
-    while(*str) {
-      if(*str < 0x20)
-        return TRUE;
+  اگر(داخلہ) {
+    ثابت غیرعلامتی حرف *str = (ثابت غیرعلامتی حرف *)داخلہ;
+    جب(*str) {
+      اگر(*str < 0x20)
+        واپس TRUE;
       str++;
     }
   }
-  return FALSE;
+  واپس FALSE;
 }
 
-#ifndef CURL_DISABLE_NETRC
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_NETRC
 /*
  * Override the login details from the URL with that in the CURLOPT_USERPWD
  * option or a .netrc file, if applicable.
  */
-static CURLcode url_set_data_creds_netrc(struct Curl_easy *data,
-                                         struct Curl_creds **pcreds)
+ساکن CURLcode url_سیٹ_ڈیٹا_creds_netrc(ساخت Curl_easy *ڈیٹا,
+                                         ساخت Curl_creds **pcreds)
 {
-  struct Curl_creds *ncreds_out = NULL;
-  CURLcode result = CURLE_OK;
+  ساخت Curl_creds *ncreds_برآمد = تہی;
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(data->set.use_netrc) { /* not CURL_NETRC_IGNORED */
-    struct Curl_creds *ncreds_in = NULL;
-    bool scan_netrc = TRUE;
+  اگر(ڈیٹا->سیٹ.use_netrc) { /* not CURL_NETRC_IGNORED */
+    ساخت Curl_creds *ncreds_اندر = تہی;
+    bool جائزہ_netrc = TRUE;
     NETRCcode ret;
     CURLUcode uc;
 
-    if(*pcreds) {
-      switch((*pcreds)->source) {
-      case CREDS_OPTION:
+    اگر(*pcreds) {
+      انتخاب((*pcreds)->ماخذ) {
+      حالت CREDS_OPTION:
         /* we never override credentials set via CURLOPT_*, leave. */
-        scan_netrc = FALSE;
-        break;
-      case CREDS_URL: /* only apply when netrc is not required */
-        if(data->set.use_netrc == CURL_NETRC_REQUIRED) {
+        جائزہ_netrc = FALSE;
+        توڑو;
+      حالت CREDS_URL: /* only apply when netrc is not required */
+        اگر(ڈیٹا->سیٹ.use_netrc == CURL_NETRC_REQUIRED) {
           /* We ignore password from URL */
-          ncreds_in = *pcreds;
+          ncreds_اندر = *pcreds;
         }
-        else if(!Curl_creds_has_user(*pcreds) ||
+        ورنہ اگر(!Curl_creds_has_user(*pcreds) ||
                 !Curl_creds_has_passwd(*pcreds)) {
           /* We use netrc to complete what is missing */
-          ncreds_in = *pcreds;
+          ncreds_اندر = *pcreds;
         }
-        else
-          scan_netrc = FALSE;
-        break;
-      default: /* ignore credentials from other sources */
-        break;
+        ورنہ
+          جائزہ_netrc = FALSE;
+        توڑو;
+      طےشدہ: /* ignore credentials from other sources */
+        توڑو;
       }
     }
 
-    if(!scan_netrc)
-      goto out;
+    اگر(!جائزہ_netrc)
+      جاؤ برآمد;
 
-    ret = Curl_netrc_scan(data, &data->state.netrc,
-                          data->state.origin->hostname,
-                          Curl_creds_user(ncreds_in),
-                          CURL_EASY_STR(data, STRING_NETRC_FILE),
-                          &ncreds_out);
-    DEBUGASSERT(!ret || !ncreds_out);
-    if(ret == NETRC_OUT_OF_MEMORY) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    ret = Curl_netrc_جائزہ(ڈیٹا, &ڈیٹا->state.netrc,
+                          ڈیٹا->state.origin->hostname,
+                          Curl_creds_user(ncreds_اندر),
+                          CURL_EASY_STR(ڈیٹا, STRING_NETRC_FILE),
+                          &ncreds_برآمد);
+    DEBUGASSERT(!ret || !ncreds_برآمد);
+    اگر(ret == NETRC_برآمد_کا_حافظہ) {
+      نتیجہ = CURLE_برآمد_کا_حافظہ;
+      جاؤ برآمد;
     }
-    else if(ret && ((ret == NETRC_NO_MATCH) ||
-                    (data->set.use_netrc == CURL_NETRC_OPTIONAL))) {
-      infof(data, "Could not find host %s in the %s file; using defaults",
-            data->state.origin->hostname,
-            (CURL_EASY_STR(data, STRING_NETRC_FILE) ?
-             CURL_EASY_STR(data, STRING_NETRC_FILE) : ".netrc"));
+    ورنہ اگر(ret && ((ret == NETRC_NO_مطابقت) ||
+                    (ڈیٹا->سیٹ.use_netrc == CURL_NETRC_OPTIONAL))) {
+      infof(ڈیٹا, "Could not find host %s in the %s file; using defaults",
+            ڈیٹا->state.origin->hostname,
+            (CURL_EASY_STR(ڈیٹا, STRING_NETRC_FILE) ?
+             CURL_EASY_STR(ڈیٹا, STRING_NETRC_FILE) : ".netrc"));
     }
-    else if(ret) {
-      const char *m = Curl_netrc_strerror(ret);
-      failf(data, ".netrc error: %s", m);
-      result = CURLE_READ_ERROR;
-      goto out;
+    ورنہ اگر(ret) {
+      ثابت حرف *m = Curl_netrc_strerror(ret);
+      failf(ڈیٹا, ".netrc error: %s", m);
+      نتیجہ = CURLE_READ_ERROR;
+      جاؤ برآمد;
     }
-    else if(ncreds_out) {
-      if(!(data->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
+    ورنہ اگر(ncreds_برآمد) {
+      اگر(!(ڈیٹا->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
          /* if the protocol cannot handle control codes in credentials, make
             sure there are none */
-         (str_has_ctrl(ncreds_out->user) ||
-          str_has_ctrl(ncreds_out->passwd))) {
-        failf(data, "control code detected in .netrc credentials");
-        result = CURLE_READ_ERROR;
-        goto out;
+         (str_has_ctrl(ncreds_برآمد->user) ||
+          str_has_ctrl(ncreds_برآمد->passwd))) {
+        failf(ڈیٹا, "control code detected in .netrc credentials");
+        نتیجہ = CURLE_READ_ERROR;
+        جاؤ برآمد;
       }
-      CURL_TRC_M(data, "netrc: using credentials for %s as %s",
-                 data->state.origin->hostname, ncreds_out->user);
-      result = Curl_creds_merge(ncreds_out->user, ncreds_out->passwd,
+      CURL_TRC_M(ڈیٹا, "netrc: using credentials for %s as %s",
+                 ڈیٹا->state.origin->hostname, ncreds_برآمد->user);
+      نتیجہ = Curl_creds_ملاؤ(ncreds_برآمد->user, ncreds_برآمد->passwd,
                                 *pcreds, CREDS_NETRC, pcreds);
-      if(result)
-        goto out;
+      اگر(نتیجہ)
+        جاؤ برآمد;
       /* for updated strings, we update them in the URL */
-      uc = curl_url_set(data->state.uh, CURLUPART_USER,
+      uc = curl_url_سیٹ(ڈیٹا->state.uh, CURLUPART_USER,
                         Curl_creds_user(*pcreds), CURLU_URLENCODE);
-      if(!uc)
-        uc = curl_url_set(data->state.uh, CURLUPART_PASSWORD,
+      اگر(!uc)
+        uc = curl_url_سیٹ(ڈیٹا->state.uh, CURLUPART_PASSWORD,
                           Curl_creds_passwd(*pcreds),
                           CURLU_URLENCODE);
-      if(uc)
-        result = Curl_uc_to_curlcode(uc);
+      اگر(uc)
+        نتیجہ = Curl_uc_مقصد_curlcode(uc);
     }
-    else
+    ورنہ
       DEBUGASSERT(0);
   }
 
-#ifdef CURLVERBOSE
-  Curl_creds_trace(data, data->state.creds, "transfer credentials");
-#endif
+#اگر_تعریف_شدہ CURLVERBOSE
+  Curl_creds_trace(ڈیٹا, ڈیٹا->state.creds, "transfer credentials");
+#اگر_ختم
 
-out:
-  Curl_creds_unlink(&ncreds_out);
-  return result;
+برآمد:
+  Curl_creds_unlink(&ncreds_برآمد);
+  واپس نتیجہ;
 }
-#endif /* CURL_DISABLE_NETRC */
+#اگر_ختم /* CURL_DISABLE_NETRC */
 
-static CURLcode url_set_data_creds(struct Curl_easy *data, CURLU *uh)
+ساکن CURLcode url_سیٹ_ڈیٹا_creds(ساخت Curl_easy *ڈیٹا, CURLU *uh)
 {
-  struct Curl_creds *newcreds = NULL;
-  CURLcode result = CURLE_OK;
+  ساخت Curl_creds *newcreds = تہی;
+  CURLcode نتیجہ = CURLE_OK;
 
-  if((CURL_EASY_STR(data, STRING_USERNAME) ||
-      CURL_EASY_STR(data, STRING_PASSWORD) ||
-      CURL_EASY_STR(data, STRING_BEARER) ||
-      CURL_EASY_STR(data, STRING_SASL_AUTHZID) ||
-      CURL_EASY_STR(data, STRING_SERVICE_NAME)) &&
-     Curl_auth_allowed_to_origin(data, data->state.origin)) {
-    result = Curl_creds_create(CURL_EASY_STR(data, STRING_USERNAME),
-                               CURL_EASY_STR(data, STRING_PASSWORD),
-                               CURL_EASY_STR(data, STRING_BEARER),
-                               CURL_EASY_STR(data, STRING_SASL_AUTHZID),
-                               CURL_EASY_STR(data, STRING_SERVICE_NAME),
+  اگر((CURL_EASY_STR(ڈیٹا, STRING_USERNAME) ||
+      CURL_EASY_STR(ڈیٹا, STRING_PASSWORD) ||
+      CURL_EASY_STR(ڈیٹا, STRING_BEARER) ||
+      CURL_EASY_STR(ڈیٹا, STRING_SASL_AUTHZID) ||
+      CURL_EASY_STR(ڈیٹا, STRING_SERVICE_NAME)) &&
+     Curl_auth_allowed_مقصد_origin(ڈیٹا, ڈیٹا->state.origin)) {
+    نتیجہ = Curl_creds_create(CURL_EASY_STR(ڈیٹا, STRING_USERNAME),
+                               CURL_EASY_STR(ڈیٹا, STRING_PASSWORD),
+                               CURL_EASY_STR(ڈیٹا, STRING_BEARER),
+                               CURL_EASY_STR(ڈیٹا, STRING_SASL_AUTHZID),
+                               CURL_EASY_STR(ڈیٹا, STRING_SERVICE_NAME),
                                CREDS_OPTION, &newcreds);
-    if(result)
-      goto out;
-    if(newcreds &&
-       !(data->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
+    اگر(نتیجہ)
+      جاؤ برآمد;
+    اگر(newcreds &&
+       !(ڈیٹا->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
        (str_has_ctrl(Curl_creds_user(newcreds)) ||
         str_has_ctrl(Curl_creds_passwd(newcreds)))) {
       /* if the protocol cannot handle control codes in credentials, make
          sure there are none */
-      failf(data, "control code detected in credentials");
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      failf(ڈیٹا, "control code detected in credentials");
+      نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+      جاؤ برآمد;
     }
   }
 
   /* Extract credentials from the URL only if there are none OR
    * if no CURLOPT_USER was set. */
-  if(!newcreds || !Curl_creds_has_user(newcreds)) {
-    char *user = NULL;
-    char *passwd = NULL;
-    char *udecoded = NULL;
-    char *pdecoded = NULL;
+  اگر(!newcreds || !Curl_creds_has_user(newcreds)) {
+    حرف *user = تہی;
+    حرف *passwd = تہی;
+    حرف *udecoded = تہی;
+    حرف *pdecoded = تہی;
     CURLUcode uc;
 
     uc = curl_url_get(uh, CURLUPART_USER, &user, 0);
-    if(uc && (uc != CURLUE_NO_USER))
-      result = Curl_uc_to_curlcode(uc);
-    if(!result) {
+    اگر(uc && (uc != CURLUE_NO_USER))
+      نتیجہ = Curl_uc_مقصد_curlcode(uc);
+    اگر(!نتیجہ) {
       uc = curl_url_get(uh, CURLUPART_PASSWORD, &passwd, 0);
-      if(uc && (uc != CURLUE_NO_PASSWORD))
-        result = Curl_uc_to_curlcode(uc);
+      اگر(uc && (uc != CURLUE_NO_PASSWORD))
+        نتیجہ = Curl_uc_مقصد_curlcode(uc);
     }
-    if(!result && user) {
-      result = Curl_urldecode(user, 0, &udecoded, NULL,
-                              (data->state.origin->scheme->flags &
+    اگر(!نتیجہ && user) {
+      نتیجہ = Curl_urldecode(user, 0, &udecoded, تہی,
+                              (ڈیٹا->state.origin->scheme->flags &
                                PROTOPT_USERPWDCTRL) ?
                               REJECT_ZERO : REJECT_CTRL);
     }
-    if(!result && passwd) {
-      result = Curl_urldecode(passwd, 0, &pdecoded, NULL,
-                              (data->state.origin->scheme->flags &
+    اگر(!نتیجہ && passwd) {
+      نتیجہ = Curl_urldecode(passwd, 0, &pdecoded, تہی,
+                              (ڈیٹا->state.origin->scheme->flags &
                                PROTOPT_USERPWDCTRL) ?
                               REJECT_ZERO : REJECT_CTRL);
     }
-    if(!result)
-      result = Curl_creds_merge(udecoded, pdecoded, newcreds,
+    اگر(!نتیجہ)
+      نتیجہ = Curl_creds_ملاؤ(udecoded, pdecoded, newcreds,
                                 CREDS_URL, &newcreds);
 
     curlx_free(udecoded);
     curlx_free(pdecoded);
     curlx_free(passwd);
     curlx_free(user);
-    if(result) {
-      failf(data, "error extracting credentials from URL");
-      goto out;
+    اگر(نتیجہ) {
+      failf(ڈیٹا, "error extracting credentials from URL");
+      جاؤ برآمد;
     }
   }
 
-#ifndef CURL_DISABLE_NETRC
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_NETRC
   /* Check for overridden login details and set them accordingly so that
      they are known when protocol->setup_connection is called! */
-  result = url_set_data_creds_netrc(data, &newcreds);
-#endif /* CURL_DISABLE_NETRC */
+  نتیجہ = url_سیٹ_ڈیٹا_creds_netrc(ڈیٹا, &newcreds);
+#اگر_ختم /* CURL_DISABLE_NETRC */
 
-out:
-  if(!result && !Curl_creds_equal(data->state.creds, newcreds)) {
+برآمد:
+  اگر(!نتیجہ && !Curl_creds_equal(ڈیٹا->state.creds, newcreds)) {
     /* Do we have more things to trigger on credentials change? */
-    Curl_creds_link(&data->state.creds, newcreds);
+    Curl_creds_link(&ڈیٹا->state.creds, newcreds);
   }
   Curl_creds_unlink(&newcreds);
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode url_set_conn_origin_etc(struct Curl_easy *data,
-                                        struct connectdata *conn)
+ساکن CURLcode url_سیٹ_conn_origin_etc(ساخت Curl_easy *ڈیٹا,
+                                        ساخت connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
-  Curl_peer_link(&conn->origin, data->state.origin);
+  Curl_peer_link(&conn->origin, ڈیٹا->state.origin);
 
   /* set the connection scheme */
-  result = url_set_conn_scheme(data, conn);
-  if(result)
-    goto out;
+  نتیجہ = url_سیٹ_conn_scheme(ڈیٹا, conn);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
   /* set the connection options */
-  if(CURL_EASY_STR(data, STRING_OPTIONS)) {
-    conn->options = curlx_strdup(CURL_EASY_STR(data, STRING_OPTIONS));
-    if(!conn->options) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+  اگر(CURL_EASY_STR(ڈیٹا, STRING_OPTIONS)) {
+    conn->options = curlx_strdup(CURL_EASY_STR(ڈیٹا, STRING_OPTIONS));
+    اگر(!conn->options) {
+      نتیجہ = CURLE_برآمد_کا_حافظہ;
+      جاؤ برآمد;
     }
   }
-  else if(data->state.up.options) {
-    conn->options = curlx_strdup(data->state.up.options);
-    if(!conn->options) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+  ورنہ اگر(ڈیٹا->state.اوپر.options) {
+    conn->options = curlx_strdup(ڈیٹا->state.اوپر.options);
+    اگر(!conn->options) {
+      نتیجہ = CURLE_برآمد_کا_حافظہ;
+      جاؤ برآمد;
     }
   }
 
-out:
-  return result;
+برآمد:
+  واپس نتیجہ;
 }
 
 /*
  * If we are doing a resumed transfer, we need to setup our stuff
  * properly.
  */
-static CURLcode setup_range(struct Curl_easy *data)
+ساکن CURLcode تیاری_range(ساخت Curl_easy *ڈیٹا)
 {
-  struct UrlState *s = &data->state;
-  s->resume_from = data->set.set_resume_from;
-  if(s->resume_from || CURL_EASY_STR(data, STRING_SET_RANGE)) {
-    if(s->rangestringalloc)
+  ساخت UrlState *s = &ڈیٹا->state;
+  s->resume_from = ڈیٹا->سیٹ.سیٹ_resume_from;
+  اگر(s->resume_from || CURL_EASY_STR(ڈیٹا, STRING_سیٹ_RANGE)) {
+    اگر(s->rangestringalloc)
       curlx_free(s->range);
 
-    if(s->resume_from)
+    اگر(s->resume_from)
       s->range = curl_maprintf("%" FMT_OFF_T "-", s->resume_from);
-    else
-      s->range = curlx_strdup(CURL_EASY_STR(data, STRING_SET_RANGE));
+    ورنہ
+      s->range = curlx_strdup(CURL_EASY_STR(ڈیٹا, STRING_سیٹ_RANGE));
 
-    if(!s->range)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!s->range)
+      واپس CURLE_برآمد_کا_حافظہ;
 
     s->rangestringalloc = TRUE;
 
     /* tell ourselves to fetch this range */
     s->use_range = TRUE;        /* enable range download */
   }
-  else
+  ورنہ
     s->use_range = FALSE; /* disable range download */
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /*
@@ -1529,51 +1529,51 @@ static CURLcode setup_range(struct Curl_easy *data)
  *
  * This MUST get called after proxy magic has been figured out.
  */
-static CURLcode setup_connection_internals(struct Curl_easy *data,
-                                           struct connectdata *conn)
+ساکن CURLcode تیاری_connection_internals(ساخت Curl_easy *ڈیٹا,
+                                           ساخت connectdata *conn)
 {
-  struct Curl_peer *peer = NULL;
+  ساخت Curl_peer *peer = تہی;
 
-  if(conn->scheme->run->setup_connection) {
-    CURLcode result = conn->scheme->run->setup_connection(data, conn);
-    if(result)
-      return result;
+  اگر(conn->scheme->تسلسل->تیاری_connection) {
+    CURLcode نتیجہ = conn->scheme->تسلسل->تیاری_connection(ڈیٹا, conn);
+    اگر(نتیجہ)
+      واپس نتیجہ;
   }
 
   /* Now create the destination name */
   peer = Curl_conn_get_destination(conn, FIRSTSOCKET);
-  if(!peer)
-    return CURLE_FAILED_INIT;
+  اگر(!peer)
+    واپس CURLE_FAILED_INIT;
 
   /* IPv6 addresses with a scope_id (0 is default == global) have a
    * printable representation with a '%<scope_id>' suffix. */
-  if(peer->ipv6)
-    if(peer->scopeid)
+  اگر(peer->ipv6)
+    اگر(peer->scopeid)
       conn->destination = curl_maprintf("[%s%%%u]:%u",
-        peer->hostname, peer->scopeid, peer->port);
-    else
+        peer->hostname, peer->scopeid, peer->پورٹ);
+    ورنہ
       conn->destination = curl_maprintf("[%s]:%u",
-        peer->hostname, peer->port);
-  else
-    conn->destination = curl_maprintf("%s:%u", peer->hostname, peer->port);
-  if(!conn->destination)
-    return CURLE_OUT_OF_MEMORY;
+        peer->hostname, peer->پورٹ);
+  ورنہ
+    conn->destination = curl_maprintf("%s:%u", peer->hostname, peer->پورٹ);
+  اگر(!conn->destination)
+    واپس CURLE_برآمد_کا_حافظہ;
 
   Curl_strntolower(conn->destination, conn->destination,
-                   strlen(conn->destination));
+                   لڑی_لمبائی(conn->destination));
 
-#ifdef USE_IPV6
-  if(data->set.scope_id)
-    conn->scope_id = data->set.scope_id;
-  else {
-    peer = Curl_conn_get_first_peer(conn, FIRSTSOCKET);
-    if(!peer)
-      return CURLE_FAILED_INIT;
+#اگر_تعریف_شدہ USE_IPV6
+  اگر(ڈیٹا->سیٹ.scope_id)
+    conn->scope_id = ڈیٹا->سیٹ.scope_id;
+  ورنہ {
+    peer = Curl_conn_get_پہلا_peer(conn, FIRSTSOCKET);
+    اگر(!peer)
+      واپس CURLE_FAILED_INIT;
     conn->scope_id = peer->scopeid;
   }
-#endif
+#اگر_ختم
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /*
@@ -1606,14 +1606,14 @@ static CURLcode setup_connection_internals(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_parse_login_details(const char *login, const size_t len,
-                                  char **userp, char **passwdp,
-                                  char **optionsp)
+CURLcode Curl_parse_login_details(ثابت حرف *login, ثابت size_t len,
+                                  حرف **userp, حرف **passwdp,
+                                  حرف **optionsp)
 {
-  char *ubuf = NULL;
-  char *pbuf = NULL;
-  const char *psep = NULL;
-  const char *osep = NULL;
+  حرف *ubuf = تہی;
+  حرف *pbuf = تہی;
+  ثابت حرف *psep = تہی;
+  ثابت حرف *osep = تہی;
   size_t ulen;
   size_t plen;
   size_t olen;
@@ -1625,7 +1625,7 @@ CURLcode Curl_parse_login_details(const char *login, const size_t len,
   psep = memchr(login, ':', len);
 
   /* Attempt to find the options separator */
-  if(optionsp)
+  اگر(optionsp)
     osep = memchr(login, ';', len);
 
   /* Calculate the portion lengths */
@@ -1641,284 +1641,284 @@ CURLcode Curl_parse_login_details(const char *login, const size_t len,
 
   /* Clone the user portion buffer, which can be zero length */
   ubuf = curlx_memdup0(login, ulen);
-  if(!ubuf)
-    goto error;
+  اگر(!ubuf)
+    جاؤ error;
 
   /* Clone the password portion buffer */
-  if(psep) {
+  اگر(psep) {
     pbuf = curlx_memdup0(&psep[1], plen);
-    if(!pbuf)
-      goto error;
+    اگر(!pbuf)
+      جاؤ error;
   }
 
   /* Allocate the options portion buffer */
-  if(optionsp) {
-    char *obuf = NULL;
-    if(olen) {
+  اگر(optionsp) {
+    حرف *obuf = تہی;
+    اگر(olen) {
       obuf = curlx_memdup0(&osep[1], olen);
-      if(!obuf)
-        goto error;
+      اگر(!obuf)
+        جاؤ error;
     }
     *optionsp = obuf;
   }
   *userp = ubuf;
   *passwdp = pbuf;
-  return CURLE_OK;
+  واپس CURLE_OK;
 error:
   curlx_free(ubuf);
   curlx_free(pbuf);
-  return CURLE_OUT_OF_MEMORY;
+  واپس CURLE_برآمد_کا_حافظہ;
 }
 
 /*
  * Set the login details so they are available in the connection
  */
-static CURLcode url_set_conn_login(struct Curl_easy *data,
-                                   struct connectdata *conn)
+ساکن CURLcode url_سیٹ_conn_login(ساخت Curl_easy *ڈیٹا,
+                                   ساخت connectdata *conn)
 {
   /* If our protocol needs a password and we have none, use the defaults */
-  if((conn->scheme->flags & PROTOPT_NEEDSPWD) && !conn->creds) {
-    Curl_peer_link(&conn->creds_origin, data->state.origin);
-    if(data->state.creds)
-      Curl_creds_link(&conn->creds, data->state.creds);
-    else
-      return Curl_creds_create(CURL_DEFAULT_USER, CURL_DEFAULT_PASSWORD,
-                               NULL, NULL, NULL, CREDS_NONE, &conn->creds);
+  اگر((conn->scheme->flags & PROTOPT_NEEDSPWD) && !conn->creds) {
+    Curl_peer_link(&conn->creds_origin, ڈیٹا->state.origin);
+    اگر(ڈیٹا->state.creds)
+      Curl_creds_link(&conn->creds, ڈیٹا->state.creds);
+    ورنہ
+      واپس Curl_creds_create(CURL_DEFAULT_USER, CURL_DEFAULT_PASSWORD,
+                               تہی, تہی, تہی, CREDS_NONE, &conn->creds);
   }
-  else if(!(conn->scheme->flags & PROTOPT_CREDSPERREQUEST)) {
+  ورنہ اگر(!(conn->scheme->flags & PROTOPT_CREDSPERREQUEST)) {
     /* for protocols that do not handle credentials per request,
      * the connection credentials are set by the initial transfer. */
-    Curl_peer_link(&conn->creds_origin, data->state.origin);
-    Curl_creds_link(&conn->creds, data->state.creds);
+    Curl_peer_link(&conn->creds_origin, ڈیٹا->state.origin);
+    Curl_creds_link(&conn->creds, ڈیٹا->state.creds);
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
 /*
  * Parses one "connect to" string in the form:
  * "HOST:PORT:CONNECT-TO-HOST:CONNECT-TO-PORT".
  */
-static CURLcode parse_connect_to_string(struct Curl_easy *data,
-                                        const struct Curl_peer *dest,
-                                        const char *conn_to_line,
-                                        struct Curl_peer **pvia_dest)
+ساکن CURLcode parse_connect_مقصد_string(ساخت Curl_easy *ڈیٹا,
+                                        ثابت ساخت Curl_peer *dest,
+                                        ثابت حرف *conn_مقصد_سطر,
+                                        ساخت Curl_peer **pvia_dest)
 {
-  CURLcode result = CURLE_OK;
-  const char *ptr = conn_to_line;
-  bool host_match = FALSE;
-  bool port_match = FALSE;
+  CURLcode نتیجہ = CURLE_OK;
+  ثابت حرف *ptr = conn_مقصد_سطر;
+  bool host_مطابقت = FALSE;
+  bool پورٹ_مطابقت = FALSE;
 
-  *pvia_dest = NULL;
+  *pvia_dest = تہی;
 
-  if(*ptr == ':') {
+  اگر(*ptr == ':') {
     /* an empty hostname always matches */
-    host_match = TRUE;
+    host_مطابقت = TRUE;
     ptr++;
   }
-  else {
+  ورنہ {
     /* check whether the URL's hostname matches. Use the URL hostname
      * when it was an IPv6 address. Otherwise use the connection's hostname
      * that has IDN conversion. */
-    size_t hlen = strlen(dest->hostname);
-    host_match = curl_strnequal(ptr, dest->hostname, hlen);
-    if(!host_match && (dest->user_hostname != dest->hostname)) {
+    size_t hlen = لڑی_لمبائی(dest->hostname);
+    host_مطابقت = curl_strnequal(ptr, dest->hostname, hlen);
+    اگر(!host_مطابقت && (dest->user_hostname != dest->hostname)) {
       /* hostname was normalized, could be IPv6 or IDN */
-      hlen = strlen(dest->user_hostname);
-      host_match = curl_strnequal(ptr, dest->user_hostname, hlen);
+      hlen = لڑی_لمبائی(dest->user_hostname);
+      host_مطابقت = curl_strnequal(ptr, dest->user_hostname, hlen);
     }
-    host_match = host_match && ptr[hlen] == ':';
-    if(host_match)
+    host_مطابقت = host_مطابقت && ptr[hlen] == ':';
+    اگر(host_مطابقت)
       ptr += hlen + 1;
   }
 
-  if(host_match) {
-    if(*ptr == ':') {
+  اگر(host_مطابقت) {
+    اگر(*ptr == ':') {
       /* an empty port always matches */
-      port_match = TRUE;
+      پورٹ_مطابقت = TRUE;
       ptr++;
     }
-    else {
+    ورنہ {
       /* check whether the URL's port matches */
-      const char *ptr_next = strchr(ptr, ':');
-      if(ptr_next) {
-        curl_off_t port_to_match;
-        if(!curlx_str_number(&ptr, &port_to_match, 0xffff) &&
-           ((uint16_t)port_to_match == dest->port)) {
-          port_match = TRUE;
+      ثابت حرف *ptr_اگلا = strchr(ptr, ':');
+      اگر(ptr_اگلا) {
+        curl_off_t پورٹ_مقصد_مطابقت;
+        اگر(!curlx_str_نمبر(&ptr, &پورٹ_مقصد_مطابقت, 0xffff) &&
+           ((uint16_t)پورٹ_مقصد_مطابقت == dest->پورٹ)) {
+          پورٹ_مطابقت = TRUE;
         }
-        ptr = ptr_next + 1;
+        ptr = ptr_اگلا + 1;
       }
     }
   }
 
-  if(host_match && port_match && ptr && *ptr)
-    result = Curl_peer_from_connect_to(data, dest, ptr, pvia_dest);
+  اگر(host_مطابقت && پورٹ_مطابقت && ptr && *ptr)
+    نتیجہ = Curl_peer_from_connect_مقصد(ڈیٹا, dest, ptr, pvia_dest);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* With `conn->origin` known, determine if we should talk to that
  * directly or via another peer. This is the result of inspecting
  * the "connect to" slist and "alt-svc" settings. */
-static CURLcode url_set_conn_peer(struct Curl_easy *data,
-                                  struct connectdata *conn)
+ساکن CURLcode url_سیٹ_conn_peer(ساخت Curl_easy *ڈیٹا,
+                                  ساخت connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
-  struct Curl_peer *origin = conn->origin;
-  struct Curl_peer *via_peer = NULL;
-  struct curl_slist *conn_to_entry = data->set.connect_to;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت Curl_peer *origin = conn->origin;
+  ساخت Curl_peer *بذریعہ_peer = تہی;
+  ساخت curl_slist *conn_مقصد_اندراج = ڈیٹا->سیٹ.connect_مقصد;
 
-  DEBUGASSERT(!conn->via_peer);
-  Curl_peer_unlink(&conn->via_peer);
+  DEBUGASSERT(!conn->بذریعہ_peer);
+  Curl_peer_unlink(&conn->بذریعہ_peer);
 
-  while(conn_to_entry && !via_peer) {
-    result = parse_connect_to_string(data, origin, conn_to_entry->data,
-                                     &via_peer);
-    if(result)
-      return result;
-    conn_to_entry = conn_to_entry->next;
+  جب(conn_مقصد_اندراج && !بذریعہ_peer) {
+    نتیجہ = parse_connect_مقصد_string(ڈیٹا, origin, conn_مقصد_اندراج->ڈیٹا,
+                                     &بذریعہ_peer);
+    اگر(نتیجہ)
+      واپس نتیجہ;
+    conn_مقصد_اندراج = conn_مقصد_اندراج->اگلا;
   }
 
-#ifndef CURL_DISABLE_ALTSVC
-  if(data->asi && !via_peer &&
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_ALTSVC
+  اگر(ڈیٹا->asi && !بذریعہ_peer &&
      ((conn->scheme->protocol == CURLPROTO_HTTPS) ||
-#ifdef DEBUGBUILD
+#اگر_تعریف_شدہ DEBUGBUILD
       /* allow debug builds to circumvent the HTTPS restriction */
       getenv("CURL_ALTSVC_HTTP")
-#else
+#ورنہ
       0
-#endif
+#اگر_ختم
        )) {
     /* no connect_to match, try alt-svc! */
-    enum alpnid srcalpnid = ALPN_none;
-    bool hit = FALSE;
-    struct altsvc *as = NULL;
-    int allowed_alpns = ALPN_none;
-    struct http_negotiation *neg = &data->state.http_neg;
+    شمار alpnid srcalpnid = ALPN_none;
+    bool کامیابی = FALSE;
+    ساخت altsvc *as = تہی;
+    صحیح allowed_alpns = ALPN_none;
+    ساخت http_negotiation *neg = &ڈیٹا->state.http_neg;
     bool same_dest = FALSE;
 
-    DEBUGF(infof(data, "Alt-svc check wanted=%x, allowed=%x",
+    DEBUGF(infof(ڈیٹا, "Alt-svc check wanted=%x, allowed=%x",
                  neg->wanted, neg->allowed));
-#ifdef USE_HTTP3
-    if(neg->allowed & CURL_HTTP_V3x)
+#اگر_تعریف_شدہ USE_HTTP3
+    اگر(neg->allowed & CURL_HTTP_V3x)
       allowed_alpns |= ALPN_h3;
-#endif
-#ifdef USE_HTTP2
-    if(neg->allowed & CURL_HTTP_V2x)
+#اگر_ختم
+#اگر_تعریف_شدہ USE_HTTP2
+    اگر(neg->allowed & CURL_HTTP_V2x)
       allowed_alpns |= ALPN_h2;
-#endif
-    if(neg->allowed & CURL_HTTP_V1x)
+#اگر_ختم
+    اگر(neg->allowed & CURL_HTTP_V1x)
       allowed_alpns |= ALPN_h1;
-    allowed_alpns &= (int)data->asi->flags;
+    allowed_alpns &= (صحیح)ڈیٹا->asi->flags;
 
-    DEBUGF(infof(data, "check Alt-Svc for host '%s'", origin->hostname));
-#ifdef USE_HTTP3
-    if(!hit && (neg->wanted & CURL_HTTP_V3x)) {
+    DEBUGF(infof(ڈیٹا, "check Alt-Svc for host '%s'", origin->hostname));
+#اگر_تعریف_شدہ USE_HTTP3
+    اگر(!کامیابی && (neg->wanted & CURL_HTTP_V3x)) {
       srcalpnid = ALPN_h3;
-      hit = Curl_altsvc_lookup(data->asi,
+      کامیابی = Curl_altsvc_lookup(ڈیٹا->asi,
                                origin, ALPN_h3, /* from */
-                               &as /* to */,
+                               &as /*مقصد*/,
                                allowed_alpns, &same_dest);
     }
-#endif
-#ifdef USE_HTTP2
-    if(!hit && (neg->wanted & CURL_HTTP_V2x) &&
-       !neg->h2_prior_knowledge) {
+#اگر_ختم
+#اگر_تعریف_شدہ USE_HTTP2
+    اگر(!کامیابی && (neg->wanted & CURL_HTTP_V2x) &&
+       !neg->h2_پیشگی_knowledge) {
       srcalpnid = ALPN_h2;
-      hit = Curl_altsvc_lookup(data->asi,
+      کامیابی = Curl_altsvc_lookup(ڈیٹا->asi,
                                origin, ALPN_h2, /* from */
-                               &as /* to */,
+                               &as /*مقصد*/,
                                allowed_alpns, &same_dest);
     }
-#endif
-    if(!hit && (neg->wanted & CURL_HTTP_V1x) &&
+#اگر_ختم
+    اگر(!کامیابی && (neg->wanted & CURL_HTTP_V1x) &&
        !neg->only_10) {
       srcalpnid = ALPN_h1;
-      hit = Curl_altsvc_lookup(data->asi,
+      کامیابی = Curl_altsvc_lookup(ڈیٹا->asi,
                                origin, ALPN_h1, /* from */
-                               &as /* to */,
+                               &as /*مقصد*/,
                                allowed_alpns, &same_dest);
     }
 
-    if(hit && same_dest) {
+    اگر(کامیابی && same_dest) {
       /* same destination, but more HTTPS version options */
-      switch(as->dst.alpnid) {
-      case ALPN_h1:
+      انتخاب(as->dst.alpnid) {
+      حالت ALPN_h1:
         neg->wanted |= CURL_HTTP_V1x;
         neg->preferred = CURL_HTTP_V1x;
-        break;
-      case ALPN_h2:
+        توڑو;
+      حالت ALPN_h2:
         neg->wanted |= CURL_HTTP_V2x;
         neg->preferred = CURL_HTTP_V2x;
-        break;
-      case ALPN_h3:
+        توڑو;
+      حالت ALPN_h3:
         neg->wanted |= CURL_HTTP_V3x;
         neg->preferred = CURL_HTTP_V3x;
-        break;
-      default: /* should not be possible */
-        break;
+        توڑو;
+      طےشدہ: /* should not be possible */
+        توڑو;
       }
     }
-    else if(hit) {
-      result = Curl_peer_create(data, conn->origin->scheme,
-                                as->dst.host, as->dst.port,
-                                &via_peer);
-      if(result)
-        return result;
-      infof(data, "Alt-svc connecting from [%s]%s:%u to [%s]%s:%u",
-            Curl_alpnid2str(srcalpnid), origin->hostname, origin->port,
+    ورنہ اگر(کامیابی) {
+      نتیجہ = Curl_peer_create(ڈیٹا, conn->origin->scheme,
+                                as->dst.host, as->dst.پورٹ,
+                                &بذریعہ_peer);
+      اگر(نتیجہ)
+        واپس نتیجہ;
+      infof(ڈیٹا, "Alt-svc connecting from [%s]%s:%u to [%s]%s:%u",
+            Curl_alpnid2str(srcalpnid), origin->hostname, origin->پورٹ,
             Curl_alpnid2str(as->dst.alpnid),
-            via_peer->hostname, via_peer->port);
-      conn->bits.altused = TRUE;
-      if(srcalpnid != as->dst.alpnid) {
+            بذریعہ_peer->hostname, بذریعہ_peer->پورٹ);
+      conn->بٹ.altused = TRUE;
+      اگر(srcalpnid != as->dst.alpnid) {
         /* protocol version switch */
-        switch(as->dst.alpnid) {
-        case ALPN_h1:
+        انتخاب(as->dst.alpnid) {
+        حالت ALPN_h1:
           neg->wanted = neg->allowed = CURL_HTTP_V1x;
           neg->only_10 = FALSE;
-          break;
-        case ALPN_h2:
+          توڑو;
+        حالت ALPN_h2:
           neg->wanted = neg->allowed = CURL_HTTP_V2x;
-          break;
-        case ALPN_h3:
+          توڑو;
+        حالت ALPN_h3:
           conn->transport_wanted = TRNSPRT_QUIC;
           neg->wanted = neg->allowed = CURL_HTTP_V3x;
-          break;
-        default: /* should not be possible */
-          break;
+          توڑو;
+        طےشدہ: /* should not be possible */
+          توڑو;
         }
       }
     }
   }
-#endif
+#اگر_ختم
 
-  if(via_peer)
-    conn->via_peer = via_peer;
+  اگر(بذریعہ_peer)
+    conn->بذریعہ_peer = بذریعہ_peer;
 
-  return result;
+  واپس نتیجہ;
 }
 
 /*
  * Adjust reused connection settings to the transfer/needle.
  */
-static void url_conn_reuse_adjust(struct Curl_easy *data,
-                                  struct connectdata *needle)
+ساکن خالی url_conn_reuse_adjust(ساخت Curl_easy *ڈیٹا,
+                                  ساخت connectdata *needle)
 {
-  struct connectdata *conn = data->conn;
+  ساخت connectdata *conn = ڈیٹا->conn;
 
   /* get the user+password information from the needle since it may
    * be new for this request even when we reuse conn */
-  if(needle->creds) {
+  اگر(needle->creds) {
     /* use the new username and password though */
     Curl_creds_link(&conn->creds, needle->creds);
   }
 
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
   /* use the new proxy username and proxy password though */
   Curl_creds_link(&conn->http_proxy.creds, needle->http_proxy.creds);
   Curl_creds_link(&conn->socks_proxy.creds, needle->socks_proxy.creds);
-#endif
+#اگر_ختم
 
   /* Finding a connection for reuse in the cpool matches, among other
    * things on the "remote-relevant" hostname. This is not necessarily
@@ -1932,72 +1932,72 @@ static void url_conn_reuse_adjust(struct Curl_easy *data,
    * switch conn to needle's host settings.
    */
   Curl_peer_link(&conn->origin, needle->origin);
-  Curl_peer_link(&conn->via_peer, needle->via_peer);
+  Curl_peer_link(&conn->بذریعہ_peer, needle->بذریعہ_peer);
   Curl_peer_link(&conn->origin2, needle->origin2);
-  Curl_peer_link(&conn->via_peer2, needle->via_peer2);
+  Curl_peer_link(&conn->بذریعہ_peer2, needle->بذریعہ_peer2);
 }
 
-static void conn_meta_freeentry(void *p)
+ساکن خالی conn_meta_freeentry(خالی *p)
 {
-  (void)p;
+  (خالی)p;
   /* Always FALSE. Cannot use a 0 assert here since compilers
    * are not in agreement if they then want a NORETURN attribute or
    * not. *sigh* */
   DEBUGASSERT(!p);
 }
 
-static CURLcode url_create_needle(struct Curl_easy *data,
-                                  struct connectdata **pneedle)
+ساکن CURLcode url_create_needle(ساخت Curl_easy *ڈیٹا,
+                                  ساخت connectdata **pneedle)
 {
-  struct connectdata *needle = NULL;
-  CURLcode result = CURLE_OK;
-  bool network_scheme = TRUE; /* almost all are */
+  ساخت connectdata *needle = تہی;
+  CURLcode نتیجہ = CURLE_OK;
+  bool جال_scheme = TRUE; /* almost all are */
 
   /* Allocate a temporary connection data struct (needle) and fill in for
      comparison purposes. */
-  needle = allocate_conn(data);
-  if(!needle) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  needle = allocate_conn(ڈیٹا);
+  اگر(!needle) {
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ برآمد;
   }
 
   /* Do the unfailable inits first, before checks that may early return */
-  Curl_hash_init(&needle->meta_hash, 23, CURL_HASH_TYPE_BYTES,
+  Curl_hash_init(&needle->meta_hash, 23, CURL_HASH_TYPE_بائٹیں,
                  conn_meta_freeentry);
 
   /*************************************************************
    * Determine `conn->origin` and populate `data->state.up` and
    * other URL related properties.
    *************************************************************/
-  result = url_set_conn_origin_etc(data, needle);
-  if(result)
-    goto out;
+  نتیجہ = url_سیٹ_conn_origin_etc(ڈیٹا, needle);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
   DEBUGASSERT(needle->origin);
-  network_scheme = !(needle->origin->scheme->flags & PROTOPT_NONETWORK);
+  جال_scheme = !(needle->origin->scheme->flags & PROTOPT_NONETWORK);
 
-#ifdef USE_UNIX_SOCKETS
+#اگر_تعریف_شدہ USE_UNIX_SOCKETS
   /*************************************************************
    * Set UDS first. It overrides "via_peer" and proxy settings.
    *************************************************************/
-  if(network_scheme && CURL_EASY_STR(data, STRING_UNIX_SOCKET_PATH)) {
-    result = Curl_peer_uds_create(
-      needle->origin->scheme, CURL_EASY_STR(data, STRING_UNIX_SOCKET_PATH),
-      (bool)data->set.abstract_unix_socket, &needle->via_peer);
-    if(result)
-      goto out;
+  اگر(جال_scheme && CURL_EASY_STR(ڈیٹا, STRING_UNIX_SOCKET_راستہ)) {
+    نتیجہ = Curl_peer_uds_create(
+      needle->origin->scheme, CURL_EASY_STR(ڈیٹا, STRING_UNIX_SOCKET_راستہ),
+      (bool)ڈیٹا->سیٹ.abstract_unix_socket, &needle->بذریعہ_peer);
+    اگر(نتیجہ)
+      جاؤ برآمد;
   }
-#endif /* USE_UNIX_SOCKETS */
+#اگر_ختم /* USE_UNIX_SOCKETS */
 
-  if(network_scheme && !needle->via_peer) {
+  اگر(جال_scheme && !needle->بذریعہ_peer) {
     /*************************************************************
      * If the `via_peer` is not already set (via UDS above),
      * determine if we talk to `conn->origin` directly or use
      * `conn->via_peer` using "connect to" and "alt-svc" properties.
      *************************************************************/
-    result = url_set_conn_peer(data, needle);
-    if(result)
-      goto out;
+    نتیجہ = url_سیٹ_conn_peer(ڈیٹا, needle);
+    اگر(نتیجہ)
+      جاؤ برآمد;
   }
 
   /*************************************************************
@@ -2005,269 +2005,269 @@ static CURLcode url_create_needle(struct Curl_easy *data,
    * Do this after the hostnames have been IDN-converted and
    * before initializing the proxy.
    *************************************************************/
-  if(Curl_peer_equal(needle->origin, needle->via_peer)) {
-    Curl_peer_unlink(&needle->via_peer);
+  اگر(Curl_peer_equal(needle->origin, needle->بذریعہ_peer)) {
+    Curl_peer_unlink(&needle->بذریعہ_peer);
   }
 
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
   /* Going via a unix socket ignores any proxy settings */
-  if(network_scheme &&
-     (!needle->via_peer || !needle->via_peer->unix_socket)) {
-    result = Curl_proxy_init_conn(data, needle);
-    if(result)
-      goto out;
+  اگر(جال_scheme &&
+     (!needle->بذریعہ_peer || !needle->بذریعہ_peer->unix_socket)) {
+    نتیجہ = Curl_proxy_init_conn(ڈیٹا, needle);
+    اگر(نتیجہ)
+      جاؤ برآمد;
   }
-#endif /* CURL_DISABLE_PROXY */
+#اگر_ختم /* CURL_DISABLE_PROXY */
 
-  result = url_set_conn_login(data, needle); /* default credentials */
-  if(result)
-    goto out;
+  نتیجہ = url_سیٹ_conn_login(ڈیٹا, needle); /* default credentials */
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
   /*************************************************************
    * Setup internals depending on protocol. Needs to be done after
    * we figured out what/if proxy to use.
    *************************************************************/
-  result = setup_connection_internals(data, needle);
-  if(result)
-    goto out;
+  نتیجہ = تیاری_connection_internals(ڈیٹا, needle);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
-  if(needle->scheme->flags & PROTOPT_ALPN) {
+  اگر(needle->scheme->flags & PROTOPT_ALPN) {
     /* The protocol wants it, so set the bits if enabled in the easy handle
        (default) */
-    if(data->set.ssl_enable_alpn)
-      needle->bits.tls_enable_alpn = TRUE;
+    اگر(ڈیٹا->سیٹ.ssl_enable_alpn)
+      needle->بٹ.tls_enable_alpn = TRUE;
   }
 
-  if(network_scheme) {
+  اگر(جال_scheme) {
     /* Setup callbacks for network connections */
     needle->recv[FIRSTSOCKET] = Curl_cf_recv;
     needle->send[FIRSTSOCKET] = Curl_cf_send;
     needle->recv[SECONDARYSOCKET] = Curl_cf_recv;
     needle->send[SECONDARYSOCKET] = Curl_cf_send;
-    needle->bits.tcp_fastopen = data->set.tcp_fastopen;
-#ifdef USE_UNIX_SOCKETS
-    if(Curl_conn_get_first_peer(needle, FIRSTSOCKET)->unix_socket)
+    needle->بٹ.tcp_fastopen = ڈیٹا->سیٹ.tcp_fastopen;
+#اگر_تعریف_شدہ USE_UNIX_SOCKETS
+    اگر(Curl_conn_get_پہلا_peer(needle, FIRSTSOCKET)->unix_socket)
       needle->transport_wanted = TRNSPRT_UNIX;
-#endif
+#اگر_ختم
   }
 
-out:
-  if(!result) {
+برآمد:
+  اگر(!نتیجہ) {
     DEBUGASSERT(needle);
     DEBUGASSERT(needle->origin);
     *pneedle = needle;
   }
-  else {
-    *pneedle = NULL;
-    if(needle)
-      Curl_conn_free(data, needle);
+  ورنہ {
+    *pneedle = تہی;
+    اگر(needle)
+      Curl_conn_free(ڈیٹا, needle);
   }
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode url_set_data_origin_and_creds(struct Curl_easy *data)
+ساکن CURLcode url_سیٹ_ڈیٹا_origin_and_creds(ساخت Curl_easy *ڈیٹا)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
   CURLU *uh;
   CURLUcode uc = CURLUE_OK;
-  bool use_set_uh = (data->set.uh && !data->state.this_is_a_follow);
-  uint16_t port_override = data->state.allow_port ? data->set.use_port : 0;
+  bool use_سیٹ_uh = (ڈیٹا->سیٹ.uh && !ڈیٹا->state.this_is_a_follow);
+  uint16_t پورٹ_override = ڈیٹا->state.allow_پورٹ ? ڈیٹا->سیٹ.use_پورٹ : 0;
   uint32_t scope_id = 0;
 
   /*************************************************************
    * Check input data
    *************************************************************/
-  if(!Curl_bufref_ptr(&data->state.url)) {
-    result = CURLE_URL_MALFORMAT;
-    goto out;
+  اگر(!Curl_bufref_ptr(&ڈیٹا->state.url)) {
+    نتیجہ = CURLE_URL_MALFORMAT;
+    جاؤ برآمد;
   }
 
-  up_free(data); /* cleanup previous leftovers first */
+  اوپر_free(ڈیٹا); /* cleanup previous leftovers first */
 
   /* parse the URL */
-  if(use_set_uh)
-    uh = data->state.uh = curl_url_dup(data->set.uh);
-  else
-    uh = data->state.uh = curl_url();
-  if(!uh) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  اگر(use_سیٹ_uh)
+    uh = ڈیٹا->state.uh = curl_url_dup(ڈیٹا->سیٹ.uh);
+  ورنہ
+    uh = ڈیٹا->state.uh = curl_url();
+  اگر(!uh) {
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ برآمد;
   }
 
-  if(!use_set_uh) {
+  اگر(!use_سیٹ_uh) {
     bool prepend_sheme = FALSE;
     /* special-case when 'file' is default as a normal path is not a valid URL
        without the 'file' scheme present */
-    if(curl_strequal("file", CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL)) &&
-       !Curl_is_absolute_url(Curl_bufref_ptr(&data->state.url), NULL, 0, TRUE))
+    اگر(curl_strequal("file", CURL_EASY_STR(ڈیٹا, STRING_DEFAULT_PROTOCOL)) &&
+       !Curl_is_absolute_url(Curl_bufref_ptr(&ڈیٹا->state.url), تہی, 0, TRUE))
       prepend_sheme = TRUE;
-    else {
-      uc = curl_url_set(uh, CURLUPART_URL, Curl_bufref_ptr(&data->state.url),
-                        (unsigned int)
+    ورنہ {
+      uc = curl_url_سیٹ(uh, CURLUPART_URL, Curl_bufref_ptr(&ڈیٹا->state.url),
+                        (غیرعلامتی صحیح)
                         CURLU_GUESS_SCHEME |
                         CURLU_NON_SUPPORT_SCHEME |
-                        (data->set.disallow_username_in_url ?
+                        (ڈیٹا->سیٹ.disallow_username_اندر_url ?
                          CURLU_DISALLOW_USER : 0) |
-                        (data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
-      if(uc) {
-        failf(data, "URL rejected: %s", curl_url_strerror(uc));
-        result = Curl_uc_to_curlcode(uc);
-        goto out;
+                        (ڈیٹا->سیٹ.راستہ_as_is ? CURLU_راستہ_AS_IS : 0));
+      اگر(uc) {
+        failf(ڈیٹا, "URL rejected: %s", curl_url_strerror(uc));
+        نتیجہ = Curl_uc_مقصد_curlcode(uc);
+        جاؤ برآمد;
       }
 
-      if(CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL)) {
+      اگر(CURL_EASY_STR(ڈیٹا, STRING_DEFAULT_PROTOCOL)) {
         /* check if we there was a scheme provided */
-        char *scheme;
+        حرف *scheme;
         uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme,
                           CURLU_NO_GUESS_SCHEME);
-        if(uc == CURLUE_NO_SCHEME)
+        اگر(uc == CURLUE_NO_SCHEME)
           prepend_sheme = TRUE;
         curl_free(scheme);
-        if(uc && uc != CURLUE_NO_SCHEME) {
-          result = Curl_uc_to_curlcode(uc);
-          goto out;
+        اگر(uc && uc != CURLUE_NO_SCHEME) {
+          نتیجہ = Curl_uc_مقصد_curlcode(uc);
+          جاؤ برآمد;
         }
       }
     }
 
-    if(prepend_sheme) {
-      char *url = curl_maprintf("%s://%s",
-                                CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL),
-                                Curl_bufref_ptr(&data->state.url));
-      if(!url) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+    اگر(prepend_sheme) {
+      حرف *url = curl_maprintf("%s://%s",
+                                CURL_EASY_STR(ڈیٹا, STRING_DEFAULT_PROTOCOL),
+                                Curl_bufref_ptr(&ڈیٹا->state.url));
+      اگر(!url) {
+        نتیجہ = CURLE_برآمد_کا_حافظہ;
+        جاؤ برآمد;
       }
-      uc = curl_url_set(uh, CURLUPART_URL, url,
-                        (unsigned int)
+      uc = curl_url_سیٹ(uh, CURLUPART_URL, url,
+                        (غیرعلامتی صحیح)
                         CURLU_GUESS_SCHEME |
                         CURLU_NON_SUPPORT_SCHEME |
-                        (data->set.disallow_username_in_url ?
+                        (ڈیٹا->سیٹ.disallow_username_اندر_url ?
                          CURLU_DISALLOW_USER : 0) |
-                        (data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
+                        (ڈیٹا->سیٹ.راستہ_as_is ? CURLU_راستہ_AS_IS : 0));
       curl_free(url);
-      if(uc) {
-        failf(data, "URL rejected: %s", curl_url_strerror(uc));
-        result = Curl_uc_to_curlcode(uc);
-        goto out;
+      اگر(uc) {
+        failf(ڈیٹا, "URL rejected: %s", curl_url_strerror(uc));
+        نتیجہ = Curl_uc_مقصد_curlcode(uc);
+        جاؤ برآمد;
       }
     }
     {
-      char *newurl;
+      حرف *newurl;
       /* after it was parsed, and possibly given a new scheme, get the
          normalized version */
-      uc = curl_url_get(uh, CURLUPART_URL, &newurl, CURLU_GET_EMPTY);
-      if(uc) {
-        result = Curl_uc_to_curlcode(uc);
-        goto out;
+      uc = curl_url_get(uh, CURLUPART_URL, &newurl, CURLU_GET_خالی_خانے);
+      اگر(uc) {
+        نتیجہ = Curl_uc_مقصد_curlcode(uc);
+        جاؤ برآمد;
       }
-      if(prepend_sheme)
-        infof(data, "Applied default protocol '%s'",
-              CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL));
-      Curl_bufref_set(&data->state.url, newurl, 0, curl_free);
+      اگر(prepend_sheme)
+        infof(ڈیٹا, "Applied default protocol '%s'",
+              CURL_EASY_STR(ڈیٹا, STRING_DEFAULT_PROTOCOL));
+      Curl_bufref_سیٹ(&ڈیٹا->state.url, newurl, 0, curl_free);
     }
   }
 
-#ifdef USE_IPV6
-  scope_id = data->set.scope_id;
-#endif
+#اگر_تعریف_شدہ USE_IPV6
+  scope_id = ڈیٹا->سیٹ.scope_id;
+#اگر_ختم
 
   /* `uh` is now as the connection should use it, probably. */
-  result = Curl_peer_from_url(uh, data, port_override, scope_id,
-                              &data->state.origin);
-  if(result)
-    goto out;
+  نتیجہ = Curl_peer_from_url(uh, ڈیٹا, پورٹ_override, scope_id,
+                              &ڈیٹا->state.origin);
+  اگر(نتیجہ)
+    جاؤ برآمد;
   /* The origin might get changed when HSTS applies */
-  result = hsts_upgrade(data, uh, port_override, scope_id);
-  if(result)
-    goto out;
+  نتیجہ = hsts_upgrade(ڈیٹا, uh, پورٹ_override, scope_id);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
   /* When the transfers initial_origin is not set, this is the initial
    * request. Remember this starting point. */
-  if(!data->state.initial_origin)
-    Curl_peer_link(&data->state.initial_origin, data->state.origin);
+  اگر(!ڈیٹا->state.initial_origin)
+    Curl_peer_link(&ڈیٹا->state.initial_origin, ڈیٹا->state.origin);
 
-  uc = curl_url_get(uh, CURLUPART_PATH, &data->state.up.path, CURLU_URLENCODE);
-  if(uc) {
-    result = Curl_uc_to_curlcode(uc);
-    goto out;
+  uc = curl_url_get(uh, CURLUPART_راستہ, &ڈیٹا->state.اوپر.راستہ, CURLU_URLENCODE);
+  اگر(uc) {
+    نتیجہ = Curl_uc_مقصد_curlcode(uc);
+    جاؤ برآمد;
   }
-  uc = curl_url_get(uh, CURLUPART_QUERY, &data->state.up.query,
-                    CURLU_GET_EMPTY);
-  if(uc && (uc != CURLUE_NO_QUERY)) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  uc = curl_url_get(uh, CURLUPART_QUERY, &ڈیٹا->state.اوپر.query,
+                    CURLU_GET_خالی_خانے);
+  اگر(uc && (uc != CURLUE_NO_QUERY)) {
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ برآمد;
   }
 
-  uc = curl_url_get(uh, CURLUPART_OPTIONS, &data->state.up.options,
+  uc = curl_url_get(uh, CURLUPART_OPTIONS, &ڈیٹا->state.اوپر.options,
                     CURLU_URLDECODE);
-  if(uc && (uc != CURLUE_NO_OPTIONS)) {
-    result = Curl_uc_to_curlcode(uc);
-    goto out;
+  اگر(uc && (uc != CURLUE_NO_OPTIONS)) {
+    نتیجہ = Curl_uc_مقصد_curlcode(uc);
+    جاؤ برآمد;
   }
 
-  result = url_set_data_creds(data, uh);
-  if(result)
-    goto out;
+  نتیجہ = url_سیٹ_ڈیٹا_creds(ڈیٹا, uh);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
-out:
-  return result;
+برآمد:
+  واپس نتیجہ;
 }
 
-static CURLcode url_match_init(struct Curl_easy *data,
-                               struct connectdata *needle,
-                               struct url_conn_match *m)
+ساکن CURLcode url_مطابقت_init(ساخت Curl_easy *ڈیٹا,
+                               ساخت connectdata *needle,
+                               ساخت url_conn_مطابقت *m)
 {
-  memset(m, 0, sizeof(*m));
-  m->data = data;
+  memset(m, 0, حجم(*m));
+  m->ڈیٹا = ڈیٹا;
   m->needle = needle;
-  m->now = *Curl_pgrs_now(data);
-  m->may_multiplex = xfer_may_multiplex(data, needle);
+  m->now = *Curl_pgrs_now(ڈیٹا);
+  m->may_multiplex = xfer_may_multiplex(ڈیٹا, needle);
 
-#ifdef USE_NTLM
+#اگر_تعریف_شدہ USE_NTLM
   m->want_ntlm_http =
-    (data->state.authhost.want & CURLAUTH_NTLM) &&
+    (ڈیٹا->state.authhost.want & CURLAUTH_NTLM) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP) &&
-    Curl_auth_allowed_to_host(data);
-#ifndef CURL_DISABLE_PROXY
+    Curl_auth_allowed_مقصد_host(ڈیٹا);
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
   m->want_proxy_ntlm_http =
     needle->http_proxy.creds &&
-    (data->state.authproxy.want & CURLAUTH_NTLM) &&
+    (ڈیٹا->state.authproxy.want & CURLAUTH_NTLM) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP);
-#endif
-#endif
+#اگر_ختم
+#اگر_ختم
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
   m->want_nego_http =
-    (data->state.authhost.want & CURLAUTH_NEGOTIATE) &&
+    (ڈیٹا->state.authhost.want & CURLAUTH_NEGOTIATE) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP) &&
-    Curl_auth_allowed_to_host(data);
-#ifndef CURL_DISABLE_PROXY
+    Curl_auth_allowed_مقصد_host(ڈیٹا);
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
   m->want_proxy_nego_http =
     needle->http_proxy.creds &&
-    (data->state.authproxy.want & CURLAUTH_NEGOTIATE) &&
+    (ڈیٹا->state.authproxy.want & CURLAUTH_NEGOTIATE) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP);
-#endif
-#endif
-  m->require_tls = data->set.use_ssl >= CURLUSESSL_CONTROL;
-  m->may_tls = data->set.use_ssl > CURLUSESSL_NONE;
+#اگر_ختم
+#اگر_ختم
+  m->require_tls = ڈیٹا->سیٹ.use_ssl >= CURLUSESSL_CONTROL;
+  m->may_tls = ڈیٹا->سیٹ.use_ssl > CURLUSESSL_NONE;
 
   /* Get a shallow setup of filter configs for connection cache matching */
-  return Curl_ssl_filter_config_tmp_init(data, needle->origin,
+  واپس Curl_ssl_filter_config_tmp_init(ڈیٹا, needle->origin,
                                          &m->ssl_config,
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
                                          &m->proxy_ssl_config);
-#else
-                                         NULL);
-#endif
+#ورنہ
+                                         تہی);
+#اگر_ختم
 }
 
-static void url_match_destroy(struct url_conn_match *m)
+ساکن خالی url_مطابقت_destroy(ساخت url_conn_مطابقت *m)
 {
   Curl_ssl_config_cleanup(&m->ssl_config);
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
   Curl_ssl_config_cleanup(&m->proxy_ssl_config);
-#endif
+#اگر_ختم
 }
 
 /**
@@ -2278,64 +2278,64 @@ static void url_match_destroy(struct url_conn_match *m)
  *   a suitable connection has not determined its multiplex capability.
  * - a fatal error
  */
-static CURLcode url_find_or_create_conn(struct Curl_easy *data,
-                                        const struct curltime *pnow)
+ساکن CURLcode url_ڈھونڈو_or_create_conn(ساخت Curl_easy *ڈیٹا,
+                                        ثابت ساخت curltime *pnow)
 {
-  struct connectdata *needle = NULL;
-  struct url_conn_match match;
-  bool match_initialized = FALSE;
-  CURLcode result;
+  ساخت connectdata *needle = تہی;
+  ساخت url_conn_مطابقت مطابقت;
+  bool مطابقت_initialized = FALSE;
+  CURLcode نتیجہ;
 
   /* create the template connection for transfer data. Use this needle to
    * find an existing connection or, if none exists, convert needle
    * to a full connection and attach it to data. */
-  result = url_create_needle(data, &needle);
-  if(result)
-    goto out;
+  نتیجہ = url_create_needle(ڈیٹا, &needle);
+  اگر(نتیجہ)
+    جاؤ برآمد;
   DEBUGASSERT(needle);
 
-  result = url_match_init(data, needle, &match);
-  if(result)
-    goto out;
-  match_initialized = TRUE;
+  نتیجہ = url_مطابقت_init(ڈیٹا, needle, &مطابقت);
+  اگر(نتیجہ)
+    جاؤ برآمد;
+  مطابقت_initialized = TRUE;
 
   /***********************************************************************
    * file: is a special case in that it does not need a network connection
    ***********************************************************************/
-#ifndef CURL_DISABLE_FILE
-  if(needle->scheme->flags & PROTOPT_NONETWORK) {
-    bool done;
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_FILE
+  اگر(needle->scheme->flags & PROTOPT_NONETWORK) {
+    bool مکمل;
     /* this is supposed to be the connect function so we better at least check
        that the file is present here! */
-    DEBUGASSERT(needle->scheme->run->connect_it);
-    data->info.conn_scheme = needle->scheme->name;
+    DEBUGASSERT(needle->scheme->تسلسل->connect_it);
+    ڈیٹا->info.conn_scheme = needle->scheme->name;
     /* conn_protocol can only provide "old" protocols */
-    data->info.conn_protocol = needle->scheme->protocol & CURLPROTO_MASK;
-    result = needle->scheme->run->connect_it(data, &done);
-    if(result)
-      goto out;
+    ڈیٹا->info.conn_protocol = needle->scheme->protocol & CURLPROTO_نقاب;
+    نتیجہ = needle->scheme->تسلسل->connect_it(ڈیٹا, &مکمل);
+    اگر(نتیجہ)
+      جاؤ برآمد;
 
     /* Setup a "faked" transfer that will do nothing */
-    result = Curl_cpool_add(data, needle, 0, 0, pnow);
-    Curl_attach_connection(data, needle, TRUE);
-    needle = NULL;
-    if(!result) {
+    نتیجہ = Curl_cpool_جوڑو(ڈیٹا, needle, 0, 0, pnow);
+    Curl_attach_connection(ڈیٹا, needle, TRUE);
+    needle = تہی;
+    اگر(!نتیجہ) {
       /* Setup whatever necessary for a resumed transfer */
-      result = setup_range(data);
-      if(!result) {
-        Curl_xfer_setup_nop(data);
-        result = Curl_init_transfer(data, data->conn);
+      نتیجہ = تیاری_range(ڈیٹا);
+      اگر(!نتیجہ) {
+        Curl_xfer_تیاری_nop(ڈیٹا);
+        نتیجہ = Curl_init_transfer(ڈیٹا, ڈیٹا->conn);
       }
     }
 
-    if(result) {
-      DEBUGASSERT(data->conn->scheme->run->done);
+    اگر(نتیجہ) {
+      DEBUGASSERT(ڈیٹا->conn->scheme->تسلسل->مکمل);
       /* we ignore the return code for the protocol-specific DONE */
-      (void)data->conn->scheme->run->done(data, result, FALSE);
+      (خالی)ڈیٹا->conn->scheme->تسلسل->مکمل(ڈیٹا, نتیجہ, FALSE);
     }
-    goto out;
+    جاؤ برآمد;
   }
-#endif
+#اگر_ختم
 
   /*************************************************************
    * Reuse of existing connection is not allowed when
@@ -2343,23 +2343,23 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
    * - reuse_fresh is set and this is not a follow-up request
    *   (like with HTTP followlocation)
    *************************************************************/
-  if((!data->set.reuse_fresh || data->state.followlocation) &&
-     !data->set.connect_only) {
+  اگر((!ڈیٹا->سیٹ.reuse_fresh || ڈیٹا->state.followlocation) &&
+     !ڈیٹا->سیٹ.connect_only) {
     /* Ok, try to find and attach an existing one */
-    if(url_attach_existing(data, needle, &match, pnow)) {
+    اگر(url_attach_existing(ڈیٹا, needle, &مطابقت, pnow)) {
       /* We attached an existing connection for this transfer. Copy
        * over transfer specific properties over from needle. */
-      struct connectdata *conn = data->conn;
+      ساخت connectdata *conn = ڈیٹا->conn;
       VERBOSE(bool tls_upgraded =
         (!(needle->origin->scheme->flags & PROTOPT_SSL) &&
          Curl_conn_is_ssl(conn, FIRSTSOCKET)));
 
       DEBUGASSERT(conn);
-      conn->bits.reuse = TRUE;
-      url_conn_reuse_adjust(data, needle);
+      conn->بٹ.reuse = TRUE;
+      url_conn_reuse_adjust(ڈیٹا, needle);
 
-#ifndef CURL_DISABLE_PROXY
-      infof(data, "Reusing existing %s: connection%s with %s %s",
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+      infof(ڈیٹا, "Reusing existing %s: connection%s with %s %s",
             conn->origin->scheme->name,
             tls_upgraded ? " (upgraded to SSL)" : "",
             (conn->socks_proxy.peer || conn->http_proxy.peer) ?
@@ -2367,172 +2367,172 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
             conn->socks_proxy.peer ? conn->socks_proxy.peer->user_hostname :
             conn->http_proxy.peer ? conn->http_proxy.peer->user_hostname :
             conn->origin->hostname);
-#else
-      infof(data, "Reusing existing %s: connection%s with host %s",
+#ورنہ
+      infof(ڈیٹا, "Reusing existing %s: connection%s with host %s",
             conn->origin->scheme->name,
             tls_upgraded ? " (upgraded to SSL)" : "",
             conn->origin->hostname);
-#endif
+#اگر_ختم
     }
   }
 
-  if(!data->conn) {
+  اگر(!ڈیٹا->conn) {
     /* We have not attached an existing connection. `needle` may become
      * the connection to use, if
      * - we are not waiting on an existing connection result
      * - the total/host limits on active connections allow it
      */
-    if(match.wait_pipe) {
+    اگر(مطابقت.wait_pipe) {
       /* There is a connection that *might* become usable for multiplexing
          "soon", and we wait for that */
-      infof(data, "Waiting on connection to negotiate possible multiplexing.");
-      result = CURLE_NO_CONNECTION_AVAILABLE;
-      goto out;
+      infof(ڈیٹا, "Waiting on connection to negotiate possible multiplexing.");
+      نتیجہ = CURLE_NO_CONNECTION_دستیاب;
+      جاؤ برآمد;
     }
 
     /* Add needle to conn pool, observing the limits.
      * Initializes connection_id.
      * May fail due to limits with CURLE_NO_CONNECTION_AVAILABLE. */
-    result = Curl_cpool_add(data, needle,
-                            data->multi->max_total_connections,
-                            data->multi->max_host_connections,
+    نتیجہ = Curl_cpool_جوڑو(ڈیٹا, needle,
+                            ڈیٹا->multi->max_کل_connections,
+                            ڈیٹا->multi->max_host_connections,
                             pnow);
-    if(result)
-      goto out;
+    اگر(نتیجہ)
+      جاؤ برآمد;
 
     /* All fine, attach it and forget needle */
-    Curl_attach_connection(data, needle, TRUE);
-    needle = NULL;
+    Curl_attach_connection(ڈیٹا, needle, TRUE);
+    needle = تہی;
 
     /* Clone the SSL filter configs into the new connection. */
-    result = Curl_ssl_conn_config_clone(&match.ssl_config,
-#ifndef CURL_DISABLE_PROXY
-                                        &match.proxy_ssl_config,
-#else
-                                        NULL,
-#endif
-                                        data->conn);
-    if(result) {
-      DEBUGF(infof(data, "Error: clone connection SSL config"));
-      goto out;
+    نتیجہ = Curl_ssl_conn_config_clone(&مطابقت.ssl_config,
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
+                                        &مطابقت.proxy_ssl_config,
+#ورنہ
+                                        تہی,
+#اگر_ختم
+                                        ڈیٹا->conn);
+    اگر(نتیجہ) {
+      DEBUGF(infof(ڈیٹا, "Error: clone connection SSL config"));
+      جاؤ برآمد;
     }
 
-#ifdef USE_NTLM
+#اگر_تعریف_شدہ USE_NTLM
     /* If NTLM is requested in a part of this connection, make sure we do not
        assume the state is fine as this is a fresh connection and NTLM is
        connection based. */
-    if((data->state.authhost.picked & CURLAUTH_NTLM) &&
-       data->state.authhost.done) {
-      infof(data, "NTLM picked AND auth done set, clear picked");
-      data->state.authhost.picked = CURLAUTH_NONE;
-      data->state.authhost.done = FALSE;
+    اگر((ڈیٹا->state.authhost.picked & CURLAUTH_NTLM) &&
+       ڈیٹا->state.authhost.مکمل) {
+      infof(ڈیٹا, "NTLM picked AND auth done set, clear picked");
+      ڈیٹا->state.authhost.picked = CURLAUTH_NONE;
+      ڈیٹا->state.authhost.مکمل = FALSE;
     }
 
-    if((data->state.authproxy.picked & CURLAUTH_NTLM) &&
-       data->state.authproxy.done) {
-      infof(data, "NTLM-proxy picked AND auth done set, clear picked");
-      data->state.authproxy.picked = CURLAUTH_NONE;
-      data->state.authproxy.done = FALSE;
+    اگر((ڈیٹا->state.authproxy.picked & CURLAUTH_NTLM) &&
+       ڈیٹا->state.authproxy.مکمل) {
+      infof(ڈیٹا, "NTLM-proxy picked AND auth done set, clear picked");
+      ڈیٹا->state.authproxy.picked = CURLAUTH_NONE;
+      ڈیٹا->state.authproxy.مکمل = FALSE;
     }
-#endif
+#اگر_ختم
   }
 
   /* COMMON setup code for reused and new connections from here on. */
 
   /* Setup and init stuff before DO starts, in preparing for the transfer. */
-  result = Curl_init_transfer(data, data->conn);
-  if(result)
-    goto out;
+  نتیجہ = Curl_init_transfer(ڈیٹا, ڈیٹا->conn);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
   /* Setup whatever necessary for a resumed transfer */
-  result = setup_range(data);
-  if(result)
-    goto out;
+  نتیجہ = تیاری_range(ڈیٹا);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
   /* persist the scheme and handler the transfer is using */
-  data->info.conn_scheme = data->conn->scheme->name;
+  ڈیٹا->info.conn_scheme = ڈیٹا->conn->scheme->name;
   /* conn_protocol can only provide "old" protocols */
-  data->info.conn_protocol = data->conn->scheme->protocol & CURLPROTO_MASK;
-  data->info.used_proxy =
-#ifdef CURL_DISABLE_PROXY
+  ڈیٹا->info.conn_protocol = ڈیٹا->conn->scheme->protocol & CURLPROTO_نقاب;
+  ڈیٹا->info.مستعمل_proxy =
+#اگر_تعریف_شدہ CURL_DISABLE_PROXY
     0
-#else
-    (data->conn->socks_proxy.peer || data->conn->http_proxy.peer)
-#endif
+#ورنہ
+    (ڈیٹا->conn->socks_proxy.peer || ڈیٹا->conn->http_proxy.peer)
+#اگر_ختم
     ;
 
   /* Lastly, inform connection filters that a new transfer is attached */
-  result = Curl_conn_ev_data_setup(data);
+  نتیجہ = Curl_conn_ev_ڈیٹا_تیاری(ڈیٹا);
 
-out:
-  if(match_initialized)
-    url_match_destroy(&match);
-  if(needle)
-    Curl_conn_free(data, needle);
-  DEBUGASSERT(result || data->conn);
-  return result;
+برآمد:
+  اگر(مطابقت_initialized)
+    url_مطابقت_destroy(&مطابقت);
+  اگر(needle)
+    Curl_conn_free(ڈیٹا, needle);
+  DEBUGASSERT(نتیجہ || ڈیٹا->conn);
+  واپس نتیجہ;
 }
 
-CURLcode Curl_connect(struct Curl_easy *data, bool *pconnected)
+CURLcode Curl_connect(ساخت Curl_easy *ڈیٹا, bool *pconnected)
 {
-  CURLcode result;
-  struct connectdata *conn = NULL;
-  const struct curltime *pnow = NULL;
+  CURLcode نتیجہ;
+  ساخت connectdata *conn = تہی;
+  ثابت ساخت curltime *pnow = تہی;
   *pconnected = FALSE;
 
   /* Set the request to virgin state based on transfer settings */
-  Curl_req_hard_reset(&data->req, data);
+  Curl_req_hard_reset(&ڈیٹا->req, ڈیٹا);
   /* Determine the origin of the transfer and what credentials to use */
-  result = url_set_data_origin_and_creds(data);
-  if(result)
-    goto out;
-  if(!data->state.origin) { /* just make really sure */
+  نتیجہ = url_سیٹ_ڈیٹا_origin_and_creds(ڈیٹا);
+  اگر(نتیجہ)
+    جاؤ برآمد;
+  اگر(!ڈیٹا->state.origin) { /* just make really sure */
     DEBUGASSERT(0);
-    result = CURLE_FAILED_INIT;
-    goto out;
+    نتیجہ = CURLE_FAILED_INIT;
+    جاؤ برآمد;
   }
 
   /* Get or create a connection for the transfer. */
-  pnow = Curl_pgrs_now(data);
-  Curl_pgrsTimeWas(data, TIMER_POSTQUEUE, *pnow);
-  result = url_find_or_create_conn(data, pnow);
-  conn = data->conn;
-  if(result)
-    goto out;
-  if(!data->conn) { /* just make really sure */
+  pnow = Curl_pgrs_now(ڈیٹا);
+  Curl_pgrs_وقت_Was(ڈیٹا, TIMER_POSTQUEUE, *pnow);
+  نتیجہ = url_ڈھونڈو_or_create_conn(ڈیٹا, pnow);
+  conn = ڈیٹا->conn;
+  اگر(نتیجہ)
+    جاؤ برآمد;
+  اگر(!ڈیٹا->conn) { /* just make really sure */
     DEBUGASSERT(0);
-    result = CURLE_FAILED_INIT;
-    goto out;
+    نتیجہ = CURLE_FAILED_INIT;
+    جاؤ برآمد;
   }
 
-  if(conn->bits.reuse) {
-    if(conn->attached_xfers > 1)
+  اگر(conn->بٹ.reuse) {
+    اگر(conn->attached_xfers > 1)
       /* multiplexed */
       *pconnected = TRUE;
   }
-  else if(conn->scheme->flags & PROTOPT_NONETWORK) {
-    Curl_pgrsTime(data, TIMER_NAMELOOKUP);
+  ورنہ اگر(conn->scheme->flags & PROTOPT_NONETWORK) {
+    Curl_pgrs_وقت(ڈیٹا, TIMER_NAMELOOKUP);
     *pconnected = TRUE;
   }
-  else {
-    result = Curl_conn_setup(data, conn, FIRSTSOCKET, CURL_CF_SSL_DEFAULT);
-    if(!result)
-      result = Curl_headers_init(data);
-    CURL_TRC_M(data, "Curl_conn_setup() -> %d", (int)result);
+  ورنہ {
+    نتیجہ = Curl_conn_تیاری(ڈیٹا, conn, FIRSTSOCKET, CURL_CF_SSL_DEFAULT);
+    اگر(!نتیجہ)
+      نتیجہ = Curl_سرخیاں_init(ڈیٹا);
+    CURL_TRC_M(ڈیٹا, "Curl_conn_setup() -> %d", (صحیح)نتیجہ);
   }
 
-out:
-  if(result == CURLE_NO_CONNECTION_AVAILABLE)
+برآمد:
+  اگر(نتیجہ == CURLE_NO_CONNECTION_دستیاب)
     DEBUGASSERT(!conn);
 
-  if(result && conn) {
+  اگر(نتیجہ && conn) {
     /* We are not allowed to return failure with memory left allocated in the
        connectdata struct, free those here */
-    Curl_detach_connection(data);
-    Curl_conn_close(data, conn, TRUE);
+    Curl_detach_connection(ڈیٹا);
+    Curl_conn_close(ڈیٹا, conn, TRUE);
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /*
@@ -2544,93 +2544,93 @@ out:
  * Allow this function to get called with 'conn' set to NULL.
  */
 
-CURLcode Curl_init_transfer(struct Curl_easy *data, struct connectdata *conn)
+CURLcode Curl_init_transfer(ساخت Curl_easy *ڈیٹا, ساخت connectdata *conn)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  if(conn) {
-    conn->bits.do_more = FALSE; /* by default there is no curl_do_more() to
+  اگر(conn) {
+    conn->بٹ.do_مزید = FALSE; /* by default there is no curl_do_more() to
                                    use */
     /* if the protocol used does not support wildcards, switch it off */
-    if(data->state.wildcardmatch &&
+    اگر(ڈیٹا->state.wildcardmatch &&
        !(conn->scheme->flags & PROTOPT_WILDCARD))
-      data->state.wildcardmatch = FALSE;
+      ڈیٹا->state.wildcardmatch = FALSE;
   }
 
-  data->state.done = FALSE; /* *_done() is not called yet */
+  ڈیٹا->state.مکمل = FALSE; /* *_done() is not called yet */
 
-  data->req.no_body = data->set.opt_no_body;
-  if(data->req.no_body)
+  ڈیٹا->req.no_body = ڈیٹا->سیٹ.opt_no_body;
+  اگر(ڈیٹا->req.no_body)
     /* in HTTP lingo, no body means using the HEAD request... */
-    data->state.httpreq = HTTPREQ_HEAD;
+    ڈیٹا->state.httpreq = HTTPREQ_سر;
 
-  result = Curl_req_start(&data->req, data);
-  if(!result) {
-    Curl_pgrsReset(data);
+  نتیجہ = Curl_req_آغاز(&ڈیٹا->req, ڈیٹا);
+  اگر(!نتیجہ) {
+    Curl_pgrsReset(ڈیٹا);
   }
-  return result;
+  واپس نتیجہ;
 }
 
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
+#اگر defined(USE_HTTP2) || defined(USE_HTTP3)
 
-void Curl_data_priority_clear_state(struct Curl_easy *data)
+خالی Curl_ڈیٹا_ترجیح_clear_state(ساخت Curl_easy *ڈیٹا)
 {
-  data->state.weight = 0;
+  ڈیٹا->state.وزن = 0;
 }
 
-#endif /* USE_HTTP2 || USE_HTTP3 */
+#اگر_ختم /* USE_HTTP2 || USE_HTTP3 */
 
-CURLcode Curl_conn_meta_set(struct connectdata *conn, const char *key,
-                            void *meta_data, Curl_meta_dtor *meta_dtor)
+CURLcode Curl_conn_meta_سیٹ(ساخت connectdata *conn, ثابت حرف *کلید,
+                            خالی *meta_ڈیٹا, Curl_meta_dtor *meta_dtor)
 {
-  if(!Curl_hash_add2(&conn->meta_hash, key, strlen(key) + 1,
-                     meta_data, meta_dtor)) {
-    meta_dtor(key, strlen(key) + 1, meta_data);
-    return CURLE_OUT_OF_MEMORY;
+  اگر(!Curl_hash_add2(&conn->meta_hash, کلید, لڑی_لمبائی(کلید) + 1,
+                     meta_ڈیٹا, meta_dtor)) {
+    meta_dtor(کلید, لڑی_لمبائی(کلید) + 1, meta_ڈیٹا);
+    واپس CURLE_برآمد_کا_حافظہ;
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-void Curl_conn_meta_remove(struct connectdata *conn, const char *key)
+خالی Curl_conn_meta_remove(ساخت connectdata *conn, ثابت حرف *کلید)
 {
-  Curl_hash_delete(&conn->meta_hash, key, strlen(key) + 1);
+  Curl_hash_delete(&conn->meta_hash, کلید, لڑی_لمبائی(کلید) + 1);
 }
 
-void *Curl_conn_meta_get(struct connectdata *conn, const char *key)
+خالی *Curl_conn_meta_get(ساخت connectdata *conn, ثابت حرف *کلید)
 {
-  return Curl_hash_pick(&conn->meta_hash, key, strlen(key) + 1);
+  واپس Curl_hash_pick(&conn->meta_hash, کلید, لڑی_لمبائی(کلید) + 1);
 }
 
-struct Curl_easy *Curl_get_admin(struct Curl_easy *data)
+ساخت Curl_easy *Curl_get_admin(ساخت Curl_easy *ڈیٹا)
 {
-  struct Curl_easy *admin;
+  ساخت Curl_easy *admin;
 
-  if(!data->mid) /* already an admin handle */
-    admin = data;
-  else if(data->multi)
-    admin = data->multi->admin;
-  else if(data->multi_easy)
-    admin = data->multi_easy->admin;
-  else {
+  اگر(!ڈیٹا->mid) /* already an admin handle */
+    admin = ڈیٹا;
+  ورنہ اگر(ڈیٹا->multi)
+    admin = ڈیٹا->multi->admin;
+  ورنہ اگر(ڈیٹا->multi_easy)
+    admin = ڈیٹا->multi_easy->admin;
+  ورنہ {
     DEBUGASSERT(0); /* we do not want this. does it happen? */
-    admin = data;
+    admin = ڈیٹا;
   }
-  if(admin != data) {
-    admin->set.conn_max_idle_ms = data->set.conn_max_idle_ms;
-    admin->set.conn_max_age_ms = data->set.conn_max_age_ms;
-    admin->set.upkeep_interval_ms = data->set.upkeep_interval_ms;
-    admin->set.timeout = data->set.timeout;
-    admin->set.server_response_timeout = data->set.server_response_timeout;
-    admin->set.no_signal = data->set.no_signal;
+  اگر(admin != ڈیٹا) {
+    admin->سیٹ.conn_max_idle_ms = ڈیٹا->سیٹ.conn_max_idle_ms;
+    admin->سیٹ.conn_max_age_ms = ڈیٹا->سیٹ.conn_max_age_ms;
+    admin->سیٹ.upkeep_interval_ms = ڈیٹا->سیٹ.upkeep_interval_ms;
+    admin->سیٹ.timeout = ڈیٹا->سیٹ.timeout;
+    admin->سیٹ.server_response_timeout = ڈیٹا->سیٹ.server_response_timeout;
+    admin->سیٹ.no_signal = ڈیٹا->سیٹ.no_signal;
   }
-  return admin;
+  واپس admin;
 }
 
 CURLcode Curl_1st_fatal(CURLcode r1, CURLcode r2)
 {
-  if(r1 && (r1 != CURLE_AGAIN))
-    return r1;
-  if(r2 && (r2 != CURLE_AGAIN))
-    return r2;
-  return r1;
+  اگر(r1 && (r1 != CURLE_AGAIN))
+    واپس r1;
+  اگر(r2 && (r2 != CURLE_AGAIN))
+    واپس r2;
+  واپس r1;
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_HTTPSIG_H
-#define HEADER_CURL_HTTP_HTTPSIG_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_HTTP_HTTPSIG_H
+#تعریف_کرو سرخی_CURL_HTTP_HTTPSIG_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
-#include "urldata.h"
+#شامل "urldata.h"
 
-CURLcode Curl_output_httpsig(struct Curl_easy *data);
+CURLcode Curl_output_httpsig(ساخت Curl_easy *ڈیٹا);
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
-#endif /* HEADER_CURL_HTTP_HTTPSIG_H */
+#اگر_ختم /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
+#اگر_ختم /* HEADER_CURL_HTTP_HTTPSIG_H */

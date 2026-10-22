@@ -21,106 +21,106 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 /*
  * curlx_winapi_strerror:
  * Variant of curlx_strerror if the error code is definitely Windows API.
  */
-#ifdef _WIN32
-#include "curlx/winapi.h"
-#include "curlx/snprintf.h"
-#include "curlx/strcopy.h"
+#اگر_تعریف_شدہ _WIN32
+#شامل "curlx/winapi.h"
+#شامل "curlx/snprintf.h"
+#شامل "curlx/strcopy.h"
 
 /* This is a helper function for curlx_strerror that converts Windows API error
  * codes (GetLastError) to error messages.
  * Returns NULL if no error message was found for error code.
  */
-const char *curlx_get_winapi_error(DWORD err, char *buf, size_t buflen)
+ثابت حرف *curlx_get_winapi_error(DWORD err, حرف *buf, size_t buflen)
 {
-  char *p;
+  حرف *p;
 
-  if(!buflen)
-    return NULL;
+  اگر(!buflen)
+    واپس تہی;
 
   /* We return the local codepage version of the error string because if it is
      output to the user's terminal, it is likely done with functions which
      expect the local codepage (eg fprintf, failf, infof). */
-  if(!FormatMessageA((FORMAT_MESSAGE_FROM_SYSTEM |
-                      FORMAT_MESSAGE_IGNORE_INSERTS), NULL, err,
-                     LANG_NEUTRAL, buf, (DWORD)buflen, NULL)) {
+  اگر(!Format_پیغام_A((FORMAT_پیغام_FROM_SYSTEM |
+                      FORMAT_پیغام_IGNORE_INSERTS), تہی, err,
+                     LANG_NEUTRAL, buf, (DWORD)buflen, تہی)) {
     *buf = '\0';
-    return NULL;
+    واپس تہی;
   }
 
   /* Truncate multiple lines */
   p = strchr(buf, '\n');
-  if(p) {
-    if(p > buf && *(p - 1) == '\r')
+  اگر(p) {
+    اگر(p > buf && *(p - 1) == '\r')
       *(p - 1) = '\0';
-    else
+    ورنہ
       *p = '\0';
   }
 
-  return *buf ? buf : NULL;
+  واپس *buf ? buf : تہی;
 }
 
-const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen)
+ثابت حرف *curlx_winapi_strerror(DWORD err, حرف *buf, size_t buflen)
 {
-  DWORD old_win_err = GetLastError();
-  int old_errno = errno;
+  DWORD old_win_err = Get_آخری_Error();
+  صحیح old_errno = errno;
 
-  if(!buflen)
-    return NULL;
+  اگر(!buflen)
+    واپس تہی;
 
   *buf = '\0';
 
-#ifdef CURLVERBOSE
-  if(!curlx_get_winapi_error(err, buf, buflen)) {
-#if defined(__GNUC__) && __GNUC__ >= 7
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wformat-truncation=1"
-#endif
+#اگر_تعریف_شدہ CURLVERBOSE
+  اگر(!curlx_get_winapi_error(err, buf, buflen)) {
+#اگر defined(__GNUC__) && __GNUC__ >= 7
+#ہدایت GCC diagnostic ڈالو
+#ہدایت GCC diagnostic warning "-Wformat-truncation=1"
+#اگر_ختم
     /* some GCC compilers cause false positive warnings if we allow this
        warning */
     SNPRINTF(buf, buflen, "Unknown error %lu (0x%08lx)", err, err);
-#if defined(__GNUC__) && __GNUC__ >= 7
-#pragma GCC diagnostic pop
-#endif
+#اگر defined(__GNUC__) && __GNUC__ >= 7
+#ہدایت GCC diagnostic نکالو
+#اگر_ختم
   }
-#else
+#ورنہ
   {
-    const char *txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
-    curlx_strcopy(buf, buflen, txt, strlen(txt));
+    ثابت حرف *txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
+    curlx_strcopy(buf, buflen, txt, لڑی_لمبائی(txt));
   }
-#endif
+#اگر_ختم
 
-  if(errno != old_errno)
+  اگر(errno != old_errno)
     errno = old_errno;
 
-  if(old_win_err != GetLastError())
-    SetLastError(old_win_err);
+  اگر(old_win_err != Get_آخری_Error())
+    سیٹ_آخری_Error(old_win_err);
 
-  return buf;
+  واپس buf;
 }
 
-#ifndef WITHOUT_LIBCURL
+#اگر_غیر_تعریف_شدہ WITHOUT_LIBCURL
 
-#include <bcrypt.h>
-#ifndef STATUS_SUCCESS
-#define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
-#endif
+#شامل <bcrypt.h>
+#اگر_غیر_تعریف_شدہ حالت_SUCCESS
+#تعریف_کرو حالت_SUCCESS ((NTSTATUS)0x00000000L)
+#اگر_ختم
 
-CURLcode curlx_win32_random(unsigned char *entropy, size_t length)
+CURLcode curlx_win32_random(غیرعلامتی حرف *entropy, size_t لمبائی)
 {
-  memset(entropy, 0, length);
+  memset(entropy, 0, لمبائی);
 
-  if(BCryptGenRandom(NULL, entropy, (ULONG)length,
-                     BCRYPT_USE_SYSTEM_PREFERRED_RNG) != STATUS_SUCCESS)
-    return CURLE_FAILED_INIT;
+  اگر(BCryptGenRandom(تہی, entropy, (ULONG)لمبائی,
+                     BCRYPT_USE_SYSTEM_PREFERRED_RNG) != حالت_SUCCESS)
+    واپس CURLE_FAILED_INIT;
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
-#endif /* WITHOUT_LIBCURL */
+#اگر_ختم /* WITHOUT_LIBCURL */
 
-#endif /* _WIN32 */
+#اگر_ختم /* _WIN32 */

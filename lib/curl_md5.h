@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MD5_H
-#define HEADER_CURL_MD5_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_MD5_H
+#تعریف_کرو سرخی_CURL_MD5_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,44 +24,44 @@
  *
  ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
+#اگر (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "curl_hmac.h"
+#شامل "curl_hmac.h"
 
-#define MD5_DIGEST_LEN  16
+#تعریف_کرو MD5_DIGEST_LEN  16
 
-typedef CURLcode (*Curl_MD5_init_func)(void *context);
-typedef void (*Curl_MD5_update_func)(void *context,
-                                     const unsigned char *data,
-                                     unsigned int len);
-typedef void (*Curl_MD5_final_func)(unsigned char *result, void *context);
+قسمتعریف CURLcode (*Curl_MD5_init_func)(خالی *context);
+قسمتعریف خالی (*Curl_MD5_update_func)(خالی *context,
+                                     ثابت غیرعلامتی حرف *ڈیٹا,
+                                     غیرعلامتی صحیح len);
+قسمتعریف خالی (*Curl_MD5_final_func)(غیرعلامتی حرف *نتیجہ, خالی *context);
 
-struct MD5_params {
+ساخت MD5_params {
   Curl_MD5_init_func md5_init_func;     /* Initialize context procedure */
   Curl_MD5_update_func md5_update_func; /* Update context with data */
   Curl_MD5_final_func md5_final_func;   /* Get final result procedure */
-  unsigned int md5_ctxtsize;            /* Context structure size */
-  unsigned int md5_resultlen;           /* Result length (bytes) */
+  غیرعلامتی صحیح md5_ctxtsize;            /* Context structure size */
+  غیرعلامتی صحیح md5_resultlen;           /* Result length (bytes) */
 };
 
-struct MD5_context {
-  const struct MD5_params *md5_hash;  /* Hash function definition */
-  void *md5_hashctx;                  /* Hash function context */
+ساخت MD5_context {
+  ثابت ساخت MD5_params *md5_hash;  /* Hash function definition */
+  خالی *md5_hashctx;                  /* Hash function context */
 };
 
-extern const struct MD5_params Curl_DIGEST_MD5;
-extern const struct HMAC_params Curl_HMAC_MD5;
+خارجی ثابت ساخت MD5_params Curl_DIGEST_MD5;
+خارجی ثابت ساخت HMAC_params Curl_HMAC_MD5;
 
-CURLcode Curl_md5it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_md5it(غیرعلامتی حرف *output, ثابت غیرعلامتی حرف *داخلہ,
                     size_t len);
 
-struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params);
-CURLcode Curl_MD5_update(struct MD5_context *context,
-                         const unsigned char *input,
-                         unsigned int len);
-CURLcode Curl_MD5_final(struct MD5_context *context, unsigned char *result);
+ساخت MD5_context *Curl_MD5_init(ثابت ساخت MD5_params *md5params);
+CURLcode Curl_MD5_update(ساخت MD5_context *context,
+                         ثابت غیرعلامتی حرف *داخلہ,
+                         غیرعلامتی صحیح len);
+CURLcode Curl_MD5_final(ساخت MD5_context *context, غیرعلامتی حرف *نتیجہ);
 
-#endif
+#اگر_ختم
 
-#endif /* HEADER_CURL_MD5_H */
+#اگر_ختم /* HEADER_CURL_MD5_H */

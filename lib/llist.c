@@ -21,36 +21,36 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "llist.h"
+#شامل "llist.h"
 
-#ifdef DEBUGBUILD
-#define LLISTINIT 0x100cc001 /* random pattern */
-#define NODEINIT  0x12344321 /* random pattern */
-#define NODEREM   0x54321012 /* random pattern */
+#اگر_تعریف_شدہ DEBUGBUILD
+#تعریف_کرو LLISTINIT 0x100cc001 /* random pattern */
+#تعریف_کرو NODEINIT  0x12344321 /* random pattern */
+#تعریف_کرو NODEREM   0x54321012 /* random pattern */
 
-#define VERIFYNODE(x) verifynode(x)
-static struct Curl_llist_node *verifynode(struct Curl_llist_node *n)
+#تعریف_کرو VERIFYNODE(x) verifynode(x)
+ساکن ساخت Curl_llist_گرہ *verifynode(ساخت Curl_llist_گرہ *n)
 {
   DEBUGASSERT(!n || (n->_init == NODEINIT));
-  return n;
+  واپس n;
 }
-#else
-#define VERIFYNODE(x) x
-#endif
+#ورنہ
+#تعریف_کرو VERIFYNODE(x) x
+#اگر_ختم
 /*
  * @unittest 1300
  */
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
+خالی Curl_llist_init(ساخت Curl_llist *l, Curl_llist_dtor dtor)
 {
-  l->_size = 0;
+  l->سائز_2 = 0;
   l->_dtor = dtor;
-  l->_head = NULL;
-  l->_tail = NULL;
-#ifdef DEBUGBUILD
+  l->سر_2 = تہی;
+  l->دم_2 = تہی;
+#اگر_تعریف_شدہ DEBUGBUILD
   l->_init = LLISTINIT;
-#endif
+#اگر_ختم
 }
 
 /*
@@ -64,48 +64,48 @@ void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
  *
  * @unittest 1300
  */
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, const void *p,
-                                struct Curl_llist_node *ne);
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, /* may be NULL */
-                                const void *p,
-                                struct Curl_llist_node *ne)
+UNITTEST خالی llist_داخل_کرو_اگلا(ساخت Curl_llist *list,
+                                ساخت Curl_llist_گرہ *e, ثابت خالی *p,
+                                ساخت Curl_llist_گرہ *ne);
+UNITTEST خالی llist_داخل_کرو_اگلا(ساخت Curl_llist *list,
+                                ساخت Curl_llist_گرہ *e, /* may be NULL */
+                                ثابت خالی *p,
+                                ساخت Curl_llist_گرہ *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(ne);
 
-#ifdef DEBUGBUILD
+#اگر_تعریف_شدہ DEBUGBUILD
   ne->_init = NODEINIT;
-#endif
+#اگر_ختم
   ne->_ptr = CURL_UNCONST(p);
   ne->_list = list;
-  if(list->_size == 0) {
-    list->_head = ne;
-    list->_head->_prev = NULL;
-    list->_head->_next = NULL;
-    list->_tail = ne;
+  اگر(list->سائز_2 == 0) {
+    list->سر_2 = ne;
+    list->سر_2->پچھلا_2 = تہی;
+    list->سر_2->اگلا_2 = تہی;
+    list->دم_2 = ne;
   }
-  else {
+  ورنہ {
     /* if 'e' is NULL here, we insert the new element first in the list */
-    ne->_next = e ? e->_next : list->_head;
-    ne->_prev = e;
-    if(!e) {
-      list->_head->_prev = ne;
-      list->_head = ne;
+    ne->اگلا_2 = e ? e->اگلا_2 : list->سر_2;
+    ne->پچھلا_2 = e;
+    اگر(!e) {
+      list->سر_2->پچھلا_2 = ne;
+      list->سر_2 = ne;
     }
-    else if(e->_next) {
-      e->_next->_prev = ne;
+    ورنہ اگر(e->اگلا_2) {
+      e->اگلا_2->پچھلا_2 = ne;
     }
-    else {
-      list->_tail = ne;
+    ورنہ {
+      list->دم_2 = ne;
     }
-    if(e)
-      e->_next = ne;
+    اگر(e)
+      e->اگلا_2 = ne;
   }
 
-  ++list->_size;
+  ++list->سائز_2;
 }
 
 /*
@@ -117,157 +117,157 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
  *
  * @unittest 1300
  */
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne)
+خالی Curl_llist_append(ساخت Curl_llist *list, ثابت خالی *p,
+                       ساخت Curl_llist_گرہ *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(ne);
-  llist_insert_next(list, list->_tail, p, ne);
+  llist_داخل_کرو_اگلا(list, list->دم_2, p, ne);
 }
 
-void *Curl_node_take_elem(struct Curl_llist_node *e)
+خالی *Curl_گرہ_take_elem(ساخت Curl_llist_گرہ *e)
 {
-  void *ptr;
-  struct Curl_llist *list;
-  if(!e)
-    return NULL;
+  خالی *ptr;
+  ساخت Curl_llist *list;
+  اگر(!e)
+    واپس تہی;
 
   list = e->_list;
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  DEBUGASSERT(list->_size);
+  DEBUGASSERT(list->سائز_2);
   DEBUGASSERT(e->_init == NODEINIT);
-  if(list) {
-    if(e == list->_head) {
-      list->_head = e->_next;
+  اگر(list) {
+    اگر(e == list->سر_2) {
+      list->سر_2 = e->اگلا_2;
 
-      if(!list->_head)
-        list->_tail = NULL;
-      else
-        e->_next->_prev = NULL;
+      اگر(!list->سر_2)
+        list->دم_2 = تہی;
+      ورنہ
+        e->اگلا_2->پچھلا_2 = تہی;
     }
-    else {
-      if(e->_prev)
-        e->_prev->_next = e->_next;
+    ورنہ {
+      اگر(e->پچھلا_2)
+        e->پچھلا_2->اگلا_2 = e->اگلا_2;
 
-      if(!e->_next)
-        list->_tail = e->_prev;
-      else
-        e->_next->_prev = e->_prev;
+      اگر(!e->اگلا_2)
+        list->دم_2 = e->پچھلا_2;
+      ورنہ
+        e->اگلا_2->پچھلا_2 = e->پچھلا_2;
     }
-    --list->_size;
+    --list->سائز_2;
   }
   ptr = e->_ptr;
 
-  e->_list = NULL;
-  e->_ptr  = NULL;
-  e->_prev = NULL;
-  e->_next = NULL;
-#ifdef DEBUGBUILD
+  e->_list = تہی;
+  e->_ptr  = تہی;
+  e->پچھلا_2 = تہی;
+  e->اگلا_2 = تہی;
+#اگر_تعریف_شدہ DEBUGBUILD
   e->_init = NODEREM; /* specific pattern on remove - not zero */
-#endif
+#اگر_ختم
 
-  return ptr;
+  واپس ptr;
 }
 
-static void node_uremove(struct Curl_llist_node *e, void *user)
+ساکن خالی گرہ_uremove(ساخت Curl_llist_گرہ *e, خالی *user)
 {
-  struct Curl_llist *list;
-  void *ptr;
-  if(!e)
-    return;
+  ساخت Curl_llist *list;
+  خالی *ptr;
+  اگر(!e)
+    واپس;
 
   list = e->_list;
   DEBUGASSERT(list);
-  if(list) {
-    ptr = Curl_node_take_elem(e);
-    if(list->_dtor)
+  اگر(list) {
+    ptr = Curl_گرہ_take_elem(e);
+    اگر(list->_dtor)
       list->_dtor(user, ptr);
   }
 }
 
-void Curl_node_remove(struct Curl_llist_node *e)
+خالی Curl_گرہ_remove(ساخت Curl_llist_گرہ *e)
 {
-  node_uremove(e, NULL);
+  گرہ_uremove(e, تہی);
 }
 
-void Curl_llist_destroy(struct Curl_llist *list, void *user)
+خالی Curl_llist_destroy(ساخت Curl_llist *list, خالی *user)
 {
-  if(list) {
+  اگر(list) {
     DEBUGASSERT(list->_init == LLISTINIT);
-    while(list->_size > 0)
-      node_uremove(list->_tail, user);
+    جب(list->سائز_2 > 0)
+      گرہ_uremove(list->دم_2, user);
   }
 }
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
+ساخت Curl_llist_گرہ *Curl_llist_سر(ثابت ساخت Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_head);
+  واپس VERIFYNODE(list->سر_2);
 }
 
-#ifdef UNITTESTS
+#اگر_تعریف_شدہ UNITTESTS
 /* llist_tail() returns the last 'struct Curl_llist_node *', which might be
    NULL
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list);
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list)
+UNITTEST ساخت Curl_llist_گرہ *llist_دم(ثابت ساخت Curl_llist *list);
+UNITTEST ساخت Curl_llist_گرہ *llist_دم(ثابت ساخت Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_tail);
+  واپس VERIFYNODE(list->دم_2);
 }
-#endif
+#اگر_ختم
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list)
+size_t Curl_llist_گنتی(ثابت ساخت Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return list->_size;
+  واپس list->سائز_2;
 }
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n)
+خالی *Curl_گرہ_elem(ثابت ساخت Curl_llist_گرہ *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return n->_ptr;
+  واپس n->_ptr;
 }
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
+ساخت Curl_llist_گرہ *Curl_گرہ_اگلا(ثابت ساخت Curl_llist_گرہ *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_next);
+  واپس VERIFYNODE(n->اگلا_2);
 }
 
-#ifdef UNITTESTS
+#اگر_تعریف_شدہ UNITTESTS
 /* llist_node_prev() returns the previous element in a list from a given
    Curl_llist_node
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n);
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n)
+UNITTEST ساخت Curl_llist_گرہ *llist_گرہ_پچھلا(
+  ثابت ساخت Curl_llist_گرہ *n);
+UNITTEST ساخت Curl_llist_گرہ *llist_گرہ_پچھلا(
+  ثابت ساخت Curl_llist_گرہ *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_prev);
+  واپس VERIFYNODE(n->پچھلا_2);
 }
-#endif
+#اگر_ختم
 
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n)
+ساخت Curl_llist *Curl_گرہ_llist(ثابت ساخت Curl_llist_گرہ *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(!n->_list || n->_init == NODEINIT);
-  return n->_list;
+  واپس n->_list;
 }

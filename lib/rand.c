@@ -21,53 +21,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#اگر_تعریف_شدہ HAVE_ARPA_INET_H
+#شامل <arpa/inet.h>
+#اگر_ختم
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "escape.h"
+#شامل "urldata.h"
+#شامل "vtls/vtls.h"
+#شامل "curl_trc.h"
+#شامل "rand.h"
+#شامل "escape.h"
 
-#include "curlx/winapi.h"
+#شامل "curlx/winapi.h"
 
-#ifndef USE_SSL
+#اگر_غیر_تعریف_شدہ USE_SSL
 /* ---- possibly non-cryptographic version following ---- */
-static CURLcode weak_random(struct Curl_easy *data,
-                            unsigned char *entropy,
-                            size_t length) /* always 4, size of int */
+ساکن CURLcode weak_random(ساخت Curl_easy *ڈیٹا,
+                            غیرعلامتی حرف *entropy,
+                            size_t لمبائی) /* always 4, size of int */
 {
-  unsigned int r;
-  DEBUGASSERT(length == sizeof(int));
+  غیرعلامتی صحیح r;
+  DEBUGASSERT(لمبائی == حجم(صحیح));
 
   /* Trying cryptographically secure functions first */
-#ifdef _WIN32
-  (void)data;
+#اگر_تعریف_شدہ _WIN32
+  (خالی)ڈیٹا;
   {
-    CURLcode result = curlx_win32_random(entropy, length);
-    if(result != CURLE_NOT_BUILT_IN)
-      return result;
+    CURLcode نتیجہ = curlx_win32_random(entropy, لمبائی);
+    اگر(نتیجہ != CURLE_NOT_BUILT_اندر)
+      واپس نتیجہ;
   }
-#endif
+#اگر_ختم
 
-#ifdef HAVE_ARC4RANDOM
-  (void)data;
-  r = (unsigned int)arc4random();
-  memcpy(entropy, &r, length);
-#else
-  infof(data, "WARNING: using weak random seed");
+#اگر_تعریف_شدہ HAVE_ARC4RANDOM
+  (خالی)ڈیٹا;
+  r = (غیرعلامتی صحیح)arc4random();
+  حافظہ_نقل(entropy, &r, لمبائی);
+#ورنہ
+  infof(ڈیٹا, "WARNING: using weak random seed");
   {
-    static unsigned int randseed;
-    static bool seeded = FALSE;
-    unsigned int rnd;
-    if(!seeded) {
-      struct curltime now;
+    ساکن غیرعلامتی صحیح randseed;
+    ساکن bool seeded = FALSE;
+    غیرعلامتی صحیح rnd;
+    اگر(!seeded) {
+      ساخت curltime now;
       curlx_pnow(&now);
-      randseed += (unsigned int)now.tv_usec + (unsigned int)now.tv_sec;
+      randseed += (غیرعلامتی صحیح)now.tv_usec + (غیرعلامتی صحیح)now.tv_sec;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
@@ -77,48 +77,48 @@ static CURLcode weak_random(struct Curl_easy *data,
     /* Return an unsigned 32-bit pseudo-random number. */
     r = randseed = randseed * 1103515245 + 12345;
     rnd = (r << 16) | ((r >> 16) & 0xFFFF);
-    memcpy(entropy, &rnd, length);
+    حافظہ_نقل(entropy, &rnd, لمبائی);
   }
-#endif
-  return CURLE_OK;
+#اگر_ختم
+  واپس CURLE_OK;
 }
-#endif
+#اگر_ختم
 
-static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
+ساکن CURLcode randit(ساخت Curl_easy *ڈیٹا, غیرعلامتی صحیح *rnd,
                        bool env_override)
 {
-#ifdef DEBUGBUILD
-  if(env_override) {
-    char *force_entropy = getenv("CURL_ENTROPY");
-    if(force_entropy) {
-      static unsigned int randseed;
-      static bool seeded = FALSE;
+#اگر_تعریف_شدہ DEBUGBUILD
+  اگر(env_override) {
+    حرف *force_entropy = getenv("CURL_ENTROPY");
+    اگر(force_entropy) {
+      ساکن غیرعلامتی صحیح randseed;
+      ساکن bool seeded = FALSE;
 
-      if(!seeded) {
-        unsigned int seed = 0;
-        size_t elen = strlen(force_entropy);
-        size_t clen = sizeof(seed);
+      اگر(!seeded) {
+        غیرعلامتی صحیح بیج = 0;
+        size_t elen = لڑی_لمبائی(force_entropy);
+        size_t clen = حجم(بیج);
         size_t min = elen < clen ? elen : clen;
-        memcpy((char *)&seed, force_entropy, min);
-        randseed = ntohl(seed);
+        حافظہ_نقل((حرف *)&بیج, force_entropy, min);
+        randseed = ntohl(بیج);
         seeded = TRUE;
       }
-      else
+      ورنہ
         randseed++;
       *rnd = randseed;
-      return CURLE_OK;
+      واپس CURLE_OK;
     }
   }
-#else
-  (void)env_override;
-#endif
+#ورنہ
+  (خالی)env_override;
+#اگر_ختم
 
   /* data may be NULL! */
-#ifdef USE_SSL
-  return Curl_ssl_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#else
-  return weak_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#endif
+#اگر_تعریف_شدہ USE_SSL
+  واپس Curl_ssl_random(ڈیٹا, (غیرعلامتی حرف *)rnd, حجم(*rnd));
+#ورنہ
+  واپس weak_random(ڈیٹا, (غیرعلامتی حرف *)rnd, حجم(*rnd));
+#اگر_ختم
 }
 
 /*
@@ -136,36 +136,36 @@ static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
  *
  */
 
-CURLcode Curl_rand_bytes(struct Curl_easy *data,
-#ifdef DEBUGBUILD
+CURLcode Curl_rand_بائٹیں(ساخت Curl_easy *ڈیٹا,
+#اگر_تعریف_شدہ DEBUGBUILD
                          bool env_override,
-#endif
-                         unsigned char *rnd, size_t num)
+#اگر_ختم
+                         غیرعلامتی حرف *rnd, size_t عدد)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-#ifndef DEBUGBUILD
-  const bool env_override = FALSE;
-#endif
+  CURLcode نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+#اگر_غیر_تعریف_شدہ DEBUGBUILD
+  ثابت bool env_override = FALSE;
+#اگر_ختم
 
-  DEBUGASSERT(num);
+  DEBUGASSERT(عدد);
 
-  while(num) {
-    unsigned int r;
-    size_t left = num < sizeof(unsigned int) ? num : sizeof(unsigned int);
+  جب(عدد) {
+    غیرعلامتی صحیح r;
+    size_t بایاں = عدد < حجم(غیرعلامتی صحیح) ? عدد : حجم(غیرعلامتی صحیح);
 
-    result = randit(data, &r, env_override);
-    if(result)
-      return result;
+    نتیجہ = randit(ڈیٹا, &r, env_override);
+    اگر(نتیجہ)
+      واپس نتیجہ;
 
-    while(left) {
-      *rnd++ = (unsigned char)(r & 0xFF);
+    جب(بایاں) {
+      *rnd++ = (غیرعلامتی حرف)(r & 0xFF);
       r >>= 8;
-      --num;
-      --left;
+      --عدد;
+      --بایاں;
     }
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /*
@@ -174,26 +174,26 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
  * size.
  */
 
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
+CURLcode Curl_rand_hex(ساخت Curl_easy *ڈیٹا, غیرعلامتی حرف *rnd, size_t عدد)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  unsigned char buffer[128];
-  DEBUGASSERT(num > 1);
+  CURLcode نتیجہ = CURLE_BAD_FUNCTION_دلیل;
+  غیرعلامتی حرف بفر[128];
+  DEBUGASSERT(عدد > 1);
 
-  if((num / 2 >= sizeof(buffer)) || !(num & 1)) {
+  اگر((عدد / 2 >= حجم(بفر)) || !(عدد & 1)) {
     /* make sure it fits in the local buffer and that it is an odd number! */
-    DEBUGF(infof(data, "invalid buffer size with Curl_rand_hex"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    DEBUGF(infof(ڈیٹا, "invalid buffer size with Curl_rand_hex"));
+    واپس CURLE_BAD_FUNCTION_دلیل;
   }
 
-  num--; /* save one for null-termination */
+  عدد--; /* save one for null-termination */
 
-  result = Curl_rand(data, buffer, num / 2);
-  if(result)
-    return result;
+  نتیجہ = Curl_rand(ڈیٹا, بفر, عدد / 2);
+  اگر(نتیجہ)
+    واپس نتیجہ;
 
-  Curl_hexencode(buffer, num / 2, rnd, num + 1);
-  return result;
+  Curl_hexencode(بفر, عدد / 2, rnd, عدد + 1);
+  واپس نتیجہ;
 }
 
 /*
@@ -201,30 +201,30 @@ CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
  * alphanumerical chars PLUS a null-terminator byte.
  */
 
-static const char alnum[] =
+ساکن ثابت حرف alnum[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
-                         size_t num)
+CURLcode Curl_rand_alnum(ساخت Curl_easy *ڈیٹا, غیرعلامتی حرف *rnd,
+                         size_t عدد)
 {
-  CURLcode result = CURLE_OK;
-  const unsigned int alnumspace = CURL_CSTRLEN(alnum);
-  unsigned int r;
-  DEBUGASSERT(num > 1);
+  CURLcode نتیجہ = CURLE_OK;
+  ثابت غیرعلامتی صحیح alnumspace = CURL_CSTRLEN(alnum);
+  غیرعلامتی صحیح r;
+  DEBUGASSERT(عدد > 1);
 
-  num--; /* save one for null-termination */
+  عدد--; /* save one for null-termination */
 
-  while(num) {
-    do {
-      result = randit(data, &r, TRUE);
-      if(result)
-        return result;
-    } while(r >= (UINT_MAX - UINT_MAX % alnumspace));
+  جب(عدد) {
+    کرو {
+      نتیجہ = randit(ڈیٹا, &r, TRUE);
+      اگر(نتیجہ)
+        واپس نتیجہ;
+    } جب(r >= (UINT_MAX - UINT_MAX % alnumspace));
 
-    *rnd++ = (unsigned char)alnum[r % alnumspace];
-    num--;
+    *rnd++ = (غیرعلامتی حرف)alnum[r % alnumspace];
+    عدد--;
   }
   *rnd = 0;
 
-  return result;
+  واپس نتیجہ;
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NONBLOCK_H
-#define HEADER_CURL_NONBLOCK_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_NONBLOCK_H
+#تعریف_کرو سرخی_CURL_NONBLOCK_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 
-int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
-                   int nonblock   /* TRUE or FALSE */);
+صحیح curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
+                   صحیح nonblock   /* TRUE or FALSE */);
 
-#endif /* HEADER_CURL_NONBLOCK_H */
+#اگر_ختم /* HEADER_CURL_NONBLOCK_H */

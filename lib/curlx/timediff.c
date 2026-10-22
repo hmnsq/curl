@@ -21,7 +21,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timediff.h"
+#شامل "curlx/timediff.h"
 
 /*
  * Converts number of milliseconds into a timeval structure.
@@ -31,55 +31,55 @@
  *    tv with 0 in both fields IF ms == 0 (eg. 0ms timeout -> polling select)
  *    tv with converted fields IF ms > 0 (eg. >0ms timeout -> waiting select)
  */
-struct timeval *curlx_mstotv(struct timeval *tv, timediff_t ms)
+ساخت timeval *curlx_mstotv(ساخت timeval *tv, timediff_t ms)
 {
-  if(!tv)
-    return NULL;
+  اگر(!tv)
+    واپس تہی;
 
-  if(ms < 0)
-    return NULL;
+  اگر(ms < 0)
+    واپس تہی;
 
-  if(ms > 0) {
+  اگر(ms > 0) {
     timediff_t tv_sec = ms / 1000;
     timediff_t tv_usec = (ms % 1000) * 1000; /* max=999000 */
-#ifdef HAVE_SUSECONDS_T
-#if TIMEDIFF_T_MAX > TIME_T_MAX
+#اگر_تعریف_شدہ HAVE_SUSECONDS_T
+#اگر TIMEDIFF_T_MAX > وقت_T_MAX
     /* tv_sec overflow check in case time_t is signed */
-    if(tv_sec > TIME_T_MAX)
-      tv_sec = TIME_T_MAX;
-#endif
+    اگر(tv_sec > وقت_T_MAX)
+      tv_sec = وقت_T_MAX;
+#اگر_ختم
     tv->tv_sec = (time_t)tv_sec;
     tv->tv_usec = (suseconds_t)tv_usec;
-#elif defined(_WIN32) /* maybe also others in the future */
-#if TIMEDIFF_T_MAX > LONG_MAX
+#وگرنہ_اگر defined(_WIN32) /* maybe also others in the future */
+#اگر TIMEDIFF_T_MAX > LONG_MAX
     /* tv_sec overflow check on Windows there we know it is long */
-    if(tv_sec > LONG_MAX)
+    اگر(tv_sec > LONG_MAX)
       tv_sec = LONG_MAX;
-#endif
-    tv->tv_sec = (long)tv_sec;
-    tv->tv_usec = (long)tv_usec;
-#else
-#if TIMEDIFF_T_MAX > INT_MAX
+#اگر_ختم
+    tv->tv_sec = (طویل)tv_sec;
+    tv->tv_usec = (طویل)tv_usec;
+#ورنہ
+#اگر TIMEDIFF_T_MAX > زیادہ_سے_زیادہ_عدد
     /* tv_sec overflow check in case time_t is signed */
-    if(tv_sec > INT_MAX)
-      tv_sec = INT_MAX;
-#endif
-    tv->tv_sec = (int)tv_sec;
-    tv->tv_usec = (int)tv_usec;
-#endif
+    اگر(tv_sec > زیادہ_سے_زیادہ_عدد)
+      tv_sec = زیادہ_سے_زیادہ_عدد;
+#اگر_ختم
+    tv->tv_sec = (صحیح)tv_sec;
+    tv->tv_usec = (صحیح)tv_usec;
+#اگر_ختم
   }
-  else {
+  ورنہ {
     tv->tv_sec = 0;
     tv->tv_usec = 0;
   }
 
-  return tv;
+  واپس tv;
 }
 
 /*
  * Converts a timeval structure into number of milliseconds.
  */
-timediff_t curlx_tvtoms(struct timeval *tv)
+timediff_t curlx_tvtoms(ساخت timeval *tv)
 {
-  return (tv->tv_sec * 1000) + (timediff_t)(tv->tv_usec / 1000);
+  واپس (tv->tv_sec * 1000) + (timediff_t)(tv->tv_usec / 1000);
 }

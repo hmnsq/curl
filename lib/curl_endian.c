@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "curl_endian.h"
+#شامل "curl_endian.h"
 
 /*
  * Curl_read16_le()
@@ -38,10 +38,10 @@
  *
  * Returns the integer.
  */
-unsigned short Curl_read16_le(const unsigned char *buf)
+غیرعلامتی مختصر Curl_read16_le(ثابت غیرعلامتی حرف *buf)
 {
-  return (unsigned short)(((unsigned short)buf[0]) |
-                          ((unsigned short)buf[1] << 8));
+  واپس (غیرعلامتی مختصر)(((غیرعلامتی مختصر)buf[0]) |
+                          ((غیرعلامتی مختصر)buf[1] << 8));
 }
 
 /*
@@ -57,10 +57,10 @@ unsigned short Curl_read16_le(const unsigned char *buf)
  *
  * Returns the integer.
  */
-unsigned int Curl_read32_le(const unsigned char *buf)
+غیرعلامتی صحیح Curl_read32_le(ثابت غیرعلامتی حرف *buf)
 {
-  return ((unsigned int)buf[0]) | ((unsigned int)buf[1] << 8) |
-         ((unsigned int)buf[2] << 16) | ((unsigned int)buf[3] << 24);
+  واپس ((غیرعلامتی صحیح)buf[0]) | ((غیرعلامتی صحیح)buf[1] << 8) |
+         ((غیرعلامتی صحیح)buf[2] << 16) | ((غیرعلامتی صحیح)buf[3] << 24);
 }
 
 /*
@@ -76,8 +76,8 @@ unsigned int Curl_read32_le(const unsigned char *buf)
  *
  * Returns the integer.
  */
-unsigned short Curl_read16_be(const unsigned char *buf)
+غیرعلامتی مختصر Curl_read16_be(ثابت غیرعلامتی حرف *buf)
 {
-  return (unsigned short)(((unsigned short)buf[0] << 8) |
-                          ((unsigned short)buf[1]));
+  واپس (غیرعلامتی مختصر)(((غیرعلامتی مختصر)buf[0] << 8) |
+                          ((غیرعلامتی مختصر)buf[1]));
 }

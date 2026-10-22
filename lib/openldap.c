@@ -22,9 +22,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP)
+#اگر !defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP)
 
 /*
  * Notice that USE_OPENLDAP is only a source code selection switch. When
@@ -37,21 +37,21 @@
  * OpenLDAP library versions, USE_OPENLDAP shall not be defined.
  */
 
-#include <ldap.h>
+#شامل <ldap.h>
 
-#include "urldata.h"
-#include "url.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "vtls/vtls.h"
-#include "transfer.h"
-#include "curl_ldap.h"
-#include "curlx/base64.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curl_sasl.h"
-#include "strcase.h"
-#include "bufref.h"
+#شامل "urldata.h"
+#شامل "url.h"
+#شامل "sendf.h"
+#شامل "curl_trc.h"
+#شامل "vtls/vtls.h"
+#شامل "transfer.h"
+#شامل "curl_ldap.h"
+#شامل "curlx/base64.h"
+#شامل "cfilters.h"
+#شامل "connect.h"
+#شامل "curl_sasl.h"
+#شامل "strcase.h"
+#شامل "bufref.h"
 
 /*
  * Uncommenting this will enable the built-in debug logging of the openldap
@@ -73,7 +73,7 @@
 /* #define CURL_OPENLDAP_DEBUG */
 
 /* Machine states. */
-typedef enum {
+قسمتعریف شمار {
   OLDAP_STOP,           /* Do nothing state, stops the state machine */
   OLDAP_SSL,            /* Performing SSL handshake. */
   OLDAP_STARTTLS,       /* STARTTLS request sent. */
@@ -82,50 +82,50 @@ typedef enum {
   OLDAP_SASL,           /* SASL binding reply. */
   OLDAP_BIND,           /* Simple bind reply. */
   OLDAP_BINDV2,         /* Simple bind reply in protocol version 2. */
-  OLDAP_LAST            /* Never used */
+  OLDAP_آخری            /* Never used */
 } ldapstate;
 
-#ifndef _LDAP_PVT_H
-extern int ldap_pvt_url_scheme2proto(const char *);
-extern int ldap_init_fd(ber_socket_t fd, int proto, const char *url,
+#اگر_غیر_تعریف_شدہ _LDAP_PVT_H
+خارجی صحیح ldap_pvt_url_scheme2proto(ثابت حرف *);
+خارجی صحیح ldap_init_fd(ber_socket_t fd, صحیح proto, ثابت حرف *url,
                         LDAP **ld);
-#endif
+#اگر_ختم
 
-static Curl_recv oldap_recv;
+ساکن Curl_recv oldap_recv;
 
-struct ldapconninfo {
-  struct SASL sasl;          /* SASL-related parameters */
+ساخت ldapconninfo {
+  ساخت SASL sasl;          /* SASL-related parameters */
   LDAP *ld;                  /* Openldap connection handle. */
   Curl_recv *recv;           /* For stacking SSL handler */
   Curl_send *send;
-  struct berval *servercred; /* SASL data from server. */
+  ساخت berval *servercred; /* SASL data from server. */
   ldapstate state;           /* Current machine state. */
   curl_socket_t dupfd;       /* duplicated socket */
-  int proto;                 /* LDAP_PROTO_TCP/LDAP_PROTO_UDP/LDAP_PROTO_IPC */
-  int msgid;                 /* Current message id. */
+  صحیح proto;                 /* LDAP_PROTO_TCP/LDAP_PROTO_UDP/LDAP_PROTO_IPC */
+  صحیح msgid;                 /* Current message id. */
 };
 
-struct ldapreqinfo {
-  int msgid;
-  int nument;
+ساخت ldapreqinfo {
+  صحیح msgid;
+  صحیح nument;
 };
 
 /* meta key for storing ldapconninfo at easy handle */
-#define CURL_META_LDAP_EASY   "meta:proto:ldap:easy"
+#تعریف_کرو CURL_META_LDAP_EASY   "meta:proto:ldap:easy"
 /* meta key for storing ldapconninfo at connection */
-#define CURL_META_LDAP_CONN   "meta:proto:ldap:conn"
+#تعریف_کرو CURL_META_LDAP_CONN   "meta:proto:ldap:conn"
 
 /*
  * oldap_state()
  *
  * This is the ONLY way to change LDAP state!
  */
-static void oldap_state(struct Curl_easy *data, struct ldapconninfo *li,
+ساکن خالی oldap_state(ساخت Curl_easy *ڈیٹا, ساخت ldapconninfo *li,
                         ldapstate newstate)
 {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#اگر defined(DEBUGBUILD) && defined(CURLVERBOSE)
   /* for debug purposes */
-  static const char * const names[] = {
+  ساکن ثابت حرف * ثابت نام[] = {
     "STOP",
     "SSL",
     "STARTTLS",
@@ -134,39 +134,39 @@ static void oldap_state(struct Curl_easy *data, struct ldapconninfo *li,
     "SASL",
     "BIND",
     "BINDV2",
-    /* LAST */
+    /*آخری*/
   };
 
-  if(li->state != newstate)
-    infof(data, "LDAP %p state change from %s to %s",
-          (void *)li, names[li->state], names[newstate]);
-#else
-  (void)data;
-#endif
+  اگر(li->state != newstate)
+    infof(ڈیٹا, "LDAP %p state change from %s to %s",
+          (خالی *)li, نام[li->state], نام[newstate]);
+#ورنہ
+  (خالی)ڈیٹا;
+#اگر_ختم
   li->state = newstate;
 }
 
 /* Map some particular LDAP error codes to CURLcode values. */
-static CURLcode oldap_map_error(int rc, CURLcode result)
+ساکن CURLcode oldap_map_error(صحیح rc, CURLcode نتیجہ)
 {
-  switch(rc) {
-  case LDAP_NO_MEMORY:
-    return CURLE_OUT_OF_MEMORY;
-  case LDAP_INVALID_CREDENTIALS:
-    return CURLE_LOGIN_DENIED;
-  case LDAP_PROTOCOL_ERROR:
-    return CURLE_UNSUPPORTED_PROTOCOL;
-  case LDAP_INSUFFICIENT_ACCESS:
-    return CURLE_REMOTE_ACCESS_DENIED;
+  انتخاب(rc) {
+  حالت LDAP_NO_حافظہ:
+    واپس CURLE_برآمد_کا_حافظہ;
+  حالت LDAP_INVALID_CREDENTIALS:
+    واپس CURLE_LOGIN_DENIED;
+  حالت LDAP_PROTOCOL_ERROR:
+    واپس CURLE_UNSUPPORTED_PROTOCOL;
+  حالت LDAP_INSUFFICIENT_ACCESS:
+    واپس CURLE_REMOTE_ACCESS_DENIED;
   }
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode oldap_url_parse(struct Curl_easy *data, LDAPURLDesc **ludp)
+ساکن CURLcode oldap_url_parse(ساخت Curl_easy *ڈیٹا, LDAPURLDesc **ludp)
 {
-  CURLcode result = CURLE_OK;
-  int rc;
-  static const char * const url_errs[] = {
+  CURLcode نتیجہ = CURLE_OK;
+  صحیح rc;
+  ساکن ثابت حرف * ثابت url_errs[] = {
     "success",
     "out of memory",
     "bad parameter",
@@ -180,334 +180,334 @@ static CURLcode oldap_url_parse(struct Curl_easy *data, LDAPURLDesc **ludp)
     "bad or missing extensions"
   };
 
-  *ludp = NULL;
+  *ludp = تہی;
   /* `ldap_url_parse() seems to be terrible with urls
    * that have user/pass/options in it. So when we have options or
    * creds from the url, fail without calling the function.
    * Yes, this is super-weird code and I do not like it. */
-  if((data->state.creds && (data->state.creds->source == CREDS_URL)) ||
-     data->state.up.options)
+  اگر((ڈیٹا->state.creds && (ڈیٹا->state.creds->ماخذ == CREDS_URL)) ||
+     ڈیٹا->state.اوپر.options)
     rc = LDAP_URL_ERR_BADURL;
-  else
-    rc = ldap_url_parse(Curl_bufref_ptr(&data->state.url), ludp);
+  ورنہ
+    rc = ldap_url_parse(Curl_bufref_ptr(&ڈیٹا->state.url), ludp);
 
-  if(rc != LDAP_URL_SUCCESS) {
-    const char *msg = "url parsing problem";
+  اگر(rc != LDAP_URL_SUCCESS) {
+    ثابت حرف *پیغام = "url parsing problem";
 
-    result = rc == LDAP_URL_ERR_MEM ? CURLE_OUT_OF_MEMORY :
+    نتیجہ = rc == LDAP_URL_ERR_MEM ? CURLE_برآمد_کا_حافظہ :
       CURLE_URL_MALFORMAT;
     rc -= LDAP_URL_SUCCESS;
-    if((size_t)rc < CURL_ARRAYSIZE(url_errs))
-      msg = url_errs[rc];
-    failf(data, "LDAP local: %s", msg);
+    اگر((size_t)rc < CURL_ARRAYSIZE(url_errs))
+      پیغام = url_errs[rc];
+    failf(ڈیٹا, "LDAP local: %s", پیغام);
   }
-  return result;
+  واپس نتیجہ;
 }
 
 /* Parse the login options. */
-static CURLcode oldap_parse_login_options(struct connectdata *conn)
+ساکن CURLcode oldap_parse_login_options(ساخت connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  const char *ptr = conn->options;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ثابت حرف *ptr = conn->options;
 
   DEBUGASSERT(li);
-  if(!li)
-    return CURLE_FAILED_INIT;
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
 
-  while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+  جب(!نتیجہ && ptr && *ptr) {
+    ثابت حرف *کلید = ptr;
+    ثابت حرف *قدر;
 
-    while(*ptr && *ptr != '=')
+    جب(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    قدر = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    جب(*ptr && *ptr != ';')
       ptr++;
 
-    if(checkprefix("AUTH=", key))
-      result = Curl_sasl_parse_url_auth_option(&li->sasl, value, ptr - value);
-    else
-      result = CURLE_SETOPT_OPTION_SYNTAX;
+    اگر(checkprefix("AUTH=", کلید))
+      نتیجہ = Curl_sasl_parse_url_auth_option(&li->sasl, قدر, ptr - قدر);
+    ورنہ
+      نتیجہ = CURLE_SETOPT_OPTION_SYNTAX;
 
-    if(*ptr == ';')
+    اگر(*ptr == ';')
       ptr++;
   }
 
-  return result == CURLE_URL_MALFORMAT ? CURLE_SETOPT_OPTION_SYNTAX : result;
+  واپس نتیجہ == CURLE_URL_MALFORMAT ? CURLE_SETOPT_OPTION_SYNTAX : نتیجہ;
 }
 
-static CURLcode oldap_setup_connection(struct Curl_easy *data,
-                                       struct connectdata *conn)
+ساکن CURLcode oldap_تیاری_connection(ساخت Curl_easy *ڈیٹا,
+                                       ساخت connectdata *conn)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
   LDAPURLDesc *lud;
-  (void)conn;
+  (خالی)conn;
 
   /* Early URL syntax check. */
-  result = oldap_url_parse(data, &lud);
+  نتیجہ = oldap_url_parse(ڈیٹا, &lud);
   ldap_free_urldesc(lud);
 
-  return result;
+  واپس نتیجہ;
 }
 
 /*
  * Get the SASL authentication challenge from the server credential buffer.
  */
-static CURLcode oldap_get_message(struct Curl_easy *data, struct bufref *out)
+ساکن CURLcode oldap_get_پیغام(ساخت Curl_easy *ڈیٹا, ساخت bufref *برآمد)
 {
-  struct ldapconninfo *li =
-    Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  struct berval *servercred = li ? li->servercred : NULL;
+  ساخت ldapconninfo *li =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_LDAP_CONN);
+  ساخت berval *servercred = li ? li->servercred : تہی;
   DEBUGASSERT(li);
-  if(!li)
-    return CURLE_FAILED_INIT;
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
 
-  if(!servercred || !servercred->bv_val)
-    return CURLE_WEIRD_SERVER_REPLY;
-  Curl_bufref_set(out, servercred->bv_val, servercred->bv_len, NULL);
-  return CURLE_OK;
+  اگر(!servercred || !servercred->bv_val)
+    واپس CURLE_WEIRD_SERVER_جواب;
+  Curl_bufref_سیٹ(برآمد, servercred->bv_val, servercred->bv_len, تہی);
+  واپس CURLE_OK;
 }
 
 /*
  * Sends an initial SASL bind request to the server.
  */
-static CURLcode oldap_perform_auth(struct Curl_easy *data, const char *mech,
-                                   const struct bufref *initresp)
+ساکن CURLcode oldap_perform_auth(ساخت Curl_easy *ڈیٹا, ثابت حرف *mech,
+                                   ثابت ساخت bufref *initresp)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct berval cred;
-  struct berval *pcred = &cred;
-  int rc;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ساخت berval cred;
+  ساخت berval *pcred = &cred;
+  صحیح rc;
 
   DEBUGASSERT(li);
-  if(!li)
-    return CURLE_FAILED_INIT;
-  cred.bv_val = (char *)CURL_UNCONST(Curl_bufref_ptr(initresp));
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
+  cred.bv_val = (حرف *)CURL_UNCONST(Curl_bufref_ptr(initresp));
   cred.bv_len = Curl_bufref_len(initresp);
-  if(!cred.bv_val)
-    pcred = NULL;
-  rc = ldap_sasl_bind(li->ld, NULL, mech, pcred, NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
-  return CURLE_OK;
+  اگر(!cred.bv_val)
+    pcred = تہی;
+  rc = ldap_sasl_bind(li->ld, تہی, mech, pcred, تہی, تہی, &li->msgid);
+  اگر(rc != LDAP_SUCCESS)
+    واپس oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+  واپس CURLE_OK;
 }
 
 /*
  * Sends SASL continuation.
  */
-static CURLcode oldap_continue_auth(struct Curl_easy *data, const char *mech,
-                                    const struct bufref *resp)
+ساکن CURLcode oldap_continue_auth(ساخت Curl_easy *ڈیٹا, ثابت حرف *mech,
+                                    ثابت ساخت bufref *resp)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct berval cred;
-  struct berval *pcred = &cred;
-  int rc;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ساخت berval cred;
+  ساخت berval *pcred = &cred;
+  صحیح rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  cred.bv_val = (char *)CURL_UNCONST(Curl_bufref_ptr(resp));
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
+  cred.bv_val = (حرف *)CURL_UNCONST(Curl_bufref_ptr(resp));
   cred.bv_len = Curl_bufref_len(resp);
-  if(!cred.bv_val)
-    pcred = NULL;
-  rc = ldap_sasl_bind(li->ld, NULL, mech, pcred, NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
-  return CURLE_OK;
+  اگر(!cred.bv_val)
+    pcred = تہی;
+  rc = ldap_sasl_bind(li->ld, تہی, mech, pcred, تہی, تہی, &li->msgid);
+  اگر(rc != LDAP_SUCCESS)
+    واپس oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+  واپس CURLE_OK;
 }
 
 /*
  * Sends SASL bind cancellation.
  */
-static CURLcode oldap_cancel_auth(struct Curl_easy *data, const char *mech)
+ساکن CURLcode oldap_cancel_auth(ساخت Curl_easy *ڈیٹا, ثابت حرف *mech)
 {
-  struct ldapconninfo *li =
-    Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  int rc;
+  ساخت ldapconninfo *li =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_LDAP_CONN);
+  صحیح rc;
 
-  (void)mech;
-  if(!li)
-    return CURLE_FAILED_INIT;
-  rc = ldap_sasl_bind(li->ld, NULL, LDAP_SASL_NULL, NULL, NULL, NULL,
+  (خالی)mech;
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
+  rc = ldap_sasl_bind(li->ld, تہی, LDAP_SASL_NULL, تہی, تہی, تہی,
                       &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
-  return CURLE_OK;
+  اگر(rc != LDAP_SUCCESS)
+    واپس oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+  واپس CURLE_OK;
 }
 
 /* Starts LDAP simple bind. */
-static CURLcode oldap_perform_bind(struct Curl_easy *data, ldapstate newstate)
+ساکن CURLcode oldap_perform_bind(ساخت Curl_easy *ڈیٹا, ldapstate newstate)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  const char *binddn = NULL;
-  struct berval passwd;
-  int rc;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ثابت حرف *binddn = تہی;
+  ساخت berval passwd;
+  صحیح rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  passwd.bv_val = NULL;
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
+  passwd.bv_val = تہی;
   passwd.bv_len = 0;
 
-  if(conn->creds) {
+  اگر(conn->creds) {
     binddn = Curl_creds_user(conn->creds);
     passwd.bv_val = CURL_UNCONST(Curl_creds_passwd(conn->creds));
-    passwd.bv_len = strlen(passwd.bv_val);
+    passwd.bv_len = لڑی_لمبائی(passwd.bv_val);
   }
 
   rc = ldap_sasl_bind(li->ld, binddn, LDAP_SASL_SIMPLE, &passwd,
-                      NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc,
-                           data->state.creds ?
+                      تہی, تہی, &li->msgid);
+  اگر(rc != LDAP_SUCCESS)
+    واپس oldap_map_error(rc,
+                           ڈیٹا->state.creds ?
                            CURLE_LOGIN_DENIED : CURLE_LDAP_CANNOT_BIND);
-  oldap_state(data, li, newstate);
-  return CURLE_OK;
+  oldap_state(ڈیٹا, li, newstate);
+  واپس CURLE_OK;
 }
 
 /* Query the supported SASL authentication mechanisms. */
-static CURLcode oldap_perform_mechs(struct Curl_easy *data)
+ساکن CURLcode oldap_perform_mechs(ساخت Curl_easy *ڈیٹا)
 {
-  struct ldapconninfo *li =
-    Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  int rc;
-  static const char * const supportedSASLMechanisms[] = {
+  ساخت ldapconninfo *li =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_LDAP_CONN);
+  صحیح rc;
+  ساکن ثابت حرف * ثابت supportedSASLMechanisms[] = {
     "supportedSASLMechanisms",
-    NULL
+    تہی
   };
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
   /* Casting away the const for the 3rd parameter that the LDAP API expects as
      a non-const char ** is potentially unsafe but we believe the lack of
      const in the API was an oversight and that no LDAP implementation
      actually modifies the input. */
-  rc = ldap_search_ext(li->ld, "", LDAP_SCOPE_BASE, "(objectclass=*)",
-                       (char **)CURL_UNCONST(supportedSASLMechanisms), 0,
-                       NULL, NULL, NULL, 0, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LOGIN_DENIED);
-  oldap_state(data, li, OLDAP_MECHS);
-  return CURLE_OK;
+  rc = ldap_تلاش_ext(li->ld, "", LDAP_SCOPE_بنیاد, "(objectclass=*)",
+                       (حرف **)CURL_UNCONST(supportedSASLMechanisms), 0,
+                       تہی, تہی, تہی, 0, &li->msgid);
+  اگر(rc != LDAP_SUCCESS)
+    واپس oldap_map_error(rc, CURLE_LOGIN_DENIED);
+  oldap_state(ڈیٹا, li, OLDAP_MECHS);
+  واپس CURLE_OK;
 }
 
 /* Starts SASL bind. */
-static CURLcode oldap_perform_sasl(struct Curl_easy *data)
+ساکن CURLcode oldap_perform_sasl(ساخت Curl_easy *ڈیٹا)
 {
-  struct ldapconninfo *li =
-    Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  saslprogress progress = SASL_IDLE;
-  CURLcode result;
+  ساخت ldapconninfo *li =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_LDAP_CONN);
+  saslprogress پیش_رفت = SASL_IDLE;
+  CURLcode نتیجہ;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  result = Curl_sasl_start(&li->sasl, data, TRUE, &progress);
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
+  نتیجہ = Curl_sasl_آغاز(&li->sasl, ڈیٹا, TRUE, &پیش_رفت);
 
-  oldap_state(data, li, OLDAP_SASL);
-  if(!result && progress != SASL_INPROGRESS)
-    result = Curl_sasl_is_blocked(&li->sasl, data);
-  return result;
+  oldap_state(ڈیٹا, li, OLDAP_SASL);
+  اگر(!نتیجہ && پیش_رفت != SASL_INPROGRESS)
+    نتیجہ = Curl_sasl_is_blocked(&li->sasl, ڈیٹا);
+  واپس نتیجہ;
 }
 
-#ifdef USE_SSL
-static int ldapsb_tls_setup(Sockbuf_IO_Desc *sbiod, void *arg)
+#اگر_تعریف_شدہ USE_SSL
+ساکن صحیح ldapsb_tls_تیاری(Sockbuf_IO_Desc *sbiod, خالی *arg)
 {
   sbiod->sbiod_pvt = arg;
-  return 0;
+  واپس 0;
 }
 
-static int ldapsb_tls_remove(Sockbuf_IO_Desc *sbiod)
+ساکن صحیح ldapsb_tls_remove(Sockbuf_IO_Desc *sbiod)
 {
-  sbiod->sbiod_pvt = NULL;
-  return 0;
+  sbiod->sbiod_pvt = تہی;
+  واپس 0;
 }
 
 /* if there is a duplicated socket to close, close it */
-static int ldapsb_tls_close(Sockbuf_IO_Desc *sbiod)
+ساکن صحیح ldapsb_tls_close(Sockbuf_IO_Desc *sbiod)
 {
-  struct Curl_easy *data = sbiod->sbiod_pvt;
-  if(data) {
-    struct connectdata *conn = data->conn;
-    if(conn) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-      if(li && (li->dupfd != CURL_SOCKET_BAD)) {
+  ساخت Curl_easy *ڈیٹا = sbiod->sbiod_pvt;
+  اگر(ڈیٹا) {
+    ساخت connectdata *conn = ڈیٹا->conn;
+    اگر(conn) {
+      ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+      اگر(li && (li->dupfd != CURL_SOCKET_BAD)) {
         sclose(li->dupfd);
         li->dupfd = CURL_SOCKET_BAD;
       }
     }
   }
 
-  return 0;
+  واپس 0;
 }
 
-static int ldapsb_tls_ctrl(Sockbuf_IO_Desc *sbiod, int opt, void *arg)
+ساکن صحیح ldapsb_tls_ctrl(Sockbuf_IO_Desc *sbiod, صحیح opt, خالی *arg)
 {
-  (void)arg;
-  if(opt == LBER_SB_OPT_DATA_READY) {
-    struct Curl_easy *data = sbiod->sbiod_pvt;
-    return Curl_conn_data_pending(data, FIRSTSOCKET);
+  (خالی)arg;
+  اگر(opt == LBER_SB_OPT_ڈیٹا_READY) {
+    ساخت Curl_easy *ڈیٹا = sbiod->sbiod_pvt;
+    واپس Curl_conn_ڈیٹا_pending(ڈیٹا, FIRSTSOCKET);
   }
-  return 0;
+  واپس 0;
 }
 
-static ber_slen_t ldapsb_tls_read(Sockbuf_IO_Desc *sbiod, void *buf,
+ساکن ber_slen_t ldapsb_tls_read(Sockbuf_IO_Desc *sbiod, خالی *buf,
                                   ber_len_t len)
 {
-  struct Curl_easy *data = sbiod->sbiod_pvt;
+  ساخت Curl_easy *ڈیٹا = sbiod->sbiod_pvt;
   ber_slen_t ret = 0;
-  if(data) {
-    struct connectdata *conn = data->conn;
-    if(conn) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-      CURLcode result = CURLE_RECV_ERROR;
+  اگر(ڈیٹا) {
+    ساخت connectdata *conn = ڈیٹا->conn;
+    اگر(conn) {
+      ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+      CURLcode نتیجہ = CURLE_RECV_ERROR;
       size_t nread;
 
-      if(!li) {
-        SET_SOCKERRNO(SOCKEINVAL);
-        return -1;
+      اگر(!li) {
+        سیٹ_SOCKERRNO(SOCKEINVAL);
+        واپس -1;
       }
-      result = (li->recv)(data, FIRSTSOCKET, buf, len, &nread);
-      if(result == CURLE_AGAIN) {
-        SET_SOCKERRNO(SOCKEWOULDBLOCK);
+      نتیجہ = (li->recv)(ڈیٹا, FIRSTSOCKET, buf, len, &nread);
+      اگر(نتیجہ == CURLE_AGAIN) {
+        سیٹ_SOCKERRNO(SOCKEWOULDBLOCK);
       }
-      ret = result ? -1 : (ber_slen_t)nread;
+      ret = نتیجہ ? -1 : (ber_slen_t)nread;
     }
   }
-  return ret;
+  واپس ret;
 }
 
-static ber_slen_t ldapsb_tls_write(Sockbuf_IO_Desc *sbiod, void *buf,
+ساکن ber_slen_t ldapsb_tls_write(Sockbuf_IO_Desc *sbiod, خالی *buf,
                                    ber_len_t len)
 {
-  struct Curl_easy *data = sbiod->sbiod_pvt;
+  ساخت Curl_easy *ڈیٹا = sbiod->sbiod_pvt;
   ber_slen_t ret = 0;
-  if(data) {
-    struct connectdata *conn = data->conn;
-    if(conn) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-      CURLcode result = CURLE_SEND_ERROR;
+  اگر(ڈیٹا) {
+    ساخت connectdata *conn = ڈیٹا->conn;
+    اگر(conn) {
+      ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+      CURLcode نتیجہ = CURLE_SEND_ERROR;
       size_t nwritten;
 
-      if(!li) {
-        SET_SOCKERRNO(SOCKEINVAL);
-        return -1;
+      اگر(!li) {
+        سیٹ_SOCKERRNO(SOCKEINVAL);
+        واپس -1;
       }
-      result = (li->send)(data, FIRSTSOCKET, buf, len, FALSE, &nwritten);
-      if(result == CURLE_AGAIN) {
-        SET_SOCKERRNO(SOCKEWOULDBLOCK);
+      نتیجہ = (li->send)(ڈیٹا, FIRSTSOCKET, buf, len, FALSE, &nwritten);
+      اگر(نتیجہ == CURLE_AGAIN) {
+        سیٹ_SOCKERRNO(SOCKEWOULDBLOCK);
       }
-      ret = result ? -1 : (ber_slen_t)nwritten;
+      ret = نتیجہ ? -1 : (ber_slen_t)nwritten;
     }
   }
-  return ret;
+  واپس ret;
 }
 
-static Sockbuf_IO ldapsb_tls = {
-  ldapsb_tls_setup,
+ساکن Sockbuf_IO ldapsb_tls = {
+  ldapsb_tls_تیاری,
   ldapsb_tls_remove,
   ldapsb_tls_ctrl,
   ldapsb_tls_read,
@@ -515,857 +515,857 @@ static Sockbuf_IO ldapsb_tls = {
   ldapsb_tls_close
 };
 
-static bool ssl_installed(struct connectdata *conn)
+ساکن bool ssl_installed(ساخت connectdata *conn)
 {
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  return li && li->recv;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  واپس li && li->recv;
 }
 
-static CURLcode oldap_ssl_connect(struct Curl_easy *data, ldapstate newstate)
+ساکن CURLcode oldap_ssl_connect(ساخت Curl_easy *ڈیٹا, ldapstate newstate)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
   bool ssldone = FALSE;
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
-  if(result)
-    return result;
-  oldap_state(data, li, newstate);
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
+  نتیجہ = Curl_conn_connect(ڈیٹا, FIRSTSOCKET, FALSE, &ssldone);
+  اگر(نتیجہ)
+    واپس نتیجہ;
+  oldap_state(ڈیٹا, li, newstate);
 
-  if(ssldone) {
+  اگر(ssldone) {
     Sockbuf *sb;
 
     /* Install the libcurl SSL handlers into the sockbuf. */
-    if((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
-       ber_sockbuf_add_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, data))
-      return CURLE_FAILED_INIT;
+    اگر((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
+       ber_sockbuf_جوڑو_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, ڈیٹا))
+      واپس CURLE_FAILED_INIT;
     li->recv = conn->recv[FIRSTSOCKET];
     li->send = conn->send[FIRSTSOCKET];
   }
 
-  return result;
+  واپس نتیجہ;
 }
 
 /* Send the STARTTLS request */
-static CURLcode oldap_perform_starttls(struct Curl_easy *data)
+ساکن CURLcode oldap_perform_starttls(ساخت Curl_easy *ڈیٹا)
 {
-  struct ldapconninfo *li =
-    Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  int rc;
+  ساخت ldapconninfo *li =
+    Curl_conn_meta_get(ڈیٹا->conn, CURL_META_LDAP_CONN);
+  صحیح rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  rc = ldap_start_tls(li->ld, NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_USE_SSL_FAILED);
-  oldap_state(data, li, OLDAP_STARTTLS);
-  return CURLE_OK;
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
+  rc = ldap_آغاز_tls(li->ld, تہی, تہی, &li->msgid);
+  اگر(rc != LDAP_SUCCESS)
+    واپس oldap_map_error(rc, CURLE_USE_SSL_FAILED);
+  oldap_state(ڈیٹا, li, OLDAP_STARTTLS);
+  واپس CURLE_OK;
 }
-#endif
+#اگر_ختم
 
-static void oldap_easy_dtor(const void *key, size_t klen, void *entry)
+ساکن خالی oldap_easy_dtor(ثابت خالی *کلید, size_t klen, خالی *اندراج_2)
 {
-  struct ldapreqinfo *lr = entry;
-  (void)key;
-  (void)klen;
+  ساخت ldapreqinfo *lr = اندراج_2;
+  (خالی)کلید;
+  (خالی)klen;
   curlx_free(lr);
 }
 
-static void oldap_conn_dtor(const void *key, size_t klen, void *entry)
+ساکن خالی oldap_conn_dtor(ثابت خالی *کلید, size_t klen, خالی *اندراج_2)
 {
-  struct ldapconninfo *li = entry;
-  (void)key;
-  (void)klen;
-  if(li->ld) {
-    ldap_unbind_ext(li->ld, NULL, NULL);
-    li->ld = NULL;
+  ساخت ldapconninfo *li = اندراج_2;
+  (خالی)کلید;
+  (خالی)klen;
+  اگر(li->ld) {
+    ldap_unbind_ext(li->ld, تہی, تہی);
+    li->ld = تہی;
   }
   curlx_free(li);
 }
 
 /* SASL parameters for the ldap protocol */
-static const struct SASLproto saslldap = {
+ساکن ثابت ساخت SASLproto saslldap = {
   "ldap",                     /* The service name */
   oldap_perform_auth,         /* Send authentication command */
   oldap_continue_auth,        /* Send authentication continuation */
   oldap_cancel_auth,          /* Send authentication cancellation */
-  oldap_get_message,          /* Get SASL response message */
+  oldap_get_پیغام,          /* Get SASL response message */
   0,                          /* Maximum initial response length (no max) */
-  LDAP_SASL_BIND_IN_PROGRESS, /* Code received when continuation is expected */
+  LDAP_SASL_BIND_اندر_پیش_رفت, /* Code received when continuation is expected */
   LDAP_SUCCESS,               /* Code to receive upon authentication success */
   SASL_AUTH_NONE,             /* Default mechanisms */
   0                           /* Configuration flags */
 };
 
-static CURLcode oldap_connect(struct Curl_easy *data, bool *done)
+ساکن CURLcode oldap_connect(ساخت Curl_easy *ڈیٹا, bool *مکمل)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li;
-  static const int version = LDAP_VERSION3;
-  char *hosturl = NULL;
-  CURLcode result;
-  int rc;
-#ifdef CURL_OPENLDAP_DEBUG
-  static int do_trace = -1;
-#endif
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapconninfo *li;
+  ساکن ثابت صحیح نسخہ_2 = LDAP_VERSION3;
+  حرف *hosturl = تہی;
+  CURLcode نتیجہ;
+  صحیح rc;
+#اگر_تعریف_شدہ CURL_OPENLDAP_DEBUG
+  ساکن صحیح do_trace = -1;
+#اگر_ختم
 
-  (void)done;
+  (خالی)مکمل;
 
-  li = curlx_calloc(1, sizeof(struct ldapconninfo));
-  if(!li) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  li = curlx_calloc(1, حجم(ساخت ldapconninfo));
+  اگر(!li) {
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ برآمد;
   }
   li->dupfd = CURL_SOCKET_BAD;
 
-  result = Curl_conn_meta_set(conn, CURL_META_LDAP_CONN, li, oldap_conn_dtor);
-  if(result)
-    goto out;
+  نتیجہ = Curl_conn_meta_سیٹ(conn, CURL_META_LDAP_CONN, li, oldap_conn_dtor);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
-  li->proto = ldap_pvt_url_scheme2proto(data->state.origin->scheme->name);
+  li->proto = ldap_pvt_url_scheme2proto(ڈیٹا->state.origin->scheme->name);
 
   /* Initialize the SASL storage */
-  Curl_sasl_init(&li->sasl, data, &saslldap);
+  Curl_sasl_init(&li->sasl, ڈیٹا, &saslldap);
 
-  result = oldap_parse_login_options(conn);
-  if(result)
-    goto out;
+  نتیجہ = oldap_parse_login_options(conn);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
   hosturl = curl_maprintf("%s://%s:%u",
                           conn->scheme->name,
                           conn->origin->ipv6 ?
                           conn->origin->user_hostname :
                           conn->origin->hostname,
-                          conn->origin->port);
-  if(!hosturl) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+                          conn->origin->پورٹ);
+  اگر(!hosturl) {
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ برآمد;
   }
 
   {
-#ifdef _WIN32
+#اگر_تعریف_شدہ _WIN32
     SOCKET dupfd = INVALID_SOCKET;
     WSAPROTOCOL_INFO pi;
-    if(WSADuplicateSocket(conn->sock[FIRSTSOCKET], GetCurrentProcessId(),
+    اگر(WSADuplicateSocket(conn->sock[FIRSTSOCKET], GetCurrentProcessId(),
                           &pi))
       ; /* error */
-    else
-      dupfd = CURL_SOCKET(pi.iAddressFamily, pi.iSocketType, pi.iProtocol);
-#else
-#ifdef F_DUPFD_CLOEXEC
-    int dupfd = fcntl(conn->sock[FIRSTSOCKET], F_DUPFD_CLOEXEC, 0);
-#else
-    int dupfd = dup(conn->sock[FIRSTSOCKET]);
-#ifdef HAVE_FCNTL
-    if((dupfd != CURL_SOCKET_BAD) &&
+    ورنہ
+      dupfd = CURL_SOCKET(pi.i_پتہ_Family, pi.iSocketType, pi.iProtocol);
+#ورنہ
+#اگر_تعریف_شدہ F_DUPFD_CLOEXEC
+    صحیح dupfd = fcntl(conn->sock[FIRSTSOCKET], F_DUPFD_CLOEXEC, 0);
+#ورنہ
+    صحیح dupfd = dup(conn->sock[FIRSTSOCKET]);
+#اگر_تعریف_شدہ HAVE_FCNTL
+    اگر((dupfd != CURL_SOCKET_BAD) &&
        (fcntl(dupfd, F_SETFD, FD_CLOEXEC) < 0)) {
       sclose(dupfd);
       dupfd = CURL_SOCKET_BAD;
     }
-#endif /* HAVE_FCNTL */
-#endif /* F_DUPFD_CLOEXEC */
-#endif /* _WIN32 */
+#اگر_ختم /* HAVE_FCNTL */
+#اگر_ختم /* F_DUPFD_CLOEXEC */
+#اگر_ختم /* _WIN32 */
 
-    if(dupfd == CURL_SOCKET_BAD) {
-      result = CURLE_COULDNT_CONNECT;
-      goto out;
+    اگر(dupfd == CURL_SOCKET_BAD) {
+      نتیجہ = CURLE_COULDNT_CONNECT;
+      جاؤ برآمد;
     }
     rc = ldap_init_fd((ber_socket_t)dupfd, li->proto, hosturl, &li->ld);
-    if(rc)
+    اگر(rc)
       sclose(dupfd);
-    else
+    ورنہ
       /* store the socket, as when this is used by TLS we close this ourselves
          and at this point the code does not yet know if this will use TLS or
          not */
       li->dupfd = dupfd;
   }
-  if(rc) {
-    failf(data, "LDAP local: Cannot connect to %s, %s",
+  اگر(rc) {
+    failf(ڈیٹا, "LDAP local: Cannot connect to %s, %s",
           hosturl, ldap_err2string(rc));
-    result = CURLE_COULDNT_CONNECT;
-    goto out;
+    نتیجہ = CURLE_COULDNT_CONNECT;
+    جاؤ برآمد;
   }
 
-#ifdef CURL_OPENLDAP_DEBUG
-  if(do_trace < 0) {
-    const char *env = getenv("CURL_OPENLDAP_TRACE");
+#اگر_تعریف_شدہ CURL_OPENLDAP_DEBUG
+  اگر(do_trace < 0) {
+    ثابت حرف *env = getenv("CURL_OPENLDAP_TRACE");
     curl_off_t e = 0;
-    if(!curlx_str_number(&env, &e, INT_MAX))
+    اگر(!curlx_str_نمبر(&env, &e, زیادہ_سے_زیادہ_عدد))
       do_trace = e > 0;
   }
-  if(do_trace)
-    ldap_set_option(li->ld, LDAP_OPT_DEBUG_LEVEL, &do_trace);
-#endif
+  اگر(do_trace)
+    ldap_سیٹ_option(li->ld, LDAP_OPT_DEBUG_LEVEL, &do_trace);
+#اگر_ختم
 
   /* Try version 3 first. */
-  ldap_set_option(li->ld, LDAP_OPT_PROTOCOL_VERSION, &version);
+  ldap_سیٹ_option(li->ld, LDAP_OPT_PROTOCOL_نسخہ, &نسخہ_2);
 
   /* Do not chase referrals. */
-  ldap_set_option(li->ld, LDAP_OPT_REFERRALS, LDAP_OPT_OFF);
+  ldap_سیٹ_option(li->ld, LDAP_OPT_REFERRALS, LDAP_OPT_OFF);
 
   {
     ber_len_t max = 256 * 1024;
     Sockbuf *sb;
-    if((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
+    اگر((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
        /* Set the maximum allowed size of an incoming message, which to
           OpenLDAP means that it will malloc() memory up to this size. If not
           set, there is no limit and we instead risk a malloc() failure. */
-       !ber_sockbuf_ctrl(sb, LBER_SB_OPT_SET_MAX_INCOMING, &max)) {
-      result = CURLE_FAILED_INIT;
-      goto out;
+       !ber_sockbuf_ctrl(sb, LBER_SB_OPT_سیٹ_MAX_INCOMING, &max)) {
+      نتیجہ = CURLE_FAILED_INIT;
+      جاؤ برآمد;
     }
   }
 
-#ifdef USE_SSL
-  if(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
-    result = oldap_ssl_connect(data, OLDAP_SSL);
-    goto out;
+#اگر_تعریف_شدہ USE_SSL
+  اگر(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+    نتیجہ = oldap_ssl_connect(ڈیٹا, OLDAP_SSL);
+    جاؤ برآمد;
   }
 
-  if(data->set.use_ssl) {
-    result = oldap_perform_starttls(data);
-    if(!result || data->set.use_ssl != CURLUSESSL_TRY)
-      goto out;
+  اگر(ڈیٹا->سیٹ.use_ssl) {
+    نتیجہ = oldap_perform_starttls(ڈیٹا);
+    اگر(!نتیجہ || ڈیٹا->سیٹ.use_ssl != CURLUSESSL_TRY)
+      جاؤ برآمد;
   }
-#endif
+#اگر_ختم
 
-  if(li->sasl.prefmech != SASL_AUTH_NONE) {
-    result = oldap_perform_mechs(data);
-    goto out;
+  اگر(li->sasl.prefmech != SASL_AUTH_NONE) {
+    نتیجہ = oldap_perform_mechs(ڈیٹا);
+    جاؤ برآمد;
   }
 
   /* Force bind even if anonymous bind is not needed in protocol version 3
      to detect missing version 3 support. */
-  result = oldap_perform_bind(data, OLDAP_BIND);
+  نتیجہ = oldap_perform_bind(ڈیٹا, OLDAP_BIND);
 
-out:
+برآمد:
   curlx_free(hosturl);
-  return result;
+  واپس نتیجہ;
 }
 
 /* Handle the supported SASL mechanisms query response */
-static CURLcode oldap_state_mechs_resp(struct Curl_easy *data,
-                                       LDAPMessage *msg, int code)
+ساکن CURLcode oldap_state_mechs_resp(ساخت Curl_easy *ڈیٹا,
+                                       LDAPMessage *پیغام, صحیح رمز)
 {
-  struct connectdata *conn;
-  struct ldapconninfo *li;
-  int rc;
-  BerElement *ber = NULL;
-  CURLcode result = CURLE_OK;
-  struct berval bv, *bvals;
+  ساخت connectdata *conn;
+  ساخت ldapconninfo *li;
+  صحیح rc;
+  BerElement *ber = تہی;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت berval bv, *bvals;
 
-  if(!data)
-    return CURLE_FAILED_INIT;
+  اگر(!ڈیٹا)
+    واپس CURLE_FAILED_INIT;
 
-  conn = data->conn;
+  conn = ڈیٹا->conn;
   li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  switch(ldap_msgtype(msg)) {
-  case LDAP_RES_SEARCH_ENTRY:
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
+  انتخاب(ldap_msgtype(پیغام)) {
+  حالت LDAP_RES_تلاش_اندراج:
     /* Got a list of supported SASL mechanisms. */
-    if(code != LDAP_SUCCESS && code != LDAP_NO_RESULTS_RETURNED)
-      return CURLE_LOGIN_DENIED;
+    اگر(رمز != LDAP_SUCCESS && رمز != LDAP_NO_RESULTS_RETURNED)
+      واپس CURLE_LOGIN_DENIED;
 
-    rc = ldap_get_dn_ber(li->ld, msg, &ber, &bv);
-    if(rc < 0)
-      return oldap_map_error(rc, CURLE_BAD_CONTENT_ENCODING);
-    for(rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals);
+    rc = ldap_get_dn_ber(li->ld, پیغام, &ber, &bv);
+    اگر(rc < 0)
+      واپس oldap_map_error(rc, CURLE_BAD_CONTENT_ENCODING);
+    برائے(rc = ldap_get_attribute_ber(li->ld, پیغام, ber, &bv, &bvals);
         rc == LDAP_SUCCESS;
-        rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals)) {
-      int i;
+        rc = ldap_get_attribute_ber(li->ld, پیغام, ber, &bv, &bvals)) {
+      صحیح i;
 
-      if(!bv.bv_val)
-        break;
+      اگر(!bv.bv_val)
+        توڑو;
 
-      if(bvals) {
-        for(i = 0; bvals[i].bv_val; i++) {
+      اگر(bvals) {
+        برائے(i = 0; bvals[i].bv_val; i++) {
           size_t llen;
-          unsigned short mech =
-            Curl_sasl_decode_mech((const char *)bvals[i].bv_val,
+          غیرعلامتی مختصر mech =
+            Curl_sasl_decode_mech((ثابت حرف *)bvals[i].bv_val,
                                   bvals[i].bv_len, &llen);
-          if(bvals[i].bv_len == llen)
+          اگر(bvals[i].bv_len == llen)
             li->sasl.authmechs |= mech;
         }
         ber_memfree(bvals);
       }
     }
     ber_free(ber, 0);
-    break;
+    توڑو;
 
-  case LDAP_RES_SEARCH_RESULT:
-    switch(code) {
-    case LDAP_SIZELIMIT_EXCEEDED:
-      infof(data, "Too many authentication mechanisms");
+  حالت LDAP_RES_تلاش_نتیجہ:
+    انتخاب(رمز) {
+    حالت LDAP_SIZELIMIT_EXCEEDED:
+      infof(ڈیٹا, "Too many authentication mechanisms");
       FALLTHROUGH();
-    case LDAP_SUCCESS:
-    case LDAP_NO_RESULTS_RETURNED:
-      if(Curl_sasl_can_authenticate(&li->sasl, data))
-        result = oldap_perform_sasl(data);
-      else
-        result = CURLE_LOGIN_DENIED;
-      break;
-    default:
-      result = oldap_map_error(code, CURLE_LOGIN_DENIED);
-      break;
+    حالت LDAP_SUCCESS:
+    حالت LDAP_NO_RESULTS_RETURNED:
+      اگر(Curl_sasl_can_authenticate(&li->sasl, ڈیٹا))
+        نتیجہ = oldap_perform_sasl(ڈیٹا);
+      ورنہ
+        نتیجہ = CURLE_LOGIN_DENIED;
+      توڑو;
+    طےشدہ:
+      نتیجہ = oldap_map_error(رمز, CURLE_LOGIN_DENIED);
+      توڑو;
     }
-    break;
-  default:
-    break;
+    توڑو;
+  طےشدہ:
+    توڑو;
   }
-  return result;
+  واپس نتیجہ;
 }
 
 /* Handle a SASL bind response. */
-static CURLcode oldap_state_sasl_resp(struct Curl_easy *data,
-                                      LDAPMessage *msg, int code)
+ساکن CURLcode oldap_state_sasl_resp(ساخت Curl_easy *ڈیٹا,
+                                      LDAPMessage *پیغام, صحیح رمز)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  CURLcode result = CURLE_OK;
-  saslprogress progress;
-  int rc;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  CURLcode نتیجہ = CURLE_OK;
+  saslprogress پیش_رفت;
+  صحیح rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  li->servercred = NULL;
-  rc = ldap_parse_sasl_bind_result(li->ld, msg, &li->servercred, 0);
-  if(rc != LDAP_SUCCESS) {
-    failf(data, "LDAP local: sasl ldap_parse_result %s", ldap_err2string(rc));
-    result = oldap_map_error(rc, CURLE_LOGIN_DENIED);
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
+  li->servercred = تہی;
+  rc = ldap_parse_sasl_bind_نتیجہ(li->ld, پیغام, &li->servercred, 0);
+  اگر(rc != LDAP_SUCCESS) {
+    failf(ڈیٹا, "LDAP local: sasl ldap_parse_result %s", ldap_err2string(rc));
+    نتیجہ = oldap_map_error(rc, CURLE_LOGIN_DENIED);
   }
-  else {
-    result = Curl_sasl_continue(&li->sasl, data, code, &progress);
-    if(!result) {
-      switch(progress) {
-      case SASL_DONE:
-        oldap_state(data, li, OLDAP_STOP);   /* Authenticated */
-        break;
-      case SASL_IDLE:            /* No mechanism left after cancellation */
-        failf(data, "Authentication cancelled");
-        result = CURLE_LOGIN_DENIED;
-        break;
-      default:
-        break;
+  ورنہ {
+    نتیجہ = Curl_sasl_continue(&li->sasl, ڈیٹا, رمز, &پیش_رفت);
+    اگر(!نتیجہ) {
+      انتخاب(پیش_رفت) {
+      حالت SASL_مکمل:
+        oldap_state(ڈیٹا, li, OLDAP_STOP);   /* Authenticated */
+        توڑو;
+      حالت SASL_IDLE:            /* No mechanism left after cancellation */
+        failf(ڈیٹا, "Authentication cancelled");
+        نتیجہ = CURLE_LOGIN_DENIED;
+        توڑو;
+      طےشدہ:
+        توڑو;
       }
     }
   }
 
-  if(li->servercred)
+  اگر(li->servercred)
     ber_bvfree(li->servercred);
-  return result;
+  واپس نتیجہ;
 }
 
 /* Handle a simple bind response. */
-static CURLcode oldap_state_bind_resp(struct Curl_easy *data, LDAPMessage *msg,
-                                      int code)
+ساکن CURLcode oldap_state_bind_resp(ساخت Curl_easy *ڈیٹا, LDAPMessage *پیغام,
+                                      صحیح رمز)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  CURLcode result = CURLE_OK;
-  struct berval *bv = NULL;
-  int rc;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت berval *bv = تہی;
+  صحیح rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
 
-  if(code != LDAP_SUCCESS)
-    return oldap_map_error(code, CURLE_LDAP_CANNOT_BIND);
+  اگر(رمز != LDAP_SUCCESS)
+    واپس oldap_map_error(رمز, CURLE_LDAP_CANNOT_BIND);
 
-  rc = ldap_parse_sasl_bind_result(li->ld, msg, &bv, 0);
-  if(rc != LDAP_SUCCESS) {
-    failf(data, "LDAP local: bind ldap_parse_sasl_bind_result %s",
+  rc = ldap_parse_sasl_bind_نتیجہ(li->ld, پیغام, &bv, 0);
+  اگر(rc != LDAP_SUCCESS) {
+    failf(ڈیٹا, "LDAP local: bind ldap_parse_sasl_bind_result %s",
           ldap_err2string(rc));
-    result = oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+    نتیجہ = oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
   }
-  else
-    oldap_state(data, li, OLDAP_STOP);
+  ورنہ
+    oldap_state(ڈیٹا, li, OLDAP_STOP);
 
-  if(bv)
+  اگر(bv)
     ber_bvfree(bv);
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode oldap_connecting(struct Curl_easy *data, bool *done)
+ساکن CURLcode oldap_connecting(ساخت Curl_easy *ڈیٹا, bool *مکمل)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  LDAPMessage *msg = NULL;
-  struct timeval tv = { 0, 0 };
-  int code = LDAP_SUCCESS;
-  int rc;
+  CURLcode نتیجہ = CURLE_OK;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  LDAPMessage *پیغام = تہی;
+  ساخت timeval tv = { 0, 0 };
+  صحیح رمز = LDAP_SUCCESS;
+  صحیح rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
 
-  if(li->state != OLDAP_SSL && li->state != OLDAP_TLS) {
+  اگر(li->state != OLDAP_SSL && li->state != OLDAP_TLS) {
     /* Get response to last command. */
-    rc = ldap_result(li->ld, li->msgid, LDAP_MSG_ONE, &tv, &msg);
-    switch(rc) {
-    case 0:                               /* Timed out. */
-      return CURLE_OK;
-    case LDAP_RES_SEARCH_ENTRY:
-    case LDAP_RES_SEARCH_REFERENCE:
-      break;
-    default:
+    rc = ldap_نتیجہ(li->ld, li->msgid, LDAP_پیغام_ONE, &tv, &پیغام);
+    انتخاب(rc) {
+    حالت 0:                               /* Timed out. */
+      واپس CURLE_OK;
+    حالت LDAP_RES_تلاش_اندراج:
+    حالت LDAP_RES_تلاش_REFERENCE:
+      توڑو;
+    طےشدہ:
       li->msgid = 0;                      /* Nothing to abandon upon error. */
-      if(rc < 0) {
-        failf(data, "LDAP local: connecting ldap_result %s",
+      اگر(rc < 0) {
+        failf(ڈیٹا, "LDAP local: connecting ldap_result %s",
               ldap_err2string(rc));
-        return oldap_map_error(rc, CURLE_COULDNT_CONNECT);
+        واپس oldap_map_error(rc, CURLE_COULDNT_CONNECT);
       }
-      break;
+      توڑو;
     }
 
     /* Get error code from message. */
-    rc = ldap_parse_result(li->ld, msg, &code, NULL, NULL, NULL, NULL, 0);
-    if(rc)
-      code = rc;
-    else {
+    rc = ldap_parse_نتیجہ(li->ld, پیغام, &رمز, تہی, تہی, تہی, تہی, 0);
+    اگر(rc)
+      رمز = rc;
+    ورنہ {
       /* store the latest code for later retrieval */
-      data->info.httpcode = code;
+      ڈیٹا->info.httpcode = رمز;
     }
 
     /* If protocol version 3 is not supported, fallback to version 2. */
-    if(code == LDAP_PROTOCOL_ERROR && li->state != OLDAP_BINDV2 &&
-#ifdef USE_SSL
-       (ssl_installed(conn) || data->set.use_ssl <= CURLUSESSL_TRY) &&
-#endif
+    اگر(رمز == LDAP_PROTOCOL_ERROR && li->state != OLDAP_BINDV2 &&
+#اگر_تعریف_شدہ USE_SSL
+       (ssl_installed(conn) || ڈیٹا->سیٹ.use_ssl <= CURLUSESSL_TRY) &&
+#اگر_ختم
        li->sasl.prefmech == SASL_AUTH_NONE) {
-      static const int version = LDAP_VERSION2;
+      ساکن ثابت صحیح نسخہ_2 = LDAP_VERSION2;
 
-      ldap_set_option(li->ld, LDAP_OPT_PROTOCOL_VERSION, &version);
-      ldap_msgfree(msg);
-      return oldap_perform_bind(data, OLDAP_BINDV2);
+      ldap_سیٹ_option(li->ld, LDAP_OPT_PROTOCOL_نسخہ, &نسخہ_2);
+      ldap_msgfree(پیغام);
+      واپس oldap_perform_bind(ڈیٹا, OLDAP_BINDV2);
     }
   }
 
   /* Handle response message according to current state. */
-  switch(li->state) {
+  انتخاب(li->state) {
 
-#ifdef USE_SSL
-  case OLDAP_SSL:
-    result = oldap_ssl_connect(data, OLDAP_SSL);
-    if(!result && ssl_installed(conn)) {
-      if(li->sasl.prefmech != SASL_AUTH_NONE)
-        result = oldap_perform_mechs(data);
-      else
-        result = oldap_perform_bind(data, OLDAP_BIND);
+#اگر_تعریف_شدہ USE_SSL
+  حالت OLDAP_SSL:
+    نتیجہ = oldap_ssl_connect(ڈیٹا, OLDAP_SSL);
+    اگر(!نتیجہ && ssl_installed(conn)) {
+      اگر(li->sasl.prefmech != SASL_AUTH_NONE)
+        نتیجہ = oldap_perform_mechs(ڈیٹا);
+      ورنہ
+        نتیجہ = oldap_perform_bind(ڈیٹا, OLDAP_BIND);
     }
-    break;
-  case OLDAP_STARTTLS:
-    if(code != LDAP_SUCCESS) {
-      if(data->set.use_ssl != CURLUSESSL_TRY)
-        result = oldap_map_error(code, CURLE_USE_SSL_FAILED);
-      else if(li->sasl.prefmech != SASL_AUTH_NONE)
-        result = oldap_perform_mechs(data);
-      else
-        result = oldap_perform_bind(data, OLDAP_BIND);
-      break;
+    توڑو;
+  حالت OLDAP_STARTTLS:
+    اگر(رمز != LDAP_SUCCESS) {
+      اگر(ڈیٹا->سیٹ.use_ssl != CURLUSESSL_TRY)
+        نتیجہ = oldap_map_error(رمز, CURLE_USE_SSL_FAILED);
+      ورنہ اگر(li->sasl.prefmech != SASL_AUTH_NONE)
+        نتیجہ = oldap_perform_mechs(ڈیٹا);
+      ورنہ
+        نتیجہ = oldap_perform_bind(ڈیٹا, OLDAP_BIND);
+      توڑو;
     }
-    result = Curl_ssl_cfilter_add(
-      data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
-      break;
+    نتیجہ = Curl_ssl_cfilter_جوڑو(
+      ڈیٹا, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
+    اگر(نتیجہ)
+      توڑو;
     FALLTHROUGH();
-  case OLDAP_TLS:
-    result = oldap_ssl_connect(data, OLDAP_TLS);
-    if(result)
-      result = oldap_map_error(code, CURLE_USE_SSL_FAILED);
-    else if(ssl_installed(conn)) {
-      if(li->sasl.prefmech != SASL_AUTH_NONE)
-        result = oldap_perform_mechs(data);
-      else if(data->state.creds)
-        result = oldap_perform_bind(data, OLDAP_BIND);
-      else {
+  حالت OLDAP_TLS:
+    نتیجہ = oldap_ssl_connect(ڈیٹا, OLDAP_TLS);
+    اگر(نتیجہ)
+      نتیجہ = oldap_map_error(رمز, CURLE_USE_SSL_FAILED);
+    ورنہ اگر(ssl_installed(conn)) {
+      اگر(li->sasl.prefmech != SASL_AUTH_NONE)
+        نتیجہ = oldap_perform_mechs(ڈیٹا);
+      ورنہ اگر(ڈیٹا->state.creds)
+        نتیجہ = oldap_perform_bind(ڈیٹا, OLDAP_BIND);
+      ورنہ {
         /* Version 3 supported: no bind required */
-        oldap_state(data, li, OLDAP_STOP);
-        result = CURLE_OK;
+        oldap_state(ڈیٹا, li, OLDAP_STOP);
+        نتیجہ = CURLE_OK;
       }
     }
-    break;
-#endif
+    توڑو;
+#اگر_ختم
 
-  case OLDAP_MECHS:
-    result = oldap_state_mechs_resp(data, msg, code);
-    break;
-  case OLDAP_SASL:
-    result = oldap_state_sasl_resp(data, msg, code);
-    break;
-  case OLDAP_BIND:
-  case OLDAP_BINDV2:
-    result = oldap_state_bind_resp(data, msg, code);
-    break;
-  default:
+  حالت OLDAP_MECHS:
+    نتیجہ = oldap_state_mechs_resp(ڈیٹا, پیغام, رمز);
+    توڑو;
+  حالت OLDAP_SASL:
+    نتیجہ = oldap_state_sasl_resp(ڈیٹا, پیغام, رمز);
+    توڑو;
+  حالت OLDAP_BIND:
+  حالت OLDAP_BINDV2:
+    نتیجہ = oldap_state_bind_resp(ڈیٹا, پیغام, رمز);
+    توڑو;
+  طےشدہ:
     /* internal error */
-    result = CURLE_COULDNT_CONNECT;
-    break;
+    نتیجہ = CURLE_COULDNT_CONNECT;
+    توڑو;
   }
 
-  ldap_msgfree(msg);
+  ldap_msgfree(پیغام);
 
-  *done = li->state == OLDAP_STOP;
-  if(*done)
+  *مکمل = li->state == OLDAP_STOP;
+  اگر(*مکمل)
     conn->recv[FIRSTSOCKET] = oldap_recv;
 
-  if(result && li->msgid) {
-    ldap_abandon_ext(li->ld, li->msgid, NULL, NULL);
+  اگر(نتیجہ && li->msgid) {
+    ldap_abandon_ext(li->ld, li->msgid, تہی, تہی);
     li->msgid = 0;
   }
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode oldap_disconnect(struct Curl_easy *data,
-                                 struct connectdata *conn,
+ساکن CURLcode oldap_disconnect(ساخت Curl_easy *ڈیٹا,
+                                 ساخت connectdata *conn,
                                  bool dead_connection)
 {
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  (void)dead_connection;
-#ifndef USE_SSL
-  (void)data;
-#endif
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  (خالی)dead_connection;
+#اگر_غیر_تعریف_شدہ USE_SSL
+  (خالی)ڈیٹا;
+#اگر_ختم
 
-  if(li && li->ld) {
-#ifdef USE_SSL
-    if(ssl_installed(conn)) {
+  اگر(li && li->ld) {
+#اگر_تعریف_شدہ USE_SSL
+    اگر(ssl_installed(conn)) {
       Sockbuf *sb;
-      if(ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS ||
-         ber_sockbuf_add_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, data))
-        return CURLE_FAILED_INIT;
+      اگر(ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS ||
+         ber_sockbuf_جوڑو_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, ڈیٹا))
+        واپس CURLE_FAILED_INIT;
     }
-#endif
-    ldap_unbind_ext(li->ld, NULL, NULL);
-    li->ld = NULL;
+#اگر_ختم
+    ldap_unbind_ext(li->ld, تہی, تہی);
+    li->ld = تہی;
   }
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode oldap_do(struct Curl_easy *data, bool *done)
+ساکن CURLcode oldap_do(ساخت Curl_easy *ڈیٹا, bool *مکمل)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct ldapreqinfo *lr;
-  CURLcode result;
-  int rc;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ساخت ldapreqinfo *lr;
+  CURLcode نتیجہ;
+  صحیح rc;
   LDAPURLDesc *lud;
-  int msgid;
+  صحیح msgid;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  اگر(!li)
+    واپس CURLE_FAILED_INIT;
 
-  infof(data, "LDAP local: %s", Curl_bufref_ptr(&data->state.url));
+  infof(ڈیٹا, "LDAP local: %s", Curl_bufref_ptr(&ڈیٹا->state.url));
 
-  result = oldap_url_parse(data, &lud);
-  if(result)
-    goto out;
+  نتیجہ = oldap_url_parse(ڈیٹا, &lud);
+  اگر(نتیجہ)
+    جاؤ برآمد;
 
-#ifdef USE_SSL
-  if(ssl_installed(conn)) {
+#اگر_تعریف_شدہ USE_SSL
+  اگر(ssl_installed(conn)) {
     Sockbuf *sb;
     /* re-install the libcurl SSL handlers into the sockbuf. */
-    if((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
-       ber_sockbuf_add_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, data)) {
+    اگر((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
+       ber_sockbuf_جوڑو_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, ڈیٹا)) {
       ldap_free_urldesc(lud);
-      return CURLE_FAILED_INIT;
+      واپس CURLE_FAILED_INIT;
     }
   }
-#endif
+#اگر_ختم
 
-  rc = ldap_search_ext(li->ld, lud->lud_dn, lud->lud_scope,
+  rc = ldap_تلاش_ext(li->ld, lud->lud_dn, lud->lud_scope,
                        lud->lud_filter, lud->lud_attrs, 0,
-                       NULL, NULL, NULL, 0, &msgid);
+                       تہی, تہی, تہی, 0, &msgid);
   ldap_free_urldesc(lud);
-  if(rc != LDAP_SUCCESS) {
-    failf(data, "LDAP local: ldap_search_ext %s", ldap_err2string(rc));
-    result = CURLE_LDAP_SEARCH_FAILED;
-    goto out;
+  اگر(rc != LDAP_SUCCESS) {
+    failf(ڈیٹا, "LDAP local: ldap_search_ext %s", ldap_err2string(rc));
+    نتیجہ = CURLE_LDAP_تلاش_FAILED;
+    جاؤ برآمد;
   }
 
-  lr = curlx_calloc(1, sizeof(struct ldapreqinfo));
-  if(!lr ||
-     Curl_meta_set(data, CURL_META_LDAP_EASY, lr, oldap_easy_dtor)) {
-    ldap_abandon_ext(li->ld, msgid, NULL, NULL);
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  lr = curlx_calloc(1, حجم(ساخت ldapreqinfo));
+  اگر(!lr ||
+     Curl_meta_سیٹ(ڈیٹا, CURL_META_LDAP_EASY, lr, oldap_easy_dtor)) {
+    ldap_abandon_ext(li->ld, msgid, تہی, تہی);
+    نتیجہ = CURLE_برآمد_کا_حافظہ;
+    جاؤ برآمد;
   }
 
   lr->msgid = msgid;
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
-  *done = TRUE;
+  Curl_xfer_تیاری_recv(ڈیٹا, FIRSTSOCKET, -1);
+  *مکمل = TRUE;
 
-out:
-  return result;
+برآمد:
+  واپس نتیجہ;
 }
 
-static CURLcode oldap_done(struct Curl_easy *data, CURLcode res,
+ساکن CURLcode oldap_مکمل(ساخت Curl_easy *ڈیٹا, CURLcode res,
                            bool premature)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapreqinfo *lr = Curl_meta_get(data, CURL_META_LDAP_EASY);
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapreqinfo *lr = Curl_meta_get(ڈیٹا, CURL_META_LDAP_EASY);
 
-  (void)res;
-  (void)premature;
+  (خالی)res;
+  (خالی)premature;
 
-  if(lr) {
+  اگر(lr) {
     /* if there was a search in progress, abandon it */
-    if(lr->msgid) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-      if(li && li->ld) {
-        ldap_abandon_ext(li->ld, lr->msgid, NULL, NULL);
+    اگر(lr->msgid) {
+      ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+      اگر(li && li->ld) {
+        ldap_abandon_ext(li->ld, lr->msgid, تہی, تہی);
       }
       lr->msgid = 0;
     }
-    Curl_meta_remove(data, CURL_META_LDAP_EASY);
+    Curl_meta_remove(ڈیٹا, CURL_META_LDAP_EASY);
   }
 
-  return CURLE_OK;
+  واپس CURLE_OK;
 }
 
-static CURLcode client_write(struct Curl_easy *data,
-                             const char *prefix, size_t plen,
-                             const char *value, size_t len,
-                             const char *suffix, size_t slen)
+ساکن CURLcode client_write(ساخت Curl_easy *ڈیٹا,
+                             ثابت حرف *سابقہ, size_t plen,
+                             ثابت حرف *قدر, size_t len,
+                             ثابت حرف *suffix, size_t slen)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(prefix) {
+  اگر(سابقہ) {
     /* If we have a zero-length value and the prefix ends with a space
        separator, drop the latter. */
-    if(!len && plen && prefix[plen - 1] == ' ')
+    اگر(!len && plen && سابقہ[plen - 1] == ' ')
       plen--;
-    result = Curl_client_write(data, CLIENTWRITE_BODY, prefix, plen);
+    نتیجہ = Curl_client_write(ڈیٹا, CLIENTWRITE_BODY, سابقہ, plen);
   }
-  if(!result && value) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY, value, len);
+  اگر(!نتیجہ && قدر) {
+    نتیجہ = Curl_client_write(ڈیٹا, CLIENTWRITE_BODY, قدر, len);
   }
-  if(!result && suffix) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY, suffix, slen);
+  اگر(!نتیجہ && suffix) {
+    نتیجہ = Curl_client_write(ڈیٹا, CLIENTWRITE_BODY, suffix, slen);
   }
-  return result;
+  واپس نتیجہ;
 }
 
 /* RFC 2849: a string that is not a SAFE-STRING (leading ':' or '<', leading or
    trailing space, or any non-printable byte such as CR/LF) cannot go into LDIF
    as-is. DNs and values get base64-encoded instead; an attribute type has no
    base64 form in LDIF and is rejected by the caller. */
-static bool oldap_str_needs_base64(const char *s, size_t len)
+ساکن bool oldap_str_needs_base64(ثابت حرف *s, size_t len)
 {
   size_t i;
-  if(!len)
-    return FALSE;
-  if((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
-    return TRUE;
-  for(i = 0; i < len; i++)
-    if(!ISPRINT(s[i]))
-      return TRUE;
-  return FALSE;
+  اگر(!len)
+    واپس FALSE;
+  اگر((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
+    واپس TRUE;
+  برائے(i = 0; i < len; i++)
+    اگر(!ISPRINT(s[i]))
+      واپس TRUE;
+  واپس FALSE;
 }
 
-static CURLcode oldap_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
+ساکن CURLcode oldap_recv(ساخت Curl_easy *ڈیٹا, int8_t sockindex, حرف *buf,
                            size_t len, size_t *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct ldapreqinfo *lr = Curl_meta_get(data, CURL_META_LDAP_EASY);
-  int rc;
-  LDAPMessage *msg = NULL;
-  BerElement *ber = NULL;
-  struct timeval tv = { 0, 0 };
-  struct berval bv, *bvals;
-  CURLcode result = CURLE_AGAIN;
-  int code;
-  char *info = NULL;
+  ساخت connectdata *conn = ڈیٹا->conn;
+  ساخت ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ساخت ldapreqinfo *lr = Curl_meta_get(ڈیٹا, CURL_META_LDAP_EASY);
+  صحیح rc;
+  LDAPMessage *پیغام = تہی;
+  BerElement *ber = تہی;
+  ساخت timeval tv = { 0, 0 };
+  ساخت berval bv, *bvals;
+  CURLcode نتیجہ = CURLE_AGAIN;
+  صحیح رمز;
+  حرف *info = تہی;
 
-  (void)len;
-  (void)buf;
-  (void)sockindex;
+  (خالی)len;
+  (خالی)buf;
+  (خالی)sockindex;
   *pnread = 0;
-  if(!li || !lr)
-    return CURLE_FAILED_INIT;
+  اگر(!li || !lr)
+    واپس CURLE_FAILED_INIT;
 
-  rc = ldap_result(li->ld, lr->msgid, LDAP_MSG_ONE, &tv, &msg);
-  if(rc < 0) {
-    failf(data, "LDAP local: search ldap_result %s", ldap_err2string(rc));
-    result = CURLE_RECV_ERROR;
+  rc = ldap_نتیجہ(li->ld, lr->msgid, LDAP_پیغام_ONE, &tv, &پیغام);
+  اگر(rc < 0) {
+    failf(ڈیٹا, "LDAP local: search ldap_result %s", ldap_err2string(rc));
+    نتیجہ = CURLE_RECV_ERROR;
   }
 
   /* error or timed out */
-  if(!msg)
-    return result;
+  اگر(!پیغام)
+    واپس نتیجہ;
 
-  result = CURLE_OK;
+  نتیجہ = CURLE_OK;
 
-  switch(ldap_msgtype(msg)) {
-  case LDAP_RES_SEARCH_RESULT:
+  انتخاب(ldap_msgtype(پیغام)) {
+  حالت LDAP_RES_تلاش_نتیجہ:
     lr->msgid = 0;
-    rc = ldap_parse_result(li->ld, msg, &code, NULL, &info, NULL, NULL, 0);
-    if(rc) {
-      failf(data, "LDAP local: search ldap_parse_result %s",
+    rc = ldap_parse_نتیجہ(li->ld, پیغام, &رمز, تہی, &info, تہی, تہی, 0);
+    اگر(rc) {
+      failf(ڈیٹا, "LDAP local: search ldap_parse_result %s",
             ldap_err2string(rc));
-      result = CURLE_LDAP_SEARCH_FAILED;
-      break;
+      نتیجہ = CURLE_LDAP_تلاش_FAILED;
+      توڑو;
     }
 
     /* store the latest code for later retrieval */
-    data->info.httpcode = code;
+    ڈیٹا->info.httpcode = رمز;
 
-    switch(code) {
-    case LDAP_SIZELIMIT_EXCEEDED:
-      infof(data, "There are more than %d entries", lr->nument);
+    انتخاب(رمز) {
+    حالت LDAP_SIZELIMIT_EXCEEDED:
+      infof(ڈیٹا, "There are more than %d entries", lr->nument);
       FALLTHROUGH();
-    case LDAP_SUCCESS:
-      data->req.size = data->req.bytecount;
-      break;
-    default:
-      failf(data, "LDAP remote: search failed %s %s", ldap_err2string(code),
+    حالت LDAP_SUCCESS:
+      ڈیٹا->req.سائز = ڈیٹا->req.bytecount;
+      توڑو;
+    طےشدہ:
+      failf(ڈیٹا, "LDAP remote: search failed %s %s", ldap_err2string(رمز),
             info ? info : "");
-      result = CURLE_LDAP_SEARCH_FAILED;
-      break;
+      نتیجہ = CURLE_LDAP_تلاش_FAILED;
+      توڑو;
     }
-    if(info)
+    اگر(info)
       ldap_memfree(info);
-    break;
-  case LDAP_RES_SEARCH_ENTRY:
+    توڑو;
+  حالت LDAP_RES_تلاش_اندراج:
     lr->nument++;
-    rc = ldap_get_dn_ber(li->ld, msg, &ber, &bv);
-    if(rc < 0) {
-      result = CURLE_RECV_ERROR;
-      break;
+    rc = ldap_get_dn_ber(li->ld, پیغام, &ber, &bv);
+    اگر(rc < 0) {
+      نتیجہ = CURLE_RECV_ERROR;
+      توڑو;
     }
 
-    if(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
-      char *dn_b64 = NULL;
+    اگر(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
+      حرف *dn_b64 = تہی;
       size_t dn_b64_sz = 0;
 
       /* A DN with e.g. CR/LF would inject LDIF lines, so base64-encode it. */
-      result = curlx_base64_encode((uint8_t *)bv.bv_val, bv.bv_len,
+      نتیجہ = curlx_base64_encode((uint8_t *)bv.bv_val, bv.bv_len,
                                    &dn_b64, &dn_b64_sz);
-      if(!result)
-        result = client_write(data, STRCONST("DN:: "), dn_b64, dn_b64_sz,
+      اگر(!نتیجہ)
+        نتیجہ = client_write(ڈیٹا, STRCONST("DN:: "), dn_b64, dn_b64_sz,
                               STRCONST("\n"));
       curlx_free(dn_b64);
     }
-    else
-      result = client_write(data, STRCONST("DN: "), bv.bv_val, bv.bv_len,
+    ورنہ
+      نتیجہ = client_write(ڈیٹا, STRCONST("DN: "), bv.bv_val, bv.bv_len,
                             STRCONST("\n"));
-    if(result)
-      break;
+    اگر(نتیجہ)
+      توڑو;
 
-    for(rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals);
+    برائے(rc = ldap_get_attribute_ber(li->ld, پیغام, ber, &bv, &bvals);
         rc == LDAP_SUCCESS;
-        rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals)) {
-      int i;
-      bool binary;
+        rc = ldap_get_attribute_ber(li->ld, پیغام, ber, &bv, &bvals)) {
+      صحیح i;
+      bool ثنائی;
 
-      if(!bv.bv_val)
-        break;
+      اگر(!bv.bv_val)
+        توڑو;
 
       /* An attribute type has no base64 form in LDIF, so a type carrying
          control bytes (CR/LF etc.) would let a hostile server inject lines.
          A conformant type name never contains them, so reject it. */
-      if(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
-        failf(data, "LDAP local: attribute type contains illegal bytes");
-        if(bvals)
+      اگر(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
+        failf(ڈیٹا, "LDAP local: attribute type contains illegal bytes");
+        اگر(bvals)
           ber_memfree(bvals);
-        result = CURLE_WEIRD_SERVER_REPLY;
-        break;
+        نتیجہ = CURLE_WEIRD_SERVER_جواب;
+        توڑو;
       }
 
-      if(!bvals) {
-        result = client_write(data, STRCONST("\t"), bv.bv_val, bv.bv_len,
+      اگر(!bvals) {
+        نتیجہ = client_write(ڈیٹا, STRCONST("\t"), bv.bv_val, bv.bv_len,
                               STRCONST(":\n"));
-        if(result)
-          break;
-        continue;
+        اگر(نتیجہ)
+          توڑو;
+        جاری;
       }
 
-      binary = bv.bv_len > 7 &&
+      ثنائی = bv.bv_len > 7 &&
         curl_strnequal(bv.bv_val + bv.bv_len - 7, ";binary", 7);
 
-      for(i = 0; bvals[i].bv_val; i++) {
+      برائے(i = 0; bvals[i].bv_val; i++) {
         bool binval = FALSE;
 
-        result = client_write(data, STRCONST("\t"), bv.bv_val, bv.bv_len,
+        نتیجہ = client_write(ڈیٹا, STRCONST("\t"), bv.bv_val, bv.bv_len,
                               STRCONST(":"));
-        if(result)
-          break;
+        اگر(نتیجہ)
+          توڑو;
 
-        if(!binary)
+        اگر(!ثنائی)
           binval = oldap_str_needs_base64(bvals[i].bv_val, bvals[i].bv_len);
-        if(binary || binval) {
-          char *val_b64 = NULL;
+        اگر(ثنائی || binval) {
+          حرف *val_b64 = تہی;
           size_t val_b64_sz = 0;
 
           /* Binary value, encode to base64. */
-          if(bvals[i].bv_len)
-            result = curlx_base64_encode((uint8_t *)bvals[i].bv_val,
+          اگر(bvals[i].bv_len)
+            نتیجہ = curlx_base64_encode((uint8_t *)bvals[i].bv_val,
                                          bvals[i].bv_len,
                                          &val_b64, &val_b64_sz);
-          if(!result)
-            result = client_write(data, STRCONST(": "), val_b64, val_b64_sz,
+          اگر(!نتیجہ)
+            نتیجہ = client_write(ڈیٹا, STRCONST(": "), val_b64, val_b64_sz,
                                   STRCONST("\n"));
           curlx_free(val_b64);
         }
-        else
-          result = client_write(data, STRCONST(" "),
+        ورنہ
+          نتیجہ = client_write(ڈیٹا, STRCONST(" "),
                                 bvals[i].bv_val, bvals[i].bv_len,
                                 STRCONST("\n"));
-        if(result)
-          break;
+        اگر(نتیجہ)
+          توڑو;
       }
 
       ber_memfree(bvals);
-      bvals = NULL;
-      if(!result)
-        result = client_write(data, STRCONST("\n"), NULL, 0, NULL, 0);
-      if(result)
-        break;
+      bvals = تہی;
+      اگر(!نتیجہ)
+        نتیجہ = client_write(ڈیٹا, STRCONST("\n"), تہی, 0, تہی, 0);
+      اگر(نتیجہ)
+        توڑو;
     }
 
-    if(!result)
-      result = client_write(data, STRCONST("\n"), NULL, 0, NULL, 0);
-    if(!result)
-      result = CURLE_AGAIN;
-    break;
+    اگر(!نتیجہ)
+      نتیجہ = client_write(ڈیٹا, STRCONST("\n"), تہی, 0, تہی, 0);
+    اگر(!نتیجہ)
+      نتیجہ = CURLE_AGAIN;
+    توڑو;
   }
 
   ber_free(ber, 0);
-  ldap_msgfree(msg);
-  return result;
+  ldap_msgfree(پیغام);
+  واپس نتیجہ;
 }
 
-void Curl_ldap_version(char *buf, size_t bufsz)
+خالی Curl_ldap_نسخہ(حرف *buf, size_t bufsz)
 {
   LDAPAPIInfo api;
-  api.ldapai_info_version = LDAP_API_INFO_VERSION;
+  api.ldapai_info_نسخہ = LDAP_API_INFO_نسخہ;
 
-  if(ldap_get_option(NULL, LDAP_OPT_API_INFO, &api) == LDAP_OPT_SUCCESS) {
-    unsigned int patch = (unsigned int)(api.ldapai_vendor_version % 100);
-    unsigned int major = (unsigned int)(api.ldapai_vendor_version / 10000);
-    unsigned int minor =
-      (((unsigned int)api.ldapai_vendor_version - (major * 10000))
+  اگر(ldap_get_option(تہی, LDAP_OPT_API_INFO, &api) == LDAP_OPT_SUCCESS) {
+    غیرعلامتی صحیح patch = (غیرعلامتی صحیح)(api.ldapai_vendor_نسخہ % 100);
+    غیرعلامتی صحیح major = (غیرعلامتی صحیح)(api.ldapai_vendor_نسخہ / 10000);
+    غیرعلامتی صحیح minor =
+      (((غیرعلامتی صحیح)api.ldapai_vendor_نسخہ - (major * 10000))
        - patch) / 100;
     curl_msnprintf(buf, bufsz, "%s/%u.%u.%u",
                    api.ldapai_vendor_name, major, minor, patch);
     ldap_memfree(api.ldapai_vendor_name);
-    ber_memvfree((void **)api.ldapai_extensions);
+    ber_memvfree((خالی **)api.ldapai_extensions);
   }
-  else
+  ورنہ
     curl_msnprintf(buf, bufsz, "OpenLDAP");
 }
 
 /*
  * LDAP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_ldap = {
-  oldap_setup_connection,               /* setup_connection */
+ثابت ساخت Curl_protocol Curl_protocol_ldap = {
+  oldap_تیاری_connection,               /* setup_connection */
   oldap_do,                             /* do_it */
-  oldap_done,                           /* done */
+  oldap_مکمل,                           /* done */
   ZERO_NULL,                            /* do_more */
   oldap_connect,                        /* connect_it */
   oldap_connecting,                     /* connecting */
@@ -1382,6 +1382,6 @@ const struct Curl_protocol Curl_protocol_ldap = {
   ZERO_NULL,                            /* follow */
 };
 
-#endif /* !CURL_DISABLE_LDAP && USE_OPENLDAP */
+#اگر_ختم /* !CURL_DISABLE_LDAP && USE_OPENLDAP */
 
 /* The LDAP scheme structs are in ldap.c */

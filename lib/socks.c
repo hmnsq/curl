@@ -21,38 +21,38 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#اگر_غیر_تعریف_شدہ CURL_DISABLE_PROXY
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#اگر_تعریف_شدہ HAVE_NETINET_اندر_H
+#شامل <netinet/in.h>
+#اگر_ختم
+#اگر_تعریف_شدہ HAVE_ARPA_INET_H
+#شامل <arpa/inet.h>
+#اگر_ختم
 
-#include "urldata.h"
-#include "bufq.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "select.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "socks.h"
-#include "vdns/cf-dns.h"
-#include "curlx/inet_pton.h"
+#شامل "urldata.h"
+#شامل "bufq.h"
+#شامل "curl_addrinfo.h"
+#شامل "curl_trc.h"
+#شامل "select.h"
+#شامل "cfilters.h"
+#شامل "connect.h"
+#شامل "socks.h"
+#شامل "vdns/cf-dns.h"
+#شامل "curlx/inet_pton.h"
 
 /* for the (SOCKS) connect state machine */
-enum socks_state_t {
+شمار socks_state_t {
   SOCKS_ST_INIT,
   /* SOCKS Version 4 states */
-  SOCKS4_ST_START,
+  SOCKS4_ST_آغاز,
   SOCKS4_ST_RESOLVING,
   SOCKS4_ST_SEND,
   SOCKS4_ST_RECV,
   /* SOCKS Version 5 states */
-  SOCKS5_ST_START,
+  SOCKS5_ST_آغاز,
   SOCKS5_ST_REQ0_SEND,
   SOCKS5_ST_RESP0_RECV, /* set up read */
   SOCKS5_ST_GSSAPI_INIT,
@@ -68,8 +68,8 @@ enum socks_state_t {
   SOCKS_ST_FAILED
 };
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
-static const char * const cf_socks_statename[] = {
+#اگر defined(DEBUGBUILD) && defined(CURLVERBOSE)
+ساکن ثابت حرف * ثابت cf_socks_statename[] = {
   "SOCKS_INIT",
   "SOCKS4_START",
   "SOCKS4_RESOLVING",
@@ -89,283 +89,283 @@ static const char * const cf_socks_statename[] = {
   "SOCKS_SUCCESS",
   "SOCKS_FAILED"
 };
-#endif
+#اگر_ختم
 
-#define SOCKS_CHUNK_SIZE    1024
-#define SOCKS_CHUNKS        1
+#تعریف_کرو SOCKS_CHUNK_سائز    1024
+#تعریف_کرو SOCKS_CHUNKS        1
 
-struct socks_ctx {
-  enum socks_state_t state;
-  struct bufq iobuf;
-  struct Curl_peer *dest;
-  struct Curl_creds *creds;
+ساخت socks_ctx {
+  شمار socks_state_t state;
+  ساخت bufq iobuf;
+  ساخت Curl_peer *dest;
+  ساخت Curl_creds *creds;
   CURLproxycode presult;
   uint32_t resolv_id;
-  uint8_t ip_version;
+  uint8_t ip_نسخہ;
   uint8_t proxy_type;
-  unsigned char version;
-  BIT(resolve_local);
-  BIT(socks4a);
+  غیرعلامتی حرف نسخہ_2;
+  ثنائی_ہندسہ(resolve_local);
+  ثنائی_ہندسہ(socks4a);
 };
 
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#اگر defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
 /*
  * Helper read-from-socket functions. Does the same as Curl_read() but it
  * blocks until all bytes amount of buffersize will be read. No more, no less.
  *
  * This is STUPID BLOCKING behavior. Only used by the SOCKS GSSAPI functions.
  */
-CURLcode Curl_blockread_all(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            char *buf,             /* store read data here */
+CURLcode Curl_blockread_all(ساخت Curl_cfilter *cf,
+                            ساخت Curl_easy *ڈیٹا,
+                            حرف *buf,             /* store read data here */
                             size_t blen,           /* space in buf */
                             size_t *pnread)        /* amount bytes read */
 {
   size_t nread = 0;
-  CURLcode result;
+  CURLcode نتیجہ;
 
   *pnread = 0;
-  for(;;) {
-    timediff_t timeout_ms = Curl_timeleft_ms(data);
-    curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
+  برائے(;;) {
+    timediff_t timeout_ms = Curl_timeleft_ms(ڈیٹا);
+    curl_socket_t sock = Curl_conn_cf_get_socket(cf, ڈیٹا);
 
-    if(timeout_ms < 0) {
+    اگر(timeout_ms < 0) {
       /* we already got the timeout */
-      return CURLE_OPERATION_TIMEDOUT;
+      واپس CURLE_OPERATION_TIMEDOUT;
     }
-    if(!timeout_ms)
+    اگر(!timeout_ms)
       timeout_ms = TIMEDIFF_T_MAX;
-    if(SOCKET_READABLE(sock, timeout_ms) <= 0)
-      return CURLE_OPERATION_TIMEDOUT;
-    result = Curl_conn_cf_recv(cf->next, data, buf, blen, &nread);
-    if(result == CURLE_AGAIN)
-      continue;
-    else if(result)
-      return result;
+    اگر(SOCKET_READABLE(sock, timeout_ms) <= 0)
+      واپس CURLE_OPERATION_TIMEDOUT;
+    نتیجہ = Curl_conn_cf_recv(cf->اگلا, ڈیٹا, buf, blen, &nread);
+    اگر(نتیجہ == CURLE_AGAIN)
+      جاری;
+    ورنہ اگر(نتیجہ)
+      واپس نتیجہ;
 
-    if(blen == nread) {
+    اگر(blen == nread) {
       *pnread += nread;
-      return CURLE_OK;
+      واپس CURLE_OK;
     }
-    if(!nread) /* EOF */
-      return CURLE_RECV_ERROR;
+    اگر(!nread) /* EOF */
+      واپس CURLE_RECV_ERROR;
 
     buf += nread;
     blen -= nread;
     *pnread += nread;
   }
 }
-#endif
+#اگر_ختم
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
-#define sxstate(x, c, d, y) socksstate(x, c, d, y, __LINE__)
-#else
-#define sxstate(x, c, d, y) socksstate(x, c, d, y)
-#endif
+#اگر defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#تعریف_کرو sxstate(x, c, d, y) socksstate(x, c, d, y, __LINE__)
+#ورنہ
+#تعریف_کرو sxstate(x, c, d, y) socksstate(x, c, d, y)
+#اگر_ختم
 
 /* always use this function to change state, to make debugging easier */
-static void socksstate(struct socks_ctx *sx,
-                       struct Curl_cfilter *cf,
-                       struct Curl_easy *data,
-                       enum socks_state_t state
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
-                       , int lineno
-#endif
+ساکن خالی socksstate(ساخت socks_ctx *sx,
+                       ساخت Curl_cfilter *cf,
+                       ساخت Curl_easy *ڈیٹا,
+                       شمار socks_state_t state
+#اگر defined(DEBUGBUILD) && defined(CURLVERBOSE)
+                       , صحیح lineno
+#اگر_ختم
 )
 {
-  enum socks_state_t oldstate = sx->state;
+  شمار socks_state_t oldstate = sx->state;
 
-  if(oldstate == state)
+  اگر(oldstate == state)
     /* do not bother when the new state is the same as the old state */
-    return;
+    واپس;
 
   sx->state = state;
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
-  CURL_TRC_CF(data, cf, "[%s] -> [%s] (line %d)",
+#اگر defined(DEBUGBUILD) && defined(CURLVERBOSE)
+  CURL_TRC_CF(ڈیٹا, cf, "[%s] -> [%s] (line %d)",
               cf_socks_statename[oldstate],
               cf_socks_statename[sx->state], lineno);
-#else
-  (void)cf;
-  (void)data;
-#endif
+#ورنہ
+  (خالی)cf;
+  (خالی)ڈیٹا;
+#اگر_ختم
 }
 
-static CURLproxycode socks_failed(struct socks_ctx *sx,
-                                  struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
+ساکن CURLproxycode socks_failed(ساخت socks_ctx *sx,
+                                  ساخت Curl_cfilter *cf,
+                                  ساخت Curl_easy *ڈیٹا,
                                   CURLproxycode presult)
 {
-  sxstate(sx, cf, data, SOCKS_ST_FAILED);
+  sxstate(sx, cf, ڈیٹا, SOCKS_ST_FAILED);
   sx->presult = presult;
-  return presult;
+  واپس presult;
 }
 
-static CURLproxycode socks_flush(struct socks_ctx *sx,
-                                 struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 bool *done)
+ساکن CURLproxycode socks_flush(ساخت socks_ctx *sx,
+                                 ساخت Curl_cfilter *cf,
+                                 ساخت Curl_easy *ڈیٹا,
+                                 bool *مکمل)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
   size_t nwritten;
 
-  *done = FALSE;
-  while(!Curl_bufq_is_empty(&sx->iobuf)) {
-    result = Curl_cf_send_bufq(cf->next, data, &sx->iobuf, NULL, 0,
+  *مکمل = FALSE;
+  جب(!Curl_bufq_is_خالی_خانے(&sx->iobuf)) {
+    نتیجہ = Curl_cf_send_bufq(cf->اگلا, ڈیٹا, &sx->iobuf, تہی, 0,
                                &nwritten);
-    if(result == CURLE_AGAIN)
-      return CURLPX_OK;
-    else if(result) {
-      failf(data, "Failed to send SOCKS request: %s",
-            curl_easy_strerror(result));
-      return socks_failed(sx, cf, data, CURLPX_SEND_CONNECT);
+    اگر(نتیجہ == CURLE_AGAIN)
+      واپس CURLPX_OK;
+    ورنہ اگر(نتیجہ) {
+      failf(ڈیٹا, "Failed to send SOCKS request: %s",
+            curl_easy_strerror(نتیجہ));
+      واپس socks_failed(sx, cf, ڈیٹا, CURLPX_SEND_CONNECT);
     }
   }
-  *done = TRUE;
-  return CURLPX_OK;
+  *مکمل = TRUE;
+  واپس CURLPX_OK;
 }
 
-static CURLproxycode socks_recv(struct socks_ctx *sx,
-                                struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                size_t min_bytes,
-                                bool *done)
+ساکن CURLproxycode socks_recv(ساخت socks_ctx *sx,
+                                ساخت Curl_cfilter *cf,
+                                ساخت Curl_easy *ڈیٹا,
+                                size_t min_بائٹیں,
+                                bool *مکمل)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
   size_t nread;
 
-  *done = FALSE;
-  while(Curl_bufq_len(&sx->iobuf) < min_bytes) {
-    result = Curl_cf_recv_bufq(cf->next, data, &sx->iobuf,
-                               min_bytes - Curl_bufq_len(&sx->iobuf),
+  *مکمل = FALSE;
+  جب(Curl_bufq_len(&sx->iobuf) < min_بائٹیں) {
+    نتیجہ = Curl_cf_recv_bufq(cf->اگلا, ڈیٹا, &sx->iobuf,
+                               min_بائٹیں - Curl_bufq_len(&sx->iobuf),
                                &nread);
-    if(result == CURLE_AGAIN)
-      return CURLPX_OK;
-    else if(result) {
-      failf(data, "Failed to receive SOCKS response: %s",
-            curl_easy_strerror(result));
-      return CURLPX_RECV_CONNECT;
+    اگر(نتیجہ == CURLE_AGAIN)
+      واپس CURLPX_OK;
+    ورنہ اگر(نتیجہ) {
+      failf(ڈیٹا, "Failed to receive SOCKS response: %s",
+            curl_easy_strerror(نتیجہ));
+      واپس CURLPX_RECV_CONNECT;
     }
-    else if(!nread) { /* EOF */
-      if(Curl_bufq_len(&sx->iobuf) < min_bytes) {
-        failf(data, "Failed to receive SOCKS response, "
+    ورنہ اگر(!nread) { /* EOF */
+      اگر(Curl_bufq_len(&sx->iobuf) < min_بائٹیں) {
+        failf(ڈیٹا, "Failed to receive SOCKS response, "
               "proxy closed connection");
-        return CURLPX_RECV_CONNECT;
+        واپس CURLPX_RECV_CONNECT;
       }
-      break;
+      توڑو;
     }
   }
-  *done = TRUE;
-  return CURLPX_OK;
+  *مکمل = TRUE;
+  واپس CURLPX_OK;
 }
 
-static CURLproxycode socks4_req_add_hd(struct socks_ctx *sx,
-                                       struct Curl_easy *data)
+ساکن CURLproxycode socks4_req_جوڑو_hd(ساخت socks_ctx *sx,
+                                       ساخت Curl_easy *ڈیٹا)
 {
-  unsigned char buf[4];
+  غیرعلامتی حرف buf[4];
   size_t nwritten;
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  (void)data;
+  (خالی)ڈیٹا;
   buf[0] = 4; /* version (SOCKS4) */
   buf[1] = 1; /* connect */
-  buf[2] = (unsigned char)((sx->dest->port >> 8) & 0xffU); /* MSB */
-  buf[3] = (unsigned char)(sx->dest->port & 0xffU);        /* LSB */
+  buf[2] = (غیرعلامتی حرف)((sx->dest->پورٹ >> 8) & 0xffU); /* MSB */
+  buf[3] = (غیرعلامتی حرف)(sx->dest->پورٹ & 0xffU);        /* LSB */
 
-  result = Curl_bufq_write(&sx->iobuf, buf, 4, &nwritten);
-  if(result || (nwritten != 4))
-    return CURLPX_SEND_REQUEST;
-  return CURLPX_OK;
+  نتیجہ = Curl_bufq_write(&sx->iobuf, buf, 4, &nwritten);
+  اگر(نتیجہ || (nwritten != 4))
+    واپس CURLPX_SEND_REQUEST;
+  واپس CURLPX_OK;
 }
 
-static CURLproxycode socks4_req_add_user(struct socks_ctx *sx,
-                                         struct Curl_easy *data)
+ساکن CURLproxycode socks4_req_جوڑو_user(ساخت socks_ctx *sx,
+                                         ساخت Curl_easy *ڈیٹا)
 {
-  CURLcode result;
+  CURLcode نتیجہ;
   size_t nwritten;
 
-  if(sx->creds) {
-    size_t plen = strlen(sx->creds->user);
-    if(plen > 255) {
+  اگر(sx->creds) {
+    size_t plen = لڑی_لمبائی(sx->creds->user);
+    اگر(plen > 255) {
       /* there is no real size limit to this field in the protocol, but
          SOCKS5 limits the proxy user field to 255 bytes and it seems likely
          that a longer field is either a mistake or malicious input */
-      failf(data, "Too long SOCKS proxy username");
-      return CURLPX_LONG_USER;
+      failf(ڈیٹا, "Too long SOCKS proxy username");
+      واپس CURLPX_LONG_USER;
     }
     /* add proxy name WITH null-terminator */
-    result = Curl_bufq_cwrite(&sx->iobuf, sx->creds->user, plen + 1,
+    نتیجہ = Curl_bufq_cwrite(&sx->iobuf, sx->creds->user, plen + 1,
                               &nwritten);
-    if(result || (nwritten != (plen + 1)))
-      return CURLPX_SEND_REQUEST;
+    اگر(نتیجہ || (nwritten != (plen + 1)))
+      واپس CURLPX_SEND_REQUEST;
   }
-  else {
+  ورنہ {
     /* empty username */
-    unsigned char b = 0;
-    result = Curl_bufq_write(&sx->iobuf, &b, 1, &nwritten);
-    if(result || (nwritten != 1))
-      return CURLPX_SEND_REQUEST;
+    غیرعلامتی حرف b = 0;
+    نتیجہ = Curl_bufq_write(&sx->iobuf, &b, 1, &nwritten);
+    اگر(نتیجہ || (nwritten != 1))
+      واپس CURLPX_SEND_REQUEST;
   }
-  return CURLPX_OK;
+  واپس CURLPX_OK;
 }
 
-static CURLproxycode socks4_resolving(struct socks_ctx *sx,
-                                      struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      bool *done)
+ساکن CURLproxycode socks4_resolving(ساخت socks_ctx *sx,
+                                      ساخت Curl_cfilter *cf,
+                                      ساخت Curl_easy *ڈیٹا,
+                                      bool *مکمل)
 {
-  const struct Curl_addrinfo *ai = NULL;
-  CURLcode result;
+  ثابت ساخت Curl_addrinfo *ai = تہی;
+  CURLcode نتیجہ;
   size_t nwritten;
 
-  *done = FALSE;
-  result = Curl_conn_dns_addr_result(cf->conn, cf->sockindex, sx->dest);
-  if(result) {
-    if(result != CURLE_AGAIN) {
-      failf(data, "error %d resolving SOCKS destination %s:%u",
-            (int)result, sx->dest->hostname, sx->dest->port);
-      return CURLPX_RESOLVE_HOST;
+  *مکمل = FALSE;
+  نتیجہ = Curl_conn_dns_addr_نتیجہ(cf->conn, cf->sockindex, sx->dest);
+  اگر(نتیجہ) {
+    اگر(نتیجہ != CURLE_AGAIN) {
+      failf(ڈیٹا, "error %d resolving SOCKS destination %s:%u",
+            (صحیح)نتیجہ, sx->dest->hostname, sx->dest->پورٹ);
+      واپس CURLPX_RESOLVE_HOST;
     }
-    return CURLPX_OK;
+    واپس CURLPX_OK;
   }
 
-  ai = Curl_conn_dns_get_ai(data, sx->dest, cf->sockindex, AF_INET, 0);
-  if(ai) {
-    struct sockaddr_in *saddr_in;
-    char ipbuf[64];
+  ai = Curl_conn_dns_get_ai(ڈیٹا, sx->dest, cf->sockindex, AF_INET, 0);
+  اگر(ai) {
+    ساخت sockaddr_in *saddr_اندر;
+    حرف ipbuf[64];
 
-    Curl_printable_address(ai, ipbuf, sizeof(ipbuf));
-    CURL_TRC_CF(data, cf, "SOCKS4 connect to IPv4 %s (locally resolved)",
+    Curl_printable_پتہ(ai, ipbuf, حجم(ipbuf));
+    CURL_TRC_CF(ڈیٹا, cf, "SOCKS4 connect to IPv4 %s (locally resolved)",
                 ipbuf);
 
-    saddr_in = (struct sockaddr_in *)(void *)ai->ai_addr;
-    result = Curl_bufq_write(&sx->iobuf,
-                             (unsigned char *)&saddr_in->sin_addr.s_addr, 4,
+    saddr_اندر = (ساخت sockaddr_in *)(خالی *)ai->ai_addr;
+    نتیجہ = Curl_bufq_write(&sx->iobuf,
+                             (غیرعلامتی حرف *)&saddr_اندر->sin_addr.s_addr, 4,
                              &nwritten);
 
-    if(result || (nwritten != 4))
-      return CURLPX_SEND_REQUEST;
+    اگر(نتیجہ || (nwritten != 4))
+      واپس CURLPX_SEND_REQUEST;
   }
-  else {
+  ورنہ {
     /* No IPv4 address resolved */
-    failf(data, "SOCKS4 connection to %s not supported", sx->dest->hostname);
-    return CURLPX_RESOLVE_HOST;
+    failf(ڈیٹا, "SOCKS4 connection to %s not supported", sx->dest->hostname);
+    واپس CURLPX_RESOLVE_HOST;
   }
 
-  *done = TRUE;
-  return CURLPX_OK;
+  *مکمل = TRUE;
+  واپس CURLPX_OK;
 }
 
-static CURLproxycode socks4_check_resp(struct socks_ctx *sx,
-                                       struct Curl_cfilter *cf,
-                                       struct Curl_easy *data)
+ساکن CURLproxycode socks4_check_resp(ساخت socks_ctx *sx,
+                                       ساخت Curl_cfilter *cf,
+                                       ساخت Curl_easy *ڈیٹا)
 {
-  const unsigned char *resp;
+  ثابت غیرعلامتی حرف *resp;
   size_t rlen;
 
-  if(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 8) {
-    failf(data, "SOCKS4 reply is incomplete.");
-    return CURLPX_RECV_CONNECT;
+  اگر(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 8) {
+    failf(ڈیٹا, "SOCKS4 reply is incomplete.");
+    واپس CURLPX_RECV_CONNECT;
   }
 
   DEBUGASSERT(rlen == 8);
@@ -389,47 +389,47 @@ static CURLproxycode socks4_check_resp(struct socks_ctx *sx,
    */
 
   /* wrong version ? */
-  if(resp[0]) {
-    failf(data, "SOCKS4 reply has wrong version, version should be 0.");
-    return CURLPX_BAD_VERSION;
+  اگر(resp[0]) {
+    failf(ڈیٹا, "SOCKS4 reply has wrong version, version should be 0.");
+    واپس CURLPX_BAD_نسخہ;
   }
 
-  /* Result */
-  switch(resp[1]) {
-  case 90:
-    CURL_TRC_CF(data, cf, "SOCKS4%s request granted.", sx->socks4a ? "a" : "");
+  /*نتیجہ*/
+  انتخاب(resp[1]) {
+  حالت 90:
+    CURL_TRC_CF(ڈیٹا, cf, "SOCKS4%s request granted.", sx->socks4a ? "a" : "");
     Curl_bufq_skip(&sx->iobuf, 8);
-    return CURLPX_OK;
-  case 91:
-    failf(data,
+    واپس CURLPX_OK;
+  حالت 91:
+    failf(ڈیٹا,
           "[SOCKS] cannot complete SOCKS4 connection to %u.%u.%u.%u:%u. (%u)"
           ", request rejected or failed.",
           resp[4], resp[5], resp[6], resp[7],
-          (unsigned int)((resp[2] << 8) | resp[3]), resp[1]);
-    return CURLPX_REQUEST_FAILED;
-  case 92:
-    failf(data,
+          (غیرعلامتی صحیح)((resp[2] << 8) | resp[3]), resp[1]);
+    واپس CURLPX_REQUEST_FAILED;
+  حالت 92:
+    failf(ڈیٹا,
           "[SOCKS] cannot complete SOCKS4 connection to %u.%u.%u.%u:%u. (%u)"
           ", request rejected because SOCKS server cannot connect to "
           "identd on the client.",
           resp[4], resp[5], resp[6], resp[7],
-          (unsigned int)((resp[2] << 8) | resp[3]), resp[1]);
-    return CURLPX_IDENTD;
-  case 93:
-    failf(data,
+          (غیرعلامتی صحیح)((resp[2] << 8) | resp[3]), resp[1]);
+    واپس CURLPX_IDENTD;
+  حالت 93:
+    failf(ڈیٹا,
           "[SOCKS] cannot complete SOCKS4 connection to %u.%u.%u.%u:%u. (%u)"
           ", request rejected because the client program and identd "
           "report different user-ids.",
           resp[4], resp[5], resp[6], resp[7],
-          (unsigned int)((resp[2] << 8) | resp[3]), resp[1]);
-    return CURLPX_IDENTD_DIFFER;
-  default:
-    failf(data,
+          (غیرعلامتی صحیح)((resp[2] << 8) | resp[3]), resp[1]);
+    واپس CURLPX_IDENTD_فرق;
+  طےشدہ:
+    failf(ڈیٹا,
           "[SOCKS] cannot complete SOCKS4 connection to %u.%u.%u.%u:%u. (%u)"
           ", Unknown.",
           resp[4], resp[5], resp[6], resp[7],
-          (unsigned int)((resp[2] << 8) | resp[3]), resp[1]);
-    return CURLPX_UNKNOWN_FAIL;
+          (غیرعلامتی صحیح)((resp[2] << 8) | resp[3]), resp[1]);
+    واپس CURLPX_UNKNOWN_FAIL;
   }
 }
 
@@ -444,32 +444,32 @@ static CURLproxycode socks4_check_resp(struct socks_ctx *sx,
  *   Set protocol4a=true for  "SOCKS 4A (Simple Extension to SOCKS 4 Protocol)"
  *   Nonsupport "Identification Protocol (RFC1413)"
  */
-static CURLproxycode socks4_connect(struct Curl_cfilter *cf,
-                                    struct socks_ctx *sx,
-                                    struct Curl_easy *data)
+ساکن CURLproxycode socks4_connect(ساخت Curl_cfilter *cf,
+                                    ساخت socks_ctx *sx,
+                                    ساخت Curl_easy *ڈیٹا)
 {
   size_t nwritten;
   CURLproxycode presult;
-  CURLcode result;
-  bool done;
+  CURLcode نتیجہ;
+  bool مکمل;
 
 process_state:
-  switch(sx->state) {
-  case SOCKS_ST_INIT:
-    sx->version = 4;
-    sxstate(sx, cf, data, SOCKS4_ST_START);
+  انتخاب(sx->state) {
+  حالت SOCKS_ST_INIT:
+    sx->نسخہ_2 = 4;
+    sxstate(sx, cf, ڈیٹا, SOCKS4_ST_آغاز);
     FALLTHROUGH();
 
-  case SOCKS4_ST_START:
+  حالت SOCKS4_ST_آغاز:
     Curl_bufq_reset(&sx->iobuf);
     sx->socks4a = (sx->proxy_type == CURLPROXY_SOCKS4A);
     sx->presult = CURLPX_OK;
 
     /* SOCKS4 can only do IPv4, insist! */
-    sx->ip_version = CURL_IPRESOLVE_V4;
-    CURL_TRC_CF(data, cf, "SOCKS4%s connecting to %s:%u",
+    sx->ip_نسخہ = CURL_IPRESOLVE_V4;
+    CURL_TRC_CF(ڈیٹا, cf, "SOCKS4%s connecting to %s:%u",
                 sx->socks4a ? "a" : "",
-                sx->dest->hostname, sx->dest->port);
+                sx->dest->hostname, sx->dest->پورٹ);
 
     /*
      * Compose socks4 request
@@ -481,222 +481,222 @@ process_state:
      *     +----+----+----+----+----+----+----+----+----+----+....+----+
      * # of bytes:  1    1      2              4           variable       1
      */
-    presult = socks4_req_add_hd(sx, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
+    presult = socks4_req_جوڑو_hd(sx, ڈیٹا);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
 
     /* DNS resolve only for SOCKS4, not SOCKS4a */
-    if(!sx->resolve_local) {
+    اگر(!sx->resolve_local) {
       /* socks4a, not resolving locally, sends the hostname.
        * add an invalid address + user + hostname */
-      unsigned char buf[4] = { 0, 0, 0, 1 };
-      size_t hlen = strlen(sx->dest->hostname) + 1; /* including NUL */
+      غیرعلامتی حرف buf[4] = { 0, 0, 0, 1 };
+      size_t hlen = لڑی_لمبائی(sx->dest->hostname) + 1; /* including NUL */
 
-      if(hlen > 255) {
-        failf(data, "SOCKS4: too long hostname");
-        return socks_failed(sx, cf, data, CURLPX_LONG_HOSTNAME);
+      اگر(hlen > 255) {
+        failf(ڈیٹا, "SOCKS4: too long hostname");
+        واپس socks_failed(sx, cf, ڈیٹا, CURLPX_LONG_HOSTNAME);
       }
-      result = Curl_bufq_write(&sx->iobuf, buf, 4, &nwritten);
-      if(result || (nwritten != 4))
-        return socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
-      presult = socks4_req_add_user(sx, data);
-      if(presult)
-        return socks_failed(sx, cf, data, presult);
-      result = Curl_bufq_cwrite(&sx->iobuf, sx->dest->hostname, hlen,
+      نتیجہ = Curl_bufq_write(&sx->iobuf, buf, 4, &nwritten);
+      اگر(نتیجہ || (nwritten != 4))
+        واپس socks_failed(sx, cf, ڈیٹا, CURLPX_SEND_REQUEST);
+      presult = socks4_req_جوڑو_user(sx, ڈیٹا);
+      اگر(presult)
+        واپس socks_failed(sx, cf, ڈیٹا, presult);
+      نتیجہ = Curl_bufq_cwrite(&sx->iobuf, sx->dest->hostname, hlen,
                                 &nwritten);
-      if(result || (nwritten != hlen))
-        return socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
+      اگر(نتیجہ || (nwritten != hlen))
+        واپس socks_failed(sx, cf, ڈیٹا, CURLPX_SEND_REQUEST);
       /* request complete */
-      sxstate(sx, cf, data, SOCKS4_ST_SEND);
-      goto process_state;
+      sxstate(sx, cf, ڈیٹا, SOCKS4_ST_SEND);
+      جاؤ process_state;
     }
-    sxstate(sx, cf, data, SOCKS4_ST_RESOLVING);
+    sxstate(sx, cf, ڈیٹا, SOCKS4_ST_RESOLVING);
     FALLTHROUGH();
 
-  case SOCKS4_ST_RESOLVING:
-    presult = socks4_resolving(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    if(!done)
-      return CURLPX_OK;
+  حالت SOCKS4_ST_RESOLVING:
+    presult = socks4_resolving(sx, cf, ڈیٹا, &مکمل);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    اگر(!مکمل)
+      واپس CURLPX_OK;
     /* append user */
-    presult = socks4_req_add_user(sx, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    sxstate(sx, cf, data, SOCKS4_ST_SEND);
+    presult = socks4_req_جوڑو_user(sx, ڈیٹا);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    sxstate(sx, cf, ڈیٹا, SOCKS4_ST_SEND);
     FALLTHROUGH();
 
-  case SOCKS4_ST_SEND:
-    presult = socks_flush(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
-    sxstate(sx, cf, data, SOCKS4_ST_RECV);
+  حالت SOCKS4_ST_SEND:
+    presult = socks_flush(sx, cf, ڈیٹا, &مکمل);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    ورنہ اگر(!مکمل)
+      واپس CURLPX_OK;
+    sxstate(sx, cf, ڈیٹا, SOCKS4_ST_RECV);
     FALLTHROUGH();
 
-  case SOCKS4_ST_RECV:
+  حالت SOCKS4_ST_RECV:
     /* Receive 8-byte response */
-    presult = socks_recv(sx, cf, data, 8, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
-    presult = socks4_check_resp(sx, cf, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    sxstate(sx, cf, data, SOCKS_ST_SUCCESS);
+    presult = socks_recv(sx, cf, ڈیٹا, 8, &مکمل);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    ورنہ اگر(!مکمل)
+      واپس CURLPX_OK;
+    presult = socks4_check_resp(sx, cf, ڈیٹا);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    sxstate(sx, cf, ڈیٹا, SOCKS_ST_SUCCESS);
     FALLTHROUGH();
 
-  case SOCKS_ST_SUCCESS:
-    return CURLPX_OK;
+  حالت SOCKS_ST_SUCCESS:
+    واپس CURLPX_OK;
 
-  case SOCKS_ST_FAILED:
+  حالت SOCKS_ST_FAILED:
     DEBUGASSERT(sx->presult);
-    return sx->presult;
+    واپس sx->presult;
 
-  default:
+  طےشدہ:
     DEBUGASSERT(0);
-    return socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
+    واپس socks_failed(sx, cf, ڈیٹا, CURLPX_SEND_REQUEST);
   }
 }
 
-static CURLproxycode socks5_req0_init(struct Curl_cfilter *cf,
-                                      struct socks_ctx *sx,
-                                      struct Curl_easy *data)
+ساکن CURLproxycode socks5_req0_init(ساخت Curl_cfilter *cf,
+                                      ساخت socks_ctx *sx,
+                                      ساخت Curl_easy *ڈیٹا)
 {
-  const unsigned char auth = data->set.socks5auth;
-  unsigned char req[5]; /* version + len + 3 possible auth methods */
-  unsigned char nauths;
+  ثابت غیرعلامتی حرف auth = ڈیٹا->سیٹ.socks5auth;
+  غیرعلامتی حرف req[5]; /* version + len + 3 possible auth methods */
+  غیرعلامتی حرف nauths;
   size_t req_len, nwritten;
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  (void)cf;
+  (خالی)cf;
   /* RFC1928 chapter 5 specifies max 255 chars for domain name in packet */
-  if(!sx->resolve_local && strlen(sx->dest->hostname) > 255) {
-    failf(data, "SOCKS5: the destination hostname is too long to be "
+  اگر(!sx->resolve_local && لڑی_لمبائی(sx->dest->hostname) > 255) {
+    failf(ڈیٹا, "SOCKS5: the destination hostname is too long to be "
           "resolved remotely by the proxy.");
-    return CURLPX_LONG_HOSTNAME;
+    واپس CURLPX_LONG_HOSTNAME;
   }
 
-  if(auth & ~(CURLAUTH_BASIC | CURLAUTH_GSSAPI))
-    infof(data, "warning: unsupported value passed to "
+  اگر(auth & ~(CURLAUTH_BASIC | CURLAUTH_GSSAPI))
+    infof(ڈیٹا, "warning: unsupported value passed to "
           "CURLOPT_SOCKS5_AUTH: %u", auth);
-  if(!(auth & CURLAUTH_BASIC))
+  اگر(!(auth & CURLAUTH_BASIC))
     /* disable username/password auth */
     Curl_creds_unlink(&sx->creds);
 
-  if(cf->sockindex == FIRSTSOCKET)
+  اگر(cf->sockindex == FIRSTSOCKET)
     /* the reuse of this connection depends on how this negotiation ends */
-    cf->conn->bits.socks5_authenticated = FALSE;
+    cf->conn->بٹ.socks5_authenticated = FALSE;
 
-  req[0] = 5;   /* version */
+  req[0] = 5;   /*نسخہ*/
   nauths = 0;
-  if(!data->set.socks5_auth_only) {
+  اگر(!ڈیٹا->سیٹ.socks5_auth_only) {
     ++nauths;
     req[1 + nauths] = 0; /* no authentication */
   }
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  if(auth & CURLAUTH_GSSAPI) {
+#اگر defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  اگر(auth & CURLAUTH_GSSAPI) {
     ++nauths;
     req[1 + nauths] = 1; /* GSS-API */
   }
-#endif
-  if(sx->creds) {
+#اگر_ختم
+  اگر(sx->creds) {
     ++nauths;
     req[1 + nauths] = 2; /* username/password */
   }
-  if(!nauths) {
-    failf(data, "SOCKS5: no acceptable authentication method is available.");
-    return CURLPX_NO_AUTH;
+  اگر(!nauths) {
+    failf(ڈیٹا, "SOCKS5: no acceptable authentication method is available.");
+    واپس CURLPX_NO_AUTH;
   }
   req[1] = nauths;
   req_len = 2 + nauths;
 
-  result = Curl_bufq_write(&sx->iobuf, req, req_len, &nwritten);
-  if(result || (nwritten != req_len))
-    return CURLPX_SEND_REQUEST;
-  return CURLPX_OK;
+  نتیجہ = Curl_bufq_write(&sx->iobuf, req, req_len, &nwritten);
+  اگر(نتیجہ || (nwritten != req_len))
+    واپس CURLPX_SEND_REQUEST;
+  واپس CURLPX_OK;
 }
 
-static CURLproxycode socks5_check_resp0(struct socks_ctx *sx,
-                                        struct Curl_cfilter *cf,
-                                        struct Curl_easy *data)
+ساکن CURLproxycode socks5_check_resp0(ساخت socks_ctx *sx,
+                                        ساخت Curl_cfilter *cf,
+                                        ساخت Curl_easy *ڈیٹا)
 {
-  const unsigned char *resp;
-  unsigned char auth_mode;
+  ثابت غیرعلامتی حرف *resp;
+  غیرعلامتی حرف auth_منوال;
   size_t rlen;
 
-  if(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 2) {
-    failf(data, "SOCKS5 initial reply is incomplete.");
-    return CURLPX_RECV_CONNECT;
+  اگر(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 2) {
+    failf(ڈیٹا, "SOCKS5 initial reply is incomplete.");
+    واپس CURLPX_RECV_CONNECT;
   }
 
-  if(resp[0] != 5) {
-    failf(data, "Received invalid version in initial SOCKS5 response.");
-    return CURLPX_BAD_VERSION;
+  اگر(resp[0] != 5) {
+    failf(ڈیٹا, "Received invalid version in initial SOCKS5 response.");
+    واپس CURLPX_BAD_نسخہ;
   }
 
-  auth_mode = resp[1];
+  auth_منوال = resp[1];
   Curl_bufq_skip(&sx->iobuf, 2);
 
-  switch(auth_mode) {
-  case 0:
-    if(data->set.socks5_auth_only) {
-      failf(data, "SOCKS5 proxy selected no authentication.");
-      return CURLPX_NO_AUTH;
+  انتخاب(auth_منوال) {
+  حالت 0:
+    اگر(ڈیٹا->سیٹ.socks5_auth_only) {
+      failf(ڈیٹا, "SOCKS5 proxy selected no authentication.");
+      واپس CURLPX_NO_AUTH;
     }
     /* DONE! No authentication needed. Send request. */
-    sxstate(sx, cf, data, SOCKS5_ST_REQ1_INIT);
-    return CURLPX_OK;
-  case 1:
-    if(data->set.socks5auth & CURLAUTH_GSSAPI) {
-      if(cf->sockindex == FIRSTSOCKET)
-        cf->conn->bits.socks5_authenticated = TRUE;
-      sxstate(sx, cf, data, SOCKS5_ST_GSSAPI_INIT);
-      return CURLPX_OK;
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_REQ1_INIT);
+    واپس CURLPX_OK;
+  حالت 1:
+    اگر(ڈیٹا->سیٹ.socks5auth & CURLAUTH_GSSAPI) {
+      اگر(cf->sockindex == FIRSTSOCKET)
+        cf->conn->بٹ.socks5_authenticated = TRUE;
+      sxstate(sx, cf, ڈیٹا, SOCKS5_ST_GSSAPI_INIT);
+      واپس CURLPX_OK;
     }
-    failf(data, "SOCKS5 GSSAPI per-message authentication is not enabled.");
-    return CURLPX_GSSAPI_PERMSG;
-  case 2:
+    failf(ڈیٹا, "SOCKS5 GSSAPI per-message authentication is not enabled.");
+    واپس CURLPX_GSSAPI_PERMSG;
+  حالت 2:
     /* regular name + password authentication */
-    if(data->set.socks5auth & CURLAUTH_BASIC) {
-      if(cf->sockindex == FIRSTSOCKET)
-        cf->conn->bits.socks5_authenticated = TRUE;
-      sxstate(sx, cf, data, SOCKS5_ST_AUTH_INIT);
-      return CURLPX_OK;
+    اگر(ڈیٹا->سیٹ.socks5auth & CURLAUTH_BASIC) {
+      اگر(cf->sockindex == FIRSTSOCKET)
+        cf->conn->بٹ.socks5_authenticated = TRUE;
+      sxstate(sx, cf, ڈیٹا, SOCKS5_ST_AUTH_INIT);
+      واپس CURLPX_OK;
     }
-    failf(data, "BASIC authentication proposed but not enabled.");
-    return CURLPX_NO_AUTH;
-  case 255:
-    failf(data, "No authentication method was acceptable.");
-    return CURLPX_NO_AUTH;
-  default:
-    failf(data, "Unknown SOCKS5 mode attempted to be used by server.");
-    return CURLPX_UNKNOWN_MODE;
+    failf(ڈیٹا, "BASIC authentication proposed but not enabled.");
+    واپس CURLPX_NO_AUTH;
+  حالت 255:
+    failf(ڈیٹا, "No authentication method was acceptable.");
+    واپس CURLPX_NO_AUTH;
+  طےشدہ:
+    failf(ڈیٹا, "Unknown SOCKS5 mode attempted to be used by server.");
+    واپس CURLPX_UNKNOWN_منوال;
   }
 }
 
-static CURLproxycode socks5_auth_init(struct Curl_cfilter *cf,
-                                      struct socks_ctx *sx,
-                                      struct Curl_easy *data)
+ساکن CURLproxycode socks5_auth_init(ساخت Curl_cfilter *cf,
+                                      ساخت socks_ctx *sx,
+                                      ساخت Curl_easy *ڈیٹا)
 {
   /* Needs username and password */
   size_t ulen = 0, plen = 0, nwritten;
-  unsigned char buf[2];
-  CURLcode result;
+  غیرعلامتی حرف buf[2];
+  CURLcode نتیجہ;
 
-  if(sx->creds) {
-    ulen = strlen(sx->creds->user);
-    plen = strlen(sx->creds->passwd);
+  اگر(sx->creds) {
+    ulen = لڑی_لمبائی(sx->creds->user);
+    plen = لڑی_لمبائی(sx->creds->passwd);
     /* the lengths must fit in a single byte */
-    if(ulen > 255) {
-      failf(data, "Excessive username length for proxy auth");
-      return CURLPX_LONG_USER;
+    اگر(ulen > 255) {
+      failf(ڈیٹا, "Excessive username length for proxy auth");
+      واپس CURLPX_LONG_USER;
     }
-    if(plen > 255) {
-      failf(data, "Excessive password length for proxy auth");
-      return CURLPX_LONG_PASSWD;
+    اگر(plen > 255) {
+      failf(ڈیٹا, "Excessive password length for proxy auth");
+      واپس CURLPX_LONG_PASSWD;
     }
   }
 
@@ -708,233 +708,233 @@ static CURLproxycode socks5_auth_init(struct Curl_cfilter *cf,
    * +----+------+----------+------+----------+
    */
   buf[0] = 1;    /* username/pw subnegotiation version */
-  buf[1] = (unsigned char)ulen;
-  result = Curl_bufq_write(&sx->iobuf, buf, 2, &nwritten);
-  if(result || (nwritten != 2))
-    return CURLPX_SEND_REQUEST;
-  if(ulen) {
-    result = Curl_bufq_cwrite(&sx->iobuf, sx->creds->user, ulen, &nwritten);
-    if(result || (nwritten != ulen))
-      return CURLPX_SEND_REQUEST;
+  buf[1] = (غیرعلامتی حرف)ulen;
+  نتیجہ = Curl_bufq_write(&sx->iobuf, buf, 2, &nwritten);
+  اگر(نتیجہ || (nwritten != 2))
+    واپس CURLPX_SEND_REQUEST;
+  اگر(ulen) {
+    نتیجہ = Curl_bufq_cwrite(&sx->iobuf, sx->creds->user, ulen, &nwritten);
+    اگر(نتیجہ || (nwritten != ulen))
+      واپس CURLPX_SEND_REQUEST;
   }
-  buf[0] = (unsigned char)plen;
-  result = Curl_bufq_write(&sx->iobuf, buf, 1, &nwritten);
-  if(result || (nwritten != 1))
-    return CURLPX_SEND_REQUEST;
-  if(plen) {
-    result = Curl_bufq_cwrite(&sx->iobuf, sx->creds->passwd, plen, &nwritten);
-    if(result || (nwritten != plen))
-      return CURLPX_SEND_REQUEST;
+  buf[0] = (غیرعلامتی حرف)plen;
+  نتیجہ = Curl_bufq_write(&sx->iobuf, buf, 1, &nwritten);
+  اگر(نتیجہ || (nwritten != 1))
+    واپس CURLPX_SEND_REQUEST;
+  اگر(plen) {
+    نتیجہ = Curl_bufq_cwrite(&sx->iobuf, sx->creds->passwd, plen, &nwritten);
+    اگر(نتیجہ || (nwritten != plen))
+      واپس CURLPX_SEND_REQUEST;
   }
-  sxstate(sx, cf, data, SOCKS5_ST_AUTH_SEND);
-  return CURLPX_OK;
+  sxstate(sx, cf, ڈیٹا, SOCKS5_ST_AUTH_SEND);
+  واپس CURLPX_OK;
 }
 
-static CURLproxycode socks5_check_auth_resp(struct socks_ctx *sx,
-                                            struct Curl_cfilter *cf,
-                                            struct Curl_easy *data)
+ساکن CURLproxycode socks5_check_auth_resp(ساخت socks_ctx *sx,
+                                            ساخت Curl_cfilter *cf,
+                                            ساخت Curl_easy *ڈیٹا)
 {
-  const unsigned char *resp;
-  unsigned char auth_status;
+  ثابت غیرعلامتی حرف *resp;
+  غیرعلامتی حرف auth_حالت;
   size_t rlen;
 
-  (void)cf;
-  if(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 2) {
-    failf(data, "SOCKS5 sub-negotiation response incomplete.");
-    return CURLPX_RECV_CONNECT;
+  (خالی)cf;
+  اگر(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < 2) {
+    failf(ڈیٹا, "SOCKS5 sub-negotiation response incomplete.");
+    واپس CURLPX_RECV_CONNECT;
   }
 
   /* ignore the first (VER) byte */
-  auth_status = resp[1];
-  if(auth_status) {
-    failf(data, "User was rejected by the SOCKS5 server (%d %d).",
+  auth_حالت = resp[1];
+  اگر(auth_حالت) {
+    failf(ڈیٹا, "User was rejected by the SOCKS5 server (%d %d).",
           resp[0], resp[1]);
-    return CURLPX_USER_REJECTED;
+    واپس CURLPX_USER_REJECTED;
   }
   Curl_bufq_skip(&sx->iobuf, 2);
-  return CURLPX_OK;
+  واپس CURLPX_OK;
 }
 
-static CURLproxycode socks5_req1_init(struct socks_ctx *sx,
-                                      struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+ساکن CURLproxycode socks5_req1_init(ساخت socks_ctx *sx,
+                                      ساخت Curl_cfilter *cf,
+                                      ساخت Curl_easy *ڈیٹا)
 {
-  unsigned char req[5];
-  unsigned char ipbuf[16];
-  const unsigned char *destination;
-  unsigned char desttype, destlen, hdlen;
+  غیرعلامتی حرف req[5];
+  غیرعلامتی حرف ipbuf[16];
+  ثابت غیرعلامتی حرف *destination;
+  غیرعلامتی حرف desttype, destlen, hdlen;
   size_t nwritten;
-  CURLcode result;
+  CURLcode نتیجہ;
 
   req[0] = 5; /* version (SOCKS5) */
   req[1] = 1; /* connect */
   req[2] = 0; /* must be zero */
-  if(sx->resolve_local) {
+  اگر(sx->resolve_local) {
     /* rest of request is added after resolving */
-    result = Curl_bufq_write(&sx->iobuf, req, 3, &nwritten);
-    if(result || (nwritten != 3))
-      return CURLPX_SEND_REQUEST;
-    return CURLPX_OK;
+    نتیجہ = Curl_bufq_write(&sx->iobuf, req, 3, &nwritten);
+    اگر(نتیجہ || (nwritten != 3))
+      واپس CURLPX_SEND_REQUEST;
+    واپس CURLPX_OK;
   }
 
   /* remote resolving, send what type+addr/string to resolve */
-#ifdef USE_IPV6
-  if(strchr(sx->dest->hostname, ':')) {
+#اگر_تعریف_شدہ USE_IPV6
+  اگر(strchr(sx->dest->hostname, ':')) {
     desttype = 4;
     destination = ipbuf;
     destlen = 16;
-    if(curlx_inet_pton(AF_INET6, sx->dest->hostname, ipbuf) != 1)
-      return CURLPX_BAD_ADDRESS_TYPE;
+    اگر(curlx_inet_pton(AF_INET6, sx->dest->hostname, ipbuf) != 1)
+      واپس CURLPX_BAD_پتہ_TYPE;
   }
-  else
-#endif
-  if(curlx_inet_pton(AF_INET, sx->dest->hostname, ipbuf) == 1) {
+  ورنہ
+#اگر_ختم
+  اگر(curlx_inet_pton(AF_INET, sx->dest->hostname, ipbuf) == 1) {
     desttype = 1;
     destination = ipbuf;
     destlen = 4;
   }
-  else {
-    const size_t hostname_len = strlen(sx->dest->hostname);
+  ورنہ {
+    ثابت size_t hostname_len = لڑی_لمبائی(sx->dest->hostname);
     /* socks5_req0_init() already rejects hostnames longer than 255 bytes, so
        this cast to unsigned char is safe. Assert to guard against future
        refactoring that might remove or reorder that earlier check. */
     DEBUGASSERT(hostname_len <= 255);
     desttype = 3;
-    destination = (const unsigned char *)sx->dest->hostname;
-    destlen = (unsigned char)hostname_len; /* 1-byte length */
+    destination = (ثابت غیرعلامتی حرف *)sx->dest->hostname;
+    destlen = (غیرعلامتی حرف)hostname_len; /* 1-byte length */
   }
 
   req[3] = desttype;
   req[4] = destlen;
   hdlen = (desttype == 3) ? 5 : 4; /* no length byte for ip addresses */
-  result = Curl_bufq_write(&sx->iobuf, req, hdlen, &nwritten);
-  if(result || (nwritten != hdlen))
-    return CURLPX_SEND_REQUEST;
-  result = Curl_bufq_write(&sx->iobuf, destination, destlen, &nwritten);
-  if(result || (nwritten != destlen))
-    return CURLPX_SEND_REQUEST;
+  نتیجہ = Curl_bufq_write(&sx->iobuf, req, hdlen, &nwritten);
+  اگر(نتیجہ || (nwritten != hdlen))
+    واپس CURLPX_SEND_REQUEST;
+  نتیجہ = Curl_bufq_write(&sx->iobuf, destination, destlen, &nwritten);
+  اگر(نتیجہ || (nwritten != destlen))
+    واپس CURLPX_SEND_REQUEST;
   /* PORT MSB+LSB */
-  req[0] = (unsigned char)((sx->dest->port >> 8) & 0xff);
-  req[1] = (unsigned char)(sx->dest->port & 0xff);
-  result = Curl_bufq_write(&sx->iobuf, req, 2, &nwritten);
-  if(result || (nwritten != 2))
-    return CURLPX_SEND_REQUEST;
-  CURL_TRC_CF(data, cf, "SOCKS5 connect to %s:%u (remotely resolved)",
-              sx->dest->hostname, sx->dest->port);
-  return CURLPX_OK;
+  req[0] = (غیرعلامتی حرف)((sx->dest->پورٹ >> 8) & 0xff);
+  req[1] = (غیرعلامتی حرف)(sx->dest->پورٹ & 0xff);
+  نتیجہ = Curl_bufq_write(&sx->iobuf, req, 2, &nwritten);
+  اگر(نتیجہ || (nwritten != 2))
+    واپس CURLPX_SEND_REQUEST;
+  CURL_TRC_CF(ڈیٹا, cf, "SOCKS5 connect to %s:%u (remotely resolved)",
+              sx->dest->hostname, sx->dest->پورٹ);
+  واپس CURLPX_OK;
 }
 
-static CURLproxycode socks5_resolving(struct socks_ctx *sx,
-                                      struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      bool *done)
+ساکن CURLproxycode socks5_resolving(ساخت socks_ctx *sx,
+                                      ساخت Curl_cfilter *cf,
+                                      ساخت Curl_easy *ڈیٹا,
+                                      bool *مکمل)
 {
-  const struct Curl_addrinfo *ai = NULL;
-  char dest[MAX_IPADR_LEN];  /* printable address */
-  const unsigned char *destination = NULL;
-  unsigned char desttype = 1, destlen = 4;
-  unsigned char req[2];
-  CURLcode result;
+  ثابت ساخت Curl_addrinfo *ai = تہی;
+  حرف dest[MAX_IPADR_LEN];  /* printable address */
+  ثابت غیرعلامتی حرف *destination = تہی;
+  غیرعلامتی حرف desttype = 1, destlen = 4;
+  غیرعلامتی حرف req[2];
+  CURLcode نتیجہ;
   CURLproxycode presult = CURLPX_OK;
   size_t nwritten;
 
-  *done = FALSE;
-  result = Curl_conn_dns_addr_result(cf->conn, cf->sockindex, sx->dest);
-  if(result) {
-    if(result != CURLE_AGAIN) {
-      failf(data, "error %d resolving SOCKS destination %s:%u",
-            (int)result, sx->dest->hostname, sx->dest->port);
-      return CURLPX_RESOLVE_HOST;
+  *مکمل = FALSE;
+  نتیجہ = Curl_conn_dns_addr_نتیجہ(cf->conn, cf->sockindex, sx->dest);
+  اگر(نتیجہ) {
+    اگر(نتیجہ != CURLE_AGAIN) {
+      failf(ڈیٹا, "error %d resolving SOCKS destination %s:%u",
+            (صحیح)نتیجہ, sx->dest->hostname, sx->dest->پورٹ);
+      واپس CURLPX_RESOLVE_HOST;
     }
-    return CURLPX_OK;
+    واپس CURLPX_OK;
   }
 
-#ifdef USE_IPV6
-  if(data->set.ipver != CURL_IPRESOLVE_V4)
-    ai = Curl_conn_dns_get_ai(data, sx->dest, cf->sockindex, AF_INET6, 0);
-#endif
-  if(!ai)
-    ai = Curl_conn_dns_get_ai(data, sx->dest, cf->sockindex, AF_INET, 0);
+#اگر_تعریف_شدہ USE_IPV6
+  اگر(ڈیٹا->سیٹ.ipver != CURL_IPRESOLVE_V4)
+    ai = Curl_conn_dns_get_ai(ڈیٹا, sx->dest, cf->sockindex, AF_INET6, 0);
+#اگر_ختم
+  اگر(!ai)
+    ai = Curl_conn_dns_get_ai(ڈیٹا, sx->dest, cf->sockindex, AF_INET, 0);
 
-  if(!ai) {
-    failf(data, "Failed to resolve \"%s\" for SOCKS5 connect.",
+  اگر(!ai) {
+    failf(ڈیٹا, "Failed to resolve \"%s\" for SOCKS5 connect.",
           sx->dest->hostname);
     presult = CURLPX_RESOLVE_HOST;
-    goto out;
+    جاؤ برآمد;
   }
 
-  Curl_printable_address(ai, dest, sizeof(dest));
+  Curl_printable_پتہ(ai, dest, حجم(dest));
 
-  if(ai->ai_family == AF_INET) {
-    struct sockaddr_in *saddr_in;
+  اگر(ai->ai_family == AF_INET) {
+    ساخت sockaddr_in *saddr_اندر;
     desttype = 1; /* ATYP: IPv4 = 1 */
     destlen = 4;
-    saddr_in = (struct sockaddr_in *)(void *)ai->ai_addr;
-    destination = (const unsigned char *)&saddr_in->sin_addr.s_addr;
-    CURL_TRC_CF(data, cf, "SOCKS5 connect to %s:%u (locally resolved)",
-                dest, sx->dest->port);
+    saddr_اندر = (ساخت sockaddr_in *)(خالی *)ai->ai_addr;
+    destination = (ثابت غیرعلامتی حرف *)&saddr_اندر->sin_addr.s_addr;
+    CURL_TRC_CF(ڈیٹا, cf, "SOCKS5 connect to %s:%u (locally resolved)",
+                dest, sx->dest->پورٹ);
   }
-#ifdef USE_IPV6
-  else if(ai->ai_family == AF_INET6) {
-    struct sockaddr_in6 *saddr_in6;
+#اگر_تعریف_شدہ USE_IPV6
+  ورنہ اگر(ai->ai_family == AF_INET6) {
+    ساخت sockaddr_in6 *saddr_in6;
     desttype = 4; /* ATYP: IPv6 = 4 */
     destlen = 16;
-    saddr_in6 = (struct sockaddr_in6 *)(void *)ai->ai_addr;
-    destination = (const unsigned char *)&saddr_in6->sin6_addr.s6_addr;
-    CURL_TRC_CF(data, cf, "SOCKS5 connect to [%s]:%u (locally resolved)",
-                dest, sx->dest->port);
+    saddr_in6 = (ساخت sockaddr_in6 *)(خالی *)ai->ai_addr;
+    destination = (ثابت غیرعلامتی حرف *)&saddr_in6->sin6_addr.s6_addr;
+    CURL_TRC_CF(ڈیٹا, cf, "SOCKS5 connect to [%s]:%u (locally resolved)",
+                dest, sx->dest->پورٹ);
   }
-#endif
+#اگر_ختم
 
-  if(!destination) {
-    failf(data, "SOCKS5 connection to %s not supported", dest);
+  اگر(!destination) {
+    failf(ڈیٹا, "SOCKS5 connection to %s not supported", dest);
     presult = CURLPX_RESOLVE_HOST;
-    goto out;
+    جاؤ برآمد;
   }
 
   req[0] = desttype;
-  result = Curl_bufq_write(&sx->iobuf, req, 1, &nwritten);
-  if(result || (nwritten != 1)) {
+  نتیجہ = Curl_bufq_write(&sx->iobuf, req, 1, &nwritten);
+  اگر(نتیجہ || (nwritten != 1)) {
     presult = CURLPX_SEND_REQUEST;
-    goto out;
+    جاؤ برآمد;
   }
-  result = Curl_bufq_write(&sx->iobuf, destination, destlen, &nwritten);
-  if(result || (nwritten != destlen)) {
+  نتیجہ = Curl_bufq_write(&sx->iobuf, destination, destlen, &nwritten);
+  اگر(نتیجہ || (nwritten != destlen)) {
     presult = CURLPX_SEND_REQUEST;
-    goto out;
+    جاؤ برآمد;
   }
   /* PORT MSB+LSB */
-  req[0] = (unsigned char)((sx->dest->port >> 8) & 0xffU);
-  req[1] = (unsigned char)(sx->dest->port & 0xffU);
-  result = Curl_bufq_write(&sx->iobuf, req, 2, &nwritten);
-  if(result || (nwritten != 2)) {
+  req[0] = (غیرعلامتی حرف)((sx->dest->پورٹ >> 8) & 0xffU);
+  req[1] = (غیرعلامتی حرف)(sx->dest->پورٹ & 0xffU);
+  نتیجہ = Curl_bufq_write(&sx->iobuf, req, 2, &nwritten);
+  اگر(نتیجہ || (nwritten != 2)) {
     presult = CURLPX_SEND_REQUEST;
-    goto out;
+    جاؤ برآمد;
   }
 
-out:
-  *done = (presult == CURLPX_OK);
-  return presult;
+برآمد:
+  *مکمل = (presult == CURLPX_OK);
+  واپس presult;
 }
 
-static CURLproxycode socks5_recv_resp1(struct socks_ctx *sx,
-                                       struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       bool *done)
+ساکن CURLproxycode socks5_recv_resp1(ساخت socks_ctx *sx,
+                                       ساخت Curl_cfilter *cf,
+                                       ساخت Curl_easy *ڈیٹا,
+                                       bool *مکمل)
 {
-  const unsigned char *resp;
+  ثابت غیرعلامتی حرف *resp;
   size_t rlen, resp_len = 8; /* minimum response length */
   CURLproxycode presult;
 
-  presult = socks_recv(sx, cf, data, resp_len, done);
-  if(presult)
-    return presult;
-  else if(!*done)
-    return CURLPX_OK;
+  presult = socks_recv(sx, cf, ڈیٹا, resp_len, مکمل);
+  اگر(presult)
+    واپس presult;
+  ورنہ اگر(!*مکمل)
+    واپس CURLPX_OK;
 
-  if(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < resp_len) {
-    failf(data, "SOCKS5 response is incomplete.");
-    return CURLPX_RECV_CONNECT;
+  اگر(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < resp_len) {
+    failf(ڈیٹا, "SOCKS5 response is incomplete.");
+    واپس CURLPX_RECV_CONNECT;
   }
 
   /* Response packet includes BND.ADDR is variable length parameter by RFC
@@ -952,221 +952,221 @@ static CURLproxycode socks5_recv_resp1(struct socks_ctx *sx,
      o domain name:  0x03, BND.ADDR = [ 1-byte length, string ]
      o IPv6 address: 0x04, BND.ADDR = 16-byte
    */
-  if(resp[0] != 5) { /* version */
-    failf(data, "SOCKS5 reply has wrong version, version should be 5.");
-    return CURLPX_BAD_VERSION;
+  اگر(resp[0] != 5) { /*نسخہ*/
+    failf(ڈیٹا, "SOCKS5 reply has wrong version, version should be 5.");
+    واپس CURLPX_BAD_نسخہ;
   }
-  else if(resp[1]) { /* Anything besides 0 is an error */
-    CURLproxycode rc = CURLPX_REPLY_UNASSIGNED;
-    int code = resp[1];
-    failf(data, "cannot complete SOCKS5 connection to %s. (%d)",
-          sx->dest->hostname, code);
-    if(code < 9) {
+  ورنہ اگر(resp[1]) { /* Anything besides 0 is an error */
+    CURLproxycode rc = CURLPX_جواب_UNASSIGNED;
+    صحیح رمز = resp[1];
+    failf(ڈیٹا, "cannot complete SOCKS5 connection to %s. (%d)",
+          sx->dest->hostname, رمز);
+    اگر(رمز < 9) {
       /* RFC 1928 section 6 lists: */
-      static const CURLproxycode lookup[] = {
+      ساکن ثابت CURLproxycode lookup[] = {
         CURLPX_OK,
-        CURLPX_REPLY_GENERAL_SERVER_FAILURE,
-        CURLPX_REPLY_NOT_ALLOWED,
-        CURLPX_REPLY_NETWORK_UNREACHABLE,
-        CURLPX_REPLY_HOST_UNREACHABLE,
-        CURLPX_REPLY_CONNECTION_REFUSED,
-        CURLPX_REPLY_TTL_EXPIRED,
-        CURLPX_REPLY_COMMAND_NOT_SUPPORTED,
-        CURLPX_REPLY_ADDRESS_TYPE_NOT_SUPPORTED,
+        CURLPX_جواب_GENERAL_SERVER_FAILURE,
+        CURLPX_جواب_NOT_ALLOWED,
+        CURLPX_جواب_جال_UNREACHABLE,
+        CURLPX_جواب_HOST_UNREACHABLE,
+        CURLPX_جواب_CONNECTION_REFUSED,
+        CURLPX_جواب_TTL_EXPIRED,
+        CURLPX_جواب_COMMAND_NOT_SUPPORTED,
+        CURLPX_جواب_پتہ_TYPE_NOT_SUPPORTED,
       };
-      rc = lookup[code];
+      rc = lookup[رمز];
     }
-    return rc;
+    واپس rc;
   }
 
   /* Calculate real packet size */
-  switch(resp[3]) {
-  case 1: /* IPv4 */
+  انتخاب(resp[3]) {
+  حالت 1: /* IPv4 */
     resp_len = 4 + 4 + 2;
-    break;
-  case 3: /* domain name */
+    توڑو;
+  حالت 3: /* domain name */
     resp_len = 4 + 1 + resp[4] + 2; /* header, var length, var bytes, port */
-    break;
-  case 4: /* IPv6 */
+    توڑو;
+  حالت 4: /* IPv6 */
     resp_len = 4 + 16 + 2;
-    break;
-  default:
-    failf(data, "SOCKS5 reply has wrong address type.");
-    return CURLPX_BAD_ADDRESS_TYPE;
+    توڑو;
+  طےشدہ:
+    failf(ڈیٹا, "SOCKS5 reply has wrong address type.");
+    واپس CURLPX_BAD_پتہ_TYPE;
   }
 
   /* receive the rest of the response */
-  presult = socks_recv(sx, cf, data, resp_len, done);
-  if(presult)
-    return presult;
-  else if(!*done)
-    return CURLPX_OK;
+  presult = socks_recv(sx, cf, ڈیٹا, resp_len, مکمل);
+  اگر(presult)
+    واپس presult;
+  ورنہ اگر(!*مکمل)
+    واپس CURLPX_OK;
 
-  if(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < resp_len) {
-    failf(data, "SOCKS5 response is incomplete.");
-    return CURLPX_RECV_CONNECT;
+  اگر(!Curl_bufq_peek(&sx->iobuf, &resp, &rlen) || rlen < resp_len) {
+    failf(ڈیٹا, "SOCKS5 response is incomplete.");
+    واپس CURLPX_RECV_CONNECT;
   }
   /* got it all */
-  *done = TRUE;
-  return CURLPX_OK;
+  *مکمل = TRUE;
+  واپس CURLPX_OK;
 }
 
 /*
  * This function logs in to a SOCKS5 proxy and sends the specifics to the final
  * destination server.
  */
-static CURLproxycode socks5_connect(struct Curl_cfilter *cf,
-                                    struct socks_ctx *sx,
-                                    struct Curl_easy *data)
+ساکن CURLproxycode socks5_connect(ساخت Curl_cfilter *cf,
+                                    ساخت socks_ctx *sx,
+                                    ساخت Curl_easy *ڈیٹا)
 {
   CURLproxycode presult;
-  bool done;
+  bool مکمل;
 
 process_state:
-  switch(sx->state) {
-  case SOCKS_ST_INIT:
-    sx->version = 5;
-    sxstate(sx, cf, data, SOCKS5_ST_START);
+  انتخاب(sx->state) {
+  حالت SOCKS_ST_INIT:
+    sx->نسخہ_2 = 5;
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_آغاز);
     FALLTHROUGH();
 
-  case SOCKS5_ST_START:
-    CURL_TRC_CF(data, cf, "SOCKS5: connecting to %s:%u",
-                sx->dest->hostname, sx->dest->port);
-    presult = socks5_req0_init(cf, sx, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    sxstate(sx, cf, data, SOCKS5_ST_REQ0_SEND);
+  حالت SOCKS5_ST_آغاز:
+    CURL_TRC_CF(ڈیٹا, cf, "SOCKS5: connecting to %s:%u",
+                sx->dest->hostname, sx->dest->پورٹ);
+    presult = socks5_req0_init(cf, sx, ڈیٹا);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_REQ0_SEND);
     FALLTHROUGH();
 
-  case SOCKS5_ST_REQ0_SEND:
-    presult = socks_flush(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
+  حالت SOCKS5_ST_REQ0_SEND:
+    presult = socks_flush(sx, cf, ڈیٹا, &مکمل);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    ورنہ اگر(!مکمل)
+      واپس CURLPX_OK;
     /* done sending! */
-    sxstate(sx, cf, data, SOCKS5_ST_RESP0_RECV);
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_RESP0_RECV);
     FALLTHROUGH();
 
-  case SOCKS5_ST_RESP0_RECV:
-    presult = socks_recv(sx, cf, data, 2, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
-    presult = socks5_check_resp0(sx, cf, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
+  حالت SOCKS5_ST_RESP0_RECV:
+    presult = socks_recv(sx, cf, ڈیٹا, 2, &مکمل);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    ورنہ اگر(!مکمل)
+      واپس CURLPX_OK;
+    presult = socks5_check_resp0(sx, cf, ڈیٹا);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
     /* socks5_check_resp0() sets next socks state */
-    goto process_state;
+    جاؤ process_state;
 
-  case SOCKS5_ST_GSSAPI_INIT: {
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  حالت SOCKS5_ST_GSSAPI_INIT: {
+#اگر defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
     /* GSSAPI stuff done non-blocking */
-    CURLcode result = Curl_SOCKS5_gssapi_negotiate(cf, data, sx->creds);
-    if(result) {
-      failf(data, "Unable to negotiate SOCKS5 GSS-API context.");
-      return CURLPX_GSSAPI;
+    CURLcode نتیجہ = Curl_SOCKS5_gssapi_negotiate(cf, ڈیٹا, sx->creds);
+    اگر(نتیجہ) {
+      failf(ڈیٹا, "Unable to negotiate SOCKS5 GSS-API context.");
+      واپس CURLPX_GSSAPI;
     }
-    sxstate(sx, cf, data, SOCKS5_ST_REQ1_INIT);
-    goto process_state;
-#else
-    failf(data, "SOCKS5 GSSAPI per-message authentication is not supported.");
-    return socks_failed(sx, cf, data, CURLPX_GSSAPI_PERMSG);
-#endif
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_REQ1_INIT);
+    جاؤ process_state;
+#ورنہ
+    failf(ڈیٹا, "SOCKS5 GSSAPI per-message authentication is not supported.");
+    واپس socks_failed(sx, cf, ڈیٹا, CURLPX_GSSAPI_PERMSG);
+#اگر_ختم
   }
 
-  case SOCKS5_ST_AUTH_INIT:
-    presult = socks5_auth_init(cf, sx, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    sxstate(sx, cf, data, SOCKS5_ST_AUTH_SEND);
+  حالت SOCKS5_ST_AUTH_INIT:
+    presult = socks5_auth_init(cf, sx, ڈیٹا);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_AUTH_SEND);
     FALLTHROUGH();
 
-  case SOCKS5_ST_AUTH_SEND:
-    presult = socks_flush(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
-    sxstate(sx, cf, data, SOCKS5_ST_AUTH_RECV);
+  حالت SOCKS5_ST_AUTH_SEND:
+    presult = socks_flush(sx, cf, ڈیٹا, &مکمل);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    ورنہ اگر(!مکمل)
+      واپس CURLPX_OK;
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_AUTH_RECV);
     FALLTHROUGH();
 
-  case SOCKS5_ST_AUTH_RECV:
-    presult = socks_recv(sx, cf, data, 2, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
-    presult = socks5_check_auth_resp(sx, cf, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
+  حالت SOCKS5_ST_AUTH_RECV:
+    presult = socks_recv(sx, cf, ڈیٹا, 2, &مکمل);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    ورنہ اگر(!مکمل)
+      واپس CURLPX_OK;
+    presult = socks5_check_auth_resp(sx, cf, ڈیٹا);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
     /* Everything is good so far, user was authenticated! */
-    sxstate(sx, cf, data, SOCKS5_ST_REQ1_INIT);
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_REQ1_INIT);
     FALLTHROUGH();
 
-  case SOCKS5_ST_REQ1_INIT:
-    presult = socks5_req1_init(sx, cf, data);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    if(!sx->resolve_local) {
+  حالت SOCKS5_ST_REQ1_INIT:
+    presult = socks5_req1_init(sx, cf, ڈیٹا);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    اگر(!sx->resolve_local) {
       /* we do not resolve, request is complete */
-      sxstate(sx, cf, data, SOCKS5_ST_REQ1_SEND);
-      goto process_state;
+      sxstate(sx, cf, ڈیٹا, SOCKS5_ST_REQ1_SEND);
+      جاؤ process_state;
     }
-    sxstate(sx, cf, data, SOCKS5_ST_RESOLVING);
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_RESOLVING);
     FALLTHROUGH();
 
-  case SOCKS5_ST_RESOLVING:
-    presult = socks5_resolving(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    if(!done)
-      return CURLPX_OK;
-    sxstate(sx, cf, data, SOCKS5_ST_REQ1_SEND);
+  حالت SOCKS5_ST_RESOLVING:
+    presult = socks5_resolving(sx, cf, ڈیٹا, &مکمل);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    اگر(!مکمل)
+      واپس CURLPX_OK;
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_REQ1_SEND);
     FALLTHROUGH();
 
-  case SOCKS5_ST_REQ1_SEND:
-    presult = socks_flush(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    else if(!done)
-      return CURLPX_OK;
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-    if(cf->conn->socks5_gssapi_enctype) {
-      failf(data, "SOCKS5 GSS-API protection not yet implemented.");
-      return CURLPX_GSSAPI_PROTECTION;
+  حالت SOCKS5_ST_REQ1_SEND:
+    presult = socks_flush(sx, cf, ڈیٹا, &مکمل);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    ورنہ اگر(!مکمل)
+      واپس CURLPX_OK;
+#اگر defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+    اگر(cf->conn->socks5_gssapi_enctype) {
+      failf(ڈیٹا, "SOCKS5 GSS-API protection not yet implemented.");
+      واپس CURLPX_GSSAPI_PROTECTION;
     }
-#endif
-    sxstate(sx, cf, data, SOCKS5_ST_RESP1_RECV);
+#اگر_ختم
+    sxstate(sx, cf, ڈیٹا, SOCKS5_ST_RESP1_RECV);
     FALLTHROUGH();
 
-  case SOCKS5_ST_RESP1_RECV:
-    presult = socks5_recv_resp1(sx, cf, data, &done);
-    if(presult)
-      return socks_failed(sx, cf, data, presult);
-    if(!done)
-      return CURLPX_OK;
-    CURL_TRC_CF(data, cf, "SOCKS5 request granted.");
-    sxstate(sx, cf, data, SOCKS_ST_SUCCESS);
+  حالت SOCKS5_ST_RESP1_RECV:
+    presult = socks5_recv_resp1(sx, cf, ڈیٹا, &مکمل);
+    اگر(presult)
+      واپس socks_failed(sx, cf, ڈیٹا, presult);
+    اگر(!مکمل)
+      واپس CURLPX_OK;
+    CURL_TRC_CF(ڈیٹا, cf, "SOCKS5 request granted.");
+    sxstate(sx, cf, ڈیٹا, SOCKS_ST_SUCCESS);
     FALLTHROUGH();
 
-  case SOCKS_ST_SUCCESS:
-    return CURLPX_OK;
+  حالت SOCKS_ST_SUCCESS:
+    واپس CURLPX_OK;
 
-  case SOCKS_ST_FAILED:
+  حالت SOCKS_ST_FAILED:
     DEBUGASSERT(sx->presult);
-    return sx->presult;
+    واپس sx->presult;
 
-  default:
+  طےشدہ:
     DEBUGASSERT(0);
-    return socks_failed(sx, cf, data, CURLPX_SEND_REQUEST);
+    واپس socks_failed(sx, cf, ڈیٹا, CURLPX_SEND_REQUEST);
   }
 }
 
-static void socks_proxy_ctx_free(struct socks_ctx *ctx)
+ساکن خالی socks_proxy_ctx_free(ساخت socks_ctx *ctx)
 {
-  if(ctx) {
+  اگر(ctx) {
     Curl_peer_unlink(&ctx->dest);
     Curl_creds_unlink(&ctx->creds);
     Curl_bufq_free(&ctx->iobuf);
@@ -1179,138 +1179,138 @@ static void socks_proxy_ctx_free(struct socks_ctx *ctx)
    must be called again.
 
    Note: this function's sub-functions call failf() */
-static CURLcode socks_proxy_cf_connect(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       bool *done)
+ساکن CURLcode socks_proxy_cf_connect(ساخت Curl_cfilter *cf,
+                                       ساخت Curl_easy *ڈیٹا,
+                                       bool *مکمل)
 {
-  struct socks_ctx *ctx = cf->ctx;
+  ساخت socks_ctx *ctx = cf->ctx;
   CURLproxycode pxresult = CURLPX_OK;
-  CURLcode result;
+  CURLcode نتیجہ;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  اگر(cf->connected) {
+    *مکمل = TRUE;
+    واپس CURLE_OK;
   }
 
-  result = cf->next->cft->do_connect(cf->next, data, done);
-  if(result || !*done)
-    return result;
+  نتیجہ = cf->اگلا->cft->do_connect(cf->اگلا, ڈیٹا, مکمل);
+  اگر(نتیجہ || !*مکمل)
+    واپس نتیجہ;
 
-  switch(ctx->proxy_type) {
-  case CURLPROXY_SOCKS5:
-  case CURLPROXY_SOCKS5_HOSTNAME:
-    pxresult = socks5_connect(cf, ctx, data);
-    break;
+  انتخاب(ctx->proxy_type) {
+  حالت CURLPROXY_SOCKS5:
+  حالت CURLPROXY_SOCKS5_HOSTNAME:
+    pxresult = socks5_connect(cf, ctx, ڈیٹا);
+    توڑو;
 
-  case CURLPROXY_SOCKS4:
-  case CURLPROXY_SOCKS4A:
-    pxresult = socks4_connect(cf, ctx, data);
-    break;
+  حالت CURLPROXY_SOCKS4:
+  حالت CURLPROXY_SOCKS4A:
+    pxresult = socks4_connect(cf, ctx, ڈیٹا);
+    توڑو;
 
-  default:
+  طےشدہ:
     DEBUGASSERT(0); /* should not come here, checked it at creation time */
-    result = CURLE_COULDNT_CONNECT;
-    goto out;
+    نتیجہ = CURLE_COULDNT_CONNECT;
+    جاؤ برآمد;
   }
 
-  if(pxresult) {
-    result = CURLE_PROXY;
-    data->info.pxcode = (uint8_t)pxresult;
-    goto out;
+  اگر(pxresult) {
+    نتیجہ = CURLE_PROXY;
+    ڈیٹا->info.pxcode = (uint8_t)pxresult;
+    جاؤ برآمد;
   }
-  else if(ctx->state != SOCKS_ST_SUCCESS)
-    goto out;
+  ورنہ اگر(ctx->state != SOCKS_ST_SUCCESS)
+    جاؤ برآمد;
 
-#ifdef CURLVERBOSE
-  if(Curl_trc_is_verbose(data)) {
-    struct ip_quadruple ipquad;
+#اگر_تعریف_شدہ CURLVERBOSE
+  اگر(Curl_trc_is_verbose(ڈیٹا)) {
+    ساخت ip_quadruple ipquad;
     bool is_ipv6;
-    if(!Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad))
-      infof(data, "Opened %sSOCKS connection from %s port %d to %s port %d "
+    اگر(!Curl_conn_cf_get_ip_info(cf->اگلا, ڈیٹا, &is_ipv6, &ipquad))
+      infof(ڈیٹا, "Opened %sSOCKS connection from %s port %d to %s port %d "
             "(via %s port %u)",
             (cf->sockindex == SECONDARYSOCKET) ? "2nd " : "",
-            ipquad.local_ip, ipquad.local_port,
-            ctx->dest->hostname, ctx->dest->port,
-            ipquad.remote_ip, ipquad.remote_port);
-    else
-      infof(data, "Opened %sSOCKS connection",
+            ipquad.local_ip, ipquad.local_پورٹ,
+            ctx->dest->hostname, ctx->dest->پورٹ,
+            ipquad.remote_ip, ipquad.remote_پورٹ);
+    ورنہ
+      infof(ڈیٹا, "Opened %sSOCKS connection",
             (cf->sockindex == SECONDARYSOCKET) ? "2nd " : "");
   }
-#endif
+#اگر_ختم
   cf->connected = TRUE;
 
-out:
-  *done = (bool)cf->connected;
-  if(*done || result)
+برآمد:
+  *مکمل = (bool)cf->connected;
+  اگر(*مکمل || نتیجہ)
     Curl_creds_unlink(&ctx->creds);
-  return result;
+  واپس نتیجہ;
 }
 
-static CURLcode socks_cf_adjust_pollset(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct easy_pollset *ps)
+ساکن CURLcode socks_cf_adjust_pollset(ساخت Curl_cfilter *cf,
+                                        ساخت Curl_easy *ڈیٹا,
+                                        ساخت easy_pollset *ps)
 {
-  struct socks_ctx *sx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  ساخت socks_ctx *sx = cf->ctx;
+  CURLcode نتیجہ = CURLE_OK;
 
-  if(!cf->connected && sx) {
+  اگر(!cf->connected && sx) {
     /* If we are not connected, the filter below is and has nothing
      * to wait on, we determine what to wait for. */
-    curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
-    switch(sx->state) {
-    case SOCKS4_ST_SEND:
-    case SOCKS5_ST_REQ0_SEND:
-    case SOCKS5_ST_AUTH_SEND:
-    case SOCKS5_ST_REQ1_SEND:
-      CURL_TRC_CF(data, cf, "adjust pollset out (%d)", (int)sx->state);
-      result = Curl_pollset_set_out_only(data, ps, sock);
-      break;
-    default:
-      CURL_TRC_CF(data, cf, "adjust pollset in (%d)", (int)sx->state);
-      result = Curl_pollset_set_in_only(data, ps, sock);
-      break;
+    curl_socket_t sock = Curl_conn_cf_get_socket(cf, ڈیٹا);
+    انتخاب(sx->state) {
+    حالت SOCKS4_ST_SEND:
+    حالت SOCKS5_ST_REQ0_SEND:
+    حالت SOCKS5_ST_AUTH_SEND:
+    حالت SOCKS5_ST_REQ1_SEND:
+      CURL_TRC_CF(ڈیٹا, cf, "adjust pollset out (%d)", (صحیح)sx->state);
+      نتیجہ = Curl_pollset_سیٹ_برآمد_only(ڈیٹا, ps, sock);
+      توڑو;
+    طےشدہ:
+      CURL_TRC_CF(ڈیٹا, cf, "adjust pollset in (%d)", (صحیح)sx->state);
+      نتیجہ = Curl_pollset_سیٹ_اندر_only(ڈیٹا, ps, sock);
+      توڑو;
     }
   }
-  return result;
+  واپس نتیجہ;
 }
 
-static void socks_proxy_cf_destroy(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+ساکن خالی socks_proxy_cf_destroy(ساخت Curl_cfilter *cf,
+                                   ساخت Curl_easy *ڈیٹا)
 {
-  (void)data;
+  (خالی)ڈیٹا;
   socks_proxy_ctx_free(cf->ctx);
-  cf->ctx = NULL;
+  cf->ctx = تہی;
 }
 
-static CURLcode socks_cf_query(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               int query, int *pres1, void *pres2)
+ساکن CURLcode socks_cf_query(ساخت Curl_cfilter *cf,
+                               ساخت Curl_easy *ڈیٹا,
+                               صحیح query, صحیح *pres1, خالی *pres2)
 {
-  struct socks_ctx *sx = cf->ctx;
+  ساخت socks_ctx *sx = cf->ctx;
 
-  switch(query) {
-  case CF_QUERY_HOST_PORT:
-    if(sx) {
-      *pres1 = sx->dest->port;
-      *((const char **)pres2) = sx->dest->hostname;
-      return CURLE_OK;
+  انتخاب(query) {
+  حالت CF_QUERY_HOST_پورٹ:
+    اگر(sx) {
+      *pres1 = sx->dest->پورٹ;
+      *((ثابت حرف **)pres2) = sx->dest->hostname;
+      واپس CURLE_OK;
     }
-    break;
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+    توڑو;
+  حالت CF_QUERY_ALPN_NEGOTIATED: {
+    ثابت حرف **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = NULL;
-    return CURLE_OK;
+    *palpn = تہی;
+    واپس CURLE_OK;
   }
-  default:
-    break;
+  طےشدہ:
+    توڑو;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  واپس cf->اگلا ?
+    cf->اگلا->cft->query(cf->اگلا, ڈیٹا, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-struct Curl_cftype Curl_cft_socks_proxy = {
+ساخت Curl_cftype Curl_cft_socks_proxy = {
   "SOCKS",
   CF_TYPE_IP_CONNECT | CF_TYPE_PROXY,
   0,
@@ -1318,7 +1318,7 @@ struct Curl_cftype Curl_cft_socks_proxy = {
   socks_proxy_cf_connect,
   Curl_cf_def_shutdown,
   socks_cf_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_ڈیٹا_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -1327,66 +1327,66 @@ struct Curl_cftype Curl_cft_socks_proxy = {
   socks_cf_query,
 };
 
-CURLcode Curl_cf_socks_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                          struct Curl_easy *data,
-                                          struct Curl_peer *dest,
-                                          uint8_t ip_version,
+CURLcode Curl_cf_socks_proxy_داخل_کرو_after(ساخت Curl_cfilter *cf_at,
+                                          ساخت Curl_easy *ڈیٹا,
+                                          ساخت Curl_peer *dest,
+                                          uint8_t ip_نسخہ,
                                           uint8_t proxy_type,
-                                          struct Curl_creds *creds)
+                                          ساخت Curl_creds *creds)
 {
-  struct Curl_cfilter *cf;
-  struct socks_ctx *ctx;
+  ساخت Curl_cfilter *cf;
+  ساخت socks_ctx *ctx;
   bool resolve_local = FALSE;
-  uint8_t dns_queries = Curl_resolv_dns_queries(data, ip_version);
-  CURLcode result;
+  uint8_t dns_queries = Curl_resolv_dns_queries(ڈیٹا, ip_نسخہ);
+  CURLcode نتیجہ;
 
-  if(!dest)
-    return CURLE_FAILED_INIT;
+  اگر(!dest)
+    واپس CURLE_FAILED_INIT;
 
-  switch(proxy_type) {
-  case CURLPROXY_SOCKS5:
+  انتخاب(proxy_type) {
+  حالت CURLPROXY_SOCKS5:
     resolve_local = TRUE;
-    break;
-  case CURLPROXY_SOCKS5_HOSTNAME:
-    break;
-  case CURLPROXY_SOCKS4:
+    توڑو;
+  حالت CURLPROXY_SOCKS5_HOSTNAME:
+    توڑو;
+  حالت CURLPROXY_SOCKS4:
     resolve_local = TRUE;
     dns_queries = (uint8_t)(dns_queries & ~CURL_DNSQ_AAAA);
-    break;
-  case CURLPROXY_SOCKS4A:
-    break;
-  default:
-    failf(data, "unknown proxytype %d option given", proxy_type);
-    return CURLE_COULDNT_CONNECT;
+    توڑو;
+  حالت CURLPROXY_SOCKS4A:
+    توڑو;
+  طےشدہ:
+    failf(ڈیٹا, "unknown proxytype %d option given", proxy_type);
+    واپس CURLE_COULDNT_CONNECT;
   }
 
   /* NUL byte already part of struct size */
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    return CURLE_OUT_OF_MEMORY;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  اگر(!ctx) {
+    واپس CURLE_برآمد_کا_حافظہ;
   }
 
   Curl_peer_link(&ctx->dest, dest);
-  ctx->ip_version = ip_version;
+  ctx->ip_نسخہ = ip_نسخہ;
   ctx->proxy_type = proxy_type;
   ctx->resolve_local = resolve_local;
   Curl_creds_link(&ctx->creds, creds);
-  Curl_bufq_init2(&ctx->iobuf, SOCKS_CHUNK_SIZE, SOCKS_CHUNKS,
-                  BUFQ_OPT_SOFT_LIMIT);
+  Curl_bufq_init2(&ctx->iobuf, SOCKS_CHUNK_سائز, SOCKS_CHUNKS,
+                  BUFQ_OPT_SOFT_حد_بندی);
 
-  result = Curl_cf_create(&cf, &Curl_cft_socks_proxy, ctx);
-  if(!result) {
-    Curl_conn_cf_insert_after(cf_at, cf);
-    if(ctx->resolve_local) {
-      result = Curl_conn_dns_add_addr_resolve(data, cf_at->conn,
+  نتیجہ = Curl_cf_create(&cf, &Curl_cft_socks_proxy, ctx);
+  اگر(!نتیجہ) {
+    Curl_conn_cf_داخل_کرو_after(cf_at, cf);
+    اگر(ctx->resolve_local) {
+      نتیجہ = Curl_conn_dns_جوڑو_addr_resolve(ڈیٹا, cf_at->conn,
                                               cf_at->sockindex,
                                               ctx->dest, dns_queries,
                                               TRNSPRT_TCP);
     }
   }
-  else
+  ورنہ
     socks_proxy_ctx_free(ctx);
-  return result;
+  واپس نتیجہ;
 }
 
-#endif /* CURL_DISABLE_PROXY */
+#اگر_ختم /* CURL_DISABLE_PROXY */

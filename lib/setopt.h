@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SETOPT_H
-#define HEADER_CURL_SETOPT_H
+#اگر_غیر_تعریف_شدہ سرخی_CURL_SETOPT_H
+#تعریف_کرو سرخی_CURL_SETOPT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,18 +24,18 @@
  *
  ***************************************************************************/
 
-#ifdef USE_SSL
-CURLcode Curl_setopt_SSLVERSION(struct Curl_easy *data, CURLoption option,
-                                long arg);
-#else
-#define Curl_setopt_SSLVERSION(a, b, c) CURLE_NOT_BUILT_IN
-#endif
+#اگر_تعریف_شدہ USE_SSL
+CURLcode Curl_setopt_SSLVERSION(ساخت Curl_easy *ڈیٹا, CURLoption option,
+                                طویل arg);
+#ورنہ
+#تعریف_کرو Curl_setopt_SSLVERSION(a, b, c) CURLE_NOT_BUILT_اندر
+#اگر_ختم
 
-CURLcode Curl_setstropt(struct Curl_easy *data,
-                        enum dupstring id, const char *s) WARN_UNUSED_RESULT;
-CURLcode Curl_setblobopt(struct curl_blob **blobp,
-                         const struct curl_blob *blob) WARN_UNUSED_RESULT;
-CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
-  WARN_UNUSED_RESULT;
+CURLcode Curl_setstropt(ساخت Curl_easy *ڈیٹا,
+                        شمار dupstring id, ثابت حرف *s) WARN_غیر_مستعمل_نتیجہ;
+CURLcode Curl_setblobopt(ساخت curl_blob **blobp,
+                         ثابت ساخت curl_blob *blob) WARN_غیر_مستعمل_نتیجہ;
+CURLcode Curl_vsetopt(ساخت Curl_easy *ڈیٹا, CURLoption option, va_list param)
+  WARN_غیر_مستعمل_نتیجہ;
 
-#endif /* HEADER_CURL_SETOPT_H */
+#اگر_ختم /* HEADER_CURL_SETOPT_H */
