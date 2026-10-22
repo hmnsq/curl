@@ -41,10 +41,10 @@ const unsigned char Curl_udigits[] = "0123456789ABCDEF";
 
 #define OUTCHAR(x)                        \
   do {                                    \
-    if(stream((unsigned char)(x), userp)) \
-      return TRUE;                        \
+    もし(stream((unsigned char)(x), userp)) \
+      戻る TRUE;                        \
     (*donep)++;                           \
-  } while(0)
+  } ながら(0)
 
 /* Data type to read from the arglist */
 typedef enum {
@@ -112,10 +112,10 @@ struct va_input {
  * Describes an output segment.
  */
 struct outsegment {
-  int width;     /* width OR width parameter number */
-  int precision; /* precision OR precision parameter number */
-  unsigned int flags;
-  unsigned int input; /* input argument array index */
+  整数 width;     /* width OR width parameter number */
+  整数 precision; /* precision OR precision parameter number */
+  unsigned 整数 flags;
+  unsigned 整数 input; /* input argument array index */
   const char *start; /* format string start to output */
   size_t outlen;     /* number of bytes from the format string to output */
 };
@@ -148,14 +148,14 @@ struct ioprintf {
  *
  * returns -1 if no valid number was provided.
  */
-static int dollarstring(const char *p, const char **end)
+static 整数 dollarstring(const char *p, const char **end)
 {
   curl_off_t num;
-  if(curlx_str_number(&p, &num, MAX_PARAMETERS) ||
+  もし(curlx_str_number(&p, &num, MAX_PARAMETERS) ||
      curlx_str_single(&p, '$') || !num)
-    return -1;
+    戻る -1;
   *end = p;
-  return (int)num - 1;
+  戻る (整数)num - 1;
 }
 
 #define is_arg_used(x, y)   ((x)[(y) / 8] & (1 << ((y) & 7)))
@@ -182,14 +182,14 @@ static int dollarstring(const char *p, const char **end)
 #define PFMT_PRECARG    10 /* attempted to use same arg twice, for prec */
 #define PFMT_MANYSEGS   11 /* maxed out output segments */
 
-static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
-                       int *precp, int *widthp)
+static 整数 parse_flags(const char **fmtp, unsigned 整数 *flagsp, 整数 use_dollar,
+                       整数 *precp, 整数 *widthp)
 {
   const char *fmt = *fmtp;
   bool loopit = TRUE;
-  unsigned int flags = 0;
-  int width = 0;
-  int precision = 0;
+  unsigned 整数 flags = 0;
+  整数 width = 0;
+  整数 precision = 0;
 
   /* Handle the flags */
   do {
@@ -202,45 +202,45 @@ static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
       break;
     case '-':
       flags |= FLAGS_LEFT;
-      flags &= ~(unsigned int)FLAGS_PAD_NIL;
+      flags &= ~(unsigned 整数)FLAGS_PAD_NIL;
       break;
     case '#':
       flags |= FLAGS_ALT;
       break;
     case '.':
-      if('*' == *fmt) {
+      もし('*' == *fmt) {
         /* The precision is picked from a specified parameter */
         flags |= FLAGS_PRECPARAM;
         fmt++;
 
-        if(use_dollar == DOLLAR_USE) {
+        もし(use_dollar == DOLLAR_USE) {
           precision = dollarstring(fmt, &fmt);
-          if(precision < 0)
+          もし(precision < 0)
             /* illegal combo */
-            return PFMT_DOLLARPREC;
+            戻る PFMT_DOLLARPREC;
         }
-        else
+        否则
           /* get it from the next argument */
           precision = -1;
       }
-      else {
+      否则 {
         bool is_neg;
         curl_off_t num;
         flags |= FLAGS_PREC;
         is_neg = ('-' == *fmt);
-        if(is_neg)
+        もし(is_neg)
           fmt++;
-        if(curlx_str_number(&fmt, &num, INT_MAX))
-          return PFMT_PREC;
-        precision = (int)num;
-        if(is_neg)
+        もし(curlx_str_number(&fmt, &num, INT_MAX))
+          戻る PFMT_PREC;
+        precision = (整数)num;
+        もし(is_neg)
           precision = -precision;
       }
-      if((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
+      もし((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
          (FLAGS_PREC | FLAGS_PRECPARAM))
         /* it is not permitted to use both kinds of precision for the same
            argument */
-        return PFMT_PRECMIX;
+        戻る PFMT_PRECMIX;
       break;
     case 'h':
       flags |= FLAGS_SHORT;
@@ -248,27 +248,27 @@ static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
 #ifdef _WIN32
     case 'I':
       /* Non-ANSI integer extensions I32 I64 */
-      if((fmt[0] == '3') && (fmt[1] == '2')) {
+      もし((fmt[0] == '3') && (fmt[1] == '2')) {
         flags |= FLAGS_LONG;
         fmt += 2;
       }
-      else if((fmt[0] == '6') && (fmt[1] == '4')) {
+      否则 もし((fmt[0] == '6') && (fmt[1] == '4')) {
         flags |= FLAGS_LONGLONG;
         fmt += 2;
       }
-      else {
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+      否则 {
+#もし SIZEOF_SIZE_T > SIZEOF_LONG
         flags |= FLAGS_LONGLONG;
-#else
+#否则
         flags |= FLAGS_LONG;
 #endif
       }
       break;
 #endif /* _WIN32 */
     case 'l':
-      if(flags & FLAGS_LONG)
+      もし(flags & FLAGS_LONG)
         flags |= FLAGS_LONGLONG;
-      else
+      否则
         flags |= FLAGS_LONG;
       break;
     case 'L':
@@ -280,21 +280,21 @@ static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
     case 'z':
       /* the code below generates a warning if -Wunreachable-code is
          used */
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+#もし SIZEOF_SIZE_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#否则
       flags |= FLAGS_LONG;
 #endif
       break;
     case 'O':
-#if SIZEOF_CURL_OFF_T > SIZEOF_LONG
+#もし SIZEOF_CURL_OFF_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#否则
       flags |= FLAGS_LONG;
 #endif
       break;
     case '0':
-      if(!(flags & FLAGS_LEFT))
+      もし(!(flags & FLAGS_LEFT))
         flags |= FLAGS_PAD_NIL;
       FALLTHROUGH();
     case '1':
@@ -309,20 +309,20 @@ static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
       curl_off_t num;
       flags |= FLAGS_WIDTH;
       fmt--;
-      if(curlx_str_number(&fmt, &num, INT_MAX))
-        return PFMT_WIDTH;
-      width = (int)num;
+      もし(curlx_str_number(&fmt, &num, INT_MAX))
+        戻る PFMT_WIDTH;
+      width = (整数)num;
       break;
     }
     case '*':  /* read width from argument list */
       flags |= FLAGS_WIDTHPARAM;
-      if(use_dollar == DOLLAR_USE) {
+      もし(use_dollar == DOLLAR_USE) {
         width = dollarstring(fmt, &fmt);
-        if(width < 0)
+        もし(width < 0)
           /* illegal combo */
-          return PFMT_DOLLARWIDTH;
+          戻る PFMT_DOLLARWIDTH;
       }
-      else
+      否则
         /* pick from the next argument */
         width = -1;
       break;
@@ -331,18 +331,18 @@ static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
       fmt--;
       break;
     } /* switch */
-  } while(loopit); /* do */
+  } ながら(loopit); /* do */
   *flagsp = flags;
   *precp = precision;
   *widthp = width;
   *fmtp = fmt;
-  return PFMT_OK;
+  戻る PFMT_OK;
 }
 
-static bool parse_conversion(const char f, unsigned int *flagp,
+static bool parse_conversion(const char f, unsigned 整数 *flagp,
                              FormatType *typep)
 {
-  unsigned int flags = *flagp;
+  unsigned 整数 flags = *flagp;
   FormatType type;
   switch(f) {
   case 'S':
@@ -360,46 +360,46 @@ static bool parse_conversion(const char f, unsigned int *flagp,
     break;
   case 'd':
   case 'i':
-    if(flags & FLAGS_LONGLONG)
+    もし(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONG;
-    else if(flags & FLAGS_LONG)
+    否则 もし(flags & FLAGS_LONG)
       type = MTYPE_LONG;
-    else
+    否则
       type = MTYPE_INT;
     break;
   case 'u':
-    if(flags & FLAGS_LONGLONG)
+    もし(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    否则 もし(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    否则
       type = MTYPE_INTU;
     flags |= FLAGS_UNSIGNED;
     break;
   case 'o':
-    if(flags & FLAGS_LONGLONG)
+    もし(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    否则 もし(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    否则
       type = MTYPE_INTU;
     flags |= FLAGS_OCTAL | FLAGS_UNSIGNED;
     break;
   case 'x':
-    if(flags & FLAGS_LONGLONG)
+    もし(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    否则 もし(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    否则
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UNSIGNED;
     break;
   case 'X':
-    if(flags & FLAGS_LONGLONG)
+    もし(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    否则 もし(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    否则
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UPPER | FLAGS_UNSIGNED;
     break;
@@ -432,52 +432,52 @@ static bool parse_conversion(const char f, unsigned int *flagp,
     break;
   default:
     /* invalid instruction, disregard and continue */
-    return TRUE;
+    戻る TRUE;
   } /* switch */
 
   *flagp |= flags;
   *typep = type;
-  return FALSE;
+  戻る FALSE;
 }
 
-static int parsefmt(const char *format,
+static 整数 parsefmt(const char *format,
                     struct outsegment *out,
                     struct va_input *in,
-                    int *opieces,
-                    int *ipieces, va_list arglist)
+                    整数 *opieces,
+                    整数 *ipieces, va_list arglist)
 {
   const char *fmt = format;
-  int param_num = 0;
-  int max_param = -1;
-  int i;
-  int ocount = 0;
+  整数 param_num = 0;
+  整数 max_param = -1;
+  整数 i;
+  整数 ocount = 0;
   unsigned char usedinput[MAX_PARAMETERS / 8];
   size_t outlen = 0;
   struct outsegment *optr;
-  int use_dollar = DOLLAR_UNKNOWN;
+  整数 use_dollar = DOLLAR_UNKNOWN;
   const char *start = fmt;
 
   /* clear, set a bit for each used input */
   memset(usedinput, 0, sizeof(usedinput));
 
-  while(*fmt) {
-    if(*fmt == '%') {
+  ながら(*fmt) {
+    もし(*fmt == '%') {
       struct va_input *iptr;
       FormatType type;
-      unsigned int flags = 0;
-      int width = 0;
-      int precision = 0;
-      int param = -1;
-      int rc;
+      unsigned 整数 flags = 0;
+      整数 width = 0;
+      整数 precision = 0;
+      整数 param = -1;
+      整数 rc;
       fmt++;
       outlen = (size_t)(fmt - start - 1);
-      if(*fmt == '%') {
+      もし(*fmt == '%') {
         /* this means a %% that should be output only as %. Create an output
            segment. */
-        if(outlen) {
+        もし(outlen) {
           optr = &out[ocount++];
-          if(ocount > MAX_SEGMENTS)
-            return PFMT_MANYSEGS;
+          もし(ocount > MAX_SEGMENTS)
+            戻る PFMT_MANYSEGS;
           optr->input = 0;
           optr->flags = FLAGS_SUBSTR;
           optr->start = start;
@@ -488,39 +488,39 @@ static int parsefmt(const char *format,
         continue; /* while */
       }
 
-      if(use_dollar != DOLLAR_NOPE) {
+      もし(use_dollar != DOLLAR_NOPE) {
         param = dollarstring(fmt, &fmt);
-        if(param < 0) {
-          if(use_dollar == DOLLAR_USE)
+        もし(param < 0) {
+          もし(use_dollar == DOLLAR_USE)
             /* illegal combo */
-            return PFMT_DOLLAR;
+            戻る PFMT_DOLLAR;
 
           /* we got no positional, get the next arg */
           param = -1;
           use_dollar = DOLLAR_NOPE;
         }
-        else
+        否则
           use_dollar = DOLLAR_USE;
       }
 
       rc = parse_flags(&fmt, &flags, use_dollar, &precision, &width);
-      if(rc)
-        return rc;
+      もし(rc)
+        戻る rc;
 
-      if(parse_conversion(*fmt, &flags, &type))
+      もし(parse_conversion(*fmt, &flags, &type))
         continue;
 
-      if(flags & FLAGS_WIDTHPARAM) {
-        if(width < 0)
+      もし(flags & FLAGS_WIDTHPARAM) {
+        もし(width < 0)
           width = param_num++;
-        else {
+        否则 {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, width))
-            return PFMT_WIDTHARG;
+          もし(is_arg_used(usedinput, width))
+            戻る PFMT_WIDTHARG;
         }
-        if(width >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(width >= max_param)
+        もし(width >= MAX_PARAMETERS)
+          戻る PFMT_MANYARGS;
+        もし(width >= max_param)
           max_param = width;
 
         in[width].type = MTYPE_WIDTH;
@@ -528,17 +528,17 @@ static int parsefmt(const char *format,
         mark_arg_used(usedinput, width);
       }
 
-      if(flags & FLAGS_PRECPARAM) {
-        if(precision < 0)
+      もし(flags & FLAGS_PRECPARAM) {
+        もし(precision < 0)
           precision = param_num++;
-        else {
+        否则 {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, precision))
-            return PFMT_PRECARG;
+          もし(is_arg_used(usedinput, precision))
+            戻る PFMT_PRECARG;
         }
-        if(precision >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(precision >= max_param)
+        もし(precision >= MAX_PARAMETERS)
+          戻る PFMT_MANYARGS;
+        もし(precision >= max_param)
           max_param = precision;
 
         in[precision].type = MTYPE_PRECISION;
@@ -546,11 +546,11 @@ static int parsefmt(const char *format,
       }
 
       /* Handle the specifier */
-      if(param < 0)
+      もし(param < 0)
         param = param_num++;
-      if(param >= MAX_PARAMETERS)
-        return PFMT_MANYARGS;
-      if(param >= max_param)
+      もし(param >= MAX_PARAMETERS)
+        戻る PFMT_MANYARGS;
+      もし(param >= max_param)
         max_param = param;
 
       iptr = &in[param];
@@ -561,9 +561,9 @@ static int parsefmt(const char *format,
 
       fmt++;
       optr = &out[ocount++];
-      if(ocount > MAX_SEGMENTS)
-        return PFMT_MANYSEGS;
-      optr->input = (unsigned int)param;
+      もし(ocount > MAX_SEGMENTS)
+        戻る PFMT_MANYSEGS;
+      optr->input = (unsigned 整数)param;
       optr->flags = flags;
       optr->width = width;
       optr->precision = precision;
@@ -571,16 +571,16 @@ static int parsefmt(const char *format,
       optr->outlen = outlen;
       start = fmt;
     }
-    else
+    否则
       fmt++;
   }
 
   /* is there a trailing piece */
   outlen = (size_t)(fmt - start);
-  if(outlen) {
+  もし(outlen) {
     optr = &out[ocount++];
-    if(ocount > MAX_SEGMENTS)
-      return PFMT_MANYSEGS;
+    もし(ocount > MAX_SEGMENTS)
+      戻る PFMT_MANYSEGS;
     optr->input = 0;
     optr->flags = FLAGS_SUBSTR;
     optr->start = start;
@@ -588,11 +588,11 @@ static int parsefmt(const char *format,
   }
 
   /* Read the arg list parameters into our data list */
-  for(i = 0; i < max_param + 1; i++) {
+  ために(i = 0; i < max_param + 1; i++) {
     struct va_input *iptr = &in[i];
-    if(!is_arg_used(usedinput, i))
+    もし(!is_arg_used(usedinput, i))
       /* bad input */
-      return PFMT_INPUTGAP;
+      戻る PFMT_INPUTGAP;
 
     /* based on the type, read the correct argument */
     switch(iptr->type) {
@@ -622,13 +622,13 @@ static int parsefmt(const char *format,
       break;
 
     case MTYPE_INTU:
-      iptr->val.numu = va_arg(arglist, unsigned int);
+      iptr->val.numu = va_arg(arglist, unsigned 整数);
       break;
 
     case MTYPE_INT:
     case MTYPE_WIDTH:
     case MTYPE_PRECISION:
-      iptr->val.nums = va_arg(arglist, int);
+      iptr->val.nums = va_arg(arglist, 整数);
       break;
 
     case MTYPE_DOUBLE:
@@ -647,13 +647,13 @@ static int parsefmt(const char *format,
   *ipieces = max_param + 1;
   *opieces = ocount;
 
-  return PFMT_OK;
+  戻る PFMT_OK;
 }
 
 struct mproperty {
-  int width;            /* Width of a field. */
-  int prec;             /* Precision of a field. */
-  unsigned int flags;
+  整数 width;            /* Width of a field. */
+  整数 prec;             /* Precision of a field. */
+  unsigned 整数 flags;
 };
 
 /* block output callback: consume up to 'len' bytes, return the number of
@@ -664,28 +664,28 @@ typedef size_t (*mp_streamn)(const unsigned char *buf, size_t len, void *f);
 
 /* commit any output the sink is holding. Returns non-zero on failure. Sinks
    whose accepted bytes are already committed do not need one. */
-typedef int (*mp_flush)(void *f);
+typedef 整数 (*mp_flush)(void *f);
 
 /* emit a run of bytes through the block callback when available, else byte
    by byte. Returns TRUE to abort formatting (mirroring OUTCHAR). */
 static bool stream_run(void *userp,
-                       int (*stream)(unsigned char, void *),
+                       整数 (*stream)(unsigned char, void *),
                        mp_streamn streamn,
-                       const unsigned char *buf, size_t len, int *donep)
+                       const unsigned char *buf, size_t len, 整数 *donep)
 {
-  if(!len)
-    return FALSE;
-  if(streamn) {
+  もし(!len)
+    戻る FALSE;
+  もし(streamn) {
     size_t n = streamn(buf, len, userp);
-    *donep += (int)n;
-    return n != len;
+    *donep += (整数)n;
+    戻る n != len;
   }
-  while(len--) {
-    if(stream(*buf++, userp))
-      return TRUE;
+  ながら(len--) {
+    もし(stream(*buf++, userp))
+      戻る TRUE;
     (*donep)++;
   }
-  return FALSE;
+  戻る FALSE;
 }
 
 /* Padding is always spaces or zeros, so it comes from a constant rather than a
@@ -697,23 +697,23 @@ static const char pad_zeros[] = "0000000000000000";
 
 /* emit 'num' copies of the pad byte. Returns TRUE to abort formatting. */
 static bool stream_pad(void *userp,
-                       int (*stream)(unsigned char, void *),
+                       整数 (*stream)(unsigned char, void *),
                        mp_streamn streamn,
-                       unsigned char pad, int num, int *donep)
+                       unsigned char pad, 整数 num, 整数 *donep)
 {
   const unsigned char *src;
-  if(num <= 0)
-    return FALSE;
-  if(pad == '0')
+  もし(num <= 0)
+    戻る FALSE;
+  もし(pad == '0')
     src = (const unsigned char *)pad_zeros;
-  else
+  否则
     src = (const unsigned char *)pad_spaces;
-  while(num > PAD_RUN) {
-    if(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
-      return TRUE;
+  ながら(num > PAD_RUN) {
+    もし(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
+      戻る TRUE;
     num -= PAD_RUN;
   }
-  return stream_run(userp, stream, streamn, src, (size_t)num, donep);
+  戻る stream_run(userp, stream, streamn, src, (size_t)num, donep);
 }
 
 /* emit the leading null-terminated part of a run of at most 'len' bytes.
@@ -723,82 +723,82 @@ static bool stream_pad(void *userp,
    out_string() does not clamp to the string length, so "%.64s" on a 10-byte
    string arrives with len == 64 and memchr() would read past the object. */
 static bool stream_zrun(void *userp,
-                        int (*stream)(unsigned char, void *),
+                        整数 (*stream)(unsigned char, void *),
                         mp_streamn streamn,
-                        const char *str, size_t len, int *donep)
+                        const char *str, size_t len, 整数 *donep)
 {
   size_t n = 0;
-  while(n < len && str[n])
+  ながら(n < len && str[n])
     n++;
-  return stream_run(userp, stream, streamn,
+  戻る stream_run(userp, stream, streamn,
                     (const unsigned char *)str, n, donep);
 }
 
 static bool out_double(void *userp,
-                       int (*stream)(unsigned char, void *),
+                       整数 (*stream)(unsigned char, void *),
                        mp_streamn streamn,
                        struct mproperty *p,
                        double dnum,
-                       char *work, int *donep)
+                       char *work, 整数 *donep)
 {
   char fmt[32] = "%";
   char *fptr = &fmt[1];
   size_t left = sizeof(fmt) - strlen(fmt);
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  整数 flags = p->flags;
+  整数 width = p->width;
+  整数 prec = p->prec;
 
-  if(flags & FLAGS_LEFT)
+  もし(flags & FLAGS_LEFT)
     *fptr++ = '-';
-  if(flags & FLAGS_SHOWSIGN)
+  もし(flags & FLAGS_SHOWSIGN)
     *fptr++ = '+';
-  if(flags & FLAGS_SPACE)
+  もし(flags & FLAGS_SPACE)
     *fptr++ = ' ';
-  if(flags & FLAGS_ALT)
+  もし(flags & FLAGS_ALT)
     *fptr++ = '#';
 
   *fptr = 0;
 
-  if(width >= 0) {
+  もし(width >= 0) {
     size_t dlen;
-    if(width >= BUFFSIZE)
+    もし(width >= BUFFSIZE)
       width = BUFFSIZE - 1;
     /* RECURSIVE USAGE */
     dlen = (size_t)curl_msnprintf(fptr, left, "%d", width);
     fptr += dlen;
     left -= dlen;
   }
-  if(prec >= 0) {
+  もし(prec >= 0) {
     /* for each digit in the integer part, we can have one less
        precision */
-    int maxprec = BUFFSIZE - 1;
+    整数 maxprec = BUFFSIZE - 1;
     double val = dnum;
-    int len;
-    if(prec > maxprec)
+    整数 len;
+    もし(prec > maxprec)
       prec = maxprec - 1;
-    if(width > 0 && prec <= width)
+    もし(width > 0 && prec <= width)
       maxprec -= width;
-    while(maxprec && (val >= 10.0)) {
+    ながら(maxprec && (val >= 10.0)) {
       val /= 10;
       maxprec--;
     }
 
-    if(prec > maxprec)
+    もし(prec > maxprec)
       prec = maxprec - 1;
-    if(prec < 0)
+    もし(prec < 0)
       prec = 0;
     /* RECURSIVE USAGE */
     len = curl_msnprintf(fptr, left, ".%d", prec);
     fptr += len;
   }
-  if(flags & FLAGS_LONG)
+  もし(flags & FLAGS_LONG)
     *fptr++ = 'l';
 
-  if(flags & FLAGS_FLOATE)
+  もし(flags & FLAGS_FLOATE)
     *fptr++ = (char)((flags & FLAGS_UPPER) ? 'E' : 'e');
-  else if(flags & FLAGS_FLOATG)
+  否则 もし(flags & FLAGS_FLOATG)
     *fptr++ = (char)((flags & FLAGS_UPPER) ? 'G' : 'g');
-  else
+  否则
     *fptr++ = (flags & FLAGS_UPPER) ? 'F' : 'f';
 
   *fptr = 0; /* and a final null-termination */
@@ -811,7 +811,7 @@ static bool out_double(void *userp,
 #endif
 #ifdef _WIN32
   curlx_win32_snprintf(work, BUFFSIZE, fmt, dnum);
-#else
+#否则
   /* !checksrc! disable BANNEDFUNC 1 */
   snprintf(work, BUFFSIZE, fmt, dnum);
 #endif
@@ -819,25 +819,25 @@ static bool out_double(void *userp,
 #pragma GCC diagnostic pop
 #endif
   DEBUGASSERT(strlen(work) < BUFFSIZE);
-  return stream_run(userp, stream, streamn,
+  戻る stream_run(userp, stream, streamn,
                     (const unsigned char *)work, strlen(work), donep);
 }
 
 static bool out_number(void *userp,
-                       int (*stream)(unsigned char, void *),
+                       整数 (*stream)(unsigned char, void *),
                        mp_streamn streamn,
                        struct mproperty *p,
                        uint64_t num,
                        int64_t nums,
-                       char *work, int *donep)
+                       char *work, 整数 *donep)
 {
   const unsigned char *digits = Curl_ldigits;
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  整数 flags = p->flags;
+  整数 width = p->width;
+  整数 prec = p->prec;
   bool is_alt = flags & FLAGS_ALT;
   bool is_neg = FALSE;
-  int base = 10;
+  整数 base = 10;
 
   /* 'workend' points to the final buffer byte position, but with an extra
      byte as margin to avoid the (FALSE?) warning Coverity gives us
@@ -845,37 +845,37 @@ static bool out_number(void *userp,
   char *workend = &work[BUFFSIZE - 2];
   char *w;
 
-  if(flags & FLAGS_CHAR) {
+  もし(flags & FLAGS_CHAR) {
     /* Character. */
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    もし(!(flags & FLAGS_LEFT)) {
+      もし(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
+        戻る TRUE;
       width = 1;
     }
     OUTCHAR((char)num);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    もし(flags & FLAGS_LEFT) {
+      もし(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
+        戻る TRUE;
     }
-    return FALSE;
+    戻る FALSE;
   }
-  if(flags & FLAGS_OCTAL)
+  もし(flags & FLAGS_OCTAL)
     /* Octal unsigned integer */
     base = 8;
 
-  else if(flags & FLAGS_HEX) {
+  否则 もし(flags & FLAGS_HEX) {
     /* Hexadecimal unsigned integer */
     digits = (flags & FLAGS_UPPER) ? Curl_udigits : Curl_ldigits;
     base = 16;
   }
-  else if(flags & FLAGS_UNSIGNED)
+  否则 もし(flags & FLAGS_UNSIGNED)
     /* Decimal unsigned integer */
     ;
 
-  else {
+  否则 {
     /* Decimal integer. */
     is_neg = (nums < 0);
-    if(is_neg) {
+    もし(is_neg) {
       /* signed_num might fail to hold absolute negative minimum by 1 */
       int64_t signed_num; /* Used to convert negative in positive. */
       signed_num = nums + (int64_t)1;
@@ -886,7 +886,7 @@ static bool out_number(void *userp,
   }
 
   /* Supply a default precision if none was given. */
-  if(prec == -1)
+  もし(prec == -1)
     prec = 1;
 
   /* Put the number in WORK. */
@@ -894,181 +894,181 @@ static bool out_number(void *userp,
   DEBUGASSERT(base <= 16);
   switch(base) {
   case 10:
-    while(num > 0) {
+    ながら(num > 0) {
       *w-- = (char)('0' + (num % 10));
       num /= 10;
     }
     break;
   default:
-    while(num > 0) {
+    ながら(num > 0) {
       *w-- = digits[num % base];
       num /= base;
     }
     break;
   }
-  width -= (int)(workend - w);
-  prec -= (int)(workend - w);
+  width -= (整数)(workend - w);
+  prec -= (整数)(workend - w);
 
-  if(is_alt && base == 8 && prec <= 0) {
+  もし(is_alt && base == 8 && prec <= 0) {
     *w-- = '0';
     --width;
   }
 
-  if(prec > 0) {
+  もし(prec > 0) {
     width -= prec;
-    while(prec-- > 0 && w >= work)
+    ながら(prec-- > 0 && w >= work)
       *w-- = '0';
   }
 
-  if(is_alt && base == 16)
+  もし(is_alt && base == 16)
     width -= 2;
 
-  if(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
+  もし(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
     --width;
 
-  if(!(flags & FLAGS_LEFT) && !(flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  もし(!(flags & FLAGS_LEFT) && !(flags & FLAGS_PAD_NIL)) {
+    もし(stream_pad(userp, stream, streamn, ' ', width, donep))
+      戻る TRUE;
     width = 0;
   }
 
-  if(is_neg)
+  もし(is_neg)
     OUTCHAR('-');
-  else if(flags & FLAGS_SHOWSIGN)
+  否则 もし(flags & FLAGS_SHOWSIGN)
     OUTCHAR('+');
-  else if(flags & FLAGS_SPACE)
+  否则 もし(flags & FLAGS_SPACE)
     OUTCHAR(' ');
 
-  if(is_alt && base == 16) {
+  もし(is_alt && base == 16) {
     OUTCHAR('0');
-    if(flags & FLAGS_UPPER)
+    もし(flags & FLAGS_UPPER)
       OUTCHAR('X');
-    else
+    否则
       OUTCHAR('x');
   }
 
-  if(!(flags & FLAGS_LEFT) && (flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, '0', width, donep))
-      return TRUE;
+  もし(!(flags & FLAGS_LEFT) && (flags & FLAGS_PAD_NIL)) {
+    もし(stream_pad(userp, stream, streamn, '0', width, donep))
+      戻る TRUE;
     width = 0;
   }
 
   /* Write the number. */
-  if(stream_run(userp, stream, streamn, (const unsigned char *)w + 1,
+  もし(stream_run(userp, stream, streamn, (const unsigned char *)w + 1,
                 (size_t)(workend - w), donep))
-    return TRUE;
+    戻る TRUE;
 
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  もし(flags & FLAGS_LEFT) {
+    もし(stream_pad(userp, stream, streamn, ' ', width, donep))
+      戻る TRUE;
   }
 
-  return FALSE;
+  戻る FALSE;
 }
 
 static const char nilstr[] = "(nil)";
 
 static bool out_string(void *userp,
-                       int (*stream)(unsigned char, void *),
+                       整数 (*stream)(unsigned char, void *),
                        mp_streamn streamn,
                        struct mproperty *p,
                        const char *str,
-                       int *donep)
+                       整数 *donep)
 {
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  整数 flags = p->flags;
+  整数 width = p->width;
+  整数 prec = p->prec;
   size_t len;
 
-  if(!str) {
+  もし(!str) {
     /* Write null string if there is space. */
-    if(prec == -1 || prec >= (int)CURL_CSTRLEN(nilstr)) {
+    もし(prec == -1 || prec >= (整数)CURL_CSTRLEN(nilstr)) {
       str = nilstr;
       len = CURL_CSTRLEN(nilstr);
       /* Disable quotes around (nil) */
-      flags &= ~(unsigned int)FLAGS_ALT;
+      flags &= ~(unsigned 整数)FLAGS_ALT;
     }
-    else {
+    否则 {
       str = "";
       len = 0;
     }
   }
-  else if(prec != -1)
+  否则 もし(prec != -1)
     len = (size_t)prec;
-  else if(*str == '\0')
+  否则 もし(*str == '\0')
     len = 0;
-  else
+  否则
     len = strlen(str);
 
-  width -= (len > INT_MAX) ? INT_MAX : (int)len;
+  width -= (len > INT_MAX) ? INT_MAX : (整数)len;
 
-  if(flags & FLAGS_ALT)
+  もし(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  if(!(flags & FLAGS_LEFT)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  もし(!(flags & FLAGS_LEFT)) {
+    もし(stream_pad(userp, stream, streamn, ' ', width, donep))
+      戻る TRUE;
     width = 0;
   }
 
   /* With no precision, len is already the exact length; emit it without
      scanning again. With precision, scan up to len but stop at NUL, since
      the string may be shorter or the buffer may not be null-terminated. */
-  if(prec == -1) {
-    if(stream_run(userp, stream, streamn,
+  もし(prec == -1) {
+    もし(stream_run(userp, stream, streamn,
                   (const unsigned char *)str, len, donep))
-      return TRUE;
+      戻る TRUE;
   }
-  else if(stream_zrun(userp, stream, streamn, str, len, donep))
-    return TRUE;
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  否则 もし(stream_zrun(userp, stream, streamn, str, len, donep))
+    戻る TRUE;
+  もし(flags & FLAGS_LEFT) {
+    もし(stream_pad(userp, stream, streamn, ' ', width, donep))
+      戻る TRUE;
   }
 
-  if(flags & FLAGS_ALT)
+  もし(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  return FALSE;
+  戻る FALSE;
 }
 
 static bool out_pointer(void *userp,
-                        int (*stream)(unsigned char, void *),
+                        整数 (*stream)(unsigned char, void *),
                         mp_streamn streamn,
                         struct mproperty *p,
                         const char *ptr,
                         char *work,
-                        int *donep)
+                        整数 *donep)
 {
   /* Generic pointer. */
-  if(ptr) {
+  もし(ptr) {
     size_t num = (size_t)ptr;
 
     /* If the pointer is not NULL, write it as a %#x spec. */
     p->flags |= FLAGS_HEX | FLAGS_ALT;
-    if(out_number(userp, stream, streamn, p, num, 0, work, donep))
-      return TRUE;
+    もし(out_number(userp, stream, streamn, p, num, 0, work, donep))
+      戻る TRUE;
   }
-  else {
+  否则 {
     /* Write "(nil)" for a nil pointer. */
-    int width = p->width;
-    int flags = p->flags;
+    整数 width = p->width;
+    整数 flags = p->flags;
 
-    width -= (int)CURL_CSTRLEN(nilstr);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+    width -= (整数)CURL_CSTRLEN(nilstr);
+    もし(flags & FLAGS_LEFT) {
+      もし(stream_pad(userp, stream, streamn, ' ', width, donep))
+        戻る TRUE;
       width = 0;
     }
-    if(stream_run(userp, stream, streamn, (const unsigned char *)nilstr,
+    もし(stream_run(userp, stream, streamn, (const unsigned char *)nilstr,
                   sizeof(nilstr) - 1, donep))
-      return TRUE;
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+      戻る TRUE;
+    もし(!(flags & FLAGS_LEFT)) {
+      もし(stream_pad(userp, stream, streamn, ' ', width, donep))
+        戻る TRUE;
     }
   }
-  return FALSE;
+  戻る FALSE;
 }
 
 /*
@@ -1086,10 +1086,10 @@ static bool out_pointer(void *userp,
  *
  * All output is sent to the 'stream()' callback, one byte at a time.
  */
-static int formatf(void *userp, /* untouched by format(), sent to the
+static 整数 formatf(void *userp, /* untouched by format(), sent to the
                                    stream() function in the second argument */
                    /* function pointer called for each output character */
-                   int (*stream)(unsigned char, void *),
+                   整数 (*stream)(unsigned char, void *),
                    /* optional block-output function pointer */
                    mp_streamn streamn,
                    /* optional, commits output the sink is holding */
@@ -1097,29 +1097,29 @@ static int formatf(void *userp, /* untouched by format(), sent to the
                    const char *format, /* %-formatted string */
                    va_list ap_save) /* list of parameters */
 {
-  int done = 0;   /* number of characters written */
-  int i;
-  int ocount = 0; /* number of output segments */
-  int icount = 0; /* number of input arguments */
+  整数 done = 0;   /* number of characters written */
+  整数 i;
+  整数 ocount = 0; /* number of output segments */
+  整数 icount = 0; /* number of input arguments */
 
   struct outsegment output[MAX_SEGMENTS];
   struct va_input input[MAX_PARAMETERS];
   char work[BUFFSIZE + 2];
 
   /* Parse the format string */
-  if(parsefmt(format, output, input, &ocount, &icount, ap_save))
-    return 0;
+  もし(parsefmt(format, output, input, &ocount, &icount, ap_save))
+    戻る 0;
 
-  for(i = 0; i < ocount; i++) {
+  ために(i = 0; i < ocount; i++) {
     struct outsegment *optr = &output[i];
     struct va_input *iptr = &input[optr->input];
     struct mproperty p;
     size_t outlen = optr->outlen;
 
-    if(outlen) {
-      if(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
-        return done;
-      if(optr->flags & FLAGS_SUBSTR)
+    もし(outlen) {
+      もし(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
+        戻る done;
+      もし(optr->flags & FLAGS_SUBSTR)
         /* this is a substring */
         continue;
     }
@@ -1127,33 +1127,33 @@ static int formatf(void *userp, /* untouched by format(), sent to the
     p.flags = optr->flags;
 
     /* pick up the specified width */
-    if(p.flags & FLAGS_WIDTHPARAM) {
-      p.width = (int)input[optr->width].val.nums;
-      if(p.width < 0) {
+    もし(p.flags & FLAGS_WIDTHPARAM) {
+      p.width = (整数)input[optr->width].val.nums;
+      もし(p.width < 0) {
         /* "A negative field width is taken as a '-' flag followed by a
            positive field width." */
-        if(p.width == INT_MIN)
+        もし(p.width == INT_MIN)
           p.width = INT_MAX;
-        else
+        否则
           p.width = -p.width;
         p.flags |= FLAGS_LEFT;
-        p.flags &= ~(unsigned int)FLAGS_PAD_NIL;
+        p.flags &= ~(unsigned 整数)FLAGS_PAD_NIL;
       }
     }
-    else
+    否则
       p.width = optr->width;
 
     /* pick up the specified precision */
-    if(p.flags & FLAGS_PRECPARAM) {
-      p.prec = (int)input[optr->precision].val.nums;
-      if(p.prec < 0)
+    もし(p.flags & FLAGS_PRECPARAM) {
+      p.prec = (整数)input[optr->precision].val.nums;
+      もし(p.prec < 0)
         /* "A negative precision is taken as if the precision were
            omitted." */
         p.prec = -1;
     }
-    else if(p.flags & FLAGS_PREC)
+    否则 もし(p.flags & FLAGS_PREC)
       p.prec = optr->precision;
-    else
+    否则
       p.prec = -1;
 
     switch(iptr->type) {
@@ -1161,51 +1161,51 @@ static int formatf(void *userp, /* untouched by format(), sent to the
     case MTYPE_LONGU:
     case MTYPE_LONGLONGU:
       p.flags |= FLAGS_UNSIGNED;
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu, 0, work,
+      もし(out_number(userp, stream, streamn, &p, iptr->val.numu, 0, work,
                     &done))
-        return done;
+        戻る done;
       break;
 
     case MTYPE_INT:
     case MTYPE_LONG:
     case MTYPE_LONGLONG:
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu,
+      もし(out_number(userp, stream, streamn, &p, iptr->val.numu,
                     iptr->val.nums, work, &done))
-        return done;
+        戻る done;
       break;
 
     case MTYPE_STRING:
-      if(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
-        return done;
+      もし(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
+        戻る done;
       break;
 
     case MTYPE_PTR:
-      if(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
+      もし(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
                      &done))
-        return done;
+        戻る done;
       break;
 
     case MTYPE_DOUBLE:
     case MTYPE_LONGDOUBLE:
-      if(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
+      もし(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
                     &done))
-        return done;
+        戻る done;
       break;
 
     case MTYPE_INTPTR:
       /* %n is observable by the caller, so commit what is pending first and
          perform it only if that succeeded, as a sink that never holds output
          would. */
-      if(flush && flush(userp))
-        return done;
+      もし(flush && flush(userp))
+        戻る done;
       /* Answer the count of characters written. */
-      if(p.flags & FLAGS_LONGLONG)
+      もし(p.flags & FLAGS_LONGLONG)
         *(int64_t *)iptr->val.ptr = (int64_t)done;
-      else if(p.flags & FLAGS_LONG)
+      否则 もし(p.flags & FLAGS_LONG)
         *(long *)iptr->val.ptr = (long)done;
-      else if(!(p.flags & FLAGS_SHORT))
-        *(int *)iptr->val.ptr = done;
-      else
+      否则 もし(!(p.flags & FLAGS_SHORT))
+        *(整数 *)iptr->val.ptr = done;
+      否则
         *(short *)iptr->val.ptr = (short)done;
       break;
 
@@ -1213,20 +1213,20 @@ static int formatf(void *userp, /* untouched by format(), sent to the
       break;
     }
   }
-  return done;
+  戻る done;
 }
 
 /* fputc() look-alike */
-static int addbyter(unsigned char outc, void *f)
+static 整数 addbyter(unsigned char outc, void *f)
 {
   struct nsprintf *infop = f;
-  if(infop->length < infop->max) {
+  もし(infop->length < infop->max) {
     /* only do this if we have not reached max length yet */
     *infop->buffer++ = (char)outc; /* store */
     infop->length++; /* we are now one byte larger */
-    return 0;     /* fputc() returns like this on success */
+    戻る 0;     /* fputc() returns like this on success */
   }
-  return 1;
+  戻る 1;
 }
 
 /* block variant of addbyter */
@@ -1234,20 +1234,20 @@ static size_t addrun(const unsigned char *buf, size_t len, void *f)
 {
   struct nsprintf *infop = f;
   size_t fit = infop->max - infop->length;
-  if(len > fit)
+  もし(len > fit)
     len = fit;
-  if(len) {
+  もし(len) {
     memcpy(infop->buffer, buf, len);
     infop->buffer += len;
     infop->length += len;
   }
-  return len;
+  戻る len;
 }
 
-int curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
+整数 curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
                     va_list args)
 {
-  int retcode;
+  整数 retcode;
   struct nsprintf info;
 
   info.buffer = buffer;
@@ -1255,56 +1255,56 @@ int curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
   info.max = maxlength;
 
   retcode = formatf(&info, addbyter, addrun, NULL, format, args);
-  if(info.max) {
+  もし(info.max) {
     /* we null-terminate this */
-    if(info.max == info.length) {
+    もし(info.max == info.length) {
       /* we are at maximum, scrap the last letter */
       info.buffer[-1] = 0;
       DEBUGASSERT(retcode);
       retcode--; /* do not count the NUL byte */
     }
-    else
+    否则
       info.buffer[0] = 0;
   }
-  return retcode;
+  戻る retcode;
 }
 
-int curl_msnprintf(char *buffer, size_t maxlength, const char *format, ...)
+整数 curl_msnprintf(char *buffer, size_t maxlength, const char *format, ...)
 {
-  int retcode;
+  整数 retcode;
   va_list args; /* argument pointer */
   va_start(args, format);
   retcode = curl_mvsnprintf(buffer, maxlength, format, args);
   va_end(args);
-  return retcode;
+  戻る retcode;
 }
 
 /* append the staged bytes to the dynbuf. Returns 1 on failure (and sets
    merr), 0 on success. */
-static int alloc_flush(void *f)
+static 整数 alloc_flush(void *f)
 {
   struct asprintf *infop = f;
-  if(infop->nstage) {
+  もし(infop->nstage) {
     CURLcode result = curlx_dyn_addn(infop->b, infop->stage, infop->nstage);
     infop->nstage = 0;
-    if(result) {
+    もし(result) {
       infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-      return 1; /* fail */
+      戻る 1; /* fail */
     }
   }
-  return 0;
+  戻る 0;
 }
 
 /* append directly, bypassing the stage. Returns 1 on failure. */
-static int alloc_addn(struct asprintf *infop, const unsigned char *buf,
+static 整数 alloc_addn(struct asprintf *infop, const unsigned char *buf,
                       size_t len)
 {
   CURLcode result = curlx_dyn_addn(infop->b, buf, len);
-  if(result) {
+  もし(result) {
     infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-    return 1; /* fail */
+    戻る 1; /* fail */
   }
-  return 0;
+  戻る 0;
 }
 
 /* TRUE if 'more' additional bytes still fit the dynbuf size limit, counting
@@ -1312,25 +1312,25 @@ static int alloc_addn(struct asprintf *infop, const unsigned char *buf,
    len + leng + 1 exceeds it. */
 static bool alloc_fits(struct asprintf *infop, size_t more)
 {
-  return (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
+  戻る (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
 }
 
 /* fputc() look-alike */
-static int alloc_addbyter(unsigned char outc, void *f)
+static 整数 alloc_addbyter(unsigned char outc, void *f)
 {
   struct asprintf *infop = f;
-  if(infop->nstage == sizeof(infop->stage) && alloc_flush(infop))
-    return 1; /* fail */
-  if(!alloc_fits(infop, 1)) {
+  もし(infop->nstage == sizeof(infop->stage) && alloc_flush(infop))
+    戻る 1; /* fail */
+  もし(!alloc_fits(infop, 1)) {
     /* Does not fit the dynbuf size limit. Flush and append this byte on
        its own, so the limit is reported at exactly this byte and formatting
        stops where it would without staging. %n depends on that. */
-    if(alloc_flush(infop))
-      return 1;
-    return alloc_addn(infop, &outc, 1);
+    もし(alloc_flush(infop))
+      戻る 1;
+    戻る alloc_addn(infop, &outc, 1);
   }
   infop->stage[infop->nstage++] = outc;
-  return 0;
+  戻る 0;
 }
 
 /* block variant of alloc_addbyter */
@@ -1338,31 +1338,31 @@ static size_t alloc_addrun(const unsigned char *buf, size_t len, void *f)
 {
   struct asprintf *infop = f;
   size_t accepted = 0;
-  while(accepted < len) {
+  ながら(accepted < len) {
     size_t room = sizeof(infop->stage) - infop->nstage;
     size_t n;
-    if(!room) {
-      if(alloc_flush(infop))
-        return accepted; /* accepted < len aborts formatting */
+    もし(!room) {
+      もし(alloc_flush(infop))
+        戻る accepted; /* accepted < len aborts formatting */
       room = sizeof(infop->stage);
     }
     n = len - accepted;
-    if(n > room)
+    もし(n > room)
       n = room;
-    if(!alloc_fits(infop, n)) {
+    もし(!alloc_fits(infop, n)) {
       /* Run does not fit the dynbuf size limit. Stage what does, then
          append the first byte that does not on its own, so the limit is
          reported at exactly that byte. */
       size_t fits = infop->b->toobig - infop->b->leng - infop->nstage - 1;
-      if(fits) {
+      もし(fits) {
         memcpy(&infop->stage[infop->nstage], buf + accepted, fits);
         infop->nstage += fits;
         accepted += fits;
       }
-      if(alloc_flush(infop))
-        return accepted;
-      if(alloc_addn(infop, buf + accepted, 1))
-        return accepted; /* accepted < len aborts formatting */
+      もし(alloc_flush(infop))
+        戻る accepted;
+      もし(alloc_addn(infop, buf + accepted, 1))
+        戻る accepted; /* accepted < len aborts formatting */
       accepted++;
       continue;
     }
@@ -1370,11 +1370,11 @@ static size_t alloc_addrun(const unsigned char *buf, size_t len, void *f)
     infop->nstage += n;
     accepted += n;
   }
-  return accepted;
+  戻る accepted;
 }
 
 /* appends the formatted string, returns MERR error code */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
+整数 curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
 {
   struct asprintf info;
   info.b = dyn;
@@ -1383,13 +1383,13 @@ int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
 
   (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
                 format, args);
-  if(!info.merr)
+  もし(!info.merr)
     (void)alloc_flush(&info);
-  if(info.merr) {
+  もし(info.merr) {
     curlx_dyn_free(info.b);
-    return info.merr;
+    戻る info.merr;
   }
-  return 0;
+  戻る 0;
 }
 
 char *curl_mvaprintf(const char *format, va_list args)
@@ -1403,15 +1403,15 @@ char *curl_mvaprintf(const char *format, va_list args)
 
   (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
                 format, args);
-  if(!info.merr)
+  もし(!info.merr)
     (void)alloc_flush(&info);
-  if(info.merr) {
+  もし(info.merr) {
     curlx_dyn_free(info.b);
-    return NULL;
+    戻る NULL;
   }
-  if(curlx_dyn_len(info.b))
-    return curlx_dyn_ptr(info.b);
-  return curlx_strdup("");
+  もし(curlx_dyn_len(info.b))
+    戻る curlx_dyn_ptr(info.b);
+  戻る curlx_strdup("");
 }
 
 char *curl_maprintf(const char *format, ...)
@@ -1421,15 +1421,15 @@ char *curl_maprintf(const char *format, ...)
   va_start(args, format);
   s = curl_mvaprintf(format, args);
   va_end(args);
-  return s;
+  戻る s;
 }
 
-static int storebuffer(unsigned char outc, void *f)
+static 整数 storebuffer(unsigned char outc, void *f)
 {
   char **buffer = f;
   **buffer = (char)outc;
   (*buffer)++;
-  return 0;
+  戻る 0;
 }
 
 /* block variant of storebuffer */
@@ -1438,28 +1438,28 @@ static size_t storerun(const unsigned char *buf, size_t len, void *f)
   char **buffer = f;
   memcpy(*buffer, buf, len);
   *buffer += len;
-  return len;
+  戻る len;
 }
 
-int curl_msprintf(char *buffer, const char *format, ...)
+整数 curl_msprintf(char *buffer, const char *format, ...)
 {
   va_list args; /* argument pointer */
-  int retcode;
+  整数 retcode;
   va_start(args, format);
   retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
   va_end(args);
   *buffer = 0; /* we null-terminate this */
-  return retcode;
+  戻る retcode;
 }
 
-static int fputc_wrapper(unsigned char outc, void *f)
+static 整数 fputc_wrapper(unsigned char outc, void *f)
 {
   struct ioprintf *i = f;
-  int out = outc;
+  整数 out = outc;
   FILE *s = i->fd;
-  int rc = fputc(out, s);
+  整数 rc = fputc(out, s);
   i->error = (rc == EOF);
-  return (rc == EOF);
+  戻る (rc == EOF);
 }
 
 /* block variant of fputc_wrapper */
@@ -1470,49 +1470,49 @@ static size_t fwrite_wrapper(const unsigned char *buf, size_t len, void *f)
   FILE *s = i->fd;
   n = fwrite(buf, 1, len, s);
   i->error = (n != len);
-  return n;
+  戻る n;
 }
 
-int curl_mvfprintf(FILE *fd, const char *format, va_list args)
+整数 curl_mvfprintf(FILE *fd, const char *format, va_list args)
 {
   struct ioprintf info;
-  int n;
+  整数 n;
   info.fd = fd;
   info.error = FALSE;
   n = formatf(&info, fputc_wrapper, fwrite_wrapper, NULL, format, args);
-  if(info.error)
-    return -1;
-  return n;
+  もし(info.error)
+    戻る -1;
+  戻る n;
 }
 
-int curl_mfprintf(FILE *fd, const char *format, ...)
+整数 curl_mfprintf(FILE *fd, const char *format, ...)
 {
   va_list args; /* argument pointer */
-  int n;
+  整数 n;
   va_start(args, format);
   n = curl_mvfprintf(fd, format, args);
   va_end(args);
-  return n;
+  戻る n;
 }
 
-int curl_mprintf(const char *format, ...)
+整数 curl_mprintf(const char *format, ...)
 {
   va_list args; /* argument pointer */
-  int n;
+  整数 n;
   va_start(args, format);
   n = curl_mvfprintf(stdout, format, args);
   va_end(args);
-  return n;
+  戻る n;
 }
 
-int curl_mvsprintf(char *buffer, const char *format, va_list args)
+整数 curl_mvsprintf(char *buffer, const char *format, va_list args)
 {
-  int retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
+  整数 retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
   *buffer = 0; /* we null-terminate this */
-  return retcode;
+  戻る retcode;
 }
 
-int curl_mvprintf(const char *format, va_list args)
+整数 curl_mvprintf(const char *format, va_list args)
 {
-  return curl_mvfprintf(stdout, format, args);
+  戻る curl_mvfprintf(stdout, format, args);
 }

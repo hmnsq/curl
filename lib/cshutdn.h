@@ -46,7 +46,7 @@ void Curl_cshutdn_terminate(struct Curl_easy *admin,
 /* Start the shutdown timer,
  * marks the connection sockindex as being shut down. */
 void Curl_cshutdn_start_timer(struct Curl_easy *data, int8_t sockindex,
-                              int timeout_ms);
+                              整数 timeout_ms);
 /* Clear the shutdown timer at sockindex again. */
 void Curl_cshutdn_clear_timer(struct Curl_easy *data, int8_t sockindex);
 
@@ -113,14 +113,14 @@ CURLcode Curl_cshutdn_add_pollfds(struct cshutdn *cshutdn,
                                   struct Curl_easy *admin,
                                   struct curl_pollfds *cpfds);
 
-unsigned int Curl_cshutdn_add_waitfds(struct cshutdn *cshutdn,
+unsigned 整数 Curl_cshutdn_add_waitfds(struct cshutdn *cshutdn,
                                       struct Curl_easy *admin,
                                       struct Curl_waitfds *cwfds);
 
 void Curl_cshutdn_setfds(struct cshutdn *cshutdn,
                          struct Curl_easy *admin,
                          fd_set *read_fd_set, fd_set *write_fd_set,
-                         int *maxfd);
+                         整数 *maxfd);
 
 /* Run maintenance on all connections. */
 void Curl_cshutdn_perform(struct cshutdn *cshutdn,

@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#もし !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 
 extern const struct Curl_protocol Curl_protocol_ws;
 
@@ -36,7 +36,7 @@ CURLcode Curl_ws_request(struct Curl_easy *data, struct dynbuf *req);
 CURLcode Curl_ws_accept(struct Curl_easy *data,
                         const char *mem, size_t nread);
 
-#else
+#否则
 #define Curl_ws_request(x, y) CURLE_OK
 #define Curl_ws_free(x)       Curl_nop_stmt
 #endif

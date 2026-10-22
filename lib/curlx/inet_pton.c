@@ -41,7 +41,7 @@
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
+#もし !defined(USE_IPV6) && !defined(AF_INET6)
 #define AF_INET6 (AF_INET + 1)
 #endif
 
@@ -59,43 +59,43 @@
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, unsigned char *dst)
+static 整数 inet_pton4(const char *src, unsigned char *dst)
 {
-  int saw_digit, octets, ch;
+  整数 saw_digit, octets, ch;
   unsigned char tmp[INADDRSZ], *tp;
 
   saw_digit = 0;
   octets = 0;
   tp = tmp;
   *tp = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISDIGIT(ch)) {
-      unsigned int val = (*tp * 10) + (ch - '0');
+  ながら((ch = (unsigned char)*src++) != '\0') {
+    もし(ISDIGIT(ch)) {
+      unsigned 整数 val = (*tp * 10) + (ch - '0');
 
-      if(saw_digit && *tp == 0)
-        return 0;
-      if(val > 255)
-        return 0;
+      もし(saw_digit && *tp == 0)
+        戻る 0;
+      もし(val > 255)
+        戻る 0;
       *tp = (unsigned char)val;
-      if(!saw_digit) {
-        if(++octets > 4)
-          return 0;
+      もし(!saw_digit) {
+        もし(++octets > 4)
+          戻る 0;
         saw_digit = 1;
       }
     }
-    else if(ch == '.' && saw_digit) {
-      if(octets == 4)
-        return 0;
+    否则 もし(ch == '.' && saw_digit) {
+      もし(octets == 4)
+        戻る 0;
       *++tp = 0;
       saw_digit = 0;
     }
-    else
-      return 0;
+    否则
+      戻る 0;
   }
-  if(octets < 4)
-    return 0;
+  もし(octets < 4)
+    戻る 0;
   memcpy(dst, tmp, INADDRSZ);
-  return 1;
+  戻る 1;
 }
 
 /* int inet_pton6(src, dst)
@@ -110,63 +110,63 @@ static int inet_pton4(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, unsigned char *dst)
+static 整数 inet_pton6(const char *src, unsigned char *dst)
 {
   unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
   const char *curtok;
-  int ch, saw_xdigit;
+  整数 ch, saw_xdigit;
   size_t val;
 
   memset((tp = tmp), 0, IN6ADDRSZ);
   endp = tp + IN6ADDRSZ;
   colonp = NULL;
   /* Leading :: requires some special handling. */
-  if(*src == ':' && *++src != ':')
-    return 0;
+  もし(*src == ':' && *++src != ':')
+    戻る 0;
   curtok = src;
   saw_xdigit = 0;
   val = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISXDIGIT(ch)) {
+  ながら((ch = (unsigned char)*src++) != '\0') {
+    もし(ISXDIGIT(ch)) {
       val <<= 4;
       val |= curlx_hexval(ch);
-      if(++saw_xdigit > 4)
-        return 0;
+      もし(++saw_xdigit > 4)
+        戻る 0;
       continue;
     }
-    if(ch == ':') {
+    もし(ch == ':') {
       curtok = src;
-      if(!saw_xdigit) {
-        if(colonp)
-          return 0;
+      もし(!saw_xdigit) {
+        もし(colonp)
+          戻る 0;
         colonp = tp;
         continue;
       }
-      if(!*src)
-        return 0;
-      if(tp + INT16SZ > endp)
-        return 0;
+      もし(!*src)
+        戻る 0;
+      もし(tp + INT16SZ > endp)
+        戻る 0;
       *tp++ = (unsigned char)((val >> 8) & 0xff);
       *tp++ = (unsigned char)(val & 0xff);
       saw_xdigit = 0;
       val = 0;
       continue;
     }
-    if(ch == '.' && ((tp + INADDRSZ) <= endp) &&
+    もし(ch == '.' && ((tp + INADDRSZ) <= endp) &&
        inet_pton4(curtok, tp) > 0) {
       tp += INADDRSZ;
       saw_xdigit = 0;
       break;    /* '\0' was seen by inet_pton4(). */
     }
-    return 0;
+    戻る 0;
   }
-  if(saw_xdigit) {
-    if(tp + INT16SZ > endp)
-      return 0;
+  もし(saw_xdigit) {
+    もし(tp + INT16SZ > endp)
+      戻る 0;
     *tp++ = (unsigned char)((val >> 8) & 0xff);
     *tp++ = (unsigned char)(val & 0xff);
   }
-  if(colonp) {
+  もし(colonp) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we do the shift by hand.
@@ -174,18 +174,18 @@ static int inet_pton6(const char *src, unsigned char *dst)
     const ssize_t n = tp - colonp;
     ssize_t i;
 
-    if(tp == endp)
-      return 0;
-    for(i = 1; i <= n; i++) {
+    もし(tp == endp)
+      戻る 0;
+    ために(i = 1; i <= n; i++) {
       *(endp - i) = *(colonp + n - i);
       *(colonp + n - i) = 0;
     }
     tp = endp;
   }
-  if(tp != endp)
-    return 0;
+  もし(tp != endp)
+    戻る 0;
   memcpy(dst, tmp, IN6ADDRSZ);
-  return 1;
+  戻る 1;
 }
 
 /*
@@ -200,15 +200,15 @@ static int inet_pton6(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-int curlx_inet_pton(int af, const char *src, void *dst)
+整数 curlx_inet_pton(整数 af, const char *src, void *dst)
 {
   switch(af) {
   case AF_INET:
-    return inet_pton4(src, (unsigned char *)dst);
+    戻る inet_pton4(src, (unsigned char *)dst);
   case AF_INET6:
-    return inet_pton6(src, (unsigned char *)dst);
+    戻る inet_pton6(src, (unsigned char *)dst);
   default:
-    return -1;
+    戻る -1;
   }
   /* NOTREACHED */
 }

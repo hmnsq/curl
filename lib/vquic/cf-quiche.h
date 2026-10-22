@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#もし !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
 
 #include <quiche.h>
 #include <openssl/ssl.h>

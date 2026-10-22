@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_OPENSSL) || defined(USE_SCHANNEL)
+#もし defined(USE_OPENSSL) || defined(USE_SCHANNEL)
 /* these backends use functions from this file */
 
 #ifdef HAVE_NETINET_IN_H
@@ -42,9 +42,9 @@
 static bool pmatch(const char *hostname, size_t hostlen,
                    const char *pattern, size_t patternlen)
 {
-  if(hostlen != patternlen)
-    return FALSE;
-  return curl_strnequal(hostname, pattern, hostlen);
+  もし(hostlen != patternlen)
+    戻る FALSE;
+  戻る curl_strnequal(hostname, pattern, hostlen);
 }
 
 /*
@@ -86,34 +86,34 @@ static bool hostmatch(const char *hostname,
   DEBUGASSERT(hostlen);
 
   /* normalize pattern and hostname by stripping off trailing dots */
-  if(hostlen > 0 && hostname[hostlen - 1] == '.')
+  もし(hostlen > 0 && hostname[hostlen - 1] == '.')
     hostlen--;
-  if(patternlen > 0 && pattern[patternlen - 1] == '.')
+  もし(patternlen > 0 && pattern[patternlen - 1] == '.')
     patternlen--;
 
-  if(patternlen > 2 && strncmp(pattern, "*.", 2))
-    return pmatch(hostname, hostlen, pattern, patternlen);
+  もし(patternlen > 2 && strncmp(pattern, "*.", 2))
+    戻る pmatch(hostname, hostlen, pattern, patternlen);
 
   /* detect host as IP address or starting with a dot and fail if so */
-  else if(Curl_host_is_ipnum(hostname) || (hostlen > 0 && hostname[0] == '.'))
-    return FALSE;
+  否则 もし(Curl_host_is_ipnum(hostname) || (hostlen > 0 && hostname[0] == '.'))
+    戻る FALSE;
 
   /* We require at least 2 dots in the pattern to avoid too wide wildcard
      match. */
   pattern_label_end = memchr(pattern, '.', patternlen);
-  if(!pattern_label_end ||
+  もし(!pattern_label_end ||
      (memrchr(pattern, '.', patternlen) == pattern_label_end))
-    return pmatch(hostname, hostlen, pattern, patternlen);
-  else {
+    戻る pmatch(hostname, hostlen, pattern, patternlen);
+  否则 {
     const char *hostname_label_end = memchr(hostname, '.', hostlen);
-    if(hostname_label_end) {
+    もし(hostname_label_end) {
       size_t skiphost = hostname_label_end - hostname;
       size_t skiplen = pattern_label_end - pattern;
-      return pmatch(hostname_label_end, hostlen - skiphost,
+      戻る pmatch(hostname_label_end, hostlen - skiphost,
                     pattern_label_end, patternlen - skiplen);
     }
   }
-  return FALSE;
+  戻る FALSE;
 }
 
 /*
@@ -122,9 +122,9 @@ static bool hostmatch(const char *hostname,
 bool Curl_cert_hostcheck(const char *match, size_t matchlen,
                          const char *hostname, size_t hostlen)
 {
-  if(matchlen > 0 && hostlen > 0)
-    return hostmatch(hostname, hostlen, match, matchlen);
-  return FALSE;
+  もし(matchlen > 0 && hostlen > 0)
+    戻る hostmatch(hostname, hostlen, match, matchlen);
+  戻る FALSE;
 }
 
 #endif /* USE_OPENSSL || USE_SCHANNEL */

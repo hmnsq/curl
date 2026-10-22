@@ -42,7 +42,7 @@ struct digestdata;
 struct ntlmdata;
 #endif
 
-#if (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)) && defined(USE_SPNEGO)
+#もし (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)) && defined(USE_SPNEGO)
 struct negotiatedata;
 #endif
 
@@ -67,7 +67,7 @@ bool Curl_auth_allowed_to_origin(struct Curl_easy *data,
 #ifndef USE_WINDOWS_SSPI
 char *Curl_auth_build_spn(const char *service, const char *host,
                           const char *realm);
-#else
+#否则
 TCHAR *Curl_auth_build_spn(const char *service, const char *host,
                            const char *realm);
 #endif
@@ -115,7 +115,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
 
 /* This is used to clean up the digest specific data */
 void Curl_auth_digest_cleanup(struct digestdata *digest);
-#else
+#否则
 #define Curl_auth_digest_cleanup(x)
 #define Curl_auth_is_digest_supported()       FALSE
 #endif /* !CURL_DISABLE_DIGEST_AUTH */
@@ -174,10 +174,10 @@ struct ntlmdata {
   BYTE *input_token;
   size_t input_token_len;
   TCHAR *spn;
-#else
-  unsigned int flags;
+#否则
+  unsigned 整数 flags;
   unsigned char nonce[8];
-  unsigned int target_info_len;
+  unsigned 整数 target_info_len;
   void *target_info; /* TargetInfo received in the NTLM type-2 message */
 #endif
 };
@@ -210,7 +210,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
                                              struct ntlmdata *ntlm,
                                              struct bufref *out);
 
-#else
+#否则
 #define Curl_auth_is_ntlm_supported()     FALSE
 #endif /* USE_NTLM */
 
@@ -238,7 +238,7 @@ struct kerberos5data {
   SEC_WINNT_AUTH_IDENTITY_EX *p_identity;
   size_t token_max;
   BYTE *output_token;
-#else
+#否则
   gss_ctx_id_t context;
   gss_name_t spn;
 #endif
@@ -270,7 +270,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
 
 /* This is used to clean up the GSSAPI specific data */
 void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5);
-#else
+#否则
 #define Curl_auth_is_gssapi_supported()       FALSE
 #endif /* USE_KERBEROS5 */
 
@@ -294,7 +294,7 @@ struct negotiatedata {
 #ifdef GSS_C_CHANNEL_BOUND_FLAG
   struct dynbuf channel_binding_data;
 #endif
-#else
+#否则
 #ifdef USE_WINDOWS_SSPI
   CtxtHandle *sslContext;
   SECURITY_STATUS status;

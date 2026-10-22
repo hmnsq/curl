@@ -66,10 +66,10 @@ typedef enum {
 
 #define CURLPIPE_ANY (CURLPIPE_MULTIPLEX)
 
-#if !defined(CURL_DISABLE_SOCKETPAIR) && !defined(USE_WINSOCK)
+#もし !defined(CURL_DISABLE_SOCKETPAIR) && !defined(USE_WINSOCK)
 #define ENABLE_WAKEUP
 #endif
-#if !defined(CURL_DISABLE_SOCKETPAIR) && \
+#もし !defined(CURL_DISABLE_SOCKETPAIR) && \
     defined(USE_RESOLV_THREADED) && \
     !defined(USE_WINSOCK)
 #define ENABLE_INTERNAL_WAKEUP

@@ -96,7 +96,7 @@ struct bufq {
   size_t chunk_count;           /* current number of chunks in `head+spare` */
   size_t max_chunks;            /* max `head` chunks to use */
   size_t chunk_size;            /* size of chunks to manage */
-  int opts;                     /* options for handling queue, see below */
+  整数 opts;                     /* options for handling queue, see below */
 };
 
 /**
@@ -126,10 +126,10 @@ void Curl_bufq_init(struct bufq *q, size_t chunk_size, size_t max_chunks);
  * each of size `chunk_size` with the given options. See `BUFQ_OPT_*`.
  */
 void Curl_bufq_init2(struct bufq *q, size_t chunk_size,
-                     size_t max_chunks, int opts);
+                     size_t max_chunks, 整数 opts);
 
 void Curl_bufq_initp(struct bufq *q, struct bufc_pool *pool,
-                     size_t max_chunks, int opts);
+                     size_t max_chunks, 整数 opts);
 
 /**
  * Reset the buffer queue to be empty. Keep any allocated buffer chunks

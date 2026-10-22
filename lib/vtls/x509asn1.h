@@ -29,7 +29,7 @@
 /* forward-declare to make it visible in all builds */
 struct Curl_asn1Element;
 
-#if defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
+#もし defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
   defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
 #include "cfilters.h"
@@ -108,9 +108,9 @@ struct Curl_X509certificate {
  * Prototypes.
  */
 
-int Curl_parseX509(struct Curl_X509certificate *cert,
+整数 Curl_parseX509(struct Curl_X509certificate *cert,
                    const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_extract_certinfo(struct Curl_easy *data, int certnum,
+CURLcode Curl_extract_certinfo(struct Curl_easy *data, 整数 certnum,
                                const uint8_t *beg, const uint8_t *end);
 CURLcode Curl_verifyhost(struct Curl_cfilter *cf, struct Curl_easy *data,
                          const uint8_t *beg, const uint8_t *end);

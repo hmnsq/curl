@@ -43,12 +43,12 @@ CURLcode Curl_uint32_bset_resize(struct uint32_bset *bset, uint32_t nmax)
                     ((nmax + 63) / 64) : (UINT32_MAX / 64);
 
   DEBUGASSERT(bset->init == CURL_UINT32_BSET_MAGIC);
-  if(nslots != bset->nslots) {
+  もし(nslots != bset->nslots) {
     uint64_t *slots = curlx_calloc(nslots, sizeof(uint64_t));
-    if(!slots)
-      return CURLE_OUT_OF_MEMORY;
+    もし(!slots)
+      戻る CURLE_OUT_OF_MEMORY;
 
-    if(bset->slots) {
+    もし(bset->slots) {
       memcpy(slots, bset->slots,
              (CURLMIN(nslots, bset->nslots) * sizeof(uint64_t)));
       curlx_free(bset->slots);
@@ -57,7 +57,7 @@ CURLcode Curl_uint32_bset_resize(struct uint32_bset *bset, uint32_t nmax)
     bset->nslots = nslots;
     bset->first_slot_used = 0;
   }
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 void Curl_uint32_bset_destroy(struct uint32_bset *bset)
@@ -72,7 +72,7 @@ void Curl_uint32_bset_destroy(struct uint32_bset *bset)
 UNITTEST uint32_t uint32_bset_capacity(struct uint32_bset *bset);
 UNITTEST uint32_t uint32_bset_capacity(struct uint32_bset *bset)
 {
-  return bset->nslots * 64;
+  戻る bset->nslots * 64;
 }
 #endif
 
@@ -80,26 +80,26 @@ uint32_t Curl_uint32_bset_count(struct uint32_bset *bset)
 {
   uint32_t i;
   uint32_t n = 0;
-  for(i = bset->first_slot_used; i < bset->nslots; ++i) {
-    if(bset->slots[i])
+  ために(i = bset->first_slot_used; i < bset->nslots; ++i) {
+    もし(bset->slots[i])
       n += CURL_POPCOUNT64(bset->slots[i]);
   }
-  return n;
+  戻る n;
 }
 
 bool Curl_uint32_bset_empty(struct uint32_bset *bset)
 {
   uint32_t i;
-  for(i = bset->first_slot_used; i < bset->nslots; ++i) {
-    if(bset->slots[i])
-      return FALSE;
+  ために(i = bset->first_slot_used; i < bset->nslots; ++i) {
+    もし(bset->slots[i])
+      戻る FALSE;
   }
-  return TRUE;
+  戻る TRUE;
 }
 
 void Curl_uint32_bset_clear(struct uint32_bset *bset)
 {
-  if(bset->nslots) {
+  もし(bset->nslots) {
     memset(bset->slots, 0, bset->nslots * sizeof(uint64_t));
     bset->first_slot_used = UINT32_MAX;
   }
@@ -108,41 +108,41 @@ void Curl_uint32_bset_clear(struct uint32_bset *bset)
 bool Curl_uint32_bset_add(struct uint32_bset *bset, uint32_t i)
 {
   uint32_t islot = i / 64;
-  if(islot >= bset->nslots)
-    return FALSE;
+  もし(islot >= bset->nslots)
+    戻る FALSE;
   bset->slots[islot] |= ((uint64_t)1 << (i % 64));
-  if(islot < bset->first_slot_used)
+  もし(islot < bset->first_slot_used)
     bset->first_slot_used = islot;
-  return TRUE;
+  戻る TRUE;
 }
 
 void Curl_uint32_bset_remove(struct uint32_bset *bset, uint32_t i)
 {
   size_t islot = i / 64;
-  if(islot < bset->nslots)
+  もし(islot < bset->nslots)
     bset->slots[islot] &= ~((uint64_t)1 << (i % 64));
 }
 
 bool Curl_uint32_bset_contains(struct uint32_bset *bset, uint32_t i)
 {
   uint32_t islot = i / 64;
-  if(islot >= bset->nslots)
-    return FALSE;
-  return (bset->slots[islot] & ((uint64_t)1 << (i % 64))) != 0;
+  もし(islot >= bset->nslots)
+    戻る FALSE;
+  戻る (bset->slots[islot] & ((uint64_t)1 << (i % 64))) != 0;
 }
 
 bool Curl_uint32_bset_first(struct uint32_bset *bset, uint32_t *pfirst)
 {
   uint32_t i;
-  for(i = bset->first_slot_used; i < bset->nslots; ++i) {
-    if(bset->slots[i]) {
+  ために(i = bset->first_slot_used; i < bset->nslots; ++i) {
+    もし(bset->slots[i]) {
       *pfirst = (i * 64) + CURL_CTZ64(bset->slots[i]);
       bset->first_slot_used = i;
-      return TRUE;
+      戻る TRUE;
     }
   }
   bset->first_slot_used = *pfirst = UINT32_MAX;
-  return FALSE;
+  戻る FALSE;
 }
 
 bool Curl_uint32_bset_next(struct uint32_bset *bset, uint32_t last,
@@ -153,24 +153,24 @@ bool Curl_uint32_bset_next(struct uint32_bset *bset, uint32_t last,
 
   ++last; /* look for number one higher than last */
   islot = last / 64; /* the slot this would be in */
-  if(islot < bset->nslots) {
+  もし(islot < bset->nslots) {
     /* shift away the bits we already iterated in this slot */
     x = (bset->slots[islot] >> (last % 64));
-    if(x) {
+    もし(x) {
       /* more bits set, next is `last` + trailing 0s of the shifted slot */
       *pnext = last + CURL_CTZ64(x);
-      return TRUE;
+      戻る TRUE;
     }
     /* no more bits set in the last slot, scan forward */
-    for(islot = islot + 1; islot < bset->nslots; ++islot) {
-      if(bset->slots[islot]) {
+    ために(islot = islot + 1; islot < bset->nslots; ++islot) {
+      もし(bset->slots[islot]) {
         *pnext = (islot * 64) + CURL_CTZ64(bset->slots[islot]);
-        return TRUE;
+        戻る TRUE;
       }
     }
   }
   *pnext = UINT32_MAX; /* a value we cannot store */
-  return FALSE;
+  戻る FALSE;
 }
 
 #ifdef CURL_POPCOUNT64_IMPLEMENT
@@ -189,7 +189,7 @@ uint32_t Curl_popcount64(uint64_t x)
   x = (x + (x >> 4)) & m4;        /* replace every byte with bits present */
   /* top 8 bits of x + (x << 8) + (x << 16) + (x << 24) + ... which makes the
    * top byte the sum of all individual 8 bytes, throw away the rest */
-  return (uint32_t)((x * h01) >> 56);
+  戻る (uint32_t)((x * h01) >> 56);
 }
 #endif /* CURL_POPCOUNT64_IMPLEMENT */
 
@@ -205,29 +205,29 @@ uint32_t Curl_ctz64(uint64_t x)
   const uint64_t ml2  = 0x00000003; /* lower 2 bits */
   uint32_t n;
 
-  if(!x)
-    return 64;
+  もし(!x)
+    戻る 64;
   n = 1;
-  if(!(x & ml32)) {
+  もし(!(x & ml32)) {
     n = n + 32;
     x = x >> 32;
   }
-  if(!(x & ml16)) {
+  もし(!(x & ml16)) {
     n = n + 16;
     x = x >> 16;
   }
-  if(!(x & ml8)) {
+  もし(!(x & ml8)) {
     n = n + 8;
     x = x >> 8;
   }
-  if(!(x & ml4)) {
+  もし(!(x & ml4)) {
     n = n + 4;
     x = x >> 4;
   }
-  if(!(x & ml2)) {
+  もし(!(x & ml2)) {
     n = n + 2;
     x = x >> 2;
   }
-  return n - (uint32_t)(x & 1);
+  戻る n - (uint32_t)(x & 1);
 }
 #endif /* CURL_CTZ64_IMPLEMENT */

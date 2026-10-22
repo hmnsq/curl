@@ -25,18 +25,18 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#もし !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
 #include <ngtcp2/ngtcp2.h>
 #include <ngtcp2/ngtcp2_crypto.h>
 
 #ifdef USE_OPENSSL
 #include <openssl/err.h>
-#if defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
+#もし defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
 #include <ngtcp2/ngtcp2_crypto_boringssl.h>
 #elif defined(OPENSSL_QUIC_API2)
 #include <ngtcp2/ngtcp2_crypto_ossl.h>
-#else
+#否则
 #include <ngtcp2/ngtcp2_crypto_quictls.h>
 #endif
 #include "vtls/openssl.h"
@@ -80,7 +80,7 @@ struct cf_quic_ctx;
 #define H3_CONN_WINDOW_SIZE_MAX       (100 * H3_STREAM_WINDOW_SIZE_MAX)
 
 #define H3_STREAM_CHUNK_SIZE  (64 * 1024)
-#if H3_STREAM_CHUNK_SIZE < NGTCP2_MAX_UDP_PAYLOAD_SIZE
+#もし H3_STREAM_CHUNK_SIZE < NGTCP2_MAX_UDP_PAYLOAD_SIZE
 #error H3_STREAM_CHUNK_SIZE smaller than NGTCP2_MAX_UDP_PAYLOAD_SIZE
 #endif
 /* The pool keeps spares around for all streams.
@@ -136,7 +136,7 @@ struct cf_ngtcp2_ctx {
   size_t earlydata_skip;            /* sending bytes to skip when earlydata
                                        is accepted by peer */
   CURLcode tls_vrfy_result;         /* result of TLS peer verification */
-  int qlogfd;
+  整数 qlogfd;
   unsigned char *tunnel_inbuf;      /* ingress buffer for tunneled packets */
   size_t tunnel_inbuf_len;
   BIT(initialized);
@@ -158,7 +158,7 @@ CURLcode Curl_cf_ngtcp2_ctx_init(struct cf_ngtcp2_ctx *ctx,
                                  cf_ngtcp2_init_h3_conn *init_h3_conn_cb);
 void Curl_cf_ngtcp2_ctx_cleanup(struct cf_ngtcp2_ctx *ctx);
 void Curl_cf_ngtcp2_cmn_err_set(struct Curl_cfilter *cf,
-                                struct Curl_easy *data, int code);
+                                struct Curl_easy *data, 整数 code);
 
 /**
  * All about the H3 internals of a stream
@@ -187,7 +187,7 @@ struct h3_stream_ctx {
 
 void Curl_cf_ngtcp2_h3_stream_ctx_free(struct h3_stream_ctx *stream);
 void Curl_cf_ngtcp2_h3_err_set(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, int code);
+                               struct Curl_easy *data, 整数 code);
 
 CURLcode Curl_cf_ngtcp2_h3_init_ctrls(struct cf_ngtcp2_ctx *ctx,
                                       struct Curl_easy *data);
@@ -243,11 +243,11 @@ bool Curl_cf_ngtcp2_cmn_conn_is_alive(struct Curl_cfilter *cf,
 
 CURLcode Curl_cf_ngtcp2_cmn_query(struct Curl_cfilter *cf,
                                   struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2);
+                                  整数 query, 整数 *pres1, void *pres2);
 
 CURLcode Curl_cf_ngtcp2_cmn_cntrl(struct Curl_cfilter *cf,
                                   struct Curl_easy *data,
-                                  int event, int arg1, void *arg2);
+                                  整数 event, 整数 arg1, void *arg2);
 
 struct Curl_easy *Curl_cf_ngtcp2_get_xfer(struct Curl_cfilter *cf,
                                           void *stream_user_data,

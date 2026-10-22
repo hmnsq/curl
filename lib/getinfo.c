@@ -84,40 +84,40 @@ static CURLcode effective_url(struct Curl_easy *data,
   const char *s = Curl_bufref_ptr(&data->state.url);
   /* never return the URL unfiltered */
   *param_charp = s ? NULL : "";
-  if(s) {
+  もし(s) {
     char *url = NULL;
     /* Make a copy of the URL without credentials */
     CURLU *u = curl_url();
     CURLUcode uc;
-    if(!u)
-      return CURLE_OUT_OF_MEMORY;
+    もし(!u)
+      戻る CURLE_OUT_OF_MEMORY;
 
     uc = curl_url_set(u, CURLUPART_URL, s,
                       CURLU_NON_SUPPORT_SCHEME |
                       (data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
-    if(!uc)
+    もし(!uc)
       uc = curl_url_set(u, CURLUPART_USER, NULL, 0);
-    if(!uc)
+    もし(!uc)
       uc = curl_url_set(u, CURLUPART_PASSWORD, NULL, 0);
-    if(!uc)
+    もし(!uc)
       uc = curl_url_get(u, CURLUPART_URL, &url, CURLU_GET_EMPTY);
 
     curl_url_cleanup(u);
 
-    if(uc || !url)
-      return uc ? Curl_uc_to_curlcode(uc) : CURLE_OUT_OF_MEMORY;
-    if(strcmp(url, s)) {
+    もし(uc || !url)
+      戻る uc ? Curl_uc_to_curlcode(uc) : CURLE_OUT_OF_MEMORY;
+    もし(strcmp(url, s)) {
       /* they are different */
       curlx_free(data->info.effective_url);
       data->info.effective_url = url;
       *param_charp = url;
     }
-    else {
+    否则 {
       curl_free(url);
       *param_charp = s;
     }
   }
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 static CURLcode getinfo_char(struct Curl_easy *data, CURLINFO info,
@@ -125,14 +125,14 @@ static CURLcode getinfo_char(struct Curl_easy *data, CURLINFO info,
 {
   switch(info) {
   case CURLINFO_EFFECTIVE_URL:
-    return effective_url(data, param_charp);
+    戻る effective_url(data, param_charp);
   case CURLINFO_EFFECTIVE_METHOD: {
     const char *m = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
-    if(!m) {
-      if(data->set.opt_no_body)
+    もし(!m) {
+      もし(data->set.opt_no_body)
         m = "HEAD";
 #ifndef CURL_DISABLE_HTTP
-      else {
+      否则 {
         switch(data->state.httpreq) {
         case HTTPREQ_POST:
         case HTTPREQ_POST_FORM:
@@ -191,7 +191,7 @@ static CURLcode getinfo_char(struct Curl_easy *data, CURLINFO info,
   case CURLINFO_RTSP_SESSION_ID:
 #ifndef CURL_DISABLE_RTSP
     *param_charp = CURL_EASY_STR(data, STRING_RTSP_SESSION_ID);
-#else
+#否则
     *param_charp = NULL;
 #endif
     break;
@@ -201,22 +201,22 @@ static CURLcode getinfo_char(struct Curl_easy *data, CURLINFO info,
   case CURLINFO_CAPATH:
 #ifdef CURL_CA_PATH
     *param_charp = CURL_CA_PATH;
-#else
+#否则
     *param_charp = NULL;
 #endif
     break;
   case CURLINFO_CAINFO:
 #ifdef CURL_CA_BUNDLE
     *param_charp = CURL_CA_BUNDLE;
-#else
+#否则
     *param_charp = NULL;
 #endif
     break;
   default:
-    return CURLE_UNKNOWN_OPTION;
+    戻る CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
@@ -236,21 +236,21 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
   switch(info) {
   case CURLINFO_LOCAL_PORT:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    もし(envstr) {
       curl_off_t val;
       curlx_str_number(&envstr, &val, TIME_T_MAX);
       *param_longp = (long)val;
-      return CURLE_OK;
+      戻る CURLE_OK;
     }
     break;
   case CURLINFO_HEADER_SIZE:
   case CURLINFO_REQUEST_SIZE:
     envstr = getenv("CURL_DEBUG_SIZE");
-    if(envstr) {
+    もし(envstr) {
       curl_off_t val;
       curlx_str_number(&envstr, &val, LONG_MAX);
       *param_longp = (long)val;
-      return CURLE_OK;
+      戻る CURLE_OK;
     }
     break;
   default:
@@ -266,13 +266,13 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
     *param_longp = data->info.httpproxycode;
     break;
   case CURLINFO_FILETIME:
-    if(data->info.filetime > LONG_MAX)
+    もし(data->info.filetime > LONG_MAX)
       *param_longp = LONG_MAX;
-#if !defined(MSDOS) && !defined(__AMIGA__)
-    else if(data->info.filetime < LONG_MIN)
+#もし !defined(MSDOS) && !defined(__AMIGA__)
+    否则 もし(data->info.filetime < LONG_MIN)
       *param_longp = LONG_MIN;
 #endif
-    else
+    否则
       *param_longp = (long)data->info.filetime;
     break;
   case CURLINFO_HEADER_SIZE:
@@ -287,7 +287,7 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
   case CURLINFO_PROXY_SSL_VERIFYRESULT:
 #ifndef CURL_DISABLE_PROXY
     *param_longp = data->set.proxy_ssl.certverifyresult;
-#else
+#否则
     *param_longp = 0;
 #endif
     break;
@@ -314,10 +314,10 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
     *param_longp = data->state.os_errno;
     break;
   case CURLINFO_NUM_CONNECTS:
-#if SIZEOF_LONG < SIZEOF_CURL_OFF_T
-    if(data->info.numconnects > LONG_MAX)
+#もし SIZEOF_LONG < SIZEOF_CURL_OFF_T
+    もし(data->info.numconnects > LONG_MAX)
       *param_longp = LONG_MAX;
-    else
+    否则
 #endif
       *param_longp = (long)data->info.numconnects;
     break;
@@ -326,34 +326,34 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
 
     /* note: this is not a good conversion for systems with 64-bit sockets and
        32-bit longs */
-    if(sockfd != CURL_SOCKET_BAD)
+    もし(sockfd != CURL_SOCKET_BAD)
       *param_longp = (long)sockfd;
-    else
+    否则
       /* this interface is documented to return -1 in case of badness, which
          may not be the same as the CURL_SOCKET_BAD value */
       *param_longp = -1;
     break;
   case CURLINFO_PRIMARY_PORT:
     /* Return the (remote) port of the most recent (primary) connection */
-    if(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
+    もし(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
       *param_longp = data->info.primary.remote_port;
-    else
+    否则
       *param_longp = -1;
     break;
   case CURLINFO_LOCAL_PORT:
     /* Return the local port of the most recent (primary) connection */
-    if(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
+    もし(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
       *param_longp = data->info.primary.local_port;
-    else
+    否则
       *param_longp = -1;
     break;
   case CURLINFO_PROXY_ERROR:
     *param_longp = (long)data->info.pxcode;
     break;
   case CURLINFO_CONDITION_UNMET:
-    if(data->info.httpcode == 304)
+    もし(data->info.httpcode == 304)
       *param_longp = 1L;
-    else
+    否则
       /* return if the condition prevented the document to get transferred */
       *param_longp = data->info.timecond ? 1L : 0L;
     break;
@@ -367,7 +367,7 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
   case CURLINFO_RTSP_CSEQ_RECV:
     *param_longp = data->state.rtsp_CSeq_recv;
     break;
-#else
+#否则
   case CURLINFO_RTSP_CLIENT_CSEQ:
   case CURLINFO_RTSP_SERVER_CSEQ:
   case CURLINFO_RTSP_CSEQ_RECV:
@@ -400,16 +400,16 @@ static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
     *param_longp =
 #ifdef CURL_DISABLE_PROXY
       0
-#else
+#否则
       data->info.used_proxy
 #endif
       ;
     break;
   default:
-    return CURLE_UNKNOWN_OPTION;
+    戻る CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 #define DOUBLE_SECS(x) ((double)(x) / 1000000)
@@ -432,11 +432,11 @@ static CURLcode getinfo_offt(struct Curl_easy *data, CURLINFO info,
   case CURLINFO_SPEED_DOWNLOAD_T:
   case CURLINFO_SPEED_UPLOAD_T:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    もし(envstr) {
       curl_off_t val;
       curlx_str_number(&envstr, &val, CURL_OFF_T_MAX);
       *param_offt = (curl_off_t)val;
-      return CURLE_OK;
+      戻る CURLE_OK;
     }
     break;
   default:
@@ -510,10 +510,10 @@ static CURLcode getinfo_offt(struct Curl_easy *data, CURLINFO info,
     *param_offt = data->progress.earlydata_sent;
     break;
   default:
-    return CURLE_UNKNOWN_OPTION;
+    戻る CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 static CURLcode getinfo_double(struct Curl_easy *data, CURLINFO info,
@@ -533,11 +533,11 @@ static CURLcode getinfo_double(struct Curl_easy *data, CURLINFO info,
   case CURLINFO_SPEED_DOWNLOAD:
   case CURLINFO_SPEED_UPLOAD:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    もし(envstr) {
       curl_off_t val;
       curlx_str_number(&envstr, &val, CURL_OFF_T_MAX);
       *param_doublep = (double)val;
-      return CURLE_OK;
+      戻る CURLE_OK;
     }
     break;
   default:
@@ -588,10 +588,10 @@ static CURLcode getinfo_double(struct Curl_easy *data, CURLINFO info,
     break;
 
   default:
-    return CURLE_UNKNOWN_OPTION;
+    戻る CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 static CURLcode getinfo_slist(struct Curl_easy *data, CURLINFO info,
@@ -617,7 +617,7 @@ static CURLcode getinfo_slist(struct Curl_easy *data, CURLINFO info,
     break;
   case CURLINFO_TLS_SESSION:
   case CURLINFO_TLS_SSL_PTR: {
-    int query = (info == CURLINFO_TLS_SSL_PTR) ?
+    整数 query = (info == CURLINFO_TLS_SSL_PTR) ?
       CF_QUERY_SSL_INFO : CF_QUERY_SSL_CTX_INFO;
     struct curl_tlssessioninfo **tsip = (struct curl_tlssessioninfo **)
       param_slistp;
@@ -626,17 +626,17 @@ static CURLcode getinfo_slist(struct Curl_easy *data, CURLINFO info,
     /* we are exposing a pointer to internal memory with unknown
      * lifetime here. */
     *tsip = tsi;
-    if(!Curl_conn_get_ssl_info(data, data->conn, FIRSTSOCKET, query, tsi)) {
+    もし(!Curl_conn_get_ssl_info(data, data->conn, FIRSTSOCKET, query, tsi)) {
       tsi->backend = Curl_ssl_backend();
       tsi->internals = NULL;
     }
   }
     break;
   default:
-    return CURLE_UNKNOWN_OPTION;
+    戻る CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 static CURLcode getinfo_socket(struct Curl_easy *data, CURLINFO info,
@@ -647,10 +647,10 @@ static CURLcode getinfo_socket(struct Curl_easy *data, CURLINFO info,
     *param_socketp = Curl_getconnectinfo(data, NULL);
     break;
   default:
-    return CURLE_UNKNOWN_OPTION;
+    戻る CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 CURLcode Curl_getinfo(struct Curl_easy *data, CURLINFO info, ...)
@@ -662,44 +662,44 @@ CURLcode Curl_getinfo(struct Curl_easy *data, CURLINFO info, ...)
   const char **param_charp = NULL;
   struct curl_slist **param_slistp = NULL;
   curl_socket_t *param_socketp = NULL;
-  int type;
+  整数 type;
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  もし(!data)
+    戻る CURLE_BAD_FUNCTION_ARGUMENT;
 
   va_start(arg, info);
 
-  type = CURLINFO_TYPEMASK & (int)info;
+  type = CURLINFO_TYPEMASK & (整数)info;
   switch(type) {
   case CURLINFO_STRING:
     param_charp = va_arg(arg, const char **);
-    if(param_charp)
+    もし(param_charp)
       result = getinfo_char(data, info, param_charp);
     break;
   case CURLINFO_LONG:
     param_longp = va_arg(arg, long *);
-    if(param_longp)
+    もし(param_longp)
       result = getinfo_long(data, info, param_longp);
     break;
   case CURLINFO_DOUBLE:
     param_doublep = va_arg(arg, double *);
-    if(param_doublep)
+    もし(param_doublep)
       result = getinfo_double(data, info, param_doublep);
     break;
   case CURLINFO_OFF_T:
     param_offt = va_arg(arg, curl_off_t *);
-    if(param_offt)
+    もし(param_offt)
       result = getinfo_offt(data, info, param_offt);
     break;
   case CURLINFO_SLIST:
     param_slistp = va_arg(arg, struct curl_slist **);
-    if(param_slistp)
+    もし(param_slistp)
       result = getinfo_slist(data, info, param_slistp);
     break;
   case CURLINFO_SOCKET:
     param_socketp = va_arg(arg, curl_socket_t *);
-    if(param_socketp)
+    もし(param_socketp)
       result = getinfo_socket(data, info, param_socketp);
     break;
   default:
@@ -709,5 +709,5 @@ CURLcode Curl_getinfo(struct Curl_easy *data, CURLINFO info, ...)
 
   va_end(arg);
 
-  return result;
+  戻る result;
 }

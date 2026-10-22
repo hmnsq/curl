@@ -41,41 +41,41 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+整数 Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
 #ifndef HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
   (void)name;
   (void)namelen;
-  return -1;
+  戻る -1;
 
-#else
-  int err;
+#否则
+  整数 err;
   char *dot;
 
 #ifdef DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
   const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
+  もし(force_hostname) {
+    もし(strlen(force_hostname) < (size_t)namelen)
       curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+    否则
+      戻る 1; /* cannot do it */
     err = 0;
   }
-  else {
+  否则 {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#否则 /* DEBUGBUILD */
 
   name[0] = '\0';
 #ifdef __AMIGA__
   err = gethostname((unsigned char *)name, namelen);
-#else
+#否则
   err = gethostname(name, namelen);
 #endif
 
@@ -83,14 +83,14 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  もし(err)
+    戻る err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  もし(dot)
     *dot = '\0';
 
-  return 0;
+  戻る 0;
 #endif
 }

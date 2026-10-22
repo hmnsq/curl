@@ -47,7 +47,7 @@ struct dynhds {
   size_t max_entries;   /* size limit number of entries */
   size_t strs_len; /* length of all strings */
   size_t max_strs_size; /* max length of all strings */
-  int opts;
+  整数 opts;
 };
 
 #define DYNHDS_OPT_NONE          0
@@ -80,7 +80,7 @@ size_t Curl_dynhds_count(struct dynhds *dynhds);
  * Set the options to use, replacing any existing ones.
  * This will not have an effect on already existing headers.
  */
-void Curl_dynhds_set_opts(struct dynhds *dynhds, int opts);
+void Curl_dynhds_set_opts(struct dynhds *dynhds, 整数 opts);
 
 /**
  * Return the n-th header entry or NULL if it does not exist.

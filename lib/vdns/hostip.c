@@ -61,7 +61,7 @@
 #include "curlx/strcopy.h"
 #include "curlx/strparse.h"
 
-#if defined(CURLRES_SYNCH) &&                   \
+#もし defined(CURLRES_SYNCH) &&                   \
   defined(HAVE_ALARM) &&                        \
   defined(SIGALRM) &&                           \
   defined(HAVE_SIGSETJMP) &&                    \
@@ -81,7 +81,7 @@
  */
 #ifdef USE_IPV6
 static bool ipv6works(struct Curl_easy *data);
-#else
+#否则
 #define ipv6works(x) FALSE
 #endif
 
@@ -127,14 +127,14 @@ uint8_t Curl_resolv_dns_queries(struct Curl_easy *data, uint8_t ip_version)
   (void)data;
   switch(ip_version) {
   case CURL_IPRESOLVE_V6:
-    return CURL_DNSQ_AAAA;
+    戻る CURL_DNSQ_AAAA;
   case CURL_IPRESOLVE_V4:
-    return CURL_DNSQ_A;
+    戻る CURL_DNSQ_A;
   default:
-    if(ipv6works(data))
-      return (CURL_DNSQ_A | CURL_DNSQ_AAAA);
-    else
-      return CURL_DNSQ_A;
+    もし(ipv6works(data))
+      戻る (CURL_DNSQ_A | CURL_DNSQ_AAAA);
+    否则
+      戻る CURL_DNSQ_A;
   }
 }
 
@@ -143,24 +143,24 @@ const char *Curl_resolv_query_str(uint8_t dns_queries)
 {
   switch(dns_queries) {
   case (CURL_DNSQ_A | CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
-    return "A+AAAA+HTTPS";
+    戻る "A+AAAA+HTTPS";
   case (CURL_DNSQ_A | CURL_DNSQ_AAAA):
-    return "A+AAAA";
+    戻る "A+AAAA";
   case (CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
-    return "AAAA+HTTPS";
+    戻る "AAAA+HTTPS";
   case (CURL_DNSQ_AAAA):
-    return "AAAA";
+    戻る "AAAA";
   case (CURL_DNSQ_A | CURL_DNSQ_HTTPS):
-    return "A+HTTPS";
+    戻る "A+HTTPS";
   case (CURL_DNSQ_A):
-    return "A";
+    戻る "A";
   case (CURL_DNSQ_HTTPS):
-    return "HTTPS";
+    戻る "HTTPS";
   case 0:
-    return "-";
+    戻る "-";
   default:
     DEBUGASSERT(0);
-    return "???";
+    戻る "???";
   }
 }
 #endif
@@ -217,8 +217,8 @@ static struct Curl_addrinfo *get_localhost6(uint16_t port, const char *name)
   unsigned char ipv6[16];
   unsigned short port16 = (unsigned short)(port & 0xffff);
   ca = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1);
-  if(!ca)
-    return NULL;
+  もし(!ca)
+    戻る NULL;
 
   memset(&sa6, 0, sizeof(sa6));
   sa6.sin6_family = AF_INET6;
@@ -237,9 +237,9 @@ static struct Curl_addrinfo *get_localhost6(uint16_t port, const char *name)
   memcpy(ca->ai_addr, &sa6, ss_size);
   ca->ai_canonname = (char *)ca->ai_addr + ss_size;
   curlx_strcopy(ca->ai_canonname, hostlen + 1, name, hostlen);
-  return ca;
+  戻る ca;
 }
-#else
+#否则
 #define get_localhost6(x, y) NULL
 #endif
 
@@ -251,20 +251,20 @@ static struct Curl_addrinfo *get_localhost(uint16_t port, const char *name)
   const size_t ss_size = sizeof(struct sockaddr_in);
   const size_t hostlen = strlen(name);
   struct sockaddr_in sa;
-  unsigned int ipv4;
+  unsigned 整数 ipv4;
   unsigned short port16 = (unsigned short)(port & 0xffff);
 
   /* memset to clear the sa.sin_zero field */
   memset(&sa, 0, sizeof(sa));
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port16);
-  if(curlx_inet_pton(AF_INET, "127.0.0.1", (char *)&ipv4) < 1)
-    return NULL;
+  もし(curlx_inet_pton(AF_INET, "127.0.0.1", (char *)&ipv4) < 1)
+    戻る NULL;
   memcpy(&sa.sin_addr, &ipv4, sizeof(ipv4));
 
   ca = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1);
-  if(!ca)
-    return NULL;
+  もし(!ca)
+    戻る NULL;
   ca->ai_flags     = 0;
   ca->ai_family    = AF_INET;
   ca->ai_socktype  = SOCK_STREAM;
@@ -276,10 +276,10 @@ static struct Curl_addrinfo *get_localhost(uint16_t port, const char *name)
   curlx_strcopy(ca->ai_canonname, hostlen + 1, name, hostlen);
 
   ca6 = get_localhost6(port, name);
-  if(!ca6)
-    return ca;
+  もし(!ca6)
+    戻る ca;
   ca6->ai_next = ca;
-  return ca6;
+  戻る ca6;
 }
 
 #ifdef USE_IPV6
@@ -291,15 +291,15 @@ CURLcode Curl_probeipv6(struct Curl_multi *multi)
   /* probe to see if we have a working IPv6 stack */
   curl_socket_t s = CURL_SOCKET(PF_INET6, SOCK_DGRAM, 0);
   multi->ipv6_works = FALSE;
-  if(s == CURL_SOCKET_BAD) {
-    if(SOCKERRNO == SOCKENOMEM)
-      return CURLE_OUT_OF_MEMORY;
+  もし(s == CURL_SOCKET_BAD) {
+    もし(SOCKERRNO == SOCKENOMEM)
+      戻る CURLE_OUT_OF_MEMORY;
   }
-  else {
+  否则 {
     multi->ipv6_works = TRUE;
     sclose(s);
   }
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 /*
@@ -309,7 +309,7 @@ static bool ipv6works(struct Curl_easy *data)
 {
   DEBUGASSERT(data);
   DEBUGASSERT(data->multi);
-  return data ? data->multi->ipv6_works : FALSE;
+  戻る data ? data->multi->ipv6_works : FALSE;
 }
 #endif /* USE_IPV6 */
 
@@ -323,22 +323,22 @@ bool Curl_host_is_ipnum(const char *hostname)
 #ifdef USE_IPV6
   struct in6_addr in6;
 #endif
-  if(curlx_inet_pton(AF_INET, hostname, &in) > 0
+  もし(curlx_inet_pton(AF_INET, hostname, &in) > 0
 #ifdef USE_IPV6
      || curlx_inet_pton(AF_INET6, hostname, &in6) > 0
 #endif
     )
-    return TRUE;
-  return FALSE;
+    戻る TRUE;
+  戻る FALSE;
 }
 
 /* return TRUE if 'part' is a case insensitive tail of 'full' */
 static bool tailmatch(const char *full, size_t flen,
                       const char *part, size_t plen)
 {
-  if(plen > flen)
-    return FALSE;
-  return curl_strnequal(part, &full[flen - plen], plen);
+  もし(plen > flen)
+    戻る FALSE;
+  戻る curl_strnequal(part, &full[flen - plen], plen);
 }
 
 static CURLcode hostip_resolv_failed(struct Curl_easy *data,
@@ -347,36 +347,36 @@ static CURLcode hostip_resolv_failed(struct Curl_easy *data,
 {
   failf(data, "Could not resolve %s: %s",
         for_proxy ? "proxy" : "host", peer->hostname);
-  return RESOLV_FAIL(for_proxy);
+  戻る RESOLV_FAIL(for_proxy);
 }
 
 static bool can_resolve_dns_queries(struct Curl_easy *data,
                                     uint8_t dns_queries)
 {
   (void)data;
-  if((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) && !ipv6works(data))
-    return FALSE;
-  return TRUE;
+  もし((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) && !ipv6works(data))
+    戻る FALSE;
+  戻る TRUE;
 }
 
 CURLcode Curl_resolv_announce_start(struct Curl_easy *data,
                                     void *resolver)
 {
-  if(data->set.resolver_start) {
+  もし(data->set.resolver_start) {
     struct Curl_mapi_guard guard;
-    int rc;
+    整数 rc;
 
     CURL_TRC_DNS(data, "announcing resolve to application");
     CURL_CBAPI_START(&guard, data, easy_resolver_start);
     rc = data->set.resolver_start(resolver, NULL,
                                   data->set.resolver_start_client);
     CURL_CBAPI_END(&guard);
-    if(rc) {
+    もし(rc) {
       CURL_TRC_DNS(data, "application aborted resolve");
-      return CURLE_ABORTED_BY_CALLBACK;
+      戻る CURLE_ABORTED_BY_CALLBACK;
     }
   }
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 #ifdef USE_CURL_ASYNC
@@ -390,24 +390,24 @@ static struct Curl_resolv_async *hostip_async_new(struct Curl_easy *data,
 {
   struct Curl_resolv_async *async;
 
-  if(!data->multi) {
+  もし(!data->multi) {
     DEBUGASSERT(0);
-    return NULL;
+    戻る NULL;
   }
 
   /* struct size already includes the null-terminator for hostname */
   async = curlx_calloc(1, sizeof(*async));
-  if(!async)
-    return NULL;
+  もし(!async)
+    戻る NULL;
 
   /* Give every async resolve operation a "unique" id. This may
    * wrap around after a long time, making collisions highly unlikely.
    * As we keep the async structs at the easy handle, chances of
    * easy `mid plus resolv->id` colliding should be astronomical.
    * `resolv_id == 0` is never used. */
-  if(data->multi->last_resolv_id == UINT32_MAX)
+  もし(data->multi->last_resolv_id == UINT32_MAX)
     data->multi->last_resolv_id = 1; /* wrap around */
-  else
+  否则
     data->multi->last_resolv_id++;
   async->id = data->multi->last_resolv_id;
   Curl_peer_link(&async->peer, peer);
@@ -417,10 +417,10 @@ static struct Curl_resolv_async *hostip_async_new(struct Curl_easy *data,
   async->start = *Curl_pgrs_now(data);
   async->timeout_ms = timeout_ms;
   async->is_ipaddr = Curl_is_ipaddr(peer->hostname);
-  if(async->is_ipaddr)
+  もし(async->is_ipaddr)
     async->is_ipv4addr = Curl_is_ipv4addr(peer->hostname);
 
-  return async;
+  戻る async;
 }
 
 static CURLcode hostip_resolv_take_result(struct Curl_easy *data,
@@ -430,17 +430,17 @@ static CURLcode hostip_resolv_take_result(struct Curl_easy *data,
   CURLcode result;
 
   /* If async resolving is ongoing, this must be set */
-  if(!async)
-    return CURLE_FAILED_INIT;
+  もし(!async)
+    戻る CURLE_FAILED_INIT;
 
 #ifndef CURL_DISABLE_DOH
-  if(async->doh)
+  もし(async->doh)
     result = Curl_doh_take_result(data, async, pdns);
-  else
+  否则
 #endif
   result = Curl_async_take_result(data, async, pdns);
 
-  if(result == CURLE_AGAIN) {
+  もし(result == CURLE_AGAIN) {
     CURL_TRC_DNS(data, "[%s] resolve incomplete, responses=%s, "
                  "ongoing=%d for %s:%d",
                  Curl_resolv_query_str(async->dns_queries),
@@ -449,24 +449,24 @@ static CURLcode hostip_resolv_take_result(struct Curl_easy *data,
                  async->peer->hostname, async->peer->port);
     result = CURLE_OK;
   }
-  else if(IS_RESOLV_FAIL(result)) {
+  否则 もし(IS_RESOLV_FAIL(result)) {
     result = Curl_async_failed(data, async, NULL);
   }
-  else if(result) {
+  否则 もし(result) {
     /* a local failure, not a resolve answer. Keep the error as it
        is so it does not get treated as one. */
     CURL_TRC_DNS(data, "[%s] resolve error %d for %s:%u",
                  Curl_resolv_query_str(async->dns_queries),
-                 (int)result, async->peer->hostname, async->peer->port);
+                 (整数)result, async->peer->hostname, async->peer->port);
   }
-  else {
+  否则 {
     CURL_TRC_DNS(data, "[%s] resolve complete for %s:%u",
                  Curl_resolv_query_str(async->dns_queries),
                  async->peer->hostname, async->peer->port);
     DEBUGASSERT(*pdns);
   }
 
-  return result;
+  戻る result;
 }
 
 timediff_t Curl_resolv_elapsed_ms(struct Curl_easy *data,
@@ -474,9 +474,9 @@ timediff_t Curl_resolv_elapsed_ms(struct Curl_easy *data,
                                   const struct curltime *pnow)
 {
   struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(!async)
-    return CURL_TIMEOUT_RESOLVE_MS;
-  return curlx_ptimediff_ms(pnow, &async->start);
+  もし(!async)
+    戻る CURL_TIMEOUT_RESOLVE_MS;
+  戻る curlx_ptimediff_ms(pnow, &async->start);
 }
 
 bool Curl_resolv_has_answers(struct Curl_easy *data,
@@ -485,33 +485,33 @@ bool Curl_resolv_has_answers(struct Curl_easy *data,
   struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
   uint8_t check_queries;
   /* a no longer existing/running resolve has all answers. */
-  if(!async || async->done)
-    return TRUE;
+  もし(!async || async->done)
+    戻る TRUE;
   /* Relevant are only queries undertaken. Others are considered answered. */
   check_queries = (dns_queries & async->dns_queries);
-  if((check_queries & async->dns_responses) != check_queries) {
-    return FALSE;
+  もし((check_queries & async->dns_responses) != check_queries) {
+    戻る FALSE;
   }
-  return TRUE;
+  戻る TRUE;
 }
 
 const struct Curl_addrinfo *Curl_resolv_get_ai(struct Curl_easy *data,
                                                uint32_t resolv_id,
-                                               int ai_family,
-                                               unsigned int index)
+                                               整数 ai_family,
+                                               unsigned 整数 index)
 {
   struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(!async || !CURL_DNSQ_IS_ADDR(async->dns_queries))
-    return NULL;
+  もし(!async || !CURL_DNSQ_IS_ADDR(async->dns_queries))
+    戻る NULL;
   switch(ai_family) {
   case AF_INET:
-    return Curl_addrinfo_get(async->ai_A, ai_family, index);
+    戻る Curl_addrinfo_get(async->ai_A, ai_family, index);
 #ifdef USE_IPV6
   case AF_INET6:
-    return Curl_addrinfo_get(async->ai_AAAA, ai_family, index);
+    戻る Curl_addrinfo_get(async->ai_AAAA, ai_family, index);
 #endif
   default:
-    return NULL;
+    戻る NULL;
   }
 }
 
@@ -524,7 +524,7 @@ CURLcode Curl_resolv_https(struct Curl_easy *data,
                            uint32_t *presolv_id,
                            struct Curl_dns_entry **pdns)
 {
-  return Curl_resolv(data, peer, CURL_DNSQ_HTTPS, TRNSPRT_TCP,
+  戻る Curl_resolv(data, peer, CURL_DNSQ_HTTPS, TRNSPRT_TCP,
                      for_proxy, timeout_ms, presolv_id, pdns);
 }
 
@@ -532,19 +532,19 @@ const struct Curl_https_rrinfo *
 Curl_resolv_get_https(struct Curl_easy *data, uint32_t resolv_id)
 {
   struct Curl_resolv_async *async;
-  if(!Curl_resolv_knows_https(data, resolv_id))
-    return NULL;
+  もし(!Curl_resolv_knows_https(data, resolv_id))
+    戻る NULL;
   async = Curl_async_get(data, resolv_id);
-  return async ? async->httpsrr : NULL;
+  戻る async ? async->httpsrr : NULL;
 }
 
 bool Curl_resolv_knows_https(struct Curl_easy *data, uint32_t resolv_id)
 {
   struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(async && (async->dns_queries & CURL_DNSQ_HTTPS))
-    return ((async->dns_responses & CURL_DNSQ_HTTPS) ||
+  もし(async && (async->dns_queries & CURL_DNSQ_HTTPS))
+    戻る ((async->dns_responses & CURL_DNSQ_HTTPS) ||
             !async->queries_ongoing);
-  return TRUE; /* we know it will never come */
+  戻る TRUE; /* we know it will never come */
 }
 
 #endif /* USE_HTTPSRR */
@@ -581,13 +581,13 @@ static CURLcode hostip_resolv_start(struct Curl_easy *data,
   *pdns = NULL;
 
   /* Check for "known" things to resolve ourselves. */
-  if(addr_queries) {
+  もし(addr_queries) {
 #ifndef USE_RESOLVE_ON_IPS
-    if(Curl_is_ipaddr(peer->hostname)) {
+    もし(Curl_is_ipaddr(peer->hostname)) {
       /* test655 verifies that the announce is done, even though there
        * is no real resolving. So, keep doing this. */
       result = Curl_resolv_announce_start(data, NULL);
-      if(result)
+      もし(result)
         goto out;
       /* shortcut literal IP addresses, if we are not told to resolve them. */
       result = Curl_str2addr(peer->hostname, peer->port, &addr);
@@ -596,28 +596,28 @@ static CURLcode hostip_resolv_start(struct Curl_easy *data,
 #endif
 
     hostname_len = strlen(peer->hostname);
-    if(curl_strequal(peer->hostname, "localhost") ||
+    もし(curl_strequal(peer->hostname, "localhost") ||
        curl_strequal(peer->hostname, "localhost.") ||
        tailmatch(peer->hostname, hostname_len, STRCONST(".localhost")) ||
        tailmatch(peer->hostname, hostname_len, STRCONST(".localhost."))) {
       result = Curl_resolv_announce_start(data, NULL);
-      if(result)
+      もし(result)
         goto out;
       addr = get_localhost(peer->port, peer->hostname);
-      if(!addr)
+      もし(!addr)
         result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
   }
 #ifndef CURL_DISABLE_DOH
-  if(!Curl_is_ipaddr(peer->hostname) && allowDOH && data->set.doh) {
+  もし(!Curl_is_ipaddr(peer->hostname) && allowDOH && data->set.doh) {
     result = Curl_resolv_announce_start(data, NULL);
-    if(result)
+    もし(result)
       goto out;
-    if(!async) {
+    もし(!async) {
       async = hostip_async_new(data, dns_queries, peer, transport,
                                for_proxy, timeout_ms);
-      if(!async) {
+      もし(!async) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
@@ -625,42 +625,42 @@ static CURLcode hostip_resolv_start(struct Curl_easy *data,
     result = Curl_doh(data, async);
     goto out;
   }
-#else
+#否则
   (void)allowDOH;
 #endif
 
   /* Can we provide the requested IP specifics in resolving? */
-  if(!can_resolve_dns_queries(data, dns_queries)) {
+  もし(!can_resolve_dns_queries(data, dns_queries)) {
     result = RESOLV_FAIL(for_proxy);
     goto out;
   }
 
 #ifdef CURLRES_ASYNCH
   (void)addr;
-  if(!async) {
+  もし(!async) {
     async = hostip_async_new(data, dns_queries, peer, transport,
                              for_proxy, timeout_ms);
-    if(!async) {
+    もし(!async) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
   }
   result = Curl_async_getaddrinfo(data, async);
-  if(result == CURLE_AGAIN) {
+  もし(result == CURLE_AGAIN) {
     /* the answer might be there already. Check. */
     CURLcode r2 = hostip_resolv_take_result(data, async, pdns);
-    if(r2)
+    もし(r2)
       result = r2;
-    else if(*pdns)
+    否则 もし(*pdns)
       result = CURLE_OK;
   }
-#else
+#否则
   result = Curl_resolv_announce_start(data, NULL);
-  if(result)
+  もし(result)
     goto out;
   addr = Curl_sync_getaddrinfo(data, dns_queries, peer->hostname, peer->port,
                                transport);
-  if(!addr) {
+  もし(!addr) {
     result = RESOLV_FAIL(for_proxy);
     /* the synchronous resolvers do not tell a transient failure from
        an authoritative negative answer, treat it as before */
@@ -669,36 +669,36 @@ static CURLcode hostip_resolv_start(struct Curl_easy *data,
 #endif
 
 out:
-  if(!result) {
-    if(addr) {
+  もし(!result) {
+    もし(addr) {
       /* we got a response, create a dns entry, add to cache, return */
       DEBUGASSERT(!*pdns);
       *pdns = Curl_dnsc_mk_addr(data, dns_queries, &addr, peer);
-      if(!*pdns)
+      もし(!*pdns)
         result = CURLE_OUT_OF_MEMORY;
     }
-    else if(!*pdns)
+    否则 もし(!*pdns)
       result = CURLE_AGAIN;
   }
-  else if(*pdns)
+  否则 もし(*pdns)
     Curl_dns_entry_unlink(data, pdns);
-  else if(addr)
+  否则 もし(addr)
     Curl_freeaddrinfo(addr);
 
 #ifdef USE_CURL_ASYNC
-  if(async) {
-    if(result == CURLE_AGAIN) { /* still need it, link, return id. */
+  もし(async) {
+    もし(result == CURLE_AGAIN) { /* still need it, link, return id. */
       *presolv_id = async->id;
       async->next = data->state.async;
       data->state.async = async;
     }
-    else {
+    否则 {
       *pnegative = !!async->negative_answer;
       Curl_async_destroy(data, async);
     }
   }
 #endif
-  return result;
+  戻る result;
 }
 
 static CURLcode hostip_resolv(struct Curl_easy *data,
@@ -727,7 +727,7 @@ static CURLcode hostip_resolv(struct Curl_easy *data,
   /* We should intentionally error and not resolve .onion TLDs */
   hostname_len = strlen(peer->hostname);
   DEBUGASSERT(hostname_len);
-  if(hostname_len >= 7 &&
+  もし(hostname_len >= 7 &&
      (curl_strequal(&peer->hostname[hostname_len - 6], ".onion") ||
       curl_strequal(&peer->hostname[hostname_len - 7], ".onion."))) {
     failf(data, "Not resolving .onion address (RFC 7686)");
@@ -737,7 +737,7 @@ static CURLcode hostip_resolv(struct Curl_easy *data,
 #ifdef DEBUGBUILD
   CURL_TRC_DNS(data, "[%s] hostip_resolv(%s:%u)",
                Curl_resolv_query_str(dns_queries), peer->hostname, peer->port);
-  if((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) &&
+  もし((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) &&
      getenv("CURL_DBG_RESOLV_FAIL_IPV6")) {
     infof(data, "DEBUG fail ipv6 resolve");
     result = hostip_resolv_failed(data, peer, for_proxy);
@@ -746,45 +746,45 @@ static CURLcode hostip_resolv(struct Curl_easy *data,
 #endif
   /* Let's check our DNS cache first */
   result = Curl_dnscache_get(data, dns_queries, peer, pdns);
-  if(*pdns) {
+  もし(*pdns) {
     infof(data, "Hostname %s was found in DNS cache", peer->hostname);
     result = CURLE_OK;
   }
-  else if(result) {
+  否则 もし(result) {
     infof(data, "Negative DNS entry");
     result = hostip_resolv_failed(data, peer, for_proxy);
   }
-  else {
+  否则 {
     /* No luck, we need to start resolving. */
     cache_dns = TRUE;
     result = hostip_resolv_start(data, dns_queries, peer, transport,
                                  for_proxy, timeout_ms, allowDOH,
                                  presolv_id, pdns, &negative);
     CURL_TRC_DNS(data, "[%s] hostip_resolv started -> %d",
-                 Curl_resolv_query_str(dns_queries), (int)result);
+                 Curl_resolv_query_str(dns_queries), (整数)result);
   }
 
 out:
-  if(result && (result != CURLE_AGAIN)) {
+  もし(result && (result != CURLE_AGAIN)) {
     Curl_dns_entry_unlink(data, pdns);
-    if(IS_RESOLV_FAIL(result)) {
-      if(cache_dns && negative)
+    もし(IS_RESOLV_FAIL(result)) {
+      もし(cache_dns && negative)
         Curl_dnscache_add_negative(data, dns_queries, peer);
-      if(dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+      もし(dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
         failf(data, "Could not resolve: %s:%u", peer->hostname, peer->port);
     }
-    else {
+    否则 {
       failf(data, "Error %d resolving %s:%u",
-            (int)result, peer->hostname, peer->port);
+            (整数)result, peer->hostname, peer->port);
     }
   }
-  else if(cache_dns && *pdns) {
+  否则 もし(cache_dns && *pdns) {
     result = Curl_dnscache_add(data, *pdns);
-    if(result)
+    もし(result)
       Curl_dns_entry_unlink(data, pdns);
   }
 
-  return result;
+  戻る result;
 }
 
 CURLcode Curl_resolv_blocking(struct Curl_easy *data,
@@ -802,7 +802,7 @@ CURLcode Curl_resolv_blocking(struct Curl_easy *data,
   *pdns = NULL;
 
   result = Curl_peer_create(data, data->conn->scheme, hostname, port, &peer);
-  if(result)
+  もし(result)
     goto out;
 
   /* We cannot do a blocking resolve using DoH currently */
@@ -825,7 +825,7 @@ CURLcode Curl_resolv_blocking(struct Curl_easy *data,
 
 out:
   Curl_peer_unlink(&peer);
-  return result;
+  戻る result;
 }
 
 #ifdef USE_ALARM_TIMEOUT
@@ -834,7 +834,7 @@ out:
  * execution. This effectively causes the remainder of the application to run
  * within a signal handler which is nonportable and could lead to problems.
  */
-CURL_NORETURN static void alarmfunc(int sig)
+CURL_NORETURN static void alarmfunc(整数 sig)
 {
   (void)sig;
   siglongjmp(curl_jmpenv, 1);
@@ -853,13 +853,13 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
   struct sigaction keep_sigact; /* store the old struct here */
   volatile bool keep_copysig = FALSE; /* whether old sigact has been saved */
   struct sigaction sigact;
-#else
+#否则
 #ifdef HAVE_SIGNAL
-  void (*keep_sigact)(int);       /* store the old handler here */
+  void (*keep_sigact)(整数);       /* store the old handler here */
 #endif /* HAVE_SIGNAL */
 #endif /* HAVE_SIGACTION */
   volatile long timeout;
-  volatile unsigned int prev_alarm = 0;
+  volatile unsigned 整数 prev_alarm = 0;
   CURLcode result;
 
   DEBUGASSERT(peer->hostname && *peer->hostname);
@@ -871,13 +871,13 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
 
   *entry = NULL;
   timeout = (timeout_ms > LONG_MAX) ? LONG_MAX : (long)timeout_ms;
-  if(timeout < 1000) {
+  もし(timeout < 1000) {
     /* The alarm() function only provides integer second resolution, so if
        we want to wait less than one second we must bail out already now. */
     failf(data,
           "remaining timeout of %ld too small to resolve via SIGALRM method",
           timeout);
-    return CURLE_OPERATION_TIMEDOUT;
+    戻る CURLE_OPERATION_TIMEDOUT;
   }
   /* This allows us to time-out from the name resolver, as the timeout
      will generate a signal and we will siglongjmp() from that here.
@@ -887,13 +887,13 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
      before we invoke Curl_resolv() (and thus use "volatile"). */
   curl_simple_lock_lock(&curl_jmpenv_lock);
 
-  if(sigsetjmp(curl_jmpenv, 1)) {
+  もし(sigsetjmp(curl_jmpenv, 1)) {
     /* this is coming from a siglongjmp() after an alarm signal */
     failf(data, "name lookup timed out");
     result = CURLE_OPERATION_TIMEDOUT;
     goto clean_up;
   }
-  else {
+  否则 {
     /*************************************************************
      * Set signal handler to catch SIGALRM
      * Store the old value to be able to set it back later!
@@ -909,7 +909,7 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
 #endif
     /* now set the new struct */
     sigaction(SIGALRM, &sigact, NULL);
-#else /* HAVE_SIGACTION */
+#否则 /* HAVE_SIGACTION */
     /* no sigaction(), revert to the much lamer signal() */
 #ifdef HAVE_SIGNAL
     keep_sigact = signal(SIGALRM, alarmfunc);
@@ -927,17 +927,17 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
                          for_proxy, timeout_ms, FALSE, presolv_id, entry);
 
 clean_up:
-  if(!prev_alarm)
+  もし(!prev_alarm)
     /* deactivate a possibly active alarm before uninstalling the handler */
     alarm(0);
 
 #ifdef HAVE_SIGACTION
-  if(keep_copysig) {
+  もし(keep_copysig) {
     /* we got a struct as it looked before, now put that one back nice
        and clean */
     sigaction(SIGALRM, &keep_sigact, NULL); /* put it back */
   }
-#else
+#否则
 #ifdef HAVE_SIGNAL
   /* restore the previous SIGALRM handler */
   signal(SIGALRM, keep_sigact);
@@ -948,7 +948,7 @@ clean_up:
 
   /* switch back the alarm() to either zero or to what it was before minus
      the time we spent until now! */
-  if(prev_alarm) {
+  もし(prev_alarm) {
     /* there was an alarm() set before us, now put it back */
     timediff_t elapsed_secs =
       Curl_cpool_conn_age_ms(data, data->conn, Curl_pgrs_now(data)) / 1000;
@@ -956,7 +956,7 @@ clean_up:
     /* the alarm period is counted in even number of seconds */
     unsigned long alarm_set = (unsigned long)(prev_alarm - elapsed_secs);
 
-    if(!alarm_set ||
+    もし(!alarm_set ||
        ((alarm_set >= 0x80000000) && (prev_alarm < 0x80000000))) {
       /* if the alarm time-left reached zero or turned "negative" (counted
          with unsigned values), we should fire off a SIGALRM here, but we
@@ -966,11 +966,11 @@ clean_up:
       result = CURLE_OPERATION_TIMEDOUT;
       failf(data, "Previous alarm fired off");
     }
-    else
-      alarm((unsigned int)alarm_set);
+    否则
+      alarm((unsigned 整数)alarm_set);
   }
 
-  return result;
+  戻る result;
 }
 
 #endif /* USE_ALARM_TIMEOUT */
@@ -987,17 +987,17 @@ static CURLcode resolv_unix(struct Curl_easy *data,
   *pdns = NULL;
 
   result = Curl_unix2addr(peer->hostname, (bool)peer->abstract_uds, &addr);
-  if(result) {
-    if(result == CURLE_TOO_LARGE) {
+  もし(result) {
+    もし(result == CURLE_TOO_LARGE) {
       /* Long paths are not supported for now */
       failf(data, "Unix socket path too long: '%s'", peer->hostname);
       result = CURLE_COULDNT_RESOLVE_HOST;
     }
-    return result;
+    戻る result;
   }
 
   *pdns = Curl_dnsc_mk_addr(data, 0, &addr, peer);
-  return *pdns ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  戻る *pdns ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
 #endif /* USE_UNIX_SOCKETS */
 
@@ -1033,39 +1033,39 @@ CURLcode Curl_resolv(struct Curl_easy *data,
   *presolv_id = 0;
   *pdns = NULL;
 
-  if(timeout_ms < 0)
+  もし(timeout_ms < 0)
     /* got an already expired timeout */
-    return CURLE_OPERATION_TIMEDOUT;
-  else if(!timeout_ms)
+    戻る CURLE_OPERATION_TIMEDOUT;
+  否则 もし(!timeout_ms)
     timeout_ms = CURL_TIMEOUT_RESOLVE_MS;
 
 #ifdef USE_UNIX_SOCKETS
-  if((dns_queries & CURL_DNSQ_ADDR) && peer->unix_socket)
-    return resolv_unix(data, peer, pdns);
-#else
-  if(peer->unix_socket)
-    return hostip_resolv_failed(data, peer, for_proxy);
+  もし((dns_queries & CURL_DNSQ_ADDR) && peer->unix_socket)
+    戻る resolv_unix(data, peer, pdns);
+#否则
+  もし(peer->unix_socket)
+    戻る hostip_resolv_failed(data, peer, for_proxy);
 #endif
 
 #ifdef USE_ALARM_TIMEOUT
-  if(dns_queries & CURL_DNSQ_ADDR) {
-    if(timeout_ms && data->set.no_signal) {
+  もし(dns_queries & CURL_DNSQ_ADDR) {
+    もし(timeout_ms && data->set.no_signal) {
       /* Cannot use ALARM when signals are disabled */
       timeout_ms = 0;
     }
-    if(timeout_ms && !Curl_doh_wanted(data)) {
-      return resolv_alarm_timeout(data, dns_queries, peer, transport,
+    もし(timeout_ms && !Curl_doh_wanted(data)) {
+      戻る resolv_alarm_timeout(data, dns_queries, peer, transport,
                                   for_proxy, timeout_ms, presolv_id, pdns);
     }
   }
 #endif /* !USE_ALARM_TIMEOUT */
 
 #ifndef CURLRES_ASYNCH
-  if(timeout_ms)
+  もし(timeout_ms)
     infof(data, "timeout on name lookup is not supported");
 #endif
 
-  return hostip_resolv(data, dns_queries, peer, transport,
+  戻る hostip_resolv(data, dns_queries, peer, transport,
                        for_proxy, timeout_ms, TRUE, presolv_id, pdns);
 }
 
@@ -1075,11 +1075,11 @@ struct Curl_resolv_async *Curl_async_get(struct Curl_easy *data,
                                          uint32_t resolv_id)
 {
   struct Curl_resolv_async *async = data->state.async;
-  for(; async; async = async->next) {
-    if(async->id == resolv_id)
-      return async;
+  ために(; async; async = async->next) {
+    もし(async->id == resolv_id)
+      戻る async;
   }
-  return NULL;
+  戻る NULL;
 }
 
 CURLcode Curl_resolv_take_result(struct Curl_easy *data, uint32_t resolv_id,
@@ -1089,47 +1089,47 @@ CURLcode Curl_resolv_take_result(struct Curl_easy *data, uint32_t resolv_id,
   CURLcode result;
 
   /* If async resolving is ongoing, this must be set */
-  if(!async)
-    return CURLE_FAILED_INIT;
+  もし(!async)
+    戻る CURLE_FAILED_INIT;
 
   /* check if we have the name resolved by now (from someone else) */
   result = Curl_dnscache_get(data, async->dns_queries, async->peer, pdns);
-  if(*pdns) {
+  もし(*pdns) {
     /* Tell a possibly async resolver we no longer need the results. */
     infof(data, "Hostname '%s' was found in DNS cache", async->peer->hostname);
     Curl_async_shutdown(data, async);
-    return CURLE_OK;
+    戻る CURLE_OK;
   }
-  else if(result) {
+  否则 もし(result) {
     Curl_async_shutdown(data, async);
-    return Curl_async_failed(data, async, NULL);
+    戻る Curl_async_failed(data, async, NULL);
   }
 
   result = hostip_resolv_take_result(data, async, pdns);
 
-  if(*pdns) {
+  もし(*pdns) {
     /* Add to cache */
     result = Curl_dnscache_add(data, *pdns);
-    if(result)
+    もし(result)
       Curl_dns_entry_unlink(data, pdns);
   }
-  else if(IS_RESOLV_FAIL(result)) {
+  否则 もし(IS_RESOLV_FAIL(result)) {
     /* Only cache the failure when the resolver answered that the
        name does not exist. Transient failures, e.g. an unreachable
        or overloaded DNS server or local resource shortages, say
        nothing about the name and would poison the cache for every
        transfer using it. */
-    if(async->negative_answer)
+    もし(async->negative_answer)
       Curl_dnscache_add_negative(data, async->dns_queries, async->peer);
-    if(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+    もし(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
       failf(data, "Could not resolve: %s:%u",
             async->peer->hostname, async->peer->port);
   }
-  else if(result) {
+  否则 もし(result) {
     failf(data, "Error %d resolving %s:%u",
-          (int)result, async->peer->hostname, async->peer->port);
+          (整数)result, async->peer->hostname, async->peer->port);
   }
-  return result;
+  戻る result;
 }
 
 CURLcode Curl_resolv_pollset(struct Curl_easy *data,
@@ -1139,23 +1139,23 @@ CURLcode Curl_resolv_pollset(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   (void)ps;
-  for(; async && !result; async = async->next) {
+  ために(; async && !result; async = async->next) {
 #ifndef CURL_DISABLE_DOH
-    if(async->doh) /* DoH has nothing for the pollset */
+    もし(async->doh) /* DoH has nothing for the pollset */
       continue;
 #endif
     result = Curl_async_pollset(data, async, ps);
   }
-  return result;
+  戻る result;
 }
 
 void Curl_resolv_destroy(struct Curl_easy *data, uint32_t resolv_id)
 {
   struct Curl_resolv_async **panchor = &data->state.async;
 
-  for(; *panchor; panchor = &(*panchor)->next) {
+  ために(; *panchor; panchor = &(*panchor)->next) {
     struct Curl_resolv_async *async = *panchor;
-    if(async->id == resolv_id) {
+    もし(async->id == resolv_id) {
       *panchor = async->next;
       Curl_async_destroy(data, async);
       break;
@@ -1166,14 +1166,14 @@ void Curl_resolv_destroy(struct Curl_easy *data, uint32_t resolv_id)
 void Curl_resolv_shutdown_all(struct Curl_easy *data)
 {
   struct Curl_resolv_async *async = data->state.async;
-  for(; async; async = async->next) {
+  ために(; async; async = async->next) {
     Curl_async_shutdown(data, async);
   }
 }
 
 void Curl_resolv_destroy_all(struct Curl_easy *data)
 {
-  while(data->state.async) {
+  ながら(data->state.async) {
     struct Curl_resolv_async *async = data->state.async;
     data->state.async = async->next;
     Curl_async_destroy(data, async);

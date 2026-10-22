@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
+#もし (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 
 #include "curl_md5.h"
@@ -39,7 +39,7 @@
 
 #ifdef USE_MBEDTLS
 #include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
+#もし MBEDTLS_VERSION_NUMBER < 0x03020000
 #error "mbedTLS 3.2.0 or greater required"
 #endif
 #include <psa/crypto_config.h>
@@ -54,20 +54,20 @@ typedef struct md5_ctx my_md5_ctx;
 static CURLcode my_md5_init(void *ctx)
 {
   md5_init(ctx);
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *input, unsigned 整数 len)
 {
   md5_update(ctx, len, input);
 }
 
 static void my_md5_final(unsigned char *digest, void *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#もし NETTLE_VERSION_MAJOR >= 4
   md5_digest(ctx, digest);
-#else
+#否则
   md5_digest(ctx, MD5_DIGEST_LEN, digest);
 #endif
 }
@@ -81,19 +81,19 @@ static CURLcode my_md5_init(void *in)
 {
   EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return CURLE_OUT_OF_MEMORY;
+  もし(!*ctx)
+    戻る CURLE_OUT_OF_MEMORY;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md5(), NULL)) {
+  もし(!EVP_DigestInit_ex(*ctx, EVP_md5(), NULL)) {
     EVP_MD_CTX_free(*ctx);
     *ctx = NULL;
-    return CURLE_FAILED_INIT;
+    戻る CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *input, unsigned 整数 len)
 {
   EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
   (void)EVP_DigestUpdate(*ctx, input, len);
@@ -114,13 +114,13 @@ typedef wc_Md5 my_md5_ctx;
 
 static CURLcode my_md5_init(void *ctx)
 {
-  if(wc_InitMd5(ctx))
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  もし(wc_InitMd5(ctx))
+    戻る CURLE_OUT_OF_MEMORY;
+  戻る CURLE_OK;
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *input, unsigned 整数 len)
 {
   (void)wc_Md5Update(ctx, input, (word32)len);
 }
@@ -140,13 +140,13 @@ static CURLcode my_md5_init(void *ctx)
 {
   psa_hash_operation_t *pctx = (psa_hash_operation_t *)ctx;
   *pctx = psa_hash_operation_init();
-  if(psa_hash_setup(pctx, PSA_ALG_MD5) != PSA_SUCCESS)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  もし(psa_hash_setup(pctx, PSA_ALG_MD5) != PSA_SUCCESS)
+    戻る CURLE_OUT_OF_MEMORY;
+  戻る CURLE_OK;
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *input, unsigned 整数 len)
 {
   (void)psa_hash_update(ctx, input, len);
 }
@@ -178,11 +178,11 @@ static void my_md5_final(unsigned char *digest, void *ctx)
 static CURLcode my_md5_init(void *ctx)
 {
   (void)CC_MD5_Init(ctx);  /* always returns 1 */
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *input, unsigned 整数 len)
 {
   CC_MD5_Update(ctx, input, len);
 }
@@ -204,21 +204,21 @@ typedef struct md5_ctx my_md5_ctx;
 static CURLcode my_md5_init(void *in)
 {
   my_md5_ctx *ctx = (my_md5_ctx *)in;
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  もし(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return CURLE_OUT_OF_MEMORY;
+    戻る CURLE_OUT_OF_MEMORY;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD5, 0, 0, &ctx->hHash)) {
+  もし(!CryptCreateHash(ctx->hCryptProv, CALG_MD5, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return CURLE_FAILED_INIT;
+    戻る CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *input, unsigned 整数 len)
 {
   my_md5_ctx *ctx = in;
   CryptHashData(ctx->hHash, (const BYTE *)input, len, 0);
@@ -229,15 +229,15 @@ static void my_md5_final(unsigned char *digest, void *in)
   my_md5_ctx *ctx = (my_md5_ctx *)in;
   unsigned long length = 0;
   CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD5_DIGEST_LEN)
+  もし(length == MD5_DIGEST_LEN)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
-  if(ctx->hHash)
+  もし(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
-  if(ctx->hCryptProv)
+  もし(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#else
+#否则
 
 /* When no other crypto library is available we use this code segment */
 
@@ -302,10 +302,10 @@ typedef struct md5_ctx my_md5_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#もし defined(__i386__) || defined(__x86_64__) || defined(__vax__)
 #define MD5_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
 #define MD5_GET(n) MD5_SET(n)
-#else
+#否则
 #define MD5_SET(n) (ctx->block[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
@@ -417,14 +417,14 @@ static const void *my_md5_body(my_md5_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } ながら(size -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  戻る ptr;
 }
 
 static CURLcode my_md5_init(void *in)
@@ -438,30 +438,30 @@ static CURLcode my_md5_init(void *in)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *input, unsigned 整数 len)
 {
   uint32_t saved_lo;
-  unsigned int used;
+  unsigned 整数 used;
   my_md5_ctx *ctx = (my_md5_ctx *)in;
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  もし(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
   used = saved_lo & 0x3f;
 
-  if(used) {
-    unsigned int available = 64 - used;
+  もし(used) {
+    unsigned 整数 available = 64 - used;
 
-    if(len < available) {
+    もし(len < available) {
       memcpy(&ctx->buffer[used], input, len);
-      return;
+      戻る;
     }
 
     memcpy(&ctx->buffer[used], input, available);
@@ -470,7 +470,7 @@ static void my_md5_update(void *in,
     my_md5_body(ctx, ctx->buffer, 64);
   }
 
-  if(len >= 64) {
+  もし(len >= 64) {
     input = my_md5_body(ctx, input, len & ~(unsigned long)0x3f);
     len &= 0x3f;
   }
@@ -480,7 +480,7 @@ static void my_md5_update(void *in,
 
 static void my_md5_final(unsigned char *digest, void *in)
 {
-  unsigned int used, available;
+  unsigned 整数 used, available;
   my_md5_ctx *ctx = (my_md5_ctx *)in;
 
   used = ctx->lo & 0x3f;
@@ -489,7 +489,7 @@ static void my_md5_final(unsigned char *digest, void *in)
 
   available = 64 - used;
 
-  if(available < 8) {
+  もし(available < 8) {
     memset(&ctx->buffer[used], 0, available);
     my_md5_body(ctx, ctx->buffer, 64);
     used = 0;
@@ -560,16 +560,16 @@ CURLcode Curl_md5it(unsigned char *output,
   my_md5_ctx ctx;
 
   result = my_md5_init(&ctx);
-  if(!result) {
+  もし(!result) {
     do {
-      unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
+      unsigned 整数 ilen = (unsigned 整数)CURLMIN(len, UINT_MAX);
       my_md5_update(&ctx, input, ilen);
       input += ilen;
       len -= ilen;
-    } while(len);
+    } ながら(len);
     my_md5_final(output, &ctx);
   }
-  return result;
+  戻る result;
 }
 
 struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params)
@@ -579,33 +579,33 @@ struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params)
   /* Create MD5 context */
   ctxt = curlx_malloc(sizeof(*ctxt));
 
-  if(!ctxt)
-    return ctxt;
+  もし(!ctxt)
+    戻る ctxt;
 
   ctxt->md5_hashctx = curlx_malloc(md5params->md5_ctxtsize);
 
-  if(!ctxt->md5_hashctx) {
+  もし(!ctxt->md5_hashctx) {
     curlx_free(ctxt);
-    return NULL;
+    戻る NULL;
   }
 
   ctxt->md5_hash = md5params;
 
-  if((*md5params->md5_init_func)(ctxt->md5_hashctx)) {
+  もし((*md5params->md5_init_func)(ctxt->md5_hashctx)) {
     curlx_free(ctxt->md5_hashctx);
     curlx_free(ctxt);
-    return NULL;
+    戻る NULL;
   }
 
-  return ctxt;
+  戻る ctxt;
 }
 
 CURLcode Curl_MD5_update(struct MD5_context *context,
-                         const unsigned char *input, unsigned int len)
+                         const unsigned char *input, unsigned 整数 len)
 {
   (*context->md5_hash->md5_update_func)(context->md5_hashctx, input, len);
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 CURLcode Curl_MD5_final(struct MD5_context *context, unsigned char *result)
@@ -615,7 +615,7 @@ CURLcode Curl_MD5_final(struct MD5_context *context, unsigned char *result)
   curlx_free(context->md5_hashctx);
   curlx_free(context);
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 #endif /* Using NTLM (without SSPI) || Digest */

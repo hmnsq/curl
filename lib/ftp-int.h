@@ -97,8 +97,8 @@ struct FTP {
 
 /* one struct entry for each path component (of 'rawpath') */
 struct pathcomp {
-  int start; /* start column */
-  int len;   /* length in bytes */
+  整数 start; /* start column */
+  整数 len;   /* length in bytes */
 };
 
 /* ftp_conn is used for struct connection-oriented data in the connectdata
@@ -118,9 +118,9 @@ struct ftp_conn {
   curl_off_t known_filesize; /* file size is different from -1, if wildcard
                                 LIST parsing was done and wc_statemach set
                                 it */
-  int count1; /* general purpose counter for the state machine */
-  int count2; /* general purpose counter for the state machine */
-  int count3; /* general purpose counter for the state machine */
+  整数 count1; /* general purpose counter for the state machine */
+  整数 count2; /* general purpose counter for the state machine */
+  整数 count3; /* general purpose counter for the state machine */
   unsigned short dirdepth;  /* number of entries used in the 'dirs' array,
                                < FTP_MAX_DIR_DEPTH */
   unsigned short cwdcount;  /* number of CWD commands issued,

@@ -122,10 +122,10 @@ void Curl_thrdq_trace(struct curl_thrdq *tqueue,
                       struct Curl_easy *data);
 #define CURL_THRDQ_TRACE(t, d) \
   do { \
-    if(Curl_trc_ft_is_verbose(d, &Curl_trc_feat_threads)) \
+    もし(Curl_trc_ft_is_verbose(d, &Curl_trc_feat_threads)) \
       Curl_thrdq_trace(t, d); \
-  } while(0)
-#else
+  } ながら(0)
+#否则
 #define CURL_THRDQ_TRACE(t, d)  Curl_nop_stmt
 #endif
 

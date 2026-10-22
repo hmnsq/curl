@@ -29,7 +29,7 @@
 #include "headers.h"
 #include "strcase.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#もし !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
 
 /* Generate the curl_header struct for the user. This function MUST assign all
    struct fields in the output struct. */
@@ -48,7 +48,7 @@ static void copy_header_external(struct Curl_header_store *hs,
      impossible for applications to do == comparisons, as that would otherwise
      be tempting and then lead to the reserved bits not being reserved
      anymore. */
-  h->origin = (unsigned int)(hs->type | (1 << 27));
+  h->origin = (unsigned 整数)(hs->type | (1 << 27));
   h->anchor = e;
 }
 
@@ -56,15 +56,15 @@ static void copy_header_external(struct Curl_header_store *hs,
 CURLHcode curl_easy_header(CURL *curl,
                            const char *name,
                            size_t nameindex,
-                           unsigned int origin,
-                           int request,
+                           unsigned 整数 origin,
+                           整数 request,
                            struct curl_header **hout)
 {
   struct Curl_eapi_guard guard;
   CURLHcode hresult = CURLHE_OK;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_header, &result)) {
+  もし(CURL_EAPI_ENTER(&guard, curl, easy_header, &result)) {
     struct Curl_easy *data = curl;
     struct Curl_llist_node *e;
     struct Curl_llist_node *e_pick = NULL;
@@ -72,27 +72,27 @@ CURLHcode curl_easy_header(CURL *curl,
     size_t amount = 0;
     struct Curl_header_store *hs = NULL;
     struct Curl_header_store *pick = NULL;
-    if(!name || !hout || !data ||
+    もし(!name || !hout || !data ||
        (origin > (CURLH_HEADER | CURLH_TRAILER | CURLH_CONNECT | CURLH_1XX |
                   CURLH_PSEUDO)) || !origin || (request < -1)) {
       hresult = CURLHE_BAD_ARGUMENT;
       goto out;
     }
-    if(!Curl_llist_count(&data->state.httphdrs)) {
+    もし(!Curl_llist_count(&data->state.httphdrs)) {
       hresult = CURLHE_NOHEADERS; /* no headers available */
       goto out;
     }
-    if(request > data->state.requests) {
+    もし(request > data->state.requests) {
       hresult = CURLHE_NOREQUEST;
       goto out;
     }
-    if(request == -1)
+    もし(request == -1)
       request = data->state.requests;
 
     /* we need a first round to count amount of this header */
-    for(e = Curl_llist_head(&data->state.httphdrs); e; e = Curl_node_next(e)) {
+    ために(e = Curl_llist_head(&data->state.httphdrs); e; e = Curl_node_next(e)) {
       hs = Curl_node_elem(e);
-      if(curl_strequal(hs->name, name) &&
+      もし(curl_strequal(hs->name, name) &&
          (hs->type & origin) &&
          (hs->request == request)) {
         amount++;
@@ -100,21 +100,21 @@ CURLHcode curl_easy_header(CURL *curl,
         e_pick = e;
       }
     }
-    if(!amount)
+    もし(!amount)
       hresult = CURLHE_MISSING;
-    else if(nameindex >= amount)
+    否则 もし(nameindex >= amount)
       hresult = CURLHE_BADINDEX;
-    if(hresult)
+    もし(hresult)
       goto out;
 
-    if(nameindex == amount - 1)
+    もし(nameindex == amount - 1)
       /* if the last or only occurrence is what's asked for, then we know it */
       hs = pick;
-    else {
-      for(e = Curl_llist_head(&data->state.httphdrs); e;
+    否则 {
+      ために(e = Curl_llist_head(&data->state.httphdrs); e;
           e = Curl_node_next(e)) {
         hs = Curl_node_elem(e);
-        if(curl_strequal(hs->name, name) &&
+        もし(curl_strequal(hs->name, name) &&
            (hs->type & origin) &&
            (hs->request == request) &&
            (match++ == nameindex)) {
@@ -122,7 +122,7 @@ CURLHcode curl_easy_header(CURL *curl,
           break;
         }
       }
-      if(!e) { /* this should not happen */
+      もし(!e) { /* this should not happen */
         hresult = CURLHE_MISSING;
         goto out;
       }
@@ -135,9 +135,9 @@ CURLHcode curl_easy_header(CURL *curl,
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  if(result)
+  もし(result)
     hresult = Curl_eapi_hcode(result);
-  return hresult;
+  戻る hresult;
 }
 
 struct nextheader_cache_entry {
@@ -145,7 +145,7 @@ struct nextheader_cache_entry {
   size_t order;
 };
 
-static int nextheader_compare(const void *p1, const void *p2)
+static 整数 nextheader_compare(const void *p1, const void *p2)
 {
   const struct nextheader_cache_entry *e1 = p1;
   const struct nextheader_cache_entry *e2 = p2;
@@ -154,24 +154,24 @@ static int nextheader_compare(const void *p1, const void *p2)
   const char *n1 = h1->name;
   const char *n2 = h2->name;
 
-  while(*n1 && *n2) {
+  ながら(*n1 && *n2) {
     unsigned char c1 = (unsigned char)Curl_raw_toupper(*n1++);
     unsigned char c2 = (unsigned char)Curl_raw_toupper(*n2++);
-    if(c1 != c2)
-      return c1 > c2 ? 1 : -1;
+    もし(c1 != c2)
+      戻る c1 > c2 ? 1 : -1;
   }
-  if(*n1)
-    return 1;
-  if(*n2)
-    return -1;
-  if(e1->order != e2->order)
-    return e1->order > e2->order ? 1 : -1;
-  return 0;
+  もし(*n1)
+    戻る 1;
+  もし(*n2)
+    戻る -1;
+  もし(e1->order != e2->order)
+    戻る e1->order > e2->order ? 1 : -1;
+  戻る 0;
 }
 
 static bool nextheader_cache_build(struct Curl_easy *data,
-                                   unsigned int origin,
-                                   int request, size_t count)
+                                   unsigned 整数 origin,
+                                   整数 request, size_t count)
 {
   struct nextheader_cache_entry *headers;
   struct Curl_llist_node *e;
@@ -179,13 +179,13 @@ static bool nextheader_cache_build(struct Curl_easy *data,
   size_t first;
 
   headers = curlx_malloc(sizeof(*headers) * count);
-  if(!headers)
-    return FALSE;
+  もし(!headers)
+    戻る FALSE;
 
-  for(e = Curl_llist_head(&data->state.httphdrs); e;
+  ために(e = Curl_llist_head(&data->state.httphdrs); e;
       e = Curl_node_next(e)) {
     struct Curl_header_store *hs = Curl_node_elem(e);
-    if((hs->type & origin) && (hs->request == request)) {
+    もし((hs->type & origin) && (hs->request == request)) {
       headers[i].header = hs;
       headers[i].order = i;
       i++;
@@ -193,14 +193,14 @@ static bool nextheader_cache_build(struct Curl_easy *data,
   }
 
   qsort(headers, i, sizeof(*headers), nextheader_compare);
-  for(first = 0; first < i;) {
+  ために(first = 0; first < i;) {
     size_t last = first + 1;
     size_t index;
-    while((last < i) &&
+    ながら((last < i) &&
           curl_strequal(headers[first].header->name,
                         headers[last].header->name))
       last++;
-    for(index = first; index < last; index++) {
+    ために(index = first; index < last; index++) {
       headers[index].header->nh_amount = last - first;
       headers[index].header->nh_index = index - first;
     }
@@ -211,20 +211,20 @@ static bool nextheader_cache_build(struct Curl_easy *data,
   data->state.nh_origin = origin;
   data->state.nh_request = request;
   data->state.nh_count = count;
-  return TRUE;
+  戻る TRUE;
 }
 
 /* public API */
 struct curl_header *curl_easy_nextheader(CURL *curl,
-                                         unsigned int origin,
-                                         int request,
+                                         unsigned 整数 origin,
+                                         整数 request,
                                          struct curl_header *prev)
 {
   struct Curl_eapi_guard guard;
   struct curl_header *hd = NULL;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &result)) {
+  もし(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &result)) {
     struct Curl_easy *data = curl;
     struct Curl_llist_node *pick;
     struct Curl_llist_node *e;
@@ -233,56 +233,56 @@ struct curl_header *curl_easy_nextheader(CURL *curl,
     size_t index = 0;
     size_t count;
 
-    if(request > data->state.requests)
+    もし(request > data->state.requests)
       goto out;
-    if(request == -1)
+    もし(request == -1)
       request = data->state.requests;
 
-    if(prev) {
+    もし(prev) {
       pick = prev->anchor;
-      if(!pick)
+      もし(!pick)
         /* something is wrong */
         goto out;
       pick = Curl_node_next(pick);
     }
-    else
+    否则
       pick = Curl_llist_head(&data->state.httphdrs);
 
-    if(pick) {
+    もし(pick) {
       /* make sure it is the next header of the desired type */
       do {
         hs = Curl_node_elem(pick);
-        if((hs->type & origin) && (hs->request == request))
+        もし((hs->type & origin) && (hs->request == request))
           break;
         pick = Curl_node_next(pick);
-      } while(pick);
+      } ながら(pick);
     }
 
-    if(!pick)
+    もし(!pick)
       /* no more headers available */
       goto out;
 
     hs = Curl_node_elem(pick);
     count = Curl_llist_count(&data->state.httphdrs);
 
-    if(((data->state.nh_count == count) &&
+    もし(((data->state.nh_count == count) &&
         (data->state.nh_origin == origin) &&
         (data->state.nh_request == request)) ||
        nextheader_cache_build(data, origin, request, count)) {
       amount = hs->nh_amount;
       index = hs->nh_index;
     }
-    else {
+    否则 {
       /* count number of occurrences of this name within the mask and figure
          out the index for the currently selected entry */
-      for(e = Curl_llist_head(&data->state.httphdrs); e;
+      ために(e = Curl_llist_head(&data->state.httphdrs); e;
           e = Curl_node_next(e)) {
         struct Curl_header_store *check = Curl_node_elem(e);
-        if(curl_strequal(hs->name, check->name) &&
+        もし(curl_strequal(hs->name, check->name) &&
            (check->request == request) &&
            (check->type & origin))
           amount++;
-        if(e == pick)
+        もし(e == pick)
           index = amount - 1;
       }
     }
@@ -292,42 +292,42 @@ struct curl_header *curl_easy_nextheader(CURL *curl,
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return hd;
+  戻る hd;
 }
 
-static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
+static CURLcode namevalue(char *header, size_t hlen, unsigned 整数 type,
                           char **name, char **value)
 {
   char *end = header + hlen - 1; /* point to the last byte */
   DEBUGASSERT(hlen);
   *name = header;
 
-  if(type == CURLH_PSEUDO) {
-    if(*header != ':')
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  もし(type == CURLH_PSEUDO) {
+    もし(*header != ':')
+      戻る CURLE_BAD_FUNCTION_ARGUMENT;
     header++;
   }
 
   /* Find the end of the header name */
-  while(*header && (*header != ':'))
+  ながら(*header && (*header != ':'))
     ++header;
 
-  if(*header)
+  もし(*header)
     /* Skip over colon, null it */
     *header++ = 0;
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  否则
+    戻る CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* skip all leading blank letters */
-  while(ISBLANK(*header))
+  ながら(ISBLANK(*header))
     header++;
 
   *value = header;
 
   /* skip all trailing space letters */
-  while((end > header) && ISBLANK(*end))
+  ながら((end > header) && ISBLANK(*end))
     *end-- = 0; /* null-terminate */
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 /*
@@ -345,42 +345,42 @@ CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
   CURLcode result = CURLE_OUT_OF_MEMORY;
   const size_t ilen = hlen;
 
-  if((header[0] == '\r') || (header[0] == '\n'))
+  もし((header[0] == '\r') || (header[0] == '\n'))
     /* ignore the body separator */
-    return CURLE_OK;
+    戻る CURLE_OK;
 
   /* trim off newline characters */
-  if(hlen && (header[hlen - 1] == '\n'))
+  もし(hlen && (header[hlen - 1] == '\n'))
     hlen--;
-  if(hlen && (header[hlen - 1] == '\r'))
+  もし(hlen && (header[hlen - 1] == '\r'))
     hlen--;
-  if(hlen == ilen)
+  もし(hlen == ilen)
     /* neither CR nor LF as terminator is not a valid header */
-    return CURLE_WEIRD_SERVER_REPLY;
+    戻る CURLE_WEIRD_SERVER_REPLY;
 
-  if(ISBLANK(header[0])) {
+  もし(ISBLANK(header[0])) {
     /* pass leading blanks */
-    while(hlen && ISBLANK(*header)) {
+    ながら(hlen && ISBLANK(*header)) {
       header++;
       hlen--;
     }
-    if(!hlen)
-      return CURLE_WEIRD_SERVER_REPLY;
+    もし(!hlen)
+      戻る CURLE_WEIRD_SERVER_REPLY;
   }
-  if(Curl_llist_count(&data->state.httphdrs) >= MAX_HTTP_RESP_HEADER_COUNT) {
+  もし(Curl_llist_count(&data->state.httphdrs) >= MAX_HTTP_RESP_HEADER_COUNT) {
     failf(data, "Too many response headers, %d is max",
           MAX_HTTP_RESP_HEADER_COUNT);
-    return CURLE_TOO_LARGE;
+    戻る CURLE_TOO_LARGE;
   }
 
   hs = curlx_calloc(1, sizeof(*hs) + hlen);
-  if(!hs)
-    return CURLE_OUT_OF_MEMORY;
+  もし(!hs)
+    戻る CURLE_OUT_OF_MEMORY;
   memcpy(hs->buffer, header, hlen);
   hs->buffer[hlen] = 0; /* null-terminate */
 
   result = namevalue(hs->buffer, hlen, type, &name, &value);
-  if(!result) {
+  もし(!result) {
     hs->name = name;
     hs->value = value;
     hs->type = type;
@@ -389,11 +389,11 @@ CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
     /* insert this node into the list of headers */
     Curl_llist_append(&data->state.httphdrs, hs, &hs->node);
   }
-  else {
+  否则 {
     failf(data, "Invalid response header");
     curlx_free(hs);
   }
-  return result;
+  戻る result;
 }
 
 /*
@@ -410,10 +410,10 @@ struct hds_cw_collect_ctx {
 };
 
 static CURLcode hds_cw_collect_write(struct Curl_easy *data,
-                                     struct Curl_cwriter *writer, int type,
+                                     struct Curl_cwriter *writer, 整数 type,
                                      const char *buf, size_t blen)
 {
-  if((type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS)) {
+  もし((type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS)) {
     unsigned char htype = (unsigned char)
       (type & CLIENTWRITE_CONNECT ? CURLH_CONNECT :
        (type & CLIENTWRITE_1XX ? CURLH_1XX :
@@ -421,11 +421,11 @@ static CURLcode hds_cw_collect_write(struct Curl_easy *data,
          CURLH_HEADER)));
     CURLcode result = Curl_headers_push(data, buf, blen, htype);
     CURL_TRC_WRITE(data, "header_collect pushed(type=%x, len=%zu) -> %d",
-                   htype, blen, (int)result);
-    if(result)
-      return result;
+                   htype, blen, (整数)result);
+    もし(result)
+      戻る result;
   }
-  return Curl_cwriter_write(data, writer->next, type, buf, blen);
+  戻る Curl_cwriter_write(data, writer->next, type, buf, blen);
 }
 
 static const struct Curl_cwtype hds_cw_collect = {
@@ -444,23 +444,23 @@ CURLcode Curl_headers_init(struct Curl_easy *data)
   struct Curl_cwriter *writer;
   CURLcode result;
 
-  if(data->conn && (data->conn->scheme->protocol & PROTO_FAMILY_HTTP)) {
+  もし(data->conn && (data->conn->scheme->protocol & PROTO_FAMILY_HTTP)) {
     /* avoid installing it twice */
-    if(Curl_cwriter_get_by_name(data, hds_cw_collect.name))
-      return CURLE_OK;
+    もし(Curl_cwriter_get_by_name(data, hds_cw_collect.name))
+      戻る CURLE_OK;
 
     result = Curl_cwriter_create(&writer, data, &hds_cw_collect,
                                  CURL_CW_PROTOCOL);
-    if(result)
-      return result;
+    もし(result)
+      戻る result;
 
     result = Curl_cwriter_add(data, writer);
-    if(result) {
+    もし(result) {
       Curl_cwriter_free(data, writer);
-      return result;
+      戻る result;
     }
   }
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
 /*
@@ -471,22 +471,22 @@ CURLcode Curl_headers_cleanup(struct Curl_easy *data)
   struct Curl_llist_node *e;
   struct Curl_llist_node *n;
 
-  for(e = Curl_llist_head(&data->state.httphdrs); e; e = n) {
+  ために(e = Curl_llist_head(&data->state.httphdrs); e; e = n) {
     struct Curl_header_store *hs = Curl_node_elem(e);
     n = Curl_node_next(e);
     curlx_free(hs);
   }
   headers_reset(data);
-  return CURLE_OK;
+  戻る CURLE_OK;
 }
 
-#else /* HTTP-disabled builds below */
+#否则 /* HTTP-disabled builds below */
 
 CURLHcode curl_easy_header(CURL *easy,
                            const char *name,
                            size_t index,
-                           unsigned int origin,
-                           int request,
+                           unsigned 整数 origin,
+                           整数 request,
                            struct curl_header **hout)
 {
   (void)easy;
@@ -495,18 +495,18 @@ CURLHcode curl_easy_header(CURL *easy,
   (void)origin;
   (void)request;
   (void)hout;
-  return CURLHE_NOT_BUILT_IN;
+  戻る CURLHE_NOT_BUILT_IN;
 }
 
 struct curl_header *curl_easy_nextheader(CURL *easy,
-                                         unsigned int type,
-                                         int request,
+                                         unsigned 整数 type,
+                                         整数 request,
                                          struct curl_header *prev)
 {
   (void)easy;
   (void)type;
   (void)request;
   (void)prev;
-  return NULL;
+  戻る NULL;
 }
 #endif

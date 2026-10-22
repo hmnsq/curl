@@ -33,15 +33,15 @@ struct Curl_easy;
 #include "curl_printf.h"
 
 /* for ABI-compatibility with previous versions */
-char *curl_escape(const char *string, int length)
+char *curl_escape(const char *string, 整数 length)
 {
-  return curl_easy_escape(NULL, string, length);
+  戻る curl_easy_escape(NULL, string, length);
 }
 
 /* for ABI-compatibility with previous versions */
-char *curl_unescape(const char *string, int length)
+char *curl_unescape(const char *string, 整数 length)
 {
-  return curl_easy_unescape(NULL, string, length, NULL);
+  戻る curl_easy_unescape(NULL, string, length, NULL);
 }
 
 #define NOPE 0xff
@@ -153,7 +153,7 @@ static const char hexpairs[][2] = {
 /* Escapes for URL the given unescaped string of given length.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_escape(CURL *curl, const char *string, int length)
+char *curl_easy_escape(CURL *curl, const char *string, 整数 length)
 {
   size_t len;
   const char *f = string;
@@ -162,28 +162,28 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
   char *encoded;
   (void)curl;
 
-  if(!string || (length < 0))
-    return NULL;
+  もし(!string || (length < 0))
+    戻る NULL;
 
   len = (length ? (size_t)length : strlen(string));
-  if(!len)
-    return curlx_strdup("");
+  もし(!len)
+    戻る curlx_strdup("");
 
-  if(len > SIZE_MAX / 16)
-    return NULL;
+  もし(len > SIZE_MAX / 16)
+    戻る NULL;
 
   encoded = target = curlx_malloc((len * 3) + 1);
-  if(!target)
-    return NULL;
+  もし(!target)
+    戻る NULL;
 
-  while(len--) {
+  ながら(len--) {
     uint8_t in = (uint8_t)*string++;
 
-    if(!(hextable[in] & 0x80))
+    もし(!(hextable[in] & 0x80))
       /* append this */
       nappend++;
-    else {
-      if(nappend) {
+    否则 {
+      もし(nappend) {
         memcpy(target, f, nappend);
         target += nappend;
         nappend = 0;
@@ -195,13 +195,13 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
       target += 3;
     }
   }
-  if(nappend) {
+  もし(nappend) {
     memcpy(target, f, nappend);
     target += nappend;
   }
   *target = '\0'; /* null-terminate */
 
-  return encoded;
+  戻る encoded;
 }
 
 /*
@@ -234,8 +234,8 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   alloc = (length ? length : strlen(string));
   ns = curlx_malloc(alloc + 1);
 
-  if(!ns)
-    return CURLE_OUT_OF_MEMORY;
+  もし(!ns)
+    戻る CURLE_OUT_OF_MEMORY;
 
   /* store output string */
   *ostring = ns;
@@ -243,18 +243,18 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   reject_limit = (ctrl == REJECT_CTRL) ? 0x20 :
     (ctrl == REJECT_ZERO) ? 1 : 0;
 
-  while(alloc) {
+  ながら(alloc) {
     uint8_t in;
 
-    if(*string == '%') {
-      if(alloc > 2) {
+    もし(*string == '%') {
+      もし(alloc > 2) {
         uint8_t h1 = hextable[(uint8_t)string[1]];
         uint8_t h2 = hextable[(uint8_t)string[2]];
-        if(!((h1 | h2) & 0xf0)) {
+        もし(!((h1 | h2) & 0xf0)) {
           in = (uint8_t)((h1 << 4) | h2);
           string += 3;
           alloc -= 3;
-          if(in < reject_limit)
+          もし(in < reject_limit)
             goto error;
           *ns++ = (char)in;
           continue;
@@ -266,19 +266,19 @@ CURLcode Curl_urldecode(const char *string, size_t length,
       *ns++ = (char)in;
       continue;
     }
-    else {
+    否则 {
       const char *p = memchr(string + 1, '%', alloc - 1);
       size_t n = p ? (size_t)(p - string) : alloc;
 
-      if(reject_limit) {
-        if(reject_limit == 1) {
-          if(memchr(string, 0, n))
+      もし(reject_limit) {
+        もし(reject_limit == 1) {
+          もし(memchr(string, 0, n))
             goto error;
         }
-        else {
+        否则 {
           size_t i;
-          for(i = 0; i < n; i++) {
-            if((uint8_t)string[i] < 0x20)
+          ために(i = 0; i < n; i++) {
+            もし((uint8_t)string[i] < 0x20)
               goto error;
           }
         }
@@ -292,14 +292,14 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   }
   *ns = 0; /* terminate it */
 
-  if(olen)
+  もし(olen)
     /* store output size */
     *olen = (size_t)(ns - *ostring);
 
-  return CURLE_OK;
+  戻る CURLE_OK;
 error:
   curlx_safefree(*ostring);
-  return CURLE_URL_MALFORMAT;
+  戻る CURLE_URL_MALFORMAT;
 }
 
 /*
@@ -309,28 +309,28 @@ error:
  * If olen == NULL, no output length is stored.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_unescape(CURL *curl, const char *string, int inlength,
-                         int *outlength)
+char *curl_easy_unescape(CURL *curl, const char *string, 整数 inlength,
+                         整数 *outlength)
 {
   char *str = NULL;
   (void)curl;
-  if(string && (inlength >= 0)) {
+  もし(string && (inlength >= 0)) {
     size_t inputlen = (size_t)inlength;
     size_t outputlen;
     CURLcode res = Curl_urldecode(string, inputlen, &str, &outputlen,
                                   REJECT_NADA);
-    if(res)
-      return NULL;
+    もし(res)
+      戻る NULL;
 
-    if(outlength) {
-      if(outputlen <= (size_t)INT_MAX)
+    もし(outlength) {
+      もし(outputlen <= (size_t)INT_MAX)
         *outlength = curlx_uztosi(outputlen);
-      else
+      否则
         /* too large to return in an int, fail! */
         curlx_safefree(str);
     }
   }
-  return str;
+  戻る str;
 }
 
 /* For operating systems/environments that use different malloc/free
@@ -351,8 +351,8 @@ void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
                     unsigned char *out, size_t olen) /* output buffer size */
 {
   DEBUGASSERT(src && len && (olen >= 3));
-  if(src && len && (olen >= 3)) {
-    while(len-- && (olen >= 3)) {
+  もし(src && len && (olen >= 3)) {
+    ながら(len-- && (olen >= 3)) {
       out[0] = Curl_ldigits[*src >> 4];
       out[1] = Curl_ldigits[*src & 0x0F];
       ++src;
@@ -361,7 +361,7 @@ void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
     }
     *out = 0;
   }
-  else if(olen)
+  否则 もし(olen)
     *out = 0;
 }
 
