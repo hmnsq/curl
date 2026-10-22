@@ -17,20 +17,20 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#অন্তর্ভাব <sys/param.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#অন্তর্ভাব <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#অন্তর্ভাব <arpa/inet.h>
 #endif
 
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#অন্তর্ভাব "curlx/inet_pton.h"
+#অন্তর্ভাব "curlx/strparse.h"
 
 #define IN6ADDRSZ       16
 #define INADDRSZ         4
@@ -41,7 +41,7 @@
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
+#যদি !defined(USE_IPV6) && !defined(AF_INET6)
 #define AF_INET6 (AF_INET + 1)
 #endif
 
@@ -59,43 +59,43 @@
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, unsigned char *dst)
+স্থির পূর্ণাঙ্ক inet_pton4(ধ্রুব বর্ণ *src, unsigned বর্ণ *dst)
 {
-  int saw_digit, octets, ch;
-  unsigned char tmp[INADDRSZ], *tp;
+  পূর্ণাঙ্ক saw_digit, octets, ch;
+  unsigned বর্ণ tmp[INADDRSZ], *tp;
 
   saw_digit = 0;
   octets = 0;
   tp = tmp;
   *tp = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISDIGIT(ch)) {
-      unsigned int val = (*tp * 10) + (ch - '0');
+  যাবত্((ch = (unsigned বর্ণ)*src++) != '\0') {
+    যদি(ISDIGIT(ch)) {
+      unsigned পূর্ণাঙ্ক val = (*tp * 10) + (ch - '0');
 
-      if(saw_digit && *tp == 0)
-        return 0;
-      if(val > 255)
-        return 0;
-      *tp = (unsigned char)val;
-      if(!saw_digit) {
-        if(++octets > 4)
-          return 0;
+      যদি(saw_digit && *tp == 0)
+        প্রত্যাগম 0;
+      যদি(val > 255)
+        প্রত্যাগম 0;
+      *tp = (unsigned বর্ণ)val;
+      যদি(!saw_digit) {
+        যদি(++octets > 4)
+          প্রত্যাগম 0;
         saw_digit = 1;
       }
     }
-    else if(ch == '.' && saw_digit) {
-      if(octets == 4)
-        return 0;
+    অন্যথা যদি(ch == '.' && saw_digit) {
+      যদি(octets == 4)
+        প্রত্যাগম 0;
       *++tp = 0;
       saw_digit = 0;
     }
-    else
-      return 0;
+    অন্যথা
+      প্রত্যাগম 0;
   }
-  if(octets < 4)
-    return 0;
+  যদি(octets < 4)
+    প্রত্যাগম 0;
   memcpy(dst, tmp, INADDRSZ);
-  return 1;
+  প্রত্যাগম 1;
 }
 
 /* int inet_pton6(src, dst)
@@ -110,82 +110,82 @@ static int inet_pton4(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, unsigned char *dst)
+স্থির পূর্ণাঙ্ক inet_pton6(ধ্রুব বর্ণ *src, unsigned বর্ণ *dst)
 {
-  unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
-  const char *curtok;
-  int ch, saw_xdigit;
+  unsigned বর্ণ tmp[IN6ADDRSZ], *tp, *endp, *colonp;
+  ধ্রুব বর্ণ *curtok;
+  পূর্ণাঙ্ক ch, saw_xdigit;
   size_t val;
 
   memset((tp = tmp), 0, IN6ADDRSZ);
   endp = tp + IN6ADDRSZ;
-  colonp = NULL;
+  colonp = রিক্ত;
   /* Leading :: requires some special handling. */
-  if(*src == ':' && *++src != ':')
-    return 0;
+  যদি(*src == ':' && *++src != ':')
+    প্রত্যাগম 0;
   curtok = src;
   saw_xdigit = 0;
   val = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISXDIGIT(ch)) {
+  যাবত্((ch = (unsigned বর্ণ)*src++) != '\0') {
+    যদি(ISXDIGIT(ch)) {
       val <<= 4;
       val |= curlx_hexval(ch);
-      if(++saw_xdigit > 4)
-        return 0;
-      continue;
+      যদি(++saw_xdigit > 4)
+        প্রত্যাগম 0;
+      অনুবর্ত;
     }
-    if(ch == ':') {
+    যদি(ch == ':') {
       curtok = src;
-      if(!saw_xdigit) {
-        if(colonp)
-          return 0;
+      যদি(!saw_xdigit) {
+        যদি(colonp)
+          প্রত্যাগম 0;
         colonp = tp;
-        continue;
+        অনুবর্ত;
       }
-      if(!*src)
-        return 0;
-      if(tp + INT16SZ > endp)
-        return 0;
-      *tp++ = (unsigned char)((val >> 8) & 0xff);
-      *tp++ = (unsigned char)(val & 0xff);
+      যদি(!*src)
+        প্রত্যাগম 0;
+      যদি(tp + INT16SZ > endp)
+        প্রত্যাগম 0;
+      *tp++ = (unsigned বর্ণ)((val >> 8) & 0xff);
+      *tp++ = (unsigned বর্ণ)(val & 0xff);
       saw_xdigit = 0;
       val = 0;
-      continue;
+      অনুবর্ত;
     }
-    if(ch == '.' && ((tp + INADDRSZ) <= endp) &&
+    যদি(ch == '.' && ((tp + INADDRSZ) <= endp) &&
        inet_pton4(curtok, tp) > 0) {
       tp += INADDRSZ;
       saw_xdigit = 0;
-      break;    /* '\0' was seen by inet_pton4(). */
+      ভঙ্গ;    /* '\0' was seen by inet_pton4(). */
     }
-    return 0;
+    প্রত্যাগম 0;
   }
-  if(saw_xdigit) {
-    if(tp + INT16SZ > endp)
-      return 0;
-    *tp++ = (unsigned char)((val >> 8) & 0xff);
-    *tp++ = (unsigned char)(val & 0xff);
+  যদি(saw_xdigit) {
+    যদি(tp + INT16SZ > endp)
+      প্রত্যাগম 0;
+    *tp++ = (unsigned বর্ণ)((val >> 8) & 0xff);
+    *tp++ = (unsigned বর্ণ)(val & 0xff);
   }
-  if(colonp) {
+  যদি(colonp) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we do the shift by hand.
      */
-    const ssize_t n = tp - colonp;
+    ধ্রুব ssize_t n = tp - colonp;
     ssize_t i;
 
-    if(tp == endp)
-      return 0;
-    for(i = 1; i <= n; i++) {
+    যদি(tp == endp)
+      প্রত্যাগম 0;
+    প্রতি(i = 1; i <= n; i++) {
       *(endp - i) = *(colonp + n - i);
       *(colonp + n - i) = 0;
     }
     tp = endp;
   }
-  if(tp != endp)
-    return 0;
+  যদি(tp != endp)
+    প্রত্যাগম 0;
   memcpy(dst, tmp, IN6ADDRSZ);
-  return 1;
+  প্রত্যাগম 1;
 }
 
 /*
@@ -200,15 +200,15 @@ static int inet_pton6(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-int curlx_inet_pton(int af, const char *src, void *dst)
+পূর্ণাঙ্ক curlx_inet_pton(পূর্ণাঙ্ক af, ধ্রুব বর্ণ *src, শূন্য *dst)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_pton4(src, (unsigned char *)dst);
-  case AF_INET6:
-    return inet_pton6(src, (unsigned char *)dst);
-  default:
-    return -1;
+  বিকল্প(af) {
+  পক্ষ AF_INET:
+    প্রত্যাগম inet_pton4(src, (unsigned বর্ণ *)dst);
+  পক্ষ AF_INET6:
+    প্রত্যাগম inet_pton6(src, (unsigned বর্ণ *)dst);
+  স্বভাব:
+    প্রত্যাগম -1;
   }
   /* NOTREACHED */
 }

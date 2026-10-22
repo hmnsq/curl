@@ -21,85 +21,85 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef USE_CURL_NTLM_CORE
 
-#include "curl_md4.h"
+#অন্তর্ভাব "curl_md4.h"
 
 #ifdef USE_OPENSSL
-#include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
+#অন্তর্ভাব <openssl/opensslv.h>
+#যদি OPENSSL_VERSION_সংখ্যা >= 0x30000000L && !defined(USE_AMISSL)
 /* OpenSSL 3.0.0 marks the MD4 functions as deprecated */
 #define OPENSSL_NO_MD4
-#else
+#অন্যথা
 /* Cover also OPENSSL_NO_MD4 configured in OpenSSL */
-#include <openssl/opensslconf.h>
+#অন্তর্ভাব <openssl/opensslconf.h>
 #endif
 #endif /* USE_OPENSSL */
 
 #ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
+#অন্তর্ভাব <wolfssl/options.h>
 #endif
 
-#if defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
-#include <openssl/evp.h>
+#যদি defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
+#অন্তর্ভাব <openssl/evp.h>
 
-typedef EVP_MD_CTX *my_md4_ctx;
+প্রকারনির্দেশ EVP_MD_CTX *my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+স্থির পূর্ণাঙ্ক my_md4_init(my_md4_ctx *ctx)
 {
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return 0;
+  যদি(!*ctx)
+    প্রত্যাগম 0;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md4(), NULL)) {
+  যদি(!EVP_DigestInit_ex(*ctx, EVP_md4(), রিক্ত)) {
     EVP_MD_CTX_free(*ctx);
-    return 0;
+    প্রত্যাগম 0;
   }
-  return 1;
+  প্রত্যাগম 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const unsigned char *input, unsigned int len)
+স্থির শূন্য my_md4_update(my_md4_ctx *ctx,
+                          ধ্রুব unsigned বর্ণ *প্রবেশ, unsigned পূর্ণাঙ্ক len)
 {
-  (void)EVP_DigestUpdate(*ctx, input, len);
+  (শূন্য)EVP_DigestUpdate(*ctx, প্রবেশ, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+স্থির শূন্য my_md4_final(unsigned বর্ণ *digest, my_md4_ctx *ctx)
 {
-  (void)EVP_DigestFinal_ex(*ctx, digest, NULL);
+  (শূন্য)EVP_DigestFinal_ex(*ctx, digest, রিক্ত);
   EVP_MD_CTX_free(*ctx);
 }
 
-#elif defined(USE_WOLFSSL) && !defined(NO_MD4)
-#include <wolfssl/wolfcrypt/md4.h>
-#include <wolfssl/version.h>
+#নোচেদ্যদি defined(USE_WOLFSSL) && !defined(NO_MD4)
+#অন্তর্ভাব <wolfssl/wolfcrypt/md4.h>
+#অন্তর্ভাব <wolfssl/version.h>
 
-#if LIBWOLFSSL_VERSION_HEX >= 0x05007006
-typedef wc_Md4 my_md4_ctx;
-#else
-typedef Md4 my_md4_ctx;
+#যদি LIBWOLFSSL_VERSION_HEX >= 0x05007006
+প্রকারনির্দেশ wc_Md4 my_md4_ctx;
+#অন্যথা
+প্রকারনির্দেশ Md4 my_md4_ctx;
 #endif
 
-static int my_md4_init(my_md4_ctx *ctx)
+স্থির পূর্ণাঙ্ক my_md4_init(my_md4_ctx *ctx)
 {
   wc_InitMd4(ctx);
-  return 1;
+  প্রত্যাগম 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+স্থির শূন্য my_md4_update(my_md4_ctx *ctx,
+                          ধ্রুব শূন্য *প্রবেশ, unsigned long len)
 {
-  wc_Md4Update(ctx, input, (word32)len);
+  wc_Md4Update(ctx, প্রবেশ, (word32)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+স্থির শূন্য my_md4_final(unsigned বর্ণ *digest, my_md4_ctx *ctx)
 {
   wc_Md4Final(ctx, digest);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#নোচেদ্যদি (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040 && \
        defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
                __MAC_OS_X_VERSION_MIN_REQUIRED < 101500) || \
@@ -107,102 +107,102 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000 && \
        defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
                __IPHONE_OS_VERSION_MIN_REQUIRED < 130000)
-#include <CommonCrypto/CommonDigest.h>
+#অন্তর্ভাব <CommonCrypto/CommonDigest.h>
 
-typedef CC_MD4_CTX my_md4_ctx;
+প্রকারনির্দেশ CC_MD4_CTX my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+স্থির পূর্ণাঙ্ক my_md4_init(my_md4_ctx *ctx)
 {
-  return CC_MD4_Init(ctx);  /* always returns 1 */
+  প্রত্যাগম CC_MD4_Init(ctx);  /* always returns 1 */
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+স্থির শূন্য my_md4_update(my_md4_ctx *ctx,
+                          ধ্রুব শূন্য *প্রবেশ, unsigned long len)
 {
-  (void)CC_MD4_Update(ctx, input, (CC_LONG)len);
+  (শূন্য)CC_MD4_Update(ctx, প্রবেশ, (CC_LONG)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+স্থির শূন্য my_md4_final(unsigned বর্ণ *digest, my_md4_ctx *ctx)
 {
-  (void)CC_MD4_Final(digest, ctx);
+  (শূন্য)CC_MD4_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#নোচেদ্যদি defined(USE_WIN32_CRYPTO)
+#অন্তর্ভাব <wincrypt.h>
 
-struct md4_ctx {
+সংরচনা md4_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct md4_ctx my_md4_ctx;
+প্রকারনির্দেশ সংরচনা md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+স্থির পূর্ণাঙ্ক my_md4_init(my_md4_ctx *ctx)
 {
   ctx->hCryptProv = 0;
   ctx->hHash = 0;
 
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  যদি(!CryptAcquireContext(&ctx->hCryptProv, রিক্ত, রিক্ত, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return 0;
+    প্রত্যাগম 0;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
+  যদি(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return 0;
+    প্রত্যাগম 0;
   }
 
-  return 1;
+  প্রত্যাগম 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+স্থির শূন্য my_md4_update(my_md4_ctx *ctx,
+                          ধ্রুব শূন্য *প্রবেশ, unsigned long len)
 {
-  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned int)len, 0);
+  CryptHashData(ctx->hHash, (ধ্রুব BYTE *)প্রবেশ, (unsigned পূর্ণাঙ্ক)len, 0);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+স্থির শূন্য my_md4_final(unsigned বর্ণ *digest, my_md4_ctx *ctx)
 {
   unsigned long length = 0;
 
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD4_DIGEST_LENGTH)
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, রিক্ত, &length, 0);
+  যদি(length == MD4_DIGEST_LENGTH)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
 
-  if(ctx->hHash)
+  যদি(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  যদি(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/md4.h>
-#include <nettle/version.h>
+#নোচেদ্যদি defined(USE_GNUTLS)
+#অন্তর্ভাব <nettle/md4.h>
+#অন্তর্ভাব <nettle/version.h>
 
-typedef struct md4_ctx my_md4_ctx;
+প্রকারনির্দেশ সংরচনা md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+স্থির পূর্ণাঙ্ক my_md4_init(my_md4_ctx *ctx)
 {
   md4_init(ctx);
-  return 1;
+  প্রত্যাগম 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+স্থির শূন্য my_md4_update(my_md4_ctx *ctx,
+                          ধ্রুব শূন্য *প্রবেশ, unsigned long len)
 {
-  md4_update(ctx, len, input);
+  md4_update(ctx, len, প্রবেশ);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+স্থির শূন্য my_md4_final(unsigned বর্ণ *digest, my_md4_ctx *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#যদি NETTLE_VERSION_MAJOR >= 4
   md4_digest(ctx, digest);
-#else
+#অন্যথা
   md4_digest(ctx, MD4_DIGEST_SIZE, digest);
 #endif
 }
 
-#else
+#অন্যথা
 /* When no other crypto library is available, or the crypto library does not
  * support MD4, we use this code segment this implementation of it
  *
@@ -230,13 +230,13 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
  * (This is a heavily cut-down "BSD license".)
  */
 
-struct md4_ctx {
+সংরচনা md4_ctx {
   uint32_t lo, hi;
   uint32_t a, b, c, d;
-  unsigned char buffer[64];
+  unsigned বর্ণ buffer[64];
   uint32_t block[16];
 };
-typedef struct md4_ctx my_md4_ctx;
+প্রকারনির্দেশ সংরচনা md4_ctx my_md4_ctx;
 
 /*
  * The basic MD4 functions.
@@ -262,10 +262,10 @@ typedef struct md4_ctx my_md4_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
-#define MD4_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
+#যদি defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#define MD4_SET(n) (*(ধ্রুব uint32_t *)(ধ্রুব শূন্য *)&ptr[(n) * 4])
 #define MD4_GET(n) MD4_SET(n)
-#else
+#অন্যথা
 #define MD4_SET(n) (ctx->block[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
@@ -278,20 +278,20 @@ typedef struct md4_ctx my_md4_ctx;
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters. There are no alignment requirements.
  */
-static const void *my_md4_body(my_md4_ctx *ctx,
-                               const void *input, unsigned long size)
+স্থির ধ্রুব শূন্য *my_md4_body(my_md4_ctx *ctx,
+                               ধ্রুব শূন্য *প্রবেশ, unsigned long size)
 {
-  const unsigned char *ptr;
+  ধ্রুব unsigned বর্ণ *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)input;
+  ptr = (ধ্রুব unsigned বর্ণ *)প্রবেশ;
 
   a = ctx->a;
   b = ctx->b;
   c = ctx->c;
   d = ctx->d;
 
-  do {
+  কুরু {
     uint32_t saved_a, saved_b, saved_c, saved_d;
 
     saved_a = a;
@@ -359,17 +359,17 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } যাবত্(size -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  প্রত্যাগম ptr;
 }
 
-static int my_md4_init(my_md4_ctx *ctx)
+স্থির পূর্ণাঙ্ক my_md4_init(my_md4_ctx *ctx)
 {
   ctx->a = 0x67452301;
   ctx->b = 0xefcdab89;
@@ -379,46 +379,46 @@ static int my_md4_init(my_md4_ctx *ctx)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return 1;
+  প্রত্যাগম 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+স্থির শূন্য my_md4_update(my_md4_ctx *ctx,
+                          ধ্রুব শূন্য *প্রবেশ, unsigned long len)
 {
   uint32_t saved_lo;
   unsigned long used;
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  যদি(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
   used = saved_lo & 0x3f;
 
-  if(used) {
+  যদি(used) {
     unsigned long available = 64 - used;
 
-    if(len < available) {
-      memcpy(&ctx->buffer[used], input, len);
-      return;
+    যদি(len < available) {
+      memcpy(&ctx->buffer[used], প্রবেশ, len);
+      প্রত্যাগম;
     }
 
-    memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
+    memcpy(&ctx->buffer[used], প্রবেশ, available);
+    প্রবেশ = (ধ্রুব unsigned বর্ণ *)প্রবেশ + available;
     len -= available;
     my_md4_body(ctx, ctx->buffer, 64);
   }
 
-  if(len >= 64) {
-    input = my_md4_body(ctx, input, len & ~(unsigned long)0x3f);
+  যদি(len >= 64) {
+    প্রবেশ = my_md4_body(ctx, প্রবেশ, len & ~(unsigned long)0x3f);
     len &= 0x3f;
   }
 
-  memcpy(ctx->buffer, input, len);
+  memcpy(ctx->buffer, প্রবেশ, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+স্থির শূন্য my_md4_final(unsigned বর্ণ *digest, my_md4_ctx *ctx)
 {
   unsigned long used, available;
 
@@ -428,7 +428,7 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 
   available = 64 - used;
 
-  if(available < 8) {
+  যদি(available < 8) {
     memset(&ctx->buffer[used], 0, available);
     my_md4_body(ctx, ctx->buffer, 64);
     used = 0;
@@ -466,20 +466,20 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
   digest[14] = curlx_ultouc((ctx->d >> 16) & 0xff);
   digest[15] = curlx_ultouc(ctx->d >> 24);
 
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, পরিমাণ(*ctx));
 }
 
 #endif /* CRYPTO LIBS */
 
-CURLcode Curl_md4it(unsigned char *output,
-                    const unsigned char *input, const size_t len)
+CURLcode Curl_md4it(unsigned বর্ণ *output,
+                    ধ্রুব unsigned বর্ণ *প্রবেশ, ধ্রুব size_t len)
 {
   my_md4_ctx ctx;
-  if(!my_md4_init(&ctx))
-    return CURLE_FAILED_INIT;
-  my_md4_update(&ctx, input, curlx_uztoui(len));
+  যদি(!my_md4_init(&ctx))
+    প্রত্যাগম CURLE_FAILED_INIT;
+  my_md4_update(&ctx, প্রবেশ, curlx_uztoui(len));
   my_md4_final(output, &ctx);
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
 #endif /* USE_CURL_NTLM_CORE */

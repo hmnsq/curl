@@ -27,23 +27,23 @@
 /*
  * Generic buffer reference.
  */
-struct bufref {
-  void (*dtor)(void *);         /* Associated destructor. */
-  const unsigned char *ptr;     /* Referenced data buffer. */
+সংরচনা bufref {
+  শূন্য (*dtor)(শূন্য *);         /* Associated destructor. */
+  ধ্রুব unsigned বর্ণ *ptr;     /* Referenced data buffer. */
   size_t len;                   /* The data size in bytes. */
 #ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
+  পূর্ণাঙ্ক signature;                /* Detect API use mistakes. */
 #endif
 };
 
-void Curl_bufref_init(struct bufref *br);
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *));
-const char *Curl_bufref_ptr(const struct bufref *br);
-const unsigned char *Curl_bufref_uptr(const struct bufref *br);
-size_t Curl_bufref_len(const struct bufref *br);
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len);
-void Curl_bufref_free(struct bufref *br);
+শূন্য Curl_bufref_init(সংরচনা bufref *br);
+শূন্য Curl_bufref_set(সংরচনা bufref *br, ধ্রুব শূন্য *ptr, size_t len,
+                     শূন্য (*dtor)(শূন্য *));
+ধ্রুব বর্ণ *Curl_bufref_ptr(ধ্রুব সংরচনা bufref *br);
+ধ্রুব unsigned বর্ণ *Curl_bufref_uptr(ধ্রুব সংরচনা bufref *br);
+size_t Curl_bufref_len(ধ্রুব সংরচনা bufref *br);
+CURLcode Curl_bufref_memdup0(সংরচনা bufref *br, ধ্রুব শূন্য *ptr, size_t len);
+শূন্য Curl_bufref_free(সংরচনা bufref *br);
 
 /* return a strdup() version of the buffer */
 #define Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))

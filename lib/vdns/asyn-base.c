@@ -21,56 +21,56 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#অন্তর্ভাব <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#অন্তর্ভাব <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#অন্তর্ভাব <arpa/inet.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#অন্তর্ভাব <in.h>
+#অন্তর্ভাব <inet.h>
 #endif
 
 #ifdef USE_ARES
-#include <ares.h>
+#অন্তর্ভাব <ares.h>
 #endif
 
-#include "urldata.h"
-#include "connect.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "select.h"
-#include "url.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "connect.h"
+#অন্তর্ভাব "curl_addrinfo.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "multiif.h"
+#অন্তর্ভাব "progress.h"
+#অন্তর্ভাব "select.h"
+#অন্তর্ভাব "url.h"
+#অন্তর্ভাব "vdns/hostip.h"
+#অন্তর্ভাব "vdns/httpsrr.h"
 
 /***********************************************************************
  * Only for builds using asynchronous name resolves
  **********************************************************************/
 #ifdef CURLRES_ASYNCH
 
-timediff_t Curl_async_timeleft_ms(struct Curl_easy *data,
-                                  struct Curl_resolv_async *async)
+timediff_t Curl_async_timeleft_ms(সংরচনা Curl_easy *data,
+                                  সংরচনা Curl_resolv_async *async)
 {
-  if(async->timeout_ms) {
+  যদি(async->timeout_ms) {
     timediff_t elapsed_ms =
       curlx_ptimediff_ms(Curl_pgrs_now(data), &async->start);
-    return async->timeout_ms - elapsed_ms;
+    প্রত্যাগম async->timeout_ms - elapsed_ms;
   }
-  return Curl_timeleft_ms(data);
+  প্রত্যাগম Curl_timeleft_ms(data);
 }
 
 #ifdef USE_ARES
 
-#if ARES_VERSION < 0x011000
+#যদি ARES_VERSION < 0x011000
 #error "c-ares 1.16.0 or greater required"
 #endif
 
@@ -82,57 +82,57 @@ timediff_t Curl_async_timeleft_ms(struct Curl_easy *data,
  *
  * Returns: sockets-in-use-bitmap
  */
-CURLcode Curl_ares_pollset(struct Curl_easy *data,
+CURLcode Curl_ares_pollset(সংরচনা Curl_easy *data,
                            ares_channel channel,
-                           struct easy_pollset *ps)
+                           সংরচনা easy_pollset *ps)
 {
   curl_socket_t sockets[16];  /* ARES documented limit */
-  unsigned int bitmap, i;
+  unsigned পূর্ণাঙ্ক bitmap, i;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(channel);
-  if(!channel)
-    return CURLE_FAILED_INIT;
+  যদি(!channel)
+    প্রত্যাগম CURLE_FAILED_INIT;
 
   bitmap = ares_getsock(channel, (ares_socket_t *)sockets,
                         CURL_ARRAYSIZE(sockets));
-  for(i = 0; i < CURL_ARRAYSIZE(sockets); ++i) {
-    int flags = 0;
-    if(ARES_GETSOCK_READABLE(bitmap, i))
+  প্রতি(i = 0; i < CURL_ARRAYSIZE(sockets); ++i) {
+    পূর্ণাঙ্ক flags = 0;
+    যদি(ARES_GETSOCK_READABLE(bitmap, i))
       flags |= CURL_POLL_IN;
-    if(ARES_GETSOCK_WRITABLE(bitmap, i))
+    যদি(ARES_GETSOCK_WRITABLE(bitmap, i))
       flags |= CURL_POLL_OUT;
-    if(!flags)
-      break;
+    যদি(!flags)
+      ভঙ্গ;
     result = Curl_pollset_change(data, ps, sockets[i], flags, 0);
-    if(result)
-      return result;
+    যদি(result)
+      প্রত্যাগম result;
   }
-  return result;
+  প্রত্যাগম result;
 }
 
-timediff_t Curl_ares_timeout_ms(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
+timediff_t Curl_ares_timeout_ms(সংরচনা Curl_easy *data,
+                                সংরচনা Curl_resolv_async *async,
                                 ares_channel channel)
 {
   timediff_t async_timeout_ms;
 
   DEBUGASSERT(channel);
-  if(!channel)
-    return -1;
+  যদি(!channel)
+    প্রত্যাগম -1;
 
   async_timeout_ms = Curl_async_timeleft_ms(data, async);
-  if((async_timeout_ms > 0) && (async_timeout_ms < INT_MAX)) {
-    struct timeval timebuf;
-    struct timeval *timeout;
-    struct timeval end = { (int)async_timeout_ms / 1000,
-                           ((int)async_timeout_ms % 1000) * 1000 };
+  যদি((async_timeout_ms > 0) && (async_timeout_ms < INT_MAX)) {
+    সংরচনা timeval timebuf;
+    সংরচনা timeval *timeout;
+    সংরচনা timeval end = { (পূর্ণাঙ্ক)async_timeout_ms / 1000,
+                           ((পূর্ণাঙ্ক)async_timeout_ms % 1000) * 1000 };
 
     timeout = ares_timeout(channel, &end, &timebuf);
-    if(timeout)
-      return curlx_tvtoms(timeout);
+    যদি(timeout)
+      প্রত্যাগম curlx_tvtoms(timeout);
   }
-  return async_timeout_ms;
+  প্রত্যাগম async_timeout_ms;
 }
 
 /*
@@ -144,59 +144,59 @@ timediff_t Curl_ares_timeout_ms(struct Curl_easy *data,
  *
  * return number of sockets it worked on, or -1 on error
  */
-int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
+পূর্ণাঙ্ক Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
 {
-  int nfds;
-  int bitmask;
+  পূর্ণাঙ্ক nfds;
+  পূর্ণাঙ্ক bitmask;
   ares_socket_t socks[ARES_GETSOCK_MAXNUM];
-  struct pollfd pfd[ARES_GETSOCK_MAXNUM];
-  int i;
-  int num = 0;
+  সংরচনা pollfd pfd[ARES_GETSOCK_MAXNUM];
+  পূর্ণাঙ্ক i;
+  পূর্ণাঙ্ক অঙ্ক = 0;
 
-  if(!channel)
-    return 0;
+  যদি(!channel)
+    প্রত্যাগম 0;
 
   bitmask = ares_getsock(channel, socks, ARES_GETSOCK_MAXNUM);
 
-  for(i = 0; i < ARES_GETSOCK_MAXNUM; i++) {
+  প্রতি(i = 0; i < ARES_GETSOCK_MAXNUM; i++) {
     pfd[i].events = 0;
     pfd[i].revents = 0;
-    if(ARES_GETSOCK_READABLE(bitmask, i)) {
+    যদি(ARES_GETSOCK_READABLE(bitmask, i)) {
       pfd[i].fd = socks[i];
       pfd[i].events |= POLLRDNORM | POLLIN;
     }
-    if(ARES_GETSOCK_WRITABLE(bitmask, i)) {
+    যদি(ARES_GETSOCK_WRITABLE(bitmask, i)) {
       pfd[i].fd = socks[i];
       pfd[i].events |= POLLWRNORM | POLLOUT;
     }
-    if(pfd[i].events)
-      num++;
-    else
-      break;
+    যদি(pfd[i].events)
+      অঙ্ক++;
+    অন্যথা
+      ভঙ্গ;
   }
 
-  if(num) {
-    nfds = Curl_poll(pfd, (unsigned int)num, timeout_ms);
-    if(nfds < 0)
-      return -1;
+  যদি(অঙ্ক) {
+    nfds = Curl_poll(pfd, (unsigned পূর্ণাঙ্ক)অঙ্ক, timeout_ms);
+    যদি(nfds < 0)
+      প্রত্যাগম -1;
   }
-  else
+  অন্যথা
     nfds = 0;
 
-  if(!nfds)
+  যদি(!nfds)
     /* Call ares_process() unconditionally here, even if we timed out
        above, as otherwise the ares name resolve will not timeout! */
     ares_process_fd(channel, ARES_SOCKET_BAD, ARES_SOCKET_BAD);
-  else {
+  অন্যথা {
     /* move through the descriptors and ask for processing on them */
-    for(i = 0; i < num; i++)
+    প্রতি(i = 0; i < অঙ্ক; i++)
       ares_process_fd(channel,
                       (pfd[i].revents & (POLLRDNORM | POLLIN)) ?
                       pfd[i].fd : ARES_SOCKET_BAD,
                       (pfd[i].revents & (POLLWRNORM | POLLOUT)) ?
                       pfd[i].fd : ARES_SOCKET_BAD);
   }
-  return nfds;
+  প্রত্যাগম nfds;
 }
 
 #endif /* USE_ARES */
@@ -205,12 +205,12 @@ int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
 
 #ifdef USE_CURL_ASYNC
 
-#include "doh.h"
+#অন্তর্ভাব "doh.h"
 
-void Curl_async_shutdown(struct Curl_easy *data,
-                         struct Curl_resolv_async *async)
+শূন্য Curl_async_shutdown(সংরচনা Curl_easy *data,
+                         সংরচনা Curl_resolv_async *async)
 {
-  if(async) {
+  যদি(async) {
     CURL_TRC_DNS(data, "[%u] shutdown async", async->id);
     async->shutdown = TRUE;
 #ifdef USE_RESOLV_ARES
@@ -225,10 +225,10 @@ void Curl_async_shutdown(struct Curl_easy *data,
   }
 }
 
-void Curl_async_destroy(struct Curl_easy *data,
-                        struct Curl_resolv_async *async)
+শূন্য Curl_async_destroy(সংরচনা Curl_easy *data,
+                        সংরচনা Curl_resolv_async *async)
 {
-  if(async) {
+  যদি(async) {
     CURL_TRC_DNS(data, "[%u] destroy async", async->id);
     async->shutdown = TRUE;
 #ifdef USE_RESOLV_ARES
@@ -240,9 +240,9 @@ void Curl_async_destroy(struct Curl_easy *data,
 #ifndef CURL_DISABLE_DOH
     Curl_doh_cleanup(data, async);
 #endif
-    if(async->ai_A)
+    যদি(async->ai_A)
       Curl_freeaddrinfo(async->ai_A);
-    if(async->ai_AAAA)
+    যদি(async->ai_AAAA)
       Curl_freeaddrinfo(async->ai_AAAA);
 #ifdef USE_HTTPSRR
     Curl_httpsrr_destroy(async->httpsrr);
@@ -252,25 +252,25 @@ void Curl_async_destroy(struct Curl_easy *data,
   }
 }
 
-CURLcode Curl_async_failed(struct Curl_easy *data,
-                           struct Curl_resolv_async *async,
-                           const char *detail)
+CURLcode Curl_async_failed(সংরচনা Curl_easy *data,
+                           সংরচনা Curl_resolv_async *async,
+                           ধ্রুব বর্ণ *detail)
 {
-  const char *host_or_proxy = "host";
+  ধ্রুব বর্ণ *host_or_proxy = "host";
   CURLcode result = CURLE_COULDNT_RESOLVE_HOST;
 
 #ifndef CURL_DISABLE_PROXY
-  if(async->for_proxy) {
+  যদি(async->for_proxy) {
     host_or_proxy = "proxy";
     result = CURLE_COULDNT_RESOLVE_PROXY;
   }
 #endif
 
-  if(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+  যদি(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
     failf(data, "Could not resolve %s: %s%s%s%s",
           host_or_proxy, async->peer->hostname,
           detail ? " (" : "", detail ? detail : "", detail ? ")" : "");
-  return result;
+  প্রত্যাগম result;
 }
 
 #endif /* USE_CURL_ASYNC */

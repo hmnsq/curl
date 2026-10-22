@@ -21,38 +21,38 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef USE_SSL
 
-#include "urldata.h"
-#include "cfilters.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "cfilters.h"
 
-#include "vtls/vtls.h" /* generic SSL protos etc */
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/vtls_spack.h"
+#অন্তর্ভাব "vtls/vtls.h" /* generic SSL protos etc */
+#অন্তর্ভাব "vtls/vtls_int.h"
+#অন্তর্ভাব "vtls/vtls_scache.h"
+#অন্তর্ভাব "vtls/vtls_spack.h"
 
-#include "strcase.h"
-#include "url.h"
-#include "llist.h"
-#include "curl_share.h"
-#include "curl_threads.h"
-#include "curl_trc.h"
-#include "curl_sha256.h"
-#include "rand.h"
-#include "curlx/strdup.h"
+#অন্তর্ভাব "strcase.h"
+#অন্তর্ভাব "url.h"
+#অন্তর্ভাব "llist.h"
+#অন্তর্ভাব "curl_share.h"
+#অন্তর্ভাব "curl_threads.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "curl_sha256.h"
+#অন্তর্ভাব "rand.h"
+#অন্তর্ভাব "curlx/strdup.h"
 
 /* a peer+tls-config we cache sessions for */
-struct Curl_ssl_scache_peer {
-  char *ssl_peer_key;      /* id for peer + relevant TLS configuration */
-  char *clientcert;
-  char *key_passwd;
-  struct Curl_llist sessions;
-  void *sobj;              /* object instance or NULL */
+সংরচনা Curl_ssl_scache_peer {
+  বর্ণ *ssl_peer_চাবি;      /* id for peer + relevant TLS configuration */
+  বর্ণ *clientcert;
+  বর্ণ *চাবি_passwd;
+  সংরচনা Curl_llist sessions;
+  শূন্য *sobj;              /* object instance or NULL */
   Curl_ssl_scache_obj_dtor *sobj_free; /* free `sobj` callback */
-  unsigned char key_salt[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
-  unsigned char key_hmac[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
+  unsigned বর্ণ চাবি_salt[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
+  unsigned বর্ণ চাবি_hmac[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
   size_t max_sessions;
   long age;                /* a number, the higher the more recent */
   BIT(hmac_set);           /* if key_salt and key_hmac are present */
@@ -64,308 +64,308 @@ struct Curl_ssl_scache_peer {
 #define GOOD_SCACHE(x) ((x) && (x)->magic == CURL_SCACHE_MAGIC)
 
 /* Prefix the length to keep field boundaries unambiguous. */
-static CURLcode cf_ssl_peer_key_add_string(struct dynbuf *buf,
-                                           const char *name,
-                                           const char *value)
+স্থির CURLcode cf_ssl_peer_চাবি_add_string(সংরচনা dynbuf *buf,
+                                           ধ্রুব বর্ণ *name,
+                                           ধ্রুব বর্ণ *মান)
 {
-  return curlx_dyn_addf(buf, ":%s-%zu:%s", name, strlen(value), value);
+  প্রত্যাগম curlx_dyn_addf(buf, ":%s-%zu:%s", name, strlen(মান), মান);
 }
 
-static CURLcode cf_ssl_peer_key_add_path(struct dynbuf *buf,
-                                         const char *name,
-                                         const char *path,
+স্থির CURLcode cf_ssl_peer_চাবি_add_path(সংরচনা dynbuf *buf,
+                                         ধ্রুব বর্ণ *name,
+                                         ধ্রুব বর্ণ *path,
                                          bool *is_local)
 {
-  if(path && path[0]) {
+  যদি(path && path[0]) {
     /* We try to add absolute paths, so that the session key can stay valid
      * when used in another process with different CWD. When a path does not
      * exist, this does not work. Then, we add the path as is. */
 #ifdef _WIN32
-    char *abspath = _fullpath(NULL, path, 0);
-    if(abspath) {
-      CURLcode result = cf_ssl_peer_key_add_string(buf, name, abspath);
+    বর্ণ *abspath = _fullpath(রিক্ত, path, 0);
+    যদি(abspath) {
+      CURLcode result = cf_ssl_peer_চাবি_add_string(buf, name, abspath);
       /* !checksrc! disable BANNEDFUNC 1 */
-      free(abspath); /* allocated by CRT, use system free() */
-      return result;
+      মুক্ত(abspath); /* allocated by CRT, use system free() */
+      প্রত্যাগম result;
     }
     *is_local = TRUE;
-#elif defined(HAVE_REALPATH)
-    if(path[0] != '/') {
-      char *abspath = realpath(path, NULL);
-      if(abspath) {
-        CURLcode result = cf_ssl_peer_key_add_string(buf, name, abspath);
+#নোচেদ্যদি defined(HAVE_REALPATH)
+    যদি(path[0] != '/') {
+      বর্ণ *abspath = realpath(path, রিক্ত);
+      যদি(abspath) {
+        CURLcode result = cf_ssl_peer_চাবি_add_string(buf, name, abspath);
         /* !checksrc! disable BANNEDFUNC 1 */
-        free(abspath); /* allocated by libc, free without memdebug */
-        return result;
+        মুক্ত(abspath); /* allocated by libc, free without memdebug */
+        প্রত্যাগম result;
       }
       *is_local = TRUE;
     }
 #endif
-    return cf_ssl_peer_key_add_string(buf, name, path);
+    প্রত্যাগম cf_ssl_peer_চাবি_add_string(buf, name, path);
   }
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
-static CURLcode cf_ssl_peer_key_add_hash(struct dynbuf *buf,
-                                         const char *name,
-                                         struct curl_blob *blob)
+স্থির CURLcode cf_ssl_peer_চাবি_add_hash(সংরচনা dynbuf *buf,
+                                         ধ্রুব বর্ণ *name,
+                                         সংরচনা curl_blob *blob)
 {
   CURLcode result = CURLE_OK;
-  if(blob && blob->len) {
-    unsigned char hash[CURL_SHA256_DIGEST_LENGTH];
+  যদি(blob && blob->len) {
+    unsigned বর্ণ hash[CURL_SHA256_DIGEST_LENGTH];
     size_t i;
 
     result = curlx_dyn_addf(buf, ":%s-", name);
-    if(result)
-      goto out;
+    যদি(result)
+      গচ্ছ out;
     result = Curl_sha256it(hash, blob->data, blob->len);
-    if(result)
-      goto out;
-    for(i = 0; i < CURL_SHA256_DIGEST_LENGTH; ++i) {
+    যদি(result)
+      গচ্ছ out;
+    প্রতি(i = 0; i < CURL_SHA256_DIGEST_LENGTH; ++i) {
       result = curlx_dyn_addf(buf, "%02x", hash[i]);
-      if(result)
-        goto out;
+      যদি(result)
+        গচ্ছ out;
     }
   }
 out:
-  return result;
+  প্রত্যাগম result;
 }
 
-static CURLcode cf_ssl_peer_key_add_mtls(struct dynbuf *buf,
-                                         struct ssl_filter_config *ssl,
+স্থির CURLcode cf_ssl_peer_চাবি_add_mtls(সংরচনা dynbuf *buf,
+                                         সংরচনা ssl_filter_config *ssl,
                                          bool *is_local)
 {
   CURLcode result = CURLE_OK;
-  if(ssl->clientcert && ssl->clientcert[0]) {
-    result = cf_ssl_peer_key_add_path(buf, "CCERT", ssl->clientcert, is_local);
-    if(result)
-      goto out;
+  যদি(ssl->clientcert && ssl->clientcert[0]) {
+    result = cf_ssl_peer_চাবি_add_path(buf, "CCERT", ssl->clientcert, is_local);
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->key && ssl->key[0]) {
-    result = cf_ssl_peer_key_add_path(buf, "KEY", ssl->key, is_local);
-    if(result)
-      goto out;
+  যদি(ssl->চাবি && ssl->চাবি[0]) {
+    result = cf_ssl_peer_চাবি_add_path(buf, "KEY", ssl->চাবি, is_local);
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->key_blob) {
-    result = cf_ssl_peer_key_add_hash(buf, "KEYBlob", ssl->key_blob);
-    if(result)
-      goto out;
+  যদি(ssl->চাবি_blob) {
+    result = cf_ssl_peer_চাবি_add_hash(buf, "KEYBlob", ssl->চাবি_blob);
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->cert_type && ssl->cert_type[0]) {
+  যদি(ssl->cert_type && ssl->cert_type[0]) {
     size_t i;
     result = curlx_dyn_addf(buf, ":CT-%zu:", strlen(ssl->cert_type));
-    for(i = 0; !result && ssl->cert_type[i]; i++) {
-      char c = Curl_raw_toupper(ssl->cert_type[i]);
+    প্রতি(i = 0; !result && ssl->cert_type[i]; i++) {
+      বর্ণ c = Curl_raw_toupper(ssl->cert_type[i]);
       result = curlx_dyn_addn(buf, &c, 1);
     }
-    if(result)
-      goto out;
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->key_type && ssl->key_type[0]) {
+  যদি(ssl->চাবি_type && ssl->চাবি_type[0]) {
     size_t i;
-    result = curlx_dyn_addf(buf, ":KT-%zu:", strlen(ssl->key_type));
-    for(i = 0; !result && ssl->key_type[i]; i++) {
-      char c = Curl_raw_toupper(ssl->key_type[i]);
+    result = curlx_dyn_addf(buf, ":KT-%zu:", strlen(ssl->চাবি_type));
+    প্রতি(i = 0; !result && ssl->চাবি_type[i]; i++) {
+      বর্ণ c = Curl_raw_toupper(ssl->চাবি_type[i]);
       result = curlx_dyn_addn(buf, &c, 1);
     }
   }
 out:
-  return result;
+  প্রত্যাগম result;
 }
 
 #define CURL_SSLS_LOCAL_SUFFIX     ":L"
 #define CURL_SSLS_GLOBAL_SUFFIX    ":G"
 
-static bool cf_ssl_peer_key_is_global(const char *peer_key)
+স্থির bool cf_ssl_peer_চাবি_is_global(ধ্রুব বর্ণ *peer_চাবি)
 {
-  size_t len = peer_key ? strlen(peer_key) : 0;
-  return (len > 2) &&
-         (peer_key[len - 1] == 'G') &&
-         (peer_key[len - 2] == ':');
+  size_t len = peer_চাবি ? strlen(peer_চাবি) : 0;
+  প্রত্যাগম (len > 2) &&
+         (peer_চাবি[len - 1] == 'G') &&
+         (peer_চাবি[len - 2] == ':');
 }
 
-static CURLcode ssl_peer_key_add_transport(struct dynbuf *buf,
+স্থির CURLcode ssl_peer_চাবি_add_transport(সংরচনা dynbuf *buf,
                                            uint8_t transport)
 {
-  switch(transport) {
-  case TRNSPRT_TCP:
-    return CURLE_OK;
-  case TRNSPRT_UDP:
-    return curlx_dyn_add(buf, ":UDP");
-  case TRNSPRT_QUIC:
-    return curlx_dyn_add(buf, ":QUIC");
-  case TRNSPRT_UNIX:
-    return curlx_dyn_add(buf, ":UNIX");
-  default:
-    return curlx_dyn_addf(buf, ":TRNSPRT-%d", transport);
+  বিকল্প(transport) {
+  পক্ষ TRNSPRT_TCP:
+    প্রত্যাগম CURLE_OK;
+  পক্ষ TRNSPRT_UDP:
+    প্রত্যাগম curlx_dyn_add(buf, ":UDP");
+  পক্ষ TRNSPRT_QUIC:
+    প্রত্যাগম curlx_dyn_add(buf, ":QUIC");
+  পক্ষ TRNSPRT_UNIX:
+    প্রত্যাগম curlx_dyn_add(buf, ":UNIX");
+  স্বভাব:
+    প্রত্যাগম curlx_dyn_addf(buf, ":TRNSPRT-%d", transport);
   }
 }
 
-static CURLcode ssl_peer_key_add_vrfy(struct dynbuf *buf,
-                                      struct ssl_filter_config *ssl,
-                                      const struct ssl_peer *peer)
+স্থির CURLcode ssl_peer_চাবি_add_vrfy(সংরচনা dynbuf *buf,
+                                      সংরচনা ssl_filter_config *ssl,
+                                      ধ্রুব সংরচনা ssl_peer *peer)
 {
   CURLcode result;
 
-  if(!ssl->verifypeer) {
+  যদি(!ssl->verifypeer) {
     result = curlx_dyn_add(buf, ":NO-VRFY-PEER");
-    if(result)
-      return result;
+    যদি(result)
+      প্রত্যাগম result;
   }
-  if(!ssl->verifyhost) {
+  যদি(!ssl->verifyhost) {
     result = curlx_dyn_add(buf, ":NO-VRFY-HOST");
-    if(result)
-      return result;
+    যদি(result)
+      প্রত্যাগম result;
   }
-  if(ssl->verifystatus) {
+  যদি(ssl->verifystatus) {
     result = curlx_dyn_add(buf, ":VRFY-STATUS");
-    if(result)
-      return result;
+    যদি(result)
+      প্রত্যাগম result;
   }
-  if((!ssl->verifypeer || !ssl->verifyhost) &&
+  যদি((!ssl->verifypeer || !ssl->verifyhost) &&
      peer->peer && !Curl_peer_equal(peer->origin, peer->peer)) {
-    result = cf_ssl_peer_key_add_string(buf, "CHOST", peer->peer->hostname);
-    if(!result)
+    result = cf_ssl_peer_চাবি_add_string(buf, "CHOST", peer->peer->hostname);
+    যদি(!result)
       result = curlx_dyn_addf(buf, ":CPORT-%u", peer->peer->port);
-    if(result)
-      return result;
+    যদি(result)
+      প্রত্যাগম result;
   }
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
-static CURLcode ssl_peer_key_build(struct ssl_filter_config *ssl,
-                                   const struct ssl_peer *peer,
-                                   const char *tls_id,
-                                   char **ppeer_key)
+স্থির CURLcode ssl_peer_চাবি_build(সংরচনা ssl_filter_config *ssl,
+                                   ধ্রুব সংরচনা ssl_peer *peer,
+                                   ধ্রুব বর্ণ *tls_id,
+                                   বর্ণ **ppeer_চাবি)
 {
-  struct dynbuf buf;
-  size_t key_len;
+  সংরচনা dynbuf buf;
+  size_t চাবি_len;
   bool is_local = FALSE;
   CURLcode result;
 
-  *ppeer_key = NULL;
+  *ppeer_চাবি = রিক্ত;
   curlx_dyn_init(&buf, 10 * 1024);
 
   result = curlx_dyn_addf(&buf, "%s:%s:%d:KEY-V3",
                           peer->origin->scheme->name,
                           peer->origin->hostname, peer->origin->port);
-  if(result)
-    goto out;
-  result = ssl_peer_key_add_transport(&buf, peer->transport);
-  if(result)
-    goto out;
-  result = ssl_peer_key_add_vrfy(&buf, ssl, peer);
-  if(result)
-    goto out;
-  if(ssl->version || ssl->version_max) {
+  যদি(result)
+    গচ্ছ out;
+  result = ssl_peer_চাবি_add_transport(&buf, peer->transport);
+  যদি(result)
+    গচ্ছ out;
+  result = ssl_peer_চাবি_add_vrfy(&buf, ssl, peer);
+  যদি(result)
+    গচ্ছ out;
+  যদি(ssl->version || ssl->version_max) {
     result = curlx_dyn_addf(&buf, ":TLSVER-%d-%u", ssl->version,
                             (ssl->version_max >> 16));
-    if(result)
-      goto out;
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->ssl_options) {
+  যদি(ssl->ssl_options) {
     result = curlx_dyn_addf(&buf, ":TLSOPT-%x", ssl->ssl_options);
-    if(result)
-      goto out;
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->cipher_list) {
-    result = cf_ssl_peer_key_add_string(&buf, "CIPHER", ssl->cipher_list);
-    if(result)
-      goto out;
+  যদি(ssl->cipher_list) {
+    result = cf_ssl_peer_চাবি_add_string(&buf, "CIPHER", ssl->cipher_list);
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->cipher_list13) {
-    result = cf_ssl_peer_key_add_string(&buf, "CIPHER13", ssl->cipher_list13);
-    if(result)
-      goto out;
+  যদি(ssl->cipher_list13) {
+    result = cf_ssl_peer_চাবি_add_string(&buf, "CIPHER13", ssl->cipher_list13);
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->curves) {
-    result = cf_ssl_peer_key_add_string(&buf, "CURVES", ssl->curves);
-    if(result)
-      goto out;
+  যদি(ssl->curves) {
+    result = cf_ssl_peer_চাবি_add_string(&buf, "CURVES", ssl->curves);
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->signature_algorithms) {
-    result = cf_ssl_peer_key_add_string(&buf, "SIGALGS",
+  যদি(ssl->signature_algorithms) {
+    result = cf_ssl_peer_চাবি_add_string(&buf, "SIGALGS",
                                         ssl->signature_algorithms);
-    if(result)
-      goto out;
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->verifypeer) {
-    result = cf_ssl_peer_key_add_path(&buf, "CA", ssl->CAfile, &is_local);
-    if(!result)
-      result = cf_ssl_peer_key_add_path(&buf, "CApath",
+  যদি(ssl->verifypeer) {
+    result = cf_ssl_peer_চাবি_add_path(&buf, "CA", ssl->CAfile, &is_local);
+    যদি(!result)
+      result = cf_ssl_peer_চাবি_add_path(&buf, "CApath",
                                         ssl->CApath, &is_local);
-    if(!result && ssl->native_ca_store)
+    যদি(!result && ssl->native_ca_store)
       result = curlx_dyn_add(&buf, ":NATIVE-CA");
-    if(!result)
-      result = cf_ssl_peer_key_add_path(&buf, "CRL", ssl->CRLfile, &is_local);
-    if(result)
-      goto out;
-    result = cf_ssl_peer_key_add_path(&buf, "Issuer", ssl->issuercert,
+    যদি(!result)
+      result = cf_ssl_peer_চাবি_add_path(&buf, "CRL", ssl->CRLfile, &is_local);
+    যদি(result)
+      গচ্ছ out;
+    result = cf_ssl_peer_চাবি_add_path(&buf, "Issuer", ssl->issuercert,
                                       &is_local);
-    if(result)
-      goto out;
-    if(ssl->ca_info_blob) {
-      result = cf_ssl_peer_key_add_hash(&buf, "CAInfoBlob", ssl->ca_info_blob);
-      if(result)
-        goto out;
+    যদি(result)
+      গচ্ছ out;
+    যদি(ssl->ca_info_blob) {
+      result = cf_ssl_peer_চাবি_add_hash(&buf, "CAInfoBlob", ssl->ca_info_blob);
+      যদি(result)
+        গচ্ছ out;
     }
-    if(ssl->issuercert_blob) {
-      result = cf_ssl_peer_key_add_hash(&buf, "IssuerBlob",
+    যদি(ssl->issuercert_blob) {
+      result = cf_ssl_peer_চাবি_add_hash(&buf, "IssuerBlob",
                                         ssl->issuercert_blob);
-      if(result)
-        goto out;
+      যদি(result)
+        গচ্ছ out;
     }
   }
-  if(ssl->cert_blob) {
-    result = cf_ssl_peer_key_add_hash(&buf, "CertBlob", ssl->cert_blob);
-    if(result)
-      goto out;
+  যদি(ssl->cert_blob) {
+    result = cf_ssl_peer_চাবি_add_hash(&buf, "CertBlob", ssl->cert_blob);
+    যদি(result)
+      গচ্ছ out;
   }
-  if(ssl->pinned_key && ssl->pinned_key[0]) {
-    result = cf_ssl_peer_key_add_string(&buf, "Pinned", ssl->pinned_key);
-    if(result)
-      goto out;
+  যদি(ssl->pinned_চাবি && ssl->pinned_চাবি[0]) {
+    result = cf_ssl_peer_চাবি_add_string(&buf, "Pinned", ssl->pinned_চাবি);
+    যদি(result)
+      গচ্ছ out;
   }
 
-  result = cf_ssl_peer_key_add_mtls(&buf, ssl, &is_local);
-  if(result)
-    goto out;
+  result = cf_ssl_peer_চাবি_add_mtls(&buf, ssl, &is_local);
+  যদি(result)
+    গচ্ছ out;
 
-  if(!tls_id || !tls_id[0]) {
+  যদি(!tls_id || !tls_id[0]) {
     result = CURLE_FAILED_INIT;
-    goto out;
+    গচ্ছ out;
   }
-  result = cf_ssl_peer_key_add_string(&buf, "IMPL", tls_id);
-  if(result)
-    goto out;
+  result = cf_ssl_peer_চাবি_add_string(&buf, "IMPL", tls_id);
+  যদি(result)
+    গচ্ছ out;
 
   result = curlx_dyn_addf(&buf, is_local ?
                           CURL_SSLS_LOCAL_SUFFIX : CURL_SSLS_GLOBAL_SUFFIX);
-  if(result)
-    goto out;
+  যদি(result)
+    গচ্ছ out;
 
-  *ppeer_key = curlx_dyn_take(&buf, &key_len);
+  *ppeer_চাবি = curlx_dyn_take(&buf, &চাবি_len);
   /* we added printable char, and dynbuf always null-terminates, no need
    * to track length */
 
 out:
   curlx_dyn_free(&buf);
-  return result;
+  প্রত্যাগম result;
 }
 
-CURLcode Curl_ssl_peer_key_make(const struct ssl_peer *peer,
-                                struct ssl_filter_config *sslc,
-                                const char *tls_id,
-                                char **ppeer_key)
+CURLcode Curl_ssl_peer_চাবি_make(ধ্রুব সংরচনা ssl_peer *peer,
+                                সংরচনা ssl_filter_config *sslc,
+                                ধ্রুব বর্ণ *tls_id,
+                                বর্ণ **ppeer_চাবি)
 {
-  return ssl_peer_key_build(sslc, peer, tls_id, ppeer_key);
+  প্রত্যাগম ssl_peer_চাবি_build(sslc, peer, tls_id, ppeer_চাবি);
 }
 
-struct Curl_ssl_scache {
-  unsigned int magic;
-  struct Curl_ssl_scache_peer *peers;
-  size_t peer_count;
-  int default_lifetime_secs;
+সংরচনা Curl_ssl_scache {
+  unsigned পূর্ণাঙ্ক magic;
+  সংরচনা Curl_ssl_scache_peer *peers;
+  size_t peer_গুনতি;
+  পূর্ণাঙ্ক default_lifetime_secs;
   long age;
 #ifdef USE_MUTEX
   curl_mutex_t mutex;
@@ -374,62 +374,62 @@ struct Curl_ssl_scache {
   BIT(is_locked);
 };
 
-static struct Curl_ssl_scache *cf_ssl_scache_get(struct Curl_easy *data)
+স্থির সংরচনা Curl_ssl_scache *cf_ssl_scache_get(সংরচনা Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = NULL;
+  সংরচনা Curl_ssl_scache *scache = রিক্ত;
   /* If a share is present, its ssl_scache has preference over the multi */
-  if(data->share && data->share->ssl_scache)
+  যদি(data->share && data->share->ssl_scache)
     scache = data->share->ssl_scache;
-  else if(data->multi && data->multi->ssl_scache)
+  অন্যথা যদি(data->multi && data->multi->ssl_scache)
     scache = data->multi->ssl_scache;
-  if(scache && !GOOD_SCACHE(scache)) {
+  যদি(scache && !GOOD_SCACHE(scache)) {
     failf(data, "transfer would use an invalid scache at %p, denied",
-          (void *)scache);
+          (শূন্য *)scache);
     DEBUGASSERT(0);
-    return NULL;
+    প্রত্যাগম রিক্ত;
   }
-  return scache;
+  প্রত্যাগম scache;
 }
 
-static void cf_ssl_scache_session_ldestroy(void *udata, void *obj)
+স্থির শূন্য cf_ssl_scache_session_ldestroy(শূন্য *udata, শূন্য *obj)
 {
-  struct Curl_ssl_session *s = obj;
-  (void)udata;
+  সংরচনা Curl_ssl_session *s = obj;
+  (শূন্য)udata;
   curlx_free(s->sdata);
   curlx_free(s->quic_tp);
   curlx_free(s->alpn);
   curlx_free(s);
 }
 
-CURLcode Curl_ssl_session_create(void *sdata, size_t sdata_len,
-                                 int ietf_tls_id, const char *alpn,
+CURLcode Curl_ssl_session_create(শূন্য *sdata, size_t sdata_len,
+                                 পূর্ণাঙ্ক ietf_tls_id, ধ্রুব বর্ণ *alpn,
                                  curl_off_t valid_until, size_t earlydata_max,
-                                 struct Curl_ssl_session **psession)
+                                 সংরচনা Curl_ssl_session **psession)
 {
-  return Curl_ssl_session_create2(sdata, sdata_len, ietf_tls_id, alpn,
+  প্রত্যাগম Curl_ssl_session_create2(sdata, sdata_len, ietf_tls_id, alpn,
                                   valid_until, earlydata_max,
-                                  NULL, 0, psession);
+                                  রিক্ত, 0, psession);
 }
 
-CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
-                                  int ietf_tls_id, const char *alpn,
+CURLcode Curl_ssl_session_create2(শূন্য *sdata, size_t sdata_len,
+                                  পূর্ণাঙ্ক ietf_tls_id, ধ্রুব বর্ণ *alpn,
                                   curl_off_t valid_until, size_t earlydata_max,
-                                  unsigned char *quic_tp, size_t quic_tp_len,
-                                  struct Curl_ssl_session **psession)
+                                  unsigned বর্ণ *quic_tp, size_t quic_tp_len,
+                                  সংরচনা Curl_ssl_session **psession)
 {
-  struct Curl_ssl_session *s;
+  সংরচনা Curl_ssl_session *s;
 
-  if(!sdata || !sdata_len) {
+  যদি(!sdata || !sdata_len) {
     curlx_free(sdata);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    প্রত্যাগম CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  *psession = NULL;
-  s = curlx_calloc(1, sizeof(*s));
-  if(!s) {
+  *psession = রিক্ত;
+  s = curlx_calloc(1, পরিমাণ(*s));
+  যদি(!s) {
     curlx_free(sdata);
     curlx_free(quic_tp);
-    return CURLE_OUT_OF_MEMORY;
+    প্রত্যাগম CURLE_OUT_OF_MEMORY;
   }
 
   s->ietf_tls_id = ietf_tls_id;
@@ -439,223 +439,223 @@ CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
   s->sdata_len = sdata_len;
   s->quic_tp = quic_tp;
   s->quic_tp_len = quic_tp_len;
-  if(alpn) {
+  যদি(alpn) {
     s->alpn = curlx_strdup(alpn);
-    if(!s->alpn) {
-      cf_ssl_scache_session_ldestroy(NULL, s);
-      return CURLE_OUT_OF_MEMORY;
+    যদি(!s->alpn) {
+      cf_ssl_scache_session_ldestroy(রিক্ত, s);
+      প্রত্যাগম CURLE_OUT_OF_MEMORY;
     }
   }
   *psession = s;
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
-void Curl_ssl_session_destroy(struct Curl_ssl_session *s)
+শূন্য Curl_ssl_session_destroy(সংরচনা Curl_ssl_session *s)
 {
-  if(s) {
+  যদি(s) {
     /* if in the list, the list destructor takes care of it */
-    if(Curl_node_llist(&s->list))
-      Curl_node_remove(&s->list);
-    else {
-      cf_ssl_scache_session_ldestroy(NULL, s);
+    যদি(Curl_গ্রন্থি_llist(&s->list))
+      Curl_গ্রন্থি_remove(&s->list);
+    অন্যথা {
+      cf_ssl_scache_session_ldestroy(রিক্ত, s);
     }
   }
 }
 
-CURLcode Curl_ssl_session_dup(struct Curl_ssl_session *src,
-                              struct Curl_ssl_session **pdest)
+CURLcode Curl_ssl_session_dup(সংরচনা Curl_ssl_session *src,
+                              সংরচনা Curl_ssl_session **pdest)
 {
-  struct Curl_ssl_session *dest = NULL;
+  সংরচনা Curl_ssl_session *dest = রিক্ত;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  if(!src || !pdest)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  *pdest = NULL;
+  যদি(!src || !pdest)
+    প্রত্যাগম CURLE_BAD_FUNCTION_ARGUMENT;
+  *pdest = রিক্ত;
 
-  dest = curlx_calloc(1, sizeof(*dest));
-  if(!dest)
-    goto out;
+  dest = curlx_calloc(1, পরিমাণ(*dest));
+  যদি(!dest)
+    গচ্ছ out;
 
   dest->ietf_tls_id = src->ietf_tls_id;
   dest->valid_until = src->valid_until;
   dest->earlydata_max = src->earlydata_max;
   dest->sectrust_verified = src->sectrust_verified;
-  if(src->sdata_len) {
+  যদি(src->sdata_len) {
     dest->sdata = curlx_memdup(src->sdata, src->sdata_len);
-    if(!dest->sdata)
-      goto out;
+    যদি(!dest->sdata)
+      গচ্ছ out;
     dest->sdata_len = src->sdata_len;
   }
-  if(src->quic_tp_len) {
+  যদি(src->quic_tp_len) {
     dest->quic_tp = curlx_memdup(src->quic_tp, src->quic_tp_len);
-    if(!dest->quic_tp)
-      goto out;
+    যদি(!dest->quic_tp)
+      গচ্ছ out;
     dest->quic_tp_len = src->quic_tp_len;
   }
-  if(src->alpn) {
+  যদি(src->alpn) {
     dest->alpn = curlx_strdup(src->alpn);
-    if(!dest->alpn)
-      goto out;
+    যদি(!dest->alpn)
+      গচ্ছ out;
   }
   result = CURLE_OK;
 
 out:
-  if(!result)
+  যদি(!result)
     *pdest = dest;
-  else {
-    *pdest = NULL;
-    if(dest)
+  অন্যথা {
+    *pdest = রিক্ত;
+    যদি(dest)
       Curl_ssl_session_destroy(dest);
   }
-  return result;
+  প্রত্যাগম result;
 }
 
-static void cf_ssl_scache_clear_peer(struct Curl_ssl_scache_peer *peer)
+স্থির শূন্য cf_ssl_scache_clear_peer(সংরচনা Curl_ssl_scache_peer *peer)
 {
-  Curl_llist_destroy(&peer->sessions, NULL);
-  if(peer->sobj) {
+  Curl_llist_destroy(&peer->sessions, রিক্ত);
+  যদি(peer->sobj) {
     DEBUGASSERT(peer->sobj_free);
-    if(peer->sobj_free)
+    যদি(peer->sobj_free)
       peer->sobj_free(peer->sobj);
-    peer->sobj = NULL;
+    peer->sobj = রিক্ত;
   }
-  peer->sobj_free = NULL;
+  peer->sobj_free = রিক্ত;
   curlx_safefree(peer->clientcert);
-  curlx_safefree(peer->key_passwd);
-  curlx_safefree(peer->ssl_peer_key);
+  curlx_safefree(peer->চাবি_passwd);
+  curlx_safefree(peer->ssl_peer_চাবি);
   peer->age = 0;
   peer->hmac_set = FALSE;
 }
 
-static void cf_ssl_scache_peer_set_obj(struct Curl_ssl_scache_peer *peer,
-                                       void *sobj,
+স্থির শূন্য cf_ssl_scache_peer_set_obj(সংরচনা Curl_ssl_scache_peer *peer,
+                                       শূন্য *sobj,
                                        Curl_ssl_scache_obj_dtor *sobj_free)
 {
   DEBUGASSERT(peer);
-  if(peer->sobj_free) {
+  যদি(peer->sobj_free) {
     peer->sobj_free(peer->sobj);
   }
   peer->sobj = sobj;
   peer->sobj_free = sobj_free;
 }
 
-static void cf_ssl_cache_peer_update(struct Curl_ssl_scache_peer *peer)
+স্থির শূন্য cf_ssl_cache_peer_update(সংরচনা Curl_ssl_scache_peer *peer)
 {
   /* The sessions of this peer are exportable if
    * - it has no confidential information
    * - its peer key is not yet known, because sessions were
    *   imported using only the salt+hmac
    * - the peer key is global, e.g. carrying no relative paths */
-  peer->exportable = (!peer->clientcert && !peer->key_passwd &&
-                      (!peer->ssl_peer_key ||
-                       cf_ssl_peer_key_is_global(peer->ssl_peer_key)));
+  peer->exportable = (!peer->clientcert && !peer->চাবি_passwd &&
+                      (!peer->ssl_peer_চাবি ||
+                       cf_ssl_peer_চাবি_is_global(peer->ssl_peer_চাবি)));
 }
 
-static CURLcode cf_ssl_scache_peer_init(struct Curl_ssl_scache_peer *peer,
-                                        const char *ssl_peer_key,
-                                        const char *clientcert,
-                                        const char *key_passwd,
-                                        const unsigned char *salt,
-                                        const unsigned char *hmac)
+স্থির CURLcode cf_ssl_scache_peer_init(সংরচনা Curl_ssl_scache_peer *peer,
+                                        ধ্রুব বর্ণ *ssl_peer_চাবি,
+                                        ধ্রুব বর্ণ *clientcert,
+                                        ধ্রুব বর্ণ *চাবি_passwd,
+                                        ধ্রুব unsigned বর্ণ *salt,
+                                        ধ্রুব unsigned বর্ণ *hmac)
 {
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  DEBUGASSERT(!peer->ssl_peer_key);
-  if(ssl_peer_key) {
-    peer->ssl_peer_key = curlx_strdup(ssl_peer_key);
-    if(!peer->ssl_peer_key)
-      goto out;
+  DEBUGASSERT(!peer->ssl_peer_চাবি);
+  যদি(ssl_peer_চাবি) {
+    peer->ssl_peer_চাবি = curlx_strdup(ssl_peer_চাবি);
+    যদি(!peer->ssl_peer_চাবি)
+      গচ্ছ out;
     peer->hmac_set = FALSE;
   }
-  else if(salt && hmac) {
-    memcpy(peer->key_salt, salt, sizeof(peer->key_salt));
-    memcpy(peer->key_hmac, hmac, sizeof(peer->key_hmac));
+  অন্যথা যদি(salt && hmac) {
+    memcpy(peer->চাবি_salt, salt, পরিমাণ(peer->চাবি_salt));
+    memcpy(peer->চাবি_hmac, hmac, পরিমাণ(peer->চাবি_hmac));
     peer->hmac_set = TRUE;
   }
-  else {
+  অন্যথা {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    গচ্ছ out;
   }
-  if(clientcert) {
+  যদি(clientcert) {
     peer->clientcert = curlx_strdup(clientcert);
-    if(!peer->clientcert)
-      goto out;
+    যদি(!peer->clientcert)
+      গচ্ছ out;
   }
-  if(key_passwd) {
-    peer->key_passwd = curlx_strdup(key_passwd);
-    if(!peer->key_passwd)
-      goto out;
+  যদি(চাবি_passwd) {
+    peer->চাবি_passwd = curlx_strdup(চাবি_passwd);
+    যদি(!peer->চাবি_passwd)
+      গচ্ছ out;
   }
   cf_ssl_cache_peer_update(peer);
   result = CURLE_OK;
 out:
-  if(result)
+  যদি(result)
     cf_ssl_scache_clear_peer(peer);
-  return result;
+  প্রত্যাগম result;
 }
 
-static void cf_scache_session_remove(struct Curl_ssl_scache_peer *peer,
-                                     struct Curl_ssl_session *s)
+স্থির শূন্য cf_scache_session_remove(সংরচনা Curl_ssl_scache_peer *peer,
+                                     সংরচনা Curl_ssl_session *s)
 {
-  (void)peer;
-  DEBUGASSERT(Curl_node_llist(&s->list) == &peer->sessions);
+  (শূন্য)peer;
+  DEBUGASSERT(Curl_গ্রন্থি_llist(&s->list) == &peer->sessions);
   Curl_ssl_session_destroy(s);
 }
 
-static bool cf_scache_session_expired(struct Curl_ssl_session *s,
+স্থির bool cf_scache_session_expired(সংরচনা Curl_ssl_session *s,
                                       curl_off_t now)
 {
-  return (s->valid_until > 0) && (s->valid_until < now);
+  প্রত্যাগম (s->valid_until > 0) && (s->valid_until < now);
 }
 
-static void cf_scache_peer_remove_expired(struct Curl_ssl_scache_peer *peer,
+স্থির শূন্য cf_scache_peer_remove_expired(সংরচনা Curl_ssl_scache_peer *peer,
                                           curl_off_t now)
 {
-  struct Curl_llist_node *n = Curl_llist_head(&peer->sessions);
-  while(n) {
-    struct Curl_ssl_session *s = Curl_node_elem(n);
-    n = Curl_node_next(n);
-    if(cf_scache_session_expired(s, now))
+  সংরচনা Curl_llist_গ্রন্থি *n = Curl_llist_head(&peer->sessions);
+  যাবত্(n) {
+    সংরচনা Curl_ssl_session *s = Curl_গ্রন্থি_elem(n);
+    n = Curl_গ্রন্থি_next(n);
+    যদি(cf_scache_session_expired(s, now))
       cf_scache_session_remove(peer, s);
   }
 }
 
-static void cf_scache_peer_remove_non13(struct Curl_ssl_scache_peer *peer)
+স্থির শূন্য cf_scache_peer_remove_non13(সংরচনা Curl_ssl_scache_peer *peer)
 {
-  struct Curl_llist_node *n = Curl_llist_head(&peer->sessions);
-  while(n) {
-    struct Curl_ssl_session *s = Curl_node_elem(n);
-    n = Curl_node_next(n);
-    if(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3)
+  সংরচনা Curl_llist_গ্রন্থি *n = Curl_llist_head(&peer->sessions);
+  যাবত্(n) {
+    সংরচনা Curl_ssl_session *s = Curl_গ্রন্থি_elem(n);
+    n = Curl_গ্রন্থি_next(n);
+    যদি(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3)
       cf_scache_session_remove(peer, s);
   }
 }
 
 CURLcode Curl_ssl_scache_create(size_t max_peers,
                                 size_t max_sessions_per_peer,
-                                struct Curl_ssl_scache **pscache)
+                                সংরচনা Curl_ssl_scache **pscache)
 {
-  struct Curl_ssl_scache *scache;
-  struct Curl_ssl_scache_peer *peers;
+  সংরচনা Curl_ssl_scache *scache;
+  সংরচনা Curl_ssl_scache_peer *peers;
   size_t i;
 
-  *pscache = NULL;
-  peers = curlx_calloc(max_peers, sizeof(*peers));
-  if(!peers)
-    return CURLE_OUT_OF_MEMORY;
+  *pscache = রিক্ত;
+  peers = curlx_calloc(max_peers, পরিমাণ(*peers));
+  যদি(!peers)
+    প্রত্যাগম CURLE_OUT_OF_MEMORY;
 
-  scache = curlx_calloc(1, sizeof(*scache));
-  if(!scache) {
+  scache = curlx_calloc(1, পরিমাণ(*scache));
+  যদি(!scache) {
     curlx_free(peers);
-    return CURLE_OUT_OF_MEMORY;
+    প্রত্যাগম CURLE_OUT_OF_MEMORY;
   }
 
   scache->magic = CURL_SCACHE_MAGIC;
   scache->default_lifetime_secs = (24 * 60 * 60); /* 1 day */
-  scache->peer_count = max_peers;
+  scache->peer_গুনতি = max_peers;
   scache->peers = peers;
   scache->age = 1;
-  for(i = 0; i < scache->peer_count; ++i) {
+  প্রতি(i = 0; i < scache->peer_গুনতি; ++i) {
     scache->peers[i].max_sessions = max_sessions_per_peer;
     Curl_llist_init(&scache->peers[i].sessions,
                     cf_ssl_scache_session_ldestroy);
@@ -664,15 +664,15 @@ CURLcode Curl_ssl_scache_create(size_t max_peers,
   Curl_mutex_init(&scache->mutex);
 #endif
   *pscache = scache;
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
-void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache)
+শূন্য Curl_ssl_scache_destroy(সংরচনা Curl_ssl_scache *scache)
 {
-  if(GOOD_SCACHE(scache)) {
+  যদি(GOOD_SCACHE(scache)) {
     size_t i;
     scache->magic = 0;
-    for(i = 0; i < scache->peer_count; ++i) {
+    প্রতি(i = 0; i < scache->peer_গুনতি; ++i) {
       cf_ssl_scache_clear_peer(&scache->peers[i]);
     }
     curlx_free(scache->peers);
@@ -683,22 +683,22 @@ void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache)
   }
 }
 
-bool Curl_ssl_scache_use(struct Curl_cfilter *cf, struct Curl_easy *data)
+bool Curl_ssl_scache_use(সংরচনা Curl_cfilter *cf, সংরচনা Curl_easy *data)
 {
-  if(cf_ssl_scache_get(data)) {
-    struct ssl_filter_config *conn_config =
+  যদি(cf_ssl_scache_get(data)) {
+    সংরচনা ssl_filter_config *conn_config =
       Curl_ssl_cf_get_filter_config(cf);
-    return conn_config ? conn_config->cache_session : FALSE;
+    প্রত্যাগম conn_config ? conn_config->cache_session : FALSE;
   }
-  return FALSE;
+  প্রত্যাগম FALSE;
 }
 
 /* Lock shared SSL session data */
-void Curl_ssl_scache_lock(struct Curl_easy *data)
+শূন্য Curl_ssl_scache_lock(সংরচনা Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  if(scache) {
-    if(CURL_SHARE_ssl_scache(data))
+  সংরচনা Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  যদি(scache) {
+    যদি(CURL_SHARE_ssl_scache(data))
       Curl_share_lock(data, CURL_LOCK_DATA_SSL_SESSION,
                       CURL_LOCK_ACCESS_SINGLE);
 #ifdef USE_MUTEX
@@ -707,7 +707,7 @@ void Curl_ssl_scache_lock(struct Curl_easy *data)
     DEBUGASSERT(!scache->is_locked);
     scache->is_locked = TRUE;
     Curl_mutex_release(&scache->mutex);
-#else
+#অন্যথা
     DEBUGASSERT(!scache->is_locked);
     scache->is_locked = TRUE;
 #endif
@@ -715,428 +715,428 @@ void Curl_ssl_scache_lock(struct Curl_easy *data)
 }
 
 /* Unlock shared SSL session data */
-void Curl_ssl_scache_unlock(struct Curl_easy *data)
+শূন্য Curl_ssl_scache_unlock(সংরচনা Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  if(scache) {
+  সংরচনা Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  যদি(scache) {
 #ifdef USE_MUTEX
     Curl_mutex_acquire(&scache->mutex);
     scache->locking_thread = 0;
     DEBUGASSERT(scache->is_locked);
     scache->is_locked = FALSE;
     Curl_mutex_release(&scache->mutex);
-#else
+#অন্যথা
     DEBUGASSERT(scache->is_locked);
     scache->is_locked = FALSE;
 #endif
-    if(CURL_SHARE_ssl_scache(data))
+    যদি(CURL_SHARE_ssl_scache(data))
       Curl_share_unlock(data, CURL_LOCK_DATA_SSL_SESSION);
   }
 }
 
-bool Curl_ssl_scache_is_locked_by_current_thread(struct Curl_easy *data)
+bool Curl_ssl_scache_is_locked_by_current_thread(সংরচনা Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  সংরচনা Curl_ssl_scache *scache = cf_ssl_scache_get(data);
   bool locked = FALSE;
-  if(!scache)
-    return FALSE;
+  যদি(!scache)
+    প্রত্যাগম FALSE;
 #ifdef USE_MUTEX
   Curl_mutex_acquire(&scache->mutex);
   locked = scache->is_locked && Curl_thread_is_current(scache->locking_thread);
   Curl_mutex_release(&scache->mutex);
-#else
+#অন্যথা
   locked = (bool)scache->is_locked;
 #endif
-  return locked;
+  প্রত্যাগম locked;
 }
 
-static bool cf_ssl_scache_match_auth(struct Curl_ssl_scache_peer *peer,
-                                     struct ssl_filter_config *conn_config)
+স্থির bool cf_ssl_scache_match_auth(সংরচনা Curl_ssl_scache_peer *peer,
+                                     সংরচনা ssl_filter_config *conn_config)
 {
-  if(!conn_config) {
-    if(peer->clientcert || peer->key_passwd)
-      return FALSE;
-    return TRUE;
+  যদি(!conn_config) {
+    যদি(peer->clientcert || peer->চাবি_passwd)
+      প্রত্যাগম FALSE;
+    প্রত্যাগম TRUE;
   }
-  else if(!Curl_safecmp(peer->clientcert, conn_config->clientcert))
-    return FALSE;
-  if(Curl_timestrcmp(peer->key_passwd, conn_config->key_passwd))
-    return FALSE;
-  return TRUE;
+  অন্যথা যদি(!Curl_safecmp(peer->clientcert, conn_config->clientcert))
+    প্রত্যাগম FALSE;
+  যদি(Curl_timestrcmp(peer->চাবি_passwd, conn_config->চাবি_passwd))
+    প্রত্যাগম FALSE;
+  প্রত্যাগম TRUE;
 }
 
-static CURLcode cf_ssl_find_peer_by_key(struct Curl_easy *data,
-                                        struct Curl_ssl_scache *scache,
-                                        const char *ssl_peer_key,
-                                        struct ssl_filter_config *conn_config,
-                                        struct Curl_ssl_scache_peer **ppeer)
+স্থির CURLcode cf_ssl_find_peer_by_চাবি(সংরচনা Curl_easy *data,
+                                        সংরচনা Curl_ssl_scache *scache,
+                                        ধ্রুব বর্ণ *ssl_peer_চাবি,
+                                        সংরচনা ssl_filter_config *conn_config,
+                                        সংরচনা Curl_ssl_scache_peer **ppeer)
 {
-  size_t i, peer_key_len = 0;
+  size_t i, peer_চাবি_len = 0;
   CURLcode result = CURLE_OK;
 
-  *ppeer = NULL;
-  if(!GOOD_SCACHE(scache)) {
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  *ppeer = রিক্ত;
+  যদি(!GOOD_SCACHE(scache)) {
+    প্রত্যাগম CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   CURL_TRC_SSLS(data, "find peer slot for %s among %zu slots",
-                ssl_peer_key, scache->peer_count);
+                ssl_peer_চাবি, scache->peer_গুনতি);
 
   /* check for entries with known peer_key */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    if(scache->peers[i].ssl_peer_key &&
-       !strcmp(ssl_peer_key, scache->peers[i].ssl_peer_key) &&
+  প্রতি(i = 0; scache && i < scache->peer_গুনতি; i++) {
+    যদি(scache->peers[i].ssl_peer_চাবি &&
+       !strcmp(ssl_peer_চাবি, scache->peers[i].ssl_peer_চাবি) &&
        cf_ssl_scache_match_auth(&scache->peers[i], conn_config)) {
       /* yes, we have a cached session for this! */
       *ppeer = &scache->peers[i];
-      goto out;
+      গচ্ছ out;
     }
   }
   /* check for entries with HMAC set but no known peer_key */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    if(!scache->peers[i].ssl_peer_key &&
+  প্রতি(i = 0; scache && i < scache->peer_গুনতি; i++) {
+    যদি(!scache->peers[i].ssl_peer_চাবি &&
        scache->peers[i].hmac_set &&
        cf_ssl_scache_match_auth(&scache->peers[i], conn_config)) {
       /* possible entry with unknown peer_key, check hmac */
-      unsigned char my_hmac[CURL_SHA256_DIGEST_LENGTH];
-      if(!peer_key_len) /* we are lazy */
-        peer_key_len = strlen(ssl_peer_key);
+      unsigned বর্ণ my_hmac[CURL_SHA256_DIGEST_LENGTH];
+      যদি(!peer_চাবি_len) /* we are lazy */
+        peer_চাবি_len = strlen(ssl_peer_চাবি);
       result = Curl_hmacit(&Curl_HMAC_SHA256,
-                           scache->peers[i].key_salt,
-                           sizeof(scache->peers[i].key_salt),
-                           (const unsigned char *)ssl_peer_key,
-                           peer_key_len,
+                           scache->peers[i].চাবি_salt,
+                           পরিমাণ(scache->peers[i].চাবি_salt),
+                           (ধ্রুব unsigned বর্ণ *)ssl_peer_চাবি,
+                           peer_চাবি_len,
                            my_hmac);
-      if(result)
-        goto out;
-      if(!memcmp(scache->peers[i].key_hmac, my_hmac, sizeof(my_hmac))) {
+      যদি(result)
+        গচ্ছ out;
+      যদি(!memcmp(scache->peers[i].চাবি_hmac, my_hmac, পরিমাণ(my_hmac))) {
         /* remember peer_key for future lookups */
         CURL_TRC_SSLS(data, "peer entry %zu key recovered: %s",
-                      i, ssl_peer_key);
-        scache->peers[i].ssl_peer_key = curlx_strdup(ssl_peer_key);
-        if(!scache->peers[i].ssl_peer_key) {
+                      i, ssl_peer_চাবি);
+        scache->peers[i].ssl_peer_চাবি = curlx_strdup(ssl_peer_চাবি);
+        যদি(!scache->peers[i].ssl_peer_চাবি) {
           result = CURLE_OUT_OF_MEMORY;
-          goto out;
+          গচ্ছ out;
         }
         cf_ssl_cache_peer_update(&scache->peers[i]);
         *ppeer = &scache->peers[i];
-        goto out;
+        গচ্ছ out;
       }
     }
   }
-  CURL_TRC_SSLS(data, "peer not found for %s", ssl_peer_key);
+  CURL_TRC_SSLS(data, "peer not found for %s", ssl_peer_চাবি);
 out:
-  return result;
+  প্রত্যাগম result;
 }
 
-static struct Curl_ssl_scache_peer *cf_ssl_get_free_peer(
-  struct Curl_ssl_scache *scache)
+স্থির সংরচনা Curl_ssl_scache_peer *cf_ssl_get_free_peer(
+  সংরচনা Curl_ssl_scache *scache)
 {
-  struct Curl_ssl_scache_peer *peer = NULL;
+  সংরচনা Curl_ssl_scache_peer *peer = রিক্ত;
   size_t i;
 
   /* find empty or oldest peer */
-  for(i = 0; i < scache->peer_count; ++i) {
+  প্রতি(i = 0; i < scache->peer_গুনতি; ++i) {
     /* free peer entry? */
-    if(!scache->peers[i].ssl_peer_key && !scache->peers[i].hmac_set) {
+    যদি(!scache->peers[i].ssl_peer_চাবি && !scache->peers[i].hmac_set) {
       peer = &scache->peers[i];
-      break;
+      ভঙ্গ;
     }
     /* peer without sessions and obj */
-    if(!scache->peers[i].sobj &&
-       !Curl_llist_count(&scache->peers[i].sessions)) {
+    যদি(!scache->peers[i].sobj &&
+       !Curl_llist_গুনতি(&scache->peers[i].sessions)) {
       peer = &scache->peers[i];
-      break;
+      ভঙ্গ;
     }
     /* remember "oldest" peer */
-    if(!peer || (scache->peers[i].age < peer->age)) {
+    যদি(!peer || (scache->peers[i].age < peer->age)) {
       peer = &scache->peers[i];
     }
   }
   DEBUGASSERT(peer);
-  if(peer)
+  যদি(peer)
     cf_ssl_scache_clear_peer(peer);
-  return peer;
+  প্রত্যাগম peer;
 }
 
-static CURLcode cf_ssl_add_peer(struct Curl_easy *data,
-                                struct Curl_ssl_scache *scache,
-                                const char *ssl_peer_key,
-                                struct ssl_filter_config *conn_config,
-                                struct Curl_ssl_scache_peer **ppeer)
+স্থির CURLcode cf_ssl_add_peer(সংরচনা Curl_easy *data,
+                                সংরচনা Curl_ssl_scache *scache,
+                                ধ্রুব বর্ণ *ssl_peer_চাবি,
+                                সংরচনা ssl_filter_config *conn_config,
+                                সংরচনা Curl_ssl_scache_peer **ppeer)
 {
-  struct Curl_ssl_scache_peer *peer = NULL;
+  সংরচনা Curl_ssl_scache_peer *peer = রিক্ত;
   CURLcode result = CURLE_OK;
 
-  *ppeer = NULL;
-  if(ssl_peer_key) {
-    result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  *ppeer = রিক্ত;
+  যদি(ssl_peer_চাবি) {
+    result = cf_ssl_find_peer_by_চাবি(data, scache, ssl_peer_চাবি, conn_config,
                                      &peer);
-    if(result || !scache->peer_count)
-      return result;
+    যদি(result || !scache->peer_গুনতি)
+      প্রত্যাগম result;
   }
 
-  if(peer) {
+  যদি(peer) {
     *ppeer = peer;
-    return CURLE_OK;
+    প্রত্যাগম CURLE_OK;
   }
 
   peer = cf_ssl_get_free_peer(scache);
-  if(peer) {
-    char buffer[64];
-    const char *ccert = conn_config ? conn_config->clientcert : NULL;
-    const char *kpasswd = conn_config ? conn_config->key_passwd : NULL;
-    if(!ccert && conn_config && conn_config->cert_blob) {
+  যদি(peer) {
+    বর্ণ buffer[64];
+    ধ্রুব বর্ণ *ccert = conn_config ? conn_config->clientcert : রিক্ত;
+    ধ্রুব বর্ণ *kpasswd = conn_config ? conn_config->চাবি_passwd : রিক্ত;
+    যদি(!ccert && conn_config && conn_config->cert_blob) {
       /* when using a client cert blob, create a name for it */
-      curl_msnprintf(buffer, sizeof(buffer),
+      curl_msnprintf(buffer, পরিমাণ(buffer),
                      "cert-%p", conn_config->cert_blob->data);
       ccert = buffer; /* data is strduped by cf_ssl_scache_peer_init */
     }
-    result = cf_ssl_scache_peer_init(peer, ssl_peer_key, ccert, kpasswd,
-                                     NULL, NULL);
-    if(result)
-      goto out;
+    result = cf_ssl_scache_peer_init(peer, ssl_peer_চাবি, ccert, kpasswd,
+                                     রিক্ত, রিক্ত);
+    যদি(result)
+      গচ্ছ out;
     /* all ready */
     *ppeer = peer;
     result = CURLE_OK;
   }
 
 out:
-  if(result) {
+  যদি(result) {
     cf_ssl_scache_clear_peer(peer);
   }
-  return result;
+  প্রত্যাগম result;
 }
 
-static void cf_scache_peer_add_session(struct Curl_ssl_scache_peer *peer,
-                                       struct Curl_ssl_session *s,
+স্থির শূন্য cf_scache_peer_add_session(সংরচনা Curl_ssl_scache_peer *peer,
+                                       সংরচনা Curl_ssl_session *s,
                                        curl_off_t now)
 {
   /* A session not from TLSv1.3 replaces all other. */
-  if(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3) {
-    Curl_llist_destroy(&peer->sessions, NULL);
+  যদি(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3) {
+    Curl_llist_destroy(&peer->sessions, রিক্ত);
     Curl_llist_append(&peer->sessions, s, &s->list);
   }
-  else {
+  অন্যথা {
     /* Expire existing, append, trim from head to obey max_sessions */
     cf_scache_peer_remove_expired(peer, now);
     cf_scache_peer_remove_non13(peer);
     Curl_llist_append(&peer->sessions, s, &s->list);
-    while(Curl_llist_count(&peer->sessions) > peer->max_sessions) {
-      Curl_node_remove(Curl_llist_head(&peer->sessions));
+    যাবত্(Curl_llist_গুনতি(&peer->sessions) > peer->max_sessions) {
+      Curl_গ্রন্থি_remove(Curl_llist_head(&peer->sessions));
     }
   }
 }
 
-static CURLcode cf_scache_add_session(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct Curl_ssl_scache *scache,
-                                      const char *ssl_peer_key,
-                                      struct Curl_ssl_session *s)
+স্থির CURLcode cf_scache_add_session(সংরচনা Curl_cfilter *cf,
+                                      সংরচনা Curl_easy *data,
+                                      সংরচনা Curl_ssl_scache *scache,
+                                      ধ্রুব বর্ণ *ssl_peer_চাবি,
+                                      সংরচনা Curl_ssl_session *s)
 {
-  struct Curl_ssl_scache_peer *peer = NULL;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  সংরচনা Curl_ssl_scache_peer *peer = রিক্ত;
+  সংরচনা ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  curl_off_t now = (curl_off_t)time(NULL);
+  curl_off_t now = (curl_off_t)time(রিক্ত);
   curl_off_t max_lifetime;
 
-  if(!scache || !scache->peer_count) {
+  যদি(!scache || !scache->peer_গুনতি) {
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    প্রত্যাগম CURLE_OK;
   }
 
-  if(s->valid_until <= 0)
+  যদি(s->valid_until <= 0)
     s->valid_until = now + scache->default_lifetime_secs;
 
   max_lifetime = (s->ietf_tls_id == CURL_IETF_PROTO_TLS1_3) ?
                  CURL_SCACHE_MAX_13_LIFETIME_SEC :
                  CURL_SCACHE_MAX_12_LIFETIME_SEC;
-  if(s->valid_until > (now + max_lifetime))
+  যদি(s->valid_until > (now + max_lifetime))
     s->valid_until = now + max_lifetime;
 
-  if(cf_scache_session_expired(s, now)) {
+  যদি(cf_scache_session_expired(s, now)) {
     CURL_TRC_SSLS(data, "add, session already expired");
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    প্রত্যাগম CURLE_OK;
   }
 
-  result = cf_ssl_add_peer(data, scache, ssl_peer_key, conn_config, &peer);
-  if(result || !peer) {
-    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (int)result);
+  result = cf_ssl_add_peer(data, scache, ssl_peer_চাবি, conn_config, &peer);
+  যদি(result || !peer) {
+    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (পূর্ণাঙ্ক)result);
     Curl_ssl_session_destroy(s);
-    goto out;
+    গচ্ছ out;
   }
 
   cf_scache_peer_add_session(peer, s, now);
 
 out:
-  if(result) {
+  যদি(result) {
     failf(data, "[SCACHE] failed to add session for %s, error=%d",
-          ssl_peer_key, (int)result);
+          ssl_peer_চাবি, (পূর্ণাঙ্ক)result);
   }
-  else
+  অন্যথা
     CURL_TRC_SSLS(data, "added session for %s [proto=0x%x, "
                   "valid_secs=%" FMT_OFF_T ", alpn=%s, earlydata=%zu, "
-                  "quic_tp=%s], peer has %zu sessions now", ssl_peer_key,
-                  (unsigned int)s->ietf_tls_id, s->valid_until - now,
+                  "quic_tp=%s], peer has %zu sessions now", ssl_peer_চাবি,
+                  (unsigned পূর্ণাঙ্ক)s->ietf_tls_id, s->valid_until - now,
                   s->alpn, s->earlydata_max, s->quic_tp ? "yes" : "no",
-                  peer ? Curl_llist_count(&peer->sessions) : 0);
-  return result;
+                  peer ? Curl_llist_গুনতি(&peer->sessions) : 0);
+  প্রত্যাগম result;
 }
 
-CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             const char *ssl_peer_key,
-                             struct Curl_ssl_session *s)
+CURLcode Curl_ssl_scache_put(সংরচনা Curl_cfilter *cf,
+                             সংরচনা Curl_easy *data,
+                             ধ্রুব বর্ণ *ssl_peer_চাবি,
+                             সংরচনা Curl_ssl_session *s)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  সংরচনা Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  সংরচনা ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result;
   DEBUGASSERT(conn_config);
 
-  if(!scache || !conn_config->cache_session) {
+  যদি(!scache || !conn_config->cache_session) {
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    প্রত্যাগম CURLE_OK;
   }
 
   Curl_ssl_scache_lock(data);
-  result = cf_scache_add_session(cf, data, scache, ssl_peer_key, s);
+  result = cf_scache_add_session(cf, data, scache, ssl_peer_চাবি, s);
   Curl_ssl_scache_unlock(data);
-  return result;
+  প্রত্যাগম result;
 }
 
-void Curl_ssl_scache_return(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            const char *ssl_peer_key,
-                            struct Curl_ssl_session *s)
+শূন্য Curl_ssl_scache_return(সংরচনা Curl_cfilter *cf,
+                            সংরচনা Curl_easy *data,
+                            ধ্রুব বর্ণ *ssl_peer_চাবি,
+                            সংরচনা Curl_ssl_session *s)
 {
   /* See RFC 8446 C.4:
    * "Clients SHOULD NOT reuse a ticket for multiple connections." */
-  if(s && s->ietf_tls_id < 0x304)
-    (void)Curl_ssl_scache_put(cf, data, ssl_peer_key, s);
-  else
+  যদি(s && s->ietf_tls_id < 0x304)
+    (শূন্য)Curl_ssl_scache_put(cf, data, ssl_peer_চাবি, s);
+  অন্যথা
     Curl_ssl_session_destroy(s);
 }
 
-CURLcode Curl_ssl_scache_take(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              const char *ssl_peer_key,
-                              struct Curl_ssl_session **ps)
+CURLcode Curl_ssl_scache_take(সংরচনা Curl_cfilter *cf,
+                              সংরচনা Curl_easy *data,
+                              ধ্রুব বর্ণ *ssl_peer_চাবি,
+                              সংরচনা Curl_ssl_session **ps)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
-  struct Curl_llist_node *n;
-  struct Curl_ssl_session *s = NULL;
+  সংরচনা Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  সংরচনা ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  সংরচনা Curl_ssl_scache_peer *peer = রিক্ত;
+  সংরচনা Curl_llist_গ্রন্থি *n;
+  সংরচনা Curl_ssl_session *s = রিক্ত;
   CURLcode result;
 
-  *ps = NULL;
-  if(!scache)
-    return CURLE_OK;
+  *ps = রিক্ত;
+  যদি(!scache)
+    প্রত্যাগম CURLE_OK;
 
   Curl_ssl_scache_lock(data);
-  result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  result = cf_ssl_find_peer_by_চাবি(data, scache, ssl_peer_চাবি, conn_config,
                                    &peer);
-  if(!result && peer) {
-    cf_scache_peer_remove_expired(peer, (curl_off_t)time(NULL));
+  যদি(!result && peer) {
+    cf_scache_peer_remove_expired(peer, (curl_off_t)time(রিক্ত));
     n = Curl_llist_head(&peer->sessions);
-    if(n) {
-      s = Curl_node_take_elem(n);
+    যদি(n) {
+      s = Curl_গ্রন্থি_take_elem(n);
       scache->age++;           /* increase general age */
       peer->age = scache->age; /* set this as used in this age */
     }
   }
-  if(s) {
+  যদি(s) {
     *ps = s;
     CURL_TRC_SSLS(data, "took session for %s [proto=0x%x, "
                   "alpn=%s, earlydata=%zu, quic_tp=%s], %zu sessions remain",
-                  ssl_peer_key, (unsigned int)s->ietf_tls_id, s->alpn,
+                  ssl_peer_চাবি, (unsigned পূর্ণাঙ্ক)s->ietf_tls_id, s->alpn,
                   s->earlydata_max, s->quic_tp ? "yes" : "no",
-                  Curl_llist_count(&peer->sessions));
+                  Curl_llist_গুনতি(&peer->sessions));
   }
-  else {
-    CURL_TRC_SSLS(data, "no cached session for %s", ssl_peer_key);
+  অন্যথা {
+    CURL_TRC_SSLS(data, "no cached session for %s", ssl_peer_চাবি);
   }
   Curl_ssl_scache_unlock(data);
-  return result;
+  প্রত্যাগম result;
 }
 
-CURLcode Curl_ssl_scache_add_obj(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 void *sobj,
+CURLcode Curl_ssl_scache_add_obj(সংরচনা Curl_cfilter *cf,
+                                 সংরচনা Curl_easy *data,
+                                 ধ্রুব বর্ণ *ssl_peer_চাবি,
+                                 শূন্য *sobj,
                                  Curl_ssl_scache_obj_dtor *sobj_dtor_cb)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
+  সংরচনা Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  সংরচনা ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  সংরচনা Curl_ssl_scache_peer *peer = রিক্ত;
   CURLcode result;
 
   DEBUGASSERT(sobj);
   DEBUGASSERT(sobj_dtor_cb);
 
-  if(!scache) {
+  যদি(!scache) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    গচ্ছ out;
   }
 
-  result = cf_ssl_add_peer(data, scache, ssl_peer_key, conn_config, &peer);
-  if(result || !peer) {
-    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (int)result);
-    goto out;
+  result = cf_ssl_add_peer(data, scache, ssl_peer_চাবি, conn_config, &peer);
+  যদি(result || !peer) {
+    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (পূর্ণাঙ্ক)result);
+    গচ্ছ out;
   }
 
   cf_ssl_scache_peer_set_obj(peer, sobj, sobj_dtor_cb);
-  sobj = NULL;  /* peer took ownership */
+  sobj = রিক্ত;  /* peer took ownership */
 
 out:
-  if(sobj && sobj_dtor_cb)
+  যদি(sobj && sobj_dtor_cb)
     sobj_dtor_cb(sobj);
-  return result;
+  প্রত্যাগম result;
 }
 
-void *Curl_ssl_scache_get_obj(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              const char *ssl_peer_key)
+শূন্য *Curl_ssl_scache_get_obj(সংরচনা Curl_cfilter *cf,
+                              সংরচনা Curl_easy *data,
+                              ধ্রুব বর্ণ *ssl_peer_চাবি)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
+  সংরচনা Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  সংরচনা ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  সংরচনা Curl_ssl_scache_peer *peer = রিক্ত;
   CURLcode result;
-  void *sobj;
+  শূন্য *sobj;
 
-  if(!scache)
-    return NULL;
+  যদি(!scache)
+    প্রত্যাগম রিক্ত;
 
-  result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  result = cf_ssl_find_peer_by_চাবি(data, scache, ssl_peer_চাবি, conn_config,
                                    &peer);
-  if(result)
-    return NULL;
+  যদি(result)
+    প্রত্যাগম রিক্ত;
 
-  sobj = peer ? peer->sobj : NULL;
+  sobj = peer ? peer->sobj : রিক্ত;
 
   CURL_TRC_SSLS(data, "%s cached session for '%s'",
-                sobj ? "Found" : "No", ssl_peer_key);
-  return sobj;
+                sobj ? "Found" : "No", ssl_peer_চাবি);
+  প্রত্যাগম sobj;
 }
 
-void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                const char *ssl_peer_key)
+শূন্য Curl_ssl_scache_remove_all(সংরচনা Curl_cfilter *cf,
+                                সংরচনা Curl_easy *data,
+                                ধ্রুব বর্ণ *ssl_peer_চাবি)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
+  সংরচনা Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  সংরচনা ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  সংরচনা Curl_ssl_scache_peer *peer = রিক্ত;
   CURLcode result;
 
-  (void)cf;
-  if(!scache)
-    return;
+  (শূন্য)cf;
+  যদি(!scache)
+    প্রত্যাগম;
 
   Curl_ssl_scache_lock(data);
-  result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  result = cf_ssl_find_peer_by_চাবি(data, scache, ssl_peer_চাবি, conn_config,
                                    &peer);
-  if(!result && peer)
+  যদি(!result && peer)
     cf_ssl_scache_clear_peer(peer);
   Curl_ssl_scache_unlock(data);
 }
@@ -1145,215 +1145,215 @@ void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
 
 #define CURL_SSL_TICKET_MAX   (16 * 1024)
 
-static CURLcode cf_ssl_scache_peer_set_hmac(struct Curl_ssl_scache_peer *peer)
+স্থির CURLcode cf_ssl_scache_peer_set_hmac(সংরচনা Curl_ssl_scache_peer *peer)
 {
   CURLcode result;
 
   DEBUGASSERT(peer);
-  if(!peer->ssl_peer_key)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(!peer->ssl_peer_চাবি)
+    প্রত্যাগম CURLE_BAD_FUNCTION_ARGUMENT;
 
-  result = Curl_rand(NULL, peer->key_salt, sizeof(peer->key_salt));
-  if(result)
-    return result;
+  result = Curl_rand(রিক্ত, peer->চাবি_salt, পরিমাণ(peer->চাবি_salt));
+  যদি(result)
+    প্রত্যাগম result;
 
   result = Curl_hmacit(&Curl_HMAC_SHA256,
-                       peer->key_salt, sizeof(peer->key_salt),
-                       (const unsigned char *)peer->ssl_peer_key,
-                       strlen(peer->ssl_peer_key),
-                       peer->key_hmac);
-  if(!result)
+                       peer->চাবি_salt, পরিমাণ(peer->চাবি_salt),
+                       (ধ্রুব unsigned বর্ণ *)peer->ssl_peer_চাবি,
+                       strlen(peer->ssl_peer_চাবি),
+                       peer->চাবি_hmac);
+  যদি(!result)
     peer->hmac_set = TRUE;
-  return result;
+  প্রত্যাগম result;
 }
 
-static CURLcode cf_ssl_find_peer_by_hmac(struct Curl_ssl_scache *scache,
-                                         const unsigned char *salt,
-                                         const unsigned char *hmac,
-                                         struct Curl_ssl_scache_peer **ppeer)
+স্থির CURLcode cf_ssl_find_peer_by_hmac(সংরচনা Curl_ssl_scache *scache,
+                                         ধ্রুব unsigned বর্ণ *salt,
+                                         ধ্রুব unsigned বর্ণ *hmac,
+                                         সংরচনা Curl_ssl_scache_peer **ppeer)
 {
   size_t i;
   CURLcode result = CURLE_OK;
 
-  *ppeer = NULL;
-  if(!GOOD_SCACHE(scache))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  *ppeer = রিক্ত;
+  যদি(!GOOD_SCACHE(scache))
+    প্রত্যাগম CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* look for an entry that matches salt+hmac exactly or has a known
    * ssl_peer_key which salt+hmac's to the same. */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    struct Curl_ssl_scache_peer *peer = &scache->peers[i];
-    if(!cf_ssl_scache_match_auth(peer, NULL))
-      continue;
-    if(scache->peers[i].hmac_set &&
-       !memcmp(peer->key_salt, salt, sizeof(peer->key_salt)) &&
-       !memcmp(peer->key_hmac, hmac, sizeof(peer->key_hmac))) {
+  প্রতি(i = 0; scache && i < scache->peer_গুনতি; i++) {
+    সংরচনা Curl_ssl_scache_peer *peer = &scache->peers[i];
+    যদি(!cf_ssl_scache_match_auth(peer, রিক্ত))
+      অনুবর্ত;
+    যদি(scache->peers[i].hmac_set &&
+       !memcmp(peer->চাবি_salt, salt, পরিমাণ(peer->চাবি_salt)) &&
+       !memcmp(peer->চাবি_hmac, hmac, পরিমাণ(peer->চাবি_hmac))) {
       /* found exact match, return */
       *ppeer = peer;
-      goto out;
+      গচ্ছ out;
     }
-    else if(peer->ssl_peer_key) {
-      unsigned char my_hmac[CURL_SHA256_DIGEST_LENGTH];
+    অন্যথা যদি(peer->ssl_peer_চাবি) {
+      unsigned বর্ণ my_hmac[CURL_SHA256_DIGEST_LENGTH];
       /* compute hmac for the passed salt */
       result = Curl_hmacit(&Curl_HMAC_SHA256,
-                           salt, sizeof(peer->key_salt),
-                           (const unsigned char *)peer->ssl_peer_key,
-                           strlen(peer->ssl_peer_key),
+                           salt, পরিমাণ(peer->চাবি_salt),
+                           (ধ্রুব unsigned বর্ণ *)peer->ssl_peer_চাবি,
+                           strlen(peer->ssl_peer_চাবি),
                            my_hmac);
-      if(result)
-        goto out;
-      if(!memcmp(my_hmac, hmac, sizeof(my_hmac))) {
+      যদি(result)
+        গচ্ছ out;
+      যদি(!memcmp(my_hmac, hmac, পরিমাণ(my_hmac))) {
         /* cryptohash match, take over salt+hmac if no set and return */
-        if(!peer->hmac_set) {
-          memcpy(peer->key_salt, salt, sizeof(peer->key_salt));
-          memcpy(peer->key_hmac, hmac, sizeof(peer->key_hmac));
+        যদি(!peer->hmac_set) {
+          memcpy(peer->চাবি_salt, salt, পরিমাণ(peer->চাবি_salt));
+          memcpy(peer->চাবি_hmac, hmac, পরিমাণ(peer->চাবি_hmac));
           peer->hmac_set = TRUE;
         }
         *ppeer = peer;
-        goto out;
+        গচ্ছ out;
       }
     }
   }
 out:
-  return result;
+  প্রত্যাগম result;
 }
 
-CURLcode Curl_ssl_session_import(struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 const unsigned char *shmac, size_t shmac_len,
-                                 const void *sdata, size_t sdata_len)
+CURLcode Curl_ssl_session_import(সংরচনা Curl_easy *data,
+                                 ধ্রুব বর্ণ *ssl_peer_চাবি,
+                                 ধ্রুব unsigned বর্ণ *shmac, size_t shmac_len,
+                                 ধ্রুব শূন্য *sdata, size_t sdata_len)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct Curl_ssl_scache_peer *peer = NULL;
-  struct Curl_ssl_session *s = NULL;
+  সংরচনা Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  সংরচনা Curl_ssl_scache_peer *peer = রিক্ত;
+  সংরচনা Curl_ssl_session *s = রিক্ত;
   bool have_lock = FALSE;
   CURLcode result;
 
-  if(!scache || !sdata || !sdata_len) {
+  যদি(!scache || !sdata || !sdata_len) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    গচ্ছ out;
   }
-  if(!ssl_peer_key && (!shmac || !shmac_len)) {
+  যদি(!ssl_peer_চাবি && (!shmac || !shmac_len)) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    গচ্ছ out;
   }
 
   result = Curl_ssl_session_unpack(data, sdata, sdata_len, &s);
-  if(result)
-    goto out;
+  যদি(result)
+    গচ্ছ out;
 
   Curl_ssl_scache_lock(data);
   have_lock = TRUE;
 
-  if(ssl_peer_key) {
-    result = cf_ssl_add_peer(data, scache, ssl_peer_key, NULL, &peer);
-    if(result)
-      goto out;
+  যদি(ssl_peer_চাবি) {
+    result = cf_ssl_add_peer(data, scache, ssl_peer_চাবি, রিক্ত, &peer);
+    যদি(result)
+      গচ্ছ out;
   }
-  else if(shmac_len != (sizeof(peer->key_salt) + sizeof(peer->key_hmac))) {
+  অন্যথা যদি(shmac_len != (পরিমাণ(peer->চাবি_salt) + পরিমাণ(peer->চাবি_hmac))) {
     /* Either salt+hmac was garbled by caller or is from a curl version
      * that does things differently */
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    গচ্ছ out;
   }
-  else {
-    const unsigned char *salt = shmac;
-    const unsigned char *hmac = shmac + sizeof(peer->key_salt);
+  অন্যথা {
+    ধ্রুব unsigned বর্ণ *salt = shmac;
+    ধ্রুব unsigned বর্ণ *hmac = shmac + পরিমাণ(peer->চাবি_salt);
 
     result = cf_ssl_find_peer_by_hmac(scache, salt, hmac, &peer);
-    if(result)
-      goto out;
-    if(!peer) {
+    যদি(result)
+      গচ্ছ out;
+    যদি(!peer) {
       peer = cf_ssl_get_free_peer(scache);
-      if(peer) {
-        result = cf_ssl_scache_peer_init(peer, ssl_peer_key, NULL, NULL,
+      যদি(peer) {
+        result = cf_ssl_scache_peer_init(peer, ssl_peer_চাবি, রিক্ত, রিক্ত,
                                          salt, hmac);
-        if(result)
-          goto out;
+        যদি(result)
+          গচ্ছ out;
       }
     }
   }
 
-  if(peer) {
-    cf_scache_peer_add_session(peer, s, time(NULL));
-    s = NULL; /* peer is now owner */
+  যদি(peer) {
+    cf_scache_peer_add_session(peer, s, time(রিক্ত));
+    s = রিক্ত; /* peer is now owner */
     CURL_TRC_SSLS(data, "successfully imported ticket for peer %s, now "
                   "with %zu tickets",
-                  peer->ssl_peer_key ? peer->ssl_peer_key : "without key",
-                  Curl_llist_count(&peer->sessions));
+                  peer->ssl_peer_চাবি ? peer->ssl_peer_চাবি : "without key",
+                  Curl_llist_গুনতি(&peer->sessions));
   }
 
 out:
-  if(scache && have_lock)
+  যদি(scache && have_lock)
     Curl_ssl_scache_unlock(data);
   Curl_ssl_session_destroy(s);
-  return result;
+  প্রত্যাগম result;
 }
 
-CURLcode Curl_ssl_session_export(struct Curl_easy *data,
+CURLcode Curl_ssl_session_export(সংরচনা Curl_easy *data,
                                  curl_ssls_export_cb *export_fn,
-                                 void *userptr)
+                                 শূন্য *userptr)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct Curl_ssl_scache_peer *peer;
-  struct dynbuf sbuf, hbuf;
-  struct Curl_llist_node *n;
+  সংরচনা Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  সংরচনা Curl_ssl_scache_peer *peer;
+  সংরচনা dynbuf sbuf, hbuf;
+  সংরচনা Curl_llist_গ্রন্থি *n;
   size_t i;
-  curl_off_t now = time(NULL);
+  curl_off_t now = time(রিক্ত);
   CURLcode result = CURLE_OK;
 #ifdef CURLVERBOSE
   size_t npeers = 0, ntickets = 0;
 #endif
 
-  if(!export_fn)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(!export_fn)
+    প্রত্যাগম CURLE_BAD_FUNCTION_ARGUMENT;
 
   Curl_ssl_scache_lock(data);
 
   curlx_dyn_init(&hbuf, (CURL_SHA256_DIGEST_LENGTH * 2) + 1);
   curlx_dyn_init(&sbuf, CURL_SSL_TICKET_MAX);
 
-  for(i = 0; scache && i < scache->peer_count; i++) {
+  প্রতি(i = 0; scache && i < scache->peer_গুনতি; i++) {
     peer = &scache->peers[i];
-    if(!peer->ssl_peer_key && !peer->hmac_set)
-      continue; /* skip free entry */
-    if(!peer->exportable)
-      continue;
+    যদি(!peer->ssl_peer_চাবি && !peer->hmac_set)
+      অনুবর্ত; /* skip free entry */
+    যদি(!peer->exportable)
+      অনুবর্ত;
 
     curlx_dyn_reset(&hbuf);
     cf_scache_peer_remove_expired(peer, now);
     n = Curl_llist_head(&peer->sessions);
-    if(n)
+    যদি(n)
       VERBOSE(++npeers);
-    while(n) {
-      struct Curl_ssl_session *s = Curl_node_elem(n);
-      if(!peer->hmac_set) {
+    যাবত্(n) {
+      সংরচনা Curl_ssl_session *s = Curl_গ্রন্থি_elem(n);
+      যদি(!peer->hmac_set) {
         result = cf_ssl_scache_peer_set_hmac(peer);
-        if(result)
-          goto out;
+        যদি(result)
+          গচ্ছ out;
       }
-      if(!curlx_dyn_len(&hbuf)) {
-        result = curlx_dyn_addn(&hbuf, peer->key_salt, sizeof(peer->key_salt));
-        if(result)
-          goto out;
-        result = curlx_dyn_addn(&hbuf, peer->key_hmac, sizeof(peer->key_hmac));
-        if(result)
-          goto out;
+      যদি(!curlx_dyn_len(&hbuf)) {
+        result = curlx_dyn_addn(&hbuf, peer->চাবি_salt, পরিমাণ(peer->চাবি_salt));
+        যদি(result)
+          গচ্ছ out;
+        result = curlx_dyn_addn(&hbuf, peer->চাবি_hmac, পরিমাণ(peer->চাবি_hmac));
+        যদি(result)
+          গচ্ছ out;
       }
       curlx_dyn_reset(&sbuf);
       result = Curl_ssl_session_pack(data, s, &sbuf);
-      if(result)
-        goto out;
+      যদি(result)
+        গচ্ছ out;
 
-      result = export_fn(data, userptr, peer->ssl_peer_key,
+      result = export_fn(data, userptr, peer->ssl_peer_চাবি,
                          curlx_dyn_uptr(&hbuf), curlx_dyn_len(&hbuf),
                          curlx_dyn_uptr(&sbuf), curlx_dyn_len(&sbuf),
                          s->valid_until, s->ietf_tls_id,
                          s->alpn, s->earlydata_max);
-      if(result)
-        goto out;
+      যদি(result)
+        গচ্ছ out;
       VERBOSE(++ntickets);
-      n = Curl_node_next(n);
+      n = Curl_গ্রন্থি_next(n);
     }
   }
   result = CURLE_OK;
@@ -1364,7 +1364,7 @@ out:
   Curl_ssl_scache_unlock(data);
   curlx_dyn_free(&hbuf);
   curlx_dyn_free(&sbuf);
-  return result;
+  প্রত্যাগম result;
 }
 
 #endif /* USE_SSLS_EXPORT */

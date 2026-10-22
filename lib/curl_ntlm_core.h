@@ -23,48 +23,48 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef USE_CURL_NTLM_CORE
 
-struct ntlmdata;
+সংরচনা ntlmdata;
 
 /* Helpers to generate function byte arguments in little endian order */
-#define SHORTPAIR(x)   ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff))
-#define LONGQUARTET(x) ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff)), \
-  ((int)(((x) >> 16) & 0xff)), ((int)(((x) >> 24) & 0xff))
+#define SHORTPAIR(x)   ((পূর্ণাঙ্ক)((x) & 0xff)), ((পূর্ণাঙ্ক)(((x) >> 8) & 0xff))
+#define LONGQUARTET(x) ((পূর্ণাঙ্ক)((x) & 0xff)), ((পূর্ণাঙ্ক)(((x) >> 8) & 0xff)), \
+  ((পূর্ণাঙ্ক)(((x) >> 16) & 0xff)), ((পূর্ণাঙ্ক)(((x) >> 24) & 0xff))
 
-void Curl_ntlm_core_lm_resp(const unsigned char *keys,
-                            const unsigned char *plaintext,
-                            unsigned char *results);
+শূন্য Curl_ntlm_core_lm_resp(ধ্রুব unsigned বর্ণ *চাবিগুলি,
+                            ধ্রুব unsigned বর্ণ *plaintext,
+                            unsigned বর্ণ *results);
 
-CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
-                                   unsigned char *lmbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_lm_hash(ধ্রুব বর্ণ *password,
+                                   unsigned বর্ণ *lmbuffer /* 21 bytes */);
 
-CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
-                                   unsigned char *ntbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_nt_hash(ধ্রুব বর্ণ *password,
+                                   unsigned বর্ণ *ntbuffer /* 21 bytes */);
 
 #ifndef USE_WINDOWS_SSPI
 
-CURLcode Curl_hmac_md5(const unsigned char *key, unsigned int keylen,
-                       const unsigned char *data, unsigned int datalen,
-                       unsigned char *output);
+CURLcode Curl_hmac_md5(ধ্রুব unsigned বর্ণ *চাবি, unsigned পূর্ণাঙ্ক keylen,
+                       ধ্রুব unsigned বর্ণ *data, unsigned পূর্ণাঙ্ক datalen,
+                       unsigned বর্ণ *output);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
-                                       const char *domain, size_t domlen,
-                                       unsigned char *ntlmhash,
-                                       unsigned char *ntlmv2hash);
+CURLcode Curl_ntlm_core_mk_ntlmv2_hash(ধ্রুব বর্ণ *user, size_t userlen,
+                                       ধ্রুব বর্ণ *domain, size_t domlen,
+                                       unsigned বর্ণ *ntlmhash,
+                                       unsigned বর্ণ *ntlmv2hash);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
-                                       const unsigned char *challenge_client,
-                                       const struct ntlmdata *ntlm,
-                                       unsigned char **ntresp,
-                                       unsigned int *ntresp_len);
+CURLcode Curl_ntlm_core_mk_ntlmv2_resp(ধ্রুব unsigned বর্ণ *ntlmv2hash,
+                                       ধ্রুব unsigned বর্ণ *challenge_client,
+                                       ধ্রুব সংরচনা ntlmdata *ntlm,
+                                       unsigned বর্ণ **ntresp,
+                                       unsigned পূর্ণাঙ্ক *ntresp_len);
 
-CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
-                                     const unsigned char *challenge_client,
-                                     const unsigned char *challenge_server,
-                                     unsigned char *lmresp);
+CURLcode Curl_ntlm_core_mk_lmv2_resp(ধ্রুব unsigned বর্ণ *ntlmv2hash,
+                                     ধ্রুব unsigned বর্ণ *challenge_client,
+                                     ধ্রুব unsigned বর্ণ *challenge_server,
+                                     unsigned বর্ণ *lmresp);
 
 #endif /* !USE_WINDOWS_SSPI */
 

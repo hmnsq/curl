@@ -23,13 +23,13 @@
  * RFC6749 OAuth 2.0 Authorization Framework
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
+#যদি !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
   !defined(CURL_DISABLE_POP3) ||                                  \
   (!defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP))
 
-#include "vauth/vauth.h"
+#অন্তর্ভাব "vauth/vauth.h"
 
 /*
  * Curl_auth_create_oauth_bearer_message()
@@ -47,27 +47,27 @@
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_creds *creds,
-                                               const char *host,
-                                               const long port,
-                                               struct bufref *out)
+CURLcode Curl_auth_create_oauth_bearer_message(সংরচনা Curl_creds *creds,
+                                               ধ্রুব বর্ণ *host,
+                                               ধ্রুব long port,
+                                               সংরচনা bufref *out)
 {
-  char *oauth;
+  বর্ণ *oauth;
 
   /* Generate the message */
-  if(port == 0 || port == 80)
+  যদি(port == 0 || port == 80)
     oauth = curl_maprintf("n,a=%s,\1host=%s\1auth=Bearer %s\1\1",
                           Curl_creds_user(creds), host,
                           Curl_creds_oauth_bearer(creds));
-  else
+  অন্যথা
     oauth = curl_maprintf("n,a=%s,\1host=%s\1port=%ld\1auth=Bearer %s\1\1",
                           Curl_creds_user(creds), host, port,
                           Curl_creds_oauth_bearer(creds));
-  if(!oauth)
-    return CURLE_OUT_OF_MEMORY;
+  যদি(!oauth)
+    প্রত্যাগম CURLE_OUT_OF_MEMORY;
 
   Curl_bufref_set(out, oauth, strlen(oauth), curl_free);
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
 /*
@@ -84,17 +84,17 @@ CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_creds *creds,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_xoauth_bearer_message(struct Curl_creds *creds,
-                                                struct bufref *out)
+CURLcode Curl_auth_create_xoauth_bearer_message(সংরচনা Curl_creds *creds,
+                                                সংরচনা bufref *out)
 {
   /* Generate the message */
-  char *xoauth = curl_maprintf("user=%s\1auth=Bearer %s\1\1",
+  বর্ণ *xoauth = curl_maprintf("user=%s\1auth=Bearer %s\1\1",
                                Curl_creds_user(creds),
                                Curl_creds_oauth_bearer(creds));
-  if(!xoauth)
-    return CURLE_OUT_OF_MEMORY;
+  যদি(!xoauth)
+    প্রত্যাগম CURLE_OUT_OF_MEMORY;
 
   Curl_bufref_set(out, xoauth, strlen(xoauth), curl_free);
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 #endif /* disabled, no users */

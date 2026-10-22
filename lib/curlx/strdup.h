@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef _WIN32
-wchar_t *curlx_wcsdup(const wchar_t *src);  /* for curlx_tcsdup() */
+wchar_t *curlx_wcsdup(ধ্রুব wchar_t *src);  /* for curlx_tcsdup() */
 #endif
-void *curlx_memdup(const void *src, size_t length);
-void *curlx_memdup0(const char *src, size_t length);
+শূন্য *curlx_memdup(ধ্রুব শূন্য *src, size_t length);
+শূন্য *curlx_memdup0(ধ্রুব বর্ণ *src, size_t length);
 #endif /* HEADER_CURLX_STRDUP_H */

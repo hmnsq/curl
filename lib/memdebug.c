@@ -21,26 +21,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef CURL_MEMDEBUG
 
-#include <stddef.h>  /* for offsetof() */
+#অন্তর্ভাব <stddef.h>  /* for offsetof() */
 
-#include "urldata.h"
-#include "curl_threads.h"
-#include "curlx/win32-fopen.h"  /* for CURLX_FOPEN_*() */
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "curl_threads.h"
+#অন্তর্ভাব "curlx/win32-fopen.h"  /* for CURLX_FOPEN_*() */
 
 #ifdef USE_BACKTRACE
-#include <backtrace.h>
+#অন্তর্ভাব <backtrace.h>
 #endif
 
-struct memdebug {
+সংরচনা memdebug {
   size_t size;
-  union {
+  সঙ্ঘ {
     curl_off_t o;
-    double d;
-    void *p;
+    দ্বিগুণ d;
+    শূন্য *p;
   } mem[1];
   /* I am hoping this is the thing with the strictest alignment
    * requirements. That also means we waste some space :-( */
@@ -54,64 +54,64 @@ struct memdebug {
  * Do not use these with multi-threaded test programs!
  */
 
-FILE *curl_dbg_logfile = NULL;
-static bool registered_cleanup = FALSE; /* atexit registered cleanup */
-static bool memlimit = FALSE; /* enable memory limit */
-static long memsize = 0;  /* set number of mallocs allowed */
+FILE *curl_dbg_logfile = রিক্ত;
+স্থির bool registered_cleanup = FALSE; /* atexit registered cleanup */
+স্থির bool memlimit = FALSE; /* enable memory limit */
+স্থির long memsize = 0;  /* set number of mallocs allowed */
 #ifdef USE_BACKTRACE
-static struct backtrace_state *btstate;
+স্থির সংরচনা backtrace_state *btstate;
 #endif
 
-static char membuf[10000];
-static size_t memwidx = 0; /* write index */
+স্থির বর্ণ membuf[10000];
+স্থির size_t memwidx = 0; /* write index */
 
 #ifdef USE_MUTEX
-static bool dbg_mutex_init = 0;
-static curl_mutex_t dbg_mutex;
+স্থির bool dbg_mutex_init = 0;
+স্থির curl_mutex_t dbg_mutex;
 #endif
 
-static bool curl_dbg_lock(void)
+স্থির bool curl_dbg_lock(শূন্য)
 {
 #ifdef USE_MUTEX
-  if(dbg_mutex_init) {
+  যদি(dbg_mutex_init) {
     Curl_mutex_acquire(&dbg_mutex);
-    return TRUE;
+    প্রত্যাগম TRUE;
   }
 #endif
-  return FALSE;
+  প্রত্যাগম FALSE;
 }
 
-static void curl_dbg_unlock(bool was_locked)
+স্থির শূন্য curl_dbg_unlock(bool was_locked)
 {
 #ifdef USE_MUTEX
-  if(was_locked)
+  যদি(was_locked)
     Curl_mutex_release(&dbg_mutex);
-#else
-  (void)was_locked;
+#অন্যথা
+  (শূন্য)was_locked;
 #endif
 }
 
-static void curl_dbg_log_locked(const char *format, ...) CURL_PRINTF(1, 2);
+স্থির শূন্য curl_dbg_log_locked(ধ্রুব বর্ণ *format, ...) CURL_PRINTF(1, 2);
 
 /* LeakSantizier (LSAN) calls _exit() instead of exit() when a leak is detected
    on exit so the logfile must be closed explicitly or data could be lost.
    Though _exit() does not call atexit handlers such as this, LSAN's call to
    _exit() comes after the atexit handlers are called. curl/curl#6620 */
-static void curl_dbg_cleanup(void)
+স্থির শূন্য curl_dbg_cleanup(শূন্য)
 {
   bool locked = curl_dbg_lock();
-  if(curl_dbg_logfile &&
+  যদি(curl_dbg_logfile &&
      curl_dbg_logfile != stderr &&
      curl_dbg_logfile != stdout) {
-    if(memwidx)
+    যদি(memwidx)
       fwrite(membuf, 1, memwidx, curl_dbg_logfile);
     /* !checksrc! disable BANNEDFUNC 1 */
     fclose(curl_dbg_logfile);
   }
-  curl_dbg_logfile = NULL;
+  curl_dbg_logfile = রিক্ত;
   curl_dbg_unlock(locked);
 #ifdef USE_MUTEX
-  if(dbg_mutex_init) {
+  যদি(dbg_mutex_init) {
     Curl_mutex_destroy(&dbg_mutex);
     dbg_mutex_init = FALSE;
   }
@@ -119,266 +119,266 @@ static void curl_dbg_cleanup(void)
 }
 
 #ifdef USE_BACKTRACE
-static void error_bt_callback(void *data, const char *message,
-                              int error_number)
+স্থির শূন্য error_bt_callback(শূন্য *data, ধ্রুব বর্ণ *message,
+                              পূর্ণাঙ্ক error_সংখ্যা)
 {
-  (void)data;
-  if(error_number == -1)
+  (শূন্য)data;
+  যদি(error_সংখ্যা == -1)
     curl_dbg_log("compile with -g\n\n");
-  else
-    curl_dbg_log("Backtrace error %d: %s\n", error_number, message);
+  অন্যথা
+    curl_dbg_log("Backtrace error %d: %s\n", error_সংখ্যা, message);
 }
 
-static int full_callback(void *data, uintptr_t pc, const char *pathname,
-                         int line_number, const char *function)
+স্থির পূর্ণাঙ্ক full_callback(শূন্য *data, uintptr_t pc, ধ্রুব বর্ণ *pathname,
+                         পূর্ণাঙ্ক সারি_সংখ্যা, ধ্রুব বর্ণ *function)
 {
-  (void)data;
-  (void)pc;
-  if(pathname || function || line_number)
-    curl_dbg_log("BT %s:%d -- %s\n", pathname, line_number, function);
-  return 0;
+  (শূন্য)data;
+  (শূন্য)pc;
+  যদি(pathname || function || সারি_সংখ্যা)
+    curl_dbg_log("BT %s:%d -- %s\n", pathname, সারি_সংখ্যা, function);
+  প্রত্যাগম 0;
 }
 
-static void dump_bt(void)
+স্থির শূন্য dump_bt(শূন্য)
 {
-  backtrace_full(btstate, 0, full_callback, error_bt_callback, NULL);
+  backtrace_full(btstate, 0, full_callback, error_bt_callback, রিক্ত);
 }
-#else
+#অন্যথা
 #define dump_bt() /* nothing to do */
 #endif
 
 /* this sets the log filename */
-void curl_dbg_memdebug(const char *logname)
+শূন্য curl_dbg_memdebug(ধ্রুব বর্ণ *logname)
 {
-  if(!curl_dbg_logfile) {
-    if(logname && *logname)
-      curl_dbg_logfile = CURLX_FOPEN_LOW(logname, FOPEN_WRITETEXT);
+  যদি(!curl_dbg_logfile) {
+    যদি(logname && *logname)
+      curl_dbg_logfile = CURLX_FOPEN_নিচের(logname, FOPEN_WRITETEXT);
 #ifdef MEMDEBUG_LOG_SYNC
     /* Flush the log file after every line so the log is not lost in a crash */
-    if(curl_dbg_logfile)
-      setbuf(curl_dbg_logfile, (char *)NULL);
+    যদি(curl_dbg_logfile)
+      setbuf(curl_dbg_logfile, (বর্ণ *)রিক্ত);
 #endif
   }
 #ifdef USE_MUTEX
-  if(!dbg_mutex_init) {
+  যদি(!dbg_mutex_init) {
     dbg_mutex_init = TRUE;
     Curl_mutex_init(&dbg_mutex);
   }
 #endif
 #ifdef USE_BACKTRACE
-  btstate = backtrace_create_state(NULL, 0, error_bt_callback, NULL);
+  btstate = backtrace_create_state(রিক্ত, 0, error_bt_callback, রিক্ত);
 #endif
-  if(!registered_cleanup)
+  যদি(!registered_cleanup)
     registered_cleanup = !atexit(curl_dbg_cleanup);
 }
 
 /* This function sets the number of malloc() calls that should return
    successfully! */
-void curl_dbg_memlimit(long limit)
+শূন্য curl_dbg_memlimit(long limit)
 {
-  if(!memlimit) {
+  যদি(!memlimit) {
     memlimit = TRUE;
     memsize = limit;
   }
 }
 
 /* returns TRUE if this is not allowed! */
-static bool countcheck(const char *func, int line, const char *source)
+স্থির bool countcheck(ধ্রুব বর্ণ *func, পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
   /* if source is NULL, then the call is made internally and this check
      should not be made */
-  if(memlimit && source) {
-    if(!memsize) {
+  যদি(memlimit && source) {
+    যদি(!memsize) {
       /* log to file */
-      curl_dbg_log("LIMIT %s:%d %s reached memlimit\n", source, line, func);
+      curl_dbg_log("LIMIT %s:%d %s reached memlimit\n", source, সারি, func);
       /* log to stderr also */
       curl_mfprintf(stderr, "LIMIT %s:%d %s reached memlimit\n",
-                    source, line, func);
+                    source, সারি, func);
       dump_bt();
       fflush(curl_dbg_logfile); /* because it might crash now */
       /* !checksrc! disable ERRNOVAR 1 */
       errno = ENOMEM;
-      return TRUE; /* RETURN ERROR! */
+      প্রত্যাগম TRUE; /* RETURN ERROR! */
     }
-    else
+    অন্যথা
       memsize--; /* countdown */
   }
 
-  return FALSE; /* allow this */
+  প্রত্যাগম FALSE; /* allow this */
 }
 
 ALLOC_FUNC
-void *curl_dbg_malloc(size_t wantedsize, int line, const char *source)
+শূন্য *curl_dbg_malloc(size_t wantedsize, পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  struct memdebug *mem;
+  সংরচনা memdebug *mem;
   size_t size;
 
   DEBUGASSERT(wantedsize != 0);
 
-  if(countcheck("malloc", line, source))
-    return NULL;
+  যদি(countcheck("malloc", সারি, source))
+    প্রত্যাগম রিক্ত;
 
   /* alloc at least 64 bytes */
-  size = sizeof(struct memdebug) + wantedsize;
+  size = পরিমাণ(সংরচনা memdebug) + wantedsize;
 
   mem = Curl_cmalloc(size);
-  if(mem) {
+  যদি(mem) {
     mem->size = wantedsize;
   }
 
-  if(source)
+  যদি(source)
     curl_dbg_log("MEM %s:%d malloc(%zu) = %p\n",
-                 source, line, wantedsize,
-                 mem ? (void *)mem->mem : (void *)0);
+                 source, সারি, wantedsize,
+                 mem ? (শূন্য *)mem->mem : (শূন্য *)0);
 
-  return mem ? mem->mem : NULL;
+  প্রত্যাগম mem ? mem->mem : রিক্ত;
 }
 
 ALLOC_FUNC
-void *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
-                      int line, const char *source)
+শূন্য *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
+                      পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  struct memdebug *mem;
+  সংরচনা memdebug *mem;
   size_t size, user_size;
 
   DEBUGASSERT(wanted_elements != 0);
   DEBUGASSERT(wanted_size != 0);
 
-  if(countcheck("calloc", line, source))
-    return NULL;
+  যদি(countcheck("calloc", সারি, source))
+    প্রত্যাগম রিক্ত;
 
   /* alloc at least 64 bytes */
   user_size = wanted_size * wanted_elements;
-  size = sizeof(struct memdebug) + user_size;
+  size = পরিমাণ(সংরচনা memdebug) + user_size;
 
   mem = Curl_ccalloc(1, size);
-  if(mem)
+  যদি(mem)
     mem->size = user_size;
 
-  if(source)
+  যদি(source)
     curl_dbg_log("MEM %s:%d calloc(%zu,%zu) = %p\n",
-                 source, line, wanted_elements, wanted_size,
-                 mem ? (void *)mem->mem : (void *)0);
+                 source, সারি, wanted_elements, wanted_size,
+                 mem ? (শূন্য *)mem->mem : (শূন্য *)0);
 
-  return mem ? mem->mem : NULL;
+  প্রত্যাগম mem ? mem->mem : রিক্ত;
 }
 
 ALLOC_FUNC
-char *curl_dbg_strdup(const char *str, int line, const char *source)
+বর্ণ *curl_dbg_strdup(ধ্রুব বর্ণ *str, পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  char *mem;
+  বর্ণ *mem;
   size_t len;
 
   DEBUGASSERT(str);
 
-  if(countcheck("strdup", line, source))
-    return NULL;
+  যদি(countcheck("strdup", সারি, source))
+    প্রত্যাগম রিক্ত;
 
   len = strlen(str) + 1;
 
-  mem = curl_dbg_malloc(len, 0, NULL); /* NULL prevents logging */
-  if(mem)
+  mem = curl_dbg_malloc(len, 0, রিক্ত); /* NULL prevents logging */
+  যদি(mem)
     memcpy(mem, str, len);
 
-  if(source)
+  যদি(source)
     curl_dbg_log("MEM %s:%d strdup(%p) (%zu) = %p\n",
-                 source, line, (const void *)str, len, (const void *)mem);
+                 source, সারি, (ধ্রুব শূন্য *)str, len, (ধ্রুব শূন্য *)mem);
 
-  return mem;
+  প্রত্যাগম mem;
 }
 
-#if defined(_WIN32) && defined(UNICODE)
+#যদি defined(_WIN32) && defined(UNICODE)
 ALLOC_FUNC
-wchar_t *curl_dbg_wcsdup(const wchar_t *str, int line, const char *source)
+wchar_t *curl_dbg_wcsdup(ধ্রুব wchar_t *str, পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
   wchar_t *mem;
   size_t wsiz, bsiz;
 
   DEBUGASSERT(str);
 
-  if(countcheck("wcsdup", line, source))
-    return NULL;
+  যদি(countcheck("wcsdup", সারি, source))
+    প্রত্যাগম রিক্ত;
 
   wsiz = wcslen(str) + 1;
-  bsiz = wsiz * sizeof(wchar_t);
+  bsiz = wsiz * পরিমাণ(wchar_t);
 
-  mem = curl_dbg_malloc(bsiz, 0, NULL); /* NULL prevents logging */
-  if(mem)
+  mem = curl_dbg_malloc(bsiz, 0, রিক্ত); /* NULL prevents logging */
+  যদি(mem)
     memcpy(mem, str, bsiz);
 
-  if(source)
+  যদি(source)
     curl_dbg_log("MEM %s:%d wcsdup(%p) (%zu) = %p\n",
-                source, line, (const void *)str, bsiz, (void *)mem);
+                source, সারি, (ধ্রুব শূন্য *)str, bsiz, (শূন্য *)mem);
 
-  return mem;
+  প্রত্যাগম mem;
 }
 #endif
 
 /* We provide a realloc() that accepts a NULL as pointer, which then
    performs a malloc(). In order to work with ares. */
-void *curl_dbg_realloc(void *ptr, size_t wantedsize,
-                       int line, const char *source)
+শূন্য *curl_dbg_realloc(শূন্য *ptr, size_t wantedsize,
+                       পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  struct memdebug *mem = NULL;
+  সংরচনা memdebug *mem = রিক্ত;
   bool was_locked;
 
-  size_t size = sizeof(struct memdebug) + wantedsize;
+  size_t size = পরিমাণ(সংরচনা memdebug) + wantedsize;
 
   DEBUGASSERT(wantedsize != 0);
 
-  if(countcheck("realloc", line, source))
-    return NULL;
+  যদি(countcheck("realloc", সারি, source))
+    প্রত্যাগম রিক্ত;
 
   /* need to realloc under lock, as we get out-of-order log
    * entries otherwise, since another thread might alloc the
    * memory released by realloc() before otherwise would log it. */
   was_locked = curl_dbg_lock();
 #ifdef __INTEL_COMPILER
-#  pragma warning(push)
+#  pragma warning(ঠেলো)
 #  pragma warning(disable:1684)
    /* 1684: conversion from pointer to same-sized integral type */
 #endif
 
-  if(ptr)
-    mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
+  যদি(ptr)
+    mem = (শূন্য *)((বর্ণ *)ptr - offsetof(সংরচনা memdebug, mem));
 
 #ifdef __INTEL_COMPILER
-#  pragma warning(pop)
+#  pragma warning(বের_করো)
 #endif
 
   mem = Curl_crealloc(mem, size);
-  if(source)
+  যদি(source)
     curl_dbg_log_locked("MEM %s:%d realloc(%p, %zu) = %p\n",
-                        source, line, (void *)ptr, wantedsize,
-                        mem ? (void *)mem->mem : (void *)0);
+                        source, সারি, (শূন্য *)ptr, wantedsize,
+                        mem ? (শূন্য *)mem->mem : (শূন্য *)0);
 
   curl_dbg_unlock(was_locked);
-  if(mem) {
+  যদি(mem) {
     mem->size = wantedsize;
-    return mem->mem;
+    প্রত্যাগম mem->mem;
   }
 
-  return NULL;
+  প্রত্যাগম রিক্ত;
 }
 
-void curl_dbg_free(void *ptr, int line, const char *source)
+শূন্য curl_dbg_free(শূন্য *ptr, পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  if(ptr) {
-    struct memdebug *mem;
+  যদি(ptr) {
+    সংরচনা memdebug *mem;
 
-    if(source)
-      curl_dbg_log("MEM %s:%d free(%p)\n", source, line, (void *)ptr);
+    যদি(source)
+      curl_dbg_log("MEM %s:%d free(%p)\n", source, সারি, (শূন্য *)ptr);
 
 #ifdef __INTEL_COMPILER
-#  pragma warning(push)
+#  pragma warning(ঠেলো)
 #  pragma warning(disable:1684)
    /* 1684: conversion from pointer to same-sized integral type */
 #endif
 
-    mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
+    mem = (শূন্য *)((বর্ণ *)ptr - offsetof(সংরচনা memdebug, mem));
 
 #ifdef __INTEL_COMPILER
-#  pragma warning(pop)
+#  pragma warning(বের_করো)
 #endif
 
     /* free for real */
@@ -386,160 +386,160 @@ void curl_dbg_free(void *ptr, int line, const char *source)
   }
 }
 
-curl_socket_t curl_dbg_socket(int domain, int type, int protocol,
-                              int line, const char *source)
+curl_socket_t curl_dbg_socket(পূর্ণাঙ্ক domain, পূর্ণাঙ্ক type, পূর্ণাঙ্ক protocol,
+                              পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
   curl_socket_t sockfd;
 
-  if(countcheck("socket", line, source))
-    return CURL_SOCKET_BAD;
+  যদি(countcheck("socket", সারি, source))
+    প্রত্যাগম CURL_SOCKET_BAD;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   sockfd = socket(domain, type, protocol);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  যদি(source && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d socket() = %" FMT_SOCKET_T "\n",
-                 source, line, sockfd);
+                 source, সারি, sockfd);
 
-  return sockfd;
+  প্রত্যাগম sockfd;
 }
 
 #ifdef HAVE_SOCKETPAIR
-int curl_dbg_socketpair(int domain, int type, int protocol,
+পূর্ণাঙ্ক curl_dbg_socketpair(পূর্ণাঙ্ক domain, পূর্ণাঙ্ক type, পূর্ণাঙ্ক protocol,
                         curl_socket_t socket_vector[2],
-                        int line, const char *source)
+                        পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
   /* !checksrc! disable BANNEDFUNC 1 */
-  int res = socketpair(domain, type, protocol, socket_vector);
+  পূর্ণাঙ্ক res = socketpair(domain, type, protocol, socket_vector);
 
-  if(source && (res == 0))
+  যদি(source && (res == 0))
     curl_dbg_log("FD %s:%d socketpair() = "
                  "%" FMT_SOCKET_T " %" FMT_SOCKET_T "\n",
-                 source, line, socket_vector[0], socket_vector[1]);
+                 source, সারি, socket_vector[0], socket_vector[1]);
 
-  return res;
+  প্রত্যাগম res;
 }
 #endif
 
-curl_socket_t curl_dbg_accept(curl_socket_t s, void *saddr, void *saddrlen,
-                              int line, const char *source)
+curl_socket_t curl_dbg_accept(curl_socket_t s, শূন্য *saddr, শূন্য *saddrlen,
+                              পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  struct sockaddr *addr = (struct sockaddr *)saddr;
+  সংরচনা sockaddr *addr = (সংরচনা sockaddr *)saddr;
   curl_socklen_t *addrlen = (curl_socklen_t *)saddrlen;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   curl_socket_t sockfd = accept(s, addr, addrlen);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  যদি(source && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d accept() = %" FMT_SOCKET_T "\n",
-                 source, line, sockfd);
+                 source, সারি, sockfd);
 
-  return sockfd;
+  প্রত্যাগম sockfd;
 }
 
 #ifdef HAVE_ACCEPT4
-curl_socket_t curl_dbg_accept4(curl_socket_t s, void *saddr, void *saddrlen,
-                               int flags,
-                               int line, const char *source)
+curl_socket_t curl_dbg_accept4(curl_socket_t s, শূন্য *saddr, শূন্য *saddrlen,
+                               পূর্ণাঙ্ক flags,
+                               পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  struct sockaddr *addr = (struct sockaddr *)saddr;
+  সংরচনা sockaddr *addr = (সংরচনা sockaddr *)saddr;
   curl_socklen_t *addrlen = (curl_socklen_t *)saddrlen;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   curl_socket_t sockfd = accept4(s, addr, addrlen, flags);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  যদি(source && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d accept() = %" FMT_SOCKET_T "\n",
-                 source, line, sockfd);
+                 source, সারি, sockfd);
 
-  return sockfd;
+  প্রত্যাগম sockfd;
 }
 #endif
 
 /* separate function to allow libcurl to mark a "faked" close */
-void curl_dbg_mark_sclose(curl_socket_t sockfd, int line, const char *source)
+শূন্য curl_dbg_mark_sclose(curl_socket_t sockfd, পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  if(source)
+  যদি(source)
     curl_dbg_log("FD %s:%d sclose(%" FMT_SOCKET_T ")\n",
-                 source, line, sockfd);
+                 source, সারি, sockfd);
 }
 
 /* this is our own defined way to close sockets on *ALL* platforms */
-int curl_dbg_sclose(curl_socket_t sockfd, int line, const char *source)
+পূর্ণাঙ্ক curl_dbg_sclose(curl_socket_t sockfd, পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  curl_dbg_mark_sclose(sockfd, line, source);
-  return CURL_SCLOSE(sockfd);
+  curl_dbg_mark_sclose(sockfd, সারি, source);
+  প্রত্যাগম CURL_SCLOSE(sockfd);
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_fopen(const char *file, const char *mode,
-                     int line, const char *source)
+FILE *curl_dbg_fopen(ধ্রুব বর্ণ *file, ধ্রুব বর্ণ *mode,
+                     পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  FILE *res = CURLX_FOPEN_LOW(file, mode);
-  if(source)
+  FILE *res = CURLX_FOPEN_নিচের(file, mode);
+  যদি(source)
     curl_dbg_log("FILE %s:%d fopen(\"%s\",\"%s\") = %p\n",
-                 source, line, file, mode, (void *)res);
+                 source, সারি, file, mode, (শূন্য *)res);
 
-  return res;
+  প্রত্যাগম res;
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_freopen(const char *file, const char *mode, FILE *fh,
-                       int line, const char *source)
+FILE *curl_dbg_freopen(ধ্রুব বর্ণ *file, ধ্রুব বর্ণ *mode, FILE *fh,
+                       পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  FILE *res = CURLX_FREOPEN_LOW(file, mode, fh);
-  if(source)
+  FILE *res = CURLX_FREOPEN_নিচের(file, mode, fh);
+  যদি(source)
     curl_dbg_log("FILE %s:%d freopen(\"%s\",\"%s\",%p) = %p\n",
-                 source, line, file, mode, (void *)fh, (void *)res);
+                 source, সারি, file, mode, (শূন্য *)fh, (শূন্য *)res);
 
-  return res;
+  প্রত্যাগম res;
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_fdopen(int filedes, const char *mode,
-                      int line, const char *source)
+FILE *curl_dbg_fdopen(পূর্ণাঙ্ক filedes, ধ্রুব বর্ণ *mode,
+                      পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  FILE *res = CURLX_FDOPEN_LOW(filedes, mode);
-  if(source)
+  FILE *res = CURLX_FDOPEN_নিচের(filedes, mode);
+  যদি(source)
     curl_dbg_log("FILE %s:%d fdopen(\"%d\",\"%s\") = %p\n",
-                 source, line, filedes, mode, (void *)res);
-  return res;
+                 source, সারি, filedes, mode, (শূন্য *)res);
+  প্রত্যাগম res;
 }
 
-int curl_dbg_fclose(FILE *file, int line, const char *source)
+পূর্ণাঙ্ক curl_dbg_fclose(FILE *file, পূর্ণাঙ্ক সারি, ধ্রুব বর্ণ *source)
 {
-  int res;
+  পূর্ণাঙ্ক res;
 
   DEBUGASSERT(file);
 
-  if(source)
-    curl_dbg_log("FILE %s:%d fclose(%p)\n", source, line, (void *)file);
+  যদি(source)
+    curl_dbg_log("FILE %s:%d fclose(%p)\n", source, সারি, (শূন্য *)file);
 
   /* !checksrc! disable BANNEDFUNC 1 */
   res = fclose(file);
 
-  return res;
+  প্রত্যাগম res;
 }
 
-static void curl_dbg_vlog(const char * const fmt,
+স্থির শূন্য curl_dbg_vlog(ধ্রুব বর্ণ * ধ্রুব fmt,
                           va_list ap) CURL_PRINTF(1, 0);
 
-static void curl_dbg_vlog(const char * const fmt, va_list ap)
+স্থির শূন্য curl_dbg_vlog(ধ্রুব বর্ণ * ধ্রুব fmt, va_list ap)
 {
-  char buf[1024];
-  size_t nchars = curl_mvsnprintf(buf, sizeof(buf), fmt, ap);
+  বর্ণ buf[1024];
+  size_t nchars = curl_mvsnprintf(buf, পরিমাণ(buf), fmt, ap);
 
-  if(nchars > (int)sizeof(buf) - 1)
-    nchars = (int)sizeof(buf) - 1;
+  যদি(nchars > (পূর্ণাঙ্ক)পরিমাণ(buf) - 1)
+    nchars = (পূর্ণাঙ্ক)পরিমাণ(buf) - 1;
 
-  if(nchars > 0) {
-    if(sizeof(membuf) - nchars < memwidx) {
+  যদি(nchars > 0) {
+    যদি(পরিমাণ(membuf) - nchars < memwidx) {
       /* flush */
       fwrite(membuf, 1, memwidx, curl_dbg_logfile);
       fflush(curl_dbg_logfile);
       memwidx = 0;
     }
-    if(memwidx) {
+    যদি(memwidx) {
       /* the previous line ends with a newline */
       DEBUGASSERT(membuf[memwidx - 1] == '\n');
     }
@@ -548,12 +548,12 @@ static void curl_dbg_vlog(const char * const fmt, va_list ap)
   }
 }
 
-static void curl_dbg_log_locked(const char *format, ...)
+স্থির শূন্য curl_dbg_log_locked(ধ্রুব বর্ণ *format, ...)
 {
   va_list ap;
 
-  if(!curl_dbg_logfile)
-    return;
+  যদি(!curl_dbg_logfile)
+    প্রত্যাগম;
 
   va_start(ap, format);
   curl_dbg_vlog(format, ap);
@@ -561,13 +561,13 @@ static void curl_dbg_log_locked(const char *format, ...)
 }
 
 /* this does the writing to the memory tracking log file */
-void curl_dbg_log(const char *format, ...)
+শূন্য curl_dbg_log(ধ্রুব বর্ণ *format, ...)
 {
   bool was_locked;
   va_list ap;
 
-  if(!curl_dbg_logfile)
-    return;
+  যদি(!curl_dbg_logfile)
+    প্রত্যাগম;
 
   was_locked = curl_dbg_lock();
   va_start(ap, format);

@@ -23,31 +23,31 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#include "curlx/dynbuf.h"
+#অন্তর্ভাব "curlx/dynbuf.h"
 
-struct dynbuf;
+সংরচনা dynbuf;
 
 /**
  * A single header entry.
  * `name` and `value` are non-NULL and always null-terminated.
  */
-struct dynhds_entry {
-  char *name;
-  char *value;
+সংরচনা dynhds_entry {
+  বর্ণ *name;
+  বর্ণ *মান;
   size_t namelen;
   size_t valuelen;
 };
 
-struct dynhds {
-  struct dynhds_entry **hds;
+সংরচনা dynhds {
+  সংরচনা dynhds_entry **hds;
   size_t hds_len;   /* number of entries in hds */
   size_t hds_allc;  /* size of hds allocation */
   size_t max_entries;   /* size limit number of entries */
   size_t strs_len; /* length of all strings */
   size_t max_strs_size; /* max length of all strings */
-  int opts;
+  পূর্ণাঙ্ক opts;
 };
 
 #define DYNHDS_OPT_NONE          0
@@ -58,83 +58,83 @@ struct dynhds {
  * Allow `max_entries` headers to be added, 0 for unlimited.
  * Allow size of all name and values added to not exceed `max_strs_size``
  */
-void Curl_dynhds_init(struct dynhds *dynhds, size_t max_entries,
+শূন্য Curl_dynhds_init(সংরচনা dynhds *dynhds, size_t max_entries,
                       size_t max_strs_size);
 /**
  * Frees all data held in `dynhds`, but not the struct itself.
  */
-void Curl_dynhds_free(struct dynhds *dynhds);
+শূন্য Curl_dynhds_free(সংরচনা dynhds *dynhds);
 
 /**
  * Reset `dyndns` to the initial init state. May keep allocations
  * around.
  */
-void Curl_dynhds_reset(struct dynhds *dynhds);
+শূন্য Curl_dynhds_reset(সংরচনা dynhds *dynhds);
 
 /**
  * Return the number of header entries.
  */
-size_t Curl_dynhds_count(struct dynhds *dynhds);
+size_t Curl_dynhds_গুনতি(সংরচনা dynhds *dynhds);
 
 /**
  * Set the options to use, replacing any existing ones.
  * This will not have an effect on already existing headers.
  */
-void Curl_dynhds_set_opts(struct dynhds *dynhds, int opts);
+শূন্য Curl_dynhds_set_opts(সংরচনা dynhds *dynhds, পূর্ণাঙ্ক opts);
 
 /**
  * Return the n-th header entry or NULL if it does not exist.
  */
-struct dynhds_entry *Curl_dynhds_getn(struct dynhds *dynhds, size_t n);
+সংরচনা dynhds_entry *Curl_dynhds_getn(সংরচনা dynhds *dynhds, size_t n);
 
 /**
  * Return the 1st header entry of the name or NULL if none exists.
  */
-struct dynhds_entry *Curl_dynhds_get(struct dynhds *dynhds,
-                                     const char *name, size_t namelen);
-struct dynhds_entry *Curl_dynhds_cget(struct dynhds *dynhds, const char *name);
+সংরচনা dynhds_entry *Curl_dynhds_get(সংরচনা dynhds *dynhds,
+                                     ধ্রুব বর্ণ *name, size_t namelen);
+সংরচনা dynhds_entry *Curl_dynhds_cget(সংরচনা dynhds *dynhds, ধ্রুব বর্ণ *name);
 
-CURLcode Curl_dynhds_cset(struct dynhds *dynhds,
-                          const char *name, const char *value);
+CURLcode Curl_dynhds_cset(সংরচনা dynhds *dynhds,
+                          ধ্রুব বর্ণ *name, ধ্রুব বর্ণ *মান);
 
 /**
  * Add a header, name + value, to `dynhds` at the end. Does *not*
  * check for duplicate names.
  */
-CURLcode Curl_dynhds_add(struct dynhds *dynhds,
-                         const char *name, size_t namelen,
-                         const char *value, size_t valuelen);
+CURLcode Curl_dynhds_add(সংরচনা dynhds *dynhds,
+                         ধ্রুব বর্ণ *name, size_t namelen,
+                         ধ্রুব বর্ণ *মান, size_t valuelen);
 
 /**
  * Add a header, c-string name + value, to `dynhds` at the end.
  */
-CURLcode Curl_dynhds_cadd(struct dynhds *dynhds,
-                          const char *name, const char *value);
+CURLcode Curl_dynhds_cadd(সংরচনা dynhds *dynhds,
+                          ধ্রুব বর্ণ *name, ধ্রুব বর্ণ *মান);
 
 /**
  * Add a single header from an HTTP/1.1 formatted line at the end. Line may
  * contain a delimiting CRLF or LF. Any characters after that will be ignored.
  */
-CURLcode Curl_dynhds_h1_cadd_line(struct dynhds *dynhds, const char *line);
+CURLcode Curl_dynhds_h1_cadd_সারি(সংরচনা dynhds *dynhds, ধ্রুব বর্ণ *সারি);
 
 /**
  * Add a single header from an HTTP/1.1 formatted line at the end. Line may
  * contain a delimiting CRLF or LF. Any characters after that will be ignored.
  */
-CURLcode Curl_dynhds_h1_add_line(struct dynhds *dynhds,
-                                 const char *line, size_t line_len);
+CURLcode Curl_dynhds_h1_add_সারি(সংরচনা dynhds *dynhds,
+                                 ধ্রুব বর্ণ *সারি, size_t সারি_len);
 
 /**
  * Add the headers to the given `dynbuf` in HTTP/1.1 format with
  * CR+LF line endings. Does NOT output a last empty line.
  */
-CURLcode Curl_dynhds_h1_dprint(struct dynhds *dynhds, struct dynbuf *dbuf);
+CURLcode Curl_dynhds_h1_dprint(সংরচনা dynhds *dynhds, সংরচনা dynbuf *dbuf);
 
 #ifdef USE_NGHTTP2
 
-#include <nghttp2/nghttp2.h>
+#অন্তর্ভাব <nghttp2/nghttp2.h>
 
-nghttp2_nv *Curl_dynhds_to_nva(struct dynhds *dynhds, size_t *pcount);
+nghttp2_nv *Curl_dynhds_to_nva(সংরচনা dynhds *dynhds, size_t *pcount);
 
 #endif /* USE_NGHTTP2 */
 

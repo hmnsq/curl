@@ -22,9 +22,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP)
+#যদি !defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP)
 
 /*
  * Notice that USE_OPENLDAP is only a source code selection switch. When
@@ -37,21 +37,21 @@
  * OpenLDAP library versions, USE_OPENLDAP shall not be defined.
  */
 
-#include <ldap.h>
+#অন্তর্ভাব <ldap.h>
 
-#include "urldata.h"
-#include "url.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "vtls/vtls.h"
-#include "transfer.h"
-#include "curl_ldap.h"
-#include "curlx/base64.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curl_sasl.h"
-#include "strcase.h"
-#include "bufref.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "url.h"
+#অন্তর্ভাব "sendf.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "vtls/vtls.h"
+#অন্তর্ভাব "transfer.h"
+#অন্তর্ভাব "curl_ldap.h"
+#অন্তর্ভাব "curlx/base64.h"
+#অন্তর্ভাব "cfilters.h"
+#অন্তর্ভাব "connect.h"
+#অন্তর্ভাব "curl_sasl.h"
+#অন্তর্ভাব "strcase.h"
+#অন্তর্ভাব "bufref.h"
 
 /*
  * Uncommenting this will enable the built-in debug logging of the openldap
@@ -73,7 +73,7 @@
 /* #define CURL_OPENLDAP_DEBUG */
 
 /* Machine states. */
-typedef enum {
+প্রকারনির্দেশ গণনা {
   OLDAP_STOP,           /* Do nothing state, stops the state machine */
   OLDAP_SSL,            /* Performing SSL handshake. */
   OLDAP_STARTTLS,       /* STARTTLS request sent. */
@@ -86,28 +86,28 @@ typedef enum {
 } ldapstate;
 
 #ifndef _LDAP_PVT_H
-extern int ldap_pvt_url_scheme2proto(const char *);
-extern int ldap_init_fd(ber_socket_t fd, int proto, const char *url,
+বাহ্য পূর্ণাঙ্ক ldap_pvt_url_scheme2proto(ধ্রুব বর্ণ *);
+বাহ্য পূর্ণাঙ্ক ldap_init_fd(ber_socket_t fd, পূর্ণাঙ্ক proto, ধ্রুব বর্ণ *url,
                         LDAP **ld);
 #endif
 
-static Curl_recv oldap_recv;
+স্থির Curl_recv oldap_recv;
 
-struct ldapconninfo {
-  struct SASL sasl;          /* SASL-related parameters */
+সংরচনা ldapconninfo {
+  সংরচনা SASL sasl;          /* SASL-related parameters */
   LDAP *ld;                  /* Openldap connection handle. */
   Curl_recv *recv;           /* For stacking SSL handler */
   Curl_send *send;
-  struct berval *servercred; /* SASL data from server. */
+  সংরচনা berval *servercred; /* SASL data from server. */
   ldapstate state;           /* Current machine state. */
   curl_socket_t dupfd;       /* duplicated socket */
-  int proto;                 /* LDAP_PROTO_TCP/LDAP_PROTO_UDP/LDAP_PROTO_IPC */
-  int msgid;                 /* Current message id. */
+  পূর্ণাঙ্ক proto;                 /* LDAP_PROTO_TCP/LDAP_PROTO_UDP/LDAP_PROTO_IPC */
+  পূর্ণাঙ্ক msgid;                 /* Current message id. */
 };
 
-struct ldapreqinfo {
-  int msgid;
-  int nument;
+সংরচনা ldapreqinfo {
+  পূর্ণাঙ্ক msgid;
+  পূর্ণাঙ্ক nument;
 };
 
 /* meta key for storing ldapconninfo at easy handle */
@@ -120,12 +120,12 @@ struct ldapreqinfo {
  *
  * This is the ONLY way to change LDAP state!
  */
-static void oldap_state(struct Curl_easy *data, struct ldapconninfo *li,
+স্থির শূন্য oldap_state(সংরচনা Curl_easy *data, সংরচনা ldapconninfo *li,
                         ldapstate newstate)
 {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#যদি defined(DEBUGBUILD) && defined(CURLVERBOSE)
   /* for debug purposes */
-  static const char * const names[] = {
+  স্থির ধ্রুব বর্ণ * ধ্রুব names[] = {
     "STOP",
     "SSL",
     "STARTTLS",
@@ -137,36 +137,36 @@ static void oldap_state(struct Curl_easy *data, struct ldapconninfo *li,
     /* LAST */
   };
 
-  if(li->state != newstate)
+  যদি(li->state != newstate)
     infof(data, "LDAP %p state change from %s to %s",
-          (void *)li, names[li->state], names[newstate]);
-#else
-  (void)data;
+          (শূন্য *)li, names[li->state], names[newstate]);
+#অন্যথা
+  (শূন্য)data;
 #endif
   li->state = newstate;
 }
 
 /* Map some particular LDAP error codes to CURLcode values. */
-static CURLcode oldap_map_error(int rc, CURLcode result)
+স্থির CURLcode oldap_map_error(পূর্ণাঙ্ক rc, CURLcode result)
 {
-  switch(rc) {
-  case LDAP_NO_MEMORY:
-    return CURLE_OUT_OF_MEMORY;
-  case LDAP_INVALID_CREDENTIALS:
-    return CURLE_LOGIN_DENIED;
-  case LDAP_PROTOCOL_ERROR:
-    return CURLE_UNSUPPORTED_PROTOCOL;
-  case LDAP_INSUFFICIENT_ACCESS:
-    return CURLE_REMOTE_ACCESS_DENIED;
+  বিকল্প(rc) {
+  পক্ষ LDAP_NO_MEMORY:
+    প্রত্যাগম CURLE_OUT_OF_MEMORY;
+  পক্ষ LDAP_INVALID_CREDENTIALS:
+    প্রত্যাগম CURLE_LOGIN_DENIED;
+  পক্ষ LDAP_PROTOCOL_ERROR:
+    প্রত্যাগম CURLE_UNSUPPORTED_PROTOCOL;
+  পক্ষ LDAP_INSUFFICIENT_ACCESS:
+    প্রত্যাগম CURLE_REMOTE_ACCESS_DENIED;
   }
-  return result;
+  প্রত্যাগম result;
 }
 
-static CURLcode oldap_url_parse(struct Curl_easy *data, LDAPURLDesc **ludp)
+স্থির CURLcode oldap_url_parse(সংরচনা Curl_easy *data, LDAPURLDesc **ludp)
 {
   CURLcode result = CURLE_OK;
-  int rc;
-  static const char * const url_errs[] = {
+  পূর্ণাঙ্ক rc;
+  স্থির ধ্রুব বর্ণ * ধ্রুব url_errs[] = {
     "success",
     "out of memory",
     "bad parameter",
@@ -180,333 +180,333 @@ static CURLcode oldap_url_parse(struct Curl_easy *data, LDAPURLDesc **ludp)
     "bad or missing extensions"
   };
 
-  *ludp = NULL;
+  *ludp = রিক্ত;
   /* `ldap_url_parse() seems to be terrible with urls
    * that have user/pass/options in it. So when we have options or
    * creds from the url, fail without calling the function.
    * Yes, this is super-weird code and I do not like it. */
-  if((data->state.creds && (data->state.creds->source == CREDS_URL)) ||
+  যদি((data->state.creds && (data->state.creds->source == CREDS_URL)) ||
      data->state.up.options)
     rc = LDAP_URL_ERR_BADURL;
-  else
+  অন্যথা
     rc = ldap_url_parse(Curl_bufref_ptr(&data->state.url), ludp);
 
-  if(rc != LDAP_URL_SUCCESS) {
-    const char *msg = "url parsing problem";
+  যদি(rc != LDAP_URL_SUCCESS) {
+    ধ্রুব বর্ণ *বার্তা = "url parsing problem";
 
     result = rc == LDAP_URL_ERR_MEM ? CURLE_OUT_OF_MEMORY :
       CURLE_URL_MALFORMAT;
     rc -= LDAP_URL_SUCCESS;
-    if((size_t)rc < CURL_ARRAYSIZE(url_errs))
-      msg = url_errs[rc];
-    failf(data, "LDAP local: %s", msg);
+    যদি((size_t)rc < CURL_ARRAYSIZE(url_errs))
+      বার্তা = url_errs[rc];
+    failf(data, "LDAP local: %s", বার্তা);
   }
-  return result;
+  প্রত্যাগম result;
 }
 
 /* Parse the login options. */
-static CURLcode oldap_parse_login_options(struct connectdata *conn)
+স্থির CURLcode oldap_parse_login_options(সংরচনা connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  const char *ptr = conn->options;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ধ্রুব বর্ণ *ptr = conn->options;
 
   DEBUGASSERT(li);
-  if(!li)
-    return CURLE_FAILED_INIT;
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
 
-  while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+  যাবত্(!result && ptr && *ptr) {
+    ধ্রুব বর্ণ *চাবি = ptr;
+    ধ্রুব বর্ণ *মান;
 
-    while(*ptr && *ptr != '=')
+    যাবত্(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    মান = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    যাবত্(*ptr && *ptr != ';')
       ptr++;
 
-    if(checkprefix("AUTH=", key))
-      result = Curl_sasl_parse_url_auth_option(&li->sasl, value, ptr - value);
-    else
+    যদি(checkprefix("AUTH=", চাবি))
+      result = Curl_sasl_parse_url_auth_option(&li->sasl, মান, ptr - মান);
+    অন্যথা
       result = CURLE_SETOPT_OPTION_SYNTAX;
 
-    if(*ptr == ';')
+    যদি(*ptr == ';')
       ptr++;
   }
 
-  return result == CURLE_URL_MALFORMAT ? CURLE_SETOPT_OPTION_SYNTAX : result;
+  প্রত্যাগম result == CURLE_URL_MALFORMAT ? CURLE_SETOPT_OPTION_SYNTAX : result;
 }
 
-static CURLcode oldap_setup_connection(struct Curl_easy *data,
-                                       struct connectdata *conn)
+স্থির CURLcode oldap_setup_connection(সংরচনা Curl_easy *data,
+                                       সংরচনা connectdata *conn)
 {
   CURLcode result;
   LDAPURLDesc *lud;
-  (void)conn;
+  (শূন্য)conn;
 
   /* Early URL syntax check. */
   result = oldap_url_parse(data, &lud);
   ldap_free_urldesc(lud);
 
-  return result;
+  প্রত্যাগম result;
 }
 
 /*
  * Get the SASL authentication challenge from the server credential buffer.
  */
-static CURLcode oldap_get_message(struct Curl_easy *data, struct bufref *out)
+স্থির CURLcode oldap_get_message(সংরচনা Curl_easy *data, সংরচনা bufref *out)
 {
-  struct ldapconninfo *li =
+  সংরচনা ldapconninfo *li =
     Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  struct berval *servercred = li ? li->servercred : NULL;
+  সংরচনা berval *servercred = li ? li->servercred : রিক্ত;
   DEBUGASSERT(li);
-  if(!li)
-    return CURLE_FAILED_INIT;
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
 
-  if(!servercred || !servercred->bv_val)
-    return CURLE_WEIRD_SERVER_REPLY;
-  Curl_bufref_set(out, servercred->bv_val, servercred->bv_len, NULL);
-  return CURLE_OK;
+  যদি(!servercred || !servercred->bv_val)
+    প্রত্যাগম CURLE_WEIRD_SERVER_REPLY;
+  Curl_bufref_set(out, servercred->bv_val, servercred->bv_len, রিক্ত);
+  প্রত্যাগম CURLE_OK;
 }
 
 /*
  * Sends an initial SASL bind request to the server.
  */
-static CURLcode oldap_perform_auth(struct Curl_easy *data, const char *mech,
-                                   const struct bufref *initresp)
+স্থির CURLcode oldap_perform_auth(সংরচনা Curl_easy *data, ধ্রুব বর্ণ *mech,
+                                   ধ্রুব সংরচনা bufref *initresp)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct berval cred;
-  struct berval *pcred = &cred;
-  int rc;
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  সংরচনা berval cred;
+  সংরচনা berval *pcred = &cred;
+  পূর্ণাঙ্ক rc;
 
   DEBUGASSERT(li);
-  if(!li)
-    return CURLE_FAILED_INIT;
-  cred.bv_val = (char *)CURL_UNCONST(Curl_bufref_ptr(initresp));
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
+  cred.bv_val = (বর্ণ *)CURL_UNCONST(Curl_bufref_ptr(initresp));
   cred.bv_len = Curl_bufref_len(initresp);
-  if(!cred.bv_val)
-    pcred = NULL;
-  rc = ldap_sasl_bind(li->ld, NULL, mech, pcred, NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
-  return CURLE_OK;
+  যদি(!cred.bv_val)
+    pcred = রিক্ত;
+  rc = ldap_sasl_bind(li->ld, রিক্ত, mech, pcred, রিক্ত, রিক্ত, &li->msgid);
+  যদি(rc != LDAP_SUCCESS)
+    প্রত্যাগম oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+  প্রত্যাগম CURLE_OK;
 }
 
 /*
  * Sends SASL continuation.
  */
-static CURLcode oldap_continue_auth(struct Curl_easy *data, const char *mech,
-                                    const struct bufref *resp)
+স্থির CURLcode oldap_continue_auth(সংরচনা Curl_easy *data, ধ্রুব বর্ণ *mech,
+                                    ধ্রুব সংরচনা bufref *resp)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct berval cred;
-  struct berval *pcred = &cred;
-  int rc;
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  সংরচনা berval cred;
+  সংরচনা berval *pcred = &cred;
+  পূর্ণাঙ্ক rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  cred.bv_val = (char *)CURL_UNCONST(Curl_bufref_ptr(resp));
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
+  cred.bv_val = (বর্ণ *)CURL_UNCONST(Curl_bufref_ptr(resp));
   cred.bv_len = Curl_bufref_len(resp);
-  if(!cred.bv_val)
-    pcred = NULL;
-  rc = ldap_sasl_bind(li->ld, NULL, mech, pcred, NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
-  return CURLE_OK;
+  যদি(!cred.bv_val)
+    pcred = রিক্ত;
+  rc = ldap_sasl_bind(li->ld, রিক্ত, mech, pcred, রিক্ত, রিক্ত, &li->msgid);
+  যদি(rc != LDAP_SUCCESS)
+    প্রত্যাগম oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+  প্রত্যাগম CURLE_OK;
 }
 
 /*
  * Sends SASL bind cancellation.
  */
-static CURLcode oldap_cancel_auth(struct Curl_easy *data, const char *mech)
+স্থির CURLcode oldap_cancel_auth(সংরচনা Curl_easy *data, ধ্রুব বর্ণ *mech)
 {
-  struct ldapconninfo *li =
+  সংরচনা ldapconninfo *li =
     Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  int rc;
+  পূর্ণাঙ্ক rc;
 
-  (void)mech;
-  if(!li)
-    return CURLE_FAILED_INIT;
-  rc = ldap_sasl_bind(li->ld, NULL, LDAP_SASL_NULL, NULL, NULL, NULL,
+  (শূন্য)mech;
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
+  rc = ldap_sasl_bind(li->ld, রিক্ত, LDAP_SASL_NULL, রিক্ত, রিক্ত, রিক্ত,
                       &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
-  return CURLE_OK;
+  যদি(rc != LDAP_SUCCESS)
+    প্রত্যাগম oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+  প্রত্যাগম CURLE_OK;
 }
 
 /* Starts LDAP simple bind. */
-static CURLcode oldap_perform_bind(struct Curl_easy *data, ldapstate newstate)
+স্থির CURLcode oldap_perform_bind(সংরচনা Curl_easy *data, ldapstate newstate)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  const char *binddn = NULL;
-  struct berval passwd;
-  int rc;
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ধ্রুব বর্ণ *binddn = রিক্ত;
+  সংরচনা berval passwd;
+  পূর্ণাঙ্ক rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  passwd.bv_val = NULL;
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
+  passwd.bv_val = রিক্ত;
   passwd.bv_len = 0;
 
-  if(conn->creds) {
+  যদি(conn->creds) {
     binddn = Curl_creds_user(conn->creds);
     passwd.bv_val = CURL_UNCONST(Curl_creds_passwd(conn->creds));
     passwd.bv_len = strlen(passwd.bv_val);
   }
 
   rc = ldap_sasl_bind(li->ld, binddn, LDAP_SASL_SIMPLE, &passwd,
-                      NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc,
+                      রিক্ত, রিক্ত, &li->msgid);
+  যদি(rc != LDAP_SUCCESS)
+    প্রত্যাগম oldap_map_error(rc,
                            data->state.creds ?
                            CURLE_LOGIN_DENIED : CURLE_LDAP_CANNOT_BIND);
   oldap_state(data, li, newstate);
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
 /* Query the supported SASL authentication mechanisms. */
-static CURLcode oldap_perform_mechs(struct Curl_easy *data)
+স্থির CURLcode oldap_perform_mechs(সংরচনা Curl_easy *data)
 {
-  struct ldapconninfo *li =
+  সংরচনা ldapconninfo *li =
     Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  int rc;
-  static const char * const supportedSASLMechanisms[] = {
+  পূর্ণাঙ্ক rc;
+  স্থির ধ্রুব বর্ণ * ধ্রুব supportedSASLMechanisms[] = {
     "supportedSASLMechanisms",
-    NULL
+    রিক্ত
   };
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
   /* Casting away the const for the 3rd parameter that the LDAP API expects as
      a non-const char ** is potentially unsafe but we believe the lack of
      const in the API was an oversight and that no LDAP implementation
      actually modifies the input. */
-  rc = ldap_search_ext(li->ld, "", LDAP_SCOPE_BASE, "(objectclass=*)",
-                       (char **)CURL_UNCONST(supportedSASLMechanisms), 0,
-                       NULL, NULL, NULL, 0, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LOGIN_DENIED);
+  rc = ldap_অনুসন্ধান_ext(li->ld, "", LDAP_SCOPE_BASE, "(objectclass=*)",
+                       (বর্ণ **)CURL_UNCONST(supportedSASLMechanisms), 0,
+                       রিক্ত, রিক্ত, রিক্ত, 0, &li->msgid);
+  যদি(rc != LDAP_SUCCESS)
+    প্রত্যাগম oldap_map_error(rc, CURLE_LOGIN_DENIED);
   oldap_state(data, li, OLDAP_MECHS);
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
 /* Starts SASL bind. */
-static CURLcode oldap_perform_sasl(struct Curl_easy *data)
+স্থির CURLcode oldap_perform_sasl(সংরচনা Curl_easy *data)
 {
-  struct ldapconninfo *li =
+  সংরচনা ldapconninfo *li =
     Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
   saslprogress progress = SASL_IDLE;
   CURLcode result;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
   result = Curl_sasl_start(&li->sasl, data, TRUE, &progress);
 
   oldap_state(data, li, OLDAP_SASL);
-  if(!result && progress != SASL_INPROGRESS)
+  যদি(!result && progress != SASL_INPROGRESS)
     result = Curl_sasl_is_blocked(&li->sasl, data);
-  return result;
+  প্রত্যাগম result;
 }
 
 #ifdef USE_SSL
-static int ldapsb_tls_setup(Sockbuf_IO_Desc *sbiod, void *arg)
+স্থির পূর্ণাঙ্ক ldapsb_tls_setup(Sockbuf_IO_Desc *sbiod, শূন্য *arg)
 {
   sbiod->sbiod_pvt = arg;
-  return 0;
+  প্রত্যাগম 0;
 }
 
-static int ldapsb_tls_remove(Sockbuf_IO_Desc *sbiod)
+স্থির পূর্ণাঙ্ক ldapsb_tls_remove(Sockbuf_IO_Desc *sbiod)
 {
-  sbiod->sbiod_pvt = NULL;
-  return 0;
+  sbiod->sbiod_pvt = রিক্ত;
+  প্রত্যাগম 0;
 }
 
 /* if there is a duplicated socket to close, close it */
-static int ldapsb_tls_close(Sockbuf_IO_Desc *sbiod)
+স্থির পূর্ণাঙ্ক ldapsb_tls_close(Sockbuf_IO_Desc *sbiod)
 {
-  struct Curl_easy *data = sbiod->sbiod_pvt;
-  if(data) {
-    struct connectdata *conn = data->conn;
-    if(conn) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-      if(li && (li->dupfd != CURL_SOCKET_BAD)) {
+  সংরচনা Curl_easy *data = sbiod->sbiod_pvt;
+  যদি(data) {
+    সংরচনা connectdata *conn = data->conn;
+    যদি(conn) {
+      সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+      যদি(li && (li->dupfd != CURL_SOCKET_BAD)) {
         sclose(li->dupfd);
         li->dupfd = CURL_SOCKET_BAD;
       }
     }
   }
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-static int ldapsb_tls_ctrl(Sockbuf_IO_Desc *sbiod, int opt, void *arg)
+স্থির পূর্ণাঙ্ক ldapsb_tls_ctrl(Sockbuf_IO_Desc *sbiod, পূর্ণাঙ্ক opt, শূন্য *arg)
 {
-  (void)arg;
-  if(opt == LBER_SB_OPT_DATA_READY) {
-    struct Curl_easy *data = sbiod->sbiod_pvt;
-    return Curl_conn_data_pending(data, FIRSTSOCKET);
+  (শূন্য)arg;
+  যদি(opt == LBER_SB_OPT_DATA_READY) {
+    সংরচনা Curl_easy *data = sbiod->sbiod_pvt;
+    প্রত্যাগম Curl_conn_data_pending(data, FIRSTSOCKET);
   }
-  return 0;
+  প্রত্যাগম 0;
 }
 
-static ber_slen_t ldapsb_tls_read(Sockbuf_IO_Desc *sbiod, void *buf,
+স্থির ber_slen_t ldapsb_tls_read(Sockbuf_IO_Desc *sbiod, শূন্য *buf,
                                   ber_len_t len)
 {
-  struct Curl_easy *data = sbiod->sbiod_pvt;
+  সংরচনা Curl_easy *data = sbiod->sbiod_pvt;
   ber_slen_t ret = 0;
-  if(data) {
-    struct connectdata *conn = data->conn;
-    if(conn) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  যদি(data) {
+    সংরচনা connectdata *conn = data->conn;
+    যদি(conn) {
+      সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
       CURLcode result = CURLE_RECV_ERROR;
       size_t nread;
 
-      if(!li) {
+      যদি(!li) {
         SET_SOCKERRNO(SOCKEINVAL);
-        return -1;
+        প্রত্যাগম -1;
       }
       result = (li->recv)(data, FIRSTSOCKET, buf, len, &nread);
-      if(result == CURLE_AGAIN) {
+      যদি(result == CURLE_AGAIN) {
         SET_SOCKERRNO(SOCKEWOULDBLOCK);
       }
       ret = result ? -1 : (ber_slen_t)nread;
     }
   }
-  return ret;
+  প্রত্যাগম ret;
 }
 
-static ber_slen_t ldapsb_tls_write(Sockbuf_IO_Desc *sbiod, void *buf,
+স্থির ber_slen_t ldapsb_tls_write(Sockbuf_IO_Desc *sbiod, শূন্য *buf,
                                    ber_len_t len)
 {
-  struct Curl_easy *data = sbiod->sbiod_pvt;
+  সংরচনা Curl_easy *data = sbiod->sbiod_pvt;
   ber_slen_t ret = 0;
-  if(data) {
-    struct connectdata *conn = data->conn;
-    if(conn) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  যদি(data) {
+    সংরচনা connectdata *conn = data->conn;
+    যদি(conn) {
+      সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
       CURLcode result = CURLE_SEND_ERROR;
       size_t nwritten;
 
-      if(!li) {
+      যদি(!li) {
         SET_SOCKERRNO(SOCKEINVAL);
-        return -1;
+        প্রত্যাগম -1;
       }
       result = (li->send)(data, FIRSTSOCKET, buf, len, FALSE, &nwritten);
-      if(result == CURLE_AGAIN) {
+      যদি(result == CURLE_AGAIN) {
         SET_SOCKERRNO(SOCKEWOULDBLOCK);
       }
       ret = result ? -1 : (ber_slen_t)nwritten;
     }
   }
-  return ret;
+  প্রত্যাগম ret;
 }
 
-static Sockbuf_IO ldapsb_tls = {
+স্থির Sockbuf_IO ldapsb_tls = {
   ldapsb_tls_setup,
   ldapsb_tls_remove,
   ldapsb_tls_ctrl,
@@ -515,79 +515,79 @@ static Sockbuf_IO ldapsb_tls = {
   ldapsb_tls_close
 };
 
-static bool ssl_installed(struct connectdata *conn)
+স্থির bool ssl_installed(সংরচনা connectdata *conn)
 {
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  return li && li->recv;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  প্রত্যাগম li && li->recv;
 }
 
-static CURLcode oldap_ssl_connect(struct Curl_easy *data, ldapstate newstate)
+স্থির CURLcode oldap_ssl_connect(সংরচনা Curl_easy *data, ldapstate newstate)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
   bool ssldone = FALSE;
   CURLcode result;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
   result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
-  if(result)
-    return result;
+  যদি(result)
+    প্রত্যাগম result;
   oldap_state(data, li, newstate);
 
-  if(ssldone) {
+  যদি(ssldone) {
     Sockbuf *sb;
 
     /* Install the libcurl SSL handlers into the sockbuf. */
-    if((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
+    যদি((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
        ber_sockbuf_add_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, data))
-      return CURLE_FAILED_INIT;
+      প্রত্যাগম CURLE_FAILED_INIT;
     li->recv = conn->recv[FIRSTSOCKET];
     li->send = conn->send[FIRSTSOCKET];
   }
 
-  return result;
+  প্রত্যাগম result;
 }
 
 /* Send the STARTTLS request */
-static CURLcode oldap_perform_starttls(struct Curl_easy *data)
+স্থির CURLcode oldap_perform_starttls(সংরচনা Curl_easy *data)
 {
-  struct ldapconninfo *li =
+  সংরচনা ldapconninfo *li =
     Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  int rc;
+  পূর্ণাঙ্ক rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  rc = ldap_start_tls(li->ld, NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_USE_SSL_FAILED);
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
+  rc = ldap_start_tls(li->ld, রিক্ত, রিক্ত, &li->msgid);
+  যদি(rc != LDAP_SUCCESS)
+    প্রত্যাগম oldap_map_error(rc, CURLE_USE_SSL_FAILED);
   oldap_state(data, li, OLDAP_STARTTLS);
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 #endif
 
-static void oldap_easy_dtor(const void *key, size_t klen, void *entry)
+স্থির শূন্য oldap_easy_dtor(ধ্রুব শূন্য *চাবি, size_t klen, শূন্য *entry)
 {
-  struct ldapreqinfo *lr = entry;
-  (void)key;
-  (void)klen;
+  সংরচনা ldapreqinfo *lr = entry;
+  (শূন্য)চাবি;
+  (শূন্য)klen;
   curlx_free(lr);
 }
 
-static void oldap_conn_dtor(const void *key, size_t klen, void *entry)
+স্থির শূন্য oldap_conn_dtor(ধ্রুব শূন্য *চাবি, size_t klen, শূন্য *entry)
 {
-  struct ldapconninfo *li = entry;
-  (void)key;
-  (void)klen;
-  if(li->ld) {
-    ldap_unbind_ext(li->ld, NULL, NULL);
-    li->ld = NULL;
+  সংরচনা ldapconninfo *li = entry;
+  (শূন্য)চাবি;
+  (শূন্য)klen;
+  যদি(li->ld) {
+    ldap_unbind_ext(li->ld, রিক্ত, রিক্ত);
+    li->ld = রিক্ত;
   }
   curlx_free(li);
 }
 
 /* SASL parameters for the ldap protocol */
-static const struct SASLproto saslldap = {
+স্থির ধ্রুব সংরচনা SASLproto saslldap = {
   "ldap",                     /* The service name */
   oldap_perform_auth,         /* Send authentication command */
   oldap_continue_auth,        /* Send authentication continuation */
@@ -600,30 +600,30 @@ static const struct SASLproto saslldap = {
   0                           /* Configuration flags */
 };
 
-static CURLcode oldap_connect(struct Curl_easy *data, bool *done)
+স্থির CURLcode oldap_connect(সংরচনা Curl_easy *data, bool *done)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li;
-  static const int version = LDAP_VERSION3;
-  char *hosturl = NULL;
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapconninfo *li;
+  স্থির ধ্রুব পূর্ণাঙ্ক version = LDAP_VERSION3;
+  বর্ণ *hosturl = রিক্ত;
   CURLcode result;
-  int rc;
+  পূর্ণাঙ্ক rc;
 #ifdef CURL_OPENLDAP_DEBUG
-  static int do_trace = -1;
+  স্থির পূর্ণাঙ্ক do_trace = -1;
 #endif
 
-  (void)done;
+  (শূন্য)done;
 
-  li = curlx_calloc(1, sizeof(struct ldapconninfo));
-  if(!li) {
+  li = curlx_calloc(1, পরিমাণ(সংরচনা ldapconninfo));
+  যদি(!li) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    গচ্ছ out;
   }
   li->dupfd = CURL_SOCKET_BAD;
 
   result = Curl_conn_meta_set(conn, CURL_META_LDAP_CONN, li, oldap_conn_dtor);
-  if(result)
-    goto out;
+  যদি(result)
+    গচ্ছ out;
 
   li->proto = ldap_pvt_url_scheme2proto(data->state.origin->scheme->name);
 
@@ -631,8 +631,8 @@ static CURLcode oldap_connect(struct Curl_easy *data, bool *done)
   Curl_sasl_init(&li->sasl, data, &saslldap);
 
   result = oldap_parse_login_options(conn);
-  if(result)
-    goto out;
+  যদি(result)
+    গচ্ছ out;
 
   hosturl = curl_maprintf("%s://%s:%u",
                           conn->scheme->name,
@@ -640,27 +640,27 @@ static CURLcode oldap_connect(struct Curl_easy *data, bool *done)
                           conn->origin->user_hostname :
                           conn->origin->hostname,
                           conn->origin->port);
-  if(!hosturl) {
+  যদি(!hosturl) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    গচ্ছ out;
   }
 
   {
 #ifdef _WIN32
     SOCKET dupfd = INVALID_SOCKET;
     WSAPROTOCOL_INFO pi;
-    if(WSADuplicateSocket(conn->sock[FIRSTSOCKET], GetCurrentProcessId(),
+    যদি(WSADuplicateSocket(conn->sock[FIRSTSOCKET], GetCurrentProcessId(),
                           &pi))
       ; /* error */
-    else
+    অন্যথা
       dupfd = CURL_SOCKET(pi.iAddressFamily, pi.iSocketType, pi.iProtocol);
-#else
+#অন্যথা
 #ifdef F_DUPFD_CLOEXEC
-    int dupfd = fcntl(conn->sock[FIRSTSOCKET], F_DUPFD_CLOEXEC, 0);
-#else
-    int dupfd = dup(conn->sock[FIRSTSOCKET]);
+    পূর্ণাঙ্ক dupfd = fcntl(conn->sock[FIRSTSOCKET], F_DUPFD_CLOEXEC, 0);
+#অন্যথা
+    পূর্ণাঙ্ক dupfd = dup(conn->sock[FIRSTSOCKET]);
 #ifdef HAVE_FCNTL
-    if((dupfd != CURL_SOCKET_BAD) &&
+    যদি((dupfd != CURL_SOCKET_BAD) &&
        (fcntl(dupfd, F_SETFD, FD_CLOEXEC) < 0)) {
       sclose(dupfd);
       dupfd = CURL_SOCKET_BAD;
@@ -669,34 +669,34 @@ static CURLcode oldap_connect(struct Curl_easy *data, bool *done)
 #endif /* F_DUPFD_CLOEXEC */
 #endif /* _WIN32 */
 
-    if(dupfd == CURL_SOCKET_BAD) {
+    যদি(dupfd == CURL_SOCKET_BAD) {
       result = CURLE_COULDNT_CONNECT;
-      goto out;
+      গচ্ছ out;
     }
     rc = ldap_init_fd((ber_socket_t)dupfd, li->proto, hosturl, &li->ld);
-    if(rc)
+    যদি(rc)
       sclose(dupfd);
-    else
+    অন্যথা
       /* store the socket, as when this is used by TLS we close this ourselves
          and at this point the code does not yet know if this will use TLS or
          not */
       li->dupfd = dupfd;
   }
-  if(rc) {
+  যদি(rc) {
     failf(data, "LDAP local: Cannot connect to %s, %s",
           hosturl, ldap_err2string(rc));
     result = CURLE_COULDNT_CONNECT;
-    goto out;
+    গচ্ছ out;
   }
 
 #ifdef CURL_OPENLDAP_DEBUG
-  if(do_trace < 0) {
-    const char *env = getenv("CURL_OPENLDAP_TRACE");
+  যদি(do_trace < 0) {
+    ধ্রুব বর্ণ *env = getenv("CURL_OPENLDAP_TRACE");
     curl_off_t e = 0;
-    if(!curlx_str_number(&env, &e, INT_MAX))
+    যদি(!curlx_str_সংখ্যা(&env, &e, INT_MAX))
       do_trace = e > 0;
   }
-  if(do_trace)
+  যদি(do_trace)
     ldap_set_option(li->ld, LDAP_OPT_DEBUG_LEVEL, &do_trace);
 #endif
 
@@ -709,32 +709,32 @@ static CURLcode oldap_connect(struct Curl_easy *data, bool *done)
   {
     ber_len_t max = 256 * 1024;
     Sockbuf *sb;
-    if((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
+    যদি((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
        /* Set the maximum allowed size of an incoming message, which to
           OpenLDAP means that it will malloc() memory up to this size. If not
           set, there is no limit and we instead risk a malloc() failure. */
        !ber_sockbuf_ctrl(sb, LBER_SB_OPT_SET_MAX_INCOMING, &max)) {
       result = CURLE_FAILED_INIT;
-      goto out;
+      গচ্ছ out;
     }
   }
 
 #ifdef USE_SSL
-  if(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+  যদি(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
     result = oldap_ssl_connect(data, OLDAP_SSL);
-    goto out;
+    গচ্ছ out;
   }
 
-  if(data->set.use_ssl) {
+  যদি(data->set.use_ssl) {
     result = oldap_perform_starttls(data);
-    if(!result || data->set.use_ssl != CURLUSESSL_TRY)
-      goto out;
+    যদি(!result || data->set.use_ssl != CURLUSESSL_TRY)
+      গচ্ছ out;
   }
 #endif
 
-  if(li->sasl.prefmech != SASL_AUTH_NONE) {
+  যদি(li->sasl.prefmech != SASL_AUTH_NONE) {
     result = oldap_perform_mechs(data);
-    goto out;
+    গচ্ছ out;
   }
 
   /* Force bind even if anonymous bind is not needed in protocol version 3
@@ -743,355 +743,355 @@ static CURLcode oldap_connect(struct Curl_easy *data, bool *done)
 
 out:
   curlx_free(hosturl);
-  return result;
+  প্রত্যাগম result;
 }
 
 /* Handle the supported SASL mechanisms query response */
-static CURLcode oldap_state_mechs_resp(struct Curl_easy *data,
-                                       LDAPMessage *msg, int code)
+স্থির CURLcode oldap_state_mechs_resp(সংরচনা Curl_easy *data,
+                                       LDAPMessage *বার্তা, পূর্ণাঙ্ক code)
 {
-  struct connectdata *conn;
-  struct ldapconninfo *li;
-  int rc;
-  BerElement *ber = NULL;
+  সংরচনা connectdata *conn;
+  সংরচনা ldapconninfo *li;
+  পূর্ণাঙ্ক rc;
+  BerElement *ber = রিক্ত;
   CURLcode result = CURLE_OK;
-  struct berval bv, *bvals;
+  সংরচনা berval bv, *bvals;
 
-  if(!data)
-    return CURLE_FAILED_INIT;
+  যদি(!data)
+    প্রত্যাগম CURLE_FAILED_INIT;
 
   conn = data->conn;
   li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  switch(ldap_msgtype(msg)) {
-  case LDAP_RES_SEARCH_ENTRY:
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
+  বিকল্প(ldap_msgtype(বার্তা)) {
+  পক্ষ LDAP_RES_অনুসন্ধান_ENTRY:
     /* Got a list of supported SASL mechanisms. */
-    if(code != LDAP_SUCCESS && code != LDAP_NO_RESULTS_RETURNED)
-      return CURLE_LOGIN_DENIED;
+    যদি(code != LDAP_SUCCESS && code != LDAP_NO_RESULTS_RETURNED)
+      প্রত্যাগম CURLE_LOGIN_DENIED;
 
-    rc = ldap_get_dn_ber(li->ld, msg, &ber, &bv);
-    if(rc < 0)
-      return oldap_map_error(rc, CURLE_BAD_CONTENT_ENCODING);
-    for(rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals);
+    rc = ldap_get_dn_ber(li->ld, বার্তা, &ber, &bv);
+    যদি(rc < 0)
+      প্রত্যাগম oldap_map_error(rc, CURLE_BAD_CONTENT_ENCODING);
+    প্রতি(rc = ldap_get_attribute_ber(li->ld, বার্তা, ber, &bv, &bvals);
         rc == LDAP_SUCCESS;
-        rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals)) {
-      int i;
+        rc = ldap_get_attribute_ber(li->ld, বার্তা, ber, &bv, &bvals)) {
+      পূর্ণাঙ্ক i;
 
-      if(!bv.bv_val)
-        break;
+      যদি(!bv.bv_val)
+        ভঙ্গ;
 
-      if(bvals) {
-        for(i = 0; bvals[i].bv_val; i++) {
+      যদি(bvals) {
+        প্রতি(i = 0; bvals[i].bv_val; i++) {
           size_t llen;
           unsigned short mech =
-            Curl_sasl_decode_mech((const char *)bvals[i].bv_val,
+            Curl_sasl_decode_mech((ধ্রুব বর্ণ *)bvals[i].bv_val,
                                   bvals[i].bv_len, &llen);
-          if(bvals[i].bv_len == llen)
+          যদি(bvals[i].bv_len == llen)
             li->sasl.authmechs |= mech;
         }
         ber_memfree(bvals);
       }
     }
     ber_free(ber, 0);
-    break;
+    ভঙ্গ;
 
-  case LDAP_RES_SEARCH_RESULT:
-    switch(code) {
-    case LDAP_SIZELIMIT_EXCEEDED:
+  পক্ষ LDAP_RES_অনুসন্ধান_RESULT:
+    বিকল্প(code) {
+    পক্ষ LDAP_SIZELIMIT_EXCEEDED:
       infof(data, "Too many authentication mechanisms");
       FALLTHROUGH();
-    case LDAP_SUCCESS:
-    case LDAP_NO_RESULTS_RETURNED:
-      if(Curl_sasl_can_authenticate(&li->sasl, data))
+    পক্ষ LDAP_SUCCESS:
+    পক্ষ LDAP_NO_RESULTS_RETURNED:
+      যদি(Curl_sasl_can_authenticate(&li->sasl, data))
         result = oldap_perform_sasl(data);
-      else
+      অন্যথা
         result = CURLE_LOGIN_DENIED;
-      break;
-    default:
+      ভঙ্গ;
+    স্বভাব:
       result = oldap_map_error(code, CURLE_LOGIN_DENIED);
-      break;
+      ভঙ্গ;
     }
-    break;
-  default:
-    break;
+    ভঙ্গ;
+  স্বভাব:
+    ভঙ্গ;
   }
-  return result;
+  প্রত্যাগম result;
 }
 
 /* Handle a SASL bind response. */
-static CURLcode oldap_state_sasl_resp(struct Curl_easy *data,
-                                      LDAPMessage *msg, int code)
+স্থির CURLcode oldap_state_sasl_resp(সংরচনা Curl_easy *data,
+                                      LDAPMessage *বার্তা, পূর্ণাঙ্ক code)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
   CURLcode result = CURLE_OK;
   saslprogress progress;
-  int rc;
+  পূর্ণাঙ্ক rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  li->servercred = NULL;
-  rc = ldap_parse_sasl_bind_result(li->ld, msg, &li->servercred, 0);
-  if(rc != LDAP_SUCCESS) {
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
+  li->servercred = রিক্ত;
+  rc = ldap_parse_sasl_bind_result(li->ld, বার্তা, &li->servercred, 0);
+  যদি(rc != LDAP_SUCCESS) {
     failf(data, "LDAP local: sasl ldap_parse_result %s", ldap_err2string(rc));
     result = oldap_map_error(rc, CURLE_LOGIN_DENIED);
   }
-  else {
+  অন্যথা {
     result = Curl_sasl_continue(&li->sasl, data, code, &progress);
-    if(!result) {
-      switch(progress) {
-      case SASL_DONE:
+    যদি(!result) {
+      বিকল্প(progress) {
+      পক্ষ SASL_DONE:
         oldap_state(data, li, OLDAP_STOP);   /* Authenticated */
-        break;
-      case SASL_IDLE:            /* No mechanism left after cancellation */
+        ভঙ্গ;
+      পক্ষ SASL_IDLE:            /* No mechanism left after cancellation */
         failf(data, "Authentication cancelled");
         result = CURLE_LOGIN_DENIED;
-        break;
-      default:
-        break;
+        ভঙ্গ;
+      স্বভাব:
+        ভঙ্গ;
       }
     }
   }
 
-  if(li->servercred)
+  যদি(li->servercred)
     ber_bvfree(li->servercred);
-  return result;
+  প্রত্যাগম result;
 }
 
 /* Handle a simple bind response. */
-static CURLcode oldap_state_bind_resp(struct Curl_easy *data, LDAPMessage *msg,
-                                      int code)
+স্থির CURLcode oldap_state_bind_resp(সংরচনা Curl_easy *data, LDAPMessage *বার্তা,
+                                      পূর্ণাঙ্ক code)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
   CURLcode result = CURLE_OK;
-  struct berval *bv = NULL;
-  int rc;
+  সংরচনা berval *bv = রিক্ত;
+  পূর্ণাঙ্ক rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
 
-  if(code != LDAP_SUCCESS)
-    return oldap_map_error(code, CURLE_LDAP_CANNOT_BIND);
+  যদি(code != LDAP_SUCCESS)
+    প্রত্যাগম oldap_map_error(code, CURLE_LDAP_CANNOT_BIND);
 
-  rc = ldap_parse_sasl_bind_result(li->ld, msg, &bv, 0);
-  if(rc != LDAP_SUCCESS) {
+  rc = ldap_parse_sasl_bind_result(li->ld, বার্তা, &bv, 0);
+  যদি(rc != LDAP_SUCCESS) {
     failf(data, "LDAP local: bind ldap_parse_sasl_bind_result %s",
           ldap_err2string(rc));
     result = oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
   }
-  else
+  অন্যথা
     oldap_state(data, li, OLDAP_STOP);
 
-  if(bv)
+  যদি(bv)
     ber_bvfree(bv);
-  return result;
+  প্রত্যাগম result;
 }
 
-static CURLcode oldap_connecting(struct Curl_easy *data, bool *done)
+স্থির CURLcode oldap_connecting(সংরচনা Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  LDAPMessage *msg = NULL;
-  struct timeval tv = { 0, 0 };
-  int code = LDAP_SUCCESS;
-  int rc;
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  LDAPMessage *বার্তা = রিক্ত;
+  সংরচনা timeval tv = { 0, 0 };
+  পূর্ণাঙ্ক code = LDAP_SUCCESS;
+  পূর্ণাঙ্ক rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
 
-  if(li->state != OLDAP_SSL && li->state != OLDAP_TLS) {
+  যদি(li->state != OLDAP_SSL && li->state != OLDAP_TLS) {
     /* Get response to last command. */
-    rc = ldap_result(li->ld, li->msgid, LDAP_MSG_ONE, &tv, &msg);
-    switch(rc) {
-    case 0:                               /* Timed out. */
-      return CURLE_OK;
-    case LDAP_RES_SEARCH_ENTRY:
-    case LDAP_RES_SEARCH_REFERENCE:
-      break;
-    default:
+    rc = ldap_result(li->ld, li->msgid, LDAP_বার্তা_ONE, &tv, &বার্তা);
+    বিকল্প(rc) {
+    পক্ষ 0:                               /* Timed out. */
+      প্রত্যাগম CURLE_OK;
+    পক্ষ LDAP_RES_অনুসন্ধান_ENTRY:
+    পক্ষ LDAP_RES_অনুসন্ধান_REFERENCE:
+      ভঙ্গ;
+    স্বভাব:
       li->msgid = 0;                      /* Nothing to abandon upon error. */
-      if(rc < 0) {
+      যদি(rc < 0) {
         failf(data, "LDAP local: connecting ldap_result %s",
               ldap_err2string(rc));
-        return oldap_map_error(rc, CURLE_COULDNT_CONNECT);
+        প্রত্যাগম oldap_map_error(rc, CURLE_COULDNT_CONNECT);
       }
-      break;
+      ভঙ্গ;
     }
 
     /* Get error code from message. */
-    rc = ldap_parse_result(li->ld, msg, &code, NULL, NULL, NULL, NULL, 0);
-    if(rc)
+    rc = ldap_parse_result(li->ld, বার্তা, &code, রিক্ত, রিক্ত, রিক্ত, রিক্ত, 0);
+    যদি(rc)
       code = rc;
-    else {
+    অন্যথা {
       /* store the latest code for later retrieval */
       data->info.httpcode = code;
     }
 
     /* If protocol version 3 is not supported, fallback to version 2. */
-    if(code == LDAP_PROTOCOL_ERROR && li->state != OLDAP_BINDV2 &&
+    যদি(code == LDAP_PROTOCOL_ERROR && li->state != OLDAP_BINDV2 &&
 #ifdef USE_SSL
        (ssl_installed(conn) || data->set.use_ssl <= CURLUSESSL_TRY) &&
 #endif
        li->sasl.prefmech == SASL_AUTH_NONE) {
-      static const int version = LDAP_VERSION2;
+      স্থির ধ্রুব পূর্ণাঙ্ক version = LDAP_VERSION2;
 
       ldap_set_option(li->ld, LDAP_OPT_PROTOCOL_VERSION, &version);
-      ldap_msgfree(msg);
-      return oldap_perform_bind(data, OLDAP_BINDV2);
+      ldap_msgfree(বার্তা);
+      প্রত্যাগম oldap_perform_bind(data, OLDAP_BINDV2);
     }
   }
 
   /* Handle response message according to current state. */
-  switch(li->state) {
+  বিকল্প(li->state) {
 
 #ifdef USE_SSL
-  case OLDAP_SSL:
+  পক্ষ OLDAP_SSL:
     result = oldap_ssl_connect(data, OLDAP_SSL);
-    if(!result && ssl_installed(conn)) {
-      if(li->sasl.prefmech != SASL_AUTH_NONE)
+    যদি(!result && ssl_installed(conn)) {
+      যদি(li->sasl.prefmech != SASL_AUTH_NONE)
         result = oldap_perform_mechs(data);
-      else
+      অন্যথা
         result = oldap_perform_bind(data, OLDAP_BIND);
     }
-    break;
-  case OLDAP_STARTTLS:
-    if(code != LDAP_SUCCESS) {
-      if(data->set.use_ssl != CURLUSESSL_TRY)
+    ভঙ্গ;
+  পক্ষ OLDAP_STARTTLS:
+    যদি(code != LDAP_SUCCESS) {
+      যদি(data->set.use_ssl != CURLUSESSL_TRY)
         result = oldap_map_error(code, CURLE_USE_SSL_FAILED);
-      else if(li->sasl.prefmech != SASL_AUTH_NONE)
+      অন্যথা যদি(li->sasl.prefmech != SASL_AUTH_NONE)
         result = oldap_perform_mechs(data);
-      else
+      অন্যথা
         result = oldap_perform_bind(data, OLDAP_BIND);
-      break;
+      ভঙ্গ;
     }
     result = Curl_ssl_cfilter_add(
       data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
-      break;
+    যদি(result)
+      ভঙ্গ;
     FALLTHROUGH();
-  case OLDAP_TLS:
+  পক্ষ OLDAP_TLS:
     result = oldap_ssl_connect(data, OLDAP_TLS);
-    if(result)
+    যদি(result)
       result = oldap_map_error(code, CURLE_USE_SSL_FAILED);
-    else if(ssl_installed(conn)) {
-      if(li->sasl.prefmech != SASL_AUTH_NONE)
+    অন্যথা যদি(ssl_installed(conn)) {
+      যদি(li->sasl.prefmech != SASL_AUTH_NONE)
         result = oldap_perform_mechs(data);
-      else if(data->state.creds)
+      অন্যথা যদি(data->state.creds)
         result = oldap_perform_bind(data, OLDAP_BIND);
-      else {
+      অন্যথা {
         /* Version 3 supported: no bind required */
         oldap_state(data, li, OLDAP_STOP);
         result = CURLE_OK;
       }
     }
-    break;
+    ভঙ্গ;
 #endif
 
-  case OLDAP_MECHS:
-    result = oldap_state_mechs_resp(data, msg, code);
-    break;
-  case OLDAP_SASL:
-    result = oldap_state_sasl_resp(data, msg, code);
-    break;
-  case OLDAP_BIND:
-  case OLDAP_BINDV2:
-    result = oldap_state_bind_resp(data, msg, code);
-    break;
-  default:
+  পক্ষ OLDAP_MECHS:
+    result = oldap_state_mechs_resp(data, বার্তা, code);
+    ভঙ্গ;
+  পক্ষ OLDAP_SASL:
+    result = oldap_state_sasl_resp(data, বার্তা, code);
+    ভঙ্গ;
+  পক্ষ OLDAP_BIND:
+  পক্ষ OLDAP_BINDV2:
+    result = oldap_state_bind_resp(data, বার্তা, code);
+    ভঙ্গ;
+  স্বভাব:
     /* internal error */
     result = CURLE_COULDNT_CONNECT;
-    break;
+    ভঙ্গ;
   }
 
-  ldap_msgfree(msg);
+  ldap_msgfree(বার্তা);
 
   *done = li->state == OLDAP_STOP;
-  if(*done)
+  যদি(*done)
     conn->recv[FIRSTSOCKET] = oldap_recv;
 
-  if(result && li->msgid) {
-    ldap_abandon_ext(li->ld, li->msgid, NULL, NULL);
+  যদি(result && li->msgid) {
+    ldap_abandon_ext(li->ld, li->msgid, রিক্ত, রিক্ত);
     li->msgid = 0;
   }
-  return result;
+  প্রত্যাগম result;
 }
 
-static CURLcode oldap_disconnect(struct Curl_easy *data,
-                                 struct connectdata *conn,
+স্থির CURLcode oldap_disconnect(সংরচনা Curl_easy *data,
+                                 সংরচনা connectdata *conn,
                                  bool dead_connection)
 {
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  (void)dead_connection;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  (শূন্য)dead_connection;
 #ifndef USE_SSL
-  (void)data;
+  (শূন্য)data;
 #endif
 
-  if(li && li->ld) {
+  যদি(li && li->ld) {
 #ifdef USE_SSL
-    if(ssl_installed(conn)) {
+    যদি(ssl_installed(conn)) {
       Sockbuf *sb;
-      if(ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS ||
+      যদি(ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS ||
          ber_sockbuf_add_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, data))
-        return CURLE_FAILED_INIT;
+        প্রত্যাগম CURLE_FAILED_INIT;
     }
 #endif
-    ldap_unbind_ext(li->ld, NULL, NULL);
-    li->ld = NULL;
+    ldap_unbind_ext(li->ld, রিক্ত, রিক্ত);
+    li->ld = রিক্ত;
   }
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
-static CURLcode oldap_do(struct Curl_easy *data, bool *done)
+স্থির CURLcode oldap_do(সংরচনা Curl_easy *data, bool *done)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct ldapreqinfo *lr;
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  সংরচনা ldapreqinfo *lr;
   CURLcode result;
-  int rc;
+  পূর্ণাঙ্ক rc;
   LDAPURLDesc *lud;
-  int msgid;
+  পূর্ণাঙ্ক msgid;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  যদি(!li)
+    প্রত্যাগম CURLE_FAILED_INIT;
 
   infof(data, "LDAP local: %s", Curl_bufref_ptr(&data->state.url));
 
   result = oldap_url_parse(data, &lud);
-  if(result)
-    goto out;
+  যদি(result)
+    গচ্ছ out;
 
 #ifdef USE_SSL
-  if(ssl_installed(conn)) {
+  যদি(ssl_installed(conn)) {
     Sockbuf *sb;
     /* re-install the libcurl SSL handlers into the sockbuf. */
-    if((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
+    যদি((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
        ber_sockbuf_add_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, data)) {
       ldap_free_urldesc(lud);
-      return CURLE_FAILED_INIT;
+      প্রত্যাগম CURLE_FAILED_INIT;
     }
   }
 #endif
 
-  rc = ldap_search_ext(li->ld, lud->lud_dn, lud->lud_scope,
+  rc = ldap_অনুসন্ধান_ext(li->ld, lud->lud_dn, lud->lud_scope,
                        lud->lud_filter, lud->lud_attrs, 0,
-                       NULL, NULL, NULL, 0, &msgid);
+                       রিক্ত, রিক্ত, রিক্ত, 0, &msgid);
   ldap_free_urldesc(lud);
-  if(rc != LDAP_SUCCESS) {
+  যদি(rc != LDAP_SUCCESS) {
     failf(data, "LDAP local: ldap_search_ext %s", ldap_err2string(rc));
-    result = CURLE_LDAP_SEARCH_FAILED;
-    goto out;
+    result = CURLE_LDAP_অনুসন্ধান_FAILED;
+    গচ্ছ out;
   }
 
-  lr = curlx_calloc(1, sizeof(struct ldapreqinfo));
-  if(!lr ||
+  lr = curlx_calloc(1, পরিমাণ(সংরচনা ldapreqinfo));
+  যদি(!lr ||
      Curl_meta_set(data, CURL_META_LDAP_EASY, lr, oldap_easy_dtor)) {
-    ldap_abandon_ext(li->ld, msgid, NULL, NULL);
+    ldap_abandon_ext(li->ld, msgid, রিক্ত, রিক্ত);
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    গচ্ছ out;
   }
 
   lr->msgid = msgid;
@@ -1099,270 +1099,270 @@ static CURLcode oldap_do(struct Curl_easy *data, bool *done)
   *done = TRUE;
 
 out:
-  return result;
+  প্রত্যাগম result;
 }
 
-static CURLcode oldap_done(struct Curl_easy *data, CURLcode res,
+স্থির CURLcode oldap_done(সংরচনা Curl_easy *data, CURLcode res,
                            bool premature)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapreqinfo *lr = Curl_meta_get(data, CURL_META_LDAP_EASY);
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapreqinfo *lr = Curl_meta_get(data, CURL_META_LDAP_EASY);
 
-  (void)res;
-  (void)premature;
+  (শূন্য)res;
+  (শূন্য)premature;
 
-  if(lr) {
+  যদি(lr) {
     /* if there was a search in progress, abandon it */
-    if(lr->msgid) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-      if(li && li->ld) {
-        ldap_abandon_ext(li->ld, lr->msgid, NULL, NULL);
+    যদি(lr->msgid) {
+      সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+      যদি(li && li->ld) {
+        ldap_abandon_ext(li->ld, lr->msgid, রিক্ত, রিক্ত);
       }
       lr->msgid = 0;
     }
     Curl_meta_remove(data, CURL_META_LDAP_EASY);
   }
 
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
-static CURLcode client_write(struct Curl_easy *data,
-                             const char *prefix, size_t plen,
-                             const char *value, size_t len,
-                             const char *suffix, size_t slen)
+স্থির CURLcode client_write(সংরচনা Curl_easy *data,
+                             ধ্রুব বর্ণ *prefix, size_t plen,
+                             ধ্রুব বর্ণ *মান, size_t len,
+                             ধ্রুব বর্ণ *suffix, size_t slen)
 {
   CURLcode result = CURLE_OK;
 
-  if(prefix) {
+  যদি(prefix) {
     /* If we have a zero-length value and the prefix ends with a space
        separator, drop the latter. */
-    if(!len && plen && prefix[plen - 1] == ' ')
+    যদি(!len && plen && prefix[plen - 1] == ' ')
       plen--;
     result = Curl_client_write(data, CLIENTWRITE_BODY, prefix, plen);
   }
-  if(!result && value) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY, value, len);
+  যদি(!result && মান) {
+    result = Curl_client_write(data, CLIENTWRITE_BODY, মান, len);
   }
-  if(!result && suffix) {
+  যদি(!result && suffix) {
     result = Curl_client_write(data, CLIENTWRITE_BODY, suffix, slen);
   }
-  return result;
+  প্রত্যাগম result;
 }
 
 /* RFC 2849: a string that is not a SAFE-STRING (leading ':' or '<', leading or
    trailing space, or any non-printable byte such as CR/LF) cannot go into LDIF
    as-is. DNs and values get base64-encoded instead; an attribute type has no
    base64 form in LDIF and is rejected by the caller. */
-static bool oldap_str_needs_base64(const char *s, size_t len)
+স্থির bool oldap_str_needs_base64(ধ্রুব বর্ণ *s, size_t len)
 {
   size_t i;
-  if(!len)
-    return FALSE;
-  if((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
-    return TRUE;
-  for(i = 0; i < len; i++)
-    if(!ISPRINT(s[i]))
-      return TRUE;
-  return FALSE;
+  যদি(!len)
+    প্রত্যাগম FALSE;
+  যদি((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
+    প্রত্যাগম TRUE;
+  প্রতি(i = 0; i < len; i++)
+    যদি(!ISPRINT(s[i]))
+      প্রত্যাগম TRUE;
+  প্রত্যাগম FALSE;
 }
 
-static CURLcode oldap_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
+স্থির CURLcode oldap_recv(সংরচনা Curl_easy *data, int8_t sockindex, বর্ণ *buf,
                            size_t len, size_t *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct ldapreqinfo *lr = Curl_meta_get(data, CURL_META_LDAP_EASY);
-  int rc;
-  LDAPMessage *msg = NULL;
-  BerElement *ber = NULL;
-  struct timeval tv = { 0, 0 };
-  struct berval bv, *bvals;
+  সংরচনা connectdata *conn = data->conn;
+  সংরচনা ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  সংরচনা ldapreqinfo *lr = Curl_meta_get(data, CURL_META_LDAP_EASY);
+  পূর্ণাঙ্ক rc;
+  LDAPMessage *বার্তা = রিক্ত;
+  BerElement *ber = রিক্ত;
+  সংরচনা timeval tv = { 0, 0 };
+  সংরচনা berval bv, *bvals;
   CURLcode result = CURLE_AGAIN;
-  int code;
-  char *info = NULL;
+  পূর্ণাঙ্ক code;
+  বর্ণ *info = রিক্ত;
 
-  (void)len;
-  (void)buf;
-  (void)sockindex;
+  (শূন্য)len;
+  (শূন্য)buf;
+  (শূন্য)sockindex;
   *pnread = 0;
-  if(!li || !lr)
-    return CURLE_FAILED_INIT;
+  যদি(!li || !lr)
+    প্রত্যাগম CURLE_FAILED_INIT;
 
-  rc = ldap_result(li->ld, lr->msgid, LDAP_MSG_ONE, &tv, &msg);
-  if(rc < 0) {
+  rc = ldap_result(li->ld, lr->msgid, LDAP_বার্তা_ONE, &tv, &বার্তা);
+  যদি(rc < 0) {
     failf(data, "LDAP local: search ldap_result %s", ldap_err2string(rc));
     result = CURLE_RECV_ERROR;
   }
 
   /* error or timed out */
-  if(!msg)
-    return result;
+  যদি(!বার্তা)
+    প্রত্যাগম result;
 
   result = CURLE_OK;
 
-  switch(ldap_msgtype(msg)) {
-  case LDAP_RES_SEARCH_RESULT:
+  বিকল্প(ldap_msgtype(বার্তা)) {
+  পক্ষ LDAP_RES_অনুসন্ধান_RESULT:
     lr->msgid = 0;
-    rc = ldap_parse_result(li->ld, msg, &code, NULL, &info, NULL, NULL, 0);
-    if(rc) {
+    rc = ldap_parse_result(li->ld, বার্তা, &code, রিক্ত, &info, রিক্ত, রিক্ত, 0);
+    যদি(rc) {
       failf(data, "LDAP local: search ldap_parse_result %s",
             ldap_err2string(rc));
-      result = CURLE_LDAP_SEARCH_FAILED;
-      break;
+      result = CURLE_LDAP_অনুসন্ধান_FAILED;
+      ভঙ্গ;
     }
 
     /* store the latest code for later retrieval */
     data->info.httpcode = code;
 
-    switch(code) {
-    case LDAP_SIZELIMIT_EXCEEDED:
+    বিকল্প(code) {
+    পক্ষ LDAP_SIZELIMIT_EXCEEDED:
       infof(data, "There are more than %d entries", lr->nument);
       FALLTHROUGH();
-    case LDAP_SUCCESS:
+    পক্ষ LDAP_SUCCESS:
       data->req.size = data->req.bytecount;
-      break;
-    default:
+      ভঙ্গ;
+    স্বভাব:
       failf(data, "LDAP remote: search failed %s %s", ldap_err2string(code),
             info ? info : "");
-      result = CURLE_LDAP_SEARCH_FAILED;
-      break;
+      result = CURLE_LDAP_অনুসন্ধান_FAILED;
+      ভঙ্গ;
     }
-    if(info)
+    যদি(info)
       ldap_memfree(info);
-    break;
-  case LDAP_RES_SEARCH_ENTRY:
+    ভঙ্গ;
+  পক্ষ LDAP_RES_অনুসন্ধান_ENTRY:
     lr->nument++;
-    rc = ldap_get_dn_ber(li->ld, msg, &ber, &bv);
-    if(rc < 0) {
+    rc = ldap_get_dn_ber(li->ld, বার্তা, &ber, &bv);
+    যদি(rc < 0) {
       result = CURLE_RECV_ERROR;
-      break;
+      ভঙ্গ;
     }
 
-    if(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
-      char *dn_b64 = NULL;
+    যদি(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
+      বর্ণ *dn_b64 = রিক্ত;
       size_t dn_b64_sz = 0;
 
       /* A DN with e.g. CR/LF would inject LDIF lines, so base64-encode it. */
       result = curlx_base64_encode((uint8_t *)bv.bv_val, bv.bv_len,
                                    &dn_b64, &dn_b64_sz);
-      if(!result)
+      যদি(!result)
         result = client_write(data, STRCONST("DN:: "), dn_b64, dn_b64_sz,
                               STRCONST("\n"));
       curlx_free(dn_b64);
     }
-    else
+    অন্যথা
       result = client_write(data, STRCONST("DN: "), bv.bv_val, bv.bv_len,
                             STRCONST("\n"));
-    if(result)
-      break;
+    যদি(result)
+      ভঙ্গ;
 
-    for(rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals);
+    প্রতি(rc = ldap_get_attribute_ber(li->ld, বার্তা, ber, &bv, &bvals);
         rc == LDAP_SUCCESS;
-        rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals)) {
-      int i;
-      bool binary;
+        rc = ldap_get_attribute_ber(li->ld, বার্তা, ber, &bv, &bvals)) {
+      পূর্ণাঙ্ক i;
+      bool দ্বিমিক;
 
-      if(!bv.bv_val)
-        break;
+      যদি(!bv.bv_val)
+        ভঙ্গ;
 
       /* An attribute type has no base64 form in LDIF, so a type carrying
          control bytes (CR/LF etc.) would let a hostile server inject lines.
          A conformant type name never contains them, so reject it. */
-      if(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
+      যদি(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
         failf(data, "LDAP local: attribute type contains illegal bytes");
-        if(bvals)
+        যদি(bvals)
           ber_memfree(bvals);
         result = CURLE_WEIRD_SERVER_REPLY;
-        break;
+        ভঙ্গ;
       }
 
-      if(!bvals) {
+      যদি(!bvals) {
         result = client_write(data, STRCONST("\t"), bv.bv_val, bv.bv_len,
                               STRCONST(":\n"));
-        if(result)
-          break;
-        continue;
+        যদি(result)
+          ভঙ্গ;
+        অনুবর্ত;
       }
 
-      binary = bv.bv_len > 7 &&
+      দ্বিমিক = bv.bv_len > 7 &&
         curl_strnequal(bv.bv_val + bv.bv_len - 7, ";binary", 7);
 
-      for(i = 0; bvals[i].bv_val; i++) {
+      প্রতি(i = 0; bvals[i].bv_val; i++) {
         bool binval = FALSE;
 
         result = client_write(data, STRCONST("\t"), bv.bv_val, bv.bv_len,
                               STRCONST(":"));
-        if(result)
-          break;
+        যদি(result)
+          ভঙ্গ;
 
-        if(!binary)
+        যদি(!দ্বিমিক)
           binval = oldap_str_needs_base64(bvals[i].bv_val, bvals[i].bv_len);
-        if(binary || binval) {
-          char *val_b64 = NULL;
+        যদি(দ্বিমিক || binval) {
+          বর্ণ *val_b64 = রিক্ত;
           size_t val_b64_sz = 0;
 
           /* Binary value, encode to base64. */
-          if(bvals[i].bv_len)
+          যদি(bvals[i].bv_len)
             result = curlx_base64_encode((uint8_t *)bvals[i].bv_val,
                                          bvals[i].bv_len,
                                          &val_b64, &val_b64_sz);
-          if(!result)
+          যদি(!result)
             result = client_write(data, STRCONST(": "), val_b64, val_b64_sz,
                                   STRCONST("\n"));
           curlx_free(val_b64);
         }
-        else
+        অন্যথা
           result = client_write(data, STRCONST(" "),
                                 bvals[i].bv_val, bvals[i].bv_len,
                                 STRCONST("\n"));
-        if(result)
-          break;
+        যদি(result)
+          ভঙ্গ;
       }
 
       ber_memfree(bvals);
-      bvals = NULL;
-      if(!result)
-        result = client_write(data, STRCONST("\n"), NULL, 0, NULL, 0);
-      if(result)
-        break;
+      bvals = রিক্ত;
+      যদি(!result)
+        result = client_write(data, STRCONST("\n"), রিক্ত, 0, রিক্ত, 0);
+      যদি(result)
+        ভঙ্গ;
     }
 
-    if(!result)
-      result = client_write(data, STRCONST("\n"), NULL, 0, NULL, 0);
-    if(!result)
+    যদি(!result)
+      result = client_write(data, STRCONST("\n"), রিক্ত, 0, রিক্ত, 0);
+    যদি(!result)
       result = CURLE_AGAIN;
-    break;
+    ভঙ্গ;
   }
 
   ber_free(ber, 0);
-  ldap_msgfree(msg);
-  return result;
+  ldap_msgfree(বার্তা);
+  প্রত্যাগম result;
 }
 
-void Curl_ldap_version(char *buf, size_t bufsz)
+শূন্য Curl_ldap_version(বর্ণ *buf, size_t bufsz)
 {
   LDAPAPIInfo api;
   api.ldapai_info_version = LDAP_API_INFO_VERSION;
 
-  if(ldap_get_option(NULL, LDAP_OPT_API_INFO, &api) == LDAP_OPT_SUCCESS) {
-    unsigned int patch = (unsigned int)(api.ldapai_vendor_version % 100);
-    unsigned int major = (unsigned int)(api.ldapai_vendor_version / 10000);
-    unsigned int minor =
-      (((unsigned int)api.ldapai_vendor_version - (major * 10000))
+  যদি(ldap_get_option(রিক্ত, LDAP_OPT_API_INFO, &api) == LDAP_OPT_SUCCESS) {
+    unsigned পূর্ণাঙ্ক patch = (unsigned পূর্ণাঙ্ক)(api.ldapai_vendor_version % 100);
+    unsigned পূর্ণাঙ্ক major = (unsigned পূর্ণাঙ্ক)(api.ldapai_vendor_version / 10000);
+    unsigned পূর্ণাঙ্ক minor =
+      (((unsigned পূর্ণাঙ্ক)api.ldapai_vendor_version - (major * 10000))
        - patch) / 100;
     curl_msnprintf(buf, bufsz, "%s/%u.%u.%u",
                    api.ldapai_vendor_name, major, minor, patch);
     ldap_memfree(api.ldapai_vendor_name);
-    ber_memvfree((void **)api.ldapai_extensions);
+    ber_memvfree((শূন্য **)api.ldapai_extensions);
   }
-  else
+  অন্যথা
     curl_msnprintf(buf, bufsz, "OpenLDAP");
 }
 
 /*
  * LDAP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_ldap = {
+ধ্রুব সংরচনা Curl_protocol Curl_protocol_ldap = {
   oldap_setup_connection,               /* setup_connection */
   oldap_do,                             /* do_it */
   oldap_done,                           /* done */

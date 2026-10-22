@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#যদি !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-struct Curl_peer;
+সংরচনা Curl_peer;
 
-CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *dest,
-                                       int httpversion,
+CURLcode Curl_cf_h1_proxy_ঢোকাও_after(সংরচনা Curl_cfilter *cf_at,
+                                       সংরচনা Curl_easy *data,
+                                       সংরচনা Curl_peer *peer,
+                                       সংরচনা Curl_peer *dest,
+                                       পূর্ণাঙ্ক httpversion,
                                        bool udp_tunnel);
 
-extern struct Curl_cftype Curl_cft_h1_proxy;
+বাহ্য সংরচনা Curl_cftype Curl_cft_h1_proxy;
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 

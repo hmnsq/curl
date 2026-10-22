@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#include "urldata.h"
+#অন্তর্ভাব "urldata.h"
 
-CURLcode Curl_range(struct Curl_easy *data);
+CURLcode Curl_range(সংরচনা Curl_easy *data);
 #endif /* HEADER_CURL_RANGE_H */

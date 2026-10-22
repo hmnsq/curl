@@ -21,11 +21,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#include "parsedate.h"
-#include "curlx/strparse.h"
-#include "curlx/strcopy.h"
+#অন্তর্ভাব "parsedate.h"
+#অন্তর্ভাব "curlx/strparse.h"
+#অন্তর্ভাব "curlx/strcopy.h"
 
 /* A brief summary of the date string formats this parser groks:
 
@@ -79,13 +79,13 @@
    20040911 +0200
  */
 
-#if !defined(CURL_DISABLE_PARSEDATE) || !defined(CURL_DISABLE_FTP) || \
+#যদি !defined(CURL_DISABLE_PARSEDATE) || !defined(CURL_DISABLE_FTP) || \
   !defined(CURL_DISABLE_FILE) || defined(USE_GNUTLS)
 /* These names are also used by FTP and FILE code */
-const char * const Curl_wkday[] = {
+ধ্রুব বর্ণ * ধ্রুব Curl_wkday[] = {
   "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
 };
-const char * const Curl_month[] = {
+ধ্রুব বর্ণ * ধ্রুব Curl_month[] = {
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
@@ -96,14 +96,14 @@ const char * const Curl_month[] = {
 
 #ifndef CURL_DISABLE_PARSEDATE
 
-#if SIZEOF_TIME_T < 5
+#যদি SIZEOF_TIME_T < 5
 #define PARSEDATE_LATER  1
 #endif
-#if SIZEOF_TIME_T < 5 || defined(HAVE_TIME_T_UNSIGNED)
+#যদি SIZEOF_TIME_T < 5 || defined(HAVE_TIME_T_UNSIGNED)
 #define PARSEDATE_SOONER 2
 #endif
 
-struct tzinfo {
+সংরচনা tzinfo {
   uint32_t tz;
   int16_t offset; /* +/- in minutes */
 };
@@ -111,7 +111,7 @@ struct tzinfo {
 #define DST (-60)     /* offset for daylight savings time */
 
 /* alpha-sorted list of single-letter time zones, A - Z */
-static const int16_t tzone[] = {
+স্থির ধ্রুব int16_t tzone[] = {
   -1 * 60,            /* Alpha */
   -2 * 60,            /* Bravo */
   -3 * 60,            /* Charlie */
@@ -150,7 +150,7 @@ static const int16_t tzone[] = {
 #define MKTZ(a,b,c,d) (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
 /* three-letter time zones */
-static const struct tzinfo tzthree[] = {
+স্থির ধ্রুব সংরচনা tzinfo tzthree[] = {
   { MKTZ('A', 'D', 'T', '\0'),   240 + DST }, /* Atlantic Daylight */
   { MKTZ('A', 'S', 'T', '\0'),   240 },       /* Atlantic Standard */
   { MKTZ('B', 'S', 'T', '\0'),     0 + DST }, /* British Summer */
@@ -183,7 +183,7 @@ static const struct tzinfo tzthree[] = {
 };
 
 /* four-letter time zones */
-static const struct tzinfo tzfoura[] = {
+স্থির ধ্রুব সংরচনা tzinfo tzfoura[] = {
   { MKTZ('A', 'H', 'S', 'T'),  600 },       /* Alaska-Hawaii Standard */
   { MKTZ('C', 'E', 'S', 'T'),  -60 + DST }, /* Central European Summer */
   { MKTZ('E', 'A', 'D', 'T'), -600 + DST }, /* Eastern Australian Daylight */
@@ -208,124 +208,124 @@ static const struct tzinfo tzfoura[] = {
 
    @unittest 4781
 */
-UNITTEST int checkday(const char *check, size_t len);
-UNITTEST int checkday(const char *check, size_t len)
+UNITTEST পূর্ণাঙ্ক checkday(ধ্রুব বর্ণ *check, size_t len);
+UNITTEST পূর্ণাঙ্ক checkday(ধ্রুব বর্ণ *check, size_t len)
 {
-  int day = -1;
-  if(len < 3)
-    return -1; /* too short */
+  পূর্ণাঙ্ক day = -1;
+  যদি(len < 3)
+    প্রত্যাগম -1; /* too short */
 
-  switch(LOWERCASE(check[1])) {
-  case 'o': /* monday */
-    if((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[2]) == 'n')
+  বিকল্প(LOWERCASE(check[1])) {
+  পক্ষ 'o': /* monday */
+    যদি((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[2]) == 'n')
       day = 0;
-    break;
-  case 'u': /* tuesday or sunday */
-    if((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'e')
+    ভঙ্গ;
+  পক্ষ 'u': /* tuesday or sunday */
+    যদি((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'e')
       day = 1;
-    else if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 'n')
+    অন্যথা যদি((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 'n')
       day = 6;
-    break;
-  case 'e': /* wednesday */
-    if((LOWERCASE(check[0]) == 'w') && LOWERCASE(check[2]) == 'd')
+    ভঙ্গ;
+  পক্ষ 'e': /* wednesday */
+    যদি((LOWERCASE(check[0]) == 'w') && LOWERCASE(check[2]) == 'd')
       day = 2;
-    break;
-  case 'h': /* thursday */
-    if((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'u')
+    ভঙ্গ;
+  পক্ষ 'h': /* thursday */
+    যদি((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'u')
       day = 3;
-    break;
-  case 'r': /* friday */
-    if((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[2]) == 'i')
+    ভঙ্গ;
+  পক্ষ 'r': /* friday */
+    যদি((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[2]) == 'i')
       day = 4;
-    break;
-  case 'a': /* saturday */
-    if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 't')
+    ভঙ্গ;
+  পক্ষ 'a': /* saturday */
+    যদি((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 't')
       day = 5;
-    break;
+    ভঙ্গ;
   }
-  if((len > 3) && (day != -1)) {
+  যদি((len > 3) && (day != -1)) {
     /* when more than three letters are provided, verify the tail name case
        insensitively */
-    static const char * const daysuffix[] = {
+    স্থির ধ্রুব বর্ণ * ধ্রুব daysuffix[] = {
       /* without the leading three letters */
       "day", "sday", "nesday", "rsday", "day", "urday", "day"
     };
 
     size_t wlen = strlen(daysuffix[day]);
-    if(((len - 3) != wlen) ||
+    যদি(((len - 3) != wlen) ||
        !curl_strnequal(&check[3], daysuffix[day], wlen))
-      return -1;
+      প্রত্যাগম -1;
   }
-  return day;
+  প্রত্যাগম day;
 }
 
 /* @unittest 4781 */
 
-UNITTEST int checkmonth(const char *check, size_t len);
-UNITTEST int checkmonth(const char *check, size_t len)
+UNITTEST পূর্ণাঙ্ক checkmonth(ধ্রুব বর্ণ *check, size_t len);
+UNITTEST পূর্ণাঙ্ক checkmonth(ধ্রুব বর্ণ *check, size_t len)
 {
-  if(len != 3)
-    return -1; /* not a month */
+  যদি(len != 3)
+    প্রত্যাগম -1; /* not a month */
 
-  switch(LOWERCASE(check[2])) {
-  case 'n': /* jan, jun */
-    if(LOWERCASE(check[0]) == 'j') {
+  বিকল্প(LOWERCASE(check[2])) {
+  পক্ষ 'n': /* jan, jun */
+    যদি(LOWERCASE(check[0]) == 'j') {
       uint8_t c2 = LOWERCASE(check[1]);
-      if(c2 == 'a')
-        return 0;
-      else if(c2 == 'u')
-        return 5;
+      যদি(c2 == 'a')
+        প্রত্যাগম 0;
+      অন্যথা যদি(c2 == 'u')
+        প্রত্যাগম 5;
     }
-    break;
-  case 'b': /* feb */
-    if((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[1]) == 'e')
-      return 1;
-    break;
-  case 'r': /* mar, apr */
-    if(LOWERCASE(check[0]) == 'm') {
-      if(LOWERCASE(check[1]) == 'a')
-        return 2;
+    ভঙ্গ;
+  পক্ষ 'b': /* feb */
+    যদি((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[1]) == 'e')
+      প্রত্যাগম 1;
+    ভঙ্গ;
+  পক্ষ 'r': /* mar, apr */
+    যদি(LOWERCASE(check[0]) == 'm') {
+      যদি(LOWERCASE(check[1]) == 'a')
+        প্রত্যাগম 2;
     }
-    else if((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'p')
-      return 3;
-    break;
-  case 'y': /* may */
-    if((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[1]) == 'a')
-      return 4;
-    break;
-  case 'l': /* jul */
-    if((LOWERCASE(check[0]) == 'j') && LOWERCASE(check[1]) == 'u')
-      return 6;
-    break;
-  case 'g': /* aug */
-    if((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'u')
-      return 7;
-    break;
-  case 'p': /* sep */
-    if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[1]) == 'e')
-      return 8;
-    break;
-  case 't': /* oct */
-    if((LOWERCASE(check[0]) == 'o') && LOWERCASE(check[1]) == 'c')
-      return 9;
-    break;
-  case 'v': /* nov */
-    if((LOWERCASE(check[0]) == 'n') && LOWERCASE(check[1]) == 'o')
-      return 10;
-    break;
-  case 'c': /* dec */
-    if((LOWERCASE(check[0]) == 'd') && LOWERCASE(check[1]) == 'e')
-      return 11;
-    break;
+    অন্যথা যদি((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'p')
+      প্রত্যাগম 3;
+    ভঙ্গ;
+  পক্ষ 'y': /* may */
+    যদি((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[1]) == 'a')
+      প্রত্যাগম 4;
+    ভঙ্গ;
+  পক্ষ 'l': /* jul */
+    যদি((LOWERCASE(check[0]) == 'j') && LOWERCASE(check[1]) == 'u')
+      প্রত্যাগম 6;
+    ভঙ্গ;
+  পক্ষ 'g': /* aug */
+    যদি((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'u')
+      প্রত্যাগম 7;
+    ভঙ্গ;
+  পক্ষ 'p': /* sep */
+    যদি((LOWERCASE(check[0]) == 's') && LOWERCASE(check[1]) == 'e')
+      প্রত্যাগম 8;
+    ভঙ্গ;
+  পক্ষ 't': /* oct */
+    যদি((LOWERCASE(check[0]) == 'o') && LOWERCASE(check[1]) == 'c')
+      প্রত্যাগম 9;
+    ভঙ্গ;
+  পক্ষ 'v': /* nov */
+    যদি((LOWERCASE(check[0]) == 'n') && LOWERCASE(check[1]) == 'o')
+      প্রত্যাগম 10;
+    ভঙ্গ;
+  পক্ষ 'c': /* dec */
+    যদি((LOWERCASE(check[0]) == 'd') && LOWERCASE(check[1]) == 'e')
+      প্রত্যাগম 11;
+    ভঙ্গ;
   }
-  return -1; /* return the offset or -1, no real offset is -1 */
+  প্রত্যাগম -1; /* return the offset or -1, no real offset is -1 */
 }
 
-static int tzcompare(const void *m1, const void *m2)
+স্থির পূর্ণাঙ্ক tzcompare(ধ্রুব শূন্য *m1, ধ্রুব শূন্য *m2)
 {
-  const struct tzinfo *tz1 = m1;
-  const struct tzinfo *tz2 = m2;
-  return tz1->tz - tz2->tz;
+  ধ্রুব সংরচনা tzinfo *tz1 = m1;
+  ধ্রুব সংরচনা tzinfo *tz2 = m2;
+  প্রত্যাগম tz1->tz - tz2->tz;
 }
 
 /* return the time zone offset between GMT and the input one, in number of
@@ -333,73 +333,73 @@ static int tzcompare(const void *m1, const void *m2)
 
    @unittest 4781
 */
-UNITTEST int checktz(const char *check, size_t len);
-UNITTEST int checktz(const char *check, size_t len)
+UNITTEST পূর্ণাঙ্ক checktz(ধ্রুব বর্ণ *check, size_t len);
+UNITTEST পূর্ণাঙ্ক checktz(ধ্রুব বর্ণ *check, size_t len)
 {
-  char first;
-  if(len > 4)
-    return -1;
+  বর্ণ first;
+  যদি(len > 4)
+    প্রত্যাগম -1;
   first = check[0];
-  if(first < 'A')
-    return -1;
-  if(len == 1) {
+  যদি(first < 'A')
+    প্রত্যাগম -1;
+  যদি(len == 1) {
     /* short-cut single letter names */
-    if((first > 'Z') || (first == 'J'))
-      return -1; /* no such tz */
-    return tzone[first - 'A'] * 60;
+    যদি((first > 'Z') || (first == 'J'))
+      প্রত্যাগম -1; /* no such tz */
+    প্রত্যাগম tzone[first - 'A'] * 60;
   }
-  else if(len == 2) {
+  অন্যথা যদি(len == 2) {
     /* two-letter names */
-    if(check[1] == 'T') {
-      if(first == 'N')
-        return 11 * 60 * 60;
-      else if(first == 'U')
-        return 0;
+    যদি(check[1] == 'T') {
+      যদি(first == 'N')
+        প্রত্যাগম 11 * 60 * 60;
+      অন্যথা যদি(first == 'U')
+        প্রত্যাগম 0;
     }
-    return -1; /* nope */
+    প্রত্যাগম -1; /* nope */
   }
-  else if(len == 3) {
+  অন্যথা যদি(len == 3) {
     /* three-letter name */
-    const struct tzinfo *what;
-    struct tzinfo find;
-    if(first > 'Y')
-      return -1;
+    ধ্রুব সংরচনা tzinfo *what;
+    সংরচনা tzinfo find;
+    যদি(first > 'Y')
+      প্রত্যাগম -1;
     find.tz = MKTZ(first, check[1], check[2], 0);
     what = bsearch(&find, tzthree, CURL_ARRAYSIZE(tzthree),
-                   sizeof(tzthree[0]), tzcompare);
-    if(what)
-      return what->offset * 60;
+                   পরিমাণ(tzthree[0]), tzcompare);
+    যদি(what)
+      প্রত্যাগম what->offset * 60;
   }
-  else {
+  অন্যথা {
     /* four-letter name */
-    const struct tzinfo *what;
-    struct tzinfo find;
-    if(first > 'W')
-      return -1;
+    ধ্রুব সংরচনা tzinfo *what;
+    সংরচনা tzinfo find;
+    যদি(first > 'W')
+      প্রত্যাগম -1;
     find.tz = MKTZ(first, check[1], check[2], check[3]);
     what = bsearch(&find, tzfoura, CURL_ARRAYSIZE(tzfoura),
-                   sizeof(tzfoura[0]), tzcompare);
-    if(what)
-      return what->offset * 60;
+                   পরিমাণ(tzfoura[0]), tzcompare);
+    যদি(what)
+      প্রত্যাগম what->offset * 60;
   }
-  return -1;
+  প্রত্যাগম -1;
 }
 
-static void skip(const char **date)
+স্থির শূন্য skip(ধ্রুব বর্ণ **date)
 {
   /* skip everything that are not letters or digits */
-  while(**date && !ISALNUM(**date))
+  যাবত্(**date && !ISALNUM(**date))
     (*date)++;
 }
 
 /* each field is exactly -1 when unknown */
-struct when {
-  int wday;  /* day of the week, 0-6 (mon-sun) */
-  int mon;   /* month of the year, 0-11 */
-  int mday;  /* day of month, 1 - 31 */
-  int dsecs; /* number of seconds into the day */
-  int year;  /* year, >= 1583 */
-  int tzoff; /* time zone offset in seconds */
+সংরচনা when {
+  পূর্ণাঙ্ক wday;  /* day of the week, 0-6 (mon-sun) */
+  পূর্ণাঙ্ক mon;   /* month of the year, 0-11 */
+  পূর্ণাঙ্ক mday;  /* day of month, 1 - 31 */
+  পূর্ণাঙ্ক dsecs; /* number of seconds into the day */
+  পূর্ণাঙ্ক year;  /* year, >= 1583 */
+  পূর্ণাঙ্ক tzoff; /* time zone offset in seconds */
 };
 
 /* (1969 / 4) - (1969 / 100) + (1969 / 400) = 492 - 19 + 4 = 477 */
@@ -410,60 +410,60 @@ struct when {
  * time2epoch: time stamp to seconds since epoch in GMT time zone. Similar to
  * mktime but for GMT only.
  */
-static curl_off_t time2epoch(struct when *w)
+স্থির curl_off_t time2epoch(সংরচনা when *w)
 {
-  static const int cumulative_days[12] = {
+  স্থির ধ্রুব পূর্ণাঙ্ক cumulative_days[12] = {
     0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
   };
-  int y = w->year - (w->mon <= 1);
-  int leap_days = (y / 4) - (y / 100) + (y / 400) - LEAP_DAYS_BEFORE_1969;
+  পূর্ণাঙ্ক y = w->year - (w->mon <= 1);
+  পূর্ণাঙ্ক leap_days = (y / 4) - (y / 100) + (y / 400) - LEAP_DAYS_BEFORE_1969;
   curl_off_t days = (curl_off_t)(w->year - 1970) * 365 + leap_days +
     cumulative_days[w->mon] + w->mday - 1;
 
-  return (days * SECONDS_PER_DAY) + w->dsecs;
+  প্রত্যাগম (days * SECONDS_PER_DAY) + w->dsecs;
 }
 
 /* Returns the value of a single-digit or two-digit decimal number, return
    then pointer to after the number. The 'date' pointer is known to point to a
    digit. */
-static int oneortwodigit(const char *date, const char **endp)
+স্থির পূর্ণাঙ্ক oneortwodigit(ধ্রুব বর্ণ *date, ধ্রুব বর্ণ **endp)
 {
-  int num = date[0] - '0';
-  if(ISDIGIT(date[1])) {
+  পূর্ণাঙ্ক অঙ্ক = date[0] - '0';
+  যদি(ISDIGIT(date[1])) {
     *endp = &date[2];
-    return (num * 10) + (date[1] - '0');
+    প্রত্যাগম (অঙ্ক * 10) + (date[1] - '0');
   }
   *endp = &date[1];
-  return num;
+  প্রত্যাগম অঙ্ক;
 }
 
 /* HH:MM:SS or HH:MM and accept single-digits too */
-static bool match_time(const char *date, struct when *w, char **endp)
+স্থির bool match_time(ধ্রুব বর্ণ *date, সংরচনা when *w, বর্ণ **endp)
 {
-  const char *p;
-  int hh, mm, ss = 0;
+  ধ্রুব বর্ণ *p;
+  পূর্ণাঙ্ক hh, mm, ss = 0;
   hh = oneortwodigit(date, &p);
-  if((hh < 24) && (*p == ':') && ISDIGIT(p[1])) {
+  যদি((hh < 24) && (*p == ':') && ISDIGIT(p[1])) {
     mm = oneortwodigit(&p[1], &p);
-    if(mm < 60) {
-      if((*p == ':') && ISDIGIT(p[1])) {
+    যদি(mm < 60) {
+      যদি((*p == ':') && ISDIGIT(p[1])) {
         ss = oneortwodigit(&p[1], &p);
-        if(ss <= 60) {
+        যদি(ss <= 60) {
           /* valid HH:MM:SS */
-          goto match;
+          গচ্ছ match;
         }
       }
-      else {
+      অন্যথা {
         /* valid HH:MM */
-        goto match;
+        গচ্ছ match;
       }
     }
   }
-  return FALSE; /* not a time string */
+  প্রত্যাগম FALSE; /* not a time string */
 match:
   w->dsecs = (hh * 3600) + (mm * 60) + ss;
-  *endp = (char *)CURL_UNCONST(p);
-  return TRUE;
+  *endp = (বর্ণ *)CURL_UNCONST(p);
+  প্রত্যাগম TRUE;
 }
 
 /*
@@ -480,68 +480,68 @@ match:
 /* Wednesday is the longest name this parser knows about */
 #define NAME_LEN 10
 
-static void initwhen(struct when *w)
+স্থির শূন্য initwhen(সংরচনা when *w)
 {
   w->wday = w->mon = w->mday = w->dsecs = w->year = w->tzoff = -1;
 }
 
-static int datestring(const char **datep, struct when *w)
+স্থির পূর্ণাঙ্ক datestring(ধ্রুব বর্ণ **datep, সংরচনা when *w)
 {
   /* a name coming up */
   size_t len = 0;
-  const char *p = *datep;
-  while(ISALPHA(p[len]) && (len < NAME_LEN))
+  ধ্রুব বর্ণ *p = *datep;
+  যাবত্(ISALPHA(p[len]) && (len < NAME_LEN))
     len++;
 
-  if(len != NAME_LEN) {
-    if(w->wday == -1) {
+  যদি(len != NAME_LEN) {
+    যদি(w->wday == -1) {
       w->wday = checkday(p, len);
-      if(w->wday != -1)
-        goto found;
+      যদি(w->wday != -1)
+        গচ্ছ found;
     }
-    if(w->mon == -1) {
+    যদি(w->mon == -1) {
       w->mon = checkmonth(p, len);
-      if(w->mon != -1)
-        goto found;
+      যদি(w->mon != -1)
+        গচ্ছ found;
     }
-    if(w->tzoff == -1) {
+    যদি(w->tzoff == -1) {
       /* this must be a time zone string */
       w->tzoff = checktz(p, len);
-      if(w->tzoff != -1)
-        goto found;
+      যদি(w->tzoff != -1)
+        গচ্ছ found;
     }
   }
-  return PARSEDATE_FAIL; /* bad string */
+  প্রত্যাগম PARSEDATE_FAIL; /* bad string */
 found:
   *datep += len;
-  return PARSEDATE_OK;
+  প্রত্যাগম PARSEDATE_OK;
 }
 
-static int datenum(const char *indate, const char **datep, struct when *w)
+স্থির পূর্ণাঙ্ক datenum(ধ্রুব বর্ণ *indate, ধ্রুব বর্ণ **datep, সংরচনা when *w)
 {
   /* a digit */
-  unsigned int val;
-  char *end;
-  const char *date = *datep;
+  unsigned পূর্ণাঙ্ক val;
+  বর্ণ *end;
+  ধ্রুব বর্ণ *date = *datep;
 
-  if((w->dsecs == -1) && match_time(date, w, &end)) {
+  যদি((w->dsecs == -1) && match_time(date, w, &end)) {
     /* time stamp */
     date = end;
   }
-  else {
+  অন্যথা {
     bool found = FALSE;
     curl_off_t lval;
-    int num_digits = 0;
-    const char *p = *datep;
-    if(curlx_str_number(&p, &lval, 99999999))
-      return PARSEDATE_FAIL;
+    পূর্ণাঙ্ক অঙ্ক_digits = 0;
+    ধ্রুব বর্ণ *p = *datep;
+    যদি(curlx_str_সংখ্যা(&p, &lval, 99999999))
+      প্রত্যাগম PARSEDATE_FAIL;
 
     /* we know num_digits cannot be larger than 8 */
-    num_digits = (int)(p - *datep);
-    val = (unsigned int)lval;
+    অঙ্ক_digits = (পূর্ণাঙ্ক)(p - *datep);
+    val = (unsigned পূর্ণাঙ্ক)lval;
 
-    if((w->tzoff == -1) &&
-       (num_digits == 4) &&
+    যদি((w->tzoff == -1) &&
+       (অঙ্ক_digits == 4) &&
        (val <= 1400) &&
        (indate < date) &&
        (date[-1] == '+' || date[-1] == '-')) {
@@ -561,160 +561,160 @@ static int datenum(const char *indate, const char **datep, struct when *w)
       w->tzoff = date[-1] == '+' ? -w->tzoff : w->tzoff;
     }
 
-    else if((num_digits == 8) && (w->year == -1) &&
+    অন্যথা যদি((অঙ্ক_digits == 8) && (w->year == -1) &&
             (w->mon == -1) && (w->mday == -1)) {
       /* 8 digits, no year, month or day yet. This is YYYYMMDD */
       found = TRUE;
       w->year = val / 10000;
       w->mon = ((val % 10000) / 100) - 1; /* month is 0 - 11 */
-      if(w->mon > 11)
-        return PARSEDATE_FAIL;
+      যদি(w->mon > 11)
+        প্রত্যাগম PARSEDATE_FAIL;
       w->mday = val % 100;
     }
 
-    if(!found && (w->mday == -1)) {
-      if((val > 0) && (val < 32)) {
+    যদি(!found && (w->mday == -1)) {
+      যদি((val > 0) && (val < 32)) {
         w->mday = val;
         found = TRUE;
       }
     }
 
-    if(!found && (w->year == -1)) {
+    যদি(!found && (w->year == -1)) {
       w->year = val;
       found = TRUE;
-      if(w->year < 100) {
-        if(w->year > 70)
+      যদি(w->year < 100) {
+        যদি(w->year > 70)
           w->year += 1900;
-        else
+        অন্যথা
           w->year += 2000;
       }
     }
 
-    if(!found)
-      return PARSEDATE_FAIL;
+    যদি(!found)
+      প্রত্যাগম PARSEDATE_FAIL;
 
     date = p;
   }
   *datep = date;
-  return PARSEDATE_OK;
+  প্রত্যাগম PARSEDATE_OK;
 }
 
-static bool datecheck(struct when *w)
+স্থির bool datecheck(সংরচনা when *w)
 {
-  if(w->dsecs == -1)
+  যদি(w->dsecs == -1)
     w->dsecs = 0; /* no time available, make it zero */
 
-  if((w->mday == -1) || (w->mon == -1) || (w->year == -1) ||
+  যদি((w->mday == -1) || (w->mon == -1) || (w->year == -1) ||
     /* lacks vital info, fail */
      (w->year < 1583) ||
      /* The Gregorian calendar was introduced 1582 */
      (w->mday > 31) /* too long month */ )
-    return TRUE;
+    প্রত্যাগম TRUE;
 
-  return FALSE;
+  প্রত্যাগম FALSE;
 }
 
-static void tzadjust(curl_off_t *tp, struct when *w)
+স্থির শূন্য tzadjust(curl_off_t *tp, সংরচনা when *w)
 {
-  if(w->tzoff == -1) /* unknown tz means no offset */
+  যদি(w->tzoff == -1) /* unknown tz means no offset */
     w->tzoff = 0;
 
   /* Add the time zone diff between local time zone and GMT. */
-  if((w->tzoff > 0) && (*tp > (curl_off_t)(CURL_OFF_T_MAX - w->tzoff)))
+  যদি((w->tzoff > 0) && (*tp > (curl_off_t)(CURL_OFF_T_MAX - w->tzoff)))
     *tp = CURL_OFF_T_MAX;
-  else
+  অন্যথা
     *tp += w->tzoff;
   /* this needs no minimum check since we require a year > 1582 */
 }
 
-static int mktimet(curl_off_t seconds, time_t *output)
+স্থির পূর্ণাঙ্ক mktimet(curl_off_t seconds, time_t *output)
 {
-#if SIZEOF_TIME_T < 5
-  if(seconds > TIME_T_MAX) {
+#যদি SIZEOF_TIME_T < 5
+  যদি(seconds > TIME_T_MAX) {
     *output = TIME_T_MAX;
-    return PARSEDATE_LATER;
+    প্রত্যাগম PARSEDATE_LATER;
   }
-  else if(seconds < TIME_T_MIN) {
+  অন্যথা যদি(seconds < TIME_T_MIN) {
     *output = TIME_T_MIN;
-    return PARSEDATE_SOONER;
+    প্রত্যাগম PARSEDATE_SOONER;
   }
-#elif defined(HAVE_TIME_T_UNSIGNED)
-  if(seconds < 0) {
+#নোচেদ্যদি defined(HAVE_TIME_T_UNSIGNED)
+  যদি(seconds < 0) {
     *output = 0;
-    return PARSEDATE_SOONER;
+    প্রত্যাগম PARSEDATE_SOONER;
   }
 #endif
   *output = (time_t)seconds;
-  return PARSEDATE_OK;
+  প্রত্যাগম PARSEDATE_OK;
 }
 
-static int parsedate(const char *date, time_t *output)
+স্থির পূর্ণাঙ্ক parsedate(ধ্রুব বর্ণ *date, time_t *output)
 {
   curl_off_t seconds = 0;
-  const char *indate = date; /* save the original pointer */
-  int part = 0; /* max 6 parts */
-  int rc = 0;
-  struct when w;
+  ধ্রুব বর্ণ *indate = date; /* save the original pointer */
+  পূর্ণাঙ্ক part = 0; /* max 6 parts */
+  পূর্ণাঙ্ক rc = 0;
+  সংরচনা when w;
   initwhen(&w);
 
-  while(*date && (part < 6)) {
+  যাবত্(*date && (part < 6)) {
     skip(&date);
 
-    if(ISALPHA(*date))
+    যদি(ISALPHA(*date))
       rc = datestring(&date, &w);
-    else if(ISDIGIT(*date))
+    অন্যথা যদি(ISDIGIT(*date))
       rc = datenum(indate, &date, &w);
-    if(rc)
-      return rc;
+    যদি(rc)
+      প্রত্যাগম rc;
 
     part++;
   }
 
-  if(datecheck(&w))
-    return PARSEDATE_FAIL;
+  যদি(datecheck(&w))
+    প্রত্যাগম PARSEDATE_FAIL;
 
   seconds = time2epoch(&w); /* get number of seconds */
   tzadjust(&seconds, &w); /* handle the time zone offset */
   rc = mktimet(seconds, output); /* squeeze seconds into a time_t */
 
-  return rc;
+  প্রত্যাগম rc;
 }
-#else
+#অন্যথা
 /* disabled */
-static int parsedate(const char *date, time_t *output)
+স্থির পূর্ণাঙ্ক parsedate(ধ্রুব বর্ণ *date, time_t *output)
 {
-  (void)date;
+  (শূন্য)date;
   *output = 0;
-  return PARSEDATE_OK; /* a lie */
+  প্রত্যাগম PARSEDATE_OK; /* a lie */
 }
 #endif
 
-time_t curl_getdate(const char *p, const time_t *unused)
+time_t curl_getdate(ধ্রুব বর্ণ *p, ধ্রুব time_t *unused)
 {
   time_t parsed = -1;
-  int rc;
-  (void)unused; /* legacy argument from the past that we ignore */
+  পূর্ণাঙ্ক rc;
+  (শূন্য)unused; /* legacy argument from the past that we ignore */
 
-  if(!p)
-    return -1;
+  যদি(!p)
+    প্রত্যাগম -1;
 
   rc = parsedate(p, &parsed);
-  if(rc == PARSEDATE_OK) {
-    if(parsed == (time_t)-1)
+  যদি(rc == PARSEDATE_OK) {
+    যদি(parsed == (time_t)-1)
       /* avoid returning -1 for a working scenario */
       parsed++;
-    return parsed;
+    প্রত্যাগম parsed;
   }
   /* everything else is fail */
-  return -1;
+  প্রত্যাগম -1;
 }
 
 /* Curl_getdate_capped() differs from curl_getdate() in that this will return
    TIME_T_MAX in case the parsed time value was too big, instead of an
    error. Returns non-zero on error. */
 
-int Curl_getdate_capped(const char *p, time_t *tp)
+পূর্ণাঙ্ক Curl_getdate_capped(ধ্রুব বর্ণ *p, time_t *tp)
 {
-  int rc = parsedate(p, tp);
-  return (rc == PARSEDATE_FAIL);
+  পূর্ণাঙ্ক rc = parsedate(p, tp);
+  প্রত্যাগম (rc == PARSEDATE_FAIL);
 }

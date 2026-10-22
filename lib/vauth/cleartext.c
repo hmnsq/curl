@@ -24,13 +24,13 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
+#যদি !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
   !defined(CURL_DISABLE_POP3) ||                                  \
   (!defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP))
 
-#include "vauth/vauth.h"
+#অন্তর্ভাব "vauth/vauth.h"
 
 /*
  * Curl_auth_create_plain_message()
@@ -46,19 +46,19 @@
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
-                                        struct bufref *out)
+CURLcode Curl_auth_create_plain_message(সংরচনা Curl_creds *creds,
+                                        সংরচনা bufref *out)
 {
   size_t len;
-  char *auth;
+  বর্ণ *auth;
 
   size_t zlen = strlen(Curl_creds_sasl_authzid(creds));
   size_t clen = strlen(Curl_creds_user(creds));
   size_t plen = strlen(Curl_creds_passwd(creds));
 
-  if((zlen > CURL_MAX_INPUT_LENGTH) || (clen > CURL_MAX_INPUT_LENGTH) ||
-     (plen > CURL_MAX_INPUT_LENGTH))
-    return CURLE_TOO_LARGE;
+  যদি((zlen > CURL_MAX_প্রবেশ_LENGTH) || (clen > CURL_MAX_প্রবেশ_LENGTH) ||
+     (plen > CURL_MAX_প্রবেশ_LENGTH))
+    প্রত্যাগম CURLE_TOO_LARGE;
 
   len = zlen + clen + plen + 2;
 
@@ -66,10 +66,10 @@ CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
                        Curl_creds_sasl_authzid(creds), '\0',
                        Curl_creds_user(creds), '\0',
                        Curl_creds_passwd(creds));
-  if(!auth)
-    return CURLE_OUT_OF_MEMORY;
+  যদি(!auth)
+    প্রত্যাগম CURLE_OUT_OF_MEMORY;
   Curl_bufref_set(out, auth, len, curl_free);
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 }
 
 /*
@@ -85,9 +85,9 @@ CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
  *
  * Returns void.
  */
-void Curl_auth_create_login_message(const char *value, struct bufref *out)
+শূন্য Curl_auth_create_login_message(ধ্রুব বর্ণ *মান, সংরচনা bufref *out)
 {
-  Curl_bufref_set(out, value, strlen(value), NULL);
+  Curl_bufref_set(out, মান, strlen(মান), রিক্ত);
 }
 
 /*
@@ -103,7 +103,7 @@ void Curl_auth_create_login_message(const char *value, struct bufref *out)
  *
  * Returns void.
  */
-void Curl_auth_create_external_message(const char *user, struct bufref *out)
+শূন্য Curl_auth_create_external_message(ধ্রুব বর্ণ *user, সংরচনা bufref *out)
 {
   /* This is the same formatting as the login message */
   Curl_auth_create_login_message(user, out);

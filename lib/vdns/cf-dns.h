@@ -23,49 +23,49 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct Curl_dns_entry;
-struct Curl_addrinfo;
-struct Curl_peer;
+সংরচনা Curl_easy;
+সংরচনা connectdata;
+সংরচনা Curl_dns_entry;
+সংরচনা Curl_addrinfo;
+সংরচনা Curl_peer;
 
-CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
-                                        struct connectdata *conn,
+CURLcode Curl_conn_dns_add_addr_resolve(সংরচনা Curl_easy *data,
+                                        সংরচনা connectdata *conn,
                                         int8_t sockindex,
-                                        struct Curl_peer *peer,
+                                        সংরচনা Curl_peer *peer,
                                         uint8_t dns_queries,
                                         uint8_t transport);
 
-CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
+CURLcode Curl_conn_dns_addr_result(সংরচনা connectdata *conn,
                                    int8_t sockindex,
-                                   struct Curl_peer *peer);
+                                   সংরচনা Curl_peer *peer);
 
-const struct Curl_addrinfo *Curl_conn_dns_get_ai(struct Curl_easy *data,
-                                                 struct Curl_peer *peer,
+ধ্রুব সংরচনা Curl_addrinfo *Curl_conn_dns_get_ai(সংরচনা Curl_easy *data,
+                                                 সংরচনা Curl_peer *peer,
                                                  int8_t sockindex,
-                                                 int ai_family,
-                                                 unsigned int index);
+                                                 পূর্ণাঙ্ক ai_family,
+                                                 unsigned পূর্ণাঙ্ক index);
 
 #ifdef USE_HTTPSRR
-CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
-                                         struct connectdata *conn,
+CURLcode Curl_conn_dns_add_https_resolve(সংরচনা Curl_easy *data,
+                                         সংরচনা connectdata *conn,
                                          int8_t sockindex,
-                                         struct Curl_peer *peer);
+                                         সংরচনা Curl_peer *peer);
 
-const struct Curl_https_rrinfo *
-Curl_conn_dns_get_https(struct Curl_easy *data,
+ধ্রুব সংরচনা Curl_https_rrinfo *
+Curl_conn_dns_get_https(সংরচনা Curl_easy *data,
                         int8_t sockindex,
-                        struct Curl_peer *peer);
-bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
+                        সংরচনা Curl_peer *peer);
+bool Curl_conn_dns_resolved_https(সংরচনা Curl_easy *data,
                                   int8_t sockindex,
-                                  struct Curl_peer *peer);
-#else
-#define Curl_conn_dns_get_https(a, b, c)        NULL
+                                  সংরচনা Curl_peer *peer);
+#অন্যথা
+#define Curl_conn_dns_get_https(a, b, c)        রিক্ত
 #define Curl_conn_dns_resolved_https(a, b, c)   TRUE
 #endif
 
-extern struct Curl_cftype Curl_cft_dns;
+বাহ্য সংরচনা Curl_cftype Curl_cft_dns;
 
 #endif /* HEADER_CURL_CF_DNS_H */

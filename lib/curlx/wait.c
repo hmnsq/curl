@@ -21,20 +21,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
+#অন্তর্ভাব <sys/select.h>
+#নোচেদ্যদি defined(HAVE_UNISTD_H)
+#অন্তর্ভাব <unistd.h>
 #endif
 
 #ifdef MSDOS
-#include <dos.h>  /* delay() */
+#অন্তর্ভাব <dos.h>  /* delay() */
 #endif
 
-#include "curlx/timediff.h"
-#include "curlx/wait.h"
+#অন্তর্ভাব "curlx/timediff.h"
+#অন্তর্ভাব "curlx/wait.h"
 
 /*
  * Internal function used for waiting a specific amount of ms in
@@ -51,40 +51,40 @@
  *   -1 = system call error, or invalid timeout value
  *    0 = specified timeout has elapsed, or interrupted
  */
-int curlx_wait_ms(timediff_t timeout_ms)
+পূর্ণাঙ্ক curlx_wait_ms(timediff_t timeout_ms)
 {
-  int r = 0;
+  পূর্ণাঙ্ক r = 0;
 
-  if(!timeout_ms)
-    return 0;
-  if(timeout_ms < 0) {
+  যদি(!timeout_ms)
+    প্রত্যাগম 0;
+  যদি(timeout_ms < 0) {
     SET_SOCKERRNO(SOCKEINVAL);
-    return -1;
+    প্রত্যাগম -1;
   }
 #ifdef MSDOS
-  delay((unsigned int)timeout_ms);
-#elif defined(_WIN32)
+  delay((unsigned পূর্ণাঙ্ক)timeout_ms);
+#নোচেদ্যদি defined(_WIN32)
   /* prevent overflow, timeout_ms is typecast to ULONG/DWORD. */
-#if TIMEDIFF_T_MAX >= ULONG_MAX
-  if(timeout_ms >= ULONG_MAX)
+#যদি TIMEDIFF_T_MAX >= ULONG_MAX
+  যদি(timeout_ms >= ULONG_MAX)
     timeout_ms = ULONG_MAX - 1;
     /* do not use ULONG_MAX, because that is equal to INFINITE */
 #endif
   Sleep((DWORD)timeout_ms);
-#else
+#অন্যথা
   /* avoid using poll() for this since it behaves incorrectly with no sockets
      on Apple operating systems */
   {
-    struct timeval pending_tv;
-    r = select(0, NULL, NULL, NULL, curlx_mstotv(&pending_tv, timeout_ms));
+    সংরচনা timeval pending_tv;
+    r = select(0, রিক্ত, রিক্ত, রিক্ত, curlx_mstotv(&pending_tv, timeout_ms));
   }
 #endif /* _WIN32 */
-  if(r) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  যদি(r) {
+    যদি((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    else
+    অন্যথা
       r = -1;
   }
-  return r;
+  প্রত্যাগম r;
 }

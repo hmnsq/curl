@@ -21,14 +21,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#যদি !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS)
 
-#include "urldata.h"
-#include "rand.h"
-#include "curl_fopen.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "rand.h"
+#অন্তর্ভাব "curl_fopen.h"
 
 /* The dirslash() function breaks a null-terminated pathname string into
    directory and filename components then returns the directory component up
@@ -43,35 +43,35 @@
 #ifdef _WIN32
 #define PATHSEP   "\\"
 #define IS_SEP(x) (((x) == '/') || ((x) == '\\'))
-#elif defined(MSDOS) || defined(OS2)
+#নোচেদ্যদি defined(MSDOS) || defined(OS2)
 #define PATHSEP   "\\"
 #define IS_SEP(x) ((x) == '\\')
-#else
+#অন্যথা
 #define PATHSEP   "/"
 #define IS_SEP(x) ((x) == '/')
 #endif
 
-static char *dirslash(const char *path)
+স্থির বর্ণ *dirslash(ধ্রুব বর্ণ *path)
 {
   size_t n;
-  struct dynbuf out;
+  সংরচনা dynbuf out;
   DEBUGASSERT(path);
-  curlx_dyn_init(&out, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&out, CURL_MAX_প্রবেশ_LENGTH);
   n = strlen(path);
-  if(n) {
+  যদি(n) {
     /* find the rightmost path separator, if any */
-    while(n && !IS_SEP(path[n - 1]))
+    যাবত্(n && !IS_SEP(path[n - 1]))
       --n;
     /* skip over all the path separators, if any */
-    while(n && IS_SEP(path[n - 1]))
+    যাবত্(n && IS_SEP(path[n - 1]))
       --n;
   }
-  if(curlx_dyn_addn(&out, path, n))
-    return NULL;
+  যদি(curlx_dyn_addn(&out, path, n))
+    প্রত্যাগম রিক্ত;
   /* if there was a directory, append a single trailing slash */
-  if(n && curlx_dyn_addn(&out, PATHSEP, 1))
-    return NULL;
-  return curlx_dyn_ptr(&out);
+  যদি(n && curlx_dyn_addn(&out, PATHSEP, 1))
+    প্রত্যাগম রিক্ত;
+  প্রত্যাগম curlx_dyn_ptr(&out);
 }
 
 /*
@@ -81,85 +81,85 @@ static char *dirslash(const char *path)
  * file. if 'tempname' is non-NULL, it needs a rename after the file is
  * written.
  */
-CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
-                    FILE **fh, char **tempname)
+CURLcode Curl_fopen(সংরচনা Curl_easy *data, ধ্রুব বর্ণ *filename,
+                    FILE **fh, বর্ণ **tempname)
 {
   CURLcode result = CURLE_WRITE_ERROR;
-  unsigned char randbuf[41];
-  char *tempstore = NULL;
+  unsigned বর্ণ randbuf[41];
+  বর্ণ *tempstore = রিক্ত;
 #ifndef _WIN32
   curlx_struct_stat sb;
 #endif
-  int fd = -1;
-  char *dir = NULL;
-  *tempname = NULL;
+  পূর্ণাঙ্ক fd = -1;
+  বর্ণ *dir = রিক্ত;
+  *tempname = রিক্ত;
 
 #ifndef _WIN32
   *fh = curlx_fopen(filename, FOPEN_WRITETEXT);
-  if(!*fh)
-    goto fail;
-  if(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
-    return CURLE_OK;
+  যদি(!*fh)
+    গচ্ছ fail;
+  যদি(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
+    প্রত্যাগম CURLE_OK;
   }
   curlx_fclose(*fh);
 #endif /* !_WIN32 */
-  *fh = NULL;
+  *fh = রিক্ত;
 
-  result = Curl_rand_alnum(data, randbuf, sizeof(randbuf));
-  if(result)
-    goto fail;
+  result = Curl_rand_alnum(data, randbuf, পরিমাণ(randbuf));
+  যদি(result)
+    গচ্ছ fail;
 
   dir = dirslash(filename);
-  if(dir) {
+  যদি(dir) {
     /* The temp filename should not end up too long for the target file
        system */
     tempstore = curl_maprintf("%s%s.tmp", dir, randbuf);
     curlx_free(dir);
   }
 
-  if(!tempstore) {
+  যদি(!tempstore) {
     result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+    গচ্ছ fail;
   }
 
   result = CURLE_WRITE_ERROR;
 #ifdef _WIN32
   fd = curlx_open(tempstore, _O_WRONLY | _O_CREAT | _O_EXCL,
                   _S_IREAD | _S_IWRITE);
-#else
+#অন্যথা
   fd = curlx_open(tempstore, O_WRONLY | O_CREAT | O_EXCL,
                   (mode_t)(S_IRUSR | S_IWUSR | 0600));
 #endif
-  if(fd == -1)
-    goto fail;
+  যদি(fd == -1)
+    গচ্ছ fail;
 
 #ifdef HAVE_FCHMOD
   {
     curlx_struct_stat nsb;
-    if((curlx_fstat(fd, &nsb) != -1) &&
+    যদি((curlx_fstat(fd, &nsb) != -1) &&
        (nsb.st_uid == sb.st_uid) && (nsb.st_gid == sb.st_gid)) {
       /* if the user and group are the same, clone the original mode */
-      if(fchmod(fd, (mode_t)sb.st_mode) == -1)
-        goto fail;
+      যদি(fchmod(fd, (mode_t)sb.st_mode) == -1)
+        গচ্ছ fail;
     }
   }
 #endif
 
   *fh = curlx_fdopen(fd, FOPEN_WRITETEXT);
-  if(!*fh)
-    goto fail;
+  যদি(!*fh)
+    গচ্ছ fail;
 
   *tempname = tempstore;
-  return CURLE_OK;
+  প্রত্যাগম CURLE_OK;
 
 fail:
-  if(fd != -1) {
+  যদি(fd != -1) {
     curlx_close(fd);
     unlink(tempstore);
   }
 
   curlx_free(tempstore);
-  return result;
+  প্রত্যাগম result;
 }
 
 #endif /* !disabled */

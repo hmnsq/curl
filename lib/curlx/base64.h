@@ -24,17 +24,17 @@
  *
  ***************************************************************************/
 
-CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
-                             char **outptr, size_t *outlen);
-CURLcode curlx_base64url_encode(const uint8_t *inputbuff, size_t insize,
-                                char **outptr, size_t *outlen);
-CURLcode curlx_base64_decode(const char *src,
+CURLcode curlx_base64_encode(ধ্রুব uint8_t *inputbuff, size_t insize,
+                             বর্ণ **outptr, size_t *outlen);
+CURLcode curlx_base64url_encode(ধ্রুব uint8_t *inputbuff, size_t insize,
+                                বর্ণ **outptr, size_t *outlen);
+CURLcode curlx_base64_decode(ধ্রুব বর্ণ *src,
                              uint8_t **outptr, size_t *outlen);
 
-extern const char curlx_base64encdec[];
+বাহ্য ধ্রুব বর্ণ curlx_base64encdec[];
 
 /* maximum input length acceptable to base64 encode, here to catch and prevent
    mistakes */
-#define CURL_MAX_BASE64_INPUT 16000000
+#define CURL_MAX_BASE64_প্রবেশ 16000000
 
 #endif /* HEADER_CURL_BASE64_H */

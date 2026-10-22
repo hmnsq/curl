@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
+#যদি !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
 
 /* this is for Negotiate header input */
-CURLcode Curl_input_negotiate(struct Curl_easy *data, struct connectdata *conn,
-                              bool proxy, const char *header);
+CURLcode Curl_প্রবেশ_negotiate(সংরচনা Curl_easy *data, সংরচনা connectdata *conn,
+                              bool proxy, ধ্রুব বর্ণ *header);
 
 /* this is for creating Negotiate header output */
-CURLcode Curl_output_negotiate(struct Curl_easy *data,
-                               struct connectdata *conn, bool proxy);
+CURLcode Curl_output_negotiate(সংরচনা Curl_easy *data,
+                               সংরচনা connectdata *conn, bool proxy);
 
 #endif
 

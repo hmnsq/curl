@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#include "curl_gethostname.h"
-#include "curlx/strcopy.h"
+#অন্তর্ভাব "curl_gethostname.h"
+#অন্তর্ভাব "curlx/strcopy.h"
 
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
@@ -41,41 +41,41 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+পূর্ণাঙ্ক Curl_gethostname(বর্ণ * ধ্রুব name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
 #ifndef HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
-  (void)name;
-  (void)namelen;
-  return -1;
+  (শূন্য)name;
+  (শূন্য)namelen;
+  প্রত্যাগম -1;
 
-#else
-  int err;
-  char *dot;
+#অন্যথা
+  পূর্ণাঙ্ক err;
+  বর্ণ *dot;
 
 #ifdef DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
+  ধ্রুব বর্ণ *force_hostname = getenv("CURL_GETHOSTNAME");
+  যদি(force_hostname) {
+    যদি(strlen(force_hostname) < (size_t)namelen)
       curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+    অন্যথা
+      প্রত্যাগম 1; /* cannot do it */
     err = 0;
   }
-  else {
+  অন্যথা {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#অন্যথা /* DEBUGBUILD */
 
   name[0] = '\0';
 #ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+  err = gethostname((unsigned বর্ণ *)name, namelen);
+#অন্যথা
   err = gethostname(name, namelen);
 #endif
 
@@ -83,14 +83,14 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  যদি(err)
+    প্রত্যাগম err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  যদি(dot)
     *dot = '\0';
 
-  return 0;
+  প্রত্যাগম 0;
 #endif
 }
