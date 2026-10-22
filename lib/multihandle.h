@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTIHANDLE_H
-#define HEADER_CURL_MULTIHANDLE_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_MULTIHANDLE_H
+#وصف_ڪريو سرو_CURL_MULTIHANDLE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,68 +23,68 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "api.h"
-#include "llist.h"
-#include "hash.h"
-#include "conncache.h"
-#include "cshutdn.h"
-#include "multi_ev.h"
-#include "multi_ntfy.h"
-#include "psl.h"
-#include "socketpair.h"
-#include "splay.h"
-#include "uint-bset.h"
-#include "uint-spbset.h"
-#include "uint-table.h"
-#include "vdns/dnscache.h"
+#ضمن "api.h"
+#ضمن "llist.h"
+#ضمن "hash.h"
+#ضمن "conncache.h"
+#ضمن "cshutdn.h"
+#ضمن "multi_ev.h"
+#ضمن "multi_ntfy.h"
+#ضمن "psl.h"
+#ضمن "socketpair.h"
+#ضمن "splay.h"
+#ضمن "uint-bset.h"
+#ضمن "uint-spbset.h"
+#ضمن "uint-table.h"
+#ضمن "vdns/dnscache.h"
 
-struct connectdata;
-struct Curl_easy;
+بنية connectdata;
+بنية Curl_easy;
 
 /* NOTE: if you add a state here, add the name to the statenames[] array
  * in curl_trc.c as well!
  */
-typedef enum {
+تعريفنوع تعداد {
   MSTATE_INIT,         /* 0 - start in this state */
   MSTATE_PENDING,      /* no connections, waiting for one */
-  MSTATE_SETUP,        /* start a new transfer */
+  MSTATE_تياري,        /* start a new transfer */
   MSTATE_CONNECT,      /* resolve/connect has been sent off */
   MSTATE_CONNECTING,   /* awaiting the TCP connect to finalize */
   MSTATE_PROTOCONNECT, /* initiate protocol connect procedure */
   MSTATE_PROTOCONNECTING, /* completing the protocol-specific connect phase */
   MSTATE_DO,           /* start send off the request (part 1) */
   MSTATE_DOING,        /* sending off the request (part 1) */
-  MSTATE_DOING_MORE,   /* send off the request (part 2) */
+  MSTATE_DOING_وڌيڪ,   /* send off the request (part 2) */
   MSTATE_DID,          /* done sending off request */
   MSTATE_PERFORMING,   /* transfer data */
   MSTATE_RATELIMITING, /* wait because limit-rate exceeded */
-  MSTATE_DONE,         /* post data transfer operation */
+  MSTATE_پورو,         /* post data transfer operation */
   MSTATE_COMPLETED,    /* operation complete */
   MSTATE_MSGSENT,      /* the operation complete message is sent */
-  MSTATE_LAST          /* not a true state, never use this */
+  MSTATE_آخري          /* not a true state, never use this */
 } CURLMstate;
 
-#define CURLPIPE_ANY (CURLPIPE_MULTIPLEX)
+#وصف_ڪريو CURLPIPE_ANY (CURLPIPE_MULTIPLEX)
 
-#if !defined(CURL_DISABLE_SOCKETPAIR) && !defined(USE_WINSOCK)
-#define ENABLE_WAKEUP
-#endif
-#if !defined(CURL_DISABLE_SOCKETPAIR) && \
+#إذا !defined(CURL_DISABLE_SOCKETPAIR) && !defined(USE_WINSOCK)
+#وصف_ڪريو ENABLE_WAKEUP
+#جيڪڏهن_پورو
+#إذا !defined(CURL_DISABLE_SOCKETPAIR) && \
     defined(USE_RESOLV_THREADED) && \
     !defined(USE_WINSOCK)
-#define ENABLE_INTERNAL_WAKEUP
-#endif
+#وصف_ڪريو ENABLE_اندروني_WAKEUP
+#جيڪڏهن_پورو
 
 /* value for MAXIMUM CONCURRENT STREAMS upper limit */
-#define INITIAL_MAX_CONCURRENT_STREAMS ((1U << 31) - 1)
+#وصف_ڪريو INITIAL_MAX_CONCURRENT_STREAMS ((1U << 31) - 1)
 
-struct Curl_fixed_buf {
+بنية Curl_fixed_buf {
   size_t len;      /* the allocated data length */
-  char data[1];   /* the actual buffer */
+  حرف معلومات[1];   /* the actual buffer */
 };
 
 /* This is the struct known as CURLM on the outside */
-struct Curl_multi {
+بنية Curl_multi {
   /* First a simple identifier to more easily detect if a user mixes up
      this multi handle with an easy handle.
      Set this to CURLMULTI_MAGIC_NUMBER. */
@@ -94,51 +94,51 @@ struct Curl_multi {
   uint32_t xfers_really_alive; /* amount of added transfers that have
                                   passed INIT state but are not COMPLETE yet */
   uint32_t max_concurrent_streams;
-  curl_off_t xfers_total_ever; /* total of added transfers, ever. */
+  curl_off_t xfers_ڪل_ever; /* total of added transfers, ever. */
 
-  struct uint32_tbl xfers; /* transfers added to this multi */
+  بنية uint32_tbl xfers; /* transfers added to this multi */
   /* A transfer's mid may be present in at most one of
    * process/pending/msgsent. The dirty set may overlap with process. */
-  struct uint32_bset process; /* transfer being processed */
-  struct uint32_bset dirty; /* transfer to be run NOW, e.g. ASAP. */
-  struct uint32_bset pending; /* transfers in waiting (conn limit etc.) */
-  struct uint32_bset msgsent; /* transfers with unread application messages */
+  بنية uint32_bset process; /* transfer being processed */
+  بنية uint32_bset dirty; /* transfer to be run NOW, e.g. ASAP. */
+  بنية uint32_bset pending; /* transfers in waiting (conn limit etc.) */
+  بنية uint32_bset msgsent; /* transfers with unread application messages */
 
-  struct Curl_mapi_stack callstack; /* multi api calls ongoing */
+  بنية Curl_mapi_ڍير callstack; /* multi api calls ongoing */
 
   /* expiration times for all attached easy handles */
-  struct Curl_timeouts timeouts;
+  بنية Curl_timeouts timeouts;
 
-  struct Curl_easy *admin; /* internal easy handle for admin operations.
+  بنية Curl_easy *admin; /* internal easy handle for admin operations.
                               gets assigned `mid` 0 on multi init */
 
   /* callback function and user data pointer for the *socket() API */
   curl_socket_callback socket_cb;
-  void *socket_userp;
+  فراغ *socket_userp;
 
   /* callback function and user data pointer for server push */
-  curl_push_callback push_cb;
-  void *push_userp;
+  curl_ڌڪو_callback ڌڪو_cb;
+  فراغ *ڌڪو_userp;
 
-  struct Curl_dnscache dnscache; /* DNS cache */
-  struct Curl_ssl_scache *ssl_scache; /* TLS session pool */
-#ifdef USE_RESOLV_THREADED
-  struct curl_thrdq *resolv_thrdq;
-#endif
+  بنية Curl_dnscache dnscache; /* DNS cache */
+  بنية Curl_ssl_scache *ssl_scache; /* TLS session pool */
+#جيڪڏهن_وصف_ٿيل USE_RESOLV_THREADED
+  بنية curl_thrdq *resolv_thrdq;
+#جيڪڏهن_پورو
 
-#ifdef USE_LIBPSL
+#جيڪڏهن_وصف_ٿيل USE_LIBPSL
   /* PSL cache. */
-  struct PslCache psl;
-#endif
+  بنية PslCache psl;
+#جيڪڏهن_پورو
 
-  struct Curl_fixed_buf *xfer_buf; /* transfer downloads, lazy */
-  struct Curl_fixed_buf *xfer_ulbuf; /* transfer uploads, lazy */
-  struct Curl_fixed_buf *xfer_sockbuf; /* transfer socket I/O, lazy */
+  بنية Curl_fixed_buf *xfer_buf; /* transfer downloads, lazy */
+  بنية Curl_fixed_buf *xfer_ulbuf; /* transfer uploads, lazy */
+  بنية Curl_fixed_buf *xfer_sockbuf; /* transfer socket I/O, lazy */
 
   /* multi event related things */
-  struct curl_multi_ev ev;
+  بنية curl_multi_ev ev;
   /* multi notification related things */
-  struct curl_multi_ntfy ntfy;
+  بنية curl_multi_ntfy ntfy;
 
   /* `proto_hash` is a general key-value store for protocol implementations
    * with the lifetime of the multi handle. The number of elements kept here
@@ -146,56 +146,56 @@ struct Curl_multi {
    * TLS), *not* in the order of connections or current transfers!
    * Elements need to be added with their own destructor to be invoked when
    * the multi handle is cleaned up (see Curl_hash_add2()).*/
-  struct Curl_hash proto_hash;
+  بنية Curl_hash proto_hash;
 
-  struct cshutdn cshutdn; /* connection shutdown handling */
-  struct cpool cpool;     /* connection pool (bundles) */
+  بنية cshutdn cshutdn; /* connection shutdown handling */
+  بنية cpool cpool;     /* connection pool (bundles) */
 
-  timediff_t last_expire_offset_us; /* times offset of last expiry */
+  timediff_t آخري_expire_وٿي_us; /* times offset of last expiry */
 
   /* timer callback and user data pointer for the *socket() API */
   curl_multi_timer_callback timer_cb;
-  void *timer_userp;
+  فراغ *timer_userp;
 
-#ifdef USE_WINSOCK
+#جيڪڏهن_وصف_ٿيل USE_WINSOCK
   WSAEVENT wsa_event; /* Winsock event used for waits */
-#endif
-#ifdef ENABLE_WAKEUP
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل ENABLE_WAKEUP
   curl_socket_t wakeup_pair[2]; /* eventfd()/pipe()/socketpair() used for
                                    wakeup 0 is used for read, 1 is used
                                    for write. Used by curl_multi_wakeup() */
-#endif
-#ifdef ENABLE_INTERNAL_WAKEUP
-  curl_socket_t wakeup_internal[2]; /* eventfd()/pipe()/socketpair() used for
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل ENABLE_اندروني_WAKEUP
+  curl_socket_t wakeup_اندروني[2]; /* eventfd()/pipe()/socketpair() used for
                                    wakeup 0 is used for read, 1 is used
                                    for write. Used for internal wakeups,
                                    e.g. threaded resolver. */
-#endif
+#جيڪڏهن_پورو
   uint32_t max_host_connections; /* if >0, a fixed limit of the maximum number
                                   of connections per host */
-  uint32_t max_total_connections; /* if >0, a fixed limit of the maximum number
+  uint32_t max_ڪل_connections; /* if >0, a fixed limit of the maximum number
                                    of connections in total */
   uint32_t maxconnects; /* if >0, a fixed limit of the maximum number of
                                entries we are allowed to grow the connection
                                cache to */
-  uint32_t last_pending_mid; /* mid of last pending transfer rescheduled */
-  uint32_t last_resolv_id; /* id of the last DNS resolve operation */
-  BIT(ipv6_works);
-  BIT(multiplexing);           /* multiplexing wanted */
-  BIT(recheckstate);           /* see Curl_multi_connchanged */
-#ifdef USE_OPENSSL
-  BIT(ssl_seeded);
-#endif
-  BIT(dead); /* a callback returned error, everything needs to crash and
+  uint32_t آخري_pending_mid; /* mid of last pending transfer rescheduled */
+  uint32_t آخري_resolv_id; /* id of the last DNS resolve operation */
+  ٻٽو_انگ(ipv6_هلي);
+  ٻٽو_انگ(multiplexing);           /* multiplexing wanted */
+  ٻٽو_انگ(recheckstate);           /* see Curl_multi_connchanged */
+#جيڪڏهن_وصف_ٿيل USE_OPENSSL
+  ٻٽو_انگ(ssl_seeded);
+#جيڪڏهن_پورو
+  ٻٽو_انگ(dead); /* a callback returned error, everything needs to crash and
                 burn */
-  BIT(last_timeout_set);      /* last timer callback value was nonnegative */
-  BIT(xfer_buf_borrowed);      /* xfer_buf is currently being borrowed */
-  BIT(xfer_ulbuf_borrowed);    /* xfer_ulbuf is currently being borrowed */
-  BIT(xfer_sockbuf_borrowed);  /* xfer_sockbuf is currently being borrowed */
-  BIT(quick_exit);             /* do not join threads on cleanup */
-#ifdef DEBUGBUILD
-  BIT(warned);                 /* true after user warned of DEBUGBUILD */
-#endif
+  ٻٽو_انگ(آخري_timeout_سيٽ);      /* last timer callback value was nonnegative */
+  ٻٽو_انگ(xfer_buf_borrowed);      /* xfer_buf is currently being borrowed */
+  ٻٽو_انگ(xfer_ulbuf_borrowed);    /* xfer_ulbuf is currently being borrowed */
+  ٻٽو_انگ(xfer_sockbuf_borrowed);  /* xfer_sockbuf is currently being borrowed */
+  ٻٽو_انگ(quick_exit);             /* do not join threads on cleanup */
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
+  ٻٽو_انگ(warned);                 /* true after user warned of DEBUGBUILD */
+#جيڪڏهن_پورو
 };
 
-#endif /* HEADER_CURL_MULTIHANDLE_H */
+#جيڪڏهن_پورو /* HEADER_CURL_MULTIHANDLE_H */

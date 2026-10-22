@@ -27,68 +27,68 @@
  * Source file for Schannel-specific certificate verification. This code should
  * only be invoked by code in schannel.c.
  */
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_SCHANNEL
+#جيڪڏهن_وصف_ٿيل USE_SCHANNEL
 
-#ifndef USE_WINDOWS_SSPI
-#error "cannot compile Schannel support without SSPI."
-#endif
+#جيڪڏهن_وصف_نه_ٿيل USE_WINDOWS_SSPI
+#غلطي "cannot compile Schannel support without SSPI."
+#جيڪڏهن_پورو
 
-#include "vtls/schannel.h"
-#include "vtls/schannel_int.h"
+#ضمن "vtls/schannel.h"
+#ضمن "vtls/schannel_int.h"
 
-#include "vtls/hostcheck.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "curl_trc.h"
-#include "strerror.h"
-#include "curlx/win32-fopen.h"
-#include "curlx/inet_pton.h"
-#include "curlx/multibyte.h"
-#include "curlx/version_win32.h"
-#include "curlx/winapi.h"
+#ضمن "vtls/hostcheck.h"
+#ضمن "vtls/vtls.h"
+#ضمن "vtls/vtls_int.h"
+#ضمن "curl_trc.h"
+#ضمن "strerror.h"
+#ضمن "curlx/win32-fopen.h"
+#ضمن "curlx/inet_pton.h"
+#ضمن "curlx/multibyte.h"
+#ضمن "curlx/version_win32.h"
+#ضمن "curlx/winapi.h"
 
-#define BACKEND ((struct schannel_ssl_backend_data *)connssl->backend)
+#وصف_ڪريو BACKEND ((بنية schannel_ssl_backend_معلومات *)connssl->backend)
 
-#define MAX_CAFILE_SIZE (1024 * 1024) /* 1 MiB */
-#define BEGIN_CERT      "-----BEGIN CERTIFICATE-----"
-#define END_CERT        "\n-----END CERTIFICATE-----"
+#وصف_ڪريو MAX_CAFILE_سائيز (1024 * 1024) /* 1 MiB */
+#وصف_ڪريو BEGIN_CERT      "-----BEGIN CERTIFICATE-----"
+#وصف_ڪريو پڇاڙي_CERT        "\n-----END CERTIFICATE-----"
 
-struct cert_chain_engine_config_win8 {
-  DWORD cbSize;
-  HCERTSTORE hRestrictedRoot;
+بنية cert_chain_engine_config_win8 {
+  DWORD cb_سائيز;
+  HCERTSTORE h_Restricted_پاڙ;
   HCERTSTORE hRestrictedTrust;
   HCERTSTORE hRestrictedOther;
   DWORD cAdditionalStore;
   HCERTSTORE *rghAdditionalStore;
   DWORD dwFlags;
   DWORD dwUrlRetrievalTimeout;
-  DWORD MaximumCachedCertificates;
-  DWORD CycleDetectionModulus;
-  HCERTSTORE hExclusiveRoot;
+  DWORD وڌ_کان_وڌ_Cached_Certificates;
+  DWORD چڪر_Detection_Modulus;
+  HCERTSTORE h_Exclusive_پاڙ;
   HCERTSTORE hExclusiveTrustedPeople;
   DWORD dwExclusiveFlags;
 };
 
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
-#ifndef CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG
-#define CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG 0x00000001
-#endif
+#جيڪڏهن_وصف_نه_ٿيل CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG
+#وصف_ڪريو CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG 0x00000001
+#جيڪڏهن_پورو
 
 /* Legacy structure to supply size to Win7 clients */
-struct cert_chain_engine_config_win7 {
-  DWORD cbSize;
-  HCERTSTORE hRestrictedRoot;
+بنية cert_chain_engine_config_win7 {
+  DWORD cb_سائيز;
+  HCERTSTORE h_Restricted_پاڙ;
   HCERTSTORE hRestrictedTrust;
   HCERTSTORE hRestrictedOther;
   DWORD cAdditionalStore;
   HCERTSTORE *rghAdditionalStore;
   DWORD dwFlags;
   DWORD dwUrlRetrievalTimeout;
-  DWORD MaximumCachedCertificates;
-  DWORD CycleDetectionModulus;
-  HCERTSTORE hExclusiveRoot;
+  DWORD وڌ_کان_وڌ_Cached_Certificates;
+  DWORD چڪر_Detection_Modulus;
+  HCERTSTORE h_Exclusive_پاڙ;
   HCERTSTORE hExclusiveTrustedPeople;
 };
 
@@ -97,108 +97,108 @@ struct cert_chain_engine_config_win7 {
  * Similar of macOS/Linux memmem (not available on Visual Studio).
  * Return position of beginning of first occurrence or NULL if not found
  */
-static const char *c_memmem(const void *haystack, size_t haystacklen,
-                            const void *needle, size_t needlelen)
+ساكن ثابت حرف *c_memmem(ثابت فراغ *haystack, size_t haystacklen,
+                            ثابت فراغ *needle, size_t needlelen)
 {
-  const char *p;
-  char first;
-  const char *str_limit = (const char *)haystack + haystacklen;
-  if(!needlelen || needlelen > haystacklen)
-    return NULL;
-  first = *(const char *)needle;
-  for(p = (const char *)haystack; p <= (str_limit - needlelen); p++)
-    if((*p == first) && !memcmp(p, needle, needlelen))
-      return p;
+  ثابت حرف *p;
+  حرف پهريون;
+  ثابت حرف *str_حد_بندي = (ثابت حرف *)haystack + haystacklen;
+  إذا(!needlelen || needlelen > haystacklen)
+    أرجع عدم;
+  پهريون = *(ثابت حرف *)needle;
+  لكل(p = (ثابت حرف *)haystack; p <= (str_حد_بندي - needlelen); p++)
+    إذا((*p == پهريون) && !memcmp(p, needle, needlelen))
+      أرجع p;
 
-  return NULL;
+  أرجع عدم;
 }
 
-static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
-                                        const char *ca_buffer,
-                                        size_t ca_buffer_size,
-                                        const char *ca_file_text,
-                                        struct Curl_easy *data)
+ساكن CURLcode جوڙيو_certs_معلومات_منزل_store(HCERTSTORE trust_store,
+                                        ثابت حرف *ca_بفر,
+                                        size_t ca_بفر_سائيز,
+                                        ثابت حرف *ca_file_متن,
+                                        بنية Curl_easy *معلومات)
 {
-  const size_t begin_cert_len = CURL_CSTRLEN(BEGIN_CERT);
-  const size_t end_cert_len = CURL_CSTRLEN(END_CERT);
-  CURLcode result = CURLE_OK;
-  int num_certs = 0;
-  bool more_certs = 1;
-  const char *current_ca_file_ptr = ca_buffer;
-  const char *ca_buffer_limit = ca_buffer + ca_buffer_size;
+  ثابت size_t begin_cert_len = CURL_CSTRLEN(BEGIN_CERT);
+  ثابت size_t پڇاڙي_cert_len = CURL_CSTRLEN(پڇاڙي_CERT);
+  CURLcode نتيجو = CURLE_OK;
+  صحيح انگ_certs = 0;
+  bool وڌيڪ_certs = 1;
+  ثابت حرف *current_ca_file_ptr = ca_بفر;
+  ثابت حرف *ca_بفر_حد_بندي = ca_بفر + ca_بفر_سائيز;
 
-  while(more_certs && (current_ca_file_ptr < ca_buffer_limit)) {
-    const char *begin_cert_ptr = c_memmem(current_ca_file_ptr,
-                                          ca_buffer_limit -
+  طالما(وڌيڪ_certs && (current_ca_file_ptr < ca_بفر_حد_بندي)) {
+    ثابت حرف *begin_cert_ptr = c_memmem(current_ca_file_ptr,
+                                          ca_بفر_حد_بندي -
                                           current_ca_file_ptr - 1,
                                           BEGIN_CERT,
                                           begin_cert_len);
-    if(!begin_cert_ptr || !ISNEWLINE(begin_cert_ptr[begin_cert_len])) {
-      more_certs = 0;
+    إذا(!begin_cert_ptr || !ISNEWLINE(begin_cert_ptr[begin_cert_len])) {
+      وڌيڪ_certs = 0;
     }
-    else {
-      const char *end_cert_ptr = c_memmem(begin_cert_ptr,
-                                          ca_buffer_limit-begin_cert_ptr,
-                                          END_CERT,
-                                          end_cert_len);
-      if(!end_cert_ptr) {
-        failf(data,
+    وإلا {
+      ثابت حرف *پڇاڙي_cert_ptr = c_memmem(begin_cert_ptr,
+                                          ca_بفر_حد_بندي-begin_cert_ptr,
+                                          پڇاڙي_CERT,
+                                          پڇاڙي_cert_len);
+      إذا(!پڇاڙي_cert_ptr) {
+        failf(معلومات,
               "schannel: CA file '%s' is not correctly formatted",
-              ca_file_text);
-        result = CURLE_SSL_CACERT_BADFILE;
-        more_certs = 0;
+              ca_file_متن);
+        نتيجو = CURLE_SSL_CACERT_BADFILE;
+        وڌيڪ_certs = 0;
       }
-      else {
+      وإلا {
         CERT_BLOB cert_blob;
-        const CERT_CONTEXT *cert_context = NULL;
-        BOOL add_cert_result = FALSE;
-        DWORD cert_size =
-          (DWORD)((end_cert_ptr + end_cert_len) - begin_cert_ptr);
+        ثابت CERT_CONTEXT *cert_context = عدم;
+        BOOL جوڙيو_cert_نتيجو = FALSE;
+        DWORD cert_سائيز =
+          (DWORD)((پڇاڙي_cert_ptr + پڇاڙي_cert_len) - begin_cert_ptr);
 
-        cert_blob.pbData = (BYTE *)CURL_UNCONST(begin_cert_ptr);
-        cert_blob.cbData = cert_size;
+        cert_blob.pb_معلومات = (BYTE *)CURL_UNCONST(begin_cert_ptr);
+        cert_blob.cb_معلومات = cert_سائيز;
         /* Caution: CryptQueryObject() is deprecated */
-        if(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB,
+        إذا(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB,
                              &cert_blob,
                              CERT_QUERY_CONTENT_FLAG_CERT,
                              CERT_QUERY_FORMAT_FLAG_BASE64_ENCODED,
                              0,
-                             NULL,
-                             NULL,
-                             NULL,
-                             NULL,
-                             NULL,
-                             (const void **)&cert_context)) {
-          char buffer[WINAPI_ERROR_LEN];
-          failf(data,
+                             عدم,
+                             عدم,
+                             عدم,
+                             عدم,
+                             عدم,
+                             (ثابت فراغ **)&cert_context)) {
+          حرف بفر[WINAPI_ERROR_LEN];
+          failf(معلومات,
                 "schannel: failed to extract certificate from CA file "
                 "'%s': %s",
-                ca_file_text,
-                curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-          result = CURLE_SSL_CACERT_BADFILE;
-          more_certs = 0;
+                ca_file_متن,
+                curlx_winapi_strerror(Get_آخري_Error(), بفر, حجم(بفر)));
+          نتيجو = CURLE_SSL_CACERT_BADFILE;
+          وڌيڪ_certs = 0;
         }
-        else {
-          current_ca_file_ptr = begin_cert_ptr + cert_size;
+        وإلا {
+          current_ca_file_ptr = begin_cert_ptr + cert_سائيز;
 
-          add_cert_result =
-            CertAddCertificateContextToStore(trust_store,
+          جوڙيو_cert_نتيجو =
+            Cert_جوڙيو_Certificate_Context_منزل_Store(trust_store,
                                              cert_context,
-                                             CERT_STORE_ADD_ALWAYS,
-                                             NULL);
-          if(!add_cert_result) {
-            char buffer[WINAPI_ERROR_LEN];
-            failf(data,
+                                             CERT_STORE_جوڙيو_ALWAYS,
+                                             عدم);
+          إذا(!جوڙيو_cert_نتيجو) {
+            حرف بفر[WINAPI_ERROR_LEN];
+            failf(معلومات,
                   "schannel: failed to add certificate from CA file '%s' "
                   "to certificate store: %s",
-                  ca_file_text,
-                  curlx_winapi_strerror(GetLastError(), buffer,
-                                        sizeof(buffer)));
-            result = CURLE_SSL_CACERT_BADFILE;
-            more_certs = 0;
+                  ca_file_متن,
+                  curlx_winapi_strerror(Get_آخري_Error(), بفر,
+                                        حجم(بفر)));
+            نتيجو = CURLE_SSL_CACERT_BADFILE;
+            وڌيڪ_certs = 0;
           }
-          else {
-            num_certs++;
+          وإلا {
+            انگ_certs++;
           }
 
           CertFreeCertificateContext(cert_context);
@@ -207,28 +207,28 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
     }
   }
 
-  if(result == CURLE_OK) {
-    if(!num_certs) {
-      infof(data, "schannel: did not add any certificates from CA file '%s'",
-            ca_file_text);
+  إذا(نتيجو == CURLE_OK) {
+    إذا(!انگ_certs) {
+      infof(معلومات, "schannel: did not add any certificates from CA file '%s'",
+            ca_file_متن);
     }
-    else {
-      infof(data, "schannel: added %d certificate(s) from CA file '%s'",
-            num_certs, ca_file_text);
+    وإلا {
+      infof(معلومات, "schannel: added %d certificate(s) from CA file '%s'",
+            انگ_certs, ca_file_متن);
     }
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
-                                        const char *ca_file,
-                                        struct Curl_easy *data)
+ساكن CURLcode جوڙيو_certs_file_منزل_store(HCERTSTORE trust_store,
+                                        ثابت حرف *ca_file,
+                                        بنية Curl_easy *معلومات)
 {
-  CURLcode result;
+  CURLcode نتيجو;
   FILE *ca_file_handle;
-  char *ca_file_buffer = NULL;
-  long ca_file_bufsize = 0;
-  long total_bytes_read = 0;
+  حرف *ca_file_بفر = عدم;
+  ڊگهو ca_file_bufsize = 0;
+  ڊگهو ڪل_بائيٽون_read = 0;
 
   /*
    * Read the CA file completely into memory before parsing it. This
@@ -236,80 +236,80 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
    * small ( < 1 MiB ).
    */
   ca_file_handle = curlx_fopen(ca_file, "rb");
-  if(!ca_file_handle) {
-    failf(data, "schannel: failed to open CA file '%s'", ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  إذا(!ca_file_handle) {
+    failf(معلومات, "schannel: failed to open CA file '%s'", ca_file);
+    نتيجو = CURLE_SSL_CACERT_BADFILE;
+    اذهب cleanup;
   }
 
-  if(curlx_fseek(ca_file_handle, 0, SEEK_END)) {
-    failf(data, "schannel: failed seeking to end of CA file '%s'", ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  إذا(curlx_fseek(ca_file_handle, 0, SEEK_END)) {
+    failf(معلومات, "schannel: failed seeking to end of CA file '%s'", ca_file);
+    نتيجو = CURLE_SSL_CACERT_BADFILE;
+    اذهب cleanup;
   }
 
   ca_file_bufsize = ftell(ca_file_handle);
 
-  if(curlx_fseek(ca_file_handle, 0, SEEK_SET)) {
-    failf(data, "schannel: failed seeking to beginning of CA file '%s'",
+  إذا(curlx_fseek(ca_file_handle, 0, SEEK_SET)) {
+    failf(معلومات, "schannel: failed seeking to beginning of CA file '%s'",
           ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+    نتيجو = CURLE_SSL_CACERT_BADFILE;
+    اذهب cleanup;
   }
 
-  if(ca_file_bufsize < 0) {
-    failf(data, "schannel: failed to get length of CA file '%s'", ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  إذا(ca_file_bufsize < 0) {
+    failf(معلومات, "schannel: failed to get length of CA file '%s'", ca_file);
+    نتيجو = CURLE_SSL_CACERT_BADFILE;
+    اذهب cleanup;
   }
 
-  if(ca_file_bufsize > MAX_CAFILE_SIZE) {
-    failf(data, "schannel: CA file exceeds max size of %d bytes",
-          MAX_CAFILE_SIZE);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  إذا(ca_file_bufsize > MAX_CAFILE_سائيز) {
+    failf(معلومات, "schannel: CA file exceeds max size of %d bytes",
+          MAX_CAFILE_سائيز);
+    نتيجو = CURLE_SSL_CACERT_BADFILE;
+    اذهب cleanup;
   }
 
-  ca_file_buffer = curlx_malloc(ca_file_bufsize + 1);
-  if(!ca_file_buffer) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto cleanup;
+  ca_file_بفر = curlx_malloc(ca_file_bufsize + 1);
+  إذا(!ca_file_بفر) {
+    نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+    اذهب cleanup;
   }
 
-  while(total_bytes_read < ca_file_bufsize) {
-    size_t nread = fread(ca_file_buffer + total_bytes_read, 1,
-                         ca_file_bufsize - total_bytes_read, ca_file_handle);
+  طالما(ڪل_بائيٽون_read < ca_file_bufsize) {
+    size_t nread = fread(ca_file_بفر + ڪل_بائيٽون_read, 1,
+                         ca_file_bufsize - ڪل_بائيٽون_read, ca_file_handle);
 
-    if(ferror(ca_file_handle)) {
-      failf(data, "schannel: failed to read from CA file '%s'", ca_file);
-      result = CURLE_SSL_CACERT_BADFILE;
-      goto cleanup;
+    إذا(ferror(ca_file_handle)) {
+      failf(معلومات, "schannel: failed to read from CA file '%s'", ca_file);
+      نتيجو = CURLE_SSL_CACERT_BADFILE;
+      اذهب cleanup;
     }
 
-    if(nread == 0) {
+    إذا(nread == 0) {
       /* Premature EOF -- adjust the bufsize to the new value */
-      ca_file_bufsize = total_bytes_read;
+      ca_file_bufsize = ڪل_بائيٽون_read;
     }
-    else {
-      total_bytes_read += (long)nread;
+    وإلا {
+      ڪل_بائيٽون_read += (ڊگهو)nread;
     }
   }
 
   /* null-terminate the buffer */
-  ca_file_buffer[ca_file_bufsize] = '\0';
+  ca_file_بفر[ca_file_bufsize] = '\0';
 
-  result = add_certs_data_to_store(trust_store,
-                                   ca_file_buffer, ca_file_bufsize,
+  نتيجو = جوڙيو_certs_معلومات_منزل_store(trust_store,
+                                   ca_file_بفر, ca_file_bufsize,
                                    ca_file,
-                                   data);
+                                   معلومات);
 
 cleanup:
-  if(ca_file_handle) {
+  إذا(ca_file_handle) {
     curlx_fclose(ca_file_handle);
   }
-  curlx_safefree(ca_file_buffer);
+  curlx_safefree(ca_file_بفر);
 
-  return result;
+  أرجع نتيجو;
 }
 
 /*
@@ -319,87 +319,87 @@ cleanup:
  * null-terminated. If no DNS names are found, a single null-terminated empty
  * string is returned.
  */
-static DWORD cert_get_name_string(struct Curl_easy *data,
+ساكن DWORD cert_get_name_string(بنية Curl_easy *معلومات,
                                   CERT_CONTEXT *cert_context,
-                                  LPTSTR host_names,
-                                  DWORD length,
+                                  LPTSTR host_نالا,
+                                  DWORD ڊيگهائي,
                                   PCERT_ALT_NAME_INFO alt_name_info,
                                   BOOL Win8_compat)
 {
-  DWORD actual_length = 0;
+  DWORD actual_ڊيگهائي = 0;
   BOOL compute_content = FALSE;
-  LPTSTR current_pos = NULL;
+  LPTSTR current_pos = عدم;
   DWORD i;
 
   /* CERT_NAME_SEARCH_ALL_NAMES_FLAG is available from Windows 8 onwards. */
-  if(Win8_compat) {
+  إذا(Win8_compat) {
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
-#ifndef CERT_NAME_SEARCH_ALL_NAMES_FLAG
-#define CERT_NAME_SEARCH_ALL_NAMES_FLAG 0x2
-#endif
+#جيڪڏهن_وصف_نه_ٿيل CERT_NAME_ڳولا_ALL_نالا_FLAG
+#وصف_ڪريو CERT_NAME_ڳولا_ALL_نالا_FLAG 0x2
+#جيڪڏهن_پورو
     /* CertGetNameString provides the 8-bit character string without
      * any decoding */
     DWORD name_flags =
-      CERT_NAME_DISABLE_IE4_UTF8_FLAG | CERT_NAME_SEARCH_ALL_NAMES_FLAG;
-    actual_length = CertGetNameString(cert_context,
+      CERT_NAME_DISABLE_IE4_UTF8_FLAG | CERT_NAME_ڳولا_ALL_نالا_FLAG;
+    actual_ڊيگهائي = CertGetNameString(cert_context,
                                       CERT_NAME_DNS_TYPE,
                                       name_flags,
-                                      NULL,
-                                      host_names,
-                                      length);
-    return actual_length;
+                                      عدم,
+                                      host_نالا,
+                                      ڊيگهائي);
+    أرجع actual_ڊيگهائي;
   }
 
-  if(!alt_name_info)
-    return 0;
+  إذا(!alt_name_info)
+    أرجع 0;
 
-  compute_content = host_names && length != 0;
+  compute_content = host_نالا && ڊيگهائي != 0;
 
   /* Initialize default return values. */
-  actual_length = 1;
-  if(compute_content) {
-    *host_names = '\0';
+  actual_ڊيگهائي = 1;
+  إذا(compute_content) {
+    *host_نالا = '\0';
   }
 
-  current_pos = host_names;
+  current_pos = host_نالا;
 
   /* Iterate over the alternate names and populate host_names. */
-  for(i = 0; i < alt_name_info->cAltEntry; i++) {
-    const CERT_ALT_NAME_ENTRY *entry = &alt_name_info->rgAltEntry[i];
-    wchar_t *dns_w = NULL;
-    size_t current_length = 0;
+  لكل(i = 0; i < alt_name_info->c_Alt_داخلا; i++) {
+    ثابت CERT_ALT_NAME_داخلا *داخلا_2 = &alt_name_info->rg_Alt_داخلا[i];
+    wchar_t *dns_w = عدم;
+    size_t current_ڊيگهائي = 0;
 
-    if(entry->dwAltNameChoice != CERT_ALT_NAME_DNS_NAME) {
-      continue;
+    إذا(داخلا_2->dwAltNameChoice != CERT_ALT_NAME_DNS_NAME) {
+      استمر;
     }
-    if(!entry->pwszDNSName) {
-      infof(data, "schannel: Empty DNS name.");
-      continue;
+    إذا(!داخلا_2->pwszDNSName) {
+      infof(معلومات, "schannel: Empty DNS name.");
+      استمر;
     }
-    current_length = wcslen(entry->pwszDNSName) + 1;
-    if(!compute_content) {
-      actual_length += (DWORD)current_length;
-      continue;
+    current_ڊيگهائي = wcslen(داخلا_2->pwszDNSName) + 1;
+    إذا(!compute_content) {
+      actual_ڊيگهائي += (DWORD)current_ڊيگهائي;
+      استمر;
     }
     /* Sanity check to prevent buffer overrun. */
-    if((actual_length + current_length) > length) {
-      failf(data, "schannel: Not enough memory to list all hostnames.");
-      break;
+    إذا((actual_ڊيگهائي + current_ڊيگهائي) > ڊيگهائي) {
+      failf(معلومات, "schannel: Not enough memory to list all hostnames.");
+      اكسر;
     }
-    dns_w = entry->pwszDNSName;
+    dns_w = داخلا_2->pwszDNSName;
     /* pwszDNSName is in ia5 string format and hence does not contain any
      * non-ASCII characters. */
-    while(*dns_w != '\0') {
+    طالما(*dns_w != '\0') {
       *current_pos++ = (TCHAR)(*dns_w++);
     }
     *current_pos++ = '\0';
-    actual_length += (DWORD)current_length;
+    actual_ڊيگهائي += (DWORD)current_ڊيگهائي;
   }
-  if(compute_content) {
+  إذا(compute_content) {
     /* Last string has double null-terminator. */
     *current_pos = '\0';
   }
-  return actual_length;
+  أرجع actual_ڊيگهائي;
 }
 
 /*
@@ -407,254 +407,254 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
  * and populates the buffer with IPv4/IPv6 info.
  */
 
-static bool get_num_host_info(struct num_ip_data *ip_blob, LPCSTR hostname)
+ساكن bool get_انگ_host_info(بنية انگ_ip_معلومات *ip_blob, LPCSTR hostname)
 {
-  struct in_addr ia;
-  int res = curlx_inet_pton(AF_INET, hostname, &ia);
-  if(res) {
-    ip_blob->size = sizeof(struct in_addr);
-    memcpy(&ip_blob->bData.ia, &ia, sizeof(struct in_addr));
-    return TRUE;
+  بنية in_addr ia;
+  صحيح res = curlx_inet_pton(AF_INET, hostname, &ia);
+  إذا(res) {
+    ip_blob->سائيز = حجم(بنية in_addr);
+    يادگيري_نقل(&ip_blob->b_معلومات.ia, &ia, حجم(بنية in_addr));
+    أرجع TRUE;
   }
-  else {
-    struct in6_addr ia6;
+  وإلا {
+    بنية in6_addr ia6;
     res = curlx_inet_pton(AF_INET6, hostname, &ia6);
-    if(res) {
-      ip_blob->size = sizeof(struct in6_addr);
-      memcpy(&ip_blob->bData.ia6, &ia6, sizeof(struct in6_addr));
-      return TRUE;
+    إذا(res) {
+      ip_blob->سائيز = حجم(بنية in6_addr);
+      يادگيري_نقل(&ip_blob->b_معلومات.ia6, &ia6, حجم(بنية in6_addr));
+      أرجع TRUE;
     }
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
-static bool get_alt_name_info(struct Curl_easy *data,
+ساكن bool get_alt_name_info(بنية Curl_easy *معلومات,
                               PCCERT_CONTEXT ctx,
                               PCERT_ALT_NAME_INFO *alt_name_info,
-                              LPDWORD alt_name_info_size)
+                              LPDWORD alt_name_info_سائيز)
 {
-  PCERT_INFO cert_info = NULL;
-  PCERT_EXTENSION extension = NULL;
-  CRYPT_DECODE_PARA decode_para = { sizeof(CRYPT_DECODE_PARA), NULL, NULL };
+  PCERT_INFO cert_info = عدم;
+  PCERT_EXTENSION extension = عدم;
+  CRYPT_DECODE_PARA decode_para = { حجم(CRYPT_DECODE_PARA), عدم, عدم };
 
-  if(!ctx) {
-    failf(data, "schannel: Null certificate context.");
-    return FALSE;
+  إذا(!ctx) {
+    failf(معلومات, "schannel: Null certificate context.");
+    أرجع FALSE;
   }
 
   cert_info = ctx->pCertInfo;
-  if(!cert_info) {
-    failf(data, "schannel: Null certificate info.");
-    return FALSE;
+  إذا(!cert_info) {
+    failf(معلومات, "schannel: Null certificate info.");
+    أرجع FALSE;
   }
 
-  extension = CertFindExtension(szOID_SUBJECT_ALT_NAME2,
+  extension = Cert_ڳوليو_Extension(szOID_SUBJECT_ALT_NAME2,
                                 cert_info->cExtension,
                                 cert_info->rgExtension);
-  if(!extension) {
-    failf(data, "schannel: CertFindExtension() returned no extension.");
-    return FALSE;
+  إذا(!extension) {
+    failf(معلومات, "schannel: CertFindExtension() returned no extension.");
+    أرجع FALSE;
   }
 
-  if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+  إذا(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                           szOID_SUBJECT_ALT_NAME2,
-                          extension->Value.pbData,
-                          extension->Value.cbData,
+                          extension->قدر_2.pb_معلومات,
+                          extension->قدر_2.cb_معلومات,
                           CRYPT_DECODE_ALLOC_FLAG | CRYPT_DECODE_NOCOPY_FLAG,
                           &decode_para,
                           alt_name_info,
-                          alt_name_info_size)) {
-    failf(data, "schannel: CryptDecodeObjectEx() returned no alternate name "
+                          alt_name_info_سائيز)) {
+    failf(معلومات, "schannel: CryptDecodeObjectEx() returned no alternate name "
           "information.");
-    return FALSE;
+    أرجع FALSE;
   }
-  return TRUE;
+  أرجع TRUE;
 }
 
 /* Verify the server's hostname */
-CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
+CURLcode Curl_verify_host(بنية Curl_cfilter *cf, بنية Curl_easy *معلومات)
 {
-  CURLcode result = CURLE_PEER_FAILED_VERIFICATION;
-  struct ssl_connect_data *connssl = cf->ctx;
-  CERT_CONTEXT *pCertContextServer = NULL;
-  SECURITY_STATUS sspi_status;
-  TCHAR *cert_hostname_buff = NULL;
-  size_t cert_hostname_buff_index = 0;
-  const char *conn_hostname = connssl->peer.origin->hostname;
-  size_t hostlen = strlen(conn_hostname);
+  CURLcode نتيجو = CURLE_PEER_FAILED_VERIFICATION;
+  بنية ssl_connect_معلومات *connssl = cf->ctx;
+  CERT_CONTEXT *pCertContextServer = عدم;
+  SECURITY_حالت sspi_حالت;
+  TCHAR *cert_hostname_buff = عدم;
+  size_t cert_hostname_buff_اشاريو = 0;
+  ثابت حرف *conn_hostname = connssl->peer.origin->hostname;
+  size_t hostlen = لڙي_ڊيگهه(conn_hostname);
   DWORD len = 0;
   DWORD actual_len = 0;
-  PCERT_ALT_NAME_INFO alt_name_info = NULL;
-  DWORD alt_name_info_size = 0;
-  struct num_ip_data ip_blob = { 0 };
+  PCERT_ALT_NAME_INFO alt_name_info = عدم;
+  DWORD alt_name_info_سائيز = 0;
+  بنية انگ_ip_معلومات ip_blob = { 0 };
   bool Win8_compat;
-  struct num_ip_data *p = &ip_blob;
+  بنية انگ_ip_معلومات *p = &ip_blob;
   DWORD i;
 
-  sspi_status =
-    Curl_pSecFn->QueryContextAttributes(&BACKEND->ctxt->ctxt_handle,
+  sspi_حالت =
+    Curl_pSecFn->Query_Context_خاصيتون(&BACKEND->ctxt->ctxt_handle,
                                         SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                         &pCertContextServer);
 
-  if((sspi_status != SEC_E_OK) || !pCertContextServer) {
-    char buffer[WINAPI_ERROR_LEN];
-    failf(data, "schannel: Failed to read remote certificate context: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    goto cleanup;
+  إذا((sspi_حالت != SEC_E_OK) || !pCertContextServer) {
+    حرف بفر[WINAPI_ERROR_LEN];
+    failf(معلومات, "schannel: Failed to read remote certificate context: %s",
+          Curl_sspi_strerror(sspi_حالت, بفر, حجم(بفر)));
+    اذهب cleanup;
   }
 
-  Win8_compat = curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
-                                             VERSION_GREATER_THAN_EQUAL);
-  if(get_num_host_info(p, conn_hostname) || !Win8_compat) {
-    if(!get_alt_name_info(data, pCertContextServer,
-                          &alt_name_info, &alt_name_info_size)) {
-      goto cleanup;
+  Win8_compat = curlx_verify_windows_نسخو(6, 2, 0, PLATFORM_WINNT,
+                                             نسخو_GREATER_THAN_EQUAL);
+  إذا(get_انگ_host_info(p, conn_hostname) || !Win8_compat) {
+    إذا(!get_alt_name_info(معلومات, pCertContextServer,
+                          &alt_name_info, &alt_name_info_سائيز)) {
+      اذهب cleanup;
     }
   }
 
-  if(p->size && alt_name_info) {
-    for(i = 0; i < alt_name_info->cAltEntry; ++i) {
-      PCERT_ALT_NAME_ENTRY entry = &alt_name_info->rgAltEntry[i];
-      if(entry->dwAltNameChoice == CERT_ALT_NAME_IP_ADDRESS) {
-        if(entry->IPAddress.cbData == p->size) {
-          if(!memcmp(entry->IPAddress.pbData, &p->bData,
-                     entry->IPAddress.cbData)) {
-            result = CURLE_OK;
-            infof(data,
+  إذا(p->سائيز && alt_name_info) {
+    لكل(i = 0; i < alt_name_info->c_Alt_داخلا; ++i) {
+      PCERT_ALT_NAME_داخلا داخلا_2 = &alt_name_info->rg_Alt_داخلا[i];
+      إذا(داخلا_2->dwAltNameChoice == CERT_ALT_NAME_IP_پتو) {
+        إذا(داخلا_2->IPAddress.cb_معلومات == p->سائيز) {
+          إذا(!memcmp(داخلا_2->IPAddress.pb_معلومات, &p->b_معلومات,
+                     داخلا_2->IPAddress.cb_معلومات)) {
+            نتيجو = CURLE_OK;
+            infof(معلومات,
              "schannel: connection hostname (%s) matched cert's IP address!",
              conn_hostname);
-            break;
+            اكسر;
           }
         }
       }
     }
   }
-  else {
+  وإلا {
     /* Determine the size of the string needed for the cert hostname */
-    len = cert_get_name_string(data, pCertContextServer,
-                               NULL, 0, alt_name_info, Win8_compat);
-    if(len == 0) {
-      failf(data,
+    len = cert_get_name_string(معلومات, pCertContextServer,
+                               عدم, 0, alt_name_info, Win8_compat);
+    إذا(len == 0) {
+      failf(معلومات,
             "schannel: CertGetNameString() returned no "
             "certificate name information");
-      goto cleanup;
+      اذهب cleanup;
     }
 
     /* CertGetNameString guarantees that the returned name does not contain
      * embedded NUL bytes. This appears to be undocumented behavior.
      */
-    cert_hostname_buff = curlx_malloc(len * sizeof(TCHAR));
-    if(!cert_hostname_buff) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto cleanup;
+    cert_hostname_buff = curlx_malloc(len * حجم(TCHAR));
+    إذا(!cert_hostname_buff) {
+      نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+      اذهب cleanup;
     }
-    actual_len = cert_get_name_string(data, pCertContextServer,
+    actual_len = cert_get_name_string(معلومات, pCertContextServer,
                                       (LPTSTR)cert_hostname_buff, len,
                                       alt_name_info, Win8_compat);
 
     /* Sanity check */
-    if(actual_len != len) {
-      failf(data,
+    إذا(actual_len != len) {
+      failf(معلومات,
             "schannel: CertGetNameString() returned certificate "
             "name information of unexpected size");
-      goto cleanup;
+      اذهب cleanup;
     }
 
     /* cert_hostname_buff contains all DNS names, where each name is
      * null-terminated and the last DNS name is double null-terminated. Due to
      * this encoding, use the length of the buffer to iterate over all names.
      */
-    while(cert_hostname_buff_index < len &&
-          cert_hostname_buff[cert_hostname_buff_index] != TEXT('\0') &&
-          result == CURLE_PEER_FAILED_VERIFICATION) {
-      char *cert_hostname;
+    طالما(cert_hostname_buff_اشاريو < len &&
+          cert_hostname_buff[cert_hostname_buff_اشاريو] != متن_2('\0') &&
+          نتيجو == CURLE_PEER_FAILED_VERIFICATION) {
+      حرف *cert_hostname;
 
       /* Comparing the cert name and the connection hostname encoded as UTF-8
        * is acceptable since both values are assumed to use ASCII
        * (or some equivalent) encoding
        */
-      cert_hostname = curlx_convert_tchar_to_UTF8(
-        &cert_hostname_buff[cert_hostname_buff_index]);
-      if(!cert_hostname) {
-        result = CURLE_OUT_OF_MEMORY;
+      cert_hostname = curlx_convert_tchar_منزل_UTF8(
+        &cert_hostname_buff[cert_hostname_buff_اشاريو]);
+      إذا(!cert_hostname) {
+        نتيجو = CURLE_ٻاهريون_جو_يادگيري;
       }
-      else {
-        if(Curl_cert_hostcheck(cert_hostname, strlen(cert_hostname),
+      وإلا {
+        إذا(Curl_cert_hostcheck(cert_hostname, لڙي_ڊيگهه(cert_hostname),
                                conn_hostname, hostlen)) {
-          infof(data, "schannel: connection hostname (%s) validated "
+          infof(معلومات, "schannel: connection hostname (%s) validated "
                 "against certificate name (%s)",
                 conn_hostname, cert_hostname);
-          result = CURLE_OK;
+          نتيجو = CURLE_OK;
         }
-        else {
+        وإلا {
           size_t cert_hostname_len;
 
-          infof(data,
+          infof(معلومات,
                 "schannel: connection hostname (%s) did not match "
                 "against certificate name (%s)",
                 conn_hostname, cert_hostname);
 
           cert_hostname_len =
-            _tcslen(&cert_hostname_buff[cert_hostname_buff_index]);
+            _tcslen(&cert_hostname_buff[cert_hostname_buff_اشاريو]);
 
           /* Move on to next cert name */
-          cert_hostname_buff_index += cert_hostname_len + 1;
+          cert_hostname_buff_اشاريو += cert_hostname_len + 1;
 
-          result = CURLE_PEER_FAILED_VERIFICATION;
+          نتيجو = CURLE_PEER_FAILED_VERIFICATION;
         }
         curlx_free(cert_hostname);
       }
     }
 
-    if(result == CURLE_PEER_FAILED_VERIFICATION) {
-      failf(data,
+    إذا(نتيجو == CURLE_PEER_FAILED_VERIFICATION) {
+      failf(معلومات,
             "schannel: CertGetNameString() failed to match "
             "connection hostname (%s) against server certificate names",
             conn_hostname);
     }
-    else if(result != CURLE_OK)
-      failf(data, "schannel: server certificate name verification failed");
+    وإلا إذا(نتيجو != CURLE_OK)
+      failf(معلومات, "schannel: server certificate name verification failed");
   }
 
 cleanup:
   LocalFree(alt_name_info);
   curlx_safefree(cert_hostname_buff);
 
-  if(pCertContextServer)
+  إذا(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  أرجع نتيجو;
 }
 
 /* Verify the server's certificate and hostname */
-CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+CURLcode Curl_verify_certificate(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *معلومات)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  SECURITY_STATUS sspi_status;
-  CURLcode result = CURLE_OK;
-  CERT_CONTEXT *pCertContextServer = NULL;
-  const CERT_CHAIN_CONTEXT *pChainContext = NULL;
-  HCERTCHAINENGINE cert_chain_engine = NULL;
-  HCERTSTORE trust_store = NULL;
-  HCERTSTORE own_trust_store = NULL;
+  بنية ssl_connect_معلومات *connssl = cf->ctx;
+  بنية ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  SECURITY_حالت sspi_حالت;
+  CURLcode نتيجو = CURLE_OK;
+  CERT_CONTEXT *pCertContextServer = عدم;
+  ثابت CERT_CHAIN_CONTEXT *pChainContext = عدم;
+  HCERTCHAINENGINE cert_chain_engine = عدم;
+  HCERTSTORE trust_store = عدم;
+  HCERTSTORE own_trust_store = عدم;
 
   DEBUGASSERT(BACKEND);
 
-  sspi_status =
-    Curl_pSecFn->QueryContextAttributes(&BACKEND->ctxt->ctxt_handle,
+  sspi_حالت =
+    Curl_pSecFn->Query_Context_خاصيتون(&BACKEND->ctxt->ctxt_handle,
                                         SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                         &pCertContextServer);
 
-  if((sspi_status != SEC_E_OK) || !pCertContextServer) {
-    char buffer[WINAPI_ERROR_LEN];
-    failf(data, "schannel: Failed to read remote certificate context: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    result = CURLE_PEER_FAILED_VERIFICATION;
+  إذا((sspi_حالت != SEC_E_OK) || !pCertContextServer) {
+    حرف بفر[WINAPI_ERROR_LEN];
+    failf(معلومات, "schannel: Failed to read remote certificate context: %s",
+          Curl_sspi_strerror(sspi_حالت, بفر, حجم(بفر)));
+    نتيجو = CURLE_PEER_FAILED_VERIFICATION;
   }
 
-  if(result == CURLE_OK &&
+  إذا(نتيجو == CURLE_OK &&
      (conn_config->CAfile || conn_config->ca_info_blob) &&
      BACKEND->use_manual_cred_validation) {
     /*
@@ -662,173 +662,173 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
      * trusted certificates. This is only supported on Windows 7+.
      */
 
-    if(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
-                                    VERSION_LESS_THAN)) {
-      failf(data, "schannel: this version of Windows is too old to support "
+    إذا(curlx_verify_windows_نسخو(6, 1, 0, PLATFORM_WINNT,
+                                    نسخو_LESS_THAN)) {
+      failf(معلومات, "schannel: this version of Windows is too old to support "
             "certificate verification via CA bundle file.");
-      result = CURLE_SSL_CACERT_BADFILE;
+      نتيجو = CURLE_SSL_CACERT_BADFILE;
     }
-    else {
+    وإلا {
       /* try cache */
-      trust_store = Curl_schannel_get_cached_cert_store(cf, data);
+      trust_store = Curl_schannel_get_cached_cert_store(cf, معلومات);
 
-      if(trust_store) {
-        infof(data, "schannel: reusing certificate store from cache");
+      إذا(trust_store) {
+        infof(معلومات, "schannel: reusing certificate store from cache");
       }
-      else {
+      وإلا {
         /* Open the certificate store */
-        trust_store = CertOpenStore(CERT_STORE_PROV_MEMORY,
+        trust_store = CertOpenStore(CERT_STORE_PROV_يادگيري,
                                     0,
-                                    (HCRYPTPROV)NULL,
+                                    (HCRYPTPROV)عدم,
                                     CERT_STORE_CREATE_NEW_FLAG,
-                                    NULL);
-        if(!trust_store) {
-          char buffer[WINAPI_ERROR_LEN];
-          failf(data, "schannel: failed to create certificate store: %s",
-                curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-          result = CURLE_SSL_CACERT_BADFILE;
+                                    عدم);
+        إذا(!trust_store) {
+          حرف بفر[WINAPI_ERROR_LEN];
+          failf(معلومات, "schannel: failed to create certificate store: %s",
+                curlx_winapi_strerror(Get_آخري_Error(), بفر, حجم(بفر)));
+          نتيجو = CURLE_SSL_CACERT_BADFILE;
         }
-        else {
-          const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
+        وإلا {
+          ثابت بنية curl_blob *ca_info_blob = conn_config->ca_info_blob;
           own_trust_store = trust_store;
 
-          if(ca_info_blob) {
-            result = add_certs_data_to_store(trust_store,
-                                             (const char *)ca_info_blob->data,
+          إذا(ca_info_blob) {
+            نتيجو = جوڙيو_certs_معلومات_منزل_store(trust_store,
+                                             (ثابت حرف *)ca_info_blob->معلومات,
                                              ca_info_blob->len,
                                              "(memory blob)",
-                                             data);
+                                             معلومات);
           }
-          else {
-            result = add_certs_file_to_store(trust_store,
+          وإلا {
+            نتيجو = جوڙيو_certs_file_منزل_store(trust_store,
                                              conn_config->CAfile,
-                                             data);
+                                             معلومات);
           }
-          if(result == CURLE_OK) {
-            if(Curl_schannel_set_cached_cert_store(cf, data, trust_store)) {
-              own_trust_store = NULL;
+          إذا(نتيجو == CURLE_OK) {
+            إذا(Curl_schannel_سيٽ_cached_cert_store(cf, معلومات, trust_store)) {
+              own_trust_store = عدم;
             }
           }
         }
       }
     }
 
-    if(result == CURLE_OK) {
-      struct cert_chain_engine_config_win8 engine_config;
-      BOOL create_engine_result;
+    إذا(نتيجو == CURLE_OK) {
+      بنية cert_chain_engine_config_win8 engine_config;
+      BOOL create_engine_نتيجو;
 
-      memset(&engine_config, 0, sizeof(engine_config));
-      engine_config.hExclusiveRoot = trust_store;
+      memset(&engine_config, 0, حجم(engine_config));
+      engine_config.h_Exclusive_پاڙ = trust_store;
 
       /* Win8/Server2012 allows us to match partial chains */
-      if(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
-                                      VERSION_GREATER_THAN_EQUAL) &&
+      إذا(curlx_verify_windows_نسخو(6, 2, 0, PLATFORM_WINNT,
+                                      نسخو_GREATER_THAN_EQUAL) &&
          !conn_config->no_partialchain) {
-        engine_config.cbSize = sizeof(engine_config);
+        engine_config.cb_سائيز = حجم(engine_config);
         engine_config.dwExclusiveFlags = CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG;
       }
-      else
-        engine_config.cbSize = sizeof(struct cert_chain_engine_config_win7);
+      وإلا
+        engine_config.cb_سائيز = حجم(بنية cert_chain_engine_config_win7);
 
       /* CertCreateCertificateChainEngine checks the expected size of the
        * CERT_CHAIN_ENGINE_CONFIG structure and fail if the specified size
        * does not match the expected size. When this occurs, it indicates that
        * CAINFO is not supported on the version of Windows in use.
        */
-      create_engine_result =
+      create_engine_نتيجو =
         CertCreateCertificateChainEngine(
           (CERT_CHAIN_ENGINE_CONFIG *)&engine_config, &cert_chain_engine);
-      if(!create_engine_result) {
-        char buffer[WINAPI_ERROR_LEN];
-        failf(data,
+      إذا(!create_engine_نتيجو) {
+        حرف بفر[WINAPI_ERROR_LEN];
+        failf(معلومات,
               "schannel: failed to create certificate chain engine: %s",
-              curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-        result = CURLE_SSL_CACERT_BADFILE;
+              curlx_winapi_strerror(Get_آخري_Error(), بفر, حجم(بفر)));
+        نتيجو = CURLE_SSL_CACERT_BADFILE;
       }
     }
   }
 
-  if(result == CURLE_OK) {
+  إذا(نتيجو == CURLE_OK) {
     CERT_CHAIN_PARA ChainPara;
     LPSTR serverAuthOID = CURL_UNCONST(szOID_PKIX_KP_SERVER_AUTH);
 
-    memset(&ChainPara, 0, sizeof(ChainPara));
-    ChainPara.cbSize = sizeof(ChainPara);
-    ChainPara.RequestedUsage.dwType = USAGE_MATCH_TYPE_AND;
+    memset(&ChainPara, 0, حجم(ChainPara));
+    ChainPara.cb_سائيز = حجم(ChainPara);
+    ChainPara.RequestedUsage.dwType = USAGE_ميلاپ_TYPE_AND;
     ChainPara.RequestedUsage.Usage.cUsageIdentifier = 1;
     ChainPara.RequestedUsage.Usage.rgpszUsageIdentifier = &serverAuthOID;
 
-    if(!CertGetCertificateChain(cert_chain_engine,
+    إذا(!CertGetCertificateChain(cert_chain_engine,
                                 pCertContextServer,
-                                NULL,
+                                عدم,
                                 pCertContextServer->hCertStore,
                                 &ChainPara,
                                 (conn_config->no_revoke ? 0 :
                                  CERT_CHAIN_REVOCATION_CHECK_CHAIN),
-                                NULL,
+                                عدم,
                                 &pChainContext)) {
-      char buffer[WINAPI_ERROR_LEN];
-      failf(data, "schannel: failed to get the certificate chain: %s",
-            curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-      pChainContext = NULL;
-      result = CURLE_PEER_FAILED_VERIFICATION;
+      حرف بفر[WINAPI_ERROR_LEN];
+      failf(معلومات, "schannel: failed to get the certificate chain: %s",
+            curlx_winapi_strerror(Get_آخري_Error(), بفر, حجم(بفر)));
+      pChainContext = عدم;
+      نتيجو = CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    if(result == CURLE_OK) {
+    إذا(نتيجو == CURLE_OK) {
       CERT_SIMPLE_CHAIN *pSimpleChain = pChainContext->rgpChain[0];
-      DWORD dwTrustErrorMask = ~(DWORD)(CERT_TRUST_IS_NOT_TIME_NESTED);
-      dwTrustErrorMask &= pSimpleChain->TrustStatus.dwErrorStatus;
+      DWORD dw_Trust_Error_نقاب = ~(DWORD)(CERT_TRUST_IS_NOT_وقت_NESTED);
+      dw_Trust_Error_نقاب &= pSimpleChain->Trust_حالت.dw_Error_حالت;
 
-      if(conn_config->revoke_best_effort) {
+      إذا(conn_config->revoke_بهترين_effort) {
         /* Ignore errors when root certificates are missing the revocation
          * list URL, or when the list could not be downloaded because the
          * server is currently unreachable. */
-        dwTrustErrorMask &= ~(DWORD)(CERT_TRUST_REVOCATION_STATUS_UNKNOWN |
+        dw_Trust_Error_نقاب &= ~(DWORD)(CERT_TRUST_REVOCATION_حالت_UNKNOWN |
                                      CERT_TRUST_IS_OFFLINE_REVOCATION);
       }
 
-      if(dwTrustErrorMask) {
-        if(dwTrustErrorMask & CERT_TRUST_IS_REVOKED)
-          failf(data, "schannel: trust for this certificate or one of "
+      إذا(dw_Trust_Error_نقاب) {
+        إذا(dw_Trust_Error_نقاب & CERT_TRUST_IS_REVOKED)
+          failf(معلومات, "schannel: trust for this certificate or one of "
                 "the certificates in the certificate chain has been revoked");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_PARTIAL_CHAIN)
-          failf(data, "schannel: the certificate chain is incomplete");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_UNTRUSTED_ROOT)
-          failf(data, "schannel: the certificate or certificate chain is "
+        وإلا إذا(dw_Trust_Error_نقاب & CERT_TRUST_IS_PARTIAL_CHAIN)
+          failf(معلومات, "schannel: the certificate chain is incomplete");
+        وإلا إذا(dw_Trust_Error_نقاب & CERT_TRUST_IS_UNTRUSTED_پاڙ)
+          failf(معلومات, "schannel: the certificate or certificate chain is "
                 "based on an untrusted root");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_NOT_TIME_VALID)
-          failf(data, "schannel: this certificate or one of the certificates "
+        وإلا إذا(dw_Trust_Error_نقاب & CERT_TRUST_IS_NOT_وقت_VALID)
+          failf(معلومات, "schannel: this certificate or one of the certificates "
                 "in the certificate chain is not time valid");
-        else if(dwTrustErrorMask & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
-          failf(data, "schannel: the revocation status is unknown");
-        else
-          failf(data, "schannel: error 0x%08lx", dwTrustErrorMask);
-        result = CURLE_PEER_FAILED_VERIFICATION;
+        وإلا إذا(dw_Trust_Error_نقاب & CERT_TRUST_REVOCATION_حالت_UNKNOWN)
+          failf(معلومات, "schannel: the revocation status is unknown");
+        وإلا
+          failf(معلومات, "schannel: error 0x%08lx", dw_Trust_Error_نقاب);
+        نتيجو = CURLE_PEER_FAILED_VERIFICATION;
       }
     }
   }
 
-  if(result == CURLE_OK) {
-    if(conn_config->verifyhost) {
-      result = Curl_verify_host(cf, data);
+  إذا(نتيجو == CURLE_OK) {
+    إذا(conn_config->verifyhost) {
+      نتيجو = Curl_verify_host(cf, معلومات);
     }
   }
 
-  if(cert_chain_engine) {
+  إذا(cert_chain_engine) {
     CertFreeCertificateChainEngine(cert_chain_engine);
   }
 
-  if(own_trust_store) {
+  إذا(own_trust_store) {
     CertCloseStore(own_trust_store, 0);
   }
 
-  if(pChainContext)
+  إذا(pChainContext)
     CertFreeCertificateChain(pChainContext);
 
-  if(pCertContextServer)
+  إذا(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  أرجع نتيجو;
 }
 
-#endif /* USE_SCHANNEL */
+#جيڪڏهن_پورو /* USE_SCHANNEL */

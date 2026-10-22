@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GET_LINE_H
-#define HEADER_CURL_GET_LINE_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_GET_سٽ_H
+#وصف_ڪريو سرو_CURL_GET_سٽ_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/dynbuf.h"
+#ضمن "curlx/dynbuf.h"
 
 /* Curl_get_line() returns complete lines that end with a newline. */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof);
+CURLcode Curl_get_سٽ(بنية dynbuf *buf, FILE *داخلا, bool *eof);
 
-#endif /* HEADER_CURL_GET_LINE_H */
+#جيڪڏهن_پورو /* HEADER_CURL_GET_LINE_H */

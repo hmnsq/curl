@@ -21,292 +21,292 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h> /* <netinet/tcp.h> may need it */
-#endif
-#ifdef HAVE_SYS_UN_H
-#include <sys/un.h> /* for sockaddr_un */
-#endif
-#ifdef HAVE_LINUX_TCP_H
-#include <linux/tcp.h>
-#elif defined(HAVE_NETINET_TCP_H)
-#include <netinet/tcp.h>
-#endif
-#ifdef HAVE_NETINET_UDP_H
-#include <netinet/udp.h>
-#endif
-#ifdef HAVE_NETINET_IP_H
-#include <netinet/ip.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#جيڪڏهن_وصف_ٿيل HAVE_NETINET_اندريون_H
+#ضمن <netinet/in.h> /* <netinet/tcp.h> may need it */
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_SYS_UN_H
+#ضمن <sys/un.h> /* for sockaddr_un */
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_LINUX_TCP_H
+#ضمن <linux/tcp.h>
+#وإلاإذا defined(HAVE_NETINET_TCP_H)
+#ضمن <netinet/tcp.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_NETINET_UDP_H
+#ضمن <netinet/udp.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_NETINET_IP_H
+#ضمن <netinet/ip.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_SYS_IOCTL_H
+#ضمن <sys/ioctl.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_NETDB_H
+#ضمن <netdb.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#جيڪڏهن_پورو
 
-#ifdef HAVE_IFADDRS_H
-#include <ifaddrs.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#جيڪڏهن_وصف_ٿيل HAVE_IFADDRS_H
+#ضمن <ifaddrs.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_NET_IF_H
+#ضمن <net/if.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل __VMS
+#ضمن <in.h>
+#ضمن <inet.h>
+#جيڪڏهن_پورو
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "if2ip.h"
-#include "cfilters.h"
-#include "cf-socket.h"
-#include "connect.h"
-#include "curl_addrinfo.h"
-#include "select.h"
-#include "multiif.h"
-#include "curlx/inet_ntop.h"
-#include "curlx/inet_pton.h"
-#include "progress.h"
-#include "conncache.h"
-#include "multihandle.h"
-#include "rand.h"
-#include "sockaddr.h"
-#include "curlx/strdup.h"
-#include "curlx/nonblock.h"
-#include "curlx/strcopy.h"
-#include "curlx/version_win32.h"
-#include "curlx/strerr.h"
-#include "curlx/strparse.h"
-#include "curlx/wait.h"
-#ifdef _WIN32
-#include <mstcpip.h> /* for TCP_INITIAL_RTO_PARAMETERS */
-#endif
+#ضمن "urldata.h"
+#ضمن "curl_trc.h"
+#ضمن "if2ip.h"
+#ضمن "cfilters.h"
+#ضمن "cf-socket.h"
+#ضمن "connect.h"
+#ضمن "curl_addrinfo.h"
+#ضمن "select.h"
+#ضمن "multiif.h"
+#ضمن "curlx/inet_ntop.h"
+#ضمن "curlx/inet_pton.h"
+#ضمن "progress.h"
+#ضمن "conncache.h"
+#ضمن "multihandle.h"
+#ضمن "rand.h"
+#ضمن "sockaddr.h"
+#ضمن "curlx/strdup.h"
+#ضمن "curlx/nonblock.h"
+#ضمن "curlx/strcopy.h"
+#ضمن "curlx/version_win32.h"
+#ضمن "curlx/strerr.h"
+#ضمن "curlx/strparse.h"
+#ضمن "curlx/wait.h"
+#جيڪڏهن_وصف_ٿيل _WIN32
+#ضمن <mstcpip.h> /* for TCP_INITIAL_RTO_PARAMETERS */
+#جيڪڏهن_پورو
 
 /* retrieves ip address and port from a sockaddr structure. note it calls
  * curlx_inet_ntop() and returns CURLcode.
  * @unittest 1607
  */
-UNITTEST CURLcode sockaddr2string(struct sockaddr *sa, curl_socklen_t salen,
-                                  char *addr, uint16_t *port);
-UNITTEST CURLcode sockaddr2string(struct sockaddr *sa, curl_socklen_t salen,
-                                  char *addr, uint16_t *port)
+UNITTEST CURLcode sockaddr2string(بنية sockaddr *sa, curl_socklen_t salen,
+                                  حرف *addr, uint16_t *پورٽ);
+UNITTEST CURLcode sockaddr2string(بنية sockaddr *sa, curl_socklen_t salen,
+                                  حرف *addr, uint16_t *پورٽ)
 {
-  CURLcode result;
-  struct sockaddr_in *si = NULL;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *si6 = NULL;
-#endif
-#ifdef USE_UNIX_SOCKETS
-  struct sockaddr_un *su = NULL;
-#else
-  (void)salen;
-#endif
+  CURLcode نتيجو;
+  بنية sockaddr_in *si = عدم;
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+  بنية sockaddr_in6 *si6 = عدم;
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل USE_UNIX_SOCKETS
+  بنية sockaddr_un *su = عدم;
+#وإلا
+  (فراغ)salen;
+#جيڪڏهن_پورو
 
-  switch(sa->sa_family) {
-  case AF_INET:
-    si = (struct sockaddr_in *)(void *)sa;
-    result = curlx_inet_ntop(sa->sa_family, &si->sin_addr, addr,
+  بدل(sa->sa_family) {
+  حالة AF_INET:
+    si = (بنية sockaddr_in *)(فراغ *)sa;
+    نتيجو = curlx_inet_ntop(sa->sa_family, &si->sin_addr, addr,
                              MAX_IPADR_LEN);
-    if(!result) {
-      *port = ntohs(si->sin_port);
-      return result;
+    إذا(!نتيجو) {
+      *پورٽ = ntohs(si->sin_port);
+      أرجع نتيجو;
     }
-    break;
-#ifdef USE_IPV6
-  case AF_INET6:
-    si6 = (struct sockaddr_in6 *)(void *)sa;
-    result = curlx_inet_ntop(sa->sa_family, &si6->sin6_addr, addr,
+    اكسر;
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+  حالة AF_INET6:
+    si6 = (بنية sockaddr_in6 *)(فراغ *)sa;
+    نتيجو = curlx_inet_ntop(sa->sa_family, &si6->sin6_addr, addr,
                              MAX_IPADR_LEN);
-    if(!result) {
-      *port = ntohs(si6->sin6_port);
-      return result;
+    إذا(!نتيجو) {
+      *پورٽ = ntohs(si6->sin6_port);
+      أرجع نتيجو;
     }
-    break;
-#endif
-#ifdef USE_UNIX_SOCKETS
-  case AF_UNIX:
-    if(salen > (curl_socklen_t)sizeof(CURL_SA_FAMILY_T)) {
-      su = (struct sockaddr_un *)sa;
-      curl_msnprintf(addr, MAX_IPADR_LEN, "%s", su->sun_path);
+    اكسر;
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل USE_UNIX_SOCKETS
+  حالة AF_UNIX:
+    إذا(salen > (curl_socklen_t)حجم(CURL_SA_FAMILY_T)) {
+      su = (بنية sockaddr_un *)sa;
+      curl_msnprintf(addr, MAX_IPADR_LEN, "%s", su->sun_رستو);
     }
-    else
+    وإلا
       addr[0] = 0; /* socket with no name */
-    *port = 0;
-    return CURLE_OK;
-#endif
-  default:
-    result = CURLE_UNSUPPORTED_PROTOCOL;
-    break;
+    *پورٽ = 0;
+    أرجع CURLE_OK;
+#جيڪڏهن_پورو
+  افتراضي:
+    نتيجو = CURLE_UNSUPPORTED_PROTOCOL;
+    اكسر;
   }
 
   addr[0] = '\0';
-  *port = 0;
-  return result;
+  *پورٽ = 0;
+  أرجع نتيجو;
 }
 
-static void tcpnodelay(struct Curl_cfilter *cf,
-                       struct Curl_easy *data,
+ساكن فراغ tcpnodelay(بنية Curl_cfilter *cf,
+                       بنية Curl_easy *معلومات,
                        curl_socket_t sockfd)
 {
-#if defined(TCP_NODELAY) && defined(CURL_TCP_NODELAY_SUPPORTED)
+#إذا defined(TCP_NODELAY) && defined(CURL_TCP_NODELAY_SUPPORTED)
   curl_socklen_t onoff = (curl_socklen_t)1;
-  int level = IPPROTO_TCP;
-  VERBOSE(char buffer[STRERROR_LEN]);
+  صحيح level = IPPROTO_TCP;
+  VERBOSE(حرف بفر[STRERROR_LEN]);
 
-  if(setsockopt(sockfd, level, TCP_NODELAY, (void *)&onoff, sizeof(onoff)) < 0)
-    CURL_TRC_CF(data, cf, "Could not set TCP_NODELAY: %s",
-                curlx_strerror(SOCKERRNO, buffer, sizeof(buffer)));
-#else
-  (void)cf;
-  (void)data;
-  (void)sockfd;
-#endif
+  إذا(setsockopt(sockfd, level, TCP_NODELAY, (فراغ *)&onoff, حجم(onoff)) < 0)
+    CURL_TRC_CF(معلومات, cf, "Could not set TCP_NODELAY: %s",
+                curlx_strerror(SOCKERRNO, بفر, حجم(بفر)));
+#وإلا
+  (فراغ)cf;
+  (فراغ)معلومات;
+  (فراغ)sockfd;
+#جيڪڏهن_پورو
 }
 
-#if defined(USE_WINSOCK) || defined(TCP_KEEPIDLE) ||               \
-  defined(TCP_KEEPALIVE) || defined(TCP_KEEPALIVE_THRESHOLD) ||    \
-  defined(TCP_KEEPINTVL) || defined(TCP_KEEPALIVE_ABORT_THRESHOLD)
-#if defined(USE_WINSOCK) || \
+#إذا defined(USE_WINSOCK) || defined(TCP_KEEPIDLE) ||               \
+  defined(TCP_KEEPALIVE) || defined(TCP_KEEPALIVE_حد) ||    \
+  defined(TCP_KEEPINTVL) || defined(TCP_KEEPALIVE_ABORT_حد)
+#إذا defined(USE_WINSOCK) || \
   (defined(__sun) && !defined(TCP_KEEPIDLE)) || \
   (defined(__DragonFly__) && __DragonFly_version < 500702) || \
   (defined(_WIN32) && !defined(TCP_KEEPIDLE))
 /* Solaris < 11.4, DragonFlyBSD < 500702 and Windows < 10.0.16299
  * use millisecond units. */
-static void alive_unit(int *x)
+ساكن فراغ alive_unit(صحيح *x)
 {
   /* make sure this doesn't wrap */
-  if(*x < (INT_MAX / 1000))
+  إذا(*x < (وڌ_کان_وڌ_عدد / 1000))
     *x *= 1000;
-  else
+  وإلا
     /* this is still almost 25 days */
-    *x = INT_MAX;
+    *x = وڌ_کان_وڌ_عدد;
 }
-#else
-#define alive_unit(x)
-#endif
-#endif
+#وإلا
+#وصف_ڪريو alive_unit(x)
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو
 
-static void tcpkeepalive(struct Curl_cfilter *cf,
-                         struct Curl_easy *data,
+ساكن فراغ tcpkeepalive(بنية Curl_cfilter *cf,
+                         بنية Curl_easy *معلومات,
                          curl_socket_t sockfd)
 {
-  int optval = data->set.tcp_keepalive ? 1 : 0;
+  صحيح optval = معلومات->سيٽ.tcp_keepalive ? 1 : 0;
 
   /* only set IDLE and INTVL if setting KEEPALIVE is successful */
-  if(setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE,
-                (void *)&optval, sizeof(optval)) < 0) {
-    CURL_TRC_CF(data, cf, "Failed to set SO_KEEPALIVE on fd "
+  إذا(setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE,
+                (فراغ *)&optval, حجم(optval)) < 0) {
+    CURL_TRC_CF(معلومات, cf, "Failed to set SO_KEEPALIVE on fd "
                 "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
   }
-  else {
-#ifdef USE_WINSOCK
+  وإلا {
+#جيڪڏهن_وصف_ٿيل USE_WINSOCK
     /* Windows 10, version 1709 (10.0.16299) and later versions can use
        setsockopt() TCP_KEEP*. Older versions return with failure. */
-    if(curlx_verify_windows_version(10, 0, 16299, PLATFORM_WINNT,
-                                    VERSION_GREATER_THAN_EQUAL)) {
-      CURL_TRC_CF(data, cf, "Set TCP_KEEP* on fd=%" FMT_SOCKET_T, sockfd);
-      optval = curlx_sltosi(data->set.tcp_keepidle);
+    إذا(curlx_verify_windows_نسخو(10, 0, 16299, PLATFORM_WINNT,
+                                    نسخو_GREATER_THAN_EQUAL)) {
+      CURL_TRC_CF(معلومات, cf, "Set TCP_KEEP* on fd=%" FMT_SOCKET_T, sockfd);
+      optval = curlx_sltosi(معلومات->سيٽ.tcp_keepidle);
 /* Offered by mingw-w64 v12+, MS SDK 6.0A/VS2008+ */
-#ifndef TCP_KEEPALIVE
-#define TCP_KEEPALIVE 3
-#endif
+#جيڪڏهن_وصف_نه_ٿيل TCP_KEEPALIVE
+#وصف_ڪريو TCP_KEEPALIVE 3
+#جيڪڏهن_پورو
 /* Offered by mingw-w64 v12+, MS SDK 10.0.15063.0/VS2017 15.1+ */
-#ifndef TCP_KEEPCNT
-#define TCP_KEEPCNT 16
-#endif
+#جيڪڏهن_وصف_نه_ٿيل TCP_KEEPCNT
+#وصف_ڪريو TCP_KEEPCNT 16
+#جيڪڏهن_پورو
 /* Offered by mingw-w64 v12+, MS SDK 10.0.16299.0/VS2017 15.4+ */
-#ifndef TCP_KEEPIDLE
-#define TCP_KEEPIDLE TCP_KEEPALIVE
-#endif
-#ifndef TCP_KEEPINTVL
-#define TCP_KEEPINTVL 17
-#endif
-      if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
-                    (const char *)&optval, sizeof(optval)) < 0) {
-        CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPIDLE on fd "
+#جيڪڏهن_وصف_نه_ٿيل TCP_KEEPIDLE
+#وصف_ڪريو TCP_KEEPIDLE TCP_KEEPALIVE
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_نه_ٿيل TCP_KEEPINTVL
+#وصف_ڪريو TCP_KEEPINTVL 17
+#جيڪڏهن_پورو
+      إذا(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
+                    (ثابت حرف *)&optval, حجم(optval)) < 0) {
+        CURL_TRC_CF(معلومات, cf, "Failed to set TCP_KEEPIDLE on fd "
                     "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
       }
-      optval = curlx_sltosi(data->set.tcp_keepintvl);
-      if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
-                    (const char *)&optval, sizeof(optval)) < 0) {
-        CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPINTVL on fd "
+      optval = curlx_sltosi(معلومات->سيٽ.tcp_keepintvl);
+      إذا(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
+                    (ثابت حرف *)&optval, حجم(optval)) < 0) {
+        CURL_TRC_CF(معلومات, cf, "Failed to set TCP_KEEPINTVL on fd "
                     "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
       }
-      optval = curlx_sltosi(data->set.tcp_keepcnt);
-      if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT,
-                    (const char *)&optval, sizeof(optval)) < 0) {
-        CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPCNT on fd "
+      optval = curlx_sltosi(معلومات->سيٽ.tcp_keepcnt);
+      إذا(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT,
+                    (ثابت حرف *)&optval, حجم(optval)) < 0) {
+        CURL_TRC_CF(معلومات, cf, "Failed to set TCP_KEEPCNT on fd "
                     "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
       }
     }
-    else {
+    وإلا {
 /* Offered by mingw-w64 and MS SDK. Latter only when targeting Win7+. */
-#ifndef SIO_KEEPALIVE_VALS
-#define SIO_KEEPALIVE_VALS  _WSAIOW(IOC_VENDOR, 4)
-      struct tcp_keepalive {
+#جيڪڏهن_وصف_نه_ٿيل SIO_KEEPALIVE_VALS
+#وصف_ڪريو SIO_KEEPALIVE_VALS  _WSAIOW(IOC_VENDOR, 4)
+      بنية tcp_keepalive {
         u_long onoff;
         u_long keepalivetime;
         u_long keepaliveinterval;
       };
-#endif
-      struct tcp_keepalive vals;
+#جيڪڏهن_پورو
+      بنية tcp_keepalive vals;
       DWORD dummy;
       vals.onoff = 1;
-      optval = curlx_sltosi(data->set.tcp_keepidle);
+      optval = curlx_sltosi(معلومات->سيٽ.tcp_keepidle);
       alive_unit(&optval);
       vals.keepalivetime = (u_long)optval;
-      optval = curlx_sltosi(data->set.tcp_keepintvl);
+      optval = curlx_sltosi(معلومات->سيٽ.tcp_keepintvl);
       alive_unit(&optval);
       vals.keepaliveinterval = (u_long)optval;
-      if(WSAIoctl(sockfd, SIO_KEEPALIVE_VALS, (LPVOID)&vals, sizeof(vals),
-                  NULL, 0, &dummy, NULL, NULL) != 0) {
-        CURL_TRC_CF(data, cf, "Failed to set SIO_KEEPALIVE_VALS on fd "
+      إذا(WSAIoctl(sockfd, SIO_KEEPALIVE_VALS, (LPVOID)&vals, حجم(vals),
+                  عدم, 0, &dummy, عدم, عدم) != 0) {
+        CURL_TRC_CF(معلومات, cf, "Failed to set SIO_KEEPALIVE_VALS on fd "
                     "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
       }
     }
-#else /* !USE_WINSOCK */
-#ifdef TCP_KEEPIDLE
-    optval = curlx_sltosi(data->set.tcp_keepidle);
+#وإلا /* !USE_WINSOCK */
+#جيڪڏهن_وصف_ٿيل TCP_KEEPIDLE
+    optval = curlx_sltosi(معلومات->سيٽ.tcp_keepidle);
     alive_unit(&optval);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPIDLE on fd "
+    إذا(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
+                  (فراغ *)&optval, حجم(optval)) < 0) {
+      CURL_TRC_CF(معلومات, cf, "Failed to set TCP_KEEPIDLE on fd "
                   "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#elif defined(TCP_KEEPALIVE)
+#وإلاإذا defined(TCP_KEEPALIVE)
     /* macOS style */
-    optval = curlx_sltosi(data->set.tcp_keepidle);
+    optval = curlx_sltosi(معلومات->سيٽ.tcp_keepidle);
     alive_unit(&optval);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPALIVE on fd "
+    إذا(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE,
+                  (فراغ *)&optval, حجم(optval)) < 0) {
+      CURL_TRC_CF(معلومات, cf, "Failed to set TCP_KEEPALIVE on fd "
                   "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#elif defined(TCP_KEEPALIVE_THRESHOLD)
+#وإلاإذا defined(TCP_KEEPALIVE_حد)
     /* Solaris <11.4 style */
-    optval = curlx_sltosi(data->set.tcp_keepidle);
+    optval = curlx_sltosi(معلومات->سيٽ.tcp_keepidle);
     alive_unit(&optval);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE_THRESHOLD,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPALIVE_THRESHOLD on fd "
+    إذا(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE_حد,
+                  (فراغ *)&optval, حجم(optval)) < 0) {
+      CURL_TRC_CF(معلومات, cf, "Failed to set TCP_KEEPALIVE_THRESHOLD on fd "
                   "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#endif
-#ifdef TCP_KEEPINTVL
-    optval = curlx_sltosi(data->set.tcp_keepintvl);
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل TCP_KEEPINTVL
+    optval = curlx_sltosi(معلومات->سيٽ.tcp_keepintvl);
     alive_unit(&optval);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPINTVL on fd "
+    إذا(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
+                  (فراغ *)&optval, حجم(optval)) < 0) {
+      CURL_TRC_CF(معلومات, cf, "Failed to set TCP_KEEPINTVL on fd "
                   "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#elif defined(TCP_KEEPALIVE_ABORT_THRESHOLD)
+#وإلاإذا defined(TCP_KEEPALIVE_ABORT_حد)
     /* Solaris <11.4 style */
     /* TCP_KEEPALIVE_ABORT_THRESHOLD should equal to
      * TCP_KEEPCNT * TCP_KEEPINTVL on other platforms.
@@ -319,30 +319,30 @@ static void tcpkeepalive(struct Curl_cfilter *cf,
      * at equal intervals on Solaris, but will be sent
      * using the exponential backoff algorithm. */
     {
-      int keepcnt = curlx_sltosi(data->set.tcp_keepcnt);
-      int keepintvl = curlx_sltosi(data->set.tcp_keepintvl);
+      صحيح keepcnt = curlx_sltosi(معلومات->سيٽ.tcp_keepcnt);
+      صحيح keepintvl = curlx_sltosi(معلومات->سيٽ.tcp_keepintvl);
 
-      if(keepcnt > 0 && keepintvl > (INT_MAX / keepcnt))
-        optval = INT_MAX;
-      else
+      إذا(keepcnt > 0 && keepintvl > (وڌ_کان_وڌ_عدد / keepcnt))
+        optval = وڌ_کان_وڌ_عدد;
+      وإلا
         optval = keepcnt * keepintvl;
     }
     alive_unit(&optval);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE_ABORT_THRESHOLD,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPALIVE_ABORT_THRESHOLD"
+    إذا(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE_ABORT_حد,
+                  (فراغ *)&optval, حجم(optval)) < 0) {
+      CURL_TRC_CF(معلومات, cf, "Failed to set TCP_KEEPALIVE_ABORT_THRESHOLD"
                   " on fd %" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#endif
-#ifdef TCP_KEEPCNT
-    optval = curlx_sltosi(data->set.tcp_keepcnt);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPCNT on fd "
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل TCP_KEEPCNT
+    optval = curlx_sltosi(معلومات->سيٽ.tcp_keepcnt);
+    إذا(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT,
+                  (فراغ *)&optval, حجم(optval)) < 0) {
+      CURL_TRC_CF(معلومات, cf, "Failed to set TCP_KEEPCNT on fd "
                   "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#endif
-#endif /* USE_WINSOCK */
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* USE_WINSOCK */
   }
 }
 
@@ -350,8 +350,8 @@ static void tcpkeepalive(struct Curl_cfilter *cf,
  * Assign the addrinfo `ai` to the Curl_sockaddr_ex `addr` with
  * transport determining socktype and protocol.
  */
-CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,
-                                  const struct Curl_addrinfo *ai,
+CURLcode Curl_socket_addr_from_ai(بنية Curl_sockaddr_ex *addr,
+                                  ثابت بنية Curl_addrinfo *ai,
                                   uint8_t transport)
 {
   /*
@@ -364,35 +364,35 @@ CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,
   addr->family = ai->ai_family;
   addr->socktype = Curl_socktype_for_transport(transport);
   addr->protocol = Curl_protocol_for_transport(transport);
-  addr->addrlen = (unsigned int)ai->ai_addrlen;
+  addr->addrlen = (بنانشان صحيح)ai->ai_addrlen;
 
-  DEBUGASSERT(addr->addrlen <= sizeof(addr->curl_sa_addrbuf));
-  if(addr->addrlen > sizeof(addr->curl_sa_addrbuf))
-    return CURLE_TOO_LARGE;
+  DEBUGASSERT(addr->addrlen <= حجم(addr->curl_sa_addrbuf));
+  إذا(addr->addrlen > حجم(addr->curl_sa_addrbuf))
+    أرجع CURLE_TOO_LARGE;
 
-  memcpy(&addr->curl_sa_addrbuf, ai->ai_addr, addr->addrlen);
-  return CURLE_OK;
+  يادگيري_نقل(&addr->curl_sa_addrbuf, ai->ai_addr, addr->addrlen);
+  أرجع CURLE_OK;
 }
 
-#ifdef USE_SO_NOSIGPIPE
-int Curl_sock_nosigpipe(curl_socket_t sockfd)
+#جيڪڏهن_وصف_ٿيل USE_SO_NOSIGPIPE
+صحيح Curl_sock_nosigpipe(curl_socket_t sockfd)
 {
-  int onoff = 1;
-  return setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE,
-                    (void *)&onoff, sizeof(onoff));
+  صحيح onoff = 1;
+  أرجع setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE,
+                    (فراغ *)&onoff, حجم(onoff));
 }
-#endif /* USE_SO_NOSIGPIPE */
+#جيڪڏهن_پورو /* USE_SO_NOSIGPIPE */
 
-#if defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
-static uint32_t get_scope_id(struct Curl_easy *data,
-                             struct sockaddr_in6 *sa6)
+#إذا defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
+ساكن uint32_t get_scope_id(بنية Curl_easy *معلومات,
+                             بنية sockaddr_in6 *sa6)
 {
   uint32_t scope_id = 0;
-  if(data->conn->scope_id)
-    return data->conn->scope_id;
+  إذا(معلومات->conn->scope_id)
+    أرجع معلومات->conn->scope_id;
   /* NOLINTNEXTLINE(clang-analyzer-core.uninitialized.Assign) */
   scope_id = sa6->sin6_scope_id;
-  if(!scope_id && IN6_IS_ADDR_LINKLOCAL(&sa6->sin6_addr)) {
+  إذا(!scope_id && IN6_IS_ADDR_LINKLOCAL(&sa6->sin6_addr)) {
     /* The resolver did not set scope_id for this link-local address.
      * Try to determine it from the system's network interfaces.
      * Without a scope_id, connect() to a link-local address fails
@@ -400,45 +400,45 @@ static uint32_t get_scope_id(struct Curl_easy *data,
      * NOTE: On multi-homed hosts with several interfaces having
      * link-local addresses, this picks the first one found, which
      * may not be the correct outgoing interface. */
-#if defined(HAVE_GETIFADDRS) && defined(HAVE_NET_IF_H)
-    struct ifaddrs *ifa, *ifa_list;
-    if(getifaddrs(&ifa_list) == 0) {
-      for(ifa = ifa_list; ifa; ifa = ifa->ifa_next) {
-        if(ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_INET6 &&
+#إذا defined(HAVE_GETIFADDRS) && defined(HAVE_NET_IF_H)
+    بنية ifaddrs *ifa, *ifa_list;
+    إذا(getifaddrs(&ifa_list) == 0) {
+      لكل(ifa = ifa_list; ifa; ifa = ifa->ifa_ايندڙ) {
+        إذا(ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_INET6 &&
            (ifa->ifa_flags & IFF_UP) &&
            !(ifa->ifa_flags & IFF_LOOPBACK)) {
-          struct sockaddr_in6 *s6 = (void *)ifa->ifa_addr;
-          if(IN6_IS_ADDR_LINKLOCAL(&s6->sin6_addr) && s6->sin6_scope_id) {
+          بنية sockaddr_in6 *s6 = (فراغ *)ifa->ifa_addr;
+          إذا(IN6_IS_ADDR_LINKLOCAL(&s6->sin6_addr) && s6->sin6_scope_id) {
             scope_id = s6->sin6_scope_id;
-            infof(data,
+            infof(معلومات,
                   "determined scope_id=%lu for link-local address "
                   "from local interface",
-                  (unsigned long)scope_id);
-            break;
+                  (بنانشان ڊگهو)scope_id);
+            اكسر;
           }
         }
       }
       freeifaddrs(ifa_list);
     }
-#endif /* HAVE_GETIFADDRS && HAVE_NET_IF_H */
+#جيڪڏهن_پورو /* HAVE_GETIFADDRS && HAVE_NET_IF_H */
   }
-  return scope_id;
+  أرجع scope_id;
 }
-#endif
+#جيڪڏهن_پورو
 
-static CURLcode socket_open(struct Curl_easy *data,
-                            struct Curl_sockaddr_ex *addr,
+ساكن CURLcode socket_open(بنية Curl_easy *معلومات,
+                            بنية Curl_sockaddr_ex *addr,
                             curl_socket_t *sockfd)
 {
-  char errbuf[STRERROR_LEN];
+  حرف errbuf[STRERROR_LEN];
 
-#ifdef SOCK_CLOEXEC
+#جيڪڏهن_وصف_ٿيل SOCK_CLOEXEC
   addr->socktype |= SOCK_CLOEXEC;
-#endif
+#جيڪڏهن_پورو
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  if(data->set.fopensocket) {
+  DEBUGASSERT(معلومات);
+  DEBUGASSERT(معلومات->conn);
+  إذا(معلومات->سيٽ.fopensocket) {
     /*
      * If the opensocket callback is set, all the destination address
      * information is passed to the callback. Depending on this information the
@@ -448,60 +448,60 @@ static CURLcode socket_open(struct Curl_easy *data,
      * might have been changed and this 'new' address will actually be used
      * here to connect.
      */
-    struct Curl_mapi_guard guard;
-    CURL_CBAPI_START(&guard, data, easy_fopensocket);
-    *sockfd = data->set.fopensocket(data->set.opensocket_client,
+    بنية Curl_mapi_guard guard;
+    CURL_CBAPI_شروعات(&guard, معلومات, easy_fopensocket);
+    *sockfd = معلومات->سيٽ.fopensocket(معلومات->سيٽ.opensocket_client,
                                     CURLSOCKTYPE_IPCXN,
-                                    (struct curl_sockaddr *)addr);
-    CURL_CBAPI_END(&guard);
+                                    (بنية curl_sockaddr *)addr);
+    CURL_CBAPI_پڇاڙي(&guard);
   }
-  else {
+  وإلا {
     /* opensocket callback not set, so create the socket now */
-#ifdef DEBUGBUILD
-    if((addr->family == AF_INET6) && getenv("CURL_DBG_SOCK_FAIL_IPV6")) {
-      failf(data, "CURL_DBG_SOCK_FAIL_IPV6: failed to open socket");
-      return CURLE_COULDNT_CONNECT;
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
+    إذا((addr->family == AF_INET6) && getenv("CURL_DBG_SOCK_FAIL_IPV6")) {
+      failf(معلومات, "CURL_DBG_SOCK_FAIL_IPV6: failed to open socket");
+      أرجع CURLE_COULDNT_CONNECT;
     }
-#endif
+#جيڪڏهن_پورو
     *sockfd = CURL_SOCKET(addr->family, addr->socktype, addr->protocol);
-    if((*sockfd == CURL_SOCKET_BAD) && (SOCKERRNO == SOCKENOMEM))
-      return CURLE_OUT_OF_MEMORY;
+    إذا((*sockfd == CURL_SOCKET_BAD) && (SOCKERRNO == SOCKENOMEM))
+      أرجع CURLE_ٻاهريون_جو_يادگيري;
   }
 
-  if(*sockfd == CURL_SOCKET_BAD) {
+  إذا(*sockfd == CURL_SOCKET_BAD) {
     /* no socket, no connection */
-    failf(data, "failed to open socket: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
-    return CURLE_COULDNT_CONNECT;
+    failf(معلومات, "failed to open socket: %s",
+          curlx_strerror(SOCKERRNO, errbuf, حجم(errbuf)));
+    أرجع CURLE_COULDNT_CONNECT;
   }
 
-#ifdef USE_SO_NOSIGPIPE
-  if(Curl_sock_nosigpipe(*sockfd) < 0) {
-    failf(data, "setsockopt enable SO_NOSIGPIPE: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
+#جيڪڏهن_وصف_ٿيل USE_SO_NOSIGPIPE
+  إذا(Curl_sock_nosigpipe(*sockfd) < 0) {
+    failf(معلومات, "setsockopt enable SO_NOSIGPIPE: %s",
+          curlx_strerror(SOCKERRNO, errbuf, حجم(errbuf)));
     sclose(*sockfd);
     *sockfd = CURL_SOCKET_BAD;
-    return CURLE_COULDNT_CONNECT;
+    أرجع CURLE_COULDNT_CONNECT;
   }
-#endif /* USE_SO_NOSIGPIPE */
+#جيڪڏهن_پورو /* USE_SO_NOSIGPIPE */
 
-#if defined(HAVE_FCNTL) && !defined(SOCK_CLOEXEC)
-  if(fcntl(*sockfd, F_SETFD, FD_CLOEXEC) < 0) {
-    failf(data, "fcntl set CLOEXEC: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
+#إذا defined(HAVE_FCNTL) && !defined(SOCK_CLOEXEC)
+  إذا(fcntl(*sockfd, F_SETFD, FD_CLOEXEC) < 0) {
+    failf(معلومات, "fcntl set CLOEXEC: %s",
+          curlx_strerror(SOCKERRNO, errbuf, حجم(errbuf)));
     sclose(*sockfd);
     *sockfd = CURL_SOCKET_BAD;
-    return CURLE_COULDNT_CONNECT;
+    أرجع CURLE_COULDNT_CONNECT;
   }
-#endif
+#جيڪڏهن_پورو
 
-#if defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
-  if(addr->family == AF_INET6) {
-    struct sockaddr_in6 * const sa6 = (void *)&addr->curl_sa_addr;
-    sa6->sin6_scope_id = get_scope_id(data, sa6);
+#إذا defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
+  إذا(addr->family == AF_INET6) {
+    بنية sockaddr_in6 * ثابت sa6 = (فراغ *)&addr->curl_sa_addr;
+    sa6->sin6_scope_id = get_scope_id(معلومات, sa6);
   }
-#endif
-  return CURLE_OK;
+#جيڪڏهن_پورو
+  أرجع CURLE_OK;
 }
 
 /*
@@ -513,49 +513,49 @@ static CURLcode socket_open(struct Curl_easy *data,
  * If the open socket callback is set, used that!
  *
  */
-CURLcode Curl_socket_open(struct Curl_easy *data,
-                          const struct Curl_addrinfo *ai,
-                          struct Curl_sockaddr_ex *addr,
+CURLcode Curl_socket_open(بنية Curl_easy *معلومات,
+                          ثابت بنية Curl_addrinfo *ai,
+                          بنية Curl_sockaddr_ex *addr,
                           uint8_t transport,
                           curl_socket_t *sockfd)
 {
-  struct Curl_sockaddr_ex dummy;
-  CURLcode result;
+  بنية Curl_sockaddr_ex dummy;
+  CURLcode نتيجو;
 
-  if(!addr)
+  إذا(!addr)
     /* if the caller does not want info back, use a local temp copy */
     addr = &dummy;
 
-  result = Curl_socket_addr_from_ai(addr, ai, transport);
-  if(result)
-    return result;
+  نتيجو = Curl_socket_addr_from_ai(addr, ai, transport);
+  إذا(نتيجو)
+    أرجع نتيجو;
 
-  return socket_open(data, addr, sockfd);
+  أرجع socket_open(معلومات, addr, sockfd);
 }
 
-static int socket_close(struct Curl_easy *data, struct connectdata *conn,
-                        int use_callback, curl_socket_t sock)
+ساكن صحيح socket_close(بنية Curl_easy *معلومات, بنية connectdata *conn,
+                        صحيح use_callback, curl_socket_t sock)
 {
-  if(sock == CURL_SOCKET_BAD)
-    return 0;
+  إذا(sock == CURL_SOCKET_BAD)
+    أرجع 0;
 
-  if(use_callback && conn && conn->fclosesocket) {
-    struct Curl_mapi_guard guard;
-    int rc;
-    Curl_multi_will_close(data, sock);
-    CURL_CBAPI_START(&guard, data, easy_closesocket);
+  إذا(use_callback && conn && conn->fclosesocket) {
+    بنية Curl_mapi_guard guard;
+    صحيح rc;
+    Curl_multi_will_close(معلومات, sock);
+    CURL_CBAPI_شروعات(&guard, معلومات, easy_closesocket);
     rc = conn->fclosesocket(conn->closesocket_client, sock);
-    CURL_CBAPI_END(&guard);
-    return rc;
+    CURL_CBAPI_پڇاڙي(&guard);
+    أرجع rc;
   }
 
-  if(conn)
+  إذا(conn)
     /* tell the multi-socket code about this */
-    Curl_multi_will_close(data, sock);
+    Curl_multi_will_close(معلومات, sock);
 
   sclose(sock);
 
-  return 0;
+  أرجع 0;
 }
 
 /*
@@ -563,10 +563,10 @@ static int socket_close(struct Curl_easy *data, struct connectdata *conn,
  *
  * 'conn' can be NULL, beware!
  */
-int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
+صحيح Curl_socket_close(بنية Curl_easy *معلومات, بنية connectdata *conn,
                       curl_socket_t sock)
 {
-  return socket_close(data, conn, FALSE, sock);
+  أرجع socket_close(معلومات, conn, FALSE, sock);
 }
 
 /*
@@ -596,134 +596,134 @@ int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_parse_interface(const char *input,
-                              char **dev, char **iface, char **host)
+CURLcode Curl_parse_interface(ثابت حرف *داخلا,
+                              حرف **dev, حرف **iface, حرف **host)
 {
-  static const char if_prefix[] = "if!";
-  static const char host_prefix[] = "host!";
-  static const char if_host_prefix[] = "ifhost!";
+  ساكن ثابت حرف if_اڳياڙي[] = "if!";
+  ساكن ثابت حرف host_اڳياڙي[] = "host!";
+  ساكن ثابت حرف if_host_اڳياڙي[] = "ifhost!";
   size_t len;
 
-  len = strlen(input);
-  if(len > 512)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  len = لڙي_ڊيگهه(داخلا);
+  إذا(len > 512)
+    أرجع CURLE_BAD_FUNCTION_دليل;
 
-  if(dev)
-    *dev = NULL;
-  if(iface)
-    *iface = NULL;
-  if(host)
-    *host = NULL;
+  إذا(dev)
+    *dev = عدم;
+  إذا(iface)
+    *iface = عدم;
+  إذا(host)
+    *host = عدم;
 
-  if(!strncmp(if_prefix, input, strlen(if_prefix))) {
-    input += strlen(if_prefix);
-    if(!*input)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(iface) {
-      *iface = curlx_memdup0(input, len - strlen(if_prefix));
-      return *iface ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  إذا(!لڙي_ڀيٽ(if_اڳياڙي, داخلا, لڙي_ڊيگهه(if_اڳياڙي))) {
+    داخلا += لڙي_ڊيگهه(if_اڳياڙي);
+    إذا(!*داخلا)
+      أرجع CURLE_BAD_FUNCTION_دليل;
+    إذا(iface) {
+      *iface = curlx_memdup0(داخلا, len - لڙي_ڊيگهه(if_اڳياڙي));
+      أرجع *iface ? CURLE_OK : CURLE_ٻاهريون_جو_يادگيري;
     }
-    return CURLE_OK;
+    أرجع CURLE_OK;
   }
-  else if(!strncmp(host_prefix, input, strlen(host_prefix))) {
-    input += strlen(host_prefix);
-    if(!*input)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(host) {
-      *host = curlx_memdup0(input, len - strlen(host_prefix));
-      return *host ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  وإلا إذا(!لڙي_ڀيٽ(host_اڳياڙي, داخلا, لڙي_ڊيگهه(host_اڳياڙي))) {
+    داخلا += لڙي_ڊيگهه(host_اڳياڙي);
+    إذا(!*داخلا)
+      أرجع CURLE_BAD_FUNCTION_دليل;
+    إذا(host) {
+      *host = curlx_memdup0(داخلا, len - لڙي_ڊيگهه(host_اڳياڙي));
+      أرجع *host ? CURLE_OK : CURLE_ٻاهريون_جو_يادگيري;
     }
-    return CURLE_OK;
+    أرجع CURLE_OK;
   }
-  else if(!strncmp(if_host_prefix, input, strlen(if_host_prefix))) {
-    const char *host_part;
-    input += strlen(if_host_prefix);
-    len -= strlen(if_host_prefix);
-    host_part = memchr(input, '!', len);
-    if(!host_part || !*(host_part + 1))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(iface) {
-      *iface = curlx_memdup0(input, host_part - input);
-      if(!*iface)
-        return CURLE_OUT_OF_MEMORY;
+  وإلا إذا(!لڙي_ڀيٽ(if_host_اڳياڙي, داخلا, لڙي_ڊيگهه(if_host_اڳياڙي))) {
+    ثابت حرف *host_part;
+    داخلا += لڙي_ڊيگهه(if_host_اڳياڙي);
+    len -= لڙي_ڊيگهه(if_host_اڳياڙي);
+    host_part = memchr(داخلا, '!', len);
+    إذا(!host_part || !*(host_part + 1))
+      أرجع CURLE_BAD_FUNCTION_دليل;
+    إذا(iface) {
+      *iface = curlx_memdup0(داخلا, host_part - داخلا);
+      إذا(!*iface)
+        أرجع CURLE_ٻاهريون_جو_يادگيري;
     }
     ++host_part;
-    if(host) {
-      *host = curlx_memdup0(host_part, len - (host_part - input));
-      if(!*host) {
-        if(iface)
+    إذا(host) {
+      *host = curlx_memdup0(host_part, len - (host_part - داخلا));
+      إذا(!*host) {
+        إذا(iface)
           curlx_safefree(*iface);
-        return CURLE_OUT_OF_MEMORY;
+        أرجع CURLE_ٻاهريون_جو_يادگيري;
       }
     }
-    return CURLE_OK;
+    أرجع CURLE_OK;
   }
 
-  if(!*input)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(dev) {
-    *dev = curlx_memdup0(input, len);
-    return *dev ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  إذا(!*داخلا)
+    أرجع CURLE_BAD_FUNCTION_دليل;
+  إذا(dev) {
+    *dev = curlx_memdup0(داخلا, len);
+    أرجع *dev ? CURLE_OK : CURLE_ٻاهريون_جو_يادگيري;
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-#ifndef CURL_DISABLE_BINDLOCAL
-static CURLcode bindlocal(struct Curl_easy *data, struct connectdata *conn,
-                          curl_socket_t sockfd, int af, unsigned int scope,
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_BINDLOCAL
+ساكن CURLcode bindlocal(بنية Curl_easy *معلومات, بنية connectdata *conn,
+                          curl_socket_t sockfd, صحيح af, بنانشان صحيح scope,
                           uint8_t transport)
 {
-  struct Curl_sockaddr_storage sa;
-  struct sockaddr *sock = (struct sockaddr *)&sa;  /* bind to this address */
+  بنية Curl_sockaddr_storage sa;
+  بنية sockaddr *sock = (بنية sockaddr *)&sa;  /* bind to this address */
   curl_socklen_t sizeof_sa = 0; /* size of the data sock points to */
-  struct sockaddr_in *si4 = (struct sockaddr_in *)&sa;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *si6 = (struct sockaddr_in6 *)&sa;
-#endif
-  struct Curl_dns_entry *h = NULL;
-  unsigned short port = data->set.localport; /* use this port number, 0 for
+  بنية sockaddr_in *si4 = (بنية sockaddr_in *)&sa;
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+  بنية sockaddr_in6 *si6 = (بنية sockaddr_in6 *)&sa;
+#جيڪڏهن_پورو
+  بنية Curl_dns_داخلا *h = عدم;
+  بنانشان ننڍو پورٽ = معلومات->سيٽ.localport; /* use this port number, 0 for
                                                 "random" */
   /* how many port numbers to try to bind to, increasing one at a time */
-  int portnum = data->set.localportrange;
-  char *dev_in = NULL, *iface_in = NULL, *host_in = NULL;
-  const char *iface = NULL, *host = NULL;
-  int sockerr;
-#ifdef IP_BIND_ADDRESS_NO_PORT
-  int on = 1;
-#endif
-  CURLcode result = CURLE_OK;
+  صحيح portnum = معلومات->سيٽ.localportrange;
+  حرف *dev_اندريون = عدم, *iface_اندريون = عدم, *host_اندريون = عدم;
+  ثابت حرف *iface = عدم, *host = عدم;
+  صحيح sockerr;
+#جيڪڏهن_وصف_ٿيل IP_BIND_ADDRESS_NO_PORT
+  صحيح on = 1;
+#جيڪڏهن_پورو
+  CURLcode نتيجو = CURLE_OK;
 
-#ifndef USE_IPV6
-  (void)scope;
-#endif
-  if(conn->interface_opts) {
+#جيڪڏهن_وصف_نه_ٿيل USE_IPV6
+  (فراغ)scope;
+#جيڪڏهن_پورو
+  إذا(conn->interface_opts) {
     /*************************************************************
      * Select device to bind socket to
      *************************************************************/
-    result = Curl_parse_interface(conn->interface_opts,
-                                  &dev_in, &iface_in, &host_in);
-    if(result)
-      goto out;
+    نتيجو = Curl_parse_interface(conn->interface_opts,
+                                  &dev_اندريون, &iface_اندريون, &host_اندريون);
+    إذا(نتيجو)
+      اذهب ٻاهريون;
     /* This is how we use the values */
-    iface = iface_in ? iface_in : dev_in;
-    host = host_in ? host_in : dev_in;
+    iface = iface_اندريون ? iface_اندريون : dev_اندريون;
+    host = host_اندريون ? host_اندريون : dev_اندريون;
   }
 
-  if(!iface && !host && !port)
-    goto out;
+  إذا(!iface && !host && !پورٽ)
+    اذهب ٻاهريون;
 
-  if(iface && (strlen(iface) >= 255)) {
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+  إذا(iface && (لڙي_ڊيگهه(iface) >= 255)) {
+    نتيجو = CURLE_BAD_FUNCTION_دليل;
+    اذهب ٻاهريون;
   }
-  memset(&sa, 0, sizeof(struct Curl_sockaddr_storage));
+  memset(&sa, 0, حجم(بنية Curl_sockaddr_storage));
 
-  if(iface || host) {
-    char myhost[256] = "";
-    int done = 0; /* -1 for error, 1 for address found */
-    if2ip_result_t if2ip_result = IF2IP_NOT_FOUND;
+  إذا(iface || host) {
+    حرف myhost[256] = "";
+    صحيح پورو = 0; /* -1 for error, 1 for address found */
+    if2ip_نتيجو_t if2ip_نتيجو = IF2_IP_NOT_مليو;
 
-#ifdef SO_BINDTODEVICE
+#جيڪڏهن_وصف_ٿيل SO_BINDTODEVICE
     /*
      * This binds the local socket to a particular interface. This will
      * force even requests to other local interfaces to go out the external
@@ -734,55 +734,55 @@ static CURLcode bindlocal(struct Curl_easy *data, struct connectdata *conn,
      * converted to an IP address and would fail Curl_if2ip. Try to
      * use it straight away.
      */
-    if(iface &&
+    إذا(iface &&
        setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE,
-                  iface, (curl_socklen_t)strlen(iface) + 1) == 0 &&
+                  iface, (curl_socklen_t)لڙي_ڊيگهه(iface) + 1) == 0 &&
        /* This is often "errno 1, error: Operation not permitted" if you are
         * not running as root or another suitable privileged user. If it
         * succeeds it means the parameter was a valid interface and not an IP
         * address. Return immediately.
         */
-       !host_in) {
-      infof(data, "socket successfully bound to interface '%s'", iface);
-      result = CURLE_OK;
-      goto out;
+       !host_اندريون) {
+      infof(معلومات, "socket successfully bound to interface '%s'", iface);
+      نتيجو = CURLE_OK;
+      اذهب ٻاهريون;
     }
-#endif
-    if(!host_in) {
+#جيڪڏهن_پورو
+    إذا(!host_اندريون) {
       /* Discover IP from input device, then bind to it */
-      if2ip_result = Curl_if2ip(af,
-#ifdef USE_IPV6
+      if2ip_نتيجو = Curl_if2ip(af,
+#جيڪڏهن_وصف_ٿيل USE_IPV6
                                 scope, conn->scope_id,
-#endif
-                                iface, myhost, sizeof(myhost));
+#جيڪڏهن_پورو
+                                iface, myhost, حجم(myhost));
     }
-    switch(if2ip_result) {
-    case IF2IP_NOT_FOUND:
-      if(iface_in && !host_in) {
+    بدل(if2ip_نتيجو) {
+    حالة IF2_IP_NOT_مليو:
+      إذا(iface_اندريون && !host_اندريون) {
         /* Do not fall back to treating it as a hostname */
-        char buffer[STRERROR_LEN];
-        data->state.os_errno = sockerr = SOCKERRNO;
-        failf(data, "Could not bind to interface '%s' with errno %d: %s",
-              iface, sockerr, curlx_strerror(sockerr, buffer, sizeof(buffer)));
-        result = CURLE_INTERFACE_FAILED;
-        goto out;
+        حرف بفر[STRERROR_LEN];
+        معلومات->state.os_errno = sockerr = SOCKERRNO;
+        failf(معلومات, "Could not bind to interface '%s' with errno %d: %s",
+              iface, sockerr, curlx_strerror(sockerr, بفر, حجم(بفر)));
+        نتيجو = CURLE_INTERFACE_FAILED;
+        اذهب ٻاهريون;
       }
-      break;
-    case IF2IP_AF_NOT_SUPPORTED:
+      اكسر;
+    حالة IF2IP_AF_NOT_SUPPORTED:
       /* Signal the caller to try another address family if available */
-      result = CURLE_UNSUPPORTED_PROTOCOL;
-      goto out;
-    case IF2IP_FOUND:
+      نتيجو = CURLE_UNSUPPORTED_PROTOCOL;
+      اذهب ٻاهريون;
+    حالة IF2_IP_مليو:
       /*
        * We now have the numerical IP address in the 'myhost' buffer
        */
       host = myhost;
-      infof(data, "Local Interface %s is ip %s using address family %d",
+      infof(معلومات, "Local Interface %s is ip %s using address family %d",
             iface, host, af);
-      done = 1;
-      break;
+      پورو = 1;
+      اكسر;
     }
-    if(!iface_in || host_in) {
+    إذا(!iface_اندريون || host_اندريون) {
       /*
        * This was not an interface, resolve the name as a hostname
        * or IP number
@@ -793,162 +793,162 @@ static CURLcode bindlocal(struct Curl_easy *data, struct connectdata *conn,
        */
       uint8_t dns_queries = (af == AF_INET) ?
                             CURL_DNSQ_A : (CURL_DNSQ_A | CURL_DNSQ_AAAA);
-#ifdef USE_IPV6
-      if(af == AF_INET6)
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+      إذا(af == AF_INET6)
         dns_queries = CURL_DNSQ_AAAA;
-#endif
+#جيڪڏهن_پورو
 
-      (void)Curl_resolv_blocking(data, dns_queries, host, 80, transport, &h);
-      if(h) {
-        int h_af = h->addr->ai_family;
+      (فراغ)Curl_resolv_blocking(معلومات, dns_queries, host, 80, transport, &h);
+      إذا(h) {
+        صحيح h_af = h->addr->ai_family;
         /* convert the resolved address, sizeof myhost >= INET_ADDRSTRLEN */
-        Curl_printable_address(h->addr, myhost, sizeof(myhost));
-        infof(data, "Name '%s' family %d resolved to '%s' family %d",
+        Curl_printable_پتو(h->addr, myhost, حجم(myhost));
+        infof(معلومات, "Name '%s' family %d resolved to '%s' family %d",
               host, af, myhost, h_af);
-        Curl_dns_entry_unlink(data, &h); /* this will NULL, potential free h */
-        if(af != h_af) {
+        Curl_dns_داخلا_unlink(معلومات, &h); /* this will NULL, potential free h */
+        إذا(af != h_af) {
           /* bad IP version combo, signal the caller to try another address
              family if available */
-          result = CURLE_UNSUPPORTED_PROTOCOL;
-          goto out;
+          نتيجو = CURLE_UNSUPPORTED_PROTOCOL;
+          اذهب ٻاهريون;
         }
-        done = 1;
+        پورو = 1;
       }
-      else {
+      وإلا {
         /*
          * provided dev was no interface (or interfaces are not supported
          * e.g. Solaris) no ip address and no domain we fail here
          */
-        done = -1;
+        پورو = -1;
       }
     }
 
-    if(done > 0) {
-#ifdef USE_IPV6
+    إذا(پورو > 0) {
+#جيڪڏهن_وصف_ٿيل USE_IPV6
       /* IPv6 address */
-      if(af == AF_INET6) {
-#ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-        char *scope_ptr = strchr(myhost, '%');
-        if(scope_ptr)
+      إذا(af == AF_INET6) {
+#جيڪڏهن_وصف_ٿيل HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
+        حرف *scope_ptr = strchr(myhost, '%');
+        إذا(scope_ptr)
           *(scope_ptr++) = '\0';
-#endif
-        if(curlx_inet_pton(AF_INET6, myhost, &si6->sin6_addr) > 0) {
+#جيڪڏهن_پورو
+        إذا(curlx_inet_pton(AF_INET6, myhost, &si6->sin6_addr) > 0) {
           si6->sin6_family = AF_INET6;
-          si6->sin6_port = htons(port);
-#ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-          if(scope_ptr) {
+          si6->sin6_port = htons(پورٽ);
+#جيڪڏهن_وصف_ٿيل HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
+          إذا(scope_ptr) {
             /* The "myhost" string either comes from Curl_if2ip or from
                Curl_printable_address. The latter returns only numeric scope
                IDs and the former returns none at all. Making the scope ID,
                if present, known to be numeric */
             curl_off_t scope_id;
-            if(curlx_str_number((const char **)CURL_UNCONST(&scope_ptr),
+            إذا(curlx_str_عدد((ثابت حرف **)CURL_UNCONST(&scope_ptr),
                                 &scope_id, UINT_MAX)) {
-              result = CURLE_UNSUPPORTED_PROTOCOL;
-              goto out;
+              نتيجو = CURLE_UNSUPPORTED_PROTOCOL;
+              اذهب ٻاهريون;
             }
-            si6->sin6_scope_id = (unsigned int)scope_id;
+            si6->sin6_scope_id = (بنانشان صحيح)scope_id;
           }
-#endif
+#جيڪڏهن_پورو
         }
-        sizeof_sa = sizeof(struct sockaddr_in6);
+        sizeof_sa = حجم(بنية sockaddr_in6);
       }
-      else
-#endif
+      وإلا
+#جيڪڏهن_پورو
       /* IPv4 address */
-      if((af == AF_INET) &&
+      إذا((af == AF_INET) &&
          (curlx_inet_pton(AF_INET, myhost, &si4->sin_addr) > 0)) {
         si4->sin_family = AF_INET;
-        si4->sin_port = htons(port);
-        sizeof_sa = sizeof(struct sockaddr_in);
+        si4->sin_port = htons(پورٽ);
+        sizeof_sa = حجم(بنية sockaddr_in);
       }
     }
 
-    if(done < 1) {
+    إذا(پورو < 1) {
       /* errorbuf is set false so failf will overwrite any message already in
          the error buffer, so the user receives this error message instead of a
          generic resolve error. */
-      char buffer[STRERROR_LEN];
-      data->state.errorbuf = FALSE;
-      data->state.os_errno = sockerr = SOCKERRNO;
-      failf(data, "Could not bind to '%s' with errno %d: %s", host,
-            sockerr, curlx_strerror(sockerr, buffer, sizeof(buffer)));
-      result = CURLE_INTERFACE_FAILED;
-      goto out;
+      حرف بفر[STRERROR_LEN];
+      معلومات->state.errorbuf = FALSE;
+      معلومات->state.os_errno = sockerr = SOCKERRNO;
+      failf(معلومات, "Could not bind to '%s' with errno %d: %s", host,
+            sockerr, curlx_strerror(sockerr, بفر, حجم(بفر)));
+      نتيجو = CURLE_INTERFACE_FAILED;
+      اذهب ٻاهريون;
     }
   }
-  else {
+  وإلا {
     /* no device was given, prepare sa to match af's needs */
-#ifdef USE_IPV6
-    if(af == AF_INET6) {
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+    إذا(af == AF_INET6) {
       si6->sin6_family = AF_INET6;
-      si6->sin6_port = htons(port);
-      sizeof_sa = sizeof(struct sockaddr_in6);
+      si6->sin6_port = htons(پورٽ);
+      sizeof_sa = حجم(بنية sockaddr_in6);
     }
-    else
-#endif
-    if(af == AF_INET) {
+    وإلا
+#جيڪڏهن_پورو
+    إذا(af == AF_INET) {
       si4->sin_family = AF_INET;
-      si4->sin_port = htons(port);
-      sizeof_sa = sizeof(struct sockaddr_in);
+      si4->sin_port = htons(پورٽ);
+      sizeof_sa = حجم(بنية sockaddr_in);
     }
   }
-#ifdef IP_BIND_ADDRESS_NO_PORT
-  (void)setsockopt(sockfd, SOL_IP, IP_BIND_ADDRESS_NO_PORT, &on, sizeof(on));
-#endif
-  for(;;) {
-    if(bind(sockfd, sock, sizeof_sa) >= 0) {
+#جيڪڏهن_وصف_ٿيل IP_BIND_ADDRESS_NO_PORT
+  (فراغ)setsockopt(sockfd, SOL_IP, IP_BIND_ADDRESS_NO_PORT, &on, حجم(on));
+#جيڪڏهن_پورو
+  لكل(;;) {
+    إذا(bind(sockfd, sock, sizeof_sa) >= 0) {
       /* we succeeded to bind */
-      infof(data, "Local port: %hu", port);
-      conn->bits.bound = TRUE;
-      result = CURLE_OK;
-      goto out;
+      infof(معلومات, "Local port: %hu", پورٽ);
+      conn->بٽ.bound = TRUE;
+      نتيجو = CURLE_OK;
+      اذهب ٻاهريون;
     }
 
-    if(--portnum > 0) {
-      port++; /* try next port */
-      if(port == 0)
-        break;
-      infof(data, "Bind to local port %d failed, trying next", port - 1);
+    إذا(--portnum > 0) {
+      پورٽ++; /* try next port */
+      إذا(پورٽ == 0)
+        اكسر;
+      infof(معلومات, "Bind to local port %d failed, trying next", پورٽ - 1);
       /* We reuse/clobber the port variable here below */
-      if(sock->sa_family == AF_INET)
-        si4->sin_port = htons(port);
-#ifdef USE_IPV6
-      else
-        si6->sin6_port = htons(port);
-#endif
+      إذا(sock->sa_family == AF_INET)
+        si4->sin_port = htons(پورٽ);
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+      وإلا
+        si6->sin6_port = htons(پورٽ);
+#جيڪڏهن_پورو
     }
-    else
-      break;
+    وإلا
+      اكسر;
   }
   {
-    char buffer[STRERROR_LEN];
-    data->state.os_errno = sockerr = SOCKERRNO;
-    failf(data, "bind failed with errno %d: %s",
-          sockerr, curlx_strerror(sockerr, buffer, sizeof(buffer)));
+    حرف بفر[STRERROR_LEN];
+    معلومات->state.os_errno = sockerr = SOCKERRNO;
+    failf(معلومات, "bind failed with errno %d: %s",
+          sockerr, curlx_strerror(sockerr, بفر, حجم(بفر)));
   }
 
-  result = CURLE_INTERFACE_FAILED;
+  نتيجو = CURLE_INTERFACE_FAILED;
 
-out:
-  curlx_free(dev_in);
-  curlx_free(iface_in);
-  curlx_free(host_in);
-  return result;
+ٻاهريون:
+  curlx_free(dev_اندريون);
+  curlx_free(iface_اندريون);
+  curlx_free(host_اندريون);
+  أرجع نتيجو;
 }
-#endif
+#جيڪڏهن_پورو
 
 /*
  * verifyconnect() returns TRUE if the connect really has happened.
  */
-static bool verifyconnect(curl_socket_t sockfd, int *psockerr)
+ساكن bool verifyconnect(curl_socket_t sockfd, صحيح *psockerr)
 {
   bool rc = TRUE;
-#ifdef SO_ERROR
-  int sockerr = 0;
-  curl_socklen_t errSize = sizeof(sockerr);
+#جيڪڏهن_وصف_ٿيل SO_ERROR
+  صحيح sockerr = 0;
+  curl_socklen_t err_سائيز = حجم(sockerr);
 
-#ifdef _WIN32
+#جيڪڏهن_وصف_ٿيل _WIN32
   /*
    * In October 2003 we effectively nullified this function on Windows due to
    * problems with it using all CPU in multi-threaded cases.
@@ -965,264 +965,264 @@ static bool verifyconnect(curl_socket_t sockfd, int *psockerr)
    *    Someone got to verify this on Win-NT 4.0, 2000."
    */
   SleepEx(0, FALSE);
-#endif
+#جيڪڏهن_پورو
 
-  if(getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (void *)&sockerr, &errSize))
+  إذا(getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (فراغ *)&sockerr, &err_سائيز))
     sockerr = SOCKERRNO;
-#if defined(EBADIOCTL) && defined(__minix)
+#إذا defined(EBADIOCTL) && defined(__minix)
   /* Minix 3.1.x does not support getsockopt on UDP sockets */
-  if(EBADIOCTL == sockerr) {
-    SET_SOCKERRNO(0);
+  إذا(EBADIOCTL == sockerr) {
+    سيٽ_SOCKERRNO(0);
     sockerr = 0;
   }
-#endif
-  if((sockerr == 0) || (SOCKEISCONN == sockerr))
+#جيڪڏهن_پورو
+  إذا((sockerr == 0) || (SOCKEISCONN == sockerr))
     /* we are connected, awesome! */
     rc = TRUE;
-  else
+  وإلا
     /* This was not a successful connect */
     rc = FALSE;
-  if(psockerr)
+  إذا(psockerr)
     *psockerr = sockerr;
-#else
-  (void)sockfd;
-  if(psockerr)
+#وإلا
+  (فراغ)sockfd;
+  إذا(psockerr)
     *psockerr = SOCKERRNO;
-#endif
-  return rc;
+#جيڪڏهن_پورو
+  أرجع rc;
 }
 
 /**
  * Determine the curl code for a socket connect() == -1 with errno.
  */
-static CURLcode socket_connect_result(struct Curl_easy *data,
-                                      const char *ipaddress, int sockerr)
+ساكن CURLcode socket_connect_نتيجو(بنية Curl_easy *معلومات,
+                                      ثابت حرف *ipaddress, صحيح sockerr)
 {
-  if(sockerr == SOCKEINPROGRESS || SOCK_EAGAIN(sockerr))
-    return CURLE_OK;
+  إذا(sockerr == SOCKEINPROGRESS || SOCK_EAGAIN(sockerr))
+    أرجع CURLE_OK;
 
   /* unknown error, fallthrough and try another address! */
   {
-    VERBOSE(char buffer[STRERROR_LEN]);
-    infof(data, "Immediate connect fail for %s: %s", ipaddress,
-          curlx_strerror(sockerr, buffer, sizeof(buffer)));
-    NOVERBOSE((void)ipaddress);
+    VERBOSE(حرف بفر[STRERROR_LEN]);
+    infof(معلومات, "Immediate connect fail for %s: %s", ipaddress,
+          curlx_strerror(sockerr, بفر, حجم(بفر)));
+    NOVERBOSE((فراغ)ipaddress);
   }
-  data->state.os_errno = sockerr;
+  معلومات->state.os_errno = sockerr;
   /* connect failed */
-  return CURLE_COULDNT_CONNECT;
+  أرجع CURLE_COULDNT_CONNECT;
 }
 
-struct cf_socket_ctx {
-  struct Curl_peer *peer;
-  struct Curl_sockaddr_ex addr;      /* address to connect to */
+بنية cf_socket_ctx {
+  بنية Curl_peer *peer;
+  بنية Curl_sockaddr_ex addr;      /* address to connect to */
   curl_socket_t sock;                /* current attempt socket */
-  struct ip_quadruple ip;            /* The IP quadruple 2x(addr+port) */
-  struct curltime started_at;        /* when socket was created */
-  struct curltime connected_at;      /* when socket connected/got first byte */
-  struct curltime first_byte_at;     /* when first byte was recvd */
-#ifdef USE_WINSOCK
-  struct curltime last_sndbuf_query_at;  /* when SO_SNDBUF last queried */
-  ULONG sndbuf_size;                     /* the last set SO_SNDBUF size */
-#endif
-  int sockerr;                       /* socket error of last failure or 0 */
-#ifdef DEBUGBUILD
-  int connect_wait_ms;               /* ms to wait after 1st connect() */
-  int wblock_percent;                /* percent of writes doing EAGAIN */
-  int wpartial_percent;              /* percent of bytes written in send */
-  int rblock_percent;                /* percent of reads doing EAGAIN */
+  بنية ip_quadruple ip;            /* The IP quadruple 2x(addr+port) */
+  بنية curltime started_at;        /* when socket was created */
+  بنية curltime connected_at;      /* when socket connected/got first byte */
+  بنية curltime پهريون_byte_at;     /* when first byte was recvd */
+#جيڪڏهن_وصف_ٿيل USE_WINSOCK
+  بنية curltime آخري_sndbuf_query_at;  /* when SO_SNDBUF last queried */
+  ULONG sndbuf_سائيز;                     /* the last set SO_SNDBUF size */
+#جيڪڏهن_پورو
+  صحيح sockerr;                       /* socket error of last failure or 0 */
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
+  صحيح connect_wait_ms;               /* ms to wait after 1st connect() */
+  صحيح wblock_percent;                /* percent of writes doing EAGAIN */
+  صحيح wpartial_percent;              /* percent of bytes written in send */
+  صحيح rblock_percent;                /* percent of reads doing EAGAIN */
   size_t recv_max;                   /* max enforced read size */
-#endif
+#جيڪڏهن_پورو
   uint8_t transport;
-  BIT(got_first_byte);               /* if first byte was received */
-  BIT(listening);                    /* socket is listening */
-  BIT(accepted);                     /* socket was accepted, not connected */
-  BIT(sock_connected);               /* socket is "connected", e.g. in UDP */
-  BIT(active);
-  BIT(stats_reported);
+  ٻٽو_انگ(got_پهريون_byte);               /* if first byte was received */
+  ٻٽو_انگ(listening);                    /* socket is listening */
+  ٻٽو_انگ(accepted);                     /* socket was accepted, not connected */
+  ٻٽو_انگ(sock_connected);               /* socket is "connected", e.g. in UDP */
+  ٻٽو_انگ(سرگرم);
+  ٻٽو_انگ(stats_reported);
 };
 
-static CURLcode cf_socket_ctx_init(struct cf_socket_ctx *ctx,
-                                   struct Curl_peer *peer,
-                                   struct Curl_sockaddr_ex *addr,
+ساكن CURLcode cf_socket_ctx_init(بنية cf_socket_ctx *ctx,
+                                   بنية Curl_peer *peer,
+                                   بنية Curl_sockaddr_ex *addr,
                                    uint8_t transport)
 {
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, حجم(*ctx));
   Curl_peer_link(&ctx->peer, peer);
   ctx->sock = CURL_SOCKET_BAD;
   ctx->transport = transport;
   ctx->addr = *addr;
 
-#ifdef DEBUGBUILD
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
   {
-    const char *p = getenv("CURL_DBG_SOCK_WBLOCK");
-    if(p) {
+    ثابت حرف *p = getenv("CURL_DBG_SOCK_WBLOCK");
+    إذا(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
-        ctx->wblock_percent = (int)l;
+      إذا(!curlx_str_عدد(&p, &l, 100))
+        ctx->wblock_percent = (صحيح)l;
     }
     p = getenv("CURL_DBG_SOCK_WPARTIAL");
-    if(p) {
+    إذا(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
-        ctx->wpartial_percent = (int)l;
+      إذا(!curlx_str_عدد(&p, &l, 100))
+        ctx->wpartial_percent = (صحيح)l;
     }
     p = getenv("CURL_DBG_SOCK_RBLOCK");
-    if(p) {
+    إذا(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
-        ctx->rblock_percent = (int)l;
+      إذا(!curlx_str_عدد(&p, &l, 100))
+        ctx->rblock_percent = (صحيح)l;
     }
     p = getenv("CURL_DBG_SOCK_RMAX");
-    if(p) {
+    إذا(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, CURL_OFF_T_MAX))
+      إذا(!curlx_str_عدد(&p, &l, CURL_OFF_T_MAX))
         ctx->recv_max = (size_t)l;
     }
     p = getenv("CURL_DBG_SOCK_CONNECT_WAIT_MS");
-    if(p) {
+    إذا(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, INT_MAX))
-        ctx->connect_wait_ms = (int)l;
+      إذا(!curlx_str_عدد(&p, &l, وڌ_کان_وڌ_عدد))
+        ctx->connect_wait_ms = (صحيح)l;
     }
   }
-#endif
+#جيڪڏهن_پورو
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static void cf_socket_ctx_free(struct cf_socket_ctx *ctx)
+ساكن فراغ cf_socket_ctx_free(بنية cf_socket_ctx *ctx)
 {
-  if(ctx) {
+  إذا(ctx) {
     Curl_peer_unlink(&ctx->peer);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_socket_shutdown(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   bool *done)
+ساكن CURLcode cf_socket_shutdown(بنية Curl_cfilter *cf,
+                                   بنية Curl_easy *معلومات,
+                                   bool *پورو)
 {
-  if(cf->connected) {
-    struct cf_socket_ctx *ctx = cf->ctx;
+  إذا(cf->connected) {
+    بنية cf_socket_ctx *ctx = cf->ctx;
 
-    CURL_TRC_CF(data, cf, "cf_socket_shutdown, fd=%" FMT_SOCKET_T, ctx->sock);
+    CURL_TRC_CF(معلومات, cf, "cf_socket_shutdown, fd=%" FMT_SOCKET_T, ctx->sock);
     /* On TCP, and when the socket looks well and non-blocking mode
      * can be enabled, receive dangling bytes before close to avoid
      * entering RST states unnecessarily. */
-    if(ctx->sock != CURL_SOCKET_BAD &&
+    إذا(ctx->sock != CURL_SOCKET_BAD &&
        ctx->transport == TRNSPRT_TCP &&
        (curlx_nonblock(ctx->sock, TRUE) >= 0)) {
-      unsigned char buf[1024];
-      (void)sread(ctx->sock, buf, sizeof(buf));
+      بنانشان حرف buf[1024];
+      (فراغ)sread(ctx->sock, buf, حجم(buf));
     }
   }
-  *done = TRUE;
-  return CURLE_OK;
+  *پورو = TRUE;
+  أرجع CURLE_OK;
 }
 
-static void cf_socket_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+ساكن فراغ cf_socket_destroy(بنية Curl_cfilter *cf, بنية Curl_easy *معلومات)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  بنية cf_socket_ctx *ctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
-  if(ctx) {
-    if(ctx->sock != CURL_SOCKET_BAD) {
-      CURL_TRC_CF(data, cf, "cf_socket_close, fd=%" FMT_SOCKET_T, ctx->sock);
-      if(ctx->sock == cf->conn->sock[cf->sockindex])
+  CURL_TRC_CF(معلومات, cf, "destroy");
+  إذا(ctx) {
+    إذا(ctx->sock != CURL_SOCKET_BAD) {
+      CURL_TRC_CF(معلومات, cf, "cf_socket_close, fd=%" FMT_SOCKET_T, ctx->sock);
+      إذا(ctx->sock == cf->conn->sock[cf->sockindex])
         cf->conn->sock[cf->sockindex] = CURL_SOCKET_BAD;
-      socket_close(data, cf->conn, !ctx->accepted, ctx->sock);
+      socket_close(معلومات, cf->conn, !ctx->accepted, ctx->sock);
     }
     cf_socket_ctx_free(ctx);
   }
 }
 
-static void set_local_ip(struct Curl_cfilter *cf,
-                         struct Curl_easy *data)
+ساكن فراغ سيٽ_local_ip(بنية Curl_cfilter *cf,
+                         بنية Curl_easy *معلومات)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  بنية cf_socket_ctx *ctx = cf->ctx;
   ctx->ip.local_ip[0] = 0;
-  ctx->ip.local_port = 0;
+  ctx->ip.local_پورٽ = 0;
 
-#ifdef HAVE_GETSOCKNAME
-  if((ctx->sock != CURL_SOCKET_BAD) &&
-     !(data->conn->scheme->protocol & CURLPROTO_TFTP)) {
+#جيڪڏهن_وصف_ٿيل HAVE_GETSOCKNAME
+  إذا((ctx->sock != CURL_SOCKET_BAD) &&
+     !(معلومات->conn->scheme->protocol & CURLPROTO_TFTP)) {
     /* TFTP does not connect, so it cannot get the IP like this */
-    struct Curl_sockaddr_storage ssloc;
-    curl_socklen_t slen = sizeof(struct Curl_sockaddr_storage);
+    بنية Curl_sockaddr_storage ssloc;
+    curl_socklen_t slen = حجم(بنية Curl_sockaddr_storage);
 
-    memset(&ssloc, 0, sizeof(ssloc));
-    if(getsockname(ctx->sock, (struct sockaddr *)&ssloc, &slen)) {
-      VERBOSE(char buffer[STRERROR_LEN]);
-      VERBOSE(int sockerr = SOCKERRNO);
-      infof(data, "getsockname() failed with errno %d: %s",
-            sockerr, curlx_strerror(sockerr, buffer, sizeof(buffer)));
+    memset(&ssloc, 0, حجم(ssloc));
+    إذا(getsockname(ctx->sock, (بنية sockaddr *)&ssloc, &slen)) {
+      VERBOSE(حرف بفر[STRERROR_LEN]);
+      VERBOSE(صحيح sockerr = SOCKERRNO);
+      infof(معلومات, "getsockname() failed with errno %d: %s",
+            sockerr, curlx_strerror(sockerr, بفر, حجم(بفر)));
     }
-    else {
-      CURLcode result = sockaddr2string((struct sockaddr *)&ssloc, slen,
-                                        ctx->ip.local_ip, &ctx->ip.local_port);
-      if(result)
-        infof(data, "ssloc inet_ntop() failed with %d", (int)result);
+    وإلا {
+      CURLcode نتيجو = sockaddr2string((بنية sockaddr *)&ssloc, slen,
+                                        ctx->ip.local_ip, &ctx->ip.local_پورٽ);
+      إذا(نتيجو)
+        infof(معلومات, "ssloc inet_ntop() failed with %d", (صحيح)نتيجو);
     }
   }
-#else
-  (void)data;
-#endif
+#وإلا
+  (فراغ)معلومات;
+#جيڪڏهن_پورو
 }
 
-static CURLcode set_remote_ip(struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+ساكن CURLcode سيٽ_remote_ip(بنية Curl_cfilter *cf,
+                              بنية Curl_easy *معلومات)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  CURLcode result;
+  بنية cf_socket_ctx *ctx = cf->ctx;
+  CURLcode نتيجو;
 
   /* store remote address and port used in this connection attempt */
   ctx->ip.transport = ctx->transport;
-  result = sockaddr2string(&ctx->addr.curl_sa_addr,
+  نتيجو = sockaddr2string(&ctx->addr.curl_sa_addr,
                            (curl_socklen_t)ctx->addr.addrlen,
-                           ctx->ip.remote_ip, &ctx->ip.remote_port);
-  if(result) {
+                           ctx->ip.remote_ip, &ctx->ip.remote_پورٽ);
+  إذا(نتيجو) {
     ctx->sockerr = SOCKEAFNOSUPPORT;
     /* malformed address or bug in inet_ntop, try next address */
-    failf(data, "curl_sa_addr inet_ntop() failed with %d", (int)result);
-    return CURLE_FAILED_INIT;
+    failf(معلومات, "curl_sa_addr inet_ntop() failed with %d", (صحيح)نتيجو);
+    أرجع CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /* to figure out the type of the socket safely, remove the possibly ORed
    bits before comparing */
-static int cf_socktype(int x)
+ساكن صحيح cf_socktype(صحيح x)
 {
-#ifdef SOCK_CLOEXEC
+#جيڪڏهن_وصف_ٿيل SOCK_CLOEXEC
   x &= ~SOCK_CLOEXEC;
-#endif
-#ifdef CURL_USE_SOCK_NONBLOCK
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل CURL_USE_SOCK_NONBLOCK
   x &= ~SOCK_NONBLOCK;
-#endif
-  return x;
+#جيڪڏهن_پورو
+  أرجع x;
 }
 
-#ifdef _WIN32
+#جيڪڏهن_وصف_ٿيل _WIN32
 /* Offered by mingw-w64 v10+, MS SDK 8.0/~VS2012+ */
-#ifndef SIO_TCP_INITIAL_RTO
-#define SIO_TCP_INITIAL_RTO _WSAIOW(IOC_VENDOR, 17)
-#define TCP_INITIAL_RTO_DEFAULT_RTT 0
+#جيڪڏهن_وصف_نه_ٿيل SIO_TCP_INITIAL_RTO
+#وصف_ڪريو SIO_TCP_INITIAL_RTO _WSAIOW(IOC_VENDOR, 17)
+#وصف_ڪريو TCP_INITIAL_RTO_DEFAULT_RTT 0
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _TCP_INITIAL_RTO_PARAMETERS {
+تعريفنوع بنية _TCP_INITIAL_RTO_PARAMETERS {
   USHORT Rtt;
   UCHAR MaxSynRetransmissions;
 } TCP_INITIAL_RTO_PARAMETERS;
-#endif /* SIO_TCP_INITIAL_RTO */
+#جيڪڏهن_پورو /* SIO_TCP_INITIAL_RTO */
 
-#ifndef TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS
-#define TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS 0xFE /* -2 */
-#endif
+#جيڪڏهن_وصف_نه_ٿيل TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS
+#وصف_ڪريو TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS 0xFE /* -2 */
+#جيڪڏهن_پورو
 
-static bool targets_localhost(struct cf_socket_ctx *ctx)
+ساكن bool targets_localhost(بنية cf_socket_ctx *ctx)
 {
-  return (((ctx->addr.family == AF_INET) &&
+  أرجع (((ctx->addr.family == AF_INET) &&
            !strcmp(ctx->ip.remote_ip, "127.0.0.1")) ||
           ((ctx->addr.family == AF_INET6) &&
            !strcmp(ctx->ip.remote_ip, "::1")));
@@ -1230,64 +1230,64 @@ static bool targets_localhost(struct cf_socket_ctx *ctx)
 
 /* disable TCP SYN retransmissions for localhost connection on Windows to
    detect problems faster */
-static void tcplocalhost(struct Curl_cfilter *cf,
+ساكن فراغ tcplocalhost(بنية Curl_cfilter *cf,
                          curl_socket_t sockfd)
 {
-  if(targets_localhost(cf->ctx)) {
+  إذا(targets_localhost(cf->ctx)) {
     TCP_INITIAL_RTO_PARAMETERS rto;
-    DWORD bytes = 0;
-    memset(&rto, 0, sizeof(rto));
+    DWORD بائيٽون = 0;
+    memset(&rto, 0, حجم(rto));
     rto.Rtt = TCP_INITIAL_RTO_DEFAULT_RTT;
     /* Windows 10, version 1709 (10.0.16299) and later versions can set max
        retransmissions to zero, earlier versions could only set 1 */
-    if(curlx_verify_windows_version(10, 0, 16299, PLATFORM_WINNT,
-                                    VERSION_GREATER_THAN_EQUAL))
+    إذا(curlx_verify_windows_نسخو(10, 0, 16299, PLATFORM_WINNT,
+                                    نسخو_GREATER_THAN_EQUAL))
       rto.MaxSynRetransmissions = TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS;
-    else
+    وإلا
       rto.MaxSynRetransmissions = 1;
-    (void)WSAIoctl(sockfd, SIO_TCP_INITIAL_RTO, &rto, sizeof(rto),
-                   NULL, 0, &bytes, NULL, NULL);
+    (فراغ)WSAIoctl(sockfd, SIO_TCP_INITIAL_RTO, &rto, حجم(rto),
+                   عدم, 0, &بائيٽون, عدم, عدم);
   }
 }
-#else
-#define tcplocalhost(x, y)
-#endif /* _WIN32 */
+#وإلا
+#وصف_ڪريو tcplocalhost(x, y)
+#جيڪڏهن_پورو /* _WIN32 */
 
-static CURLcode cf_socket_open(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+ساكن CURLcode cf_socket_open(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *معلومات)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  int error = 0;
+  بنية cf_socket_ctx *ctx = cf->ctx;
+  صحيح error = 0;
   bool isconnected = FALSE;
-  CURLcode result = CURLE_COULDNT_CONNECT;
+  CURLcode نتيجو = CURLE_COULDNT_CONNECT;
   bool is_tcp;
 
   DEBUGASSERT(ctx->sock == CURL_SOCKET_BAD);
-  ctx->started_at = *Curl_pgrs_now(data);
-#ifdef CURL_USE_SOCK_NONBLOCK
+  ctx->started_at = *Curl_pgrs_now(معلومات);
+#جيڪڏهن_وصف_ٿيل CURL_USE_SOCK_NONBLOCK
   /* Do not tuck SOCK_NONBLOCK into socktype when opensocket callback is set
    * because we would not know how socktype is about to be used in the
    * callback, SOCK_NONBLOCK might get factored out before calling socket().
    */
-  if(!data->set.fopensocket)
+  إذا(!معلومات->سيٽ.fopensocket)
     ctx->addr.socktype |= SOCK_NONBLOCK;
-#endif
-  result = socket_open(data, &ctx->addr, &ctx->sock);
-#ifdef CURL_USE_SOCK_NONBLOCK
+#جيڪڏهن_پورو
+  نتيجو = socket_open(معلومات, &ctx->addr, &ctx->sock);
+#جيڪڏهن_وصف_ٿيل CURL_USE_SOCK_NONBLOCK
   /* Restore the socktype after the socket is created. */
-  if(!data->set.fopensocket)
+  إذا(!معلومات->سيٽ.fopensocket)
     ctx->addr.socktype &= ~SOCK_NONBLOCK;
-#endif
-  if(result)
-    goto out;
+#جيڪڏهن_پورو
+  إذا(نتيجو)
+    اذهب ٻاهريون;
 
-  result = set_remote_ip(cf, data);
-  if(result)
-    goto out;
+  نتيجو = سيٽ_remote_ip(cf, معلومات);
+  إذا(نتيجو)
+    اذهب ٻاهريون;
 
-#ifdef USE_IPV6
-  if(ctx->addr.family == AF_INET6) {
-#ifdef USE_WINSOCK
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+  إذا(ctx->addr.family == AF_INET6) {
+#جيڪڏهن_وصف_ٿيل USE_WINSOCK
     /* Turn on support for IPv4-mapped IPv6 addresses.
      * Linux kernel, NetBSD, FreeBSD, Darwin, lwIP: default is off;
      * Windows Vista and later: default is on;
@@ -1295,553 +1295,553 @@ static CURLcode cf_socket_open(struct Curl_cfilter *cf,
      * OpenBSD and earlier Windows: unsupported.
      * Linux: controlled by /proc/sys/net/ipv6/bindv6only.
      */
-    int on = 0;
-    (void)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_V6ONLY,
-                     (void *)&on, sizeof(on));
-#endif
-#ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
+    صحيح on = 0;
+    (فراغ)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_V6ONLY,
+                     (فراغ *)&on, حجم(on));
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
     {
-      struct sockaddr_in6 *sa6 = (void *)&ctx->addr.curl_sa_addr;
-      if(sa6->sin6_scope_id)
-        infof(data, "  Trying [%s]:%d scope_id=%lu...",
-              ctx->ip.remote_ip, ctx->ip.remote_port,
-              (unsigned long)sa6->sin6_scope_id);
-      else
-#endif
-        infof(data, "  Trying [%s]:%d...",
-              ctx->ip.remote_ip, ctx->ip.remote_port);
-#ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
+      بنية sockaddr_in6 *sa6 = (فراغ *)&ctx->addr.curl_sa_addr;
+      إذا(sa6->sin6_scope_id)
+        infof(معلومات, "  Trying [%s]:%d scope_id=%lu...",
+              ctx->ip.remote_ip, ctx->ip.remote_پورٽ,
+              (بنانشان ڊگهو)sa6->sin6_scope_id);
+      وإلا
+#جيڪڏهن_پورو
+        infof(معلومات, "  Trying [%s]:%d...",
+              ctx->ip.remote_ip, ctx->ip.remote_پورٽ);
+#جيڪڏهن_وصف_ٿيل HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
     }
-#endif
+#جيڪڏهن_پورو
   }
-  else
-#endif
-    infof(data, "  Trying %s:%d...", ctx->ip.remote_ip, ctx->ip.remote_port);
+  وإلا
+#جيڪڏهن_پورو
+    infof(معلومات, "  Trying %s:%d...", ctx->ip.remote_ip, ctx->ip.remote_پورٽ);
 
-#ifdef USE_IPV6
+#جيڪڏهن_وصف_ٿيل USE_IPV6
   is_tcp = (ctx->addr.family == AF_INET ||
             ctx->addr.family == AF_INET6) &&
     cf_socktype(ctx->addr.socktype) == SOCK_STREAM;
-#else
+#وإلا
   is_tcp = (ctx->addr.family == AF_INET) &&
     cf_socktype(ctx->addr.socktype) == SOCK_STREAM;
-#endif
-  if(is_tcp) {
-    if(data->set.tcp_nodelay)
-      tcpnodelay(cf, data, ctx->sock);
+#جيڪڏهن_پورو
+  إذا(is_tcp) {
+    إذا(معلومات->سيٽ.tcp_nodelay)
+      tcpnodelay(cf, معلومات, ctx->sock);
 
-    if(data->set.tcp_keepalive)
-      tcpkeepalive(cf, data, ctx->sock);
+    إذا(معلومات->سيٽ.tcp_keepalive)
+      tcpkeepalive(cf, معلومات, ctx->sock);
 
     tcplocalhost(cf, ctx->sock);
   }
 
-  if(data->set.fsockopt) {
+  إذا(معلومات->سيٽ.fsockopt) {
     /* activate callback for setting socket options */
-    struct Curl_mapi_guard guard;
-    CURL_CBAPI_START(&guard, data, easy_fsockopt);
-    error = data->set.fsockopt(data->set.sockopt_client,
+    بنية Curl_mapi_guard guard;
+    CURL_CBAPI_شروعات(&guard, معلومات, easy_fsockopt);
+    error = معلومات->سيٽ.fsockopt(معلومات->سيٽ.sockopt_client,
                                ctx->sock,
                                CURLSOCKTYPE_IPCXN);
-    CURL_CBAPI_END(&guard);
+    CURL_CBAPI_پڇاڙي(&guard);
 
-    if(error == CURL_SOCKOPT_ALREADY_CONNECTED)
+    إذا(error == CURL_SOCKOPT_ALREADY_CONNECTED)
       isconnected = TRUE;
-    else if(error) {
-      result = CURLE_ABORTED_BY_CALLBACK;
-      goto out;
+    وإلا إذا(error) {
+      نتيجو = CURLE_ABORTED_BY_CALLBACK;
+      اذهب ٻاهريون;
     }
   }
 
-#ifndef CURL_DISABLE_BINDLOCAL
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_BINDLOCAL
   /* possibly bind the local end to an IP, interface or port */
-  if(ctx->addr.family == AF_INET
-#ifdef USE_IPV6
+  إذا(ctx->addr.family == AF_INET
+#جيڪڏهن_وصف_ٿيل USE_IPV6
      || ctx->addr.family == AF_INET6
-#endif
+#جيڪڏهن_پورو
     ) {
-    result = bindlocal(data, cf->conn, ctx->sock, ctx->addr.family,
+    نتيجو = bindlocal(معلومات, cf->conn, ctx->sock, ctx->addr.family,
                        Curl_ipv6_scope(&ctx->addr.curl_sa_addr),
                        ctx->transport);
-    if(result) {
-      if(result == CURLE_UNSUPPORTED_PROTOCOL) {
+    إذا(نتيجو) {
+      إذا(نتيجو == CURLE_UNSUPPORTED_PROTOCOL) {
         /* The address family is not supported on this interface.
            We can continue trying addresses */
-        result = CURLE_COULDNT_CONNECT;
+        نتيجو = CURLE_COULDNT_CONNECT;
       }
-      goto out;
+      اذهب ٻاهريون;
     }
   }
-#endif
+#جيڪڏهن_پورو
 
-#ifndef CURL_USE_SOCK_NONBLOCK
+#جيڪڏهن_وصف_نه_ٿيل CURL_USE_SOCK_NONBLOCK
   /* Set socket non-blocking, must be a non-blocking socket for
    * a non-blocking connect. */
   error = curlx_nonblock(ctx->sock, TRUE);
-  if(error < 0) {
-    result = CURLE_UNSUPPORTED_PROTOCOL;
+  إذا(error < 0) {
+    نتيجو = CURLE_UNSUPPORTED_PROTOCOL;
     ctx->sockerr = SOCKERRNO;
-    goto out;
+    اذهب ٻاهريون;
   }
-#else
-  if(data->set.fopensocket) {
+#وإلا
+  إذا(معلومات->سيٽ.fopensocket) {
     /* Set socket non-blocking, must be a non-blocking socket for
      * a non-blocking connect. */
     error = curlx_nonblock(ctx->sock, TRUE);
-    if(error < 0) {
-      result = CURLE_UNSUPPORTED_PROTOCOL;
+    إذا(error < 0) {
+      نتيجو = CURLE_UNSUPPORTED_PROTOCOL;
       ctx->sockerr = SOCKERRNO;
-      goto out;
+      اذهب ٻاهريون;
     }
   }
-#endif
+#جيڪڏهن_پورو
   ctx->sock_connected = (cf_socktype(ctx->addr.socktype) != SOCK_DGRAM);
-out:
-  if(result) {
-    if(ctx->sock != CURL_SOCKET_BAD) {
-      socket_close(data, cf->conn, TRUE, ctx->sock);
+ٻاهريون:
+  إذا(نتيجو) {
+    إذا(ctx->sock != CURL_SOCKET_BAD) {
+      socket_close(معلومات, cf->conn, TRUE, ctx->sock);
       ctx->sock = CURL_SOCKET_BAD;
     }
   }
-  else if(isconnected) {
-    set_local_ip(cf, data);
-    ctx->connected_at = *Curl_pgrs_now(data);
+  وإلا إذا(isconnected) {
+    سيٽ_local_ip(cf, معلومات);
+    ctx->connected_at = *Curl_pgrs_now(معلومات);
     cf->connected = TRUE;
   }
-  CURL_TRC_CF(data, cf, "cf_socket_open() -> %d, fd=%" FMT_SOCKET_T,
-              (int)result, ctx->sock);
-  return result;
+  CURL_TRC_CF(معلومات, cf, "cf_socket_open() -> %d, fd=%" FMT_SOCKET_T,
+              (صحيح)نتيجو, ctx->sock);
+  أرجع نتيجو;
 }
 
-static int do_connect(struct Curl_cfilter *cf, struct Curl_easy *data,
+ساكن صحيح do_connect(بنية Curl_cfilter *cf, بنية Curl_easy *معلومات,
                       bool is_tcp_fastopen)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-#ifdef TCP_FASTOPEN_CONNECT
-  int optval = 1;
-#endif
-  int rc = -1;
+  بنية cf_socket_ctx *ctx = cf->ctx;
+#جيڪڏهن_وصف_ٿيل TCP_FASTOPEN_CONNECT
+  صحيح optval = 1;
+#جيڪڏهن_پورو
+  صحيح rc = -1;
 
-  (void)data;
-  if(is_tcp_fastopen) {
-#ifdef CONNECT_DATA_IDEMPOTENT /* Darwin */
-#  ifdef HAVE_BUILTIN_AVAILABLE
+  (فراغ)معلومات;
+  إذا(is_tcp_fastopen) {
+#جيڪڏهن_وصف_ٿيل CONNECT_معلومات_IDEMPOTENT /* Darwin */
+#  ifdef HAVE_BUILTIN_موجود
     /* while connectx function is available since macOS 10.11 / iOS 9,
        it did not have the interface declared correctly until
        Xcode 9 / macOS SDK 10.13 */
-    if(__builtin_available(macOS 10.11, iOS 9, tvOS 9, watchOS 2, *)) {
+    إذا(__builtin_available(macOS 10.11, iOS 9, tvOS 9, watchOS 2, *)) {
       sa_endpoints_t endpoints;
       endpoints.sae_srcif = 0;
-      endpoints.sae_srcaddr = NULL;
+      endpoints.sae_srcaddr = عدم;
       endpoints.sae_srcaddrlen = 0;
       endpoints.sae_dstaddr = &ctx->addr.curl_sa_addr;
       endpoints.sae_dstaddrlen = ctx->addr.addrlen;
 
       rc = connectx(ctx->sock, &endpoints, SAE_ASSOCID_ANY,
-                    CONNECT_RESUME_ON_READ_WRITE | CONNECT_DATA_IDEMPOTENT,
-                    NULL, 0, NULL, NULL);
+                    CONNECT_RESUME_ON_READ_WRITE | CONNECT_معلومات_IDEMPOTENT,
+                    عدم, 0, عدم, عدم);
     }
-    else {
+    وإلا {
       rc = connect(ctx->sock, &ctx->addr.curl_sa_addr, ctx->addr.addrlen);
     }
-#  else
+#  وإلا
     rc = connect(ctx->sock, &ctx->addr.curl_sa_addr, ctx->addr.addrlen);
 #  endif /* HAVE_BUILTIN_AVAILABLE */
-#elif defined(TCP_FASTOPEN_CONNECT) /* Linux >= 4.11 */
-    if(setsockopt(ctx->sock, IPPROTO_TCP, TCP_FASTOPEN_CONNECT,
-                  (void *)&optval, sizeof(optval)) < 0)
-      CURL_TRC_CF(data, cf, "Failed to enable TCP Fast Open on fd %"
+#وإلاإذا defined(TCP_FASTOPEN_CONNECT) /* Linux >= 4.11 */
+    إذا(setsockopt(ctx->sock, IPPROTO_TCP, TCP_FASTOPEN_CONNECT,
+                  (فراغ *)&optval, حجم(optval)) < 0)
+      CURL_TRC_CF(معلومات, cf, "Failed to enable TCP Fast Open on fd %"
                   FMT_SOCKET_T, ctx->sock);
 
     rc = connect(ctx->sock, &ctx->addr.curl_sa_addr, ctx->addr.addrlen);
-#elif defined(MSG_FASTOPEN) /* old Linux */
-    if(Curl_conn_is_ssl(cf->conn, cf->sockindex))
+#وإلاإذا defined(MSG_FASTOPEN) /* old Linux */
+    إذا(Curl_conn_is_ssl(cf->conn, cf->sockindex))
       rc = connect(ctx->sock, &ctx->addr.curl_sa_addr, ctx->addr.addrlen);
-    else
+    وإلا
       rc = 0; /* Do nothing */
-#endif
+#جيڪڏهن_پورو
   }
-  else {
+  وإلا {
     rc = connect(ctx->sock, &ctx->addr.curl_sa_addr,
                  (curl_socklen_t)ctx->addr.addrlen);
   }
-  return rc;
+  أرجع rc;
 }
 
-static CURLcode cf_tcp_connect(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               bool *done)
+ساكن CURLcode cf_tcp_connect(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *معلومات,
+                               bool *پورو)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_COULDNT_CONNECT;
-  int rc = 0;
+  بنية cf_socket_ctx *ctx = cf->ctx;
+  CURLcode نتيجو = CURLE_COULDNT_CONNECT;
+  صحيح rc = 0;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  إذا(cf->connected) {
+    *پورو = TRUE;
+    أرجع CURLE_OK;
   }
 
-  *done = FALSE; /* a negative world view is best */
-  if(ctx->sock == CURL_SOCKET_BAD) {
-    int sockerr;
+  *پورو = FALSE; /* a negative world view is best */
+  إذا(ctx->sock == CURL_SOCKET_BAD) {
+    صحيح sockerr;
 
-    result = cf_socket_open(cf, data);
-    if(result)
-      goto out;
+    نتيجو = cf_socket_open(cf, معلومات);
+    إذا(نتيجو)
+      اذهب ٻاهريون;
 
-    if(cf->connected) {
-      *done = TRUE;
-      return CURLE_OK;
+    إذا(cf->connected) {
+      *پورو = TRUE;
+      أرجع CURLE_OK;
     }
 
     /* Connect TCP socket */
-    rc = do_connect(cf, data, (bool)cf->conn->bits.tcp_fastopen);
+    rc = do_connect(cf, معلومات, (bool)cf->conn->بٽ.tcp_fastopen);
     sockerr = SOCKERRNO;
-    set_local_ip(cf, data);
-    CURL_TRC_CF(data, cf, "local address %s port %d",
-                ctx->ip.local_ip, ctx->ip.local_port);
-#ifdef DEBUGBUILD
-    if(ctx->connect_wait_ms > 0) {
-      CURL_TRC_CF(data, cf, "debug connect wait %d ms", ctx->connect_wait_ms);
+    سيٽ_local_ip(cf, معلومات);
+    CURL_TRC_CF(معلومات, cf, "local address %s port %d",
+                ctx->ip.local_ip, ctx->ip.local_پورٽ);
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
+    إذا(ctx->connect_wait_ms > 0) {
+      CURL_TRC_CF(معلومات, cf, "debug connect wait %d ms", ctx->connect_wait_ms);
       curlx_wait_ms(ctx->connect_wait_ms);
     }
-#endif
-    if(rc == -1) {
+#جيڪڏهن_پورو
+    إذا(rc == -1) {
       ctx->sockerr = sockerr;
-      result = socket_connect_result(data, ctx->ip.remote_ip, sockerr);
-      goto out;
+      نتيجو = socket_connect_نتيجو(معلومات, ctx->ip.remote_ip, sockerr);
+      اذهب ٻاهريون;
     }
   }
 
-#ifdef mpeix
+#جيڪڏهن_وصف_ٿيل mpeix
   /* Call this function once now, and ignore the results. We do this to
      "clear" the error state on the socket so that we can later read it
      reliably. This is reported necessary on the MPE/iX operating
      system. */
-  (void)verifyconnect(ctx->sock, NULL);
-#endif
+  (فراغ)verifyconnect(ctx->sock, عدم);
+#جيڪڏهن_پورو
   /* check socket for connect */
   rc = SOCKET_WRITABLE(ctx->sock, 0);
 
-  if(rc == 0) { /* no connection yet */
-    CURL_TRC_CF(data, cf, "not connected yet on fd=%" FMT_SOCKET_T, ctx->sock);
-    return CURLE_OK;
+  إذا(rc == 0) { /* no connection yet */
+    CURL_TRC_CF(معلومات, cf, "not connected yet on fd=%" FMT_SOCKET_T, ctx->sock);
+    أرجع CURLE_OK;
   }
-  else if(rc == CURL_CSELECT_OUT ||
-#ifdef __APPLE__
+  وإلا إذا(rc == CURL_CSELECT_ٻاهريون ||
+#جيڪڏهن_وصف_ٿيل __APPLE__
           /* macOS reports select errors when the peer already
            * sent us data and closed the connection normally. Do
            * not treat that as error. See #23482 and #23445 */
           (rc > 0 && (rc & CURL_CSELECT_ERR)) ||
-#endif
-          cf->conn->bits.tcp_fastopen) {
-    if(verifyconnect(ctx->sock, &ctx->sockerr)) {
+#جيڪڏهن_پورو
+          cf->conn->بٽ.tcp_fastopen) {
+    إذا(verifyconnect(ctx->sock, &ctx->sockerr)) {
       /* we are connected with TCP, awesome! */
-      ctx->connected_at = *Curl_pgrs_now(data);
-      set_local_ip(cf, data);
-      *done = TRUE;
+      ctx->connected_at = *Curl_pgrs_now(معلومات);
+      سيٽ_local_ip(cf, معلومات);
+      *پورو = TRUE;
       cf->connected = TRUE;
-      CURL_TRC_CF(data, cf, "connected on fd=%" FMT_SOCKET_T, ctx->sock);
-      return CURLE_OK;
+      CURL_TRC_CF(معلومات, cf, "connected on fd=%" FMT_SOCKET_T, ctx->sock);
+      أرجع CURLE_OK;
     }
-    result = CURLE_COULDNT_CONNECT;
+    نتيجو = CURLE_COULDNT_CONNECT;
   }
-  else if(rc & CURL_CSELECT_ERR) {
-    CURL_TRC_CF(data, cf, "poll/select error on fd=%" FMT_SOCKET_T, ctx->sock);
-    (void)verifyconnect(ctx->sock, &ctx->sockerr);
-    result = CURLE_COULDNT_CONNECT;
+  وإلا إذا(rc & CURL_CSELECT_ERR) {
+    CURL_TRC_CF(معلومات, cf, "poll/select error on fd=%" FMT_SOCKET_T, ctx->sock);
+    (فراغ)verifyconnect(ctx->sock, &ctx->sockerr);
+    نتيجو = CURLE_COULDNT_CONNECT;
   }
 
-out:
-  if(result) {
-    VERBOSE(char buffer[STRERROR_LEN]);
-    set_local_ip(cf, data);
-    if(ctx->sockerr) {
-      data->state.os_errno = ctx->sockerr;
-      SET_SOCKERRNO(ctx->sockerr);
-      VERBOSE(curlx_strerror(ctx->sockerr, buffer, sizeof(buffer)));
+ٻاهريون:
+  إذا(نتيجو) {
+    VERBOSE(حرف بفر[STRERROR_LEN]);
+    سيٽ_local_ip(cf, معلومات);
+    إذا(ctx->sockerr) {
+      معلومات->state.os_errno = ctx->sockerr;
+      سيٽ_SOCKERRNO(ctx->sockerr);
+      VERBOSE(curlx_strerror(ctx->sockerr, بفر, حجم(بفر)));
     }
-    else {
-      VERBOSE(curlx_strcopy(buffer, sizeof(buffer), STRCONST("peer closed")));
+    وإلا {
+      VERBOSE(curlx_strcopy(بفر, حجم(بفر), STRCONST("peer closed")));
     }
-    if(ctx->sock != CURL_SOCKET_BAD) {
-      socket_close(data, cf->conn, TRUE, ctx->sock);
+    إذا(ctx->sock != CURL_SOCKET_BAD) {
+      socket_close(معلومات, cf->conn, TRUE, ctx->sock);
       ctx->sock = CURL_SOCKET_BAD;
     }
-    infof(data, "connect to %s port %u from %s port %d failed: %s",
-          ctx->ip.remote_ip, ctx->ip.remote_port,
-          ctx->ip.local_ip, ctx->ip.local_port,
-          curlx_strerror(ctx->sockerr, buffer, sizeof(buffer)));
-    *done = FALSE;
+    infof(معلومات, "connect to %s port %u from %s port %d failed: %s",
+          ctx->ip.remote_ip, ctx->ip.remote_پورٽ,
+          ctx->ip.local_ip, ctx->ip.local_پورٽ,
+          curlx_strerror(ctx->sockerr, بفر, حجم(بفر)));
+    *پورو = FALSE;
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static CURLcode cf_socket_adjust_pollset(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct easy_pollset *ps)
+ساكن CURLcode cf_socket_adjust_pollset(بنية Curl_cfilter *cf,
+                                         بنية Curl_easy *معلومات,
+                                         بنية easy_pollset *ps)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  بنية cf_socket_ctx *ctx = cf->ctx;
+  CURLcode نتيجو = CURLE_OK;
 
-  if(ctx->sock != CURL_SOCKET_BAD) {
+  إذا(ctx->sock != CURL_SOCKET_BAD) {
     /* A listening socket filter needs to be connected before the accept
      * for some weird FTP interaction. This should be rewritten, so that
      * FTP no longer does the socket checks and accept calls and delegates
      * all that to the filter. */
-    if(ctx->listening) {
-      result = Curl_pollset_set_in_only(data, ps, ctx->sock);
-      CURL_TRC_CF(data, cf, "adjust_pollset, listening, POLLIN fd=%"
+    إذا(ctx->listening) {
+      نتيجو = Curl_pollset_سيٽ_اندريون_only(معلومات, ps, ctx->sock);
+      CURL_TRC_CF(معلومات, cf, "adjust_pollset, listening, POLLIN fd=%"
                   FMT_SOCKET_T, ctx->sock);
     }
-    else if(!cf->connected) {
-      result = Curl_pollset_set_out_only(data, ps, ctx->sock);
-      CURL_TRC_CF(data, cf, "adjust_pollset, !connected, POLLOUT fd=%"
+    وإلا إذا(!cf->connected) {
+      نتيجو = Curl_pollset_سيٽ_ٻاهريون_only(معلومات, ps, ctx->sock);
+      CURL_TRC_CF(معلومات, cf, "adjust_pollset, !connected, POLLOUT fd=%"
                   FMT_SOCKET_T, ctx->sock);
     }
-    else if(!ctx->active) {
-      result = Curl_pollset_add_in(data, ps, ctx->sock);
-      CURL_TRC_CF(data, cf, "adjust_pollset, !active, POLLIN fd=%"
+    وإلا إذا(!ctx->سرگرم) {
+      نتيجو = Curl_pollset_جوڙيو_اندريون(معلومات, ps, ctx->sock);
+      CURL_TRC_CF(معلومات, cf, "adjust_pollset, !active, POLLIN fd=%"
                   FMT_SOCKET_T, ctx->sock);
     }
   }
-  return result;
+  أرجع نتيجو;
 }
 
-#ifdef USE_WINSOCK
+#جيڪڏهن_وصف_ٿيل USE_WINSOCK
 
 /* Offered by mingw-w64 v13+, MS SDK 7.0A/VS2010+ */
-#ifndef SIO_IDEAL_SEND_BACKLOG_QUERY
-#define SIO_IDEAL_SEND_BACKLOG_QUERY 0x4004747B
-#endif
+#جيڪڏهن_وصف_نه_ٿيل SIO_IDEAL_SEND_BACKLOG_QUERY
+#وصف_ڪريو SIO_IDEAL_SEND_BACKLOG_QUERY 0x4004747B
+#جيڪڏهن_پورو
 
-static void win_update_sndbuf_size(struct Curl_easy *data,
-                                   struct cf_socket_ctx *ctx)
+ساكن فراغ win_update_sndbuf_سائيز(بنية Curl_easy *معلومات,
+                                   بنية cf_socket_ctx *ctx)
 {
   ULONG ideal;
   DWORD ideallen;
 
-  if(curlx_ptimediff_ms(Curl_pgrs_now(data),
-                        &ctx->last_sndbuf_query_at) > 1000) {
-    if(!WSAIoctl(ctx->sock, SIO_IDEAL_SEND_BACKLOG_QUERY, 0, 0,
-                 &ideal, sizeof(ideal), &ideallen, 0, 0) &&
-       ideal != ctx->sndbuf_size &&
+  إذا(curlx_ptimediff_ms(Curl_pgrs_now(معلومات),
+                        &ctx->آخري_sndbuf_query_at) > 1000) {
+    إذا(!WSAIoctl(ctx->sock, SIO_IDEAL_SEND_BACKLOG_QUERY, 0, 0,
+                 &ideal, حجم(ideal), &ideallen, 0, 0) &&
+       ideal != ctx->sndbuf_سائيز &&
        !setsockopt(ctx->sock, SOL_SOCKET, SO_SNDBUF,
-                   (const char *)&ideal, sizeof(ideal))) {
-      ctx->sndbuf_size = ideal;
+                   (ثابت حرف *)&ideal, حجم(ideal))) {
+      ctx->sndbuf_سائيز = ideal;
     }
-    ctx->last_sndbuf_query_at = *Curl_pgrs_now(data);
+    ctx->آخري_sndbuf_query_at = *Curl_pgrs_now(معلومات);
   }
 }
 
-#endif /* USE_WINSOCK */
+#جيڪڏهن_پورو /* USE_WINSOCK */
 
-static CURLcode cf_socket_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               const uint8_t *buf, size_t len, bool eos,
+ساكن CURLcode cf_socket_send(بنية Curl_cfilter *cf, بنية Curl_easy *معلومات,
+                               ثابت uint8_t *buf, size_t len, bool eos,
                                size_t *pnwritten)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  بنية cf_socket_ctx *ctx = cf->ctx;
   curl_socket_t fdsave;
   ssize_t rv;
-  CURLcode result = CURLE_OK;
+  CURLcode نتيجو = CURLE_OK;
   VERBOSE(size_t orig_len = len);
 
-  (void)eos;
+  (فراغ)eos;
   *pnwritten = 0;
   fdsave = cf->conn->sock[cf->sockindex];
   cf->conn->sock[cf->sockindex] = ctx->sock;
 
-#ifdef DEBUGBUILD
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
   /* simulate network blocking/partial writes */
-  if(ctx->wblock_percent > 0) {
-    unsigned char c = 0;
-    Curl_rand_bytes(data, FALSE, &c, 1);
-    if(c >= ((100 - ctx->wblock_percent) * 256 / 100)) {
-      CURL_TRC_CF(data, cf, "send(len=%zu) SIMULATE EWOULDBLOCK", orig_len);
+  إذا(ctx->wblock_percent > 0) {
+    بنانشان حرف c = 0;
+    Curl_rand_بائيٽون(معلومات, FALSE, &c, 1);
+    إذا(c >= ((100 - ctx->wblock_percent) * 256 / 100)) {
+      CURL_TRC_CF(معلومات, cf, "send(len=%zu) SIMULATE EWOULDBLOCK", orig_len);
       cf->conn->sock[cf->sockindex] = fdsave;
-      return CURLE_AGAIN;
+      أرجع CURLE_AGAIN;
     }
   }
-  if(cf->cft != &Curl_cft_udp && ctx->wpartial_percent > 0 && len > 8) {
+  إذا(cf->cft != &Curl_cft_udp && ctx->wpartial_percent > 0 && len > 8) {
     len = len * ctx->wpartial_percent / 100;
-    if(!len)
+    إذا(!len)
       len = 1;
-    CURL_TRC_CF(data, cf, "send(len=%zu) SIMULATE partial write of %zu bytes",
+    CURL_TRC_CF(معلومات, cf, "send(len=%zu) SIMULATE partial write of %zu bytes",
                 orig_len, len);
   }
-#endif
+#جيڪڏهن_پورو
 
-#if defined(MSG_FASTOPEN) && !defined(TCP_FASTOPEN_CONNECT) /* Linux */
-  if(cf->conn->bits.tcp_fastopen) {
+#إذا defined(MSG_FASTOPEN) && !defined(TCP_FASTOPEN_CONNECT) /* Linux */
+  إذا(cf->conn->بٽ.tcp_fastopen) {
     rv = sendto(ctx->sock, buf, len, MSG_FASTOPEN,
                 &ctx->addr.curl_sa_addr, ctx->addr.addrlen);
-    cf->conn->bits.tcp_fastopen = FALSE;
+    cf->conn->بٽ.tcp_fastopen = FALSE;
   }
-  else
-#endif
+  وإلا
+#جيڪڏهن_پورو
     rv = swrite(ctx->sock, buf, len);
 
-  if(!curlx_sztouz(rv, pnwritten)) {
-    int sockerr = SOCKERRNO;
-    if(SOCK_EAGAIN(sockerr)
-#ifndef USE_WINSOCK
+  إذا(!curlx_sztouz(rv, pnwritten)) {
+    صحيح sockerr = SOCKERRNO;
+    إذا(SOCK_EAGAIN(sockerr)
+#جيڪڏهن_وصف_نه_ٿيل USE_WINSOCK
        || (sockerr == SOCKEINTR) || (sockerr == SOCKEINPROGRESS)
-#endif
+#جيڪڏهن_پورو
       ) {
-      result = CURLE_AGAIN;  /* EWOULDBLOCK */
+      نتيجو = CURLE_AGAIN;  /* EWOULDBLOCK */
     }
-    else {
-      char buffer[STRERROR_LEN];
-      failf(data, "Send failure: %s",
-            curlx_strerror(sockerr, buffer, sizeof(buffer)));
-      data->state.os_errno = sockerr;
-      result = CURLE_SEND_ERROR;
+    وإلا {
+      حرف بفر[STRERROR_LEN];
+      failf(معلومات, "Send failure: %s",
+            curlx_strerror(sockerr, بفر, حجم(بفر)));
+      معلومات->state.os_errno = sockerr;
+      نتيجو = CURLE_SEND_ERROR;
     }
   }
 
-#ifdef USE_WINSOCK
-  if(!result)
-    win_update_sndbuf_size(data, ctx);
-#endif
+#جيڪڏهن_وصف_ٿيل USE_WINSOCK
+  إذا(!نتيجو)
+    win_update_sndbuf_سائيز(معلومات, ctx);
+#جيڪڏهن_پورو
 
-  CURL_TRC_CF(data, cf, "send(len=%zu) -> %d, %zu",
-              orig_len, (int)result, *pnwritten);
+  CURL_TRC_CF(معلومات, cf, "send(len=%zu) -> %d, %zu",
+              orig_len, (صحيح)نتيجو, *pnwritten);
   cf->conn->sock[cf->sockindex] = fdsave;
-  return result;
+  أرجع نتيجو;
 }
 
-static CURLcode cf_socket_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               char *buf, size_t len, size_t *pnread)
+ساكن CURLcode cf_socket_recv(بنية Curl_cfilter *cf, بنية Curl_easy *معلومات,
+                               حرف *buf, size_t len, size_t *pnread)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  بنية cf_socket_ctx *ctx = cf->ctx;
+  CURLcode نتيجو = CURLE_OK;
   ssize_t rv;
 
   *pnread = 0;
-#ifdef DEBUGBUILD
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
   /* simulate network blocking/partial reads */
-  if(cf->cft != &Curl_cft_udp && ctx->rblock_percent > 0) {
-    unsigned char c = 0;
-    Curl_rand(data, &c, 1);
-    if(c >= ((100 - ctx->rblock_percent) * 256 / 100)) {
-      CURL_TRC_CF(data, cf, "recv(len=%zu) SIMULATE EWOULDBLOCK", len);
-      return CURLE_AGAIN;
+  إذا(cf->cft != &Curl_cft_udp && ctx->rblock_percent > 0) {
+    بنانشان حرف c = 0;
+    Curl_rand(معلومات, &c, 1);
+    إذا(c >= ((100 - ctx->rblock_percent) * 256 / 100)) {
+      CURL_TRC_CF(معلومات, cf, "recv(len=%zu) SIMULATE EWOULDBLOCK", len);
+      أرجع CURLE_AGAIN;
     }
   }
-  if(cf->cft != &Curl_cft_udp && ctx->recv_max && ctx->recv_max < len) {
-    CURL_TRC_CF(data, cf, "recv(len=%zu) SIMULATE max read of %zu bytes",
+  إذا(cf->cft != &Curl_cft_udp && ctx->recv_max && ctx->recv_max < len) {
+    CURL_TRC_CF(معلومات, cf, "recv(len=%zu) SIMULATE max read of %zu bytes",
                 len, ctx->recv_max);
     len = ctx->recv_max;
   }
-#endif
+#جيڪڏهن_پورو
 
   rv = sread(ctx->sock, buf, len);
 
-  if(!curlx_sztouz(rv, pnread)) {
-    int sockerr = SOCKERRNO;
-    if(SOCK_EAGAIN(sockerr)
-#ifndef USE_WINSOCK
+  إذا(!curlx_sztouz(rv, pnread)) {
+    صحيح sockerr = SOCKERRNO;
+    إذا(SOCK_EAGAIN(sockerr)
+#جيڪڏهن_وصف_نه_ٿيل USE_WINSOCK
        || (sockerr == SOCKEINTR)
-#endif
+#جيڪڏهن_پورو
       ) {
-      result = CURLE_AGAIN;  /* EWOULDBLOCK */
+      نتيجو = CURLE_AGAIN;  /* EWOULDBLOCK */
     }
-    else {
-      char buffer[STRERROR_LEN];
-      failf(data, "Recv failure: %s",
-            curlx_strerror(sockerr, buffer, sizeof(buffer)));
-      data->state.os_errno = sockerr;
-      result = CURLE_RECV_ERROR;
+    وإلا {
+      حرف بفر[STRERROR_LEN];
+      failf(معلومات, "Recv failure: %s",
+            curlx_strerror(sockerr, بفر, حجم(بفر)));
+      معلومات->state.os_errno = sockerr;
+      نتيجو = CURLE_RECV_ERROR;
     }
   }
 
-  CURL_TRC_CF(data, cf, "recv(len=%zu) -> %d, %zu", len, (int)result, *pnread);
-  if(!result && !ctx->got_first_byte) {
-    ctx->first_byte_at = *Curl_pgrs_now(data);
-    ctx->got_first_byte = TRUE;
+  CURL_TRC_CF(معلومات, cf, "recv(len=%zu) -> %d, %zu", len, (صحيح)نتيجو, *pnread);
+  إذا(!نتيجو && !ctx->got_پهريون_byte) {
+    ctx->پهريون_byte_at = *Curl_pgrs_now(معلومات);
+    ctx->got_پهريون_byte = TRUE;
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static void cf_socket_update_data(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+ساكن فراغ cf_socket_update_معلومات(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *معلومات)
 {
   /* Update the IP info held in the transfer, if we have that. */
-  if(cf->connected && (cf->sockindex == FIRSTSOCKET)) {
-    struct cf_socket_ctx *ctx = cf->ctx;
-    data->info.primary = ctx->ip;
+  إذا(cf->connected && (cf->sockindex == FIRSTSOCKET)) {
+    بنية cf_socket_ctx *ctx = cf->ctx;
+    معلومات->info.primary = ctx->ip;
   }
 }
 
-static void cf_socket_active(struct Curl_cfilter *cf, struct Curl_easy *data)
+ساكن فراغ cf_socket_سرگرم(بنية Curl_cfilter *cf, بنية Curl_easy *معلومات)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  بنية cf_socket_ctx *ctx = cf->ctx;
 
   /* use this socket from now on */
   cf->conn->sock[cf->sockindex] = ctx->sock;
-  set_local_ip(cf, data);
-#ifdef USE_IPV6
-  if(cf->sockindex == FIRSTSOCKET)
-    cf->conn->bits.ipv6 = (ctx->addr.family == AF_INET6);
-#endif
-  ctx->active = TRUE;
+  سيٽ_local_ip(cf, معلومات);
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+  إذا(cf->sockindex == FIRSTSOCKET)
+    cf->conn->بٽ.ipv6 = (ctx->addr.family == AF_INET6);
+#جيڪڏهن_پورو
+  ctx->سرگرم = TRUE;
 }
 
-static CURLcode cf_socket_cntrl(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int event, int arg1, void *arg2)
+ساكن CURLcode cf_socket_cntrl(بنية Curl_cfilter *cf,
+                                بنية Curl_easy *معلومات,
+                                صحيح event, صحيح arg1, فراغ *arg2)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  بنية cf_socket_ctx *ctx = cf->ctx;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_CONN_INFO_UPDATE:
-    cf_socket_active(cf, data);
-    cf_socket_update_data(cf, data);
-    break;
-  case CF_CTRL_DATA_SETUP:
-    cf_socket_update_data(cf, data);
-    break;
-  case CF_CTRL_FORGET_SOCKET:
+  (فراغ)arg1;
+  (فراغ)arg2;
+  بدل(event) {
+  حالة CF_CTRL_CONN_INFO_UPDATE:
+    cf_socket_سرگرم(cf, معلومات);
+    cf_socket_update_معلومات(cf, معلومات);
+    اكسر;
+  حالة CF_CTRL_معلومات_تياري:
+    cf_socket_update_معلومات(cf, معلومات);
+    اكسر;
+  حالة CF_CTRL_FORGET_SOCKET:
     ctx->sock = CURL_SOCKET_BAD;
-    break;
-  case CF_CTRL_REPORT_STATS:
-    if(cf->connected && !ctx->stats_reported) {
-      struct curltime *ts = NULL;
-      switch(ctx->transport) {
-      case TRNSPRT_UDP:
-      case TRNSPRT_QUIC:
+    اكسر;
+  حالة CF_CTRL_REPORT_STATS:
+    إذا(cf->connected && !ctx->stats_reported) {
+      بنية curltime *ts = عدم;
+      بدل(ctx->transport) {
+      حالة TRNSPRT_UDP:
+      حالة TRNSPRT_QUIC:
         /* Since UDP connected sockets work different from TCP, we use the
          * time of the first byte from the peer as the "connect" time. */
-        if(ctx->got_first_byte)
-          ts = &ctx->first_byte_at;
-        break;
-      default:
+        إذا(ctx->got_پهريون_byte)
+          ts = &ctx->پهريون_byte_at;
+        اكسر;
+      افتراضي:
         ts = &ctx->connected_at;
-        break;
+        اكسر;
       }
-      if(ts) {
-        Curl_pgrsTimeWas(data, TIMER_CONNECT, *ts);
+      إذا(ts) {
+        Curl_pgrs_وقت_Was(معلومات, TIMER_CONNECT, *ts);
         ctx->stats_reported = TRUE;
       }
     }
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static bool cf_socket_conn_is_alive(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    bool *input_pending)
+ساكن bool cf_socket_conn_is_alive(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *معلومات,
+                                    bool *داخلا_pending)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  struct pollfd pfd[1];
-  int r;
+  بنية cf_socket_ctx *ctx = cf->ctx;
+  بنية pollfd pfd[1];
+  صحيح r;
 
-  *input_pending = FALSE;
+  *داخلا_pending = FALSE;
 
-  if(!ctx || ctx->sock == CURL_SOCKET_BAD)
-    return FALSE;
+  إذا(!ctx || ctx->sock == CURL_SOCKET_BAD)
+    أرجع FALSE;
 
   /* Check with 0 timeout if there are any events pending on the socket */
   pfd[0].fd = ctx->sock;
@@ -1849,76 +1849,76 @@ static bool cf_socket_conn_is_alive(struct Curl_cfilter *cf,
   pfd[0].revents = 0;
 
   r = Curl_poll(pfd, 1, 0);
-  if(r < 0) {
-    CURL_TRC_CF(data, cf, "is_alive: poll error, assume dead");
-    return FALSE;
+  إذا(r < 0) {
+    CURL_TRC_CF(معلومات, cf, "is_alive: poll error, assume dead");
+    أرجع FALSE;
   }
-  else if(r == 0) {
-    CURL_TRC_CF(data, cf, "is_alive: poll timeout, assume alive");
-    return TRUE;
+  وإلا إذا(r == 0) {
+    CURL_TRC_CF(معلومات, cf, "is_alive: poll timeout, assume alive");
+    أرجع TRUE;
   }
-  else if(pfd[0].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL)) {
-    CURL_TRC_CF(data, cf, "is_alive: err/hup/etc events, assume dead");
-    return FALSE;
+  وإلا إذا(pfd[0].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL)) {
+    CURL_TRC_CF(معلومات, cf, "is_alive: err/hup/etc events, assume dead");
+    أرجع FALSE;
   }
 
-  CURL_TRC_CF(data, cf, "is_alive: valid events, looks alive");
-  *input_pending = TRUE;
-  return TRUE;
+  CURL_TRC_CF(معلومات, cf, "is_alive: valid events, looks alive");
+  *داخلا_pending = TRUE;
+  أرجع TRUE;
 }
 
-static CURLcode cf_socket_query(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int query, int *pres1, void *pres2)
+ساكن CURLcode cf_socket_query(بنية Curl_cfilter *cf,
+                                بنية Curl_easy *معلومات,
+                                صحيح query, صحيح *pres1, فراغ *pres2)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  بنية cf_socket_ctx *ctx = cf->ctx;
 
-  switch(query) {
-  case CF_QUERY_SOCKET:
+  بدل(query) {
+  حالة CF_QUERY_SOCKET:
     DEBUGASSERT(pres2);
     *((curl_socket_t *)pres2) = ctx->sock;
-    return CURLE_OK;
-  case CF_QUERY_TRANSPORT:
+    أرجع CURLE_OK;
+  حالة CF_QUERY_TRANSPORT:
     DEBUGASSERT(pres1);
     *pres1 = ctx->transport;
-    return CURLE_OK;
-  case CF_QUERY_REMOTE_ADDR:
+    أرجع CURLE_OK;
+  حالة CF_QUERY_REMOTE_ADDR:
     DEBUGASSERT(pres2);
-    *((const struct Curl_sockaddr_ex **)pres2) = cf->connected ?
-                                                 &ctx->addr : NULL;
-    return CURLE_OK;
-  case CF_QUERY_CONNECT_REPLY_MS:
-    if(ctx->got_first_byte) {
-      timediff_t ms = curlx_ptimediff_ms(&ctx->first_byte_at,
+    *((ثابت بنية Curl_sockaddr_ex **)pres2) = cf->connected ?
+                                                 &ctx->addr : عدم;
+    أرجع CURLE_OK;
+  حالة CF_QUERY_CONNECT_جواب_MS:
+    إذا(ctx->got_پهريون_byte) {
+      timediff_t ms = curlx_ptimediff_ms(&ctx->پهريون_byte_at,
                                          &ctx->started_at);
-      *pres1 = (ms < INT_MAX) ? (int)ms : INT_MAX;
+      *pres1 = (ms < وڌ_کان_وڌ_عدد) ? (صحيح)ms : وڌ_کان_وڌ_عدد;
     }
-    else
+    وإلا
       *pres1 = -1;
-    return CURLE_OK;
-  case CF_QUERY_IP_INFO:
-#ifdef USE_IPV6
+    أرجع CURLE_OK;
+  حالة CF_QUERY_IP_INFO:
+#جيڪڏهن_وصف_ٿيل USE_IPV6
     *pres1 = (ctx->addr.family == AF_INET6);
-#else
+#وإلا
     *pres1 = FALSE;
-#endif
-    *(struct ip_quadruple *)pres2 = ctx->ip;
-    return CURLE_OK;
-  case CF_QUERY_REALLY_CONNECTED:
-    if(cf->cft != &Curl_cft_udp)
+#جيڪڏهن_پورو
+    *(بنية ip_quadruple *)pres2 = ctx->ip;
+    أرجع CURLE_OK;
+  حالة CF_QUERY_REALLY_CONNECTED:
+    إذا(cf->cft != &Curl_cft_udp)
       *pres1 = cf->connected;
-    else
-      *pres1 = ctx->got_first_byte;
-    return CURLE_OK;
-  default:
-    break;
+    وإلا
+      *pres1 = ctx->got_پهريون_byte;
+    أرجع CURLE_OK;
+  افتراضي:
+    اكسر;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  أرجع cf->ايندڙ ?
+    cf->ايندڙ->cft->query(cf->ايندڙ, معلومات, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-struct Curl_cftype Curl_cft_tcp = {
+بنية Curl_cftype Curl_cft_tcp = {
   "TCP",
   CF_TYPE_IP_CONNECT,
   CURL_LOG_LVL_NONE,
@@ -1926,7 +1926,7 @@ struct Curl_cftype Curl_cft_tcp = {
   cf_tcp_connect,
   cf_socket_shutdown,
   cf_socket_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_معلومات_pending,
   cf_socket_send,
   cf_socket_recv,
   cf_socket_cntrl,
@@ -1935,137 +1935,137 @@ struct Curl_cftype Curl_cft_tcp = {
   cf_socket_query,
 };
 
-CURLcode Curl_cf_tcp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_tcp_create(بنية Curl_cfilter **pcf,
+                            بنية Curl_easy *معلومات,
+                            بنية Curl_peer *origin,
+                            بنية Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            بنية connectdata *conn,
+                            بنية Curl_sockaddr_ex *addr,
+                            بنية Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport)
 {
-  struct cf_socket_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  بنية cf_socket_ctx *ctx = عدم;
+  بنية Curl_cfilter *cf = عدم;
+  CURLcode نتيجو;
 
-  (void)data;
-  (void)origin;
-  (void)conn;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
+  (فراغ)معلومات;
+  (فراغ)origin;
+  (فراغ)conn;
+  (فراغ)tunnel_peer;
+  (فراغ)tunnel_transport;
   DEBUGASSERT(transport_peer == TRNSPRT_TCP);
-  if(!addr) {
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+  إذا(!addr) {
+    نتيجو = CURLE_BAD_FUNCTION_دليل;
+    اذهب ٻاهريون;
   }
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+    اذهب ٻاهريون;
   }
 
-  result = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
-  if(result)
-    goto out;
+  نتيجو = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
+  إذا(نتيجو)
+    اذهب ٻاهريون;
 
-  result = Curl_cf_create(&cf, &Curl_cft_tcp, ctx);
+  نتيجو = Curl_cf_create(&cf, &Curl_cft_tcp, ctx);
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
+ٻاهريون:
+  *pcf = (!نتيجو) ? cf : عدم;
+  إذا(نتيجو) {
     curlx_safefree(cf);
     cf_socket_ctx_free(ctx);
   }
 
-  return result;
+  أرجع نتيجو;
 }
 
-#ifdef __linux__
-static void linux_quic_mtu(struct cf_socket_ctx *ctx)
+#جيڪڏهن_وصف_ٿيل __linux__
+ساكن فراغ linux_quic_mtu(بنية cf_socket_ctx *ctx)
 {
-  int val;
-  switch(ctx->addr.family) {
-#ifdef IP_MTU_DISCOVER
-  case AF_INET:
+  صحيح val;
+  بدل(ctx->addr.family) {
+#جيڪڏهن_وصف_ٿيل IP_MTU_DISCOVER
+  حالة AF_INET:
     val = IP_PMTUDISC_DO;
-    (void)setsockopt(ctx->sock, IPPROTO_IP, IP_MTU_DISCOVER, &val,
-                     sizeof(val));
-    break;
-#endif
-#ifdef IPV6_MTU_DISCOVER
-  case AF_INET6:
+    (فراغ)setsockopt(ctx->sock, IPPROTO_IP, IP_MTU_DISCOVER, &val,
+                     حجم(val));
+    اكسر;
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل IPV6_MTU_DISCOVER
+  حالة AF_INET6:
     val = IPV6_PMTUDISC_DO;
-    (void)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_MTU_DISCOVER, &val,
-                     sizeof(val));
-    break;
-#endif
+    (فراغ)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_MTU_DISCOVER, &val,
+                     حجم(val));
+    اكسر;
+#جيڪڏهن_پورو
   }
 }
-#else
-#define linux_quic_mtu(x)
-#endif
+#وإلا
+#وصف_ڪريو linux_quic_mtu(x)
+#جيڪڏهن_پورو
 
-#if defined(UDP_GRO) &&                                                 \
+#إذا defined(UDP_GRO) &&                                                 \
   (defined(HAVE_SENDMMSG) || defined(HAVE_SENDMSG)) &&                  \
   ((defined(USE_NGTCP2) && defined(USE_NGHTTP3)) || defined(USE_QUICHE))
-static void linux_quic_gro(struct cf_socket_ctx *ctx)
+ساكن فراغ linux_quic_gro(بنية cf_socket_ctx *ctx)
 {
-  int one = 1;
-  (void)setsockopt(ctx->sock, IPPROTO_UDP, UDP_GRO, &one,
-                   (socklen_t)sizeof(one));
+  صحيح one = 1;
+  (فراغ)setsockopt(ctx->sock, IPPROTO_UDP, UDP_GRO, &one,
+                   (socklen_t)حجم(one));
 }
-#else
-#define linux_quic_gro(x)
-#endif
+#وإلا
+#وصف_ڪريو linux_quic_gro(x)
+#جيڪڏهن_پورو
 
-#if (defined(__linux__) || defined(__APPLE__)) && defined(IP_RECVTOS)
-static void linux_quic_ecn(struct cf_socket_ctx *ctx)
+#إذا (defined(__linux__) || defined(__APPLE__)) && defined(IP_RECVTOS)
+ساكن فراغ linux_quic_ecn(بنية cf_socket_ctx *ctx)
 {
-  unsigned int tos = 1;
-  switch(ctx->addr.family) {
-  case AF_INET:
-    (void)setsockopt(ctx->sock, IPPROTO_IP, IP_RECVTOS, &tos, sizeof(tos));
-    break;
-#ifdef IPV6_RECVTCLASS
-  case AF_INET6:
-    (void)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_RECVTCLASS,
-                     &tos, sizeof(tos));
-    break;
-#endif
+  بنانشان صحيح tos = 1;
+  بدل(ctx->addr.family) {
+  حالة AF_INET:
+    (فراغ)setsockopt(ctx->sock, IPPROTO_IP, IP_RECVTOS, &tos, حجم(tos));
+    اكسر;
+#جيڪڏهن_وصف_ٿيل IPV6_RECVTCLASS
+  حالة AF_INET6:
+    (فراغ)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_RECVTCLASS,
+                     &tos, حجم(tos));
+    اكسر;
+#جيڪڏهن_پورو
   }
 }
-#else
-#define linux_quic_ecn(x)
-#endif
+#وإلا
+#وصف_ڪريو linux_quic_ecn(x)
+#جيڪڏهن_پورو
 
-#if (defined(__linux__) || defined(__APPLE__)) && defined(IP_DONTFRAG)
-static void linux_ip_dontfrag(struct cf_socket_ctx *ctx)
+#إذا (defined(__linux__) || defined(__APPLE__)) && defined(IP_DONTFRAG)
+ساكن فراغ linux_ip_dontfrag(بنية cf_socket_ctx *ctx)
 {
-  int val = 1;
+  صحيح val = 1;
 
-  switch(ctx->addr.family) {
-  case AF_INET:
-    (void)setsockopt(ctx->sock, IPPROTO_IP, IP_DONTFRAG, &val, sizeof(val));
-    break;
-#ifdef IPV6_DONTFRAG
-  case AF_INET6:
-    (void)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_DONTFRAG,
-                     &val, sizeof(val));
-    break;
-#endif
+  بدل(ctx->addr.family) {
+  حالة AF_INET:
+    (فراغ)setsockopt(ctx->sock, IPPROTO_IP, IP_DONTFRAG, &val, حجم(val));
+    اكسر;
+#جيڪڏهن_وصف_ٿيل IPV6_DONTFRAG
+  حالة AF_INET6:
+    (فراغ)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_DONTFRAG,
+                     &val, حجم(val));
+    اكسر;
+#جيڪڏهن_پورو
   }
 }
-#else
-#define linux_ip_dontfrag(x)
-#endif
+#وإلا
+#وصف_ڪريو linux_ip_dontfrag(x)
+#جيڪڏهن_پورو
 
-static CURLcode cf_udp_setup_quic(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+ساكن CURLcode cf_udp_تياري_quic(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *معلومات)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  int rc;
+  بنية cf_socket_ctx *ctx = cf->ctx;
+  صحيح rc;
 
   /* QUIC needs a connected socket, nonblocking */
   DEBUGASSERT(ctx->sock != CURL_SOCKET_BAD);
@@ -2074,16 +2074,16 @@ static CURLcode cf_udp_setup_quic(struct Curl_cfilter *cf,
      NOLINTNEXTLINE(clang-analyzer-unix.StdCLibraryFunctions) */
   rc = connect(ctx->sock, &ctx->addr.curl_sa_addr,
                (curl_socklen_t)ctx->addr.addrlen);
-  if(rc == -1) {
-    return socket_connect_result(data, ctx->ip.remote_ip, SOCKERRNO);
+  إذا(rc == -1) {
+    أرجع socket_connect_نتيجو(معلومات, ctx->ip.remote_ip, SOCKERRNO);
   }
   ctx->sock_connected = TRUE;
-  set_local_ip(cf, data);
-  CURL_TRC_CF(data, cf, "%s socket %" FMT_SOCKET_T
+  سيٽ_local_ip(cf, معلومات);
+  CURL_TRC_CF(معلومات, cf, "%s socket %" FMT_SOCKET_T
               " connected: [%s:%d] -> [%s:%d]",
               (ctx->transport == TRNSPRT_QUIC) ? "QUIC" : "UDP",
-              ctx->sock, ctx->ip.local_ip, ctx->ip.local_port,
-              ctx->ip.remote_ip, ctx->ip.remote_port);
+              ctx->sock, ctx->ip.local_ip, ctx->ip.local_پورٽ,
+              ctx->ip.remote_ip, ctx->ip.remote_پورٽ);
 
   /* Currently, cf->ctx->sock is always non-blocking because the only
    * caller to cf_udp_setup_quic() is cf_udp_connect() that passes the
@@ -2095,46 +2095,46 @@ static CURLcode cf_udp_setup_quic(struct Curl_cfilter *cf,
   linux_ip_dontfrag(ctx);
   linux_quic_gro(ctx);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode cf_udp_connect(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               bool *done)
+ساكن CURLcode cf_udp_connect(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *معلومات,
+                               bool *پورو)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_COULDNT_CONNECT;
+  بنية cf_socket_ctx *ctx = cf->ctx;
+  CURLcode نتيجو = CURLE_COULDNT_CONNECT;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  إذا(cf->connected) {
+    *پورو = TRUE;
+    أرجع CURLE_OK;
   }
 
-  *done = FALSE;
-  if(ctx->sock == CURL_SOCKET_BAD) {
-    result = cf_socket_open(cf, data);
-    if(result) {
-      CURL_TRC_CF(data, cf, "cf_udp_connect(), open failed -> %d",
-                  (int)result);
-      goto out;
+  *پورو = FALSE;
+  إذا(ctx->sock == CURL_SOCKET_BAD) {
+    نتيجو = cf_socket_open(cf, معلومات);
+    إذا(نتيجو) {
+      CURL_TRC_CF(معلومات, cf, "cf_udp_connect(), open failed -> %d",
+                  (صحيح)نتيجو);
+      اذهب ٻاهريون;
     }
 
-    if(ctx->transport == TRNSPRT_QUIC) {
-      result = cf_udp_setup_quic(cf, data);
-      if(result)
-        goto out;
-      CURL_TRC_CF(data, cf, "cf_udp_connect(), opened socket=%"
+    إذا(ctx->transport == TRNSPRT_QUIC) {
+      نتيجو = cf_udp_تياري_quic(cf, معلومات);
+      إذا(نتيجو)
+        اذهب ٻاهريون;
+      CURL_TRC_CF(معلومات, cf, "cf_udp_connect(), opened socket=%"
                   FMT_SOCKET_T " (%s:%d)",
-                  ctx->sock, ctx->ip.local_ip, ctx->ip.local_port);
+                  ctx->sock, ctx->ip.local_ip, ctx->ip.local_پورٽ);
     }
-    *done = TRUE;
+    *پورو = TRUE;
     cf->connected = TRUE;
   }
-out:
-  return result;
+ٻاهريون:
+  أرجع نتيجو;
 }
 
-struct Curl_cftype Curl_cft_udp = {
+بنية Curl_cftype Curl_cft_udp = {
   "UDP",
   CF_TYPE_IP_CONNECT,
   CURL_LOG_LVL_NONE,
@@ -2142,7 +2142,7 @@ struct Curl_cftype Curl_cft_udp = {
   cf_udp_connect,
   cf_socket_shutdown,
   cf_socket_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_معلومات_pending,
   cf_socket_send,
   cf_socket_recv,
   cf_socket_cntrl,
@@ -2151,50 +2151,50 @@ struct Curl_cftype Curl_cft_udp = {
   cf_socket_query,
 };
 
-CURLcode Curl_cf_udp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_udp_create(بنية Curl_cfilter **pcf,
+                            بنية Curl_easy *معلومات,
+                            بنية Curl_peer *origin,
+                            بنية Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            بنية connectdata *conn,
+                            بنية Curl_sockaddr_ex *addr,
+                            بنية Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport)
 {
-  struct cf_socket_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  بنية cf_socket_ctx *ctx = عدم;
+  بنية Curl_cfilter *cf = عدم;
+  CURLcode نتيجو;
 
-  (void)data;
-  (void)origin;
-  (void)conn;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
+  (فراغ)معلومات;
+  (فراغ)origin;
+  (فراغ)conn;
+  (فراغ)tunnel_peer;
+  (فراغ)tunnel_transport;
   DEBUGASSERT(transport_peer == TRNSPRT_UDP || transport_peer == TRNSPRT_QUIC);
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+    اذهب ٻاهريون;
   }
 
-  result = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
-  if(result)
-    goto out;
+  نتيجو = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
+  إذا(نتيجو)
+    اذهب ٻاهريون;
 
-  result = Curl_cf_create(&cf, &Curl_cft_udp, ctx);
+  نتيجو = Curl_cf_create(&cf, &Curl_cft_udp, ctx);
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
+ٻاهريون:
+  *pcf = (!نتيجو) ? cf : عدم;
+  إذا(نتيجو) {
     curlx_safefree(cf);
     cf_socket_ctx_free(ctx);
   }
 
-  return result;
+  أرجع نتيجو;
 }
 
 /* this is the TCP filter which can also handle this case */
-struct Curl_cftype Curl_cft_unix = {
+بنية Curl_cftype Curl_cft_unix = {
   "UNIX",
   CF_TYPE_IP_CONNECT,
   CURL_LOG_LVL_NONE,
@@ -2202,7 +2202,7 @@ struct Curl_cftype Curl_cft_unix = {
   cf_tcp_connect,
   cf_socket_shutdown,
   cf_socket_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_معلومات_pending,
   cf_socket_send,
   cf_socket_recv,
   cf_socket_cntrl,
@@ -2211,228 +2211,228 @@ struct Curl_cftype Curl_cft_unix = {
   cf_socket_query,
 };
 
-CURLcode Curl_cf_unix_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_unix_create(بنية Curl_cfilter **pcf,
+                            بنية Curl_easy *معلومات,
+                            بنية Curl_peer *origin,
+                            بنية Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            بنية connectdata *conn,
+                            بنية Curl_sockaddr_ex *addr,
+                            بنية Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport)
 {
-  struct cf_socket_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  بنية cf_socket_ctx *ctx = عدم;
+  بنية Curl_cfilter *cf = عدم;
+  CURLcode نتيجو;
 
-  (void)data;
-  (void)origin;
-  (void)conn;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
+  (فراغ)معلومات;
+  (فراغ)origin;
+  (فراغ)conn;
+  (فراغ)tunnel_peer;
+  (فراغ)tunnel_transport;
   DEBUGASSERT(transport_peer == TRNSPRT_UNIX);
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+    اذهب ٻاهريون;
   }
 
-  result = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
-  if(result)
-    goto out;
+  نتيجو = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
+  إذا(نتيجو)
+    اذهب ٻاهريون;
 
-  result = Curl_cf_create(&cf, &Curl_cft_unix, ctx);
+  نتيجو = Curl_cf_create(&cf, &Curl_cft_unix, ctx);
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
+ٻاهريون:
+  *pcf = (!نتيجو) ? cf : عدم;
+  إذا(نتيجو) {
     curlx_safefree(cf);
     cf_socket_ctx_free(ctx);
   }
 
-  return result;
+  أرجع نتيجو;
 }
 
-static timediff_t cf_tcp_accept_timeleft(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+ساكن timediff_t cf_tcp_accept_timeleft(بنية Curl_cfilter *cf,
+                                         بنية Curl_easy *معلومات)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  بنية cf_socket_ctx *ctx = cf->ctx;
   timediff_t timeout_ms = DEFAULT_ACCEPT_TIMEOUT;
   timediff_t other_ms;
 
-#ifndef CURL_DISABLE_FTP
-  if(data->set.accepttimeout > 0)
-    timeout_ms = data->set.accepttimeout;
-#endif
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_FTP
+  إذا(معلومات->سيٽ.accepttimeout > 0)
+    timeout_ms = معلومات->سيٽ.accepttimeout;
+#جيڪڏهن_پورو
 
   /* check if the generic timeout possibly is set shorter */
-  other_ms = Curl_timeleft_ms(data);
-  if(other_ms && (other_ms < timeout_ms))
+  other_ms = Curl_timeleft_ms(معلومات);
+  إذا(other_ms && (other_ms < timeout_ms))
     /* note that this also works fine for when other_ms happens to be negative
        due to it already having elapsed */
     timeout_ms = other_ms;
-  else {
+  وإلا {
     /* subtract elapsed time */
-    timeout_ms -= curlx_ptimediff_ms(Curl_pgrs_now(data), &ctx->started_at);
-    if(!timeout_ms)
+    timeout_ms -= curlx_ptimediff_ms(Curl_pgrs_now(معلومات), &ctx->started_at);
+    إذا(!timeout_ms)
       /* avoid returning 0 as that means no timeout! */
       timeout_ms = -1;
   }
-  return timeout_ms;
+  أرجع timeout_ms;
 }
 
-static void cf_tcp_set_accepted_remote_ip(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data)
+ساكن فراغ cf_tcp_سيٽ_accepted_remote_ip(بنية Curl_cfilter *cf,
+                                          بنية Curl_easy *معلومات)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-#ifdef HAVE_GETPEERNAME
-  CURLcode result;
-  struct Curl_sockaddr_storage ssrem;
+  بنية cf_socket_ctx *ctx = cf->ctx;
+#جيڪڏهن_وصف_ٿيل HAVE_GETPEERNAME
+  CURLcode نتيجو;
+  بنية Curl_sockaddr_storage ssrem;
   curl_socklen_t plen;
 
   ctx->ip.remote_ip[0] = 0;
-  ctx->ip.remote_port = 0;
-  plen = sizeof(ssrem);
+  ctx->ip.remote_پورٽ = 0;
+  plen = حجم(ssrem);
   memset(&ssrem, 0, plen);
-  if(getpeername(ctx->sock, (struct sockaddr *)&ssrem, &plen)) {
-    char buffer[STRERROR_LEN];
-    int sockerr = SOCKERRNO;
-    failf(data, "getpeername() failed with errno %d: %s",
-          sockerr, curlx_strerror(sockerr, buffer, sizeof(buffer)));
-    return;
+  إذا(getpeername(ctx->sock, (بنية sockaddr *)&ssrem, &plen)) {
+    حرف بفر[STRERROR_LEN];
+    صحيح sockerr = SOCKERRNO;
+    failf(معلومات, "getpeername() failed with errno %d: %s",
+          sockerr, curlx_strerror(sockerr, بفر, حجم(بفر)));
+    أرجع;
   }
-  result = sockaddr2string((struct sockaddr *)&ssrem, plen,
-                            ctx->ip.remote_ip, &ctx->ip.remote_port);
-  if(result) {
-    failf(data, "ssrem inet_ntop() failed with %d", (int)result);
-    return;
+  نتيجو = sockaddr2string((بنية sockaddr *)&ssrem, plen,
+                            ctx->ip.remote_ip, &ctx->ip.remote_پورٽ);
+  إذا(نتيجو) {
+    failf(معلومات, "ssrem inet_ntop() failed with %d", (صحيح)نتيجو);
+    أرجع;
   }
-#else
+#وإلا
   ctx->ip.remote_ip[0] = 0;
-  ctx->ip.remote_port = 0;
-  (void)data;
-#endif
+  ctx->ip.remote_پورٽ = 0;
+  (فراغ)معلومات;
+#جيڪڏهن_پورو
 }
 
-static CURLcode cf_tcp_accept_connect(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      bool *done)
+ساكن CURLcode cf_tcp_accept_connect(بنية Curl_cfilter *cf,
+                                      بنية Curl_easy *معلومات,
+                                      bool *پورو)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  char errbuf[STRERROR_LEN];
-#ifdef USE_IPV6
-  struct Curl_sockaddr_storage add;
-#else
-  struct sockaddr_in add;
-#endif
-  curl_socklen_t size = (curl_socklen_t)sizeof(add);
+  بنية cf_socket_ctx *ctx = cf->ctx;
+  حرف errbuf[STRERROR_LEN];
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+  بنية Curl_sockaddr_storage جوڙيو;
+#وإلا
+  بنية sockaddr_in جوڙيو;
+#جيڪڏهن_پورو
+  curl_socklen_t سائيز = (curl_socklen_t)حجم(جوڙيو);
   curl_socket_t s_accepted = CURL_SOCKET_BAD;
   timediff_t timeout_ms;
-  int socketstate = 0;
+  صحيح socketstate = 0;
   bool incoming = FALSE;
 
   /* we start accepted, if we ever close, we cannot go on */
-  (void)data;
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  (فراغ)معلومات;
+  إذا(cf->connected) {
+    *پورو = TRUE;
+    أرجع CURLE_OK;
   }
 
-  *done = FALSE;
-  timeout_ms = cf_tcp_accept_timeleft(cf, data);
-  if(timeout_ms < 0) {
+  *پورو = FALSE;
+  timeout_ms = cf_tcp_accept_timeleft(cf, معلومات);
+  إذا(timeout_ms < 0) {
     /* if a timeout was already reached, bail out */
-    failf(data, "Accept timeout occurred while waiting server connect");
-    return CURLE_FTP_ACCEPT_TIMEOUT;
+    failf(معلومات, "Accept timeout occurred while waiting server connect");
+    أرجع CURLE_FTP_ACCEPT_TIMEOUT;
   }
 
-  CURL_TRC_CF(data, cf, "Checking for incoming on fd=%" FMT_SOCKET_T
-              " ip=%s:%d", ctx->sock, ctx->ip.local_ip, ctx->ip.local_port);
+  CURL_TRC_CF(معلومات, cf, "Checking for incoming on fd=%" FMT_SOCKET_T
+              " ip=%s:%d", ctx->sock, ctx->ip.local_ip, ctx->ip.local_پورٽ);
   socketstate = SOCKET_READABLE(ctx->sock, 0);
-  CURL_TRC_CF(data, cf, "socket_check -> %x", (unsigned int)socketstate);
-  switch(socketstate) {
-  case -1: /* error */
+  CURL_TRC_CF(معلومات, cf, "socket_check -> %x", (بنانشان صحيح)socketstate);
+  بدل(socketstate) {
+  حالة -1: /* error */
     /* let's die here */
-    failf(data, "Error while waiting for server connect");
-    return CURLE_FTP_ACCEPT_FAILED;
-  default:
-    if(socketstate & CURL_CSELECT_IN) {
-      infof(data, "Ready to accept data connection from server");
+    failf(معلومات, "Error while waiting for server connect");
+    أرجع CURLE_FTP_ACCEPT_FAILED;
+  افتراضي:
+    إذا(socketstate & CURL_CSELECT_اندريون) {
+      infof(معلومات, "Ready to accept data connection from server");
       incoming = TRUE;
     }
-    break;
+    اكسر;
   }
 
-  if(!incoming) {
-    CURL_TRC_CF(data, cf, "nothing heard from the server yet");
-    return CURLE_OK;
+  إذا(!incoming) {
+    CURL_TRC_CF(معلومات, cf, "nothing heard from the server yet");
+    أرجع CURLE_OK;
   }
 
-  size = sizeof(add);
-#ifdef HAVE_ACCEPT4
-  s_accepted = CURL_ACCEPT4(ctx->sock, (struct sockaddr *)&add, &size,
+  سائيز = حجم(جوڙيو);
+#جيڪڏهن_وصف_ٿيل HAVE_ACCEPT4
+  s_accepted = CURL_ACCEPT4(ctx->sock, (بنية sockaddr *)&جوڙيو, &سائيز,
                             SOCK_NONBLOCK | SOCK_CLOEXEC);
-#else
-  s_accepted = CURL_ACCEPT(ctx->sock, (struct sockaddr *)&add, &size);
-#endif
+#وإلا
+  s_accepted = CURL_ACCEPT(ctx->sock, (بنية sockaddr *)&جوڙيو, &سائيز);
+#جيڪڏهن_پورو
 
-  if(s_accepted == CURL_SOCKET_BAD) {
-    failf(data, "Error accept()ing server connect: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
-    return CURLE_FTP_ACCEPT_FAILED;
+  إذا(s_accepted == CURL_SOCKET_BAD) {
+    failf(معلومات, "Error accept()ing server connect: %s",
+          curlx_strerror(SOCKERRNO, errbuf, حجم(errbuf)));
+    أرجع CURLE_FTP_ACCEPT_FAILED;
   }
-#ifndef HAVE_ACCEPT4
-#ifdef HAVE_FCNTL
-  if(fcntl(s_accepted, F_SETFD, FD_CLOEXEC) < 0) {
-    failf(data, "fcntl set CLOEXEC: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
-    Curl_socket_close(data, cf->conn, s_accepted);
-    return CURLE_FTP_ACCEPT_FAILED;
+#جيڪڏهن_وصف_نه_ٿيل HAVE_ACCEPT4
+#جيڪڏهن_وصف_ٿيل HAVE_FCNTL
+  إذا(fcntl(s_accepted, F_SETFD, FD_CLOEXEC) < 0) {
+    failf(معلومات, "fcntl set CLOEXEC: %s",
+          curlx_strerror(SOCKERRNO, errbuf, حجم(errbuf)));
+    Curl_socket_close(معلومات, cf->conn, s_accepted);
+    أرجع CURLE_FTP_ACCEPT_FAILED;
   }
-#endif /* HAVE_FCNTL */
-  if(curlx_nonblock(s_accepted, TRUE) < 0) {
-    failf(data, "set socket NONBLOCK: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
-    Curl_socket_close(data, cf->conn, s_accepted);
-    return CURLE_FTP_ACCEPT_FAILED;
+#جيڪڏهن_پورو /* HAVE_FCNTL */
+  إذا(curlx_nonblock(s_accepted, TRUE) < 0) {
+    failf(معلومات, "set socket NONBLOCK: %s",
+          curlx_strerror(SOCKERRNO, errbuf, حجم(errbuf)));
+    Curl_socket_close(معلومات, cf->conn, s_accepted);
+    أرجع CURLE_FTP_ACCEPT_FAILED;
   }
-#endif /* !HAVE_ACCEPT4 */
-  infof(data, "Connection accepted from server");
+#جيڪڏهن_پورو /* !HAVE_ACCEPT4 */
+  infof(معلومات, "Connection accepted from server");
 
   /* Replace any filter on SECONDARY with one listening on this socket */
   ctx->listening = FALSE;
   ctx->accepted = TRUE;
-  socket_close(data, cf->conn, TRUE, ctx->sock);
+  socket_close(معلومات, cf->conn, TRUE, ctx->sock);
   ctx->sock = s_accepted;
 
   cf->conn->sock[cf->sockindex] = ctx->sock;
-  cf_tcp_set_accepted_remote_ip(cf, data);
-  set_local_ip(cf, data);
-  ctx->active = TRUE;
-  ctx->connected_at = *Curl_pgrs_now(data);
+  cf_tcp_سيٽ_accepted_remote_ip(cf, معلومات);
+  سيٽ_local_ip(cf, معلومات);
+  ctx->سرگرم = TRUE;
+  ctx->connected_at = *Curl_pgrs_now(معلومات);
   cf->connected = TRUE;
-  CURL_TRC_CF(data, cf, "accepted_set(sock=%" FMT_SOCKET_T
+  CURL_TRC_CF(معلومات, cf, "accepted_set(sock=%" FMT_SOCKET_T
               ", remote=%s port=%d)",
-              ctx->sock, ctx->ip.remote_ip, ctx->ip.remote_port);
+              ctx->sock, ctx->ip.remote_ip, ctx->ip.remote_پورٽ);
 
-  if(data->set.fsockopt) {
-    struct Curl_mapi_guard guard;
-    int error = 0;
+  إذا(معلومات->سيٽ.fsockopt) {
+    بنية Curl_mapi_guard guard;
+    صحيح error = 0;
 
     /* activate callback for setting socket options */
-    CURL_CBAPI_START(&guard, data, easy_fsockopt);
-    error = data->set.fsockopt(data->set.sockopt_client,
+    CURL_CBAPI_شروعات(&guard, معلومات, easy_fsockopt);
+    error = معلومات->سيٽ.fsockopt(معلومات->سيٽ.sockopt_client,
                                ctx->sock, CURLSOCKTYPE_ACCEPT);
-    CURL_CBAPI_END(&guard);
+    CURL_CBAPI_پڇاڙي(&guard);
 
-    if(error)
-      return CURLE_ABORTED_BY_CALLBACK;
+    إذا(error)
+      أرجع CURLE_ABORTED_BY_CALLBACK;
   }
-  *done = TRUE;
-  return CURLE_OK;
+  *پورو = TRUE;
+  أرجع CURLE_OK;
 }
 
-struct Curl_cftype Curl_cft_tcp_accept = {
+بنية Curl_cftype Curl_cft_tcp_accept = {
   "TCP-ACCEPT",
   CF_TYPE_IP_CONNECT,
   CURL_LOG_LVL_NONE,
@@ -2440,7 +2440,7 @@ struct Curl_cftype Curl_cft_tcp_accept = {
   cf_tcp_accept_connect,
   cf_socket_shutdown,
   cf_socket_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_معلومات_pending,
   cf_socket_send,
   cf_socket_recv,
   cf_socket_cntrl,
@@ -2449,87 +2449,87 @@ struct Curl_cftype Curl_cft_tcp_accept = {
   cf_socket_query,
 };
 
-CURLcode Curl_conn_tcp_listen_set(struct Curl_easy *data,
-                                  struct connectdata *conn,
+CURLcode Curl_conn_tcp_listen_سيٽ(بنية Curl_easy *معلومات,
+                                  بنية connectdata *conn,
                                   int8_t sockindex, curl_socket_t *s)
 {
-  CURLcode result;
-  struct Curl_cfilter *cf = NULL;
-  struct cf_socket_ctx *ctx = NULL;
+  CURLcode نتيجو;
+  بنية Curl_cfilter *cf = عدم;
+  بنية cf_socket_ctx *ctx = عدم;
 
   /* replace any existing */
-  Curl_conn_cf_discard_all(data, conn, sockindex);
+  Curl_conn_cf_discard_all(معلومات, conn, sockindex);
   DEBUGASSERT(conn->sock[sockindex] == CURL_SOCKET_BAD);
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+    اذهب ٻاهريون;
   }
   ctx->transport = TRNSPRT_TCP;
   ctx->sock = *s;
   ctx->listening = TRUE;
   ctx->accepted = FALSE;
-  result = Curl_cf_create(&cf, &Curl_cft_tcp_accept, ctx);
-  if(result)
-    goto out;
-  Curl_conn_cf_add(data, conn, sockindex, cf);
+  نتيجو = Curl_cf_create(&cf, &Curl_cft_tcp_accept, ctx);
+  إذا(نتيجو)
+    اذهب ٻاهريون;
+  Curl_conn_cf_جوڙيو(معلومات, conn, sockindex, cf);
 
-  ctx->started_at = *Curl_pgrs_now(data);
+  ctx->started_at = *Curl_pgrs_now(معلومات);
   conn->sock[sockindex] = ctx->sock;
-  set_local_ip(cf, data);
-  CURL_TRC_CF(data, cf, "set filter for listen socket fd=%" FMT_SOCKET_T
+  سيٽ_local_ip(cf, معلومات);
+  CURL_TRC_CF(معلومات, cf, "set filter for listen socket fd=%" FMT_SOCKET_T
               " ip=%s:%d", ctx->sock,
-              ctx->ip.local_ip, ctx->ip.local_port);
+              ctx->ip.local_ip, ctx->ip.local_پورٽ);
 
-out:
-  if(result) {
+ٻاهريون:
+  إذا(نتيجو) {
     curlx_safefree(cf);
     curlx_safefree(ctx);
   }
-  return result;
+  أرجع نتيجو;
 }
 
-bool Curl_conn_is_tcp_listen(struct Curl_easy *data,
+bool Curl_conn_is_tcp_listen(بنية Curl_easy *معلومات,
                              int8_t sockindex)
 {
-  struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
-  while(cf) {
-    if(cf->cft == &Curl_cft_tcp_accept)
-      return TRUE;
-    cf = cf->next;
+  بنية Curl_cfilter *cf = معلومات->conn->cfilter[sockindex];
+  طالما(cf) {
+    إذا(cf->cft == &Curl_cft_tcp_accept)
+      أرجع TRUE;
+    cf = cf->ايندڙ;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
 /**
  * Return TRUE iff `cf` is a socket filter.
  */
-static bool cf_is_socket(struct Curl_cfilter *cf)
+ساكن bool cf_is_socket(بنية Curl_cfilter *cf)
 {
-  return cf && (cf->cft == &Curl_cft_tcp ||
+  أرجع cf && (cf->cft == &Curl_cft_tcp ||
                 cf->cft == &Curl_cft_udp ||
                 cf->cft == &Curl_cft_unix ||
                 cf->cft == &Curl_cft_tcp_accept);
 }
 
-CURLcode Curl_cf_socket_peek(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
+CURLcode Curl_cf_socket_peek(بنية Curl_cfilter *cf,
+                             بنية Curl_easy *معلومات,
                              curl_socket_t *psock,
-                             const struct Curl_sockaddr_ex **paddr,
-                             struct ip_quadruple *pip)
+                             ثابت بنية Curl_sockaddr_ex **paddr,
+                             بنية ip_quadruple *pip)
 {
-  (void)data;
-  if(cf_is_socket(cf) && cf->ctx) {
-    struct cf_socket_ctx *ctx = cf->ctx;
+  (فراغ)معلومات;
+  إذا(cf_is_socket(cf) && cf->ctx) {
+    بنية cf_socket_ctx *ctx = cf->ctx;
 
-    if(psock)
+    إذا(psock)
       *psock = ctx->sock;
-    if(paddr)
+    إذا(paddr)
       *paddr = &ctx->addr;
-    if(pip)
+    إذا(pip)
       *pip = ctx->ip;
-    return CURLE_OK;
+    أرجع CURLE_OK;
   }
-  return CURLE_FAILED_INIT;
+  أرجع CURLE_FAILED_INIT;
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONFIG_MAC_H
-#define HEADER_CURL_CONFIG_MAC_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_CONFIG_MAC_H
+#وصف_ڪريو سرو_CURL_CONFIG_MAC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -30,54 +30,54 @@
 /*   On macOS you must run configure to generate curl_config.h file    */
 /* =================================================================== */
 
-#ifndef CURL_OS
-#define CURL_OS "mac"
-#endif
+#جيڪڏهن_وصف_نه_ٿيل CURL_OS
+#وصف_ڪريو CURL_OS "mac"
+#جيڪڏهن_پورو
 
-#include <ConditionalMacros.h>
+#ضمن <ConditionalMacros.h>
 
 /* Define if you want the built-in manual */
-#define USE_MANUAL              1
+#وصف_ڪريو USE_MANUAL              1
 
-#define HAVE_NETINET_IN_H       1
-#define HAVE_NETDB_H            1
-#define HAVE_ARPA_INET_H        1
-#define HAVE_UNISTD_H           1
-#define HAVE_NET_IF_H           1
-#define HAVE_SYS_TYPES_H        1
-#define HAVE_GETTIMEOFDAY       1
-#define HAVE_FCNTL_H            1
-#define HAVE_UTIME_H            1
-#define HAVE_SYS_UTIME_H        1
-#define HAVE_SYS_IOCTL_H        1
-#define HAVE_ALARM              1
-#define HAVE_UTIME              1
-#define HAVE_SOCKET             1
-#define HAVE_STRUCT_TIMEVAL     1
+#وصف_ڪريو HAVE_NETINET_اندريون_H       1
+#وصف_ڪريو HAVE_NETDB_H            1
+#وصف_ڪريو HAVE_ARPA_INET_H        1
+#وصف_ڪريو HAVE_UNISTD_H           1
+#وصف_ڪريو HAVE_NET_IF_H           1
+#وصف_ڪريو HAVE_SYS_TYPES_H        1
+#وصف_ڪريو HAVE_GETTIMEOFDAY       1
+#وصف_ڪريو HAVE_FCNTL_H            1
+#وصف_ڪريو HAVE_UTIME_H            1
+#وصف_ڪريو HAVE_SYS_UTIME_H        1
+#وصف_ڪريو HAVE_SYS_IOCTL_H        1
+#وصف_ڪريو HAVE_ALARM              1
+#وصف_ڪريو HAVE_UTIME              1
+#وصف_ڪريو HAVE_SOCKET             1
+#وصف_ڪريو HAVE_STRUCT_TIMEVAL     1
 
-#define HAVE_SIGACTION          1
+#وصف_ڪريو HAVE_SIGACTION          1
 
-#define CURL_DISABLE_LDAP
+#وصف_ڪريو CURL_DISABLE_LDAP
 
-#define HAVE_IOCTL_FIONBIO      1
+#وصف_ڪريو HAVE_IOCTL_FIONBIO      1
 
-#define SIZEOF_INT              4
-#define SIZEOF_LONG             4
-#define SIZEOF_SIZE_T           4
-#define SIZEOF_CURL_OFF_T       8
+#وصف_ڪريو SIZEOF_INT              4
+#وصف_ڪريو SIZEOF_LONG             4
+#وصف_ڪريو SIZEOF_سائيز_T           4
+#وصف_ڪريو SIZEOF_CURL_OFF_T       8
 
-#define HAVE_RECV 1
-#define RECV_TYPE_ARG1 int
-#define RECV_TYPE_ARG2 void *
-#define RECV_TYPE_ARG3 size_t
-#define RECV_TYPE_ARG4 int
-#define RECV_TYPE_RETV ssize_t
+#وصف_ڪريو HAVE_RECV 1
+#وصف_ڪريو RECV_TYPE_ARG1 صحيح
+#وصف_ڪريو RECV_TYPE_ARG2 فراغ *
+#وصف_ڪريو RECV_TYPE_ARG3 size_t
+#وصف_ڪريو RECV_TYPE_ARG4 صحيح
+#وصف_ڪريو RECV_TYPE_RETV ssize_t
 
-#define HAVE_SEND 1
-#define SEND_TYPE_ARG1 int
-#define SEND_TYPE_ARG2 void *
-#define SEND_TYPE_ARG3 size_t
-#define SEND_TYPE_ARG4 int
-#define SEND_TYPE_RETV ssize_t
+#وصف_ڪريو HAVE_SEND 1
+#وصف_ڪريو SEND_TYPE_ARG1 صحيح
+#وصف_ڪريو SEND_TYPE_ARG2 فراغ *
+#وصف_ڪريو SEND_TYPE_ARG3 size_t
+#وصف_ڪريو SEND_TYPE_ARG4 صحيح
+#وصف_ڪريو SEND_TYPE_RETV ssize_t
 
-#endif /* HEADER_CURL_CONFIG_MAC_H */
+#جيڪڏهن_پورو /* HEADER_CURL_CONFIG_MAC_H */

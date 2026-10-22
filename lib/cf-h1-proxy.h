@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_H1_PROXY_H
-#define HEADER_CURL_H1_PROXY_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_H1_PROXY_H
+#وصف_ڪريو سرو_CURL_H1_PROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#إذا !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-struct Curl_peer;
+بنية Curl_peer;
 
-CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *dest,
-                                       int httpversion,
+CURLcode Curl_cf_h1_proxy_وجهو_after(بنية Curl_cfilter *cf_at,
+                                       بنية Curl_easy *معلومات,
+                                       بنية Curl_peer *peer,
+                                       بنية Curl_peer *dest,
+                                       صحيح httpversion,
                                        bool udp_tunnel);
 
-extern struct Curl_cftype Curl_cft_h1_proxy;
+خارجي بنية Curl_cftype Curl_cft_h1_proxy;
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#جيڪڏهن_پورو /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_H1_PROXY_H */
+#جيڪڏهن_پورو /* HEADER_CURL_H1_PROXY_H */

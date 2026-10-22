@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VTLS_SPACK_H
-#define HEADER_CURL_VTLS_SPACK_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_VTLS_SPACK_H
+#وصف_ڪريو سرو_CURL_VTLS_SPACK_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#إذا defined(USE_SSL) && defined(USE_SSLS_EXPORT)
 
-struct dynbuf;
-struct Curl_ssl_session;
+بنية dynbuf;
+بنية Curl_ssl_session;
 
-CURLcode Curl_ssl_session_pack(struct Curl_easy *data,
-                               struct Curl_ssl_session *s,
-                               struct dynbuf *buf);
+CURLcode Curl_ssl_session_pack(بنية Curl_easy *معلومات,
+                               بنية Curl_ssl_session *s,
+                               بنية dynbuf *buf);
 
-CURLcode Curl_ssl_session_unpack(struct Curl_easy *data,
-                                 const void *bufv, size_t buflen,
-                                 struct Curl_ssl_session **ps);
+CURLcode Curl_ssl_session_unpack(بنية Curl_easy *معلومات,
+                                 ثابت فراغ *bufv, size_t buflen,
+                                 بنية Curl_ssl_session **ps);
 
-#endif /* USE_SSL && USE_SSLS_EXPORT */
+#جيڪڏهن_پورو /* USE_SSL && USE_SSLS_EXPORT */
 
-#endif /* HEADER_CURL_VTLS_SPACK_H */
+#جيڪڏهن_پورو /* HEADER_CURL_VTLS_SPACK_H */

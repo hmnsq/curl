@@ -1,5 +1,5 @@
-#ifndef HEADER_FAKE_ADDRINFO_H
-#define HEADER_FAKE_ADDRINFO_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_FAKE_ADDRINFO_H
+#وصف_ڪريو سرو_FAKE_ADDRINFO_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,31 +23,31 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_ARES
-#include <ares.h>
-#endif
+#جيڪڏهن_وصف_ٿيل USE_ARES
+#ضمن <ares.h>
+#جيڪڏهن_پورو
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
-  defined(USE_ARES) && (ARES_VERSION >= 0x011a00) /* >= 1.26.0 */
-#define USE_FAKE_GETADDRINFO 1
-#endif
+#إذا defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+  defined(USE_ARES) && (ARES_نسخو >= 0x011a00) /* >= 1.26.0 */
+#وصف_ڪريو USE_FAKE_GETADDRINFO 1
+#جيڪڏهن_پورو
 
-#ifdef USE_FAKE_GETADDRINFO
+#جيڪڏهن_وصف_ٿيل USE_FAKE_GETADDRINFO
 
-#ifdef HAVE_NETDB_H
+#جيڪڏهن_وصف_ٿيل HAVE_NETDB_H
 #  include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_ARPA_INET_H
 #  include <arpa/inet.h>
-#endif
+#جيڪڏهن_پورو
 
-void r_freeaddrinfo(struct addrinfo *cahead);
-int r_getaddrinfo(const char *node,
-                  const char *service,
-                  const struct addrinfo *hints,
-                  struct addrinfo **res);
-#endif /* USE_FAKE_GETADDRINFO */
+فراغ r_freeaddrinfo(بنية addrinfo *cahead);
+صحيح r_getaddrinfo(ثابت حرف *ڳنڍ,
+                  ثابت حرف *service,
+                  ثابت بنية addrinfo *hints,
+                  بنية addrinfo **res);
+#جيڪڏهن_پورو /* USE_FAKE_GETADDRINFO */
 
-#endif /* HEADER_FAKE_ADDRINFO_H */
+#جيڪڏهن_پورو /* HEADER_FAKE_ADDRINFO_H */

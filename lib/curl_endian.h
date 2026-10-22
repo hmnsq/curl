@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ENDIAN_H
-#define HEADER_CURL_ENDIAN_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_ENDIAN_H
+#وصف_ڪريو سرو_CURL_ENDIAN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -25,12 +25,12 @@
  ***************************************************************************/
 
 /* Converts a 16-bit integer from little endian */
-unsigned short Curl_read16_le(const unsigned char *buf);
+بنانشان ننڍو Curl_read16_le(ثابت بنانشان حرف *buf);
 
 /* Converts a 32-bit integer from little endian */
-unsigned int Curl_read32_le(const unsigned char *buf);
+بنانشان صحيح Curl_read32_le(ثابت بنانشان حرف *buf);
 
 /* Converts a 16-bit integer from big endian */
-unsigned short Curl_read16_be(const unsigned char *buf);
+بنانشان ننڍو Curl_read16_be(ثابت بنانشان حرف *buf);
 
-#endif /* HEADER_CURL_ENDIAN_H */
+#جيڪڏهن_پورو /* HEADER_CURL_ENDIAN_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_DOH_H
-#define HEADER_CURL_DOH_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_DOH_H
+#وصف_ڪريو سرو_CURL_DOH_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "urldata.h"
+#ضمن "urldata.h"
 
 /* enums outside of the #ifdef to make the types work in unitprotos.h even on
    builds without DoH support */
 
-struct Curl_resolv_async;
+بنية Curl_resolv_async;
 
-typedef enum {
+تعريفنوع تعداد {
   DOH_OK,
   DOH_DNS_BAD_LABEL,        /* 1 */
-  DOH_DNS_OUT_OF_RANGE,     /* 2 */
+  DOH_DNS_ٻاهريون_جو_RANGE,     /* 2 */
   DOH_DNS_LABEL_LOOP,       /* 3 */
-  DOH_TOO_SMALL_BUFFER,     /* 4 */
-  DOH_OUT_OF_MEM,           /* 5 */
+  DOH_TOO_SMALL_بفر,     /* 4 */
+  DOH_ٻاهريون_جو_MEM,           /* 5 */
   DOH_DNS_RDATA_LEN,        /* 6 */
   DOH_DNS_MALFORMAT,        /* 7 */
   DOH_DNS_BAD_RCODE,        /* 8 - unsuccessful rcode, not NXDOMAIN */
@@ -48,10 +48,10 @@ typedef enum {
   DOH_DNS_NXDOMAIN,         /* 14 - no such name */
   DOH_HTTP_FAILED,          /* failure at the HTTP level */
   DOH_OOM,                  /* out of memory */
-  DOH_CODE_LAST             /* Not used, limit */
+  DOH_ڪوڊ_آخري             /* Not used, limit */
 } DOHcode;
 
-typedef enum {
+تعريفنوع تعداد {
   CURL_DNS_TYPE_A = 1,
   CURL_DNS_TYPE_NS = 2,
   CURL_DNS_TYPE_CNAME = 5,
@@ -60,21 +60,21 @@ typedef enum {
   CURL_DNS_TYPE_HTTPS = 65
 } DNStype;
 
-struct dohentry; /* forward-declare for non-DoH builds */
+بنية dohentry; /* forward-declare for non-DoH builds */
 
-#ifndef CURL_DISABLE_DOH
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_DOH
 
-enum doh_slot_num {
+تعداد doh_جڳهه_انگ {
   /* Explicit values for first two symbols so as to match hard-coded
    * constants in existing code
    */
-  DOH_SLOT_IPV4 = 0, /* make 'V4' stand out for readability */
-  DOH_SLOT_IPV6 = 1, /* 'V6' likewise */
+  DOH_جڳهه_IPV4 = 0, /* make 'V4' stand out for readability */
+  DOH_جڳهه_IPV6 = 1, /* 'V6' likewise */
 
   /* Space here for (possibly build-specific) additional slot definitions */
-#ifdef USE_HTTPSRR
-  DOH_SLOT_HTTPS_RR = 2,     /* for HTTPS RR */
-#endif
+#جيڪڏهن_وصف_ٿيل USE_HTTPSRR
+  DOH_جڳهه_HTTPS_RR = 2,     /* for HTTPS RR */
+#جيڪڏهن_پورو
 
   /* for example */
   /* #ifdef WANT_DOH_FOOBAR_TXT */
@@ -82,20 +82,20 @@ enum doh_slot_num {
   /* #endif */
 
   /* AFTER all slot definitions, establish how many we have */
-  DOH_SLOT_COUNT
+  DOH_جڳهه_ڳڻپ
 };
 
-#define CURL_EZM_DOH_PROBE   "ezm:doh-p"
+#وصف_ڪريو CURL_EZM_DOH_PROBE   "ezm:doh-p"
 
 /* the largest one we can make, based on RFCs 1034, 1035 */
-#define DOH_MAX_DNSREQ_SIZE (256 + 16)
+#وصف_ڪريو DOH_MAX_DNSREQ_سائيز (256 + 16)
 
 /* each DoH probe request has this
  * as easy meta for CURL_EZM_DOH_PROBE */
-struct doh_request {
-  unsigned char req_body[DOH_MAX_DNSREQ_SIZE];
-  struct curl_slist *req_hds;
-  struct dynbuf resp_body;
+بنية doh_request {
+  بنانشان حرف req_body[DOH_MAX_DNSREQ_سائيز];
+  بنية curl_slist *req_hds;
+  بنية dynbuf resp_body;
   size_t req_body_len;
   uint32_t resolv_id; /* id of the resolve operation */
   DNStype dnstype;
@@ -103,66 +103,66 @@ struct doh_request {
 
 /* each transfer firing off DoH requests has this
  * as easy meta for CURL_EZM_DOH_MASTER */
-struct doh_probes {
-  uint32_t probe_mid[DOH_SLOT_COUNT];
-  DOHcode probe_rc[DOH_SLOT_COUNT];
+بنية doh_probes {
+  uint32_t probe_mid[DOH_جڳهه_ڳڻپ];
+  DOHcode probe_rc[DOH_جڳهه_ڳڻپ];
 };
 
 /*
  * Curl_doh() starts a name resolve using DoH (DNS-over-HTTPS). It resolves a
  * name and returns a 'Curl_addrinfo *' with the address information.
  */
-CURLcode Curl_doh(struct Curl_easy *data,
-                  struct Curl_resolv_async *async);
+CURLcode Curl_doh(بنية Curl_easy *معلومات,
+                  بنية Curl_resolv_async *async);
 
-CURLcode Curl_doh_take_result(struct Curl_easy *data,
-                              struct Curl_resolv_async *async,
-                              struct Curl_dns_entry **pdns);
+CURLcode Curl_doh_take_نتيجو(بنية Curl_easy *معلومات,
+                              بنية Curl_resolv_async *async,
+                              بنية Curl_dns_داخلا **pdns);
 
-#define DOH_MAX_ADDR  24
-#define DOH_MAX_HTTPS 4
+#وصف_ڪريو DOH_MAX_ADDR  24
+#وصف_ڪريو DOH_MAX_HTTPS 4
 
-struct dohaddr {
-  int type;
-  union {
-    unsigned char v4[4]; /* network byte order */
-    unsigned char v6[16];
+بنية dohaddr {
+  صحيح type;
+  اتحاد {
+    بنانشان حرف v4[4]; /* network byte order */
+    بنانشان حرف v6[16];
   } ip;
 };
 
-#ifdef USE_HTTPSRR
+#جيڪڏهن_وصف_ٿيل USE_HTTPSRR
 
 /*
  * These may need escaping when found within an ALPN string
  * value.
  */
-#define COMMA_CHAR                    ','
-#define BACKSLASH_CHAR                '\\'
+#وصف_ڪريو COMMA_CHAR                    ','
+#وصف_ڪريو BACKSLASH_CHAR                '\\'
 
-struct dohhttps_rr {
+بنية dohhttps_rr {
   uint16_t len; /* raw encoded length */
-  unsigned char *val; /* raw encoded octets */
+  بنانشان حرف *val; /* raw encoded octets */
 };
-#endif
+#جيڪڏهن_پورو
 
-struct dohentry {
-  struct dohaddr addr[DOH_MAX_ADDR];
-  int numaddr;
-  unsigned int ttl;
-#ifdef USE_HTTPSRR
-  struct dohhttps_rr https_rrs[DOH_MAX_HTTPS];
-  int numhttps_rrs;
-#endif
+بنية dohentry {
+  بنية dohaddr addr[DOH_MAX_ADDR];
+  صحيح numaddr;
+  بنانشان صحيح ttl;
+#جيڪڏهن_وصف_ٿيل USE_HTTPSRR
+  بنية dohhttps_rr https_rrs[DOH_MAX_HTTPS];
+  صحيح numhttps_rrs;
+#جيڪڏهن_پورو
 };
 
-void Curl_doh_cleanup(struct Curl_easy *data,
-                      struct Curl_resolv_async *async);
-#define Curl_doh_wanted(d)  (!!(d)->set.doh)
+فراغ Curl_doh_cleanup(بنية Curl_easy *معلومات,
+                      بنية Curl_resolv_async *async);
+#وصف_ڪريو Curl_doh_wanted(d)  (!!(d)->سيٽ.doh)
 
-#else /* CURL_DISABLE_DOH */
-#define Curl_doh(a, b)             NULL
-#define Curl_doh_take_result(x, y, z) CURLE_COULDNT_RESOLVE_HOST
-#define Curl_doh_wanted(d)         FALSE
-#endif /* !CURL_DISABLE_DOH */
+#وإلا /* CURL_DISABLE_DOH */
+#وصف_ڪريو Curl_doh(a, b)             عدم
+#وصف_ڪريو Curl_doh_take_نتيجو(x, y, z) CURLE_COULDNT_RESOLVE_HOST
+#وصف_ڪريو Curl_doh_wanted(d)         FALSE
+#جيڪڏهن_پورو /* !CURL_DISABLE_DOH */
 
-#endif /* HEADER_CURL_DOH_H */
+#جيڪڏهن_پورو /* HEADER_CURL_DOH_H */

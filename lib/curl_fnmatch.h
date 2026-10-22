@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FNMATCH_H
-#define HEADER_CURL_FNMATCH_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_FNMATCH_H
+#وصف_ڪريو سرو_CURL_FNMATCH_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#define CURL_FNMATCH_MATCH    0
-#define CURL_FNMATCH_NOMATCH  1
-#define CURL_FNMATCH_FAIL     2
+#وصف_ڪريو CURL_FNMATCH_ميلاپ    0
+#وصف_ڪريو CURL_FNMATCH_NOMATCH  1
+#وصف_ڪريو CURL_FNMATCH_FAIL     2
 
 /* default pattern matching function
  * =================================
@@ -40,6 +40,6 @@
  * keywords: alnum, digit, xdigit, alpha, print, blank, lower, graph, space
  *           and upper (use as "[[:alnum:]]")
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string);
+صحيح Curl_fnmatch(فراغ *ptr, ثابت حرف *نمونو, ثابت حرف *string);
 
-#endif /* HEADER_CURL_FNMATCH_H */
+#جيڪڏهن_پورو /* HEADER_CURL_FNMATCH_H */

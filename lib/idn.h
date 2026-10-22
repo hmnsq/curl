@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_IDN_H
-#define HEADER_CURL_IDN_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_IDN_H
+#وصف_ڪريو سرو_CURL_IDN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,22 +24,22 @@
  *
  ***************************************************************************/
 
-struct Curl_str;
-struct hostname;
+بنية Curl_str;
+بنية hostname;
 
-bool Curl_is_ASCII_name(const char *hostname);
-bool Curl_is_ASCII_str(struct Curl_str *s);
+bool Curl_is_ASCII_name(ثابت حرف *hostname);
+bool Curl_is_ASCII_str(بنية Curl_str *s);
 
-CURLcode Curl_idnconvert_hostname(struct hostname *host);
+CURLcode Curl_idnconvert_hostname(بنية hostname *host);
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-#define USE_IDN
-void Curl_free_idnconverted_hostname(struct hostname *host);
-CURLcode Curl_idn_decode(const char *input, char **output);
-CURLcode Curl_idn_encode(const char *puny, char **output);
-#else
-#define Curl_free_idnconverted_hostname(x)
-#define Curl_idn_decode(x) NULL
-#endif
+#إذا defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#وصف_ڪريو USE_IDN
+فراغ Curl_free_idnconverted_hostname(بنية hostname *host);
+CURLcode Curl_idn_decode(ثابت حرف *داخلا, حرف **output);
+CURLcode Curl_idn_encode(ثابت حرف *puny, حرف **output);
+#وإلا
+#وصف_ڪريو Curl_free_idnconverted_hostname(x)
+#وصف_ڪريو Curl_idn_decode(x) عدم
+#جيڪڏهن_پورو
 
-#endif /* HEADER_CURL_IDN_H */
+#جيڪڏهن_پورو /* HEADER_CURL_IDN_H */

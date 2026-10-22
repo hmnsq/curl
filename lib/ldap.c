@@ -21,16 +21,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "curl_ldap.h"
+#ضمن "curl_setup.h"
+#ضمن "urldata.h"
+#ضمن "curl_ldap.h"
 
-#if !defined(CURL_DISABLE_LDAP) && !defined(USE_OPENLDAP)
+#إذا !defined(CURL_DISABLE_LDAP) && !defined(USE_OPENLDAP)
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#إذا defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#هدايت GCC diagnostic ڌڪو
+#هدايت GCC diagnostic ignored "-Wdeprecated-declarations"
+#جيڪڏهن_پورو
 
 /*
  * Notice that USE_OPENLDAP is only a source code selection switch. When
@@ -43,7 +43,7 @@
  * OpenLDAP library versions, USE_OPENLDAP shall not be defined.
  */
 
-#ifdef USE_WIN32_LDAP           /* Use Windows LDAP implementation. */
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP           /* Use Windows LDAP implementation. */
 #  include <winldap.h>
 /* Undefine indirect <wincrypt.h> symbols conflicting with AWS-LC/BoringSSL. */
 #  undef X509_NAME
@@ -53,635 +53,635 @@
 #  undef OCSP_REQUEST
 #  undef OCSP_RESPONSE
 #  include <winber.h>
-#else
+#وإلا
 #  define LDAP_DEPRECATED 1     /* Be sure ldap_init() is defined. */
 #  ifdef HAVE_LBER_H
 #    include <lber.h>
 #  endif
 #  include <ldap.h>
-#  if defined(HAVE_LDAP_SSL) && defined(HAVE_LDAP_SSL_H)
+#  إذا defined(HAVE_LDAP_SSL) && defined(HAVE_LDAP_SSL_H)
 #    include <ldap_ssl.h>
 #  endif /* HAVE_LDAP_SSL && HAVE_LDAP_SSL_H */
-#endif
+#جيڪڏهن_پورو
 
-#include "cfilters.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "progress.h"
-#include "transfer.h"
-#include "curlx/strparse.h"
-#include "bufref.h"
-#include "curlx/multibyte.h"
-#include "curlx/base64.h"
-#include "connect.h"
+#ضمن "cfilters.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "escape.h"
+#ضمن "progress.h"
+#ضمن "transfer.h"
+#ضمن "curlx/strparse.h"
+#ضمن "bufref.h"
+#ضمن "curlx/multibyte.h"
+#ضمن "curlx/base64.h"
+#ضمن "connect.h"
 
-#ifdef USE_WIN32_LDAP
-#define FREE_ON_WINLDAP(x) curlx_free(x)
-#define curl_ldap_num_t    ULONG
-#else
-#define FREE_ON_WINLDAP(x) do {} while(0)
-#define curl_ldap_num_t    int
-#endif
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+#وصف_ڪريو FREE_ON_WINLDAP(x) curlx_free(x)
+#وصف_ڪريو curl_ldap_انگ_t    ULONG
+#وإلا
+#وصف_ڪريو FREE_ON_WINLDAP(x) افعل {} طالما(0)
+#وصف_ڪريو curl_ldap_انگ_t    صحيح
+#جيڪڏهن_پورو
 
-#ifndef HAVE_LDAP_URL_PARSE
+#جيڪڏهن_وصف_نه_ٿيل HAVE_LDAP_URL_PARSE
 
 /* Use our own implementation. */
 
-struct ldap_urldesc {
-  char   *lud_host;
-  int     lud_port;
-#ifdef USE_WIN32_LDAP
+بنية ldap_urldesc {
+  حرف   *lud_host;
+  صحيح     lud_پورٽ;
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
   TCHAR  *lud_dn;
   TCHAR **lud_attrs;
-#else
-  char   *lud_dn;
-  char  **lud_attrs;
-#endif
-  int     lud_scope;
-#ifdef USE_WIN32_LDAP
+#وإلا
+  حرف   *lud_dn;
+  حرف  **lud_attrs;
+#جيڪڏهن_پورو
+  صحيح     lud_scope;
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
   TCHAR  *lud_filter;
-#else
-  char   *lud_filter;
-#endif
-  char  **lud_exts;
+#وإلا
+  حرف   *lud_filter;
+#جيڪڏهن_پورو
+  حرف  **lud_exts;
   size_t  lud_attrs_dups; /* how many were dup'ed, this field is not in the
                              "real" struct so can only be used in code
                              without HAVE_LDAP_URL_PARSE defined */
 };
 
-#undef LDAPURLDesc
-#define LDAPURLDesc struct ldap_urldesc
+#وصف_رد LDAPURLDesc
+#وصف_ڪريو LDAPURLDesc بنية ldap_urldesc
 
-static curl_ldap_num_t ldap_url_parse_low(struct Curl_easy *data,
-                                          const struct connectdata *conn,
+ساكن curl_ldap_انگ_t ldap_url_parse_هيٺيون(بنية Curl_easy *معلومات,
+                                          ثابت بنية connectdata *conn,
                                           LDAPURLDesc **ludpp);
-static void ldap_free_urldesc_low(LDAPURLDesc *ludp);
+ساكن فراغ ldap_free_urldesc_هيٺيون(LDAPURLDesc *ludp);
 
-#undef ldap_free_urldesc
-#define ldap_free_urldesc       ldap_free_urldesc_low
+#وصف_رد ldap_free_urldesc
+#وصف_ڪريو ldap_free_urldesc       ldap_free_urldesc_هيٺيون
 
-#endif /* !HAVE_LDAP_URL_PARSE */
+#جيڪڏهن_پورو /* !HAVE_LDAP_URL_PARSE */
 
-#ifdef DEBUG_LDAP
-#define LDAP_TRACE(x)                 \
-  do {                                \
-    ldap_trace_low("%u: ", __LINE__); \
-    ldap_trace_low x;                 \
-  } while(0)
+#جيڪڏهن_وصف_ٿيل DEBUG_LDAP
+#وصف_ڪريو LDAP_TRACE(x)                 \
+  افعل {                                \
+    ldap_trace_هيٺيون("%u: ", __LINE__); \
+    ldap_trace_هيٺيون x;                 \
+  } طالما(0)
 
-static void ldap_trace_low(const char *fmt, ...) CURL_PRINTF(1, 2);
-#else
-#define LDAP_TRACE(x) Curl_nop_stmt
-#endif
+ساكن فراغ ldap_trace_هيٺيون(ثابت حرف *fmt, ...) CURL_PRINTF(1, 2);
+#وإلا
+#وصف_ڪريو LDAP_TRACE(x) Curl_nop_stmt
+#جيڪڏهن_پورو
 
-#if defined(USE_WIN32_LDAP) && defined(ldap_err2string)
+#إذا defined(USE_WIN32_LDAP) && defined(ldap_err2string)
 /* Use ANSI error strings in Unicode builds */
-#undef ldap_err2string
-#define ldap_err2string ldap_err2stringA
-#endif
+#وصف_رد ldap_err2string
+#وصف_ڪريو ldap_err2string ldap_err2stringA
+#جيڪڏهن_پورو
 
-#if defined(USE_WIN32_LDAP) && defined(_MSC_VER) && (_MSC_VER <= 1700)
+#إذا defined(USE_WIN32_LDAP) && defined(_MSC_VER) && (_MSC_VER <= 1700)
 /* Workaround for warning:
    'type cast' : conversion from 'int' to 'void *' of greater size */
-#undef LDAP_OPT_ON
-#undef LDAP_OPT_OFF
-#define LDAP_OPT_ON   ((void *)(size_t)1)
-#define LDAP_OPT_OFF  ((void *)(size_t)0)
-#endif
+#وصف_رد LDAP_OPT_ON
+#وصف_رد LDAP_OPT_OFF
+#وصف_ڪريو LDAP_OPT_ON   ((فراغ *)(size_t)1)
+#وصف_ڪريو LDAP_OPT_OFF  ((فراغ *)(size_t)0)
+#جيڪڏهن_پورو
 
-#ifdef USE_WIN32_LDAP
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
 
-#ifdef USE_WINDOWS_SSPI
-static ULONG ldap_win_bind_auth(LDAP *server, const char *user,
-                                const char *passwd, unsigned long authflags)
+#جيڪڏهن_وصف_ٿيل USE_WINDOWS_SSPI
+ساكن ULONG ldap_win_bind_auth(LDAP *server, ثابت حرف *user,
+                                ثابت حرف *passwd, بنانشان ڊگهو authflags)
 {
-  ULONG method = 0;
-  SEC_WINNT_AUTH_IDENTITY_EX cred;
-  ULONG rc = LDAP_AUTH_METHOD_NOT_SUPPORTED;
+  ULONG طريقو = 0;
+  SEC_WINNT_AUTH_سڃاڻپ_عنصر_EX cred;
+  ULONG rc = LDAP_AUTH_طريقو_NOT_SUPPORTED;
 
-  memset(&cred, 0, sizeof(cred));
+  memset(&cred, 0, حجم(cred));
 
-#ifdef USE_SPNEGO
-  if(authflags & CURLAUTH_NEGOTIATE) {
-    method = LDAP_AUTH_NEGOTIATE;
+#جيڪڏهن_وصف_ٿيل USE_SPNEGO
+  إذا(authflags & CURLAUTH_NEGOTIATE) {
+    طريقو = LDAP_AUTH_NEGOTIATE;
   }
-  else
-#endif
-#ifdef USE_NTLM
-  if(authflags & CURLAUTH_NTLM) {
-    method = LDAP_AUTH_NTLM;
+  وإلا
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل USE_NTLM
+  إذا(authflags & CURLAUTH_NTLM) {
+    طريقو = LDAP_AUTH_NTLM;
   }
-  else
-#endif
-#ifndef CURL_DISABLE_DIGEST_AUTH
-  if(authflags & CURLAUTH_DIGEST) {
-    method = LDAP_AUTH_DIGEST;
+  وإلا
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_DIGEST_AUTH
+  إذا(authflags & CURLAUTH_DIGEST) {
+    طريقو = LDAP_AUTH_DIGEST;
   }
-  else
-#endif
+  وإلا
+#جيڪڏهن_پورو
   {
     /* required anyway if one of upper preprocessor definitions enabled */
   }
 
-  if(method && user && passwd) {
-    CURLcode result = Curl_create_sspi_identity(user, passwd, &cred);
-    if(!result) {
-      rc = ldap_bind_s(server, NULL, (TCHAR *)&cred, method);
-      Curl_sspi_free_identity(&cred);
+  إذا(طريقو && user && passwd) {
+    CURLcode نتيجو = Curl_create_sspi_سڃاڻپ_عنصر(user, passwd, &cred);
+    إذا(!نتيجو) {
+      rc = ldap_bind_s(server, عدم, (TCHAR *)&cred, طريقو);
+      Curl_sspi_free_سڃاڻپ_عنصر(&cred);
     }
-    else {
-      rc = LDAP_NO_MEMORY;
+    وإلا {
+      rc = LDAP_NO_يادگيري;
     }
   }
-  else {
+  وإلا {
     /* proceed with current user credentials */
-    method = LDAP_AUTH_NEGOTIATE;
-    rc = ldap_bind_s(server, NULL, NULL, method);
+    طريقو = LDAP_AUTH_NEGOTIATE;
+    rc = ldap_bind_s(server, عدم, عدم, طريقو);
   }
-  return rc;
+  أرجع rc;
 }
-#endif /* USE_WINDOWS_SSPI */
+#جيڪڏهن_پورو /* USE_WINDOWS_SSPI */
 
-static ULONG ldap_win_bind(struct Curl_easy *data, LDAP *server,
-                           const char *user, const char *passwd)
+ساكن ULONG ldap_win_bind(بنية Curl_easy *معلومات, LDAP *server,
+                           ثابت حرف *user, ثابت حرف *passwd)
 {
   ULONG rc = LDAP_INVALID_CREDENTIALS;
 
-  PTCHAR inuser = NULL;
-  PTCHAR inpass = NULL;
+  PTCHAR inuser = عدم;
+  PTCHAR inpass = عدم;
 
-  if(user && passwd && (data->set.httpauth & CURLAUTH_BASIC)) {
-    inuser = curlx_convert_UTF8_to_tchar(user);
-    inpass = curlx_convert_UTF8_to_tchar(passwd);
+  إذا(user && passwd && (معلومات->سيٽ.httpauth & CURLAUTH_BASIC)) {
+    inuser = curlx_convert_UTF8_منزل_tchar(user);
+    inpass = curlx_convert_UTF8_منزل_tchar(passwd);
 
     rc = ldap_simple_bind_s(server, inuser, inpass);
 
     curlx_free(inuser);
     curlx_free(inpass);
   }
-#ifdef USE_WINDOWS_SSPI
-  else {
-    rc = ldap_win_bind_auth(server, user, passwd, data->set.httpauth);
+#جيڪڏهن_وصف_ٿيل USE_WINDOWS_SSPI
+  وإلا {
+    rc = ldap_win_bind_auth(server, user, passwd, معلومات->سيٽ.httpauth);
   }
-#endif
+#جيڪڏهن_پورو
 
-  return rc;
+  أرجع rc;
 }
-#endif /* USE_WIN32_LDAP */
+#جيڪڏهن_پورو /* USE_WIN32_LDAP */
 
 /* RFC 2849: a string that is not a SAFE-STRING (leading ':' or '<', leading or
    trailing space, or any non-printable byte such as CR/LF) cannot go into LDIF
    as-is. DNs and values get base64-encoded instead; an attribute type has no
    base64 form in LDIF and is rejected by the caller. */
-static bool ldap_str_needs_base64(const char *s, size_t len)
+ساكن bool ldap_str_needs_base64(ثابت حرف *s, size_t len)
 {
   size_t i;
-  if(!len)
-    return FALSE;
-  if((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
-    return TRUE;
-  for(i = 0; i < len; i++)
-    if(!ISPRINT(s[i]))
-      return TRUE;
-  return FALSE;
+  إذا(!len)
+    أرجع FALSE;
+  إذا((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
+    أرجع TRUE;
+  لكل(i = 0; i < len; i++)
+    إذا(!ISPRINT(s[i]))
+      أرجع TRUE;
+  أرجع FALSE;
 }
 
-static bool ldap_value_needs_base64(const char *attr, size_t attr_len,
-                                    const BerValue *val)
+ساكن bool ldap_قدر_needs_base64(ثابت حرف *attr, size_t attr_len,
+                                    ثابت Ber_قدر *val)
 {
-  if((attr_len > 7) && curl_strequal(";binary", attr + attr_len - 7))
-    return TRUE;
+  إذا((attr_len > 7) && curl_strequal(";binary", attr + attr_len - 7))
+    أرجع TRUE;
 
-  return ldap_str_needs_base64(val->bv_val, val->bv_len);
+  أرجع ldap_str_needs_base64(val->bv_val, val->bv_len);
 }
 
-#ifdef USE_WIN32_LDAP
-static BOOLEAN bypass_cert_verify(PLDAP Connection,
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+ساكن BOOLEAN bypass_cert_verify(PLDAP Connection,
                                   PCCERT_CONTEXT *ppServerCert)
 {
-  (void)Connection;
+  (فراغ)Connection;
   CertFreeCertificateContext(*ppServerCert);
   /* approve any certificate since the verification is set to bypass */
-  return TRUE;
+  أرجع TRUE;
 }
-#endif
+#جيڪڏهن_پورو
 
-static CURLcode show_vals(struct Curl_easy *data, BerValue **vals,
-                          const char *attr)
+ساكن CURLcode show_vals(بنية Curl_easy *معلومات, Ber_قدر **vals,
+                          ثابت حرف *attr)
 {
-  CURLcode result = CURLE_OK;
-  int i;
-  size_t attr_len = strlen(attr);
+  CURLcode نتيجو = CURLE_OK;
+  صحيح i;
+  size_t attr_len = لڙي_ڊيگهه(attr);
 
   /* An attribute type has no base64 form in LDIF, so a type carrying control
      bytes (CR/LF etc.) would let a hostile server inject lines. A conformant
      type name never contains them, so reject it. */
-  if(ldap_str_needs_base64(attr, attr_len)) {
-    failf(data, "LDAP local: attribute type contains illegal bytes");
-    return CURLE_WEIRD_SERVER_REPLY;
+  إذا(ldap_str_needs_base64(attr, attr_len)) {
+    failf(معلومات, "LDAP local: attribute type contains illegal bytes");
+    أرجع CURLE_WEIRD_SERVER_جواب;
   }
 
-  for(i = 0; vals[i] && !result; i++) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY, "\t", 1);
-    if(!result)
-      result = Curl_client_write(data, CLIENTWRITE_BODY, attr, attr_len);
-    if(!result)
-      result = Curl_client_write(data, CLIENTWRITE_BODY, ":", 1);
+  لكل(i = 0; vals[i] && !نتيجو; i++) {
+    نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, "\t", 1);
+    إذا(!نتيجو)
+      نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, attr, attr_len);
+    إذا(!نتيجو)
+      نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, ":", 1);
 
-    if(result)
-      break;
+    إذا(نتيجو)
+      اكسر;
 
-    if(ldap_value_needs_base64(attr, attr_len, vals[i])) {
-      char *val_b64 = NULL;
+    إذا(ldap_قدر_needs_base64(attr, attr_len, vals[i])) {
+      حرف *val_b64 = عدم;
       size_t val_b64_sz = 0;
 
       /* Binary attribute, encode to base64. */
-      if(vals[i]->bv_len)
-        result = curlx_base64_encode((uint8_t *)vals[i]->bv_val,
+      إذا(vals[i]->bv_len)
+        نتيجو = curlx_base64_encode((uint8_t *)vals[i]->bv_val,
                                      vals[i]->bv_len,
                                      &val_b64, &val_b64_sz);
-      if(!result)
-        result = Curl_client_write(data, CLIENTWRITE_BODY, ": ", 2);
-      if(!result && val_b64_sz)
-        result = Curl_client_write(data, CLIENTWRITE_BODY, val_b64,
+      إذا(!نتيجو)
+        نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, ": ", 2);
+      إذا(!نتيجو && val_b64_sz)
+        نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, val_b64,
                                    val_b64_sz);
       curlx_free(val_b64);
     }
-    else {
-      result = Curl_client_write(data, CLIENTWRITE_BODY, " ", 1);
-      if(!result)
-        result = Curl_client_write(data, CLIENTWRITE_BODY,
+    وإلا {
+      نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, " ", 1);
+      إذا(!نتيجو)
+        نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY,
                                    vals[i]->bv_val, vals[i]->bv_len);
     }
 
-    if(!result)
-      result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
+    إذا(!نتيجو)
+      نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, "\n", 1);
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static CURLcode ldap_do(struct Curl_easy *data, bool *done)
+ساكن CURLcode ldap_do(بنية Curl_easy *معلومات, bool *پورو)
 {
-  CURLcode result = CURLE_OK;
-  curl_ldap_num_t rc = LDAP_SUCCESS;
-  LDAP *server = NULL;
-  LDAPURLDesc *ludp = NULL;
-  LDAPMessage *ldapmsg = NULL;
-  LDAPMessage *entryIterator;
-  int num = 0;
-  struct connectdata *conn = data->conn;
-  int ldap_proto = LDAP_VERSION3;
+  CURLcode نتيجو = CURLE_OK;
+  curl_ldap_انگ_t rc = LDAP_SUCCESS;
+  LDAP *server = عدم;
+  LDAPURLDesc *ludp = عدم;
+  LDAPMessage *ldapmsg = عدم;
+  LDAPMessage *داخلا_Iterator;
+  صحيح انگ = 0;
+  بنية connectdata *conn = معلومات->conn;
+  صحيح ldap_proto = LDAP_VERSION3;
   bool ldap_ssl = FALSE;
-#ifdef LDAP_OPT_NETWORK_TIMEOUT
-  struct timeval ldap_timeout = { 10, 0 }; /* 10s connection/search timeout */
-#endif
-#ifdef USE_WIN32_LDAP
-  TCHAR *host = NULL;
-#else
-  char *host = NULL;
-#endif
-  const char *user = data->state.creds ? data->state.creds->user : NULL;
-  const char *passwd = data->state.creds ? data->state.creds->passwd : NULL;
-  struct ip_quadruple ipquad;
+#جيڪڏهن_وصف_ٿيل LDAP_OPT_ڄار_TIMEOUT
+  بنية timeval ldap_timeout = { 10, 0 }; /* 10s connection/search timeout */
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+  TCHAR *host = عدم;
+#وإلا
+  حرف *host = عدم;
+#جيڪڏهن_پورو
+  ثابت حرف *user = معلومات->state.creds ? معلومات->state.creds->user : عدم;
+  ثابت حرف *passwd = معلومات->state.creds ? معلومات->state.creds->passwd : عدم;
+  بنية ip_quadruple ipquad;
   bool is_ipv6;
-  BerElement *ber = NULL;
+  BerElement *ber = عدم;
 
-  *done = TRUE; /* unconditionally */
-  infof(data, "LDAP local: LDAP Vendor = %s ; LDAP Version = %d",
-        LDAP_VENDOR_NAME, LDAP_VENDOR_VERSION);
-  infof(data, "LDAP local: %s", Curl_bufref_ptr(&data->state.url));
+  *پورو = TRUE; /* unconditionally */
+  infof(معلومات, "LDAP local: LDAP Vendor = %s ; LDAP Version = %d",
+        LDAP_VENDOR_NAME, LDAP_VENDOR_نسخو);
+  infof(معلومات, "LDAP local: %s", Curl_bufref_ptr(&معلومات->state.url));
 
-#ifdef HAVE_LDAP_URL_PARSE
-  rc = ldap_url_parse(Curl_bufref_ptr(&data->state.url), &ludp);
-#else
-  rc = ldap_url_parse_low(data, conn, &ludp);
-#endif
-  if(rc) {
-    failf(data, "Bad LDAP URL: %s", ldap_err2string(rc));
-    result = CURLE_URL_MALFORMAT;
-    goto quit;
+#جيڪڏهن_وصف_ٿيل HAVE_LDAP_URL_PARSE
+  rc = ldap_url_parse(Curl_bufref_ptr(&معلومات->state.url), &ludp);
+#وإلا
+  rc = ldap_url_parse_هيٺيون(معلومات, conn, &ludp);
+#جيڪڏهن_پورو
+  إذا(rc) {
+    failf(معلومات, "Bad LDAP URL: %s", ldap_err2string(rc));
+    نتيجو = CURLE_URL_MALFORMAT;
+    اذهب quit;
   }
 
-  result = Curl_conn_get_ip_info(data, conn, FIRSTSOCKET, &is_ipv6, &ipquad);
-  if(result)
-    goto quit;
+  نتيجو = Curl_conn_get_ip_info(معلومات, conn, FIRSTSOCKET, &is_ipv6, &ipquad);
+  إذا(نتيجو)
+    اذهب quit;
 
   /* Get the URL scheme (either ldap or ldaps) */
   ldap_ssl = Curl_conn_is_ssl(conn, FIRSTSOCKET);
-  infof(data, "LDAP local: trying to establish %s connection",
+  infof(معلومات, "LDAP local: trying to establish %s connection",
         ldap_ssl ? "encrypted" : "cleartext");
 
-#ifdef USE_WIN32_LDAP
-  host = curlx_convert_UTF8_to_tchar(conn->origin->hostname);
-  if(!host) {
-    result = CURLE_OUT_OF_MEMORY;
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+  host = curlx_convert_UTF8_منزل_tchar(conn->origin->hostname);
+  إذا(!host) {
+    نتيجو = CURLE_ٻاهريون_جو_يادگيري;
 
-    goto quit;
+    اذهب quit;
   }
-#else
+#وإلا
   host = conn->origin->hostname;
-#endif
+#جيڪڏهن_پورو
 
-#ifdef USE_WIN32_LDAP
-  if(ldap_ssl)
-    server = ldap_sslinit(host, (curl_ldap_num_t)ipquad.remote_port, 1);
-  else
-#endif
-    server = ldap_init(host, (curl_ldap_num_t)ipquad.remote_port);
-  if(!server) {
-    failf(data, "LDAP: cannot setup connect to %s:%u",
-          conn->origin->user_hostname, ipquad.remote_port);
-    result = CURLE_COULDNT_CONNECT;
-    goto quit;
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+  إذا(ldap_ssl)
+    server = ldap_sslinit(host, (curl_ldap_انگ_t)ipquad.remote_پورٽ, 1);
+  وإلا
+#جيڪڏهن_پورو
+    server = ldap_init(host, (curl_ldap_انگ_t)ipquad.remote_پورٽ);
+  إذا(!server) {
+    failf(معلومات, "LDAP: cannot setup connect to %s:%u",
+          conn->origin->user_hostname, ipquad.remote_پورٽ);
+    نتيجو = CURLE_COULDNT_CONNECT;
+    اذهب quit;
   }
 
-#ifdef LDAP_OPT_NETWORK_TIMEOUT
-  ldap_set_option(server, LDAP_OPT_NETWORK_TIMEOUT, &ldap_timeout);
-#endif
-  ldap_set_option(server, LDAP_OPT_PROTOCOL_VERSION, &ldap_proto);
+#جيڪڏهن_وصف_ٿيل LDAP_OPT_ڄار_TIMEOUT
+  ldap_سيٽ_option(server, LDAP_OPT_ڄار_TIMEOUT, &ldap_timeout);
+#جيڪڏهن_پورو
+  ldap_سيٽ_option(server, LDAP_OPT_PROTOCOL_نسخو, &ldap_proto);
 
   /* Do not chase referrals. */
-  ldap_set_option(server, LDAP_OPT_REFERRALS, LDAP_OPT_OFF);
+  ldap_سيٽ_option(server, LDAP_OPT_REFERRALS, LDAP_OPT_OFF);
 
-  if(ldap_ssl) {
-#ifdef HAVE_LDAP_SSL
-#ifdef USE_WIN32_LDAP
+  إذا(ldap_ssl) {
+#جيڪڏهن_وصف_ٿيل HAVE_LDAP_SSL
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
     /* Win32 LDAP uses the Windows CA store to verify certificates */
-    ldap_set_option(server, LDAP_OPT_SSL, LDAP_OPT_ON);
-    if(!conn->ssl_config.verifypeer) {
-      if(conn->ssl_config.verifyhost) {
-        failf(data, "LDAP local: host verification cannot be enabled when "
+    ldap_سيٽ_option(server, LDAP_OPT_SSL, LDAP_OPT_ON);
+    إذا(!conn->ssl_config.verifypeer) {
+      إذا(conn->ssl_config.verifyhost) {
+        failf(معلومات, "LDAP local: host verification cannot be enabled when "
               "peer verification is disabled for Windows native LDAP");
-        result = CURLE_NOT_BUILT_IN;
-        goto quit;
+        نتيجو = CURLE_NOT_BUILT_اندريون;
+        اذهب quit;
       }
-      ldap_set_option(server, LDAP_OPT_SERVER_CERTIFICATE,
-                      (void *)(uintptr_t)bypass_cert_verify);
+      ldap_سيٽ_option(server, LDAP_OPT_SERVER_CERTIFICATE,
+                      (فراغ *)(uintptr_t)bypass_cert_verify);
     }
-#elif defined(LDAP_OPT_X_TLS) /* !USE_WIN32_LDAP */
-    int ldap_option;
-    const char *ldap_ca = conn->ssl_config.CAfile;
-    if(conn->ssl_config.verifypeer) {
+#وإلاإذا defined(LDAP_OPT_X_TLS) /* !USE_WIN32_LDAP */
+    صحيح ldap_option;
+    ثابت حرف *ldap_ca = conn->ssl_config.CAfile;
+    إذا(conn->ssl_config.verifypeer) {
       /* OpenLDAP SDK supports BASE64 files. */
-      if(conn->ssl_config.cert_type &&
+      إذا(conn->ssl_config.cert_type &&
          !curl_strequal(conn->ssl_config.cert_type, "PEM")) {
-        failf(data, "LDAP local: ERROR OpenLDAP only supports PEM cert-type");
-        result = CURLE_SSL_CERTPROBLEM;
-        goto quit;
+        failf(معلومات, "LDAP local: ERROR OpenLDAP only supports PEM cert-type");
+        نتيجو = CURLE_SSL_CERTPROBLEM;
+        اذهب quit;
       }
-      if(!ldap_ca) {
-        failf(data, "LDAP local: ERROR PEM CA cert not set");
-        result = CURLE_SSL_CERTPROBLEM;
-        goto quit;
+      إذا(!ldap_ca) {
+        failf(معلومات, "LDAP local: ERROR PEM CA cert not set");
+        نتيجو = CURLE_SSL_CERTPROBLEM;
+        اذهب quit;
       }
-      infof(data, "LDAP local: using PEM CA cert: %s", ldap_ca);
-      rc = ldap_set_option(server, LDAP_OPT_X_TLS_CACERTFILE, ldap_ca);
-      if(rc != LDAP_SUCCESS) {
-        failf(data, "LDAP local: ERROR setting PEM CA cert: %s",
+      infof(معلومات, "LDAP local: using PEM CA cert: %s", ldap_ca);
+      rc = ldap_سيٽ_option(server, LDAP_OPT_X_TLS_CACERTFILE, ldap_ca);
+      إذا(rc != LDAP_SUCCESS) {
+        failf(معلومات, "LDAP local: ERROR setting PEM CA cert: %s",
               ldap_err2string(rc));
-        result = CURLE_SSL_CERTPROBLEM;
-        goto quit;
+        نتيجو = CURLE_SSL_CERTPROBLEM;
+        اذهب quit;
       }
       ldap_option = LDAP_OPT_X_TLS_DEMAND;
     }
-    else
+    وإلا
       ldap_option = LDAP_OPT_X_TLS_NEVER;
 
-    rc = ldap_set_option(server, LDAP_OPT_X_TLS_REQUIRE_CERT, &ldap_option);
-    if(rc != LDAP_SUCCESS) {
-      failf(data, "LDAP local: ERROR setting cert verify mode: %s",
+    rc = ldap_سيٽ_option(server, LDAP_OPT_X_TLS_REQUIRE_CERT, &ldap_option);
+    إذا(rc != LDAP_SUCCESS) {
+      failf(معلومات, "LDAP local: ERROR setting cert verify mode: %s",
             ldap_err2string(rc));
-      result = CURLE_SSL_CERTPROBLEM;
-      goto quit;
+      نتيجو = CURLE_SSL_CERTPROBLEM;
+      اذهب quit;
     }
     ldap_option = LDAP_OPT_X_TLS_HARD;
-    rc = ldap_set_option(server, LDAP_OPT_X_TLS, &ldap_option);
-    if(rc != LDAP_SUCCESS) {
-      failf(data, "LDAP local: ERROR setting SSL/TLS mode: %s",
+    rc = ldap_سيٽ_option(server, LDAP_OPT_X_TLS, &ldap_option);
+    إذا(rc != LDAP_SUCCESS) {
+      failf(معلومات, "LDAP local: ERROR setting SSL/TLS mode: %s",
             ldap_err2string(rc));
-      result = CURLE_SSL_CERTPROBLEM;
-      goto quit;
+      نتيجو = CURLE_SSL_CERTPROBLEM;
+      اذهب quit;
     }
-#else /* !USE_WIN32_LDAP && !LDAP_OPT_X_TLS */
+#وإلا /* !USE_WIN32_LDAP && !LDAP_OPT_X_TLS */
     /* we should probably never come up to here since configure
        should check in first place if we can support LDAP SSL/TLS */
-    failf(data, "LDAP local: SSL/TLS not supported with this version "
+    failf(معلومات, "LDAP local: SSL/TLS not supported with this version "
           "of the OpenLDAP toolkit");
-    result = CURLE_SSL_CERTPROBLEM;
-    goto quit;
-#endif
-#endif /* HAVE_LDAP_SSL */
+    نتيجو = CURLE_SSL_CERTPROBLEM;
+    اذهب quit;
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* HAVE_LDAP_SSL */
   }
-  else if(data->set.use_ssl > CURLUSESSL_TRY) {
-    failf(data, "LDAP local: explicit TLS not supported");
-    result = CURLE_NOT_BUILT_IN;
-    goto quit;
+  وإلا إذا(معلومات->سيٽ.use_ssl > CURLUSESSL_TRY) {
+    failf(معلومات, "LDAP local: explicit TLS not supported");
+    نتيجو = CURLE_NOT_BUILT_اندريون;
+    اذهب quit;
   }
 
-#ifdef USE_WIN32_LDAP
-  rc = ldap_win_bind(data, server, user, passwd);
-#else
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+  rc = ldap_win_bind(معلومات, server, user, passwd);
+#وإلا
   rc = ldap_simple_bind_s(server, user, passwd);
-#endif
-  if(!ldap_ssl && rc != LDAP_SUCCESS) {
+#جيڪڏهن_پورو
+  إذا(!ldap_ssl && rc != LDAP_SUCCESS) {
     ldap_proto = LDAP_VERSION2;
-    ldap_set_option(server, LDAP_OPT_PROTOCOL_VERSION, &ldap_proto);
-#ifdef USE_WIN32_LDAP
-    rc = ldap_win_bind(data, server, user, passwd);
-#else
+    ldap_سيٽ_option(server, LDAP_OPT_PROTOCOL_نسخو, &ldap_proto);
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+    rc = ldap_win_bind(معلومات, server, user, passwd);
+#وإلا
     rc = ldap_simple_bind_s(server, user, passwd);
-#endif
+#جيڪڏهن_پورو
   }
-  if(rc != LDAP_SUCCESS) {
-#ifdef USE_WIN32_LDAP
-    failf(data, "LDAP local: bind via ldap_win_bind %s",
+  إذا(rc != LDAP_SUCCESS) {
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+    failf(معلومات, "LDAP local: bind via ldap_win_bind %s",
           ldap_err2string(rc));
-#else
-    failf(data, "LDAP local: bind via ldap_simple_bind_s %s",
+#وإلا
+    failf(معلومات, "LDAP local: bind via ldap_simple_bind_s %s",
           ldap_err2string(rc));
-#endif
-    result = CURLE_LDAP_CANNOT_BIND;
-    goto quit;
+#جيڪڏهن_پورو
+    نتيجو = CURLE_LDAP_CANNOT_BIND;
+    اذهب quit;
   }
 
-  Curl_pgrsReset(data);
-  rc = ldap_search_s(server, ludp->lud_dn,
+  Curl_pgrsReset(معلومات);
+  rc = ldap_ڳولا_s(server, ludp->lud_dn,
                      ludp->lud_scope,
                      ludp->lud_filter, ludp->lud_attrs, 0, &ldapmsg);
 
-  if(rc != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED) {
-    failf(data, "LDAP remote: %s", ldap_err2string(rc));
-    result = CURLE_LDAP_SEARCH_FAILED;
-    goto quit;
+  إذا(rc != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED) {
+    failf(معلومات, "LDAP remote: %s", ldap_err2string(rc));
+    نتيجو = CURLE_LDAP_ڳولا_FAILED;
+    اذهب quit;
   }
 
-  num = 0;
-  for(entryIterator = ldap_first_entry(server, ldapmsg);
-      entryIterator;
-      entryIterator = ldap_next_entry(server, entryIterator), num++) {
-#ifdef USE_WIN32_LDAP
+  انگ = 0;
+  لكل(داخلا_Iterator = ldap_پهريون_داخلا(server, ldapmsg);
+      داخلا_Iterator;
+      داخلا_Iterator = ldap_ايندڙ_داخلا(server, داخلا_Iterator), انگ++) {
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
     TCHAR *attribute;
-#else
-    char *attribute;
-#endif
+#وإلا
+    حرف *attribute;
+#جيڪڏهن_پورو
 
     /* Get the DN and write it to the client */
     {
-      char *name = NULL;
+      حرف *name = عدم;
       size_t name_len = 0;
-#ifdef USE_WIN32_LDAP
-      TCHAR *dn = ldap_get_dn(server, entryIterator);
-      if(dn)
-        name = curlx_convert_tchar_to_UTF8(dn);
-#else
-      char *dn = name = ldap_get_dn(server, entryIterator);
-#endif
-      if(!name)
-        result = dn ? CURLE_OUT_OF_MEMORY : CURLE_FAILED_INIT;
-      else {
-        name_len = strlen(name);
-        if(ldap_str_needs_base64(name, name_len)) {
-          char *dn_b64 = NULL;
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+      TCHAR *dn = ldap_get_dn(server, داخلا_Iterator);
+      إذا(dn)
+        name = curlx_convert_tchar_منزل_UTF8(dn);
+#وإلا
+      حرف *dn = name = ldap_get_dn(server, داخلا_Iterator);
+#جيڪڏهن_پورو
+      إذا(!name)
+        نتيجو = dn ? CURLE_ٻاهريون_جو_يادگيري : CURLE_FAILED_INIT;
+      وإلا {
+        name_len = لڙي_ڊيگهه(name);
+        إذا(ldap_str_needs_base64(name, name_len)) {
+          حرف *dn_b64 = عدم;
           size_t dn_b64_sz = 0;
 
           /* A DN with e.g. CR/LF would inject LDIF lines, so encode it */
-          result = curlx_base64_encode((uint8_t *)name, name_len,
+          نتيجو = curlx_base64_encode((uint8_t *)name, name_len,
                                        &dn_b64, &dn_b64_sz);
-          if(!result)
-            result = Curl_client_write(data, CLIENTWRITE_BODY, "DN:: ", 5);
-          if(!result)
-            result = Curl_client_write(data, CLIENTWRITE_BODY, dn_b64,
+          إذا(!نتيجو)
+            نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, "DN:: ", 5);
+          إذا(!نتيجو)
+            نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, dn_b64,
                                        dn_b64_sz);
           curlx_free(dn_b64);
         }
-        else {
-          result = Curl_client_write(data, CLIENTWRITE_BODY, "DN: ", 4);
-          if(!result)
-            result = Curl_client_write(data, CLIENTWRITE_BODY, name, name_len);
+        وإلا {
+          نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, "DN: ", 4);
+          إذا(!نتيجو)
+            نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, name, name_len);
         }
-        if(!result)
-          result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
+        إذا(!نتيجو)
+          نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, "\n", 1);
       }
       FREE_ON_WINLDAP(name);
       ldap_memfree(dn);
-      if(result)
-        goto quit;
+      إذا(نتيجو)
+        اذهب quit;
     }
 
     /* Get the attributes and write them to the client */
-    for(attribute = ldap_first_attribute(server, entryIterator, &ber);
+    لكل(attribute = ldap_پهريون_attribute(server, داخلا_Iterator, &ber);
         attribute;
-        attribute = ldap_next_attribute(server, entryIterator, ber)) {
-      BerValue **vals;
-#ifdef USE_WIN32_LDAP
-      char *attr = curlx_convert_tchar_to_UTF8(attribute);
-      if(!attr) {
+        attribute = ldap_ايندڙ_attribute(server, داخلا_Iterator, ber)) {
+      Ber_قدر **vals;
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+      حرف *attr = curlx_convert_tchar_منزل_UTF8(attribute);
+      إذا(!attr) {
         ldap_memfree(attribute);
-        result = CURLE_OUT_OF_MEMORY;
-        goto quit;
+        نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+        اذهب quit;
       }
-#else
-      char *attr = attribute;
-#endif
-      vals = ldap_get_values_len(server, entryIterator, attribute);
-      if(vals) {
-        result = show_vals(data, vals, attr);
+#وإلا
+      حرف *attr = attribute;
+#جيڪڏهن_پورو
+      vals = ldap_get_قدرون_len(server, داخلا_Iterator, attribute);
+      إذا(vals) {
+        نتيجو = show_vals(معلومات, vals, attr);
         /* Free memory used to store values */
-        ldap_value_free_len(vals);
+        ldap_قدر_free_len(vals);
       }
 
       /* Free the attribute as we are done with it */
       FREE_ON_WINLDAP(attr);
       ldap_memfree(attribute);
 
-      if(!result)
-        result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-      if(result)
-        goto quit;
+      إذا(!نتيجو)
+        نتيجو = Curl_client_write(معلومات, CLIENTWRITE_BODY, "\n", 1);
+      إذا(نتيجو)
+        اذهب quit;
     }
 
-    if(ber) {
+    إذا(ber) {
       ber_free(ber, 0);
-      ber = NULL;
+      ber = عدم;
     }
   }
 
 quit:
-  if(ber)
+  إذا(ber)
     ber_free(ber, 0);
-  if(ldapmsg) {
+  إذا(ldapmsg) {
     ldap_msgfree(ldapmsg);
-    LDAP_TRACE(("Received %d entries\n", num));
+    LDAP_TRACE(("Received %d entries\n", انگ));
   }
-  if(rc == LDAP_SIZELIMIT_EXCEEDED)
-    infof(data, "There are more than %d entries", num);
-  if(ludp)
+  إذا(rc == LDAP_SIZELIMIT_EXCEEDED)
+    infof(معلومات, "There are more than %d entries", انگ);
+  إذا(ludp)
     ldap_free_urldesc(ludp);
-  if(server)
+  إذا(server)
     ldap_unbind_s(server);
 
   FREE_ON_WINLDAP(host);
 
   /* no data to transfer */
-  Curl_xfer_setup_nop(data);
+  Curl_xfer_تياري_nop(معلومات);
   connclose(conn);
 
-  return result;
+  أرجع نتيجو;
 }
 
-#ifdef DEBUG_LDAP
-static void ldap_trace_low(const char *fmt, ...)
+#جيڪڏهن_وصف_ٿيل DEBUG_LDAP
+ساكن فراغ ldap_trace_هيٺيون(ثابت حرف *fmt, ...)
 {
-  static int do_trace = -1;
-  va_list args;
+  ساكن صحيح do_trace = -1;
+  va_list دليلون;
 
-  if(do_trace == -1) {
-    const char *env = getenv("CURL_TRACE");
+  إذا(do_trace == -1) {
+    ثابت حرف *env = getenv("CURL_TRACE");
     curl_off_t e = 0;
-    if(!curlx_str_number(&env, &e, INT_MAX))
+    إذا(!curlx_str_عدد(&env, &e, وڌ_کان_وڌ_عدد))
       do_trace = e > 0;
   }
-  if(!do_trace)
-    return;
+  إذا(!do_trace)
+    أرجع;
 
-  va_start(args, fmt);
-  curl_mvfprintf(stderr, fmt, args);
-  va_end(args);
+  va_start(دليلون, fmt);
+  curl_mvfprintf(stderr, fmt, دليلون);
+  va_end(دليلون);
 }
-#endif /* DEBUG_LDAP */
+#جيڪڏهن_پورو /* DEBUG_LDAP */
 
-#ifndef HAVE_LDAP_URL_PARSE
+#جيڪڏهن_وصف_نه_ٿيل HAVE_LDAP_URL_PARSE
 
 /*
  * Return scope-value for a scope-string.
  */
-static int str2scope(const char *p)
+ساكن صحيح str2scope(ثابت حرف *p)
 {
-  if(curl_strequal(p, "one"))
-    return LDAP_SCOPE_ONELEVEL;
-  if(curl_strequal(p, "onetree"))
-    return LDAP_SCOPE_ONELEVEL;
-  if(curl_strequal(p, "base"))
-    return LDAP_SCOPE_BASE;
-  if(curl_strequal(p, "sub"))
-    return LDAP_SCOPE_SUBTREE;
-  if(curl_strequal(p, "subtree"))
-    return LDAP_SCOPE_SUBTREE;
-  return -1;
+  إذا(curl_strequal(p, "one"))
+    أرجع LDAP_SCOPE_ONELEVEL;
+  إذا(curl_strequal(p, "onetree"))
+    أرجع LDAP_SCOPE_ONELEVEL;
+  إذا(curl_strequal(p, "base"))
+    أرجع LDAP_SCOPE_بنياد;
+  إذا(curl_strequal(p, "sub"))
+    أرجع LDAP_SCOPE_SUBTREE;
+  إذا(curl_strequal(p, "subtree"))
+    أرجع LDAP_SCOPE_SUBTREE;
+  أرجع -1;
 }
 
 /* number of entries in the attributes list */
-static size_t num_entries(const char *s)
+ساكن size_t انگ_entries(ثابت حرف *s)
 {
-  size_t items = 1;
+  size_t شيون = 1;
 
   s = strchr(s, ',');
-  while(s) {
-    items++;
+  طالما(s) {
+    شيون++;
     s = strchr(s + 1, ',');
   }
-  return items;
+  أرجع شيون;
 }
 
 /*
@@ -698,242 +698,242 @@ static size_t num_entries(const char *s)
  *
  * Defined in RFC4516 section 2.
  */
-static curl_ldap_num_t ldap_url_parse2_low(struct Curl_easy *data,
-                                           const struct connectdata *conn,
+ساكن curl_ldap_انگ_t ldap_url_parse2_هيٺيون(بنية Curl_easy *معلومات,
+                                           ثابت بنية connectdata *conn,
                                            LDAPURLDesc *ludp)
 {
-  curl_ldap_num_t rc = LDAP_SUCCESS;
-  char *p;
-  char *path;
-  char *q = NULL;
-  char *query = NULL;
+  curl_ldap_انگ_t rc = LDAP_SUCCESS;
+  حرف *p;
+  حرف *رستو;
+  حرف *q = عدم;
+  حرف *query = عدم;
   size_t i;
 
-  if(!data ||
-     !data->state.up.path ||
-     data->state.up.path[0] != '/' ||
-     ((data->state.origin->scheme != &Curl_scheme_ldap) &&
-      (data->state.origin->scheme != &Curl_scheme_ldaps)))
-    return LDAP_INVALID_SYNTAX;
+  إذا(!معلومات ||
+     !معلومات->state.مٿي.رستو ||
+     معلومات->state.مٿي.رستو[0] != '/' ||
+     ((معلومات->state.origin->scheme != &Curl_scheme_ldap) &&
+      (معلومات->state.origin->scheme != &Curl_scheme_ldaps)))
+    أرجع LDAP_INVALID_SYNTAX;
 
-  ludp->lud_scope = LDAP_SCOPE_BASE;
-  ludp->lud_port  = conn->origin->port;
+  ludp->lud_scope = LDAP_SCOPE_بنياد;
+  ludp->lud_پورٽ  = conn->origin->پورٽ;
   ludp->lud_host  = conn->origin->hostname;
 
   /* Duplicate the path */
-  p = path = curlx_strdup(data->state.up.path + 1);
-  if(!path)
-    return LDAP_NO_MEMORY;
+  p = رستو = curlx_strdup(معلومات->state.مٿي.رستو + 1);
+  إذا(!رستو)
+    أرجع LDAP_NO_يادگيري;
 
   /* Duplicate the query if present */
-  if(data->state.up.query) {
-    q = query = curlx_strdup(data->state.up.query);
-    if(!query) {
-      curlx_free(path);
-      return LDAP_NO_MEMORY;
+  إذا(معلومات->state.مٿي.query) {
+    q = query = curlx_strdup(معلومات->state.مٿي.query);
+    إذا(!query) {
+      curlx_free(رستو);
+      أرجع LDAP_NO_يادگيري;
     }
   }
 
   /* Parse the DN (Distinguished Name) */
-  if(*p) {
-    char *dn = p;
-    char *unescaped;
-    CURLcode result;
+  إذا(*p) {
+    حرف *dn = p;
+    حرف *unescaped;
+    CURLcode نتيجو;
 
     LDAP_TRACE(("DN '%s'\n", dn));
 
     /* Unescape the DN */
-    result = Curl_urldecode(dn, 0, &unescaped, NULL, REJECT_ZERO);
-    if(result) {
-      rc = LDAP_NO_MEMORY;
+    نتيجو = Curl_urldecode(dn, 0, &unescaped, عدم, REJECT_ZERO);
+    إذا(نتيجو) {
+      rc = LDAP_NO_يادگيري;
 
-      goto quit;
+      اذهب quit;
     }
 
-#ifdef USE_WIN32_LDAP
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
     /* Convert the unescaped string to a tchar */
-    ludp->lud_dn = curlx_convert_UTF8_to_tchar(unescaped);
+    ludp->lud_dn = curlx_convert_UTF8_منزل_tchar(unescaped);
 
     /* Free the unescaped string as we are done with it */
     curlx_free(unescaped);
 
-    if(!ludp->lud_dn) {
-      rc = LDAP_NO_MEMORY;
+    إذا(!ludp->lud_dn) {
+      rc = LDAP_NO_يادگيري;
 
-      goto quit;
+      اذهب quit;
     }
-#else
+#وإلا
     ludp->lud_dn = unescaped;
-#endif
+#جيڪڏهن_پورو
   }
 
   p = q;
-  if(!p)
-    goto quit;
+  إذا(!p)
+    اذهب quit;
 
   /* Parse the attributes. skip "??" */
   q = strchr(p, '?');
-  if(q)
+  إذا(q)
     *q++ = '\0';
 
-  if(*p) {
-    size_t count = num_entries(p); /* at least one */
-    const char *atp = p;
+  إذا(*p) {
+    size_t ڳڻپ = انگ_entries(p); /* at least one */
+    ثابت حرف *atp = p;
 
     /* Allocate our array (+1 for the NULL entry) */
-#ifdef USE_WIN32_LDAP
-    ludp->lud_attrs = curlx_calloc(count + 1, sizeof(TCHAR *));
-#else
-    ludp->lud_attrs = curlx_calloc(count + 1, sizeof(char *));
-#endif
-    if(!ludp->lud_attrs) {
-      rc = LDAP_NO_MEMORY;
-      goto quit;
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
+    ludp->lud_attrs = curlx_calloc(ڳڻپ + 1, حجم(TCHAR *));
+#وإلا
+    ludp->lud_attrs = curlx_calloc(ڳڻپ + 1, حجم(حرف *));
+#جيڪڏهن_پورو
+    إذا(!ludp->lud_attrs) {
+      rc = LDAP_NO_يادگيري;
+      اذهب quit;
     }
 
-    for(i = 0; i < count; i++) {
-      char *unescaped;
-      CURLcode result;
-      struct Curl_str out;
+    لكل(i = 0; i < ڳڻپ; i++) {
+      حرف *unescaped;
+      CURLcode نتيجو;
+      بنية Curl_str ٻاهريون;
 
-      if(curlx_str_until(&atp, &out, 1024, ','))
-        break;
+      إذا(curlx_str_until(&atp, &ٻاهريون, 1024, ','))
+        اكسر;
 
-      LDAP_TRACE(("attr[%zu] '%.*s'\n", i, (int)out.len, out.str));
+      LDAP_TRACE(("attr[%zu] '%.*s'\n", i, (صحيح)ٻاهريون.len, ٻاهريون.str));
 
       /* Unescape the attribute */
-      result = Curl_urldecode(out.str, out.len, &unescaped, NULL, REJECT_ZERO);
-      if(result) {
-        rc = LDAP_NO_MEMORY;
-        goto quit;
+      نتيجو = Curl_urldecode(ٻاهريون.str, ٻاهريون.len, &unescaped, عدم, REJECT_ZERO);
+      إذا(نتيجو) {
+        rc = LDAP_NO_يادگيري;
+        اذهب quit;
       }
 
-#ifdef USE_WIN32_LDAP
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
       /* Convert the unescaped string to a tchar */
-      ludp->lud_attrs[i] = curlx_convert_UTF8_to_tchar(unescaped);
+      ludp->lud_attrs[i] = curlx_convert_UTF8_منزل_tchar(unescaped);
 
       /* Free the unescaped string as we are done with it */
       curlx_free(unescaped);
 
-      if(!ludp->lud_attrs[i]) {
-        rc = LDAP_NO_MEMORY;
-        goto quit;
+      إذا(!ludp->lud_attrs[i]) {
+        rc = LDAP_NO_يادگيري;
+        اذهب quit;
       }
-#else
+#وإلا
       ludp->lud_attrs[i] = unescaped;
-#endif
+#جيڪڏهن_پورو
 
       ludp->lud_attrs_dups++;
-      if(curlx_str_single(&atp, ','))
-        break;
+      إذا(curlx_str_single(&atp, ','))
+        اكسر;
     }
   }
 
   p = q;
-  if(!p)
-    goto quit;
+  إذا(!p)
+    اذهب quit;
 
   /* Parse the scope. skip "??" */
   q = strchr(p, '?');
-  if(q)
+  إذا(q)
     *q++ = '\0';
 
-  if(*p) {
+  إذا(*p) {
     ludp->lud_scope = str2scope(p);
-    if(ludp->lud_scope == -1) {
+    إذا(ludp->lud_scope == -1) {
       rc = LDAP_INVALID_SYNTAX;
 
-      goto quit;
+      اذهب quit;
     }
     LDAP_TRACE(("scope %d\n", ludp->lud_scope));
   }
 
   p = q;
-  if(!p)
-    goto quit;
+  إذا(!p)
+    اذهب quit;
 
   /* Parse the filter */
   q = strchr(p, '?');
-  if(q)
+  إذا(q)
     *q++ = '\0';
 
-  if(*p) {
-    char *filter = p;
-    char *unescaped;
-    CURLcode result;
+  إذا(*p) {
+    حرف *filter = p;
+    حرف *unescaped;
+    CURLcode نتيجو;
 
     LDAP_TRACE(("filter '%s'\n", filter));
 
     /* Unescape the filter */
-    result = Curl_urldecode(filter, 0, &unescaped, NULL, REJECT_CTRL);
-    if(result) {
-      rc = LDAP_NO_MEMORY;
+    نتيجو = Curl_urldecode(filter, 0, &unescaped, عدم, REJECT_CTRL);
+    إذا(نتيجو) {
+      rc = LDAP_NO_يادگيري;
 
-      goto quit;
+      اذهب quit;
     }
 
-#ifdef USE_WIN32_LDAP
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
     /* Convert the unescaped string to a tchar */
-    ludp->lud_filter = curlx_convert_UTF8_to_tchar(unescaped);
+    ludp->lud_filter = curlx_convert_UTF8_منزل_tchar(unescaped);
 
     /* Free the unescaped string as we are done with it */
     curlx_free(unescaped);
 
-    if(!ludp->lud_filter) {
-      rc = LDAP_NO_MEMORY;
+    إذا(!ludp->lud_filter) {
+      rc = LDAP_NO_يادگيري;
 
-      goto quit;
+      اذهب quit;
     }
-#else
+#وإلا
     ludp->lud_filter = unescaped;
-#endif
+#جيڪڏهن_پورو
   }
 
   p = q;
-  if(p && !*p) {
+  إذا(p && !*p) {
     rc = LDAP_INVALID_SYNTAX;
 
-    goto quit;
+    اذهب quit;
   }
 
 quit:
-  curlx_free(path);
+  curlx_free(رستو);
   curlx_free(query);
 
-  return rc;
+  أرجع rc;
 }
 
-static curl_ldap_num_t ldap_url_parse_low(struct Curl_easy *data,
-                                          const struct connectdata *conn,
+ساكن curl_ldap_انگ_t ldap_url_parse_هيٺيون(بنية Curl_easy *معلومات,
+                                          ثابت بنية connectdata *conn,
                                           LDAPURLDesc **ludpp)
 {
-  LDAPURLDesc *ludp = curlx_calloc(1, sizeof(*ludp));
-  curl_ldap_num_t rc;
+  LDAPURLDesc *ludp = curlx_calloc(1, حجم(*ludp));
+  curl_ldap_انگ_t rc;
 
-  *ludpp = NULL;
-  if(!ludp)
-    return LDAP_NO_MEMORY;
+  *ludpp = عدم;
+  إذا(!ludp)
+    أرجع LDAP_NO_يادگيري;
 
-  rc = ldap_url_parse2_low(data, conn, ludp);
-  if(rc != LDAP_SUCCESS) {
-    ldap_free_urldesc_low(ludp);
-    ludp = NULL;
+  rc = ldap_url_parse2_هيٺيون(معلومات, conn, ludp);
+  إذا(rc != LDAP_SUCCESS) {
+    ldap_free_urldesc_هيٺيون(ludp);
+    ludp = عدم;
   }
   *ludpp = ludp;
-  return rc;
+  أرجع rc;
 }
 
-static void ldap_free_urldesc_low(LDAPURLDesc *ludp)
+ساكن فراغ ldap_free_urldesc_هيٺيون(LDAPURLDesc *ludp)
 {
-  if(!ludp)
-    return;
+  إذا(!ludp)
+    أرجع;
 
   curlx_free(ludp->lud_dn);
   curlx_free(ludp->lud_filter);
 
-  if(ludp->lud_attrs) {
+  إذا(ludp->lud_attrs) {
     size_t i;
-    for(i = 0; i < ludp->lud_attrs_dups; i++) {
+    لكل(i = 0; i < ludp->lud_attrs_dups; i++) {
       curlx_free(ludp->lud_attrs[i]);
     }
     curlx_free(ludp->lud_attrs);
@@ -941,49 +941,49 @@ static void ldap_free_urldesc_low(LDAPURLDesc *ludp)
 
   curlx_free(ludp);
 }
-#endif /* !HAVE_LDAP_URL_PARSE */
+#جيڪڏهن_پورو /* !HAVE_LDAP_URL_PARSE */
 
-void Curl_ldap_version(char *buf, size_t bufsz)
+فراغ Curl_ldap_نسخو(حرف *buf, size_t bufsz)
 {
-#ifdef USE_WIN32_LDAP
+#جيڪڏهن_وصف_ٿيل USE_WIN32_LDAP
   curl_msnprintf(buf, bufsz, "WinLDAP");
-#else
-#ifdef LDAP_OPT_X_TLS_PASSPHRASE
-  static const char flavor[] = "/Apple";
-#else
-  static const char flavor[] = "";
-#endif
+#وإلا
+#جيڪڏهن_وصف_ٿيل LDAP_OPT_X_TLS_PASSPHRASE
+  ساكن ثابت حرف flavor[] = "/Apple";
+#وإلا
+  ساكن ثابت حرف flavor[] = "";
+#جيڪڏهن_پورو
   LDAPAPIInfo api;
-  api.ldapai_info_version = LDAP_API_INFO_VERSION;
+  api.ldapai_info_نسخو = LDAP_API_INFO_نسخو;
 
   /* Comparing against 0, as different platforms
      disagree on the success define name */
-  if(ldap_get_option(NULL, LDAP_OPT_API_INFO, &api) == 0) {
-    unsigned int patch = (unsigned int)(api.ldapai_vendor_version % 100);
-    unsigned int major = (unsigned int)(api.ldapai_vendor_version / 10000);
-    unsigned int minor =
-      (((unsigned int)api.ldapai_vendor_version - (major * 10000))
+  إذا(ldap_get_option(عدم, LDAP_OPT_API_INFO, &api) == 0) {
+    بنانشان صحيح patch = (بنانشان صحيح)(api.ldapai_vendor_نسخو % 100);
+    بنانشان صحيح major = (بنانشان صحيح)(api.ldapai_vendor_نسخو / 10000);
+    بنانشان صحيح minor =
+      (((بنانشان صحيح)api.ldapai_vendor_نسخو - (major * 10000))
        - patch) / 100;
-#ifdef __OS400__
+#جيڪڏهن_وصف_ٿيل __OS400__
     curl_msnprintf(buf, bufsz, "IBMLDAP/%u.%u.%u", major, minor, patch);
-    ldap_value_free(api.ldapai_extensions);
-    (void)flavor;
-#else
+    ldap_قدر_free(api.ldapai_extensions);
+    (فراغ)flavor;
+#وإلا
     curl_msnprintf(buf, bufsz, "%s/%u.%u.%u%s",
                    api.ldapai_vendor_name, major, minor, patch, flavor);
     ldap_memfree(api.ldapai_vendor_name);
-    ber_memvfree((void **)api.ldapai_extensions);
-#endif
+    ber_memvfree((فراغ **)api.ldapai_extensions);
+#جيڪڏهن_پورو
   }
-  else
+  وإلا
     curl_msnprintf(buf, bufsz, "LDAP/1");
-#endif /* USE_WIN32_LDAP */
+#جيڪڏهن_پورو /* USE_WIN32_LDAP */
 }
 
 /*
  * LDAP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_ldap = {
+ثابت بنية Curl_protocol Curl_protocol_ldap = {
   ZERO_NULL,                            /* setup_connection */
   ldap_do,                              /* do_it */
   ZERO_NULL,                            /* done */
@@ -1003,8 +1003,8 @@ const struct Curl_protocol Curl_protocol_ldap = {
   ZERO_NULL,                            /* follow */
 };
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic pop
-#endif
+#إذا defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#هدايت GCC diagnostic ڪڍو
+#جيڪڏهن_پورو
 
-#endif /* !CURL_DISABLE_LDAP && !USE_OPENLDAP */
+#جيڪڏهن_پورو /* !CURL_DISABLE_LDAP && !USE_OPENLDAP */

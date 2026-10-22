@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HOSTCHECK_H
-#define HEADER_CURL_HOSTCHECK_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_HOSTCHECK_H
+#وصف_ڪريو سرو_CURL_HOSTCHECK_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if defined(USE_OPENSSL) || defined(USE_SCHANNEL)
+#إذا defined(USE_OPENSSL) || defined(USE_SCHANNEL)
 
 /* returns TRUE if there is a match */
-bool Curl_cert_hostcheck(const char *match, size_t matchlen,
-                         const char *hostname, size_t hostlen);
+bool Curl_cert_hostcheck(ثابت حرف *ميلاپ, size_t matchlen,
+                         ثابت حرف *hostname, size_t hostlen);
 
-#endif
+#جيڪڏهن_پورو
 
-#endif /* HEADER_CURL_HOSTCHECK_H */
+#جيڪڏهن_پورو /* HEADER_CURL_HOSTCHECK_H */

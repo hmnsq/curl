@@ -21,110 +21,110 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curlx/warnless.h"
+#ضمن "curlx/warnless.h"
 
-#if defined(__INTEL_COMPILER) && defined(__unix__)
+#إذا defined(__INTEL_COMPILER) && defined(__unix__)
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#جيڪڏهن_وصف_ٿيل HAVE_NETINET_اندريون_H
+#ضمن <netinet/in.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#جيڪڏهن_پورو
 
-#endif /* __INTEL_COMPILER && __unix__ */
+#جيڪڏهن_پورو /* __INTEL_COMPILER && __unix__ */
 
-#define CURL_MASK_UCHAR   ((unsigned char)~0)
+#وصف_ڪريو CURL_نقاب_UCHAR   ((بنانشان حرف)~0)
 
-#define CURL_MASK_USHORT  ((unsigned short)~0)
+#وصف_ڪريو CURL_نقاب_USHORT  ((بنانشان ننڍو)~0)
 
-#define CURL_MASK_UINT    ((unsigned int)~0)
-#define CURL_MASK_SINT    (CURL_MASK_UINT >> 1)
+#وصف_ڪريو CURL_نقاب_UINT    ((بنانشان صحيح)~0)
+#وصف_ڪريو CURL_نقاب_SINT    (CURL_نقاب_UINT >> 1)
 
-#define CURL_MASK_ULONG   ((unsigned long)~0)
+#وصف_ڪريو CURL_نقاب_ULONG   ((بنانشان ڊگهو)~0)
 
-#define CURL_MASK_USIZE_T ((size_t)~0)
-#define CURL_MASK_SSIZE_T (CURL_MASK_USIZE_T >> 1)
+#وصف_ڪريو CURL_نقاب_USIZE_T ((size_t)~0)
+#وصف_ڪريو CURL_نقاب_SSIZE_T (CURL_نقاب_USIZE_T >> 1)
 
-#ifdef __INTEL_COMPILER
-#pragma warning(push)
-#pragma warning(disable:810) /* conversion may lose significant bits */
-#endif
+#جيڪڏهن_وصف_ٿيل __INTEL_COMPILER
+#هدايت warning(ڌڪو)
+#هدايت warning(disable:810) /* conversion may lose significant bits */
+#جيڪڏهن_پورو
 
 /*
  * unsigned long to unsigned char
  */
-unsigned char curlx_ultouc(unsigned long ulnum)
+بنانشان حرف curlx_ultouc(بنانشان ڊگهو ulnum)
 {
-  DEBUGASSERT(ulnum <= (unsigned long)CURL_MASK_UCHAR);
-  return (unsigned char)(ulnum & (unsigned long)CURL_MASK_UCHAR);
+  DEBUGASSERT(ulnum <= (بنانشان ڊگهو)CURL_نقاب_UCHAR);
+  أرجع (بنانشان حرف)(ulnum & (بنانشان ڊگهو)CURL_نقاب_UCHAR);
 }
 
 /*
  * unsigned size_t to signed int
  */
-int curlx_uztosi(size_t uznum)
+صحيح curlx_uztosi(size_t uznum)
 {
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_SINT);
-  return (int)(uznum & (size_t)CURL_MASK_SINT);
+  DEBUGASSERT(uznum <= (size_t)CURL_نقاب_SINT);
+  أرجع (صحيح)(uznum & (size_t)CURL_نقاب_SINT);
 }
 
 /*
  * unsigned size_t to unsigned long
  */
-unsigned long curlx_uztoul(size_t uznum)
+بنانشان ڊگهو curlx_uztoul(size_t uznum)
 {
-#if ULONG_MAX < SIZE_MAX
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_ULONG);
-#endif
-  return (unsigned long)(uznum & (size_t)CURL_MASK_ULONG);
+#إذا ULONG_MAX < SIZE_MAX
+  DEBUGASSERT(uznum <= (size_t)CURL_نقاب_ULONG);
+#جيڪڏهن_پورو
+  أرجع (بنانشان ڊگهو)(uznum & (size_t)CURL_نقاب_ULONG);
 }
 
 /*
  * unsigned size_t to unsigned int
  */
-unsigned int curlx_uztoui(size_t uznum)
+بنانشان صحيح curlx_uztoui(size_t uznum)
 {
-#if UINT_MAX < SIZE_MAX
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_UINT);
-#endif
-  return (unsigned int)(uznum & (size_t)CURL_MASK_UINT);
+#إذا UINT_MAX < SIZE_MAX
+  DEBUGASSERT(uznum <= (size_t)CURL_نقاب_UINT);
+#جيڪڏهن_پورو
+  أرجع (بنانشان صحيح)(uznum & (size_t)CURL_نقاب_UINT);
 }
 
 /*
  * signed long to signed int
  */
-int curlx_sltosi(long slnum)
+صحيح curlx_sltosi(ڊگهو slnum)
 {
   DEBUGASSERT(slnum >= 0);
-#if INT_MAX < LONG_MAX
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_SINT);
-#endif
-  return (int)(slnum & (long)CURL_MASK_SINT);
+#إذا وڌ_کان_وڌ_عدد < LONG_MAX
+  DEBUGASSERT((بنانشان ڊگهو)slnum <= (بنانشان ڊگهو)CURL_نقاب_SINT);
+#جيڪڏهن_پورو
+  أرجع (صحيح)(slnum & (ڊگهو)CURL_نقاب_SINT);
 }
 
 /*
  * signed long to unsigned int
  */
-unsigned int curlx_sltoui(long slnum)
+بنانشان صحيح curlx_sltoui(ڊگهو slnum)
 {
   DEBUGASSERT(slnum >= 0);
-#if UINT_MAX < LONG_MAX
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_UINT);
-#endif
-  return (unsigned int)(slnum & (long)CURL_MASK_UINT);
+#إذا UINT_MAX < LONG_MAX
+  DEBUGASSERT((بنانشان ڊگهو)slnum <= (بنانشان ڊگهو)CURL_نقاب_UINT);
+#جيڪڏهن_پورو
+  أرجع (بنانشان صحيح)(slnum & (ڊگهو)CURL_نقاب_UINT);
 }
 
 /*
  * signed long to unsigned short
  */
-unsigned short curlx_sltous(long slnum)
+بنانشان ننڍو curlx_sltous(ڊگهو slnum)
 {
   DEBUGASSERT(slnum >= 0);
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_USHORT);
-  return (unsigned short)(slnum & (long)CURL_MASK_USHORT);
+  DEBUGASSERT((بنانشان ڊگهو)slnum <= (بنانشان ڊگهو)CURL_نقاب_USHORT);
+  أرجع (بنانشان ننڍو)(slnum & (ڊگهو)CURL_نقاب_USHORT);
 }
 
 /*
@@ -132,8 +132,8 @@ unsigned short curlx_sltous(long slnum)
  */
 ssize_t curlx_uztosz(size_t uznum)
 {
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_SSIZE_T);
-  return (ssize_t)(uznum & (size_t)CURL_MASK_SSIZE_T);
+  DEBUGASSERT(uznum <= (size_t)CURL_نقاب_SSIZE_T);
+  أرجع (ssize_t)(uznum & (size_t)CURL_نقاب_SSIZE_T);
 }
 
 /*
@@ -142,101 +142,101 @@ ssize_t curlx_uztosz(size_t uznum)
 size_t curlx_sotouz(curl_off_t sonum)
 {
   DEBUGASSERT(sonum >= 0);
-  return (size_t)(sonum & (curl_off_t)CURL_MASK_USIZE_T);
+  أرجع (size_t)(sonum & (curl_off_t)CURL_نقاب_USIZE_T);
 }
 
 /*
  * signed ssize_t to signed int
  */
-int curlx_sztosi(ssize_t sznum)
+صحيح curlx_sztosi(ssize_t sznum)
 {
   DEBUGASSERT(sznum >= 0);
-#if INT_MAX < SSIZE_MAX
-  DEBUGASSERT((size_t)sznum <= (size_t)CURL_MASK_SINT);
-#endif
-  return (int)(sznum & (ssize_t)CURL_MASK_SINT);
+#إذا وڌ_کان_وڌ_عدد < SSIZE_MAX
+  DEBUGASSERT((size_t)sznum <= (size_t)CURL_نقاب_SINT);
+#جيڪڏهن_پورو
+  أرجع (صحيح)(sznum & (ssize_t)CURL_نقاب_SINT);
 }
 
 /*
  * unsigned int to unsigned short
  */
-unsigned short curlx_uitous(unsigned int uinum)
+بنانشان ننڍو curlx_uitous(بنانشان صحيح uinum)
 {
-  DEBUGASSERT(uinum <= (unsigned int)CURL_MASK_USHORT);
-  return (unsigned short)(uinum & (unsigned int)CURL_MASK_USHORT);
+  DEBUGASSERT(uinum <= (بنانشان صحيح)CURL_نقاب_USHORT);
+  أرجع (بنانشان ننڍو)(uinum & (بنانشان صحيح)CURL_نقاب_USHORT);
 }
 
 /*
  * signed int to unsigned size_t
  */
-size_t curlx_sitouz(int sinum)
+size_t curlx_sitouz(صحيح sinum)
 {
   DEBUGASSERT(sinum >= 0);
-  return (size_t)sinum;
+  أرجع (size_t)sinum;
 }
 
-#ifdef __INTEL_COMPILER
-#pragma warning(pop)
-#endif
+#جيڪڏهن_وصف_ٿيل __INTEL_COMPILER
+#هدايت warning(ڪڍو)
+#جيڪڏهن_پورو
 
-size_t curlx_uitouz(unsigned int uinum)
+size_t curlx_uitouz(بنانشان صحيح uinum)
 {
-  return (size_t)uinum;
+  أرجع (size_t)uinum;
 }
 
 size_t curlx_sotouz_range(curl_off_t sonum, size_t uzmin, size_t uzmax)
 {
-  if(sonum < 0)
-    return uzmin;
-#if SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
-  if(sonum > SIZE_MAX)
-    return uzmax;
-#endif
-  return CURLMIN(CURLMAX((size_t)sonum, uzmin), uzmax);
+  إذا(sonum < 0)
+    أرجع uzmin;
+#إذا SIZEOF_CURL_OFF_T > SIZEOF_سائيز_T
+  إذا(sonum > SIZE_MAX)
+    أرجع uzmax;
+#جيڪڏهن_پورو
+  أرجع CURLMIN(CURLMAX((size_t)sonum, uzmin), uzmax);
 }
 
 bool curlx_sztouz(ssize_t sznum, size_t *puznum)
 {
-  if(sznum < 0) {
+  إذا(sznum < 0) {
     *puznum = 0;
-    return FALSE;
+    أرجع FALSE;
   }
   *puznum = (size_t)sznum;
-  return TRUE;
+  أرجع TRUE;
 }
 
-bool curlx_sotouz_fits(curl_off_t sonum, size_t *puznum)
+bool curlx_sotouz_سمائي(curl_off_t sonum, size_t *puznum)
 {
-  if(sonum < 0) {
+  إذا(sonum < 0) {
     *puznum = 0;
-    return FALSE;
+    أرجع FALSE;
   }
-#if SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
-  if(sonum > SIZE_MAX) {
+#إذا SIZEOF_CURL_OFF_T > SIZEOF_سائيز_T
+  إذا(sonum > SIZE_MAX) {
     *puznum = 0;
-    return FALSE;
+    أرجع FALSE;
   }
-#endif
+#جيڪڏهن_پورو
   *puznum = (size_t)sonum;
-  return TRUE;
+  أرجع TRUE;
 }
 
-bool curlx_sltouz(long slnum, size_t *puznum)
+bool curlx_sltouz(ڊگهو slnum, size_t *puznum)
 {
-  if(slnum < 0) {
+  إذا(slnum < 0) {
     *puznum = 0;
-    return FALSE;
+    أرجع FALSE;
   }
   /* We error in curl_setup.h if SIZEOF_LONG > SIZEOF_SIZE_T */
   *puznum = (size_t)slnum;
-  return TRUE;
+  أرجع TRUE;
 }
 
 curl_off_t curlx_uztoso(size_t uznum)
 {
-#if SIZEOF_SIZE_T >= SIZEOF_CURL_OFF_T
-  if(uznum > (size_t)CURL_OFF_T_MAX)
-    return CURL_OFF_T_MAX;
-#endif
-  return (curl_off_t)uznum;
+#إذا SIZEOF_سائيز_T >= SIZEOF_CURL_OFF_T
+  إذا(uznum > (size_t)CURL_OFF_T_MAX)
+    أرجع CURL_OFF_T_MAX;
+#جيڪڏهن_پورو
+  أرجع (curl_off_t)uznum;
 }

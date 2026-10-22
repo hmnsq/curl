@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CW_PAUSE_H
-#define HEADER_CURL_CW_PAUSE_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_CW_PAUSE_H
+#وصف_ڪريو سرو_CURL_CW_PAUSE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-struct Curl_easy;
+بنية Curl_easy;
 
 /**
  * The client writer type "cw-pause" that buffers writes for
  * paused transfer writes.
  */
-extern const struct Curl_cwtype Curl_cwt_pause;
+خارجي ثابت بنية Curl_cwtype Curl_cwt_pause;
 
-#endif /* HEADER_CURL_CW_PAUSE_H */
+#جيڪڏهن_پورو /* HEADER_CURL_CW_PAUSE_H */

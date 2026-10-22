@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTI_NTFY_H
-#define HEADER_CURL_MULTI_NTFY_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_MULTI_NTFY_H
+#وصف_ڪريو سرو_CURL_MULTI_NTFY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,39 +23,39 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#define CURL_MNTFY_FLAG_HAS_ENTRIES  ((uint32_t)1 << 31)
+#وصف_ڪريو CURL_MNTFY_FLAG_HAS_ENTRIES  ((uint32_t)1 << 31)
 
-struct Curl_easy;
-struct Curl_multi;
+بنية Curl_easy;
+بنية Curl_multi;
 
-struct curl_multi_ntfy {
+بنية curl_multi_ntfy {
   curl_notify_callback ntfy_cb;
-  void *ntfy_cb_data;
-  struct mntfy_chunk *head;
-  struct mntfy_chunk *tail;
+  فراغ *ntfy_cb_معلومات;
+  بنية mntfy_chunk *سر;
+  بنية mntfy_chunk *پڇ;
   uint32_t flags;
   CURLMcode failure;
 };
 
-void Curl_mntfy_init(struct Curl_multi *multi);
-void Curl_mntfy_cleanup(struct Curl_multi *multi);
+فراغ Curl_mntfy_init(بنية Curl_multi *multi);
+فراغ Curl_mntfy_cleanup(بنية Curl_multi *multi);
 
-CURLMcode Curl_mntfy_enable(struct Curl_multi *multi, unsigned int type);
-CURLMcode Curl_mntfy_disable(struct Curl_multi *multi, unsigned int type);
+CURLMcode Curl_mntfy_enable(بنية Curl_multi *multi, بنانشان صحيح type);
+CURLMcode Curl_mntfy_disable(بنية Curl_multi *multi, بنانشان صحيح type);
 
-void Curl_mntfy_add(struct Curl_easy *data, unsigned int type);
+فراغ Curl_mntfy_جوڙيو(بنية Curl_easy *معلومات, بنانشان صحيح type);
 
-#define CURLM_NTFY(d, t)                              \
-  do {                                                \
-    if((d) && (d)->multi && (d)->multi->ntfy.ntfy_cb) \
-      Curl_mntfy_add((d), (t));                       \
-  } while(0)
+#وصف_ڪريو CURLM_NTFY(d, t)                              \
+  افعل {                                                \
+    إذا((d) && (d)->multi && (d)->multi->ntfy.ntfy_cb) \
+      Curl_mntfy_جوڙيو((d), (t));                       \
+  } طالما(0)
 
-#define CURL_MNTFY_HAS_ENTRIES(m) \
+#وصف_ڪريو CURL_MNTFY_HAS_ENTRIES(m) \
   ((m)->ntfy.flags & CURL_MNTFY_FLAG_HAS_ENTRIES)
 
-CURLMcode Curl_mntfy_dispatch_all(struct Curl_multi *multi);
+CURLMcode Curl_mntfy_dispatch_all(بنية Curl_multi *multi);
 
-#endif /* HEADER_CURL_MULTI_NTFY_H */
+#جيڪڏهن_پورو /* HEADER_CURL_MULTI_NTFY_H */

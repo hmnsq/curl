@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SPLAY_H
-#define HEADER_CURL_SPLAY_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_SPLAY_H
+#وصف_ڪريو سرو_CURL_SPLAY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curlx/timeval.h"
+#ضمن "curlx/timeval.h"
 
-struct Curl_easy;
+بنية Curl_easy;
 
 /* only use function calls to access this struct */
-struct Curl_tree {
-  struct Curl_tree *smaller; /* smaller node */
-  struct Curl_tree *larger;  /* larger node */
-  struct Curl_tree *same;    /* points to the next node with identical key */
-  timediff_t key;            /* this node's "sort" key */
+بنية Curl_وڻ {
+  بنية Curl_وڻ *smaller; /* smaller node */
+  بنية Curl_وڻ *larger;  /* larger node */
+  بنية Curl_وڻ *same;    /* points to the next node with identical key */
+  timediff_t ڪنجي;            /* this node's "sort" key */
   uint32_t id;               /* provided id for this node */
-  BIT(registered);           /* node is registered in splay tree */
+  ٻٽو_انگ(registered);           /* node is registered in splay tree */
 };
 
-struct Curl_timeouts {
-  struct Curl_tree *tree;
-  time_t time_base_sec;
+بنية Curl_timeouts {
+  بنية Curl_وڻ *وڻ;
+  time_t وقت_بنياد_sec;
 };
 
-void Curl_timeouts_init(struct Curl_timeouts *timeouts,
-                        const struct curltime *ptime_base);
+فراغ Curl_timeouts_init(بنية Curl_timeouts *timeouts,
+                        ثابت بنية curltime *ptime_بنياد);
 
-bool Curl_timeouts_has(struct Curl_easy *data);
+bool Curl_timeouts_has(بنية Curl_easy *معلومات);
 
-timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
-                                   const struct curltime *pts);
+timediff_t Curl_timeouts_وٿي_us(بنية Curl_timeouts *timeouts,
+                                   ثابت بنية curltime *pts);
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
-                          const struct curltime *pnow,
-                          timediff_t *pexpire_offset_us,
+صحيح Curl_timeouts_ايندڙ_ms(بنية Curl_timeouts *timeouts,
+                          ثابت بنية curltime *pnow,
+                          timediff_t *pexpire_وٿي_us,
                           uint32_t *pmid);
 
-bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
-                                  const struct curltime *ts,
+bool Curl_timeouts_remove_expired(بنية Curl_timeouts *timeouts,
+                                  ثابت بنية curltime *ts,
                                   uint32_t *pmid);
 
-void Curl_timeouts_add(struct Curl_timeouts *timeouts,
-                       struct Curl_easy *data,
-                       timediff_t offset_us);
+فراغ Curl_timeouts_جوڙيو(بنية Curl_timeouts *timeouts,
+                       بنية Curl_easy *معلومات,
+                       timediff_t وٿي_us);
 
 /* Returns TRUE if data was registered in timeouts before */
-bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
-                          struct Curl_easy *data);
+bool Curl_timeouts_remove(بنية Curl_timeouts *timeouts,
+                          بنية Curl_easy *معلومات);
 
-#ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node);
-#endif
+#جيڪڏهن_وصف_ٿيل UNITTESTS
+uint32_t Curl_splayget(بنية Curl_وڻ *ڳنڍ);
+#جيڪڏهن_پورو
 
-#endif /* HEADER_CURL_SPLAY_H */
+#جيڪڏهن_پورو /* HEADER_CURL_SPLAY_H */

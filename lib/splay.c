@@ -21,74 +21,74 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "splay.h"
+#ضمن "urldata.h"
+#ضمن "splay.h"
 
-static struct Curl_tree *splay(timediff_t key,
-                               struct Curl_tree *root);
+ساكن بنية Curl_وڻ *splay(timediff_t ڪنجي,
+                               بنية Curl_وڻ *پاڙ);
 
-#ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node)
+#جيڪڏهن_وصف_ٿيل UNITTESTS
+uint32_t Curl_splayget(بنية Curl_وڻ *ڳنڍ)
 {
-  DEBUGASSERT(node);
-  return node->id;
+  DEBUGASSERT(ڳنڍ);
+  أرجع ڳنڍ->id;
 }
 
-#endif
+#جيڪڏهن_پورو
 
-void Curl_timeouts_init(struct Curl_timeouts *timeouts,
-                        const struct curltime *ptime_base)
+فراغ Curl_timeouts_init(بنية Curl_timeouts *timeouts,
+                        ثابت بنية curltime *ptime_بنياد)
 {
-  struct curltime time_base = ptime_base ? *ptime_base : curlx_now();
-  timeouts->tree = NULL;
-  timeouts->time_base_sec = time_base.tv_sec;
+  بنية curltime وقت_بنياد = ptime_بنياد ? *ptime_بنياد : curlx_now();
+  timeouts->وڻ = عدم;
+  timeouts->وقت_بنياد_sec = وقت_بنياد.tv_sec;
 }
 
-bool Curl_timeouts_has(struct Curl_easy *data)
+bool Curl_timeouts_has(بنية Curl_easy *معلومات)
 {
-  struct Curl_tree *node = data ? &data->state.timeouts.splaynode : NULL;
-  return node && node->registered;
+  بنية Curl_وڻ *ڳنڍ = معلومات ? &معلومات->state.timeouts.splaynode : عدم;
+  أرجع ڳنڍ && ڳنڍ->registered;
 }
 
-timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
-                                   const struct curltime *pts)
+timediff_t Curl_timeouts_وٿي_us(بنية Curl_timeouts *timeouts,
+                                   ثابت بنية curltime *pts)
 {
-  struct curltime time_base;
-  time_base.tv_sec = timeouts->time_base_sec;
-  time_base.tv_usec = 0;
-  return curlx_ptimediff_us(pts, &time_base);
+  بنية curltime وقت_بنياد;
+  وقت_بنياد.tv_sec = timeouts->وقت_بنياد_sec;
+  وقت_بنياد.tv_usec = 0;
+  أرجع curlx_ptimediff_us(pts, &وقت_بنياد);
 }
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
-                          const struct curltime *pnow,
-                          timediff_t *pexpire_offset_us,
+صحيح Curl_timeouts_ايندڙ_ms(بنية Curl_timeouts *timeouts,
+                          ثابت بنية curltime *pnow,
+                          timediff_t *pexpire_وٿي_us,
                           uint32_t *pmid)
 {
-  if(timeouts->tree) { /* splay the lowest key to the root */
-    timeouts->tree = splay(TIMEDIFF_T_MIN, timeouts->tree);
+  إذا(timeouts->وڻ) { /* splay the lowest key to the root */
+    timeouts->وڻ = splay(TIMEDIFF_T_MIN, timeouts->وڻ);
   }
 
-  if(timeouts->tree) {
-    timediff_t elapsed_us = Curl_timeouts_offset_us(timeouts, pnow);
-    timediff_t delta_us = timeouts->tree->key - elapsed_us;
-    if(pmid)
-      *pmid = timeouts->tree->id;
-    if(pexpire_offset_us)
-      *pexpire_offset_us = timeouts->tree->key;
-    if(delta_us > 0) { /* expires in the future */
-      timediff_t ms = curlx_us_to_ceil_ms(delta_us);
-      return (ms > INT_MAX) ? INT_MAX : (int)ms;
+  إذا(timeouts->وڻ) {
+    timediff_t elapsed_us = Curl_timeouts_وٿي_us(timeouts, pnow);
+    timediff_t delta_us = timeouts->وڻ->ڪنجي - elapsed_us;
+    إذا(pmid)
+      *pmid = timeouts->وڻ->id;
+    إذا(pexpire_وٿي_us)
+      *pexpire_وٿي_us = timeouts->وڻ->ڪنجي;
+    إذا(delta_us > 0) { /* expires in the future */
+      timediff_t ms = curlx_us_منزل_ceil_ms(delta_us);
+      أرجع (ms > وڌ_کان_وڌ_عدد) ? وڌ_کان_وڌ_عدد : (صحيح)ms;
     }
-    else /* has expired */
-      return 0;
+    وإلا /* has expired */
+      أرجع 0;
   }
-  if(pmid)
+  إذا(pmid)
     *pmid = UINT32_MAX;
-  if(pexpire_offset_us)
-    *pexpire_offset_us = 0;
-  return -1;
+  إذا(pexpire_وٿي_us)
+    *pexpire_وٿي_us = 0;
+  أرجع -1;
 }
 
 /*
@@ -99,72 +99,72 @@ int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
  * - root->key may equal `key` or not
  * <https://en.wikipedia.org/wiki/Splay_tree>
  */
-struct Curl_tree *splay(timediff_t key,
-                             struct Curl_tree *root)
+بنية Curl_وڻ *splay(timediff_t ڪنجي,
+                             بنية Curl_وڻ *پاڙ)
 {
-  struct Curl_tree N, *l, *r, *y;
+  بنية Curl_وڻ N, *l, *r, *y;
 
-  if(!root)
-    return NULL;
-  N.smaller = N.larger = NULL;
+  إذا(!پاڙ)
+    أرجع عدم;
+  N.smaller = N.larger = عدم;
   l = r = &N;
 
-  for(;;) {
-    if(key < root->key) {
+  لكل(;;) {
+    إذا(ڪنجي < پاڙ->ڪنجي) {
       /* key is somewhere in root->smaller branch */
-      if(!root->smaller)  /* which is empty, done */
-        break;
-      if(key < root->smaller->key) {
+      إذا(!پاڙ->smaller)  /* which is empty, done */
+        اكسر;
+      إذا(ڪنجي < پاڙ->smaller->ڪنجي) {
         /* key is somewhere in root->smaller->smaller, make a "Zig step" */
-        y = root->smaller;
-        root->smaller = y->larger;
-        y->larger = root;
-        root = y;
-        if(!root->smaller)
-          break;
+        y = پاڙ->smaller;
+        پاڙ->smaller = y->larger;
+        y->larger = پاڙ;
+        پاڙ = y;
+        إذا(!پاڙ->smaller)
+          اكسر;
       }
       /* Making root->smaller the new root, the old root is no longer
        * referenced. Remember it in the N tree's `r`ight/larger side.
        * Everything in old root is smaller than what the right side
        * of N already has, so it gets added to r->smaller. */
-      r->smaller = root;
-      r = root;
-      root = root->smaller;
+      r->smaller = پاڙ;
+      r = پاڙ;
+      پاڙ = پاڙ->smaller;
     }
-    else if(key > root->key) {
+    وإلا إذا(ڪنجي > پاڙ->ڪنجي) {
       /* key is somewhere in root->larger branch */
-      if(!root->larger)  /* which is empty, done */
-        break;
-      if(key > root->larger->key) {
+      إذا(!پاڙ->larger)  /* which is empty, done */
+        اكسر;
+      إذا(ڪنجي > پاڙ->larger->ڪنجي) {
         /* key is somewhere in root->larger->larger, make a "Zig step" */
-        y = root->larger;
-        root->larger = y->smaller;
-        y->smaller = root;
-        root = y;
-        if(!root->larger)
-          break;
+        y = پاڙ->larger;
+        پاڙ->larger = y->smaller;
+        y->smaller = پاڙ;
+        پاڙ = y;
+        إذا(!پاڙ->larger)
+          اكسر;
       }
       /* Making root->larger the new root, the old root is no longer
        * referenced. Remember it in the N tree's `l`eft/smaller side.
        * Everything in old root is larger than what the left side
        * of N already has, so it gets added to l->larger. */
-      l->larger = root;
-      l = root;
-      root = root->larger;
+      l->larger = پاڙ;
+      l = پاڙ;
+      پاڙ = پاڙ->larger;
     }
-    else  /* exact match, root is key, done */
-      break;
+    وإلا  /* exact match, root is key, done */
+      اكسر;
   }
 
   /* Put it all together again.
    * root->smaller has everything larger than current `l`.
    * root->larger has everything smaller than current `r`. */
-  l->larger = root->smaller;
-  r->smaller = root->larger;
-  root->smaller = N.larger;
-  root->larger = N.smaller;
+  l->larger = پاڙ->smaller;
+  r->smaller = پاڙ->larger;
+  پاڙ->smaller = N.larger;
+  پاڙ->larger = N.smaller;
 
-  return root;
+  أرجع پاڙ;
 }
 
 /* Insert key i into the tree t. Return a pointer to the resulting tree or
@@ -172,61 +172,61 @@ struct Curl_tree *splay(timediff_t key,
  *
  * @unittest 1309
  */
-UNITTEST struct Curl_tree *splayinsert(timediff_t key,
-                                       struct Curl_tree *root,
-                                       struct Curl_tree *node,
+UNITTEST بنية Curl_وڻ *splayinsert(timediff_t ڪنجي,
+                                       بنية Curl_وڻ *پاڙ,
+                                       بنية Curl_وڻ *ڳنڍ,
                                        uint32_t id);
-UNITTEST struct Curl_tree *splayinsert(timediff_t key,
-                                       struct Curl_tree *root,
-                                       struct Curl_tree *node,
+UNITTEST بنية Curl_وڻ *splayinsert(timediff_t ڪنجي,
+                                       بنية Curl_وڻ *پاڙ,
+                                       بنية Curl_وڻ *ڳنڍ,
                                        uint32_t id)
 {
-  DEBUGASSERT(node);
+  DEBUGASSERT(ڳنڍ);
 
-  node->key = key;
-  node->id = id;
-  node->same = NULL;
-  node->registered = TRUE;
-  if(root) {
-    root = splay(key, root);
-    DEBUGASSERT(root);
-    if(key == root->key) {
+  ڳنڍ->ڪنجي = ڪنجي;
+  ڳنڍ->id = id;
+  ڳنڍ->same = عدم;
+  ڳنڍ->registered = TRUE;
+  إذا(پاڙ) {
+    پاڙ = splay(ڪنجي, پاڙ);
+    DEBUGASSERT(پاڙ);
+    إذا(ڪنجي == پاڙ->ڪنجي) {
       /* There already exists a node in the tree with the same key.
          Append the new node to the `same` list. */
-      struct Curl_tree **panchor = &root->same;
-      while(*panchor)
+      بنية Curl_وڻ **panchor = &پاڙ->same;
+      طالما(*panchor)
         panchor = &(*panchor)->same;
-      *panchor = node;
-      return root; /* the root node always stays the same */
+      *panchor = ڳنڍ;
+      أرجع پاڙ; /* the root node always stays the same */
     }
   }
 
   /* node becomes the new root. Insert old root as sub-branch. */
-  if(!root) {
-    node->smaller = node->larger = NULL;
+  إذا(!پاڙ) {
+    ڳنڍ->smaller = ڳنڍ->larger = عدم;
   }
-  else if(key < root->key) {
-    node->smaller = root->smaller;
-    node->larger = root;
-    root->smaller = NULL;
+  وإلا إذا(ڪنجي < پاڙ->ڪنجي) {
+    ڳنڍ->smaller = پاڙ->smaller;
+    ڳنڍ->larger = پاڙ;
+    پاڙ->smaller = عدم;
   }
-  else {
-    node->larger = root->larger;
-    node->smaller = root;
-    root->larger = NULL;
+  وإلا {
+    ڳنڍ->larger = پاڙ->larger;
+    ڳنڍ->smaller = پاڙ;
+    پاڙ->larger = عدم;
   }
 
-  return node;
+  أرجع ڳنڍ;
 }
 
-void Curl_timeouts_add(struct Curl_timeouts *timeouts,
-                       struct Curl_easy *data,
-                       timediff_t offset_us)
+فراغ Curl_timeouts_جوڙيو(بنية Curl_timeouts *timeouts,
+                       بنية Curl_easy *معلومات,
+                       timediff_t وٿي_us)
 {
-  struct Curl_tree *node = &data->state.timeouts.splaynode;
-  DEBUGASSERT(!node->registered);
-  timeouts->tree = splayinsert(offset_us, timeouts->tree,
-                               node, data->mid);
+  بنية Curl_وڻ *ڳنڍ = &معلومات->state.timeouts.splaynode;
+  DEBUGASSERT(!ڳنڍ->registered);
+  timeouts->وڻ = splayinsert(وٿي_us, timeouts->وڻ,
+                               ڳنڍ, معلومات->mid);
 }
 
 /* Finds and deletes the best-fit node from the tree. Return a pointer to the
@@ -235,65 +235,65 @@ void Curl_timeouts_add(struct Curl_timeouts *timeouts,
 
    @unittest 1309
 */
-UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
-                                        struct Curl_tree *root,
-                                        struct Curl_tree **removed);
-UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
-                                        struct Curl_tree *root,
-                                        struct Curl_tree **removed)
+UNITTEST بنية Curl_وڻ *splaygetbest(timediff_t ڪنجي,
+                                        بنية Curl_وڻ *پاڙ,
+                                        بنية Curl_وڻ **removed);
+UNITTEST بنية Curl_وڻ *splaygetbest(timediff_t ڪنجي,
+                                        بنية Curl_وڻ *پاڙ,
+                                        بنية Curl_وڻ **removed)
 {
-  struct Curl_tree *x;
+  بنية Curl_وڻ *x;
 
-  if(!root) {
-    *removed = NULL; /* none removed since there was no root */
-    return NULL;
+  إذا(!پاڙ) {
+    *removed = عدم; /* none removed since there was no root */
+    أرجع عدم;
   }
 
   /* find smallest */
-  root = splay(TIMEDIFF_T_MIN, root);
-  DEBUGASSERT(root);
-  if(key < root->key) {
+  پاڙ = splay(TIMEDIFF_T_MIN, پاڙ);
+  DEBUGASSERT(پاڙ);
+  إذا(ڪنجي < پاڙ->ڪنجي) {
     /* even the smallest is too big */
-    *removed = NULL;
-    return root;
+    *removed = عدم;
+    أرجع پاڙ;
   }
 
   /* FIRST! Check if there is a list with identical keys */
-  if(root->same) {
-    x = root->same;
-    DEBUGASSERT(x->key == root->key);
+  إذا(پاڙ->same) {
+    x = پاڙ->same;
+    DEBUGASSERT(x->ڪنجي == پاڙ->ڪنجي);
     /* 'x' becomes the new root node */
-    x->larger = root->larger;
-    x->smaller = root->smaller;
-    root->same = NULL;
-    root->registered = FALSE;
-    *removed = root;
-    return x; /* new root */
+    x->larger = پاڙ->larger;
+    x->smaller = پاڙ->smaller;
+    پاڙ->same = عدم;
+    پاڙ->registered = FALSE;
+    *removed = پاڙ;
+    أرجع x; /* new root */
   }
 
   /* we splayed the tree to the smallest element, there is no smaller */
-  x = root->larger;
-  root->registered = FALSE;
-  *removed = root;
+  x = پاڙ->larger;
+  پاڙ->registered = FALSE;
+  *removed = پاڙ;
 
-  return x;
+  أرجع x;
 }
 
-bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
-                                  const struct curltime *ts,
+bool Curl_timeouts_remove_expired(بنية Curl_timeouts *timeouts,
+                                  ثابت بنية curltime *ts,
                                   uint32_t *pmid)
 {
-  if(timeouts->tree) {
-    struct Curl_tree *t = NULL;
-    timediff_t elapsed_us = Curl_timeouts_offset_us(timeouts, ts);
-    timeouts->tree = splaygetbest(elapsed_us, timeouts->tree, &t);
-    if(t) {
+  إذا(timeouts->وڻ) {
+    بنية Curl_وڻ *t = عدم;
+    timediff_t elapsed_us = Curl_timeouts_وٿي_us(timeouts, ts);
+    timeouts->وڻ = splaygetbest(elapsed_us, timeouts->وڻ, &t);
+    إذا(t) {
       *pmid = t->id;
-      return TRUE;
+      أرجع TRUE;
     }
   }
   *pmid = UINT32_MAX;
-  return FALSE;
+  أرجع FALSE;
 }
 
 /* Deletes the node we point out from the tree if it is there. Stores a
@@ -307,86 +307,86 @@ bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
  *
  * @unittest 1309
  */
-UNITTEST int splayremove(struct Curl_tree *root,
-                         struct Curl_tree *removenode,
-                         struct Curl_tree **newroot);
-UNITTEST int splayremove(struct Curl_tree *root,
-                         struct Curl_tree *removenode,
-                         struct Curl_tree **newroot)
+UNITTEST صحيح splayremove(بنية Curl_وڻ *پاڙ,
+                         بنية Curl_وڻ *removenode,
+                         بنية Curl_وڻ **newroot);
+UNITTEST صحيح splayremove(بنية Curl_وڻ *پاڙ,
+                         بنية Curl_وڻ *removenode,
+                         بنية Curl_وڻ **newroot)
 {
-  struct Curl_tree *x;
+  بنية Curl_وڻ *x;
 
-  if(!root)
-    return 1;
+  إذا(!پاڙ)
+    أرجع 1;
 
   DEBUGASSERT(removenode);
-  if(!removenode->registered)
-    return 2;
+  إذا(!removenode->registered)
+    أرجع 2;
 
-  root = splay(removenode->key, root);
-  DEBUGASSERT(root);
+  پاڙ = splay(removenode->ڪنجي, پاڙ);
+  DEBUGASSERT(پاڙ);
 
   /* First make sure that we got the same root key as the one we want
      to remove, as otherwise we might be trying to remove a node that
      is not actually in the tree. */
-  if(root->key != removenode->key) {
+  إذا(پاڙ->ڪنجي != removenode->ڪنجي) {
     DEBUGASSERT(0);
-    return 2;
+    أرجع 2;
   }
 
-  if(root != removenode) {
+  إذا(پاڙ != removenode) {
     /* Should be in the root->same list then */
-    struct Curl_tree **panchor;
-    for(panchor = &root->same; *panchor; panchor = &(*panchor)->same) {
-      if(*panchor == removenode) {
+    بنية Curl_وڻ **panchor;
+    لكل(panchor = &پاڙ->same; *panchor; panchor = &(*panchor)->same) {
+      إذا(*panchor == removenode) {
         *panchor = removenode->same;
-        removenode->same = NULL;
+        removenode->same = عدم;
         removenode->registered = FALSE;
-        *newroot = root;
-        return 0;
+        *newroot = پاڙ;
+        أرجع 0;
       }
     }
     /* not found in same list, error */
     DEBUGASSERT(0);
-    return 2;
+    أرجع 2;
   }
   /* removing the root node */
-  if(root->same) {
+  إذا(پاڙ->same) {
     /* 'x' is the new root node, we make it use the root node's
        smaller/larger links */
-    x = root->same;
-    x->larger = root->larger;
-    x->smaller = root->smaller;
-    root->same = NULL;
+    x = پاڙ->same;
+    x->larger = پاڙ->larger;
+    x->smaller = پاڙ->smaller;
+    پاڙ->same = عدم;
   }
-  else {
+  وإلا {
     /* Remove the root node */
-    if(!root->smaller)
-      x = root->larger;
-    else {
-      x = splay(removenode->key, root->smaller);
+    إذا(!پاڙ->smaller)
+      x = پاڙ->larger;
+    وإلا {
+      x = splay(removenode->ڪنجي, پاڙ->smaller);
       DEBUGASSERT(x);
-      x->larger = root->larger;
+      x->larger = پاڙ->larger;
     }
   }
   removenode->registered = FALSE;
   *newroot = x; /* return new root */
-  return 0;
+  أرجع 0;
 }
 
-bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
-                          struct Curl_easy *data)
+bool Curl_timeouts_remove(بنية Curl_timeouts *timeouts,
+                          بنية Curl_easy *معلومات)
 {
-  struct Curl_tree *node = &data->state.timeouts.splaynode;
-  if(node->registered) {
-    int rc = splayremove(timeouts->tree, node, &timeouts->tree);
-#ifdef DEBUGBUILD
-    if(rc)
+  بنية Curl_وڻ *ڳنڍ = &معلومات->state.timeouts.splaynode;
+  إذا(ڳنڍ->registered) {
+    صحيح rc = splayremove(timeouts->وڻ, ڳنڍ, &timeouts->وڻ);
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
+    إذا(rc)
       curl_mfprintf(stderr, "Internal error removing splay node = %d\n", rc);
-#else
-    (void)rc;
-#endif
-    return TRUE;
+#وإلا
+    (فراغ)rc;
+#جيڪڏهن_پورو
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }

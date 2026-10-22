@@ -21,85 +21,85 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_CURL_NTLM_CORE
+#جيڪڏهن_وصف_ٿيل USE_CURL_NTLM_CORE
 
-#include "curl_md4.h"
+#ضمن "curl_md4.h"
 
-#ifdef USE_OPENSSL
-#include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
+#جيڪڏهن_وصف_ٿيل USE_OPENSSL
+#ضمن <openssl/opensslv.h>
+#إذا OPENSSL_نسخو_عدد >= 0x30000000L && !defined(USE_AMISSL)
 /* OpenSSL 3.0.0 marks the MD4 functions as deprecated */
-#define OPENSSL_NO_MD4
-#else
+#وصف_ڪريو OPENSSL_NO_MD4
+#وإلا
 /* Cover also OPENSSL_NO_MD4 configured in OpenSSL */
-#include <openssl/opensslconf.h>
-#endif
-#endif /* USE_OPENSSL */
+#ضمن <openssl/opensslconf.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* USE_OPENSSL */
 
-#ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
-#endif
+#جيڪڏهن_وصف_ٿيل USE_WOLFSSL
+#ضمن <wolfssl/options.h>
+#جيڪڏهن_پورو
 
-#if defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
-#include <openssl/evp.h>
+#إذا defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
+#ضمن <openssl/evp.h>
 
-typedef EVP_MD_CTX *my_md4_ctx;
+تعريفنوع EVP_MD_CTX *my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+ساكن صحيح my_md4_init(my_md4_ctx *ctx)
 {
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return 0;
+  إذا(!*ctx)
+    أرجع 0;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md4(), NULL)) {
+  إذا(!EVP_DigestInit_ex(*ctx, EVP_md4(), عدم)) {
     EVP_MD_CTX_free(*ctx);
-    return 0;
+    أرجع 0;
   }
-  return 1;
+  أرجع 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const unsigned char *input, unsigned int len)
+ساكن فراغ my_md4_update(my_md4_ctx *ctx,
+                          ثابت بنانشان حرف *داخلا, بنانشان صحيح len)
 {
-  (void)EVP_DigestUpdate(*ctx, input, len);
+  (فراغ)EVP_DigestUpdate(*ctx, داخلا, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ساكن فراغ my_md4_final(بنانشان حرف *digest, my_md4_ctx *ctx)
 {
-  (void)EVP_DigestFinal_ex(*ctx, digest, NULL);
+  (فراغ)EVP_DigestFinal_ex(*ctx, digest, عدم);
   EVP_MD_CTX_free(*ctx);
 }
 
-#elif defined(USE_WOLFSSL) && !defined(NO_MD4)
-#include <wolfssl/wolfcrypt/md4.h>
-#include <wolfssl/version.h>
+#وإلاإذا defined(USE_WOLFSSL) && !defined(NO_MD4)
+#ضمن <wolfssl/wolfcrypt/md4.h>
+#ضمن <wolfssl/version.h>
 
-#if LIBWOLFSSL_VERSION_HEX >= 0x05007006
-typedef wc_Md4 my_md4_ctx;
-#else
-typedef Md4 my_md4_ctx;
-#endif
+#إذا LIBWOLFSSL_نسخو_HEX >= 0x05007006
+تعريفنوع wc_Md4 my_md4_ctx;
+#وإلا
+تعريفنوع Md4 my_md4_ctx;
+#جيڪڏهن_پورو
 
-static int my_md4_init(my_md4_ctx *ctx)
+ساكن صحيح my_md4_init(my_md4_ctx *ctx)
 {
   wc_InitMd4(ctx);
-  return 1;
+  أرجع 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+ساكن فراغ my_md4_update(my_md4_ctx *ctx,
+                          ثابت فراغ *داخلا, بنانشان ڊگهو len)
 {
-  wc_Md4Update(ctx, input, (word32)len);
+  wc_Md4Update(ctx, داخلا, (word32)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ساكن فراغ my_md4_final(بنانشان حرف *digest, my_md4_ctx *ctx)
 {
   wc_Md4Final(ctx, digest);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#وإلاإذا (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040 && \
        defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
                __MAC_OS_X_VERSION_MIN_REQUIRED < 101500) || \
@@ -107,102 +107,102 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000 && \
        defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
                __IPHONE_OS_VERSION_MIN_REQUIRED < 130000)
-#include <CommonCrypto/CommonDigest.h>
+#ضمن <CommonCrypto/CommonDigest.h>
 
-typedef CC_MD4_CTX my_md4_ctx;
+تعريفنوع CC_MD4_CTX my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+ساكن صحيح my_md4_init(my_md4_ctx *ctx)
 {
-  return CC_MD4_Init(ctx);  /* always returns 1 */
+  أرجع CC_MD4_Init(ctx);  /* always returns 1 */
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+ساكن فراغ my_md4_update(my_md4_ctx *ctx,
+                          ثابت فراغ *داخلا, بنانشان ڊگهو len)
 {
-  (void)CC_MD4_Update(ctx, input, (CC_LONG)len);
+  (فراغ)CC_MD4_Update(ctx, داخلا, (CC_LONG)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ساكن فراغ my_md4_final(بنانشان حرف *digest, my_md4_ctx *ctx)
 {
-  (void)CC_MD4_Final(digest, ctx);
+  (فراغ)CC_MD4_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#وإلاإذا defined(USE_WIN32_CRYPTO)
+#ضمن <wincrypt.h>
 
-struct md4_ctx {
+بنية md4_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct md4_ctx my_md4_ctx;
+تعريفنوع بنية md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+ساكن صحيح my_md4_init(my_md4_ctx *ctx)
 {
   ctx->hCryptProv = 0;
   ctx->hHash = 0;
 
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  إذا(!CryptAcquireContext(&ctx->hCryptProv, عدم, عدم, PROV_RSA_ڀريل,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return 0;
+    أرجع 0;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
+  إذا(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return 0;
+    أرجع 0;
   }
 
-  return 1;
+  أرجع 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+ساكن فراغ my_md4_update(my_md4_ctx *ctx,
+                          ثابت فراغ *داخلا, بنانشان ڊگهو len)
 {
-  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned int)len, 0);
+  Crypt_Hash_معلومات(ctx->hHash, (ثابت BYTE *)داخلا, (بنانشان صحيح)len, 0);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ساكن فراغ my_md4_final(بنانشان حرف *digest, my_md4_ctx *ctx)
 {
-  unsigned long length = 0;
+  بنانشان ڊگهو ڊيگهائي = 0;
 
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD4_DIGEST_LENGTH)
-    CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, عدم, &ڊيگهائي, 0);
+  إذا(ڊيگهائي == MD4_DIGEST_ڊيگهائي)
+    CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &ڊيگهائي, 0);
 
-  if(ctx->hHash)
+  إذا(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  إذا(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/md4.h>
-#include <nettle/version.h>
+#وإلاإذا defined(USE_GNUTLS)
+#ضمن <nettle/md4.h>
+#ضمن <nettle/version.h>
 
-typedef struct md4_ctx my_md4_ctx;
+تعريفنوع بنية md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+ساكن صحيح my_md4_init(my_md4_ctx *ctx)
 {
   md4_init(ctx);
-  return 1;
+  أرجع 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+ساكن فراغ my_md4_update(my_md4_ctx *ctx,
+                          ثابت فراغ *داخلا, بنانشان ڊگهو len)
 {
-  md4_update(ctx, len, input);
+  md4_update(ctx, len, داخلا);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ساكن فراغ my_md4_final(بنانشان حرف *digest, my_md4_ctx *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#إذا NETTLE_نسخو_MAJOR >= 4
   md4_digest(ctx, digest);
-#else
-  md4_digest(ctx, MD4_DIGEST_SIZE, digest);
-#endif
+#وإلا
+  md4_digest(ctx, MD4_DIGEST_سائيز, digest);
+#جيڪڏهن_پورو
 }
 
-#else
+#وإلا
 /* When no other crypto library is available, or the crypto library does not
  * support MD4, we use this code segment this implementation of it
  *
@@ -230,13 +230,13 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
  * (This is a heavily cut-down "BSD license".)
  */
 
-struct md4_ctx {
+بنية md4_ctx {
   uint32_t lo, hi;
   uint32_t a, b, c, d;
-  unsigned char buffer[64];
-  uint32_t block[16];
+  بنانشان حرف بفر[64];
+  uint32_t بلاڪ[16];
 };
-typedef struct md4_ctx my_md4_ctx;
+تعريفنوع بنية md4_ctx my_md4_ctx;
 
 /*
  * The basic MD4 functions.
@@ -244,14 +244,14 @@ typedef struct md4_ctx my_md4_ctx;
  * F and G are optimized compared to their RFC 1320 definitions, with the
  * optimization for F borrowed from Colin Plumb's MD5 implementation.
  */
-#define MD4_F(x, y, z)                  ((z) ^ ((x) & ((y) ^ (z))))
-#define MD4_G(x, y, z)                  (((x) & ((y) | (z))) | ((y) & (z)))
-#define MD4_H(x, y, z)                  ((x) ^ (y) ^ (z))
+#وصف_ڪريو MD4_F(x, y, z)                  ((z) ^ ((x) & ((y) ^ (z))))
+#وصف_ڪريو MD4_G(x, y, z)                  (((x) & ((y) | (z))) | ((y) & (z)))
+#وصف_ڪريو MD4_H(x, y, z)                  ((x) ^ (y) ^ (z))
 
 /*
  * The MD4 transformation for all three rounds.
  */
-#define MD4_STEP(f, a, b, c, d, x, s) \
+#وصف_ڪريو MD4_قدم(f, a, b, c, d, x, s) \
   (a) += f(b, c, d) + (x); \
   (a) = (((a) << (s)) | (((a) & 0xffffffff) >> (32 - (s))));
 
@@ -262,36 +262,36 @@ typedef struct md4_ctx my_md4_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
-#define MD4_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
-#define MD4_GET(n) MD4_SET(n)
-#else
-#define MD4_SET(n) (ctx->block[n] =      \
+#إذا defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#وصف_ڪريو MD4_سيٽ(n) (*(ثابت uint32_t *)(ثابت فراغ *)&ptr[(n) * 4])
+#وصف_ڪريو MD4_GET(n) MD4_سيٽ(n)
+#وإلا
+#وصف_ڪريو MD4_سيٽ(n) (ctx->بلاڪ[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
   ((uint32_t)ptr[((n) * 4) + 2] << 16) | \
   ((uint32_t)ptr[((n) * 4) + 3] << 24))
-#define MD4_GET(n) ctx->block[n]
-#endif
+#وصف_ڪريو MD4_GET(n) ctx->بلاڪ[n]
+#جيڪڏهن_پورو
 
 /*
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters. There are no alignment requirements.
  */
-static const void *my_md4_body(my_md4_ctx *ctx,
-                               const void *input, unsigned long size)
+ساكن ثابت فراغ *my_md4_body(my_md4_ctx *ctx,
+                               ثابت فراغ *داخلا, بنانشان ڊگهو سائيز)
 {
-  const unsigned char *ptr;
+  ثابت بنانشان حرف *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)input;
+  ptr = (ثابت بنانشان حرف *)داخلا;
 
   a = ctx->a;
   b = ctx->b;
   c = ctx->c;
   d = ctx->d;
 
-  do {
+  افعل {
     uint32_t saved_a, saved_b, saved_c, saved_d;
 
     saved_a = a;
@@ -300,58 +300,58 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     saved_d = d;
 
     /* Round 1 */
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(0), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(1), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(2), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(3), 19)
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(4), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(5), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(6), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(7), 19)
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(8), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(9), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(10), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(11), 19)
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(12), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(13), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(14), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(15), 19)
+    MD4_قدم(MD4_F, a, b, c, d, MD4_سيٽ(0), 3)
+    MD4_قدم(MD4_F, d, a, b, c, MD4_سيٽ(1), 7)
+    MD4_قدم(MD4_F, c, d, a, b, MD4_سيٽ(2), 11)
+    MD4_قدم(MD4_F, b, c, d, a, MD4_سيٽ(3), 19)
+    MD4_قدم(MD4_F, a, b, c, d, MD4_سيٽ(4), 3)
+    MD4_قدم(MD4_F, d, a, b, c, MD4_سيٽ(5), 7)
+    MD4_قدم(MD4_F, c, d, a, b, MD4_سيٽ(6), 11)
+    MD4_قدم(MD4_F, b, c, d, a, MD4_سيٽ(7), 19)
+    MD4_قدم(MD4_F, a, b, c, d, MD4_سيٽ(8), 3)
+    MD4_قدم(MD4_F, d, a, b, c, MD4_سيٽ(9), 7)
+    MD4_قدم(MD4_F, c, d, a, b, MD4_سيٽ(10), 11)
+    MD4_قدم(MD4_F, b, c, d, a, MD4_سيٽ(11), 19)
+    MD4_قدم(MD4_F, a, b, c, d, MD4_سيٽ(12), 3)
+    MD4_قدم(MD4_F, d, a, b, c, MD4_سيٽ(13), 7)
+    MD4_قدم(MD4_F, c, d, a, b, MD4_سيٽ(14), 11)
+    MD4_قدم(MD4_F, b, c, d, a, MD4_سيٽ(15), 19)
 
     /* Round 2 */
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(0) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(4) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(8) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(12) + 0x5a827999, 13)
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(1) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(5) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(9) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(13) + 0x5a827999, 13)
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(2) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(6) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(10) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(14) + 0x5a827999, 13)
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(3) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(7) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(11) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(15) + 0x5a827999, 13)
+    MD4_قدم(MD4_G, a, b, c, d, MD4_GET(0) + 0x5a827999, 3)
+    MD4_قدم(MD4_G, d, a, b, c, MD4_GET(4) + 0x5a827999, 5)
+    MD4_قدم(MD4_G, c, d, a, b, MD4_GET(8) + 0x5a827999, 9)
+    MD4_قدم(MD4_G, b, c, d, a, MD4_GET(12) + 0x5a827999, 13)
+    MD4_قدم(MD4_G, a, b, c, d, MD4_GET(1) + 0x5a827999, 3)
+    MD4_قدم(MD4_G, d, a, b, c, MD4_GET(5) + 0x5a827999, 5)
+    MD4_قدم(MD4_G, c, d, a, b, MD4_GET(9) + 0x5a827999, 9)
+    MD4_قدم(MD4_G, b, c, d, a, MD4_GET(13) + 0x5a827999, 13)
+    MD4_قدم(MD4_G, a, b, c, d, MD4_GET(2) + 0x5a827999, 3)
+    MD4_قدم(MD4_G, d, a, b, c, MD4_GET(6) + 0x5a827999, 5)
+    MD4_قدم(MD4_G, c, d, a, b, MD4_GET(10) + 0x5a827999, 9)
+    MD4_قدم(MD4_G, b, c, d, a, MD4_GET(14) + 0x5a827999, 13)
+    MD4_قدم(MD4_G, a, b, c, d, MD4_GET(3) + 0x5a827999, 3)
+    MD4_قدم(MD4_G, d, a, b, c, MD4_GET(7) + 0x5a827999, 5)
+    MD4_قدم(MD4_G, c, d, a, b, MD4_GET(11) + 0x5a827999, 9)
+    MD4_قدم(MD4_G, b, c, d, a, MD4_GET(15) + 0x5a827999, 13)
 
     /* Round 3 */
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(0) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(8) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(4) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(12) + 0x6ed9eba1, 15)
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(2) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(10) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(6) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(14) + 0x6ed9eba1, 15)
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(1) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(9) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(5) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(13) + 0x6ed9eba1, 15)
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(3) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(11) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(7) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(15) + 0x6ed9eba1, 15)
+    MD4_قدم(MD4_H, a, b, c, d, MD4_GET(0) + 0x6ed9eba1, 3)
+    MD4_قدم(MD4_H, d, a, b, c, MD4_GET(8) + 0x6ed9eba1, 9)
+    MD4_قدم(MD4_H, c, d, a, b, MD4_GET(4) + 0x6ed9eba1, 11)
+    MD4_قدم(MD4_H, b, c, d, a, MD4_GET(12) + 0x6ed9eba1, 15)
+    MD4_قدم(MD4_H, a, b, c, d, MD4_GET(2) + 0x6ed9eba1, 3)
+    MD4_قدم(MD4_H, d, a, b, c, MD4_GET(10) + 0x6ed9eba1, 9)
+    MD4_قدم(MD4_H, c, d, a, b, MD4_GET(6) + 0x6ed9eba1, 11)
+    MD4_قدم(MD4_H, b, c, d, a, MD4_GET(14) + 0x6ed9eba1, 15)
+    MD4_قدم(MD4_H, a, b, c, d, MD4_GET(1) + 0x6ed9eba1, 3)
+    MD4_قدم(MD4_H, d, a, b, c, MD4_GET(9) + 0x6ed9eba1, 9)
+    MD4_قدم(MD4_H, c, d, a, b, MD4_GET(5) + 0x6ed9eba1, 11)
+    MD4_قدم(MD4_H, b, c, d, a, MD4_GET(13) + 0x6ed9eba1, 15)
+    MD4_قدم(MD4_H, a, b, c, d, MD4_GET(3) + 0x6ed9eba1, 3)
+    MD4_قدم(MD4_H, d, a, b, c, MD4_GET(11) + 0x6ed9eba1, 9)
+    MD4_قدم(MD4_H, c, d, a, b, MD4_GET(7) + 0x6ed9eba1, 11)
+    MD4_قدم(MD4_H, b, c, d, a, MD4_GET(15) + 0x6ed9eba1, 15)
 
     a += saved_a;
     b += saved_b;
@@ -359,17 +359,17 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } طالما(سائيز -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  أرجع ptr;
 }
 
-static int my_md4_init(my_md4_ctx *ctx)
+ساكن صحيح my_md4_init(my_md4_ctx *ctx)
 {
   ctx->a = 0x67452301;
   ctx->b = 0xefcdab89;
@@ -379,75 +379,75 @@ static int my_md4_init(my_md4_ctx *ctx)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return 1;
+  أرجع 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+ساكن فراغ my_md4_update(my_md4_ctx *ctx,
+                          ثابت فراغ *داخلا, بنانشان ڊگهو len)
 {
   uint32_t saved_lo;
-  unsigned long used;
+  بنانشان ڊگهو استعمال_ٿيل;
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  إذا(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
-  used = saved_lo & 0x3f;
+  استعمال_ٿيل = saved_lo & 0x3f;
 
-  if(used) {
-    unsigned long available = 64 - used;
+  إذا(استعمال_ٿيل) {
+    بنانشان ڊگهو موجود = 64 - استعمال_ٿيل;
 
-    if(len < available) {
-      memcpy(&ctx->buffer[used], input, len);
-      return;
+    إذا(len < موجود) {
+      يادگيري_نقل(&ctx->بفر[استعمال_ٿيل], داخلا, len);
+      أرجع;
     }
 
-    memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
-    len -= available;
-    my_md4_body(ctx, ctx->buffer, 64);
+    يادگيري_نقل(&ctx->بفر[استعمال_ٿيل], داخلا, موجود);
+    داخلا = (ثابت بنانشان حرف *)داخلا + موجود;
+    len -= موجود;
+    my_md4_body(ctx, ctx->بفر, 64);
   }
 
-  if(len >= 64) {
-    input = my_md4_body(ctx, input, len & ~(unsigned long)0x3f);
+  إذا(len >= 64) {
+    داخلا = my_md4_body(ctx, داخلا, len & ~(بنانشان ڊگهو)0x3f);
     len &= 0x3f;
   }
 
-  memcpy(ctx->buffer, input, len);
+  يادگيري_نقل(ctx->بفر, داخلا, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ساكن فراغ my_md4_final(بنانشان حرف *digest, my_md4_ctx *ctx)
 {
-  unsigned long used, available;
+  بنانشان ڊگهو استعمال_ٿيل, موجود;
 
-  used = ctx->lo & 0x3f;
+  استعمال_ٿيل = ctx->lo & 0x3f;
 
-  ctx->buffer[used++] = 0x80;
+  ctx->بفر[استعمال_ٿيل++] = 0x80;
 
-  available = 64 - used;
+  موجود = 64 - استعمال_ٿيل;
 
-  if(available < 8) {
-    memset(&ctx->buffer[used], 0, available);
-    my_md4_body(ctx, ctx->buffer, 64);
-    used = 0;
-    available = 64;
+  إذا(موجود < 8) {
+    memset(&ctx->بفر[استعمال_ٿيل], 0, موجود);
+    my_md4_body(ctx, ctx->بفر, 64);
+    استعمال_ٿيل = 0;
+    موجود = 64;
   }
 
-  memset(&ctx->buffer[used], 0, available - 8);
+  memset(&ctx->بفر[استعمال_ٿيل], 0, موجود - 8);
 
   ctx->lo <<= 3;
-  ctx->buffer[56] = curlx_ultouc((ctx->lo) & 0xff);
-  ctx->buffer[57] = curlx_ultouc((ctx->lo >> 8) & 0xff);
-  ctx->buffer[58] = curlx_ultouc((ctx->lo >> 16) & 0xff);
-  ctx->buffer[59] = curlx_ultouc((ctx->lo >> 24) & 0xff);
-  ctx->buffer[60] = curlx_ultouc((ctx->hi) & 0xff);
-  ctx->buffer[61] = curlx_ultouc((ctx->hi >> 8) & 0xff);
-  ctx->buffer[62] = curlx_ultouc((ctx->hi >> 16) & 0xff);
-  ctx->buffer[63] = curlx_ultouc(ctx->hi >> 24);
+  ctx->بفر[56] = curlx_ultouc((ctx->lo) & 0xff);
+  ctx->بفر[57] = curlx_ultouc((ctx->lo >> 8) & 0xff);
+  ctx->بفر[58] = curlx_ultouc((ctx->lo >> 16) & 0xff);
+  ctx->بفر[59] = curlx_ultouc((ctx->lo >> 24) & 0xff);
+  ctx->بفر[60] = curlx_ultouc((ctx->hi) & 0xff);
+  ctx->بفر[61] = curlx_ultouc((ctx->hi >> 8) & 0xff);
+  ctx->بفر[62] = curlx_ultouc((ctx->hi >> 16) & 0xff);
+  ctx->بفر[63] = curlx_ultouc(ctx->hi >> 24);
 
-  my_md4_body(ctx, ctx->buffer, 64);
+  my_md4_body(ctx, ctx->بفر, 64);
 
   digest[0] = curlx_ultouc((ctx->a) & 0xff);
   digest[1] = curlx_ultouc((ctx->a >> 8) & 0xff);
@@ -466,20 +466,20 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
   digest[14] = curlx_ultouc((ctx->d >> 16) & 0xff);
   digest[15] = curlx_ultouc(ctx->d >> 24);
 
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, حجم(*ctx));
 }
 
-#endif /* CRYPTO LIBS */
+#جيڪڏهن_پورو /* CRYPTO LIBS */
 
-CURLcode Curl_md4it(unsigned char *output,
-                    const unsigned char *input, const size_t len)
+CURLcode Curl_md4it(بنانشان حرف *output,
+                    ثابت بنانشان حرف *داخلا, ثابت size_t len)
 {
   my_md4_ctx ctx;
-  if(!my_md4_init(&ctx))
-    return CURLE_FAILED_INIT;
-  my_md4_update(&ctx, input, curlx_uztoui(len));
+  إذا(!my_md4_init(&ctx))
+    أرجع CURLE_FAILED_INIT;
+  my_md4_update(&ctx, داخلا, curlx_uztoui(len));
   my_md4_final(output, &ctx);
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-#endif /* USE_CURL_NTLM_CORE */
+#جيڪڏهن_پورو /* USE_CURL_NTLM_CORE */

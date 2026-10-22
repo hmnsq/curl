@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_IMAP_H
-#define HEADER_CURL_IMAP_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_IMAP_H
+#وصف_ڪريو سرو_CURL_IMAP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -25,15 +25,15 @@
  ***************************************************************************/
 
 /* Authentication type flags */
-#define IMAP_TYPE_CLEARTEXT (1 << 0)
-#define IMAP_TYPE_SASL      (1 << 1)
+#وصف_ڪريو IMAP_TYPE_CLEARTEXT (1 << 0)
+#وصف_ڪريو IMAP_TYPE_SASL      (1 << 1)
 
 /* Authentication type values */
-#define IMAP_TYPE_NONE      0
-#define IMAP_TYPE_ANY       (IMAP_TYPE_CLEARTEXT | IMAP_TYPE_SASL)
+#وصف_ڪريو IMAP_TYPE_NONE      0
+#وصف_ڪريو IMAP_TYPE_ANY       (IMAP_TYPE_CLEARTEXT | IMAP_TYPE_SASL)
 
-#ifndef CURL_DISABLE_IMAP
-extern const struct Curl_protocol Curl_protocol_imap;
-#endif
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_IMAP
+خارجي ثابت بنية Curl_protocol Curl_protocol_imap;
+#جيڪڏهن_پورو
 
-#endif /* HEADER_CURL_IMAP_H */
+#جيڪڏهن_پورو /* HEADER_CURL_IMAP_H */

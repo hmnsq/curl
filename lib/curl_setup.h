@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SETUP_H
-#define HEADER_CURL_SETUP_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_تياري_H
+#وصف_ڪريو سرو_CURL_تياري_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,14 +24,14 @@
  *
  ***************************************************************************/
 
-#if defined(BUILDING_LIBCURL) && !defined(CURL_NO_OLDIES)
-#define CURL_NO_OLDIES
-#endif
+#إذا defined(BUILDING_LIBCURL) && !defined(CURL_NO_OLDIES)
+#وصف_ڪريو CURL_NO_OLDIES
+#جيڪڏهن_پورو
 
 /* Set default _WIN32_WINNT */
-#ifdef __MINGW32__
-#include <_mingw.h>
-#endif
+#جيڪڏهن_وصف_ٿيل __MINGW32__
+#ضمن <_mingw.h>
+#جيڪڏهن_پورو
 
 /* Workaround for Homebrew gcc 12.4.0, 13.3.0, 14.1.0, 14.2.0 (initial build)
    that started advertising the `availability` attribute, which then gets used
@@ -44,18 +44,18 @@
    Work it around by overriding the built-in feature-check macro used by the
    headers to enable the problematic attributes. This makes the feature check
    fail. Fixed in 14.2.0_1. Disable the workaround if the fix is detected. */
-#if defined(__APPLE__) && !defined(__clang__) && defined(__GNUC__) && \
+#إذا defined(__APPLE__) && !defined(__clang__) && defined(__GNUC__) && \
   defined(__has_attribute)
-#  if !defined(__has_feature)  /* Keep this PP check separate from others */
+#  إذا !defined(__has_feature)  /* Keep this PP check separate from others */
 #    define availability curl_pp_attribute_disabled
 #  elif !__has_feature(attribute_availability)
 #    define availability curl_pp_attribute_disabled
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#ifdef __APPLE__
-#include <sys/types.h>
-#include <TargetConditionals.h>
+#جيڪڏهن_وصف_ٿيل __APPLE__
+#ضمن <sys/types.h>
+#ضمن <TargetConditionals.h>
 /* Fixup faulty target macro initialization in macOS SDK since v14.4 (as of
    15.0 beta). The SDK target detection in `TargetConditionals.h` correctly
    detects macOS, but fails to set the macro's old name `TARGET_OS_OSX`, then
@@ -66,42 +66,42 @@
    faulty dynamic detection. gcc is not affected (for now) because it lacks
    the necessary dynamic detection features, so the SDK falls back to
    a codepath that sets both the old and new macro to 1. */
-#if defined(TARGET_OS_MAC) && TARGET_OS_MAC && \
-  defined(TARGET_OS_OSX) && !TARGET_OS_OSX && \
-  (!defined(TARGET_OS_IPHONE) || !TARGET_OS_IPHONE) && \
-  (!defined(TARGET_OS_SIMULATOR) || !TARGET_OS_SIMULATOR)
-#undef TARGET_OS_OSX
-#define TARGET_OS_OSX TARGET_OS_MAC
-#endif
-#endif
+#إذا defined(هدف_OS_MAC) && هدف_OS_MAC && \
+  defined(هدف_OS_OSX) && !هدف_OS_OSX && \
+  (!defined(هدف_OS_IPHONE) || !هدف_OS_IPHONE) && \
+  (!defined(هدف_OS_SIMULATOR) || !هدف_OS_SIMULATOR)
+#وصف_رد هدف_OS_OSX
+#وصف_ڪريو هدف_OS_OSX هدف_OS_MAC
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو
 
-#if defined(__MINGW32__) && \
+#إذا defined(__MINGW32__) && \
   (!defined(__MINGW64_VERSION_MAJOR) || (__MINGW64_VERSION_MAJOR < 3))
-#error "mingw-w64 3.0 or greater required"
-#endif
+#غلطي "mingw-w64 3.0 or greater required"
+#جيڪڏهن_پورو
 
 /* Visual Studio 2010 is the minimum Visual Studio version we support.
    Workarounds for older versions of Visual Studio have been removed. */
-#if defined(_MSC_VER) && (_MSC_VER < 1600)
-#error "Ancient versions of Visual Studio are no longer supported due to bugs."
-#endif
+#إذا defined(_MSC_VER) && (_MSC_VER < 1600)
+#غلطي "Ancient versions of Visual Studio are no longer supported due to bugs."
+#جيڪڏهن_پورو
 
-#ifdef _MSC_VER
+#جيڪڏهن_وصف_ٿيل _MSC_VER
 /* Disable Visual Studio warnings: 4127 "conditional expression is constant" */
-#pragma warning(disable:4127)
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS  /* for getenv(), sscanf(), vsnprintf() */
-#endif
-#endif /* _MSC_VER */
+#هدايت warning(disable:4127)
+#جيڪڏهن_وصف_نه_ٿيل _CRT_SECURE_NO_WARNINGS
+#وصف_ڪريو _CRT_SECURE_NO_WARNINGS  /* for getenv(), sscanf(), vsnprintf() */
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* _MSC_VER */
 
-#ifdef _WIN32
+#جيڪڏهن_وصف_ٿيل _WIN32
 /*
  * Do not include unneeded stuff in Windows headers to avoid compiler
  * warnings and macro clashes.
  * Make sure to define this macro before including any Windows headers.
  */
-#  ifndef WIN32_LEAN_AND_MEAN
-#  define WIN32_LEAN_AND_MEAN
+#  ifndef WIN32_LEAN_AND_سراسري
+#  define WIN32_LEAN_AND_سراسري
 #  endif
 #  ifndef NOGDI
 #  define NOGDI
@@ -109,58 +109,58 @@
 
 /* Detect Windows App environment which has a restricted access
  * to the Win32 APIs. */
-#  if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
+#  إذا (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
      defined(WINAPI_FAMILY)
 #    include <winapifamily.h>
-#    if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
-       !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#    إذا WINAPI_FAMILY_حصا_ڪريو(WINAPI_حصا_ڪريو_APP) &&  \
+       !WINAPI_FAMILY_حصا_ڪريو(WINAPI_حصا_ڪريو_DESKTOP)
 #      define CURL_WINDOWS_UWP
 #    endif
 #  endif
 
 /* Mandatory to define SECURITY_WIN32 or SECURITY_KERNEL to indicating who is
    compiling the code. */
-#undef SECURITY_KERNEL
-#undef SECURITY_WIN32
-#define SECURITY_WIN32  /* for <sspi.h> */
-#endif
+#وصف_رد SECURITY_KERNEL
+#وصف_رد SECURITY_WIN32
+#وصف_ڪريو SECURITY_WIN32  /* for <sspi.h> */
+#جيڪڏهن_پورو
 
 /*
  * Include configuration script results or hand-crafted
  * configuration file for platforms which lack config tool.
  */
 
-#ifdef HAVE_CONFIG_H
+#جيڪڏهن_وصف_ٿيل HAVE_CONFIG_H
 
-#include "curl_config.h"
+#ضمن "curl_config.h"
 
-#else /* HAVE_CONFIG_H */
+#وإلا /* HAVE_CONFIG_H */
 
-#ifdef _WIN32
+#جيڪڏهن_وصف_ٿيل _WIN32
 #  include "config-win32.h"
-#endif
+#جيڪڏهن_پورو
 
-#ifdef macintosh
+#جيڪڏهن_وصف_ٿيل macintosh
 #  include "config-mac.h"
-#endif
+#جيڪڏهن_پورو
 
-#ifdef __OS400__
+#جيڪڏهن_وصف_ٿيل __OS400__
 #  include "config-os400.h"
-#endif
+#جيڪڏهن_پورو
 
-#endif /* HAVE_CONFIG_H */
+#جيڪڏهن_پورو /* HAVE_CONFIG_H */
 
-#ifdef _WIN32
-#  if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
-#    error The minimum build target is Windows Vista (0x0600)
+#جيڪڏهن_وصف_ٿيل _WIN32
+#  إذا defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
+#    error The minimum build هدف is Windows Vista (0x0600)
 #  endif
 
-#  if !defined(CURL_WINDOWS_UWP) && (defined(_MSC_VER) || defined(__MINGW32__))
+#  إذا !defined(CURL_WINDOWS_UWP) && (defined(_MSC_VER) || defined(__MINGW32__))
 #    ifndef HAVE_IF_NAMETOINDEX
 #    define HAVE_IF_NAMETOINDEX
 #    endif
 #  endif
-#endif
+#جيڪڏهن_پورو
 
 /* ================================================================ */
 /* Definition of preprocessor macros/symbols which modify compiler  */
@@ -171,39 +171,39 @@
 /* system header files in our config files, avoid this at any cost. */
 /* ================================================================ */
 
-#ifdef HAVE_LIBZ
+#جيڪڏهن_وصف_ٿيل HAVE_LIBZ
 #  ifndef ZLIB_CONST
 #  define ZLIB_CONST  /* Use z_const. Supported by v1.2.5.2 or greater. */
 #  endif
-#endif
+#جيڪڏهن_پورو
 
 /*
  * AIX 4.3 and newer needs _THREAD_SAFE defined to build
  * proper reentrant code. Others may also need it.
  */
-#ifdef NEED_THREAD_SAFE
-#  ifndef _THREAD_SAFE
-#  define _THREAD_SAFE
+#جيڪڏهن_وصف_ٿيل NEED_THREAD_محفوظ
+#  ifndef THREAD_محفوظ
+#  define THREAD_محفوظ
 #  endif
-#endif
+#جيڪڏهن_پورو
 
 /*
  * Tru64 needs _REENTRANT set for a few function prototypes and
  * things to appear in the system header files. Unixware needs it
  * to build proper reentrant code. Others may also need it.
  */
-#ifdef NEED_REENTRANT
+#جيڪڏهن_وصف_ٿيل NEED_REENTRANT
 #  ifndef _REENTRANT
 #  define _REENTRANT
 #  endif
-#endif
+#جيڪڏهن_پورو
 
 /* Solaris needs this to get a POSIX-conformant getpwuid_r */
-#if defined(sun) || defined(__sun)
+#إذا defined(sun) || defined(__sun)
 #  ifndef _POSIX_PTHREAD_SEMANTICS
 #  define _POSIX_PTHREAD_SEMANTICS 1
 #  endif
-#endif
+#جيڪڏهن_پورو
 
 /* ================================================================ */
 /*  If you need to include a system header file for your platform,  */
@@ -211,14 +211,14 @@
 /* ================================================================ */
 
 /* Give calloc a chance to be included early, so we do not redefine */
-#ifdef HAVE_THREADS_POSIX
+#جيڪڏهن_وصف_ٿيل HAVE_ڌاڳا_POSIX
 #  include <pthread.h>
-#endif
+#جيڪڏهن_پورو
 
 /*
  * When HTTP is disabled, disable HTTP-only features
  */
-#ifdef CURL_DISABLE_HTTP
+#جيڪڏهن_وصف_ٿيل CURL_DISABLE_HTTP
 #  ifndef CURL_DISABLE_ALTSVC
 #  define CURL_DISABLE_ALTSVC
 #  endif
@@ -240,8 +240,8 @@
 #  ifndef CURL_DISABLE_FORM_API
 #  define CURL_DISABLE_FORM_API
 #  endif
-#  ifndef CURL_DISABLE_HEADERS_API
-#  define CURL_DISABLE_HEADERS_API
+#  ifndef CURL_DISABLE_سرا_API
+#  define CURL_DISABLE_سرا_API
 #  endif
 #  ifndef CURL_DISABLE_HSTS
 #  define CURL_DISABLE_HSTS
@@ -258,7 +258,7 @@
 #  ifndef CURL_DISABLE_WEBSOCKETS
 #  define CURL_DISABLE_WEBSOCKETS /* no WebSockets without HTTP present */
 #  endif
-#endif
+#جيڪڏهن_پورو
 
 /* ================================================================ */
 /* No system header file shall be included in this file before this */
@@ -268,27 +268,27 @@
 /*
  * OS/400 setup file includes some system headers.
  */
-#ifdef __OS400__
+#جيڪڏهن_وصف_ٿيل __OS400__
 #  include "setup-os400.h"
-#endif
+#جيڪڏهن_پورو
 
 /*
  * VMS setup file includes some system headers.
  */
-#ifdef __VMS
+#جيڪڏهن_وصف_ٿيل __VMS
 #  include "setup-vms.h"
-#endif
+#جيڪڏهن_پورو
 
 /*
  * Windows setup file includes some system headers.
  */
-#ifdef _WIN32
+#جيڪڏهن_وصف_ٿيل _WIN32
 #  include "setup-win32.h"
-#endif
+#جيڪڏهن_پورو
 
-#include <curl/system.h>
+#ضمن <curl/system.h>
 
-#if !defined(HAVE_PIPE2) && \
+#إذا !defined(HAVE_PIPE2) && \
   ((defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
             __MAC_OS_X_VERSION_MAX_ALLOWED >= 270000 && \
     defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
@@ -309,98 +309,98 @@
             __VISION_OS_VERSION_MAX_ALLOWED >= 270000 && \
     defined(__VISION_OS_VERSION_MIN_REQUIRED) && \
             __VISION_OS_VERSION_MIN_REQUIRED >= 270000))
-#define HAVE_PIPE2
-#endif
+#وصف_ڪريو HAVE_PIPE2
+#جيڪڏهن_پورو
 
 /* Helper macro to expand and concatenate two macros.
  * Direct macros concatenation does not work because macros
  * are not expanded before direct concatenation.
  */
-#define CURL_CONC_MACROS_(A, B) A ## B
-#define CURL_CONC_MACROS(A, B) CURL_CONC_MACROS_(A, B)
+#وصف_ڪريو CURL_CONC_MACROS_(A, B) A ## B
+#وصف_ڪريو CURL_CONC_MACROS(A, B) CURL_CONC_MACROS_(A, B)
 
 /* curl uses its own printf() function internally. It understands the GNU
  * format. Use this format, so that it matches the GNU format attribute we
  * use with the MinGW compiler, allowing it to verify them at compile-time.
  */
-#ifdef __MINGW32__
+#جيڪڏهن_وصف_ٿيل __MINGW32__
 #  undef CURL_FORMAT_CURL_OFF_T
 #  undef CURL_FORMAT_CURL_OFF_TU
 #  define CURL_FORMAT_CURL_OFF_T   "lld"
 #  define CURL_FORMAT_CURL_OFF_TU  "llu"
-#endif
+#جيڪڏهن_پورو
 
 /* based on logic in "curl/mprintf.h" */
-#if (defined(__GNUC__) || defined(__clang__) ||                 \
+#إذا (defined(__GNUC__) || defined(__clang__) ||                 \
      defined(__IAR_SYSTEMS_ICC__)) &&                           \
   defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && \
   !defined(CURL_NO_FMT_CHECKS)
-#if defined(__MINGW32__) && !defined(__clang__)
-#define CURL_PRINTF(fmt, arg) __attribute__((format(gnu_printf, fmt, arg)))
-#else
-#define CURL_PRINTF(fmt, arg) __attribute__((format(__printf__, fmt, arg)))
-#endif
-#else
-#define CURL_PRINTF(fmt, arg)
-#endif
+#إذا defined(__MINGW32__) && !defined(__clang__)
+#وصف_ڪريو CURL_PRINTF(fmt, arg) __attribute__((format(gnu_printf, fmt, arg)))
+#وإلا
+#وصف_ڪريو CURL_PRINTF(fmt, arg) __attribute__((format(__printf__, fmt, arg)))
+#جيڪڏهن_پورو
+#وإلا
+#وصف_ڪريو CURL_PRINTF(fmt, arg)
+#جيڪڏهن_پورو
 
 /* Override default printf mask check rules in "curl/mprintf.h" */
-#define CURL_TEMP_PRINTF CURL_PRINTF
+#وصف_ڪريو CURL_عارضي_PRINTF CURL_PRINTF
 
 /* Workaround for mainline llvm v16 and earlier missing a built-in macro
    expected by macOS SDK v14 / Xcode v15 (2023) and newer.
    gcc (as of v14) is also missing it. */
-#if defined(__APPLE__) &&                                   \
+#إذا defined(__APPLE__) &&                                   \
   ((!defined(__apple_build_version__) &&                    \
     defined(__clang__) && __clang_major__ < 17) ||          \
    (defined(__GNUC__) && __GNUC__ <= 14)) &&                \
   defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && \
   !defined(__ENVIRONMENT_OS_VERSION_MIN_REQUIRED__)
-#define __ENVIRONMENT_OS_VERSION_MIN_REQUIRED__ \
+#وصف_ڪريو __ENVIRONMENT_OS_VERSION_MIN_REQUIRED__ \
   __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
-#endif
+#جيڪڏهن_پورو
 
 /*
  * Use getaddrinfo to resolve the IPv4 address literal. If the current network
  * interface does not support IPv4, but supports IPv6, NAT64, and DNS64,
  * performing this task will result in a synthesized IPv6 address.
  */
-#if defined(__APPLE__) && !defined(USE_ARES)
+#إذا defined(__APPLE__) && !defined(USE_ARES)
 #  define USE_RESOLVE_ON_IPS 1
-#  if TARGET_OS_MAC && !(defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) && \
+#  إذا هدف_OS_MAC && !(defined(هدف_OS_IPHONE) && هدف_OS_IPHONE) && \
      defined(USE_IPV6)
 #    define CURL_MACOS_CALL_COPYPROXIES 1
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#ifdef USE_ARES
+#جيڪڏهن_وصف_ٿيل USE_ARES
 #  ifndef CARES_NO_DEPRECATED
 #  define CARES_NO_DEPRECATED  /* for ares_getsock() */
 #  endif
-#  if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && defined(_WIN32)
+#  إذا defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && defined(_WIN32)
 #    define CARES_STATICLIB  /* define it before including ares.h */
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#ifdef USE_LWIPSOCK
+#جيڪڏهن_وصف_ٿيل USE_LWIPSOCK
 #  include <lwip/init.h>
 #  include <lwip/sockets.h>
 #  include <lwip/netdb.h>
-#endif
+#جيڪڏهن_پورو
 
-#ifdef macintosh
+#جيڪڏهن_وصف_ٿيل macintosh
 #  include <extra/stricmp.h>
 #  include <extra/strdup.h>
-#endif
+#جيڪڏهن_پورو
 
-#ifdef __AMIGA__
+#جيڪڏهن_وصف_ٿيل __AMIGA__
 #  ifdef __amigaos4__
 #    define __USE_INLINE__
      /* use our own resolver which uses runtime feature detection */
 #    define CURLRES_AMIGA
      /* getaddrinfo() currently crashes bsdsocket.library, so disable */
 #    undef HAVE_GETADDRINFO
-#    if !(defined(__NEWLIB__) || \
+#    إذا !(defined(__NEWLIB__) || \
           (defined(__CLIB2__) && defined(__THREAD_SAFE)))
        /* disable threaded resolver with clib2 - requires newlib or clib-ts */
 #      undef USE_RESOLV_THREADED
@@ -411,22 +411,22 @@
 #  include <proto/exec.h>
 #  include <proto/dos.h>
 #  include <unistd.h>
-#  if defined(HAVE_PROTO_BSDSOCKET_H) && \
+#  إذا defined(HAVE_PROTO_BSDSOCKET_H) && \
     (!defined(__amigaos4__) || defined(USE_AMISSL))
      /* use bsdsocket.library directly, instead of libc networking functions */
 #    define _SYS_MBUF_H /* m_len define clashes with curl */
 #    include <proto/bsdsocket.h>
 #    ifdef __amigaos4__
-       int Curl_amiga_select(int nfds, fd_set *readfds, fd_set *writefds,
-                             fd_set *errorfds, struct timeval *timeout);
+       صحيح Curl_amiga_select(صحيح nfds, fd_set *readfds, fd_set *writefds,
+                             fd_set *errorfds, بنية timeval *timeout);
 #      define select(a, b, c, d, e) Curl_amiga_select(a, b, c, d, e)
-#    else
+#    وإلا
 #      define select(a, b, c, d, e) WaitSelect(a, b, c, d, e, 0)
 #    endif
      /* must not use libc's fcntl() on bsdsocket.library sockfds! */
 #    undef HAVE_FCNTL
 #    undef HAVE_FCNTL_O_NONBLOCK
-#  else
+#  وإلا
      /* use libc networking and hence close() and fcntl() */
 #    undef HAVE_CLOSESOCKET_CAMEL
 #    undef HAVE_IOCTLSOCKET_CAMEL
@@ -436,48 +436,48 @@
  * with bsdsocket.library. This avoids the definition of those.
  */
 #  define __NO_NET_API
-#endif
+#جيڪڏهن_پورو
 
 /* Whether to use eventfd() */
-#if defined(HAVE_EVENTFD) && defined(HAVE_SYS_EVENTFD_H)
-#define USE_EVENTFD
-#endif
+#إذا defined(HAVE_EVENTFD) && defined(HAVE_SYS_EVENTFD_H)
+#وصف_ڪريو USE_EVENTFD
+#جيڪڏهن_پورو
 
-#ifdef SO_NOSIGPIPE
-#define USE_SO_NOSIGPIPE
-#endif
+#جيڪڏهن_وصف_ٿيل SO_NOSIGPIPE
+#وصف_ڪريو USE_SO_NOSIGPIPE
+#جيڪڏهن_پورو
 
-#include <stdio.h>
-#include <assert.h>
+#ضمن <stdio.h>
+#ضمن <assert.h>
 
-#ifdef __TANDEM /* for ns*-tandem-nsk systems */
+#جيڪڏهن_وصف_ٿيل __TANDEM /* for ns*-tandem-nsk systems */
 #  ifndef __LP64
 #    include <floss.h> /* FLOSS is only used for 32-bit builds. */
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#include <stdint.h>
-#define HAVE_UINTPTR_T  /* assume uintptr_t is provided by stdint.h */
+#ضمن <stdint.h>
+#وصف_ڪريو HAVE_UINTPTR_T  /* assume uintptr_t is provided by stdint.h */
 
-#ifdef __DJGPP__
+#جيڪڏهن_وصف_ٿيل __DJGPP__
 /* By default, DJGPP provides this type as a version of 'unsigned long' which
    forces us to use a define use it in printf() format strings without
    warnings. long and int are both 32 bits for this platform. */
-#define uint32_t unsigned int
-#endif
+#وصف_ڪريو uint32_t بنانشان صحيح
+#جيڪڏهن_پورو
 
 /* Disable uintptr_t for targets known to miss it from stdint.h */
-#ifdef __OS400__
-#undef HAVE_UINTPTR_T
-#endif
+#جيڪڏهن_وصف_ٿيل __OS400__
+#وصف_رد HAVE_UINTPTR_T
+#جيڪڏهن_پورو
 
-#include <limits.h>
+#ضمن <limits.h>
 /* Include after setting system macros that may affect type sizes
    (e.g. 'off_t' or 'time_t'), or suppress warnings
    (e.g. '_CRT_SECURE_NO_WARNINGS`), but before including sys/stat.h */
-#include <sys/types.h>
+#ضمن <sys/types.h>
 
-#ifdef _WIN32
+#جيڪڏهن_وصف_ٿيل _WIN32
 #  ifdef HAVE_IO_H
 #  include <io.h>
 #  endif
@@ -485,52 +485,52 @@
    /* Large file (>2Gb) support using Win32 functions. */
 #  define curl_lseek                      _lseeki64
 #  define LSEEK_ERROR                     ((__int64)-1)
-#elif defined(__DJGPP__)
+#وإلاإذا defined(__DJGPP__)
    /* Requires DJGPP 2.04 */
 #  include <unistd.h>
 #  define curl_lseek                      llseek
-#  define LSEEK_ERROR                     ((offset_t)-1)
-#elif defined(__AMIGA__)
-#  define curl_lseek(fd, offset, whence)  lseek(fd, (off_t)(offset), whence)
+#  define LSEEK_ERROR                     ((وٿي_t)-1)
+#وإلاإذا defined(__AMIGA__)
+#  define curl_lseek(fd, وٿي, whence)  lseek(fd, (off_t)(وٿي), whence)
 #  define LSEEK_ERROR                     ((off_t)-1)
-#else
+#وإلا
 #  define curl_lseek                      lseek
 #  define LSEEK_ERROR                     ((off_t)-1)
-#endif
+#جيڪڏهن_پورو
 
-#ifndef SIZEOF_TIME_T
+#جيڪڏهن_وصف_نه_ٿيل SIZEOF_وقت_T
 /* assume default size of time_t to be 32 bits */
-#define SIZEOF_TIME_T 4
-#endif
+#وصف_ڪريو SIZEOF_وقت_T 4
+#جيڪڏهن_پورو
 
-#ifndef SIZEOF_CURL_SOCKET_T
+#جيڪڏهن_وصف_نه_ٿيل SIZEOF_CURL_SOCKET_T
 /* configure and cmake check and set the define */
-#  if defined(USE_WINSOCK) && defined(_WIN64)
+#  إذا defined(USE_WINSOCK) && defined(_WIN64)
 #    define SIZEOF_CURL_SOCKET_T 8
-#  else
+#  وإلا
 /* default guess */
 #    define SIZEOF_CURL_SOCKET_T 4
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#if SIZEOF_CURL_SOCKET_T < 8
-#ifdef USE_WINSOCK
+#إذا SIZEOF_CURL_SOCKET_T < 8
+#جيڪڏهن_وصف_ٿيل USE_WINSOCK
 #  define FMT_SOCKET_T "u"
-#else
+#وإلا
 #  define FMT_SOCKET_T "d"
-#endif
-#elif defined(USE_WINSOCK)
+#جيڪڏهن_پورو
+#وإلاإذا defined(USE_WINSOCK)
 #  define FMT_SOCKET_T "zu"
-#else
+#وإلا
 #  define FMT_SOCKET_T "qd"
-#endif
+#جيڪڏهن_پورو
 
 /*
  * Default sizeof(off_t) in case it has not been defined in config file.
  */
 
-#ifndef SIZEOF_OFF_T
-#  if defined(__VMS) && !defined(__VAX)
+#جيڪڏهن_وصف_نه_ٿيل SIZEOF_OFF_T
+#  إذا defined(__VMS) && !defined(__VAX)
 #    ifdef _LARGEFILE
 #      define SIZEOF_OFF_T 8
 #    endif
@@ -539,121 +539,121 @@
 #      define SIZEOF_OFF_T 8
 #    endif
 #  elif defined(__MVS__) && defined(__IBMC__)
-#    if defined(_LP64) || defined(_LARGE_FILES)
+#    إذا defined(_LP64) || defined(_LARGE_FILES)
 #      define SIZEOF_OFF_T 8
 #    endif
 #  elif defined(__370__) && defined(__IBMC__)
-#    if defined(_LP64) || defined(_LARGE_FILES)
+#    إذا defined(_LP64) || defined(_LARGE_FILES)
 #      define SIZEOF_OFF_T 8
 #    endif
 #  endif
 #  ifndef SIZEOF_OFF_T
 #  define SIZEOF_OFF_T 4
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#if SIZEOF_CURL_OFF_T < 8
-#error "too small curl_off_t"
-#else
+#إذا SIZEOF_CURL_OFF_T < 8
+#غلطي "too small curl_off_t"
+#وإلا
    /* assume SIZEOF_CURL_OFF_T == 8 */
 #  define CURL_OFF_T_MAX 0x7FFFFFFFFFFFFFFF
-#endif
-#define CURL_OFF_T_MIN (-CURL_OFF_T_MAX - 1)
+#جيڪڏهن_پورو
+#وصف_ڪريو CURL_OFF_T_MIN (-CURL_OFF_T_MAX - 1)
 
-#define FMT_OFF_T  CURL_FORMAT_CURL_OFF_T
-#define FMT_OFF_TU CURL_FORMAT_CURL_OFF_TU
+#وصف_ڪريو FMT_OFF_T  CURL_FORMAT_CURL_OFF_T
+#وصف_ڪريو FMT_OFF_TU CURL_FORMAT_CURL_OFF_TU
 
-#if SIZEOF_TIME_T == 4
-#  ifdef HAVE_TIME_T_UNSIGNED
-#  define TIME_T_MAX UINT_MAX
-#  define TIME_T_MIN 0
-#  else
-#  define TIME_T_MAX INT_MAX
-#  define TIME_T_MIN INT_MIN
+#إذا SIZEOF_وقت_T == 4
+#  ifdef HAVE_وقت_T_UNSIGNED
+#  define وقت_T_MAX UINT_MAX
+#  define وقت_T_MIN 0
+#  وإلا
+#  define وقت_T_MAX وڌ_کان_وڌ_عدد
+#  define وقت_T_MIN INT_MIN
 #  endif
-#else
-#  ifdef HAVE_TIME_T_UNSIGNED
-#  define TIME_T_MAX 0xFFFFFFFFFFFFFFFF
-#  define TIME_T_MIN 0
-#  else
-#  define TIME_T_MAX 0x7FFFFFFFFFFFFFFF
-#  define TIME_T_MIN (-TIME_T_MAX - 1)
+#وإلا
+#  ifdef HAVE_وقت_T_UNSIGNED
+#  define وقت_T_MAX 0xFFFFFFFFFFFFFFFF
+#  define وقت_T_MIN 0
+#  وإلا
+#  define وقت_T_MAX 0x7FFFFFFFFFFFFFFF
+#  define وقت_T_MIN (-وقت_T_MAX - 1)
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#ifndef SIZE_MAX
+#جيڪڏهن_وصف_نه_ٿيل SIZE_MAX
 /* some limits.h headers have this defined, some do not */
-#if defined(SIZEOF_SIZE_T) && (SIZEOF_SIZE_T > 4)
-#define SIZE_MAX 18446744073709551615U
-#else
-#define SIZE_MAX 4294967295U
-#endif
-#endif
+#إذا defined(SIZEOF_سائيز_T) && (SIZEOF_سائيز_T > 4)
+#وصف_ڪريو SIZE_MAX 18446744073709551615U
+#وإلا
+#وصف_ڪريو SIZE_MAX 4294967295U
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو
 
-#ifndef SSIZE_MAX
+#جيڪڏهن_وصف_نه_ٿيل SSIZE_MAX
 /* some limits.h headers have this defined, some do not */
-#if defined(SIZEOF_SIZE_T) && (SIZEOF_SIZE_T > 4)
-#define SSIZE_MAX 9223372036854775807
-#else
-#define SSIZE_MAX 2147483647
-#endif
-#endif
+#إذا defined(SIZEOF_سائيز_T) && (SIZEOF_سائيز_T > 4)
+#وصف_ڪريو SSIZE_MAX 9223372036854775807
+#وإلا
+#وصف_ڪريو SSIZE_MAX 2147483647
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو
 
-#if SIZEOF_LONG > SIZEOF_SIZE_T
-#error "unexpected: 'long' is larger than 'size_t'"
-#endif
+#إذا SIZEOF_LONG > SIZEOF_سائيز_T
+#غلطي "unexpected: 'long' is larger than 'size_t'"
+#جيڪڏهن_پورو
 
 /*
  * Arg 2 type for gethostname in case it has not been defined in config file.
  */
-#ifndef GETHOSTNAME_TYPE_ARG2
+#جيڪڏهن_وصف_نه_ٿيل GETHOSTNAME_TYPE_ARG2
 #  ifdef USE_WINSOCK
-#    define GETHOSTNAME_TYPE_ARG2 int
-#  else
+#    define GETHOSTNAME_TYPE_ARG2 صحيح
+#  وإلا
 #    define GETHOSTNAME_TYPE_ARG2 size_t
 #  endif
-#endif
+#جيڪڏهن_پورو
 
 /* Below we define some functions. They should
    4. set the SIGALRM signal timeout
    5. set dir/file naming defines
  */
 
-#ifdef _WIN32
+#جيڪڏهن_وصف_ٿيل _WIN32
 
 #  define DIR_CHAR      "\\"
 
-#else /* _WIN32 */
+#وإلا /* _WIN32 */
 
 #  ifdef MSDOS  /* Watt-32 */
 
 #    include <sys/ioctl.h>
 #    define select(n, r, w, x, t)  select_s(n, r, w, x, t)
-#    define ioctl(x, y, z)         ioctlsocket(x, y, (char *)(z))
+#    define ioctl(x, y, z)         ioctlsocket(x, y, (حرف *)(z))
 #    include <tcp.h>
-#    undef word
+#    undef لفظ
 #    undef byte
 
 #  endif /* MSDOS */
 
 #  ifdef __minix
      /* Minix 3 versions up to at least 3.1.3 are missing these prototypes */
-     extern struct tm *gmtime_r(const time_t * const timep, struct tm *tmp);
+     خارجي بنية tm *gmtime_r(ثابت time_t * ثابت timep, بنية tm *tmp);
 #  endif
 
 #  define DIR_CHAR      "/"
 
-#endif /* _WIN32 */
+#جيڪڏهن_پورو /* _WIN32 */
 
 /* We want to use mutex when available. */
-#if defined(HAVE_THREADS_POSIX) || defined(_WIN32)
-#define USE_MUTEX
-#endif
+#إذا defined(HAVE_ڌاڳا_POSIX) || defined(_WIN32)
+#وصف_ڪريو USE_MUTEX
+#جيڪڏهن_پورو
 
 /* threaded resolver is the only feature requiring threads. */
-#ifdef USE_RESOLV_THREADED
-#define USE_THREADS
-#endif
+#جيڪڏهن_وصف_ٿيل USE_RESOLV_THREADED
+#وصف_ڪريو USE_ڌاڳا
+#جيڪڏهن_پورو
 
 /* ---------------------------------------------------------------- */
 /*             resolver specialty compile-time defines              */
@@ -663,232 +663,232 @@
 /*
  * Mutually exclusive CURLRES_* definitions.
  */
-#if defined(USE_IPV6) && defined(HAVE_GETADDRINFO)
+#إذا defined(USE_IPV6) && defined(HAVE_GETADDRINFO)
 #  define CURLRES_IPV6
-#elif defined(USE_IPV6) && (defined(_WIN32) || defined(__CYGWIN__))
+#وإلاإذا defined(USE_IPV6) && (defined(_WIN32) || defined(__CYGWIN__))
 /* assume on Windows that IPv6 without getaddrinfo is a broken build */
 #  error "Unexpected build: IPv6 is enabled but getaddrinfo was not found."
-#else
+#وإلا
 #  define CURLRES_IPV4
-#endif
+#جيڪڏهن_پورو
 
-#ifdef USE_RESOLV_THREADED
+#جيڪڏهن_وصف_ٿيل USE_RESOLV_THREADED
 #  define CURLRES_ASYNCH
-#elif defined(USE_RESOLV_ARES)
+#وإلاإذا defined(USE_RESOLV_ARES)
 #  define CURLRES_ASYNCH
 /* now undef the stock libc functions to avoid them being used */
 #  undef HAVE_GETADDRINFO
 #  undef HAVE_FREEADDRINFO
-#else
+#وإلا
 #  define CURLRES_SYNCH
-#endif
+#جيڪڏهن_پورو
 
 /* ---------------------------------------------------------------- */
 
-#if defined(HAVE_LIBIDN2) && defined(HAVE_IDN2_H) && \
+#إذا defined(HAVE_LIBIDN2) && defined(HAVE_IDN2_H) && \
   !defined(USE_WIN32_IDN) && !defined(USE_APPLE_IDN)
 /* The lib and header are present */
-#define USE_LIBIDN2
-#endif
+#وصف_ڪريو USE_LIBIDN2
+#جيڪڏهن_پورو
 
-#if defined(USE_LIBIDN2) && (defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN))
-#error "libidn2 cannot be enabled with WinIDN or AppleIDN, choose one."
-#endif
+#إذا defined(USE_LIBIDN2) && (defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN))
+#غلطي "libidn2 cannot be enabled with WinIDN or AppleIDN, choose one."
+#جيڪڏهن_پورو
 
-#if defined(USE_GNUTLS) || defined(USE_OPENSSL) || defined(USE_MBEDTLS) || \
+#إذا defined(USE_GNUTLS) || defined(USE_OPENSSL) || defined(USE_MBEDTLS) || \
   defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || defined(USE_RUSTLS)
-#define USE_SSL    /* SSL support has been enabled */
-#endif
+#وصف_ڪريو USE_SSL    /* SSL support has been enabled */
+#جيڪڏهن_پورو
 
-#if defined(USE_OPENSSL) && defined(USE_WOLFSSL)
-#ifndef OPENSSL_COEXIST
-#define OPENSSL_COEXIST
-#endif
-#endif
+#إذا defined(USE_OPENSSL) && defined(USE_WOLFSSL)
+#جيڪڏهن_وصف_نه_ٿيل OPENSSL_COEXIST
+#وصف_ڪريو OPENSSL_COEXIST
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو
 
-#if defined(USE_WOLFSSL) && defined(USE_GNUTLS)
+#إذا defined(USE_WOLFSSL) && defined(USE_GNUTLS)
 /* Avoid defining unprefixed wolfSSL SHA macros colliding with nettle ones */
-#define NO_OLD_WC_NAMES
-#endif
+#وصف_ڪريو NO_OLD_WC_نالا
+#جيڪڏهن_پورو
 
 /* Single point where USE_SPNEGO definition might be defined */
-#if !defined(CURL_DISABLE_NEGOTIATE_AUTH) &&          \
+#إذا !defined(CURL_DISABLE_NEGOTIATE_AUTH) &&          \
   (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
-#define USE_SPNEGO
-#endif
+#وصف_ڪريو USE_SPNEGO
+#جيڪڏهن_پورو
 
 /* Single point where USE_KERBEROS5 definition might be defined */
-#if !defined(CURL_DISABLE_KERBEROS_AUTH) &&           \
+#إذا !defined(CURL_DISABLE_KERBEROS_AUTH) &&           \
   (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
-#define USE_KERBEROS5
-#endif
+#وصف_ڪريو USE_KERBEROS5
+#جيڪڏهن_پورو
 
 /* Single point where USE_NTLM definition might be defined */
-#ifdef CURL_ENABLE_NTLM
-#  if (defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)) ||   \
+#جيڪڏهن_وصف_ٿيل CURL_ENABLE_NTLM
+#  إذا (defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)) ||   \
   defined(USE_GNUTLS) ||                                           \
   (defined(USE_MBEDTLS) && defined(HAVE_MBEDTLS_DES_CRYPT_ECB)) || \
   defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO) ||         \
   (defined(USE_WOLFSSL) && defined(HAVE_WC_DES_ECBENCRYPT))
 #    define USE_CURL_NTLM_CORE
 #  endif
-#  if defined(USE_CURL_NTLM_CORE) || defined(USE_WINDOWS_SSPI)
+#  إذا defined(USE_CURL_NTLM_CORE) || defined(USE_WINDOWS_SSPI)
 #    define USE_NTLM
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#if defined(USE_LIBSSH2) || defined(USE_LIBSSH)
-#define USE_SSH
-#endif
+#إذا defined(USE_LIBSSH2) || defined(USE_LIBSSH)
+#وصف_ڪريو USE_SSH
+#جيڪڏهن_پورو
 
 /* GCC <4.6 does not support '#pragma GCC diagnostic push' and does not support
    'pragma GCC diagnostic' inside functions.
    Use CURL_HAVE_DIAG to guard the above in the curl codebase, instead of
    defined(__GNUC__) || defined(__clang__).
  */
-#if defined(__clang__) || (defined(__GNUC__) && \
+#إذا defined(__clang__) || (defined(__GNUC__) && \
   ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))))
-#define CURL_HAVE_DIAG
-#endif
+#وصف_ڪريو CURL_HAVE_DIAG
+#جيڪڏهن_پورو
 
 /*
  * Provide a mechanism to silence picky compilers, such as gcc 4.6+.
  * Parameters should of course normally not be unused, but for example when
  * we have multiple implementations of the same interface it may happen.
  */
-#if defined(__GNUC__) && ((__GNUC__ >= 3) || \
+#إذا defined(__GNUC__) && ((__GNUC__ >= 3) || \
   ((__GNUC__ == 2) && defined(__GNUC_MINOR__) && (__GNUC_MINOR__ >= 7)))
-#  define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-#elif defined(__IAR_SYSTEMS_ICC__) && (__VER__ >= 9040001)
-#  define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-#else
-#  define WARN_UNUSED_RESULT
-#endif
+#  define WARN_اڻ_استعمال_ٿيل_نتيجو __attribute__((warn_اڻ_استعمال_ٿيل_نتيجو))
+#وإلاإذا defined(__IAR_SYSTEMS_ICC__) && (__VER__ >= 9040001)
+#  define WARN_اڻ_استعمال_ٿيل_نتيجو __attribute__((warn_اڻ_استعمال_ٿيل_نتيجو))
+#وإلا
+#  define WARN_اڻ_استعمال_ٿيل_نتيجو
+#جيڪڏهن_پورو
 
 /* noreturn attribute */
 
-#ifndef CURL_NORETURN
-#if (defined(__GNUC__) && (__GNUC__ >= 3)) || defined(__clang__) || \
+#جيڪڏهن_وصف_نه_ٿيل CURL_NORETURN
+#إذا (defined(__GNUC__) && (__GNUC__ >= 3)) || defined(__clang__) || \
   defined(__IAR_SYSTEMS_ICC__)
 #  define CURL_NORETURN  __attribute__((__noreturn__))
-#elif defined(_MSC_VER)
+#وإلاإذا defined(_MSC_VER)
 #  define CURL_NORETURN  __declspec(noreturn)
-#else
+#وإلا
 #  define CURL_NORETURN
-#endif
-#endif
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو
 
 /* fallthrough attribute */
 
-#ifndef FALLTHROUGH
-#if (defined(__GNUC__) && __GNUC__ >= 7) ||     \
+#جيڪڏهن_وصف_نه_ٿيل FALLTHROUGH
+#إذا (defined(__GNUC__) && __GNUC__ >= 7) ||     \
   (defined(__clang__) && __clang_major__ >= 10)
 #  define FALLTHROUGH()  __attribute__((fallthrough))
-#else
-#  define FALLTHROUGH()  do {} while(0)
-#endif
-#endif
+#وإلا
+#  define FALLTHROUGH()  افعل {} طالما(0)
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو
 
 /*
  * Inclusion of common header files.
  */
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <time.h>
-#include <errno.h>
+#ضمن <stdlib.h>
+#ضمن <string.h>
+#ضمن <stdarg.h>
+#ضمن <time.h>
+#ضمن <errno.h>
 
-#include <sys/stat.h>
+#ضمن <sys/stat.h>
 
-#if !defined(_WIN32) || defined(__MINGW32__)
-#include <sys/time.h>
-#endif
+#إذا !defined(_WIN32) || defined(__MINGW32__)
+#ضمن <sys/time.h>
+#جيڪڏهن_پورو
 
-#ifdef HAVE_IO_H
-#include <io.h>
-#endif
+#جيڪڏهن_وصف_ٿيل HAVE_IO_H
+#ضمن <io.h>
+#جيڪڏهن_پورو
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
+#جيڪڏهن_وصف_ٿيل HAVE_FCNTL_H
+#ضمن <fcntl.h>
+#جيڪڏهن_پورو
 
-#if defined(HAVE_STDBOOL_H) && defined(HAVE_BOOL_T)
-#include <stdbool.h>
-#endif
+#إذا defined(HAVE_STDBOOL_H) && defined(HAVE_BOOL_T)
+#ضمن <stdbool.h>
+#جيڪڏهن_پورو
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+#جيڪڏهن_وصف_ٿيل HAVE_UNISTD_H
+#ضمن <unistd.h>
+#جيڪڏهن_پورو
 
 /* Macro to strip 'const' without triggering a compiler warning.
    Use it for APIs that do not or cannot support the const qualifier. */
-#ifdef HAVE_UINTPTR_T
-#define CURL_UNCONST(p) ((void *)(uintptr_t)(const void *)(p))
-#else
-#define CURL_UNCONST(p) ((void *)(p))  /* Fall back to simple cast */
-#endif
+#جيڪڏهن_وصف_ٿيل HAVE_UINTPTR_T
+#وصف_ڪريو CURL_UNCONST(p) ((فراغ *)(uintptr_t)(ثابت فراغ *)(p))
+#وإلا
+#وصف_ڪريو CURL_UNCONST(p) ((فراغ *)(p))  /* Fall back to simple cast */
+#جيڪڏهن_پورو
 
-#ifdef USE_SCHANNEL
+#جيڪڏهن_وصف_ٿيل USE_SCHANNEL
 /* Must set this before <schannel.h> is included directly or indirectly by
    another Windows header. */
 #  define SCHANNEL_USE_BLACKLISTS  /* for SCH_CREDENTIALS */
 #  include <subauth.h>  /* for [P]UNICODE_STRING in SCH_CREDENTIALS */
-#endif
+#جيڪڏهن_پورو
 
-#ifdef __hpux
-#  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
-#    ifdef _APP32_64BIT_OFF_T
-#      define OLD_APP32_64BIT_OFF_T _APP32_64BIT_OFF_T
-#      undef _APP32_64BIT_OFF_T
-#    else
-#      undef OLD_APP32_64BIT_OFF_T
+#جيڪڏهن_وصف_ٿيل __hpux
+#  إذا !defined(XOPEN_ذريعو_EXTENDED) || defined(_KERNEL)
+#    ifdef APP32_64_ٻٽو_انگ_OFF_T
+#      define OLD_APP32_64_ٻٽو_انگ_OFF_T APP32_64_ٻٽو_انگ_OFF_T
+#      undef APP32_64_ٻٽو_انگ_OFF_T
+#    وإلا
+#      undef OLD_APP32_64_ٻٽو_انگ_OFF_T
 #    endif
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#ifndef _WIN32
-#include <sys/socket.h>  /* also for MSG_NOSIGNAL */
-#endif
+#جيڪڏهن_وصف_نه_ٿيل _WIN32
+#ضمن <sys/socket.h>  /* also for MSG_NOSIGNAL */
+#جيڪڏهن_پورو
 
-#include "functypes.h"
+#ضمن "functypes.h"
 
-#ifdef __hpux
-#  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
-#    ifdef OLD_APP32_64BIT_OFF_T
-#      define _APP32_64BIT_OFF_T OLD_APP32_64BIT_OFF_T
-#      undef OLD_APP32_64BIT_OFF_T
+#جيڪڏهن_وصف_ٿيل __hpux
+#  إذا !defined(XOPEN_ذريعو_EXTENDED) || defined(_KERNEL)
+#    ifdef OLD_APP32_64_ٻٽو_انگ_OFF_T
+#      define APP32_64_ٻٽو_انگ_OFF_T OLD_APP32_64_ٻٽو_انگ_OFF_T
+#      undef OLD_APP32_64_ٻٽو_انگ_OFF_T
 #    endif
 #  endif
-#endif
+#جيڪڏهن_پورو
 
 /*
  * Definition of timeval struct for platforms that do not have it.
  */
-#ifndef HAVE_STRUCT_TIMEVAL
-struct timeval {
-  long tv_sec;
-  long tv_usec;
+#جيڪڏهن_وصف_نه_ٿيل HAVE_STRUCT_TIMEVAL
+بنية timeval {
+  ڊگهو tv_sec;
+  ڊگهو tv_usec;
 };
-#endif
+#جيڪڏهن_پورو
 
 /*
  * If we have the MSG_NOSIGNAL define, make sure we use
  * it as the fourth argument of function send()
  */
-#ifdef MSG_NOSIGNAL
-#define SEND_4TH_ARG MSG_NOSIGNAL
-#else
-#define SEND_4TH_ARG 0
-#endif
+#جيڪڏهن_وصف_ٿيل MSG_NOSIGNAL
+#وصف_ڪريو SEND_4TH_ARG MSG_NOSIGNAL
+#وإلا
+#وصف_ڪريو SEND_4TH_ARG 0
+#جيڪڏهن_پورو
 
-#ifdef __minix
+#جيڪڏهن_وصف_ٿيل __minix
 /* Minix does not support recv on TCP sockets */
-#define sread(x, y, z) (ssize_t)read((RECV_TYPE_ARG1)(x), \
+#وصف_ڪريو sread(x, y, z) (ssize_t)اقرأ((RECV_TYPE_ARG1)(x), \
                                      (RECV_TYPE_ARG2)(y), \
                                      (RECV_TYPE_ARG3)(z))
 
-#elif defined(HAVE_RECV)
+#وإلاإذا defined(HAVE_RECV)
 /*
  * The definitions for the return type and arguments types
  * of functions recv() and send() belong and come from the
@@ -912,72 +912,72 @@ struct timeval {
  * does not accept const.
  */
 
-#define sread(x, y, z) (ssize_t)recv((RECV_TYPE_ARG1)(x), \
+#وصف_ڪريو sread(x, y, z) (ssize_t)recv((RECV_TYPE_ARG1)(x), \
                                      (RECV_TYPE_ARG2)(y), \
                                      (RECV_TYPE_ARG3)(z), \
                                      (RECV_TYPE_ARG4)(0))
-#else /* HAVE_RECV */
-#ifndef sread
-#error "Missing definition of macro sread"
-#endif
-#endif /* HAVE_RECV */
+#وإلا /* HAVE_RECV */
+#جيڪڏهن_وصف_نه_ٿيل sread
+#غلطي "Missing definition of macro sread"
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* HAVE_RECV */
 
-#ifdef __minix
+#جيڪڏهن_وصف_ٿيل __minix
 /* Minix does not support send on TCP sockets */
-#define swrite(x, y, z) (ssize_t)write((SEND_TYPE_ARG1)(x), \
+#وصف_ڪريو swrite(x, y, z) (ssize_t)اكتب((SEND_TYPE_ARG1)(x), \
                                        (SEND_TYPE_ARG2)CURL_UNCONST(y), \
                                        (SEND_TYPE_ARG3)(z))
-#elif defined(HAVE_SEND)
-#ifdef SEND_NONCONST_ARG2
-#define swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
+#وإلاإذا defined(HAVE_SEND)
+#جيڪڏهن_وصف_ٿيل SEND_NONCONST_ARG2
+#وصف_ڪريو swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
                                       (SEND_TYPE_ARG2)CURL_UNCONST(y), \
                                       (SEND_TYPE_ARG3)(z), \
                                       (SEND_TYPE_ARG4)(SEND_4TH_ARG))
-#else
-#define swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
-                                      (const SEND_TYPE_ARG2)(y), \
+#وإلا
+#وصف_ڪريو swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
+                                      (ثابت SEND_TYPE_ARG2)(y), \
                                       (SEND_TYPE_ARG3)(z), \
                                       (SEND_TYPE_ARG4)(SEND_4TH_ARG))
-#endif /* SEND_NONCONST_ARG2 */
-#else /* HAVE_SEND */
-#ifndef swrite
-#error "Missing definition of macro swrite"
-#endif
-#endif /* HAVE_SEND */
+#جيڪڏهن_پورو /* SEND_NONCONST_ARG2 */
+#وإلا /* HAVE_SEND */
+#جيڪڏهن_وصف_نه_ٿيل swrite
+#غلطي "Missing definition of macro swrite"
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* HAVE_SEND */
 
 /*
  * Function-like macro definition used to close a socket.
  */
-#ifdef HAVE_CLOSESOCKET
+#جيڪڏهن_وصف_ٿيل HAVE_CLOSESOCKET
 #  define CURL_SCLOSE(x)  closesocket(x)
-#elif defined(HAVE_CLOSESOCKET_CAMEL)
+#وإلاإذا defined(HAVE_CLOSESOCKET_CAMEL)
 #  define CURL_SCLOSE(x)  CloseSocket(x)
-#elif defined(MSDOS)  /* Watt-32 */
+#وإلاإذا defined(MSDOS)  /* Watt-32 */
 #  define CURL_SCLOSE(x)  close_s(x)
-#elif defined(USE_LWIPSOCK)
+#وإلاإذا defined(USE_LWIPSOCK)
 #  define CURL_SCLOSE(x)  lwip_close(x)
-#else
+#وإلا
 #  define CURL_SCLOSE(x)  close(x)
-#endif
+#جيڪڏهن_پورو
 
 /*
  * Stack-independent version of fcntl() on sockets:
  */
-#ifdef USE_LWIPSOCK
+#جيڪڏهن_وصف_ٿيل USE_LWIPSOCK
 #  define sfcntl  lwip_fcntl
-#else
+#وإلا
 #  define sfcntl  fcntl
-#endif
+#جيڪڏهن_پورو
 
 /*
  * 'bool' stuff compatible with HP-UX headers.
  */
-#if defined(__hpux) && !defined(HAVE_BOOL_T)
-typedef int bool;
+#إذا defined(__hpux) && !defined(HAVE_BOOL_T)
+تعريفنوع صحيح bool;
 #  define false 0
 #  define true 1
 #  define HAVE_BOOL_T
-#endif
+#جيڪڏهن_پورو
 
 /*
  * 'bool' exists on platforms with <stdbool.h>, i.e. C99 platforms.
@@ -985,12 +985,12 @@ typedef int bool;
  * On C99 platforms 'false' and 'true' also exist. Enum uses a
  * global namespace though, so use bool_false and bool_true.
  */
-#ifndef HAVE_BOOL_T
+#جيڪڏهن_وصف_نه_ٿيل HAVE_BOOL_T
 /* This replacement type does not preserve C99 bool's normalization semantics:
    converting a non-zero value to C99 bool results in 1. This is significant
    when the value is assigned to a bit-field. Make sure to normalize manually
    in such cases. */
-typedef enum {
+تعريفنوع تعداد {
   bool_false = 0,
   bool_true = 1
 } bool;
@@ -1004,11 +1004,11 @@ typedef enum {
 #  define false bool_false
 #  define true  bool_true
 #  define HAVE_BOOL_T
-#endif
+#جيڪڏهن_پورو
 
 /* the type we use for storing a single boolean bit */
-typedef unsigned int curl_bit;
-#define BIT(x) curl_bit x:1
+تعريفنوع بنانشان صحيح curl_ٻٽو_انگ;
+#وصف_ڪريو ٻٽو_انگ(x) curl_ٻٽو_انگ x:1
 
 /*
  * Redefine TRUE and FALSE too, to catch current use. With this
@@ -1016,196 +1016,196 @@ typedef unsigned int curl_bit;
  * 'bool found = TRUE' will not. Change tested on IRIX/MIPSPro,
  * AIX 5.1/Xlc, Tru64 5.1/cc, w/make test too.
  */
-#ifndef TRUE
-#define TRUE true
-#endif
-#ifndef FALSE
-#define FALSE false
-#endif
+#جيڪڏهن_وصف_نه_ٿيل TRUE
+#وصف_ڪريو TRUE true
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_نه_ٿيل FALSE
+#وصف_ڪريو FALSE false
+#جيڪڏهن_پورو
 
-#include "curl_ctype.h"
+#ضمن "curl_ctype.h"
 
-#if defined(DEBUGBUILD) && defined(NDEBUG)
-#error "Debug-enabled builds cannot be combined with NDEBUG"
-#endif
+#إذا defined(DEBUGBUILD) && defined(NDEBUG)
+#غلطي "Debug-enabled builds cannot be combined with NDEBUG"
+#جيڪڏهن_پورو
 
 /*
  * Macro used to include code only in debug builds.
  */
-#ifdef DEBUGBUILD
-#define DEBUGF(x) x
-#else
-#define DEBUGF(x) do {} while(0)
-#endif
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
+#وصف_ڪريو DEBUGF(x) x
+#وإلا
+#وصف_ڪريو DEBUGF(x) افعل {} طالما(0)
+#جيڪڏهن_پورو
 
 /*
  * Macro used to include assertion code only in debug builds.
  */
-#undef DEBUGASSERT
-#ifdef DEBUGBUILD
-#ifdef CURL_DEBUGASSERT
+#وصف_رد DEBUGASSERT
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
+#جيڪڏهن_وصف_ٿيل CURL_DEBUGASSERT
 /* External assertion handler for custom integrations */
-#define DEBUGASSERT(x) CURL_DEBUGASSERT(x)
-#else
-#define DEBUGASSERT(x) assert(x)
-#endif
-#else
-#define DEBUGASSERT(x) do {} while(0)
-#endif
+#وصف_ڪريو DEBUGASSERT(x) CURL_DEBUGASSERT(x)
+#وإلا
+#وصف_ڪريو DEBUGASSERT(x) أكد(x)
+#جيڪڏهن_پورو
+#وإلا
+#وصف_ڪريو DEBUGASSERT(x) افعل {} طالما(0)
+#جيڪڏهن_پورو
 
 /* Macro to configure Visual Studio debug CRT to output errors to stderr and
    the debugger, replacing the interactive GUI dialog. */
-#if defined(_MSC_VER) && defined(_DEBUG) && defined(CURL_DEBUG_MSVC_CRTDBG)
-#include <crtdbg.h> /* for _CrtSetReportFile(), _CRT* macros */
-#define CURL_MSVC_CRTDBG_INIT()                                             \
-  do {                                                                      \
-    _set_error_mode(_OUT_TO_STDERR);  /* needs stdlib.h */                  \
-    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG); \
-    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);                    \
-    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);  \
-    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);                     \
-    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);   \
-    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);                      \
-  } while(0)
-#else
-#define CURL_MSVC_CRTDBG_INIT() do {} while(0)
-#endif
+#إذا defined(_MSC_VER) && defined(_DEBUG) && defined(CURL_DEBUG_MSVC_CRTDBG)
+#ضمن <crtdbg.h> /* for _CrtSetReportFile(), _CRT* macros */
+#وصف_ڪريو CURL_MSVC_CRTDBG_INIT()                                             \
+  افعل {                                                                      \
+    سيٽ_error_گهڻائي(ٻاهريون_منزل_STDERR);  /* needs stdlib.h */                  \
+    Crt_سيٽ_Report_گهڻائي(_CRT_ASSERT, CRTDBG_گهڻائي_FILE | CRTDBG_گهڻائي_DEBUG); \
+    Crt_سيٽ_Report_File(_CRT_ASSERT, _CRTDBG_FILE_STDERR);                    \
+    Crt_سيٽ_Report_گهڻائي(_CRT_ERROR, CRTDBG_گهڻائي_FILE | CRTDBG_گهڻائي_DEBUG);  \
+    Crt_سيٽ_Report_File(_CRT_ERROR, _CRTDBG_FILE_STDERR);                     \
+    Crt_سيٽ_Report_گهڻائي(_CRT_WARN, CRTDBG_گهڻائي_FILE | CRTDBG_گهڻائي_DEBUG);   \
+    Crt_سيٽ_Report_File(_CRT_WARN, _CRTDBG_FILE_STDERR);                      \
+  } طالما(0)
+#وإلا
+#وصف_ڪريو CURL_MSVC_CRTDBG_INIT() افعل {} طالما(0)
+#جيڪڏهن_پورو
 
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
-#include <tlhelp32.h>
+#إذا defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+#ضمن <tlhelp32.h>
 /* Print the list of all loaded modules with full paths. */
-#define CURL_DUMP_MODULE_PATHS(printf_f)                               \
-  do {                                                                 \
-    HANDLE hnd = INVALID_HANDLE_VALUE;                                 \
+#وصف_ڪريو CURL_DUMP_MODULE_PATHS(printf_f)                               \
+  افعل {                                                                 \
+    HANDLE hnd = INVALID_HANDLE_قدر;                                 \
     MODULEENTRY32 mod = { 0 };                                         \
                                                                        \
-    mod.dwSize = sizeof(MODULEENTRY32);                                \
+    mod.dw_سائيز = حجم(MODULEENTRY32);                                \
                                                                        \
-    do {                                                               \
+    افعل {                                                               \
       hnd = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, 0);            \
-    } while(hnd == INVALID_HANDLE_VALUE &&                             \
-            GetLastError() == ERROR_BAD_LENGTH);                       \
+    } طالما(hnd == INVALID_HANDLE_قدر &&                             \
+            Get_آخري_Error() == ERROR_BAD_ڊيگهائي);                       \
                                                                        \
-    if(hnd == INVALID_HANDLE_VALUE)                                    \
-      goto error;                                                      \
+    إذا(hnd == INVALID_HANDLE_قدر)                                    \
+      اذهب error;                                                      \
                                                                        \
-    if(!Module32First(hnd, &mod))                                      \
-      goto error;                                                      \
+    إذا(!Module32_پهريون(hnd, &mod))                                      \
+      اذهب error;                                                      \
                                                                        \
-    do {                                                               \
-      char buffer[sizeof(mod.szExePath) * 2];                          \
-      char *path; /* points to stack allocated buffer */               \
-      if(sizeof(*mod.szExePath) > 1) {  /* _UNICODE */                 \
+    افعل {                                                               \
+      حرف بفر[حجم(mod.sz_Exe_رستو) * 2];                          \
+      حرف *رستو; /* points to stack allocated buffer */               \
+      إذا(حجم(*mod.sz_Exe_رستو) > 1) {  /* _UNICODE */                 \
         /* sizeof(mod.szExePath) is the max total bytes of   */        \
         /* wchars. the max total bytes of multibyte chars is */        \
         /* not more than twice that.                         */        \
-        if(!WideCharToMultiByte(CP_ACP, 0, (WCHAR *)mod.szExePath, -1, \
-                                buffer, sizeof(buffer), NULL, NULL))   \
-          goto error;                                                  \
-        path = (char *)buffer;                                         \
+        إذا(!Wide_Char_منزل_Multi_Byte(CP_ACP, 0, (WCHAR *)mod.sz_Exe_رستو, -1, \
+                                بفر, حجم(بفر), عدم, عدم))   \
+          اذهب error;                                                  \
+        رستو = (حرف *)بفر;                                         \
       }                                                                \
-      else                                                             \
-        path = (char *)mod.szExePath;                                  \
-      (printf_f)("%s\n", path);                                        \
-    } while(Module32Next(hnd, &mod));                                  \
+      وإلا                                                             \
+        رستو = (حرف *)mod.sz_Exe_رستو;                                  \
+      (printf_f)("%s\n", رستو);                                        \
+    } طالما(Module32_ايندڙ(hnd, &mod));                                  \
                                                                        \
 error:                                                                 \
-    if(hnd != INVALID_HANDLE_VALUE)                                    \
+    إذا(hnd != INVALID_HANDLE_قدر)                                    \
       CloseHandle(hnd);                                                \
-  } while(0)
-#else
-#define CURL_DUMP_MODULE_PATHS(printf_f) do {} while(0)
-#endif
+  } طالما(0)
+#وإلا
+#وصف_ڪريو CURL_DUMP_MODULE_PATHS(printf_f) افعل {} طالما(0)
+#جيڪڏهن_پورو
 
 /*
  * Macro SOCKERRNO / SET_SOCKERRNO() returns / sets the *socket-related* errno
  * (or equivalent) on this platform to hide platform details to code using it.
  */
-#ifdef USE_WINSOCK
-#define SOCKERRNO         ((int)WSAGetLastError())
-#define SET_SOCKERRNO(x)  WSASetLastError((int)(x))
-#else
-#define SOCKERRNO         errno
-#define SET_SOCKERRNO(x)  (errno = (x))
-#endif
+#جيڪڏهن_وصف_ٿيل USE_WINSOCK
+#وصف_ڪريو SOCKERRNO         ((صحيح)WSAGet_آخري_Error())
+#وصف_ڪريو سيٽ_SOCKERRNO(x)  WSASet_آخري_Error((صحيح)(x))
+#وإلا
+#وصف_ڪريو SOCKERRNO         errno
+#وصف_ڪريو سيٽ_SOCKERRNO(x)  (errno = (x))
+#جيڪڏهن_پورو
 
 /*
  * Portable error number symbolic names defined to Winsock error codes.
  */
-#ifdef USE_WINSOCK
-#define SOCKEACCES        WSAEACCES
-#define SOCKEADDRINUSE    WSAEADDRINUSE
-#define SOCKEADDRNOTAVAIL WSAEADDRNOTAVAIL
-#define SOCKEAFNOSUPPORT  WSAEAFNOSUPPORT
-#define SOCKEBADF         WSAEBADF
-#define SOCKECONNREFUSED  WSAECONNREFUSED
-#define SOCKECONNRESET    WSAECONNRESET
-#define SOCKEINPROGRESS   WSAEINPROGRESS
-#define SOCKEINTR         WSAEINTR
-#define SOCKEINVAL        WSAEINVAL
-#define SOCKEISCONN       WSAEISCONN
-#define SOCKEMSGSIZE      WSAEMSGSIZE
+#جيڪڏهن_وصف_ٿيل USE_WINSOCK
+#وصف_ڪريو SOCKEACCES        WSAEACCES
+#وصف_ڪريو SOCKEADDRINUSE    WSAEADDRINUSE
+#وصف_ڪريو SOCKEADDRNOTAVAIL WSAEADDRNOTAVAIL
+#وصف_ڪريو SOCKEAFNOSUPPORT  WSAEAFNOSUPPORT
+#وصف_ڪريو SOCKEBADF         WSAEBADF
+#وصف_ڪريو SOCKECONNREFUSED  WSAECONNREFUSED
+#وصف_ڪريو SOCKECONNRESET    WSAECONNRESET
+#وصف_ڪريو SOCKEINPROGRESS   WSAEINPROGRESS
+#وصف_ڪريو SOCKEINTR         WSAEINTR
+#وصف_ڪريو SOCKEINVAL        WSAEINVAL
+#وصف_ڪريو SOCKEISCONN       WSAEISCONN
+#وصف_ڪريو SOCKEMSGSIZE      WSAEMSGSIZE
 /* Use literal value to work around clang-tidy <=20 misreporting
    'readability-uppercase-literal-suffix' with mingw-w64 headers */
-#define SOCKENOMEM        8L  /* WSA_NOT_ENOUGH_MEMORY */
-#define SOCKETIMEDOUT     WSAETIMEDOUT
-#define SOCKEWOULDBLOCK   WSAEWOULDBLOCK
-#else
-#define SOCKEACCES        EACCES
-#define SOCKEADDRINUSE    EADDRINUSE
-#define SOCKEADDRNOTAVAIL EADDRNOTAVAIL
-#define SOCKEAFNOSUPPORT  EAFNOSUPPORT
-#define SOCKEBADF         EBADF
-#define SOCKECONNREFUSED  ECONNREFUSED
-#define SOCKECONNRESET    ECONNRESET
-#define SOCKEINPROGRESS   EINPROGRESS
-#define SOCKEINTR         EINTR
-#define SOCKEINVAL        EINVAL
-#define SOCKEISCONN       EISCONN
-#define SOCKEMSGSIZE      EMSGSIZE
-#define SOCKENOMEM        ENOMEM
-#ifdef ETIMEDOUT
-#define SOCKETIMEDOUT     ETIMEDOUT
-#endif
-#define SOCKEWOULDBLOCK   EWOULDBLOCK
-#endif
+#وصف_ڪريو SOCKENOMEM        8L  /* WSA_NOT_ENOUGH_MEMORY */
+#وصف_ڪريو SOCKETIMEDOUT     WSAETIMEDOUT
+#وصف_ڪريو SOCKEWOULDBLOCK   WSAEWOULDBLOCK
+#وإلا
+#وصف_ڪريو SOCKEACCES        EACCES
+#وصف_ڪريو SOCKEADDRINUSE    EADDRINUSE
+#وصف_ڪريو SOCKEADDRNOTAVAIL EADDRNOTAVAIL
+#وصف_ڪريو SOCKEAFNOSUPPORT  EAFNOSUPPORT
+#وصف_ڪريو SOCKEBADF         EBADF
+#وصف_ڪريو SOCKECONNREFUSED  ECONNREFUSED
+#وصف_ڪريو SOCKECONNRESET    ECONNRESET
+#وصف_ڪريو SOCKEINPROGRESS   EINPROGRESS
+#وصف_ڪريو SOCKEINTR         EINTR
+#وصف_ڪريو SOCKEINVAL        EINVAL
+#وصف_ڪريو SOCKEISCONN       EISCONN
+#وصف_ڪريو SOCKEMSGSIZE      EMSGSIZE
+#وصف_ڪريو SOCKENOMEM        ENOMEM
+#جيڪڏهن_وصف_ٿيل ETIMEDOUT
+#وصف_ڪريو SOCKETIMEDOUT     ETIMEDOUT
+#جيڪڏهن_پورو
+#وصف_ڪريو SOCKEWOULDBLOCK   EWOULDBLOCK
+#جيڪڏهن_پورو
 
 /* The socket error may be EWOULDBLOCK or on some systems EAGAIN when
    it returned due to its inability to send/read data without blocking.
    We treat both error codes the same here. */
-#if !defined(USE_WINSOCK) && EAGAIN != SOCKEWOULDBLOCK
-#define SOCK_EAGAIN(e) ((e) == SOCKEWOULDBLOCK || (e) == EAGAIN)
-#else
-#define SOCK_EAGAIN(e) ((e) == SOCKEWOULDBLOCK)
-#endif
+#إذا !defined(USE_WINSOCK) && EAGAIN != SOCKEWOULDBLOCK
+#وصف_ڪريو SOCK_EAGAIN(e) ((e) == SOCKEWOULDBLOCK || (e) == EAGAIN)
+#وإلا
+#وصف_ڪريو SOCK_EAGAIN(e) ((e) == SOCKEWOULDBLOCK)
+#جيڪڏهن_پورو
 
 /*
  * Macro argv_item_t hides platform details to code using it.
  */
-#ifdef __VMS
-#define argv_item_t  __char_ptr32
-#elif defined(_UNICODE)
-#define argv_item_t  wchar_t *
-#else
-#define argv_item_t  char *
-#endif
+#جيڪڏهن_وصف_ٿيل __VMS
+#وصف_ڪريو argv_شي_t  __char_ptr32
+#وإلاإذا defined(_UNICODE)
+#وصف_ڪريو argv_شي_t  wchar_t *
+#وإلا
+#وصف_ڪريو argv_شي_t  حرف *
+#جيڪڏهن_پورو
 
 /*
  * We use this ZERO_NULL to avoid picky compiler warnings,
  * when assigning a NULL pointer to a function pointer var.
  */
-#define ZERO_NULL 0
+#وصف_ڪريو ZERO_NULL 0
 
 /*
  * Macros and functions to safely suppress warnings
  */
-#include "curlx/warnless.h"
+#ضمن "curlx/warnless.h"
 
-#ifdef _WIN32
-#  undef read
-#  define read(fd, buf, count)  (ssize_t)_read(fd, buf, curlx_uztoui(count))
-#  undef write
-#  define write(fd, buf, count) (ssize_t)_write(fd, buf, curlx_uztoui(count))
+#جيڪڏهن_وصف_ٿيل _WIN32
+#  undef اقرأ
+#  define اقرأ(fd, buf, ڳڻپ)  (ssize_t)_read(fd, buf, curlx_uztoui(ڳڻپ))
+#  undef اكتب
+#  define اكتب(fd, buf, ڳڻپ) (ssize_t)_write(fd, buf, curlx_uztoui(ڳڻپ))
 /* Avoid VS2005+ _CRT_NONSTDC_NO_DEPRECATE warnings about non-portable funcs */
 #  undef fileno
 #  define fileno(fh) _fileno(fh)
@@ -1213,395 +1213,395 @@ error:                                                                 \
 #  define unlink(fn) _unlink(fn)
 #  undef isatty
 #  define isatty(fd) _isatty(fd)
-#endif
+#جيڪڏهن_پورو
 
 /*
  * Definition of our NOP statement Object-like macro
  */
-#ifndef Curl_nop_stmt
-#define Curl_nop_stmt do {} while(0)
-#endif
+#جيڪڏهن_وصف_نه_ٿيل Curl_nop_stmt
+#وصف_ڪريو Curl_nop_stmt افعل {} طالما(0)
+#جيڪڏهن_پورو
 
 /*
  * Ensure that Winsock and lwIP TCP/IP stacks are not mixed.
  */
-#if defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H)
-#  if defined(SOCKET) || defined(USE_WINSOCK)
+#إذا defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H)
+#  إذا defined(SOCKET) || defined(USE_WINSOCK)
 #    error "Winsock and lwIP TCP/IP stack definitions shall not coexist"
 #  endif
-#endif
+#جيڪڏهن_پورو
 
 /*
  * shutdown() flags for systems that do not define them
  */
-#ifndef SHUT_RD
-#define SHUT_RD 0x00
-#endif
+#جيڪڏهن_وصف_نه_ٿيل SHUT_RD
+#وصف_ڪريو SHUT_RD 0x00
+#جيڪڏهن_پورو
 
-#ifndef SHUT_WR
-#define SHUT_WR 0x01
-#endif
+#جيڪڏهن_وصف_نه_ٿيل SHUT_WR
+#وصف_ڪريو SHUT_WR 0x01
+#جيڪڏهن_پورو
 
-#ifndef SHUT_RDWR
-#define SHUT_RDWR 0x02
-#endif
+#جيڪڏهن_وصف_نه_ٿيل SHUT_RDWR
+#وصف_ڪريو SHUT_RDWR 0x02
+#جيڪڏهن_پورو
 
 /* Define S_ISREG if not defined by system headers, e.g. MSVC */
-#if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
-#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
-#endif
+#إذا !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
+#وصف_ڪريو S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#جيڪڏهن_پورو
 
 /* Define S_ISDIR if not defined by system headers, e.g. MSVC */
-#if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
-#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
-#endif
+#إذا !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
+#وصف_ڪريو S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#جيڪڏهن_پورو
 
 /* For MSVC (all versions as of VS2022) */
-#ifndef STDIN_FILENO
-#define STDIN_FILENO  fileno(stdin)
-#endif
-#ifndef STDOUT_FILENO
-#define STDOUT_FILENO  fileno(stdout)
-#endif
-#ifndef STDERR_FILENO
-#define STDERR_FILENO  fileno(stderr)
-#endif
+#جيڪڏهن_وصف_نه_ٿيل STDIN_FILENO
+#وصف_ڪريو STDIN_FILENO  fileno(stdin)
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_نه_ٿيل STDOUT_FILENO
+#وصف_ڪريو STDOUT_FILENO  fileno(stdout)
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_نه_ٿيل STDERR_FILENO
+#وصف_ڪريو STDERR_FILENO  fileno(stderr)
+#جيڪڏهن_پورو
 
 /* Since O_BINARY is used in bitmasks, setting it to zero makes it usable in
    source code but yet it does not ruin anything */
-#ifdef _O_BINARY  /* for _WIN32 || MSDOS */
-#define CURL_O_BINARY _O_BINARY
-#elif defined(O_BINARY)  /* __CYGWIN__ */
-#define CURL_O_BINARY O_BINARY
-#else
-#define CURL_O_BINARY 0
-#endif
+#جيڪڏهن_وصف_ٿيل O_ٻٽو  /* for _WIN32 || MSDOS */
+#وصف_ڪريو CURL_O_ٻٽو O_ٻٽو
+#وإلاإذا defined(O_ٻٽو_2)  /* __CYGWIN__ */
+#وصف_ڪريو CURL_O_ٻٽو O_ٻٽو_2
+#وإلا
+#وصف_ڪريو CURL_O_ٻٽو 0
+#جيڪڏهن_پورو
 
 /* Requires io.h when available */
-#ifdef MSDOS
-#define CURL_BINMODE(stream) (void)setmode(fileno(stream), CURL_O_BINARY)
-#elif defined(_WIN32) || defined(__CYGWIN__)
-#define CURL_BINMODE(stream) (void)_setmode(fileno(stream), CURL_O_BINARY)
-#else
-#define CURL_BINMODE(stream) (void)(stream)
-#endif
+#جيڪڏهن_وصف_ٿيل MSDOS
+#وصف_ڪريو CURL_BINMODE(وهڪرو) (فراغ)setmode(fileno(وهڪرو), CURL_O_ٻٽو)
+#وإلاإذا defined(_WIN32) || defined(__CYGWIN__)
+#وصف_ڪريو CURL_BINMODE(وهڪرو) (فراغ)_setmode(fileno(وهڪرو), CURL_O_ٻٽو)
+#وإلا
+#وصف_ڪريو CURL_BINMODE(وهڪرو) (فراغ)(وهڪرو)
+#جيڪڏهن_پورو
 
 /* In Windows the default file mode is text but an application can override it.
    Therefore we specify it explicitly. https://github.com/curl/curl/pull/258 */
-#if defined(_WIN32) || defined(MSDOS)
-#define FOPEN_READTEXT   "rt"
-#define FOPEN_WRITETEXT  "wt"
-#define FOPEN_APPENDTEXT "at"
-#elif defined(__CYGWIN__)
+#إذا defined(_WIN32) || defined(MSDOS)
+#وصف_ڪريو FOPEN_READTEXT   "rt"
+#وصف_ڪريو FOPEN_WRITETEXT  "wt"
+#وصف_ڪريو FOPEN_APPENDTEXT "at"
+#وإلاإذا defined(__CYGWIN__)
 /* Cygwin has specific behavior we need to address when _WIN32 is not defined.
    https://cygwin.com/cygwin-ug-net/using-textbinary.html
    For write we want our output to have line endings of LF and be compatible
    with other Cygwin utilities. For read we want to handle input that may have
    line endings either CRLF or LF so 't' is appropriate. */
-#define FOPEN_READTEXT   "rt"
-#define FOPEN_WRITETEXT  "w"
-#define FOPEN_APPENDTEXT "a"
-#else
-#define FOPEN_READTEXT   "r"
-#define FOPEN_WRITETEXT  "w"
-#define FOPEN_APPENDTEXT "a"
-#endif
+#وصف_ڪريو FOPEN_READTEXT   "rt"
+#وصف_ڪريو FOPEN_WRITETEXT  "w"
+#وصف_ڪريو FOPEN_APPENDTEXT "a"
+#وإلا
+#وصف_ڪريو FOPEN_READTEXT   "r"
+#وصف_ڪريو FOPEN_WRITETEXT  "w"
+#وصف_ڪريو FOPEN_APPENDTEXT "a"
+#جيڪڏهن_پورو
 
 /* for systems that do not detect this in configure */
-#ifndef CURL_SA_FAMILY_T
+#جيڪڏهن_وصف_نه_ٿيل CURL_SA_FAMILY_T
 #  ifdef USE_WINSOCK
-#    define CURL_SA_FAMILY_T ADDRESS_FAMILY
+#    define CURL_SA_FAMILY_T پتو_FAMILY
 #  elif defined(HAVE_SA_FAMILY_T)
 #    define CURL_SA_FAMILY_T sa_family_t
 #  elif defined(__AMIGA__)
-#    define CURL_SA_FAMILY_T unsigned char
-#  else
+#    define CURL_SA_FAMILY_T بنانشان حرف
+#  وإلا
 /* use a sensible default */
-#    define CURL_SA_FAMILY_T unsigned short
+#    define CURL_SA_FAMILY_T بنانشان ننڍو
 #  endif
-#endif
+#جيڪڏهن_پورو
 
 /* Some convenience macros to get the larger/smaller value out of two given.
    We prefix with CURL to prevent name collisions. */
-#define CURLMAX(x, y) ((x) > (y) ? (x) : (y))
-#define CURLMIN(x, y) ((x) < (y) ? (x) : (y))
+#وصف_ڪريو CURLMAX(x, y) ((x) > (y) ? (x) : (y))
+#وصف_ڪريو CURLMIN(x, y) ((x) < (y) ? (x) : (y))
 
 /* Convenience macro to provide the length of a string literal size without
    the null-terminator. Equivalent to strlen() for constant strings. */
-#define CURL_CSTRLEN(x) (sizeof(x) - 1)
+#وصف_ڪريو CURL_CSTRLEN(x) (حجم(x) - 1)
 
 /* A convenience macro to provide both the string literal and the length of
    the string literal in one go, useful for functions that take "string,len"
    as their argument */
-#define STRCONST(x) x, CURL_CSTRLEN(x)
+#وصف_ڪريو STRCONST(x) x, CURL_CSTRLEN(x)
 
-#define CURL_ARRAYSIZE(A) (sizeof(A) / sizeof((A)[0]))
+#وصف_ڪريو CURL_ARRAYSIZE(A) (حجم(A) / حجم((A)[0]))
 
 /* Buffer size for error messages retrieved via
    curlx_strerror() and Curl_sspi_strerror() */
-#define STRERROR_LEN 256
+#وصف_ڪريو STRERROR_LEN 256
 
-#ifndef CURL_DID_MEMORY_FUNC_TYPEDEFS /* only if not already done */
+#جيڪڏهن_وصف_نه_ٿيل CURL_DID_يادگيري_FUNC_TYPEDEFS /* only if not already done */
 /*
  * The following memory function replacement typedef's are COPIED from
  * curl/curl.h and MUST match the originals. We copy them to avoid having to
  * include curl/curl.h here. We avoid that include since it includes stdio.h
  * and other headers that may get messed up with defines done here.
  */
-typedef void *(*curl_malloc_callback)(size_t size);
-typedef void (*curl_free_callback)(void *ptr);
-typedef void *(*curl_realloc_callback)(void *ptr, size_t size);
-typedef char *(*curl_strdup_callback)(const char *str);
-typedef void *(*curl_calloc_callback)(size_t nmemb, size_t size);
-#define CURL_DID_MEMORY_FUNC_TYPEDEFS
-#endif
+تعريفنوع فراغ *(*curl_malloc_callback)(size_t سائيز);
+تعريفنوع فراغ (*curl_free_callback)(فراغ *ptr);
+تعريفنوع فراغ *(*curl_realloc_callback)(فراغ *ptr, size_t سائيز);
+تعريفنوع حرف *(*curl_strdup_callback)(ثابت حرف *str);
+تعريفنوع فراغ *(*curl_calloc_callback)(size_t nmemb, size_t سائيز);
+#وصف_ڪريو CURL_DID_يادگيري_FUNC_TYPEDEFS
+#جيڪڏهن_پورو
 
-extern curl_malloc_callback Curl_cmalloc;
-extern curl_free_callback Curl_cfree;
-extern curl_realloc_callback Curl_crealloc;
-extern curl_strdup_callback Curl_cstrdup;
-extern curl_calloc_callback Curl_ccalloc;
+خارجي curl_malloc_callback Curl_cmalloc;
+خارجي curl_free_callback Curl_cfree;
+خارجي curl_realloc_callback Curl_crealloc;
+خارجي curl_strdup_callback Curl_cstrdup;
+خارجي curl_calloc_callback Curl_ccalloc;
 
 /*
  * curlx_safefree() defined as a macro to allow MemoryTracking feature
  * to log free() calls at same location where curlx_safefree() is used.
  * This macro also assigns NULL to given pointer when free'd.
  */
-#define curlx_safefree(ptr) \
-  do {                      \
+#وصف_ڪريو curlx_safefree(ptr) \
+  افعل {                      \
     curlx_free(ptr);        \
-    (ptr) = NULL;           \
-  } while(0)
+    (ptr) = عدم;           \
+  } طالما(0)
 
-#include <curl/curl.h> /* for CURL_EXTERN, curl_socket_t, mprintf.h */
+#ضمن <curl/curl.h> /* for CURL_EXTERN, curl_socket_t, mprintf.h */
 
-#ifdef DEBUGBUILD
-#define CURL_MEMDEBUG
-#endif
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
+#وصف_ڪريو CURL_MEMDEBUG
+#جيڪڏهن_پورو
 
-#ifdef CURL_MEMDEBUG
-#ifdef __clang__
+#جيڪڏهن_وصف_ٿيل CURL_MEMDEBUG
+#جيڪڏهن_وصف_ٿيل __clang__
 #  define ALLOC_FUNC         __attribute__((__malloc__))
-#  if __clang_major__ >= 4
-#  define ALLOC_SIZE(s)      __attribute__((__alloc_size__(s)))
+#  إذا __clang_major__ >= 4
+#  define ALLOC_سائيز(s)      __attribute__((__alloc_size__(s)))
 #  define ALLOC_SIZE2(n, s)  __attribute__((__alloc_size__(n, s)))
-#  else
-#  define ALLOC_SIZE(s)
+#  وإلا
+#  define ALLOC_سائيز(s)
 #  define ALLOC_SIZE2(n, s)
 #  endif
-#elif defined(__GNUC__) && __GNUC__ >= 3
+#وإلاإذا defined(__GNUC__) && __GNUC__ >= 3
 #  define ALLOC_FUNC         __attribute__((__malloc__))
-#  define ALLOC_SIZE(s)      __attribute__((__alloc_size__(s)))
+#  define ALLOC_سائيز(s)      __attribute__((__alloc_size__(s)))
 #  define ALLOC_SIZE2(n, s)  __attribute__((__alloc_size__(n, s)))
-#elif defined(_MSC_VER)
-#  define ALLOC_FUNC         __declspec(restrict)
-#  define ALLOC_SIZE(s)
+#وإلاإذا defined(_MSC_VER)
+#  define ALLOC_FUNC         __declspec(محدود)
+#  define ALLOC_سائيز(s)
 #  define ALLOC_SIZE2(n, s)
-#else
+#وإلا
 #  define ALLOC_FUNC
-#  define ALLOC_SIZE(s)
+#  define ALLOC_سائيز(s)
 #  define ALLOC_SIZE2(n, s)
-#endif
+#جيڪڏهن_پورو
 
-extern FILE *curl_dbg_logfile;
+خارجي FILE *curl_dbg_logfile;
 
 /* memory functions */
-CURL_EXTERN void curl_dbg_free(void *ptr, int line, const char *source);
-CURL_EXTERN ALLOC_FUNC ALLOC_SIZE(1)
-  void *curl_dbg_malloc(size_t wantedsize, int line, const char *source);
+CURL_EXTERN فراغ curl_dbg_free(فراغ *ptr, صحيح سٽ, ثابت حرف *ذريعو);
+CURL_EXTERN ALLOC_FUNC ALLOC_سائيز(1)
+  فراغ *curl_dbg_malloc(size_t wantedsize, صحيح سٽ, ثابت حرف *ذريعو);
 CURL_EXTERN ALLOC_FUNC ALLOC_SIZE2(1, 2)
-  void *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
-                        int line, const char *source);
-CURL_EXTERN ALLOC_SIZE(2)
-  void *curl_dbg_realloc(void *ptr, size_t wantedsize, int line,
-                         const char *source);
+  فراغ *curl_dbg_calloc(size_t wanted_elements, size_t wanted_سائيز,
+                        صحيح سٽ, ثابت حرف *ذريعو);
+CURL_EXTERN ALLOC_سائيز(2)
+  فراغ *curl_dbg_realloc(فراغ *ptr, size_t wantedsize, صحيح سٽ,
+                         ثابت حرف *ذريعو);
 CURL_EXTERN ALLOC_FUNC
-  char *curl_dbg_strdup(const char *str, int line, const char *source);
-#if defined(_WIN32) && defined(UNICODE)
+  حرف *curl_dbg_strdup(ثابت حرف *str, صحيح سٽ, ثابت حرف *ذريعو);
+#إذا defined(_WIN32) && defined(UNICODE)
 CURL_EXTERN ALLOC_FUNC
-  wchar_t *curl_dbg_wcsdup(const wchar_t *str, int line, const char *source);
-#endif
+  wchar_t *curl_dbg_wcsdup(ثابت wchar_t *str, صحيح سٽ, ثابت حرف *ذريعو);
+#جيڪڏهن_پورو
 
-CURL_EXTERN void curl_dbg_memdebug(const char *logname);
-CURL_EXTERN void curl_dbg_memlimit(long limit);
-CURL_EXTERN void curl_dbg_log(const char *format, ...) CURL_PRINTF(1, 2);
+CURL_EXTERN فراغ curl_dbg_memdebug(ثابت حرف *logname);
+CURL_EXTERN فراغ curl_dbg_memlimit(ڊگهو حد_بندي);
+CURL_EXTERN فراغ curl_dbg_log(ثابت حرف *format, ...) CURL_PRINTF(1, 2);
 
 /* file descriptor manipulators */
-CURL_EXTERN curl_socket_t curl_dbg_socket(int domain, int type, int protocol,
-                                          int line, const char *source);
-CURL_EXTERN void curl_dbg_mark_sclose(curl_socket_t sockfd,
-                                      int line, const char *source);
-CURL_EXTERN int curl_dbg_sclose(curl_socket_t sockfd,
-                                int line, const char *source);
+CURL_EXTERN curl_socket_t curl_dbg_socket(صحيح domain, صحيح type, صحيح protocol,
+                                          صحيح سٽ, ثابت حرف *ذريعو);
+CURL_EXTERN فراغ curl_dbg_mark_sclose(curl_socket_t sockfd,
+                                      صحيح سٽ, ثابت حرف *ذريعو);
+CURL_EXTERN صحيح curl_dbg_sclose(curl_socket_t sockfd,
+                                صحيح سٽ, ثابت حرف *ذريعو);
 CURL_EXTERN curl_socket_t curl_dbg_accept(curl_socket_t s,
-                                          void *saddr, void *saddrlen,
-                                          int line, const char *source);
-#ifdef HAVE_ACCEPT4
-CURL_EXTERN curl_socket_t curl_dbg_accept4(curl_socket_t s, void *saddr,
-                                           void *saddrlen, int flags,
-                                           int line, const char *source);
-#endif
-#ifdef HAVE_SOCKETPAIR
-CURL_EXTERN int curl_dbg_socketpair(int domain, int type, int protocol,
-                                    curl_socket_t socket_vector[2],
-                                    int line, const char *source);
-#endif
+                                          فراغ *saddr, فراغ *saddrlen,
+                                          صحيح سٽ, ثابت حرف *ذريعو);
+#جيڪڏهن_وصف_ٿيل HAVE_ACCEPT4
+CURL_EXTERN curl_socket_t curl_dbg_accept4(curl_socket_t s, فراغ *saddr,
+                                           فراغ *saddrlen, صحيح flags,
+                                           صحيح سٽ, ثابت حرف *ذريعو);
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_SOCKETPAIR
+CURL_EXTERN صحيح curl_dbg_socketpair(صحيح domain, صحيح type, صحيح protocol,
+                                    curl_socket_t socket_ويڪٽر[2],
+                                    صحيح سٽ, ثابت حرف *ذريعو);
+#جيڪڏهن_پورو
 
 /* FILE functions */
-CURL_EXTERN int curl_dbg_fclose(FILE *file, int line, const char *source);
-CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fopen(const char *file, const char *mode,
-                                            int line, const char *source);
-CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_freopen(const char *file,
-                                              const char *mode, FILE *fh,
-                                              int line, const char *source);
-CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
-                                             int line, const char *source);
+CURL_EXTERN صحيح curl_dbg_fclose(FILE *file, صحيح سٽ, ثابت حرف *ذريعو);
+CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fopen(ثابت حرف *file, ثابت حرف *گهڻائي,
+                                            صحيح سٽ, ثابت حرف *ذريعو);
+CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_freopen(ثابت حرف *file,
+                                              ثابت حرف *گهڻائي, FILE *fh,
+                                              صحيح سٽ, ثابت حرف *ذريعو);
+CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(صحيح filedes, ثابت حرف *گهڻائي,
+                                             صحيح سٽ, ثابت حرف *ذريعو);
 
-#define sclose(sockfd) curl_dbg_sclose(sockfd, __LINE__, __FILE__)
-#define fake_sclose(sockfd) curl_dbg_mark_sclose(sockfd, __LINE__, __FILE__)
+#وصف_ڪريو sclose(sockfd) curl_dbg_sclose(sockfd, __LINE__, __FILE__)
+#وصف_ڪريو fake_sclose(sockfd) curl_dbg_mark_sclose(sockfd, __LINE__, __FILE__)
 
-#define CURL_GETADDRINFO(host, serv, hint, res) \
+#وصف_ڪريو CURL_GETADDRINFO(host, serv, hint, res) \
   curl_dbg_getaddrinfo(host, serv, hint, res, __LINE__, __FILE__)
-#define CURL_FREEADDRINFO(data) \
-  curl_dbg_freeaddrinfo(data, __LINE__, __FILE__)
-#define CURL_SOCKET(domain, type, protocol) \
-  curl_dbg_socket((int)(domain), type, protocol, __LINE__, __FILE__)
-#ifdef HAVE_SOCKETPAIR
-#define CURL_SOCKETPAIR(domain, type, protocol, socket_vector) \
-  curl_dbg_socketpair((int)(domain), type, protocol, socket_vector, \
+#وصف_ڪريو CURL_FREEADDRINFO(معلومات) \
+  curl_dbg_freeaddrinfo(معلومات, __LINE__, __FILE__)
+#وصف_ڪريو CURL_SOCKET(domain, type, protocol) \
+  curl_dbg_socket((صحيح)(domain), type, protocol, __LINE__, __FILE__)
+#جيڪڏهن_وصف_ٿيل HAVE_SOCKETPAIR
+#وصف_ڪريو CURL_SOCKETPAIR(domain, type, protocol, socket_ويڪٽر) \
+  curl_dbg_socketpair((صحيح)(domain), type, protocol, socket_ويڪٽر, \
                       __LINE__, __FILE__)
-#endif
-#define CURL_ACCEPT(sock, addr, len) \
+#جيڪڏهن_پورو
+#وصف_ڪريو CURL_ACCEPT(sock, addr, len) \
   curl_dbg_accept(sock, addr, len, __LINE__, __FILE__)
-#ifdef HAVE_ACCEPT4
-#define CURL_ACCEPT4(sock, addr, len, flags) \
+#جيڪڏهن_وصف_ٿيل HAVE_ACCEPT4
+#وصف_ڪريو CURL_ACCEPT4(sock, addr, len, flags) \
   curl_dbg_accept4(sock, addr, len, flags, __LINE__, __FILE__)
-#endif
+#جيڪڏهن_پورو
 
-#else /* !CURL_MEMDEBUG */
+#وإلا /* !CURL_MEMDEBUG */
 
-#define sclose(x) CURL_SCLOSE(x)
-#define fake_sclose(x) Curl_nop_stmt
+#وصف_ڪريو sclose(x) CURL_SCLOSE(x)
+#وصف_ڪريو fake_sclose(x) Curl_nop_stmt
 
-#define CURL_GETADDRINFO getaddrinfo
-#define CURL_FREEADDRINFO freeaddrinfo
-#define CURL_SOCKET socket
-#ifdef HAVE_SOCKETPAIR
-#define CURL_SOCKETPAIR socketpair
-#endif
-#define CURL_ACCEPT accept
-#ifdef HAVE_ACCEPT4
-#define CURL_ACCEPT4 accept4
-#endif
+#وصف_ڪريو CURL_GETADDRINFO getaddrinfo
+#وصف_ڪريو CURL_FREEADDRINFO freeaddrinfo
+#وصف_ڪريو CURL_SOCKET socket
+#جيڪڏهن_وصف_ٿيل HAVE_SOCKETPAIR
+#وصف_ڪريو CURL_SOCKETPAIR socketpair
+#جيڪڏهن_پورو
+#وصف_ڪريو CURL_ACCEPT accept
+#جيڪڏهن_وصف_ٿيل HAVE_ACCEPT4
+#وصف_ڪريو CURL_ACCEPT4 accept4
+#جيڪڏهن_پورو
 
-#endif /* CURL_MEMDEBUG */
+#جيڪڏهن_پورو /* CURL_MEMDEBUG */
 
 /* Allocator macros */
 
-#ifdef _WIN32
-#define CURLX_STRDUP_LOW _strdup
-#else
-#define CURLX_STRDUP_LOW strdup
-#endif
+#جيڪڏهن_وصف_ٿيل _WIN32
+#وصف_ڪريو CURLX_STRDUP_هيٺيون _strdup
+#وإلا
+#وصف_ڪريو CURLX_STRDUP_هيٺيون strdup
+#جيڪڏهن_پورو
 
-#ifdef CURL_MEMDEBUG
+#جيڪڏهن_وصف_ٿيل CURL_MEMDEBUG
 
-#define curlx_strdup(ptr)          curl_dbg_strdup(ptr, __LINE__, __FILE__)
-#define curlx_malloc(size)         curl_dbg_malloc(size, __LINE__, __FILE__)
-#define curlx_calloc(nbelem, size) \
-  curl_dbg_calloc(nbelem, size, __LINE__, __FILE__)
-#define curlx_realloc(ptr, size) \
-  curl_dbg_realloc(ptr, size, __LINE__, __FILE__)
-#define curlx_free(ptr)            curl_dbg_free(ptr, __LINE__, __FILE__)
+#وصف_ڪريو curlx_strdup(ptr)          curl_dbg_strdup(ptr, __LINE__, __FILE__)
+#وصف_ڪريو curlx_malloc(سائيز)         curl_dbg_malloc(سائيز, __LINE__, __FILE__)
+#وصف_ڪريو curlx_calloc(nbelem, سائيز) \
+  curl_dbg_calloc(nbelem, سائيز, __LINE__, __FILE__)
+#وصف_ڪريو curlx_realloc(ptr, سائيز) \
+  curl_dbg_realloc(ptr, سائيز, __LINE__, __FILE__)
+#وصف_ڪريو curlx_free(ptr)            curl_dbg_free(ptr, __LINE__, __FILE__)
 
-#ifdef _WIN32
-#ifdef UNICODE
-#define curlx_tcsdup(ptr)          curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
-#else
-#define curlx_tcsdup               curlx_strdup
-#endif
-#endif /* _WIN32 */
+#جيڪڏهن_وصف_ٿيل _WIN32
+#جيڪڏهن_وصف_ٿيل UNICODE
+#وصف_ڪريو curlx_tcsdup(ptr)          curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
+#وإلا
+#وصف_ڪريو curlx_tcsdup               curlx_strdup
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* _WIN32 */
 
-#else /* !CURL_MEMDEBUG */
+#وإلا /* !CURL_MEMDEBUG */
 
-#ifdef BUILDING_LIBCURL
-#define curlx_strdup               Curl_cstrdup
-#define curlx_malloc               Curl_cmalloc
-#define curlx_calloc               Curl_ccalloc
-#define curlx_realloc              Curl_crealloc
-#define curlx_free                 Curl_cfree
-#else /* !BUILDING_LIBCURL */
-#define curlx_strdup               CURLX_STRDUP_LOW
-#define curlx_malloc               malloc
-#define curlx_calloc               calloc
-#define curlx_realloc              realloc
-#define curlx_free                 free
-#endif /* BUILDING_LIBCURL */
+#جيڪڏهن_وصف_ٿيل BUILDING_LIBCURL
+#وصف_ڪريو curlx_strdup               Curl_cstrdup
+#وصف_ڪريو curlx_malloc               Curl_cmalloc
+#وصف_ڪريو curlx_calloc               Curl_ccalloc
+#وصف_ڪريو curlx_realloc              Curl_crealloc
+#وصف_ڪريو curlx_free                 Curl_cfree
+#وإلا /* !BUILDING_LIBCURL */
+#وصف_ڪريو curlx_strdup               CURLX_STRDUP_هيٺيون
+#وصف_ڪريو curlx_malloc               يادگيري_ڏيو
+#وصف_ڪريو curlx_calloc               صفر_يادگيري_ڏيو
+#وصف_ڪريو curlx_realloc              realloc
+#وصف_ڪريو curlx_free                 حرر
+#جيڪڏهن_پورو /* BUILDING_LIBCURL */
 
-#ifdef _WIN32
-#ifdef UNICODE
-#define curlx_tcsdup               curlx_wcsdup
-#else
-#define curlx_tcsdup               curlx_strdup
-#endif
-#endif /* _WIN32 */
+#جيڪڏهن_وصف_ٿيل _WIN32
+#جيڪڏهن_وصف_ٿيل UNICODE
+#وصف_ڪريو curlx_tcsdup               curlx_wcsdup
+#وإلا
+#وصف_ڪريو curlx_tcsdup               curlx_strdup
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* _WIN32 */
 
-#endif /* CURL_MEMDEBUG */
+#جيڪڏهن_پورو /* CURL_MEMDEBUG */
 
 /* Some versions of the Android NDK is missing the declaration */
-#if defined(HAVE_GETPWUID_R) && \
+#إذا defined(HAVE_GETPWUID_R) && \
   defined(__ANDROID_API__) && (__ANDROID_API__ < 21)
-struct passwd;
-int getpwuid_r(uid_t uid, struct passwd *pwd, char *buf,
-               size_t buflen, struct passwd **result);
-#endif
+بنية passwd;
+صحيح getpwuid_r(uid_t uid, بنية passwd *pwd, حرف *buf,
+               size_t buflen, بنية passwd **نتيجو);
+#جيڪڏهن_پورو
 
-#ifdef UNITTESTS
-#define UNITTEST
-#else
-#define UNITTEST static
-#endif
+#جيڪڏهن_وصف_ٿيل UNITTESTS
+#وصف_ڪريو UNITTEST
+#وإلا
+#وصف_ڪريو UNITTEST ساكن
+#جيڪڏهن_پورو
 
-#ifdef USE_NGHTTP2
-#define USE_HTTP2
-#endif
+#جيڪڏهن_وصف_ٿيل USE_NGHTTP2
+#وصف_ڪريو USE_HTTP2
+#جيڪڏهن_پورو
 
-#if (defined(USE_NGTCP2) && defined(USE_NGHTTP3)) || defined(USE_QUICHE)
+#إذا (defined(USE_NGTCP2) && defined(USE_NGHTTP3)) || defined(USE_QUICHE)
 
-#ifdef CURL_WITH_MULTI_SSL
-#error "MultiSSL combined with QUIC is not supported"
-#endif
+#جيڪڏهن_وصف_ٿيل CURL_WITH_MULTI_SSL
+#غلطي "MultiSSL combined with QUIC is not supported"
+#جيڪڏهن_پورو
 
-#define USE_HTTP3
-#endif
+#وصف_ڪريو USE_HTTP3
+#جيڪڏهن_پورو
 
 /* WebAssembly builds have TCP_NODELAY, but runtime support is missing. */
-#ifndef __EMSCRIPTEN__
-#define CURL_TCP_NODELAY_SUPPORTED
-#endif
+#جيڪڏهن_وصف_نه_ٿيل __EMSCRIPTEN__
+#وصف_ڪريو CURL_TCP_NODELAY_SUPPORTED
+#جيڪڏهن_پورو
 
 /* Certain Windows implementations are not aligned with what curl expects,
    so always use the local one on this platform. E.g. the mingw-w64
    implementation can return wrong results for non-ASCII inputs. */
-#if defined(HAVE_BASENAME) && defined(_WIN32)
-#undef HAVE_BASENAME
-#endif
+#إذا defined(HAVE_BASENAME) && defined(_WIN32)
+#وصف_رد HAVE_BASENAME
+#جيڪڏهن_پورو
 
-#if defined(USE_UNIX_SOCKETS) && defined(_WIN32)
+#إذا defined(USE_UNIX_SOCKETS) && defined(_WIN32)
 /* Offered by mingw-w64 v10+, MS SDK 10.0.16299.0/VS2017 15.4+ */
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR >= 10)
+#إذا defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR >= 10)
 #  include <afunix.h>
-#elif !defined(UNIX_PATH_MAX) /* Replicate logic present in afunix.h */
-#  define UNIX_PATH_MAX 108
+#وإلاإذا !defined(UNIX_رستو_MAX) /* Replicate logic present in afunix.h */
+#  define UNIX_رستو_MAX 108
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct sockaddr_un {
+تعريفنوع بنية sockaddr_un {
   CURL_SA_FAMILY_T sun_family;
-  char sun_path[UNIX_PATH_MAX];
+  حرف sun_رستو[UNIX_رستو_MAX];
 } SOCKADDR_UN, *PSOCKADDR_UN;
-#endif
-#endif
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو
 
-#ifdef USE_OPENSSL
+#جيڪڏهن_وصف_ٿيل USE_OPENSSL
 /* OpenSSL 3 marks these functions deprecated but we have no replacements (yet)
    so tell the compiler to not warn for them:
    - DES_* (for NTLM)
@@ -1610,93 +1610,93 @@ typedef struct sockaddr_un {
 #  define OPENSSL_SUPPRESS_DEPRECATED
 #  ifdef _WIN32
 /* Silence LibreSSL warnings about wincrypt.h collision. Works in 3.8.2+ */
-#    ifndef LIBRESSL_DISABLE_OVERRIDE_WINCRYPT_DEFINES_WARNING
-#    define LIBRESSL_DISABLE_OVERRIDE_WINCRYPT_DEFINES_WARNING
+#    ifndef LIBRESSL_DISABLE_OVERRIDE_WINCRYPT_مقرر_ڪري_WARNING
+#    define LIBRESSL_DISABLE_OVERRIDE_WINCRYPT_مقرر_ڪري_WARNING
 #    endif
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#ifdef CURL_INLINE
+#جيڪڏهن_وصف_ٿيل CURL_INLINE
 /* 'CURL_INLINE' defined, use as-is */
-#elif defined(inline)
-#  define CURL_INLINE inline /* 'inline' defined, assumed correct */
-#elif defined(__cplusplus)
+#وإلاإذا defined(مضمن)
+#  define CURL_INLINE مضمن /* 'inline' defined, assumed correct */
+#وإلاإذا defined(__cplusplus)
 /* The code is compiled with C++ compiler.
    C++ always supports 'inline'. */
-#  define CURL_INLINE inline /* 'inline' keyword supported */
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#  define CURL_INLINE مضمن /* 'inline' keyword supported */
+#وإلاإذا defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 /* C99 (and later) supports 'inline' keyword */
-#  define CURL_INLINE inline /* 'inline' keyword supported */
-#elif defined(__GNUC__) && __GNUC__ >= 3
+#  define CURL_INLINE مضمن /* 'inline' keyword supported */
+#وإلاإذا defined(__GNUC__) && __GNUC__ >= 3
 /* GCC supports '__inline__' as an extension */
 #  define CURL_INLINE __inline__
-#elif defined(_MSC_VER)
+#وإلاإذا defined(_MSC_VER)
 #  define CURL_INLINE __inline
-#else
+#وإلا
 /* Probably 'inline' is not supported by compiler.
    Define to the empty string to be on the safe side. */
-#  define CURL_INLINE /* empty */
-#endif
+#  define CURL_INLINE /*خالي_جايون*/
+#جيڪڏهن_پورو
 
 /* Detect if compiler supports C99 variadic macros */
-#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || \
+#إذا (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || \
   defined(_MSC_VER)
-#define CURL_HAVE_MACRO_VARARG
-#endif
+#وصف_ڪريو CURL_HAVE_MACRO_VARARG
+#جيڪڏهن_پورو
 
-#if !defined(CURL_HAVE_MACRO_VARARG) || \
-  (defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_STRINGS))
-#define CURLVERBOSE
-#define VERBOSE(x) x
-#define NOVERBOSE(x) Curl_nop_stmt
-#else
-#define VERBOSE(x) Curl_nop_stmt
-#define NOVERBOSE(x) x
-#endif
+#إذا !defined(CURL_HAVE_MACRO_VARARG) || \
+  (defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_لڙيون))
+#وصف_ڪريو CURLVERBOSE
+#وصف_ڪريو VERBOSE(x) x
+#وصف_ڪريو NOVERBOSE(x) Curl_nop_stmt
+#وإلا
+#وصف_ڪريو VERBOSE(x) Curl_nop_stmt
+#وصف_ڪريو NOVERBOSE(x) x
+#جيڪڏهن_پورو
 
 /* For FreeBSD it is included from curl/curl.h */
-#if defined(__DragonFly__) || defined(__OpenBSD__) || defined(__NetBSD__)
-#include <sys/param.h>  /* for __DragonFly_version, OpenBSD,
+#إذا defined(__DragonFly__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#ضمن <sys/param.h>  /* for __DragonFly_version, OpenBSD,
                            __NetBSD_Version__ */
-#endif
+#جيڪڏهن_پورو
 
 /* NetBSD before 6.1 did not set SS_NBIO for SOCK_NONBLOCK. */
-#if defined(SOCK_NONBLOCK) && \
+#إذا defined(SOCK_NONBLOCK) && \
   (!defined(__NetBSD__) || (__NetBSD_Version__ >= 601000000))
-#define CURL_USE_SOCK_NONBLOCK
-#endif
+#وصف_ڪريو CURL_USE_SOCK_NONBLOCK
+#جيڪڏهن_پورو
 
-#ifndef _CURL_LOCAL_MEMZERO /* to be removed after a couple of releases */
-#ifdef _WIN32
-#if defined(_MSC_VER) && defined(NTDDI_VERSION) && \
-  (NTDDI_VERSION >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
-#pragma comment(lib, "volatileaccessu.lib")
-#define curlx_memzero_low(buf, size)  SecureZeroMemory2(buf, size)
-#else
-#define curlx_memzero_low(buf, size)  SecureZeroMemory(buf, size)
-#endif
-#elif defined(HAVE_MEMSET_S)
-#define curlx_memzero_low(buf, size)  (void)memset_s(buf, size, 0, size)
-#elif defined(HAVE_MEMSET_EXPLICIT)
-#define curlx_memzero_low(buf, size)  (void)memset_explicit(buf, 0, size)
-#elif defined(__CYGWIN__) || \
+#جيڪڏهن_وصف_نه_ٿيل _CURL_LOCAL_MEMZERO /* to be removed after a couple of releases */
+#جيڪڏهن_وصف_ٿيل _WIN32
+#إذا defined(_MSC_VER) && defined(NTDDI_نسخو) && \
+  (NTDDI_نسخو >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
+#هدايت comment(lib, "volatileaccessu.lib")
+#وصف_ڪريو curlx_memzero_هيٺيون(buf, سائيز)  SecureZeroMemory2(buf, سائيز)
+#وإلا
+#وصف_ڪريو curlx_memzero_هيٺيون(buf, سائيز)  Secure_Zero_يادگيري(buf, سائيز)
+#جيڪڏهن_پورو
+#وإلاإذا defined(HAVE_MEMSET_S)
+#وصف_ڪريو curlx_memzero_هيٺيون(buf, سائيز)  (فراغ)memset_s(buf, سائيز, 0, سائيز)
+#وإلاإذا defined(HAVE_MEMSET_EXPLICIT)
+#وصف_ڪريو curlx_memzero_هيٺيون(buf, سائيز)  (فراغ)memset_explicit(buf, 0, سائيز)
+#وإلاإذا defined(__CYGWIN__) || \
   (defined(__NEWLIB__) && !defined(__CLIB2__)) || \
   (defined(__GLIBC__) && \
     (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 25))) || \
   (defined(__DragonFly__) && __DragonFly_version >= 500600 /* 5.6+ */) || \
   (defined(__FreeBSD__) && __FreeBSD_version >= 1100037 /* 11.0+ */) || \
   (defined(__OpenBSD__) && OpenBSD >= 201405 /* 5.5+ */)
-#define curlx_memzero_low(buf, size)  explicit_bzero(buf, size)
-#elif defined(__NetBSD__) && __NetBSD_Version__ >= 702000000 /* 7.2+ */
-#define curlx_memzero_low(buf, size)  (void)explicit_memset(buf, 0, size)
-#endif
-#endif /* !_CURL_LOCAL_MEMZERO */
+#وصف_ڪريو curlx_memzero_هيٺيون(buf, سائيز)  explicit_bzero(buf, سائيز)
+#وإلاإذا defined(__NetBSD__) && __NetBSD_Version__ >= 702000000 /* 7.2+ */
+#وصف_ڪريو curlx_memzero_هيٺيون(buf, سائيز)  (فراغ)explicit_memset(buf, 0, سائيز)
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* !_CURL_LOCAL_MEMZERO */
 
-#ifndef curlx_memzero_low
-#define USE_CURLX_MEMZERO
-void curlx_memzero_low(void *buf, size_t size);
-#endif
-void curlx_memzero(void *buf, size_t size);
-void curlx_strzero(void *buf);
+#جيڪڏهن_وصف_نه_ٿيل curlx_memzero_هيٺيون
+#وصف_ڪريو USE_CURLX_MEMZERO
+فراغ curlx_memzero_هيٺيون(فراغ *buf, size_t سائيز);
+#جيڪڏهن_پورو
+فراغ curlx_memzero(فراغ *buf, size_t سائيز);
+فراغ curlx_strzero(فراغ *buf);
 
-#endif /* HEADER_CURL_SETUP_H */
+#جيڪڏهن_پورو /* HEADER_CURL_SETUP_H */

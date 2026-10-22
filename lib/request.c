@@ -21,141 +21,141 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curlx/dynbuf.h"
-#include "progress.h"
-#include "request.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "transfer.h"
-#include "url.h"
-#include "curlx/strparse.h"
+#ضمن "urldata.h"
+#ضمن "cfilters.h"
+#ضمن "curlx/dynbuf.h"
+#ضمن "progress.h"
+#ضمن "request.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "transfer.h"
+#ضمن "url.h"
+#ضمن "curlx/strparse.h"
 
-void Curl_req_init(struct SingleRequest *req)
+فراغ Curl_req_init(بنية SingleRequest *req)
 {
-  memset(req, 0, sizeof(*req));
+  memset(req, 0, حجم(*req));
 }
 
-CURLcode Curl_req_soft_reset(struct SingleRequest *req,
-                             struct Curl_easy *data)
+CURLcode Curl_req_soft_reset(بنية SingleRequest *req,
+                             بنية Curl_easy *معلومات)
 {
-  CURLcode result;
+  CURLcode نتيجو;
 
-  req->done = FALSE;
-  req->upload_done = FALSE;
+  req->پورو = FALSE;
+  req->upload_پورو = FALSE;
   req->upload_aborted = FALSE;
-  req->download_done = FALSE;
+  req->download_پورو = FALSE;
   req->eos_written = FALSE;
   req->eos_read = FALSE;
-  req->eos_sent = FALSE;
+  req->eos_موڪليل = FALSE;
   req->ignorebody = FALSE;
   req->shutdown = FALSE;
   req->bytecount = 0;
   req->writebytecount = 0;
-  req->header = FALSE;
+  req->سرو = FALSE;
   req->headerline = 0;
   req->headerbytecount = 0;
   req->allheadercount = 0;
   req->deductheadercount = 0;
-  req->httpversion_sent = 0;
+  req->httpversion_موڪليل = 0;
   req->httpversion = 0;
   req->sendbuf_hds_len = 0;
 
   curlx_safefree(req->hd_auth);
-#ifndef CURL_DISABLE_PROXY
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_PROXY
   curlx_safefree(req->hd_proxy_auth);
-#endif
+#جيڪڏهن_پورو
 
-  result = Curl_client_start(data);
-  if(result)
-    return result;
+  نتيجو = Curl_client_شروعات(معلومات);
+  إذا(نتيجو)
+    أرجع نتيجو;
 
-  if(!req->sendbuf_init) {
-    Curl_bufq_init2(&req->sendbuf, data->set.upload_buffer_size, 1,
-                    BUFQ_OPT_SOFT_LIMIT);
+  إذا(!req->sendbuf_init) {
+    Curl_bufq_init2(&req->sendbuf, معلومات->سيٽ.upload_بفر_سائيز, 1,
+                    BUFQ_OPT_SOFT_حد_بندي);
     req->sendbuf_init = TRUE;
   }
-  else {
+  وإلا {
     Curl_bufq_reset(&req->sendbuf);
-    if(data->set.upload_buffer_size != req->sendbuf.chunk_size) {
+    إذا(معلومات->سيٽ.upload_بفر_سائيز != req->sendbuf.chunk_سائيز) {
       Curl_bufq_free(&req->sendbuf);
-      Curl_bufq_init2(&req->sendbuf, data->set.upload_buffer_size, 1,
-                      BUFQ_OPT_SOFT_LIMIT);
+      Curl_bufq_init2(&req->sendbuf, معلومات->سيٽ.upload_بفر_سائيز, 1,
+                      BUFQ_OPT_SOFT_حد_بندي);
     }
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_req_start(struct SingleRequest *req,
-                        struct Curl_easy *data)
+CURLcode Curl_req_شروعات(بنية SingleRequest *req,
+                        بنية Curl_easy *معلومات)
 {
-  req->start = *Curl_pgrs_now(data);
-  return Curl_req_soft_reset(req, data);
+  req->شروعات = *Curl_pgrs_now(معلومات);
+  أرجع Curl_req_soft_reset(req, معلومات);
 }
 
-static CURLcode req_flush(struct Curl_easy *data);
+ساكن CURLcode req_flush(بنية Curl_easy *معلومات);
 
-CURLcode Curl_req_done(struct SingleRequest *req,
-                       struct Curl_easy *data, bool aborted)
+CURLcode Curl_req_پورو(بنية SingleRequest *req,
+                       بنية Curl_easy *معلومات, bool aborted)
 {
-  (void)req;
-  if(!aborted)
-    (void)req_flush(data);
-  Curl_client_reset(data);
-  return CURLE_OK;
+  (فراغ)req;
+  إذا(!aborted)
+    (فراغ)req_flush(معلومات);
+  Curl_client_reset(معلومات);
+  أرجع CURLE_OK;
 }
 
-void Curl_req_hard_reset(struct SingleRequest *req, struct Curl_easy *data)
+فراغ Curl_req_hard_reset(بنية SingleRequest *req, بنية Curl_easy *معلومات)
 {
-  struct curltime t0 = { 0, 0 };
+  بنية curltime t0 = { 0, 0 };
 
   curlx_safefree(req->newurl);
   curlx_safefree(req->hd_auth);
-#ifndef CURL_DISABLE_PROXY
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_PROXY
   curlx_safefree(req->hd_proxy_auth);
-#endif
-#ifndef CURL_DISABLE_COOKIES
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_COOKIES
   curlx_safefree(req->cookiehost);
-#endif
-  Curl_client_reset(data);
-  if(req->sendbuf_init)
+#جيڪڏهن_پورو
+  Curl_client_reset(معلومات);
+  إذا(req->sendbuf_init)
     Curl_bufq_reset(&req->sendbuf);
 
   /* clear any resolve data */
-  Curl_resolv_destroy_all(data);
+  Curl_resolv_destroy_all(معلومات);
   /* Can no longer memset() this struct as we need to keep some state */
-  req->size = -1;
+  req->سائيز = -1;
   req->maxdownload = -1;
   req->bytecount = 0;
   req->writebytecount = 0;
-  req->start = t0;
+  req->شروعات = t0;
   req->headerbytecount = 0;
   req->allheadercount = 0;
   req->deductheadercount = 0;
   req->headerline = 0;
-  req->offset = 0;
+  req->وٿي = 0;
   req->httpcode = 0;
   req->io_flags = 0;
   req->upgr101 = UPGR101_NONE;
   req->sendbuf_hds_len = 0;
   req->timeofdoc = 0;
-  req->location = NULL;
-  req->newurl = NULL;
-#ifndef CURL_DISABLE_COOKIES
+  req->location = عدم;
+  req->newurl = عدم;
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_COOKIES
   req->setcookies = 0;
-#endif
-  req->header = FALSE;
+#جيڪڏهن_پورو
+  req->سرو = FALSE;
   req->content_range = FALSE;
-  req->download_done = FALSE;
+  req->download_پورو = FALSE;
   req->eos_written = FALSE;
   req->eos_read = FALSE;
-  req->eos_sent = FALSE;
+  req->eos_موڪليل = FALSE;
   req->rewind_read = FALSE;
-  req->upload_done = FALSE;
+  req->upload_پورو = FALSE;
   req->upload_aborted = FALSE;
   req->ignorebody = FALSE;
   req->http_bodyless = FALSE;
@@ -163,231 +163,231 @@ void Curl_req_hard_reset(struct SingleRequest *req, struct Curl_easy *data)
   req->resp_trailer = FALSE;
   req->ignore_cl = FALSE;
   req->upload_chunky = FALSE;
-  req->no_body = data->set.opt_no_body;
+  req->no_body = معلومات->سيٽ.opt_no_body;
   req->authneg = FALSE;
   req->shutdown = FALSE;
   /* Unpause all directions */
-  Curl_rlimit_block(&data->progress.dl.rlimit, FALSE, &t0);
-  Curl_rlimit_block(&data->progress.ul.rlimit, FALSE, &t0);
+  Curl_rlimit_بلاڪ(&معلومات->ترقي.dl.rlimit, FALSE, &t0);
+  Curl_rlimit_بلاڪ(&معلومات->ترقي.ul.rlimit, FALSE, &t0);
 }
 
-void Curl_req_free(struct SingleRequest *req, struct Curl_easy *data)
+فراغ Curl_req_free(بنية SingleRequest *req, بنية Curl_easy *معلومات)
 {
   curlx_safefree(req->newurl);
   curlx_safefree(req->hd_auth);
-#ifndef CURL_DISABLE_PROXY
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_PROXY
   curlx_safefree(req->hd_proxy_auth);
-#endif
-  if(req->sendbuf_init)
+#جيڪڏهن_پورو
+  إذا(req->sendbuf_init)
     Curl_bufq_free(&req->sendbuf);
-  Curl_client_cleanup(data);
+  Curl_client_cleanup(معلومات);
 }
 
-static CURLcode xfer_send(struct Curl_easy *data,
-                          const char *buf, size_t blen,
+ساكن CURLcode xfer_send(بنية Curl_easy *معلومات,
+                          ثابت حرف *buf, size_t blen,
                           size_t hds_len, size_t *pnwritten)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتيجو = CURLE_OK;
   bool eos = FALSE;
 
   *pnwritten = 0;
   DEBUGASSERT(hds_len <= blen);
-#ifdef DEBUGBUILD
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
   {
     /* Allow debug builds to override this logic to force short initial
        sends */
     size_t body_len = blen - hds_len;
-    if(body_len) {
-      const char *p = getenv("CURL_SMALLREQSEND");
-      if(p) {
+    إذا(body_len) {
+      ثابت حرف *p = getenv("CURL_SMALLREQSEND");
+      إذا(p) {
         curl_off_t body_small;
-        if(!curlx_str_number(&p, &body_small, body_len))
+        إذا(!curlx_str_عدد(&p, &body_small, body_len))
           blen = hds_len + (size_t)body_small;
       }
     }
   }
-#endif
+#جيڪڏهن_پورو
   /* Make sure this does not send more body bytes than what the max send
      speed says. The headers do not count to the max speed. */
-  if(data->set.max_send_speed) {
-    size_t body_bytes = blen - hds_len;
-    if((curl_off_t)body_bytes > data->set.max_send_speed)
-      blen = hds_len + (size_t)data->set.max_send_speed;
+  إذا(معلومات->سيٽ.max_send_رفتار) {
+    size_t body_بائيٽون = blen - hds_len;
+    إذا((curl_off_t)body_بائيٽون > معلومات->سيٽ.max_send_رفتار)
+      blen = hds_len + (size_t)معلومات->سيٽ.max_send_رفتار;
   }
 
-  if(data->req.eos_read &&
-    (Curl_bufq_is_empty(&data->req.sendbuf) ||
-     Curl_bufq_len(&data->req.sendbuf) == blen)) {
-    DEBUGF(infof(data, "sending last upload chunk of %zu bytes", blen));
+  إذا(معلومات->req.eos_read &&
+    (Curl_bufq_is_خالي_جايون(&معلومات->req.sendbuf) ||
+     Curl_bufq_len(&معلومات->req.sendbuf) == blen)) {
+    DEBUGF(infof(معلومات, "sending last upload chunk of %zu bytes", blen));
     eos = TRUE;
   }
-  result = Curl_xfer_send(data, buf, blen, eos, pnwritten);
-  if(!result) {
-    if(eos && (blen == *pnwritten))
-      data->req.eos_sent = TRUE;
-    if(*pnwritten) {
-      if(hds_len)
-        Curl_debug(data, CURLINFO_HEADER_OUT, buf,
+  نتيجو = Curl_xfer_send(معلومات, buf, blen, eos, pnwritten);
+  إذا(!نتيجو) {
+    إذا(eos && (blen == *pnwritten))
+      معلومات->req.eos_موڪليل = TRUE;
+    إذا(*pnwritten) {
+      إذا(hds_len)
+        Curl_debug(معلومات, CURLINFO_سرو_ٻاهريون, buf,
                    CURLMIN(hds_len, *pnwritten));
-      if(*pnwritten > hds_len) {
+      إذا(*pnwritten > hds_len) {
         size_t body_len = *pnwritten - hds_len;
-        Curl_debug(data, CURLINFO_DATA_OUT, buf + hds_len, body_len);
-        data->req.writebytecount += body_len;
-        Curl_pgrs_upload_inc(data, body_len);
+        Curl_debug(معلومات, CURLINFO_معلومات_ٻاهريون, buf + hds_len, body_len);
+        معلومات->req.writebytecount += body_len;
+        Curl_pgrs_upload_inc(معلومات, body_len);
       }
     }
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static CURLcode req_send_buffer_flush(struct Curl_easy *data)
+ساكن CURLcode req_send_بفر_flush(بنية Curl_easy *معلومات)
 {
-  CURLcode result = CURLE_OK;
-  const unsigned char *buf;
+  CURLcode نتيجو = CURLE_OK;
+  ثابت بنانشان حرف *buf;
   size_t blen;
 
-  while(Curl_bufq_peek(&data->req.sendbuf, &buf, &blen)) {
-    size_t nwritten, hds_len = CURLMIN(data->req.sendbuf_hds_len, blen);
-    result = xfer_send(data, (const char *)buf, blen, hds_len, &nwritten);
-    if(result)
-      break;
+  طالما(Curl_bufq_peek(&معلومات->req.sendbuf, &buf, &blen)) {
+    size_t nwritten, hds_len = CURLMIN(معلومات->req.sendbuf_hds_len, blen);
+    نتيجو = xfer_send(معلومات, (ثابت حرف *)buf, blen, hds_len, &nwritten);
+    إذا(نتيجو)
+      اكسر;
 
-    Curl_bufq_skip(&data->req.sendbuf, nwritten);
-    if(hds_len) {
-      data->req.sendbuf_hds_len -= CURLMIN(hds_len, nwritten);
+    Curl_bufq_skip(&معلومات->req.sendbuf, nwritten);
+    إذا(hds_len) {
+      معلومات->req.sendbuf_hds_len -= CURLMIN(hds_len, nwritten);
     }
     /* leave if we could not send all. Maybe network blocking or
      * speed limits on transfer */
-    if(nwritten < blen)
-      break;
+    إذا(nwritten < blen)
+      اكسر;
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static CURLcode req_set_upload_done(struct Curl_easy *data)
+ساكن CURLcode req_سيٽ_upload_پورو(بنية Curl_easy *معلومات)
 {
-  DEBUGASSERT(!data->req.upload_done);
-  data->req.upload_done = TRUE;
-  CURL_REQ_CLEAR_SEND(data);
+  DEBUGASSERT(!معلومات->req.upload_پورو);
+  معلومات->req.upload_پورو = TRUE;
+  CURL_REQ_CLEAR_SEND(معلومات);
 
-  if(data->mstate >= MSTATE_DID)
-    Curl_pgrsTime(data, TIMER_POSTRANSFER);
-  Curl_creader_done(data, data->req.upload_aborted);
+  إذا(معلومات->mstate >= MSTATE_DID)
+    Curl_pgrs_وقت(معلومات, TIMER_POSTRANSFER);
+  Curl_creader_پورو(معلومات, معلومات->req.upload_aborted);
 
-  if(data->req.upload_aborted) {
-    Curl_bufq_reset(&data->req.sendbuf);
-    if(data->req.writebytecount)
-      infof(data, "abort upload after having sent %" FMT_OFF_T " bytes",
-            data->req.writebytecount);
-    else
-      infof(data, "abort upload");
+  إذا(معلومات->req.upload_aborted) {
+    Curl_bufq_reset(&معلومات->req.sendbuf);
+    إذا(معلومات->req.writebytecount)
+      infof(معلومات, "abort upload after having sent %" FMT_OFF_T " bytes",
+            معلومات->req.writebytecount);
+    وإلا
+      infof(معلومات, "abort upload");
   }
-  else if(data->req.writebytecount)
-    infof(data, "upload completely sent off: %" FMT_OFF_T " bytes",
-          data->req.writebytecount);
-  else if(!data->req.download_done) {
-    DEBUGASSERT(Curl_bufq_is_empty(&data->req.sendbuf));
-    infof(data, Curl_creader_total_length(data) ?
+  وإلا إذا(معلومات->req.writebytecount)
+    infof(معلومات, "upload completely sent off: %" FMT_OFF_T " bytes",
+          معلومات->req.writebytecount);
+  وإلا إذا(!معلومات->req.download_پورو) {
+    DEBUGASSERT(Curl_bufq_is_خالي_جايون(&معلومات->req.sendbuf));
+    infof(معلومات, Curl_creader_ڪل_ڊيگهائي(معلومات) ?
           "We are completely uploaded and fine" :
           "Request completely sent off");
   }
 
-  return Curl_xfer_send_close(data);
+  أرجع Curl_xfer_send_close(معلومات);
 }
 
-static CURLcode req_flush(struct Curl_easy *data)
+ساكن CURLcode req_flush(بنية Curl_easy *معلومات)
 {
-  CURLcode result;
+  CURLcode نتيجو;
 
-  if(!data || !data->conn)
-    return CURLE_FAILED_INIT;
+  إذا(!معلومات || !معلومات->conn)
+    أرجع CURLE_FAILED_INIT;
 
-  if(!Curl_bufq_is_empty(&data->req.sendbuf)) {
-    result = req_send_buffer_flush(data);
-    if(result)
-      return result;
-    if(!Curl_bufq_is_empty(&data->req.sendbuf)) {
-      DEBUGF(infof(data, "Curl_req_flush(len=%zu) -> EAGAIN",
-                   Curl_bufq_len(&data->req.sendbuf)));
-      return CURLE_AGAIN;
+  إذا(!Curl_bufq_is_خالي_جايون(&معلومات->req.sendbuf)) {
+    نتيجو = req_send_بفر_flush(معلومات);
+    إذا(نتيجو)
+      أرجع نتيجو;
+    إذا(!Curl_bufq_is_خالي_جايون(&معلومات->req.sendbuf)) {
+      DEBUGF(infof(معلومات, "Curl_req_flush(len=%zu) -> EAGAIN",
+                   Curl_bufq_len(&معلومات->req.sendbuf)));
+      أرجع CURLE_AGAIN;
     }
   }
-  else if(Curl_xfer_needs_flush(data)) {
-    DEBUGF(infof(data, "Curl_req_flush(), xfer send_pending"));
-    return Curl_xfer_flush(data);
+  وإلا إذا(Curl_xfer_needs_flush(معلومات)) {
+    DEBUGF(infof(معلومات, "Curl_req_flush(), xfer send_pending"));
+    أرجع Curl_xfer_flush(معلومات);
   }
 
-  if(data->req.eos_read && !data->req.eos_sent) {
-    char tmp = 0;
+  إذا(معلومات->req.eos_read && !معلومات->req.eos_موڪليل) {
+    حرف tmp = 0;
     size_t nwritten;
-    result = xfer_send(data, &tmp, 0, 0, &nwritten);
-    if(result)
-      return result;
-    DEBUGASSERT(data->req.eos_sent);
+    نتيجو = xfer_send(معلومات, &tmp, 0, 0, &nwritten);
+    إذا(نتيجو)
+      أرجع نتيجو;
+    DEBUGASSERT(معلومات->req.eos_موڪليل);
   }
 
-  if(!data->req.upload_done && data->req.eos_read && data->req.eos_sent) {
-    DEBUGASSERT(Curl_bufq_is_empty(&data->req.sendbuf));
-    if(data->req.shutdown) {
-      bool done;
-      result = Curl_xfer_send_shutdown(data, &done);
-      if(result && data->req.shutdown_err_ignore) {
-        infof(data, "Shutdown send direction error: %d. Broken server? "
-              "Proceeding as if everything is ok.", (int)result);
-        result = CURLE_OK;
-        done = TRUE;
+  إذا(!معلومات->req.upload_پورو && معلومات->req.eos_read && معلومات->req.eos_موڪليل) {
+    DEBUGASSERT(Curl_bufq_is_خالي_جايون(&معلومات->req.sendbuf));
+    إذا(معلومات->req.shutdown) {
+      bool پورو;
+      نتيجو = Curl_xfer_send_shutdown(معلومات, &پورو);
+      إذا(نتيجو && معلومات->req.shutdown_err_ignore) {
+        infof(معلومات, "Shutdown send direction error: %d. Broken server? "
+              "Proceeding as if everything is ok.", (صحيح)نتيجو);
+        نتيجو = CURLE_OK;
+        پورو = TRUE;
       }
 
-      if(result)
-        return result;
-      if(!done)
-        return CURLE_AGAIN;
+      إذا(نتيجو)
+        أرجع نتيجو;
+      إذا(!پورو)
+        أرجع CURLE_AGAIN;
     }
-    return req_set_upload_done(data);
+    أرجع req_سيٽ_upload_پورو(معلومات);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode add_from_client(void *reader_ctx,
-                                unsigned char *buf, size_t buflen,
+ساكن CURLcode جوڙيو_from_client(فراغ *reader_ctx,
+                                بنانشان حرف *buf, size_t buflen,
                                 size_t *pnread)
 {
-  struct Curl_easy *data = reader_ctx;
-  CURLcode result;
+  بنية Curl_easy *معلومات = reader_ctx;
+  CURLcode نتيجو;
   bool eos;
 
-  result = Curl_client_read(data, (char *)buf, buflen, pnread, &eos);
-  if(!result && eos)
-    data->req.eos_read = TRUE;
-  return result;
+  نتيجو = Curl_client_read(معلومات, (حرف *)buf, buflen, pnread, &eos);
+  إذا(!نتيجو && eos)
+    معلومات->req.eos_read = TRUE;
+  أرجع نتيجو;
 }
 
-static CURLcode req_send_buffer_add(struct Curl_easy *data,
-                                    const char *buf, size_t blen,
+ساكن CURLcode req_send_بفر_جوڙيو(بنية Curl_easy *معلومات,
+                                    ثابت حرف *buf, size_t blen,
                                     size_t hds_len)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتيجو = CURLE_OK;
   size_t n;
-  result = Curl_bufq_cwrite(&data->req.sendbuf, buf, blen, &n);
-  if(result)
-    return result;
+  نتيجو = Curl_bufq_cwrite(&معلومات->req.sendbuf, buf, blen, &n);
+  إذا(نتيجو)
+    أرجع نتيجو;
   /* We rely on a SOFTLIMIT on sendbuf, so it can take all data in */
   DEBUGASSERT(n == blen);
-  data->req.sendbuf_hds_len += hds_len;
-  return CURLE_OK;
+  معلومات->req.sendbuf_hds_len += hds_len;
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_req_send(struct Curl_easy *data, struct dynbuf *req,
-                       unsigned char httpversion)
+CURLcode Curl_req_send(بنية Curl_easy *معلومات, بنية dynbuf *req,
+                       بنانشان حرف httpversion)
 {
-  CURLcode result;
-  const char *buf;
+  CURLcode نتيجو;
+  ثابت حرف *buf;
   size_t blen, nwritten;
 
-  if(!data || !data->conn)
-    return CURLE_FAILED_INIT;
+  إذا(!معلومات || !معلومات->conn)
+    أرجع CURLE_FAILED_INIT;
 
-  data->req.httpversion_sent = httpversion;
+  معلومات->req.httpversion_موڪليل = httpversion;
   buf = curlx_dyn_ptr(req);
   blen = curlx_dyn_len(req);
   /* if the sendbuf is empty and the request without body and
@@ -395,108 +395,108 @@ CURLcode Curl_req_send(struct Curl_easy *data, struct dynbuf *req,
    * If `blen` is larger than `chunk_size`, we can not. Because we
    * might have to retry a blocked send later from sendbuf and that
    * would result in retry sends with a shrunken length. That is trouble. */
-  if(Curl_bufq_is_empty(&data->req.sendbuf) &&
-     !Curl_creader_total_length(data) &&
-     (blen <= data->req.sendbuf.chunk_size)) {
-    data->req.eos_read = TRUE;
-    result = xfer_send(data, buf, blen, blen, &nwritten);
-    if(result)
-      return result;
+  إذا(Curl_bufq_is_خالي_جايون(&معلومات->req.sendbuf) &&
+     !Curl_creader_ڪل_ڊيگهائي(معلومات) &&
+     (blen <= معلومات->req.sendbuf.chunk_سائيز)) {
+    معلومات->req.eos_read = TRUE;
+    نتيجو = xfer_send(معلومات, buf, blen, blen, &nwritten);
+    إذا(نتيجو)
+      أرجع نتيجو;
     buf += nwritten;
     blen -= nwritten;
-    if(!blen) {
-      result = req_set_upload_done(data);
-      if(result)
-        return result;
+    إذا(!blen) {
+      نتيجو = req_سيٽ_upload_پورو(معلومات);
+      إذا(نتيجو)
+        أرجع نتيجو;
     }
   }
 
-  if(blen) {
+  إذا(blen) {
     /* Either we have a request body, or we could not send the complete
      * request in one go. Buffer the remainder and try to add as much
      * body bytes as room is left in the buffer. Then flush. */
-    result = req_send_buffer_add(data, buf, blen, blen);
-    if(result)
-      return result;
+    نتيجو = req_send_بفر_جوڙيو(معلومات, buf, blen, blen);
+    إذا(نتيجو)
+      أرجع نتيجو;
 
-    return Curl_req_send_more(data);
+    أرجع Curl_req_send_وڌيڪ(معلومات);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-bool Curl_req_sendbuf_empty(struct Curl_easy *data)
+bool Curl_req_sendbuf_خالي_جايون(بنية Curl_easy *معلومات)
 {
-  return !data->req.sendbuf_init || Curl_bufq_is_empty(&data->req.sendbuf);
+  أرجع !معلومات->req.sendbuf_init || Curl_bufq_is_خالي_جايون(&معلومات->req.sendbuf);
 }
 
-bool Curl_req_want_send(struct Curl_easy *data)
+bool Curl_req_want_send(بنية Curl_easy *معلومات)
 {
   /* Not done and upload not blocked and either one of
    * - REQ_IO_SEND
    * - request has buffered data to send
    * - connection has pending data to send */
-  return !data->req.done &&
-         !Curl_rlimit_is_blocked(&data->progress.ul.rlimit) &&
-         (CURL_REQ_WANT_SEND(data) ||
-          !Curl_req_sendbuf_empty(data) ||
-          Curl_xfer_needs_flush(data));
+  أرجع !معلومات->req.پورو &&
+         !Curl_rlimit_is_blocked(&معلومات->ترقي.ul.rlimit) &&
+         (CURL_REQ_WANT_SEND(معلومات) ||
+          !Curl_req_sendbuf_خالي_جايون(معلومات) ||
+          Curl_xfer_needs_flush(معلومات));
 }
 
-bool Curl_req_want_recv(struct Curl_easy *data)
+bool Curl_req_want_recv(بنية Curl_easy *معلومات)
 {
   /* Not done and download not blocked and want RECV */
-  return !data->req.done &&
-         !Curl_rlimit_is_blocked(&data->progress.dl.rlimit) &&
-         CURL_REQ_WANT_RECV(data);
+  أرجع !معلومات->req.پورو &&
+         !Curl_rlimit_is_blocked(&معلومات->ترقي.dl.rlimit) &&
+         CURL_REQ_WANT_RECV(معلومات);
 }
 
-bool Curl_req_done_sending(struct Curl_easy *data)
+bool Curl_req_پورو_sending(بنية Curl_easy *معلومات)
 {
-  return data->req.upload_done && !Curl_req_want_send(data);
+  أرجع معلومات->req.upload_پورو && !Curl_req_want_send(معلومات);
 }
 
-CURLcode Curl_req_send_more(struct Curl_easy *data)
+CURLcode Curl_req_send_وڌيڪ(بنية Curl_easy *معلومات)
 {
-  CURLcode result;
+  CURLcode نتيجو;
 
   /* Fill our send buffer if more from client can be read. */
-  if(!data->req.upload_aborted &&
-     !data->req.eos_read &&
-     !Curl_xfer_send_is_paused(data) &&
-     !Curl_bufq_is_full(&data->req.sendbuf)) {
+  إذا(!معلومات->req.upload_aborted &&
+     !معلومات->req.eos_read &&
+     !Curl_xfer_send_is_paused(معلومات) &&
+     !Curl_bufq_is_ڀريل(&معلومات->req.sendbuf)) {
     size_t nread;
-    result = Curl_bufq_sipn(&data->req.sendbuf, 0,
-                            add_from_client, data, &nread);
-    if(result && result != CURLE_AGAIN)
-      return result;
+    نتيجو = Curl_bufq_sipn(&معلومات->req.sendbuf, 0,
+                            جوڙيو_from_client, معلومات, &nread);
+    إذا(نتيجو && نتيجو != CURLE_AGAIN)
+      أرجع نتيجو;
   }
 
-  result = req_flush(data);
-  if(result == CURLE_AGAIN)
-    result = CURLE_OK;
+  نتيجو = req_flush(معلومات);
+  إذا(نتيجو == CURLE_AGAIN)
+    نتيجو = CURLE_OK;
 
-  return result;
+  أرجع نتيجو;
 }
 
-CURLcode Curl_req_abort_sending(struct Curl_easy *data)
+CURLcode Curl_req_abort_sending(بنية Curl_easy *معلومات)
 {
-  if(!data->req.upload_done) {
-    Curl_bufq_reset(&data->req.sendbuf);
-    data->req.upload_aborted = TRUE;
-    CURL_REQ_CLEAR_SEND(data);
-    return req_set_upload_done(data);
+  إذا(!معلومات->req.upload_پورو) {
+    Curl_bufq_reset(&معلومات->req.sendbuf);
+    معلومات->req.upload_aborted = TRUE;
+    CURL_REQ_CLEAR_SEND(معلومات);
+    أرجع req_سيٽ_upload_پورو(معلومات);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_req_stop_send_recv(struct Curl_easy *data)
+CURLcode Curl_req_stop_send_recv(بنية Curl_easy *معلومات)
 {
   /* stop receiving and ALL sending as well, including PAUSE and HOLD.
    * We might still be paused on receive client writes though, so
    * keep those bits around. */
-  CURLcode result = CURLE_OK;
-  if(CURL_REQ_WANT_SEND(data))
-    result = Curl_req_abort_sending(data);
-  CURL_REQ_CLEAR_IO(data);
-  return result;
+  CURLcode نتيجو = CURLE_OK;
+  إذا(CURL_REQ_WANT_SEND(معلومات))
+    نتيجو = Curl_req_abort_sending(معلومات);
+  CURL_REQ_CLEAR_IO(معلومات);
+  أرجع نتيجو;
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_DICT_H
-#define HEADER_CURL_DICT_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_DICT_H
+#وصف_ڪريو سرو_CURL_DICT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_DICT
-extern const struct Curl_protocol Curl_protocol_dict;
-#endif
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_DICT
+خارجي ثابت بنية Curl_protocol Curl_protocol_dict;
+#جيڪڏهن_پورو
 
-#endif /* HEADER_CURL_DICT_H */
+#جيڪڏهن_پورو /* HEADER_CURL_DICT_H */

@@ -21,112 +21,112 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h> /* <netinet/tcp.h> may need it */
-#endif
-#ifdef HAVE_LINUX_TCP_H
-#include <linux/tcp.h>
-#elif defined(HAVE_NETINET_TCP_H)
-#include <netinet/tcp.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#جيڪڏهن_وصف_ٿيل HAVE_NETINET_اندريون_H
+#ضمن <netinet/in.h> /* <netinet/tcp.h> may need it */
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_LINUX_TCP_H
+#ضمن <linux/tcp.h>
+#وإلاإذا defined(HAVE_NETINET_TCP_H)
+#ضمن <netinet/tcp.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_SYS_IOCTL_H
+#ضمن <sys/ioctl.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_NETDB_H
+#ضمن <netdb.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#جيڪڏهن_پورو
 
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#جيڪڏهن_وصف_ٿيل __VMS
+#ضمن <in.h>
+#ضمن <inet.h>
+#جيڪڏهن_پورو
 
-#include "urldata.h"
-#include "connect.h"
-#include "cfilters.h"
-#include "cf-ip-happy.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "select.h"
-#include "sockaddr.h"
-#include "vdns/cf-dns.h"
-#include "vquic/vquic.h" /* for quic cfilters */
+#ضمن "urldata.h"
+#ضمن "connect.h"
+#ضمن "cfilters.h"
+#ضمن "cf-ip-happy.h"
+#ضمن "curl_addrinfo.h"
+#ضمن "curl_trc.h"
+#ضمن "multiif.h"
+#ضمن "progress.h"
+#ضمن "select.h"
+#ضمن "sockaddr.h"
+#ضمن "vdns/cf-dns.h"
+#ضمن "vquic/vquic.h" /* for quic cfilters */
 
 
-struct transport_provider {
+بنية transport_provider {
   cf_ip_connect_create *cf_create;
   uint8_t transport;
   bool tunnel;
 };
 
-static
-#ifndef UNITTESTS
-const
-#endif
-struct transport_provider transport_providers[] = {
+ساكن
+#جيڪڏهن_وصف_نه_ٿيل UNITTESTS
+ثابت
+#جيڪڏهن_پورو
+بنية transport_provider transport_providers[] = {
   { Curl_cf_tcp_create, TRNSPRT_TCP, FALSE },
   { Curl_cf_tcp_create, TRNSPRT_TCP, TRUE },
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#إذا !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   { Curl_cf_quic_create, TRNSPRT_QUIC, FALSE },
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_PROXY_HTTP3)
+#جيڪڏهن_پورو
+#إذا !defined(CURL_DISABLE_HTTP) && defined(USE_PROXY_HTTP3)
   { Curl_cf_h3_proxy_create, TRNSPRT_QUIC, TRUE },
-#endif
-#ifndef CURL_DISABLE_TFTP
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_TFTP
   { Curl_cf_udp_create, TRNSPRT_UDP, FALSE },
-#endif
-#ifdef USE_UNIX_SOCKETS
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل USE_UNIX_SOCKETS
   { Curl_cf_unix_create, TRNSPRT_UNIX, FALSE },
   { Curl_cf_unix_create, TRNSPRT_UNIX, TRUE },
-#endif
+#جيڪڏهن_پورو
 };
 
-static cf_ip_connect_create *get_cf_create(uint8_t transport,
+ساكن cf_ip_connect_create *get_cf_create(uint8_t transport,
                                            bool tunnel)
 {
   size_t i;
-  for(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
-    if((transport == transport_providers[i].transport) &&
+  لكل(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
+    إذا((transport == transport_providers[i].transport) &&
        (tunnel == transport_providers[i].tunnel))
-      return transport_providers[i].cf_create;
+      أرجع transport_providers[i].cf_create;
   }
-  return NULL;
+  أرجع عدم;
 }
 
-#ifdef UNITTESTS
+#جيڪڏهن_وصف_ٿيل UNITTESTS
 /* @unittest 2600 */
-UNITTEST void debug_set_transport_provider(
+UNITTEST فراغ debug_سيٽ_transport_provider(
   uint8_t transport, cf_ip_connect_create *cf_create);
-UNITTEST void debug_set_transport_provider(
+UNITTEST فراغ debug_سيٽ_transport_provider(
   uint8_t transport, cf_ip_connect_create *cf_create)
 {
   size_t i;
-  for(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
-    if(transport == transport_providers[i].transport) {
+  لكل(i = 0; i < CURL_ARRAYSIZE(transport_providers); ++i) {
+    إذا(transport == transport_providers[i].transport) {
       transport_providers[i].cf_create = cf_create;
     }
   }
 }
-#endif /* UNITTESTS */
+#جيڪڏهن_پورو /* UNITTESTS */
 
-struct cf_ai_iter {
-  struct Curl_cfilter *cf;
-  struct Curl_peer *peer;
-  int ai_family;
-  unsigned int n;
+بنية cf_ai_iter {
+  بنية Curl_cfilter *cf;
+  بنية Curl_peer *peer;
+  صحيح ai_family;
+  بنانشان صحيح n;
 };
 
-static void cf_ai_iter_init(struct cf_ai_iter *iter,
-                            struct Curl_cfilter *cf,
-                            struct Curl_peer *peer,
-                            int ai_family)
+ساكن فراغ cf_ai_iter_init(بنية cf_ai_iter *iter,
+                            بنية Curl_cfilter *cf,
+                            بنية Curl_peer *peer,
+                            صحيح ai_family)
 {
   iter->cf = cf;
   iter->peer = peer; /* not linked, ctx->ballers owns and has same lifetime */
@@ -134,54 +134,54 @@ static void cf_ai_iter_init(struct cf_ai_iter *iter,
   iter->n = 0;
 }
 
-static const struct Curl_addrinfo *cf_ai_iter_next(struct cf_ai_iter *iter,
-                                                   struct Curl_easy *data)
+ساكن ثابت بنية Curl_addrinfo *cf_ai_iter_ايندڙ(بنية cf_ai_iter *iter,
+                                                   بنية Curl_easy *معلومات)
 {
-  const struct Curl_addrinfo *addr;
+  ثابت بنية Curl_addrinfo *addr;
 
-  if(!iter->cf)
-    return NULL;
+  إذا(!iter->cf)
+    أرجع عدم;
 
-  addr = Curl_conn_dns_get_ai(data, iter->peer, iter->cf->sockindex,
+  addr = Curl_conn_dns_get_ai(معلومات, iter->peer, iter->cf->sockindex,
                               iter->ai_family, iter->n);
-  if(addr)
+  إذا(addr)
     iter->n++;
-  return addr;
+  أرجع addr;
 }
 
-static bool cf_ai_iter_has_more(struct cf_ai_iter *iter,
-                                struct Curl_easy *data)
+ساكن bool cf_ai_iter_has_وڌيڪ(بنية cf_ai_iter *iter,
+                                بنية Curl_easy *معلومات)
 {
-  return (iter->cf &&
-          !!Curl_conn_dns_get_ai(data, iter->peer, iter->cf->sockindex,
+  أرجع (iter->cf &&
+          !!Curl_conn_dns_get_ai(معلومات, iter->peer, iter->cf->sockindex,
                                  iter->ai_family, iter->n));
 }
 
-struct cf_ip_attempt {
-  struct cf_ip_attempt *next;
-  struct Curl_peer *origin;
-  struct Curl_peer *peer;
-  struct Curl_peer *tunnel_peer;
-  struct Curl_sockaddr_ex addr;
-  struct Curl_cfilter *cf;           /* current sub-cfilter connecting */
+بنية cf_ip_attempt {
+  بنية cf_ip_attempt *ايندڙ;
+  بنية Curl_peer *origin;
+  بنية Curl_peer *peer;
+  بنية Curl_peer *tunnel_peer;
+  بنية Curl_sockaddr_ex addr;
+  بنية Curl_cfilter *cf;           /* current sub-cfilter connecting */
   cf_ip_connect_create *cf_create;
-  CURLcode result;
-  int ai_family;
+  CURLcode نتيجو;
+  صحيح ai_family;
   uint8_t transport_peer;
   uint8_t tunnel_transport;
-  int error;
-  BIT(connected);                    /* cf has connected */
-  BIT(shutdown);                     /* cf has shutdown */
-  BIT(inconclusive);                 /* connect was not a hard failure, we
+  صحيح error;
+  ٻٽو_انگ(connected);                    /* cf has connected */
+  ٻٽو_انگ(shutdown);                     /* cf has shutdown */
+  ٻٽو_انگ(inconclusive);                 /* connect was not a hard failure, we
                                       * might talk to a restarting server */
 };
 
-static void cf_ip_attempt_free(struct cf_ip_attempt *a,
-                               struct Curl_easy *data)
+ساكن فراغ cf_ip_attempt_free(بنية cf_ip_attempt *a,
+                               بنية Curl_easy *معلومات)
 {
-  if(a) {
-    if(a->cf)
-      Curl_conn_cf_discard_chain(&a->cf, data);
+  إذا(a) {
+    إذا(a->cf)
+      Curl_conn_cf_discard_chain(&a->cf, معلومات);
     Curl_peer_unlink(&a->origin);
     Curl_peer_unlink(&a->peer);
     Curl_peer_unlink(&a->tunnel_peer);
@@ -189,26 +189,26 @@ static void cf_ip_attempt_free(struct cf_ip_attempt *a,
   }
 }
 
-static CURLcode cf_ip_attempt_new(struct cf_ip_attempt **pa,
-                                  struct Curl_easy *data,
-                                  struct Curl_cfilter *cf,
-                                  struct Curl_peer *origin,
-                                  struct Curl_peer *peer,
+ساكن CURLcode cf_ip_attempt_new(بنية cf_ip_attempt **pa,
+                                  بنية Curl_easy *معلومات,
+                                  بنية Curl_cfilter *cf,
+                                  بنية Curl_peer *origin,
+                                  بنية Curl_peer *peer,
                                   uint8_t transport_peer,
-                                  struct Curl_sockaddr_ex *addr,
-                                  int ai_family,
-                                  struct Curl_peer *tunnel_peer,
+                                  بنية Curl_sockaddr_ex *addr,
+                                  صحيح ai_family,
+                                  بنية Curl_peer *tunnel_peer,
                                   uint8_t tunnel_transport,
                                   cf_ip_connect_create *cf_create)
 {
-  struct Curl_cfilter *wcf;
-  struct cf_ip_attempt *a;
-  CURLcode result = CURLE_OK;
+  بنية Curl_cfilter *wcf;
+  بنية cf_ip_attempt *a;
+  CURLcode نتيجو = CURLE_OK;
 
-  *pa = NULL;
-  a = curlx_calloc(1, sizeof(*a));
-  if(!a)
-    return CURLE_OUT_OF_MEMORY;
+  *pa = عدم;
+  a = curlx_calloc(1, حجم(*a));
+  إذا(!a)
+    أرجع CURLE_ٻاهريون_جو_يادگيري;
 
   Curl_peer_link(&a->origin, origin);
   Curl_peer_link(&a->peer, peer);
@@ -217,139 +217,139 @@ static CURLcode cf_ip_attempt_new(struct cf_ip_attempt **pa,
   a->tunnel_transport = tunnel_transport;
   a->addr = *addr;
   a->ai_family = ai_family;
-  a->result = CURLE_OK;
+  a->نتيجو = CURLE_OK;
   a->cf_create = cf_create;
   *pa = a;
 
-  result = a->cf_create(&a->cf, data, a->origin, a->peer, a->transport_peer,
+  نتيجو = a->cf_create(&a->cf, معلومات, a->origin, a->peer, a->transport_peer,
                         cf->conn, &a->addr, a->tunnel_peer,
                         a->tunnel_transport);
-  if(result)
-    goto out;
+  إذا(نتيجو)
+    اذهب ٻاهريون;
 
   /* the new filter might have sub-filters */
-  for(wcf = a->cf; wcf; wcf = wcf->next) {
+  لكل(wcf = a->cf; wcf; wcf = wcf->ايندڙ) {
     wcf->conn = cf->conn;
     wcf->sockindex = cf->sockindex;
   }
 
-out:
-  if(result) {
-    cf_ip_attempt_free(a, data);
-    *pa = NULL;
+ٻاهريون:
+  إذا(نتيجو) {
+    cf_ip_attempt_free(a, معلومات);
+    *pa = عدم;
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static CURLcode cf_ip_attempt_connect(struct cf_ip_attempt *a,
-                                      struct Curl_easy *data,
+ساكن CURLcode cf_ip_attempt_connect(بنية cf_ip_attempt *a,
+                                      بنية Curl_easy *معلومات,
                                       bool *connected)
 {
   *connected = (bool)a->connected;
-  if(!a->result && !*connected) {
+  إذا(!a->نتيجو && !*connected) {
     /* evaluate again */
-    a->result = Curl_conn_cf_connect(a->cf, data, connected);
+    a->نتيجو = Curl_conn_cf_connect(a->cf, معلومات, connected);
 
-    if(!a->result) {
-      if(*connected) {
+    إذا(!a->نتيجو) {
+      إذا(*connected) {
         a->connected = TRUE;
       }
     }
-    else {
-      if(a->result == CURLE_WEIRD_SERVER_REPLY)
+    وإلا {
+      إذا(a->نتيجو == CURLE_WEIRD_SERVER_جواب)
         a->inconclusive = TRUE;
-      if(a->cf)
-        Curl_conn_cf_discard_chain(&a->cf, data);
+      إذا(a->cf)
+        Curl_conn_cf_discard_chain(&a->cf, معلومات);
     }
   }
-  return a->result;
+  أرجع a->نتيجو;
 }
 
-struct cf_ip_ballers {
-  struct cf_ip_attempt *running;
-  struct cf_ip_attempt **running_tail;  /* &running or &(last->next) */
-  struct cf_ip_attempt *winner;
-  struct cf_ai_iter addr_iter;
-#ifdef USE_IPV6
-  struct cf_ai_iter ipv6_iter;
-#endif
-  struct Curl_peer *origin;
-  struct Curl_peer *peer;
-  struct Curl_peer *tunnel_peer;
+بنية cf_ip_ballers {
+  بنية cf_ip_attempt *running;
+  بنية cf_ip_attempt **running_پڇ;  /* &running or &(last->next) */
+  بنية cf_ip_attempt *winner;
+  بنية cf_ai_iter addr_iter;
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+  بنية cf_ai_iter ipv6_iter;
+#جيڪڏهن_پورو
+  بنية Curl_peer *origin;
+  بنية Curl_peer *peer;
+  بنية Curl_peer *tunnel_peer;
   cf_ip_connect_create *cf_create;   /* for creating cf */
-  struct curltime last_attempt_started;
+  بنية curltime آخري_attempt_started;
   timediff_t attempt_delay_ms;
-  CURLcode last_dead_result;  /* result of last discarded hard failure */
-  int last_attempt_ai_family;
+  CURLcode آخري_dead_نتيجو;  /* result of last discarded hard failure */
+  صحيح آخري_attempt_ai_family;
   uint32_t max_concurrent;
   uint8_t transport_peer;
   uint8_t tunnel_transport;
-  BIT(had_dead);              /* a hard failure was discarded */
+  ٻٽو_انگ(had_dead);              /* a hard failure was discarded */
 };
 
-static CURLcode cf_ip_attempt_restart(struct cf_ip_attempt *a,
-                                      struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+ساكن CURLcode cf_ip_attempt_restart(بنية cf_ip_attempt *a,
+                                      بنية Curl_cfilter *cf,
+                                      بنية Curl_easy *معلومات)
 {
-  struct Curl_cfilter *wcf;
-  CURLcode result;
+  بنية Curl_cfilter *wcf;
+  CURLcode نتيجو;
 
-  if(a->cf)
-    Curl_conn_cf_discard_chain(&a->cf, data);
+  إذا(a->cf)
+    Curl_conn_cf_discard_chain(&a->cf, معلومات);
 
-  a->result = CURLE_OK;
+  a->نتيجو = CURLE_OK;
   a->connected = FALSE;
   a->inconclusive = FALSE;
-  a->cf = NULL;
+  a->cf = عدم;
 
-  result = a->cf_create(&a->cf, data, a->origin, a->peer, a->transport_peer,
+  نتيجو = a->cf_create(&a->cf, معلومات, a->origin, a->peer, a->transport_peer,
                         cf->conn, &a->addr,
                         a->tunnel_peer, a->tunnel_transport);
-  if(!result) {
+  إذا(!نتيجو) {
     bool dummy;
     /* the new filter might have sub-filters */
-    for(wcf = a->cf; wcf; wcf = wcf->next) {
+    لكل(wcf = a->cf; wcf; wcf = wcf->ايندڙ) {
       wcf->conn = cf->conn;
       wcf->sockindex = cf->sockindex;
     }
-    a->result = cf_ip_attempt_connect(a, data, &dummy);
+    a->نتيجو = cf_ip_attempt_connect(a, معلومات, &dummy);
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static void cf_ip_ballers_clear(struct Curl_easy *data,
-                                struct cf_ip_ballers *bs)
+ساكن فراغ cf_ip_ballers_clear(بنية Curl_easy *معلومات,
+                                بنية cf_ip_ballers *bs)
 {
-  while(bs->running) {
-    struct cf_ip_attempt *a = bs->running;
-    bs->running = a->next;
-    cf_ip_attempt_free(a, data);
+  طالما(bs->running) {
+    بنية cf_ip_attempt *a = bs->running;
+    bs->running = a->ايندڙ;
+    cf_ip_attempt_free(a, معلومات);
   }
-  bs->running_tail = &bs->running;
-  cf_ip_attempt_free(bs->winner, data);
-  bs->winner = NULL;
+  bs->running_پڇ = &bs->running;
+  cf_ip_attempt_free(bs->winner, معلومات);
+  bs->winner = عدم;
   Curl_peer_unlink(&bs->origin);
   Curl_peer_unlink(&bs->peer);
   Curl_peer_unlink(&bs->tunnel_peer);
 }
 
-static CURLcode cf_ip_ballers_init(struct cf_ip_ballers *bs,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer,
+ساكن CURLcode cf_ip_ballers_init(بنية cf_ip_ballers *bs,
+                                   بنية Curl_easy *معلومات,
+                                   بنية Curl_peer *origin,
+                                   بنية Curl_peer *peer,
                                    uint8_t transport_peer,
-                                   struct Curl_peer *tunnel_peer,
+                                   بنية Curl_peer *tunnel_peer,
                                    uint8_t tunnel_transport,
                                    timediff_t attempt_delay_ms,
                                    uint32_t max_concurrent)
 {
-  memset(bs, 0, sizeof(*bs));
-  bs->running_tail = &bs->running;
+  memset(bs, 0, حجم(*bs));
+  bs->running_پڇ = &bs->running;
   bs->cf_create = get_cf_create(transport_peer, !!tunnel_peer);
-  if(!bs->cf_create) {
-    failf(data, "unsupported transport type %u%s",
+  إذا(!bs->cf_create) {
+    failf(معلومات, "unsupported transport type %u%s",
           transport_peer, tunnel_peer ? " to proxy" : "");
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    أرجع CURLE_UNSUPPORTED_PROTOCOL;
   }
   Curl_peer_link(&bs->origin, origin);
   Curl_peer_link(&bs->peer, peer);
@@ -358,618 +358,618 @@ static CURLcode cf_ip_ballers_init(struct cf_ip_ballers *bs,
   bs->tunnel_transport = tunnel_transport;
   bs->attempt_delay_ms = attempt_delay_ms;
   bs->max_concurrent = max_concurrent;
-  bs->last_attempt_ai_family = AF_INET; /* so AF_INET6 is next */
-  return CURLE_OK;
+  bs->آخري_attempt_ai_family = AF_INET; /* so AF_INET6 is next */
+  أرجع CURLE_OK;
 }
 
-static void cf_ip_ballers_prune(struct cf_ip_ballers *bs,
-                                struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+ساكن فراغ cf_ip_ballers_prune(بنية cf_ip_ballers *bs,
+                                بنية Curl_cfilter *cf,
+                                بنية Curl_easy *معلومات,
                                 uint32_t max_concurrent)
 {
-  struct cf_ip_attempt *a = NULL, **panchor;
+  بنية cf_ip_attempt *a = عدم, **panchor;
   uint32_t ongoing = 0;
 
-  for(a = bs->running; a; a = a->next) {
-    if(!a->result && !a->connected)
+  لكل(a = bs->running; a; a = a->ايندڙ) {
+    إذا(!a->نتيجو && !a->connected)
       ++ongoing;
   }
 
   panchor = &bs->running;
-  while(*panchor && (ongoing > max_concurrent)) {
+  طالما(*panchor && (ongoing > max_concurrent)) {
     a = *panchor;
-    if(!a->result && !a->connected) {
-      *panchor = a->next;
-      if(!a->next)
-        bs->running_tail = panchor;
-      a->next = NULL;
-      cf_ip_attempt_free(a, data);
+    إذا(!a->نتيجو && !a->connected) {
+      *panchor = a->ايندڙ;
+      إذا(!a->ايندڙ)
+        bs->running_پڇ = panchor;
+      a->ايندڙ = عدم;
+      cf_ip_attempt_free(a, معلومات);
       --ongoing;
-      CURL_TRC_CF(data, cf, "discarding oldest attempt to keep limit");
+      CURL_TRC_CF(معلومات, cf, "discarding oldest attempt to keep limit");
     }
-    else {
-      panchor = &a->next;
+    وإلا {
+      panchor = &a->ايندڙ;
     }
   }
 }
 
-static CURLcode cf_ip_ballers_run(struct cf_ip_ballers *bs,
-                                  struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
+ساكن CURLcode cf_ip_ballers_لاڳيتو(بنية cf_ip_ballers *bs,
+                                  بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *معلومات,
                                   bool dns_resolved,
                                   bool *connected)
 {
-  CURLcode result = CURLE_OK;
-  struct cf_ip_attempt *a = NULL, **panchor;
-  bool do_more;
-  timediff_t next_expire_ms;
+  CURLcode نتيجو = CURLE_OK;
+  بنية cf_ip_attempt *a = عدم, **panchor;
+  bool do_وڌيڪ;
+  timediff_t ايندڙ_expire_ms;
   uint32_t inconclusive, ongoing;
-  const struct curltime *pnow = NULL;
-  VERBOSE(int i);
+  ثابت بنية curltime *pnow = عدم;
+  VERBOSE(صحيح i);
 
-  if(bs->winner)
-    return CURLE_OK;
+  إذا(bs->winner)
+    أرجع CURLE_OK;
 
 evaluate:
-  if(Curl_timeleft_now_ms(data, Curl_pgrs_now(data)) < 0) {
-    failf(data, "Connection timeout after %" FMT_OFF_T " ms",
-          Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE));
-    return CURLE_OPERATION_TIMEDOUT;
+  إذا(Curl_timeleft_now_ms(معلومات, Curl_pgrs_now(معلومات)) < 0) {
+    failf(معلومات, "Connection timeout after %" FMT_OFF_T " ms",
+          Curl_pgrs_since_ms(معلومات, عدم, TIMER_STARTSINGLE));
+    أرجع CURLE_OPERATION_TIMEDOUT;
   }
 
   ongoing = inconclusive = 0;
 
   /* check if a running baller connects now */
   VERBOSE(i = -1);
-  for(panchor = &bs->running; *panchor;) {
+  لكل(panchor = &bs->running; *panchor;) {
     VERBOSE(++i);
     a = *panchor;
-    a->result = cf_ip_attempt_connect(a, data, connected);
-    if(!a->result) {
-      if(*connected) {
+    a->نتيجو = cf_ip_attempt_connect(a, معلومات, connected);
+    إذا(!a->نتيجو) {
+      إذا(*connected) {
         /* connected, declare the winner, remove from running,
          * clear remaining running list. */
-        CURL_TRC_CF(data, cf, "connect attempt #%d successful", i);
+        CURL_TRC_CF(معلومات, cf, "connect attempt #%d successful", i);
         bs->winner = a;
-        *panchor = a->next;
-        a->next = NULL;
-        while(bs->running) {
+        *panchor = a->ايندڙ;
+        a->ايندڙ = عدم;
+        طالما(bs->running) {
           a = bs->running;
-          bs->running = a->next;
-          cf_ip_attempt_free(a, data);
+          bs->running = a->ايندڙ;
+          cf_ip_attempt_free(a, معلومات);
         }
-        bs->running_tail = &bs->running;
-        return CURLE_OK;
+        bs->running_پڇ = &bs->running;
+        أرجع CURLE_OK;
       }
       /* still running */
       ++ongoing;
-      panchor = &(*panchor)->next;
+      panchor = &(*panchor)->ايندڙ;
     }
-    else if(a->inconclusive) { /* failed, but inconclusive */
+    وإلا إذا(a->inconclusive) { /* failed, but inconclusive */
       ++inconclusive;
-      panchor = &(*panchor)->next;
+      panchor = &(*panchor)->ايندڙ;
     }
-    else {
+    وإلا {
       /* hard failure, discard right away */
-      *panchor = a->next;
-      if(!a->next)
-        bs->running_tail = panchor;
-      a->next = NULL;
-      bs->last_dead_result = a->result;
+      *panchor = a->ايندڙ;
+      إذا(!a->ايندڙ)
+        bs->running_پڇ = panchor;
+      a->ايندڙ = عدم;
+      bs->آخري_dead_نتيجو = a->نتيجو;
       bs->had_dead = TRUE;
-      cf_ip_attempt_free(a, data);
+      cf_ip_attempt_free(a, معلومات);
     }
   }
-  if(bs->running)
-    CURL_TRC_CF(data, cf, "checked connect attempts: "
+  إذا(bs->running)
+    CURL_TRC_CF(معلومات, cf, "checked connect attempts: "
                 "%u ongoing, %u inconclusive", ongoing, inconclusive);
 
   /* no attempt connected yet, start another one? */
-  pnow = Curl_pgrs_now(data);
-  if(!ongoing) {
-    do_more = TRUE;
+  pnow = Curl_pgrs_now(معلومات);
+  إذا(!ongoing) {
+    do_وڌيڪ = TRUE;
   }
-  else {
-    bool more_possible = cf_ai_iter_has_more(&bs->addr_iter, data);
-#ifdef USE_IPV6
-    if(!more_possible)
-      more_possible = cf_ai_iter_has_more(&bs->ipv6_iter, data);
-#endif
-    do_more = more_possible &&
-      (curlx_ptimediff_ms(pnow, &bs->last_attempt_started) >=
+  وإلا {
+    bool وڌيڪ_possible = cf_ai_iter_has_وڌيڪ(&bs->addr_iter, معلومات);
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+    إذا(!وڌيڪ_possible)
+      وڌيڪ_possible = cf_ai_iter_has_وڌيڪ(&bs->ipv6_iter, معلومات);
+#جيڪڏهن_پورو
+    do_وڌيڪ = وڌيڪ_possible &&
+      (curlx_ptimediff_ms(pnow, &bs->آخري_attempt_started) >=
        bs->attempt_delay_ms);
-    if(do_more)
-      CURL_TRC_CF(data, cf, "happy eyeballs timeout expired, "
+    إذا(do_وڌيڪ)
+      CURL_TRC_CF(معلومات, cf, "happy eyeballs timeout expired, "
                   "start next attempt");
   }
 
-  if(do_more) {
+  إذا(do_وڌيڪ) {
     /* start the next attempt if there is another ip address to try.
      * Alternate between address families when possible. */
-    const struct Curl_addrinfo *ai = NULL;
-    int ai_family = 0;
-    CURL_TRC_CF(data, cf, "want to do more");
-#ifdef USE_IPV6
-    if((bs->last_attempt_ai_family == AF_INET) ||
-       !cf_ai_iter_has_more(&bs->addr_iter, data)) {
-      ai = cf_ai_iter_next(&bs->ipv6_iter, data);
+    ثابت بنية Curl_addrinfo *ai = عدم;
+    صحيح ai_family = 0;
+    CURL_TRC_CF(معلومات, cf, "want to do more");
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+    إذا((bs->آخري_attempt_ai_family == AF_INET) ||
+       !cf_ai_iter_has_وڌيڪ(&bs->addr_iter, معلومات)) {
+      ai = cf_ai_iter_ايندڙ(&bs->ipv6_iter, معلومات);
       ai_family = bs->ipv6_iter.ai_family;
-      CURL_TRC_CF(data, cf, "check for next AAAA address: %s",
+      CURL_TRC_CF(معلومات, cf, "check for next AAAA address: %s",
                   ai ? "found" : "none");
     }
-#endif
-    if(!ai) {
-      ai = cf_ai_iter_next(&bs->addr_iter, data);
+#جيڪڏهن_پورو
+    إذا(!ai) {
+      ai = cf_ai_iter_ايندڙ(&bs->addr_iter, معلومات);
       ai_family = bs->addr_iter.ai_family;
-      CURL_TRC_CF(data, cf, "check for next A address: %s",
+      CURL_TRC_CF(معلومات, cf, "check for next A address: %s",
                   ai ? "found" : "none");
     }
     /* We are (re-)starting attempts. We are not interested in
      * keeping old failure information. The new attempt will either
      * succeed or persist new failure. */
-    Curl_reset_fail(data);
+    Curl_reset_fail(معلومات);
 
-    if(ai) {  /* try another address */
-      struct Curl_sockaddr_ex addr;
+    إذا(ai) {  /* try another address */
+      بنية Curl_sockaddr_ex addr;
 
       /* Discard oldest to make room for new attempt */
-      if(bs->max_concurrent)
-        cf_ip_ballers_prune(bs, cf, data, bs->max_concurrent - 1);
+      إذا(bs->max_concurrent)
+        cf_ip_ballers_prune(bs, cf, معلومات, bs->max_concurrent - 1);
 
-      result = Curl_socket_addr_from_ai(&addr, ai, bs->transport_peer);
-      if(result)
-        goto out;
+      نتيجو = Curl_socket_addr_from_ai(&addr, ai, bs->transport_peer);
+      إذا(نتيجو)
+        اذهب ٻاهريون;
 
-      result = cf_ip_attempt_new(&a, data, cf, bs->origin, bs->peer,
+      نتيجو = cf_ip_attempt_new(&a, معلومات, cf, bs->origin, bs->peer,
                                  bs->transport_peer, &addr, ai_family,
                                  bs->tunnel_peer, bs->tunnel_transport,
                                  bs->cf_create);
-      CURL_TRC_CF(data, cf, "starting %s attempt for ipv%s -> %d",
+      CURL_TRC_CF(معلومات, cf, "starting %s attempt for ipv%s -> %d",
                   bs->running ? "next" : "first",
-                  (ai_family == AF_INET) ? "4" : "6", (int)result);
-      if(result)
-        goto out;
+                  (ai_family == AF_INET) ? "4" : "6", (صحيح)نتيجو);
+      إذا(نتيجو)
+        اذهب ٻاهريون;
       DEBUGASSERT(a);
 
       /* append to running list */
-      *bs->running_tail = a;
-      a->next = NULL;
-      bs->running_tail = &a->next;
-      bs->last_attempt_started = *pnow;
-      bs->last_attempt_ai_family = ai_family;
+      *bs->running_پڇ = a;
+      a->ايندڙ = عدم;
+      bs->running_پڇ = &a->ايندڙ;
+      bs->آخري_attempt_started = *pnow;
+      bs->آخري_attempt_ai_family = ai_family;
       /* and run everything again */
-      goto evaluate;
+      اذهب evaluate;
     }
-    else if(inconclusive) {
+    وإلا إذا(inconclusive) {
       /* tried all addresses, no success but some where inconclusive.
        * Let's restart the inconclusive ones. */
       timediff_t since_ms =
-        curlx_ptimediff_ms(pnow, &bs->last_attempt_started);
+        curlx_ptimediff_ms(pnow, &bs->آخري_attempt_started);
       timediff_t delay_ms = bs->attempt_delay_ms - since_ms;
-      if(delay_ms <= 0) {
-        CURL_TRC_CF(data, cf, "all attempts inconclusive, restarting one");
+      إذا(delay_ms <= 0) {
+        CURL_TRC_CF(معلومات, cf, "all attempts inconclusive, restarting one");
         VERBOSE(i = -1);
-        for(a = bs->running; a; a = a->next) {
+        لكل(a = bs->running; a; a = a->ايندڙ) {
           VERBOSE(++i);
-          if(!a->inconclusive)
-            continue;
-          result = cf_ip_attempt_restart(a, cf, data);
-          CURL_TRC_CF(data, cf, "restarted baller %d -> %d", i, (int)result);
-          if(result) /* serious failure */
-            goto out;
-          bs->last_attempt_started = *pnow;
-          goto evaluate;
+          إذا(!a->inconclusive)
+            استمر;
+          نتيجو = cf_ip_attempt_restart(a, cf, معلومات);
+          CURL_TRC_CF(معلومات, cf, "restarted baller %d -> %d", i, (صحيح)نتيجو);
+          إذا(نتيجو) /* serious failure */
+            اذهب ٻاهريون;
+          bs->آخري_attempt_started = *pnow;
+          اذهب evaluate;
         }
         DEBUGASSERT(0); /* should not come here */
       }
-      else {
+      وإلا {
         /* let's wait some more before restarting */
-        infof(data, "connect attempts inconclusive, retrying "
+        infof(معلومات, "connect attempts inconclusive, retrying "
                     "in %" FMT_TIMEDIFF_T "ms", delay_ms);
-        Curl_expire_set(data, EXPIRE_HAPPY_EYEBALLS, delay_ms, pnow);
+        Curl_expire_سيٽ(معلومات, EXPIRE_HAPPY_EYEBALLS, delay_ms, pnow);
       }
       /* attempt timeout for restart has not expired yet */
-      goto out;
+      اذهب ٻاهريون;
     }
-    else if(!ongoing && dns_resolved) {
+    وإلا إذا(!ongoing && dns_resolved) {
       /* no more addresses, no inconclusive attempts */
-      CURL_TRC_CF(data, cf, "no more attempts to try");
+      CURL_TRC_CF(معلومات, cf, "no more attempts to try");
       DEBUGASSERT(!bs->running);
-      result = bs->had_dead ? bs->last_dead_result : CURLE_COULDNT_CONNECT;
+      نتيجو = bs->had_dead ? bs->آخري_dead_نتيجو : CURLE_COULDNT_CONNECT;
     }
   }
 
-out:
-  if(!result) {
-    bool more_possible;
+ٻاهريون:
+  إذا(!نتيجو) {
+    bool وڌيڪ_possible;
 
     /* when do we need to be called again? */
-    pnow = Curl_pgrs_now(data);
-    next_expire_ms = Curl_timeleft_now_ms(data, pnow);
-    if(next_expire_ms < 0) {
-      failf(data, "Connection timeout after %" FMT_OFF_T " ms",
-            Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE));
-      return CURLE_OPERATION_TIMEDOUT;
+    pnow = Curl_pgrs_now(معلومات);
+    ايندڙ_expire_ms = Curl_timeleft_now_ms(معلومات, pnow);
+    إذا(ايندڙ_expire_ms < 0) {
+      failf(معلومات, "Connection timeout after %" FMT_OFF_T " ms",
+            Curl_pgrs_since_ms(معلومات, عدم, TIMER_STARTSINGLE));
+      أرجع CURLE_OPERATION_TIMEDOUT;
     }
 
-    more_possible = cf_ai_iter_has_more(&bs->addr_iter, data);
-#ifdef USE_IPV6
-    if(!more_possible)
-      more_possible = cf_ai_iter_has_more(&bs->ipv6_iter, data);
-#endif
-    if(more_possible) {
+    وڌيڪ_possible = cf_ai_iter_has_وڌيڪ(&bs->addr_iter, معلومات);
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+    إذا(!وڌيڪ_possible)
+      وڌيڪ_possible = cf_ai_iter_has_وڌيڪ(&bs->ipv6_iter, معلومات);
+#جيڪڏهن_پورو
+    إذا(وڌيڪ_possible) {
       timediff_t expire_ms, elapsed_ms;
 
-      elapsed_ms = curlx_ptimediff_ms(pnow, &bs->last_attempt_started);
+      elapsed_ms = curlx_ptimediff_ms(pnow, &bs->آخري_attempt_started);
       expire_ms = CURLMAX(bs->attempt_delay_ms - elapsed_ms, 0);
-      next_expire_ms = CURLMIN(next_expire_ms, expire_ms);
-      if(next_expire_ms <= 0) {
-        CURL_TRC_CF(data, cf, "HAPPY_EYEBALLS timeout due, re-evaluate");
-        goto evaluate;
+      ايندڙ_expire_ms = CURLMIN(ايندڙ_expire_ms, expire_ms);
+      إذا(ايندڙ_expire_ms <= 0) {
+        CURL_TRC_CF(معلومات, cf, "HAPPY_EYEBALLS timeout due, re-evaluate");
+        اذهب evaluate;
       }
-      CURL_TRC_CF(data, cf, "next HAPPY_EYEBALLS timeout in %" FMT_TIMEDIFF_T
-                  "ms", next_expire_ms);
-      Curl_expire_set(data, EXPIRE_HAPPY_EYEBALLS, next_expire_ms, pnow);
+      CURL_TRC_CF(معلومات, cf, "next HAPPY_EYEBALLS timeout in %" FMT_TIMEDIFF_T
+                  "ms", ايندڙ_expire_ms);
+      Curl_expire_سيٽ(معلومات, EXPIRE_HAPPY_EYEBALLS, ايندڙ_expire_ms, pnow);
     }
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static CURLcode cf_ip_ballers_shutdown(struct cf_ip_ballers *bs,
-                                       struct Curl_easy *data,
-                                       bool *done)
+ساكن CURLcode cf_ip_ballers_shutdown(بنية cf_ip_ballers *bs,
+                                       بنية Curl_easy *معلومات,
+                                       bool *پورو)
 {
-  struct cf_ip_attempt *a;
+  بنية cf_ip_attempt *a;
 
   /* shutdown all ballers that have not done so already. If one fails,
    * continue shutting down others until all are shutdown. */
-  *done = TRUE;
-  for(a = bs->running; a; a = a->next) {
+  *پورو = TRUE;
+  لكل(a = bs->running; a; a = a->ايندڙ) {
     bool bdone = FALSE;
-    if(a->shutdown || !a->cf)
-      continue;
-    a->result = a->cf->cft->do_shutdown(a->cf, data, &bdone);
-    if(a->result || bdone)
+    إذا(a->shutdown || !a->cf)
+      استمر;
+    a->نتيجو = a->cf->cft->do_shutdown(a->cf, معلومات, &bdone);
+    إذا(a->نتيجو || bdone)
       a->shutdown = TRUE; /* treat a failed shutdown as done */
-    else
-      *done = FALSE;
+    وإلا
+      *پورو = FALSE;
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode cf_ip_ballers_pollset(struct cf_ip_ballers *bs,
-                                      struct Curl_easy *data,
-                                      struct easy_pollset *ps)
+ساكن CURLcode cf_ip_ballers_pollset(بنية cf_ip_ballers *bs,
+                                      بنية Curl_easy *معلومات,
+                                      بنية easy_pollset *ps)
 {
-  struct cf_ip_attempt *a;
-  CURLcode result = CURLE_OK;
-  for(a = bs->running; a && !result; a = a->next) {
-    if(a->result)
-      continue;
-    result = Curl_conn_cf_adjust_pollset(a->cf, data, ps);
+  بنية cf_ip_attempt *a;
+  CURLcode نتيجو = CURLE_OK;
+  لكل(a = bs->running; a && !نتيجو; a = a->ايندڙ) {
+    إذا(a->نتيجو)
+      استمر;
+    نتيجو = Curl_conn_cf_adjust_pollset(a->cf, معلومات, ps);
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static bool cf_ip_ballers_pending(struct cf_ip_ballers *bs,
-                                  const struct Curl_easy *data)
+ساكن bool cf_ip_ballers_pending(بنية cf_ip_ballers *bs,
+                                  ثابت بنية Curl_easy *معلومات)
 {
-  struct cf_ip_attempt *a;
+  بنية cf_ip_attempt *a;
 
-  for(a = bs->running; a; a = a->next) {
-    if(a->result)
-      continue;
-    if(a->cf && a->cf->cft->has_data_pending(a->cf, data))
-      return TRUE;
+  لكل(a = bs->running; a; a = a->ايندڙ) {
+    إذا(a->نتيجو)
+      استمر;
+    إذا(a->cf && a->cf->cft->has_معلومات_pending(a->cf, معلومات))
+      أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
-static int cf_ip_ballers_min_reply_ms(struct cf_ip_ballers *bs,
-                                      struct Curl_easy *data)
+ساكن صحيح cf_ip_ballers_min_جواب_ms(بنية cf_ip_ballers *bs,
+                                      بنية Curl_easy *معلومات)
 {
-  int reply_ms = -1, breply_ms;
-  struct cf_ip_attempt *a;
+  صحيح جواب_ms = -1, breply_ms;
+  بنية cf_ip_attempt *a;
 
-  for(a = bs->running; a; a = a->next) {
-    if(a->cf && !a->cf->cft->query(a->cf, data, CF_QUERY_CONNECT_REPLY_MS,
-                                   &breply_ms, NULL) &&
-       breply_ms >= 0 && (reply_ms < 0 || breply_ms < reply_ms))
-      reply_ms = breply_ms;
+  لكل(a = bs->running; a; a = a->ايندڙ) {
+    إذا(a->cf && !a->cf->cft->query(a->cf, معلومات, CF_QUERY_CONNECT_جواب_MS,
+                                   &breply_ms, عدم) &&
+       breply_ms >= 0 && (جواب_ms < 0 || breply_ms < جواب_ms))
+      جواب_ms = breply_ms;
   }
-  return reply_ms;
+  أرجع جواب_ms;
 }
 
-typedef enum {
+تعريفنوع تعداد {
   SCFST_INIT,
-  SCFST_WAITING,
-  SCFST_DONE
+  SCFST_انتظار,
+  SCFST_پورو
 } cf_connect_state;
 
-struct cf_ip_happy_ctx {
+بنية cf_ip_happy_ctx {
   cf_ip_connect_create *cf_create;
   cf_connect_state state;
-  struct cf_ip_ballers ballers;
-  BIT(dns_resolved);
+  بنية cf_ip_ballers ballers;
+  ٻٽو_انگ(dns_resolved);
 };
 
-static CURLcode is_connected(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
+ساكن CURLcode is_connected(بنية Curl_cfilter *cf,
+                             بنية Curl_easy *معلومات,
                              bool *connected)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
-  struct connectdata *conn = cf->conn;
-  CURLcode result;
+  بنية cf_ip_happy_ctx *ctx = cf->ctx;
+  بنية connectdata *conn = cf->conn;
+  CURLcode نتيجو;
 
-  result = cf_ip_ballers_run(&ctx->ballers, cf, data,
+  نتيجو = cf_ip_ballers_لاڳيتو(&ctx->ballers, cf, معلومات,
                              (bool)ctx->dns_resolved, connected);
 
-  if(!result)
-    return CURLE_OK;
-  else {
-    struct Curl_peer *peer = NULL, *proxy_peer = NULL;
-    char viamsg[160];
+  إذا(!نتيجو)
+    أرجع CURLE_OK;
+  وإلا {
+    بنية Curl_peer *peer = عدم, *proxy_peer = عدم;
+    حرف viamsg[160];
 
-    peer = Curl_conn_get_first_peer(conn, cf->sockindex);
-    if(!conn->origin || !peer)
-      return CURLE_FAILED_INIT;
+    peer = Curl_conn_get_پهريون_peer(conn, cf->sockindex);
+    إذا(!conn->origin || !peer)
+      أرجع CURLE_FAILED_INIT;
 
-#ifndef CURL_DISABLE_PROXY
-    if(conn->socks_proxy.peer)
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_PROXY
+    إذا(conn->socks_proxy.peer)
       proxy_peer = conn->socks_proxy.peer;
-    else if(conn->http_proxy.peer)
+    وإلا إذا(conn->http_proxy.peer)
       proxy_peer = conn->http_proxy.peer;
-#endif
+#جيڪڏهن_پورو
 
     viamsg[0] = 0;
-    if(!Curl_peer_equal(peer, conn->origin) &&
+    إذا(!Curl_peer_equal(peer, conn->origin) &&
        !Curl_peer_equal(peer, proxy_peer)) {
-#ifdef USE_UNIX_SOCKETS
-      if(peer->unix_socket)
-        curl_msnprintf(viamsg, sizeof(viamsg), " over unix://%s",
+#جيڪڏهن_وصف_ٿيل USE_UNIX_SOCKETS
+      إذا(peer->unix_socket)
+        curl_msnprintf(viamsg, حجم(viamsg), " over unix://%s",
                        peer->hostname);
-      else
-#endif
-      curl_msnprintf(viamsg, sizeof(viamsg), " via %s:%u",
-                     peer->hostname, peer->port);
+      وإلا
+#جيڪڏهن_پورو
+      curl_msnprintf(viamsg, حجم(viamsg), " via %s:%u",
+                     peer->hostname, peer->پورٽ);
     }
 
-    failf(data, "Failed to connect to %s:%u%s %s%s%safter "
+    failf(معلومات, "Failed to connect to %s:%u%s %s%s%safter "
           "%" FMT_TIMEDIFF_T " ms: %s",
-          conn->origin->hostname, conn->origin->port, viamsg,
+          conn->origin->hostname, conn->origin->پورٽ, viamsg,
           proxy_peer ? "over proxy " : "",
           proxy_peer ? proxy_peer->hostname : "",
           proxy_peer ? " " : "",
-          Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE),
-          curl_easy_strerror(result));
+          Curl_pgrs_since_ms(معلومات, عدم, TIMER_STARTSINGLE),
+          curl_easy_strerror(نتيجو));
 
-#ifdef SOCKETIMEDOUT
-    if(SOCKETIMEDOUT == data->state.os_errno)
-      result = CURLE_OPERATION_TIMEDOUT;
-#endif
+#جيڪڏهن_وصف_ٿيل SOCKETIMEDOUT
+    إذا(SOCKETIMEDOUT == معلومات->state.os_errno)
+      نتيجو = CURLE_OPERATION_TIMEDOUT;
+#جيڪڏهن_پورو
 
-    return result;
+    أرجع نتيجو;
   }
 }
 
-#define IP_HE_MAX_CONCURRENT_ATTEMPTS     6
+#وصف_ڪريو IP_HE_MAX_CONCURRENT_ATTEMPTS     6
 
-static CURLcode cf_ip_happy_init(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+ساكن CURLcode cf_ip_happy_init(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *معلومات)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
+  بنية cf_ip_happy_ctx *ctx = cf->ctx;
 
-  if(Curl_timeleft_ms(data) < 0) {
+  إذا(Curl_timeleft_ms(معلومات) < 0) {
     /* a precaution, no need to continue if time already is up */
-    failf(data, "Connection time-out");
-    return CURLE_OPERATION_TIMEDOUT;
+    failf(معلومات, "Connection time-out");
+    أرجع CURLE_OPERATION_TIMEDOUT;
   }
 
-  if(ctx->ballers.transport_peer == TRNSPRT_UNIX) {
-#ifdef USE_UNIX_SOCKETS
+  إذا(ctx->ballers.transport_peer == TRNSPRT_UNIX) {
+#جيڪڏهن_وصف_ٿيل USE_UNIX_SOCKETS
     cf_ai_iter_init(&ctx->ballers.addr_iter, cf, ctx->ballers.peer, AF_UNIX);
-#else
-    return CURLE_UNSUPPORTED_PROTOCOL;
-#endif
+#وإلا
+    أرجع CURLE_UNSUPPORTED_PROTOCOL;
+#جيڪڏهن_پورو
   }
-  else { /* TCP/UDP/QUIC */
-#ifdef USE_IPV6
+  وإلا { /* TCP/UDP/QUIC */
+#جيڪڏهن_وصف_ٿيل USE_IPV6
     cf_ai_iter_init(&ctx->ballers.ipv6_iter, cf, ctx->ballers.peer, AF_INET6);
-#endif
+#جيڪڏهن_پورو
     cf_ai_iter_init(&ctx->ballers.addr_iter, cf, ctx->ballers.peer, AF_INET);
   }
 
-  CURL_TRC_CF(data, cf, "init ip ballers for transport %u",
+  CURL_TRC_CF(معلومات, cf, "init ip ballers for transport %u",
               ctx->ballers.transport_peer);
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static void cf_ip_happy_ctx_clear(struct cf_ip_happy_ctx *ctx,
-                                  struct Curl_easy *data)
+ساكن فراغ cf_ip_happy_ctx_clear(بنية cf_ip_happy_ctx *ctx,
+                                  بنية Curl_easy *معلومات)
 {
   DEBUGASSERT(ctx);
-  if(ctx)
-    cf_ip_ballers_clear(data, &ctx->ballers);
+  إذا(ctx)
+    cf_ip_ballers_clear(معلومات, &ctx->ballers);
 }
 
-static void cf_ip_happy_ctx_destroy(struct cf_ip_happy_ctx *ctx,
-                                    struct Curl_easy *data)
+ساكن فراغ cf_ip_happy_ctx_destroy(بنية cf_ip_happy_ctx *ctx,
+                                    بنية Curl_easy *معلومات)
 {
-  if(ctx) {
-    cf_ip_happy_ctx_clear(ctx, data);
+  إذا(ctx) {
+    cf_ip_happy_ctx_clear(ctx, معلومات);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_ip_happy_shutdown(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     bool *done)
+ساكن CURLcode cf_ip_happy_shutdown(بنية Curl_cfilter *cf,
+                                     بنية Curl_easy *معلومات,
+                                     bool *پورو)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  بنية cf_ip_happy_ctx *ctx = cf->ctx;
+  CURLcode نتيجو = CURLE_OK;
 
-  DEBUGASSERT(data);
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  DEBUGASSERT(معلومات);
+  إذا(cf->connected) {
+    *پورو = TRUE;
+    أرجع CURLE_OK;
   }
 
-  result = cf_ip_ballers_shutdown(&ctx->ballers, data, done);
-  CURL_TRC_CF(data, cf, "shutdown -> %d, done=%d", (int)result, *done);
-  return result;
+  نتيجو = cf_ip_ballers_shutdown(&ctx->ballers, معلومات, پورو);
+  CURL_TRC_CF(معلومات, cf, "shutdown -> %d, done=%d", (صحيح)نتيجو, *پورو);
+  أرجع نتيجو;
 }
 
-static CURLcode cf_ip_happy_adjust_pollset(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
-                                           struct easy_pollset *ps)
+ساكن CURLcode cf_ip_happy_adjust_pollset(بنية Curl_cfilter *cf,
+                                           بنية Curl_easy *معلومات,
+                                           بنية easy_pollset *ps)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  بنية cf_ip_happy_ctx *ctx = cf->ctx;
+  CURLcode نتيجو = CURLE_OK;
 
-  if(!cf->connected) {
-    result = cf_ip_ballers_pollset(&ctx->ballers, data, ps);
-    CURL_TRC_CF(data, cf, "adjust_pollset -> %d, %u socks", (int)result,
+  إذا(!cf->connected) {
+    نتيجو = cf_ip_ballers_pollset(&ctx->ballers, معلومات, ps);
+    CURL_TRC_CF(معلومات, cf, "adjust_pollset -> %d, %u socks", (صحيح)نتيجو,
                 ps->n);
   }
-  return result;
+  أرجع نتيجو;
 }
 
-static CURLcode cf_ip_happy_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    bool *done)
+ساكن CURLcode cf_ip_happy_connect(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *معلومات,
+                                    bool *پورو)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  بنية cf_ip_happy_ctx *ctx = cf->ctx;
+  CURLcode نتيجو = CURLE_OK;
 
   /* -Werror=null-dereference finds false positives suddenly. */
-  if(!data)
-    return CURLE_FAILED_INIT;
+  إذا(!معلومات)
+    أرجع CURLE_FAILED_INIT;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  إذا(cf->connected) {
+    *پورو = TRUE;
+    أرجع CURLE_OK;
   }
 
   DEBUGASSERT(ctx);
-  *done = FALSE;
+  *پورو = FALSE;
 
-  if(!ctx->dns_resolved) {
-    result = Curl_conn_dns_addr_result(cf->conn, cf->sockindex,
+  إذا(!ctx->dns_resolved) {
+    نتيجو = Curl_conn_dns_addr_نتيجو(cf->conn, cf->sockindex,
                                        ctx->ballers.peer);
-    if(!result)
+    إذا(!نتيجو)
       ctx->dns_resolved = TRUE;
-    else if(result == CURLE_AGAIN) {
-      result = CURLE_OK;
+    وإلا إذا(نتيجو == CURLE_AGAIN) {
+      نتيجو = CURLE_OK;
     }
-    else /* real error */
-      goto out;
+    وإلا /* real error */
+      اذهب ٻاهريون;
   }
 
-  switch(ctx->state) {
-  case SCFST_INIT:
-    DEBUGASSERT(CURL_SOCKET_BAD == Curl_conn_cf_get_socket(cf, data));
+  بدل(ctx->state) {
+  حالة SCFST_INIT:
+    DEBUGASSERT(CURL_SOCKET_BAD == Curl_conn_cf_get_socket(cf, معلومات));
     DEBUGASSERT(!cf->connected);
-    result = cf_ip_happy_init(cf, data);
-    if(result)
-      goto out;
-    ctx->state = SCFST_WAITING;
+    نتيجو = cf_ip_happy_init(cf, معلومات);
+    إذا(نتيجو)
+      اذهب ٻاهريون;
+    ctx->state = SCFST_انتظار;
     FALLTHROUGH();
-  case SCFST_WAITING:
-    result = is_connected(cf, data, done);
-    if(!result && *done) {
+  حالة SCFST_انتظار:
+    نتيجو = is_connected(cf, معلومات, پورو);
+    إذا(!نتيجو && *پورو) {
       DEBUGASSERT(ctx->ballers.winner);
       DEBUGASSERT(ctx->ballers.winner->cf);
       DEBUGASSERT(ctx->ballers.winner->cf->connected);
       /* we have a winner. Install and activate it.
        * close/free all others. */
-      ctx->state = SCFST_DONE;
+      ctx->state = SCFST_پورو;
       cf->connected = TRUE;
-      cf->next = ctx->ballers.winner->cf;
-      ctx->ballers.winner->cf = NULL;
+      cf->ايندڙ = ctx->ballers.winner->cf;
+      ctx->ballers.winner->cf = عدم;
 
-      if(cf->conn->scheme->protocol & PROTO_FAMILY_SSH)
-        Curl_pgrsTime(data, TIMER_APPCONNECT); /* we are connected already */
-#ifdef CURLVERBOSE
-      if(Curl_trc_cf_is_verbose(cf, data)) {
-        struct ip_quadruple ipquad;
+      إذا(cf->conn->scheme->protocol & PROTO_FAMILY_SSH)
+        Curl_pgrs_وقت(معلومات, TIMER_APPCONNECT); /* we are connected already */
+#جيڪڏهن_وصف_ٿيل CURLVERBOSE
+      إذا(Curl_trc_cf_is_verbose(cf, معلومات)) {
+        بنية ip_quadruple ipquad;
         bool is_ipv6;
-        if(!Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad)) {
-          CURL_TRC_CF(data, cf, "Connected to %s (%s) port %u",
+        إذا(!Curl_conn_cf_get_ip_info(cf->ايندڙ, معلومات, &is_ipv6, &ipquad)) {
+          CURL_TRC_CF(معلومات, cf, "Connected to %s (%s) port %u",
                       ctx->ballers.peer->hostname,
-                      ipquad.remote_ip, ipquad.remote_port);
+                      ipquad.remote_ip, ipquad.remote_پورٽ);
         }
       }
-#endif
-      cf_ip_happy_ctx_clear(ctx, data);
-      Curl_expire_clear(data, EXPIRE_HAPPY_EYEBALLS);
+#جيڪڏهن_پورو
+      cf_ip_happy_ctx_clear(ctx, معلومات);
+      Curl_expire_clear(معلومات, EXPIRE_HAPPY_EYEBALLS);
       /* whatever errors were reported by ballers, clear our errorbuf */
-      Curl_reset_fail(data);
-      data->info.numconnects++; /* to track the # of connections made */
+      Curl_reset_fail(معلومات);
+      معلومات->info.numconnects++; /* to track the # of connections made */
     }
-    break;
-  case SCFST_DONE:
-    *done = TRUE;
-    break;
+    اكسر;
+  حالة SCFST_پورو:
+    *پورو = TRUE;
+    اكسر;
   }
-out:
-  return result;
+ٻاهريون:
+  أرجع نتيجو;
 }
 
-static bool cf_ip_happy_data_pending(struct Curl_cfilter *cf,
-                                     const struct Curl_easy *data)
+ساكن bool cf_ip_happy_معلومات_pending(بنية Curl_cfilter *cf,
+                                     ثابت بنية Curl_easy *معلومات)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
+  بنية cf_ip_happy_ctx *ctx = cf->ctx;
 
-  if(!cf->connected) {
-    return cf_ip_ballers_pending(&ctx->ballers, data);
+  إذا(!cf->connected) {
+    أرجع cf_ip_ballers_pending(&ctx->ballers, معلومات);
   }
-  return cf->next->cft->has_data_pending(cf->next, data);
+  أرجع cf->ايندڙ->cft->has_معلومات_pending(cf->ايندڙ, معلومات);
 }
 
-static CURLcode cf_ip_happy_query(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2)
+ساكن CURLcode cf_ip_happy_query(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *معلومات,
+                                  صحيح query, صحيح *pres1, فراغ *pres2)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
+  بنية cf_ip_happy_ctx *ctx = cf->ctx;
 
-  if(!cf->connected) {
-    switch(query) {
-    case CF_QUERY_CONNECT_REPLY_MS: {
-      *pres1 = cf_ip_ballers_min_reply_ms(&ctx->ballers, data);
-      CURL_TRC_CF(data, cf, "query connect reply: %dms", *pres1);
-      return CURLE_OK;
+  إذا(!cf->connected) {
+    بدل(query) {
+    حالة CF_QUERY_CONNECT_جواب_MS: {
+      *pres1 = cf_ip_ballers_min_جواب_ms(&ctx->ballers, معلومات);
+      CURL_TRC_CF(معلومات, cf, "query connect reply: %dms", *pres1);
+      أرجع CURLE_OK;
     }
-    default:
-      break;
+    افتراضي:
+      اكسر;
     }
   }
 
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  أرجع cf->ايندڙ ?
+    cf->ايندڙ->cft->query(cf->ايندڙ, معلومات, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static void cf_ip_happy_destroy(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+ساكن فراغ cf_ip_happy_destroy(بنية Curl_cfilter *cf,
+                                بنية Curl_easy *معلومات)
 {
-  struct cf_ip_happy_ctx *ctx = cf->ctx;
+  بنية cf_ip_happy_ctx *ctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
-  if(ctx) {
-    cf_ip_happy_ctx_clear(ctx, data);
-    cf_ip_happy_ctx_destroy(ctx, data);
+  CURL_TRC_CF(معلومات, cf, "destroy");
+  إذا(ctx) {
+    cf_ip_happy_ctx_clear(ctx, معلومات);
+    cf_ip_happy_ctx_destroy(ctx, معلومات);
   }
 }
 
-struct Curl_cftype Curl_cft_ip_happy = {
+بنية Curl_cftype Curl_cft_ip_happy = {
   "HAPPY-EYEBALLS",
-  CF_TYPE_SETUP,
+  CF_TYPE_تياري,
   CURL_LOG_LVL_NONE,
   cf_ip_happy_destroy,
   cf_ip_happy_connect,
   cf_ip_happy_shutdown,
   cf_ip_happy_adjust_pollset,
-  cf_ip_happy_data_pending,
+  cf_ip_happy_معلومات_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -978,62 +978,62 @@ struct Curl_cftype Curl_cft_ip_happy = {
   cf_ip_happy_query,
 };
 
-static CURLcode cf_ip_happy_create(struct Curl_cfilter **pcf,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer,
+ساكن CURLcode cf_ip_happy_create(بنية Curl_cfilter **pcf,
+                                   بنية Curl_easy *معلومات,
+                                   بنية Curl_peer *origin,
+                                   بنية Curl_peer *peer,
                                    uint8_t transport_peer,
-                                   struct connectdata *conn,
-                                   struct Curl_peer *tunnel_peer,
+                                   بنية connectdata *conn,
+                                   بنية Curl_peer *tunnel_peer,
                                    uint8_t tunnel_transport)
 {
-  struct cf_ip_happy_ctx *ctx = NULL;
-  CURLcode result;
+  بنية cf_ip_happy_ctx *ctx = عدم;
+  CURLcode نتيجو;
 
-  (void)data;
-  (void)conn;
-  *pcf = NULL;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (فراغ)معلومات;
+  (فراغ)conn;
+  *pcf = عدم;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+    اذهب ٻاهريون;
   }
-  result = cf_ip_ballers_init(&ctx->ballers, data,
+  نتيجو = cf_ip_ballers_init(&ctx->ballers, معلومات,
                               origin, peer, transport_peer,
                               tunnel_peer, tunnel_transport,
-                              data->set.happy_eyeballs_timeout,
+                              معلومات->سيٽ.happy_eyeballs_timeout,
                               IP_HE_MAX_CONCURRENT_ATTEMPTS);
-  if(result)
-    goto out;
+  إذا(نتيجو)
+    اذهب ٻاهريون;
 
-  result = Curl_cf_create(pcf, &Curl_cft_ip_happy, ctx);
+  نتيجو = Curl_cf_create(pcf, &Curl_cft_ip_happy, ctx);
 
-out:
-  if(result) {
+ٻاهريون:
+  إذا(نتيجو) {
     curlx_safefree(*pcf);
-    cf_ip_happy_ctx_destroy(ctx, data);
+    cf_ip_happy_ctx_destroy(ctx, معلومات);
   }
-  return result;
+  أرجع نتيجو;
 }
 
-CURLcode Curl_cf_ip_happy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
+CURLcode Curl_cf_ip_happy_وجهو_after(بنية Curl_cfilter *cf_at,
+                                       بنية Curl_easy *معلومات,
+                                       بنية Curl_peer *origin,
+                                       بنية Curl_peer *peer,
                                        uint8_t transport_peer,
-                                       struct Curl_peer *tunnel_peer,
+                                       بنية Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  بنية Curl_cfilter *cf;
+  CURLcode نتيجو;
 
   /* Need to be first */
   DEBUGASSERT(cf_at);
-  result = cf_ip_happy_create(&cf, data, origin, peer, transport_peer,
+  نتيجو = cf_ip_happy_create(&cf, معلومات, origin, peer, transport_peer,
                               cf_at->conn, tunnel_peer, tunnel_transport);
-  if(result)
-    return result;
+  إذا(نتيجو)
+    أرجع نتيجو;
 
-  Curl_conn_cf_insert_after(cf_at, cf);
-  return CURLE_OK;
+  Curl_conn_cf_وجهو_after(cf_at, cf);
+  أرجع CURLE_OK;
 }

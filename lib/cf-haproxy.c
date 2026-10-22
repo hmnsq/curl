@@ -21,40 +21,40 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_PROXY
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "cf-haproxy.h"
-#include "connect.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "select.h"
+#ضمن "urldata.h"
+#ضمن "cfilters.h"
+#ضمن "cf-haproxy.h"
+#ضمن "connect.h"
+#ضمن "curl_addrinfo.h"
+#ضمن "curl_trc.h"
+#ضمن "select.h"
 
 
-typedef enum {
+تعريفنوع تعداد {
   HAPROXY_INIT,     /* init/default/no tunnel state */
   HAPROXY_SEND,     /* data_out being sent */
-  HAPROXY_DONE      /* all work done */
+  HAPROXY_پورو      /* all work done */
 } haproxy_state;
 
-struct cf_haproxy_ctx {
-  int state;
-  struct dynbuf data_out;
+بنية cf_haproxy_ctx {
+  صحيح state;
+  بنية dynbuf معلومات_ٻاهريون;
 };
 
-static void cf_haproxy_ctx_free(struct cf_haproxy_ctx *ctx)
+ساكن فراغ cf_haproxy_ctx_free(بنية cf_haproxy_ctx *ctx)
 {
-  if(ctx) {
-    curlx_dyn_free(&ctx->data_out);
+  إذا(ctx) {
+    curlx_dyn_free(&ctx->معلومات_ٻاهريون);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data)
+ساكن CURLcode cf_haproxy_date_ٻاهريون_سيٽ(بنية Curl_cfilter *cf,
+                                        بنية Curl_easy *معلومات)
 {
   /* We fake a client connection report to the upstream server
    * with the HAProxy protocol, reporting the client's source
@@ -62,132 +62,132 @@ static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
    * addresses: either the ones used to talk to the upstream
    *            OR the value supplied by the user
    * ports: the ports used in the upstream connection */
-  const char *client_source_ip;
-  const char *client_dest_ip;
-  struct cf_haproxy_ctx *ctx = cf->ctx;
-  CURLcode result;
-  struct ip_quadruple ipquad;
+  ثابت حرف *client_ذريعو_ip;
+  ثابت حرف *client_dest_ip;
+  بنية cf_haproxy_ctx *ctx = cf->ctx;
+  CURLcode نتيجو;
+  بنية ip_quadruple ipquad;
   bool is_ipv6;
 
   DEBUGASSERT(ctx);
   DEBUGASSERT(ctx->state == HAPROXY_INIT);
-#ifdef USE_UNIX_SOCKETS
-  if(Curl_conn_get_first_peer(cf->conn, cf->sockindex)->unix_socket)
+#جيڪڏهن_وصف_ٿيل USE_UNIX_SOCKETS
+  إذا(Curl_conn_get_پهريون_peer(cf->conn, cf->sockindex)->unix_socket)
     /* the buffer is large enough to hold this! */
-    result = curlx_dyn_addn(&ctx->data_out, STRCONST("PROXY UNKNOWN\r\n"));
-  else {
-#endif /* USE_UNIX_SOCKETS */
-  result = Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad);
-  if(result)
-    return result;
+    نتيجو = curlx_dyn_addn(&ctx->معلومات_ٻاهريون, STRCONST("PROXY UNKNOWN\r\n"));
+  وإلا {
+#جيڪڏهن_پورو /* USE_UNIX_SOCKETS */
+  نتيجو = Curl_conn_cf_get_ip_info(cf->ايندڙ, معلومات, &is_ipv6, &ipquad);
+  إذا(نتيجو)
+    أرجع نتيجو;
 
-  client_source_ip = CURL_EASY_STR(data, STRING_HAPROXY_CLIENT_IP);
-  if(client_source_ip) {
-    client_dest_ip = client_source_ip;
-    is_ipv6 = !Curl_is_ipv4addr(client_source_ip);
+  client_ذريعو_ip = CURL_EASY_STR(معلومات, STRING_HAPROXY_CLIENT_IP);
+  إذا(client_ذريعو_ip) {
+    client_dest_ip = client_ذريعو_ip;
+    is_ipv6 = !Curl_is_ipv4addr(client_ذريعو_ip);
   }
-  else {
-    client_source_ip = ipquad.local_ip;
+  وإلا {
+    client_ذريعو_ip = ipquad.local_ip;
     client_dest_ip = ipquad.remote_ip;
   }
 
-  result = curlx_dyn_addf(&ctx->data_out, "PROXY %s %s %s %d %d\r\n",
+  نتيجو = curlx_dyn_addf(&ctx->معلومات_ٻاهريون, "PROXY %s %s %s %d %d\r\n",
                           is_ipv6 ? "TCP6" : "TCP4",
-                          client_source_ip, client_dest_ip,
-                          ipquad.local_port, ipquad.remote_port);
+                          client_ذريعو_ip, client_dest_ip,
+                          ipquad.local_پورٽ, ipquad.remote_پورٽ);
 
-#ifdef USE_UNIX_SOCKETS
+#جيڪڏهن_وصف_ٿيل USE_UNIX_SOCKETS
   }
-#endif /* USE_UNIX_SOCKETS */
-  return result;
+#جيڪڏهن_پورو /* USE_UNIX_SOCKETS */
+  أرجع نتيجو;
 }
 
-static CURLcode cf_haproxy_connect(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   bool *done)
+ساكن CURLcode cf_haproxy_connect(بنية Curl_cfilter *cf,
+                                   بنية Curl_easy *معلومات,
+                                   bool *پورو)
 {
-  struct cf_haproxy_ctx *ctx = cf->ctx;
-  CURLcode result;
+  بنية cf_haproxy_ctx *ctx = cf->ctx;
+  CURLcode نتيجو;
   size_t len;
 
   DEBUGASSERT(ctx);
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  إذا(cf->connected) {
+    *پورو = TRUE;
+    أرجع CURLE_OK;
   }
 
-  result = cf->next->cft->do_connect(cf->next, data, done);
-  if(result || !*done)
-    return result;
+  نتيجو = cf->ايندڙ->cft->do_connect(cf->ايندڙ, معلومات, پورو);
+  إذا(نتيجو || !*پورو)
+    أرجع نتيجو;
 
-  switch(ctx->state) {
-  case HAPROXY_INIT:
-    result = cf_haproxy_date_out_set(cf, data);
-    if(result)
-      goto out;
+  بدل(ctx->state) {
+  حالة HAPROXY_INIT:
+    نتيجو = cf_haproxy_date_ٻاهريون_سيٽ(cf, معلومات);
+    إذا(نتيجو)
+      اذهب ٻاهريون;
     ctx->state = HAPROXY_SEND;
     FALLTHROUGH();
-  case HAPROXY_SEND:
-    len = curlx_dyn_len(&ctx->data_out);
-    if(len > 0) {
+  حالة HAPROXY_SEND:
+    len = curlx_dyn_len(&ctx->معلومات_ٻاهريون);
+    إذا(len > 0) {
       size_t nwritten;
-      result = Curl_conn_cf_send(cf->next, data,
-                                 curlx_dyn_uptr(&ctx->data_out), len, FALSE,
+      نتيجو = Curl_conn_cf_send(cf->ايندڙ, معلومات,
+                                 curlx_dyn_uptr(&ctx->معلومات_ٻاهريون), len, FALSE,
                                  &nwritten);
-      if(result) {
-        if(result != CURLE_AGAIN)
-          goto out;
-        result = CURLE_OK;
+      إذا(نتيجو) {
+        إذا(نتيجو != CURLE_AGAIN)
+          اذهب ٻاهريون;
+        نتيجو = CURLE_OK;
         nwritten = 0;
       }
-      curlx_dyn_tail(&ctx->data_out, len - nwritten);
-      if(curlx_dyn_len(&ctx->data_out) > 0) {
-        result = CURLE_OK;
-        goto out;
+      curlx_dyn_پڇ(&ctx->معلومات_ٻاهريون, len - nwritten);
+      إذا(curlx_dyn_len(&ctx->معلومات_ٻاهريون) > 0) {
+        نتيجو = CURLE_OK;
+        اذهب ٻاهريون;
       }
     }
-    ctx->state = HAPROXY_DONE;
+    ctx->state = HAPROXY_پورو;
     FALLTHROUGH();
-  default:
-    curlx_dyn_free(&ctx->data_out);
-    break;
+  افتراضي:
+    curlx_dyn_free(&ctx->معلومات_ٻاهريون);
+    اكسر;
   }
 
-out:
-  *done = (!result) && (ctx->state == HAPROXY_DONE);
-  cf->connected = *done;
-  return result;
+ٻاهريون:
+  *پورو = (!نتيجو) && (ctx->state == HAPROXY_پورو);
+  cf->connected = *پورو;
+  أرجع نتيجو;
 }
 
-static void cf_haproxy_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+ساكن فراغ cf_haproxy_destroy(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *معلومات)
 {
-  CURL_TRC_CF(data, cf, "destroy");
+  CURL_TRC_CF(معلومات, cf, "destroy");
   cf_haproxy_ctx_free(cf->ctx);
 }
 
-static CURLcode cf_haproxy_adjust_pollset(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+ساكن CURLcode cf_haproxy_adjust_pollset(بنية Curl_cfilter *cf,
+                                          بنية Curl_easy *معلومات,
+                                          بنية easy_pollset *ps)
 {
-  if(cf->next->connected && !cf->connected) {
+  إذا(cf->ايندڙ->connected && !cf->connected) {
     /* If we are not connected, but the filter "below" is
      * and not waiting on something, we are sending. */
-    return Curl_pollset_set_out_only(
-      data, ps, Curl_conn_cf_get_socket(cf, data));
+    أرجع Curl_pollset_سيٽ_ٻاهريون_only(
+      معلومات, ps, Curl_conn_cf_get_socket(cf, معلومات));
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-struct Curl_cftype Curl_cft_haproxy = {
+بنية Curl_cftype Curl_cft_haproxy = {
   "HAPROXY",
-  CF_TYPE_PROXY | CF_TYPE_SETUP,
+  CF_TYPE_PROXY | CF_TYPE_تياري,
   0,
   cf_haproxy_destroy,
   cf_haproxy_connect,
   Curl_cf_def_shutdown,
   cf_haproxy_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_معلومات_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -196,46 +196,46 @@ struct Curl_cftype Curl_cft_haproxy = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_haproxy_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data)
+ساكن CURLcode cf_haproxy_create(بنية Curl_cfilter **pcf,
+                                  بنية Curl_easy *معلومات)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_haproxy_ctx *ctx;
-  CURLcode result;
+  بنية Curl_cfilter *cf = عدم;
+  بنية cf_haproxy_ctx *ctx;
+  CURLcode نتيجو;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (فراغ)معلومات;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+    اذهب ٻاهريون;
   }
   ctx->state = HAPROXY_INIT;
-  curlx_dyn_init(&ctx->data_out, DYN_HAXPROXY);
+  curlx_dyn_init(&ctx->معلومات_ٻاهريون, DYN_HAXPROXY);
 
-  result = Curl_cf_create(&cf, &Curl_cft_haproxy, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  نتيجو = Curl_cf_create(&cf, &Curl_cft_haproxy, ctx);
+  إذا(نتيجو)
+    اذهب ٻاهريون;
+  ctx = عدم;
 
-out:
+ٻاهريون:
   cf_haproxy_ctx_free(ctx);
-  *pcf = result ? NULL : cf;
-  return result;
+  *pcf = نتيجو ? عدم : cf;
+  أرجع نتيجو;
 }
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data)
+CURLcode Curl_cf_haproxy_وجهو_after(بنية Curl_cfilter *cf_at,
+                                      بنية Curl_easy *معلومات)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  بنية Curl_cfilter *cf;
+  CURLcode نتيجو;
 
-  result = cf_haproxy_create(&cf, data);
-  if(result)
-    goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  نتيجو = cf_haproxy_create(&cf, معلومات);
+  إذا(نتيجو)
+    اذهب ٻاهريون;
+  Curl_conn_cf_وجهو_after(cf_at, cf);
 
-out:
-  return result;
+ٻاهريون:
+  أرجع نتيجو;
 }
 
-#endif /* !CURL_DISABLE_PROXY */
+#جيڪڏهن_پورو /* !CURL_DISABLE_PROXY */

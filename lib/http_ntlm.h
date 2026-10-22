@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_NTLM_H
-#define HEADER_CURL_HTTP_NTLM_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_HTTP_NTLM_H
+#وصف_ڪريو سرو_CURL_HTTP_NTLM_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
+#إذا !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
 
 /* this is for NTLM header input */
-CURLcode Curl_input_ntlm(struct Curl_easy *data, bool proxy,
-                         const char *header);
+CURLcode Curl_داخلا_ntlm(بنية Curl_easy *معلومات, bool proxy,
+                         ثابت حرف *سرو);
 
 /* this is for creating NTLM header output */
-CURLcode Curl_output_ntlm(struct Curl_easy *data, bool proxy);
+CURLcode Curl_output_ntlm(بنية Curl_easy *معلومات, bool proxy);
 
-#endif
+#جيڪڏهن_پورو
 
-#endif /* HEADER_CURL_HTTP_NTLM_H */
+#جيڪڏهن_پورو /* HEADER_CURL_HTTP_NTLM_H */

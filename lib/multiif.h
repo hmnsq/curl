@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTIIF_H
-#define HEADER_CURL_MULTIIF_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_MULTIIF_H
+#وصف_ڪريو سرو_CURL_MULTIIF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -27,31 +27,31 @@
  * Prototypes for library-wide functions provided by multi.c
  */
 
-void Curl_expire(struct Curl_easy *data, timediff_t milli, expire_id eid);
-void Curl_expire_set(struct Curl_easy *data,
+فراغ Curl_expire(بنية Curl_easy *معلومات, timediff_t milli, expire_id eid);
+فراغ Curl_expire_سيٽ(بنية Curl_easy *معلومات,
                      expire_id eid, timediff_t ms,
-                     const struct curltime *pnow);
-void Curl_expire_clear(struct Curl_easy *data, expire_id eid);
-void Curl_expire_clear_all(struct Curl_easy *data);
-CURLMcode Curl_update_timer(struct Curl_multi *multi) WARN_UNUSED_RESULT;
-void Curl_attach_connection(struct Curl_easy *data,
-                            struct connectdata *conn,
+                     ثابت بنية curltime *pnow);
+فراغ Curl_expire_clear(بنية Curl_easy *معلومات, expire_id eid);
+فراغ Curl_expire_clear_all(بنية Curl_easy *معلومات);
+CURLMcode Curl_update_timer(بنية Curl_multi *multi) WARN_اڻ_استعمال_ٿيل_نتيجو;
+فراغ Curl_attach_connection(بنية Curl_easy *معلومات,
+                            بنية connectdata *conn,
                             bool matched);
-void Curl_detach_connection(struct Curl_easy *data);
-bool Curl_multiplex_wanted(const struct Curl_multi *multi);
-CURLcode Curl_preconnect(struct Curl_easy *data);
-bool Curl_is_connecting(struct Curl_easy *data);
+فراغ Curl_detach_connection(بنية Curl_easy *معلومات);
+bool Curl_multiplex_wanted(ثابت بنية Curl_multi *multi);
+CURLcode Curl_preconnect(بنية Curl_easy *معلومات);
+bool Curl_is_connecting(بنية Curl_easy *معلومات);
 
-void Curl_multi_connchanged(struct Curl_multi *multi);
+فراغ Curl_multi_connchanged(بنية Curl_multi *multi);
 
-CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
-                                struct Curl_easy *data);
-CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
-                                   struct Curl_easy *data);
+CURLMcode Curl_multi_جوڙيو_handle(بنية Curl_multi *multi,
+                                بنية Curl_easy *معلومات);
+CURLMcode Curl_multi_remove_handle(بنية Curl_multi *multi,
+                                   بنية Curl_easy *معلومات);
 
 /* Internal version of curl_multi_init() accepts size parameters for the
    socket, connection and dns hashes */
-struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
+بنية Curl_multi *Curl_multi_handle(uint32_t xfer_جدول_سائيز,
                                      size_t ev_hashsize,
                                      size_t chashsize,
                                      size_t dnssize,
@@ -63,20 +63,20 @@ struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
  * when the OS is using this socket (number) again subsequently,
  * the internal book keeping will not get confused.
  */
-void Curl_multi_will_close(struct Curl_easy *data, curl_socket_t s);
+فراغ Curl_multi_will_close(بنية Curl_easy *معلومات, curl_socket_t s);
 
 /*
  * Add a handle and move it into PERFORM state at once. For pushed streams.
  */
-CURLMcode Curl_multi_add_perform(struct Curl_multi *multi,
-                                 struct Curl_easy *data,
-                                 struct connectdata *conn);
+CURLMcode Curl_multi_جوڙيو_perform(بنية Curl_multi *multi,
+                                 بنية Curl_easy *معلومات,
+                                 بنية connectdata *conn);
 
 /* Return the value of the CURLMOPT_MAX_CONCURRENT_STREAMS option */
-uint32_t Curl_multi_max_concurrent_streams(struct Curl_multi *multi);
+uint32_t Curl_multi_max_concurrent_streams(بنية Curl_multi *multi);
 
-CURLMcode Curl_multi_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps);
+CURLMcode Curl_multi_pollset(بنية Curl_easy *معلومات,
+                             بنية easy_pollset *ps);
 
 /**
  * Borrow the transfer buffer from the multi, suitable
@@ -93,14 +93,14 @@ CURLMcode Curl_multi_pollset(struct Curl_easy *data,
  *         CURLE_FAILED_INIT if the easy handle is without multi.
  *         CURLE_AGAIN if the buffer is borrowed already.
  */
-CURLcode Curl_multi_xfer_buf_borrow(struct Curl_easy *data,
-                                    char **pbuf, size_t *pbuflen);
+CURLcode Curl_multi_xfer_buf_borrow(بنية Curl_easy *معلومات,
+                                    حرف **pbuf, size_t *pbuflen);
 /**
  * Release the borrowed buffer. All references into the buffer become
  * invalid after this.
  * @param buf the buffer pointer borrowed for coding error checks.
  */
-void Curl_multi_xfer_buf_release(struct Curl_easy *data, char *buf);
+فراغ Curl_multi_xfer_buf_release(بنية Curl_easy *معلومات, حرف *buf);
 
 /**
  * Borrow the upload buffer from the multi, suitable
@@ -117,15 +117,15 @@ void Curl_multi_xfer_buf_release(struct Curl_easy *data, char *buf);
  *         CURLE_FAILED_INIT if the easy handle is without multi.
  *         CURLE_AGAIN if the buffer is borrowed already.
  */
-CURLcode Curl_multi_xfer_ulbuf_borrow(struct Curl_easy *data,
-                                      char **pbuf, size_t *pbuflen);
+CURLcode Curl_multi_xfer_ulbuf_borrow(بنية Curl_easy *معلومات,
+                                      حرف **pbuf, size_t *pbuflen);
 
 /**
  * Release the borrowed upload buffer. All references into the buffer become
  * invalid after this.
  * @param buf the upload buffer pointer borrowed for coding error checks.
  */
-void Curl_multi_xfer_ulbuf_release(struct Curl_easy *data, char *buf);
+فراغ Curl_multi_xfer_ulbuf_release(بنية Curl_easy *معلومات, حرف *buf);
 
 /**
  * Borrow the socket scratch buffer from the multi, suitable
@@ -141,39 +141,39 @@ void Curl_multi_xfer_ulbuf_release(struct Curl_easy *data, char *buf);
  *         CURLE_OUT_OF_MEMORY on failure to allocate the buffer,
  *         CURLE_AGAIN if the buffer is borrowed already.
  */
-CURLcode Curl_multi_xfer_sockbuf_borrow(struct Curl_easy *data,
-                                        size_t blen, char **pbuf);
+CURLcode Curl_multi_xfer_sockbuf_borrow(بنية Curl_easy *معلومات,
+                                        size_t blen, حرف **pbuf);
 /**
  * Release the borrowed buffer. All references into the buffer become
  * invalid after this.
  * @param buf the buffer pointer borrowed for coding error checks.
  */
-void Curl_multi_xfer_sockbuf_release(struct Curl_easy *data, char *buf);
+فراغ Curl_multi_xfer_sockbuf_release(بنية Curl_easy *معلومات, حرف *buf);
 
 /**
  * Get the easy handle for the given mid.
  * Returns NULL if not found or not a GOOD_EASY_HANDLE()
  */
-struct Curl_easy *Curl_multi_get_easy(struct Curl_multi *multi,
+بنية Curl_easy *Curl_multi_get_easy(بنية Curl_multi *multi,
                                       uint32_t mid);
 
 /* TRUE if multi knows about data via its `mid` */
-bool Curl_multi_knows_easy(struct Curl_multi *multi, struct Curl_easy *data);
+bool Curl_multi_knows_easy(بنية Curl_multi *multi, بنية Curl_easy *معلومات);
 
 /* Get the # of transfers attached to the multi, without the internal
  * admin handle. */
-uint32_t Curl_multi_xfers_attached(struct Curl_multi *multi);
+uint32_t Curl_multi_xfers_attached(بنية Curl_multi *multi);
 
 /* Mark a transfer as dirty, e.g. to be rerun at earliest convenience.
  * A cheap operation, can be done many times repeatedly. */
-void Curl_multi_mark_dirty(struct Curl_easy *data);
+فراغ Curl_multi_mark_dirty(بنية Curl_easy *معلومات);
 /* Clear transfer from the dirty set. */
-void Curl_multi_clear_dirty(struct Curl_easy *data);
+فراغ Curl_multi_clear_dirty(بنية Curl_easy *معلومات);
 
-void Curl_multi_set_now(struct Curl_multi *multi);
+فراغ Curl_multi_سيٽ_now(بنية Curl_multi *multi);
 
-#ifdef ENABLE_INTERNAL_WAKEUP
-void Curl_multi_wakeup_internal(struct Curl_multi *multi);
-#endif
+#جيڪڏهن_وصف_ٿيل ENABLE_اندروني_WAKEUP
+فراغ Curl_multi_wakeup_اندروني(بنية Curl_multi *multi);
+#جيڪڏهن_پورو
 
-#endif /* HEADER_CURL_MULTIIF_H */
+#جيڪڏهن_پورو /* HEADER_CURL_MULTIIF_H */

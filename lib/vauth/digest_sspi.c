@@ -24,19 +24,19 @@
  * RFC2831 DIGEST-MD5 authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#إذا defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "creds.h"
-#include "vauth/vauth.h"
-#include "vauth/digest.h"
-#include "curlx/multibyte.h"
-#include "curl_trc.h"
-#include "curlx/strdup.h"
-#include "curlx/strparse.h"
-#include "strcase.h"
-#include "strerror.h"
+#ضمن "creds.h"
+#ضمن "vauth/vauth.h"
+#ضمن "vauth/digest.h"
+#ضمن "curlx/multibyte.h"
+#ضمن "curl_trc.h"
+#ضمن "curlx/strdup.h"
+#ضمن "curlx/strparse.h"
+#ضمن "strcase.h"
+#ضمن "strerror.h"
 
 /*
  * Curl_auth_is_digest_supported()
@@ -47,23 +47,23 @@
  *
  * Returns TRUE if DIGEST is supported by Windows SSPI.
  */
-bool Curl_auth_is_digest_supported(void)
+bool Curl_auth_is_digest_supported(فراغ)
 {
   PSecPkgInfo SecurityPackage;
-  SECURITY_STATUS status;
+  SECURITY_حالت حالت;
 
   /* Query the security package for Digest */
-  status =
+  حالت =
     Curl_pSecFn->QuerySecurityPackageInfo(
-                                   CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
+                                   CURL_UNCONST(متن_2(SP_NAME_DIGEST)),
                                    &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
-    Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+  إذا(حالت == SEC_E_OK) {
+    Curl_pSecFn->Free_Context_بفر(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  أرجع حالت == SEC_E_OK;
 }
 
 /*
@@ -83,150 +83,150 @@ bool Curl_auth_is_digest_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
-                                             const struct bufref *chlg,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_digest_md5_پيغام(بنية Curl_easy *معلومات,
+                                             ثابت بنية bufref *chlg,
+                                             بنية Curl_creds *creds,
+                                             ثابت حرف *default_service,
+                                             بنية bufref *ٻاهريون)
 {
-  CURLcode result = CURLE_OK;
-  TCHAR *spn = NULL;
+  CURLcode نتيجو = CURLE_OK;
+  TCHAR *spn = عدم;
   size_t token_max = 0;
-  unsigned char *output_token = NULL;
+  بنانشان حرف *output_token = عدم;
   CredHandle credentials;
   CtxtHandle context;
   PSecPkgInfo SecurityPackage;
-  SEC_WINNT_AUTH_IDENTITY_EX identity;
-  SEC_WINNT_AUTH_IDENTITY_EX *p_identity;
-  SecBuffer chlg_buf;
-  SecBuffer resp_buf;
-  SecBufferDesc chlg_desc;
-  SecBufferDesc resp_desc;
-  SECURITY_STATUS status;
-  unsigned long attrs;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  SEC_WINNT_AUTH_سڃاڻپ_عنصر_EX سڃاڻپ_عنصر;
+  SEC_WINNT_AUTH_سڃاڻپ_عنصر_EX *p_سڃاڻپ_عنصر;
+  Sec_بفر chlg_buf;
+  Sec_بفر resp_buf;
+  Sec_بفر_Desc chlg_desc;
+  Sec_بفر_Desc resp_desc;
+  SECURITY_حالت حالت;
+  بنانشان ڊگهو attrs;
+  ثابت حرف *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlg)) {
-    infof(data, "DIGEST-MD5 handshake failure (empty challenge message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  إذا(!Curl_bufref_len(chlg)) {
+    infof(معلومات, "DIGEST-MD5 handshake failure (empty challenge message)");
+    أرجع CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Query the security package for DigestSSP */
-  status =
+  حالت =
     Curl_pSecFn->QuerySecurityPackageInfo(
-                                   CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
+                                   CURL_UNCONST(متن_2(SP_NAME_DIGEST)),
                                    &SecurityPackage);
-  if(status != SEC_E_OK) {
-    failf(data, "SSPI: could not get auth info");
-    return CURLE_AUTH_ERROR;
+  إذا(حالت != SEC_E_OK) {
+    failf(معلومات, "SSPI: could not get auth info");
+    أرجع CURLE_AUTH_ERROR;
   }
 
   token_max = SecurityPackage->cbMaxToken;
 
   /* Release the package buffer as it is not required anymore */
-  Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+  Curl_pSecFn->Free_Context_بفر(SecurityPackage);
 
   /* Allocate our response buffer */
   output_token = curlx_malloc(token_max);
-  if(!output_token)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!output_token)
+    أرجع CURLE_ٻاهريون_جو_يادگيري;
 
   /* Generate our SPN */
-  spn = Curl_auth_build_spn(service, data->state.origin->hostname, NULL);
-  if(!spn) {
+  spn = Curl_auth_build_spn(service, معلومات->state.origin->hostname, عدم);
+  إذا(!spn) {
     curlx_free(output_token);
-    return CURLE_OUT_OF_MEMORY;
+    أرجع CURLE_ٻاهريون_جو_يادگيري;
   }
 
-  if(Curl_creds_has_user(creds)) {
+  إذا(Curl_creds_has_user(creds)) {
     /* Populate our identity structure */
-    result = Curl_create_sspi_identity(creds->user, creds->passwd,
-                                       &identity);
-    if(result) {
+    نتيجو = Curl_create_sspi_سڃاڻپ_عنصر(creds->user, creds->passwd,
+                                       &سڃاڻپ_عنصر);
+    إذا(نتيجو) {
       curlx_free(spn);
       curlx_free(output_token);
-      return result;
+      أرجع نتيجو;
     }
 
     /* Allow proper cleanup of the identity structure */
-    p_identity = &identity;
+    p_سڃاڻپ_عنصر = &سڃاڻپ_عنصر;
   }
-  else
+  وإلا
     /* Use the current Windows user */
-    p_identity = NULL;
+    p_سڃاڻپ_عنصر = عدم;
 
   /* Acquire our credentials handle */
-  status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
-                                   CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
-                                   SECPKG_CRED_OUTBOUND, NULL,
-                                   p_identity, NULL, NULL,
-                                   &credentials, NULL);
+  حالت = Curl_pSecFn->AcquireCredentialsHandle(عدم,
+                                   CURL_UNCONST(متن_2(SP_NAME_DIGEST)),
+                                   SECPKG_CRED_OUTBOUND, عدم,
+                                   p_سڃاڻپ_عنصر, عدم, عدم,
+                                   &credentials, عدم);
 
-  if(status != SEC_E_OK) {
-    Curl_sspi_free_identity(p_identity);
+  إذا(حالت != SEC_E_OK) {
+    Curl_sspi_free_سڃاڻپ_عنصر(p_سڃاڻپ_عنصر);
     curlx_free(spn);
     curlx_free(output_token);
-    return CURLE_LOGIN_DENIED;
+    أرجع CURLE_LOGIN_DENIED;
   }
 
   /* Setup the challenge "input" security buffer */
-  chlg_desc.ulVersion = SECBUFFER_VERSION;
+  chlg_desc.ul_نسخو = SECBUFFER_نسخو;
   chlg_desc.cBuffers  = 1;
   chlg_desc.pBuffers  = &chlg_buf;
-  chlg_buf.BufferType = SECBUFFER_TOKEN;
-  chlg_buf.pvBuffer   = CURL_UNCONST(Curl_bufref_ptr(chlg));
-  chlg_buf.cbBuffer   = curlx_uztoul(Curl_bufref_len(chlg));
+  chlg_buf.بفر_Type = SECBUFFER_TOKEN;
+  chlg_buf.pv_بفر   = CURL_UNCONST(Curl_bufref_ptr(chlg));
+  chlg_buf.cb_بفر   = curlx_uztoul(Curl_bufref_len(chlg));
 
   /* Setup the response "output" security buffer */
-  resp_desc.ulVersion = SECBUFFER_VERSION;
+  resp_desc.ul_نسخو = SECBUFFER_نسخو;
   resp_desc.cBuffers  = 1;
   resp_desc.pBuffers  = &resp_buf;
-  resp_buf.BufferType = SECBUFFER_TOKEN;
-  resp_buf.pvBuffer   = output_token;
-  resp_buf.cbBuffer   = curlx_uztoul(token_max);
+  resp_buf.بفر_Type = SECBUFFER_TOKEN;
+  resp_buf.pv_بفر   = output_token;
+  resp_buf.cb_بفر   = curlx_uztoul(token_max);
 
   /* Generate our response message */
-  status = Curl_pSecFn->InitializeSecurityContext(&credentials, NULL, spn,
+  حالت = Curl_pSecFn->InitializeSecurityContext(&credentials, عدم, spn,
                                                   0, 0, 0, &chlg_desc, 0,
                                                   &context, &resp_desc, &attrs,
-                                                  NULL);
+                                                  عدم);
 
-  if(status == SEC_I_COMPLETE_NEEDED ||
-     status == SEC_I_COMPLETE_AND_CONTINUE)
+  إذا(حالت == SEC_I_COMPLETE_NEEDED ||
+     حالت == SEC_I_COMPLETE_AND_CONTINUE)
     Curl_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
-  else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
-    VERBOSE(char buffer[STRERROR_LEN]);
+  وإلا إذا(حالت != SEC_E_OK && حالت != SEC_I_CONTINUE_NEEDED) {
+    VERBOSE(حرف بفر[STRERROR_LEN]);
 
     Curl_pSecFn->FreeCredentialsHandle(&credentials);
-    Curl_sspi_free_identity(p_identity);
+    Curl_sspi_free_سڃاڻپ_عنصر(p_سڃاڻپ_عنصر);
     curlx_free(spn);
     curlx_free(output_token);
 
-    if(status == SEC_E_INSUFFICIENT_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    إذا(حالت == SEC_E_INSUFFICIENT_يادگيري)
+      أرجع CURLE_ٻاهريون_جو_يادگيري;
 
-    infof(data, "schannel: InitializeSecurityContext failed: %s",
-          Curl_sspi_strerror(status, buffer, sizeof(buffer)));
+    infof(معلومات, "schannel: InitializeSecurityContext failed: %s",
+          Curl_sspi_strerror(حالت, بفر, حجم(بفر)));
 
-    return CURLE_AUTH_ERROR;
+    أرجع CURLE_AUTH_ERROR;
   }
 
   /* Return the response. */
-  Curl_bufref_set(out, output_token, resp_buf.cbBuffer, curl_free);
+  Curl_bufref_سيٽ(ٻاهريون, output_token, resp_buf.cb_بفر, curl_free);
 
   /* Free our handles */
   Curl_pSecFn->DeleteSecurityContext(&context);
   Curl_pSecFn->FreeCredentialsHandle(&credentials);
 
   /* Free the identity structure */
-  Curl_sspi_free_identity(p_identity);
+  Curl_sspi_free_سڃاڻپ_عنصر(p_سڃاڻپ_عنصر);
 
   /* Free the SPN */
   curlx_free(spn);
 
-  return result;
+  أرجع نتيجو;
 }
 
 /*
@@ -243,58 +243,58 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_override_sspi_http_realm(const char *chlg,
-                                       SEC_WINNT_AUTH_IDENTITY_EX *identity)
+CURLcode Curl_override_sspi_http_realm(ثابت حرف *chlg,
+                                       SEC_WINNT_AUTH_سڃاڻپ_عنصر_EX *سڃاڻپ_عنصر)
 {
   xcharp_u domain, dup_domain;
 
   /* If domain is blank or unset, check challenge message for realm */
-  if(!identity->Domain || !identity->DomainLength) {
-    for(;;) {
-      struct Curl_str value;
-      char content[DIGEST_MAX_CONTENT_LENGTH];
+  إذا(!سڃاڻپ_عنصر->Domain || !سڃاڻپ_عنصر->Domain_ڊيگهائي) {
+    لكل(;;) {
+      بنية Curl_str قدر;
+      حرف content[DIGEST_MAX_CONTENT_ڊيگهائي];
 
       /* Pass all additional spaces here */
       curlx_str_passblanks(&chlg);
 
       /* Extract a value=content pair */
-      if(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
-        if(curlx_str_casecompare(&value, "realm")) {
+      إذا(Curl_auth_digest_get_pair(chlg, &قدر, content, &chlg)) {
+        إذا(curlx_str_casecompare(&قدر, "realm")) {
 
           /* Setup identity's domain and length */
-          domain.tchar_ptr = curlx_convert_UTF8_to_tchar(content);
-          if(!domain.tchar_ptr)
-            return CURLE_OUT_OF_MEMORY;
+          domain.tchar_ptr = curlx_convert_UTF8_منزل_tchar(content);
+          إذا(!domain.tchar_ptr)
+            أرجع CURLE_ٻاهريون_جو_يادگيري;
 
           dup_domain.tchar_ptr = curlx_tcsdup(domain.tchar_ptr);
-          if(!dup_domain.tchar_ptr) {
+          إذا(!dup_domain.tchar_ptr) {
             curlx_free(domain.tchar_ptr);
-            return CURLE_OUT_OF_MEMORY;
+            أرجع CURLE_ٻاهريون_جو_يادگيري;
           }
 
-          curlx_free(identity->Domain);
-          identity->Domain = dup_domain.tbyte_ptr;
-          identity->DomainLength = curlx_uztoul(_tcslen(dup_domain.tchar_ptr));
-          dup_domain.tchar_ptr = NULL;
+          curlx_free(سڃاڻپ_عنصر->Domain);
+          سڃاڻپ_عنصر->Domain = dup_domain.tbyte_ptr;
+          سڃاڻپ_عنصر->Domain_ڊيگهائي = curlx_uztoul(_tcslen(dup_domain.tchar_ptr));
+          dup_domain.tchar_ptr = عدم;
 
           curlx_free(domain.tchar_ptr);
         }
-        else {
+        وإلا {
           /* Unknown specifier, ignore it! */
         }
       }
-      else
-        break; /* We are done here */
+      وإلا
+        اكسر; /* We are done here */
 
       /* Pass all additional spaces here */
       curlx_str_passblanks(&chlg);
 
       /* Allow the list to be comma-separated */
-      (void)curlx_str_single(&chlg, ',');
+      (فراغ)curlx_str_single(&chlg, ',');
     }
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
@@ -310,55 +310,55 @@ CURLcode Curl_override_sspi_http_realm(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
-                                              struct digestdata *digest)
+CURLcode Curl_auth_decode_digest_http_پيغام(ثابت حرف *chlg,
+                                              بنية digestdata *digest)
 {
-  size_t chlglen = strlen(chlg);
+  size_t chlglen = لڙي_ڊيگهه(chlg);
 
   /* We had an input token before so if there is another one now that means we
      provided bad credentials in the previous request or it is stale. */
-  if(digest->input_token) {
+  إذا(digest->داخلا_token) {
     bool stale = FALSE;
-    const char *p = chlg;
+    ثابت حرف *p = chlg;
 
     /* Check for the 'stale' directive */
-    for(;;) {
-      struct Curl_str value;
-      char content[DIGEST_MAX_CONTENT_LENGTH];
+    لكل(;;) {
+      بنية Curl_str قدر;
+      حرف content[DIGEST_MAX_CONTENT_ڊيگهائي];
 
-      while(*p && ISBLANK(*p))
+      طالما(*p && ISBLANK(*p))
         p++;
 
-      if(!Curl_auth_digest_get_pair(p, &value, content, &p))
-        break;
+      إذا(!Curl_auth_digest_get_pair(p, &قدر, content, &p))
+        اكسر;
 
-      if(curlx_str_casecompare(&value, "stale") &&
+      إذا(curlx_str_casecompare(&قدر, "stale") &&
          curl_strequal(content, "true")) {
         stale = TRUE;
-        break;
+        اكسر;
       }
 
-      while(*p && ISBLANK(*p))
+      طالما(*p && ISBLANK(*p))
         p++;
 
-      if(',' == *p)
+      إذا(',' == *p)
         p++;
     }
 
-    if(stale)
+    إذا(stale)
       Curl_auth_digest_cleanup(digest);
-    else
-      return CURLE_LOGIN_DENIED;
+    وإلا
+      أرجع CURLE_LOGIN_DENIED;
   }
 
   /* Store the challenge for use later */
-  digest->input_token = (BYTE *)curlx_memdup(chlg, chlglen + 1);
-  if(!digest->input_token)
-    return CURLE_OUT_OF_MEMORY;
+  digest->داخلا_token = (BYTE *)curlx_memdup(chlg, chlglen + 1);
+  إذا(!digest->داخلا_token)
+    أرجع CURLE_ٻاهريون_جو_يادگيري;
 
-  digest->input_token_len = chlglen;
+  digest->داخلا_token_len = chlglen;
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
@@ -381,226 +381,226 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const unsigned char *request,
-                                              const unsigned char *uripath,
-                                              struct digestdata *digest,
-                                              char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_digest_http_پيغام(بنية Curl_easy *معلومات,
+                                              بنية Curl_creds *creds,
+                                              ثابت بنانشان حرف *request,
+                                              ثابت بنانشان حرف *uripath,
+                                              بنية digestdata *digest,
+                                              حرف **outptr, size_t *outlen)
 {
   size_t token_max;
-  char *resp;
+  حرف *resp;
   BYTE *output_token;
   size_t output_token_len = 0;
   PSecPkgInfo SecurityPackage;
-  SecBuffer chlg_buf[5];
-  SecBufferDesc chlg_desc;
-  SECURITY_STATUS status;
+  Sec_بفر chlg_buf[5];
+  Sec_بفر_Desc chlg_desc;
+  SECURITY_حالت حالت;
 
   /* Query the security package for DigestSSP */
-  status =
+  حالت =
     Curl_pSecFn->QuerySecurityPackageInfo(
-                                   CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
+                                   CURL_UNCONST(متن_2(SP_NAME_DIGEST)),
                                    &SecurityPackage);
-  if(status != SEC_E_OK) {
-    failf(data, "SSPI: could not get auth info");
-    return CURLE_AUTH_ERROR;
+  إذا(حالت != SEC_E_OK) {
+    failf(معلومات, "SSPI: could not get auth info");
+    أرجع CURLE_AUTH_ERROR;
   }
 
   token_max = SecurityPackage->cbMaxToken;
 
   /* Release the package buffer as it is not required anymore */
-  Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+  Curl_pSecFn->Free_Context_بفر(SecurityPackage);
 
   /* Allocate the output buffer according to the max token size as indicated
      by the security package */
   output_token = curlx_malloc(token_max);
-  if(!output_token) {
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!output_token) {
+    أرجع CURLE_ٻاهريون_جو_يادگيري;
   }
 
   /* If the user/passwd that was used to make the identity for http_context
      has changed then delete that context. */
-  if(!Curl_creds_same(creds, digest->creds)) {
-    if(digest->http_context) {
+  إذا(!Curl_creds_same(creds, digest->creds)) {
+    إذا(digest->http_context) {
       Curl_pSecFn->DeleteSecurityContext(digest->http_context);
       curlx_safefree(digest->http_context);
     }
     Curl_creds_unlink(&digest->creds);
   }
 
-  if(digest->http_context) {
-    chlg_desc.ulVersion    = SECBUFFER_VERSION;
+  إذا(digest->http_context) {
+    chlg_desc.ul_نسخو    = SECBUFFER_نسخو;
     chlg_desc.cBuffers     = 5;
     chlg_desc.pBuffers     = chlg_buf;
-    chlg_buf[0].BufferType = SECBUFFER_TOKEN;
-    chlg_buf[0].pvBuffer   = NULL;
-    chlg_buf[0].cbBuffer   = 0;
-    chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[1].pvBuffer   = CURL_UNCONST(request);
-    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char *)request));
-    chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[2].pvBuffer   = CURL_UNCONST(uripath);
-    chlg_buf[2].cbBuffer   = curlx_uztoul(strlen((const char *)uripath));
-    chlg_buf[3].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[3].pvBuffer   = NULL;
-    chlg_buf[3].cbBuffer   = 0;
-    chlg_buf[4].BufferType = SECBUFFER_PADDING;
-    chlg_buf[4].pvBuffer   = output_token;
-    chlg_buf[4].cbBuffer   = curlx_uztoul(token_max);
+    chlg_buf[0].بفر_Type = SECBUFFER_TOKEN;
+    chlg_buf[0].pv_بفر   = عدم;
+    chlg_buf[0].cb_بفر   = 0;
+    chlg_buf[1].بفر_Type = SECBUFFER_PKG_PARAMS;
+    chlg_buf[1].pv_بفر   = CURL_UNCONST(request);
+    chlg_buf[1].cb_بفر   = curlx_uztoul(لڙي_ڊيگهه((ثابت حرف *)request));
+    chlg_buf[2].بفر_Type = SECBUFFER_PKG_PARAMS;
+    chlg_buf[2].pv_بفر   = CURL_UNCONST(uripath);
+    chlg_buf[2].cb_بفر   = curlx_uztoul(لڙي_ڊيگهه((ثابت حرف *)uripath));
+    chlg_buf[3].بفر_Type = SECBUFFER_PKG_PARAMS;
+    chlg_buf[3].pv_بفر   = عدم;
+    chlg_buf[3].cb_بفر   = 0;
+    chlg_buf[4].بفر_Type = SECBUFFER_PADDING;
+    chlg_buf[4].pv_بفر   = output_token;
+    chlg_buf[4].cb_بفر   = curlx_uztoul(token_max);
 
-    status = Curl_pSecFn->MakeSignature(digest->http_context, 0, &chlg_desc,
+    حالت = Curl_pSecFn->MakeSignature(digest->http_context, 0, &chlg_desc,
                                         0);
-    if(status == SEC_E_OK)
-      output_token_len = chlg_buf[4].cbBuffer;
-    else { /* delete the context so a new one can be made */
-      infof(data, "digest_sspi: MakeSignature failed, error 0x%08lx",
-            (unsigned long)status);
+    إذا(حالت == SEC_E_OK)
+      output_token_len = chlg_buf[4].cb_بفر;
+    وإلا { /* delete the context so a new one can be made */
+      infof(معلومات, "digest_sspi: MakeSignature failed, error 0x%08lx",
+            (بنانشان ڊگهو)حالت);
       Curl_pSecFn->DeleteSecurityContext(digest->http_context);
       curlx_safefree(digest->http_context);
     }
   }
 
-  if(!digest->http_context) {
+  إذا(!digest->http_context) {
     CredHandle credentials;
-    SEC_WINNT_AUTH_IDENTITY_EX identity;
-    SEC_WINNT_AUTH_IDENTITY_EX *p_identity;
-    SecBuffer resp_buf;
-    SecBufferDesc resp_desc;
-    unsigned long attrs;
+    SEC_WINNT_AUTH_سڃاڻپ_عنصر_EX سڃاڻپ_عنصر;
+    SEC_WINNT_AUTH_سڃاڻپ_عنصر_EX *p_سڃاڻپ_عنصر;
+    Sec_بفر resp_buf;
+    Sec_بفر_Desc resp_desc;
+    بنانشان ڊگهو attrs;
     TCHAR *spn;
 
     /* free the credentials used to make the previous identity */
     Curl_creds_unlink(&digest->creds);
 
-    if(Curl_creds_has_user(creds)) {
+    إذا(Curl_creds_has_user(creds)) {
       /* Populate our identity structure */
-      if(Curl_create_sspi_identity(creds->user, creds->passwd, &identity)) {
+      إذا(Curl_create_sspi_سڃاڻپ_عنصر(creds->user, creds->passwd, &سڃاڻپ_عنصر)) {
         curlx_free(output_token);
-        return CURLE_OUT_OF_MEMORY;
+        أرجع CURLE_ٻاهريون_جو_يادگيري;
       }
 
       /* Populate our identity domain */
-      if(Curl_override_sspi_http_realm((const char *)digest->input_token,
-                                       &identity)) {
-        Curl_sspi_free_identity(&identity);
+      إذا(Curl_override_sspi_http_realm((ثابت حرف *)digest->داخلا_token,
+                                       &سڃاڻپ_عنصر)) {
+        Curl_sspi_free_سڃاڻپ_عنصر(&سڃاڻپ_عنصر);
         curlx_free(output_token);
-        return CURLE_OUT_OF_MEMORY;
+        أرجع CURLE_ٻاهريون_جو_يادگيري;
       }
 
       /* Allow proper cleanup of the identity structure */
-      p_identity = &identity;
+      p_سڃاڻپ_عنصر = &سڃاڻپ_عنصر;
     }
-    else
+    وإلا
       /* Use the current Windows user */
-      p_identity = NULL;
+      p_سڃاڻپ_عنصر = عدم;
 
-    if(creds)
+    إذا(creds)
       Curl_creds_link(&digest->creds, creds);
 
     /* Acquire our credentials handle */
-    status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
-                                   CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
-                                   SECPKG_CRED_OUTBOUND, NULL,
-                                   p_identity, NULL, NULL,
-                                   &credentials, NULL);
-    if(status != SEC_E_OK) {
-      Curl_sspi_free_identity(p_identity);
+    حالت = Curl_pSecFn->AcquireCredentialsHandle(عدم,
+                                   CURL_UNCONST(متن_2(SP_NAME_DIGEST)),
+                                   SECPKG_CRED_OUTBOUND, عدم,
+                                   p_سڃاڻپ_عنصر, عدم, عدم,
+                                   &credentials, عدم);
+    إذا(حالت != SEC_E_OK) {
+      Curl_sspi_free_سڃاڻپ_عنصر(p_سڃاڻپ_عنصر);
       curlx_free(output_token);
 
-      return CURLE_LOGIN_DENIED;
+      أرجع CURLE_LOGIN_DENIED;
     }
 
     /* Setup the challenge "input" security buffer if present */
-    chlg_desc.ulVersion    = SECBUFFER_VERSION;
+    chlg_desc.ul_نسخو    = SECBUFFER_نسخو;
     chlg_desc.cBuffers     = 3;
     chlg_desc.pBuffers     = chlg_buf;
-    chlg_buf[0].BufferType = SECBUFFER_TOKEN;
-    chlg_buf[0].pvBuffer   = digest->input_token;
-    chlg_buf[0].cbBuffer   = curlx_uztoul(digest->input_token_len);
-    chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[1].pvBuffer   = CURL_UNCONST(request);
-    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char *)request));
-    chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[2].pvBuffer   = NULL;
-    chlg_buf[2].cbBuffer   = 0;
+    chlg_buf[0].بفر_Type = SECBUFFER_TOKEN;
+    chlg_buf[0].pv_بفر   = digest->داخلا_token;
+    chlg_buf[0].cb_بفر   = curlx_uztoul(digest->داخلا_token_len);
+    chlg_buf[1].بفر_Type = SECBUFFER_PKG_PARAMS;
+    chlg_buf[1].pv_بفر   = CURL_UNCONST(request);
+    chlg_buf[1].cb_بفر   = curlx_uztoul(لڙي_ڊيگهه((ثابت حرف *)request));
+    chlg_buf[2].بفر_Type = SECBUFFER_PKG_PARAMS;
+    chlg_buf[2].pv_بفر   = عدم;
+    chlg_buf[2].cb_بفر   = 0;
 
     /* Setup the response "output" security buffer */
-    resp_desc.ulVersion = SECBUFFER_VERSION;
+    resp_desc.ul_نسخو = SECBUFFER_نسخو;
     resp_desc.cBuffers  = 1;
     resp_desc.pBuffers  = &resp_buf;
-    resp_buf.BufferType = SECBUFFER_TOKEN;
-    resp_buf.pvBuffer   = output_token;
-    resp_buf.cbBuffer   = curlx_uztoul(token_max);
+    resp_buf.بفر_Type = SECBUFFER_TOKEN;
+    resp_buf.pv_بفر   = output_token;
+    resp_buf.cb_بفر   = curlx_uztoul(token_max);
 
-    spn = curlx_convert_UTF8_to_tchar((const char *)uripath);
-    if(!spn) {
+    spn = curlx_convert_UTF8_منزل_tchar((ثابت حرف *)uripath);
+    إذا(!spn) {
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
 
-      Curl_sspi_free_identity(p_identity);
+      Curl_sspi_free_سڃاڻپ_عنصر(p_سڃاڻپ_عنصر);
       curlx_free(output_token);
 
-      return CURLE_OUT_OF_MEMORY;
+      أرجع CURLE_ٻاهريون_جو_يادگيري;
     }
 
     /* Allocate our new context handle */
-    digest->http_context = curlx_calloc(1, sizeof(CtxtHandle));
-    if(!digest->http_context) {
+    digest->http_context = curlx_calloc(1, حجم(CtxtHandle));
+    إذا(!digest->http_context) {
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
       curlx_free(spn);
-      Curl_sspi_free_identity(p_identity);
+      Curl_sspi_free_سڃاڻپ_عنصر(p_سڃاڻپ_عنصر);
       curlx_free(output_token);
-      return CURLE_OUT_OF_MEMORY;
+      أرجع CURLE_ٻاهريون_جو_يادگيري;
     }
 
     /* Generate our response message */
-    status = Curl_pSecFn->InitializeSecurityContext(&credentials, NULL,
+    حالت = Curl_pSecFn->InitializeSecurityContext(&credentials, عدم,
                                                     spn,
                                                     ISC_REQ_USE_HTTP_STYLE,
                                                     0, 0,
                                                     &chlg_desc, 0,
                                                     digest->http_context,
-                                                    &resp_desc, &attrs, NULL);
+                                                    &resp_desc, &attrs, عدم);
     curlx_free(spn);
 
-    if(status == SEC_I_COMPLETE_NEEDED ||
-       status == SEC_I_COMPLETE_AND_CONTINUE)
+    إذا(حالت == SEC_I_COMPLETE_NEEDED ||
+       حالت == SEC_I_COMPLETE_AND_CONTINUE)
       Curl_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
-    else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
-      VERBOSE(char buffer[STRERROR_LEN]);
+    وإلا إذا(حالت != SEC_E_OK && حالت != SEC_I_CONTINUE_NEEDED) {
+      VERBOSE(حرف بفر[STRERROR_LEN]);
 
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
 
-      Curl_sspi_free_identity(p_identity);
+      Curl_sspi_free_سڃاڻپ_عنصر(p_سڃاڻپ_عنصر);
       curlx_free(output_token);
 
       curlx_safefree(digest->http_context);
 
-      if(status == SEC_E_INSUFFICIENT_MEMORY)
-        return CURLE_OUT_OF_MEMORY;
+      إذا(حالت == SEC_E_INSUFFICIENT_يادگيري)
+        أرجع CURLE_ٻاهريون_جو_يادگيري;
 
-      infof(data, "schannel: InitializeSecurityContext failed: %s",
-            Curl_sspi_strerror(status, buffer, sizeof(buffer)));
+      infof(معلومات, "schannel: InitializeSecurityContext failed: %s",
+            Curl_sspi_strerror(حالت, بفر, حجم(بفر)));
 
-      return CURLE_AUTH_ERROR;
+      أرجع CURLE_AUTH_ERROR;
     }
 
-    output_token_len = resp_buf.cbBuffer;
+    output_token_len = resp_buf.cb_بفر;
 
     Curl_pSecFn->FreeCredentialsHandle(&credentials);
-    Curl_sspi_free_identity(p_identity);
+    Curl_sspi_free_سڃاڻپ_عنصر(p_سڃاڻپ_عنصر);
   }
 
-  resp = curlx_memdup0((const char *)output_token, output_token_len);
+  resp = curlx_memdup0((ثابت حرف *)output_token, output_token_len);
   curlx_free(output_token);
-  if(!resp) {
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!resp) {
+    أرجع CURLE_ٻاهريون_جو_يادگيري;
   }
 
   /* Return the response */
   *outptr = resp;
   *outlen = output_token_len;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
@@ -613,16 +613,16 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
  * digest    [in/out] - The digest data struct being cleaned up.
  *
  */
-void Curl_auth_digest_cleanup(struct digestdata *digest)
+فراغ Curl_auth_digest_cleanup(بنية digestdata *digest)
 {
   /* Free the input token */
-  curlx_safefree(digest->input_token);
+  curlx_safefree(digest->داخلا_token);
 
   /* Reset any variables */
-  digest->input_token_len = 0;
+  digest->داخلا_token_len = 0;
 
   /* Delete security context */
-  if(digest->http_context) {
+  إذا(digest->http_context) {
     Curl_pSecFn->DeleteSecurityContext(digest->http_context);
     curlx_safefree(digest->http_context);
   }
@@ -632,4 +632,4 @@ void Curl_auth_digest_cleanup(struct digestdata *digest)
   Curl_peer_unlink(&digest->origin);
 }
 
-#endif /* USE_WINDOWS_SSPI && !CURL_DISABLE_DIGEST_AUTH */
+#جيڪڏهن_پورو /* USE_WINDOWS_SSPI && !CURL_DISABLE_DIGEST_AUTH */

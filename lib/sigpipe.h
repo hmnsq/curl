@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SIGPIPE_H
-#define HEADER_CURL_SIGPIPE_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_SIGPIPE_H
+#وصف_ڪريو سرو_CURL_SIGPIPE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,19 +23,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if defined(HAVE_SIGACTION) && !defined(USE_SO_NOSIGPIPE)
-#include <signal.h>
+#إذا defined(HAVE_SIGACTION) && !defined(USE_SO_NOSIGPIPE)
+#ضمن <signal.h>
 
-struct Curl_sigpipe_ctx {
-  struct sigaction old_pipe_act;
-  BIT(no_signal);
+بنية Curl_sigpipe_ctx {
+  بنية sigaction old_pipe_act;
+  ٻٽو_انگ(no_signal);
 };
 
-static CURL_INLINE void sigpipe_init(struct Curl_sigpipe_ctx *ig)
+ساكن CURL_INLINE فراغ sigpipe_init(بنية Curl_sigpipe_ctx *ig)
 {
-  memset(ig, 0, sizeof(*ig));
+  memset(ig, 0, حجم(*ig));
   ig->no_signal = TRUE;
 }
 
@@ -44,24 +44,24 @@ static CURL_INLINE void sigpipe_init(struct Curl_sigpipe_ctx *ig)
  * internals, and then sigpipe_restore() will restore the situation when we
  * return from libcurl again.
  */
-static CURL_INLINE void sigpipe_ignore(struct Curl_easy *data,
-                                       struct Curl_sigpipe_ctx *ig)
+ساكن CURL_INLINE فراغ sigpipe_ignore(بنية Curl_easy *معلومات,
+                                       بنية Curl_sigpipe_ctx *ig)
 {
   /* get a local copy of no_signal because the Curl_easy might not be
      around when we restore */
-  ig->no_signal = data->set.no_signal;
-  if(!data->set.no_signal) {
-    struct sigaction action;
+  ig->no_signal = معلومات->سيٽ.no_signal;
+  إذا(!معلومات->سيٽ.no_signal) {
+    بنية sigaction action;
     /* first, extract the existing situation */
-    sigaction(SIGPIPE, NULL, &ig->old_pipe_act);
+    sigaction(SIGPIPE, عدم, &ig->old_pipe_act);
     action = ig->old_pipe_act;
     /* ignore this signal */
     action.sa_handler = SIG_IGN;
-#ifdef SA_SIGINFO
+#جيڪڏهن_وصف_ٿيل SA_SIGINFO
     /* clear SA_SIGINFO flag since we are using sa_handler */
     action.sa_flags &= ~SA_SIGINFO;
-#endif
-    sigaction(SIGPIPE, &action, NULL);
+#جيڪڏهن_پورو
+    sigaction(SIGPIPE, &action, عدم);
   }
 }
 
@@ -70,33 +70,33 @@ static CURL_INLINE void sigpipe_ignore(struct Curl_easy *data,
  * and SIGPIPE handling. It MUST only be called after a corresponding
  * sigpipe_ignore() was used.
  */
-static CURL_INLINE void sigpipe_restore(struct Curl_sigpipe_ctx *ig)
+ساكن CURL_INLINE فراغ sigpipe_restore(بنية Curl_sigpipe_ctx *ig)
 {
-  if(!ig->no_signal)
+  إذا(!ig->no_signal)
     /* restore the outside state */
-    sigaction(SIGPIPE, &ig->old_pipe_act, NULL);
+    sigaction(SIGPIPE, &ig->old_pipe_act, عدم);
 }
 
-static CURL_INLINE void sigpipe_apply(struct Curl_easy *data,
-                                      struct Curl_sigpipe_ctx *ig)
+ساكن CURL_INLINE فراغ sigpipe_apply(بنية Curl_easy *معلومات,
+                                      بنية Curl_sigpipe_ctx *ig)
 {
-  if(data && (data->set.no_signal != ig->no_signal)) {
+  إذا(معلومات && (معلومات->سيٽ.no_signal != ig->no_signal)) {
     sigpipe_restore(ig);
-    sigpipe_ignore(data, ig);
+    sigpipe_ignore(معلومات, ig);
   }
 }
 
-#else /* !HAVE_SIGACTION || USE_SO_NOSIGPIPE */
+#وإلا /* !HAVE_SIGACTION || USE_SO_NOSIGPIPE */
 /* for systems without sigaction or where SO_NOSIGPIPE is used. */
-#define sigpipe_ignore(x, y) do { (void)(x); (void)(y); } while(0)
-#define sigpipe_apply(x, y)  do { (void)(x); (void)(y); } while(0)
-#define sigpipe_init(x)      do { (void)(x); } while(0)
-#define sigpipe_restore(x)   do { (void)(x); } while(0)
+#وصف_ڪريو sigpipe_ignore(x, y) افعل { (فراغ)(x); (فراغ)(y); } طالما(0)
+#وصف_ڪريو sigpipe_apply(x, y)  افعل { (فراغ)(x); (فراغ)(y); } طالما(0)
+#وصف_ڪريو sigpipe_init(x)      افعل { (فراغ)(x); } طالما(0)
+#وصف_ڪريو sigpipe_restore(x)   افعل { (فراغ)(x); } طالما(0)
 
-struct Curl_sigpipe_ctx {
+بنية Curl_sigpipe_ctx {
   bool dummy;
 };
 
-#endif /* else HAVE_SIGACTION && !USE_SO_NOSIGPIPE */
+#جيڪڏهن_پورو /* else HAVE_SIGACTION && !USE_SO_NOSIGPIPE */
 
-#endif /* HEADER_CURL_SIGPIPE_H */
+#جيڪڏهن_پورو /* HEADER_CURL_SIGPIPE_H */

@@ -21,69 +21,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#جيڪڏهن_وصف_ٿيل HAVE_NETINET_اندريون_H
+#ضمن <netinet/in.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_NETINET_IN6_H
+#ضمن <netinet/in6.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_NETDB_H
+#ضمن <netdb.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل __VMS
+#ضمن <in.h>
+#ضمن <inet.h>
+#جيڪڏهن_پورو
 
-#include <setjmp.h>  /* for sigjmp_buf, sigsetjmp() */
-#include <signal.h>
+#ضمن <setjmp.h>  /* for sigjmp_buf, sigsetjmp() */
+#ضمن <signal.h>
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "url.h"
-#include "multiif.h"
-#include "progress.h"
-#include "select.h"
-#include "strcase.h"
-#include "easy_lock.h"
-#include "vdns/dnscache.h"
-#include "vdns/doh.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
-#include "curlx/inet_ntop.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strcopy.h"
-#include "curlx/strparse.h"
+#ضمن "urldata.h"
+#ضمن "curl_addrinfo.h"
+#ضمن "curl_trc.h"
+#ضمن "url.h"
+#ضمن "multiif.h"
+#ضمن "progress.h"
+#ضمن "select.h"
+#ضمن "strcase.h"
+#ضمن "easy_lock.h"
+#ضمن "vdns/dnscache.h"
+#ضمن "vdns/doh.h"
+#ضمن "vdns/hostip.h"
+#ضمن "vdns/httpsrr.h"
+#ضمن "curlx/inet_ntop.h"
+#ضمن "curlx/inet_pton.h"
+#ضمن "curlx/strcopy.h"
+#ضمن "curlx/strparse.h"
 
-#if defined(CURLRES_SYNCH) &&                   \
+#إذا defined(CURLRES_SYNCH) &&                   \
   defined(HAVE_ALARM) &&                        \
   defined(SIGALRM) &&                           \
   defined(HAVE_SIGSETJMP) &&                    \
   defined(GLOBAL_INIT_IS_THREADSAFE)
 /* alarm-based timeouts can only be used with all the dependencies satisfied */
-#define USE_ALARM_TIMEOUT
-#endif
+#وصف_ڪريو USE_ALARM_TIMEOUT
+#جيڪڏهن_پورو
 
-#define RESOLV_FAIL(for_proxy) \
+#وصف_ڪريو RESOLV_FAIL(for_proxy) \
   ((for_proxy) ? CURLE_COULDNT_RESOLVE_PROXY : CURLE_COULDNT_RESOLVE_HOST)
 
-#define IS_RESOLV_FAIL(result) \
-  (((result) == CURLE_COULDNT_RESOLVE_HOST) || \
-   ((result) == CURLE_COULDNT_RESOLVE_PROXY))
+#وصف_ڪريو IS_RESOLV_FAIL(نتيجو) \
+  (((نتيجو) == CURLE_COULDNT_RESOLVE_HOST) || \
+   ((نتيجو) == CURLE_COULDNT_RESOLVE_PROXY))
 /*
  * ipv6works() returns TRUE if IPv6 seems to work.
  */
-#ifdef USE_IPV6
-static bool ipv6works(struct Curl_easy *data);
-#else
-#define ipv6works(x) FALSE
-#endif
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+ساكن bool ipv6works(بنية Curl_easy *معلومات);
+#وإلا
+#وصف_ڪريو ipv6works(x) FALSE
+#جيڪڏهن_پورو
 
 /*
  * hostip.c explained
@@ -122,48 +122,48 @@ static bool ipv6works(struct Curl_easy *data);
  * CURLRES_* defines based on the config*.h and curl_setup.h defines.
  */
 
-uint8_t Curl_resolv_dns_queries(struct Curl_easy *data, uint8_t ip_version)
+uint8_t Curl_resolv_dns_queries(بنية Curl_easy *معلومات, uint8_t ip_نسخو)
 {
-  (void)data;
-  switch(ip_version) {
-  case CURL_IPRESOLVE_V6:
-    return CURL_DNSQ_AAAA;
-  case CURL_IPRESOLVE_V4:
-    return CURL_DNSQ_A;
-  default:
-    if(ipv6works(data))
-      return (CURL_DNSQ_A | CURL_DNSQ_AAAA);
-    else
-      return CURL_DNSQ_A;
+  (فراغ)معلومات;
+  بدل(ip_نسخو) {
+  حالة CURL_IPRESOLVE_V6:
+    أرجع CURL_DNSQ_AAAA;
+  حالة CURL_IPRESOLVE_V4:
+    أرجع CURL_DNSQ_A;
+  افتراضي:
+    إذا(ipv6works(معلومات))
+      أرجع (CURL_DNSQ_A | CURL_DNSQ_AAAA);
+    وإلا
+      أرجع CURL_DNSQ_A;
   }
 }
 
-#ifdef CURLVERBOSE
-const char *Curl_resolv_query_str(uint8_t dns_queries)
+#جيڪڏهن_وصف_ٿيل CURLVERBOSE
+ثابت حرف *Curl_resolv_query_str(uint8_t dns_queries)
 {
-  switch(dns_queries) {
-  case (CURL_DNSQ_A | CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
-    return "A+AAAA+HTTPS";
-  case (CURL_DNSQ_A | CURL_DNSQ_AAAA):
-    return "A+AAAA";
-  case (CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
-    return "AAAA+HTTPS";
-  case (CURL_DNSQ_AAAA):
-    return "AAAA";
-  case (CURL_DNSQ_A | CURL_DNSQ_HTTPS):
-    return "A+HTTPS";
-  case (CURL_DNSQ_A):
-    return "A";
-  case (CURL_DNSQ_HTTPS):
-    return "HTTPS";
-  case 0:
-    return "-";
-  default:
+  بدل(dns_queries) {
+  حالة (CURL_DNSQ_A | CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
+    أرجع "A+AAAA+HTTPS";
+  حالة (CURL_DNSQ_A | CURL_DNSQ_AAAA):
+    أرجع "A+AAAA";
+  حالة (CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
+    أرجع "AAAA+HTTPS";
+  حالة (CURL_DNSQ_AAAA):
+    أرجع "AAAA";
+  حالة (CURL_DNSQ_A | CURL_DNSQ_HTTPS):
+    أرجع "A+HTTPS";
+  حالة (CURL_DNSQ_A):
+    أرجع "A";
+  حالة (CURL_DNSQ_HTTPS):
+    أرجع "HTTPS";
+  حالة 0:
+    أرجع "-";
+  افتراضي:
     DEBUGASSERT(0);
-    return "???";
+    أرجع "???";
   }
 }
-#endif
+#جيڪڏهن_پورو
 
 /*
  * Curl_printable_address() stores a printable version of the 1st address
@@ -172,712 +172,712 @@ const char *Curl_resolv_query_str(uint8_t dns_queries)
  *
  * If the conversion fails, the target buffer is empty.
  */
-void Curl_printable_address(const struct Curl_addrinfo *ai, char *buf,
+فراغ Curl_printable_پتو(ثابت بنية Curl_addrinfo *ai, حرف *buf,
                             size_t bufsize)
 {
   DEBUGASSERT(bufsize);
   buf[0] = 0;
 
-  switch(ai->ai_family) {
-  case AF_INET: {
-    const struct sockaddr_in *sa4 = (const void *)ai->ai_addr;
-    const struct in_addr *ipaddr4 = &sa4->sin_addr;
-    (void)curlx_inet_ntop(ai->ai_family, (const void *)ipaddr4, buf, bufsize);
-    break;
+  بدل(ai->ai_family) {
+  حالة AF_INET: {
+    ثابت بنية sockaddr_in *sa4 = (ثابت فراغ *)ai->ai_addr;
+    ثابت بنية in_addr *ipaddr4 = &sa4->sin_addr;
+    (فراغ)curlx_inet_ntop(ai->ai_family, (ثابت فراغ *)ipaddr4, buf, bufsize);
+    اكسر;
   }
-#ifdef USE_IPV6
-  case AF_INET6: {
-    const struct sockaddr_in6 *sa6 = (const void *)ai->ai_addr;
-    const struct in6_addr *ipaddr6 = &sa6->sin6_addr;
-    (void)curlx_inet_ntop(ai->ai_family, (const void *)ipaddr6, buf, bufsize);
-    break;
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+  حالة AF_INET6: {
+    ثابت بنية sockaddr_in6 *sa6 = (ثابت فراغ *)ai->ai_addr;
+    ثابت بنية in6_addr *ipaddr6 = &sa6->sin6_addr;
+    (فراغ)curlx_inet_ntop(ai->ai_family, (ثابت فراغ *)ipaddr6, buf, bufsize);
+    اكسر;
   }
-#endif
-  default:
-    break;
+#جيڪڏهن_پورو
+  افتراضي:
+    اكسر;
   }
 }
 
-#ifdef USE_ALARM_TIMEOUT
+#جيڪڏهن_وصف_ٿيل USE_ALARM_TIMEOUT
 /* Beware this is a global and unique instance. This is used to store the
    return address that we can jump back to from inside a signal handler. This
    is not thread-safe stuff. */
-static sigjmp_buf curl_jmpenv;
-static curl_simple_lock curl_jmpenv_lock = CURL_SIMPLE_LOCK_INIT;
-#endif
+ساكن sigjmp_buf curl_jmpenv;
+ساكن curl_simple_تالو curl_jmpenv_تالو = CURL_SIMPLE_تالو_INIT;
+#جيڪڏهن_پورو
 
-#ifdef USE_IPV6
+#جيڪڏهن_وصف_ٿيل USE_IPV6
 /* return a static IPv6 ::1 for the name */
-static struct Curl_addrinfo *get_localhost6(uint16_t port, const char *name)
+ساكن بنية Curl_addrinfo *get_localhost6(uint16_t پورٽ, ثابت حرف *name)
 {
-  struct Curl_addrinfo *ca;
-  const size_t ss_size = sizeof(struct sockaddr_in6);
-  const size_t hostlen = strlen(name);
-  struct sockaddr_in6 sa6;
-  unsigned char ipv6[16];
-  unsigned short port16 = (unsigned short)(port & 0xffff);
-  ca = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1);
-  if(!ca)
-    return NULL;
+  بنية Curl_addrinfo *ca;
+  ثابت size_t ss_سائيز = حجم(بنية sockaddr_in6);
+  ثابت size_t hostlen = لڙي_ڊيگهه(name);
+  بنية sockaddr_in6 sa6;
+  بنانشان حرف ipv6[16];
+  بنانشان ننڍو port16 = (بنانشان ننڍو)(پورٽ & 0xffff);
+  ca = curlx_calloc(1, حجم(بنية Curl_addrinfo) + ss_سائيز + hostlen + 1);
+  إذا(!ca)
+    أرجع عدم;
 
-  memset(&sa6, 0, sizeof(sa6));
+  memset(&sa6, 0, حجم(sa6));
   sa6.sin6_family = AF_INET6;
   sa6.sin6_port = htons(port16);
 
-  (void)curlx_inet_pton(AF_INET6, "::1", ipv6);
-  memcpy(&sa6.sin6_addr, ipv6, sizeof(ipv6));
+  (فراغ)curlx_inet_pton(AF_INET6, "::1", ipv6);
+  يادگيري_نقل(&sa6.sin6_addr, ipv6, حجم(ipv6));
 
   ca->ai_flags     = 0;
   ca->ai_family    = AF_INET6;
   ca->ai_socktype  = SOCK_STREAM;
   ca->ai_protocol  = IPPROTO_TCP;
-  ca->ai_addrlen   = (curl_socklen_t)ss_size;
-  ca->ai_next      = NULL;
-  ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
-  memcpy(ca->ai_addr, &sa6, ss_size);
-  ca->ai_canonname = (char *)ca->ai_addr + ss_size;
+  ca->ai_addrlen   = (curl_socklen_t)ss_سائيز;
+  ca->ai_ايندڙ      = عدم;
+  ca->ai_addr = (فراغ *)((حرف *)ca + حجم(بنية Curl_addrinfo));
+  يادگيري_نقل(ca->ai_addr, &sa6, ss_سائيز);
+  ca->ai_canonname = (حرف *)ca->ai_addr + ss_سائيز;
   curlx_strcopy(ca->ai_canonname, hostlen + 1, name, hostlen);
-  return ca;
+  أرجع ca;
 }
-#else
-#define get_localhost6(x, y) NULL
-#endif
+#وإلا
+#وصف_ڪريو get_localhost6(x, y) عدم
+#جيڪڏهن_پورو
 
 /* return a static IPv4 127.0.0.1 for the given name */
-static struct Curl_addrinfo *get_localhost(uint16_t port, const char *name)
+ساكن بنية Curl_addrinfo *get_localhost(uint16_t پورٽ, ثابت حرف *name)
 {
-  struct Curl_addrinfo *ca;
-  struct Curl_addrinfo *ca6;
-  const size_t ss_size = sizeof(struct sockaddr_in);
-  const size_t hostlen = strlen(name);
-  struct sockaddr_in sa;
-  unsigned int ipv4;
-  unsigned short port16 = (unsigned short)(port & 0xffff);
+  بنية Curl_addrinfo *ca;
+  بنية Curl_addrinfo *ca6;
+  ثابت size_t ss_سائيز = حجم(بنية sockaddr_in);
+  ثابت size_t hostlen = لڙي_ڊيگهه(name);
+  بنية sockaddr_in sa;
+  بنانشان صحيح ipv4;
+  بنانشان ننڍو port16 = (بنانشان ننڍو)(پورٽ & 0xffff);
 
   /* memset to clear the sa.sin_zero field */
-  memset(&sa, 0, sizeof(sa));
+  memset(&sa, 0, حجم(sa));
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port16);
-  if(curlx_inet_pton(AF_INET, "127.0.0.1", (char *)&ipv4) < 1)
-    return NULL;
-  memcpy(&sa.sin_addr, &ipv4, sizeof(ipv4));
+  إذا(curlx_inet_pton(AF_INET, "127.0.0.1", (حرف *)&ipv4) < 1)
+    أرجع عدم;
+  يادگيري_نقل(&sa.sin_addr, &ipv4, حجم(ipv4));
 
-  ca = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1);
-  if(!ca)
-    return NULL;
+  ca = curlx_calloc(1, حجم(بنية Curl_addrinfo) + ss_سائيز + hostlen + 1);
+  إذا(!ca)
+    أرجع عدم;
   ca->ai_flags     = 0;
   ca->ai_family    = AF_INET;
   ca->ai_socktype  = SOCK_STREAM;
   ca->ai_protocol  = IPPROTO_TCP;
-  ca->ai_addrlen   = (curl_socklen_t)ss_size;
-  ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
-  memcpy(ca->ai_addr, &sa, ss_size);
-  ca->ai_canonname = (char *)ca->ai_addr + ss_size;
+  ca->ai_addrlen   = (curl_socklen_t)ss_سائيز;
+  ca->ai_addr = (فراغ *)((حرف *)ca + حجم(بنية Curl_addrinfo));
+  يادگيري_نقل(ca->ai_addr, &sa, ss_سائيز);
+  ca->ai_canonname = (حرف *)ca->ai_addr + ss_سائيز;
   curlx_strcopy(ca->ai_canonname, hostlen + 1, name, hostlen);
 
-  ca6 = get_localhost6(port, name);
-  if(!ca6)
-    return ca;
-  ca6->ai_next = ca;
-  return ca6;
+  ca6 = get_localhost6(پورٽ, name);
+  إذا(!ca6)
+    أرجع ca;
+  ca6->ai_ايندڙ = ca;
+  أرجع ca6;
 }
 
-#ifdef USE_IPV6
+#جيڪڏهن_وصف_ٿيل USE_IPV6
 /* the nature of most systems is that IPv6 status does not come and go during a
    program's lifetime so we only probe the first time and then we have the
    info kept for fast reuse */
-CURLcode Curl_probeipv6(struct Curl_multi *multi)
+CURLcode Curl_probeipv6(بنية Curl_multi *multi)
 {
   /* probe to see if we have a working IPv6 stack */
   curl_socket_t s = CURL_SOCKET(PF_INET6, SOCK_DGRAM, 0);
-  multi->ipv6_works = FALSE;
-  if(s == CURL_SOCKET_BAD) {
-    if(SOCKERRNO == SOCKENOMEM)
-      return CURLE_OUT_OF_MEMORY;
+  multi->ipv6_هلي = FALSE;
+  إذا(s == CURL_SOCKET_BAD) {
+    إذا(SOCKERRNO == SOCKENOMEM)
+      أرجع CURLE_ٻاهريون_جو_يادگيري;
   }
-  else {
-    multi->ipv6_works = TRUE;
+  وإلا {
+    multi->ipv6_هلي = TRUE;
     sclose(s);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
  * ipv6works() returns TRUE if IPv6 seems to work.
  */
-static bool ipv6works(struct Curl_easy *data)
+ساكن bool ipv6works(بنية Curl_easy *معلومات)
 {
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->multi);
-  return data ? data->multi->ipv6_works : FALSE;
+  DEBUGASSERT(معلومات);
+  DEBUGASSERT(معلومات->multi);
+  أرجع معلومات ? معلومات->multi->ipv6_هلي : FALSE;
 }
-#endif /* USE_IPV6 */
+#جيڪڏهن_پورو /* USE_IPV6 */
 
 /*
  * Curl_host_is_ipnum() returns TRUE if the given string is a numerical IPv4
  * (or IPv6 if supported) address.
  */
-bool Curl_host_is_ipnum(const char *hostname)
+bool Curl_host_is_ipnum(ثابت حرف *hostname)
 {
-  struct in_addr in;
-#ifdef USE_IPV6
-  struct in6_addr in6;
-#endif
-  if(curlx_inet_pton(AF_INET, hostname, &in) > 0
-#ifdef USE_IPV6
+  بنية in_addr اندريون;
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+  بنية in6_addr in6;
+#جيڪڏهن_پورو
+  إذا(curlx_inet_pton(AF_INET, hostname, &اندريون) > 0
+#جيڪڏهن_وصف_ٿيل USE_IPV6
      || curlx_inet_pton(AF_INET6, hostname, &in6) > 0
-#endif
+#جيڪڏهن_پورو
     )
-    return TRUE;
-  return FALSE;
+    أرجع TRUE;
+  أرجع FALSE;
 }
 
 /* return TRUE if 'part' is a case insensitive tail of 'full' */
-static bool tailmatch(const char *full, size_t flen,
-                      const char *part, size_t plen)
+ساكن bool tailmatch(ثابت حرف *ڀريل, size_t flen,
+                      ثابت حرف *part, size_t plen)
 {
-  if(plen > flen)
-    return FALSE;
-  return curl_strnequal(part, &full[flen - plen], plen);
+  إذا(plen > flen)
+    أرجع FALSE;
+  أرجع curl_strnequal(part, &ڀريل[flen - plen], plen);
 }
 
-static CURLcode hostip_resolv_failed(struct Curl_easy *data,
-                                     struct Curl_peer *peer,
+ساكن CURLcode hostip_resolv_failed(بنية Curl_easy *معلومات,
+                                     بنية Curl_peer *peer,
                                      bool for_proxy)
 {
-  failf(data, "Could not resolve %s: %s",
+  failf(معلومات, "Could not resolve %s: %s",
         for_proxy ? "proxy" : "host", peer->hostname);
-  return RESOLV_FAIL(for_proxy);
+  أرجع RESOLV_FAIL(for_proxy);
 }
 
-static bool can_resolve_dns_queries(struct Curl_easy *data,
+ساكن bool can_resolve_dns_queries(بنية Curl_easy *معلومات,
                                     uint8_t dns_queries)
 {
-  (void)data;
-  if((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) && !ipv6works(data))
-    return FALSE;
-  return TRUE;
+  (فراغ)معلومات;
+  إذا((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) && !ipv6works(معلومات))
+    أرجع FALSE;
+  أرجع TRUE;
 }
 
-CURLcode Curl_resolv_announce_start(struct Curl_easy *data,
-                                    void *resolver)
+CURLcode Curl_resolv_announce_شروعات(بنية Curl_easy *معلومات,
+                                    فراغ *resolver)
 {
-  if(data->set.resolver_start) {
-    struct Curl_mapi_guard guard;
-    int rc;
+  إذا(معلومات->سيٽ.resolver_شروعات) {
+    بنية Curl_mapi_guard guard;
+    صحيح rc;
 
-    CURL_TRC_DNS(data, "announcing resolve to application");
-    CURL_CBAPI_START(&guard, data, easy_resolver_start);
-    rc = data->set.resolver_start(resolver, NULL,
-                                  data->set.resolver_start_client);
-    CURL_CBAPI_END(&guard);
-    if(rc) {
-      CURL_TRC_DNS(data, "application aborted resolve");
-      return CURLE_ABORTED_BY_CALLBACK;
+    CURL_TRC_DNS(معلومات, "announcing resolve to application");
+    CURL_CBAPI_شروعات(&guard, معلومات, easy_resolver_شروعات);
+    rc = معلومات->سيٽ.resolver_شروعات(resolver, عدم,
+                                  معلومات->سيٽ.resolver_شروعات_client);
+    CURL_CBAPI_پڇاڙي(&guard);
+    إذا(rc) {
+      CURL_TRC_DNS(معلومات, "application aborted resolve");
+      أرجع CURLE_ABORTED_BY_CALLBACK;
     }
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-#ifdef USE_CURL_ASYNC
+#جيڪڏهن_وصف_ٿيل USE_CURL_ASYNC
 
-static struct Curl_resolv_async *hostip_async_new(struct Curl_easy *data,
+ساكن بنية Curl_resolv_async *hostip_async_new(بنية Curl_easy *معلومات,
                                                   uint8_t dns_queries,
-                                                  struct Curl_peer *peer,
+                                                  بنية Curl_peer *peer,
                                                   uint8_t transport,
                                                   bool for_proxy,
                                                   timediff_t timeout_ms)
 {
-  struct Curl_resolv_async *async;
+  بنية Curl_resolv_async *async;
 
-  if(!data->multi) {
+  إذا(!معلومات->multi) {
     DEBUGASSERT(0);
-    return NULL;
+    أرجع عدم;
   }
 
   /* struct size already includes the null-terminator for hostname */
-  async = curlx_calloc(1, sizeof(*async));
-  if(!async)
-    return NULL;
+  async = curlx_calloc(1, حجم(*async));
+  إذا(!async)
+    أرجع عدم;
 
   /* Give every async resolve operation a "unique" id. This may
    * wrap around after a long time, making collisions highly unlikely.
    * As we keep the async structs at the easy handle, chances of
    * easy `mid plus resolv->id` colliding should be astronomical.
    * `resolv_id == 0` is never used. */
-  if(data->multi->last_resolv_id == UINT32_MAX)
-    data->multi->last_resolv_id = 1; /* wrap around */
-  else
-    data->multi->last_resolv_id++;
-  async->id = data->multi->last_resolv_id;
+  إذا(معلومات->multi->آخري_resolv_id == UINT32_MAX)
+    معلومات->multi->آخري_resolv_id = 1; /* wrap around */
+  وإلا
+    معلومات->multi->آخري_resolv_id++;
+  async->id = معلومات->multi->آخري_resolv_id;
   Curl_peer_link(&async->peer, peer);
   async->dns_queries = dns_queries;
   async->transport = transport;
   async->for_proxy = for_proxy;
-  async->start = *Curl_pgrs_now(data);
+  async->شروعات = *Curl_pgrs_now(معلومات);
   async->timeout_ms = timeout_ms;
   async->is_ipaddr = Curl_is_ipaddr(peer->hostname);
-  if(async->is_ipaddr)
+  إذا(async->is_ipaddr)
     async->is_ipv4addr = Curl_is_ipv4addr(peer->hostname);
 
-  return async;
+  أرجع async;
 }
 
-static CURLcode hostip_resolv_take_result(struct Curl_easy *data,
-                                          struct Curl_resolv_async *async,
-                                          struct Curl_dns_entry **pdns)
+ساكن CURLcode hostip_resolv_take_نتيجو(بنية Curl_easy *معلومات,
+                                          بنية Curl_resolv_async *async,
+                                          بنية Curl_dns_داخلا **pdns)
 {
-  CURLcode result;
+  CURLcode نتيجو;
 
   /* If async resolving is ongoing, this must be set */
-  if(!async)
-    return CURLE_FAILED_INIT;
+  إذا(!async)
+    أرجع CURLE_FAILED_INIT;
 
-#ifndef CURL_DISABLE_DOH
-  if(async->doh)
-    result = Curl_doh_take_result(data, async, pdns);
-  else
-#endif
-  result = Curl_async_take_result(data, async, pdns);
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_DOH
+  إذا(async->doh)
+    نتيجو = Curl_doh_take_نتيجو(معلومات, async, pdns);
+  وإلا
+#جيڪڏهن_پورو
+  نتيجو = Curl_async_take_نتيجو(معلومات, async, pdns);
 
-  if(result == CURLE_AGAIN) {
-    CURL_TRC_DNS(data, "[%s] resolve incomplete, responses=%s, "
+  إذا(نتيجو == CURLE_AGAIN) {
+    CURL_TRC_DNS(معلومات, "[%s] resolve incomplete, responses=%s, "
                  "ongoing=%d for %s:%d",
                  Curl_resolv_query_str(async->dns_queries),
                  Curl_resolv_query_str(async->dns_responses),
                  async->queries_ongoing,
-                 async->peer->hostname, async->peer->port);
-    result = CURLE_OK;
+                 async->peer->hostname, async->peer->پورٽ);
+    نتيجو = CURLE_OK;
   }
-  else if(IS_RESOLV_FAIL(result)) {
-    result = Curl_async_failed(data, async, NULL);
+  وإلا إذا(IS_RESOLV_FAIL(نتيجو)) {
+    نتيجو = Curl_async_failed(معلومات, async, عدم);
   }
-  else if(result) {
+  وإلا إذا(نتيجو) {
     /* a local failure, not a resolve answer. Keep the error as it
        is so it does not get treated as one. */
-    CURL_TRC_DNS(data, "[%s] resolve error %d for %s:%u",
+    CURL_TRC_DNS(معلومات, "[%s] resolve error %d for %s:%u",
                  Curl_resolv_query_str(async->dns_queries),
-                 (int)result, async->peer->hostname, async->peer->port);
+                 (صحيح)نتيجو, async->peer->hostname, async->peer->پورٽ);
   }
-  else {
-    CURL_TRC_DNS(data, "[%s] resolve complete for %s:%u",
+  وإلا {
+    CURL_TRC_DNS(معلومات, "[%s] resolve complete for %s:%u",
                  Curl_resolv_query_str(async->dns_queries),
-                 async->peer->hostname, async->peer->port);
+                 async->peer->hostname, async->peer->پورٽ);
     DEBUGASSERT(*pdns);
   }
 
-  return result;
+  أرجع نتيجو;
 }
 
-timediff_t Curl_resolv_elapsed_ms(struct Curl_easy *data,
+timediff_t Curl_resolv_elapsed_ms(بنية Curl_easy *معلومات,
                                   uint32_t resolv_id,
-                                  const struct curltime *pnow)
+                                  ثابت بنية curltime *pnow)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(!async)
-    return CURL_TIMEOUT_RESOLVE_MS;
-  return curlx_ptimediff_ms(pnow, &async->start);
+  بنية Curl_resolv_async *async = Curl_async_get(معلومات, resolv_id);
+  إذا(!async)
+    أرجع CURL_TIMEOUT_RESOLVE_MS;
+  أرجع curlx_ptimediff_ms(pnow, &async->شروعات);
 }
 
-bool Curl_resolv_has_answers(struct Curl_easy *data,
+bool Curl_resolv_has_answers(بنية Curl_easy *معلومات,
                              uint32_t resolv_id, uint8_t dns_queries)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
+  بنية Curl_resolv_async *async = Curl_async_get(معلومات, resolv_id);
   uint8_t check_queries;
   /* a no longer existing/running resolve has all answers. */
-  if(!async || async->done)
-    return TRUE;
+  إذا(!async || async->پورو)
+    أرجع TRUE;
   /* Relevant are only queries undertaken. Others are considered answered. */
   check_queries = (dns_queries & async->dns_queries);
-  if((check_queries & async->dns_responses) != check_queries) {
-    return FALSE;
+  إذا((check_queries & async->dns_responses) != check_queries) {
+    أرجع FALSE;
   }
-  return TRUE;
+  أرجع TRUE;
 }
 
-const struct Curl_addrinfo *Curl_resolv_get_ai(struct Curl_easy *data,
+ثابت بنية Curl_addrinfo *Curl_resolv_get_ai(بنية Curl_easy *معلومات,
                                                uint32_t resolv_id,
-                                               int ai_family,
-                                               unsigned int index)
+                                               صحيح ai_family,
+                                               بنانشان صحيح اشاريو)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(!async || !CURL_DNSQ_IS_ADDR(async->dns_queries))
-    return NULL;
-  switch(ai_family) {
-  case AF_INET:
-    return Curl_addrinfo_get(async->ai_A, ai_family, index);
-#ifdef USE_IPV6
-  case AF_INET6:
-    return Curl_addrinfo_get(async->ai_AAAA, ai_family, index);
-#endif
-  default:
-    return NULL;
+  بنية Curl_resolv_async *async = Curl_async_get(معلومات, resolv_id);
+  إذا(!async || !CURL_DNSQ_IS_ADDR(async->dns_queries))
+    أرجع عدم;
+  بدل(ai_family) {
+  حالة AF_INET:
+    أرجع Curl_addrinfo_get(async->ai_A, ai_family, اشاريو);
+#جيڪڏهن_وصف_ٿيل USE_IPV6
+  حالة AF_INET6:
+    أرجع Curl_addrinfo_get(async->ai_AAAA, ai_family, اشاريو);
+#جيڪڏهن_پورو
+  افتراضي:
+    أرجع عدم;
   }
 }
 
-#ifdef USE_HTTPSRR
+#جيڪڏهن_وصف_ٿيل USE_HTTPSRR
 
-CURLcode Curl_resolv_https(struct Curl_easy *data,
-                           struct Curl_peer *peer,
+CURLcode Curl_resolv_https(بنية Curl_easy *معلومات,
+                           بنية Curl_peer *peer,
                            bool for_proxy,
                            timediff_t timeout_ms,
                            uint32_t *presolv_id,
-                           struct Curl_dns_entry **pdns)
+                           بنية Curl_dns_داخلا **pdns)
 {
-  return Curl_resolv(data, peer, CURL_DNSQ_HTTPS, TRNSPRT_TCP,
+  أرجع Curl_resolv(معلومات, peer, CURL_DNSQ_HTTPS, TRNSPRT_TCP,
                      for_proxy, timeout_ms, presolv_id, pdns);
 }
 
-const struct Curl_https_rrinfo *
-Curl_resolv_get_https(struct Curl_easy *data, uint32_t resolv_id)
+ثابت بنية Curl_https_rrinfo *
+Curl_resolv_get_https(بنية Curl_easy *معلومات, uint32_t resolv_id)
 {
-  struct Curl_resolv_async *async;
-  if(!Curl_resolv_knows_https(data, resolv_id))
-    return NULL;
-  async = Curl_async_get(data, resolv_id);
-  return async ? async->httpsrr : NULL;
+  بنية Curl_resolv_async *async;
+  إذا(!Curl_resolv_knows_https(معلومات, resolv_id))
+    أرجع عدم;
+  async = Curl_async_get(معلومات, resolv_id);
+  أرجع async ? async->httpsrr : عدم;
 }
 
-bool Curl_resolv_knows_https(struct Curl_easy *data, uint32_t resolv_id)
+bool Curl_resolv_knows_https(بنية Curl_easy *معلومات, uint32_t resolv_id)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(async && (async->dns_queries & CURL_DNSQ_HTTPS))
-    return ((async->dns_responses & CURL_DNSQ_HTTPS) ||
+  بنية Curl_resolv_async *async = Curl_async_get(معلومات, resolv_id);
+  إذا(async && (async->dns_queries & CURL_DNSQ_HTTPS))
+    أرجع ((async->dns_responses & CURL_DNSQ_HTTPS) ||
             !async->queries_ongoing);
-  return TRUE; /* we know it will never come */
+  أرجع TRUE; /* we know it will never come */
 }
 
-#endif /* USE_HTTPSRR */
+#جيڪڏهن_پورو /* USE_HTTPSRR */
 
-#endif /* USE_CURL_ASYNC */
+#جيڪڏهن_پورو /* USE_CURL_ASYNC */
 
 /* Start resolving. `*pnegative` is only meaningful when this returns
    a CURLE_COULDNT_RESOLVE_* failure: TRUE when the resolver answered
    that the name does not exist, FALSE on transient or local failures
    that must not be cached as negative entries. */
-static CURLcode hostip_resolv_start(struct Curl_easy *data,
+ساكن CURLcode hostip_resolv_شروعات(بنية Curl_easy *معلومات,
                                     uint8_t dns_queries,
-                                    struct Curl_peer *peer,
+                                    بنية Curl_peer *peer,
                                     uint8_t transport,
                                     bool for_proxy,
                                     timediff_t timeout_ms,
                                     bool allowDOH,
                                     uint32_t *presolv_id,
-                                    struct Curl_dns_entry **pdns,
+                                    بنية Curl_dns_داخلا **pdns,
                                     bool *pnegative)
 {
-#ifdef USE_CURL_ASYNC
-  struct Curl_resolv_async *async = NULL;
-#endif
-  struct Curl_addrinfo *addr = NULL;
+#جيڪڏهن_وصف_ٿيل USE_CURL_ASYNC
+  بنية Curl_resolv_async *async = عدم;
+#جيڪڏهن_پورو
+  بنية Curl_addrinfo *addr = عدم;
   size_t hostname_len;
   bool addr_queries = (dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA));
-  CURLcode result = CURLE_OK;
+  CURLcode نتيجو = CURLE_OK;
 
   *pnegative = FALSE;
 
-  (void)timeout_ms; /* not in all ifdefs */
+  (فراغ)timeout_ms; /* not in all ifdefs */
   *presolv_id = 0;
-  *pdns = NULL;
+  *pdns = عدم;
 
   /* Check for "known" things to resolve ourselves. */
-  if(addr_queries) {
-#ifndef USE_RESOLVE_ON_IPS
-    if(Curl_is_ipaddr(peer->hostname)) {
+  إذا(addr_queries) {
+#جيڪڏهن_وصف_نه_ٿيل USE_RESOLVE_ON_IPS
+    إذا(Curl_is_ipaddr(peer->hostname)) {
       /* test655 verifies that the announce is done, even though there
        * is no real resolving. So, keep doing this. */
-      result = Curl_resolv_announce_start(data, NULL);
-      if(result)
-        goto out;
+      نتيجو = Curl_resolv_announce_شروعات(معلومات, عدم);
+      إذا(نتيجو)
+        اذهب ٻاهريون;
       /* shortcut literal IP addresses, if we are not told to resolve them. */
-      result = Curl_str2addr(peer->hostname, peer->port, &addr);
-      goto out;
+      نتيجو = Curl_str2addr(peer->hostname, peer->پورٽ, &addr);
+      اذهب ٻاهريون;
     }
-#endif
+#جيڪڏهن_پورو
 
-    hostname_len = strlen(peer->hostname);
-    if(curl_strequal(peer->hostname, "localhost") ||
+    hostname_len = لڙي_ڊيگهه(peer->hostname);
+    إذا(curl_strequal(peer->hostname, "localhost") ||
        curl_strequal(peer->hostname, "localhost.") ||
        tailmatch(peer->hostname, hostname_len, STRCONST(".localhost")) ||
        tailmatch(peer->hostname, hostname_len, STRCONST(".localhost."))) {
-      result = Curl_resolv_announce_start(data, NULL);
-      if(result)
-        goto out;
-      addr = get_localhost(peer->port, peer->hostname);
-      if(!addr)
-        result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      نتيجو = Curl_resolv_announce_شروعات(معلومات, عدم);
+      إذا(نتيجو)
+        اذهب ٻاهريون;
+      addr = get_localhost(peer->پورٽ, peer->hostname);
+      إذا(!addr)
+        نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+      اذهب ٻاهريون;
     }
   }
-#ifndef CURL_DISABLE_DOH
-  if(!Curl_is_ipaddr(peer->hostname) && allowDOH && data->set.doh) {
-    result = Curl_resolv_announce_start(data, NULL);
-    if(result)
-      goto out;
-    if(!async) {
-      async = hostip_async_new(data, dns_queries, peer, transport,
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_DOH
+  إذا(!Curl_is_ipaddr(peer->hostname) && allowDOH && معلومات->سيٽ.doh) {
+    نتيجو = Curl_resolv_announce_شروعات(معلومات, عدم);
+    إذا(نتيجو)
+      اذهب ٻاهريون;
+    إذا(!async) {
+      async = hostip_async_new(معلومات, dns_queries, peer, transport,
                                for_proxy, timeout_ms);
-      if(!async) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      إذا(!async) {
+        نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+        اذهب ٻاهريون;
       }
     }
-    result = Curl_doh(data, async);
-    goto out;
+    نتيجو = Curl_doh(معلومات, async);
+    اذهب ٻاهريون;
   }
-#else
-  (void)allowDOH;
-#endif
+#وإلا
+  (فراغ)allowDOH;
+#جيڪڏهن_پورو
 
   /* Can we provide the requested IP specifics in resolving? */
-  if(!can_resolve_dns_queries(data, dns_queries)) {
-    result = RESOLV_FAIL(for_proxy);
-    goto out;
+  إذا(!can_resolve_dns_queries(معلومات, dns_queries)) {
+    نتيجو = RESOLV_FAIL(for_proxy);
+    اذهب ٻاهريون;
   }
 
-#ifdef CURLRES_ASYNCH
-  (void)addr;
-  if(!async) {
-    async = hostip_async_new(data, dns_queries, peer, transport,
+#جيڪڏهن_وصف_ٿيل CURLRES_ASYNCH
+  (فراغ)addr;
+  إذا(!async) {
+    async = hostip_async_new(معلومات, dns_queries, peer, transport,
                              for_proxy, timeout_ms);
-    if(!async) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    إذا(!async) {
+      نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+      اذهب ٻاهريون;
     }
   }
-  result = Curl_async_getaddrinfo(data, async);
-  if(result == CURLE_AGAIN) {
+  نتيجو = Curl_async_getaddrinfo(معلومات, async);
+  إذا(نتيجو == CURLE_AGAIN) {
     /* the answer might be there already. Check. */
-    CURLcode r2 = hostip_resolv_take_result(data, async, pdns);
-    if(r2)
-      result = r2;
-    else if(*pdns)
-      result = CURLE_OK;
+    CURLcode r2 = hostip_resolv_take_نتيجو(معلومات, async, pdns);
+    إذا(r2)
+      نتيجو = r2;
+    وإلا إذا(*pdns)
+      نتيجو = CURLE_OK;
   }
-#else
-  result = Curl_resolv_announce_start(data, NULL);
-  if(result)
-    goto out;
-  addr = Curl_sync_getaddrinfo(data, dns_queries, peer->hostname, peer->port,
+#وإلا
+  نتيجو = Curl_resolv_announce_شروعات(معلومات, عدم);
+  إذا(نتيجو)
+    اذهب ٻاهريون;
+  addr = Curl_sync_getaddrinfo(معلومات, dns_queries, peer->hostname, peer->پورٽ,
                                transport);
-  if(!addr) {
-    result = RESOLV_FAIL(for_proxy);
+  إذا(!addr) {
+    نتيجو = RESOLV_FAIL(for_proxy);
     /* the synchronous resolvers do not tell a transient failure from
        an authoritative negative answer, treat it as before */
     *pnegative = TRUE;
   }
-#endif
+#جيڪڏهن_پورو
 
-out:
-  if(!result) {
-    if(addr) {
+ٻاهريون:
+  إذا(!نتيجو) {
+    إذا(addr) {
       /* we got a response, create a dns entry, add to cache, return */
       DEBUGASSERT(!*pdns);
-      *pdns = Curl_dnsc_mk_addr(data, dns_queries, &addr, peer);
-      if(!*pdns)
-        result = CURLE_OUT_OF_MEMORY;
+      *pdns = Curl_dnsc_mk_addr(معلومات, dns_queries, &addr, peer);
+      إذا(!*pdns)
+        نتيجو = CURLE_ٻاهريون_جو_يادگيري;
     }
-    else if(!*pdns)
-      result = CURLE_AGAIN;
+    وإلا إذا(!*pdns)
+      نتيجو = CURLE_AGAIN;
   }
-  else if(*pdns)
-    Curl_dns_entry_unlink(data, pdns);
-  else if(addr)
+  وإلا إذا(*pdns)
+    Curl_dns_داخلا_unlink(معلومات, pdns);
+  وإلا إذا(addr)
     Curl_freeaddrinfo(addr);
 
-#ifdef USE_CURL_ASYNC
-  if(async) {
-    if(result == CURLE_AGAIN) { /* still need it, link, return id. */
+#جيڪڏهن_وصف_ٿيل USE_CURL_ASYNC
+  إذا(async) {
+    إذا(نتيجو == CURLE_AGAIN) { /* still need it, link, return id. */
       *presolv_id = async->id;
-      async->next = data->state.async;
-      data->state.async = async;
+      async->ايندڙ = معلومات->state.async;
+      معلومات->state.async = async;
     }
-    else {
+    وإلا {
       *pnegative = !!async->negative_answer;
-      Curl_async_destroy(data, async);
+      Curl_async_destroy(معلومات, async);
     }
   }
-#endif
-  return result;
+#جيڪڏهن_پورو
+  أرجع نتيجو;
 }
 
-static CURLcode hostip_resolv(struct Curl_easy *data,
+ساكن CURLcode hostip_resolv(بنية Curl_easy *معلومات,
                               uint8_t dns_queries,
-                              struct Curl_peer *peer,
+                              بنية Curl_peer *peer,
                               uint8_t transport,
                               bool for_proxy,
                               timediff_t timeout_ms,
                               bool allowDOH,
                               uint32_t *presolv_id,
-                              struct Curl_dns_entry **pdns)
+                              بنية Curl_dns_داخلا **pdns)
 {
   size_t hostname_len;
-  CURLcode result = RESOLV_FAIL(for_proxy);
+  CURLcode نتيجو = RESOLV_FAIL(for_proxy);
   bool cache_dns = FALSE;
   bool negative = FALSE;
 
-  (void)timeout_ms; /* not used in all ifdefs */
+  (فراغ)timeout_ms; /* not used in all ifdefs */
   *presolv_id = 0;
-  *pdns = NULL;
+  *pdns = عدم;
 
-#ifdef CURL_DISABLE_DOH
-  (void)allowDOH;
-#endif
+#جيڪڏهن_وصف_ٿيل CURL_DISABLE_DOH
+  (فراغ)allowDOH;
+#جيڪڏهن_پورو
 
   /* We should intentionally error and not resolve .onion TLDs */
-  hostname_len = strlen(peer->hostname);
+  hostname_len = لڙي_ڊيگهه(peer->hostname);
   DEBUGASSERT(hostname_len);
-  if(hostname_len >= 7 &&
+  إذا(hostname_len >= 7 &&
      (curl_strequal(&peer->hostname[hostname_len - 6], ".onion") ||
       curl_strequal(&peer->hostname[hostname_len - 7], ".onion."))) {
-    failf(data, "Not resolving .onion address (RFC 7686)");
-    goto out;
+    failf(معلومات, "Not resolving .onion address (RFC 7686)");
+    اذهب ٻاهريون;
   }
 
-#ifdef DEBUGBUILD
-  CURL_TRC_DNS(data, "[%s] hostip_resolv(%s:%u)",
-               Curl_resolv_query_str(dns_queries), peer->hostname, peer->port);
-  if((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) &&
+#جيڪڏهن_وصف_ٿيل DEBUGBUILD
+  CURL_TRC_DNS(معلومات, "[%s] hostip_resolv(%s:%u)",
+               Curl_resolv_query_str(dns_queries), peer->hostname, peer->پورٽ);
+  إذا((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) &&
      getenv("CURL_DBG_RESOLV_FAIL_IPV6")) {
-    infof(data, "DEBUG fail ipv6 resolve");
-    result = hostip_resolv_failed(data, peer, for_proxy);
-    goto out;
+    infof(معلومات, "DEBUG fail ipv6 resolve");
+    نتيجو = hostip_resolv_failed(معلومات, peer, for_proxy);
+    اذهب ٻاهريون;
   }
-#endif
+#جيڪڏهن_پورو
   /* Let's check our DNS cache first */
-  result = Curl_dnscache_get(data, dns_queries, peer, pdns);
-  if(*pdns) {
-    infof(data, "Hostname %s was found in DNS cache", peer->hostname);
-    result = CURLE_OK;
+  نتيجو = Curl_dnscache_get(معلومات, dns_queries, peer, pdns);
+  إذا(*pdns) {
+    infof(معلومات, "Hostname %s was found in DNS cache", peer->hostname);
+    نتيجو = CURLE_OK;
   }
-  else if(result) {
-    infof(data, "Negative DNS entry");
-    result = hostip_resolv_failed(data, peer, for_proxy);
+  وإلا إذا(نتيجو) {
+    infof(معلومات, "Negative DNS entry");
+    نتيجو = hostip_resolv_failed(معلومات, peer, for_proxy);
   }
-  else {
+  وإلا {
     /* No luck, we need to start resolving. */
     cache_dns = TRUE;
-    result = hostip_resolv_start(data, dns_queries, peer, transport,
+    نتيجو = hostip_resolv_شروعات(معلومات, dns_queries, peer, transport,
                                  for_proxy, timeout_ms, allowDOH,
                                  presolv_id, pdns, &negative);
-    CURL_TRC_DNS(data, "[%s] hostip_resolv started -> %d",
-                 Curl_resolv_query_str(dns_queries), (int)result);
+    CURL_TRC_DNS(معلومات, "[%s] hostip_resolv started -> %d",
+                 Curl_resolv_query_str(dns_queries), (صحيح)نتيجو);
   }
 
-out:
-  if(result && (result != CURLE_AGAIN)) {
-    Curl_dns_entry_unlink(data, pdns);
-    if(IS_RESOLV_FAIL(result)) {
-      if(cache_dns && negative)
-        Curl_dnscache_add_negative(data, dns_queries, peer);
-      if(dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
-        failf(data, "Could not resolve: %s:%u", peer->hostname, peer->port);
+ٻاهريون:
+  إذا(نتيجو && (نتيجو != CURLE_AGAIN)) {
+    Curl_dns_داخلا_unlink(معلومات, pdns);
+    إذا(IS_RESOLV_FAIL(نتيجو)) {
+      إذا(cache_dns && negative)
+        Curl_dnscache_جوڙيو_negative(معلومات, dns_queries, peer);
+      إذا(dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+        failf(معلومات, "Could not resolve: %s:%u", peer->hostname, peer->پورٽ);
     }
-    else {
-      failf(data, "Error %d resolving %s:%u",
-            (int)result, peer->hostname, peer->port);
+    وإلا {
+      failf(معلومات, "Error %d resolving %s:%u",
+            (صحيح)نتيجو, peer->hostname, peer->پورٽ);
     }
   }
-  else if(cache_dns && *pdns) {
-    result = Curl_dnscache_add(data, *pdns);
-    if(result)
-      Curl_dns_entry_unlink(data, pdns);
+  وإلا إذا(cache_dns && *pdns) {
+    نتيجو = Curl_dnscache_جوڙيو(معلومات, *pdns);
+    إذا(نتيجو)
+      Curl_dns_داخلا_unlink(معلومات, pdns);
   }
 
-  return result;
+  أرجع نتيجو;
 }
 
-CURLcode Curl_resolv_blocking(struct Curl_easy *data,
+CURLcode Curl_resolv_blocking(بنية Curl_easy *معلومات,
                               uint8_t dns_queries,
-                              const char *hostname,
-                              uint16_t port,
+                              ثابت حرف *hostname,
+                              uint16_t پورٽ,
                               uint8_t transport,
-                              struct Curl_dns_entry **pdns)
+                              بنية Curl_dns_داخلا **pdns)
 {
-  struct Curl_peer *peer = NULL;
-  CURLcode result;
+  بنية Curl_peer *peer = عدم;
+  CURLcode نتيجو;
   uint32_t resolv_id;
 
   DEBUGASSERT(hostname && *hostname);
-  *pdns = NULL;
+  *pdns = عدم;
 
-  result = Curl_peer_create(data, data->conn->scheme, hostname, port, &peer);
-  if(result)
-    goto out;
+  نتيجو = Curl_peer_create(معلومات, معلومات->conn->scheme, hostname, پورٽ, &peer);
+  إذا(نتيجو)
+    اذهب ٻاهريون;
 
   /* We cannot do a blocking resolve using DoH currently */
-  result = hostip_resolv(data, dns_queries, peer, transport, FALSE, 0, FALSE,
+  نتيجو = hostip_resolv(معلومات, dns_queries, peer, transport, FALSE, 0, FALSE,
                          &resolv_id, pdns);
-  switch(result) {
-  case CURLE_OK:
+  بدل(نتيجو) {
+  حالة CURLE_OK:
     DEBUGASSERT(*pdns);
-    break;
-#ifdef USE_CURL_ASYNC
-  case CURLE_AGAIN:
+    اكسر;
+#جيڪڏهن_وصف_ٿيل USE_CURL_ASYNC
+  حالة CURLE_AGAIN:
     DEBUGASSERT(!*pdns);
-    result = Curl_async_await(data, resolv_id, pdns);
-    Curl_resolv_destroy(data, resolv_id);
-    break;
-#endif
-  default:
-    break;
+    نتيجو = Curl_async_await(معلومات, resolv_id, pdns);
+    Curl_resolv_destroy(معلومات, resolv_id);
+    اكسر;
+#جيڪڏهن_پورو
+  افتراضي:
+    اكسر;
   }
 
-out:
+ٻاهريون:
   Curl_peer_unlink(&peer);
-  return result;
+  أرجع نتيجو;
 }
 
-#ifdef USE_ALARM_TIMEOUT
+#جيڪڏهن_وصف_ٿيل USE_ALARM_TIMEOUT
 /*
  * This signal handler jumps back into the main libcurl code and continues
  * execution. This effectively causes the remainder of the application to run
  * within a signal handler which is nonportable and could lead to problems.
  */
-CURL_NORETURN static void alarmfunc(int sig)
+CURL_NORETURN ساكن فراغ alarmfunc(صحيح sig)
 {
-  (void)sig;
+  (فراغ)sig;
   siglongjmp(curl_jmpenv, 1);
 }
 
-static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
+ساكن CURLcode resolv_alarm_timeout(بنية Curl_easy *معلومات,
                                      uint8_t dns_queries,
-                                     struct Curl_peer *peer,
+                                     بنية Curl_peer *peer,
                                      uint8_t transport,
                                      bool for_proxy,
                                      timediff_t timeout_ms,
                                      uint32_t *presolv_id,
-                                     struct Curl_dns_entry **entry)
+                                     بنية Curl_dns_داخلا **داخلا_2)
 {
-#ifdef HAVE_SIGACTION
-  struct sigaction keep_sigact; /* store the old struct here */
-  volatile bool keep_copysig = FALSE; /* whether old sigact has been saved */
-  struct sigaction sigact;
-#else
-#ifdef HAVE_SIGNAL
-  void (*keep_sigact)(int);       /* store the old handler here */
-#endif /* HAVE_SIGNAL */
-#endif /* HAVE_SIGACTION */
-  volatile long timeout;
-  volatile unsigned int prev_alarm = 0;
-  CURLcode result;
+#جيڪڏهن_وصف_ٿيل HAVE_SIGACTION
+  بنية sigaction keep_sigact; /* store the old struct here */
+  متطاير bool keep_copysig = FALSE; /* whether old sigact has been saved */
+  بنية sigaction sigact;
+#وإلا
+#جيڪڏهن_وصف_ٿيل HAVE_SIGNAL
+  فراغ (*keep_sigact)(صحيح);       /* store the old handler here */
+#جيڪڏهن_پورو /* HAVE_SIGNAL */
+#جيڪڏهن_پورو /* HAVE_SIGACTION */
+  متطاير ڊگهو timeout;
+  متطاير بنانشان صحيح prev_alarm = 0;
+  CURLcode نتيجو;
 
   DEBUGASSERT(peer->hostname && *peer->hostname);
   DEBUGASSERT(timeout_ms > 0);
-  DEBUGASSERT(!data->set.no_signal);
-#ifndef CURL_DISABLE_DOH
-  DEBUGASSERT(!data->set.doh);
-#endif
+  DEBUGASSERT(!معلومات->سيٽ.no_signal);
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_DOH
+  DEBUGASSERT(!معلومات->سيٽ.doh);
+#جيڪڏهن_پورو
 
-  *entry = NULL;
-  timeout = (timeout_ms > LONG_MAX) ? LONG_MAX : (long)timeout_ms;
-  if(timeout < 1000) {
+  *داخلا_2 = عدم;
+  timeout = (timeout_ms > LONG_MAX) ? LONG_MAX : (ڊگهو)timeout_ms;
+  إذا(timeout < 1000) {
     /* The alarm() function only provides integer second resolution, so if
        we want to wait less than one second we must bail out already now. */
-    failf(data,
+    failf(معلومات,
           "remaining timeout of %ld too small to resolve via SIGALRM method",
           timeout);
-    return CURLE_OPERATION_TIMEDOUT;
+    أرجع CURLE_OPERATION_TIMEDOUT;
   }
   /* This allows us to time-out from the name resolver, as the timeout
      will generate a signal and we will siglongjmp() from that here.
@@ -885,36 +885,36 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
      This should be the last thing we do before calling Curl_resolv(),
      as otherwise we would have to worry about variables that get modified
      before we invoke Curl_resolv() (and thus use "volatile"). */
-  curl_simple_lock_lock(&curl_jmpenv_lock);
+  curl_simple_تالو_تالو(&curl_jmpenv_تالو);
 
-  if(sigsetjmp(curl_jmpenv, 1)) {
+  إذا(sigsetjmp(curl_jmpenv, 1)) {
     /* this is coming from a siglongjmp() after an alarm signal */
-    failf(data, "name lookup timed out");
-    result = CURLE_OPERATION_TIMEDOUT;
-    goto clean_up;
+    failf(معلومات, "name lookup timed out");
+    نتيجو = CURLE_OPERATION_TIMEDOUT;
+    اذهب clean_مٿي;
   }
-  else {
+  وإلا {
     /*************************************************************
      * Set signal handler to catch SIGALRM
      * Store the old value to be able to set it back later!
      *************************************************************/
-#ifdef HAVE_SIGACTION
-    sigaction(SIGALRM, NULL, &sigact);
+#جيڪڏهن_وصف_ٿيل HAVE_SIGACTION
+    sigaction(SIGALRM, عدم, &sigact);
     keep_sigact = sigact;
     keep_copysig = TRUE; /* yes, we have a copy */
     sigact.sa_handler = alarmfunc;
-#ifdef SA_RESTART
+#جيڪڏهن_وصف_ٿيل SA_RESTART
     /* HP-UX does not have SA_RESTART but defaults to that behavior! */
     sigact.sa_flags &= ~SA_RESTART;
-#endif
+#جيڪڏهن_پورو
     /* now set the new struct */
-    sigaction(SIGALRM, &sigact, NULL);
-#else /* HAVE_SIGACTION */
+    sigaction(SIGALRM, &sigact, عدم);
+#وإلا /* HAVE_SIGACTION */
     /* no sigaction(), revert to the much lamer signal() */
-#ifdef HAVE_SIGNAL
-    keep_sigact = signal(SIGALRM, alarmfunc);
-#endif
-#endif /* HAVE_SIGACTION */
+#جيڪڏهن_وصف_ٿيل HAVE_SIGNAL
+    keep_sigact = إشارة(SIGALRM, alarmfunc);
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* HAVE_SIGACTION */
 
     /* alarm() makes a signal get sent when the timeout fires off, and that
        will abort system calls */
@@ -923,83 +923,83 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
 
   /* Perform the actual name resolution. This might be interrupted by an
    * alarm if it takes too long. */
-  result = hostip_resolv(data, dns_queries, peer, transport,
-                         for_proxy, timeout_ms, FALSE, presolv_id, entry);
+  نتيجو = hostip_resolv(معلومات, dns_queries, peer, transport,
+                         for_proxy, timeout_ms, FALSE, presolv_id, داخلا_2);
 
-clean_up:
-  if(!prev_alarm)
+clean_مٿي:
+  إذا(!prev_alarm)
     /* deactivate a possibly active alarm before uninstalling the handler */
     alarm(0);
 
-#ifdef HAVE_SIGACTION
-  if(keep_copysig) {
+#جيڪڏهن_وصف_ٿيل HAVE_SIGACTION
+  إذا(keep_copysig) {
     /* we got a struct as it looked before, now put that one back nice
        and clean */
-    sigaction(SIGALRM, &keep_sigact, NULL); /* put it back */
+    sigaction(SIGALRM, &keep_sigact, عدم); /* put it back */
   }
-#else
-#ifdef HAVE_SIGNAL
+#وإلا
+#جيڪڏهن_وصف_ٿيل HAVE_SIGNAL
   /* restore the previous SIGALRM handler */
-  signal(SIGALRM, keep_sigact);
-#endif
-#endif /* HAVE_SIGACTION */
+  إشارة(SIGALRM, keep_sigact);
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو /* HAVE_SIGACTION */
 
-  curl_simple_lock_unlock(&curl_jmpenv_lock);
+  curl_simple_تالو_unlock(&curl_jmpenv_تالو);
 
   /* switch back the alarm() to either zero or to what it was before minus
      the time we spent until now! */
-  if(prev_alarm) {
+  إذا(prev_alarm) {
     /* there was an alarm() set before us, now put it back */
     timediff_t elapsed_secs =
-      Curl_cpool_conn_age_ms(data, data->conn, Curl_pgrs_now(data)) / 1000;
+      Curl_cpool_conn_age_ms(معلومات, معلومات->conn, Curl_pgrs_now(معلومات)) / 1000;
 
     /* the alarm period is counted in even number of seconds */
-    unsigned long alarm_set = (unsigned long)(prev_alarm - elapsed_secs);
+    بنانشان ڊگهو alarm_سيٽ = (بنانشان ڊگهو)(prev_alarm - elapsed_secs);
 
-    if(!alarm_set ||
-       ((alarm_set >= 0x80000000) && (prev_alarm < 0x80000000))) {
+    إذا(!alarm_سيٽ ||
+       ((alarm_سيٽ >= 0x80000000) && (prev_alarm < 0x80000000))) {
       /* if the alarm time-left reached zero or turned "negative" (counted
          with unsigned values), we should fire off a SIGALRM here, but we
          will not, and zero would be to switch it off so we never set it to
          less than 1! */
       alarm(1);
-      result = CURLE_OPERATION_TIMEDOUT;
-      failf(data, "Previous alarm fired off");
+      نتيجو = CURLE_OPERATION_TIMEDOUT;
+      failf(معلومات, "Previous alarm fired off");
     }
-    else
-      alarm((unsigned int)alarm_set);
+    وإلا
+      alarm((بنانشان صحيح)alarm_سيٽ);
   }
 
-  return result;
+  أرجع نتيجو;
 }
 
-#endif /* USE_ALARM_TIMEOUT */
+#جيڪڏهن_پورو /* USE_ALARM_TIMEOUT */
 
-#ifdef USE_UNIX_SOCKETS
-static CURLcode resolv_unix(struct Curl_easy *data,
-                            struct Curl_peer *peer,
-                            struct Curl_dns_entry **pdns)
+#جيڪڏهن_وصف_ٿيل USE_UNIX_SOCKETS
+ساكن CURLcode resolv_unix(بنية Curl_easy *معلومات,
+                            بنية Curl_peer *peer,
+                            بنية Curl_dns_داخلا **pdns)
 {
-  struct Curl_addrinfo *addr;
-  CURLcode result;
+  بنية Curl_addrinfo *addr;
+  CURLcode نتيجو;
 
   DEBUGASSERT(peer->unix_socket);
-  *pdns = NULL;
+  *pdns = عدم;
 
-  result = Curl_unix2addr(peer->hostname, (bool)peer->abstract_uds, &addr);
-  if(result) {
-    if(result == CURLE_TOO_LARGE) {
+  نتيجو = Curl_unix2addr(peer->hostname, (bool)peer->abstract_uds, &addr);
+  إذا(نتيجو) {
+    إذا(نتيجو == CURLE_TOO_LARGE) {
       /* Long paths are not supported for now */
-      failf(data, "Unix socket path too long: '%s'", peer->hostname);
-      result = CURLE_COULDNT_RESOLVE_HOST;
+      failf(معلومات, "Unix socket path too long: '%s'", peer->hostname);
+      نتيجو = CURLE_COULDNT_RESOLVE_HOST;
     }
-    return result;
+    أرجع نتيجو;
   }
 
-  *pdns = Curl_dnsc_mk_addr(data, 0, &addr, peer);
-  return *pdns ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  *pdns = Curl_dnsc_mk_addr(معلومات, 0, &addr, peer);
+  أرجع *pdns ? CURLE_OK : CURLE_ٻاهريون_جو_يادگيري;
 }
-#endif /* USE_UNIX_SOCKETS */
+#جيڪڏهن_پورو /* USE_UNIX_SOCKETS */
 
 /*
  * Curl_resolv() is the main name resolve function within libcurl. It resolves
@@ -1021,163 +1021,163 @@ static CURLcode resolv_unix(struct Curl_easy *data,
  * CURLE_AGAIN = resolving in progress, *pdns == NULL
  * any other CURLcode error, *pdns == NULL
  */
-CURLcode Curl_resolv(struct Curl_easy *data,
-                     struct Curl_peer *peer,
+CURLcode Curl_resolv(بنية Curl_easy *معلومات,
+                     بنية Curl_peer *peer,
                      uint8_t dns_queries,
                      uint8_t transport,
                      bool for_proxy,
                      timediff_t timeout_ms,
                      uint32_t *presolv_id,
-                     struct Curl_dns_entry **pdns)
+                     بنية Curl_dns_داخلا **pdns)
 {
   *presolv_id = 0;
-  *pdns = NULL;
+  *pdns = عدم;
 
-  if(timeout_ms < 0)
+  إذا(timeout_ms < 0)
     /* got an already expired timeout */
-    return CURLE_OPERATION_TIMEDOUT;
-  else if(!timeout_ms)
+    أرجع CURLE_OPERATION_TIMEDOUT;
+  وإلا إذا(!timeout_ms)
     timeout_ms = CURL_TIMEOUT_RESOLVE_MS;
 
-#ifdef USE_UNIX_SOCKETS
-  if((dns_queries & CURL_DNSQ_ADDR) && peer->unix_socket)
-    return resolv_unix(data, peer, pdns);
-#else
-  if(peer->unix_socket)
-    return hostip_resolv_failed(data, peer, for_proxy);
-#endif
+#جيڪڏهن_وصف_ٿيل USE_UNIX_SOCKETS
+  إذا((dns_queries & CURL_DNSQ_ADDR) && peer->unix_socket)
+    أرجع resolv_unix(معلومات, peer, pdns);
+#وإلا
+  إذا(peer->unix_socket)
+    أرجع hostip_resolv_failed(معلومات, peer, for_proxy);
+#جيڪڏهن_پورو
 
-#ifdef USE_ALARM_TIMEOUT
-  if(dns_queries & CURL_DNSQ_ADDR) {
-    if(timeout_ms && data->set.no_signal) {
+#جيڪڏهن_وصف_ٿيل USE_ALARM_TIMEOUT
+  إذا(dns_queries & CURL_DNSQ_ADDR) {
+    إذا(timeout_ms && معلومات->سيٽ.no_signal) {
       /* Cannot use ALARM when signals are disabled */
       timeout_ms = 0;
     }
-    if(timeout_ms && !Curl_doh_wanted(data)) {
-      return resolv_alarm_timeout(data, dns_queries, peer, transport,
+    إذا(timeout_ms && !Curl_doh_wanted(معلومات)) {
+      أرجع resolv_alarm_timeout(معلومات, dns_queries, peer, transport,
                                   for_proxy, timeout_ms, presolv_id, pdns);
     }
   }
-#endif /* !USE_ALARM_TIMEOUT */
+#جيڪڏهن_پورو /* !USE_ALARM_TIMEOUT */
 
-#ifndef CURLRES_ASYNCH
-  if(timeout_ms)
-    infof(data, "timeout on name lookup is not supported");
-#endif
+#جيڪڏهن_وصف_نه_ٿيل CURLRES_ASYNCH
+  إذا(timeout_ms)
+    infof(معلومات, "timeout on name lookup is not supported");
+#جيڪڏهن_پورو
 
-  return hostip_resolv(data, dns_queries, peer, transport,
+  أرجع hostip_resolv(معلومات, dns_queries, peer, transport,
                        for_proxy, timeout_ms, TRUE, presolv_id, pdns);
 }
 
-#ifdef USE_CURL_ASYNC
+#جيڪڏهن_وصف_ٿيل USE_CURL_ASYNC
 
-struct Curl_resolv_async *Curl_async_get(struct Curl_easy *data,
+بنية Curl_resolv_async *Curl_async_get(بنية Curl_easy *معلومات,
                                          uint32_t resolv_id)
 {
-  struct Curl_resolv_async *async = data->state.async;
-  for(; async; async = async->next) {
-    if(async->id == resolv_id)
-      return async;
+  بنية Curl_resolv_async *async = معلومات->state.async;
+  لكل(; async; async = async->ايندڙ) {
+    إذا(async->id == resolv_id)
+      أرجع async;
   }
-  return NULL;
+  أرجع عدم;
 }
 
-CURLcode Curl_resolv_take_result(struct Curl_easy *data, uint32_t resolv_id,
-                                 struct Curl_dns_entry **pdns)
+CURLcode Curl_resolv_take_نتيجو(بنية Curl_easy *معلومات, uint32_t resolv_id,
+                                 بنية Curl_dns_داخلا **pdns)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  CURLcode result;
+  بنية Curl_resolv_async *async = Curl_async_get(معلومات, resolv_id);
+  CURLcode نتيجو;
 
   /* If async resolving is ongoing, this must be set */
-  if(!async)
-    return CURLE_FAILED_INIT;
+  إذا(!async)
+    أرجع CURLE_FAILED_INIT;
 
   /* check if we have the name resolved by now (from someone else) */
-  result = Curl_dnscache_get(data, async->dns_queries, async->peer, pdns);
-  if(*pdns) {
+  نتيجو = Curl_dnscache_get(معلومات, async->dns_queries, async->peer, pdns);
+  إذا(*pdns) {
     /* Tell a possibly async resolver we no longer need the results. */
-    infof(data, "Hostname '%s' was found in DNS cache", async->peer->hostname);
-    Curl_async_shutdown(data, async);
-    return CURLE_OK;
+    infof(معلومات, "Hostname '%s' was found in DNS cache", async->peer->hostname);
+    Curl_async_shutdown(معلومات, async);
+    أرجع CURLE_OK;
   }
-  else if(result) {
-    Curl_async_shutdown(data, async);
-    return Curl_async_failed(data, async, NULL);
+  وإلا إذا(نتيجو) {
+    Curl_async_shutdown(معلومات, async);
+    أرجع Curl_async_failed(معلومات, async, عدم);
   }
 
-  result = hostip_resolv_take_result(data, async, pdns);
+  نتيجو = hostip_resolv_take_نتيجو(معلومات, async, pdns);
 
-  if(*pdns) {
+  إذا(*pdns) {
     /* Add to cache */
-    result = Curl_dnscache_add(data, *pdns);
-    if(result)
-      Curl_dns_entry_unlink(data, pdns);
+    نتيجو = Curl_dnscache_جوڙيو(معلومات, *pdns);
+    إذا(نتيجو)
+      Curl_dns_داخلا_unlink(معلومات, pdns);
   }
-  else if(IS_RESOLV_FAIL(result)) {
+  وإلا إذا(IS_RESOLV_FAIL(نتيجو)) {
     /* Only cache the failure when the resolver answered that the
        name does not exist. Transient failures, e.g. an unreachable
        or overloaded DNS server or local resource shortages, say
        nothing about the name and would poison the cache for every
        transfer using it. */
-    if(async->negative_answer)
-      Curl_dnscache_add_negative(data, async->dns_queries, async->peer);
-    if(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
-      failf(data, "Could not resolve: %s:%u",
-            async->peer->hostname, async->peer->port);
+    إذا(async->negative_answer)
+      Curl_dnscache_جوڙيو_negative(معلومات, async->dns_queries, async->peer);
+    إذا(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+      failf(معلومات, "Could not resolve: %s:%u",
+            async->peer->hostname, async->peer->پورٽ);
   }
-  else if(result) {
-    failf(data, "Error %d resolving %s:%u",
-          (int)result, async->peer->hostname, async->peer->port);
+  وإلا إذا(نتيجو) {
+    failf(معلومات, "Error %d resolving %s:%u",
+          (صحيح)نتيجو, async->peer->hostname, async->peer->پورٽ);
   }
-  return result;
+  أرجع نتيجو;
 }
 
-CURLcode Curl_resolv_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+CURLcode Curl_resolv_pollset(بنية Curl_easy *معلومات,
+                             بنية easy_pollset *ps)
 {
-  struct Curl_resolv_async *async = data->state.async;
-  CURLcode result = CURLE_OK;
+  بنية Curl_resolv_async *async = معلومات->state.async;
+  CURLcode نتيجو = CURLE_OK;
 
-  (void)ps;
-  for(; async && !result; async = async->next) {
-#ifndef CURL_DISABLE_DOH
-    if(async->doh) /* DoH has nothing for the pollset */
-      continue;
-#endif
-    result = Curl_async_pollset(data, async, ps);
+  (فراغ)ps;
+  لكل(; async && !نتيجو; async = async->ايندڙ) {
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_DOH
+    إذا(async->doh) /* DoH has nothing for the pollset */
+      استمر;
+#جيڪڏهن_پورو
+    نتيجو = Curl_async_pollset(معلومات, async, ps);
   }
-  return result;
+  أرجع نتيجو;
 }
 
-void Curl_resolv_destroy(struct Curl_easy *data, uint32_t resolv_id)
+فراغ Curl_resolv_destroy(بنية Curl_easy *معلومات, uint32_t resolv_id)
 {
-  struct Curl_resolv_async **panchor = &data->state.async;
+  بنية Curl_resolv_async **panchor = &معلومات->state.async;
 
-  for(; *panchor; panchor = &(*panchor)->next) {
-    struct Curl_resolv_async *async = *panchor;
-    if(async->id == resolv_id) {
-      *panchor = async->next;
-      Curl_async_destroy(data, async);
-      break;
+  لكل(; *panchor; panchor = &(*panchor)->ايندڙ) {
+    بنية Curl_resolv_async *async = *panchor;
+    إذا(async->id == resolv_id) {
+      *panchor = async->ايندڙ;
+      Curl_async_destroy(معلومات, async);
+      اكسر;
     }
   }
 }
 
-void Curl_resolv_shutdown_all(struct Curl_easy *data)
+فراغ Curl_resolv_shutdown_all(بنية Curl_easy *معلومات)
 {
-  struct Curl_resolv_async *async = data->state.async;
-  for(; async; async = async->next) {
-    Curl_async_shutdown(data, async);
+  بنية Curl_resolv_async *async = معلومات->state.async;
+  لكل(; async; async = async->ايندڙ) {
+    Curl_async_shutdown(معلومات, async);
   }
 }
 
-void Curl_resolv_destroy_all(struct Curl_easy *data)
+فراغ Curl_resolv_destroy_all(بنية Curl_easy *معلومات)
 {
-  while(data->state.async) {
-    struct Curl_resolv_async *async = data->state.async;
-    data->state.async = async->next;
-    Curl_async_destroy(data, async);
+  طالما(معلومات->state.async) {
+    بنية Curl_resolv_async *async = معلومات->state.async;
+    معلومات->state.async = async->ايندڙ;
+    Curl_async_destroy(معلومات, async);
   }
 }
 
-#endif /* USE_CURL_ASYNC */
+#جيڪڏهن_پورو /* USE_CURL_ASYNC */

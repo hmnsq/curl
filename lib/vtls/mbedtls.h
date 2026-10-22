@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MBEDTLS_H
-#define HEADER_CURL_MBEDTLS_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_MBEDTLS_H
+#وصف_ڪريو سرو_CURL_MBEDTLS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,11 +24,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_MBEDTLS
+#جيڪڏهن_وصف_ٿيل USE_MBEDTLS
 
-extern const struct Curl_ssl Curl_ssl_mbedtls;
+خارجي ثابت بنية Curl_ssl Curl_ssl_mbedtls;
 
-#endif /* USE_MBEDTLS */
-#endif /* HEADER_CURL_MBEDTLS_H */
+#جيڪڏهن_پورو /* USE_MBEDTLS */
+#جيڪڏهن_پورو /* HEADER_CURL_MBEDTLS_H */

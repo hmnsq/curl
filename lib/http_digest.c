@@ -21,39 +21,39 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "vauth/vauth.h"
-#include "http_digest.h"
-#include "curlx/strparse.h"
+#ضمن "urldata.h"
+#ضمن "curl_trc.h"
+#ضمن "strcase.h"
+#ضمن "vauth/vauth.h"
+#ضمن "http_digest.h"
+#ضمن "curlx/strparse.h"
 
 /* Flush the Digest state if it was created for a different origin or with
    different credentials than the ones now in use, then link the current
    ones. */
-static void digest_flush_stale(struct Curl_easy *data,
-                               struct digestdata *digest,
-                               struct Curl_peer *peer,
-                               struct Curl_creds *creds)
+ساكن فراغ digest_flush_stale(بنية Curl_easy *معلومات,
+                               بنية digestdata *digest,
+                               بنية Curl_peer *peer,
+                               بنية Curl_creds *creds)
 {
   bool flush = FALSE;
-  if(!digest->origin || !Curl_peer_equal(peer, digest->origin)) {
-    CURL_TRC_M(data, "http_digest, reset on peer change to %s:%u",
+  إذا(!digest->origin || !Curl_peer_equal(peer, digest->origin)) {
+    CURL_TRC_M(معلومات, "http_digest, reset on peer change to %s:%u",
                peer ? peer->hostname : "-",
-               (unsigned int)(peer ? peer->port : 0));
+               (بنانشان صحيح)(peer ? peer->پورٽ : 0));
     flush = TRUE;
   }
-  else if(digest->creds && !Curl_creds_same(creds, digest->creds)) {
-    CURL_TRC_M(data, "http_digest, reset on creds change to %s",
+  وإلا إذا(digest->creds && !Curl_creds_same(creds, digest->creds)) {
+    CURL_TRC_M(معلومات, "http_digest, reset on creds change to %s",
                creds ? creds->user : "-");
     flush = TRUE;
   }
 
-  if(flush) {
+  إذا(flush) {
     /* flush Digest state */
     Curl_auth_digest_cleanup(digest);
   }
@@ -67,123 +67,123 @@ static void digest_flush_stale(struct Curl_easy *data,
    WWW-Authenticate: Digest realm="testrealm", nonce="1053604598"
    Proxy-Authenticate: Digest realm="testrealm", nonce="1053604598"
  */
-CURLcode Curl_input_digest(struct Curl_easy *data,
+CURLcode Curl_داخلا_digest(بنية Curl_easy *معلومات,
                            bool proxy,
-                           const char *header) /* rest of the *-authenticate:
-                                                  header */
+                           ثابت حرف *سرو) /* rest of the *-authenticate:
+سرو*/
 {
   /* Point to the correct struct with this */
-  struct digestdata *digest;
-  struct Curl_peer *origin = NULL;
-  CURLcode result;
+  بنية digestdata *digest;
+  بنية Curl_peer *origin = عدم;
+  CURLcode نتيجو;
 
-  if(proxy) {
-    digest = &data->state.proxydigest;
-#ifdef CURL_DISABLE_PROXY
+  إذا(proxy) {
+    digest = &معلومات->state.proxydigest;
+#جيڪڏهن_وصف_ٿيل CURL_DISABLE_PROXY
     Curl_auth_digest_cleanup(digest);
-    return CURLE_OK;  /* just ignore such a header without proxy support */
-#else
-    origin = data->conn->http_proxy.peer;
-#endif
+    أرجع CURLE_OK;  /* just ignore such a header without proxy support */
+#وإلا
+    origin = معلومات->conn->http_proxy.peer;
+#جيڪڏهن_پورو
   }
-  else {
-    digest = &data->state.digest;
-    origin = data->state.origin;
+  وإلا {
+    digest = &معلومات->state.digest;
+    origin = معلومات->state.origin;
   }
 
-  if(!checkprefix("Digest", header) || !ISBLANK(header[6])) {
+  إذا(!checkprefix("Digest", سرو) || !ISBLANK(سرو[6])) {
     Curl_auth_digest_cleanup(digest);
-    return CURLE_AUTH_ERROR;
+    أرجع CURLE_AUTH_ERROR;
   }
 
-  header += CURL_CSTRLEN("Digest");
-  curlx_str_passblanks(&header);
+  سرو += CURL_CSTRLEN("Digest");
+  curlx_str_passblanks(&سرو);
 
   /* This resets the digest struct before decoding */
-  result = Curl_auth_decode_digest_http_message(header, digest);
+  نتيجو = Curl_auth_decode_digest_http_پيغام(سرو, digest);
   /* Remember only the peer, the data we take in has no relation to creds
    * at this time. We can use it even if creds change. */
   Curl_peer_link(&digest->origin, origin);
-  return result;
+  أرجع نتيجو;
 }
 
-CURLcode Curl_output_digest(struct Curl_easy *data,
+CURLcode Curl_output_digest(بنية Curl_easy *معلومات,
                             bool proxy,
-                            const unsigned char *request,
-                            const unsigned char *uripath)
+                            ثابت بنانشان حرف *request,
+                            ثابت بنانشان حرف *uripath)
 {
-  struct Curl_peer *origin = NULL;
-  CURLcode result;
-  char *response;
+  بنية Curl_peer *origin = عدم;
+  CURLcode نتيجو;
+  حرف *response;
   size_t len;
   bool have_chlg;
 
   /* Point to the address of the pointer that holds the string to send to the
      server, which is for a plain host or for an HTTP proxy */
-  char **allocuserpwd;
+  حرف **allocuserpwd;
 
   /* Point to the name and password for this */
-  struct Curl_creds *creds = NULL;
+  بنية Curl_creds *creds = عدم;
 
   /* Point to the correct struct with this */
-  struct digestdata *digest;
-  struct auth *authp;
+  بنية digestdata *digest;
+  بنية auth *authp;
 
-  if(proxy) {
-#ifdef CURL_DISABLE_PROXY
-    return CURLE_NOT_BUILT_IN;
-#else
-    digest = &data->state.proxydigest;
-    origin = data->conn->http_proxy.peer;
-    creds = data->conn->http_proxy.creds;
-    allocuserpwd = &data->req.hd_proxy_auth;
-    authp = &data->state.authproxy;
-#endif
+  إذا(proxy) {
+#جيڪڏهن_وصف_ٿيل CURL_DISABLE_PROXY
+    أرجع CURLE_NOT_BUILT_اندريون;
+#وإلا
+    digest = &معلومات->state.proxydigest;
+    origin = معلومات->conn->http_proxy.peer;
+    creds = معلومات->conn->http_proxy.creds;
+    allocuserpwd = &معلومات->req.hd_proxy_auth;
+    authp = &معلومات->state.authproxy;
+#جيڪڏهن_پورو
   }
-  else {
-    DEBUGASSERT(data->state.origin);
-    digest = &data->state.digest;
-    origin = data->state.origin;
-    creds = data->state.creds;
-    allocuserpwd = &data->req.hd_auth;
-    authp = &data->state.authhost;
+  وإلا {
+    DEBUGASSERT(معلومات->state.origin);
+    digest = &معلومات->state.digest;
+    origin = معلومات->state.origin;
+    creds = معلومات->state.creds;
+    allocuserpwd = &معلومات->req.hd_auth;
+    authp = &معلومات->state.authhost;
   }
 
-  digest_flush_stale(data, digest, origin, creds);
+  digest_flush_stale(معلومات, digest, origin, creds);
   curlx_safefree(*allocuserpwd);
 
-#ifdef USE_WINDOWS_SSPI
-  have_chlg = !!digest->input_token;
-#else
+#جيڪڏهن_وصف_ٿيل USE_WINDOWS_SSPI
+  have_chlg = !!digest->داخلا_token;
+#وإلا
   have_chlg = !!digest->nonce;
-#endif
+#جيڪڏهن_پورو
 
-  if(!have_chlg) {
-    authp->done = FALSE;
-    return CURLE_OK;
+  إذا(!have_chlg) {
+    authp->پورو = FALSE;
+    أرجع CURLE_OK;
   }
 
-  result = Curl_auth_create_digest_http_message(data, creds, request,
+  نتيجو = Curl_auth_create_digest_http_پيغام(معلومات, creds, request,
                                                 uripath, digest,
                                                 &response, &len);
-  if(result)
-    return result;
+  إذا(نتيجو)
+    أرجع نتيجو;
 
   *allocuserpwd = curl_maprintf("%sAuthorization: Digest %s\r\n",
                                 proxy ? "Proxy-" : "", response);
   curlx_free(response);
-  if(!*allocuserpwd)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!*allocuserpwd)
+    أرجع CURLE_ٻاهريون_جو_يادگيري;
 
-  authp->done = TRUE;
+  authp->پورو = TRUE;
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-void Curl_http_auth_cleanup_digest(struct Curl_easy *data)
+فراغ Curl_http_auth_cleanup_digest(بنية Curl_easy *معلومات)
 {
-  Curl_auth_digest_cleanup(&data->state.digest);
-  Curl_auth_digest_cleanup(&data->state.proxydigest);
+  Curl_auth_digest_cleanup(&معلومات->state.digest);
+  Curl_auth_digest_cleanup(&معلومات->state.proxydigest);
 }
 
-#endif
+#جيڪڏهن_پورو

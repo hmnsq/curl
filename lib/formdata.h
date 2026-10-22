@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FORMDATA_H
-#define HEADER_CURL_FORMDATA_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_FORMDATA_H
+#وصف_ڪريو سرو_CURL_FORMDATA_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,33 +23,33 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_FORM_API
+#جيڪڏهن_وصف_نه_ٿيل CURL_DISABLE_FORM_API
 
-#include "bufref.h"
+#ضمن "bufref.h"
 
 /* used by FormAdd for temporary storage */
-struct FormInfo {
-  struct bufref name;
-  struct bufref value;
-  struct bufref contenttype;
-  struct bufref showfilename; /* The filename to show. If not set, the actual
+بنية FormInfo {
+  بنية bufref name;
+  بنية bufref قدر;
+  بنية bufref contenttype;
+  بنية bufref showfilename; /* The filename to show. If not set, the actual
                                  filename will be used */
-  char *buffer;      /* pointer to existing buffer used for file upload */
-  char *userp;        /* pointer for the read callback */
-  struct FormInfo *more;
-  struct curl_slist *contentheader;
+  حرف *بفر;      /* pointer to existing buffer used for file upload */
+  حرف *userp;        /* pointer for the read callback */
+  بنية FormInfo *وڌيڪ;
+  بنية curl_slist *contentheader;
   curl_off_t contentslength;
   size_t namelength;
   size_t bufferlength;
-  unsigned char flags;
+  بنانشان حرف flags;
 };
 
-CURLcode Curl_getformdata(CURL *data,
+CURLcode Curl_getformdata(CURL *معلومات,
                           curl_mimepart *finalform,
-                          struct curl_httppost *post,
+                          بنية curl_httppost *post,
                           curl_read_callback fread_func);
-#endif /* CURL_DISABLE_FORM_API */
+#جيڪڏهن_پورو /* CURL_DISABLE_FORM_API */
 
-#endif /* HEADER_CURL_FORMDATA_H */
+#جيڪڏهن_پورو /* HEADER_CURL_FORMDATA_H */

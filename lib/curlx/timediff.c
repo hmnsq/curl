@@ -21,7 +21,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timediff.h"
+#ضمن "curlx/timediff.h"
 
 /*
  * Converts number of milliseconds into a timeval structure.
@@ -31,55 +31,55 @@
  *    tv with 0 in both fields IF ms == 0 (eg. 0ms timeout -> polling select)
  *    tv with converted fields IF ms > 0 (eg. >0ms timeout -> waiting select)
  */
-struct timeval *curlx_mstotv(struct timeval *tv, timediff_t ms)
+بنية timeval *curlx_mstotv(بنية timeval *tv, timediff_t ms)
 {
-  if(!tv)
-    return NULL;
+  إذا(!tv)
+    أرجع عدم;
 
-  if(ms < 0)
-    return NULL;
+  إذا(ms < 0)
+    أرجع عدم;
 
-  if(ms > 0) {
+  إذا(ms > 0) {
     timediff_t tv_sec = ms / 1000;
     timediff_t tv_usec = (ms % 1000) * 1000; /* max=999000 */
-#ifdef HAVE_SUSECONDS_T
-#if TIMEDIFF_T_MAX > TIME_T_MAX
+#جيڪڏهن_وصف_ٿيل HAVE_SUSECONDS_T
+#إذا TIMEDIFF_T_MAX > وقت_T_MAX
     /* tv_sec overflow check in case time_t is signed */
-    if(tv_sec > TIME_T_MAX)
-      tv_sec = TIME_T_MAX;
-#endif
+    إذا(tv_sec > وقت_T_MAX)
+      tv_sec = وقت_T_MAX;
+#جيڪڏهن_پورو
     tv->tv_sec = (time_t)tv_sec;
     tv->tv_usec = (suseconds_t)tv_usec;
-#elif defined(_WIN32) /* maybe also others in the future */
-#if TIMEDIFF_T_MAX > LONG_MAX
+#وإلاإذا defined(_WIN32) /* maybe also others in the future */
+#إذا TIMEDIFF_T_MAX > LONG_MAX
     /* tv_sec overflow check on Windows there we know it is long */
-    if(tv_sec > LONG_MAX)
+    إذا(tv_sec > LONG_MAX)
       tv_sec = LONG_MAX;
-#endif
-    tv->tv_sec = (long)tv_sec;
-    tv->tv_usec = (long)tv_usec;
-#else
-#if TIMEDIFF_T_MAX > INT_MAX
+#جيڪڏهن_پورو
+    tv->tv_sec = (ڊگهو)tv_sec;
+    tv->tv_usec = (ڊگهو)tv_usec;
+#وإلا
+#إذا TIMEDIFF_T_MAX > وڌ_کان_وڌ_عدد
     /* tv_sec overflow check in case time_t is signed */
-    if(tv_sec > INT_MAX)
-      tv_sec = INT_MAX;
-#endif
-    tv->tv_sec = (int)tv_sec;
-    tv->tv_usec = (int)tv_usec;
-#endif
+    إذا(tv_sec > وڌ_کان_وڌ_عدد)
+      tv_sec = وڌ_کان_وڌ_عدد;
+#جيڪڏهن_پورو
+    tv->tv_sec = (صحيح)tv_sec;
+    tv->tv_usec = (صحيح)tv_usec;
+#جيڪڏهن_پورو
   }
-  else {
+  وإلا {
     tv->tv_sec = 0;
     tv->tv_usec = 0;
   }
 
-  return tv;
+  أرجع tv;
 }
 
 /*
  * Converts a timeval structure into number of milliseconds.
  */
-timediff_t curlx_tvtoms(struct timeval *tv)
+timediff_t curlx_tvtoms(بنية timeval *tv)
 {
-  return (tv->tv_sec * 1000) + (timediff_t)(tv->tv_usec / 1000);
+  أرجع (tv->tv_sec * 1000) + (timediff_t)(tv->tv_usec / 1000);
 }

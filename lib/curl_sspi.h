@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SSPI_H
-#define HEADER_CURL_SSPI_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_SSPI_H
+#وصف_ڪريو سرو_CURL_SSPI_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,81 +23,81 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_WINDOWS_SSPI
+#جيڪڏهن_وصف_ٿيل USE_WINDOWS_SSPI
 
-#include <sspi.h>
+#ضمن <sspi.h>
 
 /* Local helper macro */
-#ifdef UNICODE
-#define CURL_SEC_WINNT_AUTH_IDENTITY SEC_WINNT_AUTH_IDENTITY_UNICODE
-#else
-#define CURL_SEC_WINNT_AUTH_IDENTITY SEC_WINNT_AUTH_IDENTITY_ANSI
-#endif
+#جيڪڏهن_وصف_ٿيل UNICODE
+#وصف_ڪريو CURL_SEC_WINNT_AUTH_سڃاڻپ_عنصر SEC_WINNT_AUTH_سڃاڻپ_عنصر_UNICODE
+#وإلا
+#وصف_ڪريو CURL_SEC_WINNT_AUTH_سڃاڻپ_عنصر SEC_WINNT_AUTH_سڃاڻپ_عنصر_ANSI
+#جيڪڏهن_پورو
 
 /* Offered by mingw-w64 v9+, MS SDK 7.0A/VS2010+ */
-#ifndef SECPKG_ATTR_ENDPOINT_BINDINGS
-#define SECPKG_ATTR_ENDPOINT_BINDINGS 26
+#جيڪڏهن_وصف_نه_ٿيل SECPKG_ATTR_ENDPOINT_BINDINGS
+#وصف_ڪريو SECPKG_ATTR_ENDPOINT_BINDINGS 26
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct {
-  unsigned long BindingsLength;
+تعريفنوع بنية {
+  بنانشان ڊگهو Bindings_ڊيگهائي;
   SEC_CHANNEL_BINDINGS *Bindings;
 } SecPkgContext_Bindings;
-#endif
+#جيڪڏهن_پورو
 
-CURLcode Curl_sspi_global_init(void);
-void Curl_sspi_global_cleanup(void);
+CURLcode Curl_sspi_global_init(فراغ);
+فراغ Curl_sspi_global_cleanup(فراغ);
 
 /* This is used to populate the domain in an SSPI identity structure */
-CURLcode Curl_override_sspi_http_realm(const char *chlg,
-                                       SEC_WINNT_AUTH_IDENTITY_EX *identity);
+CURLcode Curl_override_sspi_http_realm(ثابت حرف *chlg,
+                                       SEC_WINNT_AUTH_سڃاڻپ_عنصر_EX *سڃاڻپ_عنصر);
 
 /* This is used to generate an SSPI identity structure */
-CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
-                                   SEC_WINNT_AUTH_IDENTITY_EX *identity);
+CURLcode Curl_create_sspi_سڃاڻپ_عنصر(ثابت حرف *userp, ثابت حرف *passwdp,
+                                   SEC_WINNT_AUTH_سڃاڻپ_عنصر_EX *سڃاڻپ_عنصر);
 
 /* This is used to free an SSPI identity structure */
-void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY_EX *identity);
+فراغ Curl_sspi_free_سڃاڻپ_عنصر(SEC_WINNT_AUTH_سڃاڻپ_عنصر_EX *سڃاڻپ_عنصر);
 
 /* Forward-declaration of global variables defined in curl_sspi.c */
-extern PSecurityFunctionTable Curl_pSecFn;
+خارجي PSecurity_Function_جدول Curl_pSecFn;
 
 /* Provide Service Principal names as macros */
-#define SP_NAME_DIGEST              "WDigest"
-#define SP_NAME_NTLM                "NTLM"
-#define SP_NAME_NEGOTIATE           "Negotiate"
-#define SP_NAME_KERBEROS            "Kerberos"
+#وصف_ڪريو SP_NAME_DIGEST              "WDigest"
+#وصف_ڪريو SP_NAME_NTLM                "NTLM"
+#وصف_ڪريو SP_NAME_NEGOTIATE           "Negotiate"
+#وصف_ڪريو SP_NAME_KERBEROS            "Kerberos"
 
 /* Offered by mingw-w64 v9+, MS SDK 7.0A/VS2010+ */
-#ifndef ISC_REQ_USE_HTTP_STYLE
-#define ISC_REQ_USE_HTTP_STYLE                0x01000000
-#endif
+#جيڪڏهن_وصف_نه_ٿيل ISC_REQ_USE_HTTP_STYLE
+#وصف_ڪريو ISC_REQ_USE_HTTP_STYLE                0x01000000
+#جيڪڏهن_پورو
 
 /* Offered by mingw-w64 v8+, MS SDK 6.0A/VS2008+ */
-#ifndef SEC_E_INVALID_PARAMETER
-#define SEC_E_INVALID_PARAMETER               ((HRESULT)0x8009035DL)
-#endif
+#جيڪڏهن_وصف_نه_ٿيل SEC_E_INVALID_PARAMETER
+#وصف_ڪريو SEC_E_INVALID_PARAMETER               ((HRESULT)0x8009035DL)
+#جيڪڏهن_پورو
 /* Offered by mingw-w64 v8+, MS SDK 6.0A/VS2008+ */
-#ifndef SEC_E_DELEGATION_POLICY
-#define SEC_E_DELEGATION_POLICY               ((HRESULT)0x8009035EL)
-#endif
+#جيڪڏهن_وصف_نه_ٿيل SEC_E_DELEGATION_POLICY
+#وصف_ڪريو SEC_E_DELEGATION_POLICY               ((HRESULT)0x8009035EL)
+#جيڪڏهن_پورو
 /* Offered by mingw-w64 v8+, MS SDK 6.0A/VS2008+ */
-#ifndef SEC_E_POLICY_NLTM_ONLY
-#define SEC_E_POLICY_NLTM_ONLY                ((HRESULT)0x8009035FL)
-#endif
+#جيڪڏهن_وصف_نه_ٿيل SEC_E_POLICY_NLTM_ONLY
+#وصف_ڪريو SEC_E_POLICY_NLTM_ONLY                ((HRESULT)0x8009035FL)
+#جيڪڏهن_پورو
 
 /* Offered by mingw-w64 v8+, MS SDK 6.0A/VS2008+ */
-#ifndef SEC_I_SIGNATURE_NEEDED
-#define SEC_I_SIGNATURE_NEEDED                ((HRESULT)0x0009035CL)
-#endif
+#جيڪڏهن_وصف_نه_ٿيل SEC_I_SIGNATURE_NEEDED
+#وصف_ڪريو SEC_I_SIGNATURE_NEEDED                ((HRESULT)0x0009035CL)
+#جيڪڏهن_پورو
 
 /*
  * Definitions required from ntsecapi.h are directly provided below this point
  * to avoid including ntsecapi.h due to a conflict with OpenSSL's safestack.h
  */
-#define KERB_WRAP_NO_ENCRYPT 0x80000001
+#وصف_ڪريو KERB_WRAP_NO_ENCRYPT 0x80000001
 
-#endif /* USE_WINDOWS_SSPI */
+#جيڪڏهن_پورو /* USE_WINDOWS_SSPI */
 
-#endif /* HEADER_CURL_SSPI_H */
+#جيڪڏهن_پورو /* HEADER_CURL_SSPI_H */

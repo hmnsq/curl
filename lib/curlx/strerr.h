@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRERR_H
-#define HEADER_CURL_STRERR_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_STRERR_H
+#وصف_ڪريو سرو_CURL_STRERR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,6 +24,6 @@
  *
  ***************************************************************************/
 
-const char *curlx_strerror(int err, char *buf, size_t buflen);
+ثابت حرف *curlx_strerror(صحيح err, حرف *buf, size_t buflen);
 
-#endif /* HEADER_CURL_STRERR_H */
+#جيڪڏهن_پورو /* HEADER_CURL_STRERR_H */

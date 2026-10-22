@@ -22,44 +22,44 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#إذا !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>  /* for htons() */
-#endif
+#جيڪڏهن_وصف_ٿيل HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>  /* for htons() */
+#جيڪڏهن_پورو
 
-#include <curl/curl.h>
-#include "urldata.h"
-#include "curlx/dynbuf.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "vquic/capsule.h"
+#ضمن <curl/curl.h>
+#ضمن "urldata.h"
+#ضمن "curlx/dynbuf.h"
+#ضمن "cfilters.h"
+#ضمن "curl_trc.h"
+#ضمن "bufq.h"
+#ضمن "vquic/capsule.h"
 
 
 /**
  * Convert 64-bit value from network byte order to host byte order
  */
-static uint64_t capsule_ntohll(uint64_t value)
+ساكن uint64_t capsule_ntohll(uint64_t قدر)
 {
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-  return value;
-#elif (defined(__GNUC__) || defined(__clang__)) && \
+#إذا defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+  أرجع قدر;
+#وإلاإذا (defined(__GNUC__) || defined(__clang__)) && \
   defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-  return __builtin_bswap64(value);
-#else
-  union {
+  أرجع __builtin_bswap64(قدر);
+#وإلا
+  اتحاد {
     uint64_t u64;
     uint32_t u32[2];
   } src, dst;
 
-  src.u64 = value;
+  src.u64 = قدر;
   dst.u32[0] = ntohl(src.u32[1]);
   dst.u32[1] = ntohl(src.u32[0]);
-  return dst.u64;
-#endif
+  أرجع dst.u64;
+#جيڪڏهن_پورو
 }
 
 /**
@@ -68,75 +68,75 @@ static uint64_t capsule_ntohll(uint64_t value)
  * @param value Value to encode (must be <= 0x3FFFFFFFFFFFFFFF)
  * @return Number of bytes written
  */
-static size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t value)
+ساكن size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t قدر)
 {
-  DEBUGASSERT(value <= 0x3FFFFFFFFFFFFFFF);
+  DEBUGASSERT(قدر <= 0x3FFFFFFFFFFFFFFF);
 
-  if(value <= 0x3F) {
-    buf[0] = (uint8_t)value;
-    return 1;
+  إذا(قدر <= 0x3F) {
+    buf[0] = (uint8_t)قدر;
+    أرجع 1;
   }
-  else if(value <= 0x3FFF) {
-    uint16_t encoded = (uint16_t)value & 0x3FFF;
+  وإلا إذا(قدر <= 0x3FFF) {
+    uint16_t encoded = (uint16_t)قدر & 0x3FFF;
     encoded = ntohs(encoded | 0x4000);
-    memcpy(buf, &encoded, 2);
-    return 2;
+    يادگيري_نقل(buf, &encoded, 2);
+    أرجع 2;
   }
-  else if(value <= 0x3FFFFFFF) {
-    uint32_t encoded = (uint32_t)value & 0x3FFFFFFF;
+  وإلا إذا(قدر <= 0x3FFFFFFF) {
+    uint32_t encoded = (uint32_t)قدر & 0x3FFFFFFF;
     encoded = ntohl(encoded | 0x80000000);
-    memcpy(buf, &encoded, 4);
-    return 4;
+    يادگيري_نقل(buf, &encoded, 4);
+    أرجع 4;
   }
-  else {
-    uint64_t encoded = (uint64_t)value & 0x3FFFFFFFFFFFFFFF;
+  وإلا {
+    uint64_t encoded = (uint64_t)قدر & 0x3FFFFFFFFFFFFFFF;
     encoded = capsule_ntohll(encoded | 0xC000000000000000);
-    memcpy(buf, &encoded, 8);
-    return 8;
+    يادگيري_نقل(buf, &encoded, 8);
+    أرجع 8;
   }
 }
 
-static CURLcode capsule_peek_u8(struct bufq *recvbufq,
-                                size_t offset,
+ساكن CURLcode capsule_peek_u8(بنية bufq *recvbufq,
+                                size_t وٿي,
                                 uint8_t *pbyte)
 {
-  const unsigned char *peek = NULL;
+  ثابت بنانشان حرف *peek = عدم;
   size_t peeklen = 0;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &peek, &peeklen) || !peeklen)
-    return CURLE_AGAIN;
+  إذا(!Curl_bufq_peek_at(recvbufq, وٿي, &peek, &peeklen) || !peeklen)
+    أرجع CURLE_AGAIN;
   *pbyte = peek[0];
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode capsule_decode_varint_at(struct bufq *recvbufq,
-                                         size_t offset,
+ساكن CURLcode capsule_decode_varint_at(بنية bufq *recvbufq,
+                                         size_t وٿي,
                                          uint64_t *pvalue,
                                          size_t *pconsumed)
 {
-  uint8_t first_byte, byte;
-  uint64_t value;
+  uint8_t پهريون_byte, byte;
+  uint64_t قدر;
   size_t nbytes;
   size_t i;
-  CURLcode result;
+  CURLcode نتيجو;
 
-  result = capsule_peek_u8(recvbufq, offset, &first_byte);
-  if(result)
-    return result;
+  نتيجو = capsule_peek_u8(recvbufq, وٿي, &پهريون_byte);
+  إذا(نتيجو)
+    أرجع نتيجو;
 
-  nbytes = (size_t)1 << (first_byte >> 6); /* 1, 2, 4 or 8 bytes */
-  value = first_byte & 0x3F;
+  nbytes = (size_t)1 << (پهريون_byte >> 6); /* 1, 2, 4 or 8 bytes */
+  قدر = پهريون_byte & 0x3F;
 
-  for(i = 1; i < nbytes; ++i) {
-    result = capsule_peek_u8(recvbufq, offset + i, &byte);
-    if(result)
-      return result;
-    value = (value << 8) | byte;
+  لكل(i = 1; i < nbytes; ++i) {
+    نتيجو = capsule_peek_u8(recvbufq, وٿي + i, &byte);
+    إذا(نتيجو)
+      أرجع نتيجو;
+    قدر = (قدر << 8) | byte;
   }
 
-  *pvalue = value;
+  *pvalue = قدر;
   *pconsumed = nbytes;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /**
@@ -154,154 +154,154 @@ UNITTEST size_t capsule_encap_udp_hdr(uint8_t *hdr, size_t hdrlen,
                                       size_t payload_len)
 {
   size_t off = 0;
-  DEBUGASSERT(hdrlen >= HTTP_CAPSULE_HEADER_MAX_SIZE);
-  if(hdrlen < HTTP_CAPSULE_HEADER_MAX_SIZE)
-    return 0;
+  DEBUGASSERT(hdrlen >= HTTP_CAPSULE_سرو_MAX_سائيز);
+  إذا(hdrlen < HTTP_CAPSULE_سرو_MAX_سائيز)
+    أرجع 0;
   hdr[off++] = 0; /* capsule type: HTTP Datagram */
   off += capsule_encode_varint_buf(hdr + off, (uint64_t)payload_len + 1);
   hdr[off++] = 0; /* context ID */
-  return off;
+  أرجع off;
 }
 
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen)
+CURLcode Curl_capsule_encap_udp_datagram(بنية bufq *q,
+                                         ثابت فراغ *buf, size_t blen)
 {
-  CURLcode result;
-  uint8_t hdr[HTTP_CAPSULE_HEADER_MAX_SIZE];
+  CURLcode نتيجو;
+  uint8_t hdr[HTTP_CAPSULE_سرو_MAX_سائيز];
   size_t hdr_len, nwritten;
 
-  hdr_len = capsule_encap_udp_hdr(hdr, sizeof(hdr), blen);
+  hdr_len = capsule_encap_udp_hdr(hdr, حجم(hdr), blen);
   DEBUGASSERT(hdr_len);
-  if(!hdr_len)
-    return CURLE_FAILED_INIT;
+  إذا(!hdr_len)
+    أرجع CURLE_FAILED_INIT;
 
-  result = Curl_bufq_write(q, hdr, hdr_len, &nwritten);
-  if(!result && (nwritten != hdr_len))
-    return CURLE_WRITE_ERROR;
-  if(!result) {
-    result = Curl_bufq_write(q, buf, blen, &nwritten);
-    if(!result && (nwritten != blen))
-      return CURLE_WRITE_ERROR;
+  نتيجو = Curl_bufq_write(q, hdr, hdr_len, &nwritten);
+  إذا(!نتيجو && (nwritten != hdr_len))
+    أرجع CURLE_WRITE_ERROR;
+  إذا(!نتيجو) {
+    نتيجو = Curl_bufq_write(q, buf, blen, &nwritten);
+    إذا(!نتيجو && (nwritten != blen))
+      أرجع CURLE_WRITE_ERROR;
   }
-  if(result == CURLE_AGAIN)
-    return CURLE_WRITE_ERROR;
-  return result;
+  إذا(نتيجو == CURLE_AGAIN)
+    أرجع CURLE_WRITE_ERROR;
+  أرجع نتيجو;
 }
 
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *معلومات,
+                                    بنية bufq *recvbufq,
+                                    بنانشان حرف *buf, size_t len,
                                     CURLcode *err)
 {
-  const unsigned char *context_id, *capsule_type;
-  size_t read_size, varint_len;
-  uint64_t capsule_length;
-  size_t offset, payload_len;
-  size_t bytes_read = 0;
-  CURLcode result = CURLE_OK;
+  ثابت بنانشان حرف *context_id, *capsule_type;
+  size_t read_سائيز, varint_len;
+  uint64_t capsule_ڊيگهائي;
+  size_t وٿي, payload_len;
+  size_t بائيٽون_read = 0;
+  CURLcode نتيجو = CURLE_OK;
 
-  if(!len) {
-    *err = CURLE_BAD_FUNCTION_ARGUMENT;
-    return 0;
+  إذا(!len) {
+    *err = CURLE_BAD_FUNCTION_دليل;
+    أرجع 0;
   }
 
-  if(Curl_bufq_is_empty(recvbufq)) {
+  إذا(Curl_bufq_is_خالي_جايون(recvbufq)) {
     *err = CURLE_AGAIN;
-    return 0;
+    أرجع 0;
   }
 
-  if(!Curl_bufq_peek(recvbufq, &capsule_type, &read_size) || !read_size) {
+  إذا(!Curl_bufq_peek(recvbufq, &capsule_type, &read_سائيز) || !read_سائيز) {
     *err = CURLE_AGAIN;
-    return 0;
+    أرجع 0;
   }
 
-  if(capsule_type[0]) {
-    infof(data, "Error! Invalid capsule type: %d", capsule_type[0]);
+  إذا(capsule_type[0]) {
+    infof(معلومات, "Error! Invalid capsule type: %d", capsule_type[0]);
     Curl_bufq_skip(recvbufq, 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    أرجع 0;
   }
 
-  offset = 1;
-  result = capsule_decode_varint_at(recvbufq, offset, &capsule_length,
+  وٿي = 1;
+  نتيجو = capsule_decode_varint_at(recvbufq, وٿي, &capsule_ڊيگهائي,
                                     &varint_len);
-  if(result == CURLE_AGAIN) {
+  إذا(نتيجو == CURLE_AGAIN) {
     *err = CURLE_AGAIN;
-    return 0;
+    أرجع 0;
   }
-  else if(result) {
+  وإلا إذا(نتيجو) {
     *err = CURLE_RECV_ERROR;
-    return 0;
+    أرجع 0;
   }
-  offset += varint_len;
+  وٿي += varint_len;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &context_id, &read_size) ||
-     !read_size) {
+  إذا(!Curl_bufq_peek_at(recvbufq, وٿي, &context_id, &read_سائيز) ||
+     !read_سائيز) {
     *err = CURLE_AGAIN;
-    return 0;
+    أرجع 0;
   }
 
-  if(*context_id) {
-    infof(data, "Error! Invalid context ID: %02x", *context_id);
-    Curl_bufq_skip(recvbufq, offset + 1);
+  إذا(*context_id) {
+    infof(معلومات, "Error! Invalid context ID: %02x", *context_id);
+    Curl_bufq_skip(recvbufq, وٿي + 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    أرجع 0;
   }
-  offset += 1;
+  وٿي += 1;
 
-  if(!capsule_length) {
-    infof(data, "Error! Invalid capsule length: 0");
-    Curl_bufq_skip(recvbufq, offset);
+  إذا(!capsule_ڊيگهائي) {
+    infof(معلومات, "Error! Invalid capsule length: 0");
+    Curl_bufq_skip(recvbufq, وٿي);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    أرجع 0;
   }
-  if(capsule_length - 1 > (uint64_t)(SIZE_MAX - offset)) {
-    infof(data, "Error! Capsule length too large: %" CURL_FORMAT_CURL_OFF_T,
-          (curl_off_t)capsule_length);
+  إذا(capsule_ڊيگهائي - 1 > (uint64_t)(SIZE_MAX - وٿي)) {
+    infof(معلومات, "Error! Capsule length too large: %" CURL_FORMAT_CURL_OFF_T,
+          (curl_off_t)capsule_ڊيگهائي);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    أرجع 0;
   }
-  payload_len = (size_t)(capsule_length - 1);
+  payload_len = (size_t)(capsule_ڊيگهائي - 1);
 
-  if(payload_len > len) {
-    infof(data, "UDP payload does not fit destination buffer: %zu > %zu",
+  إذا(payload_len > len) {
+    infof(معلومات, "UDP payload does not fit destination buffer: %zu > %zu",
           payload_len, len);
-    Curl_bufq_skip(recvbufq, offset + payload_len);
+    Curl_bufq_skip(recvbufq, وٿي + payload_len);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    أرجع 0;
   }
 
-  if(Curl_bufq_len(recvbufq) < offset + payload_len) {
-    if(Curl_bufq_is_full(recvbufq)) {
-      infof(data, "Error! Capsule does not fit the receive buffer: %zu",
+  إذا(Curl_bufq_len(recvbufq) < وٿي + payload_len) {
+    إذا(Curl_bufq_is_ڀريل(recvbufq)) {
+      infof(معلومات, "Error! Capsule does not fit the receive buffer: %zu",
             payload_len);
       *err = CURLE_RECV_ERROR;
-      return 0;
+      أرجع 0;
     }
     *err = CURLE_AGAIN;
-    return 0;
+    أرجع 0;
   }
 
-  Curl_bufq_skip(recvbufq, offset);
-  if(!payload_len) {
+  Curl_bufq_skip(recvbufq, وٿي);
+  إذا(!payload_len) {
     *err = CURLE_OK;
-    return 0;
+    أرجع 0;
   }
-  result = Curl_bufq_read(recvbufq, buf, payload_len, &bytes_read);
-  if(result || (bytes_read != payload_len)) {
-    infof(data, "Error! Read less than expected %zu %zu",
-          payload_len, bytes_read);
+  نتيجو = Curl_bufq_read(recvbufq, buf, payload_len, &بائيٽون_read);
+  إذا(نتيجو || (بائيٽون_read != payload_len)) {
+    infof(معلومات, "Error! Read less than expected %zu %zu",
+          payload_len, بائيٽون_read);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    أرجع 0;
   }
 
-  if(cf && data) {
-    CURL_TRC_CF(data, cf, "Processed UDP capsule raw: size=%zu "
+  إذا(cf && معلومات) {
+    CURL_TRC_CF(معلومات, cf, "Processed UDP capsule raw: size=%zu "
                 "length_left %zu", payload_len, Curl_bufq_len(recvbufq));
   }
   *err = CURLE_OK;
-  return bytes_read;
+  أرجع بائيٽون_read;
 }
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#جيڪڏهن_پورو /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

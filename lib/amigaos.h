@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_AMIGAOS_H
-#define HEADER_CURL_AMIGAOS_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_AMIGAOS_H
+#وصف_ڪريو سرو_CURL_AMIGAOS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,19 +23,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if defined(__AMIGA__) && defined(HAVE_PROTO_BSDSOCKET_H) && \
+#إذا defined(__AMIGA__) && defined(HAVE_PROTO_BSDSOCKET_H) && \
   (!defined(USE_AMISSL) || defined(__amigaos4__))
 
-CURLcode Curl_amiga_init(void);
-void Curl_amiga_cleanup(void);
+CURLcode Curl_amiga_init(فراغ);
+فراغ Curl_amiga_cleanup(فراغ);
 
-#else
+#وإلا
 
-#define Curl_amiga_init()    CURLE_OK
-#define Curl_amiga_cleanup() Curl_nop_stmt
+#وصف_ڪريو Curl_amiga_init()    CURLE_OK
+#وصف_ڪريو Curl_amiga_cleanup() Curl_nop_stmt
 
-#endif
+#جيڪڏهن_پورو
 
-#endif /* HEADER_CURL_AMIGAOS_H */
+#جيڪڏهن_پورو /* HEADER_CURL_AMIGAOS_H */

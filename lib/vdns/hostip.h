@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HOSTIP_H
-#define HEADER_CURL_HOSTIP_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_HOSTIP_H
+#وصف_ڪريو سرو_CURL_HOSTIP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,71 +23,71 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "hash.h"
-#include "curlx/timeval.h" /* for curltime, timediff_t */
+#ضمن "hash.h"
+#ضمن "curlx/timeval.h" /* for curltime, timediff_t */
 
 /* Allocate enough memory to hold the full name information structs and
  * everything. OSF1 is known to require at least 8872 bytes. The buffer
  * required for storing all possible aliases and IP numbers is according to
  * Stevens' Unix Network Programming 2nd edition, p. 304: 8192 bytes!
  */
-#define CURL_HOSTENT_SIZE 9000
+#وصف_ڪريو CURL_HOSTENT_سائيز 9000
 
-#define CURL_TIMEOUT_RESOLVE_MS (300 * 1000)
+#وصف_ڪريو CURL_TIMEOUT_RESOLVE_MS (300 * 1000)
 
-struct addrinfo;
-struct hostent;
-struct Curl_easy;
-struct connectdata;
-struct easy_pollset;
-struct Curl_https_rrinfo;
-struct Curl_multi;
-struct Curl_dns_entry;
-struct Curl_peer;
+بنية addrinfo;
+بنية hostent;
+بنية Curl_easy;
+بنية connectdata;
+بنية easy_pollset;
+بنية Curl_https_rrinfo;
+بنية Curl_multi;
+بنية Curl_dns_داخلا;
+بنية Curl_peer;
 
 /* DNS query types */
-#define CURL_DNSQ_A           (1U << 0)
-#define CURL_DNSQ_AAAA        (1U << 1)
-#define CURL_DNSQ_HTTPS       (1U << 2)
+#وصف_ڪريو CURL_DNSQ_A           (1U << 0)
+#وصف_ڪريو CURL_DNSQ_AAAA        (1U << 1)
+#وصف_ڪريو CURL_DNSQ_HTTPS       (1U << 2)
 
-#define CURL_DNSQ_ADDR        (uint8_t)(CURL_DNSQ_A | CURL_DNSQ_AAAA)
-#define CURL_DNSQ_IS_ADDR(x)  (uint8_t)((x)&(CURL_DNSQ_ADDR))
+#وصف_ڪريو CURL_DNSQ_ADDR        (uint8_t)(CURL_DNSQ_A | CURL_DNSQ_AAAA)
+#وصف_ڪريو CURL_DNSQ_IS_ADDR(x)  (uint8_t)((x)&(CURL_DNSQ_ADDR))
 
-#ifdef CURLVERBOSE
-const char *Curl_resolv_query_str(uint8_t dns_queries);
-#endif
+#جيڪڏهن_وصف_ٿيل CURLVERBOSE
+ثابت حرف *Curl_resolv_query_str(uint8_t dns_queries);
+#جيڪڏهن_پورو
 
 /* Return CURL_DNSQ_* bits for the transfer and ip_version. */
-uint8_t Curl_resolv_dns_queries(struct Curl_easy *data, uint8_t ip_version);
+uint8_t Curl_resolv_dns_queries(بنية Curl_easy *معلومات, uint8_t ip_نسخو);
 
-enum alpnid {
+تعداد alpnid {
   ALPN_none = 0,
   ALPN_h1 = CURLALTSVC_H1,
   ALPN_h2 = CURLALTSVC_H2,
   ALPN_h3 = CURLALTSVC_H3
 };
 
-bool Curl_host_is_ipnum(const char *hostname);
+bool Curl_host_is_ipnum(ثابت حرف *hostname);
 
-#ifdef USE_IPV6
+#جيڪڏهن_وصف_ٿيل USE_IPV6
 /* probe if it seems to work */
-CURLcode Curl_probeipv6(struct Curl_multi *multi);
-#else
-#define Curl_probeipv6(x) CURLE_OK
-#endif
+CURLcode Curl_probeipv6(بنية Curl_multi *multi);
+#وإلا
+#وصف_ڪريو Curl_probeipv6(x) CURLE_OK
+#جيڪڏهن_پورو
 
 /* IPv4 thread-safe resolve function used for synch and asynch builds */
-struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname, uint16_t port);
+بنية Curl_addrinfo *Curl_ipv4_resolve_r(ثابت حرف *hostname, uint16_t پورٽ);
 
 /*
  * Curl_printable_address() returns a printable version of the 1st address
  * given in the 'ai' argument. The result will be stored in the buf that is
  * bufsize bytes big.
  */
-void Curl_printable_address(const struct Curl_addrinfo *ai,
-                            char *buf, size_t bufsize);
+فراغ Curl_printable_پتو(ثابت بنية Curl_addrinfo *ai,
+                            حرف *buf, size_t bufsize);
 
 /* Start DNS resolving for the given parameters. Returns
  * - CURLE_OK: `*pdns` is the resolved DNS entry (needs to be unlinked).
@@ -96,64 +96,64 @@ void Curl_printable_address(const struct Curl_addrinfo *ai,
  *             `presolv_id` is the identifier for querying results later.
  * - other: the operation failed, `*pdns` is NULL, `*presolv_id` is 0.
  */
-CURLcode Curl_resolv(struct Curl_easy *data,
-                     struct Curl_peer *peer,
+CURLcode Curl_resolv(بنية Curl_easy *معلومات,
+                     بنية Curl_peer *peer,
                      uint8_t dns_queries,
                      uint8_t transport,
                      bool for_proxy,
                      timediff_t timeout_ms,
                      uint32_t *presolv_id,
-                     struct Curl_dns_entry **pdns);
+                     بنية Curl_dns_داخلا **pdns);
 
-CURLcode Curl_resolv_blocking(struct Curl_easy *data,
+CURLcode Curl_resolv_blocking(بنية Curl_easy *معلومات,
                               uint8_t dns_queries,
-                              const char *hostname,
-                              uint16_t port,
+                              ثابت حرف *hostname,
+                              uint16_t پورٽ,
                               uint8_t transport,
-                              struct Curl_dns_entry **pdns);
+                              بنية Curl_dns_داخلا **pdns);
 
 /* Announce start of a resolve operation to application callback,
  * passing the resolver implementation (maybe NULL). */
-CURLcode Curl_resolv_announce_start(struct Curl_easy *data,
-                                    void *resolver);
+CURLcode Curl_resolv_announce_شروعات(بنية Curl_easy *معلومات,
+                                    فراغ *resolver);
 
-#ifdef USE_CURL_ASYNC
+#جيڪڏهن_وصف_ٿيل USE_CURL_ASYNC
 
-CURLcode Curl_resolv_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps);
+CURLcode Curl_resolv_pollset(بنية Curl_easy *معلومات,
+                             بنية easy_pollset *ps);
 
 /* Get the `async` struct for the given `resolv_id`, if it exists. */
-struct Curl_resolv_async *Curl_async_get(struct Curl_easy *data,
+بنية Curl_resolv_async *Curl_async_get(بنية Curl_easy *معلومات,
                                          uint32_t resolv_id);
 
 /* Shut down all resolves of the given easy handle. */
-void Curl_resolv_shutdown_all(struct Curl_easy *data);
+فراغ Curl_resolv_shutdown_all(بنية Curl_easy *معلومات);
 
 /* Destroy all resolve resources of the given easy handle. */
-void Curl_resolv_destroy_all(struct Curl_easy *data);
+فراغ Curl_resolv_destroy_all(بنية Curl_easy *معلومات);
 
-CURLcode Curl_resolv_take_result(struct Curl_easy *data, uint32_t resolv_id,
-                                 struct Curl_dns_entry **pdns);
+CURLcode Curl_resolv_take_نتيجو(بنية Curl_easy *معلومات, uint32_t resolv_id,
+                                 بنية Curl_dns_داخلا **pdns);
 
-void Curl_resolv_destroy(struct Curl_easy *data, uint32_t resolv_id);
+فراغ Curl_resolv_destroy(بنية Curl_easy *معلومات, uint32_t resolv_id);
 
 /* How much time has gone by since start of resolve.
  * Returns CURL_TIMEOUT_RESOLVE_MS if `resolv_id` is no longer valid. */
-timediff_t Curl_resolv_elapsed_ms(struct Curl_easy *data,
+timediff_t Curl_resolv_elapsed_ms(بنية Curl_easy *معلومات,
                                   uint32_t resolv_id,
-                                  const struct curltime *pnow);
+                                  ثابت بنية curltime *pnow);
 
 /* Return TRUE if `resolv_id` has answers (positive or negative) to
  * all queries in `dns_queries`.
  * Queries not requested are considered answered. */
-bool Curl_resolv_has_answers(struct Curl_easy *data,
+bool Curl_resolv_has_answers(بنية Curl_easy *معلومات,
                              uint32_t resolv_id, uint8_t dns_queries);
 
-const struct Curl_addrinfo *Curl_resolv_get_ai(struct Curl_easy *data,
+ثابت بنية Curl_addrinfo *Curl_resolv_get_ai(بنية Curl_easy *معلومات,
                                                uint32_t resolv_id,
-                                               int ai_family,
-                                               unsigned int index);
-#ifdef USE_HTTPSRR
+                                               صحيح ai_family,
+                                               بنانشان صحيح اشاريو);
+#جيڪڏهن_وصف_ٿيل USE_HTTPSRR
 
 /* Start DNS resolving for HTTPS records. Returns
  * - CURLE_OK: `*pdns` is the resolved DNS entry (needs to be unlinked).
@@ -162,43 +162,43 @@ const struct Curl_addrinfo *Curl_resolv_get_ai(struct Curl_easy *data,
  *             `presolv_id` is the identifier for querying results later.
  * - other: the operation failed, `*pdns` is NULL, `*presolv_id` is 0.
  */
-CURLcode Curl_resolv_https(struct Curl_easy *data,
-                           struct Curl_peer *peer,
+CURLcode Curl_resolv_https(بنية Curl_easy *معلومات,
+                           بنية Curl_peer *peer,
                            bool for_proxy,
                            timediff_t timeout_ms,
                            uint32_t *presolv_id,
-                           struct Curl_dns_entry **pdns);
+                           بنية Curl_dns_داخلا **pdns);
 
 
-const struct Curl_https_rrinfo *Curl_resolv_get_https(struct Curl_easy *data,
+ثابت بنية Curl_https_rrinfo *Curl_resolv_get_https(بنية Curl_easy *معلومات,
                                                       uint32_t resolv_id);
-bool Curl_resolv_knows_https(struct Curl_easy *data, uint32_t resolv_id);
-#endif /* USE_HTTPSRR */
+bool Curl_resolv_knows_https(بنية Curl_easy *معلومات, uint32_t resolv_id);
+#جيڪڏهن_پورو /* USE_HTTPSRR */
 
-#else /* !USE_CURL_ASYNC */
-#define Curl_resolv_shutdown_all(x)      Curl_nop_stmt
-#define Curl_resolv_destroy_all(x)       Curl_nop_stmt
-#define Curl_resolv_take_result(x, y, z) CURLE_NOT_BUILT_IN
-#define Curl_resolv_elapsed_ms(x, y, z)  CURL_TIMEOUT_RESOLVE_MS
-#define Curl_resolv_has_answers(x, y, z) TRUE
-#define Curl_resolv_get_ai(x, y, z, a)   NULL
-#define Curl_resolv_get_https(x, y)      NULL
-#define Curl_resolv_knows_https(x, y)    TRUE
-#define Curl_resolv_pollset(x, y)        CURLE_OK
-#define Curl_resolv_destroy(x, y)        Curl_nop_stmt
-#endif /* USE_CURL_ASYNC */
+#وإلا /* !USE_CURL_ASYNC */
+#وصف_ڪريو Curl_resolv_shutdown_all(x)      Curl_nop_stmt
+#وصف_ڪريو Curl_resolv_destroy_all(x)       Curl_nop_stmt
+#وصف_ڪريو Curl_resolv_take_نتيجو(x, y, z) CURLE_NOT_BUILT_اندريون
+#وصف_ڪريو Curl_resolv_elapsed_ms(x, y, z)  CURL_TIMEOUT_RESOLVE_MS
+#وصف_ڪريو Curl_resolv_has_answers(x, y, z) TRUE
+#وصف_ڪريو Curl_resolv_get_ai(x, y, z, a)   عدم
+#وصف_ڪريو Curl_resolv_get_https(x, y)      عدم
+#وصف_ڪريو Curl_resolv_knows_https(x, y)    TRUE
+#وصف_ڪريو Curl_resolv_pollset(x, y)        CURLE_OK
+#وصف_ڪريو Curl_resolv_destroy(x, y)        Curl_nop_stmt
+#جيڪڏهن_پورو /* USE_CURL_ASYNC */
 
-#ifdef CURLRES_SYNCH
+#جيڪڏهن_وصف_ٿيل CURLRES_SYNCH
 /*
  * Curl_sync_getaddrinfo() is the non-async low-level name resolve API.
  * There are several versions of this function - depending on IPV6
  * support and platform.
  */
-struct Curl_addrinfo *Curl_sync_getaddrinfo(struct Curl_easy *data,
+بنية Curl_addrinfo *Curl_sync_getaddrinfo(بنية Curl_easy *معلومات,
                                             uint8_t dns_queries,
-                                            const char *hostname,
-                                            uint16_t port,
+                                            ثابت حرف *hostname,
+                                            uint16_t پورٽ,
                                             uint8_t transport);
-#endif
+#جيڪڏهن_پورو
 
-#endif /* HEADER_CURL_HOSTIP_H */
+#جيڪڏهن_پورو /* HEADER_CURL_HOSTIP_H */

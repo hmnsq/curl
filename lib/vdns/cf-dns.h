@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_DNS_H
-#define HEADER_CURL_CF_DNS_H
+#جيڪڏهن_وصف_نه_ٿيل سرو_CURL_CF_DNS_H
+#وصف_ڪريو سرو_CURL_CF_DNS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,49 +23,49 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct Curl_dns_entry;
-struct Curl_addrinfo;
-struct Curl_peer;
+بنية Curl_easy;
+بنية connectdata;
+بنية Curl_dns_داخلا;
+بنية Curl_addrinfo;
+بنية Curl_peer;
 
-CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
-                                        struct connectdata *conn,
+CURLcode Curl_conn_dns_جوڙيو_addr_resolve(بنية Curl_easy *معلومات,
+                                        بنية connectdata *conn,
                                         int8_t sockindex,
-                                        struct Curl_peer *peer,
+                                        بنية Curl_peer *peer,
                                         uint8_t dns_queries,
                                         uint8_t transport);
 
-CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
+CURLcode Curl_conn_dns_addr_نتيجو(بنية connectdata *conn,
                                    int8_t sockindex,
-                                   struct Curl_peer *peer);
+                                   بنية Curl_peer *peer);
 
-const struct Curl_addrinfo *Curl_conn_dns_get_ai(struct Curl_easy *data,
-                                                 struct Curl_peer *peer,
+ثابت بنية Curl_addrinfo *Curl_conn_dns_get_ai(بنية Curl_easy *معلومات,
+                                                 بنية Curl_peer *peer,
                                                  int8_t sockindex,
-                                                 int ai_family,
-                                                 unsigned int index);
+                                                 صحيح ai_family,
+                                                 بنانشان صحيح اشاريو);
 
-#ifdef USE_HTTPSRR
-CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
-                                         struct connectdata *conn,
+#جيڪڏهن_وصف_ٿيل USE_HTTPSRR
+CURLcode Curl_conn_dns_جوڙيو_https_resolve(بنية Curl_easy *معلومات,
+                                         بنية connectdata *conn,
                                          int8_t sockindex,
-                                         struct Curl_peer *peer);
+                                         بنية Curl_peer *peer);
 
-const struct Curl_https_rrinfo *
-Curl_conn_dns_get_https(struct Curl_easy *data,
+ثابت بنية Curl_https_rrinfo *
+Curl_conn_dns_get_https(بنية Curl_easy *معلومات,
                         int8_t sockindex,
-                        struct Curl_peer *peer);
-bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
+                        بنية Curl_peer *peer);
+bool Curl_conn_dns_resolved_https(بنية Curl_easy *معلومات,
                                   int8_t sockindex,
-                                  struct Curl_peer *peer);
-#else
-#define Curl_conn_dns_get_https(a, b, c)        NULL
-#define Curl_conn_dns_resolved_https(a, b, c)   TRUE
-#endif
+                                  بنية Curl_peer *peer);
+#وإلا
+#وصف_ڪريو Curl_conn_dns_get_https(a, b, c)        عدم
+#وصف_ڪريو Curl_conn_dns_resolved_https(a, b, c)   TRUE
+#جيڪڏهن_پورو
 
-extern struct Curl_cftype Curl_cft_dns;
+خارجي بنية Curl_cftype Curl_cft_dns;
 
-#endif /* HEADER_CURL_CF_DNS_H */
+#جيڪڏهن_پورو /* HEADER_CURL_CF_DNS_H */

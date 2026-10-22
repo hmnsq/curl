@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-struct Curl_easy;
+بنية Curl_easy;
 
-#include "formdata.h"
+#ضمن "formdata.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
 
-#include "urldata.h" /* for struct Curl_easy */
-#include "mime.h"
-#include "curlx/strdup.h"
-#include "bufref.h"
-#include "curlx/win32-fopen.h"
+#ضمن "urldata.h" /* for struct Curl_easy */
+#ضمن "mime.h"
+#ضمن "curlx/strdup.h"
+#ضمن "bufref.h"
+#ضمن "curlx/win32-fopen.h"
 
 
-#define HTTPPOST_PTRNAME     CURL_HTTPPOST_PTRNAME
-#define HTTPPOST_FILENAME    CURL_HTTPPOST_FILENAME
-#define HTTPPOST_PTRCONTENTS CURL_HTTPPOST_PTRCONTENTS
-#define HTTPPOST_READFILE    CURL_HTTPPOST_READFILE
-#define HTTPPOST_PTRBUFFER   CURL_HTTPPOST_PTRBUFFER
-#define HTTPPOST_CALLBACK    CURL_HTTPPOST_CALLBACK
-#define HTTPPOST_BUFFER      CURL_HTTPPOST_BUFFER
+#وصف_ڪريو HTTPPOST_PTRNAME     CURL_HTTPPOST_PTRNAME
+#وصف_ڪريو HTTPPOST_FILENAME    CURL_HTTPPOST_FILENAME
+#وصف_ڪريو HTTPPOST_PTRCONTENTS CURL_HTTPPOST_PTRCONTENTS
+#وصف_ڪريو HTTPPOST_READFILE    CURL_HTTPPOST_READFILE
+#وصف_ڪريو HTTPPOST_PTRBUFFER   CURL_HTTPPOST_PTRBUFFER
+#وصف_ڪريو HTTPPOST_CALLBACK    CURL_HTTPPOST_CALLBACK
+#وصف_ڪريو HTTPPOST_بفر      CURL_HTTPPOST_بفر
 
 /***************************************************************************
  *
@@ -54,82 +54,82 @@ struct Curl_easy;
  * Returns newly allocated HttpPost on success and NULL if malloc failed.
  *
  ***************************************************************************/
-static struct curl_httppost *httppost_add(struct FormInfo *src,
-                                          struct curl_httppost *parent_post,
-                                          struct curl_httppost **httppost,
-                                          struct curl_httppost **last_post)
+ساكن بنية curl_httppost *httppost_جوڙيو(بنية FormInfo *src,
+                                          بنية curl_httppost *والد_post,
+                                          بنية curl_httppost **httppost,
+                                          بنية curl_httppost **آخري_post)
 {
-  struct curl_httppost *post;
+  بنية curl_httppost *post;
   size_t namelength = src->namelength;
-  if(!namelength && Curl_bufref_ptr(&src->name))
-    namelength = strlen(Curl_bufref_ptr(&src->name));
-  if((src->bufferlength > LONG_MAX) || (namelength > LONG_MAX))
+  إذا(!namelength && Curl_bufref_ptr(&src->name))
+    namelength = لڙي_ڊيگهه(Curl_bufref_ptr(&src->name));
+  إذا((src->bufferlength > LONG_MAX) || (namelength > LONG_MAX))
     /* avoid overflow in typecasts below */
-    return NULL;
-  post = curlx_calloc(1, sizeof(struct curl_httppost));
-  if(post) {
+    أرجع عدم;
+  post = curlx_calloc(1, حجم(بنية curl_httppost));
+  إذا(post) {
     post->name = CURL_UNCONST(Curl_bufref_ptr(&src->name));
-    post->namelength = (long)namelength;
-    post->contents = CURL_UNCONST(Curl_bufref_ptr(&src->value));
+    post->namelength = (ڊگهو)namelength;
+    post->contents = CURL_UNCONST(Curl_bufref_ptr(&src->قدر));
     post->contentlen = src->contentslength;
-    post->buffer = src->buffer;
-    post->bufferlength = (long)src->bufferlength;
+    post->بفر = src->بفر;
+    post->bufferlength = (ڊگهو)src->bufferlength;
     post->contenttype = CURL_UNCONST(Curl_bufref_ptr(&src->contenttype));
     post->flags = src->flags | CURL_HTTPPOST_LARGE;
     post->contentheader = src->contentheader;
     post->showfilename = CURL_UNCONST(Curl_bufref_ptr(&src->showfilename));
     post->userp = src->userp;
   }
-  else
-    return NULL;
+  وإلا
+    أرجع عدم;
 
-  if(parent_post) {
+  إذا(والد_post) {
     /* now, point our 'more' to the original 'more' */
-    post->more = parent_post->more;
+    post->وڌيڪ = والد_post->وڌيڪ;
 
     /* then move the original 'more' to point to ourselves */
-    parent_post->more = post;
+    والد_post->وڌيڪ = post;
   }
-  else {
+  وإلا {
     /* make the previous point to this */
-    if(*last_post)
-      (*last_post)->next = post;
-    else
+    إذا(*آخري_post)
+      (*آخري_post)->ايندڙ = post;
+    وإلا
       (*httppost) = post;
 
-    (*last_post) = post;
+    (*آخري_post) = post;
   }
-  return post;
+  أرجع post;
 }
 
 /* Allocate and initialize a new FormInfo structure. */
-static struct FormInfo *forminfo_new(void)
+ساكن بنية FormInfo *forminfo_new(فراغ)
 {
-  struct FormInfo *form_info = curlx_calloc(1, sizeof(struct FormInfo));
+  بنية FormInfo *form_info = curlx_calloc(1, حجم(بنية FormInfo));
 
-  if(form_info) {
+  إذا(form_info) {
     Curl_bufref_init(&form_info->name);
-    Curl_bufref_init(&form_info->value);
+    Curl_bufref_init(&form_info->قدر);
     Curl_bufref_init(&form_info->contenttype);
     Curl_bufref_init(&form_info->showfilename);
   }
 
-  return form_info;
+  أرجع form_info;
 }
 
 /* Replace the target field data by a dynamic copy of it. */
-static CURLcode forminfo_copyfield(struct bufref *field, size_t len)
+ساكن CURLcode forminfo_copyfield(بنية bufref *ميدان, size_t len)
 {
-  const char *value = Curl_bufref_ptr(field);
-  CURLcode result = CURLE_OK;
+  ثابت حرف *قدر = Curl_bufref_ptr(ميدان);
+  CURLcode نتيجو = CURLE_OK;
 
-  if(value) {
-    if(!len)
-      len = strlen(value);
-    result = Curl_bufref_memdup0(field, value, len);
+  إذا(قدر) {
+    إذا(!len)
+      len = لڙي_ڊيگهه(قدر);
+    نتيجو = Curl_bufref_memdup0(ميدان, قدر, len);
   }
 
-  return result;
+  أرجع نتيجو;
 }
 
 /***************************************************************************
@@ -139,24 +139,24 @@ static CURLcode forminfo_copyfield(struct bufref *field, size_t len)
  * Adds a FormInfo structure to the list presented by parent.
  *
  ***************************************************************************/
-static void forminfo_add(struct FormInfo *form_info, struct FormInfo *parent)
+ساكن فراغ forminfo_جوڙيو(بنية FormInfo *form_info, بنية FormInfo *والد)
 {
   form_info->flags |= HTTPPOST_FILENAME;
 
-  if(parent) {
+  إذا(والد) {
     /* now, point our 'more' to the original 'more' */
-    form_info->more = parent->more;
+    form_info->وڌيڪ = والد->وڌيڪ;
 
     /* then move the original 'more' to point to ourselves */
-    parent->more = form_info;
+    والد->وڌيڪ = form_info;
   }
 }
 
-static void free_formlist(struct FormInfo *ptr)
+ساكن فراغ free_formlist(بنية FormInfo *ptr)
 {
-  for(; ptr; ptr = ptr->more) {
+  لكل(; ptr; ptr = ptr->وڌيڪ) {
     Curl_bufref_free(&ptr->name);
-    Curl_bufref_free(&ptr->value);
+    Curl_bufref_free(&ptr->قدر);
     Curl_bufref_free(&ptr->contenttype);
     Curl_bufref_free(&ptr->showfilename);
   }
@@ -212,400 +212,400 @@ static void free_formlist(struct FormInfo *ptr)
  *
  ***************************************************************************/
 
-static CURLFORMcode formadd_check(struct FormInfo *first_form,
-                                  struct curl_httppost **httppost,
-                                  struct curl_httppost **last_post)
+ساكن CURLFORMcode formadd_check(بنية FormInfo *پهريون_form,
+                                  بنية curl_httppost **httppost,
+                                  بنية curl_httppost **آخري_post)
 {
-  const char *prevtype = NULL;
-  struct FormInfo *form = NULL;
-  struct curl_httppost *post = NULL;
+  ثابت حرف *prevtype = عدم;
+  بنية FormInfo *form = عدم;
+  بنية curl_httppost *post = عدم;
 
   /* go through the list, check for completeness and if everything is
    * alright add the HttpPost item otherwise set retval accordingly */
 
-  for(form = first_form; form; form = form->more) {
-    const char *name = Curl_bufref_ptr(&form->name);
+  لكل(form = پهريون_form; form; form = form->وڌيڪ) {
+    ثابت حرف *name = Curl_bufref_ptr(&form->name);
 
-    if(((!name || !Curl_bufref_ptr(&form->value)) && !post) ||
+    إذا(((!name || !Curl_bufref_ptr(&form->قدر)) && !post) ||
        (form->contentslength &&
         (form->flags & HTTPPOST_FILENAME)) ||
        ((form->flags & HTTPPOST_FILENAME) &&
         (form->flags & HTTPPOST_PTRCONTENTS)) ||
 
-       (!form->buffer &&
-        (form->flags & HTTPPOST_BUFFER) &&
+       (!form->بفر &&
+        (form->flags & HTTPPOST_بفر) &&
         (form->flags & HTTPPOST_PTRBUFFER)) ||
 
        ((form->flags & HTTPPOST_READFILE) &&
         (form->flags & HTTPPOST_PTRCONTENTS))
       ) {
-      return CURL_FORMADD_INCOMPLETE;
+      أرجع CURL_FORMADD_INCOMPLETE;
     }
-    if(((form->flags & HTTPPOST_FILENAME) ||
-        (form->flags & HTTPPOST_BUFFER)) &&
+    إذا(((form->flags & HTTPPOST_FILENAME) ||
+        (form->flags & HTTPPOST_بفر)) &&
        !Curl_bufref_ptr(&form->contenttype)) {
-      const char *f = Curl_bufref_ptr((form->flags & HTTPPOST_BUFFER) ?
-                                      &form->showfilename : &form->value);
-      const char *type = Curl_mime_contenttype(f);
-      if(!type)
+      ثابت حرف *f = Curl_bufref_ptr((form->flags & HTTPPOST_بفر) ?
+                                      &form->showfilename : &form->قدر);
+      ثابت حرف *type = Curl_mime_contenttype(f);
+      إذا(!type)
         type = prevtype;
-      if(!type)
+      إذا(!type)
         type = FILE_CONTENTTYPE_DEFAULT;
 
       /* our contenttype is missing */
-      if(Curl_bufref_memdup0(&form->contenttype, type, strlen(type)))
-        return CURL_FORMADD_MEMORY;
+      إذا(Curl_bufref_memdup0(&form->contenttype, type, لڙي_ڊيگهه(type)))
+        أرجع CURL_FORMADD_يادگيري;
     }
-    if(name && form->namelength && memchr(name, 0, form->namelength))
-      return CURL_FORMADD_NULL;
-    if(!(form->flags & HTTPPOST_PTRNAME) &&
+    إذا(name && form->namelength && memchr(name, 0, form->namelength))
+      أرجع CURL_FORMADD_NULL;
+    إذا(!(form->flags & HTTPPOST_PTRNAME) &&
        /* Note that there is small risk that form->name is NULL here if the app
           passed in a bad combo, so we check for that. */
        forminfo_copyfield(&form->name, form->namelength))
-      return CURL_FORMADD_MEMORY;
-    if(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE |
+      أرجع CURL_FORMADD_يادگيري;
+    إذا(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE |
                         HTTPPOST_PTRCONTENTS | HTTPPOST_PTRBUFFER |
                         HTTPPOST_CALLBACK)) &&
-       forminfo_copyfield(&form->value, (size_t)form->contentslength))
-      return CURL_FORMADD_MEMORY;
-    post = httppost_add(form, post, httppost, last_post);
+       forminfo_copyfield(&form->قدر, (size_t)form->contentslength))
+      أرجع CURL_FORMADD_يادگيري;
+    post = httppost_جوڙيو(form, post, httppost, آخري_post);
 
-    if(!post)
-      return CURL_FORMADD_MEMORY;
+    إذا(!post)
+      أرجع CURL_FORMADD_يادگيري;
 
-    if(Curl_bufref_ptr(&form->contenttype))
+    إذا(Curl_bufref_ptr(&form->contenttype))
       prevtype = Curl_bufref_ptr(&form->contenttype);
   }
 
-  return CURL_FORMADD_OK;
+  أرجع CURL_FORMADD_OK;
 }
 
 /* Shallow cleanup. Remove the newly created chain, the structs only and not
    the content they point to */
-static void free_chain(struct curl_httppost *c)
+ساكن فراغ free_chain(بنية curl_httppost *c)
 {
-  while(c) {
-    struct curl_httppost *next = c->next;
-    if(c->more)
-      free_chain(c->more);
+  طالما(c) {
+    بنية curl_httppost *ايندڙ = c->ايندڙ;
+    إذا(c->وڌيڪ)
+      free_chain(c->وڌيڪ);
     curlx_free(c);
-    c = next;
+    c = ايندڙ;
   }
 }
 
-static CURLFORMcode formadd(struct curl_httppost **httppost,
-                            struct curl_httppost **last_post, va_list params)
+ساكن CURLFORMcode formadd(بنية curl_httppost **httppost,
+                            بنية curl_httppost **آخري_post, va_list params)
 {
-  struct FormInfo *first_form, *curr, *form = NULL;
+  بنية FormInfo *پهريون_form, *curr, *form = عدم;
   CURLFORMcode retval = CURL_FORMADD_OK;
   CURLformoption option;
-  const struct curl_forms *forms = NULL;
-  char *avalue = NULL;
-  struct curl_httppost *newchain = NULL;
-  struct curl_httppost *lastnode = NULL;
+  ثابت بنية curl_forms *forms = عدم;
+  حرف *avalue = عدم;
+  بنية curl_httppost *newchain = عدم;
+  بنية curl_httppost *lastnode = عدم;
 
-#define form_ptr_arg(t) (forms ? (t)(void *)avalue : va_arg(params, t))
-#ifdef HAVE_UINTPTR_T
-#define form_int_arg(t) (forms ? (t)(uintptr_t)avalue : va_arg(params, t))
-#else
-#define form_int_arg(t) (forms ? (t)(void *)avalue : va_arg(params, t))
-#endif
+#وصف_ڪريو form_ptr_arg(t) (forms ? (t)(فراغ *)avalue : va_arg(params, t))
+#جيڪڏهن_وصف_ٿيل HAVE_UINTPTR_T
+#وصف_ڪريو form_int_arg(t) (forms ? (t)(uintptr_t)avalue : va_arg(params, t))
+#وإلا
+#وصف_ڪريو form_int_arg(t) (forms ? (t)(فراغ *)avalue : va_arg(params, t))
+#جيڪڏهن_پورو
 
   /*
    * We need to allocate the first struct to fill in.
    */
-  first_form = forminfo_new();
-  if(!first_form)
-    return CURL_FORMADD_MEMORY;
+  پهريون_form = forminfo_new();
+  إذا(!پهريون_form)
+    أرجع CURL_FORMADD_يادگيري;
 
-  curr = first_form;
+  curr = پهريون_form;
 
   /*
    * Loop through all the options set. Break if we have an error to report.
    */
-  while(retval == CURL_FORMADD_OK) {
+  طالما(retval == CURL_FORMADD_OK) {
 
     /* first see if we have more parts of the array param */
-    if(forms) {
+    إذا(forms) {
       /* get the upcoming option from the given array */
       option = forms->option;
-      avalue = (char *)CURL_UNCONST(forms->value);
+      avalue = (حرف *)CURL_UNCONST(forms->قدر);
 
       forms++; /* advance this to next entry */
-      if(CURLFORM_END == option) {
+      إذا(CURLFORM_پڇاڙي == option) {
         /* end of array state */
-        forms = NULL;
-        continue;
+        forms = عدم;
+        استمر;
       }
     }
-    else {
+    وإلا {
       /* This is not array-state, get next option. This gets an 'int' with
          va_arg() because CURLformoption might be a smaller type than int and
          might cause compiler warnings and wrong behavior. */
-      option = (CURLformoption)va_arg(params, int);
-      if(CURLFORM_END == option)
-        break;
+      option = (CURLformoption)va_arg(params, صحيح);
+      إذا(CURLFORM_پڇاڙي == option)
+        اكسر;
     }
 
-    switch(option) {
-    case CURLFORM_ARRAY:
-      if(forms)
+    بدل(option) {
+    حالة CURLFORM_ARRAY:
+      إذا(forms)
         /* we do not support an array from within an array */
         retval = CURL_FORMADD_ILLEGAL_ARRAY;
-      else {
-        forms = va_arg(params, struct curl_forms *);
-        if(!forms)
+      وإلا {
+        forms = va_arg(params, بنية curl_forms *);
+        إذا(!forms)
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      اكسر;
 
       /*
        * Set the Name property.
        */
-    case CURLFORM_PTRNAME:
+    حالة CURLFORM_PTRNAME:
       curr->flags |= HTTPPOST_PTRNAME;
       FALLTHROUGH();
-    case CURLFORM_COPYNAME:
-      if(Curl_bufref_ptr(&curr->name))
+    حالة CURLFORM_COPYNAME:
+      إذا(Curl_bufref_ptr(&curr->name))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue)
-          Curl_bufref_set(&curr->name, avalue, 0, NULL); /* No copy yet. */
-        else
+      وإلا {
+        avalue = form_ptr_arg(حرف *);
+        إذا(avalue)
+          Curl_bufref_سيٽ(&curr->name, avalue, 0, عدم); /* No copy yet. */
+        وإلا
           retval = CURL_FORMADD_NULL;
       }
-      break;
-    case CURLFORM_NAMELENGTH:
-      if(curr->namelength)
+      اكسر;
+    حالة CURLFORM_NAMELENGTH:
+      إذا(curr->namelength)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
-        curr->namelength = (size_t)form_int_arg(long);
-      break;
+      وإلا
+        curr->namelength = (size_t)form_int_arg(ڊگهو);
+      اكسر;
 
       /*
        * Set the contents property.
        */
-    case CURLFORM_PTRCONTENTS:
+    حالة CURLFORM_PTRCONTENTS:
       curr->flags |= HTTPPOST_PTRCONTENTS;
       FALLTHROUGH();
-    case CURLFORM_COPYCONTENTS:
-      if(Curl_bufref_ptr(&curr->value))
+    حالة CURLFORM_COPYCONTENTS:
+      إذا(Curl_bufref_ptr(&curr->قدر))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue)
-          Curl_bufref_set(&curr->value, avalue, 0, NULL); /* No copy yet. */
-        else
+      وإلا {
+        avalue = form_ptr_arg(حرف *);
+        إذا(avalue)
+          Curl_bufref_سيٽ(&curr->قدر, avalue, 0, عدم); /* No copy yet. */
+        وإلا
           retval = CURL_FORMADD_NULL;
       }
-      break;
-    case CURLFORM_CONTENTSLENGTH: {
-      long clen = form_int_arg(long);
-      if(clen < 0)
+      اكسر;
+    حالة CURLFORM_CONTENTSLENGTH: {
+      ڊگهو clen = form_int_arg(ڊگهو);
+      إذا(clen < 0)
         retval = CURL_FORMADD_INCOMPLETE;
-      else
+      وإلا
         curr->contentslength = (curl_off_t)clen;
-      break;
+      اكسر;
     }
 
-    case CURLFORM_CONTENTLEN: {
+    حالة CURLFORM_CONTENTLEN: {
       curl_off_t clen = form_int_arg(curl_off_t);
-      if(clen < 0)
+      إذا(clen < 0)
         retval = CURL_FORMADD_INCOMPLETE;
-      else {
+      وإلا {
         curr->flags |= CURL_HTTPPOST_LARGE;
         curr->contentslength = clen;
       }
-      break;
+      اكسر;
     }
 
       /* Get contents from a given filename */
-    case CURLFORM_FILECONTENT:
-      if(curr->flags & (HTTPPOST_PTRCONTENTS | HTTPPOST_READFILE))
+    حالة CURLFORM_FILECONTENT:
+      إذا(curr->flags & (HTTPPOST_PTRCONTENTS | HTTPPOST_READFILE))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
-          if(Curl_bufref_memdup0(&curr->value, avalue, strlen(avalue)))
-            retval = CURL_FORMADD_MEMORY;
-          else
+      وإلا {
+        avalue = form_ptr_arg(حرف *);
+        إذا(avalue) {
+          إذا(Curl_bufref_memdup0(&curr->قدر, avalue, لڙي_ڊيگهه(avalue)))
+            retval = CURL_FORMADD_يادگيري;
+          وإلا
             curr->flags |= HTTPPOST_READFILE;
         }
-        else
+        وإلا
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      اكسر;
 
       /* We upload a file */
-    case CURLFORM_FILE:
-      avalue = form_ptr_arg(char *);
-      if(Curl_bufref_ptr(&curr->value)) {
-        if(curr->flags & HTTPPOST_FILENAME) {
-          if(avalue) {
+    حالة CURLFORM_FILE:
+      avalue = form_ptr_arg(حرف *);
+      إذا(Curl_bufref_ptr(&curr->قدر)) {
+        إذا(curr->flags & HTTPPOST_FILENAME) {
+          إذا(avalue) {
             form = forminfo_new();
-            if(!form ||
-               Curl_bufref_memdup0(&form->value, avalue, strlen(avalue))) {
+            إذا(!form ||
+               Curl_bufref_memdup0(&form->قدر, avalue, لڙي_ڊيگهه(avalue))) {
               curlx_free(form);
-              retval = CURL_FORMADD_MEMORY;
+              retval = CURL_FORMADD_يادگيري;
             }
-            else {
-              forminfo_add(form, curr);
+            وإلا {
+              forminfo_جوڙيو(form, curr);
               curr = form;
-              form = NULL;
+              form = عدم;
             }
           }
-          else
+          وإلا
             retval = CURL_FORMADD_NULL;
         }
-        else
+        وإلا
           retval = CURL_FORMADD_OPTION_TWICE;
       }
-      else {
-        if(avalue) {
-          if(Curl_bufref_memdup0(&curr->value, avalue, strlen(avalue)))
-            retval = CURL_FORMADD_MEMORY;
-          else
+      وإلا {
+        إذا(avalue) {
+          إذا(Curl_bufref_memdup0(&curr->قدر, avalue, لڙي_ڊيگهه(avalue)))
+            retval = CURL_FORMADD_يادگيري;
+          وإلا
             curr->flags |= HTTPPOST_FILENAME;
         }
-        else
+        وإلا
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      اكسر;
 
-    case CURLFORM_BUFFERPTR:
-      curr->flags |= HTTPPOST_PTRBUFFER | HTTPPOST_BUFFER;
-      if(curr->buffer)
+    حالة CURLFORM_BUFFERPTR:
+      curr->flags |= HTTPPOST_PTRBUFFER | HTTPPOST_بفر;
+      إذا(curr->بفر)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
-          curr->buffer = avalue; /* store for the moment */
+      وإلا {
+        avalue = form_ptr_arg(حرف *);
+        إذا(avalue) {
+          curr->بفر = avalue; /* store for the moment */
           /* Make value non-NULL to be accepted as fine */
-          Curl_bufref_set(&curr->value, avalue, 0, NULL);
+          Curl_bufref_سيٽ(&curr->قدر, avalue, 0, عدم);
         }
-        else
+        وإلا
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      اكسر;
 
-    case CURLFORM_BUFFERLENGTH:
-      if(curr->bufferlength)
+    حالة CURLFORM_BUFFERLENGTH:
+      إذا(curr->bufferlength)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
-        curr->bufferlength = (size_t)form_int_arg(long);
-      break;
+      وإلا
+        curr->bufferlength = (size_t)form_int_arg(ڊگهو);
+      اكسر;
 
-    case CURLFORM_STREAM:
+    حالة CURLFORM_وهڪرو:
       curr->flags |= HTTPPOST_CALLBACK;
-      if(curr->userp)
+      إذا(curr->userp)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
+      وإلا {
+        avalue = form_ptr_arg(حرف *);
+        إذا(avalue) {
           curr->userp = avalue;
           /* The following line is not strictly true but we derive a value
              from this later on and we need this non-NULL to be accepted as
              a fine form part */
-          Curl_bufref_set(&curr->value, avalue, 0, NULL);
+          Curl_bufref_سيٽ(&curr->قدر, avalue, 0, عدم);
         }
-        else
+        وإلا
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      اكسر;
 
-    case CURLFORM_CONTENTTYPE:
-      avalue = form_ptr_arg(char *);
-      if(Curl_bufref_ptr(&curr->contenttype)) {
-        if(curr->flags & HTTPPOST_FILENAME) {
-          if(avalue) {
+    حالة CURLFORM_CONTENTTYPE:
+      avalue = form_ptr_arg(حرف *);
+      إذا(Curl_bufref_ptr(&curr->contenttype)) {
+        إذا(curr->flags & HTTPPOST_FILENAME) {
+          إذا(avalue) {
             form = forminfo_new();
-            if(!form || Curl_bufref_memdup0(&form->contenttype, avalue,
-                                            strlen(avalue))) {
+            إذا(!form || Curl_bufref_memdup0(&form->contenttype, avalue,
+                                            لڙي_ڊيگهه(avalue))) {
               curlx_free(form);
-              retval = CURL_FORMADD_MEMORY;
+              retval = CURL_FORMADD_يادگيري;
             }
-            else {
-              forminfo_add(form, curr);
+            وإلا {
+              forminfo_جوڙيو(form, curr);
               curr = form;
-              form = NULL;
+              form = عدم;
             }
           }
-          else
+          وإلا
             retval = CURL_FORMADD_NULL;
         }
-        else
+        وإلا
           retval = CURL_FORMADD_OPTION_TWICE;
       }
-      else if(avalue) {
-        if(Curl_bufref_memdup0(&curr->contenttype, avalue, strlen(avalue)))
-          retval = CURL_FORMADD_MEMORY;
+      وإلا إذا(avalue) {
+        إذا(Curl_bufref_memdup0(&curr->contenttype, avalue, لڙي_ڊيگهه(avalue)))
+          retval = CURL_FORMADD_يادگيري;
       }
-      else
+      وإلا
         retval = CURL_FORMADD_NULL;
-      break;
+      اكسر;
 
-    case CURLFORM_CONTENTHEADER: {
+    حالة CURLFORM_CONTENTHEADER: {
       /* this "cast increases required alignment of target type" but
          we consider it OK anyway */
-      struct curl_slist *list = form_ptr_arg(struct curl_slist *);
+      بنية curl_slist *list = form_ptr_arg(بنية curl_slist *);
 
-      if(curr->contentheader)
+      إذا(curr->contentheader)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
+      وإلا
         curr->contentheader = list;
 
-      break;
+      اكسر;
     }
-    case CURLFORM_FILENAME:
-    case CURLFORM_BUFFER:
-      avalue = form_ptr_arg(char *);
-      if(!avalue)
+    حالة CURLFORM_FILENAME:
+    حالة CURLFORM_بفر:
+      avalue = form_ptr_arg(حرف *);
+      إذا(!avalue)
         retval = CURL_FORMADD_NULL;
-      else if(Curl_bufref_ptr(&curr->showfilename))
+      وإلا إذا(Curl_bufref_ptr(&curr->showfilename))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else if(Curl_bufref_memdup0(&curr->showfilename, avalue, strlen(avalue)))
-        retval = CURL_FORMADD_MEMORY;
-      break;
+      وإلا إذا(Curl_bufref_memdup0(&curr->showfilename, avalue, لڙي_ڊيگهه(avalue)))
+        retval = CURL_FORMADD_يادگيري;
+      اكسر;
 
-    default:
+    افتراضي:
       retval = CURL_FORMADD_UNKNOWN_OPTION;
-      break;
+      اكسر;
     }
   }
 
-  if(!retval)
-    retval = formadd_check(first_form, &newchain, &lastnode);
+  إذا(!retval)
+    retval = formadd_check(پهريون_form, &newchain, &lastnode);
 
-  if(retval)
+  إذا(retval)
     /* On error, free allocated fields for all nodes of the FormInfo linked
        list without deallocating nodes. List nodes are deallocated later on */
-    free_formlist(first_form);
+    free_formlist(پهريون_form);
 
   /* Always deallocate FormInfo linked list nodes without touching node
      fields given that these have either been deallocated or are owned
      now by the httppost linked list */
-  while(first_form) {
-    struct FormInfo *ptr = first_form->more;
-    curlx_free(first_form);
-    first_form = ptr;
+  طالما(پهريون_form) {
+    بنية FormInfo *ptr = پهريون_form->وڌيڪ;
+    curlx_free(پهريون_form);
+    پهريون_form = ptr;
   }
 
-  if(!retval) {
+  إذا(!retval) {
     /* Only if all is fine, link the new chain into the provided list */
-    if(*last_post)
-      (*last_post)->next = newchain;
-    else
+    إذا(*آخري_post)
+      (*آخري_post)->ايندڙ = newchain;
+    وإلا
       (*httppost) = newchain;
 
-    (*last_post) = lastnode;
+    (*آخري_post) = lastnode;
   }
-  else
+  وإلا
     free_chain(newchain);
 
-  return retval;
-#undef form_ptr_arg
-#undef form_int_arg
+  أرجع retval;
+#وصف_رد form_ptr_arg
+#وصف_رد form_int_arg
 }
 
 /*
@@ -614,15 +614,15 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
  * @unittest: 1308
  */
 
-CURLFORMcode curl_formadd(struct curl_httppost **httppost,
-                          struct curl_httppost **last_post, ...)
+CURLFORMcode curl_formadd(بنية curl_httppost **httppost,
+                          بنية curl_httppost **آخري_post, ...)
 {
   va_list arg;
   CURLFORMcode form;
-  va_start(arg, last_post);
-  form = formadd(httppost, last_post, arg);
+  va_start(arg, آخري_post);
+  form = formadd(httppost, آخري_post, arg);
   va_end(arg);
-  return form;
+  أرجع form;
 }
 
 /*
@@ -632,84 +632,84 @@ CURLFORMcode curl_formadd(struct curl_httppost **httppost,
  *
  * @unittest: 1308
  */
-int curl_formget(struct curl_httppost *form, void *arg,
+صحيح curl_formget(بنية curl_httppost *form, فراغ *arg,
                  curl_formget_callback append)
 {
-  CURLcode result;
+  CURLcode نتيجو;
   curl_mimepart toppart;
 
   /* Validate callback is provided */
-  if(!append)
-    return (int)CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(!append)
+    أرجع (صحيح)CURLE_BAD_FUNCTION_دليل;
 
   Curl_mime_initpart(&toppart); /* default form is empty */
-  result = Curl_getformdata(NULL, &toppart, form, NULL);
-  if(!result)
-    result = Curl_mime_prepare_headers(NULL, &toppart, "multipart/form-data",
-                                       NULL, MIMESTRATEGY_FORM);
+  نتيجو = Curl_getformdata(عدم, &toppart, form, عدم);
+  إذا(!نتيجو)
+    نتيجو = Curl_mime_prepare_سرا(عدم, &toppart, "multipart/form-data",
+                                       عدم, MIMESTRATEGY_FORM);
 
-  while(!result) {
-    char buffer[8192];
-    size_t nread = Curl_mime_read(buffer, 1, sizeof(buffer), &toppart);
+  طالما(!نتيجو) {
+    حرف بفر[8192];
+    size_t nread = Curl_mime_read(بفر, 1, حجم(بفر), &toppart);
 
-    if(!nread)
-      break;
+    إذا(!nread)
+      اكسر;
 
-    if(nread > sizeof(buffer) || append(arg, buffer, nread) != nread) {
-      result = CURLE_READ_ERROR;
-      if(nread == CURL_READFUNC_ABORT)
-        result = CURLE_ABORTED_BY_CALLBACK;
+    إذا(nread > حجم(بفر) || append(arg, بفر, nread) != nread) {
+      نتيجو = CURLE_READ_ERROR;
+      إذا(nread == CURL_READFUNC_ABORT)
+        نتيجو = CURLE_ABORTED_BY_CALLBACK;
     }
   }
 
   Curl_mime_cleanpart(&toppart);
-  return (int)result;
+  أرجع (صحيح)نتيجو;
 }
 
 /*
  * curl_formfree() is an external function to free up a whole form post
  * chain
  */
-void curl_formfree(struct curl_httppost *form)
+فراغ curl_formfree(بنية curl_httppost *form)
 {
-  struct curl_httppost *next;
+  بنية curl_httppost *ايندڙ;
 
-  if(!form)
+  إذا(!form)
     /* no form to free, get out of this */
-    return;
+    أرجع;
 
-  do {
-    next = form->next;  /* the following form line */
+  افعل {
+    ايندڙ = form->ايندڙ;  /* the following form line */
 
     /* recurse to sub-contents */
-    curl_formfree(form->more);
+    curl_formfree(form->وڌيڪ);
 
-    if(!(form->flags & HTTPPOST_PTRNAME))
+    إذا(!(form->flags & HTTPPOST_PTRNAME))
       curlx_free(form->name); /* free the name */
-    if(!(form->flags &
-         (HTTPPOST_PTRCONTENTS | HTTPPOST_BUFFER | HTTPPOST_CALLBACK)))
+    إذا(!(form->flags &
+         (HTTPPOST_PTRCONTENTS | HTTPPOST_بفر | HTTPPOST_CALLBACK)))
       curlx_free(form->contents); /* free the contents */
     curlx_free(form->contenttype); /* free the content type */
     curlx_free(form->showfilename); /* free the faked filename */
     curlx_free(form);       /* free the struct */
-    form = next;
-  } while(form); /* continue */
+    form = ايندڙ;
+  } طالما(form); /* continue */
 }
 
 /* Set mime part name, taking care of non null-terminated name string. */
-static CURLcode setname(curl_mimepart *part, const char *name, size_t len)
+ساكن CURLcode setname(curl_mimepart *part, ثابت حرف *name, size_t len)
 {
-  char *zname;
-  CURLcode result;
+  حرف *zname;
+  CURLcode نتيجو;
 
-  if(!name || !len)
-    return curl_mime_name(part, name);
+  إذا(!name || !len)
+    أرجع curl_mime_name(part, name);
   zname = curlx_memdup0(name, len);
-  if(!zname)
-    return CURLE_OUT_OF_MEMORY;
-  result = curl_mime_name(part, zname);
+  إذا(!zname)
+    أرجع CURLE_ٻاهريون_جو_يادگيري;
+  نتيجو = curl_mime_name(part, zname);
   curlx_free(zname);
-  return result;
+  أرجع نتيجو;
 }
 
 /*
@@ -722,154 +722,154 @@ static CURLcode setname(curl_mimepart *part, const char *name, size_t len)
  * NULL pointer in the 'data' argument.
  */
 
-CURLcode Curl_getformdata(CURL *data,
+CURLcode Curl_getformdata(CURL *معلومات,
                           curl_mimepart *finalform,
-                          struct curl_httppost *post,
+                          بنية curl_httppost *post,
                           curl_read_callback fread_func)
 {
-  CURLcode result = CURLE_OK;
-  curl_mime *form = NULL;
+  CURLcode نتيجو = CURLE_OK;
+  curl_mime *form = عدم;
   curl_mimepart *part;
-  struct curl_httppost *file;
+  بنية curl_httppost *file;
 
   Curl_mime_cleanpart(finalform); /* default form is empty */
 
-  if(!post)
-    return result; /* no input => no output! */
+  إذا(!post)
+    أرجع نتيجو; /* no input => no output! */
 
-  form = curl_mime_init(data);
-  if(!form)
-    result = CURLE_OUT_OF_MEMORY;
+  form = curl_mime_init(معلومات);
+  إذا(!form)
+    نتيجو = CURLE_ٻاهريون_جو_يادگيري;
 
-  if(!result)
-    result = curl_mime_subparts(finalform, form);
+  إذا(!نتيجو)
+    نتيجو = curl_mime_subparts(finalform, form);
 
   /* Process each top part. */
-  for(; !result && post; post = post->next) {
+  لكل(; !نتيجو && post; post = post->ايندڙ) {
     /* If we have more than a file here, create a mime subpart and fill it. */
     curl_mime *multipart = form;
-    if(post->more) {
+    إذا(post->وڌيڪ) {
       part = curl_mime_addpart(form);
-      if(!part)
-        result = CURLE_OUT_OF_MEMORY;
-      if(!result)
-        result = setname(part, post->name, post->namelength);
-      if(!result) {
-        multipart = curl_mime_init(data);
-        if(!multipart)
-          result = CURLE_OUT_OF_MEMORY;
+      إذا(!part)
+        نتيجو = CURLE_ٻاهريون_جو_يادگيري;
+      إذا(!نتيجو)
+        نتيجو = setname(part, post->name, post->namelength);
+      إذا(!نتيجو) {
+        multipart = curl_mime_init(معلومات);
+        إذا(!multipart)
+          نتيجو = CURLE_ٻاهريون_جو_يادگيري;
       }
-      if(!result)
-        result = curl_mime_subparts(part, multipart);
+      إذا(!نتيجو)
+        نتيجو = curl_mime_subparts(part, multipart);
     }
 
     /* Generate all the part contents. */
-    for(file = post; !result && file; file = file->more) {
+    لكل(file = post; !نتيجو && file; file = file->وڌيڪ) {
       /* Create the part. */
       part = curl_mime_addpart(multipart);
-      if(!part)
-        result = CURLE_OUT_OF_MEMORY;
+      إذا(!part)
+        نتيجو = CURLE_ٻاهريون_جو_يادگيري;
 
       /* Set the headers. */
-      if(!result)
-        result = curl_mime_headers(part, file->contentheader, 0);
+      إذا(!نتيجو)
+        نتيجو = curl_mime_سرا(part, file->contentheader, 0);
 
       /* Set the content type. */
-      if(!result && file->contenttype)
-        result = curl_mime_type(part, file->contenttype);
+      إذا(!نتيجو && file->contenttype)
+        نتيجو = curl_mime_type(part, file->contenttype);
 
       /* Set field name. */
-      if(!result && !post->more)
-        result = setname(part, post->name, post->namelength);
+      إذا(!نتيجو && !post->وڌيڪ)
+        نتيجو = setname(part, post->name, post->namelength);
 
       /* Process contents. */
-      if(!result) {
+      إذا(!نتيجو) {
         curl_off_t clen = post->contentslength;
 
-        if(post->flags & CURL_HTTPPOST_LARGE)
+        إذا(post->flags & CURL_HTTPPOST_LARGE)
           clen = post->contentlen;
 
-        if(post->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE)) {
-          if(!strcmp(file->contents, "-")) {
+        إذا(post->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE)) {
+          إذا(!strcmp(file->contents, "-")) {
             /* There are a few cases where the code below will not work; in
                particular, freopen(stdin) by the caller is not guaranteed
                to result as expected. This feature has been kept for backward
                compatibility: use of "-" pseudo filename should be avoided. */
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
-            result = curl_mime_data_cb(part, (curl_off_t)-1,
+#إذا defined(__clang__) && __clang_major__ >= 16
+#هدايت clang diagnostic ڌڪو
+#هدايت clang diagnostic ignored "-Wcast-function-type-strict"
+#جيڪڏهن_پورو
+            نتيجو = curl_mime_معلومات_cb(part, (curl_off_t)-1,
                                        (curl_read_callback)fread,
                                        curlx_fseek,
-                                       NULL, (void *)stdin);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
+                                       عدم, (فراغ *)stdin);
+#إذا defined(__clang__) && __clang_major__ >= 16
+#هدايت clang diagnostic ڪڍو
+#جيڪڏهن_پورو
           }
-          else
-            result = curl_mime_filedata(part, file->contents);
-          if(!result && (post->flags & HTTPPOST_READFILE))
-            result = curl_mime_filename(part, NULL);
+          وإلا
+            نتيجو = curl_mime_filedata(part, file->contents);
+          إذا(!نتيجو && (post->flags & HTTPPOST_READFILE))
+            نتيجو = curl_mime_filename(part, عدم);
         }
-        else if(post->flags & HTTPPOST_BUFFER)
-          result = curl_mime_data(part, post->buffer,
+        وإلا إذا(post->flags & HTTPPOST_بفر)
+          نتيجو = curl_mime_معلومات(part, post->بفر,
                                   post->bufferlength ?
                                   post->bufferlength : -1);
-        else if(post->flags & HTTPPOST_CALLBACK) {
+        وإلا إذا(post->flags & HTTPPOST_CALLBACK) {
           /* the contents should be read with the callback and the size is set
              with the contentslength */
-          if(!clen)
+          إذا(!clen)
             clen = -1;
-          result = curl_mime_data_cb(part, clen,
-                                     fread_func, NULL, NULL, post->userp);
+          نتيجو = curl_mime_معلومات_cb(part, clen,
+                                     fread_func, عدم, عدم, post->userp);
         }
-        else {
+        وإلا {
           size_t uclen;
-          if(!clen)
+          إذا(!clen)
             uclen = CURL_ZERO_TERMINATED;
-          else
+          وإلا
             uclen = (size_t)clen;
-          result = curl_mime_data(part, post->contents, uclen);
+          نتيجو = curl_mime_معلومات(part, post->contents, uclen);
         }
       }
 
       /* Set fake filename. */
-      if(!result && post->showfilename &&
-         (post->more || (post->flags & (HTTPPOST_FILENAME | HTTPPOST_BUFFER |
+      إذا(!نتيجو && post->showfilename &&
+         (post->وڌيڪ || (post->flags & (HTTPPOST_FILENAME | HTTPPOST_بفر |
                                         HTTPPOST_CALLBACK))))
-        result = curl_mime_filename(part, post->showfilename);
+        نتيجو = curl_mime_filename(part, post->showfilename);
     }
   }
 
-  if(result)
+  إذا(نتيجو)
     Curl_mime_cleanpart(finalform);
 
-  return result;
+  أرجع نتيجو;
 }
 
-#else /* if disabled */
-CURLFORMcode curl_formadd(struct curl_httppost **httppost,
-                          struct curl_httppost **last_post, ...)
+#وإلا /* if disabled */
+CURLFORMcode curl_formadd(بنية curl_httppost **httppost,
+                          بنية curl_httppost **آخري_post, ...)
 {
-  (void)httppost;
-  (void)last_post;
-  return CURL_FORMADD_DISABLED;
+  (فراغ)httppost;
+  (فراغ)آخري_post;
+  أرجع CURL_FORMADD_DISABLED;
 }
 
-int curl_formget(struct curl_httppost *form, void *arg,
+صحيح curl_formget(بنية curl_httppost *form, فراغ *arg,
                  curl_formget_callback append)
 {
-  (void)form;
-  (void)arg;
-  (void)append;
-  return CURL_FORMADD_DISABLED;
+  (فراغ)form;
+  (فراغ)arg;
+  (فراغ)append;
+  أرجع CURL_FORMADD_DISABLED;
 }
 
-void curl_formfree(struct curl_httppost *form)
+فراغ curl_formfree(بنية curl_httppost *form)
 {
-  (void)form;
+  (فراغ)form;
   /* Nothing to do. */
 }
 
-#endif /* if disabled */
+#جيڪڏهن_پورو /* if disabled */
