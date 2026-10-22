@@ -21,12 +21,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাৱ "curl_setup.h"
 
-#include <stddef.h> /* for offsetof() */
+#অন্তর্ভাৱ <stddef.h> /* for offsetof() */
 
-#include "hash.h"
-#include "rand.h"
+#অন্তর্ভাৱ "hash.h"
+#অন্তর্ভাৱ "rand.h"
 
 /* random patterns for API verification */
 #ifdef DEBUGBUILD
@@ -35,169 +35,169 @@
 #endif
 
 
-typedef size_t (*hash_function)(const void *key,
-                                size_t key_length,
-                                size_t slots_num);
+প্রকারনির্দেশ size_t (*hash_function)(ধ্রুৱ শূন্য *চাবি,
+                                size_t চাবি_length,
+                                size_t slots_অঙ্ক);
 
-typedef size_t (*comp_function)(const void *key1,
+প্রকারনির্দেশ size_t (*comp_function)(ধ্রুৱ শূন্য *key1,
                                 size_t key1_len,
-                                const void *key2,
+                                ধ্রুৱ শূন্য *key2,
                                 size_t key2_len);
 
 /* Curl_hash stores its type in a uint8_t. */
-typedef char hash_types_fit_uint8[
+প্রকারনির্দেশ ৱর্ণ hash_types_fit_uint8[
   ((CURL_HASH_TYPE_LAST - 1) <= UINT8_MAX) ? 1 : -1];
 
-struct hash_functions {
+সংরচনা hash_functions {
   hash_function hash;
   comp_function compare;
 };
 
 /* set at global init, read-only afterwards */
-static size_t hash_seed;
+স্থির size_t hash_seed;
 
-CURLcode Curl_hash_global_init(void)
+CURLcode Curl_hash_global_init(শূন্য)
 {
-  static bool seeded;
-  unsigned char buf[sizeof(size_t)];
+  স্থির bool seeded;
+  unsigned ৱর্ণ buf[পরিমাণ(size_t)];
   size_t seed = 0;
   size_t i;
   CURLcode result;
 
-  if(seeded)
-    return CURLE_OK;
+  যদি(seeded)
+    ঘূৰাই CURLE_OK;
 
-  result = Curl_rand_bytes(NULL,
+  result = Curl_rand_bytes(রিক্ত,
 #ifdef DEBUGBUILD
                            FALSE,
 #endif
-                           buf, sizeof(buf));
-  if(result)
-    return result;
+                           buf, পরিমাণ(buf));
+  যদি(result)
+    ঘূৰাই result;
 
-  for(i = 0; i < sizeof(buf); i++)
+  বাবে(i = 0; i < পরিমাণ(buf); i++)
     seed = (seed << 8) | buf[i];
 
   hash_seed = seed ? seed : 1;
   seeded = TRUE;
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
 /* @unittest 1603
  */
-UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
-                                size_t slots_num, size_t seed);
-UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
-                                size_t slots_num, size_t seed)
+UNITTEST size_t hash_str_seeded(ধ্রুৱ শূন্য *চাবি, size_t চাবি_length,
+                                size_t slots_অঙ্ক, size_t seed);
+UNITTEST size_t hash_str_seeded(ধ্রুৱ শূন্য *চাবি, size_t চাবি_length,
+                                size_t slots_অঙ্ক, size_t seed)
 {
-  const char *key_str = (const char *)key;
-  const char *end = key_str + key_length;
+  ধ্রুৱ ৱর্ণ *চাবি_str = (ধ্রুৱ ৱর্ণ *)চাবি;
+  ধ্রুৱ ৱর্ণ *end = চাবি_str + চাবি_length;
   size_t h = 5381 ^ seed;
 
-  while(key_str < end) {
-    size_t j = (size_t)*key_str++;
+  যেতিয়ালৈ(চাবি_str < end) {
+    size_t j = (size_t)*চাবি_str++;
     h += h << 5;
     h ^= j;
   }
 
-  return (h % slots_num);
+  ঘূৰাই (h % slots_অঙ্ক);
 }
 
 /* @unittest 1603
  */
-UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num);
-UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num)
+UNITTEST size_t hash_str(ধ্রুৱ শূন্য *চাবি, size_t চাবি_length, size_t slots_অঙ্ক);
+UNITTEST size_t hash_str(ধ্রুৱ শূন্য *চাবি, size_t চাবি_length, size_t slots_অঙ্ক)
 {
-  return hash_str_seeded(key, key_length, slots_num, hash_seed);
+  ঘূৰাই hash_str_seeded(চাবি, চাবি_length, slots_অঙ্ক, hash_seed);
 }
 
 /* Avoid treating the variable-length key[1] as a one-byte object. */
-static char *hash_elem_key(struct Curl_hash_element *he)
+স্থির ৱর্ণ *hash_elem_চাবি(সংরচনা Curl_hash_element *he)
 {
-  return (char *)he + offsetof(struct Curl_hash_element, key);
+  ঘূৰাই (ৱর্ণ *)he + offsetof(সংরচনা Curl_hash_element, চাবি);
 }
 
-static size_t hash_socket(const void *key, size_t key_length,
-                          size_t slots_num)
+স্থির size_t hash_socket(ধ্রুৱ শূন্য *চাবি, size_t চাবি_length,
+                          size_t slots_অঙ্ক)
 {
   curl_socket_t socket;
 
-  DEBUGASSERT(key_length == sizeof(socket));
-  if(key_length != sizeof(socket))
-    return 0;
-  memcpy(&socket, key, sizeof(socket));
-  return (size_t)(socket % (curl_socket_t)slots_num);
+  DEBUGASSERT(চাবি_length == পরিমাণ(socket));
+  যদি(চাবি_length != পরিমাণ(socket))
+    ঘূৰাই 0;
+  memcpy(&socket, চাবি, পরিমাণ(socket));
+  ঘূৰাই (size_t)(socket % (curl_socket_t)slots_অঙ্ক);
 }
 
-static size_t compare_socket(const void *key1, size_t key1_len,
-                             const void *key2, size_t key2_len)
+স্থির size_t compare_socket(ধ্রুৱ শূন্য *key1, size_t key1_len,
+                             ধ্রুৱ শূন্য *key2, size_t key2_len)
 {
   curl_socket_t socket1;
   curl_socket_t socket2;
 
-  if((key1_len != sizeof(socket1)) || (key2_len != sizeof(socket2)))
-    return 0;
-  memcpy(&socket1, key1, sizeof(socket1));
-  memcpy(&socket2, key2, sizeof(socket2));
-  return socket1 == socket2;
+  যদি((key1_len != পরিমাণ(socket1)) || (key2_len != পরিমাণ(socket2)))
+    ঘূৰাই 0;
+  memcpy(&socket1, key1, পরিমাণ(socket1));
+  memcpy(&socket2, key2, পরিমাণ(socket2));
+  ঘূৰাই socket1 == socket2;
 }
 
-static size_t compare_bytes(const void *key1, size_t key1_len,
-                            const void *key2, size_t key2_len)
+স্থির size_t compare_bytes(ধ্রুৱ শূন্য *key1, size_t key1_len,
+                            ধ্রুৱ শূন্য *key2, size_t key2_len)
 {
-  return (key1_len == key2_len) && !memcmp(key1, key2, key1_len);
+  ঘূৰাই (key1_len == key2_len) && !memcmp(key1, key2, key1_len);
 }
 
-static const struct hash_functions hash_functions[] = {
+স্থির ধ্রুৱ সংরচনা hash_functions hash_functions[] = {
   { hash_str, compare_bytes },
   { hash_socket, compare_socket }
 };
 
-static const struct hash_functions *hash_get_functions(uint8_t type)
+স্থির ধ্রুৱ সংরচনা hash_functions *hash_get_functions(uint8_t type)
 {
   DEBUGASSERT(CURL_ARRAYSIZE(hash_functions) == CURL_HASH_TYPE_LAST);
-  if((unsigned int)type >= CURL_HASH_TYPE_LAST)
+  যদি((unsigned পূর্ণাঙ্ক)type >= CURL_HASH_TYPE_LAST)
     type = CURL_HASH_TYPE_BYTES;
-  return &hash_functions[type];
+  ঘূৰাই &hash_functions[type];
 }
 
-static bool hash_key_is_valid(uint8_t type, size_t key_len)
+স্থির bool hash_চাবি_is_valid(uint8_t type, size_t চাবি_len)
 {
-  return (type == CURL_HASH_TYPE_BYTES) ||
+  ঘূৰাই (type == CURL_HASH_TYPE_BYTES) ||
     ((type == CURL_HASH_TYPE_SOCKET) &&
-     (key_len == sizeof(curl_socket_t)));
+     (চাবি_len == পরিমাণ(curl_socket_t)));
 }
 
-#if 0 /* useful function for debugging hashes and their contents */
-void Curl_hash_print(struct Curl_hash *h, void (*func)(void *))
+#যদি 0 /* useful function for debugging hashes and their contents */
+শূন্য Curl_hash_print(সংরচনা Curl_hash *h, শূন্য (*func)(শূন্য *))
 {
-  struct Curl_hash_iterator iter;
-  struct Curl_hash_element *he;
+  সংরচনা Curl_hash_iterator iter;
+  সংরচনা Curl_hash_element *he;
   size_t last_index = UINT_MAX;
 
-  if(!h)
-    return;
+  যদি(!h)
+    ঘূৰাই;
 
   curl_mfprintf(stderr, "=Hash dump=\n");
 
   Curl_hash_start_iterate(h, &iter);
 
   he = Curl_hash_next_element(&iter);
-  while(he) {
-    if(iter.slot_index != last_index) {
-      curl_mfprintf(stderr, "index %d:", (int)iter.slot_index);
-      if(last_index != UINT_MAX) {
+  যেতিয়ালৈ(he) {
+    যদি(iter.slot_index != last_index) {
+      curl_mfprintf(stderr, "index %d:", (পূর্ণাঙ্ক)iter.slot_index);
+      যদি(last_index != UINT_MAX) {
         curl_mfprintf(stderr, "\n");
       }
       last_index = iter.slot_index;
     }
 
-    if(func)
+    যদি(func)
       func(he->ptr);
-    else
+    অন্যথা
       curl_mfprintf(stderr, " [key=%.*s, he=%p, ptr=%p]",
-                    (int)he->key_len, hash_elem_key(he),
-                    (void *)he, (void *)he->ptr);
+                    (পূর্ণাঙ্ক)he->চাবি_len, hash_elem_চাবি(he),
+                    (শূন্য *)he, (শূন্য *)he->ptr);
 
     he = Curl_hash_next_element(&iter);
   }
@@ -210,17 +210,17 @@ void Curl_hash_print(struct Curl_hash *h, void (*func)(void *))
  * @unittest: 1602
  * @unittest: 1603
  */
-void Curl_hash_init(struct Curl_hash *h,
+শূন্য Curl_hash_init(সংরচনা Curl_hash *h,
                     size_t slots,
                     Curl_hash_type type,
                     Curl_hash_dtor dtor)
 {
   DEBUGASSERT(h);
   DEBUGASSERT(slots);
-  DEBUGASSERT((unsigned int)type < CURL_HASH_TYPE_LAST);
+  DEBUGASSERT((unsigned পূর্ণাঙ্ক)type < CURL_HASH_TYPE_LAST);
   DEBUGASSERT(dtor);
 
-  h->table = NULL;
+  h->table = রিক্ত;
   h->dtor = dtor;
   h->size = 0;
   h->slots = slots;
@@ -230,100 +230,100 @@ void Curl_hash_init(struct Curl_hash *h,
 #endif
 }
 
-static struct Curl_hash_element *hash_elem_create(const void *key,
-                                                  size_t key_len,
-                                                  void *p,
+স্থির সংরচনা Curl_hash_element *hash_elem_create(ধ্রুৱ শূন্য *চাবি,
+                                                  size_t চাবি_len,
+                                                  শূন্য *p,
                                                   Curl_hash_elem_dtor dtor)
 {
-  struct Curl_hash_element *he;
+  সংরচনা Curl_hash_element *he;
 
   /* allocate the struct plus memory after it to store the key */
-  he = curlx_malloc(sizeof(struct Curl_hash_element) + key_len);
-  if(he) {
-    he->next = NULL;
+  he = curlx_malloc(পরিমাণ(সংরচনা Curl_hash_element) + চাবি_len);
+  যদি(he) {
+    he->next = রিক্ত;
     /* copy the key */
-    memcpy(hash_elem_key(he), key, key_len);
-    he->key_len = key_len;
+    memcpy(hash_elem_চাবি(he), চাবি, চাবি_len);
+    he->চাবি_len = চাবি_len;
     he->ptr = p;
     he->dtor = dtor;
   }
-  return he;
+  ঘূৰাই he;
 }
 
-static void hash_elem_clear_ptr(struct Curl_hash *h,
-                                struct Curl_hash_element *he)
+স্থির শূন্য hash_elem_clear_ptr(সংরচনা Curl_hash *h,
+                                সংরচনা Curl_hash_element *he)
 {
   DEBUGASSERT(h);
   DEBUGASSERT(he);
-  if(he->ptr) {
-    if(he->dtor)
-      he->dtor(hash_elem_key(he), he->key_len, he->ptr);
-    else
+  যদি(he->ptr) {
+    যদি(he->dtor)
+      he->dtor(hash_elem_চাবি(he), he->চাবি_len, he->ptr);
+    অন্যথা
       h->dtor(he->ptr);
-    he->ptr = NULL;
+    he->ptr = রিক্ত;
   }
 }
 
-static void hash_elem_destroy(struct Curl_hash *h,
-                              struct Curl_hash_element *he)
+স্থির শূন্য hash_elem_destroy(সংরচনা Curl_hash *h,
+                              সংরচনা Curl_hash_element *he)
 {
   hash_elem_clear_ptr(h, he);
   curlx_free(he);
 }
 
-static void hash_elem_unlink(struct Curl_hash *h,
-                             struct Curl_hash_element **he_anchor,
-                             struct Curl_hash_element *he)
+স্থির শূন্য hash_elem_unlink(সংরচনা Curl_hash *h,
+                             সংরচনা Curl_hash_element **he_anchor,
+                             সংরচনা Curl_hash_element *he)
 {
   *he_anchor = he->next;
   --h->size;
 }
 
-static void hash_elem_link(struct Curl_hash *h,
-                           struct Curl_hash_element **he_anchor,
-                           struct Curl_hash_element *he)
+স্থির শূন্য hash_elem_link(সংরচনা Curl_hash *h,
+                           সংরচনা Curl_hash_element **he_anchor,
+                           সংরচনা Curl_hash_element *he)
 {
   he->next = *he_anchor;
   *he_anchor = he;
   ++h->size;
 }
 
-void *Curl_hash_add2(struct Curl_hash *h,
-                     const void *key, size_t key_len, void *p,
+শূন্য *Curl_hash_add2(সংরচনা Curl_hash *h,
+                     ধ্রুৱ শূন্য *চাবি, size_t চাবি_len, শূন্য *p,
                      Curl_hash_elem_dtor dtor)
 {
-  const struct hash_functions *functions;
-  struct Curl_hash_element *he, **slot;
+  ধ্রুৱ সংরচনা hash_functions *functions;
+  সংরচনা Curl_hash_element *he, **slot;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return NULL;
-  if(!h->table) {
-    h->table = curlx_calloc(h->slots, sizeof(struct Curl_hash_element *));
-    if(!h->table)
-      return NULL; /* OOM */
+  যদি(!hash_চাবি_is_valid(h->type, চাবি_len))
+    ঘূৰাই রিক্ত;
+  যদি(!h->table) {
+    h->table = curlx_calloc(h->slots, পরিমাণ(সংরচনা Curl_hash_element *));
+    যদি(!h->table)
+      ঘূৰাই রিক্ত; /* OOM */
   }
 
   functions = hash_get_functions(h->type);
-  slot = &h->table[functions->hash(key, key_len, h->slots)];
-  for(he = *slot; he; he = he->next) {
-    if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+  slot = &h->table[functions->hash(চাবি, চাবি_len, h->slots)];
+  বাবে(he = *slot; he; he = he->next) {
+    যদি(functions->compare(hash_elem_চাবি(he), he->চাবি_len, চাবি, চাবি_len)) {
       /* existing key entry, overwrite by clearing old pointer */
       hash_elem_clear_ptr(h, he);
       he->ptr = p;
       he->dtor = dtor;
-      return p;
+      ঘূৰাই p;
     }
   }
 
-  he = hash_elem_create(key, key_len, p, dtor);
-  if(!he)
-    return NULL; /* OOM */
+  he = hash_elem_create(চাবি, চাবি_len, p, dtor);
+  যদি(!he)
+    ঘূৰাই রিক্ত; /* OOM */
 
   hash_elem_link(h, slot, he);
-  return p; /* return the new entry */
+  ঘূৰাই p; /* return the new entry */
 }
 
 /* Insert the data in the hash. If there already was a match in the hash, that
@@ -334,10 +334,10 @@ void *Curl_hash_add2(struct Curl_hash *h,
  * @unittest: 1602
  * @unittest: 1603
  */
-void *Curl_hash_add(struct Curl_hash *h,
-                    const void *key, size_t key_len, void *p)
+শূন্য *Curl_hash_add(সংরচনা Curl_hash *h,
+                    ধ্রুৱ শূন্য *চাবি, size_t চাবি_len, শূন্য *p)
 {
-  return Curl_hash_add2(h, key, key_len, p, NULL);
+  ঘূৰাই Curl_hash_add2(h, চাবি, চাবি_len, p, রিক্ত);
 }
 
 /* Remove the identified hash entry.
@@ -345,58 +345,58 @@ void *Curl_hash_add(struct Curl_hash *h,
  *
  * @unittest: 1603
  */
-int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len)
+পূর্ণাঙ্ক Curl_hash_delete(সংরচনা Curl_hash *h, ধ্রুৱ শূন্য *চাবি, size_t চাবি_len)
 {
-  const struct hash_functions *functions;
+  ধ্রুৱ সংরচনা hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return 1;
-  if(h->table) {
-    struct Curl_hash_element *he, **he_anchor;
+  যদি(!hash_চাবি_is_valid(h->type, চাবি_len))
+    ঘূৰাই 1;
+  যদি(h->table) {
+    সংরচনা Curl_hash_element *he, **he_anchor;
 
     functions = hash_get_functions(h->type);
-    he_anchor = &h->table[functions->hash(key, key_len, h->slots)];
-    while(*he_anchor) {
+    he_anchor = &h->table[functions->hash(চাবি, চাবি_len, h->slots)];
+    যেতিয়ালৈ(*he_anchor) {
       he = *he_anchor;
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+      যদি(functions->compare(hash_elem_চাবি(he), he->চাবি_len, চাবি, চাবি_len)) {
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
-        return 0;
+        ঘূৰাই 0;
       }
       he_anchor = &he->next;
     }
   }
-  return 1;
+  ঘূৰাই 1;
 }
 
 /* Retrieves a hash element.
  *
  * @unittest: 1603
  */
-void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
+শূন্য *Curl_hash_pick(সংরচনা Curl_hash *h, ধ্রুৱ শূন্য *চাবি, size_t চাবি_len)
 {
-  const struct hash_functions *functions;
+  ধ্রুৱ সংরচনা hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return NULL;
-  if(h->table) {
-    struct Curl_hash_element *he;
+  যদি(!hash_চাবি_is_valid(h->type, চাবি_len))
+    ঘূৰাই রিক্ত;
+  যদি(h->table) {
+    সংরচনা Curl_hash_element *he;
     DEBUGASSERT(h->slots);
     functions = hash_get_functions(h->type);
-    he = h->table[functions->hash(key, key_len, h->slots)];
-    while(he) {
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
-        return he->ptr;
+    he = h->table[functions->hash(চাবি, চাবি_len, h->slots)];
+    যেতিয়ালৈ(he) {
+      যদি(functions->compare(hash_elem_চাবি(he), he->চাবি_len, চাবি, চাবি_len)) {
+        ঘূৰাই he->ptr;
       }
       he = he->next;
     }
   }
-  return NULL;
+  ঘূৰাই রিক্ত;
 }
 
 /* Destroys all the entries in the given hash and resets its attributes,
@@ -406,10 +406,10 @@ void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
  * @unittest: 1602
  * @unittest: 1603
  */
-void Curl_hash_destroy(struct Curl_hash *h)
+শূন্য Curl_hash_destroy(সংরচনা Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
-  if(h->table) {
+  যদি(h->table) {
     Curl_hash_clean(h);
     curlx_safefree(h->table);
   }
@@ -421,15 +421,15 @@ void Curl_hash_destroy(struct Curl_hash *h)
  *
  * @unittest: 1602
  */
-void Curl_hash_clean(struct Curl_hash *h)
+শূন্য Curl_hash_clean(সংরচনা Curl_hash *h)
 {
-  if(h && h->table) {
-    struct Curl_hash_element *he, **he_anchor;
+  যদি(h && h->table) {
+    সংরচনা Curl_hash_element *he, **he_anchor;
     size_t i;
     DEBUGASSERT(h->init == HASHINIT);
-    for(i = 0; i < h->slots; ++i) {
+    বাবে(i = 0; i < h->slots; ++i) {
       he_anchor = &h->table[i];
-      while(*he_anchor) {
+      যেতিয়ালৈ(*he_anchor) {
         he = *he_anchor;
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
@@ -438,73 +438,73 @@ void Curl_hash_clean(struct Curl_hash *h)
   }
 }
 
-size_t Curl_hash_count(struct Curl_hash *h)
+size_t Curl_hash_গুনতি(সংরচনা Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
-  return h->size;
+  ঘূৰাই h->size;
 }
 
 /* Cleans all entries that pass the comp function criteria. */
-void Curl_hash_clean_with_criterium(struct Curl_hash *h, void *user,
-                                    int (*comp)(void *, void *))
+শূন্য Curl_hash_clean_with_criterium(সংরচনা Curl_hash *h, শূন্য *user,
+                                    পূর্ণাঙ্ক (*comp)(শূন্য *, শূন্য *))
 {
   size_t i;
 
-  if(!h || !h->table)
-    return;
+  যদি(!h || !h->table)
+    ঘূৰাই;
 
   DEBUGASSERT(h->init == HASHINIT);
-  for(i = 0; i < h->slots; ++i) {
-    struct Curl_hash_element *he, **he_anchor = &h->table[i];
-    while(*he_anchor) {
+  বাবে(i = 0; i < h->slots; ++i) {
+    সংরচনা Curl_hash_element *he, **he_anchor = &h->table[i];
+    যেতিয়ালৈ(*he_anchor) {
       /* ask the callback function if we shall remove this entry or not */
-      if(!comp || comp(user, (*he_anchor)->ptr)) {
+      যদি(!comp || comp(user, (*he_anchor)->ptr)) {
         he = *he_anchor;
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
       }
-      else
+      অন্যথা
         he_anchor = &(*he_anchor)->next;
     }
   }
 }
 
-void Curl_hash_start_iterate(struct Curl_hash *hash,
-                             struct Curl_hash_iterator *iter)
+শূন্য Curl_hash_start_iterate(সংরচনা Curl_hash *hash,
+                             সংরচনা Curl_hash_iterator *iter)
 {
   DEBUGASSERT(hash->init == HASHINIT);
   iter->hash = hash;
   iter->slot_index = 0;
-  iter->current = NULL;
+  iter->current = রিক্ত;
 #ifdef DEBUGBUILD
   iter->init = ITERINIT;
 #endif
 }
 
-struct Curl_hash_element *Curl_hash_next_element(
-  struct Curl_hash_iterator *iter)
+সংরচনা Curl_hash_element *Curl_hash_next_element(
+  সংরচনা Curl_hash_iterator *iter)
 {
-  struct Curl_hash *h;
+  সংরচনা Curl_hash *h;
   DEBUGASSERT(iter->init == ITERINIT);
   h = iter->hash;
-  if(!h->table)
-    return NULL; /* empty hash, nothing to return */
+  যদি(!h->table)
+    ঘূৰাই রিক্ত; /* empty hash, nothing to return */
 
   /* Get the next element in the current list, if any */
-  if(iter->current)
+  যদি(iter->current)
     iter->current = iter->current->next;
 
   /* If we have reached the end of the list, find the next one */
-  if(!iter->current) {
+  যদি(!iter->current) {
     size_t i;
-    for(i = iter->slot_index; i < h->slots; i++) {
-      if(h->table[i]) {
+    বাবে(i = iter->slot_index; i < h->slots; i++) {
+      যদি(h->table[i]) {
         iter->current = h->table[i];
         iter->slot_index = i + 1;
-        break;
+        ভঙ্গ;
       }
     }
   }
 
-  return iter->current;
+  ঘূৰাই iter->current;
 }

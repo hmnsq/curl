@@ -23,26 +23,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাৱ "curl_setup.h"
 
 #ifdef USE_SSH
 
-#include "urldata.h"
+#অন্তর্ভাৱ "urldata.h"
 
-struct ssh_conn;
+সংরচনা ssh_conn;
 
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir,
-                             char **path);
+CURLcode Curl_getworkingpath(সংরচনা Curl_easy *data,
+                             ধ্রুৱ ৱর্ণ *homedir,
+                             ৱর্ণ **path);
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir);
+CURLcode Curl_get_pathname(ধ্রুৱ ৱর্ণ **cpp, ৱর্ণ **path, ধ্রুৱ ৱর্ণ *homedir);
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(সংরচনা Curl_easy *data,
+                        ধ্রুৱ ৱর্ণ *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep);
 
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps);
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc);
+CURLcode Curl_ssh_pollset(সংরচনা Curl_easy *data, সংরচনা easy_pollset *ps);
+CURLcode Curl_ssh_setup_pkey(সংরচনা Curl_easy *data, সংরচনা ssh_conn *sshc);
 
 #endif /* USE_SSH */
 #endif /* HEADER_CURL_VSSH_VSSH_H */

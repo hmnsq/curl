@@ -21,7 +21,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাৱ "curl_setup.h"
 
 #ifndef CURL_DISABLE_FTP
 
@@ -40,17 +40,17 @@
  * 01-29-97 11:32PM <DIR> prog
  */
 
-#include "urldata.h"
-#include "fileinfo.h"
-#include "llist.h"
-#include "ftp.h"
-#include "ftp-int.h"
-#include "ftplistparser.h"
-#include "curl_fnmatch.h"
-#include "multiif.h"
-#include "curlx/strparse.h"
+#অন্তর্ভাৱ "urldata.h"
+#অন্তর্ভাৱ "fileinfo.h"
+#অন্তর্ভাৱ "llist.h"
+#অন্তর্ভাৱ "ftp.h"
+#অন্তর্ভাৱ "ftp-int.h"
+#অন্তর্ভাৱ "ftplistparser.h"
+#অন্তর্ভাৱ "curl_fnmatch.h"
+#অন্তর্ভাৱ "multiif.h"
+#অন্তর্ভাৱ "curlx/strparse.h"
 
-typedef enum {
+প্রকারনির্দেশ গণনা {
   PL_UNIX_TOTALSIZE = 0,
   PL_UNIX_FILETYPE,
   PL_UNIX_PERMISSION,
@@ -63,33 +63,33 @@ typedef enum {
   PL_UNIX_SYMLINK
 } pl_unix_mainstate;
 
-typedef union {
-  enum {
+প্রকারনির্দেশ সঙ্ঘ {
+  গণনা {
     PL_UNIX_TOTALSIZE_INIT = 0,
     PL_UNIX_TOTALSIZE_READING
   } total_dirsize;
 
-  enum {
+  গণনা {
     PL_UNIX_HLINKS_PRESPACE = 0,
-    PL_UNIX_HLINKS_NUMBER
+    PL_UNIX_HLINKS_সংখ্যা
   } hlinks;
 
-  enum {
+  গণনা {
     PL_UNIX_USER_PRESPACE = 0,
     PL_UNIX_USER_PARSING
   } user;
 
-  enum {
+  গণনা {
     PL_UNIX_GROUP_PRESPACE = 0,
     PL_UNIX_GROUP_NAME
   } group;
 
-  enum {
+  গণনা {
     PL_UNIX_SIZE_PRESPACE = 0,
-    PL_UNIX_SIZE_NUMBER
+    PL_UNIX_SIZE_সংখ্যা
   } size;
 
-  enum {
+  গণনা {
     PL_UNIX_TIME_PREPART1 = 0,
     PL_UNIX_TIME_PART1,
     PL_UNIX_TIME_PREPART2,
@@ -98,13 +98,13 @@ typedef union {
     PL_UNIX_TIME_PART3
   } time;
 
-  enum {
+  গণনা {
     PL_UNIX_FILENAME_PRESPACE = 0,
     PL_UNIX_FILENAME_NAME,
     PL_UNIX_FILENAME_WINDOWSEOL
   } filename;
 
-  enum {
+  গণনা {
     PL_UNIX_SYMLINK_PRESPACE = 0,
     PL_UNIX_SYMLINK_NAME,
     PL_UNIX_SYMLINK_PRETARGET1,
@@ -116,23 +116,23 @@ typedef union {
   } symlink;
 } pl_unix_substate;
 
-typedef enum {
+প্রকারনির্দেশ গণনা {
   PL_WINNT_DATE = 0,
   PL_WINNT_TIME,
   PL_WINNT_DIRORSIZE,
   PL_WINNT_FILENAME
 } pl_winNT_mainstate;
 
-typedef union {
-  enum {
+প্রকারনির্দেশ সঙ্ঘ {
+  গণনা {
     PL_WINNT_TIME_PRESPACE = 0,
     PL_WINNT_TIME_TIME
   } time;
-  enum {
+  গণনা {
     PL_WINNT_DIRORSIZE_PRESPACE = 0,
     PL_WINNT_DIRORSIZE_CONTENT
   } dirorsize;
-  enum {
+  গণনা {
     PL_WINNT_FILENAME_PRESPACE = 0,
     PL_WINNT_FILENAME_CONTENT,
     PL_WINNT_FILENAME_WINEOL
@@ -140,30 +140,30 @@ typedef union {
 } pl_winNT_substate;
 
 /* This struct is used in wildcard downloading - for parsing LIST response */
-struct ftp_parselist_data {
-  enum {
+সংরচনা ftp_parselist_data {
+  গণনা {
     OS_TYPE_UNKNOWN = 0,
     OS_TYPE_UNIX,
     OS_TYPE_WIN_NT
   } os_type;
 
-  union {
-    struct {
+  সঙ্ঘ {
+    সংরচনা {
       pl_unix_mainstate main;
       pl_unix_substate sub;
     } UNIX;
 
-    struct {
+    সংরচনা {
       pl_winNT_mainstate main;
       pl_winNT_substate sub;
     } NT;
   } state;
 
   CURLcode error;
-  struct fileinfo *file_data;
-  unsigned int item_length;
+  সংরচনা fileinfo *file_data;
+  unsigned পূর্ণাঙ্ক item_length;
   size_t item_offset;
-  struct {
+  সংরচনা {
     size_t filename;
     size_t user;
     size_t group;
@@ -173,286 +173,286 @@ struct ftp_parselist_data {
   } offsets;
 };
 
-static void fileinfo_dtor(void *user, void *element)
+স্থির শূন্য fileinfo_dtor(শূন্য *user, শূন্য *element)
 {
-  (void)user;
+  (শূন্য)user;
   Curl_fileinfo_cleanup(element);
 }
 
-void Curl_wildcard_init(struct WildcardData *wc)
+শূন্য Curl_wildcard_init(সংরচনা WildcardData *wc)
 {
   Curl_llist_init(&wc->filelist, fileinfo_dtor);
   wc->state = CURLWC_INIT;
 }
 
-void Curl_wildcard_dtor(struct WildcardData **wcp)
+শূন্য Curl_wildcard_dtor(সংরচনা WildcardData **wcp)
 {
-  struct WildcardData *wc = *wcp;
-  if(!wc)
-    return;
+  সংরচনা WildcardData *wc = *wcp;
+  যদি(!wc)
+    ঘূৰাই;
 
-  if(wc->dtor) {
+  যদি(wc->dtor) {
     wc->dtor(wc->ftpwc);
     wc->dtor = ZERO_NULL;
-    wc->ftpwc = NULL;
+    wc->ftpwc = রিক্ত;
   }
   DEBUGASSERT(!wc->ftpwc);
 
-  Curl_llist_destroy(&wc->filelist, NULL);
+  Curl_llist_destroy(&wc->filelist, রিক্ত);
   curlx_safefree(wc->path);
   curlx_safefree(wc->pattern);
   wc->state = CURLWC_INIT;
   curlx_free(wc);
-  *wcp = NULL;
+  *wcp = রিক্ত;
 }
 
-struct ftp_parselist_data *Curl_ftp_parselist_data_alloc(void)
+সংরচনা ftp_parselist_data *Curl_ftp_parselist_data_alloc(শূন্য)
 {
-  return curlx_calloc(1, sizeof(struct ftp_parselist_data));
+  ঘূৰাই curlx_calloc(1, পরিমাণ(সংরচনা ftp_parselist_data));
 }
 
-void Curl_ftp_parselist_data_free(struct ftp_parselist_data **parserp)
+শূন্য Curl_ftp_parselist_data_free(সংরচনা ftp_parselist_data **parserp)
 {
-  struct ftp_parselist_data *parser = *parserp;
-  if(parser)
+  সংরচনা ftp_parselist_data *parser = *parserp;
+  যদি(parser)
     Curl_fileinfo_cleanup(parser->file_data);
   curlx_free(parser);
-  *parserp = NULL;
+  *parserp = রিক্ত;
 }
 
-CURLcode Curl_ftp_parselist_geterror(struct ftp_parselist_data *pl_data)
+CURLcode Curl_ftp_parselist_geterror(সংরচনা ftp_parselist_data *pl_data)
 {
-  return pl_data->error;
+  ঘূৰাই pl_data->error;
 }
 
 #define FTP_LP_MALFORMATED_PERM 0x01000000
 
-static unsigned int ftp_pl_get_permission(const char *str)
+স্থির unsigned পূর্ণাঙ্ক ftp_pl_get_permission(ধ্রুৱ ৱর্ণ *str)
 {
-  unsigned int permissions = 0;
+  unsigned পূর্ণাঙ্ক permissions = 0;
   /* USER */
-  if(str[0] == 'r')
+  যদি(str[0] == 'r')
     permissions |= 1 << 8;
-  else if(str[0] != '-')
+  অন্যথা যদি(str[0] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
-  if(str[1] == 'w')
+  যদি(str[1] == 'w')
     permissions |= 1 << 7;
-  else if(str[1] != '-')
+  অন্যথা যদি(str[1] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
 
-  if(str[2] == 'x')
+  যদি(str[2] == 'x')
     permissions |= 1 << 6;
-  else if(str[2] == 's') {
+  অন্যথা যদি(str[2] == 's') {
     permissions |= 1 << 6;
     permissions |= 1 << 11;
   }
-  else if(str[2] == 'S')
+  অন্যথা যদি(str[2] == 'S')
     permissions |= 1 << 11;
-  else if(str[2] != '-')
+  অন্যথা যদি(str[2] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
   /* GROUP */
-  if(str[3] == 'r')
+  যদি(str[3] == 'r')
     permissions |= 1 << 5;
-  else if(str[3] != '-')
+  অন্যথা যদি(str[3] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
-  if(str[4] == 'w')
+  যদি(str[4] == 'w')
     permissions |= 1 << 4;
-  else if(str[4] != '-')
+  অন্যথা যদি(str[4] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
-  if(str[5] == 'x')
+  যদি(str[5] == 'x')
     permissions |= 1 << 3;
-  else if(str[5] == 's') {
+  অন্যথা যদি(str[5] == 's') {
     permissions |= 1 << 3;
     permissions |= 1 << 10;
   }
-  else if(str[5] == 'S')
+  অন্যথা যদি(str[5] == 'S')
     permissions |= 1 << 10;
-  else if(str[5] != '-')
+  অন্যথা যদি(str[5] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
   /* others */
-  if(str[6] == 'r')
+  যদি(str[6] == 'r')
     permissions |= 1 << 2;
-  else if(str[6] != '-')
+  অন্যথা যদি(str[6] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
-  if(str[7] == 'w')
+  যদি(str[7] == 'w')
     permissions |= 1 << 1;
-  else if(str[7] != '-')
+  অন্যথা যদি(str[7] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
-  if(str[8] == 'x')
+  যদি(str[8] == 'x')
     permissions |= 1;
-  else if(str[8] == 't') {
+  অন্যথা যদি(str[8] == 't') {
     permissions |= 1;
     permissions |= 1 << 9;
   }
-  else if(str[8] == 'T')
+  অন্যথা যদি(str[8] == 'T')
     permissions |= 1 << 9;
-  else if(str[8] != '-')
+  অন্যথা যদি(str[8] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
 
-  return permissions;
+  ঘূৰাই permissions;
 }
 
-static CURLcode ftp_pl_insert_finfo(struct Curl_easy *data,
-                                    struct fileinfo *infop)
+স্থির CURLcode ftp_pl_ঢোকাও_finfo(সংরচনা Curl_easy *data,
+                                    সংরচনা fileinfo *infop)
 {
   curl_fnmatch_callback compare;
-  struct WildcardData *wc = data->wildcard;
-  struct ftp_wc *ftpwc = wc->ftpwc;
-  struct Curl_llist *llist = &wc->filelist;
-  struct ftp_parselist_data *parser = ftpwc->parser;
+  সংরচনা WildcardData *wc = data->wildcard;
+  সংরচনা ftp_wc *ftpwc = wc->ftpwc;
+  সংরচনা Curl_llist *llist = &wc->filelist;
+  সংরচনা ftp_parselist_data *parser = ftpwc->parser;
   bool add = TRUE;
-  struct curl_fileinfo *finfo = &infop->info;
+  সংরচনা curl_fileinfo *finfo = &infop->info;
 
   /* set the finfo pointers */
-  char *str = curlx_dyn_ptr(&infop->buf);
+  ৱর্ণ *str = curlx_dyn_ptr(&infop->buf);
   finfo->filename       = str + parser->offsets.filename;
   finfo->strings.group  = parser->offsets.group ?
-                          str + parser->offsets.group : NULL;
+                          str + parser->offsets.group : রিক্ত;
   finfo->strings.perm   = parser->offsets.perm ?
-                          str + parser->offsets.perm : NULL;
+                          str + parser->offsets.perm : রিক্ত;
   finfo->strings.target = parser->offsets.symlink_target &&
     (finfo->filetype == CURLFILETYPE_SYMLINK) ?
-    str + parser->offsets.symlink_target : NULL;
+    str + parser->offsets.symlink_target : রিক্ত;
   finfo->strings.time   = str + parser->offsets.time;
   finfo->strings.user   = parser->offsets.user ?
-                          str + parser->offsets.user : NULL;
+                          str + parser->offsets.user : রিক্ত;
 
   /* get correct fnmatch callback */
   compare = data->set.fnmatch;
-  if(!compare)
+  যদি(!compare)
     compare = Curl_fnmatch;
 
   /* filter pattern-corresponding filenames */
-  if(strchr(finfo->filename, '/'))
+  যদি(strchr(finfo->filename, '/'))
     add = FALSE;
-  else {
+  অন্যথা {
     /* a real file name cannot contain a slash */
-    struct Curl_mapi_guard guard;
+    সংরচনা Curl_mapi_guard guard;
     CURL_CBAPI_START(&guard, data, easy_fnmatch_data);
-    if(compare(data->set.fnmatch_data, wc->pattern, finfo->filename) == 0) {
+    যদি(compare(data->set.fnmatch_data, wc->pattern, finfo->filename) == 0) {
       /* discard symlink which is containing multiple " -> " */
-      if((finfo->filetype == CURLFILETYPE_SYMLINK) && finfo->strings.target &&
+      যদি((finfo->filetype == CURLFILETYPE_SYMLINK) && finfo->strings.target &&
          strstr(finfo->strings.target, " -> ")) {
         add = FALSE;
       }
     }
-    else {
+    অন্যথা {
       add = FALSE;
     }
     CURL_CBAPI_END(&guard);
   }
 
-  if(add) {
+  যদি(add) {
     Curl_llist_append(llist, finfo, &infop->list);
   }
-  else {
+  অন্যথা {
     Curl_fileinfo_cleanup(infop);
   }
 
-  ftpwc->parser->file_data = NULL;
-  return CURLE_OK;
+  ftpwc->parser->file_data = রিক্ত;
+  ঘূৰাই CURLE_OK;
 }
 
 #define MAX_FTPLIST_BUFFER 10000 /* arbitrarily set */
 
-static CURLcode unix_filetype(const char c, curlfiletype *t)
+স্থির CURLcode unix_filetype(ধ্রুৱ ৱর্ণ c, curlfiletype *t)
 {
-  switch(c) {
-  case '-':
+  ৱিকল্প(c) {
+  পক্ষ '-':
     *t = CURLFILETYPE_FILE;
-    break;
-  case 'd':
+    ভঙ্গ;
+  পক্ষ 'd':
     *t = CURLFILETYPE_DIRECTORY;
-    break;
-  case 'l':
+    ভঙ্গ;
+  পক্ষ 'l':
     *t = CURLFILETYPE_SYMLINK;
-    break;
-  case 'p':
+    ভঙ্গ;
+  পক্ষ 'p':
     *t = CURLFILETYPE_NAMEDPIPE;
-    break;
-  case 's':
+    ভঙ্গ;
+  পক্ষ 's':
     *t = CURLFILETYPE_SOCKET;
-    break;
-  case 'c':
+    ভঙ্গ;
+  পক্ষ 'c':
     *t = CURLFILETYPE_DEVICE_CHAR;
-    break;
-  case 'b':
+    ভঙ্গ;
+  পক্ষ 'b':
     *t = CURLFILETYPE_DEVICE_BLOCK;
-    break;
-  case 'D':
+    ভঙ্গ;
+  পক্ষ 'D':
     *t = CURLFILETYPE_DOOR;
-    break;
-  default:
-    return CURLE_FTP_BAD_FILE_LIST;
+    ভঙ্গ;
+  স্ৱভাৱ:
+    ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
   }
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
-static CURLcode parse_unix_totalsize(struct ftp_parselist_data *parser,
-                                     struct fileinfo *infop,
-                                     const char c)
+স্থির CURLcode parse_unix_totalsize(সংরচনা ftp_parselist_data *parser,
+                                     সংরচনা fileinfo *infop,
+                                     ধ্রুৱ ৱর্ণ c)
 {
   size_t len = curlx_dyn_len(&infop->buf);
-  char *mem = curlx_dyn_ptr(&infop->buf);
-  switch(parser->state.UNIX.sub.total_dirsize) {
-  case PL_UNIX_TOTALSIZE_INIT:
-    if(c == 't') {
+  ৱর্ণ *mem = curlx_dyn_ptr(&infop->buf);
+  ৱিকল্প(parser->state.UNIX.sub.total_dirsize) {
+  পক্ষ PL_UNIX_TOTALSIZE_INIT:
+    যদি(c == 't') {
       parser->state.UNIX.sub.total_dirsize = PL_UNIX_TOTALSIZE_READING;
       parser->item_length++;
     }
-    else {
+    অন্যথা {
       parser->state.UNIX.main = PL_UNIX_FILETYPE;
       /* continue to fall through */
     }
-    break;
-  case PL_UNIX_TOTALSIZE_READING:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_TOTALSIZE_READING:
     parser->item_length++;
-    if(c == '\r') {
+    যদি(c == '\r') {
       parser->item_length--;
-      if(len)
+      যদি(len)
         curlx_dyn_setlen(&infop->buf, --len);
     }
-    else if(c == '\n') {
+    অন্যথা যদি(c == '\n') {
       mem[parser->item_length - 1] = 0;
-      if(!strncmp("total ", mem, 6)) {
-        const char *endptr = mem + 6;
+      যদি(!strncmp("total ", mem, 6)) {
+        ধ্রুৱ ৱর্ণ *endptr = mem + 6;
         /* here we can deal with directory size, pass the leading
            whitespace and then the digits */
         curlx_str_passblanks(&endptr);
-        while(ISDIGIT(*endptr))
+        যেতিয়ালৈ(ISDIGIT(*endptr))
           endptr++;
-        if(*endptr) {
-          return CURLE_FTP_BAD_FILE_LIST;
+        যদি(*endptr) {
+          ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
         }
         parser->state.UNIX.main = PL_UNIX_FILETYPE;
         curlx_dyn_reset(&infop->buf);
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      অন্যথা
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
     }
-    break;
+    ভঙ্গ;
   }
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
-static CURLcode parse_unix_permission(struct ftp_parselist_data *parser,
-                                      struct fileinfo *infop,
-                                      const char c)
+স্থির CURLcode parse_unix_permission(সংরচনা ftp_parselist_data *parser,
+                                      সংরচনা fileinfo *infop,
+                                      ধ্রুৱ ৱর্ণ c)
 {
-  char *mem = curlx_dyn_ptr(&infop->buf);
+  ৱর্ণ *mem = curlx_dyn_ptr(&infop->buf);
   parser->item_length++;
-  if((parser->item_length <= 9) && !strchr("rwx-tTsS", c))
-    return CURLE_FTP_BAD_FILE_LIST;
+  যদি((parser->item_length <= 9) && !strchr("rwx-tTsS", c))
+    ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
 
-  else if(parser->item_length == 10) {
-    unsigned int perm;
-    if(c != ' ')
-      return CURLE_FTP_BAD_FILE_LIST;
+  অন্যথা যদি(parser->item_length == 10) {
+    unsigned পূর্ণাঙ্ক perm;
+    যদি(c != ' ')
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
 
     mem[10] = 0; /* terminate permissions */
     perm = ftp_pl_get_permission(mem + parser->item_offset);
-    if(perm & FTP_LP_MALFORMATED_PERM)
-      return CURLE_FTP_BAD_FILE_LIST;
+    যদি(perm & FTP_LP_MALFORMATED_PERM)
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
 
     parser->file_data->info.flags |= CURLFINFOFLAG_KNOWN_PERM;
     parser->file_data->info.perm = perm;
@@ -462,36 +462,36 @@ static CURLcode parse_unix_permission(struct ftp_parselist_data *parser,
     parser->state.UNIX.main = PL_UNIX_HLINKS;
     parser->state.UNIX.sub.hlinks = PL_UNIX_HLINKS_PRESPACE;
   }
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
-static CURLcode parse_unix_hlinks(struct ftp_parselist_data *parser,
-                                  struct fileinfo *infop,
-                                  const char c)
+স্থির CURLcode parse_unix_hlinks(সংরচনা ftp_parselist_data *parser,
+                                  সংরচনা fileinfo *infop,
+                                  ধ্রুৱ ৱর্ণ c)
 {
   size_t len = curlx_dyn_len(&infop->buf);
-  char *mem = curlx_dyn_ptr(&infop->buf);
+  ৱর্ণ *mem = curlx_dyn_ptr(&infop->buf);
 
-  switch(parser->state.UNIX.sub.hlinks) {
-  case PL_UNIX_HLINKS_PRESPACE:
-    if(c != ' ') {
-      if(ISDIGIT(c) && len) {
+  ৱিকল্প(parser->state.UNIX.sub.hlinks) {
+  পক্ষ PL_UNIX_HLINKS_PRESPACE:
+    যদি(c != ' ') {
+      যদি(ISDIGIT(c) && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
-        parser->state.UNIX.sub.hlinks = PL_UNIX_HLINKS_NUMBER;
+        parser->state.UNIX.sub.hlinks = PL_UNIX_HLINKS_সংখ্যা;
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      অন্যথা
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
     }
-    break;
-  case PL_UNIX_HLINKS_NUMBER:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_HLINKS_সংখ্যা:
     parser->item_length++;
-    if(c == ' ') {
-      const char *p = &mem[parser->item_offset];
+    যদি(c == ' ') {
+      ধ্রুৱ ৱর্ণ *p = &mem[parser->item_offset];
       curl_off_t hlinks;
       mem[parser->item_offset + parser->item_length - 1] = 0;
 
-      if(!curlx_str_number(&p, &hlinks, LONG_MAX)) {
+      যদি(!curlx_str_সংখ্যা(&p, &hlinks, LONG_MAX)) {
         parser->file_data->info.flags |= CURLFINFOFLAG_KNOWN_HLINKCOUNT;
         parser->file_data->info.hardlinks = (long)hlinks;
       }
@@ -500,31 +500,31 @@ static CURLcode parse_unix_hlinks(struct ftp_parselist_data *parser,
       parser->state.UNIX.main = PL_UNIX_USER;
       parser->state.UNIX.sub.user = PL_UNIX_USER_PRESPACE;
     }
-    else if(!ISDIGIT(c))
-      return CURLE_FTP_BAD_FILE_LIST;
+    অন্যথা যদি(!ISDIGIT(c))
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
 
-    break;
+    ভঙ্গ;
   }
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
-static CURLcode parse_unix_user(struct ftp_parselist_data *parser,
-                                struct fileinfo *infop,
-                                const char c)
+স্থির CURLcode parse_unix_user(সংরচনা ftp_parselist_data *parser,
+                                সংরচনা fileinfo *infop,
+                                ধ্রুৱ ৱর্ণ c)
 {
   size_t len = curlx_dyn_len(&infop->buf);
-  char *mem = curlx_dyn_ptr(&infop->buf);
-  switch(parser->state.UNIX.sub.user) {
-  case PL_UNIX_USER_PRESPACE:
-    if(c != ' ' && len) {
+  ৱর্ণ *mem = curlx_dyn_ptr(&infop->buf);
+  ৱিকল্প(parser->state.UNIX.sub.user) {
+  পক্ষ PL_UNIX_USER_PRESPACE:
+    যদি(c != ' ' && len) {
       parser->item_offset = len - 1;
       parser->item_length = 1;
       parser->state.UNIX.sub.user = PL_UNIX_USER_PARSING;
     }
-    break;
-  case PL_UNIX_USER_PARSING:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_USER_PARSING:
     parser->item_length++;
-    if(c == ' ') {
+    যদি(c == ' ') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.user = parser->item_offset;
       parser->state.UNIX.main = PL_UNIX_GROUP;
@@ -532,28 +532,28 @@ static CURLcode parse_unix_user(struct ftp_parselist_data *parser,
       parser->item_offset = 0;
       parser->item_length = 0;
     }
-    break;
+    ভঙ্গ;
   }
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
-static CURLcode parse_unix_group(struct ftp_parselist_data *parser,
-                                 struct fileinfo *infop,
-                                 const char c)
+স্থির CURLcode parse_unix_group(সংরচনা ftp_parselist_data *parser,
+                                 সংরচনা fileinfo *infop,
+                                 ধ্রুৱ ৱর্ণ c)
 {
   size_t len = curlx_dyn_len(&infop->buf);
-  char *mem = curlx_dyn_ptr(&infop->buf);
-  switch(parser->state.UNIX.sub.group) {
-  case PL_UNIX_GROUP_PRESPACE:
-    if(c != ' ' && len) {
+  ৱর্ণ *mem = curlx_dyn_ptr(&infop->buf);
+  ৱিকল্প(parser->state.UNIX.sub.group) {
+  পক্ষ PL_UNIX_GROUP_PRESPACE:
+    যদি(c != ' ' && len) {
       parser->item_offset = len - 1;
       parser->item_length = 1;
       parser->state.UNIX.sub.group = PL_UNIX_GROUP_NAME;
     }
-    break;
-  case PL_UNIX_GROUP_NAME:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_GROUP_NAME:
     parser->item_length++;
-    if(c == ' ') {
+    যদি(c == ' ') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.group = parser->item_offset;
       parser->state.UNIX.main = PL_UNIX_SIZE;
@@ -561,37 +561,37 @@ static CURLcode parse_unix_group(struct ftp_parselist_data *parser,
       parser->item_offset = 0;
       parser->item_length = 0;
     }
-    break;
+    ভঙ্গ;
   }
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
-static CURLcode parse_unix_size(struct ftp_parselist_data *parser,
-                                struct fileinfo *infop,
-                                const char c)
+স্থির CURLcode parse_unix_size(সংরচনা ftp_parselist_data *parser,
+                                সংরচনা fileinfo *infop,
+                                ধ্রুৱ ৱর্ণ c)
 {
   size_t len = curlx_dyn_len(&infop->buf);
-  char *mem = curlx_dyn_ptr(&infop->buf);
-  switch(parser->state.UNIX.sub.size) {
-  case PL_UNIX_SIZE_PRESPACE:
-    if(c != ' ') {
-      if(ISDIGIT(c) && len) {
+  ৱর্ণ *mem = curlx_dyn_ptr(&infop->buf);
+  ৱিকল্প(parser->state.UNIX.sub.size) {
+  পক্ষ PL_UNIX_SIZE_PRESPACE:
+    যদি(c != ' ') {
+      যদি(ISDIGIT(c) && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
-        parser->state.UNIX.sub.size = PL_UNIX_SIZE_NUMBER;
+        parser->state.UNIX.sub.size = PL_UNIX_SIZE_সংখ্যা;
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      অন্যথা
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
     }
-    break;
-  case PL_UNIX_SIZE_NUMBER:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_SIZE_সংখ্যা:
     parser->item_length++;
-    if(c == ' ') {
-      const char *p = mem + parser->item_offset;
+    যদি(c == ' ') {
+      ধ্রুৱ ৱর্ণ *p = mem + parser->item_offset;
       curl_off_t fsize;
       mem[parser->item_offset + parser->item_length - 1] = 0;
-      if(!curlx_str_numblanks(&p, &fsize)) {
-        if(p[0] == '\0' && fsize != CURL_OFF_T_MAX) {
+      যদি(!curlx_str_numblanks(&p, &fsize)) {
+        যদি(p[0] == '\0' && fsize != CURL_OFF_T_MAX) {
           parser->file_data->info.flags |= CURLFINFOFLAG_KNOWN_SIZE;
           parser->file_data->info.size = fsize;
         }
@@ -601,181 +601,181 @@ static CURLcode parse_unix_size(struct ftp_parselist_data *parser,
         parser->state.UNIX.sub.time = PL_UNIX_TIME_PREPART1;
       }
     }
-    else if(!ISDIGIT(c))
-      return CURLE_FTP_BAD_FILE_LIST;
+    অন্যথা যদি(!ISDIGIT(c))
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
 
-    break;
+    ভঙ্গ;
   }
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
-static CURLcode parse_unix_time(struct ftp_parselist_data *parser,
-                                struct fileinfo *infop,
-                                const char c)
+স্থির CURLcode parse_unix_time(সংরচনা ftp_parselist_data *parser,
+                                সংরচনা fileinfo *infop,
+                                ধ্রুৱ ৱর্ণ c)
 {
   size_t len = curlx_dyn_len(&infop->buf);
-  char *mem = curlx_dyn_ptr(&infop->buf);
-  struct curl_fileinfo *finfo = &infop->info;
+  ৱর্ণ *mem = curlx_dyn_ptr(&infop->buf);
+  সংরচনা curl_fileinfo *finfo = &infop->info;
 
-  switch(parser->state.UNIX.sub.time) {
-  case PL_UNIX_TIME_PREPART1:
-    if(c != ' ') {
-      if(ISALNUM(c) && len) {
+  ৱিকল্প(parser->state.UNIX.sub.time) {
+  পক্ষ PL_UNIX_TIME_PREPART1:
+    যদি(c != ' ') {
+      যদি(ISALNUM(c) && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
         parser->state.UNIX.sub.time = PL_UNIX_TIME_PART1;
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      অন্যথা
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
     }
-    break;
-  case PL_UNIX_TIME_PART1:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_TIME_PART1:
     parser->item_length++;
-    if(c == ' ')
+    যদি(c == ' ')
       parser->state.UNIX.sub.time = PL_UNIX_TIME_PREPART2;
 
-    else if(!ISALNUM(c) && c != '.')
-      return CURLE_FTP_BAD_FILE_LIST;
+    অন্যথা যদি(!ISALNUM(c) && c != '.')
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
 
-    break;
-  case PL_UNIX_TIME_PREPART2:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_TIME_PREPART2:
     parser->item_length++;
-    if(c != ' ') {
-      if(ISALNUM(c))
+    যদি(c != ' ') {
+      যদি(ISALNUM(c))
         parser->state.UNIX.sub.time = PL_UNIX_TIME_PART2;
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      অন্যথা
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
     }
-    break;
-  case PL_UNIX_TIME_PART2:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_TIME_PART2:
     parser->item_length++;
-    if(c == ' ')
+    যদি(c == ' ')
       parser->state.UNIX.sub.time = PL_UNIX_TIME_PREPART3;
-    else if(!ISALNUM(c) && c != '.')
-      return CURLE_FTP_BAD_FILE_LIST;
-    break;
-  case PL_UNIX_TIME_PREPART3:
+    অন্যথা যদি(!ISALNUM(c) && c != '.')
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
+    ভঙ্গ;
+  পক্ষ PL_UNIX_TIME_PREPART3:
     parser->item_length++;
-    if(c != ' ') {
-      if(ISALNUM(c))
+    যদি(c != ' ') {
+      যদি(ISALNUM(c))
         parser->state.UNIX.sub.time = PL_UNIX_TIME_PART3;
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      অন্যথা
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
     }
-    break;
-  case PL_UNIX_TIME_PART3:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_TIME_PART3:
     parser->item_length++;
-    if(c == ' ') {
+    যদি(c == ' ') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.time = parser->item_offset;
-      if(finfo->filetype == CURLFILETYPE_SYMLINK) {
+      যদি(finfo->filetype == CURLFILETYPE_SYMLINK) {
         parser->state.UNIX.main = PL_UNIX_SYMLINK;
         parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_PRESPACE;
       }
-      else {
+      অন্যথা {
         parser->state.UNIX.main = PL_UNIX_FILENAME;
         parser->state.UNIX.sub.filename = PL_UNIX_FILENAME_PRESPACE;
       }
     }
-    else if(!ISALNUM(c) && c != '.' && c != ':')
-      return CURLE_FTP_BAD_FILE_LIST;
-    break;
+    অন্যথা যদি(!ISALNUM(c) && c != '.' && c != ':')
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
+    ভঙ্গ;
   }
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
-static CURLcode parse_unix_filename(struct Curl_easy *data,
-                                    struct ftp_parselist_data *parser,
-                                    struct fileinfo *infop,
-                                    const char c)
+স্থির CURLcode parse_unix_filename(সংরচনা Curl_easy *data,
+                                    সংরচনা ftp_parselist_data *parser,
+                                    সংরচনা fileinfo *infop,
+                                    ধ্রুৱ ৱর্ণ c)
 {
   size_t len = curlx_dyn_len(&infop->buf);
-  char *mem = curlx_dyn_ptr(&infop->buf);
+  ৱর্ণ *mem = curlx_dyn_ptr(&infop->buf);
   CURLcode result = CURLE_OK;
 
-  switch(parser->state.UNIX.sub.filename) {
-  case PL_UNIX_FILENAME_PRESPACE:
-    if(c != ' ' && len) {
+  ৱিকল্প(parser->state.UNIX.sub.filename) {
+  পক্ষ PL_UNIX_FILENAME_PRESPACE:
+    যদি(c != ' ' && len) {
       parser->item_offset = len - 1;
       parser->item_length = 1;
       parser->state.UNIX.sub.filename = PL_UNIX_FILENAME_NAME;
     }
-    break;
-  case PL_UNIX_FILENAME_NAME:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_FILENAME_NAME:
     parser->item_length++;
-    if(c == '\r')
+    যদি(c == '\r')
       parser->state.UNIX.sub.filename = PL_UNIX_FILENAME_WINDOWSEOL;
 
-    else if(c == '\n') {
+    অন্যথা যদি(c == '\n') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.filename = parser->item_offset;
       parser->state.UNIX.main = PL_UNIX_FILETYPE;
-      result = ftp_pl_insert_finfo(data, infop);
+      result = ftp_pl_ঢোকাও_finfo(data, infop);
     }
-    break;
-  case PL_UNIX_FILENAME_WINDOWSEOL:
-    if(c == '\n') {
+    ভঙ্গ;
+  পক্ষ PL_UNIX_FILENAME_WINDOWSEOL:
+    যদি(c == '\n') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.filename = parser->item_offset;
       parser->state.UNIX.main = PL_UNIX_FILETYPE;
-      result = ftp_pl_insert_finfo(data, infop);
+      result = ftp_pl_ঢোকাও_finfo(data, infop);
     }
-    else
+    অন্যথা
       result = CURLE_FTP_BAD_FILE_LIST;
-    break;
+    ভঙ্গ;
   }
-  return result;
+  ঘূৰাই result;
 }
 
-static CURLcode parse_unix_symlink(struct Curl_easy *data,
-                                   struct ftp_parselist_data *parser,
-                                   struct fileinfo *infop,
-                                   const char c)
+স্থির CURLcode parse_unix_symlink(সংরচনা Curl_easy *data,
+                                   সংরচনা ftp_parselist_data *parser,
+                                   সংরচনা fileinfo *infop,
+                                   ধ্রুৱ ৱর্ণ c)
 {
   size_t len = curlx_dyn_len(&infop->buf);
-  char *mem = curlx_dyn_ptr(&infop->buf);
+  ৱর্ণ *mem = curlx_dyn_ptr(&infop->buf);
   CURLcode result = CURLE_OK;
 
-  switch(parser->state.UNIX.sub.symlink) {
-  case PL_UNIX_SYMLINK_PRESPACE:
-    if(c != ' ' && len) {
+  ৱিকল্প(parser->state.UNIX.sub.symlink) {
+  পক্ষ PL_UNIX_SYMLINK_PRESPACE:
+    যদি(c != ' ' && len) {
       parser->item_offset = len - 1;
       parser->item_length = 1;
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_NAME;
     }
-    break;
-  case PL_UNIX_SYMLINK_NAME:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_SYMLINK_NAME:
     parser->item_length++;
-    if(c == ' ')
+    যদি(c == ' ')
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_PRETARGET1;
 
-    else if(c == '\r' || c == '\n')
-      return CURLE_FTP_BAD_FILE_LIST;
+    অন্যথা যদি(c == '\r' || c == '\n')
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
 
-    break;
-  case PL_UNIX_SYMLINK_PRETARGET1:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_SYMLINK_PRETARGET1:
     parser->item_length++;
-    if(c == '-')
+    যদি(c == '-')
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_PRETARGET2;
 
-    else if(c == '\r' || c == '\n')
-      return CURLE_FTP_BAD_FILE_LIST;
-    else
+    অন্যথা যদি(c == '\r' || c == '\n')
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
+    অন্যথা
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_NAME;
-    break;
-  case PL_UNIX_SYMLINK_PRETARGET2:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_SYMLINK_PRETARGET2:
     parser->item_length++;
-    if(c == '>')
+    যদি(c == '>')
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_PRETARGET3;
-    else if(c == '\r' || c == '\n')
-      return CURLE_FTP_BAD_FILE_LIST;
-    else
+    অন্যথা যদি(c == '\r' || c == '\n')
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
+    অন্যথা
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_NAME;
 
-    break;
-  case PL_UNIX_SYMLINK_PRETARGET3:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_SYMLINK_PRETARGET3:
     parser->item_length++;
-    if(c == ' ') {
+    যদি(c == ' ') {
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_PRETARGET4;
       /* now place where is symlink following */
       mem[parser->item_offset + parser->item_length - 4] = 0;
@@ -783,176 +783,176 @@ static CURLcode parse_unix_symlink(struct Curl_easy *data,
       parser->item_length = 0;
       parser->item_offset = 0;
     }
-    else if(c == '\r' || c == '\n')
-      return CURLE_FTP_BAD_FILE_LIST;
-    else
+    অন্যথা যদি(c == '\r' || c == '\n')
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
+    অন্যথা
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_NAME;
-    break;
-  case PL_UNIX_SYMLINK_PRETARGET4:
-    if(c != '\r' && c != '\n' && len) {
+    ভঙ্গ;
+  পক্ষ PL_UNIX_SYMLINK_PRETARGET4:
+    যদি(c != '\r' && c != '\n' && len) {
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_TARGET;
       parser->item_offset = len - 1;
       parser->item_length = 1;
     }
-    else
-      return CURLE_FTP_BAD_FILE_LIST;
+    অন্যথা
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
 
-    break;
-  case PL_UNIX_SYMLINK_TARGET:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_SYMLINK_TARGET:
     parser->item_length++;
-    if(c == '\r')
+    যদি(c == '\r')
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_WINDOWSEOL;
 
-    else if(c == '\n') {
+    অন্যথা যদি(c == '\n') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.symlink_target = parser->item_offset;
-      result = ftp_pl_insert_finfo(data, infop);
-      if(result)
-        break;
+      result = ftp_pl_ঢোকাও_finfo(data, infop);
+      যদি(result)
+        ভঙ্গ;
 
       parser->state.UNIX.main = PL_UNIX_FILETYPE;
     }
-    break;
-  case PL_UNIX_SYMLINK_WINDOWSEOL:
-    if(c == '\n') {
+    ভঙ্গ;
+  পক্ষ PL_UNIX_SYMLINK_WINDOWSEOL:
+    যদি(c == '\n') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.symlink_target = parser->item_offset;
-      result = ftp_pl_insert_finfo(data, infop);
-      if(result)
-        break;
+      result = ftp_pl_ঢোকাও_finfo(data, infop);
+      যদি(result)
+        ভঙ্গ;
 
       parser->state.UNIX.main = PL_UNIX_FILETYPE;
     }
-    else
+    অন্যথা
       result = CURLE_FTP_BAD_FILE_LIST;
 
-    break;
+    ভঙ্গ;
   }
-  return result;
+  ঘূৰাই result;
 }
 
-static CURLcode parse_unix(struct Curl_easy *data,
-                           struct ftp_parselist_data *parser,
-                           struct fileinfo *infop,
-                           const char c)
+স্থির CURLcode parse_unix(সংরচনা Curl_easy *data,
+                           সংরচনা ftp_parselist_data *parser,
+                           সংরচনা fileinfo *infop,
+                           ধ্রুৱ ৱর্ণ c)
 {
-  struct curl_fileinfo *finfo = &infop->info;
+  সংরচনা curl_fileinfo *finfo = &infop->info;
   CURLcode result = CURLE_OK;
 
-  switch(parser->state.UNIX.main) {
-  case PL_UNIX_TOTALSIZE:
+  ৱিকল্প(parser->state.UNIX.main) {
+  পক্ষ PL_UNIX_TOTALSIZE:
     result = parse_unix_totalsize(parser, infop, c);
-    if(result)
-      break;
-    if(parser->state.UNIX.main != PL_UNIX_FILETYPE)
-      break;
+    যদি(result)
+      ভঙ্গ;
+    যদি(parser->state.UNIX.main != PL_UNIX_FILETYPE)
+      ভঙ্গ;
     FALLTHROUGH();
-  case PL_UNIX_FILETYPE:
+  পক্ষ PL_UNIX_FILETYPE:
     result = unix_filetype(c, &finfo->filetype);
-    if(!result) {
+    যদি(!result) {
       parser->state.UNIX.main = PL_UNIX_PERMISSION;
       parser->item_length = 0;
       parser->item_offset = 1;
     }
-    break;
-  case PL_UNIX_PERMISSION:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_PERMISSION:
     result = parse_unix_permission(parser, infop, c);
-    break;
-  case PL_UNIX_HLINKS:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_HLINKS:
     result = parse_unix_hlinks(parser, infop, c);
-    break;
-  case PL_UNIX_USER:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_USER:
     result = parse_unix_user(parser, infop, c);
-    break;
-  case PL_UNIX_GROUP:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_GROUP:
     result = parse_unix_group(parser, infop, c);
-    break;
-  case PL_UNIX_SIZE:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_SIZE:
     result = parse_unix_size(parser, infop, c);
-    break;
-  case PL_UNIX_TIME:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_TIME:
     result = parse_unix_time(parser, infop, c);
-    break;
-  case PL_UNIX_FILENAME:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_FILENAME:
     result = parse_unix_filename(data, parser, infop, c);
-    break;
-  case PL_UNIX_SYMLINK:
+    ভঙ্গ;
+  পক্ষ PL_UNIX_SYMLINK:
     result = parse_unix_symlink(data, parser, infop, c);
-    break;
+    ভঙ্গ;
   }
-  return result;
+  ঘূৰাই result;
 }
 
-static CURLcode parse_winnt(struct Curl_easy *data,
-                            struct ftp_parselist_data *parser,
-                            struct fileinfo *infop,
-                            const char c)
+স্থির CURLcode parse_winnt(সংরচনা Curl_easy *data,
+                            সংরচনা ftp_parselist_data *parser,
+                            সংরচনা fileinfo *infop,
+                            ধ্রুৱ ৱর্ণ c)
 {
-  struct curl_fileinfo *finfo = &infop->info;
+  সংরচনা curl_fileinfo *finfo = &infop->info;
   size_t len = curlx_dyn_len(&infop->buf);
-  char *mem = curlx_dyn_ptr(&infop->buf);
+  ৱর্ণ *mem = curlx_dyn_ptr(&infop->buf);
   CURLcode result = CURLE_OK;
 
-  switch(parser->state.NT.main) {
-  case PL_WINNT_DATE:
+  ৱিকল্প(parser->state.NT.main) {
+  পক্ষ PL_WINNT_DATE:
     parser->item_length++;
-    if(parser->item_length < 9) {
-      if(!strchr("0123456789-", c)) { /* only simple control */
-        return CURLE_FTP_BAD_FILE_LIST;
+    যদি(parser->item_length < 9) {
+      যদি(!strchr("0123456789-", c)) { /* only simple control */
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
       }
     }
-    else if(parser->item_length == 9) {
-      if(c == ' ') {
+    অন্যথা যদি(parser->item_length == 9) {
+      যদি(c == ' ') {
         parser->state.NT.main = PL_WINNT_TIME;
         parser->state.NT.sub.time = PL_WINNT_TIME_PRESPACE;
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      অন্যথা
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
     }
-    else
-      return CURLE_FTP_BAD_FILE_LIST;
-    break;
-  case PL_WINNT_TIME:
+    অন্যথা
+      ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
+    ভঙ্গ;
+  পক্ষ PL_WINNT_TIME:
     parser->item_length++;
-    switch(parser->state.NT.sub.time) {
-    case PL_WINNT_TIME_PRESPACE:
-      if(!ISBLANK(c))
+    ৱিকল্প(parser->state.NT.sub.time) {
+    পক্ষ PL_WINNT_TIME_PRESPACE:
+      যদি(!ISBLANK(c))
         parser->state.NT.sub.time = PL_WINNT_TIME_TIME;
-      break;
-    case PL_WINNT_TIME_TIME:
-      if(c == ' ') {
+      ভঙ্গ;
+    পক্ষ PL_WINNT_TIME_TIME:
+      যদি(c == ' ') {
         parser->offsets.time = parser->item_offset;
         mem[parser->item_offset + parser->item_length - 1] = 0;
         parser->state.NT.main = PL_WINNT_DIRORSIZE;
         parser->state.NT.sub.dirorsize = PL_WINNT_DIRORSIZE_PRESPACE;
         parser->item_length = 0;
       }
-      else if(!strchr("APM0123456789:", c))
-        return CURLE_FTP_BAD_FILE_LIST;
-      break;
+      অন্যথা যদি(!strchr("APM0123456789:", c))
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
+      ভঙ্গ;
     }
-    break;
-  case PL_WINNT_DIRORSIZE:
-    switch(parser->state.NT.sub.dirorsize) {
-    case PL_WINNT_DIRORSIZE_PRESPACE:
-      if(c != ' ' && len) {
+    ভঙ্গ;
+  পক্ষ PL_WINNT_DIRORSIZE:
+    ৱিকল্প(parser->state.NT.sub.dirorsize) {
+    পক্ষ PL_WINNT_DIRORSIZE_PRESPACE:
+      যদি(c != ' ' && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
         parser->state.NT.sub.dirorsize = PL_WINNT_DIRORSIZE_CONTENT;
       }
-      break;
-    case PL_WINNT_DIRORSIZE_CONTENT:
+      ভঙ্গ;
+    পক্ষ PL_WINNT_DIRORSIZE_CONTENT:
       parser->item_length++;
-      if(c == ' ') {
+      যদি(c == ' ') {
         mem[parser->item_offset + parser->item_length - 1] = 0;
-        if(!strcmp("<DIR>", mem + parser->item_offset)) {
+        যদি(!strcmp("<DIR>", mem + parser->item_offset)) {
           finfo->filetype = CURLFILETYPE_DIRECTORY;
           finfo->size = 0;
         }
-        else {
-          const char *p = mem + parser->item_offset;
-          if(curlx_str_numblanks(&p, &finfo->size)) {
-            return CURLE_FTP_BAD_FILE_LIST;
+        অন্যথা {
+          ধ্রুৱ ৱর্ণ *p = mem + parser->item_offset;
+          যদি(curlx_str_numblanks(&p, &finfo->size)) {
+            ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
           }
           /* correct file type */
           parser->file_data->info.filetype = CURLFILETYPE_FILE;
@@ -963,102 +963,102 @@ static CURLcode parse_winnt(struct Curl_easy *data,
         parser->state.NT.main = PL_WINNT_FILENAME;
         parser->state.NT.sub.filename = PL_WINNT_FILENAME_PRESPACE;
       }
-      break;
+      ভঙ্গ;
     }
-    break;
-  case PL_WINNT_FILENAME:
-    switch(parser->state.NT.sub.filename) {
-    case PL_WINNT_FILENAME_PRESPACE:
-      if(c != ' ' && len) {
+    ভঙ্গ;
+  পক্ষ PL_WINNT_FILENAME:
+    ৱিকল্প(parser->state.NT.sub.filename) {
+    পক্ষ PL_WINNT_FILENAME_PRESPACE:
+      যদি(c != ' ' && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
         parser->state.NT.sub.filename = PL_WINNT_FILENAME_CONTENT;
       }
-      break;
-    case PL_WINNT_FILENAME_CONTENT:
+      ভঙ্গ;
+    পক্ষ PL_WINNT_FILENAME_CONTENT:
       parser->item_length++;
-      if(!len)
-        return CURLE_FTP_BAD_FILE_LIST;
-      if(c == '\r') {
+      যদি(!len)
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
+      যদি(c == '\r') {
         parser->state.NT.sub.filename = PL_WINNT_FILENAME_WINEOL;
         mem[len - 1] = 0;
       }
-      else if(c == '\n') {
+      অন্যথা যদি(c == '\n') {
         parser->offsets.filename = parser->item_offset;
         mem[len - 1] = 0;
-        result = ftp_pl_insert_finfo(data, infop);
-        if(result)
-          return result;
+        result = ftp_pl_ঢোকাও_finfo(data, infop);
+        যদি(result)
+          ঘূৰাই result;
 
         parser->state.NT.main = PL_WINNT_DATE;
         parser->state.NT.sub.filename = PL_WINNT_FILENAME_PRESPACE;
       }
-      break;
-    case PL_WINNT_FILENAME_WINEOL:
-      if(c == '\n') {
+      ভঙ্গ;
+    পক্ষ PL_WINNT_FILENAME_WINEOL:
+      যদি(c == '\n') {
         parser->offsets.filename = parser->item_offset;
-        result = ftp_pl_insert_finfo(data, infop);
-        if(result)
-          return result;
+        result = ftp_pl_ঢোকাও_finfo(data, infop);
+        যদি(result)
+          ঘূৰাই result;
 
         parser->state.NT.main = PL_WINNT_DATE;
         parser->state.NT.sub.filename = PL_WINNT_FILENAME_PRESPACE;
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      অন্যথা
+        ঘূৰাই CURLE_FTP_BAD_FILE_LIST;
 
-      break;
+      ভঙ্গ;
     }
-    break;
+    ভঙ্গ;
   }
 
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
 /* returns TRUE if in wildcard listing mode */
-bool Curl_ftp_listmode(struct Curl_easy *data)
+bool Curl_ftp_listmode(সংরচনা Curl_easy *data)
 {
-  if(data->state.wildcardmatch) {
-    struct WildcardData * const wildcard = data->wildcard;
-    return wildcard && (wildcard->state == CURLWC_MATCHING);
+  যদি(data->state.wildcardmatch) {
+    সংরচনা WildcardData * ধ্রুৱ wildcard = data->wildcard;
+    ঘূৰাই wildcard && (wildcard->state == CURLWC_MATCHING);
   }
-  return FALSE;
+  ঘূৰাই FALSE;
 }
 
-size_t Curl_ftp_parselist(char *buffer, size_t size, size_t nmemb,
-                          void *connptr)
+size_t Curl_ftp_parselist(ৱর্ণ *buffer, size_t size, size_t nmemb,
+                          শূন্য *connptr)
 {
   size_t bufflen = size * nmemb;
-  struct Curl_easy *data = (struct Curl_easy *)connptr;
-  struct ftp_wc *ftpwc = data->wildcard->ftpwc;
-  struct ftp_parselist_data *parser = ftpwc->parser;
+  সংরচনা Curl_easy *data = (সংরচনা Curl_easy *)connptr;
+  সংরচনা ftp_wc *ftpwc = data->wildcard->ftpwc;
+  সংরচনা ftp_parselist_data *parser = ftpwc->parser;
   size_t i = 0;
   CURLcode result;
   size_t retsize = bufflen;
 
-  if(parser->error) { /* error in previous call */
+  যদি(parser->error) { /* error in previous call */
     /* scenario:
      * 1. call => OK..
      * 2. call => OUT_OF_MEMORY (or other error)
      * 3. (last) call => is skipped RIGHT HERE and the error is handled later
      *    in wc_statemach()
      */
-    goto fail;
+    গচ্ছ fail;
   }
 
-  if(parser->os_type == OS_TYPE_UNKNOWN && bufflen > 0) {
+  যদি(parser->os_type == OS_TYPE_UNKNOWN && bufflen > 0) {
     /* considering info about FILE response format */
     parser->os_type = ISDIGIT(buffer[0]) ? OS_TYPE_WIN_NT : OS_TYPE_UNIX;
   }
 
-  while(i < bufflen) { /* FSM */
-    char c = buffer[i];
-    struct fileinfo *infop;
-    if(!parser->file_data) { /* tmp file data is not allocated yet */
+  যেতিয়ালৈ(i < bufflen) { /* FSM */
+    ৱর্ণ c = buffer[i];
+    সংরচনা fileinfo *infop;
+    যদি(!parser->file_data) { /* tmp file data is not allocated yet */
       parser->file_data = Curl_fileinfo_alloc();
-      if(!parser->file_data) {
+      যদি(!parser->file_data) {
         parser->error = CURLE_OUT_OF_MEMORY;
-        goto fail;
+        গচ্ছ fail;
       }
       parser->item_offset = 0;
       parser->item_length = 0;
@@ -1067,40 +1067,40 @@ size_t Curl_ftp_parselist(char *buffer, size_t size, size_t nmemb,
 
     infop = parser->file_data;
 
-    if(curlx_dyn_addn(&infop->buf, &c, 1)) {
+    যদি(curlx_dyn_addn(&infop->buf, &c, 1)) {
       parser->error = CURLE_OUT_OF_MEMORY;
-      goto fail;
+      গচ্ছ fail;
     }
 
-    switch(parser->os_type) {
-    case OS_TYPE_UNIX:
+    ৱিকল্প(parser->os_type) {
+    পক্ষ OS_TYPE_UNIX:
       result = parse_unix(data, parser, infop, c);
-      break;
-    case OS_TYPE_WIN_NT:
+      ভঙ্গ;
+    পক্ষ OS_TYPE_WIN_NT:
       result = parse_winnt(data, parser, infop, c);
-      break;
-    default:
+      ভঙ্গ;
+    স্ৱভাৱ:
       retsize = bufflen + 1;
-      goto fail;
+      গচ্ছ fail;
     }
-    if(result) {
+    যদি(result) {
       parser->error = result;
-      goto fail;
+      গচ্ছ fail;
     }
 
     i++;
   }
-  return retsize;
+  ঘূৰাই retsize;
 
 fail:
 
   /* Clean up any allocated memory. */
-  if(parser->file_data) {
+  যদি(parser->file_data) {
     Curl_fileinfo_cleanup(parser->file_data);
-    parser->file_data = NULL;
+    parser->file_data = রিক্ত;
   }
 
-  return retsize;
+  ঘূৰাই retsize;
 }
 
 #endif /* !CURL_DISABLE_FTP */

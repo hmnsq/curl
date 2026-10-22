@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_DICT
-extern const struct Curl_protocol Curl_protocol_dict;
+বাহ্য ধ্রুৱ সংরচনা Curl_protocol Curl_protocol_dict;
 #endif
 
 #endif /* HEADER_CURL_DICT_H */

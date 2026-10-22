@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাৱ "curl_setup.h"
 
-#include "bufq.h"
-#include "dynhds.h"
+#অন্তর্ভাৱ "bufq.h"
+#অন্তর্ভাৱ "dynhds.h"
 
-typedef enum {
+প্রকারনির্দেশ গণনা {
   HTTPREQ_GET,
   HTTPREQ_POST,
   HTTPREQ_POST_FORM, /* we make a difference internally */
@@ -41,16 +41,16 @@ typedef enum {
 #define CURL_HTTP_V2x   (1 << 1)
 #define CURL_HTTP_V3x   (1 << 2)
 /* bitmask of CURL_HTTP_V* values */
-typedef unsigned char http_majors;
+প্রকারনির্দেশ unsigned ৱর্ণ http_majors;
 
 #ifndef CURL_DISABLE_HTTP
 
-extern const struct Curl_protocol Curl_protocol_http;
+বাহ্য ধ্রুৱ সংরচনা Curl_protocol Curl_protocol_http;
 
-struct dynhds;
+সংরচনা dynhds;
 
-struct http_negotiation {
-  unsigned char rcvd_min; /* minimum version seen in responses, 09, 10, 11 */
+সংরচনা http_negotiation {
+  unsigned ৱর্ণ rcvd_min; /* minimum version seen in responses, 09, 10, 11 */
   http_majors wanted;  /* wanted major versions when talking to server */
   http_majors allowed; /* allowed major versions when talking to server */
   http_majors preferred; /* preferred major version when talking to server */
@@ -60,65 +60,65 @@ struct http_negotiation {
   BIT(only_10); /* When using major version 1x, use only 1.0 */
 };
 
-void Curl_http_neg_init(struct Curl_easy *data, struct http_negotiation *neg);
+শূন্য Curl_http_neg_init(সংরচনা Curl_easy *data, সংরচনা http_negotiation *neg);
 
-CURLcode Curl_bump_headersize(struct Curl_easy *data,
+CURLcode Curl_bump_headersize(সংরচনা Curl_easy *data,
                               size_t delta,
                               bool connect_only);
 
 /* Header specific functions */
-bool Curl_compareheader(const char *headerline,  /* line to check */
-                        const char *header,   /* header keyword _with_ colon */
-                        const size_t hlen,   /* len of the keyword in bytes */
-                        const char *content, /* content string to find */
-                        const size_t clen);   /* len of the content in bytes */
+bool Curl_compareheader(ধ্রুৱ ৱর্ণ *headerline,  /* line to check */
+                        ধ্রুৱ ৱর্ণ *header,   /* header keyword _with_ colon */
+                        ধ্রুৱ size_t hlen,   /* len of the keyword in bytes */
+                        ধ্রুৱ ৱর্ণ *content, /* content string to find */
+                        ধ্রুৱ size_t clen);   /* len of the content in bytes */
 
-char *Curl_copy_header_value(const char *header);
+ৱর্ণ *Curl_copy_header_মান(ধ্রুৱ ৱর্ণ *header);
 
-char *Curl_checkProxyheaders(struct Curl_easy *data,
-                             const struct connectdata *conn,
-                             const char *thisheader,
-                             const size_t thislen);
+ৱর্ণ *Curl_checkProxyheaders(সংরচনা Curl_easy *data,
+                             ধ্রুৱ সংরচনা connectdata *conn,
+                             ধ্রুৱ ৱর্ণ *thisheader,
+                             ধ্রুৱ size_t thislen);
 
-CURLcode Curl_add_timecondition(struct Curl_easy *data, struct dynbuf *req);
-CURLcode Curl_add_custom_headers(struct Curl_easy *data, bool is_connect,
-                                 int httpversion, struct dynbuf *req);
+CURLcode Curl_add_timecondition(সংরচনা Curl_easy *data, সংরচনা dynbuf *req);
+CURLcode Curl_add_custom_headers(সংরচনা Curl_easy *data, bool is_connect,
+                                 পূর্ণাঙ্ক httpversion, সংরচনা dynbuf *req);
 
-void Curl_http_to_fold(struct dynbuf *bf);
+শূন্য Curl_http_to_fold(সংরচনা dynbuf *bf);
 
-void Curl_http_method(struct Curl_easy *data,
-                      const char **method, Curl_HttpReq *reqp);
+শূন্য Curl_http_method(সংরচনা Curl_easy *data,
+                      ধ্রুৱ ৱর্ণ **method, Curl_HttpReq *reqp);
 
 /* protocol-specific functions set up to be called by the main engine */
-CURLcode Curl_http_setup_conn(struct Curl_easy *data,
-                              struct connectdata *conn);
-CURLcode Curl_http(struct Curl_easy *data, bool *done);
-CURLcode Curl_http_done(struct Curl_easy *data,
+CURLcode Curl_http_setup_conn(সংরচনা Curl_easy *data,
+                              সংরচনা connectdata *conn);
+CURLcode Curl_http(সংরচনা Curl_easy *data, bool *done);
+CURLcode Curl_http_done(সংরচনা Curl_easy *data,
                         CURLcode status, bool premature);
-CURLcode Curl_http_doing_pollset(struct Curl_easy *data,
-                                 struct easy_pollset *ps);
-CURLcode Curl_http_perform_pollset(struct Curl_easy *data,
-                                   struct easy_pollset *ps);
-CURLcode Curl_http_write_resp(struct Curl_easy *data,
-                              const char *buf, size_t blen,
+CURLcode Curl_http_doing_pollset(সংরচনা Curl_easy *data,
+                                 সংরচনা easy_pollset *ps);
+CURLcode Curl_http_perform_pollset(সংরচনা Curl_easy *data,
+                                   সংরচনা easy_pollset *ps);
+CURLcode Curl_http_write_resp(সংরচনা Curl_easy *data,
+                              ধ্রুৱ ৱর্ণ *buf, size_t blen,
                               bool is_eos);
-CURLcode Curl_http_write_resp_hd(struct Curl_easy *data,
-                                 const char *hd, size_t hdlen,
+CURLcode Curl_http_write_resp_hd(সংরচনা Curl_easy *data,
+                                 ধ্রুৱ ৱর্ণ *hd, size_t hdlen,
                                  bool is_eos);
 
 /* check a received header line for forbidden bytes/format, the same checks
    applied to regular response headers */
-CURLcode Curl_verify_header(struct Curl_easy *data,
-                            const char *hd, size_t hdlen);
+CURLcode Curl_verify_header(সংরচনা Curl_easy *data,
+                            ধ্রুৱ ৱর্ণ *hd, size_t hdlen);
 
 /* These functions are in http.c */
-CURLcode Curl_http_input_auth(struct Curl_easy *data, bool proxy,
-                              const char *auth);
+CURLcode Curl_http_প্ৰবেশ_auth(সংরচনা Curl_easy *data, bool proxy,
+                              ধ্রুৱ ৱর্ণ *auth);
 
-CURLcode Curl_http_auth_act(struct Curl_easy *data);
+CURLcode Curl_http_auth_act(সংরচনা Curl_easy *data);
 
 /* follow a redirect or not */
-CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
+CURLcode Curl_http_follow(সংরচনা Curl_easy *data, ধ্রুৱ ৱর্ণ *newurl,
                           followtype type);
 
 /* If only the PICKNONE bit is set, there has been a round-trip and we
@@ -159,7 +159,7 @@ CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
 /* MAX_HTTP_RESP_HEADER_COUNT is the maximum number of response headers that
    libcurl allows for a single HTTP response, including CONNECT and
    redirects. */
-#define MAX_HTTP_RESP_HEADER_COUNT 5000
+#define MAX_HTTP_RESP_HEADER_গুনতি 5000
 
 #endif /* CURL_DISABLE_HTTP */
 
@@ -167,8 +167,8 @@ CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
  * HTTP unique setup
  ***************************************************************************/
 
-CURLcode Curl_http_write_resp_hds(struct Curl_easy *data,
-                                  const char *buf, size_t blen,
+CURLcode Curl_http_write_resp_hds(সংরচনা Curl_easy *data,
+                                  ধ্রুৱ ৱর্ণ *buf, size_t blen,
                                   size_t *pconsumed);
 
 /**
@@ -188,43 +188,43 @@ CURLcode Curl_http_write_resp_hds(struct Curl_easy *data,
  *
  * @returns CURLcode
  */
-CURLcode Curl_http_output_auth(struct Curl_easy *data,
-                               struct connectdata *conn,
-                               const char *request,
+CURLcode Curl_http_output_auth(সংরচনা Curl_easy *data,
+                               সংরচনা connectdata *conn,
+                               ধ্রুৱ ৱর্ণ *request,
                                Curl_HttpReq httpreq,
-                               const char *path,
-                               const char *query,
+                               ধ্রুৱ ৱর্ণ *path,
+                               ধ্রুৱ ৱর্ণ *query,
                                bool is_connect);
 
 /* Decode HTTP status code string. */
-CURLcode Curl_http_decode_status(int32_t *pstatus, const char *s, size_t len);
+CURLcode Curl_http_decode_status(int32_t *pstatus, ধ্রুৱ ৱর্ণ *s, size_t len);
 
 /**
  * All about a core HTTP request, excluding body and trailers
  */
-struct httpreq {
-  struct dynhds headers;
-  struct dynhds trailers;
-  char *scheme;
-  char *authority;
-  char *path;
-  char method[1];
+সংরচনা httpreq {
+  সংরচনা dynhds headers;
+  সংরচনা dynhds trailers;
+  ৱর্ণ *scheme;
+  ৱর্ণ *authority;
+  ৱর্ণ *path;
+  ৱর্ণ method[1];
 };
 
 /**
  * Create an HTTP request struct.
  */
-CURLcode Curl_http_req_make(struct httpreq **preq,
-                            const char *method, size_t m_len,
-                            const char *scheme, size_t s_len,
-                            const char *authority, size_t a_len,
-                            const char *path, size_t p_len);
+CURLcode Curl_http_req_make(সংরচনা httpreq **preq,
+                            ধ্রুৱ ৱর্ণ *method, size_t m_len,
+                            ধ্রুৱ ৱর্ণ *scheme, size_t s_len,
+                            ধ্রুৱ ৱর্ণ *authority, size_t a_len,
+                            ধ্রুৱ ৱর্ণ *path, size_t p_len);
 
-CURLcode Curl_http_req_make2(struct httpreq **preq,
-                             const char *method, size_t m_len,
-                             CURLU *url, const char *scheme_default);
+CURLcode Curl_http_req_make2(সংরচনা httpreq **preq,
+                             ধ্রুৱ ৱর্ণ *method, size_t m_len,
+                             CURLU *url, ধ্রুৱ ৱর্ণ *scheme_default);
 
-void Curl_http_req_free(struct httpreq *req);
+শূন্য Curl_http_req_free(সংরচনা httpreq *req);
 
 #define HTTP_PSEUDO_METHOD    ":method"
 #define HTTP_PSEUDO_SCHEME    ":scheme"
@@ -247,27 +247,27 @@ void Curl_http_req_free(struct httpreq *req);
  * @param req        the request to transform
  * @param data       the handle to lookup defaults like ' :scheme' from
  */
-CURLcode Curl_http_req_to_h2(struct dynhds *h2_headers,
-                             struct httpreq *req, struct Curl_easy *data);
+CURLcode Curl_http_req_to_h2(সংরচনা dynhds *h2_headers,
+                             সংরচনা httpreq *req, সংরচনা Curl_easy *data);
 
 /**
  * All about a core HTTP response, excluding body and trailers
  */
-struct http_resp {
-  int status;
-  char *description;
-  struct dynhds headers;
-  struct dynhds trailers;
-  struct http_resp *prev;
+সংরচনা http_resp {
+  পূর্ণাঙ্ক status;
+  ৱর্ণ *description;
+  সংরচনা dynhds headers;
+  সংরচনা dynhds trailers;
+  সংরচনা http_resp *prev;
 };
 
 /**
  * Create an HTTP response struct.
  */
-CURLcode Curl_http_resp_make(struct http_resp **presp,
-                             int status,
-                             const char *description);
+CURLcode Curl_http_resp_make(সংরচনা http_resp **presp,
+                             পূর্ণাঙ্ক status,
+                             ধ্রুৱ ৱর্ণ *description);
 
-void Curl_http_resp_free(struct http_resp *resp);
+শূন্য Curl_http_resp_free(সংরচনা http_resp *resp);
 
 #endif /* HEADER_CURL_HTTP_H */

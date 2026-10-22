@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাৱ "curl_setup.h"
 
-struct uint32_tbl {
-  void **rows;  /* array of void* holding entries */
+সংরচনা uint32_tbl {
+  শূন্য **rows;  /* array of void* holding entries */
   uint32_t nrows;  /* length of `rows` array */
   uint32_t nentries; /* entries in table */
-  uint32_t last_key_added; /* UINT_MAX or last key added */
+  uint32_t last_চাবি_added; /* UINT_MAX or last key added */
 #ifdef DEBUGBUILD
-  int init;
+  পূর্ণাঙ্ক init;
 #endif
 };
 
 /* Initialize the table with 0 capacity. */
-void Curl_uint32_tbl_init(struct uint32_tbl *tbl);
+শূন্য Curl_uint32_tbl_init(সংরচনা uint32_tbl *tbl);
 
 /* Resize the table to change capacity `nmax`. When `nmax` is reduced,
  * all present entries with key equal or larger to `nmax` are removed. */
-CURLcode Curl_uint32_tbl_resize(struct uint32_tbl *tbl, uint32_t nrows);
+CURLcode Curl_uint32_tbl_resize(সংরচনা uint32_tbl *tbl, uint32_t nrows);
 
 /* Destroy the table, freeing its storage. */
-void Curl_uint32_tbl_destroy(struct uint32_tbl *tbl);
+শূন্য Curl_uint32_tbl_destroy(সংরচনা uint32_tbl *tbl);
 
 /* Get the table capacity. */
-uint32_t Curl_uint32_tbl_capacity(struct uint32_tbl *tbl);
+uint32_t Curl_uint32_tbl_capacity(সংরচনা uint32_tbl *tbl);
 
 /* Get the number of entries in the table. */
-uint32_t Curl_uint32_tbl_count(struct uint32_tbl *tbl);
+uint32_t Curl_uint32_tbl_গুনতি(সংরচনা uint32_tbl *tbl);
 
 /* Get the entry for key or NULL if not present */
-void *Curl_uint32_tbl_get(struct uint32_tbl *tbl, uint32_t key);
+শূন্য *Curl_uint32_tbl_get(সংরচনা uint32_tbl *tbl, uint32_t চাবি);
 
 /* Add a new entry to the table and assign it a free key.
  * Returns FALSE if the table is full.
  *
  * Keys are assigned in a round-robin manner.
  * No matter the capacity, UINT_MAX is never assigned. */
-bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey);
+bool Curl_uint32_tbl_add(সংরচনা uint32_tbl *tbl, শূন্য *entry, uint32_t *pkey);
 
 /* Remove the entry with `key`. */
-void Curl_uint32_tbl_remove(struct uint32_tbl *tbl, uint32_t key);
+শূন্য Curl_uint32_tbl_remove(সংরচনা uint32_tbl *tbl, uint32_t চাবি);
 
 /* Return TRUE if the table contains an tryn with that keys. */
-bool Curl_uint32_tbl_contains(struct uint32_tbl *tbl, uint32_t key);
+bool Curl_uint32_tbl_contains(সংরচনা uint32_tbl *tbl, uint32_t চাবি);
 
 /* Get the first entry in the table (with the smallest `key`).
  * Returns FALSE if the table is empty. */
-bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
-                           uint32_t *pkey, void **pentry);
+bool Curl_uint32_tbl_first(সংরচনা uint32_tbl *tbl,
+                           uint32_t *pkey, শূন্য **pentry);
 
 /* Get the next key in the table, following `last_key` in natural order.
  * Put another way, this is the smallest key greater than `last_key` in
@@ -83,7 +83,7 @@ bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
  * - added keys lower than 'last_key' will not show up.
  * - removed keys lower or equal to 'last_key' will not show up.
  * - removed keys higher than 'last_key' will not be visited. */
-bool Curl_uint32_tbl_next(struct uint32_tbl *tbl, uint32_t last_key,
-                          uint32_t *pkey, void **pentry);
+bool Curl_uint32_tbl_next(সংরচনা uint32_tbl *tbl, uint32_t last_চাবি,
+                          uint32_t *pkey, শূন্য **pentry);
 
 #endif /* HEADER_CURL_UINT_TABLE_H */

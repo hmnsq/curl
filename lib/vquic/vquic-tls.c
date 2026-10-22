@@ -21,215 +21,215 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাৱ "curl_setup.h"
 
-#if defined(USE_HTTP3) && \
+#যদি defined(USE_HTTP3) && \
   (defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL))
 
 #ifdef USE_OPENSSL
-#include <openssl/err.h>
-#include "vtls/openssl.h"
-#elif defined(USE_GNUTLS)
-#include <gnutls/abstract.h>
-#include <gnutls/gnutls.h>
-#include <gnutls/x509.h>
-#include <gnutls/crypto.h>
-#include <nettle/sha2.h>
-#include "vtls/gtls.h"
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/quic.h>
-#include "vtls/wolfssl.h"
+#অন্তর্ভাৱ <openssl/err.h>
+#অন্তর্ভাৱ "vtls/openssl.h"
+#নোচেদ্যদি defined(USE_GNUTLS)
+#অন্তর্ভাৱ <gnutls/abstract.h>
+#অন্তর্ভাৱ <gnutls/gnutls.h>
+#অন্তর্ভাৱ <gnutls/x509.h>
+#অন্তর্ভাৱ <gnutls/crypto.h>
+#অন্তর্ভাৱ <nettle/sha2.h>
+#অন্তর্ভাৱ "vtls/gtls.h"
+#নোচেদ্যদি defined(USE_WOLFSSL)
+#অন্তর্ভাৱ <wolfssl/options.h>
+#অন্তর্ভাৱ <wolfssl/ssl.h>
+#অন্তর্ভাৱ <wolfssl/quic.h>
+#অন্তর্ভাৱ "vtls/wolfssl.h"
 #endif
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_scache.h"
-#include "vquic/vquic-tls.h"
+#অন্তর্ভাৱ "urldata.h"
+#অন্তর্ভাৱ "cfilters.h"
+#অন্তর্ভাৱ "vtls/vtls.h"
+#অন্তর্ভাৱ "vtls/vtls_scache.h"
+#অন্তর্ভাৱ "vquic/vquic-tls.h"
 
-CURLcode Curl_vquic_tls_peer_init(struct Curl_peer *origin,
-                                  struct Curl_peer *peer,
-                                  struct ssl_filter_config *sslc,
-                                  struct ssl_peer *ssl_peer)
+CURLcode Curl_vquic_tls_peer_init(সংরচনা Curl_peer *origin,
+                                  সংরচনা Curl_peer *peer,
+                                  সংরচনা ssl_filter_config *sslc,
+                                  সংরচনা ssl_peer *ssl_peer)
 {
-  char tls_id[80];
+  ৱর্ণ tls_id[80];
 
 #ifdef USE_OPENSSL
-  Curl_ossl_version(tls_id, sizeof(tls_id));
-#elif defined(USE_GNUTLS)
-  Curl_gtls_version(tls_id, sizeof(tls_id));
-#elif defined(USE_WOLFSSL)
-  Curl_wssl_version(tls_id, sizeof(tls_id));
-#else
+  Curl_ossl_version(tls_id, পরিমাণ(tls_id));
+#নোচেদ্যদি defined(USE_GNUTLS)
+  Curl_gtls_version(tls_id, পরিমাণ(tls_id));
+#নোচেদ্যদি defined(USE_WOLFSSL)
+  Curl_wssl_version(tls_id, পরিমাণ(tls_id));
+#অন্যথা
 #error "no TLS lib in used, should not happen"
-  return CURLE_FAILED_INIT;
+  ঘূৰাই CURLE_FAILED_INIT;
 #endif
-  if(ssl_peer->origin || ssl_peer->peer)
+  যদি(ssl_peer->origin || ssl_peer->peer)
     Curl_ssl_peer_cleanup(ssl_peer);
-  return Curl_ssl_peer_init(ssl_peer, origin, peer, sslc,
+  ঘূৰাই Curl_ssl_peer_init(ssl_peer, origin, peer, sslc,
                             tls_id, TRNSPRT_QUIC);
 }
 
-CURLcode Curl_vquic_tls_init(struct curl_tls_ctx *ctx,
-                             struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             struct ssl_peer *ssl_peer,
-                             const struct alpn_spec *alpns,
+CURLcode Curl_vquic_tls_init(সংরচনা curl_tls_ctx *ctx,
+                             সংরচনা Curl_cfilter *cf,
+                             সংরচনা Curl_easy *data,
+                             সংরচনা ssl_peer *ssl_peer,
+                             ধ্রুৱ সংরচনা alpn_spec *alpns,
                              Curl_vquic_tls_ctx_setup *cb_setup,
-                             void *cb_user_data, void *ssl_user_data,
+                             শূন্য *cb_user_data, শূন্য *ssl_user_data,
                              Curl_vquic_session_reuse_cb *session_reuse_cb)
 {
 #ifdef USE_OPENSSL
-  return Curl_ossl_ctx_init(&ctx->ossl, cf, data, ssl_peer, alpns,
-                            cb_setup, cb_user_data, NULL, ssl_user_data,
+  ঘূৰাই Curl_ossl_ctx_init(&ctx->ossl, cf, data, ssl_peer, alpns,
+                            cb_setup, cb_user_data, রিক্ত, ssl_user_data,
                             session_reuse_cb);
-#elif defined(USE_GNUTLS)
-  return Curl_gtls_ctx_init(&ctx->gtls, cf, data, ssl_peer, alpns,
+#নোচেদ্যদি defined(USE_GNUTLS)
+  ঘূৰাই Curl_gtls_ctx_init(&ctx->gtls, cf, data, ssl_peer, alpns,
                             cb_setup, cb_user_data, ssl_user_data,
                             session_reuse_cb);
-#elif defined(USE_WOLFSSL)
-  return Curl_wssl_ctx_init(&ctx->wssl, cf, data, ssl_peer, alpns,
+#নোচেদ্যদি defined(USE_WOLFSSL)
+  ঘূৰাই Curl_wssl_ctx_init(&ctx->wssl, cf, data, ssl_peer, alpns,
                             cb_setup, cb_user_data,
                             ssl_user_data, session_reuse_cb);
-#else
+#অন্যথা
 #error "no TLS lib in used, should not happen"
-  return CURLE_FAILED_INIT;
+  ঘূৰাই CURLE_FAILED_INIT;
 #endif
 }
 
-void Curl_vquic_tls_cleanup(struct curl_tls_ctx *ctx)
+শূন্য Curl_vquic_tls_cleanup(সংরচনা curl_tls_ctx *ctx)
 {
 #ifdef USE_OPENSSL
   Curl_osslctx_cleanup(&ctx->ossl);
-#elif defined(USE_GNUTLS)
-  if(ctx->gtls.session)
+#নোচেদ্যদি defined(USE_GNUTLS)
+  যদি(ctx->gtls.session)
     gnutls_deinit(ctx->gtls.session);
   Curl_gtls_shared_creds_free(&ctx->gtls.shared_creds);
-#elif defined(USE_WOLFSSL)
-  if(ctx->wssl.ssl)
+#নোচেদ্যদি defined(USE_WOLFSSL)
+  যদি(ctx->wssl.ssl)
     wolfSSL_free(ctx->wssl.ssl);
-  if(ctx->wssl.ssl_ctx)
+  যদি(ctx->wssl.ssl_ctx)
     wolfSSL_CTX_free(ctx->wssl.ssl_ctx);
 #endif
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, পরিমাণ(*ctx));
 }
 
-CURLcode Curl_vquic_tls_before_recv(struct curl_tls_ctx *ctx,
-                                    struct Curl_cfilter *cf,
-                                    struct Curl_easy *data)
+CURLcode Curl_vquic_tls_before_recv(সংরচনা curl_tls_ctx *ctx,
+                                    সংরচনা Curl_cfilter *cf,
+                                    সংরচনা Curl_easy *data)
 {
 #ifdef USE_OPENSSL
-  if(!ctx->ossl.x509_store_setup) {
+  যদি(!ctx->ossl.x509_store_setup) {
     CURLcode result = Curl_ssl_setup_x509_store(cf, data, &ctx->ossl);
-    if(result)
-      return result;
+    যদি(result)
+      ঘূৰাই result;
     ctx->ossl.x509_store_setup = TRUE;
   }
-#elif defined(USE_WOLFSSL)
-  if(!ctx->wssl.x509_store_setup) {
+#নোচেদ্যদি defined(USE_WOLFSSL)
+  যদি(!ctx->wssl.x509_store_setup) {
     CURLcode result = Curl_wssl_setup_x509_store(cf, data, &ctx->wssl);
-    if(result)
-      return result;
+    যদি(result)
+      ঘূৰাই result;
   }
-#elif defined(USE_GNUTLS)
-  if(!ctx->gtls.shared_creds->trust_setup) {
+#নোচেদ্যদি defined(USE_GNUTLS)
+  যদি(!ctx->gtls.shared_creds->trust_setup) {
     CURLcode result = Curl_gtls_client_trust_setup(cf, data, &ctx->gtls);
-    if(result)
-      return result;
+    যদি(result)
+      ঘূৰাই result;
   }
-#else
-  (void)ctx;
-  (void)cf;
-  (void)data;
+#অন্যথা
+  (শূন্য)ctx;
+  (শূন্য)cf;
+  (শূন্য)data;
 #endif
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
-CURLcode Curl_vquic_tls_verify_peer(struct curl_tls_ctx *ctx,
-                                    struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct ssl_peer *peer)
+CURLcode Curl_vquic_tls_verify_peer(সংরচনা curl_tls_ctx *ctx,
+                                    সংরচনা Curl_cfilter *cf,
+                                    সংরচনা Curl_easy *data,
+                                    সংরচনা ssl_peer *peer)
 {
-  struct ssl_filter_config *conn_config;
+  সংরচনা ssl_filter_config *conn_config;
   CURLcode result = CURLE_OK;
 
   conn_config = Curl_ssl_cf_get_filter_config(cf);
-  if(!conn_config)
-    return CURLE_FAILED_INIT;
+  যদি(!conn_config)
+    ঘূৰাই CURLE_FAILED_INIT;
 
 #ifdef USE_OPENSSL
-  (void)conn_config;
+  (শূন্য)conn_config;
   result = Curl_ossl_check_peer_cert(cf, data, &ctx->ossl, peer);
-#elif defined(USE_GNUTLS)
+#নোচেদ্যদি defined(USE_GNUTLS)
   result = Curl_gtls_verifyserver(
     cf, data, ctx->gtls.session, conn_config, &data->set.ssl, peer,
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY));
-#elif defined(USE_WOLFSSL)
-  (void)data;
-  if(conn_config->verifyhost) {
+#নোচেদ্যদি defined(USE_WOLFSSL)
+  (শূন্য)data;
+  যদি(conn_config->verifyhost) {
     WOLFSSL_X509 *cert = wolfSSL_get_peer_certificate(ctx->wssl.ssl);
-    if(!cert)
+    যদি(!cert)
       result = CURLE_OUT_OF_MEMORY;
-    else if(peer->sni &&
+    অন্যথা যদি(peer->sni &&
             (wolfSSL_X509_check_host(cert, peer->sni, strlen(peer->sni), 0,
-                                     NULL) == WOLFSSL_FAILURE))
+                                     রিক্ত) == WOLFSSL_FAILURE))
       result = CURLE_PEER_FAILED_VERIFICATION;
-    else if(!peer->sni &&
+    অন্যথা যদি(!peer->sni &&
             (wolfSSL_X509_check_ip_asc(cert, peer->origin->hostname,
                                        0) == WOLFSSL_FAILURE))
       result = CURLE_PEER_FAILED_VERIFICATION;
     wolfSSL_X509_free(cert);
   }
-  if(!result)
+  যদি(!result)
     result = Curl_wssl_verify_pinned(cf, data, &ctx->wssl);
 #endif
   /* on error, remove any session we might have in the pool */
-  if(result)
-    Curl_ssl_scache_remove_all(cf, data, peer->scache_key);
-  return result;
+  যদি(result)
+    Curl_ssl_scache_remove_all(cf, data, peer->scache_চাবি);
+  ঘূৰাই result;
 }
 
-bool Curl_vquic_tls_get_ssl_info(struct curl_tls_ctx *ctx,
+bool Curl_vquic_tls_get_ssl_info(সংরচনা curl_tls_ctx *ctx,
                                  bool give_ssl_ctx,
-                                 struct curl_tlssessioninfo *info)
+                                 সংরচনা curl_tlssessioninfo *info)
 {
 #ifdef USE_OPENSSL
   info->backend = CURLSSLBACKEND_OPENSSL;
   info->internals = give_ssl_ctx ?
-                    (void *)ctx->ossl.ssl_ctx : (void *)ctx->ossl.ssl;
-  return TRUE;
-#elif defined(USE_GNUTLS)
-  (void)give_ssl_ctx; /* gnutls always returns its session */
+                    (শূন্য *)ctx->ossl.ssl_ctx : (শূন্য *)ctx->ossl.ssl;
+  ঘূৰাই TRUE;
+#নোচেদ্যদি defined(USE_GNUTLS)
+  (শূন্য)give_ssl_ctx; /* gnutls always returns its session */
   info->backend = CURLSSLBACKEND_GNUTLS;
   info->internals = ctx->gtls.session;
-  return TRUE;
-#elif defined(USE_WOLFSSL)
+  ঘূৰাই TRUE;
+#নোচেদ্যদি defined(USE_WOLFSSL)
   info->backend = CURLSSLBACKEND_WOLFSSL;
   info->internals = give_ssl_ctx ?
-                    (void *)ctx->wssl.ssl_ctx : (void *)ctx->wssl.ssl;
-  return TRUE;
-#else
-  return FALSE;
+                    (শূন্য *)ctx->wssl.ssl_ctx : (শূন্য *)ctx->wssl.ssl;
+  ঘূৰাই TRUE;
+#অন্যথা
+  ঘূৰাই FALSE;
 #endif
 }
 
-void Curl_vquic_report_handshake(struct curl_tls_ctx *ctx,
-                                 struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+শূন্য Curl_vquic_report_handshake(সংরচনা curl_tls_ctx *ctx,
+                                 সংরচনা Curl_cfilter *cf,
+                                 সংরচনা Curl_easy *data)
 {
-  (void)cf;
+  (শূন্য)cf;
 #ifdef USE_OPENSSL
-  (void)cf;
+  (শূন্য)cf;
   Curl_ossl_report_handshake(data, &ctx->ossl);
-#elif defined(USE_GNUTLS)
+#নোচেদ্যদি defined(USE_GNUTLS)
   Curl_gtls_report_handshake(data, &ctx->gtls);
-#elif defined(USE_WOLFSSL)
+#নোচেদ্যদি defined(USE_WOLFSSL)
   Curl_wssl_report_handshake(data, &ctx->wssl);
-#else
-  (void)data;
-  (void)ctx;
+#অন্যথা
+  (শূন্য)data;
+  (শূন্য)ctx;
 #endif
 }
 

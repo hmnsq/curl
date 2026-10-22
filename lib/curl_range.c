@@ -21,57 +21,57 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাৱ "curl_setup.h"
 
-#include "curl_range.h"
-#include "curl_trc.h"
-#include "curlx/strparse.h"
+#অন্তর্ভাৱ "curl_range.h"
+#অন্তর্ভাৱ "curl_trc.h"
+#অন্তর্ভাৱ "curlx/strparse.h"
 
 /* Only include this function if one or more of FTP, FILE are enabled. */
-#if !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
+#যদি !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
 
 /* Check if this is a range download, and if so, set the internal variables
    properly. */
-CURLcode Curl_range(struct Curl_easy *data)
+CURLcode Curl_range(সংরচনা Curl_easy *data)
 {
-  if(data->state.use_range && data->state.range) {
+  যদি(data->state.use_range && data->state.range) {
     curl_off_t from, to;
-    bool first_num = TRUE;
-    const char *p = data->state.range;
-    if(curlx_str_number(&p, &from, CURL_OFF_T_MAX))
-      first_num = FALSE;
+    bool first_অঙ্ক = TRUE;
+    ধ্রুৱ ৱর্ণ *p = data->state.range;
+    যদি(curlx_str_সংখ্যা(&p, &from, CURL_OFF_T_MAX))
+      first_অঙ্ক = FALSE;
 
-    if(curlx_str_single(&p, '-'))
+    যদি(curlx_str_single(&p, '-'))
       /* no leading dash or after the first number is an error */
-      return CURLE_RANGE_ERROR;
+      ঘূৰাই CURLE_RANGE_ERROR;
 
-    if(curlx_str_number(&p, &to, CURL_OFF_T_MAX)) {
+    যদি(curlx_str_সংখ্যা(&p, &to, CURL_OFF_T_MAX)) {
       /* no second number */
       /* X - */
       data->state.resume_from = from;
       DEBUGF(infof(data, "RANGE %" FMT_OFF_T " to end of file", from));
     }
-    else if(!first_num) {
+    অন্যথা যদি(!first_অঙ্ক) {
       /* -Y */
-      if(!to)
+      যদি(!to)
         /* "-0" is wrong */
-        return CURLE_RANGE_ERROR;
+        ঘূৰাই CURLE_RANGE_ERROR;
 
       data->req.maxdownload = to;
       data->state.resume_from = -to;
       DEBUGF(infof(data, "RANGE the last %" FMT_OFF_T " bytes", to));
     }
-    else {
+    অন্যথা {
       /* X-Y */
       curl_off_t totalsize;
 
       /* Ensure the range is sensible - to should follow from. */
-      if(from > to)
-        return CURLE_RANGE_ERROR;
+      যদি(from > to)
+        ঘূৰাই CURLE_RANGE_ERROR;
 
       totalsize = to - from;
-      if(totalsize == CURL_OFF_T_MAX)
-        return CURLE_RANGE_ERROR;
+      যদি(totalsize == CURL_OFF_T_MAX)
+        ঘূৰাই CURLE_RANGE_ERROR;
 
       data->req.maxdownload = totalsize + 1; /* include last byte */
       data->state.resume_from = from;
@@ -83,9 +83,9 @@ CURLcode Curl_range(struct Curl_easy *data)
                  " to %" FMT_OFF_T ", totally %" FMT_OFF_T " bytes",
                  from, to, data->req.maxdownload));
   }
-  else
+  অন্যথা
     data->req.maxdownload = -1;
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
 #endif

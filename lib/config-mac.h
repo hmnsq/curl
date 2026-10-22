@@ -34,7 +34,7 @@
 #define CURL_OS "mac"
 #endif
 
-#include <ConditionalMacros.h>
+#অন্তর্ভাৱ <ConditionalMacros.h>
 
 /* Define if you want the built-in manual */
 #define USE_MANUAL              1
@@ -67,17 +67,17 @@
 #define SIZEOF_CURL_OFF_T       8
 
 #define HAVE_RECV 1
-#define RECV_TYPE_ARG1 int
-#define RECV_TYPE_ARG2 void *
+#define RECV_TYPE_ARG1 পূর্ণাঙ্ক
+#define RECV_TYPE_ARG2 শূন্য *
 #define RECV_TYPE_ARG3 size_t
-#define RECV_TYPE_ARG4 int
+#define RECV_TYPE_ARG4 পূর্ণাঙ্ক
 #define RECV_TYPE_RETV ssize_t
 
 #define HAVE_SEND 1
-#define SEND_TYPE_ARG1 int
-#define SEND_TYPE_ARG2 void *
+#define SEND_TYPE_ARG1 পূর্ণাঙ্ক
+#define SEND_TYPE_ARG2 শূন্য *
 #define SEND_TYPE_ARG3 size_t
-#define SEND_TYPE_ARG4 int
+#define SEND_TYPE_ARG4 পূর্ণাঙ্ক
 #define SEND_TYPE_RETV ssize_t
 
 #endif /* HEADER_CURL_CONFIG_MAC_H */

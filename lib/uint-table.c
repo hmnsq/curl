@@ -21,179 +21,179 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাৱ "curl_setup.h"
 
-#include "uint-table.h"
+#অন্তর্ভাৱ "uint-table.h"
 
 #ifdef DEBUGBUILD
 #define CURL_UINT32_TBL_MAGIC  0x62757473
 #endif
 
-void Curl_uint32_tbl_init(struct uint32_tbl *tbl)
+শূন্য Curl_uint32_tbl_init(সংরচনা uint32_tbl *tbl)
 {
-  memset(tbl, 0, sizeof(*tbl));
-  tbl->last_key_added = UINT32_MAX;
+  memset(tbl, 0, পরিমাণ(*tbl));
+  tbl->last_চাবি_added = UINT32_MAX;
 #ifdef DEBUGBUILD
   tbl->init = CURL_UINT32_TBL_MAGIC;
 #endif
 }
 
-static void uint32_tbl_clear_rows(struct uint32_tbl *tbl,
+স্থির শূন্য uint32_tbl_clear_rows(সংরচনা uint32_tbl *tbl,
                                   uint32_t from,
                                   uint32_t upto_excluding)
 {
   uint32_t i, end;
 
   end = CURLMIN(upto_excluding, tbl->nrows);
-  for(i = from; i < end; ++i) {
-    if(tbl->rows[i]) {
-      tbl->rows[i] = NULL;
+  বাবে(i = from; i < end; ++i) {
+    যদি(tbl->rows[i]) {
+      tbl->rows[i] = রিক্ত;
       tbl->nentries--;
     }
   }
 }
 
-CURLcode Curl_uint32_tbl_resize(struct uint32_tbl *tbl, uint32_t nrows)
+CURLcode Curl_uint32_tbl_resize(সংরচনা uint32_tbl *tbl, uint32_t nrows)
 {
   /* we use `tbl->nrows + 1` during iteration, want that to work */
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
-  if(!nrows)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(nrows != tbl->nrows) {
-    void **rows = curlx_calloc(nrows, sizeof(void *));
-    if(!rows)
-      return CURLE_OUT_OF_MEMORY;
-    if(tbl->rows) {
-      memcpy(rows, tbl->rows, (CURLMIN(nrows, tbl->nrows) * sizeof(void *)));
-      if(nrows < tbl->nrows)
+  যদি(!nrows)
+    ঘূৰাই CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(nrows != tbl->nrows) {
+    শূন্য **rows = curlx_calloc(nrows, পরিমাণ(শূন্য *));
+    যদি(!rows)
+      ঘূৰাই CURLE_OUT_OF_MEMORY;
+    যদি(tbl->rows) {
+      memcpy(rows, tbl->rows, (CURLMIN(nrows, tbl->nrows) * পরিমাণ(শূন্য *)));
+      যদি(nrows < tbl->nrows)
         uint32_tbl_clear_rows(tbl, nrows, tbl->nrows);
       curlx_free(tbl->rows);
     }
     tbl->rows = rows;
     tbl->nrows = nrows;
   }
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
 /* Clear the table, making it empty.
 
    @unittest 3212
  */
-UNITTEST void uint32_tbl_clear(struct uint32_tbl *tbl);
-UNITTEST void uint32_tbl_clear(struct uint32_tbl *tbl)
+UNITTEST শূন্য uint32_tbl_clear(সংরচনা uint32_tbl *tbl);
+UNITTEST শূন্য uint32_tbl_clear(সংরচনা uint32_tbl *tbl)
 {
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
   uint32_tbl_clear_rows(tbl, 0, tbl->nrows);
   DEBUGASSERT(!tbl->nentries);
-  tbl->last_key_added = UINT32_MAX;
+  tbl->last_চাবি_added = UINT32_MAX;
 }
 
-void Curl_uint32_tbl_destroy(struct uint32_tbl *tbl)
+শূন্য Curl_uint32_tbl_destroy(সংরচনা uint32_tbl *tbl)
 {
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
   uint32_tbl_clear(tbl);
   curlx_free(tbl->rows);
-  memset(tbl, 0, sizeof(*tbl));
+  memset(tbl, 0, পরিমাণ(*tbl));
 }
 
-uint32_t Curl_uint32_tbl_capacity(struct uint32_tbl *tbl)
+uint32_t Curl_uint32_tbl_capacity(সংরচনা uint32_tbl *tbl)
 {
-  return tbl->nrows;
+  ঘূৰাই tbl->nrows;
 }
 
-uint32_t Curl_uint32_tbl_count(struct uint32_tbl *tbl)
+uint32_t Curl_uint32_tbl_গুনতি(সংরচনা uint32_tbl *tbl)
 {
-  return tbl->nentries;
+  ঘূৰাই tbl->nentries;
 }
 
-void *Curl_uint32_tbl_get(struct uint32_tbl *tbl, uint32_t key)
+শূন্য *Curl_uint32_tbl_get(সংরচনা uint32_tbl *tbl, uint32_t চাবি)
 {
-  return (key < tbl->nrows) ? tbl->rows[key] : NULL;
+  ঘূৰাই (চাবি < tbl->nrows) ? tbl->rows[চাবি] : রিক্ত;
 }
 
-bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey)
+bool Curl_uint32_tbl_add(সংরচনা uint32_tbl *tbl, শূন্য *entry, uint32_t *pkey)
 {
-  uint32_t key, start_pos;
+  uint32_t চাবি, start_pos;
 
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
-  if(!entry || !pkey)
-    return FALSE;
+  যদি(!entry || !pkey)
+    ঘূৰাই FALSE;
   *pkey = UINT32_MAX;
-  if(tbl->nentries == tbl->nrows)  /* full */
-    return FALSE;
+  যদি(tbl->nentries == tbl->nrows)  /* full */
+    ঘূৰাই FALSE;
 
-  start_pos = CURLMIN(tbl->last_key_added, tbl->nrows) + 1;
-  for(key = start_pos; key < tbl->nrows; ++key) {
-    if(!tbl->rows[key]) {
-      tbl->rows[key] = entry;
+  start_pos = CURLMIN(tbl->last_চাবি_added, tbl->nrows) + 1;
+  বাবে(চাবি = start_pos; চাবি < tbl->nrows; ++চাবি) {
+    যদি(!tbl->rows[চাবি]) {
+      tbl->rows[চাবি] = entry;
       tbl->nentries++;
-      tbl->last_key_added = key;
-      *pkey = key;
-      return TRUE;
+      tbl->last_চাবি_added = চাবি;
+      *pkey = চাবি;
+      ঘূৰাই TRUE;
     }
   }
   /* no free entry at or above tbl->maybe_next_key, wrap around */
-  for(key = 0; key < start_pos; ++key) {
-    if(!tbl->rows[key]) {
-      tbl->rows[key] = entry;
+  বাবে(চাবি = 0; চাবি < start_pos; ++চাবি) {
+    যদি(!tbl->rows[চাবি]) {
+      tbl->rows[চাবি] = entry;
       tbl->nentries++;
-      tbl->last_key_added = key;
-      *pkey = key;
-      return TRUE;
+      tbl->last_চাবি_added = চাবি;
+      *pkey = চাবি;
+      ঘূৰাই TRUE;
     }
   }
   /* Did not find any free row? Should not happen */
   DEBUGASSERT(0);
-  return FALSE;
+  ঘূৰাই FALSE;
 }
 
-void Curl_uint32_tbl_remove(struct uint32_tbl *tbl, uint32_t key)
+শূন্য Curl_uint32_tbl_remove(সংরচনা uint32_tbl *tbl, uint32_t চাবি)
 {
-  if(key < tbl->nrows)
-    uint32_tbl_clear_rows(tbl, key, key + 1);
+  যদি(চাবি < tbl->nrows)
+    uint32_tbl_clear_rows(tbl, চাবি, চাবি + 1);
 }
 
-bool Curl_uint32_tbl_contains(struct uint32_tbl *tbl, uint32_t key)
+bool Curl_uint32_tbl_contains(সংরচনা uint32_tbl *tbl, uint32_t চাবি)
 {
-  return (key < tbl->nrows) ? !!tbl->rows[key] : FALSE;
+  ঘূৰাই (চাবি < tbl->nrows) ? !!tbl->rows[চাবি] : FALSE;
 }
 
-static bool uint32_tbl_next_at(struct uint32_tbl *tbl, uint32_t key,
-                               uint32_t *pkey, void **pentry)
+স্থির bool uint32_tbl_next_at(সংরচনা uint32_tbl *tbl, uint32_t চাবি,
+                               uint32_t *pkey, শূন্য **pentry)
 {
-  for(; key < tbl->nrows; ++key) {
-    if(tbl->rows[key]) {
-      *pkey = key;
-      *pentry = tbl->rows[key];
-      return TRUE;
+  বাবে(; চাবি < tbl->nrows; ++চাবি) {
+    যদি(tbl->rows[চাবি]) {
+      *pkey = চাবি;
+      *pentry = tbl->rows[চাবি];
+      ঘূৰাই TRUE;
     }
   }
   *pkey = UINT32_MAX;  /* always invalid */
-  *pentry = NULL;
-  return FALSE;
+  *pentry = রিক্ত;
+  ঘূৰাই FALSE;
 }
 
-bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
-                           uint32_t *pkey, void **pentry)
+bool Curl_uint32_tbl_first(সংরচনা uint32_tbl *tbl,
+                           uint32_t *pkey, শূন্য **pentry)
 {
-  if(!pkey || !pentry)
-    return FALSE;
-  if(tbl->nentries && uint32_tbl_next_at(tbl, 0, pkey, pentry))
-    return TRUE;
+  যদি(!pkey || !pentry)
+    ঘূৰাই FALSE;
+  যদি(tbl->nentries && uint32_tbl_next_at(tbl, 0, pkey, pentry))
+    ঘূৰাই TRUE;
   DEBUGASSERT(!tbl->nentries);
   *pkey = UINT32_MAX;  /* always invalid */
-  *pentry = NULL;
-  return FALSE;
+  *pentry = রিক্ত;
+  ঘূৰাই FALSE;
 }
 
-bool Curl_uint32_tbl_next(struct uint32_tbl *tbl, uint32_t last_key,
-                          uint32_t *pkey, void **pentry)
+bool Curl_uint32_tbl_next(সংরচনা uint32_tbl *tbl, uint32_t last_চাবি,
+                          uint32_t *pkey, শূন্য **pentry)
 {
-  if(!pkey || !pentry)
-    return FALSE;
-  if(uint32_tbl_next_at(tbl, last_key + 1, pkey, pentry))
-    return TRUE;
+  যদি(!pkey || !pentry)
+    ঘূৰাই FALSE;
+  যদি(uint32_tbl_next_at(tbl, last_চাবি + 1, pkey, pentry))
+    ঘূৰাই TRUE;
   *pkey = UINT32_MAX;  /* always invalid */
-  *pentry = NULL;
-  return FALSE;
+  *pentry = রিক্ত;
+  ঘূৰাই FALSE;
 }

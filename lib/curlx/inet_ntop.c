@@ -16,21 +16,21 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#অন্তর্ভাৱ "curl_setup.h"
 
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#অন্তর্ভাৱ <sys/param.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#অন্তর্ভাৱ <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#অন্তর্ভাৱ <arpa/inet.h>
 #endif
 
-#include "curlx/inet_ntop.h"
-#include "curlx/snprintf.h"
-#include "curlx/strcopy.h"
+#অন্তর্ভাৱ "curlx/inet_ntop.h"
+#অন্তর্ভাৱ "curlx/snprintf.h"
+#অন্তর্ভাৱ "curlx/strcopy.h"
 
 #define IN6ADDRSZ       16
 /* #define INADDRSZ         4 */
@@ -41,7 +41,7 @@
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
+#যদি !defined(USE_IPV6) && !defined(AF_INET6)
 #define AF_INET6 (AF_INET + 1)
 #endif
 
@@ -53,31 +53,31 @@
  *  - uses no static variables
  *  - takes an unsigned char* not an in_addr as input
  */
-static CURLcode inet_ntop4(const unsigned char *src, char *dst, size_t size)
+স্থির CURLcode inet_ntop4(ধ্রুৱ unsigned ৱর্ণ *src, ৱর্ণ *dst, size_t size)
 {
-  char tmp[sizeof("255.255.255.255")];
+  ৱর্ণ tmp[পরিমাণ("255.255.255.255")];
   size_t len;
 
   DEBUGASSERT(size >= 16);
 
   /* this snprintf() does not overflow the buffer. */
-  SNPRINTF(tmp, sizeof(tmp), "%d.%d.%d.%d",
-           ((int)((unsigned char)src[0])) & 0xff,
-           ((int)((unsigned char)src[1])) & 0xff,
-           ((int)((unsigned char)src[2])) & 0xff,
-           ((int)((unsigned char)src[3])) & 0xff);
+  SNPRINTF(tmp, পরিমাণ(tmp), "%d.%d.%d.%d",
+           ((পূর্ণাঙ্ক)((unsigned ৱর্ণ)src[0])) & 0xff,
+           ((পূর্ণাঙ্ক)((unsigned ৱর্ণ)src[1])) & 0xff,
+           ((পূর্ণাঙ্ক)((unsigned ৱর্ণ)src[2])) & 0xff,
+           ((পূর্ণাঙ্ক)((unsigned ৱর্ণ)src[3])) & 0xff);
 
   len = strlen(tmp);
-  if(len == 0 || len >= size)
-    return CURLE_TOO_LARGE;
+  যদি(len == 0 || len >= size)
+    ঘূৰাই CURLE_TOO_LARGE;
   curlx_strcopy(dst, size, tmp, len);
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
 /*
  * Convert IPv6 binary address into presentation (printable) format.
  */
-static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
+স্থির CURLcode inet_ntop6(ধ্রুৱ unsigned ৱর্ণ *src, ৱর্ণ *dst, size_t size)
 {
   /*
    * Note that int32_t and int16_t need only be "at least" large enough
@@ -86,84 +86,84 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
    * Keep this in mind if you think this function should have been coded
    * to use pointer overlays. All the world's not a VAX.
    */
-  char tmp[sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
-  char *tp;
-  struct {
-    int base;
-    int len;
+  ৱর্ণ tmp[পরিমাণ("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
+  ৱর্ণ *tp;
+  সংরচনা {
+    পূর্ণাঙ্ক base;
+    পূর্ণাঙ্ক len;
   } best, cur;
-  unsigned int words[IN6ADDRSZ / INT16SZ];
-  int i;
+  unsigned পূর্ণাঙ্ক শব্দগুলি[IN6ADDRSZ / INT16SZ];
+  পূর্ণাঙ্ক i;
 
   /* Preprocess:
    *  Copy the input (bytewise) array into a wordwise array.
    *  Find the longest run of 0x00's in src[] for :: shorthanding.
    */
-  memset(words, '\0', sizeof(words));
-  for(i = 0; i < IN6ADDRSZ; i++)
-    words[i / 2] |= ((unsigned int)src[i] << ((1 - (i % 2)) << 3));
+  memset(শব্দগুলি, '\0', পরিমাণ(শব্দগুলি));
+  বাবে(i = 0; i < IN6ADDRSZ; i++)
+    শব্দগুলি[i / 2] |= ((unsigned পূর্ণাঙ্ক)src[i] << ((1 - (i % 2)) << 3));
 
   best.base = -1;
   cur.base = -1;
   best.len = 0;
   cur.len = 0;
 
-  for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
-    if(words[i] == 0) {
-      if(cur.base == -1) {
+  বাবে(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
+    যদি(শব্দগুলি[i] == 0) {
+      যদি(cur.base == -1) {
         cur.base = i;
         cur.len = 1;
       }
-      else
+      অন্যথা
         cur.len++;
     }
-    else if(cur.base != -1) {
-      if(best.base == -1 || cur.len > best.len)
+    অন্যথা যদি(cur.base != -1) {
+      যদি(best.base == -1 || cur.len > best.len)
         best = cur;
       cur.base = -1;
     }
   }
-  if((cur.base != -1) && (best.base == -1 || cur.len > best.len))
+  যদি((cur.base != -1) && (best.base == -1 || cur.len > best.len))
     best = cur;
-  if(best.base != -1 && best.len < 2)
+  যদি(best.base != -1 && best.len < 2)
     best.base = -1;
   /* Format the result. */
   tp = tmp;
-  for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
+  বাবে(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
     /* Are we inside the best run of 0x00's? */
-    if(best.base != -1 && i >= best.base && i < (best.base + best.len)) {
-      if(i == best.base)
+    যদি(best.base != -1 && i >= best.base && i < (best.base + best.len)) {
+      যদি(i == best.base)
         *tp++ = ':';
-      continue;
+      অনুৱর্ত;
     }
 
     /* Are we following an initial run of 0x00s or any real hex?
      */
-    if(i)
+    যদি(i)
       *tp++ = ':';
 
     /* Is this address an encapsulated IPv4?
      */
-    if(i == 6 && best.base == 0 &&
-       (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
-      CURLcode result = inet_ntop4(src + 12, tp, sizeof(tmp) - (tp - tmp));
-      if(result)
-        return result;
+    যদি(i == 6 && best.base == 0 &&
+       (best.len == 6 || (best.len == 5 && শব্দগুলি[5] == 0xffff))) {
+      CURLcode result = inet_ntop4(src + 12, tp, পরিমাণ(tmp) - (tp - tmp));
+      যদি(result)
+        ঘূৰাই result;
       tp += strlen(tp);
-      break;
+      ভঙ্গ;
     }
-    else {
+    অন্যথা {
       /* Lower-case digits. Cannot use the set from mprintf.c since this
          needs to work as a curlx function */
-      static const unsigned char ldigits[] = "0123456789abcdef";
+      স্থির ধ্রুৱ unsigned ৱর্ণ ldigits[] = "0123456789abcdef";
 
-      unsigned int w = words[i];
+      unsigned পূর্ণাঙ্ক w = শব্দগুলি[i];
       /* output lowercase 16-bit hex number but ignore leading zeroes */
-      if(w & 0xf000)
+      যদি(w & 0xf000)
         *tp++ = ldigits[(w & 0xf000) >> 12];
-      if(w & 0xff00)
+      যদি(w & 0xff00)
         *tp++ = ldigits[(w & 0x0f00) >> 8];
-      if(w & 0xfff0)
+      যদি(w & 0xfff0)
         *tp++ = ldigits[(w & 0x00f0) >> 4];
       *tp++ = ldigits[(w & 0x000f)];
     }
@@ -171,14 +171,14 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
 
   /* Was it a trailing run of 0x00's?
    */
-  if(best.base != -1 && (best.base + best.len) == (IN6ADDRSZ / INT16SZ))
+  যদি(best.base != -1 && (best.base + best.len) == (IN6ADDRSZ / INT16SZ))
     *tp++ = ':';
 
   /* Check for overflow, copy, and we are done. */
-  if((size_t)(tp - tmp) >= size)
-    return CURLE_TOO_LARGE;
+  যদি((size_t)(tp - tmp) >= size)
+    ঘূৰাই CURLE_TOO_LARGE;
   curlx_strcopy(dst, size, tmp, tp - tmp);
-  return CURLE_OK;
+  ঘূৰাই CURLE_OK;
 }
 
 /*
@@ -186,14 +186,14 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
  *
  * Copies result to 'buf' and returns CURLcode.
  */
-CURLcode curlx_inet_ntop(int af, const void *src, char *buf, size_t size)
+CURLcode curlx_inet_ntop(পূর্ণাঙ্ক af, ধ্রুৱ শূন্য *src, ৱর্ণ *buf, size_t size)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_ntop4((const unsigned char *)src, buf, size);
-  case AF_INET6:
-    return inet_ntop6((const unsigned char *)src, buf, size);
-  default:
-    return CURLE_UNSUPPORTED_PROTOCOL;
+  ৱিকল্প(af) {
+  পক্ষ AF_INET:
+    ঘূৰাই inet_ntop4((ধ্রুৱ unsigned ৱর্ণ *)src, buf, size);
+  পক্ষ AF_INET6:
+    ঘূৰাই inet_ntop6((ধ্রুৱ unsigned ৱর্ণ *)src, buf, size);
+  স্ৱভাৱ:
+    ঘূৰাই CURLE_UNSUPPORTED_PROTOCOL;
   }
 }
